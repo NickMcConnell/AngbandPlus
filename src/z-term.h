@@ -277,7 +277,7 @@ extern term *Term;
 /**** Available Functions ****/
 
 extern errr Term_user(int n);
-extern errr Term_xtra(int n, int v);
+extern void Term_xtra(int n, int v);
 
 #ifdef USE_TRANSPARENCY
 extern void Term_queue_char(int x, int y, byte a, char c, byte ta, char tc);
@@ -291,37 +291,37 @@ extern void Term_queue_line(int x, int y, int n, byte *a, char *c);
 
 extern void Term_queue_chars(int x, int y, int n, byte a, cptr s);
 
-extern errr Term_fresh(void);
+extern void Term_fresh(void);
 extern errr Term_set_cursor(int v);
-extern errr Term_gotoxy(int x, int y);
-extern errr Term_draw(int x, int y, byte a, char c);
-extern errr Term_addch(byte a, char c);
-extern errr Term_addstr(int n, byte a, cptr s);
-extern errr Term_putch(int x, int y, byte a, char c);
-extern errr Term_putstr(int x, int y, int n, byte a, cptr s);
-extern errr Term_erase(int x, int y, int n);
-extern errr Term_clear(void);
-extern errr Term_redraw(void);
+extern void Term_gotoxy(int x, int y);
+extern void Term_draw(int x, int y, byte a, char c);
+extern void Term_addch(byte a, char c);
+extern void Term_addstr(int n, byte a, cptr s);
+extern void Term_putch(int x, int y, byte a, char c);
+extern void Term_putstr(int x, int y, int n, byte a, cptr s);
+extern void Term_erase(int x, int y, int n);
+extern void Term_clear(void);
+extern void Term_redraw(void);
 extern errr Term_redraw_section(int x1, int y1, int x2, int y2);
 
 extern errr Term_get_cursor(int *v);
-extern errr Term_get_size(int *w, int *h);
+extern void Term_get_size(int *w, int *h);
 extern errr Term_locate(int *x, int *y);
 extern errr Term_what(int x, int y, byte *a, char *c);
 
-extern errr Term_flush(void);
+extern void Term_flush(void);
 extern errr Term_keypress(int k);
 extern errr Term_key_push(int k);
 extern errr Term_inkey(char *ch, bool wait, bool take);
 
-extern errr Term_save(void);
-extern errr Term_load(void);
+extern void Term_save(void);
+extern void Term_load(void);
 
 extern errr Term_exchange(void);
 
 extern errr Term_resize(int w, int h);
 
-extern errr Term_activate(term *t);
+extern void Term_activate(term *t);
 
 extern errr term_nuke(term *t);
 extern errr term_init(term *t, int w, int h, int k);

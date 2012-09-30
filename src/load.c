@@ -515,6 +515,11 @@ static void rd_item(object_type *o_ptr)
 		/* Paranoia */
 		o_ptr->activate = 0;
 
+		/* Reset flags */
+		o_ptr->flags1 = k_ptr->flags1;
+		o_ptr->flags2 = k_ptr->flags2;
+		o_ptr->flags3 = k_ptr->flags3;
+
 		/* All done */
 		return;
 	}
@@ -832,7 +837,7 @@ static void rd_lore(int r_idx)
 /*
  * Read a store
  */
-static errr rd_store(int town_number, int store_number)
+static void rd_store(int town_number, int store_number)
 {
 	store_type *st_ptr = &town[town_number].store[store_number];
 
@@ -922,9 +927,6 @@ static errr rd_store(int town_number, int store_number)
 			object_copy(&st_ptr->stock[k], q_ptr);
 		}
 	}
-
-	/* Success */
-	return (0);
 }
 
 
@@ -2010,9 +2012,11 @@ static errr rd_dungeon(void)
 			px = px_back;
 			py = py_back;
 		}
-		
+
+		/* Remove fields and monsters */
 		wipe_f_list();
-		
+		wipe_m_list();
+
 		/* Hack - do not load data into wilderness */
 		change_level(1);
 
@@ -2490,7 +2494,6 @@ static errr rd_savefile_new_aux(void)
 	/* Read the object memory */
 	for (i = 0; i < tmp16u; i++)
 	{
-		byte tmp8u;
 		object_kind *k_ptr = &k_info[i];
 
 		rd_byte(&tmp8u);
@@ -2712,7 +2715,7 @@ static errr rd_savefile_new_aux(void)
 	if (z_older_than(2, 2, 0))
 	{
 		char inp[80];
-		int i, v;
+		int v;
 
 		/* Wipe the quests */
 		for (i = 0; i < max_quests; i++)
@@ -2769,7 +2772,7 @@ static errr rd_savefile_new_aux(void)
 
 		/* Init the random quests */
 		p_ptr->inside_quest = MIN_RANDOM_QUEST;
-		process_dungeon_file("q_info.txt", INIT_ASSIGN);
+		(void)process_dungeon_file("q_info.txt", INIT_ASSIGN);
 		p_ptr->inside_quest = 0;
 
 		/* Prepare allocation table */
@@ -2794,6 +2797,9 @@ static errr rd_savefile_new_aux(void)
 				if (r_ptr->level > q_ptr->level) break;
 			}
 
+			/* We must have a race by now */
+			assert(r_ptr);
+			
 			/* Get the number of monsters */
 			if (r_ptr->flags1 & RF1_UNIQUE)
 			{
@@ -2810,11 +2816,11 @@ static errr rd_savefile_new_aux(void)
 
 		/* Init the two main quests (Oberon + Serpent) */
 		p_ptr->inside_quest = QUEST_OBERON;
-		process_dungeon_file("q_info.txt", INIT_ASSIGN);
+		(void)process_dungeon_file("q_info.txt", INIT_ASSIGN);
 		quest[QUEST_OBERON].status = QUEST_STATUS_TAKEN;
 
 		p_ptr->inside_quest = QUEST_SERPENT;
-		process_dungeon_file("q_info.txt", INIT_ASSIGN);
+		(void)process_dungeon_file("q_info.txt", INIT_ASSIGN);
 		quest[QUEST_SERPENT].status = QUEST_STATUS_TAKEN;
 		p_ptr->inside_quest = 0;
 	}
@@ -3036,14 +3042,14 @@ static errr rd_savefile_new_aux(void)
 				for (j = 0; j < tmp16u; j++)
 				{
 					/* Read the info into the empty town 5 (R'Lyeh) */
-					if (rd_store(5, j)) return (22);
+					rd_store(5, j);
 				}
 			}
 			else
 			{
 				for (j = 0; j < tmp16u; j++)
 				{
-					if (rd_store(i, j)) return (22);
+					rd_store(i, j);
 				}
 			}
 		}

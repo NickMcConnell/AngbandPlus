@@ -181,7 +181,7 @@ static void kind_info(char *buf, char *dam, char *wgt, int *lev, s32b *val, int 
 		case TV_BOLT:
 		case TV_ARROW:
 		{
-			sprintf(dam, "%dd%d", q_ptr->dd, q_ptr->ds);
+			sprintf(dam, "%dd%d", (int)q_ptr->dd, (int)q_ptr->ds);
 			break;
 		}
 
@@ -191,7 +191,7 @@ static void kind_info(char *buf, char *dam, char *wgt, int *lev, s32b *val, int 
 		case TV_SWORD:
 		case TV_DIGGING:
 		{
-			sprintf(dam, "%dd%d", q_ptr->dd, q_ptr->ds);
+			sprintf(dam, "%dd%d", (int)q_ptr->dd, (int)q_ptr->ds);
 			break;
 		}
 
@@ -334,11 +334,13 @@ static void spoil_obj_desc(cptr fname)
 
 
 	/* Check for errors */
-	if (ferror(fff) || my_fclose(fff))
+	if (ferror(fff))
 	{
 		msg_print("Cannot close spoiler file.");
 		return;
 	}
+	
+	my_fclose(fff);
 
 	/* Message */
 	msg_print("Successfully created a spoiler file.");
@@ -943,7 +945,7 @@ static void analyze_misc(const object_type *o_ptr, char *misc_desc)
 	a_ptr = &a_info[o_ptr->activate - 128];
 
 	sprintf(misc_desc, "Level %u, Rarity %u, %d.%d lbs, %ld Gold",
-		a_ptr->level, a_ptr->rarity,
+		(uint)a_ptr->level, (uint)a_ptr->rarity,
 		a_ptr->weight / 10, a_ptr->weight % 10, a_ptr->cost);
 }
 
@@ -1292,11 +1294,13 @@ static void spoil_artifact(cptr fname)
 	}
 
 	/* Check for errors */
-	if (ferror(fff) || my_fclose(fff))
+	if (ferror(fff))
 	{
 		msg_print("Cannot close spoiler file.");
 		return;
 	}
+	
+	my_fclose(fff);
 
 	/* Message */
 	msg_print("Successfully created a spoiler file.");
@@ -1396,10 +1400,10 @@ static void spoil_mon_desc(cptr fname)
 
 
 		/* Level */
-		sprintf(lev, "%d", r_ptr->level);
+		sprintf(lev, "%d", (int)r_ptr->level);
 
 		/* Rarity */
-		sprintf(rar, "%d", r_ptr->rarity);
+		sprintf(rar, "%d", (int)r_ptr->rarity);
 
 		/* Speed */
 		if (r_ptr->speed >= 110)
@@ -1417,11 +1421,11 @@ static void spoil_mon_desc(cptr fname)
 		/* Hitpoints */
 		if ((r_ptr->flags1 & (RF1_FORCE_MAXHP)) || (r_ptr->hside == 1))
 		{
-			sprintf(hp, "%d", r_ptr->hdice * r_ptr->hside);
+			sprintf(hp, "%d", (int)r_ptr->hdice * r_ptr->hside);
 		}
 		else
 		{
-			sprintf(hp, "%dd%d", r_ptr->hdice, r_ptr->hside);
+			sprintf(hp, "%dd%d", (int)r_ptr->hdice, (int)r_ptr->hside);
 		}
 
 
@@ -1442,13 +1446,14 @@ static void spoil_mon_desc(cptr fname)
 	/* End it */
 	fprintf(fff, "\n");
 
-
 	/* Check for errors */
-	if (ferror(fff) || my_fclose(fff))
+	if (ferror(fff))
 	{
 		msg_print("Cannot close spoiler file.");
 		return;
 	}
+	
+	my_fclose(fff);
 
 	/* Worked */
 	msg_print("Successfully created a spoiler file.");
@@ -1659,11 +1664,11 @@ static void spoil_mon_info(cptr fname)
 		spoil_out(buf);
 
 		/* Level */
-		sprintf(buf, "Lev:%d  ", r_ptr->level);
+		sprintf(buf, "Lev:%d  ", (int)r_ptr->level);
 		spoil_out(buf);
 
 		/* Rarity */
-		sprintf(buf, "Rar:%d  ", r_ptr->rarity);
+		sprintf(buf, "Rar:%d  ", (int)r_ptr->rarity);
 		spoil_out(buf);
 
 		/* Speed */
@@ -1680,11 +1685,11 @@ static void spoil_mon_info(cptr fname)
 		/* Hitpoints */
 		if ((flags1 & (RF1_FORCE_MAXHP)) || (r_ptr->hside == 1))
 		{
-			sprintf(buf, "Hp:%d  ", r_ptr->hdice * r_ptr->hside);
+			sprintf(buf, "Hp:%d  ", ((int)r_ptr->hdice) * r_ptr->hside);
 		}
 		else
 		{
-			sprintf(buf, "Hp:%dd%d  ", r_ptr->hdice, r_ptr->hside);
+			sprintf(buf, "Hp:%dd%d  ", (int)r_ptr->hdice, (int)r_ptr->hside);
 		}
 		spoil_out(buf);
 
@@ -2141,7 +2146,7 @@ static void spoil_mon_info(cptr fname)
 			}
 			else
 			{
-				sprintf(buf, " up to %u", i);
+				sprintf(buf, " up to %u", (uint) i);
 				spoil_out(buf);
 			}
 
@@ -2292,10 +2297,10 @@ static void spoil_mon_info(cptr fname)
 				{
 					spoil_out(" with damage");
 					if (r_ptr->blow[j].d_side == 1)
-						sprintf(buf, " %d", r_ptr->blow[j].d_dice);
+						sprintf(buf, " %d", (int) r_ptr->blow[j].d_dice);
 					else
 						sprintf(buf, " %dd%d",
-						r_ptr->blow[j].d_dice, r_ptr->blow[j].d_side);
+						(int)r_ptr->blow[j].d_dice, (int)r_ptr->blow[j].d_side);
 					spoil_out(buf);
 				}
 			}
@@ -2320,11 +2325,13 @@ static void spoil_mon_info(cptr fname)
 	C_KILL(who, max_r_idx, s16b);
 
 	/* Check for errors */
-	if (ferror(fff) || my_fclose(fff))
+	if (ferror(fff))
 	{
 		msg_print("Cannot close spoiler file.");
 		return;
 	}
+
+	 my_fclose(fff);
 
 	msg_print("Successfully created a spoiler file.");
 }
@@ -2401,7 +2408,7 @@ static void spoil_mutation(cptr fname)
 			sprintf(buf, "- Activation: %s \n", mut_ptr->name);
 			spoil_out(buf);
 
-			sprintf(buf, "- Min. level: %d \n", mut_ptr->level);
+			sprintf(buf, "- Min. level: %d \n", (int)mut_ptr->level);
 			spoil_out(buf);
 
 			sprintf(buf, "- HP/SP Cost: %d \n", mut_ptr->cost);
@@ -2429,11 +2436,13 @@ static void spoil_mutation(cptr fname)
 	}
 
 	/* Check for errors */
-	if (ferror(fff) || my_fclose(fff))
+	if (ferror(fff))
 	{
 		msg_print("Cannot close spoiler file.");
 		return;
 	}
+	
+	my_fclose(fff);
 
 	/* Message */
 	msg_print("Successfully created a spoiler file.");
@@ -2492,7 +2501,7 @@ static void spoil_rac_pow(cptr fname)
 		sprintf(buf, "- Activation: %s \n", mut_ptr->name);
 		spoil_out(buf);
 
-		sprintf(buf, "- Min. level: %d \n", mut_ptr->level);
+		sprintf(buf, "- Min. level: %d \n", (int)mut_ptr->level);
 		spoil_out(buf);
 
 		sprintf(buf, "- HP/SP Cost: %d \n", mut_ptr->cost);
@@ -2508,11 +2517,13 @@ static void spoil_rac_pow(cptr fname)
 	}
 
 	/* Check for errors */
-	if (ferror(fff) || my_fclose(fff))
+	if (ferror(fff))
 	{
 		msg_print("Cannot close spoiler file.");
 		return;
 	}
+	
+	my_fclose(fff);
 
 	/* Message */
 	msg_print("Successfully created a spoiler file.");

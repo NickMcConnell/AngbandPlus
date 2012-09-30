@@ -160,7 +160,7 @@ static term_data data[MAX_TERM_DATA];
 /*
  * Current number of windows open
  */
-static int num_term = 1;
+static int num_term = 3;
 
 /*
  * New fields for the Angband widget record
@@ -1653,11 +1653,11 @@ static errr term_data_init(term_data *td, Widget topLevel,
 errr init_xaw(int argc, char *argv[])
 {
 	int i;
+	
 	Widget topLevel;
 	Display *dpy;
 
 	cptr dpy_name = "";
-
 
 #ifdef USE_GRAPHICS
 
@@ -1666,6 +1666,8 @@ errr init_xaw(int argc, char *argv[])
 	int pict_wid = 0;
 	int pict_hgt = 0;
 
+	int bitdepth = 0;
+	
 #ifdef USE_TRANSPARENCY
 
 	char *TmpData;
@@ -1686,6 +1688,15 @@ errr init_xaw(int argc, char *argv[])
 		if (prefix(argv[i], "-s"))
 		{
 			smoothRescaling = FALSE;
+			continue;
+		}
+		
+		if (prefix(argv[i], "-b"))
+		{
+			bitdepth = atoi(&argv[i][2]);
+			
+			/* paranoia */
+			if ((bitdepth != 16) && (bitdepth != 8)) bitdepth = 0;
 			continue;
 		}
 #endif /* USE_GRAPHICS */
@@ -1749,22 +1760,29 @@ errr init_xaw(int argc, char *argv[])
 	/* Try graphics */
 	if (arg_graphics)
 	{
-		/* Try the "16x16.bmp" file */
-		path_build(filename, 1024, ANGBAND_DIR_XTRA, "graf/16x16.bmp");
-
-		/* Use the "16x16.bmp" file if it exists */
-		if (0 == fd_close(fd_open(filename, O_RDONLY)))
+		use_graphics = FALSE;
+		
+		if ((bitdepth == 0) || (bitdepth == 16))
 		{
-			/* Use graphics */
-			use_graphics = TRUE;
+			/* Try the "16x16.bmp" file */
+			path_build(filename, 1024, ANGBAND_DIR_XTRA, "graf/16x16.bmp");
 
-			use_transparency = TRUE;
+			/* Use the "16x16.bmp" file if it exists */
+			if (0 == fd_close(fd_open(filename, O_RDONLY)))
+			{
+				/* Use graphics */
+				use_graphics = TRUE;
 
-			pict_wid = pict_hgt = 16;
+				use_transparency = TRUE;
 
-			ANGBAND_GRAF = "new";
+				pict_wid = pict_hgt = 16;
+
+				ANGBAND_GRAF = "new";
+			}
 		}
-		else
+		
+		/* We failed, or we want 8x8 graphics */
+		if (!use_graphics && ((bitdepth == 0) || (bitdepth == 8)))
 		{
 			/* Try the "8x8.bmp" file */
 			path_build(filename, 1024, ANGBAND_DIR_XTRA, "graf/8x8.bmp");

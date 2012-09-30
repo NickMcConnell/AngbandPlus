@@ -101,8 +101,6 @@ bool use_graphics;		/* The "graphics" mode is enabled */
 
 bool use_transparency = FALSE; /* Use transparent tiles */
 
-bool can_save = TRUE;         /* Game can be saved */
-
 s16b signal_count;		/* Hack -- Count interupts */
 
 bool inkey_base;		/* See the "inkey()" function */

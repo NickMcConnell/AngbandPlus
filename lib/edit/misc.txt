@@ -1,4 +1,4 @@
-# CVS: Last edit by $Author: sfuerst $ on $Date: 2001/04/17 01:53:23 $
+# CVS: Last edit by $Author: sfuerst $ on $Date: 2001/08/12 11:14:03 $
 # File: misc.txt
 
 
@@ -35,6 +35,9 @@ M:A:128
 # Maximum number of ego-items in e_info.txt
 M:E:128
 
+# Maximum number of field types in t_info.txt
+M:T:142
+
 # Maximum size for "o_list[]"
 # Increase this if you get lots of 'Generation restarted (too many objects)' messages.
 M:O:512
@@ -43,9 +46,8 @@ M:O:512
 # Increase this if you get lots of 'Generation restarted (too many monsters)' messages.
 M:M:1024
 
-# Maximum number of fields in the dungeon at one time
+# Maximum size for "fld_list[]"
+# Increase this if you get lots of 'Compacting fields...' messages.
 M:D:512
 
-# Maximum number of field types in t_info.txt
-M:T:142
 

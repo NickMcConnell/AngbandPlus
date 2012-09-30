@@ -57,7 +57,7 @@ void check_experience(void)
 		p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
 
 		/* Redraw some stuff */
-		p_ptr->redraw |= (PR_LEV | PR_TITLE);
+		p_ptr->redraw |= (PR_LEV | PR_TITLE | PR_EXP);
 
 		/* Window stuff */
 		p_ptr->window |= (PW_PLAYER);
@@ -129,7 +129,7 @@ void check_experience(void)
 		p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
 
 		/* Redraw some stuff */
-		p_ptr->redraw |= (PR_LEV | PR_TITLE);
+		p_ptr->redraw |= (PR_LEV | PR_TITLE | PR_EXP);
 
 		/* Window stuff */
 		p_ptr->window |= (PW_PLAYER | PW_SPELL);
@@ -302,7 +302,7 @@ bool monster_death(int m_idx, bool explode)
 				case RBE_EXP_VAMP:  typ = GF_MISSILE; break;
 			}
 
-			project(m_idx, 3, y, x, damage, typ, flg);
+			(void)project(m_idx, 3, y, x, damage, typ, flg);
 			break;
 		}
 	}
@@ -386,9 +386,10 @@ bool monster_death(int m_idx, bool explode)
 				for (i2 = min_wid; i2 < max_wid; ++i2)
 					for (j2 = min_hgt; j2 < max_hgt; j2++)
 						if (area(j2,i2)->m_idx > 0)
-							if (is_hostile(&m_list[area(j2,i2)->m_idx])
-								&& area(j2,i2)->m_idx!=m_idx)
+							if (is_hostile(&m_list[area(j2,i2)->m_idx]) &&
+								area(j2,i2)->m_idx != m_idx)
 									number_mon++;
+
 				if (number_mon == 0)
 				{
 					/* completed */
@@ -420,6 +421,7 @@ bool monster_death(int m_idx, bool explode)
 				{
 					/* completed quest */
 					quest[i].status = QUEST_STATUS_COMPLETED;
+
 					if (!p_ptr->inside_quest)
 						create_stairs = TRUE;
 
@@ -899,12 +901,12 @@ bool monster_death(int m_idx, bool explode)
 			if (randint0(number_of_quests()) < 20)
 			{
 				/* Make a great object */
-				make_object(q_ptr, 30, dun_theme);
+				(void)make_object(q_ptr, 30, dun_theme);
 			}
 			else
 			{
 				/* Make a good object */
-				make_object(q_ptr, 15, dun_theme);
+				(void)make_object(q_ptr, 15, dun_theme);
 			}
 		
 			/* We need a 'good' item - so check the price */
@@ -1201,6 +1203,9 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		/* Get how much the kill was worth */
 		exp_for_kill(r_ptr, &new_exp, &new_exp_frac);
 
+		/* Generate treasure */
+		corpse = monster_death(m_idx, TRUE);
+		
 		/* Handle fractional experience */
 		new_exp_frac += p_ptr->exp_frac;
 
@@ -1218,9 +1223,6 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		/* Gain experience */
 		gain_exp(new_exp);
 
-		/* Generate treasure */
-		corpse = monster_death(m_idx, TRUE);
-
 		/* When the player kills a Unique, it stays dead */
 		if (r_ptr->flags1 & RF1_UNIQUE) r_ptr->max_num = 0;
 
@@ -1230,15 +1232,15 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		 */
 		if ((r_ptr->flags1 & RF1_UNIQUE) && take_notes && auto_notes)
 		{
-			char note[80];
+			char notes[80];
 
 			/* Get true name even if blinded/hallucinating */
 			cptr monst = (r_name + r_ptr->name);
 
 			/* Write note */
-			sprintf(note, "Killed %s", monst);
+			sprintf(notes, "Killed %s", monst);
 
-			add_note(note, 'U');
+			add_note(notes, 'U');
 		}
 
 		/* When the player kills a Nazgul, it stays dead */
@@ -2523,10 +2525,11 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 		for (this_f_ptr = &c_ptr->fld_idx; *this_f_ptr; this_f_ptr = next_f_ptr)
 		{
 			field_type *f_ptr = &fld_list[*this_f_ptr];
+			field_thaum *t_ptr = &t_info[f_ptr->t_idx];
 			
-			cptr name = t_info[f_ptr->t_idx].name;
+			cptr name = t_ptr->name;
 
-			char f_name[40];
+			char fld_name[40];
 
 			/* Acquire next field */
 			next_f_ptr = &f_ptr->next_f_idx;
@@ -2538,19 +2541,19 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 			if (f_ptr->info & FIELD_INFO_MARK)
 			{
 				/* See if it has a special name */
-				if (f_ptr->action[FIELD_ACT_LOOK])
+				if (t_ptr->action[FIELD_ACT_LOOK])
 				{
 					/* Get the name */
-					(void) field_hook_single(this_f_ptr, FIELD_ACT_LOOK,
-						 (vptr) f_name);
+					(void)field_hook_single(this_f_ptr, FIELD_ACT_LOOK,
+						 (vptr)fld_name);
 					
 					/* Point to it */
-					name = f_name;
+					name = fld_name;
 				}
 				else
 				{
 					/* Just use the normal name of the field */
-					name = t_info[f_ptr->t_idx].name;
+					name = t_ptr->name;
 				}
 					
 				/* Not boring */
@@ -2862,6 +2865,8 @@ bool target_set(int mode)
 
 					y = py;
 					x = px;
+					
+					/* Fall through */
 				}
 
 				case 'o':
@@ -3053,6 +3058,8 @@ bool target_set(int mode)
 
 					y = py;
 					x = px;
+					
+					/* Fall through */
 				}
 
 				case 'o':
@@ -3307,7 +3314,7 @@ bool get_aim_dir(int *dp)
  * This function tracks and uses the "global direction", and uses
  * that as the "desired direction", to which "confusion" is applied.
  */
-bool get_rep_dir(int *dp, bool under)
+bool get_rep_dir(int *dp)
 {
 	int dir;
 
@@ -3336,9 +3343,6 @@ bool get_rep_dir(int *dp, bool under)
 		/* Oops */
 		if (!dir) bell();
 	}
-
-	/* Prevent weirdness */
-	if ((dir == 5) && (!under)) dir = 0;
 
 	/* Aborted */
 	if (!dir) return (FALSE);
@@ -3599,7 +3603,7 @@ void gain_level_reward(int chosen_reward)
 			msg_format("The voice of %s booms out:",
 				chaos_patrons[p_ptr->chaos_patron]);
 			msg_print("'Thou needst worthier opponents!'");
-			activate_hi_summon();
+			(void)activate_hi_summon();
 			break;
 		case REW_DO_HAVOC:
 			msg_format("The voice of %s booms out:",
@@ -3612,16 +3616,16 @@ void gain_level_reward(int chosen_reward)
 				chaos_patrons[p_ptr->chaos_patron]);
 			msg_print("'Stay, mortal, and let me mold thee.'");
 			if (one_in_(3) && !(chaos_stats[p_ptr->chaos_patron] < 0))
-				do_inc_stat(chaos_stats[p_ptr->chaos_patron]);
+				(void)do_inc_stat(chaos_stats[p_ptr->chaos_patron]);
 			else
-				do_inc_stat(randint0(A_MAX));
+				(void)do_inc_stat(randint0(A_MAX));
 			break;
 		case REW_LOSE_ABL:
 			msg_format("The voice of %s booms out:",
 				chaos_patrons[p_ptr->chaos_patron]);
 			msg_print("'I grow tired of thee, mortal.'");
 			if (one_in_(3) && !(chaos_stats[p_ptr->chaos_patron] < 0))
-				do_dec_stat(chaos_stats[p_ptr->chaos_patron]);
+				(void)do_dec_stat(chaos_stats[p_ptr->chaos_patron]);
 			else
 				(void)do_dec_stat(randint0(A_MAX));
 			break;
@@ -3653,21 +3657,21 @@ void gain_level_reward(int chosen_reward)
 			msg_format("The voice of %s booms out:",
 				chaos_patrons[p_ptr->chaos_patron]);
 			msg_print("'Suffer, pathetic fool!'");
-			fire_ball(GF_DISINTEGRATE, 0, p_ptr->lev * 4, 4);
+			(void)fire_ball(GF_DISINTEGRATE, 0, p_ptr->lev * 4, 4);
 			take_hit(p_ptr->lev * 4, wrath_reason);
 			break;
 	   case REW_HEAL_FUL:
 			msg_format("The voice of %s booms out:",
 				chaos_patrons[p_ptr->chaos_patron]);
 			msg_print("'Rise, my servant!'");
-			restore_level();
+			(void)restore_level();
 			(void)set_poisoned(0);
 			(void)set_blind(0);
 			(void)set_confused(0);
 			(void)set_image(0);
 			(void)set_stun(0);
 			(void)set_cut(0);
-			hp_player(5000);
+			(void)hp_player(5000);
 			for (i = 0; i < A_MAX; i++)
 			{
 				(void)do_res_stat(i);
@@ -3697,7 +3701,7 @@ void gain_level_reward(int chosen_reward)
 					break;
 				}
 				case 2:
-					activate_hi_summon();
+					(void)activate_hi_summon();
 					break;
 				case 3:
 					if (one_in_(2)) (void)curse_weapon();
@@ -3723,7 +3727,7 @@ void gain_level_reward(int chosen_reward)
 				(void)dec_stat(i, rand_range(10, 25), FALSE);
 			}
 
-			activate_hi_summon();
+			(void)activate_hi_summon();
 			(void)activate_ty_curse(FALSE, &count);
 
 			if (one_in_(2)) (void)curse_weapon();
@@ -3735,7 +3739,7 @@ void gain_level_reward(int chosen_reward)
 			msg_format("The voice of %s booms out:",
 				chaos_patrons[p_ptr->chaos_patron]);
 			msg_print("'Death and destruction! This pleaseth me!'");
-			destroy_area(py, px, 25);
+			(void)destroy_area(py, px, 25);
 			break;
 		case REW_GENOCIDE:
 			msg_format("The voice of %s booms out:",

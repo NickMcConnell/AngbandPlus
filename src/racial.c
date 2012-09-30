@@ -60,6 +60,64 @@ static int racial_chance(s16b min_level, int use_stat, int difficulty)
 		return (((sum * 100) / difficulty) / stat);
 }
 
+/* 
+ * Helper function for ghouls.
+ * I realize it is somewhat illogical to have this as a "power" rather
+ * than an extension of the "eat" command, but I could not think of
+ * a handy solution to the conceptual/UI problem of having food objects AND
+ * an edible corpse in the same square...
+ * Eating corpses should probably take more than 1 turn (realistically). 
+ * (OTOH, you can swap your full-plate armour for a dragonscalemail in
+ * 1 turn *shrug*) 
+ */
+static void eat_corpse(void)
+{
+	s16b fld_idx;
+	field_type *f_ptr;
+	
+	fld_idx = area(p_ptr->py, p_ptr->px)->fld_idx;
+	
+	/* While there are fields in the linked list */
+	while (fld_idx)
+	{
+		f_ptr = &fld_list[fld_idx];
+
+		/* Want a corpse / skeleton */
+		if ((f_ptr->t_idx == FT_CORPSE || f_ptr->t_idx == FT_SKELETON))
+		{
+			if (f_ptr->t_idx == FT_CORPSE)
+			{
+				msg_print("The corpse tastes delicious!");
+				(void)set_food(p_ptr->food + 2000);
+			}
+			else
+			{
+				msg_print("The bones taste delicious!");
+				(void)set_food(p_ptr->food + 1000);
+			}
+
+			/* Sound */
+			sound(SOUND_EAT);
+
+			delete_field_idx(fld_idx);
+				
+			/* Done */
+			return;
+		}
+
+		/* Get next field in list */
+		fld_idx = f_ptr->next_f_idx;
+	} 
+
+	/* Nothing to eat */
+	msg_print("There is no fresh skeleton or corpse here!");
+	p_ptr->energy_use = 0;
+	
+	/* Done */
+    return;
+}
+
+
 
 /*
  * Note: return value indicates that we have succesfully used the power
@@ -264,7 +322,7 @@ static void cmd_racial_power_aux(const mutation_type *mut_ptr)
 			case RACE_HALF_OGRE:
 			{
 				msg_print("You carefully set an explosive rune...");
-				explosive_rune();
+				(void)explosive_rune();
 				break;
 			}
 
@@ -279,7 +337,7 @@ static void cmd_racial_power_aux(const mutation_type *mut_ptr)
 			case RACE_HALF_TITAN:
 			{
 				msg_print("You examine your foes...");
-				probing();
+				(void)probing();
 				break;
 			}
 
@@ -287,7 +345,7 @@ static void cmd_racial_power_aux(const mutation_type *mut_ptr)
 			{
 				if (!get_aim_dir(&dir)) break;
 				msg_print("You throw a huge boulder.");
-				fire_bolt(GF_MISSILE, dir, (3 * plev) / 2);
+				(void)fire_bolt(GF_MISSILE, dir, (3 * plev) / 2);
 				break;
 			}
 
@@ -304,9 +362,9 @@ static void cmd_racial_power_aux(const mutation_type *mut_ptr)
 				if (!get_aim_dir(&dir)) break;
 				msg_print("You spit acid.");
 				if (plev < 25)
-					fire_bolt(GF_ACID, dir, plev);
+					(void)fire_bolt(GF_ACID, dir, plev);
 				else
-					fire_ball(GF_ACID, dir, plev, 2);
+					(void)fire_ball(GF_ACID, dir, plev, 2);
 				break;
 			}
 
@@ -314,7 +372,7 @@ static void cmd_racial_power_aux(const mutation_type *mut_ptr)
 			{
 				if (!get_aim_dir(&dir)) break;
 				msg_print("You throw a dart of poison.");
-				fire_bolt(GF_POIS, dir, plev);
+				(void)fire_bolt(GF_POIS, dir, plev);
 				break;
 			}
 
@@ -331,7 +389,7 @@ static void cmd_racial_power_aux(const mutation_type *mut_ptr)
 			{
 				if (!get_aim_dir(&dir)) break;
 				msg_print("You cast a magic missile.");
-				fire_bolt_or_beam(10, GF_MISSILE, dir,
+				(void)fire_bolt_or_beam(10, GF_MISSILE, dir,
 				    damroll(3 + ((plev - 1) / 5), 4));
 				break;
 			}
@@ -438,7 +496,7 @@ static void cmd_racial_power_aux(const mutation_type *mut_ptr)
 
 				if (!get_aim_dir(&dir)) break;
 				msg_format("You breathe %s.", Type_desc);
-				fire_ball(Type, dir, plev * 2,
+				(void)fire_ball(Type, dir, plev * 2,
 				    (plev / 15) + 1);
 				break;
 			}
@@ -449,7 +507,7 @@ static void cmd_racial_power_aux(const mutation_type *mut_ptr)
 				else
 				{
 					msg_print("You concentrate and your eyes glow red...");
-					fire_bolt(GF_PSI, dir, plev);
+					(void)fire_bolt(GF_PSI, dir, plev);
 				}
 				
 				break;
@@ -461,12 +519,12 @@ static void cmd_racial_power_aux(const mutation_type *mut_ptr)
 				if (plev >= 30)
 				{
 					msg_print("You cast a ball of fire.");
-					fire_ball(GF_FIRE, dir, plev, 2);
+					(void)fire_ball(GF_FIRE, dir, plev, 2);
 				}
 				else
 				{
 					msg_print("You cast a bolt of fire.");
-					fire_bolt(GF_FIRE, dir, plev);
+					(void)fire_bolt(GF_FIRE, dir, plev);
 				}
 				break;
 			}
@@ -491,7 +549,7 @@ static void cmd_racial_power_aux(const mutation_type *mut_ptr)
 				cave_type *c_ptr;
 
 				/* Only works on adjacent monsters */
-				if (!get_rep_dir(&dir,FALSE)) break;   /* was get_aim_dir */
+				if (!get_rep_dir(&dir)) break;
 				y = p_ptr->py + ddy[dir];
 				x = p_ptr->px + ddx[dir];
 
@@ -535,12 +593,24 @@ static void cmd_racial_power_aux(const mutation_type *mut_ptr)
 			{
 				msg_print("You throw some magic dust...");
 				if (plev < 25)
-					sleep_monsters_touch();
+					(void)sleep_monsters_touch();
 				else
 					(void)sleep_monsters();
 				break;
 			}
-
+			case RACE_GHOUL:
+			{
+				if (mut_ptr->level == 30)
+				{
+					/* Sense living */
+					(void)detect_monsters_living();
+				}
+				else
+				{
+					eat_corpse();
+				}
+				break;
+			}
 			default:
 				msg_print("This race has no bonus power.");
 				p_ptr->energy_use = 0;

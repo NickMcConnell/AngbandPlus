@@ -397,7 +397,7 @@ static int score_idx = -1;
  *
  * Assumes "signals_ignore_tstp()" has been called.
  */
-errr enter_score(void)
+void enter_score(void)
 {
 	int i;
 	high_score   the_score;
@@ -411,7 +411,7 @@ errr enter_score(void)
 	/* No score file */
 	if (highscore_fd < 0)
 	{
-		return (0);
+		return;
 	}
 
 #ifndef SCORE_WIZARDS
@@ -421,7 +421,7 @@ errr enter_score(void)
 		msg_print("Score not registered for wizards.");
 		msg_print(NULL);
 		score_idx = -1;
-		return (0);
+		return;
 	}
 #endif
 
@@ -432,7 +432,7 @@ errr enter_score(void)
 		msg_print("Score not registered for borgs.");
 		msg_print(NULL);
 		score_idx = -1;
-		return (0);
+		return;
 	}
 #endif
 
@@ -443,7 +443,7 @@ errr enter_score(void)
 		msg_print("Score not registered for cheaters.");
 		msg_print(NULL);
 		score_idx = -1;
-		return (0);
+		return;
 	}
 #endif
 
@@ -453,7 +453,7 @@ errr enter_score(void)
 		msg_print("Score not registered due to interruption.");
 		msg_print(NULL);
 		score_idx = -1;
-		return (0);
+		return;
 	}
 
 	/* Quitter */
@@ -462,7 +462,7 @@ errr enter_score(void)
 		msg_print("Score not registered due to quitting.");
 		msg_print(NULL);
 		score_idx = -1;
-		return (0);
+		return;
 	}
 
 
@@ -474,15 +474,15 @@ errr enter_score(void)
 	        VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
 
 	/* Calculate and save the points */
-	sprintf(the_score.pts, "%9lu", (long)total_points());
+	sprintf(the_score.pts, "%9lu", (unsigned long)total_points());
 	the_score.pts[9] = '\0';
 
 	/* Save the current gold */
-	sprintf(the_score.gold, "%9lu", (long)p_ptr->au);
+	sprintf(the_score.gold, "%9lu", (unsigned long)p_ptr->au);
 	the_score.gold[9] = '\0';
 
 	/* Save the current turn */
-	sprintf(the_score.turns, "%9lu", (long)turn);
+	sprintf(the_score.turns, "%9lu", (unsigned long)turn);
 	the_score.turns[9] = '\0';
 
 #ifdef HIGHSCORE_DATE_HACK
@@ -500,7 +500,7 @@ errr enter_score(void)
 		long_day[i-2] = long_day[i];
 
 		/* Exit if get a zero */
-		if (!long_day[i] || i==11) break;
+		if (!long_day[i] || (i == 11)) break;
 	}
 
 	/* Save the date in standard form (8 chars) */
@@ -511,10 +511,10 @@ errr enter_score(void)
 	sprintf(the_score.who, "%-.15s", player_name);
 
 	/* Save the player info XXX XXX XXX */
-	sprintf(the_score.uid, "%7u", player_uid);
+	sprintf(the_score.uid, "%7u", (uint) player_uid);
 	sprintf(the_score.sex, "%c", (p_ptr->psex ? 'm' : 'f'));
-	sprintf(the_score.p_r, "%2d", p_ptr->prace);
-	sprintf(the_score.p_c, "%2d", p_ptr->pclass);
+	sprintf(the_score.p_r, "%2d", (int) p_ptr->prace);
+	sprintf(the_score.p_c, "%2d", (int) p_ptr->pclass);
 
 	/* Save the level and such */
 	sprintf(the_score.cur_lev, "%3d", p_ptr->lev);
@@ -527,16 +527,16 @@ errr enter_score(void)
 
 
 	/* Lock (for writing) the highscore file, or fail */
-	if (fd_lock(highscore_fd, F_WRLCK)) return (1);
+	if (fd_lock(highscore_fd, F_WRLCK)) return;
 
 	/* Add a new entry to the score list, see where it went */
 	score_idx = highscore_add(&the_score);
 
 	/* Unlock the highscore file, or fail */
-	if (fd_lock(highscore_fd, F_UNLCK)) return (1);
+	if (fd_lock(highscore_fd, F_UNLCK)) return;
 
 	/* Success */
-	return (0);
+	return;
 }
 
 
@@ -544,7 +544,7 @@ errr enter_score(void)
 /*
  * Displays some relevant portion of the high score list.
  */
-errr top_twenty(void)
+void top_twenty(void)
 {
 	/* Clear screen */
 	Term_clear();
@@ -554,7 +554,7 @@ errr top_twenty(void)
 	{
 		msg_print("Score file unavailable.");
 		msg_print(NULL);
-		return (0);
+		return;
 	}
 
 	/* Hack -- Display the top fifteen scores */
@@ -571,26 +571,25 @@ errr top_twenty(void)
 	}
 
 	/* Success */
-	return (0);
+	return;
 }
 
 
 /*
  * Predict the players location, and display it.
  */
-errr predict_score(void)
+void predict_score(void)
 {
 	int          j;
 
 	high_score   the_score;
-
 
 	/* No score file */
 	if (highscore_fd < 0)
 	{
 		msg_print("Score file unavailable.");
 		msg_print(NULL);
-		return (0);
+		return;
 	}
 
 
@@ -599,13 +598,13 @@ errr predict_score(void)
 	        VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
 
 	/* Calculate and save the points */
-	sprintf(the_score.pts, "%9lu", (long)total_points());
+	sprintf(the_score.pts, "%9lu", (unsigned long)total_points());
 
 	/* Save the current gold */
-	sprintf(the_score.gold, "%9lu", (long)p_ptr->au);
+	sprintf(the_score.gold, "%9lu", (unsigned long)p_ptr->au);
 
 	/* Save the current turn */
-	sprintf(the_score.turns, "%9lu", (long)turn);
+	sprintf(the_score.turns, "%9lu", (unsigned long)turn);
 
 	/* Hack -- no time needed */
 	strcpy(the_score.day, "TODAY");
@@ -614,10 +613,10 @@ errr predict_score(void)
 	sprintf(the_score.who, "%-.15s", player_name);
 
 	/* Save the player info XXX XXX XXX */
-	sprintf(the_score.uid, "%7u", player_uid);
+	sprintf(the_score.uid, "%7u", (uint) player_uid);
 	sprintf(the_score.sex, "%c", (p_ptr->psex ? 'm' : 'f'));
-	sprintf(the_score.p_r, "%2d", p_ptr->prace);
-	sprintf(the_score.p_c, "%2d", p_ptr->pclass);
+	sprintf(the_score.p_r, "%2d", (int) p_ptr->prace);
+	sprintf(the_score.p_c, "%2d", (int) p_ptr->pclass);
 
 	/* Save the level and such */
 	sprintf(the_score.cur_lev, "%3d", p_ptr->lev);
@@ -645,10 +644,6 @@ errr predict_score(void)
 		display_scores_aux(0, 5, -1, NULL);
 		display_scores_aux(j - 2, j + 7, j, &the_score);
 	}
-
-
-	/* Success */
-	return (0);
 }
 
 

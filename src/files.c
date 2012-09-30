@@ -1288,9 +1288,10 @@ static byte likert_color = TERM_WHITE;
 /*
  * Returns a "rating" of x depending on y
  */
-static cptr likert(int x, int y)
+static void likert(int x, int y, char *desc)
 {
-	static char dummy[20] = "";
+	/* Make the string empty */
+	desc[0] = 0;
 
 	/* Paranoia */
 	if (y <= 0) y = 1;
@@ -1299,7 +1300,8 @@ static cptr likert(int x, int y)
 	if (x < 0)
 	{
 		likert_color = TERM_L_DARK;
-		return ("Very Bad");
+		strcpy(desc, "Very Bad");
+		return;
 	}
 
 	/* Analyze the value */
@@ -1309,34 +1311,40 @@ static cptr likert(int x, int y)
 		case 1:
 		{
 			likert_color = TERM_RED;
-			return ("Bad");
+			strcpy(desc, "Bad");
+			return;
 		}
 		case 2:
 		{
 			likert_color = TERM_L_RED;
-			return ("Poor");
+			strcpy(desc, "Poor");
+			return;
 		}
 		case 3:
 		case 4:
 		{
 			likert_color = TERM_ORANGE;
-			return ("Fair");
+			strcpy(desc, "Fair");
+			return;
 		}
 		case 5:
 		{
 			likert_color = TERM_YELLOW;
-			return ("Good");
+			strcpy(desc, "Good");
+			return;
 		}
 		case 6:
 		{
 			likert_color = TERM_YELLOW;
-			return ("Very Good");
+			strcpy(desc, "Very Good");
+			return;
 		}
 		case 7:
 		case 8:
 		{
 			likert_color = TERM_L_GREEN;
-			return ("Excellent");
+			strcpy(desc, "Excellent");
+			return;
 		}
 		case 9:
 		case 10:
@@ -1345,7 +1353,8 @@ static cptr likert(int x, int y)
 		case 13:
 		{
 			likert_color = TERM_GREEN;
-			return ("Superb");
+			strcpy(desc, "Superb");
+			return;
 		}
 		case 14:
 		case 15:
@@ -1353,19 +1362,20 @@ static cptr likert(int x, int y)
 		case 17:
 		{
 			likert_color = TERM_BLUE;
-			return ("Chaos Rank");
+			strcpy(desc, "Chaos Rank");
+			return;
 		}
 		default:
 		{
 			likert_color = TERM_VIOLET;
-			sprintf(dummy, "Amber [%d]", (int)((((x / y) - 17) * 5) / 2));
-			return dummy;
+			sprintf(desc, "Amber [%d]", (int)((((x / y) - 17) * 5) / 2));
+			return;
 		}
 	}
 }
 
 /* Monk average attack damage - only used here, so not in tables.c */
-int monk_avg_damage[PY_MAX_LEVEL+1] =
+static int monk_avg_damage[PY_MAX_LEVEL+1] =
 {
 	0,
 	250, 275, 299, 299, 306, 309, 321, 325, 328, 332,
@@ -1386,7 +1396,7 @@ static void display_player_abilities(void)
 	int         tmp, damdice, damsides, dambonus, blows;
 	int			xthn, xthb, xfos, xsrh;
 	int			xdis, xdev, xsav, xstl;
-	cptr		desc;
+	char		desc[20];
 	int         muta_att = 0;
 	long		avgdam;
 	u32b            f1, f2, f3;
@@ -1448,36 +1458,36 @@ static void display_player_abilities(void)
 
 
 	put_str("Fighting    :", 16, COL_SKILLS1);
-	desc = likert(xthn, 10);
+	likert(xthn, 10, desc);
 	c_put_str(likert_color, desc, 16, COL_SKILLS1 + WID_SKILLS);
 
 	put_str("Bows/Throw  :", 17, COL_SKILLS1);
-	desc = likert(xthb, 10);
+	likert(xthb, 10, desc);
 	c_put_str(likert_color, desc, 17, COL_SKILLS1 + WID_SKILLS);
 
 	put_str("Saving Throw:", 18, COL_SKILLS1);
-	desc = likert(xsav, 6);
+	likert(xsav, 6, desc);
 	c_put_str(likert_color, desc, 18, COL_SKILLS1 + WID_SKILLS);
 
 	put_str("Stealth     :", 19, COL_SKILLS1);
-	desc = likert(xstl, 1);
+	likert(xstl, 1, desc);
 	c_put_str(likert_color, desc, 19, COL_SKILLS1 + WID_SKILLS);
 
 
 	put_str("Perception  :", 16, COL_SKILLS2);
-	desc = likert(xfos, 6);
+	likert(xfos, 6, desc);
 	c_put_str(likert_color, desc, 16, COL_SKILLS2 + WID_SKILLS);
 
 	put_str("Searching   :", 17, COL_SKILLS2);
-	desc = likert(xsrh, 6);
+	likert(xsrh, 6, desc);
 	c_put_str(likert_color, desc, 17, COL_SKILLS2 + WID_SKILLS);
 
 	put_str("Disarming   :", 18, COL_SKILLS2);
-	desc = likert(xdis, 8);
+	likert(xdis, 8, desc);
 	c_put_str(likert_color, desc, 18, COL_SKILLS2 + WID_SKILLS);
 
 	put_str("Magic Device:", 19, COL_SKILLS2);
-	desc = likert(xdev, 6);
+	likert(xdev, 6, desc);
 	c_put_str(likert_color, desc, 19, COL_SKILLS2 + WID_SKILLS);
 
 
@@ -1533,13 +1543,13 @@ static void display_player_abilities(void)
 	if (avgdam == 0)
 	{
 		if ((p_ptr->pclass == CLASS_MONK) && (!o_ptr->k_idx))
-			desc = format("%d", monk_avg_damage[p_ptr->lev] * blows / 100);
+			sprintf(desc, "%d", monk_avg_damage[p_ptr->lev] * blows / 100);
 		else
-			desc = "nil!";
+			strcpy(desc, "nil!");
 	}
 	else
 	{
-		desc = format("%d", avgdam);
+		sprintf(desc, "%d", (int)avgdam);
 	}
 
 	put_str(desc, 18, COL_SKILLS3 + WID_SKILLS);
@@ -1762,6 +1772,13 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3)
 	case RACE_BEASTMAN:
 		(*f2) |= (TR2_RES_SOUND);
 		(*f2) |= (TR2_RES_CONF);
+		break;
+	case RACE_GHOUL:
+		(*f2) |= (TR2_HOLD_LIFE);
+		if (p_ptr->lev > 9) (*f2) |= (TR2_RES_DARK);
+		if (p_ptr->lev > 19) (*f2) |= (TR2_RES_NETHER);
+		(*f2) |= (TR2_RES_POIS);
+		(*f2) |= (TR2_RES_COLD);
 		break;
 	default:
 		; /* Do nothing */
@@ -2455,12 +2472,22 @@ static void display_player_middle(void)
 		put_str("Exp to Adv.", 12, COL_VALUE);
 		c_put_str(TERM_L_GREEN, "       *****", 12, COL_VALUE+11);
 	}
-	else
+	else if (toggle_xp)
 	{
+		/* Print the amount of xp until next level */
 		prt_num("Exp to Adv.",
-					(s32b)(player_exp[p_ptr->lev - 1] * p_ptr->expfact / 100L),
+				(long)(player_exp[p_ptr->lev - 1] * p_ptr->expfact / 100L
+					 - (long)p_ptr->exp),
 					12, COL_VALUE, TERM_L_GREEN, 9);
 	}
+	else
+	{
+		/* Print the total xp required for next level */
+		prt_num("Exp to Adv.",
+					(long)(player_exp[p_ptr->lev - 1] * p_ptr->expfact / 100L),
+					12, COL_VALUE, TERM_L_GREEN, 9);
+	}
+	
 
 	prt_num("Gold       ", p_ptr->au, 13, COL_VALUE, TERM_L_GREEN, 9);
 
@@ -2634,7 +2661,7 @@ void do_cmd_character(void)
 			{
 				if (tmp[0] && (tmp[0] != ' '))
 				{
-					file_character(tmp, TRUE);
+					(void)file_character(tmp, TRUE);
 				}
 			}
 		}
@@ -2912,8 +2939,7 @@ errr file_character(cptr name, bool full)
 
 	/* Monsters slain */
 	{
-		int k;
-		s32b Total = 0;
+		u32b Total = 0;
 
 		for (k = 1; k < max_r_idx; k++)
 		{
@@ -2994,7 +3020,7 @@ errr file_character(cptr name, bool full)
 				if (st_ptr->stock_num)
 				{
 					/* Header with name of the town */
-					fprintf(fff, "  [Home Inventory - %s]\n\n", town[j].name);
+					fprintf(fff, "  [Home Inventory - %s]\n\n", town[i].name);
 
 					/* Dump all available items */
 					for (k = 0; k < st_ptr->stock_num; k++)
@@ -4285,7 +4311,7 @@ static void close_game_handle_death(void)
 		time_t ct = time((time_t*)NULL);
 
 		/* Get the date */
-		strftime(long_day, 30, "%Y-%m-%d at %H:%M:%S", localtime(&ct));
+		(void)strftime(long_day, 30, "%Y-%m-%d at %H:%M:%S", localtime(&ct));
 
 		/* Create string */
 		sprintf(buf, "\n%s was killed by %s on %s\n", player_name,

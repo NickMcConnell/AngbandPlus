@@ -2063,11 +2063,9 @@ static errr init_acn(void)
 
 	term_screen=&screen.t;
 
-	if (!e)
-		e=Term_activate(&screen.t);
-
-	if (e)
-		return e;
+	if (e) return e;
+		
+	Term_activate(&screen.t);
 
 	/* Poll until a null event - enables window to come up in time
 	for status messages */

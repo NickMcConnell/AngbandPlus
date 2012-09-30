@@ -3321,12 +3321,10 @@ errr init_xpj(int argc, char *argv[])
 		use_transparency = TRUE;
 
 		pict_wid = pict_hgt = 16;
-
-		
 	}
 	else
 	{
-		quit("Could not initialise graphics!");
+		quit("Could not initialise graphics!  (Need 16x16.bmp)");
 	}
 	
 	dpy = Metadpy->dpy;	

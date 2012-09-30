@@ -265,7 +265,7 @@ void vault_objects(int y, int x, int num)
 /*
  * Place a trap with a given displacement of point
  */
-void vault_trap_aux(int y, int x, int yd, int xd)
+static void vault_trap_aux(int y, int x, int yd, int xd)
 {
 	int count = 0, y1 = y, x1 = x;
 	int dummy = 0;
@@ -347,6 +347,9 @@ void vault_monsters(int y1, int x1, int num)
 			monster_level = base_level + 2;
 			(void)place_monster(y, x, TRUE, TRUE);
 			monster_level = base_level;
+			
+			/* Have placed a monster */
+			break;
 		}
 	}
 }
@@ -600,7 +603,7 @@ void generate_door(int y1, int x1, int y2, int x2, bool secret)
 /*
  * Always picks a correct direction
  */
-void correct_dir(int *rdir, int *cdir, int y1, int x1, int y2, int x2)
+static void correct_dir(int *rdir, int *cdir, int y1, int x1, int y2, int x2)
 {
 	/* Extract vertical and horizontal directions */
 	*rdir = (y1 == y2) ? 0 : (y1 < y2) ? 1 : -1;
@@ -621,7 +624,7 @@ void correct_dir(int *rdir, int *cdir, int y1, int x1, int y2, int x2)
 /*
  * Pick a random direction
  */
-void rand_dir(int *rdir, int *cdir)
+static void rand_dir(int *rdir, int *cdir)
 {
 	/* Pick a random direction */
 	int i = randint0(4);
@@ -1030,19 +1033,19 @@ static void create_cata_tunnel(int x, int y)
 	/* Build tunnel */
 	x1 = x - 1;
 	y1 = y;
-	set_tunnel(&x1, &y1, FALSE);
+	(void)set_tunnel(&x1, &y1, FALSE);
 
 	x1 = x + 1;
 	y1 = y;
-	set_tunnel(&x1, &y1, FALSE);
+	(void)set_tunnel(&x1, &y1, FALSE);
 
 	x1 = x;
 	y1 = y - 1;
-	set_tunnel(&x1, &y1, FALSE);
+	(void)set_tunnel(&x1, &y1, FALSE);
 
 	x1 = x;
 	y1 = y + 1;
-	set_tunnel(&x1, &y1, FALSE);
+	(void)set_tunnel(&x1, &y1, FALSE);
 }
 
 
@@ -1308,7 +1311,7 @@ bool build_tunnel2(int x1, int y1, int x2, int y2, int type, int cutoff)
 		if (firstsuccede)
 		{
 			/* only do this if the first half has worked */
-			set_tunnel(&x3, &y3, TRUE);
+			(void)set_tunnel(&x3, &y3, TRUE);
 		}
 
 		/* return value calculated above */

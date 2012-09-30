@@ -1297,8 +1297,6 @@ errr init_k_info_txt(FILE *fp, char *buf)
 		/* Process 'A' for "Allocation" (one line only) */
 		if (buf[0] == 'A')
 		{
-			int i;
-
 			/* XXX XXX XXX Simply read each number following a colon */
 			for (i = 0, s = buf+1; s && (s[0] == ':') && s[1]; ++i)
 			{
@@ -1878,15 +1876,15 @@ errr init_e_info_txt(FILE *fp, char *buf)
 		/* Process 'X' for "Xtra" (one line only) */
 		if (buf[0] == 'X')
 		{
-			int slot, rating;
+			int eslot, erating;
 
 			/* Scan for the values */
 			if (2 != sscanf(buf+2, "%d:%d",
-				&slot, &rating)) return (PARSE_ERROR_GENERIC);
+				&eslot, &erating)) return (PARSE_ERROR_GENERIC);
 
 			/* Save the values */
-			e_ptr->slot = slot;
-			e_ptr->rating = rating;
+			e_ptr->slot = eslot;
+			e_ptr->rating = erating;
 
 			/* Next... */
 			continue;
@@ -2667,7 +2665,7 @@ errr init_w_info_txt(FILE *fp, char *buf)
 			if (i == 1)
 			{
 				/* Initialise */
-				init_choice_tree(&bound, i);
+				(void)init_choice_tree(&bound, i);
 			}
 			else
 			{

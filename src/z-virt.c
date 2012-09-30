@@ -167,21 +167,18 @@ cptr string_make(cptr str)
  * Un-allocate a string allocated above.
  * Depends on no changes being made to the string.
  */
-errr string_free(cptr str)
+void string_free(cptr str)
 {
 	huge len = 0;
 
 	/* Succeed on non-strings */
-	if (!str) return (0);
+	if (!str) return;
 
 	/* Count the number of chars in 'str' plus the terminator */
 	while (str[len++]) /* loop */;
 
 	/* Kill the buffer of chars we must have allocated above */
 	(void)rnfree((vptr)(str), len);
-
-	/* Success */
-	return (0);
 }
 
 

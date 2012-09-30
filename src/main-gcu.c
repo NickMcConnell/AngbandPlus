@@ -240,11 +240,14 @@ static int can_fix_color = FALSE;
  */
 static int colortable[16];
 
-#endif
+#endif /* A_COLOR */
 
 
+#ifdef USE_GRAPHICS
 
 static bool use_blocks = FALSE;
+
+#endif /* USE_GRAPHICS */
 
 /*
  * Place the "keymap" into its "normal" state

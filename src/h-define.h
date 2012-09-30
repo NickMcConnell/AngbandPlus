@@ -120,14 +120,19 @@
 	
 	/* Save the game, and then abort. */
 	#define assert(expr)\
-	signals_ignore_tstp();\
-	save_player();\
-	if (!(expr)) {\
-		__asert_fmt("\n%s%s\n%s%s\n%s%d\n\n",\
-		"Assertion failed: ", #expr,\
-		"in file ", __FILE__,\
-		"on line ", __LINE__);\
-		}
+	do\
+	{\
+		signals_ignore_tstp();\
+		(void) save_player();\
+		if (!(expr))\
+		{\
+			__assert_fmt("\n%s%s\n%s%s\n%s%d\n\n",\
+			"Assertion failed: ", #expr,\
+			"in file ", __FILE__,\
+			"on line ", __LINE__);\
+		}\
+	}\
+	while (FALSE)
 #endif
 	
 

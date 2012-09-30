@@ -2,6 +2,68 @@ This is a document file listing the changes in Zangband (compared to
 the standard Angband 2.8.1.) No long explanations, just a list. See
 code for details. In reversed chronological order (more or less):
 
+ZAngband 2.6.2:
+- Made potions of restore life levels more common.
+- Fixed loading of some 2.4.0 savefiles that weren't working.
+- Fixed problems with items caused by importing older savefiles.
+- Added more 8x8 tiles
+- The wheel of fortune now shows the correct number when it stops.
+- Fixed out of bounds memory access in dungeon depth display.
+- Added the coloured monster-memory patch, with a few minor changes.
+- Added the vcs port mentioned on rgra.
+- Redid the birth screen with scrolling menus with the help of Matt T.
+- Added support for autoconf detection of the Athena widget set.
+- The autoconf stuff can be rebuilt from scratch.
+- Renamed 8X8.bmp to be 8x8.bmp, it works better on case-sensitive
+  machines.
+- Fixed the problems with explosive runes. They will only explode
+  if you are standing on them.
+- Fixed the really weak trap disarm spell.
+- Added a new race: ghoul.  It has two special powers which are:
+  paralyzing touch and eat corpses.
+- Fixed a bug that prevented skeletons from being resurrected.
+- Changed the default X11 fonts so that things behave better when
+  people try to redefine them.
+- 'Normal' artifacts are less common than in 2.6.1, hopefully the rarity
+  now approaches that in 2.4.0
+- The correct town names are shown in character dumps.
+- Slaying weapons now use a different formula for the adjusted
+  damage dice.
+- Made trump summoning spells more powerful - the formula was based on the
+  old dungeon distribution of monsters.
+- Monsters now use LOS properly when targetting something.
+- Secret doors are supposed to look like granite walls.
+- Scrolls of *remove curse* are more common.
+- Monsters can open secret doors again.
+- Objects deep in the dungeon are more varied.
+- Added an ironman_los option for those who want to play without any line
+  of sight abuses.
+- Fixed the problem with stacking of wands after loading a savefile.
+- The monster list term works properly even when the term is too small.
+- When you punch monsters, you do the damage shown on the information
+  screen.
+- Graphics now works on 8bit screens in X.  (Affects all X windows ports.)
+- Ghouls gain the 'sense living' ability when they get to level 30.
+- Increased the price of potions of experience.
+- The Unicorn of Order can bash down doors.
+- You can now open chests on the same square as yourself.
+- Fixed crash when starting with no savefile, and graphics is turned on.
+- Figurines are no longer found cursed in the dungeon.
+- Removed two obsolete los options.
+- The birth screen now shows race and class modifiers when you make your
+  choice.
+- Added an option to show the 'experience to go until next level' instead
+  of the total experience.
+- Cheerful leprechauns are affected by the silly monster birth option.
+- Added a command line option so that you can choose the tileset to the
+  unix ports.
+- Changed the formatting in the unique killed list to be like [V]2.9.3
+- The gtk port is now of at least beta quality.  It has been added to
+  the makefile.  It supports graphics and bigscreen resizing.
+- The spell-list term type now adjusts to window size.
+- Potions of resist heat and cold are more common.
+- Fixed compilation problems on machines lacking memset().
+
 ZAngband 2.6.1:
 - The supplies store can sell ammo.
 - Added an option so that you can set the map to remember monster-lit

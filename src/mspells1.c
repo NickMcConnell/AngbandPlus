@@ -382,16 +382,31 @@ bool clean_shot(int y1, int x1, int y2, int x2, bool friendly)
 		flg = PROJECT_STOP;
 	}
 	
-	/* Check the projection path */
-	grid_n = project_path(grid_g, y1, x1, y2, x2, flg);
+	if (ironman_los)
+	{
+		/* Check the projection path - endpoints reversed */
+		grid_n = project_path(grid_g, y2, x2, y1, x1, flg);
+		
+		/* No grid is ever projectable from itself */
+		if (!grid_n) return (FALSE);
+	
+		/* May not end in an unrequested grid */
+		if ((grid_g[grid_n-1].y != y1) ||
+			 (grid_g[grid_n-1].x != x1)) return (FALSE);
+	}
+	else
+	{
+		/* Check the projection path */
+		grid_n = project_path(grid_g, y1, x1, y2, x2, flg);
+		
+		/* No grid is ever projectable from itself */
+		if (!grid_n) return (FALSE);
 
-	/* No grid is ever projectable from itself */
-	if (!grid_n) return (FALSE);
-
-	/* May not end in an unrequested grid */
-	if ((grid_g[grid_n-1].y != y2) ||
-		 (grid_g[grid_n-1].x != x2)) return (FALSE);
-
+		/* May not end in an unrequested grid */
+		if ((grid_g[grid_n-1].y != y2) ||
+			 (grid_g[grid_n-1].x != x2)) return (FALSE);
+	}
+	
 	return (TRUE);
 }
 
@@ -1963,7 +1978,7 @@ bool make_attack_spell(int m_idx)
 		{
 			disturb(TRUE);
 			msg_format("%^s blinks away.", m_name);
-			teleport_away(m_idx, 10);
+			(void)teleport_away(m_idx, 10);
 			break;
 		}
 
@@ -1972,7 +1987,7 @@ bool make_attack_spell(int m_idx)
 		{
 			disturb(TRUE);
 			msg_format("%^s teleports away.", m_name);
-			teleport_away(m_idx, MAX_SIGHT * 2 + 5);
+			(void)teleport_away(m_idx, MAX_SIGHT * 2 + 5);
 			break;
 		}
 
@@ -2083,7 +2098,7 @@ bool make_attack_spell(int m_idx)
 			disturb(TRUE);
 			msg_format("%^s mutters quietly.", m_name);
 
-			raise_dead(m_ptr->fy, m_ptr->fx, FALSE);
+			(void)raise_dead(m_ptr->fy, m_ptr->fx, FALSE);
 			break;
 		}
 
@@ -2114,7 +2129,7 @@ bool make_attack_spell(int m_idx)
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s magically summons Cyberdemons!", m_name);
 			if (blind && count) msg_print("You hear heavy steps nearby.");
-			summon_cyber(m_idx, y, x);
+			(void)summon_cyber(m_idx, y, x);
 			break;
 		}
 

@@ -585,7 +585,7 @@ s16b o_pop(void)
 /*
  * Apply a "object restriction function" to the "object allocation table"
  */
-errr get_obj_num_prep(void)
+void get_obj_num_prep(void)
 {
 	int i;
 
@@ -615,9 +615,6 @@ errr get_obj_num_prep(void)
 			table[i].prob2 = table[i].prob1;
 		}
 	}
-
-	/* Success */
-	return (0);
 }
 
 
@@ -868,10 +865,6 @@ static s32b object_value_base(const object_type *o_ptr)
 
 		/* Un-aware Amulets */
 		case TV_AMULET: return (45L);
-
-		/* Figurines, relative to monster level */
-		case TV_FIGURINE:
-			return (500L);
 	}
 
 	/* Paranoia -- Oops */
@@ -2167,7 +2160,7 @@ bool make_artifact(object_type *o_ptr)
 	/* Moria had no artifacts */
 	if (ironman_moria) return (FALSE);
 
-	/* No artifacts in the town  Why???  (There is a wildernes...) */
+	/* No artifacts in the town  Why???  (There is a wilderness...) */
 	if (!p_ptr->depth) return (FALSE);
 
 	/* Check the artifact list */
@@ -2347,7 +2340,7 @@ static void a_m_aux_1(object_type *o_ptr, int level, int lev_dif, byte flags)
 				/* Roll for a random artifact */
 				if (one_in_(40))
 				{
-					create_artifact(o_ptr, FALSE);
+					(void)create_artifact(o_ptr, FALSE);
 
 					break;
 				}
@@ -2450,18 +2443,8 @@ static void a_m_aux_1(object_type *o_ptr, int level, int lev_dif, byte flags)
 
 					case EGO_SLAYING_WEAPON:
 					{
-						o_ptr->ds++;
-						
-						while (one_in_(o_ptr->ds) && (o_ptr->ds < 10))
-						{
-							o_ptr->ds++;
-						}
-						
-						while (one_in_(o_ptr->dd) && (o_ptr->dd < 10)
-							 && (o_ptr->ds < 10))
-						{
-							o_ptr->dd++;
-						}
+						/* Supercharge the damage dice */
+						o_ptr->ds += (o_ptr->ds * randint1(5)) / 5;
 						
 						if (one_in_(5))
 						{
@@ -2551,15 +2534,9 @@ static void a_m_aux_1(object_type *o_ptr, int level, int lev_dif, byte flags)
 				/* Hack -- Super-charge the damage dice */
 				if (ego)
 				{
-					while (one_in_(10L * o_ptr->dd * o_ptr->ds))
+					if (one_in_(10L * o_ptr->dd * o_ptr->ds))
 					{
-						o_ptr->dd++;
-					}
-
-					/* Hack -- Lower the damage dice */
-					if (o_ptr->dd > 9)
-					{
-						o_ptr->dd = 9;
+						o_ptr->ds += (o_ptr->ds * randint1(5)) / 5;
 					}
 				}
 			}
@@ -2592,7 +2569,7 @@ static void a_m_aux_1(object_type *o_ptr, int level, int lev_dif, byte flags)
 				/* Roll for a random artifact */
 				if (one_in_(21))
 				{
-					create_artifact(o_ptr, FALSE);
+					(void)create_artifact(o_ptr, FALSE);
 
 					break;
 				}
@@ -2626,23 +2603,12 @@ static void a_m_aux_1(object_type *o_ptr, int level, int lev_dif, byte flags)
 				{
 					ego = get_ego_num(level);
 				}
-
-				/* Extra powers */
-				if (ego == EGO_SLAYING_BOLT)
-				{
-					o_ptr->ds++;
-				}
-
+				
 				/* Hack -- super-charge the damage dice */
-				while (one_in_(10L * o_ptr->dd * o_ptr->ds) && (o_ptr->ds < 10))
+				if (one_in_(10L * o_ptr->dd * o_ptr->ds) ||
+					 (ego == EGO_SLAYING_BOLT))
 				{
-					o_ptr->ds++;
-				}
-
-				/* Hack -- restrict the damage dice */
-				if (o_ptr->ds > 9)
-				{
-					o_ptr->ds = 9;
+					o_ptr->ds += (o_ptr->ds * randint1(5)) / 5;
 				}
 			}
 
@@ -2755,7 +2721,7 @@ static void a_m_aux_2(object_type *o_ptr, int level, int lev_dif, byte flags)
 				/* Roll for a random artifact */
 				if (one_in_(21))
 				{
-					create_artifact(o_ptr, FALSE);
+					(void)create_artifact(o_ptr, FALSE);
 
 					break;
 				}
@@ -2828,7 +2794,7 @@ static void a_m_aux_2(object_type *o_ptr, int level, int lev_dif, byte flags)
 					/* Roll for random artifact */
 					if (one_in_(21))
 					{
-						create_artifact(o_ptr, FALSE);
+						(void)create_artifact(o_ptr, FALSE);
 
 						break;
 					}
@@ -2862,7 +2828,7 @@ static void a_m_aux_2(object_type *o_ptr, int level, int lev_dif, byte flags)
 				/* Roll for a random artifact */
 				if (one_in_(20))
 				{
-					create_artifact(o_ptr, FALSE);
+					(void)create_artifact(o_ptr, FALSE);
 
 					break;
 				}
@@ -2901,7 +2867,7 @@ static void a_m_aux_2(object_type *o_ptr, int level, int lev_dif, byte flags)
 				/* Roll for a random artifact */
 				if (one_in_(20))
 				{
-					create_artifact(o_ptr, FALSE);
+					(void)create_artifact(o_ptr, FALSE);
 
 					break;
 				}
@@ -2943,7 +2909,7 @@ static void a_m_aux_2(object_type *o_ptr, int level, int lev_dif, byte flags)
 				/* Roll for a random artifact */
 				if (one_in_(20))
 				{
-					create_artifact(o_ptr, FALSE);
+					(void)create_artifact(o_ptr, FALSE);
 
 					break;
 				}
@@ -3020,7 +2986,7 @@ static void a_m_aux_2(object_type *o_ptr, int level, int lev_dif, byte flags)
 					/* Roll for a random artifacts */
 					if (one_in_(20))
 					{
-						create_artifact(o_ptr, FALSE);
+						(void)create_artifact(o_ptr, FALSE);
 
 						break;
 					}
@@ -3068,7 +3034,7 @@ static void a_m_aux_2(object_type *o_ptr, int level, int lev_dif, byte flags)
 				/* Roll for a random artifact */
 				if (one_in_(20))
 				{
-					create_artifact(o_ptr, FALSE);
+					(void)create_artifact(o_ptr, FALSE);
 
 					break;
 				}
@@ -3229,7 +3195,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, byte flags)
 					if (one_in_(7))
 					{
 						/* Randart ring */
-						create_artifact(o_ptr, FALSE);
+						(void)create_artifact(o_ptr, FALSE);
 					}
 					else
 					{
@@ -3482,7 +3448,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, byte flags)
 					if (one_in_(7))
 					{
 						/* Randart amulet */
-						create_artifact(o_ptr, FALSE);
+						(void)create_artifact(o_ptr, FALSE);
 
 						if (o_ptr->pval == 0)
 						{
@@ -3620,14 +3586,9 @@ static void a_m_aux_4(object_type *o_ptr)
 
 			o_ptr->pval = i;
 
-			/* Some figurines are cursed */
-			if (one_in_(6)) o_ptr->ident |= IDENT_CURSED;
-
 			if (cheat_peek)
 			{
-				msg_format("Figurine of %s, %s",
-							  r_name + r_ptr->name,
-							  !(o_ptr->ident & IDENT_CURSED) ? "" : " {cursed}");
+				msg_format("Figurine of %s", r_name + r_ptr->name);
 			}
 
 			break;
@@ -3948,7 +3909,7 @@ byte kind_is_theme(int k_idx)
 		case TV_CLOAK:		return (match_theme.combat);
 		case TV_SOFT_ARMOR:	return (match_theme.combat);
 		case TV_HARD_ARMOR: return (match_theme.combat);
-		case TV_DRAG_ARMOR: return (match_theme.treasure);
+		case TV_DRAG_ARMOR: return (match_theme.treasure + match_theme.combat);
 		case TV_LITE:		return (match_theme.tools);
 		case TV_AMULET:		return (match_theme.treasure);
 		case TV_RING:		return (match_theme.treasure);
@@ -3993,7 +3954,7 @@ bool make_object(object_type *o_ptr, u16b delta_level, obj_theme theme)
 	/* Chance of "special object" */
 	if (delta_level > 0)
 	{
-		prob = 400 / delta_level;
+		prob = 800 / delta_level;
 		
 		/* bounds checking */
 		if (prob < 10) prob = 10;
@@ -4001,7 +3962,7 @@ bool make_object(object_type *o_ptr, u16b delta_level, obj_theme theme)
 	else
 	{
 		/* No divide by zero */
-		prob = 400;
+		prob = 800;
 	}
 
 	/* "Good Luck" mutation */
@@ -4015,7 +3976,7 @@ bool make_object(object_type *o_ptr, u16b delta_level, obj_theme theme)
 	base = object_level + delta_level;
 	
 	/* Paranoia - don't let this get too high */
-	if (base > 110) base = 110;
+	if (base > 100) base = 100;
 
 	/* Hack - Set flags based on delta_level */
 	if (delta_level > 15)

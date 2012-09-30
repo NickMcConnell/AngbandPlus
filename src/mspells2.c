@@ -127,7 +127,7 @@ bool monst_spell_monst(int m_idx)
 		if (!are_enemies(m_ptr, t_ptr)) continue;
 
 		/* Monster must be projectable */
-		if (!projectable(t_ptr->fy, t_ptr->fx, m_ptr->fy, m_ptr->fx)) continue;
+		if (!projectable(m_ptr->fy, m_ptr->fx, t_ptr->fy, t_ptr->fx)) continue;
 
 		/* OK -- we've got a target */
 		y = t_ptr->fy;
@@ -156,7 +156,7 @@ bool monst_spell_monst(int m_idx)
 			  (f5 & RF5_BOLT_MASK) ||
 			  (f6 & RF6_BOLT_MASK)) &&
 			 !(r_ptr->flags2 & RF2_STUPID) &&
-			 !clean_shot(t_ptr->fy, t_ptr->fx, m_ptr->fy, m_ptr->fx, is_pet(m_ptr)))
+			 !clean_shot(m_ptr->fy, m_ptr->fx, t_ptr->fy, t_ptr->fx, is_pet(m_ptr)))
 		{
 			f4 &= ~(RF4_BOLT_MASK);
 			f5 &= ~(RF5_BOLT_MASK);
@@ -2268,7 +2268,7 @@ bool monst_spell_monst(int m_idx)
 					msg_format("%^s blinks away.", m_name);
 				}
 
-				teleport_away(m_idx, 10);
+				(void)teleport_away(m_idx, 10);
 
 				break;
 			}
@@ -2281,7 +2281,7 @@ bool monst_spell_monst(int m_idx)
 					msg_format("%^s teleports away.", m_name);
 				}
 
-				teleport_away(m_idx, MAX_SIGHT * 2 + 5);
+				(void)teleport_away(m_idx, MAX_SIGHT * 2 + 5);
 
 				break;
 			}
@@ -2348,7 +2348,7 @@ bool monst_spell_monst(int m_idx)
 
 				if (!resists_tele)
 				{
-					teleport_away(t_idx, MAX_SIGHT * 2 + 5);
+					(void)teleport_away(t_idx, MAX_SIGHT * 2 + 5);
 				}
 
 				break;

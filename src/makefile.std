@@ -99,7 +99,7 @@ SRCS = \
 	mspells1.c mspells2.c scores.c mind.c maid-x11.c\
 	bldg.c obj_kind.c wild1.c wild2.c avatar.c notes.c\
 	main-cap.c main-gcu.c main-x11.c main-xaw.c main-xpj.c\
-	main-lsl.c main.c $(PSRCS)
+	main-lsl.c main-vcs.c main-gtk.c main.c $(PSRCS)
 
 OBJS = \
 	z-util.o z-virt.o z-form.o z-rand.o z-term.o \
@@ -116,7 +116,7 @@ OBJS = \
 	mspells1.o mspells2.o scores.o mind.o maid-x11.o\
 	bldg.o obj_kind.o wild1.o wild2.o avatar.o notes.o\
 	main-cap.o main-gcu.o main-x11.o main-xaw.o main-xpj.o\
-	main-lsl.o main.o $(POBJS)
+	main-lsl.o main-vcs.o main-gtk.o main.o $(POBJS)
 
 
 
@@ -211,15 +211,15 @@ endif
 ## Note: Get the 16x16.bmp file, and put in [Z]directory/lib/xtra/graf
 ##       to get 256 colours.
 ##
-CFLAGS = -Wall -O2 -fno-strength-reduce -pipe -g \
-         -D"USE_X11" -D"USE_GCU" -D"USE_TRANSPARENCY"
-LIBS = -lX11 -lcurses -ltermcap -L/usr/X11R6/lib $(PYLIB)
+#CFLAGS = -Wall -O2 -fno-strength-reduce -pipe -g \
+#         -D"USE_X11" -D"USE_GCU" -D"USE_VCS" -D"USE_TRANSPARENCY"
+#LIBS = -lX11 -lcurses -ltermcap -L/usr/X11R6/lib $(PYLIB)
 
 ## Option: Use XAW instead of pure X11
-#CFLAGS = -Wall -O2 -fno-strength-reduce -pipe -g \
-#          -D"USE_XAW" -D"USE_GCU" -D"USE_TRANSPARENCY"
-#LIBS = -L/usr/X11R6/lib -lXaw -lXext -lSM -lICE -lXmu -lXt\
-# -lX11 -lcurses $(PYLIB)
+CFLAGS = -Wall -O2 -fno-strength-reduce -pipe -g \
+          -D"USE_XAW" -D"USE_GCU" -D"USE_VCS" -D"USE_TRANSPARENCY"
+LIBS = -L/usr/X11R6/lib -lXaw -lXext -lSM -lICE -lXmu -lXt\
+          -lX11 -lcurses $(PYLIB)
 
 
 ##
@@ -245,12 +245,12 @@ LIBS = -lX11 -lcurses -ltermcap -L/usr/X11R6/lib $(PYLIB)
 ## Variation -- All the ports that work in Linux at once.
 ## (Use the -m option to start the one you want.)
 ##
-#CFLAGS = -Wall -O2 -fno-strength-reduce -pipe -g  -D"USE_GCU" \
+#CFLAGS = -Wall -O2 -fno-strength-reduce -pipe -g  -D"USE_GCU" -D"USE_VCS"\
 #         -D"USE_TRANSPARENCY" -D"USE_XPJ" -D"USE_X11" -D"USE_XAW" -D"USE_LSL"
-#
+#         `gtk-config --cflags` -D"USE_GTK" 
 #		 
 #LIBS = -lX11 -lcurses -lncurses -L/usr/X11R6/lib -lz -lvgagl -lvga $(PYLIB) \
-#       -lXaw -lXext -lSM -lICE -lXmu -lXt
+#       -lXaw -lXext -lSM -lICE -lXmu -lXt -lgtk `gtk-config --libs`
 
 ##
 ## Variation -- OpenBSD 
@@ -280,6 +280,16 @@ LIBS = -lX11 -lcurses -ltermcap -L/usr/X11R6/lib $(PYLIB)
 ##
 #CFLAGS = -Wall -O1 -pipe -g -D"USE_XAW" -D"USE_GCU"
 #LIBS = -lXaw -lXmu -lXt -lX11 -lcurses -ltermcap $(PYLIB)
+
+
+##
+## Variation -- Use "main-gtk.c"
+##
+#CFLAGS = -Wall -O2 -fno-strength-reduce -pipe -g  -D"USE_GCU"\
+#         -D"USE_TRANSPARENCY" `gtk-config --cflags` -D"USE_GTK" 
+#		 
+#LIBS = -lcurses -lncurses -L/usr/X11R6/lib $(PYLIB) \
+#       -lgtk `gtk-config --libs`
 
 
 ##
@@ -445,8 +455,10 @@ init2.o: init2.c $(INCS)
 load.o: load.c $(INCS)
 maid-x11.o: maid-x11.c $(INCS)
 main-cap.o: main-cap.c $(INCS)
+main-gtk.o: main-gtk.c $(INCS)
 main-gcu.o: main-gcu.c $(INCS)
 main-lsl.o: main-lsl.c $(INCS)
+main-vcs.o: main-vcs.c $(INCS)
 main-x11.o: main-x11.c $(INCS) maid-x11.h
 main-xaw.o: main-xaw.c $(INCS) maid-x11.h
 main-xpj.o: main-xpj.c $(INCS) maid-x11.h

@@ -50,13 +50,9 @@ u32b create_pixel(Display *dpy, byte red, byte green, byte blue)
 {
 	Colormap cmap = DefaultColormapOfScreen(DefaultScreenOfDisplay(dpy));
 
-	char cname[8];
-
 	XColor xcolour;
 
 #ifdef SUPPORT_GAMMA
-
-	
 
 	if (!gamma_table_ready)
 	{
@@ -89,7 +85,69 @@ u32b create_pixel(Display *dpy, byte red, byte green, byte blue)
 	/* Attempt to Allocate the Parsed color */
 	if (!(XAllocColor(dpy, cmap, &xcolour)))
 	{
-		quit_fmt("Couldn't allocate bitmap color '%s'\n", cname);
+		u32b i, mincolour = 0;
+		u32b mindiff, diff;
+		XColor *colours;
+		u32b numcolours = 1 << DefaultDepth(dpy, DefaultScreen(dpy));
+		
+		/* Allocate the place where we can store the colourmap */
+		C_MAKE(colours, numcolours, XColor);
+		
+		/* Initialize */
+		for (i = 0; i < numcolours; i++)
+		{
+			colours[i].pixel = i;
+		}
+		
+		/* Load the colourmap */
+		XQueryColors(dpy, cmap, colours, numcolours);
+		
+		while (TRUE)
+		{		
+			mindiff = 0xFFFFFFFF;
+			
+			/* Find the closest colour */
+			for (i = 0; i < numcolours; i++)
+			{
+				/* Work out the 'difference' between the colours */
+			
+				diff = (u32b)abs((long)xcolour.blue - (long)colours[i].blue);
+				diff += (u32b)abs((long)xcolour.red - (long)colours[i].red);
+				diff += (u32b)abs((long)xcolour.green - (long)colours[i].green);
+		
+				/* Multiply by the 'colour factor' */
+				diff *= 3;
+			
+				/* Add in the effects of brightness */
+				diff += (u32b)abs((long)xcolour.blue + (long)xcolour.red
+					 + (long)xcolour.green - (long)colours[i].blue
+					 - (long)colours[i].red - (long)colours[i].green);
+			
+				
+				/* Is it a better match? */
+				if (diff < mindiff)
+				{
+					mindiff = diff;
+					mincolour = i;
+				}
+			}
+		
+			/* Change to the new colour */
+			xcolour.blue = colours[mincolour].blue;
+			xcolour.red = colours[mincolour].red;
+			xcolour.green = colours[mincolour].green;
+		
+			/* Delete the old colour, so do not loop if it is read/write */
+			colours[mincolour].blue = 0;
+			colours[mincolour].red = 0;
+			colours[mincolour].green = 0;
+			
+			/* Keep on looping if we still cannot get the colour. */
+			if (XAllocColor(dpy, cmap, &xcolour)) break;
+		}
+		
+		/* free the colour map */
+		C_FREE(colours, numcolours, XColor);
 	}
 
 	return (xcolour.pixel);

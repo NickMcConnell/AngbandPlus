@@ -131,9 +131,6 @@ void resize_map(void)
 
 	/* Hack -- update */
 	handle_stuff();
-	
-	/* Redraw */
-	Term_redraw();
 
 	/* Refresh */
 	Term_fresh();
@@ -163,9 +160,6 @@ void redraw_window(void)
 
 	/* Hack -- update */
 	handle_stuff();
-
-	/* Redraw */
-	Term_redraw();
 
 	/* Refresh */
 	Term_fresh();
@@ -861,7 +855,7 @@ static void do_cmd_options_aux(int page, cptr info)
 			case '?':
 			{
 				sprintf(buf, "option.txt#%s", option_info[opt[k]].o_text);
-				show_file(buf, NULL, 0, 0);
+				(void)show_file(buf, NULL, 0, 0);
 				Term_clear();
 				break;
 			}
@@ -943,9 +937,9 @@ static void do_cmd_options_win(void)
 			/* Display the windows */
 			for (j = 0; j < 8; j++)
 			{
-				byte a = TERM_WHITE;
-
 				char c = '.';
+				
+				a = TERM_WHITE;
 
 				/* Use color */
 				if (use_color && (i == y) && (j == x) && !ironman_moria)
@@ -2134,7 +2128,7 @@ void do_cmd_visuals(void)
 
 				/* Dump the monster attr/char info */
 				fprintf(fff, "R:%d:0x%02X:0x%02X\n\n", i,
-				        (byte)(r_ptr->x_attr), (byte)(r_ptr->x_char));
+				        (uint)(r_ptr->x_attr), (uint)(r_ptr->x_char));
 			}
 
 			/* All done */
@@ -2194,7 +2188,7 @@ void do_cmd_visuals(void)
 
 				/* Dump the object attr/char info */
 				fprintf(fff, "K:%d:0x%02X:0x%02X\n\n", i,
-				        (byte)(k_ptr->x_attr), (byte)(k_ptr->x_char));
+				        (uint)(k_ptr->x_attr), (uint)(k_ptr->x_char));
 			}
 
 			/* All done */
@@ -2254,7 +2248,7 @@ void do_cmd_visuals(void)
 
 				/* Dump the feature attr/char info */
 				fprintf(fff, "F:%d:0x%02X:0x%02X\n\n", i,
-				        (byte)(f_ptr->x_attr), (byte)(f_ptr->x_char));
+				        (uint)(f_ptr->x_attr), (uint)(f_ptr->x_char));
 			}
 
 			/* All done */
@@ -2314,7 +2308,7 @@ void do_cmd_visuals(void)
 
 				/* Dump the field attr/char info */
 				fprintf(fff, "F:%d:0x%02X:0x%02X\n\n", i,
-				        (byte)(t_ptr->f_attr), (byte)(t_ptr->f_char));
+				        (uint)(t_ptr->f_attr), (uint)(t_ptr->f_char));
 			}
 
 			/* All done */
@@ -2705,7 +2699,7 @@ void do_cmd_colors(void)
 
 				/* Dump the monster attr/char info */
 				fprintf(fff, "V:%d:0x%02X:0x%02X:0x%02X:0x%02X\n\n",
-				        i, kv, rv, gv, bv);
+				        i, (uint) kv, (uint) rv, (uint) gv, (uint) bv);
 			}
 
 			/* All done */
@@ -3018,10 +3012,6 @@ void do_cmd_load_screen(void)
 void (*screendump_aux)(void) = NULL;
 
 
-
-
-
-
 /*
  * Hack -- save a screen dump to a file
  */
@@ -3202,7 +3192,7 @@ static void do_cmd_knowledge_uniques(void)
 		bool dead = (r_ptr->max_num == 0);
 
 		/* Print a message */
-		fprintf(fff, "     %s is %s\n", (r_name + r_ptr->name),
+		fprintf(fff, "     %-30s is %s\n", (r_name + r_ptr->name),
 			(dead ? "dead" : "alive"));
 	}
 
@@ -3213,10 +3203,10 @@ static void do_cmd_knowledge_uniques(void)
 	my_fclose(fff);
 
 	/* Display the file contents */
-	show_file(file_name, "Known Uniques", 0, 0);
+	(void)show_file(file_name, "Known Uniques", 0, 0);
 
 	/* Remove the file */
-	fd_kill(file_name);
+	(void)fd_kill(file_name);
 }
 
 
@@ -3403,10 +3393,10 @@ static void do_cmd_knowledge_pets(void)
 	my_fclose(fff);
 
 	/* Display the file contents */
-	show_file(file_name, "Current Pets", 0, 0);
+	(void)show_file(file_name, "Current Pets", 0, 0);
 
 	/* Remove the file */
-	fd_kill(file_name);
+	(void)fd_kill(file_name);
 }
 
 
@@ -3421,8 +3411,8 @@ static void do_cmd_knowledge_kill_count(void)
 
 	char file_name[1024];
 
-	s32b Total = 0;
-	s32b temp;
+	u32b Total = 0;
+	u32b temp;
 
 	int i, n;
 
@@ -3587,10 +3577,10 @@ static void do_cmd_knowledge_kill_count(void)
 	my_fclose(fff);
 
 	/* Display the file contents */
-	show_file(file_name, "Kill Count", 0, 0);
+	(void)show_file(file_name, "Kill Count", 0, 0);
 
 	/* Remove the file */
-	fd_kill(file_name);
+	(void)fd_kill(file_name);
 }
 
 
@@ -3646,10 +3636,10 @@ static void do_cmd_knowledge_objects(void)
 	my_fclose(fff);
 
 	/* Display the file contents */
-	show_file(file_name, "Known Objects", 0, 0);
+	(void)show_file(file_name, "Known Objects", 0, 0);
 
 	/* Remove the file */
-	fd_kill(file_name);
+	(void)fd_kill(file_name);
 }
 
 
@@ -3675,10 +3665,10 @@ static void do_cmd_knowledge_virtues(void)
 	my_fclose(fff);
 
 	/* Display the file contents */
-	show_file(file_name, "Virtues", 0, 0);
+	(void)show_file(file_name, "Virtues", 0, 0);
 
 	/* Remove the file */
-	fd_kill(file_name);
+	(void)fd_kill(file_name);
 }
 
 
@@ -3726,7 +3716,7 @@ static void do_cmd_knowledge_quests(void)
 			p_ptr->inside_quest = i;
 
 			/* Get the quest text */
-			process_dungeon_file("q_info.txt", INIT_SHOW_TEXT);
+			(void)process_dungeon_file("q_info.txt", INIT_SHOW_TEXT);
 
 			/* Reset the old quest number */
 			p_ptr->inside_quest = old_quest;
@@ -3790,10 +3780,10 @@ static void do_cmd_knowledge_quests(void)
 	my_fclose(fff);
 
 	/* Display the file contents */
-	show_file(file_name, "Quest status", 0, 0);
+	(void)show_file(file_name, "Quest status", 0, 0);
 
 	/* Remove the file */
-	fd_kill(file_name);
+	(void)fd_kill(file_name);
 }
 
 
@@ -3806,7 +3796,7 @@ static void do_cmd_knowledge_notes(void)
 
 	strncpy(fname, notes_file(), 1024);
 
-	show_file(fname, "Notes", 0, 0);
+	(void)show_file(fname, "Notes", 0, 0);
 }
 
 

@@ -552,19 +552,19 @@ static void wild_magic(int spell)
 		case 10:
 		case 11:
 		{
-			unlite_area(10, 3);
+			(void)unlite_area(10, 3);
 			break;
 		}
 		case 12:
 		case 13:
 		case 14:
 		{
-			lite_area(damroll(2, 3), 2);
+			(void)lite_area(damroll(2, 3), 2);
 			break;
 		}
 		case 15:
 		{
-			destroy_doors_touch();
+			(void)destroy_doors_touch();
 			break;
 		}
 		case 16: case 17:
@@ -574,19 +574,19 @@ static void wild_magic(int spell)
 		}
 		case 18:
 		{
-			sleep_monsters_touch();
+			(void)sleep_monsters_touch();
 			break;
 		}
 		case 19:
 		case 20:
 		{
-			trap_creation();
+			(void)trap_creation();
 			break;
 		}
 		case 21:
 		case 22:
 		{
-			door_creation();
+			(void)door_creation();
 			break;
 		}
 		case 23:
@@ -598,7 +598,7 @@ static void wild_magic(int spell)
 		}
 		case 26:
 		{
-			earthquake(py, px, 5);
+			(void)earthquake(py, px, 5);
 			break;
 		}
 		case 27:
@@ -610,22 +610,22 @@ static void wild_magic(int spell)
 		case 29:
 		case 30:
 		{
-			apply_disenchant();
+			(void)apply_disenchant();
 			break;
 		}
 		case 31:
 		{
-			lose_all_info();
+			(void)lose_all_info();
 			break;
 		}
 		case 32:
 		{
-			fire_ball(GF_CHAOS, 0, spell + 5, 1 + (spell / 10));
+			(void)fire_ball(GF_CHAOS, 0, spell + 5, 1 + (spell / 10));
 			break;
 		}
 		case 33:
 		{
-			wall_stone();
+			(void)wall_stone();
 			break;
 		}
 		case 34:
@@ -704,7 +704,7 @@ static bool cast_life_spell(int spell)
 		(void)set_food(PY_FOOD_MAX - 1);
 		break;
 	case 8: /* Remove Curse */
-		remove_curse();
+		(void)remove_curse();
 		break;
 	case 9: /* Cure Poison */
 		(void)set_poisoned(0);
@@ -720,7 +720,7 @@ static bool cast_life_spell(int spell)
 	case 12: /* Orb or Draining */
 		if (!get_aim_dir(&dir)) return FALSE;
 
-		fire_ball(GF_HOLY_FIRE, dir,
+		(void)fire_ball(GF_HOLY_FIRE, dir,
 		          (damroll(3, 6) + plev +
 		          (plev / ((p_ptr->pclass == CLASS_PRIEST ||
 		             p_ptr->pclass == CLASS_HIGH_MAGE) ? 2 : 4))),
@@ -736,7 +736,7 @@ static bool cast_life_spell(int spell)
 		(void)set_cut(0);
 		break;
 	case 15: /* Glyph of Warding */
-		warding_glyph();
+		(void)warding_glyph();
 		break;
 	case 16: /* Exorcism */
 		(void)dispel_undead(plev);
@@ -751,7 +751,7 @@ static bool cast_life_spell(int spell)
 		(void)dispel_demons(plev * 3);
 		break;
 	case 19: /* 'Day of the Dove' */
-		charm_monsters(plev * 2);
+		(void)charm_monsters(plev * 2);
 		break;
 	case 20: /* Dispel Evil */
 		(void)dispel_evil(plev * 4);
@@ -771,8 +771,8 @@ static bool cast_life_spell(int spell)
 		(void)set_cut(0);
 		break;
 	case 23: /* Warding True */
-		warding_glyph();
-		glyph_creation();
+		(void)warding_glyph();
+		(void)glyph_creation();
 		break;
 	case 24: /* Heroism */
 		(void)set_hero(p_ptr->hero + rand_range(25, 50));
@@ -801,14 +801,14 @@ static bool cast_life_spell(int spell)
 	case 29: /* Holy Vision */
 		return identify_fully();
 	case 30: /* Divine Intervention */
-		project(0, 1, py, px, 777, GF_HOLY_FIRE, PROJECT_KILL);
-		dispel_monsters(plev * 4);
-		slow_monsters();
-		stun_monsters(plev * 4);
-		confuse_monsters(plev * 4);
-		turn_monsters(plev * 4);
-		stasis_monsters(plev * 4);
-		summon_specific(-1, py, px, plev, SUMMON_ANGEL, TRUE, TRUE, TRUE);
+		(void)project(0, 1, py, px, 777, GF_HOLY_FIRE, PROJECT_KILL);
+		(void)dispel_monsters(plev * 4);
+		(void)slow_monsters();
+		(void)stun_monsters(plev * 4);
+		(void)confuse_monsters(plev * 4);
+		(void)turn_monsters(plev * 4);
+		(void)stasis_monsters(plev * 4);
+		(void)summon_specific(-1, py, px, plev, SUMMON_ANGEL, TRUE, TRUE, TRUE);
 		(void)set_shero(p_ptr->shero + rand_range(25, 50));
 		(void)hp_player(300);
 
@@ -945,7 +945,7 @@ static bool cast_sorcery_spell(int spell)
 		fetch(dir, plev * 15, FALSE);
 		break;
 	case 26: /* Explosive Rune */
-		explosive_rune();
+		(void)explosive_rune();
 		break;
 	case 27: /* Clairvoyance */
 		wiz_lite();
@@ -1033,7 +1033,7 @@ static bool cast_nature_spell(int spell)
 	case 9: /* Lightning Bolt */
 		if (!get_aim_dir(&dir)) return FALSE;
 
-		fire_bolt_or_beam(beam - 10, GF_ELEC, dir,
+		(void)fire_bolt_or_beam(beam - 10, GF_ELEC, dir,
 			damroll(3 + ((plev - 5) / 4), 8));
 		break;
 	case 10: /* Nature Awareness -- downgraded */
@@ -1045,7 +1045,7 @@ static bool cast_nature_spell(int spell)
 		break;
 	case 11: /* Frost Bolt */
 		if (!get_aim_dir(&dir)) return FALSE;
-		fire_bolt_or_beam(beam - 10, GF_COLD, dir,
+		(void)fire_bolt_or_beam(beam - 10, GF_COLD, dir,
 			damroll(5 + ((plev - 5) / 4), 8));
 		break;
 	case 12: /* Ray of Sunlight */
@@ -1054,7 +1054,7 @@ static bool cast_nature_spell(int spell)
 		(void)lite_line(dir);
 		break;
 	case 13: /* Entangle */
-		slow_monsters();
+		(void)slow_monsters();
 		break;
 	case 14: /* Summon Animals */
 		if (!(summon_specific(-1, py, px, plev, SUMMON_ANIMAL_RANGER, TRUE, TRUE, TRUE)))
@@ -1093,7 +1093,7 @@ static bool cast_nature_spell(int spell)
 	case 23: /* Protection from Corrosion */
 		return rustproof();
 	case 24: /* Earthquake */
-		earthquake(py, px, 10);
+		(void)earthquake(py, px, 10);
 		break;
 	case 25: /* Whirlwind Attack */
 		{
@@ -1122,18 +1122,18 @@ static bool cast_nature_spell(int spell)
 	case 26: /* Blizzard */
 		if (!get_aim_dir(&dir)) return FALSE;
 
-		fire_ball(GF_COLD, dir, 70 + plev, (plev / 12) + 1);
+		(void)fire_ball(GF_COLD, dir, 70 + plev, (plev / 12) + 1);
 		break;
 	case 27: /* Lightning Storm */
 		if (!get_aim_dir(&dir)) return FALSE;
-		fire_ball(GF_ELEC, dir, 90 + plev, (plev / 12) + 1);
+		(void)fire_ball(GF_ELEC, dir, 90 + plev, (plev / 12) + 1);
 		break;
 	case 28: /* Whirlpool */
 		if (!get_aim_dir(&dir)) return FALSE;
-		fire_ball(GF_WATER, dir, 100 + plev, (plev / 12) + 1);
+		(void)fire_ball(GF_WATER, dir, 100 + plev, (plev / 12) + 1);
 		break;
 	case 29: /* Call Sunlight */
-		fire_ball(GF_LITE, 0, 150, 8);
+		(void)fire_ball(GF_LITE, 0, 150, 8);
 		wiz_lite();
 		if ((p_ptr->prace == RACE_VAMPIRE) && !p_ptr->resist_lite)
 		{
@@ -1146,8 +1146,8 @@ static bool cast_nature_spell(int spell)
 		break;
 	case 31: /* Nature's Wrath */
 		(void)dispel_monsters(plev * 4);
-		earthquake(py, px, 20 + (plev / 2));
-		project(0, 1 + plev / 12, py, px,
+		(void)earthquake(py, px, 20 + (plev / 2));
+		(void)project(0, 1 + plev / 12, py, px,
 			100 + plev, GF_DISINTEGRATE, PROJECT_KILL | PROJECT_ITEM);
 		break;
 	default:
@@ -1180,7 +1180,7 @@ static bool cast_chaos_spell(int spell)
 	case 0: /* Magic Missile */
 		if (!get_aim_dir(&dir)) return FALSE;
 
-		fire_bolt_or_beam(beam - 10, GF_MISSILE, dir,
+		(void)fire_bolt_or_beam(beam - 10, GF_MISSILE, dir,
 			damroll(3 + ((plev - 1) / 5), 4));
 		break;
 	case 1: /* Trap / Door destruction */
@@ -1200,7 +1200,7 @@ static bool cast_chaos_spell(int spell)
 	case 4: /* Manaburst */
 		if (!get_aim_dir(&dir)) return FALSE;
 
-		fire_ball(GF_MISSILE, dir,
+		(void)fire_ball(GF_MISSILE, dir,
 		    (damroll(3, 5) + plev +
 		    (plev / (((p_ptr->pclass == CLASS_MAGE) ||
 		    (p_ptr->pclass == CLASS_HIGH_MAGE)) ? 2 : 4))),
@@ -1211,13 +1211,13 @@ static bool cast_chaos_spell(int spell)
 	case 5: /* Fire Bolt */
 		if (!get_aim_dir(&dir)) return FALSE;
 
-		fire_bolt_or_beam(beam, GF_FIRE, dir,
+		(void)fire_bolt_or_beam(beam, GF_FIRE, dir,
 			damroll(8 + ((plev - 5) / 4), 8));
 		break;
 	case 6: /* Fist of Force ("Fist of Fun") */
 		if (!get_aim_dir(&dir)) return FALSE;
 
-		fire_ball(GF_DISINTEGRATE, dir,
+		(void)fire_ball(GF_DISINTEGRATE, dir,
 			damroll(8 + ((plev - 5) / 4), 8), 0);
 		break;
 	case 7: /* Teleport Self */
@@ -1241,76 +1241,76 @@ static bool cast_chaos_spell(int spell)
 			if (!get_aim_dir(&dir)) return FALSE;
 			if (die > 100)
 				msg_print("You feel a surge of power!");
-			if (die < 8) clone_monster(dir);
-			else if (die < 14) speed_monster(dir);
-			else if (die < 26) heal_monster(dir);
-			else if (die < 31) poly_monster(dir);
+			if (die < 8) (void)clone_monster(dir);
+			else if (die < 14) (void)speed_monster(dir);
+			else if (die < 26) (void)heal_monster(dir);
+			else if (die < 31) (void)poly_monster(dir);
 			else if (die < 36)
-				fire_bolt_or_beam(beam - 10, GF_MISSILE, dir,
+				(void)fire_bolt_or_beam(beam - 10, GF_MISSILE, dir,
 				                  damroll(3 + ((plev - 1) / 5), 4));
-			else if (die < 41) confuse_monster(dir, plev);
-			else if (die < 46) fire_ball(GF_POIS, dir, 20 + (plev / 2), 3);
+			else if (die < 41) (void)confuse_monster(dir, plev);
+			else if (die < 46) (void)fire_ball(GF_POIS, dir, 20 + (plev / 2), 3);
 			else if (die < 51) (void)lite_line(dir);
 			else if (die < 56)
-				fire_bolt_or_beam(beam - 10, GF_ELEC, dir,
+				(void)fire_bolt_or_beam(beam - 10, GF_ELEC, dir,
 				                  damroll(3 + ((plev - 5) / 4), 8));
 			else if (die < 61)
-				fire_bolt_or_beam(beam - 10, GF_COLD, dir,
+				(void)fire_bolt_or_beam(beam - 10, GF_COLD, dir,
 				                  damroll(5 + ((plev - 5) / 4), 8));
 			else if (die < 66)
-				fire_bolt_or_beam(beam, GF_ACID, dir,
+				(void)fire_bolt_or_beam(beam, GF_ACID, dir,
 				                  damroll(6 + ((plev - 5) / 4), 8));
 			else if (die < 71)
-				fire_bolt_or_beam(beam, GF_FIRE, dir,
+				(void)fire_bolt_or_beam(beam, GF_FIRE, dir,
 				                  damroll(8 + ((plev - 5) / 4), 8));
-			else if (die < 76) drain_life(dir, 75);
-			else if (die < 81) fire_ball(GF_ELEC, dir, 30 + plev / 2, 2);
-			else if (die < 86) fire_ball(GF_ACID, dir, 40 + plev, 2);
-			else if (die < 91) fire_ball(GF_ICE, dir, 70 + plev, 3);
-			else if (die < 96) fire_ball(GF_FIRE, dir, 80 + plev, 3);
-			else if (die < 101) drain_life(dir, 100 + plev);
+			else if (die < 76) (void)drain_life(dir, 75);
+			else if (die < 81) (void)fire_ball(GF_ELEC, dir, 30 + plev / 2, 2);
+			else if (die < 86) (void)fire_ball(GF_ACID, dir, 40 + plev, 2);
+			else if (die < 91) (void)fire_ball(GF_ICE, dir, 70 + plev, 3);
+			else if (die < 96) (void)fire_ball(GF_FIRE, dir, 80 + plev, 3);
+			else if (die < 101) (void)drain_life(dir, 100 + plev);
 			else if (die < 104)
 			{
-				earthquake(py, px, 12);
+				(void)earthquake(py, px, 12);
 			}
 			else if (die < 106)
 			{
-				destroy_area(py, px, 15);
+				(void)destroy_area(py, px, 15);
 			}
 			else if (die < 108)
 			{
-				genocide(TRUE);
+				(void)genocide(TRUE);
 			}
-			else if (die < 110) dispel_monsters(120);
+			else if (die < 110) (void)dispel_monsters(120);
 			else /* RARE */
 			{
-				dispel_monsters(150);
-				slow_monsters();
-				sleep_monsters();
-				hp_player(300);
+				(void)dispel_monsters(150);
+				(void)slow_monsters();
+				(void)sleep_monsters();
+				(void)hp_player(300);
 			}
 			break;
 		}
 	case 9: /* Chaos Bolt */
 		if (!get_aim_dir(&dir)) return FALSE;
 
-		fire_bolt_or_beam(beam, GF_CHAOS, dir,
+		(void)fire_bolt_or_beam(beam, GF_CHAOS, dir,
 		                  damroll(10 + ((plev - 5) / 4), 8));
 		break;
 	case 10: /* Sonic Boom */
 		msg_print("BOOM! Shake the room!");
-		project(0, plev / 10 + 2, py, px,
+		(void)project(0, plev / 10 + 2, py, px,
 			45 + plev, GF_SOUND, PROJECT_KILL | PROJECT_ITEM);
 		break;
 	case 11: /* Doom Bolt -- always beam in 2.0.7 or later */
 		if (!get_aim_dir(&dir)) return FALSE;
 
-		fire_beam(GF_MANA, dir, damroll(11 + ((plev - 5) / 4), 8));
+		(void)fire_beam(GF_MANA, dir, damroll(11 + ((plev - 5) / 4), 8));
 		break;
 	case 12: /* Fire Ball */
 		if (!get_aim_dir(&dir)) return FALSE;
 
-		fire_ball(GF_FIRE, dir, plev + 55, 2);
+		(void)fire_ball(GF_FIRE, dir, plev + 55, 2);
 		break;
 	case 13: /* Teleport Other */
 		if (!get_aim_dir(&dir)) return FALSE;
@@ -1318,12 +1318,12 @@ static bool cast_chaos_spell(int spell)
 		(void)fire_beam(GF_AWAY_ALL, dir, plev);
 		break;
 	case 14: /* Word of Destruction */
-		destroy_area(py, px, 15);
+		(void)destroy_area(py, px, 15);
 		break;
 	case 15: /* Invoke Logrus */
 		if (!get_aim_dir(&dir)) return FALSE;
 
-		fire_ball(GF_CHAOS, dir, plev + 66, plev / 5);
+		(void)fire_ball(GF_CHAOS, dir, plev + 66, plev / 5);
 		break;
 	case 16: /* Polymorph Other */
 		if (!get_aim_dir(&dir)) return FALSE;
@@ -1332,14 +1332,14 @@ static bool cast_chaos_spell(int spell)
 		break;
 	case 17: /* Chain Lightning */
 		for (dir = 0; dir <= 9; dir++)
-			fire_beam(GF_ELEC, dir, damroll(5 + (plev / 10), 8));
+			(void)fire_beam(GF_ELEC, dir, damroll(5 + (plev / 10), 8));
 		break;
 	case 18: /* Arcane Binding == Charging */
 		return recharge(90);
 	case 19: /* Disintegration */
 		if (!get_aim_dir(&dir)) return FALSE;
 
-		fire_ball(GF_DISINTEGRATE, dir, plev + 80, 3 + plev / 40);
+		(void)fire_ball(GF_DISINTEGRATE, dir, plev + 80, 3 + plev / 40);
 		break;
 	case 20: /* Alter Reality */
 		alter_reality();
@@ -1369,7 +1369,7 @@ static bool cast_chaos_spell(int spell)
 	case 24: /* Beam of Gravity */
 		if (!get_aim_dir(&dir)) return FALSE;
 
-		fire_beam(GF_GRAVITY, dir, damroll(9 + ((plev - 5) / 4), 8));
+		(void)fire_beam(GF_GRAVITY, dir, damroll(9 + ((plev - 5) / 4), 8));
 		break;
 	case 25: /* Meteor Swarm */
 		{
@@ -1400,12 +1400,12 @@ static bool cast_chaos_spell(int spell)
 
 				if (count >= 1000) break;
 
-				project(0, 2, y, x, (plev * 3) / 2, GF_METEOR, PROJECT_KILL | PROJECT_JUMP | PROJECT_ITEM);
+				(void)project(0, 2, y, x, (plev * 3) / 2, GF_METEOR, PROJECT_KILL | PROJECT_JUMP | PROJECT_ITEM);
 			}
 		}
 		break;
 	case 26: /* Flame Strike */
-		fire_ball(GF_FIRE, 0, 150 + (2 * plev), 8);
+		(void)fire_ball(GF_FIRE, 0, 150 + (2 * plev), 8);
 		break;
 	case 27: /* Call Chaos */
 		call_chaos();
@@ -1414,17 +1414,17 @@ static bool cast_chaos_spell(int spell)
 		if (!get_aim_dir(&dir)) return FALSE;
 
 		msg_print("You launch a rocket!");
-		fire_ball(GF_ROCKET, dir, 120 + plev, 2);
+		(void)fire_ball(GF_ROCKET, dir, 120 + plev, 2);
 		break;
 	case 29: /* Mana Storm */
 		if (!get_aim_dir(&dir)) return FALSE;
 
-		fire_ball(GF_MANA, dir, 300 + (plev * 2), 4);
+		(void)fire_ball(GF_MANA, dir, 300 + (plev * 2), 4);
 		break;
 	case 30: /* Breathe Logrus */
 		if (!get_aim_dir(&dir)) return FALSE;
 
-		fire_ball(GF_CHAOS, dir, p_ptr->chp, 2);
+		(void)fire_ball(GF_CHAOS, dir, p_ptr->chp, 2);
 		break;
 	case 31: /* Call the Void */
 		call_the_();
@@ -1465,7 +1465,7 @@ static bool cast_death_spell(int spell)
 		 * visible monster, unlike a 'bolt' which must travel
 		 * to the monster. */
 
-		fire_ball(GF_HELL_FIRE, dir,
+		(void)fire_ball(GF_HELL_FIRE, dir,
 			damroll(3 + ((plev - 1) / 5), 3), 0);
 
 		if (one_in_(5))
@@ -1473,13 +1473,13 @@ static bool cast_death_spell(int spell)
 			/* Special effect first */
 			dummy = randint1(1000);
 			if (dummy == 666)
-				fire_bolt(GF_DEATH_RAY, dir, plev * 50);
+				(void)fire_bolt(GF_DEATH_RAY, dir, plev * 50);
 			else if (dummy < 500)
-				fire_bolt(GF_TURN_ALL, dir, plev);
+				(void)fire_bolt(GF_TURN_ALL, dir, plev);
 			else if (dummy < 800)
-				fire_bolt(GF_OLD_CONF, dir, plev);
+				(void)fire_bolt(GF_OLD_CONF, dir, plev);
 			else
-				fire_bolt(GF_STUN, dir, plev);
+				(void)fire_bolt(GF_STUN, dir, plev);
 		}
 		break;
 	case 2: /* Detect Evil */
@@ -1488,7 +1488,7 @@ static bool cast_death_spell(int spell)
 	case 3: /* Stinking Cloud */
 		if (!get_aim_dir(&dir)) return FALSE;
 
-		fire_ball(GF_POIS, dir, 10 + (plev / 2), 2);
+		(void)fire_ball(GF_POIS, dir, 10 + (plev / 2), 2);
 		break;
 	case 4: /* Black Sleep */
 		if (!get_aim_dir(&dir)) return FALSE;
@@ -1512,7 +1512,7 @@ static bool cast_death_spell(int spell)
 	case 8: /* Orb of Entropy */
 		if (!get_aim_dir(&dir)) return FALSE;
 
-		fire_ball(GF_OLD_DRAIN, dir,
+		(void)fire_ball(GF_OLD_DRAIN, dir,
 			(damroll(3, 6) + plev +
 			(plev / (((p_ptr->pclass == CLASS_MAGE) ||
 			(p_ptr->pclass == CLASS_HIGH_MAGE)) ? 2 : 4))),
@@ -1521,7 +1521,7 @@ static bool cast_death_spell(int spell)
 	case 9: /* Nether Bolt */
 		if (!get_aim_dir(&dir)) return FALSE;
 
-		fire_bolt_or_beam(beam, GF_NETHER, dir,
+		(void)fire_bolt_or_beam(beam, GF_NETHER, dir,
 		                  damroll(6 + ((plev - 5) / 4), 8));
 		break;
 	case 10: /* Terror */
@@ -1589,29 +1589,29 @@ static bool cast_death_spell(int spell)
 			else if (die < 14)
 			{
 				msg_print("An unnamable evil brushes against your mind...");
-				set_afraid(p_ptr->afraid + rand_range(4, 8));
+				(void)set_afraid(p_ptr->afraid + rand_range(4, 8));
 			}
 			else if (die < 26)
 			{
 				msg_print("Your head is invaded by a horde of gibbering spectral voices...");
-				set_confused(p_ptr->confused + rand_range(4, 8));
+				(void)set_confused(p_ptr->confused + rand_range(4, 8));
 			}
 			else if (die < 31)
 			{
-				poly_monster(dir);
+				(void)poly_monster(dir);
 			}
 			else if (die < 36)
 			{
-				fire_bolt_or_beam(beam - 10, GF_MISSILE, dir,
+				(void)fire_bolt_or_beam(beam - 10, GF_MISSILE, dir,
 					damroll(3 + ((plev - 1) / 5), 4));
 			}
 			else if (die < 41)
 			{
-				confuse_monster (dir, plev);
+				(void)confuse_monster (dir, plev);
 			}
 			else if (die < 46)
 			{
-				fire_ball(GF_POIS, dir, 20 + (plev / 2), 3);
+				(void)fire_ball(GF_POIS, dir, 20 + (plev / 2), 3);
 			}
 			else if (die < 51)
 			{
@@ -1619,70 +1619,70 @@ static bool cast_death_spell(int spell)
 			}
 			else if (die < 56)
 			{
-				fire_bolt_or_beam(beam - 10, GF_ELEC, dir,
+				(void)fire_bolt_or_beam(beam - 10, GF_ELEC, dir,
 					damroll(3 + ((plev - 5) / 4), 8));
 			}
 			else if (die < 61)
 			{
-				fire_bolt_or_beam(beam - 10, GF_COLD, dir,
+				(void)fire_bolt_or_beam(beam - 10, GF_COLD, dir,
 					damroll(5 + ((plev - 5) / 4), 8));
 			}
 			else if (die < 66)
 			{
-				fire_bolt_or_beam(beam, GF_ACID, dir,
+				(void)fire_bolt_or_beam(beam, GF_ACID, dir,
 					damroll(6 + ((plev - 5) / 4), 8));
 			}
 			else if (die < 71)
 			{
-				fire_bolt_or_beam(beam, GF_FIRE, dir,
+				(void)fire_bolt_or_beam(beam, GF_FIRE, dir,
 					damroll(8 + ((plev - 5) / 4), 8));
 			}
 			else if (die < 76)
 			{
-				drain_life(dir, 75);
+				(void)drain_life(dir, 75);
 			}
 			else if (die < 81)
 			{
-				fire_ball(GF_ELEC, dir, 30 + plev / 2, 2);
+				(void)fire_ball(GF_ELEC, dir, 30 + plev / 2, 2);
 			}
 			else if (die < 86)
 			{
-				fire_ball(GF_ACID, dir, 40 + plev, 2);
+				(void)fire_ball(GF_ACID, dir, 40 + plev, 2);
 			}
 			else if (die < 91)
 			{
-				fire_ball(GF_ICE, dir, 70 + plev, 3);
+				(void)fire_ball(GF_ICE, dir, 70 + plev, 3);
 			}
 			else if (die < 96)
 			{
-				fire_ball(GF_FIRE, dir, 80 + plev, 3);
+				(void)fire_ball(GF_FIRE, dir, 80 + plev, 3);
 			}
 			else if (die < 101)
 			{
-				drain_life(dir, 100 + plev);
+				(void)drain_life(dir, 100 + plev);
 			}
 			else if (die < 104)
 			{
-				earthquake(py, px, 12);
+				(void)earthquake(py, px, 12);
 			}
 			else if (die < 106)
 			{
-				destroy_area(py, px, 15);
+				(void)destroy_area(py, px, 15);
 			}
 			else if (die < 108)
 			{
-				genocide(TRUE);
+				(void)genocide(TRUE);
 			}
 			else if (die < 110)
 			{
-				dispel_monsters(120);
+				(void)dispel_monsters(120);
 			}
 			else
 			{ /* RARE */
-				dispel_monsters(150);
-				slow_monsters();
-				sleep_monsters();
-				hp_player(300);
+				(void)dispel_monsters(150);
+				(void)slow_monsters();
+				(void)sleep_monsters();
+				(void)hp_player(300);
 			}
 
 			if (die < 31)
@@ -1692,7 +1692,7 @@ static bool cast_death_spell(int spell)
 	case 18: /* Dark Bolt */
 		if (!get_aim_dir(&dir)) return FALSE;
 
-		fire_bolt_or_beam(beam, GF_DARK, dir,
+		(void)fire_bolt_or_beam(beam, GF_DARK, dir,
 			damroll(4 + ((plev - 5) / 4), 8));
 		break;
 	case 19: /* Battle Frenzy */
@@ -1716,7 +1716,7 @@ static bool cast_death_spell(int spell)
 
 		for (dummy = 0; dummy < 3; dummy++)
 		{
-			drain_gain_life(dir, 100);
+			(void)drain_gain_life(dir, 100);
 		}
 		break;
 	case 21: /* Vampiric Branding */
@@ -1725,7 +1725,7 @@ static bool cast_death_spell(int spell)
 	case 22: /* Darkness Storm */
 		if (!get_aim_dir(&dir)) return FALSE;
 
-		fire_ball(GF_DARK, dir, 120, 4);
+		(void)fire_ball(GF_DARK, dir, 120, 4);
 		break;
 	case 23: /* Mass Genocide */
 		(void)mass_genocide(TRUE);
@@ -1737,42 +1737,15 @@ static bool cast_death_spell(int spell)
 		break;
 	case 25: /* Raise the Dead */
 		{
-#if 0
-			bool pet = (one_in_(3));
-			bool group;
-			int type;
-
-			if (pet)
-			{
-				type = (plev > 47 ? SUMMON_HI_UNDEAD_NO_UNIQUES : SUMMON_UNDEAD);
-				group = (((plev > 24) && (one_in_(3))) ? TRUE : FALSE);
-			}
-			else
-			{
-				type = (plev > 47 ? SUMMON_HI_UNDEAD : SUMMON_UNDEAD);
-				group = TRUE;
-			}
-
-			if (summon_specific((pet ? -1 : 0), py, px, (plev * 3) / 2, type, group, FALSE, pet))
-			{
-				msg_print("Cold winds begin to blow around you, carrying with them the stench of decay...");
-
-				if (pet)
-					msg_print("Ancient, long-dead forms arise from the ground to serve you!");
-				else
-					msg_print("'The dead arise... to punish you for disturbing them!'");
-
-				chg_virtue(V_UNLIFE, 1);
-			}
-#else /* 0 */
-
-			/* Testing the new corpse-raising code. */
 			if (raise_dead(py, px, (bool)(!one_in_(3))))
 			{
 				msg_print("Cold winds begin to blow around you, carrying with them the stench of decay...");
 				chg_virtue(V_UNLIFE, 1);
 			}
-#endif /* 0 */			
+			else
+			{
+				msg_print("Nothing happens.");
+			}	
 			break;
 		}
 	case 26: /* Esoteria */
@@ -1786,22 +1759,25 @@ static bool cast_death_spell(int spell)
 		break;
 	case 28: /* Evocation */
 		(void)dispel_monsters(plev * 4);
-		turn_monsters(plev * 4);
-		banish_monsters(plev * 4);
+		(void)turn_monsters(plev * 4);
+		(void)banish_monsters(plev * 4);
 		break;
 	case 29: /* Hellfire */
 		if (!get_aim_dir(&dir)) return FALSE;
 
-		fire_ball(GF_HELL_FIRE, dir, 666, 3);
+		(void)fire_ball(GF_HELL_FIRE, dir, 666, 3);
 		take_hit(rand_range(50, 100), "the strain of casting Hellfire");
 		break;
 	case 30: /* Omnicide */
-		p_ptr->csp -= 100;	/* Display doesn't show mana cost (100)
-							 * as deleted until the spell has finished. This gives a
-							 * false impression of how high your mana is climbing.
-							 * Therefore, 'deduct' the cost temporarily before entering the
-							 * loop, then add it back at the end so that the rest of the
-							 * program can deduct it properly */
+		p_ptr->csp -= 100;
+		
+		/* Display doesn't show mana cost (100)
+		 * as deleted until the spell has finished. This gives a
+		 * false impression of how high your mana is climbing.
+		 * Therefore, 'deduct' the cost temporarily before entering the
+		 * loop, then add it back at the end so that the rest of the
+		 * program can deduct it properly
+		 */
 		for (i = 1; i < m_max; i++)
 		{
 			monster_type *m_ptr = &m_list[i];
@@ -1859,7 +1835,7 @@ static bool cast_death_spell(int spell)
 
 		break;
 	case 31: /* Wraithform */
-		set_wraith_form(p_ptr->wraith_form + rand_range(plev / 2, plev));
+		(void)set_wraith_form(p_ptr->wraith_form + rand_range(plev / 2, plev));
 		break;
 	default:
 		msg_format("You cast an unknown Death spell: %d.", spell);
@@ -1900,7 +1876,7 @@ static bool cast_trump_spell(int spell, bool success)
 			if (success)
 			{
 				if (!get_aim_dir(&dir)) return FALSE;
-				fire_bolt_or_beam(beam - 10, GF_PSI, dir,
+				(void)fire_bolt_or_beam(beam - 10, GF_PSI, dir,
 				                  damroll(3 + ((plev - 1) / 5), 3));
 			}
 			break;
@@ -1958,7 +1934,7 @@ static bool cast_trump_spell(int spell, bool success)
 				else if (die < 33)
 				{
 					msg_print("It's the Moon.");
-					unlite_area(10, 3);
+					(void)unlite_area(10, 3);
 				}
 				else if (die < 38)
 				{
@@ -1973,7 +1949,7 @@ static bool cast_trump_spell(int spell, bool success)
 				else if (die < 42)
 				{
 					msg_print("It's Justice.");
-					set_blessed(p_ptr->blessed + p_ptr->lev);
+					(void)set_blessed(p_ptr->blessed + p_ptr->lev);
 				}
 				else if (die < 47)
 				{
@@ -1993,12 +1969,12 @@ static bool cast_trump_spell(int spell, bool success)
 				else if (die < 72)
 				{
 					msg_print("It's Temperance.");
-					sleep_monsters_touch();
+					(void)sleep_monsters_touch();
 				}
 				else if (die < 80)
 				{
 					msg_print("It's the Tower.");
-					earthquake(py, px, 5);
+					(void)earthquake(py, px, 5);
 				}
 				else if (die < 82)
 				{
@@ -2033,7 +2009,7 @@ static bool cast_trump_spell(int spell, bool success)
 				else if (die < 101)
 				{
 					msg_print("It's the Hermit.");
-					wall_stone();
+					(void)wall_stone();
 				}
 				else if (die < 111)
 				{
@@ -2173,7 +2149,7 @@ static bool cast_trump_spell(int spell, bool success)
 			if (success)
 				msg_print("You concentrate on the trump of a monster...");
 
-			if (summon_specific((pet ? -1 : 0), py, px, plev, type, group, FALSE, pet))
+			if (summon_specific((pet ? -1 : 0), py, px, (plev * 3) / 2, type, group, FALSE, pet))
 			{
 				if (!pet)
 					msg_print("An angry monster appears!");
@@ -2193,7 +2169,7 @@ static bool cast_trump_spell(int spell, bool success)
 			if (success)
 				msg_print("You concentrate on the trump of a monster...");
 
-			if (summon_specific((pet ? -1 : 0), py, px, plev, SUMMON_ELEMENTAL, group, FALSE, pet))
+			if (summon_specific((pet ? -1 : 0), py, px, (plev * 3) / 2, SUMMON_ELEMENTAL, group, FALSE, pet))
 			{
 				if (!pet)
 					msg_print("An angry elemental appears!");
@@ -2220,7 +2196,7 @@ static bool cast_trump_spell(int spell, bool success)
 		case 15: /* Banish */
 			if (success)
 			{
-				banish_monsters(plev * 4);
+				(void)banish_monsters(plev * 4);
 			}
 			break;
 		case 16: /* Joker Card */
@@ -2239,7 +2215,7 @@ static bool cast_trump_spell(int spell, bool success)
 				case 4: dummy = SUMMON_BIZARRE5; break;
 			}
 
-			if (summon_specific((pet ? -1 : 0), py, px, plev, dummy, group, FALSE, pet))
+			if (summon_specific((pet ? -1 : 0), py, px, (plev * 3) / 2, dummy, group, FALSE, pet))
 			{
 				if (!pet)
 					msg_print("An angry creature appears!");
@@ -2278,7 +2254,7 @@ static bool cast_trump_spell(int spell, bool success)
 			if (success)
 				msg_print("You concentrate on the trump of a reptile...");
 
-			if (summon_specific((pet ? -1 : 0), py, px, plev, SUMMON_HYDRA, group, FALSE, pet))
+			if (summon_specific((pet ? -1 : 0), py, px, (plev * 3) / 2, SUMMON_HYDRA, group, FALSE, pet))
 			{
 				if (!pet)
 					msg_print("An angry reptile appears!");
@@ -2375,7 +2351,7 @@ static bool cast_trump_spell(int spell, bool success)
 			if (success)
 				msg_print("You concentrate on the trump of an undead creature...");
 
-			if (summon_specific((pet ? -1 : 0), py, px, plev, SUMMON_UNDEAD, group, FALSE, pet))
+			if (summon_specific((pet ? -1 : 0), py, px, plev * 2, SUMMON_UNDEAD, group, FALSE, pet))
 			{
 				if (!pet)
 					msg_print("An angry undead creature appears!");
@@ -2395,7 +2371,7 @@ static bool cast_trump_spell(int spell, bool success)
 			if (success)
 				msg_print("You concentrate on the trump of a dragon...");
 
-			if (summon_specific((pet ? -1 : 0), py, px, plev, SUMMON_DRAGON, group, FALSE, pet))
+			if (summon_specific((pet ? -1 : 0), py, px, plev * 2, SUMMON_DRAGON, group, FALSE, pet))
 			{
 				if (!pet)
 					msg_print("An angry dragon appears!");
@@ -2420,7 +2396,7 @@ static bool cast_trump_spell(int spell, bool success)
 				bool group = (pet ? FALSE : TRUE);
 				int type = (pet ? SUMMON_NO_UNIQUES : 0);
 
-				if (summon_specific((pet ? -1 : 0), py, px, plev, type, group, FALSE, pet))
+				if (summon_specific((pet ? -1 : 0), py, px, (plev * 3) / 2, type, group, FALSE, pet))
 				{
 					if (!pet)
 						msg_print("An angry creature appears!");
@@ -2437,7 +2413,7 @@ static bool cast_trump_spell(int spell, bool success)
 			if (success)
 				msg_print("You concentrate on the trump of a demon...");
 
-			if (summon_specific((pet ? -1 : 0), py, px, plev, SUMMON_DEMON, group, FALSE, pet))
+			if (summon_specific((pet ? -1 : 0), py, px, plev * 2, SUMMON_DEMON, group, FALSE, pet))
 			{
 				if (!pet)
 					msg_print("An angry demon appears!");
@@ -2458,7 +2434,7 @@ static bool cast_trump_spell(int spell, bool success)
 			if (success)
 				msg_print("You concentrate on the trump of an ancient dragon...");
 
-			if (summon_specific((pet ? -1 : 0), py, px, plev, type, group, FALSE, pet))
+			if (summon_specific((pet ? -1 : 0), py, px, plev * 2, type, group, FALSE, pet))
 			{
 				if (!pet)
 					msg_print("An angry ancient dragon appears!");
@@ -2479,7 +2455,7 @@ static bool cast_trump_spell(int spell, bool success)
 			if (success)
 				msg_print("You concentrate on the trump of a greater undead being...");
 
-			if (summon_specific((pet ? -1 : 0), py, px, plev, type, group, FALSE, pet))
+			if (summon_specific((pet ? -1 : 0), py, px, plev * 2, type, group, FALSE, pet))
 			{
 				if (!pet)
 					msg_print("An angry greater undead creature appears!");
@@ -2521,7 +2497,7 @@ static bool cast_arcane_spell(int spell)
 	case 0: /* Zap */
 		if (!get_aim_dir(&dir)) return FALSE;
 
-		fire_bolt_or_beam(beam - 10, GF_ELEC, dir,
+		(void)fire_bolt_or_beam(beam - 10, GF_ELEC, dir,
 			damroll(3 + ((plev - 1) / 5), 3));
 		break;
 	case 1: /* Wizard Lock */
@@ -2629,7 +2605,7 @@ static bool cast_arcane_spell(int spell)
 			case 3:  dummy = GF_COLD; break;
 			default: dummy = GF_ACID; break;
 		}
-		fire_ball(dummy, dir, 75 + (plev), 2);
+		(void)fire_ball(dummy, dir, 75 + (plev), 2);
 		break;
 	case 29: /* Detection */
 		(void)detect_all();
@@ -2783,7 +2759,7 @@ void do_cmd_cast(void)
 
 		if (realm == REALM_TRUMP)
 		{
-			cast_trump_spell(spell, FALSE);
+			(void)cast_trump_spell(spell, FALSE);
 		}
 		else if ((o_ptr->tval == TV_CHAOS_BOOK) && (randint1(100) < spell))
 		{
@@ -2812,8 +2788,8 @@ void do_cmd_cast(void)
 				/* Lose int & wis */
 				else if (!saving_throw(p_ptr->skill_sav * 100))
 				{
-					do_dec_stat(A_INT);
-					do_dec_stat(A_WIS);
+					(void)do_dec_stat(A_INT);
+					(void)do_dec_stat(A_WIS);
 				}
 			}
 			else
@@ -3046,12 +3022,12 @@ void do_cmd_pet(void)
 	if (num <= 26)
 	{
 		/* Build a prompt (accept all spells) */
-		strnfmt(out_val, 78, "(Command %c-%c, *=List, ESC=exit) Select a command: ",
+		(void)strnfmt(out_val, 78, "(Command %c-%c, *=List, ESC=exit) Select a command: ",
 			I2A(0), I2A(num - 1));
 	}
 	else
 	{
-		strnfmt(out_val, 78, "(Command %c-%c, *=List, ESC=exit) Select a command: ",
+		(void)strnfmt(out_val, 78, "(Command %c-%c, *=List, ESC=exit) Select a command: ",
 			I2A(0), '0' + num - 27);
 	}
 
@@ -3165,7 +3141,7 @@ void do_cmd_pet(void)
 		if (ask)
 		{
 			/* Prompt */
-			strnfmt(buf, 78, "Use %s? ", power_desc[i]);
+			(void)strnfmt(buf, 78, "Use %s? ", power_desc[i]);
 
 			/* Belay that order */
 			if (!get_check(buf)) continue;

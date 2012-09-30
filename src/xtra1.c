@@ -472,18 +472,41 @@ static void prt_level(void)
 static void prt_exp(void)
 {
 	char out_val[32];
-
-	(void)sprintf(out_val, "%8ld", (long)p_ptr->exp);
-
+	byte attr;
+	
 	if (p_ptr->exp >= p_ptr->max_exp)
 	{
-		put_str("EXP ", ROW_EXP, 0);
-		c_put_str(TERM_L_GREEN, out_val, ROW_EXP, COL_EXP + 4);
+		attr = TERM_L_GREEN;
 	}
 	else
 	{
-		put_str("Exp ", ROW_EXP, 0);
-		c_put_str(TERM_YELLOW, out_val, ROW_EXP, COL_EXP + 4);
+		attr = TERM_YELLOW;
+	}
+	
+	put_str("EXP ", ROW_EXP, 0);
+
+	if (toggle_xp)
+	{
+		if (p_ptr->lev >= PY_MAX_LEVEL)
+		{
+			c_put_str(attr, "********", ROW_EXP, COL_EXP + 4);
+		}
+		else
+		{
+			/* Print the amount of experience to go until the next level */
+			(void)sprintf(out_val, "%8ld",
+				 (long)(player_exp[p_ptr->lev - 1] * p_ptr->expfact / 100L)
+				 	 - (long)p_ptr->exp);
+					 
+			c_put_str(attr, out_val, ROW_EXP, COL_EXP + 4);
+		}
+	}
+	else
+	{
+		/* Use the 'old' experience display */
+		(void)sprintf(out_val, "%8ld", (long)p_ptr->exp);
+		
+		c_put_str(attr, out_val, ROW_EXP, COL_EXP + 4);
 	}
 }
 
@@ -613,7 +636,7 @@ static void prt_depth(void)
 		if (p_ptr->town_num)
 		{
 			strncpy(depths, town[p_ptr->town_num].name, T_NAME_LEN);
-			depths[31] = '\0';
+			depths[T_NAME_LEN - 1] = '\0';
 		}
 		else
 			strcpy(depths, "Wilderness");
@@ -1323,7 +1346,7 @@ static void fix_message(void)
 			            message_str(i));
 
 			/* Cursor */
-			Term_locate(&x, &y);
+			(void)Term_locate(&x, &y);
 
 			/* Clear to end of line */
 			Term_erase(x, y, 255);
@@ -2021,9 +2044,6 @@ static void calc_hitpoints(void)
 
 /*
  * Extract and set the current "lite radius"
- *
- * SWD: Experimental modification: multiple light sources have additive effect.
- *
  */
 static void calc_torch(void)
 {
@@ -2064,8 +2084,6 @@ static void calc_torch(void)
 				p_ptr->cur_lite += 1;
 				continue;
 			}
-			
-			/* notreached */
 		}
 		else
 		{
@@ -2078,7 +2096,6 @@ static void calc_torch(void)
 			/* does this item glow? */
 			if (f3 & TR3_LITE) p_ptr->cur_lite++;
 		}
-
 	}
 
 	/*
@@ -2087,15 +2104,6 @@ static void calc_torch(void)
 	 */
 	if (p_ptr->cur_lite == 0 && p_ptr->lite) p_ptr->cur_lite = 1;
 
-	/* end experimental mods */
-
-	/* Reduce lite when running if requested */
-	if (p_ptr->running && view_reduce_lite)
-	{
-		/* Reduce the lite radius if needed */
-		if (p_ptr->cur_lite > 1) p_ptr->cur_lite = 1;
-	}
-	
 	/*
 	 * Hack - blindness gives a torch radius of zero.
 	 * This speeds up the map_info() function.
@@ -2704,6 +2712,13 @@ static void calc_bonuses(void)
 			case RACE_BEASTMAN:
 				p_ptr->resist_confu = TRUE;
 				p_ptr->resist_sound = TRUE;
+				break;
+			case RACE_GHOUL:
+				if (p_ptr->lev > 9) p_ptr->resist_dark = TRUE;
+				p_ptr->hold_life = TRUE;
+				if (p_ptr->lev > 19) p_ptr->resist_nethr = TRUE;
+				p_ptr->resist_cold = TRUE;
+				p_ptr->resist_pois = TRUE;
 				break;
 		}
 	}

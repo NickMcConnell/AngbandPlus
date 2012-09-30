@@ -791,7 +791,7 @@ static void wiz_tweak_item(object_type *o_ptr)
 	wiz_display_item(o_ptr);
 
 	p = "Enter new 'activate' setting: ";
-	sprintf(tmp_val, "%d", o_ptr->activate);
+	sprintf(tmp_val, "%d", (int) o_ptr->activate);
 	if (!get_string(p, tmp_val, 5)) return;
 	o_ptr->activate = atoi(tmp_val);
 	wiz_display_item(o_ptr);
@@ -887,7 +887,7 @@ static void wiz_reroll_item(object_type *o_ptr)
 				object_prep(q_ptr, o_ptr->k_idx);
 
 				/* Make a random artifact */
-				create_artifact(q_ptr, FALSE);
+				(void)create_artifact(q_ptr, FALSE);
 				break;
 			}
 		}
@@ -931,7 +931,7 @@ static void wiz_statistics(object_type *o_ptr)
 	cptr p = "Enter number of items to roll: ";
 	char tmp_val[80];
 
-	sprintf(tmp_val, "%ld", test_roll);
+	sprintf(tmp_val, "%ld", (long) test_roll);
 	if (get_string(p, tmp_val, 10)) test_roll = atol(tmp_val);
 	test_roll = MAX(1, test_roll);
 
@@ -957,7 +957,7 @@ static void wiz_quantity_item(object_type *o_ptr)
 	tmp_qnt = o_ptr->number;
 
 	/* Default */
-	sprintf(tmp_val, "%d", o_ptr->number);
+	sprintf(tmp_val, "%d", (int)o_ptr->number);
 
 	/* Query */
 	if (get_string("Quantity: ", tmp_val, 2))
@@ -1784,7 +1784,7 @@ void do_cmd_debug(void)
 
 
 	/* Get a "debug command" */
-	get_com("Debug Command: ", &cmd);
+	(void)get_com("Debug Command: ", &cmd);
 
 	/* Analyze the command */
 	switch (cmd)
@@ -1802,148 +1802,155 @@ void do_cmd_debug(void)
 		/* Hack -- Generate Spoilers */
 		case '"':
 			do_cmd_spoilers();
-			break;
+		break;
 
 #endif /* ALLOW_SPOILERS */
 
 #ifdef MATLAB
 		case '=':
 			output_monster_matlab();
-			break;
+		break;
 #endif /* MATLAB */
 
 		/* Hack -- Help */
 		case '?':
 			screen_save();
-			show_file("wizard.txt", NULL, 0 , 0);
+			(void)show_file("wizard.txt", NULL, 0 , 0);
 			screen_load();
-			break;
+		break;
 
 
 		/* Cure all maladies */
 		case 'a':
 			do_cmd_wiz_cure_all();
-			break;
+		break;
 
 		/* Know alignment */
 		case 'A':
 			msg_format("Your alignment is %d.", p_ptr->align);
-			break;
+		break;
 
 		/* Teleport to target */
 		case 'b':
 			do_cmd_wiz_bamf();
-			break;
+		break;
 
 		/* Create any object */
 		case 'c':
 			wiz_create_item();
-			break;
+		break;
 
 		/* Create a named artifact */
 		case 'C':
 			wiz_create_named_art(p_ptr->command_arg);
-			break;
+		break;
 
 		/* Detect everything */
 		case 'd':
-			detect_all();
-			break;
+			(void)detect_all();
+		break;
 
 		/* Edit character */
 		case 'e':
 			do_cmd_wiz_change();
-			break;
+		break;
 
 		/* View item info */
 		case 'f':
-			identify_fully();
-			break;
+			(void)identify_fully();
+		break;
 
 		/* Create feature */
 		case 'F':
 			if (p_ptr->command_arg > 0) do_cmd_wiz_feature(p_ptr->command_arg);
-			break;
+		break;
 
 		/* Good Objects */
 		case 'g':
 			if (p_ptr->command_arg <= 0) p_ptr->command_arg = 1;
 			acquirement(py, px, p_ptr->command_arg, FALSE, TRUE);
-			break;
+		break;
 
 		/* Hitpoint rerating */
 		case 'h':
-			do_cmd_rerate(); break;
+			do_cmd_rerate();
+		break;
 
 #ifdef MONSTER_HORDES
 		case 'H':
-			do_cmd_summon_horde(); break;
+			do_cmd_summon_horde();
+		break;
 #endif /* MONSTER_HORDES */
 
 		/* Identify */
 		case 'i':
 			(void)ident_spell();
-			break;
+		break;
 
 		/* Fields Integrity */
 		case 'I':
 			(void)test_field_data_integrity();
-			break;
+		break;
 
 		/* Go up or down in the dungeon */
 		case 'j':
 			do_cmd_wiz_jump();
-			break;
+		break;
 
+		/* Test compression code */
+		case 'J':
+			/* test_compress_module(); */
+		break;
+		
 		/* Self-Knowledge */
 		case 'k':
 			self_knowledge();
-			break;
+		break;
 
 		/* Learn about objects */
 		case 'l':
 			do_cmd_wiz_learn();
-			break;
+		break;
 		
 		/* Lose Mutation */
 		case 'L':
 			(void)lose_mutation(p_ptr->command_arg);
-			break;
+		break;
 
 		/* Magic Mapping */
 		case 'm':
 			map_area();
-			break;
+		break;
 
 		/* Gain Mutation */
 		case 'M':
 			(void)gain_mutation(p_ptr->command_arg);
-			break;
+		break;
 
 		/* Specific reward */
 		case 'r':
 			(void)gain_level_reward(p_ptr->command_arg);
-			break;
+		break;
 
 		/* Summon _friendly_ named monster */
 		case 'N':
 			do_cmd_wiz_named_friendly(p_ptr->command_arg, TRUE);
-			break;
+		break;
 
 		/* Summon Named Monster */
 		case 'n':
 			do_cmd_wiz_named(p_ptr->command_arg, TRUE);
-			break;
+		break;
 
 		/* Object playing routines */
 		case 'o':
 			do_cmd_wiz_play();
-			break;
+		break;
 
 		/* Phase Door */
 		case 'p':
 			teleport_player(10);
-			break;
+		break;
 
 #if 0
 		/* Complete a Quest -KMW- */
@@ -1987,18 +1994,18 @@ void do_cmd_debug(void)
 		case 's':
 			if (p_ptr->command_arg <= 0) p_ptr->command_arg = 1;
 			do_cmd_wiz_summon(p_ptr->command_arg);
-			break;
+		break;
 
 		/* Teleport */
 		case 't':
 			teleport_player(100);
-			break;
+		break;
 
 		/* Very Good Objects */
 		case 'v':
 			if (p_ptr->command_arg <= 0) p_ptr->command_arg = 1;
 			acquirement(py, px, p_ptr->command_arg, TRUE, TRUE);
-			break;
+		break;
 
 		/* Wizard Light the Level */
 		case 'w':
@@ -2014,7 +2021,7 @@ void do_cmd_debug(void)
 
 		case 'W':
 			test_decision_tree();
-			break;
+		break;
 
 		/* Increase Experience */
 		case 'x':
@@ -2026,33 +2033,33 @@ void do_cmd_debug(void)
 			{
 				gain_exp(p_ptr->exp + 1);
 			}
-			break;
+		break;
 
 		/* Zap Monsters (Genocide) */
 		case 'z':
 			do_cmd_wiz_zap();
-			break;
+		break;
 
 		case 'Z':
 			do_cmd_wiz_zap_all();
-			break;
+		break;
 
 		/* Hack -- whatever I desire */
 		case '_':
 			do_cmd_wiz_hack_ben();
-			break;
+		break;
 
 #ifdef USE_SCRIPT
 		/* Hack -- activate a script */
 		case '@':
 			do_cmd_wiz_script();
-			break;
+		break;
 #endif /* USE_SCRIPT */
 
 		/* Not a Wizard Command */
 		default:
 			msg_print("That is not a valid debug command.");
-			break;
+		break;
 	}
 }
 

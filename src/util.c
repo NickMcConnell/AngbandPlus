@@ -19,7 +19,7 @@
 char *memset(char *s, int c, huge n)
 {
 	char *t;
-	for (t = s; len--; ) *t++ = c;
+	for (t = s; n--; ) *t++ = c;
 	return (s);
 }
 
@@ -283,7 +283,7 @@ static errr path_temp(char *buf, int max)
  * Note that this function yields a path which must be "parsed"
  * using the "parse" function above.
  */
-errr path_build(char *buf, int max, cptr path, cptr file)
+void path_build(char *buf, int max, cptr path, cptr file)
 {
 	/* Special file */
 	if (file[0] == '~')
@@ -312,9 +312,6 @@ errr path_build(char *buf, int max, cptr path, cptr file)
 		/* Build the new path */
 		(void)strnfmt(buf, max, "%s%s%s", path, PATH_SEP, file);
 	}
-
-	/* Success */
-	return (0);
 }
 
 
@@ -336,16 +333,13 @@ FILE *my_fopen(cptr file, cptr mode)
 /*
  * Hack -- replacement for "fclose()"
  */
-errr my_fclose(FILE *fff)
+void my_fclose(FILE *fff)
 {
 	/* Require a file */
-	if (!fff) return (-1);
+	if (!fff) return;
 
 	/* Close, check for error */
-	if (fclose(fff) == EOF) return (1);
-
-	/* Success */
-	return (0);
+	(void)fclose(fff);
 }
 
 
@@ -1282,13 +1276,12 @@ static sint macro_find_ready(cptr pat)
  * with some kind of "powerful keymap" ability, but this might make it hard
  * to change the "roguelike" option from inside the game.  XXX XXX XXX
  */
-errr macro_add(cptr pat, cptr act)
+void macro_add(cptr pat, cptr act)
 {
 	int n;
 
-
 	/* Paranoia -- require data */
-	if (!pat || !act) return (-1);
+	if (!pat || !act) return;
 
 
 	/* Look for any existing macro */
@@ -1316,9 +1309,6 @@ errr macro_add(cptr pat, cptr act)
 
 	/* Efficiency */
 	macro__use[(byte)(pat[0])] = TRUE;
-
-	/* Success */
-	return (0);
 }
 
 /* This is never used. */
@@ -1874,7 +1864,7 @@ char inkey(void)
 
 
 	/* Restore the cursor */
-	Term_set_cursor(v);
+	(void)Term_set_cursor(v);
 
 
 	/* Cancel the various "global parameters" */
@@ -2061,37 +2051,37 @@ cptr quark_str(s16b i)
 /*
  * The next "free" index to use
  */
-u16b message__next;
+static u16b message__next;
 
 /*
  * The index of the oldest message (none yet)
  */
-u16b message__last;
+static u16b message__last;
 
 /*
  * The next "free" offset
  */
-u16b message__head;
+static u16b message__head;
 
 /*
  * The offset to the oldest used char (none yet)
  */
-u16b message__tail;
+static u16b message__tail;
 
 /*
  * The array of offsets, by index [MESSAGE_MAX]
  */
-u16b *message__ptr;
+static u16b *message__ptr;
 
 /*
  * The array of chars, by offset [MESSAGE_BUF]
  */
-char *message__buf;
+static char *message__buf;
 
 /*
  * The array[MESSAGE_MAX] of bytes for the colors of messages
  */
-byte *message__color;
+static byte *message__color;
 
 
 /*
@@ -2806,7 +2796,7 @@ void c_roff(byte a, cptr str)
 				for (i = w - 2; i >= 0; i--)
 				{
 					/* Grab existing attr/char */
-					Term_what(i, y, &av[i], &cv[i]);
+					(void)Term_what(i, y, &av[i], &cv[i]);
 
 					/* Break on space */
 					if (cv[i] == ' ') break;
@@ -2899,9 +2889,8 @@ bool askfor_aux(char *buf, int len)
 
 	bool done = FALSE;
 
-
 	/* Locate the cursor */
-	Term_locate(&x, &y);
+	(void)Term_locate(&x, &y);
 
 
 	/* Paranoia -- check len */

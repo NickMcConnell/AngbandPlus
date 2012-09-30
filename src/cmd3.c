@@ -1437,7 +1437,7 @@ void do_cmd_query_symbol(void)
 	char    temp2[80] = "\0";
 
 	/* Get a character, or abort */
-	if (!get_com("Enter character to be identified: ", &sym)) return;
+	if (!get_com("Enter character to be identified, or (Ctrl-A, Ctrl-U, Ctrl-N, Ctrl-M):", &sym)) return;
 
 	/* Find that character info, and describe it */
 	for (i = 0; ident_info[i]; ++i)

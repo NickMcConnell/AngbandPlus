@@ -223,8 +223,8 @@ void get_virtues(void)
 	case RACE_IMP:
 		p_ptr->vir_types[i++] = V_FAITH;
 		break;
-	case RACE_ZOMBIE: case RACE_SKELETON:
-	case RACE_VAMPIRE: case RACE_SPECTRE:
+	case RACE_ZOMBIE: case RACE_SKELETON: case RACE_VAMPIRE:
+	case RACE_SPECTRE: case RACE_GHOUL:
 		p_ptr->vir_types[i++] = V_UNLIFE;
 		break;
 	case RACE_BEASTMAN:
@@ -359,41 +359,41 @@ void dump_virtues(FILE *OutFile)
 
 	for (v_nr = 0; v_nr < MAX_PLAYER_VIRTUES; v_nr++)
 	{
-		char v_name[20];
+		char virt_name[20];
 
 		int tester = p_ptr->virtues[v_nr];
 
-		strcpy(v_name, virtue[(p_ptr->vir_types[v_nr]) - 1]);
+		strcpy(virt_name, virtue[(p_ptr->vir_types[v_nr]) - 1]);
 
 		if ((p_ptr->vir_types[v_nr] == 0) ||
 			(p_ptr->vir_types[v_nr] > MAX_VIRTUE))
-			fprintf(OutFile, "Oops. No info about %s.", v_name);
+			fprintf(OutFile, "Oops. No info about %s.", virt_name);
 		else if (tester < -100)
-			fprintf(OutFile, "You are the polar opposite of %s.", v_name);
+			fprintf(OutFile, "You are the polar opposite of %s.", virt_name);
 		else if (tester < -80)
-			fprintf(OutFile, "You are an arch-enemy of %s.", v_name);
+			fprintf(OutFile, "You are an arch-enemy of %s.", virt_name);
 		else if (tester < -60)
-			fprintf(OutFile, "You are a bitter enemy of %s.", v_name);
+			fprintf(OutFile, "You are a bitter enemy of %s.", virt_name);
 		else if (tester < -40)
-			fprintf(OutFile, "You are an enemy of %s.", v_name);
+			fprintf(OutFile, "You are an enemy of %s.", virt_name);
 		else if (tester < -20)
-			fprintf(OutFile, "You have sinned against %s.", v_name);
+			fprintf(OutFile, "You have sinned against %s.", virt_name);
 		else if (tester < 0)
-			fprintf(OutFile, "You have strayed from the path of %s.", v_name);
+			fprintf(OutFile, "You have strayed from the path of %s.", virt_name);
 		else if (tester == 0)
-			fprintf(OutFile, "You are neutral to %s.", v_name);
+			fprintf(OutFile, "You are neutral to %s.", virt_name);
 		else if (tester < 20)
-			fprintf(OutFile, "You are somewhat virtuous in %s.", v_name);
+			fprintf(OutFile, "You are somewhat virtuous in %s.", virt_name);
 		else if (tester < 40)
-			fprintf(OutFile, "You are virtuous in %s.", v_name);
+			fprintf(OutFile, "You are virtuous in %s.", virt_name);
 		else if (tester < 60)
-			fprintf(OutFile, "You are very virtuous in %s.", v_name);
+			fprintf(OutFile, "You are very virtuous in %s.", virt_name);
 		else if (tester < 80)
-			fprintf(OutFile, "You are a champion of %s.", v_name);
+			fprintf(OutFile, "You are a champion of %s.", virt_name);
 		else if (tester < 100)
-			fprintf(OutFile, "You are a great champion of %s.", v_name);
+			fprintf(OutFile, "You are a great champion of %s.", virt_name);
 		else
-			fprintf(OutFile, "You are the living embodiment of %s.", v_name);
+			fprintf(OutFile, "You are the living embodiment of %s.", virt_name);
 
 		fprintf(OutFile, "\n");
 	}

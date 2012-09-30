@@ -304,6 +304,7 @@ static void game_usage(void)
 	puts("  --       Sub options");
 	puts("  -- -d    Set display name");
 	puts("  -- -s    Turn off smoothscaling graphics");
+	puts("  -- -b#   Set tileset bitmap");
 	puts("  -- -n#   Number of terms to use");
 #endif /* USE_XAW */
 	
@@ -312,6 +313,7 @@ static void game_usage(void)
 	puts("  --       Sub options");
 	puts("  -- -d    Set display name");
 	puts("  -- -s    Turn off smoothscaling graphics");
+	puts("  -- -b#   Set tileset bitmap");
 	puts("  -- -n#   Number of terms to use");
 #endif /* USE_X11 */
 	
@@ -358,10 +360,15 @@ static void game_usage(void)
 #ifdef USE_GTK
 	puts("  -mgtk    To use GTK toolkit");
 	puts("  --       Sub options");
-	/* puts("  -- -d    Set display name"); */
-	/* puts("  -- -s    Turn off smoothscaling graphics"); */
+	puts("  -- -b#   Set tileset bitmap");
 	puts("  -- -n#   Number of terms to use");
-#endif /* USE_VME */
+#endif /* USE_GTK */
+
+#ifdef USE_VCS
+	puts("  -mvcs    To use /dev/vcsa*");
+	puts("  -- x0,y0,x1,y1  Create new term");
+	puts("  -- --noframe    No window frames");
+#endif /* USE_VCS */
 				
 	/* Actually abort the process */
 	quit(NULL);
@@ -680,7 +687,10 @@ int main(int argc, char *argv[])
 	/* Attempt to use the "main-gtk.c" support */
 	if (!done && (!mstr || (streq(mstr, "gtk"))))
 	{
-		init_gtk(argc, argv);
+		if (0 == init_gtk((unsigned char*) &new_game, argc, argv))
+		{
+			done = TRUE;
+		}
 	}
 #endif
 
@@ -786,6 +796,18 @@ int main(int argc, char *argv[])
 	}
 #endif
 
+#ifdef USE_VCS
+	/* Attempt to use the "main-vcs.c" support */
+	if (!done && (!mstr || (streq(mstr, "vcs"))))
+	{
+		if (0 == init_vcs(argc, argv))
+		{
+			ANGBAND_SYS = "vcs";
+			done = TRUE;
+		}
+	}
+#endif /* USE_VCS */
+
 	/* Grab privs (dropped above for X11) */
  	safe_setuid_grab();
 
@@ -811,13 +833,16 @@ int main(int argc, char *argv[])
 	/* Hack -- If requested, display scores and quit */
 	if (show_score > 0) display_scores(0, show_score);
 
+	/* Gtk initializes earlier */
+	if (!streq(ANGBAND_SYS, "gtk"))
+	{
+		/* Catch nasty signals */
+		signals_init();
 
-	/* Catch nasty signals */
-	signals_init();
-
-	/* Initialize */
-	init_angband();
-
+		/* Initialize */
+		init_angband();
+	}
+	
 	/* Wait for response */
 	pause_line(23);
 

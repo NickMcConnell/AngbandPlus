@@ -253,57 +253,13 @@ static byte scroll_col[MAX_TITLES];
 /*
  * Certain items, if aware, are known instantly
  * This function is used only by "flavor_init()"
- *
- * XXX XXX XXX Add "EASY_KNOW" flag to "k_info.txt" file
  */
 static bool object_easy_know(int i)
 {
 	object_kind *k_ptr = &k_info[i];
 
-	/* Analyze the "tval" */
-	switch (k_ptr->tval)
-	{
-		/* Spellbooks */
-		case TV_LIFE_BOOK:
-		case TV_SORCERY_BOOK:
-		case TV_NATURE_BOOK:
-		case TV_CHAOS_BOOK:
-		case TV_DEATH_BOOK:
-		case TV_TRUMP_BOOK:
-		case TV_ARCANE_BOOK:
-		{
-			return (TRUE);
-		}
-
-		/* Simple items */
-		case TV_FLASK:
-		case TV_JUNK:
-		case TV_BOTTLE:
-		case TV_SKELETON:
-		case TV_SPIKE:
-		{
-			return (TRUE);
-		}
-
-		/* All Food, Potions, Scrolls, Rods */
-		case TV_FOOD:
-		case TV_POTION:
-		case TV_SCROLL:
-		case TV_ROD:
-		{
-			return (TRUE);
-		}
-
-		/* Some Rings, Amulets, Lites */
-		case TV_RING:
-		case TV_AMULET:
-		case TV_LITE:
-		{
-			if (k_ptr->flags3 & (TR3_EASY_KNOW)) return (TRUE);
-			return (FALSE);
-		}
-	}
-
+	if (k_ptr->flags3 & (TR3_EASY_KNOW)) return (TRUE);
+	
 	/* Nope */
 	return (FALSE);
 }
@@ -897,17 +853,18 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 		case TV_FIGURINE:
 		case TV_STATUE:
 		{
-			cptr t = r_name + r_ptr->name;
+			cptr tmp = r_name + r_ptr->name;
 
 			if (!(r_ptr->flags1 & RF1_UNIQUE))
 			{
-				sprintf(tmp_val2, "%s%s", (is_a_vowel(*t) ? "an " : "a "), t);
+				sprintf(tmp_val2, "%s%s",
+					 (is_a_vowel(*tmp) ? "an " : "a "), tmp);
 
 				modstr = tmp_val2;
 			}
 			else
 			{
-				modstr = t;
+				modstr = tmp;
 			}
 
 			break;
@@ -1151,7 +1108,6 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 			return;
 		}
 	}
-
 
 	/* Start dumping the result */
 	t = tmp_val;
@@ -1772,13 +1728,13 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 	/* Use the standard inscription if available */
 	if (o_ptr->inscription)
 	{
-		char *u = tmp_val2;
+		char *tmp = tmp_val2;
 
 		strcpy(tmp_val2, quark_str(o_ptr->inscription));
 
-		for (; *u && (*u != '#'); u++);
+		for (; *tmp && (*tmp != '#'); tmp++);
 
-		*u = '\0';
+		*tmp = '\0';
 	}
 
 	/* Use the game-generated "feeling" otherwise, if available */

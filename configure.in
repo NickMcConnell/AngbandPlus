@@ -62,6 +62,9 @@ LIBS="$X_PRE_LIBS $X_LIBS $X_EXTRA_LIBS $LIBS"
 CFLAGS="$X_CFLAGS $CFLAGS"
 LDFLAGS="$X_LIBS $LDFLAGS"
 
+dnl Check for the Athena widget set
+AC_CHECK_LIB(Xaw, XawInitializeWidgetSet, [AC_DEFINE(USE_XAW) LIBS="$LIBS -lXaw"])
+
 AC_CYGWIN
 AC_MINGW32
 AC_EXEEXT

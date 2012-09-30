@@ -1638,7 +1638,7 @@ bool set_cut(int v)
 			{
 				msg_print("You have been horribly scarred.");
 
-				do_dec_stat(A_CHR);
+				(void)do_dec_stat(A_CHR);
 			}
 		}
 	}
@@ -2411,16 +2411,16 @@ void do_poly_wounds(void)
 	if (!(wounds || hit_p || Nasty_effect)) return;
 
 	msg_print("Your wounds are polymorphed into less serious ones.");
-	hp_player(change);
+	(void)hp_player(change);
 	if (Nasty_effect)
 	{
 		msg_print("A new wound was created!");
 		take_hit(change / 2, "a polymorphed wound");
-		set_cut(change);
+		(void)set_cut(change);
 	}
 	else
 	{
-		set_cut(p_ptr->cut - (change / 2));
+		(void)set_cut(p_ptr->cut - (change / 2));
 	}
 }
 

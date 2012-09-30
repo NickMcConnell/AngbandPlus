@@ -79,14 +79,14 @@ void reset_visuals(void)
 	if (use_graphics)
 	{
 		/* Process "graf.prf" */
-		process_pref_file("graf.prf");
+		(void)process_pref_file("graf.prf");
 	}
 
 	/* Normal symbols */
 	else
 	{
 		/* Process "font.prf" */
-		process_pref_file("font.prf");
+		(void)process_pref_file("font.prf");
 	}
 
 	/* Reset the fake monochrome flag */
@@ -1248,14 +1248,14 @@ bool identify_fully_aux(const object_type *o_ptr)
 		if ((k == 22) && (j+1 < i))
 		{
 			prt("-- more --", k, 15);
-			inkey();
+			(void)inkey();
 			for (; k > 2; k--) prt("", k, 15);
 		}
 	}
 
 	/* Wait for it */
 	prt("[Press any key to continue]", k, 15);
-	inkey();
+	(void)inkey();
 
 	/* Restore the screen */
 	screen_load();

@@ -1,4 +1,4 @@
-# CVS: Last edit by $Author: sfuerst $ on $Date: 2001/04/23 11:14:57 $
+# CVS: Last edit by $Author: sfuerst $ on $Date: 2001/08/29 10:23:50 $
 # File: e_info.txt
 
 
@@ -276,7 +276,7 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 # Aura, Fire
 N:43:of Immolation
 X:31:16
-W:70:8:0:1000
+W:50:8:0:1000
 C:0:0:4:0
 F:IGNORE_ACID | IGNORE_FIRE | SH_FIRE | RES_FIRE
 
@@ -301,7 +301,7 @@ F:AGGRAVATE | SHOW_MODS
 # Aura, Electricity
 N:47:of Electricity
 X:31:16
-W:70:8:0:1000
+W:50:8:0:1000
 C:0:0:4:0
 F:IGNORE_ACID | IGNORE_ELEC | SH_ELEC | RES_ELEC
 
@@ -571,7 +571,7 @@ F:STR | SLAY_TROLL
 
 N:94:of *Slay* Giant
 X:24:16
-W:60:10:0:1500
+W:50:10:0:1500
 C:0:0:0:2
 F:STR | SLAY_GIANT
 
@@ -583,7 +583,7 @@ F:CON | SLAY_DRAGON | KILL_DRAGON
 
 N:96:(Vampiric)
 X:24:25
-W:80:3:0:2000
+W:70:3:0:2000
 F:VAMPIRIC | HOLD_LIFE
 
 # 97 (unused)
@@ -640,7 +640,7 @@ C:5:15:0:0
 
 N:108:of Extra Might
 X:25:20
-W:50:1:0:1000
+W:40:1:0:1000
 C:5:10:0:0
 F:XTRA_MIGHT
 

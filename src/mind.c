@@ -302,9 +302,9 @@ static bool cast_mindcrafter_spell(int spell)
 		if (!get_aim_dir(&dir)) return FALSE;
 
 		if (randint1(100) < plev * 2)
-			fire_beam(GF_PSI, dir, damroll(3 + ((plev - 1) / 4), (3 + plev / 15)));
+			(void)fire_beam(GF_PSI, dir, damroll(3 + ((plev - 1) / 4), (3 + plev / 15)));
 		else
-			fire_ball(GF_PSI, dir, damroll(3 + ((plev - 1) / 4), (3 + plev / 15)), 0);
+			(void)fire_ball(GF_PSI, dir, damroll(3 + ((plev - 1) / 4), (3 + plev / 15)), 0);
 		break;
 	case MINDCRAFT_PRECOGNITION:
 		if (plev > 44)
@@ -330,8 +330,10 @@ static bool cast_mindcrafter_spell(int spell)
 		}
 
 		if ((plev > 24) && (plev < 40))
-			set_tim_esp(p_ptr->tim_esp + plev);
-
+		{
+			(void)set_tim_esp(p_ptr->tim_esp + plev);
+		}
+		
 		if (!b) msg_print("You feel safe.");
 		break;
 	case MINDCRAFT_MINOR_DISPLACEMENT:
@@ -348,8 +350,7 @@ static bool cast_mindcrafter_spell(int spell)
 		break;
 	case MINDCRAFT_MAJOR_DISPLACEMENT:
 		/* Major displace */
-		if (plev > 29)
-			banish_monsters(plev);
+		if (plev > 29) (void)banish_monsters(plev);
 
 		teleport_player(plev * 5);
 		break;
@@ -359,28 +360,28 @@ static bool cast_mindcrafter_spell(int spell)
 		{
 			if (!get_aim_dir(&dir)) return FALSE;
 
-			fire_ball(GF_DOMINATION, dir, plev, 0);
+			(void)fire_ball(GF_DOMINATION, dir, plev, 0);
 		}
 		else
 		{
-			charm_monsters(plev * 2);
+			(void)charm_monsters(plev * 2);
 		}
 		break;
 	case MINDCRAFT_PULVERISE:
 		/* Fist of Force  ---  not 'true' TK */
 		if (!get_aim_dir(&dir)) return FALSE;
 
-		fire_ball(GF_SOUND, dir, damroll(8 + ((plev - 5) / 4), 8),
+		(void)fire_ball(GF_SOUND, dir, damroll(8 + ((plev - 5) / 4), 8),
 		          (plev > 20 ? (plev - 20) / 8 + 1 : 0));
 		break;
 	case MINDCRAFT_CHARACTER_ARMOUR:
 		/* Character Armour */
-		set_shield(p_ptr->shield + plev);
-		if (plev > 14) set_oppose_acid(p_ptr->oppose_acid + plev);
-		if (plev > 19) set_oppose_fire(p_ptr->oppose_fire + plev);
-		if (plev > 24) set_oppose_cold(p_ptr->oppose_cold + plev);
-		if (plev > 29) set_oppose_elec(p_ptr->oppose_elec + plev);
-		if (plev > 34) set_oppose_pois(p_ptr->oppose_pois + plev);
+		(void)set_shield(p_ptr->shield + plev);
+		if (plev > 14) (void)set_oppose_acid(p_ptr->oppose_acid + plev);
+		if (plev > 19) (void)set_oppose_fire(p_ptr->oppose_fire + plev);
+		if (plev > 24) (void)set_oppose_cold(p_ptr->oppose_cold + plev);
+		if (plev > 29) (void)set_oppose_elec(p_ptr->oppose_elec + plev);
+		if (plev > 34) (void)set_oppose_pois(p_ptr->oppose_pois + plev);
 		break;
 	case MINDCRAFT_PSYCHOMETRY:
 		/* Psychometry */
@@ -392,15 +393,15 @@ static bool cast_mindcrafter_spell(int spell)
 		/* Mindwave */
 		msg_print("Mind-warping forces emanate from your brain!");
 		if (plev < 25)
-			project(0, 2 + plev / 10, p_ptr->py, p_ptr->px,
+			(void)project(0, 2 + plev / 10, p_ptr->py, p_ptr->px,
 			        (plev * 3) / 2, GF_PSI, PROJECT_KILL);
 		else
 			(void)mindblast_monsters(plev * ((plev - 5) / 10 + 1));
 		break;
 	case MINDCRAFT_ADRENALINE_CHANNELING:
 		/* Adrenaline */
-		set_afraid(0);
-		set_stun(0);
+		(void)set_afraid(0);
+		(void)set_stun(0);
 
 		/*
 		 * Only heal when Adrenalin Channeling is not active. We check
@@ -408,14 +409,14 @@ static bool cast_mindcrafter_spell(int spell)
 		 */
 		if (!p_ptr->fast || !(p_ptr->hero || p_ptr->shero))
 		{
-			hp_player(plev);
+			(void)hp_player(plev);
 		}
 
 		b = 10 + randint1((plev * 3) / 2);
 		if (plev < 35)
-			set_hero(p_ptr->hero + b);
+			(void)set_hero(p_ptr->hero + b);
 		else
-			set_shero(p_ptr->shero + b);
+			(void)set_shero(p_ptr->shero + b);
 
 		if (!p_ptr->fast)
 		{
@@ -440,7 +441,7 @@ static bool cast_mindcrafter_spell(int spell)
 	case MINDCRAFT_TELEKINETIC_WAVE:
 		/* Telekinesis */
 		msg_print("A wave of pure physical force radiates out from your body!");
-		project(0, 3 + plev / 10, p_ptr->py, p_ptr->px,
+		(void)project(0, 3 + plev / 10, p_ptr->py, p_ptr->px,
 			plev * (plev > 39 ? 4 : 3), GF_TELEKINESIS, PROJECT_KILL | PROJECT_ITEM | PROJECT_GRID);
 		break;
 	default:
@@ -531,27 +532,27 @@ void do_cmd_mindcraft(void)
 			if (b < 5)
 			{
 				msg_print("Oh, no! Your mind has gone blank!");
-				lose_all_info();
+				(void)lose_all_info();
 			}
 			else if (b < 15)
 			{
 				msg_print("Weird visions seem to dance before your eyes...");
-				set_image(p_ptr->image + rand_range(5, 15));
+				(void)set_image(p_ptr->image + rand_range(5, 15));
 			}
 			else if (b < 45)
 			{
 				msg_print("Your brain is addled!");
-				set_confused(p_ptr->confused + randint1(8));
+				(void)set_confused(p_ptr->confused + randint1(8));
 			}
 			else if (b < 90)
 			{
-				set_stun(p_ptr->stun + randint1(8));
+				(void)set_stun(p_ptr->stun + randint1(8));
 			}
 			else
 			{
 				/* Mana storm */
 				msg_print("Your mind unleashes its power in an uncontrollable storm!");
-				project(1, 2 + plev / 10, p_ptr->py, p_ptr->px, plev * 2,
+				(void)project(1, 2 + plev / 10, p_ptr->py, p_ptr->px, plev * 2,
 					GF_MANA, PROJECT_JUMP | PROJECT_KILL | PROJECT_GRID | PROJECT_ITEM);
 				p_ptr->csp = MAX(0, p_ptr->csp - plev * MAX(1, plev / 10));
 			}

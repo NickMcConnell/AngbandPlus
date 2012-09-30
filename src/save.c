@@ -763,7 +763,7 @@ static void wr_store(const store_type *st_ptr)
 /*
  * Write RNG state
  */
-static errr wr_randomizer(void)
+static void wr_randomizer(void)
 {
 	int i;
 
@@ -778,9 +778,6 @@ static errr wr_randomizer(void)
 	{
 		wr_u32b(Rand_state[i]);
 	}
-
-	/* Success */
-	return (0);
 }
 
 
@@ -1696,7 +1693,7 @@ static bool save_player_aux(char *name)
 			if (wr_savefile_new()) ok = TRUE;
 
 			/* Attempt to close it */
-			if (my_fclose(fff)) ok = FALSE;
+			my_fclose(fff);
 		}
 
 		/* Remove "broken" files */
@@ -1749,7 +1746,7 @@ bool save_player(void)
 #endif /* VM */
 
 	/* Remove it */
-	fd_kill(safe);
+	(void)fd_kill(safe);
 
 	/* Attempt to save the player */
 	if (save_player_aux(safe))
@@ -1767,16 +1764,16 @@ bool save_player(void)
 #endif /* VM */
 
 		/* Remove it */
-		fd_kill(temp);
+		(void)fd_kill(temp);
 
 		/* Preserve old savefile */
-		fd_move(savefile, temp);
+		(void)fd_move(savefile, temp);
 
 		/* Activate new savefile */
-		fd_move(safe, savefile);
+		(void)fd_move(safe, savefile);
 
 		/* Remove preserved savefile */
-		fd_kill(temp);
+		(void)fd_kill(temp);
 
 		/* Hack -- Pretend the character was loaded */
 		character_loaded = TRUE;

@@ -17,10 +17,10 @@ have generated more than one character, you can switch back and forth
 between the two most recent characters, until you are presented with a
 character that you feel comfortable with.
 
-You may start the entire process over at any time by pressing 'S' at
+You may start the entire process over at any time by pressing 'ESC' at
 any prompt (with the exception of the autoroller (see below [1]) prompt
-and the prompt for the number of random quests (see below [2])).
-
+and the prompt for the number of random quests (see below [2])).  Also,
+on the final screen, use delete or backspace to restart.
 
 ***** <BirthOptions>
 === Birth Options ===

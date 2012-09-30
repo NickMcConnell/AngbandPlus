@@ -35,7 +35,7 @@
 /*
  * Current version string
  */
-#define VERSION_STRING	"2.6.1"
+#define VERSION_STRING	"2.6.2"
 
 
 /*
@@ -57,7 +57,7 @@
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 2
 #define FAKE_VER_MINOR 6
-#define FAKE_VER_PATCH 1
+#define FAKE_VER_PATCH 2
 #endif /* USE_SCRIPT */
 
 #define ANGBAND_2_8_1
@@ -473,7 +473,7 @@
 /*
  * The racial powers
  */
-#define MAX_RACE_POWERS		26
+#define MAX_RACE_POWERS		28
 
 
 /* Monk martial arts... */
@@ -901,11 +901,12 @@
 #define RACE_SPECTRE            27
 #define RACE_SPRITE             28
 #define RACE_BEASTMAN           29
+#define RACE_GHOUL              30
 
 /*
  * Maximum number of player "race" types (see "table.c", etc)
  */
-#define MAX_RACES               30
+#define MAX_RACES               31
 
 
 /*
@@ -3444,7 +3445,7 @@
 #define show_labels				p_ptr->options[10]
 #define show_weights			p_ptr->options[11]
 #define view_monster_grids		p_ptr->options[12]
-/* {TRUE,  0, NULL,					"Number 13" }, p_ptr->options[13] */
+#define toggle_xp				p_ptr->options[13]
 #define ring_bell				p_ptr->options[14]
 #define use_color				p_ptr->options[15]
 #define find_ignore_stairs		p_ptr->options[16]
@@ -3482,8 +3483,8 @@
 /* {TRUE,  0, NULL,					"Number 45" }, svr_ptr->options[12] */
 #define smart_packs				svr_ptr->options[13]
 /* {TRUE,  0, NULL,					"Number 47" }, svr_ptr->options[14] */
-#define	view_reduce_lite		p_ptr->options[33]
-#define view_reduce_view		p_ptr->options[34]
+/* {TRUE,  0, NULL,					"Number 48" }, p_ptr->options[33] */
+/* {TRUE,  0, NULL,					"Number 49" }, p_ptr->options[34] */
 #define avoid_abort				p_ptr->options[35]
 #define avoid_other				p_ptr->options[36]
 #define flush_failure			p_ptr->options[37]
@@ -3648,7 +3649,7 @@
 #define ironman_downward		p_ptr->birth[4]
 #define ironman_autoscum		p_ptr->birth[5]
 #define ironman_hard_quests		p_ptr->birth[6]
-/* {TRUE,  0, NULL,					"Number 199" }, p_ptr->birth[7] */
+#define ironman_los				p_ptr->birth[7]
 #define ironman_empty_levels	p_ptr->birth[8]
 #define terrain_streams			p_ptr->birth[9]
 #define ironman_moria			p_ptr->birth[10]

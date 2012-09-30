@@ -19,9 +19,9 @@
  * die in an explosion chain-reaction.  (This is used as a circular
  * queue.)
  */
-s16b mon_d_head = 0;
-s16b mon_d_tail = 0;
-s16b mon_d_m_idx[DEATH_MAX];
+static s16b mon_d_head = 0;
+static s16b mon_d_tail = 0;
+static s16b mon_d_m_idx[DEATH_MAX];
 
 
 
@@ -1445,7 +1445,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 				if (r_ptr->level > randint0(p_ptr->lev * 3))
 				{
 					note = " resists.";
-					dam >>= 3;
+					dam /= 8;
 				}
 			}
 			break;
@@ -1504,17 +1504,17 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 							switch (randint1(4))
 							{
 								case 1:
-									set_confused(p_ptr->confused + 3 + randint1(dam));
+									(void) set_confused(p_ptr->confused + 3 + randint1(dam));
 									break;
 								case 2:
-									set_stun(p_ptr->stun + randint1(dam));
+									(void)set_stun(p_ptr->stun + randint1(dam));
 									break;
 								case 3:
 								{
 									if (r_ptr->flags3 & RF3_NO_FEAR)
 										note = " is unaffected.";
 									else
-										set_afraid(p_ptr->afraid + 3 + randint1(dam));
+										(void)set_afraid(p_ptr->afraid + 3 + randint1(dam));
 									break;
 								}
 								default:
@@ -1683,17 +1683,17 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 						switch (randint1(4))
 						{
 							case 1:
-								set_stun(p_ptr->stun + dam / 2);
+								(void)set_stun(p_ptr->stun + dam / 2);
 								break;
 							case 2:
-								set_confused(p_ptr->confused + dam / 2);
+								(void)set_confused(p_ptr->confused + dam / 2);
 								break;
 							default:
 							{
 								if (r_ptr->flags3 & RF3_NO_FEAR)
 									note = " is unaffected.";
 								else
-									set_afraid(p_ptr->afraid + dam);
+									(void)set_afraid(p_ptr->afraid + dam);
 							}
 						}
 					}
@@ -2764,9 +2764,6 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			/* Obvious */
 			if (seen) obvious = TRUE;
 
-			/* Monster polymorphs */
-			note = " changes!";
-
 			/* Turn off the damage */
 			dam = 0;
 
@@ -2775,6 +2772,12 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 
 			/* Hack -- Get new race */
 			r_ptr = &r_info[m_ptr->r_idx];
+		
+			/* Show the polymorph message (note is not used) */
+			msg_format("%^s changes!", m_name);
+			
+			/* Get the monster name (AFTER polymorphing) */
+			monster_desc(m_name, m_ptr, 0);
 		}
 		else
 		{
@@ -2795,7 +2798,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		chg_virtue(V_VALOUR, -1);
 
 		/* Teleport */
-		teleport_away(c_ptr->m_idx, do_dist);
+		(void)teleport_away(c_ptr->m_idx, do_dist);
 
 		/* Hack -- get new location */
 		y = m_ptr->fy;
@@ -2927,7 +2930,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 				mon_d_head = old_m_d_head;
 				
 				/* Hack XXX Die, but do not explode and call project() */
-				monster_death(c_ptr->m_idx, FALSE);
+				(void)monster_death(c_ptr->m_idx, FALSE);
 				
 				/* Delete the monster */
 				delete_monster_idx(c_ptr->m_idx);
@@ -3153,7 +3156,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 			t_x = m_list[who].fx;
 		}
 
-		project(0, 0, t_y, t_x, dam, typ, (PROJECT_STOP | PROJECT_KILL));
+		(void)project(0, 0, t_y, t_x, dam, typ, (PROJECT_STOP | PROJECT_KILL));
 
 		disturb(TRUE);
 		return TRUE;
@@ -3226,14 +3229,14 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 			if ((!(p_ptr->oppose_pois || p_ptr->resist_pois)) &&
 			     one_in_(HURT_CHANCE))
 			{
-				do_dec_stat(A_CON);
+				(void)do_dec_stat(A_CON);
 			}
 
 			take_hit(dam, killer);
 
 			if (!(p_ptr->resist_pois || p_ptr->oppose_pois))
 			{
-				set_poisoned(p_ptr->poisoned + randint0(dam) + 10);
+				(void)set_poisoned(p_ptr->poisoned + randint0(dam) + 10);
 			}
 			break;
 		}
@@ -3247,7 +3250,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 			take_hit(dam, killer);
 			if (!(p_ptr->resist_pois || p_ptr->oppose_pois))
 			{
-				set_poisoned(p_ptr->poisoned + randint0(dam) + 10);
+				(void)set_poisoned(p_ptr->poisoned + randint0(dam) + 10);
 
 				if (one_in_(5))
 				{
@@ -3260,7 +3263,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 
 				if (one_in_(6))
 				{
-					inven_damage(set_acid_destroy, 2);
+					(void)inven_damage(set_acid_destroy, 2);
 				}
 			}
 			break;
@@ -3313,15 +3316,15 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 
 			if (!p_ptr->resist_sound)
 			{
-				int k = (randint1((dam > 40) ? 35 : (dam * 3 / 4 + 5)));
-				(void)set_stun(p_ptr->stun + k);
+				(void)set_stun(p_ptr->stun +
+					 randint1((dam > 40) ? 35 : (dam * 3 / 4 + 5)));
 			}
 
 			if (!(p_ptr->resist_fire ||
 			      p_ptr->oppose_fire ||
 			      p_ptr->immune_fire))
 			{
-				inven_damage(set_acid_destroy, 3);
+				(void)inven_damage(set_acid_destroy, 3);
 			}
 
 			break;
@@ -3358,7 +3361,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 			if (p_ptr->prace == RACE_SPECTRE)
 			{
 				msg_print("You feel invigorated!");
-				hp_player(dam / 4);
+				(void)hp_player(dam / 4);
 			}
 			else
 			{
@@ -3374,16 +3377,16 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 			if (fuzzy) msg_print("You are hit by something wet!");
 			if (!p_ptr->resist_sound)
 			{
-				set_stun(p_ptr->stun + randint1(40));
+				(void)set_stun(p_ptr->stun + randint1(40));
 			}
 			if (!p_ptr->resist_confu)
 			{
-				set_confused(p_ptr->confused + rand_range(5, 10));
+				(void)set_confused(p_ptr->confused + rand_range(5, 10));
 			}
 
 			if (one_in_(5))
 			{
-				inven_damage(set_cold_destroy, 3);
+				(void)inven_damage(set_cold_destroy, 3);
 			}
 
 			take_hit(dam, killer);
@@ -3430,8 +3433,8 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 			}
 			if (!p_ptr->resist_chaos || one_in_(9))
 			{
-				inven_damage(set_elec_destroy, 2);
-				inven_damage(set_fire_destroy, 2);
+				(void)inven_damage(set_elec_destroy, 2);
+				(void)inven_damage(set_fire_destroy, 2);
 			}
 			take_hit(dam, killer);
 			break;
@@ -3452,7 +3455,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 
 			if (!p_ptr->resist_shard || one_in_(13))
 			{
-				inven_damage(set_cold_destroy, 2);
+				(void)inven_damage(set_cold_destroy, 2);
 			}
 
 			take_hit(dam, killer);
@@ -3469,13 +3472,13 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 			}
 			else
 			{
-				int k = (randint1((dam > 90) ? 35 : (dam / 3 + 5)));
-				(void)set_stun(p_ptr->stun + k);
+				(void)set_stun(p_ptr->stun +
+					 randint1((dam > 90) ? 35 : (dam / 3 + 5)));
 			}
 
 			if (!p_ptr->resist_sound || one_in_(13))
 			{
-				inven_damage(set_cold_destroy, 2);
+				(void)inven_damage(set_cold_destroy, 2);
 			}
 
 			take_hit(dam, killer);
@@ -3508,7 +3511,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 			}
 			else
 			{
-				apply_disenchant();
+				(void)apply_disenchant();
 			}
 			take_hit(dam, killer);
 			break;
@@ -3562,7 +3565,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 
 			if (!p_ptr->resist_shard || one_in_(12))
 			{
-				inven_damage(set_cold_destroy, 3);
+				(void)inven_damage(set_cold_destroy, 3);
 			}
 
 			take_hit(dam, killer);
@@ -3625,7 +3628,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 			{
 				(void)set_blind(p_ptr->blind + rand_range(2, 7));
 			}
-			if (p_ptr->wraith_form) hp_player(dam);
+			if (p_ptr->wraith_form) (void)hp_player(dam);
 			else take_hit(dam, killer);
 			break;
 		}
@@ -3692,8 +3695,8 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 				(void)set_slow(p_ptr->slow + rand_range(4, 8));
 			if (!(p_ptr->resist_sound || p_ptr->ffall))
 			{
-				int k = (randint1((dam > 90) ? 35 : (dam / 3 + 5)));
-				(void)set_stun(p_ptr->stun + k);
+				(void)set_stun(p_ptr->stun +
+					 randint1((dam > 90) ? 35 : (dam / 3 + 5)));
 			}
 			if (p_ptr->ffall)
 			{
@@ -3702,7 +3705,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 
 			if (!p_ptr->ffall || one_in_(13))
 			{
-				inven_damage(set_cold_destroy, 2);
+				(void)inven_damage(set_cold_destroy, 2);
 			}
 
 			take_hit(dam, killer);
@@ -3759,7 +3762,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 				get_mon_num_prep(NULL, NULL);
 			}
 
-			set_paralyzed(p_ptr->paralyzed + dam);
+			(void)set_paralyzed(p_ptr->paralyzed + dam);
 			dam = 0;
 			break;
 		}
@@ -3779,8 +3782,8 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 			take_hit(dam, killer);
 			if (!p_ptr->resist_shard || one_in_(13))
 			{
-				if (!p_ptr->immune_fire) inven_damage(set_fire_destroy, 2);
-				inven_damage(set_cold_destroy, 2);
+				if (!p_ptr->immune_fire) (void)inven_damage(set_fire_destroy, 2);
+				(void)inven_damage(set_cold_destroy, 2);
 			}
 
 			break;
@@ -3802,7 +3805,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 
 			if ((!(p_ptr->resist_cold || p_ptr->oppose_cold)) || one_in_(12))
 			{
-				if (!p_ptr->immune_cold) inven_damage(set_cold_destroy, 3);
+				if (!p_ptr->immune_cold) (void)inven_damage(set_cold_destroy, 3);
 			}
 
 			break;
@@ -3821,6 +3824,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 				case RACE_ZOMBIE:
 				case RACE_VAMPIRE:
 				case RACE_SPECTRE:
+				case RACE_GHOUL:
 				{
 					dam = 0;
 					break;
@@ -4087,6 +4091,10 @@ bool project(int who, int rad, int y, int x, int dam, int typ, u16b flg)
 		x1 = x;
 		y1 = y;
 
+		/* Default "destination" */
+		y2 = y;
+		x2 = x;
+		
 		/* Clear the flag */
 		flg &= ~(PROJECT_JUMP);
 
@@ -4098,29 +4106,38 @@ bool project(int who, int rad, int y, int x, int dam, int typ, u16b flg)
 	{
 		x1 = p_ptr->px;
 		y1 = p_ptr->py;
+		
+		/* Default "destination" */
+		y2 = y;
+		x2 = x;
 	}
 
 	/* Start at monster */
 	else if (who > 0)
 	{
-		x1 = m_list[who].fx;
-		y1 = m_list[who].fy;
+		if (ironman_los)
+		{
+			/*
+			 * Start at player, and go to monster
+			 * This means that monsters always can hit the player
+			 * if the player can see them
+			 */
+			y1 = y;
+			x1 = x;
+		
+			x2 = m_list[who].fx;
+			y2 = m_list[who].fy;
+		}
+		else
+		{
+			/* Start at monster, and go to player */
+			y2 = y;
+			x2 = x;
+		
+			x1 = m_list[who].fx;
+			y1 = m_list[who].fy;
+		}
 	}
-
-	/* Oops */
-	else
-	{
-		x1 = x;
-		y1 = y;
-	}
-
-	y_saver = y1;
-	x_saver = x1;
-
-	/* Default "destination" */
-	y2 = y;
-	x2 = x;
-
 
 	/* Hack -- verify stuff */
 	if (flg & (PROJECT_THRU))
@@ -4138,15 +4155,44 @@ bool project(int who, int rad, int y, int x, int dam, int typ, u16b flg)
 		breath = TRUE;
 		flg |= PROJECT_HIDE;
 	}
-
+	
+	/* Calculate the projection path */
+	path_n = project_path(path_g, y1, x1, y2, x2, flg);
+	
+	/* Do we need to invert the path? */
+	if (ironman_los && !jump && (who > 0))
+	{
+		for (i = 0; i < path_n / 2; i++)
+		{
+			/* Swap y coords */
+			t = path_g[i].y;
+			path_g[i].y = path_g[path_n - 1 - i].y;
+			path_g[path_n - 1 - i].y = t;
+		
+			/* Swap x coords */
+			t = path_g[i].x;
+			path_g[i].x = path_g[path_n - 1 - i].x;
+			path_g[path_n - 1 - i].x = t;
+	
+			/* Swap the initial and final coords */
+			t = y1;
+			y1 = y2;
+			y2 = t;
+		
+			t = x1;
+			x1 = x2;
+			x2 = t;
+		}
+	}
 
 	/* Hack -- Assume there will be no blast (max radius 32) */
 	for (dist = 0; dist < 32; dist++) gm[dist] = 0;
 
-
 	/* Initial grid */
 	y = y1;
 	x = x1;
+	y_saver = y1;
+	x_saver = x1;
 	dist = 0;
 
 	/* Collect beam grids */
@@ -4157,16 +4203,11 @@ bool project(int who, int rad, int y, int x, int dam, int typ, u16b flg)
 		grids++;
 	}
 
-
-	/* Calculate the projection path */
-	path_n = project_path(path_g, y1, x1, y2, x2, flg);
-
-
 	/* Hack -- Handle stuff */
 	handle_stuff();
 
 	/* Project along the path */
-	for (i = 0; i < path_n; ++i)
+	for (i = 0; i < path_n; i++)
 	{
 		int oy = y;
 		int ox = x;
@@ -4657,7 +4698,7 @@ bool project(int who, int rad, int y, int x, int dam, int typ, u16b flg)
 					}
 
 					/* Recursion... */
-					project(area(y, x)->m_idx, 0, t_y, t_x,  dam, typ, flg);
+					(void)project(area(y, x)->m_idx, 0, t_y, t_x,  dam, typ, flg);
 				}
 				else
 				{

@@ -30,7 +30,7 @@
 ?:[EQU $SYS gtk]
 %:pref-gtk.prf
 
-?:[IOR [EQU $SYS gcu] [EQU $SYS lsl]]
+?:[IOR [EQU $SYS gcu] [EQU $SYS lsl] [EQU $SYS vcs]]
 %:pref-gcu.prf
 
 ?:[EQU $SYS ami]

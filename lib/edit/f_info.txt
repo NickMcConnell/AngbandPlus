@@ -1,4 +1,4 @@
-# CVS: Last edit by $Author: sfuerst $ on $Date: 2001/01/04 23:22:59 $
+# CVS: Last edit by $Author: sfuerst $ on $Date: 2001/08/03 06:33:12 $
 # File: f_info.txt
 
 
@@ -193,7 +193,7 @@ G:#:D
 
 # 0x30 --> secret door
 
-N:48:secret door
+N:48:granite wall
 G:#:w
 
 # 0x31 --> rubble

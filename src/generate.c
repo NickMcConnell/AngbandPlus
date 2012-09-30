@@ -104,7 +104,7 @@
 #include "rooms.h"
 #include "streams.h"
 
-int dun_rooms;
+static int dun_rooms;
 
 int dun_tun_rnd;
 int dun_tun_chg;
@@ -441,13 +441,11 @@ static bool cave_gen(void)
 	{
 		for (x = min_wid; x < max_wid; x++)
 		{
-			cave_type *c_ptr = &cave[y][x];
-
 			if (empty_level)
-				c_ptr->feat = FEAT_FLOOR;
+				cave[y][x].feat = FEAT_FLOOR;
 			else
 			  /* Create granite wall */
-				c_ptr->feat = FEAT_WALL_EXTRA;
+				cave[y][x].feat = FEAT_WALL_EXTRA;
 		}
 	}
 
@@ -675,37 +673,29 @@ static bool cave_gen(void)
 	/* Special boundary walls -- Top */
 	for (x = min_wid; x < max_wid; x++)
 	{
-		cave_type *c_ptr = &cave[min_hgt][x];
-
 		/* Clear previous contents, add "solid" perma-wall */
-		c_ptr->feat = FEAT_PERM_SOLID;
+		cave[min_hgt][x].feat = FEAT_PERM_SOLID;
 	}
 
 	/* Special boundary walls -- Bottom */
 	for (x = min_wid; x < max_wid; x++)
 	{
-		cave_type *c_ptr = &cave[max_hgt - 1][x];
-
 		/* Clear previous contents, add "solid" perma-wall */
-		c_ptr->feat = FEAT_PERM_SOLID;
+		cave[max_hgt - 1][x].feat = FEAT_PERM_SOLID;
 	}
 
 	/* Special boundary walls -- Left */
 	for (y = min_hgt; y < max_hgt; y++)
 	{
-		cave_type *c_ptr = &cave[y][min_wid];
-
 		/* Clear previous contents, add "solid" perma-wall */
-		c_ptr->feat = FEAT_PERM_SOLID;
+		cave[y][min_wid].feat = FEAT_PERM_SOLID;
 	}
 
 	/* Special boundary walls -- Right */
 	for (y = min_hgt; y < max_hgt; y++)
 	{
-		cave_type *c_ptr = &cave[y][max_wid - 1];
-
 		/* Clear previous contents, add "solid" perma-wall */
-		c_ptr->feat = FEAT_PERM_SOLID;
+		cave[y][max_wid - 1].feat = FEAT_PERM_SOLID;
 	}
 
 
@@ -743,7 +733,7 @@ static bool cave_gen(void)
 		if ((randint1(20) > p_ptr->depth) && one_in_(4))
 		{
 			/* make catacomb-like tunnel */
-			build_tunnel2(dun->cent[i].x, dun->cent[i].y, x, y, 3, 30);
+			(void)build_tunnel2(dun->cent[i].x, dun->cent[i].y, x, y, 3, 30);
 		}
 		else if (randint1(p_ptr->depth) > 50)
 #else
@@ -751,7 +741,7 @@ static bool cave_gen(void)
 #endif /* PILLAR_TUNNELS */
 		{
 			/* make cave-like tunnel */
-			build_tunnel2(dun->cent[i].x, dun->cent[i].y, x, y, 2, 2);
+			(void)build_tunnel2(dun->cent[i].x, dun->cent[i].y, x, y, 2, 2);
 		}
 		else
 		{

@@ -837,7 +837,7 @@ bool do_cmd_open_aux(int y, int x)
 	p_ptr->energy_use = 100;
 
 	/* Get requested grid */
-	c_ptr = area(y,x);
+	c_ptr = area(y, x);
 	
 	/* Must be a closed door */
 	if (c_ptr->feat != FEAT_CLOSED)
@@ -922,7 +922,7 @@ void do_cmd_open(void)
 		int num_doors, num_chests;
 
 		/* Count closed doors */
-		num_doors = count_doors(&y, &x, is_closed, FALSE);
+		num_doors = count_doors(&y, &x, is_closed, TRUE);
 
 		/* Count chests (locked) */
 		num_chests = count_chests(&y, &x, FALSE);
@@ -948,7 +948,7 @@ void do_cmd_open(void)
 	}
 
 	/* Get a "repeated" direction */
-	if (get_rep_dir(&dir,FALSE))
+	if (get_rep_dir(&dir))
 	{
 		/* Get requested location */
 		y = p_ptr->py + ddy[dir];
@@ -967,7 +967,7 @@ void do_cmd_open(void)
 		if (!in_bounds2(y, x)) return;
 
 		/* Get requested grid */
-		c_ptr = area(y,x);
+		c_ptr = area(y, x);
 
 		/* Check for chest */
 		o_idx = chest_check(y, x);
@@ -1029,6 +1029,15 @@ static bool do_cmd_close_aux(int y, int x)
 	bool		more = FALSE;
 
 
+	if ((x == p_ptr->px) && (y == p_ptr->py))
+	{
+		/* You cannot close a door beneith yourself */
+		msg_print("You cannot close it now.");
+		
+		/* No more */
+		return (more);
+	}
+	
 	/* Take a turn */
 	p_ptr->energy_use = 100;
 
@@ -1095,7 +1104,7 @@ void do_cmd_close(void)
 	}
 
 	/* Get a "repeated" direction */
-	if (get_rep_dir(&dir,FALSE))
+	if (get_rep_dir(&dir))
 	{
 		/* Get requested location */
 		y = p_ptr->py + ddy[dir];
@@ -1506,7 +1515,7 @@ void do_cmd_tunnel(void)
 	}
 
 	/* Get a direction to tunnel, or Abort */
-	if (get_rep_dir(&dir,FALSE))
+	if (get_rep_dir(&dir))
 	{
 		/* Get location */
 		y = p_ptr->py + ddy[dir];
@@ -1795,7 +1804,7 @@ void do_cmd_disarm(void)
 	}
 
 	/* Get a direction (or abort) */
-	if (get_rep_dir(&dir,TRUE))
+	if (get_rep_dir(&dir))
 	{
 		/* Get location */
 		y = p_ptr->py + ddy[dir];
@@ -1888,7 +1897,7 @@ void do_cmd_alter(void)
 	}
 
 	/* Get a direction */
-	if (get_rep_dir(&dir,TRUE))
+	if (get_rep_dir(&dir))
 	{
 		/* Get location */
 		y = p_ptr->py + ddy[dir];
@@ -2035,7 +2044,7 @@ void do_cmd_spike(void)
 
 
 	/* Get a "repeated" direction */
-	if (get_rep_dir(&dir,FALSE))
+	if (get_rep_dir(&dir))
 	{
 		/* Get location */
 		y = p_ptr->py + ddy[dir];
@@ -2127,7 +2136,7 @@ void do_cmd_walk(int pickup)
 	}
 
 	/* Get a "repeated" direction */
-	if (get_rep_dir(&dir,FALSE))
+	if (get_rep_dir(&dir))
 	{
 		/* Take a turn */
 		p_ptr->energy_use = 100;
@@ -2160,7 +2169,7 @@ void do_cmd_run(void)
 	}
 
 	/* Get a "repeated" direction */
-	if (get_rep_dir(&dir,FALSE))
+	if (get_rep_dir(&dir))
 	{
 		/* Hack -- Set the run counter */
 		p_ptr->running = (p_ptr->command_arg ? p_ptr->command_arg : 1000);
@@ -2878,13 +2887,8 @@ void do_cmd_fire_aux(int item, object_type *j_ptr)
 					/* Take note */
 					if (fear && m_ptr->ml)
 					{
-						char m_name[80];
-
 						/* Sound */
 						sound(SOUND_FLEE);
-
-						/* Get the monster name (or "it") */
-						monster_desc(m_name, m_ptr, 0);
 
 						/* Message */
 						msg_format("%^s flees in terror!", m_name);
@@ -3317,13 +3321,8 @@ void do_cmd_throw_aux(int mult)
 					/* Take note */
 					if (fear && m_ptr->ml)
 					{
-						char m_name[80];
-
 						/* Sound */
 						sound(SOUND_FLEE);
-
-						/* Get the monster name (or "it") */
-						monster_desc(m_name, m_ptr, 0);
 
 						/* Message */
 						msg_format("%^s flees in terror!", m_name);
@@ -3342,15 +3341,13 @@ void do_cmd_throw_aux(int mult)
 	/* Figurines transform */
 	if (q_ptr->tval == TV_FIGURINE)
 	{
-		bool pet = (cursed_p(q_ptr) ? FALSE : TRUE);
-
 		/* Always break */
 		breakage = 100;
 
-		if (!(summon_named_creature(y, x, q_ptr->pval, FALSE, FALSE, pet)))
+		if (!(summon_named_creature(y, x, q_ptr->pval, FALSE, FALSE, TRUE)))
+		{
 			msg_print("The Figurine writhes and then shatters.");
-		else if (cursed_p(q_ptr))
-			msg_print("You have a bad feeling about this.");
+		}
 	}
 
 	/* Potions smash open */
@@ -3370,9 +3367,9 @@ void do_cmd_throw_aux(int mult)
 				    !is_hostile(&m_list[area(y, x)->m_idx]) &&
 				    !(m_ptr->invulner))
 				{
-					char m_name[80];
-					monster_desc(m_name, &m_list[area(y, x)->m_idx], 0);
-					msg_format("%^s gets angry!", m_name);
+					char m_name2[80];
+					monster_desc(m_name2, &m_list[area(y, x)->m_idx], 0);
+					msg_format("%^s gets angry!", m_name2);
 					set_hostile(&m_list[area(y, x)->m_idx]);
 				}
 			}

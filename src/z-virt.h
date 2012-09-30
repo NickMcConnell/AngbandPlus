@@ -159,10 +159,7 @@ extern vptr ralloc(huge len);
 extern cptr string_make(cptr str);
 
 /* Free a string allocated with "string_make()" */
-extern errr string_free(cptr str);
-
-
-
+extern void string_free(cptr str);
 
 #endif
 

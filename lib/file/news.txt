@@ -1,7 +1,7 @@
 
 
                              **********************
-                             **  ZAngband 2.6.1  **
+                             **  ZAngband 2.6.2  **
                              **********************
 
               Based on Moria:    Copyright (c) 1985 Robert Alan Koeneke
@@ -9,7 +9,7 @@
 
            Angband 2.7 - 2.8:    Ben Harrison < benh@phial.com >
 
-           Old Zangband code:    (Mr) Topi Ylinen < f1toyl@uta.fi >
+           Old Zangband code:    (Mr) Topi Ylinen < topiy@luukku.com >
            New Zangband code:    Robert Ruehlmann < rr9@angband.org >
         ZAngband 2.3.0 - ???:    The ZAngband DevTeam
 

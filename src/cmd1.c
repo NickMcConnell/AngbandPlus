@@ -1486,6 +1486,8 @@ void py_attack(int y, int x)
 	bool            drain_msg = TRUE;
 	int             drain_result = 0, drain_heal = 0;
 	int             drain_left = MAX_VAMPIRIC_DRAIN;
+	s16b            ghoul_paral = -1;
+	bool            ghoul_hack = FALSE;
 	u32b            f1, f2, f3;
 	bool            no_extra = FALSE;
 
@@ -1496,7 +1498,17 @@ void py_attack(int y, int x)
 	/* Initial blows available. */
 	blows = p_ptr->num_blow;
 
-	if (m_ptr->csleep) /* It is not honorable etc to attack helpless victims */
+	/* Prepare for ghoul paralysis? */
+	if (!(inventory[INVEN_WIELD].k_idx) && (p_ptr->prace == RACE_GHOUL))
+	{
+		ghoul_paral = 0;
+
+		/* Prevent bogus falls asleep messages */
+		if (!(m_ptr->csleep)) ghoul_hack = TRUE;
+	}
+
+	/* It is not honorable etc to attack helpless victims -- in most cases */
+	if ((m_ptr->csleep) && (ghoul_paral > -1)) 
 	{
 		chg_virtue(V_COMPASSION, -1);
 		if (!(p_ptr->pclass == CLASS_ROGUE)) chg_virtue(V_HONOUR, -1);
@@ -1517,7 +1529,6 @@ void py_attack(int y, int x)
 
 	/* Disturb the monster */
 	m_ptr->csleep = 0;
-
 
 	/* Extract monster name (or "it") */
 	monster_desc(m_name, m_ptr, 0);
@@ -1679,6 +1690,13 @@ void py_attack(int y, int x)
 					drain_result = 0;
 			}
 
+			/* Ghoul paralysis */
+			if ((ghoul_paral > -1) && !(r_ptr->flags3 & RF3_NO_SLEEP) &&
+			    (r_ptr->level < randint0(1 + ((p_ptr->lev) * 2))))
+			{
+ 				ghoul_paral += 25 +  randint1(p_ptr->lev / 2);
+			}
+
 			/* Monk attack? */
 			if ((p_ptr->pclass == CLASS_MONK) &&
 				 (!(inventory[INVEN_WIELD].k_idx)))
@@ -1686,7 +1704,7 @@ void py_attack(int y, int x)
 				/* Make a special monk attack */
 				monk_attack(m_ptr, &k, m_name);
 			}
-			
+		        
 			/* Handle normal weapon */
 			else if (o_ptr->k_idx)
 			{
@@ -1802,7 +1820,9 @@ void py_attack(int y, int x)
 			/* Bare hands and not a monk */
 			else
 			{
-				msg_format("You punch %s.", m_name); break;			
+				msg_format("You %s %s.",
+				           ((p_ptr->prace == RACE_GHOUL) ? "claw" : "punch"),
+				           m_name);
 			}
 
 			/* No negative damage */
@@ -2000,8 +2020,25 @@ void py_attack(int y, int x)
 			natural_attack(c_ptr->m_idx, MUT2_TENTACLES, &fear, &mdeath);
 	}
 
+	/* 
+	 * Hack -- delay paralysis (otherwise, consecutive attacks would make
+	 * it counterproductive
+	 */
+	if (ghoul_paral > 0)
+	{
+		/* Message */
+		if (ghoul_hack && (m_ptr->ml))
+		{
+			msg_format("%^s falls asleep!", m_name);
+		}
+		
+		/* Sleep */
+		m_ptr->csleep += 5 * ghoul_paral;
+		ghoul_paral = 0;
+	}
+
 	/* Hack -- delay fear messages */
-	if (fear && m_ptr->ml)
+	else if (fear && m_ptr->ml)
 	{
 		/* Sound */
 		sound(SOUND_FLEE);
@@ -2021,7 +2058,7 @@ void py_attack(int y, int x)
 		int px = p_ptr->px;
 		int py = p_ptr->py;
 
-		earthquake(py, px, 10);
+		(void) earthquake(py, px, 10);
 	}
 }
 
@@ -2029,7 +2066,6 @@ void py_attack(int y, int x)
 static void summon_pattern_vortex(int y, int x)
 {
 	int i;
-
 
 	/* Find the pattern vortex */
 	for (i = 1; i < max_r_idx; i++)

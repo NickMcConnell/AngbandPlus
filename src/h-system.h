@@ -198,7 +198,11 @@ extern errr init_lsl(void);
 #endif
 
 #ifdef USE_GTK
-extern errr init_gtk(int, char**);
+extern errr init_gtk(unsigned char*, int, char**);
+#endif
+
+#ifdef USE_VCS
+extern errr init_vcs(int argc, char** argv);
 #endif
 
 #endif /* INCLUDED_H_SYSTEM_H */

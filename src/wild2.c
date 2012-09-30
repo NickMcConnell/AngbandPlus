@@ -21,8 +21,8 @@
  * See make_wild_03() for an instance of this.
  * This ability will also be used by other routines in the future.
  */
-void gen_block_helper(blk_ptr block_ptr, byte *data, int gen_type);
-void blend_helper(cave_type *c_ptr, byte *data, int g_type);
+static void gen_block_helper(blk_ptr block_ptr, byte *data, int gen_type);
+static void blend_helper(cave_type *c_ptr, byte *data, int g_type);
 
 
 /* Lighten / Darken new block depending on Day/ Night */
@@ -127,8 +127,8 @@ static cave_type *access_wild(int y, int x)
 	 * Logical AND with 15 to get location within block.
 	 */
 
-	return &wild_grid.block_ptr[(y>>4) - wild_grid.y]
-		[(x>>4) - wild_grid.x][y & 15][x & 15];
+	return &wild_grid.block_ptr[(y / 16) - wild_grid.y]
+		[(x / 16) - wild_grid.x][y & 15][x & 15];
 }
 
 
@@ -1331,7 +1331,7 @@ void frac_block(void)
 					/* Average of left and right points +random bit */
 					temp_block[j][i] = (((temp_block[j][i - hstep] +
 					         temp_block[j][i + hstep]) +
-					         (randint1(lstep << 8) - (hstep << 8))) >> 1);
+					         (randint1(lstep * 256) - (hstep * 256))) / 2);
 				}
 			}
 		}
@@ -1347,7 +1347,7 @@ void frac_block(void)
 					/* Average of up and down points +random bit */
 					temp_block[j][i] = (((temp_block[j - hstep][i] +
 					          temp_block[j + hstep][i]) +
-					          (randint1(lstep << 8) - (hstep << 8))) >> 1);
+					          (randint1(lstep * 256) - (hstep * 256))) / 2);
 				}
 			}
 		}
@@ -1368,8 +1368,8 @@ void frac_block(void)
 					temp_block[j][i] = ((temp_block[j - hstep][i - hstep] +
 					       temp_block[j + hstep][i - hstep] +
 					       temp_block[j - hstep][i + hstep] +
-					       temp_block[j + hstep][i + hstep]) >> 2) +
-					       (((randint1(lstep << 8) - (hstep << 8)) * 181) >> 8);
+					       temp_block[j + hstep][i + hstep]) / 4) +
+					       (((randint1(lstep * 256) - (hstep * 256)) * 181) / 256);
 				}
 			}
 		}
@@ -1412,7 +1412,7 @@ static void smooth_block(void)
 				{
 					/* Average of left and right points */
 					temp_block[j][i] = ((temp_block[j][i - hstep] +
-					                     temp_block[j][i + hstep]) >> 1);
+					                     temp_block[j][i + hstep]) / 2);
 				}
 			}
 		}
@@ -1428,7 +1428,7 @@ static void smooth_block(void)
 				{
 					/* Average of up and down points */
 					temp_block[j][i] = ((temp_block[j - hstep][i] +
-					                     temp_block[j + hstep][i]) >> 1);
+					                     temp_block[j + hstep][i]) / 2);
 				}
 			}
 		}
@@ -1445,7 +1445,7 @@ static void smooth_block(void)
 					temp_block[j][i] = ((temp_block[j - hstep][i - hstep] +
 					                     temp_block[j + hstep][i - hstep] +
 					                     temp_block[j - hstep][i + hstep] +
-					                     temp_block[j + hstep][i + hstep]) >> 2);
+					                     temp_block[j + hstep][i + hstep]) / 4);
 				}
 			}
 		}
@@ -1975,7 +1975,7 @@ static void blend_wild_02(cave_type *c_ptr, byte *data)
 }
 
 
-void blend_helper(cave_type *c_ptr, byte *data, int g_type)
+static void blend_helper(cave_type *c_ptr, byte *data, int g_type)
 {
 	/* Based on type - choose wilderness block generation function */
 	switch (g_type)
@@ -2085,7 +2085,7 @@ static void blend_block(int x, int y, blk_ptr block_ptr, u16b type)
 /*
  * Make the specified terrain type at a wilderness block
  */
-void gen_block_helper(blk_ptr block_ptr, byte *data, int gen_type)
+static void gen_block_helper(blk_ptr block_ptr, byte *data, int gen_type)
 {
 	/* Based on type - choose wilderness block generation function */
 	switch (gen_type)
@@ -2538,8 +2538,8 @@ void move_wild(void)
 	/* Get upper left hand block in grid. */
 
 	/* Divide by 16 to get block from (x,y) coord */
-	x = ((u16b)p_ptr->wilderness_x>>4);
-	y = ((u16b)p_ptr->wilderness_y>>4);
+	x = ((u16b)p_ptr->wilderness_x / 16);
+	y = ((u16b)p_ptr->wilderness_y / 16);
 
 	/* The player sees the wilderness block he is on. */
 	wild[y][x].done.info |= WILD_INFO_SEEN;
@@ -2556,7 +2556,7 @@ void move_wild(void)
 
 	/* Hack - set town */
 	p_ptr->town_num =
-	    wild[p_ptr->wilderness_y >> 4][p_ptr->wilderness_x >> 4].done.town;
+	    wild[p_ptr->wilderness_y / 16][p_ptr->wilderness_x / 16].done.town;
 
 	/*
 	 * Hack - check to see if first block is the same.
@@ -2574,8 +2574,8 @@ void move_wild(void)
 	wild_grid.y = y;
 
 	/* Recalculate boundaries */
-	wild_grid.y_max = (y + WILD_GRID_SIZE) << 4;
-	wild_grid.y_min = y << 4;
+	wild_grid.y_max = (y + WILD_GRID_SIZE) * 16;
+	wild_grid.y_min = y * 16;
 
 	max_hgt = wild_grid.y_max;
 	min_hgt = wild_grid.y_min;
@@ -2594,8 +2594,8 @@ void move_wild(void)
 		wild_grid.x = x;
 
 		/* Recalculate boundaries */
-		wild_grid.x_max = (x + WILD_GRID_SIZE) << 4;
-		wild_grid.x_min = x << 4;
+		wild_grid.x_max = (x + WILD_GRID_SIZE) * 16;
+		wild_grid.x_min = x * 16;
 
 		max_wid = wild_grid.x_max;
 		min_wid = wild_grid.x_min;
@@ -2608,8 +2608,8 @@ void move_wild(void)
 	wild_grid.x = x;
 
 	/* Recalculate boundaries */
-	wild_grid.x_max = (x + WILD_GRID_SIZE) << 4;
-	wild_grid.x_min = x << 4;
+	wild_grid.x_max = (x + WILD_GRID_SIZE) * 16;
+	wild_grid.x_min = x * 16;
 
 	max_wid = wild_grid.x_max;
 	min_wid = wild_grid.x_min;

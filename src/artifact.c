@@ -1137,7 +1137,7 @@ static void give_activation_power(object_type *o_ptr, int artifact_bias)
 		
 		case BIAS_NECROMANTIC:
 			chance = 101;
-			if (randint1(66) )
+			if (randint1(66))
 				type = ACT_WRAITH;
 			else if (one_in_(13))
 				type = ACT_DISP_GOOD;
@@ -1529,12 +1529,11 @@ bool create_artifact(object_type *o_ptr, bool a_scroll)
 
 	if (o_ptr->dd && o_ptr->ds)
 	{
-		while (one_in_(10L * o_ptr->dd * o_ptr->ds) && (o_ptr->ds < 10))
+		if (one_in_(10L * o_ptr->dd * o_ptr->ds))
 		{
-			o_ptr->dd++;
+			o_ptr->ds += (o_ptr->ds * randint1(5)) / 5;
 		}
 	}
-
 
 	if (o_ptr->tval >= TV_BOOTS)
 	{
@@ -1634,7 +1633,7 @@ bool activate_effect(object_type *o_ptr)
 			case ART_GALADRIEL:
 			{
 				msg_print("The phial wells with clear light...");
-				lite_area(damroll(2, 15), 3);
+				(void)lite_area(damroll(2, 15), 3);
 				o_ptr->timeout = (s16b)rand_range(10, 20);
 				break;
 			}
@@ -1643,7 +1642,7 @@ bool activate_effect(object_type *o_ptr)
 			{
 				msg_print("The star shines brightly...");
 				map_area();
-				lite_area(damroll(2, 15), 3);
+				(void)lite_area(damroll(2, 15), 3);
 				o_ptr->timeout = (s16b)rand_range(50, 100);
 				break;
 			}
@@ -1679,7 +1678,7 @@ bool activate_effect(object_type *o_ptr)
 			case ART_INGWE:
 			{
 				msg_print("The amulet floods the area with goodness...");
-				dispel_evil(p_ptr->lev * 5);
+				(void)dispel_evil(p_ptr->lev * 5);
 				o_ptr->timeout = (s16b)rand_range(300, 600);
 				break;
 			}
@@ -1712,7 +1711,7 @@ bool activate_effect(object_type *o_ptr)
 			{
 				msg_print("The ring glows deep red...");
 				if (!get_aim_dir(&dir)) return FALSE;
-				fire_ball(GF_FIRE, dir, 250, 3);
+				(void)fire_ball(GF_FIRE, dir, 250, 3);
 				o_ptr->timeout = (s16b)rand_range(225, 450);
 				break;
 			}
@@ -1721,7 +1720,7 @@ bool activate_effect(object_type *o_ptr)
 			{
 				msg_print("The ring glows bright white...");
 				if (!get_aim_dir(&dir)) return FALSE;
-				fire_ball(GF_COLD, dir, 400, 3);
+				(void)fire_ball(GF_COLD, dir, 400, 3);
 				o_ptr->timeout = (s16b)rand_range(325, 650);
 				break;
 			}
@@ -1730,7 +1729,7 @@ bool activate_effect(object_type *o_ptr)
 			{
 				msg_print("The ring glows deep blue...");
 				if (!get_aim_dir(&dir)) return FALSE;
-				fire_ball(GF_ELEC, dir, 500, 3);
+				(void)fire_ball(GF_ELEC, dir, 500, 3);
 				o_ptr->timeout = (s16b)rand_range(425, 850);
 				break;
 			}
@@ -1770,7 +1769,7 @@ bool activate_effect(object_type *o_ptr)
 						if ((y != py) || (x != px)) break;
 					}
 
-					project(0, 3, y, x, 1000, GF_ELEC,
+					(void)project(0, 3, y, x, 1000, GF_ELEC,
 							  (PROJECT_THRU | PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL));
 				}
 
@@ -1782,7 +1781,7 @@ bool activate_effect(object_type *o_ptr)
 			{
 				if (!get_aim_dir(&dir)) return FALSE;
 				msg_print("You breathe the elements.");
-				fire_ball(GF_MISSILE, dir, 1000, 4);
+				(void)fire_ball(GF_MISSILE, dir, 1000, 4);
 				msg_print("Your armor glows many colours...");
 				(void)set_afraid(0);
 				(void)set_shero(p_ptr->shero + rand_range(50, 100));
@@ -1832,7 +1831,7 @@ bool activate_effect(object_type *o_ptr)
 			case ART_CASPANION:
 			{
 				msg_print("Your armor glows bright red...");
-				destroy_doors_touch();
+				(void)destroy_doors_touch();
 				o_ptr->timeout = 10;
 				break;
 			}
@@ -1840,7 +1839,7 @@ bool activate_effect(object_type *o_ptr)
 			case ART_DOR:
 			case ART_TERROR:
 			{
-				turn_monsters(40 + p_ptr->lev);
+				(void)turn_monsters(40 + p_ptr->lev);
 				o_ptr->timeout = 3 * (p_ptr->lev + 10);
 				break;
 			}
@@ -1849,7 +1848,7 @@ bool activate_effect(object_type *o_ptr)
 			{
 				msg_print("Your helm glows bright white...");
 				msg_print("An image forms in your mind...");
-				detect_all();
+				(void)detect_all();
 				o_ptr->timeout = (s16b)rand_range(55, 110);
 				break;
 			}
@@ -1879,7 +1878,7 @@ bool activate_effect(object_type *o_ptr)
 			case ART_HOLCOLLETH:
 			{
 				msg_print("Your cloak glows deep blue...");
-				sleep_monsters_touch();
+				(void)sleep_monsters_touch();
 				o_ptr->timeout = 55;
 				break;
 			}
@@ -1887,7 +1886,7 @@ bool activate_effect(object_type *o_ptr)
 			case ART_THINGOL:
 			{
 				msg_print("Your cloak glows bright yellow...");
-				recharge(130);
+				(void)recharge(130);
 				o_ptr->timeout = 70;
 				break;
 			}
@@ -1903,7 +1902,7 @@ bool activate_effect(object_type *o_ptr)
 			case ART_LUTHIEN:
 			{
 				msg_print("Your cloak glows a deep red...");
-				restore_level();
+				(void)restore_level();
 				o_ptr->timeout = 450;
 				break;
 			}
@@ -1912,7 +1911,7 @@ bool activate_effect(object_type *o_ptr)
 			{
 				msg_print("Your gloves glow extremely brightly...");
 				if (!get_aim_dir(&dir)) return FALSE;
-				fire_bolt(GF_MISSILE, dir, damroll(3, 6));
+				(void)fire_bolt(GF_MISSILE, dir, damroll(3, 6));
 				o_ptr->timeout = 2;
 				break;
 			}
@@ -1921,7 +1920,7 @@ bool activate_effect(object_type *o_ptr)
 			{
 				msg_print("Your gauntlets are covered in fire...");
 				if (!get_aim_dir(&dir)) return FALSE;
-				fire_bolt(GF_FIRE, dir, damroll(11, 8));
+				(void)fire_bolt(GF_FIRE, dir, damroll(11, 8));
 				o_ptr->timeout = (s16b)rand_range(8, 16);
 				break;
 			}
@@ -1930,7 +1929,7 @@ bool activate_effect(object_type *o_ptr)
 			{
 				msg_print("Your gauntlets are covered in frost...");
 				if (!get_aim_dir(&dir)) return FALSE;
-				fire_bolt(GF_COLD, dir, damroll(8, 8));
+				(void)fire_bolt(GF_COLD, dir, damroll(8, 8));
 				o_ptr->timeout = (s16b)rand_range(7, 14);
 				break;
 			}
@@ -1939,7 +1938,7 @@ bool activate_effect(object_type *o_ptr)
 			{
 				msg_print("Your gauntlets are covered in sparks...");
 				if (!get_aim_dir(&dir)) return FALSE;
-				fire_bolt(GF_ELEC, dir, damroll(6, 8));
+				(void)fire_bolt(GF_ELEC, dir, damroll(6, 8));
 				o_ptr->timeout = (s16b)rand_range(6, 12);
 				break;
 			}
@@ -1948,7 +1947,7 @@ bool activate_effect(object_type *o_ptr)
 			{
 				msg_print("Your gauntlets are covered in acid...");
 				if (!get_aim_dir(&dir)) return FALSE;
-				fire_bolt(GF_ACID, dir, damroll(8, 8));
+				(void)fire_bolt(GF_ACID, dir, damroll(8, 8));
 				o_ptr->timeout = (s16b)rand_range(5, 10);
 				break;
 			}
@@ -1957,7 +1956,7 @@ bool activate_effect(object_type *o_ptr)
 			{
 				msg_print("Your cesti grows magical spikes...");
 				if (!get_aim_dir(&dir)) return FALSE;
-				fire_bolt(GF_ARROW, dir, 250);
+				(void)fire_bolt(GF_ARROW, dir, 250);
 				o_ptr->timeout = (s16b)rand_range(90, 180);
 				break;
 			}
@@ -1990,7 +1989,7 @@ bool activate_effect(object_type *o_ptr)
 			{
 				msg_print("Your dagger is covered in fire...");
 				if (!get_aim_dir(&dir)) return FALSE;
-				fire_bolt(GF_FIRE, dir, damroll(11, 8));
+				(void)fire_bolt(GF_FIRE, dir, damroll(11, 8));
 				o_ptr->timeout = (s16b)rand_range(8, 16);
 				break;
 			}
@@ -1999,7 +1998,7 @@ bool activate_effect(object_type *o_ptr)
 			{
 				msg_print("Your dagger is covered in frost...");
 				if (!get_aim_dir(&dir)) return FALSE;
-				fire_bolt(GF_COLD, dir, damroll(8, 8));
+				(void)fire_bolt(GF_COLD, dir, damroll(8, 8));
 				o_ptr->timeout = (s16b)rand_range(7, 14);
 				break;
 			}
@@ -2008,7 +2007,7 @@ bool activate_effect(object_type *o_ptr)
 			{
 				msg_print("Your dagger is covered in sparks...");
 				if (!get_aim_dir(&dir)) return FALSE;
-				fire_bolt(GF_ELEC, dir, damroll(6, 8));
+				(void)fire_bolt(GF_ELEC, dir, damroll(6, 8));
 				o_ptr->timeout = (s16b)rand_range(6, 12);
 				break;
 			}
@@ -2017,7 +2016,7 @@ bool activate_effect(object_type *o_ptr)
 			{
 				msg_print("Your dagger throbs deep green...");
 				if (!get_aim_dir(&dir)) return FALSE;
-				fire_ball(GF_POIS, dir, 25, 3);
+				(void)fire_ball(GF_POIS, dir, 25, 3);
 				o_ptr->timeout = (s16b)rand_range(4, 8);
 				break;
 			}
@@ -2026,7 +2025,7 @@ bool activate_effect(object_type *o_ptr)
 			{
 				msg_print("Your dagger is covered in frost...");
 				if (!get_aim_dir(&dir)) return FALSE;
-				fire_ball(GF_COLD, dir, 100, 2);
+				(void)fire_ball(GF_COLD, dir, 100, 2);
 				o_ptr->timeout = (s16b)rand_range(5, 10);
 				break;
 			}
@@ -2061,7 +2060,7 @@ bool activate_effect(object_type *o_ptr)
 			{
 				msg_print("Your sword glows an intense blue...");
 				if (!get_aim_dir(&dir)) return FALSE;
-				fire_ball(GF_COLD, dir, 200, 2);
+				(void)fire_ball(GF_COLD, dir, 200, 2);
 				o_ptr->timeout = 300;
 				break;
 			}
@@ -2078,7 +2077,7 @@ bool activate_effect(object_type *o_ptr)
 			{
 				msg_print("Your sword glows an intense red...");
 				if (!get_aim_dir(&dir)) return FALSE;
-				fire_ball(GF_FIRE, dir, 150, 2);
+				(void)fire_ball(GF_FIRE, dir, 150, 2);
 				o_ptr->timeout = 400;
 				break;
 			}
@@ -2087,7 +2086,7 @@ bool activate_effect(object_type *o_ptr)
 			{
 				msg_print("Your axe blade glows black...");
 				if (!get_aim_dir(&dir)) return FALSE;
-				drain_life(dir, 200);
+				(void)drain_life(dir, 200);
 				o_ptr->timeout = 400;
 				break;
 			}
@@ -2096,7 +2095,7 @@ bool activate_effect(object_type *o_ptr)
 			{
 				msg_print("Your spear crackles with electricity...");
 				if (!get_aim_dir(&dir)) return FALSE;
-				fire_ball(GF_ELEC, dir, 200, 3);
+				(void)fire_ball(GF_ELEC, dir, 200, 3);
 				o_ptr->timeout = 500;
 				break;
 			}
@@ -2105,7 +2104,7 @@ bool activate_effect(object_type *o_ptr)
 			{
 				msg_print("Your spear pulsates...");
 				if (!get_aim_dir(&dir)) return FALSE;
-				wall_to_mud(dir);
+				(void)wall_to_mud(dir);
 				o_ptr->timeout = 5;
 				break;
 			}
@@ -2121,7 +2120,7 @@ bool activate_effect(object_type *o_ptr)
 			case ART_LOTHARANG:
 			{
 				msg_print("Your battle axe radiates deep purple...");
-				hp_player(100);
+				(void)hp_player(100);
 				(void)set_cut((p_ptr->cut / 2) - 50);
 				o_ptr->timeout = (s16b)rand_range(3, 6);
 				break;
@@ -2131,7 +2130,7 @@ bool activate_effect(object_type *o_ptr)
 			{
 				msg_print("Your trident glows deep red...");
 				if (!get_aim_dir(&dir)) return FALSE;
-				teleport_monster(dir);
+				(void)teleport_monster(dir);
 				o_ptr->timeout = 150;
 				break;
 			}
@@ -2150,7 +2149,7 @@ bool activate_effect(object_type *o_ptr)
 			{
 				msg_print("Your flail glows in scintillating colours...");
 				if (!get_aim_dir(&dir)) return FALSE;
-				confuse_monster(dir, 50);
+				(void)confuse_monster(dir, 50);
 				o_ptr->timeout = 15;
 				break;
 			}
@@ -2159,7 +2158,7 @@ bool activate_effect(object_type *o_ptr)
 			{
 				msg_print("Your morning star rages in fire...");
 				if (!get_aim_dir(&dir)) return FALSE;
-				fire_ball(GF_FIRE, dir, 200, 3);
+				(void)fire_ball(GF_FIRE, dir, 200, 3);
 				o_ptr->timeout = 100;
 				break;
 			}
@@ -2190,9 +2189,9 @@ bool activate_effect(object_type *o_ptr)
 			case ART_OLORIN:
 			{
 				msg_print("Your quarterstaff glows brightly...");
-				detect_all();
-				probing();
-				identify_fully();
+				(void)detect_all();
+				(void)probing();
+				(void)identify_fully();
 				o_ptr->timeout = 1000;
 				break;
 			}
@@ -2201,7 +2200,7 @@ bool activate_effect(object_type *o_ptr)
 			{
 				msg_print("Your hammer glows white...");
 				if (!get_aim_dir(&dir)) return FALSE;
-				drain_life(dir, 200);
+				(void)drain_life(dir, 200);
 				o_ptr->timeout = 70;
 				break;
 			}
@@ -2235,7 +2234,7 @@ bool activate_effect(object_type *o_ptr)
 		{
 			msg_print("It glows extremely brightly...");
 			if (!get_aim_dir(&dir)) return FALSE;
-			fire_bolt(GF_MISSILE, dir, damroll(3, 6));
+			(void)fire_bolt(GF_MISSILE, dir, damroll(3, 6));
 			o_ptr->timeout = 2;
 			break;
 		}
@@ -2244,7 +2243,7 @@ bool activate_effect(object_type *o_ptr)
 		{
 			msg_print("It throbs deep green...");
 			if (!get_aim_dir(&dir)) return FALSE;
-			fire_ball(GF_POIS, dir, 25, 3);
+			(void)fire_ball(GF_POIS, dir, 25, 3);
 			o_ptr->timeout = (s16b)rand_range(4, 8);
 			break;
 		}
@@ -2253,7 +2252,7 @@ bool activate_effect(object_type *o_ptr)
 		{
 			msg_print("It is covered in sparks...");
 			if (!get_aim_dir(&dir)) return FALSE;
-			fire_bolt(GF_ELEC, dir, damroll(6, 8));
+			(void)fire_bolt(GF_ELEC, dir, damroll(6, 8));
 			o_ptr->timeout = (s16b)rand_range(6, 12);
 			break;
 		}
@@ -2262,7 +2261,7 @@ bool activate_effect(object_type *o_ptr)
 		{
 			msg_print("It is covered in acid...");
 			if (!get_aim_dir(&dir)) return FALSE;
-			fire_bolt(GF_ACID, dir, damroll(8, 8));
+			(void)fire_bolt(GF_ACID, dir, damroll(8, 8));
 			o_ptr->timeout = (s16b)rand_range(5, 10);
 			break;
 		}
@@ -2271,7 +2270,7 @@ bool activate_effect(object_type *o_ptr)
 		{
 			msg_print("It is covered in frost...");
 			if (!get_aim_dir(&dir)) return FALSE;
-			fire_bolt(GF_COLD, dir, damroll(9, 8));
+			(void)fire_bolt(GF_COLD, dir, damroll(9, 8));
 			o_ptr->timeout = (s16b)rand_range(7, 14);
 			break;
 		}
@@ -2280,7 +2279,7 @@ bool activate_effect(object_type *o_ptr)
 		{
 			msg_print("It is covered in fire...");
 			if (!get_aim_dir(&dir)) return FALSE;
-			fire_bolt(GF_FIRE, dir, damroll(11, 8));
+			(void)fire_bolt(GF_FIRE, dir, damroll(11, 8));
 			o_ptr->timeout = (s16b)rand_range(8, 16);
 			break;
 		}
@@ -2289,7 +2288,7 @@ bool activate_effect(object_type *o_ptr)
 		{
 			msg_print("It is covered in frost...");
 			if (!get_aim_dir(&dir)) return FALSE;
-			fire_ball(GF_COLD, dir, 100, 2);
+			(void)fire_ball(GF_COLD, dir, 100, 2);
 			o_ptr->timeout = 400;
 			break;
 		}
@@ -2298,7 +2297,7 @@ bool activate_effect(object_type *o_ptr)
 		{
 			msg_print("It glows an intense red...");
 			if (!get_aim_dir(&dir)) return FALSE;
-			fire_ball(GF_FIRE, dir, 150, 2);
+			(void)fire_ball(GF_FIRE, dir, 150, 2);
 			o_ptr->timeout = 400;
 			break;
 		}
@@ -2316,7 +2315,7 @@ bool activate_effect(object_type *o_ptr)
 		{
 			msg_print("It glows an intense blue...");
 			if (!get_aim_dir(&dir)) return FALSE;
-			fire_ball(GF_COLD, dir, 200, 2);
+			(void)fire_ball(GF_COLD, dir, 200, 2);
 			o_ptr->timeout = 300;
 			break;
 		}
@@ -2325,7 +2324,7 @@ bool activate_effect(object_type *o_ptr)
 		{
 			msg_print("It crackles with electricity...");
 			if (!get_aim_dir(&dir)) return FALSE;
-			fire_ball(GF_ELEC, dir, 200, 3);
+			(void)fire_ball(GF_ELEC, dir, 200, 3);
 			o_ptr->timeout = 500;
 			break;
 		}
@@ -2334,7 +2333,7 @@ bool activate_effect(object_type *o_ptr)
 		{
 			msg_print("It glows black...");
 			if (!get_aim_dir(&dir)) return FALSE;
-			drain_life(dir, 250);
+			(void)drain_life(dir, 250);
 			o_ptr->timeout = 400;
 			break;
 		}
@@ -2344,7 +2343,7 @@ bool activate_effect(object_type *o_ptr)
 			if (!get_aim_dir(&dir)) return FALSE;
 			for (dummy = 0; dummy < 3; dummy++)
 			{
-				drain_gain_life(dir, 100);
+				(void)drain_gain_life(dir, 100);
 			}
 			o_ptr->timeout = 400;
 			break;
@@ -2354,7 +2353,7 @@ bool activate_effect(object_type *o_ptr)
 		{
 			msg_print("It grows magical spikes...");
 			if (!get_aim_dir(&dir)) return FALSE;
-			fire_bolt(GF_ARROW, dir, 250);
+			(void)fire_bolt(GF_ARROW, dir, 250);
 			o_ptr->timeout = (s16b)rand_range(90, 180);
 			break;
 		}
@@ -2363,7 +2362,7 @@ bool activate_effect(object_type *o_ptr)
 		{
 			msg_print("It glows deep red...");
 			if (!get_aim_dir(&dir)) return FALSE;
-			fire_ball(GF_FIRE, dir, 250, 3);
+			(void)fire_ball(GF_FIRE, dir, 250, 3);
 			o_ptr->timeout = (s16b)rand_range(225, 450);
 			break;
 		}
@@ -2372,7 +2371,7 @@ bool activate_effect(object_type *o_ptr)
 		{
 			msg_print("It glows bright white...");
 			if (!get_aim_dir(&dir)) return FALSE;
-			fire_ball(GF_COLD, dir, 400, 3);
+			(void)fire_ball(GF_COLD, dir, 400, 3);
 			o_ptr->timeout = (s16b)rand_range(325, 650);
 			break;
 		}
@@ -2381,7 +2380,7 @@ bool activate_effect(object_type *o_ptr)
 		{
 			msg_print("It glows deep blue...");
 			if (!get_aim_dir(&dir)) return FALSE;
-			fire_ball(GF_ELEC, dir, 500, 3);
+			(void)fire_ball(GF_ELEC, dir, 500, 3);
 			o_ptr->timeout = (s16b)rand_range(425, 850);
 			break;
 		}
@@ -2420,7 +2419,7 @@ bool activate_effect(object_type *o_ptr)
 			if (!get_aim_dir(&dir)) return FALSE;
 			for (dummy = 0; dummy < 3; dummy++)
 			{
-				drain_gain_life(dir, 200);
+				(void)drain_gain_life(dir, 200);
 			}
 
 			o_ptr->timeout = 400;
@@ -2440,7 +2439,7 @@ bool activate_effect(object_type *o_ptr)
 		{
 			if (!get_aim_dir(&dir)) return FALSE;
 			msg_print("You launch a rocket!");
-			fire_ball(GF_ROCKET, dir, 300 + plev, 2);
+			(void)fire_ball(GF_ROCKET, dir, 300 + plev, 2);
 			o_ptr->timeout = 400;
 			break;
 		}
@@ -2448,7 +2447,7 @@ bool activate_effect(object_type *o_ptr)
 		case ACT_DISP_EVIL:
 		{
 			msg_print("It floods the area with goodness...");
-			dispel_evil(p_ptr->lev * 5);
+			(void)dispel_evil(p_ptr->lev * 5);
 			o_ptr->timeout = (s16b)rand_range(300, 600);
 			break;
 		}
@@ -2456,7 +2455,7 @@ bool activate_effect(object_type *o_ptr)
 		case ACT_DISP_GOOD:
 		{
 			msg_print("It floods the area with evil...");
-			dispel_good(p_ptr->lev * 5);
+			(void)dispel_good(p_ptr->lev * 5);
 			o_ptr->timeout = (s16b)rand_range(300, 600);
 			break;
 		}
@@ -2465,7 +2464,7 @@ bool activate_effect(object_type *o_ptr)
 		{
 			if (!get_aim_dir(&dir)) return FALSE;
 			msg_print("You breathe the elements.");
-			fire_ball(GF_MISSILE, dir, 600, 4);
+			(void)fire_ball(GF_MISSILE, dir, 600, 4);
 			o_ptr->timeout = 500;
 			break;
 		}
@@ -2476,7 +2475,7 @@ bool activate_effect(object_type *o_ptr)
 		{
 			msg_print("It glows in scintillating colours...");
 			if (!get_aim_dir(&dir)) return FALSE;
-			confuse_monster(dir, 50);
+			(void)confuse_monster(dir, 50);
 			o_ptr->timeout = 15;
 			break;
 		}
@@ -2484,21 +2483,21 @@ bool activate_effect(object_type *o_ptr)
 		case ACT_SLEEP:
 		{
 			msg_print("It glows deep blue...");
-			sleep_monsters_touch();
+			(void)sleep_monsters_touch();
 			o_ptr->timeout = 55;
 			break;
 		}
 
 		case ACT_QUAKE:
 		{
-			earthquake(py, px, 10);
+			(void)earthquake(py, px, 10);
 			o_ptr->timeout = 50;
 			break;
 		}
 
 		case ACT_TERROR:
 		{
-			turn_monsters(40 + p_ptr->lev);
+			(void)turn_monsters(40 + p_ptr->lev);
 			o_ptr->timeout = 3 * (p_ptr->lev + 10);
 			break;
 		}
@@ -2572,7 +2571,7 @@ bool activate_effect(object_type *o_ptr)
 
 		case ACT_CHARM_OTHERS:
 		{
-			charm_monsters(plev * 2);
+			(void)charm_monsters(plev * 2);
 			o_ptr->timeout = 750;
 			break;
 		}
@@ -2673,7 +2672,7 @@ bool activate_effect(object_type *o_ptr)
 		case ACT_CURE_MW:
 		{
 			msg_print("It radiates deep purple...");
-			hp_player(75);
+			(void)hp_player(75);
 			(void)set_cut((p_ptr->cut / 2) - 50);
 			o_ptr->timeout = (s16b)rand_range(3, 6);
 			break;
@@ -2691,7 +2690,7 @@ bool activate_effect(object_type *o_ptr)
 		case ACT_REST_LIFE:
 		{
 			msg_print("It glows a deep red...");
-			restore_level();
+			(void)restore_level();
 			o_ptr->timeout = 450;
 			break;
 		}
@@ -2800,7 +2799,7 @@ bool activate_effect(object_type *o_ptr)
 
 		case ACT_WRAITH:
 		{
-			set_wraith_form(p_ptr->wraith_form + rand_range(plev / 2, plev));
+			(void)set_wraith_form(p_ptr->wraith_form + rand_range(plev / 2, plev));
 			o_ptr->timeout = 1000;
 			break;
 		}
@@ -2825,7 +2824,7 @@ bool activate_effect(object_type *o_ptr)
 		case ACT_LIGHT:
 		{
 			msg_print("It wells with clear light...");
-			lite_area(damroll(2, 15), 3);
+			(void)lite_area(damroll(2, 15), 3);
 			o_ptr->timeout = (s16b)rand_range(10, 20);
 			break;
 		}
@@ -2834,7 +2833,7 @@ bool activate_effect(object_type *o_ptr)
 		{
 			msg_print("It shines brightly...");
 			map_area();
-			lite_area(damroll(2, 15), 3);
+			(void)lite_area(damroll(2, 15), 3);
 			o_ptr->timeout = (s16b)rand_range(50, 100);
 			break;
 		}
@@ -2843,7 +2842,7 @@ bool activate_effect(object_type *o_ptr)
 		{
 			msg_print("It glows bright white...");
 			msg_print("An image forms in your mind...");
-			detect_all();
+			(void)detect_all();
 			o_ptr->timeout = (s16b)rand_range(55, 110);
 			break;
 		}
@@ -2851,9 +2850,9 @@ bool activate_effect(object_type *o_ptr)
 		case ACT_DETECT_XTRA:
 		{
 			msg_print("It glows brightly...");
-			detect_all();
-			probing();
-			identify_fully();
+			(void)detect_all();
+			(void)probing();
+			(void)identify_fully();
 			o_ptr->timeout = 1000;
 			break;
 		}
@@ -2861,7 +2860,7 @@ bool activate_effect(object_type *o_ptr)
 		case ACT_ID_FULL:
 		{
 			msg_print("It glows yellow...");
-			identify_fully();
+			(void)identify_fully();
 			o_ptr->timeout = 750;
 			break;
 		}
@@ -2876,7 +2875,7 @@ bool activate_effect(object_type *o_ptr)
 		case ACT_RUNE_EXPLO:
 		{
 			msg_print("It glows bright red...");
-			explosive_rune();
+			(void)explosive_rune();
 			o_ptr->timeout = 200;
 			break;
 		}
@@ -2884,7 +2883,7 @@ bool activate_effect(object_type *o_ptr)
 		case ACT_RUNE_PROT:
 		{
 			msg_print("It glows light blue...");
-			warding_glyph();
+			(void)warding_glyph();
 			o_ptr->timeout = 400;
 			break;
 		}
@@ -2899,7 +2898,7 @@ bool activate_effect(object_type *o_ptr)
 		case ACT_DEST_DOOR:
 		{
 			msg_print("It glows bright red...");
-			destroy_doors_touch();
+			(void)destroy_doors_touch();
 			o_ptr->timeout = 10;
 			break;
 		}
@@ -2908,14 +2907,14 @@ bool activate_effect(object_type *o_ptr)
 		{
 			msg_print("It pulsates...");
 			if (!get_aim_dir(&dir)) return FALSE;
-			wall_to_mud(dir);
+			(void)wall_to_mud(dir);
 			o_ptr->timeout = 5;
 			break;
 		}
 
 		case ACT_RECHARGE:
 		{
-			recharge(130);
+			(void)recharge(130);
 			o_ptr->timeout = 70;
 			break;
 		}

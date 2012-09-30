@@ -3138,7 +3138,7 @@ static void process_menus(WORD wCmd)
 			if (game_in_progress && character_generated)
 			{
 				/* Paranoia */
-				if (!inkey_flag && !can_save)
+				if (!inkey_flag)
 				{
 					plog("You may not do that right now.");
 					break;
@@ -3213,7 +3213,7 @@ static void process_menus(WORD wCmd)
 			if (game_in_progress && character_generated)
 			{
 				/* Paranoia */
-				if (!inkey_flag && !can_save)
+				if (!inkey_flag)
 				{
 					plog("You may not do that right now.");
 					break;
@@ -3725,7 +3725,7 @@ LRESULT FAR PASCAL AngbandWndProc(HWND hWnd, UINT uMsg,
 		{
 			if (game_in_progress && character_generated)
 			{
-				if (!inkey_flag && !can_save)
+				if (!inkey_flag)
 				{
 					plog("You may not do that right now.");
 					return 0;

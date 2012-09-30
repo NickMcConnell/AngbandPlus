@@ -349,14 +349,14 @@ static errr init_f_info_raw(int fd)
 	C_MAKE(f_info, f_head->info_num, feature_type);
 
 	/* Read the "f_info" array */
-	fd_read(fd, (char*)(f_info), f_head->info_size);
+	(void)fd_read(fd, (char*)(f_info), f_head->info_size);
 
 
 	/* Allocate the "f_name" array */
 	C_MAKE(f_name, f_head->name_size, char);
 
 	/* Read the "f_name" array */
-	fd_read(fd, (char*)(f_name), f_head->name_size);
+	(void)fd_read(fd, (char*)(f_name), f_head->name_size);
 
 
 #ifndef DELAY_LOAD_F_TEXT
@@ -365,7 +365,7 @@ static errr init_f_info_raw(int fd)
 	C_MAKE(f_text, f_head->text_size, char);
 
 	/* Read the "f_text" array */
-	fd_read(fd, (char*)(f_text), f_head->text_size);
+	(void)fd_read(fd, (char*)(f_text), f_head->text_size);
 
 #endif /* DELAY_LOAD_F_TEXT */
 
@@ -521,16 +521,16 @@ static errr init_f_info(void)
 	if (fd >= 0)
 	{
 		/* Dump it */
-		fd_write(fd, (char*)(f_head), f_head->head_size);
+		(void)fd_write(fd, (char*)(f_head), f_head->head_size);
 
 		/* Dump the "f_info" array */
-		fd_write(fd, (char*)(f_info), f_head->info_size);
+		(void)fd_write(fd, (char*)(f_info), f_head->info_size);
 
 		/* Dump the "f_name" array */
-		fd_write(fd, (char*)(f_name), f_head->name_size);
+		(void)fd_write(fd, (char*)(f_name), f_head->name_size);
 
 		/* Dump the "f_text" array */
-		fd_write(fd, (char*)(f_text), f_head->text_size);
+		(void)fd_write(fd, (char*)(f_text), f_head->text_size);
 
 		/* Close */
 		(void)fd_close(fd);
@@ -608,14 +608,14 @@ static errr init_k_info_raw(int fd)
 	C_MAKE(k_info, k_head->info_num, object_kind);
 
 	/* Read the "k_info" array */
-	fd_read(fd, (char*)(k_info), k_head->info_size);
+	(void)fd_read(fd, (char*)(k_info), k_head->info_size);
 
 
 	/* Allocate the "k_name" array */
 	C_MAKE(k_name, k_head->name_size, char);
 
 	/* Read the "k_name" array */
-	fd_read(fd, (char*)(k_name), k_head->name_size);
+	(void)fd_read(fd, (char*)(k_name), k_head->name_size);
 
 
 #ifndef DELAY_LOAD_K_TEXT
@@ -624,7 +624,7 @@ static errr init_k_info_raw(int fd)
 	C_MAKE(k_text, k_head->text_size, char);
 
 	/* Read the "k_text" array */
-	fd_read(fd, (char*)(k_text), k_head->text_size);
+	(void)fd_read(fd, (char*)(k_text), k_head->text_size);
 
 #endif /* DELAY_LOAD_K_TEXT */
 
@@ -785,16 +785,16 @@ static errr init_k_info(void)
 	if (fd >= 0)
 	{
 		/* Dump it */
-		fd_write(fd, (char*)(k_head), k_head->head_size);
+		(void)fd_write(fd, (char*)(k_head), k_head->head_size);
 
 		/* Dump the "k_info" array */
-		fd_write(fd, (char*)(k_info), k_head->info_size);
+		(void)fd_write(fd, (char*)(k_info), k_head->info_size);
 
 		/* Dump the "k_name" array */
-		fd_write(fd, (char*)(k_name), k_head->name_size);
+		(void)fd_write(fd, (char*)(k_name), k_head->name_size);
 
 		/* Dump the "k_text" array */
-		fd_write(fd, (char*)(k_text), k_head->text_size);
+		(void)fd_write(fd, (char*)(k_text), k_head->text_size);
 
 		/* Close */
 		(void)fd_close(fd);
@@ -879,14 +879,14 @@ static errr init_a_info_raw(int fd)
 	C_MAKE(a_info, a_head->info_num, artifact_type);
 
 	/* Read the "a_info" array */
-	fd_read(fd, (char*)(a_info), a_head->info_size);
+	(void)fd_read(fd, (char*)(a_info), a_head->info_size);
 
 
 	/* Allocate the "a_name" array */
 	C_MAKE(a_name, a_head->name_size, char);
 
 	/* Read the "a_name" array */
-	fd_read(fd, (char*)(a_name), a_head->name_size);
+	(void)fd_read(fd, (char*)(a_name), a_head->name_size);
 
 
 #ifndef DELAY_LOAD_A_TEXT
@@ -895,7 +895,7 @@ static errr init_a_info_raw(int fd)
 	C_MAKE(a_text, a_head->text_size, char);
 
 	/* Read the "a_text" array */
-	fd_read(fd, (char*)(a_text), a_head->text_size);
+	(void)fd_read(fd, (char*)(a_text), a_head->text_size);
 
 #endif /* DELAY_LOAD_A_TEXT */
 
@@ -1051,16 +1051,16 @@ static errr init_a_info(void)
 	if (fd >= 0)
 	{
 		/* Dump it */
-		fd_write(fd, (char*)(a_head), a_head->head_size);
+		(void)fd_write(fd, (char*)(a_head), a_head->head_size);
 
 		/* Dump the "a_info" array */
-		fd_write(fd, (char*)(a_info), a_head->info_size);
+		(void)fd_write(fd, (char*)(a_info), a_head->info_size);
 
 		/* Dump the "a_name" array */
-		fd_write(fd, (char*)(a_name), a_head->name_size);
+		(void)fd_write(fd, (char*)(a_name), a_head->name_size);
 
 		/* Dump the "a_text" array */
-		fd_write(fd, (char*)(a_text), a_head->text_size);
+		(void)fd_write(fd, (char*)(a_text), a_head->text_size);
 
 		/* Close */
 		(void)fd_close(fd);
@@ -1140,14 +1140,14 @@ static errr init_e_info_raw(int fd)
 	C_MAKE(e_info, e_head->info_num, ego_item_type);
 
 	/* Read the "e_info" array */
-	fd_read(fd, (char*)(e_info), e_head->info_size);
+	(void)fd_read(fd, (char*)(e_info), e_head->info_size);
 
 
 	/* Allocate the "e_name" array */
 	C_MAKE(e_name, e_head->name_size, char);
 
 	/* Read the "e_name" array */
-	fd_read(fd, (char*)(e_name), e_head->name_size);
+	(void)fd_read(fd, (char*)(e_name), e_head->name_size);
 
 
 #ifndef DELAY_LOAD_E_TEXT
@@ -1156,7 +1156,7 @@ static errr init_e_info_raw(int fd)
 	C_MAKE(e_text, e_head->text_size, char);
 
 	/* Read the "e_text" array */
-	fd_read(fd, (char*)(e_text), e_head->text_size);
+	(void)fd_read(fd, (char*)(e_text), e_head->text_size);
 
 #endif /* DELAY_LOAD_E_TEXT */
 
@@ -1314,16 +1314,16 @@ static errr init_e_info(void)
 	if (fd >= 0)
 	{
 		/* Dump it */
-		fd_write(fd, (char*)(e_head), e_head->head_size);
+		(void)fd_write(fd, (char*)(e_head), e_head->head_size);
 
 		/* Dump the "e_info" array */
-		fd_write(fd, (char*)(e_info), e_head->info_size);
+		(void)fd_write(fd, (char*)(e_info), e_head->info_size);
 
 		/* Dump the "e_name" array */
-		fd_write(fd, (char*)(e_name), e_head->name_size);
+		(void)fd_write(fd, (char*)(e_name), e_head->name_size);
 
 		/* Dump the "e_text" array */
-		fd_write(fd, (char*)(e_text), e_head->text_size);
+		(void)fd_write(fd, (char*)(e_text), e_head->text_size);
 
 		/* Close */
 		(void)fd_close(fd);
@@ -1403,14 +1403,14 @@ static errr init_r_info_raw(int fd)
 	C_MAKE(r_info, r_head->info_num, monster_race);
 
 	/* Read the "r_info" array */
-	fd_read(fd, (char*)(r_info), r_head->info_size);
+	(void)fd_read(fd, (char*)(r_info), r_head->info_size);
 
 
 	/* Allocate the "r_name" array */
 	C_MAKE(r_name, r_head->name_size, char);
 
 	/* Read the "r_name" array */
-	fd_read(fd, (char*)(r_name), r_head->name_size);
+	(void)fd_read(fd, (char*)(r_name), r_head->name_size);
 
 
 #ifndef DELAY_LOAD_R_TEXT
@@ -1419,7 +1419,7 @@ static errr init_r_info_raw(int fd)
 	C_MAKE(r_text, r_head->text_size, char);
 
 	/* Read the "r_text" array */
-	fd_read(fd, (char*)(r_text), r_head->text_size);
+	(void)fd_read(fd, (char*)(r_text), r_head->text_size);
 
 #endif /* DELAY_LOAD_R_TEXT */
 
@@ -1574,16 +1574,16 @@ static errr init_r_info(void)
 	if (fd >= 0)
 	{
 		/* Dump it */
-		fd_write(fd, (char*)(r_head), r_head->head_size);
+		(void)fd_write(fd, (char*)(r_head), r_head->head_size);
 
 		/* Dump the "r_info" array */
-		fd_write(fd, (char*)(r_info), r_head->info_size);
+		(void)fd_write(fd, (char*)(r_info), r_head->info_size);
 
 		/* Dump the "r_name" array */
-		fd_write(fd, (char*)(r_name), r_head->name_size);
+		(void)fd_write(fd, (char*)(r_name), r_head->name_size);
 
 		/* Dump the "r_text" array */
-		fd_write(fd, (char*)(r_text), r_head->text_size);
+		(void)fd_write(fd, (char*)(r_text), r_head->text_size);
 
 		/* Close */
 		(void)fd_close(fd);
@@ -1663,14 +1663,14 @@ static errr init_v_info_raw(int fd)
 	C_MAKE(v_info, v_head->info_num, vault_type);
 
 	/* Read the "v_info" array */
-	fd_read(fd, (char*)(v_info), v_head->info_size);
+	(void)fd_read(fd, (char*)(v_info), v_head->info_size);
 
 
 	/* Allocate the "v_name" array */
 	C_MAKE(v_name, v_head->name_size, char);
 
 	/* Read the "v_name" array */
-	fd_read(fd, (char*)(v_name), v_head->name_size);
+	(void)fd_read(fd, (char*)(v_name), v_head->name_size);
 
 
 #ifndef DELAY_LOAD_V_TEXT
@@ -1679,7 +1679,7 @@ static errr init_v_info_raw(int fd)
 	C_MAKE(v_text, v_head->text_size, char);
 
 	/* Read the "v_text" array */
-	fd_read(fd, (char*)(v_text), v_head->text_size);
+	(void)fd_read(fd, (char*)(v_text), v_head->text_size);
 
 #endif /* DELAY_LOAD_V_TEXT */
 
@@ -1833,16 +1833,16 @@ errr init_v_info(void)
 	if (fd >= 0)
 	{
 		/* Dump it */
-		fd_write(fd, (char*)(v_head), v_head->head_size);
+		(void)fd_write(fd, (char*)(v_head), v_head->head_size);
 
 		/* Dump the "v_info" array */
-		fd_write(fd, (char*)(v_info), v_head->info_size);
+		(void)fd_write(fd, (char*)(v_info), v_head->info_size);
 
 		/* Dump the "v_name" array */
-		fd_write(fd, (char*)(v_name), v_head->name_size);
+		(void)fd_write(fd, (char*)(v_name), v_head->name_size);
 
 		/* Dump the "v_text" array */
-		fd_write(fd, (char*)(v_text), v_head->text_size);
+		(void)fd_write(fd, (char*)(v_text), v_head->text_size);
 
 		/* Close */
 		(void)fd_close(fd);
@@ -2012,7 +2012,7 @@ errr init_t_info(void)
 static errr init_misc(void)
 {
 	/* Initialize the values */
-	process_dungeon_file("misc.txt", INIT_NORMAL);
+	(void)process_dungeon_file("misc.txt", INIT_NORMAL);
 
 	return 0;
 }
@@ -2524,25 +2524,25 @@ void init_angband(void)
 	strcpy(buf, "pref.prf");
 
 	/* Process that file */
-	process_pref_file(buf);
+	(void)process_pref_file(buf);
 
 	/* Access the "user" pref file */
 	sprintf(buf, "user.prf");
 
 	/* Process that file */
-	process_pref_file(buf);
+	(void)process_pref_file(buf);
 
 	/* Access the "basic" system pref file */
 	sprintf(buf, "pref-%s.prf", ANGBAND_SYS);
 
 	/* Process that file */
-	process_pref_file(buf);
+	(void)process_pref_file(buf);
 
 	/* Access the "user" system pref file */
 	sprintf(buf, "user-%s.prf", ANGBAND_SYS);
 
 	/* Process that file */
-	process_pref_file(buf);
+	(void)process_pref_file(buf);
 
 	/* Initialise the fake monochrome flag */
 	fake_monochrome = (!use_graphics || streq(ANGBAND_SYS, "ibm")) ? TRUE:FALSE;

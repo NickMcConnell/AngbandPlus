@@ -461,7 +461,7 @@ s16b m_pop(void)
 /*
  * Apply a "monster restriction function" to the "monster allocation table"
  */
-errr get_mon_num_prep(monster_hook_type monster_hook,
+void get_mon_num_prep(monster_hook_type monster_hook,
 					  monster_hook_type monster_hook2)
 {
 	int i;
@@ -502,7 +502,7 @@ errr get_mon_num_prep(monster_hook_type monster_hook,
 	}
 
 	/* Success */
-	return (0);
+	return;
 }
 
 
@@ -1073,7 +1073,7 @@ void update_mon(int m_idx, bool full)
 		int dx = (px > fx) ? (px - fx) : (fx - px);
 
 		/* Approximate distance */
-		d = (dy > dx) ? (dy + (dx >> 1)) : (dx + (dy >> 1));
+		d = (dy > dx) ? (dy + (dx / 2)) : (dx + (dy / 2));
 
 		/* Restrict distance */
 		if (d > 255) d = 255;

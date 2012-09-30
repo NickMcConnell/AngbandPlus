@@ -3405,10 +3405,10 @@ static void store_hgtmap(int x, int y, int val)
 {
 	/* bounds checking */
 	if (val < 0) val = 0;
-	if ((val >> 4) >= max_wild) val = (max_wild << 4) - 1;
+	if ((val / 16) >= max_wild) val = (max_wild * 16) - 1;
 
 	/* Save distribution information */
-	wild_temp_dist[val >> 4] = 1;
+	wild_temp_dist[val / 16] = 1;
 
 	/* store the value in height-map format */
 	wild[y][x].gen.hgt_map = val;
@@ -3479,8 +3479,8 @@ static void create_hgt_map(void)
 			for (j = 0; j <= size; j += lstep)
 			{
 				/* cache values of i,j divided by 16 */
-				ii = i >> 4;
-				jj = j >> 4;
+				ii = i / 16;
+				jj = j / 16;
 
 				/* only write to points that are "blank" */
 				if (wild[jj][ii].gen.hgt_map == MAX_SHORT)
@@ -3494,9 +3494,9 @@ static void create_hgt_map(void)
 					{
 						/* Average of left and right points +random bit */
 						store_hgtmap(ii, jj,
-						((wild[jj][(i - hstep) >> 4].gen.hgt_map +
-						wild[jj][(i + hstep) >> 4].gen.hgt_map) >> 1) +
-						((randint1(lstep) - hstep) >> 1));
+						((wild[jj][(i - hstep) / 16].gen.hgt_map +
+						wild[jj][(i + hstep) / 16].gen.hgt_map) / 2) +
+						((randint1(lstep) - hstep) / 2));
 					}
 				}
 			}
@@ -3509,8 +3509,8 @@ static void create_hgt_map(void)
 			for (i = 0; i <= size; i += lstep)
 			{
 				/* cache values of i,j / 16 */
-				ii = i >> 4;
-				jj = j >> 4;
+				ii = i / 16;
+				jj = j / 16;
 
 				/* only write to points that are "blank" */
 				if (wild[jj][ii].gen.hgt_map == MAX_SHORT)
@@ -3524,9 +3524,9 @@ static void create_hgt_map(void)
 					{
 						/* Average of up and down points +random bit */
 						store_hgtmap(ii, jj,
-						((wild[(j - hstep) >> 4][ii].gen.hgt_map
-						+ wild[(j + hstep) >> 4][ii].gen.hgt_map) >> 1)
-						+ ((randint1(lstep) - hstep) >> 1));
+						((wild[(j - hstep) / 16][ii].gen.hgt_map
+						+ wild[(j + hstep) / 16][ii].gen.hgt_map) / 2)
+						+ ((randint1(lstep) - hstep) / 2));
 					}
 				}
 			}
@@ -3538,8 +3538,8 @@ static void create_hgt_map(void)
 			for (j = hstep; j <= size - hstep; j += lstep)
 			{
 				/* cache values of i,j / 16 */
-				ii = i >> 4;
-				jj = j >> 4;
+				ii = i / 16;
+				jj = j / 16;
 
 				/* only write to points that are "blank" */
 				if (wild[jj][ii].gen.hgt_map == MAX_SHORT)
@@ -3554,11 +3554,11 @@ static void create_hgt_map(void)
 						/* average over all four corners + scale by 181 to
 						 * reduce the effect of the square grid on the shape of the fractal */
 						store_hgtmap(ii, jj,
-						((wild[(j - hstep) >> 4][(i - hstep) >> 4].gen.hgt_map
-						+ wild[(j + hstep) >> 4][(i - hstep) >> 4].gen.hgt_map
-						+ wild[(j - hstep) >> 4][(i + hstep) >> 4].gen.hgt_map
-						+ wild[(j + hstep) >> 4][(i + hstep) >> 4].gen.hgt_map) >> 2)
-						+ (((randint1(lstep) - hstep) * 181) >> 8));
+						((wild[(j - hstep) / 16][(i - hstep) / 16].gen.hgt_map
+						+ wild[(j + hstep) / 16][(i - hstep) / 16].gen.hgt_map
+						+ wild[(j - hstep) / 16][(i + hstep) / 16].gen.hgt_map
+						+ wild[(j + hstep) / 16][(i + hstep) / 16].gen.hgt_map) / 4)
+						+ (((randint1(lstep) - hstep) * 181) / 256));
 					}
 				}
 			}
@@ -3574,10 +3574,10 @@ static void store_popmap(int x, int y, int val, u16b sea)
 {
 	/* bounds checking */
 	if (val < 0) val = 0;
-	if ((val >> 4) >= max_wild) val = (max_wild << 4) - 1;
+	if ((val / 16) >= max_wild) val = (max_wild * 16) - 1;
 
 	/* Save distribution information (only if not below sea level) */
-	if (wild[y][x].gen.hgt_map > sea) wild_temp_dist[val >> 4] = 1;
+	if (wild[y][x].gen.hgt_map > sea) wild_temp_dist[val / 16] = 1;
 
 	/* store the value in height-map format */
 	wild[y][x].gen.pop_map = val;
@@ -3646,8 +3646,8 @@ static void create_pop_map(u16b sea)
 			for (j = 0; j <= size; j += lstep)
 			{
 				/* cache values of i,j divided by 16 */
-				ii = i >> 4;
-				jj = j >> 4;
+				ii = i / 16;
+				jj = j / 16;
 
 				/* only write to points that are "blank" */
 				if (wild[jj][ii].gen.pop_map == MAX_SHORT)
@@ -3661,9 +3661,9 @@ static void create_pop_map(u16b sea)
 					{
 						/* Average of left and right points +random bit */
 						store_popmap(ii, jj,
-						((wild[jj][(i - hstep) >> 4].gen.pop_map +
-						wild[jj][(i + hstep) >> 4].gen.pop_map) >> 1) +
-						((randint1(lstep) - hstep) >> 1), sea);
+						((wild[jj][(i - hstep) / 16].gen.pop_map +
+						wild[jj][(i + hstep) / 16].gen.pop_map) / 2) +
+						((randint1(lstep) - hstep) / 2), sea);
 					}
 				}
 			}
@@ -3676,8 +3676,8 @@ static void create_pop_map(u16b sea)
 			for (i = 0; i <= size; i += lstep)
 			{
 				/* cache values of i,j / 16 */
-				ii = i >> 4;
-				jj = j >> 4;
+				ii = i / 16;
+				jj = j / 16;
 
 				/* only write to points that are "blank" */
 				if (wild[jj][ii].gen.pop_map == MAX_SHORT)
@@ -3691,9 +3691,9 @@ static void create_pop_map(u16b sea)
 					{
 						/* Average of up and down points +random bit */
 						store_popmap(ii, jj,
-						((wild[(j - hstep) >> 4][ii].gen.pop_map
-						+ wild[(j + hstep) >> 4][ii].gen.pop_map) >> 1)
-						+ ((randint1(lstep) - hstep) >> 1), sea);
+						((wild[(j - hstep) / 16][ii].gen.pop_map
+						+ wild[(j + hstep) / 16][ii].gen.pop_map) / 2)
+						+ ((randint1(lstep) - hstep) / 2), sea);
 					}
 				}
 			}
@@ -3705,8 +3705,8 @@ static void create_pop_map(u16b sea)
 			for (j = hstep; j <= size - hstep; j += lstep)
 			{
 				/* cache values of i,j / 16 */
-				ii = i >> 4;
-				jj = j >> 4;
+				ii = i / 16;
+				jj = j / 16;
 
 				/* only write to points that are "blank" */
 				if (wild[jj][ii].gen.pop_map == MAX_SHORT)
@@ -3721,11 +3721,11 @@ static void create_pop_map(u16b sea)
 						/* average over all four corners + scale by 181 to
 						 * reduce the effect of the square grid on the shape of the fractal */
 						store_popmap(ii, jj,
-						((wild[(j - hstep) >> 4][(i - hstep) >> 4].gen.pop_map
-						+ wild[(j + hstep) >> 4][(i - hstep) >> 4].gen.pop_map
-						+ wild[(j - hstep) >> 4][(i + hstep) >> 4].gen.pop_map
-						+ wild[(j + hstep) >> 4][(i + hstep) >> 4].gen.pop_map) >> 2)
-						+ (((randint1(lstep) - hstep) * 181) >> 8), sea);
+						((wild[(j - hstep) / 16][(i - hstep) / 16].gen.pop_map
+						+ wild[(j + hstep) / 16][(i - hstep) / 16].gen.pop_map
+						+ wild[(j - hstep) / 16][(i + hstep) / 16].gen.pop_map
+						+ wild[(j + hstep) / 16][(i + hstep) / 16].gen.pop_map) / 4)
+						+ (((randint1(lstep) - hstep) * 181) / 256), sea);
 					}
 				}
 			}
@@ -3741,10 +3741,10 @@ static void store_lawmap(int x, int y, int val, u16b sea)
 {
 	/* bounds checking */
 	if (val < 0) val = 0;
-	if ((val >> 4) >= max_wild) val = (max_wild << 4) - 1;
+	if ((val / 16) >= max_wild) val = (max_wild * 16) - 1;
 
 	/* Save distribution information (only if not below sea level) */
-	if (wild[y][x].gen.hgt_map > sea) wild_temp_dist[val >> 4] = 1;
+	if (wild[y][x].gen.hgt_map > sea) wild_temp_dist[val / 16] = 1;
 
 	/* store the value in height-map format */
 	wild[y][x].gen.law_map = val;
@@ -3817,8 +3817,8 @@ static void create_law_map(u16b sea)
 			for (j = 0; j <= size; j += lstep)
 			{
 				/* cache values of i,j divided by 16 */
-				ii = i >> 4;
-				jj = j >> 4;
+				ii = i / 16;
+				jj = j / 16;
 
 				/* only write to points that are "blank" */
 				if (wild[jj][ii].gen.law_map == MAX_SHORT)
@@ -3832,9 +3832,9 @@ static void create_law_map(u16b sea)
 					{
 						/* Average of left and right points +random bit */
 						store_lawmap(ii, jj,
-						((wild[jj][(i - hstep) >> 4].gen.law_map +
-						wild[jj][(i + hstep) >> 4].gen.law_map) >> 1) +
-						((randint1(lstep) - hstep) >> 1), sea);
+						((wild[jj][(i - hstep) / 16].gen.law_map +
+						wild[jj][(i + hstep) / 16].gen.law_map) / 2) +
+						((randint1(lstep) - hstep) / 2), sea);
 					}
 				}
 			}
@@ -3846,8 +3846,8 @@ static void create_law_map(u16b sea)
 			for (i = 0; i <= size; i += lstep)
 			{
 				/* cache values of i,j / 16 */
-				ii = i >> 4;
-				jj = j >> 4;
+				ii = i / 16;
+				jj = j / 16;
 
 				/* only write to points that are "blank" */
 				if (wild[jj][ii].gen.law_map == MAX_SHORT)
@@ -3861,9 +3861,9 @@ static void create_law_map(u16b sea)
 					{
 						/* Average of up and down points +random bit */
 						store_lawmap(ii, jj,
-						((wild[(j - hstep) >> 4][ii].gen.law_map
-						+ wild[(j + hstep) >> 4][ii].gen.law_map) >> 1)
-						+ ((randint1(lstep) - hstep) >> 1), sea);
+						((wild[(j - hstep) / 16][ii].gen.law_map
+						+ wild[(j + hstep) / 16][ii].gen.law_map) / 2)
+						+ ((randint1(lstep) - hstep) / 2), sea);
 					}
 				}
 			}
@@ -3875,8 +3875,8 @@ static void create_law_map(u16b sea)
 			for (j = hstep; j <= size - hstep; j += lstep)
 			{
 				/* cache values of i,j / 16 */
-				ii = i >> 4;
-				jj = j >> 4;
+				ii = i / 16;
+				jj = j / 16;
 
 				/* only write to points that are "blank" */
 				if (wild[jj][ii].gen.law_map == MAX_SHORT)
@@ -3891,11 +3891,11 @@ static void create_law_map(u16b sea)
 						/* average over all four corners + scale by 181 to
 						 * reduce the effect of the square grid on the shape of the fractal */
 						store_lawmap(ii, jj,
-						((wild[(j - hstep) >> 4][(i - hstep) >> 4].gen.law_map
-						+ wild[(j + hstep) >> 4][(i - hstep) >> 4].gen.law_map
-						+ wild[(j - hstep) >> 4][(i + hstep) >> 4].gen.law_map
-						+ wild[(j + hstep) >> 4][(i + hstep) >> 4].gen.law_map) >> 2)
-						+ (((randint1(lstep) - hstep) * 181) >> 8), sea);
+						((wild[(j - hstep) / 16][(i - hstep) / 16].gen.law_map
+						+ wild[(j + hstep) / 16][(i - hstep) / 16].gen.law_map
+						+ wild[(j - hstep) / 16][(i + hstep) / 16].gen.law_map
+						+ wild[(j + hstep) / 16][(i + hstep) / 16].gen.law_map) / 4)
+						+ (((randint1(lstep) - hstep) * 181) / 256), sea);
 					}
 				}
 			}
@@ -4202,13 +4202,13 @@ void create_wilderness(void)
 	{
 		for (j = 0; j < max_wild; j++)
 		{
-			byte town, info, town_type;
+			byte twn, info, town_type;
 
 			/* Get wilderness grid */
 			w_ptr = &wild[j][i];
 
 			/* Save town and info status */
-			town = w_ptr->trans.town;
+			twn = w_ptr->trans.town;
 			town_type = w_ptr->trans.town_type;
 			info = w_ptr->trans.info;
 
@@ -4244,10 +4244,10 @@ void create_wilderness(void)
 			}
 
 			/* Town */
-			w_ptr->done.town = town;
+			w_ptr->done.town = twn;
 
 			/* Set wilderness monsters if not in town */
-			if (!town)
+			if (!twn)
 			{
 				/* Toughness (level 0 - 64) */
 				w_ptr->done.mon_gen = (256 - law) / 4;
