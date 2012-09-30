@@ -344,7 +344,7 @@ D:刻んである。このイシルドゥアの禍の力はあまりにも強大なので、
 D:普通の者はそれを身に付けるだけで歪められ支配されてしまう。
 
 N:14:《アホヤ》という
-E:of Poor (The Odd ring)
+E:of Cower (Darnya)
 I:45:50:-5
 W:100:100:2:0
 P:0:1d1:-15:-15:0
@@ -1184,7 +1184,7 @@ F:SPEED | DEX | SUST_DEX | RES_NEXUS | FREE_ACT | FEATHER
 N:64:丈高きマエズロスの
 E:of Maedhros
 I:23:5:3
-W:15:30:30:22500
+W:15:30:30:62500
 P:0:2d5:12:15:0
 F:INT | DEX | HIDE_TYPE | SPEED |
 F:SLAY_TROLL | SLAY_GIANT | FREE_ACT | SEE_INVIS | SHOW_MODS
@@ -3368,7 +3368,7 @@ D:この正視するもかなわぬ眩い炎のムチをひとたび手に取れば、
 D:バルログの長ゴズモグは戦において負け知らずであった。
 
 N:213:天性寺聖地蔵尊の六環
-E:of Tensyoji-syoujizoson
+E:of The Bonze Octopus
 I:21:7:2
 W:35:40:70:125000
 P:0:1d7:8:8:8
@@ -3396,3 +3396,11 @@ D:The weapon of one of the great dwarven priests, with powers
 D:to preserve body, soul and enchantments, and the bane of those 
 D:who seek life beyond death.
 
+N:215:宵闇の
+E:of The Pitch Dark Night
+I:40:24:4
+W:50:150:2:50000
+P:0:0d0:0:0:5
+F:STEALTH | SEARCH | HIDE_TYPE | SEE_INVIS |
+F:RES_DARK | ACTIVATE | LITE |
+F:INSTA_ART

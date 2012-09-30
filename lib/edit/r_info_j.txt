@@ -477,7 +477,7 @@ D:彼は見知らぬ人に優しく接したりはしない。
 N:19:『らいおんはーと』
 E:Lion Heart
 G:f:s
-I:114:20d20:50:15:4
+I:111:20d20:50:15:4
 W:0:4:0:0:0:0
 B:HIT:HURT:1d3
 F:UNIQUE | MALE | ANIMAL | CAN_SPEAK | FRIENDLY
@@ -18011,7 +18011,7 @@ I:110:100d10:20:90:30
 W:60:20:0:2300:0:0
 B:CRUSH:SUPERHURT:8d6
 F:IM_FIRE | RES_PLAS | IM_COLD | IM_POIS | RES_TELE |
-F:KILL_WALL | CAN_SWIM | DROP_CORPSE |
+F:KILL_WALL | CAN_SWIM | DROP_CORPSE | MOVE_BODY |
 F:FORCE_MAXHP | ONLY_GOLD | DROP_2D2 | DROP_3D2 |
 S:1_IN_3
 S:SPECIAL
@@ -18848,7 +18848,7 @@ S:S_MONSTERS | S_ANT | S_SPIDER | S_HOUND | S_HYDRA | S_DEMON | S_UNDEAD |
 S:S_DRAGON | S_HI_UNDEAD | S_AMBERITES | S_UNIQUE | BA_LITE
 
 N:930:超人ロックのクローン
-E:Locke, the Zuperman
+E:Clone of Locke the Superman
 G:p:G
 I:130:30d100:100:130:20
 W:65:30:0:18000:0:0
@@ -18975,7 +18975,7 @@ D:両脇から角が出ている丈高めの黄金の冠をかぶる。体色は青。牙を持つ。
 D:女神イシターを封印したと伝えられる。
 
 N:936:北斗神拳の使い手『ケンシロウ』
-E:Kenshirou of hokuto
+E:Kenshirou the Fist of The North Star
 G:p:W
 I:123:60d100:50:170:10
 W:62:2:0:30000:0:0
@@ -19304,7 +19304,7 @@ F:WILD_TOO | WILD_WASTE | BASH_DOOR |
 F:ANIMAL | DROP_SKELETON | DROP_CORPSE | RIDING
 
 N:957:あばれ馬
-E:Abare horse
+E:Unruly horse
 G:q:G
 I:110:12d10:20:30:0
 W:9:2:0:35:0:0
@@ -19848,7 +19848,7 @@ B:KICK:HURT:4d10
 F:DROP_2D2 | ANIMAL | NO_SLEEP | CAN_FLY | RIDING
 
 N:991:オーディンの乗馬『スレイプニル』
-E:Sureipuniru, the Odin's steed
+E:Sleipnir, the Odin's steed
 G:q:o
 I:130:40d100:20:140:50
 W:51:3:0:17000:0:0
@@ -19856,7 +19856,7 @@ B:KICK:HURT:8d10
 B:KICK:HURT:8d10
 B:KICK:HURT:8d10
 B:BITE:HURT:10d10
-F:FORCE_MAXHP | UNIQUE | ANIMAL |
+F:FORCE_MAXHP | UNIQUE | ANIMAL | CAN_FLY |
 F:REGENERATE | BASH_DOOR | IM_FIRE | IM_COLD | IM_ELEC |
 F:IM_POIS | NO_CONF | NO_SLEEP | NO_FEAR | DROP_CORPSE | RIDING
 
@@ -19889,6 +19889,7 @@ F:DROP_60 | OPEN_DOOR | BASH_DOOR | TAKE_ITEM |
 F:EVIL | IM_ACID | RES_DISE | NO_FEAR | NO_CONF | NO_SLEEP |
 S:1_IN_6 |
 S:BO_ACID | BO_PLAS | BA_ACID
+D:$A Dao is a genie from the elemental plane of Earth.
 D:ジンやイフリートの同系種族であり、大地の元素界に住む
 D:屈強な魔神だ。
 
@@ -19903,6 +19904,8 @@ F:DROP_60 | WEIRD_MIND | OPEN_DOOR | BASH_DOOR | MOVE_BODY |
 F:IM_COLD | RES_WATE | NO_FEAR | NO_CONF | NO_SLEEP |
 S:1_IN_6 |
 S:BO_WATE | BA_WATE | BLINK | S_MONSTER
+D:$The marid are said to be born of the ocean, 
+D:$with currents as their muscles and pearls as their teeth.
 D:ジンやイフリートの同系種族であり、水の元素界に住む
 D:屈強な魔神だ。
 
@@ -20000,6 +20003,11 @@ S:1_IN_2 |
 S:BLIND | CONF | SCARE | 
 S:BR_LITE | BR_DARK | BR_SOUN | BR_CONF | BR_SHAR | 
 S:S_HI_DRAGON
+D:$Bahamut the Platinum Dragon has been described both as the King of All Good Dragons, 
+D:$and more accurately, as a glorious and resplendent deity in his own right. He is ever 
+D:$watchful for the cause of lawful good and sits unsleepingly in his palace on Mount 
+D:$Celestia, the Seven Heavens. Bahamut is the protector of all good dragons and a 
+D:$fierce opponent of evil. 
 D:おもに上層界の第一階層を防衛しているバハムートは手に負えない強敵であり、
 D:立ちふさがるすべての者にプラチナの首から死のブレスを浴びせかけようとする。
 D:（TRPG AD&D）。
@@ -20013,6 +20021,8 @@ B:HIT:SUPERHURT:4d8
 B:HIT:SUPERHURT:4d8
 F:MALE | DROP_CORPSE | DROP_SKELETON | FORCE_MAXHP | HAS_LITE_2 |
 F:OPEN_DOOR | BASH_DOOR | NO_FEAR | UNIQUE2
+D:$He is always traveling togather with 
+D:$Mitsukuni of the Yellow Gate, Grand Duke of Mito
 D:ご老公を助けて旅から旅へ。とんだ爺に仕えたもんだ。
 
 N:1002:『格さん』
@@ -20024,6 +20034,8 @@ B:HIT:SUPERHURT:4d8
 B:HIT:SUPERHURT:4d8
 F:MALE | DROP_CORPSE | DROP_SKELETON | FORCE_MAXHP | HAS_LITE_2 |
 F:OPEN_DOOR | BASH_DOOR | NO_FEAR | UNIQUE2
+D:$He is always traveling togather with 
+D:$Mitsukuni of the Yellow Gate, Grand Duke of Mito
 D:ご老公を助けて旅から旅へ。とんだ爺に仕えたもんだ。
 
 N:1003:ゴースト『Ｑ』
@@ -20041,6 +20053,7 @@ F:FORCE_MAXHP | CAN_SPEAK |
 F:ONLY_ITEM | DROP_90 | DROP_GOOD |
 F:INVISIBLE | COLD_BLOOD | PASS_WALL | 
 F:UNDEAD | NO_SLEEP
+D:$He has only three hair. He is careless, but kind, and always a bit hungry.
 D:毛が三本しかないんだよ。ずっこけなんだ優しい奴さ。
 D:いつもおなかを空かせているんだよ。
 
@@ -20171,6 +20184,8 @@ F:TAKE_ITEM | OPEN_DOOR |
 F:IM_FIRE | IM_COLD | IM_ELEC | IM_ACID | IM_POIS | NO_CONF | NO_SLEEP
 S:1_IN_3 | 
 S:TPORT | HASTE | TELE_AWAY | TELE_LEVEL | BLINK
+D:$Collect 5 marks of Silver Angel or 1 mark of Gold Angel! 
+D:$And you will win The Can of Toys!
 D:金なら1匹、銀なら5匹でもれなくおもちゃのカンヅメが当たります。
 
 N:1011:銀のエンゼル
@@ -20185,6 +20200,8 @@ F:TAKE_ITEM | OPEN_DOOR |
 F:IM_FIRE | IM_COLD | IM_ELEC | IM_ACID | IM_POIS | NO_CONF | NO_SLEEP
 S:1_IN_3 | 
 S:TPORT | HASTE | TELE_AWAY | TELE_LEVEL | BLINK
+D:$Collect 5 marks of Silver Angel or 1 mark of Gold Angel! 
+D:$And you will win The Can of Toys!
 D:金なら1匹、銀なら5匹でもれなくおもちゃのカンヅメが当たります。
 
 
@@ -20271,6 +20288,8 @@ B:EXPLODE:HURT:30d2
 F:EMPTY_MIND | COLD_BLOOD |
 F:IM_FIRE | IM_COLD | IM_ELEC | IM_POIS |
 F:NO_FEAR | NO_CONF | NO_SLEEP | NONLIVING | RES_TELE
+D:$It is a small bomb of a form like a spider. 
+D:$It walks toward you!
 D:蜘蛛のような形の小さな爆弾で、あなたに向って歩き、爆発する。
 
 
@@ -20336,6 +20355,8 @@ B:HIT:HURT:3d4
 B:HIT:EAT_FOOD:3d4
 F:DROP_60 | OPEN_DOOR | BASH_DOOR | DROP_CORPSE |
 F:WILD_TOO | WILD_WOOD
+D:$It is a biped living thing like the bear. 
+D:$It pounces on you expressionlessly.
 D:無表情で襲いかかる、二足歩行の熊のような生き物だ。
 
 
@@ -20376,6 +20397,10 @@ F:EVIL | REGENERATE |
 F:OPEN_DOOR | BASH_DOOR |
 S:1_IN_8 |
 S:TELE_TO | BO_MANA
+D:$He looks like brawny human being apparently. 
+D:$However, unlike man, it has the tail of a monkey. 
+D:$This tail proves he is a Saiayan. 
+D:$A Saiayan's fighting power is far superior to human's and will bring many destruction.
 D:逞しい人間のようだが、猿の尻尾が付いている。これこそがサイヤ人の証だ。
 D:その戦闘力は人間を凌駕し、多くの破壊を呼び起こすだろう。
 
@@ -20471,6 +20496,8 @@ B:BITE:HURT:3d10
 F:MALE | ESCORT
 F:BASH_DOOR | FORCE_MAXHP | UNIQUE | DROP_CORPSE
 F:ANIMAL | EVIL | WILD_WOOD | WILD_MOUNTAIN | NO_SLEEP | NO_FEAR
+D:$A king of mad bear. He had built his stronghold at Hutago mountain, 
+D:$and is reigning over there.
 D:二子峠に己の牙城を築き上げ君臨する凶熊どもの王だ。
 
 N:1028:凶熊
@@ -20483,6 +20510,7 @@ B:CLAW:HURT:2d5
 B:BITE:HURT:3d6
 F:WEIRD_MIND | BASH_DOOR | FRIENDS | DROP_SKELETON | DROP_CORPSE
 F:ANIMAL | EVIL | WILD_WOOD | WILD_MOUNTAIN
+D:$These bears are followers of Red Helm.
 D:『赤カブト』の配下の熊だ。
 
 N:1029:ベビーサタン
@@ -20513,6 +20541,7 @@ F:UNIQUE | MALE | EVIL | HAS_LITE_2 |
 F:FORCE_MAXHP | CAN_SPEAK | WILD_TOO | DROP_SKELETON | DROP_CORPSE
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
 F:OPEN_DOOR | BASH_DOOR
+D:$He is a king of southerings. He was arrested by Zhuge Liang 7 times.
 D:南蛮の王。諸葛亮に七度擒にされる。
 
 N:1031:金色の怪人『ワッハマン』
@@ -20530,6 +20559,8 @@ F:RES_NETH | RES_WATE | RES_PLAS | RES_NEXU | NO_STUN | REGENERATE |
 F:NO_CONF | NO_SLEEP | CAN_FLY |
 F:EMPTY_MIND | COLD_BLOOD | BASH_DOOR | POWERFUL | RAND_25 |
 F:GOOD | DROP_CORPSE | SELF_LITE_2
+D:$He was the braver of Atlantis. His body was converted by a Shinto priest, 
+D:$in order to fight against "Papa". His body is now made by Orihalcon.
 D:もとはアトランティスの勇者。
 D:『パパ』に立ち向かうために神官の手によってオリハルコンの体に改造された。
 
@@ -20550,6 +20581,8 @@ F:SMART | OPEN_DOOR | BASH_DOOR | SELF_LITE_2 |
 F:EVIL | IM_ACID | IM_FIRE | IM_POIS | NO_CONF | NO_SLEEP
 S:1_IN_2 | 
 S:HOLD | SCARE | CAUSE_3 | BR_CONF | BR_NETH | BR_CHAO | 
+D:$Sukarno's third wife. Her face could sink a thousand 
+D:$ships, but Sukarno is not too selective.
 D:インドネシア大統領の第三夫人。彼女の顔は千隻もの船を
 D:沈めるほどだが、スカルノは面食いではない。
 
@@ -20707,6 +20740,9 @@ F:ONLY_ITEM | DROP_2D2 | DROP_GOOD |
 F:IM_COLD | RES_WATE |
 F:IM_POIS | NO_CONF | NO_SLEEP | NO_STUN |
 F:RIDING
+D:$This is the whale of the tradition which gets across to the Inuit 
+D:$who lives in the world of winter. It is said that the mystical horn 
+D:$of this whale cures all illnesses.
 D:冬の世界に住むイヌイット族に伝わる伝説の鯨で，
 D:その神秘の角はあらゆる病に効くとされる。
 
@@ -20730,6 +20766,8 @@ F:OPEN_DOOR | BASH_DOOR | SMART |
 F:ANIMAL | IM_ACID | IM_FIRE | IM_COLD | IM_POIS | NO_CONF | NO_SLEEP
 S:1_IN_3 |
 S:BO_COLD | BA_COLD | BO_ICEE | BR_COLD
+D:$This bird is the porter of the mansion in which Dio Brando hides and lives. 
+D:$For it, a dog may be a favorite food.
 D:ディオが隠れ棲む館の門番であるこの鳥は犬が
 D:大好物なのかもしれない。
 
@@ -20747,6 +20785,8 @@ F:FORCE_MAXHP |
 F:ONLY_ITEM | DROP_1D2 | DROP_CORPSE
 F:OPEN_DOOR | BASH_DOOR | CAN_SWIM |
 F:ANIMAL | IM_POIS
+D:$This crocodile grew huge in the sewer. 
+D:$For him, an adventurer is only game.
 #D:原稿が遅れるとやってくるワニ。
 D:このワニは下水道の中で巨大に成長した。
 D:彼にとっては冒険者など獲物にすぎない。
@@ -21032,6 +21072,7 @@ F:FORCE_MAXHP | DROP_CORPSE | WILD_TOWN | WILD_ONLY
 F:OPEN_DOOR | BASH_DOOR | HAS_LITE_1 |
 F:NO_CONF | NO_SLEEP
 D:面の皮は普通のトロルよりも厚い。
+D:$Brazen faced this creature is more impudent than normal troll.
 
 N:1061:『恐竜バーニーちゃん』
 E:Barney the Dinosaur
@@ -21087,6 +21128,8 @@ F:ANIMAL |
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
 S:1_IN_6
 S:S_KIN
+D:$This huge louse is the ruin of the sad man 
+D:$who had become a louse just because he loves louses.
 D:この巨大なシラミはシラミを愛するあまりシラミになってしまった
 D:哀れな人間のなれの果てだ。
 
@@ -21139,7 +21182,7 @@ B:BITE:ACID:6d14
 B:BITE:ACID:6d14
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:ONLY_ITEM | DROP_2D2 | DROP_4D2 | DROP_GOOD | 
-F:BASH_DOOR | POWERFUL | MOVE_BODY | RIDING
+F:BASH_DOOR | POWERFUL | MOVE_BODY | RIDING | CAN_FLY
 F:EVIL | DRAGON | IM_ACID | NO_CONF | NO_SLEEP
 S:1_IN_4 | 
 S:BLIND | CONF | SCARE | 

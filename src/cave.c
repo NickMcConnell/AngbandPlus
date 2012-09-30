@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: ebock $ on $Date: 1999/11/20 23:01:59 $ */
 /* File: cave.c */
 
 /* Purpose: low level dungeon routines -BEN- */
@@ -1554,7 +1553,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 							break;
 						case CLASS_MONK:
 						case CLASS_MINDCRAFTER:
-						case CLASS_FORCE:
+						case CLASS_FORCETRAINER:
 						case CLASS_MIRROR_MASTER:
 							if (p_ptr->lev < 20)
 								a = TERM_L_UMBER;
@@ -1635,7 +1634,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 								p_ptr->pclass == CLASS_HIGH_MAGE ||
 								p_ptr->pclass == CLASS_SORCERER ||
 								p_ptr->pclass == CLASS_MONK ||
-								p_ptr->pclass == CLASS_FORCE ||
+								p_ptr->pclass == CLASS_FORCETRAINER ||
 								p_ptr->pclass == CLASS_BLUE_MAGE ||
 								p_ptr->pclass == CLASS_MIRROR_MASTER ||
 								p_ptr->pclass == CLASS_MINDCRAFTER)
@@ -2272,7 +2271,7 @@ static cptr simplify_list[][2] =
 
 static void display_shortened_item_name(object_type *o_ptr, int y)
 {
-	unsigned char buf[MAX_NLEN];
+	char buf[MAX_NLEN];
 	char *c = buf;
 	int len = 0;
 
@@ -2319,7 +2318,6 @@ static void display_shortened_item_name(object_type *o_ptr, int y)
 		}
 	}
 	*c='\0';
-//	put_str(buf,y,0); 
 	Term_putstr(0, y, 12, tval_to_attr[o_ptr->tval % 128], buf);
 }
 
@@ -2491,7 +2489,7 @@ void display_map(int *cy, int *cx)
 		  display_shortened_item_name(autopick_obj, y);
 #else
 	  {
-		  unsigned char buf[13] = "\0";
+		  char buf[13] = "\0";
 		  strncpy(buf,autopick_name[match_autopick],12);
 		  buf[12] = '\0';
 		  put_str(buf,y,0); 

@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 1999/12/14 13:17:57 $ */
 /* File: cmd2.c */
 
 /* Purpose: Movement commands (part 2) */
@@ -3976,8 +3975,16 @@ note_dies = "は爆発して粉々になった。";
 					/* STICK TO */
 					if (q_ptr->name1)
 					{
+						char m_name[80];
+
+						monster_desc(m_name, m_ptr, 0);
+
 						stick_to = TRUE;
-						msg_format("%sは敵に突き刺さった！",o_name);
+#ifdef JP
+						msg_format("%sは%sに突き刺さった！",o_name, m_name);
+#else
+						msg_format("%^s have stuck into %s!",o_name, m_name);
+#endif
 					}
 
 					/* Message */
@@ -4079,7 +4086,7 @@ void do_cmd_fire(void)
 #else
 		msg_print("You have nothing to fire with.");
 #endif
-
+		flush();
 		return;
 	}
 
@@ -4090,7 +4097,7 @@ void do_cmd_fire(void)
 #else
 		msg_print("Do activate.");
 #endif
-
+		flush();
 		return;
 	}
 
@@ -4112,7 +4119,11 @@ void do_cmd_fire(void)
 	s = "You have nothing to fire.";
 #endif
 
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR)))
+	{
+		flush();
+		return;
+	}
 
 	/* Fire the item */
 	do_cmd_fire_aux(item, j_ptr);
@@ -4153,6 +4164,8 @@ bool do_cmd_throw_aux(int mult, bool boomerang, int shuriken)
 
 	bool hit_body = FALSE;
 	bool hit_wall = FALSE;
+	bool equiped_item = FALSE;
+	bool return_when_thrown = FALSE;
 
 	char o_name[MAX_NLEN];
 
@@ -4186,7 +4199,11 @@ bool do_cmd_throw_aux(int mult, bool boomerang, int shuriken)
 			s = "You have nothing to throw.";
 #endif
 
-			if (!get_item(&item, q, s, (USE_EQUIP))) return FALSE;
+			if (!get_item(&item, q, s, (USE_EQUIP)))
+			{
+				flush();
+				return FALSE;
+			}
 		}
 		else
 		{
@@ -4204,7 +4221,11 @@ bool do_cmd_throw_aux(int mult, bool boomerang, int shuriken)
 		s = "You have nothing to throw.";
 #endif
 
-		if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR | USE_EQUIP))) return FALSE;
+		if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR | USE_EQUIP)))
+		{
+			flush();
+			return FALSE;
+		}
 	}
 
 	/* Access the item (if in the pack) */
@@ -4294,9 +4315,36 @@ bool do_cmd_throw_aux(int mult, bool boomerang, int shuriken)
 		}
 	}
 
+	if ((q_ptr->name1 == ART_MJOLLNIR) ||
+	    (q_ptr->name1 == ART_AEGISFANG) || boomerang)
+		return_when_thrown = TRUE;
+
+	/* Reduce and describe inventory */
+	if (item >= 0)
+	{
+		inven_item_increase(item, -1);
+		if (!return_when_thrown)
+			inven_item_describe(item);
+		inven_item_optimize(item);
+	}
+	
+	/* Reduce and describe floor item */
+	else
+	{
+		floor_item_increase(0 - item, -1);
+		floor_item_optimize(0 - item);
+	}
+	if (item >= INVEN_RARM)
+	{
+		equiped_item = TRUE;
+		p_ptr->redraw |= (PR_EQUIPPY);
+	}
+	
 	/* Take a turn */
 	if ((p_ptr->pclass == CLASS_ROGUE) || (p_ptr->pclass == CLASS_NINJA))
 		energy_use = 100-p_ptr->lev;
+	else
+		energy_use = 100;
 
 	/* Start at the player */
 	y = py;
@@ -4609,16 +4657,16 @@ msg_print("これはあまり良くない気がする。");
 		}
 	}
 
-	if ((o_ptr->name1 == ART_MJOLLNIR) || (o_ptr->name1 == ART_AEGISFANG) || boomerang)
+	if (return_when_thrown)
 	{
 		int back_chance = randint(30)+20+((int)(adj_dex_th[p_ptr->stat_ind[A_DEX]]) - 128);
 		char o2_name[MAX_NLEN];
-		bool super_boomerang = (((o_ptr->name1 == ART_MJOLLNIR) || (o_ptr->name1 == ART_AEGISFANG)) && boomerang);
+		bool super_boomerang = (((q_ptr->name1 == ART_MJOLLNIR) || (q_ptr->name1 == ART_AEGISFANG)) && boomerang);
 
 		j = -1;
 		if (boomerang) back_chance += 4+randint(5);
 		if (super_boomerang) back_chance += 100;
-		object_desc(o2_name, o_ptr, FALSE, 0);
+		object_desc(o2_name, q_ptr, FALSE, 0);
 
 		if((back_chance > 30) && ((randint(100) != 1) || super_boomerang))
 		{
@@ -4684,32 +4732,49 @@ msg_print("これはあまり良くない気がする。");
 		}
 	}
 
-	if (!come_back)
+	if (come_back)
 	{
-		/* Drop (or break) near that location */
-		if (do_drop) (void)drop_near(q_ptr, j, y, x);
-
-		/* Reduce and describe inventory */
-		if (item >= 0)
+		if (item == INVEN_RARM || item == INVEN_LARM)
 		{
-			inven_item_increase(item, -1);
-			inven_item_describe(item);
-			inven_item_optimize(item);
-		}
+			/* Access the wield slot */
+			o_ptr = &inventory[item];
 
-		/* Reduce and describe floor item */
+			/* Wear the new stuff */
+			object_copy(o_ptr, q_ptr);
+
+			/* Increase the weight */
+			p_ptr->total_weight += q_ptr->weight;
+
+			/* Increment the equip counter by hand */
+			equip_cnt++;
+
+			/* Recalculate bonuses */
+			p_ptr->update |= (PU_BONUS);
+
+			/* Recalculate torch */
+			p_ptr->update |= (PU_TORCH);
+
+			/* Recalculate mana XXX */
+			p_ptr->update |= (PU_MANA);
+
+			/* Window stuff */
+			p_ptr->window |= (PW_EQUIP);
+		}
 		else
 		{
-			floor_item_increase(0 - item, -1);
-			floor_item_optimize(0 - item);
+			inven_carry(q_ptr);
 		}
-		if ((item == INVEN_RARM) || (item == INVEN_LARM))
-		{
-			kamaenaoshi(item);
-			p_ptr->redraw |= (PR_EQUIPPY);
-		}
-		if (item >= INVEN_RARM) calc_android_exp();
+		do_drop = FALSE;
 	}
+	else if (equiped_item)
+	{
+		kamaenaoshi(item);
+		calc_android_exp();
+	}
+
+	/* Drop (or break) near that location */
+	if (do_drop) (void)drop_near(q_ptr, j, y, x);
+
 	return TRUE;
 }
 

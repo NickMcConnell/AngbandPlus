@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 2000/05/29 17:18:42 $ */
 /* File: main-win.c */
 
 /*

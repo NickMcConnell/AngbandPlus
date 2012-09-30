@@ -1012,7 +1012,7 @@ static void prt_hp(void)
 	byte color;
   
 	/* ¥¿¥¤¥È¥ë */
-//	put_str(" £È£Ð¡¦£Í£Ð", ROW_HPMP, COL_HPMP);
+/*	put_str(" £È£Ð¡¦£Í£Ð", ROW_HPMP, COL_HPMP); */
 
 	put_str("HP", ROW_CURHP, COL_CURHP);
 
@@ -1059,7 +1059,7 @@ static void prt_sp(void)
 	if (!mp_ptr->spell_book) return;
 
 	/* ¥¿¥¤¥È¥ë */
-//	put_str(" £Í£Ð / ºÇÂç", ROW_MAXSP, COL_MAXSP);
+/*	put_str(" £Í£Ð / ºÇÂç", ROW_MAXSP, COL_MAXSP); */
 
 #ifdef JP
 	put_str("MP", ROW_CURSP, COL_CURSP);
@@ -1391,7 +1391,7 @@ sprintf(text, "  %2d", command_rep);
 	}
 
 	/* Display the info (or blanks) */
-	c_put_str(attr, text, ROW_STATE, COL_STATE);
+	c_put_str(attr, format("%5.5s",text), ROW_STATE, COL_STATE);
 }
 
 
@@ -1804,8 +1804,8 @@ static void prt_frame_basic(void)
 		prt_field(mimic_info[p_ptr->mimic_form].title, ROW_RACE, COL_RACE);
 	else
 		prt_field(rp_ptr->title, ROW_RACE, COL_RACE);
-//	prt_field(cp_ptr->title, ROW_CLASS, COL_CLASS);
-//	prt_field(ap_ptr->title, ROW_SEIKAKU, COL_SEIKAKU);
+/*	prt_field(cp_ptr->title, ROW_CLASS, COL_CLASS); */
+/*	prt_field(ap_ptr->title, ROW_SEIKAKU, COL_SEIKAKU); */
 
 
 	/* Title */
@@ -2205,6 +2205,7 @@ static void calc_spells(void)
 	int use_realm1 = p_ptr->realm1 - 1;
 	int use_realm2 = p_ptr->realm2 - 1;
 	int which;
+	int bonus = 0;
 
 
 	cptr p;
@@ -2235,6 +2236,10 @@ static void calc_spells(void)
 	/* Extract total allowed spells */
 	num_allowed = (adj_mag_study[p_ptr->stat_ind[mp_ptr->spell_stat]] * levels / 2);
 
+	if ((p_ptr->pclass != CLASS_SAMURAI) && (mp_ptr->spell_book != TV_LIFE_BOOK))
+	{
+		bonus = 4;
+	}
 	if (p_ptr->pclass == CLASS_SAMURAI)
 	{
 		num_allowed = 32;
@@ -2242,15 +2247,15 @@ static void calc_spells(void)
 	else if (p_ptr->realm2 == REALM_NONE)
 	{
 		num_allowed = (num_allowed+1)/2;
-		if (num_allowed>32) num_allowed = 32;
+		if (num_allowed>(32+bonus)) num_allowed = 32+bonus;
 	}
 	else if ((p_ptr->pclass == CLASS_MAGE) || (p_ptr->pclass == CLASS_PRIEST))
 	{
-		if (num_allowed>96) num_allowed = 96;
+		if (num_allowed>(96+bonus)) num_allowed = 96+bonus;
 	}
 	else
 	{
-		if (num_allowed>80) num_allowed = 80;
+		if (num_allowed>(80+bonus)) num_allowed = 80+bonus;
 	}
 
         /* Count the number of spells we know */
@@ -2500,7 +2505,7 @@ static void calc_spells(void)
 			k++;
 		}
 		if (k>32) k = 32;
-		if (p_ptr->new_spells > k) p_ptr->new_spells = k;
+		if ((p_ptr->new_spells > k) && (mp_ptr->spell_book == TV_LIFE_BOOK)) p_ptr->new_spells = k;
 	}
 
 	if (p_ptr->new_spells < 0) p_ptr->new_spells = 0;
@@ -2647,7 +2652,7 @@ static void calc_mana(void)
 		case CLASS_HIGH_MAGE:
 		case CLASS_BLUE_MAGE:
 		case CLASS_MONK:
-		case CLASS_FORCE:
+		case CLASS_FORCETRAINER:
 		case CLASS_SORCERER:
 		{
 			if (inventory[INVEN_RARM].tval <= TV_SWORD) cur_wgt += inventory[INVEN_RARM].weight;
@@ -2728,7 +2733,7 @@ static void calc_mana(void)
 			case CLASS_MINDCRAFTER:
 			case CLASS_BEASTMASTER:
 			case CLASS_BARD:
-			case CLASS_FORCE:
+			case CLASS_FORCETRAINER:
 			case CLASS_TOURIST:
 			case CLASS_MIRROR_MASTER:
 			{
@@ -3027,7 +3032,7 @@ static void calc_torch(void)
 			/* does this item glow? */
 			if (f3 & TR3_LITE)
 			{
-				if (o_ptr->name2 == EGO_DARK) p_ptr->cur_lite--;
+				if ((o_ptr->name2 == EGO_DARK) || (o_ptr->name1 == ART_NIGHT)) p_ptr->cur_lite--;
 				else p_ptr->cur_lite++;
 			}
 		}
@@ -3286,7 +3291,7 @@ void calc_bonuses(void)
 	p_ptr->skill_dig = 0;
 
 	if (buki_motteruka(INVEN_RARM) && (empty_hands(FALSE) & 0x00000001) && ((inventory[INVEN_RARM].weight > 99) || (inventory[INVEN_RARM].tval == TV_POLEARM)) && (!p_ptr->riding || (p_ptr->pet_extra_flags & PF_RYOUTE))) p_ptr->ryoute = TRUE;
-	if (((p_ptr->pclass == CLASS_MONK) || (p_ptr->pclass == CLASS_FORCE) || (p_ptr->pclass == CLASS_BERSERKER)) && (empty_hands(TRUE) == 3) && (!p_ptr->riding || (p_ptr->pet_extra_flags & PF_RYOUTE))) p_ptr->ryoute = TRUE;
+	if (((p_ptr->pclass == CLASS_MONK) || (p_ptr->pclass == CLASS_FORCETRAINER) || (p_ptr->pclass == CLASS_BERSERKER)) && (empty_hands(TRUE) == 3) && (!p_ptr->riding || (p_ptr->pet_extra_flags & PF_RYOUTE))) p_ptr->ryoute = TRUE;
 	if (buki_motteruka(INVEN_RARM) || !buki_motteruka(INVEN_LARM)) p_ptr->migite = TRUE;
 	if (buki_motteruka(INVEN_LARM)) p_ptr->hidarite = TRUE;
 
@@ -3325,7 +3330,7 @@ void calc_bonuses(void)
 				if (p_ptr->lev > 39) p_ptr->telepathy = TRUE;
 				break;
 			case CLASS_MONK:
-			case CLASS_FORCE:
+			case CLASS_FORCETRAINER:
 				/* Unencumbered Monks become faster every 10 levels */
 				if (!(heavy_armor()))
 				{
@@ -4081,8 +4086,10 @@ void calc_bonuses(void)
 
 		if (p_ptr->pclass == CLASS_NINJA)
 		{
-			bonus_to_h = (o_ptr->to_h+1)/2;
-			bonus_to_d = (o_ptr->to_d+1)/2;
+			if (o_ptr->to_h > 0) bonus_to_h = (o_ptr->to_h+1)/2;
+			else bonus_to_h = o_ptr->to_h;
+			if (o_ptr->to_d > 0) bonus_to_d = (o_ptr->to_d+1)/2;
+			else bonus_to_d = o_ptr->to_d;
 		}
 		else
 		{
@@ -4141,7 +4148,7 @@ void calc_bonuses(void)
 	}
 
 	/* Monks get extra ac for armour _not worn_ */
-	if (((p_ptr->pclass == CLASS_MONK) || (p_ptr->pclass == CLASS_FORCE)) && !heavy_armor())
+	if (((p_ptr->pclass == CLASS_MONK) || (p_ptr->pclass == CLASS_FORCETRAINER)) && !heavy_armor())
 	{
 		if (!(inventory[INVEN_BODY].k_idx))
 		{
@@ -4672,7 +4679,7 @@ void calc_bonuses(void)
 				p_ptr->num_fire += (p_ptr->lev * 4);
 			}
 
-			if ((p_ptr->pclass == CLASS_FORCEHEI) &&
+			if ((p_ptr->pclass == CLASS_CAVALRY) &&
 			    (p_ptr->tval_ammo == TV_ARROW))
 			{
 				p_ptr->num_fire += (p_ptr->lev * 3);
@@ -4807,7 +4814,7 @@ void calc_bonuses(void)
 				case CLASS_BEASTMASTER:
 					num = 5; wgt = 70; mul = 3; break;
 
-				case CLASS_FORCEHEI:
+				case CLASS_CAVALRY:
 					if ((p_ptr->riding) && (f2 & TR2_RIDING)) {num = 5; wgt = 70; mul = 4;}
 					else {num = 5; wgt = 100; mul = 3;}
 					break;
@@ -4822,7 +4829,7 @@ void calc_bonuses(void)
 					num = 4; wgt = 70; mul = 2; break;
 
 				/* ForceTrainer */
-				case CLASS_FORCE:
+				case CLASS_FORCETRAINER:
 					num = 4; wgt = 60; mul = 2; break;
 
 				/* Mirror Master */
@@ -4947,7 +4954,7 @@ void calc_bonuses(void)
 			else if (!(f2 & TR2_RIDING))
 			{
 				int penalty;
-				if ((p_ptr->pclass == CLASS_BEASTMASTER) || (p_ptr->pclass == CLASS_FORCEHEI))
+				if ((p_ptr->pclass == CLASS_BEASTMASTER) || (p_ptr->pclass == CLASS_CAVALRY))
 				{
 					penalty = 5;
 				}
@@ -4973,7 +4980,7 @@ void calc_bonuses(void)
 		p_ptr->riding_ryoute = FALSE;
 		if (p_ptr->ryoute || !empty_hands(FALSE)) p_ptr->riding_ryoute = TRUE;
 
-		if ((p_ptr->pclass == CLASS_BEASTMASTER) || (p_ptr->pclass == CLASS_FORCEHEI))
+		if ((p_ptr->pclass == CLASS_BEASTMASTER) || (p_ptr->pclass == CLASS_CAVALRY))
 		{
 			if (p_ptr->tval_ammo != TV_ARROW) penalty = 5;
 		}
@@ -4989,12 +4996,12 @@ void calc_bonuses(void)
 	}
 
 	/* Different calculation for monks with empty hands */
-	if (((p_ptr->pclass == CLASS_MONK) || (p_ptr->pclass == CLASS_FORCE) || (p_ptr->pclass == CLASS_BERSERKER)) && (empty_hands(TRUE) > 1))
+	if (((p_ptr->pclass == CLASS_MONK) || (p_ptr->pclass == CLASS_FORCETRAINER) || (p_ptr->pclass == CLASS_BERSERKER)) && (empty_hands(TRUE) > 1))
 	{
 		int blow_base = p_ptr->lev + adj_dex_blow[p_ptr->stat_ind[A_DEX]];
 		p_ptr->num_blow[0] = 0;
 
-		if (p_ptr->pclass == CLASS_FORCE)
+		if (p_ptr->pclass == CLASS_FORCETRAINER)
 		{
 			if (blow_base > 18) p_ptr->num_blow[0]++;
 			if (blow_base > 31) p_ptr->num_blow[0]++;
@@ -5085,7 +5092,7 @@ void calc_bonuses(void)
 				p_ptr->dis_to_h[i] -= 40;
 				p_ptr->icky_wield[i] = TRUE;
 			}
-			else if ((p_ptr->pclass == CLASS_FORCE) && !(weapon_exp_settei[CLASS_FORCE][inventory[INVEN_RARM+i].tval-TV_BOW][inventory[INVEN_RARM+i].sval][1]))
+			else if ((p_ptr->pclass == CLASS_FORCETRAINER) && !(weapon_exp_settei[CLASS_FORCETRAINER][inventory[INVEN_RARM+i].tval-TV_BOW][inventory[INVEN_RARM+i].sval][1]))
 			{
 				p_ptr->to_h[i] -= 40;
 				p_ptr->dis_to_h[i] -= 40;
@@ -5100,11 +5107,6 @@ void calc_bonuses(void)
 					p_ptr->icky_wield[i] = TRUE;
 					p_ptr->num_blow[i] /= 2;
 					if (p_ptr->num_blow[i] < 1) p_ptr->num_blow[i] = 1;
-				}
-				else if (!p_ptr->ryoute)
-				{
-					p_ptr->to_h[i] += (5+p_ptr->lev/5);
-					p_ptr->dis_to_h[i] += (5+p_ptr->lev/5);
 				}
 			}
 		}
@@ -5151,7 +5153,7 @@ void calc_bonuses(void)
 		p_ptr->dis_to_d[0] += MAX(bonus_to_d,1);
 	}
 
-	if (((p_ptr->pclass == CLASS_MONK) || (p_ptr->pclass == CLASS_FORCE) || (p_ptr->pclass == CLASS_BERSERKER)) && (empty_hands(TRUE) == 3)) p_ptr->ryoute = FALSE;
+	if (((p_ptr->pclass == CLASS_MONK) || (p_ptr->pclass == CLASS_FORCETRAINER) || (p_ptr->pclass == CLASS_BERSERKER)) && (empty_hands(TRUE) == 3)) p_ptr->ryoute = FALSE;
 
 	/* Affect Skill -- stealth (bonus one) */
 	p_ptr->skill_stl += 1;
@@ -5405,7 +5407,7 @@ void calc_bonuses(void)
 		p_ptr->old_riding_ryoute = p_ptr->riding_ryoute;
 	}
 
-	if (((p_ptr->pclass == CLASS_MONK) || (p_ptr->pclass == CLASS_FORCE) || (p_ptr->pclass == CLASS_NINJA)) && (monk_armour_aux != monk_notify_aux))
+	if (((p_ptr->pclass == CLASS_MONK) || (p_ptr->pclass == CLASS_FORCETRAINER) || (p_ptr->pclass == CLASS_NINJA)) && (monk_armour_aux != monk_notify_aux))
 	{
 		if (heavy_armor())
 		{
@@ -5705,7 +5707,7 @@ void redraw_stuff(void)
 	{
 		p_ptr->redraw &= ~(PR_MISC);
 		prt_field(rp_ptr->title, ROW_RACE, COL_RACE);
-//		prt_field(cp_ptr->title, ROW_CLASS, COL_CLASS);
+/*		prt_field(cp_ptr->title, ROW_CLASS, COL_CLASS); */
 
 	}
 
@@ -5953,7 +5955,7 @@ void handle_stuff(void)
 s16b empty_hands(bool is_monk)
 {
 	s16b kaerichi = 0;
-	if (is_monk && (p_ptr->pclass != CLASS_MONK) && (p_ptr->pclass != CLASS_FORCE) && (p_ptr->pclass != CLASS_BERSERKER)) return FALSE;
+	if (is_monk && (p_ptr->pclass != CLASS_MONK) && (p_ptr->pclass != CLASS_FORCETRAINER) && (p_ptr->pclass != CLASS_BERSERKER)) return FALSE;
 
 	if (!(inventory[INVEN_RARM].k_idx)) kaerichi +=2;
 	if (!(inventory[INVEN_LARM].k_idx)) kaerichi +=1;
@@ -5965,7 +5967,7 @@ bool heavy_armor(void)
 {
 	u16b monk_arm_wgt = 0;
 
-	if ((p_ptr->pclass != CLASS_MONK) && (p_ptr->pclass != CLASS_FORCE) && (p_ptr->pclass != CLASS_NINJA)) return FALSE;
+	if ((p_ptr->pclass != CLASS_MONK) && (p_ptr->pclass != CLASS_FORCETRAINER) && (p_ptr->pclass != CLASS_NINJA)) return FALSE;
 
 	/* Weight the armor */
 	if(inventory[INVEN_RARM].tval > TV_SWORD) monk_arm_wgt += inventory[INVEN_RARM].weight;

@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: ebock $ on $Date: 1999/11/15 16:13:38 $ */
 /* File: store.c */
 
 /* Purpose: Store commands */
@@ -1302,6 +1301,7 @@ static bool store_will_buy(object_type *o_ptr)
 			/* Analyze the type */
 			switch (o_ptr->tval)
 			{
+				case TV_WHISTLE:
 				case TV_FOOD:
 				case TV_LITE:
 				case TV_FLASK:

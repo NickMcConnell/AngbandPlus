@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 1999/12/14 13:18:41 $ */
 /* File: xtra2.c */
 
 /* Purpose: effects of various "objects" */
@@ -1350,7 +1349,7 @@ msg_print("地面に落とされた。");
 			else if (m_ptr->r_idx == MON_BELD)
 			{
 				a_idx = ART_SOULCRUSH;
-				chance = 20;
+				chance = 10;
 			}
 			else if (m_ptr->r_idx == MON_PIP)
 			{
@@ -1373,7 +1372,7 @@ msg_print("地面に落とされた。");
 			else if (m_ptr->r_idx == MON_FUNDIN)
 			{
 				a_idx = ART_FUNDIN;
-				chance = 10;
+				chance = 5;
 			}
 
 			if ((a_idx > 0) && ((randint(99) < chance) || (wizard)))
@@ -1424,7 +1423,11 @@ msg_print("地面に落とされた。");
 			/* Drop it in the dungeon */
 			(void)drop_near(q_ptr, -1, y, x);
 		}
+#ifdef JP
 		msg_format("あなたは%sを制覇した！",d_name+d_info[dungeon_type].name);
+#else
+		msg_format("You have conquered %s!",d_name+d_info[dungeon_type].name);
+#endif
 	}
 
 	/* Determine how much we can drop */
@@ -3010,7 +3013,11 @@ Term_addstr(-1, TERM_WHITE, format("  [r思 %s]", info));
 
 						if (p_ptr->riding && (p_ptr->riding == c_ptr->m_idx))
 						{
+#ifdef JP
 							 tekitou = "(ペット)";
+#else
+							 tekitou = "(pet)";
+#endif
 						}
 						else
 						{
@@ -3095,10 +3102,11 @@ attitude = " ";
 	sprintf(out_val, 
 #ifdef JP
 		"%s%s%s(%s)%s%s%s%s%s[r思 %s]",
-#else
-		"%s%s%s(%s)%s%s%s%s%s[r, %s]",
-#endif
 		acount, s1, m_name, look_mon_desc(c_ptr->m_idx), tekitou, s2, s3, 
+#else
+		"%s%s%s%s%s(%s)%s%s%s[r, %s]",
+		acount, s1, s2, s3, m_name, look_mon_desc(c_ptr->m_idx), tekitou, 
+#endif
 		(m_ptr->smart & SM_CLONED ? " (clone)": ""),
 		attitude,info);
 }
@@ -4070,7 +4078,7 @@ bool get_aim_dir(int *dp)
 		/* Verify */
 		if (!(*dp == 5 && !target_okay()))
 		{
-//			return (TRUE);
+/*			return (TRUE); */
 			dir = *dp;
 		}
 	}
@@ -4182,7 +4190,7 @@ msg_print("あなたは混乱している。");
 
 #ifdef ALLOW_REPEAT /* TNB */
 
-//	repeat_push(dir);
+/*	repeat_push(dir); */
 	repeat_push(command_dir);
 
 #endif /* ALLOW_REPEAT -- TNB */
@@ -4224,7 +4232,7 @@ bool get_rep_dir(int *dp, bool under)
 	if (repeat_pull(dp))
 	{
 		dir = *dp;
-//		return (TRUE);
+/*		return (TRUE); */
 	}
 
 #endif /* ALLOW_REPEAT -- TNB */
@@ -4337,7 +4345,7 @@ msg_format("You cannot control %s.", m_name);
 
 #ifdef ALLOW_REPEAT /* TNB */
 
-//	repeat_push(dir);
+/*	repeat_push(dir); */
 	repeat_push(command_dir);
 
 #endif /* ALLOW_REPEAT -- TNB */
@@ -4362,7 +4370,7 @@ bool get_rep_dir2(int *dp)
 	if (repeat_pull(dp))
 	{
 		dir = *dp;
-//		return (TRUE);
+/*		return (TRUE); */
 	}
 
 #endif /* ALLOW_REPEAT -- TNB */
@@ -4424,7 +4432,7 @@ msg_print("あなたは混乱している。");
 
 #ifdef ALLOW_REPEAT /* TNB */
 
-//	repeat_push(dir);
+/*	repeat_push(dir); */
 	repeat_push(command_dir);
 
 #endif /* ALLOW_REPEAT -- TNB */

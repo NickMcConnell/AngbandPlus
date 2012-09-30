@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: ebock $ on $Date: 1999/11/11 05:23:15 $ */
 /* File: racial.c */
 
 /* Purpose: Racial powers (and mutations) */
@@ -420,7 +419,7 @@ static bool choose_kamae(void)
 	{
 		if (p_ptr->lev >= kamae_shurui[i].min_level)
 		{
-			sprintf(buf," %c) %s",I2A(i+1), kamae_shurui[i].desc);
+			sprintf(buf," %c) %-12s  %s",I2A(i+1), kamae_shurui[i].desc, kamae_shurui[i].info);
 			prt(buf, 3+i, 20);
 		}
 	}
@@ -429,7 +428,7 @@ static bool choose_kamae(void)
 #ifdef JP
 	prt("        どの構えをとりますか？", 1, 14);
 #else
-	prt("        Choose Form. ", 1, 14);
+	prt("        Choose Form: ", 1, 14);
 #endif
 
 	while(1)
@@ -555,9 +554,9 @@ static bool choose_kata(void)
 		if (p_ptr->lev >= kata_shurui[i].min_level)
 		{
 #ifdef JP
-			sprintf(buf," %c) %sの型",I2A(i+1), kata_shurui[i].desc);
+			sprintf(buf," %c) %sの型    %s",I2A(i+1), kata_shurui[i].desc, kata_shurui[i].info);
 #else
-			sprintf(buf," %c) Form of %s",I2A(i+1), kata_shurui[i].desc);
+			sprintf(buf," %c) Form of %-12s  %s",I2A(i+1), kata_shurui[i].desc, kata_shurui[i].info);
 #endif
 			prt(buf, 3+i, 20);
 		}
@@ -567,7 +566,7 @@ static bool choose_kata(void)
 #ifdef JP
 	prt("        どの型で構えますか？", 1, 14);
 #else
-	prt("        Choose Form ", 1, 14);
+	prt("        Choose Form: ", 1, 14);
 #endif
 
 	while(1)
@@ -768,11 +767,12 @@ if (!get_check("本当に今の衰弱した状態でこの能力を使いますか？"))
 	{
 		if (use_hp)
 		{
-			take_hit(DAMAGE_USELIFE, (cost / 2) + randint(cost / 2),
 #ifdef JP
-"過度の集中", -1);
+			take_hit(DAMAGE_USELIFE, (cost / 2) + randint(cost / 2),
+				 "過度の集中", -1);
 #else
-				"concentrating too hard", -1);
+			take_hit(DAMAGE_USELIFE, (cost / 2) + randint(cost / 2),
+				 "concentrating too hard", -1);
 #endif
 
 		}
@@ -1078,7 +1078,7 @@ msg_print("その方向にはモンスターはいません。");
 			break;
 		}
 		case CLASS_MINDCRAFTER:
-		case CLASS_FORCE:
+		case CLASS_FORCETRAINER:
 		{
 			if (total_friends)
 			{
@@ -1257,12 +1257,19 @@ msg_print("武器を持たないといけません。");
 		{
 			if (racial_aux(1, 0, A_INT, 0))
 			{
-				set_action(ACTION_LEARN);
+				if (p_ptr->action == ACTION_LEARN)
+				{
+					set_action(ACTION_NONE);
+				}
+				else
+				{
+					set_action(ACTION_LEARN);
+				}
 				energy_use = 0;
 			}
 			break;
 		}
-		case CLASS_FORCEHEI:
+		case CLASS_CAVALRY:
 		{
 			if (racial_aux(10, 0, A_STR, 10))
 			{
@@ -1875,7 +1882,7 @@ Type_desc = "カオス";
 							break;
 						case CLASS_MONK:
 						case CLASS_SAMURAI:
-						case CLASS_FORCE:
+						case CLASS_FORCETRAINER:
 							if (randint(3) != 1)
 							{
 								Type = GF_CONFUSION;
@@ -2498,7 +2505,7 @@ strcpy(power_desc[num].name, "百裂拳");
 		break;
 	}
 	case CLASS_MINDCRAFTER:
-	case CLASS_FORCE:
+	case CLASS_FORCETRAINER:
 	{
 #ifdef JP
 strcpy(power_desc[num].name, "明鏡止水");
@@ -2668,7 +2675,7 @@ strcpy(power_desc[num].name, "ラーニング");
 		power_desc[num++].number = -3;
 		break;
 	}
-	case CLASS_FORCEHEI:
+	case CLASS_CAVALRY:
 	{
 #ifdef JP
 strcpy(power_desc[num].name, "荒馬ならし");

@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 1999/11/25 13:58:37 $ */
 /* File: tables.c */
 
 /* Purpose: Angband Tables */
@@ -1212,13 +1211,13 @@ owner_type owners[MAX_STORES][MAX_OWNERS] =
 
 #ifdef JP
                 { "フレンドリーなビルボ",       200,    170,  108,   5,  15,  RACE_HOBBIT},
-//                { "憶病者ラストリン",       200,    175,  108,   4,  12,  RACE_HUMAN}, 
+/*                { "憶病者ラストリン",       200,    175,  108,   4,  12,  RACE_HUMAN},  */
                 { "憶病者リンスウィンド",       200,    175,  108,   4,  12,  RACE_HUMAN}, 
                 { "背の低いサルタン",             300,    170,  107,   5,  15,  RACE_GNOME},
                 { "ハンサムなライア=エル",      300,    165,  107,   6,  18,  RACE_ELF},
 #else
 		{ "Bilbo the Friendly",         200,    170, 108,  5, 15, RACE_HOBBIT},
-//		{ "Raistlin the Chicken",       200,    175, 108,  4, 12, RACE_HUMAN},
+/*		{ "Raistlin the Chicken",       200,    175, 108,  4, 12, RACE_HUMAN}, */
 		{ "Rincewind the Chicken",       200,    175, 108,  4, 12, RACE_HUMAN},
 		{ "Sultan the Midget",          300,    170, 107,  5, 15, RACE_GNOME},
 		{ "Lyar-el the Comely",         300,    165, 107,  6, 18, RACE_ELF},
@@ -14385,7 +14384,7 @@ cptr spell_names[VALID_REALM][32] =
 		"Protect from Corrosion",
 
 		"Earthquake",
-		"Whirlwind Attack",
+		"Cyclone",
 		"Blizzard",
 		"Lightning Storm",
 		"Whirlpool",
@@ -15683,7 +15682,6 @@ monster_power monster_powers[MAX_MONSPELLS] =
 { 48, 120,  90,    0,  50, A_INT,  "アンバーの王の召喚"	, "summon amberites"},
 { 50, 150,  95,    0,  50, A_INT,  "ユニークモンスターの召喚"	, "summon unique"},
 #else
-//...shouryaku.
 {  1,   1,  10,    0,  15, A_CON,  "shriek"},
 { 10,   4,  35,   89,  40, A_INT,  "XXX1"},
 { 40,  35,  85,    0,  40, A_INT,  "dispel magic"},
@@ -17400,30 +17398,30 @@ cptr game_inscriptions[] =
 kamae kamae_shurui[MAX_KAMAE] =
 {
 #ifdef JP
-	{"玄武", 25},
-	{"白虎", 30},
-	{"青竜", 35},
-	{"朱雀", 40},
+	{"玄武", 25, ""},
+	{"白虎", 30, ""},
+	{"青竜", 35, ""},
+	{"朱雀", 40, ""},
 #else
-	{"Baihu", 25},
-	{"Zuan-wu", 30},
-	{"Qinglong", 35},
-	{"Zhuque", 40},
+	{"Baihu", 25, "(Black Turtle) "},
+	{"Zuan-wu", 30, "(White Tiger) "},
+	{"Qinglong", 35, "(Blue Chinese Dragon) "},
+	{"Zhuque", 40, "(Red Chinese Phoenix) "},
 #endif
 };
 
 kamae kata_shurui[MAX_KATA] =
 {
 #ifdef JP
-	{"居合", 25},
-	{"風塵", 30},
-	{"降鬼", 35},
-	{"無想", 40},
+	{"居合", 25, ""},
+	{"風塵", 30, ""},
+	{"降鬼", 35, ""},
+	{"無想", 40, ""},
 #else
-	{"Iai", 25},
-	{"Huujin", 30},
-	{"Kouki", 35},
-	{"Musou", 40},
+	{"Iai", 25, ""},
+	{"Huujin", 30, ""},
+	{"Kouki", 35, ""},
+	{"Musou", 40, ""},
 #endif
 };
 

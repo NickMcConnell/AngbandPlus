@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 1999/12/14 13:18:21 $ */
 /* File: mind.c */
 
 /* Purpose: Mane code */
@@ -363,7 +362,7 @@ else msg_print("ロケットを発射した。");
 			else msg_print("You fires a rocket.");
 #endif
 		
-			fire_ball(GF_ROCKET, dir, damage, 2);
+			fire_rocket(GF_ROCKET, dir, damage, 2);
 		break;
 	case MS_ARROW_1:
 	case MS_ARROW_2:

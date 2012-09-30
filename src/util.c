@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 1999/10/29 22:02:21 $ */
 /* File: util.c */
 
 /* Purpose: Angband utilities -BEN- */
@@ -1397,13 +1396,6 @@ errr macro_init(void)
 	return (0);
 }
 
-#ifndef JP
-/*
- * Local "need flush" variable
- */
-static bool flush_later = FALSE;
-#endif
-
 /*
  * Local variable -- we are inside a "macro action"
  *
@@ -1429,11 +1421,7 @@ static bool parse_under = FALSE;
 void flush(void)
 {
 	/* Do it later */
-#ifdef JP
         inkey_xtra = TRUE;
-#else
-	flush_later = TRUE;
-#endif
 }
 
 
@@ -1494,6 +1482,8 @@ static char inkey_aux(void)
 
 	char buf[1024];
 
+	/* Hack : キー入力待ちで止まっているので、流れた行の記憶は不要。*/
+	num_more = 0;
 
 	/* Wait for a keypress */
 	(void)(Term_inkey(&ch, TRUE, TRUE));
@@ -1890,7 +1880,7 @@ char inkey(void)
 
 
 		/* Treat back-quote as escape */
-//		if (ch == '`') ch = ESCAPE;
+/*		if (ch == '`') ch = ESCAPE; */
 
 
 		/* End "macro trigger" */
@@ -3122,7 +3112,7 @@ bool get_check(cptr prompt)
 	while (TRUE)
 	{
 		i = inkey();
-//		if (quick_messages) break;
+/*		if (quick_messages) break; */
 		if (i == ESCAPE) break;
 		if (strchr("YyNn", i)) break;
 		bell();
@@ -3582,7 +3572,7 @@ special_menu_naiyou special_menu_info[] =
 	{"超能力/特殊能力", 0, 0, MENU_CLASS, CLASS_MINDCRAFTER},
 	{"ものまね/特殊能力", 0, 0, MENU_CLASS, CLASS_IMITATOR},
 	{"必殺技/特殊能力", 0, 0, MENU_CLASS, CLASS_SAMURAI},
-	{"練気術/魔法/特殊能力", 0, 0, MENU_CLASS, CLASS_FORCE},
+	{"練気術/魔法/特殊能力", 0, 0, MENU_CLASS, CLASS_FORCETRAINER},
 	{"鏡魔法/特殊能力", 0, 0, MENU_CLASS, CLASS_MIRROR_MASTER},
 	{"広域マップ(<)", 2, 6, MENU_WILD, FALSE},
 	{"通常マップ(>)", 2, 7, MENU_WILD, TRUE},
@@ -3594,7 +3584,7 @@ special_menu_naiyou special_menu_info[] =
 	{"MindCraft/Special", 0, 0, MENU_CLASS, CLASS_MINDCRAFTER},
 	{"Imitation/Special", 0, 0, MENU_CLASS, CLASS_IMITATOR},
 	{"Technique/Special", 0, 0, MENU_CLASS, CLASS_SAMURAI},
-	{"Mind/Magic/Special", 0, 0, MENU_CLASS, CLASS_FORCE},
+	{"Mind/Magic/Special", 0, 0, MENU_CLASS, CLASS_FORCETRAINER},
 	{"MirrorMagic/Special", 0, 0, MENU_CLASS, CLASS_MIRROR_MASTER},
 	{"Enter global map(<)", 2, 6, MENU_WILD, FALSE},
 	{"Enter local map(>)", 2, 7, MENU_WILD, TRUE},
@@ -3944,7 +3934,7 @@ prt(format("回数: %d", command_arg), 0, 0);
 			{
 				/* Get a real command */
 #ifdef JP
-				if (!get_com("コマンド: ", &cmd, FALSE))
+				if (!get_com("コマンド: ", (char *)&cmd, FALSE))
 #else
 				if (!get_com("Command: ", &cmd, FALSE))
 #endif
@@ -3965,7 +3955,7 @@ prt(format("回数: %d", command_arg), 0, 0);
 		{
 			/* Get a real command */
 #ifdef JP
-			(void)get_com("コマンド: ", &cmd, FALSE);
+			(void)get_com("コマンド: ", (char *)&cmd, FALSE);
 #else
 			(void)get_com("Command: ", &cmd, FALSE);
 #endif
@@ -3981,7 +3971,7 @@ prt(format("回数: %d", command_arg), 0, 0);
 		{
 			/* Get a new command and controlify it */
 #ifdef JP
-			if (get_com("CTRL: ", &cmd, FALSE)) cmd = KTRL(cmd);
+			if (get_com("CTRL: ", (char *)&cmd, FALSE)) cmd = KTRL(cmd);
 #else
 			if (get_com("Control: ", &cmd, FALSE)) cmd = KTRL(cmd);
 #endif
@@ -4592,8 +4582,8 @@ void roff_to_buf(cptr str, int maxlen, char *tbuf)
 			word_punct = read_pt;
 #ifdef JP
 		if (kanji &&
-		    strcmp(ch, "。") != 0 && strcmp(ch, "、") != 0 &&
-		    strcmp(ch, "ィ") != 0 && strcmp(ch, "ー") != 0)
+		    strcmp((char *)ch, "。") != 0 && strcmp((char *)ch, "、") != 0 &&
+		    strcmp((char *)ch, "ィ") != 0 && strcmp((char *)ch, "ー") != 0)
 			word_punct = read_pt;
 #endif
 		tbuf[write_pt++] = ch[0];

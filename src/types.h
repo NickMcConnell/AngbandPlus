@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: ebock $ on $Date: 1999/11/13 04:40:11 $ */
 /* File: types.h */
 
 /* Purpose: global type declarations */
@@ -1368,6 +1367,7 @@ struct kamae
 {
 	cptr    desc;       /* A verbose kamae description */
 	int     min_level;  /* Minimum level to use */
+	cptr    info;
 };
 
 /* Mindcrafters */

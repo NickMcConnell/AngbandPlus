@@ -288,6 +288,7 @@ wand of
 skeleton of 
 ?:[EQU $CLASS Ninja]
 ~lights:darkness
+Iron Spike#@v0
 ?:[EQU $RACE Vampire]
 ~scroll of darkness
 ~staff of darkness

@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 1999/10/22 07:44:50 $ */
 #include "angband.h"
 #include "Python.h"
 

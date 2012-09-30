@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 1999/11/24 21:51:49 $ */
 /* File: cmd4.c */
 
 /* Purpose: Interface commands */
@@ -4600,7 +4599,7 @@ cptr inven_res_label =
 static void do_cmd_knowledge_inven_aux(FILE *fff, object_type *o_ptr, 
 				       int *j, byte tval, char *where)
 {
-  unsigned char o_name[MAX_NLEN];
+  char o_name[MAX_NLEN];
   u32b    f[3];
 
   if (!o_ptr->k_idx)return;
@@ -4824,7 +4823,7 @@ static void do_cmd_knowledge_inven(void)
 	int i=0;
         int j=0;
 
-	unsigned char  where[32];
+	char  where[32];
 
 	/* Open a new file */
 	fff = my_fopen_temp(file_name, 1024);
@@ -4992,15 +4991,19 @@ void do_cmd_save_screen_html_aux(char *filename, int message)
 		for (x = 0; x < 79; x++)
 		{
 			int rv, gv, bv;
-			char *cc = 0;
+			char *cc = NULL;
 			/* Get the attr/char */
 			(void)(Term_what(x, y, &a, &c));
-			
+
 			switch (c)
 			{
 			case '&': cc = "&amp;"; break;
 			case '<': cc = "&lt;"; break;
 			case '>': cc = "&gt;"; break;
+#ifdef WINDOWS
+			case 0x1f: c = '.'; break;
+			case 0x7f: c = (a == 0x09) ? '%' : '#'; break;
+#endif
 			}
 
 			a = a & 0x0F;
@@ -5010,19 +5013,12 @@ void do_cmd_save_screen_html_aux(char *filename, int message)
 				bv = angband_color_table[a][3];
 				fprintf(fff, "%s<font color=\"#%02x%02x%02x\">", 
 					((y == 0 && x == 0) ? "" : "</font>"), rv, gv, bv);
-				if (cc)
-					fprintf(fff, "%s", cc);
-				else
-					fprintf(fff, "%c", c);
 				old_a = a;
 			}
+			if (cc)
+				fprintf(fff, "%s", cc);
 			else
-			{
-				if (cc)
-					fprintf(fff, "%s", cc);
-				else
-					fprintf(fff, "%c", c);
-			}
+				fprintf(fff, "%c", c);
 		}
 	}
 	fprintf(fff, "</font>");
@@ -6814,7 +6810,7 @@ sprintf(rand_tmp_str,"%s (%d 階) - %sを倒す。\n",
 #ifdef JP
 	fprintf(fff, "\n《達成したクエスト》\n");
 #else
-	fprintf(fff, "\n< Completed Random Quest >\n");
+	fprintf(fff, "\n< Completed Quest >\n");
 #endif
 	total = 0;
 	for (i = 1; i < max_quests; i++)
@@ -6847,12 +6843,12 @@ sprintf(rand_tmp_str,"%s (%d 階) - %sを倒す。\n",
 			{
 				/* Print the quest info */
 #ifdef JP
-				sprintf(tmp_str, "%s (%d階, %s) - レベル%d\n",
+				sprintf(tmp_str, "%s (%d階) - レベル%d\n",
 #else
-				sprintf(tmp_str, "%s (%d, %s) - level%d\n",
+				sprintf(tmp_str, "%s (Dungeon level: %d) - level %d\n",
 #endif
 
-					quest[i].name, quest[i].level, r_name+r_info[quest[i].r_idx].name, quest[i].complev);
+					r_name+r_info[quest[i].r_idx].name, quest[i].level, quest[i].complev);
 			}
 			else
 			{
@@ -6860,7 +6856,7 @@ sprintf(rand_tmp_str,"%s (%d 階) - %sを倒す。\n",
 #ifdef JP
 				sprintf(tmp_str, "%s (危険度:%d階相当) - レベル%d\n",
 #else
-				sprintf(tmp_str, "%s (Danger level: %d) - レベル%d\n",
+				sprintf(tmp_str, "%s (Danger level: %d) - level %d\n",
 #endif
 
 					quest[i].name, quest[i].level, quest[i].complev);
@@ -6878,7 +6874,7 @@ sprintf(rand_tmp_str,"%s (%d 階) - %sを倒す。\n",
 #ifdef JP
 	fprintf(fff, "\n《失敗したクエスト》\n");
 #else
-	fprintf(fff, "\n< Failed Random Quest >\n");
+	fprintf(fff, "\n< Failed Quest >\n");
 #endif
 	total = 0;
 	for (i = 1; i < max_quests; i++)
@@ -6911,12 +6907,12 @@ sprintf(rand_tmp_str,"%s (%d 階) - %sを倒す。\n",
 			{
 				/* Print the quest info */
 #ifdef JP
-				sprintf(tmp_str, "%s (%d階, %s) - レベル%d\n",
+				sprintf(tmp_str, "%s (%d階) - レベル%d\n",
 #else
-				sprintf(tmp_str, "%s (%d, %s) - level%d\n",
+				sprintf(tmp_str, "%s (Dungeon level: %d) - level %d\n",
 #endif
 
-					quest[i].name, quest[i].level, r_name+r_info[quest[i].r_idx].name, quest[i].complev);
+					r_name+r_info[quest[i].r_idx].name, quest[i].level, quest[i].complev);
 			}
 			else
 			{
@@ -6924,7 +6920,7 @@ sprintf(rand_tmp_str,"%s (%d 階) - %sを倒す。\n",
 #ifdef JP
 				sprintf(tmp_str, "%s (危険度:%d階相当) - レベル%d\n",
 #else
-				sprintf(tmp_str, "%s (Danger level: %d) - レベル%d\n",
+				sprintf(tmp_str, "%s (Danger level: %d) - level %d\n",
 #endif
 
 					quest[i].name, quest[i].level, quest[i].complev);

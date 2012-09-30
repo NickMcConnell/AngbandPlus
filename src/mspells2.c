@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 1999/12/14 13:18:24 $ */
 /* File: mspells2.c */
 
 /* Purpose: Monster spells (attack monster) */
@@ -450,11 +449,14 @@ bool monst_spell_monst(int m_idx)
 		{
 			disturb(1, 0);
 			/* Message */
+			if (thrown_spell != (160+7)) /* Not RF6_SPECIAL */
+			{
 #ifdef JP
 msg_format("%^sは呪文を唱えようとしたが失敗した。", m_name);
 #else
-			msg_format("%^s tries to cast a spell, but fails.", m_name);
+				msg_format("%^s tries to cast a spell, but fails.", m_name);
 #endif
+			}
 
 			return (TRUE);
 		}

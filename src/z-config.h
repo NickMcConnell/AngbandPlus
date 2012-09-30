@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/07/19 13:51:55 $ */
 /* File: z-config.h */
 
 /* Purpose: Angband specific configuration stuff */

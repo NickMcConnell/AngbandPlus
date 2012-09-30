@@ -1,5 +1,4 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 2000/05/25 12:14:46 $
- *
+/*
  * File: grid.c
  * Purpose: low-level dungeon creation primitives
  */

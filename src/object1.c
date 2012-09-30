@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: ebock $ on $Date: 1999/11/15 13:58:14 $ */
 /* File: object1.c */
 
 /* Purpose: Object code, part 1 */
@@ -1990,6 +1989,15 @@ return "蛸の大群召喚 : 300+d150ターン毎";
 			return "summon octopus every 300+d150 turns";
 #endif
 		}
+		case ART_NIGHT:
+		{
+#ifdef JP
+return "暗黒の嵐(250) : 150+d150 ターン毎";
+#else
+			return "darkness storm (250) every 150+d150 turns";
+#endif
+
+		}
 	}
 
 
@@ -2181,7 +2189,7 @@ return "火炎のブレス (200) : 250 ターン毎";
 			case EGO_RING_DRAGON_C:
 				if (o_ptr->sval == SV_RING_ICE)
 #ifdef JP
-return "冷気のブレスと火への耐性";
+return "冷気のブレスと冷気への耐性";
 #else
 					return "breath of cold and resist cold";
 #endif
@@ -2336,6 +2344,15 @@ return "全感知 : 55+d55ターン毎";
 				break;
 			}
 		}
+	}
+
+	if (o_ptr->tval == TV_WHISTLE)
+	{
+#ifdef JP
+return "ペット呼び寄せ : 100+d100ターン毎";
+#else
+		return "call pet every 100+d100 turns";
+#endif
 	}
 
 	if (o_ptr->tval == TV_CAPTURE)
@@ -3346,7 +3363,7 @@ info[i++] = "それは宙に浮くことを可能にする。";
 	}
 	if (f3 & (TR3_LITE))
 	{
-		if (o_ptr->name2 == EGO_DARK)
+		if ((o_ptr->name2 == EGO_DARK) || (o_ptr->name1 == ART_NIGHT))
 #ifdef JP
 info[i++] = "それは明かりの半径を狭める。";
 #else
@@ -3761,6 +3778,7 @@ s16b wield_slot(object_type *o_ptr)
 		}
 
 		case TV_AMULET:
+		case TV_WHISTLE:
 		{
 			return (INVEN_NECK);
 		}

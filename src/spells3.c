@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 1999/12/14 13:18:37 $ */
 /* File: spells3.c */
 
 /* Purpose: Spell code (part 3) */
@@ -694,7 +693,7 @@ static int choose_dungeon(cptr note)
 #ifdef JP
 		sprintf(buf,"      %c) %c%-12s : 最大 %d 階", 'a'+num, seiha ? '!' : ' ', d_name + d_info[i].name, max_dlv[i]);
 #else
-		sprintf(buf,"      %c) %c%-12s : Max level %d", 'a'+num, seiha ? '!' : ' ', d_name + d_info[i].name, max_dlv[i]);
+		sprintf(buf,"      %c) %c%-16s : Max level %d", 'a'+num, seiha ? '!' : ' ', d_name + d_info[i].name, max_dlv[i]);
 #endif
 		prt(buf, 2+num, 14);
 		dun[num++] = i;
@@ -3663,7 +3662,7 @@ void display_spell_list(void)
 	if (p_ptr->pclass == CLASS_RED_MAGE) return;
 
 	/* Mindcrafter spell-list */
-	if ((p_ptr->pclass == CLASS_MINDCRAFTER) || (p_ptr->pclass == CLASS_FORCE))
+	if ((p_ptr->pclass == CLASS_MINDCRAFTER) || (p_ptr->pclass == CLASS_FORCETRAINER))
 	{
 		int             i;
 		int             y = 1;
@@ -3689,7 +3688,7 @@ put_str("Lv   MP 失率 効果", y, x + 35);
 		switch(p_ptr->pclass)
 		{
 			case CLASS_MINDCRAFTER: use_mind = MIND_MINDCRAFTER;break;
-			case CLASS_FORCE:          use_mind = MIND_KI;break;
+			case CLASS_FORCETRAINER:          use_mind = MIND_KI;break;
 			default:                use_mind = 0;break;
 		}
 
@@ -3955,7 +3954,7 @@ s16b spell_chance(int spell, int realm)
  * The spell must be legible, not forgotten, and also, to cast,
  * it must be known, and to study, it must not be known.
  */
-bool spell_okay(int spell, bool known, int realm)
+bool spell_okay(int spell, bool learned, bool study_pray, int realm)
 {
 	magic_type *s_ptr;
 
@@ -3989,12 +3988,12 @@ bool spell_okay(int spell, bool known, int realm)
 	    (spell_learned2 & (1L << spell)) :
 	    (spell_learned1 & (1L << spell)))
 	{
-		/* Okay to cast, not to study */
-		return (known);
+		/* Always true */
+		return (!study_pray);
 	}
 
 	/* Okay to study, not to cast */
-	return (!known);
+	return (!learned);
 }
 
 

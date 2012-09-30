@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 1999/12/14 13:18:28 $ */
 /* File: obj_kind.c */
 
 /* Purpose: Code for the object templates */

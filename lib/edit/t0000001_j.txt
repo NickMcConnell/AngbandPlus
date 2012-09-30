@@ -376,9 +376,15 @@ F:@:1:3:0:0:0:134
 
 # Quest 27 rewarding (Monk gets The Leather Jacket of Shiva's Avatar)
 # continue with quest 33
-?:[AND [EQU $QUEST27 3] [IOR [EQU $CLASS Monk] [EQU $CLASS Ninja] ] ]
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Monk] ]
 F:a:128:3
 F:@:1:3:0:0:0:26
+
+# Quest 27 rewarding (Ninja gets The Amulet of the Pitch Dark Night)
+# continue with quest 33
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Ninja] ]
+F:a:128:3
+F:@:1:3:0:0:0:215
 
 # Quest 27 rewarding (Mage, High-Mage)
 # get Hard Leather Cap of Ben Franklin

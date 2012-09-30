@@ -1,6 +1,6 @@
 
                   ***************************************
-                  **   Hengband 1.0.7 English version  **
+                  **   Hengband 1.0.8 English version  **
                   ***************************************
 
           Based on Moria:    Copyright (c) 1985 Robert Alan Koeneke
@@ -19,5 +19,5 @@
                      http://echizen.s5.xrea.com/heng/
 
            Hengband is running on UNIX/X11, Windows, Macintosh.
-        Please report bugs at BBS "http://echizen.s5.xrea.com/heng/".
+   Please report bugs at BBS "http://echizen.s5.xrea.com/heng/eng-hengband/".
 

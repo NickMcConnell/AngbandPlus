@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: ebock $ on $Date: 1999/11/20 23:02:00 $ */
 /* File: cmd1.c */
 
 /* Purpose: Movement commands (part 1) */
@@ -803,7 +802,7 @@ bool can_player_destroy_object(object_type *o_ptr)
 int is_autopick(object_type *o_ptr)
 {
 	int i;
-	unsigned char o_name[MAX_NLEN];
+	char o_name[MAX_NLEN];
 	cptr str;
 #ifdef JP
 	static char kanji_colon[] = "：";
@@ -836,7 +835,7 @@ int is_autopick(object_type *o_ptr)
 		if (!strncmp(str, "すべての", 8)) str+= 8;
 
 		/*** 既に持っているアイテム ***/
-		if (!strncmp(str, "収拾中の", 8))
+		if (!strncmp(str, "収集中の", 8))
 		{
 			collectable = TRUE;
 			str+= 8;
@@ -1150,7 +1149,7 @@ int is_autopick(object_type *o_ptr)
 		if (!strncmp(str, "items",5)) len = 5;
 		
 		else if (!strncmp(str, "artifacts", 9)){
-			if ((object_known_p(o_ptr) || object_aware_p(o_ptr)) 
+			if (object_known_p(o_ptr)
 			    && (artifact_p(o_ptr) || o_ptr->art_name))
 				len = 9;
 		}
@@ -1200,10 +1199,10 @@ int is_autopick(object_type *o_ptr)
 			}
 		}
 		
-		else if (!strncmp(str, "lights", 5)){
+		else if (!strncmp(str, "lights", 6)){
 			switch( o_ptr->tval ){
 			case TV_LITE:
-			{len =  5; break;}
+			{len =  6; break;}
 			}
 		}
 		
@@ -2437,6 +2436,7 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 	bool            do_quake = FALSE;
 	bool            drain_msg = TRUE;
 	int             drain_result = 0, drain_heal = 0;
+	bool            can_drain = FALSE;
 	int             num_blow;
 	int             drain_left = MAX_VAMPIRIC_DRAIN;
 	u32b            f1, f2, f3; /* A massive hack -- life-draining weapons */
@@ -2450,6 +2450,8 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 	{
 		int tmp = p_ptr->lev*8+50;
 		if (p_ptr->monlite && (mode != HISSATSU_NYUSIN)) tmp /= 3;
+		if (p_ptr->aggravate) tmp /= 2;
+		if (r_ptr->level > (p_ptr->lev*p_ptr->lev/20+10)) tmp /= 3;
 		if (m_ptr->csleep && m_ptr->ml)
 		{
 			/* Can't backstab creatures that we can't see, right? */
@@ -2555,7 +2557,7 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 			}
 			else success_hit = old_success_hit;
 		}
-		else if ((p_ptr->pclass == CLASS_NINJA) && (backstab || fuiuchi)) success_hit = TRUE;
+		else if ((p_ptr->pclass == CLASS_NINJA) && ((backstab || fuiuchi) && !(r_ptr->flags3 & RF3_RES_ALL))) success_hit = TRUE;
 		else success_hit = test_hit_norm(chance, r_ptr->ac, m_ptr->ml);
 
 		/* Test for hit */
@@ -2591,7 +2593,7 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 				    m_name);
 			else
 			{
-				if (!(((p_ptr->pclass == CLASS_MONK) || (p_ptr->pclass == CLASS_FORCE) || (p_ptr->pclass == CLASS_BERSERKER)) && (empty_hands(TRUE) > 1)))
+				if (!(((p_ptr->pclass == CLASS_MONK) || (p_ptr->pclass == CLASS_FORCETRAINER) || (p_ptr->pclass == CLASS_BERSERKER)) && (empty_hands(TRUE) > 1)))
 #ifdef JP
 			msg_format("%sを攻撃した。", m_name);
 #else
@@ -2643,16 +2645,16 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 			{
 				/* Only drain "living" monsters */
 				if (monster_living(r_ptr))
-					drain_result = m_ptr->hp;
+					can_drain = TRUE;
 				else
-					drain_result = 0;
+					can_drain = FALSE;
 			}
 
 			if ((f1 & TR1_VORPAL) && (randint((o_ptr->name1 == ART_VORPAL_BLADE) ? 3 : 6) == 1) && !zantetsu_mukou)
 				vorpal_cut = TRUE;
 			else vorpal_cut = FALSE;
 
-			if (((p_ptr->pclass == CLASS_MONK) || (p_ptr->pclass == CLASS_FORCE) || (p_ptr->pclass == CLASS_BERSERKER)) && (empty_hands(TRUE) > 1))
+			if (((p_ptr->pclass == CLASS_MONK) || (p_ptr->pclass == CLASS_FORCETRAINER) || (p_ptr->pclass == CLASS_BERSERKER)) && (empty_hands(TRUE) > 1))
 			{
 				int special_effect = 0, stun_effect = 0, times = 0, max_times;
 				int min_level = 1;
@@ -2680,7 +2682,7 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 					do
 					{
 						ma_ptr = &ma_blows[rand_int(MAX_MA)];
-						if ((p_ptr->pclass == CLASS_FORCE) && (ma_ptr->min_level > 1)) min_level = ma_ptr->min_level + 3;
+						if ((p_ptr->pclass == CLASS_FORCETRAINER) && (ma_ptr->min_level > 1)) min_level = ma_ptr->min_level + 3;
 						else min_level = ma_ptr->min_level;
 					}
 					while ((min_level > p_ptr->lev) ||
@@ -2708,7 +2710,7 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 					}
 				}
 
-				if (p_ptr->pclass == CLASS_FORCE) min_level = MAX(1, ma_ptr->min_level - 3);
+				if (p_ptr->pclass == CLASS_FORCETRAINER) min_level = MAX(1, ma_ptr->min_level - 3);
 				else min_level = ma_ptr->min_level;
 				k = damroll(ma_ptr->dd, ma_ptr->ds);
 				if (p_ptr->special_attack & ATTACK_SUIKEN) k *= 2;
@@ -2845,6 +2847,8 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 				if ((!(o_ptr->tval == TV_SWORD) || !(o_ptr->sval == SV_DOKUBARI)) && !(mode == HISSATSU_KYUSHO))
 					k = critical_norm(o_ptr->weight, o_ptr->to_h, k, p_ptr->to_h[hand], mode);
 
+				drain_result = k;
+
 				if (vorpal_cut)
 				{
 					int mult = 2;
@@ -2950,13 +2954,16 @@ default:	msg_format("%sを細切れにした！", m_name);		break;
 
 						}
 					}
+					drain_result = drain_result * 3 / 2;
 				}
 
 				k += o_ptr->to_d;
+				drain_result += o_ptr->to_d;
 			}
 
 			/* Apply the player damage bonuses */
 			k += p_ptr->to_d[hand];
+			drain_result += p_ptr->to_d[hand];
 
 			if ((mode == HISSATSU_SUTEMI) || (mode == HISSATSU_3DAN)) k *= 2;
 			if ((mode == HISSATSU_SEKIRYUKA) && (r_ptr->flags3 & (RF3_UNDEAD | RF3_DEMON | RF3_NONLIVING))) k = 0;
@@ -3050,20 +3057,22 @@ msg_format("%sの急所を突き刺した！", m_name);
 			else if ((p_ptr->pclass == CLASS_NINJA) && (!p_ptr->icky_wield[hand]) && ((p_ptr->cur_lite <= 0) || one_in_(7)))
 			{
 				int maxhp = maxroll(r_ptr->hdice, r_ptr->hside);
-				if (one_in_(backstab ? 11 : (stab_fleeing || fuiuchi) ? 13 : 23))
+				if (one_in_(backstab ? 13 : (stab_fleeing || fuiuchi) ? 15 : 27))
 				{
 					k *= 5;
+					drain_result *= 2;
 #ifdef JP
 msg_format("刃が%sに深々と突き刺さった！", m_name);
 #else
 					msg_format("You critically injured %s!", m_name);
 #endif
 				}
-				else if (((m_ptr->hp < maxhp/2) && one_in_((p_ptr->num_blow[0]+p_ptr->num_blow[1]+1)*8)) || (((one_in_(666)) || ((backstab || fuiuchi) && one_in_(11))) && !(r_ptr->flags1 & RF1_UNIQUE) && !(r_ptr->flags7 & RF7_UNIQUE2)))
+				else if (((m_ptr->hp < maxhp/2) && one_in_((p_ptr->num_blow[0]+p_ptr->num_blow[1]+1)*10)) || (((one_in_(666)) || ((backstab || fuiuchi) && one_in_(11))) && !(r_ptr->flags1 & RF1_UNIQUE) && !(r_ptr->flags7 & RF7_UNIQUE2)))
 				{
 					if ((r_ptr->flags1 & RF1_UNIQUE) || (r_ptr->flags7 & RF7_UNIQUE2) || (m_ptr->hp >= maxhp/2))
 					{
 						k = MAX(k*5, m_ptr->hp/2);
+						drain_result *= 2;
 #ifdef JP
 msg_format("%sに致命傷を負わせた！", m_name);
 #else
@@ -3092,6 +3101,11 @@ msg_format("刃が%sの急所を貫いた！", m_name);
 #endif
 
 			}
+
+			if (k <= 0) can_drain = FALSE;
+
+			if (drain_result > m_ptr->hp)
+			        drain_result = m_ptr->hp;
 
 			/* Damage, check for fear and death */
 			if (mon_take_hit(c_ptr->m_idx, k, fear, NULL))
@@ -3126,7 +3140,7 @@ msg_format("刃が%sの急所を貫いた！", m_name);
 			/* Are we draining it?  A little note: If the monster is
 			dead, the drain does not work... */
 
-			if (drain_result)
+			if (can_drain && (drain_result > 0))
 			{
 				if (o_ptr->name1 == ART_MURAMASA)
 				{
@@ -3158,8 +3172,6 @@ msg_format("刃が%sの急所を貫いた！", m_name);
 				}
 				else
 				{
-					drain_result -= m_ptr->hp;  /* Calculate the difference */
-
 					if (drain_result > 5) /* Did we really hurt it? */
 					{
 						drain_heal = damroll(2, drain_result / 6);
@@ -3211,8 +3223,9 @@ msg_format("刃が%sの急所を貫いた！", m_name);
 #else
 				msg_format("%^s seems weakened.", m_name);
 #endif
-				drain_result = 0;
 			}
+			can_drain = FALSE;
+			drain_result = 0;
 
 			/* Confusion attack */
 			if ((p_ptr->special_attack & ATTACK_CONFUSE) || (chaos_effect == 3) || (mode == HISSATSU_CONF))
@@ -4653,7 +4666,6 @@ msg_format("%sが恐怖していて制御できない。", m_name);
 
 			energy_use = 0;
 			/* Hack -- Enter quest level */
-//			command_new = '[';
 			command_new = 255;
 		}
 
@@ -4768,7 +4780,7 @@ static int see_wall(int dir, int y, int x)
 	if ((cave[y][x].feat >= FEAT_BLDG_HEAD) &&
 	    (cave[y][x].feat <= FEAT_BLDG_TAIL)) return (FALSE);
 
-//	if (cave[y][x].feat == FEAT_TREES) return (FALSE);
+/*	if (cave[y][x].feat == FEAT_TREES) return (FALSE); */
 
 	/* Must be known to the player */
 	if (!(cave[y][x].info & (CAVE_MARK))) return (FALSE);
@@ -5261,8 +5273,8 @@ static bool run_test(void)
 		}
 
 		/* Analyze unknown grids and floors */
-//		if (inv || cave_floor_bold(row, col) ||
-//		    (cave[row][col].feat == FEAT_TREES))
+/*		if (inv || cave_floor_bold(row, col) || */
+/*		    (cave[row][col].feat == FEAT_TREES)) */
 		if (inv || cave_floor_bold(row, col))
 		{
 			/* Looking for open area */

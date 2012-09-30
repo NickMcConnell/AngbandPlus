@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 1999/11/25 13:58:39 $ */
 /* File: variable.c */
 
 /* Purpose: Angband variables */
@@ -30,8 +29,8 @@ cptr copyright[5] =
 /* レベルアップの時に上昇量を表示するのに使う */
 int level_up = 0;
 int max_autopick=0;
-unsigned char *autopick_name[MAX_AUTOPICK];
-unsigned char *autopick_insc[MAX_AUTOPICK];
+char *autopick_name[MAX_AUTOPICK];
+char *autopick_insc[MAX_AUTOPICK];
 s16b autopick_action[MAX_AUTOPICK];
 
 /*

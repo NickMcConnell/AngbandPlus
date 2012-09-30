@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 1999/12/14 13:18:00 $ */
 /* File: defines.h */
 
 /* Purpose: global constants and macro definitions */
@@ -58,7 +57,7 @@
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 11
 #define FAKE_VER_MINOR 0
-#define FAKE_VER_PATCH 7
+#define FAKE_VER_PATCH 8
 #endif /* USE_SCRIPT */
 
 #define ANGBAND_2_8_1
@@ -834,9 +833,9 @@
 #define CLASS_BARD              17
 #define CLASS_RED_MAGE          18
 #define CLASS_SAMURAI           19
-#define CLASS_FORCE             20
+#define CLASS_FORCETRAINER      20
 #define CLASS_BLUE_MAGE         21
-#define CLASS_FORCEHEI          22
+#define CLASS_CAVALRY           22
 #define CLASS_BERSERKER         23
 #define CLASS_SMITH             24
 #define CLASS_MIRROR_MASTER     25
@@ -866,14 +865,14 @@
 #define ROW_RACE                1
 #define COL_RACE                0       /* <race name> */
 
-//#define ROW_CLASS               2
-//#define COL_CLASS               0       /* <class name> */
+/*#define ROW_CLASS               2 */
+/*#define COL_CLASS               0 */      /* <class name> */
 
 #define ROW_TITLE               2
 #define COL_TITLE               0       /* <title> or <mode> */
 
-//#define ROW_SEIKAKU		4
-//#define COL_SEIKAKU		0	/* <seikaku> */
+/*#define ROW_SEIKAKU		4 */
+/*#define COL_SEIKAKU      	0*/	/* <seikaku> */
 
 #define ROW_DAY                 21
 #define COL_DAY                 0       /* day */
@@ -1103,6 +1102,7 @@
 #define ART_BOROMIR              143
 #define ART_MAGATAMA             149
 #define ART_INROU                166
+#define ART_NIGHT                215
 
 /* Rings */
 #define ART_BARAHIR              8
@@ -1657,6 +1657,7 @@
 #define TV_SKELETON      1      /* Skeletons ('s'), not specified */
 #define TV_BOTTLE        2      /* Empty bottles ('!') */
 #define TV_JUNK          3      /* Sticks, Pottery, etc ('~') */
+#define TV_WHISTLE       4      /* Whistle ('~') */
 #define TV_SPIKE         5      /* Spikes ('~') */
 #define TV_CHEST         7      /* Chests ('&') */
 #define TV_FIGURINE      8      /* Magical figurines */
@@ -1973,6 +1974,7 @@
 #define SV_AMULET_INTELLIGENCE          21
 #define SV_AMULET_WISDOM                22
 #define SV_AMULET_MAGIC_MASTERY         23
+#define SV_AMULET_NIGHT                 24
 
 /* The sval codes for TV_RING */
 #define SV_RING_WOE                      0

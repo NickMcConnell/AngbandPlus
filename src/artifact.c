@@ -41,7 +41,7 @@ static void curse_artifact(object_type * o_ptr)
 	if (randint(2) == 1) o_ptr->art_flags3 |= TR3_TELEPORT;
 	else if (randint(3) == 1) o_ptr->art_flags3 |= TR3_NO_TELE;
 
-	if ((p_ptr->pclass != CLASS_WARRIOR) && (p_ptr->pclass != CLASS_ARCHER) && (p_ptr->pclass != CLASS_FORCEHEI) && (p_ptr->pclass != CLASS_BERSERKER) && (p_ptr->pclass != CLASS_SMITH) && (randint(3) == 1))
+	if ((p_ptr->pclass != CLASS_WARRIOR) && (p_ptr->pclass != CLASS_ARCHER) && (p_ptr->pclass != CLASS_CAVALRY) && (p_ptr->pclass != CLASS_BERSERKER) && (p_ptr->pclass != CLASS_SMITH) && (randint(3) == 1))
 		o_ptr->art_flags3 |= TR3_NO_MAGIC;
 
 	o_ptr->ident |= IDENT_CURSED;
@@ -1477,7 +1477,7 @@ bool create_artifact(object_type *o_ptr, bool a_scroll)
 			case CLASS_BERSERKER:
 			case CLASS_ARCHER:
 			case CLASS_SAMURAI:
-			case CLASS_FORCEHEI:
+			case CLASS_CAVALRY:
 			case CLASS_SMITH:
 				artifact_bias = BIAS_WARRIOR;
 				break;
@@ -1515,7 +1515,7 @@ bool create_artifact(object_type *o_ptr, bool a_scroll)
 				warrior_artifact_bias = 40;
 				break;
 			case CLASS_MONK:
-			case CLASS_FORCE:
+			case CLASS_FORCETRAINER:
 				artifact_bias = BIAS_PRIESTLY;
 				break;
 			case CLASS_MINDCRAFTER:
@@ -1706,7 +1706,7 @@ bool create_artifact(object_type *o_ptr, bool a_scroll)
 		char dummy_name[80];
 		strcpy(dummy_name, "");
 		(void)identify_fully_aux(o_ptr);
-//		o_ptr->ident |= IDENT_STOREB; /* This will be used later on... */
+
 #ifdef JP
 		if (!(get_string("このアーティファクトを何と名付けますか？", dummy_name, 80)))
 #else
@@ -2831,7 +2831,7 @@ void random_artifact_resistance(object_type * o_ptr)
 
 	if (o_ptr->name1 == ART_TERROR) /* Terror Mask is for warriors... */
 	{
-		if (p_ptr->pclass == CLASS_WARRIOR || p_ptr->pclass == CLASS_ARCHER || p_ptr->pclass == CLASS_FORCEHEI || p_ptr->pclass == CLASS_BERSERKER)
+		if (p_ptr->pclass == CLASS_WARRIOR || p_ptr->pclass == CLASS_ARCHER || p_ptr->pclass == CLASS_CAVALRY || p_ptr->pclass == CLASS_BERSERKER)
 		{
 			give_power = TRUE;
 			give_resistance = TRUE;
@@ -2896,6 +2896,7 @@ void random_artifact_resistance(object_type * o_ptr)
 		case ART_STING:
 		case ART_TURMIL:
 		case ART_THALKETTOTH:
+		case ART_JIZO:
 			{
 				/* Give a resistance */
 				give_resistance = TRUE;

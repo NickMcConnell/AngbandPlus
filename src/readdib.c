@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 1999/11/25 11:37:10 $ */
 /* File: readbits.c */
 
 /*

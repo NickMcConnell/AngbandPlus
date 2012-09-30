@@ -195,7 +195,7 @@ F:RES_LITE | RES_DARK
 ### Crowns and Helms ###
 
 N:23:°Ç¤Î
-E:of Dark
+E:of Darkness
 X:33:6
 W:0:0:0:800
 F:LITE | RES_DARK
@@ -981,7 +981,7 @@ F:RES_BLIND | SEE_INVIS
 
 # Ego Ring
 N:150:Í¦µ¤¤Î
-E:of Hero
+E:of Heroism
 X:26:10
 W:5:0:0:300
 C:0:0:0:0

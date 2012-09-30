@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 1999/12/14 13:18:09 $ */
 /* File: files.c */
 
 /* Purpose: code dealing with files (and death) */
@@ -1452,14 +1451,14 @@ static void display_player_middle(void)
 #ifdef JP
 			if (i < MAX_KAMAE) Term_putstr(16, 10, -1, TERM_YELLOW, format("%sの構え", kamae_shurui[i].desc));
 #else
-			if (i < MAX_KAMAE) Term_putstr(16, 10, -1, TERM_YELLOW, format("posture of %s", kamae_shurui[i].desc));
+			if (i < MAX_KAMAE) Term_putstr(10, 10, -1, TERM_YELLOW, format("%11.11s form", kamae_shurui[i].desc));
 #endif
 		}
 		else
 #ifdef JP
 			Term_putstr(18, 10, -1, TERM_YELLOW, "構えなし");
 #else
-			Term_putstr(18, 10, -1, TERM_YELLOW, "no posture");
+			Term_putstr(16, 10, -1, TERM_YELLOW, "no posture");
 #endif
 	}
 
@@ -1952,7 +1951,7 @@ static void display_player_various(void)
 	for(i = 0; i< 2; i++)
 	{
 		damage[i] = p_ptr->dis_to_d[i]*100;
-		if (((p_ptr->pclass == CLASS_MONK) || (p_ptr->pclass == CLASS_FORCE)) && (empty_hands(TRUE) > 1))
+		if (((p_ptr->pclass == CLASS_MONK) || (p_ptr->pclass == CLASS_FORCETRAINER)) && (empty_hands(TRUE) > 1))
 		{
 			int level = p_ptr->lev;
 			if (i)
@@ -1960,7 +1959,7 @@ static void display_player_various(void)
 				damage[i] = 0;
 				break;
 			}
-			if (p_ptr->pclass == CLASS_FORCE) level = MAX(1, level - 3);
+			if (p_ptr->pclass == CLASS_FORCETRAINER) level = MAX(1, level - 3);
 			if (p_ptr->special_defense & KAMAE_BYAKKO)
 				basedam = monk_ave_damage[level][1];
 			else if (p_ptr->special_defense & (KAMAE_GENBU | KAMAE_SUZAKU))
@@ -2161,7 +2160,7 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3)
 			(*f2) |= (TR2_RES_FEAR);
 		break;
 	case CLASS_MONK:
-	case CLASS_FORCE:
+	case CLASS_FORCETRAINER:
 		if ((p_ptr->lev > 9) && !heavy_armor())
 			(*f1) |= TR1_SPEED;
 		if ((p_ptr->lev>24) && !heavy_armor())
@@ -2518,6 +2517,56 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3)
 		if (p_ptr->lev > 9)
 			(*f1) |= (TR1_SPEED);
 	}
+	if (p_ptr->special_defense & KATA_FUUJIN)
+		(*f2) |= TR2_REFLECT;
+	if (p_ptr->special_defense & KAMAE_GENBU)
+		(*f2) |= TR2_REFLECT;
+	if (p_ptr->special_defense & KAMAE_SUZAKU)
+		(*f3) |= TR3_FEATHER;
+	if (p_ptr->special_defense & KAMAE_SEIRYU)
+	{
+		(*f2) |= (TR2_RES_FIRE);
+		(*f2) |= (TR2_RES_COLD);
+		(*f2) |= (TR2_RES_ACID);
+		(*f2) |= (TR2_RES_ELEC);
+		(*f2) |= (TR2_RES_POIS);
+		(*f3) |= (TR3_FEATHER);
+		(*f3) |= (TR3_SH_FIRE);
+		(*f3) |= (TR3_SH_ELEC);
+		(*f3) |= (TR3_SH_COLD);
+	}
+	if (p_ptr->special_defense & KATA_MUSOU)
+	{
+		(*f2) |= TR2_RES_FEAR;
+		(*f2) |= TR2_RES_LITE;
+		(*f2) |= TR2_RES_DARK;
+		(*f2) |= TR2_RES_BLIND;
+		(*f2) |= TR2_RES_CONF;
+		(*f2) |= TR2_RES_SOUND;
+		(*f2) |= TR2_RES_SHARDS;
+		(*f2) |= TR2_RES_NETHER;
+		(*f2) |= TR2_RES_NEXUS;
+		(*f2) |= TR2_RES_CHAOS;
+		(*f2) |= TR2_RES_DISEN;
+		(*f2) |= TR2_REFLECT;
+		(*f2) |= TR2_HOLD_LIFE;
+		(*f2) |= TR2_FREE_ACT;
+		(*f3) |= TR3_SH_FIRE;
+		(*f3) |= TR3_SH_ELEC;
+		(*f3) |= TR3_SH_COLD;
+		(*f3) |= TR3_FEATHER;
+		(*f3) |= TR3_LITE;
+		(*f3) |= TR3_SEE_INVIS;
+		(*f3) |= TR3_TELEPATHY;
+		(*f3) |= TR3_SLOW_DIGEST;
+		(*f3) |= TR3_REGEN;
+		(*f2) |= (TR2_SUST_STR);
+		(*f2) |= (TR2_SUST_INT);
+		(*f2) |= (TR2_SUST_WIS);
+		(*f2) |= (TR2_SUST_DEX);
+		(*f2) |= (TR2_SUST_CON);
+		(*f2) |= (TR2_SUST_CHR);
+	}
 }
 
 
@@ -2588,24 +2637,6 @@ static void tim_player_flags(u32b *f1, u32b *f2, u32b *f3, bool im_and_res)
 		(*f2) |= TR2_IM_COLD;
 	if (p_ptr->wraith_form)
 		(*f2) |= TR2_REFLECT;
-	if (p_ptr->special_defense & KATA_FUUJIN)
-		(*f2) |= TR2_REFLECT;
-	if (p_ptr->special_defense & KAMAE_GENBU)
-		(*f2) |= TR2_REFLECT;
-	if (p_ptr->special_defense & KAMAE_SUZAKU)
-		(*f3) |= TR3_FEATHER;
-	if (p_ptr->special_defense & KAMAE_SEIRYU)
-	{
-		(*f2) |= (TR2_RES_FIRE);
-		(*f2) |= (TR2_RES_COLD);
-		(*f2) |= (TR2_RES_ACID);
-		(*f2) |= (TR2_RES_ELEC);
-		(*f2) |= (TR2_RES_POIS);
-		(*f3) |= (TR3_FEATHER);
-		(*f3) |= (TR3_SH_FIRE);
-		(*f3) |= (TR3_SH_ELEC);
-		(*f3) |= (TR3_SH_COLD);
-	}
 	/* by henkma */
 	if (p_ptr->tim_reflect){
 		(*f2) |= TR2_REFLECT;
@@ -2627,7 +2658,7 @@ static void tim_player_flags(u32b *f1, u32b *f2, u32b *f3, bool im_and_res)
 	{
 		(*f3) |= TR3_SH_FIRE;
 	}
-	if (p_ptr->ult_res || (p_ptr->special_defense & KATA_MUSOU))
+	if (p_ptr->ult_res)
 	{
 		(*f2) |= TR2_RES_FEAR;
 		(*f2) |= TR2_RES_LITE;
@@ -2652,6 +2683,12 @@ static void tim_player_flags(u32b *f1, u32b *f2, u32b *f3, bool im_and_res)
 		(*f3) |= TR3_TELEPATHY;
 		(*f3) |= TR3_SLOW_DIGEST;
 		(*f3) |= TR3_REGEN;
+		(*f2) |= (TR2_SUST_STR);
+		(*f2) |= (TR2_SUST_INT);
+		(*f2) |= (TR2_SUST_WIS);
+		(*f2) |= (TR2_SUST_DEX);
+		(*f2) |= (TR2_SUST_CON);
+		(*f2) |= (TR2_SUST_CHR);
 	}
 }
 
@@ -2787,7 +2824,7 @@ static void player_vuln_flags(u32b *f1, u32b *f2, u32b *f3)
  */
 static void display_player_flag_aux(int row, int col, char *header,
 				    int n, u32b flag1, u32b flag2,
-				    s32b im_f[], s32b vul_f)
+				    u32b im_f[], u32b vul_f)
 {
 	int     i;
 	u32b    f[3];
@@ -3905,10 +3942,10 @@ put_str("守護魔神    :", 7, 1);
 	       prt_num2("体重         ", "kg",(int)((p_ptr->wt*4536)/10000) , 5, 32-2, TERM_L_BLUE);
 		prt_num("社会的地位   ", (int)p_ptr->sc , 6, 32-2, TERM_L_BLUE);
 #else
-		prt_num("Age          ", (int)p_ptr->age, 2, 32, TERM_L_BLUE);
-		prt_num("Height       ", (int)p_ptr->ht , 3, 32, TERM_L_BLUE);
-		prt_num("Weight       ", (int)p_ptr->wt , 4, 32, TERM_L_BLUE);
-		prt_num("Social Class ", (int)p_ptr->sc , 5, 32, TERM_L_BLUE);
+		prt_num("Age          ", (int)p_ptr->age, 3, 32, TERM_L_BLUE);
+		prt_num("Height       ", (int)p_ptr->ht , 4, 32, TERM_L_BLUE);
+		prt_num("Weight       ", (int)p_ptr->wt , 5, 32, TERM_L_BLUE);
+		prt_num("Social Class ", (int)p_ptr->sc , 6, 32, TERM_L_BLUE);
 #endif
 
 
@@ -4114,7 +4151,7 @@ errr make_character_dump(FILE *fff)
 	display_player(2);
 
 	/* Dump part of the screen */
-	for (y = 3; y < 22; y++)
+	for (y = 2; y < 22; y++)
 	{
 		/* Dump each row */
 		for (x = 0; x < 79; x++)
@@ -6474,7 +6511,7 @@ void close_game(void)
 	char buf[1024];
 	bool do_send = TRUE;
 
-//	cptr p = "[i:キャラクタの情報, f:ファイル書き出し, t:スコア, x:*鑑定*, ESC:ゲーム終了]";
+/*	cptr p = "[i:キャラクタの情報, f:ファイル書き出し, t:スコア, x:*鑑定*, ESC:ゲーム終了]"; */
 
 	/* Handle stuff */
 	handle_stuff();
@@ -6852,7 +6889,7 @@ errr process_pickpref_file(cptr name)
 {
 	FILE *fp;
 
-	unsigned char buf[1024] , *s, *s2, isnew;
+	char buf[1024] , *s, *s2, isnew;
 
 	int i;
 

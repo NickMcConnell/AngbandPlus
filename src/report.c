@@ -27,12 +27,13 @@
 #endif
 
 #ifdef JP
-#define SCORE_PATH "http://www.kmc.kyoto-u.ac.jp/~habu/local/hengscore/score.cgi"
+#define SCORE_PATH "http://www.kmc.gr.jp/~habu/local/hengscore/score.cgi"
 #else
-/*#define SCORE_PATH "http://www.kmc.kyoto-u.ac.jp/~habu/local/hengscore-en/score.cgi"*/
-//#define SCORE_PATH "http://130.54.23.225/~habu/local/hengscore-en/score.cgi"
+#define SCORE_PATH "http://www.kmc.gr.jp/~habu/local/hengscore-en/score.cgi"
 #endif
-#define SCORE_PATH "http://www.kmc.kyoto-u.ac.jp/~habu/local/scoretest/score.cgi"
+
+/* for debug */
+/*#define SCORE_PATH "http://www.kmc.gr.jp/~habu/local/scoretest/score.cgi" */
 
 /*
   simple buffer library
@@ -315,7 +316,7 @@ errr report_score(void)
   buf_sprintf(score, "realm1: %s\n", realm_names[p_ptr->realm1]);
   buf_sprintf(score, "realm2: %s\n", realm_names[p_ptr->realm2]);
   buf_sprintf(score, "killer: %s\n", died_from);
-  strftime(date, 9, "%y/%m/%d", localtime(&ct));
+  strftime(date, 9, "%Y/%m/%d", localtime(&ct));
   buf_sprintf(score, "date: %s\n", date);
   buf_sprintf(score, "-----charcter dump-----\n");
 

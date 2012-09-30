@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 1999/11/24 21:51:52 $ */
 /* File: cmd6.c */
 
 /* Purpose: Object commands */
@@ -509,7 +508,7 @@ msg_print("生者の食物はあなたにとってほとんど栄養にならない。");
  */
 static bool item_tester_hook_eatable(object_type *o_ptr)
 {
-//	if ((o_ptr->tval==TV_FOOD) || ((o_ptr->tval==TV_CORPSE) && o_ptr->sval)) return (TRUE);
+/*	if ((o_ptr->tval==TV_FOOD) || ((o_ptr->tval==TV_CORPSE) && o_ptr->sval)) return (TRUE); */
 	if (o_ptr->tval==TV_FOOD) return (TRUE);
 
 	/* Assume not */
@@ -1885,7 +1884,7 @@ msg_print("ダンジョンが揺れた...");
 
 		case SV_SCROLL_SPELL:
 		{
-			if ((p_ptr->pclass == CLASS_WARRIOR) || (p_ptr->pclass == CLASS_IMITATOR) || (p_ptr->pclass == CLASS_MINDCRAFTER) || (p_ptr->pclass == CLASS_SORCERER) || (p_ptr->pclass == CLASS_ARCHER) || (p_ptr->pclass == CLASS_MAGIC_EATER) || (p_ptr->pclass == CLASS_RED_MAGE) || (p_ptr->pclass == CLASS_SAMURAI) || (p_ptr->pclass == CLASS_BLUE_MAGE) || (p_ptr->pclass == CLASS_FORCEHEI) || (p_ptr->pclass == CLASS_BERSERKER) || (p_ptr->pclass == CLASS_SMITH) || (p_ptr->pclass == CLASS_MIRROR_MASTER)) break;
+			if ((p_ptr->pclass == CLASS_WARRIOR) || (p_ptr->pclass == CLASS_IMITATOR) || (p_ptr->pclass == CLASS_MINDCRAFTER) || (p_ptr->pclass == CLASS_SORCERER) || (p_ptr->pclass == CLASS_ARCHER) || (p_ptr->pclass == CLASS_MAGIC_EATER) || (p_ptr->pclass == CLASS_RED_MAGE) || (p_ptr->pclass == CLASS_SAMURAI) || (p_ptr->pclass == CLASS_BLUE_MAGE) || (p_ptr->pclass == CLASS_CAVALRY) || (p_ptr->pclass == CLASS_BERSERKER) || (p_ptr->pclass == CLASS_SMITH) || (p_ptr->pclass == CLASS_MIRROR_MASTER)) break;
 			p_ptr->add_spells++;
 			p_ptr->update |= (PU_SPELLS);
 			ident = TRUE;
@@ -2051,12 +2050,18 @@ msg_print("巻物は煙を立てて消え去った！");
 	}
 	else if (o_ptr->tval == TV_SOFT_ARMOR)
 	{
+#ifdef JP
 		msg_print("私は苦労して『グレーター・ヘル=ビースト』を倒した。");
 		msg_print("しかし手に入ったのはこのきたないＴシャツだけだった。");
+#else
+		msg_print("I had a very hard time to kill the Greater hell-beast, ");
+		msg_print("but all I got was this lousy t-shirt!");
+#endif
 		used_up = FALSE;
 	}
 	else if (o_ptr->name1 == ART_POWER)
 	{
+#ifdef JP
 		msg_print("「一つの指輪は全てを統べ、");
 		msg_print(NULL);
 		msg_print("一つの指輪は全てを見つけ、");
@@ -2064,6 +2069,15 @@ msg_print("巻物は煙を立てて消え去った！");
 		msg_print("一つの指輪は全てを捕らえて");
 		msg_print(NULL);
 		msg_print("暗闇の中に繋ぎとめる。」");
+#else
+ 		msg_print("'One Ring to rule them all, ");
+		msg_print(NULL);
+		msg_print("One Ring to find them, ");
+		msg_print(NULL);
+		msg_print("One Ring to bring them all ");
+		msg_print(NULL);
+		msg_print("and in the darkness bind them.'");
+#endif
 		used_up = FALSE;
 	}
 	else
@@ -3026,7 +3040,6 @@ static int wand_effect(int sval, int dir, bool magic)
 			break;
 		}
 
-//		case SV_WAND_ANNIHILATION:
 		case SV_WAND_DISINTEGRATE:
 		{
 			fire_ball(GF_DISINTEGRATE, dir, 200 + randint(p_ptr->lev * 2), 2);
@@ -3813,6 +3826,33 @@ void ring_of_power(int dir)
 	}
 }
 
+
+static bool ang_sort_comp_pet(vptr u, vptr v, int a, int b)
+{
+	u16b *who = (u16b*)(u);
+
+	int w1 = who[a];
+	int w2 = who[b];
+
+	monster_type *m_ptr1 = &m_list[w1];
+	monster_type *m_ptr2 = &m_list[w2];
+	monster_race *r_ptr1 = &r_info[m_ptr1->r_idx];
+	monster_race *r_ptr2 = &r_info[m_ptr2->r_idx];
+
+	if (m_ptr1->nickname && !m_ptr2->nickname) return TRUE;
+	if (m_ptr2->nickname && !m_ptr1->nickname) return FALSE;
+
+	if ((r_ptr1->flags1 & RF1_UNIQUE) && !(r_ptr2->flags1 & RF1_UNIQUE)) return TRUE;
+	if ((r_ptr2->flags1 & RF1_UNIQUE) && !(r_ptr1->flags1 & RF1_UNIQUE)) return FALSE;
+
+	if (r_ptr1->level > r_ptr2->level) return TRUE;
+	if (r_ptr2->level > r_ptr1->level) return FALSE;
+
+	if (m_ptr1->hp > m_ptr2->hp) return TRUE;
+	if (m_ptr2->hp > m_ptr1->hp) return FALSE;
+	
+	return w1 <= w2;
+}
 
 /*
  * Activate a wielded object.  Wielded objects never stack.
@@ -5457,6 +5497,19 @@ msg_print("あなたの槍は電気でスパークしている...");
 				o_ptr->timeout = rand_int(100) + 100;
 				break;
 			}
+
+			case ART_NIGHT:
+			{
+#ifdef JP
+				msg_print("アミュレットが深い闇に覆われた...");
+#else
+				msg_print("Your amulet is coverd in pitch-darkness...");
+#endif
+				if (!get_aim_dir(&dir)) return;
+				fire_ball(GF_DARK, dir, 250, 4);
+				o_ptr->timeout = rand_int(150) + 150;
+				break;
+			}
 		}
 
 		/* Window stuff */
@@ -6011,6 +6064,52 @@ msg_print("あなたはエレメントのブレスを吐いた。");
 		return;
 	}
 
+	else if (o_ptr->tval == TV_WHISTLE)
+	{
+#if 0
+		if (cursed_p(o_ptr))
+		{
+#ifdef JP
+			msg_print("カン高い音が響き渡った。");
+#else
+			msg_print("You produce a shrill whistling sound.");
+#endif
+			aggravate_monsters(0);
+		}
+		else
+#endif
+		{
+			int pet_ctr, i;
+			u16b *who;
+			int max_pet = 0;
+			u16b dummy_why;
+
+			/* Allocate the "who" array */
+			C_MAKE(who, max_m_idx, u16b);
+
+			/* Process the monsters (backwards) */
+			for (pet_ctr = m_max - 1; pet_ctr >= 1; pet_ctr--)
+			{
+				if (is_pet(&m_list[pet_ctr]) && (p_ptr->riding != pet_ctr))
+				  who[max_pet++] = pet_ctr;
+			}
+
+			/* Select the sort method */
+			ang_sort_comp = ang_sort_comp_pet;
+			ang_sort_swap = ang_sort_swap_hook;
+
+			ang_sort(who, &dummy_why, max_pet);
+
+			/* Process the monsters (backwards) */
+			for (i = 0; i < max_pet; i++)
+			{
+				pet_ctr = who[i];
+				teleport_to_player(pet_ctr, 100);
+			}
+		}
+		o_ptr->timeout = 100+randint(100);
+		return;
+	}
 	else if (o_ptr->tval == TV_CAPTURE)
 	{
 		if(!o_ptr->pval)
@@ -6085,7 +6184,9 @@ msg_print("あなたはエレメントのブレスを吐いた。");
 					{
 						char buf[80];
 						cptr t;
+#ifndef JP
 						bool quote = FALSE;
+#endif
 
 						t = quark_str(o_ptr->inscription);
 						for (t = quark_str(o_ptr->inscription);*t && (*t != '#'); t++)

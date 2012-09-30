@@ -36,9 +36,17 @@ Size of windows are ANGBAND_X11_COLS_n, and ANGBAND_X11_ROWS_n.
 Download the binary archive for Windows.
 Unzip it, and click hengband to play.
 
+The makefile.bcc was changed again.
 If you want to compile from the source with borland compiler (BCC),
-you can use makefile.bcc now.
-Note that you have to use ang_eng.rc instead of angband.rc.
+Comment out options for japanese; 'JP_OPT = ...' and 'ANGBAND_RC = ...' 
+in makefile.bcc, and un-comment the line 'ANGBAND_RC = ang_eng.rc'.
+
+
+--- MS-DOS
+
+Now, makefile.ibm and makefile.dos is included in source archive.
+Comment out options for japanese; 'JP_OPT = ...' in makefile.ibm or makefile.dos
+before MAKE with these.
 
 
 --- Macintosh
@@ -118,7 +126,7 @@ keyset, and by pushing 'x' in the Rogue-like keyset.
   m  Cast a spell / use mental power
   G  Gain new spells/prayers
   U/O  Use bonus power
-  b/P  Examine spells
+  b/P  Examine spells (choose each spell to get a description)
 
   [Equipment] 
   w  Wear/wield equipment

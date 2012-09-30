@@ -26,7 +26,7 @@
  * Max sizes of the following arrays
  */
 #define MAX_ROCKS      59       /* Used with rings (min 38) */
-#define MAX_AMULETS    24       /* Used with amulets (min 14) */
+#define MAX_AMULETS    26       /* Used with amulets (min 14) */
 #define MAX_WOODS      34       /* Used with staffs (min 30) */
 #define MAX_METALS     40       /* Used with wands/rods (min 29/29) */
 #define MAX_COLORS     70       /* Used with potions (min 60) */
@@ -103,8 +103,9 @@ static cptr amulet_adj[MAX_AMULETS] =
 	"Amber", "Driftwood", "Coral", "Agate", "Ivory",
 	"Obsidian", "Bone", "Brass", "Bronze", "Pewter",
 	"Tortoise Shell", "Golden", "Azure", "Crystal", "Silver",
-	"Copper", "Swastika", "Platinum","Runed",
-	"Rusty", "Curved", "Dragon's claw", "Rosary", "Jade"
+	"Copper", "Swastika", "Platinum","Runed", "Rusty",
+	"Curved", "Dragon's claw", "Rosary", "Jade", "Mithril",
+	"Ruby"
 };
 
 #ifdef JP
@@ -113,8 +114,9 @@ static cptr J_amulet_adj[MAX_AMULETS] =
     "琥珀の","流木の","サンゴの","めのうの","象牙の",
     "黒曜石の","骨の","真鍮の","青銅の","しろめの",
     "べっ甲の","金の","瑠璃の","水晶の","銀の",
-    "銅の","卍の", "プラチナの", "ルーンが刻まれた",
-    "錆びた", "曲がった", "ドラゴンの爪の", "数珠の", "ひすいの"
+    "銅の","卍の", "プラチナの", "ルーンが刻まれた","錆びた",
+    "曲がった", "ドラゴンの爪の", "数珠の", "ひすいの", "ミスリルの",
+    "ルビーの"
 };
 #endif
 static byte amulet_col[MAX_AMULETS] =
@@ -122,8 +124,9 @@ static byte amulet_col[MAX_AMULETS] =
 	TERM_YELLOW, TERM_L_UMBER, TERM_WHITE, TERM_L_WHITE, TERM_WHITE,
 	TERM_L_DARK, TERM_WHITE, TERM_L_UMBER, TERM_L_UMBER, TERM_SLATE,
 	TERM_GREEN, TERM_YELLOW, TERM_L_BLUE, TERM_L_BLUE, TERM_L_WHITE,
-	TERM_L_UMBER, TERM_VIOLET /* Hack */, TERM_WHITE, TERM_UMBER,
-	TERM_RED, TERM_GREEN, TERM_L_GREEN, TERM_L_GREEN, TERM_GREEN
+	TERM_L_UMBER, TERM_VIOLET, TERM_WHITE, TERM_UMBER, TERM_RED, 
+	TERM_GREEN, TERM_L_GREEN, TERM_L_GREEN, TERM_GREEN, TERM_L_BLUE, 
+	TERM_RED
 };
 
 
@@ -412,6 +415,7 @@ static bool object_easy_know(int i)
 		case TV_BOTTLE:
 		case TV_SKELETON:
 		case TV_SPIKE:
+		case TV_WHISTLE:
 		{
 			return (TRUE);
 		}
@@ -1141,6 +1145,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		case TV_SPIKE:
 		case TV_FLASK:
 		case TV_CHEST:
+		case TV_WHISTLE:
 		{
 			break;
 		}
@@ -1332,13 +1337,10 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 			/* Hack -- The One Ring */
 #ifdef JP
 			if (!aware && (o_ptr->sval == SV_RING_POWER)) modstr = "金無垢の";
-#else
-			if (!aware && (o_ptr->sval == SV_RING_POWER)) modstr = "Plain Gold";
-#endif
-#ifdef JP
 			if (!aware && (o_ptr->sval == SV_RING_AHO)) modstr = "金有垢の";
 #else
-			if (!aware && (o_ptr->sval == SV_RING_AHO)) modstr = "Plaid Gold";
+			if (!aware && (o_ptr->sval == SV_RING_POWER)) modstr = "Plain Gold";
+			if (!aware && (o_ptr->sval == SV_RING_AHO)) modstr = "Plain Goldarn";
 #endif
 			if (!k_ptr->to_h && !k_ptr->to_d && (o_ptr->to_h || o_ptr->to_d)) show_weapon = TRUE;
 
@@ -1925,7 +1927,6 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		        strcpy(temp, quark_str(o_ptr->art_name));
 			/* MEGA HACK by ita*/
                                 if ( strncmp( temp , "『" , 2 ) == 0 ) t=object_desc_str(t,  temp);else
-//			 if( strcmp(temp,"'Stormbringer'")==0 ) t=object_desc_str(t,"『ストームブリンガー』");else
 			 if( temp[0]=='\'' ) { itemp=strlen(temp);temp[itemp-1]=0; 
 			 t=object_desc_str(t,"『");
 			 t=object_desc_str(t,&temp[1]);

@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 2000/08/08 11:07:30 $ */
 /* File: z-term.h */
 
 /*

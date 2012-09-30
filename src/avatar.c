@@ -281,7 +281,7 @@ void get_virtues()
       p_ptr->vir_types[i++] = V_INDIVIDUALISM;
       break;
     case CLASS_MONK:
-    case CLASS_FORCE:
+    case CLASS_FORCETRAINER:
       p_ptr->vir_types[i++] = V_FAITH;
       p_ptr->vir_types[i++] = V_HARMONY;
       p_ptr->vir_types[i++] = V_TEMPERANCE;
@@ -323,7 +323,7 @@ void get_virtues()
       p_ptr->vir_types[i++] = V_HARMONY;
       p_ptr->vir_types[i++] = V_COMPASSION;
       break;
-    case CLASS_FORCEHEI:
+    case CLASS_CAVALRY:
       p_ptr->vir_types[i++] = V_VALOUR;
       p_ptr->vir_types[i++] = V_HARMONY;
       break;

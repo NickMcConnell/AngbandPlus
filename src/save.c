@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: ebock $ on $Date: 1999/11/13 04:36:39 $ */
 /* File: save.c */
 
 /* Purpose: interact with savefiles */

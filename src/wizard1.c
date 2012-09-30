@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 1999/11/24 21:52:04 $ */
 /* File: wizard1.c */
 
 /* Purpose: Spoiler generation -BEN- */
@@ -226,9 +225,15 @@ static grouper group_item[] =
 	{ TV_CORPSE,        "Corpses" },
 
 #ifdef JP
-{ TV_SPIKE,         "その他" },
+{ TV_WHISTLE,         "笛" },
 #else
-	{ TV_SPIKE,         "Various" },
+	{ TV_WHISTLE,         "Whistle" },
+#endif
+
+#ifdef JP
+{ TV_SPIKE,         "くさび" },
+#else
+	{ TV_SPIKE,         "Spike" },
 #endif
 
 	{ TV_LITE,          NULL },
@@ -804,7 +809,7 @@ static const flag_desc misc_flags3_desc[] =
 	{ TR3_TELEPATHY,          "テレパシー" },
 	{ TR3_SLOW_DIGEST,        "遅消化" },
 	{ TR3_REGEN,              "急速回復" },
-//	{ TR3_XTRA_MIGHT,         "強力射撃" },
+/*	{ TR3_XTRA_MIGHT,         "強力射撃" }, */
 	{ TR3_XTRA_SHOTS,         "追加射撃" },        /* always +1? */
 	{ TR3_DRAIN_EXP,          "経験値吸収" },
 	{ TR3_AGGRAVATE,          "反感" },
@@ -821,7 +826,7 @@ static const flag_desc misc_flags3_desc[] =
 	{ TR3_TELEPATHY,          "ESP" },
 	{ TR3_SLOW_DIGEST,        "Slow Digestion" },
 	{ TR3_REGEN,              "Regeneration" },
-//	{ TR3_XTRA_MIGHT,         "Extra Might" },
+/*	{ TR3_XTRA_MIGHT,         "Extra Might" }, */
 	{ TR3_XTRA_SHOTS,         "+1 Extra Shot" },        /* always +1? */
 	{ TR3_DRAIN_EXP,          "Drains Experience" },
 	{ TR3_AGGRAVATE,          "Aggravates" },
@@ -1169,7 +1174,7 @@ static void analyze_misc_magic (object_type *o_ptr, cptr *misc_list)
 	 * being "lightly cursed".
 	 */
 
-//	if (cursed_p(o_ptr))
+/*	if (cursed_p(o_ptr)) */
 	if (1)
 	{
 		if (f3 & TR3_TY_CURSE)
@@ -1196,7 +1201,7 @@ static void analyze_misc_magic (object_type *o_ptr, cptr *misc_list)
 			*misc_list++ = "Heavily Cursed";
 #endif
 		}
-//		else
+/*		else */
 		else if (f3 & TR3_CURSED)
 		{
 #ifdef JP
@@ -1683,7 +1688,7 @@ static void spoil_mon_desc(cptr fname)
 		if (r_ptr->flags7 & (RF7_KAGE)) continue;
 
 		/* Get the "name" */
-//		if (r_ptr->flags1 & (RF1_QUESTOR))
+/*		if (r_ptr->flags1 & (RF1_QUESTOR)) */
 		if (0)
 		{
 			sprintf(nam, "[Q] %s", name);
@@ -2239,6 +2244,7 @@ if (flags4 & RF4_ARROW_2) vp[vn++] = "数回矢を撃つ";
 if (flags4 & RF4_ARROW_2) vp[vn++] = "数回矢を撃つ";
 if (flags4 & RF4_ARROW_4) vp[vn++] = "数回射撃をする";
 if (flags4 & RF4_ARROW_4) vp[vn++] = "数回射撃をする";
+if (flags6 & (RF6_SPECIAL)) vp[vn++] = "特別な行動をする";
 #else
 		if (flags4 & RF4_SHRIEK)  vp[vn++] = "shriek for help";
 		if (flags4 & RF4_ROCKET)  vp[vn++] = "shoot a rocket";
@@ -2246,6 +2252,7 @@ if (flags4 & RF4_ARROW_4) vp[vn++] = "数回射撃をする";
 		if (flags4 & RF4_ARROW_2) vp[vn++] = "fire arrows";
 		if (flags4 & RF4_ARROW_3) vp[vn++] = "fire missiles";
 		if (flags4 & RF4_ARROW_4) vp[vn++] = "fire missiles";
+		if (flags6 & (RF6_SPECIAL)) vp[vn++] = "do something";
 #endif
 
 
@@ -2434,7 +2441,6 @@ if (flags4 & (RF4_DISPEL))          vp[vn++] = "魔力を消し去る";
 if (flags6 & (RF6_BLINK))           vp[vn++] = "瞬時に消える";
 if (flags6 & (RF6_TPORT))           vp[vn++] = "テレポートする";
 if (flags6 & (RF6_WORLD))           vp[vn++] = "時を止める";
-if (flags6 & (RF6_SPECIAL))         vp[vn++] = "特別な行動をする";
 if (flags6 & (RF6_TELE_TO))         vp[vn++] = "テレポートで引き戻す";
 if (flags6 & (RF6_TELE_AWAY))       vp[vn++] = "テレポートさせる";
 if (flags6 & (RF6_TELE_LEVEL))      vp[vn++] = "テレポート・レベルさせる";
@@ -2489,7 +2495,6 @@ if (flags6 & (RF6_S_UNIQUE))        vp[vn++] = "ユニーク・モンスターを召喚する";
 		if (flags6 & (RF6_BLINK))             vp[vn++] = "blink-self";
 		if (flags6 & (RF6_TPORT))             vp[vn++] = "teleport-self";
 		if (flags6 & (RF6_WORLD))             vp[vn++] = "stop the time";
-		if (flags6 & (RF6_SPECIAL))           vp[vn++] = "do something";
 		if (flags6 & (RF6_TELE_TO))           vp[vn++] = "teleport to";
 		if (flags6 & (RF6_TELE_AWAY))         vp[vn++] = "teleport away";
 		if (flags6 & (RF6_TELE_LEVEL))        vp[vn++] = "teleport level";
@@ -3402,14 +3407,6 @@ void spoil_random_artifact(cptr fname)
 
 		/* random artifacts in home */
 		st_ptr = &town[1].store[STORE_HOME];
-		for (i = 0; i < st_ptr->stock_num; i++)
-		{
-			q_ptr = &st_ptr->stock[i];
-			spoil_random_artifact_aux(q_ptr, j);
-		}
-
-		/* random artifacts in museum */
-		st_ptr = &town[1].store[STORE_MUSEUM];
 		for (i = 0; i < st_ptr->stock_num; i++)
 		{
 			q_ptr = &st_ptr->stock[i];

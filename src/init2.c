@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: ebock $ on $Date: 1999/11/19 06:47:26 $ */
 /* File: init2.c */
 
 /* Purpose: Initialization (part 2) -BEN- */

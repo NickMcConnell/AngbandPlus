@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: ebock $ on $Date: 1999/11/15 14:06:06 $ */
 /* File: cmd3.c */
 
 /* Purpose: Inventory commands */
@@ -1332,7 +1331,7 @@ static flag_insc_table flag_insc_immune[] =
 };
 
 static flag_insc_table flag_insc_resistance[] =
-{5~
+{
 	{ "酸", "Ac", TR2_RES_ACID, 2, TR2_IM_ACID },
 	{ "電", "El", TR2_RES_ELEC, 2, TR2_IM_ELEC },
 	{ "火", "Fi", TR2_RES_FIRE, 2, TR2_IM_FIRE },
@@ -2736,7 +2735,7 @@ void do_cmd_query_symbol(void)
 		else
 			sprintf(buf, "名前:%sにマッチ",temp);
 #else
-		if (!get_string("Name:",temp, 70))
+		if (!get_string("Enter name:",temp, 70))
 			temp[0]=0;
 		else
 			sprintf(buf, "List of '%s'",temp);
@@ -2776,8 +2775,8 @@ void do_cmd_query_symbol(void)
 
 		/* XTRA HACK WHATSEARCH */
 		if (temp[0]){
-		  char temp2[80];
 		  int xx;
+		  char temp2[80];
   
 		  for (xx=0; temp[xx] && xx<80; xx++){
 #ifdef JP
@@ -2791,15 +2790,15 @@ void do_cmd_query_symbol(void)
 #else
 		  strcpy(temp2, r_name+r_ptr->name);
 #endif
-  
 		  for (xx=0; temp2[xx] && xx<80; xx++)
 		    if (isupper(temp2[xx])) temp2[xx]=tolower(temp2[xx]);
   
 #ifdef JP
-		  if (strstr(temp2, temp) || strstr_j(r_name + r_ptr->name, temp) ) who[n++]=i;
+		  if (strstr(temp2, temp) || strstr_j(r_name + r_ptr->name, temp) )
 #else
-		  if (strstr(temp2, temp) ) who[n++]=i;
+		  if (strstr(temp2, temp))
 #endif
+			  who[n++]=i;
 		}else
 		/* Collect "appropriate" monsters */
 		if (all || (r_ptr->d_char == sym)) who[n++] = i;
@@ -2971,7 +2970,6 @@ bool research_mon(void)
 
 	u16b	*who;
 
-#ifdef JP
 	/* XTRA HACK WHATSEARCH */
 	bool    all = FALSE;
 	bool    uniq = FALSE;
@@ -2981,7 +2979,7 @@ bool research_mon(void)
 	/* XTRA HACK REMEMBER_IDX */
 	static int old_sym = '\0';
 	static int old_i = 0;
-#endif
+
 	oldcheat = cheat_know;
 
 
@@ -2992,7 +2990,7 @@ bool research_mon(void)
 #ifdef JP
 if (!get_com("モンスターの文字を入力して下さい(記号 or ^A全,^Uユ,^N非ユ,^M名前):", &sym, FALSE)) 
 #else
-	if (!get_com("Enter character of monster: ", &sym, FALSE))
+	if (!get_com("Enter character to be identified(^A:All,^U:Uniqs,^N:Non uniqs,^M:Name): ", &sym, FALSE))
 #endif
 
 	{
@@ -3011,39 +3009,53 @@ if (!get_com("モンスターの文字を入力して下さい(記号 or ^A全,^Uユ,^N非ユ,^M名前):
 		if (sym == ident_info[i][0]) break;
 	}
 
-#ifdef JP
 		/* XTRA HACK WHATSEARCH */
 	if (sym == KTRL('A'))
 	{
 		all = TRUE;
+#ifdef JP
 		strcpy(buf, "全モンスターのリスト");
+#else
+		strcpy(buf, "Full monster list.");
+#endif
 	}
 	else if (sym == KTRL('U'))
 	{
 		all = uniq = TRUE;
+#ifdef JP
 		strcpy(buf, "ユニーク・モンスターのリスト");
+#else
+		strcpy(buf, "Unique monster list.");
+#endif
 	}
 	else if (sym == KTRL('N'))
 	{
 		all = norm = TRUE;
+#ifdef JP
 		strcpy(buf, "ユニーク外モンスターのリスト");
+#else
+		strcpy(buf, "Non-unique monster list.");
+#endif
 	}
         else if (sym == KTRL('M'))
 	{
 		all = TRUE;
-                if (!get_string("名前(英語の場合小文字で可)", temp, 70)) temp[0]=0;
-                else sprintf(buf, "名前:%sにマッチ",temp);
+#ifdef JP
+		if (!get_string("名前(英語の場合小文字で可)",temp, 70))
+			temp[0]=0;
+		else
+			sprintf(buf, "名前:%sにマッチ",temp);
+#else
+		if (!get_string("Enter name:",temp, 70))
+			temp[0]=0;
+		else
+			sprintf(buf, "List of '%s'",temp);
+#endif
 	}
 	else if (ident_info[i])
 	{
 		sprintf(buf, "%c - %s.", sym, ident_info[i] + 2);
 	}
-#else
-  	if (ident_info[i])
-  	{
-  		sprintf(buf, "%c - %s.", sym, ident_info[i] + 2);
-  	}
-#endif
   	else
   	{
 #ifdef JP
@@ -3065,7 +3077,6 @@ sprintf(buf, "%c - %s", sym, "無効な文字");
 
 		cheat_know = TRUE;
 
-#ifdef JP
 		/* XTRA HACK WHATSEARCH */
 		/* Require non-unique monsters if needed */
 		if (norm && (r_ptr->flags1 & (RF1_UNIQUE))) continue;
@@ -3075,26 +3086,32 @@ sprintf(buf, "%c - %s", sym, "無効な文字");
 
 		/* 名前検索 */
 		if (temp[0]){
-		    char temp2[80];
-		    int xx;
-
-                    for (xx=0; temp[xx] && xx<80; xx++){
-                      if (iskanji(temp[xx])) { xx++; continue; }
-		      if (isupper(temp[xx])) temp[xx]=tolower(temp[xx]);
-                    }
-
-		    strcpy(temp2, E_r_name+r_ptr->E_name);
-
-		    for (xx=0; temp2[xx] && xx<80; xx++)
-		      if (isupper(temp2[xx])) temp2[xx]=tolower(temp2[xx]);
-
-                    if (strstr(temp2, temp) || strstr_j(r_name + r_ptr->name, temp) ) who[n++]=i;
+		  int xx;
+		  char temp2[80];
+  
+		  for (xx=0; temp[xx] && xx<80; xx++){
+#ifdef JP
+		    if (iskanji( temp[xx])) { xx++; continue; }
+#endif
+		    if (isupper(temp[xx])) temp[xx]=tolower(temp[xx]);
+		  }
+  
+#ifdef JP
+		  strcpy(temp2, E_r_name+r_ptr->E_name);
+#else
+		  strcpy(temp2, r_name+r_ptr->name);
+#endif
+		  for (xx=0; temp2[xx] && xx<80; xx++)
+		    if (isupper(temp2[xx])) temp2[xx]=tolower(temp2[xx]);
+  
+#ifdef JP
+		  if (strstr(temp2, temp) || strstr_j(r_name + r_ptr->name, temp) )
+#else
+		  if (strstr(temp2, temp))
+#endif
+			  who[n++]=i;
 		}
 		else if (all || (r_ptr->d_char == sym)) who[n++] = i;
-#else
-  		/* Collect "appropriate" monsters */
-  		if (r_ptr->d_char == sym) who[n++] = i;
-#endif
 	}
 
 	/* Nothing to recall */
@@ -3128,13 +3145,9 @@ sprintf(buf, "%c - %s", sym, "無効な文字");
 
 
 	/* Start at the end */
-#ifdef JP
 	/* XTRA HACK REMEMBER_IDX */
 	if (old_sym == sym && old_i < n) i = old_i;
 	else i = n - 1;
-#else
-	i = n - 1;
-#endif
 
 	notpicked = TRUE;
 
@@ -3177,11 +3190,10 @@ Term_addstr(-1, TERM_WHITE, " ['r'思い出, ' 'で続行, ESC]");
 				r2_ptr->r_wake = oldwake;
 				cheat_know = oldcheat;
 				notpicked = FALSE;
-#ifdef JP
+
 				/* XTRA HACK REMEMBER_IDX */
 				old_sym = sym;
 				old_i = i;
-#endif
 			}
 
 			/* Command */

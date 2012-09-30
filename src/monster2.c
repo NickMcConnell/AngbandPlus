@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 1999/11/24 21:51:58 $ */
 /* File: monster2.c */
 
 /* Purpose: misc code for monsters */
@@ -1315,7 +1314,7 @@ s16b get_mon_num(int level)
 			}
 
 			/* Some dungeon types restrict the possible monsters */
-//			if(!restrict_monster_to_dungeon(r_ptr) && dun_level) continue;
+/*			if(!restrict_monster_to_dungeon(r_ptr) && dun_level) continue; */
 		}
 
 		/* Accept */

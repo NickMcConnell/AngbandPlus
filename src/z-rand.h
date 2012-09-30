@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: ebock $ on $Date: 1999/11/13 20:25:18 $ */
 /* File: z-rand.h */
 
 #ifndef INCLUDED_Z_RAND_H

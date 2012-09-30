@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 1999/12/14 13:18:22 $ */
 /* File: mspells1.c */
 
 /* Purpose: Monster spells (attack player) */
@@ -1497,11 +1496,14 @@ bool make_attack_spell(int m_idx)
 		{
 			disturb(1, 0);
 			/* Message */
+			if (thrown_spell != (160+7)) /* Not RF6_SPECIAL */
+			{
 #ifdef JP
 msg_format("%^sは呪文を唱えようとしたが失敗した。", m_name);
 #else
-			msg_format("%^s tries to cast a spell, but fails.", m_name);
+				msg_format("%^s tries to cast a spell, but fails.", m_name);
 #endif
+			}
 
 			return (TRUE);
 		}
@@ -3603,7 +3605,7 @@ msg_format("%^sがテレポートした。", m_name);
 			int who = 0;
 			disturb(1, 0);
 			if(m_ptr->r_idx == MON_DIO) who = 1;
-			else if(m_ptr->r_idx == MON_WONG) who = 2;
+			else if(m_ptr->r_idx == MON_WONG) who = 3;
 			dam = who;
 			if (!process_the_world(randint(2)+2, who, TRUE)) return (FALSE);
 			break;
@@ -3641,7 +3643,12 @@ msg_format("%^sがテレポートした。", m_name);
 					m_list[hack_m_idx_ii].hp = dummy_hp;
 					m_list[hack_m_idx_ii].maxhp = dummy_maxhp;
 
+#ifdef JP
 					msg_print("『バーノール・ルパート』が分裂した！");
+#else
+					msg_print("Banor=Rupart splits in two person!");
+#endif
+
 					break;
 				}
 				case MON_BANOR:
@@ -3671,7 +3678,12 @@ msg_format("%^sがテレポートした。", m_name);
 					m_list[hack_m_idx_ii].hp = dummy_hp;
 					m_list[hack_m_idx_ii].maxhp = dummy_maxhp;
 
+#ifdef JP
 					msg_print("『バーノール』と『ルパート』が合体した！");
+#else
+					msg_print("Banor and Rupart combine into one!");
+#endif
+
 					break;
 				}
 				default: return FALSE;

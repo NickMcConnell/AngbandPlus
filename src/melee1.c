@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 1999/10/29 22:02:14 $ */
 /* File: melee1.c */
 
 /* Purpose: Monster attacks */

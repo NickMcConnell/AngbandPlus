@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/06/22 12:35:03 $ */
 /* File: generate.c */
 
 /* Purpose: Dungeon generation */

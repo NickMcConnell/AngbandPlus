@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 1999/12/14 13:18:06 $ */
 /* File: effects.c */
 
 /* Purpose: effects of various "objects" */
@@ -4150,7 +4149,6 @@ bool hp_player(int num)
 	/* Healing needed */
 	if (p_ptr->chp < p_ptr->mhp)
 	{
-//		chg_virtue(V_CHANCE, -1);
 		if ((num > 0) && (p_ptr->chp < (p_ptr->mhp/3)))
 			chg_virtue(V_TEMPERANCE, 1);
 		/* Gain hitpoints */
@@ -4701,7 +4699,7 @@ msg_print("奇妙なくらい普通になった気がする。");
 		/* Experience factor */
 		p_ptr->expfact = rp_ptr->r_exp + cp_ptr->c_exp;
 
-		if (((p_ptr->pclass == CLASS_MONK) || (p_ptr->pclass == CLASS_FORCE) || (p_ptr->pclass == CLASS_NINJA)) && ((p_ptr->prace == RACE_KLACKON) || (p_ptr->prace == RACE_SPRITE)))
+		if (((p_ptr->pclass == CLASS_MONK) || (p_ptr->pclass == CLASS_FORCETRAINER) || (p_ptr->pclass == CLASS_NINJA)) && ((p_ptr->prace == RACE_KLACKON) || (p_ptr->prace == RACE_SPRITE)))
 			p_ptr->expfact -= 15;
 
 
@@ -4732,8 +4730,6 @@ msg_print("奇妙なくらい普通になった気がする。");
 			p_ptr->hitdie = rp_ptr->r_mhp + cp_ptr->c_mhp + ap_ptr->a_mhp;
 
 		do_cmd_rerate(FALSE);
-
-//		p_ptr->max_plv = p_ptr->lev;
 
 		p_ptr->redraw |= (PR_BASIC);
 

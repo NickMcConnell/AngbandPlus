@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 1999/12/14 13:18:19 $ */
 /* File: melee2.c */
 
 /* Purpose: Monster spells and movement */
@@ -2253,6 +2252,8 @@ static void process_monster(int m_idx)
 	{
 		int tmp = p_ptr->lev*8+50;
 		if (p_ptr->monlite) tmp /= 3;
+		if (p_ptr->aggravate) tmp /= 2;
+		if (r_ptr->level > (p_ptr->lev*p_ptr->lev/20+10)) tmp /= 3;
 		/* Low-level monsters will find it difficult to locate the player. */
 		if (rand_int(tmp) > (r_ptr->level+20)) aware = FALSE;
 	}

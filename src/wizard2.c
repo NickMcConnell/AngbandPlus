@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 1999/12/14 13:18:40 $ */
 /* File: wizard2.c */
 
 /* Purpose: Wizard commands */
@@ -364,7 +363,7 @@ static void do_cmd_wiz_change_aux(void)
 
 
 	/* Default */
-	sprintf(tmp_val, "0");
+	sprintf(tmp_val, "8000");
 
 	/* Query */
 #ifdef JP
@@ -629,6 +628,7 @@ static tval_desc tvals[] =
 	{ TV_MUSIC_BOOK,        "Music Spellbook"      },
 	{ TV_HISSATSU_BOOK,     "Book of Kendo" },
 	{ TV_PARCHEMENT,        "Parchement" },
+	{ TV_WHISTLE,           "Whistle"	},
 	{ TV_SPIKE,             "Spikes"               },
 	{ TV_DIGGING,           "Digger"               },
 	{ TV_CHEST,             "Chest"                },

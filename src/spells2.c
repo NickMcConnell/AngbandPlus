@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: ebock $ on $Date: 1999/11/20 23:02:36 $ */
 /* File: spells2.c */
 
 /* Purpose: Spell code (part 2) */
@@ -726,7 +725,7 @@ info[i++] = "あなたは通常の2倍の攻撃を行うことができる。(30 MP)";
 			}
 			break;
 		case CLASS_MINDCRAFTER:
-		case CLASS_FORCE:
+		case CLASS_FORCETRAINER:
 			if (plev > 14)
 			{
 #ifdef JP
@@ -817,7 +816,7 @@ info[i++] = "あなたは相手に使われた魔法を学ぶことができる。";
 			info[i++] = "You can study spells which your enemy casts on you.";
 #endif
 			break;
-		case CLASS_FORCEHEI:
+		case CLASS_CAVALRY:
 			if (plev > 9)
 			{
 #ifdef JP
@@ -3609,6 +3608,7 @@ bool detect_objects_magic(int range)
 		if (artifact_p(o_ptr) ||
 			ego_item_p(o_ptr) ||
 			o_ptr->art_name ||
+		    (tv == TV_WHISTLE) ||
 		    (tv == TV_AMULET) ||
 			(tv == TV_RING) ||
 		    (tv == TV_STAFF) ||
@@ -4353,7 +4353,7 @@ void aggravate_monsters(int who)
 	for (i = 1; i < m_max; i++)
 	{
 		monster_type    *m_ptr = &m_list[i];
-//		monster_race    *r_ptr = &r_info[m_ptr->r_idx];
+/*		monster_race    *r_ptr = &r_info[m_ptr->r_idx]; */
 
 		/* Paranoia -- Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
@@ -5530,7 +5530,7 @@ msg_format("%^sは岩石に埋もれてしまった！", m_name);
 			c_ptr = &cave[yy][xx];
 
 			/* Paranoia -- never affect player */
-//			if ((yy == py) && (xx == px)) continue;
+/*			if ((yy == py) && (xx == px)) continue; */
 
 			/* Destroy location (if valid) */
 			if (cave_valid_bold(yy, xx))
@@ -5807,7 +5807,7 @@ static void cave_temp_room_aux(int y, int x)
 	cave_type *c_ptr;
 
 	/* Verify */
-//	if (!in_bounds(y, x)) return;
+/*	if (!in_bounds(y, x)) return; */
 
 	/* Get the grid */
 	c_ptr = &cave[y][x];

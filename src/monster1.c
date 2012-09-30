@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: ebock $ on $Date: 1999/11/14 03:39:32 $ */
 /* File: monster1.c */
 
 /* Purpose: describe monsters (using monster memory) */
@@ -163,7 +162,7 @@ static void roff_aux(int r_idx, int remem)
 		save_mem = *r_ptr;
 
 		/* Hack -- Maximal kills */
-//		r_ptr->r_tkills = MAX_SHORT;
+/*		r_ptr->r_tkills = MAX_SHORT; */
 
 		/* Hack -- Maximal info */
 		r_ptr->r_wake = r_ptr->r_ignore = MAX_UCHAR;
@@ -983,6 +982,11 @@ roff(format("%^sは矢の呪文を跳ね返す。", wd_he[msex]));
 	if (flags4 & RF4_ARROW_4) {vp[vn] = "fire missiles";color[vn++] = TERM_UMBER;}
 #endif
 
+#ifdef JP
+	if (flags6 & (RF6_SPECIAL)) {vp[vn] = "特別な行動をする";color[vn++] = TERM_VIOLET;}
+#else
+	if (flags6 & (RF6_SPECIAL)) {vp[vn] = "do something";color[vn++] = TERM_VIOLET;}
+#endif
 
 	/* Describe inate attacks */
 	if (vn)
@@ -1458,13 +1462,6 @@ if (flags6 & (RF6_WORLD))            {vp[vn] = "時を止める";color[vn++] = TERM_L
 	if (flags6 & (RF6_WORLD))            {vp[vn] = "stop the time";color[vn++] = TERM_L_BLUE;}
 #endif
 
-
-#ifdef JP
-if (flags6 & (RF6_SPECIAL))            {vp[vn] = "特殊攻撃";color[vn++] = TERM_VIOLET;}
-#else
-	if (flags6 & (RF6_SPECIAL))            {vp[vn] = "do something";color[vn++] = TERM_VIOLET;}
-#endif
-
 #ifdef JP
 if (flags6 & (RF6_TELE_TO))         {vp[vn] = "テレポートバック";color[vn++] = TERM_L_UMBER;}
 #else
@@ -1756,12 +1753,6 @@ if (flags7 & (RF7_HAS_LITE_1 | RF7_HAS_LITE_2)) vp[vn++] = "ダンジョンを照らす";
 #endif
 
 #ifdef JP
-if (flags7 & (RF7_SELF_LITE_1 | RF7_SELF_LITE_2)) vp[vn++] = "光っている";
-#else
-	if (flags7 & (RF7_SELF_LITE_1 | RF7_SELF_LITE_2)) vp[vn++] = "illuminate the dungeon";
-#endif
-
-#ifdef JP
 if (flags2 & RF2_OPEN_DOOR) vp[vn++] = "ドアを開ける";
 #else
 	if (flags2 & RF2_OPEN_DOOR) vp[vn++] = "open doors";
@@ -1854,6 +1845,15 @@ if (flags2 & RF2_KILL_ITEM) vp[vn++] = "アイテムを壊す";
 
 
 	/* Describe special abilities. */
+	if (flags7 & (RF7_SELF_LITE_1 | RF7_SELF_LITE_2))
+	{
+#ifdef JP
+		roff(format("%^sは光っている。", wd_he[msex]));
+#else
+		roff(format("%^s illuminate the dungeon.  ", wd_he[msex]));
+#endif
+
+	}
 	if (flags2 & RF2_INVISIBLE)
 	{
 #ifdef JP

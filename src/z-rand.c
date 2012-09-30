@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: ebock $ on $Date: 1999/10/31 18:04:38 $ */
 /* File: z-rand.c */
 
 /* Purpose: a simple random number generator -BEN- */

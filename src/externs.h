@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 1999/12/14 13:18:08 $ */
 /* File: externs.h */
 
 /* Purpose: extern declarations (variables and functions) */
@@ -17,8 +16,8 @@
 extern int level_up;
 
 extern int max_autopick;
-extern unsigned char *autopick_name[MAX_AUTOPICK];
-extern unsigned char *autopick_insc[MAX_AUTOPICK];
+extern char *autopick_name[MAX_AUTOPICK];
+extern char *autopick_insc[MAX_AUTOPICK];
 extern s16b autopick_action[MAX_AUTOPICK];
 
 /* tables.c */
@@ -1088,7 +1087,7 @@ extern bool pulish_shield(void);
 extern bool potion_smash_effect(int who, int y, int x, int k_idx);
 extern void display_spell_list(void);
 extern s16b spell_chance(int spell,int realm);
-extern bool spell_okay(int spell, bool known, int realm);
+extern bool spell_okay(int spell, bool learned, bool study_pray, int realm);
 extern void print_spells(int target_spell, byte *spells, int num, int y, int x, int realm);
 extern bool hates_acid(object_type *o_ptr);
 extern bool hates_elec(object_type *o_ptr);
@@ -1480,7 +1479,6 @@ extern void dump_virtues(FILE * OutFile);
 
 #ifdef JP
 /* japanese.c */
-extern unsigned char *sindarin_to_kana(unsigned char *sindarin);
 extern void jverb1( const char *in , char *out);
 extern void jverb2( const char *in , char *out);
 extern void jverb3( const char *in , char *out);

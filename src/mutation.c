@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 1999/11/13 15:24:31 $ */
 /* File: mutation.c */
 
 /* Purpose: Mutation effects (and racial powers) */
@@ -3638,6 +3637,11 @@ msg_print("この花崗岩はとてもおいしい！");
 		case MUT1_POLYMORPH:
 			if (racial_aux(18, 20, A_CON, 18))
 			{
+#ifdef JP
+				if (!get_check("変身します。よろしいですか？")) return;
+#else
+				if (!get_check("You will polymorph your self. Are you sure? ")) return;
+#endif
 				do_poly_self();
 			}
 			break;

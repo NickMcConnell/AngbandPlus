@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 1999/12/14 13:18:03 $ */
 /* File: dungeonc */
 
 /* Purpose: Angband game engine */
@@ -249,7 +248,7 @@ static void sense_inventory1(void)
 			case CLASS_WARRIOR:
 			case CLASS_ARCHER:
 			case CLASS_SAMURAI:
-			case CLASS_FORCEHEI:
+			case CLASS_CAVALRY:
 			{
 				/* Good sensing */
 				if (0 != rand_int(9000L / (plev * plev + 40))) return;
@@ -365,7 +364,7 @@ static void sense_inventory1(void)
 			}
 
 			case CLASS_MONK:
-			case CLASS_FORCE:
+			case CLASS_FORCETRAINER:
 			{
 				/* Okay sensing */
 				if (0 != rand_int(20000L / (plev * plev + 40))) return;
@@ -503,7 +502,7 @@ static void sense_inventory2(void)
 			case CLASS_WARRIOR:
 			case CLASS_ARCHER:
 			case CLASS_SAMURAI:
-			case CLASS_FORCEHEI:
+			case CLASS_CAVALRY:
 			case CLASS_BERSERKER:
 			{
 				return;
@@ -538,7 +537,7 @@ static void sense_inventory2(void)
 			case CLASS_PRIEST:
 			case CLASS_BARD:
 			case CLASS_ROGUE:
-			case CLASS_FORCE:
+			case CLASS_FORCETRAINER:
 			case CLASS_MINDCRAFTER:
 			{
 				/* Good sensing */
@@ -2289,7 +2288,7 @@ msg_print("あまりにも空腹で気絶してしまった。");
 	upkeep_factor = calculate_upkeep();
 
 	/* Regenerate the mana */
-//	if (p_ptr->csp < p_ptr->msp)
+/*	if (p_ptr->csp < p_ptr->msp) */
 	{
 		if (upkeep_factor)
 		{
@@ -3837,7 +3836,6 @@ msg_print("ウィザードモード突入。");
 			/* Enter debug mode */
 			if (enter_debug_mode())
 			{
-//				if (!p_ptr->wild_mode) do_cmd_debug();
 				do_cmd_debug();
 			}
 			break;
@@ -4038,7 +4036,6 @@ msg_print("ウィザードモード突入。");
 		}
 
 		/* Enter quest level -KMW- */
-//		case '[':
 		case 255:
 		{
 			if (!p_ptr->wild_mode) do_cmd_quest();
@@ -4074,8 +4071,6 @@ msg_print("ウィザードモード突入。");
 						{
 							p_ptr->oldpx = px;
 							p_ptr->oldpy = py;
-//							py = p_ptr->wilderness_y;
-//							px = p_ptr->wilderness_x;
 						}
                                         }
                                 }
@@ -5065,7 +5060,7 @@ msg_format("%^sを恐怖から立ち直らせた。", m_name);
 	{
 		(void)set_lightspeed(p_ptr->lightspeed - 1, TRUE);
 	}
-	if ((p_ptr->pclass == CLASS_FORCE) && (p_ptr->magic_num1[0]))
+	if ((p_ptr->pclass == CLASS_FORCETRAINER) && (p_ptr->magic_num1[0]))
 	{
 		if (p_ptr->magic_num1[0] < 40)
 		{
@@ -5689,13 +5684,15 @@ msg_print("試合開始！");
 	if ((dun_level == d_info[dungeon_type].maxdepth) && d_info[dungeon_type].final_guardian)
 	{
 		if (r_info[d_info[dungeon_type].final_guardian].max_num)
-			msg_format(
 #ifdef JP
-				"この階には%sの主である%sが棲んでいる。",
+			msg_format("この階には%sの主である%sが棲んでいる。",
+				   d_name+d_info[dungeon_type].name, 
+				   r_name+r_info[d_info[dungeon_type].final_guardian].name);
 #else
-				"In this level, the master of this dungeon, %s, is waiting eagerly for you.",
+		msg_format("%^s lives in this level as the keeper of %s.",
+				   r_name+r_info[d_info[dungeon_type].final_guardian].name, 
+				   d_name+d_info[dungeon_type].name);
 #endif
-				d_name+d_info[dungeon_type].name, r_name+r_info[d_info[dungeon_type].final_guardian].name);
 	}
 
 	/*** Process this dungeon level ***/
@@ -6095,6 +6092,9 @@ quit("セーブファイルが壊れています");
 
 		/* The dungeon is not ready */
 		character_dungeon = FALSE;
+
+		/* Prepare to init the RNG */
+		Rand_quick = TRUE;
 	}
 
 	/* Process old character */
@@ -6274,7 +6274,12 @@ quit("セーブファイルが壊れています");
 
 	/* Flavor the objects */
 	flavor_init();
-	if (new_game) player_outfit();
+	if (new_game)
+	{
+		wipe_o_list();
+		wipe_m_list();
+		player_outfit();
+	}
 
 	/* Flash a message */
 #ifdef JP
@@ -6356,10 +6361,10 @@ if (init_v_info()) quit("建築物初期化不能");
 
 	if (p_ptr->prace == RACE_ANDROID) calc_android_exp();
 
-	if (new_game && ((p_ptr->pclass == CLASS_FORCEHEI) || (p_ptr->pclass == CLASS_BEASTMASTER)))
+	if (new_game && ((p_ptr->pclass == CLASS_CAVALRY) || (p_ptr->pclass == CLASS_BEASTMASTER)))
 	{
 		monster_type *m_ptr;
-		int pet_r_idx = ((p_ptr->pclass == CLASS_FORCEHEI) ? MON_HORSE : MON_YASE_HORSE);
+		int pet_r_idx = ((p_ptr->pclass == CLASS_CAVALRY) ? MON_HORSE : MON_YASE_HORSE);
 		monster_race *r_ptr = &r_info[pet_r_idx];
 		place_monster_aux(py, px - 1, pet_r_idx,
 				  FALSE, FALSE, TRUE, TRUE, TRUE, FALSE);

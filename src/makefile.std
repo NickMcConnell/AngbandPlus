@@ -106,6 +106,15 @@ OBJS = \
 CC = gcc
 
 
+###################################################################
+#
+# Options for Japanese version (comment out for English version)
+
+JP_OPT= -D"JP" -D"EUC" -DDEFAULT_LOCALE="\"ja_JP.eucJP\""
+
+###################################################################
+
+
 #
 # Standard version (see main-x11.c and main-gcu.c)
 #
@@ -127,7 +136,7 @@ CC = gcc
 #CFLAGS = -Wall -O1 -pipe -g -D"USE_X11" -D"USE_GCU"
 #LIBS = -lX11 -lcurses -ltermcap
 
-CFLAGS = -Wall -O2  -fno-strength-reduce -m486 -pipe -g -D"USE_X11" -D"USE_GCU" -I/usr/X11R6/include
+CFLAGS = -Wall -O2  -fno-strength-reduce -m486 -pipe -g -D"USE_X11" $(JP_OPT) -D"USE_GCU" -I/usr/X11R6/include
 LIBS = -L/usr/X11R6/lib -lX11 -lncurses
 
 
@@ -202,7 +211,7 @@ LIBS = -L/usr/X11R6/lib -lX11 -lncurses
 ##
 ## Variation -- compile for SGI Indigo runnig Irix
 ##
-#CFLAGS = -Wall -O2  -fno-strength-reduce -g -D"USE_X11" -D"JP" -D"EUC" -D"USE_GCU" -DDEFAULT_LOCALE="\"ja_JP.eucJP\"" -I/usr/X11R6/include
+#CFLAGS = -Wall -O2  -fno-strength-reduce -g -D"USE_X11" $(JP_OPT) -D"USE_GCU" -I/usr/X11R6/include
 #LIBS = -L/usr/X11R6/lib -lX11 -lncurses -ltermcap -lsun
 
 
@@ -233,13 +242,13 @@ LIBS = -L/usr/X11R6/lib -lX11 -lncurses
 ##
 ## Variation -- compile for FreeBSD
 ##
-#CFLAGS = -Wall -O2  -fno-strength-reduce -m486 -pipe -g -D"USE_X11" -D"JP" -D"EUC" -D"USE_GCU" -I/usr/X11R6/include -DUSE_NCURSES -DDEFAULT_LOCALE="\"ja_JP.EUC\""
+#CFLAGS = -Wall -O2  -fno-strength-reduce -m486 -pipe -g -D"USE_X11" $(JP_OPT) -D"USE_GCU" -I/usr/X11R6/include -DUSE_NCURSES
 #LIBS = -L/usr/X11R6/lib -lX11 -lncurses -lmytinfo -lxpg4
 
 ##
 ## Variation -- compile for other BSD-like OS
 ##
-#CFLAGS = -Wall -O2  -fno-strength-reduce -m486 -pipe -g -D"USE_X11" -D"JP" -D"EUC" -D"USE_GCU" -I/usr/X11R6/include -DSPECIAL_BSD
+#CFLAGS = -Wall -O2  -fno-strength-reduce -m486 -pipe -g -D"USE_X11" $(JP_OPT) -D"USE_GCU" -I/usr/X11R6/include -DSPECIAL_BSD
 #LIBS = -L/usr/X11R6/lib -lX11 -lcurses
 
 
@@ -334,7 +343,7 @@ mspells2.o: mspells2.c $(INCS)
 mspells3.o: mspells3.c $(INCS)
 mutation.o: mutation.c $(INCS)
 object1.o: object1.c $(INCS)
-object2.o: object2.c $(INCS)
+object2.o: object2.c $(INCS) kajitips.h
 obj_kind.o: obj_kind.c $(INCS)
 racial.o: racial.c $(INCS)
 report.o: report.c $(INCS)

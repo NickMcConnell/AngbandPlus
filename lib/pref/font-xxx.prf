@@ -1,3 +1,4 @@
+
 # CVS: Last edit by $Author: ebock $ on $Date: 1999/11/15 14:00:29 $
 # File: font-xxx.prf
 
@@ -450,3 +451,6 @@ E:11:0x0E
 
 # CARD
 E:50:0x0D
+
+# WHISTLE
+E:4:0x03

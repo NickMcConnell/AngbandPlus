@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: remco $ on $Date: 1999/09/30 10:08:53 $ */
 /* File: main-ibm.c */
 
 /*
@@ -55,6 +54,7 @@
 
 #ifdef USE_IBM
 
+#define USE_CONIO
 
 /*
  * Use a "virtual" screen to "buffer" screen writes.
@@ -108,7 +108,7 @@
 /*
  * Hack -- write directly to video card
  */
-extern int directvideo = 1;
+/* extern int directvideo = 1; */
 
 /*
  * Hack -- no virtual screen
@@ -379,7 +379,7 @@ static void activate_color_complex(void)
 
 #endif /* 1 */
 
-};
+}
 
 
 /*
@@ -844,8 +844,23 @@ static errr Term_text_ibm(int x, int y, int n, byte a, const char *cp)
 	/* Set the attribute */
 	textattr(attr);
 
-	/* Dump the text */
-	for (i = 0; i < n; i++) putch(cp[i]);
+#ifdef JP
+      /* Dump the text */
+      for (i = 0; i < n; i++) {
+              if (iskanji(cp[i])) {
+                      char jbuf[3];
+                      jbuf[0] = cp[i++];
+                      jbuf[1] = cp[i];
+                      jbuf[2] = '\0';
+                      cputs(jbuf);
+              } else {
+                      putch(cp[i]);
+              }
+      }
+#else
+        /* Dump the text */
+        for (i = 0; i < n; i++) putch(cp[i]);
+#endif
 
 #else /* USE_CONIO */
 
@@ -1141,7 +1156,8 @@ void enable_graphic_font(const char *font)
 {
 	__dpmi_regs dblock = {{0}};
 
-	unsigned seg, sel, i;
+	unsigned int seg, i;
+	int sel;
 
 	/*
 	 * Allocate a block of memory 4096 bytes big in `low memory' so a real
@@ -1177,7 +1193,7 @@ void enable_graphic_font(const char *font)
 
 	/* We're done with the low memory, free it */
 	__dpmi_free_dos_memory(sel);
-};
+}
 
 #endif /* USE_286 */
 

@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 1999/12/14 13:18:21 $ */
 /* File: mind.c */
 
 /* Purpose: Mindcrafter code */
@@ -125,9 +124,9 @@ mind_power mind_powers[5] =
     {
       /* Level gained,  cost,  %fail,  name */
 #ifdef JP
-      {  8,  5,  40, "»¦µ¤´¶ÃÎ" 	, "Detect Atmosphere Of Menace"},
+      {  8,  5,  40, "»¦µ¤´¶ÃÎ" 	, "Detect Atmosphere of Menace"},
       { 15, 20,   0, "ÆÍ·â" 		, "Charge"},
-      { 20, 15,   0, "¥È¥é¥Ã¥×Ê´ºÕ" 	, "Smash A Trap"},
+      { 20, 15,   0, "¥È¥é¥Ã¥×Ê´ºÕ" 	, "Smash a Trap"},
       { 25, 20,  60, "ÃÏ¿Ì" 		, "Quake"},
       { 30, 80,  75, "³§»¦¤·" 	, "Massacre"},
       { 99,  0,   0, "" 		, ""},
@@ -147,9 +146,9 @@ mind_power mind_powers[5] =
       { 99,  0,   0, "" 		, ""},
       { 99,  0,   0, "" 		, ""},
 #else
-      {  8,  5,  40, "Detect Atmosphere Of Menace"},
+      {  8,  5,  40, "Detect Atmosphere of Menace"},
       { 15, 20,   0, "Charge"},
-      { 20, 15,   0, "Smash A Trap"},
+      { 20, 15,   0, "Smash a Trap"},
       { 25, 20,  60, "Quake"},
       { 30, 80,  75, "Massacre"},
       { 99,  0,   0, ""},
@@ -177,55 +176,55 @@ mind_power mind_powers[5] =
     {
       /* Level gained,  cost,  %fail,  name */
 #ifdef JP
-      { 1,   1,  15, "¿¿¸«¤Î¶À"		, "Mirror Of Seeing"},
-      { 1,   2,  40, "¶ÀÀ¸À®"		, "Making A Mirror"},
-      { 2,   2,  20, "¸÷¤Î¤·¤º¤¯"	, "Drip Of Light"},
+      { 1,   1,  15, "¿¿¸«¤Î¶À"		, "Mirror of Seeing"},
+      { 1,   2,  40, "¶ÀÀ¸À®"		, "Making a Mirror"},
+      { 2,   2,  20, "¸÷¤Î¤·¤º¤¯"	, "Drip of Light"},
       { 3,   2,  20, "ÏÄ¤ó¤À¶À"	        , "Warped Mirror"},
-      { 5,   3,  35, "Á®¸÷¶À"		, "Mirror Of Light"},
-      { 6,   5,  35, "×Ç¤¨¤ë¶À"	        , "Mirror Of Wandering"},
+      { 5,   3,  35, "Á®¸÷¶À"		, "Mirror of Light"},
+      { 6,   5,  35, "×Ç¤¨¤ë¶À"	        , "Mirror of Wandering"},
 
-      { 10,  5,  30, "Èù¿Ð±£¤ì"		, "Robe Of Dust"},
+      { 10,  5,  30, "Èù¿Ð±£¤ì"		, "Robe of Dust"},
       { 12, 12,  30, "ÄÉÊü¤Î¶À"         , "Banishing Mirror"},
       { 15, 15,  30, "¶ÀºÕ¤­"	        , "Mirror Clashing"},
       { 19, 13,  30, "ºÅÌ²¶À"	        , "Mirror Sleeping"},
       { 23, 18,  50, "¥·¡¼¥«¡¼¥ì¥¤"	, "Seeker Ray"},
 
-      { 25, 20,  40, "¶À¤ÎÉõ°õ"         , "Seal Of Mirror"},
-      { 27, 30,  60, "¿å¶À¤Î½â"		, "Shield Of Water"},
+      { 25, 20,  40, "¶À¤ÎÉõ°õ"         , "Seal of Mirror"},
+      { 27, 30,  60, "¿å¶À¤Î½â"		, "Shield of Water"},
       { 29, 30,  60, "¥¹¡¼¥Ñ¡¼¥ì¥¤"     , "Super Ray"},
       { 31, 35,  60, "¸¸ÏÇ¤Î¸÷"         , "Illusion Light"},
       { 33, 50,  80, "¶À¤Î¹ñ"		, "Mirror Shift"},
 
       { 36, 30,  80, "¶ÀÈ´¤±"	        , "Mirror Tunnel"},
-      { 38, 40,  70, "µ¢´Ô¤Î¶À"         , "Mirror Of Recall"},
+      { 38, 40,  70, "µ¢´Ô¤Î¶À"         , "Mirror of Recall"},
       { 40, 50,  55, "±ÆÊ¬¿È"		, "Multi-Shadow"},
       { 43, 55,  70, "ÉõËâ·ë³¦"	        , "Binding Field"},
-      { 46, 70,  75, "¥é¥Õ¥Î¡¼¥ë¤Î¶À"	, "Mirror Of Ruffnor"},
+      { 46, 70,  75, "¥é¥Õ¥Î¡¼¥ë¤Î¶À"	, "Mirror of Ruffnor"},
 #else
-      { 1,   1,  15, "Mirror Of Seeing"},
-      { 1,   2,  40, "Making A Mirror"},
-      { 2,   2,  20, "Drip Of Light"},
+      { 1,   1,  15, "Mirror of Seeing"},
+      { 1,   2,  40, "Making a Mirror"},
+      { 2,   2,  20, "Drip of Light"},
       { 3,   2,  20, "Warped Mirror"},
-      { 5,   3,  35, "Mirror Of Light"},
-      { 6,   5,  35, "Mirror Of Wandering"},
+      { 5,   3,  35, "Mirror of Light"},
+      { 6,   5,  35, "Mirror of Wandering"},
 
-      { 10,  5,  30, "Robe Of Dust"},
+      { 10,  5,  30, "Robe of Dust"},
       { 12, 12,  30, "Banishing Mirror"},
       { 15, 15,  30, "Mirror Clashing"},
       { 19, 13,  30, "Mirror Sleeping"},
       { 23, 18,  50, "Seeker Ray"},
 
-      { 25, 20,  40, "Seal Of Mirror"},
-      { 27, 30,  60, "Shield Of Water"},
+      { 25, 20,  40, "Seal of Mirror"},
+      { 27, 30,  60, "Shield of Water"},
       { 29, 30,  60, "Super Ray"},
       { 31, 35,  60, "Illusion Light"},
       { 33, 50,  80, "Mirror Shift"},
 
       { 36, 30,  80, "Mirror Tunnel"},
-      { 38, 40,  70, "Mirror Of Recall"},
+      { 38, 40,  70, "Mirror of Recall"},
       { 40, 50,  55, "Multi-Shadow"},
       { 43, 55,  70, "Binding Field"},
-      { 46, 70,  75, "Mirror Of Ruffnor"},
+      { 46, 70,  75, "Mirror of Ruffnor"},
 #endif
       
     }
@@ -237,46 +236,46 @@ mind_power mind_powers[5] =
 #ifdef JP
       {  1,  1,  20, "°Å°ÇÀ¸À®" 	, "Create Darkness"},
       {  2,  2,  25, "¼þÊÕÄ´ºº" 	, "Detect Near"},
-      {  3,  3,  25, "ÍÕ±£¤ì"		, "Hide In Leafs"},
+      {  3,  3,  25, "ÍÕ±£¤ì"		, "Hide in Leafs"},
       {  5,  3,  30, "ÊÑ¤ï¤ê¿È" 	, "Quick Substitution"},
       {  7,  8,  35, "¹âÈô¤Ó" 		, "Absconding"},
       {  8, 10,  35, "°ì·âÎ¥Ã¦"		, "Hit And Away"},
       { 10, 10,  40, "¶âÇû¤ê"		, "Bind Monster"},
       { 12, 12,  70, "¸Å¤Î¸ýÅÁ"		, "Ancient Knowledge"},
       { 15, 10,  50, "Éâ±À"		, "Floating"},
-      { 17, 12,  45, "²ÐÆÛ"		, "Hide In Flame"},
+      { 17, 12,  45, "²ÐÆÛ"		, "Hide in Flame"},
       { 18, 20,  40, "Æþ¿È" 		, "Surprise Attack"},
       { 20,  5,  50, "È¬Êý¼êÎ¢·õ"	, "Syuriken Spread"},
       { 22, 15,  55, "º¿³ù" 		, "Chain Hook"},
       { 25, 32,  60, "±ì¶Ì"		, "Smoke Ball"},
       { 28, 32,  60, "Å¾¿È"		, "Swap Step"},
-      { 30, 30,  70, "ÇúÈ¯¤ÎÌæ¾Ï"	, "Glyph Of Explosion"},
-      { 32, 40,  40, "ÅÚÆÛ"		, "Hide In Mud"},
-      { 34, 35,  50, "Ì¸±£¤ì"		, "Hide In Mist"},
+      { 30, 30,  70, "ÇúÈ¯¤ÎÌæ¾Ï"	, "Glyph of Explosion"},
+      { 32, 40,  40, "ÅÚÆÛ"		, "Hide in Mud"},
+      { 34, 35,  50, "Ì¸±£¤ì"		, "Hide in Mist"},
       { 38, 40,  60, "Îû¹ö²Ð±ê"		, "Flame Hell"},
       { 41, 50,  55, "Ê¬¿È"		, "Multi Shadow"},
       { 99,  0,   0, "" 		, ""},
 #else
       {  1,  1,  20, "Create Darkness"},
       {  2,  2,  25, "Detect Near"},
-      {  3,  3,  25, "Hide In Leafs"},
-      {  5,  3,  30, "Quick Substitution"},
+      {  3,  3,  25, "Hide in Leafs"},
+      {  5,  3,  30, "Kawarimi"},
       {  7,  8,  35, "Absconding"},
-      {  8, 10,  35, "Hit And Away"},
+      {  8, 10,  35, "Hit and Away"},
       { 10, 10,  40, "Bind Monster"},
       { 12, 12,  70, "Ancient Knowledge"},
       { 15, 10,  50, "Floating"},
-      { 17, 12,  45, "Hide In Flame"},
-      { 18, 20,  40, "Surprise Attack"},
-      { 20,  5,  50, "Syuriken Spread"},
+      { 17, 12,  45, "Hide in Flame"},
+      { 18, 20,  40, "Nyusin"},
+      { 20,  5,  50, "Syuriken Spreading"},
       { 22, 15,  55, "Chain Hook"},
       { 25, 32,  60, "Smoke Ball"},
-      { 28, 32,  60, "Swap Step"},
-      { 30, 30,  70, "Glyph Of Explosion"},
-      { 32, 40,  40, "Hide In Mud"},
-      { 34, 35,  50, "Hide In Mist"},
-      { 38, 40,  60, "Flame Hell"},
-      { 41, 50,  55, "Multi Shadow"},
+      { 28, 32,  60, "Swap Position"},
+      { 30, 30,  70, "Glyph of Explosion"},
+      { 32, 40,  40, "Hide in Mud"},
+      { 34, 35,  50, "Hide in Mist"},
+      { 38, 40,  60, "Rengoku-Kaen"},
+      { 41, 50,  55, "Bunshin"},
       { 99,  0,   0, ""},
 #endif
       
@@ -467,7 +466,7 @@ void mindcraft_info(char *p, int use_mind, int power)
 #endif
 	    break;
 	  }
-	case CLASS_FORCE:
+	case CLASS_FORCETRAINER:
 	  {
 	    use_mind = MIND_KI;
 #ifdef JP
@@ -1670,8 +1669,7 @@ msg_print("¤½¤ÎÊý¸þ¤Ë¤Ï¥â¥ó¥¹¥¿¡¼¤Ï¤¤¤Þ¤»¤ó¡£");
 		break;
 	}
 	case 7:
-		if (plev < 45) return ident_spell(FALSE);
-		else return identify_fully(FALSE);
+		return ident_spell(FALSE);
 		break;
 	case 8:
 		set_tim_ffall(randint(20) + 20, FALSE);
@@ -1889,7 +1887,7 @@ msg_print("º®Íð¤·¤Æ¤¤¤Æ½¸Ãæ¤Ç¤­¤Ê¤¤¡ª");
 	switch(p_ptr->pclass)
 	{
 		case CLASS_MINDCRAFTER: use_mind = MIND_MINDCRAFTER;p = "Àº¿À";break;
-		case CLASS_FORCE:          use_mind = MIND_KI;p = "µ¤";break;
+		case CLASS_FORCETRAINER:          use_mind = MIND_KI;p = "µ¤";break;
 		case CLASS_BERSERKER:   use_mind = MIND_BERSERKER;p = "ÅÜ¤ê";break;
 		case CLASS_MIRROR_MASTER:   use_mind = MIND_MIRROR_MASTER;p = "¶ÀËâË¡";break;
 		case CLASS_NINJA:       use_mind = MIND_NINJUTSU;p = "Àº¿À";break;
@@ -1899,7 +1897,7 @@ msg_print("º®Íð¤·¤Æ¤¤¤Æ½¸Ãæ¤Ç¤­¤Ê¤¤¡ª");
 	switch(p_ptr->pclass)
 	{
 		case CLASS_MINDCRAFTER: use_mind = MIND_MINDCRAFTER;break;
-		case CLASS_FORCE:          use_mind = MIND_KI;break;
+		case CLASS_FORCETRAINER:          use_mind = MIND_KI;break;
 		case CLASS_BERSERKER:   use_mind = MIND_BERSERKER;break;
 		case CLASS_MIRROR_MASTER:   use_mind = MIND_MIRROR_MASTER;break;
 		case CLASS_NINJA:       use_mind = MIND_NINJUTSU;break;
@@ -2251,7 +2249,7 @@ void do_cmd_mind_browse(void)
 	int use_mind = 0;
 
 	if (p_ptr->pclass == CLASS_MINDCRAFTER) use_mind = MIND_MINDCRAFTER;
-	else if (p_ptr->pclass == CLASS_FORCE) use_mind = MIND_KI;
+	else if (p_ptr->pclass == CLASS_FORCETRAINER) use_mind = MIND_KI;
 	else if (p_ptr->pclass == CLASS_BERSERKER) use_mind = MIND_BERSERKER;
 	else if (p_ptr->pclass == CLASS_NINJA) use_mind = MIND_NINJUTSU;
 	else if (p_ptr->pclass == CLASS_MIRROR_MASTER)

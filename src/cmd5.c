@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 1999/11/24 21:51:50 $ */
 /* File: cmd5.c */
 
 /* Purpose: Spell/Prayer commands */
@@ -55,7 +54,7 @@ cptr spell_categoly_name(int tval)
 bool select_spellbook=FALSE;
 bool select_the_force=FALSE;
 
-static int get_spell(int *sn, cptr prompt, int sval, bool known, int use_realm)
+static int get_spell(int *sn, cptr prompt, int sval, bool learned, int use_realm)
 {
 	int         i;
 	int         spell = -1;
@@ -69,7 +68,7 @@ static int get_spell(int *sn, cptr prompt, int sval, bool known, int use_realm)
 	char        out_val[160];
 	cptr        p;
 #ifdef JP
-        unsigned char jverb_buf[128];
+        char jverb_buf[128];
 #endif
 	int menu_line = (use_menu ? 1 : 0);
 
@@ -79,7 +78,7 @@ static int get_spell(int *sn, cptr prompt, int sval, bool known, int use_realm)
 	if (repeat_pull(sn))
 	{
 		/* Verify the spell */
-		if (spell_okay(*sn, known, use_realm - 1))
+		if (spell_okay(*sn, learned, FALSE, use_realm - 1))
 		{
 			/* Success */
 			return (TRUE);
@@ -111,7 +110,7 @@ static int get_spell(int *sn, cptr prompt, int sval, bool known, int use_realm)
 	for (i = 0; i < num; i++)
 	{
 		/* Look for "okay" spells */
-		if (spell_okay(spells[i], known, use_realm - 1)) okay = TRUE;
+		if (spell_okay(spells[i], learned, FALSE, use_realm - 1)) okay = TRUE;
 	}
 
 	/* No "okay" spells */
@@ -254,7 +253,7 @@ static int get_spell(int *sn, cptr prompt, int sval, bool known, int use_realm)
 		spell = spells[i];
 
 		/* Require "okay" spells */
-		if (!spell_okay(spell, known, use_realm - 1))
+		if (!spell_okay(spell, learned, FALSE, use_realm - 1))
 		{
 			bell();
 #ifdef JP
@@ -438,7 +437,7 @@ s = "読める本がない。";
 #endif
 
         select_spellbook=TRUE;
-	if (p_ptr->pclass == CLASS_FORCE)
+	if (p_ptr->pclass == CLASS_FORCETRAINER)
 		select_the_force = TRUE;
 	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))){
             select_spellbook = FALSE;
@@ -613,6 +612,7 @@ void do_cmd_study(void)
 {
 	int	i, item, sval;
 	int	increment = 0;
+	bool    learned = FALSE;
 
 	/* Spells of realm2 will have an increment of +32 */
 	int	spell = -1;
@@ -770,7 +770,7 @@ s = "読める本がない。";
 			if ((fake_spell_flags[sval] & (1L << spell)))
 			{
 				/* Skip non "okay" prayers */
-				if (!spell_okay(spell, FALSE,
+				if (!spell_okay(spell, FALSE, TRUE,
 					(increment ? p_ptr->realm2 - 1 : p_ptr->realm1 - 1))) continue;
 
 				/* Hack -- Prepare the randomizer */
@@ -801,49 +801,104 @@ msg_format("その本には学ぶべき%sがない。", p);
 	}
 
 
-	/* Take a turn */
-	energy_use = 100;
-
 	if (increment) spell += increment;
 
 	/* Learn the spell */
 	if (spell < 32)
 	{
-		spell_learned1 |= (1L << spell);
+		if (spell_learned1 & (1L << spell)) learned = TRUE;
+		else spell_learned1 |= (1L << spell);
 	}
 	else
 	{
-		spell_learned2 |= (1L << (spell - 32));
+		if (spell_learned2 & (1L << (spell - 32))) learned = TRUE;
+		else spell_learned2 |= (1L << (spell - 32));
 	}
 
-	/* Find the next open entry in "spell_order[]" */
-	for (i = 0; i < 64; i++)
+	if (learned)
 	{
-		/* Stop at the first empty space */
-		if (spell_order[i] == 99) break;
-	}
+		int max_exp = (spell < 32) ? 1600 : 1400;
+		int old_exp = spell_exp[spell];
+		int new_rank = 0;
+		cptr name = spell_names[technic2magic(increment ? p_ptr->realm2 : p_ptr->realm1)-1][spell%32];
 
-	/* Add the spell to the known list */
-	spell_order[i++] = spell;
-
-	/* Mention the result */
+		if (old_exp >= max_exp)
+		{
 #ifdef JP
-        /* 英日切り替え機能に対応 */
-	if (mp_ptr->spell_book == TV_MUSIC_BOOK)
-	{
-                msg_format("%sを学んだ。",
-			    spell_names[technic2magic(increment ? p_ptr->realm2 : p_ptr->realm1)-1][spell % 32]);
+			msg_format("その%sは完全に使いこなせるので学ぶ必要はない。", spell_categoly_name(mp_ptr->spell_book));
+#else
+			msg_format("You don't need to study this %s anymore.", spell_categoly_name(mp_ptr->spell_book));
+#endif
+			return;
+		}
+#ifdef JP
+		if (!get_check(format("%sの%sをさらに学びます。よろしいですか？", name, spell_categoly_name(mp_ptr->spell_book))))
+#else
+		if (!get_check(format("You will study a %s of %s again. Are you sure? ", spell_categoly_name(mp_ptr->spell_book), name)))
+#endif
+		{
+			return;
+		}
+		else if (old_exp >= 1400)
+		{
+			spell_exp[spell] = 1600;
+			new_rank = 4;
+		}
+		else if (old_exp >= 1200)
+		{
+			if (spell >= 32) spell_exp[spell] = 1400;
+			else spell_exp[spell] += 200;
+			new_rank = 3;
+		}
+		else if (old_exp >= 900)
+		{
+			spell_exp[spell] = 1200+(old_exp-900)*2/3;
+			new_rank = 2;
+		}
+		else
+		{
+			spell_exp[spell] = 900+(old_exp)/3;
+			new_rank = 1;
+		}
+#ifdef JP
+		msg_format("%sの熟練度が%sに上がった。", name, shougou_moji[new_rank]);
+#else
+		msg_format("Your proficiency of %s is now %s rank.", name, shougou_moji[new_rank]);
+#endif
 	}
 	else
 	{
-                msg_format("%sの%sを学んだ。",
-			    spell_names[technic2magic(increment ? p_ptr->realm2 : p_ptr->realm1)-1][spell % 32] ,p);
-	}
-#else
-	msg_format("You have learned the %s of %s.",
-		p, spell_names[technic2magic(increment ? p_ptr->realm2 : p_ptr->realm1)-1][spell % 32]);
-#endif
+		/* Find the next open entry in "spell_order[]" */
+		for (i = 0; i < 64; i++)
+		{
+			/* Stop at the first empty space */
+			if (spell_order[i] == 99) break;
+		}
 
+		/* Add the spell to the known list */
+		spell_order[i++] = spell;
+
+		/* Mention the result */
+#ifdef JP
+	        /* 英日切り替え機能に対応 */
+		if (mp_ptr->spell_book == TV_MUSIC_BOOK)
+		{
+        	        msg_format("%sを学んだ。",
+				    spell_names[technic2magic(increment ? p_ptr->realm2 : p_ptr->realm1)-1][spell % 32]);
+		}
+		else
+		{
+        	        msg_format("%sの%sを学んだ。",
+				    spell_names[technic2magic(increment ? p_ptr->realm2 : p_ptr->realm1)-1][spell % 32] ,p);
+		}
+#else
+		msg_format("You have learned the %s of %s.",
+			p, spell_names[technic2magic(increment ? p_ptr->realm2 : p_ptr->realm1)-1][spell % 32]);
+#endif
+	}
+
+	/* Take a turn */
+	energy_use = 100;
 
 	if (mp_ptr->spell_book == TV_LIFE_BOOK)
 		chg_virtue(V_FAITH, 1);
@@ -858,9 +913,8 @@ msg_format("その本には学ぶべき%sがない。", p);
 	sound(SOUND_STUDY);
 
 	/* One less spell available */
-	p_ptr->new_spells--;
 	p_ptr->learned_spells++;
-
+#if 0
 	/* Message if needed */
 	if (p_ptr->new_spells)
 	{
@@ -878,12 +932,11 @@ msg_format("その本には学ぶべき%sがない。", p);
 #endif
 
 	}
+#endif
 
-	/* Save the new_spells value */
-	p_ptr->old_spells = p_ptr->new_spells;
-
-	/* Redraw Study Status */
-	p_ptr->redraw |= (PR_STUDY);
+	/* Update Study */
+	p_ptr->update |= (PU_SPELLS);
+	update_stuff();
 }
 
 
@@ -1842,6 +1895,11 @@ msg_print("「卑しき者よ、我は汝の下僕にあらず！ お前の魂を頂くぞ！」");
 		call_chaos();
 		break;
 	case 28: /* Polymorph Self */
+#ifdef JP
+		if (!get_check("変身します。よろしいですか？")) return FALSE;
+#else
+		if (!get_check("You will polymorph yourself. Are you sure? ")) return FALSE;
+#endif
 		do_poly_self();
 		break;
 	case 29: /* Mana Storm */
@@ -2787,7 +2845,11 @@ msg_print("御用でございますか、御主人様？");
 		case 12: /* Teleport Level */
 			if (success)
 			{
+#ifdef JP
 				if (!get_check("本当に他の階にテレポートしますか？")) return FALSE;
+#else
+				if (!get_check("Are you sure? (Teleport Level)")) return FALSE;
+#endif
 				(void)teleport_player_level();
 			}
 			break;
@@ -4342,8 +4404,10 @@ msg_print("目が見えない！");
 #else
 		msg_print("You cannot see!");
 #endif
-		if (p_ptr->pclass == CLASS_FORCE)
+		if (p_ptr->pclass == CLASS_FORCETRAINER)
 		    do_cmd_mind();
+		else
+			flush();
 		return;
 	}
 
@@ -4355,7 +4419,7 @@ msg_print("混乱していて唱えられない！");
 #else
 		msg_print("You are too confused!");
 #endif
-
+		flush();
 		return;
 	}
 
@@ -4378,7 +4442,7 @@ s = "呪文書がない！";
 #endif
 
         select_spellbook=TRUE;
-	if (p_ptr->pclass == CLASS_FORCE)
+	if (p_ptr->pclass == CLASS_FORCETRAINER)
 		select_the_force = TRUE;
 	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))){
             select_spellbook = FALSE;
@@ -4852,7 +4916,7 @@ int calculate_upkeep(void)
 			total_friends++;
 			if (r_ptr->flags1 & RF1_UNIQUE)
 			{
-				if (p_ptr->pclass == CLASS_FORCEHEI)
+				if (p_ptr->pclass == CLASS_CAVALRY)
 				{
 					if (p_ptr->riding == m_idx)
 						total_friend_levels += (r_ptr->level+5)*2;
@@ -5068,7 +5132,7 @@ bool rakuba(int dam, bool force)
 			}
 			if (rand_int(dam/2 + level*2) < (skill_exp[GINOU_RIDING]/30+10))
 			{
-				if ((((p_ptr->pclass == CLASS_BEASTMASTER) || (p_ptr->pclass == CLASS_FORCEHEI)) && !p_ptr->riding_ryoute) || !one_in_(p_ptr->lev*(p_ptr->riding_ryoute ? 2 : 3)+30))
+				if ((((p_ptr->pclass == CLASS_BEASTMASTER) || (p_ptr->pclass == CLASS_CAVALRY)) && !p_ptr->riding_ryoute) || !one_in_(p_ptr->lev*(p_ptr->riding_ryoute ? 2 : 3)+30))
 				{
 					return FALSE;
 				}

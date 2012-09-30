@@ -1,8 +1,7 @@
-/* CVS: Last edit by $Author: remco $ on $Date: 1999/09/30 10:08:55 $ */
 /* File: main-xaw.c */
 
 /* Purpose: Support for X Athena Widget based Angband */
-/* Most code written by Torbjörn Lindgren (tl@cd.chalmers.se) */
+/* Most code written by Torbjn Lindgren (tl@cd.chalmers.se) */
 
 #ifdef USE_XAW
 
@@ -227,7 +226,7 @@ struct AngbandClassRec
 
 
 
-/* Angband widget, Created by Torbjörn Lindgren (tl@cd.chalmers.se) */
+/* Angband widget, Created by Torbjn Lindgren (tl@cd.chalmers.se) */
 
 /*
  * Note that it isn't as self-contained as it really should be,

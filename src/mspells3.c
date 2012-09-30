@@ -1,5 +1,4 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 1999/12/14 13:18:21 $ */
-/* File: mind.c */
+/* File: mspells3.c */
 
 /* Purpose: Mane code */
 
@@ -805,7 +804,7 @@ msg_print("ロケットを発射した。");
 			msg_print("You fires a rocket.");
 #endif
 		damage = hp / 4;
-			fire_ball(GF_ROCKET, dir, damage, 2);
+			fire_rocket(GF_ROCKET, dir, damage, 2);
 		break;
 	case MS_ARROW_1:
 		if (!get_aim_dir(&dir)) return FALSE;
@@ -1901,7 +1900,7 @@ msg_print("何も現れなかった。");
 
 /*
  * do_cmd_cast calls this function if the player's class
- * is 'imitator'.
+ * is 'Blue-Mage'.
  */
 bool do_cmd_cast_learned(void)
 {

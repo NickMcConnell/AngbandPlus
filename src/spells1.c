@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 1999/12/14 13:18:32 $ */
 /* File: spells1.c */
 
 /* Purpose: Spell projection */
@@ -7647,7 +7646,7 @@ void breath_shape(u16b *path_g, int dist, int *pgrids, byte *gx, byte *gy, byte 
 		}
 		
 		/* Ripple outwards */
-//		mmove2(&by, &bx, y1, x1, y2, x2);
+/*		mmove2(&by, &bx, y1, x1, y2, x2); */
 		
 		by = GRID_Y(path_g[bdis]);
 		bx = GRID_X(path_g[bdis]);

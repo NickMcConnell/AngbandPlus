@@ -5036,7 +5036,7 @@ P:0:1d1:0:0:10
 F:IGNORE_ACID | REFLECT | INSTA_ART
 
 N:613:& 矢
-E:& Arrow~
+E:& Black Arrow~
 G:{:U
 I:17:10:0
 W:35:0:2:1
@@ -5343,3 +5343,18 @@ G:?:d
 I:70:54:0
 W:30:0:5:1000
 A:30/2
+
+N:651:& 魔法の笛
+E:& Magic Whistle~
+G:~:o
+I:4:1:0
+W:15:0:3:1000
+A:15/2
+F:ACTIVATE
+
+N:652:& アミュレット
+E:& Amulet~
+G:":d
+I:40:24:0
+W:50:0:3:25000
+F:INSTA_ART

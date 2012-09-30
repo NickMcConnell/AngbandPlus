@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: remco $ on $Date: 1999/09/30 10:09:00 $ */
 /* File: main.c */
 
 /*
@@ -509,6 +508,7 @@ int main(int argc, char *argv[])
 
 #ifdef CHUUKEI
 			case 'p':
+			case 'P':
 			{
 				if (!argv[i][2]) goto usage;
 				chuukei_server = TRUE;
@@ -517,6 +517,7 @@ int main(int argc, char *argv[])
 			}
 
 			case 'c':
+			case 'C':
 			{
 				if (!argv[i][2]) goto usage;
 				chuukei_client = TRUE;
