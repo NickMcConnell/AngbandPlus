@@ -849,14 +849,14 @@ void self_knowledge(FILE *fff)
 			info[i++] = "You are not living.";
 		/* Not implemented */
 		if (r_ptr->flags3 & RF3_HURT_LITE)
-			info[i++] = "Your eyes are sensible to bright light.";
+			info[i++] = "Your eyes are vulnerable to bright light.";
 		/* Not implemented */
 		if (r_ptr->flags3 & RF3_HURT_ROCK)
 			info[i++] = "You can be hurt by rock remover.";
 		if (r_ptr->flags3 & RF3_SUSCEP_FIRE)
-			info[i++] = "You are sensitive to fire.";
+			info[i++] = "You are vulnerable to fire.";
 		if (r_ptr->flags3 & RF3_SUSCEP_COLD)
-			info[i++] = "You are sensitive to cold.";
+			info[i++] = "You are vulerable to cold.";
 		if (r_ptr->flags3 & RF3_RES_TELE)
 			info[i++] = "You are resistant to teleportation.";
 		if (r_ptr->flags3 & RF3_RES_NETH)
@@ -1101,11 +1101,11 @@ void self_knowledge(FILE *fff)
 			info[i++] = "You appear in grassy areas.";
 
 		if (r_ptr->flags9 & RF9_SUSCEP_ACID)
-			info[i++] = "You are sensitive to acid.";
+			info[i++] = "You are vulnerable to acid.";
 		if (r_ptr->flags9 & RF9_SUSCEP_ELEC)
-			info[i++] = "You are sensitive to electricity.";
+			info[i++] = "You are vulnerable to electricity.";
 		if (r_ptr->flags9 & RF9_SUSCEP_POIS)
-			info[i++] = "You are sensitive to poison.";
+			info[i++] = "You are vulnerable to poison.";
 		if (r_ptr->flags9 & RF9_KILL_TREES)
 			info[i++] = "You can eat trees.";
 		if (r_ptr->flags9 & RF9_WYRM_PROTECT)
@@ -1384,7 +1384,7 @@ void self_knowledge(FILE *fff)
 	}
 	else if (p_ptr->sensible_fire)
 	{
-		info[i++] = "You are very sensible to fire.";
+		info[i++] = "You are very vulnerable to fire.";
 	}
 
 	if (p_ptr->immune_cold)

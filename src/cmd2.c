@@ -4833,9 +4833,11 @@ void do_cmd_sacrifice(void)
 					inven_item_optimize(item);
 				}
 			}
+			else
+			{
+				process_hooks(HOOK_SACRIFICE_GOD, "()", "");
+			}
 		}
-		else
-			process_hooks(HOOK_SACRIFICE_GOD, "()", "");
 	}
 }
 

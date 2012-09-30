@@ -74,7 +74,7 @@ end
 -- Returns the direction of the compass that y2, x2 is from y, x
 -- the return value will be one of the following: north, south,
 -- east, west, north-east, south-east, south-west, north-west,
--- or nil if it is within 2 tiles.
+-- or "close" if it is within 2 tiles.
 function compass(y, x, y2, x2)
 	local y_axis, x_axis, y_diff, x_diff, compass_dir
 
@@ -102,23 +102,20 @@ function compass(y, x, y2, x2)
 		x_axis = "west"
 	end
 
-
+	-- Maybe it is very close
+	if ((not x_axis) and (not y_axis)) then compass_dir = "close"
 	-- Maybe it is (almost) due N/S
-	if (not x_axis) and (not y_axis) then compass_dir = nil
-
-	elseif not x_axis then compass_dir = y_axis
-
+		elseif not x_axis then compass_dir = y_axis
 	-- Maybe it is (almost) due E/W
-	elseif not y_axis then compass_dir = x_axis
-
+		elseif not y_axis then compass_dir = x_axis
 	-- or if it is neither
-	else compass_dir = y_axis.."-"..x_axis
+		else compass_dir = y_axis.."-"..x_axis
 	end
 
 	return compass_dir
 end
 
--- Returns an approximation of the 'distance' of y2, x2 from y, x.
+-- Returns a relative approximation of the 'distance' of y2, x2 from y, x.
 function approximate_distance(y, x, y2, x2)
 	local y_diff, x_diff, most_dist
 
@@ -147,8 +144,10 @@ function approximate_distance(y, x, y2, x2)
 
 	-- how far away then?
 	if most_dist >= 41 then
+		how_far = "a very long way"
+	elseif most_dist >= 25 then
 		how_far = "a long way"
-	elseif most_dist >= 11 then
+	elseif most_dist >= 8 then
 		how_far = "quite some way"
 	else
 		how_far = "not very far"

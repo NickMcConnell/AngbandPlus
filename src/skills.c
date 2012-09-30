@@ -1407,8 +1407,8 @@ void do_get_new_skill()
 				msg_format("Your knowledge of the %s skill increases.",
 				           s_ptr->name + s_name);
 			}
+			break;
 		}
-		break;
 	}
 
 	/* Free them ! */

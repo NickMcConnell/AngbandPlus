@@ -138,9 +138,9 @@ bool quest_shroom_give_hook(char *fmt)
 	{
 		object_type forge, *q_ptr;
 
-		msg_print("Oh thank you !");
-		msg_print("Take my sling and those mushrooms, may they help you !");
-		msg_print("Farmer Maggot heads back to his house");
+		msg_print("Oh thank you!");
+		msg_print("Take my sling and those mushrooms, may they help you!");
+		msg_print("Farmer Maggot heads back to his house.");
 
 		/* Mushrooms */
 		q_ptr = &forge;

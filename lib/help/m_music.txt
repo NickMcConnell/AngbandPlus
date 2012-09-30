@@ -46,7 +46,7 @@ of instrument contains a different family of musical songs:
 1. [[[[[vSong of the Sun(I)] (School level 1)
    Provides light as long as you sing.
    Consumes the amount of mana each turn.
-2. [[[[[vFlow of Life(I)] (School level 5)
+2. [[[[[vFlow of Life(II)] (School level 5)
    Heals you as long as you sing.
    Consumes the amount of mana each turn.
 3. [[[[[vHeroic Ballad(II)] (School level 10)

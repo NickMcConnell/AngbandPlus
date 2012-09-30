@@ -836,7 +836,7 @@ static void corpse_effect(object_type *o_ptr, bool cutting)
 		{
 			summon_specific_friendly(p_ptr->py, p_ptr->px, dun_level, SUMMON_DEMON, FALSE);
 		}
-		if (r_ptr->flags6 & RF6_S_DEMON)
+		if (r_ptr->flags6 & RF6_S_KIN)
 		{
 			summon_specific_friendly(p_ptr->py, p_ptr->px, dun_level, SUMMON_KIN, FALSE);
 		}
@@ -3091,7 +3091,7 @@ void do_cmd_read_scroll(void)
 					if (!fates[i].fate) continue;
 					if (fates[i].know) continue;
 
-					msg_print("A massage appeared on the scroll. It says:");
+					msg_print("A message appeared on the scroll. It says:");
 					msg_print(NULL);
 
 					fate_desc(buf, i);

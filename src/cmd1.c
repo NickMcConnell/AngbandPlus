@@ -866,7 +866,7 @@ static void carried_monster_attack(s16b m_idx, bool *fear, bool *mdeath,
 	ac = t_ptr->ac;
 
 	/* Extract the effective monster level */
-	rlev = ((r_ptr->level >= 1) ? r_ptr->level : 1);
+	rlev = ((o_ptr->elevel >= 1) ? o_ptr->elevel : 1);
 
 	/* Get the monster name (or "it") */
 	monster_desc(t_name, t_ptr, 0);
@@ -3237,11 +3237,11 @@ bool player_can_enter(byte feature)
 
 	if (feature == FEAT_TREES)
 	{
-		if ((p_ptr->fly ||
-		                pass_wall ||
-		                (has_ability(AB_TREE_WALK)) ||
-		                (p_ptr->mimic_form == resolve_mimic_name("Ent")) ||
-		                ((p_ptr->grace >= 9000) && (p_ptr->praying) && (p_ptr->pgod == GOD_YAVANNA))))
+		if (p_ptr->fly ||
+		    pass_wall ||
+		    (has_ability(AB_TREE_WALK)) ||
+		    (p_ptr->mimic_form == resolve_mimic_name("Ent")) ||
+		    ((p_ptr->grace >= 9000) && (p_ptr->praying) && (p_ptr->pgod == GOD_YAVANNA)))
 			return (TRUE);
 	}
 
@@ -5007,18 +5007,44 @@ void do_cmd_pet(void)
 
 				if ((!(r_ptr->flags7 & RF7_NO_DEATH)) && ((m_ptr->status == MSTATUS_PET) || (m_ptr->status == MSTATUS_FRIEND)))	/* Get rid of it! */
 				{
+					bool checked = FALSE;
+					char command;
 					bool delete_this = FALSE;
 
 					if (all_pets)
+					{
 						delete_this = TRUE;
+					}
 					else
 					{
 						char friend_name[80], check_friend[80];
 						monster_desc(friend_name, m_ptr, 0x80);
-						strnfmt(check_friend, 80, "Dismiss %s? ", friend_name);
+						strnfmt(check_friend, 80, "Dismiss %s? (Escape to cancel)", friend_name);
 
-						if (get_check(check_friend))
-							delete_this = TRUE;
+						while (!checked)
+						{
+							if (!get_com(check_friend, &command))
+							{
+								/* get out of loop */
+								checked = TRUE;
+								pet_ctr = 0;
+							}
+							else switch (command)
+							{
+							case 'Y':
+							case 'y':
+								delete_this = TRUE;
+								checked = TRUE;
+								break;
+							case 'n':
+							case 'N':
+								checked = TRUE;
+								break;
+							default:
+								bell();
+								break;
+							}
+						}
 					}
 
 					if (delete_this)

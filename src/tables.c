@@ -4177,7 +4177,7 @@ quest_type quest_init_tome[MAX_Q_IDX_INIT] =
 		"Wolves!",
 		{
 			"There are wolves pestering my people! They gather in a hut",
-			"on the edge of down and menace everyone nearby. Your task",
+			"on the edge of town and menace everyone nearby. Your task",
 			"is to go in there and clear them out.",
 			"",
 			"",
@@ -4202,8 +4202,8 @@ quest_type quest_init_tome[MAX_Q_IDX_INIT] =
 		"Dragons!",
 		{
 			"There are dragons pestering my people! They gather in a",
-			"building on the edge of down and menace everyone nearby.",
-			"Your task is to go into the buildng and clear them out.",
+			"building on the edge of town and menace everyone nearby.",
+			"Your task is to go into the building and clear them out.",
 			"",
 			"",
 			"",
@@ -4227,8 +4227,8 @@ quest_type quest_init_tome[MAX_Q_IDX_INIT] =
 		"Haunted House!",
 		{
 			"There are undead pestering my people! They gather in a hut",
-			"on the edge of down and menace everyone nearby. Your task",
-			"is to go into the buildng and clear out the beasts.",
+			"on the edge of town and menace everyone nearby. Your task",
+			"is to go into the building and clear out the beasts.",
 			"",
 			"",
 			"",
@@ -4425,18 +4425,18 @@ tval_desc tval_descs[] =
 	{
 		TV_SHOT,
 		"Shots are small, hard balls.  They are the standard ammunition "
-		"for slings.  You can wear them in your quiver if you have a sling "
+		"for slings.  You can carry them in your quiver if you have a sling "
 		"equipped."
 	},
 	{
 		TV_ARROW,
-		"Arrows are the standard ammunition for bows.  You can wear "
-		"them in your quiver if your have a bow equipped."
+		"Arrows are the standard ammunition for bows.  You can carry "
+		"them in your quiver if you have a bow equipped."
 	},
 	{
 		TV_BOLT,
 		"Bolts are the standard ammunition for crossbows.  You can "
-		"wear them in your quiver if your have a crossbow equipped."
+		"carry them in your quiver if you have a crossbow equipped."
 	},
 	{
 		TV_BOW,
@@ -4473,8 +4473,8 @@ tval_desc tval_descs[] =
 	},
 	{
 		TV_LITE,
-		"Lights are allow you to read things and see from afar. Some of "
-		"them need to be refilled, some do not."
+		"Lights allow you to read things and see from afar. Some of "
+		"them need to be fueled but some do not."
 	},
 	{
 		TV_AMULET,

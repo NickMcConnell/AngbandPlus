@@ -41,9 +41,9 @@ typedef signed int s32b;
 typedef unsigned int u32b;
 
 /** @def PY_MAX_LEVEL
- * @note Maximum level 
+ * @note Maximum level
  */
-#define PY_MAX_LEVEL    50	      
+#define PY_MAX_LEVEL    50
 
 /** @var player_exp[PY_MAX_LEVEL]
  * @brief Number
@@ -104,99 +104,99 @@ extern s32b player_exp[PY_MAX_LEVEL];
 /** @name Race flags
  * @{ */
 /** @def PR1_EXPERIMENTAL
- * @note Is still under developemnt 
+ * @note Is still under developemnt
  */
-#define PR1_EXPERIMENTAL	0x00000001L     
+#define PR1_EXPERIMENTAL	0x00000001L
 /* XXX */
 /** @def PR1_RESIST_BLACK_BREATH
- * @note Resist black breath 
+ * @note Resist black breath
  */
-#define PR1_RESIST_BLACK_BREATH 0x00000004L     
+#define PR1_RESIST_BLACK_BREATH 0x00000004L
 /** @def PR1_NO_STUN
- * @note Never stunned 
+ * @note Never stunned
  */
-#define PR1_NO_STUN	     0x00000008L     
+#define PR1_NO_STUN	     0x00000008L
 /** @def PR1_XTRA_MIGHT_BOW
- * @note Xtra might with bows 
+ * @note Xtra might with bows
  */
-#define PR1_XTRA_MIGHT_BOW      0x00000010L     
+#define PR1_XTRA_MIGHT_BOW      0x00000010L
 /** @def PR1_XTRA_MIGHT_XBOW
- * @note Xtra might with xbows 
+ * @note Xtra might with xbows
  */
-#define PR1_XTRA_MIGHT_XBOW     0x00000020L     
+#define PR1_XTRA_MIGHT_XBOW     0x00000020L
 /** @def PR1_XTRA_MIGHT_SLING
- * @note Xtra might with slings 
+ * @note Xtra might with slings
  */
-#define PR1_XTRA_MIGHT_SLING    0x00000040L     
+#define PR1_XTRA_MIGHT_SLING    0x00000040L
 /** @def PR1_AC_LEVEL
- * @note More AC with levels 
+ * @note More AC with levels
  */
-#define PR1_AC_LEVEL	    0x00000080L     
+#define PR1_AC_LEVEL	    0x00000080L
 /** @def PR1_HURT_LITE
- * @note Hurt by light 
+ * @note Hurt by light
  */
-#define PR1_HURT_LITE	   0x00000100L     
+#define PR1_HURT_LITE	   0x00000100L
 /** @def PR1_VAMPIRE
- * @note Vampire 
+ * @note Vampire
  */
-#define PR1_VAMPIRE	     0x00000200L     
+#define PR1_VAMPIRE	     0x00000200L
 /** @def PR1_UNDEAD
- * @note Undead 
+ * @note Undead
  */
-#define PR1_UNDEAD	      0x00000400L     
+#define PR1_UNDEAD	      0x00000400L
 /** @def PR1_NO_CUT
- * @note no cuts 
+ * @note no cuts
  */
-#define PR1_NO_CUT	      0x00000800L     
+#define PR1_NO_CUT	      0x00000800L
 /** @def PR1_CORRUPT
- * @note hack-- corrupted 
+ * @note hack-- corrupted
  */
-#define PR1_CORRUPT	     0x00001000L     
+#define PR1_CORRUPT	     0x00001000L
 /** @def PR1_NO_FOOD
- * @note little gain from food 
+ * @note little gain from food
  */
-#define PR1_NO_FOOD	     0x00002000L     
+#define PR1_NO_FOOD	     0x00002000L
 /** @def PR1_NO_GOD
- * @note cannot worship 
+ * @note cannot worship
  */
-#define PR1_NO_GOD	      0x00004000L     
+#define PR1_NO_GOD	      0x00004000L
 /* XXX */
 /** @def PR1_ELF
- * @note Is an elf 
+ * @note Is an elf
  */
-#define PR1_ELF		 0x00010000L     
+#define PR1_ELF		 0x00010000L
 /** @def PR1_SEMI_WRAITH
- * @note Takes damage when going in walls 
+ * @note Takes damage when going in walls
  */
-#define PR1_SEMI_WRAITH	 0x00020000L     
+#define PR1_SEMI_WRAITH	 0x00020000L
 /** @def PR1_NO_SUBRACE_CHANGE
- * @note Impossible to change subrace 
+ * @note Impossible to change subrace
  */
-#define PR1_NO_SUBRACE_CHANGE   0x00040000L     
+#define PR1_NO_SUBRACE_CHANGE   0x00040000L
 /* XXX */
 /** @def PR1_ANTIMAGIC
- * @note antimagic ... hack 
+ * @note antimagic ... hack
  */
-#define PR1_ANTIMAGIC	   0x00100000L     
+#define PR1_ANTIMAGIC	   0x00100000L
 /** @def PR1_MOLD_FRIEND
- * @note Not attacked by molds wielded 
+ * @note Not attacked by molds wielded
  */
-#define PR1_MOLD_FRIEND	 0x00200000L     
+#define PR1_MOLD_FRIEND	 0x00200000L
 /** @def PR1_GOD_FRIEND
- * @note Better grace 
+ * @note Better grace
  */
-#define PR1_GOD_FRIEND	  0x00400000L     
+#define PR1_GOD_FRIEND	  0x00400000L
 /* XXX */
 /** @def PR1_INNATE_SPELLS
- * @note KNown all spells, only need books 
+ * @note KNown all spells, only need books
  */
-#define PR1_INNATE_SPELLS       0x01000000L     
+#define PR1_INNATE_SPELLS       0x01000000L
 /* XXX */
 /* XXX */
 /** @def PR1_EASE_STEAL
- * @note Gain xp by stealing 
+ * @note Gain xp by stealing
  */
-#define PR1_EASE_STEAL	  0x08000000L     
+#define PR1_EASE_STEAL	  0x08000000L
 /* XXX */
 /* XXX */
 /* XXX */
@@ -204,9 +204,9 @@ extern s32b player_exp[PY_MAX_LEVEL];
 
 /* XXX */
 /** @def PR2_ASTRAL
- * @note Is it an astral being coming from th halls of mandos ? 
+ * @note Is it an astral being coming from th halls of mandos ?
  */
-#define PR2_ASTRAL	      0x00000002L     
+#define PR2_ASTRAL	      0x00000002L
 /* XXX */
 /** @} */
 
@@ -214,13 +214,13 @@ extern s32b player_exp[PY_MAX_LEVEL];
  * @brief Bit flags for the "p_ptr->notice" variable
  * @{ */
 /** @def PN_COMBINE
- * @note Combine the pack 
+ * @note Combine the pack
  */
-#define PN_COMBINE      0x00000001L     
+#define PN_COMBINE      0x00000001L
 /** @def PN_REORDER
- * @note Reorder the pack 
+ * @note Reorder the pack
  */
-#define PN_REORDER      0x00000002L     
+#define PN_REORDER      0x00000002L
 /* xxx (many) */
 /** @} */
 
@@ -229,65 +229,65 @@ extern s32b player_exp[PY_MAX_LEVEL];
  * @brief Bit flags for the "p_ptr->update" variable
  * @{ */
 /** @def PU_BONUS
- * @note Calculate bonuses 
+ * @note Calculate bonuses
  */
-#define PU_BONUS	0x00000001L     
+#define PU_BONUS	0x00000001L
 /** @def PU_TORCH
- * @note Calculate torch radius 
+ * @note Calculate torch radius
  */
-#define PU_TORCH	0x00000002L     
+#define PU_TORCH	0x00000002L
 /** @def PU_BODY
- * @note Calculate body parts 
+ * @note Calculate body parts
  */
-#define PU_BODY	 0x00000004L     
+#define PU_BODY	 0x00000004L
 /** @def PU_SANITY
- * @note Calculate csan and msan 
+ * @note Calculate csan and msan
  */
-#define PU_SANITY       0x00000008L     
+#define PU_SANITY       0x00000008L
 /** @def PU_HP
- * @note Calculate chp and mhp 
+ * @note Calculate chp and mhp
  */
-#define PU_HP	   0x00000010L     
+#define PU_HP	   0x00000010L
 /** @def PU_MANA
- * @note Calculate csp and msp 
+ * @note Calculate csp and msp
  */
-#define PU_MANA	 0x00000020L     
+#define PU_MANA	 0x00000020L
 /** @def PU_SPELLS
- * @note Calculate spells 
+ * @note Calculate spells
  */
-#define PU_SPELLS       0x00000040L     
+#define PU_SPELLS       0x00000040L
 /** @def PU_POWERS
- * @note Calculate powers 
+ * @note Calculate powers
  */
-#define PU_POWERS       0x00000080L     
+#define PU_POWERS       0x00000080L
 /* xxx (many) */
 /** @def PU_UN_VIEW
- * @note Forget view 
+ * @note Forget view
  */
-#define PU_UN_VIEW      0x00010000L     
+#define PU_UN_VIEW      0x00010000L
 /* xxx (many) */
 /** @def PU_VIEW
- * @note Update view 
+ * @note Update view
  */
-#define PU_VIEW	 0x00100000L     
+#define PU_VIEW	 0x00100000L
 /** @def PU_MON_LITE
- * @note Update monster light 
+ * @note Update monster light
  */
-#define PU_MON_LITE     0x00200000L     
+#define PU_MON_LITE     0x00200000L
 /* xxx */
 /** @def PU_MONSTERS
- * @note Update monsters 
+ * @note Update monsters
  */
-#define PU_MONSTERS     0x01000000L     
+#define PU_MONSTERS     0x01000000L
 /** @def PU_DISTANCE
- * @note Update distances 
+ * @note Update distances
  */
-#define PU_DISTANCE     0x02000000L     
+#define PU_DISTANCE     0x02000000L
 /* xxx */
 /** @def PU_FLOW
- * @note Update flow 
+ * @note Update flow
  */
-#define PU_FLOW	 0x10000000L     
+#define PU_FLOW	 0x10000000L
 /* xxx (many) */
 /** @} */
 
@@ -296,126 +296,126 @@ extern s32b player_exp[PY_MAX_LEVEL];
  * @brief Bit flags for the "p_ptr->redraw" variable
  * @{ */
 /** @def PR_MISC
- * @note Display Race/Class 
+ * @note Display Race/Class
  */
-#define PR_MISC	 0x00000001L     
+#define PR_MISC	 0x00000001L
 /** @def PR_TITLE
- * @note Display Title 
+ * @note Display Title
  */
-#define PR_TITLE	0x00000002L     
+#define PR_TITLE	0x00000002L
 /** @def PR_LEV
- * @note Display Level 
+ * @note Display Level
  */
-#define PR_LEV	  0x00000004L     
+#define PR_LEV	  0x00000004L
 /** @def PR_EXP
- * @note Display Experience 
+ * @note Display Experience
  */
-#define PR_EXP	  0x00000008L     
+#define PR_EXP	  0x00000008L
 /** @def PR_STATS
- * @note Display Stats 
+ * @note Display Stats
  */
-#define PR_STATS	0x00000010L     
+#define PR_STATS	0x00000010L
 /** @def PR_ARMOR
- * @note Display Armor 
+ * @note Display Armor
  */
-#define PR_ARMOR	0x00000020L     
+#define PR_ARMOR	0x00000020L
 /** @def PR_HP
- * @note Display Hitpoints 
+ * @note Display Hitpoints
  */
-#define PR_HP	   0x00000040L     
+#define PR_HP	   0x00000040L
 /** @def PR_MANA
- * @note Display Mana 
+ * @note Display Mana
  */
-#define PR_MANA	 0x00000080L     
+#define PR_MANA	 0x00000080L
 /** @def PR_GOLD
- * @note Display Gold 
+ * @note Display Gold
  */
-#define PR_GOLD	 0x00000100L     
+#define PR_GOLD	 0x00000100L
 /** @def PR_DEPTH
- * @note Display Depth 
+ * @note Display Depth
  */
-#define PR_DEPTH	0x00000200L     
-/****/ 
+#define PR_DEPTH	0x00000200L
+/****/
 /** @def PR_HEALTH
- * @note Display Health Bar 
+ * @note Display Health Bar
  */
-#define PR_HEALTH       0x00000800L     
+#define PR_HEALTH       0x00000800L
 /** @def PR_CUT
- * @note Display Extra (Cut) 
+ * @note Display Extra (Cut)
  */
-#define PR_CUT	  0x00001000L     
+#define PR_CUT	  0x00001000L
 /** @def PR_STUN
- * @note Display Extra (Stun) 
+ * @note Display Extra (Stun)
  */
-#define PR_STUN	 0x00002000L     
+#define PR_STUN	 0x00002000L
 /** @def PR_HUNGER
- * @note Display Extra (Hunger) 
+ * @note Display Extra (Hunger)
  */
-#define PR_HUNGER       0x00004000L     
+#define PR_HUNGER       0x00004000L
 /** @def PR_PIETY
- * @note Display Piety 
+ * @note Display Piety
  */
-#define PR_PIETY	0x00008000L     
+#define PR_PIETY	0x00008000L
 /** @def PR_BLIND
- * @note Display Extra (Blind) 
+ * @note Display Extra (Blind)
  */
-#define PR_BLIND	0x00010000L     
+#define PR_BLIND	0x00010000L
 /** @def PR_CONFUSED
- * @note Display Extra (Confused) 
+ * @note Display Extra (Confused)
  */
-#define PR_CONFUSED     0x00020000L     
+#define PR_CONFUSED     0x00020000L
 /** @def PR_AFRAID
- * @note Display Extra (Afraid) 
+ * @note Display Extra (Afraid)
  */
-#define PR_AFRAID       0x00040000L     
+#define PR_AFRAID       0x00040000L
 /** @def PR_POISONED
- * @note Display Extra (Poisoned) 
+ * @note Display Extra (Poisoned)
  */
-#define PR_POISONED     0x00080000L     
+#define PR_POISONED     0x00080000L
 /** @def PR_STATE
- * @note Display Extra (State) 
+ * @note Display Extra (State)
  */
-#define PR_STATE	0x00100000L     
+#define PR_STATE	0x00100000L
 /** @def PR_SPEED
- * @note Display Extra (Speed) 
+ * @note Display Extra (Speed)
  */
-#define PR_SPEED	0x00200000L     
+#define PR_SPEED	0x00200000L
 /** @def PR_STUDY
- * @note Display Extra (Study) 
+ * @note Display Extra (Study)
  */
-#define PR_STUDY	0x00400000L     
+#define PR_STUDY	0x00400000L
 /** @def PR_SANITY
- * @note Display Sanity 
+ * @note Display Sanity
  */
-#define PR_SANITY       0x00800000L     
+#define PR_SANITY       0x00800000L
 /** @def PR_EXTRA
- * @note Display Extra Info 
+ * @note Display Extra Info
  */
-#define PR_EXTRA	0x01000000L     
+#define PR_EXTRA	0x01000000L
 /** @def PR_BASIC
- * @note Display Basic Info 
+ * @note Display Basic Info
  */
-#define PR_BASIC	0x02000000L     
+#define PR_BASIC	0x02000000L
 /** @def PR_MAP
- * @note Display Map 
+ * @note Display Map
  */
-#define PR_MAP	  0x04000000L     
+#define PR_MAP	  0x04000000L
 /** @def PR_WIPE
- * @note Hack -- Total Redraw 
+ * @note Hack -- Total Redraw
  */
-#define PR_WIPE	 0x08000000L     
+#define PR_WIPE	 0x08000000L
 /** @def PR_MH
- * @note Display Monster hitpoints 
+ * @note Display Monster hitpoints
  */
-#define PR_MH	   0x10000000L     
+#define PR_MH	   0x10000000L
 /** @def PR_MH
- * @note Display Monster hitpoints 
+ * @note Display Monster hitpoints
  */
-#define PR_MH	   0x10000000L     
+#define PR_MH	   0x10000000L
 /** @def PR_DTRAP
- * @note Display Extra (DTrap) 
+ * @note Display Extra (DTrap)
  */
-#define PR_DTRAP	0x20000000L     
+#define PR_DTRAP	0x20000000L
 /* xxx */
 /* xxx */
 /** @} */
@@ -425,54 +425,54 @@ extern s32b player_exp[PY_MAX_LEVEL];
  * @brief Bit flags for the "p_ptr->window" variable (etc)
  * @{ */
 /** @def PW_INVEN
- * @note Display inven/equip 
+ * @note Display inven/equip
  */
-#define PW_INVEN	0x00000001L     
+#define PW_INVEN	0x00000001L
 /** @def PW_EQUIP
- * @note Display equip/inven 
+ * @note Display equip/inven
  */
-#define PW_EQUIP	0x00000002L     
+#define PW_EQUIP	0x00000002L
 /* xxx */
 /** @def PW_PLAYER
- * @note Display character 
+ * @note Display character
  */
-#define PW_PLAYER       0x00000008L     
+#define PW_PLAYER       0x00000008L
 /** @def PW_M_LIST
- * @note Show monster list 
+ * @note Show monster list
  */
-#define PW_M_LIST       0x00000010L 
+#define PW_M_LIST       0x00000010L
 /* xxx */
 /** @def PW_MESSAGE
- * @note Display messages 
+ * @note Display messages
  */
-#define PW_MESSAGE      0x00000040L     
+#define PW_MESSAGE      0x00000040L
 /** @def PW_OVERHEAD
- * @note Display overhead view 
+ * @note Display overhead view
  */
-#define PW_OVERHEAD     0x00000080L     
+#define PW_OVERHEAD     0x00000080L
 /** @def PW_MONSTER
- * @note Display monster recall 
+ * @note Display monster recall
  */
-#define PW_MONSTER      0x00000100L     
+#define PW_MONSTER      0x00000100L
 /** @def PW_OBJECT
- * @note Display object recall 
+ * @note Display object recall
  */
-#define PW_OBJECT       0x00000200L     
+#define PW_OBJECT       0x00000200L
 /* xxx */
 /** @def PW_SNAPSHOT
- * @note Display snap-shot 
+ * @note Display snap-shot
  */
-#define PW_SNAPSHOT     0x00000800L     
+#define PW_SNAPSHOT     0x00000800L
 /* xxx */
 /* xxx */
 /** @def PW_BORG_1
- * @note Display borg messages 
+ * @note Display borg messages
  */
-#define PW_BORG_1       0x00004000L     
+#define PW_BORG_1       0x00004000L
 /** @def PW_BORG_2
- * @note Display borg status 
+ * @note Display borg status
  */
-#define PW_BORG_2       0x00008000L     
+#define PW_BORG_2       0x00008000L
 /** @} */
 
 /** @struct deity_type
@@ -521,65 +521,65 @@ struct player_type
 {
 	/** @structvar lives
 	 * @brief Number
-	 * @note How many times we resurected 
+	 * @note How many times we resurected
 	 */
 	s32b lives;
 
 	/** @structvar oldpy
 	 * @brief Number
-	 * @note Previous player location -KMW- 
+	 * @note Previous player location -KMW-
 	 */
 	s16b oldpy;
 	/** @structvar oldpx
 	 * @brief Number
-	 * @note Previous player location -KMW- 
+	 * @note Previous player location -KMW-
 	 */
 	s16b oldpx;
 
 	/** @structvar py
 	 * @brief Number
-	 * @note Player location 
+	 * @note Player location
 	 */
 	s16b py;
 	/** @structvar px
 	 * @brief Number
-	 * @note Player location 
+	 * @note Player location
 	 */
 	s16b px;
 
 	/** @structvar psex
 	 * @brief Number
-	 * @note Sex index 
+	 * @note Sex index
 	 */
 	byte psex;
 	/** @structvar prace
 	 * @brief Number
-	 * @note Race index 
+	 * @note Race index
 	 */
 	byte prace;
 	/** @structvar pracem
 	 * @brief Number
-	 * @note Race Mod index 
+	 * @note Race Mod index
 	 */
 	byte pracem;
 	/** @structvar pclass
 	 * @brief Number
-	 * @note Class index 
+	 * @note Class index
 	 */
 	byte pclass;
 	/** @structvar mimic_form
 	 * @brief Number
-	 * @note Actualy transformation 
+	 * @note Actualy transformation
 	 */
 	byte mimic_form;
 	/** @structvar mimic_level
 	 * @brief Number
-	 * @note Level of the mimic effect 
+	 * @note Level of the mimic effect
 	 */
 	s16b mimic_level;
 	/** @structvar oops
 	 * @brief Number
-	 * @note Unused 
+	 * @note Unused
 	 */
 	byte oops;
 
@@ -587,90 +587,90 @@ struct player_type
 
 	/** @structvar hitdie
 	 * @brief Number
-	 * @note Hit dice (sides) 
+	 * @note Hit dice (sides)
 	 */
 	byte hitdie;
 	/** @structvar expfact
 	 * @brief Number
-	 * @note Experience factor 
+	 * @note Experience factor
 	 */
 	u16b expfact;
 
 	/** @structvar allow_one_death
 	 * @brief Number
-	 * @note Blood of life 
+	 * @note Blood of life
 	 */
 	byte allow_one_death;
 
 	/** @structvar age
 	 * @brief Number
-	 * @note Characters age 
+	 * @note Characters age
 	 */
 	s16b age;
 	/** @structvar ht
 	 * @brief Number
-	 * @note Height 
+	 * @note Height
 	 */
 	s16b ht;
 	/** @structvar wt
 	 * @brief Number
-	 * @note Weight 
+	 * @note Weight
 	 */
 	s16b wt;
 	/** @structvar sc
 	 * @brief Number
-	 * @note Social Class 
+	 * @note Social Class
 	 */
 	s16b sc;
 
 
 	/** @structvar au
 	 * @brief Number
-	 * @note Current Gold 
+	 * @note Current Gold
 	 */
 	s32b au;
 
 	/** @structvar max_exp
 	 * @brief Number
-	 * @note Max experience 
+	 * @note Max experience
 	 */
 	s32b max_exp;
 	/** @structvar exp
 	 * @brief Number
-	 * @note Cur experience 
+	 * @note Cur experience
 	 */
 	s32b exp;
 	/** @structvar exp_frac
 	 * @brief Number
-	 * @note Cur exp frac (times 2^16) 
+	 * @note Cur exp frac (times 2^16)
 	 */
 	u16b exp_frac;
 
 	/** @structvar lev
 	 * @brief Number
-	 * @note Level 
+	 * @note Level
 	 */
 	s16b lev;
 
 	/** @structvar town_num
 	 * @brief Number
-	 * @note Current town number 
+	 * @note Current town number
 	 */
 	s16b town_num;
 	/** @structvar inside_quest
 	 * @brief Number
-	 * @note Inside quest level 
+	 * @note Inside quest level
 	 */
 	s16b inside_quest;
 	/** @structvar exit_bldg
 	 * @brief Boolean
-	 * @note Goal obtained in arena? -KMW- 
+	 * @note Goal obtained in arena? -KMW-
 	 */
 	bool exit_bldg;
 
 	/** @structvar wilderness_x
 	 * @brief Number
-	 * @note Coordinates in the wilderness 
+	 * @note Coordinates in the wilderness
 	 */
 	s32b wilderness_x;
 	/** @structvar wilderness_y
@@ -679,170 +679,170 @@ struct player_type
 	s32b wilderness_y;
 	/** @structvar wild_mode
 	 * @brief Boolean
-	 * @note TRUE = Small map, FLASE = Big map 
+	 * @note TRUE = Small map, FLASE = Big map
 	 */
 	bool wild_mode;
 	/** @structvar old_wild_mode
 	 * @brief Boolean
-	 * @note TRUE = Small map, FLASE = Big map 
+	 * @note TRUE = Small map, FLASE = Big map
 	 */
 	bool old_wild_mode;
 
 	/** @structvar mhp
 	 * @brief Number
-	 * @note Max hit pts 
+	 * @note Max hit pts
 	 */
 	s16b mhp;
 	/** @structvar chp
 	 * @brief Number
-	 * @note Cur hit pts 
+	 * @note Cur hit pts
 	 */
 	s16b chp;
 	/** @structvar chp_frac
 	 * @brief Number
-	 * @note Cur hit frac (times 2^16) 
+	 * @note Cur hit frac (times 2^16)
 	 */
 	u16b chp_frac;
 	/** @structvar hp_mod
 	 * @brief Number
-	 * @note A modificator(permanent) 
+	 * @note A modificator(permanent)
 	 */
 	s16b hp_mod;
 
 	/** @structvar msp
 	 * @brief Number
-	 * @note Max mana pts 
+	 * @note Max mana pts
 	 */
 	s16b msp;
 	/** @structvar csp
 	 * @brief Number
-	 * @note Cur mana pts 
+	 * @note Cur mana pts
 	 */
 	s16b csp;
 	/** @structvar csp_frac
 	 * @brief Number
-	 * @note Cur mana frac (times 2^16) 
+	 * @note Cur mana frac (times 2^16)
 	 */
 	u16b csp_frac;
 
 	/** @structvar msane
 	 * @brief Number
-	 * @note Max sanity 
+	 * @note Max sanity
 	 */
 	s16b msane;
 	/** @structvar csane
 	 * @brief Number
-	 * @note Cur sanity 
+	 * @note Cur sanity
 	 */
 	s16b csane;
 	/** @structvar csane_frac
 	 * @brief Number
-	 * @note Cur sanity frac 
+	 * @note Cur sanity frac
 	 */
 	u16b csane_frac;
 
 	/** @structvar grace
 	 * @brief Number
-	 * @note Your God's appreciation factor. 
+	 * @note Your God's appreciation factor.
 	 */
 	s32b grace;
 	/** @structvar pgod
 	 * @brief Number
-	 * @note Your God. 
+	 * @note Your God.
 	 */
 	byte pgod;
 	/** @structvar praying
 	 * @brief Boolean
-	 * @note Praying to your god. 
+	 * @note Praying to your god.
 	 */
 	bool praying;
 
 	/** @structvar max_plv
 	 * @brief Number
-	 * @note Max Player Level 
+	 * @note Max Player Level
 	 */
 	s16b max_plv;
 
 	/** @structvar stat_max[6]
 	 * @brief Number
-	 * @note Current "maximal" stat values 
+	 * @note Current "maximal" stat values
 	 */
 	s16b stat_max[6];
 	/** @structvar stat_cur[6]
 	 * @brief Number
-	 * @note Current "natural" stat values 
+	 * @note Current "natural" stat values
 	 */
 	s16b stat_cur[6];
 
 	/** @structvar luck_cur
 	 * @brief Number
-	 * @note Current "natural" luck value (range -30 <> 30) 
+	 * @note Current "natural" luck value (range -30 <> 30)
 	 */
 	s16b luck_cur;
 	/** @structvar luck_max
 	 * @brief Number
-	 * @note Current "maximal base" luck value (range -30 <> 30) 
+	 * @note Current "maximal base" luck value (range -30 <> 30)
 	 */
 	s16b luck_max;
 	/** @structvar luck_base
 	 * @brief Number
-	 * @note Current "base" luck value (range -30 <> 30) 
+	 * @note Current "base" luck value (range -30 <> 30)
 	 */
 	s16b luck_base;
 
 	/** @structvar fast
 	 * @brief Number
-	 * @note Timed -- Fast 
+	 * @note Timed -- Fast
 	 */
 	s16b fast;
 	/** @structvar lightspeed
 	 * @brief Number
-	 * @note Timed -- Light Speed 
+	 * @note Timed -- Light Speed
 	 */
 	s16b lightspeed;
 	/** @structvar slow
 	 * @brief Number
-	 * @note Timed -- Slow 
+	 * @note Timed -- Slow
 	 */
 	s16b slow;
 	/** @structvar blind
 	 * @brief Number
-	 * @note Timed -- Blindness 
+	 * @note Timed -- Blindness
 	 */
 	s16b blind;
 	/** @structvar paralyzed
 	 * @brief Number
-	 * @note Timed -- Paralysis 
+	 * @note Timed -- Paralysis
 	 */
 	s16b paralyzed;
 	/** @structvar confused
 	 * @brief Number
-	 * @note Timed -- Confusion 
+	 * @note Timed -- Confusion
 	 */
 	s16b confused;
 	/** @structvar afraid
 	 * @brief Number
-	 * @note Timed -- Fear 
+	 * @note Timed -- Fear
 	 */
 	s16b afraid;
 	/** @structvar image
 	 * @brief Number
-	 * @note Timed -- Hallucination 
+	 * @note Timed -- Hallucination
 	 */
 	s16b image;
 	/** @structvar poisoned
 	 * @brief Number
-	 * @note Timed -- Poisoned 
+	 * @note Timed -- Poisoned
 	 */
 	s16b poisoned;
 	/** @structvar cut
 	 * @brief Number
-	 * @note Timed -- Cut 
+	 * @note Timed -- Cut
 	 */
 	s16b cut;
 	/** @structvar stun
 	 * @brief Number
-	 * @note Timed -- Stun 
+	 * @note Timed -- Stun
 	 */
 	s16b stun;
 
@@ -863,236 +863,236 @@ struct player_type
 	s16b protundead;
 	/** @structvar invuln
 	 * @brief Number
-	 * @note Timed -- Invulnerable 
+	 * @note Timed -- Invulnerable
 	 */
 	s16b invuln;
 	/** @structvar hero
 	 * @brief Number
-	 * @note Timed -- Heroism 
+	 * @note Timed -- Heroism
 	 */
 	s16b hero;
 	/** @structvar shero
 	 * @brief Number
-	 * @note Timed -- Super Heroism 
+	 * @note Timed -- Super Heroism
 	 */
 	s16b shero;
 	/** @structvar shield
 	 * @brief Number
-	 * @note Timed -- Shield Spell 
+	 * @note Timed -- Shield Spell
 	 */
 	s16b shield;
 	/** @structvar shield_power
 	 * @brief Number
-	 * @note Timed -- Shield Spell Power 
+	 * @note Timed -- Shield Spell Power
 	 */
 	s16b shield_power;
 	/** @structvar shield_opt
 	 * @brief Number
-	 * @note Timed -- Shield Spell options 
+	 * @note Timed -- Shield Spell options
 	 */
 	s16b shield_opt;
 	/** @structvar blessed
 	 * @brief Number
-	 * @note Timed -- Blessed 
+	 * @note Timed -- Blessed
 	 */
 	s16b blessed;
 	/** @structvar tim_invis
 	 * @brief Number
-	 * @note Timed -- See Invisible 
+	 * @note Timed -- See Invisible
 	 */
 	s16b tim_invis;
 	/** @structvar tim_infra
 	 * @brief Number
-	 * @note Timed -- Infra Vision 
+	 * @note Timed -- Infra Vision
 	 */
 	s16b tim_infra;
 
 	/** @structvar oppose_acid
 	 * @brief Number
-	 * @note Timed -- oppose acid 
+	 * @note Timed -- oppose acid
 	 */
 	s16b oppose_acid;
 	/** @structvar oppose_elec
 	 * @brief Number
-	 * @note Timed -- oppose lightning 
+	 * @note Timed -- oppose lightning
 	 */
 	s16b oppose_elec;
 	/** @structvar oppose_fire
 	 * @brief Number
-	 * @note Timed -- oppose heat 
+	 * @note Timed -- oppose heat
 	 */
 	s16b oppose_fire;
 	/** @structvar oppose_cold
 	 * @brief Number
-	 * @note Timed -- oppose cold 
+	 * @note Timed -- oppose cold
 	 */
 	s16b oppose_cold;
 	/** @structvar oppose_pois
 	 * @brief Number
-	 * @note Timed -- oppose poison 
+	 * @note Timed -- oppose poison
 	 */
 	s16b oppose_pois;
 	/** @structvar oppose_ld
 	 * @brief Number
-	 * @note Timed -- oppose light & dark 
+	 * @note Timed -- oppose light & dark
 	 */
 	s16b oppose_ld;
 	/** @structvar oppose_cc
 	 * @brief Number
-	 * @note Timed -- oppose chaos & confusion 
+	 * @note Timed -- oppose chaos & confusion
 	 */
 	s16b oppose_cc;
 	/** @structvar oppose_ss
 	 * @brief Number
-	 * @note Timed -- oppose sound & shards 
+	 * @note Timed -- oppose sound & shards
 	 */
 	s16b oppose_ss;
 	/** @structvar oppose_nex
 	 * @brief Number
-	 * @note Timed -- oppose nexus 
+	 * @note Timed -- oppose nexus
 	 */
 	s16b oppose_nex;
 
 
 	/** @structvar tim_esp
 	 * @brief Number
-	 * @note Timed ESP 
+	 * @note Timed ESP
 	 */
 	s16b tim_esp;
 	/** @structvar tim_wraith
 	 * @brief Number
-	 * @note Timed wraithform 
+	 * @note Timed wraithform
 	 */
 	s16b tim_wraith;
 	/** @structvar tim_ffall
 	 * @brief Number
-	 * @note Timed Levitation 
+	 * @note Timed Levitation
 	 */
 	s16b tim_ffall;
 	/** @structvar tim_fly
 	 * @brief Number
-	 * @note Timed Levitation 
+	 * @note Timed Levitation
 	 */
 	s16b tim_fly;
 	/** @structvar tim_fire_aura
 	 * @brief Number
-	 * @note Timed Fire Aura 
+	 * @note Timed Fire Aura
 	 */
 	s16b tim_fire_aura;
 	/** @structvar tim_regen
 	 * @brief Number
-	 * @note Timed regen 
+	 * @note Timed regen
 	 */
 	s16b tim_regen;
 	/** @structvar tim_regen_pow
 	 * @brief Number
-	 * @note Timed regen 
+	 * @note Timed regen
 	 */
 	s16b tim_regen_pow;
 	/** @structvar tim_poison
 	 * @brief Number
-	 * @note Timed poison hands 
+	 * @note Timed poison hands
 	 */
 	s16b tim_poison;
 	/** @structvar tim_thunder
 	 * @brief Number
-	 * @note Timed thunderstorm 
+	 * @note Timed thunderstorm
 	 */
 	s16b tim_thunder;
 	/** @structvar tim_thunder_p1
 	 * @brief Number
-	 * @note Timed thunderstorm 
+	 * @note Timed thunderstorm
 	 */
 	s16b tim_thunder_p1;
 	/** @structvar tim_thunder_p2
 	 * @brief Number
-	 * @note Timed thunderstorm 
+	 * @note Timed thunderstorm
 	 */
 	s16b tim_thunder_p2;
 
 	/** @structvar resist_magic
 	 * @brief Number
-	 * @note Timed Resist Magic (later) 
+	 * @note Timed Resist Magic (later)
 	 */
 	s16b resist_magic;
 	/** @structvar tim_invisible
 	 * @brief Number
-	 * @note Timed Invisibility 
+	 * @note Timed Invisibility
 	 */
 	s16b tim_invisible;
 	/** @structvar tim_inv_pow
 	 * @brief Number
-	 * @note Power of timed invisibility 
+	 * @note Power of timed invisibility
 	 */
 	s16b tim_inv_pow;
 	/** @structvar tim_mimic
 	 * @brief Number
-	 * @note Timed Mimic 
+	 * @note Timed Mimic
 	 */
 	s16b tim_mimic;
 	/** @structvar tim_lite
 	 * @brief Number
-	 * @note Timed Lite 
+	 * @note Timed Lite
 	 */
 	s16b tim_lite;
 	/** @structvar holy
 	 * @brief Number
-	 * @note Holy Aura 
+	 * @note Holy Aura
 	 */
 	s16b holy;
 	/** @structvar walk_water
 	 * @brief Number
-	 * @note Walk over water as a god 
+	 * @note Walk over water as a god
 	 */
 	s16b walk_water;
 	/** @structvar tim_mental_barrier
 	 * @brief Number
-	 * @note Sustain Int&Wis 
+	 * @note Sustain Int&Wis
 	 */
 	s16b tim_mental_barrier;
 	/** @structvar strike
 	 * @brief Number
-	 * @note True Strike(+25 hit) 
+	 * @note True Strike(+25 hit)
 	 */
 	s16b strike;
 	/** @structvar meditation
 	 * @brief Number
-	 * @note Meditation(+50 mana -25 to hit/to dam) 
+	 * @note Meditation(+50 mana -25 to hit/to dam)
 	 */
 	s16b meditation;
 	/** @structvar tim_reflect
 	 * @brief Number
-	 * @note Timed Reflection 
+	 * @note Timed Reflection
 	 */
 	s16b tim_reflect;
 	/** @structvar tim_res_time
 	 * @brief Number
-	 * @note Timed Resistance to Time 
+	 * @note Timed Resistance to Time
 	 */
 	s16b tim_res_time;
 	/** @structvar tim_deadly
 	 * @brief Number
-	 * @note Timed deadly blow 
+	 * @note Timed deadly blow
 	 */
 	s16b tim_deadly;
 	/** @structvar prob_travel
 	 * @brief Number
-	 * @note Timed probability travel 
+	 * @note Timed probability travel
 	 */
 	s16b prob_travel;
 	/** @structvar disrupt_shield
 	 * @brief Number
-	 * @note Timed disruption shield 
+	 * @note Timed disruption shield
 	 */
 	s16b disrupt_shield;
 	/** @structvar parasite
 	 * @brief Number
-	 * @note Timed parasite 
+	 * @note Timed parasite
 	 */
 	s16b parasite;
 	/** @structvar parasite_r_idx
 	 * @brief Number
-	 * @note Timed parasite monster 
+	 * @note Timed parasite monster
 	 */
 	s16b parasite_r_idx;
 	/** @structvar loan
@@ -1101,34 +1101,34 @@ struct player_type
 	u32b loan;
 	/** @structvar loan_time
 	 * @brief Number
-	 * @note Timer -- loan 
+	 * @note Timer -- loan
 	 */
 	u32b loan_time;
 	/** @structvar tim_magic_breath
 	 * @brief Number
-	 * @note Magical breathing -- can breath anywhere 
+	 * @note Magical breathing -- can breath anywhere
 	 */
 	s16b tim_magic_breath;
 	/** @structvar tim_water_breath
 	 * @brief Number
-	 * @note Water breathing -- can breath underwater 
+	 * @note Water breathing -- can breath underwater
 	 */
 	s16b tim_water_breath;
 
 	/** @structvar immov_cntr
 	 * @brief Number
-	 * @note Timed -- Last ``immovable'' command. 
+	 * @note Timed -- Last ``immovable'' command.
 	 */
 	s16b immov_cntr;
 
 	/** @structvar music_extra
 	 * @brief Number
-	 * @note Music songs 
+	 * @note Music songs
 	 */
 	u32b music_extra;
 	/** @structvar music_extra2
 	 * @brief Number
-	 * @note Music songs 
+	 * @note Music songs
 	 */
 	u32b music_extra2;
 
@@ -1139,41 +1139,41 @@ struct player_type
 
 	/** @structvar recall_dungeon
 	 * @brief Number
-	 * @note Recall in which dungeon 
+	 * @note Recall in which dungeon
 	 */
 	s16b recall_dungeon;
 	/** @structvar word_recall
 	 * @brief Number
-	 * @note Word of recall counter 
+	 * @note Word of recall counter
 	 */
 	s16b word_recall;
 
 	/** @structvar energy
 	 * @brief Number
-	 * @note Current energy 
+	 * @note Current energy
 	 */
 	s32b energy;
 
 	/** @structvar food
 	 * @brief Number
-	 * @note Current nutrition 
+	 * @note Current nutrition
 	 */
 	s16b food;
 
 	/** @structvar confusing
 	 * @brief Number
-	 * @note Glowing hands 
+	 * @note Glowing hands
 	 */
 	byte confusing;
 	/** @structvar searching
 	 * @brief Number
-	 * @note Currently searching 
+	 * @note Currently searching
 	 */
 	byte searching;
 
 	/** @structvar new_spells
 	 * @brief Number
-	 * @note Number of spells available 
+	 * @note Number of spells available
 	 */
 	s16b new_spells;
 
@@ -1184,13 +1184,13 @@ struct player_type
 
 	/** @structvar xtra_spells
 	 * @brief Number
-	 * @note Number of xtra spell learned(via potion) 
+	 * @note Number of xtra spell learned(via potion)
 	 */
 	s16b xtra_spells;
 
 	/** @structvar cur_lite
 	 * @brief Number
-	 * @note Radius of lite (if any) 
+	 * @note Radius of lite (if any)
 	 */
 	s16b cur_lite;
 
@@ -1222,510 +1222,510 @@ struct player_type
 
 	/** @structvar pspeed
 	 * @brief Number
-	 * @note Current speed 
+	 * @note Current speed
 	 */
 	s16b pspeed;
 
 	/** @structvar notice
 	 * @brief Number
-	 * @note Special Updates (bit flags) 
+	 * @note Special Updates (bit flags)
 	 */
 	u32b notice;
 	/** @structvar update
 	 * @brief Number
-	 * @note Pending Updates (bit flags) 
+	 * @note Pending Updates (bit flags)
 	 */
 	u32b update;
 	/** @structvar redraw
 	 * @brief Number
-	 * @note Normal Redraws (bit flags) 
+	 * @note Normal Redraws (bit flags)
 	 */
 	u32b redraw;
 	/** @structvar window
 	 * @brief Number
-	 * @note Window Redraws (bit flags) 
+	 * @note Window Redraws (bit flags)
 	 */
 	u32b window;
 
 	/** @structvar stat_use[6]
 	 * @brief Number
-	 * @note Current modified stats 
+	 * @note Current modified stats
 	 */
 	s16b stat_use[6];
 	/** @structvar stat_top[6]
 	 * @brief Number
-	 * @note Maximal modified stats 
+	 * @note Maximal modified stats
 	 */
 	s16b stat_top[6];
 
 	/** @structvar stat_add[6]
 	 * @brief Number
-	 * @note Modifiers to stat values 
+	 * @note Modifiers to stat values
 	 */
 	s16b stat_add[6];
 	/** @structvar stat_ind[6]
 	 * @brief Number
-	 * @note Indexes into stat tables 
+	 * @note Indexes into stat tables
 	 */
 	s16b stat_ind[6];
 	/** @structvar stat_cnt[6]
 	 * @brief Number
-	 * @note Counter for temporary drains 
+	 * @note Counter for temporary drains
 	 */
 	s16b stat_cnt[6];
 	/** @structvar stat_los[6]
 	 * @brief Number
-	 * @note Amount of temporary drains 
+	 * @note Amount of temporary drains
 	 */
 	s16b stat_los[6];
 
 	/** @structvar immune_acid
 	 * @brief Boolean
-	 * @note Immunity to acid 
+	 * @note Immunity to acid
 	 */
 	bool immune_acid;
 	/** @structvar immune_elec
 	 * @brief Boolean
-	 * @note Immunity to lightning 
+	 * @note Immunity to lightning
 	 */
 	bool immune_elec;
 	/** @structvar immune_fire
 	 * @brief Boolean
-	 * @note Immunity to fire 
+	 * @note Immunity to fire
 	 */
 	bool immune_fire;
 	/** @structvar immune_cold
 	 * @brief Boolean
-	 * @note Immunity to cold 
+	 * @note Immunity to cold
 	 */
 	bool immune_cold;
 	/** @structvar immune_neth
 	 * @brief Boolean
-	 * @note Immunity to nether 
+	 * @note Immunity to nether
 	 */
 	bool immune_neth;
 
 	/** @structvar resist_acid
 	 * @brief Boolean
-	 * @note Resist acid 
+	 * @note Resist acid
 	 */
 	bool resist_acid;
 	/** @structvar resist_elec
 	 * @brief Boolean
-	 * @note Resist lightning 
+	 * @note Resist lightning
 	 */
 	bool resist_elec;
 	/** @structvar resist_fire
 	 * @brief Boolean
-	 * @note Resist fire 
+	 * @note Resist fire
 	 */
 	bool resist_fire;
 	/** @structvar resist_cold
 	 * @brief Boolean
-	 * @note Resist cold 
+	 * @note Resist cold
 	 */
 	bool resist_cold;
 	/** @structvar resist_pois
 	 * @brief Boolean
-	 * @note Resist poison 
+	 * @note Resist poison
 	 */
 	bool resist_pois;
 
 	/** @structvar resist_conf
 	 * @brief Boolean
-	 * @note Resist confusion 
+	 * @note Resist confusion
 	 */
 	bool resist_conf;
 	/** @structvar resist_sound
 	 * @brief Boolean
-	 * @note Resist sound 
+	 * @note Resist sound
 	 */
 	bool resist_sound;
 	/** @structvar resist_lite
 	 * @brief Boolean
-	 * @note Resist light 
+	 * @note Resist light
 	 */
 	bool resist_lite;
 	/** @structvar resist_dark
 	 * @brief Boolean
-	 * @note Resist darkness 
+	 * @note Resist darkness
 	 */
 	bool resist_dark;
 	/** @structvar resist_chaos
 	 * @brief Boolean
-	 * @note Resist chaos 
+	 * @note Resist chaos
 	 */
 	bool resist_chaos;
 	/** @structvar resist_disen
 	 * @brief Boolean
-	 * @note Resist disenchant 
+	 * @note Resist disenchant
 	 */
 	bool resist_disen;
 	/** @structvar resist_shard
 	 * @brief Boolean
-	 * @note Resist shards 
+	 * @note Resist shards
 	 */
 	bool resist_shard;
 	/** @structvar resist_nexus
 	 * @brief Boolean
-	 * @note Resist nexus 
+	 * @note Resist nexus
 	 */
 	bool resist_nexus;
 	/** @structvar resist_blind
 	 * @brief Boolean
-	 * @note Resist blindness 
+	 * @note Resist blindness
 	 */
 	bool resist_blind;
 	/** @structvar resist_neth
 	 * @brief Boolean
-	 * @note Resist nether 
+	 * @note Resist nether
 	 */
 	bool resist_neth;
 	/** @structvar resist_fear
 	 * @brief Boolean
-	 * @note Resist fear 
+	 * @note Resist fear
 	 */
 	bool resist_fear;
 	/** @structvar resist_continuum
 	 * @brief Boolean
-	 * @note Resist space-time continuum disruption 
+	 * @note Resist space-time continuum disruption
 	 */
 	bool resist_continuum;
 
 	/** @structvar sensible_fire
 	 * @brief Boolean
-	 * @note Fire does more damage on the player 
+	 * @note Fire does more damage on the player
 	 */
 	bool sensible_fire;
 	/** @structvar sensible_lite
 	 * @brief Boolean
-	 * @note Lite does more damage on the player and blinds her/him 
+	 * @note Lite does more damage on the player and blinds her/him
 	 */
 	bool sensible_lite;
 
 	/** @structvar reflect
 	 * @brief Boolean
-	 * @note Reflect 'bolt' attacks 
+	 * @note Reflect 'bolt' attacks
 	 */
 	bool reflect;
 	/** @structvar sh_fire
 	 * @brief Boolean
-	 * @note Fiery 'immolation' effect 
+	 * @note Fiery 'immolation' effect
 	 */
 	bool sh_fire;
 	/** @structvar sh_elec
 	 * @brief Boolean
-	 * @note Electric 'immolation' effect 
+	 * @note Electric 'immolation' effect
 	 */
 	bool sh_elec;
 	/** @structvar wraith_form
 	 * @brief Boolean
-	 * @note wraithform 
+	 * @note wraithform
 	 */
 	bool wraith_form;
 
 	/** @structvar anti_magic
 	 * @brief Boolean
-	 * @note Anti-magic 
+	 * @note Anti-magic
 	 */
 	bool anti_magic;
 	/** @structvar anti_tele
 	 * @brief Boolean
-	 * @note Prevent teleportation 
+	 * @note Prevent teleportation
 	 */
 	bool anti_tele;
 
 	/** @structvar sustain_str
 	 * @brief Boolean
-	 * @note Keep strength 
+	 * @note Keep strength
 	 */
 	bool sustain_str;
 	/** @structvar sustain_int
 	 * @brief Boolean
-	 * @note Keep intelligence 
+	 * @note Keep intelligence
 	 */
 	bool sustain_int;
 	/** @structvar sustain_wis
 	 * @brief Boolean
-	 * @note Keep wisdom 
+	 * @note Keep wisdom
 	 */
 	bool sustain_wis;
 	/** @structvar sustain_dex
 	 * @brief Boolean
-	 * @note Keep dexterity 
+	 * @note Keep dexterity
 	 */
 	bool sustain_dex;
 	/** @structvar sustain_con
 	 * @brief Boolean
-	 * @note Keep constitution 
+	 * @note Keep constitution
 	 */
 	bool sustain_con;
 	/** @structvar sustain_chr
 	 * @brief Boolean
-	 * @note Keep charisma 
+	 * @note Keep charisma
 	 */
 	bool sustain_chr;
 
 	/** @structvar aggravate
 	 * @brief Boolean
-	 * @note Aggravate monsters 
+	 * @note Aggravate monsters
 	 */
 	bool aggravate;
 	/** @structvar teleport
 	 * @brief Boolean
-	 * @note Random teleporting 
+	 * @note Random teleporting
 	 */
 	bool teleport;
 
 	/** @structvar exp_drain
 	 * @brief Boolean
-	 * @note Experience draining 
+	 * @note Experience draining
 	 */
 	bool exp_drain;
 	/** @structvar drain_mana
 	 * @brief Number
-	 * @note mana draining 
+	 * @note mana draining
 	 */
 	byte drain_mana;
 	/** @structvar drain_life
 	 * @brief Number
-	 * @note hp draining 
+	 * @note hp draining
 	 */
 	byte drain_life;
 
 	/** @structvar magical_breath
 	 * @brief Boolean
-	 * @note Magical breathing -- can breath anywhere 
+	 * @note Magical breathing -- can breath anywhere
 	 */
 	bool magical_breath;
 	/** @structvar water_breath
 	 * @brief Boolean
-	 * @note Water breathing -- can breath underwater 
+	 * @note Water breathing -- can breath underwater
 	 */
 	bool water_breath;
 	/** @structvar climb
 	 * @brief Boolean
-	 * @note Can climb mountains 
+	 * @note Can climb mountains
 	 */
 	bool climb;
 	/** @structvar fly
 	 * @brief Boolean
-	 * @note Can fly over some features 
+	 * @note Can fly over some features
 	 */
 	bool fly;
 	/** @structvar ffall
 	 * @brief Boolean
-	 * @note No damage falling 
+	 * @note No damage falling
 	 */
 	bool ffall;
 	/** @structvar lite
 	 * @brief Boolean
-	 * @note Permanent light 
+	 * @note Permanent light
 	 */
 	bool lite;
 	/** @structvar free_act
 	 * @brief Boolean
-	 * @note Never paralyzed 
+	 * @note Never paralyzed
 	 */
 	bool free_act;
 	/** @structvar see_inv
 	 * @brief Boolean
-	 * @note Can see invisible 
+	 * @note Can see invisible
 	 */
 	bool see_inv;
 	/** @structvar regenerate
 	 * @brief Boolean
-	 * @note Regenerate hit pts 
+	 * @note Regenerate hit pts
 	 */
 	bool regenerate;
 	/** @structvar hold_life
 	 * @brief Boolean
-	 * @note Resist life draining 
+	 * @note Resist life draining
 	 */
 	bool hold_life;
 	/** @structvar telepathy
 	 * @brief Number
-	 * @note Telepathy 
+	 * @note Telepathy
 	 */
 	u32b telepathy;
 	/** @structvar slow_digest
 	 * @brief Boolean
-	 * @note Slower digestion 
+	 * @note Slower digestion
 	 */
 	bool slow_digest;
 	/** @structvar bless_blade
 	 * @brief Boolean
-	 * @note Blessed blade 
+	 * @note Blessed blade
 	 */
 	bool bless_blade;
 	/** @structvar xtra_might
 	 * @brief Number
-	 * @note Extra might bow 
+	 * @note Extra might bow
 	 */
 	byte xtra_might;
 	/** @structvar impact
 	 * @brief Boolean
-	 * @note Earthquake blows 
+	 * @note Earthquake blows
 	 */
 	bool impact;
 	/** @structvar auto_id
 	 * @brief Boolean
-	 * @note Auto id items 
+	 * @note Auto id items
 	 */
 	bool auto_id;
 
 	/** @structvar dis_to_h
 	 * @brief Number
-	 * @note Known bonus to hit 
+	 * @note Known bonus to hit
 	 */
 	s16b dis_to_h;
 	/** @structvar dis_to_d
 	 * @brief Number
-	 * @note Known bonus to dam 
+	 * @note Known bonus to dam
 	 */
 	s16b dis_to_d;
 	/** @structvar dis_to_a
 	 * @brief Number
-	 * @note Known bonus to ac 
+	 * @note Known bonus to ac
 	 */
 	s16b dis_to_a;
 
 	/** @structvar dis_ac
 	 * @brief Number
-	 * @note Known base ac 
+	 * @note Known base ac
 	 */
 	s16b dis_ac;
 
 	/** @structvar to_m
 	 * @brief Number
-	 * @note Bonus to mana 
+	 * @note Bonus to mana
 	 */
 	s16b to_m;
 	/** @structvar to_s
 	 * @brief Number
-	 * @note Bonus to spell 
+	 * @note Bonus to spell
 	 */
 	s16b to_s;
 	/** @structvar to_h
 	 * @brief Number
-	 * @note Bonus to hit 
+	 * @note Bonus to hit
 	 */
 	s16b to_h;
 	/** @structvar to_d
 	 * @brief Number
-	 * @note Bonus to dam 
+	 * @note Bonus to dam
 	 */
 	s16b to_d;
 	/** @structvar to_a
 	 * @brief Number
-	 * @note Bonus to ac 
+	 * @note Bonus to ac
 	 */
 	s16b to_a;
 
 	/** @structvar to_h_melee
 	 * @brief Number
-	 * @note Bonus to hit 
+	 * @note Bonus to hit
 	 */
 	s16b to_h_melee;
 	/** @structvar to_d_melee
 	 * @brief Number
-	 * @note Bonus to dam 
+	 * @note Bonus to dam
 	 */
 	s16b to_d_melee;
 
 	/** @structvar to_h_ranged
 	 * @brief Number
-	 * @note Bonus to hit 
+	 * @note Bonus to hit
 	 */
 	s16b to_h_ranged;
 	/** @structvar to_d_ranged
 	 * @brief Number
-	 * @note Bonus to dam 
+	 * @note Bonus to dam
 	 */
 	s16b to_d_ranged;
 
 	/** @structvar num_blow
 	 * @brief Number
-	 * @note Number of blows 
+	 * @note Number of blows
 	 */
 	s16b num_blow;
 	/** @structvar num_fire
 	 * @brief Number
-	 * @note Number of shots 
+	 * @note Number of shots
 	 */
 	s16b num_fire;
 
 	/** @structvar ac
 	 * @brief Number
-	 * @note Base ac 
+	 * @note Base ac
 	 */
 	s16b ac;
 
 	/** @structvar antimagic
 	 * @brief Number
-	 * @note Power of the anti magic field 
+	 * @note Power of the anti magic field
 	 */
 	byte antimagic;
 	/** @structvar antimagic_dis
 	 * @brief Number
-	 * @note Radius of the anti magic field 
+	 * @note Radius of the anti magic field
 	 */
 	byte antimagic_dis;
 
 	/** @structvar see_infra
 	 * @brief Number
-	 * @note Infravision range 
+	 * @note Infravision range
 	 */
 	s16b see_infra;
 
 	/** @structvar skill_dis
 	 * @brief Number
-	 * @note Skill: Disarming 
+	 * @note Skill: Disarming
 	 */
 	s16b skill_dis;
 	/** @structvar skill_dev
 	 * @brief Number
-	 * @note Skill: Magic Devices 
+	 * @note Skill: Magic Devices
 	 */
 	s16b skill_dev;
 	/** @structvar skill_sav
 	 * @brief Number
-	 * @note Skill: Saving throw 
+	 * @note Skill: Saving throw
 	 */
 	s16b skill_sav;
 	/** @structvar skill_stl
 	 * @brief Number
-	 * @note Skill: Stealth factor 
+	 * @note Skill: Stealth factor
 	 */
 	s16b skill_stl;
 	/** @structvar skill_srh
 	 * @brief Number
-	 * @note Skill: Searching ability 
+	 * @note Skill: Searching ability
 	 */
 	s16b skill_srh;
 	/** @structvar skill_fos
 	 * @brief Number
-	 * @note Skill: Searching frequency 
+	 * @note Skill: Searching frequency
 	 */
 	s16b skill_fos;
 	/** @structvar skill_thn
 	 * @brief Number
-	 * @note Skill: To hit (normal) 
+	 * @note Skill: To hit (normal)
 	 */
 	s16b skill_thn;
 	/** @structvar skill_thb
 	 * @brief Number
-	 * @note Skill: To hit (shooting) 
+	 * @note Skill: To hit (shooting)
 	 */
 	s16b skill_thb;
 	/** @structvar skill_tht
 	 * @brief Number
-	 * @note Skill: To hit (throwing) 
+	 * @note Skill: To hit (throwing)
 	 */
 	s16b skill_tht;
 	/** @structvar skill_dig
 	 * @brief Number
-	 * @note Skill: Digging 
+	 * @note Skill: Digging
 	 */
 	s16b skill_dig;
 
@@ -1736,39 +1736,45 @@ struct player_type
 
 	/** @structvar control
 	 * @brief Number
-	 * @note Controlled monster 
+	 * @note Controlled monster
 	 */
 	s16b control;
 	/** @structvar control_dir
 	 * @brief Number
-	 * @note Controlled monster 
+	 * @note Controlled monster
 	 */
 	byte control_dir;
 	/** @structvar companion_killed
 	 * @brief Number
-	 * @note Number of companion death 
+	 * @note Number of companion death
 	 */
 	s16b companion_killed;
 	/** @structvar black_breath
 	 * @brief Boolean
-	 * @note The Tolkien's Black Breath 
+	 * @note The Tolkien's Black Breath
 	 */
 	bool black_breath;
 	/** @structvar body_monster
 	 * @brief Number
-	 * @note In which body is the player 
+	 * @note In which body is the player
 	 */
 	u16b body_monster;
 
+	/** @structvar body_parts[28]
+	 * @brief Number
+	 * @note Various body modifiers
+	 */
+	byte body_parts[28];
+
 	/** @structvar extra_body_parts[BODY_MAX]
 	 * @brief Number
-	 * @note Various body modifiers 
+	 * @note Various body modifiers
 	 */
 	s16b extra_body_parts[BODY_MAX];
 
 	/** @structvar powers_mod[POWER_MAX_INIT]
 	 * @brief Boolean
-	 * @note Intrinsinc powers 
+	 * @note Intrinsinc powers
 	 */
 	bool powers_mod[POWER_MAX_INIT];
 	/** @structvar powers[power_max]
@@ -1778,17 +1784,17 @@ struct player_type
 
 	/** @structvar spellbinder_num
 	 * @brief Number
-	 * @note Number of spells bound 
+	 * @note Number of spells bound
 	 */
 	byte spellbinder_num;
 	/** @structvar spellbinder[4]
 	 * @brief Number
-	 * @note Spell bounds 
+	 * @note Spell bounds
 	 */
 	u32b spellbinder[4];
 	/** @structvar spellbinder_trigger
 	 * @brief Number
-	 * @note Spellbinder trigger condition 
+	 * @note Spellbinder trigger condition
 	 */
 	byte spellbinder_trigger;
 
@@ -1801,7 +1807,7 @@ struct player_type
 	/* Astral */
 	/** @structvar astral
 	 * @brief Boolean
-	 * @note We started at the bottom ? 
+	 * @note We started at the bottom ?
 	 */
 	bool astral;
 
@@ -1809,7 +1815,7 @@ struct player_type
 
 	/** @structvar leaving
 	 * @brief Boolean
-	 * @note True if player is leaving 
+	 * @note True if player is leaving
 	 */
 	bool leaving;
 };
@@ -1836,7 +1842,7 @@ struct player_race
 {
 	/** @structvar title
 	 * @brief Number
-	 * @note Type of race 
+	 * @note Type of race
 	 */
 	s32b title;
 	/** @structvar desc
@@ -1846,7 +1852,7 @@ struct player_race
 
 	/** @structvar infra
 	 * @brief Number
-	 * @note Infra-vision range 
+	 * @note Infra-vision range
 	 */
 	byte infra;
 };
@@ -1857,174 +1863,174 @@ struct player_race_mod
 {
 	/** @structvar title
 	 * @brief Number
-	 * @note Type of race mod 
+	 * @note Type of race mod
 	 */
 	s32b title;
 	/** @structvar desc
 	 * @brief Number
-	 * @note Desc 
+	 * @note Desc
 	 */
 	s32b desc;
 	/** @structvar place
 	 * @brief Boolean
-	 * @note TRUE = race race modifier, FALSE = Race modifier race 
+	 * @note TRUE = race race modifier, FALSE = Race modifier race
 	 */
 	bool place;
 
 	/** @structvar r_adj[6]
 	 * @brief Number
-	 * @note (+) Racial stat bonuses 
+	 * @note (+) Racial stat bonuses
 	 */
 	s16b r_adj[6];
 
 	/** @structvar luck
 	 * @brief String
-	 * @note Luck 
+	 * @note Luck
 	 */
 	char luck;
 	/** @structvar mana
 	 * @brief Number
-	 * @note Mana % 
+	 * @note Mana %
 	 */
 	s16b mana;
 
 	/** @structvar r_dis
 	 * @brief Number
-	 * @note (+) disarming 
+	 * @note (+) disarming
 	 */
 	s16b r_dis;
 	/** @structvar r_dev
 	 * @brief Number
-	 * @note (+) magic devices 
+	 * @note (+) magic devices
 	 */
 	s16b r_dev;
 	/** @structvar r_sav
 	 * @brief Number
-	 * @note (+) saving throw 
+	 * @note (+) saving throw
 	 */
 	s16b r_sav;
 	/** @structvar r_stl
 	 * @brief Number
-	 * @note (+) stealth 
+	 * @note (+) stealth
 	 */
 	s16b r_stl;
 	/** @structvar r_srh
 	 * @brief Number
-	 * @note (+) search ability 
+	 * @note (+) search ability
 	 */
 	s16b r_srh;
 	/** @structvar r_fos
 	 * @brief Number
-	 * @note (+) search frequency 
+	 * @note (+) search frequency
 	 */
 	s16b r_fos;
 	/** @structvar r_thn
 	 * @brief Number
-	 * @note (+) combat (normal) 
+	 * @note (+) combat (normal)
 	 */
 	s16b r_thn;
 	/** @structvar r_thb
 	 * @brief Number
-	 * @note (+) combat (shooting) 
+	 * @note (+) combat (shooting)
 	 */
 	s16b r_thb;
 
 	/** @structvar r_mhp
 	 * @brief String
-	 * @note (+) Race mod hit-dice modifier 
+	 * @note (+) Race mod hit-dice modifier
 	 */
 	char r_mhp;
 	/** @structvar r_exp
 	 * @brief Number
-	 * @note (+) Race mod experience factor 
+	 * @note (+) Race mod experience factor
 	 */
 	s16b r_exp;
 
 	/** @structvar b_age
 	 * @brief String
-	 * @note (+) base age 
+	 * @note (+) base age
 	 */
 	char b_age;
 	/** @structvar m_age
 	 * @brief String
-	 * @note (+) mod age 
+	 * @note (+) mod age
 	 */
 	char m_age;
 
 	/** @structvar m_b_ht
 	 * @brief String
-	 * @note (+) base height (males) 
+	 * @note (+) base height (males)
 	 */
 	char m_b_ht;
 	/** @structvar m_m_ht
 	 * @brief String
-	 * @note (+) mod height (males) 
+	 * @note (+) mod height (males)
 	 */
 	char m_m_ht;
 	/** @structvar m_b_wt
 	 * @brief String
-	 * @note (+) base weight (males) 
+	 * @note (+) base weight (males)
 	 */
 	char m_b_wt;
 	/** @structvar m_m_wt
 	 * @brief String
-	 * @note (+) mod weight (males) 
+	 * @note (+) mod weight (males)
 	 */
 	char m_m_wt;
 
 	/** @structvar f_b_ht
 	 * @brief String
-	 * @note (+) base height (females) 
+	 * @note (+) base height (females)
 	 */
 	char f_b_ht;
 	/** @structvar f_m_ht
 	 * @brief String
-	 * @note (+) mod height (females)   
+	 * @note (+) mod height (females)
 	 */
 	char f_m_ht;
 	/** @structvar f_b_wt
 	 * @brief String
-	 * @note (+) base weight (females) 
+	 * @note (+) base weight (females)
 	 */
 	char f_b_wt;
 	/** @structvar f_m_wt
 	 * @brief String
-	 * @note (+) mod weight (females) 
+	 * @note (+) mod weight (females)
 	 */
 	char f_m_wt;
 
 	/** @structvar infra
 	 * @brief String
-	 * @note (+) Infra-vision range 
+	 * @note (+) Infra-vision range
 	 */
 	char infra;
 
 	/** @structvar choice[2]
 	 * @brief Number
-	 * @note Legal race choices 
+	 * @note Legal race choices
 	 */
 	u32b choice[2];
 
 	/** @structvar pclass[2]
 	 * @brief Number
-	 * @note Classes allowed 
+	 * @note Classes allowed
 	 */
 	u32b pclass[2];
 	/** @structvar mclass[2]
 	 * @brief Number
-	 * @note Classes restricted 
+	 * @note Classes restricted
 	 */
 	u32b mclass[2];
 
 	/** @structvar powers[4]
 	 * @brief Number
-	 * @note Powers of the subrace 
+	 * @note Powers of the subrace
 	 */
 	s16b powers[4];
 
 	/** @structvar body_parts[BODY_MAX]
 	 * @brief String
-	 * @note To help to decide what to use when body changing 
+	 * @note To help to decide what to use when body changing
 	 */
 	char body_parts[BODY_MAX];
 
@@ -2034,7 +2040,7 @@ struct player_race_mod
 	u32b flags1;
 	/** @structvar flags2
 	 * @brief Number
-	 * @note flags 
+	 * @note flags
 	 */
 	u32b flags2;
 
@@ -2069,12 +2075,12 @@ struct player_race_mod
 
 	/** @structvar g_attr
 	 * @brief Number
-	 * @note Overlay graphic attribute 
+	 * @note Overlay graphic attribute
 	 */
 	byte g_attr;
 	/** @structvar g_char
 	 * @brief String
-	 * @note Overlay graphic character 
+	 * @note Overlay graphic character
 	 */
 	char g_char;
 
@@ -2947,29 +2953,29 @@ extern bool set_food(int v);
  * @brief Player "food" crucial values
  * @{ */
 /** @def PY_FOOD_MAX
- * @note Food value (Bloated) 
+ * @note Food value (Bloated)
  */
-#define PY_FOOD_MAX	     15000   
+#define PY_FOOD_MAX	     15000
 /** @def PY_FOOD_FULL
- * @note Food value (Normal) 
+ * @note Food value (Normal)
  */
-#define PY_FOOD_FULL    10000   
+#define PY_FOOD_FULL    10000
 /** @def PY_FOOD_ALERT
- * @note Food value (Hungry) 
+ * @note Food value (Hungry)
  */
-#define PY_FOOD_ALERT   2000    
+#define PY_FOOD_ALERT   2000
 /** @def PY_FOOD_WEAK
- * @note Food value (Weak) 
+ * @note Food value (Weak)
  */
-#define PY_FOOD_WEAK    1000    
+#define PY_FOOD_WEAK    1000
 /** @def PY_FOOD_FAINT
- * @note Food value (Fainting) 
+ * @note Food value (Fainting)
  */
-#define PY_FOOD_FAINT   500	     
+#define PY_FOOD_FAINT   500
 /** @def PY_FOOD_STARVE
- * @note Food value (Starving) 
+ * @note Food value (Starving)
  */
-#define PY_FOOD_STARVE  100	     
+#define PY_FOOD_STARVE  100
 /** @} */
 
 /** @fn check_experience(void)

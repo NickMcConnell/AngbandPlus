@@ -261,7 +261,7 @@ I:20:7:3
 W:50:0:250:700
 A:50/2
 P:0:1d8:0:0:0
-F:SHOW_MODS | TUNNEL
+F:TUNNEL
 f:TUNNEL
 D:This is a digging tool. Use it to dig in walls, destroy doors, or cut wood.
 
@@ -907,7 +907,7 @@ I:20:1:1
 W:1:0:60:10
 A:5/2
 P:0:1d2:0:0:0
-F:SHOW_MODS | TUNNEL
+F:TUNNEL
 f:TUNNEL
 D:A simple digging tool for shovelling away rubble and maybe even soft rock.
 
@@ -917,7 +917,7 @@ I:20:2:2
 W:20:0:60:100
 A:20/3
 P:0:1d2:0:0:0
-F:SHOW_MODS | TUNNEL
+F:TUNNEL
 f:TUNNEL
 D:Crafted by the gnomes, its design profits greatly from the gnomes' expertise
 D:honed in the burrowing of their hovels.
@@ -928,7 +928,7 @@ I:20:3:3
 W:40:0:120:200
 A:40/4
 P:0:1d3:0:0:0
-F:SHOW_MODS | TUNNEL
+F:TUNNEL
 f:TUNNEL
 D:The lighter digging tool used by dwarves to remove debris, but also good
 D:enough to clear away bits of rock when no pick is easily available.
@@ -939,7 +939,7 @@ I:20:4:1
 W:5:0:150:50
 A:10/2
 P:0:1d3:0:0:0
-F:SHOW_MODS | TUNNEL
+F:TUNNEL
 f:TUNNEL
 D:A heavy digging tool, primarily for earthworking, but also good for tunnelling
 D:through stone, if one is willing to perform the time-consuming labour.
@@ -950,7 +950,7 @@ I:20:5:2
 W:30:0:180:300
 A:30/3
 P:0:1d3:0:0:0
-F:SHOW_MODS | TUNNEL
+F:TUNNEL
 f:TUNNEL
 D:Although orcs tend to dig rather untidy mines and overcome difficulties in
 D:this work less by skill rather than mere stubbornness, they have amassed
@@ -962,7 +962,7 @@ I:20:6:3
 W:50:0:200:600
 A:50/4
 P:0:1d4:0:0:0
-F:SHOW_MODS | TUNNEL
+F:TUNNEL
 f:TUNNEL
 D:The dwarves, miners of legend, have made this pick, which is so expertly
 D:crafted that even weaklings can bore through solid rock with it.
@@ -1557,6 +1557,7 @@ G:=:d
 I:45:29:0
 W:20:0:2:500
 A:20/1
+F:HIDE_TYPE
 D:This ring makes your hands magically strong in combat, allowing you to inflict
 D:greater pain with your hand-to-hand attacks.
 
@@ -1565,6 +1566,7 @@ G:=:d
 I:45:28:0
 W:20:0:2:500
 A:20/1
+F:HIDE_TYPE
 D:This ring magically improves your control in combat, allowing you to hit more often.
 
 N:153:Protection

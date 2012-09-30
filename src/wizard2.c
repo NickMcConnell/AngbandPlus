@@ -1464,10 +1464,8 @@ void do_cmd_wiz_cure_all(void)
 	o_ptr = &p_ptr->inventory[INVEN_CARRY];
 	if (o_ptr->k_idx)
 	{
-		int max;
 		r_ptr = &r_info[o_ptr->pval];
-		max = maxroll(r_ptr->hdice, r_ptr->hside);
-		o_ptr->pval2 = max;
+		o_ptr->pval2 = o_ptr->pval3;
 	}
 
 	/* Restore mana */

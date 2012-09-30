@@ -3293,9 +3293,9 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 			if ((f_info[c_ptr->feat].flags1 & FF1_PERMANENT)) break;
 
 			if (((c_ptr->feat == FEAT_TREES) ||
-			                (c_ptr->feat == FEAT_SMALL_TREES) ||
-			                (f_info[c_ptr->feat].flags1 & FF1_FLOOR)) &&
-			                (rand_int(100) < 30))
+			     (c_ptr->feat == FEAT_SMALL_TREES) ||
+			     (f_info[c_ptr->feat].flags1 & FF1_FLOOR)) &&
+			    (rand_int(100) < 30))
 			{
 				/* Flow change */
 				if (c_ptr->feat == FEAT_TREES) p_ptr->update |= (PU_FLOW);
@@ -3303,7 +3303,8 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 				cave_set_feat(y, x, FEAT_ASH);
 
 				/* Silly thing to destroy trees when a yavanna worshipper */
-				inc_piety(GOD_YAVANNA, -50);
+				if (c_ptr->feat == FEAT_TREES || c_ptr->feat == FEAT_SMALL_TREES)
+					inc_piety(GOD_YAVANNA, -50);
 
 				/* Visibility change */
 				p_ptr->update |= (PU_VIEW | PU_MONSTERS | PU_MON_LITE);

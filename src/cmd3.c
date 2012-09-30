@@ -347,6 +347,19 @@ void do_cmd_wield(void)
 		}
 	}
 
+	/* Can we take off existing item */
+	if (slot != INVEN_AMMO)
+	{
+		if (p_ptr->inventory[slot].k_idx)
+			if (process_hooks(HOOK_TAKEOFF, "(d)", slot)) return;
+	}
+	else
+	{
+		if (p_ptr->inventory[slot].k_idx)
+			if (!object_similar(&p_ptr->inventory[slot], o_ptr))
+				if (process_hooks(HOOK_TAKEOFF, "(d)", slot)) return;
+	}
+
 	/* Take a turn */
 	energy_use = 100;
 
@@ -402,6 +415,7 @@ void do_cmd_wield(void)
 			}
 		}
 	}
+
 
 	/* Wear the new stuff */
 	object_copy(o_ptr, q_ptr);
@@ -760,8 +774,8 @@ void do_cmd_destroy(void)
 	}
 #endif
 	/*
-	 * Hack -- If rods or wand are destroyed, the total maximum timeout or 
-	 * charges of the stack needs to be reduced, unless all the items are 
+	 * Hack -- If rods or wand are destroyed, the total maximum timeout or
+	 * charges of the stack needs to be reduced, unless all the items are
 	 * being destroyed. -LM-
 	 */
 	if ((o_ptr->tval == TV_WAND) && (amt < o_ptr->number))

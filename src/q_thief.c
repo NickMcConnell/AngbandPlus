@@ -120,7 +120,7 @@ bool quest_thieves_finish_hook(char *fmt)
 
 	if (q_idx != QUEST_THIEVES) return FALSE;
 
-	c_put_str(TERM_YELLOW, "Thank you for killing the band of thieves!.", 8, 0);
+	c_put_str(TERM_YELLOW, "Thank you for killing the band of thieves!", 8, 0);
 	c_put_str(TERM_YELLOW, "You can use the hideout as your house as a reward.", 9, 0);
 
 	/* Continue the plot */

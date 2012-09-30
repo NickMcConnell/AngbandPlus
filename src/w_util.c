@@ -1,6 +1,6 @@
 /*
 ** Lua binding: util
-** Generated automatically by tolua 4.0a - angband on Tue Oct  7 23:02:02 2003.
+** Generated automatically by tolua 4.0a - angband on Wed Feb 11 21:29:14 2004.
 */
 
 #include "lua/tolua.h"
@@ -3451,6 +3451,51 @@ tolua_lerror:
  return 0;
 }
 
+/* function: file_character */
+static int toluaI_util_file_character00(lua_State* tolua_S)
+{
+ if (
+ !tolua_istype(tolua_S,1,LUA_TSTRING,0) ||
+ !tolua_istype(tolua_S,2,LUA_TNUMBER,0) ||
+ !tolua_isnoobj(tolua_S,3)
+ )
+ goto tolua_lerror;
+ else
+ {
+  cptr name = ((cptr)  tolua_getstring(tolua_S,1,0));
+  bool full = ((bool)  tolua_getnumber(tolua_S,2,0));
+ {
+  errr toluaI_ret = (errr)  file_character(name,full);
+ tolua_pushnumber(tolua_S,(long)toluaI_ret);
+ }
+ }
+ return 1;
+tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'file_character'.");
+ return 0;
+}
+
+/* function: calc_bonuses */
+static int toluaI_util_calc_bonuses00(lua_State* tolua_S)
+{
+ if (
+ !tolua_istype(tolua_S,1,LUA_TNUMBER,0) ||
+ !tolua_isnoobj(tolua_S,2)
+ )
+ goto tolua_lerror;
+ else
+ {
+  bool silent = ((bool)  tolua_getnumber(tolua_S,1,0));
+ {
+  calc_bonuses(silent);
+ }
+ }
+ return 0;
+tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'calc_bonuses'.");
+ return 0;
+}
+
 /* Open function */
 int tolua_util_open (lua_State* tolua_S)
 {
@@ -3505,6 +3550,7 @@ int tolua_util_open (lua_State* tolua_S)
  tolua_constant(tolua_S,NULL,"HOOK_ZAP",HOOK_ZAP);
  tolua_constant(tolua_S,NULL,"HOOK_READ",HOOK_READ);
  tolua_constant(tolua_S,NULL,"HOOK_CALC_BONUS",HOOK_CALC_BONUS);
+ tolua_constant(tolua_S,NULL,"HOOK_CALC_BONUS_END",HOOK_CALC_BONUS_END);
  tolua_constant(tolua_S,NULL,"HOOK_CALC_POWERS",HOOK_CALC_POWERS);
  tolua_constant(tolua_S,NULL,"HOOK_KEYPRESS",HOOK_KEYPRESS);
  tolua_constant(tolua_S,NULL,"HOOK_CHAT",HOOK_CHAT);
@@ -3730,6 +3776,8 @@ int tolua_util_open (lua_State* tolua_S)
  tolua_function(tolua_S,NULL,"delete_list",toluaI_util_delete_list00);
  tolua_function(tolua_S,NULL,"add_to_list",toluaI_util_add_to_list00);
  tolua_function(tolua_S,NULL,"display_list",toluaI_util_display_list00);
+ tolua_function(tolua_S,NULL,"file_character",toluaI_util_file_character00);
+ tolua_function(tolua_S,NULL,"calc_bonuses",toluaI_util_calc_bonuses00);
  return 1;
 }
 /* Close function */
@@ -3784,6 +3832,7 @@ void tolua_util_close (lua_State* tolua_S)
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"HOOK_ZAP");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"HOOK_READ");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"HOOK_CALC_BONUS");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"HOOK_CALC_BONUS_END");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"HOOK_CALC_POWERS");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"HOOK_KEYPRESS");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"HOOK_CHAT");
@@ -4061,4 +4110,6 @@ void tolua_util_close (lua_State* tolua_S)
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"delete_list");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"add_to_list");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"display_list");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"file_character");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"calc_bonuses");
 }

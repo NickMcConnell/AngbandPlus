@@ -421,6 +421,12 @@ typedef unsigned int u32b;
  */
 #define HOOK_CALC_BONUS	 29
 
+/** @def HOOK_CALC_BONUS
+ * @brief Calculate player "state" bonuses, after all calcs are done.
+ * @note (see xtra1.c)
+ */
+#define HOOK_CALC_BONUS_END	 77
+
 /** @def HOOK_CALC_POWERS
  * @brief Calculate player powers.
  * @note (see xtra1.c)
@@ -2721,3 +2727,6 @@ extern void lua_add_to_list@add_to_list(list_type *, int idx, cptr str);
  * @note (see file util.c)
  */
 extern void lua_display_list@display_list(int y, int x, int h, int w, cptr title, list_type *list, int max, int begin, int sel, byte sel_color);
+
+extern errr file_character(cptr name, bool full);
+extern void calc_bonuses(bool silent);

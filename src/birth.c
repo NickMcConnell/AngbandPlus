@@ -1332,7 +1332,7 @@ static void gen_random_quests(int n)
 	dungeon_type = old_type;
 }
 
-int dump_classes(s16b *classes, int sel, s32b *restrict)
+int dump_classes(s16b *classes, int sel, u32b *restrict)
 {
 	int n = 0;
 
@@ -2277,7 +2277,7 @@ static bool player_birth_aux_ask()
 			{
 				strnfmt(buf, 200, "Choose a god (%c-%c), * for a random choice, "
 				        "= for options, 8/2/4/6 for movement: ",
-				        I2A(0), I2A(max_gods));
+				        I2A(0), I2A(max - 1));
 				put_str(buf, 19, 2);
 
 				c = inkey();
@@ -2290,7 +2290,7 @@ static bool player_birth_aux_ask()
 				}
 				if (c == '*')
 				{
-					k = randint(max_gods);
+					k = choice[randint(max) - 1];
 					break;
 				}
 				k = (islower(c) ? A2I(c) : -1);
@@ -2444,21 +2444,21 @@ static bool player_birth_aux_ask()
 		{
 			/* Extra info */
 			Term_putstr(5, 15, -1, TERM_WHITE,
-			            "Please input the number of optional quests you'd like to perform");
+			            "Select the number of optional random quests you'd like to receive.");
 			Term_putstr(5, 16, -1, TERM_WHITE,
-			            "If you do not want any optional quests, enter 0");
+			            "If you do not want any optional quests, enter 0.");
 
 			/* Ask the number of additional quests */
 			while (TRUE)
 			{
-				put_str(format("Number of additional quest? (<%u) ",
-				               MAX_RANDOM_QUEST), 20, 2);
+				put_str(format("Number of quests? (0-%u) ",
+				               MAX_RANDOM_QUEST - 1), 20, 2);
 
 				/* Get a the number of additional quest */
 				while (TRUE)
 				{
 					/* Move the cursor */
-					put_str("", 20, 37);
+					put_str("", 20, 27);
 
 					/* Default */
 					strcpy(inp, "20");
@@ -3427,10 +3427,12 @@ void player_birth(void)
 	message_add(MESSAGE_MSG, " ", TERM_L_BLUE);
 
 	/* Verify autoskiller */
+#if 0
 	if (validate_autoskiller(spp_ptr->skill_ideal) < 0)
 	{
 		message_add(MESSAGE_MSG, "WARNING: Bad autoskill chart", TERM_VIOLET);
 	}
+#endif
 
 	/* Hack -- outfit the player */
 	player_outfit();

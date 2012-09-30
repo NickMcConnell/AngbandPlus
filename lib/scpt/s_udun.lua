@@ -128,7 +128,7 @@ FLAMEOFUDUN = add_spell
 	["mana_max"] = 	100,
 	["fail"] = 	95,
 	["spell"] = 	function()
-		       	return set_mimic(randint(15) + 5 + get_level(FLAMEOFUDUN, 30), MIMIC_BALROG)
+			return set_mimic(randint(15) + 5 + get_level(FLAMEOFUDUN, 30), resolve_mimic_name("Balrog"), get_level(FLAMEOFUDUN))
 	end,
 	["info"] = 	function()
 			return "dur "..(5 + get_level(FLAMEOFUDUN, 30)).."+d15"

@@ -5112,7 +5112,7 @@ void find_corpse(monster_type *m_ptr, int *y, int *x)
 
 		if (last != -1)
 		{
-			rt2_ptr = &r_info[o_list[last].pval];
+			rt2_ptr = &r_info[o_list[last].pval2];
 			if (rt_ptr->level > rt2_ptr->level) last = k;
 			else continue;
 		}

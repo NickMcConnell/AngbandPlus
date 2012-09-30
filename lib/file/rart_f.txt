@@ -4,7 +4,7 @@ Kenault's Cantrip Generator
 The Deck of Wild Magic
 Baalzebub's Tormented Box
 Baalzebub's All-seeing Servant
-Boccob's Unifinished Works
+Boccob's Unfinished Works
 The Gem of Fire
 The Gem of Ice
 The Gem of Venom
@@ -57,21 +57,21 @@ Boccob's Magical Mish-mash
 The Grail of Kenault
 a Parchment titled ``Household Magic''
 a Parchment titled ``Tenser's Last Words''
-the Hand of Vecna
-the Skull of Vecna
-the Eye of Vecna
-the Crystal Ball of The Witch-King of Angmar
+The Hand of Vecna
+The Skull of Vecna
+The Eye of Vecna
+The Crystal Ball of The Witch-King of Angmar
 a Parchment titled ``Secrets of the Gnomish Wizards''
-the Medallion of Good Will
-the Immortal Skull of Benetar
+The Medallion of Good Will
+The Immortal Skull of Benetar
 Heward's Excellent Experimental Earmuffs
 Bigby's Big Book of Brutality
 The Cunning Plan of Zog
-A parchment titled ''Immortality For Dummies''
+a Parchment titled ''Immortality For Dummies''
 Raistlin's Ready Ranger
 Tenser's Torch of Spontaneous Combustion
 Mordenkainen's Mysterious Mind-Masher
-A parchment titled ''Famous Last Words''
+a Parchment titled ''Famous Last Words''
 Jor's Buckler of Missile Attraction
 Jor's Compendium of Strange Behaviour
 Agannazar's Antique Acorn
@@ -79,7 +79,7 @@ Cathal's Corrupting Cymbal
 Pytar's Portable Pandemonium
 The Toenail of Vecna
 Jor's Book of Impossible Occurences
-A parchment titled ''Finer Points of Munchkinism''
+a Parchment titled ''Finer Points of Munchkinism''
 Agannazar's Altruistic Assassin
 Tenser's Top-Heavy Teaspoon
 Olive's Omnipotent Ostrich

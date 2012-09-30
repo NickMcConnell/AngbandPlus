@@ -4,10 +4,10 @@
 
 #####GDescription
 Barbarians are hardy members of their race. They are fierce in combat, and
-their wrath is feared throughout the world. Combat is their life: they feel
-no fear, and they learn to enter battle frenzy at will. Barbarians are, 
-however, suspicious of magic, which makes magic devices fairly hard for 
-them to use, and also makes it impossible for them to play Mages.
+their wrath is feared throughout the world. Combat is their life: they learn
+to feel no fear. Barbarians are, however, suspicious of magic, which makes 
+magic devices fairly hard for them to use, and also makes it impossible for 
+them to play Mages.
 
 #####GStat Modifiers
 Strength       +2   
@@ -23,6 +23,4 @@ Exp Penalty    +25%
 A barbarian character begins the game with:
     Some rations
     Some torches
-    Changes ring of resist fear (*IF* the character would have had one)
-        to a ring of sustain strength.
-
+    

@@ -1112,7 +1112,7 @@ extern byte get_item_letter_color(object_type *o_ptr);
 extern void describe_device(object_type *o_ptr);
 extern void object_pickup(int this_o_idx);
 extern int get_slot(int slot);
-extern bool apply_flags_set(s16b a_idx, s16b set_idx, s32b *f1, s32b *f2, s32b *f3, s32b *f4, s32b *f5, s32b *esp);
+extern bool apply_flags_set(s16b a_idx, s16b set_idx, u32b *f1, u32b *f2, u32b *f3, u32b *f4, u32b *f5, u32b *esp);
 extern bool apply_set(s16b a_idx, s16b set_idx);
 extern bool takeoff_set(s16b a_idx, s16b set_idx);
 extern bool wield_set(s16b a_idx, s16b set_idx, bool silent);

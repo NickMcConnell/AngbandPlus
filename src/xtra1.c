@@ -430,8 +430,6 @@ static void prt_mh(void)
 
 	byte color;
 
-	int max;
-
 	object_type *o_ptr;
 	monster_race *r_ptr;
 
@@ -445,16 +443,15 @@ static void prt_mh(void)
 	}
 
 	r_ptr = &r_info[o_ptr->pval];
-	max = maxroll(r_ptr->hdice, r_ptr->hside);
 
 	put_str("MH ", ROW_MH, COL_MH);
 
-	sprintf(tmp, "%4d/%4d", o_ptr->pval2, max);
-	if (o_ptr->pval2 >= max)
+	sprintf(tmp, "%4d/%4d", o_ptr->pval2, (int)o_ptr->pval3);
+	if (o_ptr->pval2 >= o_ptr->pval3)
 	{
 		color = TERM_L_GREEN;
 	}
-	else if (o_ptr->pval2 > (max * hitpoint_warn) / 10)
+	else if (o_ptr->pval2 > (o_ptr->pval3 * hitpoint_warn) / 10)
 	{
 		color = TERM_YELLOW;
 	}
@@ -4012,6 +4009,9 @@ void calc_bonuses(bool silent)
 	/* resistance to fire cancel sensibility to fire */
 	if (p_ptr->resist_fire || p_ptr->oppose_fire || p_ptr->immune_fire)
 		p_ptr->sensible_fire = FALSE;
+
+	/* Let the scripts do what they need */
+	process_hooks(HOOK_CALC_BONUS_END, "(d)", silent);
 }
 
 

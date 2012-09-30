@@ -1086,7 +1086,7 @@ int use_symbiotic_power(int r_idx, bool great, bool only_number, bool no_cost)
 	if (!flag)
 	{
 		energy_use = 0;
-		return num;
+		return -1;
 	}
 
 	/* 'Powerful' monsters have wider radii */

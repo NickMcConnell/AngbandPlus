@@ -1,6 +1,6 @@
 /*
 ** Lua binding: object
-** Generated automatically by tolua 4.0a - angband on Tue Oct  7 23:02:04 2003.
+** Generated automatically by tolua 4.0a - angband on Fri Jan 30 19:43:22 2004.
 */
 
 #include "lua/tolua.h"
@@ -4420,6 +4420,7 @@ int tolua_object_open (lua_State* tolua_S)
  tolua_constant(tolua_S,NULL,"TV_AMULET",TV_AMULET);
  tolua_constant(tolua_S,NULL,"TV_RING",TV_RING);
  tolua_constant(tolua_S,NULL,"TV_TRAPKIT",TV_TRAPKIT);
+ tolua_constant(tolua_S,NULL,"TV_TOTEM",TV_TOTEM);
  tolua_constant(tolua_S,NULL,"TV_STAFF",TV_STAFF);
  tolua_constant(tolua_S,NULL,"TV_WAND",TV_WAND);
  tolua_constant(tolua_S,NULL,"TV_ROD",TV_ROD);
@@ -5375,6 +5376,7 @@ void tolua_object_close (lua_State* tolua_S)
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TV_AMULET");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TV_RING");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TV_TRAPKIT");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TV_TOTEM");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TV_STAFF");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TV_WAND");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TV_ROD");

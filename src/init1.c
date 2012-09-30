@@ -1586,7 +1586,7 @@ static int my_fgets_dostack(char *buf, int len)
  * Grab one race flag from a textual string
  */
 static bool unknown_shut_up = FALSE;
-static errr grab_one_class_flag(s32b *choice, cptr what)
+static errr grab_one_class_flag(u32b *choice, cptr what)
 {
 	int i;
 	cptr s;
@@ -1607,7 +1607,7 @@ static errr grab_one_class_flag(s32b *choice, cptr what)
 	/* Failure */
 	return (1);
 }
-static errr grab_one_race_allow_flag(s32b *choice, cptr what)
+static errr grab_one_race_allow_flag(u32b *choice, cptr what)
 {
 	int i;
 	cptr s;
@@ -1632,7 +1632,7 @@ static errr grab_one_race_allow_flag(s32b *choice, cptr what)
 /*
  * Grab one flag from a textual string
  */
-static errr grab_one_skill_flag(s32b *f1, cptr what)
+static errr grab_one_skill_flag(u32b *f1, cptr what)
 {
 	int i;
 
@@ -1655,7 +1655,7 @@ static errr grab_one_skill_flag(s32b *f1, cptr what)
 /*
  * Grab one flag from a textual string
  */
-static errr grab_one_player_race_flag(s32b *f1, s32b *f2, cptr what)
+static errr grab_one_player_race_flag(u32b *f1, u32b *f2, cptr what)
 {
 	int i;
 
@@ -1701,7 +1701,7 @@ int get_activation(char *activation)
 /*
  * Grab one flag in an object_kind from a textual string
  */
-static errr grab_one_race_kind_flag(s32b *f1, s32b *f2, s32b *f3, s32b *f4, s32b *f5, s32b *esp, cptr what)
+static errr grab_one_race_kind_flag(u32b *f1, u32b *f2, u32b *f3, u32b *f4, u32b *f5, u32b *esp, cptr what)
 {
 	int i;
 
@@ -7118,7 +7118,7 @@ errr init_e_info_txt(FILE *fp, char *buf)
 static bool grab_one_randart_item_flag(randart_part_type *ra_ptr, cptr what, char c)
 {
 	int i;
-	s32b *f1, *f2, *f3, *f4, *f5, *esp;
+	u32b *f1, *f2, *f3, *f4, *f5, *esp;
 
 	if (c == 'F')
 	{
@@ -9259,7 +9259,7 @@ errr init_d_info_txt(FILE *fp, char *buf)
 {
 	int i, j;
 
-	byte rule_num = 0;
+	s16b rule_num = 0;
 
 	byte r_char_number = 0;
 

@@ -1080,7 +1080,7 @@ s32b flag_cost(object_type * o_ptr, int plusses)
 		else if (type == ACT_BA_COLD_2) total += 1250;
 		else if (type == ACT_BA_ELEC_2) total += 1500;
 		else if (type == ACT_DRAIN_2) total += 750;
-		else if (type == ACT_VAMPIRE_1) total = 1000;
+		else if (type == ACT_VAMPIRE_1) total += 1000;
 		else if (type == ACT_BO_MISS_2) total += 1000;
 		else if (type == ACT_BA_FIRE_2) total += 1750;
 		else if (type == ACT_BA_COLD_3) total += 2500;
@@ -3388,11 +3388,18 @@ static void a_m_aux_4(object_type *o_ptr, int level, int power)
 			int r_idx = get_mon_num(dun_level);
 			r_ptr = &r_info[r_idx];
 
-			o_ptr->pval2 = maxroll(r_ptr->hdice, r_ptr->hside);
 			if (!(r_ptr->flags1 & RF1_NEVER_MOVE))
 				o_ptr->pval = r_idx;
 			else
 				o_ptr->pval = 20;
+
+			r_idx = o_ptr->pval;
+			r_ptr = &r_info[r_idx];
+
+			o_ptr->pval3 = maxroll(r_ptr->hdice, r_ptr->hside);
+			o_ptr->pval2 = o_ptr->pval2;
+			o_ptr->exp = 0;
+			o_ptr->elevel = r_ptr->level;
 			break;
 		}
 
@@ -4777,18 +4784,18 @@ bool kind_is_good(int k_idx)
  */
 bool make_object(object_type *j_ptr, bool good, bool great, obj_theme theme)
 {
-	int prob, base;
+	int invprob, base;
 
 
 	/* Chance of "special object" */
-	prob = (good ? 10 + luck( -9, 9) : 1000);
+	invprob = (good ? 10 - luck( -9, 9) : 1000);
 
 	/* Base level for the object */
 	base = (good ? (object_level + 10) : object_level);
 
 
 	/* Generate a special object, or a normal object */
-	if ((rand_int(prob) != 0) || !make_artifact_special(j_ptr))
+	if ((rand_int(invprob) != 0) || !make_artifact_special(j_ptr))
 	{
 		int k_idx;
 

@@ -383,7 +383,7 @@
  *
  * Additional note -- if you are planning to use makefile.org, don't bother
  * setting this variable, as it is overridden by a value set near the top of
- * that file. 
+ * that file.
  */
 #ifndef DEFAULT_PATH
 # define DEFAULT_PATH "./lib/"
@@ -393,10 +393,8 @@
 /*
  * OPTION: Create and use a hidden directory in the user's home directory
  * for storing pref-files and character-dumps.
- * Warning: Pern chooses to use a different place from Vanilla 2.9.2
- * and its friends.
  */
-#if defined(SET_UID) && !defined(MACH_O_CARBON)
+#if defined(SET_UID) && !defined(MACH_O_CARBON) && !defined(NO_HOME_TOME)
 #define PRIVATE_USER_PATH "~/.tome"
 #endif /* SET_UID && !MACH_O_CARBON */
 

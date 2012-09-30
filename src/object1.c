@@ -1465,6 +1465,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	case TV_CHEST:
 	case TV_INSTRUMENT:
 	case TV_TOOL:
+	case TV_DIGGING:
 		{
 			break;
 		}
@@ -1481,7 +1482,6 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	case TV_MSTAFF:
 	case TV_SWORD:
 	case TV_AXE:
-	case TV_DIGGING:
 		{
 			show_weapon = TRUE;
 			break;
@@ -2222,7 +2222,6 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	/* Display the item like armour */
 	if (o_ptr->ac) show_armour = TRUE;
 
-
 	/* Dump base weapon info */
 	switch (o_ptr->tval)
 	{
@@ -2241,7 +2240,6 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	case TV_MSTAFF:
 	case TV_AXE:
 	case TV_SWORD:
-	case TV_DIGGING:
 	case TV_DAEMON_BOOK:
 		if ((o_ptr->tval == TV_DAEMON_BOOK) && (o_ptr->sval != SV_DEMONBLADE))
 			break;
@@ -2299,6 +2297,8 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 			t = object_desc_chr(t, ' ');
 			t = object_desc_chr(t, p1);
 			t = object_desc_int(t, o_ptr->to_h);
+			if (!(f3 & (TR3_HIDE_TYPE)))
+				t = object_desc_str(t, " to accuracy");
 			t = object_desc_chr(t, p2);
 		}
 
@@ -2308,6 +2308,8 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 			t = object_desc_chr(t, ' ');
 			t = object_desc_chr(t, p1);
 			t = object_desc_int(t, o_ptr->to_d);
+			if (!(f3 & (TR3_HIDE_TYPE)))
+				t = object_desc_str(t, " to damage");
 			t = object_desc_chr(t, p2);
 		}
 	}
@@ -4181,6 +4183,12 @@ s16b wield_slot_ideal(object_type *o_ptr, bool ideal)
 			{
 				return INVEN_AMMO;
 			}
+			else if (p_ptr->inventory[INVEN_AMMO].k_idx &&
+			         object_similar(o_ptr, &p_ptr->inventory[INVEN_AMMO]) &&
+			         p_ptr->inventory[INVEN_AMMO].number + o_ptr->number < MAX_STACK_SIZE)
+			{
+				return get_slot(INVEN_AMMO);
+			}
 			else if (p_ptr->inventory[INVEN_BOW].k_idx)
 			{
 				if (p_ptr->inventory[INVEN_BOW].sval < 10)
@@ -4194,6 +4202,12 @@ s16b wield_slot_ideal(object_type *o_ptr, bool ideal)
 			{
 				return INVEN_AMMO;
 			}
+			else if (p_ptr->inventory[INVEN_AMMO].k_idx &&
+			         object_similar(o_ptr, &p_ptr->inventory[INVEN_AMMO]) &&
+			         p_ptr->inventory[INVEN_AMMO].number + o_ptr->number < MAX_STACK_SIZE)
+			{
+				return get_slot(INVEN_AMMO);
+			}
 			else if (p_ptr->inventory[INVEN_BOW].k_idx)
 			{
 				if ((p_ptr->inventory[INVEN_BOW].sval >= 10) && (p_ptr->inventory[INVEN_BOW].sval < 20))
@@ -4206,6 +4220,12 @@ s16b wield_slot_ideal(object_type *o_ptr, bool ideal)
 			if (ideal)
 			{
 				return INVEN_AMMO;
+			}
+			else if (p_ptr->inventory[INVEN_AMMO].k_idx &&
+			         object_similar(o_ptr, &p_ptr->inventory[INVEN_AMMO]) &&
+			         p_ptr->inventory[INVEN_AMMO].number + o_ptr->number < MAX_STACK_SIZE)
+			{
+				return get_slot(INVEN_AMMO);
 			}
 			else if (p_ptr->inventory[INVEN_BOW].k_idx)
 			{
@@ -6164,6 +6184,9 @@ int wear_ammo(object_type *o_ptr)
 	/* Check the slot */
 	slot = wield_slot(o_ptr);
 
+	if(slot == -1)
+		return -1;
+
 	/* Get local object */
 	q_ptr = &forge;
 
@@ -6816,7 +6839,7 @@ bool apply_set(s16b a_idx, s16b set_idx)
 }
 
 bool apply_flags_set(s16b a_idx, s16b set_idx,
-                     s32b *f1, s32b *f2, s32b *f3, s32b *f4, s32b *f5, s32b *esp)
+                     u32b *f1, u32b *f2, u32b *f3, u32b *f4, u32b *f5, u32b *esp)
 {
 	set_type *s_ptr = &set_info[set_idx];
 	int i, j;

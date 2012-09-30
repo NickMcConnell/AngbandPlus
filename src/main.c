@@ -1027,6 +1027,19 @@ usage:
 	}
 #endif
 
+#ifdef USE_DMY
+	/* Attempt to use the "main-dmy.c" support */
+	if (!done && (!mstr || (streq(mstr, "dmy"))))
+	{
+		extern errr init_dummy(int, char**);
+		if (0 == init_dummy(argc, argv))
+		{
+			ANGBAND_SYS = "dmy";
+			done = TRUE;
+		}
+	}
+#endif
+
 	/* Make sure we have a display! */
 	if (!done) quit("Unable to prepare any 'display module'!");
 

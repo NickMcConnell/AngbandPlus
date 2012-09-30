@@ -17,18 +17,26 @@ add_quest
 	["global"] =    "GOD_QUEST",
 	["name"] =      "God quest",
 	["desc"] =      function()
-			local home, home_axis
 
 			if quest(GOD_QUEST).status == QUEST_STATUS_TAKEN then
 
 				-- get the direction that the dungeon lies from lothlorien/angband
-				player_axis, home, home_axis = get_god_quest_axes()
+				local home, home_axis, home_distance, home2, home2_axis, home2_distance = get_god_quest_axes()
 
 				print_hook("#####yGod quest!\n")
 				print_hook("Thou art to find the lost temple of thy God and\n");
 				print_hook("to retrieve the lost part of the relic for thy God! \n")
-				print_hook("The temple lies to the "..home_axis.." of "..home.." \n")
-				print_hook("and to the "..player_axis.." of thy position when thou were given the quest. \n")
+				-- print_hook("home_axis = "..home_axis.." home2_axis = "..home2_axis)
+				if home_axis ~= "close" then
+					print_hook("The temple lies "..home_distance.." to the "..home_axis.." of "..home..", \n")
+				else
+					print_hook("The temple lies very close to "..home..", \n")
+				end
+				if home2_axis ~= "close" then
+					print_hook( "and "..home2_distance.." to the "..home2_axis.." of "..home2..", I can feel it.' \n")
+				else
+					print_hook("and very close to "..home2..", I can feel it.' \n")
+				end					
 				print_hook("\n")
 			end
 	end,
@@ -100,7 +108,7 @@ add_quest
 					god_quest.player_y, god_quest.player_x = player.get_wild_coord()
 
 					-- establish direction of player and 'home' from dungeon
-					local player_axis, home, home_axis, distance = get_god_quest_axes()
+					local home, home_axis, home_distance, home2, home2_axis, home2_distance = get_god_quest_axes()
 
 					-- God issues instructions
 					cmsg_print(TERM_L_BLUE, "The voice of "..deity(player.pgod).name.." booms in your head:")
@@ -111,16 +119,16 @@ add_quest
 					cmsg_print(TERM_YELLOW, "Thou art to find my lost temple and retrieve a piece of the relic.")
 					cmsg_print(TERM_YELLOW, "When thy task is done, thou art to lift it in the air and call upon my name.")
 					cmsg_print(TERM_YELLOW, "I shall then come to reclaim what is mine!")
-					if player.axis then 
-					cmsg_print(TERM_YELLOW, "The temple lies "..distance.." to the "..player_axis.." of thy current position,")
+					if home_axis ~= "close" then
+						cmsg_print(TERM_YELLOW, "The temple lies "..home_distance.." to the "..home_axis.." of "..home..", ")
 					else
-						cmsg_print(TERM_YELLOW, "The temple lies "..distance.." from thy current position,")
+						cmsg_print(TERM_YELLOW, "The temple lies very close to "..home..",")
 					end
 
-					if home_axis then
-					cmsg_print(TERM_YELLOW, "and to the "..home_axis.." of "..home..", I can feel it.'")
+					if home2_axis ~= "close" then
+						cmsg_print(TERM_YELLOW, "and "..home2_distance.." to the "..home2_axis.." of "..home2..", I can feel it.'")
 					else
-						cmsg_print(TERM_YELLOW, "and very close to "..home..", I can feel it.'")
+						cmsg_print(TERM_YELLOW, "and very close to "..home2..", I can feel it.'")
 					end
 
 					-- Prepare depth of dungeon. If this was generated in set_god_dungeon_attributes(),
@@ -553,27 +561,33 @@ end
 -- Calling this function returns the direction the dungeon is in from the players position at the time
 -- the quest was given, and also the direction from angband (if the player is worshipping Melkor) or lothlorien.
 function get_god_quest_axes()
-	local play_y_coord, play_x_coord, y_axis, x_axis, player_axis, home_axis, mydistance
-
-	player_axis = compass(god_quest.player_y, god_quest.player_x, god_quest.dung_y, god_quest.dung_x)
+	local home, home_y_coord, home_x_coord, home_axis, home2, home2_y_coord, home2_x_coord, home2_axis, mydistance
 
 	-- different values for different gods...
 	if player.pgod ~= GOD_MELKOR then
 
-		-- one of the valar, "home" is lothlorien
-		home = "Lothlorien"
-		home_y_coord = 34
-		home_x_coord = 50
+		-- one of the valar, "home" is lothlorien, home2 is Minas Arnor
+		home = "Bree"
+		home_y_coord = 21
+		home_x_coord = 34
+		home2 = "Minas Anor"
+		home2_y_coord = 56
+		home2_x_coord = 60
 	else
-		-- Melkor, "home" is angband
+		-- Melkor, "home" is angband, home2 is Barad-dur
 		home = "the Pits of Angband"
 		home_y_coord = 7
 		home_x_coord = 34
+		home2 = "the stronghold of Barad-Dur"
+		home2_y_coord = 51
+		home2_x_coord = 71	
 	end
 
 	home_axis = compass(home_y_coord, home_x_coord, god_quest.dung_y, god_quest.dung_x)
+	home2_axis = compass(home2_y_coord, home2_x_coord, god_quest.dung_y, god_quest.dung_x)
 
-	mydistance = approximate_distance(god_quest.player_y, god_quest.player_x, god_quest.dung_y, god_quest.dung_x)
+	home_distance = approximate_distance(home_y_coord, home_x_coord, god_quest.dung_y, god_quest.dung_x)
+	home2_distance = approximate_distance(home2_y_coord, home2_x_coord, god_quest.dung_y, god_quest.dung_x)
 
-	return player_axis, home, home_axis, mydistance
+	return home, home_axis, home_distance, home2, home2_axis, home2_distance
 end

@@ -29,7 +29,7 @@ bool quest_one_move_hook(char *fmt)
 		cmsg_print(TERM_YELLOW, "'to destroy it in the Great Fire where it was forged.'");
 		cmsg_print(TERM_YELLOW, "'I do not know where to find it, seek it through Middle-earth. Maybe there'");
 		cmsg_print(TERM_YELLOW, "'are other people that might know'");
-		cmsg_print(TERM_YELLOW, "'Do not forget, the Ring must be cast back into the fires or Mount Doom!'");
+		cmsg_print(TERM_YELLOW, "'Do not forget, the Ring must be cast back into the fires of Mount Doom!'");
 
 		/* Continue the plot */
 		cquest.status = QUEST_STATUS_TAKEN;

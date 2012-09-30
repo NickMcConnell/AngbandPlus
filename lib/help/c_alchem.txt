@@ -39,7 +39,7 @@ Combat                  1.000           [0.700]
 Sneakiness              1.000           [0.900]
 Magic                   3.000           [0.900]
   Magic-Device          0.000           [0.250]
-  Geomancy              0.000           [0.500]
+  Geomancy
     Fire                0.000           [0.100]
     Water               0.000           [0.100]
     Air                 0.000           [0.100]
@@ -57,6 +57,9 @@ Magic                   3.000           [0.900]
 Spirituality            1.000           [0.800]
   Prayer                0.000           [0.500]
 Monster-lore            0.000           [0.500]
+
+*An Alchemist cannot learn the Geomancy skill, but it is shown in his skill 
+screen because the elemental schools are sub-skills of it.
 
 #####GInnate Abilities:
 #####BAbility              Character level
@@ -107,19 +110,19 @@ gold to improve the chances of his success.
 [[[[[BA few pointers:]
      -Recipes are (usually) logical. Acid essences don't make Dragon 
       Weapons. And you can always look at the recipes you know with
-	  the 'B'ook command.
+      the 'B'ook command.
      -Not all objects or ego-item types can be made using alchemy.
      -Alchemy is mostly reversible.  Most items that you can 
-	  'E'xtract from, you can later re-create, if you learn about
-	  them when extracting from them. You won't always get enough
-	  essences from destroying an item to recreate it, though the 
-	  chance of doing so will get higher as you increase in skill.
+      'E'xtract from, you can later re-create, if you learn about
+      them when extracting from them. You won't always get enough
+      essences from destroying an item to recreate it, though the 
+      chance of doing so will get higher as you increase in skill.
      -*identifying* an object that you can destroy will always teach
-	  you how to create it (if creating it is possible).
+      you how to create it (if creating it is possible).
      -Since you can't create abilities in artifacts that you aren't
-	  aware of, make sure to *identify* all the artifacts you can.
+      aware of, make sure to *identify* all the artifacts you can.
      -You can't *identify* things you buy in shops, so you'll have
-	  to extract from them and take your chances.
+      to extract from them and take your chances.
 
 [[[[[BSome Recipes:]
 Any alchemist worth his salt knows lots of recipes.  By extracting from

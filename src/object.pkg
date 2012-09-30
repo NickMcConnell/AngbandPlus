@@ -252,6 +252,7 @@ static obj_theme lua_obj_theme @ theme_forge;
 #define TV_AMULET       40      /* Amulets (including Specials) */
 #define TV_RING         45      /* Rings (including Specials) */
 #define TV_TRAPKIT      46      /* Trapkits */
+#define TV_TOTEM        54      /* Summoner totems */
 #define TV_STAFF        55
 #define TV_WAND         65
 #define TV_ROD          66

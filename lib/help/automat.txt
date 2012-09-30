@@ -493,7 +493,7 @@ before I talk you through it
 &&&&&B\B-B-B-B-B-B-B-B-B-B-B-B-B-B-B/w RkW WtWoW rdrirsrarbrlreW WtWhWeW WaWuWtWoWmWaWtWiWzWeWrw w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w 
 
 The majority of this is fairly similar to the swords rule; it destroys {average}
-swords at character level 20, {good} ones at character level 35 and cursed ones
+boots at character level 20, {good} ones at character level 35 and cursed ones
 always. The addition is at the bottom. It adds clauses which will destroy
 excellent items providing that they have been identified and that the name does
 not contain the word "speed". The <state>identified</state> bit is important

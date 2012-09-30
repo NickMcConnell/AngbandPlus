@@ -9,12 +9,12 @@ of the Valar. His most faithful followers are those of the class *****c_pr_drk.t
 #####GThe benefits of Worshipping Melkor Bauglir
  1. As you increase your piety, Melkor will grant boosts to your strength,
     constitution and charisma and will decrease intelligence and wisdom.
- 2. If you are praying, Melkor may makes you invisible and immune to fire.
+ 2. If you are praying, Melkor may make you invisible and immune to fire.
  3. If you are praying, Melkor may cast Curse on your foes when you melee them.
  4. If you are praying, Melkor likes it when you kill monsters.
  5. If you are praying, Melkor *likes* it when you kill monsters that are
     aligned with good.
- 6. Melkor likes sacrifice of corpse and books at his altars.
+ 6. Melkor likes the sacrifice of corpses and books at his altars.
  7. Melkor likes the permanent sacrifice of your own health at his altars.
  8. Melkor hates elves.
  9. Melkor grants access to the *****m_udun.txt*0[Udun] school of magic.

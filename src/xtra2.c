@@ -93,7 +93,7 @@ bool set_parasite(int v, int r)
 
 				if (place_monster_one(wy, wx, p_ptr->parasite_r_idx, 0, FALSE, MSTATUS_ENEMY))
 				{
-					cmsg_format(TERM_L_BLUE, "Your body convulse and spawn %s.", r_name);
+					cmsg_format(TERM_L_BLUE, "Your body convulses and spawns %s.", r_name);
 					p_ptr->food -= 750;
 					if (p_ptr->food < 100) p_ptr->food = 100;
 				}
@@ -7406,7 +7406,7 @@ void set_grace(s32b v)
 
 bool test_object_wish(char *name, object_type *o_ptr, object_type *forge, char *what)
 {
-	int i, j, jb;
+	int i, j, jb, save_aware;
 	char buf[200];
 
 	/* try all objects, this *IS* a very ugly and slow method :( */
@@ -7425,10 +7425,13 @@ bool test_object_wish(char *name, object_type *o_ptr, object_type *forge, char *
 		o_ptr->name1 = 0;
 		o_ptr->name2 = 0;
 		apply_magic(o_ptr, dun_level, FALSE, FALSE, FALSE);
+		/* Hack : aware status must be restored after describing the item name */
+		save_aware = k_ptr->aware;
 		object_aware(o_ptr);
 		object_known(o_ptr);
 		object_desc(buf, o_ptr, FALSE, 0);
 		strlower(buf);
+		k_ptr->aware = save_aware;
 
 		if (strstr(name, buf) ||
 		   /* Hack hack hackery */
@@ -7514,6 +7517,11 @@ bool test_object_wish(char *name, object_type *o_ptr, object_type *forge, char *
 					{
 						/* Don't search any more */
 						return TRUE;
+					}
+					else
+					{
+						/* Restore again the aware status */
+						k_ptr->aware = save_aware;
 					}
 				}
 			}

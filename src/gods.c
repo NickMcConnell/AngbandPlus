@@ -51,7 +51,7 @@ void follow_god(int god, bool silent)
 	/* Poor unbelievers, i'm so mean ... BOUHAHAHA */
 	if (get_skill(SKILL_ANTIMAGIC))
 	{
-		msg_print("Don't be silly, you dont believe in gods.");
+		msg_print("Don't be silly, you don't believe in gods.");
 		return;
 	}
 
@@ -67,7 +67,7 @@ void follow_god(int god, bool silent)
 		GOD(GOD_MELKOR)
 		{
 			s_info[SKILL_UDUN].hidden = FALSE;
-			if (!silent) msg_print("You feel the dark powers of melkor in you, you can now use the Udun skill.");
+			if (!silent) msg_print("You feel the dark powers of Melkor in you.  You can now use the Udun skill.");
 		}
 
 		/* Anything to be done? */

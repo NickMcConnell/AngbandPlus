@@ -1,80 +1,39 @@
-T.o.M.E 2.2.4 aka "A Bug's Life" changes
+T.o.M.E 2.2.6 aka "Won't Get Fooled Again" changes
 
 Interface changes:
-- Adam Bolt's Tiles are now "New Tiles", as others have worked on them and
-  stuff. -- fearoffours
-
-Object changes:
-- Restore spaces to artifact descriptions -- neil
-- Changed descriptions of some junkart activations. -- fearoffours
-- Non-functioning artifact instrument activations removed -- neil
-
-Player changes:
-- Wood Elves and Hobbits weren't getting the extra might bonuses
-  they were entitled to -- neil
+- Pressing Escape gets you out of the pet dismissal list -- neil
 
 Misc changes:
-- Applied Ken Dubuc's patches to parsers to make them line ending independant
-- Savefiles on multiuser systems are now in HOME/.tome/2.2/save, to comply
-  with the new 3.0.0 naming scheme that is coming.
-  People upgrading from 2.2.x to 2.2.4 should move their savefiles there
-- Setting module to "all" for an automatizer rule makes the rule apply
-  to all modules -- neil
-- Wizard mode is now turned off at birth -- neil
-- Help updates: macros and macro recorder, dwarf racial ability, more on
-  dodging, link to m_mimic.txt from skills.txt, object inventory letter
-  colouring significance. -- fearoffours
-- Helpfiles updated to reflect that corruptions are permanent and there is
-  no corrupted sub-race. --fearoffours
+- Helpfiles: bearform combat help, music typos, barbarian revisions.
+  -- fearoffours
+ - Typos in the description of arrows, shots, bolts; punctuation in the
+   mushroom quest -- masmarangio
+- HOOK_CALC_BONUS_END hooks
+- Helpfiles: corrected starting equipment of mindcrafters -- masmarangio
+ - Backport of old helpfile updates: no Geomancy for Alchemists and Rune-
+   crafters, updated luck spoiler, corruption spoiler in crpt_aux.lua, a
+   link in skills.txt, an example in automatizer.txt.
+   monsters3.c: changed 'golem' to 'creature', since the Mind Steal Spell
+   also allows to control a monster. -- masmarangio
+- Typo (massage -> message) from the forum -- masmarangio
+- Capitalisation in the names of junkarts -- masmarangio
+- mindcraft_info: Corrected and expanded the info for mindcraft powers
+  -- masmarangio
+- Small corrections in luck spoiler, description of Manwe's Blessing and
+  m_mimic.txt -- masmarangio
 
-Dungeon changes:
-- "The lava burns you", becomes "you move across the lava" to accomodate
-  IM_FIRE and flying characters. -- fearoffours
 
 Bug fixes:
-- Detect doors and traps displays as costing 3, not 5 now. -- fearoffours
-- Maeglin quest reward wording altered (saves confusion for sorcerors).
+- Prevent recall to Lost Temple before getting the quest -- neil
+- Automatizer now accepts TV_TOTEM -- neil
+- Some vaults incorrectly named -- fearoffours
+- Wight quest crash fix by 'amaurea' -- neil
+- God choosen at random was broken -- masmarangio
+- Typo in q_one.c (or -> of)
+- Don't use a turn when cancelling a possessor action -- neil
+ - summon_true crashed the game with a summon skill < 1 -- masmarangio
+ - test_object_wish: aware status is saved and restored -- masmarangio
+- God quest will no longer give inaccurate or misleading directions. It
+  also will now give directions from two static features, and an
+  approximate, relative distance from each of those points.
   -- fearoffours
-- Typos in One Ring parchment and Necromancy help fixed. -- fearoffours
-- Typos in ultra-good ending, lost-sword quest rewards and flag description
-  fixed. -- fearoffours
-- Axemasters now start with a Hatchet -- neil
-- Fix "analyze monster" activation -- neil
-- Fix library quest breakage of Melkor curses -- neil
-- Fix failure rates for abilities in possessed bodies, patch by 'Slappy'
-  -- neil
-- Monsters detected ONLY by telepathy were not removed from visible monsters
-  list after they had gone out of range. Thanks Slappy for fix. -- fearoffours
-- Recharged junkarts would not always give a notification message. Thanks
-  Slappy for fix. -- fearoffours
-- Completion of Necromancer quest could be triggered incorrectly.
-  -- fearoffours
-- Monsters don't appear to disappear for a turn if you polymorph them -- neil
-- Flying semi-wraiths shouldn't be hurt by flying over trees -- neil
-- Recalling to new lost temples could have crashed the game. -- fearoffours
-- God quest directions could be grammatically incorrect. -- fearoffours
-- Items containing spells should be browsable again -- neil
-- Random artifact mimicry cloaks should now show up correctly -- neil
-- Random artifacts that can contain spells will not come with
-  Globe of Light anymore -- neil
-- Certain non-random artifacts that can contain spells will not come with
-  Globe of Light anymore, either -- neil
-- Pack overflow/weapon disappearing bug fixed, with big thanks to Kevin
-  W. Thomas for telling me where to look -- neil
-- Trap of Divine Wrath would benefit you -- neil
-- Blood of Life would revive necromancers in undead form -- neil
-- Hostile monsters won't get free kills of friendly monsters anymore -- neil
-- Eggs work again -- neil
-- Wishing for ego rods works -- neil
-- Temples now accept blessed boomerangs -- neil
-- If you learn anti-magic, you stop following any Valar -- neil
-- typo in v_info.txt -- fearoffours
-- Old Mage's quest wouldn't always disappear from quest screen when fully
-  rewarded. -- fearoffours
-- No more shafts in certain places -- neil
-- Percing shots will not grossly inflate in damage anymore -- neil
-- No genocide in home quests -- neil
-- Silent Switching can no longer take off permanently cursed items -- neil
-- Fix memory error in command handling -- neil
-- Hypnotizing and restoring levelled monsters now works correctly -- neil
-- permanent_levels marked experimental because it is broken -- neil

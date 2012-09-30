@@ -4526,7 +4526,8 @@ extern int PlayerUID;
 #define HOOK_CALC_WEIGHT        74
 #define HOOK_FORBID_TRAVEL      75
 #define HOOK_DEBUG_COMMAND      76
-#define MAX_HOOKS               77
+#define HOOK_CALC_BONUS_END     77
+#define MAX_HOOKS               78
 
 #define HOOK_TYPE_C             0
 #define HOOK_TYPE_LUA           1

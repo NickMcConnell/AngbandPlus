@@ -430,7 +430,7 @@ MUSIC_ = add_spell
 	["random"] =    SKILL_MUSIC,
 	["pval"] =      1,
 	["spell"] =     function()
-			
+
 			return TRUE
 	end,
 	["info"] =      function()

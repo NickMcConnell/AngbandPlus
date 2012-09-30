@@ -3475,7 +3475,7 @@ void do_cmd_knowledge_artifacts(void)
 		{
 			object_type forge;
 			object_type *q_ptr;
-			s32b f1, f2, f3, f4, f5, esp;
+			u32b f1, f2, f3, f4, f5, esp;
 
 			/* Get local object */
 			q_ptr = &forge;

@@ -100,24 +100,24 @@ spend you're hard-earned points, huh? Well, each skill affects different
 abilities, and not all of them are intuitive - but they don't take all that
 long to learn :). 
 If you don't find this informative enough, and would like more detailed spoilers 
-on what each skill does, try [[[[[ghttp://www.killerbunnies.org/angband/skill.html] for 
-some third party help!
+on what each skill does, try [[[[[ghttp://www.killerbunnies.org/angband/skill-220.html]
+for some third party help!
 The skills are:
 
   *****skills.txt*27[Air]                 *****skills.txt*49[Alchemy]            *****skills.txt*50[Antimagic]          *****skills.txt*08[Archery]
-  *****skills.txt*05[Axe-mastery]         *****skills.txt*18[Backstab]           *****skills.txt*13[Barehand-combat]    *****skills.txt*12[Boomerang-mastery]
-  *****skills.txt*58[Boulder-throwing]    *****skills.txt*10[Bow-mastery]        *****skills.txt*01[Combat]             *****skills.txt*30[Conveyance]
-  *****skills.txt*44[Corpse-preservation] *****skills.txt*04[Critical-hits]      *****skills.txt*11[Crossbow-mastery]   *****skills.txt*52[Demonology]
-  *****skills.txt*16[Disarming]           *****skills.txt*31[Divination]         *****skills.txt*20[Dodging]            *****skills.txt*28[Earth]
-  *****skills.txt*25[Fire]                *****skills.txt*60[Geomancy]           *****skills.txt*06[Hafted-mastery]     *****skills.txt*21[Magic]              
-  *****skills.txt*54[Magic-Device]        *****skills.txt*24[Mana]               *****skills.txt*29[Meta]               *****skills.txt*47[Mimicry]          
-  *****skills.txt*33[Mind]                *****skills.txt*41[Mindcraft]          *****skills.txt*42[Monster-lore]       *****skills.txt*59[Music]            
-  *****skills.txt*34[Nature]              *****skills.txt*35[Necromancy]         *****skills.txt*07[Polearm-mastery]    *****skills.txt*45[Possession]       
-  *****skills.txt*39[Prayer]              *****skills.txt*36[Runecraft]          *****skills.txt*09[Sling-mastery]      *****skills.txt*14[Sneakiness]         
-  *****skills.txt*22[Spell-power]         *****skills.txt*38[Spirituality]       *****skills.txt*23[Sorcery]            *****skills.txt*19[Stealing]           
-  *****skills.txt*15[Stealth]             *****skills.txt*53[Stunning-blows]     *****skills.txt*43[Summoning]          *****skills.txt*03[Sword-mastery]    
-  *****skills.txt*46[Symbiosis]           *****skills.txt*32[Temporal]           *****skills.txt*37[Thaumaturgy]        *****skills.txt*48[Udun]
-  *****skills.txt*26[Water]               *****skills.txt*02[Weaponmastery]
+  *****skills.txt*05[Axe-mastery]         *****skills.txt*18[Backstab]           *****skills.txt*13[Barehand-combat]    *****skills.txt*61[Bearform-combat]
+  *****skills.txt*12[Boomerang-mastery]   *****skills.txt*58[Boulder-throwing]   *****skills.txt*10[Bow-mastery]        *****skills.txt*01[Combat]             
+  *****skills.txt*30[Conveyance]          *****skills.txt*44[Corpse-preservation]*****skills.txt*04[Critical-hits]      *****skills.txt*11[Crossbow-mastery]   
+  *****skills.txt*52[Demonology]          *****skills.txt*16[Disarming]          *****skills.txt*31[Divination]         *****skills.txt*20[Dodging]            
+  *****skills.txt*28[Earth]               *****skills.txt*25[Fire]               *****skills.txt*60[Geomancy]           *****skills.txt*06[Hafted-mastery]     
+  *****skills.txt*21[Magic]               *****skills.txt*54[Magic-device]       *****skills.txt*24[Mana]               *****skills.txt*29[Meta]               
+  *****skills.txt*47[Mimicry]             *****skills.txt*33[Mind]               *****skills.txt*41[Mindcraft]          *****skills.txt*42[Monster-lore]       
+  *****skills.txt*59[Music]               *****skills.txt*34[Nature]             *****skills.txt*35[Necromancy]         *****skills.txt*07[Polearm-mastery]    
+  *****skills.txt*45[Possession]          *****skills.txt*39[Prayer]             *****skills.txt*36[Runecraft]          *****skills.txt*09[Sling-mastery]      
+  *****skills.txt*14[Sneakiness]          *****skills.txt*22[Spell-power]        *****skills.txt*38[Spirituality]       *****skills.txt*23[Sorcery]            
+  *****skills.txt*19[Stealing]            *****skills.txt*15[Stealth]            *****skills.txt*53[Stunning-blows]     *****skills.txt*43[Summoning]          
+  *****skills.txt*03[Sword-mastery]       *****skills.txt*46[Symbiosis]          *****skills.txt*32[Temporal]           *****skills.txt*37[Thaumaturgy]        
+  *****skills.txt*48[Udun]                *****skills.txt*26[Water]              *****skills.txt*02[Weaponmastery]
 
 
 ~~~~~01|Skills|Combat
@@ -227,6 +227,11 @@ This skill is a sub-skill of the Combat skill. It affects your general ability
 to fight using martial arts. In order to utilise it, you must be capable of
 using a weapon in the first place, but choose not to. Spending 1 skill point
 on your Barehand-combat skill adds 0.5 bonus skill points to your Combat skill.
+~~~~~61|Skills|Bearform-combat
+[[[[[BBearform-combat]
+This skill is a sub-skill of the Combat skill. It affects your ability to fight 
+while in the form of a bear. In order to utilise it, you must be in bearform. 
+*****r_beorn*0[Beornings] are the adventurers most likely to use this form of skill.
 ~~~~~58|Skills|Boulder-throwing
 [[[[[BBoulder-throwing]
 This skill is a sub-skill of the Combat skill. It affects your ability to
@@ -292,15 +297,15 @@ the strength of wands and staffs.
 Investing in the Magic skill? You might be interested in the *****ability.txt*04[Perfect Casting] 
 ability.
 
-Sub-skills include: Magic-Device, Spell-power, Sorcery, Mana, Fire, Water, Air,
+Sub-skills include: Magic-device, Spell-power, Sorcery, Mana, Fire, Water, Air,
 Earth, Meta, Conveyance, Divination, Temporal, Mind, Nature, Udun, Demonology,
 Necromancy, Runecraft, Thaumaturgy, and Alchemy.
-~~~~~54|Skills|Magic-Device
-[[[[[BMagic-Device]
+~~~~~54|Skills|Magic-device
+[[[[[BMagic-device]
 This skill is a sub-skill of the Magic skill. It eases the use of magical
 devices, such as wands, staves, and rods, and boosts the casting level of spells
 stored in a wand or a staff. *****magic.txt*02[More on this]. It also helps pseudo-id of magic
-objects. Spending 1 skill point on your Magic-Device skill adds 0.07 bonus skill
+objects. Spending 1 skill point on your Magic-device skill adds 0.07 bonus skill
 points to your Magic skill.
 ~~~~~22|Skills|Spell-power
 [[[[[BSpell-power]
@@ -477,6 +482,7 @@ available under the "m" menu. Spending 1 skill point on your Mindcraft skill
 adds 0.1 bonus skill points to your Spirituality skill and 0.1 bonus skill
 points to your Magic skill.
 ~~~~~59|Skills|Music
+[[[[[BMusic]
 This skill is a sub-skill of the Spirituality skill. It affects what level of
 *****m_music.txt*0[Musical songs] you can access through instruments. This power 
 is available under the "m" menu. Spending 1 skill point on your Music skill 

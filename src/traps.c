@@ -759,7 +759,7 @@ bool player_activate_trap_type(s16b y, s16b x, object_type *i_ptr, s16b item)
 	case TRAP_OF_STEAL_ITEM:
 		{
 			/*
-			 * please note that magical stealing is not so 
+			 * please note that magical stealing is not so
 			 * easily circumvented
 			 */
 			if (!p_ptr->paralyzed &&
@@ -892,7 +892,7 @@ bool player_activate_trap_type(s16b y, s16b x, object_type *i_ptr, s16b item)
 		/* Trap of Missing Money */
 	case TRAP_OF_MISSING_MONEY:
 		{
-			u32b gold = (p_ptr->au / 10) + randint(25);
+			s32b gold = (p_ptr->au / 10) + randint(25);
 
 			if (gold < 2) gold = 2;
 			if (gold > 5000) gold = (p_ptr->au / 20) + randint(3000);
@@ -1072,10 +1072,12 @@ bool player_activate_trap_type(s16b y, s16b x, object_type *i_ptr, s16b item)
 
 				object_type *j_ptr = &p_ptr->inventory[i];
 
-				/* Drain charged wands/staffs */
+				/* Drain charged wands/staffs
+				   Hack -- don't let artifacts get drained */
 				if (((j_ptr->tval == TV_STAFF) ||
 				                (j_ptr->tval == TV_WAND)) &&
-				                (j_ptr->pval))
+				                (j_ptr->pval) &&
+			                     !artifact_p(j_ptr))
 				{
 					ident = TRUE;
 					j_ptr->pval = j_ptr->pval / (randint(4) + 1);
@@ -2124,7 +2126,7 @@ static bool item_tester_hook_potion(object_type *o_ptr)
 }
 
 /*
- * The trap setting code for rogues -MWK- 
+ * The trap setting code for rogues -MWK-
  *
  * Also, it will fail or give weird results if the tvals are resorted!
  */

@@ -1,4 +1,5 @@
 -- Ok some functions that we dont need are dangerous
+--[[
 execute = nil
 getenv = nil
 setlocale = nil
@@ -10,7 +11,7 @@ appendto = nil
 remove = nil
 rename = nil
 tmpname = nil
-
+]]
 modules = {}
 
 current_module = nil

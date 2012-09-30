@@ -115,6 +115,7 @@ bool quest_wight_death_hook(char *fmt)
 		cmsg_print(TERM_YELLOW, "Without their King the wights won't be able to do much.");
 
 		cave_set_feat(p_ptr->py, p_ptr->px, FEAT_LESS);
+		cave[p_ptr->py][p_ptr->px].special = 0;
 
 		cquest.status = QUEST_STATUS_COMPLETED;
 		del_hook(HOOK_MONSTER_DEATH, quest_wight_death_hook);

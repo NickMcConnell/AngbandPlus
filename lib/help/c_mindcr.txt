@@ -52,6 +52,4 @@ powers in the *****m_mindcr.txt*0[Mindcraft powers] document.
 
 #####GStarting Equipment
 A mindcrafter begins the game with:
-    A small sword
-    A potion of restore mana
-    Soft leather armor
+    A mace

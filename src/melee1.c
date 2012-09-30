@@ -1977,10 +1977,12 @@ bool make_attack_normal(int m_idx, byte divis)
 						/* Skip non-objects */
 						if (!o_ptr->k_idx) continue;
 
-						/* Drain charged wands/staffs */
+						/* Drain charged wands/staffs
+						   Hack -- don't let artifacts get drained */
 						if (((o_ptr->tval == TV_STAFF) ||
 						                (o_ptr->tval == TV_WAND)) &&
-						                (o_ptr->pval))
+						                (o_ptr->pval) &&
+					                     !artifact_p(o_ptr))
 						{
 							/* Message */
 							msg_print("Energy drains from your pack!");

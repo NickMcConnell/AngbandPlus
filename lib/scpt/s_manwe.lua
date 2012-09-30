@@ -41,7 +41,7 @@ MANWE_SHIELD = add_spell
 	end,
 	["desc"] =	{
 			"It surrounds you with a shield of wind that deflects blows from evil monsters",
-			"At level 10 it increases your armor rating",
+			"At level 10 it increases your armour rating",
 			"At level 20 it retaliates against monsters that melee you",
 	}
 }
@@ -103,8 +103,8 @@ MANWE_BLESS = add_spell
 			return "dur "..(get_level(MANWE_BLESS, 70) + 30).."+d40"
 	end,
 	["desc"] =	{
-			"Manwe's Blessing removes your fears, bless you and surrounds you with",
-			"holy lite",
+			"Manwe's Blessing removes your fears, blesses you and surrounds you with",
+			"holy light",
 			"At level 10 it also grants heroism",
 			"At level 20 it also grants super heroism",
 			"At level 30 it also grants holy luck and life protection",

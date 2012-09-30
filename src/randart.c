@@ -26,7 +26,7 @@ static bool grab_one_power(int *ra_idx, object_type *o_ptr, bool good, s16b *max
 	int i = 0, j;
 	int *ok_ra, ok_num = 0;
 	bool ret = FALSE;
-	s32b f1, f2, f3, f4, f5, esp;
+	u32b f1, f2, f3, f4, f5, esp;
 
 	C_MAKE(ok_ra, max_ra_idx, int);
 

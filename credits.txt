@@ -32,7 +32,7 @@ drop me a line please) in no particular order:
 - Kieron for some patches
 - Runescrye for ra_info.txt and surely more :)
 - Fearof4s for lua patches, lua tutorial, quests and stuff.
-- Pav Lucistnik for some patches
+- Pav Lucistnik for some patches and hosting the CVS
 - Mef for the huge task of updating class and magic help documents for 2.x
   and lots and lots of other help updates!
 - Erik J Brown for some changes to help docs.
@@ -44,7 +44,7 @@ drop me a line please) in no particular order:
 - John Gilmore for alchemy improvements patch
 - Massimiliano Marangio for lots and lots of help updates, typo corrections, 
   bug fixes etc.
-- Neil Stevens <neil@hakubi.us> for some polishing
+- Neil Stevens <neil@hakubi.us> for making stable releases
 - Jeff Epler for automatizer improvements, and certainly more in the future ;)
 - Scott Bigham for some cool patches
 - Magua(magua@speakeasy.net) who wrote the java applet to play cmovies online

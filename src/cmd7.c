@@ -31,20 +31,25 @@ void mindcraft_info(char *p, int power)
 	switch (power)
 	{
 	case 0:
+		strnfmt(p, 80, " rad %d", DEFAULT_RADIUS);
 		break;
 	case 1:
 		strnfmt(p, 80, " dam %dd%d", 3 + ((plev - 1) / 4), 3 + plev / 15);
 		break;
 	case 2:
-		strnfmt(p, 80, " range %d", (plev < 25 ? 10 : plev + 2));
+		strnfmt(p, 80, " range %d", (plev < 25 ? 10 : plev + 2 + p_ptr->to_s * 3));
 		break;
 	case 3:
 		strnfmt(p, 80, " range %d", plev * 5);
 		break;
 	case 4:
+		strnfmt(p, 80, " power %d", plev * (plev < 30 ? 1 : 2));
 		break;
 	case 5:
-		strnfmt(p, 80, " dam %dd8", 8 + ((plev - 5) / 4));
+		if (plev > 20)
+			strnfmt(p, 80, " dam %dd8 rad %d", 8 + ((plev - 5) / 4), (plev - 20)/8 + 1);
+		else
+			strnfmt(p, 80, " dam %dd8", 8 + ((plev - 5) / 4));
 		break;
 	case 6:
 		strnfmt(p, 80, " dur %d", plev);
@@ -52,16 +57,19 @@ void mindcraft_info(char *p, int power)
 	case 7:
 		break;
 	case 8:
-		strnfmt(p, 80, " dam %d", plev * ((plev - 5) / 10 + 1));
+		if (plev < 25)
+			strnfmt(p, 80, " dam %d rad %d", (3 * plev) / 2, 2 + (plev / 10));
+		else
+			strnfmt(p, 80, " dam %d", plev * ((plev - 5) / 10 + 1));
 		break;
 	case 9:
-		strnfmt(p, 80, " dur 11-%d", plev + plev / 2);
+		strnfmt(p, 80, " dur 11-%d", 10 + plev + plev / 2);
 		break;
 	case 10:
-		strnfmt(p, 80, " dam %dd6", plev / 2);
+		strnfmt(p, 80, " dam %dd6 rad %d", plev / 2, 0 + (plev - 25) / 10);
 		break;
 	case 11:
-		strnfmt(p, 80, " dam %d", plev * (plev > 39 ? 4 : 3));
+		strnfmt(p, 80, " dam %d rad %d", plev * (plev > 39 ? 4 : 3), 3 + plev / 10);
 		break;
 	}
 }
@@ -5126,7 +5134,6 @@ void do_cmd_possessor()
 			}
 		}
 	}
-
 	else if (ext == 2)
 	{
 		if (p_ptr->disembodied)
@@ -5137,6 +5144,10 @@ void do_cmd_possessor()
 		{
 			do_cmd_leave_body(TRUE);
 		}
+	}
+	else
+	{
+		return;
 	}
 
 	/* Take a turn */
@@ -7163,12 +7174,19 @@ void summon_true(int r_idx, int item)
 	/* Non-uniques are easier to handle */
 	else
 	{
-		/* It can be used multiple times */
-		used = FALSE;
+		if (get_skill(SKILL_SUMMON) == 0)
+		{
+			used = TRUE;
+		}
+		else
+		{
+			/* It can be used multiple times */
+			used = FALSE;
 
-		/* But it is not 100% sure */
-		chance = (r_ptr->level * 25 / get_skill(SKILL_SUMMON));
-		if (magik(chance)) used = TRUE;
+			/* But it is not 100% sure (note: skill > 0) */
+			chance = (r_ptr->level * 25 / get_skill(SKILL_SUMMON));
+			if (magik(chance)) used = TRUE;
+		}
 
 		chance = (get_skill(SKILL_SUMMON) * 130 / (r_ptr->level + 1));
 
@@ -7613,8 +7631,6 @@ void do_cmd_symbiotic(void)
 						/* overflow alert */
 						q_ptr->exp = m_ptr->exp;
 						q_ptr->elevel = m_ptr->level;
-						q_ptr->dd = m_ptr->speed;
-						q_ptr->found_aux4 = m_ptr->ac;
 						object_aware(q_ptr);
 						object_known(q_ptr);
 
@@ -7669,13 +7685,9 @@ void do_cmd_symbiotic(void)
 
 				/* TODO fix this hack hack hack hackity hack with ToME 3 flags */
 				m_ptr = &m_list[m_idx];
+				monster_gain_exp(m_idx, o_ptr->exp, TRUE);
 				m_ptr->hp = o_ptr->pval2;
 				m_ptr->maxhp = o_ptr->pval3;
-				/* overflow alert */
-				m_ptr->exp = o_ptr->exp;
-				m_ptr->level = o_ptr->elevel;
-				m_ptr->speed = o_ptr->dd;
-				m_ptr->ac = o_ptr->found_aux4;
 
 				floor_item_increase(0 - item, -1);
 				floor_item_describe(0 - item);
@@ -7698,7 +7710,7 @@ void do_cmd_symbiotic(void)
 			/* Life Share */
 		case 3:
 			{
-				s32b percent1, percent2, max;
+				s32b percent1, percent2;
 
 				if (!o_ptr->k_idx)
 				{
@@ -7707,20 +7719,19 @@ void do_cmd_symbiotic(void)
 				}
 
 				r_ptr = &r_info[o_ptr->pval];
-				max = maxroll(r_ptr->hdice, r_ptr->hside);
 
 				percent1 = p_ptr->chp;
 				percent1 = (percent1 * 100) / p_ptr->mhp;
 
 				percent2 = o_ptr->pval2;
-				percent2 = (percent2 * 100) / max;
+				percent2 = (percent2 * 100) / o_ptr->pval3;
 
 				/* Now get the average */
 				percent1 = (percent1 + percent2) / 2;
 
 				/* And set the hp of monster & player to it */
 				p_ptr->chp = (percent1 * p_ptr->mhp) / 100;
-				o_ptr->pval2 = (percent1 * max) / 100;
+				o_ptr->pval2 = (percent1 * o_ptr->pval3) / 100;
 
 				/* Redraw */
 				p_ptr->redraw |= (PR_HP);
@@ -7743,7 +7754,8 @@ void do_cmd_symbiotic(void)
 					break;
 				}
 
-				use_symbiotic_power(o_ptr->pval, FALSE, FALSE, TRUE);
+				if (0 > use_symbiotic_power(o_ptr->pval, FALSE, FALSE, TRUE))
+					return;
 
 				break;
 			}
@@ -7751,7 +7763,7 @@ void do_cmd_symbiotic(void)
 			/* Heal Symbiote */
 		case 5:
 			{
-				int max, hp;
+				int hp;
 
 				if (!o_ptr->k_idx)
 				{
@@ -7760,10 +7772,9 @@ void do_cmd_symbiotic(void)
 				}
 
 				r_ptr = &r_info[o_ptr->pval];
-				max = maxroll(r_ptr->hdice, r_ptr->hside);
-				hp = max * (15 + get_skill_scale(SKILL_SYMBIOTIC, 35)) / 100;
+				hp = o_ptr->pval3 * (15 + get_skill_scale(SKILL_SYMBIOTIC, 35)) / 100;
 				o_ptr->pval2 += hp;
-				if (o_ptr->pval2 > max) o_ptr->pval2 = max;
+				if (o_ptr->pval2 > o_ptr->pval3) o_ptr->pval2 = o_ptr->pval3;
 
 				msg_format("%s is healed.", symbiote_name(TRUE));
 
@@ -7783,7 +7794,8 @@ void do_cmd_symbiotic(void)
 					break;
 				}
 
-				use_symbiotic_power(o_ptr->pval, TRUE, FALSE, TRUE);
+				if(0 > use_symbiotic_power(o_ptr->pval, TRUE, FALSE, TRUE))
+					return;
 
 				break;
 			}
@@ -7908,7 +7920,7 @@ void do_cmd_create_boulder()
 
 		(void)inven_carry(q_ptr, FALSE);
 
-		msg_print("You make some boulder.");
+		msg_print("You make some boulders.");
 
 		p_ptr->update |= (PU_VIEW | PU_FLOW | PU_MON_LITE);
 		p_ptr->window |= (PW_OVERHEAD);

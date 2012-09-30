@@ -25,10 +25,10 @@ below from most luck to least luck.
 
 Barbarian (+1); 
 Spectre, Skeleton (-3); 
-Vampire, Zombie (-4).
+Zombie (-4).
 
-So, a Hobbit Barbarian starts with 6 luck points, while a Yeek Zombie starts
-with -9 luck points.
+So, a Hobbit starts with 5 luck points, a Beorning Barbarian starts with 2 luck
+points, while a Yeek Zombie starts with -9 luck points.
 
 #####G2. Descriptions
 Drinking a potion of self-knowledge will tell you how lucky or unlucky your
@@ -56,7 +56,7 @@ All Morgul items have -10 luck.
 Artifacts can affect your luck. Beware: not all artifacts give you good luck.
 Listed below are the artifacts which affect your luck.
 
-Phial of Galadriel (+4)
+The Phial of Galadriel (+4)
 The Arkenstone of Thrain (+3)
 The Ring of Power 'Narya' (+1)
 The Ring of Power 'Nenya' (+2)
@@ -69,17 +69,19 @@ The Long Bow of Bard (+2)
 The Mage Staff of Eternity (+12)
 The Harp of Maglor (+3)
 The Drum of the Sky (+2)
-The Flute of Daeron (+1)
+The Harp of Daeron (+1)
 The Long Sword of Eternity (+10)
 The Robe of Great Luck (+60)
 The Heavy Crossbow of Eternity (+5)
 The Iron Helm of Knowledge (-6)
 The Shield of Deflection of Gil-galad (+5)
 The Set of Gauntlets of Eol (+3)
+The Demonblade of Gothmog (-20)
+The Long Sword 'Durandil' (+3)
 The Phial of Undeath (-5)
 The Ring of Phasing (+15)
 The Blue Stone 'Toris Mejistos' (+2)
-The Demonblade of Gothmog (-20)
+
 
 #####G4. What does it affect.
 It affects your chance to-hit in ranged combat and melee combat.
@@ -101,7 +103,8 @@ It affects the chance of creating a special object.
 
 It prevents the death fate if your are lucky.
 
-It affects the number of skills you receive when quaffing a potion of skill.
+It affects the number of skill points you receive when quaffing the Potion of
+Learning.
 
 
                                    Written for ToME 2.0 by Chris Hadgis

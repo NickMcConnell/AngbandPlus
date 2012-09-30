@@ -18,7 +18,7 @@
  *
  * static char maze[(MAX_HGT / 2) + 2][(MAX_WID / 2) + 2];
  */
-typedef char maze_row[(MAX_WID / 2) + 2];
+typedef signed char maze_row[(MAX_WID / 2) + 2];
 
 void dig(maze_row *maze, int y, int x, int d)
 {
