@@ -1,15 +1,18 @@
 N: 1:BIAS_ELEC
-7
+9
+'vajra'
+'Aeglin'
 (*Defender*)
 'Storm Halberd'
 'Thunder Zap'
 'Angered Thunder God'
-'Lightning Blinger'
-'Lightning Bland'
+'Thunder Bringer'
+'Lightning Blade'
 of Djinni
 
 N: 2:BIAS_POIS
-6
+7
+'Dragon Fang'
 (*Defender*)
 'Serpent's Tongue'
 'Assassin's Strike'
@@ -18,7 +21,8 @@ of Mortal Venom
 of Radioactivity
 
 N: 3:BIAS_FIRE
-7
+8
+'Red Storm'
 (*Defender*)
 'Phoenix'
 'Fire Bland'
@@ -37,7 +41,8 @@ N: 4:BIAS_COLD
 'Freezing Point'
 
 N: 5:BIAS_ACID
-5
+6
+'Disintegrator'
 (*Defender*)
 'Dissolver'
 'Acidic Drop'
@@ -83,10 +88,11 @@ N: 8:BIAS_WIS
 'Yggr-drasill'
 
 N:16:BIAS_ROGUE
-7
+8
+'Secret Weapon'
 (Muder)
-'Quickly Kill'
-'Speedy Hero'
+'Quick Kill'
+'Speed Star'
 'Windwalker'
 'Red Comet'
 of Assassins
@@ -94,7 +100,8 @@ of Light Speed
 
 N:17:BIAS_MAGE
 N: 7:BIAS_INT
-5
+6
+'Eternal Verities'
 'Mana Spectrum'
 'Invisible Hand'
 'Ancient Wisdom'
@@ -105,7 +112,10 @@ N:18:BIAS_WARRIOR
 N: 6:BIAS_STR
 N:10:BIAS_CON
 N: 9:BIAS_DEX
-7
+10
+'Undying Samurai'
+of Ultimate Might
+'Vanquisher'
 'Snickersnee'
 'Iron Biter'
 'Spiral Wave'
@@ -115,31 +125,26 @@ of Gerard
 of Benedict
 
 N:19:BIAS_RANGER
-5
+6
+of the Eagle Lord
 of Hyper Nature
 'Hit Maker'
-'Shooting Atar'
+'Shooting Star'
 'Sniper'
 'Animalbane'
 
 N:*:Default
-36
-of Ultimate Might
+26
 'Impuls 255'
-'Disintegrator'
-'Vanquisher'
 'BGF-9000'
 'Bloodscourge'
 'Soul Searer'
 'Cosmic Horror'
-'Dragon Fang'
 'Nemesis'
 'Doom!'
 'Inferno'
 'Warhead'
-'Red Storm'
 'Conqueror'
-'Secret Weapon'
 'Angel of Death'
 'Destroying Angel'
 'Black Star'
@@ -154,9 +159,5 @@ of Ultimate Might
 of Blays
 of Eric
 of Elric
-'Aeglin'
 of Beowulf
 'Fatal Destiny'
-'Undying Samurai'
-'Eternal Verities'
-of the Eagle Lord

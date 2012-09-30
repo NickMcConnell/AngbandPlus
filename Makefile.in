@@ -64,7 +64,7 @@ VERSION = @VERSION@
 
 AUTOMAKE_OPTIONS = foreign
 
-EXTRA_DIST = autopick.txt readme.txt readme_angband readme_eng.txt
+EXTRA_DIST = autopick.txt autopick_eng.txt readme.txt readme_angband readme_eng.txt
 
 SUBDIRS = src lib
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4

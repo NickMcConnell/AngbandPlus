@@ -1,5 +1,6 @@
 N: 1:BIAS_ELEC
-5
+6
+of Galactic Barrier
 of Resist *Lightning*
 of Thor
 of Zeus
@@ -8,22 +9,23 @@ of Immunity
 
 N: 2:BIAS_POIS
 8
-'Poisonous Barrier'
+'Poison Barrier'
 'Great unclean one'
-'Tir-karaks'
-'Crucible of Poinsons'
-of Resist Poison
-of hte Archpriest
-of Super Resistance
+'Tir-karakse'
+'Healing Bottle'
+'Soul Purification'
+of the Archpriest
+of Hyper Resistance
 of Asklepios
 
 N: 3:BIAS_FIRE
-6
+7
 'Firewall'
 'Phoenix'
 of hellfire
 of Corona
 of Allah
+of Yama
 
 N: 4:BIAS_COLD
 6
@@ -31,12 +33,13 @@ N: 4:BIAS_COLD
 'White Diamond'
 'Great Snowfield'
 of Ymir
-of Large Ice Field
-of Crystal Ice
+of Snow Field
+of Soul Freeze
 
 N: 5:BIAS_ACID
-7
-'Ooparts'
+8
+of Rebma
+'O-Parts'
 of Ultimate Defence
 of the Everlasting
 of Ultimax
@@ -87,15 +90,17 @@ of Super Speed
 
 N:17:BIAS_MAGE
 N: 7:BIAS_INT
-4
+5
+of Merlin's Pattern
 'Mana Prism'
-'Power Tower'
+'Tower of Power'
 of the Great Magi
 of *intelligence*
 
 N:18:BIAS_WARRIOR
 N: 6:BIAS_STR
-8
+9
+'Battle Force'
 'Aegis'
 of the Force
 of Invincibility
@@ -128,14 +133,14 @@ N:11:BIAS_CHR
 'Day of the Dove'
 of Eternity
 of Heart's Desire
-of the Best
+of Cleopatra
 of Aphrodite
 
 N:*:Default
-30
+26
+'Monolith'
 'Destiny Star'
 of Destiny
-'Monolith'
 'Lawmaster'
 of Diamond
 'Living Armour'
@@ -147,19 +152,16 @@ of the Dungeon Master
 of the Dungeon Keeper
 'Intact'
 of Great Barrier
-of Galactic Barrier
 'Battlemech'
-'Battle Force'
 'Meganoid'
 'Imperium'
 of the Empire
 'Elite'
-of Merlin's Pattern
 of Infinity
 of the Makers
 of Thrain
 of Deirdre
 of Random
-of Rebma
 of Celeborn
 'Eternal Bastion'
+

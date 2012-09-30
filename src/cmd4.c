@@ -80,7 +80,7 @@ errr do_cmd_write_nikki(int type, int num, cptr note)
 #ifdef JP
 		msg_format("%s を開くことができませんでした。プレイ記録を一時停止します。", buf);
 #else
-		msg_format("Failed to open %s. Play-Record is disabled temporaly.", buf);
+		msg_format("Failed to open %s. Play-Record is disabled temporally.", buf);
 #endif
 		msg_format(NULL);
 		disable_nikki=TRUE;
@@ -655,7 +655,7 @@ static void do_cmd_erase_nikki(void)
 #ifdef JP
 		msg_format("%s の消去に失敗しました。", buf);
 #else
-		msg_format("faild to delete %s.", buf);
+		msg_format("failed to delete %s.", buf);
 #endif
 	}
 	msg_print(NULL);
@@ -1891,7 +1891,7 @@ void do_cmd_options(void)
 		prt("(3) Game-Play Options", 6, 5);
 		prt("(4) Disturbance Options", 7, 5);
 		prt("(5) Efficiency Options", 8, 5);
-		prt("(6) Object auto-destruction Options", 9, 5);
+		prt("(6) Object Auto-Pick/Destroy Options", 9, 5);
 		prt("(R) Play-record Options", 10, 5);
 
 		/* Special choices */
@@ -1997,7 +1997,7 @@ void do_cmd_options(void)
 #ifdef JP
                                 do_cmd_options_aux(7, "アイテム自動拾い/破壊オプション");
 #else
-                                do_cmd_options_aux(7, "Object auto-pick/destroy Options");
+                                do_cmd_options_aux(7, "Object Auto-Pick/Destroy Options");
 #endif
                                 break;
                         }
@@ -4832,7 +4832,7 @@ static void do_cmd_knowledge_inven(void)
 #ifdef JP
 	    msg_format("一時ファイル %s を作成できませんでした。", file_name);
 #else
-	    msg_format("Failed to create temporaly file %s.", file_name);
+	    msg_format("Failed to create temporally file %s.", file_name);
 #endif
 	    msg_print(NULL);
 	    return;

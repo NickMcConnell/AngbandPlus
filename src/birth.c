@@ -1,6 +1,3 @@
-/* CVS: Last edit by $Author: ebock $ on $Date: 1999/11/15 13:55:46 $ */
-/* File: birth.c */
-
 /* Purpose: create a player character */
 
 /*
@@ -1504,9 +1501,9 @@ static hist_type bg[] =
 	{"あなたは通常のクター達が頼りにしているパパクターです。あなたの毛は緑色です。", 95, 154, 0, 65},
 	{"あなたはとても珍しいトラクターです。あなたの毛はトラのような黄と黒の縞模様です。", 100, 154, 0, 80},
 #else
-	{"You are normal Kutar. You have orage colored fur.", 65, 154, 0, 55},
-	{"You are father Kutar. And You are depended by many normal Kutars. You have green colored fur", 95, 154, 0, 65},
-	{"You are a very rare type of Kutar. Your have fur of striped pettern of yellow and black color.", 100, 154, 0, 80},
+	{"You are a normal Kutar.  You have orange colored fur.", 65, 154, 0, 55},
+	{"You are a father Kutar, the patriarch of many normal Kutars.  You have green colored fur.", 95, 154, 0, 65},
+	{"You are a very rare type of Kutar, famed for the yellow and black stripes on your body.", 100, 154, 0, 80},
 #endif
 
 #ifdef JP
@@ -1537,33 +1534,33 @@ static hist_type bg[] =
 	{"いて、本人は自分のことを本物だと信じています。", 95, 158, 0, 50},
 	{"いて、非常によくできているので本物と見分けがつきません。", 100, 158, 0, 100},
 #else
-	{"You were made by mad scientist ", 20, 155, 156, 10},
-	{"You were made at a laboratoly of an enterprise ", 50, 155, 156, 80},
-	{"You were made by a peace-loving scientist ", 85, 155, 156, 50},
-	{"You were made by a boy of genius ", 90, 155, 156, 30},
-	{"You were came from twenty 21nd century ", 100, 155, 156, 100},
+	{"You were created by a mad scientist ", 20, 155, 156, 10},
+	{"You were created in a corporate laboratory ", 50, 155, 156, 80},
+	{"You were created by a peace-loving scientist ", 85, 155, 156, 50},
+	{"You were created by a boy genius ", 90, 155, 156, 30},
+	{"You have come from the twenty-second century ", 100, 155, 156, 100},
 
-	{"as a prototype of a project. ", 10, 156, 157, 50},
+	{"as a project prototype. ", 10, 156, 157, 50},
 	{"to educate children. ", 30, 157, 157, 60},
 	{"to look after someone. ", 50, 156, 157, 70},
-	{"as a substitute of a dead child. ", 60, 156, 157, 10},
+	{"as a substitute for a dead child. ", 60, 156, 157, 10},
 	{"as a combat trooper. ", 90, 156, 157, 20},
 	{"as a tool for conquest of the world. ", 100, 156, 157, 10},
 
 
-	{"You have catlike appearance", 15, 157, 158, 40},
-	{"You have doglike appearance", 30, 157, 158, 30},
-	{"You have Kutar-like apperance", 45, 157, 158, 20},
-	{"You have humanlike apperance", 70, 157, 158, 60},
-	{"You have dwarflike apperance", 80, 157, 158, 70},
-	{"You have hobbitlike apperance", 90, 157, 158, 70},
-	{"You have elflike apperance", 100, 157, 158,  80},
+	{"You have a cat-like appearance", 15, 157, 158, 40},
+	{"You have a dog-like appearance", 30, 157, 158, 30},
+	{"You have a Kutar-like appearance", 45, 157, 158, 20},
+	{"You have a human-like appearance", 70, 157, 158, 60},
+	{"You have a dwarf-like appearance", 80, 157, 158, 70},
+	{"You have a hobbit-like appearance", 90, 157, 158, 70},
+	{"You have a elf-like appearance", 100, 157, 158,  80},
 
-	{", but your ears had been eaten by mice without leaving any trace.", 5, 158, 0, 20},
-	{"... Your creator is at least think so. But most peaple disagree.", 20, 158, 0, 30},
+	{", but your ears have been eaten by mice, and no trace of them remains.", 5, 158, 0, 20},
+	{"... at least your creator thinks so.  Most people disagree.", 20, 158, 0, 30},
 	{".", 85, 158, 0, 50},
-	{". And you are firmly beleaving that You are a real one.", 95, 158, 0, 50},
-	{". And you are almost indistingushable from real one.", 100, 158, 0, 100},
+	{", and you firmly believe that you are a real one.", 95, 158, 0, 50},
+	{", and you are almost indistinguishable from a real one.", 100, 158, 0, 100},
 #endif
 };
 
@@ -1654,7 +1651,7 @@ static cptr race_jouhou[MAX_RACES] =
 
 "Hobbits, or Halflings, are very good at bows, throwing, and have good saving throws. They also are very good at searching, disarming, perception, and stealth; so they make excellent rogues, but prefer to be called burglars. They are much weaker than humans, and no good at melee fighting. Halflings have fair infravision, so they can detect warm creatures at a distance. They have their dexterity sustained.",
 
-"Gnomes are smaller than dwarves but larger than halflings. They, like the hobbits, live in the earth in burrow-like homes. Gnomes make excellent mages, and have very good saving throws. They are good at searching, disarming, perception, and stealth. They have lower strength than humans so they are not very good at fighting with hand weapons. Gnomes have fair infra-vision, so they can detect warm-blooded creatures at a distance. Gnomes are intrinsically protected against paralysis.",
+"Gnomes are smaller than dwarves but larger than Halflings. They, like the hobbits, live in the earth in burrow-like homes. Gnomes make excellent mages, and have very good saving throws. They are good at searching, disarming, perception, and stealth. They have lower strength than humans so they are not very good at fighting with hand weapons. Gnomes have fair infra-vision, so they can detect warm-blooded creatures at a distance. Gnomes are intrinsically protected against paralysis.",
 
 "Dwarves are the headstrong miners and fighters of legend. Dwarves tend to be stronger and tougher but slower and less intelligent than humans. Because they are so headstrong and are somewhat wise, they resist spells which are cast on them.  They are very good at searching, perception, fighting, and bows. Dwarves  have a miserable stealth. They can never be blinded.",
 
@@ -1680,7 +1677,7 @@ static cptr race_jouhou[MAX_RACES] =
 
 "Klackons are bizarre semi-intelligent ant-like insectoid creatures. They make great fighters, but their mental abilities are severely limited. Obedient and well-ordered, they can never be confused. They are also very nimble, and become faster as they advance levels. They are also very acidic, inherently resisting acid, and capable of spitting acid at higher levels. ",
 
-"Kobolds are a weak goblin race. They love poisoned weapons, and can learn to throw poisoned darts (of which they carry an unlimited supply). They are also inherently resistant to poison, although they are not one of themore powerful races.",
+"Kobolds are a weak goblin race. They love poisoned weapons, and can learn to throw poisoned darts (of which they carry an unlimited supply). They are also inherently resistant to poison, although they are not one of the more powerful races.",
 
 "The hated and persecuted race of nocturnal dwarves, these cave-dwellers are not much bothered by darkness. Their natural inclination to magical items has made them immune to effects which could drain away magical energy.",
 
@@ -1688,37 +1685,37 @@ static cptr race_jouhou[MAX_RACES] =
 
 "A humanoid race with dragon-like attributes. As they advance levels, they gain new elemental resistances (up to Poison Resistance), and they also have a breath weapon, which becomes more powerful with experience. The exact type of the breath weapon depends on the Draconian's class and level. With their wings, they can easily escape any pit trap unharmed.",
 
-"A secretive and mysterious ancient race. Their civilization may well be older than any other on our planet, and their intelligence and wisdom are naturally sustained, and are so great that they enable Mind Flayers to become more powerful spellcasters than any other race, even if their physical attributes are a good deal less admirable. As they advance levels, they gain the powers of See Invisible, Telepathy.",
+"A secretive and mysterious ancient race. Their civilization may well be older than any other on our planet, and their intelligence and wisdom are naturally sustained, and are so great that they enable Mind Flayers to become more powerful spellcasters than any other race, even if their physical attributes are a good deal less admirable. As they advance levels, they gain the powers of See Invisible and Telepathy.",
 
 "A demon-creature from the nether-world, naturally resistant to fire attacks, and capable of learning fire bolt and fire ball attacks. They are little loved by other races, but can perform fairly well in most professions. As they advance levels, they gain the powers of See Invisible.",
 
-"A Golem is an artificial creature, built from a lifeless raw material like clay, and awakened to life. They are nearly mindless, making them useless for professions which rely on magic, but as warriors they are very tough. They are resistant to poison, they can see invisible things, and move freely. At higher levels, they also become resistant to attacks which threaten to drain away their life force. Golems gain very little nutrition from ordinary food. Golems also gain natural armor class bonus from their tough body.",
+"A Golem is an artificial creature, built from a lifeless raw material like clay, and awakened to life. They are nearly mindless, making them useless for professions which rely on magic, but as warriors they are very tough. They are resistant to poison, they can see invisible things, and move freely. At higher levels, they also become resistant to attacks which threaten to drain away their life force. Golems gain very little nutrition from ordinary food. Golems also gain a natural armor class bonus from their tough body.",
 
-"There are two types of skeletons: the ordinary, warrior-like skeletons, and the spell-using skeletons, which are also called liches. As undead beings, skeletons need to worry very little about poison or attacks that can drain life.They do not really use eyes for perceiving things, and are thus not fooled by invisibility.  Their bones are resistant to sharp shrapnels, and they will quickly become resistant to cold. Although the magical effects of these will affect the skeleton even without entering the skeleton's (non-existent) belly, the potion or food itself will fall through the skeleton's jaws, giving no nutritional benefit.",
+"There are two types of skeletons: the ordinary, warrior-like skeletons, and the spell-using skeletons, which are also called liches. As undead beings, skeletons need to worry very little about poison or attacks that can drain life. They do not really use eyes for perceiving things, and are thus not fooled by invisibility.  Their bones are resistant to sharp shrapnel, and they will quickly become resistant to cold. Although the magical effects of these will affect the skeleton even without entering the skeleton's (non-existent) belly, the potion or food itself will fall through the skeleton's jaws, giving no nutritional benefit.",
 
 "Much like Skeletons, Zombies too are undead horrors: they are resistant to life-draining attacks, and can learn to restore their life-force. Like skeletons, they become resistant to cold-based attacks (actually earlier than skeletons), resist poison and can see invisible. While still vulnerable to cuts (unlike skeletons), Zombies are resistant to Nether. Like Golems, they gain very little nutrition from the food of mortals.",
 
-"One of the mightier undead creatures, the Vampire is an awe-inspiring sight. Yet this mighty creature has a serious weakness: the bright rays of sun are its bane, and it will need to flee the surface to the deep recesses of earth until the sun finally sets. Darkness, on the other hand, only makes the Vampire stronger. As undead, the Vampire has a firm hold on its life force, and resists nether attacks. The Vampire also resists cold and poison based attacks. It is, however, susceptible to its perpetualhunger for fresh blood, which can only be satiated by sucking the blood from a nearby monster.",
+"One of the mightier undead creatures, the Vampire is an awe-inspiring sight. Yet this dread creature has a serious weakness: the bright rays of sun are its bane, and it will need to flee the surface to the deep recesses of earth until the sun finally sets. Darkness, on the other hand, only makes the Vampire stronger. As undead, the Vampire has a firm hold on its life force, and resists nether attacks. The Vampire also resists cold and poison based attacks. It is, however, susceptible to its perpetual hunger for fresh blood, which can only be satiated by sucking the blood from a nearby monster.",
 
 "Another powerful undead creature: the Spectre is a ghastly apparition, surrounded by an unearthly green glow. They exist only partially on our plane of existence: half-corporeal, they can pass through walls, although the density of the wall will hurt them in the process of doing this. As undead, they have a firm hold on their life force, see invisible, and resist poison and cold. They also resist nether. At higher levels they develop telepathic abilities. Spectres make superb spellcasters, but their physical form is very weak.",
 
 "One of the several fairy races, Sprites are very small. They have tiny wings and can fly over traps that may open up beneath them. They enjoy sunlight intensely, and need worry little about light based attacks. Although physically among the weakest races, Sprites are very talented in magic, and can become highly skilled wizards. Sprites have the special power of spraying Sleeping Dust, and at higher levels they learn to fly faster.",
 
- "This race is a blasphemous abomination produced by Chaos. It is not an independent race but rather a humanoid creature, most often a human, twisted by the Chaos, or a nightmarsh crossbreed of a human and a beast. All Beastmen are accustomed to Chaos so much that they are untroubled by confusion and sound, although raw logrus can still have effects on them. Beastmen revel in chaos, as it twists them more and more. Beastmen are subject to mutations: when they have been created, they receive a random mutation. After that, every time they advance a level they have a little chance of gaining yet another mutation.",
+ "This race is a blasphemous abomination produced by Chaos. It is not an independent race but rather a humanoid creature, most often a human, twisted by the Chaos, or a nightmarish crossbreed of a human and a beast. All Beastmen are accustomed to Chaos so much that they are untroubled by confusion and sound, although raw logrus can still have effects on them. Beastmen revel in chaos, as it twists them more and more. Beastmen are subject to mutations: when they have been created, they receive a random mutation. After that, every time they advance a level they have a small chance of gaining yet another mutation.",
 
-"The Ents are a powerful race dating from the beginning of the world, eldest of all animals or plants who inhabit Arda. Spirits of the land, they were summoned to guard the forests of Middle-earth. Being much like trees they are very slow but strong, and very susceptible to fire. As the Shepherds of the Trees, they have the innate ability to cause trees to rise about them for protection.",
+"The Ents are a powerful race dating from the beginning of the world, oldest of all animals or plants who inhabit Arda. Spirits of the land, they were summoned to guard the forests of Middle-earth. Being much like trees they are very slow but strong, and very susceptible to fire. As the Shepherds of the Trees, they have the innate ability to cause trees to rise about them for protection.",
 
-"Archons are higher class of angels. They are good at all skills, and are strong, wise, and are a favorite with any people. They are able to see the unseen, and have wings and can safely fly over traps and other dangerous places. However, belonging to a higher plane, the experiences of this world do not leave a strong impression on them and they gain levels slowly.",
+"Archons are a higher class of angels. They are good at all skills, and are strong, wise, and are a favorite with any people. They are able to see the unseen, and their wings allow them to safely fly over traps and other dangerous places. However, belonging to a higher plane as they do, the experiences of this world do not leave a strong impression on them and they gain levels slowly.",
 
-"Balrogs are higher class of demons. They are strong, intelligent and tough. They will not believe gods, and are not suitable for priest at all. A Balrog is resistant to fire and nether, and has a firm hold on its life force. They also learn to see invisible things at a higher level. They are good at almost all skills, except steath.",
+"Balrogs are a higher class of demons. They are strong, intelligent and tough. They do not believe in gods, and are not suitable for priest at all. Balrog are resistant to fire and nether, and have a firm hold on their life force. They also eventually learn to see invisible things. They are good at almost all skills except stealth.",
 
 "Dunedain are a race of hardy men from the West. This elder race surpasses human abilities in every field, especially constitution. However, being men of the world, very little is new to them, and levels are very hard for them to gain. Their constitution cannot be reduced. ",
 
-"Shadow Fairies is one of the several fairy races. They have wings, and can fly over traps that may open up beneath them. Shadow Fairies must beware of sunlight, as They are vulnurable to bright light. They are physically weak, but have advantages in using magics and have incomparable concealment. Shadow Fairies have a wonderful advantage that they never aggravate monsters (If they have equipments normally aggravate monsters, they only suffer a penalty to stealth, but if they aggravate by their personality itself, the advantage will be lost).",
+"Shadow Fairies are one of the several fairy races. They have wings, and can fly over traps that may open up beneath them. Shadow Fairies must beware of sunlight, as they are vulnerable to bright light. They are physically weak, but have advantages in using magic and are amazingly stealthy. Shadow Fairies have a wonderful advantage in that they never aggravate monsters (If their equipment normally aggravates monsters, they only suffer a penalty to stealth, but if they aggravate by their personality itself, the advantage will be lost).",
 
-"A Kutar is an expressionless mystery animal-like living. A word 'kuta' means 'absentmindedly' or 'vacantly'. They are always being absentmindedly. Since their appearance is pretty, they have high charisma. They do not get confused. It is because they are unchanging since they are always absentmindedly even if they get confused. And they are hard to be found by the enemy, because they are vacantly. However, since they have little attentiveness, searching and perception skills are poor. A Kutar will learn to expand the body horizontally and raises AC at high level. While being expanded, the magic defense capability will become low.",
+"A Kutar is an expressionless animal-like living creature. The word 'kuta' means 'absentmindedly' or 'vacantly'. Their absentmindedness hurts their searching and perception skills, but renders them incapable of being confused.  Their unearthly calmness and serenity make them among the most stealthy of any race.  Kutars, although expressionless, are beautiful and so have a high charisma.  Members of this race can learn to expand their body horizontally.  This increases armour class, but renders them vulnerable to magical attacks.",
 
-"An android is artificial existence with machinery body. They are poor at spell casting, but they make excellent warriors. They don't acquire experience like other races, and don't grow with it. They grow up as they put equipments on the body. Rings, amulets, and lights do not influence growth. They are resistant to poison, can move freely, and are immune to life-draining attacks. Moreover, since the body is strong, they have bonus to AC. However, since the electronic circuit is incorporated everywhere in the body, they receive a more serious damage than usual from electric shock."
+"An android is a artificial creation with a body of machinery. They are poor at spell casting, but they make excellent warriors. They don't acquire experience like other races, but rather gain in power as they attach new equipment to their frame. Rings, amulets, and lights do not influence growth. Androids are resistant to poison, can move freely, and are immune to life-draining attacks. Moreover, because of their hard metallic bodies, they get a bonus to AC. Androids have electronic circuits throughout their body and must beware of electric shocks."
 
 #endif
 };
@@ -1736,7 +1733,7 @@ static cptr class_jouhou[MAX_CLASS] =
   
 "レンジャーは戦士とメイジを合わせたような職業で、身の回りの自然と特別な関係を作り上げています。彼はより戦士であり、弓のような遠距離武器を巧く使える職業です。レンジャーはよい隠密行動、よい知覚、よい探索、よい魔法防御を持ち、魔法の道具の使用にも長けています。魔法に必要な能力値は知能です。",
   
-"パラディンは戦士とプリーストを合わせた職業です。パラディンはとてもよい戦士であり、戦士の次に優れていますが、遠距離武器を扱うのは得意ではありません。パラディンには多くの能力が欠けています。隠密行動, 知覚, 探索, そして魔法道具使用が苦手ですが、その神との提携によって魔法防御はそこそこです。魔法に必要な能力値は賢さです。",
+"パラディンは戦士とプリーストを合わせた職業です。パラディンはとてもよい戦士ですが、遠距離武器を扱うのは得意ではありません。パラディンには多くの能力が欠けています。隠密行動, 知覚, 探索, そして魔法道具使用が苦手ですが、その神との提携によって魔法防御はそこそこです。魔法に必要な能力値は賢さです。",
   
 "魔法戦士はその名称が意味する通りの職業であり、戦士とメイジの資質をあわせ持ちます。彼らの同業者であるレンジャーが自然の魔法と生き抜くためのスキルに特化している一方、本当の魔法剣士はどちらの世界でも一番になろうとしています。戦士としては普通のメイジとは比べ物にならないほど優れています。しかし、実際には魔法でも戦闘でも専門の職業には及ばず、戦士とメイジの中間に位置するような職業です。魔法に必要な能力値は知能です。",
   
@@ -1788,66 +1785,55 @@ static cptr class_jouhou[MAX_CLASS] =
 
 "A Priest is a character devoted to serving a higher power. They explore the dungeon in the service of their God. Since Priests receive new prayers as gifts from their patron deity, they cannot choose which ones they will learn. Priests are familiar with magical devices which they believe act as foci for divine intervention in the natural order of things. A priest wielding an edged weapon will be so uncomfortable with it that his fighting ability. A Priest's primary stat is Wisdom since this determine his success at praying to his deity. ",
 
-"A Rogue is a character that prefers to live by his cunning, but is capable of fighting his way out of a tight spot. Rogues are good at locating hidden traps and doors and are the masters of disarming traps and picking locks. A rogue has a high stealth allowing him to sneak around many creatures without having to fight, or to get in a telling first blow. A rogue may also backstab a fleeing monster. It is intelligence that determines his spell casting ability.",
+"A Rogue is a character that prefers to live by his cunning, but is capable of fighting his way out of a tight spot. Rogues are good at locating hidden traps and doors and are the masters of disarming traps and picking locks. A rogue has a high stealth allowing him to sneak around many creatures without having to fight, or to get in a telling first blow. A rogue may also backstab a fleeing monster. Intelligence determines a Rogue's spell casting ability.",
 
-"A Ranger is a combination of a warrior and a mage who has developed a special affinity for the natural world around him. He is a good fighter and also good about a missile weapon such as a bow. A ranger has a good stealth, good perception, good searching, a good saving throw and is good with magical devices. It is intelligence that determines his spell casting ability.",
+"A Ranger is a combination of a warrior and a mage who has developed a special affinity for the natural world around him. He is a good fighter and also good about a missile weapon such as a bow. A ranger has a good stealth, good perception, good searching, a good saving throw and is good with magical devices. Intelligence determines a Ranger's spell casting ability.",
 
-"A Paladin is a combination of a warrior and a priest. Paladins are very good fighters, second only to the warrior class, but not very good at missile weapons. A paladin lacks much in the way of abilities. He is poor at stealth, perception, searching, and magical devices but has a decent saving throw due to his divine alliance. It is wisdom that determines his success at praying to his deity.",
+"A Paladin is a combination of a warrior and a priest. Paladins are very good fighters, but not very good at missile weapons. A paladin lacks much in the way of abilities. He is poor at stealth, perception, searching, and magical devices but has a decent saving throw due to his divine alliance. Wisdom determines a Paradin's success at praying to his deity.",
 
-"A Warrior-Mage is precisely what the name suggests: a cross between the warrior and mage classes. While their brothers, the rangers, specialize in Nature magic and survival skills, true Warrior-Mages attempt to reach the best of both worlds. As warriors they are much superior to the usual Mage class. It is intelligence that determines his spell casting ability.",
+"A Warrior-Mage is precisely what the name suggests: a cross between the warrior and mage classes. While their brothers, the rangers, specialize in Nature magic and survival skills, true Warrior-Mages attempt to reach the best of both worlds. As warriors they are much superior to the usual Mage class. Intelligence determines a Warrior-Mage's spell casting ability.",
 
 "Chaos Warriors are the feared servants of the terrible Demon Lords of Chaos. Every Chaos Warrior has a Patron Demon and, when gaining a level, may receive a reward from his Patron. He might be healed or polymorphed, his stats could be increased, or he might be rewarded with an awesome weapon. On the other hand, the Patrons might surround him with monsters, drain his stats or wreck his equipment or they might simply ignore him. The Demon Lords of Chaos are chaotic and unpredictable indeed. The exact type of reward depends on both the Patron Demon (different Demons give different rewards) and chance.",
 
-"The Monk character class is very different from all other classes. Their training in martial arts makes them much more powerful with no armor or weapons. To gain the resistances necessary for survival a monk may need to wear some kind of armor, but if the armor he wears is too heavy, it will severely disturb his martial arts maneuvers. As the monk advances levels, new, powerful forms of attack become available. Their defensive capabilities increase likewise, but if armour is being worn, this effect decreases. It is wisdom that determines his spell casting ability.",
+"The Monk character class is very different from all other classes. Their training in martial arts makes them much more powerful with no armor or weapons. To gain the resistances necessary for survival a monk may need to wear some kind of armor, but if the armor he wears is too heavy, it will severely disturb his martial arts maneuvers. As the monk advances levels, new, powerful forms of attack become available. Their defensive capabilities increase likewise, but if armour is being worn, this effect decreases. Wisdom determines a Monk's spell casting ability.",
 
-"The Mindcrafter is a unique class that uses the powers of the mind instead of magic. These powers are unique to Mindcrafters, and vary from simple extrasensory powers to mental domination of others. Since these powers are developed by the practice of certain disciplines, a Mindcrafter requires no spellbooks to use them. The available powers are simply determined by the character's level. It is wisdom that determines his ability to use mind powers,",
+"The Mindcrafter is a unique class that uses the powers of the mind instead of magic. These powers are unique to Mindcrafters, and vary from simple extrasensory powers to mental domination of others. Since these powers are developed by the practice of certain disciplines, a Mindcrafter requires no spellbooks to use them. The available powers are simply determined by the character's level. Wisdom determines a Mindcrafter's ability to use mind powers,",
 
 "High-mages are mages who specialize in one particular field of magic and learn it very well - much better than the ordinary mage. For the price of giving up a second realm of magic, they gain substantial benefits in the mana costs, minimum levels, and failure rates in the spells of the realm of their specialty. A high mage's prime statistic is intelligence as this determines his spell casting ability. ",
 
-"Tourlists have visited this world for sightseeing. Their fighting skills is bad. And They cannot cast powerful spells. They are the most difficult class to survive. It is intelligence that determines his spell casting ability.",
+"Tourists have visited this world for the purpose of sightseeing. Their fighting skills is bad, and they cannot cast powerful spells. They are the most difficult class to win the game with. Intelligence determines a tourist's spell casting ability.",
 
-"Imitators have enough fighting skills to survive, but they cannot perform special abilitis with their intention. They can imitate special abilities of monsters just after these are used by the monsters. It is dexteriy that determines his ability to imitation, but a stat related to the special ability is also required.",
+"Imitators have enough fighting skills to survive, but rely on their ability to imitate monster actions after the monster itself. Dexterity determines general imitation ability, but a stat related to the specific action is often also taken into account.",
 
-"Beastmasters are in tune with the minds of the creatures of the Pits of Angband. They have the ability to summon a limited number of pets every level, dependant on their level and their Charisma. However, they are limited to blunt weapons like Whips and Maces. It is charisma that determines his spell casting ability.",
+"Beastmasters are in tune with the minds of the creatures of the world of Hengband. They are very good at riding, and have enough fighting ability. They use monsters which summoned or dominated by him as his hands and feet. Beastmasters can cast trump magic, and very good at summoning spell, but they can not summon non-living creatures. Charisma determines a Beastmaster's spell casting ability.
 
-"Sorcerors are the all-around best magicians, being able to cast any spells from almost all magic realms, except a few special realms, without having to learn it. On the downside, they are the worst fighters, being unable to use any weapon but a Mage Staff comfortably, and still unable to be anything even remotely approaching effective with it. To compensate for their ability to cast all spells.",
+Beastmasters are in tune with the minds of the creatures of the Pits of Angband. They have the ability to summon a limited number of pets every level, dependent on their level and their Charisma. However, they are limited to blunt weapons like Whips and Maces.",
 
-"Archers are to bows what warriors are to melee. They are the best class around with any bow/crossbow/sling. Needing a lot of ammo, they will learn early how to make it from junk found in the dungeons. An archer is better than a warrior at stealth, perception, searching and magical devices.",
+"Sorcerers are the all-around best magicians, being able to cast any spell from most magic realms without having to learn it. On the downside, they are the worst fighters in the dungeon, being unable to use any weapon but a Wizardstaff.",
 
-"Magic-Eaters can absorb magics of wands, staffs and rods. And they can use these magics as if they are always carrying all of these absorbed devices. To collect magic devices is more important for Magic-Eaters than any other classes by far. They are not very good at fighting, but it's possible to fight his way through. A Magic-Eater's prime statistic is intelligence as this determines his magic using ability. ",
+"Archers are to bows what warriors are to melee. They are the best class around with any bow, crossbow, or sling. They need a lot of ammunition, but will learn how to make it from junk found in the dungeon. An archer is better than a warrior at stealth, perception, searching and magical devices.",
 
-"Bards are like traditional musicians. Sort of. Their magical attacks are sound-based, and last as long as the Bard has mana. Although a bard cannot sing two or more songs at the same time, there is advantage that many songs effect all areas in sight. A bard's prime statistic is charisma as this determines how good at singing.",
+"Magic-Eaters can absorb the energy of wands, staffs, and rods, and can then use these magics as if they were carrying all of these absorbed devices. They are middling-poor at fighting. A Magic-Eater's prime statistic is intelligence.",
 
-"Red-Mages can use almost all spells from lower rank spellbooks of all realms without having to learn it. Moreover they have decent fighting skills. At higher level, they develop powerful ability \"Double Magic\". But they have large penalty in the mana costs, minimum levels, and failure rates. And they cannot use any spells from higher rank spellbooks. They are not bad at using magical devices and magic resistance, but they are bad at other skills. It is intelligence that determines his spell casting ability.",
+"Bards are something like traditional musicians. Their magical attacks are sound-based, and last as long as the Bard has mana. Although a bard cannot sing two or more songs at the same time, he or she does have the advantage that many songs affect all areas in sight. A bard's prime statistic is charisma.",
 
-"A Samurai are next strongest fighter after a Warrior. They can use Samurai Arts, a kind of martial arts using weapons. Their MP is not depend on the level, but depend only on wisdom, and they can use Concentration technique to temporaly increase MP beyond it's usual maximum value. Many high-level magical devices may be beyond their use, same as Warriors. They are not good at disarmimg traps, searching and etc. It is wisdom that determines his ability to use Samurai Arts.",
+"Red-Mages can use almost all spells from lower rank spellbooks of most realms without having to learn it. At higher level, they develop the powerful ability \"Double Magic\". However, they have large penalties in the mana costs, minimum levels, and failure rates of spells, and they cannot use any spells from higher rank spellbooks. They are not bad at using magical devices and magic resistance, and are decent fighter, but are bad at other skills. A red-mage's prime statistic is intelligence.",
 
-"A ForceTrainer is master of the spiritual Force. They prefer fighting with neither weapon nor armor. They are not as great fighter as Monks, but they can use magic, same realms as Monks, and the spiritual Force. Wielding weapon or wearing heavy armor disturb use of the Force. It is wisdom that determines his spell casting ability and the Force using ability.",
+"Samurai, masters of the weapon-based martial arts, are the next strongest fighters after Warriors. Their spellpoints do not depend on the their level, but depend solely on wisdom, and they can use Concentration techniques to temporarily increase SP beyond its usual maximum value. Samurai are not good at most other skills, and many magical devices may be too difficult for them to use. Wisdom determines a Samurai's ability to use his techniques.",
 
-"A Blue-Mage is a spell caster that must live by his wits. as he cannot hope to simply hack his way through the dungeon like a warrior. A big difference between Mage and Blue-Mage is a method to learn spells; Blue-Mage must recieve monsters' spell, activating Larning ability, to learn spells from monsters. A Blur-Mage's prime statistic is Intelligence as this determines his spell casting ability. ",
+"A ForceTrainer is a master of the spiritual Force. They prefer fighting with neither weapon nor armor. They are not as good fighters as are Monks, but they can use both magic and the spiritual Force. Wielding weapons or wearing heavy armor disturbs use of the Force. Wisdom is a ForceTrainer's primary stat.",
 
-"A Cavalry is the elite fighter who rides on a horse and runs through a battlefield. Although they cannot cast spells, they are proud of the overwhelming offensive strength on the horse. And they are good at shooting which employed high mobile power. At high level, they learn to forcibly ride on and demesticate a wild monster. Since they take pride in the body and the soul, they don't prefer magical devices.",
+"A Blue-Mage is a spell caster that must live by his wits, as he cannot hope to simply hack his way through the dungeon like a warrior. A big difference between the Mage and the Blue-Mage is the method of learning spells: Blue-Mage must receive monster spells, which activates his ability to learn spells from monsters. A Blur-Mage's prime statistic is Intelligence as this determines his spell casting ability. ",
 
-"A Barserker is a fearful fighter who gets angry and goes mad and brandishes weapons. \
-They resist fear and paralysis, and they can reflect bolt spells with their tough flesh at high level. \
-Furthermore, they can fight without weapons, and can remove cursed equipment by force, \
-and can use some techniques even if they have equipments which give anti-magic barrior. \
-But they cannot use any magical devices or scrolls by any means, \
-and are hopeless about all skills exept melee fighting. They must cut their way throgh by blowing his weapons. \
-Since Amberite or Spectre is too easy to *win* as Barserkers, their scores is corrected quite low.",
+"Cavalry ride on horses into battle. Although they cannot cast spells, they are proud of their overwhelming offensive strength on horseback. They are good at shooting. At high levels, they learn to forcibly saddle and tame wild monsters. Since they take pride in the body and the soul, they don't use magical devices well.",
 
-"A Weaponsmith can improve weapons and armors for him/herself. They can extract the essences of special effect from weapons or armors which have various special ability, and can add the essences to another weapon or armor. They are good at fighting, but cannot cast spells, and are poor at skills such as stelth or magic defense.",
+"A Berserker is a fearful fighter indeed, immune to fear and paralysis. At high levels, Berserkers can reflect bolt spells with their tough flesh. Furthermore, they can fight without weapons, can remove cursed equipment by force, and can use some techniques even when surrounded by an anti-magic barrier. Berserkers, however, cannot use any magical devices or read any scrolls, and are hopeless at all non-combat skills. Since Berserker Amberite or Spectres are quite easy to *win* with, their scores are lowered.",
 
-"A Mirror-Master is a spell caster, same as other mages, that must live by his wits. They can create magical mirrors to use it for casting Mirror-Magic spells. A Mirror-Master standing on a mirror demonstrates more ability, and, for example, can do quick teleport on a mirror. The maximum number of the Magical Mirrors which can be controled simultaneously depend on the level. It is intelligence that determines his spell casting ability.",
+"A Weaponsmith can improve weapons and armors for him or herself. They can extract the essences of special effects from weapons or armors which have various special abilities, and can add these essences to another weapon or armor. They are good at fighting, but cannot cast spells, and are poor at skills such as stealth or magic defense.",
 
-"A Ninja is a fearful assassin lurking in darkness, he/she acts with no light source, catch an enemy unawares, \
-and kill it with single blow. They can use Ninjutsu, and \
-are good at locating hidden traps and doors, disarming traps and picking locks. \
-Since heavy armors, heavy weapons, or shileds will restrict their motion remarkably, they prefer light clothes, and \
-become more quick and more stelthy as they gain levels. \
-A Ninja is not frightened, and at high level, becomes almost immune to poison, \
-and able to see invisible things. \
-It is dexterity that determines his ability to use Ninjutsu."
+"Mirror-Master are spell casters; like other mages, they must live by their wits. They can create magical mirrors, and employ them in the casting of Mirror-Magic spells. A Mirror-Master standing on a mirror has greater ability and, for example, can perform quick teleports. The maximum number of Magical Mirrors which can be controlled simultaneously depends on the level. Intelligence determines a Mirror-Master's spell casting ability.",
+
+"A Ninja is a fearful assassin lurking in darkness.  He or she can navigate effectively with no light source, catch enemies unawares, and kill with a single blow. Ninjas can use Ninjutsu, and are good at locating hidden traps and doors, disarming traps and picking locks. Since heavy armors, heavy weapons, or shields will restrict their motion greatly, they prefer light clothes, and become faster and more stealthy as they gain levels. A Ninja knows no fear and, at high level, becomes almost immune to poison and able to see invisible things. Dexterity determines a Ninja's ability to use Ninjutsu."
 #endif
 };
 
@@ -1881,30 +1867,30 @@ static cptr seikaku_jouhou[MAX_SEIKAKU] =
 
 #else
 
-"\"Ordinary\" is a personality with no part to mention especially. It makes your stats and skills average.",
+"\"Ordinary\" is a personality with no special skills or talents, with unmodified stats and skills.",
 
-"\"Mighty\" raises your physical stats and skills. But, it reduces stats and skills which influence magic. It makes your stats suitable for Warrior. ",
+"\"Mighty\" raises your physical stats and skills, but reduces stats and skills which influence magic. It makes your stats suitable for a warrior. ",
 
-"\"Shrewd\" reduces your physical stats, and raises your intelligence and magical skills. It makes your stats suitable for mage.",
+"\"Shrewd\" reduces your physical stats, and raises your intelligence and magical skills. It makes your stats suitable for a mage.",
 
 "\"Pious\" deepens your faith in your God. It makes your physical ability average, and your stats suitable for priest. ",
 
-"\"Nimble\" makes you that you can handle any skill comparatively well. But, it reduces your physical ability. ",
+"\"Nimble\" renders you highly skilled comparatively well, but reduces your physical ability. ",
 
-"\"Fearless\" raises both of your melee and magical ability. Stats such as magic defense and constitution get poor. ",
+"\"Fearless\" raises both your melee and magical ability. Stats such as magic defense and constitution are reduced. ",
 
-"\"Combat\" gives you comparativery high melee and shooting abilities, and average constitution. Other skills such as stealth, magic defence and using magical device get poor. All of \"Combat\" person have great respect for the legendary \"Combat Echizen\".\n\
+"\"Combat\" gives you comparatively high melee and shooting abilities, and average constitution. Other skills such as stealth, magic defence, and magical devices are weakened. All \"Combat\" people have great respect for the legendary \"Combat Echizen\".\n\
 (See \"Death Crimson\" / Ecole Software Corp.)",
 
 "A \"Lazy\" person has no good stats and can do no action well.",
 
-"\"Sexy\" rises your all ability. But, your attitude which despise others will make all monsters get angry. Only female can choose this personality.",
+"\"Sexy\" rises all of your abilities, but your haughty attitude will aggravate all monsters. Only females can choose this personality.",
 
-"A \"Lucky\" man has poor stats to be equal to a \"Lazy\" person. But, mysteriously, he can do all things well. Only male can choose this personality.",
+"A \"Lucky\" man has poor stats, equivalent to a \"Lazy\" person. Mysteriously, however, he can do all things well. Only males can choose this personality.",
 
-"A \"Patient\" person does things carefully. It gives you higher constitution than other personality. But, you are poor at doing things active, and your most skills are decreased.",
+"A \"Patient\" person does things carefully. Patient people have high constitution, and high resilience, but poor abilities in most other skills.",
 
-"\"munchkin\" is an personality for beginners. It rises your all stats and skills. With this personality, you can become **WINNER** of the game easily,but it isn't honor to you at all.",
+"\"munchkin\" is a personality for beginners. It raises all your stats and skills. With this personality, you can win the game easily, but gain little honor in doing so."
 #endif
 };
 
@@ -1949,11 +1935,11 @@ static cptr realm_jouhou[VALID_REALM] =
 
 "Arcane magic is a general purpose realm of magic. It attempts to encompass all 'useful' spells from all realms. This is the downside of Arcane magic: while Arcane does have all the necessary 'tool' spells for a dungeon delver, it has no ultra-powerful high level spells. As a consequence, all Arcane spellbooks can be bought in town. It should also be noted that the 'specialized' realms usually offer the same spell at a lower level and cost. ",
 
-"Enchnatment magic can strengthen the caster or equipments. These spells greatly improve the caster's fighting ability, but spells that hurts opponents directly is not exist.",
+"Craft magic can strengthen the caster or equipments. These spells greatly improve the caster's fighting ability, but spells that hurts opponents directly is not exist.",
 
 "Demon is a very evil realm, same as Death. It provides various attack spells and devilish detection spells. at higher levels, Demon magic provides ability to dominate demons, and to polymorph yourself into a demon.",
 
-"Music magic shows various effects as sing song. There is two type of song; the one which shows effects instantly and the other one shows effect continuously until MP runs out. But the latter type has a limit; only one song can be sing at the same time.",
+"Music magic shows various effects as sing song. There is two type of song; the one which shows effects instantly and the other one shows effect continuously until SP runs out. But the latter type has a limit; only one song can be sing at the same time.",
 
 "The books of Martial arts describes various combat technique. it need to read the books when one studys the techniques, but it doesn't need to take around the books to use the techniques after one momorizes it. It need a weapon wielded to use the techniques."
 #endif
@@ -2139,7 +2125,8 @@ sprintf(buf, "領域を選んで下さい(%c-%c) '*'でランダム、'='で初期オプション設定: 
 #ifdef JP
 do_cmd_options_aux(6, "初期オプション((*)はスコアに影響)");
 #else
-			do_cmd_options_aux(6, "Startup Options");
+			do_cmd_options_aux(6, "Startup Opts((*)s effect score)");
+//			do_cmd_options_aux(6, "Startup Options");
 #endif
 
 			screen_load();
@@ -3914,7 +3901,7 @@ sprintf(buf, "種族を選んで下さい (%c-9) '*'でランダム, '='で初期オプション設定: 
 #ifdef JP
 do_cmd_options_aux(6, "初期オプション((*)はスコアに影響)");
 #else
-				do_cmd_options_aux(6, "Startup Options");
+				do_cmd_options_aux(6, "Startup Opts((*)s effect score)");
 #endif
 
 				screen_load();
@@ -4020,7 +4007,7 @@ sprintf(buf, "%c%c%s%s", select, p2, str, mod);
 	while (1)
 	{
 #ifdef JP
-sprintf(buf, "職業を選んで下さい (%c-%c) '*'でランダム、'='で初期オプション設定: ", I2A(0), I2A(n-1));
+sprintf(buf, "職業を選んで下さい (%c-0) '*'でランダム、'='で初期オプション設定: ", I2A(0));
 #else
 		sprintf(buf, "Choose a class (%c-%c), * for random, or = for options: ", I2A(0), I2A(n-1));
 #endif
@@ -4051,7 +4038,7 @@ sprintf(buf, "職業を選んで下さい (%c-%c) '*'でランダム、'='で初期オプション設定:
 #ifdef JP
 do_cmd_options_aux(6, "初期オプション((*)はスコアに影響)");
 #else
-			do_cmd_options_aux(6, "Startup Options");
+			do_cmd_options_aux(6, "Startup Opts((*)s effect score)");
 #endif
 
 			screen_load();
@@ -4168,7 +4155,7 @@ sprintf(buf, "性格を選んで下さい (%c-%c) '*'でランダム、'='で初期オプション設定:
 #ifdef JP
 do_cmd_options_aux(6, "初期オプション((*)はスコアに影響)");
 #else
-			do_cmd_options_aux(6, "Startup Options");
+			do_cmd_options_aux(6, "Startup Opts((*)s effect score)");
 #endif
 
 			screen_load();
@@ -4367,7 +4354,7 @@ sprintf(buf, "性別を選んで下さい (%c-%c) '*'でランダム, '='で初期オプション設定:
 #ifdef JP
 do_cmd_options_aux(6, "初期オプション((*)はスコアに影響)");
 #else
-			do_cmd_options_aux(6, "Startup Options");
+			do_cmd_options_aux(6, "Startup Opts((*)s effect score)");
 #endif
 
 			screen_load();
@@ -4496,7 +4483,7 @@ do_cmd_options_aux(6, "初期オプション((*)はスコアに影響)");
 #ifdef JP
 do_cmd_options_aux(6, "初期オプション((*)はスコアに影響)");
 #else
-	do_cmd_options_aux(6, "Startup Options");
+	do_cmd_options_aux(6, "Startup Opts((*)s effect score)");
 #endif
 
 	screen_load();
@@ -5181,7 +5168,7 @@ Term_addstr(-1, TERM_WHITE, ", ESCでこの数値に決定");
 #ifdef JP
 do_cmd_options_aux(6, "初期オプション((*)はスコアに影響)");
 #else
-				do_cmd_options_aux(6, "Startup Options");
+				do_cmd_options_aux(6, "Startup Opts((*)s effect score)");
 #endif
 
 				screen_load();

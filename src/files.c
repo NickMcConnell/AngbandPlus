@@ -1679,19 +1679,19 @@ put_str("     ＭＰ /  最大    ", 11, 52);
 	  statcolor=TERM_RED;
 prt_num_max( p_ptr->csp , p_ptr->msp, 12, 56, statcolor , TERM_L_GREEN);
 #else
-	prt_num("Max MP (Mana)  ", p_ptr->msp, 11, 52, TERM_L_GREEN);
+	prt_num("Max SP (Mana)  ", p_ptr->msp, 11, 52, TERM_L_GREEN);
 
 	if (p_ptr->csp >= p_ptr->msp)
 	{
-		prt_num("Cur MP (Mana)  ", p_ptr->csp, 12, 52, TERM_L_GREEN);
+		prt_num("Cur SP (Mana)  ", p_ptr->csp, 12, 52, TERM_L_GREEN);
 	}
 	else if (p_ptr->csp > (p_ptr->msp * hitpoint_warn) / 10)
 	{
-		prt_num("Cur MP (Mana)  ", p_ptr->csp, 12, 52, TERM_YELLOW);
+		prt_num("Cur SP (Mana)  ", p_ptr->csp, 12, 52, TERM_YELLOW);
 	}
 	else
 	{
-		prt_num("Cur MP (Mana)  ", p_ptr->csp, 12, 52, TERM_RED);
+		prt_num("Cur SP (Mana)  ", p_ptr->csp, 12, 52, TERM_RED);
 	}
 #endif
 
@@ -4274,7 +4274,11 @@ fprintf(fff, "\n  [その他の情報]        \n");
 		}
 		else if (max_dlv[y] == d_info[y].maxdepth) seiha = TRUE;
 
+#ifdef JP
 		fprintf(fff, "   %c%-12s: %3d 階\n", seiha ? '!' : ' ', d_name+d_info[y].name, max_dlv[y]);
+#else
+		fprintf(fff, "   %c%-12s: level %3d\n", seiha ? '!' : ' ', d_name+d_info[y].name, max_dlv[y]);
+#endif
 	}
 
 	if (preserve_mode)
@@ -4378,7 +4382,7 @@ fprintf(fff, "\n 階段を上がれない:   ON");
 #ifdef JP
 fprintf(fff, "\n 普通でない部屋を生成:         ON");
 #else
-		fprintf(fff, "\n Unusual rooms:     ON");
+		fprintf(fff, "\n Unusual rooms:      ON");
 #endif
 
 
@@ -5504,6 +5508,20 @@ quit_fmt("'%s' という名前は不正なコントロールコードを含んでいます。", player_nam
 	sf = TRUE;
 
 #endif
+	if (!savefile_base[0] && savefile[0])
+	{
+		cptr s;
+		s = savefile;
+		while (1)
+		{
+			cptr t;
+			t = strstr(s, PATH_SEP);
+			if (!t)
+				break;
+			s = t+1;
+		}
+		strcpy(savefile_base, s);
+	}
 
 	if (!savefile_base[0] || !savefile[0])
 		sf = TRUE;
@@ -6496,8 +6514,7 @@ if (!save_player()) msg_print("セーブ失敗！");
 		/* Clear screen */
 		Term_clear();
 
-//		if (check_score())
-		if(1)
+		if (check_score())
 		{
 			if ((!send_world_score(do_send)))
 			{

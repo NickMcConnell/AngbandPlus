@@ -1525,7 +1525,7 @@ msg_format("%sが勝利した！", m_name);
 #ifdef JP
 msg_print("おめでとうございます。");
 #else
-				msg_print("Congraturations.");
+				msg_print("Congratulations.");
 #endif
 #ifdef JP
 msg_format("%d＄を受け取った。", battle_odds);
@@ -1788,7 +1788,7 @@ take_hit(DAMAGE_NOESCAPE, 1, "日光", -1);
 			}
 		}
 
-		if (inventory[INVEN_LITE].tval &&
+		if (inventory[INVEN_LITE].tval && (inventory[INVEN_LITE].name2 != EGO_LITE_DARKNESS) &&
 		    !p_ptr->resist_lite)
 		{
 			object_type * o_ptr = &inventory[INVEN_LITE];
@@ -4065,7 +4065,7 @@ msg_print("ウィザードモード突入。");
 #ifdef JP
                                                 msg_print("その前に食事をとらないと。");
 #else
-                                                msg_print("You must eat someting here.");
+                                                msg_print("You must eat something here.");
 #endif
 					}
                                         else
@@ -4799,7 +4799,7 @@ msg_print("何か変わった気がする！");
 	}
 
 	/* Give the player some energy */
-	else if((rand_int(60) < ((p_ptr->pspeed > 199) ? 49 : ((p_ptr->pspeed < 0) ? 1 : extract_energy[p_ptr->pspeed]))) && !load)
+	else if((rand_int(60) < ((p_ptr->pspeed > 199) ? 49 : ((p_ptr->pspeed < 0) ? 1 : extract_energy[p_ptr->pspeed]))) && !(load && p_ptr->energy >= 100))
 		p_ptr->energy += gain_energy();
 
 	/* No turn yet */
@@ -4874,7 +4874,7 @@ msg_print("何か変わった気がする！");
 #ifdef JP
 				msg_print("餌だけ食われてしまった！くっそ〜！");
 #else
-				msg_print("xxxx! The fish took a bait away!");
+				msg_print("Damn! The fish took a bait away!");
 #endif
 			}
 			disturb(0, 0);
@@ -4903,7 +4903,7 @@ msg_print("何か変わった気がする！");
 #ifdef JP
 msg_print("中断しました。");
 #else
-				msg_print("Cancelled.");
+				msg_print("Canceled.");
 #endif
 
 			}
@@ -5430,7 +5430,11 @@ msg_format("%s(%c)を落とした。", o_name, index_to_label(item));
 				/* Window stuff */
 				p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
 
+#ifdef JP
 				msg_print("「時は動きだす…」");
+#else
+				msg_print("You feel time flowing around you once more.");
+#endif
 				msg_print(NULL);
 				world_player = FALSE;
 				p_ptr->energy = 0;

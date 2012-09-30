@@ -4331,12 +4331,16 @@ msg_print("警告！ print_spell が領域なしに呼ばれた");
 	/* Title the list */
 	prt("", y, x);
 	if (realm+1 == REALM_HISSATSU)
+#ifdef JP
 		strcpy(buf,"  Lv   MP");
+#else
+		strcpy(buf,"  Lv   SP");
+#endif
 	else
 #ifdef JP
 		strcpy(buf,"熟練度 Lv   MP 失率 効果");
 #else
-		strcpy(buf,"Profic Lv   MP Fail Effect");
+		strcpy(buf,"Profic Lv   SP Fail Effect");
 #endif
 
 #ifdef JP

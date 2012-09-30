@@ -90,8 +90,8 @@ F:MONSTER_DIV_32
 M:ORC | R_CHAR_k | R_CHAR_o | R_CHAR_O | ANIMAL
 
 N:4:ÌÂµÜ
-E:Maze
-D:$the frightening entrance to a strange Maze
+E:Labyrinth
+D:$the frightening entrance to the Labyrinth
 D:¶²¤ë¤Ù¤­´ñÌ¯¤ÊÌÂµÜ
 P:57:31
 W:10:18:1:0:80:160:75:20:0x0000:0x0000

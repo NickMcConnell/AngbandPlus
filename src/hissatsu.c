@@ -89,7 +89,7 @@ cptr            p = "必殺剣";
 #else
 	(void)strnfmt(out_val, 78, "(%^ss %c-%c, *=List, ESC=exit) Use which %s? ",
 #endif
-        p, I2A(0), I2A(num - 1), p);
+        p, I2A(0), "abcdefghijklmnopqrstuvwxyz012345"[num-1], p);
 
 	if (use_menu) screen_save();
 
@@ -195,9 +195,9 @@ cptr            p = "必殺剣";
 				/* Display a list of spells */
 				prt("", y, x);
 #ifdef JP
-put_str("名前           Lv   MP        名前           Lv   MP   ", y, x + 5);
+put_str("名前              Lv  MP      名前              Lv  MP ", y, x + 5);
 #else
-put_str("name           Lv   MP        name           Lv   MP   ", y, x + 5);
+put_str("name              Lv  SP      name              Lv  SP ", y, x + 5);
 #endif
 				prt("", y+1, x);
 				/* Dump the spells */
@@ -234,7 +234,7 @@ put_str("name           Lv   MP        name           Lv   MP   ", y, x + 5);
 					}
 
 					/* Dump the spell --(-- */
-					strcat(psi_desc, format(" %-15s%2d %4d",
+					strcat(psi_desc, format(" %-18s%2d %3d",
 					        spell_names[technic2magic(REALM_HISSATSU)-1][i],
 					        spell.slevel, spell.smana));
 					prt(psi_desc, y + (line%17) + (line >= 17), x+(line/17)*30);
@@ -845,7 +845,7 @@ static bool cast_hissatsu_spell(int spell)
 #ifdef JP
 		msg_print("武器を大きく振り下ろした。");
 #else
-		msg_print("You swing your wepon downward.");
+		msg_print("You swing your weapon downward.");
 #endif
 		for (i = 0; i < 2; i++)
 		{
@@ -1005,7 +1005,7 @@ static bool cast_hissatsu_spell(int spell)
 #ifdef JP
 		msg_print("武器を不規則に揺らした．．．");
 #else
-		msg_print("You irregulary wave your weapon...");
+		msg_print("You irregularly wave your weapon...");
 #endif
 		project_hack(GF_ENGETSU, p_ptr->lev * 4);
 		project_hack(GF_ENGETSU, p_ptr->lev * 4);
@@ -1041,7 +1041,11 @@ static bool cast_hissatsu_spell(int spell)
 			(distance(y, x, py, px) > MAX_SIGHT / 2) ||
 		    !projectable(py, px, y, x))
 		{
+#ifdef JP
 			msg_print("失敗！");
+#else
+			msg_print("You cannot move to that place!");
+#endif
 			break;
 		}
 		if (p_ptr->anti_tele)

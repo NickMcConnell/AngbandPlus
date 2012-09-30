@@ -395,7 +395,11 @@ static int connect_server(int timeout, const char *host, int port)
 	
 	memset(&response, 0, sizeof(response));
 	
+#if TARGET_API_MAC_CARBON
+	inet_services = OTOpenInternetServicesInContext(kDefaultInternetServicesPath, 0, &err, NULL);
+#else
 	inet_services = OTOpenInternetServices(kDefaultInternetServicesPath, 0, &err);
+#endif 
 	
 	if (err == noErr) {
 		

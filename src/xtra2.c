@@ -2039,9 +2039,9 @@ msg_format("%sの首には賞金がかかっている。", m_name);
 		}
 
 		if (r_ptr->flags7 & RF7_KILL_EXP)
-			get_exp_from_mon((int)m_ptr->max_maxhp, &exp_mon);
+			get_exp_from_mon((long)m_ptr->max_maxhp*2, &exp_mon);
 		else
-			get_exp_from_mon(((int)m_ptr->max_maxhp+1L) * 9L / 10L, &exp_mon);
+			get_exp_from_mon(((long)m_ptr->max_maxhp+1L) * 9L / 10L, &exp_mon);
 
 		/* Generate treasure */
 		monster_death(m_idx, TRUE);
@@ -4255,14 +4255,6 @@ bool get_rep_dir(int *dp, bool under)
 	}
 
 #endif /* ALLOW_REPEAT -- TNB */
-
-#if 0
-	/* Initialize */
-	(*dp) = 0;
-
-	/* Global direction */
-	dir = command_dir;
-#endif
 
 	/* Get a direction */
 	while (!dir)

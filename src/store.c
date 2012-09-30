@@ -1225,7 +1225,6 @@ static bool store_check_num(object_type *o_ptr)
 	object_type *j_ptr;
 
 	/* Free space is always usable */
-#ifdef JP
 	/*
 	 * オプション powerup_home が設定されていると
 	 * 我が家が 20 ページまで使える
@@ -1240,10 +1239,6 @@ static bool store_check_num(object_type *o_ptr)
 			return TRUE;
 		}
 	}
-#else
-	if (st_ptr->stock_num < st_ptr->stock_size) return TRUE;
-#endif
-
 
 	/* The "home" acts like the player */
 	if ((cur_store_num == STORE_HOME) || (cur_store_num == STORE_MUSEUM))

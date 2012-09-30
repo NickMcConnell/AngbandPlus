@@ -2591,7 +2591,7 @@ msg_print("しかし効力を跳ね返した！");
 #ifdef JP
 msg_print("霊的エネルギーで精神が攻撃された。");
 #else
-				msg_print("Your mind is blasted by psionic energy.");
+				msg_print("Your mind is blasted by psyonic energy.");
 #endif
 
 				if (!p_ptr->resist_conf)
@@ -3872,7 +3872,7 @@ if (blind) msg_format("%^sが何かをつぶやいた。", m_name);
 #ifdef JP
 else msg_format("%^sが死者復活の呪文を唱えた。", m_name);
 #else
-			else msg_format("%^s casts a spell to rivive corpses.", m_name);
+			else msg_format("%^s casts a spell to revive corpses.", m_name);
 #endif
 			animate_dead(m_idx, m_ptr->fy, m_ptr->fx);
 			break;
@@ -3887,7 +3887,7 @@ else msg_format("%^sが死者復活の呪文を唱えた。", m_name);
 #ifdef JP
 if (blind) msg_format("%^sが何か大量に投げた。", m_name);
 #else
-				if (blind) msg_format("%^s spreads somethings.", m_name);
+				if (blind) msg_format("%^s spreads something.", m_name);
 #endif
 
 #ifdef JP

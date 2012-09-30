@@ -314,7 +314,7 @@ D:刻んである。このイシルドゥアの禍の力はあまりにも強大なので、
 D:普通の者はそれを身に付けるだけで歪められ支配されてしまう。
 
 N:14:《アホヤ》という
-E:of Aho (Nanja Kore)
+E:of Poor (The Odd ring)
 I:45:50:-5
 W:100:100:2:0
 P:0:1d1:-15:-15:0
@@ -612,15 +612,13 @@ D:かつてサウロンと勇敢に戦った
 D:エレンディルの息子アナリオンの金属の盾だ。
 
 
-# The Hard Leather Cap of Ben Franklin
-# A Wise Brilliant Scientist and Politician
 # A reward for 'The Old Castle' quest
 
 #JZ#ベンジャミン フランクリン、やだよぅそんなの。
 #JZ#ゼラズニイの「光の王」から以下のように変更。雷の槍ヴァジュラを
 #JZ#持っている。
 N:33:インドラの
-E:of Ben Franklin
+E:of Indra
 I:32:2:5
 W:30:50:15:100000
 P:2:0d0:0:0:18
@@ -2049,7 +2047,6 @@ D:その打撃は敵の肉体だけでなく精神をも打ち砕くことができる。
 
 
 # The Executioner's Sword 'Slayer'
-# Default reward for 'The Old Castle' quest
 
 N:123:『スレイヤー』
 E:'Slayer'
@@ -2114,7 +2111,7 @@ D:柔軟な革で作られたこの胴鎧には、モルゴスの軍勢に包囲されても
 D:勇敢に闘い抜いた不落の要塞ヒムリングの記憶が刻み込まれている。
 
 N:128:『草薙之剣』
-E:'Kusanagi no tsurugi'
+E:'Kusanagi-no-tsurugi'
 I:23:20:3
 W:50:20:120:123456
 P:0:4d4:15:15:0
@@ -2301,7 +2298,7 @@ F:DEX | BLOWS | SLAY_EVIL | SLAY_UNDEAD | SLAY_ORC | SLAY_DEMON |
 F:FREE_ACT | SEE_INVIS | SHOW_MODS | RES_DARK | RES_DISEN | SPEED
 
 N:141:プラチナイェンダー印
-E:Platinum Yendorian
+E:'The Platinum Yendorian Express Card'
 I:50:0:3
 W:127:1:2:1000000
 P:0:1d1:15:15:25
@@ -2316,7 +2313,8 @@ I:23:17:2
 W:50:5:150:100
 P:0:5d5:32:32:0
 F:TY_CURSE | AGGRAVATE | DRAIN_EXP | INFRA | NO_TELE | NO_MAGIC | HIDE_TYPE
-D:史上最強の剣とそっくりだ。
+D:$It is a look-alike for the strongest sword!
+D:最強の剣とそっくりだ。
 
 N:143:ボロミアの
 E:of Boromir
@@ -2465,7 +2463,7 @@ D:剛力無双のデンマークの英雄王ベーオウルフが巨人族から奪い、
 D:最後の戦いではこの剣によって竜を退治した。
 
 N:157:『如意金葹棒重一万三千五百斤』
-E:'Nyoi bou'
+E:'Nyoi-bou'
 I:21:16:5
 W:80:70:500:300000
 P:0:7d7:5:25:10
@@ -2506,6 +2504,8 @@ P:0:4d9:6:23:10
 F:STR | DEX | HIDE_TYPE | SEARCH | FREE_ACT |
 F:SLAY_TROLL | SLAY_GIANT | SLAY_ANIMAL | SLAY_ORC | RES_FIRE | RES_COLD |
 F:RES_ELEC | RES_ACID | RES_FEAR | SHOW_MODS | JOUBA
+D:徳川四天王の１人本多忠勝の愛用の槍だ。
+D:その切れ味は穂先に止まった蜻蛉が切れて落ちるほどである。
 
 N:162:ジョーンズ博士の
 E:of Dr. Jones
@@ -2624,7 +2624,7 @@ P:0:2d4:28:17:0
 F:DEX | HIDE_TYPE | SUST_DEX | SHOW_MODS
 
 N:173:『神罰の鉄球』
-E:Iron ball
+E:'Iron ball'
 I:21:6:-6
 W:45:40:666:66666
 P:0:25d4:-30:0:20
@@ -2693,7 +2693,7 @@ D:棍棒。骨でできているために軽く、その聖なる力は邪悪なモンスター
 D:を打ち払う。
 
 N:179:『エクスカリバー・ジュニア』
-E:'E.J.'
+E:'Excalibur Jr.'
 I:23:8:2
 W:35:15:80:60000
 P:0:2d6:3:5:0
@@ -2716,7 +2716,7 @@ D:A great brazen arbalest with arms of gleaming steel shooting quarrels with
 D:speed and power for those brave enough to risk betrayal.
 
 N:181:適当な
-E:of monogusa
+E:of halfheart
 I:21:63:7
 W:127:1:50:1000000
 P:0:1d77:22:22:10
@@ -2728,7 +2728,7 @@ F:LITE | TELEPATHY | REGEN |
 F:HIDE_TYPE | SHOW_MODS | JOUBA | QUESTITEM | INSTA_ART
 
 N:182:いいかげんな
-E:of monogusa
+E:of irresponsiblity
 I:19:63:7
 W:127:1:50:1000000
 P:0:1d1:22:22:10
@@ -2738,7 +2738,7 @@ F:RES_DARK | RES_LITE | RES_DISEN | RES_BLIND | IM_COLD | SLOW_DIGEST |
 F:HIDE_TYPE | SHOW_MODS | QUESTITEM | INSTA_ART
 
 N:183:やる気のない
-E:of monogusa
+E:of idler
 I:36:63:7
 W:127:1:10:1000000
 P:0:1d1:10:10:77
@@ -2840,7 +2840,7 @@ D:某国サーカス団で使用された由緒正しい猛獣使いの証だ。
 D:このムチの音はどんな猛獣でも震え上がらせることができる。
 
 N:189:破壊の
-E:of Destroy
+E:of Destruction
 I:23:33:3
 W:70:8:30:100000
 P:0:3d6:-25:25:0
@@ -2930,7 +2930,7 @@ D:蛇の髪を持つメドゥーサの石化の睨みも、この反射の盾の前には
 D:効果がなかった。
 
 N:198:抜け忍カムイの
-E:of Kamui, the fallen Ninja
+E:of Kamui, the escapee ninja
 I:23:19:4
 W:20:8:100:60000
 P:0:2d9:15:2:0
@@ -2945,7 +2945,7 @@ P:0:8d4:8:8:8
 F:ACTIVATE | SHOW_MODS
 
 N:200:ダ
-E:nanjakore
+E:'Dasai'
 I:36:8:-10
 W:20:3:110:0
 P:8:1d1:-1:0:64
@@ -2981,7 +2981,7 @@ D:是れ淤能碁呂島なり。」(古事記)。
 
 # モーロックの高僧の錆びた鎖かたびら
 N:203:モーロックの高僧の
-E:of high preist of Morlok
+E:of The High Preist of Morlok
 I:37:1:-2
 W:90:8:200:100000
 P:14:1d4:-5:0:-40
@@ -2995,7 +2995,7 @@ D:太古の高僧の怨念がこもっている。
 
 # 綱鎧『化粧回し』
 N:204:『化粧回し』
-E:'Kesho Mawashi'
+E:'Sumo wrestler's loincloth'
 I:36:9:4
 W:20:10:60:50000
 P:4:0d0:0:0:0
@@ -3016,7 +3016,7 @@ D:ガチャピンと対をなす赤い獣の毛皮のクロークだ。
 # 「夢幻の如く」という漫画で，織田信長が西洋鎧を着ます。
 # REFLECTは，矢でも鉄砲でも持って来い！ってことで(笑)。
 N:206:『バテレン鎧』
-E:'of Veteran'
+E:of The Padre
 I:37:13:2
 W:45:5:340:80000
 P:23:1d6:5:5:17
@@ -3030,7 +3030,7 @@ D:織田信長の愛用した光り輝く西洋の鎧だ。
 # ダイの大冒険中で最強といわれる剣なので，強くないと意味ない。
 # でも，強すぎてもゲーム的に意味ない。
 N:207:『真魔剛竜剣』
-E:'Sword of Great dragonic deamon'
+E:'Dragonic Sword'
 I:23:25:3
 W:50:160:200:180000
 P:0:4d6:17:23:0

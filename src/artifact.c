@@ -1,6 +1,3 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 1999/11/24 21:51:48 $ */
-/* File: artifact.c */
-
 /* Purpose: Artifact code */
 
 /*
@@ -517,7 +514,7 @@ void random_resistance(object_type * o_ptr, bool is_scroll, int specific)
 			break;
 		case 22:
 			o_ptr->art_flags2 |= TR2_RES_DARK;
-			/*  if (is_scroll) msg_print("It makes everything look brigher.");*/
+			/*  if (is_scroll) msg_print("It makes everything look brighter.");*/
 			break;
 		case 23:
 		case 24:

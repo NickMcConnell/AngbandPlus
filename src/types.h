@@ -1230,7 +1230,7 @@ struct player_type
 	bool resist_blind;	/* Resist blindness */
 	bool resist_neth;	/* Resist nether */
 	bool resist_fear;	/* Resist fear */
-	bool resist_time;	/* Resist fear */
+	bool resist_time;	/* Resist time */
 
 	bool reflect;       /* Reflect 'bolt' attacks */
 	bool sh_fire;       /* Fiery 'immolation' effect */

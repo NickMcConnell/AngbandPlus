@@ -409,10 +409,10 @@ void mindcraft_info(char *p, int use_mind, int power)
 	    case 13: break;
 	    case 14: break;
 	    case 15: break;
-	    case 16: sprintf(p, " s_dur%d+d%d", s_dur, plev, plev);  break;
-	    case 17: sprintf(p, " s_dam(%d)*3", s_dam, (75+plev*2/3)/2 ); break;
-	    case 18: sprintf(p, " s_dam%dd10", s_dam, 6+plev/8 ); break;
-	    case 19: sprintf(p, " s_dur6+d6", s_dur);  break;
+	    case 16: sprintf(p, " %s%d+d%d", s_dur, plev/2, plev/2);  break;
+	    case 17: sprintf(p, " %s%d*3", s_dam, (75+plev*2/3)/2 ); break;
+	    case 18: sprintf(p, " %s%dd10", s_dam, 6+plev/8 ); break;
+	    case 19: sprintf(p, " %s6+d6", s_dur);  break;
 	    }
 	  break;
 	}
@@ -447,11 +447,7 @@ void mindcraft_info(char *p, int use_mind, int power)
       char            choice;
       char            out_val[160];
       char            comment[80];
-#ifdef JP
       cptr            p;
-#else
-      cptr            p;
-#endif
 
       mind_type       spell;
       mind_power      *mind_ptr;
@@ -461,81 +457,66 @@ void mindcraft_info(char *p, int use_mind, int power)
 
       switch(p_ptr->pclass)
 	{
+	case CLASS_MINDCRAFTER:
+	  {
+	    use_mind = MIND_MINDCRAFTER;
 #ifdef JP
-	case CLASS_MINDCRAFTER:
-	  {
-	    use_mind = MIND_MINDCRAFTER;
 	    p = "Ä¶Ç½ÎÏ";
-	    break;
-	  }
-	case CLASS_KI:
-	  {
-	    use_mind = MIND_KI;
-	    p = "Îýµ¤½Ñ";
-	    break;
-	  }
-	case CLASS_BERSERKER:
-	  {
-	    use_mind = MIND_BERSERKER;
-	    p = "µ»";
-	    break;
-	  }
-	case CLASS_MIRROR_MASTER:
-	  {
-	    use_mind = MIND_MIRROR_MASTER;
-	    p = "¶ÀËâË¡";
-	    break;
-	  }
-	case CLASS_NINJA:
-	  {
-	    use_mind = MIND_NINJUTSU;
-	    p = "Ç¦½Ñ";
-	    break;
-	  }
-	default:
-	  {
-	    use_mind = 0;
-	    p = "Ä¶Ç½ÎÏ";
-	    break;
-	  }
 #else
-	case CLASS_MINDCRAFTER:
-	  {
-	    use_mind = MIND_MINDCRAFTER;
 	    p = "mindcraft";
+#endif
 	    break;
 	  }
 	case CLASS_KI:
 	  {
 	    use_mind = MIND_KI;
+#ifdef JP
+	    p = "Îýµ¤½Ñ";
+#else
 	    p = "Force";
+#endif
 	    break;
 	  }
 	case CLASS_BERSERKER:
 	  {
 	    use_mind = MIND_BERSERKER;
+#ifdef JP
+	    p = "µ»";
+#else
 	    p = "brutal power";
+#endif
 	    break;
 	  }
 	case CLASS_MIRROR_MASTER:
 	  {
 	    use_mind = MIND_MIRROR_MASTER;
+#ifdef JP
+	    p = "¶ÀËâË¡";
+#else
 	    p = "magic";
+#endif
 	    break;
 	  }
 	case CLASS_NINJA:
 	  {
 	    use_mind = MIND_NINJUTSU;
+#ifdef JP
+	    p = "Ç¦½Ñ";
+#else
 	    p = "ninjutsu";
+#endif
 	    break;
 	  }
 	default:
 	  {
 	    use_mind = 0;
+#ifdef JP
+	    p = "Ä¶Ç½ÎÏ";
+#else
 	    p = "mindcraft";
+#endif
 	    break;
 	  }
-#endif
 	}
       mind_ptr = &mind_powers[use_mind];
 
@@ -1013,12 +994,16 @@ msg_print("Àº¿À¤òÇ±¤¸¶Ê¤²¤ëÇÈÆ°¤òÈ¯À¸¤µ¤»¤¿¡ª");
 #ifdef JP
 			msg_print("´û¤Ë»þ¤Ï»ß¤Þ¤Ã¤Æ¤¤¤ë¡£");
 #else
-			msg_print("The time is already stoped.");
+			msg_print("Time is already stopped.");
 #endif
 			return (FALSE);
 		}
 		world_player = TRUE;
+#ifdef JP
 		msg_print("¡Ö»þ¤è¡ª¡×");
+#else
+		msg_print("You yell 'Time!'");
+#endif
 		msg_print(NULL);
 
 		p_ptr->energy += (p_ptr->csp + 950);
@@ -1314,7 +1299,7 @@ static bool cast_mirror_spell(int spell)
 #ifdef JP
 msg_format("¤³¤ì°Ê¾å¶À¤ÏÀ©¸æ¤Ç¤­¤Ê¤¤¡ª");
 #else
-msg_format("There are too meny mirrors to control!");
+msg_format("There are too many mirrors to control!");
 #endif
 	  }
 	  break;
@@ -1834,7 +1819,9 @@ void do_cmd_mind(void)
 	mind_type       spell;
 	bool            cast;
 	int             use_mind, mana_cost;
+#ifdef JP
 	cptr            p;
+#endif
 	bool		on_mirror = FALSE;
 
 	/* not if confused */

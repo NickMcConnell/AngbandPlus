@@ -5237,7 +5237,9 @@ msg_print("あなたの槍は電気でスパークしている...");
 			{
 				int count = 0, i;
 				monster_type *m_ptr;
+#ifndef JP
 				cptr kakusan = "";
+#endif
 
 				if (summon_named_creature(py, px, MON_SUKE, FALSE, FALSE, TRUE, TRUE))
 				{
@@ -5277,7 +5279,7 @@ msg_print("あなたの槍は電気でスパークしている...");
 #ifdef JP
 					msg_print("「者ども、ひかえおろう！！！このお方をどなたとこころえる。」");
 #else
-					msg_format("%^s says 'WHO do you think this person is! Bow your head, down your knees!'");
+					msg_format("%^s says 'WHO do you think this person is! Bow your head, down your knees!'", kakusan);
 #endif
 
 					sukekaku = TRUE;
@@ -6045,6 +6047,11 @@ msg_print("あなたはエレメントのブレスを吐いた。");
 					}
 					*s = '#';
 					s++;
+#ifdef JP
+ /*nothing*/
+#else
+					*s++ = '\'';
+#endif
 					t = quark_str(cap_nickname);
 					while (*t)
 					{
@@ -6052,6 +6059,11 @@ msg_print("あなたはエレメントのブレスを吐いた。");
 						s++;
 						t++;
 					}
+#ifdef JP
+ /*nothing*/
+#else
+					*s++ = '\'';
+#endif
 					*s = '\0';
 					o_ptr->inscription = quark_add(buf);
 				}
@@ -6073,6 +6085,7 @@ msg_print("あなたはエレメントのブレスを吐いた。");
 					{
 						char buf[80];
 						cptr t;
+						bool quote = FALSE;
 
 						t = quark_str(o_ptr->inscription);
 						for (t = quark_str(o_ptr->inscription);*t && (*t != '#'); t++)
@@ -6085,12 +6098,27 @@ msg_print("あなたはエレメントのブレスを吐いた。");
 						{
 							char *s = buf;
 							t++;
+#ifdef JP
+							/* nothing */
+#else
+							if (*t =='\'')
+							{
+								t++;
+								quote = TRUE;
+							}
+#endif
 							while(*t)
 							{
 								*s = *t;
 								t++;
 								s++;
 							}
+#ifdef JP
+							/* nothing */
+#else
+							if (quote && *(s-1) =='\'')
+								s--;
+#endif
 							*s = '\0';
 							m_list[hack_m_idx_ii].nickname = quark_add(buf);
 							t = quark_str(o_ptr->inscription);

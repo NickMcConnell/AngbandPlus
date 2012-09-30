@@ -552,7 +552,7 @@ put_str("名前", y, x + 5);
 #ifdef JP
 put_str("MP 失率 効果", y, x + 33);
 #else
-				put_str("MP Fail Info", y, x + 32);
+				put_str("SP Fail Info", y, x + 32);
 #endif
 
 

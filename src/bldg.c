@@ -724,14 +724,14 @@ static int yaku_check()
 #ifdef JP
 		c_put_str(TERM_YELLOW, "ロイヤルストレートフラッシュ",  4,  3);
 #else
-		c_put_str(TERM_YELLOW, "Royal Straight Flash",  4,  3);
+		c_put_str(TERM_YELLOW, "Royal Flush",  4,  3);
 #endif
 		return ODDS_RF;
 	case 2: /* SF! */
 #ifdef JP
 		c_put_str(TERM_YELLOW, "ストレートフラッシュ",  4,  3);
 #else
-		c_put_str(TERM_YELLOW, "Straight Flash",  4,  3);
+		c_put_str(TERM_YELLOW, "Straight Flush",  4,  3);
 #endif
 		return ODDS_SF;
 	case 1:
@@ -752,7 +752,7 @@ static int yaku_check()
 #ifdef JP
 	c_put_str(TERM_YELLOW, "フラッシュ",  4,  3);
 #else
-	c_put_str(TERM_YELLOW, "Flash",  4,  3);
+	c_put_str(TERM_YELLOW, "Flush",  4,  3);
 #endif
 		return ODDS_FL;
 	}
@@ -777,7 +777,7 @@ static int yaku_check()
 #ifdef JP
 		c_put_str(TERM_YELLOW, "スリーカード",  4,  3);
 #else
-		c_put_str(TERM_YELLOW, "Three card",  4,  3);
+		c_put_str(TERM_YELLOW, "Three of a kind",  4,  3);
 #endif
 		return ODDS_3C;
 	case 4:
@@ -791,7 +791,7 @@ static int yaku_check()
 #ifdef JP
 		c_put_str(TERM_YELLOW, "フォーカード",  4,  3);
 #else
-		c_put_str(TERM_YELLOW, "Four card",  4,  3);
+		c_put_str(TERM_YELLOW, "Four of a kind",  4,  3);
 #endif
 		return ODDS_4C;
 	case 7:
@@ -809,7 +809,7 @@ static int yaku_check()
 #ifdef JP
 			c_put_str(TERM_YELLOW, "ファイブカード",  4,  3);
 #else
-			c_put_str(TERM_YELLOW, "Five card",  4,  3);
+			c_put_str(TERM_YELLOW, "Five of a kind",  4,  3);
 #endif
 			return ODDS_5C;
 		}
@@ -4164,9 +4164,9 @@ msg_print("お金が足りません！");
 				identify_pack();
 				msg_print(" 持ち物全てが鑑定されました。");
 #else
-				if (!get_check("Do you pay for identify all your posession? ")) break;
+				if (!get_check("Do you pay for identify all your possession? ")) break;
 				identify_pack();
-				msg_print("Your posessions have been identified.");
+				msg_print("Your possessions have been identified.");
 #endif
 
 				paid = TRUE;
@@ -4348,7 +4348,7 @@ msg_print("奇妙なくらい普通になった気がする。");
 #ifdef JP
 msg_print("平衡化の儀式を行なった。");
 #else
- msg_print("You recieved an equalization ritual.");
+ msg_print("You received an equalization ritual.");
 #endif
 				set_virtue(V_COMPASSION, 0);
 				set_virtue(V_HONOUR, 0);

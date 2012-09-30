@@ -688,12 +688,12 @@ info[i++] = "あなたは生命力を減少させる槍を放つことができる。(30 MP)";
 #ifdef JP
 info[i++] = "あなたはＨＰをＭＰに変換することができる。(0 MP)";
 #else
-				info[i++] = "You can convert HP to MP (cost 0).";
+				info[i++] = "You can convert HP to SP (cost 0).";
 #endif
 #ifdef JP
 info[i++] = "あなたはＭＰをＨＰに変換することができる。(0 MP)";
 #else
-				info[i++] = "You can convert MP to HP (cost 0).";
+				info[i++] = "You can convert SP to HP (cost 0).";
 #endif
 			}
 			break;
@@ -2430,6 +2430,15 @@ info[i++] = "あなたは全く恐怖を感じない。";
 info[i++] = "あなたの目は盲目への耐性を持っている。";
 #else
 		info[i++] = "Your eyes are resistant to blindness.";
+#endif
+
+	}
+	if (p_ptr->resist_time)
+	{
+#ifdef JP
+info[i++] = "あなたは時間逆転への耐性を持っている。";
+#else
+		info[i++] = "You are resistant to time.";
 #endif
 
 	}

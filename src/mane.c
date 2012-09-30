@@ -928,10 +928,18 @@ msg_print("無傷の球の呪文を唱えた。");
 		break;
 	case MS_WORLD:
 		world_player = TRUE;
-		if (damage == 2)
+		if (damage == 1 || damage == 2)
+#ifdef JP
 			msg_print("「『ザ・ワールド』！時は止まった！」");
-		else if (damage == 4)
+#else
+			msg_print("You yell 'The World! Time has stopped!'");
+#endif
+		else if (damage == 3 || damage == 6)
+#ifdef JP
 			msg_print("「時よ！」");
+#else
+			msg_print("You yell 'Time!'");
+#endif
 		else
 			msg_print("hek!");
 		msg_print(NULL);
@@ -1318,7 +1326,7 @@ msg_print("混乱していて集中できない！");
 #ifdef JP
 msg_print("まねられるものが何もない！");
 #else
-		msg_print("No can mane!");
+		msg_print("You don't remember any action!");
 #endif
 
 		return FALSE;

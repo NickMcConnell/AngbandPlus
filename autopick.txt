@@ -128,13 +128,13 @@
 #      各行の厳密な書式は次のような順番です。 
 #      (以下の順番で書いた場合だけ特別扱いされます)
 #
-#          [すべての] [収集中の] [未鑑定の] [鑑定済みの] [*鑑定*済みの] [無銘の]
+#         [[すべての] [収集中の] [未鑑定の] [鑑定済みの] [*鑑定*済みの] [無銘の]
 #          [未判明の] [無価値の] [ダイス目の違う] [ダイス目nn以上の]
 #          [賞金首の] [ユニーク・モンスターの] [人間の]
 #	   [読めない] [第一領域の] [第二領域の] [n冊目の]
-#          [ アイテム|武器|防具|矢|光源|魔法アイテム|がらくた|魔法書
-#	     |鈍器|盾|弓|指輪|アミュレット|鎧|クローク|兜|籠手|靴 ]
-#          [:] [^] [その他の文字列] [#自動刻み文字列]
+#          [アイテム|武器|防具|矢|光源|魔法アイテム|がらくた|魔法書|
+#	    鈍器|盾|弓|指輪|アミュレット|鎧|クローク|兜|籠手|靴] :]
+#         [[^]その他の文字列] [#自動刻み文字列]
 #    
 #      ☆ Tips
 #      ☆   未鑑定の や ダイス目の違う 等のキーワードは一行に並べて書く事で両方の制限を
@@ -190,9 +190,9 @@
 #        $CLASS
 #          職業を英語名で返す。
 #          Warrior, Mage, Priest, Rogue, Ranger, Paladin, Warrior-Mage,
-#          Chaos-Warrior, Monk, Mindcrafter, High-Mage, Tourist, Mane,
-#          BeastMaster, Sorcerer, Archer, Magiceater, Bard, Red-Mage, Samurai,
-#          Renkijutusi, Blue-Mage, Cavalry, Berserker, Kaji, Mirror-Master,
+#          Chaos-Warrior, Monk, Mindcrafter, High-Mage, Tourist, Imitator,
+#          BeastMaster, Sorcerer, Archer, Magic-Eater, Bard, Red-Mage, Samurai,
+#          ForceTrainer, Blue-Mage, Cavalry, Berserker, Weaponsmith, Mirror-Master,
 #	   Ninja
 #          のどれか
 #        $PLAYER
@@ -276,7 +276,7 @@
 # 忍者は暗闇の光源を破壊しない。
 # 吸血鬼は暗闇を作るアイテムを破壊しない。
 # 
-?:[EQU $CLASS Magiceater]
+?:[EQU $CLASS Magic-Eater]
 のロッド
 の杖
 の魔法棒
@@ -322,9 +322,9 @@
 ~無銘の防具:ドラゴン
 ~無銘の防具:エルフのクローク
 ~無銘の防具:影のクローク
+~無銘の防具:ミラー・シールド
 ~無銘の武器:ダイヤモンド・エッジ
 ~無銘の武器:粉砕のメイス
-~無銘の武器:ミラー・シールド
 !無銘の武器
 !無銘の防具
 

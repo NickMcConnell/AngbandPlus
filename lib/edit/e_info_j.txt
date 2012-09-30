@@ -934,7 +934,7 @@ F:SPEED | FEATHER | RES_DARK | SEE_INVIS | INFRA | STEALTH | HIDE_TYPE
 
 # Ego Lite
 N:140:光明の
-E:of Lite
+E:of Extra Light
 X:26:5
 W:0:0:0:200
 C:0:0:0:0
@@ -961,7 +961,7 @@ C:0:0:0:3
 F:INFRA
 
 N:144:長持ちの
-E:of Long
+E:of Duration
 X:26:10
 W:0:0:0:100
 C:0:0:0:0
@@ -973,7 +973,7 @@ W:0:0:0:0
 C:0:0:0:0
 
 N:146:不朽の眼の
-E:of Eye
+E:of Immortal Eye
 X:26:0
 W:0:0:0:4000
 C:0:0:0:0
@@ -994,7 +994,7 @@ W:0:0:0:300
 C:4:4:0:0
 
 N:152:大防御の
-E:of Protection
+E:of Defense
 X:26:5
 W:0:0:0:300
 C:0:0:8:0
@@ -1084,14 +1084,14 @@ C:0:0:0:0
 F:ACTIVATE
 
 N:165:ドラゴンの冷気の
-E:of Frost ball
+E:of Dragon's Frost
 X:26:20
 W:70:0:0:5000
 C:0:0:0:0
 F:ACTIVATE
 
 N:166:二段加速の
-E:of Double speed
+E:of Acceleration
 X:26:20
 W:90:0:0:30000
 C:0:0:0:0
@@ -1112,7 +1112,7 @@ C:0:0:0:3
 F:STEALTH
 
 N:169:強力投擲の
-E:of power throwing
+E:of Power Throwing
 X:26:5
 W:30:0:0:500
 C:0:0:0:0
@@ -1125,7 +1125,7 @@ C:0:0:0:0
 F:REGEN
 
 N:171:輝きの
-E:of lite
+E:of light
 X:26:5
 W:30:0:0:500
 C:0:0:0:0

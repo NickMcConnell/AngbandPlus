@@ -226,7 +226,7 @@ static char *mind_tips[5][MAX_MIND_POWERS] =
 	"generate a fire ball and teleport in a time. gives resistance to fire for a while. This resistance can be added to which from equipment for more powerful resistance.",
 	"steps close to a monster and attacks at a time.",
 	"shoots 8 iron Spikes in 8 random directions.",
-	"teleport a monster to your 敵を1体自分の近くに引き寄せる。",
+	"teleport a monster to a place adjacent to you.",
 	"releases a confusion ball which doesn't inflict any damage.",
 	"swaps positions of you and a monster.",
 	"sets a glyph under you. The glyph will explode when a monster moves on it.",

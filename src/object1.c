@@ -13,7 +13,11 @@
 
 #include "angband.h"
 
-
+#ifdef MACINTOSH
+#ifdef verify
+#undef verify
+#endif
+#endif
 /*
  * Reset the "visual" lists
  *
@@ -3542,7 +3546,7 @@ info[i++] = "それは太古の禍々しい怨念が宿っている。";
 #ifdef JP
 	  info[i++] = "それは酸・電撃・火炎・冷気では傷つかない。";
 #else
-	  info[i++] = "It cannot be harmed by elements.";
+	  info[i++] = "It cannot be harmed by the elements.";
 #endif
 	} else {
 	if (f3 & (TR3_IGNORE_ACID))

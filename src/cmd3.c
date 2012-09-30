@@ -2038,7 +2038,7 @@ static void do_cmd_refill_torch(void)
 #ifdef JP
 		msg_print("松明が消えてしまった！");
 #else
-		msg_print("Your torche has gone out!");
+		msg_print("Your torch has gone out!");
 #endif
 	}
 	else if ((o_ptr->name2 == EGO_LITE_DARKNESS) || (j_ptr->name2 == EGO_LITE_DARKNESS))

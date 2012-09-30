@@ -343,15 +343,15 @@ whines: 'You swindler, do you seek to vilify me?'
 N:517:Jurt the Living Trump
 3
 'All your fault!'
-'It is all OK if you die!'
-'Don't call me "Mickey Mouse'
+'Only your death will set things right!'
+'Don't call me clumsy!'
 
 #N:551:Rogrog the Black Troll
 
 N:573:Lord Borel of Hendrake
 3
-'I am Lord Borel of Hendrake!'
-'Take up arms! Chicken!'
+'I am Borel, Duke of Hendrake, Master of Arms of the Ways of Hendrake.'
+'You smile at your own cowardice? Stand and fight, bastard!'
 'You aren't a caitiff that throws a cloak?!'
 
 #N:595:Father Dagon
@@ -362,7 +362,7 @@ N:598:Mandor, Master of the Logrus
 enjoys espresso coffee between battle.
 'My slaves fight with you.'
 'Excuse me, I have no time to continue a small fight.'
-'Uh-huh, I am really honored by the fight with you.'
+'It is a great pleasure to fight with such a worthy opponent as you.'
 
 #N:606:Loge, Spirit of Fire
 #N:615:Moire, Queen of Rebma
@@ -371,8 +371,8 @@ enjoys espresso coffee between battle.
 
 N:642:Jasra, Brand's Mistress
 2
-'I make a coat hook from you.'
-'Do you take on the cheif of four words' bastion?'
+'I will turn you into a coatrack.'
+'I'm a master of the Keep of the Four Worlds!'
 
 N:651:Strygalldwir
 2
@@ -391,22 +391,18 @@ hisses, 'Your crime issss life. The sssentencce isss death.'
 
 N:660:Rinaldo, son of Brand
 6
-'I am Rinaldo 1st, Kashfan King and alumus school of business administraion Berkley!'
-'Refrigerator? Good question! A box to store your corpse!'
-'If you buy a Grand-D machine, I throw in Werewindle.'
+'I am Rinaldo I, Kashfan King and B.S. in Business Management, UC Berkeley.'
+'Freezer? Glad you asked! A box to store your body!'
+'If you buy a Grand-D machine, I'll throw Werewindle into the bargain.'
 has an eye to stick you with a burial set.
 'Sorry but I kill you.'
-'Can I get you a checkin? How about a white rat within aluminum foil?'
-
+'Can I get you a chicken? Maybe some white mice and aluminum foil?'
 
 N:670:Jack of Shadows
-3
-#↑ひとつギブアップしたので
-#4
+4
 'Be made to realize my darkness hold.'
 'Power of shadow is infinite.'
-#「コルウィニアの鍵を手に入れた俺に敵はないのだ！」
-##### ↑これの綴りがわからない, 板倉さんに訊けばわかりそう.
+'With the Key of Kolwynia, I am invincible!'
 'Soul? What is it of use to?'
 
 N:685:Shoggoth
@@ -441,7 +437,7 @@ growls: 'Come here, young braggart.'
 N:715:Glaurung, Father of the Dragons
 N:766:Ancalagon the Black
 2
-says: 'You cannot avoid the ballyhack.'
+says: 'Thou shalt not escape a doom.'
 says: 'A mere mortal, Be burned to the ground by my fire.'
 
 #N:729:Ulik the Troll
@@ -495,15 +491,16 @@ says, 'Verily, it is too late for thee.'
 #N:767:Daoloth, the Render of the Veils
 #N:770:Artsi the Champion of Chaos
 #N:771:Saruman of Many Colours
+
 N:772:Gandalf the Grey
 2
-'I am a man waiting upon occult fire, master of Anor fire. You cannot cross.'
-'Dark fire, flame of Udun doesn't help you. Go back to eternal darkness! You cannot cross.'
+'I am a Wielder of the Flame of Anor, you cannot pass.'
+'The dark fire will not avail you, Flame of Udun.'
 
 N:773:Brand, Mad Visionary of Amber
 2
 'I don't endure your sabotaging my plan!'
-'Do you think that it is possible defeat an amber?'
+'You dare to oppose Amber?'
 
 #N:777:Bast, Goddess of Cats
 #N:780:Vlad Dracula, Prince of Darkness
@@ -512,14 +509,14 @@ N:773:Brand, Mad Visionary of Amber
 N:789:Bleys, Master of Manipulation
 N:799:Caine, the Conspirator
 3
-'Do you think that it is possible defeat an amber?'
+'You dare to oppose Amber?'
 'Who is Your malik? Eric? Corwin?'
 'To barge into our blood feud is to die!'
 
 N:791:Fiona the Sorceress
 3
 'You should not think me easy to deal with.'
-'Do you think that it is possible defeat an amber?'
+'You dare to oppose Amber?'
 smiles diabolic.
 
 #N:792:Tselakus, the Dreadlord
@@ -555,7 +552,7 @@ throws his cloak.
 
 N:824:Benedict, the Ideal Warrior
 3
-'Back Down. My victory had been calculated this condition.'
+'Back Down. This situation only results in my victory, I know.'
 'I praise your bravery. But take good care of your life.'
 'It's unlucky for you to see me.'
 
@@ -568,7 +565,7 @@ N:837:Surtur the Giant Fire Demon
 3
 'You cannot get "Orb of Destiny" even if you bring me down into the dust.'
 'Burn out! And turn to dust!'
-'A valkyrie who came before was storonger than you!'
+'The level 14 valkyrie who came before was storonger than you!'
 
 N:655:Ubbo-Sathla, the Unbegotten Source
 N:695:Zoth-Ommog

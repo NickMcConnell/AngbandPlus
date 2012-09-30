@@ -998,15 +998,7 @@ static errr rd_store(int town_number, int store_number)
 		rd_item(q_ptr);
 
 		/* Acquire valid items */
-#ifdef JP
-		/*
-		 * 我が家が 20 ページになる隠し機能
-		 */
 		if (st_ptr->stock_num < (store_number == STORE_HOME ? (STORE_INVEN_MAX) * 10 : (store_number == STORE_MUSEUM ? (STORE_INVEN_MAX) * 50 : STORE_INVEN_MAX)))
-#else
-		if (st_ptr->stock_num < STORE_INVEN_MAX)
-#endif
-
 		{
 			int k;
 			if (sort)

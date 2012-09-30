@@ -127,7 +127,8 @@ CC = gcc
 #CFLAGS = -Wall -O1 -pipe -g -D"USE_X11" -D"USE_GCU"
 #LIBS = -lX11 -lcurses -ltermcap
 
-CFLAGS = -Wall -O2  -fno-strength-reduce -m486 -pipe -g -D"USE_X11" -D"USE_GCU" -I/usr/X11R6/include
+#CFLAGS = -Wall -O2  -fno-strength-reduce -m486 -pipe -g -D"USE_X11" -D"JP" -D"EUC" -D"USE_GCU" -D"X_LOCALE" -DDEFAULT_LOCALE="\"ja_JP.eucJP\"" -I/usr/X11R6/include
+CFLAGS = -Wall -O2  -fno-strength-reduce -m486 -pipe -g -D"USE_X11" -D"JP" -D"EUC" -D"USE_GCU" -DDEFAULT_LOCALE="\"ja_JP.eucJP\"" -I/usr/X11R6/include
 LIBS = -L/usr/X11R6/lib -lX11 -lncurses
 
 

@@ -39,12 +39,7 @@ EXE_FILE = hengband.exe
 
 CCOPTS = -jb -j1 -Hc -tW -lGn -e$(EXE_FILE) -w- \
 	-D_WIN32_WINNT=0x0400 -DWINVER=0x0400 \
-	-DUSE_TRANSPARENCY
-
-# for japanese version
-#CCOPTS = -jb -j1 -Hc -tW -lGn -e$(EXE_FILE) -w- \
-#	-D_WIN32_WINNT=0x0400 -DWINVER=0x0400 \
-#	-DUSE_TRANSPARENCY -DJP -DSJIS
+	-DUSE_TRANSPARENCY -DJP -DSJIS
 
 # Compile flags:
 CPPFLAGS= $(CCOPTS) $(DBGOPT)
@@ -86,10 +81,8 @@ install: $(EXE_FILE)
 $(EXE_FILE): $(OBJ) angband.res
 	$(LINKER) -aa -x $(OBJ) c0w32.obj, $(EXE_FILE),, cw32.lib import32.lib,, angband.res
 
-angband.res: ang_eng.rc
-	$(RC) -r ang_eng.rc
-#angband.res: angband.rc
-#	$(RC) -r angband.rc
+angband.res: angband.rc
+	$(RC) -r angband.rc
 
 ########################### Implicit Rules ########################
 .c.obj:

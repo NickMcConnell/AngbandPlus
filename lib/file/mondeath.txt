@@ -5,16 +5,15 @@ N:55:Fang, Farmer Maggot's dog
 
 N:63:Smeagol
 1
-'Hate, Hate, Hate!'
+'We hates, hates, hatesss!'
 
 N:393:It
 1
 'It's appalling.'
 
-#N:573:Lord Borel
-#1
-#にあなたは言った 「これはオリンピックじゃないんだ」
-## これ無理っす.
+N:573:Lord Borel
+1
+'Oh, basely done! I had hoped for better of thee!'
 
 N:670:Jack of Shadows
 1

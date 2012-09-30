@@ -1081,8 +1081,8 @@ int is_autopick(object_type *o_ptr)
 		}
 		
 		/*** 未判明の...  ***/
-		if (!strncmp(str, "unawared",8) && 
-		    !object_aware_p(o_ptr)) NEXT_WORD(8);
+		if (!strncmp(str, "unaware",7) && 
+		    !object_aware_p(o_ptr)) NEXT_WORD(7);
 		
 		/*** 無価値の... ***/
 		if (!strncmp(str, "worthless", 9)
@@ -1199,7 +1199,7 @@ int is_autopick(object_type *o_ptr)
 			}
 		}
 		
-		else if (!strncmp(str, "lites", 5)){
+		else if (!strncmp(str, "lights", 5)){
 			switch( o_ptr->tval ){
 			case TV_LITE:
 			{len =  5; break;}
@@ -1232,7 +1232,7 @@ int is_autopick(object_type *o_ptr)
 			  o_ptr->tval == TV_SOFT_ARMOR)) len = 5;
 		else if (!strncmp(str, "cloaks", 6) &&
 			 o_ptr->tval == TV_CLOAK) len = 6;
-		else if (!strncmp(str, "hemls", 5) &&
+		else if (!strncmp(str, "helms", 5) &&
 			 (o_ptr->tval == TV_CROWN || o_ptr->tval == TV_HELM)) len = 5;
 		else if (!strncmp(str, "gloves", 7) &&
 			 o_ptr->tval == TV_GLOVES) len = 7;
@@ -2971,13 +2971,21 @@ default:	msg_format("%sを細切れにした！", m_name);		break;
 
 			if (zantetsu_mukou)
 			{
+#ifdef JP
 				msg_print("こんな軟らかいものは切れん！");
+#else
+				msg_print("You cannot cut such a elastic thing!");
+#endif
 				k = 0;
 			}
 
 			if (e_j_mukou)
 			{
+#ifdef JP
 				msg_print("蜘蛛は苦手だ！");
+#else
+				msg_print("Spiders are difficult for you to deal with!");
+#endif
 				k /= 2;
 			}
 
@@ -3033,7 +3041,7 @@ msg_format("%s には効果がなかった。", m_name);
 #ifdef JP
 msg_format("%sの急所を突き刺した！", m_name);
 #else
-					msg_format("You pusupusu %s!", m_name);
+					msg_format("You hit %s on a fatal spot!", m_name);
 #endif
 				}
 				else k = 1;
@@ -3047,7 +3055,7 @@ msg_format("%sの急所を突き刺した！", m_name);
 #ifdef JP
 msg_format("刃が%sに深々と突き刺さった！", m_name);
 #else
-					msg_format("You pusupusu %s!", m_name);
+					msg_format("You critically injured %s!", m_name);
 #endif
 				}
 				else if (((m_ptr->hp < maxhp/2) && one_in_((p_ptr->num_blow[0]+p_ptr->num_blow[1]+1)*8)) || (((one_in_(666)) || ((backstab || fuiuchi) && one_in_(11))) && !(r_ptr->flags1 & RF1_UNIQUE) && !(r_ptr->flags7 & RF7_UNIQUE2)))
@@ -3058,7 +3066,7 @@ msg_format("刃が%sに深々と突き刺さった！", m_name);
 #ifdef JP
 msg_format("%sに致命傷を負わせた！", m_name);
 #else
-						msg_format("You pusupusu %s!", m_name);
+					msg_format("You fatally injured %s!", m_name);
 #endif
 					}
 					else
@@ -3067,7 +3075,7 @@ msg_format("%sに致命傷を負わせた！", m_name);
 #ifdef JP
 msg_format("刃が%sの急所を貫いた！", m_name);
 #else
-						msg_format("You pusupusu %s!", m_name);
+					msg_format("You hit %s on a fatal spot!", m_name);
 #endif
 					}
 				}
@@ -3101,7 +3109,11 @@ msg_format("刃が%sの急所を貫いた！", m_name);
 					}
 				}
 				if ((o_ptr->name1 == ART_ZANTETSU) && is_lowlevel)
+#ifdef JP
 					msg_print("またつまらぬものを斬ってしまった．．．");
+#else
+					msg_print("Sign..Another trifling thing I've cut....");
+#endif
 				break;
 			}
 
@@ -3133,7 +3145,11 @@ msg_format("刃が%sの急所を貫いた！", m_name);
 
 						if (o_ptr->to_h != to_h || o_ptr->to_d != to_d)
 						{
+#ifdef JP
 							msg_print("妖刀は血を吸って強くなった！");
+#else
+							msg_print("Muramasa sucked blood, and became more powerful!");
+#endif
 							o_ptr->to_h = to_h;
 							o_ptr->to_d = to_d;
 						}
@@ -3189,8 +3205,11 @@ msg_format("刃が%sの急所を貫いた！", m_name);
 				}
 				m_ptr->maxhp -= (k+7)/8;
 				if (m_ptr->hp > m_ptr->maxhp) m_ptr->hp = m_ptr->maxhp;
+#ifdef JP
 				msg_format("%sは弱くなったようだ。", m_name);
-
+#else
+				msg_format("%^s seems weakened.", m_name);
+#endif
 				drain_result = 0;
 			}
 
@@ -3342,7 +3361,11 @@ msg_format("刃が%sの急所を貫いた！", m_name);
 					q_ptr->marked = FALSE;
 					m_ptr->hold_o_idx = q_ptr->next_o_idx;
 					q_ptr->next_o_idx = 0;
+#ifdef JP
 					msg_format("%sを奪った。", o_name);
+#else
+					msg_format("You snatched %s.", o_name);
+#endif
 					inven_carry(q_ptr);
 				}
 			}
@@ -3536,7 +3559,7 @@ bool py_attack(int y, int x, int mode)
 #ifdef JP
 			msg_print("拙者、おなごは斬れぬ！");
 #else
-			msg_print("I can not kill woman!");
+			msg_print("I can not attack women!");
 #endif
 			return FALSE;
 		}
@@ -3579,7 +3602,11 @@ bool py_attack(int y, int x, int mode)
 		}
 		else if (p_ptr->pclass != CLASS_BERSERKER)
 		{
+#ifdef JP
 			if (get_check("本当に攻撃しますか？"))
+#else
+			if (get_check("Really hit it? "))
+#endif
 			{
 				chg_virtue(V_INDIVIDUALISM, 1);
 				chg_virtue(V_HONOUR, -1);
@@ -4298,7 +4325,7 @@ msg_format("%sが恐怖していて制御できない。", m_name);
 #ifdef JP
 		msg_format("%sが朦朧としていてうまく動けない！",m_name);
 #else
-		msg_format("You cannot control stuned %s!",m_name);
+		msg_format("You cannot control stunned %s!",m_name);
 #endif
 		oktomove = FALSE;
 		disturb(0, 0);
@@ -4550,7 +4577,11 @@ msg_format("%sが恐怖していて制御できない。", m_name);
 		}
 		if ((p_ptr->action == ACTION_HAYAGAKE) && !cave_floor_bold(py, px))
 		{
+#ifdef JP
 			msg_print("ここでは素早く動けない。");
+#else
+			msg_print("You cannot run in wall.");
+#endif
 			set_action(ACTION_NONE);
 		}
 

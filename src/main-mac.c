@@ -400,8 +400,92 @@ AEEventHandlerUPP AEH_Open_UPP;
 
 #endif
 
+/*
+	Extra Sound Mode
+*/
+#ifdef JP
+static int ext_sound = 0;
+
+#define		SND_NON		0
+#define		SND_ATTACK	1
+#define		SND_MOVE		2
+#define		SND_TRAP		3
+#define		SND_SHOP		4
+#define		SND_ME		5
+#define		SND_CMD_ERROR	6
+
+static int soundchoice[] = {
+	SND_NON,
+	SND_ATTACK,
+	SND_ATTACK,
+	SND_ATTACK,
+	SND_TRAP,
+	SND_ATTACK,
+	SND_ME,
+	SND_ME,
+	SND_ME,
+	SND_MOVE,
+	SND_ATTACK,
+	SND_ME,
+	SND_ATTACK,
+	SND_NON,
+	SND_MOVE,
+	SND_MOVE,
+	SND_ME,
+	SND_SHOP,
+	SND_SHOP,
+	SND_SHOP,
+	SND_SHOP,
+	SND_MOVE,
+	SND_MOVE,
+	SND_MOVE,
+	SND_MOVE,
+	SND_ATTACK,
+	SND_SHOP,
+	SND_SHOP,
+	SND_ME,
+	SND_NON,
+	SND_ATTACK,
+	SND_NON,
+	SND_NON,
+	SND_NON,
+	SND_NON,
+	SND_ATTACK,
+	SND_ATTACK,
+	SND_NON,
+	SND_NON,
+	SND_ATTACK,
+	SND_NON,
+	SND_NON,
+	SND_NON,
+	SND_TRAP,
+	SND_ATTACK,
+	SND_ATTACK,
+	SND_ATTACK,
+	SND_ATTACK,
+	SND_ATTACK,
+	SND_NON,
+	SND_NON,
+	SND_NON,
+	SND_NON,
+	SND_NON,
+	SND_CMD_ERROR,
+	SND_TRAP,
+	SND_NON,
+	SND_NON,
+	SND_TRAP,
+	SND_ATTACK,
+	SND_TRAP,
+	SND_ATTACK,
+	SND_ATTACK,
+	SND_NON,
+	SND_TRAP,
+};
+
+static int			soundmode[8];
 
 
+#endif
 
 
 /*
@@ -1078,23 +1162,23 @@ static OSErr XDDSWCreateGWorldFromPict(
 	term_data *td )
 {
 	OSErr err;
-	GWorldPtr saveGWorld;
-	GDHandle saveGDevice;
+/*	GWorldPtr saveGWorld;
+	GDHandle saveGDevice;*/
 	GWorldPtr tempGWorld;
 	Rect pictRect;
-	short depth;
-	GDHandle theGDH;
+//	short depth;
+//	GDHandle theGDH;
 	
 	tempGWorld = NULL;
-		
+	
 	/* Reset */
 	*pictGWorld = NULL;
 
 	/* Get depth */
-	depth = td->pixelDepth;
+//	depth = td->pixelDepth;
 
 	/* Get GDH */
-	theGDH = td->theGDH;
+//	theGDH = td->theGDH;
 
 	/* Obtain size rectangle */
 	pictRect.left = 0;
@@ -1115,19 +1199,19 @@ static OSErr XDDSWCreateGWorldFromPict(
 	*pictGWorld = tempGWorld;
 	
 	/* Save GWorld */
-	GetGWorld(&saveGWorld, &saveGDevice);
+//	GetGWorld(&saveGWorld, &saveGDevice);
 
 	/* Activate */
-	SetGWorld(tempGWorld, nil);
+//	SetGWorld(tempGWorld, nil);
 
 	/* Dump the pict into the GWorld */
-	(void)LockPixels(GetGWorldPixMap(tempGWorld));
-	EraseRect(&pictRect);
+//	(void)LockPixels(GetGWorldPixMap(tempGWorld));
+//	EraseRect(&pictRect);
 	//DrawPicture(pictH, &pictRect);
-	UnlockPixels(GetGWorldPixMap(tempGWorld));
+//	UnlockPixels(GetGWorldPixMap(tempGWorld));
 
 	/* Restore GWorld */
-	SetGWorld(saveGWorld, saveGDevice);
+//	SetGWorld(saveGWorld, saveGDevice);
 	
 	return (0);
 }
@@ -1135,23 +1219,23 @@ static OSErr XDDSWCreateGWorldFromPict(
 
 static OSErr XDDSWUpDateGWorldFromPict( term_data *td )
 {
-	GWorldPtr saveGWorld;
-	GDHandle saveGDevice;
+//	GWorldPtr saveGWorld;
+//	GDHandle saveGDevice;
 	Rect pictRect;
-	short depth;
-	GDHandle theGDH;
+//	short depth;
+//	GDHandle theGDH;
 	
 	GWorldFlags	errflag;
 	
 	/*  */
 	
-/*	if( td->bufferPort == NULL )
+	if( td->bufferPort == NULL )
 		return;
-*/	/* Get depth */
-	depth = td->pixelDepth;
+	/* Get depth */
+//	depth = td->pixelDepth;
 
 	/* Get GDH */
-	theGDH = td->theGDH;
+//	theGDH = td->theGDH;
 	
 	/* Obtain size rectangle */
 	pictRect.top = 0;
@@ -1161,7 +1245,7 @@ static OSErr XDDSWUpDateGWorldFromPict( term_data *td )
 	
 	XDDSWUnlockFrame(td);
 	
-	errflag = UpdateGWorld( &td->bufferPort, depth, &pictRect, 0, 0, 0);
+	errflag = UpdateGWorld( &td->bufferPort, 0, &pictRect, 0, 0, 0);
 	XDDSWLockFrame(td);
 	if( errflag & gwFlagErr ){
 		//SysBeep(0);
@@ -1391,7 +1475,7 @@ static void Term_init_mac(term *t)
 	/* Forget color */
 	td->last = -1;
 #ifdef JP
-	XDDSWCreateGWorldFromPict( &td->bufferPort , td );
+	XDDSWCreateGWorldFromPict( &td->bufferPort, td );
 	
 	XDDSWLockFrame( td );
 	/* Oops */
@@ -1463,7 +1547,7 @@ static errr Term_xtra_mac_react(void)
 		if (!use_graphics && !frameP && (globe_init() != 0))
 		{
 			#ifdef JP
-			plog("グラフィックの初期化は出来ませんでした。");
+			plog("グラフィックの初期化は出来ませんでした.");
 			#else
 			plog("Cannot initialize graphics!");
 			#endif
@@ -1543,6 +1627,26 @@ static errr Term_xtra_mac(int n, int v)
 			sound[0] = strlen((char*)sound + 1);
 
 			/* Obtain resource XXX XXX XXX */
+#ifdef JP
+			handle = Get1NamedResource('snd ', sound);
+			if( handle == NULL || ext_sound )
+				handle = GetNamedResource('snd ', sound);
+			
+			/* Oops */
+			if (handle && soundmode[soundchoice[v]] == true)
+			{
+				/* Load and Lock */
+				LoadResource(handle);
+				HLock(handle);
+
+				/* Play sound (wait for completion) */
+				SndPlay(nil, (SndListHandle)handle, true);
+
+				/* Unlock and release */
+				HUnlock(handle);
+				ReleaseResource(handle);
+			}
+#else
 			handle = GetNamedResource('snd ', sound);
 
 			/* Oops */
@@ -1553,13 +1657,13 @@ static errr Term_xtra_mac(int n, int v)
 				HLock(handle);
 
 				/* Play sound (wait for completion) */
-				SndPlay(nil, (SndListHandle)handle, false);
+				SndPlay(nil, (SndListHandle)handle, true);
 
 				/* Unlock and release */
 				HUnlock(handle);
 				ReleaseResource(handle);
 			}
-
+#endif
 			/* Success */
 			return (0);
 		}
@@ -2059,7 +2163,7 @@ static void SetupAppDir(void)
 	if (err != noErr)
 	{
 #ifdef JP
-		sprintf(errString, "PBGetFCBInfo エラー #%d.\r 終了します。", err);
+		sprintf(errString, "PBGetFCBInfo エラー #%d.\r 終了します.", err);
 #else
 		sprintf(errString, "Fatal PBGetFCBInfo Error #%d.\r Exiting.", err);
 #endif
@@ -2076,7 +2180,7 @@ static void SetupAppDir(void)
 	if (err != noErr)
 	{
 #ifdef JP
-		sprintf(errString, "HSetVol エラー #%d.\r 終了します。", err);
+		sprintf(errString, "HSetVol エラー #%d.\r 終了します.", err);
 #else
 		sprintf(errString, "Fatal HSetVol Error #%d.\r Exiting.", err);
 #endif
@@ -2131,7 +2235,13 @@ static void save_prefs(void)
 	putshort(VERSION_PATCH);
 	putshort(VERSION_EXTRA);
 
-
+	putshort(arg_sound);
+	putshort(arg_graphics);
+	
+	/* SoundMode */
+	for( i = 0 ; i < 7 ; i++ )
+		putshort(soundmode[i]);
+	
 	/* Dump */
 	for (i = 0; i < MAX_TERM_DATA; i++)
 	{
@@ -2171,7 +2281,7 @@ static void load_prefs(void)
 	int old_major, old_minor, old_patch, old_extra;
 
 	term_data *td;
-
+	MenuHandle m;
 
 	/*** Version information ***/
 
@@ -2189,7 +2299,7 @@ static void load_prefs(void)
 	{
 		/* Message */
 		#ifdef JP
-		mac_warning("古い初期設定ファイルを無視します。");
+		mac_warning("古い初期設定ファイルを無視します.");
 		#else
 		mac_warning("Ignoring old preferences.");
 		#endif
@@ -2197,6 +2307,21 @@ static void load_prefs(void)
 		return;
 	}
 
+	arg_sound = getshort();
+	arg_graphics = getshort();
+	
+	/* SoundMode */
+	for( i = 0 ; i < 7 ; i++ )
+		soundmode[i] = getshort();
+	
+	/* Special menu */
+	m = GetMenuHandle(134);	//m = GetMHandle(134);
+	
+	/* Item "arg_sound" */
+	CheckItem(m, 1, arg_sound);
+
+	/* Item "arg_graphics" */
+	CheckItem(m, 2, arg_graphics);
 
 	/* Windows */
 	for (i = 0; i < MAX_TERM_DATA; i++)
@@ -2442,6 +2567,215 @@ static void init_windows(void)
 	Term_activate(td->t);
 }
 
+#ifdef JP
+static void init_sound( void )
+{
+	int err, i;
+	DirInfo pb;
+	SignedByte		permission = fsRdPerm;
+	pascal short	ret;
+	
+	Handle handle;
+	Str255 sound;
+
+	/* Descend into "lib" folder */
+	pb.ioCompletion = NULL;
+	pb.ioNamePtr = "\plib";
+	pb.ioVRefNum = app_vol;
+	pb.ioDrDirID = app_dir;
+	pb.ioFDirIndex = 0;
+
+	/* Check for errors */
+	err = PBGetCatInfo((CInfoPBPtr)&pb, FALSE);
+
+	/* Success */
+	if ((err == noErr) && (pb.ioFlAttrib & 0x10))
+	{
+		/* Descend into "lib/save" folder */
+		pb.ioCompletion = NULL;
+		pb.ioNamePtr = "\pxtra";
+		pb.ioVRefNum = app_vol;
+		pb.ioDrDirID = pb.ioDrDirID;
+		pb.ioFDirIndex = 0;
+
+		/* Check for errors */
+		err = PBGetCatInfo((CInfoPBPtr)&pb, FALSE);
+			
+			/* Success */
+		if ((err == noErr) && (pb.ioFlAttrib & 0x10))
+		{
+			/* Descend into "lib/save" folder */
+			pb.ioCompletion = NULL;
+			pb.ioNamePtr = "\psound";
+			pb.ioVRefNum = app_vol;
+			pb.ioDrDirID = pb.ioDrDirID;
+			pb.ioFDirIndex = 0;
+
+			/* Check for errors */
+			err = PBGetCatInfo((CInfoPBPtr)&pb, FALSE);
+
+			/* Success */
+			if ((err == noErr) && (pb.ioFlAttrib & 0x10))
+			{
+				ret = HOpenResFile( app_vol , pb.ioDrDirID , "\psound.rsrc" , permission );
+				if( ret != -1 ){
+					ext_sound = 1;
+					
+					for( i = 0 ; i < 7 ; i++ )
+							soundmode[i] = false;
+					
+					for( i = 1 ; i < SOUND_MAX ; i++ ){
+						/* Get the proper sound name */
+						sprintf((char*)sound + 1, "%.16s.wav", angband_sound_name[i]);
+						sound[0] = strlen((char*)sound + 1);
+
+						/* Obtain resource XXX XXX XXX */
+						handle = Get1NamedResource('snd ', sound);
+						if( handle == NULL || ext_sound )
+							handle = GetNamedResource('snd ', sound);
+						
+						if( handle )
+							soundmode[soundchoice[i]] = true;
+						
+					}
+				}
+			}
+		}
+	}
+}
+
+#ifdef CHUUKEI
+/*
+
+*/
+static void init_chuukei( void )
+{
+	char path[1024];
+	char tmp[1024];
+	FILE *fp;
+	
+	path_build(path, 1024, ANGBAND_DIR_XTRA, "chuukei.txt");
+
+	fp = fopen(path, "r");
+	if(!fp)
+		return;
+	
+	/* Read a line */
+	if (fgets(tmp, 1024, fp)){
+		if(tmp[0] == '-'){
+			int n = strlen(tmp);
+			tmp[n-1] = 0;
+			switch(tmp[1]){
+			case 'p':
+			{
+				if (!tmp[2]) break;
+				chuukei_server = TRUE;
+				if(connect_chuukei_server(&tmp[2])<0){
+					msg_print("connect fail");
+					return;
+				}
+				msg_print("connect");
+				msg_print(NULL);
+				break;
+			}
+
+			case 'c':
+			{
+				chuukei_client = TRUE;
+				connect_chuukei_server(&tmp[2]);
+				play_game(FALSE);
+				quit(NULL);
+			}
+			}
+		}
+		
+	}
+	fclose(fp);
+	
+}
+#endif
+
+/*
+
+*/
+short InevrtCheck( DialogPtr targetDlg, short check )
+{
+	Handle 	checkH;
+	short 	itemType;
+	long	result;
+	Rect	box;
+	
+	GetDialogItem( targetDlg, check, &itemType, &checkH, &box );
+	result = (GetControlValue( (ControlHandle)checkH ) + 1 ) % 2;
+	SetControlValue( (ControlHandle)checkH , result );
+	return result ;
+
+}
+
+/*
+
+*/
+short SetCheck( DialogPtr targetDlg, short check, long result )
+{
+	Handle 	checkH;
+	short 	itemType;
+
+	Rect	box;
+	
+	GetDialogItem( targetDlg, check, &itemType, &checkH, &box );
+	SetControlValue( (ControlHandle)checkH , result );
+	return result ;
+
+}
+
+/*
+
+*/
+short GetCheck( DialogPtr targetDlg, short check )
+{
+	Handle 	checkH;
+	short 	itemType;
+	long	result;
+	Rect	box;
+	
+	GetDialogItem( targetDlg, check, &itemType, &checkH, &box );
+	result = GetControlValue( (ControlHandle)checkH );
+	return result ;
+
+}
+void SoundConfigDLog(void)
+{
+	DialogPtr dialog;
+	Rect r;
+	short item_hit;
+	int	i;
+
+	dialog=GetNewDialog(131, 0, (WindowPtr)-1);
+	SetDialogDefaultItem( dialog, ok );
+	SetDialogCancelItem( dialog, cancel );
+	for( i = 1 ; i < 7 ; i++ )
+		SetCheck( dialog, i+2 , soundmode[i] );
+	
+	ShowWindow(dialog);
+	for( item_hit = 100 ; cancel < item_hit ; ){
+		ModalDialog(0, &item_hit);
+		
+		switch(item_hit){
+			case ok:
+				for( i = 1 ; i < 7 ; i++ )
+					soundmode[i] = GetCheck( dialog, i+2 );
+				break;
+			case cancel:
+				break;
+			default:
+				InevrtCheck( dialog, item_hit );
+		}
+	}
+	DisposeDialog(dialog);
+
+}
+
+#endif
 
 /*
  * Exit the program
@@ -2935,6 +3269,8 @@ static void init_menubar(void)
 	AppendMenu(m, "\p-");
 	AppendMenu(m, "\parg_fiddle");
 	AppendMenu(m, "\parg_wizard");
+	AppendMenu(m, "\p-");
+	AppendMenu(m, "\pサウンド設定...");
 	#else
 	AppendMenu(m, "\parg_sound");
 	AppendMenu(m, "\parg_graphics");
@@ -3057,11 +3393,11 @@ static void setup_menus(void)
 		EnableItem(m, 5);
 	}
 
-	/* Enable "exit"/"quit" */
+	/* Enable "quit" */
 	if (TRUE)
 	{
 		EnableItem(m, 7);
-		EnableItem(m, 8);
+//		EnableItem(m, 8);
 	}
 
 
@@ -3221,6 +3557,10 @@ static void setup_menus(void)
 	EnableItem(m, 5);
 	CheckItem(m, 5, arg_wizard);
 
+#ifdef JP
+	/* Item "SoundSetting" */
+	EnableItem(m, 7);
+#endif
 	/* Item "Hack" */
 	/* EnableItem(m, 9); */
 
@@ -3348,9 +3688,9 @@ static void menu(long mc)
 
 				dialog=GetNewDialog(128, 0, (WindowPtr)-1);
 
-				r=dialog->portRect;
+			/*	r=dialog->portRect;
 				center_rect(&r, &qd.screenBits.bounds);
-				MoveWindow(dialog, r.left, r.top, 1);
+				MoveWindow(dialog, r.left, r.top, 1);*/
 				ShowWindow(dialog);
 				ModalDialog(0, &item_hit);
 				DisposeDialog(dialog);		//DisposDialog(dialog);
@@ -3411,8 +3751,7 @@ static void menu(long mc)
 				/* Save */
 				case 5:
 				{
-					if (!can_save)
-					{
+					if (!can_save){
 #ifdef JP
 						plog("今はセーブすることは出来ません。");
 #else
@@ -3420,7 +3759,7 @@ static void menu(long mc)
 #endif
 						break;
 					}
-
+					
 					/* Hack -- Forget messages */
 					msg_flag = FALSE;
 
@@ -3430,42 +3769,13 @@ static void menu(long mc)
 					break;
 				}
 
-				/* Exit (without save) */
-				case 7:
-				{
-					/* Allow user to cancel "dangerous" exit */
-					if (game_in_progress && character_generated)
-					{
-						AlertTHndl alert;
-						short item_hit;
-
-						/* Get the "alert" info */
-						alert = (AlertTHndl)GetResource('ALRT', 130);
-
-						/* Center the "alert" rectangle */
-						center_rect(&(*alert)->boundsRect,
-						            &qd.screenBits.bounds);
-
-						/* Display the Alert, get "No" or "Yes" */
-						item_hit = Alert(130, ynfilterUPP);
-
-						/* Require "yes" button */
-						if (item_hit != 2) break;
-					}
-
-					/* Quit */
-					quit(NULL);
-					break;
-				}
-
 				/* Quit (with save) */
-				case 8:
+				case 7:
 				{
 					/* Save the game (if necessary) */
 					if (game_in_progress && character_generated)
 					{
-						if (!can_save)
-						{
+						if (!can_save){
 #ifdef JP
 							plog("今はセーブすることは出来ません。");
 #else
@@ -3720,6 +4030,12 @@ static void menu(long mc)
 					arg_wizard = !arg_wizard;
 					break;
 				}
+#ifdef JP
+				case 7:
+				{
+					SoundConfigDLog();
+				}
+#endif
 			}
 
 			break;
@@ -4095,7 +4411,7 @@ static bool CheckEvents(bool wait)
 				setup_menus();
 
 				/* Mega-Hack -- allow easy exit if nothing to save */
-				if (!character_generated && (ch=='Q' || ch=='q')) ch = 'e';
+//				if (!character_generated && (ch=='Q' || ch=='q')) ch = 'e';
 
 				/* Run the Menu-Handler */
 				menu(MenuKey(ch));
@@ -4181,13 +4497,13 @@ static bool CheckEvents(bool wait)
 					HiliteMenu(0);
 					break;
 				}
-#if !TARGET_CARBON
+
 				case inSysWindow:
 				{
 					SystemClick(&event, w);
 					break;
 				}
-#endif
+
 				case inDrag:
 				{
 					Point p;
@@ -4356,7 +4672,7 @@ static bool CheckEvents(bool wait)
 			if (AEProcessAppleEvent(&event) != noErr)
 			{
 				#ifdef JP
-				plog("Apple Event Handlerのエラーです。");
+				plog("Apple Event Handlerのエラーです.");
 				#else
 				plog("Error in Apple Event Handler!");
 				#endif
@@ -4518,7 +4834,7 @@ static void hook_core(cptr str)
 
 	/* Warn, then save player */
 	#ifdef JP
-	mac_warning("致命的なエラーです.\r強制的にセーブして終了します。");
+	mac_warning("致命的なエラーです.\r強制的にセーブして終了します.");
 	#else
 	mac_warning("Fatal error.\rI will now attempt to save and quit.");
 	#endif
@@ -4606,14 +4922,14 @@ static void init_stuff(void)
 
 		/* Warning */
 		#ifdef JP
-			plog_fmt("'%s' ファイルをオープン出来ません。", path);
+			plog_fmt("'%s' ファイルをオープン出来ません.", path);
 		#else
 			plog_fmt("Unable to open the '%s' file.", path);
 		#endif
 
 		/* Warning */
 		#ifdef JP
-			plog("Hengbandフォルダ内の'lib'フォルダが存在しないか正しく無い可能性があります。");
+			plog("Hengbandの'lib'フォルダが存在しないか正しく無い可能性があります.");
 		#else
 			plog("The Angband 'lib' folder is probably missing or misplaced.");
 		#endif
@@ -4654,134 +4970,6 @@ static void init_stuff(void)
 		if (path[i] == ':') path[i+1] = '\0';
 	}
 }
- 
-/*
- * Hooks to translate "Macro trigger" to actual name.
- */
-static char mod_list[] ="CSOX";
-static char *mod_name[]={"control-","shift-","option-","command-"};
-static char mod_a2t_format[] = "%5[\037CSOX]%d%n\r";
-static char mod_t2a_format[] = "%d\r%n";
-
-struct keycode_type {
-char *key_name;
-uint key_code;
-};
-
-static struct keycode_type key_list[] = {
-{"Delete", 51},{"KP_Period", 65},{"KP_Star", 67},{"KP_Plus", 69},
-{"KP_Clear", 71},{"KP_Slash", 75},{"KP_Enter", 76},{"KP_Minus", 78},
-{"KP_Equal", 81},{"KP_0", 82},{"KP_1", 83},{"KP_2", 84},
-{"KP_3", 85},{"KP_4", 86},{"KP_5", 87},{"KP_6", 88},
-{"KP_7", 89},{"KP_8", 91},{"KP_9", 92},{"F5",  96},
-{"F6",  97},{"F7",  98},{"F3", 99},{"F8", 100},
-{"F10", 101},{"F11", 103},{"F13", 105},{"F14", 107},
-{"F9", 109},{"F12", 111},{"F15", 113},{"Help", 114},
-{"Home", 115},{"PgUp", 116},{"Del", 117},{"F4",  118},
-{"End", 119},{"F2", 120},{"PgDn", 121},{"F1", 122},
-{"Left", 123},{"Right", 124},{"Down", 125},{"Up", 126},
-{0,0}};
-
-static void modifier_text_to_ascii_mac(char **bufptr, cptr *strptr)
-{
-  char *s = *bufptr;
-  cptr str = *strptr;
-  bool mod_status[4];
-  uint keycode;
-  int i, n, len=0;
-  
-  for (i=0; mod_list[i]; i++)
-    mod_status[i] = FALSE;
-  
-  str++;
-  while (1) {
-    for (i=0; mod_list[i]; i++) {
-      len = strlen(mod_name[i]);
-      
-      if(!strncmp(str, mod_name[i], len))
-	break;
-    }
-    if (!mod_list[i]) break;
-    str += len;
-    mod_status[i] = TRUE;
-  }
-
-  for (i=0; key_list[i].key_code; i++) {
-    len = strlen(key_list[i].key_name);
-    if (!strncmp(str, key_list[i].key_name, len) && ']'==str[len])
-      break;
-  }
-  if (!key_list[i].key_name)
-    return;
-  keycode = key_list[i].key_code;
-  
-  /* Key code in "Macro Trigger" is shifeted by 64. */
-  keycode -= 64;
-  
-  str += len;
-
-  *s++ = (char)31;
-  for (i=0; mod_list[i]; i++) {
-    if (mod_status[i])
-      *s++ = mod_list[i];
-  }
-  sprintf(s, mod_t2a_format, keycode, &n);
-
-  *bufptr = s+n;
-  *strptr = str; /* where **strptr == ']' */
-  return;
-}
-
-
-static bool modifier_ascii_to_text_mac(char **bufptr, cptr *strptr)
-{
-  char *s = *bufptr;
-  cptr str = *strptr-1;
-  char modstr[6];
-  uint keycode;
-  int n,i;
-
-  *s++ = '\\';
-  *s++ = '[';
-
-  modstr[0] = '\0';
-  if (2 != sscanf(str, mod_a2t_format, modstr, &keycode, &n) || 31 != modstr[0])
-    return FALSE;
-  str += n+1;
-
-  /* Key code in "Macro Trigger" is shifeted by 64. */
-  keycode += 64;
-
-  for (i=1; modstr[i]; i++) {
-    char *tmp;
-
-    tmp = strchr(mod_list, modstr[i]);
-    if (!tmp) return FALSE;
-
-    tmp = mod_name[(int)(tmp - mod_list)];
-    while(*tmp) *s++ = *tmp++;
-  }
-
-  /* (option or command)+(alphabet key) is not supported? */
-  {
-    for (i=0; key_list[i].key_code; i++) {
-      if (keycode == key_list[i].key_code)
-	break;
-    }
-    if (!key_list[i].key_code)
-      return FALSE;
-    else {
-      char *tmp = key_list[i].key_name;
-      while (*tmp) *s++ = *tmp++;
-    }
-  }
-  *s++ = ']';
-
-  *bufptr = s;
-  *strptr = str;
-  return TRUE;
-}
-
 
 
 /*
@@ -4793,7 +4981,7 @@ void main(void)
 	int numberOfMasters = 10;
 
 	/* Increase stack space by 64K */
-	SetApplLimit(GetApplLimit() - 65536L);
+	SetApplLimit(GetApplLimit() - 131072L);//65536L);
 
 	/* Stretch out the heap to full size */
 	MaxApplZone();
@@ -4850,7 +5038,7 @@ void main(void)
 		if ((err != noErr) || (versionNumber < 0x0700))
 		{
 			#ifdef JP
-			quit("このプログラムは漢字Talk7.x.x以降で動作します。");
+			quit("このプログラムは漢字Talk7.x.x以降で動作します.");
 			#else
 			quit("You must have System 7 to use this program.");
 			#endif
@@ -4876,7 +5064,7 @@ void main(void)
 		if (env.systemVersion < 0x0700)
 		{
 			#ifdef JP
-			quit("このプログラムは漢字Talk7.x.x以降で動作します。");
+			quit("このプログラムは漢字Talk7.x.x以降で動作します.");
 			#else
 			quit("You must have System 7 to use this program.");
 			#endif
@@ -4886,7 +5074,7 @@ void main(void)
 		if (!env.hasColorQD)
 		{
 			#ifdef JP
-			quit("このプログラムはColor Quickdrawが無いと動作しません。");
+			quit("このプログラムはColor Quickdrawが無いと動作しません.");
 			#else
 			quit("You must have Color Quickdraw to use this program.");
 			#endif
@@ -4964,15 +5152,6 @@ void main(void)
 	quit_aux = hook_quit;
 	core_aux = hook_core;
 
-	{
-	  /* Hooks to translate "Macro trigger" */
-	  extern void (*text_to_ascii_aux)(char **, cptr *);
-	  extern bool (*ascii_to_text_aux)(char **, cptr *);
-
-	  text_to_ascii_aux = modifier_text_to_ascii_mac;
-	  ascii_to_text_aux = modifier_ascii_to_text_mac;
-	}
-
 BackColor(blackColor);
 		ForeColor(whiteColor);
 
@@ -4984,6 +5163,10 @@ BackColor(blackColor);
 
 	/* Prepare the windows */
 	init_windows();
+
+#ifdef JP
+	init_sound();
+#endif
 
 	/* Hack -- process all events */
 	while (CheckEvents(TRUE)) /* loop */;
@@ -5017,6 +5200,9 @@ BackColor(blackColor);
 	/* Handle "open_when_ready" */
 	handle_open_when_ready();
 
+#ifdef CHUUKEI
+	init_chuukei();
+#endif
 
 	/* Prompt the user */
 	#ifdef JP

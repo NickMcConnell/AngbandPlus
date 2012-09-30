@@ -4872,7 +4872,7 @@ F:SHOW_MODS
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:593:& モンスター・ボール#
-E:& Capture ball#
+E:& Capture Ball#
 G:~:B
 I:11:0:0
 W:15:0:120:1000
@@ -4881,7 +4881,7 @@ P:0:1d1:0:0:0
 F:ACTIVATE
 
 N:594:& 死の大鎌
-E:& Death scythe~ 
+E:& Death Scythe~ 
 G:/:R
 I:22:50:0
 W:70:0:350:10000
@@ -4894,7 +4894,7 @@ F:BRAND_FIRE | BRAND_ELEC | BRAND_COLD | BRAND_ACID | BRAND_POIS |
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | JOUBA
 
 N:595:ネオ・つよしスペシャル
-E:Neo Tsuyoshi special
+E:Neo Tsuyoshi Special
 G:!:d
 I:75:64:0
 W:15:0:4:2000
@@ -4902,7 +4902,7 @@ A:15/6
 P:0:1d1:0:0:0
 
 N:596:追加射撃
-E:Extra shots
+E:Extra Shots
 G:=:d
 I:45:51:0
 W:50:0:2:20000
@@ -4910,7 +4910,7 @@ A:50/2
 F:XTRA_SHOTS
 
 N:597:& エクスプレスカード
-E:& Express Card
+E:& Card
 G:~:G
 I:50:0:0
 W:1:0:2:1000
@@ -4954,7 +4954,7 @@ W:30:0:3:25000
 F:INSTA_ART
 
 N:603:つよしスペシャル
-E:Tsuyoshi special
+E:Tsuyoshi Special
 G:!:d
 I:75:65:0
 W:10:0:4:0
@@ -5092,7 +5092,7 @@ P:0:3d5:0:0:0
 F:SHOW_MODS
 
 N:620:& おもちゃのカンヅメ
-E:& Can~ of toys
+E:& Can~ of Toys
 G:&:y
 I:7:50:0
 W:1:0:50:500000
@@ -5171,7 +5171,7 @@ P:0:1d2:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:630:フロア・リセット
-E:Reset recall
+E:Reset Recall
 G:?:d
 I:70:53:0
 W:20:0:5:500
@@ -5212,7 +5212,7 @@ P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:635:& 隼の剣
-E:& Falcon sword~
+E:& Falcon Sword~
 G:|:y
 I:23:33:1
 W:55:0:30:3500

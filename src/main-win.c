@@ -581,33 +581,7 @@ static BYTE win_pal[256] =
  * Hack -- define which keys are "special"
  */
 static bool special_key[256];
-static bool ignore_key[256];
 
-#if 1
-/*
- * Hack -- initialization list for "special_key"
- */
-static byte special_key_list[] = {
-VK_CLEAR,VK_PAUSE,VK_CAPITAL,VK_KANA,VK_JUNJA,VK_FINAL,VK_KANJI,
-VK_CONVERT,VK_NONCONVERT,VK_ACCEPT,VK_MODECHANGE,
-VK_PRIOR,VK_NEXT,VK_END,VK_HOME,VK_LEFT,VK_UP,VK_RIGHT,VK_DOWN,
-VK_SELECT,VK_PRINT,VK_EXECUTE,VK_SNAPSHOT,VK_INSERT,VK_DELETE,
-VK_HELP,VK_APPS,VK_SLEEP,
-VK_F1,VK_F2,VK_F3,VK_F4,VK_F5,VK_F6,VK_F7,VK_F8,VK_F9,VK_F10,
-VK_F11,VK_F12,VK_F13,VK_F14,VK_F15,VK_F16,VK_F17,VK_F18,VK_F19,VK_F20,
-VK_F21,VK_F22,VK_F23,VK_F24,VK_NUMLOCK,VK_SCROLL,
-VK_ATTN,VK_CRSEL,VK_EXSEL,VK_EREOF,VK_PLAY,VK_ZOOM,VK_NONAME,
-VK_PA1,VK_OEM_CLEAR,0
-};
-
-static byte ignore_key_list[] = {
-VK_ESCAPE,VK_TAB,VK_SPACE,
-'F','W','O','H', /* these are menu characters.*/
-VK_SHIFT,VK_CONTROL,VK_MENU,VK_LWIN,VK_RWIN,
-VK_LSHIFT,VK_RSHIFT,VK_LCONTROL,VK_RCONTROL,VK_LMENU,VK_RMENU,0
-};
-
-#else
 /*
  * Hack -- initialization list for "special_key"
  *
@@ -687,7 +661,6 @@ static byte special_key_list[] =
 
 	0
 };
-#endif
 
 /* bg */
 static void delete_bg()
@@ -3741,6 +3714,7 @@ static void process_menus(WORD wCmd)
 
 			if (GetSaveFileName(&ofn))
 			{
+				extern void do_cmd_save_screen_html_aux(char *filename, int message);
 				do_cmd_save_screen_html_aux(buf, 0);
 			}
 			break;
@@ -3944,7 +3918,7 @@ LRESULT FAR PASCAL AngbandWndProc(HWND hWnd, UINT uMsg,
 			if (GetKeyState(VK_MENU)    & 0x8000) ma = TRUE;
 
 			/* Handle "special" keys */
-			if (special_key[(byte)(wParam)] || (ma && !ignore_key[(byte)(wParam)]) )
+			if (special_key[(byte)(wParam)])
 			{
 				/* Begin the macro trigger */
 				Term_keypress(31);
@@ -4286,7 +4260,7 @@ LRESULT FAR PASCAL AngbandListProc(HWND hWnd, UINT uMsg,
 			if (GetKeyState(VK_MENU)    & 0x8000) ma = TRUE;
 
 			/* Handle "special" keys */
-			if (special_key[(byte)(wParam)] || (ma && !ignore_key[(byte)(wParam)]) )
+			if (special_key[(byte)(wParam)])
 			{
 				/* Begin the macro trigger */
 				Term_keypress(31);
@@ -4758,144 +4732,7 @@ static void init_stuff(void)
 	/* Validate the "help" directory */
 	/* validate_dir(ANGBAND_DIR_XTRA_HELP); */
 }
- 
-/*
- * Hooks to translate "Macro trigger" to actual name.
- */
-static char mod_list[] ="CSA";
-static char *mod_name[]={"control-","shift-","alt-"};
-static char mod_a2t_format[] = "%4[\037CSA]x%X%n\r";
-static char mod_t2a_format[] = "x%X\r%n";
 
-struct keycode_type {
-char *key_name;
-uint key_code;
-};
-
-static struct keycode_type key_list[] = {
-{"ESCAPE", 0x01},{"1", 0x02},{"2", 0x03},{"3", 0x04},{"4", 0x05},
-{"5", 0x06},{"6", 0x07},{"7", 0x08},{"8", 0x09},{"9", 0x0A},
-{"0", 0x0B},{"BACK", 0x0E},{"TAB", 0x0F},{"Q", 0x10},{"W", 0x11},
-{"E", 0x12},{"R", 0x13},{"T", 0x14},{"Y", 0x15},{"U", 0x16},
-{"I", 0x17},{"O", 0x18},{"P", 0x19},{"RETURN", 0x1C},{"A", 0x1E},
-{"S", 0x1F},{"D", 0x20},{"F", 0x21},{"G", 0x22},{"H", 0x23},
-{"J", 0x24},{"K", 0x25},{"L", 0x26},{"ZENKAKU_HANKAKU", 0x29},
-{"Z", 0x2C},{"X", 0x2D},{"C", 0x2E},{"V", 0x2F},{"B", 0x30},
-{"N", 0x31},{"M", 0x32},{"SLASH", 0x35},{"MULTIPLY", 0x37},
-{"CAPITAL", 0x3A},{"F1", 0x3B},{"F2", 0x3C},{"F3", 0x3D},
-{"F4", 0x3E},{"F5", 0x3F},{"F6", 0x40},{"F7", 0x41},{"F8", 0x42},
-{"F9", 0x43},{"F10", 0x44},{"NUMLOCK", 0x45},{"SCROLL", 0x46},
-{"HOME", 0x47},{"UP", 0x48},{"PRIOR", 0x49},{"SUBTRACT", 0x4A},
-{"LEFT", 0x4B},{"NUMPAD5", 0x4C},{"RIGHT", 0x4D},{"ADD", 0x4E},
-{"END", 0x4F},{"DOWN", 0x50},{"NEXT", 0x51},{"INSERT", 0x52},
-{"DELETE", 0x53},{"APPS", 0x5D},{"F11", 0x57},{"F12", 0x58},
-{"F13", 0x64},{"F14", 0x65},{"F15", 0x66},{"KANA", 0x70},
-{"CONVERT", 0x79},{"NOCONVERT", 0x7B},{"PREVTRACK", 0x90},
-{"KANJI", 0x94},{"STOP", 0x95},{"AX", 0x96},{"UNLABELED", 0x97},
-{"NEXTTRACK", 0x99},{"NUMPADENTER", 0x9C},{"MUTE", 0xA0},
-{"CALCULATOR", 0xA1},{"PLAYPAUSE", 0xA2},{"MEDIASTOP", 0xA4},
-{"VOLUMEDOWN", 0xAE},{"VOLUMEUP", 0xB0},{"WEBHOME", 0xB2},
-{"NUMPADCOMMA", 0xB3},{"DIVIDE", 0xB5},{"SYSRQ", 0xB7},
-{"PAUSE", 0xC5},{"APPS", 0xDD},{"POWER", 0xDE},{"SLEEP", 0xDF},
-{"WAKE", 0xE3},{"WEBSEARCH", 0xE5},{"WEBFAVORITES", 0xE6},
-{"WEBREFRESH", 0xE7},{"WEBSTOP", 0xE8},{"WEBFORWARD", 0xE9},
-{"WEBBACK", 0xEA},{"MYCOMPUTER", 0xEB},{"MAIL", 0xEC},
-{"MEDIASELECT", 0xED},{0,0}
-};
-
-static void modifier_text_to_ascii_win(char **bufptr, cptr *strptr)
-{
-  char *s = *bufptr;
-  cptr str = *strptr;
-  bool mod_status[4];
-  uint keycode;
-  int i, n, len=0;
-  
-  for (i=0; mod_list[i]; i++)
-    mod_status[i] = FALSE;
-  
-  str++;
-  while (1) {
-    for (i=0; mod_list[i]; i++) {
-      len = strlen(mod_name[i]);
-      
-      if(!strncmp(str, mod_name[i], len))
-	break;
-    }
-    if (!mod_list[i]) break;
-    str += len;
-    mod_status[i] = TRUE;
-  }
-
-  for (i=0; key_list[i].key_code; i++) {
-    len = strlen(key_list[i].key_name);
-    if (!strncmp(str, key_list[i].key_name, len) && ']'==str[len])
-      break;
-  }
-  if (!key_list[i].key_name)
-    return;
-  keycode = key_list[i].key_code;
-  
-  str += len;
-
-  *s++ = (char)31;
-  for (i=0; mod_list[i]; i++) {
-    if (mod_status[i])
-      *s++ = mod_list[i];
-  }
-  sprintf(s, mod_t2a_format, keycode, &n);
-
-  *bufptr = s+n;
-  *strptr = str; /* where **strptr == ']' */
-  return;
-}
-
-
-static bool modifier_ascii_to_text_win(char **bufptr, cptr *strptr)
-{
-  char *s = *bufptr;
-  cptr str = *strptr-1;
-  char modstr[6];
-  uint keycode;
-  int n,i;
-
-  *s++ = '\\';
-  *s++ = '[';
-
-  modstr[0] = '\0';
-  if (2 != sscanf(str, mod_a2t_format, modstr, &keycode, &n) || 31 != modstr[0])
-    return FALSE;
-  str += n+1;
-
-  for (i=1; modstr[i]; i++) {
-    char *tmp;
-
-    tmp = strchr(mod_list, modstr[i]);
-    if (!tmp) return FALSE;
-
-    tmp = mod_name[(int)(tmp - mod_list)];
-    while(*tmp) *s++ = *tmp++;
-  }
-
-  /* (menu key)+(alphabet key) is not supported? */
-  {
-    for (i=0; key_list[i].key_code; i++) {
-      if (keycode == key_list[i].key_code)
-	break;
-    }
-    if (!key_list[i].key_code)
-      return FALSE;
-    else {
-      char *tmp = key_list[i].key_name;
-      while (*tmp) *s++ = *tmp++;
-    }
-  }
-  *s++ = ']';
-
-  *bufptr = s;
-  *strptr = str;
-  return TRUE;
-}
 
 int FAR PASCAL WinMain(HINSTANCE hInst, HINSTANCE hPrevInst,
                        LPSTR lpCmdLine, int nCmdShow)
@@ -4958,11 +4795,6 @@ int FAR PASCAL WinMain(HINSTANCE hInst, HINSTANCE hPrevInst,
 	{
 		special_key[special_key_list[i]] = TRUE;
 	}
-	/* Initialize the keypress analyzer */
-	for (i = 0; ignore_key_list[i]; ++i)
-	{
-		ignore_key[ignore_key_list[i]] = TRUE;
-	}
 
 	/* Determine if display is 16/256/true color */
 	hdc = GetDC(NULL);
@@ -4997,15 +4829,6 @@ int FAR PASCAL WinMain(HINSTANCE hInst, HINSTANCE hPrevInst,
 	plog_aux = hook_plog;
 	quit_aux = hook_quit;
 	core_aux = hook_quit;
-
-	{
-	  /* Hooks to translate "Macro trigger" */
-	  extern void (*text_to_ascii_aux)(char **, cptr *);
-	  extern bool (*ascii_to_text_aux)(char **, cptr *);
-
-	  text_to_ascii_aux = modifier_text_to_ascii_win;
-	  ascii_to_text_aux = modifier_ascii_to_text_win;
-        }
 
 	/* Set the system suffix */
 	ANGBAND_SYS = "win";

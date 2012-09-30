@@ -5,12 +5,12 @@
 
 #include "angband.h"
 
-
+#ifndef MACINTOSH
 #ifdef CHECK_MODIFICATION_TIME
 #include <sys/types.h>
 #include <sys/stat.h>
 #endif /* CHECK_MODIFICATION_TIME */
-
+#endif
 
 /*
  * This file is used to initialize various variables and arrays for the
@@ -3180,10 +3180,10 @@ static errr init_towns(void)
 			if ((i > 1) && (j == STORE_MUSEUM || j == STORE_HOME)) continue;
 
 			/* Assume full stock */
-#ifdef JP
+
 		/*
 		 * 我が家が 20 ページまで使える隠し機能のための準備。
-		 * 隠しオプションが有効でもそうでなくても一応スペース
+		 * オプションが有効でもそうでなくても一応スペース
 		 * を作っておく。
 		 */
 		if (j == STORE_HOME)
@@ -3198,9 +3198,6 @@ static errr init_towns(void)
 		{
 			st_ptr->stock_size = STORE_INVEN_MAX;
 		}
-#else
-			st_ptr->stock_size = STORE_INVEN_MAX;
-#endif
 
 
 			/* Allocate the stock */

@@ -4149,7 +4149,7 @@ static bool cast_music_spell(int spell)
 #ifdef JP
 		msg_print("元素の力に対する忍耐の歌を歌った。");
 #else
-		msg_print("You sing a song of perserverance against powers...");
+		msg_print("You sing a song of perseverance against powers...");
 #endif
 		p_ptr->magic_num1[0] = MUSIC_RESIST;
 		break;
@@ -5150,7 +5150,7 @@ msg_format("%sから振り落とされそうになって、壁にぶつかった。",m_name);
 #ifdef JP
 msg_format("%sから落ちたが、空中でうまく体勢を立て直して着地した。",m_name);
 #else
-		msg_format("You are throwned from %s, but make a good landing.",m_name);
+		msg_format("You are thrown from %s, but make a good landing.",m_name);
 #endif
 		return FALSE;
 	}
@@ -5240,7 +5240,7 @@ msg_print("そのモンスターには乗れなさそうだ。");
 #ifdef JP
 msg_print("そのモンスターは壁の中にいる。");
 #else
-			msg_print("This monster is in tha wall.");
+			msg_print("This monster is in the wall.");
 #endif
 
 			return FALSE;
@@ -5250,7 +5250,7 @@ msg_print("そのモンスターは壁の中にいる。");
 #ifdef JP
 msg_print("パターンの上からは乗れません。");
 #else
-			msg_print("You cannot ride from on Pettern.");
+			msg_print("You cannot ride from on Pattern.");
 #endif
 
 			return FALSE;

@@ -1596,6 +1596,12 @@ errr init_a_info_txt(FILE *fp, char *buf)
 
 			/* Point at the "info" */
 			a_ptr = &a_info[i];
+
+			/* Ignore everything */
+			a_ptr->flags3 |= (TR3_IGNORE_ACID);
+			a_ptr->flags3 |= (TR3_IGNORE_ELEC);
+			a_ptr->flags3 |= (TR3_IGNORE_FIRE);
+			a_ptr->flags3 |= (TR3_IGNORE_COLD);
 #ifdef JP
 			/* Hack -- Verify space */
 			if (a_head->name_size + strlen(s) + 8 > fake_name_size) return (7);
@@ -1608,12 +1614,6 @@ errr init_a_info_txt(FILE *fp, char *buf)
 
 			/* Advance the index */
 			a_head->name_size += strlen(s);
-
-			/* Ignore everything */
-			a_ptr->flags3 |= (TR3_IGNORE_ACID);
-			a_ptr->flags3 |= (TR3_IGNORE_ELEC);
-			a_ptr->flags3 |= (TR3_IGNORE_FIRE);
-			a_ptr->flags3 |= (TR3_IGNORE_COLD);
 #endif
 			/* Next... */
 			continue;

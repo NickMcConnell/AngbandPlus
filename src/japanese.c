@@ -1,14 +1,6 @@
 /* File: japanese.c */
 
 
-/*
- * Copyright (c) 1997 Ben Harrison
- *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
- */
-
 #include "angband.h"
 
 #ifdef JP
@@ -240,61 +232,6 @@ void jverb( const char *in , char *out , int flag){
   case JVERB_OR :jverb3(in , out);break;
   }
 }
-
-#if 0
-void roff_to_buf(char * str,int wlen,char *tbuf)
-{
-   int wpos=-1;
-   int dpos=0;
-   int len=0;
-   int wrap;
-   char ch[3];
-   ch[2]=0;
-	/* Scan the given string, character at a time */
-	for (; *str; str++)
-	{
-                int k_flag = iskanji((unsigned char)(*str));
-		ch[0] = *str;ch[1]=0;
-                if( k_flag ) {str++; ch[1]=*str;}
-                wrap = (ch[0] == '\n');
-                if (!isprint(ch[0]) && !k_flag ) ch[0] = ' ';
-                if ( len >=  wlen )  wrap=1;
-
-		/* Handle line-wrap */
-		if (wrap)
-		{
-			if (wpos!=-1) {
-			  if(tbuf[wpos]!=' ') { 
-			    int i;
-                            len=dpos-wpos;
-			    for( i=dpos;i>=wpos+1;i--)tbuf[i]=tbuf[i-1];
-			    dpos++;
-			  }
-			  else
-			  {
-				  len = 1;
-			  }
-			  tbuf[wpos]=0;wpos=-1; 
-			}else {tbuf[dpos]=0;dpos++;wpos=-1;len=0;}
-		}
-		if( strcmp(ch," ")==0 ||
-		    (k_flag && strcmp(ch, "。") != 0 && 
-		     strcmp(ch, "、") != 0 &&
-		     strcmp(ch, "ィ") != 0 &&
-		     strcmp(ch, "ー") != 0)) wpos=dpos;
-                if ( len>0 || strcmp(ch," ")) {
-		  strcpy( &tbuf[dpos],ch); dpos+= k_flag? 2:1;
-                  len+=k_flag? 2:1;
-		}
-	}
-/***************/
-	if(dpos!=0) dpos--;
-	while (tbuf[dpos] == ' ' && dpos>0) dpos--;
-	if ( dpos!=0) dpos++;
-	tbuf[dpos]=0;
-	tbuf[dpos+1]=0;
-}
-#endif
 
 char* strstr_j(const char* s, const char* t)
 {

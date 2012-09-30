@@ -3376,7 +3376,7 @@ msg_format("%^sがテレポートした。", m_name);
 #if 0
 				int who = 0;
 				if(strstr(E_r_name + r_ptr->E_name, "Dio Brando")) who = 1;
-				else if(strstr(E_r_name + r_ptr->E_name, "Wong")) who = 2;
+				else if(strstr(E_r_name + r_ptr->E_name, "Wong")) who = 3;
 				dam = who;
 				if(!process_the_world(randint(2)+2, who, los(py, px, m_ptr->fy, m_ptr->fx))) return (FALSE);
 #endif

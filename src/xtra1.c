@@ -1061,7 +1061,11 @@ static void prt_sp(void)
 	/* タイトル */
 //	put_str(" ＭＰ / 最大", ROW_MAXSP, COL_MAXSP);
 
+#ifdef JP
 	put_str("MP", ROW_CURSP, COL_CURSP);
+#else
+	put_str("SP", ROW_CURSP, COL_CURSP);
+#endif
 
 	/* 現在のマジックポイント */
 	sprintf(tmp, "%4d", p_ptr->csp);

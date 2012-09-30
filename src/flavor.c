@@ -1,6 +1,3 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 1999/11/24 13:48:34 $ */
-/* File: flavor.c */
-
 /* Purpose: Object flavor code */
 
 /*
@@ -1688,6 +1685,41 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	/* Start dumping the result */
 	t = tmp_val;
 
+#ifdef JP
+	if (basenm[0] == '&')
+		s = basenm + 2;
+	else
+		s = basenm;
+
+	/* No prefix */
+	if (!pref)
+	{
+		/* Nothing */
+	}
+	else if (o_ptr->number > 1)
+	{
+		if ( old_way_of_kaz == FALSE ){
+			t = object_desc_num(t, o_ptr->number);
+			if (o_ptr->number > 9)
+				t = object_desc_str(t, "個の ");
+			else
+				t = object_desc_str(t, "つの ");
+		}
+		else
+		{
+			t = object_desc_kosuu(t,o_ptr);
+			t = object_desc_str(t, "の ");
+		}
+	}
+
+	/* 英語の場合アーティファクトは The が付くので分かるが
+	 * 日本語では分からないのでマークをつける 
+	 */
+	if (known && artifact_p(o_ptr)) t = object_desc_str(t, "★");
+	else if (known && o_ptr->art_name) t = object_desc_str(t, "☆");
+
+#else
+
 	/* The object "expects" a "number" */
 	if (basenm[0] == '&')
 	{
@@ -1700,43 +1732,6 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 			/* Nothing */
 		}
 
-#ifdef JP
-		else
-		{
-		/*
-		 * 個数表示の後に言葉を入れる。"まだ 2 毒薬を持っている"という感じの
-		 * 表示がどうしても気に入らなかったため。適当な言葉が見当たらないもの
-		 * については、9までは「9 つの」という表示にして、それ以上は「12 個の」
-		 * としてある。
-		 * ただ、従来の形式は文章的に変でもさっぱりとした良さがあるので、
-		 * オプションで選択できるようにした。
-		 */
-		if (o_ptr->number > 1)
-		{
-			/* 「個数表示を従来の形式にする」オプションがセットされていない
-			   場合、言葉を付加する */
-
-			if ( old_way_of_kaz == FALSE ){
-			    t = object_desc_num(t, o_ptr->number);/* object_desc_kosuu の中にもあるので*/
-			    if (o_ptr->number > 9)
-				t = object_desc_str(t, "個の ");
-			    else
-				t = object_desc_str(t, "つの ");
-			}
-			else
-			{
-			    t = object_desc_kosuu(t,o_ptr);
-			    t = object_desc_str(t, "の ");
-			}
-		}
-		  /* 英語の場合アーティファクトは The が付くので分かるが
-		   * 日本語では分からないのでマークをつける 
-		   */
-		  if (known && artifact_p(o_ptr)) t = object_desc_str(t, "★");
-		  else if (known && o_ptr->art_name) t = object_desc_str(t, "☆");
-
-		}
-#else
 		/* Hack -- None left */
 		else if (o_ptr->number <= 0)
 		{
@@ -1779,8 +1774,6 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		{
 			t = object_desc_str(t, "a ");
 		}
-#endif
-
 	}
 
 	/* Hack -- objects that "never" take an article */
@@ -1795,122 +1788,6 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 			/* Nothing */
 		}
 
-#ifdef JP
-		else {
-		/*
-		 * 個数表示の後に言葉を入れる。"まだ 2 毒薬を持っている"という感じの
-		 * 表示がどうしても気に入らなかったため。適当な言葉が見当たらないもの
-		 * については、9までは「9 つの」という表示にして、それ以上は「12 個の」
-		 * としてある。
-		 * ただ、従来の形式は文章的に変でもさっぱりとした良さがあるので、
-		 * オプションで選択できるようにした。
-		 */
-		if (o_ptr->number > 1)
-		{
-			t = object_desc_num(t, o_ptr->number);
-
-			/* 「個数表示を従来の形式にする」オプションがセットされていない
-			   場合、言葉を付加する */
-
-			if ( old_way_of_kaz == FALSE ){
-				if (o_ptr->number > 9)
-					t = object_desc_str(t, "個の ");
-				else
-					t = object_desc_str(t, "つの ");
-			}
-			else
-			{
-				switch (o_ptr->tval)
-				{
-					case TV_BOLT:
-					case TV_ARROW:
-					case TV_POLEARM:
-					case TV_STAFF:
-					case TV_WAND:
-					case TV_ROD:
-					case TV_DIGGING:
-					{
-						t = object_desc_str(t, "本の ");
-						break;
-					}
-					case TV_SCROLL:
-					case TV_PARCHEMENT:
-					{
-						t = object_desc_str(t, "巻の ");
-						break;
-					}
-					case TV_POTION:
-					{
-						t = object_desc_str(t, "服の ");
-						break;
-					}
-		case  TV_LIFE_BOOK:
-		case  TV_SORCERY_BOOK:
-		case  TV_NATURE_BOOK:
-		case  TV_CHAOS_BOOK:
-		case  TV_DEATH_BOOK:
-		case  TV_TRUMP_BOOK:
-		case  TV_ARCANE_BOOK:
-		case  TV_ENCHANT_BOOK:
-		case  TV_DAEMON_BOOK:
-		case  TV_MUSIC_BOOK:
-		case  TV_HISSATSU_BOOK:
-					{
-						t = object_desc_str(t, "冊の ");
-						break;
-					}
-					case TV_SOFT_ARMOR:
-					case TV_HARD_ARMOR:
-					case TV_DRAG_ARMOR:
-					case TV_CLOAK:
-					{
-						t = object_desc_str(t, "着の ");
-						break;
-					}
-					case TV_SWORD:
-					case TV_HAFTED:
-					case TV_BOW:
-					{
-						t = object_desc_str(t, "振の ");
-						break;
-					}
-					case TV_BOOTS:
-					{
-						t = object_desc_str(t, "足の ");
-						break;
-					}
-  /* 食べもの by ita */
-				case TV_FOOD:
-				  {
-				  if(o_ptr->sval == SV_FOOD_JERKY)
-				    {
-				      t = object_desc_str(t, "切れの ");
-				      break;
-				    }
-				  }
-					default:
-					{
-						if (o_ptr->number < 10)
-						{
-							t = object_desc_str(t, "つの ");
-						}
-						else
-						{
-							t = object_desc_str(t, "個の ");
-						}
-						break;
-					}
-				}
-			}
-		}
-		  /* 英語の場合アーティファクトは The が付くので分かるが
-		   * 日本語では分からないのでマークをつける 
-		   */
-		  if (known && artifact_p(o_ptr)) t = object_desc_str(t, "★");
-		  else if (known && o_ptr->art_name) t = object_desc_str(t, "☆");
-
-		}
-#else
 		/* Hack -- all gone */
 		else if (o_ptr->number <= 0)
 		{
@@ -1935,8 +1812,8 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		{
 			/* Nothing */
 		}
-#endif
 	}
+#endif
 
 	/* Paranoia -- skip illegal tildes */
 	/* while (*s == '~') s++; */

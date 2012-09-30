@@ -981,12 +981,6 @@ static int dehex(char c)
 
 
 /*
- * Hook function for translating actual name of special keys
- * to "Macro trigger". 
- */
-void (*text_to_ascii_aux)(char **, cptr *) = NULL;
-
-/*
  * Hack -- convert a printable string into real ascii
  *
  * I have no clue if this function correctly handles, for example,
@@ -1088,9 +1082,6 @@ void text_to_ascii(char *buf, cptr str)
 				*s = 64 * 3 + 8 * deoct(*++str);
 				*s++ += deoct(*++str);
 			}
-			else if (*str == '[' && text_to_ascii_aux) {
-			  (*text_to_ascii_aux)(&s,&str);
-			}
 
 			/* Skip the final char */
 			str++;
@@ -1114,11 +1105,6 @@ void text_to_ascii(char *buf, cptr str)
 	*s = '\0';
 }
 
-/*
- * Hook function for translating special "Macro trigger"
- * to actual name. 
- */
-bool (*ascii_to_text_aux)(char **, cptr *) = NULL;
 
 /*
  * Hack -- convert a string into a printable form
@@ -1171,12 +1157,6 @@ void ascii_to_text(char *buf, cptr str)
 		{
 			*s++ = '\\';
 			*s++ = '\\';
-		}
-		else if (i == 31 && ascii_to_text_aux) {
-		  if(!((*ascii_to_text_aux)(&s, &str))) {
-		    *s++ = '^';
-		    *s++ = '_';
-		  }
 		}
 		else if (i < 32)
 		{

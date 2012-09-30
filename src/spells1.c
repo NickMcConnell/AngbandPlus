@@ -645,17 +645,41 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 			{
 				switch (typ)
 				{
-				case GF_ACID: message = "溶けた";break;
+				case GF_ACID:
+#ifdef JP
+					message = "溶けた";break;
+#else
+					message = "melted.";break;
+#endif
 				case GF_FIRE: 
-				case GF_PLASMA: message = "燃えた";break;
+				case GF_PLASMA:
+#ifdef JP
+					message = "燃えた";break;
+#else
+					message = "burns up!";break;
+#endif
 				case GF_METEOR:
 				case GF_CHAOS:
 				case GF_MANA: 
 				case GF_SEEKER: 
-				case GF_SUPER_RAY: message = "粉砕された";break;
-				default: message = "燃えた";break;
+				case GF_SUPER_RAY:
+#ifdef JP
+					message = "粉砕された";break;
+#else
+					message = "was crushed.";break;
+#endif
+				default:
+#ifdef JP
+					message = "燃えた";break;
+#else
+					message = "burns up!";break;
+#endif
 				}
+#ifdef JP
 				msg_format("木は%s。", message);
+#else
+				msg_format("A tree %s", message);
+#endif
 				c_ptr->feat = (one_in_(3) ? FEAT_DEEP_GRASS : FEAT_GRASS);
 				c_ptr->info &= ~(CAVE_MASK);
 				c_ptr->info |= CAVE_FLOOR;
@@ -5237,7 +5261,7 @@ msg_format("%sには効果がなかった。",m_name);
 #ifdef JP
 msg_format("もっと弱らせないと。");
 #else
-				msg_format("You need to make %s weaken more.", m_name);
+				msg_format("You need to weaken %s more.", m_name);
 #endif
 				skipped = TRUE;
 			}
@@ -5264,7 +5288,7 @@ msg_format("%sを捕えた！",m_name);
 #ifdef JP
 msg_print("地面に落とされた。");
 #else
-						msg_print("You have fallen from m_name.");
+						msg_format("You have fallen from %s.", m_name);
 #endif
 					}
 				}
@@ -5311,12 +5335,20 @@ msg_format("うまく捕まえられなかった。");
 					if ((ny != py) || (nx != px))
 					{
 						teleport_player_to(ny, nx, FALSE);
+#ifdef JP
 						msg_print("素早く相手の懐に入り込んだ！");
+#else
+						msg_format("You quickly jump in and attack %s!", m_name);
+#endif
 					}
 				}
 				else
 				{
+#ifdef JP
 					msg_print("失敗！");
+#else
+					msg_print("Failed!");
+#endif
 					dam = 0;
 					break;
 				}
@@ -5324,7 +5356,11 @@ msg_format("うまく捕まえられなかった。");
 			if (c_ptr->m_idx)
 				return (py_attack(y, x, dam));
 			else
+#ifdef JP
 				msg_print("攻撃は空を切った。");
+#else
+				msg_print("You attack the empty air.");
+#endif
 			dam = 0;
 			break;
 		}

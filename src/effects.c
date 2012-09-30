@@ -84,7 +84,7 @@ void set_action(int typ)
 #ifdef JP
 				msg_print("足が重くなった。");
 #else
-				msg_print("You are no longer walking extremery fast.");
+				msg_print("You are no longer walking extremely fast.");
 #endif
 				break;
 			}
@@ -128,7 +128,7 @@ void set_action(int typ)
 #ifdef JP
 			msg_print("足が羽のように軽くなった。");
 #else
-			msg_print("You began to walk extremery fast.");
+			msg_print("You began to walk extremely fast.");
 #endif
 			break;
 		}
@@ -1124,7 +1124,7 @@ bool set_magicdef(int v, bool do_dec)
 #ifdef JP
 			msg_print("魔法の防御力が増したような気がする。");
 #else
-			msg_print("You feel your magical vulnerablity diminish.");
+			msg_print("You feel your magical vulnerability diminish.");
 #endif
 
 			notice = TRUE;
@@ -1894,7 +1894,7 @@ msg_print("回復力が上がった！");
 #ifdef JP
 msg_print("素早く回復する感じがなくなった。");
 #else
-			msg_print("You no longer regerate quicker.");
+			msg_print("You no longer regenerate quicker.");
 #endif
 
 			notice = TRUE;
@@ -2170,7 +2170,7 @@ msg_print("体が闘気のオーラで覆われた。");
 #ifdef JP
 msg_print("闘気が消えた。");
 #else
-			msg_print("Aura of Force disappered.");
+			msg_print("Aura of Force disappeared.");
 #endif
 
 			notice = TRUE;
@@ -2221,7 +2221,7 @@ bool set_tim_sh_fire(int v, bool do_dec)
 #ifdef JP
 msg_print("体が炎のオーラで覆われた。");
 #else
-			msg_print("You have enveloped by fiely aura!");
+			msg_print("You have enveloped by fiery aura!");
 #endif
 
 			notice = TRUE;
@@ -2236,7 +2236,7 @@ msg_print("体が炎のオーラで覆われた。");
 #ifdef JP
 msg_print("炎のオーラが消えた。");
 #else
-			msg_print("Fiely aura disappered.");
+			msg_print("Fiery aura disappeared.");
 #endif
 
 			notice = TRUE;
@@ -2359,7 +2359,7 @@ bool set_tim_reflect(int v, bool do_dec)
 #ifdef JP
 msg_print("体の表面が滑かになった気がする。");
 #else
-			msg_print("Your body becames smoothy.");
+			msg_print("Your body becames smooth.");
 #endif
 
 			notice = TRUE;
@@ -2443,7 +2443,7 @@ msg_print("あなたの周りに幻影が生まれた。");
 #ifdef JP
 msg_print("幻影が消えた。");
 #else
-			msg_print("Your Shadow disappers.");
+			msg_print("Your Shadow disappears.");
 #endif
 
 			notice = TRUE;
@@ -2512,7 +2512,7 @@ msg_print("体が鏡のオーラで覆われた。");
 #ifdef JP
 msg_print("鏡のオーラが消えた。");
 #else
-			msg_print("Mirror shards disapper.");
+			msg_print("The mirror shards disappear.");
 #endif
 
 			notice = TRUE;
@@ -2566,7 +2566,7 @@ bool set_kabenuke(int v, bool do_dec)
 #ifdef JP
 msg_print("体が半物質の状態になった。");
 #else
-			msg_print("You became etherial form.");
+			msg_print("You became ethereal form.");
 #endif
 
 			notice = TRUE;
@@ -2581,7 +2581,7 @@ msg_print("体が半物質の状態になった。");
 #ifdef JP
 msg_print("体が物質化した。");
 #else
-			msg_print("You are no longer etherial form.");
+			msg_print("You are no longer in an ethereal form.");
 #endif
 
 			notice = TRUE;
@@ -4885,7 +4885,7 @@ bool take_hit(int damage_type, int damage, cptr hit_from, int monspell)
 #ifdef JP
 				msg_print("攻撃は幻影に命中し、あなたには届かなかった。");
 #else
-				msg_print("The attack hits Shadow, you are unhurmed!");
+				msg_print("The attack hits Shadow, you are unharmed!");
 #endif
 				return FALSE;
 			}
@@ -4898,7 +4898,7 @@ bool take_hit(int damage_type, int damage, cptr hit_from, int monspell)
 #ifdef JP
 				msg_print("半物質の体が切り裂かれた！");
 #else
-				msg_print("The attack cuts through your etherial body!");
+				msg_print("The attack cuts through your ethereal body!");
 #endif
 			}
 			else
@@ -5300,7 +5300,7 @@ bool set_ultimate_res(int v, bool do_dec)
 #ifdef JP
 msg_print("あらゆることに対して耐性がついた気がする！");
 #else
-			msg_print("You feel resistance!");
+			msg_print("You feel resistant!");
 #endif
 
 			notice = TRUE;
@@ -5315,7 +5315,7 @@ msg_print("あらゆることに対して耐性がついた気がする！");
 #ifdef JP
 msg_print("あらゆることに対する耐性が薄れた気がする。");
 #else
-			msg_print("You feel less resistantce");
+			msg_print("You feel less resistant");
 #endif
 
 			notice = TRUE;
@@ -5365,7 +5365,7 @@ bool set_tim_res_nether(int v, bool do_dec)
 #ifdef JP
 msg_print("地獄の力に対して耐性がついた気がする！");
 #else
-			msg_print("You feel nether resistance!");
+			msg_print("You feel nether resistant!");
 #endif
 
 			notice = TRUE;
@@ -5380,7 +5380,7 @@ msg_print("地獄の力に対して耐性がついた気がする！");
 #ifdef JP
 msg_print("地獄の力に対する耐性が薄れた気がする。");
 #else
-			msg_print("You feel less nether resistantce");
+			msg_print("You feel less nether resistant");
 #endif
 
 			notice = TRUE;
@@ -5430,7 +5430,7 @@ bool set_tim_res_time(int v, bool do_dec)
 #ifdef JP
 msg_print("時間逆転の力に対して耐性がついた気がする！");
 #else
-			msg_print("You feel time resistance!");
+			msg_print("You feel time resistant!");
 #endif
 
 			notice = TRUE;
@@ -5445,7 +5445,7 @@ msg_print("時間逆転の力に対して耐性がついた気がする！");
 #ifdef JP
 msg_print("時間逆転の力に対する耐性が薄れた気がする。");
 #else
-			msg_print("You feel less time resistantce");
+			msg_print("You feel less time resistant");
 #endif
 
 			notice = TRUE;

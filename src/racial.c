@@ -956,7 +956,7 @@ msg_print("敵を調査した...");
 #ifdef JP
 "ＨＰからＭＰへの無謀な変換", -1))
 #else
-"thoughtless convertion from HP to MP", -1))
+"thoughtless convertion from HP to SP", -1))
 #endif
 					{
 						p_ptr->csp += p_ptr->lev / 5;
@@ -2900,7 +2900,7 @@ strcpy(power_desc[num].name, "シャドウ・シフト");
 #ifdef JP
 strcpy(power_desc[num].name, "パターン・ウォーク");
 #else
-			strcpy(power_desc[1].name, "Pattern Mindwalking");
+			strcpy(power_desc[num].name, "Pattern Mindwalking");
 #endif
 
 			power_desc[num].level = 40;
@@ -3117,7 +3117,7 @@ sprintf(power_desc[num].name, "地獄/火炎のブレス (ダメージ %d)", lvl * 3);
 #ifdef JP
 strcpy(power_desc[num].name, "横に伸びる");
 #else
-			strcpy(power_desc[0].name, "expand horizontally (dur 30+1d20)");
+			strcpy(power_desc[num].name, "expand horizontally (dur 30+1d20)");
 #endif
 
 			power_desc[num].level = 20;
@@ -3131,7 +3131,7 @@ strcpy(power_desc[num].name, "横に伸びる");
 #ifdef JP
 strcpy(power_desc[num].name, "レイガン");
 #else
-				strcpy(power_desc[0].name, "ray gun");
+				strcpy(power_desc[num].name, "ray gun");
 #endif
 
 				power_desc[num].level = 1;
@@ -3143,7 +3143,7 @@ strcpy(power_desc[num].name, "レイガン");
 #ifdef JP
 strcpy(power_desc[num].name, "ブラスター");
 #else
-				strcpy(power_desc[0].name, "blaster");
+				strcpy(power_desc[num].name, "blaster");
 #endif
 
 				power_desc[num].level = 10;
@@ -3155,7 +3155,7 @@ strcpy(power_desc[num].name, "ブラスター");
 #ifdef JP
 strcpy(power_desc[num].name, "バズーカ");
 #else
-				strcpy(power_desc[0].name, "bazooka");
+				strcpy(power_desc[num].name, "bazooka");
 #endif
 
 				power_desc[num].level = 25;
@@ -3167,7 +3167,7 @@ strcpy(power_desc[num].name, "バズーカ");
 #ifdef JP
 strcpy(power_desc[num].name, "ビームキャノン");
 #else
-				strcpy(power_desc[0].name, "beam cannon");
+				strcpy(power_desc[num].name, "beam cannon");
 #endif
 
 				power_desc[num].level = 35;
@@ -3179,7 +3179,7 @@ strcpy(power_desc[num].name, "ビームキャノン");
 #ifdef JP
 strcpy(power_desc[num].name, "ロケット");
 #else
-				strcpy(power_desc[0].name, "rocket");
+				strcpy(power_desc[num].name, "rocket");
 #endif
 
 				power_desc[num].level = 45;

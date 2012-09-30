@@ -21,52 +21,8 @@
 #define SPEAK_CHANCE 8
 #define GRINDNOISE 20
 #define CYBERNOISE 20
-#define MAX_SILLY_ATTACK 41
 
-static cptr silly_attacks[MAX_SILLY_ATTACK] =
-{
-  "%sに小便をかけた。",
-  "%sの回りを3回回ってワンと言った。",
-  "%sをしばきまわした。",
-  "%sに靴をなめさせた。",
-  "%sにハナクソを飛ばした。",
-  "%sにジャン拳をくらわせた。",
-  "%sの頬を札束でしばいた。",
-  "%sの前でポージングをした。",
-  "叫んだ。「%sの耳はロバの耳！」",
-  "%sにアカンベーをした。",
-  "%sに対して「神の国」発言の撤回を求めた。",
-  "%sにメッ○ールを飲ませた。",
-  "%sにつっこみを入れた。",
-  "%sと踊った。",
-  "%sの顔にらく書きをした。",
-  "%sに借金の返済をせまった。",
-  "%sのスカートをめくった。",
-  "%sの手相を占った。",
-  "%sから役満を上がった。",
-  "%sに愛の告白をした。",
-  "%sを時給500円で雇った。",
-  "%sの100の秘密について熱く語った。",
-  "%sに向かってニャーと鳴いた。",
-  "%sに気をつけた。",
-  "%sを召喚しようとしたが、思いとどまった。",
-  "%sをポリゴン化させた。",
-  "%sを少しかじってみたが、あまりおいしくなかった。",
-  "%sに向かってアルテマの呪文を唱えた！",
-  "%sのスパイクをブロックした。",
-  "%sに拡散波動砲を発射した。",
-  "%sにデスラー戦法をしかけた。",
-  "%sにライダーキックをくらわせた。",
-  "%sに二週間以内でビデオを人に見せないと死ぬ呪いをかけた。",
-  "%sにパルプンテを唱えた。",
-  "%sにスーパーウルトラギャラクティカマグナムを放った。",
-  "%sをしゃがみ小キックでハメた。",
-  "%sにジェットストリームアタックをかけた。",
-  "%sに卍固めをかけて「1、2、3、ダーッ！」と叫んだ。",
-  "「%sのいくじなし！ばかばかばか！」といって駆け出した。",
-  "に「ごらん、ルーベンスの絵だよ」と言って静かに目を閉じた。",
-  "%sに言った。「変愚蛮怒、絶賛公開中！」。",
-};
+extern cptr silly_attacks[MAX_SILLY_ATTACK];
 
 /*
  * Calculate the direction to the next enemy
@@ -1629,7 +1585,7 @@ act = "%sを刺した。";
 #ifdef JP
 act = "%sを斬った。";
 #else
-					act = "XXX1's %s.";
+					act = "slashes %s.";
 #endif
 
 					break;
@@ -1839,7 +1795,7 @@ act = "%sにむかって歌った。";
 				}
 				strfmt(temp, act, t_name);
 #ifdef JP
-					msg_format("%^sは%s", m_name, temp);
+				msg_format("%^sは%s", m_name, temp);
 #else
 				msg_format("%^s %s", m_name, temp);
 #endif
@@ -2275,7 +2231,15 @@ static void process_monster(int m_idx)
 	if ((m_idx == p_ptr->jouba) && !(r_ptr->flags7 & RF7_JOUBA))
 	{
 		if (rakuba(0, TRUE))
+		{
+#ifdef JP
 			msg_print("地面に落とされた。");
+#else
+			char m_name[80];
+			monster_desc(m_name, &m_list[p_ptr->jouba], 0);
+			msg_format("You have fallen from %s.", m_name);
+#endif
+		}
 	}
 
 	if ((m_ptr->mflag2 & MFLAG_CHAMELEON) && one_in_(13) && !m_ptr->csleep)
@@ -2344,7 +2308,11 @@ msg_print("少しの間悲しい気分になった。");
 	}
 
 	if (m_ptr->r_idx == MON_SHURYUUDAN)
+#ifdef JP
 		mon_take_hit_mon(FALSE, m_idx, 1, &fear, "は爆発して粉々になった。", m_idx);
+#else
+		mon_take_hit_mon(FALSE, m_idx, 1, &fear, " explodes into tiny shreds.", m_idx);
+#endif
 
 	if ((is_pet(m_ptr) || is_friendly(m_ptr)) && ((r_ptr->flags1 & RF1_UNIQUE) || (r_ptr->flags7 & RF7_UNIQUE_7)) && !p_ptr->inside_battle)
 	{
@@ -2353,11 +2321,11 @@ msg_print("少しの間悲しい気分になった。");
 		if (m_ptr->hp < m_ptr->maxhp/3)
 		{
 			bool level_teleport = TRUE;
+			char m_name[80];
+			monster_desc(m_name, m_ptr, 0);
 
 			if (m_idx == p_ptr->jouba && jouba_pinch < 2)
 			{
-				char m_name[80];
-				monster_desc(m_name, m_ptr, 0);
 #ifdef JP
 msg_format("%sは傷の痛さの余りあなたの束縛から逃れようとしている。", m_name);
 #else
@@ -2369,14 +2337,12 @@ msg_format("%sは傷の痛さの余りあなたの束縛から逃れようとしている。", m_name);
 			}
 			else if (m_ptr->ml)
 			{
-				char m_name[80];
-				monster_desc(m_name, m_ptr, 0);
 				if (m_idx == p_ptr->jouba)
 				{
 #ifdef JP
 msg_format("%sはあなたの束縛から脱出した。", m_name);
 #else
-					msg_format("%^s succeded to escape from your restriction!", m_name);
+					msg_format("%^s succeeded to escape from your restriction!", m_name);
 #endif
 				}
 				if ((r_ptr->flags2 & RF2_CAN_SPEAK) && (m_ptr->r_idx != MON_GRIP) && (m_ptr->r_idx != MON_WOLF) && (m_ptr->r_idx != MON_FANG))
@@ -2395,7 +2361,7 @@ msg_format("%^sがテレポート・レベルの巻物を読んだ。", m_name);
 #ifdef JP
 msg_format("%^sが消え去った。", m_name);
 #else
-				msg_format("%^s disappers.", m_name);
+				msg_format("%^s disappears.", m_name);
 #endif
 			}
 
@@ -3603,34 +3569,23 @@ msg_format("%^sが%sを拾った。", m_name, o_name);
 
 						}
 
-						/* Option */
-						if (1)
-						{
-							/* Excise the object */
-							excise_object_idx(this_o_idx);
+						/* Excise the object */
+						excise_object_idx(this_o_idx);
 
-							/* Forget mark */
-							o_ptr->marked = FALSE;
+						/* Forget mark */
+						o_ptr->marked = FALSE;
 
-							/* Forget location */
-							o_ptr->iy = o_ptr->ix = 0;
+						/* Forget location */
+						o_ptr->iy = o_ptr->ix = 0;
 
-							/* Memorize monster */
-							o_ptr->held_m_idx = m_idx;
+						/* Memorize monster */
+						o_ptr->held_m_idx = m_idx;
 
-							/* Build a stack */
-							o_ptr->next_o_idx = m_ptr->hold_o_idx;
+						/* Build a stack */
+						o_ptr->next_o_idx = m_ptr->hold_o_idx;
 
-							/* Carry object */
-							m_ptr->hold_o_idx = this_o_idx;
-						}
-
-						/* Nope */
-						else
-						{
-							/* Delete the object */
-							delete_object_idx(this_o_idx);
-						}
+						/* Carry object */
+						m_ptr->hold_o_idx = this_o_idx;
 					}
 
 					/* Destroy the item if not a pet */
@@ -3990,8 +3945,21 @@ bool process_the_world(int num, int who, bool vs_player)
 
 	if(vs_player)
 	{
-		if (who == 1) msg_print("「『ザ・ワールド』！時は止まった！」");
-		else if (who == 2) msg_print("「時よ！」");
+		char m_name[80];
+		monster_desc(m_name, &m_list[hack_m_idx], 0);
+
+		if (who == 1)
+#ifdef JP
+			msg_print("「『ザ・ワールド』！時は止まった！」");
+#else
+			msg_format("%s yells 'The World! Time has stopped!'", m_name);
+#endif
+		else if (who == 3)
+#ifdef JP
+			msg_print("「時よ！」");
+#else
+		        msg_format("%s yells 'Time!'", m_name);
+#endif
 		else msg_print("hek!");
 
 		msg_print(NULL);
@@ -4037,7 +4005,11 @@ bool process_the_world(int num, int who, bool vs_player)
 	world_monster = FALSE;
 	if (vs_player || los(py, px, m_list[hack_m_idx].fy, m_list[hack_m_idx].fx))
 	{
+#ifdef JP
 		msg_print("「時は動きだす…」");
+#else
+		msg_print("You feel time flowing around you once more.");
+#endif
 		msg_print(NULL);
 	}
 

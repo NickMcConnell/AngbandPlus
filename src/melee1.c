@@ -13,54 +13,7 @@
 
 #include "angband.h"
 
-
-#define MAX_SILLY_ATTACK 41
-
-static cptr silly_attacks[MAX_SILLY_ATTACK] =
-{
-  "に小便をかけられた。",
-  "があなたの回りを3回回ってワンと言った。",
-  "にしばきまわされた。",
-  "に靴をなめさせられた。",
-  "にハナクソを飛ばされた。",
-  "にジャン拳で攻撃された。",
-  "があなたの頬を札束でしばいた。",
-  "があなたの前でポージングをした。",
-  "にアカンベーされた。",
-  "に「神の国」発言の撤回を求められた。",
-  "にメッ○ールを飲まされた。",
-  "につっこみを入れられた。",
-  "はあなたと踊った。",
-  "に顔にらく書きをされた。",
-  "に借金の返済をせまられた。",
-  "にスカートをめくられた。",
-  "はあなたの手相を占った。",
-  "から役満を上がられた。",
-  "から愛の告白をされた。",
-  "はあなたを時給500円で雇った。",
-  "はあなたの100の秘密について熱く語った。",
-  "がニャーと鳴いた。",
-  "はあなたに気をつけた。",
-  "はあなたをポリゴン化させた。",
-  "に少しかじられた。",
-  "はアルテマの呪文を唱えた！",
-  "はあなたのスパイクをブロックした。",
-  "はスライド移動した。",
-  "は昇龍拳コマンドの入力に失敗した。",
-  "は拡散波動砲を発射した。",
-  "はデスラー戦法をしかけた。",
-  "にライダーキックで攻撃された。",
-  "に二週間以内でビデオを人に見せないと死ぬ呪いをかけられた。",
-  "はパルプンテを唱えた。",
-  "はスーパーウルトラギャラクティカマグナムを放った。",
-  "にしゃがみ小キックでハメられた。",
-  "にジェットストリームアタックをかけられた。",
-  "はあなたに卍固めをかけて「1、2、3、ダーッ！」と叫んだ。",
-  "は「いくじなし！ばかばかばか！」といって駆け出した。",
-  "が「ごらん、ルーベンスの絵だよ」と言って静かに目を閉じた。",
-  "は言った。「変愚蛮怒、絶賛公開中！」。",
-};
-
+extern cptr silly_attacks[MAX_SILLY_ATTACK];
 
 /*
  * Critical blow.  All hits that do 95% of total possible damage,
@@ -474,7 +427,7 @@ bool make_attack_normal(int m_idx)
 #ifdef JP
 					act = "斬られた。";
 #else
-					act = "XXX1's you.";
+					act = "slashes you.";
 #endif
 
 					touched = TRUE;
@@ -669,6 +622,7 @@ bool make_attack_normal(int m_idx)
 				        syouryaku = -1;
 					if (m_ptr->r_idx == MON_JAIAN)
 					{
+#ifdef JP
 						switch(randint(15))
 						{
 						  case 1:
@@ -713,6 +667,9 @@ bool make_attack_normal(int m_idx)
 							act = "「♪あし〜の〜〜ながさ〜は〜まけないぜ〜」";
 							break;
 						}
+#else
+						act = "horribly sings 'I AM GIAAAAAN. THE BOOOSS OF THE KIIIIDS.'";
+#endif
 					}
 					else
 					{
@@ -785,7 +742,11 @@ bool make_attack_normal(int m_idx)
 					int ac = p_ptr->ac+p_ptr->to_a;
 					if ((randint(rlev*2+300) > (ac+200)) || one_in_(13)) {
 						int tmp_damage = damage-(damage*((ac < 150) ? ac : 150)/250);
+#ifdef JP
 						msg_print("痛恨の一撃！");
+#else
+						msg_print("It was a critical hit!");
+#endif
 
 						tmp_damage = MAX(damage, tmp_damage*2);
 

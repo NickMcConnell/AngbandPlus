@@ -26,8 +26,12 @@
 #include <signal.h>
 #endif
 
-//#define SCORE_PATH "http://www.kmc.kyoto-u.ac.jp/~habu/local/hengscore/score.cgi"
-#define SCORE_PATH "http://www.kmc.kyoto-u.ac.jp/~habu/local/scoretest/score.cgi"
+#ifdef JP
+#define SCORE_PATH "http://www.kmc.kyoto-u.ac.jp/~habu/local/hengscore/score.cgi"
+#else
+#define SCORE_PATH "http://www.kmc.kyoto-u.ac.jp/~habu/local/hengscore-en/score.cgi"
+#endif
+//#define SCORE_PATH "http://www.kmc.kyoto-u.ac.jp/~habu/local/scoretest/score.cgi"
 
 /*
   simple buffer library
@@ -1411,7 +1415,11 @@ buf_sprintf(dumpbuf, "\n  [その他の情報]       \n");
 		}
 		else if (max_dlv[y] == d_info[y].maxdepth) seiha = TRUE;
 
+#ifdef JP
 		buf_sprintf(dumpbuf, "   %c%-12s: %3d 階\n", seiha ? '!' : ' ', d_name+d_info[y].name, max_dlv[y]);
+#else
+		buf_sprintf(dumpbuf, "   %c%-12s: level %3d\n", seiha ? '!' : ' ', d_name+d_info[y].name, max_dlv[y]);
+#endif
 	}
 
 	if (preserve_mode)
@@ -1515,7 +1523,7 @@ buf_sprintf(dumpbuf, "\n 階段を上がれない:   ON");
 #ifdef JP
 buf_sprintf(dumpbuf, "\n 普通でない部屋を生成:         ON");
 #else
-		buf_sprintf(dumpbuf, "\n Unusual rooms:     ON");
+		buf_sprintf(dumpbuf, "\n Unusual rooms:      ON");
 #endif
 
 
@@ -1759,12 +1767,11 @@ buf_sprintf(dumpbuf, "  [ キャラクタの持ち物 ]\n\n");
 		{
 #ifdef JP
                 if ((i % 12) == 0) buf_sprintf(dumpbuf, "\n ( %d ページ )\n", x++);
-			object_desc(o_name, &st_ptr->stock[i], TRUE, 3);
-			buf_sprintf(dumpbuf, "%c%s %s\n", I2A(i%12), paren, o_name);
 #else
-			object_desc(o_name, &st_ptr->stock[i], TRUE, 3);
-			buf_sprintf(dumpbuf, "%c%s %s\n", I2A(i), paren, o_name);
+                if ((i % 12) == 0) buf_sprintf(dumpbuf, "\n ( Page %d )\n", x++);
 #endif
+		object_desc(o_name, &st_ptr->stock[i], TRUE, 3);
+		buf_sprintf(dumpbuf, "%c%s %s\n", I2A(i%12), paren, o_name);
 
 		}
 
@@ -1782,7 +1789,7 @@ buf_sprintf(dumpbuf, "  [ キャラクタの持ち物 ]\n\n");
 		buf_sprintf(dumpbuf, "  [ 博物館のアイテム ]\n");
 		x=1;
 #else
-		buf_sprintf(dumpbuf, "  [museum]\n");
+		buf_sprintf(dumpbuf, "  [Museum]\n");
 #endif
 
 
@@ -1810,16 +1817,17 @@ buf_sprintf(dumpbuf, "  [ キャラクタの持ち物 ]\n\n");
 
 errr report_score(void)
 {
+#ifdef MACINTOSH
+	OSStatus err;
+#else
 	errr err = 0;
+#endif
 
 #ifdef WINDOWS
     WSADATA wsaData;
     WORD wVersionRequested =(WORD) (( 1) |  ( 1 << 8));
 #endif
 
-#ifdef MACINTOSH
-	OSStatus err;
-#endif
 
   BUF *score;
   int sd;
@@ -1829,7 +1837,11 @@ errr report_score(void)
 
   score = buf_new();
 
+#ifdef JP
   sprintf(seikakutmp, "%s%s", ap_ptr->title, (ap_ptr->no ? "の" : ""));
+#else
+  sprintf(seikakutmp, "%s ", ap_ptr->title);
+#endif
 
   /* HiperMegaHack -- 文字コードを送る */
 #if defined(EUC)
@@ -1840,8 +1852,13 @@ errr report_score(void)
   buf_sprintf(score, "code: 2\n");
 #endif
   buf_sprintf(score, "name: %s\n", player_name);
+#ifdef JP
   buf_sprintf(score, "version: 変愚蛮怒 %d.%d.%d\n",
 	      FAKE_VER_MAJOR-10, FAKE_VER_MINOR, FAKE_VER_PATCH);
+#else
+  buf_sprintf(score, "version: Hengband %d.%d.%d\n",
+	      FAKE_VER_MAJOR-10, FAKE_VER_MINOR, FAKE_VER_PATCH);
+#endif
   buf_sprintf(score, "score: %d\n", total_points());
   buf_sprintf(score, "level: %d\n", p_ptr->lev);
   buf_sprintf(score, "depth: %d\n", dun_level);
@@ -1886,22 +1903,38 @@ errr report_score(void)
 	while(1)
 	{
 		char buff[160];
+#ifdef JP
 		prt("接続中...", 0, 0);
+#else
+		prt("connecting...", 0, 0);
+#endif
 		Term_fresh();
 		
 		sd = connect_scoreserver();
 		if (!(sd < 0)) break;
+#ifdef JP
 		sprintf(buff, "スコア・サーバへの接続に失敗しました。(%s)", soc_err());
+#else
+		sprintf(buff, "Failed to connect to the score server.(%s)", soc_err());
+#endif
 		prt(buff, 0, 0);
 		(void)inkey();
 		
+#ifdef JP
 		if(!get_check("もう一度接続を試みますか? "))
+#else
+		if(!get_check("Try again? "))
+#endif
 		{
 			err = 1;
 			goto report_end;
 		}
 	}
+#ifdef JP
 	prt("スコア送信中...", 0, 0);
+#else
+	prt("Sending the score...", 0, 0);
+#endif
 	Term_fresh();
 	http_post(sd, SCORE_PATH, score);
 	

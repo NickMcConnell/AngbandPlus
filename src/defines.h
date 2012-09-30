@@ -361,6 +361,13 @@
 /* Mindcraft */
 #define MAX_MIND_POWERS  21
 
+/* Hallucination stuff */
+#ifdef JP
+#define MAX_SILLY_ATTACK 41
+#else
+#define MAX_SILLY_ATTACK 28
+#endif
+
 #define MIND_MINDCRAFTER    0
 #define MIND_KI             1
 #define MIND_BERSERKER      2
