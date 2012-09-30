@@ -1,4 +1,4 @@
-# CVS: Last edit by $Author: sfuerst $ on $Date: 2000/07/20 09:38:17 $
+# CVS: Last edit by $Author: sfuerst $ on $Date: 2000/04/24 12:03:26 $
 # File: font-win.prf
 
 #
@@ -23,6 +23,27 @@ F:1:1/31
 # Invis traps (white / centered dot)
 
 F:2:1/31
+
+# Sand -> pebbles.
+F:8:11/31
+F:9:9/31
+F:10:7/31
+F:11:8/31
+F:12:4/31
+F:13:2/31
+F:14:8/31
+
+# dirt
+F:88:7/31
+
+# grass
+F:89:5/31
+
+# invisible wall
+F:91:1/31
+
+# snow
+F:135:9/31
 
 
 # Magma (slate / solid block)
@@ -51,6 +72,7 @@ F:60:1/127
 F:61:1/127
 F:62:1/127
 F:63:1/127
+
 
 # Space monster
 R:144:0x00:31
@@ -120,4 +142,3 @@ R:875:0x0B:127
 
 # Creeping dust
 R:880:0x0A:31
-

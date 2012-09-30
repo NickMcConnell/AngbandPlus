@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 2000/05/28 12:10:37 $ */
+/* CVS: Last edit by $Author: rr9 $ on $Date: 2000/05/25 12:39:00 $ */
 /* File: spells3.c */
 
 /* Purpose: Spell code (part 3) */
@@ -35,7 +35,7 @@ bool teleport_away(int m_idx, int dis)
 	bool look = TRUE;
 
 	monster_type *m_ptr = &m_list[m_idx];
-
+	cave_type *c_ptr;
 
 	/* Paranoia */
 	if (!m_ptr->r_idx) return (FALSE);
@@ -76,20 +76,22 @@ bool teleport_away(int m_idx, int dis)
 			/* Ignore illegal locations */
 			if (!in_bounds(ny, nx)) continue;
 
+			c_ptr = area(ny, nx);
+
 			/* Require "empty" floor space */
-			if (!cave_empty_bold(ny, nx)) continue;
+			if (!cave_empty_grid(c_ptr)) continue;
 
 			/* Hack -- no teleport onto glyph of warding */
-			if (cave[ny][nx].feat == FEAT_GLYPH) continue;
-			if (cave[ny][nx].feat == FEAT_MINOR_GLYPH) continue;
+			if (c_ptr->feat == FEAT_GLYPH) continue;
+			if (c_ptr->feat == FEAT_MINOR_GLYPH) continue;
 
 			/* ...nor onto the Pattern */
-			if ((cave[ny][nx].feat >= FEAT_PATTERN_START) &&
-			    (cave[ny][nx].feat <= FEAT_PATTERN_XTRA2)) continue;
+			if ((c_ptr->feat >= FEAT_PATTERN_START) &&
+			    (c_ptr->feat <= FEAT_PATTERN_XTRA2)) continue;
 
 			/* No teleporting into vaults and such */
 			if (!(p_ptr->inside_quest || p_ptr->inside_arena))
-				if (cave[ny][nx].info & CAVE_ICKY) continue;
+				if (c_ptr->info & CAVE_ICKY) continue;
 
 			/* This grid looks good */
 			look = FALSE;
@@ -112,10 +114,10 @@ bool teleport_away(int m_idx, int dis)
 	sound(SOUND_TPOTHER);
 
 	/* Update the new location */
-	cave[ny][nx].m_idx = m_idx;
+	area(ny,nx)->m_idx = m_idx;
 
 	/* Update the old location */
-	cave[oy][ox].m_idx = 0;
+	area(oy,ox)->m_idx = 0;
 
 	/* Move the monster */
 	m_ptr->fy = ny;
@@ -145,6 +147,7 @@ void teleport_to_player(int m_idx)
 	int dis = 2;
 	bool look = TRUE;
 	monster_type *m_ptr = &m_list[m_idx];
+	cave_type *c_ptr;
 
 
 	/* Paranoia */
@@ -185,16 +188,18 @@ void teleport_to_player(int m_idx)
 			/* Ignore illegal locations */
 			if (!in_bounds(ny, nx)) continue;
 
+			c_ptr = area(ny, nx);
+
 			/* Require "empty" floor space */
-			if (!cave_empty_bold(ny, nx)) continue;
+			if (!cave_empty_grid(c_ptr)) continue;
 
 			/* Hack -- no teleport onto glyph of warding */
-			if (cave[ny][nx].feat == FEAT_GLYPH) continue;
-			if (cave[ny][nx].feat == FEAT_MINOR_GLYPH) continue;
+			if (c_ptr->feat == FEAT_GLYPH) continue;
+			if (c_ptr->feat == FEAT_MINOR_GLYPH) continue;
 
 			/* ...nor onto the Pattern */
-			if ((cave[ny][nx].feat >= FEAT_PATTERN_START) &&
-			    (cave[ny][nx].feat <= FEAT_PATTERN_XTRA2)) continue;
+			if ((c_ptr->feat >= FEAT_PATTERN_START) &&
+			    (c_ptr->feat <= FEAT_PATTERN_XTRA2)) continue;
 
 			/* No teleporting into vaults and such */
 			/* if (cave[ny][nx].info & (CAVE_ICKY)) continue; */
@@ -219,10 +224,10 @@ void teleport_to_player(int m_idx)
 	sound(SOUND_TPOTHER);
 
 	/* Update the new location */
-	cave[ny][nx].m_idx = m_idx;
+	area(ny,nx)->m_idx = m_idx;
 
 	/* Update the old location */
-	cave[oy][ox].m_idx = 0;
+	area(oy,ox)->m_idx = 0;
 
 	/* Move the monster */
 	m_ptr->fy = ny;
@@ -257,13 +262,14 @@ void teleport_player(int dis)
 	int d, i, min, ox, oy;
 	int tries = 0;
 
-	int xx = -1, yy = -1;
+	int xx = -1, yy;
 
 	/* Initialize */
 	int y = py;
 	int x = px;
 
 	bool look = TRUE;
+	cave_type *c_ptr;
 
 	if (p_ptr->anti_tele)
 	{
@@ -299,12 +305,14 @@ void teleport_player(int dis)
 			/* Ignore illegal locations */
 			if (!in_bounds(y, x)) continue;
 
+			c_ptr = area(y, x);
+
 			/* Require "naked" floor space or trees */
-			if (!(cave_naked_bold(y, x) ||
-			    (cave[y][x].feat == FEAT_TREES))) continue;
+			if (!(cave_naked_grid(c_ptr) ||
+			    ((c_ptr->feat & 0x60) == 0x60))) continue;
 
 			/* No teleporting into vaults and such */
-			if (cave[y][x].info & CAVE_ICKY) continue;
+			if (c_ptr->info & CAVE_ICKY) continue;
 
 			/* This grid looks good */
 			look = FALSE;
@@ -334,6 +342,14 @@ void teleport_player(int dis)
 	py = y;
 	px = x;
 
+	if (!dun_level)
+	{
+		/* Scroll wilderness */
+		p_ptr->wilderness_x = px;
+		p_ptr->wilderness_y = py;
+		move_wild();
+	}
+
 	/* Redraw the old spot */
 	lite_spot(oy, ox);
 
@@ -344,28 +360,30 @@ void teleport_player(int dis)
 
 		while (yy < 2)
 		{
-			if (xx == 0 && yy == 0)
+			if ((xx == 0) && (yy == 0))
 			{
 				/* Do nothing */
 			}
 			else
 			{
-				if (cave[oy+yy][ox+xx].m_idx)
+				if (in_bounds2(oy + yy, ox + xx) && area(oy + yy, ox + xx)->m_idx)
 				{
-					if ((r_info[m_list[cave[oy+yy][ox+xx].m_idx].r_idx].flags6 & RF6_TPORT) &&
-					    !(r_info[m_list[cave[oy+yy][ox+xx].m_idx].r_idx].flags3 & RF3_RES_TELE))
+					if ((r_info[m_list[area(oy + yy, ox + xx)->m_idx].r_idx].flags6 & RF6_TPORT) &&
+					    !(r_info[m_list[area(oy + yy, ox + xx)->m_idx].r_idx].flags3 & RF3_RES_TELE))
 						/*
 						 * The latter limitation is to avoid
 						 * totally unkillable suckers...
 						 */
 					{
-						if (!(m_list[cave[oy+yy][ox+xx].m_idx].csleep))
-							teleport_to_player(cave[oy+yy][ox+xx].m_idx);
+						if (!(m_list[area(oy + yy, ox + xx)->m_idx].csleep))
+							teleport_to_player(area(oy + yy, ox + xx)->m_idx);
 					}
 				}
 			}
+
 			yy++;
 		}
+
 		xx++;
 	}
 
@@ -400,6 +418,8 @@ void teleport_player_to(int ny, int nx)
 {
 	int y, x, oy, ox, dis = 0, ctr = 0;
 
+	cave_type *c_ptr;
+
 	if (p_ptr->anti_tele)
 	{
 		msg_print("A mysterious force prevents you from teleporting!");
@@ -418,7 +438,8 @@ void teleport_player_to(int ny, int nx)
 		}
 
 		/* Accept "naked" floor grids */
-		if (cave_naked_bold(y, x)) break;
+		c_ptr = area(y, x);
+		if (cave_naked_grid(c_ptr)) break;
 
 		/* Occasionally advance the distance */
 		if (++ctr > (4 * dis * dis + 4 * dis + 1))
@@ -438,6 +459,14 @@ void teleport_player_to(int ny, int nx)
 	/* Move the player */
 	py = y;
 	px = x;
+
+	if (!dun_level)
+	{
+		/* Scroll wilderness */
+		p_ptr->wilderness_x = px;
+		p_ptr->wilderness_y = py;
+		move_wild();
+	}
 
 	/* Redraw the old spot */
 	lite_spot(oy, ox);
@@ -745,7 +774,8 @@ void apply_nexus(monster_type *m_ptr)
 void phlogiston(void)
 {
 	int max_flog;
-	object_type *o_ptr = &inventory[INVEN_LITE];
+	object_type * o_ptr = &inventory[INVEN_LITE];
+
 
 	/* It's a lamp */
 	if ((o_ptr->tval == TV_LITE) && (o_ptr->sval == SV_LITE_LANTERN))
@@ -862,14 +892,15 @@ void call_the_(void)
 {
 	int i;
 
-	if (cave_floor_bold(py - 1, px - 1) &&
-	    cave_floor_bold(py - 1, px    ) &&
-	    cave_floor_bold(py - 1, px + 1) &&
-	    cave_floor_bold(py    , px - 1) &&
-	    cave_floor_bold(py    , px + 1) &&
-	    cave_floor_bold(py + 1, px - 1) &&
-	    cave_floor_bold(py + 1, px    ) &&
-	    cave_floor_bold(py + 1, px + 1))
+	if (in_bounds(py, px) &&
+	    cave_floor_grid(area(py - 1, px - 1)) &&
+	    cave_floor_grid(area(py - 1, px    )) &&
+	    cave_floor_grid(area(py - 1, px + 1)) &&
+	    cave_floor_grid(area(py    , px - 1)) &&
+	    cave_floor_grid(area(py    , px + 1)) &&
+	    cave_floor_grid(area(py + 1, px - 1)) &&
+	    cave_floor_grid(area(py + 1, px    )) &&
+	    cave_floor_grid(area(py + 1, px + 1)))
 	{
 		for (i = 1; i < 10; i++)
 		{
@@ -909,31 +940,32 @@ void call_the_(void)
 void fetch(int dir, int wgt, bool require_los)
 {
 	int             ty, tx, i;
-	bool            flag;
 	cave_type       *c_ptr;
 	object_type     *o_ptr;
 	char            o_name[80];
 
 	/* Check to see if an object is already there */
-	if (cave[py][px].o_idx)
+	if (area(py, px)->o_idx)
 	{
 		msg_print("You can't fetch when you're already standing on something.");
 		return;
 	}
 
 	/* Use a target */
-	if (dir == 5 && target_okay())
+	if ((dir == 5) && target_okay())
 	{
 		tx = target_col;
 		ty = target_row;
 
-		if (distance(py, px, ty, tx) > MAX_RANGE)
+		/* Paranoia */
+		if ((distance(py, px, ty, tx) > MAX_RANGE)
+			 || (!in_bounds2(ty, tx)))
 		{
 			msg_print("You can't fetch something that far away!");
 			return;
 		}
 
-		c_ptr = &cave[ty][tx];
+		c_ptr = area(ty, tx);
 
 		/* We need an item to fetch */
 		if (!c_ptr->o_idx)
@@ -950,7 +982,7 @@ void fetch(int dir, int wgt, bool require_los)
 		}
 
 		/* We need to see the item */
-		if (require_los && !player_has_los_bold(ty, tx))
+		if (require_los && !player_has_los_grid(c_ptr))
 		{
 			msg_print("You have no direct line of sight to that location.");
 			return;
@@ -961,18 +993,23 @@ void fetch(int dir, int wgt, bool require_los)
 		/* Use a direction */
 		ty = py; /* Where to drop the item */
 		tx = px;
-		flag = FALSE;
 
-		do
+		while (TRUE)
 		{
 			ty += ddy[dir];
 			tx += ddx[dir];
-			c_ptr = &cave[ty][tx];
+
+			/* paranoia */
+			if (!in_bounds2(ty, tx)) continue;
+
+			c_ptr = area(ty, tx);
 
 			if ((distance(py, px, ty, tx) > MAX_RANGE) ||
-			    !cave_floor_bold(ty, tx)) return;
+			    !cave_floor_grid(c_ptr)) return;
+
+			/* found a spot */
+			if (!c_ptr->o_idx) break;
 		}
-		while (!c_ptr->o_idx);
 	}
 
 	o_ptr = &o_list[c_ptr->o_idx];
@@ -986,10 +1023,10 @@ void fetch(int dir, int wgt, bool require_los)
 
 	i = c_ptr->o_idx;
 	c_ptr->o_idx = o_ptr->next_o_idx;
-	cave[py][px].o_idx = i; /* 'move' it */
+	area(py,px)->o_idx = i; /* 'move' it */
 	o_ptr->next_o_idx = 0;
-	o_ptr->iy = (byte)py;
-	o_ptr->ix = (byte)px;
+	o_ptr->iy = py;
+	o_ptr->ix = px;
 
 	object_desc(o_name, o_ptr, TRUE, 0);
 	msg_format("%^s flies through the air to your feet.", o_name);
@@ -1022,8 +1059,10 @@ void alter_reality(void)
  */
 bool warding_glyph(void)
 {
+	cave_type *c_ptr = area(py, px);
+
 	/* XXX XXX XXX */
-	if (!cave_clean_bold(py, px))
+	if (!cave_clean_grid(c_ptr))
 	{
 		msg_print("The object resists the spell.");
 		return FALSE;
@@ -1041,8 +1080,10 @@ bool warding_glyph(void)
  */
 bool explosive_rune(void)
 {
+	cave_type *c_ptr = area(py, px);
+
 	/* XXX XXX XXX */
-	if (!cave_clean_bold(py, px))
+	if (!cave_clean_grid(c_ptr))
 	{
 		msg_print("The object resists the spell.");
 		return FALSE;
@@ -1297,8 +1338,10 @@ bool alchemy(void)
  */
 void stair_creation(void)
 {
+	cave_type *c_ptr = area(py, px);
+
 	/* XXX XXX XXX */
-	if (!cave_valid_bold(py, px))
+	if (!cave_valid_grid(c_ptr))
 	{
 		msg_print("The object resists the spell.");
 		return;
@@ -1676,6 +1719,7 @@ bool artifact_scroll(void)
 			           o_name, ((o_ptr->number > 2) ? "were" : "was"));
 			o_ptr->number = 1;
 		}
+
 		okay = create_artifact(o_ptr, TRUE);
 	}
 
@@ -2170,9 +2214,11 @@ bool recharge(int power)
 	/* Get the object kind. */
 	k_ptr = &k_info[o_ptr->k_idx];
 
-	/* Extract the object "level" */
-	lev = k_info[o_ptr->k_idx].level;
-
+	/*
+	 * Extract the object "level"
+	 * (Rescaled due to change in dungeon distribtuion)
+	 */
+	lev = k_info[o_ptr->k_idx].level / 2;
 
 	/* Recharge a rod */
 	if (o_ptr->tval == TV_ROD)
@@ -2217,11 +2263,9 @@ bool recharge(int power)
 		else recharge_strength = (100 + power - lev -
 			(8 * o_ptr->pval)) / 15;
 
-		/* Paranoia */
-		if (recharge_strength < 0) recharge_strength = 0;
-
 		/* Back-fire */
-		if (rand_int(recharge_strength) == 0)
+		if ((recharge_strength < 0) ||
+			 (rand_int(recharge_strength) == 0))
 		{
 			/* Activate the failure code. */
 			fail = TRUE;
@@ -2231,7 +2275,7 @@ bool recharge(int power)
 		else
 		{
 			/* Recharge based on the standard number of charges. */
-			recharge_amount = randint(1 + k_ptr->pval / 2);
+			recharge_amount = randint(1 + k_ptr->pval);
 
 			/* Multiple wands in a stack increase recharging somewhat. */
 			if ((o_ptr->tval == TV_WAND) && (o_ptr->number > 1))
@@ -2288,8 +2332,9 @@ bool recharge(int power)
 
 			/*** Determine Seriousness of Failure ***/
 
-			/* Mages recharge objects more safely. */
-			if (p_ptr->pclass == CLASS_MAGE)
+			/* (High) Mages recharge objects more safely. */
+			if ((p_ptr->pclass == CLASS_MAGE) ||
+				 (p_ptr->pclass == CLASS_HIGH_MAGE))
 			{
 				/* 10% chance to blow up one rod, otherwise draining. */
 				if (o_ptr->tval == TV_ROD)
@@ -4038,7 +4083,7 @@ static s16b poly_r_idx(int r_idx)
 
 bool polymorph_monster(int y, int x)
 {
-	cave_type *c_ptr = &cave[y][x];
+	cave_type *c_ptr = area(y, x);
 	monster_type *m_ptr = &m_list[c_ptr->m_idx];
 	bool friendly, pet;
 	bool polymorphed = FALSE;
@@ -4087,12 +4132,18 @@ bool dimension_door(void)
 {
 	int	plev = p_ptr->lev;
 	int	x = 0, y = 0;
+	cave_type *c_ptr;
 
 	if (!tgt_pt(&x, &y)) return FALSE;
 
 	p_ptr->energy -= 60 - plev;
 
-	if (!cave_empty_bold(y, x) || (cave[y][x].info & CAVE_ICKY) ||
+	/* paranoia */
+	if (!in_bounds2(y, x)) return FALSE;
+
+	c_ptr = area(y, x);
+
+	if (!cave_empty_grid(c_ptr) || (c_ptr->info & CAVE_ICKY) ||
 		(distance(y, x, py, px) > plev + 2) ||
 		(!rand_int(plev * plev / 2)))
 	{

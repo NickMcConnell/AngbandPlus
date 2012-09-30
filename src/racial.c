@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 2000/01/04 17:42:30 $ */
+/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/06/24 10:25:13 $ */
 /* File: racial.c */
 
 /* Purpose: Racial powers (and mutations) */
@@ -508,14 +508,18 @@ static void cmd_racial_power_aux(s32b command)
 		case RACE_VAMPIRE:
 			if (racial_aux(2, (1 + (plev / 3)), A_CON, 9))
 			{
-				int y, x, dummy = 0;
+				int y, x, dummy;
 				cave_type *c_ptr;
 
 				/* Only works on adjacent monsters */
-				if (!get_rep_dir(&dir)) break;   /* was get_aim_dir */
+				if (!get_rep_dir(&dir,FALSE)) break;   /* was get_aim_dir */
 				y = py + ddy[dir];
 				x = px + ddx[dir];
-				c_ptr = &cave[y][x];
+
+				/* Paranoia */
+				if(!in_bounds2(y, x)) break;
+
+				c_ptr = area(y, x);
 
 				if (!c_ptr->m_idx)
 				{
@@ -525,18 +529,13 @@ static void cmd_racial_power_aux(s32b command)
 
 				msg_print("You grin and bare your fangs...");
 				dummy = plev + randint(plev) * MAX(1, plev / 10);   /* Dmg */
-				if (drain_life(dir, dummy))
+				if (drain_gain_life(dir, dummy))
 				{
-					if (p_ptr->food < PY_FOOD_FULL)
-						/* No heal if we are "full" */
-						(void)hp_player(dummy);
-					else
-						msg_print("You were not hungry.");
-						/* Gain nutritional sustenance: 150/hp drained */
-						/* A Food ration gives 5000 food points (by contrast) */
-						/* Don't ever get more than "Full" this way */
-						/* But if we ARE Gorged,  it won't cure us */
-						dummy = p_ptr->food + MIN(5000, 100 * dummy);
+					/* Gain nutritional sustenance: 150/hp drained */
+					/* A Food ration gives 5000 food points (by contrast) */
+					/* Don't ever get more than "Full" this way */
+					/* But if we ARE Gorged,  it won't cure us */
+					dummy = p_ptr->food + MIN(5000, 100 * dummy);
 					if (p_ptr->food < PY_FOOD_MAX)   /* Not gorged already */
 						(void)set_food(dummy >= PY_FOOD_MAX ? PY_FOOD_MAX - 1 : dummy);
 				}

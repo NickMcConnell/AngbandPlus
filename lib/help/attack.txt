@@ -263,27 +263,27 @@ Implement of Digging
     master and healing them in the process.
 
 Weapon of Melting
-    A magical weapon of acid that will inflict three times the normal
+    A magical weapon of acid that will inflict two times the normal
     damage when used against a creature that is not resistant to acid.
     It also provides resistance against acid attacks.
 
 Weapon of Shocking
-    A magical weapon of lightning that will inflict three times the
+    A magical weapon of lightning that will inflict two times the
     normal damage when used against a creature that is not resistant to
     electricity. It also provides resistance against lightning attacks.
 
 Weapon of Freezing
-    A magical weapon of ice that will inflict three times the normal
+    A magical weapon of ice that will inflict two times the normal
     damage when used against a creature that is not resistant to cold.
     It also provides resistance against cold attacks.
 
 Weapon of Burning
-    A magical weapon of fire that will inflict three times the normal
+    A magical weapon of fire that will inflict two times the normal
     damage when used against a creature that is not resistant to fire.
     It also provides resistance against fire attacks.
 
 Weapon of Poisoning
-    A magical weapon, coated with poison, that will inflict three times
+    A magical weapon, coated with poison, that will inflict two times
     the normal damage to creatures not resistant to poison. It also
     provides resistance against toxic and poisonous attacks.
 
@@ -291,80 +291,80 @@ Weapon of Poisoning
 
 Weapon of Slay Animal
     This weapon is especially effective against natural creatures and
-    will do three times the normal damage against such creatures.
+    will do 1.7 times the normal damage against such creatures.
 
 Weapon of Slay Evil
     This weapon is especially effective against evil creatures and will
-    do two times the normal damage against such creatures.
+    do 1.7 times the normal damage against such creatures.
 
 Weapon of Slay Undead
     This weapon is especially effective against undead creatures and
-    will do three times the normal damage against such creatures. It 
+    will do two times the normal damage against such creatures. It 
     will also provide resistance to life draining attacks.
 
 Weapon of Slay Demon
     This weapon is especially effective against demonic creatures and
-    will do three times the normal damage against such creatures.
+    will do two times the normal damage against such creatures.
 
 Weapon of Slay Orc
     This weapon is especially effective against orcs and will do
-    three times the normal damage against such creatures.
+    two times the normal damage against such creatures.
 
 Weapon of Slay Troll
     This weapon is especially effective against trolls and will do
-    three times the normal damage against such creatures.
+    three two the normal damage against such creatures.
 
 Weapon of Slay Giant
     This weapon is especially effective against giant humanoids and
-    will do three times the normal damage against such creatures.
+    will do two times the normal damage against such creatures.
 
 Weapon of Slay Dragon
     This weapon is especially effective against dragons and will do
-    three times the normal damage against such creatures.
+    three two the normal damage against such creatures.
 
 --- Weapons of *Slay* {Monster-Type} ---
 
 Weapon of *Slay* Animal
     This weapon is especially effective against natural creatures and
-    will do three times the normal damage against such creatures. It
+    will do 1.7 times the normal damage against such creatures. It
     will also increase your intelligence and allow you to regenerate
     hit-points and mana faster.
 
 Weapon of *Slay* Evil
     This weapon is especially effective against evil creatures and will
-    do two times the normal damage against such creatures. It will
+    do 1.7 times the normal damage against such creatures. It will
     increase your wisdom and will also be a blessed blade.
 
 Weapon of *Slay* Undead
     This weapon is especially effective against undead creatures and
-    will do three times the normal damage against such creatures. It 
+    will do two times the normal damage against such creatures. It 
     will increase your wisdom and will also provide resistance to both
     nether and life-draining attacks. Finally, it will allow you to see
     invisible creatures.
 
 Weapon of *Slay* Demon
     This weapon is especially effective against demonic creatures and
-    will do three times the normal damage against such creatures. It
+    will do two times the normal damage against such creatures. It
     will also increase your intelligence.
 
 Weapon of *Slay* Orc
-    This weapon is especially effective against orcs and will do three
+    This weapon is especially effective against orcs and will do two
     times the normal damage against such creatures. It will also
     increase your dexterity.
 
 Weapon of *Slay* Troll
     This weapon is especially effective against trolls and will do
-    three times the normal damage against such creatures. It will also
+    two times the normal damage against such creatures. It will also
     increase your strength.
 
 Weapon of *Slay* Giant
     This weapon is especially effective against giant humanoids and
-    will do three times the normal damage against such creatures. It
+    will do two times the normal damage against such creatures. It
     will also increase your strength.
 
 Weapon of *Slay* Dragon
     This weapon is especially effective against dragons and will do
-    five times the normal damage against such creatures. It will also
+    three times the normal damage against such creatures. It will also
     increase your constitution.
 
 --- Missile Launchers ---
@@ -385,26 +385,26 @@ Launcher of Extra Shots
 
 Ammunition of Hurt Animal
     This ammunition is especially effective against natural creatures
-    and will do three times the normal damage against such creatures.
+    and will do 1.7 times the normal damage against such creatures.
 
 Ammunition of Hurt Evil
     This ammunition is especially effective against evil creatures and
-    will do two times the normal damage against such creatures.
+    will do 1.7 times the normal damage against such creatures.
 
 Ammunition of Hurt Dragon
     This ammunition is especially effective against dragons and will do
-    three times the normal damage against such creatures.
+    two times the normal damage against such creatures.
 
 Ammunition of Shocking
-    This ammunition will inflict three times the normal damage when
+    This ammunition will inflict two times the normal damage when
     used against a creature that is not resistant to electricity.
 
 Ammunition of Flame
-    This ammunition will inflict three times the normal damage when
+    This ammunition will inflict two times the normal damage when
     used against a creature that is not resistant to fire.
 
 Ammunition of Frost
-    This ammunition will inflict three times the normal damage when
+    This ammunition will inflict two times the normal damage when
     used against a creature that is not resistant to cold.
 
 Ammunition of Slaying
@@ -418,7 +418,8 @@ Ammunition of Wounding
 Apart from these there are some very rare and well made blades in the
 dungeon. These include Blades of Chaos (which grant resistance to
 chaos), Maces of Disruption (which are especially effective against
-undead creatures) and Scythes of Slicing (which may score vorpal hits).
+undead creatures) and Diamond Edges and Scythes of Slicing (which may
+both score vorpal hits).
 
 Note on Vorpal Weapons: A weapon with the vorpal flag will have a
 1-in-6 chance of doing additional damage each time it strikes. If it

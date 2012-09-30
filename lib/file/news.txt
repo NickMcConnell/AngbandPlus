@@ -1,8 +1,8 @@
 
 
-                            **********************
-                            **  Zangband 2.4.0  **
-                            **********************
+                          ***************************
+                          **  Zangband 2.5.1 BETA  **
+                          ***************************
 
           Based on Moria:    Copyright (c) 1985 Robert Alan Koeneke
               and Umoria:    Copyright (c) 1989 James E. Wilson
@@ -15,8 +15,8 @@
 
  Visit "Thangorodrim - The Angband Page" at "http://thangorodrim.angband.org/"
 
-             Send all comments, patches, etc, to "rr9@angband.org".
-                Send bug reports to "zangbugs@pino.selwerd.nl".
+          Send all comments, patches, etc, to "feedback@zangband.org".
+                   Send bug reports to "bugs@zangband.org".
 
 
           Press ? for help and = for the options screen while playing.

@@ -1,4 +1,4 @@
-# CVS: Last edit by $Author: sfuerst $ on $Date: 2000/07/20 09:38:17 $
+# CVS: Last edit by $Author: sfuerst $ on $Date: 2000/04/24 11:46:07 $
 # File: font-x11.prf
 
 
@@ -21,6 +21,7 @@ V:13:0x01:0x00:0xFF:0x00
 V:14:0x01:0x00:0xC8:0xFF
 V:15:0x01:0xFF:0xCC:0x80
 
+
 #
 # Floors (white / centered dot)
 #
@@ -33,6 +34,16 @@ F:1:1/0xB7
 
 F:2:1/0xB7
 
+
+# Sand -> pebbles.
+F:8:11/0xB7
+F:9:9/0xB7
+F:10:7/0xB7
+F:11:8/0xB7
+F:12:4/0xB7
+F:13:2/0xB7
+F:14:8/0xB7
+
 # dirt
 F:88:7/0xB7
 
@@ -41,6 +52,10 @@ F:89:5/0xB7
 
 # invisible wall
 F:91:1/0xB7
+
+# snow
+F:135:9/0xB7
+
 
 #
 # Secret doors
@@ -155,3 +170,4 @@ R:875:0x0B:0x02
 
 # Creeping dust
 R:880:0x0A:0xB7
+

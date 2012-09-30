@@ -354,41 +354,6 @@ can vary considerably. For example, Light Area lights a single room
 while Detect Traps affects a map panel and Genocide the entire
 level.
 
-***** <Pets>
-=== Summoned/Charmed Creatures ===
-
-A friendly creature can be a mixed blessing. At first sight, one
-might think that they can make the game much easier. It is of
-course highly satisfying to send your pet Hell Wyrm into a Troll
-pit and wait outside listening for the howls of agony and terror,
-the sounds of guts splattering, bones crunching and so on. But one
-should not expect to gain any experience for such a combat: you
-will only gain experience for creatures to whom you deliver the
-death blow yourself. New experiences require hazards, nobody gains
-experience by sitting home watching the TV.
-
-Secondly, friendly monsters are often so eager to destroy your
-opponents they may forget all about you, and you get trampled under
-their feet as they charge at your foe. They are not as smart as the
-regular monsters, since they have given up their free will to serve
-you. So don't stand next to that Snaga when your pet Cyberdemon
-brandishes its rocket launcher! Pets are also rather easily
-irritable.
-
-Once you do something which causes the slightest discomfort to
-them, they will revert to their normal behavior and consider you
-their main target. This is something to think about before lighting
-up a room if you have pet orcs. Needless to say, nobody wants to be
-your friend if you are aggravating them.
-
-Finally, it takes a lot of mental energy to maintain the control
-over the charmed monsters. The first monster or the first few are
-'free', but after that maintaining the control will start taxing
-your mana regain rate. The higher the sum of the levels of your
-pets the less mana you will be able to regain. Keep this in mind if
-you have a pet which can summon or otherwise produce more pets...
-
-
 ***** <Hints>
 === Hints and Tips ===
 
@@ -668,4 +633,4 @@ Necronomicon
 Original   : (??)
 Updated    : (??)
 Updated    : Zangband DevTeam
-Last update: January 13, 2000
+Last update: May 16, 2000

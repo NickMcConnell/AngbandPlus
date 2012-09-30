@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/07/19 13:50:30 $ */
+/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/06/04 04:17:16 $ */
 /* File: monster1.c */
 
 /* Purpose: describe monsters (using monster memory) */
@@ -91,6 +91,19 @@ static bool know_damage(int r_idx, int i)
 	return (FALSE);
 }
 
+
+/*
+ * Hack -- display monster information using "roff()"
+ *
+ * Note that there is now a compiler option to only read the monster
+ * descriptions from the raw file when they are actually needed, which
+ * saves about 60K of memory at the cost of disk access during monster
+ * recall, which is optional to the user.
+ *
+ * This function should only be called with the cursor placed at the
+ * left edge of the screen, on a cleared line, in which the recall is
+ * to take place.  One extra blank line is left after the recall.
+ */
 static void roff_aux(int r_idx, int remem)
 {
 	monster_race    *r_ptr = &r_info[r_idx];
@@ -489,21 +502,20 @@ static void roff_aux(int r_idx, int remem)
 		/* Group some variables */
 		if (TRUE)
 		{
-			long i, j;
+			s32b new_exp, new_exp_frac;
+			int i;
 
-			/* calculate the integer exp part */
-			i = (long)r_ptr->mexp * r_ptr->level / p_ptr->lev;
-			
+			/* Get the xp for a kill */
+			exp_for_kill(r_ptr, &new_exp, &new_exp_frac);
+
 			/* calculate the fractional exp part scaled by 100, */
-			/* must use long arithmetic to avoid overflow  */
-			
-			j = ((((long)r_ptr->mexp * r_ptr->level % p_ptr->lev) *
-			       (long)1000 / p_ptr->lev + 5) / 10);
- 			
+			/* must use long arithmetic to avoid overflow */
+			new_exp_frac = (((long)new_exp_frac + 0x10000L / 500) * 100) / 0x10000L;
+
 			/* Mention the experience */
 			roff(format(" is worth %ld.%02ld point%s",
-			            (long)i, (long)j,
-			            (((i == 1) && (j == 0)) ? "" : "s")));
+			            (long)new_exp, (long)new_exp_frac,
+			            (((new_exp == 1) && (new_exp_frac == 0)) ? "" : "s")));
 
 			/* Take account of annoying English */
 			p = "th";
@@ -1428,6 +1440,16 @@ void display_roff(int r_idx)
 	roff_top(r_idx);
 }
 
+static byte mon_wild;
+static monster_hook_type wild_mon_hook;
+
+static bool validate_mon_wild(int r_idx)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+
+	/* Want first 8 flags, do not want next 8. */
+	return ((r_ptr->flags8 & 0x000000FF) && (!(r_ptr->flags8 & 0x0000FF00)));
+}
 
 bool monster_quest(int r_idx)
 {
@@ -1481,18 +1503,6 @@ bool monster_shore(int r_idx)
 		return FALSE;
 }
 
-
-bool monster_waste(int r_idx)
-{
-	monster_race *r_ptr = &r_info[r_idx];
-
-	if (r_ptr->flags8 & RF8_WILD_WASTE)
-		return TRUE;
-	else
-		return FALSE;
-}
-
-
 bool monster_town(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
@@ -1502,40 +1512,6 @@ bool monster_town(int r_idx)
 	else
 		return FALSE;
 }
-
-
-bool monster_wood(int r_idx)
-{
-	monster_race *r_ptr = &r_info[r_idx];
-
-	if (r_ptr->flags8 & RF8_WILD_WOOD)
-		return TRUE;
-	else
-		return FALSE;
-}
-
-
-bool monster_volcano(int r_idx)
-{
-	monster_race *r_ptr = &r_info[r_idx];
-
-	if (r_ptr->flags8 & RF8_WILD_VOLCANO)
-		return TRUE;
-	else
-		return FALSE;
-}
-
-
-bool monster_mountain(int r_idx)
-{
-	monster_race *r_ptr = &r_info[r_idx];
-
-	if (r_ptr->flags8 & RF8_WILD_MOUNTAIN)
-		return TRUE;
-	else
-		return FALSE;
-}
-
 
 bool monster_grass(int r_idx)
 {
@@ -1547,8 +1523,7 @@ bool monster_grass(int r_idx)
 		return FALSE;
 }
 
-
-bool monster_deep_water(int r_idx)
+bool monster_deep_water_dun(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
@@ -1561,7 +1536,7 @@ bool monster_deep_water(int r_idx)
 }
 
 
-bool monster_shallow_water(int r_idx)
+bool monster_shallow_water_dun(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
@@ -1574,7 +1549,7 @@ bool monster_shallow_water(int r_idx)
 }
 
 
-bool monster_lava(int r_idx)
+bool monster_lava_dun(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
@@ -1588,55 +1563,211 @@ bool monster_lava(int r_idx)
 		return FALSE;
 }
 
+bool monster_acid_dun(int r_idx)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+
+	if (!monster_dungeon(r_idx)) return FALSE;
+
+	if (((r_ptr->flags3 & RF3_IM_ACID) ||
+	     (r_ptr->flags7 & RF7_CAN_FLY)))
+		return TRUE;
+	else
+		return FALSE;
+}
+
+bool monster_swamp_dun(int r_idx)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+
+	if (!monster_dungeon(r_idx)) return FALSE;
+
+	if (((r_ptr->flags3 & RF3_IM_POIS) ||
+	     (r_ptr->flags7 & RF7_CAN_FLY)))
+		return TRUE;
+	else
+		return FALSE;
+}
+
+bool monster_deep_water_wild(int r_idx)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+
+	/* Check wilderness flags */
+	if (!wild_mon_hook(r_idx)) return FALSE;
+
+	if (r_ptr->flags7 & RF7_AQUATIC)
+		return TRUE;
+	else
+		return FALSE;
+}
+
+
+bool monster_shallow_water_wild(int r_idx)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+
+	/* Check wilderness flags */
+	if (!wild_mon_hook(r_idx)) return FALSE;
+
+	if (r_ptr->flags2 & RF2_AURA_FIRE)
+		return FALSE;
+	else
+		return TRUE;
+}
+
+
+bool monster_lava_wild(int r_idx)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+
+	/* Check wilderness flags */
+	if (!wild_mon_hook(r_idx)) return FALSE;
+
+	if (((r_ptr->flags3 & RF3_IM_FIRE) ||
+	     (r_ptr->flags7 & RF7_CAN_FLY)) &&
+	    !(r_ptr->flags3 & RF3_AURA_COLD))
+		return TRUE;
+	else
+		return FALSE;
+}
+
+bool monster_acid_wild(int r_idx)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+
+	/* Check wilderness flags */
+	if (!wild_mon_hook(r_idx)) return FALSE;
+
+	if (((r_ptr->flags3 & RF3_IM_ACID) ||
+	     (r_ptr->flags7 & RF7_CAN_FLY)))
+		return TRUE;
+	else
+		return FALSE;
+}
+
+bool monster_swamp_wild(int r_idx)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+
+	/* Check wilderness flags */
+	if (!wild_mon_hook(r_idx)) return FALSE;
+
+	if (((r_ptr->flags3 & RF3_IM_POIS) ||
+	     (r_ptr->flags7 & RF7_CAN_FLY)))
+		return TRUE;
+	else
+		return FALSE;
+}
+
 
 monster_hook_type get_monster_hook(void)
 {
-	if (!dun_level && !p_ptr->inside_quest)
+	if (dun_level)
 	{
-		switch (wilderness[p_ptr->wilderness_y][p_ptr->wilderness_x].terrain)
-		{
-		case TERRAIN_TOWN:
-			return &(monster_town);
-		case TERRAIN_DEEP_WATER:
-			return &(monster_ocean);
-		case TERRAIN_SHALLOW_WATER:
-			return &(monster_shore);
-		case TERRAIN_DIRT:
-			return &(monster_waste);
-		case TERRAIN_GRASS:
-			return &(monster_grass);
-		case TERRAIN_TREES:
-			return &(monster_wood);
-		case TERRAIN_SHALLOW_LAVA:
-		case TERRAIN_DEEP_LAVA:
-			return &(monster_volcano);
-		case TERRAIN_MOUNTAIN:
-			return &(monster_mountain);
-		default:
-			return &(monster_dungeon);
-		}
-	}
-	else
-	{
+		/* In dungeon */
 		return &(monster_dungeon);
 	}
+
+	/* Not in dungeon */
+	return NULL;
 }
 
 
 monster_hook_type get_monster_hook2(int y, int x)
 {
+	wild_done_type *w_ptr;
+
+	/* In dungeon */
+	if (dun_level)
+	{
+		/* Set the monster list */
+		switch (area(y, x)->feat)
+		{
+		case FEAT_SHAL_WATER:
+			return &(monster_shallow_water_dun);
+		case FEAT_DEEP_WATER:
+			return &(monster_deep_water_dun);
+		case FEAT_DEEP_LAVA:
+		case FEAT_SHAL_LAVA:
+			return &(monster_lava_dun);
+		case FEAT_DEEP_ACID:
+		case FEAT_SHAL_ACID:
+			return &(monster_acid_dun);
+		case FEAT_DEEP_SWAMP:
+		case FEAT_SHAL_SWAMP:
+			return &(monster_swamp_dun);
+		default:
+			return NULL;
+		}
+	}
+
+	/* Point to wilderness block info */
+	w_ptr = &wild[y / 16][x / 16].done;
+
+
+	/* Mega Hack XXX XXX- Set level of monster */
+	/* This breaks summoning level changes. */
+	monster_level = w_ptr->mon_gen;
+
+
+	if (w_ptr->wild > WILD_SEA)
+	{
+		/* Ocean */
+		wild_mon_hook = &monster_ocean;
+	}
+	else if (w_ptr->info & WILD_INFO_RIVER)
+	{
+		/* Shore */
+		wild_mon_hook = &monster_shore;
+	}
+	else
+	{
+		/*
+		 * Get wilderness type flags and store
+		 * into static variable above.
+		 */
+		mon_wild = wild_gen_data[w_ptr->wild].rough_type;
+
+		/* Set wilderness hook */
+		if (mon_wild == 0)
+		{
+			/* No other terrain - use grass */
+			wild_mon_hook = &monster_grass;
+		}
+		else
+		{
+			/* Normal wilderness terrain */
+			wild_mon_hook = &validate_mon_wild;
+		}
+	}
+
+	if (w_ptr->town)
+	{
+		/* Have a town */
+		wild_mon_hook = &monster_town;
+	}
+
 	/* Set the monster list */
-	switch (cave[y][x].feat)
+	switch (area(y, x)->feat)
 	{
 	case FEAT_SHAL_WATER:
-		return &(monster_shallow_water);
+		return &(monster_shallow_water_wild);
 	case FEAT_DEEP_WATER:
-		return &(monster_deep_water);
+		return &(monster_deep_water_wild);
+	case FEAT_OCEAN_WATER:
+		return (wild_mon_hook);
 	case FEAT_DEEP_LAVA:
 	case FEAT_SHAL_LAVA:
-		return &(monster_lava);
+		return &(monster_lava_wild);
+	case FEAT_DEEP_ACID:
+	case FEAT_SHAL_ACID:
+		return &(monster_acid_wild);
+	case FEAT_DEEP_SWAMP:
+	case FEAT_SHAL_SWAMP:
+		return &(monster_swamp_wild);
 	default:
-		return NULL;
+		return (wild_mon_hook);
 	}
 }
 
@@ -1689,6 +1820,15 @@ void anger_monster(monster_type *m_ptr)
  */
 bool monster_can_cross_terrain(byte feat, monster_race *r_ptr)
 {
+	/* Ocean */
+	if (feat == FEAT_OCEAN_WATER)
+	{
+		if (r_ptr->flags8 & RF8_WILD_OCEAN)
+			return TRUE;
+		else
+			return FALSE;
+	}
+
 	/* Deep water */
 	if (feat == FEAT_DEEP_WATER)
 	{
@@ -1699,25 +1839,50 @@ bool monster_can_cross_terrain(byte feat, monster_race *r_ptr)
 		else
 			return FALSE;
 	}
+
 	/* Shallow water */
-	else if (feat == FEAT_SHAL_WATER)
+	if (feat == FEAT_SHAL_WATER)
 	{
 		if (r_ptr->flags2 & RF2_AURA_FIRE)
 			return FALSE;
 		else
 			return TRUE;
 	}
+
 	/* Aquatic monster */
-	else if ((r_ptr->flags7 & RF7_AQUATIC) &&
-		    !(r_ptr->flags7 & RF7_CAN_FLY))
+	if ((r_ptr->flags7 & RF7_AQUATIC) &&
+	    !(r_ptr->flags7 & RF7_CAN_FLY))
 	{
 		return FALSE;
 	}
+
 	/* Lava */
-	else if ((feat == FEAT_SHAL_LAVA) ||
+	if ((feat == FEAT_SHAL_LAVA) ||
 	    (feat == FEAT_DEEP_LAVA))
 	{
 		if ((r_ptr->flags3 & RF3_IM_FIRE) ||
+		    (r_ptr->flags7 & RF7_CAN_FLY))
+			return TRUE;
+		else
+			return FALSE;
+	}
+
+	/* Acid */
+	if ((feat == FEAT_SHAL_ACID) ||
+	    (feat == FEAT_DEEP_ACID))
+	{
+		if ((r_ptr->flags3 & RF3_IM_ACID) ||
+		    (r_ptr->flags7 & RF7_CAN_FLY))
+			return TRUE;
+		else
+			return FALSE;
+	}
+
+	/* Swamp */
+	if ((feat == FEAT_SHAL_SWAMP) ||
+	    (feat == FEAT_DEEP_SWAMP))
+	{
+		if ((r_ptr->flags3 & RF3_IM_POIS) ||
 		    (r_ptr->flags7 & RF7_CAN_FLY))
 			return TRUE;
 		else

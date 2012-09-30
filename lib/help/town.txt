@@ -257,6 +257,8 @@ The Magic User's Shop ("6")
 The Black Market ("7")
      The Black Market will sell and buy anything at extortionate
      prices. However, it occasionally has VERY good items in it. The
+     The Black Market may also sometimes sell items in stacks making it
+     easier to purchase useful items in bulk. Unfortunately, the
      shopkeepers are not known for their tolerance...
 
 Your Home ("8")
@@ -321,12 +323,16 @@ take other forms. If you failed, you will receive a damning review of
 your performance. Note that you may not request another quest from that
 person until you have collected your reward or reported your failure.
 
+Note that to avoid some ugly abuses available to players, the Genocide,
+Mass-Genocide and *Destruction* spells are prevented from working
+inside fixed quests.
+
 
 --
 Original   : (??)
 Updated    : (??)
 Updated    : Zangband DevTeam
-Last update: January 13, 2000
+Last update: May 29, 2000
 
 
 ***** Begin Hyperlinks

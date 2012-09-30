@@ -1,4 +1,4 @@
-# CVS: Last edit by $Author: rr9 $ on $Date: 2000/05/28 15:07:47 $
+# CVS: Last edit by $Author: sfuerst $ on $Date: 2000/05/06 01:45:53 $
 # File: Makefile.lsl
 
 # Purpose: Makefile for Linux + SVGA library
@@ -13,7 +13,7 @@ SRCS = \
   store.c birth.c load.c \
   wizard1.c wizard2.c grid.c streams.c rooms.c \
   generate.c dungeon.c init1.c init2.c \
-  effects.c racial.c notes.c \
+  effects.c racial.c notes.c\
   artifact.c mutation.c flavor.c spells3.c \
   mspells1.c mspells2.c scores.c mind.c \
   bldg.c obj_kind.c wild.c avatar.c\
@@ -29,7 +29,7 @@ OBJS = \
   store.o birth.o load.o \
   wizard1.o wizard2.o grid.o streams.o rooms.o \
   generate.o dungeon.o init1.o init2.o \
-  effects.o racial.o notes.o \
+  effects.o racial.o notes.o\
   artifact.o mutation.o flavor.o spells3.o \
   mspells1.o mspells2.o scores.o mind.o \
   bldg.o obj_kind.o wild.o avatar.o\

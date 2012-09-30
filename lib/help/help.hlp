@@ -8,16 +8,15 @@ Please choose one of the following online help files:
     (3) The Town and Wilderness        (town.hlp)
     (4) The Dungeon                    (dungeon.hlp)
     (5) Zangband Objects               (objects.hlp)
-    (6) Attacking Monsters             (attack.hlp)
-    (7) Defending Yourself             (defend.hlp)
-    (8) Zangband Magic System          (magic.hlp)
-    (9) Zangband Commands              (command.hlp)
-    (a) Zangband Options               (option.hlp)
-    (b) User Preference Files          (pref.hlp)
-    (c) The Zangband Newbie Guide      (tang.txt)
-    (d) Zangband Spoilers              (spoiler.hlp)
-
-    (?) Help System Commands           (helpinfo.txt)
+    (6) Zangband Monsters              (monster.hlp)
+    (7) Attacking Monsters             (attack.hlp)
+    (8) Defending Yourself             (defend.hlp)
+    (9) Zangband Magic System          (magic.hlp)
+    (a) Zangband Commands              (command.hlp)
+    (b) Zangband Options               (option.hlp)
+    (c) User Preference Files          (pref.hlp)
+    (d) The Zangband Newbie Guide      (tang.txt)
+    (e) Zangband Spoilers              (spoiler.hlp)
 
 
 ***** [0] general.hlp
@@ -26,11 +25,12 @@ Please choose one of the following online help files:
 ***** [3] town.hlp
 ***** [4] dungeon.hlp
 ***** [5] objects.hlp
-***** [6] attack.hlp
-***** [7] defend.hlp
-***** [8] magic.hlp
-***** [9] command.hlp
-***** [a] option.hlp
-***** [b] pref.hlp
-***** [c] tang.txt
-***** [d] spoiler.hlp
+***** [6] monster.hlp
+***** [7] attack.hlp
+***** [8] defend.hlp
+***** [9] magic.hlp
+***** [a] command.hlp
+***** [b] option.hlp
+***** [c] pref.hlp
+***** [d] tang.txt
+***** [e] spoiler.hlp

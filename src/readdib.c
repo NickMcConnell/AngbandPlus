@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 2000/05/18 17:29:15 $ */
+/* CVS: Last edit by $Author: rr9 $ on $Date: 2000/05/22 15:19:29 $ */
 /* File: readbits.c */
 
 /*
@@ -100,7 +100,7 @@ static HPALETTE PASCAL NEAR MakeDIBPalette(LPBITMAPINFOHEADER lpInfo)
 		npPal = (PLOGPALETTE)LocalAlloc(LMEM_FIXED, sizeof(LOGPALETTE) +
 		                                 (WORD)lpInfo->biClrUsed * sizeof(PALETTEENTRY));
 		if (!npPal)
-			return(FALSE);
+			return (FALSE);
 
 		npPal->palVersion = 0x300;
 		npPal->palNumEntries = (WORD)lpInfo->biClrUsed;
@@ -119,7 +119,7 @@ static HPALETTE PASCAL NEAR MakeDIBPalette(LPBITMAPINFOHEADER lpInfo)
 
 		hLogPal = CreatePalette((LPLOGPALETTE)npPal);
 		LocalFree((HANDLE)npPal);
-		return(hLogPal);
+		return (hLogPal);
 	}
 
 	/*
@@ -129,7 +129,7 @@ static HPALETTE PASCAL NEAR MakeDIBPalette(LPBITMAPINFOHEADER lpInfo)
 	 */
 	else
 	{
-		return(GetStockObject(DEFAULT_PALETTE));
+		return (GetStockObject(DEFAULT_PALETTE));
 	}
 }
 
@@ -177,7 +177,7 @@ static BOOL NEAR PASCAL MakeBitmapAndPalette(HDC hDC, HANDLE hDIB,
 			result = TRUE;
 		}
 	}
-	return(result);
+	return (result);
 }
 
 
@@ -338,6 +338,6 @@ ErrExit2:
 	}
 
 	_lclose(fh);
-	return(result);
+	return (result);
 }
 

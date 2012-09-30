@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 2000/08/02 11:47:23 $ */
+/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/06/17 00:41:10 $ */
 /* File: wizard2.c */
 
 /* Purpose: Wizard commands */
@@ -106,11 +106,18 @@ static void do_cmd_summon_horde(void)
 {
 	int wy = py, wx = px;
 	int attempts = 1000;
+	cave_type *c_ptr;
+
 
 	while (--attempts)
 	{
 		scatter(&wy, &wx, py, px, 3, 0);
-		if (cave_naked_bold(wy, wx)) break;
+
+		/* paranoia */
+		if (!in_bounds2(wy, wx)) continue;
+
+		c_ptr = area(wy, wx);
+		if (cave_naked_grid(c_ptr)) break;
 	}
 
 	(void)alloc_horde(wy, wx);
@@ -166,9 +173,9 @@ static void prt_alloc(byte tval, byte sval, int row, int col)
 	alloc_entry *table = alloc_kind_table;
 
 	/* Wipe the tables */
-	(void) C_WIPE(rarity, MAX_DEPTH, u32b);
-	(void) C_WIPE(total, MAX_DEPTH, u32b);
-	(void) C_WIPE(display, 20, u32b);
+	(void)C_WIPE(rarity, MAX_DEPTH, u32b);
+	(void)C_WIPE(total, MAX_DEPTH, u32b);
+	(void)C_WIPE(display, 20, u32b);
 
 	/* Scan all entries */
 	for (i = 0; i < MAX_DEPTH; i++)
@@ -400,20 +407,20 @@ static void do_cmd_wiz_feature(int feat)
 		}
 
 		/* Try to place a new feature */
-		if (cave[y][x].feat == feat) continue;
+		if (area(y, x)->feat == feat) continue;
 
 		/* Okay */
 		break;
 	}
 
 	/* Nuke objects */
-	delete_object_idx(cave[y][x].o_idx);
+	delete_object_idx(area(y, x)->o_idx);
 
 	/* Nuke monsters */
-	delete_monster_idx(cave[y][x].m_idx);
+	delete_monster_idx(area(y, x)->m_idx);
 
 	/* Forget this grid */
-	cave[y][x].info &= ~(CAVE_MARK);
+	area(y, x)->info &= ~(CAVE_MARK);
 
 	/* Place the feature */
 	cave_set_feat(y, x, feat);
@@ -422,6 +429,18 @@ static void do_cmd_wiz_feature(int feat)
 	p_ptr->update |= (PU_VIEW | PU_MONSTERS);
 }
 
+/* Learn the whole wilderness map */
+static void learn_map(void)
+{
+	int i, j;
+	for (i = 0; i < max_wild; i++)
+	{
+		for (j = 0; j < max_wild; j++)
+		{
+			wild[j][i].done.info |= WILD_INFO_SEEN;
+		}
+	}
+}
 
 /*
  * Wizard routines for creating objects		-RAK-
@@ -1484,6 +1503,8 @@ static void do_cmd_wiz_named(int r_idx, bool slp)
 {
 	int i, x, y;
 
+	cave_type *c_ptr;
+
 	/* Paranoia */
 	/* if (!r_idx) return; */
 
@@ -1498,8 +1519,12 @@ static void do_cmd_wiz_named(int r_idx, bool slp)
 		/* Pick a location */
 		scatter(&y, &x, py, px, d, 0);
 
+		/* paranoia */
+		if (!in_bounds2(y, x)) continue;
+
 		/* Require empty grids */
-		if (!cave_empty_bold(y, x)) continue;
+		c_ptr = area(y, x);
+		if (!cave_empty_grid(c_ptr)) continue;
 
 		/* Place it (allow groups) */
 		if (place_monster_aux(y, x, r_idx, slp, TRUE, FALSE, FALSE)) break;
@@ -1514,7 +1539,7 @@ static void do_cmd_wiz_named(int r_idx, bool slp)
  */
 static void do_cmd_wiz_named_friendly(int r_idx, bool slp)
 {
-	(void) summon_named_creature(py, px, r_idx, slp, TRUE, TRUE);
+	(void)summon_named_creature(py, px, r_idx, slp, TRUE, TRUE);
 }
 
 
@@ -1615,6 +1640,277 @@ extern void do_cmd_spoilers(void);
 extern void do_cmd_debug(void);
 
 
+/*
+ * The following code fragment outputs a matlab
+ * 'm' file that can be used to balance the
+ * distribution of monsters in the dungeon
+ */
+#ifdef MATLAB
+
+
+/*
+ * This function outputs the values of a flag
+ * to the m file
+ */
+static void outflagmatlab(u32b flag, FILE *fff)
+{
+	int i, j;
+
+	char buf[3];
+
+	i = 1;
+	for (j = 0; j < 32; j++, i<<=1)
+	{
+		/* If the bit is set */
+		if (flag & i)
+		{
+			sprintf(buf, "1 ");
+		}
+		else
+		{
+			sprintf(buf, "0 ");
+		}
+
+		fprintf(fff, buf);
+	}
+	fprintf(fff, "...\n");
+}
+
+/*
+ * This function outputs the values of a flag.
+ * However, the flag is scaled by a parameter in
+ * some cases.
+ * MEGA HACK - on every bit except those in first
+ * byte.  (to match with the monster breaths)
+ * This is wrong with the other flags... but it seems
+ * to produce a fairly good fit to the data anyway.
+ */
+static void outflagmatlab2(u32b flag, FILE *fff, int hp)
+{
+	int i, j;
+
+	char buf[10];
+
+	i = 1;
+	for (j = 0; j < 32; j++, i<<=1)
+	{
+		/* If the bit is set */
+		if (flag & i)
+		{
+			if (i < 256)
+			{
+				sprintf(buf, "1 ");
+			}
+			else
+			{
+				/* A breath - scale it by the hp */
+				sprintf(buf, "%d ", hp);
+			}
+		}
+		else
+		{
+			sprintf(buf, "0 ");
+		}
+
+		fprintf(fff, buf);
+	}
+	fprintf(fff, "...\n");
+}
+
+
+/*
+ * This function outputs the blows table for a monster.
+ * The results are scaled by the damage x2.
+ */
+static void outblowsmatlab(monster_race *r_ptr, char *buf2)
+{
+	int i, effect;
+	int effects[32];
+
+	/* Clear effects list */
+	for (i = 0; i < 32; i++)
+	{
+		effects[i] = 0;
+	}
+
+	/* For each blow */
+	for (i = 0; i < 4; i++)
+	{
+		/* Only count real blows */
+		if (!r_ptr->blow[i].method) continue;
+
+		/* damage x2 */
+		effect = r_ptr->blow[i].d_dice * (r_ptr->blow[i].d_side + 1);
+
+		/* Count "weird" effects */
+		if (effect == 0) effect = 1;
+
+		effects[r_ptr->blow[i].effect] += effect;
+	}
+
+	/* Output effects list */
+	for (i = 0; i < 32; i++)
+	{
+		sprintf(buf2, "%s %d", buf2, effects[i]);
+	}
+}
+
+
+/*
+ * This function returns the "power" of a monster
+ * existing on a level.
+ * This function was calibrated by running several
+ * warriors and mages to stat depth an beyond by John H.
+ *
+ * clevel 0->35   dlevel 0->40
+ *       35->50         40->70
+ *       50->55*        70->100
+ * *Note 55 because the player finds artifacts.
+ * This seems to work well.  The inhomogeneous distribution
+ * of new monsters / level is made nice and flat.
+ */
+static int monster_power_mat(int level)
+{
+	if (level < 40) return (35 * level / 4);
+	if (level < 70) return (5 * (level - 40) + 350);
+	return (((level - 70) * 5) / 3 + 500);
+}
+
+/*
+ * This function outputs a MATLAB 'm'file that can
+ * be used to balance the monster distribution in the
+ * game.
+ *
+ * Run this function, then do the following:
+ * 1) copy monmatlb.m from the /lib/save directory to
+ * 	a directory in the matlab path.
+ * 2) type "monmatlb" in MATLAB.
+ * 3) The matrix is called xx, the monster depths are y,
+ *	the monster xp values are xp.
+ * 4) Now the balanced values are calculated:
+ * 5) Type: "a1=xx\y';"
+ * 6) Type: "r1=xx*a1;"
+ * 7) Type: "level=r1*100/550;"
+ * 8) Type: "i=20:884;"  (Note these are the values of min
+ *	and max used below in the code.
+ * 9) Type: "[i' round(level)]" MATLAB should now print out a table
+ *	of monster number vs new monster depth.
+ * 10) To work out the new xp values:
+ * 11) Type: "xp2=xp.^(0.15);"  This function scales the xp so
+ *	that it seems to be linear with the new monster distribution.
+ * 12) Type: "a2=xx\xp2';"
+ * 13) Type: "r2=xx*a2;"
+ * 14) Type: "xp3=round(r2.^(1/0.15))" MATLAB should now print a list
+ *	of the new xp values... use your favourite editor to move this
+ *	list next to the old one.  NOTE: My version of matlab cannot
+ *	print out the monster number next to the xp without "running
+ *	off the top of the screen" so that you cannot copy the result.
+ */
+void output_monster_matlab(void)
+{
+	int i, max, min;
+	monster_race *r_ptr;
+	char buf[2048], buf2[50];
+	unsigned int hp;
+	FILE *fff;
+
+	/* Create the file name */
+	path_build(buf, 500, ANGBAND_DIR_SAVE, "monmatlb.m");
+
+	/* Drop priv's */
+	safe_setuid_drop();
+
+	/* Open file */
+	fff = my_fopen(buf, "w");
+
+	/* Grab priv's */
+	safe_setuid_grab();
+
+	/* Failure */
+	if (!fff) return;
+
+	/* Add starting stuff */
+	fprintf(fff, "xx=[];\n");
+
+	/* Min and max monsters to output in the matrix */
+	max = max_r_idx;
+	min = 20;
+
+	for (i = min; i < max; i++)
+	{
+		fprintf(fff, "x=[");
+
+		/* Get race */
+		r_ptr =  &r_info[i];
+
+		/* Hitpoints x2 */
+		hp = r_ptr->hdice * (r_ptr->hside + 1);
+		if (r_ptr->flags1 & RF1_FORCE_MAXHP)
+		{
+			/* hp x2 */
+			hp = r_ptr->hdice * r_ptr->hside * 2;
+		}
+
+		/* Output the flags one by one */
+		outflagmatlab(r_ptr->flags1 & ~(0x00000020F), fff);
+		outflagmatlab(r_ptr->flags2, fff);
+		outflagmatlab(r_ptr->flags3, fff);
+		outflagmatlab2(r_ptr->flags4, fff, hp);
+		outflagmatlab2(r_ptr->flags5, fff, r_ptr->level);
+		outflagmatlab2(r_ptr->flags6, fff, r_ptr->level);
+		outflagmatlab2(r_ptr->flags8, fff, r_ptr->level);
+
+		/* Numerical flags */
+		sprintf(buf2, "%d", r_ptr->speed);
+
+		sprintf(buf2, "%s %d", buf2, hp);
+		sprintf(buf2, "%s %d", buf2, r_ptr->aaf);
+		sprintf(buf2, "%s %d", buf2, r_ptr->ac);
+		sprintf(buf2, "%s %d", buf2, r_ptr->sleep);
+		sprintf(buf2, "%s %d", buf2, r_ptr->freq_inate + r_ptr->freq_spell);
+
+		/* The blows table */
+		outblowsmatlab(r_ptr, buf2);
+		sprintf(buf2, "%s];\nxx=[xx;x];\n", buf2);
+
+		fprintf(fff, buf2);
+	}
+
+	/* Output the power information */
+	fprintf(fff, "y=[");
+
+	for (i = min; i < max; i++)
+	{
+		/* Get race */
+		r_ptr =  &r_info[i];
+
+		/* Output the level */
+		sprintf(buf2, "%d ",  monster_power_mat(r_ptr->level));
+
+		fprintf(fff, buf2);
+	}
+
+	fprintf(fff, "];\n");
+
+	/* Output the XP information */
+	fprintf(fff, "xp=[");
+
+	for (i = min; i < max; i++)
+	{
+		/* Get race */
+		r_ptr =  &r_info[i];
+
+		/* Output the experience for a kill */
+		sprintf(buf2, "%ld ", r_ptr->mexp);
+
+		fprintf(fff, buf2);
+	}
+
+	fprintf(fff, "];");
+
+	my_fclose(fff);
+}
+#endif /* MATLAB */
 
 /*
  * Ask for and parse a "debug command"
@@ -1649,6 +1945,11 @@ void do_cmd_debug(void)
 
 #endif /* ALLOW_SPOILERS */
 
+#ifdef MATLAB
+		case '=':
+		output_monster_matlab();
+		break;
+#endif  /* MATLAB */
 
 		/* Hack -- Help */
 		case '?':
@@ -1719,6 +2020,11 @@ void do_cmd_debug(void)
 		/* Identify */
 		case 'i':
 		(void)ident_spell();
+		break;
+
+		/* Monster Integrity */
+		case 'I':
+		(void)test_mon_wild_integrity();
 		break;
 
 		/* Go up or down in the dungeon */
@@ -1797,13 +2103,19 @@ void do_cmd_debug(void)
 		/* Make every dungeon square "known" to test streamers -KMW- */
 		case 'u':
 		{
-			for (y = 0; y < cur_hgt; y++)
+			/* Only make squares glow in dungeon. */
+			/* Daytime in the wilderness does this for you outside. */
+			if (dun_level)
 			{
-				for (x = 0; x < cur_wid; x++)
+				for (y = 0; y < cur_hgt; y++)
 				{
-					cave[y][x].info |= (CAVE_GLOW | CAVE_MARK);
+					for (x = 0; x < cur_wid; x++)
+					{
+						area(y, x)->info |= (CAVE_GLOW | CAVE_MARK);
+					}
 				}
 			}
+
 			wiz_lite();
 			break;
 		}
@@ -1827,7 +2139,18 @@ void do_cmd_debug(void)
 
 		/* Wizard Light the Level */
 		case 'w':
-		wiz_lite();
+			if (dun_level)
+			{
+				wiz_lite();
+			}
+			else
+			{
+				learn_map();
+			}
+		break;
+
+		case 'W':
+		test_decision_tree();
 		break;
 
 		/* Increase Experience */

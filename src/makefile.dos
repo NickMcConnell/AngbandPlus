@@ -1,4 +1,4 @@
-# CVS: Last edit by $Author: rr9 $ on $Date: 2000/05/28 15:07:46 $
+# CVS: Last edit by $Author: sfuerst $ on $Date: 2000/05/18 10:15:58 $
 # File: Makefile.dos
 
 # Purpose: Makefile support for "main-dos.c"
@@ -31,8 +31,7 @@ OBJS = \
 	effects.o files.o flavor.o generate.o \
 	grid.o init1.o init2.o load.o \
 	melee1.o melee2.o mind.o monster1.o \
-	monster2.o mspells1.o mspells2.o mutation.o \
-	notes.o \
+	monster2.o mspells1.o mspells2.o mutation.o notes.o\
 	obj_kind.o object1.o object2.o racial.o \
 	rooms.o save.o scores.o script.o \
 	spells1.o spells2.o spells3.o store.o \

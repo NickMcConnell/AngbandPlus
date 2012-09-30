@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/08/11 10:23:30 $ */
+/* CVS: Last edit by $Author: rr9 $ on $Date: 2000/06/19 15:38:13 $ */
 /* File: load.c */
 
 /* Purpose: support for loading savefiles -BEN- */
@@ -506,6 +506,8 @@ static void rd_item(object_type *o_ptr)
 	byte old_dd;
 	byte old_ds;
 
+	byte tmpbyte;
+
 	s32b old_cost;
 
 	u32b f1, f2, f3;
@@ -518,10 +520,20 @@ static void rd_item(object_type *o_ptr)
 	/* Kind */
 	rd_s16b(&o_ptr->k_idx);
 
-	/* Location */
-	rd_byte(&o_ptr->iy);
-	rd_byte(&o_ptr->ix);
-
+	if (sf_version < 6)
+	{
+		/* Location */
+		rd_byte(&tmpbyte);
+		o_ptr->iy = tmpbyte;
+		rd_byte(&tmpbyte);
+		o_ptr->ix = tmpbyte;
+	}
+	else
+	{
+		/* Location */
+		rd_s16b(&o_ptr->iy);
+		rd_s16b(&o_ptr->ix);
+	}
 	/* Type/Subtype */
 	rd_byte(&o_ptr->tval);
 	rd_byte(&o_ptr->sval);
@@ -973,8 +985,21 @@ static void rd_monster(monster_type *m_ptr)
 	rd_s16b(&m_ptr->r_idx);
 
 	/* Read the other information */
-	rd_byte(&m_ptr->fy);
-	rd_byte(&m_ptr->fx);
+	if (sf_version < 6)
+	{
+		/* Location */
+		rd_byte(&tmp8u);
+		m_ptr->fy = tmp8u;
+		rd_byte(&tmp8u);
+		m_ptr->fx = tmp8u;
+	}
+	else
+	{
+		/* Location */
+		rd_s16b(&m_ptr->fy);
+		rd_s16b(&m_ptr->fx);
+	}
+
 	rd_s16b(&m_ptr->hp);
 	rd_s16b(&m_ptr->maxhp);
 	rd_s16b(&m_ptr->csleep);
@@ -1118,6 +1143,21 @@ static errr rd_store(int town_number, int store_number)
 
 	/* Extract the owner (see above) */
 	st_ptr->owner = (older_than(2, 7, 8) ? convert_owner[own] : own);
+
+	/*
+	 * Hack - allocate store if it has stock
+	 * Note that this will change the order that
+	 * stores are removed from the cache.
+	 * The resulting list can be sorted... but it
+	 * doesn't really matter.
+	 */
+	if (num)
+	{
+		(void)allocate_store(st_ptr);
+
+		/* Save store type */
+		st_ptr->type = store_number;
+	}
 
 	/* Read the items */
 	for (j = 0; j < num; j++)
@@ -1577,12 +1617,12 @@ static void rd_extra(void)
 		}
 		else
 		{
-			for (i = 0; i < MAX_PLAYER_VIRTUES; i++)
+			for (i = 0; i < 8; i++)
 			{
 				rd_s16b(&p_ptr->virtues[i]);
 			}
 
-			for (i = 0; i < MAX_PLAYER_VIRTUES; i++)
+			for (i = 0; i < 8; i++)
 			{
 				rd_s16b(&p_ptr->vir_types[i]);
 			}
@@ -1599,9 +1639,9 @@ static void rd_extra(void)
 	rd_byte(&tmp8u); /* oops */
 	rd_byte(&tmp8u); /* oops */
 	rd_byte(&tmp8u); /* oops */
-	rd_byte(&p_ptr->searching);
-	rd_byte(&maximize_mode);
-	rd_byte(&preserve_mode);
+	rd_byte((byte*) &p_ptr->searching);
+	rd_byte((byte*) &maximize_mode);
+	rd_byte((byte*) &preserve_mode);
 	rd_byte(&tmp8u);
 
 	/* Future use */
@@ -1744,6 +1784,7 @@ static void rd_messages(void)
 {
 	int i;
 	char buf[128];
+	byte tmp8u;
 
 	s16b num;
 
@@ -1756,8 +1797,14 @@ static void rd_messages(void)
 		/* Read the message */
 		rd_string(buf, 128);
 
+		/* Read the color */
+		if (sf_version > 10)
+			rd_byte(&tmp8u);
+		else
+			tmp8u = TERM_WHITE;
+
 		/* Save the message */
-		message_add(buf);
+		message_add(buf, tmp8u);
 	}
 }
 
@@ -1816,183 +1863,185 @@ static errr rd_dungeon_aux(void)
 	ymax = cur_hgt;
 	xmax = cur_wid;
 
-	/* Read in the actual "cave" data */
-	total_count = 0;
-	xchar = ychar = 0;
-
-	/* Read until done */
-	while (total_count < ymax * xmax)
+	if (dun_level)
 	{
-		/* Extract some RLE info */
-		rd_byte(&count);
-		rd_byte(&tmp8u);
+		/* Read in the actual "cave" data */
+		total_count = 0;
+		xchar = ychar = 0;
 
-		/* Apply the RLE info */
-		for (i = count; i > 0; i--)
+		/* Read until done */
+		while (total_count < ymax * xmax)
 		{
-			/* Prevent over-run */
-			if ((ychar >= ymax) || (xchar >= xmax))
+			/* Extract some RLE info */
+			rd_byte(&count);
+			rd_byte(&tmp8u);
+
+			/* Apply the RLE info */
+			for (i = count; i > 0; i--)
 			{
-				note("Illegal location!");
-				return (81);
-			}
-
-			/* Access the cave */
-			c_ptr = &cave[ychar][xchar];
-
-			/* Hack -- Clear all the flags */
-			c_ptr->info = 0x00;
-
-			/* Hack -- Clear feature */
-			c_ptr->feat = FEAT_NONE;
-
-			/* Special */
-			c_ptr->feat = 0;
-
-			/* Old method */
-			if (older_than(2, 7, 5))
-			{
-				/* Extract the old "info" flags */
-				if ((tmp8u >> 4) & 0x1) c_ptr->info |= (CAVE_ROOM);
-				if ((tmp8u >> 5) & 0x1) c_ptr->info |= (CAVE_MARK);
-				if ((tmp8u >> 6) & 0x1) c_ptr->info |= (CAVE_GLOW);
-
-				/* Hack -- process old style "light" */
-				if (c_ptr->info & (CAVE_GLOW))
+				/* Prevent over-run */
+				if ((ychar >= ymax) || (xchar >= xmax))
 				{
-					c_ptr->info |= (CAVE_MARK);
+					note("Illegal location!");
+					return (81);
 				}
 
-				/* Mega-Hack -- light all walls */
-				else if ((tmp8u & 0x0F) >= 12)
-				{
-					c_ptr->info |= (CAVE_GLOW);
-				}
+				/* Access the cave */
+				c_ptr = area(ychar,xchar);
 
-				/* Process the "floor type" */
-				switch (tmp8u & 0x0F)
+				/* Hack -- Clear all the flags */
+				c_ptr->info = 0x00;
+
+				/* Hack -- Clear feature */
+				c_ptr->feat = FEAT_NONE;
+
+				/* Special */
+				c_ptr->feat = 0;
+
+				/* Old method */
+				if (older_than(2, 7, 5))
 				{
-					/* Lite Room Floor */
-					case 2:
+					/* Extract the old "info" flags */
+					if ((tmp8u >> 4) & 0x1) c_ptr->info |= (CAVE_ROOM);
+					if ((tmp8u >> 5) & 0x1) c_ptr->info |= (CAVE_MARK);
+					if ((tmp8u >> 6) & 0x1) c_ptr->info |= (CAVE_GLOW);
+
+					/* Hack -- process old style "light" */
+					if (c_ptr->info & (CAVE_GLOW))
+					{
+						c_ptr->info |= (CAVE_MARK);
+					}
+
+					/* Mega-Hack -- light all walls */
+					else if ((tmp8u & 0x0F) >= 12)
 					{
 						c_ptr->info |= (CAVE_GLOW);
 					}
 
-					/* Dark Room Floor */
-					case 1:
+					/* Process the "floor type" */
+					switch (tmp8u & 0x0F)
 					{
-						c_ptr->info |= (CAVE_ROOM);
-						break;
-					}
+						/* Lite Room Floor */
+						case 2:
+						{
+							c_ptr->info |= (CAVE_GLOW);
+						}
 
-					/* Lite Vault Floor */
-					case 4:
-					{
-						c_ptr->info |= (CAVE_GLOW);
-					}
+						/* Dark Room Floor */
+						case 1:
+						{
+							c_ptr->info |= (CAVE_ROOM);
+							break;
+						}
 
-					/* Dark Vault Floor */
-					case 3:
-					{
-						c_ptr->info |= (CAVE_ROOM);
-						c_ptr->info |= (CAVE_ICKY);
-						break;
-					}
+						/* Lite Vault Floor */
+						case 4:
+						{
+							c_ptr->info |= (CAVE_GLOW);
+						}
 
-					/* Corridor Floor */
-					case 5:
-					{
-						break;
-					}
+						/* Dark Vault Floor */
+						case 3:
+						{
+							c_ptr->info |= (CAVE_ROOM);
+							c_ptr->info |= (CAVE_ICKY);
+							break;
+						}
 
-					/* Perma-wall (assume "solid") XXX XXX XXX */
-					case 15:
-					{
-						c_ptr->feat = FEAT_PERM_SOLID;
-						break;
-					}
+						/* Corridor Floor */
+						case 5:
+						{
+							break;
+						}
 
-					/* Granite wall (assume "basic") XXX XXX XXX */
-					case 12:
-					{
-						c_ptr->feat = FEAT_WALL_EXTRA;
-						break;
-					}
+						/* Perma-wall (assume "solid") XXX XXX XXX */
+						case 15:
+						{
+							c_ptr->feat = FEAT_PERM_SOLID;
+							break;
+						}
 
-					/* Quartz vein */
-					case 13:
-					{
-						c_ptr->feat = FEAT_QUARTZ;
-						break;
-					}
+						/* Granite wall (assume "basic") XXX XXX XXX */
+						case 12:
+						{
+							c_ptr->feat = FEAT_WALL_EXTRA;
+							break;
+						}
 
-					/* Magma vein */
-					case 14:
-					{
-						c_ptr->feat = FEAT_MAGMA;
-						break;
+						/* Quartz vein */
+						case 13:
+						{
+							c_ptr->feat = FEAT_QUARTZ;
+							break;
+						}
+
+						/* Magma vein */
+						case 14:
+						{
+							c_ptr->feat = FEAT_MAGMA;
+							break;
+						}
 					}
 				}
-			}
 
-			/* Newer method */
-			else
-			{
-				/* The old "vault" flag */
-				if (tmp8u & (OLD_GRID_ICKY)) c_ptr->info |= (CAVE_ICKY);
+				/* Newer method */
+				else
+				{
+					/* The old "vault" flag */
+					if (tmp8u & (OLD_GRID_ICKY)) c_ptr->info |= (CAVE_ICKY);
 
-				/* The old "room" flag */
-				if (tmp8u & (OLD_GRID_ROOM)) c_ptr->info |= (CAVE_ROOM);
+					/* The old "room" flag */
+					if (tmp8u & (OLD_GRID_ROOM)) c_ptr->info |= (CAVE_ROOM);
 
-				/* The old "glow" flag */
-				if (tmp8u & (OLD_GRID_GLOW)) c_ptr->info |= (CAVE_GLOW);
+					/* The old "glow" flag */
+					if (tmp8u & (OLD_GRID_GLOW)) c_ptr->info |= (CAVE_GLOW);
 
-				/* The old "mark" flag */
-				if (tmp8u & (OLD_GRID_MARK)) c_ptr->info |= (CAVE_MARK);
+					/* The old "mark" flag */
+					if (tmp8u & (OLD_GRID_MARK)) c_ptr->info |= (CAVE_MARK);
 
-				/* The old "wall" flags -- granite wall */
-				if ((tmp8u & (OLD_GRID_WALL_MASK)) ==
+					/* The old "wall" flags -- granite wall */
+					if ((tmp8u & (OLD_GRID_WALL_MASK)) ==
 				    OLD_GRID_WALL_GRANITE)
-				{
-					/* Permanent wall (assume "solid") XXX XXX XXX */
-					if (tmp8u & (OLD_GRID_PERM)) c_ptr->feat = FEAT_PERM_SOLID;
+					{
+						/* Permanent wall (assume "solid") XXX XXX XXX */
+						if (tmp8u & (OLD_GRID_PERM)) c_ptr->feat = FEAT_PERM_SOLID;
 
-					/* Normal wall (assume "basic") XXX XXX XXX */
-					else c_ptr->feat = FEAT_WALL_EXTRA;
+						/* Normal wall (assume "basic") XXX XXX XXX */
+						else c_ptr->feat = FEAT_WALL_EXTRA;
+					}
+
+					/* The old "wall" flags -- quartz vein */
+					else if ((tmp8u & (OLD_GRID_WALL_MASK)) ==
+						 OLD_GRID_WALL_QUARTZ)
+					{
+						/* Assume no treasure */
+						c_ptr->feat = FEAT_QUARTZ;
+					}
+
+					/* The old "wall" flags -- magma vein */
+					else if ((tmp8u & (OLD_GRID_WALL_MASK)) ==
+						 OLD_GRID_WALL_MAGMA)
+					{
+						/* Assume no treasure */
+						c_ptr->feat = FEAT_MAGMA;
+					}
 				}
 
-				/* The old "wall" flags -- quartz vein */
-				else if ((tmp8u & (OLD_GRID_WALL_MASK)) ==
-					 OLD_GRID_WALL_QUARTZ)
-				{
-					/* Assume no treasure */
-					c_ptr->feat = FEAT_QUARTZ;
-				}
+				/* Advance the cave pointers */
+				xchar++;
 
-				/* The old "wall" flags -- magma vein */
-				else if ((tmp8u & (OLD_GRID_WALL_MASK)) ==
-					 OLD_GRID_WALL_MAGMA)
+				/* Wrap to the next line */
+				if (xchar >= xmax)
 				{
-					/* Assume no treasure */
-					c_ptr->feat = FEAT_MAGMA;
+					xchar = 0;
+					ychar++;
 				}
 			}
 
-			/* Advance the cave pointers */
-			xchar++;
-
-			/* Wrap to the next line */
-			if (xchar >= xmax)
-			{
-				xchar = 0;
-				ychar++;
-			}
+			/* Advance the count */
+			total_count += count;
 		}
-
-		/* Advance the count */
-		total_count += count;
 	}
-
 
 	/* Read the item count */
 	rd_u16b(&limit);
@@ -2027,7 +2076,7 @@ static errr rd_dungeon_aux(void)
 
 
 		/* Access the item location */
-		c_ptr = &cave[q_ptr->iy][q_ptr->ix];
+		c_ptr = area(q_ptr->iy,q_ptr->ix);
 
 
 		/* Hack -- convert old "dungeon" objects */
@@ -2386,14 +2435,14 @@ static errr rd_dungeon_aux(void)
 		q_ptr = &forge;
 
 		/* Clear the monster */
-		(void) WIPE(q_ptr, monster_type);
+		(void)WIPE(q_ptr, monster_type);
 
 		/* Read the monster */
 		rd_monster(q_ptr);
 
 
 		/* Access grid */
-		c_ptr = &cave[q_ptr->fy][q_ptr->fx];
+		c_ptr = area(q_ptr->fy,q_ptr->fx);
 
 		/* Access race */
 		r_ptr = &r_info[q_ptr->r_idx];
@@ -2435,7 +2484,7 @@ static errr rd_dungeon_aux(void)
 	{
 		for (x = 0; x < cur_wid; x++)
 		{
-			cave_type *c_ptr = &cave[y][x];
+			cave_type *c_ptr = area(y,x);
 
 			/* Hack -- convert nothing-ness into floors */
 			if (!c_ptr->feat) c_ptr->feat = FEAT_FLOOR;
@@ -2453,6 +2502,229 @@ static errr rd_dungeon_aux(void)
 
 
 /*
+ * Load dungeon or wilderness map
+ */
+
+static void load_map(int ymax, int ymin, int xmax, int xmin)
+{
+	int i, y, x;
+	byte count;
+	byte tmp8u;
+	s16b tmp16s;
+	cave_type *c_ptr;
+
+	/*** Run length decoding ***/
+
+	/* Load the dungeon data */
+	for (x = xmin, y = ymin; y < ymax; )
+	{
+		/* Grab RLE info */
+		rd_byte(&count);
+		rd_byte(&tmp8u);
+
+		/* Apply the RLE info */
+		for (i = count; i > 0; i--)
+		{
+			/* Access the cave */
+			c_ptr = area(y,x);
+
+			/* Extract "info" */
+			c_ptr->info = tmp8u;
+
+			/* Advance/Wrap */
+			if (++x >= xmax)
+			{
+				/* Wrap */
+				x = xmin;
+
+				/* Advance/Wrap */
+				if (++y >= ymax) break;
+			}
+		}
+	}
+
+
+	/*** Run length decoding ***/
+
+	/* Load the dungeon data */
+	for (x = xmin, y = ymin; y < ymax; )
+	{
+		/* Grab RLE info */
+		rd_byte(&count);
+		rd_byte(&tmp8u);
+
+		/* Apply the RLE info */
+		for (i = count; i > 0; i--)
+		{
+			/* Access the cave */
+			c_ptr = area(y,x);
+
+			/* Extract "feat" */
+			c_ptr->feat = tmp8u;
+
+			/* Advance/Wrap */
+			if (++x >= xmax)
+			{
+				/* Wrap */
+				x = xmin;
+
+				/* Advance/Wrap */
+				if (++y >= ymax) break;
+			}
+		}
+	}
+
+
+	if (!z_older_than(2, 1, 3))
+	{
+		/*** Run length decoding ***/
+
+		/* Load the dungeon data */
+		for (x = xmin, y = ymin; y < ymax; )
+		{
+			/* Grab RLE info */
+			rd_byte(&count);
+			rd_byte(&tmp8u);
+
+			/* Apply the RLE info */
+			for (i = count; i > 0; i--)
+			{
+				/* Access the cave */
+				c_ptr = area(y,x);
+
+				/* Extract "feat" */
+				c_ptr->mimic = tmp8u;
+
+				/* Advance/Wrap */
+				if (++x >= xmax)
+				{
+					/* Wrap */
+					x = xmin;
+
+					/* Advance/Wrap */
+					if (++y >= ymax) break;
+				}
+			}
+		}
+
+		/*** Run length decoding ***/
+
+		/* Load the dungeon data */
+		for (x = xmin, y = ymin; y < ymax; )
+		{
+			/* Grab RLE info */
+			rd_byte(&count);
+			rd_s16b(&tmp16s);
+
+			/* Apply the RLE info */
+			for (i = count; i > 0; i--)
+			{
+				/* Access the cave */
+				c_ptr = area(y,x);
+
+				/* Extract "feat" */
+				c_ptr->f_idx = tmp16s;
+
+				/* Advance/Wrap */
+				if (++x >= xmax)
+				{
+					/* Wrap */
+					x = xmin;
+
+					/* Advance/Wrap */
+					if (++y >= ymax) break;
+				}
+			}
+		}
+	}
+}
+
+/*
+ * Size of the wilderness to load
+ */
+static	s32b wild_x_size;
+static	s32b wild_y_size;
+
+/*
+ * Load wilderness data
+ */
+static void load_wild_data(void)
+{
+	int i, j;
+	u16b tmp_u16b;
+	byte tmp_byte;
+
+	/* Load bounds */
+	rd_u16b(&wild_grid.y_max);
+	rd_u16b(&wild_grid.x_max);
+	rd_u16b(&wild_grid.y_min);
+	rd_u16b(&wild_grid.x_min);
+	rd_byte(&wild_grid.y);
+	rd_byte(&wild_grid.x);
+
+	/* Load cache status */
+	rd_byte(&wild_grid.cache_count);
+
+	/* Load wilderness seed */
+	rd_u32b(&wild_grid.wild_seed);
+
+	/* Load wilderness map */
+	for (i = 0; i < wild_x_size; i++)
+	{
+		for (j = 0; j < wild_y_size; j++)
+		{
+			if (sf_version < 8)
+			{
+				/* Terrain */
+				rd_u16b(&wild[j][i].done.wild);
+
+				/* Town / Dungeon / Specials */
+				rd_u16b(&tmp_u16b);
+				wild[j][i].done.town = (byte)tmp_u16b;
+
+				/* Info flag */
+				rd_byte(&wild[j][i].done.info);
+
+				/* Monster Gen type */
+				rd_byte(&tmp_byte);
+				wild[j][i].done.mon_gen = tmp_byte;
+			}
+			else
+			{
+				/* Changed size of data types. */
+
+				/* Terrain */
+				rd_u16b(&wild[j][i].done.wild);
+
+				/* Town / Dungeon / Specials */
+				rd_byte(&wild[j][i].done.town);
+
+				/* Info flag */
+				rd_byte(&wild[j][i].done.info);
+
+				/* Monster Gen type */
+				rd_byte(&wild[j][i].done.mon_gen);
+
+				/* Monster Probability */
+				rd_byte(&wild[j][i].done.mon_prob);
+			}
+		}
+	}
+
+	/* Allocate blocks around player */
+	for (i = 0; i < WILD_GRID_SIZE; i++)
+	{
+		for (j = 0; j < WILD_GRID_SIZE; j++)
+		{
+			/* Allocate block and link to the grid */
+			wild_grid.block_ptr[j][i] =
+				wild_cache[i + WILD_GRID_SIZE * j];
+		}
+	}
+}
+
+
+/*
  * Read the dungeon
  *
  * The monsters/objects must be loaded in the same order
@@ -2460,14 +2732,11 @@ static errr rd_dungeon_aux(void)
  */
 static errr rd_dungeon(void)
 {
-	int i, y, x;
-	int ymax, xmax;
-	byte count;
-	byte tmp8u;
-	s16b tmp16s;
+	int i;
+
 	u16b limit;
 	cave_type *c_ptr;
-
+	u16b dun_level_backup, px_back, py_back;
 
 	/*** Basic info ***/
 
@@ -2496,135 +2765,70 @@ static errr rd_dungeon(void)
 	{
 		return (rd_dungeon_aux());
 	}
-
-
-	/* Maximal size */
-	ymax = cur_hgt;
-	xmax = cur_wid;
-
-
-	/*** Run length decoding ***/
-
-	/* Load the dungeon data */
-	for (x = y = 0; y < ymax; )
+	else if (sf_version < 7)
 	{
-		/* Grab RLE info */
-		rd_byte(&count);
-		rd_byte(&tmp8u);
+		/* Make the wilderness */
+		dun_level_backup = dun_level;
+		dun_level = 0;
 
-		/* Apply the RLE info */
-		for (i = count; i > 0; i--)
+		/* Save player location */
+		px_back = px;
+		py_back = py;
+
+		create_wilderness();
+
+		/* Clear new monsters / objects */
+		wipe_o_list();
+		wipe_m_list();
+
+		/* Hack - do not load data into wilderness */
+		change_level(1);
+
+		dun_level = dun_level_backup;
+
+		/* if in the dungeon - restore the player location */
+		if (dun_level)
 		{
-			/* Access the cave */
-			c_ptr = &cave[y][x];
-
-			/* Extract "info" */
-			c_ptr->info = tmp8u;
-
-			/* Advance/Wrap */
-			if (++x >= xmax)
-			{
-				/* Wrap */
-				x = 0;
-
-				/* Advance/Wrap */
-				if (++y >= ymax) break;
-			}
+			px = px_back;
+			py = py_back;
 		}
+
+		/* Load dungeon map */
+		load_map(cur_hgt, 0, cur_wid, 0);
 	}
-
-
-	/*** Run length decoding ***/
-
-	/* Load the dungeon data */
-	for (x = y = 0; y < ymax; )
+	else
 	{
-		/* Grab RLE info */
-		rd_byte(&count);
-		rd_byte(&tmp8u);
+		/* Load wilderness data */
+		load_wild_data();
 
-		/* Apply the RLE info */
-		for (i = count; i > 0; i--)
+		if (dun_level)
 		{
-			/* Access the cave */
-			c_ptr = &cave[y][x];
+			change_level(dun_level);
 
-			/* Extract "feat" */
-			c_ptr->feat = tmp8u;
+			/* Load dungeon map */
+			load_map(cur_hgt, 0, cur_wid, 0);
 
-			/* Advance/Wrap */
-			if (++x >= xmax)
-			{
-				/* Wrap */
-				x = 0;
+			/* Set pointers to wilderness - but do not make towns */
+			change_level(0);
 
-				/* Advance/Wrap */
-				if (++y >= ymax) break;
-			}
+			/* Load wilderness map */
+			load_map(wild_grid.y_max, wild_grid.y_min,
+			         wild_grid.x_max, wild_grid.x_min);
+
+			change_level(dun_level);
 		}
-	}
-
-
-	if (!z_older_than(2, 1, 3))
-	{
-		/*** Run length decoding ***/
-
-		/* Load the dungeon data */
-		for (x = y = 0; y < ymax; )
+		else
 		{
-			/* Grab RLE info */
-			rd_byte(&count);
-			rd_byte(&tmp8u);
+			/* Hack - move to level without creating it */
+			dun_level = 1;
+			change_level(0);
 
-			/* Apply the RLE info */
-			for (i = count; i > 0; i--)
-			{
-				/* Access the cave */
-				c_ptr = &cave[y][x];
+			/* Load the wilderness */
+			load_map(wild_grid.y_max, wild_grid.y_min,
+			         wild_grid.x_max, wild_grid.x_min);
 
-				/* Extract "feat" */
-				c_ptr->mimic = tmp8u;
-
-				/* Advance/Wrap */
-				if (++x >= xmax)
-				{
-					/* Wrap */
-					x = 0;
-
-					/* Advance/Wrap */
-					if (++y >= ymax) break;
-				}
-			}
-		}
-
-		/*** Run length decoding ***/
-
-		/* Load the dungeon data */
-		for (x = y = 0; y < ymax; )
-		{
-			/* Grab RLE info */
-			rd_byte(&count);
-			rd_s16b(&tmp16s);
-
-			/* Apply the RLE info */
-			for (i = count; i > 0; i--)
-			{
-				/* Access the cave */
-				c_ptr = &cave[y][x];
-
-				/* Extract "feat" */
-				c_ptr->special = tmp16s;
-
-				/* Advance/Wrap */
-				if (++x >= xmax)
-				{
-					/* Wrap */
-					x = 0;
-
-					/* Advance/Wrap */
-					if (++y >= ymax) break;
-				}
-			}
+			/* Reset level */
+			dun_level = 0;
 		}
 	}
 
@@ -2687,7 +2891,7 @@ static errr rd_dungeon(void)
 		else
 		{
 			/* Access the item location */
-			c_ptr = &cave[o_ptr->iy][o_ptr->ix];
+			c_ptr = area(o_ptr->iy,o_ptr->ix);
 
 			/* Build a stack */
 			o_ptr->next_o_idx = c_ptr->o_idx;
@@ -2739,7 +2943,7 @@ static errr rd_dungeon(void)
 
 
 		/* Access grid */
-		c_ptr = &cave[m_ptr->fy][m_ptr->fx];
+		c_ptr = area(m_ptr->fy,m_ptr->fx);
 
 		/* Mark the location */
 		c_ptr->m_idx = m_idx;
@@ -2765,6 +2969,24 @@ static errr rd_dungeon(void)
 		character_dungeon = TRUE;
 	}
 
+	/* Hack - make new level only after objects + monsters are loaded */
+	if (sf_version < 7)
+	{
+		/* In the wilderness - old monsters in 'wrong' positions */
+		if (!dun_level)
+		{
+			/* Clear old monsters / objects */
+			wipe_o_list();
+			wipe_m_list();
+
+			/* refresh wilderness */
+			character_dungeon = FALSE;
+		}
+
+		/* enter the level */
+		change_level(dun_level);
+	}
+
 	/* Success */
 	return (0);
 }
@@ -2777,10 +2999,6 @@ static errr rd_dungeon(void)
 static errr rd_savefile_new_aux(void)
 {
 	int i, j;
-	int town_count;
-
-	s32b wild_x_size;
-	s32b wild_y_size;
 
 	byte tmp8u;
 	u16b tmp16u;
@@ -2979,14 +3197,6 @@ static errr rd_savefile_new_aux(void)
 
 #endif
 
-	/* Init the wilderness seeds */
-	for (i = 0; i < max_wild_x; i++)
-	{
-		for (j = 0; j < max_wild_y; j++)
-		{
-			wilderness[j][i].seed = rand_int(0x10000000);
-		}
-	}
 
 	/* 2.1.3 or newer version */
 	if (!z_older_than(2, 1, 3))
@@ -3100,7 +3310,7 @@ static errr rd_savefile_new_aux(void)
 		if (!z_older_than(2, 2, 1) && z_older_than(2, 2, 3))
 		{
 			/* "Hard quests" flag */
-			rd_byte(&ironman_hard_quests);
+			rd_byte((byte*) &ironman_hard_quests);
 
 			/****** HACK ******/
 			if (ironman_hard_quests)
@@ -3110,14 +3320,14 @@ static errr rd_savefile_new_aux(void)
 			}
 
 			/* Inverted "Wilderness" flag */
-			rd_byte(&lite_town);
-			lite_town = !lite_town;
+			rd_byte((byte*) &vanilla_town);
+			vanilla_town = !vanilla_town;
 
 			/****** HACK ******/
-			if (lite_town)
+			if (vanilla_town)
 			{
 				/* Set the option by hand */
-				option_flag[6] |= (1L << 1);
+				option_flag[6] |= (1L);
 			}
 		}
 
@@ -3130,18 +3340,33 @@ static errr rd_savefile_new_aux(void)
 		rd_s32b(&wild_y_size);
 
 		/* Incompatible save files */
-		if ((wild_x_size > max_wild_x) || (wild_y_size > max_wild_y))
+		if ((wild_x_size > max_wild_size) || (wild_y_size > max_wild_size))
 		{
 			note(format("Wilderness is too big (%u/%u)!", wild_x_size, wild_y_size));
 			return (23);
 		}
 
-		/* Load the wilderness seeds */
-		for (i = 0; i < wild_x_size; i++)
+		/* Hack - if size is zero - set to max_wild_size */
+		if ((wild_x_size == 0) && (wild_y_size == 0))
 		{
-			for (j = 0; j < wild_y_size; j++)
+			wild_x_size = max_wild_size;
+			wild_y_size = max_wild_size;
+		}
+
+		/* Hack - set size of wilderness to x size only */
+		max_wild = wild_x_size;
+
+		/* Ignore the seeds from old versions */
+		if (sf_version < 9)
+		{
+			/* Load the wilderness seeds */
+			for (i = 0; i < wild_x_size; i++)
 			{
-				rd_u32b(&wilderness[j][i].seed);
+				for (j = 0; j < wild_y_size; j++)
+				{
+					/* Ignore seeds */
+					rd_u32b(&tmp32u);
+				}
 			}
 		}
 	}
@@ -3403,7 +3628,7 @@ static errr rd_savefile_new_aux(void)
 		}
 
 		/* Set "wilderness" mode */
-		lite_town = (c == 'y');
+		vanilla_town = (c == 'y');
 
 		/* Clear */
 		clear_from(14);
@@ -3497,35 +3722,68 @@ static errr rd_savefile_new_aux(void)
 		town_count = 2;
 	}
 
-	/* Read the stores */
-	rd_u16b(&tmp16u);
-	for (i = 1; i < town_count; i++)
+	/* Paranoia */
+	if (town_count > max_towns)
 	{
-		/* HACK - ignore the empty towns */
-		if (z_older_than(2, 2, 3) && (i >= 6))
-		{
-			for (j = 0; j < tmp16u; j++)
-			{
-				/* Read the info into the empty town 5 (R'Lyeh) */
-				if (rd_store(5, j)) return (22);
-			}
-		}
-		else
-		{
-			for (j = 0; j < tmp16u; j++)
-			{
-				if (rd_store(i, j)) return (22);
-			}
-		}
+		note("Error - increase number of towns in misc.txt");
+			return (33);
 	}
 
-#if 0
-	if (z_older_than(2, 1, 0))
+	/* Empty the store stock cache */
+	store_cache_num = 0;
+
+	if (sf_version < 8)
 	{
-		msg_print("Reallocating flavours...");
-		flavor_init();
+		/* Read the stores */
+		rd_u16b(&tmp16u);
+		for (i = 1; i < town_count; i++)
+		{
+			/* HACK - ignore the empty towns */
+			if (z_older_than(2, 2, 3) && (i >= 6))
+			{
+				for (j = 0; j < tmp16u; j++)
+				{
+					/* Read the info into the empty town 5 (R'Lyeh) */
+					if (rd_store(5, j)) return (22);
+				}
+			}
+			else
+			{
+				for (j = 0; j < tmp16u; j++)
+				{
+					if (rd_store(i, j)) return (22);
+				}
+			}
+		}
 	}
-#endif
+	else
+	{
+		/* Get the town data */
+		for (i = 1; i < town_count; i++)
+		{
+			/* RNG seed */
+			rd_u32b(&town[i].seed);
+
+			/* Number of stores */
+			rd_byte(&town[i].numstores);
+
+			/* Type */
+			rd_u16b(&town[i].type);
+
+			/* Locatation */
+			rd_byte(&town[i].x);
+			rd_byte(&town[i].y);
+
+			/* Name */
+			rd_string(town[i].name, 32);
+
+			/* Get the stores of all towns */
+			for (j = 0; j < town[i].numstores; j++)
+			{
+				rd_store(i, j);
+			}
+		}
+	}
 
 	/* Read the pet command settings */
 	if (sf_version > 2)
@@ -3575,7 +3833,7 @@ static errr rd_savefile_new_aux(void)
 			{
 				char *callbacks = (char*) malloc(tmp32s + 1);
 				rd_string(callbacks, tmp32s + 1);
-				callbacks_load_callback(callbacks);
+				load_game_callback(callbacks);
 				free(callbacks);
 			}
 #else /* USE_SCRIPT */

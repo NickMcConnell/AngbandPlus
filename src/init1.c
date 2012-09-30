@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 2000/08/02 11:47:09 $ */
+/* CVS: Last edit by $Author: rr9 $ on $Date: 2000/06/19 15:38:13 $ */
 /* File: init1.c */
 
 /* Purpose: Initialization (part 1) -BEN- */
@@ -360,7 +360,7 @@ static cptr r_info_flags7[] =
 	"CAN_SWIM",
 	"CAN_FLY",
 	"FRIENDLY",
-	"XXX7X4",
+	"SILLY",
 	"XXX7X5",
 	"XXX7X6",
 	"XXX7X7",
@@ -395,38 +395,38 @@ static cptr r_info_flags7[] =
  */
 static cptr r_info_flags8[] =
 {
-	"WILD_ONLY",
-	"WILD_TOWN",
-	"XXX8X02",
+	"WILD_FOREST1",
+	"WILD_FOREST2",
+	"WILD_MOUNT1",
+	"WILD_MOUNT2",
+	"WILD_WASTE1",
+	"WILD_WASTE2",
+	"WILD_SWAMP1",
+	"WILD_SWAMP2",
+	"NOT_FOREST1",
+	"NOT_FOREST2",
+	"NOT_MOUNT1",
+	"NOT_MOUNT1",
+	"NOT_WASTE1",
+	"NOT_WASTE2",
+	"NOT_SWAMP1",
+	"NOT_SWAMP2",
 	"WILD_SHORE",
 	"WILD_OCEAN",
-	"WILD_WASTE",
-	"WILD_WOOD",
-	"WILD_VOLCANO",
-	"XXX8X08",
-	"WILD_MOUNTAIN",
 	"WILD_GRASS",
-	"XXX8X11",
-	"XXX8X12",
-	"XXX8X13",
-	"XXX8X14",
-	"XXX8X15",
-	"XXX8X16",
-	"XXX8X17",
-	"XXX8X18",
-	"XXX8X19",
-	"XXX8X20",
-	"XXX8X21",
-	"XXX8X22",
-	"XXX8X23",
-	"XXX8X24",
-	"XXX8X25",
-	"XXX8X26",
-	"XXX8X27",
-	"XXX8X28",
-	"XXX8X29",
-	"WILD_SWAMP",	/* ToDo: Implement Swamp */
-	"WILD_TOO",
+	"WILD_TOWN",
+	"WILD_DUNGEON_01",
+	"WILD_DUNGEON_02",
+	"WILD_DUNGEON_03",
+	"WILD_DUNGEON_04",
+	"WILD_DUNGEON_05",
+	"WILD_DUNGEON_06",
+	"WILD_DUNGEON_07",
+	"WILD_DUNGEON_08",
+	"WILD_DUNGEON_09",
+	"WILD_DUNGEON_10",
+	"WILD_DUNGEON_11",
+	"WILD_DUNGEON_12",
 };
 
 
@@ -587,6 +587,20 @@ static cptr k_info_flags3[] =
 	"PERMA_CURSE"
 };
 
+/*
+ * Wilderness Flags
+ */
+static cptr w_info_flags[] =
+{
+	"FOREST1",
+	"FOREST2",
+	"MOUNT1",
+	"MOUNT2",
+	"WASTE1",
+	"WASTE2",
+	"SWAMP1",
+	"SWAMP2",
+};
 
 /*
  * Convert a "color letter" into an "actual" color
@@ -2413,23 +2427,246 @@ errr init_r_info_txt(FILE *fp, char *buf)
 	++r_head->name_size;
 	++r_head->text_size;
 
-
-	for (i = 1; i < max_r_idx; i++)
-	{
-		/* Invert flag WILD_ONLY <-> RF8_DUNGEON */
-		r_info[i].flags8 ^= 1L;
-
-		/* WILD_TOO without any other wilderness flags enables all flags */
-		if ((r_info[i].flags8 & RF8_WILD_TOO) && !(r_info[i].flags8 & 0x7FFFFFFE))
-			r_info[i].flags8 = 0x0463;
-	}
-
 	/* No version yet */
 	if (!okay) return (2);
 
 	/* Success */
 	return (0);
 }
+
+
+
+/*
+ * Grab one flag in an wild_type from a textual string
+ */
+static errr grab_one_wild_flag(wild_gen_data_type *w_ptr, cptr what)
+{
+	int i;
+
+	/* Check flags */
+	for (i = 0; i < 8; i++)
+	{
+		if (streq(what, w_info_flags[i]))
+		{
+			w_ptr->rough_type |= (1 << i);
+			return (0);
+		}
+	}
+
+	/* Oops */
+	msg_format("Unknown wilderness flag '%s'.", what);
+
+	/* Error */
+	return (1);
+}
+
+
+
+/*
+ * Initialize the "wild_choice_tree" and "wild_gen_data" arrays,
+ *  by parsing an ascii "template" file
+ */
+errr init_w_info_txt(FILE *fp, char *buf)
+{
+	char *s, *t;
+
+	u16b i = 0;
+
+	/* Bounding box of entry */
+	wild_bound_box_type bound;
+
+	/* Current entry */
+	wild_gen_data_type *w_ptr = NULL;
+
+	/* Just before the first line */
+	error_line = -1;
+
+	/* The last index used */
+	error_idx = -1;
+
+	/* Parse */
+	while (0 == my_fgets(fp, buf, 1024))
+	{
+		/* Advance the line number */
+		error_line++;
+
+		/* Skip comments and blank lines */
+		if (!buf[0] || (buf[0] == '#')) continue;
+
+		/* Verify correct "colon" format */
+		if (buf[1] != ':') return (1);
+
+		/* Process 'N' for "Number" (one line only) */
+		if (buf[0] == 'N')
+		{
+			/* Get the index */
+			i = atoi(buf+2);
+
+			/* Verify information */
+			if (i < error_idx) return (4);
+
+			/* Check to see if there is room in array */
+			if (i > max_w_block - 1) return (7);
+
+			/* Save the index */
+			error_idx = i;
+
+			/* point to new position in array */
+			w_ptr = &wild_gen_data[i];
+
+			continue;
+		}
+
+		/* Process 'G' for "Graphics" (one line only) */
+		if (buf[0] == 'G')
+		{
+			int tmp;
+
+			/* Paranoia */
+			if (!buf[2]) return (1);
+			if (!buf[3]) return (1);
+			if (!buf[4]) return (1);
+
+			/* Extract the color */
+			tmp = color_char_to_attr(buf[4]);
+
+			/* Paranoia */
+			if (tmp < 0) return (1);
+
+			/* Save the values */
+			w_ptr->w_attr = tmp;
+			w_ptr->w_char = buf[2];
+
+			/* Next... */
+			continue;
+		}
+
+
+		/* There better be a current w_ptr */
+		if (!w_ptr) return (3);
+
+		/* Process 'W' for "Wilderness Info" (one line only) */
+		if (buf[0] == 'W')
+		{
+			int hgtmin, hgtmax, popmin, popmax, lawmin, lawmax;
+
+
+			/* Scan for the values */
+			if (6 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d",
+				&hgtmin, &hgtmax, &popmin, &popmax,
+					&lawmin, &lawmax)) return (1);
+
+			/* Save the values into bounds */
+			bound.hgtmin = hgtmin;
+			bound.hgtmax = hgtmax;
+
+			bound.popmin = popmin;
+			bound.popmax = popmax;
+
+			bound.lawmin = lawmin;
+			bound.lawmax = lawmax;
+
+			/* Next... */
+			continue;
+		}
+
+		/* Process 'T' for "Type" (one line only) */
+		if (buf[0] == 'T')
+		{
+			int routine, chance;
+
+			/* Scan for the values */
+			if (2 != sscanf(buf+2, "%d:%d",
+				&routine, &chance)) return (1);
+
+			/* Save the values */
+			w_ptr->gen_routine = routine;
+			w_ptr->chance = chance;
+
+			/* Next... */
+			continue;
+		}
+
+		/* Process 'F' for "Basic Flags" (multiple lines) */
+		if (buf[0] == 'F')
+		{
+			/* Parse every entry */
+			for (s = buf + 2; *s; )
+			{
+				/* Find the end of this entry */
+				for (t = s; *t && (*t != ' ') && (*t != '|'); ++t) /* loop */;
+
+				/* Nuke and skip any dividers */
+				if (*t)
+				{
+					*t++ = '\0';
+					while (*t == ' ' || *t == '|') t++;
+				}
+
+				/* Parse this entry */
+				if (0 != grab_one_wild_flag(w_ptr, s)) return (5);
+
+				/* Start the next entry */
+				s = t;
+			}
+
+			/* Next... */
+			continue;
+		}
+
+		/* Process 'E' for "Extra Information" (one line only) */
+		if (buf[0] == 'E')
+		{
+			int d0, d1, d2, d3, d4, d5, d6, d7;
+
+			/* Scan for the values */
+			if (8 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d",
+				&d0, &d1, &d2, &d3, &d4, &d5, &d6, &d7))
+					return (1);
+
+			/* Save the values */
+			w_ptr->data[0] = d0;
+			w_ptr->data[1] = d1;
+			w_ptr->data[2] = d2;
+			w_ptr->data[3] = d3;
+			w_ptr->data[4] = d4;
+			w_ptr->data[5] = d5;
+			w_ptr->data[6] = d6;
+			w_ptr->data[7] = d7;
+
+			/* Initialise if tree is empty */
+			if (i == 1)
+			{
+				init_choice_tree(&bound, i);
+				/* if (init_choice_tree(&bound, i+1) == 0)
+					return (2);*/
+			}
+			else
+			{
+				/* Add type to decision tree */
+				if (add_node_tree_root(&bound, i) == 0)
+					return (7);
+			}
+
+			/* Next... */
+			continue;
+		}
+
+		/* Oops */
+		return (6);
+	}
+
+	/* Success */
+	return (0);
+}
+
+
+
+
+
+
+
+
 
 
 #else	/* ALLOW_TEMPLATES */
@@ -2828,7 +3065,7 @@ static errr process_dungeon_file_aux(char *buf, int ymin, int xmin, int ymax, in
 		for (*x = xmin, i = 0; ((*x < xmax) && (i < len)); (*x)++, s++, i++)
 		{
 			/* Access the grid */
-			cave_type *c_ptr = &cave[*y][*x];
+			cave_type *c_ptr = area(*y,*x);
 
 			int idx = s[0];
 
@@ -2951,7 +3188,7 @@ static errr process_dungeon_file_aux(char *buf, int ymin, int xmin, int ymax, in
 			}
 
 			/* Terrain special */
-			c_ptr->special = letter[idx].special;
+			c_ptr->f_idx = letter[idx].special;
 		}
 
 		(*y)++;
@@ -3029,12 +3266,15 @@ static errr process_dungeon_file_aux(char *buf, int ymin, int xmin, int ymax, in
 	/* Process "W:<command>: ..." -- info for the wilderness */
 	else if (buf[0] == 'W')
 	{
-		return parse_line_wilderness(buf, ymin, xmin, ymax, xmax, y, x);
+		/* Hack - turned off for now. */
+		return (0);
+		/* return parse_line_wilderness(buf, ymin, xmin, ymax, xmax, y, x); */
 	}
 
 	/* Process "P:<y>:<x>" -- player position */
 	else if (buf[0] == 'P')
 	{
+#if 0
 		if (init_flags & INIT_CREATE_DUNGEON)
 		{
 			if (tokenize(buf + 2, 2, zz, 0) == 2)
@@ -3044,11 +3284,16 @@ static errr process_dungeon_file_aux(char *buf, int ymin, int xmin, int ymax, in
 				/* Hack - Set the dungeon size */
 				panels_y = (*y / SCREEN_HGT);
 				if (*y % SCREEN_HGT) panels_y++;
-				cur_hgt = panels_y * SCREEN_HGT;
+
+				/* Wilderness: so this is meaningless */
+
+				/* cur_hgt = panels_y * SCREEN_HGT; */
 
 				panels_x = (*x / SCREEN_WID);
 				if (*x % SCREEN_WID) panels_x++;
-				cur_wid = panels_x * SCREEN_WID;
+
+				/* Wilderness: so this is meaningless */
+				/* cur_wid = panels_x * SCREEN_WID; */
 
 				/* Choose a panel row */
 				max_panel_rows = (cur_hgt / SCREEN_HGT) * 2 - 2;
@@ -3079,6 +3324,7 @@ static errr process_dungeon_file_aux(char *buf, int ymin, int xmin, int ymax, in
 				}
 			}
 		}
+#endif
 
 		return (0);
 	}
@@ -3154,15 +3400,20 @@ static errr process_dungeon_file_aux(char *buf, int ymin, int xmin, int ymax, in
 				max_m_idx = atoi(zz[1]);
 			}
 
-			/* Wilderness size */
+			/* Wilderness data */
 			else if (zz[0][0] == 'W')
 			{
-				/* Maximum wild_x_size */
-				if (zz[0][1] == 'X')
-					max_wild_x = atoi(zz[1]);
-				/* Maximum wild_y_size */
-				if (zz[0][1] == 'Y')
-					max_wild_y = atoi(zz[1]);
+				/* Maximum wild_size */
+				if (zz[0][1] == 'S')
+					max_wild_size = atoi(zz[1]);
+
+				/* Maximum wild d_tree nodes */
+				if (zz[0][1] == 'N')
+					max_w_node = atoi(zz[1]);
+
+				/* Maximum wild gen types */
+				if (zz[0][1] == 'T')
+					max_w_block = atoi(zz[1]);
 			}
 
 			return (0);
@@ -3437,8 +3688,6 @@ static cptr process_dungeon_file_expr(char **sp, char *fp)
 			{
 				if (vanilla_town)
 					sprintf(tmp, "NONE");
-				else if (lite_town)
-					sprintf(tmp, "LITE");
 				else
 					sprintf(tmp, "NORMAL");
 				v = tmp;

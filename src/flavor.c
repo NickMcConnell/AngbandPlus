@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/07/19 13:49:37 $ */
+/* CVS: Last edit by $Author: rr9 $ on $Date: 2000/05/22 15:19:21 $ */
 /* File: flavor.c */
 
 /* Purpose: Object flavor code */
@@ -103,7 +103,7 @@ static byte amulet_col[MAX_AMULETS] =
 static cptr staff_adj[MAX_WOODS] =
 {
 	"Aspen", "Balsa", "Banyan", "Birch", "Cedar",
-	"Cottonwood", "Cypress", "Dogwood", "Elm", "Willow",
+	"Cottonwood", "Cypress", "Dogwood", "Elm", "Eucalyptus",
 	"Hemlock", "Hickory", "Ironwood", "Locust", "Mahogany",
 	"Maple", "Mulberry", "Oak", "Pine", "Redwood",
 	"Rosewood", "Spruce", "Sycamore", "Teak", "Walnut",
@@ -848,7 +848,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 
 	object_type	*bow_ptr;
 
-	/* describe what type of ammo item is. (0=none)*/
+	/* describe what type of ammo item is. (0=none) */
 	byte		ammotype = 0;
 
 	/* damage dice, damage sides, damage bonus, energy */
@@ -1582,7 +1582,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 
 	bow_ptr = &inventory[INVEN_BOW];
 
-	/* if have a firing weapon + ammo matches bow*/
+	/* if have a firing weapon + ammo matches bow */
 	if (bow_ptr->k_idx &&
 	    (((bow_ptr->sval == SV_SLING) && (ammotype == 1)) ||
 		 (((bow_ptr->sval == SV_SHORT_BOW) ||
@@ -1590,7 +1590,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	     (((bow_ptr->sval == SV_LIGHT_XBOW) ||
 	     (bow_ptr->sval == SV_HEAVY_XBOW)) && (ammotype == 3))))
 	{
-		/* See if the bow is "known" - then set damage bonus*/
+		/* See if the bow is "known" - then set damage bonus */
 		if (object_known_p(bow_ptr))
 		{
 			db = bow_ptr->to_d;

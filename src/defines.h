@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 2000/08/08 11:07:25 $ */
+/* CVS: Last edit by $Author: rr9 $ on $Date: 2000/06/19 15:38:09 $ */
 /* File: defines.h */
 
 /* Purpose: global constants and macro definitions */
@@ -40,7 +40,7 @@
 #define VERSION_MINOR   8
 #define VERSION_PATCH   1
 
-#define SAVEFILE_VERSION 5
+#define SAVEFILE_VERSION 11
 
 /* Added for ZAngband */
 #ifdef USE_SCRIPT
@@ -51,8 +51,8 @@
 #else /* USE_SCRIPT */
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 2
-#define FAKE_VER_MINOR 4
-#define FAKE_VER_PATCH 0
+#define FAKE_VER_MINOR 5
+#define FAKE_VER_PATCH 1
 #endif /* USE_SCRIPT */
 
 #define ANGBAND_2_8_1
@@ -62,7 +62,6 @@
  * This value is not currently used
  */
 #define VERSION_EXTRA   0
-
 
 /*
  * Number of grids in each block (vertically)
@@ -117,6 +116,22 @@
 
 
 /*
+ * Defines used by the wilderness data structures
+ */
+
+/* size of blocks - hard coded. */
+#define WILD_BLOCK_SIZE	16
+
+/* size of local wilderness grid in blocks - hard coded. */
+#define WILD_GRID_SIZE	9
+
+/* number of wilderness blocks in cache */
+#define WILD_BLOCKS	WILD_GRID_SIZE * WILD_GRID_SIZE
+
+/* start of the sea types = 2^16 - 65*/
+#define WILD_SEA	65471
+
+/*
  * Quest constants
  */
 #define MAX_MON_QUEST       10
@@ -138,6 +153,11 @@
  * Total number of stores (see "store.c", etc)
  */
 #define MAX_STORES      9
+
+/*
+ * Total number of stores with stock (see "store.c", etc)
+ */
+#define STORE_CACHE_AMNT 50
 
 /*
  * Number of buildings
@@ -394,7 +414,7 @@
  * must also be large enough to allow "good enough" use as a circular queue,
  * to calculate monster flow, but note that the flow code is "paranoid".
  */
-#define TEMP_MAX 4096
+#define TEMP_MAX 1536
 
 
 /*
@@ -456,7 +476,7 @@
  */
 #define STORE_INVEN_MAX 24              /* Max number of discrete objs in inven */
 #define STORE_CHOICES   48              /* Number of items to choose stock from */
-#define STORE_OBJ_LEVEL 5               /* Magic Level for normal stores */
+#define STORE_OBJ_LEVEL 10              /* Magic Level for normal stores */
 #define STORE_TURNOVER  9               /* Normal shop turnover, per day */
 #define STORE_MIN_KEEP  6               /* Min slots to "always" keep full */
 #define STORE_MAX_KEEP  18              /* Max slots to "always" keep full */
@@ -874,13 +894,19 @@
 #define FEAT_LESS               0x06
 #define FEAT_MORE               0x07
 
-/* Quest features -KMW- */
-#define FEAT_QUEST_ENTER		0x08
-#define FEAT_QUEST_EXIT			0x09
-#define FEAT_QUEST_DOWN			0x0A
-#define FEAT_QUEST_UP			0x0B
+/* Quest features are gone - use "fields" from now on if required. */
 
-/* Feature 0x0C - 0x0F unused */
+/* Passable floors */
+
+#define FEAT_SAND		0x08
+#define FEAT_SALT		0x09
+#define FEAT_WET_MUD		0x0A
+#define FEAT_DRY_MUD		0x0B
+#define FEAT_FLOOR_TILE		0x0C
+#define FEAT_FLOOR_WOOD		0x0D
+#define FEAT_PEBBLES		0x0E
+#define FEAT_SOLID_LAVA		0x0F
+
 
 /* Traps */
 #define FEAT_TRAP_TRAPDOOR      0x10
@@ -955,40 +981,56 @@
 
 #define FEAT_TRAP_TRAPS         0x5A
 
-#define FEAT_WALL_INVIS			  0x5B
+#define FEAT_WALL_INVIS		0x5B
 
-/* Feature 0x5A - 0x5F unused */
+#define FEAT_OCEAN_WATER	0x5C
+#define FEAT_DEEP_ACID		0x5D
+#define FEAT_SHAL_ACID		0x5E
+#define FEAT_TREE_WATER		0x5F
 
-/* Terrain */
+/* Terrain semi-transparent*/
 #define FEAT_TREES              0x60
 #define FEAT_MOUNTAIN           0x61
+#define FEAT_SNOW_MOUNTAIN	0x62
+#define FEAT_BOULDER		0x63
+#define FEAT_PINE_TREE		0x64
+#define FEAT_SNOW_TREE		0x65
+#define FEAT_OBELISK		0x66
+#define FEAT_PILLAR		0x67
 
-/* Feature 0x62 - 0x7F unused */
+/* Feature 0x68 - 0x6F unused */
 
-/* Buildings */
-#define FEAT_BLDG_HEAD          0x80
-#define FEAT_BLDG_TAIL          0x9F
+/* Impassible terrains */
+#define FEAT_FENCE		0x70
+#define FEAT_WELL		0x71
+#define FEAT_FOUNTAIN		0x72
+#define FEAT_JUNGLE		0x73
+/* Buildings - removed (replaced with fields) */
+
+/* Slow "floor" terrains */
+
+#define FEAT_BUSH		0x80
+#define FEAT_DEAD_BUSH		0x81
+#define FEAT_GRASS_LONG		0x82
+#define FEAT_ROCK_GEN		0x83
+#define FEAT_ROCK_SNOW		0x84
+#define FEAT_TREE_GEN		0x85
+#define FEAT_TREE_SNOW		0x86
+#define FEAT_SNOW		0x87
+#define FEAT_DEEP_SWAMP		0x88
+#define FEAT_SHAL_SWAMP		0x89
 
 
+/*** Wilderness Info flags - (see "wild.c") ***/
 
-/*
- * Wilderness terrains
- */
-#define TERRAIN_EDGE             0 /* Edge of the World */
-#define TERRAIN_TOWN             1 /* Town */
-#define TERRAIN_DEEP_WATER       2 /* Deep water */
-#define TERRAIN_SHALLOW_WATER    3 /* Shallow water */
-#define TERRAIN_SWAMP            4 /* Swamp */
-#define TERRAIN_DIRT             5 /* Dirt */
-#define TERRAIN_GRASS            6 /* Grass */
-#define TERRAIN_TREES            7 /* Trees */
-#define TERRAIN_DESERT           8 /* Desert */
-#define TERRAIN_SHALLOW_LAVA     9 /* Shallow lava */
-#define TERRAIN_DEEP_LAVA       10 /* Deep lava */
-#define TERRAIN_MOUNTAIN        11 /* Mountain */
-
-#define MAX_WILDERNESS          12 /* Maximum wilderness index */
-
+#define WILD_INFO_TRACK		0x01
+#define WILD_INFO_ROAD		0x02
+#define WILD_INFO_RIVER		0x04
+#define WILD_INFO_LAVA		0x08
+#define WILD_INFO_OBJECT	0x10
+#define WILD_INFO_SEEN		0x20
+#define WILD_INFO_DUMMY1	0x40
+#define WILD_INFO_DUMMY2	0x80
 
 
 /*** Artifact indexes (see "lib/edit/a_info.txt") ***/
@@ -2037,6 +2079,7 @@
 #define PROJECT_KILL    0x0040
 #define PROJECT_HIDE    0x0080
 #define PROJECT_FRND	0x0100
+
 /*
  * Bit flags for the "enchant()" function
  */
@@ -2048,17 +2091,18 @@
 /*
  * Bit flags for the "target_set" function XXX XXX XXX
  *
- *	KILL: Target monsters
- *	LOOK: Describe grid fully
- *  XTRA: Currently unused flag
- *  GRID: Select from all grids
+ *      KILL: Target monsters
+ *      LOOK: Describe grid fully
+ *      XTRA: Currently unused flag
+ *      GRID: Select from all grids
  *	HOST: Select hostile creatures only.
  */
-#define TARGET_KILL		0x01
-#define TARGET_LOOK		0x02
-#define TARGET_XTRA		0x04
-#define TARGET_GRID		0x08
+#define TARGET_KILL             0x01
+#define TARGET_LOOK             0x02
+#define TARGET_XTRA             0x04
+#define TARGET_GRID             0x08
 #define TARGET_HOST		0x10
+
 
 /*
  * Some bit-flags for the "smart" field
@@ -2189,7 +2233,7 @@
 #define PW_DUNGEON      0x00000400L     /* Display dungeon view */
 #define PW_SNAPSHOT     0x00000800L     /* Display snap-shot */
 /* xxx */
-/* xxx */
+#define PW_SCRIPT       0x00002000L     /* Display script messages */
 #define PW_BORG_1       0x00004000L     /* Display borg messages */
 #define PW_BORG_2       0x00008000L     /* Display borg status */
 
@@ -2230,6 +2274,7 @@
 #define SUMMON_PHANTOM              47
 #define SUMMON_ELEMENTAL            48
 #define SUMMON_BLUE_HORROR          49
+#define SUMMON_GHB						50
 
 
 
@@ -2272,13 +2317,14 @@
 #define GF_MAKE_DOOR    46
 #define GF_MAKE_TRAP    47
 #define GF_OLD_CLONE    51
-#define GF_OLD_POLY             52
-#define GF_OLD_HEAL             53
+#define GF_OLD_POLY     52
+#define GF_OLD_HEAL     53
 #define GF_OLD_SPEED    54
-#define GF_OLD_SLOW             55
-#define GF_OLD_CONF             56
+#define GF_OLD_SLOW     55
+#define GF_OLD_CONF	56
 #define GF_OLD_SLEEP    57
-#define GF_OLD_DRAIN    58
+#define GF_OLD_DRAIN	58
+#define GF_NEW_DRAIN	59
 #define GF_AWAY_UNDEAD  61
 #define GF_AWAY_EVIL    62
 #define GF_AWAY_ALL     63
@@ -2847,23 +2893,52 @@
 #define RF7_CAN_SWIM            0x00000002  /* Monster can swim */
 #define RF7_CAN_FLY             0x00000004  /* Monster can fly */
 #define RF7_FRIENDLY            0x00000008  /* Monster is friendly */
-
+#define RF7_SILLY               0x00000010  /* Monster is "silly" */
 
 /*
- * Monster race flags
+ * Monster race wilderness flags
  */
-#define RF8_DUNGEON             0x00000001
-#define RF8_WILD_TOWN           0x00000002
-#define RF8_XXX8X02             0x00000004
-#define RF8_WILD_SHORE          0x00000008
-#define RF8_WILD_OCEAN          0x00000010
-#define RF8_WILD_WASTE          0x00000020
-#define RF8_WILD_WOOD           0x00000040
-#define RF8_WILD_VOLCANO        0x00000080
-#define RF8_XXX8X08             0x00000100
-#define RF8_WILD_MOUNTAIN       0x00000200
-#define RF8_WILD_GRASS          0x00000400
-#define RF8_WILD_TOO            0x80000000
+#define RF8_WILD_FOREST1        0x00000001
+#define RF8_WILD_FOREST2        0x00000002
+#define RF8_WILD_MOUNT1         0x00000004
+#define RF8_WILD_MOUNT2         0x00000008
+#define RF8_WILD_WASTE1         0x00000010
+#define RF8_WILD_WASTE2         0x00000020
+#define RF8_WILD_SWAMP1         0x00000040
+#define RF8_WILD_SWAMP2         0x00000080
+#define RF8_NOT_FOREST1         0x00000100
+#define RF8_NOT_FOREST2         0x00000200
+#define RF8_NOT_MOUNT1          0x00000400
+#define RF8_NOT_MOUNT2          0x00000800
+#define RF8_NOT_WASTE1          0x00001000
+#define RF8_NOT_WASTE2          0x00002000
+#define RF8_NOT_SWAMP1          0x00004000
+#define RF8_NOT_SWAMP2          0x00008000
+#define RF8_WILD_SHORE          0x00010000
+#define RF8_WILD_OCEAN          0x00020000
+#define RF8_WILD_GRASS          0x00040000
+#define RF8_WILD_TOWN		0x00080000
+#define RF8_DUNGEON_01          0x00100000
+#define RF8_DUNGEON_02          0x00200000
+#define RF8_DUNGEON_03          0x00400000
+#define RF8_DUNGEON_04          0x00800000
+#define RF8_DUNGEON_05          0x01000000
+#define RF8_DUNGEON_06          0x02000000
+#define RF8_DUNGEON_07          0x04000000
+#define RF8_DUNGEON_08          0x08000000
+#define RF8_DUNGEON_09          0x10000000
+#define RF8_DUNGEON_10          0x20000000
+#define RF8_DUNGEON_11          0x40000000
+#define RF8_DUNGEON_12          0x80000000
+
+/*
+ * Useful flag combinations
+ */
+
+#define RF8_DUNGEON             0xFFF00000
+#define RF8_WILD                0x000700FF
+
+
 
 /*
  * Monster drop info
@@ -2904,44 +2979,6 @@
 
 #define RF6_BOLT_MASK \
    0L
-
-/*
- * Spells that hurt the player directly
- */
-#define RF4_ATTACK_MASK \
-	(RF4_ROCKET | RF4_ARROW_1 | RF4_ARROW_2 | RF4_ARROW_3 | RF4_ARROW_4 | \
-	 RF4_BR_ACID | RF4_BR_ELEC | RF4_BR_FIRE | RF4_BR_COLD | RF4_BR_POIS | \
-	 RF4_BR_NETH | RF4_BR_LITE | RF4_BR_DARK | RF4_BR_CONF | RF4_BR_SOUN | \
-	 RF4_BR_CHAO | RF4_BR_DISE | RF4_BR_NEXU | RF4_BR_TIME | RF4_BR_INER | \
-	 RF4_BR_GRAV | RF4_BR_SHAR | RF4_BR_PLAS | RF4_BR_WALL | RF4_BR_MANA | \
-	 RF4_BA_NUKE | RF4_BR_NUKE | RF4_BA_CHAO | RF4_BR_DISI)
-
-#define RF5_ATTACK_MASK \
-	(RF5_BA_ACID | RF5_BA_ELEC | RF5_BA_FIRE | RF5_BA_COLD | RF5_BA_POIS | \
-	 RF5_BA_NETH | RF5_BA_WATE | RF5_BA_MANA | RF5_BA_DARK | \
-	 RF5_MIND_BLAST | RF5_BRAIN_SMASH | RF5_CAUSE_1 | RF5_CAUSE_2 | \
-	 RF5_CAUSE_3 | RF5_CAUSE_4 | RF5_BO_ACID | RF5_BO_ELEC | RF5_BO_FIRE | \
-	 RF5_BO_COLD | RF5_BO_POIS | RF5_BO_NETH | RF5_BO_WATE | RF5_BO_MANA | \
-	 RF5_BO_PLAS | RF5_BO_ICEE | RF5_MISSILE)
-
-#define RF6_ATTACK_MASK \
-	(RF6_HAND_DOOM)
-
-
-
-/*
- * Spells that allow the caster to escape
- */
-#define RF4_ESCAPE_MASK \
-	(0L)
-
-#define RF5_ESCAPE_MASK \
-	(0L)
-
-#define RF6_ESCAPE_MASK \
-	(RF6_BLINK | RF6_TPORT | RF6_TELE_AWAY | RF6_TELE_LEVEL)
-
-
 
 /*
  * Hack -- 'ball' spells that may hurt friends
@@ -3019,7 +3056,7 @@
 	(RF6_HASTE)
 
 /*
- * Spells that give invulnerability
+ * Spells that increase the caster's relative speed
  */
 #define RF4_INVULN_MASK \
 	(0L)
@@ -3059,7 +3096,6 @@
 
 #define RF6_INNATE_MASK \
 	(0L)
-
 
 /*** Macro Definitions ***/
 
@@ -3212,44 +3248,6 @@
 
 
 /*
- * Convert a "location" (Y,X) into a "grid" (G)
- */
-#define GRID(Y,X) \
-	(256 * (Y) + (X))
-
-/*
- * Convert a "grid" (G) into a "location" (Y)
- */
-#define GRID_Y(G) \
-	((int)((G) / 256U))
-
-/*
- * Convert a "grid" (G) into a "location" (X)
- */
-#define GRID_X(G) \
-	((int)((G) % 256U))
-
-
-/*
- * Determines if a map location is fully inside the outer walls
- */
-#define in_bounds(Y,X) \
-   (((Y) > 0) && ((X) > 0) && ((Y) < cur_hgt-1) && ((X) < cur_wid-1))
-
-/*
- * Determines if a map location is on or inside the outer walls
- */
-#define in_bounds2(Y,X) \
-   (((Y) >= 0) && ((X) >= 0) && ((Y) < cur_hgt) && ((X) < cur_wid))
-
-/*
- * Determines if a map location is on or inside the outer walls
- * (unsigned version)
- */
-#define in_bounds2u(Y,X) \
-   (((Y) < cur_hgt) && ((X) < cur_wid))
-
-/*
  * Determines if a map location is currently "on screen" -RAK-
  * Note that "panel_contains(Y,X)" always implies "in_bounds2(Y,X)".
  */
@@ -3271,32 +3269,37 @@
  * Add in the fact that some new terrain (water & lava) do NOT block sight
  * -KMW-
  */
-#define cave_floor_bold(Y,X) \
-	(!(cave[Y][X].feat & 0x20))
+#define cave_floor_grid(C) \
+    (!((C)->feat & 0x20))
+
+/*
+ * True half the time for trees. (Block line of sight half the time.)
+ */
+#define cave_half_grid(C) \
+    ((((C)->feat & 0x60) == 0x60) && (quick_rand()))
 
 
 /*
- * Used to see if square is transparent.
- * Trees now block sight only half the time.
+ * Grid will block LOS.
  */
-#define cave_half_bold(Y,X) \
-	((cave[Y][X].feat == FEAT_TREES) && (quick_rand()))
+
+#define cave_los_grid(C) \
+   ((cave_floor_grid(C)) || (cave_half_grid(C)))
 
 /*
- * Determine if a "legal" grid is a "clean" floor grid
- *
- * Line 1 -- forbid non-floors
- * Line 2 -- forbid deep water -KMW-
- * Line 3 -- forbid deep lava -KMW-
- * Line 4 -- forbid normal objects
+ * Grid based version of "cave_clean_bold()"
  */
-#define cave_clean_bold(Y,X) \
-	(((cave[Y][X].feat == FEAT_FLOOR) || \
-	  (cave[Y][X].feat == FEAT_SHAL_WATER) || \
-	  (cave[Y][X].feat == FEAT_SHAL_LAVA) || \
-	  (cave[Y][X].feat == FEAT_GRASS) || \
-	  (cave[Y][X].feat == FEAT_DIRT)) && \
-	  (cave[Y][X].o_idx == 0))
+#define cave_clean_grid(C) \
+    ((((C)->feat == FEAT_FLOOR) || \
+	  ((C)->feat == FEAT_SHAL_WATER) || \
+	  ((C)->feat == FEAT_SHAL_LAVA) || \
+	  ((C)->feat == FEAT_SHAL_ACID) || \
+	  ((C)->feat == FEAT_GRASS) || \
+	  ((C)->feat == FEAT_SNOW) || \
+	  (((C)->feat & 0xF8) == 0x08) || \
+	  (((C)->feat & 0x80) == 0x80) || \
+	  ((C)->feat == FEAT_DIRT)) && \
+	  ((C)->o_idx == 0))
 
 /*
  * Determine if a "legal" grid is a "gen" floor grid
@@ -3308,81 +3311,14 @@
  *  This function describes grids that can hold any object.
  *  Note: The *_SHAL_* possibilities are removed.
  */
-#define cave_gen_bold(Y,X) \
-	(((cave[Y][X].feat == FEAT_FLOOR) || \
-	  (cave[Y][X].feat == FEAT_GRASS) || \
-	  (cave[Y][X].feat == FEAT_DIRT)) && \
-	  (cave[Y][X].o_idx == 0))
-
-
-/*
- * Determine if a "legal" grid is an "empty" floor grid
- *
- * Line 1 -- forbid doors, rubble, seams, walls
- * Line 2 -- forbid normal monsters
- * Line 3 -- forbid the player
- */
-#define cave_empty_bold(Y,X) \
-    (cave_floor_bold(Y,X) && \
-     !(cave[Y][X].m_idx) && \
-     !(((Y) == py) && ((X) == px)))
-
-
-/*
- * Determine if a "legal" grid is an "naked" floor grid
- *
- * Line 1 -- forbid non-floors, non-shallow water & lava -KMW-
- * Line 4 -- forbid normal objects
- * Line 5 -- forbid player/monsters
- */
-#define cave_naked_bold(Y,X) \
-	(((cave[Y][X].feat == FEAT_FLOOR) || \
-	  (cave[Y][X].feat == FEAT_SHAL_WATER) || \
-	  (cave[Y][X].feat == FEAT_SHAL_LAVA) || \
-	  (cave[Y][X].feat == FEAT_GRASS) || \
-	  (cave[Y][X].feat == FEAT_DIRT)) && \
-	  (cave[Y][X].o_idx == 0) && \
-	  (cave[Y][X].m_idx == 0))
-
-
-
-/*
- * Determine if a "legal" grid is "permanent"
- *
- * Line 1   -- perma-walls
- * Line 2-3 -- stairs
- * Line 4-5 -- building doors -KMW-
- * Line 6-7 -- shop doors
- */
-#define cave_perma_bold(Y,X) \
-	((cave[Y][X].feat >= FEAT_PERM_EXTRA) || \
-	((cave[Y][X].feat == FEAT_LESS) || \
-	 (cave[Y][X].feat == FEAT_MORE)) || \
-	((cave[Y][X].feat >= FEAT_BLDG_HEAD) && \
-	 (cave[Y][X].feat <= FEAT_BLDG_TAIL)) || \
-	((cave[Y][X].feat >= FEAT_SHOP_HEAD) && \
-	 (cave[Y][X].feat <= FEAT_SHOP_TAIL)))
-
-
-/*
- * Grid based version of "cave_floor_bold()"
- */
-#define cave_floor_grid(C) \
-    (!((C)->feat & 0x20))
-
-/*
- * True half the time for trees. (Block line of sight half the time.)
- */
-#define cave_half_grid(C) \
-    (((C)->feat == FEAT_TREES) && (quick_rand()))
-
-
-/*
- * Grid based version of "cave_clean_bold()"
- */
-#define cave_clean_grid(C) \
-    (((C)->feat == FEAT_FLOOR) && \
-     (!(C)->o_idx))
+#define cave_gen_grid(C) \
+	((((C)->feat == FEAT_FLOOR) || \
+	  ((C)->feat == FEAT_GRASS) || \
+	  ((C)->feat == FEAT_SNOW) || \
+	  (((C)->feat & 0xF8) == 0x08) || \
+	  (((C)->feat & 0x80) == 0x80) || \
+	  ((C)->feat == FEAT_DIRT)) && \
+	  ((C)->o_idx == 0))
 
 /*
  * Grid based version of "cave_empty_bold()"
@@ -3390,16 +3326,23 @@
 #define cave_empty_grid(C) \
     (cave_floor_grid(C) && \
      !((C)->m_idx) && \
-     !((C) == &cave[py][px]))
+     !((C) == area(py, px)))
 
 /*
- * Grid based version of "cave_empty_bold()"
+ * Grid based version of "cave_naked_bold()"
  */
 #define cave_naked_grid(C) \
-    (((C)->feat == FEAT_FLOOR) && \
-     !((C)->o_idx) && \
-     !((C)->m_idx) && \
-     !((C) == &cave[py][px]))
+    ((((C)->feat == FEAT_FLOOR) || \
+	  ((C)->feat == FEAT_SHAL_WATER) || \
+	  ((C)->feat == FEAT_SHAL_LAVA) || \
+	  ((C)->feat == FEAT_SHAL_ACID) || \
+	  ((C)->feat == FEAT_SNOW) || \
+	  (((C)->feat & 0xF8) == 0x08) || \
+	  ((C)->feat == FEAT_GRASS) || \
+	  ((C)->feat == FEAT_DIRT)) && \
+	  ((C)->o_idx == 0) && \
+	  ((C)->m_idx == 0) && \
+	  !((C) == area(py, px)))
 
 
 /*
@@ -3407,19 +3350,14 @@
  */
 #define cave_perma_grid(C) \
 	((((C)->feat >= FEAT_PERM_EXTRA) && \
-	  ((C)->feat <= FEAT_PERM_SOLID)) || \
-	  ((C)->feat == FEAT_LESS) || \
-	  ((C)->feat == FEAT_MORE) || \
-	  ((C)->feat == FEAT_MOUNTAIN) || \
-	 (((C)->feat >= FEAT_QUEST_ENTER) && \
-	  ((C)->feat <= FEAT_QUEST_UP)) || \
+	((C)->feat <= FEAT_PERM_SOLID)) || \
+	(((C)->feat == FEAT_LESS) || \
+	 ((C)->feat == FEAT_MORE)) || \
+	(((C)->feat & 0x70) == 0x70) || \
 	 (((C)->feat >= FEAT_PATTERN_START) && \
 	  ((C)->feat <= FEAT_PATTERN_XTRA2)) || \
-	 (((C)->feat >= FEAT_SHOP_HEAD) && \
-	  ((C)->feat <= FEAT_SHOP_TAIL)) || \
-	 (((C)->feat >= FEAT_BLDG_HEAD) && \
-	  ((C)->feat <= FEAT_BLDG_TAIL)))
-
+	(((C)->feat >= FEAT_SHOP_HEAD) && \
+	 ((C)->feat <= FEAT_SHOP_TAIL)))
 
 
 /*
@@ -3427,8 +3365,8 @@
  *
  * Note the use of comparison to zero to force a "boolean" result
  */
-#define player_has_los_bold(Y,X) \
-    ((cave[Y][X].info & (CAVE_VIEW)) != 0)
+#define player_has_los_grid(C) \
+    (((C)->info & (CAVE_VIEW)) != 0)
 
 
 /*
@@ -3590,12 +3528,6 @@ extern int PlayerUID;
 
 #define MAX_VIRTUE 18
 
-/*
- * Number of virtues the player can have
- * ToDo: Check if changing this value breaks anything
- * (apart from savefile compatibility).
- */
-#define MAX_PLAYER_VIRTUES 8
 
 /*
  * Hack -- attempt to reduce various values
@@ -3625,7 +3557,7 @@ extern int PlayerUID;
  * Buildings actions
  */
 #define BACT_NOTHING                 0
-#define BACT_RESEARCH_ITEM		     1
+#define BACT_RESEARCH_ITEM	     1
 #define BACT_TOWN_HISTORY            2
 #define BACT_RACE_LEGENDS            3
 #define BACT_GREET_KING              4
@@ -3736,14 +3668,61 @@ extern int PlayerUID;
 #define PARSE_ERROR_TOO_FEW_ARGUMENTS        9
 #define PARSE_ERROR_MAX                     10
 
-
 /*
  * Automatic note taking types
  */
-#define NOTE_BIRTH          1
-#define NOTE_WINNER         2
-#define NOTE_SAVE_GAME      3
-#define NOTE_ENTER_DUNGEON  4
+#define NOTE_BIRTH		1
+#define NOTE_WINNER		2
+#define NOTE_SAVE_GAME		3
+#define NOTE_ENTER_DUNGEON	4
+
+/*
+ * Field information flags
+ */
+#define FIELD_INFO_TEMP		0x0001	/* Temporary field - use counter */
+#define FIELD_INFO_FEAT		0x0002	/* Terrain feature based field */
+#define FIELD_INFO_ATTR		0x0004	/* Use attr */
+#define FIELD_INFO_CHAR		0x0008	/* Use char */
+#define FIELD_INFO_RAND		0x0010	/* Randomize first 4 data values */
+#define FIELD_INFO_FLAGS	0x0020	/* Affects targets flags */
+#define FIELD_INFO_DUMMY5	0x0040
+#define FIELD_INFO_DUMMY6	0x0080
+#define FIELD_INFO_DUMMY7	0x0100
+#define FIELD_INFO_DUMMY8	0x0200
+#define FIELD_INFO_DUMMY9	0x0400
+#define FIELD_INFO_DUMMY10	0x0800
+#define FIELD_INFO_DUMMY11	0x1000
+#define FIELD_INFO_DUMMY12	0x2000
+#define FIELD_INFO_DUMMY13	0x4000
+
+#define FTYPE_TRAP	1
+#define FTYPE_DOOR	2
+#define FTYPE_BUILD	3
+#define FTYPE_FIELD	4
+#define FTYPE_OBJ	5
+#define FTYPE_MON	6
+
+/*
+ * Field Actions
+ */
+#define FIELD_ACT_INIT		0	/* Initialise the field data */
+#define FIELD_ACT_ALWAYS	1	/* Every turn */
+#define FIELD_ACT_PLAYER_ENTER	2	/* Player walks onto square */
+#define FIELD_ACT_PLAYER_ON	3	/* Player is on square */
+#define FIELD_ACT_PLAYER_LEAVE	4	/* Player leaves square */
+#define FIELD_ACT_MONSTER_ENTER	5	/* Monster walks onto square */
+#define FIELD_ACT_MONSTER_ON	6	/* Monster is on square */
+#define FIELD_ACT_MONSTER_LEAVE	7	/* Monster leaves square */
+#define FIELD_ACT_OBJECT_DROP	8	/* Object lands on square */
+#define FIELD_ACT_OBJECT_ON	9	/* Object is on square */
+#define FIELD_ACT_MAGIC_PASS	10	/* bolt/beam/ball spell tries to pass this field */
+#define FIELD_ACT_MAGIC_TARGET	11	/* Targeting this square */
+#define FIELD_ACT_COMPACT	12	/* Compaction if too many */
+#define FIELD_ACT_EXIT		13	/* Field is destroyed */
+#define FIELD_ACT_RECALC	14	/* Recalculating monster / object flags */
+
+#define FIELD_ACTION_MAX	15	/* The last action + 1 */
+
 
 /*
  * Player displays
@@ -3752,4 +3731,5 @@ extern int PlayerUID;
 #define DISPLAY_PLAYER_HISTORY		1	/* standard display with history */
 #define DISPLAY_PLAYER_SUMMARY		2	/* summary of various things */
 
-#define DISPLAY_PLAYER_MAX		3
+#define DISPLAY_PLAYER_MAX			3
+

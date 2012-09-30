@@ -120,7 +120,7 @@ level and 'reset' the recall depth to that level (instead of the
 deepest level).
 
 A more complete description of Zangband objects is found elsewhere in
-the documetnation (see object.txt [2]).
+the documentation (see objects.txt [2]).
 
 
 ***** <Mining>
@@ -189,7 +189,8 @@ concentration, you can find these secret doors. Secret doors will
 sometimes hide rooms or corridors, or even entire sections of that
 level of the dungeon. Sometimes they simply hide small empty closets or
 even dead ends. Secret doors always look like granite walls, just like
-traps always look like normal floors.
+traps always look like normal floors.  Like normal doors, a secret door
+may also be locked or jammed.
 
 Creatures in the dungeon will generally know and use these secret
 doors, and can often be counted on to leave them open behind them when
@@ -199,6 +200,57 @@ Doors can be broken down by bashing them. Once a door is bashed open,
 it is forever useless and cannot be closed.
 
 For historical reasons, secret doors are never locked.
+
+
+***** <Feelings>
+=== Level Feelings ===
+
+Once you have been on a particular dungeon level for a while, you will
+receive a 'feeling' prompt representing what your intuition tells you
+about the quality of objects and the difficulty of the monsters found
+on that level. You may check this prompt again at any time after
+receiving it by pressing 'Ctrl-F'.
+
+The actual 'feeling' prompt is generated based on a number of factors.
+Things which increase the feeling level include the presence of vaults
+and certain other special rooms, out of depth objects and monsters and
+objects of a certain quality (for example, ego items, artifacts and
+other objects that are considered 'great' (see objects.txt)). A feeling
+is only indicative of the level at the time you entered it and has no
+impact on subsequent monsters generated or items dropped.
+
+In Zangband, the nastier the feeling prompt, the better the level. From
+worst to best, the prompts are as follows:
+
+     'What a boring place...'
+     'This level looks reasonably safe.'
+     'You don't like the look of this place.'
+     'You feel your luck is turning...'
+     'You feel nervous.'
+     'You have a bad feeling...'
+     'You have a very bad feeling...'
+     'This level looks very dangerous.'
+     'You nearly faint as horrible visions of death fill your mind!'
+
+Zangband also uses two other feeling prompts to denote special things.
+If you have not yet been on a level long enough to qualify for a prompt
+and press 'Ctrl-F', you will be given the prompt:
+
+     'Looks like any other level.'
+
+If you are playing in non-preserve mode, you may also occasionally
+receive the following prompt:
+
+     'You feel there is something special about this level.'
+
+A special feeling means one of two things, there is either a special
+room or vault on the level or there is an artifact on the level. As you
+get deeper on the dungeon, special feelings become increasingly less
+common for special room and vaults and are only commonly given when an
+artifact has been generated. Note it is possible that there could be
+both a vault and an artifact or more than one artifact on a special
+level so you should never leave a special level without fully exploring
+it unless your character's continued survival is in question.
 
 
 ***** <RandomQuests>
@@ -246,13 +298,18 @@ collect and sell the dropped items and gain repeated experience for
 killing the monsters. This technique is frowned upon by many players
 and should be noted in any 'winner' post to the newsgroup.
 
+Note that to avoid some ugly abuses available to players, the Genocide,
+Mass-Genocide and *Destruction* spells are prevented from working
+on random quests monsters. Random quest monsters may also not be cloned
+or tamed.
 
 --
 Original   : (??)
 Updated    : (??)
 Updated    : Zangband DevTeam
-Last update: January 13, 2000
+Last update: May 29, 2000
 
 ***** Begin Hyperlinks
 ***** [1] command.txt
-***** [2] object.txt
+***** [2] objects.txt
+

@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/08/21 11:27:14 $ */
+/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/06/11 23:49:21 $ */
 /* File: mspells1.c */
 
 /* Purpose: Monster spells (attack player) */
@@ -299,7 +299,7 @@ static void remove_bad_spells(int m_idx, u32b *f4p, u32b *f5p, u32b *f6p)
 	{
 		f4 &= ~(RF4_BR_SHAR);
 		
-		if (rand_int(2))
+		if(rand_int(2))
 		{
 			f4 &= ~(RF4_ROCKET);
 		}
@@ -363,7 +363,7 @@ static bool summon_possible(int y1, int x1)
 			if (!in_bounds(y, x)) continue;
 			
 			/* Access Grid */
-			c_ptr = &cave[y][x];
+			c_ptr = area(y, x);
 
 			/* Hack: no summon on glyph of warding */
 			if (c_ptr->feat == FEAT_GLYPH) continue;
@@ -374,7 +374,7 @@ static bool summon_possible(int y1, int x1)
 			    (c_ptr->feat <= FEAT_PATTERN_XTRA2)) continue;
 
 			/* Require empty floor grid in line of sight */
-			if (cave_empty_bold(y,x) && los(y1, x1, y, x)) return (TRUE);
+			if (cave_empty_grid(c_ptr) && los(y1, x1, y, x)) return (TRUE);
 		}
 	}
 
@@ -511,6 +511,135 @@ void curse_equipment(int chance, int heavy_chance)
 
 
 /*
+ * Return TRUE if a spell is good for hurting the player (directly).
+ */
+static bool spell_attack(byte spell)
+{
+	/* All RF4 spells hurt (except for shriek) */
+	if (spell < 128 && spell > 96) return (TRUE);
+
+	/* Various "ball" spells */
+	if (spell >= 128 && spell <= 128 + 8) return (TRUE);
+
+	/* "Cause wounds" and "bolt" spells */
+	if (spell >= 128 + 12 && spell < 128 + 27) return (TRUE);
+
+	/* Hand of Doom */
+	if (spell == 160 + 1) return (TRUE);
+
+	/* Doesn't hurt */
+	return (FALSE);
+}
+
+
+/*
+ * Return TRUE if a spell is good for escaping.
+ */
+static bool spell_escape(byte spell)
+{
+	/* Blink or Teleport */
+	if (spell == 160 + 4 || spell == 160 + 5) return (TRUE);
+
+	/* Teleport the player away */
+	if (spell == 160 + 9 || spell == 160 + 10) return (TRUE);
+
+	/* Isn't good for escaping */
+	return (FALSE);
+}
+
+/*
+ * Return TRUE if a spell is good for annoying the player.
+ */
+static bool spell_annoy(byte spell)
+{
+	/* Shriek */
+	if (spell == 96 + 0) return (TRUE);
+
+	/* Brain smash, et al (added curses) */
+	if (spell >= 128 + 9 && spell <= 128 + 14) return (TRUE);
+
+	/* Scare, confuse, blind, slow, paralyze */
+	if (spell >= 128 + 27 && spell <= 128 + 31) return (TRUE);
+
+	/* Teleport to */
+	if (spell == 160 + 8) return (TRUE);
+
+#if 0
+	/* Hand of Doom */
+	if (spell == 160 + 1) return (TRUE);
+#endif
+
+	/* Darkness, make traps, cause amnesia */
+	if (spell >= 160 + 12 && spell <= 160 + 14) return (TRUE);
+
+	/* Doesn't annoy */
+	return (FALSE);
+}
+
+/*
+ * Return TRUE if a spell summons help.
+ */
+static bool spell_summon(byte spell)
+{
+	/* All summon spells */
+	if (spell >= 160 + 16) return (TRUE);
+
+	/* Doesn't summon */
+	return (FALSE);
+}
+
+
+/*
+ * Return TRUE if a spell is good in a tactical situation.
+ */
+static bool spell_tactic(byte spell)
+{
+	/* Blink */
+	if (spell == 160 + 4) return (TRUE);
+
+	/* Not good */
+	return (FALSE);
+}
+
+/*
+ * Return TRUE if a spell makes invulnerable.
+ */
+static bool spell_invulner(byte spell)
+{
+	/* Invulnerability */
+	if (spell == 160 + 3) return (TRUE);
+
+	/* No invulnerability */
+	return (FALSE);
+}
+
+/*
+ * Return TRUE if a spell hastes.
+ */
+static bool spell_haste(byte spell)
+{
+	/* Haste self */
+	if (spell == 160 + 0) return (TRUE);
+
+	/* Not a haste spell */
+	return (FALSE);
+}
+
+
+/*
+ * Return TRUE if a spell is good for healing.
+ */
+static bool spell_heal(byte spell)
+{
+	/* Heal */
+	if (spell == 160 + 2) return (TRUE);
+
+	/* No healing */
+	return (FALSE);
+}
+
+
+/*
  * Have a monster choose a spell from a list of "useful" spells.
  *
  * Note that this list does NOT include spells that will just hit
@@ -524,184 +653,131 @@ void curse_equipment(int chance, int heavy_chance)
  *
  * This function may well be an efficiency bottleneck.
  */
-static int choose_attack_spell(int m_idx, u32b f4, u32b f5, u32b f6)
+static int choose_attack_spell(int m_idx, byte spells[], byte num)
 {
 	monster_type *m_ptr = &m_list[m_idx];
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
-	u32b f4_mask = 0L;
-	u32b f5_mask = 0L;
-	u32b f6_mask = 0L;
-
-	bool has_escape, has_attack, has_summon, has_tactic;
-	bool has_annoy, has_invul, has_haste, has_heal;
-	
-	int num = 0;
-	byte spells[96];
+	byte escape[96], escape_num = 0;
+	byte attack[96], attack_num = 0;
+	byte summon[96], summon_num = 0;
+	byte tactic[96], tactic_num = 0;
+	byte annoy[96], annoy_num = 0;
+	byte invul[96], invul_num = 0;
+	byte haste[96], haste_num = 0;
+	byte heal[96], heal_num = 0;
 
 	int i;
 
-	/* Smart monsters restrict their spell choices. */
-	if (!stupid_monsters && !(r_ptr->flags2 & (RF2_STUPID)))
+	/* Stupid monsters choose randomly */
+	if (r_ptr->flags2 & (RF2_STUPID))
 	{
-		/* What have we got? */
-		has_escape = ((f4 & (RF4_ESCAPE_MASK)) ||
-		              (f5 & (RF5_ESCAPE_MASK)) ||
-		              (f6 & (RF6_ESCAPE_MASK)));
-		has_attack = ((f4 & (RF4_ATTACK_MASK)) ||
-		              (f5 & (RF5_ATTACK_MASK)) ||
-		              (f6 & (RF6_ATTACK_MASK)));
-		has_summon = ((f4 & (RF4_SUMMON_MASK)) ||
-		              (f5 & (RF5_SUMMON_MASK)) ||
-		              (f6 & (RF6_SUMMON_MASK)));
-		has_tactic = ((f4 & (RF4_TACTIC_MASK)) ||
-		              (f5 & (RF5_TACTIC_MASK)) ||
-		              (f6 & (RF6_TACTIC_MASK)));
-		has_annoy = ((f4 & (RF4_ANNOY_MASK)) ||
-		             (f5 & (RF5_ANNOY_MASK)) ||
-		             (f6 & (RF6_ANNOY_MASK)));
-		has_invul = ((f4 & (RF4_INVULN_MASK)) ||
-			     (f5 & (RF5_INVULN_MASK)) ||
-			     (f6 & (RF6_INVULN_MASK)));
-		has_haste = ((f4 & (RF4_HASTE_MASK)) ||
-		             (f5 & (RF5_HASTE_MASK)) ||
-		             (f6 & (RF6_HASTE_MASK)));
-		has_heal = ((f4 & (RF4_HEAL_MASK)) ||
-		            (f5 & (RF5_HEAL_MASK)) ||
-		            (f6 & (RF6_HEAL_MASK)));
-	
-		/*** Try to pick an appropriate spell type ***/
-
-		/* Hurt badly or afraid, attempt to flee */
-		if (has_escape && ((m_ptr->hp < m_ptr->maxhp / 4) ||
-			 m_ptr->monfear) && (!rand_int(2)))
-		{
-			/* Choose escape spell */
-			f4_mask = (RF4_ESCAPE_MASK);
-			f5_mask = (RF5_ESCAPE_MASK);
-			f6_mask = (RF6_ESCAPE_MASK);
-		}
-
-		/* Still hurt badly, couldn't flee, attempt to heal */
-		else if (has_heal && (m_ptr->hp < m_ptr->maxhp / 4) &&
-			 (!rand_int(2)))
-		{
-			/* Choose heal spell */
-			f4_mask = (RF4_HEAL_MASK);
-			f5_mask = (RF5_HEAL_MASK);
-			f6_mask = (RF6_HEAL_MASK);
-		}
-
-		/* Player is close and we have attack spells, blink away */
-		else if (has_tactic && (m_ptr->cdis < 4) && has_attack &&
-			 (rand_int(100) < 75))
-		{
-			/* Choose tactical spell */
-			f4_mask = (RF4_TACTIC_MASK);
-			f5_mask = (RF5_TACTIC_MASK);
-			f6_mask = (RF6_TACTIC_MASK);
-		}
-
-		/* We're hurt (not badly), try to heal */
-		else if ((m_ptr->hp < m_ptr->maxhp * 3 / 4)
-			 && (rand_int(100) < 60))
-		{
-			/* Choose heal spell */
-			f4_mask = (RF4_HEAL_MASK);
-			f5_mask = (RF5_HEAL_MASK);
-			f6_mask = (RF6_HEAL_MASK);
-		}
-
-		/* Summon if possible (sometimes) */
-		else if (has_summon && (rand_int(100) < 50))
-		{
-			/* Choose summon spell */
-			f4_mask = (RF4_SUMMON_MASK);
-			f5_mask = (RF5_SUMMON_MASK);
-			f6_mask = (RF6_SUMMON_MASK);
-		}
-
-		/* Attack spell (most of the time) */
-		else if (has_attack && (rand_int(100) < 85))
-		{
-			/* Choose attack spell */
-			f4_mask = (RF4_ATTACK_MASK);
-			f5_mask = (RF5_ATTACK_MASK);
-			f6_mask = (RF6_ATTACK_MASK);
-		}
-
-		/* Try another tactical spell (sometimes) */
-		else if (has_tactic && (rand_int(100) < 50))
-		{
-			/* Choose tactic spell */
-			f4_mask = (RF4_TACTIC_MASK);
-			f5_mask = (RF5_TACTIC_MASK);
-			f6_mask = (RF6_TACTIC_MASK);
-		}
-
-		/* Cast globe of invulnerability if not already in effect */
-		else if (has_invul && !(m_ptr->invulner)
-			 && (rand_int(100) < 50))
-		{
-			/* Choose Globe of Invulnerability */
-			f4_mask = (RF4_INVULN_MASK);
-			f5_mask = (RF5_INVULN_MASK);
-			f6_mask = (RF6_INVULN_MASK);
-		}
-
-		/* Haste self if we aren't already somewhat hasted (rarely) */
-		else if (has_haste && (rand_int(100) < (20 + r_ptr->speed
-			 - m_ptr->mspeed)))
-		{
-			/* Choose haste spell */
-			f4_mask = (RF4_HASTE_MASK);
-			f5_mask = (RF5_HASTE_MASK);
-			f6_mask = (RF6_HASTE_MASK);
-		}
-
-		/* Annoy player (most of the time) */
-		else if (has_annoy && (rand_int(100) < 85))
-		{
-			/* Choose annoyance spell */
-			f4_mask = (RF4_ANNOY_MASK);
-			f5_mask = (RF5_ANNOY_MASK);
-			f6_mask = (RF6_ANNOY_MASK);
-		}
-		
-		/* Else choose no spell (The masks default to this.) */
-
-		/* Keep only the interesting spells */
-		f4 &= f4_mask;
-		f5 &= f5_mask;
-		f6 &= f6_mask;
-
-		/* Anything left? */
-		if (!(f4 || f5 || f6)) return (0);
-	}		
-	
-	/* Extract the "innate" spells */
-	for (i = 0; i < 32; i++)
-	{
-		if (f4 & (1L << i)) spells[num++] = i + 32 * 3;
+		/* Pick at random */
+		return (spells[rand_int(num)]);
 	}
 
-	/* Extract the "normal" spells */
-	for (i = 0; i < 32; i++)
+	/* Categorize spells */
+	for (i = 0; i < num; i++)
 	{
-		if (f5 & (1L << i)) spells[num++] = i + 32 * 4;
+		/* Escape spell? */
+		if (spell_escape(spells[i])) escape[escape_num++] = spells[i];
+
+		/* Attack spell? */
+		if (spell_attack(spells[i])) attack[attack_num++] = spells[i];
+
+		/* Summon spell? */
+		if (spell_summon(spells[i])) summon[summon_num++] = spells[i];
+
+		/* Tactical spell? */
+		if (spell_tactic(spells[i])) tactic[tactic_num++] = spells[i];
+
+		/* Annoyance spell? */
+		if (spell_annoy(spells[i])) annoy[annoy_num++] = spells[i];
+
+		/* Invulnerability spell? */
+		if (spell_invulner(spells[i])) invul[invul_num++] = spells[i];
+
+		/* Haste spell? */
+		if (spell_haste(spells[i])) haste[haste_num++] = spells[i];
+
+		/* Heal spell? */
+		if (spell_heal(spells[i])) heal[heal_num++] = spells[i];
 	}
 
-	/* Extract the "bizarre" spells */
-	for (i = 0; i < 32; i++)
+	/*** Try to pick an appropriate spell type ***/
+
+	/* Hurt badly or afraid, attempt to flee */
+	if (((m_ptr->hp < m_ptr->maxhp / 3) || m_ptr->monfear) && (!rand_int(2)))
 	{
-		if (f6 & (1L << i)) spells[num++] = i + 32 * 5;
+		/* Choose escape spell if possible */
+		if (escape_num) return (escape[rand_int(escape_num)]);
 	}
 
-	/* Paranoia */
-	if (num == 0) return 0;
+	/* Still hurt badly, couldn't flee, attempt to heal */
+	if ((m_ptr->hp < m_ptr->maxhp / 3) && (!rand_int(2)))
+	{
+		/* Choose heal spell if possible */
+		if (heal_num) return (heal[rand_int(heal_num)]);
+	}
 
-	/* Pick at random */
-	return (spells[rand_int(num)]);
+	/* Player is close and we have attack spells, blink away */
+	if ((m_ptr->cdis < 4) && attack_num && (rand_int(100) < 75))
+	{
+		/* Choose tactical spell */
+		if (tactic_num) return (tactic[rand_int(tactic_num)]);
+	}
+
+	/* We're hurt (not badly), try to heal */
+	if ((m_ptr->hp < m_ptr->maxhp * 3 / 4) && (rand_int(100) < 75))
+	{
+		/* Choose heal spell if possible */
+		if (heal_num) return (heal[rand_int(heal_num)]);
+	}
+
+	/* Summon if possible (sometimes) */
+	if (summon_num && (rand_int(100) < 50))
+	{
+		/* Choose summon spell */
+		return (summon[rand_int(summon_num)]);
+	}
+
+	/* Attack spell (most of the time) */
+	if (attack_num && (rand_int(100) < 85))
+	{
+		/* Choose attack spell */
+		return (attack[rand_int(attack_num)]);
+	}
+
+	/* Try another tactical spell (sometimes) */
+	if (tactic_num && (rand_int(100) < 50))
+	{
+		/* Choose tactic spell */
+		return (tactic[rand_int(tactic_num)]);
+	}
+
+	/* Cast globe of invulnerability if not already in effect */
+	if (invul_num && !(m_ptr->invulner) && (rand_int(100) < 50))
+	{
+		/* Choose Globe of Invulnerability */
+		return (invul[rand_int(invul_num)]);
+	}
+
+	/* Haste self if we aren't already somewhat hasted (rarely) */
+	if (haste_num && (rand_int(100) < (20 + r_ptr->speed - m_ptr->mspeed)))
+	{
+		/* Choose haste spell */
+		return (haste[rand_int(haste_num)]);
+	}
+
+	/* Annoy player (most of the time) */
+	if (annoy_num && (rand_int(100) < 85))
+	{
+		/* Choose annoyance spell */
+		return (annoy[rand_int(annoy_num)]);
+	}
+
+	/* Choose no spell */
+	return (0);
 }
 
 
@@ -762,6 +838,7 @@ static int choose_attack_spell(int m_idx, u32b f4, u32b f5, u32b f6)
 bool make_attack_spell(int m_idx)
 {
 	int             k, chance, thrown_spell, rlev, failrate;
+	byte            spell[96], num = 0;
 	u32b            f4, f5, f6;
 	monster_type    *m_ptr = &m_list[m_idx];
 	monster_race    *r_ptr = &r_info[m_ptr->r_idx];
@@ -899,6 +976,27 @@ bool make_attack_spell(int m_idx)
 		if (!f4 && !f5 && !f6) return (FALSE);
 	}
 
+	/* Extract the "inate" spells */
+	for (k = 0; k < 32; k++)
+	{
+		if (f4 & (1L << k)) spell[num++] = k + 32 * 3;
+	}
+
+	/* Extract the "normal" spells */
+	for (k = 0; k < 32; k++)
+	{
+		if (f5 & (1L << k)) spell[num++] = k + 32 * 4;
+	}
+
+	/* Extract the "bizarre" spells */
+	for (k = 0; k < 32; k++)
+	{
+		if (f6 & (1L << k)) spell[num++] = k + 32 * 5;
+	}
+
+	/* No spells left */
+	if (!num) return (FALSE);
+
 	/* Stop if player is dead or gone */
 	if (!alive || death) return (FALSE);
 
@@ -914,24 +1012,32 @@ bool make_attack_spell(int m_idx)
 	/* Hack -- Get the "died from" name */
 	monster_desc(ddesc, m_ptr, 0x88);
 
-	thrown_spell = choose_attack_spell(m_idx, f4, f5, f6);
-
-	/* Abort if no spell was chosen */
-	if (!thrown_spell) return (FALSE);
-
-	/* Calculate spell failure rate */
-	failrate = 25 - (rlev + 3) / 4;
-
-	/* Hack -- Stupid monsters will never fail (for jellies and such) */
-	if (r_ptr->flags2 & RF2_STUPID) failrate = 0;
-
-	/* Check for spell failure (inate attacks never fail) */
-	if ((thrown_spell >= 128) && (rand_int(100) < failrate))
+	if (stupid_monsters)
 	{
-		/* Message */
-		msg_format("%^s tries to cast a spell, but fails.", m_name);
+		/* Choose a spell to cast */
+		thrown_spell = spell[rand_int(num)];
+	}
+	else
+	{
+		thrown_spell = choose_attack_spell(m_idx, spell, num);
 
-		return (TRUE);
+		/* Abort if no spell was chosen */
+		if (!thrown_spell) return (FALSE);
+
+		/* Calculate spell failure rate */
+		failrate = 25 - (rlev + 3) / 4;
+
+		/* Hack -- Stupid monsters will never fail (for jellies and such) */
+		if (r_ptr->flags2 & RF2_STUPID) failrate = 0;
+
+		/* Check for spell failure (inate attacks never fail) */
+		if ((thrown_spell >= 128) && (rand_int(100) < failrate))
+		{
+			/* Message */
+			msg_format("%^s tries to cast a spell, but fails.", m_name);
+
+			return (TRUE);
+		}
 	}
 
 	/* Cast the spell. */
@@ -1083,7 +1189,7 @@ bool make_attack_spell(int m_idx)
 			if (blind) msg_format("%^s breathes.", m_name);
 			else msg_format("%^s breathes nether.", m_name);
 			breath(m_idx, GF_NETHER,
-				((m_ptr->hp / 6) > 450 ? 450 : (m_ptr->hp / 6)), 0, TRUE);
+				((m_ptr->hp / 6) > 550 ? 450 : (m_ptr->hp / 6)), 0, TRUE);
 			update_smart_learn(m_idx, DRS_NETH);
 			break;
 		}
@@ -1095,7 +1201,7 @@ bool make_attack_spell(int m_idx)
 			if (blind) msg_format("%^s breathes.", m_name);
 			else msg_format("%^s breathes light.", m_name);
 			breath(m_idx, GF_LITE,
-				((m_ptr->hp / 4) > 350 ? 350 : (m_ptr->hp / 4)), 0, TRUE);
+				((m_ptr->hp / 6) > 350 ? 350 : (m_ptr->hp / 6)), 0, TRUE);
 			update_smart_learn(m_idx, DRS_LITE);
 			break;
 		}
@@ -1107,7 +1213,7 @@ bool make_attack_spell(int m_idx)
 			if (blind) msg_format("%^s breathes.", m_name);
 			else msg_format("%^s breathes darkness.", m_name);
 			breath(m_idx, GF_DARK,
-				((m_ptr->hp / 4) > 350 ? 350 : (m_ptr->hp / 4)), 0, TRUE);
+				((m_ptr->hp / 6) > 350 ? 350 : (m_ptr->hp / 6)), 0, TRUE);
 			update_smart_learn(m_idx, DRS_DARK);
 			break;
 		}
@@ -1119,7 +1225,7 @@ bool make_attack_spell(int m_idx)
 			if (blind) msg_format("%^s breathes.", m_name);
 			else msg_format("%^s breathes confusion.", m_name);
 			breath(m_idx, GF_CONFUSION,
-				((m_ptr->hp / 4) > 350 ? 350 : (m_ptr->hp / 4)), 0, TRUE);
+				((m_ptr->hp / 6) > 350 ? 350 : (m_ptr->hp / 6)), 0, TRUE);
 			update_smart_learn(m_idx, DRS_CONF);
 			break;
 		}
@@ -1131,7 +1237,7 @@ bool make_attack_spell(int m_idx)
 			if (blind) msg_format("%^s breathes.", m_name);
 			else msg_format("%^s breathes sound.", m_name);
 			breath(m_idx, GF_SOUND,
-				((m_ptr->hp / 4) > 350 ? 350 : (m_ptr->hp / 4)), 0, TRUE);
+				((m_ptr->hp / 6) > 350 ? 350 : (m_ptr->hp / 6)), 0, TRUE);
 			update_smart_learn(m_idx, DRS_SOUND);
 			break;
 		}
@@ -1143,7 +1249,7 @@ bool make_attack_spell(int m_idx)
 			if (blind) msg_format("%^s breathes.", m_name);
 			else msg_format("%^s breathes chaos.", m_name);
 			breath(m_idx, GF_CHAOS,
-				((m_ptr->hp / 4) > 500 ? 500 : (m_ptr->hp / 4)), 0, TRUE);
+				((m_ptr->hp / 6) > 500 ? 500 : (m_ptr->hp / 6)), 0, TRUE);
 			update_smart_learn(m_idx, DRS_CHAOS);
 			break;
 		}
@@ -1155,7 +1261,7 @@ bool make_attack_spell(int m_idx)
 			if (blind) msg_format("%^s breathes.", m_name);
 			else msg_format("%^s breathes disenchantment.", m_name);
 			breath(m_idx, GF_DISENCHANT,
-				((m_ptr->hp / 4) > 400 ? 400 : (m_ptr->hp / 4)), 0, TRUE);
+				((m_ptr->hp / 6) > 400 ? 400 : (m_ptr->hp / 6)), 0, TRUE);
 			update_smart_learn(m_idx, DRS_DISEN);
 			break;
 		}
@@ -1190,7 +1296,7 @@ bool make_attack_spell(int m_idx)
 			if (blind) msg_format("%^s breathes.", m_name);
 			else msg_format("%^s breathes inertia.", m_name);
 			breath(m_idx, GF_INERTIA,
-				((m_ptr->hp / 4) > 200 ? 200 : (m_ptr->hp / 4)), 0, TRUE);
+				((m_ptr->hp / 6) > 200 ? 200 : (m_ptr->hp / 6)), 0, TRUE);
 			break;
 		}
 
@@ -1212,7 +1318,7 @@ bool make_attack_spell(int m_idx)
 			if (blind) msg_format("%^s breathes.", m_name);
 			else msg_format("%^s breathes shards.", m_name);
 			breath(m_idx, GF_SHARDS,
-				((m_ptr->hp / 4) > 400 ? 400 : (m_ptr->hp / 4)), 0, TRUE);
+				((m_ptr->hp / 6) > 400 ? 400 : (m_ptr->hp / 6)), 0, TRUE);
 			update_smart_learn(m_idx, DRS_SHARD);
 			break;
 		}
@@ -1224,7 +1330,7 @@ bool make_attack_spell(int m_idx)
 			if (blind) msg_format("%^s breathes.", m_name);
 			else msg_format("%^s breathes plasma.", m_name);
 			breath(m_idx, GF_PLASMA,
-				((m_ptr->hp / 4) > 150 ? 150 : (m_ptr->hp / 4)), 0, TRUE);
+				((m_ptr->hp / 6) > 150 ? 150 : (m_ptr->hp / 6)), 0, TRUE);
 			break;
 		}
 
@@ -1235,7 +1341,7 @@ bool make_attack_spell(int m_idx)
 			if (blind) msg_format("%^s breathes.", m_name);
 			else msg_format("%^s breathes force.", m_name);
 			breath(m_idx, GF_FORCE,
-				((m_ptr->hp / 4) > 200 ? 200 : (m_ptr->hp / 4)), 0, TRUE);
+				((m_ptr->hp / 6) > 200 ? 200 : (m_ptr->hp / 6)), 0, TRUE);
 			break;
 		}
 
@@ -1268,7 +1374,7 @@ bool make_attack_spell(int m_idx)
 			if (blind) msg_format("%^s breathes.", m_name);
 			else msg_format("%^s breathes toxic waste.", m_name);
 			breath(m_idx, GF_NUKE,
-				((m_ptr->hp / 2) > 600 ? 600 : (m_ptr->hp / 2)), 0, TRUE);
+				((m_ptr->hp / 3) > 600 ? 600 : (m_ptr->hp / 3)), 0, TRUE);
 			update_smart_learn(m_idx, DRS_POIS);
 			break;
 		}
@@ -1278,7 +1384,7 @@ bool make_attack_spell(int m_idx)
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles frighteningly.", m_name);
-			else msg_format("%^s invokes raw Logrus.", m_name);
+			else msg_format("%^s invokes a raw Logrus.", m_name);
 			breath(m_idx, GF_CHAOS, (rlev * 2) + damroll(10, 10), 4, FALSE);
 			update_smart_learn(m_idx, DRS_CHAOS);
 			break;
@@ -2117,13 +2223,9 @@ bool make_attack_spell(int m_idx)
 			break;
 		}
 
-		/* RF6_RAISE_DEAD */
+		/* RF6_XXX6X6 */
 		case 160+15:
 		{
-			disturb(1, 0);
-			msg_format("%^s mutters quietly.", m_name);		
-			
-			/*raise_dead(m_ptr->fy, m_ptr->fx, FALSE);*/
 			break;
 		}
 

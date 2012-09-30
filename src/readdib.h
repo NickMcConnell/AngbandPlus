@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 2000/07/20 17:40:16 $ */
+/* CVS: Last edit by $Author: remco $ on $Date: 1999/09/30 10:09:01 $ */
 /* File: readdib.h */
 
 /*
@@ -11,11 +11,11 @@
  * Information about a bitmap
  */
 typedef struct {
-	HANDLE   hDIB;
-	HBITMAP  hBitmap;
-	HPALETTE hPalette;
-	BYTE     CellWidth;
-	BYTE     CellHeight;
+	HANDLE hDIB;
+	HANDLE hBitmap;
+	HANDLE hPalette;
+	BYTE   CellWidth;
+	BYTE   CellHeight;
 } DIBINIT;
 
 /* Read a DIB from a file */

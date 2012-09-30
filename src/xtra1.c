@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/07/19 13:51:45 $ */
+/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/06/27 10:27:49 $ */
 /* File: misc.c */
 
 /* Purpose: misc code */
@@ -412,7 +412,7 @@ static void prt_status(void)
  */
 static void prt_title(void)
 {
-	cptr p = "";
+	cptr p;
 
 	/* Wizard */
 	if (wizard)
@@ -1250,7 +1250,7 @@ static void fix_player(void)
 		Term_activate(angband_term[j]);
 
 		/* Display player */
-		display_player(0);
+		display_player(DISPLAY_PLAYER_STANDARD);
 
 		/* Fresh */
 		Term_fresh();
@@ -1293,8 +1293,14 @@ static void fix_message(void)
 		/* Dump messages */
 		for (i = 0; i < h; i++)
 		{
+			byte attr = message_color((s16b)i);
+
+			/* Hack -- fake monochrome */
+			if (!use_color) attr = TERM_WHITE;
+
 			/* Dump the message on the appropriate line */
-			Term_putstr(0, (h - 1) - i, -1, TERM_WHITE, message_str(i));
+			Term_putstr(0, (h - 1) - i, -1, attr,
+			            message_str(i));
 
 			/* Cursor */
 			Term_locate(&x, &y);
@@ -1337,6 +1343,10 @@ static void fix_overhead(void)
 		/* Activate */
 		Term_activate(angband_term[j]);
 
+		/* No offset from player */
+		cx = 0;
+		cy = 0;
+		
 		/* Redraw map */
 		display_map(&cy, &cx);
 
@@ -2040,8 +2050,10 @@ static void calc_torch(void)
 	/* see cave.c:update_lite() and defines.h:LITE_MAX */
 	if (p_ptr->cur_lite > 5) p_ptr->cur_lite = 5;
 
-	/* check if the player doesn't have a lite source, */
-	/* but does glow as an intrinsic.                  */
+	/*
+	 * Check if the player doesn't have a lite source,
+	 * but does glow as an intrinsic.
+	 */
 	if (p_ptr->cur_lite == 0 && p_ptr->lite) p_ptr->cur_lite = 1;
 
 	/* end experimental mods */
@@ -2124,7 +2136,7 @@ static sint add_special_melee_skill(byte pclass, s16b weight, object_type *o_ptr
 
 		/* Rogue.  Can use 10 lb weapons without penalty at level 1, and 20 lb
 		* weapons without penalty at 50th level. Can get a bonus for using light
-		* weapons.  */
+		* weapons. */
 		case CLASS_ROGUE:
 		{
 			if (!o_ptr->k_idx) add_skill = 0;
@@ -3279,7 +3291,7 @@ void calc_bonuses(void)
 				if (p_ptr->lev >= 40) p_ptr->num_fire++;
 			}
 
-			/* Hack -- Rangers can use XBows as well*/
+			/* Hack -- Rangers can use XBows as well */
 			if ((p_ptr->pclass == CLASS_RANGER) &&
 			    (p_ptr->tval_ammo == TV_BOLT))
 			{
@@ -3343,7 +3355,7 @@ void calc_bonuses(void)
 	{
 		int str_index, dex_index;
 
-		int num = 0, wgt = 0, mul = 0, div = 0;
+		int num = 0, wgt = 0, mul = 0, div;
 
 		/* Analyze the class */
 		switch (p_ptr->pclass)
@@ -3420,7 +3432,7 @@ void calc_bonuses(void)
 
 
 	/* Different calculation for monks with empty hands */
-	else if (p_ptr->pclass == CLASS_MONK && monk_empty_hands())
+	else if ((p_ptr->pclass == CLASS_MONK) && monk_empty_hands())
 	{
 		p_ptr->num_blow = 2;
 

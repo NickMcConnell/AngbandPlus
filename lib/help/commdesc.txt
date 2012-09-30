@@ -325,22 +325,9 @@ Inscribe an object ({)
      This command inscribes a string on an object. The inscription is
      displayed inside curly braces after the object description. The
      inscription is limited to the particular object (or pile) and is
-     not automatically transferred to all similar objects. Under
-     certain circumstances, Zangband will display "fake" inscriptions
-     on certain objects ("cursed", "broken", "tried", "empty", "NN%
-     off") when appropriate. These "fake" inscriptions are "covered up"
-     by real inscriptions, but will re-appear if the real inscription
-     is removed. In addition, Zangband will occasionally place a "real"
-     inscription on an object for you, normally as the result of your
-     character getting a "feeling" about the item. All characters will
-     get "feelings" about weapons and armor after carrying them for a
-     while. Warriors get the most detailed feelings, and get them
-     quicker than any other class. An item labeled as "{empty}" was
-     found to be out of charges, and an item labeled as "{tried}" is a
-     "flavored" item which the character has used, but whose effects
-     are unknown. Certain inscriptions have a meaning to the game, see
-     "@#", "@x#", "!*", and "!x", in the section on inventory object
-     selection.
+     not automatically transferred to all similar objects. Note that
+     certain inscriptions have a meaning to the game, (see
+     objects.txt#Inscriptions [1]).
 
 Uninscribe an object (})
      This command removes the inscription on an object. This command
@@ -652,4 +639,7 @@ Updated    : (2.7.6) by Russ Allbery (rra@cs.stanford.edu)
 Updated    : (2.7.9) by Ben Harrison (benh@phial.com)
 Updated    : Zangband 2.2.0 through 2.2.6c by Robert Ruehlmann
 Updated    : Zangband DevTeam
-Last update: January 13, 2000
+Last update: June 2, 2000
+
+***** Begin Hyperlinks
+***** [1] objects.txt#Inscriptions

@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/07/19 13:50:29 $ */
+/* CVS: Last edit by $Author: rr9 $ on $Date: 2000/05/22 15:19:27 $ */
 /* File: mind.c */
 
 /* Purpose: Mindcrafter code */
@@ -76,9 +76,9 @@ static int get_mindcraft_power(int *sn)
 	int             num = 0;
 	int             y = 1;
 	int             x = 20;
-	int             minfail = 0;
+	int             minfail;
 	int             plev = p_ptr->lev;
-	int             chance = 0;
+	int             chance;
 	int             ask;
 	char            choice;
 	char            out_val[160];
@@ -246,14 +246,11 @@ static int get_mindcraft_power(int *sn)
 	if (redraw) screen_load();
 
 	/* Show choices */
-	if (show_choices)
-	{
-		/* Update */
-		p_ptr->window |= (PW_SPELL);
+	/* Update */
+	p_ptr->window |= (PW_SPELL);
 
-		/* Window stuff */
-		window_stuff();
-	}
+	/* Window stuff */
+	window_stuff();
 
 	/* Abort if needed */
 	if (!flag) return (FALSE);
@@ -278,7 +275,7 @@ static int get_mindcraft_power(int *sn)
  */
 static bool cast_mindcrafter_spell(int spell)
 {
-	int b = 0;
+	int b;
 	int dir;
 	int plev = p_ptr->lev;
 
@@ -353,7 +350,7 @@ static bool cast_mindcrafter_spell(int spell)
 		}
 		break;
 	case 5:
-		/* Fist of Force  ---  not 'true' TK  */
+		/* Fist of Force  ---  not 'true' TK */
 		if (!get_aim_dir(&dir)) return FALSE;
 
 		fire_ball(GF_SOUND, dir, damroll(8 + ((plev - 5) / 4), 8),
@@ -374,7 +371,6 @@ static bool cast_mindcrafter_spell(int spell)
 			return psychometry();
 		else
 			return ident_spell();
-		break;
 	case 8:
 		/* Mindwave */
 		msg_print("Mind-warping forces emanate from your brain!");
@@ -446,7 +442,7 @@ void do_cmd_mindcraft(void)
 {
 	int             n = 0;
 	int             chance;
-	int             minfail = 0;
+	int             minfail;
 	int             plev = p_ptr->lev;
 	int             old_csp = p_ptr->csp;
 	mindcraft_power spell;
@@ -510,10 +506,11 @@ void do_cmd_mindcraft(void)
 		msg_format("You failed to concentrate hard enough!");
 		sound(SOUND_FAIL);
 
+		/* Backfire */
 		if (randint(100) < (chance / 2))
 		{
-			/* Backfire */
 			int b = randint(100);
+
 			if (b < 5)
 			{
 				msg_print("Oh, no! Your mind has gone blank!");

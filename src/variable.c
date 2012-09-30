@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/07/19 13:51:21 $ */
+/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/06/24 10:30:16 $ */
 /* File: variable.c */
 
 /* Purpose: Angband variables */
@@ -174,9 +174,12 @@ s32b friend_align = 0;
 
 int leaving_quest = 0;
 
+s16b store_cache_num = 0;	/* Number of stores with stock */
+store_type **store_cache;	/* The cache of store stocks */
 
 /*
  * Software options (set via the '=' command).  See "tables.c"
+ * Needs to be rearranged to fit the data in tables.c
  */
 
 
@@ -196,16 +199,9 @@ bool stack_force_costs;		/* Merge discounts when stacking */
 
 bool show_labels;			/* Show labels in object listings */
 bool show_weights;			/* Show weights in object listings */
-bool show_choices;			/* Show choices in certain sub-windows */
-bool show_details;			/* Show details in certain sub-windows */
 
 bool ring_bell;				/* Ring the bell (on errors, etc) */
 bool use_color;				/* Use color if possible (slow) */
-
-bool show_inven_graph;		/* Show graphics in inventory */
-bool show_equip_graph;		/* Show graphics in equip list */
-bool show_store_graph;		/* Show graphics in store */
-
 
 
 /* Option Set 2 -- Disturbance */
@@ -222,22 +218,21 @@ bool disturb_state;			/* Disturn whenever player state changes */
 bool disturb_minor;			/* Disturb whenever boring things happen */
 bool disturb_other;			/* Disturb whenever various things happen */
 
-bool alert_hitpoint;		/* Alert user to critical hitpoints */
 bool alert_failure;		/* Alert user to various failures */
 bool last_words;		/* Get last words upon dying */
-bool speak_unique;		/* Speaking uniques + shopkeepers */
+bool speak_unique;		/* Speaking uniques */
 bool small_levels;		/* Allow unusually small dungeon levels */
-bool always_small_levels;		/* Use always unusually small dungeon levels */
 bool empty_levels;		/* Allow empty 'arena' levels */
-bool player_symbols;		/* Use varying symbols for the player char */
-bool equippy_chars;		/* Back by popular demand... */
-bool skip_mutations;		/* Skip mutations screen even if we have it */
 bool plain_descriptions;	/* Plain object descriptions */
 bool stupid_monsters;		/* Monsters use old AI */
+bool silly_monsters;		/* Allow silly monsters to be generated. */
 bool auto_destroy;		/* Known worthless items are destroyed without confirmation */
 bool confirm_stairs;		/* Prompt before staircases... */
 bool wear_confirm;		/* Confirm before putting on known cursed items */
+
 bool disturb_pets;		/* Pets moving nearby disturb us */
+
+
 
 
 
@@ -272,7 +267,6 @@ bool take_notes;                        /* Allow notes to be added to a file */
 bool auto_notes;                        /* Automatically take notes */
 
 bool point_based;                       /* Point-based generation */
-
 
 /* Option Set 4 -- Efficiency */
 
@@ -486,6 +480,12 @@ u16b *message__ptr;
  */
 char *message__buf;
 
+/*
+ * The array[MESSAGE_MAX] of bytes for the colors of messages
+ */
+byte *message__color;
+
+
 
 /*
  * The array of normal options
@@ -628,6 +628,55 @@ char angband_sound_name[SOUND_MAX][16] =
 cave_type *cave[MAX_HGT];
 
 /*
+ * The function pointer that is used to access the dungeon / wilderness.
+ * It points to a simple function when in the dungeon, that evaluates
+ * cave[y][x]
+ * In the wilderness, things are more complicated.
+ */
+
+cave_type *(*area)(int, int);
+
+/* Function pointer that points to the relevant in_bounds fn. */
+bool (*in_bounds)(int, int);
+
+/* Function pointer that points to the relevant in_bounds2 fn. */
+bool (*in_bounds2)(int, int);
+
+
+/*
+ * Variables used to access the scrollable wilderness.
+ * This is designed to be as fast as possible - whilst using as little
+ * RAM as possible to store a massive wilderness.
+ *
+ * The wilderness is generated "on the fly" as the player moves around it.
+ * To save time - blocks of 16x16 squares are saved in a cache so they
+ * don't need to be redone if the player moves back and forth.
+ */
+
+/* wilderness block - array of 16x16 cave grids. */
+/* cave_type *block[WILD_BLOCK_SIZE]; */
+
+/* block used to generate plasma fractal for random wilderness */
+u16b *temp_block[WILD_BLOCK_SIZE+1];
+
+/* cache of blocks near the player */
+cave_type **wild_cache[WILD_BLOCKS];
+
+/* grid of blocks around the player */
+wild_grid_type wild_grid;
+
+/* The wilderness itself */
+wild_type **wild;
+
+/* Description of wilderness block types */
+wild_gen_data_type *wild_gen_data;
+
+/* The decision tree for working out what block type to pick */
+wild_choice_tree_type *wild_choice_tree;
+
+byte *wild_temp_dist;
+
+/*
  * The array of dungeon items [max_o_idx]
  */
 object_type *o_list;
@@ -642,6 +691,11 @@ monster_type *m_list;
  * Maximum number of towns
  */
 u16b max_towns;
+
+/*
+ * Number of towns used.
+ */
+u16b town_count;
 
 /*
  * The towns [max_towns]
@@ -945,15 +999,9 @@ bool easy_floor;
 bool use_command;
 bool center_player;
 bool avoid_center;
-bool pillar_tunnels;
 
 /* Auto-destruction options */
 bool destroy_worthless;
-
-/*
- * Wilderness
- */
-wilderness_type **wilderness;
 
 
 /*
@@ -1010,8 +1058,22 @@ u16b max_m_idx;
 /*
  * Maximum size of the wilderness
  */
-s32b max_wild_x;
-s32b max_wild_y;
+s32b max_wild_size;
+
+/*
+ * Current size of the wilderness
+ */
+s32b max_wild;
+
+/*
+ * Maximum number of nodes in the wilderness decision tree
+ */
+u16b max_w_node;
+
+/*
+ * Maximum number of types of wilderness block.
+ */
+u16b max_w_block;
 
 /*
  * Quest info
@@ -1060,7 +1122,6 @@ bool ironman_small_levels;    /* Always create unusually small dungeon levels */
 bool ironman_downward;        /* Don't allow climbing upwards/recalling */
 bool ironman_autoscum;        /* Permanently enable the autoscummer */
 bool ironman_hard_quests;     /* Quest monsters get reinforcements */
-bool lite_town;               /* Use "lite" town without wilderness */
 bool ironman_empty_levels;    /* Always create empty 'arena' levels */
 bool terrain_streams;         /* Create terrain 'streamers' in the dungeon */
 bool munchkin_death;          /* Ask for saving death */
@@ -1069,9 +1130,10 @@ bool ironman_nightmare;			/* Play the game in Nightmare mode */
 bool maximize_mode;
 bool preserve_mode;
 bool autoroller;
-bool fast_autoroller;
 
 
 bool use_transparency = FALSE; /* Use transparent tiles */
 
 bool can_save = TRUE;         /* Game can be saved */
+
+

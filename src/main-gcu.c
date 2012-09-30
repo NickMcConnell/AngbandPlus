@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/07/19 13:50:07 $ */
+/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/06/04 10:26:30 $ */
 /* File: main-gcu.c */
 
 /*

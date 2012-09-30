@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/07/19 13:51:17 $ */
+/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/06/18 03:59:07 $ */
 /* File: types.h */
 
 /* Purpose: global type declarations */
@@ -72,7 +72,7 @@
  * Note that, on some machines, for example, the Macintosh, the standard
  * "malloc()" function cannot handle more than 32767 bytes at one time,
  * but we may assume that the "ralloc()" function can handle up to 65535
- * butes at one time.  We should not, however, assume that the "ralloc()"
+ * bytes at one time.  We should not, however, assume that the "ralloc()"
  * function can handle more than 65536 bytes at a time, since this might
  * result in segmentation problems on certain older machines, and in fact,
  * we should not assume that it can handle exactly 65536 bytes at a time,
@@ -460,7 +460,7 @@ struct cave_type
 
 	s16b m_idx;		/* Monster in this grid */
 
-	s16b special;	/* Special cave info */
+	s16b f_idx;		/* Field in this grid */
 
 	byte mimic;		/* Feature to mimic */
 
@@ -472,6 +472,7 @@ struct cave_type
 #endif /* MONSTER_FLOW */
 };
 
+
 /*
  * Simple structure to hold a map location
  */
@@ -481,6 +482,192 @@ struct coord
 {
 	u16b y;
 	u16b x;
+};
+
+
+/*
+ * Pointer to a 16x16 block of cave grids.
+ * The grids are allocated and deallocated in large
+ * blocks for speed.
+ */
+
+typedef cave_type **blk_ptr;
+
+/* Hack - to get the C_MAKE to work in init2.c */
+
+typedef cave_type *cave_tp_ptr;
+
+
+/*
+ * Grid of blocks around the player.
+ * This stores important information about what the player can see
+ * in the wilderness.  The max/ min vaules are stored for speed of
+ * the in_bounds and in_bounds2 functions.
+ * The cache_ count is no longer used.  (Before the number of blocks
+ * Allocated would change as the player moves around.  Now - this
+ * number is constant, and equal to the number of blocks the player
+ * can see.  The overhead involved in maintaining a cache of blocks
+ * did not seem worth the small speed increase that would exist only
+ * in a few cases.
+ */
+
+typedef struct wild_grid_type wild_grid_type;
+
+struct wild_grid_type
+{
+	/* location of top left hand corner of grid div 16 */
+	byte x;
+	byte y;
+
+	/* Pointers to blocks */
+	blk_ptr block_ptr[WILD_GRID_SIZE][WILD_GRID_SIZE];
+
+	/* Number of grids in cache */
+	byte cache_count;
+
+	u16b y_max;
+	u16b x_max;
+
+	u16b y_min;
+	u16b x_min;
+
+	/* Random seed of the wilderness */
+	u32b wild_seed;
+};
+
+
+/*
+ * Structure used to generate the wilderness.
+ * This stores the "height", "population" and "law" results
+ * after the initial plasma fractal routines.
+ * These values are then converted into simple look up numbers
+ * for the wilderness generation type and wandering monster type.
+ */
+
+typedef struct wild_gen_type wild_gen_type;
+
+struct wild_gen_type
+{
+	u16b	hgt_map;
+	u16b	pop_map;
+	u16b	law_map;
+};
+
+/* Structure used to hold the completed wilderness */
+
+typedef struct wild_done_type wild_done_type;
+
+struct wild_done_type
+{
+	u16b	wild;
+	byte	town;
+	byte	info;
+	byte	mon_gen;
+	byte	mon_prob;
+};
+
+/*
+ * To save room, the above two structures are combined to form the completed
+ * wilderness type.  The first one is only used in generation - the second
+ * from then onwards.
+ */
+
+typedef union wild_type wild_type;
+union wild_type
+{
+	wild_gen_type	gen;
+	wild_done_type	done;
+};
+
+typedef wild_type *wild_tp_ptr;
+
+/*
+ * An array of this structure is used to work out what wilderness type
+ * is at each 16x16 block.
+ */
+typedef struct wild_choice_tree_type wild_choice_tree_type;
+
+struct wild_choice_tree_type
+{
+	/*
+	 * Stores what type of node this is -
+	 * both what type of cutoff (hgt,pop,law)
+	 * and whether the pointers reference
+	 * another tree node- or a wilderness
+	 * generation type.
+	 */
+	byte	info;
+
+	/* cutoff for the split of the virtual BSP tree */
+	byte	cutoff;
+
+	/*
+	 * chance1/(chance1+chance2) = prob. of going down
+	 * the "left" branch.  (This is used when several
+	 * wilderness generation functions inhabit the same
+	 * area of parameter space.  This is used to select
+	 * between the possibilities randomly.
+	 */
+	byte	chance1;
+	byte	chance2;
+
+	/*
+	 * These point to the left and right branches of the tree.
+	 * Note - that since these also need to reference a wild.gen.type.
+	 * these are index numbers of the "choice" or "gen" arrays.
+	 * (depending on the value of info)
+	 */
+	u16b	ptrnode1;
+	u16b	ptrnode2;
+};
+
+
+/*
+ * This type is used to describe a region in parameter space
+ * for wilderness generation.
+ */
+
+
+typedef struct wild_bound_box_type wild_bound_box_type;
+
+struct wild_bound_box_type
+{
+	/* Min and max values for the cuboid in the parameter space */
+
+	byte hgtmin;
+	byte hgtmax;
+
+	byte popmin;
+	byte popmax;
+
+	byte lawmin;
+	byte lawmax;
+};
+/*
+ * This data type stores the information on a particular
+ * wilderness generation type for 16x16 blocks, so the
+ * blocks can be
+ * 1) made.
+ * 2) Looked at on the overhead map.
+ */
+typedef struct wild_gen_data_type wild_gen_data_type;
+
+struct wild_gen_data_type
+{
+	byte	w_attr;		/* Default attribute for overhead map*/
+	char	w_char;		/* Default character for overhead map*/
+
+	byte	gen_routine;	/* Generation routine number */
+
+	/*
+	 * Course type - used in plasma fractal routines to make
+	 * adjacent tiles fit togther smoothly.
+	 */
+	byte	rough_type;
+
+	byte	chance;		/* Chance for this type vs others */
+
+	byte	data[8];	/* data for generation routine */
 };
 
 
@@ -518,8 +705,8 @@ struct object_type
 {
 	s16b k_idx;			/* Kind index (zero if "dead") */
 
-	byte iy;			/* Y-position on map, or zero */
-	byte ix;			/* X-position on map, or zero */
+	s16b iy;			/* Y-position on map, or zero */
+	s16b ix;			/* X-position on map, or zero */
 
 	byte tval;			/* Item type (from kind) */
 	byte sval;			/* Item sub-type (from kind) */
@@ -564,6 +751,8 @@ struct object_type
 	s16b next_o_idx;	/* Next object in stack (if any) */
 
 	s16b held_m_idx;	/* Monster holding us (if any) */
+	
+	s16b att_f_idx;		/* Field affect attached (if any) */
 
 #ifdef USE_SCRIPT
 	PyObject *python;
@@ -608,8 +797,8 @@ struct monster_type
 {
 	s16b r_idx;			/* Monster race index */
 
-	byte fy;			/* Y location on map */
-	byte fx;			/* X location on map */
+	s16b fy;			/* Y location on map */
+	s16b fx;			/* X location on map */
 
 	s16b hp;			/* Current Hit points */
 	s16b maxhp;			/* Max Hit points */
@@ -631,6 +820,8 @@ struct monster_type
 	bool ml;			/* Monster is "visible" */
 
 	s16b hold_o_idx;	/* Object being held (if any) */
+	
+	s16b att_f_idx;	/* Magic affect attached to monster */
 
 #ifdef WDT_TRACK_OPTIONS
 
@@ -649,6 +840,100 @@ struct monster_type
 
 #endif /* DRS_SMART_OPTIONS */
 
+};
+
+/*
+ * The thaumaturgical list of fields.
+ *
+ * (Equivalent to monster races, or object kinds.
+ *  They had to be called something. ;-) )
+ *
+ * Eventually most of this, and the following struct
+ * will be wrapped inside a python object.  Only things
+ * that need to be accessed quickly will be left as is.
+ */
+
+typedef struct field_thaum field_thaum;
+struct field_thaum
+{
+	byte f_attr;			/* attribute */
+	char f_char;			/* character */
+	
+	byte priority;			/* LOS priority higher = more visible */
+	
+	byte type;			/* Type of field */
+	
+	s16b count_init;		/* Counter for timed effects */
+
+	s16b action[FIELD_ACTION_MAX]; /* Function indexs for the actions */
+	
+	/* Storage space for the actions to interact with. */
+	byte data_init[8];
+	
+	u16b info;			/* Information flags */
+	
+	char *name;			/* The name of the field */
+};
+
+
+typedef struct field_type field_type;
+
+/*
+ * A function pointer to an action.  The function takes two values:
+ * 1) the field that is undergoing the action.
+ * 2) a pointer to a structure cast to void that contains the
+ *	information the action needs to complete its job.
+ */
+typedef void (*field_action_type)(field_type *f_ptr, void*);
+
+
+/*
+ * The field structure.
+ *
+ * Fields can be used in the following ways:
+ * 1) Attached to the ground.
+ * 2) Attached to an object.
+ * 3) Attached to a monster.
+ * 4) Some global "effect".
+ *
+ * The data-type is very general, and will be used to
+ * create a variety of effects from the ability to place
+ * traps on _all_ terrains (not just dungeon floor), to
+ * The nightmare mode automatic corpse raising.
+ * The same code can do effects like "wall of fire", or
+ * timed branding of ammo.
+ * The new building / store code will use this structure.
+ * Even the "Change colour of item" spell can be done this
+ * way.
+ */
+struct field_type
+{	
+	byte f_attr;			/* attribute */
+	char f_char;			/* character */
+	
+	s16b t_idx;			/* field type index */
+
+	s16b fy;			/* Y location on map */
+	s16b fx;			/* X location on map */
+	
+	s16b att_o_idx;			/* Attached to an object */
+
+	s16b att_m_idx;			/* Attached to a monster */
+
+	s16b next_f_idx;		/* Pointer to next field in list */
+	
+	u16b info;			/* quick access flags */
+	
+	
+	s16b counter;			/* Counter for timed effects */
+	
+	
+	/* Storage space for the actions to interact with. */
+	byte data[8];			
+	
+	field_action_type action[FIELD_ACTION_MAX]; /* Function pointers for the actions */
+	
+	byte priority;			/* LOS priority higher = more visible */
 };
 
 
@@ -796,6 +1081,7 @@ struct store_type
 	object_type *stock;		/* Stock -- Actual stock items */
 };
 
+typedef store_type *store_ptr;
 
 /*
  * The "name" of spell 'N' is stored as spell_names[X][N],
@@ -1051,8 +1337,8 @@ struct player_type
 	u32b muta2;
 	u32b muta3;
 
-	s16b virtues[MAX_PLAYER_VIRTUES];
-	s16b vir_types[MAX_PLAYER_VIRTUES];
+	s16b virtues[8];
+	s16b vir_types[8];
 
 	s16b word_recall;	/* Word of recall counter */
 
@@ -1269,36 +1555,6 @@ struct building_type
 };
 
 
-/* Border */
-typedef struct border_type border_type;
-struct border_type
-{
-	byte 	north[MAX_WID];
-	byte 	south[MAX_WID];
-	byte 	east[MAX_HGT];
-	byte 	west[MAX_HGT];
-	byte	north_west;
-	byte	north_east;
-	byte	south_west;
-	byte	south_east;
-};
-
-
-/*
- * A structure describing a wilderness area
- * with a terrain or a town
- */
-typedef struct wilderness_type wilderness_type;
-struct wilderness_type
-{
-	int         terrain;
-	int         town;
-	int         road;
-	u32b        seed;
-	byte        level;
-};
-
-
 /*
  * A structure describing a town with
  * stores and buildings
@@ -1310,6 +1566,9 @@ struct town_type
 	u32b        seed;      /* Seed for RNG */
 	store_type	*store;    /* The stores [MAX_STORES] */
 	byte        numstores;
+	u16b 	    type;	/* Type of town / dungeon / special */
+	byte		x;	/* Location mod 16 in wilderness */
+	byte		y;
 };
 
 /* Dungeons */

@@ -96,14 +96,14 @@ denies its intention to live up to this perception.
 
 --- Thangorodrim ---
 
-Robert Ruehlmann maintains the official Zangband website - Thangorodrim
-(http://thangorodrim.angband.org/). It includes information on where
-to download the Zangband source code and current executables for most
-popular operating systems as well as information on current development
-issues such as future plans, bug lists, etc. Thangorodrim is also an
-excellent site for information on Angband itself and other variants of
-Angband. There are also links to many other Angband and Zangband
-related sites.
+Robert Ruehlmann, the DevTeam project Leader maintains, the official
+Zangband website - Thangorodrim (http://thangorodrim.angband.org. It
+includes information on where to download the Zangband source code and
+current executables for most popular operating systems as well as
+information on current development issues such as future plans, bug
+lists, etc. Thangorodrim is also an excellent site for information on
+Angband itself and other variants of Angband. There are also links to
+many other Angband and Zangband related sites.
 
 
 --- Daily Snapshots ---
@@ -158,13 +158,13 @@ typically only updated for official releases of Zangband and not for
 the development releases. ZangbandTk is maintained by Tim Baker.
 
 
---- The Newsgroup (rec.games.roguelike.angband) ---
+--- The Angband Newsgroup ---
 
-The newsgroup is a forum for the discussion of all things relating to
-Angband and its variants (including Zangband) and is a good place to
-ask various questions about both game play and game design. Be sure to
-include '[Z]' in your subject heading so people know your question is
-about Zangband.
+The Angband newsgroup (rec.games.roguelike.angband) is a forum for the
+discussion of all things relating to Angband and its variants
+(including Zangband) and is a good place to ask various questions about
+both game play and game design. Be sure to include '[Z]' in your
+subject heading so people know your question is about Zangband.
 
 
 --- #Angband IRC Chat ---

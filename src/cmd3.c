@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 2000/05/18 17:28:53 $ */
+/* CVS: Last edit by $Author: rr9 $ on $Date: 2000/05/25 12:14:40 $ */
 /* File: cmd3.c */
 
 /* Purpose: Inventory commands */
@@ -92,7 +92,7 @@ void do_cmd_equip(void)
 	/* Note that we are in "equipment" mode */
 	if (easy_floor) command_wrk = (USE_EQUIP);
 
-#endif /* ALLOW_EASY_FLOOR  */
+#endif /* ALLOW_EASY_FLOOR */
 
 	/* Save the screen */
 	screen_save();
@@ -275,7 +275,7 @@ void do_cmd_wield(void)
 
 	/* Forget stack */
 	o_ptr->next_o_idx = 0;
-	
+
 	/* Forget location */
 	o_ptr->iy = o_ptr->ix = 0;
 
@@ -1156,7 +1156,7 @@ static cptr ident_info[] =
 	"\":An amulet (or necklace)",
 	"#:A wall (or secret door)",
 	"$:Treasure (gold or gems)",
-	"%:A vein (magma or quartz)",
+	"%:Trees",
 	"&:A chest",
 	"':An open door",
 	"(:Soft armor",
@@ -1177,8 +1177,8 @@ static cptr ident_info[] =
 	"7:Entrance to Black Market",
 	"8:Entrance to your home",
 	"9:Entrance to the bookstore",
-	"::Rubble",
-	";:A glyph of warding / explosive rune",
+	"::Rubble / Rock",
+	";:Swamp / Rune",
 	"<:An up staircase",
 	"=:A ring",
 	">:A down staircase",
@@ -1227,7 +1227,7 @@ static cptr ident_info[] =
 	"i:Icky Thing",
 	"j:Jelly",
 	"k:Kobold",
-	"l:Louse",
+	"l:Aquatic monster",
 	"m:Mold",
 	"n:Naga",
 	"o:Orc",
@@ -1245,7 +1245,7 @@ static cptr ident_info[] =
 	"{:A missile (arrow/bolt/shot)",
 	"|:An edged weapon (sword/dagger/etc)",
 	"}:A launcher (bow/crossbow/sling)",
-	"~:Aquatic monster (or miscellaneous item)",
+	"~:Fluid terrain (or miscellaneous item)",
 	NULL
 };
 
@@ -1483,6 +1483,7 @@ void do_cmd_query_symbol(void)
 		if (all || (r_ptr->d_char == sym)) who[n++] = i;
 	}
 
+	/* Nothing to recall */
 	if (!n)
 	{
 		/* XXX XXX Free the "who" array */
@@ -1524,6 +1525,7 @@ void do_cmd_query_symbol(void)
 
 		return;
 	}
+
 
 	/* Sort if needed */
 	if (why == 4)

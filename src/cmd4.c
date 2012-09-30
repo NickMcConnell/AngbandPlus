@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/07/19 13:49:05 $ */
+/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/06/17 00:41:10 $ */
 /* File: cmd4.c */
 
 /* Purpose: Interface commands */
@@ -30,7 +30,6 @@ void do_cmd_redraw(void)
 	int j;
 
 	term *old = Term;
-
 
 	/* Hack -- react to changes */
 	Term_xtra(TERM_XTRA_REACT, 0);
@@ -93,7 +92,7 @@ void do_cmd_redraw(void)
 void do_cmd_message_one(void)
 {
 	/* Recall one message XXX XXX XXX */
-	prt(format("> %s", message_str(0)), 0, 0);
+	c_prt(message_color(0), format("> %s", message_str(0)), 0, 0);
 }
 
 
@@ -150,12 +149,16 @@ void do_cmd_messages(void)
 		for (j = 0; (j < 20) && (i + j < n); j++)
 		{
 			cptr msg = message_str(i+j);
+			byte attr = message_color(i+j);
+
+			/* Hack -- fake monochrome */
+			if (!use_color) attr = TERM_WHITE;
 
 			/* Apply horizontal scroll */
 			msg = (strlen(msg) >= q) ? (msg + q) : "";
 
 			/* Dump the messages, bottom to top */
-			Term_putstr(0, 21 - j, -1, TERM_WHITE, msg);
+			Term_putstr(0, 21 - j, -1, attr, msg);
 
 			/* Hilite "shower" */
 			if (shower[0])
@@ -879,11 +882,10 @@ void do_cmd_options(void)
 		prt("(2) Disturbance Options", 5, 5);
 		prt("(3) Game-Play Options", 6, 5);
 		prt("(4) Efficiency Options", 7, 5);
-		prt("(Z/5) Zangband Options", 8, 5);
-		prt("(6) Object auto-destruction Options", 9, 5);
+		prt("(5) Display Options", 8, 5);
+		prt("(6) Artificial Intelligence Options", 9, 5);
+		prt("(7) Testing Options", 10, 5);
 
-		/* Testing */
-		prt("(S) Stacking Options", 11, 5);
 		/* Special choices */
 		prt("(D) Base Delay Factor", 12, 5);
 		prt("(H) Hitpoint Warning", 13, 5);
@@ -908,10 +910,10 @@ void do_cmd_options(void)
 		/* Analyze */
 		switch (k)
 		{
-			/* General Options */
+			/* User Interface Options */
 			case '1':
 			{
-				/* Process the general options */
+				/* Spawn */
 				do_cmd_options_aux(1, "User Interface Options");
 				break;
 			}
@@ -924,7 +926,7 @@ void do_cmd_options(void)
 				break;
 			}
 
-			/* Inventory Options */
+			/* Game-Play Options */
 			case '3':
 			{
 				/* Spawn */
@@ -940,28 +942,28 @@ void do_cmd_options(void)
 				break;
 			}
 
-			/* Zangband Options */
-			case 'Z': case 'z': case '5':
+			/* Display Options */
+			case '5':
 			{
-				do_cmd_options_aux(5, "Zangband Options");
+				/* Spawn */
+				do_cmd_options_aux(5, "Display Options");
 				break;
 			}
 
-			/* Object auto-destruction Options */
+			/* Artificial Intelligence Options */
 			case '6':
 			{
 				/* Spawn */
-				do_cmd_options_aux(7, "Object auto-destruction Options");
+				do_cmd_options_aux(7, "Artificial Intelligence Options");
 				break;
 			}
 
-			/* Testing Options */
+			/* Testing options (autodestroy) */
 			case 'T': /* For people who do this by memory */
-			case 'S':
-			case 's':
+			case '7':
 			{
 				/* Spawn */
-				do_cmd_options_aux(255, "Stacking Options");
+				do_cmd_options_aux(8, "Testing Options");
 				break;
 			}
 
@@ -2449,7 +2451,6 @@ void do_cmd_note(void)
 	/* Default */
 	strcpy(buf, "");
 
-	/* Input */
 	if (!get_string("Note: ", buf, 60)) return;
 
 	/* Ignore empty notes */
@@ -2787,7 +2788,11 @@ void do_cmd_save_screen(void)
  */
 static void do_cmd_knowledge_artifacts(void)
 {
-	int i, k, z, x, y;
+	int i, k, z;
+
+#if 0
+	int x, y;
+#endif
 
 	FILE *fff;
 
@@ -2797,14 +2802,15 @@ static void do_cmd_knowledge_artifacts(void)
 
 	bool *okay;
 
-	/* Allocate the "okay" array */
-	C_MAKE(okay, max_a_idx, bool);
 
 	/* Temporary file */
 	if (path_temp(file_name, 1024)) return;
 
 	/* Open a new file */
 	fff = my_fopen(file_name, "w");
+
+	/* Allocate the "okay" array */
+	C_MAKE(okay, max_a_idx, bool);
 
 	/* Scan the artifacts */
 	for (k = 0; k < max_a_idx; k++)
@@ -2824,12 +2830,14 @@ static void do_cmd_knowledge_artifacts(void)
 		okay[k] = TRUE;
 	}
 
+
+#if 0
 	/* Check the dungeon */
 	for (y = 0; y < cur_hgt; y++)
 	{
 		for (x = 0; x < cur_wid; x++)
 		{
-			cave_type *c_ptr = &cave[y][x];
+			cave_type *c_ptr = area(y,x);
 
 			s16b this_o_idx, next_o_idx = 0;
 
@@ -2855,6 +2863,35 @@ static void do_cmd_knowledge_artifacts(void)
 			}
 		}
 	}
+
+#endif
+
+	/* Check the dungeon */
+
+	/* This loop should work better in the wilderness then the above one */
+	for (i = 0; i < max_o_idx; i++)
+	{
+		object_type *o_ptr;
+
+		/* Acquire object */
+		o_ptr = &o_list[i];
+
+		/* Exit if doesn't exist */
+		if (o_ptr->k_idx == 0) continue;
+
+		/* Exit if not in dungeon */
+		if ((o_ptr->ix == 0) && (o_ptr->iy == 0)) continue;
+
+		/* Ignore non-artifacts */
+		if (!artifact_p(o_ptr)) continue;
+
+		/* Ignore known items */
+		if (object_known_p(o_ptr)) continue;
+
+		/* Note the artifact */
+		okay[o_ptr->name1] = FALSE;
+	}
+
 
 	/* Check the inventory and equipment */
 	for (i = 0; i < INVEN_TOTAL; i++)
@@ -2911,6 +2948,9 @@ static void do_cmd_knowledge_artifacts(void)
 		fprintf(fff, "     The %s\n", base_name);
 	}
 
+	/* Free the "okay" array */
+	C_KILL(okay, max_a_idx, bool);
+
 	/* Close the file */
 	my_fclose(fff);
 
@@ -2960,6 +3000,10 @@ static void do_cmd_knowledge_uniques(void)
 		/* No monsters to recall */
 		msg_print("No known uniques.");
 		msg_print(NULL);
+
+		/* XXX XXX Free the "who" array */
+		C_KILL(who, max_r_idx, u16b);
+
 		return;
 	}
 
@@ -2971,7 +3015,13 @@ static void do_cmd_knowledge_uniques(void)
 	ang_sort(who, &why, n);
 
 	/* Temporary file */
-	if (path_temp(file_name, 1024)) return;
+	if (path_temp(file_name, 1024))
+	{
+		/* XXX XXX Free the "who" array */
+		C_KILL(who, max_r_idx, u16b);
+
+		return;
+	}
 
 	/* Open a new file */
 	fff = my_fopen(file_name, "w");
@@ -2983,9 +3033,12 @@ static void do_cmd_knowledge_uniques(void)
 		bool dead = (r_ptr->max_num == 0);
 
 		/* Print a message */
-		fprintf(fff, "     %s is %s\n",(r_name + r_ptr->name),
+		fprintf(fff, "     %s is %s\n", (r_name + r_ptr->name),
 			(dead ? "dead" : "alive"));
 	}
+
+	/* Free the "who" array */
+	C_KILL(who, max_r_idx, u16b);
 
 	/* Close the file */
 	my_fclose(fff);
@@ -3227,6 +3280,10 @@ static void do_cmd_knowledge_kill_count(void)
 		/* No monsters to recall */
 		msg_print("No known monsters!");
 		msg_print(NULL);
+
+		/* XXX XXX Free the "who" array */
+		C_KILL(who, max_r_idx, u16b);
+
 		return;
 	}
 
@@ -3238,7 +3295,13 @@ static void do_cmd_knowledge_kill_count(void)
 	ang_sort(who, &why, n);
 
 	/* Temporary file */
-	if (path_temp(file_name, 1024)) return;
+	if (path_temp(file_name, 1024))
+	{
+		/* XXX XXX Free the "who" array */
+		C_KILL(who, max_r_idx, u16b);
+
+		return;
+	}
 
 	/* Open a new file */
 	fff = my_fopen(file_name, "w");
@@ -3293,7 +3356,7 @@ static void do_cmd_knowledge_kill_count(void)
 			if (dead)
 			{
 				/* Print a message */
-				fprintf(fff, "     %s\n",
+				fprintf(fff, "%c     %s\n", r_ptr->x_char,
 				    (r_name + r_ptr->name));
 				Total++;
 			}
@@ -3308,11 +3371,11 @@ static void do_cmd_knowledge_kill_count(void)
 				{
 					if (strstr(r_name + r_ptr->name, "coins"))
 					{
-						fprintf(fff, "     1 pile of %s\n", (r_name + r_ptr->name));
+						fprintf(fff, "%c     1 pile of %s\n", r_ptr->x_char, (r_name + r_ptr->name));
 					}
 					else
 					{
-						fprintf(fff, "     1 %s\n", (r_name + r_ptr->name));
+						fprintf(fff, "%c     1 %s\n", r_ptr->x_char, (r_name + r_ptr->name));
 					}
 				}
 				else
@@ -3320,7 +3383,7 @@ static void do_cmd_knowledge_kill_count(void)
 					char ToPlural[80];
 					strcpy(ToPlural, (r_name + r_ptr->name));
 					plural_aux(ToPlural);
-					fprintf(fff, "     %d %s\n", This, ToPlural);
+					fprintf(fff, "%c     %d %s\n", r_ptr->x_char, This, ToPlural);
 				}
 
 				Total += This;
@@ -3331,6 +3394,9 @@ static void do_cmd_knowledge_kill_count(void)
 	fprintf(fff,"----------------------------------------------\n");
 	fprintf(fff,"   Total: %lu creature%s killed.\n",
 	        Total, (Total == 1 ? "" : "s"));
+
+	/* Free the "who" array */
+	C_KILL(who, max_r_idx, u16b);
 
 	/* Close the file */
 	my_fclose(fff);
@@ -3532,7 +3598,7 @@ static void do_cmd_knowledge_quests(void)
 		}
 	}
 
-	/* Print the current random quest  */
+	/* Print the current random quest */
 	fprintf(fff, rand_tmp_str);
 
 	/* Close the file */
@@ -3549,7 +3615,7 @@ static void do_cmd_knowledge_quests(void)
 /*
  * Print notes file
  */
-void do_cmd_knowledge_notes(void)
+static void do_cmd_knowledge_notes(void)
 {
 	char fname[80];
 

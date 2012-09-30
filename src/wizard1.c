@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/07/19 13:51:41 $ */
+/* CVS: Last edit by $Author: rr9 $ on $Date: 2000/06/09 08:35:26 $ */
 /* File: wizard1.c */
 
 /* Purpose: Spoiler generation -BEN- */

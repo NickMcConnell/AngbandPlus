@@ -108,7 +108,7 @@ example, use "\" + "." + "6", to specify "run east".
  k  Destroy an item                      K  (unused)
  l  Look around                          L  Locate player on map
  m  Cast a spell / use mental power      M  Full dungeon map
- n  (unused)                             N  (unused)
+ n  Repeat last command                  N  (unused)
  o  Open a door or chest                 O  (unused)
  p  Command your pets                    P  (unused)
  q  Quaff a potion                       Q  Quit (commit suicide)
@@ -313,36 +313,12 @@ letter. If lower case is used, the selection takes place immediately.
 If upper case is used, then the particular option is described, and you
 are given the option of confirming or retracting that choice. Upper
 case selection is thus safer, but requires an extra key stroke.
-Also see the "!*" and "!x" inscriptions, below.
 
 For many commands, you can also use "-" to select an object on the
 floor where you are standing. This lets you read scrolls or quaff
 potions, for example, off the dungeon floor without picking them up.
-
-If you enter a number between 0 and 9, the first item engraved with
-"@#" where "#" is the number you entered will be selected. For example,
-if you have a shovel engraved with "@0" and you type "w" (for wield)
-and then 0, you will wield the shovel. This is very useful for macros
-(see below), since you can use this to select an object regardless of
-its location in your pack. For example, Zangband automatically defines
-a macro for the key "X" to do "w0". If you then engrave both your
-digging instrument and your primary weapon with @0, pressing X will
-wield whichever one is not being currently wielded (letting you quickly
-switch between them). Multiple numbers can be engraved on the same
-object; for example, if a sword is engraved with @1@0, then either "w1"
-or "w0" will wield it. Normally, you inscribe "@1@0" on your primary
-weapon, and "@2@0" on your digger or secondary weapon. Note that an
-inscription containing "@x#" will act like "@#" but only when the
-current "Zangband command" is "x". Thus you can put "@z4" on a rod and
-"@u4" on a staff, and then use both "z4" and "u4" as desired.
-
-Note that any object containing "!x" in its inscription, where "x" is
-the current "Zangband command" (or containing "!*" ever) will induce
-"verification" whenever that object is "selected". Thus, inscribing,
-say, "!f!k!d" on an object will greatly reduce the odds of you "losing"
-it by accident, and inscribing "!*" on an object will allow you to be
-very paranoid about the object. Note that "selling" and "dropping" both
-use the "d" command.
+Also see objects.txt#Inscriptions [1] for a details description of how
+to us inscriptions to make object selection easier.
 
 
 -- 
@@ -351,4 +327,7 @@ Updated    : (2.7.6) by Russ Allbery (rra@cs.stanford.edu)
 Updated    : (2.7.9) by Ben Harrison (benh@phial.com)
 Updated    : Zangband 2.2.0 through 2.2.6c by Robert Ruehlmann
 Updated    : Zangband DevTeam
-Last update: January 13, 2000
+Last update: June 2, 2000
+
+***** Begin Hyperlinks
+***** [1] objects.txt#Inscriptions

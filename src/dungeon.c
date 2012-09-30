@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/08/04 11:01:58 $ */
+/* CVS: Last edit by $Author: topiy $ on $Date: 2000/06/19 05:54:57 $ */
 /* File: dungeon.c */
 
 /* Purpose: Angband game engine */
@@ -462,7 +462,7 @@ static void wreck_the_pattern(void)
 {
 	int to_ruin, r_y, r_x;
 
-	if (cave[py][px].feat == FEAT_PATTERN_XTRA2)
+	if (area(py, px)->feat == FEAT_PATTERN_XTRA2)
 	{
 		/* Ruined already */
 		return;
@@ -480,8 +480,8 @@ static void wreck_the_pattern(void)
 	{
 		scatter(&r_y, &r_x, py, px, 4, 0);
 
-		if ((cave[r_y][r_x].feat >= FEAT_PATTERN_START) &&
-		    (cave[r_y][r_x].feat < FEAT_PATTERN_XTRA2))
+		if ((area(r_y, r_x)->feat >= FEAT_PATTERN_START) &&
+		    (area(r_y, r_x)->feat < FEAT_PATTERN_XTRA2))
 		{
 			cave_set_feat(r_y, r_x, FEAT_PATTERN_XTRA2);
 		}
@@ -494,8 +494,8 @@ static void wreck_the_pattern(void)
 /* Returns TRUE if we are on the Pattern... */
 static bool pattern_effect(void)
 {
-	if ((cave[py][px].feat < FEAT_PATTERN_START) ||
-	    (cave[py][px].feat > FEAT_PATTERN_XTRA2))
+	if ((area(py, px)->feat < FEAT_PATTERN_START) ||
+	    (area(py, px)->feat > FEAT_PATTERN_XTRA2))
 		return FALSE;
 
 	if ((p_ptr->prace == RACE_AMBERITE) &&
@@ -504,7 +504,7 @@ static bool pattern_effect(void)
 		wreck_the_pattern();
 	}
 
-	if (cave[py][px].feat == FEAT_PATTERN_END)
+	if (area(py,px)->feat == FEAT_PATTERN_END)
 	{
 		(void)set_poisoned(0);
 		(void)set_image(0);
@@ -532,15 +532,15 @@ static bool pattern_effect(void)
 	 * in the middle of the pattern...
 	 */
 
-	else if (cave[py][px].feat == FEAT_PATTERN_OLD)
+	else if (area(py,px)->feat == FEAT_PATTERN_OLD)
 	{
 		/* No effect */
 	}
-	else if (cave[py][px].feat == FEAT_PATTERN_XTRA1)
+	else if (area(py,px)->feat == FEAT_PATTERN_XTRA1)
 	{
 		pattern_teleport();
 	}
-	else if (cave[py][px].feat == FEAT_PATTERN_XTRA2)
+	else if (area(py,px)->feat == FEAT_PATTERN_XTRA2)
 	{
 		if (!p_ptr->invuln)
 		take_hit(200, "walking the corrupted Pattern");
@@ -861,19 +861,21 @@ static void recharged_notice(object_type *o_ptr)
  */
 static void process_world(void)
 {
-	int x, y, i, j;
+	int i, j;
 	s32b regen_amount;
 	bool cave_no_regen = FALSE;
 	int upkeep_factor = 0;
-	cave_type *c_ptr;
+
+	u16b x, y;
+
 	object_type *o_ptr;
 	u32b f1 = 0 , f2 = 0 , f3 = 0;
 	int temp;
 	object_kind *k_ptr;
+	cave_type *c_ptr = area(py, px);
 
 	/* Announce the level feeling */
 	if ((turn - old_turn == 1000) && (dun_level)) do_cmd_feeling();
-
 
 	/* Every 10 game turns */
 	if (turn % 10) return;
@@ -946,22 +948,15 @@ static void process_world(void)
 				/* Message */
 				msg_print("The sun has risen.");
 
-				/* Hack -- Scan the town */
-				for (y = 0; y < cur_hgt; y++)
+				/* Light up or darken the area */
+				for (y = 0; y < WILD_GRID_SIZE; y++)
 				{
-					for (x = 0; x < cur_wid; x++)
+					for (x = 0; x < WILD_GRID_SIZE; x++)
 					{
-						/* Get the cave grid */
-						c_ptr = &cave[y][x];
-
-						/* Assume lit */
-						c_ptr->info |= (CAVE_GLOW);
-
-						/* Hack -- Memorize lit grids if allowed */
-						if (view_perma_grids) c_ptr->info |= (CAVE_MARK);
-
-						/* Hack -- Notice spot */
-						note_spot(y, x);
+						/* Lighten wilderness block */
+						light_dark_block(wild_grid.block_ptr[y][x],
+						 (u16b)(x + wild_grid.x_min / 16),
+						  (u16b)(y + wild_grid.y_min / 16));
 					}
 				}
 			}
@@ -972,25 +967,15 @@ static void process_world(void)
 				/* Message */
 				msg_print("The sun has fallen.");
 
-				/* Hack -- Scan the town */
-				for (y = 0; y < cur_hgt; y++)
+				/* Light up or darken the area */
+				for (y = 0; y < WILD_GRID_SIZE; y++)
 				{
-					for (x = 0; x < cur_wid; x++)
+					for (x = 0; x < WILD_GRID_SIZE; x++)
 					{
-						/* Get the cave grid */
-						c_ptr = &cave[y][x];
-
-						/* Darken "boring" features */
-						if ((c_ptr->feat <= FEAT_INVIS) ||
-						    ((c_ptr->feat >= FEAT_DEEP_WATER) &&
-							(c_ptr->feat <= FEAT_TREES)))
-						{
-							/* Forget the grid */
-							c_ptr->info &= ~(CAVE_GLOW | CAVE_MARK);
-
-							/* Hack -- Notice spot */
-							note_spot(y, x);
-						}
+						/* Darken wilderness block */
+						light_dark_block(wild_grid.block_ptr[y][x],
+						 (u16b)(x + wild_grid.x_min / 16),
+						  (u16b)(y + wild_grid.y_min / 16));
 					}
 				}
 			}
@@ -1052,7 +1037,7 @@ static void process_world(void)
 		if (!dun_level && !p_ptr->resist_lite && !p_ptr->invuln &&
 		    (!((turn / ((10L * TOWN_DAWN) / 2)) % 2)))
 		{
-			if (cave[py][px].info & CAVE_GLOW)
+			if (c_ptr->info & CAVE_GLOW)
 			{
 				/* Take damage */
 				msg_print("The sun's rays scorch your undead flesh!");
@@ -1066,7 +1051,7 @@ static void process_world(void)
 		    (inventory[INVEN_LITE].sval < SV_LITE_THRAIN) &&
 		    !p_ptr->resist_lite)
 		{
-			object_type * o_ptr = &inventory[INVEN_LITE];
+			object_type *o_ptr = &inventory[INVEN_LITE];
 			char o_name[80];
 			char ouch[80];
 
@@ -1085,7 +1070,7 @@ static void process_world(void)
 		}
 	}
 
-	if ((cave[py][px].feat == FEAT_SHAL_LAVA) &&
+	if ((c_ptr->feat == FEAT_SHAL_LAVA) &&
 		!p_ptr->invuln && !p_ptr->immune_fire && !p_ptr->ffall)
 	{
 		int damage = p_ptr->lev;
@@ -1102,7 +1087,7 @@ static void process_world(void)
 		}
 	}
 
-	else if ((cave[py][px].feat == FEAT_DEEP_LAVA) &&
+	else if ((c_ptr->feat == FEAT_DEEP_LAVA) &&
 		!p_ptr->invuln && !p_ptr->immune_fire)
 	{
 		int damage = p_ptr->lev * 2;
@@ -1135,7 +1120,106 @@ static void process_world(void)
 		}
 	}
 
-	else if ((cave[py][px].feat == FEAT_DEEP_WATER) && !p_ptr->ffall)
+	if ((c_ptr->feat == FEAT_SHAL_ACID) &&
+		!p_ptr->invuln && !p_ptr->immune_acid && !p_ptr->ffall)
+	{
+		int damage = p_ptr->lev;
+
+		if (p_ptr->resist_acid) damage = damage / 3;
+		if (p_ptr->oppose_acid) damage = damage / 3;
+
+		if (damage)
+		{
+			/* Take damage */
+			msg_print("The acid burns you!");
+			take_hit(damage, "shallow acid");
+			cave_no_regen = TRUE;
+		}
+	}
+
+	else if ((c_ptr->feat == FEAT_DEEP_ACID) &&
+		!p_ptr->invuln && !p_ptr->immune_acid)
+	{
+		int damage = p_ptr->lev * 2;
+		cptr message;
+		cptr hit_from;
+
+		if (p_ptr->resist_acid) damage = damage / 3;
+		if (p_ptr->oppose_acid) damage = damage / 3;
+
+		if (p_ptr->ffall)
+		{
+			damage = damage / 5;
+
+			message = "The fumes burn you!";
+			hit_from = "flying over deep acid";
+		}
+		else
+		{
+			message = "The acid burns you!";
+			hit_from = "deep acid";
+		}
+
+		if (damage)
+		{
+			/* Take damage */
+			msg_print(message);
+			take_hit(damage, hit_from);
+
+			cave_no_regen = TRUE;
+		}
+	}
+
+	if ((c_ptr->feat == FEAT_SHAL_SWAMP) &&
+		!p_ptr->invuln && !p_ptr->resist_pois && !p_ptr->ffall)
+	{
+		int damage = p_ptr->lev;
+
+		if (p_ptr->oppose_pois) damage = damage / 3;
+
+		if (damage)
+		{
+			/* Take damage */
+			msg_print("The plants poison you!");
+			take_hit(damage, "swamp");
+			cave_no_regen = TRUE;
+		}
+	}
+
+	else if ((c_ptr->feat == FEAT_DEEP_SWAMP) &&
+		!p_ptr->invuln)
+	{
+		int damage = p_ptr->lev * 2;
+		cptr message;
+		cptr hit_from;
+
+		if (p_ptr->resist_pois) damage = damage / 3;
+		if (p_ptr->oppose_pois) damage = damage / 3;
+
+		if (p_ptr->ffall)
+		{
+			damage = damage / 5;
+
+			message = "The fumes poison you!";
+			hit_from = "flying over thick swamp";
+		}
+		else
+		{
+			message = "The fumes poison you!";
+			hit_from = "thick swamp";
+		}
+
+		if (damage)
+		{
+			/* Take damage */
+			msg_print(message);
+			take_hit(damage, hit_from);
+
+			cave_no_regen = TRUE;
+		}
+	}
+
+	else if ((c_ptr->feat == FEAT_DEEP_WATER) && !p_ptr->ffall)
 	{
 		if (p_ptr->total_weight > ((adj_str_wgt[p_ptr->stat_ind[A_STR]] * 100) / 2))
 		{
@@ -1153,11 +1237,17 @@ static void process_world(void)
 	 * reduced below 0 hp by being inside a stone wall; others
 	 * WILL BE!
 	 */
-	if (!cave_floor_bold(py, px))
+	if (!cave_floor_grid(c_ptr))
 	{
-		/* Player can walk through trees */
-		if (cave[py][px].feat == FEAT_TREES)
+		/* Player can walk through semi-transparent terrain */
+		if ((c_ptr->feat & 0x60) == 0x60)
 		{
+			/* Do nothing */
+		}
+		else if ((c_ptr->feat & 0x80) == 0x80)
+		{
+			/* Player can walk through the "slow floor" terrains. */
+
 			/* Do nothing */
 		}
 		else if (!p_ptr->invuln && !p_ptr->wraith_form &&
@@ -1422,9 +1512,17 @@ static void process_world(void)
 	regen_amount = (regen_amount * mutant_regenerate_mod) / 100;
 
 	/* Regenerate Hit Points if needed */
-	if (p_ptr->chp < p_ptr->mhp)
+	if ((p_ptr->chp < p_ptr->mhp) && !cave_no_regen)
 	{
-		regenhp(regen_amount);
+		if ((c_ptr->feat < FEAT_PATTERN_END) &&
+		    (c_ptr->feat >= FEAT_PATTERN_START))
+		{
+			regenhp(regen_amount / 5); /* Hmmm. this should never happen? */
+		}
+		else
+		{
+			regenhp(regen_amount);
+		}
 	}
 
 
@@ -1791,7 +1889,7 @@ static void process_world(void)
 			msg_print(NULL);
 
 			/* Absorb light from the current possition */
-			if (cave[py][px].info & CAVE_GLOW)
+			if (c_ptr->info & CAVE_GLOW)
 			{
 				hp_player(10);
 			}
@@ -1896,7 +1994,11 @@ static void process_world(void)
 				disturb(0, 0);
 				msg_print("You can feel yourself wasting away!");
 				msg_print(NULL);
+#if 0
 				(void)dec_stat(which_stat, randint(6) + 6, randint(3) == 1);
+#else
+				(void)dec_stat(which_stat, randint(6) + 6, 0);
+#endif
 			}
 		}
 		if ((p_ptr->muta2 & MUT2_ATT_DRAGON) &&
@@ -2064,9 +2166,6 @@ static void process_world(void)
 	{
 		/* Get the object */
 		o_ptr = &inventory[i];
-		
-		/* Skip non-objects */
-		if (!o_ptr->k_idx) continue;
 
 		object_flags(o_ptr, &f1, &f2, &f3);
 
@@ -2115,6 +2214,10 @@ static void process_world(void)
 				}
 			}
 		}
+
+
+		/* Skip non-objects */
+		if (!o_ptr->k_idx) continue;
 
 		/* Recharge activatable objects */
 		if (o_ptr->timeout > 0)
@@ -2669,20 +2772,22 @@ static void process_command(void)
 			do_cmd_store();
 			break;
 		}
-
+#if 0
 		/* Enter building -KMW- */
 		case ']':
 		{
 			do_cmd_bldg();
 			break;
 		}
-
+#endif
+#if 0
 		/* Enter quest level -KMW- */
 		case '[':
 		{
 			do_cmd_quest();
 			break;
 		}
+#endif
 
 		/* Go up staircase */
 		case '<':
@@ -3186,6 +3291,8 @@ static void process_player(void)
 {
 	int i;
 
+
+
 	if (hack_mutation)
 	{
 		msg_print("You feel different!");
@@ -3508,7 +3615,7 @@ static void process_player(void)
 
 		/* Handle "leaving" */
 		if (p_ptr->leaving) break;
-		
+
 		/* Used up energy for this turn */
 		if (energy_use) break;
 	}
@@ -3561,11 +3668,8 @@ static void process_energy(void)
 		/* process monster with even more energy first */
 		process_monsters(p_ptr->energy + 1);
 
-		/* Process the player while still alive */
-		if (!p_ptr->leaving)
-		{
-			process_player();
-		}
+		/* Process the player */
+		process_player();
 	}
 }
 
@@ -3579,6 +3683,8 @@ static void process_energy(void)
 static void dungeon(void)
 {
 	int quest_num;
+
+	cave_type *c_ptr;
 
 	/* Set the base level */
 	base_level = dun_level;
@@ -3656,7 +3762,8 @@ static void dungeon(void)
 	if (create_up_stair || create_down_stair)
 	{
 		/* Place a stairway */
-		if (cave_valid_bold(py, px))
+		c_ptr = area(py, px);
+		if (cave_valid_grid(c_ptr))
 		{
 			/* XXX XXX XXX */
 			delete_object(py, px);
@@ -3681,13 +3788,13 @@ static void dungeon(void)
 	verify_panel();
 
 	/* Validate the panel */
-	if (center_player)
+	if (center_player || (vanilla_town && !dun_level))
 	{
 		panel_bounds_center();
 	}
 	else
 	{
-	panel_bounds();
+		panel_bounds();
 	}
 
 
@@ -3796,7 +3903,6 @@ static void dungeon(void)
 		/* Hack -- Compress the object list occasionally */
 		if (o_cnt + 32 < o_max) compact_objects(0);
 
-
 		/*
 		 * Add energy to player and monsters.
 		 * Those with the most energy move first.
@@ -3857,8 +3963,6 @@ static void dungeon(void)
 		/* Hack -- Notice death or departure */
 		if (!alive || death) break;
 
-		/* Handle "leaving" */
-		if (p_ptr->leaving) break;
 
 		/* Process the world */
 		process_world();
@@ -3965,7 +4069,6 @@ void play_game(bool new_game)
 	/* Hack -- Character is "icky" */
 	character_icky = TRUE;
 
-
 	/* Verify main term */
 	if (!angband_term[0])
 	{
@@ -3984,10 +4087,14 @@ void play_game(bool new_game)
 	/* Forbid resizing */
 	Term->fixed_shape = TRUE;
 
-
-	/* Hack -- Turn off the cursor */
+	/* Hack -- turn off the cursor */
 	(void)Term_set_cursor(0);
 
+	/*
+	 * Initialize wilderness info
+	 * This needs to be done before old savefiles are loaded.
+	 */
+	if (init_w_info()) quit("Cannot initialize wilderness");
 
 	/* Attempt to load */
 	if (!load_player())
@@ -4049,7 +4156,6 @@ void play_game(bool new_game)
 				/* Set */
 				(*option_info[i].o_var) = TRUE;
 			}
-
 			/* Clear */
 			else
 			{
@@ -4062,20 +4168,6 @@ void play_game(bool new_game)
 	/* Roll new character */
 	if (new_game)
 	{
-		/* The dungeon is not ready */
-		character_dungeon = FALSE;
-
-		/* Start in town */
-		dun_level = 0;
-		p_ptr->inside_quest = 0;
-		p_ptr->inside_arena = 0;
-
-		/* Hack -- seed for flavors */
-		seed_flavor = rand_int(0x10000000);
-
-		/* Hack -- seed for town layout */
-		seed_town = rand_int(0x10000000);
-
 		/* Roll up a new character */
 		player_birth();
 
@@ -4092,8 +4184,34 @@ void play_game(bool new_game)
 		{
 			turn = 1;
 		}
+
+		dun_level = 0;
+
+		/* Create a new wilderness for the player */
+		create_wilderness();
+
+		/* Start in town */
+		p_ptr->inside_quest = 0;
+		p_ptr->inside_arena = 0;
+
+		/* Add monsters to the wilderness */
+		repopulate_wilderness();
+
+		/* The dungeon is ready */
+		character_dungeon = TRUE;
+
+		/* Hack -- seed for flavors */
+		seed_flavor = rand_int(0x10000000);
+
+		/* Hack -- seed for town layout (not used an more) */
+		seed_town = 0;
 	}
 
+	/* Hack - if note file exists, load it */
+	if (!new_game && take_notes)
+	{
+		add_note_type(NOTE_ENTER_DUNGEON);
+	}
 
 	/* Normal machine (process player name) */
 	if (savefile[0])
@@ -4105,12 +4223,6 @@ void play_game(bool new_game)
 	else
 	{
 		process_player_name(TRUE);
-	}
-
-	/* Hack - if note file exists, load it */
-	if (!new_game && take_notes)
-	{
-		add_note_type(NOTE_ENTER_DUNGEON);
 	}
 
 	/* Flash a message */
@@ -4126,16 +4238,17 @@ void play_game(bool new_game)
 	/* Flavor the objects */
 	flavor_init();
 
+#if 0
+
 	/* Initialize the town-buildings if necessary */
 	if (!dun_level && !p_ptr->inside_quest)
 	{
-		/* Init the wilderness */
-		process_dungeon_file("w_info.txt", 0, 0, max_wild_y, max_wild_x);
-
 		/* Init the town */
 		init_flags = INIT_ONLY_BUILDINGS;
 		process_dungeon_file("t_info.txt", 0, 0, MAX_HGT, MAX_WID);
 	}
+
+#endif
 
 	/* Reset the visual mappings */
 	reset_visuals();
@@ -4220,13 +4333,11 @@ void play_game(bool new_game)
 		/* Cancel the health bar */
 		health_track(0);
 
-
 		/* Forget the lite */
 		forget_lite();
 
 		/* Forget the view */
 		forget_view();
-
 
 		/* Handle "quit and save" */
 		if (!alive && !death) break;
@@ -4235,6 +4346,7 @@ void play_game(bool new_game)
 		wipe_o_list();
 		wipe_m_list();
 
+		change_level(dun_level);
 
 		/* XXX XXX XXX */
 		msg_print(NULL);
@@ -4304,7 +4416,9 @@ void play_game(bool new_game)
 				/* Do not die */
 				death = FALSE;
 
-				dun_level = 0;
+				dun_level = 0;				
+				change_level(dun_level);
+				
 				p_ptr->inside_arena = 0;
 				leaving_quest = 0;
 				p_ptr->inside_quest = 0;

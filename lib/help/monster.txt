@@ -1,0 +1,248 @@
+=== Zangband Monsters ===
+
+There are hundreds of different creatures in Zangband each of which
+poses a unique challenge to the adventurer. As you progress deeper into
+the dungeon, the creatures will become progressively more difficult to
+defeat.
+
+
+***** <MonsterSymbols>
+=== Monster Symbols ===
+
+Many monsters have the same letter symbol and sometimes color on the
+screen. The exact species or type of creature can be discovered by
+'l'ooking at it (see commdesc.txt#Looking [1]). 
+ 
+  $   Creeping Coins                  ,   Mushroom Patch
+  a   Giant Ant                       A   Angelic being
+  b   Giant Bat                       B   Bird
+  c   Giant Centipede                 C   Canine
+  d   Dragon                          D   Ancient Dragon
+  e   Floating Eye                    E   Elemental
+  f   Feline                          F   Dragon Fly
+  g   Golem                           G   Ghost
+  h   Humanoids                       H   Hybrid
+  i   Icky-Thing                      I   Insect
+  j   Jelly                           J   Snake
+  k   Kobold                          K   Killer Beetle
+  l   Giant Louse                     L   Lich
+  m   Mold                            M   Multi-Headed Hydra
+  n   Naga                            N   (unused)
+  o   Orc                             O   Ogre
+  p   Human                           P   Giant Human(oid)
+  q   Quadruped                       Q   Quylthulg
+  r   Rodent                          R   Reptile/Amphibian
+  s   Skeleton                        S   Spider/Scorpion/Tick
+  t   Townsperson                     T   Troll
+  u   Minor demon                     U   Major demon
+  v   Vortex                          V   Vampire
+  w   Worm or Worm Mass               W   Wight/Wraith
+  x   (unused)                        X   Xorn/Xaren
+  y   Yeek                            Y   Yeti
+  z   Zombie/Mummy                    Z   Zephyr Hound
+  ~   Aquatic monsters
+
+Note that some monsters disguise themselves by assuming the shape (ie.
+symbol) of common objects found in the dungeon. These include the
+|, ), ?, !, &, $ and * symbols.
+
+
+***** <MonsterColors>
+=== Monster Colors ===
+
+You can often determine some information about a monster based solely
+on the color it is described as having, like 'a White Dragon'. In
+general, 'White' monsters are cold-based, 'Red' are fire-based, 'Blue'
+are electrical, 'Black' are acidic, and 'Green' are poisonous and a
+'Multi-Hued' monster is all of these. By being cold-based, we mean that
+the monster has either melee, magical or breath attacks that are cold
+based.
+
+Unfortunately this rule is applied somewhat inconsistently and there
+are several notable exceptions so don't be surprised. If that 'Green'
+monster spits acid at you. Note that this rule cannot be applied to the
+actual color a creature is displayed as but only to a color in its
+name.
+
+Other color and attack-type relationships are 'Bronze' and confusion
+and 'Gold' and sound. Over time the inconsistencies referred to above
+will probably get cleaned up.
+
+
+***** <MonsterMemory>
+=== Monster Memories ===
+
+Because there are so many monsters and because often different monsters
+share similar colors and symbols, it is very difficult to keep track of
+the capabilities of various creatures. Luckily, Zangband automatically
+keeps track of your experiences with a particular creature.
+ 
+This feature is called the monster memory. Your monster memory recalls
+the particular attacks of each creature (whether or not technically a
+monster) which you have suffered, as well as recalling if you have
+observed them to multiply or move erratically, or drop treasure, etc.
+Similary if you attack a creature with a magical attack and it resists,
+that fact is noted. 
+
+If you have killed enough of a particular creature, or suffered enough
+attacks, recalling the monster memory may also provide you with
+information not otherwise available, such as a armor class or hit dice.
+These are not explained, but may be useful to give the relative danger
+of each creature.
+ 
+Your monster memory may be accessed by pressing '/' and then entering
+the symbol you wish to research. Each monster with that symbol of which
+you have some knowledge will displayed in turn beginning with the
+deepest. Alternatively, you may enter targetting mode by pressing '*'
+and, with the curser over the creature in question, press 'r' to
+recall details.
+
+The best feature about your monster memory is that it can be passed on
+to a new character even after you die by means of a reduced save file.
+Simply use your old savefile as the base for creating your new
+character.
+
+
+*****<Uniques>
+=== Unique Monsters ===
+
+The monsters in Zangband are unique in that each variety of monster
+has its own set of physical and, where applicable, magical abilities.
+However, some monsters in Zangband are truly unique and this group
+of monsters are often referred to as "Uniques".
+
+The Unique monsters are made unique for several reasons. Primarily,
+their name derives from the fact that unlike regular monsters which
+can appear numerous times during the course of a game, the Unique
+monsters will never be regenerated once they have been killed and
+the game will never generate two copies of the same Unique monster
+at a time so that effectively there is only one of each Unique
+monster.
+
+Unique monsters are typically based on a normal monster. For example,
+Tom the Stone Troll is based on the Stone Troll monster. However,
+Unique monsters usually have more hitpoints, hit harder and cast
+spells more effectively than the monster on which they are based.
+Unique monsters are often a different color from other monsters of
+their type to allow the player to more easily distinguish them but
+this is not always true.
+
+--- Uniques' Resistance to Magic ---
+
+Unique monsters tend to be more resistant to magic than the other
+dungeon inhabitants. Thus, slowing, confusing, sleeping and scaring
+will be less effective and may not work at all. In addition, Genocide
+and Mass-Genocide spells will never work on Uniques and *Destruction*
+will teleoprt them from a level but will not kill them.
+
+--- Keeping Track of Uniques ---
+
+Since Unique monsters are often very difficult to defeat, most
+players will attempt to kill them all before attempting to battle
+the Serpent of Chaos (itself a Unique monster). This avoids the
+need to battle two very difficult oponents at the same time.
+
+Each time your character happens upon a new Unique, this is
+recorded in your monster memory. Under the knowledge command ('~')
+is a menu item which allows you to look at which Uniques you have
+met and which of these have been defeated. It is a good idea to
+check this periodically to gauge your progress.
+
+--- Speaking Uniques ---
+
+Occasionally, you will find that a Unique monster will speak to you
+as it approaches. Typically, a monster will shout obscenities and
+challenges to combat but they may also refer to events relating to
+themselves. Zangband has no mechanism to allow you to respond to the
+monsters (other than with violence). You may prevent Unique monsters
+from speaking by changing the approopriate option under the options
+menus.
+
+--- Rewards for Killing Uniques ---
+
+You may also find that occasionally after killing a Unique monster
+that the game will tell you that the Unique was wanted for certain
+crimes and you will be rewarded for killing it. The amount of the
+reward is dependent upon how deep in the dungeon the relevant Unique
+is normally found.
+
+
+*****<EldritchHorror>
+=== Eldritch Horrors ===
+
+Some of the monsters in the dungeons of Zangband are so fearsome to
+look upon that doing so can have serious repurcussions. When you meet
+one of these sanity blasting monsters, one of several nasty things
+may happen to you. These include having your intelligence and/or your
+wisdom temporarily or permanently reduced and becoming confused. In 
+the worst case, your character may become subject to one of a small
+number of mutations affecting your brain such as becoming subject to
+random beserker fits, becoming sporadically scared for no reason or
+becoming moronic.
+
+
+*****<Pets>
+=== Pets ===
+
+A pet can be a mixed blessing. At first sight, one might think that
+they can make the game much easier. It is of course highly satisfying
+to send your pet Hell Wyrm into a Troll pit and wait outside listening
+for the howls of agony and terror, the sounds of guts splattering,
+bones crunching and so on. But one should not expect to gain any
+experience for such a combat: you will only gain experience for
+creatures to whom you deliver the death blow yourself.
+
+Secondly, your pets are often so eager to destroy your opponents that
+they may forget all about you, and you get trampled under their feet
+as they charge at your foe. Pets are also rather easily irritable and
+once you do something which causes the slightest discomfort to them,
+they will revert to their normal behavior and consider you their main
+target. This is something to think about before lighting up a room if
+you have pet orcs. Needless to say, nobody wants to be your friend if
+you are aggravating them.
+
+Finally, it takes a lot of mental energy to maintain the control over
+the charmed monsters. The first monster or the first few are 'free',
+but after that maintaining the control will start taxing your mana
+regain rate. The higher the sum of the levels of your pets the less
+mana you will be able to regain. Keep this in mind if you have a pet
+which can summon or otherwise produce more pets...
+
+--- Obtaining a pet ---
+
+You may obtain pets in several different ways. Some magic realms offer
+the ability to summon pets magically or to charm the creatures you
+meet. Mindcrafters may 'dominate' their oponents. Chaos patrons may
+grant pets as a gift to their devotees. Magical figurines can be thrown
+to create a pet and wands of charm monster may be used as their name
+suggests.
+
+--- Commanding Your Pets ---
+
+Your pets are fairly well trained and will respond to a variety of
+commands such as following you closely, staying nearby and searching
+out your enemies. You can command your pets using the pet command menu
+which can be found be pressing 'p'.
+
+
+*****<Friendly>
+=== Friendly Monsters ===
+
+You will occasionally find a monster in the dungeon that isn't out to
+get you. Such monsters are described in game messages as being
+'friendly'. A friendly monster will not attempt to hurt you but neither
+will it necessarily attack your enemies.
+
+Like pets, if you annoy a friendly monster it will turn against you.
+Also like pets, any monsters a friendly monster summons will also be
+friendly. Unlike pets, friendly monsters require no mana upkeep and can
+not be commanded using the pet commands.
+
+--
+Original   : (??)
+Updated    : (??)
+Updated    : Zangband DevTeam
+Last update: May 29, 2000
+
+***** Begin Hyperlinks
+***** [1] commdesc.txt#Looking

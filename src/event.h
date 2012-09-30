@@ -1,6 +1,12 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 1999/10/22 07:44:50 $ */
+/* CVS: Last edit by $Author: rr9 $ on $Date: 2000/04/26 16:57:16 $ */
 #include "angband.h"
 #include "Python.h"
+
+
+extern void new_game_callback(void);
+extern void load_game_callback(char *data);
+extern cptr save_game_callback(void);
+extern void play_game_callback(void);
 
 extern void eat_callback(int sval);
 extern void kill_monster_callback(int m_idx);
@@ -10,8 +16,6 @@ extern bool cmd_search_callback(int y, int x);
 extern bool cmd_feeling_callback(int feeling);
 extern bool cmd_go_up_callback(void);
 extern bool building_command_callback(int number, int action);
-extern void callbacks_load_callback(char *data);
-extern cptr callbacks_save_callback(void);
 
 /* Dungeon grids */
 extern bool player_enter_grid_callback(int y, int x);
@@ -76,45 +80,51 @@ extern bool init_object_kind_list_callback(void);
 
 extern bool use_skill_callback(void);
 
+/* Script callbacks */
+extern cptr get_script_window_line(int line);
 
-#define CMD_EAT_EVENT                1
-#define PLAYER_MOVE_EVENT            2
-#define CMD_OPEN_EVENT               3
-#define CMD_SEARCH_EVENT             4
-#define PLAYER_SEARCH_GRID_EVENT     5
-#define CMD_FEELING_EVENT            6
-#define CMD_GO_UP_EVENT              7
-#define CALLBACKS_LOAD_EVENT         8
-#define CALLBACKS_SAVE_EVENT         9
-#define KILL_MONSTER_EVENT          10
-#define BUILDING_COMMAND_EVENT      11
-#define LEAVE_LEVEL_EVENT           12
-#define PLAYER_ENTER_GRID_EVENT     13
-#define ENTER_LEVEL_EVENT           14
-#define GENERATE_LEVEL_EVENT        15
-#define GENERATE_WILDERNESS_EVENT   16
-#define ENTER_WILDERNESS_EVENT      17
-#define LEAVE_WILDERNESS_EVENT      18
-#define STORE_EXAMINE_EVENT         19
-#define MONSTER_MOVE_EVENT          20
-#define CREATE_MONSTER_EVENT        21
-#define DELETE_MONSTER_EVENT        22
-#define INKEY_BORG_EVENT            23
-#define INKEY_EVENT                 24
-#define GET_PLAYER_CLASS_EVENT      25
-#define GET_PLAYER_FLAGS_EVENT      26
-#define SENSE_INVENTORY_EVENT       27
-#define DESTROY_OBJECT_EVENT        28
-#define GET_PLAYER_RACE_EVENT       29
-#define OBJECT_CREATE_EVENT         30
-#define OBJECT_LOAD_EVENT           31
-#define PLAYER_OUTFIT_EVENT         32
-#define WILDERNESS_INIT_EVENT       33
-#define FREE_OBJECT_KIND_LIST_EVENT 34
-#define INIT_OBJECT_KIND_LIST_EVENT 35
-#define GET_PLAYER_REALMS_EVENT     36
-#define GET_WORLD_EVENT             37
-#define COPY_MONSTER_EVENT          38
-#define USE_SKILL_EVENT             39
 
-#define MAX_EVENT                   40
+#define NEW_GAME_EVENT                1
+#define LOAD_GAME_EVENT               2
+#define SAVE_GAME_EVENT               3
+#define CMD_EAT_EVENT                 4
+#define PLAYER_MOVE_EVENT             5
+#define CMD_OPEN_EVENT                6
+#define CMD_SEARCH_EVENT              7
+#define PLAYER_SEARCH_GRID_EVENT      8
+#define CMD_FEELING_EVENT             9
+#define CMD_GO_UP_EVENT              10
+#define KILL_MONSTER_EVENT           11
+#define BUILDING_COMMAND_EVENT       12
+#define LEAVE_LEVEL_EVENT            13
+#define PLAYER_ENTER_GRID_EVENT      14
+#define ENTER_LEVEL_EVENT            15
+#define GENERATE_LEVEL_EVENT         16
+#define GENERATE_WILDERNESS_EVENT    17
+#define ENTER_WILDERNESS_EVENT       18
+#define LEAVE_WILDERNESS_EVENT       19
+#define STORE_EXAMINE_EVENT          20
+#define MONSTER_MOVE_EVENT           21
+#define CREATE_MONSTER_EVENT         22
+#define DELETE_MONSTER_EVENT         23
+#define INKEY_BORG_EVENT             24
+#define INKEY_EVENT                  25
+#define GET_PLAYER_CLASS_EVENT       26
+#define GET_PLAYER_FLAGS_EVENT       27
+#define SENSE_INVENTORY_EVENT        28
+#define DESTROY_OBJECT_EVENT         29
+#define GET_PLAYER_RACE_EVENT        30
+#define OBJECT_CREATE_EVENT          31
+#define OBJECT_LOAD_EVENT            32
+#define PLAYER_OUTFIT_EVENT          33
+#define WILDERNESS_INIT_EVENT        34
+#define FREE_OBJECT_KIND_LIST_EVENT  35
+#define INIT_OBJECT_KIND_LIST_EVENT  36
+#define GET_PLAYER_REALMS_EVENT      37
+#define GET_WORLD_EVENT              38
+#define COPY_MONSTER_EVENT           39
+#define USE_SKILL_EVENT              40
+#define GET_SCRIPT_WINDOW_LINE_EVENT 41
+#define PLAY_GAME_EVENT              42
+
+#define MAX_EVENT                    43

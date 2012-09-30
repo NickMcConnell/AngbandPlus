@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 2000/05/18 17:29:24 $ */
+/* CVS: Last edit by $Author: rr9 $ on $Date: 2000/05/25 12:14:56 $ */
 /* File: store.c */
 
 /* Purpose: Store commands */
@@ -13,8 +13,6 @@
 
 #include "angband.h"
 
-
-#define RUMOR_CHANCE 8
 
 #define MAX_COMMENT_1	6
 
@@ -132,17 +130,7 @@ static cptr comment_6[MAX_COMMENT_6] =
  */
 static void say_comment_1(void)
 {
-	char rumour[1024];
-
 	msg_print(comment_1[rand_int(MAX_COMMENT_1)]);
-
-	if ((randint(RUMOR_CHANCE) == 1) && speak_unique)
-	{
-		msg_print("The shopkeeper whispers something into your ear:");
-
-		if (!get_rnd_line("rumors.txt", 0, rumour))
-			msg_print(rumour);
-	}
 }
 
 
@@ -299,7 +287,7 @@ static void purchase_analyze(s32b price, s32b value, s32b guess)
 		msg_print(comment_7b[rand_int(MAX_COMMENT_7B)]);
 
 		chg_virtue(V_JUSTICE, -1);
-		if (randint(4)==1)
+		if (randint(4) == 1)
 			chg_virtue(V_HONOUR, -1);
 
 		/* Sound */
@@ -312,9 +300,9 @@ static void purchase_analyze(s32b price, s32b value, s32b guess)
 		/* Comment */
 		msg_print(comment_7c[rand_int(MAX_COMMENT_7C)]);
 
-		if (randint(4)==1)
+		if (randint(4) == 1)
 			chg_virtue(V_HONOUR, -1);
-		else if (randint(4)==1)
+		else if (randint(4) == 1)
 			chg_virtue(V_HONOUR, 1);
 
 		/* Sound */
@@ -327,9 +315,9 @@ static void purchase_analyze(s32b price, s32b value, s32b guess)
 		/* Comment */
 		msg_print(comment_7d[rand_int(MAX_COMMENT_7D)]);
 
-		if (randint(2)==1)
+		if (randint(2) == 1)
 			chg_virtue(V_HONOUR, -1);
-		if (randint(4)==1)
+		if (randint(4) == 1)
 			chg_virtue(V_HONOUR, 1);
 
 		if (10 * price < value)
@@ -375,9 +363,11 @@ static owner_type *ot_ptr = NULL;
  */
 static byte rgold_adj[MAX_RACES][MAX_RACES] =
 {
-	/*Hum, HfE, Elf,  Hal, Gno, Dwa, HfO, HfT, Dun, HiE, Barbarian,
-	 HfOg, HGn, HTn, Cyc, Yek, Klc, Kbd, Nbl, DkE, Drc, Mind Flayer,
-	 Imp,  Glm, Skl, Zombie, Vampire, Spectre */
+	/*
+	 * Hum, HfE, Elf,  Hal, Gno, Dwa, HfO, HfT, Dun, HiE, Barbarian,
+	 * HfOg, HGn, HTn, Cyc, Yek, Klc, Kbd, Nbl, DkE, Drc, Mind Flayer,
+	 * Imp,  Glm, Skl, Zombie, Vampire, Spectre
+	 */
 
 	/* Human */
 	{ 100, 105, 105, 110, 113, 115, 120, 125, 100, 105, 100,
@@ -1462,7 +1452,7 @@ static void store_create(void)
 		if (cur_store_num == STORE_BLACK)
 		{
 			/* Pick a level for object/magic */
-			level = 25 + rand_int(25);
+			level = 35 + p_ptr->lev;
 
 			/* Random item (usually of given level) */
 			i = get_obj_num(level);
@@ -1617,8 +1607,10 @@ static void display_entry(int pos)
 	char		o_name[80];
 	char		out_val[160];
 
+	byte		a;
+	char		c;
 
-	int maxwid = 75;
+	int maxwid;
 
 	/* Get the item */
 	o_ptr = &st_ptr->stock[pos];
@@ -1628,20 +1620,17 @@ static void display_entry(int pos)
 
 	/* Label it, clear the line --(-- */
 	(void)sprintf(out_val, "%c) ", I2A(i));
-	prt(out_val, i+6, 0);
+	prt(out_val, i + 6, 0);
 
-	if (show_store_graph)
-	{
-		byte a = object_attr(o_ptr);
-		char c = object_char(o_ptr);
+	/* Show_store_graph perm on. */
+	a = object_attr(o_ptr);
+	c = object_char(o_ptr);
 
 #ifdef AMIGA
-		if (a & 0x80)
-			a |= 0x40;
+	if (a & 0x80) a |= 0x40;
 #endif
 
-		Term_draw(3, i + 6, a, c);
-	}
+	Term_draw(3, i + 6, a, c);
 
 	/* Describe an item in the home */
 	if (cur_store_num == STORE_HOME)
@@ -1654,7 +1643,7 @@ static void display_entry(int pos)
 		/* Describe the object */
 		object_desc(o_name, o_ptr, TRUE, 3);
 		o_name[maxwid] = '\0';
-		c_put_str(tval_to_attr[o_ptr->tval], o_name, i+6, show_store_graph ? 5 : 3);
+		c_put_str(tval_to_attr[o_ptr->tval], o_name, i+6, 5);
 
 		/* Show weights */
 		if (show_weights)
@@ -1678,7 +1667,7 @@ static void display_entry(int pos)
 		/* Describe the object (fully) */
 		object_desc_store(o_name, o_ptr, TRUE, 3);
 		o_name[maxwid] = '\0';
-		c_put_str(tval_to_attr[o_ptr->tval], o_name, i+6, show_store_graph ? 5 : 3);
+		c_put_str(tval_to_attr[o_ptr->tval], o_name, i+6, 5);
 
 		/* Show weights */
 		if (show_weights)
@@ -2318,7 +2307,7 @@ static bool purchase_haggle(object_type *o_ptr, s32b *price)
 static bool sell_haggle(object_type *o_ptr, s32b *price)
 {
 	s32b    purse, cur_ask, final_ask;
-	s32b    last_offer = 0, offer = 0;
+	s32b    last_offer, offer = 0;
 	s32b    x1, x2, x3;
 	s32b    min_per, max_per;
 	int     flag, loop_flag, noneed;
@@ -2668,7 +2657,7 @@ static void store_purchase(void)
 
 				if (cur_store_num == STORE_BLACK) /* The black market is illegal! */
 					chg_virtue(V_JUSTICE, -1);
-				if((o_ptr->tval == TV_BOTTLE) && (cur_store_num != STORE_HOME))
+				if ((o_ptr->tval == TV_BOTTLE) && (cur_store_num != STORE_HOME))
 					chg_virtue(V_NATURE, -1);
 
 				/* Make a sound */
@@ -2975,7 +2964,7 @@ static void store_sell(void)
 			if (cur_store_num == STORE_BLACK) /* The black market is illegal! */
 				chg_virtue(V_JUSTICE, -1);
 
-			if((o_ptr->tval == TV_BOTTLE) && (cur_store_num != STORE_HOME))
+			if ((o_ptr->tval == TV_BOTTLE) && (cur_store_num != STORE_HOME))
 				chg_virtue(V_NATURE, 1);
 
 			/* Be happy */
@@ -3022,8 +3011,8 @@ static void store_sell(void)
 
 			if (!((o_ptr->tval == TV_FIGURINE) && (value > 0)))
 			{
-			 /* Analyze the prices (and comment verbally) unless a figurine*/
-			purchase_analyze(price, value, dummy);
+				/* Analyze the prices (and comment verbally) unless a figurine */
+				purchase_analyze(price, value, dummy);
 			}
 
 			/*
@@ -3472,6 +3461,115 @@ static void store_process_command(void)
 	}
 }
 
+/*
+ * Deallocate stores stock.
+ *
+ * This routine is used to deallocate the first store in the
+ * store stock cache.  This is done to save memory.
+ */
+void deallocate_store(void)
+{
+	int i;
+	store_type *home;
+
+	/* Return if there are no stores with stock */
+	if (store_cache_num == 0) return;
+
+	/* Do not deallocate homes */
+	while (store_cache[0]->type == STORE_HOME)
+	{
+		/* Hack - move home to end of cache */
+
+		/* Keep track of stuff in home */
+		home = store_cache[0];
+
+		/* Resort the rest of the stores */
+		for (i = 1; i < store_cache_num; i++)
+		{
+			store_cache[i - 1] = store_cache[i];
+		}
+
+		/* Move home to the end */
+		store_cache[store_cache_num - 1] = home;
+	}
+
+	/* Delete store least used. */
+	C_FREE(store_cache[0]->stock, store_cache[0]->stock_size, object_type);
+
+	/* No stock */
+	store_cache[0]->stock_num = 0;
+	store_cache[0]->stock = NULL;
+
+	/* Shift all other stores down the cache to fill the gap */
+	for (i = 1; i < store_cache_num; i++)
+	{
+		store_cache[i-1] = store_cache[i];
+	}
+
+	/* Decrease number of stores with stock */
+	store_cache_num--;
+}
+
+/*
+ * Allocate memory for a stores stock.
+ *
+ * This routine is used to save memory.  It is a waste to record
+ * what is in every store in every town in the wilderness.  This
+ * allocates the required array if the stockpointer is NULL.
+ */
+bool allocate_store(store_type *store)
+{
+	int i, n = 0;
+
+	/* See if store has stock. */
+	if (store->stock != NULL)
+	{
+		/* Find the location in the cache */
+		for (i = 0; i < store_cache_num; i++)
+		{
+			/* See if cache location matches */
+			if (store == store_cache[i])
+			{
+				/* note location */
+				n = i;
+				break;
+			}
+		}
+
+		/* Resort order based on last_visit */
+		for (i = n + 1; i < store_cache_num; i++)
+		{
+			store_cache[i-1] = store_cache[i];
+		}
+
+		/* Move current one to end */
+		store_cache[store_cache_num-1] = store;
+
+		/* (No need to maintain store) */
+		return FALSE;
+	}
+
+	/* Store does not have stock - so need to allocate. */
+
+	/* See if cache is full */
+	if (store_cache_num == STORE_CACHE_AMNT)
+	{
+		/* Delete least used store */
+		deallocate_store();
+	}
+
+	/* Add store to end of cache */
+	store_cache[store_cache_num] = store;
+
+	C_MAKE(store->stock, store->stock_size, object_type);
+
+	/* The number in the cache has increased */
+	store_cache_num++;
+
+	/* (Need to maintain stores) */
+	return TRUE;
+}
+
 
 /*
  * Enter a store, and interact with it.
@@ -3493,7 +3591,7 @@ void do_cmd_store(void)
 
 
 	/* Access the player grid */
-	c_ptr = &cave[py][px];
+	c_ptr = area(py,px);
 
 	/* Verify a store */
 	if (!((c_ptr->feat >= FEAT_SHOP_HEAD) &&
@@ -3504,6 +3602,12 @@ void do_cmd_store(void)
 	}
 
 	/* Extract the store code */
+
+	/* Later will have to modify data structures so multiple stores
+	 * of same type can exist in a town.
+	 * (Need to wait for python though - will probably be with "hotspot"
+	 * code.
+	 */
 	which = (c_ptr->feat - FEAT_SHOP_HEAD);
 
 	/* Hack -- Check the "locked doors" */
@@ -3517,8 +3621,15 @@ void do_cmd_store(void)
 	/* Calculate the number of store maintainances since the last visit */
 	maintain_num = (turn - town[p_ptr->town_num].store[which].last_visit) / (10L * STORE_TURNS);
 
-	/* Maintain the store max. 10 times */
-	if (maintain_num > 10) maintain_num = 10;
+	/* Allocate object storage if required */
+	if (allocate_store(&town[p_ptr->town_num].store[which]))
+	{
+		/* Hack - Maintain store if it is just allocated. */
+		maintain_num++;
+	}
+
+	/* Maintain the store max. 20 times */
+	if (maintain_num > 20) maintain_num = 20;
 
 	if (maintain_num)
 	{
@@ -3528,6 +3639,9 @@ void do_cmd_store(void)
 
 		/* Save the visit */
 		town[p_ptr->town_num].store[which].last_visit = turn;
+
+		/* Store the type */
+		town[p_ptr->town_num].store[which].type = which;
 	}
 
 	/* Forget the lite */
@@ -3891,8 +4005,6 @@ void store_maint(int town_num, int store_num)
  */
 void store_init(int town_num, int store_num)
 {
-	int 		k;
-
 	cur_store_num = store_num;
 
 	/* Activate that store */
@@ -3920,7 +4032,7 @@ void store_init(int town_num, int store_num)
 	 * BEFORE player birth to enable store restocking
 	 */
 	st_ptr->last_visit = -100L * STORE_TURNS;
-
+#if 0
 	/* Clear any old items */
 	for (k = 0; k < st_ptr->stock_size; k++)
 	{
@@ -3930,6 +4042,7 @@ void store_init(int town_num, int store_num)
 
 		object_wipe(&st_ptr->stock[k]);
 	}
+#endif
 }
 
 
@@ -3939,6 +4052,15 @@ void move_to_black_market(object_type *o_ptr)
 	if (!p_ptr->town_num) return;
 
 	st_ptr = &town[p_ptr->town_num].store[STORE_BLACK];
+
+	/* Make sure the black market has stock */
+	if (allocate_store(st_ptr))
+	{
+		store_maint(p_ptr->town_num, STORE_BLACK);
+
+		/* Store the type */
+		town[p_ptr->town_num].store[STORE_BLACK].type = STORE_BLACK;
+	}
 
 	o_ptr->ident |= IDENT_STOREB;
 

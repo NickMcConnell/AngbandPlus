@@ -32,10 +32,10 @@
  * The following shell script can be used to launch Angband, assuming that
  * it was extracted into "~/Angband", and compiled using "USE_X11", on a
  * Linux machine, with a 1280x1024 screen, using 6 windows (with the given
- * characteristics), with gamma correction of 1.8 -> (1 / 1.8) * 256 = 142,
- * and without graphics (add "-g" for graphics).  Just copy this comment
- * into a file, remove the leading " * " characters (and the head/tail of
- * this comment), and make the file executable.
+ * characteristics), with gamma correction of "180" (1 / 1.80), and without
+ * graphics (add "-g" for graphics).  Just copy this comment into a file,
+ * remove the leading " * " characters (and the head/tail of this comment),
+ * and make the file executable.
  * 
  *
  * #!/bin/csh
@@ -85,7 +85,7 @@
  * cd ~/Angband
  *
  * # Gamma correction
- * setenv ANGBAND_X11_GAMMA 142
+ * setenv ANGBAND_X1_GAMMA 128
  * 
  * # Launch Angband
  * ./src/angband -mx11 -- -n6 &
@@ -1719,26 +1719,14 @@ static errr CheckEvent(bool wait)
 
 		case Expose:
 		{
-			int x1, x2, y1, y2;
-			
 			/* Ignore "extra" exposes */
-			/*if (xev->xexpose.count) break;*/
+			if (xev->xexpose.count) break;
 
 			/* Clear the window */
-			/*Infowin_wipe();*/
-			
-			x1 = (xev->xexpose.x - Infowin->ox)/Infofnt->wid;
-			x2 = (xev->xexpose.x + xev->xexpose.width -
-				 Infowin->ox)/Infofnt->wid;
-			
-			y1 = (xev->xexpose.y - Infowin->oy)/Infofnt->hgt;
-			y2 = (xev->xexpose.y + xev->xexpose.height -
-				 Infowin->oy)/Infofnt->hgt;
-			
-			Term_redraw_section(x1, y1, x2, y2);
+			Infowin_wipe();
 
 			/* Redraw */
-			/*Term_redraw();*/
+			Term_redraw();
 
 			break;
 		}
@@ -1843,6 +1831,8 @@ static errr Term_xtra_x11_level(int v)
 static errr Term_xtra_x11_react(void)
 {
 	int i;
+
+	return(0);
 	
 	if (Metadpy->color)
 	{
@@ -2379,14 +2369,12 @@ errr init_x11(int argc, char *argv[])
 			dpy_name = &argv[i][2];
 			continue;
 		}
-		
-#ifdef USE_GRAPHICS
+
 		if (prefix(argv[i], "-s"))
 		{
 			smoothRescaling = FALSE;
 			continue;
 		}
-#endif /* USE_GRAPHICS */
 
 		if (prefix(argv[i], "-n"))
 		{

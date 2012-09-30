@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/07/19 13:49:31 $ */
+/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/06/27 10:37:27 $ */
 /* File: files.c */
 
 /* Purpose: code dealing with files (and death) */
@@ -234,6 +234,7 @@ static named_num gf_desc[] =
 	{"GF_OLD_CONF",			GF_OLD_CONF			},
 	{"GF_OLD_SLEEP",			GF_OLD_SLEEP		},
 	{"GF_OLD_DRAIN",			GF_OLD_DRAIN		},
+	{"GF_NEW_DRAIN",			GF_NEW_DRAIN		},
 	{"GF_AWAY_UNDEAD",		GF_AWAY_UNDEAD		},
 	{"GF_AWAY_EVIL",			GF_AWAY_EVIL		},
 	{"GF_AWAY_ALL",			GF_AWAY_ALL			},
@@ -532,7 +533,7 @@ errr process_pref_file_aux(char *buf)
 				return (0);
 			}
 		}
-		
+
 		/* XXX XXX XXX - ignore unknown options */
 		return (0);
 	}
@@ -555,7 +556,7 @@ errr process_pref_file_aux(char *buf)
 				return (0);
 			}
 		}
-		
+
 		/* XXX XXX XXX - ignore unknown options */
 		return (0);
 	}
@@ -1276,6 +1277,7 @@ int monk_avg_damage[PY_MAX_LEVEL+1] =
 	1669, 1809, 1836, 1875, 2155, 2190, 2227, 2587, 2769, 2811
 };
 
+
 /*
  * Prints ratings on certain abilities
  *
@@ -1290,8 +1292,6 @@ static void display_player_abilities(void)
 	int         muta_att = 0;
 	long		avgdam;
 	u32b            f1, f2, f3;
-	int		energy_fire = 100;
-	int		shots, shot_frac;
 
 	object_type		*o_ptr;
 
@@ -1311,60 +1311,6 @@ static void display_player_abilities(void)
 	tmp = p_ptr->to_h + o_ptr->to_h;
 	xthb = p_ptr->skill_thb + (tmp * BTH_PLUS_ADJ);
 
-	/* If the player is wielding one? */
-	if (o_ptr->k_idx)
-	{
-		/* Analyze the launcher */
-		switch (o_ptr->sval)
-		{
-			/* Sling and ammo */
-			case SV_SLING:
-			{
-				energy_fire = 50;
-				break;
-			}
-
-			/* Short Bow and Arrow */
-			case SV_SHORT_BOW:
-			{
-				energy_fire = 100;
-				break;
-			}
-
-			/* Long Bow and Arrow */
-			case SV_LONG_BOW:
-			{
-				energy_fire = 100;
-				break;
-			}
-		
-			/* Light Crossbow and Bolt */
-			case SV_LIGHT_XBOW:
-			{
-				energy_fire = 120;
-				break;
-			}
-
-			/* Heavy Crossbow and Bolt */
-			case SV_HEAVY_XBOW:
-			{		
-				if (p_ptr->stat_use[A_DEX] >= 16)
-				{
-					energy_fire = 150;
-				}
-				else
-				{
-					/* players with low dex will take longer to load */
-					energy_fire = 200;
-				}
-			}
-			break;
-		}
-	}
-	/* Calculate shots per round */
-	shots = p_ptr->num_fire * 100;
-	shot_frac = (shots * 100 / energy_fire) % 100;
-	shots = shots / energy_fire;
 
 	/* Average damage per round */
 	o_ptr = &inventory[INVEN_WIELD];
@@ -1420,14 +1366,14 @@ static void display_player_abilities(void)
 
 
 	put_str("Blows/Round :", 16, COL_SKILLS3);
+
 	if (!muta_att)
 		put_str(format("%d", p_ptr->num_blow), 16, COL_SKILLS3 + WID_SKILLS);
 	else
 		put_str(format("%d+%d", p_ptr->num_blow, muta_att), 16, COL_SKILLS3 + WID_SKILLS);
 
 	put_str("Shots/Round :", 17, COL_SKILLS3);
-	/* Calculate shots (rounded) */
-	put_str(format("%d.%d", shots, shot_frac), 17, COL_SKILLS3 + WID_SKILLS);
+	put_str(format("%d", p_ptr->num_fire), 17, COL_SKILLS3 + WID_SKILLS);
 
 	put_str("Avg.Dam./Rnd:", 18, COL_SKILLS3);
 
@@ -1438,16 +1384,17 @@ static void display_player_abilities(void)
 		avgdam = (100 - deadliness_conversion[ABS(dambonus)]);
 	else
 		avgdam = 0;
+
 	/* Effect of damage dice x2 */
 	avgdam *= damdice * (damsides + 1);
 
 	/* number of blows */
 	avgdam *= blows;
 
-	/*rescale*/
+	/* Rescale */
 	avgdam /= 200;
 
-	/* see if have a weapon with extra power*/
+	/* See if have a weapon with extra power */
 	if (o_ptr->k_idx)
 	{
 		/* Is there a vorpal effect we know about? */
@@ -1792,24 +1739,14 @@ static void display_player_equippy(int y, int x)
 		/* Object */
 		o_ptr = &inventory[i];
 
-#if 0
-		/* Skip empty objects */
-		if (!o_ptr->k_idx) continue;
-
-
-		/* Get attr/char for display */
-		a = tval_to_attr[o_ptr->tval & 0x7F];
-		c = tval_to_char[o_ptr->tval & 0x7F];
-#else
 		a = object_attr(o_ptr);
 		c = object_char(o_ptr);
-#endif
 
 		/* No color */
 		if (!use_color) a = TERM_WHITE;
 
 		/* Clear the part of the screen */
-		if (!equippy_chars || !o_ptr->k_idx)
+		if (!o_ptr->k_idx)
 		{
 			c = ' ';
 			a = TERM_DARK;
@@ -1987,7 +1924,7 @@ static void display_player_misc_info(void)
 	c_put_str(TERM_L_BLUE, buf, 8, 13);
 }
 
-#endif /* 0 */
+#endif
 
 /*
  * Special display, part 2b
@@ -2319,7 +2256,11 @@ static cptr object_flag_names[96] =
 	"Res Nexus",
 	"Res Chaos",
 	"Res Disen",
+
+
+
 	"Aura Fire",
+
 	"Aura Elec",
  	NULL,
  	NULL,
@@ -2536,7 +2477,7 @@ static void display_player_ben_one(int mode)
 		}
 	}
 }
-#endif /* 0 */
+#endif
 
 #define COL_NAME			0
 #define WID_NAME			11
@@ -2810,6 +2751,7 @@ static void display_player_summary(void)
 
 typedef void (*display_func)(void);
 
+
 static display_func displays[DISPLAY_PLAYER_MAX] =
 {
 	/* Standard display with skills */
@@ -3069,17 +3011,13 @@ errr file_character(cptr name, bool full)
 
 	if (ironman_small_levels)
 		fprintf(fff, "\n Small Levels:       ALWAYS");
-	else if (always_small_levels)
-		fprintf(fff, "\n Small Levels:       ON");
 	else if (small_levels)
-		fprintf(fff, "\n Small Levels:       ENABLED");
+		fprintf(fff, "\n Small Levels:       ON");
 	else
 		fprintf(fff, "\n Small Levels:       OFF");
 
 	if (vanilla_town)
 		fprintf(fff, "\n Vanilla Town:       ON");
-	else if (lite_town)
-		fprintf(fff, "\n Lite Town:          ON");
 
 	if (ironman_shops)
 		fprintf(fff, "\n No Shops:           ON");
@@ -3100,7 +3038,7 @@ errr file_character(cptr name, bool full)
 		fprintf(fff, "\n Hard Quests:        OFF");
 
 	fprintf(fff, "\n Num. Random Quests: %d", number_of_quests());
-	
+
 	if (ironman_nightmare)
 		fprintf(fff, "\n Nightmare Mode:     ON");
 	else
@@ -4023,10 +3961,10 @@ void change_player_name(void)
 	clear_from(22);
 }
 
-
-/*
- * Gets a name for the character, reacting to name changes.
+/* Gets a name for the character, reacting to name changes.
+ * Taken from V 2.9.0.
  */
+
 void get_character_name(void)
 {
 	char tmp[16];
@@ -4455,7 +4393,6 @@ static void show_info(void)
 		/* Aware and Known */
 		object_aware(o_ptr);
 		object_known(o_ptr);
-		o_ptr->ident |= IDENT_MENTAL;
 	}
 
 	for (i = 1; i < max_towns; i++)
@@ -4473,7 +4410,6 @@ static void show_info(void)
 			/* Aware and Known */
 			object_aware(o_ptr);
 			object_known(o_ptr);
-			o_ptr->ident |= IDENT_MENTAL;
 		}
 	}
 
@@ -4616,7 +4552,6 @@ void close_game(void)
 	/* Flush the input */
 	flush();
 
-
 	/* No suspending now */
 	signals_ignore_tstp();
 
@@ -4675,7 +4610,6 @@ void close_game(void)
 			output_note(buf);
 		}
 
-		/* You are dead */
 		print_tomb();
 
 		/* Show more info */
@@ -4710,7 +4644,6 @@ void close_game(void)
 
 	/* Forget the high score fd */
 	highscore_fd = -1;
-
 
 	/* Allow suspending now */
 	signals_handle_tstp();

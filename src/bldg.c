@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/07/19 13:48:40 $ */
+/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/05/15 12:25:22 $ */
 /* File: bldg.c */
 
 /*
@@ -343,6 +343,7 @@ int random_quest_number(int level)
 	return 0;
 }
 
+#if 0
 
 /* hack as in leave_store in store.c */
 static bool leave_bldg = FALSE;
@@ -1798,12 +1799,14 @@ static void bldg_process_command(building_type *bldg, int i)
 	}
 
 #ifdef USE_SCRIPT
+#if 0 /* FEAT_BLDG_* replaced by fields */
 	if (building_command_callback(area(py,px)->feat - FEAT_BLDG_HEAD, i))
 	{
 		/* Script paid the price */
 		paid = TRUE;
 	}
 	else
+#endif
 #endif /* USE_SCRIPT */
 
 	{
@@ -1821,9 +1824,11 @@ static void bldg_process_command(building_type *bldg, int i)
 			case BACT_RACE_LEGENDS:
 				race_legends();
 				break;
+#if 0
 			case BACT_QUEST:
 				castle_quest();
 				break;
+#endif
 			case BACT_KING_LEGENDS:
 			case BACT_ARENA_LEGENDS:
 			case BACT_LEGENDS:
@@ -1991,14 +1996,14 @@ void do_cmd_bldg(void)
 	bool            validcmd;
 	building_type   *bldg;
 
-	if (!((cave[py][px].feat >= FEAT_BLDG_HEAD) &&
-		  (cave[py][px].feat <= FEAT_BLDG_TAIL)))
+	if (!((area(py,px)->feat >= FEAT_BLDG_HEAD) &&
+		  (area(py,px)->feat <= FEAT_BLDG_TAIL)))
 	{
 		msg_print("You see no building here.");
 		return;
 	}
 
-	which = (cave[py][px].feat - FEAT_BLDG_HEAD);
+	which = (area(py,px)->feat - FEAT_BLDG_HEAD);
 	building_loc = which;
 
 	bldg = &building[which];
@@ -2099,3 +2104,4 @@ void do_cmd_bldg(void)
 	p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
 }
 
+#endif /* 0 */

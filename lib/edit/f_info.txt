@@ -1,4 +1,4 @@
-# CVS: Last edit by $Author: ebock $ on $Date: 2000/01/31 04:19:13 $
+# CVS: Last edit by $Author: sfuerst $ on $Date: 2000/06/04 04:11:29 $
 # File: f_info.txt
 
 
@@ -79,23 +79,31 @@ G:<:w
 N:7:down staircase
 G:>:w
 
-N:8:quest entrance
-G:>:y
+N:8:sand
+G:.:y
 
-N:9:quest exit
-G:<:y
+N:9:salt
+G:.:W
 
-N:10:quest down level
-G:>:r
+N:10:wet mud
+G:.:u
 
-N:11:quest up level
-G:<:r
+N:11:dry mud
+G:.:D
 
-N:12:town exit
-G:>:g
+N:12:tiled floor
+G:.:r
+
+N:13:wooden floor
+G:.:s
+
+N:14:pebbles
+G:.:D
+
+N:15:solidified lava
+G:::D
 
 # 0x10 --> visible trap -- trap door
-
 N:16:trap door
 G:^:w
 
@@ -284,23 +292,23 @@ G:::w
 # 0x32 --> magma vein
 
 N:50:magma vein
-G:%:s
+G:#:s
 
 # 0x33 --> quartz vein
 
 N:51:quartz vein
-G:%:w
+G:#:w
 
 # 0x34 --> magma vein + treasure
 
 N:52:magma vein
-G:%:s
+G:#:s
 M:50
 
 # 0x35 --> quartz vein + treasure
 
 N:53:quartz vein
-G:%:w
+G:#:w
 M:51
 
 # 0x36 --> magma vein + known treasure
@@ -436,17 +444,17 @@ G:9:o
 
 # 0x53 --> terrain -- deep water
 
-N:83:pool of deep water
-G:#:b
+N:83:deep water
+G:~:b
 
-N:84:stream of shallow water
-G:#:B
+N:84:shallow water
+G:~:B
 
-N:85:pool of deep lava
-G:#:r
+N:85:deep lava
+G:~:R
 
-N:86:stream of shallow lava
-G:#:U
+N:86:shallow lava
+G:~:r
 
 N:87:dark pit
 G:#:D
@@ -464,105 +472,93 @@ N:91:invisible wall
 G:.:w
 M:1
 
+N:92:very deep water
+G:~:D
+
+N:93:deep acid
+G:~:g
+
+N:94:shallow acid
+G:~:G
+
+N:95:submerged tree
+G:%:b
+
 N:96:tree
-G:#:G
+G:%:G
 
-N:97:mountain chain
-G:^:U
+N:97:rock face
+G:::u
 
-N:128:Building
-G:+:U
+N:98:snow covered rock face
+G:::W
 
-N:129:Building
-G:+:U
+N:99:boulder
+G:::y
 
-N:130:Building
-G:+:U
+N:100:pine tree
+G:%:g
 
-N:131:Building
-G:+:U
+N:101:snow covered tree
+G:%:w
 
-N:132:Building
-G:+:U
+N:102:obelisk
+G:;:b
 
-N:133:Building
-G:+:U
+N:103:pillar
+G:#:w
 
-N:134:Building
-G:+:U
 
-N:135:Building
-G:+:o
 
-N:136:Building
-G:+:R
+N:112:stone fence
+G:::b
 
-N:137:Building
-G:+:G
+N:113:well
+G:~:v
 
-N:138:Building
-G:+:v
+N:114:fountain
+G:~:U
 
-N:139:Building
-G:+:u
+N:115:jungle
+G:%:D
 
-N:140:Building
-G:+:w
 
-N:141:Building
-G:+:B
 
-N:142:Building
-G:+:B
 
-N:143:Building
-G:+:B
+N:128:bush
+G:%:y
 
-N:144:Building
-G:+:B
+N:129:dead bush
+G:%:s
 
-N:145:Building
-G:+:B
+N:130:long grass
+G:;:U
 
-N:146:Building
-G:+:B
+#rock on general terrain
 
-N:147:Building
-G:+:B
+N:131:rock
+G:::U
 
-N:148:Building
-G:+:B
+#rock on snow
 
-N:149:Building
-G:+:B
+N:132:rock
+G:::U
 
-N:150:Building
-G:+:B
+# dead tree on general terrain
 
-N:151:Building
-G:+:B
+N:133:dead tree
+G:%:u
 
-N:152:Building
-G:+:B
+# dead tree on snow
 
-N:153:Building
-G:+:B
+N:134:dead tree
+G:%:u
 
-N:154:Building
-G:+:B
+N:135:snow
+G:.:W
 
-N:155:Building
-G:+:B
+N:136:thick swamp
+G:;:g
 
-N:156:Building
-G:+:B
-
-N:157:Building
-G:+:B
-
-N:158:Building
-G:+:B
-
-N:159:Building
-G:+:B
-
+N:137:swamp
+G:;:G

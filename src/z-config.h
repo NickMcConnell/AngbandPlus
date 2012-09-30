@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/07/19 13:51:55 $ */
+/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/06/17 11:42:00 $ */
 /* File: z-config.h */
 
 /* Purpose: Angband specific configuration stuff */
@@ -502,8 +502,8 @@
 /*
  * OPTION: Gamma correct X11 colours.
  */
- 
-#define SUPPORT_GAMMA
+
+#define SUPPORT_ANGBAND_X11_GAMMA
 
 /*
  * Hack -- Special "ancient machine" versions
@@ -640,6 +640,11 @@
 /* #define USE_CORPSES */
 
 /*
- * Add caverns and lakes to the dungeon (buggy)
+ * Add caverns and lakes to the dungeon
  */
 #define ALLOW_CAVERNS_AND_LAKES
+
+/*
+ * Add pillar tunnels (Annoying)
+ */
+/* #define PILLAR_TUNNELS */

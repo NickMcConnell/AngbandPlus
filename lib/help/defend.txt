@@ -342,7 +342,7 @@ Cold
     This means that a character with both permanent and temporary
     resistance will only take one-ninth of the original damage. Cold
     resistance will not protect items in your inventory from being
-    destroyed by fire if they are susceptible to such attacks.
+    destroyed by cold if they are susceptible to such attacks.
 
 Electricity
     Electricity resistance will cut damage from fire attacks by
@@ -350,8 +350,8 @@ Electricity
     two-thirds. This means that a character with both permanent and
     temporary resistance will only take one-ninth of the original
     damage. Electricity resistance will not protect items in your
-    inventory from being destroyed by fire if they are susceptible to
-    such attacks.
+    inventory from being destroyed by electricity if they are
+    susceptible to such attacks.
 
 Poison
     Poison resistance will cut damage from poison attacks by

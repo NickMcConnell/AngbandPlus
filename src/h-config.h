@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/07/19 13:49:40 $ */
+/* CVS: Last edit by $Author: rr9 $ on $Date: 2000/05/25 12:14:46 $ */
 /* File: h-config.h */
 
 #ifndef INCLUDED_H_CONFIG_H

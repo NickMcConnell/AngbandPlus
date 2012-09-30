@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 2000/05/18 17:29:11 $ */
+/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/06/17 00:41:10 $ */
 /* File: object1.c */
 
 /* Purpose: Object code, part 1 */
@@ -228,7 +228,7 @@ void object_flags_known(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
 
 	/* Show modifications to stats */
 	(*f1) |= (o_ptr->art_flags1 &
-		(TR1_STR | TR1_INT | TR1_WIS | TR1_DEX | TR1_CON | TR1_CHR ));
+		(TR1_STR | TR1_INT | TR1_WIS | TR1_DEX | TR1_CON | TR1_CHR));
 
 
 #ifdef SPOIL_ARTIFACTS
@@ -406,71 +406,71 @@ cptr item_activation(object_type *o_ptr)
 			}
 			case ACT_BO_MISS_1:
 			{
-				return "magic missile (2d6) every 2 turns";
+				return "magic missile (3d6) every 2 turns";
 			}
 			case ACT_BA_POIS_1:
 			{
-				return "stinking cloud (12), rad. 3, every 4+d4 turns";
+				return "stinking cloud (25), rad. 3, every 4+d4 turns";
 			}
 			case ACT_BO_ELEC_1:
 			{
-				return "lightning bolt (4d8) every 6+d6 turns";
+				return "lightning bolt (6d8) every 6+d6 turns";
 			}
 			case ACT_BO_ACID_1:
 			{
-				return "acid bolt (5d8) every 5+d5 turns";
+				return "acid bolt (8d8) every 5+d5 turns";
 			}
 			case ACT_BO_COLD_1:
 			{
-				return "frost bolt (6d8) every 7+d7 turns";
+				return "frost bolt (9d8) every 7+d7 turns";
 			}
 			case ACT_BO_FIRE_1:
 			{
-				return "fire bolt (9d8) every 8+d8 turns";
+				return "fire bolt (11d8) every 8+d8 turns";
 			}
 			case ACT_BA_COLD_1:
 			{
-				return "ball of cold (48) every 400 turns";
+				return "ball of cold (100) every 400 turns";
 			}
 			case ACT_BA_FIRE_1:
 			{
-				return "ball of fire (72) every 400 turns";
+				return "ball of fire (150) every 400 turns";
 			}
 			case ACT_DRAIN_1:
 			{
-				return "drain life (100) every 100+d100 turns";
+				return "drain life (200) every 100+d100 turns";
 			}
 			case ACT_BA_COLD_2:
 			{
-				return "ball of cold (100) every 300 turns";
+				return "ball of cold (200) every 300 turns";
 			}
 			case ACT_BA_ELEC_2:
 			{
-				return "ball of lightning (100) every 500 turns";
+				return "ball of lightning (200) every 500 turns";
 			}
 			case ACT_DRAIN_2:
 			{
-				return "drain life (120) every 400 turns";
+				return "drain life (250) every 400 turns";
 			}
 			case ACT_VAMPIRE_1:
 			{
-				return "vampiric drain (3*50) every 400 turns";
+				return "vampiric drain (3*100) every 400 turns";
 			}
 			case ACT_BO_MISS_2:
 			{
-				return "arrows (150) every 90+d90 turns";
+				return "arrows (250) every 90+d90 turns";
 			}
 			case ACT_BA_FIRE_2:
 			{
-				return "fire ball (120) every 225+d225 turns";
+				return "fire ball (250) every 225+d225 turns";
 			}
 			case ACT_BA_COLD_3:
 			{
-				return "ball of cold (200) every 325+d325 turns";
+				return "ball of cold (400) every 325+d325 turns";
 			}
 			case ACT_BA_ELEC_3:
 			{
-				return "ball of lightning (250) every 425+d425 turns";
+				return "ball of lightning (500) every 425+d425 turns";
 			}
 			case ACT_WHIRLWIND:
 			{
@@ -478,7 +478,7 @@ cptr item_activation(object_type *o_ptr)
 			}
 			case ACT_VAMPIRE_2:
 			{
-				return "vampiric drain (3*100) every 400 turns";
+				return "vampiric drain (3*200) every 400 turns";
 			}
 			case ACT_CALL_CHAOS:
 			{
@@ -486,7 +486,7 @@ cptr item_activation(object_type *o_ptr)
 			}
 			case ACT_ROCKET:
 			{
-				return "launch rocket (120+level) every 400 turns";
+				return "launch rocket (300+level) every 400 turns";
 			}
 			case ACT_DISP_EVIL:
 			{
@@ -494,7 +494,7 @@ cptr item_activation(object_type *o_ptr)
 			}
 			case ACT_BA_MISS_3:
 			{
-				return "elemental breath (300) every 500 turns";
+				return "elemental breath (500) every 500 turns";
 			}
 			case ACT_DISP_GOOD:
 			{
@@ -578,7 +578,7 @@ cptr item_activation(object_type *o_ptr)
 			}
 			case ACT_CURE_MW:
 			{
-				return "heal 4d8 & wounds every 3+d3 turns";
+				return "heal 75 hp & wounds every 3+d3 turns";
 			}
 			case ACT_CURE_POISON:
 			{
@@ -708,23 +708,23 @@ cptr item_activation(object_type *o_ptr)
 	{
 		case ART_NARTHANC:
 		{
-			return "fire bolt (9d8) every 8+d8 turns";
+			return "fire bolt (11d8) every 8+d8 turns";
 		}
 		case ART_NIMTHANC:
 		{
-			return "frost bolt (6d8) every 7+d7 turns";
+			return "frost bolt (8d8) every 7+d7 turns";
 		}
 		case ART_DETHANC:
 		{
-			return "lightning bolt (4d8) every 6+d6 turns";
+			return "lightning bolt (6d8) every 6+d6 turns";
 		}
 		case ART_RILIA:
 		{
-			return "stinking cloud (12) every 4+d4 turns";
+			return "stinking cloud (25) every 4+d4 turns";
 		}
 		case ART_BELANGIL:
 		{
-			return "frost ball (48) every 5+d5 turns";
+			return "frost ball (100) every 5+d5 turns";
 		}
 		case ART_DAL:
 		{
@@ -732,7 +732,7 @@ cptr item_activation(object_type *o_ptr)
 		}
 		case ART_RINGIL:
 		{
-			return "frost ball (100) every 300 turns";
+			return "frost ball (200) every 300 turns";
 		}
 		case ART_DAWN:
 		{
@@ -740,11 +740,11 @@ cptr item_activation(object_type *o_ptr)
 		}
 		case ART_ANDURIL:
 		{
-			return "fire ball (72) every 400 turns";
+			return "fire ball (150) every 400 turns";
 		}
 		case ART_FIRESTAR:
 		{
-			return "large fire ball (72) every 100 turns";
+			return "large fire ball (200) every 100 turns";
 		}
 		case ART_FEANOR:
 		{
@@ -752,11 +752,11 @@ cptr item_activation(object_type *o_ptr)
 		}
 		case ART_THEODEN:
 		{
-			return "drain life (120) every 400 turns";
+			return "drain life (200) every 400 turns";
 		}
 		case ART_TURMIL:
 		{
-			return "drain life (90) every 70 turns";
+			return "drain life (200) every 70 turns";
 		}
 		case ART_CASPANION:
 		{
@@ -784,7 +784,7 @@ cptr item_activation(object_type *o_ptr)
 		}
 		case ART_LOTHARANG:
 		{
-			return "cure wounds (4d7) every 3+d3 turns";
+			return "cure wounds (100) every 3+d3 turns";
 		}
 		case ART_BRAND:
 		{
@@ -796,7 +796,7 @@ cptr item_activation(object_type *o_ptr)
 		}
 		case ART_AEGLOS:
 		{
-			return "lightning ball (100) every 500 turns";
+			return "lightning ball (200) every 500 turns";
 		}
 		case ART_OROME:
 		{
@@ -832,7 +832,7 @@ cptr item_activation(object_type *o_ptr)
 		}
 		case ART_THINGOL:
 		{
-			return "recharge item I every 70 turns";
+			return "recharge item every 70 turns";
 		}
 		case ART_COLANNON:
 		{
@@ -844,27 +844,27 @@ cptr item_activation(object_type *o_ptr)
 		}
 		case ART_CAMMITHRIM:
 		{
-			return "magic missile (2d6) every 2 turns";
+			return "magic missile (3d6) every 2 turns";
 		}
 		case ART_PAURHACH:
 		{
-			return "fire bolt (9d8) every 8+d8 turns";
+			return "fire bolt (11d8) every 8+d8 turns";
 		}
 		case ART_CORWIN:
 		{
-			return "frost bolt (6d8) every 7+d7 turns";
+			return "frost bolt (8d8) every 7+d7 turns";
 		}
 		case ART_PAURAEGEN:
 		{
-			return "lightning bolt (4d8) every 6+d6 turns";
+			return "lightning bolt (6d8) every 6+d6 turns";
 		}
 		case ART_PAURNEN:
 		{
-			return "acid bolt (5d8) every 5+d5 turns";
+			return "acid bolt (8d8) every 5+d5 turns";
 		}
 		case ART_FINGOLFIN:
 		{
-			return "a magical arrow (150) every 90+d90 turns";
+			return "a magical arrow (250) every 90+d90 turns";
 		}
 		case ART_HOLHENNETH:
 		{
@@ -876,11 +876,11 @@ cptr item_activation(object_type *o_ptr)
 		}
 		case ART_RAZORBACK:
 		{
-			return "star ball (150) every 1000 turns";
+			return "star ball (1500) every 100 turns";
 		}
 		case ART_BLADETURNER:
 		{
-			return "breathe elements (300), berserk rage, bless, and resistance";
+			return "breathe elements (1500), berserk rage, bless, and resistance";
 		}
 		case ART_GALADRIEL:
 		{
@@ -904,7 +904,7 @@ cptr item_activation(object_type *o_ptr)
 		}
 		case ART_BARAHIR:
 		{
-			return "a strangling attack (100) every 100+d100 turns";
+			return "a strangling attack (200) every 100+d100 turns";
 		}
 		case ART_TULKAS:
 		{
@@ -912,15 +912,15 @@ cptr item_activation(object_type *o_ptr)
 		}
 		case ART_NARYA:
 		{
-			return "large fire ball (120) every 225+d225 turns";
+			return "large fire ball (250) every 225+d225 turns";
 		}
 		case ART_NENYA:
 		{
-			return "large frost ball (200) every 325+d325 turns";
+			return "large frost ball (400) every 325+d325 turns";
 		}
 		case ART_VILYA:
 		{
-			return "large lightning ball (250) every 425+d425 turns";
+			return "large lightning ball (500) every 425+d425 turns";
 		}
 		case ART_POWER:
 		{
@@ -961,55 +961,55 @@ cptr item_activation(object_type *o_ptr)
 	{
 		case SV_DRAGON_BLUE:
 		{
-			return "breathe lightning (100) every 450+d450 turns";
+			return "breathe lightning (500) every 50+d50 turns";
 		}
 		case SV_DRAGON_WHITE:
 		{
-			return "breathe frost (110) every 450+d450 turns";
+			return "breathe frost (550) every 50+d50 turns";
 		}
 		case SV_DRAGON_BLACK:
 		{
-			return "breathe acid (130) every 450+d450 turns";
+			return "breathe acid (650) every 50+d50 turns";
 		}
 		case SV_DRAGON_GREEN:
 		{
-			return "breathe poison gas (150) every 450+d450 turns";
+			return "breathe poison gas (750) every 50+d50 turns";
 		}
 		case SV_DRAGON_RED:
 		{
-			return "breathe fire (200) every 450+d450 turns";
+			return "breathe fire (1000) every 50+d50 turns";
 		}
 		case SV_DRAGON_MULTIHUED:
 		{
-			return "breathe multi-hued (250) every 225+d225 turns";
+			return "breathe multi-hued (1250) every 25+d25 turns";
 		}
 		case SV_DRAGON_BRONZE:
 		{
-			return "breathe confusion (120) every 450+d450 turns";
+			return "breathe confusion (600) every 50+d50 turns";
 		}
 		case SV_DRAGON_GOLD:
 		{
-			return "breathe sound (130) every 450+d450 turns";
+			return "breathe sound (650) every 50+d50 turns";
 		}
 		case SV_DRAGON_CHAOS:
 		{
-			return "breathe chaos/disenchant (220) every 300+d300 turns";
+			return "breathe chaos/disenchant (1100) every 30+d30 turns";
 		}
 		case SV_DRAGON_LAW:
 		{
-			return "breathe sound/shards (230) every 300+d300 turns";
+			return "breathe sound/shards (1150) every 30+d30 turns";
 		}
 		case SV_DRAGON_BALANCE:
 		{
-			return "breathe balance (250) every 300+d300 turns";
+			return "breathe balance (1250) every 30+d30 turns";
 		}
 		case SV_DRAGON_SHINING:
 		{
-			return "breathe light/darkness (200) every 300+d300 turns";
+			return "breathe light/darkness (1000) every 30+d30 turns";
 		}
 		case SV_DRAGON_POWER:
 		{
-			return "breathe the elements (300) every 300+d300 turns";
+			return "breathe the elements (1500) every 30+d30 turns";
 		}
 	}
 
@@ -1719,7 +1719,7 @@ cptr describe_use(int i)
 
 /* Hack: Check if a spellbook is one of the realms we can use. -- TY */
 
-bool check_book_realm(const byte book_tval)
+static bool check_book_realm(const byte book_tval)
 {
 	return (REALM1_BOOK == book_tval || REALM2_BOOK == book_tval);
 }
@@ -1955,6 +1955,8 @@ void show_inven(void)
 	int             out_index[23];
 	byte            out_color[23];
 	char            out_desc[23][80];
+	byte		a;
+	char		c;
 
 
 	/* Starting column */
@@ -1970,7 +1972,7 @@ void show_inven(void)
 	if (show_weights) lim -= 9;
 
 	/* Require space for icon */
-	if (show_inven_graph) lim -= 2;
+	lim -= 2;
 
 	/* Find the "final" slot */
 	for (i = 0; i < INVEN_PACK; i++)
@@ -2017,7 +2019,7 @@ void show_inven(void)
 		if (show_weights) l += 9;
 
 		/* Account for icon if displayed */
-		if (show_inven_graph) l += 2;
+		l += 2;
 
 		/* Maintain the maximum length */
 		if (l > len) len = l;
@@ -2048,21 +2050,17 @@ void show_inven(void)
 		put_str(tmp_val, j + 1, col);
 
 		/* Display graphics for object, if desired */
-		if (show_inven_graph)
-		{
-			byte  a = object_attr(o_ptr);
-			char c = object_char(o_ptr);
+		a = object_attr(o_ptr);
+		c = object_char(o_ptr);
 
 #ifdef AMIGA
-			if (a & 0x80) a |= 0x40;
+		if (a & 0x80) a |= 0x40;
 #endif
 
-			Term_draw(col + 3, j + 1, a, c);
-		}
-
+		Term_draw(col + 3, j + 1, a, c);
 
 		/* Display the entry itself */
-		c_put_str(out_color[j], out_desc[j], j + 1, show_inven_graph ? (col + 5) : (col + 3));
+		c_put_str(out_color[j], out_desc[j], j + 1, (col + 5));
 
 		/* Display the weight if needed */
 		if (show_weights)
@@ -2095,6 +2093,8 @@ void show_equip(void)
 	int             out_index[23];
 	byte            out_color[23];
 	char            out_desc[23][80];
+	byte		a;
+	char		c;
 
 
 	/* Starting column */
@@ -2112,7 +2112,8 @@ void show_equip(void)
 	/* Require space for weight (if needed) */
 	if (show_weights) lim -= 9;
 
-	if (show_equip_graph) lim -= 2;
+	/* Old show_equip_graph option Perm. on. */
+	lim -= 2;
 
 	/* Scan the equipment list */
 	for (k = 0, i = INVEN_WIELD; i < INVEN_TOTAL; i++)
@@ -2149,7 +2150,8 @@ void show_equip(void)
 		/* Increase length for weight (if needed) */
 		if (show_weights) l += 9;
 
-		if (show_equip_graph) l += 2;
+		/* old show_equip_graph option perm. on. */
+		l += 2;
 
 		/* Maintain the max-length */
 		if (l > len) len = l;
@@ -2179,34 +2181,33 @@ void show_equip(void)
 		/* Clear the line with the (possibly indented) index */
 		put_str(tmp_val, j+1, col);
 
-		if (show_equip_graph)
-		{
-			byte a = object_attr(o_ptr);
-			char c = object_char(o_ptr);
+		/* Show_equip_graph perm. on. */
+		a = object_attr(o_ptr);
+		c = object_char(o_ptr);
 
 #ifdef AMIGA
-			if (a & 0x80) a |= 0x40;
+		if (a & 0x80) a |= 0x40;
 #endif
 
-			Term_draw(col + 3, j + 1, a, c);
-		}
+		Term_draw(col + 3, j + 1, a, c);
+
 
 		/* Use labels */
 		if (show_labels)
 		{
 			/* Mention the use */
 			(void)sprintf(tmp_val, "%-14s: ", mention_use(i));
-			put_str(tmp_val, j+1, show_equip_graph ? col + 5 : col + 3);
+			put_str(tmp_val, j+1, col + 5);
 
 			/* Display the entry itself */
-			c_put_str(out_color[j], out_desc[j], j+1, show_equip_graph ? col + 21 : col + 19);
+			c_put_str(out_color[j], out_desc[j], j+1, col + 21);
 		}
 
 		/* No labels */
 		else
 		{
 			/* Display the entry itself */
-			c_put_str(out_color[j], out_desc[j], j+1, show_equip_graph ? col + 5 : col + 3);
+			c_put_str(out_color[j], out_desc[j], j+1, col + 5);
 		}
 
 		/* Display the weight if needed */
@@ -2483,9 +2484,9 @@ static int get_tag(int *cp, char tag)
  */
 bool get_item(int *cp, cptr pmt, cptr str, int mode)
 {
-	s16b this_o_idx, next_o_idx = 0;
+	s16b this_o_idx, next_o_idx;
 
-	char n1, n2, which = ' ';
+	char which;
 
 	int j, k, i1, i2, e1, e2;
 
@@ -2556,7 +2557,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	if (floor)
 	{
 		/* Scan all objects in the grid */
-		for (this_o_idx = cave[py][px].o_idx; this_o_idx; this_o_idx = next_o_idx)
+		for (this_o_idx = area(py,px)->o_idx; this_o_idx; this_o_idx = next_o_idx)
 		{
 			object_type *o_ptr;
 
@@ -2625,50 +2626,42 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	/* Repeat until done */
 	while (!done)
 	{
-		/* Show choices */
-		if (show_choices)
+		int ni = 0;
+		int ne = 0;
+
+		/* Scan windows */
+		for (j = 0; j < 8; j++)
 		{
-			int ni = 0;
-			int ne = 0;
+			/* Unused */
+			if (!angband_term[j]) continue;
 
-			/* Scan windows */
-			for (j = 0; j < 8; j++)
-			{
-				/* Unused */
-				if (!angband_term[j]) continue;
+			/* Count windows displaying inven */
+			if (window_flag[j] & (PW_INVEN)) ni++;
 
-				/* Count windows displaying inven */
-				if (window_flag[j] & (PW_INVEN)) ni++;
-
-				/* Count windows displaying equip */
-				if (window_flag[j] & (PW_EQUIP)) ne++;
-			}
-
-			/* Toggle if needed */
-			if ((command_wrk && ni && !ne) ||
-			    (!command_wrk && !ni && ne))
-			{
-				/* Toggle */
-				toggle_inven_equip();
-
-				/* Track toggles */
-				toggle = !toggle;
-			}
-
-			/* Update */
-			p_ptr->window |= (PW_INVEN | PW_EQUIP);
-
-			/* Redraw windows */
-			window_stuff();
+			/* Count windows displaying equip */
+			if (window_flag[j] & (PW_EQUIP)) ne++;
 		}
+
+		/* Toggle if needed */
+		if ((command_wrk && ni && !ne) ||
+		    (!command_wrk && !ni && ne))
+		{
+			/* Toggle */
+			toggle_inven_equip();
+
+			/* Track toggles */
+			toggle = !toggle;
+		}
+
+		/* Update */
+		p_ptr->window |= (PW_INVEN | PW_EQUIP);
+
+		/* Redraw windows */
+		window_stuff();
 
 		/* Inventory screen */
 		if (!command_wrk)
 		{
-			/* Extract the legal requests */
-			n1 = I2A(i1);
-			n2 = I2A(i2);
-
 			/* Redraw if needed */
 			if (command_see) show_inven();
 		}
@@ -2676,10 +2669,6 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 		/* Equipment screen */
 		else
 		{
-			/* Extract the legal requests */
-			n1 = I2A(e1 - INVEN_WIELD);
-			n2 = I2A(e2 - INVEN_WIELD);
-
 			/* Redraw if needed */
 			if (command_see) show_equip();
 		}
@@ -2815,7 +2804,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 				if (allow_floor)
 				{
 					/* Scan all objects in the grid */
-					for (this_o_idx = cave[py][px].o_idx; this_o_idx; this_o_idx = next_o_idx)
+					for (this_o_idx = area(py,px)->o_idx; this_o_idx; this_o_idx = next_o_idx)
 					{
 						object_type *o_ptr;
 
@@ -2999,18 +2988,14 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 
 
 	/* Clean up */
-	if (show_choices)
-	{
-		/* Toggle again if needed */
-		if (toggle) toggle_inven_equip();
+	/* Toggle again if needed */
+	if (toggle) toggle_inven_equip();
 
-		/* Update */
-		p_ptr->window |= (PW_INVEN | PW_EQUIP);
+	/* Update */
+	p_ptr->window |= (PW_INVEN | PW_EQUIP);
 
-		/* Window stuff */
-		window_stuff();
-	}
-
+	/* Window stuff */
+	window_stuff();
 
 	/* Clear the prompt line */
 	prt("", 0, 0);
@@ -3047,7 +3032,7 @@ bool scan_floor(int *items, int *item_num, int y, int x, int mode)
 	if (!in_bounds(y, x)) return (FALSE);
 
 	/* Scan all objects in the grid */
-	for (this_o_idx = cave[y][x].o_idx; this_o_idx; this_o_idx = next_o_idx)
+	for (this_o_idx = area(y, x)->o_idx; this_o_idx; this_o_idx = next_o_idx)
 	{
 		object_type *o_ptr;
 
@@ -3110,7 +3095,7 @@ void show_floor(int y, int x)
 	if (show_weights) lim -= 9;
 
 	/* Scan for objects in the grid, using item_tester_okay() */
-	(void) scan_floor(floor_list, &floor_num, y, x, 0x01);
+	(void)scan_floor(floor_list, &floor_num, y, x, 0x01);
 
 	/* Display the inventory */
 	for (k = 0, i = 0; i < floor_num; i++)
@@ -3188,7 +3173,7 @@ void show_floor(int y, int x)
  */
 bool get_item_floor(int *cp, cptr pmt, cptr str, int mode)
 {
-	char n1 = ' ', n2 = ' ', which = ' ';
+	char n1 = ' ', n2 = ' ', which;
 
 	int j, k, i1, i2, e1, e2;
 
@@ -3305,7 +3290,7 @@ bool get_item_floor(int *cp, cptr pmt, cptr str, int mode)
 	if (floor)
 	{
 		/* Scan all objects in the grid */
-		(void) scan_floor(floor_list, &floor_num, py, px, 0x01);
+		(void)scan_floor(floor_list, &floor_num, py, px, 0x01);
 	}
 
 	/* Accept inventory */
@@ -3368,42 +3353,38 @@ bool get_item_floor(int *cp, cptr pmt, cptr str, int mode)
 	/* Repeat until done */
 	while (!done)
 	{
-		/* Show choices */
-		if (show_choices)
+		int ni = 0;
+		int ne = 0;
+
+		/* Scan windows */
+		for (j = 0; j < 8; j++)
 		{
-			int ni = 0;
-			int ne = 0;
+			/* Unused */
+			if (!angband_term[j]) continue;
 
-			/* Scan windows */
-			for (j = 0; j < 8; j++)
-			{
-				/* Unused */
-				if (!angband_term[j]) continue;
+			/* Count windows displaying inven */
+			if (window_flag[j] & (PW_INVEN)) ni++;
 
-				/* Count windows displaying inven */
-				if (window_flag[j] & (PW_INVEN)) ni++;
-
-				/* Count windows displaying equip */
-				if (window_flag[j] & (PW_EQUIP)) ne++;
-			}
-
-			/* Toggle if needed */
-			if ((command_wrk == (USE_EQUIP) && ni && !ne) ||
-				(command_wrk == (USE_INVEN) && !ni && ne))
-			{
-				/* Toggle */
-				toggle_inven_equip();
-
-				/* Track toggles */
-				toggle = !toggle;
-			}
-
-			/* Update */
-			p_ptr->window |= (PW_INVEN | PW_EQUIP);
-
-			/* Redraw windows */
-			window_stuff();
+			/* Count windows displaying equip */
+			if (window_flag[j] & (PW_EQUIP)) ne++;
 		}
+
+		/* Toggle if needed */
+		if ((command_wrk == (USE_EQUIP) && ni && !ne) ||
+			(command_wrk == (USE_INVEN) && !ni && ne))
+		{
+			/* Toggle */
+			toggle_inven_equip();
+
+			/* Track toggles */
+			toggle = !toggle;
+		}
+
+		/* Update */
+		p_ptr->window |= (PW_INVEN | PW_EQUIP);
+
+		/* Redraw windows */
+		window_stuff();
 
 		/* Inventory screen */
 		if (command_wrk == (USE_INVEN))
@@ -3846,18 +3827,15 @@ bool get_item_floor(int *cp, cptr pmt, cptr str, int mode)
 
 
 	/* Clean up */
-	if (show_choices)
-	{
-		/* Toggle again if needed */
-		if (toggle) toggle_inven_equip();
 
-		/* Update */
-		p_ptr->window |= (PW_INVEN | PW_EQUIP);
+	/* Toggle again if needed */
+	if (toggle) toggle_inven_equip();
 
-		/* Window stuff */
-		window_stuff();
-	}
+	/* Update */
+	p_ptr->window |= (PW_INVEN | PW_EQUIP);
 
+	/* Window stuff */
+	window_stuff();
 
 	/* Clear the prompt line */
 	prt("", 0, 0);
@@ -3895,7 +3873,7 @@ void py_pickup_floor(int pickup)
 	bool do_ask = TRUE;
 
 	/* Scan the pile of objects */
-	for (this_o_idx = cave[py][px].o_idx; this_o_idx; this_o_idx = next_o_idx)
+	for (this_o_idx = area(py,px)->o_idx; this_o_idx; this_o_idx = next_o_idx)
 	{
 		object_type *o_ptr;
 
@@ -3916,7 +3894,7 @@ void py_pickup_floor(int pickup)
 		{
 			/* Message */
 			msg_format("You have found %ld gold pieces worth of %s.",
-				(long) o_ptr->pval, o_name);
+				(long)o_ptr->pval, o_name);
 
 			/* Collect the gold */
 			p_ptr->au += o_ptr->pval;
@@ -3943,6 +3921,7 @@ void py_pickup_floor(int pickup)
 			/* Check the next object */
 			continue;
 		}
+
 
 		/* Count non-gold objects that can be picked up. */
 		if (inven_carry_okay(o_ptr))
@@ -3979,7 +3958,7 @@ void py_pickup_floor(int pickup)
 			if (easy_sense)
 			{
 				/* Sense the object */
-				(void) sense_object(o_ptr);
+				(void)sense_object(o_ptr);
 			}
 
 #endif /* ALLOW_EASY_SENSE */
@@ -4017,7 +3996,7 @@ void py_pickup_floor(int pickup)
 			if (easy_sense)
 			{
 				/* Sense the object */
-				(void) sense_object(o_ptr);
+				(void)sense_object(o_ptr);
 			}
 
 #endif /* ALLOW_EASY_SENSE */
@@ -4057,7 +4036,7 @@ void py_pickup_floor(int pickup)
 			if (easy_sense)
 			{
 				/* Sense the object */
-				(void) sense_object(o_ptr);
+				(void)sense_object(o_ptr);
 			}
 
 #endif /* ALLOW_EASY_SENSE */
@@ -4066,7 +4045,7 @@ void py_pickup_floor(int pickup)
 			object_desc(o_name, o_ptr, TRUE, 3);
 
 			/* Build a prompt */
-			(void) sprintf(out_val, "Pick up %s? ", o_name);
+			(void)sprintf(out_val, "Pick up %s? ", o_name);
 
 			/* Ask the user to confirm */
 			if (!get_check(out_val))
@@ -4104,7 +4083,7 @@ void py_pickup_floor(int pickup)
 				o_ptr = &o_list[floor_list[i]];
 
 				/* Sense the object */
-				(void) sense_object(o_ptr);
+				(void)sense_object(o_ptr);
 			}
 		}
 
@@ -4135,7 +4114,7 @@ void py_pickup_floor(int pickup)
 	if (easy_sense)
 	{
 		/* Sense the object */
-		(void) sense_object(o_ptr);
+		(void)sense_object(o_ptr);
 	}
 
 #endif /* ALLOW_EASY_SENSE */

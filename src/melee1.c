@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/07/19 13:50:23 $ */
+/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/05/14 03:15:16 $ */
 /* File: melee1.c */
 
 /* Purpose: Monster attacks */
@@ -456,7 +456,6 @@ bool make_attack_normal(int m_idx)
 			}
 
 			/* Message */
-			/* Message */
 			if (act)
 			{
 				if ((p_ptr->image) && (randint(3) == 1))
@@ -467,7 +466,6 @@ bool make_attack_normal(int m_idx)
 				else
 					msg_format("%^s %s", m_name, act);
 			}
-
 
 			/* Hack -- assume all attacks are obvious */
 			obvious = TRUE;

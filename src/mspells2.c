@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/08/21 11:27:16 $ */
+/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/06/11 23:49:22 $ */
 /* File: mspells2.c */
 
 /* Purpose: Monster spells (attack monster) */
@@ -299,7 +299,7 @@ bool monst_spell_monst(int m_idx)
 				}
 
 				monst_breath_monst(m_idx, y, x, GF_ROCKET,
-					((m_ptr->hp / 4) > 600 ? 600 : (m_ptr->hp / 4)), 2, FALSE);
+					((m_ptr->hp / 4) > 800 ? 800 : (m_ptr->hp / 4)), 2, FALSE);
 
 				break;
 			}
@@ -447,7 +447,7 @@ bool monst_spell_monst(int m_idx)
 				}
 
 				monst_breath_monst(m_idx, y, x, GF_ACID,
-					((m_ptr->hp / 3) > 1200 ? 1200 : (m_ptr->hp / 3)), 0, TRUE);
+					((m_ptr->hp / 3) > 1600 ? 1600 : (m_ptr->hp / 2)), 0, TRUE);
 
 				break;
 			}
@@ -479,7 +479,7 @@ bool monst_spell_monst(int m_idx)
 				}
 
 				monst_breath_monst(m_idx, y, x, GF_ELEC,
-					((m_ptr->hp / 3) > 1200 ? 1200 : (m_ptr->hp / 3)), 0, TRUE);
+					((m_ptr->hp / 3) > 1600 ? 1600 : (m_ptr->hp / 2)), 0, TRUE);
 
 				break;
 			}
@@ -511,7 +511,7 @@ bool monst_spell_monst(int m_idx)
 				}
 
 				monst_breath_monst(m_idx, y, x, GF_FIRE,
-					((m_ptr->hp / 3) > 1200 ? 1200 : (m_ptr->hp / 3)), 0, TRUE);
+					((m_ptr->hp / 3) > 1600 ? 1600 : (m_ptr->hp / 2)), 0, TRUE);
 
 				break;
 			}
@@ -543,7 +543,7 @@ bool monst_spell_monst(int m_idx)
 				}
 
 				monst_breath_monst(m_idx, y, x, GF_COLD,
-					((m_ptr->hp / 3) > 1200 ? 1200 : (m_ptr->hp / 3)), 0, TRUE);
+					((m_ptr->hp / 3) > 1600 ? 1600 : (m_ptr->hp / 2)), 0, TRUE);
 				break;
 			}
 
@@ -574,7 +574,7 @@ bool monst_spell_monst(int m_idx)
 				}
 
 				monst_breath_monst(m_idx, y, x, GF_POIS,
-					((m_ptr->hp / 3) > 600 ? 600 : (m_ptr->hp / 3)), 0, TRUE);
+					((m_ptr->hp / 3) > 800 ? 800 : (m_ptr->hp / 2)), 0, TRUE);
 
 				break;
 			}
@@ -606,7 +606,7 @@ bool monst_spell_monst(int m_idx)
 				}
 
 				monst_breath_monst(m_idx, y, x, GF_NETHER,
-					((m_ptr->hp / 6) > 450 ? 450 : (m_ptr->hp / 6)), 0, TRUE);
+					((m_ptr->hp / 6) > 550 ? 550 : (m_ptr->hp / 4)), 0, TRUE);
 
 				break;
 			}
@@ -638,7 +638,7 @@ bool monst_spell_monst(int m_idx)
 				}
 
 				monst_breath_monst(m_idx, y, x, GF_LITE,
-					((m_ptr->hp / 4) > 350 ? 350 : (m_ptr->hp / 4)), 0, TRUE);
+					((m_ptr->hp / 6) > 400 ? 400 : (m_ptr->hp / 4)), 0, TRUE);
 
 				break;
 			}
@@ -670,7 +670,7 @@ bool monst_spell_monst(int m_idx)
 				}
 
 				monst_breath_monst(m_idx, y, x, GF_DARK,
-					((m_ptr->hp / 4) > 350 ? 350 : (m_ptr->hp / 4)), 0, TRUE);
+					((m_ptr->hp / 6) > 400 ? 400 : (m_ptr->hp / 4)), 0, TRUE);
 
 				break;
 			}
@@ -702,7 +702,7 @@ bool monst_spell_monst(int m_idx)
 				}
 
 				monst_breath_monst(m_idx, y, x, GF_CONFUSION,
-					((m_ptr->hp / 4) > 350 ? 350 : (m_ptr->hp / 4)), 0, TRUE);
+					((m_ptr->hp / 6) > 400 ? 400 : (m_ptr->hp / 4)), 0, TRUE);
 
 				break;
 			}
@@ -734,7 +734,7 @@ bool monst_spell_monst(int m_idx)
 				}
 
 				monst_breath_monst(m_idx, y, x, GF_SOUND,
-					((m_ptr->hp / 4) > 350 ? 350 : (m_ptr->hp / 4)), 0, TRUE);
+					((m_ptr->hp / 6) > 400 ? 400 : (m_ptr->hp / 4)), 0, TRUE);
 
 				break;
 			}
@@ -766,7 +766,7 @@ bool monst_spell_monst(int m_idx)
 				}
 
 				monst_breath_monst(m_idx, y, x, GF_CHAOS,
-					((m_ptr->hp / 4) > 500 ? 500 : (m_ptr->hp / 4)), 0, TRUE);
+					((m_ptr->hp / 6) > 600 ? 600 : (m_ptr->hp / 4)), 0, TRUE);
 
 				break;
 			}
@@ -798,7 +798,7 @@ bool monst_spell_monst(int m_idx)
 				}
 
 				monst_breath_monst(m_idx, y, x, GF_DISENCHANT,
-					((m_ptr->hp / 4) > 400 ? 400 : (m_ptr->hp / 4)), 0, TRUE);
+					((m_ptr->hp / 6) > 500 ? 500 : (m_ptr->hp / 4)), 0, TRUE);
 
 				break;
 			}
@@ -830,7 +830,7 @@ bool monst_spell_monst(int m_idx)
 				}
 
 				monst_breath_monst(m_idx, y, x, GF_NEXUS,
-					((m_ptr->hp / 3) > 250 ? 250 : (m_ptr->hp / 3)), 0, TRUE);
+					((m_ptr->hp / 3) > 250 ? 250 : (m_ptr->hp / 2)), 0, TRUE);
 
 				break;
 			}
@@ -862,7 +862,7 @@ bool monst_spell_monst(int m_idx)
 				}
 
 				monst_breath_monst(m_idx, y, x, GF_TIME,
-					((m_ptr->hp / 3) > 150 ? 150 : (m_ptr->hp / 3)), 0, TRUE);
+					((m_ptr->hp / 3) > 150 ? 150 : (m_ptr->hp / 2)), 0, TRUE);
 
 				break;
 			}
@@ -894,7 +894,7 @@ bool monst_spell_monst(int m_idx)
 				}
 
 				monst_breath_monst(m_idx, y, x, GF_INERTIA,
-					((m_ptr->hp / 4) > 200 ? 200 : (m_ptr->hp / 4)), 0, TRUE);
+					((m_ptr->hp / 6) > 200 ? 200 : (m_ptr->hp / 4)), 0, TRUE);
 
 				break;
 			}
@@ -926,7 +926,7 @@ bool monst_spell_monst(int m_idx)
 				}
 
 				monst_breath_monst(m_idx, y, x, GF_GRAVITY,
-					((m_ptr->hp / 3) > 200 ? 200 : (m_ptr->hp / 3)), 0, TRUE);
+					((m_ptr->hp / 3) > 200 ? 200 : (m_ptr->hp / 2)), 0, TRUE);
 
 				break;
 			}
@@ -958,7 +958,7 @@ bool monst_spell_monst(int m_idx)
 				}
 
 				monst_breath_monst(m_idx, y, x, GF_SHARDS,
-					((m_ptr->hp / 4) > 400 ? 400 : (m_ptr->hp / 4)), 0, TRUE);
+					((m_ptr->hp / 6) > 400 ? 400 : (m_ptr->hp / 4)), 0, TRUE);
 
 				break;
 			}
@@ -990,7 +990,7 @@ bool monst_spell_monst(int m_idx)
 				}
 
 				monst_breath_monst(m_idx, y, x, GF_PLASMA,
-					((m_ptr->hp / 4) > 150 ? 150 : (m_ptr->hp / 4)), 0, TRUE);
+					((m_ptr->hp / 6) > 150 ? 150 : (m_ptr->hp / 4)), 0, TRUE);
 
 				break;
 			}
@@ -1022,7 +1022,7 @@ bool monst_spell_monst(int m_idx)
 				}
 
 				monst_breath_monst(m_idx, y, x, GF_FORCE,
-					((m_ptr->hp / 4) > 200 ? 200 : (m_ptr->hp / 4)), 0, TRUE);
+					((m_ptr->hp / 6) > 200 ? 200 : (m_ptr->hp / 4)), 0, TRUE);
 
 				break;
 			}
@@ -1054,12 +1054,12 @@ bool monst_spell_monst(int m_idx)
 				}
 
 				monst_breath_monst(m_idx, y, x, GF_MANA,
-					((m_ptr->hp / 3) > 250 ? 250 : (m_ptr->hp / 3)), 0, TRUE);
+					((m_ptr->hp / 3) > 250 ? 250 : (m_ptr->hp / 2)), 0, TRUE);
 
 				break;
 			}
 
-			/* RF4_XXX5X4 */
+			/* RF4_BA_NUKE */
 			case 96+28:
 			{
 				if (known)
@@ -1089,7 +1089,7 @@ bool monst_spell_monst(int m_idx)
 				break;
 			}
 
-			/* RF4_XXX6X4 */
+			/* RF4_BR_NUKE */
 			case 96+29:
 			{
 				if (known)
@@ -1116,12 +1116,12 @@ bool monst_spell_monst(int m_idx)
 				}
 
 				monst_breath_monst(m_idx, y, x, GF_NUKE,
-					((m_ptr->hp / 2) > 600 ? 600 : (m_ptr->hp / 2)), 0, TRUE);
+					((m_ptr->hp / 3) > 800 ? 800 : (m_ptr->hp / 2)), 0, TRUE);
 
 				break;
 			}
 
-			/* RF4_XXX7X4 */
+			/* RF4_BA_CHAO */
 			case 96+30:
 			{
 				if (known)
@@ -1151,7 +1151,7 @@ bool monst_spell_monst(int m_idx)
 				break;
 			}
 
-			/* RF4_XXX8X4 -> Breathe Disintegration */
+			/* RF4_BR_DISI -> Breathe Disintegration */
 			case 96+31:
 			{
 				if (known)
@@ -1178,7 +1178,7 @@ bool monst_spell_monst(int m_idx)
 				}
 
 				monst_breath_monst(m_idx, y, x, GF_DISINTEGRATE,
-					((m_ptr->hp / 3) > 300 ? 300 : (m_ptr->hp / 3)), 0, TRUE);
+					((m_ptr->hp / 3) > 300 ? 300 : (m_ptr->hp / 2)), 0, TRUE);
 
 				break;
 			}
@@ -1236,7 +1236,7 @@ bool monst_spell_monst(int m_idx)
 					}
 				}
 
-				monst_breath_monst(m_idx, y, x, GF_ELEC, randint(rlev * 3 / 2) + 8, 2, FALSE);
+				monst_breath_monst(m_idx, y, x, GF_ELEC, randint(rlev * 3) / 2 + 8, 2, FALSE);
 
 				break;
 			}
@@ -1294,7 +1294,7 @@ bool monst_spell_monst(int m_idx)
 					}
 				}
 
-				monst_breath_monst(m_idx, y, x, GF_COLD, randint(rlev * 3 / 2) + 10, 2, FALSE);
+				monst_breath_monst(m_idx, y, x, GF_COLD, randint(rlev * 3) / 2 + 10, 2, FALSE);
 
 				break;
 			}
@@ -1411,7 +1411,7 @@ bool monst_spell_monst(int m_idx)
 					}
 				}
 
-				monst_breath_monst(m_idx, y, x, GF_MANA, (rlev * 4) + damroll(10, 10), 4, FALSE);
+				monst_breath_monst(m_idx, y, x, GF_MANA, (rlev * 5) + damroll(10, 10), 4, FALSE);
 
 				break;
 			}
@@ -1440,7 +1440,7 @@ bool monst_spell_monst(int m_idx)
 					}
 				}
 
-				monst_breath_monst(m_idx, y, x, GF_DARK, (rlev * 4) + damroll(10, 10), 4, FALSE);
+				monst_breath_monst(m_idx, y, x, GF_DARK, (rlev * 5) + damroll(10, 10), 4, FALSE);
 
 				break;
 			}
@@ -1500,7 +1500,7 @@ bool monst_spell_monst(int m_idx)
 				/* Attempt a saving throw */
 				if ((tr_ptr->flags1 & RF1_UNIQUE) ||
 					 (tr_ptr->flags3 & RF3_NO_CONF) ||
-					 (tr_ptr->level > randint((rlev - 10) < 1 ? 1 : (rlev - 10)) + 10))
+					 (tr_ptr->level > randint(rlev * 3) / 2))
 				{
 					/* No obvious effect */
 					if (see_both)
@@ -1542,7 +1542,7 @@ bool monst_spell_monst(int m_idx)
 				/* Attempt a saving throw */
 				if ((tr_ptr->flags1 & RF1_UNIQUE) ||
 					 (tr_ptr->flags3 & RF3_NO_CONF) ||
-					 (tr_ptr->level > randint((rlev - 10) < 1 ? 1 : (rlev - 10)) + 10))
+					 (tr_ptr->level > randint(rlev * 3) / 2))
 				{
 					/* No obvious effect */
 					if (see_both)
@@ -1590,7 +1590,7 @@ bool monst_spell_monst(int m_idx)
 					}
 				}
 
-				if (tr_ptr->level > randint((rlev - 10) < 1 ? 1 : (rlev - 10)) + 10)
+				if (tr_ptr->level > randint(rlev * 3) / 2)
 				{
 					if (see_both) msg_format("%^s resists!", t_name);
 				}
@@ -1619,7 +1619,7 @@ bool monst_spell_monst(int m_idx)
 					}
 				}
 
-				if (tr_ptr->level > randint((rlev - 10) < 1 ? 1 : (rlev - 10)) + 10)
+				if (tr_ptr->level > randint(rlev * 3) / 2)
 				{
 					if (see_both) msg_format("%^s resists!", t_name);
 				}
@@ -1648,7 +1648,7 @@ bool monst_spell_monst(int m_idx)
 					}
 				}
 
-				if (tr_ptr->level > randint((rlev - 10) < 1 ? 1 : (rlev - 10)) + 10)
+				if (tr_ptr->level > randint(rlev * 3) / 2)
 				{
 					if (see_both) msg_format("%^s resists!", t_name);
 				}
@@ -1677,7 +1677,7 @@ bool monst_spell_monst(int m_idx)
 					}
 				}
 
-				if (tr_ptr->level > randint((rlev - 10) < 1 ? 1 : (rlev - 10)) + 10)
+				if (tr_ptr->level > randint(rlev * 3) / 2)
 				{
 					if (see_both) msg_format("%^s resists!", t_name);
 				}
@@ -1927,7 +1927,7 @@ bool monst_spell_monst(int m_idx)
 				{
 					if (see_t) msg_format("%^s refuses to be frightened.", t_name);
 				}
-				else if (tr_ptr->level > randint((rlev - 10) < 1 ? 1 : (rlev - 10)) + 10)
+				else if (tr_ptr->level > randint(rlev * 3) / 2)
 				{
 					if (see_t) msg_format("%^s refuses to be frightened.", t_name);
 				}
@@ -1964,7 +1964,7 @@ bool monst_spell_monst(int m_idx)
 				{
 					if (see_t) msg_format("%^s is unaffected.", t_name);
 				}
-				else if (tr_ptr->level > randint((rlev - 10) < 1 ? 1 : (rlev - 10)) + 10)
+				else if (tr_ptr->level > randint(rlev * 3) / 2)
 				{
 					if (see_t) msg_format("%^s is unaffected.", t_name);
 				}
@@ -1999,7 +1999,7 @@ bool monst_spell_monst(int m_idx)
 				{
 					if (see_t) msg_format("%^s disbelieves the feeble spell.", t_name);
 				}
-				else if (tr_ptr->level > randint((rlev - 10) < 1 ? 1 : (rlev - 10)) + 10)
+				else if (tr_ptr->level > randint(rlev * 3) / 2)
 				{
 					if (see_t) msg_format("%^s disbelieves the feeble spell.", t_name);
 				}
@@ -2035,7 +2035,7 @@ bool monst_spell_monst(int m_idx)
 				{
 					if (see_t) msg_format("%^s is unaffected.", t_name);
 				}
-				else if (tr_ptr->level > randint((rlev - 10) < 1 ? 1 : (rlev - 10)) + 10)
+				else if (tr_ptr->level > randint(rlev * 3) / 2)
 				{
 					if (see_t) msg_format("%^s is unaffected.", t_name);
 				}
@@ -2071,7 +2071,7 @@ bool monst_spell_monst(int m_idx)
 				{
 					if (see_t) msg_format("%^s is unaffected.", t_name);
 				}
-				else if (tr_ptr->level > randint((rlev - 10) < 1 ? 1 : (rlev - 10)) + 10)
+				else if (tr_ptr->level > randint(rlev * 3) / 2)
 				{
 					if (see_t) msg_format("%^s is unaffected.", t_name);
 				}

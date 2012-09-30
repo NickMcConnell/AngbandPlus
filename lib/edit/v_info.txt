@@ -1,4 +1,4 @@
-# CVS: Last edit by $Author: rr9 $ on $Date: 2000/05/18 17:28:37 $
+# CVS: Last edit by $Author: sfuerst $ on $Date: 2000/03/30 11:26:41 $
 # File: v_info.txt
 
 

@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/07/19 13:50:42 $ */
+/* CVS: Last edit by $Author: rr9 $ on $Date: 2000/06/07 19:45:34 $ */
 /* File: notes.c */
 
 /* Purpose: Note taking to a file */
@@ -25,11 +25,11 @@ cptr notes_file(void)
 	char base_name[9];
 
 	/* Hack -- extract first 8 characters of name */
-	(void)strnfmt(base_name, 9, "%s", player_base);
+	strncpy(base_name, player_base, 8);
+	base_name[8] = 0;
 
 	/* Create the file name from the character's name plus .txt */
-	(void)strnfmt(fname, 15, "%s.txt", base_name);
-	
+	sprintf(fname, "%s.txt", base_name);
 	path_build(buf, 500, ANGBAND_DIR_SAVE, fname);
 
 	/* return the filename */
@@ -79,22 +79,22 @@ void add_note(char *note, char code)
 	/* Get depth */
 	if (!dun_level)
 	{
-		strnfmt(depths, 32, "  Town");
+		strcpy(depths, "  Town");
 	}
 	else if (depth_in_feet)
 	{
-		strnfmt(depths, 32,"%4dft", dun_level * 50);
+		sprintf(depths, "%4dft", dun_level * 50);
 	}
  	else
 	{
-		strnfmt(depths, 32, "Lev%3d", dun_level);
+		sprintf(depths, "Lev%3d", dun_level);
 	}
 
 	/* Get the time */
 	strftime(long_day, 10, "%H:%M:%S", localtime(&ct));
 
 	/* Make note */
-	strnfmt(buf, 255, "%s %9ld %s %c: %s\n", long_day, turn,
+	sprintf(buf, "%s %9ld %s %c: %s\n", long_day, turn,
 		 depths, code, note);
 
 	/* Output to the notes file */
@@ -122,49 +122,49 @@ void add_note_type(int note_number)
 			char player[100];
 
 			/* Build the string containing the player information */
-			strnfmt(player, 100, "the %s %s", race_info[p_ptr->prace].title,
+			sprintf(player, "the %s %s", race_info[p_ptr->prace].title,
 				 class_info[p_ptr->pclass].title);
 
 			if (p_ptr->realm1 != REALM_NONE)
 			{
-				strnfmt(player, 100, "%s of ", player);
-				strnfmt(player, 100, "%s%s", player, realm_names[p_ptr->realm1]);
+				strcat(player, " of ");
+				strcat(player, realm_names[p_ptr->realm1]);
 			}
 
 			if (p_ptr->realm2 != REALM_NONE)
 			{
-				strnfmt(player, 100, "%s and ", player);
-				strnfmt(player, 100, "%s%s", player, realm_names[p_ptr->realm2]);
+				strcat(player, " and ");
+				strcat(player, realm_names[p_ptr->realm2]);
 			}
 
 			/* Add in "character start" information */
-			strnfmt(buf, 1024, "\n================================================\n");
-			strnfmt(buf, 1024, "%s%s the %s\n", buf, player_name, player);
-			strnfmt(buf, 1024, "%sBorn on %s\n", buf, long_day);
-			strnfmt(buf, 1024, "%s================================================\n\n", buf);
+			sprintf(buf, "\n================================================\n");
+			sprintf(buf, "%s%s the %s\n", buf, player_name, player);
+			sprintf(buf, "%sBorn on %s\n", buf, long_day);
+			sprintf(buf, "%s================================================\n\n", buf);
 		}
 		break;
 
 		case NOTE_WINNER:
 		{
-			strnfmt(buf, 1024, "%s slew the Serpent of Chaos on %s\n.", player_name, long_day);
-			strnfmt(buf, 1024, "%sLong live %s!\n", buf, player_name);
-			strnfmt(buf, 1024,  "%s================================================\n", buf);
+			sprintf(buf, "%s slew the Serpent of Chaos on %s\n.", player_name, long_day);
+			sprintf(buf, "%sLong live %s!\n", buf, player_name);
+			sprintf(buf, "%s================================================\n", buf);
 		}
 		break;
 
 		case NOTE_SAVE_GAME:
 		{
 			/* Saving the game */
-			strnfmt(buf, 1024, "\nSession end: %s\n", long_day);
+			sprintf(buf, "\nSession end: %s\n", long_day);
 		}
 		break;
 
 		case NOTE_ENTER_DUNGEON:
 		{
 			/* Entering the game after a break. */
-			strnfmt(buf, 1024,  "================================================\n");
-			strnfmt(buf, 1024, "%sNew session start: %s\n\n", buf, long_day);
+			sprintf(buf, "================================================\n");
+			sprintf(buf, "%sNew session start: %s\n\n", buf, long_day);
 		}
 		break;
 

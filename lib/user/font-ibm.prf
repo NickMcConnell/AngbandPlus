@@ -1,4 +1,4 @@
-# CVS: Last edit by $Author: sfuerst $ on $Date: 2000/07/20 09:38:17 $
+# CVS: Last edit by $Author: sfuerst $ on $Date: 2000/04/24 12:03:26 $
 # File: font-ibm.prf
 
 #
@@ -23,6 +23,29 @@ F:1:1/-7
 #
 
 F:2:1/-7
+
+# Sand -> pebbles.
+F:8:11/-7
+F:9:9/-7
+F:10:7/-7
+F:11:8/-7
+F:12:4/-7
+F:13:2/-7
+F:14:8/-7
+
+# dirt
+F:88:7/-7
+
+# grass
+F:89:5/-7
+
+# invisible wall
+F:91:1/-7
+
+# snow
+F:135:9/-7
+
+
 
 
 #
@@ -133,3 +156,4 @@ R:875:0x0B:-79
 
 # Creeping dust
 R:880:0x0A:-7
+

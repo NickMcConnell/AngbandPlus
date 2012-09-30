@@ -1,4 +1,4 @@
-# CVS: Last edit by $Author: rr9 $ on $Date: 2000/05/28 15:07:47 $
+# CVS: Last edit by $Author: sfuerst $ on $Date: 2000/05/06 01:45:53 $
 # File: Makefile.ibm
 
 # Purpose: Makefile support for "main-ibm.c" and Gnu C
@@ -7,15 +7,14 @@
 # Added extra targets: mrmarcel@eos.ncsu.edu (Mike Marcelais)
 
 OBJS = \
-	main.o main-ibm.o \
-	artifact.o avatar.o birth.o bldg.o \
+      main.o main-ibm.o \
+      artifact.o avatar.o birth.o bldg.o \
 	cave.o cmd1.o cmd2.o cmd3.o \
 	cmd4.o cmd5.o cmd6.o dungeon.o \
 	effects.o files.o flavor.o generate.o \
 	grid.o init1.o init2.o load.o \
 	melee1.o melee2.o mind.o monster1.o \
-	monster2.o mspells1.o mspells2.o mutation.o \
-	notes.o \
+	monster2.o mspells1.o mspells2.o mutation.o notes.o\
 	obj_kind.o object1.o object2.o racial.o \
 	rooms.o save.o scores.o script.o \
 	spells1.o spells2.o spells3.o store.o \

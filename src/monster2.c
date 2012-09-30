@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/07/19 13:50:32 $ */
+/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/06/24 10:30:14 $ */
 /* File: monster2.c */
 
 /* Purpose: misc code for monsters */
@@ -79,19 +79,6 @@ cptr funny_comments[MAX_SAN_COMMENT] =
 	"Far out!"
 };
 
-
-int get_wilderness_flag(void)
-{
-	int x = p_ptr->wilderness_x;
-	int y = p_ptr->wilderness_y;
-
-	if (dun_level)
-		return (RF8_DUNGEON);
-	else
-		return (1L << wilderness[y][x].terrain);
-}
-
-
 /*
  * Delete a monster by index.
  *
@@ -128,8 +115,10 @@ void delete_monster_idx(int i)
 
 
 	/* Monster is gone */
-	cave[y][x].m_idx = 0;
-
+	if (in_bounds2(y, x))
+	{
+		area(y, x)->m_idx = 0;
+	}
 
 	/* Delete objects */
 	for (this_o_idx = m_ptr->hold_o_idx; this_o_idx; this_o_idx = next_o_idx)
@@ -151,7 +140,7 @@ void delete_monster_idx(int i)
 
 
 	/* Wipe the Monster */
-	(void) WIPE(m_ptr, monster_type);
+	(void)WIPE(m_ptr, monster_type);
 
 	/* Count monsters */
 	m_cnt--;
@@ -173,10 +162,10 @@ void delete_monster(int y, int x)
 	cave_type *c_ptr;
 
 	/* Paranoia */
-	if (!in_bounds(y, x)) return;
+	if (!in_bounds2(y, x)) return;
 
 	/* Check the grid */
-	c_ptr = &cave[y][x];
+	c_ptr = area(y,x);
 
 	/* Delete the monster (if any) */
 	if (c_ptr->m_idx) delete_monster_idx(c_ptr->m_idx);
@@ -209,7 +198,7 @@ static void compact_monsters_aux(int i1, int i2)
 	x = m_ptr->fx;
 
 	/* Cave grid */
-	c_ptr = &cave[y][x];
+	c_ptr = area(y,x);
 
 	/* Update the cave */
 	c_ptr->m_idx = i2;
@@ -239,7 +228,7 @@ static void compact_monsters_aux(int i1, int i2)
 	COPY(&m_list[i2], &m_list[i1], monster_type);
 
 	/* Wipe the hole */
-	(void) WIPE(&m_list[i1], monster_type);
+	(void)WIPE(&m_list[i1], monster_type);
 
 #ifdef USE_SCRIPT
 	copy_monster_callback(i1, i2);
@@ -264,7 +253,6 @@ void compact_monsters(int size)
 {
 	int		i, num, cnt;
 	int		cur_lev, cur_dis, chance;
-
 
 	/* Message (only if compacting) */
 	if (size) msg_print("Compacting monsters...");
@@ -322,6 +310,12 @@ void compact_monsters(int size)
 		/* Get the i'th monster */
 		monster_type *m_ptr = &m_list[i];
 
+		/* Hack - kill monsters out of bounds. */
+		if (!in_bounds2(m_ptr->fy, m_ptr->fx))
+		{
+			delete_monster_idx(i);
+		}
+
 		/* Skip real monsters */
 		if (m_ptr->r_idx) continue;
 
@@ -342,7 +336,7 @@ void compact_monsters(int size)
  */
 void wipe_m_list(void)
 {
-	int i;
+	int i, x, y;
 
 	/* Delete all the monsters */
 	for (i = m_max - 1; i >= 1; i--)
@@ -359,11 +353,18 @@ void wipe_m_list(void)
 		/* Hack -- Reduce the racial counter */
 		r_ptr->cur_num--;
 
-		/* Monster is gone */
-		cave[m_ptr->fy][m_ptr->fx].m_idx = 0;
+		/* Check to see if monster is accessable on map */
+		y = m_ptr->fy;
+		x = m_ptr->fx;
+
+		if (in_bounds2(y, x))
+		{
+			/* Monster is gone */
+			area(y, x)->m_idx = 0;
+		}
 
 		/* Wipe the Monster */
-		(void) WIPE(m_ptr, monster_type);
+		(void)WIPE(m_ptr, monster_type);
 
 #ifdef USE_SCRIPT
 		delete_monster_callback(i);
@@ -464,8 +465,15 @@ errr get_mon_num_prep(monster_hook_type monster_hook,
 		alloc_entry *entry = &alloc_race_table[i];
 
 		/* Accept monsters which pass the restriction, if any */
+		
+		/*
+		 * Hack - check for silly monsters here.
+		 * This makes more sense then adding the test to every
+		 * hook function.
+		 */
 		if ((!get_mon_num_hook || (*get_mon_num_hook)(entry->index)) &&
-			(!get_mon_num2_hook || (*get_mon_num2_hook)(entry->index)))
+			(!get_mon_num2_hook || (*get_mon_num2_hook)(entry->index)) &&
+			(silly_monsters || !(r_info[entry->index].flags7 & RF7_SILLY)))
 		{
 			/* Accept this monster */
 			entry->prob2 = entry->prob1;
@@ -498,7 +506,7 @@ errr get_mon_num_prep(monster_hook_type monster_hook,
  * "level" is "modified", for example, by polymorph or summoning.
  *
  * There is a small chance (1/50) of "boosting" the given depth by
- * a small amount (up to four levels), except in the town.
+ * a small amount (up to ten levels), except in the town.
  *
  * It is (slightly) more likely to acquire a monster of the given level
  * than one of a lower level.  This is done by choosing several monsters
@@ -534,21 +542,15 @@ s16b get_mon_num(int level)
 			/* Occasional "nasty" monster */
 			if (!rand_int(NASTY_MON))
 			{
-				/* Pick a level bonus */
-				int d = level / 4 + 2;
-
 				/* Boost the level */
-				level += ((d < 5) ? d : 5);
+				level += 7;
 			}
 
 			/* Occasional "nasty" monster */
 			if (!rand_int(NASTY_MON))
 			{
-				/* Pick a level bonus */
-				int d = level / 4 + 2;
-
 				/* Boost the level */
-				level += ((d < 5) ? d : 5);
+				level += 7;
 			}
 		}
 	}
@@ -935,7 +937,12 @@ void lore_treasure(int m_idx, int num_item, int num_gold)
 
 void sanity_blast(monster_type *m_ptr, bool necro)
 {
+
+#if 0
+	/* This variable is only needed for the (disabled) 
+	insanity mutations */
 	bool happened = FALSE;
+#endif 
 	int power = 100;
 
 	if (!necro)
@@ -962,8 +969,6 @@ void sanity_blast(monster_type *m_ptr, bool necro)
 
 		if (!(r_ptr->flags2 & RF2_ELDRITCH_HORROR))
 			return; /* oops */
-
-
 
 		if (is_pet(m_ptr) && (randint(8) != 1))
 			return; /* Pet eldritch horrors are safe most of the time */
@@ -1052,22 +1057,19 @@ void sanity_blast(monster_type *m_ptr, bool necro)
 		return;
 	}
 
-	if (!saving_throw(p_ptr->skill_sav * 100 / power)) /* Permanent lose int & wis */
-	{
-		if (dec_stat(A_INT, 10, TRUE)) happened = TRUE;
-		if (dec_stat(A_WIS, 10, TRUE)) happened = TRUE;
-		if (happened)
-			msg_print("You feel much less sane than before.");
-		return;
-	}
+	/* Permanent stat drains *REMOVED* completely. They sucked. --ty */
 
-	if (!saving_throw(p_ptr->skill_sav * 100 / power)) /* Amnesia */
+	else 
+
 	{
 
 		if (lose_all_info())
 			msg_print("You forget everything in your utmost terror!");
 		return;
 	}
+
+#if 0
+/* This used to be the last case.  --ty*/
 
 	/* Else gain permanent insanity */
 	if ((p_ptr->muta3 & MUT3_MORONIC) && (p_ptr->muta2 & MUT2_BERS_RAGE) &&
@@ -1129,6 +1131,7 @@ void sanity_blast(monster_type *m_ptr, bool necro)
 				break;
 		}
 	}
+#endif
 
 	p_ptr->update |= PU_BONUS;
 	handle_stuff();
@@ -1212,6 +1215,10 @@ void update_mon(int m_idx, bool full)
 	/* Seen by vision */
 	bool easy = FALSE;
 
+	cave_type *c_ptr;
+
+	/* Exit if monster does not exist. */
+	if (!m_idx) return;
 
 	/* Compute distance */
 	if (full)
@@ -1285,8 +1292,10 @@ void update_mon(int m_idx, bool full)
 			}
 		}
 
+		c_ptr = area(fy, fx);
+
 		/* Normal line of sight, and not blind */
-		if (player_has_los_bold(fy, fx) && !p_ptr->blind)
+		if (player_has_los_grid(c_ptr) && !p_ptr->blind)
 		{
 			bool do_invisible = FALSE;
 			bool do_cold_blood = FALSE;
@@ -1372,7 +1381,7 @@ void update_mon(int m_idx, bool full)
 			/* Disturb on appearance */
 			if (disturb_move)
 			{
-				if (disturb_pets || is_hostile(m_ptr))
+				if (is_hostile(m_ptr))
 					disturb(1, 0);
 			}
 		}
@@ -1396,7 +1405,7 @@ void update_mon(int m_idx, bool full)
 			/* Disturb on disappearance */
 			if (disturb_move)
 			{
-				if (disturb_pets || is_hostile(m_ptr))
+				if (is_hostile(m_ptr))
 					disturb(1, 0);
 			}
 		}
@@ -1415,7 +1424,7 @@ void update_mon(int m_idx, bool full)
 			/* Disturb on appearance */
 			if (disturb_move)
 			{
-				if (disturb_pets || is_hostile(m_ptr))
+				if (is_hostile(m_ptr))
 					disturb(1, 0);
 			}
 		}
@@ -1433,7 +1442,7 @@ void update_mon(int m_idx, bool full)
 			/* Disturb on disappearance */
 			if (disturb_move)
 			{
-				if (disturb_pets || is_hostile(m_ptr))
+				if (is_hostile(m_ptr))
 					disturb(1, 0);
 			}
 		}
@@ -1497,24 +1506,29 @@ bool place_monster_one(int y, int x, int r_idx, bool slp, bool friendly, bool pe
 
 
 	/* Verify location */
-	if (!in_bounds(y, x)) return (FALSE);
+	if (!in_bounds2(y, x)) return (FALSE);
+
+
+	/* Access the location */
+	c_ptr = area(y,x);
 
 	/* Require empty space (if not ghostly) */
-	if (!cave_empty_bold(y, x) &&
-	    !((r_ptr->flags2 & RF2_PASS_WALL) &&
-	    !cave_perma_bold(y, x))) return (FALSE);
+	if (!(((!cave_perma_grid(c_ptr) && (r_ptr->flags2 & RF2_PASS_WALL)) ||
+		cave_floor_grid(c_ptr) ||
+		 ((c_ptr->feat & 0x60) == 0x60)) &&
+		 (!((c_ptr->m_idx) || (c_ptr == area(py, px)))))) return FALSE;
 
 	/* Hack -- no creation on glyph of warding */
-	if (cave[y][x].feat == FEAT_GLYPH) return (FALSE);
-	if (cave[y][x].feat == FEAT_MINOR_GLYPH) return (FALSE);
+	if (c_ptr->feat == FEAT_GLYPH) return (FALSE);
+	if (c_ptr->feat == FEAT_MINOR_GLYPH) return (FALSE);
 
 	/* Nor on the Pattern */
-	if ((cave[y][x].feat >= FEAT_PATTERN_START) &&
-	    (cave[y][x].feat <= FEAT_PATTERN_XTRA2))
+	if ((c_ptr->feat >= FEAT_PATTERN_START) &&
+	    (c_ptr->feat <= FEAT_PATTERN_XTRA2))
 		return (FALSE);
 
 	/* Nor on invisible walls */
-	if (cave[y][x].feat == FEAT_WALL_INVIS) return (FALSE);
+	if (c_ptr->feat == FEAT_WALL_INVIS) return (FALSE);
 
 	/* Paranoia */
 	if (!r_idx) return (FALSE);
@@ -1523,7 +1537,7 @@ bool place_monster_one(int y, int x, int r_idx, bool slp, bool friendly, bool pe
 	if (!r_ptr->name) return (FALSE);
 
 	if (monster_terrain_sensitive &&
-	    !monster_can_cross_terrain(cave[y][x].feat, r_ptr))
+	    !monster_can_cross_terrain(c_ptr->feat, r_ptr))
 	{
 		return FALSE;
 	}
@@ -1575,10 +1589,6 @@ bool place_monster_one(int y, int x, int r_idx, bool slp, bool friendly, bool pe
 		/* Unique monsters induce message */
 		if (cheat_hear) msg_format("Unique (%s).", name);
 	}
-
-
-	/* Access the location */
-	c_ptr = &cave[y][x];
 
 	/* Make a new monster */
 	c_ptr->m_idx = m_pop();
@@ -1740,6 +1750,7 @@ static bool place_monster_group(int y, int x, int r_idx, bool slp, bool friendly
 	int hack_y[GROUP_MAX];
 	int hack_x[GROUP_MAX];
 
+	cave_type *c_ptr;
 
 	/* Pick a group size */
 	total = randint(13);
@@ -1793,8 +1804,12 @@ static bool place_monster_group(int y, int x, int r_idx, bool slp, bool friendly
 
 			scatter(&my, &mx, hy, hx, 4, 0);
 
+			/* paranoia */
+			if (!in_bounds2(my, mx)) continue;
+
 			/* Walls and Monsters block flow */
-			if (!cave_empty_bold(my, mx)) continue;
+			c_ptr = area(my, mx);
+			if (!cave_empty_grid(c_ptr)) continue;
 
 			/* Attempt to place another monster */
 			if (place_monster_one(my, mx, r_idx, slp, friendly, pet))
@@ -1887,6 +1902,7 @@ bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp, bool friendl
 {
 	int             i;
 	monster_race    *r_ptr = &r_info[r_idx];
+	cave_type	*c_ptr;
 
 
 	/* Place one monster, or fail */
@@ -1919,8 +1935,12 @@ bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp, bool friendl
 			/* Pick a location */
 			scatter(&ny, &nx, y, x, d, 0);
 
+			/* paranoia */
+			if (!in_bounds2(y, x)) continue;
+
 			/* Require empty grids */
-			if (!cave_empty_bold(ny, nx)) continue;
+			c_ptr = area(ny, nx);
+			if (!cave_empty_grid(c_ptr)) continue;
 
 			/* Prepare allocation table */
 			get_mon_num_prep(place_monster_okay, get_monster_hook2(ny, nx));
@@ -2016,7 +2036,7 @@ bool alloc_horde(int y, int x)
 
 	if (attempts < 1) return FALSE;
 
-	m_idx = cave[y][x].m_idx;
+	m_idx = area(y,x)->m_idx;
 
 	summon_kin_type = r_ptr->d_char;
 
@@ -2048,18 +2068,29 @@ bool alloc_horde(int y, int x)
  */
 bool alloc_monster(int dis, bool slp)
 {
-	int			y = 0, x = 0;
-	int         attempts_left = 10000;
+	int	y = 0, x = 0;
+	int	attempts_left = 10000;
+	cave_type	*c_ptr;
 
 	/* Find a legal, distant, unoccupied, space */
 	while (attempts_left--)
 	{
-		/* Pick a location */
-		y = rand_int(cur_hgt);
-		x = rand_int(cur_wid);
+		if (!dun_level)
+		{
+			/* Pick a location */
+			y = wild_grid.y_min + rand_int(WILD_GRID_SIZE * 16);
+			x = wild_grid.x_min + rand_int(WILD_GRID_SIZE * 16);
+		}
+		else
+		{
+			/* Pick a location */
+			y = rand_int(cur_hgt);
+			x = rand_int(cur_wid);
+		}
 
 		/* Require empty floor grid (was "naked") */
-		if (!cave_empty_bold(y, x)) continue;
+		c_ptr = area(y, x);
+		if (!cave_empty_grid(c_ptr)) continue;
 
 		/* Accept far away grids */
 		if (distance(y, x, py, px) > dis) break;
@@ -2384,6 +2415,12 @@ static bool summon_specific_okay(int r_idx)
 			       !(r_ptr->flags1 & (RF1_UNIQUE)));
 			break;
 		}
+
+		case SUMMON_GHB:
+		{
+			okay = !!strstr((r_name + r_ptr->name), "Greater hell-beast");
+			break;
+		}
 	}
 
 	/* Result */
@@ -2418,6 +2455,7 @@ static bool summon_specific_okay(int r_idx)
 bool summon_specific(int who, int y1, int x1, int lev, int type, bool group, bool friendly, bool pet)
 {
 	int i, x, y, r_idx;
+	cave_type *c_ptr;
 
 	/* Look for a location */
 	for (i = 0; i < 20; ++i)
@@ -2428,16 +2466,20 @@ bool summon_specific(int who, int y1, int x1, int lev, int type, bool group, boo
 		/* Pick a location */
 		scatter(&y, &x, y1, x1, d, 0);
 
+		/* paranoia */
+		if (!in_bounds2(y, x)) continue;
+
 		/* Require "empty" floor grid */
-		if (!cave_empty_bold(y, x)) continue;
+		c_ptr = area(y, x);
+		if (!cave_empty_grid(c_ptr)) continue;
 
 		/* Hack -- no summon on glyph of warding */
-		if (cave[y][x].feat == FEAT_GLYPH) continue;
-		if (cave[y][x].feat == FEAT_MINOR_GLYPH) continue;
+		if (c_ptr->feat == FEAT_GLYPH) continue;
+		if (c_ptr->feat == FEAT_MINOR_GLYPH) continue;
 
 		/* ... nor on the Pattern */
-		if ((cave[y][x].feat >= FEAT_PATTERN_START) &&
-			 (cave[y][x].feat <= FEAT_PATTERN_XTRA2))
+		if ((c_ptr->feat >= FEAT_PATTERN_START) &&
+			 (c_ptr->feat <= FEAT_PATTERN_XTRA2))
 			continue;
 
 		/* Okay */
@@ -2478,6 +2520,8 @@ bool summon_named_creature(int oy, int ox, int r_idx, bool slp, bool group_ok, b
 	int i, x, y;
 	bool success = FALSE;
 
+	cave_type *c_ptr;
+
 	/* Paranoia */
 	/* if (!r_idx) return; */
 
@@ -2492,8 +2536,12 @@ bool summon_named_creature(int oy, int ox, int r_idx, bool slp, bool group_ok, b
 		/* Pick a location */
 		scatter(&y, &x, oy, ox, d, 0);
 
+		/* paranoia */
+		if (!in_bounds2(y, x)) continue;
+
 		/* Require empty grids */
-		if (!cave_empty_bold(y, x)) continue;
+		c_ptr = area(y, x);
+		if (!cave_empty_grid(c_ptr)) continue;
 
 		/* Place it (allow groups) */
 		if (place_monster_aux(y, x, r_idx, slp, group_ok, FALSE, pet))
@@ -2520,6 +2568,8 @@ bool multiply_monster(int m_idx, bool clone, bool friendly, bool pet)
 
 	bool result = FALSE;
 
+	cave_type *c_ptr;
+
 	/* Try up to 18 times */
 	for (i = 0; i < 18; i++)
 	{
@@ -2528,8 +2578,12 @@ bool multiply_monster(int m_idx, bool clone, bool friendly, bool pet)
 		/* Pick a location */
 		scatter(&y, &x, m_ptr->fy, m_ptr->fx, d, 0);
 
+		/* paranoia */
+		if (!in_bounds2(y, x)) continue;
+
 		/* Require an "empty" floor grid */
-		if (!cave_empty_bold(y, x)) continue;
+		c_ptr = area(y, x);
+		if (!cave_empty_grid(c_ptr)) continue;
 
 		/* Create a new monster (awake, no groups) */
 		result = place_monster_aux(y, x, m_ptr->r_idx, FALSE, FALSE, friendly, pet);
@@ -2985,11 +3039,19 @@ void update_smart_learn(int m_idx, int what)
 bool player_place(int y, int x)
 {
 	/* Paranoia XXX XXX */
-	if (cave[y][x].m_idx != 0) return FALSE;
+	if (area(y, x)->m_idx != 0) return FALSE;
 
 	/* Save player location */
 	py = y;
 	px = x;
+
+	if (!dun_level)
+	{
+		/* Scroll wilderness */
+		p_ptr->wilderness_x = px;
+		p_ptr->wilderness_y = py;
+		move_wild();
+	}
 
 	/* Success */
 	return TRUE;

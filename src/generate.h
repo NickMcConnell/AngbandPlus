@@ -110,6 +110,8 @@ extern int dun_tun_jct;
 #define TUNN_MAX	900
 
 
+
+
 /*
  * Structure to hold all "dungeon generation" data
  */

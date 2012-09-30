@@ -1,7 +1,96 @@
 === Zangband History and Information ===
 
-Versions 1.0 - 2.1.0c
----------------------
+This document is intended to set forth the history of Zangband and its
+forbears. We have included only major events in Zangband development as
+well as commentry from previous authors and maintainers where
+applicable. A more complete description of the course of Zangband
+development can be obtained by reviewing z_update.txt.
+
+
+=== Zangband 2.5.0 ===
+
+This development release was unique in that it first included a new,
+randomly generated wilderness. Unlike earlier versions, the wilderness
+offers seemless scrolling as you move accross it and far more variety
+in available terrains. Zangband 2.5.0 also included a major rebalancing
+and redistribution of monsters and objects in order to smooth out the
+dungeon experience.
+
+
+==== Zangband 2.3.5 ===
+
+This development release was the first one to include the new combat
+code which was adapted from Oangband. The main features of the code are
+that spellcasting classes can no longer reliably rely on hand-to-hand
+fighting, the maximum number of attacks each class coud obtain was
+reduced, extra attacks from equipment were made rarer, the base damage
+of a weapon became more important, critical blows were reworked.
+
+
+==== Zangband 2.2.0 ===
+
+This release introduced the expanded wilderness and fixed quests
+(adapted from Kangband). Towns, Quests and the Wilderness were each
+easily configurable by the means of text files. The following review of
+Version 2.2.0 was written by Topi Ylinen - Zangband's original author.
+
+--- Review of 2.2.0 (by Topi Ylinen)---
+
+Zangband 2.2.0 could easily claim to be the most different version of
+Zangband so far. While the historical versions (Angband-- and Zangband 1.*) mainly
+restructured the set of monsters and items, and the 2.0.* - 2.1.* versions added
+new races and elements, Zangband 2.2.0 drastically alters the game fundamentals.
+
+The new direction is related to Kangband, from which the new version   
+borrows such features as wilderness, new terrains and custom-built
+quests and maps. Although some people may object to this, as this
+decreases the amount of randomness and increases the amount of
+predictability in the game, the new features do not actually remove
+anything from the game -- everything is in *addition* to the old
+features. Even the popular "random quests" of Zangband 2.1.1 are
+still available, although their depths are no longer random.
+
+However, the pre-programmed part of the game is only as large and rich as   
+the available maps and quests. Currently the wilderness map is relatively
+small, and there are only a couple of quests, which will quickly become
+all too familiar to the player. Since new towns and quests can be added
+in the definition files (in lib/edit/) without having to recompile,
+hopefully the players of the new version will build their own quests
+and share them with all Zangband players!
+
+Besides the quests and wilderness, Zangband 2.2.0 also adds several new
+monsters (nearly 300, although some of these are from Vanilla), a couple
+of new weapons and pieces of armour and no less than 52 new mutations,
+translating to a total of 98 possible mutations. This means that there's
+a lot of new stuff for the Zangband veterans to explore and discover.
+The total 850-odd-something monster races were only possible by removing
+the 16-bit memory handling code, which has no practical effects, since
+Zangband 2.* does not support 16-bit code anyway.
+
+
+Among the less obvious new features are of the new version are improved
+pet AI and s-lang support. The latter is not used yet, but it will enable
+truly powerful customizability of the game, items, monsters, quests etc.
+in the lib/edit/ files: all functions can be invoked from the editable
+files without having to recompile.
+
+
+=== Zangband 2.1.0d ===
+
+This was the first version released by Robert Ruehlmann as the new
+maintainer of Zangband. In Robert's own words ....
+
+"ZAngband 2.1.0c was Topi's last version, he has got a job and and
+doesn't have enough time anymore to continue work on ZAngband.
+He asked for a new maintainer and I was the one to take over the task.
+May I introduce myself, my name is Robert Ruehlmann, I'm the creator
+of the graphical Angband versions for DOS and webmaster of
+"Thangorodrim - The Angband Page" ("http://thangorodrim.angband.org")."
+
+
+=== Versions 1.0 - 2.1.0c ===
+
+The following text by Topi Ylinen describe his development efforts ...
 
 The seeds of Zangband lie in an obsolete and long ago vanished PC
 variant (somewhat misleadingly) dubbed Angband--. The variant was
@@ -29,18 +118,8 @@ Incidentally, this person (me, Topi Ylinen) also thought that the
 standard Angband monsters were too easy, which led him to introduce
 such monsters as Death swords, Cyberdemons and Great wyrms of power...
 
-Versions 2.1.0d - present
--------------------------
 
-ZAngband 2.1.0c was Topi's last version, he has got a job and and
-doesn't have enough time anymore to continue work on ZAngband.
-He asked for a new maintainer and I was the one to take over the task.
-May I introduce myself, my name is Robert Ruehlmann, I'm the creator
-of the graphical Angband versions for DOS and webmaster of
-"Thangorodrim - The Angband Page" ("http://thangorodrim.angband.org").
-
-Special thanks
---------------
+=== Special thanks ===
 
 The newer versions of Zangband might not have come into existence
 without the significant help from these excellent Angband programmers.
@@ -594,4 +673,4 @@ Angband Version 2.7   :  1/1/95  Ben Harrison
 Original   : (??)
 Updated    : (??)
 Updated    : Zangband DevTeam
-Last update: December 12, 1999
+Last update: May 30, 1999

@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/08/10 11:54:38 $ */
+/* CVS: Last edit by $Author: rr9 $ on $Date: 2000/05/25 12:14:51 $ */
 /* File: object2.c */
 
 /* Purpose: Object code, part 2 */
@@ -91,8 +91,11 @@ void excise_object_idx(int o_idx)
 		int y = j_ptr->iy;
 		int x = j_ptr->ix;
 
+		/* Exit if is a "dummy" object */
+		if ((x == 0) && (y == 0)) return;
+
 		/* Grid */
-		c_ptr = &cave[y][x];
+		c_ptr = area(y, x);
 
 		/* Scan all objects in the grid */
 		for (this_o_idx = c_ptr->o_idx; this_o_idx; this_o_idx = next_o_idx)
@@ -165,8 +168,12 @@ void delete_object_idx(int o_idx)
 		y = j_ptr->iy;
 		x = j_ptr->ix;
 
-		/* Visual update */
-		lite_spot(y, x);
+		/* Refuse "illegal" locations */
+		if (in_bounds(y, x))
+		{
+			/* Visual update */
+			lite_spot(y, x);
+		}
 	}
 
 #ifdef USE_SCRIPT
@@ -190,13 +197,11 @@ void delete_object(int y, int x)
 
 	s16b this_o_idx, next_o_idx = 0;
 
-
 	/* Refuse "illegal" locations */
 	if (!in_bounds(y, x)) return;
 
-
 	/* Grid */
-	c_ptr = &cave[y][x];
+	c_ptr = area(y,x);
 
 	/* Scan all objects in the grid */
 	for (this_o_idx = c_ptr->o_idx; this_o_idx; this_o_idx = next_o_idx)
@@ -225,6 +230,39 @@ void delete_object(int y, int x)
 
 	/* Visual update */
 	lite_spot(y, x);
+}
+
+/*
+ * Deletes all objects at given location
+ */
+void delete_object_location(cave_type *c_ptr)
+{
+	s16b this_o_idx, next_o_idx = 0;
+
+	/* Scan all objects in the grid */
+	for (this_o_idx = c_ptr->o_idx; this_o_idx; this_o_idx = next_o_idx)
+	{
+		object_type *o_ptr;
+
+		/* Acquire object */
+		o_ptr = &o_list[this_o_idx];
+
+		/* Acquire next object */
+		next_o_idx = o_ptr->next_o_idx;
+
+#ifdef USE_SCRIPT
+		object_delete_callback(o_ptr);
+#endif /* USE_SCRIPT */
+
+		/* Wipe the object */
+		object_wipe(o_ptr);
+
+		/* Count objects */
+		o_cnt--;
+	}
+
+	/* Objects are gone */
+	c_ptr->o_idx = 0;
 }
 
 
@@ -292,7 +330,7 @@ static void compact_objects_aux(int i1, int i2)
 		x = o_ptr->ix;
 
 		/* Acquire grid */
-		c_ptr = &cave[y][x];
+		c_ptr = area(y,x);
 
 		/* Repair grid */
 		if (c_ptr->o_idx == i1)
@@ -489,7 +527,7 @@ void wipe_o_list(void)
 			int x = o_ptr->ix;
 
 			/* Access grid */
-			c_ptr = &cave[y][x];
+			c_ptr = area(y,x);
 
 			/* Hack -- see above */
 			c_ptr->o_idx = 0;
@@ -835,11 +873,19 @@ static s32b object_value_base(object_type *o_ptr)
 
 		/* Figurines, relative to monster level */
 		case TV_FIGURINE:
-			return ((r_info[o_ptr->pval].level) * 50L);
+			return (r_info[o_ptr->pval].level *
+			        r_info[o_ptr->pval].level * 5L);
 	}
 
 	/* Paranoia -- Oops */
 	return (0L);
+}
+
+/* Return the sign of the argument * x * x. */
+static s32b sqvalue(s32b x)
+{
+	if (x < 0) return (-x * x);
+	return (x *x);
 }
 
 
@@ -851,97 +897,97 @@ s32b flag_cost(object_type * o_ptr, int plusses)
 
 	object_flags(o_ptr, &f1, &f2, &f3);
 
-	if (f1 & TR1_STR) total += (1000 * plusses);
-	if (f1 & TR1_INT) total += (1000 * plusses);
-	if (f1 & TR1_WIS) total += (1000 * plusses);
-	if (f1 & TR1_DEX) total += (1000 * plusses);
-	if (f1 & TR1_CON) total += (1000 * plusses);
+	if (f1 & TR1_STR) total += (500 * plusses);
+	if (f1 & TR1_INT) total += (500 * plusses);
+	if (f1 & TR1_WIS) total += (500 * plusses);
+	if (f1 & TR1_DEX) total += (500 * plusses);
+	if (f1 & TR1_CON) total += (500 * plusses);
 	if (f1 & TR1_CHR) total += (250 * plusses);
-	if (f1 & TR1_CHAOTIC) total += 10000;
-	if (f1 & TR1_VAMPIRIC) total += 13000;
-	if (f1 & TR1_STEALTH) total += (250 * plusses);
-	if (f1 & TR1_SEARCH) total += (100 * plusses);
-	if (f1 & TR1_INFRA) total += (150 * plusses);
-	if (f1 & TR1_TUNNEL) total += (175 * plusses);
+	if (f1 & TR1_CHAOTIC) total += 5000;
+	if (f1 & TR1_VAMPIRIC) total += 5000;
+	if (f1 & TR1_STEALTH) total += (50 * plusses);
+	if (f1 & TR1_SEARCH) total += (50 * plusses);
+	if (f1 & TR1_INFRA) total += (30 * plusses);
+	if (f1 & TR1_TUNNEL) total += (20 * plusses);
 	if ((f1 & TR1_SPEED) && (plusses > 0))
-		total += (10000 + (2500 * plusses));
+		total += (500 * sqvalue(plusses));
 	if ((f1 & TR1_BLOWS) && (plusses > 0))
-		total += (10000 + (2500 * plusses));
+		total += (500 * sqvalue(plusses));
 	if (f1 & TR1_XXX1) total += 0;
 	if (f1 & TR1_XXX2) total += 0;
-	if (f1 & TR1_SLAY_ANIMAL) total += 3500;
-	if (f1 & TR1_SLAY_EVIL) total += 4500;
-	if (f1 & TR1_SLAY_UNDEAD) total += 3500;
-	if (f1 & TR1_SLAY_DEMON) total += 3500;
-	if (f1 & TR1_SLAY_ORC) total += 3000;
-	if (f1 & TR1_SLAY_TROLL) total += 3500;
-	if (f1 & TR1_SLAY_GIANT) total += 3500;
-	if (f1 & TR1_SLAY_DRAGON) total += 3500;
-	if (f1 & TR1_KILL_DRAGON) total += 5500;
-	if (f1 & TR1_VORPAL) total += 5000;
-	if (f1 & TR1_IMPACT) total += 5000;
-	if (f1 & TR1_BRAND_POIS) total += 7500;
-	if (f1 & TR1_BRAND_ACID) total += 7500;
-	if (f1 & TR1_BRAND_ELEC) total += 7500;
-	if (f1 & TR1_BRAND_FIRE) total += 5000;
-	if (f1 & TR1_BRAND_COLD) total += 5000;
-	if (f2 & TR2_SUST_STR) total += 850;
-	if (f2 & TR2_SUST_INT) total += 850;
-	if (f2 & TR2_SUST_WIS) total += 850;
-	if (f2 & TR2_SUST_DEX) total += 850;
-	if (f2 & TR2_SUST_CON) total += 850;
-	if (f2 & TR2_SUST_CHR) total += 250;
+	if (f1 & TR1_SLAY_ANIMAL) total += 750;
+	if (f1 & TR1_SLAY_EVIL) total += 750;
+	if (f1 & TR1_SLAY_UNDEAD) total += 750;
+	if (f1 & TR1_SLAY_DEMON) total += 750;
+	if (f1 & TR1_SLAY_ORC) total += 300;
+	if (f1 & TR1_SLAY_TROLL) total += 750;
+	if (f1 & TR1_SLAY_GIANT) total += 750;
+	if (f1 & TR1_SLAY_DRAGON) total += 750;
+	if (f1 & TR1_KILL_DRAGON) total += 1500;
+	if (f1 & TR1_VORPAL) total += 1500;
+	if (f1 & TR1_IMPACT) total += 1500;
+	if (f1 & TR1_BRAND_POIS) total += 1500;
+	if (f1 & TR1_BRAND_ACID) total += 1500;
+	if (f1 & TR1_BRAND_ELEC) total += 1500;
+	if (f1 & TR1_BRAND_FIRE) total += 1500;
+	if (f1 & TR1_BRAND_COLD) total += 1500;
+	if (f2 & TR2_SUST_STR) total += 200;
+	if (f2 & TR2_SUST_INT) total += 200;
+	if (f2 & TR2_SUST_WIS) total += 200;
+	if (f2 & TR2_SUST_DEX) total += 200;
+	if (f2 & TR2_SUST_CON) total += 200;
+	if (f2 & TR2_SUST_CHR) total += 100;
 	if (f2 & TR2_XXX1) total += 0;
 	if (f2 & TR2_XXX2) total += 0;
 	if (f2 & TR2_IM_ACID) total += 10000;
 	if (f2 & TR2_IM_ELEC) total += 10000;
 	if (f2 & TR2_IM_FIRE) total += 10000;
 	if (f2 & TR2_IM_COLD) total += 10000;
-	if (f2 & TR2_THROW) total += 5000;
-	if (f2 & TR2_REFLECT) total += 10000;
-	if (f2 & TR2_FREE_ACT) total += 4500;
-	if (f2 & TR2_HOLD_LIFE) total += 8500;
-	if (f2 & TR2_RES_ACID) total += 1250;
-	if (f2 & TR2_RES_ELEC) total += 1250;
-	if (f2 & TR2_RES_FIRE) total += 1250;
-	if (f2 & TR2_RES_COLD) total += 1250;
-	if (f2 & TR2_RES_POIS) total += 2500;
-	if (f2 & TR2_RES_FEAR) total += 2500;
-	if (f2 & TR2_RES_LITE) total += 1750;
-	if (f2 & TR2_RES_DARK) total += 1750;
-	if (f2 & TR2_RES_BLIND) total += 2000;
+	if (f2 & TR2_THROW) total += 2000;
+	if (f2 & TR2_REFLECT) total += 5000;
+	if (f2 & TR2_FREE_ACT) total += 3000;
+	if (f2 & TR2_HOLD_LIFE) total += 2000;
+	if (f2 & TR2_RES_ACID) total += 750;
+	if (f2 & TR2_RES_ELEC) total += 750;
+	if (f2 & TR2_RES_FIRE) total += 750;
+	if (f2 & TR2_RES_COLD) total += 750;
+	if (f2 & TR2_RES_POIS) total += 1500;
+	if (f2 & TR2_RES_FEAR) total += 1000;
+	if (f2 & TR2_RES_LITE) total += 750;
+	if (f2 & TR2_RES_DARK) total += 750;
+	if (f2 & TR2_RES_BLIND) total += 1000;
 	if (f2 & TR2_RES_CONF) total += 2000;
-	if (f2 & TR2_RES_SOUND) total += 2000;
-	if (f2 & TR2_RES_SHARDS) total += 2000;
+	if (f2 & TR2_RES_SOUND) total += 1000;
+	if (f2 & TR2_RES_SHARDS) total += 1000;
 	if (f2 & TR2_RES_NETHER) total += 2000;
-	if (f2 & TR2_RES_NEXUS) total += 2000;
+	if (f2 & TR2_RES_NEXUS) total += 500;
 	if (f2 & TR2_RES_CHAOS) total += 2000;
-	if (f2 & TR2_RES_DISEN) total += 10000;
-	if (f3 & TR3_SH_FIRE) total += 5000;
-	if (f3 & TR3_SH_ELEC) total += 5000;
+	if (f2 & TR2_RES_DISEN) total += 5000;
+	if (f3 & TR3_SH_FIRE) total += 1000;
+	if (f3 & TR3_SH_ELEC) total += 1000;
 	if (f3 & TR3_QUESTITEM) total += 0;
 	if (f3 & TR3_XXX4) total += 0;
-	if (f3 & TR3_NO_TELE) total += 2500;
-	if (f3 & TR3_NO_MAGIC) total += 2500;
+	if (f3 & TR3_NO_TELE) total += 1500;
+	if (f3 & TR3_NO_MAGIC) total += 1500;
 	if (f3 & TR3_WRAITH) total += 250000;
 	if (f3 & TR3_TY_CURSE) total -= 15000;
 	if (f3 & TR3_EASY_KNOW) total += 0;
 	if (f3 & TR3_HIDE_TYPE) total += 0;
 	if (f3 & TR3_SHOW_MODS) total += 0;
 	if (f3 & TR3_INSTA_ART) total += 0;
-	if (f3 & TR3_FEATHER) total += 1250;
-	if (f3 & TR3_LITE) total += 1250;
+	if (f3 & TR3_FEATHER) total += 250;
+	if (f3 & TR3_LITE) total += 750;
 	if (f3 & TR3_SEE_INVIS) total += 2000;
-	if (f3 & TR3_TELEPATHY) total += 12500;
+	if (f3 & TR3_TELEPATHY) total += 10000;
 	if (f3 & TR3_SLOW_DIGEST) total += 750;
-	if (f3 & TR3_REGEN) total += 2500;
-	if (f3 & TR3_XTRA_MIGHT) total += 2250;
-	if (f3 & TR3_XTRA_SHOTS) total += 10000;
-	if (f3 & TR3_IGNORE_ACID) total += 100;
-	if (f3 & TR3_IGNORE_ELEC) total += 100;
-	if (f3 & TR3_IGNORE_FIRE) total += 100;
-	if (f3 & TR3_IGNORE_COLD) total += 100;
-	if (f3 & TR3_ACTIVATE) total += 100;
+	if (f3 & TR3_REGEN) total += 1000;
+	if (f3 & TR3_XTRA_MIGHT) total += 5000;
+	if (f3 & TR3_XTRA_SHOTS) total += 5000;
+	if (f3 & TR3_IGNORE_ACID) total += 200;
+	if (f3 & TR3_IGNORE_ELEC) total += 50;
+	if (f3 & TR3_IGNORE_FIRE) total += 50;
+	if (f3 & TR3_IGNORE_COLD) total += 50;
+	if (f3 & TR3_ACTIVATE) total += 0;
 	if (f3 & TR3_DRAIN_EXP) total -= 12500;
 	if (f3 & TR3_TELEPORT)
 	{
@@ -950,8 +996,8 @@ s32b flag_cost(object_type * o_ptr, int plusses)
 		else
 			total += 250;
 	}
-	if (f3 & TR3_AGGRAVATE) total -= 10000;
-	if (f3 & TR3_BLESSED) total += 750;
+	if (f3 & TR3_AGGRAVATE) total -= 5000;
+	if (f3 & TR3_BLESSED) total += 200;
 	if (f3 & TR3_CURSED) total -= 5000;
 	if (f3 & TR3_HEAVY_CURSE) total -= 12500;
 	if (f3 & TR3_PERMA_CURSE) total -= 15000;
@@ -1045,9 +1091,11 @@ s32b flag_cost(object_type * o_ptr, int plusses)
  *
  * Wand and staffs get cost for each charge
  *
- * Armor is worth an extra 100 gold per bonus point to armor class.
+ * Armor is worth an extra 5 gold per bonus point to armor class^2.
  *
- * Weapons are worth an extra 100 gold per bonus point (AC,TH,TD).
+ * Weapons are worth an extra 5 gold per bonus point^2 (AC,TH,TD).
+ *
+ * Note: the bonuses are proportional to the points squared.
  *
  * Missiles are only worth 5 gold per bonus point, since they
  * usually appear in groups of 20, and we want the player to get
@@ -1152,14 +1200,14 @@ s32b object_value_real(object_type *o_ptr)
 			if (f1 & (TR1_SEARCH)) value += (o_ptr->pval * 100L);
 
 			/* Give credit for infra-vision and tunneling */
-			if (f1 & (TR1_INFRA)) value += (o_ptr->pval * 50L);
-			if (f1 & (TR1_TUNNEL)) value += (o_ptr->pval * 50L);
+			if (f1 & (TR1_INFRA)) value += (o_ptr->pval * 30L);
+			if (f1 & (TR1_TUNNEL)) value += (o_ptr->pval * 20L);
 
 			/* Give credit for extra attacks */
-			if (f1 & (TR1_BLOWS)) value += (o_ptr->pval * 2000L);
+			if (f1 & (TR1_BLOWS)) value += (sqvalue(o_ptr->pval) * 500L);
 
 			/* Give credit for speed bonus */
-			if (f1 & (TR1_SPEED)) value += (o_ptr->pval * 30000L);
+			if (f1 & (TR1_SPEED)) value += (sqvalue(o_ptr->pval) * 500L);
 
 			break;
 		}
@@ -1201,7 +1249,9 @@ s32b object_value_real(object_type *o_ptr)
 			if (o_ptr->to_d < 0) return (0L);
 
 			/* Give credit for bonuses */
-			value += ((o_ptr->to_h + o_ptr->to_d + o_ptr->to_a) * 100L);
+			value += ((sqvalue(o_ptr->to_h)
+				+ sqvalue(o_ptr->to_d)
+				+ sqvalue(o_ptr->to_a)) * 5L);
 
 			/* Done */
 			break;
@@ -1218,11 +1268,14 @@ s32b object_value_real(object_type *o_ptr)
 		case TV_HARD_ARMOR:
 		case TV_DRAG_ARMOR:
 		{
-			/* Hack -- negative armor bonus */
-			if (o_ptr->to_a < 0) return (0L);
+			/* Give credit for hit bonus */
+			value += (sqvalue(o_ptr->to_h - k_ptr->to_h) * 5L);
 
-			/* Give credit for bonuses */
-			value += ((o_ptr->to_h + o_ptr->to_d + o_ptr->to_a) * 100L);
+			/* Give credit for damage bonus */
+			value += (sqvalue(o_ptr->to_d - k_ptr->to_d) * 5L);
+
+			/* Give credit for armor bonus */
+			value += (sqvalue(o_ptr->to_a - k_ptr->to_a) * 5L);
 
 			/* Done */
 			break;
@@ -1235,11 +1288,10 @@ s32b object_value_real(object_type *o_ptr)
 		case TV_SWORD:
 		case TV_POLEARM:
 		{
-			/* Hack -- negative hit/damage bonuses */
-			if (o_ptr->to_h + o_ptr->to_d < 0) return (0L);
-
 			/* Factor in the bonuses */
-			value += ((o_ptr->to_h + o_ptr->to_d + o_ptr->to_a) * 100L);
+			value += ((sqvalue(o_ptr->to_h)
+				+ sqvalue(o_ptr->to_d)
+				+ sqvalue(o_ptr->to_a)) * 5L);
 
 			/* Hack -- Factor in extra damage dice */
 			if ((o_ptr->dd > k_ptr->dd) && (o_ptr->ds == k_ptr->ds))
@@ -1256,11 +1308,9 @@ s32b object_value_real(object_type *o_ptr)
 		case TV_ARROW:
 		case TV_BOLT:
 		{
-			/* Hack -- negative hit/damage bonuses */
-			if (o_ptr->to_h + o_ptr->to_d < 0) return (0L);
-
 			/* Factor in the bonuses */
-			value += ((o_ptr->to_h + o_ptr->to_d) * 5L);
+			value += ((sqvalue(o_ptr->to_h)
+				+ sqvalue(o_ptr->to_d)) * 2L);
 
 			/* Hack -- Factor in extra damage dice */
 			if ((o_ptr->dd > k_ptr->dd) && (o_ptr->ds == k_ptr->ds))
@@ -1275,10 +1325,14 @@ s32b object_value_real(object_type *o_ptr)
 		/* Figurines, relative to monster level */
 		case TV_FIGURINE:
 		{
-			value = ((r_info[o_ptr->pval].level) * 50L);
+			value = (r_info[o_ptr->pval].level *
+			         r_info[o_ptr->pval].level * 5L);
 			break;
 		}
 	}
+
+	/* No negative value */
+	if (value < 0) value = 0;
 
 	/* Return the value */
 	return (value);
@@ -1420,7 +1474,7 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
 	/* Analyze the items */
 	switch (o_ptr->tval)
 	{
-		/* Chests and Statues*/
+		/* Chests and Statues */
 		case TV_CHEST:
 		case TV_STATUE:
 		{
@@ -1428,7 +1482,7 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
 			return (0);
 		}
 
-		/* Figurines and Corpses*/
+		/* Figurines and Corpses */
 		case TV_FIGURINE:
 		case TV_CORPSE:
 		{
@@ -1473,7 +1527,7 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
 				(!(j_ptr->ident & (IDENT_EMPTY)) &&
 				!object_known_p(j_ptr))) return (0);
 
-			/* Wand charges combine in O&ZAngband.  */
+			/* Wand charges combine in O&ZAngband. */
 
 			/* Assume okay */
 			break;
@@ -1704,7 +1758,7 @@ s16b lookup_kind(int tval, int sval)
 void object_wipe(object_type *o_ptr)
 {
 	/* Wipe the structure */
-	(void) WIPE(o_ptr, object_type);
+	(void)WIPE(o_ptr, object_type);
 }
 
 
@@ -3728,7 +3782,7 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great, 
 
 
 	/* Base chance of being "good" */
-	f1 = lev + 10;
+	f1 = (lev * 4) / 7 + 10;
 
 	/* Maximal chance of being "good" */
 	if (f1 > 75) f1 = 75;
@@ -3943,7 +3997,7 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great, 
 
 					if (o_ptr->pval > 2) o_ptr->pval -= 2;
 
-					/* tone down number of attacks*/
+					/* tone down number of attacks */
 					if (o_ptr->pval > 0)
 					{
 						o_ptr->pval -= o_ptr->dd / 2;
@@ -3979,7 +4033,7 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great, 
 			{
 				o_ptr->art_flags1 |= TR1_BLOWS;
 
-				/* tone down number of attacks*/
+				/* tone down number of attacks */
 				if (o_ptr->pval > 0)
 				{
 					o_ptr->pval -= o_ptr->dd / 2;
@@ -3995,7 +4049,7 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great, 
 				{
 					o_ptr->art_flags1 |= TR1_BLOWS;
 
-					/* tone down number of attacks*/
+					/* tone down number of attacks */
 					if (o_ptr->pval > 0)
 					{
 						o_ptr->pval -= o_ptr->dd / 2;
@@ -4252,8 +4306,11 @@ void place_object(int y, int x, bool good, bool great)
 	/* Paranoia -- check bounds */
 	if (!in_bounds(y, x)) return;
 
+	/* Acquire grid */
+	c_ptr = area(y, x);
+
 	/* Require clean floor space */
-	if (!cave_gen_bold(y, x)) return;
+	if (!cave_gen_grid(c_ptr)) return;
 
 
 	/* Get local object */
@@ -4283,9 +4340,6 @@ void place_object(int y, int x, bool good, bool great)
 		/* Location */
 		o_ptr->iy = y;
 		o_ptr->ix = x;
-
-		/* Acquire grid */
-		c_ptr = &cave[y][x];
 
 		/* Build a stack */
 		o_ptr->next_o_idx = c_ptr->o_idx;
@@ -4373,9 +4427,11 @@ void place_gold(int y, int x)
 	/* Paranoia -- check bounds */
 	if (!in_bounds(y, x)) return;
 
-	/* Require clean floor space */
-	if (!cave_clean_bold(y, x)) return;
+	/* Acquire grid */
+	c_ptr = area(y,x);
 
+	/* Require clean floor space */
+	if (!cave_clean_grid(c_ptr)) return;
 
 	/* Get local object */
 	q_ptr = &forge;
@@ -4404,9 +4460,6 @@ void place_gold(int y, int x)
 		/* Save location */
 		o_ptr->iy = y;
 		o_ptr->ix = x;
-
-		/* Acquire grid */
-		c_ptr = &cave[y][x];
 
 		/* Build a stack */
 		o_ptr->next_o_idx = c_ptr->o_idx;
@@ -4452,7 +4505,7 @@ s16b drop_near(object_type *j_ptr, int chance, int y, int x)
 	int dy, dx;
 	int ty, tx;
 
-	s16b o_idx = 0;
+	s16b o_idx;
 
 	s16b this_o_idx, next_o_idx = 0;
 
@@ -4523,15 +4576,18 @@ s16b drop_near(object_type *j_ptr, int chance, int y, int x)
 			if (!los(y, x, ty, tx)) continue;
 
 			/* Obtain grid */
-			c_ptr = &cave[ty][tx];
+			c_ptr = area(ty,tx);
 
 			/* Require floor space */
 			if ((c_ptr->feat != FEAT_FLOOR) &&
 			    (c_ptr->feat != FEAT_SHAL_WATER) &&
 			    (c_ptr->feat != FEAT_GRASS) &&
 			    (c_ptr->feat != FEAT_DIRT) &&
+			    (c_ptr->feat != FEAT_SNOW) &&
 			    (c_ptr->feat != FEAT_SHAL_LAVA) &&
-				(c_ptr->feat != FEAT_TREES)) continue;
+			    (c_ptr->feat != FEAT_SHAL_ACID) &&
+			    ((c_ptr->feat & 0xF8) != 0x08) &&
+			    ((c_ptr->feat & 0x80) != 0x80)) continue;
 
 			/* No objects */
 			k = 0;
@@ -4616,33 +4672,47 @@ s16b drop_near(object_type *j_ptr, int chance, int y, int x)
 		/* Random locations */
 		else
 		{
-			ty = rand_int(cur_hgt);
-			tx = rand_int(cur_wid);
+			if (!dun_level)
+			{
+				/* Pick a location */
+				ty = wild_grid.y_min + rand_int(WILD_GRID_SIZE * 16);
+				tx = wild_grid.x_min + rand_int(WILD_GRID_SIZE * 16);
+			}
+			else
+			{
+				/* Pick a location */
+				ty = rand_int(cur_hgt);
+				tx = rand_int(cur_wid);
+			}
 		}
 
 		/* Grid */
-		c_ptr = &cave[ty][tx];
+		c_ptr = area(ty,tx);
 
 		/* Require floor space (or shallow terrain) -KMW- */
 		if ((c_ptr->feat != FEAT_FLOOR) &&
 		    (c_ptr->feat != FEAT_SHAL_WATER) &&
 		    (c_ptr->feat != FEAT_GRASS) &&
 		    (c_ptr->feat != FEAT_DIRT) &&
-		    (c_ptr->feat != FEAT_SHAL_LAVA)) continue;
+		    (c_ptr->feat != FEAT_SNOW) &&
+		    (c_ptr->feat != FEAT_SHAL_LAVA) &&
+		    (c_ptr->feat != FEAT_SHAL_ACID) &&
+		    ((c_ptr->feat & 0xF8) != 0x08) &&
+		    ((c_ptr->feat & 0x80) != 0x80)) continue;
 
 		/* Bounce to that location */
 		by = ty;
 		bx = tx;
 
 		/* Require floor space */
-		if (!cave_clean_bold(by, bx)) continue;
+		if (!cave_clean_grid(c_ptr)) continue;
 
 		/* Okay */
 		flag = TRUE;
 	}
 
 	/* Grid */
-	c_ptr = &cave[by][bx];
+	c_ptr = area(by,bx);
 
 	/* Hack - artifacts will not be affected by terrain */
 	if (!(artifact_p(j_ptr) || j_ptr->art_name))
@@ -4653,7 +4723,7 @@ s16b drop_near(object_type *j_ptr, int chance, int y, int x)
 		     (j_ptr->tval == TV_SCROLL) ||
 		     (j_ptr->tval == TV_WAND)))
 		{
-			/* only display messages if player throws */
+			/* only display messages if player thows */
 			if (!chance)
 			{
 				/* Message */
@@ -4671,11 +4741,11 @@ s16b drop_near(object_type *j_ptr, int chance, int y, int x)
 		/* Check to see if the object will disappear in water. */
 		if ((c_ptr->feat == FEAT_SHAL_WATER) && (j_ptr->tval == TV_RING))
 		{
-			/* only display messages if player throws */
+			/* only display messages if player thows */
 			if (!chance)
 			{
 				/* Message */
-				msg_format("The %s disappear%s.",
+				msg_format("The %s disappear%.",
 					o_name, (plural ? "" : "s"));
 			}
 
@@ -4703,9 +4773,6 @@ s16b drop_near(object_type *j_ptr, int chance, int y, int x)
 		{
 			/* Combine the items */
 			object_absorb(o_ptr, j_ptr);
-			
-			/* Point to the stack */
-			o_idx = this_o_idx;
 
 			/* Success */
 			done = TRUE;
@@ -4716,7 +4783,7 @@ s16b drop_near(object_type *j_ptr, int chance, int y, int x)
 	}
 
 	/* Get new object */
-	if (!done) o_idx = o_pop();
+	o_idx = o_pop();
 
 	/* Failure */
 	if (!done && !o_idx)
@@ -4859,7 +4926,7 @@ void pick_trap(int y, int x)
 {
 	int feat;
 
-	cave_type *c_ptr = &cave[y][x];
+	cave_type *c_ptr = area(y,x);
 
 	/* Paranoia */
 	if (c_ptr->feat != FEAT_INVIS) return;
@@ -4898,11 +4965,15 @@ void pick_trap(int y, int x)
  */
 void place_trap(int y, int x)
 {
+	cave_type *c_ptr;
+
 	/* Paranoia -- verify location */
 	if (!in_bounds(y, x)) return;
 
+	c_ptr = area(y, x);
+
 	/* Require empty, clean, floor grid */
-	if (!cave_naked_bold(y, x)) return;
+	if (!cave_naked_grid(c_ptr)) return;
 
 	/* Place an invisible trap */
 	cave_set_feat(y, x, FEAT_INVIS);

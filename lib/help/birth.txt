@@ -253,10 +253,22 @@ from having a high constitution. The life rating will be displayed in
 the form of x/100 where 'x' is typically a number varying between 80
 and 120.
 
-Your life rating is only a guarantee of your character's hitpoints at
-level 50. This might be achieved by small increases in the early stages
-and much larger increases in the later game or the other way around.
-Generally, however, the increases tend to be fairly even.
+Example 1, a human mage has a 10-sided hit dice yielding an average of
+5.5 hitpoints per level for an average maximum hitpoints at level 50
+of 50*5.5=275. If this mage had a life-rating of 110/100, then at level
+50, he would have 275*(110/100)=302 hitpoints (before considering any
+bonuses from constitution).
+
+Example 2, a human warrior has a 19-sided hit dice yielding an average
+of 10 hitpoints per level for an average maximum hitpoints at level 50
+of 50*10=500. If this warrior had a life-rating of 95/100, then at
+level 50, he would have 500*(95/100)=475 hitpoints (before considering
+any bonuses from constitution).
+
+Your life rating is only a guarantee of your character's base hitpoints
+at level 50. This might be achieved by small increases in the early
+stages and much larger increases in the later game or the other way
+around. Generally, however, the increases tend to be fairly even.
 
 
 ***** <CharName>
@@ -290,7 +302,7 @@ a magical item although there is some variance from this.
 Original   : (??)
 Updated    : (??)
 Updated    : Zangband DevTeam
-Last update: January 13, 2000
+Last update: March 20, 2000
 
 ***** Begin Hyperlinks
 ***** [1] birth.txt#AutoRoller
@@ -305,3 +317,4 @@ Last update: January 13, 2000
 ***** [a] charattr.txt#StatBonusTable
 ***** [b] birth.txt#LifeRating
 ***** [c] birth.txt#CharName
+

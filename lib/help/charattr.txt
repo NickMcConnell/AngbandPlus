@@ -9,7 +9,7 @@ class, and background history
 
 Your choices as to sex, race, class and realm are irrevocable and will
 remain fixed for the entire life of that character. The only exception
-to this, is that the Chaos spell 'Polymorh Self' (and the mutation of
+to this, is that the Chaos spell 'Polymorph Self' (and the mutation of
 the same name) may cause your race to change as one of its possible
 effects.
 
@@ -43,7 +43,7 @@ will attain a new experience level (up to a maximum of 50). When this
 happens, your hitpoints, mana (if any), certain skills such as melee
 fighting and bows and throws will all increase. Some races and classes
 will also gain new powers and abilities when crossing certain
-experience threshholds.
+experience thresholds.
 
 Deep down inside, the real objective of the game is to increase your
 experience, and certain other characteristics, and also to collect
@@ -339,7 +339,7 @@ Skeleton
     liches. As undead beings, skeletons need to worry very little about
     poison or attacks that can drain life. They do not really use eyes
     for perceiving things, and are thus not fooled by invisibility.
-    Their bones are resistant to sharp shrapnels (not much to cut
+    Their bones are resistant to shard attacks (not much to cut
     there), and they will quickly become resistant to cold. Should a
     skeleton be unlucky enough to lose some of his or her remaining
     life, he or she will learn to restore it at will. It is very hard
@@ -365,18 +365,18 @@ Vampire
     weakness: the bright rays of sun are its bane, and it will need to
     flee the surface to the deep recesses of earth until the sun
     finally sets. Darkness, on the other hand, only makes the Vampire
-    stronger. As undead, the Vampire has a firm hold on its life force,
-    and resists nether attacks. The Vampire also resists cold and
-    poison based attacks. It is, however, susceptible to its perpetual
-    hunger for fresh blood, which can only be satiated by sucking the
-    blood from a nearby monster, which is the Vampire's special power.
-    It should be noted that the vampires are so sensitive to daylight
-    that even certain artifact light items which are filled with
-    daylight will hurt them if they try to wield the items.
-    Fortunately, the vampires do not really need these items, since
-    they radiate an aura of 'dark light' of their own. Light resistance
-    will, in any case, protect the vampire from the adverse effects of
-    sunlight.
+    stronger and they are unharmed by darkness attacks. As undead, the
+    Vampire has a firm hold on its life force, and resists nether
+    attacks. The Vampire also resists cold and poison based attacks. It
+    is, however, susceptible to its perpetual hunger for fresh blood,
+    which can only be satiated by sucking the blood from a nearby
+    monster, which is the Vampire's special power. It should be noted
+    that the vampires are so sensitive to daylight that even certain
+    artifact light items which are filled with daylight will hurt them
+    if they try to wield the items. Fortunately, the vampires do not
+    really need these items, since they radiate an aura of 'dark light'
+    of their own. Light resistance will, in any case, protect the
+    vampire from the adverse effects of sunlight.
 
 Spectre
     Another powerful undead creature: the Spectre is a ghastly
@@ -405,7 +405,7 @@ Sprite
 Beastman
     This race is a blasphemous abomination produced by Chaos. It is not
     an independent race but rather a humanoid creature, most often a
-    human, twisted by the Chaos, or a nightmarsh crossbreed of a human
+    human, twisted by the Chaos, or a nightmarish crossbreed of a human
     and a beast. All Beastmen are accustomed to Chaos so much that they
     are untroubled by confusion and sound, although raw logrus can
     still have effects on them. Beastmen revel in chaos, as it twists
@@ -419,7 +419,7 @@ Beastman
 === Classes ===
  
 There are eleven different classes that you can choose from in
-ZAngband. Each class has various strengths and weaknesses and its own
+Zangband. Each class has various strengths and weaknesses and its own
 adjustments to a character's stats and abilities. Many classes also
 have intrinsic abilities and powers. These are often linked to the
 character's experience level and only become available later in the
@@ -734,13 +734,13 @@ Intelligence
  
 Wisdom
      Wisdom affects the ability of priest-like spellcasters (priests,
-     paladins and monks) to use prayers. WIS will affect the number of
-     spells these classes may learn each level, the number of spell
-     points they receive and their spell fail rates. In addition, WIS
-     is also used to determine a mindcrafter's ability to use his or
-     her mental powers. These classes cannot learn spells if their
-     wisdom is 7 or lower. Wise character's will have better chances of
-     resisting magical spells cast upon them by monsters.
+     paladins and monks) to use prayers. Wisdom will affect the number
+     of spells these classes may learn each level, the number of spell
+     points they receive and their spell fail rates. In addition, 
+     wisdom is also used to determine a mindcrafter's ability to use
+     his or her mental powers. These classes cannot learn spells if
+     their wisdom is 7 or lower. Wise character's will have better
+     chances of resisting magical spells cast upon them by monsters.
  
 Dexterity
      Dexterity is a combination of agility and quickness. A high
@@ -972,10 +972,11 @@ High Mage     30+7  36+13 30+9   2    15/20       10+15  15+15
 Original   : (??)
 Updated    : (??)
 Updated    : Zangband DevTeam
-Last update: January 13, 2000
+Last update: March 20, 2000
 
 ***** Begin Hyperlinks
 ***** [1] birth.txt
 ***** [2] charattr.txt#PrimaryStats
 ***** [3] defend.txt#Armor
 ***** [4] charattr.txt#PrimarySkills
+

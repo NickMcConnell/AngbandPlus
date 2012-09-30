@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: ebock $ on $Date: 2000/01/31 04:18:05 $
+/* CVS: Last edit by $Author: rr9 $ on $Date: 2000/05/25 12:14:46 $
  *
  * File: grid.c
  * Purpose: low-level dungeon creation primitives
@@ -25,6 +25,8 @@ bool new_player_spot(void)
 	int	y, x;
 	int max_attempts = 5000;
 
+	cave_type *c_ptr;
+
 	/* Place the player */
 	while (max_attempts--)
 	{
@@ -32,11 +34,13 @@ bool new_player_spot(void)
 		y = rand_range(1, cur_hgt - 2);
 		x = rand_range(1, cur_wid - 2);
 
+		c_ptr = &cave[y][x];
+
 		/* Must be a "naked" floor grid */
-		if (!cave_naked_bold(y, x)) continue;
+		if (!cave_naked_grid(c_ptr)) continue;
 
 		/* Refuse to start on anti-teleport grids */
-		if (cave[y][x].info & (CAVE_ICKY)) continue;
+		if (c_ptr->info & (CAVE_ICKY)) continue;
 
 		/* Done */
 		break;
@@ -61,9 +65,11 @@ void place_random_stairs(int y, int x)
 {
 	bool up_stairs = TRUE;
 	bool down_stairs = TRUE;
+	cave_type *c_ptr;
 
 	/* Paranoia */
-	if (!cave_clean_bold(y, x)) return;
+	c_ptr = &cave[y][x];
+	if (!cave_clean_grid(c_ptr)) return;
 
 	/* Town */
 	if (!dun_level)
@@ -236,6 +242,8 @@ void vault_objects(int y, int x, int num)
 	int dummy = 0;
 	int i = 0, j = y, k = x;
 
+	cave_type *c_ptr;
+
 
 	/* Attempt to place 'num' objects */
 	for (; num > 0; --num)
@@ -264,7 +272,8 @@ void vault_objects(int y, int x, int num)
 
 
 			/* Require "clean" floor space */
-			if (!cave_clean_bold(j, k)) continue;
+			c_ptr = &cave[j][k];
+			if (!cave_clean_grid(c_ptr)) continue;
 
 			/* Place an item */
 			if (rand_int(100) < 75)
@@ -293,6 +302,8 @@ void vault_trap_aux(int y, int x, int yd, int xd)
 	int count = 0, y1 = y, x1 = x;
 	int dummy = 0;
 
+	cave_type *c_ptr;
+
 	/* Place traps */
 	for (count = 0; count <= 5; count++)
 	{
@@ -315,7 +326,8 @@ void vault_trap_aux(int y, int x, int yd, int xd)
 		}
 
 		/* Require "naked" floor grids */
-		if (!cave_naked_bold(y1, x1)) continue;
+		c_ptr = &cave[y1][x1];
+		if (!cave_naked_grid(c_ptr)) continue;
 
 		/* Place the trap */
 		place_trap(y1, x1);
@@ -346,6 +358,7 @@ void vault_traps(int y, int x, int yd, int xd, int num)
 void vault_monsters(int y1, int x1, int num)
 {
 	int k, i, y, x;
+	cave_type *c_ptr;
 
 	/* Try to summon "num" monsters "near" the given location */
 	for (k = 0; k < num; k++)
@@ -359,7 +372,8 @@ void vault_monsters(int y1, int x1, int num)
 			scatter(&y, &x, y1, x1, d, 0);
 
 			/* Require "empty" floor grids */
-			if (!cave_empty_bold(y, x)) continue;
+			c_ptr = &cave[y][x];
+			if (!cave_empty_grid(c_ptr)) continue;
 
 			/* Place the monster (allow groups) */
 			monster_level = base_level + 2;
@@ -381,10 +395,10 @@ int next_to_walls(int y, int x)
 {
 	int	k = 0;
 
-	if (cave_floor_bold(y + 1, x)) k++;
-	if (cave_floor_bold(y - 1, x)) k++;
-	if (cave_floor_bold(y, x + 1)) k++;
-	if (cave_floor_bold(y, x - 1)) k++;
+	if (cave_floor_grid(&cave[y + 1][x])) k++;
+	if (cave_floor_grid(&cave[y - 1][x])) k++;
+	if (cave_floor_grid(&cave[y][x + 1])) k++;
+	if (cave_floor_grid(&cave[y][x - 1])) k++;
 
 	return (k);
 }
@@ -785,7 +799,7 @@ static bool set_tunnel(int *x, int *y, bool affectwall)
 
 		if (i == 0)
 		{
-			/* Failed for some reason: hack - ignore the solidness*/
+			/* Failed for some reason: hack - ignore the solidness */
 			cave[*y][*x].feat = FEAT_WALL_OUTER;
 			dx = 0;
 			dy = 0;
@@ -1002,7 +1016,7 @@ bool build_tunnel2(int x1, int y1, int x2, int y2, int type, int cutoff)
 		x3 = x1 + dx + changex;
 		y3 = y1 + dy + changey;
 
-		/* See if in bounds - if not - do not perturb point*/
+		/* See if in bounds - if not - do not perturb point */
 		if (!in_bounds(y3, x3))
 		{
 			x3 = (x1 + x2) / 2;
@@ -1032,7 +1046,7 @@ bool build_tunnel2(int x1, int y1, int x2, int y2, int type, int cutoff)
 
 			if (i == 0)
 			{
-				/* Failed for some reason: hack - ignore the solidness*/
+				/* Failed for some reason: hack - ignore the solidness */
 				cave[y3][x3].feat = FEAT_WALL_OUTER;
 				dx = 0;
 				dy = 0;

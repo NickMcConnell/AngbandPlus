@@ -1,4 +1,4 @@
-=== Options and Effects (Zangband 2.2.*) ===
+=== Zangband Options ===
 
 Most of the "options" are accessible through the '=' command, which
 provides an interface to the various "sets" of options available to the
@@ -6,11 +6,9 @@ player.
 
 In the descriptions below, each option is listed as the textual summary
 which is shown on the "options" screen, plus the internal name of the
-option in brackets, followed by a textual description of the option.
-
-Note that the internal name of the option can be used in user pref
-files to force the option to a given setting, see "command.txt" for
-more info.
+option in brackets, followed by a description of the option. Note that
+the internal name of the option can be used in user pref files to force
+the option to a given setting, see "pref.txt" for more info.
 
 Various concepts are mentioned in the descriptions below, including
 "disturb", (cancel any running, resting, or repeated commands, which
@@ -20,7 +18,7 @@ output to the screen).
 
 
 ***** <UserInterface>
-=== Option Set 1 -- User Interface ===
+=== User Interface Options ===
 
 Rogue-like commands    [rogue_like_commands]
     Selects the "roguelike" command set (see "command.txt" for info).
@@ -57,10 +55,6 @@ Repeat obvious commands    [always_repeat]
     "bash" a door, "tunnel" through walls, or "disarm" traps or chests,
     that you wish to "repeat" the command 99 times (see "command.txt").
 
-Show dungeon level in feet    [depth_in_feet]
-    Display the dungeon depth in "feet" instead of as an actual level.
-    This also affects the monster memory display.
-
 Merge inscriptions when stacking    [stack_force_notes]
     Force otherwise identical objects to merge, even if one has an
     empty inscription and the other does not. The resulting stack keeps
@@ -72,49 +66,84 @@ Merge discounts when stacking    [stack_force_costs]
     discount. This option may cause you to lose "value", but will give
     you optimal pack usage.
 
-Show labels in object lists    [show_labels]
-    Display the "labels" for objects in the "equipment" list, and in
-    any "special" window which is displaying the "equipment". These
-    labels indicate what the player is "using" the object for, such as
-    "wielding" or "wearing" (in a given location). After you have
-    played for a while, this information is no longer useful, and can
-    be annoying. Note that in Zangband 2.1.0 and later this option no
-    longer controls the "plain flavored object descriptions": a
-    separate option for them has been added under "Zangband Options".
+Allow weapons and armor to stack    [stack_allow_items]
+    Allow identical weapons and armor to be combined into a stack. This
+    also allows unidentified, but identical, ammo to be combined, which
+    may result in the auto-identification of some of the ammo, but
+    which makes it a lot easier to actually use unidentified ammo.
 
-Show weights in object lists    [show_weights]
-    Display the weights of objects in the "inventory" and "equipment"
-    lists, and in "stores", and in any "special" window which is
-    displaying any of these lists.
+Allow wands/staffs/rods to stack    [stack_allow_wands]
+    Allow identical wands/staffs/rods to be combined into a stack. This
+    may force the items to be "unstacked" to use them, which may result
+    in "overflow" of the stack. Also, the entire stack can be recharged
+    (and possibly destroyed) at the same time.
 
-Show graphics in inventory list  [show_inven_graph]
-    Displays small icons of the items in your "inventory" list.
+No query to destroy known worthless items    [auto_destroy]
+    It can sometimes be annoying that the Destroy command asks for
+    confirmation when you are attempting to destroy a Broken sword
+    {cursed}. If this option is set, no confirmation will be asked if
+    you attempt to destroy an object which you know to be worthless. Of
+    course, cursed artifacts cannot be destroyed even if this option is
+    set.
 
-Show graphics in equipment list   [show_equip_graph]
-    Displays small icons of the items in your "equipment" list.
+Confirm to wear/wield known cursed items    [confirm_wear]
+    Some players may occasionally, due to a typing mistake, find
+    themselves wearing an item which they knew was cursed. If this
+    option is set, you should be safe from such typing mistakes: you
+    will be prompted if you attempt to wear or wield an item if your
+    character knows it is cursed.
 
-Show graphics in stores   [show_store_graph]
-    Displays small icons of the items in "stores".
+Prompt before exiting a dungeon level    [confirm_stairs]
+    Some players (such as myself) often accidentally press the '<' key
+    and exit a Special feeling level. If this option is set, the
+    program asks for confirmation before you go up or down the stairs.
+    Others may find the prompt annoying, they should of course not set
+    this option. :-)
 
-Show choices in certain sub-windows    [show_choices]
-    Indicate legal choices in "special" windows which display lists.
-    
-Show details in certain sub-windows    [show_details]
-    Indicate extra details in "special" windows, currently used to
-    activate the display of "death counts" and "monster descriptions"
-    when recalling details about a monster.
+Expand the power of the look command    [expand_look]
+    Expand the "look" command to allow the user to "look" at grids
+    which are not actually in view of the player, allowing the
+    examination of objects/monsters which have only been detected by
+    spells, or sensed via telepathy.
 
-Audible bell (on errors, etc)    [ring_bell]
-    Attempt to make a "bell" noise when various "errors" occur.
-    
-Use color if possible (slow)    [use_color]
-    This option enables the software support for "color". Since this
-    makes the game slower, you should always disable this option if you
-    are using a machine which is not capable of using color.
+Expand the power of the list commands    [expand_list]
+    Expand the "listing" commands so that they "wrap" at the "edges" of
+    the appropriate list.  This allows the "look" and "target" commands
+    to "cycle" through all appropriate grids forever, and the "identify
+    symbol" to browse through all of the monsters of a given type.
+
+Automatically open doors   [easy_open]
+    Makes it easy for your character to open a door: simply by walking
+    into it! Also the open command will automatically select one
+    direction if only one door is near you.
+
+Automatically disarm traps   [easy_disarm]
+    Makes it easy for your character disarm a trap: simply by walking into
+    it! Also the disarm command will automatically select one direction
+    if only one known trap is near you.
+
+Auto-haggle in stores    [auto_haggle]
+    Disable "haggling" in stores, resulting in a ten percent sales tax
+    on items which you would have otherwise been forced to haggle for.
+    When this option is on, all prices listed in stores will be the
+    actual price that you pay for an item, as opposed to the price
+    that the shop-keeper will suggest.
+
+Display floor stacks in lists   [easy_floor]
+    Lets you select an item from a stack on the floor by browsing a
+    list, Also floor stack are described as "You see a stack of n
+    items.", when there is more than one item on a floor grid.
+
+Allow unified use command   [use_command]
+    Unifies the item commands like "zap a rod", "use a staff", "eat
+    food", "aim a wand", ... into a general "use object" command. The
+    command in the original keymap is "u", and "a" in the roguelike
+    mode. The standard commands for eat, quaff, read, zap, aim, ... are
+    still available, but can be used for macros.
 
 
 ***** <Disturbance>
-=== Option Set 2 -- Disturbance ===
+=== Disturbance Options ===
 
 Run past stairs    [find_ignore_stairs]
     Ignore stairs when running.
@@ -156,25 +185,24 @@ Disturb whenever boring things happen    [disturb_minor]
     including monsters bashing down doors, inventory feelings, and
     beginning to run out of fuel.
 
-Alert user to critical hitpoints    [alert_hitpoint]
-    Produce a "bell" noise, and flush all pending input, when your
-    hitpoints reach the "critical point" chosen elsewhere, preventing
-    stupid deaths.
+Disturb whenever random things happen    [disturb_other]
+    In Zangband, uncursed teleporting items may teleport you around
+    sometimes, asking for your confirmation (and possibly disturbing
+    your rest). If you unset this option, they will stop asking you
+    and teleporting you randomly. Cursed items will neither ask for
+    confirmation nor stop teleporting you even if this option is
+    unset.
 
 Alert user to various failures    [alert_failure]
     Produce a "bell" noise, and flush all pending input, when various
     "failures" occur, as described above.
 
+Audible bell (on errors, etc)    [ring_bell]
+    Attempt to make a "bell" noise when various "errors" occur.
+    
 
 ***** <GamePlay>
-=== Option Set 3 -- Game-play ===
-
-Auto-haggle in stores    [auto_haggle]
-    Disable "haggling" in stores, resulting in a ten percent sales tax
-    on items which you would have otherwise been forced to haggle for.
-    When this option is on, all prices listed in stores will be the
-    actual price that you pay for an item, as opposed to the price
-    that the shop-keeper will suggest.
+=== Game-play Options ===
 
 Auto-scum for good levels    [auto_scum]
     This is a hack but allows you to force the generation of "good"
@@ -183,30 +211,6 @@ Auto-scum for good levels    [auto_scum]
     the level is based on the dungeon level, so the deeper you go, the
     better the level will be. A lot of people consider this option to
     be cheating.
-    
-Allow weapons and armor to stack    [stack_allow_items]
-    Allow identical weapons and armor to be combined into a stack. This
-    also allows unidentified, but identical, ammo to be combined, which
-    may result in the auto-identification of some of the ammo, but
-    which makes it a lot easier to actually use unidentified ammo.
-    
-Allow wands/staffs/rods to stack    [stack_allow_wands]
-    Allow identical wands/staffs/rods to be combined into a stack. This
-    may force the items to be "unstacked" to use them, which may result
-    in "overflow" of the stack. Also, the entire stack can be recharged
-    (and possibly destroyed) at the same time.
-    
-Expand the power of the look command    [expand_look]
-    Expand the "look" command to allow the user to "look" at grids
-    which are not actually in view of the player, allowing the
-    examination of objects/monsters which have only been detected by
-    spells, or sensed via telepathy.
-
-Expand the power of the list commands    [expand_wrap]
-    Expand the "listing" commands so that they "wrap" at the "edges" of
-    the appropriate list.  This allows the "look" and "target" commands
-    to "cycle" through all appropriate grids forever, and the "identify
-    symbol" to browse through all of the monsters of a given type.
 
 Map remembers all perma-lit grids    [view_perma_grids]
     Memorize all perma-lit floor grids which are seen by the player.
@@ -241,30 +245,59 @@ Generate dungeons with connected stairs    [dungeon_stair]
     Always generate a staircase back to the level you came from, if you
     used a staircase to get to the level. This is more "realistic", and
     "safer", but less of a "challenge" for some people.
-    
-Monsters chase current location (v.slow)    [flow_by_sound]
-    Allow monsters to make paths to the player when they are nearby.
-    This option is extremely slow, but can produce viciously smart
-    monsters.
-    
-Monsters chase recent locations (v.slow)    [flow_by_smell]
-    As above, but also allow monsters to take advantage of "old" trails
-    that you may have left in the dungeon.
 
-Monsters follow the player (beta)    [track_follow]
-    This option is currently non-functional.
-    
-Monsters learn from their mistakes    [smart_learn]
-    Allow monsters to learn what spell attacks you are resistant to,
-    and to use this information to choose the best attacks.
-    
-Monsters exploit players weaknesses    [smart_cheat]
-    Allow monsters to know what spell attacks you are resistant to,
-    and to use this information to choose the best attacks.
+Get last words when the character dies  [last_words]
+    Display a random line from the "death.txt" file when your character 
+    dies. If this option is not selected, the "You die." message is
+    displayed instead.
+
+Allow shopkeepers and uniques to speak  [speak_unique]
+    If this option is in use, shopkeepers may sometimes whisper rumours
+    to you. Also certain monsters start boasting as they attack you,
+    and, when they die, they say their 'last words'. A speaking monster
+    may also (if the option is selected) be wanted by the law, in which
+    case you get the reward if you kill it.
+
+Allow unusually small dungeon levels    [small_levels]
+    This option enables the creation of levels of varying sizes. Levels
+    that are as small as the town level (i.e. 1 'screen') are possible,
+    yet they can be dangerous, especially for a low level character.
+    Note that this option has the side effect of enabling / disabling
+    'destroyed' levels (they are enabled if small levels are).
+
+Allow empty 'arena' levels      [empty_levels]
+    Normal dungeon levels consist mostly of rock. If this option is in
+    use, levels which have empty floor instead of solid rock may  also 
+    be created (somewhat remniscent of Nethack's "big-room" levels). 
+    These levels can be extremely deadly, especially with breathing
+    monsters (since there are few obstructions to shield). Arena levels
+    may have vaults, nests and pits in them like normal levels. Some
+    arena levels are dark when they are created, but most are lit.
+
+Allow objects to stack on the floor   [testing_stack]
+    Allows a cave grid to hold more than one object (or one kind of
+    object).
+
+Allow monsters to carry objects    [testing_carry]
+    If this option is set, monsters which "pick up" objects will drop
+    the objects they were carrying when you kill them. Note that
+    monsters which "crush" objects are not affected by this option.
+
+Allow notes to be appended to a file    [take_notes]
+    Allows you to use the ':' command to take notes. The notes will be
+    appended to a text file baring the same name and in the same
+    directory as your safevile but with the .txt extension.
+
+Automatically note important events    [auto_notes]
+    With this option enabled the game will automatically create a file
+    which logs important events such as gaining a level, finding an
+    artifact or kiling a Unique. The automatic notes will be
+    appended to a text file baring the same name and in the same
+    directory as your safevile but with the .txt extension.
 
 
-***** <Efficiency>
-=== Option Set 4 -- Efficiency ===
+*****<Efficiency>
+=== Efficiency Options ===
 
 Reduce lite-radius when running    [view_reduce_lite]
     Reduce the "radius" of the player's "lite" to that of a "torch"
@@ -349,13 +382,41 @@ Compress messages in savefiles    [compress_savefile]
     by a drastic amount, but will result in the loss of message
     information.
 
-Hilite the player with the cursor    [hilite_player]
-    Place the visible cursor on the player. This looks fine on some
-    Unix machines, but horrible on most graphics machines. Note that
-    only some machines are able to *not* show the cursor, but on those
-    machines, hiding the cursor often speeds up the game and looks
-    better.
-    
+
+*****<Display>
+=== Display Options ===
+
+Show dungeon level in feet    [depth_in_feet]
+    Display the dungeon depth in "feet" instead of as an actual level.
+    This also affects the monster memory display.
+
+Show labels in object lists    [show_labels]
+    Display the "labels" for objects in the "equipment" list, and in
+    any "special" window which is displaying the "equipment". These
+    labels indicate what the player is "using" the object for, such as
+    "wielding" or "wearing" (in a given location). After you have
+    played for a while, this information is no longer useful, and can
+    be annoying. Note that in Zangband 2.1.0 and later this option no
+    longer controls the "plain flavored object descriptions": a
+    separate option for them has been added under "Zangband Options".
+
+Show weights in object lists    [show_weights]
+    Display the weights of objects in the "inventory" and "equipment"
+    lists, and in "stores", and in any "special" window which is
+    displaying any of these lists.
+
+Plain object descriptions    [plain_descriptions]
+    In Zangband, this option disables "full" names for identified
+    'flavored' objects, in other words, if this option is not in use,
+    an identified Potion of Speed could be listed (for example) as a
+    Blue Potion of Speed. If you prefer simpler, less verbose
+    descriptions, set this option.
+
+Use color if possible (slow)    [use_color]
+    This option enables the software support for "color". Since this
+    makes the game slower, you should always disable this option if you
+    are using a machine which is not capable of using color.
+
 Use special colors for torch-lit grids    [view_yellow_lite]
     This option causes special colors to be used for "torch-lit" grids
     in certain situations (see the entries for"view_granite_lite" and
@@ -394,157 +455,53 @@ Use special colors for floor grids (slow)    [view_special_lite]
     sight, we use "gray", otherwise we use the normal "white". Turning
     this option off will probably increase the speed of the game.
 
+Hilite the player with the cursor    [hilite_player]
+    Place the visible cursor on the player. This looks fine on some
+    Unix machines, but horrible on most graphics machines. Note that
+    only some machines are able to *not* show the cursor, but on those
+    machines, hiding the cursor often speeds up the game and looks
+    better.
+    
+Always center on the player   [center_player]
+    Scrolls the map with each move the player makes so as to keep the
+    player at the center of the map.  This reduces the chance of the
+    player being hit by an offscreen breath.
 
-***** <Zangband>
-=== Zangband Options ===
-
-All features which are typical to Zangband (i.e. which are not in
-vanilla Angband) are collected in this menu (except for the Autosave
-options).
-
-Disturb whenever random things happen    [disturb_other]
-    In Zangband, uncursed teleporting items may teleport you around
-    sometimes, asking for your confirmation (and possibly disturbing
-    your rest). If you unset this option, they will stop asking you
-    and teleporting you randomly. Cursed items will neither ask for
-    confirmation nor stop teleporting you even if this option is
-    unset.
-
-Get last words when the character dies  [last_words]
-    Display a random line from the "death.txt" file when your character 
-    dies. If this option is not selected, the "You die." message is
-    displayed instead.
-
-Allow shopkeepers and uniques to speak  [speak_unique]
-    If this option is in use, shopkeepers may sometimes whisper rumours
-    to you. Also certain monsters start boasting as they attack you,
-    and, when they die, they say their 'last words'. A speaking monster
-    may also (if the option is selected) be wanted by the law, in which
-    case you get the reward if you kill it.
-
-Allow unusually small dungeon levels    [small_levels]
-    This option enables the creation of levels of varying sizes. Levels
-    that are as small as the town level (i.e. 1 'screen') are possible,
-    yet they can be dangerous, especially for a low level character.
-    Note that this option has the side effect of enabling / disabling
-    'destroyed' levels (they are enabled if small levels are).
-
-Always create unusually small dungeon levels    [always_small_levels]
-    If this option is enabled, then every level will be smaller than
-    usual. See the 'Allow unusually small dungeon levels' option above.
-
-Allow empty 'arena' levels      [empty_levels]
-    Normal dungeon levels consist mostly of rock. If this option is in
-    use, levels which have empty floor instead of solid rock may  also 
-    be created (somewhat remniscent of Nethack's "big-room" levels). 
-    These levels can be extremely deadly, especially with breathing
-    monsters (since there are few obstructions to shield). Arena levels
-    may have vaults, nests and pits in them like normal levels. Some
-    arena levels are dark when they are created, but most are lit.
-
-Use special symbols for the player char [player_symbols]
-    If this option has been compiled in, it allows you to display your
-    character using race / class / sex dependent colours and graphical
-    symbols. Note that the support for this option may not have been
-    compiled in on all platforms.
-
-Display 'equippy' chars     [equippy_chars]
-    This option will show you a graphical representation of your worn
-    equipment on the main screen.  The 'equippy' chars will use the
-    standard symbols of the respective items.
-
-Skip mutations in 'C'haracer Display    [skip_mutations]
-    Normally, if your character has gained mutations, they will be
-    displayed in an extra 'h' mode window under the 'C'haracter
-    Description command. Some players may wish to view mutations only
-    via the knowledge command ('~' or '|') and do not want any extra
-    screens in the Character Description: they should set this option.
-
-Plain object descriptions    [plain_descriptions]
-    In Zangband, this option disables "full" names for identified
-    'flavored' objects, in other words, if this option is not in use,
-    an identified Potion of Speed could be listed (for example) as a
-    Blue Potion of Speed. If you prefer simpler, less verbose
-    descriptions, set this option.
-
-Monsters behave stupidly    [stupid_monsters]
-    Zangband 2.1.0 incorporates Keldon Jones' improved monster
-    Artificial Intelligence patch. While this patch most certainly
-    makes monsters behave more realistically, they will also be more
-    deadly with the improved AI. If you are a sissy, set this option to
-    get the old, really stupid monster AI.
-    Note that the new AI is a bit processing power expensive. If you
-    have an old computer (386sx) and Zangband is running too slowly,
-    you could try turning stupid_monsters on. Or buying that Pentium II
-    so you can run Zangband. :-)
-
-No query to destroy known worthless items    [auto_destroy]
-    It can sometimes be annoying that the Destroy command asks for
-    confirmation when you are attempting to destroy a Broken sword
-    {cursed}. If this option is set, no confirmation will be asked if
-    you attempt to destroy an object which you know to be worthless. Of
-    course, cursed artifacts cannot be destroyed even if this option is
-    set.
-
-Confirm to wear/wield known cursed items    [confirm_wear]
-    Some players may occasionally, due to a typing mistake, find
-    themselves wearing an item which they knew was cursed. If this
-    option is set, you should be safe from such typing mistakes: you
-    will be prompted if you attempt to wear or wield an item if your
-    character knows it is cursed.
-
-Prompt before exiting a dungeon level    [confirm_stairs]
-    Some players (such as myself) often accidentally press the '<' key
-    and exit a Special feeling level. If this option is set, the
-    program asks for confirmation before you go up or down the stairs.
-    Others may find the prompt annoying, they should of course not set
-    this option. :-)
-
-Disturb when visible pets move    [disturb_pets]
-    The player may wish that some of the disturbance options do not
-    apply to pets: for example, it can be annoying if your rest is
-    always disturbed by a pet dog who pops in every now and then. By
-    default, pets do not disturb you even if full monster disturbance
-    options are set. If you want your pets to disturb you like normal
-    monsters, set this option.
-
-Automatically open doors   [easy_open]
-    Makes it easy for your character to open a door: simply by walking
-    into it! Also the open command will automatically select one
-    direction if only one door is near you.
-
-Automatically disarm traps   [easy_disarm]
-    Makes it easy for your character disarm a trap: simply by walking into
-    it! Also the disarm command will automatically select one direction
-    if only one known trap is near you.
-
-Display floor stacks in lists   [easy_floor]
-    Lets you select an item from a stack on the floor by browsing a
-    list, Also floor stack are described as "You see a stack of n
-    items.", when there is more than one item on a floor grid.
-
-Allow unified use command   [use_command]
-    Unifies the item commands like "zap a rod", "use a staff", "eat
-    food", "aim a wand", ... into a general "use object" command. The
-    command in the original keymap is "u", and "a" in the roguelike
-    mode. The standard commands for eat, quaff, read, zap, aim, ... are
-    still available, but can be used for macros.
+Avoid centering while running   [avoid_center]
+    Turns off the player centering option when running.
 
 
-***** <Stacking>
-=== Stacking Options ===
+*****<AI>
+=== Artificial Intelligence Options ===
 
-Allow objects to stack on the floor   [testing_stack]
-    Allows a cave grid to hold more than one object (or one kind of
-    object).
+Monsters chase current location (v.slow)    [flow_by_sound]
+    Allow monsters to make paths to the player when they are nearby.
+    This option is extremely slow, but can produce viciously smart
+    monsters.
+    
+Monsters chase recent locations (v.slow)    [flow_by_smell]
+    As above, but also allow monsters to take advantage of "old" trails
+    that you may have left in the dungeon.
 
-Allow monsters to carry objects    [testing_carry]
-    If this option is set, monsters which "pick up" objects will drop
-    the objects they were carrying when you kill them. Note that
-    monsters which "crush" objects are not affected by this option.
+Monsters learn from their mistakes    [smart_learn]
+    Allow monsters to learn what spell attacks you are resistant to,
+    and to use this information to choose the best attacks.
+    
+Monsters exploit players weaknesses    [smart_cheat]
+    Allow monsters to know what spell attacks you are resistant to,
+    and to use this information to choose the best attacks.
 
 
-***** <BaseDealy>
+*****<Testing>
+=== Testing Options ===
+
+Auto-destroy known worthless items    [destroy_worthless]
+    Known objects worth zero (or less than zero) gold coins will be
+    automatically destroyed as the player walks over them. This takes
+    no energy.
+
+
+***** <BaseDelay>
 === Base Delay Factor ===
 
 The "delay_factor" value, if non-zero, is used to "slow down" the game,
@@ -639,12 +596,16 @@ Use 'vanilla' town without quests and wilderness   [vanilla_town]
     still use the random quests). This also speeds up the game on
     slower machines, since the wilderness doesn't need to be created.
 
-Use 'lite' town without a wilderness   [lite_town]
-    Uses a special town with all stores, your home, all buildings,
-    and most quests, but without the wilderness and without other
-    towns. This also speeds up the game on slower machines, since the
-    wilderness doesn't need to be created. This option will have no
-    effect, if the 'vanilla_town' option is active.
+Monsters behave stupidly    [stupid_monsters]
+    Zangband 2.1.0 incorporates Keldon Jones' improved monster
+    Artificial Intelligence patch. While this patch most certainly
+    makes monsters behave more realistically, they will also be more
+    deadly with the improved AI. If you are a sissy, set this option to
+    get the old, really stupid monster AI.
+    Note that the new AI is a bit processing power expensive. If you
+    have an old computer (386sx) and Zangband is running too slowly,
+    you could try turning stupid_monsters on. Or buying that Pentium II
+    so you can run Zangband. :-)
 
 Stores are permanently closed   [ironman_shops]
     This option closes all shops. Try to survive in the deeps of
@@ -675,8 +636,37 @@ Quest monsters get reinforcements   [ironman_hard_quests]
     If you leave the level while some quest monsters are still alive,
     then all killed quest monsters are revived on your next visit.
 
+Always create empty 'arena' levels   [ironman_empty_levels]
+    If this option is enabled, then every level will be an arena level.
+    See the 'Allow empty 'arena' levels' option above.
 
-Preserve Mode
+Create terrain 'streamers' in the dungeon   [terrain_streams]
+    Allows the creation of terrain streamers in the dungeon. This
+    allows the creation of 'lakes' and 'rivers' of water, lava and
+    trees.
+
+Ask for saving death   [munchkin_death]
+    If your character dies and this option is enabled, you will be
+    asked if you will be given the opportunity to avoid dying.
+    Enabling this option will prevent your character's score from being
+    entered into the high-score table and is considered cheating.
+
+Always generate very unusual rooms   [ironman_rooms]
+    Forces the game to always generate intersting rooms such as pits,
+    nests and vaults. You will consequently find lots of out-of-depth
+    items and monsters.
+
+Nightmare mode   [ironman_nightmare]
+    It isn't even remotely fair - don't say we didn't warn you!
+
+Maximize stats   [maximize_mode]
+    The "maximize" flag, if set when the character was created, causes
+    the "race" and "class" stat bonuses to be applied as "equipment"
+    bonuses. This usually makes the character harder at the beginning
+    of the game, but easier later on, since the stats are no longer
+    limited to a "natural" value of "18/100".
+
+Preserve artifacts  [preserve_mode]
     The "preserve" flag, if set when the character was created, cancels
     all level feelings of the "special" variety, but allows "missed"
     artifacts to be "saved" by wandering monsters and found again at a
@@ -684,16 +674,21 @@ Preserve Mode
     that would have caused a 'special' feeling contributes to the level
     feeling that your character receives instead.
 
-Maximize Mode
-    The "maximize" flag, if set when the character was created, causes
-    the "race" and "class" stat bonuses to be applied as "equipment"
-    bonuses. This usually makes the character harder at the beginning
-    of the game, but easier later on, since the stats are no longer
-    limited to a "natural" value of "18/100".
+Specify 'minimal' stats   [autoroller]
+    Allows you to make use of the autoroller.
+
+Generate character using a point system   [point_based]
+    Allows you to specify your character's starting statistics using a
+    point-based allocation system. You start with a certain number of
+    points which may be allocted to your different statistics. As your
+    stats increase, it takes more points to increase them further. If
+    you do not use all your points, you will be rewarded with gold
+    coins.
+
 
 --
 Original   : Ben Harrison
 Updated    : Zangband 2.1.* by Topi Ylinen
 Updated    : Zangband 2.2.0 through 2.2.6c by Robert Ruehlmann
 Updated    : Zangband DevTeam
-Last update: January 13, 2000
+Last update: May 26, 2000

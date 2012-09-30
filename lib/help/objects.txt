@@ -159,6 +159,9 @@ to these prayers in their effect. It is also possible that in the
 course of enchanting an item you may lift a curse as a side-effect the
 enchanting process although this is not guaranteed to happen.
 
+Note: that items which can be activated (such as Dragon Scale Mail or
+some artifacts) become more difficult to activate when they are cursed.
+
 --- The Curses ---
 
 There are several different types of curse and more than one may be
@@ -371,7 +374,6 @@ this behavior is only exhibited once you have identified the artifact.
 It is therefor safer to leave a level before it is completely explored
 as any fixed artifact can be regenerated in subsequent levels.
 
-
 --- Special feelings ---
 
 If you have stayed on the previous level long enough, on entering a
@@ -389,7 +391,6 @@ Note: In non-preserve mode, you can still find artifacts on
 levels that did not give a special feeling but these will always
 be the result of a monster dropping them.
 
-
 --- The '~' Command ---
 
 By pressing '~' and choosing the option for artifacts, you can see
@@ -399,6 +400,17 @@ random) artifacts you have missed. However, in this case, it will
 show nothing about fixed artifacts on the current dungeon level but
 not yet found and as a result is often best used on the town level.
 
+--- Random Artifacts ---
+
+In addition to the standard artifacts which are potentially available
+in every game. Zangband will also occasionally generate a 'random'
+artifact. Any weapon or piece of armor as well Amulets of the Magi and
+Rings of Lordly Protection have a chance of becoming a random artifact.
+
+Note that random artifacts can be both good and bad and of greatly
+varying quality. Unlike standard artifacts, the in-game spoilers will
+not contain details of their special powers and so you must *identify*
+if you wish to ascertain this information.
 
 ***** <RandomAbilities>
 === Random Abilities of Objects ===
@@ -458,20 +470,142 @@ Extra Powers
 
 You may "inscribe" any object with a textual inscription of your
 choice. These inscriptions are not limited in length, though you may
-not be able to see the whole inscription on the item. The game applies
-special meaning to inscriptions containing any text of the form "@#" or
-"@x#" or "!x" or "!*" (see command.txt#ObjectSelection [8]) .
+not be able to see the whole inscription on the item. The inscription
+is displayed inside curly braces after the object description. The
+inscription is limited to the particular object (or pile) and is not
+automatically transferred to all similar objects. (You should review
+the effect of the two options for merging inscriptions to see how
+this can be done).
 
-The game provides some "fake" inscriptions to help you keep track of
-your possessions. Wands and staves which are known to be empty will be
-inscribed with "empty". Objects which have been tried at least once but
-haven't been identified yet will be inscribed with "tried". Cursed
-objects are inscribed with "cursed". Broken objects may be inscribed
-with "broken". Also, any item which was purchased at a discount,
+The game provides some inscriptions automatically to help you keep
+track of your possessions. Wands and staves which are known to be empty
+will be inscribed with {empty}. Flavored objects which have been tried
+at least once but haven't been identified yet will be inscribed with
+{tried}. Known cursed objects are inscribed with {cursed} (or
+{uncursed} if they have been uncursed). Broken objects may be inscribed
+with {broken}. Also, any item which was purchased at a discount,
 implying that it is slightly "sub-standard", will be inscribed with the
-appropriate "discount", such as "25% off". Note that these inscriptions
-are fake, and cannot be removed, though they can be covered up by a
-real inscription if you so desire. Try "_" as a nice short one.
+appropriate "discount", such as {25% off}. 
+
+In addition, Zangband will occasionally place an inscription on an
+object for you, normally as the result of your character getting a
+"feeling" about the item indicating its quality. All characters will
+get "feelings" about weapons and armor after carrying them for a while.
+
+Automatically generated inscriptions fall into two categories - "real"
+and "fake".  The difference between the two is that "fake" inscriptions
+can not be removed (although they can be covered up by another
+inscription). For example, the discount inscription is fake and can not
+be removed.
+
+--- Making use of Inscriptions ---
+
+Some players use the inscription feature to record useful and/or
+interesting facts about an object such as where and how it was acquired
+or what its abilities and powers are. However, in addition to this,
+inscriptions can be used in far more powerful ways. Many comands in
+Zangband require you to specify an object from your inventory such as
+which potion you wish to 'q'uaff or which staff you wish to 'u'se. 
+Inscriptions offer a powerful way of managing this and provide a useful
+labor saving tool.
+
+The {@x#} Inscription
+---------------------
+The {@x#} inscription (where 'x' is the key to activate a specfic
+command and '#' is a number from 0 to 9) is, perhaps the most commonly
+used inscription. When you select command 'x', followed by a number
+'#', the game searches for an object with the inscription {@x#} and
+performs that command upon it. Thus if the player inscribes a Potion of
+Healing as {@q1}, then pressing 'q1' will quaff it automatically. This
+feature is useful because as items are added or removed from your
+inventory, the actual slot that they are in changes. However, the
+inscription will work regardless of the position.
+
+Note that you can inscribe multiple different objects with the same
+inscription {@x#}. If you do so, the command 'x#' will act on the first
+appropriately inscribed object in your inventory list and not on each
+of them.
+
+Also note that you can place multiple such inscriptions on a single
+object. So that a spell book might be inscribed {@m1@b1@G1} since the
+cast spell, browse book, and gain spell commands each require a spell
+book reference as an argument. You can also inscribe the same command
+more than one so that food item might be inscribed {@E@1E2}
+
+Example 1:
+    You have a primary weapon and a shovel. You normally use the
+    weapon but want to use the shovel for mining treasure. Inscribe
+    your primary weapon with {@w0} and your shovel with {@w1}. Then,
+    when you want to wield your shovel, you can press 'w1' and to
+    re-wield your sword you can press 'w0' regardless of where in the
+    inventory they are located at the time.
+
+    Note: you can also inscribe both weapons with {@w0} and just press
+    'w0' whenever you want to exchange weapon and shovel.
+
+Example 2:
+    To cast the first spell from your first spell book, you would
+    normally type 'maa' and to cast the fisrt spell from the second
+    book, you would type 'mba'. However, if your first book is stolen
+    or destroyed, pressing 'mba' would no longer cast the spell you
+    wanted. This often leads to people people to cast spells
+    incorrectly. Instead inscribe your first spell book with {@m1},
+    your second with {@m2}, etc. Cast spells by typing 'm1a', 'm2a',
+    etc. Even if your other spell books are lost, you will never need
+    to worry about casting the wrong spell.
+
+Example 3:
+    You are carrying some Rations of Food and some Elvish Waybread.
+    You wish to use up the Rations first before eating the Waybread,
+    but also want to be able to use the healing/curing properties of
+    the Waybread in an emergency. You would inscribe the Rations with
+    {@E1} and the Waybread with {@E1@E2}. Since the Rations appear
+    before the Waybread on the inventory listing, typing 'E1' will
+    ensure you eat all the Rations first before touching the Waybread
+    but that you only ever have to press E1 to eat. But, pressing 'E2'
+    will bypass the Rations and jump to the Waybread. Some players also
+    do similar things with cure and healing potions.
+
+The {@#} Inscription
+---------------------
+The {@#} inscription (where '#' is a number from 0 to 9) is similar
+to the {@x#} inscription except that it works for any command. Thus, if
+you engrave both your digging instrument and your primary weapon with
+{@0}, pressing 'w0' will wield whichever one is not being currently
+wielded. However, if you had also inscribed a potion with {@0}, you
+would instead get an error message because the potion appears first in
+the inventory and you can not wield potions.
+
+The {!x} Inscription
+--------------------
+The {!x} inscription (where 'x' is the key to activate a specfic
+command) will induce "verification" whenever that object is "selected".
+Thus, inscribing {!v!k!d} on an object will greatly reduce the odds of
+you "losing" it by accident. This is because any attempt to throw it
+('f'), destroy it ('k') or drop it ('d') will prompt Zangband to verify
+whether or not you really wish to take that action.  
+
+Note that inscribing {!*} on an object will prompt Zangband to verify
+any action thus you allowing you to be very paranoid about the object.
+Also note that "selling" and "dropping" both use the "d" command so
+that inscribing an item with {!d} will also prevent you from selling it
+by accident.
+
+The {^x} Inscription
+--------------------
+The {^x} inscription (where 'x' is the key to activate a specific
+command) will induce verification before taking that action. One
+common example of its usage is to inscribe boots with {^<^>} which will
+verify the user's command to leave the level via the staircases before
+actually doing so.
+
+The {=g} Inscription
+--------------------
+The {=g} inscription on an object prompts Zangband to automatically
+pick it up. This instruction overrides any auto-pickup options chosen
+chosen by the player (if necessary). The primary prupose is to allow
+easy retrieval of missiles such as arrows and bolts once they have been
+fired at a target.
 
 
 ***** <ObjectTypes>
@@ -618,7 +752,7 @@ Light Sources ('~')
 Original   : (??)
 Updated    : (??)
 Updated    : Zangband DevTeam
-Last update: February 2, 2000
+Last update: June 2, 2000
 
 ***** Begin Hyperlinks
 ***** [1] option.txt#UserInterface
@@ -628,4 +762,3 @@ Last update: February 2, 2000
 ***** [5] objects.txt#Identifying
 ***** [6] attack.txt#EgoArtifact
 ***** [7] defend.txt#EgoArtifact
-***** [8] command.txt#ObjectSelection

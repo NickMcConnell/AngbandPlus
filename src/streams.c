@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/07/19 13:51:09 $
+/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/05/30 10:58:12 $
  *
  * File: streams.c
  * Purpose: Used by dungeon generation. This file holds all the
@@ -29,7 +29,7 @@ static void recursive_river(int x1, int y1, int x2, int y2, int feat1, int feat2
 	int changex, changey;
 	int ty, tx;
 	bool done;
-
+	cave_type *c_ptr;
 
 	length = distance(x1, y1, x2, y2);
 
@@ -82,7 +82,7 @@ static void recursive_river(int x1, int y1, int x2, int y2, int feat1, int feat2
 	}
 	else
 	{
-		/*Actually build the river*/
+		/* Actually build the river */
 		for (l = 0; l < length; l++)
 		{
 			x = x1 + l * (x2 - x1) / length;
@@ -98,31 +98,33 @@ static void recursive_river(int x1, int y1, int x2, int y2, int feat1, int feat2
 					{
 						if (!in_bounds(ty, tx)) continue;
 
-						if (cave[ty][tx].feat == feat1) continue;
-						if (cave[ty][tx].feat == feat2) continue;
+						c_ptr = &cave[ty][tx];
+
+						if (c_ptr->feat == feat1) continue;
+						if (c_ptr->feat == feat2) continue;
 
 						if (distance(ty, tx, y, x) > rand_spread(width, 1)) continue;
 
 						/* Do not convert permanent features */
-						if (cave_perma_bold(ty, tx)) continue;
+						if (cave_perma_grid(c_ptr)) continue;
 
 						/*
 						 * Clear previous contents, add feature
 						 * The border mainly gets feat2, while the center gets feat1
 						 */
 						if (distance(ty, tx, y, x) > width)
-							cave[ty][tx].feat = feat2;
+							c_ptr->feat = feat2;
 						else
-							cave[ty][tx].feat = feat1;
+							c_ptr->feat = feat1;
 
 						/* Lava terrain glows */
 						if ((feat1 == FEAT_DEEP_LAVA) ||  (feat1 == FEAT_SHAL_LAVA))
 						{
-							cave[ty][tx].info |= CAVE_GLOW;
+							c_ptr->info |= CAVE_GLOW;
 						}
 
 						/* Hack -- don't teleport here */
-						cave[ty][tx].info |= CAVE_ICKY;
+						c_ptr->info |= CAVE_ICKY;
 					}
 				}
 
@@ -276,18 +278,22 @@ void build_streamer(int feat, int chance)
 void place_trees(int x, int y)
 {
 	int i, j;
+	cave_type *c_ptr;
 
-	/* place trees/ rubble in ovalish distribution*/
+	/* place trees/ rubble in ovalish distribution */
 	for (i = x - 3; i < x + 4; i++)
 	{
 		for (j = y - 3; j < y + 4; j++)
 		{
-			/* Want square to be in the circle and accessable.*/
-			if (in_bounds(j, i) && (distance(j, i, y, x) < 4) && !cave_perma_bold(j, i))
+			c_ptr = &cave[j][i];
+
+			/* Want square to be in the circle and accessable. */
+			if (in_bounds(j, i) && (distance(j, i, y, x) < 4) && !cave_perma_grid(c_ptr))
 			{
 				/*
 				 * Clear previous contents, add feature
-				 * The border mainly gets trees, while the center gets rubble */
+				 * The border mainly gets trees, while the center gets rubble
+				 */
 				if ((distance(j, i, y, x) > 1) || (randint(100) < 25))
 				{
 					if (randint(100) < 75)
@@ -349,14 +355,14 @@ void destroy_level(void)
 				/* Delete the monster (if any) */
 				delete_monster(y, x);
 
+				/* Access the grid */
+				c_ptr = &cave[y][x];
+
 				/* Destroy valid grids */
-				if (cave_valid_bold(y, x))
+				if (cave_valid_grid(c_ptr))
 				{
 					/* Delete objects */
 					delete_object(y, x);
-
-					/* Access the grid */
-					c_ptr = &cave[y][x];
 
 					/* Wall (or floor) type */
 					t = rand_int(200);

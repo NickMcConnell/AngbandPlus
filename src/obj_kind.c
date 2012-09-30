@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: sfuerst $ on $Date: 1999/12/31 00:31:35 $ */
+/* CVS: Last edit by $Author: rr9 $ on $Date: 2000/05/25 12:14:51 $ */
 /* File: obj_kind.c */
 
 /* Purpose: Code for the object templates */
@@ -80,7 +80,7 @@ object_kind *k_info_add(object_kind *k_info_entry)
 		if (!k_info) quit("Out of memory!");
 
 		/* Wipe the new memory */
-		(void) C_WIPE(&k_info[(k_info_size - K_INFO_RESIZE)], K_INFO_RESIZE, object_kind);
+		(void)C_WIPE(&k_info[(k_info_size - K_INFO_RESIZE)], K_INFO_RESIZE, object_kind);
 	}
 
 	/* Increase the maximum index of the array */
@@ -109,10 +109,10 @@ errr init_object_alloc(void)
 	/*** Analyze object allocation info ***/
 
 	/* Clear the "aux" array */
-	(void) C_WIPE(&aux, MAX_DEPTH, s16b);
+	(void)C_WIPE(&aux, MAX_DEPTH, s16b);
 
 	/* Clear the "num" array */
-	(void) C_WIPE(&num, MAX_DEPTH, s16b);
+	(void)C_WIPE(&num, MAX_DEPTH, s16b);
 
 	/* Free the old "alloc_kind_table" (if it exists) */
 	if (alloc_kind_table)

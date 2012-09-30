@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/07/19 13:50:53 $ */
+/* CVS: Last edit by $Author: rr9 $ on $Date: 2000/05/25 12:14:53 $ */
 /* File: scores.c */
 
 /* Purpose: Highscores handling */
@@ -223,14 +223,6 @@ void display_scores_aux(int from, int to, int note, high_score *score)
 			for (gold = the_score.gold; isspace(*gold); gold++) /* loop */;
 			for (aged = the_score.turns; isspace(*aged); aged++) /* loop */;
 
-			/* Clean up standard encoded form of "when" */
-			if ((*when == '@') && strlen(when) == 9)
-			{
-				sprintf(tmp_val, "%.4s-%.2s-%.2s",
-				        when + 1, when + 5, when + 7);
-				when = tmp_val;
-			}
-
 			/* Dump some info */
 			sprintf(out_val, "%3d.%9s  %s the %s %s, Level %d",
 			        place, the_score.pts, the_score.who,
@@ -338,7 +330,7 @@ errr top_twenty(void)
 #ifndef HIGHSCORE_DATE_HACK
 	char long_day[12];
 #endif
-	
+
 	time_t ct = time((time_t*)0);
 
 
@@ -406,7 +398,7 @@ errr top_twenty(void)
 
 
 	/* Clear the record */
-	(void) WIPE(&the_score, high_score);
+	(void)WIPE(&the_score, high_score);
 
 	/* Save the version */
 	sprintf(the_score.what, "%u.%u.%u",

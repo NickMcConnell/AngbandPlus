@@ -133,36 +133,6 @@ typedef struct AngbandClassRec *AngbandWidgetClass;
 typedef struct AngbandClassPart AngbandClassPart;
 typedef struct AngbandClassRec AngbandClassRec;
 
-typedef struct term_data term_data;
-
-
-/*
- * A structure for each "term"
- */
-struct term_data
-{
-	term t;
-
-	AngbandWidget widget;
-};
-
-
-/*
- * Maximum number of windows
- */
-#define MAX_TERM_DATA 8
-
-
-/*
- * An array of term_data's
- */
-static term_data data[MAX_TERM_DATA];
-
-
-/*
- * Current number of windows open
- */	
-static int num_term = MAX_TERM_DATA;
 
 /*
  * New fields for the Angband widget record
@@ -669,58 +639,12 @@ static void Destroy(AngbandWidget widget)
  * Procedure Redisplay() is called as the result of an Expose event.
  * Use the redraw callback to do a full redraw
  */
-static void Redisplay(AngbandWidget widget, XEvent *xev, Region region)
+static void Redisplay(AngbandWidget widget, XEvent *event, Region region)
 {
-	int x1, x2, y1, y2;
-	
-	int i;
-	
-	term_data *old_td = (term_data*)(Term->data);
-	term_data *td = &data[0];
-
-	/* Hack - Find the term to activate */
-	for (i = 0; i < num_term; i++)
-	{
-		td = &data[i];
-
-		/* Have we found it? */
-		if (td->widget == widget) break;
-		
-		/* Paranoia:  none of the widgets matched */ 
-		if (!td) return;
-	}
-
-	/* Activate the proper Term */
-	Term_activate(&td->t);
-	
-	/* Find the bounds of the exposed region */
-	
-	/* 
-	 * This probably could be obtained from the Region parameter -
-	 * but I don't know anything about XAW.
-	 */
-	x1 = (xev->xexpose.x - widget->angband.internal_border)
-		/widget->angband.fontwidth;
-	x2 = (xev->xexpose.x + xev->xexpose.width - 
-		widget->angband.internal_border)/widget->angband.fontwidth;
-			
-	y1 = (xev->xexpose.y - widget->angband.internal_border)
-		/widget->angband.fontheight;
-	y2 = (xev->xexpose.y + xev->xexpose.height - 
-		widget->angband.internal_border)/widget->angband.fontheight;
-			
-	Term_redraw_section(x1, y1, x2, y2);
-	
-	/* Activate the old term */
-	Term_activate(&old_td->t);
-	
-	
-#if 0	
 	if (XtHasCallbacks((Widget)widget, XtNredrawCallback) == XtCallbackHasSome)
 	{
 		XtCallCallbacks((Widget)widget, XtNredrawCallback, NULL);
 	}
-#endif /* 0 */
 }
 
 
@@ -908,6 +832,10 @@ static XFontStruct *getFont(AngbandWidget widget,
 
 
 
+/*
+ * Maximum number of windows
+ */
+#define MAX_TERM_DATA 8
 
 
 /*
@@ -916,6 +844,33 @@ static XFontStruct *getFont(AngbandWidget widget,
 #define TERM_FALLBACKS 6
 
 
+/*
+ * Forward declare
+ */
+typedef struct term_data term_data;
+
+
+/*
+ * A structure for each "term"
+ */
+struct term_data
+{
+	term t;
+
+	AngbandWidget widget;
+};
+
+
+/*
+ * An array of term_data's
+ */
+static term_data data[MAX_TERM_DATA];
+
+
+/*
+ * Current number of windows open
+ */	
+static int num_term = MAX_TERM_DATA;
 
 /*
  * The names of the term_data's
@@ -1502,13 +1457,11 @@ errr init_xaw(int argc, char *argv[])
 			continue;
 		}
 
-#ifdef USE_GRAPHICS
 		if (prefix(argv[i], "-s"))
 		{
 			smoothRescaling = FALSE;
 			continue;
 		}
-#endif /* USE_GRAPHICS */
 
 		if (prefix(argv[i], "-n"))
 		{
