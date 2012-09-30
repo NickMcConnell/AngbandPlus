@@ -1,6 +1,6 @@
 /*
 ** Lua binding: quest
-** Generated automatically by tolua 4.0a - angband on Sun Apr 28 23:13:51 2002.
+** Generated automatically by tolua 4.0a - angband on Sun Jul 14 14:33:12 2002.
 */
 
 #include "lua/tolua.h"
@@ -39,6 +39,26 @@ static int toluaI_set_quest_quest_type_silent(lua_State* tolua_S)
  if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
  TOLUA_ERR_ASSIGN;
   self->silent = ((bool)  tolua_getnumber(tolua_S,2,0));
+ return 0;
+}
+
+/* get function: dynamic_desc of class  quest_type */
+static int toluaI_get_quest_quest_type_dynamic_desc(lua_State* tolua_S)
+{
+  quest_type* self = (quest_type*)  tolua_getusertype(tolua_S,1,0);
+ if (!self) TOLUA_ERR_SELF;
+ tolua_pushnumber(tolua_S,(long)self->dynamic_desc);
+ return 1;
+}
+
+/* set function: dynamic_desc of class  quest_type */
+static int toluaI_set_quest_quest_type_dynamic_desc(lua_State* tolua_S)
+{
+  quest_type* self = (quest_type*)  tolua_getusertype(tolua_S,1,0);
+ if (!self) TOLUA_ERR_SELF;
+ if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
+ TOLUA_ERR_ASSIGN;
+  self->dynamic_desc = ((bool)  tolua_getnumber(tolua_S,2,0));
  return 0;
 }
 
@@ -213,6 +233,28 @@ tolua_lerror:
  return 0;
 }
 
+/* function: lua_get_new_bounty_monster */
+static int toluaI_quest_get_new_bounty_monster00(lua_State* tolua_S)
+{
+ if (
+ !tolua_istype(tolua_S,1,LUA_TNUMBER,0) ||
+ !tolua_isnoobj(tolua_S,2)
+ )
+ goto tolua_lerror;
+ else
+ {
+  int lev = ((int)  tolua_getnumber(tolua_S,1,0));
+ {
+  int toluaI_ret = (int)  lua_get_new_bounty_monster(lev);
+ tolua_pushnumber(tolua_S,(long)toluaI_ret);
+ }
+ }
+ return 1;
+tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'get_new_bounty_monster'.");
+ return 0;
+}
+
 /* Open function */
 int tolua_quest_open (lua_State* tolua_S)
 {
@@ -228,6 +270,7 @@ int tolua_quest_open (lua_State* tolua_S)
  tolua_constant(tolua_S,NULL,"QUEST_STATUS_FAILED_DONE",QUEST_STATUS_FAILED_DONE);
  tolua_cclass(tolua_S,"quest_type","");
  tolua_tablevar(tolua_S,"quest_type","silent",toluaI_get_quest_quest_type_silent,toluaI_set_quest_quest_type_silent);
+ tolua_tablevar(tolua_S,"quest_type","dynamic_desc",toluaI_get_quest_quest_type_dynamic_desc,toluaI_set_quest_quest_type_dynamic_desc);
  tolua_tablevar(tolua_S,"quest_type","status",toluaI_get_quest_quest_type_status,toluaI_set_quest_quest_type_status);
  tolua_tablevar(tolua_S,"quest_type","level",toluaI_get_quest_quest_type_level,toluaI_set_quest_quest_type_level);
  tolua_tablevar(tolua_S,"quest_type","type",toluaI_get_quest_quest_type_type,toluaI_set_quest_quest_type_type);
@@ -236,6 +279,7 @@ int tolua_quest_open (lua_State* tolua_S)
  tolua_function(tolua_S,NULL,"quest",toluaI_quest_quest00);
  tolua_function(tolua_S,NULL,"new_quest",toluaI_quest_new_quest00);
  tolua_function(tolua_S,NULL,"quest_desc",toluaI_quest_quest_desc00);
+ tolua_function(tolua_S,NULL,"get_new_bounty_monster",toluaI_quest_get_new_bounty_monster00);
  return 1;
 }
 /* Close function */
@@ -257,4 +301,5 @@ void tolua_quest_close (lua_State* tolua_S)
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"quest");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"new_quest");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"quest_desc");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"get_new_bounty_monster");
 }

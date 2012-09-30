@@ -2,7 +2,7 @@
 
 /* Purpose: Status information */
 
-/* Written by Pat Gunn <qc@apk.net> for T.o.M.E.
+/* Written by Pat Gunn <qc@apk.net> for ToME
  * This file is released into the public domain
  */ 
 
@@ -42,28 +42,28 @@ void az_line(int, u32b[INVEN_TOTAL - INVEN_WIELD +2][7]);
 
 void status_attr(void)
 {
-        u32b flag_arr[INVEN_TOTAL- INVEN_WIELD +2][7];
-        int yo=0;
-        char c;
+	u32b flag_arr[INVEN_TOTAL- INVEN_WIELD +2][7];
+	int yo=0;
+	char c;
 
-        clear_from(0);
-        c_put_str(TERM_L_BLUE, "Statistics", yo++,1);
-        yo+=2;
-        az_line(SL_LENGTH,flag_arr);
-        statline("Str", A_STR, TR1_STR, yo++, flag_arr);
-        statline("Int", A_INT, TR1_INT, yo++, flag_arr);
-        statline("Wis", A_INT, TR1_WIS, yo++, flag_arr);
-        statline("Con", A_CON, TR1_CON, yo++, flag_arr);
-        statline("Dex", A_DEX, TR1_DEX, yo++, flag_arr);
-        statline("Chr", A_CHR, TR1_CHR, yo++, flag_arr);
+	clear_from(0);
+	c_put_str(TERM_L_BLUE, "Statistics", yo++,1);
+	yo+=2;
+	az_line(SL_LENGTH,flag_arr);
+	statline("Str", A_STR, TR1_STR, yo++, flag_arr);
+	statline("Int", A_INT, TR1_INT, yo++, flag_arr);
+	statline("Wis", A_INT, TR1_WIS, yo++, flag_arr);
+	statline("Con", A_CON, TR1_CON, yo++, flag_arr);
+	statline("Dex", A_DEX, TR1_DEX, yo++, flag_arr);
+	statline("Chr", A_CHR, TR1_CHR, yo++, flag_arr);
 
 
-        c_put_str(TERM_WHITE, "Press ESC to continue", 23, 0);
-        Term_fresh();
-        while(1)
+	c_put_str(TERM_WHITE, "Press ESC to continue", 23, 0);
+	Term_fresh();
+	while(1)
 	{
-                c = inkey();
-                if(c == ESCAPE) break;
+		c = inkey();
+		if(c == ESCAPE) break;
 	}
 }
 
@@ -287,14 +287,14 @@ Term_save();
 while(1)
 	{
 	clear_from(0);
-        c_put_str(TERM_WHITE, "T.o.M.E. Character Status screen", 0, 10);
+        c_put_str(TERM_WHITE, "ToME Character Status screen", 0, 10);
 	c_put_str(TERM_WHITE, "1) Statistics", 2, 5);
 	c_put_str(TERM_WHITE, "2) Movement", 3, 5);
 	c_put_str(TERM_WHITE, "3) Combat", 4, 5);
 	c_put_str(TERM_WHITE, "4) Item", 5, 5);
 	c_put_str(TERM_WHITE, "5) Curses", 6, 5);
 	c_put_str(TERM_WHITE, "6) Sight", 7, 5);
-        c_put_str(TERM_WHITE, "7) Companions", 8, 5);
+	c_put_str(TERM_WHITE, "7) Companions", 8, 5);
 	c_put_str(TERM_RED, "Press 'q' to Quit", 23, 5);
 	c = inkey();
 	switch(c)
@@ -317,8 +317,8 @@ while(1)
 		case '6':
 			status_sight();
 			break;
-                case '7':
-                        status_companion();
+		case '7':
+			status_companion();
 			break;
 		case 'q':
 		case ESCAPE:
@@ -348,7 +348,7 @@ for(i = INVEN_WIELD; i < INVEN_TOTAL; i++)
 		c_put_str(TERM_WHITE, cstrng, 2, index++); /* Assumes ASCII */
 
 #if 0 /* DGDGDGDG */
-                object_flags_known(&inventory[i],
+		object_flags_known(&inventory[i],
 #else
 		object_flags(&inventory[i], 	/* Help me debug */
 #endif
@@ -423,28 +423,28 @@ else if (val > 0)
 
 static void status_count(s32b val1, int v1, s32b val2, int v2, s32b val3, int v3, byte ypos, byte xpos)
 {
-        int v = 0;        
+	int v = 0;        
 
-        if (val1 != 0) v += v1;
-        if (val2 != 0) v += v2;
-        if (val3 != 0) v += v3;
+	if (val1 != 0) v += v1;
+	if (val2 != 0) v += v2;
+	if (val3 != 0) v += v3;
 
-        status_numeric(v, ypos, xpos);
+	status_numeric(v, ypos, xpos);
 }
 
 static void row_count(char* statname, s16b row1, u32b flag1, int v1, s16b row2, u32b flag2, int v2, s16b row3, u32b flag3, int v3, int yo, u32b flag_arr[INVEN_TOTAL - INVEN_WIELD+2][7])
 {
-        int i;
-        int x = 0;
+	int i;
+	int x = 0;
 
-        c_put_str(TERM_L_GREEN, statname, yo, 0);
+	c_put_str(TERM_L_GREEN, statname, yo, 0);
 
-        for (i = 0; i < (INVEN_TOTAL - INVEN_WIELD + 2); i++)
+	for (i = 0; i < (INVEN_TOTAL - INVEN_WIELD + 2); i++)
 	{
-                if(flag_arr[i][6] == 1)
+		if(flag_arr[i][6] == 1)
 		{
-                        status_count((flag_arr[i][row1] & flag1), v1, (flag_arr[i][row2] & flag2), v2, (flag_arr[i][row3] & flag3), v3, yo, x + STATNM_LENGTH);
-                        x++;
+			status_count((flag_arr[i][row1] & flag1), v1, (flag_arr[i][row2] & flag2), v2, (flag_arr[i][row3] & flag3), v3, yo, x + STATNM_LENGTH);
+			x++;
 		}
 	}
 }
@@ -578,13 +578,13 @@ for(i=0;i< (INVEN_TOTAL - INVEN_WIELD +2); i++)
 
 static void status_companion(void)
 {
-        int i;
+	int i;
 
 	FILE *fff;
 
 	char file_name[1024];
 
-        Term_clear();
+	Term_clear();
 
 	/* Temporary file */
 	if (path_temp(file_name, 1024)) return;
@@ -592,49 +592,49 @@ static void status_companion(void)
 	/* Open a new file */
 	fff = my_fopen(file_name, "w");
 
-        /* Calculate companions */
+	/* Calculate companions */
 	/* Process the monsters (backwards) */
-        for (i = m_max - 1; i >= 1; i--)
+	for (i = m_max - 1; i >= 1; i--)
 	{
 		/* Access the monster */
-                monster_type *m_ptr = &m_list[i];
+		monster_type *m_ptr = &m_list[i];
 
-                if (m_ptr->status == MSTATUS_COMPANION)
-                {
-                        char m_name[80];
-                        int b, y = 0;
+		if (m_ptr->status == MSTATUS_COMPANION)
+		{
+			char m_name[80];
+			int b, y = 0;
 
 			/* Extract monster name */
-                        monster_desc(m_name, m_ptr, 0x80);
+			monster_desc(m_name, m_ptr, 0x80);
 
-                        fprintf(fff, "#####BCompanion: %s\n", m_name);
+			fprintf(fff, "#####BCompanion: %s\n", m_name);
 
-                        fprintf(fff, "  Lev/Exp : [[[[[G%d / %ld]\n", m_ptr->level, m_ptr->exp);
-                        if (m_ptr->level < MONSTER_LEVEL_MAX) fprintf(fff, "  Next lvl: [[[[[G%ld]\n", MONSTER_EXP((s32b)m_ptr->level + 1));
-                        else fprintf(fff, "  Next lvl: [[[[[G****]\n");
+			fprintf(fff, "  Lev/Exp : [[[[[G%d / %ld]\n", m_ptr->level, m_ptr->exp);
+			if (m_ptr->level < MONSTER_LEVEL_MAX) fprintf(fff, "  Next lvl: [[[[[G%ld]\n", MONSTER_EXP((s32b)m_ptr->level + 1));
+			else fprintf(fff, "  Next lvl: [[[[[G****]\n");
 
-                        fprintf(fff, "  HP      : [[[[[G%d / %d]\n", m_ptr->hp, m_ptr->maxhp);
-                        fprintf(fff, "  AC      : [[[[[G%d]\n", m_ptr->ac);
-                        fprintf(fff, "  Speed   : [[[[[G%d]\n", m_ptr->mspeed - 110);
+			fprintf(fff, "  HP      : [[[[[G%d / %d]\n", m_ptr->hp, m_ptr->maxhp);
+			fprintf(fff, "  AC      : [[[[[G%d]\n", m_ptr->ac);
+			fprintf(fff, "  Speed   : [[[[[G%d]\n", m_ptr->mspeed - 110);
 
-                        for (b = 0; b < 4; b++)
-                        {
-                                if (!m_ptr->blow[b].d_dice) continue;
-                                if (!m_ptr->blow[b].d_side) continue;
+			for (b = 0; b < 4; b++)
+			{
+				if (!m_ptr->blow[b].d_dice) continue;
+				if (!m_ptr->blow[b].d_side) continue;
 
-                                fprintf(fff, "  Blow %1d  : [[[[[G%dd%d]\n", y + 1, m_ptr->blow[b].d_dice, m_ptr->blow[b].d_side);
-                                y++;
-                        }
+				fprintf(fff, "  Blow %1d  : [[[[[G%dd%d]\n", y + 1, m_ptr->blow[b].d_dice, m_ptr->blow[b].d_side);
+				y++;
+			}
 
-                        fprintf(fff, "\n");
-                }
+			fprintf(fff, "\n");
+		}
 	}
 
 	/* Close the file */
 	my_fclose(fff);
 
 	/* Display the file contents */
-        show_file(file_name, "Companion List", 0, 0);
+	show_file(file_name, "Companion List", 0, 0);
 
 	/* Remove the file */
 	fd_kill(file_name);

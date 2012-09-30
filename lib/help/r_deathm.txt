@@ -18,5 +18,5 @@ Exp Penalty     +150%
 
 #####GStarting Equipment
 If they are *very* lucky they may begin with:
-    Scrolls of summon never moving pet
+    Scrolls of Summon Never Moving Pet
     

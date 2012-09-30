@@ -12,8 +12,12 @@ function increase_mana(amt)
                 player.csp = 0
                 return TRUE
         end
+        if (player.csp > player.msp) then
+                player.csp = player.msp
+        end
         return FALSE
 end
+
 
 -- Create a new power
 __power_fct = {}
@@ -47,6 +51,7 @@ end
 -- Register in the hook list
 add_hook_script(HOOK_ACTIVATE_POWER, "__power_fct_activate", "__power_fct_activate")
 
+
 --- Mkeys
 
 -- Create a new power
@@ -71,3 +76,48 @@ end
 
 -- Register in the hook list
 add_hook_script(HOOK_MKEY, "__mkey_fct_activate", "__mkey_fct_activate")
+
+
+
+
+------------------------------------------------------------------------------
+----------------------- Hook to create birth objects -------------------------
+------------------------------------------------------------------------------
+function __birth_hook_objects()
+        -- Provide a book of blink to rangers
+        if get_class_name() == "Ranger" then
+                local obj = create_object(TV_BOOK, 255);
+                obj.pval = find_spell("Phase Door")
+                inven_carry(obj, FALSE)
+                end_object(obj)
+        end
+
+        -- Provide a book of prayer to priests
+        if get_class_name() == "Priest(Eru)" then
+                local obj = create_object(TV_BOOK, 255);
+                obj.pval = find_spell("See the Music")
+                inven_carry(obj, FALSE)
+                end_object(obj)
+        end
+        if get_class_name() == "Priest(Manwe)" then
+                local obj = create_object(TV_BOOK, 255);
+                obj.pval = find_spell("Manwe's Blessing")
+                inven_carry(obj, FALSE)
+                end_object(obj)
+        end
+        if get_class_name() == "Dark-Priest" then
+                local obj = create_object(TV_BOOK, 255);
+                obj.pval = find_spell("Curse")
+                inven_carry(obj, FALSE)
+                end_object(obj)
+        end
+        if get_class_name() == "Paladin" then
+                local obj = create_object(TV_BOOK, 255);
+                obj.pval = find_spell("Divine Aim")
+                inven_carry(obj, FALSE)
+                end_object(obj)
+        end
+end
+
+-- Register in the hook list
+add_hook_script(HOOK_BIRTH_OBJECTS, "__birth_hook_objects", "__birth_hook_objects")

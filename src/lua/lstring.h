@@ -1,5 +1,5 @@
 /*
-** $Id: lstring.h,v 1.1.1.1 2002/02/23 21:40:25 darkgod Exp $
+** $Id: lstring.h,v 1.3 2001/11/26 23:00:26 darkgod Exp $
 ** String table (keep all strings handled by Lua)
 ** See Copyright Notice in lua.h
 */

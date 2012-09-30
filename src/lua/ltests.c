@@ -1,5 +1,5 @@
 /*
-** $Id: ltests.c,v 1.1.1.1 2002/02/23 21:39:37 darkgod Exp $
+** $Id: ltests.c,v 1.2 2001/11/26 23:00:26 darkgod Exp $
 ** Internal Module for Debugging of the Lua Implementation
 ** See Copyright Notice in lua.h
 */

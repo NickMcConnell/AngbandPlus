@@ -1,5 +1,5 @@
 |||||oy
-#####RThe Beginner's Guide to Gods and Goddesses
+#####RThe Beginner's Guide to the Gods.
 
 #####G1.  Introduction
         Everybody likes to have a little helping hand now and then.  What
@@ -8,54 +8,17 @@ The gods won't help just any mortal who calls for help.  You have to give them
 a little something too.
 
 #####G2.  How Do I Get in on This?
-        First of all, find an altar.  They're found just laying around in the
-dungeon.  Then offer a sacrifice.  Make sure you're certain you want to
-worship this god, they don't take rejection very well.
+        When you start a character, you get a choice of whether or not you 
+wish to begin worshipping a God (unless you're something like a priest - they
+*must* start with a God to worship). If you do choose to be a follower of one
+of the Gods, you will gain certain abilities provided you do not do things 
+that displease them. The measure of how happy your God is with you is your
+piety - the Pt stat is your measure of piety. Different actions will allow you 
+to gain or lose piety over time. 
 
 #####G3.  So, Who Are These Gods?
+        In ToME, there are three Gods you may choose to worship, being:
+1. *****g_eru.txt*0[Eru Illuvatar] - the father of the Valar. 
+2. *****g_manwe.txt*0[Manwe Sulimo] - the second strongest of the Valar (Morgoth was the strongest).
+3. *****g_tulkas.txt*0[Tulkas] - Another of the Valar, Tulkas values strength and courage.
 
-[[[[[BYavanna:] The vala in charge of forests, she protects her followers from cold.
-[[[[[BUlmo:] The vala of water, he can protect the worthy from poison and sound.
-[[[[[BAule:] The smith of the vala, associated with earth.  His followers are free to
-        move about the earth and will not be harmed by shards of earth.
-[[[[[BMelkor:]  Yes, this is Morgoth, the guy you're spending the entire game trying
-        to whack.  But you can still worship him.  He grants sustains, and
-        protects his followers from several dark powers.
-[[[[[BTilion:]  Vala of the moon, whose followers need fear neither the dark or the
-        creatures that dwell in it.
-[[[[[BArien:]  Vala of the sun, whose followers have no fear during the day.
-[[[[[BTulkas:]  Vala of rage, his followers are mighty warriors, who cannot be
-        deceived in battle.
-[[[[[BManwe:]  Vala of the winds, his followers move with supernatural grace and
-        swiftness.
-[[[[[BVarda:]  Vala of the stars, her followers have keen and clear minds.
-[[[[[BEru:]  Also known as Illuvatar, he is the creator, the god of being.  Those who
-        follow him are granted knowledge beyond that of ordinary mortals, but
-        they are so strongly connected to life that it is hard for them to kill
-        directly.
-[[[[[BThe RNG:]  The god of chaos, it is as unpredictable and irrational as an
-        Angband variant maintainer.
-
-Any god has the ability to resurrect their followers, if they feel them worthy
-of the honor. But such a gift is only granted rarely, and the gods are
-grudgeful of such favors.
-
-#####G4.  How Do I Get on Their Good Side?
-	Sacrifice items at their altars.  The more expensive, the better.
-
-#####G5.  I'm in Trouble.  What Do I Do?
-        Pray.  Your relationship with your god is measured by two numbers,
-your grace and your favor.  Grace is increased by sacrifices, favor is
-increased by praying.  Favor is actually a measure of how much you've bothered
-your god, so you want it to be as low as possible.  It will slowly decrease
-over time.  The chance of your prayer being answered is roughly dependant on
-the difference between grace and favor.  Paladins and priests receive a bonus
-when praying.
-
-#####G6.  My God is Mad.  Help!
-        Your grace naturally decreases over time.  If you pray when your grace
-is too low, or when your favor is too high, you can find yourself in a lot of
-trouble.  The only solution is to rebuild your grace with sacrifices and to
-let your favor decrease.
-
-[This spoiler has been updated to PernAngband 5.x.x by Dawnmist.]

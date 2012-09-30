@@ -1,6 +1,6 @@
 --
 -- This file takes care of providing the Shiny-Test class
--- with .. erm .. powerfull spells
+-- with .. erm .. powerful spells
 --
 
 ------------------------------ MAGICTYPE -- M KEY ---------------------------------
@@ -12,9 +12,15 @@ zog_magic = add_magic
                         msg_print("Hooo bad luck the spell backfires !.")
                         take_hit("stupidity", 5)
         end,
+        ["stat"] =      A_CON,
+        -- Must return a number between 0 and 50 representing a level
+        ["get_level"] = function()
+                        return get_skill_scale(SKILL_MAGIC, 25) + get_skill_scale(SKILL_SPIRITUALITY, 25)
+        end,
         ["spell_list"] =
         {
-                ["Zog1"] = {
+                {
+                        ["name"] = "Zog1",
                         ["desc"] = "dessssc zog1",
                         ["mana"] = 1,
                         ["level"] = 1,
@@ -30,7 +36,8 @@ zog_magic = add_magic
                                 return " dam 2000"
                         end,
                 },
-                ["Zog2"] = {
+                {
+                        ["name"] = "Zog2",
                         ["desc"] = "dessssc zog2",
                         ["mana"] = 3,
                         ["level"] = 3,
@@ -68,7 +75,8 @@ zog_magic = add_magic
                                 return " cooool"
                         end,
                 },
-                ["Zog3"] = {
+                {
+                        ["name"] = "Zog3",
                         ["desc"] = "dessssc zog3",
                         ["mana"] = 4,
                         ["level"] = 5,
@@ -110,71 +118,17 @@ add_mkey
 
 
 -- Register a new power (the 'U' menu)
-TEST_POWER = add_power
+POWER_TEST = add_power
 {
-        ["name"] =      "test_power",
-        ["desc"] =      "You are test",
-        ["desc_get"] =  "You become a test",
-        ["desc_lose"] = "You are no longer a test",
+        ["name"] =      "Test power",
+        ["desc"] =      "You are a shinny test",
+        ["desc_get"] =  "You become a shinny test",
+        ["desc_lose"] = "You are no more a shinny test",
         ["level"] =     1,
-        ["cost"] =      3,
-        ["stat"] =      A_INT,
-        ["fail"] =      10,
+        ["cost"] =      5,
+        ["stat"] =      A_CON,
+        ["fail"] =      6,
         ["power"] =     function()
-                        msg_print("You scream: 'ZOGZOG!!!'")
-        end
+                msg_print("Zogzog !")
+        end,
 }
-
-
---------------------------------- QUEST ---------------------------------------
-
--- --[[ ... ]] is an other comment type, it runs over multiple lines
--- if the quest is commented it is to not annoy people that arent testing :)
--- It isnt a real quet, only a bare example
-
---[[
-add_quest
-{
-        -- Need an identifier
-        ["global"] =    "MY_QUEST",
-        -- Need a name too :)
-        ["name"] =      "My funny quest",
-        -- Description, can be up to 10 lines
-        ["desc"] =      {
-                        "My funny quest desc",
-                        "Foooo ! Barrrrrzzzz !",
-        },
-        -- The danger level
-        ["level"] =     42,
-        -- Some variables that need to be added to the savefile
-        -- No dont worry it cannot break the savefile compatibility
-        ["data"] =      {
-                        ["test_var"] = 0,
-                        ["test_var2"] = 1,
-        },
-        -- List of hooks to do whatever you want :)
-        ["hooks"] =     {
-                        [HOOK_BIRTH_OBJECTS] = function()
-                                quest(MY_QUEST).status = QUEST_STATUS_TAKEN
-                        end,
-                        [HOOK_NEW_LEVEL] = function()
-                                test_var = 0
-                        end,
-                        [HOOK_LEVEL_REGEN] = function()
-                                test_var = 0
-                        end,
-                        [HOOK_BUILD_ROOM1] = function(by0, bx0)
-                                if test_var == 0 then
-                                        local x, y, y2, x2, ret
-
-                                        y, x = get_map_size("qrand6.map")
-                                        ret, y, x, y2, x2 = alloc_room(by0, bx0, y, x)
-                                        if ret == TRUE then
-                                                y, x, y2, x2 = load_map("qrand6.map", y, x)
-                                        end
-                                        test_var = 1
-                                end
-                        end,
-        },
-}
-]]

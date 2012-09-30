@@ -1,5 +1,5 @@
 --
--- This file is loaded ad the initialisation of ToME
+-- This file is loaded at the initialisation of ToME
 -- Load the system functions
 --
 
@@ -8,28 +8,34 @@ __loadsave_name = {}
 __loadsave_max = 0
 __loadsave_tmp = 0
 
-pern_dofile("player.lua")
-pern_dofile("objects.lua")
-pern_dofile("powers.lua")
+tome_dofile("player.lua")
+tome_dofile("objects.lua")
+tome_dofile("monsters.lua")
+tome_dofile("powers.lua")
+tome_dofile("building.lua")
+tome_dofile("s_aux.lua")
 
--- Add the quest helper functions
-pern_dofile("quests.lua")
+-- Add the schools of magic
+tome_dofile("spells.lua")
 
+-- Add the quest helpers
+tome_dofile("quests.lua")
 
+-- Add the bounty quest
+tome_dofile("bounty.lua")
 
 --------------------------------------------------------------
 --------------------------------------------------------------
 --------------------------------------------------------------
------Include here all your files( pern_dofile("foo.lua") )----
+-----Include here all your files( tome_dofile("foo.lua") )----
 --------------------------------------------------------------
 --------------------------------------------------------------
 --------------------------------------------------------------
-pern_dofile("intro.lua")
-pern_dofile("lebohaum.lua")
+tome_dofile("intro.lua")
+tome_dofile("lebohaum.lua")
 
 -- This is a test file, if it is not present, it is very well
-pern_dofile("test.lua")
-
+tome_dofile("test.lua")
 
 --------------------------------------------------------------
 --------------------------------------------------------------
@@ -37,4 +43,4 @@ pern_dofile("test.lua")
 --
 -- Do not thouch after this line
 --
-pern_dofile("quests2.lua")
+tome_dofile("quests2.lua")

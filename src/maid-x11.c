@@ -305,8 +305,8 @@ static XImage *ReadBMP(Display *dpy, char *Name)
 	C_MAKE(Data, total, char);
 
 	Res = XCreateImage(dpy, visual, depth, ZPixmap, 0 /*offset*/,
-	                   Data, infoheader.biWidth, infoheader.biHeight,
-	                   8 /*bitmap_pad*/, 0 /*bytes_per_line*/);
+			   Data, infoheader.biWidth, infoheader.biHeight,
+			   8 /*bitmap_pad*/, 0 /*bytes_per_line*/);
 
 	/* Failure */
 	if (Res == NULL)
@@ -351,7 +351,7 @@ static XImage *ReadBMP(Display *dpy, char *Name)
 			{
 				/* Technically 1 bit is legal too */
 				quit_fmt("Illegal biBitCount %d in %s",
-				         infoheader.biBitCount, Name);
+					 infoheader.biBitCount, Name);
 			}
 		}
 	}
@@ -394,8 +394,8 @@ static bool smoothRescaling = TRUE;
  * redScan, greenScan and blueScan must be sufficiently sized
  */
 static void GetScaledRow(XImage *Im, int x, int y, int iw, int ow,
-                         unsigned long *redScan, unsigned long *greenScan,
-                         unsigned long *blueScan)
+			 unsigned long *redScan, unsigned long *greenScan,
+			 unsigned long *blueScan)
 {
 	int xi, si, sifrac, ci, cifrac, addWhole, addFrac;
 	unsigned long pix;
@@ -536,8 +536,8 @@ static void GetScaledRow(XImage *Im, int x, int y, int iw, int ow,
  * are divided first.
  */
 static void PutRGBScan(XImage *Im, int x, int y, int w, int div,
-                       unsigned long *redScan, unsigned long *greenScan,
-                       unsigned long *blueScan)
+		       unsigned long *redScan, unsigned long *greenScan,
+		       unsigned long *blueScan)
 {
 	int xi;
 	unsigned long pix;
@@ -562,7 +562,7 @@ static void PutRGBScan(XImage *Im, int x, int y, int w, int div,
  * vertical directions (eg. shrink horizontal, grow vertical).
  */
 static void ScaleIcon(XImage *ImIn, XImage *ImOut,
-    	    	      int x1, int y1, int x2, int y2,
+		      int x1, int y1, int x2, int y2,
 		      int ix, int iy, int ox, int oy)
 {
 	int div;
@@ -595,9 +595,9 @@ static void ScaleIcon(XImage *ImIn, XImage *ImOut,
 		for (yi = 0; yi < oy; yi++)
 		{
 			GetScaledRow(ImIn, x1, y1 + yi, ix, ox,
-			             tempRed, tempGreen, tempBlue);
+				     tempRed, tempGreen, tempBlue);
 			PutRGBScan(ImOut, x2, y2 + yi, ox, div,
-			           tempRed, tempGreen, tempBlue);
+				   tempRed, tempGreen, tempBlue);
 		}
 	}
 	else if (iy < oy)
@@ -627,7 +627,7 @@ static void ScaleIcon(XImage *ImIn, XImage *ImOut,
 				{
 					/* only get next row if in same icon */
 					GetScaledRow(ImIn, x1, si + 1, ix, ox,
-					             nextRed, nextGreen, nextBlue);
+						     nextRed, nextGreen, nextBlue);
 				}
 			}
 
@@ -636,16 +636,16 @@ static void ScaleIcon(XImage *ImIn, XImage *ImOut,
 			for (xi = 0; xi < ox; xi++)
 			{
 				tempRed[xi] = (prevRed[xi] * (oy - sifrac) +
-				               nextRed[xi] * sifrac);
+					       nextRed[xi] * sifrac);
 				tempGreen[xi] = (prevGreen[xi] * (oy - sifrac) +
-				                 nextGreen[xi] * sifrac);
+						 nextGreen[xi] * sifrac);
 				tempBlue[xi] = (prevBlue[xi] * (oy - sifrac) +
-				                nextBlue[xi] * sifrac);
+						nextBlue[xi] * sifrac);
 			}
 
 			/* write row to output image: */
 			PutRGBScan(ImOut, x2, y2 + yi, ox, div,
-			           tempRed, tempGreen, tempBlue);
+				   tempRed, tempGreen, tempBlue);
 
 			/* advance sampling position: */
 			sifrac += iy;
@@ -696,7 +696,7 @@ static void ScaleIcon(XImage *ImIn, XImage *ImOut,
 			while (si < ci)
 			{
 				GetScaledRow(ImIn, x1, si, ix, ox,
-				             nextRed, nextGreen, nextBlue);
+					     nextRed, nextGreen, nextBlue);
 				for (xi = 0; xi < ox; xi++)
 				{
 					tempRed[xi]   += nextRed[xi]   * oy;
@@ -710,7 +710,7 @@ static void ScaleIcon(XImage *ImIn, XImage *ImOut,
 			{
 				/* only get next row if still in icon: */
 				GetScaledRow(ImIn, x1, si, ix, ox,
-				             nextRed, nextGreen, nextBlue);
+					     nextRed, nextGreen, nextBlue);
 			}
 			sifrac = cifrac;
 			for (xi = 0; xi < ox; xi++)
@@ -721,7 +721,7 @@ static void ScaleIcon(XImage *ImIn, XImage *ImOut,
 			}
 			/* write row to output image: */
 			PutRGBScan(ImOut, x2, y2 + yi, ox, div,
-			           tempRed, tempGreen, tempBlue);
+				   tempRed, tempGreen, tempBlue);
 		}
 	}
 }
@@ -729,7 +729,7 @@ static void ScaleIcon(XImage *ImIn, XImage *ImOut,
 
 
 static XImage *ResizeImageSmooth(Display *dpy, XImage *Im,
-                                 int ix, int iy, int ox, int oy)
+				 int ix, int iy, int ox, int oy)
 {
 	Visual *visual = DefaultVisual(dpy, DefaultScreen(dpy));
 
@@ -749,8 +749,8 @@ static XImage *ResizeImageSmooth(Display *dpy, XImage *Im,
 	Data = (char *)malloc(width2 * height2 * Im->bits_per_pixel / 8);
 
 	Tmp = XCreateImage(dpy, visual,
-	                   Im->depth, ZPixmap, 0, Data, width2, height2,
-	                   32, 0);
+			   Im->depth, ZPixmap, 0, Data, width2, height2,
+			   32, 0);
 
 	/* compute values for decomposing pixel into color values: */
 	redMask = Im->red_mask;
@@ -781,7 +781,7 @@ static XImage *ResizeImageSmooth(Display *dpy, XImage *Im,
 		for (x1 = 0, x2 = 0; (x1 < width1) && (x2 < width2); x1 += ix, x2 += ox)
 		{
 			ScaleIcon(Im, Tmp, x1, y1, x2, y2,
-			          ix, iy, ox, oy);
+				  ix, iy, ox, oy);
 		}
 	}
 
@@ -795,7 +795,7 @@ static XImage *ResizeImageSmooth(Display *dpy, XImage *Im,
  * Also appears in "main-xaw.c".
  */
 static XImage *ResizeImage(Display *dpy, XImage *Im,
-                           int ix, int iy, int ox, int oy)
+			   int ix, int iy, int ox, int oy)
 {
 	Visual *visual = DefaultVisual(dpy, DefaultScreen(dpy));
 
@@ -823,8 +823,8 @@ static XImage *ResizeImage(Display *dpy, XImage *Im,
 	Data = (char *)malloc(width2 * height2 * Im->bits_per_pixel / 8);
 
 	Tmp = XCreateImage(dpy, visual,
-	                   Im->depth, ZPixmap, 0, Data, width2, height2,
-	                   32, 0);
+			   Im->depth, ZPixmap, 0, Data, width2, height2,
+			   32, 0);
 
 	if (ix > ox)
 	{

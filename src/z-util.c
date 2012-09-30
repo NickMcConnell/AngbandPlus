@@ -147,22 +147,6 @@ bool suffix(cptr s, cptr t)
 }
 
 
-/*
- * Determine if string "t" is a prefix of string "s"
- */
-bool prefix(cptr s, cptr t)
-{
-	/* Scan "t" */
-	while (*t)
-	{
-		/* Compare content and length */
-		if (*t++ != *s++) return (FALSE);
-	}
-
-	/* Matched, we have a prefix */
-	return (TRUE);
-}
-
 
 
 /*

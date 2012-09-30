@@ -15,57 +15,62 @@
 
 bool do_player_trap_call_out(void)
 {
-   s16b          i,sn,cx,cy;
-   s16b          h_index = 0;
-   s16b          h_level = 0;
-   monster_type  *m_ptr;
-   monster_race  *r_ptr;
-   char          m_name[80];
-   bool          ident = FALSE;
+	s16b          i,sn,cx,cy;
+	s16b          h_index = 0;
+	s16b          h_level = 0;
+	monster_type  *m_ptr;
+	monster_race  *r_ptr;
+	char          m_name[80];
+	bool          ident = FALSE;
 
-   for (i = 1; i < m_max; i++)
-   {
-       m_ptr = &m_list[i];
-       r_ptr = race_inf(m_ptr);
+	for (i = 1; i < m_max; i++)
+	{
+		m_ptr = &m_list[i];
+		r_ptr = race_inf(m_ptr);
 
-       /* Paranoia -- Skip dead monsters */
-       if (!m_ptr->r_idx) continue;
+		/* Paranoia -- Skip dead monsters */
+		if (!m_ptr->r_idx) continue;
 
-       if (m_ptr->level>=h_level)
-       {
-         h_level = m_ptr->level;
-         h_index = i;
-       }
-   }
-   /* if the level is empty of monsters, h_index will be 0 */
-   if (!h_index) return(FALSE);
+		if (m_ptr->level >= h_level)
+		{
+			h_level = m_ptr->level;
+			h_index = i;
+		}
+	}
 
-   m_ptr = &m_list[h_index];
+	/* if the level is empty of monsters, h_index will be 0 */
+	if (!h_index) return(FALSE);
 
-   sn = 0;
-   for (i = 0; i < 8; i++)
-   {
-      cx = px + ddx[i];
-      cy = py + ddy[i];
-      /* Skip non-empty grids */
-      if (!cave_valid_bold(cy, cx)) continue;
-      if (cave[cy][cx].feat == FEAT_GLYPH) continue;
-      if ((cx==px) && (cy==py)) continue;
-      sn++;
-      /* Randomize choice */
-      if (rand_int(sn) > 0) continue;
-      cave[cy][cx].m_idx=h_index;
-      cave[m_ptr->fy][m_ptr->fx].m_idx=0;
-      m_ptr->fx = cx;
-      m_ptr->fy = cy;
-      /* we do not change the sublevel! */
-      ident=TRUE;
-      update_mon(h_index, TRUE);
-      monster_desc(m_name, m_ptr, 0x08);
-      msg_format("You hear a rapid-shifting wail, and %s appears!",m_name);
-      break;
-   }
-   return (ident);
+	m_ptr = &m_list[h_index];
+
+	sn = 0;
+	for (i = 0; i < 8; i++)
+	{
+		cx = px + ddx[i];
+		cy = py + ddy[i];
+
+		/* Skip non-empty grids */
+		if (!cave_valid_bold(cy, cx)) continue;
+		if (cave[cy][cx].feat == FEAT_GLYPH) continue;
+		if ((cx==px) && (cy==py)) continue;
+		sn++;
+
+		/* Randomize choice */
+		if (rand_int(sn) > 0) continue;
+		cave[cy][cx].m_idx=h_index;
+		cave[m_ptr->fy][m_ptr->fx].m_idx=0;
+		m_ptr->fx = cx;
+		m_ptr->fy = cy;
+
+		/* we do not change the sublevel! */
+		ident=TRUE;
+		update_mon(h_index, TRUE);
+		monster_desc(m_name, m_ptr, 0x08);
+		msg_format("You hear a rapid-shifting wail, and %s appears!",m_name);
+		break;
+	}
+
+	return (ident);
 }
 
 static bool do_trap_teleport_away(object_type *i_ptr, s16b y, s16b x)
@@ -73,7 +78,7 @@ static bool do_trap_teleport_away(object_type *i_ptr, s16b y, s16b x)
 	bool ident = FALSE;
 	char o_name[80];
 
-        s16b  o_idx = 0;
+	s16b  o_idx = 0;
 	object_type *o_ptr;
 	cave_type *c_ptr;
 
@@ -82,7 +87,7 @@ static bool do_trap_teleport_away(object_type *i_ptr, s16b y, s16b x)
 
 	if (i_ptr == NULL) return(FALSE);
 
-        if (i_ptr->name1 == ART_POWER) return (FALSE);
+	if (i_ptr->name1 == ART_POWER) return (FALSE);
 
 	while (o_idx == 0)
 	{
@@ -93,7 +98,7 @@ static bool do_trap_teleport_away(object_type *i_ptr, s16b y, s16b x)
 		c_ptr = &cave[y1][x1];
 
 		/* Require floor space (or shallow terrain) -KMW- */
-                if (!(f_info[c_ptr->feat].flags1 & FF1_FLOOR)) continue;
+		if (!(f_info[c_ptr->feat].flags1 & FF1_FLOOR)) continue;
 
 		o_idx = drop_near(i_ptr, 0, y1, x1);
 	}
@@ -132,206 +137,231 @@ static bool do_trap_teleport_away(object_type *i_ptr, s16b y, s16b x)
  */
 static bool player_handle_trap_of_walls(void)
 {
-   bool ident;
+	bool ident;
 
-   {
-      s16b dx,dy,cx,cy;
-      s16b sx=0,sy=0,sn,i;
-      cave_type *cv_ptr;
-      bool map[5][5] = { {FALSE,FALSE,FALSE,FALSE,FALSE},
-                         {FALSE,FALSE,FALSE,FALSE,FALSE},
-                         {FALSE,FALSE,FALSE,FALSE,FALSE},
-                         {FALSE,FALSE,FALSE,FALSE,FALSE},
-                         {FALSE,FALSE,FALSE,FALSE,FALSE} };
-      for (dy = -2; dy <= 2; dy++)
-      {
-         for (dx = -2; dx <= 2; dx++)
-         {
-            cx = px+dx;
-            cy = py+dy;
-            if (!in_bounds(cy, cx)) continue;
-            cv_ptr = &cave[cy][cx];
+	s16b dx,dy,cx,cy;
+	s16b sx=0,sy=0,sn,i;
+	cave_type *cv_ptr;
+	bool map[5][5] =
+	{
+		{FALSE,FALSE,FALSE,FALSE,FALSE},
+		{FALSE,FALSE,FALSE,FALSE,FALSE},
+		{FALSE,FALSE,FALSE,FALSE,FALSE},
+		{FALSE,FALSE,FALSE,FALSE,FALSE},
+		{FALSE,FALSE,FALSE,FALSE,FALSE}
+	};
 
-// DGDGDGDG
-            if (cv_ptr->m_idx) continue;
+	for (dy = -2; dy <= 2; dy++)
+	for (dx = -2; dx <= 2; dx++)
+	{
+		/* Extract the location */
+		cx = px + dx;
+		cy = py + dy;
 
-            /* Lose room and vault */
-            cv_ptr->info &= ~(CAVE_ROOM | CAVE_ICKY);
-            /* Lose light and knowledge */
-            cv_ptr->info &= ~(CAVE_GLOW | CAVE_MARK);
-            /* Skip the center */
-            if (!dx && !dy) continue;
-            /* test for dungeon level */
-            if (randint(100) > 10+max_dlv[dungeon_type]) continue;
-            /* Damage this grid */
-            map[2+dx][2+dy] = TRUE;
-         }
-      }
-      for (dy = -2; dy <= 2; dy++)
-      {
-         for (dx = -2; dx <= 2; dx++)
-         {
-            cx = px+dx;
-            cy = py+dy;
-            if (!map[2+dx][2+dy]) continue;
-            cv_ptr = &cave[cy][cx];
+		if (!in_bounds(cy, cx)) continue;
 
-            if (cv_ptr->m_idx)
-            {
-               monster_type *m_ptr = &m_list[cv_ptr->m_idx];
-               monster_race *r_ptr = race_inf(m_ptr);
-               /* Most monsters cannot co-exist with rock */
-               if (!(r_ptr->flags2 & RF2_KILL_WALL) &&
-                   !(r_ptr->flags2 & RF2_PASS_WALL))
-               {
-                  char m_name[80];
+		cv_ptr = &cave[cy][cx];
 
-                  /* Assume not safe */
-                  sn = 0;
-                  /* Monster can move to escape the wall */
-                  if (!(r_ptr->flags1 & RF1_NEVER_MOVE))
-                  {
-                     /* Look for safety */
-                     for (i = 0; i < 8; i++)
-                     {
-                        /* Access the grid */
-                        cy = py + ddy[i];
-                        cx = px + ddx[i];
+		if (cv_ptr->m_idx) continue;
 
-                        /* Skip non-empty grids */
-                        if (!cave_clean_bold(cy, cx)) continue;
+		/* Lose room and vault */
+		cv_ptr->info &= ~(CAVE_ROOM | CAVE_ICKY);
+		/* Lose light and knowledge */
+		cv_ptr->info &= ~(CAVE_GLOW | CAVE_MARK);
 
-                        /* Hack -- no safety on glyph of warding */
-			if (cave[cy][cx].feat == FEAT_GLYPH) continue;
+		/* Skip the center */
+		if (!dx && !dy) continue;
 
-                        /* Important -- Skip "quake" grids */
-                        if (map[2+(cx-px)][2+(cy-py)]) continue;
-                        /* Count "safe" grids */
-                        sn++;
-                        /* Randomize choice */
-                        if (rand_int(sn) > 0) continue;
-                        /* Save the safe grid */
-                        sx = cx; sy = cy;
-                        ident=TRUE;
-                        break; /* discontinue for loop - safe grid found */
-                     }
-                  }
-                  /* Describe the monster */
-                  monster_desc(m_name, m_ptr, 0);
-                  /* Scream in pain */
-                  msg_format("%^s wails out in pain!", m_name);
-                  /* Monster is certainly awake */
-                  m_ptr->csleep = 0;
-                  /* Apply damage directly */
-                  m_ptr->hp -= (sn ? damroll(4, 8) : 200);
-                  /* Delete (not kill) "dead" monsters */
-                  if (m_ptr->hp < 0)
-                  {
-                     /* Message */
-                     msg_format("%^s is entombed in the rock!", m_name);
-                     /* Delete the monster */
-                     delete_monster_idx(cave[cy][cx].m_idx);
-                     /* No longer safe */
-                     sn = 0;
-                  }
-                  /* Hack -- Escape from the rock */
-                  if (sn)
-                  {
-                     s16b m_idx = cave[cy][cx].m_idx;
+		/* test for dungeon level */
+		if (randint(100) > 10 + max_dlv[dungeon_type]) continue;
 
-                     /* Update the new location */
-                     cave[sy][sx].m_idx = m_idx;
+		/* Damage this grid */
+		map[2+dx][2+dy] = TRUE;
+	}
 
-                     /* Update the old location */
-                     cave[cy][cx].m_idx = 0;
+	for (dy = -2; dy <= 2; dy++)
+	for (dx = -2; dx <= 2; dx++)
+	{
+		/* Extract the location */
+		cx = px + dx;
+		cy = py + dy;
 
-                     /* Move the monster */
-                     m_ptr->fy = sy;
-                     m_ptr->fx = sx;
+		/* Skip unaffected grids */
+		if (!map[2+dx][2+dy]) continue;
 
-                     /* do not change fz */
-                     /* don't make rock on that square! */
-                     if ( (sx>=(px-2)) &&
-                        (sx<=(px+2)) &&
-                        (sy>=(py-2)) &&
-                        (sy<=(py+2)) )
-                     {
-                        map[2+(sx-px)][2+(sy-py)]=FALSE;
-                     }
-                     /* Update the monster (new location) */
-                     update_mon(m_idx, TRUE);
+		cv_ptr = &cave[cy][cx];
 
-                     /* Redraw the old grid */
-                     lite_spot(cy, cx);
+		if (cv_ptr->m_idx)
+		{
+			monster_type *m_ptr = &m_list[cv_ptr->m_idx];
+			monster_race *r_ptr = race_inf(m_ptr);
 
-                     /* Redraw the new grid */
-                     lite_spot(sy, sx);
-                  } /* if sn */
-               } /* if monster can co-exist with rock */
-            } /* if monster on square */
-         } /* for dx */
-      } /* for dy */
+			/* Most monsters cannot co-exist with rock */
+			if ((!(r_ptr->flags2 & RF2_KILL_WALL)) &&
+			    (!(r_ptr->flags2 & RF2_PASS_WALL)))
+			{
+				char m_name[80];
 
-      /* Examine the quaked region */
-      for (dy = -2; dy <= 2; dy++)
-      {
-         for (dx = -2; dx <= 2; dx++)
-         {
-            /* Extract the location */
-            cx = px + dx;
-            cy = py + dy;
+				/* Assume not safe */
+				sn = 0;
 
-            /* Skip unaffected grids */
-            if (!map[2+dx][2+dy]) continue;
+				/* Monster can move to escape the wall */
+				if (!(r_ptr->flags1 & RF1_NEVER_MOVE))
+				{
+					/* Look for safety */
+					for (i = 0; i < 8; i++)
+					{
+						/* Access the grid */
+						cy = py + ddy[i];
+						cx = px + ddx[i];
 
-            /* Access the cave grid */
-            cv_ptr = &cave[cy][cx];
+						/* Skip non-empty grids */
+						if (!cave_clean_bold(cy, cx)) continue;
 
-            /* Paranoia -- never affect player */
-            if (!dy && !dx) continue;
+						/* Hack -- no safety on glyph of warding */
+						if (cave[cy][cx].feat == FEAT_GLYPH) continue;
 
-            /* Destroy location (if valid) */
-            if ((cx < cur_wid) && (cy < cur_hgt) && cave_valid_bold(cy, cx))
-            {
-               bool floor = (f_info[cave[cy][cx].feat].flags1 & FF1_FLOOR);
+						/* Important -- Skip "quake" grids */
+						if (map[2+(cx-px)][2+(cy-py)]) continue;
 
-               /* Delete any object that is still there */
-               delete_object(cy, cx);
+						/* Count "safe" grids */
+						sn++;
 
-               if (floor)
-               {
-		  cave[cy][cx].feat = FEAT_WALL_OUTER;
-               }
-               else
-               {
-                  /* Clear previous contents, add floor */
-		  cave[cy][cx].feat = FEAT_FLOOR;
-               }
-            } /* valid */
-         } /* dx */
-      } /* dy */
-      /* Mega-Hack -- Forget the view and lite */
-      p_ptr->update |= PU_UN_VIEW;
+						/* Randomize choice */
+						if (rand_int(sn) > 0) continue;
 
-      /* Update stuff */
-      p_ptr->update |= (PU_VIEW | PU_FLOW);
+						/* Save the safe grid */
+						sx = cx;
+						sy = cy;
 
-      /* Update the monsters */
-      p_ptr->update |= (PU_DISTANCE);
+						ident=TRUE;
 
-      /* Update the health bar */
-      p_ptr->redraw |= (PR_HEALTH);
+						break; /* discontinue for loop - safe grid found */
+					}
+				}
 
-      /* Redraw map */
-      p_ptr->redraw |= (PR_MAP);
+				/* Describe the monster */
+				monster_desc(m_name, m_ptr, 0);
 
-      /* Window stuff */
-      p_ptr->window |= (PW_OVERHEAD);
-      handle_stuff();
-      msg_print("Suddenly the cave shifts around you. The air is getting stale!");
-      ident=TRUE;
-   }
-   return (ident);
+				/* Scream in pain */
+				msg_format("%^s wails out in pain!", m_name);
+
+				/* Monster is certainly awake */
+				m_ptr->csleep = 0;
+
+				/* Apply damage directly */
+				m_ptr->hp -= (sn ? damroll(4, 8) : 200);
+
+				/* Delete (not kill) "dead" monsters */
+				if (m_ptr->hp < 0)
+				{
+					/* Message */
+					msg_format("%^s is entombed in the rock!", m_name);
+
+					/* Delete the monster */
+					delete_monster_idx(cave[cy][cx].m_idx);
+
+					/* No longer safe */
+					sn = 0;
+				}
+
+				/* Hack -- Escape from the rock */
+				if (sn)
+				{
+					s16b m_idx = cave[cy][cx].m_idx;
+
+					/* Update the new location */
+					cave[sy][sx].m_idx = m_idx;
+
+					/* Update the old location */
+					cave[cy][cx].m_idx = 0;
+
+					/* Move the monster */
+					m_ptr->fy = sy;
+					m_ptr->fx = sx;
+
+					/* do not change fz */
+					/* don't make rock on that square! */
+					if ((sx >= (px-2)) && (sx <= (px+2)) &&
+					    (sy >= (py-2)) && (sy <= (py+2)))
+					{
+						map[2+(sx-px)][2+(sy-py)]=FALSE;
+					}
+
+					/* Update the monster (new location) */
+					update_mon(m_idx, TRUE);
+
+					/* Redraw the old grid */
+					lite_spot(cy, cx);
+
+					/* Redraw the new grid */
+					lite_spot(sy, sx);
+				} /* if sn */
+			} /* if monster can co-exist with rock */
+		} /* if monster on square */
+	}
+
+	/* Examine the quaked region */
+	for (dy = -2; dy <= 2; dy++)
+	for (dx = -2; dx <= 2; dx++)
+	{
+		/* Extract the location */
+		cx = px + dx;
+		cy = py + dy;
+
+		/* Skip unaffected grids */
+		if (!map[2+dx][2+dy]) continue;
+
+		/* Access the cave grid */
+		cv_ptr = &cave[cy][cx];
+
+		/* Paranoia -- never affect player */
+		if (!dy && !dx) continue;
+
+		/* Destroy location (if valid) */
+		if ((cx < cur_wid) && (cy < cur_hgt) && cave_valid_bold(cy, cx))
+		{
+			bool floor = (f_info[cave[cy][cx].feat].flags1 & FF1_FLOOR);
+
+			/* Delete any object that is still there */
+			delete_object(cy, cx);
+
+			if (floor)
+			{
+				cave_set_feat(cy, cx, FEAT_WALL_OUTER);
+			}
+			else
+			{
+				/* Clear previous contents, add floor */
+				cave_set_feat(cy, cx, FEAT_FLOOR);
+			}
+		}
+	}
+
+	/* Mega-Hack -- Forget the view and lite */
+	p_ptr->update |= PU_UN_VIEW;
+
+	/* Update stuff */
+	p_ptr->update |= (PU_VIEW | PU_FLOW | PU_MON_LITE);
+
+	/* Update the monsters */
+	p_ptr->update |= (PU_DISTANCE);
+
+	/* Update the health bar */
+	p_ptr->redraw |= (PR_HEALTH);
+
+	/* Redraw map */
+	p_ptr->redraw |= (PR_MAP);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_OVERHEAD);
+	handle_stuff();
+
+	msg_print("Suddenly the cave shifts around you. The air is getting stale!");
+
+	ident = TRUE;
+
+	return (ident);
 }
 
 
@@ -346,39 +376,39 @@ static bool player_handle_trap_of_walls(void)
  * return value = ident (always TRUE)
  */
 static bool player_handle_missile_trap(s16b num, s16b tval, s16b sval, s16b dd, s16b ds,
-                                     s16b pdam, cptr name)
+                                       s16b pdam, cptr name)
 {
-   object_type *o_ptr, forge;
-   s16b        i, k_idx = lookup_kind(tval, sval);
-   char        i_name[80];
+	object_type *o_ptr, forge;
+	s16b        i, k_idx = lookup_kind(tval, sval);
+	char        i_name[80];
 
-   o_ptr = &forge;
-   object_prep(o_ptr, k_idx);
-   o_ptr->number = num;
-   apply_magic(o_ptr, max_dlv[dungeon_type], FALSE, FALSE, FALSE);
-   object_desc(i_name, o_ptr, TRUE, 0);
+	o_ptr = &forge;
+	object_prep(o_ptr, k_idx);
+	o_ptr->number = num;
+	apply_magic(o_ptr, max_dlv[dungeon_type], FALSE, FALSE, FALSE);
+	object_desc(i_name, o_ptr, TRUE, 0);
 
-   if (num == 1)
-      msg_format("Suddenly %s hits you!", i_name);
-   else
-      msg_format("Suddenly %s hit you!", i_name);
+	msg_format("Suddenly %s hit%s you!", i_name,
+	           ((num == 1) ? "" : "s"));
 
-   for (i=0; i < num; i++)
-   {
-      take_hit(damroll(dd, ds), name);
-      redraw_stuff();
-      if (pdam > 0)
-      {
-         if (!(p_ptr->resist_pois || p_ptr->oppose_pois))
-         {
-            (void)set_poisoned(p_ptr->poisoned + pdam);
-         }
-      }
-   }
+	for (i = 0; i < num; i++)
+	{
+		take_hit(damroll(dd, ds), name);
 
-   drop_near(o_ptr, -1, py, px);
+		redraw_stuff();
 
-   return TRUE;
+		if (pdam > 0)
+		{
+			if (!(p_ptr->resist_pois || p_ptr->oppose_pois))
+			{
+				(void)set_poisoned(p_ptr->poisoned + pdam);
+			}
+		}
+	}
+
+	drop_near(o_ptr, -1, py, px);
+
+	return TRUE;
 }
 
 /*
@@ -386,23 +416,24 @@ static bool player_handle_missile_trap(s16b num, s16b tval, s16b sval, s16b dd, 
  */
 static bool player_handle_breath_trap(s16b rad, s16b type, u16b trap)
 {
-   trap_type *t_ptr = &t_info[trap];
-   bool       ident;
-   s16b       my_dd, my_ds, dam;
+	trap_type *t_ptr = &t_info[trap];
+	bool       ident;
+	s16b       my_dd, my_ds, dam;
 
-   my_dd = t_ptr->dd;
-   my_ds = t_ptr->ds;
+	my_dd = t_ptr->dd;
+	my_ds = t_ptr->ds;
 
-   /* these traps gets nastier as levels progress */
-   if (max_dlv[dungeon_type]> (2* t_ptr->minlevel))
-   {
-      my_dd += (max_dlv[dungeon_type] / 15);
-      my_ds += (max_dlv[dungeon_type] / 15);
-   }
-   dam = damroll(my_dd, my_ds);
+	/* these traps gets nastier as levels progress */
+	if (max_dlv[dungeon_type] > (2 * t_ptr->minlevel))
+	{
+		my_dd += (max_dlv[dungeon_type] / 15);
+		my_ds += (max_dlv[dungeon_type] / 15);
+	}
+	dam = damroll(my_dd, my_ds);
 
-   ident = project(-2, rad, py, px, dam, type, PROJECT_KILL | PROJECT_JUMP);
-   return (ident);
+	ident = project(-2, rad, py, px, dam, type, PROJECT_KILL | PROJECT_JUMP);
+
+	return (ident);
 }
 
 /*
@@ -410,12 +441,12 @@ static bool player_handle_breath_trap(s16b rad, s16b type, u16b trap)
  */
 static void trap_hit(s16b trap)
 {
-   s16b dam;
-   trap_type *t_ptr = &t_info[trap];
+	s16b dam;
+	trap_type *t_ptr = &t_info[trap];
 
-   dam = damroll(t_ptr->dd, t_ptr->ds);
+	dam = damroll(t_ptr->dd, t_ptr->ds);
 
-   take_hit(dam, t_name + t_ptr->name);
+	take_hit(dam, t_name + t_ptr->name);
 }
 
 /*
@@ -424,1157 +455,1339 @@ static void trap_hit(s16b trap)
  */
 bool player_activate_trap_type(s16b y, s16b x, object_type *i_ptr, s16b item)
 {
-   bool ident = FALSE;
-   s16b trap;
-   dungeon_info_type *d_ptr = &d_info[dungeon_type];
+	bool ident = FALSE;
+	s16b trap;
+	dungeon_info_type *d_ptr = &d_info[dungeon_type];
 
-   s16b k, l;
+	s16b k, l;
 
-   trap=cave[y][x].t_idx;
+	trap = cave[y][x].t_idx;
 
-   if (i_ptr == NULL)
-   {
-      if (cave[y][x].o_idx==0) i_ptr=NULL;
-      else i_ptr=&o_list[cave[y][x].o_idx];
-   }
-   else
-      trap=i_ptr->pval;
+	if (i_ptr != NULL)
+	{
+		trap = i_ptr->pval;
+	}
 
-   switch(trap)
-   {
-      /* stat traps */
+	if ((i_ptr == NULL) && (cave[y][x].o_idx != 0))
+	{
+		i_ptr = &o_list[cave[y][x].o_idx];
+	}
 
-      case TRAP_OF_WEAKNESS_I:       ident=do_dec_stat(A_STR, STAT_DEC_TEMPORARY); break;
-      case TRAP_OF_WEAKNESS_II:      ident=do_dec_stat(A_STR, STAT_DEC_NORMAL); break;
-      case TRAP_OF_WEAKNESS_III:     ident=do_dec_stat(A_STR, STAT_DEC_PERMANENT); break;
-      case TRAP_OF_INTELLIGENCE_I:   ident=do_dec_stat(A_INT, STAT_DEC_TEMPORARY); break;
-      case TRAP_OF_INTELLIGENCE_II:  ident=do_dec_stat(A_INT, STAT_DEC_NORMAL); break;
-      case TRAP_OF_INTELLIGENCE_III: ident=do_dec_stat(A_INT, STAT_DEC_PERMANENT); break;
-      case TRAP_OF_WISDOM_I:         ident=do_dec_stat(A_WIS, STAT_DEC_TEMPORARY); break;
-      case TRAP_OF_WISDOM_II:        ident=do_dec_stat(A_WIS, STAT_DEC_NORMAL); break;
-      case TRAP_OF_WISDOM_III:       ident=do_dec_stat(A_WIS, STAT_DEC_PERMANENT); break;
-      case TRAP_OF_FUMBLING_I:       ident=do_dec_stat(A_DEX, STAT_DEC_TEMPORARY); break;
-      case TRAP_OF_FUMBLING_II:      ident=do_dec_stat(A_DEX, STAT_DEC_NORMAL); break;
-      case TRAP_OF_FUMBLING_III:     ident=do_dec_stat(A_DEX, STAT_DEC_PERMANENT); break;
-      case TRAP_OF_WASTING_I:        ident=do_dec_stat(A_CON, STAT_DEC_TEMPORARY); break;
-      case TRAP_OF_WASTING_II:       ident=do_dec_stat(A_CON, STAT_DEC_NORMAL); break;
-      case TRAP_OF_WASTING_III:      ident=do_dec_stat(A_CON, STAT_DEC_PERMANENT); break;
-      case TRAP_OF_BEAUTY_I:         ident=do_dec_stat(A_CHR, STAT_DEC_TEMPORARY); break;
-      case TRAP_OF_BEAUTY_II:        ident=do_dec_stat(A_CHR, STAT_DEC_NORMAL); break;
-      case TRAP_OF_BEAUTY_III:       ident=do_dec_stat(A_CHR, STAT_DEC_PERMANENT); break;
+	switch(trap)
+	{
+		/* stat traps */
+		case TRAP_OF_WEAKNESS_I:       ident = do_dec_stat(A_STR, STAT_DEC_TEMPORARY); break;
+		case TRAP_OF_WEAKNESS_II:      ident = do_dec_stat(A_STR, STAT_DEC_NORMAL); break;
+		case TRAP_OF_WEAKNESS_III:     ident = do_dec_stat(A_STR, STAT_DEC_PERMANENT); break;
+		case TRAP_OF_INTELLIGENCE_I:   ident = do_dec_stat(A_INT, STAT_DEC_TEMPORARY); break;
+		case TRAP_OF_INTELLIGENCE_II:  ident = do_dec_stat(A_INT, STAT_DEC_NORMAL); break;
+		case TRAP_OF_INTELLIGENCE_III: ident = do_dec_stat(A_INT, STAT_DEC_PERMANENT); break;
+		case TRAP_OF_WISDOM_I:         ident = do_dec_stat(A_WIS, STAT_DEC_TEMPORARY); break;
+		case TRAP_OF_WISDOM_II:        ident = do_dec_stat(A_WIS, STAT_DEC_NORMAL); break;
+		case TRAP_OF_WISDOM_III:       ident = do_dec_stat(A_WIS, STAT_DEC_PERMANENT); break;
+		case TRAP_OF_FUMBLING_I:       ident = do_dec_stat(A_DEX, STAT_DEC_TEMPORARY); break;
+		case TRAP_OF_FUMBLING_II:      ident = do_dec_stat(A_DEX, STAT_DEC_NORMAL); break;
+		case TRAP_OF_FUMBLING_III:     ident = do_dec_stat(A_DEX, STAT_DEC_PERMANENT); break;
+		case TRAP_OF_WASTING_I:        ident = do_dec_stat(A_CON, STAT_DEC_TEMPORARY); break;
+		case TRAP_OF_WASTING_II:       ident = do_dec_stat(A_CON, STAT_DEC_NORMAL); break;
+		case TRAP_OF_WASTING_III:      ident = do_dec_stat(A_CON, STAT_DEC_PERMANENT); break;
+		case TRAP_OF_BEAUTY_I:         ident = do_dec_stat(A_CHR, STAT_DEC_TEMPORARY); break;
+		case TRAP_OF_BEAUTY_II:        ident = do_dec_stat(A_CHR, STAT_DEC_NORMAL); break;
+		case TRAP_OF_BEAUTY_III:       ident = do_dec_stat(A_CHR, STAT_DEC_PERMANENT); break;
 
-      /* Trap of Curse Weapon */
-      case TRAP_OF_CURSE_WEAPON:
-         ident = curse_weapon();
-         break;
-      /* Trap of Curse Armor */
-      case TRAP_OF_CURSE_ARMOR:
-         ident = curse_armor();
-         break;
-      /* Earthquake Trap */
-      case TRAP_OF_EARTHQUAKE:
-         msg_print("As you touch the trap, the ground starts to shake.");
-         earthquake(y, x, 10);
-         ident=TRUE;
-         break;
-      /* Poison Needle Trap */
-      case TRAP_OF_POISON_NEEDLE:
-         if (!(p_ptr->resist_pois || p_ptr->oppose_pois))
-         {
-            msg_print("You prick yourself on a poisoned needle.");
-            (void)set_poisoned(p_ptr->poisoned + rand_int(15) + 10);
-            ident=TRUE;
-         }
-         else
-         {
-            msg_print("You prick yourself on a needle.");
-         }
-         break;
-      /* Summon Monster Trap */
-      case TRAP_OF_SUMMON_MONSTER:
-         {
-            msg_print("A spell hangs in the air.");
-            for (k = 0; k < randint(3); k++) ident |= summon_specific(y, x, max_dlv[dungeon_type], 0);
-            break;
-         }
-      /* Summon Undead Trap */
-      case TRAP_OF_SUMMON_UNDEAD:
-         {
-            msg_print("A mighty spell hangs in the air.");
-            for (k = 0; k < randint(3); k++) ident |= summon_specific(y, x, max_dlv[dungeon_type], SUMMON_UNDEAD);
-            break;
-         }
-      /* Summon Greater Undead Trap */
-      case TRAP_OF_SUMMON_GREATER_UNDEAD:
-         {
-            msg_print("An old and evil spell hangs in the air.");
-            for (k = 0; k < randint(3); k++) ident |= summon_specific(y, x, max_dlv[dungeon_type], SUMMON_HI_UNDEAD);
-            break;
-         }
-      /* Teleport Trap */
-      case TRAP_OF_TELEPORT:
-         msg_print("The world whirls around you.");
-         teleport_player(RATIO*67);
-         ident=TRUE;
-         break;
-      /* Paralyzing Trap */
-      case TRAP_OF_PARALYZING:
-         if (!p_ptr->free_act)
-         {
-            msg_print("You touch a poisoned part and can't move.");
-            (void)set_paralyzed(p_ptr->paralyzed + rand_int(10) + 10);
-            ident=TRUE;
-         }
-         else
-         {
-            msg_print("You prick yourself on a needle.");
-         }
-         break;
-      /* Explosive Device */
-      case TRAP_OF_EXPLOSIVE_DEVICE:
-         msg_print("A hidden explosive device explodes in your face.");
-         take_hit(damroll(5, 8), "an explosion");
-         ident=TRUE;
-         break;
-      /* Teleport Away Trap */
-      case TRAP_OF_TELEPORT_AWAY:
-         {
-            int item, amt;
-            object_type *o_ptr;
+		/* Trap of Curse Weapon */
+		case TRAP_OF_CURSE_WEAPON:
+		{
+			 ident = curse_weapon();
+			 break;
+		}
 
-            /* teleport away all items */
-            while (cave[y][x].o_idx != 0)
-            {
-                item = cave[y][x].o_idx;
-                amt = o_list[cave[y][x].o_idx].number;
-                o_ptr = &o_list[cave[y][x].o_idx];
+		/* Trap of Curse Armor */
+		case TRAP_OF_CURSE_ARMOR:
+		{
+			ident = curse_armor();
+			break;
+		}
 
-                ident = do_trap_teleport_away(o_ptr, y, x);
+		/* Earthquake Trap */
+		case TRAP_OF_EARTHQUAKE:
+		{
+			msg_print("As you touch the trap, the ground starts to shake.");
+			earthquake(y, x, 10);
+			ident = TRUE;
+			break;
+		}
 
-                floor_item_increase(item, -amt);
-                floor_item_optimize(item);
-            }
-         }
-         break;
-      /* Lose Memory Trap */
-      case TRAP_OF_LOSE_MEMORY:
-         lose_exp(p_ptr->exp / 4);
-         ident |= dec_stat(A_WIS, rand_int(20)+10, STAT_DEC_NORMAL);
-         ident |= dec_stat(A_INT, rand_int(20)+10, STAT_DEC_NORMAL);
-         if (!p_ptr->resist_conf)
-         {
-            if (set_confused(p_ptr->confused + rand_int(100) + 50))
-            ident=TRUE;
-         }
-         if (ident)
-            msg_print("You suddenly don't remember what you were doing.");
-         else
-            msg_print("You feel an alien force probing your mind.");
-         break;
-      /* Bitter Regret Trap */
-      case TRAP_OF_BITTER_REGRET:
-         msg_print("An age-old and hideous sounding spell reverbs of the walls.");
-         ident |= dec_stat(A_DEX, 25, TRUE);
-         ident |= dec_stat(A_WIS, 25, TRUE);
-         ident |= dec_stat(A_CON, 25, TRUE);
-         ident |= dec_stat(A_STR, 25, TRUE);
-         ident |= dec_stat(A_CHR, 25, TRUE);
-         ident |= dec_stat(A_INT, 25, TRUE);
-         break;
-      /* Bowel Cramps Trap */
-      case TRAP_OF_BOWEL_CRAMPS:
-         msg_print("A wretched smelling gas cloud upsets your stomach.");
-         (void)set_food(PY_FOOD_STARVE - 1);
-         (void)set_poisoned(0);
-         if (!p_ptr->free_act)
-         {
-            (void)set_paralyzed(p_ptr->paralyzed + rand_int(10) + 10);
-         }
-         ident=TRUE;
-         break;
-      /* Blindness/Confusion Trap */
-      case TRAP_OF_BLINDNESS_CONFUSION:
-         msg_print("A powerful magic protected this.");
-         if (!p_ptr->resist_blind)
-         {
-            (void)set_blind(p_ptr->blind + rand_int(100) + 100);
-            ident=TRUE;
-         }
-         if (!p_ptr->resist_conf)
-         {
-            if (set_confused(p_ptr->confused + rand_int(20) + 15))
-            ident=TRUE;
-         }
-         break;
-      /* Aggravation Trap */
-      case TRAP_OF_AGGRAVATION:
-         msg_print("You hear a hollow noise echoing through the dungeons.");
-         aggravate_monsters(1);
-         break;
-      /* Multiplication Trap */
-      case TRAP_OF_MULTIPLICATION:
-      {
-         msg_print("You hear a loud click.");
-         for(k = -1; k <= 1; k++)
-         for(l = -1; l <= 1; l++)
-         {
-                if(in_bounds(py + l, px + k) && !cave[py + l][px + k].t_idx)
-                {
-                        place_trap(py + l, px + k);
-                }
-         }
-         ident = TRUE;
-         break;
-      }
-      /* Steal Item Trap */
-      case TRAP_OF_STEAL_ITEM:
-         {
-            /* please note that magical stealing is not so easily circumvented */
-            if (!p_ptr->paralyzed &&
-                (rand_int(160) < (adj_dex_safe[p_ptr->stat_ind[A_DEX]] +
-                                  p_ptr->lev)))
-            {
-               /* Saving throw message */
-               msg_print("Your backpack seems to vibrate strangely!");
-               break;
-            }
-            /* Find an item */
-            for (k = 0; k < rand_int(10); k++)
-            {
-               char i_name[80];
+		/* Poison Needle Trap */
+		case TRAP_OF_POISON_NEEDLE:
+		{
+			if (!(p_ptr->resist_pois || p_ptr->oppose_pois))
+			{
+				msg_print("You prick yourself on a poisoned needle.");
+				(void)set_poisoned(p_ptr->poisoned + rand_int(15) + 10);
+				ident = TRUE;
+			}
+			else
+			{
+				msg_print("You prick yourself on a needle.");
+			}
+			break;
+		}
 
-               /* Pick an item */
-               s16b i = rand_int(INVEN_PACK);
+		/* Summon Monster Trap */
+		case TRAP_OF_SUMMON_MONSTER:
+		{
+			msg_print("A spell hangs in the air.");
+			for (k = 0; k < randint(3); k++)
+			{
+				ident |= summon_specific(y, x, max_dlv[dungeon_type], 0);
+			}
+			break;
+		}
 
-               /* Obtain the item */
-               object_type *j_ptr = &inventory[i], *q_ptr, forge;
+		/* Summon Undead Trap */
+		case TRAP_OF_SUMMON_UNDEAD:
+		{
+			msg_print("A mighty spell hangs in the air.");
+			for (k = 0; k < randint(3); k++)
+			{
+				ident |= summon_specific(y, x, max_dlv[dungeon_type],
+				                         SUMMON_UNDEAD);
+			}
+			break;
+		}
 
-               /* Accept real items */
-               if (!j_ptr->k_idx) continue;
+		/* Summon Greater Undead Trap */
+		case TRAP_OF_SUMMON_GREATER_UNDEAD:
+		{
+			msg_print("An old and evil spell hangs in the air.");
+			for (k = 0; k < randint(3); k++)
+			{
+				ident |= summon_specific(y, x, max_dlv[dungeon_type],
+				                         SUMMON_HI_UNDEAD);
+			}
+			break;
+		}
 
-               /* Don't steal artifacts  -CFT */
-               if (artifact_p(j_ptr)) continue;
+		/* Teleport Trap */
+		case TRAP_OF_TELEPORT:
+		{
+			msg_print("The world whirls around you.");
+			teleport_player(RATIO * 67);
+			ident = TRUE;
+			break;
+		}
 
-               /* Get a description */
-               object_desc(i_name, j_ptr, FALSE, 3);
+		/* Paralyzing Trap */
+		case TRAP_OF_PARALYZING:
+		{
+			if (!p_ptr->free_act)
+			{
+				msg_print("You touch a poisoned part and can't move.");
+				(void)set_paralyzed(p_ptr->paralyzed + rand_int(10) + 10);
+				ident = TRUE;
+			}
+			else
+			{
+				msg_print("You prick yourself on a needle.");
+			}
+			break;
+		}
 
-               /* Message */
-               msg_format("%sour %s (%c) was stolen!",
-                          ((j_ptr->number > 1) ? "One of y" : "Y"),
-                          i_name, index_to_label(i));
+		/* Explosive Device */
+		case TRAP_OF_EXPLOSIVE_DEVICE:
+		{
+			msg_print("A hidden explosive device explodes in your face.");
+			take_hit(damroll(5, 8), "an explosion");
+			ident = TRUE;
+			break;
+		}
 
-               /* Create the item */
-	       q_ptr = &forge;
-	       object_copy(q_ptr, j_ptr);
-	       q_ptr->number = 1;
+		/* Teleport Away Trap */
+		case TRAP_OF_TELEPORT_AWAY:
+		{
+			int item, amt;
+			object_type *o_ptr;
 
-	       /* Drop it somewhere */
-               do_trap_teleport_away(q_ptr, y, x);
+			/* teleport away all items */
+			while (cave[y][x].o_idx != 0)
+			{
+				item = cave[y][x].o_idx;
 
-	       inven_item_increase(i,-1);
-               inven_item_optimize(i);
-               ident=TRUE;
-            }
-            break;
-         }
-      /* Summon Fast Quylthulgs Trap */
-      case TRAP_OF_SUMMON_FAST_QUYLTHULGS:
-         for (k = 0; k < randint(3); k++)
-         {
-            ident |= summon_specific(y, x, max_dlv[dungeon_type], SUMMON_QUYLTHULG);
-         }
-         if (ident)
-         {
-            msg_print("You suddenly have company.");
-            (void)set_slow(p_ptr->slow + randint(25) + 15);
-         }
-         break;
-      /* Trap of Sinking */
-      case TRAP_OF_SINKING:
-         msg_print("You fell through a trap door!");
-         if (p_ptr->ffall)
-         {
-            if (d_ptr->flags1 & DF1_TOWER) msg_print("You float gently down to the previous level.");
-            else msg_print("You float gently down to the next level.");
-         }
-         else
-         {
-            take_hit(damroll(2,8), "a trap door");
-         }
+				o_ptr = &o_list[item];
 
-	 /* Still alive and autosave enabled */
-	 if (autosave_l && (p_ptr->chp >= 0))
-	 {
-	    is_autosave = TRUE;
-	    msg_print("Autosaving the game...");
-	    do_cmd_save_game();
-	    is_autosave = FALSE;
-	 }
+				amt = o_ptr->number;
 
-         if (d_ptr->flags1 & DF1_TOWER) dun_level--;
-         else dun_level++;
+				ident = do_trap_teleport_away(o_ptr, y, x);
 
-	 /* Leaving */
-	 p_ptr->leaving = TRUE;
-         break;
-      /* Trap of Mana Drain */
-      case TRAP_OF_MANA_DRAIN:
-         if (p_ptr->csp>0)
-         {
-            p_ptr->csp = 0;
-            p_ptr->csp_frac = 0;
-            p_ptr->redraw |= (PR_MANA);
-            msg_print("You sense a great loss.");
-            ident=TRUE;
-         }
-         else
-         {
-            if (p_ptr->msp==0) /* no sense saying this unless you never have mana */
-            {
-               msg_format("Suddenly you feel glad you're only a %s",cp_ptr->title + c_name);
-            }
-            else
-            {
-               msg_print("Your head feels dizzy for a moment.");
-            }
-         }
-         break;
-      /* Trap of Missing Money */
-      case TRAP_OF_MISSING_MONEY:
-         {
-            u32b gold = (p_ptr->au / 10) + randint(25);
+				floor_item_increase(item, -amt);
+				floor_item_optimize(item);
+			}
+			break;
+		}
 
-            if (gold < 2) gold = 2;
-            if (gold > 5000) gold = (p_ptr->au / 20) + randint(3000);
-            if (gold > p_ptr->au) gold = p_ptr->au;
-            p_ptr->au -= gold;
-            if (gold <= 0)
-            {
-                msg_print("You feel something touching you.");
-            }
-            else if (p_ptr->au)
-            {
-                msg_print("Your purse feels lighter.");
-                msg_format("%ld coins were stolen!", (long)gold);
-                ident=TRUE;
-            }
-            else
-            {
-                msg_print("Your purse feels empty.");
-                msg_print("All of your coins were stolen!");
-                ident=TRUE;
-            }
-            p_ptr->redraw |= (PR_GOLD);
-         }
-         break;
-      /* Trap of No Return */
-      case TRAP_OF_NO_RETURN:
-         {
-            object_type *j_ptr;
-            s16b j;
+		/* Lose Memory Trap */
+		case TRAP_OF_LOSE_MEMORY:
+		{
+			lose_exp(p_ptr->exp / 4);
 
-            for (j=0;j<INVEN_WIELD;j++)
-            {
-               if (!inventory[j].k_idx) continue;
-               j_ptr = &inventory[j];
-               if ((j_ptr->tval==TV_SCROLL)
-                    && (j_ptr->sval==SV_SCROLL_WORD_OF_RECALL))
-               {
-		  inven_item_increase(j, -j_ptr->number);
-                  inven_item_optimize(j);
-                  combine_pack();
-                  reorder_pack();
-                  if (!ident)
-                     msg_print("A small fire works it's way through your backpack. Some scrolls are burnt.");
-                  else
-                     msg_print("The fire hasn't finished.");
-                  ident=TRUE;
-               }
-               else if ((j_ptr->tval==TV_ROD_MAIN) && (j_ptr->pval == SV_ROD_RECALL))
-               {
-                  j_ptr->timeout = 0; /* a long time */
-                  if (!ident) msg_print("You feel the air stabilize around you.");
-                  ident=TRUE;
-               }
-            }
-            if ((!ident) && (p_ptr->word_recall))
-            {
-               msg_print("You feel like staying around.");
-               p_ptr->word_recall = 0;
-               ident=TRUE;
-            }
-         }
-         break;
-      /* Trap of Silent Switching */
-      case TRAP_OF_SILENT_SWITCHING:
-         {
-            s16b i,j,slot1,slot2;
-            object_type *j_ptr, *k_ptr;
-            for (i=INVEN_WIELD;i<INVEN_TOTAL;i++)
-            {
-               j_ptr = &inventory[i];
-               if (!j_ptr->k_idx) continue;
-               slot1=wield_slot(j_ptr);
-               for (j=0;j<INVEN_WIELD;j++)
-               {
-                  k_ptr = &inventory[j];
-                  if (!k_ptr->k_idx) continue;
-                  /* this is a crude hack, but it prevent wielding 6 torches... */
-                  if (k_ptr->number > 1) continue;
-                  slot2=wield_slot(k_ptr);
-                  /* a chance of 4 in 5 of switching something, then 2 in 5 to do it again */
-                  if ((slot1==slot2) && (rand_int(100)<(80-ident*40)))
-                  {
-                     object_type tmp_obj;
-                     tmp_obj = inventory[j];
-                     inventory[j] = inventory[i];
-                     inventory[i] = tmp_obj;
-                     ident=TRUE;
-                  }
-               }
-            }
-            if (ident)
-            {
-               p_ptr->update |= (PU_BONUS);
-               p_ptr->update |= (PU_TORCH);
-               p_ptr->update |= (PU_MANA);
-               msg_print("You somehow feel an other person.");
-            }
-            else
-            {
-               msg_print("You feel a lack of useful items.");
-            }
-         }
-         break;
-      /* Trap of Walls */
-      case TRAP_OF_WALLS:
-         ident = player_handle_trap_of_walls();
-         break;
-      /* Trap of Calling Out */
-      case TRAP_OF_CALLING_OUT:
-         {
-            ident=do_player_trap_call_out();
-            if (!ident)
-            {
-               /* Increase "afraid" */
-               if (p_ptr->resist_fear)
-               {
-                   msg_print("You feel as if you had a nightmare!");
-               }
-               else if (rand_int(100) < p_ptr->skill_sav)
-               {
-                   msg_print("You remember having a nightmare!");
-               }
-               else
-               {
-                  if (set_afraid(p_ptr->afraid + 3 + randint(40)))
-                  {
-                     msg_print("You have a vision of a powerful enemy.");
-                  }
-               }
-            }
-         }
-         break;
-      /* Trap of Sliding */
-      case TRAP_OF_SLIDING:
-         break;
-      /* Trap of Charges Drain */
-      case TRAP_OF_CHARGES_DRAIN:
-         {
-            s16b         i;
-            object_type *j_ptr;
-            /* Find an item */
-            for (k = 0; k < 10; k++)
-            {
-               i = rand_int(INVEN_PACK);
-               j_ptr = &inventory[i];
-               /* Drain charged wands/staffs */
-               if (((j_ptr->tval == TV_STAFF) || (j_ptr->tval == TV_WAND)) &&
-                   (j_ptr->pval))
-               {
-                  ident = TRUE;
-                  j_ptr->pval = j_ptr->pval / (randint(4)+1);
-                  /* Window stuff */
-                  p_ptr->window |= PW_INVEN;
-                  /* Combine / Reorder the pack */
-                  p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-                  if (randint(10)>3) break; /* 60% chance of only 1 */
-               }
-            }
-            if (ident)
-              msg_print("Your backpack seems to be turned upside down.");
-            else
-              msg_print("You hear a wail of great disappointment.");
-         }
-         break;
-      /* Trap of Stair Movement */
-      case TRAP_OF_STAIR_MOVEMENT:
-         {
-            s16b cx,cy,i,j;
-            s16b cnt = 0;
-            s16b cnt_seen = 0;
-            s16b tmps, tmpx;
-            u32b tmpf;
-            bool seen = FALSE;
-            s16b index_x[20],index_y[20]; /* 20 stairs per level is enough? */
-            cave_type *cv_ptr;
-            if (max_dlv[dungeon_type]!=99) /* no sense in relocating that stair! */
-            {
-               for (cx=0;cx<cur_wid;cx++)
-               {
-                  for (cy=0;cy<cur_hgt;cy++)
-                  {
-                     cv_ptr = &cave[cy][cx];
-                     if ((cv_ptr->feat != FEAT_LESS) &&
-			 (cv_ptr->feat != FEAT_MORE) &&
-			 (cv_ptr->feat != FEAT_SHAFT_UP) &&
-			 (cv_ptr->feat != FEAT_SHAFT_DOWN)) continue;
+			ident |= dec_stat(A_WIS, rand_int(20)+10, STAT_DEC_NORMAL);
+			ident |= dec_stat(A_INT, rand_int(20)+10, STAT_DEC_NORMAL);
 
-                     index_x[cnt]=cx;
-                     index_y[cnt]=cy;
-                     cnt++;
-                  }
-               }
-               if (cnt==0)
-               {
-                  if (wizard) msg_print("Executing moving stairs trap on level with no stairs!");
-                  break;
-               }
-               else
-               {
-                  for (i=0;i<cnt;i++)
-                  {
-                     for (j=0;j<10;j++) /* try 10 times to relocate */
-                     {
-                        cave_type *c_ptr2 = &cave[index_y[i]][index_x[i]];
+			if (!p_ptr->resist_conf)
+			{
+				ident |= set_confused(p_ptr->confused + rand_int(100) + 50);
+			}
 
-                        cx=rand_int(cur_wid);
-                        cy=rand_int(cur_hgt);
+			if (ident)
+			{
+				msg_print("You suddenly don't remember what you were doing.");
+			}
+			else
+			{
+				msg_print("You feel an alien force probing your mind.");
+			}
+			break;
+		}
+		/* Bitter Regret Trap */
+		case TRAP_OF_BITTER_REGRET:
+		{
+			msg_print("An age-old and hideous sounding spell reverbs of the walls.");
 
-                        if ((cx==index_x[i]) || (cy==index_y[i])) continue;
-                        if (!cave_valid_bold(cy, cx) || cave[cy][cx].o_idx!=0) continue;
+			ident |= dec_stat(A_DEX, 25, TRUE);
+			ident |= dec_stat(A_WIS, 25, TRUE);
+			ident |= dec_stat(A_CON, 25, TRUE);
+			ident |= dec_stat(A_STR, 25, TRUE);
+			ident |= dec_stat(A_CHR, 25, TRUE);
+			ident |= dec_stat(A_INT, 25, TRUE);
+			break;
+		}
 
-                        /* don't put anything in vaults */
-                        if (cave[cy][cx].info & CAVE_ICKY) continue;
+		/* Bowel Cramps Trap */
+		case TRAP_OF_BOWEL_CRAMPS:
+		{
+			msg_print("A wretched smelling gas cloud upsets your stomach.");
 
-                        tmpf = cave[cy][cx].feat;
-                        tmps = cave[cy][cx].info;
-                        tmpx = cave[cy][cx].mimic;
-                        cave[cy][cx].feat = c_ptr2->feat;
-                        cave[cy][cx].info = c_ptr2->info;
-                        cave[cy][cx].mimic = c_ptr2->mimic;
-                        c_ptr2->feat  = tmpf;
-                        c_ptr2->info  = tmps;
-                        c_ptr2->mimic = tmpx;
+			(void)set_food(PY_FOOD_STARVE - 1);
+			(void)set_poisoned(0);
 
-                        /* if we are placing walls in rooms, make them rubble instead */
-                        if ((c_ptr2->info & CAVE_ROOM) &&
-			    (c_ptr2->feat >= FEAT_WALL_EXTRA) &&
-			    (c_ptr2->feat <= FEAT_PERM_SOLID))
-                        {
-			   cave[index_y[i]][index_x[i]].feat = FEAT_RUBBLE;
+			if (!p_ptr->free_act)
+			{
+				(void)set_paralyzed(p_ptr->paralyzed + rand_int(10) + 10);
+			}
+			ident = TRUE;
+			break;
+		}
+
+		/* Blindness/Confusion Trap */
+		case TRAP_OF_BLINDNESS_CONFUSION:
+		{
+			msg_print("A powerful magic protected this.");
+
+			if (!p_ptr->resist_blind)
+			{
+				ident |= set_blind(p_ptr->blind + rand_int(100) + 100);
+			}
+			if (!p_ptr->resist_conf)
+			{
+				ident |= set_confused(p_ptr->confused + rand_int(20) + 15);
+			}
+			break;
+		}
+
+		/* Aggravation Trap */
+		case TRAP_OF_AGGRAVATION:
+		{
+			msg_print("You hear a hollow noise echoing through the dungeons.");
+			aggravate_monsters(1);
+			break;
+		}
+
+		/* Multiplication Trap */
+		case TRAP_OF_MULTIPLICATION:
+		{
+			msg_print("You hear a loud click.");
+			for(k = -1; k <= 1; k++)
+			for(l = -1; l <= 1; l++)
+			{
+				if((in_bounds(py + l, px + k)) &&
+				   (!cave[py + l][px + k].t_idx))
+				{
+					place_trap(py + l, px + k);
+				}
+			}
+			ident = TRUE;
+			break;
+		}
+
+		/* Steal Item Trap */
+		case TRAP_OF_STEAL_ITEM:
+		{
+			/*
+			 * please note that magical stealing is not so 
+			 * easily circumvented
+			 */
+			if (!p_ptr->paralyzed &&
+			    (rand_int(160) < (adj_dex_safe[p_ptr->stat_ind[A_DEX]] +
+			                     p_ptr->lev)))
+			{
+				/* Saving throw message */
+				msg_print("Your backpack seems to vibrate strangely!");
+				break;
+			}
+
+			/* Find an item */
+			for (k = 0; k < rand_int(10); k++)
+			{
+				char i_name[80];
+				object_type *j_ptr, *q_ptr, forge;
+
+				/* Pick an item */
+				s16b i = rand_int(INVEN_PACK);
+
+				/* Obtain the item */
+				j_ptr = &inventory[i];
+
+				/* Accept real items */
+				if (!j_ptr->k_idx) continue;
+
+				/* Don't steal artifacts  -CFT */
+				if (artifact_p(j_ptr)) continue;
+
+				/* Get a description */
+				object_desc(i_name, j_ptr, FALSE, 3);
+
+				/* Message */
+				msg_format("%sour %s (%c) was stolen!",
+				           ((j_ptr->number > 1) ? "One of y" : "Y"),
+				           i_name, index_to_label(i));
+
+				/* Create the item */
+				q_ptr = &forge;
+				object_copy(q_ptr, j_ptr);
+				q_ptr->number = 1;
+
+				/* Drop it somewhere */
+				do_trap_teleport_away(q_ptr, y, x);
+
+				inven_item_increase(i, -1);
+				inven_item_optimize(i);
+				ident = TRUE;
+			}
+			break;
+		}
+
+		/* Summon Fast Quylthulgs Trap */
+		case TRAP_OF_SUMMON_FAST_QUYLTHULGS:
+		{
+			for (k = 0; k < randint(3); k++)
+			{
+				ident |= summon_specific(y, x, max_dlv[dungeon_type], SUMMON_QUYLTHULG);
+			}
+
+			if (ident)
+			{
+				msg_print("You suddenly have company.");
+				(void)set_slow(p_ptr->slow + randint(25) + 15);
+			}
+			break;
+		}
+
+		/* Trap of Sinking */
+		case TRAP_OF_SINKING:
+		{
+			msg_print("You fell through a trap door!");
+
+			if (p_ptr->ffall)
+			{
+				if (d_ptr->flags1 & DF1_TOWER)
+				{
+					msg_print("You float gently down to the previous level.");
+				}
+				else
+				{
+					msg_print("You float gently down to the next level.");
+				}
+			}
+			else
+			{
+				take_hit(damroll(2,8), "a trap door");
+			}
+
+			/* Still alive and autosave enabled */
+			if (autosave_l && (p_ptr->chp >= 0))
+			{
+				is_autosave = TRUE;
+				msg_print("Autosaving the game...");
+				do_cmd_save_game();
+				is_autosave = FALSE;
+			}
+
+			if (d_ptr->flags1 & DF1_TOWER) dun_level--;
+			else dun_level++;
+
+			/* Leaving */
+			p_ptr->leaving = TRUE;
+			break;
+		}
+
+		/* Trap of Mana Drain */
+		case TRAP_OF_MANA_DRAIN:
+		{
+			if (p_ptr->csp > 0)
+			{
+				p_ptr->csp = 0;
+				p_ptr->csp_frac = 0;
+				p_ptr->redraw |= (PR_MANA);
+				msg_print("You sense a great loss.");
+				ident = TRUE;
+			}
+			else if (p_ptr->msp == 0)
+			{
+				/* no sense saying this unless you never have mana */
+				msg_format("Suddenly you feel glad you're only a %s",
+				           spp_ptr->title + c_name);
+			}
+			else
+			{
+				msg_print("Your head feels dizzy for a moment.");
+			}
+			break;
+		}
+		/* Trap of Missing Money */
+		case TRAP_OF_MISSING_MONEY:
+		{
+			u32b gold = (p_ptr->au / 10) + randint(25);
+
+			if (gold < 2) gold = 2;
+			if (gold > 5000) gold = (p_ptr->au / 20) + randint(3000);
+			if (gold > p_ptr->au) gold = p_ptr->au;
+
+			p_ptr->au -= gold;
+			if (gold <= 0)
+			{
+				msg_print("You feel something touching you.");
+			}
+			else if (p_ptr->au)
+			{
+				msg_print("Your purse feels lighter.");
+				msg_format("%ld coins were stolen!", (long)gold);
+				ident = TRUE;
+			}
+			else
+			{
+				msg_print("Your purse feels empty.");
+				msg_print("All of your coins were stolen!");
+				ident = TRUE;
+			}
+			p_ptr->redraw |= (PR_GOLD);
+			break;
+		}
+
+		/* Trap of No Return */
+		case TRAP_OF_NO_RETURN:
+		{
+			object_type *j_ptr;
+			s16b j;
+
+			for (j = 0; j < INVEN_WIELD; j++)
+			{
+				if (!inventory[j].k_idx) continue;
+
+				j_ptr = &inventory[j];
+
+				if ((j_ptr->tval == TV_SCROLL) &&
+				    (j_ptr->sval == SV_SCROLL_WORD_OF_RECALL))
+				{
+					inven_item_increase(j, -j_ptr->number);
+					inven_item_optimize(j);
+					combine_pack();
+					reorder_pack();
+					if (!ident)
+					{
+						msg_print("A small fire works it's way through your backpack. "
+						          "Some scrolls are burnt.");
+					}
+					else
+					{
+						msg_print("The fire hasn't finished.");
+					}
+					ident = TRUE;
+				}
+				else if ((j_ptr->tval == TV_ROD_MAIN) &&
+				         (j_ptr->pval == SV_ROD_RECALL))
+				{
+					j_ptr->timeout = 0; /* a long time */
+					if (!ident) msg_print("You feel the air stabilize around you.");
+					ident = TRUE;
+				}
+			}
+			if ((!ident) && (p_ptr->word_recall))
+			{
+				msg_print("You feel like staying around.");
+				p_ptr->word_recall = 0;
+				ident = TRUE;
+			}
+			break;
+		}
+
+		/* Trap of Silent Switching */
+		case TRAP_OF_SILENT_SWITCHING:
+		{
+			s16b i,j,slot1,slot2;
+			object_type *j_ptr, *k_ptr;
+
+			for (i=INVEN_WIELD;i<INVEN_TOTAL;i++)
+			{
+				j_ptr = &inventory[i];
+
+				if (!j_ptr->k_idx) continue;
+
+				slot1 = wield_slot(j_ptr);
+
+				for (j = 0; j < INVEN_WIELD; j++)
+				{
+					k_ptr = &inventory[j];
+
+					if (!k_ptr->k_idx) continue;
+
+					/* this is a crude hack, but it prevent wielding 6 torches... */
+					if (k_ptr->number > 1) continue;
+
+					slot2 = wield_slot(k_ptr);
+
+					/* a chance of 4 in 5 of switching something, then 2 in 5 to do it again */
+					if ((slot1 == slot2) &&
+					    (rand_int(100) < (80 - (ident * 40))))
+					{
+						object_type tmp_obj;
+
+						tmp_obj = inventory[j];
+						inventory[j] = inventory[i];
+						inventory[i] = tmp_obj;
+						ident = TRUE;
+					}
+				}
+			}
+
+			if (ident)
+			{
+				p_ptr->update |= (PU_BONUS);
+				p_ptr->update |= (PU_TORCH);
+				p_ptr->update |= (PU_MANA);
+				msg_print("You somehow feel an other person.");
+			}
+			else
+			{
+				msg_print("You feel a lack of useful items.");
+			}
+			break;
+		}
+
+		/* Trap of Walls */
+		case TRAP_OF_WALLS:
+		{
+			ident = player_handle_trap_of_walls();
+			break;
+		}
+
+		/* Trap of Calling Out */
+		case TRAP_OF_CALLING_OUT:
+		{
+			ident = do_player_trap_call_out();
+
+			if (!ident)
+			{
+				/* Increase "afraid" */
+				if (p_ptr->resist_fear)
+				{
+					msg_print("You feel as if you had a nightmare!");
+				}
+				else if (rand_int(100) < p_ptr->skill_sav)
+				{
+					msg_print("You remember having a nightmare!");
+				}
+				else
+				{
+					if (set_afraid(p_ptr->afraid + 3 + randint(40)))
+					{
+						msg_print("You have a vision of a powerful enemy.");
+					}
+				}
+			}
+			break;
+		}
+
+		/* Trap of Sliding */
+		case TRAP_OF_SLIDING:
+			break;
+
+		/* Trap of Charges Drain */
+		case TRAP_OF_CHARGES_DRAIN:
+		{
+			/* Find an item */
+			for (k = 0; k < 10; k++)
+			{
+				s16b i = rand_int(INVEN_PACK);
+
+				object_type *j_ptr = &inventory[i];
+
+				/* Drain charged wands/staffs */
+				if (((j_ptr->tval == TV_STAFF) ||
+				     (j_ptr->tval == TV_WAND)) &&
+				    (j_ptr->pval))
+				{
+					ident = TRUE;
+					j_ptr->pval = j_ptr->pval / (randint(4)+1);
+
+					/* 60% chance of only 1 */
+					if (randint(10) > 3) break;
+				}
+			}
+
+			if (ident)
+			{
+				/* Window stuff */
+				p_ptr->window |= PW_INVEN;
+				/* Combine / Reorder the pack */
+				p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+
+				msg_print("Your backpack seems to be turned upside down.");
+			}
+			else
+			{
+				msg_print("You hear a wail of great disappointment.");
+			}
+			break;
+		}
+
+		/* Trap of Stair Movement */
+		case TRAP_OF_STAIR_MOVEMENT:
+		{
+			s16b cx,cy,i,j;
+			s16b cnt = 0;
+			s16b cnt_seen = 0;
+			s16b tmps, tmpx;
+			u32b tmpf;
+			bool seen = FALSE;
+			s16b index_x[20], index_y[20]; /* 20 stairs per level is enough? */
+			cave_type *cv_ptr;
+
+			if (max_dlv[dungeon_type] == 99)
+			{
+				/* no sense in relocating that stair! */
+				msg_print("You have a feeling that this trap could be dangerous.");
+				break;
+			}
+
+			for (cx = 0; cx < cur_wid; cx++)
+			for (cy = 0; cy < cur_hgt; cy++)
+			{
+				cv_ptr = &cave[cy][cx];
+
+				if ((cv_ptr->feat != FEAT_LESS) &&
+				    (cv_ptr->feat != FEAT_MORE) &&
+				    (cv_ptr->feat != FEAT_SHAFT_UP) &&
+				    (cv_ptr->feat != FEAT_SHAFT_DOWN)) continue;
+
+				index_x[cnt]=cx;
+				index_y[cnt]=cy;
+				cnt++;
+			}
+
+			if (cnt == 0)
+			{
+				if (wizard) msg_print("Executing moving stairs trap on level with no stairs!");
+				break;
+			}
+
+			for (i = 0; i < cnt; i++)
+			{
+				seen = FALSE;
+
+				for (j = 0; j < 10; j++) /* try 10 times to relocate */
+				{
+					cave_type *cv_ptr = &cave[index_y[i]][index_x[i]];
+					cave_type *cv_ptr2;
+
+					cx = rand_int(cur_wid);
+					cy = rand_int(cur_hgt);
+
+					if ((cx == index_x[i]) || (cy == index_y[i])) continue;
+
+					cv_ptr2 = &cave[cy][cx];
+
+					if (!cave_valid_bold(cy, cx) || cv_ptr2->o_idx != 0) continue;
+
+					/* don't put anything in vaults */
+					if (cv_ptr2->info & CAVE_ICKY) continue;
+
+					tmpx = cv_ptr2->mimic;
+					tmps = cv_ptr2->info;
+					tmpf = cv_ptr2->feat;
+					cave[cy][cx].mimic = cv_ptr->mimic;
+					cave[cy][cx].info = cv_ptr->info;
+					cave_set_feat(cy, cx, cv_ptr->feat);
+					cv_ptr->mimic = tmpx;
+					cv_ptr->info  = tmps;
+					cave_set_feat(index_y[i], index_x[i], tmpf);
+
+					/* if we are placing walls in rooms, make them rubble instead */
+					if ((cv_ptr->info & CAVE_ROOM) &&
+					    (cv_ptr->feat >= FEAT_WALL_EXTRA) &&
+					    (cv_ptr->feat <= FEAT_PERM_SOLID))
+					{
+						cave_set_feat(index_y[i], index_x[i], FEAT_RUBBLE);
+					}
+
+					if (player_has_los_bold(cy, cx))
+					{
+						note_spot(cy,cx);
+						lite_spot(cy,cx);
+						seen=TRUE;
+					}
+					else
+					{
+						cv_ptr2->info &=~CAVE_MARK;
+					}
+
+					if (player_has_los_bold(index_y[i],index_x[i]))
+					{
+						note_spot(index_y[i],index_x[i]);
+						lite_spot(index_y[i],index_x[i]);
+						seen = TRUE;
+					}
+					else
+					{
+						cv_ptr->info &=~CAVE_MARK;
+					}
+					break;
+				}
+
+				if (seen) cnt_seen++;
+			}
+
+			ident = (cnt_seen > 0);
+
+			if ((ident) && (cnt_seen > 1))
+			{
+				msg_print("You see some stairs move.");
+			}
+			else if (ident)
+			{
+				msg_print("You see a stair move.");
+			}
+			else
+			{
+				msg_print("You hear distant scraping noises.");
+			}
+			p_ptr->redraw |= PR_MAP;
+			break;
+		}
+
+		/* Trap of New Trap */
+		case TRAP_OF_NEW:
+		{
+			/* if we're on a floor or on a door, place a new trap */
+			if ((item == -1) || (item == -2))
+			{
+				place_trap(y, x);
+				if (player_has_los_bold(y, x))
+				{
+					note_spot(y, x);
+					lite_spot(y, x);
+				}
+			}
+			else
+			{
+				/* re-trap the chest */
+				place_trap(y, x);
+			}
+			msg_print("You hear a noise, and then it's echo.");
+			ident = FALSE;
+			break;
+		}
+
+		/* Trap of Acquirement */
+		case TRAP_OF_ACQUIREMENT:
+		{
+			/* Get a nice thing */
+			msg_print("You notice something falling off the trap.");
+			acquirement(y, x, 1, TRUE, FALSE);
+
+			/* If we're on a floor or on a door, place a new trap */
+			if ((item == -1) || (item == -2))
+			{
+				place_trap(y, x);
+				if (player_has_los_bold(y, x))
+				{
+					note_spot(y, x);
+					lite_spot(y, x);
+				}
+			}
+			else
+			{
+				/* Re-trap the chest */
+				place_trap(y, x);
+			}
+			msg_print("You hear a noise, and then it's echo.");
+
+			/* Never known */
+			ident = FALSE;
+		}
+		break;
+
+		/* Trap of Scatter Items */
+		case TRAP_OF_SCATTER_ITEMS:
+		{
+			s16b i,j;
+			bool message = FALSE;
+
+			for (i = 0; i < INVEN_PACK; i++)
+			{
+
+				if (!inventory[i].k_idx) continue;
+
+				if (rand_int(10) < 3) continue;
+
+				for (j = 0; j < 10; j++)
+				{
+					object_type tmp_obj, *j_ptr = &tmp_obj;
+					s16b cx = x + 15 - rand_int(30);
+					s16b cy = y + 15 - rand_int(30);
+
+					if (!in_bounds(cy,cx)) continue;
+
+					if (!cave_floor_bold(cy,cx)) continue;
+
+                                        object_copy(j_ptr, &inventory[i]);
+					inven_item_increase(i,-999);
+					inven_item_optimize(i);
+
+					p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+
+					(void)floor_carry(cy, cx, j_ptr);
+
+					if (!message)
+					{
+						msg_print("You feel light-footed.");
+						message = TRUE;
+					}
+
+					if (player_has_los_bold(cy, cx))
+					{
+						char i_name[80];
+
+						object_desc(i_name, &tmp_obj, TRUE, 3);
+						note_spot(cy, cx);
+						lite_spot(cy, cx);
+						ident = TRUE;
+						msg_format("Suddenly %s appear%s!", i_name,
+						           (j_ptr->number > 1) ? "" : "s");
+					}
+					break;
+				}
+			}
+			ident = message;
+			break;
+		}
+
+		/* Trap of Decay */
+		case TRAP_OF_DECAY:
+			break;
+
+		/* Trap of Wasting Wands */
+		case TRAP_OF_WASTING_WANDS:
+		{
+			s16b i;
+			object_type *j_ptr;
+
+			for (i = 0; i < INVEN_PACK; i++)
+			{
+				if (!inventory[i].k_idx) continue;
+
+				j_ptr = &inventory[i];
+
+				if (j_ptr->tval == TV_WAND)
+				{
+					if ((j_ptr->sval >= SV_WAND_NASTY_WAND) &&
+					    (rand_int(5) == 1))
+					{
+						if (object_known_p(j_ptr)) ident = TRUE;
+						j_ptr->sval = rand_int(SV_WAND_NASTY_WAND);
+						j_ptr->k_idx = lookup_kind(j_ptr->tval, j_ptr->sval);
+						p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+					}
+
+					if ((j_ptr->sval >= SV_STAFF_NASTY_STAFF) &&
+					    (rand_int(5) == 1))
+					{
+						if (object_known_p(j_ptr)) ident = TRUE;
+						j_ptr->sval = rand_int(SV_STAFF_NASTY_STAFF);
+						j_ptr->k_idx = lookup_kind(j_ptr->tval, j_ptr->sval);
+						p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+					}
+				}
+			}
+			if (ident)
+			{
+				msg_print("You have lost trust in your backpack!");
+			}
+			else
+			{
+				msg_print("You hear an echoing cry of rage.");
+			}
+			break;
+		}
+
+		/* Trap of Filling */
+		case TRAP_OF_FILLING:
+		{
+			s16b nx, ny;
+
+			for (nx = x - 8; nx <= x + 8; nx++)
+			for (ny = y - 8; ny <= y + 8; ny++)
+			{
+				if (!in_bounds (ny, nx)) continue;
+
+				if (rand_int(distance(ny,nx,y,x)) > 3)
+				{
+					place_trap(ny,nx);
+				}
+			}
+
+			msg_print("The floor vibrates in a strange way.");
+			ident = FALSE;
+			break;
+		}
+
+		case TRAP_OF_DRAIN_SPEED:
+		{
+			object_type *j_ptr;
+			s16b j, chance = 75;
+			u32b f1, f2, f3, f4, f5, esp;
+
+			for (j = 0; j < INVEN_TOTAL; j++)
+			{
+				/* don't bother the overflow slot */
+				if (j == INVEN_PACK) continue;
+
+				if (!inventory[j].k_idx) continue;
+
+				j_ptr = &inventory[j];
+				object_flags(j_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
+
+				/* is it a non-artifact speed item? */
+				if ((!j_ptr->name1) && (f1 & TR1_SPEED))
+				{
+					if (randint(100) < chance)
+					{
+						j_ptr->pval = j_ptr->pval / 2;
+						if (j_ptr->pval == 0)
+						{
+							j_ptr->pval--;
+						}
+						chance /= 2;
+						ident = TRUE;
+					}
+					inven_item_optimize(j);
+				}
+			}
+			if (!ident)
+			{
+				msg_print("You feel some things in your pack vibrating.");
+			}
+			else
+			{
+				combine_pack();
+				reorder_pack();
+				msg_print("You suddenly feel you have time for self-reflection.");
+
+				/* Recalculate bonuses */
+				p_ptr->update |= (PU_BONUS);
+
+				/* Recalculate mana */
+				p_ptr->update |= (PU_MANA);
+
+				/* Window stuff */
+				p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
+			}
+			break;
+		}
+
+		/*
+		 * single missile traps
+		 */
+		case TRAP_OF_ARROW_I:
+			ident = player_handle_missile_trap(1, TV_ARROW, SV_AMMO_NORMAL, 4, 8, 0, "Arrow Trap"); break;
+		case TRAP_OF_ARROW_II:
+			ident = player_handle_missile_trap(1, TV_BOLT, SV_AMMO_NORMAL, 5, 8, 0, "Bolt Trap"); break;
+		case TRAP_OF_ARROW_III:
+			ident = player_handle_missile_trap(1, TV_ARROW, SV_AMMO_HEAVY, 6, 8, 0, "Seeker Arrow Trap"); break;
+		case TRAP_OF_ARROW_IV:
+			ident = player_handle_missile_trap(1, TV_BOLT, SV_AMMO_HEAVY, 8, 10, 0, "Seeker Bolt Trap"); break;
+		case TRAP_OF_POISON_ARROW_I:
+			ident = player_handle_missile_trap(1, TV_ARROW, SV_AMMO_NORMAL, 4, 8, 10+randint(20), "Poison Arrow Trap"); break;
+		case TRAP_OF_POISON_ARROW_II:
+			ident = player_handle_missile_trap(1, TV_BOLT, SV_AMMO_NORMAL, 5, 8, 15+randint(30), "Poison Bolt Trap"); break;
+		case TRAP_OF_POISON_ARROW_III:
+			ident = player_handle_missile_trap(1, TV_ARROW, SV_AMMO_HEAVY, 6, 8, 30+randint(50), "Poison Seeker Arrow Trap"); break;
+		case TRAP_OF_POISON_ARROW_IV:
+			ident = player_handle_missile_trap(1, TV_BOLT, SV_AMMO_HEAVY, 8, 10, 40+randint(70), "Poison Seeker Bolt Trap"); break;
+		case TRAP_OF_DAGGER_I:
+			ident = player_handle_missile_trap(1, TV_SWORD, SV_BROKEN_DAGGER, 2, 8, 0, "Dagger Trap"); break;
+		case TRAP_OF_DAGGER_II:
+			ident = player_handle_missile_trap(1, TV_SWORD, SV_DAGGER, 3, 8, 0, "Dagger Trap"); break;
+		case TRAP_OF_POISON_DAGGER_I:
+			ident = player_handle_missile_trap(1, TV_SWORD, SV_BROKEN_DAGGER, 2, 8, 15+randint(20), "Poison Dagger Trap"); break;
+		case TRAP_OF_POISON_DAGGER_II:
+			ident = player_handle_missile_trap(1, TV_SWORD, SV_DAGGER, 3, 8, 20+randint(30), "Poison Dagger Trap"); break;
+
+		/*
+		 * multiple missile traps
+		 * numbers range from 2 (level 0 to 14) to 10 (level 120 and up)
+		 */
+		case TRAP_OF_ARROWS_I:
+			ident = player_handle_missile_trap(2+(max_dlv[dungeon_type] / 15), TV_ARROW, SV_AMMO_NORMAL, 4, 8, 0, "Arrow Trap"); break;
+		case TRAP_OF_ARROWS_II:
+			ident = player_handle_missile_trap(2+(max_dlv[dungeon_type] / 15), TV_BOLT, SV_AMMO_NORMAL, 5, 8, 0, "Bolt Trap"); break;
+		case TRAP_OF_ARROWS_III:
+			ident = player_handle_missile_trap(2+(max_dlv[dungeon_type] / 15), TV_ARROW, SV_AMMO_HEAVY, 6, 8, 0, "Seeker Arrow Trap"); break;
+		case TRAP_OF_ARROWS_IV:
+			ident = player_handle_missile_trap(2+(max_dlv[dungeon_type] / 15), TV_BOLT, SV_AMMO_HEAVY, 8, 10, 0, "Seeker Bolt Trap"); break;
+		case TRAP_OF_POISON_ARROWS_I:
+			ident = player_handle_missile_trap(2+(max_dlv[dungeon_type] / 15), TV_ARROW, SV_AMMO_NORMAL, 4, 8, 10+randint(20), "Poison Arrow Trap"); break;
+		case TRAP_OF_POISON_ARROWS_II:
+			ident = player_handle_missile_trap(2+(max_dlv[dungeon_type] / 15), TV_BOLT, SV_AMMO_NORMAL, 5, 8, 15+randint(30), "Poison Bolt Trap"); break;
+		case TRAP_OF_POISON_ARROWS_III:
+			ident = player_handle_missile_trap(2+(max_dlv[dungeon_type] / 15), TV_ARROW, SV_AMMO_HEAVY, 6, 8, 30+randint(50), "Poison Seeker Arrow Trap"); break;
+		case TRAP_OF_POISON_ARROWS_IV:
+			ident = player_handle_missile_trap(2+(max_dlv[dungeon_type] / 15), TV_BOLT, SV_AMMO_HEAVY, 8, 10, 40+randint(70), "Poison Seeker Bolt Trap"); break;
+		case TRAP_OF_DAGGERS_I:
+			ident = player_handle_missile_trap(2+(max_dlv[dungeon_type] / 15), TV_SWORD, SV_BROKEN_DAGGER, 2, 8, 0, "Dagger Trap"); break;
+		case TRAP_OF_DAGGERS_II:
+			ident = player_handle_missile_trap(2+(max_dlv[dungeon_type] / 15), TV_SWORD, SV_DAGGER, 3, 8, 0, "Dagger Trap"); break;
+		case TRAP_OF_POISON_DAGGERS_I:
+			ident = player_handle_missile_trap(2+(max_dlv[dungeon_type] / 15), TV_SWORD, SV_BROKEN_DAGGER, 2, 8, 15+randint(20), "Poison Dagger Trap"); break;
+		case TRAP_OF_POISON_DAGGERS_II:
+			ident = player_handle_missile_trap(2+(max_dlv[dungeon_type] / 15), TV_SWORD, SV_DAGGER, 3, 8, 20+randint(30), "Poison Dagger Trap"); break;
+
+		case TRAP_OF_DROP_ITEMS:
+		{
+			s16b i;
+			bool message = FALSE;
+
+			for (i = 0; i < INVEN_PACK; i++)
+			{
+				object_type tmp_obj;
+
+				if (!inventory[i].k_idx) continue;
+				if (randint(100) < 80) continue;
+				if (inventory[i].name1 == ART_POWER) continue;
+
+				tmp_obj = inventory[i];
+
+				/* drop carefully */
+				drop_near(&tmp_obj, 0, y, x);
+				inven_item_increase(i,-999);
+				inven_item_optimize(i);
+				p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+
+				if (!message)
+				{
+					msg_print("You are startled by a sudden sound.");
+					message = TRUE;
+				}
+				ident = TRUE;
+			}
+			if (!ident)
+			{
+				msg_print("You hear a sudden, strange sound.");
+			}
+			break;
+		}
+
+		case TRAP_OF_DROP_ALL_ITEMS:
+		{
+			s16b i;
+			bool message = FALSE;
+
+			for (i = 0; i < INVEN_PACK; i++)
+			{
+				object_type tmp_obj;
+
+				if (!inventory[i].k_idx) continue;
+				if (randint(100) < 10) continue;
+				if (inventory[i].name1 == ART_POWER) continue;
+
+				tmp_obj = inventory[i];
+
+				/* drop carefully */
+				drop_near(&tmp_obj, 0, y, x);
+				inven_item_increase(i,-999);
+				inven_item_optimize(i);
+				p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+
+				if (!message)
+				{
+					msg_print("You are startled a lot by a sudden sound.");
+					message = TRUE;
+				}
+				ident = TRUE;
+			}
+			if (!ident)
+			{
+				msg_print("You hear a sudden, strange sound.");
+			}
+			break;
+		}
+
+		case TRAP_OF_DROP_EVERYTHING:
+		{
+			s16b i;
+			bool message = FALSE;
+
+			for (i = 0; i < INVEN_TOTAL; i++)
+			{
+				object_type tmp_obj;
+				if (!inventory[i].k_idx) continue;
+				if (randint(100) < 30) continue;
+				if (inventory[i].name1 == ART_POWER) continue;
+
+				tmp_obj = inventory[i];
+				/* drop carefully */
+
+				drop_near(&tmp_obj, 0, y, x);
+				inven_item_increase(i,-999);
+				inven_item_optimize(i);
+				p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+
+				if (!message)
+				{
+					msg_print("You are completely startled by a sudden sound.");
+					message = TRUE;
+				}
+				ident = TRUE;
+			}
+			if (!ident)
+			{
+				msg_print("You hear a sudden, strange sound.");
+			}
+			break;
+		}
+
+		/* Bolt Trap */
+		case TRAP_G_ELEC_BOLT:       ident=player_handle_breath_trap(1, GF_ELEC, TRAP_G_ELEC_BOLT); break;
+		case TRAP_G_POIS_BOLT:       ident=player_handle_breath_trap(1, GF_POIS, TRAP_G_POIS_BOLT); break;
+		case TRAP_G_ACID_BOLT:       ident=player_handle_breath_trap(1, GF_ACID, TRAP_G_ACID_BOLT); break;
+		case TRAP_G_COLD_BOLT:       ident=player_handle_breath_trap(1, GF_COLD, TRAP_G_COLD_BOLT); break;
+		case TRAP_G_FIRE_BOLT:       ident=player_handle_breath_trap(1, GF_FIRE, TRAP_G_FIRE_BOLT); break;
+		case TRAP_OF_ELEC_BOLT:       ident=player_handle_breath_trap(1, GF_ELEC, TRAP_OF_ELEC_BOLT); break;
+		case TRAP_OF_POIS_BOLT:       ident=player_handle_breath_trap(1, GF_POIS, TRAP_OF_POIS_BOLT); break;
+		case TRAP_OF_ACID_BOLT:       ident=player_handle_breath_trap(1, GF_ACID, TRAP_OF_ACID_BOLT); break;
+		case TRAP_OF_COLD_BOLT:       ident=player_handle_breath_trap(1, GF_COLD, TRAP_OF_COLD_BOLT); break;
+		case TRAP_OF_FIRE_BOLT:       ident=player_handle_breath_trap(1, GF_FIRE, TRAP_OF_FIRE_BOLT); break;
+		case TRAP_OF_PLASMA_BOLT:     ident=player_handle_breath_trap(1, GF_PLASMA, TRAP_OF_PLASMA_BOLT); break;
+		case TRAP_OF_WATER_BOLT:      ident=player_handle_breath_trap(1, GF_WATER, TRAP_OF_WATER_BOLT); break;
+		case TRAP_OF_LITE_BOLT:       ident=player_handle_breath_trap(1, GF_LITE, TRAP_OF_LITE_BOLT); break;
+		case TRAP_OF_DARK_BOLT:       ident=player_handle_breath_trap(1, GF_DARK, TRAP_OF_DARK_BOLT); break;
+		case TRAP_OF_SHARDS_BOLT:     ident=player_handle_breath_trap(1, GF_SHARDS, TRAP_OF_SHARDS_BOLT); break;
+		case TRAP_OF_SOUND_BOLT:      ident=player_handle_breath_trap(1, GF_SOUND, TRAP_OF_SOUND_BOLT); break;
+		case TRAP_OF_CONFUSION_BOLT:  ident=player_handle_breath_trap(1, GF_CONFUSION, TRAP_OF_CONFUSION_BOLT); break;
+		case TRAP_OF_FORCE_BOLT:      ident=player_handle_breath_trap(1, GF_FORCE, TRAP_OF_FORCE_BOLT); break;
+		case TRAP_OF_INERTIA_BOLT:    ident=player_handle_breath_trap(1, GF_INERTIA, TRAP_OF_INERTIA_BOLT); break;
+		case TRAP_OF_MANA_BOLT:       ident=player_handle_breath_trap(1, GF_MANA, TRAP_OF_MANA_BOLT); break;
+		case TRAP_OF_ICE_BOLT:        ident=player_handle_breath_trap(1, GF_ICE, TRAP_OF_ICE_BOLT); break;
+		case TRAP_OF_CHAOS_BOLT:      ident=player_handle_breath_trap(1, GF_CHAOS, TRAP_OF_CHAOS_BOLT); break;
+		case TRAP_OF_NETHER_BOLT:     ident=player_handle_breath_trap(1, GF_NETHER, TRAP_OF_NETHER_BOLT); break;
+		case TRAP_OF_DISENCHANT_BOLT: ident=player_handle_breath_trap(1, GF_DISENCHANT, TRAP_OF_DISENCHANT_BOLT); break;
+		case TRAP_OF_NEXUS_BOLT:      ident=player_handle_breath_trap(1, GF_NEXUS, TRAP_OF_NEXUS_BOLT); break;
+		case TRAP_OF_TIME_BOLT:       ident=player_handle_breath_trap(1, GF_TIME, TRAP_OF_TIME_BOLT); break;
+		case TRAP_OF_GRAVITY_BOLT:    ident=player_handle_breath_trap(1, GF_GRAVITY, TRAP_OF_GRAVITY_BOLT); break;
+
+		/* Ball Trap */
+		case TRAP_OF_ELEC_BALL:       ident=player_handle_breath_trap(3, GF_ELEC, TRAP_OF_ELEC_BALL); break;
+		case TRAP_OF_POIS_BALL:       ident=player_handle_breath_trap(3, GF_POIS, TRAP_OF_POIS_BALL); break;
+		case TRAP_OF_ACID_BALL:       ident=player_handle_breath_trap(3, GF_ACID, TRAP_OF_ACID_BALL); break;
+		case TRAP_OF_COLD_BALL:       ident=player_handle_breath_trap(3, GF_COLD, TRAP_OF_COLD_BALL); break;
+		case TRAP_OF_FIRE_BALL:       ident=player_handle_breath_trap(3, GF_FIRE, TRAP_OF_FIRE_BALL); break;
+		case TRAP_OF_PLASMA_BALL:     ident=player_handle_breath_trap(3, GF_PLASMA, TRAP_OF_PLASMA_BALL); break;
+		case TRAP_OF_WATER_BALL:      ident=player_handle_breath_trap(3, GF_WATER, TRAP_OF_WATER_BALL); break;
+		case TRAP_OF_LITE_BALL:       ident=player_handle_breath_trap(3, GF_LITE, TRAP_OF_LITE_BALL); break;
+		case TRAP_OF_DARK_BALL:       ident=player_handle_breath_trap(3, GF_DARK, TRAP_OF_DARK_BALL); break;
+		case TRAP_OF_SHARDS_BALL:     ident=player_handle_breath_trap(3, GF_SHARDS, TRAP_OF_SHARDS_BALL); break;
+		case TRAP_OF_SOUND_BALL:      ident=player_handle_breath_trap(3, GF_SOUND, TRAP_OF_SOUND_BALL); break;
+		case TRAP_OF_CONFUSION_BALL:  ident=player_handle_breath_trap(3, GF_CONFUSION, TRAP_OF_CONFUSION_BALL); break;
+		case TRAP_OF_FORCE_BALL:      ident=player_handle_breath_trap(3, GF_FORCE, TRAP_OF_FORCE_BALL); break;
+		case TRAP_OF_INERTIA_BALL:    ident=player_handle_breath_trap(3, GF_INERTIA, TRAP_OF_INERTIA_BALL); break;
+		case TRAP_OF_MANA_BALL:       ident=player_handle_breath_trap(3, GF_MANA, TRAP_OF_MANA_BALL); break;
+		case TRAP_OF_ICE_BALL:        ident=player_handle_breath_trap(3, GF_ICE, TRAP_OF_ICE_BALL); break;
+		case TRAP_OF_CHAOS_BALL:      ident=player_handle_breath_trap(3, GF_CHAOS, TRAP_OF_CHAOS_BALL); break;
+		case TRAP_OF_NETHER_BALL:     ident=player_handle_breath_trap(3, GF_NETHER, TRAP_OF_NETHER_BALL); break;
+		case TRAP_OF_DISENCHANT_BALL: ident=player_handle_breath_trap(3, GF_DISENCHANT, TRAP_OF_DISENCHANT_BALL); break;
+		case TRAP_OF_NEXUS_BALL:      ident=player_handle_breath_trap(3, GF_NEXUS, TRAP_OF_NEXUS_BALL); break;
+		case TRAP_OF_TIME_BALL:       ident=player_handle_breath_trap(3, GF_TIME, TRAP_OF_TIME_BALL); break;
+		case TRAP_OF_GRAVITY_BALL:    ident=player_handle_breath_trap(3, GF_GRAVITY, TRAP_OF_GRAVITY_BALL); break;
+
+		/* -SC- */
+		case TRAP_OF_FEMINITY:
+		{
+			msg_print("Gas sprouts out... you feel you transmute.");
+			p_ptr->psex = SEX_FEMALE;
+			sp_ptr = &sex_info[p_ptr->psex];
+			ident = TRUE;
+			trap_hit(trap);
+			break;
+		}
+
+		case TRAP_OF_MASCULINITY:
+		{
+			msg_print("Gas sprouts out... you feel you transmute.");
+			p_ptr->psex = SEX_MALE;
+			sp_ptr = &sex_info[p_ptr->psex];
+			ident = TRUE;
+			trap_hit(trap);
+			break;
+		}
+
+		case TRAP_OF_NEUTRALITY:
+		{
+			msg_print("Gas sprouts out... you feel you transmute.");
+			p_ptr->psex = SEX_NEUTER;
+			sp_ptr = &sex_info[p_ptr->psex];
+			ident = TRUE;
+			trap_hit(trap);
+			break;
+		}
+
+		case TRAP_OF_AGING:
+		{
+			msg_print("Colors are scintillating around you, "
+			          "you see your past running before your eyes.");
+			p_ptr->age += randint((rp_ptr->b_age + rmp_ptr->b_age) / 2);
+			ident = TRUE;
+			trap_hit(trap);
+			break;
+		}
+
+		case TRAP_OF_GROWING:
+		{
+			s16b tmp;
+
+			msg_print("Heavy fumes sprout out... you feel you transmute.");
+			if (p_ptr->psex == SEX_FEMALE) tmp = rp_ptr->f_b_ht + rmp_ptr->f_b_ht;
+			else tmp = rp_ptr->m_b_ht + rmp_ptr->m_b_ht;
+
+			p_ptr->ht += randint(tmp/4);
+			ident = TRUE;
+			trap_hit(trap);
+			break;
+		}
+
+		case TRAP_OF_SHRINKING:
+		{
+			s16b tmp;
+
+			msg_print("Heavy fumes sprout out... you feel you transmute.");
+			if (p_ptr->psex == SEX_FEMALE) tmp = rp_ptr->f_b_ht + rmp_ptr->f_b_ht;
+			else tmp = rp_ptr->m_b_ht + rmp_ptr->m_b_ht;
+
+			p_ptr->ht -= randint(tmp/4);
+			if (p_ptr->ht <= tmp/4) p_ptr->ht = tmp/4;
+			ident = TRUE;
+			trap_hit(trap);
+			break;
+		}
+
+		/* Trap of Tanker Drain */
+		case TRAP_OF_TANKER_DRAIN:
+		{
+			if (p_ptr->ctp > 0)
+			{
+				p_ptr->ctp = 0;
+				msg_print("You sense a great loss.");
+				ident = TRUE;
+			}
+			else if (p_ptr->mtp == 0)
+			{
+				/* no sense saying this unless you never have tanker point */
+				msg_format("Suddenly you feel glad you're only a %s",
+				           rp_ptr->title + rp_name);
+			}
+			else
+			{
+				msg_print("Your head feels dizzy for a moment.");
+			}
+			break;
+		}
+
+		/* Trap of Divine Anger */
+		case TRAP_OF_DIVINE_ANGER:
+		{
+			if (p_ptr->pgod == 0)
+			{
+				msg_format("Suddenly you feel glad you're only a %s", spp_ptr->title+c_name);
+			}
+			else
+			{
+				cptr name;
+
+                                name=deity_info[p_ptr->pgod].name;
+				msg_format("You feel you have angered %s.", name);
+				set_grace(p_ptr->grace - 3000);
                         }
-                        if (player_has_los_bold(cy, cx))
-                        {
-                           note_spot(cy,cx);
-                           lite_spot(cy,cx);
-                           seen=TRUE;
+			break;
+		}
+
+		/* Trap of Divine Wrath */
+		case TRAP_OF_DIVINE_WRATH:
+		{
+			if (p_ptr->pgod == 0)
+			{
+				msg_format("Suddenly you feel glad you're only a %s", spp_ptr->title+c_name);
+			}
+			else
+			{
+#if 0 /* DGDGDGDG */
+				cptr name;
+
+				name=deity_info[p_ptr->pgod].name;
+
+				msg_format("%s quakes in rage: ``Thou art supremely insolent, mortal!!''", name);
+				nasty_side_effect();
+				set_grace(p_ptr->grace - 5000);
+#endif
                         }
-                        else
-                        {
-                           cave[cy][cx].info &=~CAVE_MARK;
-                        }
-                        if (player_has_los_bold(index_y[i],index_x[i]))
-                        {
-                           note_spot(index_y[i],index_x[i]);
-                           lite_spot(index_y[i],index_x[i]);
-                           seen = TRUE;
-                        }
-                        else
-                        {
-                           cave[index_y[i]][index_x[i]].info &=~CAVE_MARK;
-                        }
-                        break;
-                     }
-                     if (seen) cnt_seen++;
-                     seen = FALSE;
-                  } /* cnt loop */
-                  ident = (cnt_seen>0);
-                  if ((ident) && (cnt_seen>1))
-                  {
-                     msg_print("You see some stairs move.");
-                  }
-                  else if (ident)
-                  {
-                     msg_print("You see a stair move.");
-                  }
-                  else
-                  {
-                     msg_print("You hear distant scraping noises.");
-                  }
-		  p_ptr->redraw |= PR_MAP;
-               } /* any stairs found */
-            }
-            else /* are we on level 99 */
-            {
-               msg_print("You have a feeling that this trap could be dangerous.");
-            }
-         }
-         break;
-      /* Trap of New Trap */
-      case TRAP_OF_NEW:
-         {
-            /* if we're on a floor or on a door, place a new trap */
-            if ((item == -1) || (item == -2))
-            {
-		  place_trap(y, x);
-                  if (player_has_los_bold(y, x))
-                  {
-                     note_spot(y, x);
-                     lite_spot(y, x);
-                  }
-               }
-            else
-            {
-               /* re-trap the chest */
-	       place_trap(y, x);
-            }
-            msg_print("You hear a noise, and then it's echo.");
-            ident=FALSE;
-         }
-         break;
+			break;
+		}
 
-                /* Trap of Acquirement */
-                case TRAP_OF_ACQUIREMENT:
-                {
-                        /* Get a nice thing */
-                        msg_print("You notice something falling off the trap.");
-                        acquirement(y, x, 1, TRUE, FALSE);
+		/* Trap of hallucination */
+		case TRAP_OF_HALLUCINATION:
+		{
+			msg_print("Scintillating colors hypnotize you for a moment.");
 
-                        /* If we're on a floor or on a door, place a new trap */
-                        if ((item == -1) || (item == -2))
-                        {
-                                place_trap(y, x);
-                                if (player_has_los_bold(y, x))
-                                {
-                                        note_spot(y, x);
-                                        lite_spot(y, x);
-                                }
-                        }
-                        else
-                        {
-                                /* Re-trap the chest */
-                                place_trap(y, x);
-                        }
-                        msg_print("You hear a noise, and then it's echo.");
+			set_image(80);
+		}
+		break;
 
-                        /* Never known */
-                        ident = FALSE;
-                }
-                break;
+		/* Bolt Trap */
+		case TRAP_OF_ROCKET:    ident = player_handle_breath_trap(1, GF_ROCKET, trap); break;
+		case TRAP_OF_NUKE_BOLT: ident = player_handle_breath_trap(1, GF_NUKE, trap); break;
+		case TRAP_OF_HOLY_FIRE: ident = player_handle_breath_trap(1, GF_HOLY_FIRE, trap); break;
+		case TRAP_OF_HELL_FIRE: ident = player_handle_breath_trap(1, GF_HELL_FIRE, trap); break;
+		case TRAP_OF_PSI_BOLT:  ident = player_handle_breath_trap(1, GF_PSI, trap); break;
+		case TRAP_OF_PSI_DRAIN: ident = player_handle_breath_trap(1, GF_PSI_DRAIN, trap); break;
 
-      /* Trap of Scatter Items */
-      case TRAP_OF_SCATTER_ITEMS:
-         {
-             s16b i,j;
-            bool message = FALSE;
-            for (i=0;i<INVEN_PACK;i++)
-            {
-               if (!inventory[i].k_idx) continue;
-               if (rand_int(10)<3) continue;
-               for (j=0;j<10;j++)
-               {
-                  object_type tmp_obj;
-                  s16b cx = x+15-rand_int(30);
-                  s16b cy = y+15-rand_int(30);
-                  if (!in_bounds(cy,cx)) continue;
-                  if (!cave_floor_bold(cy,cx)) continue;
-                  tmp_obj = inventory[i];
-                  inven_item_increase(i,-999);
-                  inven_item_optimize(i);
-                  p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-                  (void)floor_carry(cy, cx, &tmp_obj);
-                  if (!message)
-                  {
-                     msg_print("You feel light-footed.");
-                     message = TRUE;
-                  }
-                  if (player_has_los_bold(cy, cx))
-                  {
-                     char i_name[80];
-                     object_desc(i_name, &tmp_obj, TRUE, 3);
-                     note_spot(cy, cx);
-                     lite_spot(cy, cx);
-                     ident=TRUE;
-                     msg_format("Suddenly %s appear%s!",i_name, (tmp_obj.number>1)?"":"s");
-                  }
-                  break;
-               }
-               ident = message;
-            }
-         }
-         break;
-      /* Trap of Decay */
-      case TRAP_OF_DECAY:
-         break;
-      /* Trap of Wasting Wands */
-      case TRAP_OF_WASTING_WANDS:
-         {
-            s16b i;
-            object_type *j_ptr;
-            for (i=0;i<INVEN_PACK;i++)
-            {
-               if (!inventory[i].k_idx) continue;
-               j_ptr = &inventory[i];
-               if (j_ptr->tval==TV_WAND)
-               {
-                  if ((j_ptr->sval>=SV_WAND_NASTY_WAND) && (rand_int(5)==1))
-                  {
-                     if (object_known_p(j_ptr)) ident=TRUE;
-                     j_ptr->sval = rand_int(SV_WAND_NASTY_WAND);
-                     j_ptr->k_idx = lookup_kind(j_ptr->tval, j_ptr->sval);
-                     p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-                  }
-                  if ((j_ptr->sval>=SV_STAFF_NASTY_STAFF) && (rand_int(5)==1))
-                  {
-                     if (object_known_p(j_ptr)) ident=TRUE;
-                     j_ptr->sval = rand_int(SV_STAFF_NASTY_STAFF);
-                     j_ptr->k_idx = lookup_kind(j_ptr->tval, j_ptr->sval);
-                     p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-                  }
-               }
-            }
-         }
-         if (ident)
-         {
-            msg_print("You have lost trust in your backpack!");
-         }
-         else
-         {
-            msg_print("You hear an echoing cry of rage.");
-         }
-         break;
-      /* Trap of Filling */
-      case TRAP_OF_FILLING:
-         {
-            s16b nx, ny;
-            for (nx=x-8;nx<=x+8;nx++)
-            {
-               for (ny=y-8;ny<=y+8;ny++)
-               {
-                  if (!in_bounds (ny, nx)) continue;
+		/* Ball Trap */
+		case TRAP_OF_NUKE_BALL: ident = player_handle_breath_trap(3, GF_NUKE, TRAP_OF_NUKE_BALL); break;
+		case TRAP_OF_PSI_BALL:  ident = player_handle_breath_trap(3, GF_PSI, TRAP_OF_NUKE_BALL); break;
 
-                  if (rand_int(distance(ny,nx,y,x))>3)
-                  {
-                     place_trap(ny,nx);
-                  }
-               }
-            }
-            msg_print("The floor vibrates in a strange way.");
-            ident = FALSE;
-         }
-         break;
-      case TRAP_OF_DRAIN_SPEED:
-         {
-            object_type *j_ptr;
-            s16b j, chance = 75;
-            u32b f1, f2, f3, f4, f5, esp;
-
-            for (j=0;j<INVEN_TOTAL;j++)
-            {
-               /* don't bother the overflow slot */
-               if (j==INVEN_PACK) continue;
-
-               if (!inventory[j].k_idx) continue;
-               j_ptr = &inventory[j];
-               object_flags(j_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
-
-               /* is it a non-artifact speed item? */
-               if ((!j_ptr->name1) && (f1 & TR1_SPEED))
-               {
-                  if (randint(100)<chance)
-                  {
-                     j_ptr->pval = j_ptr->pval / 2;
-                     if (j_ptr->pval == 0)
-                     {
-                        j_ptr->pval--;
-                     }
-                     chance /= 2;
-                     ident = TRUE;
-                  }
-                  inven_item_optimize(j);
-               }
-            }
-            if (!ident)
-               msg_print("You feel some things in your pack vibrating.");
-            else
-            {
-               combine_pack();
-               reorder_pack();
-               msg_print("You suddenly feel you have time for self-reflection.");
-               /* Recalculate bonuses */
-               p_ptr->update |= (PU_BONUS);
-
-               /* Recalculate mana */
-               p_ptr->update |= (PU_MANA);
-
-               /* Window stuff */
-               p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
-            }
-         }
-         break;
-
-      /*
-       * single missile traps
-       */
-
-      case TRAP_OF_ARROW_I:
-         ident = player_handle_missile_trap(1, TV_ARROW, SV_AMMO_NORMAL, 4, 8, 0, "Arrow Trap"); break;
-      case TRAP_OF_ARROW_II:
-         ident = player_handle_missile_trap(1, TV_BOLT, SV_AMMO_NORMAL, 5, 8, 0, "Bolt Trap"); break;
-      case TRAP_OF_ARROW_III:
-         ident = player_handle_missile_trap(1, TV_ARROW, SV_AMMO_HEAVY, 6, 8, 0, "Seeker Arrow Trap"); break;
-      case TRAP_OF_ARROW_IV:
-         ident = player_handle_missile_trap(1, TV_BOLT, SV_AMMO_HEAVY, 8, 10, 0, "Seeker Bolt Trap"); break;
-      case TRAP_OF_POISON_ARROW_I:
-         ident = player_handle_missile_trap(1, TV_ARROW, SV_AMMO_NORMAL, 4, 8, 10+randint(20), "Poison Arrow Trap"); break;
-      case TRAP_OF_POISON_ARROW_II:
-         ident = player_handle_missile_trap(1, TV_BOLT, SV_AMMO_NORMAL, 5, 8, 15+randint(30), "Poison Bolt Trap"); break;
-      case TRAP_OF_POISON_ARROW_III:
-         ident = player_handle_missile_trap(1, TV_ARROW, SV_AMMO_HEAVY, 6, 8, 30+randint(50), "Poison Seeker Arrow Trap"); break;
-      case TRAP_OF_POISON_ARROW_IV:
-         ident = player_handle_missile_trap(1, TV_BOLT, SV_AMMO_HEAVY, 8, 10, 40+randint(70), "Poison Seeker Bolt Trap"); break;
-      case TRAP_OF_DAGGER_I:
-         ident = player_handle_missile_trap(1, TV_SWORD, SV_BROKEN_DAGGER, 2, 8, 0, "Dagger Trap"); break;
-      case TRAP_OF_DAGGER_II:
-         ident = player_handle_missile_trap(1, TV_SWORD, SV_DAGGER, 3, 8, 0, "Dagger Trap"); break;
-      case TRAP_OF_POISON_DAGGER_I:
-         ident = player_handle_missile_trap(1, TV_SWORD, SV_BROKEN_DAGGER, 2, 8, 15+randint(20), "Poison Dagger Trap"); break;
-      case TRAP_OF_POISON_DAGGER_II:
-         ident = player_handle_missile_trap(1, TV_SWORD, SV_DAGGER, 3, 8, 20+randint(30), "Poison Dagger Trap"); break;
-
-      /*
-       * multiple missile traps
-       * numbers range from 2 (level 0 to 14) to 10 (level 120 and up)
-       */
-
-      case TRAP_OF_ARROWS_I:
-         ident = player_handle_missile_trap(2+(max_dlv[dungeon_type] / 15), TV_ARROW, SV_AMMO_NORMAL, 4, 8, 0, "Arrow Trap"); break;
-      case TRAP_OF_ARROWS_II:
-         ident = player_handle_missile_trap(2+(max_dlv[dungeon_type] / 15), TV_BOLT, SV_AMMO_NORMAL, 5, 8, 0, "Bolt Trap"); break;
-      case TRAP_OF_ARROWS_III:
-         ident = player_handle_missile_trap(2+(max_dlv[dungeon_type] / 15), TV_ARROW, SV_AMMO_HEAVY, 6, 8, 0, "Seeker Arrow Trap"); break;
-      case TRAP_OF_ARROWS_IV:
-         ident = player_handle_missile_trap(2+(max_dlv[dungeon_type] / 15), TV_BOLT, SV_AMMO_HEAVY, 8, 10, 0, "Seeker Bolt Trap"); break;
-      case TRAP_OF_POISON_ARROWS_I:
-         ident = player_handle_missile_trap(2+(max_dlv[dungeon_type] / 15), TV_ARROW, SV_AMMO_NORMAL, 4, 8, 10+randint(20), "Poison Arrow Trap"); break;
-      case TRAP_OF_POISON_ARROWS_II:
-         ident = player_handle_missile_trap(2+(max_dlv[dungeon_type] / 15), TV_BOLT, SV_AMMO_NORMAL, 5, 8, 15+randint(30), "Poison Bolt Trap"); break;
-      case TRAP_OF_POISON_ARROWS_III:
-         ident = player_handle_missile_trap(2+(max_dlv[dungeon_type] / 15), TV_ARROW, SV_AMMO_HEAVY, 6, 8, 30+randint(50), "Poison Seeker Arrow Trap"); break;
-      case TRAP_OF_POISON_ARROWS_IV:
-         ident = player_handle_missile_trap(2+(max_dlv[dungeon_type] / 15), TV_BOLT, SV_AMMO_HEAVY, 8, 10, 40+randint(70), "Poison Seeker Bolt Trap"); break;
-      case TRAP_OF_DAGGERS_I:
-         ident = player_handle_missile_trap(2+(max_dlv[dungeon_type] / 15), TV_SWORD, SV_BROKEN_DAGGER, 2, 8, 0, "Dagger Trap"); break;
-      case TRAP_OF_DAGGERS_II:
-         ident = player_handle_missile_trap(2+(max_dlv[dungeon_type] / 15), TV_SWORD, SV_DAGGER, 3, 8, 0, "Dagger Trap"); break;
-      case TRAP_OF_POISON_DAGGERS_I:
-         ident = player_handle_missile_trap(2+(max_dlv[dungeon_type] / 15), TV_SWORD, SV_BROKEN_DAGGER, 2, 8, 15+randint(20), "Poison Dagger Trap"); break;
-      case TRAP_OF_POISON_DAGGERS_II:
-         ident = player_handle_missile_trap(2+(max_dlv[dungeon_type] / 15), TV_SWORD, SV_DAGGER, 3, 8, 20+randint(30), "Poison Dagger Trap"); break;
-
-      case TRAP_OF_DROP_ITEMS:
-         {
-            s16b i;
-            bool message = FALSE;
-            for (i=0;i<INVEN_PACK;i++)
-            {
-               object_type tmp_obj;
-               if (!inventory[i].k_idx) continue;
-               if (randint(100)<80) continue;
-               if (inventory[i].name1 == ART_POWER) continue;
-               tmp_obj = inventory[i];
-               /* drop carefully */
-               drop_near(&tmp_obj, 0, y, x);
-               inven_item_increase(i,-999);
-               inven_item_optimize(i);
-               p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-               if (!message)
-               {
-                  msg_print("You are startled by a sudden sound.");
-                  message = TRUE;
-               }
-               ident = TRUE;
-            }
-            if (!ident)
-            {
-               msg_print("You hear a sudden, strange sound.");
-            }
-         }
-         break;
-      case TRAP_OF_DROP_ALL_ITEMS:
-         {
-            s16b i;
-            bool message = FALSE;
-            for (i=0;i<INVEN_PACK;i++)
-            {
-               object_type tmp_obj;
-               if (!inventory[i].k_idx) continue;
-               if (randint(100)<10) continue;
-               if (inventory[i].name1 == ART_POWER) continue;
-               tmp_obj = inventory[i];
-               /* drop carefully */
-               drop_near(&tmp_obj, 0, y, x);
-               inven_item_increase(i,-999);
-               inven_item_optimize(i);
-               p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-               if (!message)
-               {
-                  msg_print("You are startled a lot by a sudden sound.");
-                  message = TRUE;
-               }
-               ident = TRUE;
-            }
-            if (!ident)
-            {
-               msg_print("You hear a sudden, strange sound.");
-            }
-         }
-         break;
-      case TRAP_OF_DROP_EVERYTHING:
-         {
-            s16b i;
-            bool message = FALSE;
-            for (i=0;i<INVEN_TOTAL;i++)
-            {
-               object_type tmp_obj;
-               if (!inventory[i].k_idx) continue;
-               if (randint(100)<30) continue;
-               if (inventory[i].name1 == ART_POWER) continue;
-               tmp_obj = inventory[i];
-               /* drop carefully */
-               drop_near(&tmp_obj, 0, y, x);
-               inven_item_increase(i,-999);
-               inven_item_optimize(i);
-               p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-               if (!message)
-               {
-                  msg_print("You are completely startled by a sudden sound.");
-                  message = TRUE;
-               }
-               ident = TRUE;
-            }
-            if (!ident)
-            {
-               msg_print("You hear a sudden, strange sound.");
-            }
-         }
-         break;
-
-      /* Bolt Trap */
-      case TRAP_G_ELEC_BOLT:       ident=player_handle_breath_trap(1, GF_ELEC, TRAP_G_ELEC_BOLT); break;
-      case TRAP_G_POIS_BOLT:       ident=player_handle_breath_trap(1, GF_POIS, TRAP_G_POIS_BOLT); break;
-      case TRAP_G_ACID_BOLT:       ident=player_handle_breath_trap(1, GF_ACID, TRAP_G_ACID_BOLT); break;
-      case TRAP_G_COLD_BOLT:       ident=player_handle_breath_trap(1, GF_COLD, TRAP_G_COLD_BOLT); break;
-      case TRAP_G_FIRE_BOLT:       ident=player_handle_breath_trap(1, GF_FIRE, TRAP_G_FIRE_BOLT); break;
-      case TRAP_OF_ELEC_BOLT:       ident=player_handle_breath_trap(1, GF_ELEC, TRAP_OF_ELEC_BOLT); break;
-      case TRAP_OF_POIS_BOLT:       ident=player_handle_breath_trap(1, GF_POIS, TRAP_OF_POIS_BOLT); break;
-      case TRAP_OF_ACID_BOLT:       ident=player_handle_breath_trap(1, GF_ACID, TRAP_OF_ACID_BOLT); break;
-      case TRAP_OF_COLD_BOLT:       ident=player_handle_breath_trap(1, GF_COLD, TRAP_OF_COLD_BOLT); break;
-      case TRAP_OF_FIRE_BOLT:       ident=player_handle_breath_trap(1, GF_FIRE, TRAP_OF_FIRE_BOLT); break;
-      case TRAP_OF_PLASMA_BOLT:     ident=player_handle_breath_trap(1, GF_PLASMA, TRAP_OF_PLASMA_BOLT); break;
-      case TRAP_OF_WATER_BOLT:      ident=player_handle_breath_trap(1, GF_WATER, TRAP_OF_WATER_BOLT); break;
-      case TRAP_OF_LITE_BOLT:       ident=player_handle_breath_trap(1, GF_LITE, TRAP_OF_LITE_BOLT); break;
-      case TRAP_OF_DARK_BOLT:       ident=player_handle_breath_trap(1, GF_DARK, TRAP_OF_DARK_BOLT); break;
-      case TRAP_OF_SHARDS_BOLT:     ident=player_handle_breath_trap(1, GF_SHARDS, TRAP_OF_SHARDS_BOLT); break;
-      case TRAP_OF_SOUND_BOLT:      ident=player_handle_breath_trap(1, GF_SOUND, TRAP_OF_SOUND_BOLT); break;
-      case TRAP_OF_CONFUSION_BOLT:  ident=player_handle_breath_trap(1, GF_CONFUSION, TRAP_OF_CONFUSION_BOLT); break;
-      case TRAP_OF_FORCE_BOLT:      ident=player_handle_breath_trap(1, GF_FORCE, TRAP_OF_FORCE_BOLT); break;
-      case TRAP_OF_INERTIA_BOLT:    ident=player_handle_breath_trap(1, GF_INERTIA, TRAP_OF_INERTIA_BOLT); break;
-      case TRAP_OF_MANA_BOLT:       ident=player_handle_breath_trap(1, GF_MANA, TRAP_OF_MANA_BOLT); break;
-      case TRAP_OF_ICE_BOLT:        ident=player_handle_breath_trap(1, GF_ICE, TRAP_OF_ICE_BOLT); break;
-      case TRAP_OF_CHAOS_BOLT:      ident=player_handle_breath_trap(1, GF_CHAOS, TRAP_OF_CHAOS_BOLT); break;
-      case TRAP_OF_NETHER_BOLT:     ident=player_handle_breath_trap(1, GF_NETHER, TRAP_OF_NETHER_BOLT); break;
-      case TRAP_OF_DISENCHANT_BOLT: ident=player_handle_breath_trap(1, GF_DISENCHANT, TRAP_OF_DISENCHANT_BOLT); break;
-      case TRAP_OF_NEXUS_BOLT:      ident=player_handle_breath_trap(1, GF_NEXUS, TRAP_OF_NEXUS_BOLT); break;
-      case TRAP_OF_TIME_BOLT:       ident=player_handle_breath_trap(1, GF_TIME, TRAP_OF_TIME_BOLT); break;
-      case TRAP_OF_GRAVITY_BOLT:    ident=player_handle_breath_trap(1, GF_GRAVITY, TRAP_OF_GRAVITY_BOLT); break;
-
-      /* Ball Trap */
-      case TRAP_OF_ELEC_BALL:       ident=player_handle_breath_trap(3, GF_ELEC, TRAP_OF_ELEC_BALL); break;
-      case TRAP_OF_POIS_BALL:       ident=player_handle_breath_trap(3, GF_POIS, TRAP_OF_POIS_BALL); break;
-      case TRAP_OF_ACID_BALL:       ident=player_handle_breath_trap(3, GF_ACID, TRAP_OF_ACID_BALL); break;
-      case TRAP_OF_COLD_BALL:       ident=player_handle_breath_trap(3, GF_COLD, TRAP_OF_COLD_BALL); break;
-      case TRAP_OF_FIRE_BALL:       ident=player_handle_breath_trap(3, GF_FIRE, TRAP_OF_FIRE_BALL); break;
-      case TRAP_OF_PLASMA_BALL:     ident=player_handle_breath_trap(3, GF_PLASMA, TRAP_OF_PLASMA_BALL); break;
-      case TRAP_OF_WATER_BALL:      ident=player_handle_breath_trap(3, GF_WATER, TRAP_OF_WATER_BALL); break;
-      case TRAP_OF_LITE_BALL:       ident=player_handle_breath_trap(3, GF_LITE, TRAP_OF_LITE_BALL); break;
-      case TRAP_OF_DARK_BALL:       ident=player_handle_breath_trap(3, GF_DARK, TRAP_OF_DARK_BALL); break;
-      case TRAP_OF_SHARDS_BALL:     ident=player_handle_breath_trap(3, GF_SHARDS, TRAP_OF_SHARDS_BALL); break;
-      case TRAP_OF_SOUND_BALL:      ident=player_handle_breath_trap(3, GF_SOUND, TRAP_OF_SOUND_BALL); break;
-      case TRAP_OF_CONFUSION_BALL:  ident=player_handle_breath_trap(3, GF_CONFUSION, TRAP_OF_CONFUSION_BALL); break;
-      case TRAP_OF_FORCE_BALL:      ident=player_handle_breath_trap(3, GF_FORCE, TRAP_OF_FORCE_BALL); break;
-      case TRAP_OF_INERTIA_BALL:    ident=player_handle_breath_trap(3, GF_INERTIA, TRAP_OF_INERTIA_BALL); break;
-      case TRAP_OF_MANA_BALL:       ident=player_handle_breath_trap(3, GF_MANA, TRAP_OF_MANA_BALL); break;
-      case TRAP_OF_ICE_BALL:        ident=player_handle_breath_trap(3, GF_ICE, TRAP_OF_ICE_BALL); break;
-      case TRAP_OF_CHAOS_BALL:      ident=player_handle_breath_trap(3, GF_CHAOS, TRAP_OF_CHAOS_BALL); break;
-      case TRAP_OF_NETHER_BALL:     ident=player_handle_breath_trap(3, GF_NETHER, TRAP_OF_NETHER_BALL); break;
-      case TRAP_OF_DISENCHANT_BALL: ident=player_handle_breath_trap(3, GF_DISENCHANT, TRAP_OF_DISENCHANT_BALL); break;
-      case TRAP_OF_NEXUS_BALL:      ident=player_handle_breath_trap(3, GF_NEXUS, TRAP_OF_NEXUS_BALL); break;
-      case TRAP_OF_TIME_BALL:       ident=player_handle_breath_trap(3, GF_TIME, TRAP_OF_TIME_BALL); break;
-      case TRAP_OF_GRAVITY_BALL:    ident=player_handle_breath_trap(3, GF_GRAVITY, TRAP_OF_GRAVITY_BALL); break;
-
-      /* -SC- */
-      case TRAP_OF_FEMINITY:
-      {
-         msg_print("Gas sprouts out... you feel you transmute.");
-	 p_ptr->psex = SEX_FEMALE;
-	 sp_ptr = &sex_info[p_ptr->psex];
-	 ident = TRUE;
-	 trap_hit(trap);
-	 break;
-      }
-      case TRAP_OF_MASCULINITY:
-      {
-         msg_print("Gas sprouts out... you feel you transmute.");
-	 p_ptr->psex = SEX_MALE;
-	 sp_ptr = &sex_info[p_ptr->psex];
-	 ident = TRUE;
-	 trap_hit(trap);
-	 break;
-      }
-      case TRAP_OF_NEUTRALITY:
-      {
-         msg_print("Gas sprouts out... you feel you transmute.");
-	 p_ptr->psex = SEX_NEUTER;
-	 sp_ptr = &sex_info[p_ptr->psex];
-	 ident = TRUE;
-	 trap_hit(trap);
-	 break;
-      }
-      case TRAP_OF_AGING:
-      {
-         msg_print("Colors are scintillating around you, you see your past running before your eyes.");
-         p_ptr->age += randint((rp_ptr->b_age + rmp_ptr->b_age) / 2);
-	 ident = TRUE;
-	 trap_hit(trap);
-	 break;
-      }
-      case TRAP_OF_GROWING:
-      {
-	 s16b tmp;
-
-         msg_print("Heavy fumes sprout out... you feel you transmute.");
-         if (p_ptr->psex == SEX_FEMALE) tmp = rp_ptr->f_b_ht + rmp_ptr->f_b_ht;
-         else tmp = rp_ptr->m_b_ht + rmp_ptr->m_b_ht;
-
-	 p_ptr->ht += randint(tmp/4);
-	 ident = TRUE;
-	 trap_hit(trap);
-	 break;
-      }
-      case TRAP_OF_SHRINKING:
-      {
-	 s16b tmp;
-
-         msg_print("Heavy fumes sprout out... you feel you transmute.");
-         if (p_ptr->psex == SEX_FEMALE) tmp = rp_ptr->f_b_ht + rmp_ptr->f_b_ht;
-         else tmp = rp_ptr->m_b_ht + rmp_ptr->m_b_ht;
-
-	 p_ptr->ht -= randint(tmp/4);
-	 if (p_ptr->ht <= tmp/4) p_ptr->ht = tmp/4;
-	 ident = TRUE;
-	 trap_hit(trap);
-	 break;
-      }
-
-      /* Trap of Tanker Drain */
-      case TRAP_OF_TANKER_DRAIN:
-         if (p_ptr->ctp>0)
-         {
-            p_ptr->ctp = 0;
-            p_ptr->redraw |= (PR_TANK);
-            msg_print("You sense a great loss.");
-            ident=TRUE;
-         }
-         else
-         {
-	    /* no sense saying this unless you never have tanker point */
-	    if (p_ptr->mtp==0)
-            {
-               msg_format("Suddenly you feel glad you're only a %s", rp_ptr->title + rp_name);
-            }
-            else
-            {
-               msg_print("Your head feels dizzy for a moment.");
-            }
-         }
-         break;
-
-      /* Trap of Divine Anger */
-      case TRAP_OF_DIVINE_ANGER:
-      {
-         if (p_ptr->pgod == 0)
-	 {
-            msg_format("Suddenly you feel glad you're only a %s", cp_ptr->title+c_name);
-	 }
-	 else
-	 {
-	    cptr name;
-
-	    name=deity_info[p_ptr->pgod-1].name;
-	    msg_format("You feel you have angered %s.", name);
-	    set_grace(p_ptr->grace - 3000);
-	 }
-      }
-      break;
-
-      /* Trap of Divine Wrath */
-      case TRAP_OF_DIVINE_WRATH:
-      {
-         if (p_ptr->pgod == 0)
-	 {
-            msg_format("Suddenly you feel glad you're only a %s", cp_ptr->title+c_name);
-	 }
-	 else
-	 {
-	    cptr name;
-
-	    name=deity_info[p_ptr->pgod-1].name;
-
-	    msg_format("%s quakes in rage: ``Thou art supremely insolent, mortal!!''", name);
-	    nasty_side_effect();
-	    set_grace(p_ptr->grace - 5000);
-	 }
-      }
-      break;
-
-      /* Trap of hallucination */
-      case TRAP_OF_HALLUCINATION:
-      {
-	 msg_print("Scintillating colors hypnotize you for a moment.");
-
-	 set_image(80);
-      }
-      break;
-
-      /* Bolt Trap */
-      case TRAP_OF_ROCKET: ident=player_handle_breath_trap(1, GF_ROCKET, trap); break;
-      case TRAP_OF_NUKE_BOLT: ident=player_handle_breath_trap(1, GF_NUKE, trap); break;
-      case TRAP_OF_HOLY_FIRE: ident=player_handle_breath_trap(1, GF_HOLY_FIRE, trap); break;
-      case TRAP_OF_HELL_FIRE: ident=player_handle_breath_trap(1, GF_HELL_FIRE, trap); break;
-      case TRAP_OF_PSI_BOLT: ident=player_handle_breath_trap(1, GF_PSI, trap); break;
-      case TRAP_OF_PSI_DRAIN: ident=player_handle_breath_trap(1, GF_PSI_DRAIN, trap); break;
-
-      /* Ball Trap */
-      case TRAP_OF_NUKE_BALL: ident=player_handle_breath_trap(3, GF_NUKE, TRAP_OF_NUKE_BALL); break;
-      case TRAP_OF_PSI_BALL: ident=player_handle_breath_trap(3, GF_PSI, TRAP_OF_NUKE_BALL); break;
-      default:
-      {
-         msg_print(format("Executing unknown trap %d",trap));
-      }
-   }
-   return ident;
+		default:
+		{
+			msg_print(format("Executing unknown trap %d",trap));
+		}
+	}
+	return ident;
 }
 
 void player_activate_door_trap(s16b y, s16b x)
@@ -1602,10 +1815,11 @@ void player_activate_door_trap(s16b y, s16b x)
 	if (ident)
 	{
 		t_info[c_ptr->t_idx].ident = TRUE;
-                msg_format("You identified that trap as %s.",
-			   t_name + t_info[c_ptr->t_idx].name);
+		msg_format("You identified that trap as %s.",
+		           t_name + t_info[c_ptr->t_idx].name);
 	}
 }
+
 
 /*
  * Places a random trap at the given location.
@@ -1614,50 +1828,62 @@ void player_activate_door_trap(s16b y, s16b x)
  */
 void place_trap(int y, int x)
 {
-   bool           more       = TRUE;
-   s16b           trap;
-   trap_type     *t_ptr;
-   s16b           cnt        = 0;
-   u32b flags;
-   cave_type *c_ptr = &cave[y][x];
-   dungeon_info_type *d_ptr = &d_info[dungeon_type];
+	s16b trap;
+	trap_type *t_ptr;
+	int cnt;
+	u32b flags;
+	cave_type *c_ptr = &cave[y][x];
+	dungeon_info_type *d_ptr = &d_info[dungeon_type];
 
-   /* no traps in town or on first level */
-   if (dun_level<=1) return;
+	/* No traps in town or on first level */
+	if (dun_level <= 1) return;
 
-   /* traps only appears on empty floor */
-   if (!cave_floor_grid(c_ptr) && (!(f_info[c_ptr->feat].flags1 & FF1_DOOR))) return;
+	/*
+	 * Avoid open doors -- because DOOR flag is added to make much more
+	 * important processing faster
+	 */
+	if (c_ptr->feat == FEAT_OPEN) return;
+	if (c_ptr->feat == FEAT_BROKEN) return;
 
-   /* set flags */
-   if (f_info[c_ptr->feat].flags1 & FF1_DOOR)
-      flags = FTRAP_DOOR;
-   else flags = FTRAP_FLOOR;
+	/* Traps only appears on empty floor */
+	if (!cave_floor_grid(c_ptr) &&
+	    !(f_info[c_ptr->feat].flags1 & (FF1_DOOR))) return;
 
-   /* try 100 times */
-   while ((more) && (cnt++)<100)
-   {
-      trap = randint(max_t_idx - 1);
-      t_ptr = &t_info[trap];
+	/* Set flags */
+	if (f_info[c_ptr->feat].flags1 & FF1_DOOR) flags = FTRAP_DOOR;
+	else flags = FTRAP_FLOOR;
 
-      /* no traps below their minlevel */
-      if (t_ptr->minlevel > dun_level) continue;
+	/* Try 100 times */
+	cnt = 100;
+	while (cnt--)
+	{
+		trap = randint(max_t_idx - 1);
+		t_ptr = &t_info[trap];
 
-      /* is this a correct trap now?   */
-      if (!(t_ptr->flags & flags)) continue;
+		/* No traps below their minlevel */
+		if (t_ptr->minlevel > dun_level) continue;
 
-      /* hack, no trap door at the bottom of dungeon or in flat(non dungeon) places */
-      if (((d_ptr->maxdepth == dun_level) || (d_ptr->flags1 & DF1_FLAT)) && (trap == TRAP_OF_SINKING)) continue;
+		/* is this a correct trap now?   */
+		if (!(t_ptr->flags & flags)) continue;
 
-      /* how probable is this trap   */
-      if (rand_int(100)<t_ptr->probability)
-      {
-	 c_ptr->t_idx = trap;
-	 more = FALSE;
-      }
-   }
+		/*
+		 * Hack -- No trap door at the bottom of dungeon or in flat
+		 * (non dungeon) places
+		 */
+		if (((d_ptr->maxdepth == dun_level) || (d_ptr->flags1 & DF1_FLAT)) &&
+		    (trap == TRAP_OF_SINKING)) continue;
 
-   return;
+		/* How probable is this trap */
+		if (rand_int(100) < t_ptr->probability)
+		{
+			c_ptr->t_idx = trap;
+			break;
+		}
+	}
+
+	return;
 }
+
 
 /*
  * Places a random trap on the given chest.
@@ -1666,35 +1892,35 @@ void place_trap(int y, int x)
  */
 void place_trap_object(object_type *o_ptr)
 {
-   bool           more       = TRUE;
-   s16b           trap;
-   trap_type     *t_ptr;
-   s16b           cnt        = 0;
+	s16b trap;
+	trap_type *t_ptr;
+	int cnt;
 
-   /* no traps in town or on first level */
-   if (dun_level<=1) return;
+	/* No traps in town or on first level */
+	if (dun_level <= 1) return;
 
-   /* try 100 times */
-   while ((more) && (cnt++)<100)
-   {
-      trap = randint(max_t_idx - 1);
-      t_ptr = &t_info[trap];
+	/* Try 100 times */
+	cnt = 100;
+	while (cnt--)
+	{
+		trap = randint(max_t_idx - 1);
+		t_ptr = &t_info[trap];
 
-      /* no traps below their minlevel */
-      if (t_ptr->minlevel>dun_level) continue;
+		/* no traps below their minlevel */
+		if (t_ptr->minlevel > dun_level) continue;
 
-      /* is this a correct trap now?   */
-      if (!(t_ptr->flags & FTRAP_CHEST)) continue;
+		/* Is this a correct trap now? */
+		if (!(t_ptr->flags & FTRAP_CHEST)) continue;
 
-      /* how probable is this trap   */
-      if (rand_int(100)<t_ptr->probability)
-      {
-         o_ptr->pval = trap;
-	 more = FALSE;
-      }
-   }
+		/* How probable is this trap */
+		if (rand_int(100) < t_ptr->probability)
+		{
+			o_ptr->pval = trap;
+			break;
+		}
+	}
 
-   return;
+	return;
 }
 
 /* Dangerous trap placing function */
@@ -1703,9 +1929,9 @@ void wiz_place_trap(int y, int x, int idx)
 	cave_type *c_ptr = &cave[y][x];
 
 	/* Dangerous enough as it is... */
-        if (!cave_floor_grid(c_ptr) && (!(f_info[c_ptr->feat].flags1 & FF1_DOOR))) return;
+	if (!cave_floor_grid(c_ptr) && (!(f_info[c_ptr->feat].flags1 & FF1_DOOR))) return;
 
-        c_ptr->t_idx = idx;
+	c_ptr->t_idx = idx;
 }
 
 /*
@@ -1717,9 +1943,9 @@ void wiz_place_trap(int y, int x, int idx)
  */
 static bool item_tester_hook_device(object_type *o_ptr)
 {
-        if ((o_ptr->tval == TV_ROD) ||
-            (o_ptr->tval == TV_STAFF) ||
-            (o_ptr->tval == TV_WAND)) return (TRUE);
+	if ((o_ptr->tval == TV_ROD) ||
+	    (o_ptr->tval == TV_STAFF) ||
+	    (o_ptr->tval == TV_WAND)) return (TRUE);
 
 	/* Assume not */
 	return (FALSE);
@@ -1730,8 +1956,8 @@ static bool item_tester_hook_device(object_type *o_ptr)
  */
 static bool item_tester_hook_potion(object_type *o_ptr)
 {
-        if ((o_ptr->tval == TV_POTION) ||
-            (o_ptr->tval == TV_POTION2)) return (TRUE);
+	if ((o_ptr->tval == TV_POTION) ||
+	    (o_ptr->tval == TV_POTION2)) return (TRUE);
 
 	/* Assume not */
 	return (FALSE);
@@ -1744,16 +1970,16 @@ static bool item_tester_hook_potion(object_type *o_ptr)
  */
 void do_cmd_set_trap(void)                
 {
-        int item_kit, item_load, i;
+	int item_kit, item_load, i;
 	int num;
 
 	object_type *o_ptr, *j_ptr, *i_ptr;
-	
+
 	cptr q,s,c;
-	
+
 	object_type object_type_body;
 
-        u32b f1, f2, f3, f4, f5, esp;
+	u32b f1, f2, f3, f4, f5, esp;
 
 	/* Check some conditions */
 	if (p_ptr->blind)            
@@ -1761,7 +1987,7 @@ void do_cmd_set_trap(void)
 		msg_print("You can't see anything.");
 		return;
 	}
-        if (no_lite())
+	if (no_lite())
 	{
 		msg_print("You don't dare to set a trap in the darkness.");
 		return;
@@ -1773,7 +1999,7 @@ void do_cmd_set_trap(void)
 	}
 
 	/* Only set traps on clean floor grids */
-        if (!cave_clean_bold(py, px))
+	if (!cave_clean_bold(py, px))
 	{
 		msg_print("You cannot set a trap on this.");
 		return;
@@ -1786,89 +2012,89 @@ void do_cmd_set_trap(void)
 	q = "Use which trapping kit? ";
 	s = "You have no trapping kits.";
 	if (!get_item(&item_kit, q, s, USE_INVEN)) return;
-	
+
 	o_ptr = &inventory[item_kit];
-	
+
 	/* Trap kits need a second object */
 	switch (o_ptr->sval)
 	{
-                case SV_TRAPKIT_BOW:
+		case SV_TRAPKIT_BOW:
 			item_tester_tval = TV_ARROW;
 			break;
-                case SV_TRAPKIT_XBOW:
+		case SV_TRAPKIT_XBOW:
 			item_tester_tval = TV_BOLT;
 			break;
-                case SV_TRAPKIT_SLING:
+		case SV_TRAPKIT_SLING:
 			item_tester_tval = TV_SHOT;
 			break;
-                case SV_TRAPKIT_POTION:
-                        item_tester_hook = item_tester_hook_potion;
+		case SV_TRAPKIT_POTION:
+			item_tester_hook = item_tester_hook_potion;
 			break;
-                case SV_TRAPKIT_SCROLL:
+		case SV_TRAPKIT_SCROLL:
 			item_tester_tval = TV_SCROLL;
 			break;
-                case SV_TRAPKIT_DEVICE:
-                        item_tester_hook = item_tester_hook_device;
+		case SV_TRAPKIT_DEVICE:
+			item_tester_hook = item_tester_hook_device;
 			break;
 		default:
 			msg_print("Unknown trapping kit type!");
 			break;
 	}
-	
+
 	/* Get the second item */
 	q = "Load with what? ";
 	s = "You have nothing to load that trap with.";
 	if (!get_item(&item_load, q, s, USE_INVEN)) return;
-	
+
 	/* Get the second object */
 	j_ptr = &inventory[item_load];
 
 	/* Assume a single object */
 	num = 1;
-				
-	/* In some cases, take multiple objects to load */
-        if (o_ptr->sval != SV_TRAPKIT_DEVICE)
-	{
-                object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
 
-                if ((f3 & TR3_XTRA_SHOTS) && (o_ptr->pval > 0)) num += o_ptr->pval;
-	
+	/* In some cases, take multiple objects to load */
+	if (o_ptr->sval != SV_TRAPKIT_DEVICE)
+	{
+		object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
+
+		if ((f3 & TR3_XTRA_SHOTS) && (o_ptr->pval > 0)) num += o_ptr->pval;
+
 		if (f2 & (TRAP2_AUTOMATIC_5 | TRAP2_AUTOMATIC_99)) num = 99;
-		
+
 		if (num > j_ptr->number) num = j_ptr->number;
 
 		c = format("How many (1-%d)? ", num);
-				
+
 		/* Ask for number of items to use */
 		num = get_quantity(c, num);
 	}
 
 	/* Canceled */
 	if (!num) return; 
-		
+
 	/* Take a turn */
-        energy_use = 100;
+	energy_use = 100;
 
 	/* Get local object */
 	i_ptr = &object_type_body;
-	
+
 	/* Obtain local object for trap content */
 	object_copy(i_ptr, j_ptr);
 
 	/* Set number */
 	i_ptr->number = num;
-	
+
 	/* Drop it here */
-        cave[py][px].special = floor_carry(py, px, i_ptr);
-	
+	cave[py][px].special = floor_carry(py, px, i_ptr);
+
 	/* Obtain local object for trap trigger kit */
 	object_copy(i_ptr, o_ptr);
-	
+
 	/* Set number */
 	i_ptr->number = 1;
 
 	/* Drop it here */
-        cave[py][px].special2 = floor_carry(py, px, i_ptr);
+	cave[py][px].special2 = floor_carry(py, px, i_ptr);
 
 	/* Modify, Describe, Optimize */
 	inven_item_increase(item_kit, -1);
@@ -1876,14 +2102,14 @@ void do_cmd_set_trap(void)
 	inven_item_increase(item_load, -num);
 	inven_item_describe(item_load);
 
-        for (i = 0; i < INVEN_WIELD; i++)
-        {
-                if (inven_item_optimize(i)) break;
-        }
-        for (i = 0; i < INVEN_WIELD; i++)
-        {
-                inven_item_optimize(i);
-        }
+	for (i = 0; i < INVEN_WIELD; i++)
+	{
+		if (inven_item_optimize(i)) break;
+	}
+	for (i = 0; i < INVEN_WIELD; i++)
+	{
+		inven_item_optimize(i);
+	}
 
 	/* Actually set the trap */
 	cave_set_feat(py, px, FEAT_MON_TRAP);
@@ -1897,23 +2123,23 @@ void do_cmd_set_trap(void)
 bool mon_hit_trap_aux_rod(int m_idx, object_type *o_ptr)
 {
 	int dam = 0, typ = 0;
-        int rad = 0;
+	int rad = 0;
 	monster_type *m_ptr = &m_list[m_idx];
 	int y = m_ptr->fy;
-        int x = m_ptr->fx;
-        u32b f1, f2, f3, f4, f5, esp;
-        object_kind *tip_ptr = &k_info[lookup_kind(TV_ROD, o_ptr->pval)];
+	int x = m_ptr->fx;
+	u32b f1, f2, f3, f4, f5, esp;
+	object_kind *tip_ptr = &k_info[lookup_kind(TV_ROD, o_ptr->pval)];
 
-        object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
+	object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
 
 	/* Depend on rod type */
-        switch (o_ptr->pval)
+	switch (o_ptr->pval)
 	{
 		case SV_ROD_DETECT_TRAP:
-                        m_ptr->smart |= SM_NOTE_TRAP;
+			m_ptr->smart |= SM_NOTE_TRAP;
 			break;
 		case SV_ROD_DETECTION:
-                        m_ptr->smart |= SM_NOTE_TRAP;
+			m_ptr->smart |= SM_NOTE_TRAP;
 			break;
 		case SV_ROD_ILLUMINATION:
 			typ = GF_LITE_WEAK;
@@ -1934,9 +2160,9 @@ bool mon_hit_trap_aux_rod(int m_idx, object_type *o_ptr)
 			dam = 50;
 			break;
 		case SV_ROD_TELEPORT_AWAY:
-		        typ = GF_AWAY_ALL;
-		        dam = MAX_SIGHT * 5;
-		        break;
+			typ = GF_AWAY_ALL;
+			dam = MAX_SIGHT * 5;
+			break;
 		case SV_ROD_DISARMING:
 			break;
 		case SV_ROD_LITE:
@@ -1998,14 +2224,14 @@ bool mon_hit_trap_aux_rod(int m_idx, object_type *o_ptr)
 		default:
 			return (FALSE);
 	}
-	
+
 	/* Actually hit the monster */
 	if (typ) (void) project(-2, rad, y, x, dam, typ, PROJECT_KILL | PROJECT_ITEM | PROJECT_JUMP);
 
 	/* Set rod recharge time */
-        o_ptr->timeout -= (f4 & TR4_CHEAPNESS)?tip_ptr->pval / 2:tip_ptr->pval;
+	o_ptr->timeout -= (f4 & TR4_CHEAPNESS)?tip_ptr->pval / 2:tip_ptr->pval;
 
-        return (cave[y][x].m_idx == 0 ? TRUE : FALSE);
+	return (cave[y][x].m_idx == 0 ? TRUE : FALSE);
 }
 
 /* 
@@ -2021,7 +2247,7 @@ bool mon_hit_trap_aux_staff(int m_idx, int sval)
 	int k;
 	int y = m_ptr->fy;
 	int x = m_ptr->fx;	
-	
+
 	/* Depend on staff type */
 	switch (sval)
 	{
@@ -2036,7 +2262,7 @@ bool mon_hit_trap_aux_staff(int m_idx, int sval)
 		case SV_STAFF_REMOVE_CURSE:	
 		case SV_STAFF_THE_MAGI:
 			return (FALSE);		
-			
+
 		case SV_STAFF_DARKNESS:
 			unlite_room(y, x);
 			typ = GF_DARK_WEAK;
@@ -2054,7 +2280,7 @@ bool mon_hit_trap_aux_staff(int m_idx, int sval)
 			break;
 		case SV_STAFF_SUMMONING:
 			for (k = 0; k < randint(4) ; k++)
-                                (void)summon_specific(y, x, dun_level, 0);
+				(void)summon_specific(y, x, dun_level, 0);
 			return (FALSE);
 		case SV_STAFF_TELEPORTATION:	
 			typ = GF_AWAY_ALL;
@@ -2073,7 +2299,7 @@ bool mon_hit_trap_aux_staff(int m_idx, int sval)
 			rad = 2;
 			break;			
 		case SV_STAFF_DETECT_TRAP:
-                        m_ptr->smart |= SM_NOTE_TRAP;
+			m_ptr->smart |= SM_NOTE_TRAP;
 			return (FALSE);
 		case SV_STAFF_CURE_LIGHT:
 			typ = GF_OLD_HEAL;
@@ -2107,35 +2333,35 @@ bool mon_hit_trap_aux_staff(int m_idx, int sval)
 			rad = 5;
 			break;
 		case SV_STAFF_POWER:
-		        typ = GF_DISP_ALL;
-		        dam = 120;
-		        rad = 5;
-		        break;
+			typ = GF_DISP_ALL;
+			dam = 120;
+			rad = 5;
+			break;
 		case SV_STAFF_HOLINESS:
-		        typ = GF_DISP_EVIL;
-		        dam = 120;
-		        rad = 5;
-		        break;
+			typ = GF_DISP_EVIL;
+			dam = 120;
+			rad = 5;
+			break;
 		case SV_STAFF_GENOCIDE:	
 		{
 			monster_race *r_ptr = &r_info[m_ptr->r_idx];
-                        genocide_aux(FALSE, r_ptr->d_char);
+			genocide_aux(FALSE, r_ptr->d_char);
 			/* although there's no point in a multiple genocide trap... */
-                        return (cave[y][x].m_idx == 0 ? TRUE : FALSE);
+			return (cave[y][x].m_idx == 0 ? TRUE : FALSE);
 		}
 		case SV_STAFF_EARTHQUAKES:
 			earthquake(y, x, 10);
 			return (FALSE);
 		case SV_STAFF_DESTRUCTION:
-			destroy_area(y, x, 15, TRUE);
+			destroy_area(y, x, 15, TRUE, FALSE);
 			return (FALSE);
 		default:
 			return (FALSE);
 	}
-	
+
 	/* Actually hit the monster */
 	(void) project(-2, rad, y, x, dam, typ, PROJECT_KILL | PROJECT_ITEM | PROJECT_JUMP);
-        return (cave[y][x].m_idx == 0 ? TRUE : FALSE); 
+	return (cave[y][x].m_idx == 0 ? TRUE : FALSE); 
 }
 
 /* 
@@ -2148,10 +2374,10 @@ bool mon_hit_trap_aux_scroll(int m_idx, int sval)
 	monster_type *m_ptr = &m_list[m_idx];
 	int dam = 0, typ = 0;
 	int rad = 0;
-        int y = m_ptr->fy;
-        int x = m_ptr->fx;
-        int k;
-		
+	int y = m_ptr->fy;
+	int x = m_ptr->fx;
+	int k;
+
 	/* Depend on scroll type */
 	switch (sval)
 	{
@@ -2186,13 +2412,13 @@ bool mon_hit_trap_aux_scroll(int m_idx, int sval)
 			rad = 3;
 			break;
 		case SV_SCROLL_AGGRAVATE_MONSTER:	
-		      	aggravate_monsters(m_idx);
-		      	return (FALSE);
+			aggravate_monsters(m_idx);
+			return (FALSE);
 		case SV_SCROLL_SUMMON_MONSTER:
-                        for (k = 0; k < randint(3) ; k++) summon_specific(y, x, dun_level, 0);
+			for (k = 0; k < randint(3) ; k++) summon_specific(y, x, dun_level, 0);
 			return (FALSE);	
 		case SV_SCROLL_SUMMON_UNDEAD:	
-                        for (k = 0; k < randint(3) ; k++) summon_specific(y, x, dun_level, SUMMON_UNDEAD);
+			for (k = 0; k < randint(3) ; k++) summon_specific(y, x, dun_level, SUMMON_UNDEAD);
 			return (FALSE);	
 		case SV_SCROLL_PHASE_DOOR:
 			typ = GF_AWAY_ALL;
@@ -2212,18 +2438,18 @@ bool mon_hit_trap_aux_scroll(int m_idx, int sval)
 			rad = 2;
 			break;			
 		case SV_SCROLL_DETECT_TRAP:
-                        m_ptr->smart |= SM_NOTE_TRAP;
+			m_ptr->smart |= SM_NOTE_TRAP;
 			return (FALSE);
 		case SV_SCROLL_BLESSING:
-                        typ = GF_HOLY_FIRE;
+			typ = GF_HOLY_FIRE;
 			dam = damroll(1, 4);
 			break;
 		case SV_SCROLL_HOLY_CHANT:
-                        typ = GF_HOLY_FIRE;
+			typ = GF_HOLY_FIRE;
 			dam = damroll(2, 4);
 			break;
 		case SV_SCROLL_HOLY_PRAYER:		
-                        typ = GF_HOLY_FIRE;
+			typ = GF_HOLY_FIRE;
 			dam = damroll(4, 4);
 			break;
 		case SV_SCROLL_MONSTER_CONFUSION:
@@ -2231,7 +2457,7 @@ bool mon_hit_trap_aux_scroll(int m_idx, int sval)
 			dam = damroll(5, 10);
 			break;
 		case SV_SCROLL_STAR_DESTRUCTION:
-			destroy_area(y, x, 15, TRUE);
+			destroy_area(y, x, 15, TRUE, FALSE);
 			return (FALSE);			
 		case SV_SCROLL_DISPEL_UNDEAD:
 			typ = GF_DISP_UNDEAD;
@@ -2241,7 +2467,7 @@ bool mon_hit_trap_aux_scroll(int m_idx, int sval)
 		case SV_SCROLL_GENOCIDE:
 		{
 			monster_race *r_ptr = &r_info[m_ptr->r_idx];
-                        genocide_aux(FALSE, r_ptr->d_char);
+			genocide_aux(FALSE, r_ptr->d_char);
 			/* although there's no point in a multiple genocide trap... */
 			return (!(r_ptr->flags1 & RF1_UNIQUE));
 		}
@@ -2251,18 +2477,18 @@ bool mon_hit_trap_aux_scroll(int m_idx, int sval)
 			delete_monster(y,x);
 			return(TRUE);
 		case SV_SCROLL_ACQUIREMENT:
-                        acquirement(y, x, 1, TRUE, FALSE);
+			acquirement(y, x, 1, TRUE, FALSE);
 			return (FALSE);
 		case SV_SCROLL_STAR_ACQUIREMENT:
-                        acquirement(y, x, randint(2) + 1, TRUE, FALSE);
+			acquirement(y, x, randint(2) + 1, TRUE, FALSE);
 			return (FALSE);
 		default:
 			return (FALSE);
 	}
-	
+
 	/* Actually hit the monster */
 	(void) project(-2, rad, y, x, dam, typ, PROJECT_KILL | PROJECT_ITEM | PROJECT_JUMP);
-        return (cave[y][x].m_idx == 0 ? TRUE : FALSE); 
+	return (cave[y][x].m_idx == 0 ? TRUE : FALSE); 
 }
 
 /* 
@@ -2277,7 +2503,7 @@ bool mon_hit_trap_aux_wand(int m_idx, int sval)
 	int rad = 0;
 	int y = m_ptr->fy;
 	int x = m_ptr->fx;
-	
+
 	if (sval == SV_WAND_WONDER) sval = rand_int(SV_WAND_WONDER);
 	/* Depend on wand type */
 	switch (sval)
@@ -2291,12 +2517,12 @@ bool mon_hit_trap_aux_wand(int m_idx, int sval)
 			dam = damroll(5, 10);
 			break;
 		case SV_WAND_CLONE_MONSTER:
-		        typ = GF_OLD_CLONE;
-		        break;
+			typ = GF_OLD_CLONE;
+			break;
 		case SV_WAND_TELEPORT_AWAY:
-		        typ = GF_AWAY_ALL;
-		        dam = MAX_SIGHT * 5;
-		        break;
+			typ = GF_AWAY_ALL;
+			dam = MAX_SIGHT * 5;
+			break;
 		case SV_WAND_DISARMING:
 			return (FALSE);
 		case SV_WAND_TRAP_DOOR_DEST:
@@ -2343,9 +2569,9 @@ bool mon_hit_trap_aux_wand(int m_idx, int sval)
 			dam = damroll(2, 6);
 			break;
 		case SV_WAND_ACID_BOLT:
-		        typ = GF_ACID;
-		        dam = damroll(5, 8);
-		        break;
+			typ = GF_ACID;
+			dam = damroll(5, 8);
+			break;
 		case SV_WAND_FIRE_BOLT:
 			typ = GF_FIRE;
 			dam = damroll(6, 8);
@@ -2403,10 +2629,10 @@ bool mon_hit_trap_aux_wand(int m_idx, int sval)
 		default:
 			return (FALSE);
 	}
-	
+
 	/* Actually hit the monster */
 	(void) project(-2, rad, y, x, dam, typ, PROJECT_KILL | PROJECT_ITEM | PROJECT_JUMP);
-        return (cave[y][x].m_idx == 0 ? TRUE : FALSE); 
+	return (cave[y][x].m_idx == 0 ? TRUE : FALSE); 
 }
 
 /* 
@@ -2417,14 +2643,14 @@ bool mon_hit_trap_aux_wand(int m_idx, int sval)
 bool mon_hit_trap_aux_potion(int m_idx, object_type *o_ptr)
 {
 	monster_type *m_ptr = &m_list[m_idx];
-        int dam = 0, typ = 0;
+	int dam = 0, typ = 0;
 	int y = m_ptr->fy;
 	int x = m_ptr->fx;
-        int sval = o_ptr->sval;
-	
+	int sval = o_ptr->sval;
+
 	/* Depend on potion type */
-        if (o_ptr->tval == TV_POTION)
-        {
+	if (o_ptr->tval == TV_POTION)
+	{
 	switch (sval)
 	{
 		/* Nothing happens */
@@ -2466,12 +2692,12 @@ bool mon_hit_trap_aux_potion(int m_idx, object_type *o_ptr)
 			return (FALSE);
 
 		case SV_POTION_EXPERIENCE:
-                        if (m_ptr->level < MONSTER_LEVEL_MAX)
-                        {
-                                m_ptr->exp = MONSTER_EXP(m_ptr->level + 1);
-                                monster_check_experience(m_idx, FALSE);
-                        }
-                        return (FALSE);
+			if (m_ptr->level < MONSTER_LEVEL_MAX)
+			{
+				m_ptr->exp = MONSTER_EXP(m_ptr->level + 1);
+				monster_check_experience(m_idx, FALSE);
+			}
+			return (FALSE);
 		case SV_POTION_SLOWNESS:
 			typ = GF_OLD_SLOW;
 			dam = damroll(4, 6);
@@ -2493,7 +2719,7 @@ bool mon_hit_trap_aux_potion(int m_idx, object_type *o_ptr)
 			dam = damroll (4, 6);
 			break;
 		case SV_POTION_LOSE_MEMORIES:
-                        typ = GF_OLD_CONF;
+			typ = GF_OLD_CONF;
 			dam = damroll(10, 10);
 			break;			
 		case SV_POTION_DETONATIONS:
@@ -2502,7 +2728,7 @@ bool mon_hit_trap_aux_potion(int m_idx, object_type *o_ptr)
 			break;
 		case SV_POTION_DEATH:
 			typ = GF_NETHER;
-                        dam = damroll(100, 20);
+			dam = damroll(100, 20);
 			break;
 		case SV_POTION_BOLDNESS:
 			m_ptr->monfear = 0;
@@ -2542,7 +2768,7 @@ bool mon_hit_trap_aux_potion(int m_idx, object_type *o_ptr)
 			monster_race *r_ptr = &r_info[m_ptr->r_idx];
 			if (r_ptr->flags3 & RF3_UNDEAD)
 			{
-                                typ = GF_HOLY_FIRE;
+				typ = GF_HOLY_FIRE;
 				dam = damroll(20, 20);
 			}
 			else
@@ -2554,18 +2780,18 @@ bool mon_hit_trap_aux_potion(int m_idx, object_type *o_ptr)
 		}				
 		default:
 			return (FALSE);
-			
+
 	}
-        }
-        else
-        {
-        }
-	
+	}
+	else
+	{
+	}
+
 	/* Actually hit the monster */
 	(void) project_m(-2, 0, y, x, dam, typ);
-        return (cave[y][x].m_idx == 0 ? TRUE : FALSE);
+	return (cave[y][x].m_idx == 0 ? TRUE : FALSE);
 }
- 
+
 /*
  * Monster hitting a monster trap -MWK-
  * Returns True if the monster died, false otherwise
@@ -2575,45 +2801,45 @@ bool mon_hit_trap(int m_idx)
 	monster_type *m_ptr = &m_list[m_idx];
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 #if 0 /* DGDGDGDG */
-        monster_lore *l_ptr = &l_list[m_ptr->r_idx];
+	monster_lore *l_ptr = &l_list[m_ptr->r_idx];
 #endif
 
-        object_type *kit_o_ptr, *load_o_ptr, *j_ptr;
-		
-        u32b f1, f2, f3, f4, f5, esp;
-        
-        object_type object_type_body;
-               
+	object_type *kit_o_ptr, *load_o_ptr, *j_ptr;
+
+	u32b f1, f2, f3, f4, f5, esp;
+
+	object_type object_type_body;
+
 	int mx = m_ptr->fx;
 	int my = m_ptr->fy;
 
 	int difficulty;
 	int smartness;
-	
+
 	char m_name[80];
-		
+
 	bool notice = FALSE;
 	bool disarm = FALSE;
 	bool remove = FALSE;
 	bool dead = FALSE;
 	bool fear = FALSE;
-        s32b special = 0;
+	s32b special = 0;
 
 	int dam, chance, shots;
-        int mul = 0;
-			
+	int mul = 0;
+
 	/* Get the trap objects */
-        kit_o_ptr = &o_list[cave[my][mx].special2];
-        load_o_ptr = &o_list[cave[my][mx].special];
+	kit_o_ptr = &o_list[cave[my][mx].special2];
+	load_o_ptr = &o_list[cave[my][mx].special];
 	j_ptr = &object_type_body;
 
 	/* Get trap properties */
-        object_flags(kit_o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
+	object_flags(kit_o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
 
 	/* Can set off check */
 	/* Ghosts only set off Ghost traps */
 	if ((r_ptr->flags2 & RF2_PASS_WALL) && !(f2 & TRAP2_KILL_GHOST)) return (FALSE);
-	
+
 	/* Some traps are specialized to some creatures */
 	if (f2 & TRAP2_ONLY_MASK)
 	{
@@ -2623,102 +2849,102 @@ bool mon_hit_trap(int m_idx)
 		if ((f2 & TRAP2_ONLY_UNDEAD) && (r_ptr->flags3 & RF3_UNDEAD)) affect = TRUE;
 		if ((f2 & TRAP2_ONLY_EVIL)   && (r_ptr->flags3 & RF3_EVIL))   affect = TRUE;
 		if ((f2 & TRAP2_ONLY_ANIMAL) && (r_ptr->flags3 & RF3_ANIMAL)) affect = TRUE;
-		
+
 		/* Don't set it off if forbidden */
 		if (!affect) return (FALSE);
 	}
-		
+
 	/* Get detection difficulty */
 	/* High level players hide traps better */
-	difficulty = p_ptr->lev;
-	
+	difficulty = get_skill(SKILL_TRAPPING);
+
 	/* Some traps are well-hidden */
 	if (f1 & TR1_STEALTH)
 	{
 		difficulty += 10 * (kit_o_ptr->pval);
 	}
-	
+
 	/* Get monster smartness for trap detection */
 	/* Higher level monsters are smarter */
 	smartness = r_ptr->level;
-	
+
 	/* Smart monsters are better at detecting traps */
 	if (r_ptr->flags2 & RF2_SMART) smartness += 10;
-	
+
 	/* Some monsters are great at detecting traps */
 #if 0 /* DGDGDGDG */
-        if (r_ptr->flags2 & RF2_NOTICE_TRAP) smartness += 20;
+	if (r_ptr->flags2 & RF2_NOTICE_TRAP) smartness += 20;
 #endif 
 	/* Some monsters have already noticed one of out traps */
-        if (m_ptr->smart & SM_NOTE_TRAP) smartness += 20;
+	if (m_ptr->smart & SM_NOTE_TRAP) smartness += 20;
 
 	/* Stupid monsters are no good at detecting traps */
 	if (r_ptr->flags2 & (RF2_STUPID | RF2_EMPTY_MIND)) smartness = -150;
-				
+
 	/* Check if the monster notices the trap */
 	if (randint(300) > (difficulty - smartness + 150)) notice = TRUE;
-					
+
 	/* Disarm check */
 	if (notice)
 	{
-	        /* The next traps will be easier to spot! */
-                m_ptr->smart |= SM_NOTE_TRAP;
-	        
-	        /* Tell the player about it */
+		/* The next traps will be easier to spot! */
+		m_ptr->smart |= SM_NOTE_TRAP;
+
+		/* Tell the player about it */
 #if 0 /* DGDGDGDG */
-                if (m_ptr->ml) l_ptr->r_flags2 |= (RF2_NOTICE_TRAP & r_ptr->flags2);
+		if (m_ptr->ml) l_ptr->r_flags2 |= (RF2_NOTICE_TRAP & r_ptr->flags2);
 #endif         
 		/* Get trap disarming difficulty */
 		difficulty = (kit_o_ptr->ac + kit_o_ptr->to_a);
-		
+
 		/* Get monster disarming ability */
 		/* Higher level monsters are better */
 		smartness = r_ptr->level / 5;
-		
+
 		/* Some monsters are great at disarming */
 #if 0 /* DGDGDGDG */
-                if (r_ptr->flags2 & RF2_DISARM_TRAP) smartness += 20;
+		if (r_ptr->flags2 & RF2_DISARM_TRAP) smartness += 20;
 #endif         
-                /* After disarming one trap, the next is easier */
+		/* After disarming one trap, the next is easier */
 #if 0 /* DGDGDGDG */
-                if (m_ptr->status & STATUS_DISARM_TRAP) smartness += 20;
+		if (m_ptr->status & STATUS_DISARM_TRAP) smartness += 20;
 #endif         
 		/* Smart monsters are better at disarming */
 		if (r_ptr->flags2 & RF2_SMART) smartness *= 2;
-				
+
 		/* Stupid monsters never disarm traps */
 		if (r_ptr->flags2 & RF2_STUPID) smartness = -150;		
-		
+
 		/* Nonsmart animals never disarm traps */
 		if ((r_ptr->flags3 & RF3_ANIMAL) && !(r_ptr->flags2 & RF2_SMART)) smartness = -150;
-		
+
 		/* Check if the monster disarms the trap */
 		if (randint(120) > (difficulty - smartness + 80)) disarm = TRUE;
 	}
-	
+
 	/* If disarmed, remove the trap and print a message */
 	if (disarm)
 	{
 		remove = TRUE;
-		
-                /* Next time disarming will be easier */
+
+		/* Next time disarming will be easier */
 #if 0 /* DGDGDGDG */
-                m_ptr->status |= STATUS_DISARM_TRAP;
+		m_ptr->status |= STATUS_DISARM_TRAP;
 #endif                         
 		if (m_ptr->ml) 
 		{
 			/* Get the name */
 			monster_desc(m_name, m_ptr, 0);
-			
-		        /* Tell the player about it */
+
+			/* Tell the player about it */
 #if 0 /* DGDGDGDG */
-                        l_ptr->r_flags2 |= (RF2_DISARM_TRAP & r_ptr->flags2);
+			l_ptr->r_flags2 |= (RF2_DISARM_TRAP & r_ptr->flags2);
 #endif                 
 			/* Print a message */
 			msg_format("%^s disarms a trap!", m_name);
 		}
 	}
-	
+
 	/* Otherwise, activate the trap! */
 	else
 	{
@@ -2727,7 +2953,7 @@ bool mon_hit_trap(int m_idx)
 		{
 			/* Get the name */
 			monster_desc(m_name, m_ptr, 0);
-			
+
 			/* Print a message */
 			msg_format("%^s sets off a trap!", m_name);
 		}
@@ -2735,206 +2961,206 @@ bool mon_hit_trap(int m_idx)
 		{
 			/* No message if monster isn't visible ? */
 		}
-				
+
 		/* Next time be more careful */
-                if (randint(100) < 80) m_ptr->smart |= SM_NOTE_TRAP;
-		
+		if (randint(100) < 80) m_ptr->smart |= SM_NOTE_TRAP;
+
 		/* Actually activate the trap */
 		switch (kit_o_ptr->sval)
 		{
-                        case SV_TRAPKIT_BOW:
-                        case SV_TRAPKIT_XBOW:
-                        case SV_TRAPKIT_SLING:
+			case SV_TRAPKIT_BOW:
+			case SV_TRAPKIT_XBOW:
+			case SV_TRAPKIT_SLING:
 			{
 				/* Get number of shots */
 				shots = 1;
-                                if (f3 & TR3_XTRA_SHOTS) shots += kit_o_ptr->pval;
+				if (f3 & TR3_XTRA_SHOTS) shots += kit_o_ptr->pval;
 				if (shots <= 0) shots = 1;
 				if (shots > load_o_ptr->number) shots = load_o_ptr->number;
-				
+
 				while (shots-- && !dead)
 				{
 					/* Total base damage */
 					dam = damroll(load_o_ptr->dd, load_o_ptr->ds) + load_o_ptr->to_d + kit_o_ptr->to_d;
-					
+
 					/* Total hit probability */
 					chance = (kit_o_ptr->to_h + load_o_ptr->to_h + 20) * BTH_PLUS_ADJ;
-					
+
 					/* Damage multiplier */
-                                        if (kit_o_ptr->sval == SV_TRAPKIT_BOW) mul = 3;
-                                        if (kit_o_ptr->sval == SV_TRAPKIT_XBOW) mul = 4;
-                                        if (kit_o_ptr->sval == SV_TRAPKIT_SLING) mul = 2;
-                                        if (f3 & TR3_XTRA_MIGHT) mul += kit_o_ptr->pval;
+					if (kit_o_ptr->sval == SV_TRAPKIT_BOW) mul = 3;
+					if (kit_o_ptr->sval == SV_TRAPKIT_XBOW) mul = 4;
+					if (kit_o_ptr->sval == SV_TRAPKIT_SLING) mul = 2;
+					if (f3 & TR3_XTRA_MIGHT) mul += kit_o_ptr->pval;
 					if (mul < 0) mul = 0;
-					
+
 					/* Multiply damage */
 					dam *= mul;
-					
+
 					/* Check if we hit the monster */
 					if (test_hit_fire(chance, r_ptr->ac, TRUE))
 					{
-		                               /* Assume a default death */
-		                                cptr note_dies = " dies.";
-	
-	                         	       /* Some monsters get "destroyed" */
-		                                if ((r_ptr->flags3 & (RF3_DEMON)) ||
-	        	                            (r_ptr->flags3 & (RF3_UNDEAD)) ||
-                        	                    (r_ptr->flags2 & (RF2_STUPID)) ||
-                                	            (strchr("Evg", r_ptr->d_char)))
-                                        	{
-                                                	/* Special note at death */
-                                                	note_dies = " is destroyed.";
-                                        	}
-                                        	
-                                        	/* Message if visible */
-                                        	if (m_ptr->ml)
-                                        	{
-                                        		/* describe the monster (again, just in case :-) */
-                                        		monster_desc(m_name, m_ptr, 0);
-                                        		
-        						/* Print a message */
+					       /* Assume a default death */
+						cptr note_dies = " dies.";
+
+					       /* Some monsters get "destroyed" */
+						if ((r_ptr->flags3 & (RF3_DEMON)) ||
+						    (r_ptr->flags3 & (RF3_UNDEAD)) ||
+						    (r_ptr->flags2 & (RF2_STUPID)) ||
+						    (strchr("Evg", r_ptr->d_char)))
+						{
+							/* Special note at death */
+							note_dies = " is destroyed.";
+						}
+
+						/* Message if visible */
+						if (m_ptr->ml)
+						{
+							/* describe the monster (again, just in case :-) */
+							monster_desc(m_name, m_ptr, 0);
+
+							/* Print a message */
 							msg_format("%^s is hit by a missile.", m_name);           		
-	                                	}
-                                        	
-                                        	/* Apply slays, brand, critical hits */
-                                                dam = tot_dam_aux(load_o_ptr, dam, m_ptr, &special);
+						}
+
+						/* Apply slays, brand, critical hits */
+						dam = tot_dam_aux(load_o_ptr, dam, m_ptr, &special);
 						dam = critical_shot(load_o_ptr->weight, load_o_ptr->to_h, dam);
-						
+
 						/* No negative damage */
 						if (dam < 0) dam = 0;
-					
+
 						/* Hit the monster, check for death */
 						if (mon_take_hit(m_idx, dam, &fear, note_dies))
 						{
 							/* Dead monster */
 							dead = TRUE;						
 						}
-	
+
 						/* No death */
 						else
 						{
 							/* Message */
 							message_pain(m_idx, dam);
 
-                                                        if (special) attack_special(m_ptr, special, dam);
+							if (special) attack_special(m_ptr, special, dam);
 
 							/* Take note */
 							if (fear && m_ptr->ml)
 							{
 								/* Message */
-                                                                msg_format("%^s flees in terror!", m_name);
+								msg_format("%^s flees in terror!", m_name);
 							}
 						}
-						
+
 					}
-					
-					/* Copy and decrease ammo */
-		                        object_copy(j_ptr, load_o_ptr);
-		                        
-		                        j_ptr->number = 1;
-		                        
-		                        load_o_ptr->number--;
-		                        	                        
-					if (load_o_ptr->number <= 0)
-					{
-						remove = TRUE;
-						delete_object_idx(kit_o_ptr->next_o_idx);
-						kit_o_ptr->next_o_idx = 0;
-					}
-					
-					/* Drop (or break) near that location */
-					drop_near(j_ptr, breakage_chance(j_ptr), my, mx);				
-					
-				}
-				
-				break;
-			}
-			
-                        case SV_TRAPKIT_POTION:
-			{
-				/* Get number of shots */
-				shots = 1;
-                                if (f3 & TR3_XTRA_SHOTS) shots += kit_o_ptr->pval;
-				if (shots <= 0) shots = 1;
-				if (shots > load_o_ptr->number) shots = load_o_ptr->number;
-				
-				while (shots-- && !dead)
-				{
-					                                        	
-                                       	/* Message if visible */
-                                       	if (m_ptr->ml)
-                                       	{
-                                       		/* describe the monster (again, just in case :-) */
-                                       		monster_desc(m_name, m_ptr, 0);
-                                       		
-        					/* Print a message */
-						msg_format("%^s is hit by fumes.", m_name);
-					}
-					
-					/* Get the potion effect */
-                                        dead = mon_hit_trap_aux_potion(m_idx, load_o_ptr);
 
 					/* Copy and decrease ammo */
-		                        object_copy(j_ptr, load_o_ptr);
-		                        
-		                        j_ptr->number = 1;
-		                        
-		                        load_o_ptr->number--;
-		                        	                        
+					object_copy(j_ptr, load_o_ptr);
+
+					j_ptr->number = 1;
+
+					load_o_ptr->number--;
+
 					if (load_o_ptr->number <= 0)
 					{
 						remove = TRUE;
 						delete_object_idx(kit_o_ptr->next_o_idx);
 						kit_o_ptr->next_o_idx = 0;
 					}
-			        }
-			        
+
+					/* Drop (or break) near that location */
+					drop_near(j_ptr, breakage_chance(j_ptr), my, mx);				
+
+				}
+
 				break;
 			}
-			
-                        case SV_TRAPKIT_SCROLL:
+
+			case SV_TRAPKIT_POTION:
 			{
 				/* Get number of shots */
 				shots = 1;
-                                if (f3 & TR3_XTRA_SHOTS) shots += kit_o_ptr->pval;
+				if (f3 & TR3_XTRA_SHOTS) shots += kit_o_ptr->pval;
 				if (shots <= 0) shots = 1;
 				if (shots > load_o_ptr->number) shots = load_o_ptr->number;
-				
+
 				while (shots-- && !dead)
 				{
-					                                        	
-                                       	/* Message if visible */
-                                       	if (m_ptr->ml)
-                                       	{
-                                       		/* describe the monster (again, just in case :-) */
-                                       		monster_desc(m_name, m_ptr, 0);
-                                       		
-        					/* Print a message */
+
+					/* Message if visible */
+					if (m_ptr->ml)
+					{
+						/* describe the monster (again, just in case :-) */
+						monster_desc(m_name, m_ptr, 0);
+
+						/* Print a message */
+						msg_format("%^s is hit by fumes.", m_name);
+					}
+
+					/* Get the potion effect */
+					dead = mon_hit_trap_aux_potion(m_idx, load_o_ptr);
+
+					/* Copy and decrease ammo */
+					object_copy(j_ptr, load_o_ptr);
+
+					j_ptr->number = 1;
+
+					load_o_ptr->number--;
+
+					if (load_o_ptr->number <= 0)
+					{
+						remove = TRUE;
+						delete_object_idx(kit_o_ptr->next_o_idx);
+						kit_o_ptr->next_o_idx = 0;
+					}
+				}
+
+				break;
+			}
+
+			case SV_TRAPKIT_SCROLL:
+			{
+				/* Get number of shots */
+				shots = 1;
+				if (f3 & TR3_XTRA_SHOTS) shots += kit_o_ptr->pval;
+				if (shots <= 0) shots = 1;
+				if (shots > load_o_ptr->number) shots = load_o_ptr->number;
+
+				while (shots-- && !dead)
+				{
+
+					/* Message if visible */
+					if (m_ptr->ml)
+					{
+						/* describe the monster (again, just in case :-) */
+						monster_desc(m_name, m_ptr, 0);
+
+						/* Print a message */
 						msg_format("%^s activates a spell!", m_name);
 					}
-					
+
 					/* Get the potion effect */
 					dead = mon_hit_trap_aux_scroll(m_idx, load_o_ptr->sval);
 
 					/* Copy and decrease ammo */
-		                        object_copy(j_ptr, load_o_ptr);
-		                        
-		                        j_ptr->number = 1;
-		                        
-		                        load_o_ptr->number--;
-		                        	                        
+					object_copy(j_ptr, load_o_ptr);
+
+					j_ptr->number = 1;
+
+					load_o_ptr->number--;
+
 					if (load_o_ptr->number <= 0)
 					{
 						remove = TRUE;
 						delete_object_idx(kit_o_ptr->next_o_idx);
 						kit_o_ptr->next_o_idx = 0;
 					}
-			        }
-			        
+				}
+
 				break;
 			}
-			
-                        case SV_TRAPKIT_DEVICE:
+
+			case SV_TRAPKIT_DEVICE:
 			{
 				/* Get number of shots */
 				shots = 1;
@@ -2944,20 +3170,20 @@ bool mon_hit_trap(int m_idx)
 				}
 				else
 				{
-                                        if (f3 & TR3_XTRA_SHOTS) shots += kit_o_ptr->pval;
+					if (f3 & TR3_XTRA_SHOTS) shots += kit_o_ptr->pval;
 					if (shots <= 0) shots = 1;
 					if (shots > load_o_ptr->pval) shots = load_o_ptr->pval;
 				}				
 				while (shots-- && !dead)
 				{
 #if 0					                                        	
-                                       	/* Message if visible */
-                                       	if (m_ptr->ml)
-                                       	{
-                                       		/* describe the monster (again, just in case :-) */
-                                       		monster_desc(m_name, m_ptr, 0);
-                                       		
-        					/* Print a message */
+					/* Message if visible */
+					if (m_ptr->ml)
+					{
+						/* describe the monster (again, just in case :-) */
+						monster_desc(m_name, m_ptr, 0);
+
+						/* Print a message */
 						msg_format("%^s is hit by some magic.", m_name);
 					}
 #endif					
@@ -2966,47 +3192,47 @@ bool mon_hit_trap(int m_idx)
 					{
 						case TV_ROD:
 							dead = mon_hit_trap_aux_rod(m_idx, load_o_ptr);
-					 		break;
-					        case TV_WAND:
+							break;
+						case TV_WAND:
 							dead = mon_hit_trap_aux_wand(m_idx, load_o_ptr->sval);
-					 		break;
-					        case TV_STAFF:
+							break;
+						case TV_STAFF:
 							dead = mon_hit_trap_aux_staff(m_idx, load_o_ptr->sval);
-					 		break;					        
-                                        }
+							break;					        
+					}
 					/* Decrease charges */
 					if (load_o_ptr->tval != TV_ROD)
 					{
 						load_o_ptr->pval--;
 					}
-			        }
-			        
+				}
+
 				break;
 			}
-			
+
 			default:
 				msg_print("oops! nonexisting trap!");
-	
+
 		}		
-		
+
 		/* Non-automatic traps are removed */
 		if (!(f2 & (TRAP2_AUTOMATIC_5 | TRAP2_AUTOMATIC_99)))
 		{
 			remove = TRUE;	
 		}
 		else if (f2 & TRAP2_AUTOMATIC_5) remove = (randint(5) == 1);
-		
+
 	}
 
 	/* Special trap effect -- teleport to */
-        if ((f2 & TRAP2_TELEPORT_TO) && (!disarm) && (!dead))
+	if ((f2 & TRAP2_TELEPORT_TO) && (!disarm) && (!dead))
 	{
-                teleport_monster_to(m_idx, py, px);
+		teleport_monster_to(m_idx, py, px);
 	}
-					
+
 	/* Remove the trap if inactive now */	
 	if (remove) cave_set_feat(my, mx, FEAT_FLOOR);
-	
+
 	/* did it die? */
 	return (dead);
 }

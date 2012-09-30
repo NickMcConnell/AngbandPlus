@@ -33,60 +33,205 @@ int  tolua_quest_open (lua_State *L);
  */
 lua_State* L = NULL;
 
-/* T.o.M.E. Lua error message handler */
-static int pern_errormessage(lua_State *L)
+/* PernAngband Lua error message handler */
+static int tome_errormessage(lua_State *L)
 {
-        char buf[200];
-        cptr str = luaL_check_string(L, 1);
-        int i = 0, j = 0;
+	char buf[200];
+	cptr str = luaL_check_string(L, 1);
+	int i = 0, j = 0;
 
-        while (str[i])
-        {
-                if (str[i] != '\n')
-                {
-                        buf[j++] = str[i];
-                }
-                else
-                {
-                        buf[j] = '\0';
-                        cmsg_format(TERM_VIOLET, "LUA: %s", buf);
-                        j = 0;
-                }
-                i++;
-        }
-        buf[j] = '\0';
-        cmsg_format(TERM_VIOLET, "LUA: %s", buf);
-        return (0);
+	while (str[i])
+	{
+		if (str[i] == '#')
+		{
+			buf[j++] = '$';
+		}
+		else if (str[i] != '\n')
+		{
+			buf[j++] = str[i];
+		}
+		else
+		{
+			buf[j] = '\0';
+			cmsg_format(TERM_VIOLET, "LUA: %s", buf);
+			j = 0;
+		}
+		i++;
+	}
+	buf[j] = '\0';
+	cmsg_format(TERM_VIOLET, "LUA: %s", buf);
+	return (0);
 }
 
-static struct luaL_reg pern_iolib[] =
+static struct luaL_reg tome_iolib[] =
 {
-        {"_ALERT", pern_errormessage},
+	{"_ALERT", tome_errormessage},
 };
 
+#define luaL_check_bit(L, n)  ((long)luaL_check_number(L, n))
+#define luaL_check_ubit(L, n) ((unsigned long)luaL_check_bit(L, n))
+
+#if 0
+
+/*
+ * Nuked because they can confuse some compilers (lcc for example),
+ * and because of their obscurity -- pelpel
+ */
+
+#define TDYADIC(name, op, t1, t2) \
+  static int int_ ## name(lua_State* L) { \
+    lua_pushnumber(L, \
+      luaL_check_ ## t1 ## bit(L, 1) op luaL_check_ ## t2 ## bit(L, 2)); \
+    return 1; \
+  }
+
 #define DYADIC(name, op) \
-    s32b name(s32b a, s32b b) { \
-		return (a op b); \
-    }
+  static int int_ ## name(lua_State* L) { \
+    lua_pushnumber(L, \
+      luaL_check_bit(L, 1) op luaL_check_bit(L, 2)); \
+    return 1; \
+  }
 
 #define MONADIC(name, op) \
-    s32b name(s32b b) { \
-		return (op b); \
-    }
+  static int int_ ## name(lua_State* L) { \
+    lua_pushnumber(L, op luaL_check_bit(L, 1)); \
+    return 1; \
+  }
+
+#define VARIADIC(name, op) \
+  static int int_ ## name(lua_State *L) { \
+    int n = lua_gettop(L), i; \
+    long w = luaL_check_bit(L, 1); \
+    for (i = 2; i <= n; i++) \
+      w op ## = luaL_check_bit(L, i); \
+    lua_pushnumber(L, w); \
+    return 1; \
+  }
+
+#endif
 
 
-DYADIC(intMod,      % )
-DYADIC(intAnd,      & )
-DYADIC(intOr,       | )
-DYADIC(intXor,      ^ )
-DYADIC(intShiftl,   <<)
-DYADIC(intShiftr,   >>)
-MONADIC(intBitNot,  ~ )
+/*
+ * Monadic bit nagation operation
+ * MONADIC(not,     ~)
+ */
+static int int_not(lua_State* L)
+{
+	lua_pushnumber(L, ~luaL_check_bit(L, 1));
+	return 1;
+}
 
 
-/* Initialize lua scripting */
+/*
+ * Dyadic integer modulus operation
+ * DYADIC(mod,      %)
+ */
+static int int_mod(lua_State* L)
+{
+	lua_pushnumber(L, luaL_check_bit(L, 1) % luaL_check_bit(L, 2));
+    return 1;
+}
+
+
+/*
+ * Variable length bitwise AND operation
+ * VARIADIC(and,    &)
+ */
+static int int_and(lua_State *L)
+{
+	int n = lua_gettop(L), i;
+	long w = luaL_check_bit(L, 1);
+
+	for (i = 2; i <= n; i++) w &= luaL_check_bit(L, i);
+	lua_pushnumber(L, w);
+
+	return 1;
+}
+
+
+/*
+ * Variable length bitwise OR operation
+ * VARIADIC(or,     |)
+ */
+static int int_or(lua_State *L)
+{
+	int n = lua_gettop(L), i;
+	long w = luaL_check_bit(L, 1);
+
+	for (i = 2; i <= n; i++) w |= luaL_check_bit(L, i);
+    lua_pushnumber(L, w);
+
+    return 1;
+}
+
+
+/*
+ * Variable length bitwise XOR operation
+ * VARIADIC(xor,    ^)
+ */
+static int int_xor(lua_State *L)
+{
+	int n = lua_gettop(L), i;
+	long w = luaL_check_bit(L, 1);
+
+	for (i = 2; i <= n; i++) w ^= luaL_check_bit(L, i);
+    lua_pushnumber(L, w);
+
+    return 1;
+}
+
+
+/*
+ * Binary left shift operation
+ * TDYADIC(lshift,  <<, , u)
+ */
+static int int_lshift(lua_State* L)
+{
+	lua_pushnumber(L, luaL_check_bit(L, 1) << luaL_check_ubit(L, 2));
+    return 1;
+}
+
+/*
+ * Binary logical right shift operation
+ * TDYADIC(rshift,  >>, u, u)
+ */
+static int int_rshift(lua_State* L)
+{
+	lua_pushnumber(L, luaL_check_ubit(L, 1) >> luaL_check_ubit(L, 2));
+	return 1;
+}
+
+/*
+ * Binary arithmetic right shift operation
+ * TDYADIC(arshift, >>, , u)
+ */
+static int int_arshift(lua_State* L)
+{
+	lua_pushnumber(L, luaL_check_bit(L, 1) >> luaL_check_ubit(L, 2));
+	return 1;
+}
+
+
+static const struct luaL_reg bitlib[] =
+{
+        {"bnot",    int_not},
+        {"imod",    int_mod},  /* "mod" already in Lua math library */
+        {"band",    int_and},
+        {"bor",     int_or},
+        {"bxor",    int_xor},
+        {"lshift",  int_lshift},
+        {"rshift",  int_rshift},
+        {"arshift", int_arshift},
+};
+
+
+/*
+ * Initialize lua scripting
+ */
 void init_lua()
 {
+	int i, max;
+
 	/* Start the interpreter with default stack size */
 	L = lua_open(0);
 
@@ -96,42 +241,101 @@ void init_lua()
 	lua_iolibopen(L);
 	lua_dblibopen(L);
 
-	/* Register T.o.M.E. lua debug library */
-	luaL_openl(L, pern_iolib);
+	/* Register tome lua debug library */
+	luaL_openl(L, tome_iolib);
 
-        /* Register the T.o.M.E. main APIs */
-        tolua_player_open(L);
-        tolua_util_open(L);
-        tolua_z_pack_open(L);
-        tolua_object_open(L);
-        tolua_monster_open(L);
-        tolua_spells_open(L);
-        tolua_quest_open(L);
+	/* Register the bitlib */
+	luaL_openl(L, bitlib);
 
-        /* Load the first lua file */
-        pern_dofile("init.lua");
+	/* Register the ToME main APIs */
+	tolua_player_open(L);
+	tolua_player_c_open(L);
+	tolua_util_open(L);
+	tolua_z_pack_open(L);
+	tolua_object_open(L);
+	tolua_monster_open(L);
+	tolua_spells_open(L);
+	tolua_quest_open(L);
+
+	/* Load the first lua file */
+	tome_dofile("init.lua");
+
+	/* Finish up schools */
+	max = exec_lua("return __schools_num");
+	init_schools(max);
+	for (i = 0; i < max; i++)
+	{
+		exec_lua(format("finish_school(%d)", i));
+	}
+
+	/* Finish up the spells */
+	max = exec_lua("return __tmp_spells_num");
+	init_spells(max);
+	for (i = 0; i < max; i++)
+	{
+		exec_lua(format("finish_spell(%d)", i));
+	}
 }
 
-bool pern_dofile(char *file)
+bool tome_dofile(char *file)
 {
 	char buf[1024];
-        int oldtop = lua_gettop(L);
+	int oldtop = lua_gettop(L);
 
 	/* Build the filename */
-        path_build(buf, 1024, ANGBAND_DIR_SCPT, file);
+	path_build(buf, 1024, ANGBAND_DIR_SCPT, file);
 
-        lua_dofile(L, buf);
-        lua_settop(L, oldtop);
+	if (!file_exist(buf))
+	{
+		cmsg_format(TERM_VIOLET,
+			"tome_dofile(): file %s(%s) doesnt exists in lib/scpt.", file, buf);
+		return (FALSE);
+	}
 
-        return (FALSE);
+	lua_dofile(L, buf);
+	lua_settop(L, oldtop);
+
+	return (FALSE);
 }
 
-bool exec_lua(char *file)
+bool luadofile(char *buf)
 {
         int oldtop = lua_gettop(L);
-        lua_dostring(L, file);
+	if (!file_exist(buf))
+	{
+		cmsg_format(TERM_VIOLET,
+			"lua_dofile(): file %s doesnt exists.", buf);
+		return (FALSE);
+	}
+	lua_dofile(L, buf);
         lua_settop(L, oldtop);
-        return (FALSE);
+        return FALSE;
+}
+
+int exec_lua(char *file)
+{
+	int oldtop = lua_gettop(L);
+	int res;
+
+	if (!lua_dostring(L, file))
+		res = tolua_getnumber(L, -1, 0);
+	else
+		res = 0;
+	lua_settop(L, oldtop);
+	return (res);
+}
+
+cptr string_exec_lua(char *file)
+{
+	int oldtop = lua_gettop(L);
+	cptr res;
+
+	if (!lua_dostring(L, file))
+		res = tolua_getstring(L, -1, 0);
+	else
+		res = "";
+	lua_settop(L, oldtop);
+	return (res);
 }
 
 #endif

@@ -551,7 +551,7 @@
                 <SETTING><NAME>MWWarning_C_warn_emptydecl</NAME><VALUE>0</VALUE></SETTING>
                 <SETTING><NAME>MWWarning_C_warn_possunwant</NAME><VALUE>1</VALUE></SETTING>
                 <SETTING><NAME>MWWarning_C_warn_unusedvar</NAME><VALUE>1</VALUE></SETTING>
-                <SETTING><NAME>MWWarning_C_warn_unusedarg</NAME><VALUE>1</VALUE></SETTING>
+                <SETTING><NAME>MWWarning_C_warn_unusedarg</NAME><VALUE>0</VALUE></SETTING>
                 <SETTING><NAME>MWWarning_C_warn_extracomma</NAME><VALUE>0</VALUE></SETTING>
                 <SETTING><NAME>MWWarning_C_pedantic</NAME><VALUE>0</VALUE></SETTING>
                 <SETTING><NAME>MWWarning_C_warningerrors</NAME><VALUE>0</VALUE></SETTING>
@@ -1659,7 +1659,25 @@
                     <PATHTYPE>PathRelative</PATHTYPE>
                     <PATHROOT>Project</PATHROOT>
                     <ACCESSPATH>:</ACCESSPATH>
+                    <PATH>:src:skills.c</PATH>
+                    <PATHFORMAT>MacOS</PATHFORMAT>
+                    <FILEKIND>Text</FILEKIND>
+                    <FILEFLAGS></FILEFLAGS>
+                </FILE>
+                <FILE>
+                    <PATHTYPE>PathRelative</PATHTYPE>
+                    <PATHROOT>Project</PATHROOT>
+                    <ACCESSPATH>:</ACCESSPATH>
                     <PATH>:src:ToME.r</PATH>
+                    <PATHFORMAT>MacOS</PATHFORMAT>
+                    <FILEKIND>Text</FILEKIND>
+                    <FILEFLAGS></FILEFLAGS>
+                </FILE>
+                <FILE>
+                    <PATHTYPE>PathRelative</PATHTYPE>
+                    <PATHROOT>Project</PATHROOT>
+                    <ACCESSPATH>:</ACCESSPATH>
+                    <PATH>:src:gods.c</PATH>
                     <PATHFORMAT>MacOS</PATHFORMAT>
                     <FILEKIND>Text</FILEKIND>
                     <FILEFLAGS></FILEFLAGS>
@@ -2161,6 +2179,20 @@
                     <PATHROOT>Project</PATHROOT>
                     <ACCESSPATH>:</ACCESSPATH>
                     <PATH>:src:powers.c</PATH>
+                    <PATHFORMAT>MacOS</PATHFORMAT>
+                </FILEREF>
+                <FILEREF>
+                    <PATHTYPE>PathRelative</PATHTYPE>
+                    <PATHROOT>Project</PATHROOT>
+                    <ACCESSPATH>:</ACCESSPATH>
+                    <PATH>:src:skills.c</PATH>
+                    <PATHFORMAT>MacOS</PATHFORMAT>
+                </FILEREF>
+                <FILEREF>
+                    <PATHTYPE>PathRelative</PATHTYPE>
+                    <PATHROOT>Project</PATHROOT>
+                    <ACCESSPATH>:</ACCESSPATH>
+                    <PATH>:src:gods.c</PATH>
                     <PATHFORMAT>MacOS</PATHFORMAT>
                 </FILEREF>
                 <FILEREF>
@@ -2893,7 +2925,7 @@
                 <SETTING><NAME>MWWarning_C_warn_emptydecl</NAME><VALUE>0</VALUE></SETTING>
                 <SETTING><NAME>MWWarning_C_warn_possunwant</NAME><VALUE>1</VALUE></SETTING>
                 <SETTING><NAME>MWWarning_C_warn_unusedvar</NAME><VALUE>1</VALUE></SETTING>
-                <SETTING><NAME>MWWarning_C_warn_unusedarg</NAME><VALUE>1</VALUE></SETTING>
+                <SETTING><NAME>MWWarning_C_warn_unusedarg</NAME><VALUE>0</VALUE></SETTING>
                 <SETTING><NAME>MWWarning_C_warn_extracomma</NAME><VALUE>0</VALUE></SETTING>
                 <SETTING><NAME>MWWarning_C_pedantic</NAME><VALUE>0</VALUE></SETTING>
                 <SETTING><NAME>MWWarning_C_warningerrors</NAME><VALUE>0</VALUE></SETTING>
@@ -3052,7 +3084,7 @@
 
                 <!-- Settings for "PPC Project" panel -->
                 <SETTING><NAME>MWProject_PPC_type</NAME><VALUE>Application</VALUE></SETTING>
-                <SETTING><NAME>MWProject_PPC_outfile</NAME><VALUE>PernAngband (Carbon)</VALUE></SETTING>
+                <SETTING><NAME>MWProject_PPC_outfile</NAME><VALUE>T.o.M.E. (Carbon)</VALUE></SETTING>
                 <SETTING><NAME>MWProject_PPC_filecreator</NAME><VALUE>1349676609</VALUE></SETTING>
                 <SETTING><NAME>MWProject_PPC_filetype</NAME><VALUE>1095782476</VALUE></SETTING>
                 <SETTING><NAME>MWProject_PPC_size</NAME><VALUE>6144</VALUE></SETTING>
@@ -3522,15 +3554,6 @@
                 </FILE>
                 <FILE>
                     <PATHTYPE>PathRelative</PATHTYPE>
-                    <PATHROOT>CodeWarrior</PATHROOT>
-                    <ACCESSPATH>:MSL:</ACCESSPATH>
-                    <PATH>:MSL_C:MSL_MacOS:Src:console.stubs.c</PATH>
-                    <PATHFORMAT>MacOS</PATHFORMAT>
-                    <FILEKIND>Text</FILEKIND>
-                    <FILEFLAGS></FILEFLAGS>
-                </FILE>
-                <FILE>
-                    <PATHTYPE>PathRelative</PATHTYPE>
                     <PATHROOT>Project</PATHROOT>
                     <ACCESSPATH>:</ACCESSPATH>
                     <PATH>:16x16.rsrc</PATH>
@@ -3572,24 +3595,6 @@
                     <PATH>:src:main-crb.c</PATH>
                     <PATHFORMAT>MacOS</PATHFORMAT>
                     <FILEKIND>Text</FILEKIND>
-                    <FILEFLAGS></FILEFLAGS>
-                </FILE>
-                <FILE>
-                    <PATHTYPE>PathRelative</PATHTYPE>
-                    <PATHROOT>CodeWarrior</PATHROOT>
-                    <ACCESSPATH>:MSL:</ACCESSPATH>
-                    <PATH>:MSL_C:MSL_MacOS:Lib:PPC:MSL C.Carbon.Lib</PATH>
-                    <PATHFORMAT>MacOS</PATHFORMAT>
-                    <FILEKIND>Library</FILEKIND>
-                    <FILEFLAGS></FILEFLAGS>
-                </FILE>
-                <FILE>
-                    <PATHTYPE>PathRelative</PATHTYPE>
-                    <PATHROOT>CodeWarrior</PATHROOT>
-                    <ACCESSPATH>:MacOS Support:</ACCESSPATH>
-                    <PATH>:Libraries:Runtime:Runtime PPC:Libs:MSL RuntimePPC.Lib</PATH>
-                    <PATHFORMAT>MacOS</PATHFORMAT>
-                    <FILEKIND>Library</FILEKIND>
                     <FILEFLAGS></FILEFLAGS>
                 </FILE>
                 <FILE>
@@ -3992,7 +3997,7 @@
                     <PATHTYPE>PathRelative</PATHTYPE>
                     <PATHROOT>Project</PATHROOT>
                     <ACCESSPATH>:</ACCESSPATH>
-                    <PATH>:src:ToME.r</PATH>
+                    <PATH>:src:skills.c</PATH>
                     <PATHFORMAT>MacOS</PATHFORMAT>
                     <FILEKIND>Text</FILEKIND>
                     <FILEFLAGS></FILEFLAGS>
@@ -4002,6 +4007,51 @@
                     <PATHROOT>Project</PATHROOT>
                     <ACCESSPATH>:</ACCESSPATH>
                     <PATH>:src:Carbon.r</PATH>
+                    <PATHFORMAT>MacOS</PATHFORMAT>
+                    <FILEKIND>Text</FILEKIND>
+                    <FILEFLAGS></FILEFLAGS>
+                </FILE>
+                <FILE>
+                    <PATHTYPE>PathRelative</PATHTYPE>
+                    <PATHROOT>CodeWarrior</PATHROOT>
+                    <ACCESSPATH>:MacOS Support:</ACCESSPATH>
+                    <PATH>:Libraries:Runtime:Runtime PPC:Libs:MSL RuntimePPC.Lib</PATH>
+                    <PATHFORMAT>MacOS</PATHFORMAT>
+                    <FILEKIND>Library</FILEKIND>
+                    <FILEFLAGS></FILEFLAGS>
+                </FILE>
+                <FILE>
+                    <PATHTYPE>PathRelative</PATHTYPE>
+                    <PATHROOT>CodeWarrior</PATHROOT>
+                    <ACCESSPATH>:MSL:</ACCESSPATH>
+                    <PATH>:MSL_C:MSL_MacOS:Src:console.stubs.c</PATH>
+                    <PATHFORMAT>MacOS</PATHFORMAT>
+                    <FILEKIND>Text</FILEKIND>
+                    <FILEFLAGS></FILEFLAGS>
+                </FILE>
+                <FILE>
+                    <PATHTYPE>PathRelative</PATHTYPE>
+                    <PATHROOT>CodeWarrior</PATHROOT>
+                    <ACCESSPATH>:MSL:</ACCESSPATH>
+                    <PATH>:MSL_C:MSL_MacOS:Lib:PPC:MSL C.Carbon.Lib</PATH>
+                    <PATHFORMAT>MacOS</PATHFORMAT>
+                    <FILEKIND>Library</FILEKIND>
+                    <FILEFLAGS></FILEFLAGS>
+                </FILE>
+                <FILE>
+                    <PATHTYPE>PathRelative</PATHTYPE>
+                    <PATHROOT>Project</PATHROOT>
+                    <ACCESSPATH>:</ACCESSPATH>
+                    <PATH>:src:ToME.r</PATH>
+                    <PATHFORMAT>MacOS</PATHFORMAT>
+                    <FILEKIND>Text</FILEKIND>
+                    <FILEFLAGS></FILEFLAGS>
+                </FILE>
+                <FILE>
+                    <PATHTYPE>PathRelative</PATHTYPE>
+                    <PATHROOT>Project</PATHROOT>
+                    <ACCESSPATH>:</ACCESSPATH>
+                    <PATH>:src:gods.c</PATH>
                     <PATHFORMAT>MacOS</PATHFORMAT>
                     <FILEKIND>Text</FILEKIND>
                     <FILEFLAGS></FILEFLAGS>
@@ -4496,6 +4546,20 @@
                     <PATHROOT>Project</PATHROOT>
                     <ACCESSPATH>:</ACCESSPATH>
                     <PATH>:src:powers.c</PATH>
+                    <PATHFORMAT>MacOS</PATHFORMAT>
+                </FILEREF>
+                <FILEREF>
+                    <PATHTYPE>PathRelative</PATHTYPE>
+                    <PATHROOT>Project</PATHROOT>
+                    <ACCESSPATH>:</ACCESSPATH>
+                    <PATH>:src:skills.c</PATH>
+                    <PATHFORMAT>MacOS</PATHFORMAT>
+                </FILEREF>
+                <FILEREF>
+                    <PATHTYPE>PathRelative</PATHTYPE>
+                    <PATHROOT>Project</PATHROOT>
+                    <ACCESSPATH>:</ACCESSPATH>
+                    <PATH>:src:gods.c</PATH>
                     <PATHFORMAT>MacOS</PATHFORMAT>
                 </FILEREF>
                 <FILEREF>
@@ -5226,7 +5290,7 @@
                 <SETTING><NAME>MWWarning_C_warn_emptydecl</NAME><VALUE>0</VALUE></SETTING>
                 <SETTING><NAME>MWWarning_C_warn_possunwant</NAME><VALUE>1</VALUE></SETTING>
                 <SETTING><NAME>MWWarning_C_warn_unusedvar</NAME><VALUE>1</VALUE></SETTING>
-                <SETTING><NAME>MWWarning_C_warn_unusedarg</NAME><VALUE>1</VALUE></SETTING>
+                <SETTING><NAME>MWWarning_C_warn_unusedarg</NAME><VALUE>0</VALUE></SETTING>
                 <SETTING><NAME>MWWarning_C_warn_extracomma</NAME><VALUE>0</VALUE></SETTING>
                 <SETTING><NAME>MWWarning_C_pedantic</NAME><VALUE>0</VALUE></SETTING>
                 <SETTING><NAME>MWWarning_C_warningerrors</NAME><VALUE>0</VALUE></SETTING>
@@ -6334,7 +6398,25 @@
                     <PATHTYPE>PathRelative</PATHTYPE>
                     <PATHROOT>Project</PATHROOT>
                     <ACCESSPATH>:</ACCESSPATH>
+                    <PATH>:src:skills.c</PATH>
+                    <PATHFORMAT>MacOS</PATHFORMAT>
+                    <FILEKIND>Text</FILEKIND>
+                    <FILEFLAGS>Debug</FILEFLAGS>
+                </FILE>
+                <FILE>
+                    <PATHTYPE>PathRelative</PATHTYPE>
+                    <PATHROOT>Project</PATHROOT>
+                    <ACCESSPATH>:</ACCESSPATH>
                     <PATH>:src:ToME.r</PATH>
+                    <PATHFORMAT>MacOS</PATHFORMAT>
+                    <FILEKIND>Text</FILEKIND>
+                    <FILEFLAGS>Debug</FILEFLAGS>
+                </FILE>
+                <FILE>
+                    <PATHTYPE>PathRelative</PATHTYPE>
+                    <PATHROOT>Project</PATHROOT>
+                    <ACCESSPATH>:</ACCESSPATH>
+                    <PATH>:src:gods.c</PATH>
                     <PATHFORMAT>MacOS</PATHFORMAT>
                     <FILEKIND>Text</FILEKIND>
                     <FILEFLAGS>Debug</FILEFLAGS>
@@ -6360,6 +6442,13 @@
                     </FILEREF>
                     <FILEREF>
                         <PATHTYPE>PathRelative</PATHTYPE>
+                        <PATHROOT>CodeWarrior</PATHROOT>
+                        <ACCESSPATH>:MSL:</ACCESSPATH>
+                        <PATH>:MSL_C:MSL_MacOS:Src:console.stubs.c</PATH>
+                        <PATHFORMAT>MacOS</PATHFORMAT>
+                    </FILEREF>
+                    <FILEREF>
+                        <PATHTYPE>PathRelative</PATHTYPE>
                         <PATHROOT>Project</PATHROOT>
                         <ACCESSPATH>:</ACCESSPATH>
                         <PATH>:src:tables.c</PATH>
@@ -6370,6 +6459,13 @@
                         <PATHROOT>Project</PATHROOT>
                         <ACCESSPATH>:</ACCESSPATH>
                         <PATH>:src:variable.c</PATH>
+                        <PATHFORMAT>MacOS</PATHFORMAT>
+                    </FILEREF>
+                    <FILEREF>
+                        <PATHTYPE>PathRelative</PATHTYPE>
+                        <PATHROOT>Project</PATHROOT>
+                        <ACCESSPATH>:</ACCESSPATH>
+                        <PATH>:src:ToME.r</PATH>
                         <PATHFORMAT>MacOS</PATHFORMAT>
                     </FILEREF>
                 </SEGMENT>
@@ -6435,17 +6531,6 @@
                     </FILEREF>
                 </SEGMENT>
                 <SEGMENT>
-                    <NAME>Libraries (MSL)</NAME>
-                    <ATTRIBUTES>Preloaded, Protected, Locked</ATTRIBUTES>
-                    <FILEREF>
-                        <PATHTYPE>PathRelative</PATHTYPE>
-                        <PATHROOT>CodeWarrior</PATHROOT>
-                        <ACCESSPATH>:MSL:</ACCESSPATH>
-                        <PATH>:MSL_C:MSL_MacOS:Src:console.stubs.c</PATH>
-                        <PATHFORMAT>MacOS</PATHFORMAT>
-                    </FILEREF>
-                </SEGMENT>
-                <SEGMENT>
                     <NAME>Libraries (68K)</NAME>
                     <ATTRIBUTES>Preloaded, Protected, Locked</ATTRIBUTES>
                     <FILEREF>
@@ -6474,24 +6559,6 @@
                         <PATHROOT>CodeWarrior</PATHROOT>
                         <ACCESSPATH>:MacOS Support:</ACCESSPATH>
                         <PATH>:Libraries:MacOS 68K:MacOS.lib</PATH>
-                        <PATHFORMAT>MacOS</PATHFORMAT>
-                    </FILEREF>
-                </SEGMENT>
-                <SEGMENT>
-                    <NAME>Libraries (Lua-resident)</NAME>
-                    <ATTRIBUTES>Preloaded, Protected, Locked</ATTRIBUTES>
-                    <FILEREF>
-                        <PATHTYPE>PathRelative</PATHTYPE>
-                        <PATHROOT>Project</PATHROOT>
-                        <ACCESSPATH>:</ACCESSPATH>
-                        <PATH>:src:lua:lmem.c</PATH>
-                        <PATHFORMAT>MacOS</PATHFORMAT>
-                    </FILEREF>
-                    <FILEREF>
-                        <PATHTYPE>PathRelative</PATHTYPE>
-                        <PATHROOT>Project</PATHROOT>
-                        <ACCESSPATH>:</ACCESSPATH>
-                        <PATH>:src:lua:lobject.c</PATH>
                         <PATHFORMAT>MacOS</PATHFORMAT>
                     </FILEREF>
                 </SEGMENT>
@@ -6797,7 +6864,7 @@
                 </SEGMENT>
                 <SEGMENT>
                     <NAME>Cave</NAME>
-                    <ATTRIBUTES>Protected, Purgeable</ATTRIBUTES>
+                    <ATTRIBUTES>Preloaded, Protected, Locked</ATTRIBUTES>
                     <FILEREF>
                         <PATHTYPE>PathRelative</PATHTYPE>
                         <PATHROOT>Project</PATHROOT>
@@ -6922,6 +6989,17 @@
                         <PATHROOT>Project</PATHROOT>
                         <ACCESSPATH>:</ACCESSPATH>
                         <PATH>:src:powers.c</PATH>
+                        <PATHFORMAT>MacOS</PATHFORMAT>
+                    </FILEREF>
+                </SEGMENT>
+                <SEGMENT>
+                    <NAME>Skills</NAME>
+                    <ATTRIBUTES>Protected, Purgeable</ATTRIBUTES>
+                    <FILEREF>
+                        <PATHTYPE>PathRelative</PATHTYPE>
+                        <PATHROOT>Project</PATHROOT>
+                        <ACCESSPATH>:</ACCESSPATH>
+                        <PATH>:src:skills.c</PATH>
                         <PATHFORMAT>MacOS</PATHFORMAT>
                     </FILEREF>
                 </SEGMENT>
@@ -7185,24 +7263,20 @@
                     </FILEREF>
                 </SEGMENT>
                 <SEGMENT>
-                    <NAME>Resources (Basic)</NAME>
+                    <NAME>Resources (gfx16)</NAME>
                     <ATTRIBUTES>Protected, Purgeable</ATTRIBUTES>
                     <FILEREF>
                         <PATHTYPE>PathRelative</PATHTYPE>
                         <PATHROOT>Project</PATHROOT>
                         <ACCESSPATH>:</ACCESSPATH>
-                        <PATH>:src:ToME.r</PATH>
+                        <PATH>:16x16.rsrc</PATH>
                         <PATHFORMAT>MacOS</PATHFORMAT>
                     </FILEREF>
-                </SEGMENT>
-                <SEGMENT>
-                    <NAME>Resources (snd)</NAME>
-                    <ATTRIBUTES>Protected, Purgeable</ATTRIBUTES>
                     <FILEREF>
                         <PATHTYPE>PathRelative</PATHTYPE>
                         <PATHROOT>Project</PATHROOT>
                         <ACCESSPATH>:</ACCESSPATH>
-                        <PATH>:AngSound.rsrc</PATH>
+                        <PATH>:mask.rsrc</PATH>
                         <PATHFORMAT>MacOS</PATHFORMAT>
                     </FILEREF>
                 </SEGMENT>
@@ -7218,20 +7292,42 @@
                     </FILEREF>
                 </SEGMENT>
                 <SEGMENT>
-                    <NAME>Resources (gfx16)</NAME>
+                    <NAME>Resources (snd)</NAME>
                     <ATTRIBUTES>Protected, Purgeable</ATTRIBUTES>
                     <FILEREF>
                         <PATHTYPE>PathRelative</PATHTYPE>
                         <PATHROOT>Project</PATHROOT>
                         <ACCESSPATH>:</ACCESSPATH>
-                        <PATH>:16x16.rsrc</PATH>
+                        <PATH>:AngSound.rsrc</PATH>
+                        <PATHFORMAT>MacOS</PATHFORMAT>
+                    </FILEREF>
+                </SEGMENT>
+                <SEGMENT>
+                    <NAME>Libraries (Lua-resident)</NAME>
+                    <ATTRIBUTES>Preloaded, Protected, Locked</ATTRIBUTES>
+                    <FILEREF>
+                        <PATHTYPE>PathRelative</PATHTYPE>
+                        <PATHROOT>Project</PATHROOT>
+                        <ACCESSPATH>:</ACCESSPATH>
+                        <PATH>:src:lua:lmem.c</PATH>
                         <PATHFORMAT>MacOS</PATHFORMAT>
                     </FILEREF>
                     <FILEREF>
                         <PATHTYPE>PathRelative</PATHTYPE>
                         <PATHROOT>Project</PATHROOT>
                         <ACCESSPATH>:</ACCESSPATH>
-                        <PATH>:mask.rsrc</PATH>
+                        <PATH>:src:lua:lobject.c</PATH>
+                        <PATHFORMAT>MacOS</PATHFORMAT>
+                    </FILEREF>
+                </SEGMENT>
+                <SEGMENT>
+                    <NAME>Gods</NAME>
+                    <ATTRIBUTES>Protected, Purgeable</ATTRIBUTES>
+                    <FILEREF>
+                        <PATHTYPE>PathRelative</PATHTYPE>
+                        <PATHROOT>Project</PATHROOT>
+                        <ACCESSPATH>:</ACCESSPATH>
+                        <PATH>:src:gods.c</PATH>
                         <PATHFORMAT>MacOS</PATHFORMAT>
                     </FILEREF>
                 </SEGMENT>
@@ -7427,6 +7523,14 @@
                 <PATHROOT>Project</PATHROOT>
                 <ACCESSPATH>:</ACCESSPATH>
                 <PATH>:src:lua:lgc.c</PATH>
+                <PATHFORMAT>MacOS</PATHFORMAT>
+            </FILEREF>
+            <FILEREF>
+                <TARGETNAME>T.o.M.E. (PPC)</TARGETNAME>
+                <PATHTYPE>PathRelative</PATHTYPE>
+                <PATHROOT>Project</PATHROOT>
+                <ACCESSPATH>:</ACCESSPATH>
+                <PATH>:src:lua:liolib.c</PATH>
                 <PATHFORMAT>MacOS</PATHFORMAT>
             </FILEREF>
             <FILEREF>
@@ -7721,6 +7825,26 @@
                 <PATHROOT>Project</PATHROOT>
                 <ACCESSPATH>:</ACCESSPATH>
                 <PATH>:src:xtra1.c</PATH>
+                <PATHFORMAT>MacOS</PATHFORMAT>
+            </FILEREF>
+        </GROUP>
+        <GROUP><NAME>Gods</NAME>
+            <FILEREF>
+                <TARGETNAME>T.o.M.E. (PPC)</TARGETNAME>
+                <PATHTYPE>PathRelative</PATHTYPE>
+                <PATHROOT>Project</PATHROOT>
+                <ACCESSPATH>:</ACCESSPATH>
+                <PATH>:src:gods.c</PATH>
+                <PATHFORMAT>MacOS</PATHFORMAT>
+            </FILEREF>
+        </GROUP>
+        <GROUP><NAME>Skills</NAME>
+            <FILEREF>
+                <TARGETNAME>T.o.M.E. (PPC)</TARGETNAME>
+                <PATHTYPE>PathRelative</PATHTYPE>
+                <PATHROOT>Project</PATHROOT>
+                <ACCESSPATH>:</ACCESSPATH>
+                <PATH>:src:skills.c</PATH>
                 <PATHFORMAT>MacOS</PATHFORMAT>
             </FILEREF>
         </GROUP>
@@ -8168,7 +8292,7 @@
                 <PATHFORMAT>MacOS</PATHFORMAT>
             </FILEREF>
             <FILEREF>
-                <TARGETNAME>T.o.M.E. (Carbon)</TARGETNAME>
+                <TARGETNAME>T.o.M.E. (PPC)</TARGETNAME>
                 <PATHTYPE>PathRelative</PATHTYPE>
                 <PATHROOT>Project</PATHROOT>
                 <ACCESSPATH>:</ACCESSPATH>
@@ -8178,7 +8302,7 @@
         </GROUP>
         <GROUP><NAME>Resources (Xtra)</NAME>
             <FILEREF>
-                <TARGETNAME>T.o.M.E. (Carbon)</TARGETNAME>
+                <TARGETNAME>T.o.M.E. (PPC)</TARGETNAME>
                 <PATHTYPE>PathRelative</PATHTYPE>
                 <PATHROOT>Project</PATHROOT>
                 <ACCESSPATH>:</ACCESSPATH>
@@ -8186,7 +8310,7 @@
                 <PATHFORMAT>MacOS</PATHFORMAT>
             </FILEREF>
             <FILEREF>
-                <TARGETNAME>T.o.M.E. (Carbon)</TARGETNAME>
+                <TARGETNAME>T.o.M.E. (PPC)</TARGETNAME>
                 <PATHTYPE>PathRelative</PATHTYPE>
                 <PATHROOT>Project</PATHROOT>
                 <ACCESSPATH>:</ACCESSPATH>
@@ -8194,7 +8318,7 @@
                 <PATHFORMAT>MacOS</PATHFORMAT>
             </FILEREF>
             <FILEREF>
-                <TARGETNAME>T.o.M.E. (Carbon)</TARGETNAME>
+                <TARGETNAME>T.o.M.E. (PPC)</TARGETNAME>
                 <PATHTYPE>PathRelative</PATHTYPE>
                 <PATHROOT>Project</PATHROOT>
                 <ACCESSPATH>:</ACCESSPATH>
@@ -8202,14 +8326,6 @@
                 <PATHFORMAT>MacOS</PATHFORMAT>
             </FILEREF>
         </GROUP>
-        <FILEREF>
-            <TARGETNAME>T.o.M.E. (PPC)</TARGETNAME>
-            <PATHTYPE>PathRelative</PATHTYPE>
-            <PATHROOT>Project</PATHROOT>
-            <ACCESSPATH>:</ACCESSPATH>
-            <PATH>:src:lua:liolib.c</PATH>
-            <PATHFORMAT>MacOS</PATHFORMAT>
-        </FILEREF>
     </GROUPLIST>
 
 </PROJECT>

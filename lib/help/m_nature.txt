@@ -1,0 +1,24 @@
+|||||oy
+#####R === ToME Magic - Nature School ===
+
+The nature school of magic contains spells that interact with nature. There
+are rumours of a "Tome of the Tree" which contains all the nature school 
+spells within it's bindings.
+
+#####GNature Spells
+The are five spells available for the nature school. These Spells are:
+1. [[[[[BGrow Trees] (school level 6)
+   Makes trees grow extremely quickly around you.
+2. [[[[[BHealing] (school level 10)
+   Heals a percent of hitpoints.
+3. [[[[[BRecovery] (school level 15)
+   Reduces the length of time that you are poisoned
+   At spell level 5 it cures poison and cuts.
+   At spell level 10 it restores drained stats.
+   At spell level 15 it restores lost experience.
+4. [[[[[BRegeneration] (school level 20)
+   Increases your body's regeneration rate.
+5. [[[[[BSummon Animal] (school level 25)
+   Summons a leveled animal to your aid.
+
+

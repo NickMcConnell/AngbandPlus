@@ -9,7 +9,7 @@ wise, they resist spells which are cast on them. Dwarves also have very
 good infra-vision because they live underground. They do have one big 
 drawback, though. Dwarves are loudmouthed and proud, singing in loud 
 voices, arguing with themselves for no good reason, and screaming out 
-challenges at nearby foes. In other words, dwarves have a miserable 
+challenges at nearby foes. In other words, dwarves have miserable 
 stealth. They can never be blinded and learn to study the vibrations of 
 the earth, feeling the layout of a dungeon.
 
@@ -21,7 +21,7 @@ Dexterity       -2
 Constitution    +2   
 Charisma        -3       
 Hit Dice Sides  11         
-Exp Penalty     +35%
+Exp Penalty     +25%
 
 #####GStarting Equipment
 If they are *very* lucky they may begin with:

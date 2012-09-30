@@ -1,3 +1,10 @@
+/* File: z_pack.pkg */
+
+/*
+ * Purpose: Lua interface defitions for z-*.c
+ * To be processed by tolua to generate C source code.
+ */
+
 $#include "angband.h"
 
 typedef char* cptr;

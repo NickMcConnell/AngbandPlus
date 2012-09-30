@@ -30,7 +30,7 @@
 
 # Version stamp (required)
 
-V:2.8.1
+V:2.0.0
 
 N:0:Ekkaia
 D:the Encircling Sea

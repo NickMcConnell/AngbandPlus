@@ -24,6 +24,36 @@ function __savefile_save()
 	end
 end
 
+--[[
+add_quest
+{
+        ["global"] =    "MY_QUEST",
+        ["name"] =      "My funny quest",
+        ["desc"] =      {
+                        "My funny quest desc",
+        },
+        ["level"] =     42,
+        ["data"] =      {
+                        ["test_var"] = 0,
+                        ["test_var2"] = 1
+        },
+        ["hooks"] =     {
+                        [HOOK_BIRTH_OBJECTS] = function()
+                                quest(MY_QUEST).status = QUEST_STATUS_TAKEN
+                        end,
+                        [HOOK_BUILD_ROOM1] = function(by0, bx0)
+                                local x, y, y2, x2, ret
+
+                                y, x = get_map_size("qrand6.map")
+                                ret, y, x, y2, x2 = alloc_room(by0, bx0, y, x)
+                                if ret == TRUE then
+                                        y, x, y2, x2 = load_map("qrand6.map", y, x)
+                                end
+                        end,
+        },
+}
+]]
+
 -- Savefile end
 
 register_savefile(__loadsave_max)

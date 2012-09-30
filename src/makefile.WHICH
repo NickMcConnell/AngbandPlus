@@ -4,7 +4,7 @@ makefile.WHICH - Tells you which makefile does what. Don't try to use it
 		as an actual makefile, as it probably won't work.
 
 makefile - A makefile for DOS. Occasionally referred to in the documentation as
-	makefile.dos, but as the head developer of T.o.M.E. develops on DOS,
+        makefile.dos, but as the head developer of ToME develops on DOS,
 	he decided to rename it to just plain makefile. You want DJGPP and
 	related tools for this.
 
@@ -19,7 +19,7 @@ makefile.cyg - A makefile for people using Cygwin for windows.
 makefile.emx - A makefile for OS/2. You need the EMX packages and ReXX installed
 	for this to work.
  
-makefile.gdb - Another makefile for DOS, incudes debugging symbols so if you're
+makefile.gdb - Another makefile for DOS, includes debugging symbols so if you're
 	using a DOS-based debugger, things will work. Ideally would be combined
 	into makefile.dos .. ermm.. makefile. You want DJGPP and related tools
 	for this.
@@ -30,7 +30,7 @@ makefile.ibm - Another makefile for people using DOS and DJGPP. Ideally will
 makefile.lsl - If you want to try to use SVGAlib, this might provide a start.
 
 makefile.org - Most Unix users should use this. Currently the only makefile with
-		a real install rule.
+		a real install rule. More instructions are found in the file itself.
 
 makefile.wat - Watcom C/C++ for DOS (?)
 

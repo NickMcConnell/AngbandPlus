@@ -1,9 +1,9 @@
 #####R=== Beornings ===
 
 #####GDescription
-Beornings are the descandants of beorn a powerful shapeshifter who
-dwelts near Mirkwood. They all inherited his shapeshifting abilities
-and can turn into powerful bears for some time.
+Beornings are the descendants of Beorn, a powerful shapeshifter who
+dwells near Mirkwood. They have all inherited his shapeshifting abilities
+and can turn into powerful bears at will.
 
 #####GStat Modifiers
 Strength        +4

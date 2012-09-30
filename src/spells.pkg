@@ -1,3 +1,10 @@
+/* File: spells.pkg */
+
+/*
+ * Purpose: Lua interface defitions for spells.
+ * To be processed by tolua to generate C source code.
+ */
+
 $#include "angband.h"
 $#include "lua.h"
 
@@ -11,14 +18,19 @@ typedef unsigned short u16b;
 typedef signed int s32b;
 typedef unsigned int u32b;
 
+#define DEFAULT_RADIUS	25
+
 #define GF_ELEC         1
 #define GF_POIS         2
 #define GF_ACID         3
 #define GF_COLD         4
 #define GF_FIRE         5
+#define GF_UNBREATH     6
+#define GF_CORPSE_EXPL  7
 #define GF_MISSILE      10
 #define GF_ARROW        11
 #define GF_PLASMA       12
+#define GF_WAVE         13
 #define GF_WATER        14
 #define GF_LITE         15
 #define GF_DARK         16
@@ -117,14 +129,18 @@ typedef unsigned int u32b;
 #define PROJECT_WALL       0x00002000
 #define PROJECT_MANA_PATH  0x00004000   /* Follow a mana path. */
 #define PROJECT_ABSORB_MANA 0x00008000   /* The spell increase in power as it absord grid's mana. */
+#define PROJECT_STAY       0x00010000
 
+extern int project_time;
 extern void teleport_player_directed(int rad, int dir);
 extern void teleport_away(int m_idx, int dis);
 extern void teleport_player(int dis);
 extern void teleport_player_to(int ny, int nx);
 extern void teleport_monster_to(int m_idx, int ny, int nx);
+extern bool teleport_monster(int dir);
 extern void teleport_player_level(void);
-extern void recall_player(void);
+extern void fetch(int dir, int wgt, bool require_los);
+extern void recall_player(int d, int f);
 extern void take_hit(int damage, cptr kb_str);
 extern void take_sanity_hit(int damage, cptr hit_from);
 extern bool project(int who, int rad, int y, int x, int dam, int typ, int flg);
@@ -141,27 +157,29 @@ extern void identify_pack(void);
 extern bool remove_curse(void);
 extern bool remove_all_curse(void);
 extern bool restore_level(void);
-extern void self_knowledge(FILE *fff);
+extern void self_knowledge(FILE *fff = NULL);
 extern bool lose_all_info(void);
-extern bool detect_traps(void);
-extern bool detect_doors(void);
-extern bool detect_stairs(void);
-extern bool detect_treasure(void);
+extern bool detect_traps(int rad);
+extern bool detect_doors(int rad);
+extern bool detect_stairs(int rad);
+extern bool detect_treasure(int rad);
 extern bool hack_no_detect_message;
-extern bool detect_objects_gold(void);
-extern bool detect_objects_normal(void);
-extern bool detect_objects_magic(void);
-extern bool detect_monsters_normal(void);
-extern bool detect_monsters_invis(void);
-extern bool detect_monsters_evil(void);
-extern bool detect_monsters_good(void);
-extern bool detect_monsters_xxx(u32b match_flag);
-extern bool detect_monsters_string(cptr);
-extern bool detect_monsters_nonliving(void);
-extern bool detect_all(void);
+extern bool detect_objects_gold(int rad);
+extern bool detect_objects_normal(int rad);
+extern bool detect_objects_magic(int rad);
+extern bool detect_monsters_normal(int rad);
+extern bool detect_monsters_invis(int rad);
+extern bool detect_monsters_evil(int rad);
+extern bool detect_monsters_good(int rad);
+extern bool detect_monsters_xxx(u32b match_flag, int rad);
+extern bool detect_monsters_string(cptr chars, int rad);
+extern bool detect_monsters_nonliving(int rad);
+extern bool detect_all(int rad);
 extern void stair_creation(void);
-extern bool wall_stone(void);
+extern bool tgt_pt (int *x = 0, int *y = 0);
+extern bool wall_stone(int y, int x);
 extern bool create_artifact(object_type *o_ptr, bool a_scroll, bool get_name);
+extern bool wall_to_mud(int dir);
 extern bool ident_spell(void);
 extern bool identify_fully(void);
 extern bool recharge(int num);
@@ -177,18 +195,25 @@ extern bool dispel_monsters(int dam);
 extern bool dispel_living(int dam);
 extern bool dispel_demons(int dam);
 extern bool turn_undead(void);
+extern bool door_creation(void);
+extern bool trap_creation(void);
+extern bool glyph_creation(void);
 extern void wipe(int y1, int x1, int r);
-extern void destroy_area(int y1, int x1, int r, bool full);
+extern void destroy_area(int y1, int x1, int r, bool full, bool bypass);
 extern void earthquake(int cy, int cx, int r);
-extern void map_area(void);
-extern void wiz_lite(void);
-extern void wiz_lite_extra(void);
-extern void wiz_dark(void);
 extern void lite_room(int y1, int x1);
 extern void unlite_room(int y1, int x1);
 extern bool lite_area(int dam, int rad);
 extern bool unlite_area(int dam, int rad);
 extern bool fire_ball_beam(int typ, int dir, int dam, int rad);
+
+extern bool fire_wave(int typ, int dir, int dam, int rad, int time, s32b eff);
+#define EFF_WAVE                0x00000001      /* A circle whose radius increase */
+#define EFF_LAST                0x00000002      /* The wave lasts */
+#define EFF_STORM               0x00000004      /* the effect follwos the player */
+
+extern bool fire_cloud(int typ, int dir, int dam, int rad, int time);
+extern bool fire_wall(int typ, int dir, int dam, int time);
 extern bool fire_ball(int typ, int dir, int dam, int rad);
 extern bool fire_bolt(int typ, int dir, int dam);
 extern bool fire_beam(int typ, int dir, int dam);
@@ -198,14 +223,23 @@ extern bool fire_druid_beam(int typ, int dir, int dam);
 extern bool fire_bolt_or_beam(int prob, int typ, int dir, int dam);
 extern bool alchemy(void);
 extern void alter_reality(void);
+extern void swap_position(int lty, int ltx);
 extern void teleport_swap(int dir);
 extern void project_meteor(int radius, int typ, int dam, u32b flg);
 extern bool passwall(int dir, bool safe);
 extern bool project_hook(int typ, int dir, int dam, int flg);
+extern bool wizard_lock(int dir);
 extern bool project(int who, int rad, int y, int x, int dam, int typ, int flg);
 extern bool reset_recall(void);
 extern bool get_aim_dir(int *dp = 0);
-extern bool project_hack(int typ, int dam);
+extern bool project_hack @ project_los(int typ, int dam);
+extern void map_area(void);
+extern void wiz_lite(void);
+extern void wiz_lite_extra(void);
+extern void wiz_dark(void);
+extern void create_between_gate(int dist, int y, int x);
+extern bool destroy_doors_touch(void);
+extern bool destroy_traps_touch(void);
 
 /* "Innate" powers */
 struct magic_power
@@ -214,13 +248,45 @@ struct magic_power
 	int     mana_cost;
 	int     fail;
 	cptr    name;
-        cptr    desc;
+	cptr    desc;
 };
 
 extern magic_power *new_magic_power(int num);
 extern magic_power *grab_magic_power @ get_magic_power(magic_power *m_ptr, int num);
-extern int get_magic_power_lua @ select_magic_power(int *sn, magic_power *powers, int max_powers, char *info_fct);
-extern bool lua_spell_success @ magic_power_sucess(magic_power *spell, char *oups_fct = NULL);
+extern int get_magic_power_lua @ select_magic_power(int *sn, magic_power *powers, int max_powers, char *info_fct, int plev, int cast_stat);
+extern bool lua_spell_success @ magic_power_sucess(magic_power *spell, int stat, char *oups_fct = NULL);
 
 s16b    add_new_power(cptr name, cptr desc, cptr gain, cptr lose, byte level, byte cost, byte stat, byte diff);
 extern s16b power_max;
+
+
+
+
+
+
+/* Schools  */
+/*
+ * The spell function must provide the desc
+ */
+struct spell_type@school_spell_type
+{
+	cptr name;
+	byte skill_level;      	        /* Required level (to learn) */
+	byte mana;			/* Required mana at lvl 1 */
+	byte mana_max;			/* Required mana at max lvl */
+	byte fail;			/* Minimum chance of failure */
+        s16b level;                     /* Spell level(0 = not learnt) */
+};
+struct school_type
+{
+        cptr name;                      /* Name */
+        s16b skill;                     /* Skil used for that school */
+};
+
+extern s16b new_school(int i, cptr name, s16b skill);
+extern s16b new_spell(int i, cptr name);
+extern spell_type *grab_spell_type @ spell(s16b num);
+extern school_type *grab_school_type @ school(s16b num);
+extern s32b lua_get_level(s32b s, s32b lvl, s32b max, s32b min);
+extern s32b lua_spell_chance(s32b chance, int level, int skill_level, int mana, int cur_mana, int stat);
+extern u32b get_school_spell(cptr do_what);

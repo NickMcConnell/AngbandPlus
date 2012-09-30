@@ -106,6 +106,7 @@ ANGBAND MENU
    MENUITEM "&Old tiles", 400
    MENUITEM "&Adam Bolt's tiles", 401
    MENUITEM "ASCII &Text", 403
+   MENUITEM "&Bigtile mode", 409
    }
 
   MENUITEM "&Sound", 402

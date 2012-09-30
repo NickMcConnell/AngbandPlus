@@ -1,0 +1,29 @@
+|||||oy
+#####R === ToME Magic - Mind School ===
+
+The mind school of magic contains spells which alter the mind. There are 
+rumours of a "Tome of the Mind" which contains all the mind school spells 
+within it's bindings.
+
+Worshipping the God Eru Iluvatar also gives the ability to cast spells from
+the mind school at a level of 1/3 of your prayer level. e.g. If the skill 
+"Spirituality: Prayer" is at level 12, you can cast up to level 4 mind school
+spells.
+
+#####GMind Spells
+The are four spells available for the mind school. These Spells are:
+1. [[[[[BCharm] (school level 1)
+   Tries to manipulate the mind of a monster to make it friendly.
+   At spell level 15 it turns into a ball.
+   At spell level 35 it affects all monsters in sight.
+2. [[[[[BConfuse] (school level 5)
+   Tries to manipulate the mind of a monster to confuse it.
+   At spell level 15 it turns into a ball.
+   At spell level 35 it affects all monsters in sight.
+3. [[[[[BArmor of Fear] (school level 10)
+   Creates a shield of pure fear around you. Any monster attempting to hit
+   you must save or flee.
+4. [[[[[BStun] (school level 15)
+   Tries to manipulate the mind of a monster to stun it.
+   At spell level 20 it turns into a ball.
+   

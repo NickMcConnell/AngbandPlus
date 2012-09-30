@@ -1,7 +1,7 @@
 |||||oy
 #####R=== Creating a Character ===
 
-T.o.M.E. is a roleplaying game, in which you, the player, control a
+ToME is a roleplaying game, in which you, the player, control a
 character in the various dungeons and places of Arda. Perhaps the most
 important thing you control is the birth of your character, in which you
 choose or allow to be chosen various attributes that will affect the future
@@ -34,7 +34,7 @@ Each character has four primary attributes, sex, race, race modifier and
 class, that are chosen before the character is generated, and which will stay
 fixed for the entire life of that character. These attributes have many
 effects, which will be mentioned as they come up. Keep in mind that in the
-current version of T.o.M.E., your choice of race may restrict your choice
+current version of ToME, your choice of race may restrict your choice
 of class.
 
 Each character has a few secondary attributes, height, weight, social class,
@@ -77,14 +77,15 @@ portation.
 Each character has experience, which increases as the character becomes more
 experienced, and a level, which is based on experience, and also on race and
 class. As experience rises, so does the character level, and as that rises,
-certain other abilities and characteristics rise, and possibly new abilities
-become available as well. Deep down inside, the real objective of the game is 
-to increase your experience, and certain other characteristics, and also to 
-collect useful items, to give you a decent chance against the powerful Morgoth.
-Certain monsters can "drain" your experience, and thus your level, which will
-cause you to lose all of the effects of the higher level. Luckily, you can 
-restore drained experience through magical means, or by simply regaining the 
-experience all over again.
+characters gain Skill Points to spend as they wish on increasing their 
+abilities. Deep down inside, the real objective of the game is to increase 
+your experience, and certain other characteristics, and also to collect useful
+items, to give you a decent chance against the powerful Morgoth. Certain 
+monsters can "drain" your experience, and thus your level, which although you
+do not lose the skill points you've already gained, you also will not gain
+further points until you reach a character level you have not already 
+achieved. Luckily, you can restore drained experience through magical means, 
+or by simply regaining the experience all over again.
 
 Each character has some gold, which can be used to buy items from the shops
 in the town, and which can be obtained not only from selling items to the
@@ -93,9 +94,7 @@ the dungeon. Each character starts out with some gold, the amount of which
 is based on the characters social class (higher is better), charisma (higher
 is better), and some other stats (less powerful characters start with more
 gold). Each character also starts out with a few useful items, which may be
-kept or sold to a shop-keeper for more gold. Please note that the "lucky" 
-starting items described in the various class, race and race modifier files
-are not yet enabled.
+kept or sold to a shop-keeper for more gold. 
 
 Each character has an armor class, representing how well the character can
 avoid damage. The armor class is affected by dexterity, the equipment, and 
@@ -116,32 +115,36 @@ Each character has spell points, or mana, which represents how many spells
 from your class, level, and intelligence (for spells) or wisdom (for prayers).
 Spell points may be regained by resting, or by a few magical means.
 
+Finally, characters that have chosen to follow a God will have piety points.
+These represent the character's standing with their God, and are used to cast
+any of the God's specific spells. These are regained in different manners 
+depending on which God is involved - each one has different actions that 
+please or displease them.
+
 
 #####R=== Races ===
 
-There are lots different races that you can choose from in T.o.M.E.. Some
+There are lots different races that you can choose from in ToME. Some
 races are restricted as to what profession they may be, and each race has
 its own adjustments to a character's stats and abilities. Most races also
-have intrinsic abilities, which can be accessed via the "U" command. Please
-note that the "lucky" starting equipment for races has not yet been enabled.
+have intrinsic abilities, which can be accessed via the "U" command. 
  
      *****r_drkelf.txt*0[Dark Elf]           *****r_gnome.txt*0[Gnome]             *****r_hobbit.txt*0[Hobbits]
      *****r_deathm.txt*0[Death Mold]         *****r_hafelf.txt*0[Half-Elf]          *****r_human.txt*0[Human]
      *****r_drgnri.txt*0[Dragonrider]        *****r_beorn.txt*0[Beorning]          *****r_kobold.txt*0[Kobold]
      *****r_duned.txt*0[Dunedain]           *****r_hafogr.txt*0[Half-Ogre]         *****r_pettyd.txt*0[Petty Dwarf]
-     *****r_dwarf.txt*0[Dwarf]              *****r_haforc.txt*0[Orc]               *****r_rohank.txt*0[Rohan Knight]
-     *****r_elf.txt*0[Elf]                *****r_haftro.txt*0[Troll]             *****r_wodelf.txt*0[Wood Elf]
+     *****r_dwarf.txt*0[Dwarf]              *****r_orc.txt*0[Orc]               *****r_rohank.txt*0[Rohan Knight]
+     *****r_elf.txt*0[Elf]                *****r_troll.txt*0[Troll]             *****r_wodelf.txt*0[Wood Elf]
      *****r_ent.txt*0[Ent]                *****r_hielf.txt*0[High-Elf]          *****r_yeek.txt*0[Yeek]
      *****r_maia.txt*0[Maia]
 
 #####R=== Race Modifiers ===
 
-There are many different race modifiers that you can choose from in T.o.M.E..
+There are many different race modifiers that you can choose from in ToME.
 Some are restricted as to what race they can be used with, and each one has
 its own adjustments to a character's stats and abilities. Most also have 
 intrinsic abilities. If you are not asked for a race modifier, it is because 
-your race only supports the classical form. Please note that the "lucky" 
-starting equipment for race-modifiers has not yet been enabled.
+your race only supports the classical form. 
 
      *****rm_class.txt*0[Classical]                *****rm_zomb.txt*0[Zombie]
      *****rm_vamp.txt*0[Vampire]                  *****rm_barb.txt*0[Barbarian]
@@ -154,19 +157,18 @@ Once a race has been chosen, you will need to pick a class. Some classes will
 not be available to certain races, for instance, a Troll cannot become a
 Paladin. For the first few adventures it is suggested that you run a warrior 
 or rogue. Spell casting generally requires a more experienced player that is 
-familiar with survival techniques. Please note that the "lucky" starting 
-equipment for classess has not yet been enabled.
+familiar with survival techniques. 
 
-     *****c_alchem.txt*0[Alchemist]              *****c_mage.txt*0[Mage]              *****c_ranger.txt*0[Ranger]
-     *****c_archer.txt*0[Archer]                 *****c_merch.txt*0[Merchant]          *****c_rogue.txt*0[Rogue]
-     *****c_beastm.txt*0[Beastmaster]            *****c_mimic.txt*0[Mimic]             *****c_runecr.txt*0[Runecrafter]
-     *****c_bknight.txt*0[Black-Knight]           *****c_mindcr.txt*0[Mindcrafter]       *****c_sorcer.txt*0[Sorceror]
-     *****c_chaosw.txt*0[Chaos Warrior]          *****c_monk.txt*0[Monk]              *****c_summon.txt*0[Summoner]
-     *****c_daemon.txt*0[Daemonologist]          *****c_necro.txt*0[Necromancer]       *****c_symbia.txt*0[Symbiant]
-     *****c_druid.txt*0[Druid]                  *****c_palad.txt*0[Paladin]           *****c_unbel.txt*0[Unbeliever]
-     *****c_harper.txt*0[Harper]                 *****c_posses.txt*0[Possessor]         *****c_warrio.txt*0[Warrior]
-     *****c_himage.txt*0[High Mage]              *****c_powmag.txt*0[Power Mage]        *****c_warmag.txt*0[Warlock]
-     *****c_illus.txt*0[Illusionist]            *****c_priest.txt*0[Priest]            *****c_weponm.txt*0[Weaponmaster]
+     *****c_alchem.txt*0[Alchemist]              *****c_merch.txt*0[Merchant]              *****c_rogue.txt*0[Rogue]
+     *****c_archer.txt*0[Archer]                 *****c_mimic.txt*0[Mimic]                 *****c_runecr.txt*0[Runecrafter]
+     *****c_beastm.txt*0[Beastmaster]            *****c_mindcr.txt*0[Mindcrafter]           *****c_sorcer.txt*0[Sorceror]
+     *****c_chaosw.txt*0[Chaos Warrior]          *****c_monk.txt*0[Monk]                  *****c_summon.txt*0[Summoner]
+     *****c_daemon.txt*0[Daemonologist]          *****c_necro.txt*0[Necromancer]           *****c_symbia.txt*0[Symbiant]
+     *****c_druid.txt*0[Druid]                  *****c_palad.txt*0[Paladin]               *****c_unbel.txt*0[Unbeliever]
+     *****c_harper.txt*0[Harper]                 *****c_posses.txt*0[Possessor]             *****c_warrio.txt*0[Warrior]
+     *****c_himage.txt*0[High Mage]              *****c_powmag.txt*0[Power Mage]            *****c_warmag.txt*0[Warlock]
+     *****c_illus.txt*0[Illusionist]            *****c_priest.txt*0[Priest]                *****c_weponm.txt*0[Weaponmaster]
+     *****c_mage.txt*0[Mage]                   *****c_ranger.txt*0[Ranger]
 
 
 #####R=== Stats ===
@@ -387,29 +389,29 @@ Yeek          Yes     Yes   Yes   Yes     Yes    Yes    No
 Wood Elf      Yes     Yes   Yes   Yes     Yes    Yes    No
 
              
-#####B             Unbe-  Daemono- Weapon- Merc-   Summ-          Black-
-#####B             liever logist   master  hant    oner    Blade  Knight
-Human         Yes     Yes     Yes     Yes     Yes      Yes     Yes
-Half-Elf      No      Yes     Yes     Yes     Yes      Yes     Yes
-Elf           No      Yes     Yes     Yes     Yes      No      No
-Hobbit        Yes     No      No      Yes     Yes      Yes     Yes
-Gnome         No      Yes     No      Yes     Yes      No      No
-Dwarf         Yes     No      Yes     Yes     No       Yes     Yes
-Orc           Yes     No      Yes     No      No       Yes     Yes
-Troll         Yes     No      Yes     No      No       Yes     Yes
-Dunadan       Yes     Yes     Yes     Yes     No       Yes     Yes
-High-Elf      No      Yes     Yes     Yes     No       Yes     No
-Half-Ogre     No      No      No      No      No       Yes     Yes
-Beorning      Yes     No      No      No      Yes      Yes     Yes
-Kobold        Yes     No      No      Yes     No       No      Yes
-Petty Dwarf   No      No      Yes     Yes     Yes      No      Yes
-Dark Elf      No      Yes     Yes     Yes     Yes      No      Yes
-Ent           Yes     No      No      No      Yes      Yes     No
-RohanKnight   Yes     No      Yes     Yes     No       No      Yes
-DragonRider   Yes     No      No      No      Yes      No      No
-Death Mold    No      No      No      No      Yes      No      No
-Yeek          Yes     Yes     No      No      Yes      Yes     Yes
-Wood Elf      No      No      No      No      Yes      Yes     No
+#####B             Unbe-  Daemono- Weapon- Merc-   Summ-
+#####B             liever logist   master  hant    oner    Blade
+Human         Yes     Yes     Yes     Yes     Yes      Yes
+Half-Elf      No      Yes     Yes     Yes     Yes      Yes
+Elf           No      Yes     Yes     Yes     Yes      No
+Hobbit        Yes     No      No      Yes     Yes      Yes
+Gnome         No      Yes     No      Yes     Yes      No
+Dwarf         Yes     No      Yes     Yes     No       Yes
+Orc           Yes     No      Yes     No      No       Yes
+Troll         Yes     No      Yes     No      No       Yes
+Dunadan       Yes     Yes     Yes     Yes     No       Yes
+High-Elf      No      Yes     Yes     Yes     No       Yes
+Half-Ogre     No      No      No      No      No       Yes
+Beorning      Yes     No      No      No      Yes      Yes
+Kobold        Yes     No      No      Yes     No       No
+Petty Dwarf   No      No      Yes     Yes     Yes      No
+Dark Elf      No      Yes     Yes     Yes     Yes      No
+Ent           Yes     No      No      No      Yes      Yes
+RohanKnight   Yes     No      Yes     Yes     No       No
+DragonRider   Yes     No      No      No      Yes      No
+Death Mold    No      No      No      No      Yes      No
+Yeek          Yes     Yes     No      No      Yes      Yes
+Wood Elf      No      No      No      No      Yes      Yes
 
 
 #####R=== Stat Bonus Tables ===
@@ -484,7 +486,6 @@ are listed in the following table.
            Merchant       0      +3       0      -3      -2      +6
            Summoner      -3      +5       0      -2      -2      -4
            Blade         +3      -2      -2      +5      +2      -1
-           Black-Knight  +3      -4      -3      +3      +3      -4
  
 #####R=== Ability Tables ===
 
@@ -557,7 +558,6 @@ Weaponmaster    23+10   10+3    16+8    1       14/2    70+45   15+10   +30%
 Merchant        20+9    36+13   30+10   1       30/10   34+15   20+15   +35%
 Summoner        20+10   20+10   20+10   6-4*    14/2    4+5     20+15   +100%
 Blade           25+12   18+7    18+10   1       14/2    70+45   55+45   +25%
-Black-Knight    25+14   24+12   32+12   2       16/12   70+45   -30+0   +25%
 
 *: Summoners actually lose stealth as they go up in levels.
 

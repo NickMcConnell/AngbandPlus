@@ -1,3 +1,10 @@
+/* File: player_c.pkg */
+
+/*
+ * Purpose: Lua interface defitions for player classes.
+ * To be processed by tolua to generate C source code.
+ */
+
 $#include "angband.h"
 
 typedef char* cptr;
@@ -11,9 +18,9 @@ typedef unsigned int u32b;
 
 struct player_class
 {
-        s32b title;                     /* Type of class */
-        s32b desc;                      /* Small desc of the class */
-        s32b titles[10];
+	s32b title;                     /* Type of class */
+	s32b desc;                      /* Small desc of the class */
+	s32b titles[10];
 
 	s16b c_adj[6];		/* Class stat modifier */
 
@@ -38,41 +45,128 @@ struct player_class
 	s16b c_mhp;			/* Class hit-dice adjustment */
 	s16b c_exp;			/* Class experience factor */
 
-        s16b powers[4];        /* Powers of the class */
+	s16b powers[4];        /* Powers of the class */
 
-        s16b spell_book;		/* Tval of spell books (if any) */
+	s16b spell_book;		/* Tval of spell books (if any) */
 	s16b spell_stat;		/* Stat for spells (if any)  */
-        s16b spell_lev;          /* The higher it is the higher the spells level are */
-        s16b spell_fail;         /* The higher it is the higher the spells failure are */
-        s16b spell_mana;         /* The higher it is the higher the spells mana are */
-        s16b spell_first;        /* Level of first spell */
-        s16b spell_weight;       /* Weight that hurts spells */
-        byte max_spell_level;   /* Maximun spell level */
-        byte magic_max_spell;  /* Maximun numbner of spells one can learn by natural means */
+	s16b spell_lev;          /* The higher it is the higher the spells level are */
+	s16b spell_fail;         /* The higher it is the higher the spells failure are */
+	s16b spell_mana;         /* The higher it is the higher the spells mana are */
+	s16b spell_first;        /* Level of first spell */
+	s16b spell_weight;       /* Weight that hurts spells */
+	byte max_spell_level;   /* Maximun spell level */
+	byte magic_max_spell;  /* Maximun numbner of spells one can learn by natural means */
 
-        s32b flags1;            /* flags */
+	s32b flags1;            /* flags */
 
-        s16b mana;
-        s16b blow_num;
-        s16b blow_wgt;
-        s16b blow_mul;
-        s16b extra_blows;
+	s16b mana;
+	s16b blow_num;
+	s16b blow_wgt;
+	s16b blow_mul;
+	s16b extra_blows;
 
-        s16b max_companion;
-        s16b max_companion_plus;
+	u32b Mrealm_choices[2];
+	u32b mrealm_choices[2];
 
-        u32b Mrealm_choices[2];
-        u32b mrealm_choices[2];
-
-        s32b sense_base;
-        s32b sense_pl;
-        s32b sense_plus;
-        byte sense_heavy;
-        byte sense_heavy_magic;
-
-        s32b magic_key;
-        s32b magic_desc;
-        byte magic_disrupt;
+	s32b sense_base;
+	s32b sense_pl;
+	s32b sense_plus;
+	byte sense_heavy;
+	byte sense_heavy_magic;
 };
 
 extern player_class *cp_ptr;
+
+
+
+/* Skills */
+struct skill_type
+{
+	u32b name;                              /* Name */
+	u32b desc;                              /* Description */
+	u32b action_desc;                       /* Action Description */
+
+	s16b action_mkey;                       /* Action do to */
+
+	u32b i_value;                           /* Actual value */
+	u16b i_mod;                             /* Modifier(1 skill point = modifier skill) */
+
+	u32b value;                             /* Actual value */
+	u16b mod;                               /* Modifier(1 skill point = modifier skill) */
+	s16b rate;                              /* Modifier decreasing rate */
+
+	s16b action[9999];                      /* List of actions against other skills */
+
+	s16b father;                            /* Father in the skill tree */
+	bool dev;                               /* Is the branch developped ? */
+	s16b order;                             /* Order in the tree */
+};
+
+skill_type s_info[max_s_idx];
+
+#define SKILL_CONVEYANCE        1
+#define SKILL_MANA              2
+#define SKILL_FIRE              3
+#define SKILL_AIR               4
+#define SKILL_WATER             5
+#define SKILL_NATURE            6
+#define SKILL_EARTH             7
+#define SKILL_SYMBIOTIC         8
+#define SKILL_MUSIC             9
+#define SKILL_DIVINATION        10
+#define SKILL_TEMPORAL          11
+#define SKILL_DRUID             12
+#define SKILL_DAEMON            13
+#define SKILL_META              14
+#define SKILL_MAGIC             15
+#define SKILL_COMBAT            16
+#define SKILL_MASTERY           17
+#define SKILL_SWORD             18
+#define SKILL_AXE               19
+#define SKILL_POLEARM           20
+#define SKILL_HAFTED            21
+#define SKILL_BACKSTAB          22
+#define SKILL_ARCHERY           23
+#define SKILL_SLING             24
+#define SKILL_BOW               25
+#define SKILL_XBOW              26
+#define SKILL_BOOMERANG         27
+#define SKILL_SPIRITUALITY      28
+#define SKILL_MINDCRAFT         29
+#define SKILL_MISC              30
+#define SKILL_NECROMANCY        31
+#define SKILL_MIMICRY           32
+#define SKILL_ANTIMAGIC         33
+#define SKILL_RUNECRAFT         34
+#define SKILL_SNEAK             35
+#define SKILL_STEALTH           36
+#define SKILL_DISARMING         37
+#define SKILL_TRAPPING          38
+#define SKILL_ALCHEMY           39
+#define SKILL_STEALING          40
+#define SKILL_SORCERY           41
+#define SKILL_HAND              42
+#define SKILL_THAUMATURGY       43
+#define SKILL_SUMMON            44
+#define SKILL_SPELL             45
+#define SKILL_DODGE             46
+#define SKILL_BEAR              47
+#define SKILL_LORE              48
+#define SKILL_PRESERVATION      49
+#define SKILL_POSSESSION        50
+#define SKILL_MIND              51
+#define SKILL_CRITS             52
+#define SKILL_PRAY              53
+#define SKILL_LEARN             54
+#define SKILL_UDUN              55
+#define SKILL_DEVICE            56
+
+#define SKILL_MAX               50000           /* Maximun skill value */
+#define SKILL_STEP              1000            /* 1 skill point */
+
+extern s16b get_skill(int skill);
+extern s16b get_skill_scale(int skill, u32b scale);
+extern void do_get_new_skill();
+
+$static char *get_class_name() {return spp_ptr->title + c_name;}
+char *get_class_name();

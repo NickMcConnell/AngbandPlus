@@ -1,13 +1,13 @@
 # File: e_info.txt
 
 
-# This file is used to initialize the "lib/raw/e_info.raw" file, which is
+# This file is used to initialize the "lib/data/e_info.raw" file, which is
 # used to initialize the "ego-item" information for the Angband game.
 
 # Do not modify this file unless you know exactly what you are doing,
 # unless you wish to risk possible system crashes and broken savefiles.
 
-# After modifying this file, delete the "lib/raw/e_info.raw" file.
+# After modifying this file, delete the "lib/data/e_info.raw" file.
 
 # The ego-item indexes are defined in "defines.h", and must not be changed.
 
@@ -17,10 +17,53 @@
 # is possible for several "ego-item" types to have the same "textual name",
 # such as with "Armor of Resistance" and "Shield of Resistance".
 
+# === Understanding e_info.txt ===
+
+# N: serial number : ego type
+# D: description
+# T: tval : min sval : max sval
+# R: rarity
+# X: position : slot : rating
+# W: depth : rarity1 : rarity2 : cost
+# C: to-hit : to-dam : to-ac : pval
+# Z: granted_power
+# F: flags
+
+# 'N' indicated the beginning of an entry. The serial number must increase
+# for each new item.
+
+# 'D' contains description. This field is currently not supported.
+
+# 'T' is for possible tvar and sval value of the base item.
+# Up to 5 entries are possible.
+
+# 'R' stands for rarity, or randomness. It specifies percentual chance
+# of generated item to have following 'F' flags. I.e. 'R:40' followed
+# by 'F:SPEED' means, that 40% of item of this ego type will boost speed.
+
+# 'X' is for extra information. Position value 'A' means that ego-type name
+# will appear after base-item name ('Robe of Permanence'), value 'B' means
+# that ego-type name will appear before base-item name ('Elven Plate Mail').
+# Slot is determining in which equipment slots item could be equiped. This
+# value is currently ignored. Rating determines how level feeling will be
+# affected.
+
+# 'W' is for extra information. Depth is the depth the object is normally
+# found at, rarity determines how common the object is and cost is the items
+# value.
+
+# 'C' stands for 'creation'. It determines maximal to-hit, to-damage, AC and
+# stats (pval) values item can get.
+
+# 'Z' is granted power. See tables.c, array powers_type_init (lines 4511-4943).
+
+# 'F' contains flags. Most are self explaining, rest could be found in source.
+
+
 
 # Version stamp (required)
 
-V:2.8.1
+V:2.0.0
 
 ### Mage Staff ###
 
@@ -38,7 +81,7 @@ N:2:of Power
 X:A:24:30
 T:6:0:255
 W:5:5:8:20000
-C:-30:-30:0:5
+C:-30:-30:0:10
 R:100
 F:SPELL
 R:70
@@ -292,6 +335,8 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 F:ABILITY | R_HIGH
 R:40
 F:SPELL
+R:50
+F:SPELL_CONTAIN
 
 N:28:of Might
 X:A:33:19
@@ -678,7 +723,6 @@ F:WIS | ESP_GOOD
 F:BLESSED | ABILITY
 
 N:68:of Life
-T:15:0:255
 T:21:0:255
 T:22:0:255
 T:23:0:255
@@ -704,6 +748,8 @@ F:SLAY_ORC | SLAY_TROLL | SLAY_GIANT |
 F:FREE_ACT | SEE_INVIS | ESP_ORC | ESP_TROLL | ESP_GIANT
 R:33
 F:RES_FEAR
+R:50
+F:RES_MORGUL
 
 N:70:of Extra Attacks
 T:125:0:255
@@ -1063,7 +1109,7 @@ F:R_ANY | R_LOW | SUSTAIN | R_HIGH
 R:10
 F:R_IMMUNITY | R_ANY
 
-N:99:of the Dragonriders
+N:99:of the Thunderlords
 T:15:0:255
 T:21:0:255
 T:22:0:255
@@ -1073,7 +1119,7 @@ X:A:24:22
 W:0:1:100:7000
 C:4:4:0:2
 R:100
-F:SLAY_EVIL | KILL_DRAGON | TELEPORT | FREE_ACT | SEARCH |
+F:SLAY_EVIL | KILL_DRAGON | TELEPORT | FREE_ACT | SEARCH | BRAND_ELEC
 F:REGEN | SLOW_DIGEST | RES_NEXUS | ACTIVATE | FLY | ESP_DRAGON
 F:R_HIGH
 R:12
@@ -1521,7 +1567,7 @@ C:0:0:0:0
 R:100
 F:RES_BLIND | SEE_INVIS
 
-N:144:of the Ethereal Eye
+N:144:of the Etheral Eye
 X:A:0:7
 T:39:0:99
 W:0:3:40:4000
@@ -1566,10 +1612,11 @@ C:0:0:0:0
 R:100
 F:AUTO_CURSE
 
-# Scrolls
+# Scrolls & school spellbooks
 N:149:Fireproof
 X:B:0:1
 T:70:0:255
+T:111:0:255
 W:0:1:10:1000
 C:0:0:0:0
 R:100
@@ -1712,6 +1759,8 @@ R:30
 F:R_HIGH
 R:30
 F:PVAL_M2
+R:50:
+F:SPELL_CONTAIN
 
 ### New ego-items added by JLE
 
@@ -1774,6 +1823,8 @@ C:-5:-5:5:3
 T:35:0:99
 R:100
 F:INT | SPEED | SUST_INT | FREE_ACT | STEALTH | HIDE_TYPE | IGNORE_ACID
+R:30
+F:SPELL_CONTAIN
 
 # Cloak of Invisibility
 N:170:of Invisibility

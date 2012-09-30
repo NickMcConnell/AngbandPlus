@@ -1,5 +1,5 @@
 /*
- * Minimal Resources for T.o.M.E. 1.x.x
+ * Minimal Resources for T.o.M.E.
  *
  * Turned into human-readable and programmer-friendly format by pelpel
  *
@@ -35,7 +35,7 @@ type AngbandSignature as 'STR ';
 
 resource AngbandSignature (0, "Owner resource", purgeable)
 {
-	"T.o.M.E. 1.0.0"
+	"T.o.M.E. 2.0.0"
 };
 
 
@@ -222,7 +222,7 @@ resource 'MENU' (128, preload)
 	/* its contents */
 	{
 		/* First item */
-		"About T.o.M.E...", noicon, nokey, nomark, plain;
+		"About T.o.M.E. ...", noicon, nokey, nomark, plain;
 
 		/* Second item - divider */
 		"-", noicon, nokey, nomark, plain;
@@ -418,13 +418,19 @@ resource 'MENU' (134, preload)
 		/* item #2 - 0x90 = 144 */
 		"Graphics", noicon, hierarchicalMenu, "\0x90", plain;
 
-		/* item #3 */
-		"-", noicon, nokey, nomark, plain;
+		/* item #3 - 0x91 = 145 */
+		"TileWidth", noicon, hierarchicalMenu, "\0x91", plain;
 
-		/* item #4 */
-		"Fiddle", noicon, nokey, nomark, plain;
+		/* item #4 - 0x92 = 146 */
+		"TileHeight", noicon, hierarchicalMenu, "\0x92", plain;
 
 		/* item #5 */
+		"-", noicon, nokey, nomark, plain;
+
+		/* item #6 */
+		"Fiddle", noicon, nokey, nomark, plain;
+
+		/* item #7 */
 		"Wizard", noicon, nokey, nomark, plain;
 	}
 };
@@ -457,13 +463,20 @@ resource 'MENU' (144, preload)
 
 		/* item #3 */
 		"16x16", noicon, nokey, nomark, plain;
+
+		/* item #4 */
+		"-", noicon, nokey, nomark, plain;
+
+		/* item #5 */
+		"Enlarge tiles", noicon, nokey, nomark, plain;
 	}	
 };
 
-resource 'MENU' (135, preload)
+/* Tilewidth submenu */
+resource 'MENU' (145, preload)
 {
 	/* menu ID */
-	135,
+	145,
 
 	/* use standard definition proc */
 	textMenuProc,
@@ -483,10 +496,11 @@ resource 'MENU' (135, preload)
 	}
 };
 
-resource 'MENU' (136, preload)
+/* TileHeight submenu */
+resource 'MENU' (146, preload)
 {
 	/* menu ID */
-	136,
+	146,
 
 	/* use standard definition proc */
 	textMenuProc,
@@ -509,7 +523,7 @@ resource 'MENU' (136, preload)
 /* Menu bar definition */
 resource 'MBAR' (128, preload)
 {
-	{ 128, 129, 130, 131, 132, 133, 134, 135, 136 }
+	{ 128, 129, 130, 131, 132, 133, 134 }
 };
 
 
@@ -664,7 +678,7 @@ resource 'DITL' (128, purgeable)
 		/** item #2 **/
 
 		/* bounding rect */
-		{ 7, 93, 24, 220 },
+		{ 7, 108, 24, 235 },
 
 		/* type */
 		StaticText
@@ -673,13 +687,13 @@ resource 'DITL' (128, purgeable)
 			disabled,
 
 			/* title */
-			"T.o.M.E. 1.0.0"
+			"T.o.M.E. 2.0.0"
 		},
 
 		/** item #3 **/
 
 		/* bounding rect */
-		{ 36, 93, 53, 220 },
+		{ 36, 80, 53, 275 },
 
 		/* type */
 		StaticText
@@ -688,7 +702,7 @@ resource 'DITL' (128, purgeable)
 			disabled,
 
 			/* title */
-			"Copyright (c) 2002"
+			"Copyright (c) 1998-2002"
 		},
 
 		/** item #4 **/
@@ -722,7 +736,7 @@ resource 'DITL' (128, purgeable)
 		/** item #6 **/
 
 		/* bounding rect */
-		{ 99, 88, 116, 223 },
+		{ 99, 88, 116, 266 },
 
 		/* type */
 		StaticText
@@ -737,7 +751,7 @@ resource 'DITL' (128, purgeable)
 		/** item #7 **/
 
 		/* bounding rect */
-		{ 135, 92, 151, 216 },
+		{ 135, 92, 151, 255 },
 
 		/* type */
 		StaticText
@@ -752,7 +766,7 @@ resource 'DITL' (128, purgeable)
 		/** item #8 **/
 
 		/* bounding rect */
-		{ 119, 103, 135, 209 },
+		{ 119, 103, 135, 255 },
 
 		/* type */
 		StaticText
@@ -767,7 +781,7 @@ resource 'DITL' (128, purgeable)
 		/** item #9 **/
 
 		/* bounding rect */
-		{ 0x96, 0x70, 0xa6, 0xc0 },
+		{ 150, 112, 166, 255 },
 
 		/* type */
 		StaticText
@@ -781,7 +795,7 @@ resource 'DITL' (128, purgeable)
 		/** item #10 */
 
 		/* bounding rect */
-		{ 0xa6, 0x3e, 0xb6, 0x89 },
+		{ 166, 62, 182, 145 },
 
 		/* type */
 		StaticText
@@ -796,7 +810,7 @@ resource 'DITL' (128, purgeable)
 		/** item #11 **/
 
 		/* bounding rect */
-		{ 0xa6, 0x8b, 0xb6, 0xff },
+		{ 166, 148, 182, 294 },
 
 		/* type */
 		StaticText
@@ -811,7 +825,7 @@ resource 'DITL' (128, purgeable)
 		/** item #12 **/
 
 		/* bounding rect */
-		{ 0xbe, 0x60, 0xcf, 0xff },
+		{ 190, 96, 207, 255 },
 
 		/* type */
 		StaticText

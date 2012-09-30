@@ -28,7 +28,7 @@
 # S:monster spells to add for the ego-type
 # T:monster spells to remove, use MF_ALL for all
 
-V:2.8.1
+V:2.0.0
 
 # A few undeads, to be created by the ANIM_DEAD spell
 

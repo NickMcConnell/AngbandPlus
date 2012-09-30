@@ -321,6 +321,7 @@ struct infofnt
 	cptr name;
 
 	s16b wid;
+	s16b twid;
 	s16b hgt;
 	s16b asc;
 
@@ -358,7 +359,7 @@ struct infofnt
 /* Init an infowin by giving father as an (info_win*) (or NULL), and data */
 #define Infowin_init_dad(D,X,Y,W,H,B,FG,BG) \
 	Infowin_init_data(((D) ? ((D)->win) : (Window)(None)), \
-	                  X,Y,W,H,B,FG,BG)
+			  X,Y,W,H,B,FG,BG)
 
 
 /* Init a top level infowin by pos,size,bord,Colors */
@@ -429,86 +430,105 @@ static infofnt *Infofnt = (infofnt*)(NULL);
 
 /**** Sockets handling ****/
 #ifdef USE_UNIXSOCK
+#include <signal.h>
+
+/* Receive the alarm signal */
+static struct sigaction handle_old_alarm;
+void handle_timer(int sig)
+{
+        irc_poll(pern_irc);
+        ualarm(400, 0);
+}
+
 void *zsock_connect(char *hos, short port)
 {
-        struct hostent *host;
+        struct sigaction new;
+	struct hostent *host;
 	struct sockaddr_in sin;
-        int *client;
+	int *client;
 
-        MAKE(client, int);
-        *client = socket(AF_INET, SOCK_STREAM, 0);
+	MAKE(client, int);
+	*client = socket(AF_INET, SOCK_STREAM, 0);
 
-        host = gethostbyname(hos);
+	host = gethostbyname(hos);
 
-        memset(&sin, 0, sizeof sin);
-     	sin.sin_family = AF_INET;
-     	sin.sin_addr.s_addr = ((struct in_addr *)(host->h_addr))->s_addr;
-        sin.sin_port = htons(port);
+	memset(&sin, 0, sizeof sin);
+	sin.sin_family = AF_INET;
+	sin.sin_addr.s_addr = ((struct in_addr *)(host->h_addr))->s_addr;
+	sin.sin_port = htons(port);
 
-        if (connect(*client, (struct sockaddr*)&sin, sizeof sin) == -1)
-     	{
-         	/* could not connect to server */
-                return NULL;
-     	}
+	if (connect(*client, (struct sockaddr*)&sin, sizeof sin) == -1)
+	{
+		/* could not connect to server */
+		return NULL;
+	}
+
+        /* Register the timer */
+        new.sa_handler = handle_timer;
+        new.sa_flags = 0;
+        sigaction(SIGALRM, &new, &handle_old_alarm);
+        ualarm(400, 0);
 
 	return client;
 }
 
 bool zsock_can_read(void *client)
 {
-        struct timeval t;
-        fd_set rd;
-        int *c = client;
+	struct timeval t;
+	fd_set rd;
+	int *c = client;
 
-        FD_ZERO(&rd);
-        FD_SET(*c, &rd);
-        t.tv_sec = 0;
-        t.tv_usec = 0;
-        select(*c + 1, &rd, NULL, NULL, &t);
-        if (FD_ISSET(*c, &rd)) return TRUE;
-        else return (FALSE);
+	FD_ZERO(&rd);
+	FD_SET(*c, &rd);
+	t.tv_sec = 0;
+	t.tv_usec = 0;
+	select(*c + 1, &rd, NULL, NULL, &t);
+	if (FD_ISSET(*c, &rd)) return TRUE;
+	else return (FALSE);
 }
 
 bool zsock_wait(void *client)
 {
-        struct timeval t;
-        fd_set rd;
-        int *c = client;
+	struct timeval t;
+	fd_set rd;
+	int *c = client;
 
-        t.tv_sec = 30;
-        t.tv_usec = 0;
+	t.tv_sec = 30;
+	t.tv_usec = 0;
 
-        FD_ZERO(&rd);
-        FD_SET(*c, &rd);
-        select(*c + 1, &rd, NULL, NULL, &t);
-        if (FD_ISSET(*c, &rd)) return TRUE;
-        else return (FALSE);
+	FD_ZERO(&rd);
+	FD_SET(*c, &rd);
+	select(*c + 1, &rd, NULL, NULL, &t);
+	if (FD_ISSET(*c, &rd)) return TRUE;
+	else return (FALSE);
 }
 
 void zsock_disconnect(void *client)
 {
-        close(*(int*)client);
-        FREE(client, int);
+        alarm(0);
+        sigaction(SIGALRM, &handle_old_alarm, NULL);
+	close(*(int*)client);
+	FREE(client, int);
 }
 
 void zsock_send(void *sock, char *str)
 {
-        send(*(int*)sock, str, strlen(str), 0);
+	send(*(int*)sock, str, strlen(str), 0);
 }
 
 void zsock_recv(void *sock, char *str, int len)
 {
-        char c;
-        int l = 0;
+	char c;
+	int l = 0;
 
-        while ((l < len) && zsock_can_read(sock))
-        {
-                recv(*(int*)sock, &c, 1, 0);
-                if (c == '\r') continue;
-                if (c == '\n') break;
-                str[l++] = c;
-        }
-        str[l] = '\0';
+	while ((l < len) && zsock_can_read(sock))
+	{
+		recv(*(int*)sock, &c, 1, 0);
+		if (c == '\r') continue;
+		if (c == '\n') break;
+		str[l++] = c;
+	}
+	str[l] = '\0';
 }
 #endif
 
@@ -788,7 +808,7 @@ static errr Infowin_init_real(Window xid)
  *	If 'dad == None' assume 'dad == root'
  */
 static errr Infowin_init_data(Window dad, int x, int y, int w, int h,
-                              int b, Pixell fg, Pixell bg)
+			      int b, Pixell fg, Pixell bg)
 {
 	Window xid;
 
@@ -978,7 +998,7 @@ static errr Infowin_fill(void)
 {
 	/* Execute the request */
 	XFillRectangle(Metadpy->dpy, Infowin->win, Infoclr->gc,
-	               0, 0, Infowin->w, Infowin->h);
+		       0, 0, Infowin->w, Infowin->h);
 
 	/* Success */
 	return (0);
@@ -1204,7 +1224,7 @@ static errr Infoclr_init_data(Pixell fg, Pixell bg, int op, int stip)
 
 	/* Set up the GC mask */
 	gc_mask = (GCFunction | GCBackground | GCForeground |
-	           GCFillStyle | GCGraphicsExposures);
+		   GCFillStyle | GCGraphicsExposures);
 
 	/* Create the GC detailed above */
 	gc = XCreateGC(Metadpy->dpy, Metadpy->root, gc_mask, &gcv);
@@ -1310,6 +1330,11 @@ static errr Infofnt_prepare(XFontStruct *info)
 	ifnt->asc = info->ascent;
 	ifnt->hgt = info->ascent + info->descent;
 	ifnt->wid = cs->width;
+	if (use_bigtile)
+		ifnt->twid = 2 * ifnt->wid;
+	else
+		ifnt->twid = ifnt->wid;
+
 
 #ifdef OBSOLETE_SIZING_METHOD
 	/* Extract default sizing info */
@@ -1437,7 +1462,7 @@ static errr Infofnt_text_std(int x, int y, cptr str, int len)
 		{
 			/* Note that the Infoclr is set up to contain the Infofnt */
 			XDrawImageString(Metadpy->dpy, Infowin->win, Infoclr->gc,
-			                 x + i * Infofnt->wid + Infofnt->off, y, str + i, 1);
+					 x + i * Infofnt->wid + Infofnt->off, y, str + i, 1);
 		}
 	}
 
@@ -1446,7 +1471,7 @@ static errr Infofnt_text_std(int x, int y, cptr str, int len)
 	{
 		/* Note that the Infoclr is set up to contain the Infofnt */
 		XDrawImageString(Metadpy->dpy, Infowin->win, Infoclr->gc,
-		                 x, y, str, len);
+				 x, y, str, len);
 	}
 
 
@@ -1650,18 +1675,18 @@ static void react_keypress(XKeyEvent *xev)
 	if (ks)
 	{
 		sprintf(msg, "%c%s%s%s%s_%lX%c", 31,
-		        mc ? "N" : "", ms ? "S" : "",
-		        mo ? "O" : "", mx ? "M" : "",
-		        (unsigned long)(ks), 13);
+			mc ? "N" : "", ms ? "S" : "",
+			mo ? "O" : "", mx ? "M" : "",
+			(unsigned long)(ks), 13);
 	}
 
 	/* Hack -- Use the Keycode */
 	else
 	{
 		sprintf(msg, "%c%s%s%s%sK_%X%c", 31,
-		        mc ? "N" : "", ms ? "S" : "",
-		        mo ? "O" : "", mx ? "M" : "",
-		        ev->keycode, 13);
+			mc ? "N" : "", ms ? "S" : "",
+			mo ? "O" : "", mx ? "M" : "",
+			ev->keycode, 13);
 	}
 
 	/* Enqueue the "macro trigger" string */
@@ -1850,13 +1875,22 @@ static errr CheckEvent(bool wait)
 			cols = ((Infowin->w - (ox + ox)) / td->fnt->wid);
 			rows = ((Infowin->h - (oy + oy)) / td->fnt->hgt);
 
-			/* Paranoia */
-			if (td == &data[0]) cols = 80;
-			if (td == &data[0]) rows = 24;
-
 			/* Hack -- minimal size */
-			if (cols < 1) cols = 1;
-			if (rows < 1) rows = 1;
+			if (td == &data[0])
+			{
+				if (cols < 80) cols = 80;
+				if (rows < 24) rows = 24;
+			}
+
+			else
+			{
+				if (cols < 1) cols = 1;
+				if (rows < 1) rows = 1;
+			}
+
+			/* Paranoia */
+			if (cols > 255) cols = 255;
+			if (rows > 255) rows = 255;
 
 			/* Desired size of window */
 			wid = cols * td->fnt->wid + (ox + ox);
@@ -1939,9 +1973,9 @@ static errr Term_xtra_x11_react(void)
 
 				/* Create pixel */
 				pixel = create_pixel(Metadpy->dpy,
-				                     color_table[i][1],
-				                     color_table[i][2],
-				                     color_table[i][3]);
+						     color_table[i][1],
+						     color_table[i][2],
+						     color_table[i][3]);
 
 				/* Change the foreground */
 				Infoclr_set(clr[i]);
@@ -1975,22 +2009,22 @@ static errr Term_xtra_x11(int n, int v)
 		{
 
 #ifdef USE_SOCK
-            irc_poll(pern_irc);
+                        irc_poll(pern_irc);
 #endif
 
-		    return (CheckEvent(0));
-        }
+                        return (CheckEvent(0));
+                }
 
 		/* Process Events XXX */
 		case TERM_XTRA_EVENT:
 		{
 
 #ifdef USE_SOCK
-            irc_poll(pern_irc);
+	    irc_poll(pern_irc);
 #endif
 
 		    return (CheckEvent(v));
-        }
+	}
 
 		/* Flush the events XXX */
 		case TERM_XTRA_FLUSH: while (!CheckEvent(FALSE)); return (0);
@@ -2004,10 +2038,10 @@ static errr Term_xtra_x11(int n, int v)
 		/* Delay for some milliseconds */
 		case TERM_XTRA_DELAY:
 #ifdef USE_SOCK
-            irc_poll(pern_irc);
+	    irc_poll(pern_irc);
 #endif
 
-            usleep(1000 * v); return (0);
+	    usleep(1000 * v); return (0);
 
 		/* React to changes */
 		case TERM_XTRA_REACT: return (Term_xtra_x11_react());
@@ -2028,6 +2062,9 @@ static errr Term_curs_x11(int x, int y)
 	/* Draw the cursor */
 	Infoclr_set(xor);
 
+	if (use_bigtile && x + 1 < Term->wid && Term->old->a[y][x+1] == 255)
+		Infofnt_text_non(x, y, "  ", 2);
+	else
 	/* Hilite the cursor character */
 	Infofnt_text_non(x, y, " ", 1);
 
@@ -2117,13 +2154,13 @@ static errr Term_pict_x11(int x, int y, int n, const byte *ap, const char *cp)
 	y += Infowin->oy;
 	x += Infowin->ox;
 
-	for (i = 0; i < n; ++i)
+	for (i = 0; i < n; ++i, x += td->fnt->wid)
 	{
 		a = *ap++;
 		c = *cp++;
 
 		/* For extra speed - cache these values */
-		x1 = (c&0x7F) * td->fnt->wid;
+		x1 = (c&0x7F) * td->fnt->twid;
 		y1 = (a&0x7F) * td->fnt->hgt;
 
 #ifdef USE_TRANSPARENCY
@@ -2132,7 +2169,7 @@ static errr Term_pict_x11(int x, int y, int n, const byte *ap, const char *cp)
 		tc = *tcp++;
 
 		/* For extra speed - cache these values */
-		x2 = (tc&0x7F) * td->fnt->wid;
+		x2 = (tc&0x7F) * td->fnt->twid;
 		y2 = (ta&0x7F) * td->fnt->hgt;
 
 # ifdef USE_EGO_GRAPHICS
@@ -2142,7 +2179,7 @@ static errr Term_pict_x11(int x, int y, int n, const byte *ap, const char *cp)
 		has_overlay = (ea && ec);
 
 		/* For extra speed - cache these values too */
-		x3 = (ec&0x7F) * td->fnt->wid;
+		x3 = (ec&0x7F) * td->fnt->twid;
 		y3 = (ea&0x7F) * td->fnt->hgt;
 
 # endif /* USE_EGO_GRAPHICS */
@@ -2154,11 +2191,11 @@ static errr Term_pict_x11(int x, int y, int n, const byte *ap, const char *cp)
 
 			/* Draw object / terrain */
 			XPutImage(Metadpy->dpy, td->win->win,
-		  	        clr[0]->gc,
-		  	        td->tiles,
-		  	        x1, y1,
-		  	        x, y,
-		  	        td->fnt->wid, td->fnt->hgt);
+				clr[0]->gc,
+				td->tiles,
+				x1, y1,
+				x, y,
+				td->fnt->twid, td->fnt->hgt);
 # else /* !USE_EGO_GRAPHICS */
 
 			/* Draw object / terrain */
@@ -2169,7 +2206,7 @@ static errr Term_pict_x11(int x, int y, int n, const byte *ap, const char *cp)
 					td->tiles,
 					x1, y1,
 					x, y,
-					td->fnt->wid, td->fnt->hgt);
+					td->fnt->twid, td->fnt->hgt);
 			}
 
 			/* There's a terrain overlay */
@@ -2177,7 +2214,7 @@ static errr Term_pict_x11(int x, int y, int n, const byte *ap, const char *cp)
 			{
 				/* Mega Hack^2 - assume the top left corner is "black" */
 				blank = XGetPixel(td->tiles, 0, td->fnt->hgt * 6);
-				for (k = 0; k < td->fnt->wid; k++)
+				for (k = 0; k < td->fnt->twid; k++)
 				{
 					for (l = 0; l < td->fnt->hgt; l++)
 					{
@@ -2198,7 +2235,7 @@ static errr Term_pict_x11(int x, int y, int n, const byte *ap, const char *cp)
 				     clr[0]->gc,
 				     td->TmpImage,
 				     0, 0, x, y,
-				     td->fnt->wid, td->fnt->hgt);
+				     td->fnt->twid, td->fnt->hgt);
 			}
 
 # endif /* !USE_EGO_GRAPHICS */
@@ -2212,7 +2249,7 @@ static errr Term_pict_x11(int x, int y, int n, const byte *ap, const char *cp)
 
 # ifndef USE_EGO_GRAPHICS
 
-			for (k = 0; k < td->fnt->wid; k++)
+			for (k = 0; k < td->fnt->twid; k++)
 			{
 				for (l = 0; l < td->fnt->hgt; l++)
 				{
@@ -2230,7 +2267,7 @@ static errr Term_pict_x11(int x, int y, int n, const byte *ap, const char *cp)
 
 # else /* !USE_EGO_GRAPHICS */
 
-			for (k = 0; k < td->fnt->wid; k++)
+			for (k = 0; k < td->fnt->twid; k++)
 			{
 				for (l = 0; l < td->fnt->hgt; l++)
 				{
@@ -2269,21 +2306,21 @@ static errr Term_pict_x11(int x, int y, int n, const byte *ap, const char *cp)
 
 			/* Draw to screen */
 			XPutImage(Metadpy->dpy, td->win->win,
-		    	      clr[0]->gc,
-		     	     td->TmpImage,
-		     	     0, 0, x, y,
-		     	     td->fnt->wid, td->fnt->hgt);
+			      clr[0]->gc,
+			     td->TmpImage,
+			     0, 0, x, y,
+			     td->fnt->twid, td->fnt->hgt);
 		}
 
 #else /* USE_TRANSPARENCY */
 
 		/* Draw object / terrain */
 		XPutImage(Metadpy->dpy, td->win->win,
-		          clr[0]->gc,
-		          td->tiles,
-		          x1, y1,
-		          x, y,
-		          td->fnt->wid, td->fnt->hgt);
+			  clr[0]->gc,
+			  td->tiles,
+			  x1, y1,
+			  x, y,
+			  td->fnt->twid, td->fnt->hgt);
 
 #endif /* USE_TRANSPARENCY */
 		x += td->fnt->wid;
@@ -2303,8 +2340,6 @@ static errr Term_pict_x11(int x, int y, int n, const byte *ap, const char *cp)
 static errr term_data_init(term_data *td, int i)
 {
 	term *t = &td->t;
-
-	bool fixed = (i == 0);
 
 	cptr name = angband_term_name[i];
 
@@ -2407,20 +2442,17 @@ static errr term_data_init(term_data *td, int i)
 	y = (str != NULL) ? atoi(str) : -1;
 
 
-	if (!fixed)
-	{
-		/* Window specific cols */
-		sprintf(buf, "ANGBAND_X11_COLS_%d", i);
-		str = getenv(buf);
-		val = (str != NULL) ? atoi(str) : -1;
-		if (val > 0) cols = val;
+	/* Window specific cols */
+	sprintf(buf, "ANGBAND_X11_COLS_%d", i);
+	str = getenv(buf);
+	val = (str != NULL) ? atoi(str) : -1;
+	if (val > 0) cols = val;
 
-		/* Window specific rows */
-		sprintf(buf, "ANGBAND_X11_ROWS_%d", i);
-		str = getenv(buf);
-		val = (str != NULL) ? atoi(str) : -1;
-		if (val > 0) rows = val;
-	}
+	/* Window specific rows */
+	sprintf(buf, "ANGBAND_X11_ROWS_%d", i);
+	str = getenv(buf);
+	val = (str != NULL) ? atoi(str) : -1;
+	if (val > 0) rows = val;
 
 
 	/* Window specific inner border offset (ox) */
@@ -2442,7 +2474,7 @@ static errr term_data_init(term_data *td, int i)
 	Infofnt_init_data(font);
 
 	/* Hack -- key buffer size */
-	num = (fixed ? 1024 : 16);
+	num = (i == 0 ? 1024 : 16);
 
 	/* Assume full size windows */
 	wid = cols * td->fnt->wid + (ox + ox);
@@ -2452,7 +2484,7 @@ static errr term_data_init(term_data *td, int i)
 	MAKE(td->win, infowin);
 	Infowin_set(td->win);
 	Infowin_init_top(x, y, wid, hgt, 0,
-	                 Metadpy->fg, Metadpy->bg);
+			 Metadpy->fg, Metadpy->bg);
 
 	/* Ask for certain events */
 	Infowin_set_mask(ExposureMask | StructureNotifyMask | KeyPressMask);
@@ -2485,23 +2517,25 @@ static errr term_data_init(term_data *td, int i)
 	if (sh == NULL) quit("XAllocSizeHints failed");
 
 	/* Fixed window size */
-	if (fixed)
+	if (i == 0)
 	{
-		/* Fixed size */
+		/* Main window: 80x24 -- 255x255 */
 		sh->flags = PMinSize | PMaxSize;
-		sh->min_width = sh->max_width = wid;
-		sh->min_height = sh->max_height = hgt;
+		sh->min_width = 80 * td->fnt->wid + (ox + ox);
+		sh->min_height = 24 * td->fnt->hgt + (oy + oy);
+		sh->max_width = 255 * td->fnt->wid + (ox + ox);
+		sh->max_height = 255 * td->fnt->hgt + (oy + oy);
 	}
 
 	/* Variable window size */
 	else
 	{
-		/* Variable size */
+		/* Subwindows: 1x1 -- 255x255 */
 		sh->flags = PMinSize | PMaxSize;
 		sh->min_width = td->fnt->wid + (ox + ox);
 		sh->min_height = td->fnt->hgt + (oy + oy);
-		sh->max_width = 256 * td->fnt->wid + (ox + ox);
-		sh->max_height = 256 * td->fnt->hgt + (oy + oy);
+		sh->max_width = 255 * td->fnt->wid + (ox + ox);
+		sh->max_height = 255 * td->fnt->hgt + (oy + oy);
 	}
 
 	/* Resize increment */
@@ -2569,6 +2603,7 @@ errr init_x11(int argc, char *argv[])
 
 	int pict_wid = 0;
 	int pict_hgt = 0;
+	bool force_old_graphics = FALSE;
 
 #ifdef USE_TRANSPARENCY
 
@@ -2592,6 +2627,18 @@ errr init_x11(int argc, char *argv[])
 		if (prefix(argv[i], "-s"))
 		{
 			smoothRescaling = FALSE;
+			continue;
+		}
+
+		if (prefix(argv[i], "-o"))
+		{
+			force_old_graphics = TRUE;
+			continue;
+		}
+
+		if (prefix(argv[i], "-b"))
+		{
+			arg_bigtile = use_bigtile = TRUE;
 			continue;
 		}
 
@@ -2642,9 +2689,9 @@ errr init_x11(int argc, char *argv[])
 		{
 			/* Create pixel */
 			pixel = create_pixel(Metadpy->dpy,
-			                     color_table[i][1],
-			                     color_table[i][2],
-			                     color_table[i][3]);
+					     color_table[i][1],
+					     color_table[i][2],
+					     color_table[i][3]);
 		}
 
 		/* Initialize the color */
@@ -2681,7 +2728,8 @@ errr init_x11(int argc, char *argv[])
 		path_build(filename, 1024, ANGBAND_DIR_XTRA, "graf/16x16.bmp");
 
 		/* Use the "16x16.bmp" file if it exists */
-		if (0 == fd_close(fd_open(filename, O_RDONLY)))
+		if (!force_old_graphics &&
+		    (0 == fd_close(fd_open(filename, O_RDONLY))))
 		{
 			/* Use graphics */
 			use_graphics = TRUE;
@@ -2734,8 +2782,8 @@ errr init_x11(int argc, char *argv[])
 			/* Resize tiles */
 			td->tiles =
 			ResizeImage(dpy, tiles_raw,
-			            pict_wid, pict_hgt,
-			            td->fnt->wid, td->fnt->hgt);
+				    pict_wid, pict_hgt,
+				    td->fnt->twid, td->fnt->hgt);
 		}
 
 #ifdef USE_TRANSPARENCY
@@ -2753,14 +2801,14 @@ errr init_x11(int argc, char *argv[])
 			ii = 1;
 			jj = (depth - 1) >> 2;
 			while (jj >>= 1) ii <<= 1;
-			total = td->fnt->wid * td->fnt->hgt * ii;
+			total = td->fnt->twid * td->fnt->hgt * ii;
 
 
 			TmpData = (char *)malloc(total);
 
 			td->TmpImage = XCreateImage(dpy,visual,depth,
 				ZPixmap, 0, TmpData,
-				td->fnt->wid, td->fnt->hgt, 8, 0);
+				td->fnt->twid, td->fnt->hgt, 8, 0);
 
 		}
 #endif /* USE_TRANSPARENCY */

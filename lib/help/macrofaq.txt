@@ -1,6 +1,6 @@
 |||||oy
 #####R======================================================================
-#####B                        T.o.M.E. Macro FAQ
+#####B                          ToME Macro FAQ
 
                  Original Angband Macro FAQ by Jim Lyon
                         (jplyon@attglobal.net)
@@ -20,11 +20,11 @@
 #####G1.1 About this FAQ
 #####G----------------------------------------------------------------------
 
-This FAQ is mean to be a companion to the standard T.o.M.E. help files
-for using inscriptions, macros, and keymaps. The T.o.M.E. help files 
+This FAQ is mean to be a companion to the standard ToME help files
+for using inscriptions, macros, and keymaps. The ToME help files 
 which also describe them are listed in the "References" section.
 
-This documentation is for PernAngband, version 4.2.x.
+This documentation is for ToME, version 4.2.x.
 
 #####B==================================
 #####B          SPOILER ALERT 
@@ -90,7 +90,7 @@ Shift  Shift
 
 #####G= System abbreviations =
 #####G-----------------------------------
-Each system that T.o.M.E. compiles on has a semi-standard 3-letter 
+Each system that ToME compiles on has a semi-standard 3-letter 
 abbreviation. These are commonly referred to in the source and docs
 using "xxx" as a "wildcard" standing for any one of them. In this 
 document "***" is used instead because there are actual generic files
@@ -150,7 +150,7 @@ Now inscribe the second weapon:
 4) @w0  Wield when object 0 is chosen
 5)      (Hit Enter)
 
-Finally, T.o.M.E. (unlike standard 'Vanilla' Angband) does
+Finally, ToME (unlike standard 'Vanilla' Angband) does
 not have an automatic trigger key to swap items, so it must be
 created. Select a key that is not being used for any other commands
 ('X' in the normal keyset is free - see *****command.txt*0[command.txt]), and create
@@ -479,7 +479,7 @@ items on the floor.
 
 *****option.txt*1[(quick_messages)] allows any key to cancel a message.
 
-In T.o.M.E., multiple items on the floor are displayed in a list. 
+In ToME, multiple items on the floor are displayed in a list. 
 This allows the player to select an item from the floor by entering an 
 item index when there is a pile (more than one item). This generally 
 complicates writing these macros.
@@ -749,7 +749,7 @@ from previous ones.
 
 Here <$RACE> is the name of the character's race, <$CLASS> is the name 
 of its class, and <$PLAYER> is the character's name. Both <$RACE> and 
-<$CLASS> have a fixed number of choices. These are listed for T.o.M.E. 
+<$CLASS> have a fixed number of choices. These are listed for ToME 
 in section *****macrofaq.txt*7["Pref file loading order"].
 
 Your character's name is the one that appears during game play in the 
@@ -765,7 +765,7 @@ having the same (default) pref files.
 Example: "Grog the Elder" and "Grog the Younger" would both try to 
 load the same pref file "Grog_the.prf".
 
-In recent versions of T.o.M.E. "<$PLAYER>.prf" is the default filename 
+In recent versions of ToME "<$PLAYER>.prf" is the default filename 
 when saving your macros and keymaps from the (@) Interact with macros 
 screen. Just hit Enter to accept that name.
 
@@ -1125,7 +1125,7 @@ different from the "underlying" command set.
 
 #####B= Query Macro/Keymap =
 
-In T.o.M.E. this is easy:
+In ToME this is easy:
 1) @    Interact with macros
 2) 3    Query a macro
 OR 7    Query a keymap
@@ -1156,7 +1156,7 @@ it should usually generate a message of some kind. If there isn't one,
 it may respond: "Type '?' for help.". Some keys may not generate any 
 message at all. Function keys are a good example.
 
-In T.o.M.E., the game will also generate "silly" error messages 
+In ToME, the game will also generate "silly" error messages 
 which may not look like error messages at first. After a few repeated 
 key presses it uses the standard "Type '?' for help." message.
 
@@ -1442,7 +1442,7 @@ will reappear if the real inscription is removed.
 #####G----------------------------------------------------------------------
 
 These added when your character gets a "feeling" about an item.
-In T.o.M.E. these are "special" inscriptions, like "fake" inscriptions 
+In ToME these are "special" inscriptions, like "fake" inscriptions 
 above, which don't overwrite user inscriptions. They just hide user 
 inscriptions, which are still there.
 
@@ -1472,7 +1472,7 @@ are documented in *****command.txt*0["command.txt"].
 #####G8.1 Keysets
 #####G----------------------------------------------------------------------
 
-T.o.M.E. supports two "keysets", which are fully customizable sets of 
+ToME supports two "keysets", which are fully customizable sets of 
 keymaps. The "original" command set is close to the built-in commands, 
 with some additions for ease of use such as number keys moving you in 
 that direction. The "roguelike" command set allows easy movement on a 
@@ -1515,7 +1515,7 @@ b j n
 +<dir> - alter
 .<dir> - run
 
-Digits AREN'T built-in movement commands in T.o.M.E.. They are actually 
+Digits AREN'T built-in movement commands in ToME. They are actually 
 keymaps found in the standard pref file "pref.prf". The digits are 
 direction arguments to the (;) Walk command.
 
@@ -1719,10 +1719,10 @@ overwrite settings from earlier files.
 
 
 = $RACE =
-Can be one of any of the races in T.o.M.E..
+Can be one of any of the races in ToME.
 
 = $CLASS =
-Can be one of any of the classes in T.o.M.E..
+Can be one of any of the classes in ToME.
 
 = $PLAYER =
 The name of the current player being loaded or born. See section 
@@ -1733,7 +1733,7 @@ The name of the current player being loaded or born. See section
 
 "user-mac.prf"
 This is the only user pref file with example macros that ships with 
-T.o.M.E.. A good set of examples.
+ToME. A good set of examples.
 
 "pref-win.prf"
 This is the same as (missing) "pref-dos.prf" and "pref-ibm.prf".
@@ -2017,7 +2017,7 @@ you hit Enter.
 You may type in an action string to replace the one after the prompt.
 Hit Enter when you are finished.
 
-For T.o.M.E. you can quit the command assignment by hitting 
+For ToME you can quit the command assignment by hitting 
 Esc. The new action entered won't be assigned, and the previous one 
 will remain unaltered.
 
@@ -2214,7 +2214,7 @@ bound to it, that will fire when you try to enter a store.
     These are keys that shouldn't be bound to macros or have their 
     behavior altered.
 
-#####B= Keys with dangerous T.o.M.E. meanings =
+#####B= Keys with dangerous ToME meanings =
 (Q) Quit (commit suicide), (k) destroy item, (^A) Enter Debug mode...
 Using these as triggers is dangerous in case, for some reason, you 
 wind up in a situation where the macro hasn't loaded or is disabled. 
@@ -2250,7 +2250,7 @@ For example, if NumLock is on under X11 the 'X' macro won't work.
 #####G12.3 Recovering
 #####G----------------------------------------------------------------------
 
-Restarting T.o.M.E. clears all macros entered during the last session. 
+Restarting ToME clears all macros entered during the last session. 
 
 You can use "Load a pref file" in the "Interact with macros" screen to 
 reload a good set of prefs, overwriting bad ones being used. This will 

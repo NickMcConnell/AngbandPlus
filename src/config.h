@@ -168,6 +168,13 @@
 /* #define VERIFY_SAVEFILE */
 
 
+/*
+ * OPTION: Check version stamp when loading files in lib/data directory,
+ * or their source in lib/edit.
+ */
+/* # #define VERIFY_VERSION_STAMP */
+
+
 
 /*
  * OPTION: Hack -- Compile in support for "Cyborg" mode
@@ -401,7 +408,7 @@
 /*
  * OPTION: Create and use a hidden directory in the user's home directory
  * for storing pref-files and character-dumps.
- * Warning: T.o.M.E. chooses to use a different place from Vanilla 2.9.2
+ * Warning: Pern chooses to use a different place from Vanilla 2.9.2
  * and its friends.
  */
 #ifdef SET_UID
@@ -525,7 +532,7 @@
 # define VERIFY_TIMESTAMPS
 #endif
 
-/* T.o.M.E. options: */
+/* ToME options: */
 
 /* Should the player know his / her starting life rate? */
 /* #define SHOW_LIFE_RATE */
@@ -580,12 +587,6 @@
  * Only use for debugging purpose, otherwise you are a CHEATER
  */
 /* #define ALLOW_QUITING */
-
-/*
- * OPTION: Allow the monsters to illuminate the hallways with either
- * innate lite sources (light hounds, etc) or torches (mages, paladins, etc)
- */
-/* #define MONSTER_LITE */
 
 /*
  * Panic saves have a different name

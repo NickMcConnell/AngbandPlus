@@ -16,7 +16,7 @@
  */
 
 #include "angband.h"
-	
+
 
 /*
  * Save a "bones" file for a dead character
@@ -25,7 +25,7 @@
  */
 void make_bones(void)
 {
-#if 0 // DGDGDGDG
+#if 0 /* DGDGDGDG */
 	FILE *fp;
 
 	int i;
@@ -34,10 +34,10 @@ void make_bones(void)
 
 
 	/* Ignore wizards and borgs */
-        if (!(noscore & 0x00FF))
+	if (!(noscore & 0x00FF))
 	{
 		/* Ignore people who die in town */
-                if (dun_level)
+		if (dun_level)
 		{
 			int level;
 			char tmp[128];
@@ -46,12 +46,12 @@ void make_bones(void)
 			for (i = 0; i < 5; i++)
 			{
 				/* Ghost hovers near level of death. */
-                                if (i == 0) level = dun_level;
-                                else level = dun_level + 5 - damroll(2, 4);
+				if (i == 0) level = dun_level;
+				else level = dun_level + 5 - damroll(2, 4);
 				if (level < 1) level = randint(4);
 
 				/* XXX XXX XXX "Bones" name */
-                                sprintf(tmp, "bone%03d.%03d", dungeon_type, level);
+				sprintf(tmp, "bone%03d.%03d", dungeon_type, level);
 
 				/* Build the filename */
 				path_build(str, 1024, ANGBAND_DIR_BONE, tmp);
@@ -80,7 +80,7 @@ void make_bones(void)
 			if (!fp) return;
 
 			/* Save the info */
-                        fprintf(fp, "%s\n", player_name);
+			fprintf(fp, "%s\n", player_name);
 			fprintf(fp, "%d\n", p_ptr->mhp);
 			fprintf(fp, "%d\n", p_ptr->prace);
 			fprintf(fp, "%d\n", p_ptr->pclass);
@@ -92,11 +92,11 @@ void make_bones(void)
 #endif
 }
 
-#if 0 // DGDGDGDG
+#if 0 /* DGDGDGDG */
 /*
  * Ghost generation info
  */
- 
+
 static int ghost_race;
 static int ghost_class;
 
@@ -108,7 +108,7 @@ static char gb_name[32];
  */
 static void ghost_blow(int i, int m, int e, int d, int s)
 {
-        monster_race *g = &r_info[max_r_idx - 1];
+	monster_race *g = &r_info[max_r_idx - 1];
 
 	/* Save the data */
 	g->blow[i].method = m;
@@ -123,21 +123,21 @@ static void ghost_blow(int i, int m, int e, int d, int s)
  */
 static void set_ghost_aux_1(void)
 {
-        monster_race *r_ptr = &r_info[max_r_idx - 1];
+	monster_race *r_ptr = &r_info[max_r_idx - 1];
 
 	int i, d1, d2;
-    
+
 	int attack1, attack2;
-	
+
 	int lev = r_ptr->level;
 
 	int grace = ghost_race;
 	int gclass = ghost_class;
 
-        cptr gr_name = rp_name + race_info[grace].title;
-        cptr gc_name = class_info[grace].title;
-	
-    
+	cptr gr_name = rp_name + race_info[grace].title;
+	cptr gc_name = class_info[grace].title;
+
+
 	/* A wanderer from the town */
 	sprintf(r_name + r_ptr->name, "%s, the skeletal %s %s",
 	gb_name, gr_name, gc_name);
@@ -165,7 +165,7 @@ static void set_ghost_aux_1(void)
 
 	/* Extract an "immunity power" */
 	i = (lev / 5) + randint(5);
-	
+
 	/* Immunity (by level) */
 	switch ((i > 12) ? 12 : i)
 	{
@@ -201,10 +201,10 @@ static void set_ghost_aux_1(void)
 	{
 		/* Warrior */
 		case CLASS_WARRIOR:
-                case CLASS_UNBELIEVER:
-                case CLASS_ARCHER:
-                case CLASS_MONK:
-                case CLASS_SYMBIANT:
+		case CLASS_UNBELIEVER:
+		case CLASS_ARCHER:
+		case CLASS_MONK:
+		case CLASS_SYMBIANT:
 		{
 			r_ptr->freq_inate = r_ptr->freq_spell = 100 / 8;
 			r_ptr->flags4 |= (RF4_ARROW_1);
@@ -212,23 +212,23 @@ static void set_ghost_aux_1(void)
 			if (lev > 30) r_ptr->flags4 |= (RF4_ARROW_3);
 			if (lev > 45) r_ptr->flags4 |= (RF4_ARROW_4);
 
-                        /* Use a "player" color */
-                        r_ptr->d_attr = TERM_UMBER;
+			/* Use a "player" color */
+			r_ptr->d_attr = TERM_UMBER;
 			break;
 		}
 
 		/* Mage */
-                case CLASS_MAGE:
-                case CLASS_HIGH_MAGE:
-                case CLASS_POWERMAGE:
-                case CLASS_RUNECRAFTER:
-                case CLASS_HARPER:
-                case CLASS_SORCERER:
-                case CLASS_ILLUSIONIST:
-                case CLASS_DRUID:
-                case CLASS_NECRO:
-                case CLASS_ALCHEMIST:
-                case CLASS_CHAOS_WARRIOR:
+		case CLASS_MAGE:
+		case CLASS_HIGH_MAGE:
+		case CLASS_POWERMAGE:
+		case CLASS_RUNECRAFTER:
+		case CLASS_HARPER:
+		case CLASS_SORCERER:
+		case CLASS_ILLUSIONIST:
+		case CLASS_DRUID:
+		case CLASS_NECRO:
+		case CLASS_ALCHEMIST:
+		case CLASS_CHAOS_WARRIOR:
 		{
 			r_ptr->freq_inate = r_ptr->freq_spell = 100 / 2;
 			r_ptr->flags4 |= (RF4_ARROW_1);
@@ -248,8 +248,8 @@ static void set_ghost_aux_1(void)
 			if (lev > 60) r_ptr->flags5 |= (RF5_BA_MANA);
 			if (lev > 70) r_ptr->flags6 |= (RF6_S_HI_UNDEAD);
 
-                        /* Use a "player" color */
-                        r_ptr->d_attr = TERM_RED;
+			/* Use a "player" color */
+			r_ptr->d_attr = TERM_RED;
 			break;
 		}
 
@@ -266,8 +266,8 @@ static void set_ghost_aux_1(void)
 			if (lev > 30) r_ptr->flags5 |= (RF5_CAUSE_3);
 			if (lev > 35) r_ptr->flags5 |= (RF5_DRAIN_MANA);
 
-                        /* Use a "player" color */
-                        r_ptr->d_attr = TERM_L_BLUE;
+			/* Use a "player" color */
+			r_ptr->d_attr = TERM_L_BLUE;
 			break;
 		}
 
@@ -283,14 +283,14 @@ static void set_ghost_aux_1(void)
 			if (lev > 30) r_ptr->flags5 |= (RF5_HOLD);
 			if (lev > 35) r_ptr->flags6 |= (RF6_TELE_TO);
 
-                        /* Use a "player" color */
-                        r_ptr->d_attr = TERM_BLUE;
+			/* Use a "player" color */
+			r_ptr->d_attr = TERM_BLUE;
 			break;
 		}
 
 		/* Ranger */
-                case CLASS_RANGER:
-                case CLASS_WARLOCK:
+		case CLASS_RANGER:
+		case CLASS_WARLOCK:
 		{
 			r_ptr->freq_inate = r_ptr->freq_spell = 100 / 6;
 			r_ptr->flags4 |= (RF4_ARROW_1);
@@ -302,8 +302,8 @@ static void set_ghost_aux_1(void)
 			if (lev > 30) r_ptr->flags5 |= (RF5_BA_COLD);
 			if (lev > 35) r_ptr->flags5 |= (RF5_BA_FIRE);
 
-                        /* Use a "player" color */
-                        r_ptr->d_attr = TERM_GREEN;
+			/* Use a "player" color */
+			r_ptr->d_attr = TERM_GREEN;
 			break;
 		}
 
@@ -320,87 +320,87 @@ static void set_ghost_aux_1(void)
 			if (lev > 30) r_ptr->flags5 |= (RF5_CAUSE_3);
 			if (lev > 35) r_ptr->flags5 |= (RF5_DRAIN_MANA);
 
-                        /* Use a "player" color */
-                        r_ptr->d_attr = TERM_WHITE;
+			/* Use a "player" color */
+			r_ptr->d_attr = TERM_WHITE;
 			break;
 		}
 
-                /* Beastmaster */
-                case CLASS_BEASTMASTER:
-                case CLASS_DAEMONOLOGIST:
-                {
-                        r_ptr->freq_inate = r_ptr->freq_spell = 100 / 3;
-                        r_ptr->flags6 |= (RF6_S_KIN);
-                        if (lev > 10) r_ptr->flags6 |= (RF6_S_SPIDER);
-                        if (lev > 15) r_ptr->flags6 |= (RF6_S_MONSTERS);
-                        if (lev > 20) r_ptr->flags6 |= (RF6_S_HOUND);
-                        if (lev > 35) r_ptr->flags6 |= (RF6_S_DEMON);
-                        if (lev > 30) r_ptr->flags6 |= (RF6_S_UNDEAD);
-                        if (lev > 35) r_ptr->flags6 |= (RF6_S_DRAGON);
-                        if (lev > 40) r_ptr->flags6 |= (RF6_S_HI_UNDEAD);
-                        if (lev > 45) r_ptr->flags6 |= (RF6_S_HI_DRAGON);
+		/* Beastmaster */
+		case CLASS_BEASTMASTER:
+		case CLASS_DAEMONOLOGIST:
+		{
+			r_ptr->freq_inate = r_ptr->freq_spell = 100 / 3;
+			r_ptr->flags6 |= (RF6_S_KIN);
+			if (lev > 10) r_ptr->flags6 |= (RF6_S_SPIDER);
+			if (lev > 15) r_ptr->flags6 |= (RF6_S_MONSTERS);
+			if (lev > 20) r_ptr->flags6 |= (RF6_S_HOUND);
+			if (lev > 35) r_ptr->flags6 |= (RF6_S_DEMON);
+			if (lev > 30) r_ptr->flags6 |= (RF6_S_UNDEAD);
+			if (lev > 35) r_ptr->flags6 |= (RF6_S_DRAGON);
+			if (lev > 40) r_ptr->flags6 |= (RF6_S_HI_UNDEAD);
+			if (lev > 45) r_ptr->flags6 |= (RF6_S_HI_DRAGON);
 
-                        /* Use a "player" color */
-                        r_ptr->d_attr = TERM_UMBER;
+			/* Use a "player" color */
+			r_ptr->d_attr = TERM_UMBER;
 			break;
 		}
 
-                /* Mindcrafter */
-                case CLASS_MINDCRAFTER:
+		/* Mindcrafter */
+		case CLASS_MINDCRAFTER:
 		{
 			r_ptr->freq_inate = r_ptr->freq_spell = 100 / 4;
 			r_ptr->flags5 |= (RF5_CAUSE_1 | RF5_SCARE);
 			if (lev > 5) r_ptr->flags6 |= (RF6_HEAL);
-                        if (lev > 10) r_ptr->flags5 |= (RF5_MIND_BLAST);
-                        if (lev > 12) r_ptr->flags6 |= (RF6_FORGET);
-                        if (lev > 18) r_ptr->flags5 |= (RF5_BRAIN_SMASH);
+			if (lev > 10) r_ptr->flags5 |= (RF5_MIND_BLAST);
+			if (lev > 12) r_ptr->flags6 |= (RF6_FORGET);
+			if (lev > 18) r_ptr->flags5 |= (RF5_BRAIN_SMASH);
 			if (lev > 25) r_ptr->flags5 |= (RF5_CONF);
 			if (lev > 30) r_ptr->flags5 |= (RF5_CAUSE_3);
 			if (lev > 35) r_ptr->flags5 |= (RF5_DRAIN_MANA);
 
-                        /* Use a "player" color */
-                        r_ptr->d_attr = TERM_L_BLUE;
+			/* Use a "player" color */
+			r_ptr->d_attr = TERM_L_BLUE;
 			break;
 		}
 
-                /* Possessor */
-                case CLASS_POSSESSOR:
-                case CLASS_MIMIC:
+		/* Possessor */
+		case CLASS_POSSESSOR:
+		case CLASS_MIMIC:
 		{
-                        r_ptr->freq_inate = r_ptr->freq_spell = 100 / 4;
-                        if (lev > 7)  r_ptr->flags4 |= (RF4_BR_ELEC);
-                        if (lev > 10) r_ptr->flags4 |= (RF4_BR_COLD);
-                        if (lev > 18) r_ptr->flags4 |= (RF4_BR_ACID);
-                        if (lev > 25) r_ptr->flags4 |= (RF4_BR_FIRE);
-                        if (lev > 35) r_ptr->flags4 |= (RF4_BR_CHAO);
-                        if (lev > 45) r_ptr->flags4 |= (RF4_BR_TIME);
-                        r_ptr->flags1 |= (RF1_CHAR_MULTI);
-                        r_ptr->flags1 |= (RF1_ATTR_MULTI);
+			r_ptr->freq_inate = r_ptr->freq_spell = 100 / 4;
+			if (lev > 7)  r_ptr->flags4 |= (RF4_BR_ELEC);
+			if (lev > 10) r_ptr->flags4 |= (RF4_BR_COLD);
+			if (lev > 18) r_ptr->flags4 |= (RF4_BR_ACID);
+			if (lev > 25) r_ptr->flags4 |= (RF4_BR_FIRE);
+			if (lev > 35) r_ptr->flags4 |= (RF4_BR_CHAO);
+			if (lev > 45) r_ptr->flags4 |= (RF4_BR_TIME);
+			r_ptr->flags1 |= (RF1_CHAR_MULTI);
+			r_ptr->flags1 |= (RF1_ATTR_MULTI);
 
-                        /* Use a "player" color */
-                        r_ptr->d_attr = TERM_UMBER;
+			/* Use a "player" color */
+			r_ptr->d_attr = TERM_UMBER;
 			break;
 		}
 
-                default:
-                {
-                        /* Use a "player" color */
-                        r_ptr->d_attr = TERM_WHITE;
-                        break;
-                }
+		default:
+		{
+			/* Use a "player" color */
+			r_ptr->d_attr = TERM_WHITE;
+			break;
+		}
 	}
 
 
 	/* Racial properties */
 	if (grace == RACE_HALF_ORC) r_ptr->flags3 |= (RF3_ORC);
-        if (grace == RACE_KOBOLD) r_ptr->flags3 |= (RF3_ORC);
+	if (grace == RACE_KOBOLD) r_ptr->flags3 |= (RF3_ORC);
 	if (grace == RACE_HALF_TROLL) r_ptr->flags3 |= (RF3_TROLL);
-        if (grace == RACE_DRAGONRIDER) r_ptr->flags3 |= (RF3_DRAGONRIDER);
+	if (grace == RACE_DRAGONRIDER) r_ptr->flags3 |= (RF3_DRAGONRIDER);
 
 
 	/* Armor class */
 	r_ptr->ac = 15 + randint(15);
-	
+
 	/* Non mage/priest gets extra armor */
 	if ((gclass != CLASS_MAGE) && (gclass != CLASS_PRIEST))
 	{
@@ -432,7 +432,7 @@ static void set_ghost_aux_1(void)
 	    d2 = d2 / 2;
 	}
 
-        attack1 = attack2 = RBM_HIT;
+	attack1 = attack2 = RBM_HIT;
 
 	/* Extract attacks */
 	switch (gclass)
@@ -440,14 +440,14 @@ static void set_ghost_aux_1(void)
 
 		/* Warrior */
 		case CLASS_WARRIOR:
-                case CLASS_UNBELIEVER:
-                case CLASS_ARCHER:
-                case CLASS_MONK:
-                case CLASS_SYMBIANT:
-                case CLASS_BEASTMASTER:
-                case CLASS_DAEMONOLOGIST:
-                case CLASS_POSSESSOR:
-                case CLASS_MIMIC:
+		case CLASS_UNBELIEVER:
+		case CLASS_ARCHER:
+		case CLASS_MONK:
+		case CLASS_SYMBIANT:
+		case CLASS_BEASTMASTER:
+		case CLASS_DAEMONOLOGIST:
+		case CLASS_POSSESSOR:
+		case CLASS_MIMIC:
 		{
 			/* Sometimes increase damage */
 			if (lev >= 30) d2 = d2 * 2;
@@ -462,17 +462,17 @@ static void set_ghost_aux_1(void)
 		}
 
 		/* Mage */
-                case CLASS_MAGE:
-                case CLASS_HIGH_MAGE:
-                case CLASS_POWERMAGE:
-                case CLASS_RUNECRAFTER:
-                case CLASS_HARPER:
-                case CLASS_SORCERER:
-                case CLASS_ILLUSIONIST:
-                case CLASS_DRUID:
-                case CLASS_NECRO:
-                case CLASS_ALCHEMIST:
-                case CLASS_CHAOS_WARRIOR:
+		case CLASS_MAGE:
+		case CLASS_HIGH_MAGE:
+		case CLASS_POWERMAGE:
+		case CLASS_RUNECRAFTER:
+		case CLASS_HARPER:
+		case CLASS_SORCERER:
+		case CLASS_ILLUSIONIST:
+		case CLASS_DRUID:
+		case CLASS_NECRO:
+		case CLASS_ALCHEMIST:
+		case CLASS_CHAOS_WARRIOR:
 		case CLASS_MERCHANT:
 		{
 			/* Sometimes increase damage */
@@ -486,7 +486,7 @@ static void set_ghost_aux_1(void)
 
 		/* Priest */
 		case CLASS_PRIEST:
-                case CLASS_MINDCRAFTER:
+		case CLASS_MINDCRAFTER:
 		{
 			/* Sometimes increase damage */
 			if (lev >= 30) d2 = d2 * 3 / 2;
@@ -517,7 +517,7 @@ static void set_ghost_aux_1(void)
 
 		/* Ranger */
 		case CLASS_RANGER:
-                case CLASS_WARLOCK:
+		case CLASS_WARLOCK:
 		{
 			/* Sometimes increase damage */
 			if (lev >= 30) d2 = d2 * 2;
@@ -543,7 +543,7 @@ static void set_ghost_aux_1(void)
 			break;
 		}
 
-                default:
+		default:
 		{
 			/* Sometimes increase damage */
 			if (lev >= 30) d2 = d2 * 2;
@@ -566,13 +566,13 @@ static void set_ghost_aux_1(void)
  */
 static void set_ghost_aux_2(void)
 {
-        monster_race *r_ptr = &r_info[max_r_idx - 1];
+	monster_race *r_ptr = &r_info[max_r_idx - 1];
 
 	int lev = r_ptr->level;
 
 	int grace = ghost_race;
 
-        cptr gr_name = rp_name + race_info[grace].title;
+	cptr gr_name = rp_name + race_info[grace].title;
 
 
 	/* The ghost is cold blooded */
@@ -583,9 +583,9 @@ static void set_ghost_aux_2(void)
 
 	/* The ghost is immune to poison */
 	r_ptr->flags3 |= (RF3_IM_POIS);
-    
 
-                switch ((lev / 4) + randint(3))
+
+		switch ((lev / 4) + randint(3))
 		{
 			case 1: case 2: case 3:
 			{
@@ -596,10 +596,10 @@ static void set_ghost_aux_2(void)
 				r_ptr->flags3 |= (RF3_IM_COLD);
 				if (grace == RACE_HALF_ORC) r_ptr->flags3 |= (RF3_ORC);
 				if (grace == RACE_HALF_TROLL) r_ptr->flags3 |= (RF3_TROLL);
-                                if (grace == RACE_DRAGONRIDER) r_ptr->flags3 |= (RF3_DRAGONRIDER);
+				if (grace == RACE_DRAGONRIDER) r_ptr->flags3 |= (RF3_DRAGONRIDER);
 				r_ptr->ac = 26;
 				r_ptr->speed = 110;
-				
+
 				ghost_blow(0, RBM_HIT, RBE_HURT, 2, 6);
 				ghost_blow(1, RBM_HIT, RBE_HURT, 2, 6);
 
@@ -615,7 +615,7 @@ static void set_ghost_aux_2(void)
 				r_ptr->flags2 |= (RF2_OPEN_DOOR | RF2_BASH_DOOR);
 				if (grace == RACE_HALF_ORC) r_ptr->flags3 |= (RF3_ORC);
 				if (grace == RACE_HALF_TROLL) r_ptr->flags3 |= (RF3_TROLL);
-                                if (grace == RACE_DRAGONRIDER) r_ptr->flags3 |= (RF3_DRAGONRIDER);
+				if (grace == RACE_DRAGONRIDER) r_ptr->flags3 |= (RF3_DRAGONRIDER);
 				r_ptr->ac = 30;
 				r_ptr->speed = 110;
 				r_ptr->hside *= 2;
@@ -634,19 +634,19 @@ static void set_ghost_aux_2(void)
 				r_ptr->flags2 |= (RF2_OPEN_DOOR | RF2_BASH_DOOR);
 				if (grace == RACE_HALF_ORC) r_ptr->flags3 |= (RF3_ORC);
 				if (grace == RACE_HALF_TROLL) r_ptr->flags3 |= (RF3_TROLL);
-                                if (grace == RACE_DRAGONRIDER) r_ptr->flags3 |= (RF3_DRAGONRIDER);
+				if (grace == RACE_DRAGONRIDER) r_ptr->flags3 |= (RF3_DRAGONRIDER);
 				r_ptr->ac = 35;
 				r_ptr->speed = 110;
 				r_ptr->hside *= 2;
 				r_ptr->mexp = (r_ptr->mexp * 3) / 2;
-	
+
 				ghost_blow(0, RBM_HIT, RBE_HURT, 3, 8);
 				ghost_blow(1, RBM_HIT, RBE_HURT, 3, 8);
 				ghost_blow(2, RBM_HIT, RBE_HURT, 3, 8);
-	
+
 				break;
 			}
-	
+
 			case 8:
 			{
 				sprintf(r_name + r_ptr->name, "%s, the Poltergeist", gb_name);
@@ -658,15 +658,15 @@ static void set_ghost_aux_2(void)
 				r_ptr->ac = 20;
 				r_ptr->speed = 130;
 				r_ptr->mexp = (r_ptr->mexp * 3) / 2;
-	
+
 				ghost_blow(0, RBM_HIT, RBE_HURT, 2, 6);
 				ghost_blow(1, RBM_HIT, RBE_HURT, 2, 6);
 				ghost_blow(2, RBM_TOUCH, RBE_TERRIFY, 0, 0);
 				ghost_blow(3, RBM_TOUCH, RBE_TERRIFY, 0, 0);
-	
+
 				break;
 			}
-	
+
 			case 9: case 10:
 			{
 				sprintf(r_name + r_ptr->name, "%s, the Spirit", gb_name);
@@ -679,15 +679,15 @@ static void set_ghost_aux_2(void)
 				r_ptr->speed = 110;
 				r_ptr->hside *= 2;
 				r_ptr->mexp = r_ptr->mexp * 3;
-	
+
 				ghost_blow(0, RBM_TOUCH, RBE_LOSE_WIS, 2, 6);
 				ghost_blow(1, RBM_TOUCH, RBE_LOSE_DEX, 2, 6);
 				ghost_blow(2, RBM_HIT, RBE_HURT, 4, 6);
 				ghost_blow(3, RBM_WAIL, RBE_TERRIFY, 0, 0);
-	
+
 				break;
 			}
-	
+
 			case 11:
 			{
 				sprintf(r_name + r_ptr->name, "%s, the Ghost", gb_name);
@@ -702,15 +702,15 @@ static void set_ghost_aux_2(void)
 				r_ptr->speed = 120;
 				r_ptr->hside *= 2;
 				r_ptr->mexp = (r_ptr->mexp * 7) / 2;
-	
+
 				ghost_blow(0, RBM_WAIL, RBE_TERRIFY, 0, 0);
 				ghost_blow(1, RBM_TOUCH, RBE_EXP_20, 0, 0);
 				ghost_blow(2, RBM_CLAW, RBE_LOSE_INT, 2, 6);
 				ghost_blow(3, RBM_CLAW, RBE_LOSE_WIS, 2, 6);
-	
+
 				break;
 			}
-	
+
 			case 12:
 			{
 				sprintf(r_name + r_ptr->name, "%s, the Vampire", gb_name);
@@ -726,14 +726,14 @@ static void set_ghost_aux_2(void)
 				r_ptr->speed = 110;
 				r_ptr->hside *= 3;
 				r_ptr->mexp = r_ptr->mexp * 3;
-	
+
 				ghost_blow(0, RBM_HIT, RBE_HURT, 5, 8);
 				ghost_blow(1, RBM_HIT, RBE_HURT, 5, 8);
 				ghost_blow(2, RBM_BITE, RBE_EXP_40, 0, 0);
-	
+
 				break;
 			}
-	
+
 			case 13:
 			{
 				sprintf(r_name + r_ptr->name, "%s, the Wraith", gb_name);
@@ -749,14 +749,14 @@ static void set_ghost_aux_2(void)
 				r_ptr->speed = 120;
 				r_ptr->hside *= 3;
 				r_ptr->mexp = r_ptr->mexp * 5;
-	
+
 				ghost_blow(0, RBM_HIT, RBE_HURT, 6, 8);
 				ghost_blow(1, RBM_HIT, RBE_HURT, 6, 8);
 				ghost_blow(2, RBM_TOUCH, RBE_EXP_20, 0, 0);
-	
+
 				break;
 			}
-	
+
 			case 14:
 			{
 				sprintf(r_name + r_ptr->name, "%s, the Vampire Lord", gb_name);
@@ -773,15 +773,15 @@ static void set_ghost_aux_2(void)
 				r_ptr->hside *= 2;
 				r_ptr->hdice *= 2;
 				r_ptr->mexp = r_ptr->mexp * 20;
-	
+
 				ghost_blow(0, RBM_HIT, RBE_HURT, 6, 8);
 				ghost_blow(1, RBM_HIT, RBE_HURT, 6, 8);
 				ghost_blow(2, RBM_HIT, RBE_HURT, 6, 8);
 				ghost_blow(3, RBM_BITE, RBE_EXP_80, 0, 0);
-	
+
 				break;
 			}
-	
+
 			case 15:
 			{
 				sprintf(r_name + r_ptr->name, "%s, the Ghost", gb_name);
@@ -796,15 +796,15 @@ static void set_ghost_aux_2(void)
 				r_ptr->speed = 130;
 				r_ptr->hside *= 3;
 				r_ptr->mexp = r_ptr->mexp * 20;
-	
+
 				ghost_blow(0, RBM_WAIL, RBE_TERRIFY, 0, 0);
 				ghost_blow(1, RBM_TOUCH, RBE_EXP_20, 0, 0);
 				ghost_blow(2, RBM_CLAW, RBE_LOSE_INT, 2, 6);
 				ghost_blow(3, RBM_CLAW, RBE_LOSE_WIS, 2, 6);
-	
+
 				break;
 			}
-	
+
 			case 17:
 			{
 				sprintf(r_name + r_ptr->name, "%s, the Lich", gb_name);
@@ -823,15 +823,15 @@ static void set_ghost_aux_2(void)
 				r_ptr->hside *= 3;
 				r_ptr->hdice *= 2;
 				r_ptr->mexp = r_ptr->mexp * 50;
-	
+
 				ghost_blow(0, RBM_TOUCH, RBE_LOSE_DEX, 4, 12);
 				ghost_blow(1, RBM_TOUCH, RBE_LOSE_DEX, 4, 12);
 				ghost_blow(2, RBM_TOUCH, RBE_UN_POWER, 0, 0);
 				ghost_blow(3, RBM_TOUCH, RBE_EXP_40, 0, 0);
-	
+
 				break;
 			}
-	
+
 			default:
 			{
 				sprintf(r_name + r_ptr->name, "%s, the Ghost", gb_name);
@@ -849,12 +849,12 @@ static void set_ghost_aux_2(void)
 				r_ptr->hside *= 2;
 				r_ptr->hdice *= 2;
 				r_ptr->mexp = r_ptr->mexp * 30;
-	
+
 				ghost_blow(0, RBM_WAIL, RBE_TERRIFY, 0, 0);
 				ghost_blow(1, RBM_TOUCH, RBE_EXP_20, 0, 0);
 				ghost_blow(2, RBM_CLAW, RBE_LOSE_INT, 2, 6);
 				ghost_blow(3, RBM_CLAW, RBE_LOSE_WIS, 2, 6);
-	
+
 				break;
 			}
 		}
@@ -897,7 +897,7 @@ static void set_ghost(cptr pname, int hp, int grace, int gclass, int lev, bool t
 {
 	int i;
 
-        monster_race *r_ptr = &r_info[max_r_idx - 1];
+	monster_race *r_ptr = &r_info[max_r_idx - 1];
 
 	/* Ghosts are too weak otherwise */
 	hp *= 2;
@@ -910,21 +910,21 @@ static void set_ghost(cptr pname, int hp, int grace, int gclass, int lev, bool t
 
 	/* Terminate the name */
 	gb_name[i] = '\0';
-	
+
 	/* Force a name */
 	if (!gb_name[1]) strcpy(gb_name, "Nobody");
-    
+
 	/* Capitalize the name */
 	if (islower(gb_name[0])) gb_name[0] = toupper(gb_name[0]);
 
 
 	/* Clear the normal flags */
-        r_ptr->flags1 = r_ptr->flags2 = r_ptr->flags3 = r_ptr->flags7 = r_ptr->flags8 = r_ptr->flags9 = 0L;
+	r_ptr->flags1 = r_ptr->flags2 = r_ptr->flags3 = r_ptr->flags7 = r_ptr->flags8 = r_ptr->flags9 = 0L;
 
 	/* Clear the spell flags */
 	r_ptr->flags4 = r_ptr->flags5 = r_ptr->flags6 = 0L;
 
-    
+
 	/* Clear the attacks */
 	ghost_blow(0, 0, 0, 0, 0);
 	ghost_blow(1, 0, 0, 0, 0);
@@ -965,8 +965,8 @@ static void set_ghost(cptr pname, int hp, int grace, int gclass, int lev, bool t
 	/* Cannot be slept or confused */
 	r_ptr->flags3 |= (RF3_NO_SLEEP | RF3_NO_CONF);
 
-        /* All ghosts are undeads */
-        r_ptr->flags3 |= RF3_UNDEAD;
+	/* All ghosts are undeads */
+	r_ptr->flags3 |= RF3_UNDEAD;
 
 
 	/* Save the race and class */
@@ -996,21 +996,21 @@ static void set_ghost(cptr pname, int hp, int grace, int gclass, int lev, bool t
  */
 s16b place_ghost(void)
 {
-#if 0 // DGDGDGDG
-        int y, x, hp, level, grace, gclass;
+#if 0 /* DGDGDGDG */
+	int y, x, hp, level, grace, gclass;
 
-        monster_race *r_ptr = &r_info[max_r_idx - 1];
+	monster_race *r_ptr = &r_info[max_r_idx - 1];
 
 	FILE *fp;
 
 	bool err = FALSE;
 	bool town = FALSE;
-    
+
 	char                name[100];
 	char                tmp[1024];
 
 	/* Hack -- no ghosts in the town */
-        if (!dun_level) return (FALSE);
+	if (!dun_level) return (FALSE);
 
 	/* Already have a ghost */
 	if (r_ptr->cur_num >= r_ptr->max_num)
@@ -1022,18 +1022,18 @@ s16b place_ghost(void)
 	else
 	{
 		/* And even then, it only happens sometimes */
-                if (14 > randint((dun_level / 2) + 11)) return (FALSE);
+		if (14 > randint((dun_level / 2) + 11)) return (FALSE);
 
-                /* Only a 45% chance */
-                if (magik(45)) return (FALSE);
+		/* Only a 45% chance */
+		if (magik(45)) return (FALSE);
 
 		/* Level is dungeon level */
-                level = dun_level;
+		level = dun_level;
 	}
 
 
 	/* Choose a bones file */
-        sprintf(tmp, "%s%sbone%03d.%03d", ANGBAND_DIR_BONE, PATH_SEP, dungeon_type, level);
+	sprintf(tmp, "%s%sbone%03d.%03d", ANGBAND_DIR_BONE, PATH_SEP, dungeon_type, level);
 
 	/* Open the bones file */
 	fp = my_fopen(tmp, "r");
@@ -1079,14 +1079,14 @@ s16b place_ghost(void)
 	{
 
 		/* Pick a location */
-                y = randint(cur_hgt - 2);
-                x = randint(cur_wid - 2);
+		y = randint(cur_hgt - 2);
+		x = randint(cur_wid - 2);
 
 		/* Require "naked" floor grid */
 		if (!cave_empty_bold(y,x)) continue;
 
 		/* Accept far away grids */
-                if (distance(py, px, y, x) > MAX_SIGHT + 5) break;
+		if (distance(py, px, y, x) > MAX_SIGHT + 5) break;
 	}
 
 
@@ -1095,7 +1095,7 @@ s16b place_ghost(void)
 	r_ptr->cur_num = 0;
 	r_ptr->max_num = 1;
 
-        if (!place_monster_one(y, x, max_r_idx - 1, 0, FALSE, MSTATUS_ENEMY))
+	if (!place_monster_one(y, x, max_r_idx - 1, 0, FALSE, MSTATUS_ENEMY))
 	{
 		return FALSE;
 	}

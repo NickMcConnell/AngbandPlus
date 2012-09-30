@@ -45,7 +45,7 @@ a numeric digit '#' selects the first item (if any) whose inscription contains
 specify items which are "legal" for the command.  Whenever an item inscription
 contains "!*" or "!x" (with "x" as above) you must verify its selection.
 
-    In T.o.M.E., there are items which occasionally teleport you away, asking
+    In ToME, there are items which occasionally teleport you away, asking
 for permission first. The recurring "Teleport (y/n)?" can be annoying, and
 this behavior can be eliminated by inscribing the object which causes the
 teleportation with "." (or any inscription containing the character ".").
@@ -90,7 +90,7 @@ that you can always, for example, use "\" + "." + "6", to specify "run east".
  *****command.txt*7[d  Drop an item]                         *****command.txt*8[D  Disarm a trap]
  *****command.txt*9[e  Equipment list]                       *****command.txt*10[E  Eat some food]
  *****command.txt*11[f  Fire an item]                         *****command.txt*12[F  Fuel your lantern/torch]
- *****command.txt*13[g  Stay still (flip pickup)]             *****command.txt*14[G  Gain new spells/prayers]
+ *****command.txt*13[g  Stay still (flip pickup)]             *****command.txt*14[G  Gain new skills]
  *****command.txt*15[h  Hack up a corpse]                     *****command.txt*16[H  Drink from a fountain]
  *****command.txt*17[i  Inventory list]                       *****command.txt*18[I  Observe an item]
  *****command.txt*19[j  Jam a door]                           J  (unused)
@@ -105,15 +105,15 @@ that you can always, for example, use "\" + "." + "6", to specify "run east".
  *****command.txt*34[s  Search for traps/doors]               *****command.txt*35[S  Toggle search mode]
  *****command.txt*36[t  Take off equipment]                   *****command.txt*37[T  Dig a tunnel]
  *****command.txt*38[u  Use a staff]                          *****command.txt*39[U  Use bonus power (if any)]
- *****command.txt*40[v  Throw an item]                        *****command.txt*96[Y  Chat]
+ *****command.txt*40[v  Throw an item]                        *****command.txt*41[V  Version Info]
  *****command.txt*42[w  Wear/wield equipment]                 W  (unused)
  *****command.txt*43[x  Engrave the floor]                    X  (unused)
- *****command.txt*44[y  Give item to monster]                 *****command.txt*41[Y  Version info]
+ *****command.txt*44[y  Give item to monster]                 *****command.txt*96[Y  Chat]
  *****command.txt*45[z  Zap a rod]                            *****command.txt*46[Z  Steal]
  *****command.txt*47[!  Interact with system]                ^A  (special - debug command)
  *****command.txt*49[@  Interact with macros]                ^B  (unused)
  #  (unused)                            ^C  (special - break)
- $  (unused)                            ^D  (unused)
+ $  Interact with the skills            ^D  (unused)
  *****command.txt*51[%  Interact with visuals]               *****command.txt*52[^E  Toggle choice window]
  ^  (special - control key)             *****command.txt*53[^F  Repeat level feeling]
  *****command.txt*54[&  Interact with colors]                ^G  (unused)
@@ -150,7 +150,7 @@ that you can always, for example, use "\" + "." + "6", to specify "run east".
  *****command.txt*7[d  Drop an item]                         *****command.txt*8[D  Disarm a trap or chest]
  *****command.txt*9[e  Equipment list]                       *****command.txt*10[E  Eat some food]
  *****command.txt*4[f  Bash a door (force)]                  *****command.txt*12[F  Fuel your lantern/torch]
- *****command.txt*13[g  Stay still (flip pickup)]             *****command.txt*14[G  Gain new spells/prayers]
+ *****command.txt*13[g  Stay still (flip pickup)]             *****command.txt*14[G  Gain new skills]
  *****command.txt*95[h  (walk - west)]                        *****command.txt*95[H  (run - west)]
  *****command.txt*17[i  Inventory list]                       *****command.txt*18[I  Observe an item]
  *****command.txt*95[j  (walk - south)]                       *****command.txt*95[J  (run - south)]
@@ -198,9 +198,7 @@ that you can always, for example, use "\" + "." + "6", to specify "run east".
  *****command.txt*77[>  Go down staircase]                   ^Z  (special - borg command)
  *****command.txt*79[\  (special - bypass keymap)]            *****command.txt*80[|  Do cmovies]
  *****command.txt*81[`  (special - escape)]                   *****command.txt*82[~  Check artifacts, uniques, objects]
- *****command.txt*81[/  Identify symbol]                      *****command.txt*84[?  Help]
- *****command.txt*82[$  Chat]
-
+ *****command.txt*83[/  Identify symbol]                      *****command.txt*84[?  Help]
 
 
 #####R=== Special Keys ===
@@ -400,7 +398,7 @@ the nearest monster.
 
       More detailed information about specific macros can be found in
 *****macrofaq.txt*0[macrofaq.txt], originally written by Jim Lyon (jplyon@attglobal.net),
-modified for T.o.M.E. with Jim's permission by Dawnmist 
+modified for ToME with Jim's permission by Dawnmist 
 (angband@dawnmist.8m.com).
 
 #####G--- User Pref Files (Keymaps) ---
@@ -722,41 +720,25 @@ for a quantity will convert any "letters" into the maximal legal value.
         such as their level, the amount of mana required to cast them, and
         whether or not you know the spell or prayer.
 ~~~~~14
-[[[[[GGain new spells or prayers (G)]
-        Use this command to actually learn new spells or prayers.  When you
-        are able to learn new spells or prayers, the word "Study" will appear
-        on the status line at the bottom of the screen.  If you have a book
-        in your possession, containing spells or prayers which you may learn,
-        then you may choose to study that book.  If you are a mage, rogue, or
-        ranger, you may actually choose which spell to study.  If you are a
-        priest or paladin, your gods will choose a prayer for you.  There are
-        nine books of each type, some normally found only in the dungeon.
+[[[[[GGain new skills (G)]
+        Use this command to access the skills menu and spend the skill points
+        you gain at each new character level to increase the range of things 
+        your character is able to do.
 ~~~~~24
 [[[[[GCast a spell / Pray a prayer (m) / Use a mental power]
-        To cast a spell, you must have previously learned the spell and
-        must have in your inventory a book from which the spell can be
-        read.  Each spell has a chance of failure which starts out fairly
-        large but decreases as you gain levels.  If you don't have enough
-        mana to cast a spell, you will be prompted for confirmation.  If
-        you decide to go ahead, the chance of failure is greatly increased,
-        and you may lose a point of constitution.  Since you must read the
-        spell from a book, you cannot be blind or confused while casting,
-        and there must be some light present.
+        To cast a spell or prayer, you must have the skill level required in 
+        that school of magic to be able access that spell, and a book that 
+        contains that spell in your inventory (for most schools). Each spell 
+        has a chance of failure which starts out fairly large but decreases 
+        as you gain levels.  If you don't have enough mana to cast a spell, 
+        you will be told you do not have enough mana to cast it. Since in most
+        cases you must read the spell from a book, you cannot be blind or 
+        confused while casting, and there must be some light present.
 
-        To pray effectively, you must have previously learned the prayer
-        and must have in your inventory a book from which the prayer can
-        be read.  Each prayer has a chance of being ignored which starts
-        out fairly large but decreases as you gain levels.  If you don't
-        have enough mana to cast a spell, you will be prompted for
-        confirmation.  If you decide to go ahead, the chance of failure
-        is greatly increased, and you may lose a point of constitution.
-        Since you must read the prayer from a book, you cannot be blind
-        or confused while praying, and there must be some light present.
-
-        Some classes (for example, possessors and alchemists) have the 
-        ability to use some magic without actually needing spell books of 
-        any sort. These classes are able to access their magical powers 
-        through the use of the 'm' command.
+        Some classes (for example, Thaumaturgists) have the ability to use 
+        some magic without actually needing spell books of any sort. These 
+        classes are able to access their magical powers through the use of 
+        the 'm' command.
 ~~~~~39
 [[[[[GUse bonus power (if any) (U) or (O)]
         Some races and classes have special natural abilities. All of these
@@ -818,7 +800,7 @@ for a quantity will convert any "letters" into the maximal legal value.
         This command removes the inscription on an object.  This command will
         have no effect on "fake" inscriptions added by the game itself.
 ~~~~~15
-[[[[[GHack up a corpse (h)]
+[[[[[GHack up a corpse (h or $)]
         Corpses can be cut up into smaller pieces of meat, allowing the user to
         eat the meat, or cure it for later use.
 ~~~~~21
@@ -827,9 +809,9 @@ for a quantity will convert any "letters" into the maximal legal value.
         protect meat from hacked-up corpses from going bad.
 ~~~~~16
 [[[[[GDrink from a fountain (H)]
-        All fountains in T.o.M.E. are magical, and act like magical potions.
-        Unlike potions, however, it is not possible to identify the type of
-        fountain before drinking from it.
+        All fountains in Pern are magical, and act like magical potions. Unlike
+        potions, however, it is not possible to identify the type of fountain
+        before drinking from it.
 ~~~~~44
 [[[[[GGive item to monster (y)]
         This command is used to give an item within your inventory to a monster
@@ -838,7 +820,7 @@ for a quantity will convert any "letters" into the maximal legal value.
 ~~~~~96
 [[[[[GChat (Y)]
         This command allows you to chat with someone. Be warned that most
-        monsters wont chat
+        monsters won't chat
 
 #####R---  Magical Object Commands ---
 ~~~~~2
@@ -1177,7 +1159,7 @@ for a quantity will convert any "letters" into the maximal legal value.
         "dump.txt", including encoded color information.
 ~~~~~64
 [[[[[GQuit to next midi song (^Q)]
-        In the DOS binary (and maybe Windows) of T.o.M.E., it is possible for
+        In the DOS binary (and maybe Windows) of ToME, it is possible for
         the game to play any midi song in the lib/xtra/music directory. This
         command allows the player to force the game to finish the current song
         and move on to another one (i.e. if you are tired of hearing the current

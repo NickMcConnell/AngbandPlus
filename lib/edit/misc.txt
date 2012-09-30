@@ -17,7 +17,7 @@ M:Z:516
 
 # Maximum number of monsters in r_info.txt
 # WARNING ! add one more to the real count for the player ghost !!
-M:R:1045
+M:R:1046
 
 # Maximum number of monsters in re_info.txt
 M:r:12
@@ -74,7 +74,10 @@ M:P:S:9
 M:P:C:32
 
 # Maximum number of meta class types in p_info.txt
-M:P:M:5
+M:P:M:1
 
 # Maximum number of histories types in p_info.txt
 M:P:H:361
+
+# Maximum number of skills in s_info.txt
+M:k:57

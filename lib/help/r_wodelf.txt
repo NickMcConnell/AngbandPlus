@@ -7,7 +7,7 @@ neglecting even melee skills. They resist light as with other elves, and
 do extra damage with a ranged weapon. They are almost custom made for the 
 archer class, but also make interesting warriors and rogues. Even Wood Elf
 Mages are feasible, using the bow to attack and saving their magic for 
-defense.
+defence.
 
 #####GStat Modifiers
 Strength        -3   

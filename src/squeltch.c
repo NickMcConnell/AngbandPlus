@@ -5,28 +5,30 @@
  */
 
 
-/* Issues to consider:
-
-1. Artifacts are never destroyed == Possible abuse
-2. Fixed!  
-3. Performance? - the squeltch_? calls are called a _lot_ but I think
-   they are pretty fast. No noticable lag on my PII. Probably Negligable.
-4. Probably a bit verbose at times but (hopefully) readable.
-5. Adjustment of the aware property for object kinds. If non-flavoured items
-   are not made aware of until the character steps on one/buys one then the
-   squeltch menu will not spoil the player with things to come.	Not setting
-   non-flavoured items aware property to true at the beginning of a game
-   does not, as far as I can tell, make any difference.
-6. Nasty assumptions are made about the #define's i.e. if (k_ptr->squeltch>DESTROY_ALL)
-   Changing the defines for ITEM_? DESTROY_? SENSE_? can have
-   a nasty effect on this module.
-7. No more room in ITEM_POTION1! (Well not for the screen anyway!)
-8. New tval types can easily be integrated into existing categories by adding to 
-   init_categories().
-9. New categories can be created by adding new ITEM_? defines, and adding to the
-   string array categories[]. They will default to destroy none/all only without 
-   extra help.
-*/
+/*
+ * Issues to consider:
+ *
+ * 1. Artifacts are never destroyed == Possible abuse
+ * 2. Fixed!  
+ * 3. Performance? - the squeltch_? calls are called a _lot_ but I think
+ *    they are pretty fast. No noticable lag on my PII. Probably Negligable.
+ * 4. Probably a bit verbose at times but (hopefully) readable.
+ * 5. Adjustment of the aware property for object kinds. If non-flavoured items
+ *    are not made aware of until the character steps on one/buys one then the
+ *    squeltch menu will not spoil the player with things to come.	Not setting
+ *    non-flavoured items aware property to true at the beginning of a game
+ *    does not, as far as I can tell, make any difference.
+ * 6. Nasty assumptions are made about the #define's i.e.
+ *    if (k_ptr->squeltch>DESTROY_ALL)
+ *    Changing the defines for ITEM_? DESTROY_? SENSE_? can have
+ *    a nasty effect on this module.
+ * 7. No more room in ITEM_POTION1! (Well not for the screen anyway!)
+ * 8. New tval types can easily be integrated into existing categories by
+ *    adding to init_categories().
+ * 9. New categories can be created by adding new ITEM_? defines, and adding to
+ *    the string array categories[]. They will default to destroy none/all only
+ *    without extra help.
+ */
 
 
 #include "angband.h"
@@ -94,17 +96,17 @@ static int cat_type[256];
 
 static cptr categories[] =
 {
-        NULL,"Swords","Polearms","Blunt Weapons","Axe","Daemon Books",
-        "Bows","Ammo","Dig/M.Staff/Boom/Trap",
-        "Body Armour","Dragon Armour","Other Armour",
-        "Rings","Amulets",
-        "Potions", "Potions(2!)","Scrolls",
-        "Rods","Staffs","Wands",
-        "Food","Boring Stuff", "Firestones","Essences","Parchments",
-        "Instruments","Runes","Stones",
-        "Spirit Books","Songbooks","Symbiotic Books","Valarin Books","Magery Books",
-        "Shadow Books","Chaos Books","Nether Books","Crusade Books","Sigaldry Books",
-        "Magic Books","Prayer Books","Illusion Books","Tribal Books","Corpses"
+	NULL,"Swords","Polearms","Blunt Weapons","Axe","Daemon Books",
+	"Bows","Ammo","Dig/M.Staff/Boom/Trap",
+	"Body Armour","Dragon Armour","Other Armour",
+	"Rings","Amulets",
+	"Potions", "Potions(2!)","Scrolls",
+	"Rods","Staffs","Wands",
+	"Food","Boring Stuff", "Firestones","Essences","Parchments",
+	"Instruments","Runes","Stones",
+	"Spirit Books","Songbooks","Symbiotic Books","Valarin Books","Magery Books",
+	"Shadow Books","Chaos Books","Nether Books","Crusade Books","Sigaldry Books",
+	"Magic Books","Prayer Books","Illusion Books","Tribal Books","Corpses"
 };
 
 static bool sq_init = FALSE;	
@@ -146,7 +148,7 @@ static void get_plural_name(char *buf, int k_idx)
 		{
 			/* 'es' suffix for stuff ending in 's' or 'h' */
 			if ((*(t-1)=='s') || (*(t-1)=='h')) *t++ = 'e';
-		
+
 			*t++ = 's';
 		}
 	}
@@ -161,9 +163,9 @@ static void init_categories(void)
 
 	/* C_WIPE? */
 	for (i = 1; i < 256; i++) cat_type[i]=0;
-	
+
 	/* Stuff to hurt with */
-        cat_type[TV_AXE]=ITEM_AXE;
+	cat_type[TV_AXE]=ITEM_AXE;
 	cat_type[TV_SWORD]=ITEM_SWORD;
 	cat_type[TV_POLEARM]=ITEM_HAFTED;
 	cat_type[TV_HAFTED]=ITEM_BLUNT;
@@ -174,8 +176,8 @@ static void init_categories(void)
 	cat_type[TV_DIGGING]=ITEM_DIGGER;
 	cat_type[TV_MSTAFF]=ITEM_DIGGER;
 	cat_type[TV_BOOMERANG]=ITEM_DIGGER;
-        cat_type[TV_TRAPKIT]=ITEM_DIGGER;
-	
+	cat_type[TV_TRAPKIT]=ITEM_DIGGER;
+
 	/* Stuff to protect me */
 	cat_type[TV_SOFT_ARMOR]=ITEM_BODY_ARMOUR;
 	cat_type[TV_HARD_ARMOR]=ITEM_BODY_ARMOUR;
@@ -194,7 +196,7 @@ static void init_categories(void)
 	cat_type[TV_POTION2]=ITEM_POTION2;
 	cat_type[TV_SCROLL]=ITEM_SCROLL;
 	cat_type[TV_ROD]=ITEM_ROD;
-        cat_type[TV_ROD_MAIN]=ITEM_ROD;
+	cat_type[TV_ROD_MAIN]=ITEM_ROD;
 	cat_type[TV_STAFF]=ITEM_STAFF;
 	cat_type[TV_WAND]=ITEM_WAND;
 
@@ -217,19 +219,7 @@ static void init_categories(void)
 	cat_type[TV_RUNE2]=ITEM_RUNE;
 	cat_type[TV_DRUID_BOOK]=ITEM_STONE;
 	cat_type[TV_MUSIC_BOOK]=ITEM_BOOK_SONG;
-        cat_type[TV_SPIRIT_BOOK]=ITEM_BOOK_SPIR;
 	cat_type[TV_SYMBIOTIC_BOOK]=ITEM_BOOK_SYMB;
-	cat_type[TV_VALARIN_BOOK]=ITEM_BOOK_VALA;
-	cat_type[TV_MAGERY_BOOK]=ITEM_BOOK_MAGE;
-	cat_type[TV_SHADOW_BOOK]=ITEM_BOOK_SHAD;
-	cat_type[TV_CHAOS_BOOK]=ITEM_BOOK_CHAO;
-	cat_type[TV_NETHER_BOOK]=ITEM_BOOK_NETH;
-	cat_type[TV_CRUSADE_BOOK]=ITEM_BOOK_CRUS;
-	cat_type[TV_SIGALDRY_BOOK]=ITEM_BOOK_SIGA;
-	cat_type[TV_MAGIC_BOOK]=ITEM_BOOK_MAGI;
-	cat_type[TV_PRAYER_BOOK]=ITEM_BOOK_PRAY;
-	cat_type[TV_ILLUSION_BOOK]=ITEM_BOOK_ILLU;
-	cat_type[TV_TRIBAL_BOOK]=ITEM_BOOK_TRIB;
 	cat_type[TV_DAEMON_BOOK]=ITEM_BOOK_DAEM;
 
 	sq_init=TRUE;
@@ -311,7 +301,7 @@ void do_cmd_squeltch_options(void)
 			row = 2 + (i % 14);
 			col = 30 * (i / 14);
 			ch = listsym[i];
-			 
+
 			prt(format("[%c] %s", ch, categories[toshow[i]]), row, col);
 		}
 
@@ -319,7 +309,7 @@ void do_cmd_squeltch_options(void)
 
 		roff("Select a letter to enter a submenu where you can select ");
 		roff("individual items.\nIn the submenu you can also use:\n");
-		roff("^A:Destroy all, ^N:Destroy None, ^S:Step all");  
+		roff("^A:Destroy all, ^N:Destroy None, ^S/^R:Step all");  
 
 
 		/* Get a valid keypress or exit */
@@ -339,7 +329,7 @@ void do_cmd_squeltch_options(void)
 		/* Clear screen again */
 		Term_clear();
 
-	
+
 		while (1)
 		{
 			num=0;
@@ -361,7 +351,7 @@ void do_cmd_squeltch_options(void)
 				/* Analyze matching items */
 				if (cat_type[k_ptr->tval] == category)
 				if (!(k_ptr->flags3 & TR3_INSTA_ART))
-                                if (!(k_ptr->flags3 & TR3_NORM_ART))
+				if (!(k_ptr->flags3 & TR3_NORM_ART))
 				if (k_ptr->aware)
 				{
 					byte attr;
@@ -370,7 +360,7 @@ void do_cmd_squeltch_options(void)
 
 					/* Wrap around */
 					if (k_ptr->squeltch>DESTROY_ALL) k_ptr->squeltch=DESTROY_NONE;
-		
+
 					/* Move along if necessary */
 					if ((k_ptr->squeltch==DESTROY_CURSED) && (!can_be_cursed(kind))) k_ptr->squeltch=DESTROY_AVERAGE;
 
@@ -378,7 +368,7 @@ void do_cmd_squeltch_options(void)
 					if (k_ptr->squeltch==DESTROY_AVERAGE) 
 						if (! (is_armour(kind) || is_weapon(kind) || (kind==TV_INSTRUMENT)) )
 							k_ptr->squeltch=DESTROY_ALL;
-		
+
 					/* Only weapons and armour can be considered good... */
 					if (k_ptr->squeltch==DESTROY_GOOD)
 						if (! (is_armour(kind) || is_weapon(kind)) )
@@ -406,10 +396,10 @@ void do_cmd_squeltch_options(void)
 					/* oops */
 					default:				attr=TERM_VIOLET;
 					}
-					
+
 					/* Show it */
 					c_prt(attr,format("[%c] %s", ch, buf), row, col);
-					
+
 					/* Remember the object index */
 					choice[num++] = i;
 				}
@@ -424,7 +414,7 @@ void do_cmd_squeltch_options(void)
 				for (i = 0; i < num; i++)
 				{
 					k_ptr = &k_info[choice[i]];
-		
+
 					k_ptr->squeltch=DESTROY_ALL;
 				}
 
@@ -437,7 +427,7 @@ void do_cmd_squeltch_options(void)
 				for (i = 0; i < num; i++)
 				{
 					k_ptr = &k_info[choice[i]];
-		
+
 					k_ptr->squeltch=DESTROY_NONE;
 				}
 
@@ -445,12 +435,12 @@ void do_cmd_squeltch_options(void)
 			}
 
 			/* Step All */
-			if (ch == KTRL('S'))
+			if ((ch == KTRL('S')) || (ch == KTRL('R')))
 			{
 				for (i = 0; i < num; i++)
 				{
 					k_ptr = &k_info[choice[i]];
-		
+
 					k_ptr->squeltch++;
 				}
 
@@ -467,14 +457,14 @@ void do_cmd_squeltch_options(void)
 
 			/* Adjust the squeltch level */
 			k_ptr = &k_info[choice[i]];
-		
+
 			k_ptr->squeltch++;
-		
+
 
 		} /*Squeltch Selection */
 
 	}/* category Selection */
-	
+
 
 	return;
 }
@@ -676,7 +666,7 @@ void squeltch_grid(void)
 	s16b this_o_idx, next_o_idx = 0;
 
 	char o_name[80];
-	
+
 
 	/* Scan the pile of objects */
 	for (this_o_idx = cave[py][px].o_idx; this_o_idx; this_o_idx = next_o_idx)
@@ -709,13 +699,14 @@ void squeltch_grid(void)
 	}
 }
 
+
 /* Check the inventory for "crap" */
 void squeltch_inventory(void)
 {
 	int i;
 
 	bool found = TRUE;
-	
+
 	while (found)
 	{
 
@@ -736,10 +727,10 @@ void squeltch_inventory(void)
 
 				/* Print a message */
 				msg_format("Auto-destroying %s.", o_name);
-				
+
 				/* Remove it */
 				inven_item_increase(i, -o_ptr->number);
-			
+
 				inven_item_optimize(i);
 
 				found=TRUE;

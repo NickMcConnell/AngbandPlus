@@ -55,25 +55,28 @@ F:7:160:6:0:0:0:0:0:2071
 # between gate 8
 F:8:160:6:0:0:0:0:0:3350
 
+# between gate 9
+F:9:160:6:0:0:0:0:0:771
+
 # Dungeon layout
-D:XXXXXXXXXXXXXXXXXXXXXXXXXXXX
-D:X..k^^^^^^^^^^^^^^^^^^^^^^^X
-D:Xfkff^^^^^...^^^^..ff^^^^^^X
-D:X^f1^^^^^^.ffg^^^^.fgg^^^^^X
-D:X^^^^^^^^^^^fg4^^^^f6^^^^^^X
-D:X^^^^^^^^^^^^f^^^^^^^^^fg8^X
-D:X^^^^^^.f^^^^^^^^^^^^.ffg^^X
-D:X^^^^.ff2^^^^^^.^^^^^^.f^^^X
-D:X^^^^^3.^^^^^^^.^^^^^^^^^^^X
-D:X^^^^^^^^^^^^ff.^^^^^^^^^^^X
-D:X^^^^^^^^^^^7gfg^^^^^^^^f^^X
-D:X^^^^^^^^^^^^^^^^^^^..^..^^X
-D:X^^^^^^^^^^^^.^^^^^^....ff^X
-D:X^^^^...^^^^^ff^^^^^^..fg^^X
-D:X^^^.fff^^^^gfg^^^^...fgee^X
-D:X^^^^g5^^^^..8^^^^^f^fgfe,^X
-D:X^^^^^^^^^^^^^^^^^^^^^^^^^^X
-D:XXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X..k^^^^^^^^^^^^^^^^^^^^^^^XX
+D:Xfkff^^^^^...^^^^..ff^^^^^^XX
+D:X^f1^^^^^^.ffg^^^^.fgg^^^^^XX
+D:X^^^^^^^^^^^fg4^^^^f6^^^^^^XX
+D:X^^^^^^^^^^^^f^^^^^^^^^fg8^XX
+D:X^^^^^^.f^^^^^^^^^^^^.ffg^^XX
+D:X^^^^.ff2^^^^^^.^^^^^^.f^^^XX
+D:X^^^^^3.^^^^^^^.^^^^^^^^^^^XX
+D:X^^^^^^^^^^^^ff.^^^^^^^^^^^XX
+D:X^^^^^^^^^^^7gfg^^^^^^^^f^^XX
+D:X^^^^^^^^^^^^^^^^^^^..^..^^XX
+D:X^^^^^^^^^^^^.^^^^^^....ff^XX
+D:X^^^^...^^^^^ff^^^^^^..fg^^XX
+D:X^^^.fff^^^^gfg^^^^...fgee^^X
+D:X^^^^g5^^^^..8^^^^^f^fgfe,9^X
+D:X^^^^^^^^^^^^^^^^^^^^^^^^^^^X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
 # Starting position
 P:3:3

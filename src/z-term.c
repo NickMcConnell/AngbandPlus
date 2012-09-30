@@ -282,27 +282,6 @@ time_t lastc;
 int last_paused = 0;
 int same_second(void);
 
-/* Convertion table */
-static byte conv_color[16] =
-{
-        'd',
-        'w',
-        's',
-        'o',
-        'r',
-        'g',
-        'b',
-        'u',
-        'D',
-        'W',
-        'v',
-        'y',
-        'R',
-        'G',
-        'B',
-        'U',
-};
-
 
 /*** Local routines ***/
 
@@ -714,7 +693,7 @@ void Term_queue_line(int x, int y, int n, byte *a, char *c)
 #else /* USE_EGO_GRAPHICS */
 		/* Hack -- Ignore non-changes */
 		if ((*scr_aa == *a) && (*scr_cc == *c) &&
-		 	(*scr_taa == *ta) && (*scr_tcc == *tc))
+			(*scr_taa == *ta) && (*scr_tcc == *tc))
 #endif  /* USE_EGO_GRAPHICS */
 		{
 			x++;
@@ -1210,6 +1189,9 @@ static void Term_fresh_row_both(int y, int x1, int x2)
 
 #endif /* USE_TRANSPARENCY */
 
+		/* 2nd byte of bigtile */
+		if (na == 255) continue;
+
 		/* Handle high-bit attr/chars */
 		if (na & 0x80)
 		{
@@ -1582,15 +1564,15 @@ errr Term_fresh(void)
 		byte na = Term->attr_blank;
 		char nc = Term->char_blank;
 
-                if ((do_movies == 1) && IN_MAINWINDOW)
-                {
+		if ((do_movies == 1) && IN_MAINWINDOW)
+		{
 			if(!same_second())
-                        {
-                                fprintf(movfile, "S:1:\n");
-                        }
+			{
+				fprintf(movfile, "S:1:\n");
+			}
 			fprintf(movfile, "C:\n");
 			last_paused=0;
-                }
+		}
 
 		/* Physically erase the entire window */
 		Term_xtra(TERM_XTRA_CLEAR, 0);
@@ -1776,13 +1758,12 @@ errr Term_fresh(void)
 			/* Flush each "modified" row */
 			if (x1 <= x2)
 			{
-                                if ((do_movies == 1) && IN_MAINWINDOW)
-                                {
+				if ((do_movies == 1) && IN_MAINWINDOW)
+				{
 					/* Most magic happens here */
-                                        fprintf(movfile, "E:%d:%.80s\n", y, clean80(y, Term->scr->a[y], TRUE));
-                                        fprintf(movfile, "L:%d:%.80s\n", y, clean80(y, Term->scr->c[y], FALSE));
-					last_paused=0;
-                                }
+					cmovie_record_line(y);
+					last_paused = 0;
+				}
 
 				/* Always use "Term_pict()" */
 				if (Term->always_pict)
@@ -2150,6 +2131,12 @@ errr Term_erase(int x, int y, int n)
 	scr_ecc = Term->scr->ec[y];
 #endif
 #endif /* USE_TRANSPARENCY */
+
+        if (n > 0 && (byte)scr_cc[x] == 255 && scr_aa[x] == 255)
+        {
+                x--;
+                n++;
+        }
 
 	/* Scan every column */
 	for (i = 0; i < n; i++, x++)
@@ -2585,6 +2572,27 @@ errr Term_save(void)
 	return (0);
 }
 
+/*
+ * Same as before but can save more than once
+ */
+term_win* Term_save_to(void)
+{
+	int w = Term->wid;
+	int h = Term->hgt;
+        term_win *save;
+
+        /* Allocate window */
+        MAKE(save, term_win);
+
+        /* Initialize window */
+        term_win_init(save, w, h);
+
+	/* Grab */
+        term_win_copy(save, Term->scr, w, h);
+
+	/* Success */
+        return (save);
+}
 
 /*
  * Restore the "requested" contents (see above).
@@ -2627,6 +2635,44 @@ errr Term_load(void)
 	return (0);
 }
 
+/*
+ * Same as previous but allow to save more than one
+ */
+errr Term_load_from(term_win *save, bool final)
+{
+	int y;
+
+	int w = Term->wid;
+	int h = Term->hgt;
+
+	/* Create */
+        if (!save)
+	{
+                return (1);
+	}
+
+	/* Load */
+        term_win_copy(Term->scr, save, w, h);
+
+	/* Assume change */
+	for (y = 0; y < h; y++)
+	{
+		/* Assume change */
+		Term->x1[y] = 0;
+		Term->x2[y] = w - 1;
+	}
+
+	/* Assume change */
+	Term->y1 = 0;
+	Term->y2 = h - 1;
+
+        /* Free is requested */
+        if (final)
+                FREE(save, term_win);
+
+	/* Success */
+	return (0);
+}
 
 /*
  * Exchange the "requested" screen with the "tmp" screen
@@ -2697,8 +2743,8 @@ errr Term_resize(int w, int h)
 
 
 	/* Ignore non-changes */
-	if ((Term->wid == w) && (Term->hgt == h)) return (1);
-
+	if ((Term->wid == w) && (Term->hgt == h) && (arg_bigtile == use_bigtile)) return (1);
+	use_bigtile = arg_bigtile;
 
 	/* Minimum dimensions */
 	wid = MIN(Term->wid, w);
@@ -3031,106 +3077,21 @@ errr term_init(term *t, int w, int h, int k)
 	return (0);
 }
 
-/* Replaces things that cmovie can't think about with safer thoughts */
-char* clean80(int y, char* in, bool color)
-{
-        static char out[81];
-        static char outc[81];
-        int walker = 0;
 
-        hack_map_info_default = TRUE;
-
-        while(walker < 80)
-	{
-                if (!color)
-                {
-                        if (in[walker] == '\0')
-                        {
-                                out[walker] = ' ';
-                        }
-                        /* Only for the map */
-                        else if ((!character_icky) && ((walker - 13) < SCREEN_WID) && ((y - 1) < SCREEN_HGT) && ((walker - 13) >= 0) && ((y - 1) >= 0))
-                        {
-                                byte a;
-                                byte c;
-#ifdef USE_TRANSPARENCY
-                                byte ta;
-                                char tc;
-
-#ifdef USE_EGO_GRAPHICS
-                                byte ea;
-                                char ec;
-
-                                /* Examine the grid */
-                                map_info(y + panel_row_prt, walker + panel_col_prt, &a, &c, &ta, &tc, &ea, &ec);
-#else /* USE_EGO_GRAPHICS */
-                                /* Examine the grid */
-                                map_info(y + panel_row_prt, walker + panel_col_prt, &a, &c, &ta, &tc);
-#endif /* USE_EGO_GRAPHICS */
-#else /* USE_TRANSPARENCY */
-                                /* Examine the grid */
-                                map_info(y + panel_row_prt, walker + panel_col_prt, &a, &c);
-#endif /* USE_TRANSPARENCY */
-                                out[walker] = c;
-                        }
-                        else
-                        {
-                                out[walker] = in[walker];
-                        }
-                }
-                else
-                {
-                        if ((!character_icky) && ((walker - 13) < SCREEN_WID) && ((y - 1) < SCREEN_HGT) && ((walker - 13) >= 0) && ((y - 1) >= 0))
-                        {
-                                byte a;
-                                byte c;
-#ifdef USE_TRANSPARENCY
-                                byte ta;
-                                char tc;
-
-#ifdef USE_EGO_GRAPHICS
-                                byte ea;
-                                char ec;
-
-                                /* Examine the grid */
-                                map_info(y + panel_row_prt, walker + panel_col_prt, &a, &c, &ta, &tc, &ea, &ec);
-#else /* USE_EGO_GRAPHICS */
-                                /* Examine the grid */
-                                map_info(y + panel_row_prt, walker + panel_col_prt, &a, &c, &ta, &tc);
-#endif /* USE_EGO_GRAPHICS */
-#else /* USE_TRANSPARENCY */
-                                /* Examine the grid */
-                                map_info(y + panel_row_prt, walker + panel_col_prt, &a, &c);
-#endif /* USE_TRANSPARENCY */
-                                outc[walker] = conv_color[a];
-                        }
-                        else
-                        {
-                                outc[walker] = conv_color[(byte)in[walker]];
-                        }
-                }
-                walker++;
-	}
-        out[80] = 0;
-        outc[80] = 0;
-
-        hack_map_info_default = FALSE;
-
-        return (color) ? outc : out;
-}
-
-/* Were we called in the same second as the last time? */
-/* This *ASSUMES* that time_t is seconds past something. Is this portable? */
+/*
+ * Determine if we are called in the same second as the last time?
+ * This *ASSUMES* that time_t is seconds past something. Is this portable?
+ */
 int same_second(void)
 {
-        time_t thisc;
+	time_t thisc;
 
-        thisc = time(NULL);
+	thisc = time(NULL);
 
-        if (thisc == lastc)
-        {
-                return 1;
-        }
-        return 0;
+	if (thisc == lastc)
+	{
+		return 1;
+	}
+	return 0;
 }
 

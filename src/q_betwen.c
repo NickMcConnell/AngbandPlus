@@ -3,69 +3,69 @@
 
 bool quest_between_move_hook(char *fmt)
 {
-        s32b y;
-        s32b x;
-        cave_type *c_ptr;
+	s32b y;
+	s32b x;
+	cave_type *c_ptr;
 
-        y = get_next_arg(fmt);
-        x = get_next_arg(fmt);
-        c_ptr = &cave[y][x];
+	y = get_next_arg(fmt);
+	x = get_next_arg(fmt);
+	c_ptr = &cave[y][x];
 
-        if (cquest.status != QUEST_STATUS_TAKEN) return FALSE;
+	if (cquest.status != QUEST_STATUS_TAKEN) return FALSE;
 
-        /* The tower of Turgon */
-        if ((c_ptr->feat == FEAT_SHOP) && (c_ptr->special == 27))
-        {
-                cmsg_print(TERM_YELLOW, "Turgon is there.");
-                cmsg_print(TERM_YELLOW, "'Ah, thank you noble hero, now please return to Minas Anor to finish the link.'");
+	/* The tower of Turgon */
+	if ((c_ptr->feat == FEAT_SHOP) && (c_ptr->special == 27))
+	{
+		cmsg_print(TERM_YELLOW, "Turgon is there.");
+		cmsg_print(TERM_YELLOW, "'Ah, thank you noble hero, now please return to Minas Anor to finish the link.'");
 
-                cquest.status = QUEST_STATUS_COMPLETED;
+		cquest.status = QUEST_STATUS_COMPLETED;
 
-                return TRUE;
-        }
+		return TRUE;
+	}
 
-        /* Only 1 ambush */
-        if (cquest.data[0]) return (FALSE);
+	/* Only 1 ambush */
+	if (cquest.data[0]) return (FALSE);
 
-        if (!p_ptr->wild_mode)
-        {
-                if (p_ptr->wilderness_y > 19) return (FALSE);
-        }
-        else
-        {
-                if (py > 19) return (FALSE);
-        }
+	if (!p_ptr->wild_mode)
+	{
+		if (p_ptr->wilderness_y > 19) return (FALSE);
+	}
+	else
+	{
+		if (py > 19) return (FALSE);
+	}
 
-        /* Mark as entered */
-        cquest.data[0] = TRUE;
+	/* Mark as entered */
+	cquest.data[0] = TRUE;
 
-        p_ptr->wild_mode = FALSE;
-        p_ptr->inside_quest = QUEST_BETWEEN;
+	p_ptr->wild_mode = FALSE;
+	p_ptr->inside_quest = QUEST_BETWEEN;
 	p_ptr->leaving = TRUE;
 
-        cmsg_print(TERM_YELLOW, "Looks like a full wing of dragonriders ambushes you !");
-        cmsg_print(TERM_YELLOW, "T'ron steps forth and speak: 'The secret of the between");
-        cmsg_print(TERM_YELLOW, "will not be used by any but the dragonriders!'");
+	cmsg_print(TERM_YELLOW, "Looks like a full wing of dragonriders ambushes you !");
+	cmsg_print(TERM_YELLOW, "T'ron steps forth and speak: 'The secret of the Void Jumpgates");
+	cmsg_print(TERM_YELLOW, "will not be used by any but the dragonriders!'");
 
-        return FALSE;
+	return FALSE;
 }
 bool quest_between_gen_hook(char *fmt)
 {
 	int x, y;
-        int xstart = 2;
-        int ystart = 2;
+	int xstart = 2;
+	int ystart = 2;
 
-        if (p_ptr->inside_quest != QUEST_BETWEEN) return FALSE;
+	if (p_ptr->inside_quest != QUEST_BETWEEN) return FALSE;
 
 	/* Start with perm walls */
 	for (y = 0; y < cur_hgt; y++)
 	{
 		for (x = 0; x < cur_wid; x++)
 		{
-			cave[y][x].feat = FEAT_PERM_SOLID; 
+			cave_set_feat(y, x, FEAT_PERM_SOLID);
 		}
 	}
-        dun_level = quest[p_ptr->inside_quest].level;
+	dun_level = quest[p_ptr->inside_quest].level;
 
 	/* Set the correct monster hook */
 	set_mon_num_hook();
@@ -73,97 +73,97 @@ bool quest_between_gen_hook(char *fmt)
 	/* Prepare allocation table */
 	get_mon_num_prep();
 
-        init_flags = INIT_CREATE_DUNGEON;
-        process_dungeon_file_full = TRUE;
-        process_dungeon_file("between.map", &ystart, &xstart, cur_hgt, cur_wid, TRUE);
-        process_dungeon_file_full = FALSE;
+	init_flags = INIT_CREATE_DUNGEON;
+	process_dungeon_file_full = TRUE;
+	process_dungeon_file("between.map", &ystart, &xstart, cur_hgt, cur_wid, TRUE);
+	process_dungeon_file_full = FALSE;
 
-        /* Otherwise instadeath */
-        energy_use = 0;
+	/* Otherwise instadeath */
+	energy_use = 0;
 
-        dungeon_flags1 |= LF1_NO_GENO;
+	dungeon_flags1 |= LF1_NO_GENO;
 
-        return TRUE;
+	return TRUE;
 }
 bool quest_between_finish_hook(char *fmt)
 {
-        s32b q_idx;
-        q_idx = get_next_arg(fmt);
+	s32b q_idx;
+	q_idx = get_next_arg(fmt);
 
-        if (q_idx != QUEST_BETWEEN) return FALSE;
+	if (q_idx != QUEST_BETWEEN) return FALSE;
 
-        c_put_str(TERM_YELLOW, "Ah you finally arrived, I hope your travel wasn't too hard.", 8, 0);
-        c_put_str(TERM_YELLOW, "As a reward you can freely use the between gates for quick travel.", 9, 0);
+	c_put_str(TERM_YELLOW, "Ah you finally arrived, I hope your travel wasn't too hard.", 8, 0);
+	c_put_str(TERM_YELLOW, "As a reward you can freely use the Void Jumpgates for quick travel.", 9, 0);
 
-        /* Continue the plot */
-        *(quest[q_idx].plot) = QUEST_NULL;
+	/* Continue the plot */
+	*(quest[q_idx].plot) = QUEST_NULL;
 
-        del_hook(HOOK_QUEST_FINISH, quest_between_finish_hook);
-        process_hooks_restart = TRUE;
+	del_hook(HOOK_QUEST_FINISH, quest_between_finish_hook);
+	process_hooks_restart = TRUE;
 
-        return TRUE;
+	return TRUE;
 }
 bool quest_between_death_hook(char *fmt)
 {
-        int i, mcnt = 0;
+	int i, mcnt = 0;
 
-        if (p_ptr->inside_quest != QUEST_BETWEEN) return FALSE;
+	if (p_ptr->inside_quest != QUEST_BETWEEN) return FALSE;
 
 	for (i = m_max - 1; i >= 1; i--)
 	{
 		/* Access the monster */
-                monster_type *m_ptr = &m_list[i];
+		monster_type *m_ptr = &m_list[i];
 
 		/* Ignore "dead" monsters */
 		if (!m_ptr->r_idx) continue;
 
-                if (m_ptr->status <= MSTATUS_NEUTRAL) mcnt++;
-        }
+		if (m_ptr->status <= MSTATUS_NEUTRAL) mcnt++;
+	}
 
-        if (mcnt < 2)
-        {
-                cmsg_print(TERM_YELLOW, "You can escape now.");
-                cave_set_feat(py, px, FEAT_LESS);
+	if (mcnt < 2)
+	{
+		cmsg_print(TERM_YELLOW, "You can escape now.");
+		cave_set_feat(py, px, FEAT_LESS);
 
-                return FALSE;
-        }
+		return FALSE;
+	}
 
 
-        return FALSE;
+	return FALSE;
 }
 bool quest_between_dump_hook(char *fmt)
 {
-        if (cquest.status >= QUEST_STATUS_COMPLETED)
-        {
-                fprintf(hook_file, "\n You established a permanent between liaison between Minas Anor and Gondolin,");
-                fprintf(hook_file, "\n  thus allowing the last alliance to exist.");
-        }
-        return (FALSE);
+	if (cquest.status >= QUEST_STATUS_COMPLETED)
+	{
+		fprintf(hook_file, "\n You established a permanent void jumpgates liaison between Minas Anor and Gondolin,");
+		fprintf(hook_file, "\n  thus allowing the last alliance to exist.");
+	}
+	return (FALSE);
 }
 bool quest_between_forbid_hook(char *fmt)
 {
-        s32b q_idx;
-        q_idx = get_next_arg(fmt);
+	s32b q_idx;
+	q_idx = get_next_arg(fmt);
 
-        if (q_idx != QUEST_BETWEEN) return (FALSE);
+	if (q_idx != QUEST_BETWEEN) return (FALSE);
 
-        if (p_ptr->lev < 40)
-        {
-                c_put_str(TERM_WHITE, "I fear you are not ready for the next quest, come back later.", 8, 0);
-                return (TRUE);
-        }
-        return (FALSE);
+	if (p_ptr->lev < 40)
+	{
+		c_put_str(TERM_WHITE, "I fear you are not ready for the next quest, come back later.", 8, 0);
+		return (TRUE);
+	}
+	return (FALSE);
 }
 bool quest_between_init_hook(int q)
 {
-        if ((cquest.status >= QUEST_STATUS_TAKEN) && (cquest.status < QUEST_STATUS_FINISHED))
-        {
-                add_hook(HOOK_MOVE, quest_between_move_hook, "between_move");
-                add_hook(HOOK_GEN_QUEST, quest_between_gen_hook, "between_gen");
-                add_hook(HOOK_QUEST_FINISH, quest_between_finish_hook, "between_finish");
-                add_hook(HOOK_MONSTER_DEATH, quest_between_death_hook, "between_death");
-        }
-        add_hook(HOOK_CHAR_DUMP, quest_between_dump_hook, "between_dump");
-        add_hook(HOOK_INIT_QUEST, quest_between_forbid_hook, "between_forbid");
-        return (FALSE);
+	if ((cquest.status >= QUEST_STATUS_TAKEN) && (cquest.status < QUEST_STATUS_FINISHED))
+	{
+		add_hook(HOOK_MOVE, quest_between_move_hook, "between_move");
+		add_hook(HOOK_GEN_QUEST, quest_between_gen_hook, "between_gen");
+		add_hook(HOOK_QUEST_FINISH, quest_between_finish_hook, "between_finish");
+		add_hook(HOOK_MONSTER_DEATH, quest_between_death_hook, "between_death");
+	}
+	add_hook(HOOK_CHAR_DUMP, quest_between_dump_hook, "between_dump");
+	add_hook(HOOK_INIT_QUEST, quest_between_forbid_hook, "between_forbid");
+	return (FALSE);
 }

@@ -7,15 +7,35 @@ than a mage, but is capable of learning their choice of spells in their
 realm. Rangers have good stealth, perception, searching, saving throws,
 and are good with magical devices. 
 
-#####GPrimary Stats
-Intelligence (spellcasting stat)
-Dexterity.
+#####GStarting Stat Modifiers
+Strength         +2
+Intelligence     +1
+Wisdom           +0
+Dexterity        +2
+Constitution     +1
+Charisma         +1
+Bonus Blows      0
+Hit Die          +d4
+Exp Penalty      30%
 
-#####GMagic Usage
-At one with the wilderness,  rangers may choose among the realms of 
-*****m_illus.txt*0[Illusion] or *****m_tribal.txt*0[Tribal] magic. They have no limitations as to which books 
-they are allowed to use, but can learn only up to 32 spells no matter 
-which realm they choose.
+#####GStarting Skills:
+#####BSkill                   Start Level     Skill Point Gains
+Combat                  1.000           [0.800]
+  Weaponmastery         1.000           [0.500]
+  Archery               1.000           [0.750]
+    Bow-mastery         0.000           [0.300]
+    Crossbow-mastery    0.000           [0.300]
+    Sling-mastery       0.000           [0.300]
+    Boomerang-mastery   0.000           [0.300]
+Sneakiness              1.000           [0.950]
+  Disarming             1.000           [1.000]
+Magic                   1.000           [0.700]
+  Divination            0.000           [0.400]
+  Conveyance            0.000           [0.400]
+  Nature                0.000           [0.400]
+Spirituality        
+  Prayer                0.000           [0.500]
+Monster-lore            0.000           [0.700]
 
 #####GStarting Equipment
 A ranger begins the game with:

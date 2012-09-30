@@ -12,18 +12,42 @@ required to animate his spirit for a limited time. If they do not
 manage to return to the realm of the living before their willpower 
 gives out, death becomes permanent. 
 
-#####GPrimary Stats
-Constitution (spell casting stat)
+#####GStarting Stat Modifiers
+Strength         -5
+Intelligence     +3
+Wisdom           +0
+Dexterity        +1
+Constitution     -2
+Charisma         +1
+Bonus Blows      0
+Hit Die          +d0
+Exp Penalty      30%
 
-#####GMagic Usage
-Necromancers have very special powers (activated by 'U') and can use 
-the *****m_nether.txt*0[Nether] Realm. They may learn 64 spell levels.
-
-But their most special ability is that they can survive their own death.
-A necromancer when killed become an undead, slowly rotting away and 
-must kill a certain amount of monsters to drain life from them to come 
-back to life. If he/she dies in the undead form then he/she permanently
-dies.
+#####GStarting Skills:
+#####BSkill                   Start Level     Skill Point Gains
+Combat                  1.000           [0.200]
+  Weaponmastery         0.700           [0.400]
+Sneakiness              1.000           [0.900]
+Magic                   1.000           [0.900]
+  Sorcery               0.000           [0.400]
+  Spell-power           0.000           [0.600]
+  Mana                  0.000           [0.600]
+  Fire                  0.000           [0.700]
+  Water                 0.000           [0.600]
+  Air                   0.000           [0.600]
+  Earth                 0.000           [0.700]
+  Temporal              0.000           [0.700]
+  Divination            0.000           [0.600]
+  Conveyance            0.000           [0.600]
+  Nature                0.000           [0.400]
+  Meta                  0.000           [0.600]
+  Mind                  0.000           [0.600]
+  Necromancy            1.000           [0.900]
+  Runecraft             0.000           [0.600]
+  Thaumaturgy           0.000           [0.600]
+Spirituality            1.000           [0.550]
+  Prayer                0.000           [0.500]
+Monster-lore            0.000           [0.500]
 
 #####GStarting Equipment
 A necromancer begins the game with:

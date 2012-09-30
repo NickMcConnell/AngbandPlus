@@ -566,7 +566,7 @@ errr init_ami( void )
    {
       if (( GadToolsBase = OpenLibrary( "gadtools.library", 36 )) == NULL )
       {
-         use_menus = FALSE;
+	 use_menus = FALSE;
       }
    }
 
@@ -575,14 +575,14 @@ errr init_ami( void )
    {
       /* If undefined, use default palette */
       if ( color_table[ i ][ 0 ] == 0 &&
-           color_table[ i ][ 1 ] == 0 &&
-           color_table[ i ][ 2 ] == 0 &&
-           color_table[ i ][ 3 ] == 0 )
+	   color_table[ i ][ 1 ] == 0 &&
+	   color_table[ i ][ 2 ] == 0 &&
+	   color_table[ i ][ 3 ] == 0 )
       {
-         color_table[ i ][ 0 ] = 1;
-         color_table[ i ][ 1 ] = ( default_colors[ i ] & 0xff0000 ) >> 16;
-         color_table[ i ][ 2 ] = ( default_colors[ i ] & 0x00ff00 ) >> 8;
-         color_table[ i ][ 3 ] = ( default_colors[ i ] & 0x0000ff );
+	 color_table[ i ][ 0 ] = 1;
+	 color_table[ i ][ 1 ] = ( default_colors[ i ] & 0xff0000 ) >> 16;
+	 color_table[ i ][ 2 ] = ( default_colors[ i ] & 0x00ff00 ) >> 8;
+	 color_table[ i ][ 3 ] = ( default_colors[ i ] & 0x0000ff );
       }
    }
 
@@ -595,58 +595,58 @@ errr init_ami( void )
       /* It was not a number, so treat it as a public screen name */
       if ( scr_m == 0 )
       {
-         /* We need kickstart 3.0+ to use a public screen */
-         if ( !v39 )
-         {
-            FAIL( "Public screen can only be used on kickstart 3.0 or later." );
-         }
+	 /* We need kickstart 3.0+ to use a public screen */
+	 if ( !v39 )
+	 {
+	    FAIL( "Public screen can only be used on kickstart 3.0 or later." );
+	 }
 
-         /* Try to lock the named public screen if it isn't already */
-         if ( !pubscr )
-         {
-            pubscr = LockPubScreen( modestr );
-         }
+	 /* Try to lock the named public screen if it isn't already */
+	 if ( !pubscr )
+	 {
+	    pubscr = LockPubScreen( modestr );
+	 }
 
-         /* Failed */
-         if ( !pubscr ) {
-            sprintf( tmpstr, "Unable to get a lock on screen '%s'.", modestr );
-            FAIL( tmpstr );
-         }
+	 /* Failed */
+	 if ( !pubscr ) {
+	    sprintf( tmpstr, "Unable to get a lock on screen '%s'.", modestr );
+	    FAIL( tmpstr );
+	 }
 
-         /* We got a lock now */
-         publock = TRUE;
+	 /* We got a lock now */
+	 publock = TRUE;
 
-         scr_m = -1;
+	 scr_m = -1;
 
-         use_pub = TRUE;
+	 use_pub = TRUE;
 
-         /* Don't blank mouse on public screen */
-         blankmouse = FALSE;
+	 /* Don't blank mouse on public screen */
+	 blankmouse = FALSE;
 
-         /* Find suitable pens to use on public screen */
-         for ( i = 0; i < 32; i++ )
-         {
-            pen = ObtainBestPen( pubscr->ViewPort.ColorMap,
-                                 color_table[ i ][ 1 ] << 24,
-                                 color_table[ i ][ 2 ] << 24,
-                                 color_table[ i ][ 3 ] << 24,
-                                 OBP_Precision, PRECISION_EXACT );
-            if( pen == -1 )
-            {
-               FAIL( "Unable to obtain suitable pens to use on public screen. ");
-            }
+	 /* Find suitable pens to use on public screen */
+	 for ( i = 0; i < 32; i++ )
+	 {
+	    pen = ObtainBestPen( pubscr->ViewPort.ColorMap,
+				 color_table[ i ][ 1 ] << 24,
+				 color_table[ i ][ 2 ] << 24,
+				 color_table[ i ][ 3 ] << 24,
+				 OBP_Precision, PRECISION_EXACT );
+	    if( pen == -1 )
+	    {
+	       FAIL( "Unable to obtain suitable pens to use on public screen. ");
+	    }
 
-            pubpens[ i ] = pen;
-         }
+	    pubpens[ i ] = pen;
+	 }
 
-         for ( i = 0; i < 16; i++ ) penconv[ i ] = (UWORD) pubpens[ i + 16 ];
+	 for ( i = 0; i < 16; i++ ) penconv[ i ] = (UWORD) pubpens[ i + 16 ];
       }
 
       /* Use specified screenmode if available */
       else
       {
-         /* Check if requested mode is available */
-         if ( ModeNotAvailable( scr_m )) scr_m = 0;
+	 /* Check if requested mode is available */
+	 if ( ModeNotAvailable( scr_m )) scr_m = 0;
       }
    }
 
@@ -666,12 +666,12 @@ errr init_ami( void )
    if ( scr_m == 0 && v39 )
    {
       scr_m = BestModeID(
-                  BIDTAG_NominalWidth, ts->ww,
-                  BIDTAG_NominalHeight, ts->wh,
-                  BIDTAG_DesiredWidth, ts->ww,
-                  BIDTAG_DesiredHeight, ts->wh,
-                  BIDTAG_Depth, 4,
-                  TAG_END );
+		  BIDTAG_NominalWidth, ts->ww,
+		  BIDTAG_NominalHeight, ts->wh,
+		  BIDTAG_DesiredWidth, ts->ww,
+		  BIDTAG_DesiredHeight, ts->wh,
+		  BIDTAG_Depth, 4,
+		  TAG_END );
    }
 
    /* Use default screenmode if we don't have any */
@@ -686,48 +686,48 @@ errr init_ami( void )
       /* Use 32 colors with graphics */
       if ( use_graphics )
       {
-         /* Get dimension data for screenmode */
-         if ( GetDisplayInfoData( NULL, (UBYTE *) &diminfo, sizeof( struct DimensionInfo ), DTAG_DIMS, scr_m ))
-         {
-            /* Check if we support deep screens */
-            if ( diminfo.MaxDepth > 4 )
-            {
-               /* Use 32 colors */
-               deep = TRUE;
+	 /* Get dimension data for screenmode */
+	 if ( GetDisplayInfoData( NULL, (UBYTE *) &diminfo, sizeof( struct DimensionInfo ), DTAG_DIMS, scr_m ))
+	 {
+	    /* Check if we support deep screens */
+	    if ( diminfo.MaxDepth > 4 )
+	    {
+	       /* Use 32 colors */
+	       deep = TRUE;
 
-               /* Use colors 16..31 for text */
-               for ( i = 0; i < 16; i++ ) penconv[ i ] = i + 16;
-            }
-         }
+	       /* Use colors 16..31 for text */
+	       for ( i = 0; i < 16; i++ ) penconv[ i ] = i + 16;
+	    }
+	 }
       }
 
       /* Use only 16 colors with no graphics */
       if ( !use_graphics )
       {
-         /* Use 16 colors */
-         deep = FALSE;
+	 /* Use 16 colors */
+	 deep = FALSE;
 
-         /* Use colors 0..15 for text */
-         for ( i = 0; i < 16; i++ ) penconv[ i ] = i;
+	 /* Use colors 0..15 for text */
+	 for ( i = 0; i < 16; i++ ) penconv[ i ] = i;
       }
 
       if (( amiscr = OpenScreenTags( NULL,
-             SA_Width, ts->ww,
-             SA_Height, ts->wh,
-             SA_Depth, deep ? 5 : 4,
-             SA_DisplayID, scr_m,
-             SA_Font, scrattr,
-             SA_Type, CUSTOMSCREEN,
-             SA_Title, "Angband Screen",
-             SA_ShowTitle, FALSE,
-             SA_Quiet, TRUE,
-             SA_Behind, TRUE,
-             SA_AutoScroll, TRUE,
-             SA_Overscan, OSCAN_TEXT,
-             v39 ? SA_Interleaved : TAG_IGNORE, TRUE,
-             TAG_END )) == NULL)
+	     SA_Width, ts->ww,
+	     SA_Height, ts->wh,
+	     SA_Depth, deep ? 5 : 4,
+	     SA_DisplayID, scr_m,
+	     SA_Font, scrattr,
+	     SA_Type, CUSTOMSCREEN,
+	     SA_Title, "Angband Screen",
+	     SA_ShowTitle, FALSE,
+	     SA_Quiet, TRUE,
+	     SA_Behind, TRUE,
+	     SA_AutoScroll, TRUE,
+	     SA_Overscan, OSCAN_TEXT,
+	     v39 ? SA_Interleaved : TAG_IGNORE, TRUE,
+	     TAG_END )) == NULL)
       {
-         FAIL( "Unable to open screen." );
+	 FAIL( "Unable to open screen." );
       }
 
       /* Initialize screen rastport */
@@ -769,8 +769,8 @@ errr init_ami( void )
       /* Check if the public screen is large enough */
       if ( pw < maxw || ph < maxh )
       {
-         sprintf( tmpstr, "Public screen is too small for window (%d x %d).", maxw, maxh );
-         FAIL( tmpstr );
+	 sprintf( tmpstr, "Public screen is too small for window (%d x %d).", maxw, maxh );
+	 FAIL( tmpstr );
       }
 
       /* Use backdrop window if pubscreen is quiet */
@@ -801,30 +801,30 @@ errr init_ami( void )
    {
       if (( visinfo = GetVisualInfo( use_pub ? pubscr : amiscr, TAG_END )) == NULL )
       {
-         use_menus = FALSE;
+	 use_menus = FALSE;
       }
    }
 
    /* Open window, backdrop if on custom screen */
    if (( ts->win = OpenWindowTags( NULL,
-          WA_Left, ts->wx,
-          WA_Top, ts->wy,
-          WA_InnerWidth, ts->ww,
-          WA_InnerHeight, ts->wh,
-          use_pub ? WA_PubScreen : WA_CustomScreen, use_pub ? pubscr : amiscr,
-          WA_Backdrop, backdrop,
-          WA_Borderless, backdrop,
-          WA_GimmeZeroZero, !backdrop,
-          WA_DragBar, !backdrop && !ts->notitle,
-          WA_DepthGadget, !backdrop && !ts->notitle,
-          WA_NewLookMenus, TRUE,
-          backdrop ? TAG_IGNORE : WA_ScreenTitle, VERSION,
-          ( backdrop || ts->notitle ) ? TAG_IGNORE : WA_Title, ts->name,
-          WA_Activate, TRUE,
-          WA_RMBTrap, !use_menus,
-          WA_ReportMouse, TRUE,
-          WA_IDCMP, IDCMP_RAWKEY | IDCMP_INTUITICKS | IDCMP_MOUSEMOVE | IDCMP_MOUSEBUTTONS | IDCMP_MENUPICK | IDCMP_MENUVERIFY,
-          TAG_END )) == NULL )
+	  WA_Left, ts->wx,
+	  WA_Top, ts->wy,
+	  WA_InnerWidth, ts->ww,
+	  WA_InnerHeight, ts->wh,
+	  use_pub ? WA_PubScreen : WA_CustomScreen, use_pub ? pubscr : amiscr,
+	  WA_Backdrop, backdrop,
+	  WA_Borderless, backdrop,
+	  WA_GimmeZeroZero, !backdrop,
+	  WA_DragBar, !backdrop && !ts->notitle,
+	  WA_DepthGadget, !backdrop && !ts->notitle,
+	  WA_NewLookMenus, TRUE,
+	  backdrop ? TAG_IGNORE : WA_ScreenTitle, VERSION,
+	  ( backdrop || ts->notitle ) ? TAG_IGNORE : WA_Title, ts->name,
+	  WA_Activate, TRUE,
+	  WA_RMBTrap, !use_menus,
+	  WA_ReportMouse, TRUE,
+	  WA_IDCMP, IDCMP_RAWKEY | IDCMP_INTUITICKS | IDCMP_MOUSEMOVE | IDCMP_MOUSEBUTTONS | IDCMP_MENUPICK | IDCMP_MENUVERIFY,
+	  TAG_END )) == NULL )
    {
       FAIL("Unable to open window.");
    }
@@ -855,21 +855,21 @@ errr init_ami( void )
    {
       /* Open mirror window */
       if (( tm->win = OpenWindowTags( NULL,
-              WA_Left, tm->wx,
-              WA_Top, tm->wy,
-              WA_InnerWidth, tm->ww,
-              WA_InnerHeight, tm->wh,
-              WA_PubScreen, pubscr,
-              WA_GimmeZeroZero, TRUE,
-              WA_DragBar, !tm->notitle,
-              WA_DepthGadget, !tm->notitle,
-              WA_NewLookMenus, TRUE,
-              WA_ScreenTitle, VERSION,
-              tm->notitle ? TAG_IGNORE : WA_Title, tm->name,
-              WA_ReportMouse, TRUE,
-              TAG_END )) == NULL )
+	      WA_Left, tm->wx,
+	      WA_Top, tm->wy,
+	      WA_InnerWidth, tm->ww,
+	      WA_InnerHeight, tm->wh,
+	      WA_PubScreen, pubscr,
+	      WA_GimmeZeroZero, TRUE,
+	      WA_DragBar, !tm->notitle,
+	      WA_DepthGadget, !tm->notitle,
+	      WA_NewLookMenus, TRUE,
+	      WA_ScreenTitle, VERSION,
+	      tm->notitle ? TAG_IGNORE : WA_Title, tm->name,
+	      WA_ReportMouse, TRUE,
+	      TAG_END )) == NULL )
       {
-         FAIL("Unable to open recall window.");
+	 FAIL("Unable to open recall window.");
       }
 
       /* Initialize mirror rastport */
@@ -886,21 +886,21 @@ errr init_ami( void )
    {
       /* Open recall window */
       if (( tr->win = OpenWindowTags( NULL,
-              WA_Left, tr->wx,
-              WA_Top, tr->wy,
-              WA_InnerWidth, tr->ww,
-              WA_InnerHeight, tr->wh,
-              WA_PubScreen, pubscr,
-              WA_GimmeZeroZero, TRUE,
-              WA_DragBar, !tr->notitle,
-              WA_DepthGadget, !tr->notitle,
-              WA_NewLookMenus, TRUE,
-              WA_ScreenTitle, VERSION,
-              tr->notitle ? TAG_IGNORE : WA_Title, tr->name,
-              WA_ReportMouse, TRUE,
-              TAG_END )) == NULL )
+	      WA_Left, tr->wx,
+	      WA_Top, tr->wy,
+	      WA_InnerWidth, tr->ww,
+	      WA_InnerHeight, tr->wh,
+	      WA_PubScreen, pubscr,
+	      WA_GimmeZeroZero, TRUE,
+	      WA_DragBar, !tr->notitle,
+	      WA_DepthGadget, !tr->notitle,
+	      WA_NewLookMenus, TRUE,
+	      WA_ScreenTitle, VERSION,
+	      tr->notitle ? TAG_IGNORE : WA_Title, tr->name,
+	      WA_ReportMouse, TRUE,
+	      TAG_END )) == NULL )
       {
-         FAIL("Unable to open recall window.");
+	 FAIL("Unable to open recall window.");
       }
 
       /* Initialize recall rastport */
@@ -917,21 +917,21 @@ errr init_ami( void )
    {
       /* Open choice window */
       if (( tc->win = OpenWindowTags( NULL,
-              WA_Left, tc->wx,
-              WA_Top, tc->wy,
-              WA_InnerWidth, tc->ww,
-              WA_InnerHeight, tc->wh,
-              WA_PubScreen, pubscr,
-              WA_GimmeZeroZero, TRUE,
-              WA_DragBar, !tc->notitle,
-              WA_DepthGadget, !tc->notitle,
-              WA_NewLookMenus, TRUE,
-              WA_ScreenTitle, VERSION,
-              tc->notitle ? TAG_IGNORE : WA_Title, tc->name,
-              WA_ReportMouse, TRUE,
-              TAG_END )) == NULL )
+	      WA_Left, tc->wx,
+	      WA_Top, tc->wy,
+	      WA_InnerWidth, tc->ww,
+	      WA_InnerHeight, tc->wh,
+	      WA_PubScreen, pubscr,
+	      WA_GimmeZeroZero, TRUE,
+	      WA_DragBar, !tc->notitle,
+	      WA_DepthGadget, !tc->notitle,
+	      WA_NewLookMenus, TRUE,
+	      WA_ScreenTitle, VERSION,
+	      tc->notitle ? TAG_IGNORE : WA_Title, tc->name,
+	      WA_ReportMouse, TRUE,
+	      TAG_END )) == NULL )
       {
-         FAIL("Unable to open recall window.");
+	 FAIL("Unable to open recall window.");
       }
 
       /* Initialize choice rastport */
@@ -967,8 +967,8 @@ errr init_ami( void )
       /* Check if conversion is necessary */
       if ( use_pub || ( depth_of_bitmap( ts->rp->BitMap ) != depth_of_bitmap( ts->gfxbm )))
       {
-         MSG( 0, 1, "Remapping graphics" );
-         if ( !conv_gfx() ) FAIL( "Out of memory while remapping graphics." );
+	 MSG( 0, 1, "Remapping graphics" );
+	 if ( !conv_gfx() ) FAIL( "Out of memory while remapping graphics." );
       }
 
       /* Scale the graphics to fit font sizes */
@@ -1163,14 +1163,14 @@ void request_font( char *str )
       /* Allocate screenmode requester */
       if ( req = AllocAslRequestTags( ASL_FontRequest, TAG_DONE ))
       {
-         /* Open screenmode requester */
-         if( AslRequestTags( req, ASLFO_FixedWidthOnly, TRUE, TAG_DONE ))
-         {
-            /* Store font name and size */
-            sprintf( str, "%s/%d", req->fo_Attr.ta_Name, req->fo_Attr.ta_YSize );
-         }
-         /* Free requester */
-         FreeAslRequest( req );
+	 /* Open screenmode requester */
+	 if( AslRequestTags( req, ASLFO_FixedWidthOnly, TRUE, TAG_DONE ))
+	 {
+	    /* Store font name and size */
+	    sprintf( str, "%s/%d", req->fo_Attr.ta_Name, req->fo_Attr.ta_YSize );
+	 }
+	 /* Free requester */
+	 FreeAslRequest( req );
       }
       /* Close asl.library */
       CloseLibrary( AslBase );
@@ -1194,14 +1194,14 @@ void request_mode( char *str )
       /* Allocate screenmode requester */
       if ( req = AllocAslRequestTags( ASL_ScreenModeRequest, TAG_DONE ))
       {
-         /* Open screenmode requester */
-         if( AslRequestTags( req, TAG_DONE ))
-         {
-            /* Store font name and size */
-            sprintf( str, "0x%X", req->sm_DisplayID );
-         }
-         /* Free requester */
-         FreeAslRequest( req );
+	 /* Open screenmode requester */
+	 if( AslRequestTags( req, TAG_DONE ))
+	 {
+	    /* Store font name and size */
+	    sprintf( str, "0x%X", req->sm_DisplayID );
+	 }
+	 /* Free requester */
+	 FreeAslRequest( req );
       }
       /* Close asl.library */
       CloseLibrary( AslBase );
@@ -1251,10 +1251,10 @@ int read_prefs( void )
       else if ( strncmp( line, "RECALL.", 7 ) == 0 ) td = &recall;
       else if ( strncmp( line, "MIRROR.", 7 ) == 0 ) td = &mirror;
       else if ( strncmp( line, "SCREEN.", 7 ) != 0 &&
-                strncmp( line, "ANGBAND.", 8 ) != 0 )
+		strncmp( line, "ANGBAND.", 8 ) != 0 )
       {
-         printf( "PREFS: Error in line '%s'\n", line );
-         continue;
+	 printf( "PREFS: Error in line '%s'\n", line );
+	 continue;
       }
 
       /* Find start of option */
@@ -1266,7 +1266,7 @@ int read_prefs( void )
       /* Option 'use' - Use this term */
       if ( !strncmp( tmp, "use", 3 ))
       {
-         td->use = yesno( tmp + 3 );
+	 td->use = yesno( tmp + 3 );
       }
 
       /* Option 'cols' - Set number of columns for term */
@@ -1284,196 +1284,196 @@ int read_prefs( void )
       /* Option 'name' - Set window title */
       else if ( !strncmp( tmp, "title", 5 ))
       {
-         /* Get parameter */
-         stripstr( tmp + 5, fname );
+	 /* Get parameter */
+	 stripstr( tmp + 5, fname );
 
-         /* Make a copy of the title */
-         if ( strlen( fname ) > 0 )
-         {
-            td->name = strdup( fname );
-         }
+	 /* Make a copy of the title */
+	 if ( strlen( fname ) > 0 )
+	 {
+	    td->name = strdup( fname );
+	 }
 
-         /* Don't use a title bar on this window */
-         else
-         {
-            td->notitle = TRUE;
-         }
+	 /* Don't use a title bar on this window */
+	 else
+	 {
+	    td->notitle = TRUE;
+	 }
 
-         continue;
+	 continue;
       }
 
       /* Option 'font' - Set font for this window */
       else if ( !strncmp( tmp, "font", 4 ))
       {
-         /* Get value */
-         stripstr( tmp + 4, fname );
+	 /* Get value */
+	 stripstr( tmp + 4, fname );
 
-         /* Ask for font? */
-         if ( !strcmp( fname, "?" ))
-         {
-            /* Open font requester */
-            request_font( fname );
-         }
+	 /* Ask for font? */
+	 if ( !strcmp( fname, "?" ))
+	 {
+	    /* Open font requester */
+	    request_font( fname );
+	 }
 
-         /* No font specification given */
-         if ( strlen( fname ) == 0 )
-         {
-            /* Main window */
-            if ( td == &screen )
-            {
-               /* System default font */
-               td->font = GfxBase->DefaultFont;
+	 /* No font specification given */
+	 if ( strlen( fname ) == 0 )
+	 {
+	    /* Main window */
+	    if ( td == &screen )
+	    {
+	       /* System default font */
+	       td->font = GfxBase->DefaultFont;
 
-               /* Use default font as screen font */
-               scrattr = NULL;
-            }
+	       /* Use default font as screen font */
+	       scrattr = NULL;
+	    }
 
-            /* Extra window */
-            else
-            {
-               /* Copy main window's font */
-               td->font = screen.font;
-            }
+	    /* Extra window */
+	    else
+	    {
+	       /* Copy main window's font */
+	       td->font = screen.font;
+	    }
 
-            /* Set font dimensions */
-            td->fw   = td->font->tf_XSize;
-            td->fh   = td->font->tf_YSize;
-            td->fb   = td->font->tf_Baseline;
+	    /* Set font dimensions */
+	    td->fw   = td->font->tf_XSize;
+	    td->fh   = td->font->tf_YSize;
+	    td->fb   = td->font->tf_Baseline;
 
-            /* This font is not opened by us */
-            td->ownf = FALSE;
+	    /* This font is not opened by us */
+	    td->ownf = FALSE;
 
-            /* Next line */
-            continue;
-         }
+	    /* Next line */
+	    continue;
+	 }
 
-         /* Get name and size */
-         else
-         {
-            /* Find font name/size delimiter */
-            if (( s = strchr( fname, '/' )) == NULL )
-            {
-               printf( "\nPREFS: Illegal font specification: '%s'.\n", fname );
-               continue;
-            }
+	 /* Get name and size */
+	 else
+	 {
+	    /* Find font name/size delimiter */
+	    if (( s = strchr( fname, '/' )) == NULL )
+	    {
+	       printf( "\nPREFS: Illegal font specification: '%s'.\n", fname );
+	       continue;
+	    }
 
-            /* End fontname here */
-            *s++ = 0;
+	    /* End fontname here */
+	    *s++ = 0;
 
-            /* Convert size string to integer */
-            fsize = atoi( s );
+	    /* Convert size string to integer */
+	    fsize = atoi( s );
 
-            /* Make sure the font name ends with .font */
-            if ( !strstr( fname, ".font" )) strcat( fname, ".font" );
-         }
+	    /* Make sure the font name ends with .font */
+	    if ( !strstr( fname, ".font" )) strcat( fname, ".font" );
+	 }
 
-         /* Set font attributes */
-         attr.ta_Name  = fname;
-         attr.ta_YSize = fsize;
-         attr.ta_Style = FS_NORMAL;
-         attr.ta_Flags = ( !strcmp( fname, "topaz.font" ) && ( fsize == 8 || fsize == 9 )) ?
-                         FPF_ROMFONT : FPF_DISKFONT;
+	 /* Set font attributes */
+	 attr.ta_Name  = fname;
+	 attr.ta_YSize = fsize;
+	 attr.ta_Style = FS_NORMAL;
+	 attr.ta_Flags = ( !strcmp( fname, "topaz.font" ) && ( fsize == 8 || fsize == 9 )) ?
+			 FPF_ROMFONT : FPF_DISKFONT;
 
-         /* Open font from disk */
-         if ( td->font = OpenDiskFont( &attr ))
-         {
-            /* We own this font */
-            td->ownf = TRUE;
+	 /* Open font from disk */
+	 if ( td->font = OpenDiskFont( &attr ))
+	 {
+	    /* We own this font */
+	    td->ownf = TRUE;
 
-            /* Set font dimensions */
-            td->fw = td->font->tf_XSize;
-            td->fh = td->font->tf_YSize;
-            td->fb = td->font->tf_Baseline;
+	    /* Set font dimensions */
+	    td->fw = td->font->tf_XSize;
+	    td->fh = td->font->tf_YSize;
+	    td->fb = td->font->tf_Baseline;
 
-            /* Copy font attr to screen font */
-            if ( td == &screen )
-            {
-               scrattr->ta_Name = strdup( fname );
-               scrattr->ta_YSize = fsize;
-               scrattr->ta_Style = FS_NORMAL;
-               scrattr->ta_Flags = attr.ta_Flags;
-            }
-         }
+	    /* Copy font attr to screen font */
+	    if ( td == &screen )
+	    {
+	       scrattr->ta_Name = strdup( fname );
+	       scrattr->ta_YSize = fsize;
+	       scrattr->ta_Style = FS_NORMAL;
+	       scrattr->ta_Flags = attr.ta_Flags;
+	    }
+	 }
 
-         /* The font could not be opened */
-         else
-         {
-            /* Fallback to default font */
-            td->font = GfxBase->DefaultFont;
+	 /* The font could not be opened */
+	 else
+	 {
+	    /* Fallback to default font */
+	    td->font = GfxBase->DefaultFont;
 
-            /* Use default font as screen font */
-            scrattr = NULL;
+	    /* Use default font as screen font */
+	    scrattr = NULL;
 
-            /* Output error message */
-            printf( "\nUnable to open font '%s/%d'.\n", fname, fsize );
-         }
+	    /* Output error message */
+	    printf( "\nUnable to open font '%s/%d'.\n", fname, fsize );
+	 }
       }
 
       /* Option .name - Set public screen name. KS 3.0+ required */
       else if ( !strncmp( tmp, "name", 4 ) && v39 )
       {
-         /* Copy name */
-         stripstr( tmp + 4, modestr );
+	 /* Copy name */
+	 stripstr( tmp + 4, modestr );
       }
 
       /* Option .mode - Set custom screen mode */
       else if ( !strncmp( tmp, "mode", 4 ))
       {
-         /* If a public screen was also specified, check if it exist */
-         if ( strlen( modestr ) > 0 )
-         {
-            /* Don't lock it twice */
-            if ( pubscr ) continue;
+	 /* If a public screen was also specified, check if it exist */
+	 if ( strlen( modestr ) > 0 )
+	 {
+	    /* Don't lock it twice */
+	    if ( pubscr ) continue;
 
-            /* Try to lock the named public screen */
-            if ( pubscr = LockPubScreen( modestr ))
-            {
-               /* We got a lock now */
-               publock = TRUE;
+	    /* Try to lock the named public screen */
+	    if ( pubscr = LockPubScreen( modestr ))
+	    {
+	       /* We got a lock now */
+	       publock = TRUE;
 
-               /* Screen exist. Skip this option */
-               continue;
-            }
-         }
+	       /* Screen exist. Skip this option */
+	       continue;
+	    }
+	 }
 
-         /* Get parameter */
-         stripstr( tmp + 4, modestr );
+	 /* Get parameter */
+	 stripstr( tmp + 4, modestr );
 
-         /* Ask for mode? */
-         if ( !strcmp( modestr, "?" ))
-         {
-            /* Open screenmode requester */
-            request_mode( modestr );
-         }
+	 /* Ask for mode? */
+	 if ( !strcmp( modestr, "?" ))
+	 {
+	    /* Open screenmode requester */
+	    request_mode( modestr );
+	 }
       }
 
       /* Option .blankmouse - Use mouseblanking */
       else if ( !strncmp( tmp, "blankmouse", 10 ))
       {
-         blankmouse = yesno( tmp + 10 );
+	 blankmouse = yesno( tmp + 10 );
       }
 
       /* Option .blankmouse - Use intuition menus */
       else if ( !strncmp( tmp, "menus", 5 ))
       {
-         use_menus = yesno( tmp + 5 );
+	 use_menus = yesno( tmp + 5 );
       }
 
       else if ( !strncmp( tmp, "sound", 5 ))
       {
-         use_sound = yesno( tmp + 5 );
+	 use_sound = yesno( tmp + 5 );
       }
 
       else if ( !strncmp( tmp, "gfx", 3 ))
       {
-         use_graphics = yesno( tmp + 5 );
+	 use_graphics = yesno( tmp + 5 );
       }
 
       /* Unknown option */
       else
       {
-         /* Output error message */
-         printf ( "\nPREFS: Unknown option '%s'.\n", tmp );
+	 /* Output error message */
+	 printf ( "\nPREFS: Unknown option '%s'.\n", tmp );
       }
    }
 
@@ -1597,16 +1597,16 @@ static errr amiga_text( int x, int y, int n, byte a, cptr s )
       /* Draw gfx one char at a time */
       if (( a & 0xc0 ))
       {
-         for ( i = 0; i < n; i++ ) put_gfx( td->rp, x + i, y, s[ i ] & 0x7f, a & 0x7f );
+	 for ( i = 0; i < n; i++ ) put_gfx( td->rp, x + i, y, s[ i ] & 0x7f, a & 0x7f );
       }
 
       /* Draw the string on screen */
       else
       {
-         SetAPen( td->rp, PEN( a&0x0f ));
-         SetBPen( td->rp, PEN( 0 ));
-         Move( td->rp, x * td->fw, y * td->fh + td->fb );
-         Text( td->rp, (char *) s, n );
+	 SetAPen( td->rp, PEN( a&0x0f ));
+	 SetBPen( td->rp, PEN( 0 ));
+	 Move( td->rp, x * td->fw, y * td->fh + td->fb );
+	 Text( td->rp, (char *) s, n );
       }
    }
 
@@ -1626,76 +1626,76 @@ static errr amiga_xtra( int n, int v )
       /* Wait for event */
       case TERM_XTRA_EVENT:
 
-         return ( amiga_event( v ));
+	 return ( amiga_event( v ));
 
 
       /* Flush input */
       case TERM_XTRA_FLUSH:
 
-         return ( amiga_flush( v ));
+	 return ( amiga_flush( v ));
 
 
       /* Make a noise */
       case TERM_XTRA_CLEAR:
 
-         return ( amiga_clear());
+	 return ( amiga_clear());
 
 
       /* Change cursor visibility */
       case TERM_XTRA_SHAPE:
 
-         /* Cursor on */
-         if ( v )
-         {
-            cursor_on( td );
-            td->cursor_visible = TRUE;
-         }
-         /* Cursor off */
-         else
-         {
-            cursor_off( td );
-            td->cursor_visible = FALSE;
-         }
-         return ( 0 );
+	 /* Cursor on */
+	 if ( v )
+	 {
+	    cursor_on( td );
+	    td->cursor_visible = TRUE;
+	 }
+	 /* Cursor off */
+	 else
+	 {
+	    cursor_off( td );
+	    td->cursor_visible = FALSE;
+	 }
+	 return ( 0 );
 
 
       /* Flash screen */
       case TERM_XTRA_NOISE:
 
-         DisplayBeep( use_pub ? pubscr : amiscr );
-         return ( 0 );
+	 DisplayBeep( use_pub ? pubscr : amiscr );
+	 return ( 0 );
 
 
       /* Play a sound */
       case TERM_XTRA_SOUND:
 
-         if ( has_sound )
-         {
-            play_sound( v );
-         }
-         return ( 0 );
+	 if ( has_sound )
+	 {
+	    play_sound( v );
+	 }
+	 return ( 0 );
 
 
       /* React on global changes */
       case TERM_XTRA_REACT:
 
-         return ( amiga_react( v ));
+	 return ( amiga_react( v ));
 
 
       case TERM_XTRA_LEVEL:
 
-         term_curs = td;
-         return( 0 );
+	 term_curs = td;
+	 return( 0 );
 
       case TERM_XTRA_DELAY:
-      
-         if (v >= 20) Delay(v / 20);
-         return (0);
-      
+
+	 if (v >= 20) Delay(v / 20);
+	 return (0);
+
       /* Unknown request type */
       default:
 
-         return ( 1 );
+	 return ( 1 );
 
    }
 
@@ -1736,7 +1736,7 @@ static errr amiga_event( int v )
       /* If we don't want blocking, return */
       if ( !v )
       {
-         return ( 0 );
+	 return ( 0 );
       }
 
       /* No messages, so wait for one */
@@ -1758,7 +1758,7 @@ static errr amiga_event( int v )
       /* Update menus before displaying */
       if ( iclass == IDCMP_MENUVERIFY && icode == MENUHOT && use_menus )
       {
-         update_menus();
+	 update_menus();
       }
 
       /* Reply the message */
@@ -1767,35 +1767,35 @@ static errr amiga_event( int v )
       /* Do we have a keypress? */
       if ( iclass == IDCMP_RAWKEY )
       {
-         handle_rawkey( icode, iqual, iaddr );
-         return ( 0 );
+	 handle_rawkey( icode, iqual, iaddr );
+	 return ( 0 );
       }
 
       /* Mouse event - Make pointer visible */
       if ( iclass == IDCMP_MOUSEMOVE ||
-           iclass == IDCMP_MOUSEBUTTONS ||
-           iclass == IDCMP_MENUVERIFY )
+	   iclass == IDCMP_MOUSEBUTTONS ||
+	   iclass == IDCMP_MENUVERIFY )
       {
-         if ( blankmouse && !pointer_visible )
-         {
-            ClearPointer( screen.win );
-            pointer_visible = TRUE;
-         }
+	 if ( blankmouse && !pointer_visible )
+	 {
+	    ClearPointer( screen.win );
+	    pointer_visible = TRUE;
+	 }
 
-         return ( 0 );
+	 return ( 0 );
       }
 
       /* Time for some cursor anim? */
       if ( iclass == IDCMP_INTUITICKS )
       {
-         cursor_anim();
-         return ( 0 );
+	 cursor_anim();
+	 return ( 0 );
       }
 
       /* Menu item picked? */
       if ( iclass == IDCMP_MENUPICK )
       {
-         handle_menupick( icode );
+	 handle_menupick( icode );
       }
 
       /* Unknown message class */
@@ -1863,8 +1863,8 @@ int amiga_tomb( void )
       pp = filebm->Planes[ plane ];
       for ( row = 0; row < 168 && !error; row++ )
       {
-         error = ( Read( file, pp, 64 ) != 64 );
-         pp += filebm->BytesPerRow;
+	 error = ( Read( file, pp, 64 ) != 64 );
+	 pp += filebm->BytesPerRow;
       }
    }
 
@@ -1880,34 +1880,34 @@ int amiga_tomb( void )
       /* Allocate bitmap for remapped image */
       if (( convbm = alloc_bitmap( 512, 168, depth, BMF_CLEAR, screen.rp->BitMap )) == NULL )
       {
-         free_bitmap( filebm );
-         return( FALSE );
+	 free_bitmap( filebm );
+	 return( FALSE );
       }
 
       /* Simple remapping from 4 to 5 planes? */
       if ( depth == 5 && !use_pub )
       {
-         for ( plane = 0; plane < 4; plane++ )
-         {
-            src = filebm->Planes[ plane ];
-            dst = convbm->Planes[ plane ];
-            for ( row = 0; row < 168; row++ )
-            {
-               for ( byt = 0; byt < 64; byt++ )
-               {
-                  dst[ byt ] = src[ byt ];
-               }
-               src += filebm->BytesPerRow;
-               dst += convbm->BytesPerRow;
-            }
-         }
+	 for ( plane = 0; plane < 4; plane++ )
+	 {
+	    src = filebm->Planes[ plane ];
+	    dst = convbm->Planes[ plane ];
+	    for ( row = 0; row < 168; row++ )
+	    {
+	       for ( byt = 0; byt < 64; byt++ )
+	       {
+		  dst[ byt ] = src[ byt ];
+	       }
+	       src += filebm->BytesPerRow;
+	       dst += convbm->BytesPerRow;
+	    }
+	 }
       }
 
       /* Complex remapping */
       else
       {
-         /* Remap old bitmap into new bitmap */
-         remap_bitmap( filebm, convbm, use_pub ? pubpens : stdpens, 512, 168 );
+	 /* Remap old bitmap into new bitmap */
+	 remap_bitmap( filebm, convbm, use_pub ? pubpens : stdpens, 512, 168 );
       }
 
       /* Free original bitmap */
@@ -2026,41 +2026,41 @@ void handle_rawkey( UWORD code, UWORD qual, APTR addr )
    {
       /* Direction key? (1,2,3,4,6,7,8,9) */
       if (( code >= 0x1d && code <= 0x1f ) ||
-          ( code == 0x2d || code == 0x2f ) ||
-          ( code >= 0x3d && code <= 0x3f ))
+	  ( code == 0x2d || code == 0x2f ) ||
+	  ( code >= 0x3d && code <= 0x3f ))
       {
-         /* Shift/Ctrl/Alt/Amiga keys */
-         q = qual & 0xff;
+	 /* Shift/Ctrl/Alt/Amiga keys */
+	 q = qual & 0xff;
 
-         /* Shift + Direction */
-         if ( q == IEQUALIFIER_LSHIFT || q == IEQUALIFIER_RSHIFT )
-         {
-            /* Fake a keypress 'run' */
-            Term_keypress( '.' );
+	 /* Shift + Direction */
+	 if ( q == IEQUALIFIER_LSHIFT || q == IEQUALIFIER_RSHIFT )
+	 {
+	    /* Fake a keypress 'run' */
+	    Term_keypress( '.' );
 
-            /* Remove shift key from event */
-            qual &= ~( IEQUALIFIER_LSHIFT | IEQUALIFIER_RSHIFT );
-         }
+	    /* Remove shift key from event */
+	    qual &= ~( IEQUALIFIER_LSHIFT | IEQUALIFIER_RSHIFT );
+	 }
 
-         /* Alt + Direction */
-         else if ( q == IEQUALIFIER_LALT || q == IEQUALIFIER_RALT )
-         {
-            /* Fake a keypress 'tunnel' */
-            Term_keypress( 'T' );
+	 /* Alt + Direction */
+	 else if ( q == IEQUALIFIER_LALT || q == IEQUALIFIER_RALT )
+	 {
+	    /* Fake a keypress 'tunnel' */
+	    Term_keypress( 'T' );
 
-            /* Remove alt key from event */
-            qual &= ~( IEQUALIFIER_LALT | IEQUALIFIER_RALT );
-         }
+	    /* Remove alt key from event */
+	    qual &= ~( IEQUALIFIER_LALT | IEQUALIFIER_RALT );
+	 }
 
-         /* Ctrl + Direction */
-         else if ( q == IEQUALIFIER_CONTROL )
-         {
-            /* Fake a keypress 'open' */
-            Term_keypress( 'o' );
+	 /* Ctrl + Direction */
+	 else if ( q == IEQUALIFIER_CONTROL )
+	 {
+	    /* Fake a keypress 'open' */
+	    Term_keypress( 'o' );
 
-            /* Remove ctrl key from event */
-            qual &= ~IEQUALIFIER_CONTROL;
-         }
+	    /* Remove ctrl key from event */
+	    qual &= ~IEQUALIFIER_CONTROL;
+	 }
       }
    }
 
@@ -2075,7 +2075,7 @@ void handle_rawkey( UWORD code, UWORD qual, APTR addr )
    {
       if( !iconified )
       {
-         Term_keypress( (unsigned char) buf[ i ]);
+	 Term_keypress( (unsigned char) buf[ i ]);
       }
    }
 }
@@ -2101,55 +2101,55 @@ void handle_menupick( int mnum )
       /* Is this a help item? */
       if ( ud >= MNU_HELP )
       {
-         /* Send keypresses */
-         Term_keypress( '\\' );
-         Term_keypress( '?' );
-         Term_keypress( ud - MNU_HELP );
+	 /* Send keypresses */
+	 Term_keypress( '\\' );
+	 Term_keypress( '?' );
+	 Term_keypress( ud - MNU_HELP );
       }
 
       /* Is this an option item? */
       else if ( ud >= MNU_OPTION )
       {
-         /* Option index */
-         i = ud - MNU_OPTION;
+	 /* Option index */
+	 i = ud - MNU_OPTION;
 
-         /* Set option according to checkmark status */
-         *options[ i ].o_var = item->Flags & CHECKED ? TRUE : FALSE;
+	 /* Set option according to checkmark status */
+	 *options[ i ].o_var = item->Flags & CHECKED ? TRUE : FALSE;
 
-         /* Fake a dummy keypress to cause update */
-         Term_keypress( ' ' );
+	 /* Fake a dummy keypress to cause update */
+	 Term_keypress( ' ' );
       }
 
       /* Control key shortcuts */
       else if ( ud >= MNU_CKEYCOM )
       {
-         /* Send keycode */
-         Term_keypress( '\\' );
-         Term_keypress( '^' );
-         Term_keypress( ud - MNU_CKEYCOM );
+	 /* Send keycode */
+	 Term_keypress( '\\' );
+	 Term_keypress( '^' );
+	 Term_keypress( ud - MNU_CKEYCOM );
       }
 
       /* Key shortcuts */
       else if ( ud >= MNU_KEYCOM )
       {
-         /* Key code */
-         i = ud - MNU_KEYCOM;
+	 /* Key code */
+	 i = ud - MNU_KEYCOM;
 
-         /* Some functions need underlying keymap */
-         if ( i != 't' && i != 'w' && i != 'T' )
-         {
-            Term_keypress( '\\' );
-         }
+	 /* Some functions need underlying keymap */
+	 if ( i != 't' && i != 'w' && i != 'T' )
+	 {
+	    Term_keypress( '\\' );
+	 }
 
-         /* Send keycode */
-         Term_keypress( i );
+	 /* Send keycode */
+	 Term_keypress( i );
       }
 
       /* Scaled down Map of the dungeon */
       else if ( ud == MNU_SCALEDMAP )
       {
-         /* Draw the map */
-         amiga_map();
+	 /* Draw the map */
+	 amiga_map();
       }
 
       /* Find next menunumber */
@@ -2174,25 +2174,25 @@ static void cursor_on( term_data *td )
       /* Draw an outlined cursor */
       if( CUR_A & 0xf0 && use_graphics )
       {
-         x0 = td->cursor_xpos * td->fw;
-         y0 = td->cursor_ypos * td->fh;
-         x1 = x0 + td->fw - 1;
-         y1 = y0 + td->fh - 1;
-         SetAPen( td->wrp, PEN( CURSOR_PEN ));
-         Move( td->wrp, x0, y0 );
-         Draw( td->wrp, x1, y0 );
-         Draw( td->wrp, x1, y1 );
-         Draw( td->wrp, x0, y1 );
-         Draw( td->wrp, x0, y0 );
+	 x0 = td->cursor_xpos * td->fw;
+	 y0 = td->cursor_ypos * td->fh;
+	 x1 = x0 + td->fw - 1;
+	 y1 = y0 + td->fh - 1;
+	 SetAPen( td->wrp, PEN( CURSOR_PEN ));
+	 Move( td->wrp, x0, y0 );
+	 Draw( td->wrp, x1, y0 );
+	 Draw( td->wrp, x1, y1 );
+	 Draw( td->wrp, x0, y1 );
+	 Draw( td->wrp, x0, y0 );
       }
 
       /* Draw a filled cursor */
       else
       {
-         SetAPen( td->wrp, PEN( CUR_A & 0x0f ));
-         SetBPen( td->wrp, PEN( CURSOR_PEN ));
-         Move( td->wrp, td->fw * td->cursor_xpos, td->fh * td->cursor_ypos + td->fb );
-         Text( td->wrp, &CUR_C, 1 );
+	 SetAPen( td->wrp, PEN( CUR_A & 0x0f ));
+	 SetBPen( td->wrp, PEN( CURSOR_PEN ));
+	 Move( td->wrp, td->fw * td->cursor_xpos, td->fh * td->cursor_ypos + td->fb );
+	 Text( td->wrp, &CUR_C, 1 );
       }
 
       td->cursor_lit = TRUE;
@@ -2209,16 +2209,16 @@ static void cursor_off( term_data *td )
       /* Restore graphics under cursor */
       if ( CUR_A & 0xf0 && use_graphics )
       {
-         put_gfx( td->wrp, td->cursor_xpos, td->cursor_ypos, CUR_C, CUR_A );
+	 put_gfx( td->wrp, td->cursor_xpos, td->cursor_ypos, CUR_C, CUR_A );
       }
 
       /* Restore char/attr under cursor */
       else
       {
-         SetAPen( td->wrp, PEN( CUR_A & 0x0f ));
-         SetBPen( td->wrp, PEN( 0 ));
-         Move( td->wrp, td->fw * td->cursor_xpos, td->fh * td->cursor_ypos + td->fb );
-         Text( td->wrp, &CUR_C, 1 );
+	 SetAPen( td->wrp, PEN( CUR_A & 0x0f ));
+	 SetBPen( td->wrp, PEN( 0 ));
+	 Move( td->wrp, td->fw * td->cursor_xpos, td->fh * td->cursor_ypos + td->fb );
+	 Text( td->wrp, &CUR_C, 1 );
       }
       td->cursor_lit = FALSE;
    }
@@ -2242,19 +2242,19 @@ static void cursor_anim( void )
    {
       if ( td->cursor_frame & 2 )
       {
-         SetAPen( td->wrp, PEN( CURSOR_PEN ));
-         RectFill( td->wrp,
-                   td->map_x + i * td->mpt_w,
-                   td->map_y + j * td->mpt_h,
-                   td->map_x + ( i + 1) * td->mpt_w - 1,
-                   td->map_y + ( j + 1 ) * td->mpt_h - 1
-                 );
+	 SetAPen( td->wrp, PEN( CURSOR_PEN ));
+	 RectFill( td->wrp,
+		   td->map_x + i * td->mpt_w,
+		   td->map_y + j * td->mpt_h,
+		   td->map_x + ( i + 1) * td->mpt_w - 1,
+		   td->map_y + ( j + 1 ) * td->mpt_h - 1
+		 );
       }
       else
       {
-         ta = (( p_ptr->pclass * 10 + p_ptr->prace) >> 5 ) + 12;
-         tc = (( p_ptr->pclass * 10 + p_ptr->prace) & 0x1f );
-         put_gfx_map( td, i, j, tc, ta );
+	 ta = (( p_ptr->pclass * 10 + p_ptr->prace) >> 5 ) + 12;
+	 tc = (( p_ptr->pclass * 10 + p_ptr->prace) & 0x1f );
+	 put_gfx_map( td, i, j, tc, ta );
       }
    }
 
@@ -2266,31 +2266,31 @@ static void cursor_anim( void )
       /* Draw an outlined cursor */
       if ( CUR_A & 0x80 && use_graphics )
       {
-         /* First draw the tile under cursor */
-         put_gfx( td->wrp, td->cursor_xpos, td->cursor_ypos, CUR_C, CUR_A );
+	 /* First draw the tile under cursor */
+	 put_gfx( td->wrp, td->cursor_xpos, td->cursor_ypos, CUR_C, CUR_A );
 
-         if ( td->cursor_frame < 4 )
-         {
-            x0 = td->cursor_xpos * td->fw;
-            y0 = td->cursor_ypos * td->fh;
-            x1 = x0 + td->fw - 1;
-            y1 = y0 + td->fh - 1;
-            SetAPen( td->wrp, PEN( CURSOR_PEN ));
-            Move( td->wrp, x0, y0 );
-            Draw( td->wrp, x1, y0 );
-            Draw( td->wrp, x1, y1 );
-            Draw( td->wrp, x0, y1 );
-            Draw( td->wrp, x0, y0 );
-         }
+	 if ( td->cursor_frame < 4 )
+	 {
+	    x0 = td->cursor_xpos * td->fw;
+	    y0 = td->cursor_ypos * td->fh;
+	    x1 = x0 + td->fw - 1;
+	    y1 = y0 + td->fh - 1;
+	    SetAPen( td->wrp, PEN( CURSOR_PEN ));
+	    Move( td->wrp, x0, y0 );
+	    Draw( td->wrp, x1, y0 );
+	    Draw( td->wrp, x1, y1 );
+	    Draw( td->wrp, x0, y1 );
+	    Draw( td->wrp, x0, y0 );
+	 }
       }
 
       /* Draw a filled cursor */
       else
       {
-         SetAPen( td->wrp, PEN( CUR_A & 0x0f ));
-         SetBPen( td->wrp, ( td->cursor_frame < 4 ) ? PEN( CURSOR_PEN ) : PEN( 0 ));
-         Move( td->wrp, td->fw * td->cursor_xpos, td->fh * td->cursor_ypos + td->fb );
-         Text( td->wrp, &CUR_C, 1 );
+	 SetAPen( td->wrp, PEN( CUR_A & 0x0f ));
+	 SetBPen( td->wrp, ( td->cursor_frame < 4 ) ? PEN( CURSOR_PEN ) : PEN( 0 ));
+	 Move( td->wrp, td->fw * td->cursor_xpos, td->fh * td->cursor_ypos + td->fb );
+	 Text( td->wrp, &CUR_C, 1 );
       }
    }
 }
@@ -2322,8 +2322,8 @@ int load_gfx( void )
       p = ts->gfxbm->Planes[ plane ];
       for ( row = 0; row < GFXH && !error; row++ )
       {
-         error = ( Read( file, p, GFXB ) != GFXB );
-         p += ts->gfxbm->BytesPerRow;
+	 error = ( Read( file, p, GFXB ) != GFXB );
+	 p += ts->gfxbm->BytesPerRow;
       }
    }
 
@@ -2384,17 +2384,17 @@ int conv_gfx( void )
    {
       for ( plane = 0; plane < 4; plane++ )
       {
-         src = ts->gfxbm->Planes[ plane ];
-         dst = tmpbm->Planes[ plane ];
-         for ( row = 0; row < GFXH; row++ )
-         {
-            for ( byt = 0; byt < GFXB; byt++ )
-            {
-               dst[ byt ] = src[ byt ];
-            }
-            src += ts->gfxbm->BytesPerRow;
-            dst += tmpbm->BytesPerRow;
-         }
+	 src = ts->gfxbm->Planes[ plane ];
+	 dst = tmpbm->Planes[ plane ];
+	 for ( row = 0; row < GFXH; row++ )
+	 {
+	    for ( byt = 0; byt < GFXB; byt++ )
+	    {
+	       dst[ byt ] = src[ byt ];
+	    }
+	    src += ts->gfxbm->BytesPerRow;
+	    dst += tmpbm->BytesPerRow;
+	 }
       }
    }
 
@@ -2421,17 +2421,17 @@ int conv_gfx( void )
    {
       for ( plane = 0; plane < 4; plane++ )
       {
-         src = ts->mskbm->Planes[ 0 ];
-         dst = tmpbm->Planes[ plane ];
-         for ( row = 0; row < GFXH; row++ )
-         {
-            for ( byt = 0; byt < GFXB; byt++ )
-            {
-               dst[ byt ] = src[ byt ];
-            }
-            src += ts->mskbm->BytesPerRow;
-            dst += tmpbm->BytesPerRow;
-         }
+	 src = ts->mskbm->Planes[ 0 ];
+	 dst = tmpbm->Planes[ plane ];
+	 for ( row = 0; row < GFXH; row++ )
+	 {
+	    for ( byt = 0; byt < GFXB; byt++ )
+	    {
+	       dst[ byt ] = src[ byt ];
+	    }
+	    src += ts->mskbm->BytesPerRow;
+	    dst += tmpbm->BytesPerRow;
+	 }
       }
    }
 
@@ -2585,10 +2585,10 @@ static int amiga_fail( char *msg )
    {
       for ( i = 0; i < 32; i++)
       {
-         if ( pubpens[ i ] != -1 )
-         {
-            ReleasePen( pubscr->ViewPort.ColorMap, pubpens[ i ]);
-         }
+	 if ( pubpens[ i ] != -1 )
+	 {
+	    ReleasePen( pubscr->ViewPort.ColorMap, pubpens[ i ]);
+	 }
       }
    }
 
@@ -2662,35 +2662,35 @@ static void amiga_map( void )
    {
       for ( j = 0; j < cur_hgt; j++ )
       {
-         /* Get frame tile */
-         if ( i==0 || i == cur_wid - 1 || j == 0 || j == cur_hgt - 1 )
-         {
-            ta = f_info[ 63 ].z_attr;
-            tc = f_info[ 63 ].z_char;
-         }
+	 /* Get frame tile */
+	 if ( i==0 || i == cur_wid - 1 || j == 0 || j == cur_hgt - 1 )
+	 {
+	    ta = f_info[ 63 ].z_attr;
+	    tc = f_info[ 63 ].z_char;
+	 }
 
-         /* Get tile from cave table */
-         else
-         {
-            map_info( j, i, &ta, (char *) &tc );
-         }
+	 /* Get tile from cave table */
+	 else
+	 {
+	    map_info( j, i, &ta, (char *) &tc );
+	 }
 
-         /* Ignore non-graphics */
-         if ( ta & 0x80 )
-         {
-            ta &= 0x1f;
-            tc &= 0x1f;
+	 /* Ignore non-graphics */
+	 if ( ta & 0x80 )
+	 {
+	    ta &= 0x1f;
+	    tc &= 0x1f;
 
-            /* Player XXX XXX XXX */
-            if ( ta == 12 && tc ==0 )
-            {
-               ta = (( p_ptr->pclass * 10 + p_ptr->prace ) >> 5 ) + 12;
-               tc = (( p_ptr->pclass * 10 + p_ptr->prace ) & 0x1f );
-            }
+	    /* Player XXX XXX XXX */
+	    if ( ta == 12 && tc ==0 )
+	    {
+	       ta = (( p_ptr->pclass * 10 + p_ptr->prace ) >> 5 ) + 12;
+	       tc = (( p_ptr->pclass * 10 + p_ptr->prace ) & 0x1f );
+	    }
 
-            /* Put the graphics to the screen */
-            put_gfx_map( td, i, j, tc, ta );
-         }
+	    /* Put the graphics to the screen */
+	    put_gfx_map( td, i, j, tc, ta );
+	 }
       }
    }
 
@@ -2732,9 +2732,9 @@ void load_palette( void )
       palette32[ n * 3 + 1 ] = 0;
       for ( i = 0; i < n; i++ )
       {
-         palette32[ i * 3 + 1 ] = color_table[ use_graphics ? i : i + 16 ][ 1 ] << 24;
-         palette32[ i * 3 + 2 ] = color_table[ use_graphics ? i : i + 16 ][ 2 ] << 24;
-         palette32[ i * 3 + 3 ] = color_table[ use_graphics ? i : i + 16 ][ 3 ] << 24;
+	 palette32[ i * 3 + 1 ] = color_table[ use_graphics ? i : i + 16 ][ 1 ] << 24;
+	 palette32[ i * 3 + 2 ] = color_table[ use_graphics ? i : i + 16 ][ 2 ] << 24;
+	 palette32[ i * 3 + 3 ] = color_table[ use_graphics ? i : i + 16 ][ 3 ] << 24;
       }
       LoadRGB32( &amiscr->ViewPort, palette32 );
    }
@@ -2742,9 +2742,9 @@ void load_palette( void )
    {
       for ( i = 0; i < n; i++ )
       {
-         palette4[ i ] =  ( color_table[ use_graphics ? i : i + 16 ][ 1 ] >> 4 ) << 8;
-         palette4[ i ] |= ( color_table[ use_graphics ? i : i + 16 ][ 2 ] >> 4 ) << 4;
-         palette4[ i ] |= ( color_table[ use_graphics ? i : i + 16 ][ 3 ] >> 4 );
+	 palette4[ i ] =  ( color_table[ use_graphics ? i : i + 16 ][ 1 ] >> 4 ) << 8;
+	 palette4[ i ] |= ( color_table[ use_graphics ? i : i + 16 ][ 2 ] >> 4 ) << 4;
+	 palette4[ i ] |= ( color_table[ use_graphics ? i : i + 16 ][ 3 ] >> 4 );
       }
       LoadRGB4( &amiscr->ViewPort, palette4, n );
    }
@@ -2777,10 +2777,10 @@ int create_menus( void )
       /* New page of options? */
       if ( page != opt->o_page )
       {
-         page = opt->o_page;
+	 page = opt->o_page;
 
-         /* Copy option header */
-         memcpy( item++, &opt_item[ pg++ ], nmsize );
+	 /* Copy option header */
+	 memcpy( item++, &opt_item[ pg++ ], nmsize );
       }
 
       /* Insert fields for this option */
@@ -2815,15 +2815,15 @@ int create_menus( void )
       /* Layout menus */
       if ( LayoutMenus( menu, visinfo, v39 ? GTMN_NewLookMenus : TAG_IGNORE, TRUE, TAG_END ))
       {
-         /* Attach menu to window */
-         SetMenuStrip( screen.win , menu );
+	 /* Attach menu to window */
+	 SetMenuStrip( screen.win , menu );
       }
 
       /* Free menus */
       else
       {
-         FreeMenus( menu );
-         menu = NULL;
+	 FreeMenus( menu );
+	 menu = NULL;
       }
    }
 
@@ -2855,35 +2855,35 @@ void update_menus( void )
       /* Did we find it? */
       if ( item )
       {
-         /* Option is set, add a checkmark */
-         if ( *(options[ i ].o_var ))
-         {
-            item->Flags |= CHECKED;
-         }
+	 /* Option is set, add a checkmark */
+	 if ( *(options[ i ].o_var ))
+	 {
+	    item->Flags |= CHECKED;
+	 }
 
-         /* Option is not set, remove checkmark */
-         else
-         {
-            item->Flags &= ~CHECKED;
-         }
+	 /* Option is not set, remove checkmark */
+	 else
+	 {
+	    item->Flags &= ~CHECKED;
+	 }
       }
 
       /* Menuitem not found */
       else
       {
-         fprintf( stderr, "ERROR: menuitem #%d not found.\n", i );
-         return;
+	 fprintf( stderr, "ERROR: menuitem #%d not found.\n", i );
+	 return;
       }
 
       /* Find next menuitem */
       if ((item = item->NextItem ) == NULL )
       {
-         /* New set */
-         father = father->NextItem;
-         if ( father )
-         {
-            item = father->SubItem;
-         }
+	 /* New set */
+	 father = father->NextItem;
+	 if ( father )
+	 {
+	    item = father->SubItem;
+	 }
       }
    }
 
@@ -2916,14 +2916,14 @@ int init_sound( void )
       /* Should this sample be loaded into memory? */
       if ( snd->Memory )
       {
-         /* Construct filename */
-         path_build(buf, 255, ANGBAND_DIR_XTRA, "sound");
+	 /* Construct filename */
+	 path_build(buf, 255, ANGBAND_DIR_XTRA, "sound");
 
-         /* Construct filename */
-         path_build(tmp, 255, buf, snd->Name );
+	 /* Construct filename */
+	 path_build(tmp, 255, buf, snd->Name );
 
-         /* Load the sample into memory */
-         snd->Address = (struct SoundInfo *) PrepareSound( tmp );
+	 /* Load the sample into memory */
+	 snd->Address = (struct SoundInfo *) PrepareSound( tmp );
       }
    }
 
@@ -2952,11 +2952,11 @@ void free_sound( void )
    {
       if ( sound_data[ i ].Address )
       {
-         /* Remove the sound from memory */
-         RemoveSound( sound_data[ i ].Address );
+	 /* Remove the sound from memory */
+	 RemoveSound( sound_data[ i ].Address );
 
-         /* Clear address field */
-         sound_data[ i ].Address = NULL;
+	 /* Clear address field */
+	 sound_data[ i ].Address = NULL;
       }
    }
 
@@ -2995,7 +2995,7 @@ static void play_sound( int v )
       /* Random rate on some sounds */
       if ( v == SOUND_HIT || v == SOUND_MISS )
       {
-         rate = rate - 50 + rand_int( 150 );
+	 rate = rate - 50 + rand_int( 150 );
       }
 
       /* Pointer to old sound data */
@@ -3007,31 +3007,31 @@ static void play_sound( int v )
       /* Free old sample if required */
       if ( !old_snd->Memory && old_snd->Address && old != v )
       {
-         /* Remove it from memory */
-         RemoveSound( old_snd->Address );
+	 /* Remove it from memory */
+	 RemoveSound( old_snd->Address );
 
-         /* Clear address field */
-         old_snd->Address = NULL;
+	 /* Clear address field */
+	 old_snd->Address = NULL;
       }
 
       /* Load new sample into memory if required */
       if ( !snd->Memory && snd->Address == NULL )
       {
-         /* Construct filename */
-         path_build(buf, 255, ANGBAND_DIR_XTRA, "sound");
+	 /* Construct filename */
+	 path_build(buf, 255, ANGBAND_DIR_XTRA, "sound");
 
-         /* Construct filename */
-         path_build(tmp, 255, buf, snd->Name );
+	 /* Construct filename */
+	 path_build(tmp, 255, buf, snd->Name );
 
-         /* Load the sample into memory */
-         snd->Address = (struct SoundInfo *) PrepareSound( tmp );
+	 /* Load the sample into memory */
+	 snd->Address = (struct SoundInfo *) PrepareSound( tmp );
       }
 
       /* Make sure the sample is loaded into memory */
       if ( snd->Address )
       {
-         /* Start playing the sound */
-         PlaySound( snd->Address, snd->Volume, channel, rate, snd->Repeats );
+	 /* Start playing the sound */
+	 PlaySound( snd->Address, snd->Volume, channel, rate, snd->Repeats );
       }
 
       /* Store sample number */
@@ -3075,27 +3075,27 @@ struct BitMap *alloc_bitmap( int width, int height, int depth, ULONG flags, stru
       /* Allocate bitmap structure */
       if (( bitmap = AllocMem( sizeof( struct BitMap ), MEMF_PUBLIC | MEMF_CLEAR )))
       {
-         InitBitMap( bitmap, depth, width, height );
-         /* Allocate bitplanes */
-         for ( p = 0; p < depth; p++ )
-         {
-            bp = AllocRaster( width, height );
-            if ( !bp ) break;
-            bitmap->Planes[ p ] = bp;
-         }
+	 InitBitMap( bitmap, depth, width, height );
+	 /* Allocate bitplanes */
+	 for ( p = 0; p < depth; p++ )
+	 {
+	    bp = AllocRaster( width, height );
+	    if ( !bp ) break;
+	    bitmap->Planes[ p ] = bp;
+	 }
 
-         /* Out of memory */
-         if ( p != depth )
-         {
-            /* Free bitplanes */
-            while ( --p >= 0 )
-            {
-               FreeRaster( bitmap->Planes[ p ], width, height );
-            }
-            /* Free bitmap structure */
-            FreeMem( bitmap, sizeof( struct BitMap ));
-            bitmap = NULL;
-         }
+	 /* Out of memory */
+	 if ( p != depth )
+	 {
+	    /* Free bitplanes */
+	    while ( --p >= 0 )
+	    {
+	       FreeRaster( bitmap->Planes[ p ], width, height );
+	    }
+	    /* Free bitmap structure */
+	    FreeMem( bitmap, sizeof( struct BitMap ));
+	    bitmap = NULL;
+	 }
       }
       return ( bitmap );
    }
@@ -3120,7 +3120,7 @@ void free_bitmap( struct BitMap *bitmap )
       /* Free bitplanes */
       for ( p = 0; p < bitmap->Depth; p++ )
       {
-         FreeRaster( bitmap->Planes[ p ], bitmap->BytesPerRow * 8, bitmap->Rows );
+	 FreeRaster( bitmap->Planes[ p ], bitmap->BytesPerRow * 8, bitmap->Rows );
       }
       /* Free bitmap structure */
       FreeMem( bitmap, sizeof( struct BitMap ));
@@ -3187,30 +3187,30 @@ void remap_bitmap( struct BitMap *srcbm, struct BitMap *dstbm, long *pens, int w
       ox = 0;
       for ( x = 0 ; x < lpr; x++ )
       {
-         /* Read source longwords */
-         for ( p = 0; p < sd; p++ ) ls[ p ] = *(ULONG *)( sp[ p ] + ox);
+	 /* Read source longwords */
+	 for ( p = 0; p < sd; p++ ) ls[ p ] = *(ULONG *)( sp[ p ] + ox);
 
-         /* Clear destination longwords */
-         for ( p = 0; p < dd; ld[ p++ ] = 0 );
+	 /* Clear destination longwords */
+	 for ( p = 0; p < dd; ld[ p++ ] = 0 );
 
-         /* Remap */
-         for ( mask = 0x80000000; mask != 0; mask >>= 1)
-         {
-            /* Find color index */
-            for ( p = c = 0; p < sd; p++ ) if ( ls[ p ] & mask ) c |= bm[ p ];
+	 /* Remap */
+	 for ( mask = 0x80000000; mask != 0; mask >>= 1)
+	 {
+	    /* Find color index */
+	    for ( p = c = 0; p < sd; p++ ) if ( ls[ p ] & mask ) c |= bm[ p ];
 
-            /* Remap */
-            c = pens[ c ];
+	    /* Remap */
+	    c = pens[ c ];
 
-            /* Update destination longwords */
-            for ( p = 0; p < dd; p++ ) if ( c & bm[ p ] ) ld[ p ] |= mask;
-         }
+	    /* Update destination longwords */
+	    for ( p = 0; p < dd; p++ ) if ( c & bm[ p ] ) ld[ p ] |= mask;
+	 }
 
-         /* Write destination longwords */
-         for ( p = 0; p < dd; p++ ) *(ULONG *)( dp[ p ] + ox ) = ld[ p ];
+	 /* Write destination longwords */
+	 for ( p = 0; p < dd; p++ ) *(ULONG *)( dp[ p ] + ox ) = ld[ p ];
 
-         /* Update offset */
-         ox += 4;
+	 /* Update offset */
+	 ox += 4;
       }
 
       /* Update pointers to get to next line */

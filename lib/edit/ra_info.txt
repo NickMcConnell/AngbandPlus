@@ -18,7 +18,7 @@
 
 # Version stamp (required)
 
-V:2.8.1
+V:2.0.0
 
 # General info, number of powers
 G:100:1d5:1
@@ -951,7 +951,7 @@ X:60:1
 T:36:0:255
 T:37:0:255
 W:20:1:90
-C:-5:-5:0:3
+C:-70:-70:0:2
 F:LIFE
 
 N:296

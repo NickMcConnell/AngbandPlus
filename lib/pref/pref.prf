@@ -247,6 +247,30 @@ A:#
 C:1:)
 
 
+### Extended macros ###
+
+# Note that : and ' can only be included in triggers if they are
+# within quotes (i.e. as ':' or ''').
+
+L:-8192:help:Show this help
+L:-8192:?
+L:-8192:'''
+L:-8191:irc_on:Connect to IRC
+L:-8191:C
+L:-8190:irc_say:Speak on IRC
+L:-8190:@
+L:-8190:':'
+L:-8189:irc_off:Disconnect from IRC
+L:-8188:time:Get the current game time
+L:-8188:T
+L:-8187:skills:Check skills
+L:-8187:S
+L:-8186:html-dump:Save an html screenshot
+L:-8186:D
+L:y:give:Give an object to a monster
+L:Y:chat:Talk to a monster
+L:j:jam:Jam a door
+
 ##### System Specific Subfiles #####
 
 ?:[IOR [EQU $SYS xaw] [EQU $SYS x11]]
@@ -269,6 +293,9 @@ C:1:)
 
 ?:[EQU $SYS acn]
 %:pref-acn.prf
+
+?:[EQU $SYS sdl]
+%:pref-sdl.prf
 
 ?:1
 

@@ -24,7 +24,7 @@
 
 # Version stamp (required)
 
-V:2.8.1
+V:2.0.0
 
 N:0:General Store
 I:100:& Wooden Torch~
@@ -139,14 +139,6 @@ I:100:Cure Critical Wounds
 I:100:Restore Life Levels
 I:100:Restore Life Levels
 I:100:Restore Life Levels
-I:100:[Call of the West]
-I:100:[Call of the West]
-I:100:[Light of Valinor]
-I:100:[Light of Valinor]
-I:100:[Divine Mastery]
-I:100:[Divine Mastery]
-I:100:[Words of Power]
-I:100:[Words of Power]
 I:100:& Whip~
 I:100:& Mace~
 I:100:& Ball-and-Chain~
@@ -163,14 +155,6 @@ I:100:Remove Curse
 I:100:Remove Curse
 I:100:*Remove Curse*
 I:100:*Remove Curse*
-I:100:[Beginners Handbook]
-I:100:[Beginners Handbook]
-I:100:[Beginners Handbook]
-I:100:[Words of Wisdom]
-I:100:[Words of Wisdom]
-I:100:[Chants and Blessings]
-I:100:[Chants and Blessings]
-I:100:[Exorcism and Dispelling]
 A:0:0:1:2:3:4
 O:26:27:28:29
 G:4:g
@@ -279,18 +263,10 @@ I:100:Perception
 T:100:55:6
 I:100:Cure Light Wounds
 I:100:Probing
-I:100:[Apprentice Handbook]
-I:100:[Mystical Words]
-I:100:[Arcane Chants]
-I:100:[Locus of Force]
-I:100:[Magic for Beginners]
-I:100:[Conjurings and Tricks]
-I:100:[Incantations and Illusions]
-I:100:[Sorcery and Evocations]
-I:100:[Illusions for Beginners]
-I:100:[Tricks and Visions]
-I:100:[Phantasms and Illusions]
-I:100:[Shadows and Prisms]
+# & Book~ of Beginner Cantrips
+T:100:111:50
+T:100:111:50
+T:100:111:50
 A:0:0:1:2:3:4
 O:34:35:36:37
 G:6:r
@@ -310,46 +286,21 @@ G:8:y
 W:24
 
 N:8:Book Store
-I:100:[Apprentice Handbook]
-I:100:[Mystical Words]
-I:100:[Arcane Chants]
-I:100:[Locus of Force]
-I:100:[Inner Void]
-I:100:[Lurkings of the Night]
-I:100:[Beings of Darkness]
-I:100:[Material Shadow]
-I:100:[Sign of Chaos]
-I:100:[Chaos Mastery]
-I:100:[Tricks of the Wild]
-I:100:[Mastering the Rituals]
-I:100:[Nether Openings]
-I:100:[Unholy Blessings]
-I:100:[Necromantic Incantations]
-I:100:[Curses of Angmar]
-I:100:[Rites of Initiation]
-I:100:[Ways of War]
 I:100:[Earth]
 I:100:[Fire]
 I:100:[Air]
-I:100:[Novice Crafts]
-I:100:[Novice Crafts]
-I:100:[Arcane Channels]
-I:100:[Illusions for Beginners]
-I:100:[Tricks and Visions]
-I:100:[Phantasms and Illusions]
-I:100:[Shadows and Prisms]
-I:100:[Call of the West]
-I:100:[Light of Valinor]
-I:100:[Divine Mastery]
-I:100:[Words of Power]
 T:100:119:0
 I:100:[Minstrel's Music]
 I:100:[Dark Incantations]
 I:100:[Immortal Rituals]
 I:100:[Life in symbiosis]
 I:100:[Life in symbiosis]
-T:100:126:0
-T:100:126:1
+# & Book~ of Beginner Cantrips
+T:100:111:50
+T:100:111:50
+T:100:111:255
+T:100:111:255
+T:100:111:255
 A:0:0:1:2:3:4
 O:42:43:44:45
 G:9:o
@@ -415,7 +366,10 @@ G:+:s
 W:0
 
 N:16:Beastmaster Shanty
-A:18:0:19:20:21:22
+# Disabled the bounty list for the time being to not confuse people
+# with the bounty quest
+# A:18:0:19:20:21:22
+A:18:0:21:22:0:0
 O:19:19:19:19
 G:+:g
 W:0
@@ -450,13 +404,11 @@ O:24:24:24:24
 G:+:u
 W:0
 
-N:22:Weyr
-I:100:& Small Firestone~
-I:80:& Firestone~
+N:22:Thunderlords's Hide
 A:0:0:33:2:34:0
 O:25:25:25:25
 G:+:U
-W:3
+W:0
 
 N:23:The Mirror
 A:0:0:44:15:16:43

@@ -11,17 +11,44 @@ chose the more mana is used to cast the spell. They also are bad
 fighters, but if they concentrate all their mana in one spell 
 (especially with a mage staff of mana) they could kill nearly anything.
 
-#####GPrimary Stats
-Dexterity (spellcasting stat)
+#####GStarting Stat Modifiers
+Strength         -5
+Intelligence     +3
+Wisdom           +0
+Dexterity        +1
+Constitution     -2
+Charisma         +1
+Bonus Blows      0
+Hit Die          +d0
+Exp Penalty      30%
 
-#####GMagic Usage
-No other spellcaster can fine-tune magics quite like the Runecrafter, 
-who combine runes that control magical type and effects, and then 
-decides just how much effort the spell needs.  Runecrafters can invoke 
-the most powerful magics of any class, but are always desperately hungry
-for mana.  They can get more mana by increasing Dexterity (their spell 
-stat), and by wielding special Mage Staffs.
+#####GStarting Skills:
+#####BSkill                   Start Level     Skill Point Gains
+Combat                  1.000           [0.200]
+  Weaponmastery         0.700           [0.400]
+Sneakiness              1.000           [0.900]
+Magic                   2.000           [0.950]
+  Sorcery               0.000           [0.400]
+  Spell-power           0.000           [0.600]
+  Mana                  1.000           [0.600]
+  Fire                  0.000           [0.600]
+  Water                 0.000           [0.600]
+  Air                   0.000           [0.600]
+  Earth                 0.000           [0.600]
+  Temporal              0.000           [0.600]
+  Divination            0.000           [0.600]
+  Conveyance            0.000           [0.600]
+  Nature                0.000           [0.600]
+  Meta                  0.000           [0.600]
+  Mind                  0.000           [0.600]
+  Necromancy            0.000           [0.600]
+  Runecraft             1.000           [0.900]
+  Thaumaturgy           0.000           [0.600]
+Spirituality            1.000           [0.550]
+  Prayer                0.000           [0.500]
+Monster-lore            0.000           [0.500]
 
+#####GRune Magic
 Runecrafters combine runes using the 'm' command.  They first select a 
 rune that controls magic type, then apply one or more runes to fine-tune
 effects, (pressing ESC when done), and then input the amount of mana 

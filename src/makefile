@@ -18,7 +18,7 @@
 LUA = TRUE
 
 # Enable the IRC client -- need libsocket
-#IRC = TRUE
+IRC = TRUE
 
 #
 # Basic definitions
@@ -31,7 +31,7 @@ OBJS = \
   store.o birth.o wizard1.o wizard2.o bldg.o cmovie.o \
   cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o cmd7.o \
   loadsave.o files.o levels.o notes.o squeltch.o \
-  status.o randart.o \
+  status.o randart.o skills.o gods.o \
   xtra1.o xtra2.o spells1.o spells2.o melee1.o melee2.o \
   object1.o object2.o traps.o monster1.o monster2.o monster3.o \
   variable.o tables.o util.o cave.o ghost.o wild.o powers.o \
@@ -66,7 +66,7 @@ CFLAGS = -Wall -O2 -s -DUSE_DOS -DUSE_IBM -DUSE_BACKGROUND \
 -DUSE_TRANSPARENCY $(LUAFLAGS)
 
 # Libraries
-LIBS = -lpc -lalleg $(LUALIBS)
+LIBS = -lpc -lalleg $(LUALIBS) -lsocket
 
 ifdef IRC
 CFLAGS += -DUSE_SOCK -DUSE_DOSSOCK
@@ -75,7 +75,7 @@ LIBS += -lsocket
 # cant get libsocket to resolve hosts
 CFLAGS += -DIRC_SERVER=\"216.41.105.77\"
 CFLAGS += -DIRC_PORT=\"6667\"
-CFLAGS += -DIRC_CHANNEL=\"\#*bandirc\"
+CFLAGS += -DIRC_CHANNEL=\"\#angband\"
 
 endif
 
@@ -97,6 +97,8 @@ install: ../tome.exe
 
 all: ../tome.exe
 #        @echo All done.  Use 'make install' to install.
+
+re: clean all
 
 $(TOLUA): $(TOLUAOBJS) lua/tolua.c lua/tolualua.c
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $(TOLUAOBJS) lua/tolua.c lua/tolualua.c $(LIBS)

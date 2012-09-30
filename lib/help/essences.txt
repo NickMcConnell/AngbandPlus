@@ -1,6 +1,6 @@
 |||||oy
-#####REssence Spoiler for T.o.M.E.
-#####R----------------------------
+#####REssence Spoiler for ToME
+#####R------------------------
 
 Essences are the tools of the trade for Alchemists, and 
 unfortunately are useless for any other class. Alchemists

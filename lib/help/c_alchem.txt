@@ -17,10 +17,34 @@ dealing wands, rods, and staffs, forge powerful weapons and armour,
 make highly useful objects of other kinds, and eventually will 
 understand the perilous art of artifact creation itself.
 
-#####GPrimary Stats
-Strength
+#####GStarting Stat Modifiers
+Strength         -5
+Intelligence     +3
+Wisdom           +0
+Dexterity        +1
+Constitution     -2
+Charisma         +1
+Bonus Blows      0
+Hit Die          +d0
+Exp Penalty      30%
 
-#####GMagic Usage
+#####GStarting Skills:
+#####BSkill                   Start Level     Skill Point Gains
+Combat                  1.000           [0.700]
+  Weaponmastery         0.700           [0.700]
+Sneakiness              1.000           [0.900]
+Magic                   3.000           [0.900]
+  Divination            0.000           [0.400]
+  Meta                  0.000           [0.400]
+  Mind                  0.000           [0.400]
+  Runecraft             0.000           [0.600]
+Spirituality            1.000           [0.800]
+  Prayer                0.000           [0.500]
+Monster-lore            0.000           [0.500]
+Misc                    0.000           [0.000]
+  Alchemy               1.000           [0.800]
+
+#####GAlchemy
 [[[[[BThe alchemic techniques are accessed using the 'm' key.]  An
 alchemist may then 'E'xtract power or 'A'dd power. The Alchemist [[[[[vmust]
 be wearing GLOVES to use their alchemy powers.

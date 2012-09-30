@@ -58,36 +58,36 @@ typedef unsigned int bits;
 
 /* Header for eventlib (using OSLib types) */
 typedef int event_wimp_handler(wimp_event_no event_code,
-                               wimp_block *event, toolbox_block *id,
-                               void *handle);
+			       wimp_block *event, toolbox_block *id,
+			       void *handle);
 
 typedef int event_toolbox_handler(bits event_code,
-                                  toolbox_action *event, toolbox_block *id,
-                                  void *handle);
+				  toolbox_action *event, toolbox_block *id,
+				  void *handle);
 
 typedef int event_message_handler(wimp_message *message,
-                                  void *handle);
+				  void *handle);
 
 extern os_error *event_poll(wimp_event_no *event_code, wimp_block *poll_block,
-                            void *poll_word);
+			    void *poll_word);
 
 extern os_error *event_set_mask(wimp_poll_flags mask);
 extern os_error *event_get_mask(wimp_poll_flags *mask);
 
 extern os_error *event_register_wimp_handler(toolbox_o object_id,
-                                             wimp_event_no event_code, event_wimp_handler *handler, void *handle);
+					     wimp_event_no event_code, event_wimp_handler *handler, void *handle);
 
 extern os_error *event_register_toolbox_handler(toolbox_o object_id,
-                                                wimp_event_no event_code, event_toolbox_handler *handler, void *handle);
+						wimp_event_no event_code, event_toolbox_handler *handler, void *handle);
 
 extern os_error *event_register_message_handler(bits msg_no,
-                                                event_message_handler *handler, void *handle);
+						event_message_handler *handler, void *handle);
 
 extern os_error *event_deregister_toolbox_handler(toolbox_o object_id,
-                                                  wimp_event_no event_code, event_toolbox_handler *handler, void *handle);
+						  wimp_event_no event_code, event_toolbox_handler *handler, void *handle);
 
 extern os_error *event_deregister_message_handler(bits msg_no,
-                                                  event_message_handler *handler, void *handle);
+						  event_message_handler *handler, void *handle);
 
 extern os_error *event_initialise(toolbox_block *id_block);
 
@@ -249,9 +249,9 @@ static void plog_hook(cptr str)
 	e.errnum=1;
 	strcpy(e.errmess, str);
 	wimp_report_error_by_category(&e,
-	                              wimp_ERROR_BOX_OK_ICON |
-	                              wimp_ERROR_BOX_CATEGORY_INFO << wimp_ERROR_BOX_CATEGORY_SHIFT,
-	                              "Angband", "!angband", wimpspriteop_AREA, 0);
+				      wimp_ERROR_BOX_OK_ICON |
+				      wimp_ERROR_BOX_CATEGORY_INFO << wimp_ERROR_BOX_CATEGORY_SHIFT,
+				      "Angband", "!angband", wimpspriteop_AREA, 0);
 }
 
 /*
@@ -268,8 +268,8 @@ static void quit_hook(cptr str)
 		strcpy(e.errmess, str);
 		if (wimpver >= 322)
 			wimp_report_error_by_category(&e,
-		                              wimp_ERROR_BOX_CATEGORY_ERROR << wimp_ERROR_BOX_CATEGORY_SHIFT,
-		                              "Angband", "!angband", wimpspriteop_AREA, "Quit");
+					      wimp_ERROR_BOX_CATEGORY_ERROR << wimp_ERROR_BOX_CATEGORY_SHIFT,
+					      "Angband", "!angband", wimpspriteop_AREA, "Quit");
 		else
 			wimp_report_error(&e, wimp_ERROR_BOX_CANCEL_ICON, "Angband");
 	}
@@ -299,16 +299,16 @@ static void core_hook(cptr str)
 		e.errnum=1;
 		strcpy(e.errmess, apology);
 		sel=wimp_report_error_by_category(&e,
-		                                  wimp_ERROR_BOX_CATEGORY_PROGRAM << wimp_ERROR_BOX_CATEGORY_SHIFT,
-		                                  "Angband", "!angband", wimpspriteop_AREA, str?"Quit,Describe":"Quit");
+						  wimp_ERROR_BOX_CATEGORY_PROGRAM << wimp_ERROR_BOX_CATEGORY_SHIFT,
+						  "Angband", "!angband", wimpspriteop_AREA, str?"Quit,Describe":"Quit");
 		if (sel==4) /* User pressed Describe */
 		{
 			e.errnum=1;
 			strcpy(e.errmess, str);
 
 			wimp_report_error_by_category(&e,
-			                              wimp_ERROR_BOX_CATEGORY_PROGRAM << wimp_ERROR_BOX_CATEGORY_SHIFT,
-			                              "Angband", "!angband", wimpspriteop_AREA, "Quit");
+						      wimp_ERROR_BOX_CATEGORY_PROGRAM << wimp_ERROR_BOX_CATEGORY_SHIFT,
+						      "Angband", "!angband", wimpspriteop_AREA, "Quit");
 		}
 	}
 	else
@@ -331,15 +331,15 @@ static void oserror_handler(int sig)
 }
 
 static int error_handler(bits event_code, toolbox_action *event,
-                         toolbox_block *id, void *handle)
+			 toolbox_block *id, void *handle)
 {
 	wimp_report_error_by_category((os_error *) &event->data.error,
-	                              wimp_ERROR_BOX_OK_ICON |
-	                              wimp_ERROR_BOX_CATEGORY_ERROR << wimp_ERROR_BOX_CATEGORY_SHIFT,
-	                              "Angband",
-	                              "!angband",
-	                              wimpspriteop_AREA,
-	                              0);
+				      wimp_ERROR_BOX_OK_ICON |
+				      wimp_ERROR_BOX_CATEGORY_ERROR << wimp_ERROR_BOX_CATEGORY_SHIFT,
+				      "Angband",
+				      "!angband",
+				      wimpspriteop_AREA,
+				      0);
 
 	return 1;
 }
@@ -393,7 +393,7 @@ static void grabcaret(void)
  */
 
 static void ShowCentred(toolbox_show_flags flags, toolbox_o obj,
-                        toolbox_o parent_obj, toolbox_c parent_cmp)
+			toolbox_o parent_obj, toolbox_c parent_cmp)
 {
 	wimp_window_state state;
 	int width, height, scrwidth, scrheight, xeig, yeig;
@@ -426,7 +426,7 @@ static void ShowCentred(toolbox_show_flags flags, toolbox_o obj,
 	pos.top_left.y=(scrheight+height)/2;
 
 	toolbox_show_object(flags, obj, toolbox_POSITION_TOP_LEFT, &pos,
-	                    parent_obj, parent_cmp);
+			    parent_obj, parent_cmp);
 }
 
 /*************************************************************
@@ -562,7 +562,7 @@ static void cursor(term *t, int on)
 	}
 	td->curs_vis=on;
 	update_window(td, td->curs_x, td->curs_y,
-	              td->curs_x+1, td->curs_y+1);
+		      td->curs_x+1, td->curs_y+1);
 	td->froshed[td->curs_y]=1;
 }
 
@@ -726,7 +726,7 @@ static int dataload_handler(wimp_message *message, void *handle)
 }
 
 static int showsave_handler(bits event_code, toolbox_action *event,
-                            toolbox_block *id, void *handle)
+			    toolbox_block *id, void *handle)
 {
 	const char *fname;
 	char buffer[256];
@@ -737,7 +737,7 @@ static int showsave_handler(bits event_code, toolbox_action *event,
 	else
 	{
 		osfscontrol_canonicalise_path("<Angband$Dir>.^.SavedGame", buffer, 0, 0,
-		                              sizeof buffer);
+					      sizeof buffer);
 		fname=buffer;
 	}
 #else
@@ -751,7 +751,7 @@ static int showsave_handler(bits event_code, toolbox_action *event,
 }
 
 static int savebutton_handler(bits event_code, toolbox_action *event,
-                              toolbox_block *id, void *handle)
+			      toolbox_block *id, void *handle)
 {
 	if (event->flags & actionbutton_SELECTED_CANCEL)
 		if (event->flags & actionbutton_SELECTED_ADJUST)
@@ -761,7 +761,7 @@ static int savebutton_handler(bits event_code, toolbox_action *event,
 }
 
 static int save_handler(bits event_code, toolbox_action *event,
-                        toolbox_block *id, void *handle)
+			toolbox_block *id, void *handle)
 {
 	saveas_action_save_to_file *save=(saveas_action_save_to_file *)&event->data;
 	char tempsavefile[256];
@@ -781,7 +781,7 @@ static int save_handler(bits event_code, toolbox_action *event,
 }
 
 static int defaultsave_handler(bits event_code, toolbox_action *event,
-                               toolbox_block *id, void *handle)
+			       toolbox_block *id, void *handle)
 {
 	msg_flag=FALSE;
 
@@ -791,7 +791,7 @@ static int defaultsave_handler(bits event_code, toolbox_action *event,
 }
 
 static int savecomplete_handler(bits event_code, toolbox_action *event,
-                                toolbox_block *id, void *handle)
+				toolbox_block *id, void *handle)
 {
 	saveas_action_save_completed *save=(saveas_action_save_completed *)&event->data;
 
@@ -811,7 +811,7 @@ static int loadfile_handler(wimp_message *message, void *handle)
 }
 
 static int savefile_handler(bits event_code, toolbox_action *event,
-                            toolbox_block *id, void *handle)
+			    toolbox_block *id, void *handle)
 {
 	saveas_action_save_to_file *save=(saveas_action_save_to_file *)&event->data;
 	func_bool saver=(func_bool) handle;
@@ -836,7 +836,7 @@ static int savefile_handler(bits event_code, toolbox_action *event,
 }
 
 static int cancelsavefile_handler(bits event_code, toolbox_action *event,
-                                  toolbox_block *id, void *handle)
+				  toolbox_block *id, void *handle)
 {
 	escape_pressed=1;
 
@@ -844,7 +844,7 @@ static int cancelsavefile_handler(bits event_code, toolbox_action *event,
 }
 
 static int endsavefile_handler(bits event_code, toolbox_action *event,
-                               toolbox_block *id, void *handle)
+			       toolbox_block *id, void *handle)
 {
 	file_dragged=1;
 
@@ -900,7 +900,7 @@ static errr savefile_hook(cptr defname, int row, func_errr saver)
 	mouse.pos.top_left.y+=64;
 
 	toolbox_show_object(toolbox_SHOW_AS_MENU, savebox, toolbox_POSITION_TOP_LEFT,
-	                    &mouse.pos, toolbox_NULL_OBJECT, toolbox_NULL_COMPONENT);
+			    &mouse.pos, toolbox_NULL_OBJECT, toolbox_NULL_COMPONENT);
 
 	file_dragged=escape_pressed=0;
 
@@ -936,7 +936,7 @@ static errr askforfile_hook(cptr defname, int row, func_errr filer, int mode)
 #endif
 
 static int defaultcols_handler(bits event_code, toolbox_action *event,
-                               toolbox_block *id, void *handle)
+			       toolbox_block *id, void *handle)
 {
 	memcpy(&palette, &default_palette, sizeof default_palette);
 	palette.entries[TERM_CURSOR]=0x00ffff00;
@@ -983,7 +983,7 @@ static int palette_handler(wimp_message *message, void *handle)
 }
 
 static int proginfo_handler(bits event_code, toolbox_action *event,
-                            toolbox_block *id, void *handle)
+			    toolbox_block *id, void *handle)
 {
 	proginfo_set_version(NONE, id->this_obj, VERSION);
 
@@ -991,7 +991,7 @@ static int proginfo_handler(bits event_code, toolbox_action *event,
 }
 
 static int iconbar_handler(bits event_code, toolbox_action *event,
-                           toolbox_block *id, void *handle)
+			   toolbox_block *id, void *handle)
 {
 	if (term_recall)
 		window_to_front(recall.wimp);
@@ -1007,7 +1007,7 @@ static int iconbar_handler(bits event_code, toolbox_action *event,
 }
 
 static int showfilemenu_handler(bits event_code, toolbox_action *event,
-                                toolbox_block *id, void *handle)
+				toolbox_block *id, void *handle)
 {
 	menu_set_fade(NONE, id->this_obj, menu_New, !initialised || game_in_progress);
 	menu_set_fade(NONE, id->this_obj, menu_Save, !character_generated);
@@ -1016,7 +1016,7 @@ static int showfilemenu_handler(bits event_code, toolbox_action *event,
 }
 
 static int showcoloursmenu_handler(bits event_code, toolbox_action *event,
-                                   toolbox_block *id, void *handle)
+				   toolbox_block *id, void *handle)
 {
 	menu_set_tick(NONE, id->this_obj, menu_Dithered, ncolours < 65535 && !solid_colours);
 	menu_set_fade(NONE, id->this_obj, menu_Dithered, ncolours >= 65535);
@@ -1025,7 +1025,7 @@ static int showcoloursmenu_handler(bits event_code, toolbox_action *event,
 }
 
 static int showwindowsmenu_handler(bits event_code, toolbox_action *event,
-                                   toolbox_block *id, void *handle)
+				   toolbox_block *id, void *handle)
 {
 	/* Bit hacky */
 	menu_set_tick(NONE, id->this_obj, menu_Angband, 1);
@@ -1037,7 +1037,7 @@ static int showwindowsmenu_handler(bits event_code, toolbox_action *event,
 }
 
 static int coloursmenu_handler(bits event_code, toolbox_action *event,
-                               toolbox_block *id, void *handle)
+			       toolbox_block *id, void *handle)
 {
 	int tick;
 
@@ -1069,20 +1069,20 @@ static int coloursmenu_handler(bits event_code, toolbox_action *event,
 }
 
 static int openwindow_handler(bits event_code, toolbox_action *event,
-                              toolbox_block *id, void *handle)
+			      toolbox_block *id, void *handle)
 {
 	term_data *t=(term_data *) handle;
 
 	menu_set_tick(NONE, id->this_obj, id->this_cmp, 1);
 
 	toolbox_show_object(NONE, t->window, toolbox_POSITION_DEFAULT, 0,
-	                    toolbox_NULL_OBJECT, toolbox_NULL_COMPONENT);
+			    toolbox_NULL_OBJECT, toolbox_NULL_COMPONENT);
 
 	return 1;
 }
 
 static int suppwin_handler(bits event_code, toolbox_action *event,
-                           toolbox_block *id, void *handle)
+			   toolbox_block *id, void *handle)
 {
 	term_data *t=(term_data *) handle;
 
@@ -1124,7 +1124,7 @@ static int suppwin_handler(bits event_code, toolbox_action *event,
 }
 
 static int quitbutton_handler(bits event_code, toolbox_action *event,
-                              toolbox_block *id, void *handle)
+			      toolbox_block *id, void *handle)
 {
 	if (shutting_down)
 	{
@@ -1140,12 +1140,12 @@ static int quitbutton_handler(bits event_code, toolbox_action *event,
 }
 
 static int delquit_handler(bits event_code, toolbox_action *event,
-                           toolbox_block *id, void *handle)
+			   toolbox_block *id, void *handle)
 {
 	event_deregister_toolbox_handler(id->this_obj, action_QUIT_QUIT,
-	                                 quitbutton_handler, 0);
+					 quitbutton_handler, 0);
 	event_deregister_toolbox_handler(id->this_obj, action_QUIT_DIALOGUE_COMPLETED,
-	                                 delquit_handler, 0);
+					 delquit_handler, 0);
 
 	toolbox_delete_object(NONE, id->this_obj);
 
@@ -1165,7 +1165,7 @@ static void popup_quitbox(void)
 }
 
 static int quitmenu_handler(bits event_code, toolbox_action *event,
-                            toolbox_block *id, void *handle)
+			    toolbox_block *id, void *handle)
 {
 	shutting_down=0;
 
@@ -1209,7 +1209,7 @@ static int prequit_handler(wimp_message *message, void *handle)
 }
 
 static int new_handler(bits event_code, toolbox_action *event,
-                       toolbox_block *id, void *handle)
+		       toolbox_block *id, void *handle)
 {
 	if (game_in_progress)
 	{
@@ -1218,7 +1218,7 @@ static int new_handler(bits event_code, toolbox_action *event,
 	}
 
 	osfscontrol_canonicalise_path("<Angband$Dir>.^.SavedGame", savefile, 0, 0,
-	                              sizeof savefile);
+				      sizeof savefile);
 
 	strcpy(savefile, translate_name(savefile));
 
@@ -1232,7 +1232,7 @@ static int new_handler(bits event_code, toolbox_action *event,
 
 
 static int key_handler(wimp_event_no event_code, wimp_block *event,
-                       toolbox_block *id, void *handle)
+		       toolbox_block *id, void *handle)
 {
 	/*
 	 * This ensures that typing 4 into a Save as dialogue box
@@ -1288,7 +1288,7 @@ static int key_handler(wimp_event_no event_code, wimp_block *event,
 }
 
 static int mouse_handler(wimp_event_no event_code, wimp_block *event,
-                         toolbox_block *id, void *handle)
+			 toolbox_block *id, void *handle)
 {
 	if (event->pointer.buttons != wimp_CLICK_MENU)
 		grabcaret();
@@ -1297,7 +1297,7 @@ static int mouse_handler(wimp_event_no event_code, wimp_block *event,
 }
 
 static int caret_handler(wimp_event_no event_code, wimp_block *event,
-                         toolbox_block *id, void *handle)
+			 toolbox_block *id, void *handle)
 {
 	have_caret = event_code==wimp_GAIN_CARET;
 
@@ -1325,7 +1325,7 @@ static int entity_handler(wimp_message *message, void *handle)
 }
 
 static int savechoices_handler(bits event_code, toolbox_action *event,
-                               toolbox_block *id, void *handle)
+			       toolbox_block *id, void *handle)
 {
 	savechoices();
 
@@ -1333,42 +1333,42 @@ static int savechoices_handler(bits event_code, toolbox_action *event,
 }
 
 static int create_handler(bits event_code, toolbox_action *event,
-                          toolbox_block *id, void *handle)
+			  toolbox_block *id, void *handle)
 {
 	const char *name=event->data.created.name;
 
 	if (strcmp(name, "File") == 0)
 	{
 		event_register_toolbox_handler(id->this_obj, action_MENU_ABOUT_TO_BE_SHOWN,
-		                               showfilemenu_handler, 0);
+					       showfilemenu_handler, 0);
 		return 1;
 	}
 
 	if (strcmp(name, "Colours") == 0)
 	{
 		event_register_toolbox_handler(id->this_obj, action_MENU_ABOUT_TO_BE_SHOWN,
-		                               showcoloursmenu_handler, 0);
+					       showcoloursmenu_handler, 0);
 		event_register_toolbox_handler(id->this_obj, action_MENU_SELECTION,
-		                               coloursmenu_handler, 0);
+					       coloursmenu_handler, 0);
 		return 1;
 	}
 
 	if (strcmp(name, "Windows") == 0)
 	{
 		event_register_toolbox_handler(id->this_obj, action_MENU_ABOUT_TO_BE_SHOWN,
-		                               showwindowsmenu_handler, 0);
+					       showwindowsmenu_handler, 0);
 		return 1;
 	}
 
 	if (strcmp(name, "SaveAs") == 0)
 	{
 		event_register_toolbox_handler(id->this_obj, action_SAVE_AS_ABOUT_TO_BE_SHOWN,
-		                               showsave_handler, 0);
+					       showsave_handler, 0);
 		event_register_toolbox_handler(id->this_obj, action_SAVE_AS_SAVE_TO_FILE,
-		                               save_handler, 0);
+					       save_handler, 0);
 		event_register_toolbox_handler(saveas_get_window_id(NONE, id->this_obj),
-		                               action_ACTION_BUTTON_SELECTED,
-		                               savebutton_handler, id->this_obj);
+					       action_ACTION_BUTTON_SELECTED,
+					       savebutton_handler, id->this_obj);
 		return 1;
 	}
 
@@ -1421,8 +1421,8 @@ static void do_redraw(wimp_draw *redraw, int more, term_data *t, int blank)
 				os_set_colour(os_COLOUR_SET_BG, coltable[TERM_DARK]);
 			else
 				colourtrans_set_gcol(palette.entries[TERM_DARK],
-			                     colourtrans_USE_ECFS|colourtrans_SET_BG,
-			                     os_ACTION_OVERWRITE, 0);
+					     colourtrans_USE_ECFS|colourtrans_SET_BG,
+					     os_ACTION_OVERWRITE, 0);
 
 			c=-1;
 
@@ -1466,7 +1466,7 @@ static void do_redraw(wimp_draw *redraw, int more, term_data *t, int blank)
 							os_set_colour(NONE, coltable[c]);
 						else
 							colourtrans_set_gcol(palette.entries[c], colourtrans_USE_ECFS,
-						                     os_ACTION_OVERWRITE, 0);
+								     os_ACTION_OVERWRITE, 0);
 					}
 
 					/* Find how many characters have only changed colour */
@@ -1502,8 +1502,8 @@ static void do_redraw(wimp_draw *redraw, int more, term_data *t, int blank)
 				os_set_colour(os_COLOUR_SET_BG, coltable[TERM_DARK]);
 			else
 				colourtrans_set_gcol(palette.entries[TERM_DARK],
-			                     colourtrans_USE_ECFS|colourtrans_SET_BG,
-			                     os_ACTION_OVERWRITE, 0);
+					     colourtrans_USE_ECFS|colourtrans_SET_BG,
+					     os_ACTION_OVERWRITE, 0);
 
 			os_plot(os_MOVE_TO, redraw->clip.x0, redraw->clip.y0);
 			os_plot(os_PLOT_BG_TO|os_PLOT_RECTANGLE, redraw->clip.x1-1, redraw->clip.y1-1);
@@ -1522,7 +1522,7 @@ static void do_redraw(wimp_draw *redraw, int more, term_data *t, int blank)
 						os_set_colour(NONE, coltable[c]);
 					else
 						colourtrans_set_gcol(palette.entries[c], colourtrans_USE_ECFS,
-					                     os_ACTION_OVERWRITE, 0);
+							     os_ACTION_OVERWRITE, 0);
 
 					ox=x;
 					while (x<=x1 && (buf[x] == ' ' || a[y][x] == c))
@@ -1541,7 +1541,7 @@ static void do_redraw(wimp_draw *redraw, int more, term_data *t, int blank)
 				os_set_colour(NONE, coltable[TERM_CURSOR]);
 			else
 				colourtrans_set_gcol(palette.entries[TERM_CURSOR], colourtrans_USE_ECFS,
-			                     os_ACTION_OVERWRITE, 0);
+					     os_ACTION_OVERWRITE, 0);
 			os_plot(os_MOVE_TO, t->curs_x*16+rx, 767-t->curs_y*32+ry);
 			os_plot(os_PLOT_BY, 15, 0);
 			os_plot(os_PLOT_BY, 0, -31);
@@ -1645,8 +1645,8 @@ static void load_window_pos(FILE *f, term_data *t)
 	open.next=screen.wimp;
 	if (on)
 		toolbox_show_object(NONE, t->window, toolbox_POSITION_FULL,
-	                    (toolbox_position *) &open.visible,
-	                    toolbox_NULL_OBJECT, toolbox_NULL_COMPONENT);
+			    (toolbox_position *) &open.visible,
+			    toolbox_NULL_OBJECT, toolbox_NULL_COMPONENT);
 	else
 	{
 		open.w=t->wimp;
@@ -1677,13 +1677,13 @@ static void show_windows(void)
 	{
 		/* No saved window positions - open only the playing window */
 		toolbox_show_object(NONE, screen.window, toolbox_POSITION_DEFAULT, 0,
-		                    toolbox_NULL_OBJECT, toolbox_NULL_COMPONENT);
+				    toolbox_NULL_OBJECT, toolbox_NULL_COMPONENT);
 		return;
 	}
 
 	fscanf(f, "%d %d", &pos.top_left.x, &pos.top_left.y);
 	toolbox_show_object(NONE, screen.window, toolbox_POSITION_TOP_LEFT,
-	                    &pos, toolbox_NULL_OBJECT, toolbox_NULL_COMPONENT);
+			    &pos, toolbox_NULL_OBJECT, toolbox_NULL_COMPONENT);
 
 	load_window_pos(f, &recall);
 	load_window_pos(f, &choice);
@@ -1710,9 +1710,9 @@ static void save_window_pos(FILE *f, term_data *t, void *active)
 	state.w=t->wimp;
 	wimp_get_window_state(&state);
 	fprintf(f, "%d %d %d %d %d %d %d\n", active ? 1 : 0,
-	        state.visible.x0, state.visible.y0,
-	        state.visible.x1, state.visible.y1,
-	        state.xscroll, state.yscroll);
+		state.visible.x0, state.visible.y0,
+		state.visible.x1, state.visible.y1,
+		state.xscroll, state.yscroll);
 }
 
 static void savechoices(void)
@@ -1911,8 +1911,8 @@ static errr init_acn(void)
 	0};
 
 	toolbox_initialise(NONE, wimp_VERSION_RO3, (wimp_message_list *) &messages,
-	                   (toolbox_action_list *) &action_nos,
-	                   getenv("Angband$Dir"), &mfd, &id_block, &wimpver, 0);
+			   (toolbox_action_list *) &action_nos,
+			   getenv("Angband$Dir"), &mfd, &id_block, &wimpver, 0);
 
 	recall.window=toolbox_create_object(NONE, (toolbox_id)"Recall");
 	recall.wimp=window_get_wimp_handle(NONE, recall.window);
@@ -1950,94 +1950,94 @@ static errr init_acn(void)
 
 	if (!r)
 		r=event_register_toolbox_handler(event_ANY, action_ERROR,
-	                                 error_handler, 0);
+					 error_handler, 0);
 	if (!r)
 		r=event_register_toolbox_handler(event_ANY, action_Quit,
-	                                 quitmenu_handler, 0);
+					 quitmenu_handler, 0);
 	if (!r)
 		r=event_register_toolbox_handler(event_ANY, action_Iconbar,
-	                                 iconbar_handler, 0);
+					 iconbar_handler, 0);
 	if (!r)
 		r=event_register_toolbox_handler(event_ANY, action_New,
-	                                 new_handler, 0);
+					 new_handler, 0);
 	if (!r)
 		r=event_register_toolbox_handler(event_ANY, action_OpenRecall,
-	                                 openwindow_handler, &recall);
+					 openwindow_handler, &recall);
 	if (!r)
 		r=event_register_toolbox_handler(event_ANY, action_OpenChoice,
-	                                 openwindow_handler, &choice);
+					 openwindow_handler, &choice);
 	if (!r)
 		r=event_register_toolbox_handler(event_ANY, action_OpenAngband,
-	                                 openwindow_handler, &screen);
+					 openwindow_handler, &screen);
 	if (!r)
 		r=event_register_toolbox_handler(event_ANY, action_OpenMirror,
-	                                 openwindow_handler, &mirror);
+					 openwindow_handler, &mirror);
 	if (!r)
 		r=event_register_toolbox_handler(event_ANY, action_DefaultCols,
-	                                 defaultcols_handler, 0);
+					 defaultcols_handler, 0);
 	if (!r)
 		r=event_register_toolbox_handler(event_ANY, action_SaveChoices,
-	                                 savechoices_handler, 0);
+					 savechoices_handler, 0);
 	if (!r)
 		r=event_register_toolbox_handler(event_ANY, action_OBJECT_AUTO_CREATED,
-	                                 create_handler, 0);
+					 create_handler, 0);
 	if (!r)
 		r=event_register_toolbox_handler(event_ANY, action_Save,
-	                                 defaultsave_handler, 0);
+					 defaultsave_handler, 0);
 	if (!r)
 		r=event_register_toolbox_handler(event_ANY, action_SAVE_AS_SAVE_COMPLETED,
-	                                 savecomplete_handler, 0);
+					 savecomplete_handler, 0);
 	if (!r)
 		r=event_register_toolbox_handler(event_ANY, action_PROG_INFO_ABOUT_TO_BE_SHOWN,
-	                                 proginfo_handler, 0);
+					 proginfo_handler, 0);
 	if (!r)
 		r=event_register_toolbox_handler(recall.window, action_WINDOW_ABOUT_TO_BE_SHOWN,
-	                                 suppwin_handler, &recall);
+					 suppwin_handler, &recall);
 	if (!r)
 		r=event_register_toolbox_handler(choice.window, action_WINDOW_ABOUT_TO_BE_SHOWN,
-	                                 suppwin_handler, &choice);
+					 suppwin_handler, &choice);
 	if (!r)
 		r=event_register_toolbox_handler(mirror.window, action_WINDOW_ABOUT_TO_BE_SHOWN,
-	                                 suppwin_handler, &mirror);
+					 suppwin_handler, &mirror);
 	if (!r)
 		r=event_register_toolbox_handler(screen.window, action_WINDOW_ABOUT_TO_BE_SHOWN,
-	                                 suppwin_handler, &screen);
+					 suppwin_handler, &screen);
 	if (!r)
 		r=event_register_toolbox_handler(recall.window, action_WINDOW_DIALOGUE_COMPLETED,
-	                                 suppwin_handler, &recall);
+					 suppwin_handler, &recall);
 	if (!r)
 		r=event_register_toolbox_handler(choice.window, action_WINDOW_DIALOGUE_COMPLETED,
-	                                 suppwin_handler, &choice);
+					 suppwin_handler, &choice);
 	if (!r)
 		r=event_register_toolbox_handler(mirror.window, action_WINDOW_DIALOGUE_COMPLETED,
-	                                 suppwin_handler, &mirror);
+					 suppwin_handler, &mirror);
 	if (!r)
 		r=event_register_toolbox_handler(screen.window, action_WINDOW_DIALOGUE_COMPLETED,
-	                                 suppwin_handler, &screen);
+					 suppwin_handler, &screen);
 	if (!r)
 		r=event_register_wimp_handler(screen.window, wimp_MOUSE_CLICK,
-	                              mouse_handler, 0);
+				      mouse_handler, 0);
 	if (!r)
 		r=event_register_wimp_handler(event_ANY, wimp_KEY_PRESSED,
-	                              key_handler, 0);
+				      key_handler, 0);
 	if (!r)
 		r=event_register_wimp_handler(screen.window, wimp_REDRAW_WINDOW_REQUEST,
-	                              redraw_handler, &screen);
+				      redraw_handler, &screen);
 	if (!r)
 		r=event_register_wimp_handler(choice.window, wimp_REDRAW_WINDOW_REQUEST,
-	                              redraw_handler, &choice);
+				      redraw_handler, &choice);
 	if (!r)
 		r=event_register_wimp_handler(recall.window, wimp_REDRAW_WINDOW_REQUEST,
-	                              redraw_handler, &recall);
+				      redraw_handler, &recall);
 	if (!r)
 		r=event_register_wimp_handler(mirror.window, wimp_REDRAW_WINDOW_REQUEST,
-	                              redraw_handler, &mirror);
+				      redraw_handler, &mirror);
 	if (!r)
 		r=event_register_wimp_handler(screen.window, wimp_GAIN_CARET,
-	                              caret_handler, 0);
+				      caret_handler, 0);
 	if (!r)
 		r=event_register_wimp_handler(screen.window, wimp_LOSE_CARET,
-	                              caret_handler, 0);
+				      caret_handler, 0);
 	if (r)
 		quit(r->errmess);
 
@@ -2078,10 +2078,10 @@ static errr init_acn(void)
 	} while (event != wimp_NULL_REASON_CODE);
 
 	event_set_mask(wimp_MASK_NULL |
-	               wimp_MASK_LEAVING |
-	               wimp_MASK_ENTERING |
-	               wimp_MASK_POLLWORD |
-	               wimp_MASK_ACKNOWLEDGE);
+		       wimp_MASK_LEAVING |
+		       wimp_MASK_ENTERING |
+		       wimp_MASK_POLLWORD |
+		       wimp_MASK_ACKNOWLEDGE);
 
 	return 0;
 }
@@ -2180,7 +2180,7 @@ int fd_make(cptr file, int mode)
 	const char *realpath=translate_name(file);
 
 	e=xosfind_openout(osfind_ERROR_IF_DIR | osfind_ERROR_IF_ABSENT | osfind_NO_PATH,
-	                  realpath, 0, &f);
+			  realpath, 0, &f);
 
 	if (e || f==0)
 		return -1;
@@ -2220,13 +2220,13 @@ int fd_open(cptr path, int flags)
 	{
 		case O_RDONLY:
 		e=xosfind_openin(osfind_ERROR_IF_DIR | osfind_ERROR_IF_ABSENT | osfind_NO_PATH,
-		                 realpath, 0, &f);
+				 realpath, 0, &f);
 		break;
 
 		case O_WRONLY:
 		case O_RDWR:
 		e=xosfind_openup(osfind_ERROR_IF_DIR | osfind_ERROR_IF_ABSENT | osfind_NO_PATH,
-		                 realpath, 0, &f);
+				 realpath, 0, &f);
 		break;
 	}
 

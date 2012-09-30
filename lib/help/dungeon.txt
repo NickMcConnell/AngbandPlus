@@ -2,7 +2,7 @@
 #####R=== The Dungeons and Various Places of Middle Earth ===
 
 
-After you have created your character, you will begin your T.o.M.E.
+After you have created your character, you will begin your ToME
 adventure. Symbols appearing on your screen will represent the world's
 walls, floor, objects, features, and creatures lurking about.  In order
 to direct your character through his adventure, you will enter single
@@ -381,7 +381,7 @@ take effect will cancel both scrolls. Since an accidental dive to a new depth
 (via a trapdoor, for example), may result in the Word of Recall dungeon depth
 being 'broken', so to speak (meaning that the next Word of Recall in town 
 will take you back deeper than you would like to), there is a new feature in 
-T.o.M.E. which allows you to read a scroll of Word of Recall on a different
+ToME which allows you to read a scroll of Word of Recall on a different
 level and 'reset' the recall depth to that level (instead of the deepest 
 level).
 

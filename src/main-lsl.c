@@ -186,7 +186,7 @@ static byte *ReadBMP(char *Name, int *bw, int *bh)
 		pal[i * 3 + 1] = clrg.g;
 		pal[i * 3 + 2] = clrg.r;
 	}
-	
+
 	/* Look for illegal bitdepths. */
 	if ((infoheader.biBitCount == 1) || (infoheader.biBitCount == 24))
 	{
@@ -225,7 +225,7 @@ static byte *ReadBMP(char *Name, int *bw, int *bh)
 	}
 
 	fclose(f);
-	
+
 	/* Save the size for later */
 	*bw = infoheader.biWidth;
 	*bh = infoheader.biHeight;
@@ -267,14 +267,14 @@ static void initfont(void)
 	gzread(fontfile, &junk, 4);
 
 	/* Initialize font */
-	
+
 	/*
 	 * Read in 13 bytes per character, and there are 256 characters
 	 * in the font.  This means we need to load 13x256 = 3328 bytes.
 	 */
 	C_MAKE(temp, 256 * 13, byte);
 	gzread(fontfile, temp, 256 * 13);
-	
+
 	/*
 	 * I don't understand this code - SF
 	 * (Is it converting from 8x13 -> 8x12?) 
@@ -284,7 +284,7 @@ static void initfont(void)
 	font = malloc(256 * 8 * 12 * BYTESPERPIXEL);
 	gl_expandfont(8, 12, 15, temp, font);
 	gl_setfont(8, 12, font);
-	
+
 	/* Cleanup */
 	C_FREE(temp, 256 * 13, byte);
 	gzclose(fontfile);
@@ -321,7 +321,7 @@ static errr CheckEvents(int block)
 	{
 		k = vga_getch();
 	}
-	
+
 	Term_keypress(k);
 	return(0);
 }
@@ -335,14 +335,14 @@ static errr term_xtra_svgalib(int n, int v)
 {
 	switch (n)
 	{
- 		case TERM_XTRA_EVENT:
+		case TERM_XTRA_EVENT:
 		{
 			/* Process some pending events */
 			if (v) return (CheckEvents (FALSE));
 			while (!CheckEvents (TRUE));
 			return 0;
 		}
-		
+
 		case TERM_XTRA_FLUSH:
 		{
 			/* Flush all pending events */
@@ -393,9 +393,9 @@ static errr term_wipe_svgalib(int x, int y, int n)
  */
 static errr term_text_svgalib(int x, int y, int n, byte a, cptr s)
 {
- 	/* Clear the area */
+	/* Clear the area */
 	term_wipe_svgalib(x, y, n);
-	
+
 	/* Draw the coloured text */
 	gl_colorfont(8, 12, COLOR_OFFSET + (a & 0x0F), font);
 	gl_writen(x * CHAR_W, y * CHAR_H, n, (char *) s);
@@ -431,7 +431,7 @@ static errr term_pict_svgalib(int x, int y, int n,
 	{
 		x2 = (cp[i] & 0x7F) * CHAR_W;
 		y2 = (ap[i] & 0x7F) * CHAR_H;
-		
+
 		gl_copyboxfromcontext(buffer, x2, y2, CHAR_W, CHAR_H,
 			 (x + i) * CHAR_W, y * CHAR_H);
 	}
@@ -443,26 +443,26 @@ static void term_load_bitmap(void)
 	char path[1024];
 
 	byte *temp = NULL;
-	
+
 	int bw, bh;
-	
+
 	/* Build the "graf" path */
 	path_build(path, 1024, ANGBAND_DIR_XTRA, "graf");
 
 	sprintf (path, "%s/8x13.bmp", path);
-  
+
 	/* See if the file exists */
 	if (fd_close(fd_open(path, O_RDONLY)))
 	{
 		printf ("Unable to load bitmap data file %s, bailing out....\n", path);
 		exit (-1);
 	}
-	
+
 	temp = ReadBMP(path, &bw, &bh);
-	
+
 	/* Blit bitmap into buffer */
 	gl_putbox(0, 0, bw, bh, temp);
-	
+
 	FREE(temp, byte);
 
 	return;
@@ -480,7 +480,7 @@ static void term_init_svgalib(term *t)
 
 	/* Only one term */
 	(void) t;
-	
+
 	vga_init();
 
 	/* The palette is 256x3 bytes big (RGB). */
@@ -508,18 +508,18 @@ static void term_init_svgalib(term *t)
 	if (vga_setmode(vgamode) < 0)
 	{
 		quit("Graphics mode not available!");
-  	}
-	
+	}
+
 	gl_setcontextvga(vgamode);
 	screen = gl_allocatecontext();
 	gl_getcontext(screen);
-	
+
 	/* Is this needed? */
 	gl_enablepageflipping(screen);	
-	
+
 	/* Set up palette colors */
 	setpal();
-	
+
 	/* Load the character font data */
 	initfont();
 
@@ -535,7 +535,7 @@ static void term_nuke_svgalib(term *t)
 {
 	/* Only one term */
 	(void) t;
-	
+
 	vga_setmode(TEXT);
 }
 
@@ -552,12 +552,12 @@ errr init_lsl(void)
 	{
 		use_graphics = TRUE;
 	}
-	
+
 #endif /* USE_GRAPHICS */
 
 	/* Initialize the term */
 	term_init(t, 80, 24, 1024);
-	
+
 	/* The cursor is done via software and needs erasing */
 	t->soft_cursor = TRUE;
 
@@ -578,14 +578,14 @@ errr init_lsl(void)
 	}
 
 #endif /* USE_GRAPHICS */
-	
+
 	t->wipe_hook = term_wipe_svgalib;
 	t->curs_hook = term_curs_svgalib;
 	t->xtra_hook = term_xtra_svgalib;
 
 	/* Save the term */
 	term_screen = t;
-	
+
 	/* Activate it */
 	Term_activate(term_screen);
 

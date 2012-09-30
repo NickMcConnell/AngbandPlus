@@ -369,64 +369,64 @@ static termPipe term_screen_aga[MAX_TERM_DATA];
      Address of the character data structure:
 
      asciicharcode (UCHAR)
-        ASCII character code. The scan code received from the keyboard is
-        translated to the ASCII character code.
+	ASCII character code. The scan code received from the keyboard is
+	translated to the ASCII character code.
 
      scancode (UCHAR)
-        Code received from the keyboard.  The scan code received from the
-        keyboard is translated to the ASCII character code.
+	Code received from the keyboard.  The scan code received from the
+	keyboard is translated to the ASCII character code.
 
      status (UCHAR)
-        State of the keystroke event:
+	State of the keystroke event:
 
-        Bit       Description
+	Bit       Description
 
-        7-6       00 = Undefined
+	7-6       00 = Undefined
 
-                  01 = Final character, interim character flag off
+		  01 = Final character, interim character flag off
 
-                  10 = Interim character
+		  10 = Interim character
 
-                  11 = Final character, interim character flag on.
+		  11 = Final character, interim character flag on.
 
-        5         1 = Immediate conversion requested.
+	5         1 = Immediate conversion requested.
 
-        4-2       Reserved.
+	4-2       Reserved.
 
-        1         0 = Scan code is a character.
+	1         0 = Scan code is a character.
 
-                  1 = Scan code is not a character; is an extended key code
-                  from the keyboard.
+		  1 = Scan code is not a character; is an extended key code
+		  from the keyboard.
 
-        0         1 = Shift status returned without character.
+	0         1 = Shift status returned without character.
 
      reserved (UCHAR)
-        NLS shift status.  Reserved, set to zero.
+	NLS shift status.  Reserved, set to zero.
 
      shiftkeystat (USHORT)
-        Shift key status.
+	Shift key status.
 
-        Bit       Description
-        15        SysReq key down
-        14        CapsLock key down
-        13        NumLock key down
-        12        ScrollLock key down
-        11        Right Alt key down
-        10        Right Ctrl key down
-        9         Left Alt key down
-        8         Left Ctrl key down
-        7         Insert on
-        6         CapsLock on
-        5         NumLock on
-        4         ScrollLock on
-        3         Either Alt key down
-        2         Either Ctrl key down
-        1         Left Shift key down
-        0         Right Shift key down
+	Bit       Description
+	15        SysReq key down
+	14        CapsLock key down
+	13        NumLock key down
+	12        ScrollLock key down
+	11        Right Alt key down
+	10        Right Ctrl key down
+	9         Left Alt key down
+	8         Left Ctrl key down
+	7         Insert on
+	6         CapsLock on
+	5         NumLock on
+	4         ScrollLock on
+	3         Either Alt key down
+	2         Either Ctrl key down
+	1         Left Shift key down
+	0         Right Shift key down
 
      time (ULONG)
-        Time stamp indicating when a key was pressed.  It is specified in
-        milliseconds from the time the system was started.
+	Time stamp indicating when a key was pressed.  It is specified in
+	milliseconds from the time the system was started.
 
   IOWait (USHORT) - input
      Wait if a character is not available.
@@ -434,7 +434,7 @@ static termPipe term_screen_aga[MAX_TERM_DATA];
      Value     Definition
      0         Requestor waits for a character if one is not available.
      1         Requestor gets an immediate return if no character is
-               available.
+	       available.
 
   KbdHandle (HKBD) - input
      Default keyboard or the logical keyboard.
@@ -856,12 +856,12 @@ int main(int argc, char **argv)
 	do
 	{
 		rc=DosCreateNPipe((PSZ)buf,          /* Create pipe */
-		                  &pipe,
-		                  NP_ACCESS_INBOUND,
-		                  NP_WAIT|NP_TYPE_BYTE|NP_READMODE_BYTE|1,
-		                  1,                 /* No output buffer */
-		                  1,                 /* No input buffer */
-		                  -1);
+				  &pipe,
+				  NP_ACCESS_INBOUND,
+				  NP_WAIT|NP_TYPE_BYTE|NP_READMODE_BYTE|1,
+				  1,                 /* No output buffer */
+				  1,                 /* No input buffer */
+				  -1);
 
 		if (rc)                              /* Pipe not created */
 		{
@@ -969,13 +969,13 @@ int main(int argc, char **argv)
 
 void emx_endPM(const char *reason);
 int emx_options(char **ANGBAND_DIR_USER,
-                char **ANGBAND_DIR_SAVE,
-                char **ANGBAND_DIR_INFO,
-                char *arg_force_roguelike,
-                char *arg_force_original,
-                char *arg_fiddle,
-                char *arg_wizard,
-                char player_name[32]);
+		char **ANGBAND_DIR_SAVE,
+		char **ANGBAND_DIR_INFO,
+		char *arg_force_roguelike,
+		char *arg_force_original,
+		char *arg_fiddle,
+		char *arg_wizard,
+		char player_name[32]);
 
 void emx_init_window(void **instance, void *main_instance, int n);
 
@@ -1216,13 +1216,13 @@ void angbandThread(void *arg)
 	init_stuff();
 
 	if (!emx_options((char**)&ANGBAND_DIR_USER,
-	                 (char**)&ANGBAND_DIR_SAVE,
-	                 (char**)&ANGBAND_DIR_INFO,
-	                 &arg_force_roguelike,
-	                 &arg_force_original,
-	                 &arg_fiddle,
-	                 &arg_wizard,
-	                 player_name_aga)) quit(NULL);
+			 (char**)&ANGBAND_DIR_SAVE,
+			 (char**)&ANGBAND_DIR_INFO,
+			 &arg_force_roguelike,
+			 &arg_force_original,
+			 &arg_fiddle,
+			 &arg_wizard,
+			 player_name_aga)) quit(NULL);
 
 	/* XXX XXX XXX (?) */
 	strcpy(player_name, player_name_aga);

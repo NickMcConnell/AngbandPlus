@@ -1,0 +1,502 @@
+# File: s_info.txt
+
+
+# This file is used to initialize the "lib/data/s_info.raw" file, which is
+# used to initialize the "skills" information for the PernAngband game.
+
+# Do not modify this file unless you know exactly what you are doing,
+# unless you wish to risk possible system crashes and broken savefiles.
+
+# After modifying this file, delete the "lib/data/s_info.raw" file.
+
+# The skill indexes are defined in "defines.h", and must not be changed.
+
+# N:idx:name
+# D:desc
+# A:action mkey:action desc
+# I:rate
+
+# E:exclusive skill:exclusive skill
+# O:skill:opposing skill%percent
+# A:skill:friendly skill%percent
+
+# T:father:child
+
+# Version stamp (required)
+
+V:2.0.0
+
+################################## MAGIK ##################################
+
+N:56:Magic-Device
+D:Ease the use of magical devices, such as wands, staves and rods.
+D:It also helps pseudo-id of magic objects
+I:1000
+
+N:54:Spell-learning
+D:You should not see that ! that is a BUG!
+A:18:Learn a spell from a realm
+I:1000
+F:HIDDEN
+
+N:41:Sorcery
+D:Ability to use all the magic schools as if their skill was sorcery
+D:But the price to channel that much magic is your health
+A:17:Cast a spell
+I:1000
+
+N:1:Conveyance
+D:Ability to learn and use spells from the Conveyance school
+D:Spells use the intelligence stat
+A:17:Cast a spell
+I:1000
+
+N:2:Mana
+D:Ability to learn and use spells from the Mana school
+D:Spells use the intelligence stat
+A:17:Cast a spell
+I:1000
+
+N:3:Fire
+D:Ability to learn and use spells from the Fire school
+D:Spells use the intelligence stat
+A:17:Cast a spell
+I:1000
+
+N:4:Air
+D:Ability to learn and use spells from the Air school
+D:Spells use the intelligence stat
+A:17:Cast a spell
+I:1000
+
+N:5:Water
+D:Ability to learn and use spells from the Water school
+D:Spells use the intelligence stat
+A:17:Cast a spell
+I:1000
+
+N:6:Nature
+D:Ability to learn and use spells from the Nature school
+D:Spells use the intelligence stat
+A:17:Cast a spell
+I:1000
+
+N:7:Earth
+D:Ability to learn and use spells from the Earth school
+D:Spells use the intelligence stat
+A:17:Cast a spell
+I:1000
+
+N:10:Divination
+D:Ability to learn and use spells from the Divination school
+D:Spells use the intelligence stat
+A:17:Cast a spell
+I:1000
+
+N:11:Temporal
+D:Ability to learn and use spells from the Temporal school
+D:Spells use the intelligence stat
+A:17:Cast a spell
+I:1000
+
+N:14:Meta
+D:Ability to learn and use spells from the Meta school
+D:Spells use the intelligence stat
+A:17:Cast a spell
+I:1000
+
+N:51:Mind
+D:Ability to learn and use spells from the Mind school
+D:Spells use the intelligence stat
+A:17:Cast a spell
+I:1000
+
+N:55:Udun
+D:Ability to learn and use spells from the Udun school
+D:Spells use the intelligence stat
+A:17:Cast a spell
+I:1000
+F:HIDDEN
+
+N:13:Daemon
+D:Ability to learn and use incantations from the Daemon realm
+D:Spells use the intelligence stat
+A:1:Cast a special spell
+F:HIDDEN
+I:1000
+
+N:31:Necromancy
+D:Ability to harness the powers of the dead
+D:Spells use the intelligence stat
+A:7:Use Necromancy
+I:1000
+
+N:34:Runecraft
+D:Ability to combine magic runes to create your own spells
+D:Runespells use the dexterity stat
+A:9:Use Runespells
+I:1000
+
+N:43:Thaumaturgy
+D:Ability to gain and cast innate spells
+D:Spells use the intelligence stat
+A:8:Cast a thaumaturgy spell
+I:1000
+
+N:15:Magic
+D:General ability to do magic, also affect mana reserves and
+D:magic device ability. Helps pseudo-id of magic objects
+A:19:Copy a spell
+I:1000
+
+N:45:Spell-power
+D:Ability to increase the power of spells
+I:1000
+
+
+# All magic skills affect magic skill
+f:Magic-Device:Magic%7
+f:Spell-power:Magic%20
+f:Sorcery:Magic%20
+f:Mana:Magic%10
+f:Fire:Magic%10
+f:Air:Magic%10
+f:Water:Magic%10
+f:Earth:Magic%10
+f:Conveyance:Magic%10
+f:Divination:Magic%10
+f:Nature:Magic%10
+f:Temporal:Magic%10
+f:Meta:Magic%10
+f:Mind:Magic%10
+f:Udun:Magic%10
+f:Daemon:Magic%10
+f:Necromancy:Magic%4
+f:Runecraft:Magic%12
+f:Thaumaturgy:Magic%6
+
+
+
+################################## COMBAT ##################################
+
+N:16:Combat
+D:General ability to fight and to pseudo-id armors and weapons.
+D:It also allows to use heavier armors without penalities
+I:1000
+
+N:17:Weaponmastery
+D:General ability to use melee weapons
+I:1000
+
+N:18:Sword-mastery
+D:Ability to use swords
+I:1000
+
+N:19:Axe-mastery
+D:Ability to use axes
+I:1000
+
+N:20:Polearm-mastery
+D:Ability to use polearms
+I:1000
+
+N:21:Hafted-mastery
+D:Ability to use hafted weapons
+I:1000
+
+N:22:Backstab
+D:Ability to backstab fleeing and sleeping monsters to increase damage
+I:1000
+
+N:23:Archery
+D:General ability to use ranged weapons
+A:10:Forge ammo
+I:1000
+
+N:24:Sling-mastery
+D:Ability to use slings
+I:1000
+
+N:25:Bow-mastery
+D:Ability to use bows
+I:1000
+
+N:26:Crossbow-mastery
+D:Ability to use crossbows
+I:1000
+
+N:27:Boomerang-mastery
+D:Ability to use boomerangs
+I:1000
+
+N:42:Barehand-combat
+D:Ability to fight barehanded
+I:1000
+
+N:47:Bearform-combat
+D:Ability to fight in bear form
+I:1000
+F:HIDDEN
+
+N:52:Critical-hits
+D:Ability to deal critical hits with swords < 5lb
+I:1000
+
+# List of combat friendly skills
+
+# Melee: Specific masteries improve generic mastery
+f:Critical-hits:Sword-mastery%5
+f:Sword-mastery:Weaponmastery%25
+f:Axe-mastery:Weaponmastery%25
+f:Polearm-mastery:Weaponmastery%25
+f:Hafted-mastery:Weaponmastery%25
+
+# Ranged: Specific masteries improve generic mastery
+f:Sling-mastery:Archery%25
+f:Bow-mastery:Archery%25
+f:Crossbow-mastery:Archery%25
+f:Boomerang-mastery:Archery%25
+
+# All combat skills improve Combat
+f:Weaponmastery:Combat%50
+f:Sword-mastery:Combat%7
+f:Axe-mastery:Combat%7
+f:Polearm-mastery:Combat%7
+f:Hafted-mastery:Combat%7
+f:Archery:Combat%50
+f:Sling-mastery:Combat%7
+f:Bow-mastery:Combat%7
+f:Crossbow-mastery:Combat%7
+f:Boomerang-mastery:Combat%7
+f:Barehand-combat:Combat%50
+
+# Sorcery and Weaponmastery arent exactly friendly to each other
+O:Sorcery:Weaponmastery%100
+O:Sorcery:Archery%100
+O:Sorcery:Barehand-combat%100
+O:Weaponmastery:Sorcery%100
+O:Archery:Sorcery%100
+O:Barehand-combat:Sorcery%100
+
+
+
+############################### SPIRITUALITY SKILLS ###########################
+
+N:28:Spirituality
+D:General ability to use spiritual skills and also influence your Saving Throw
+I:1000
+
+N:53:Prayer
+D:Ability to learn and use spells from the gods schools
+D:Spells use the wisdom stat
+A:17:Cast a spell
+I:1000
+
+N:12:Druidistic
+D:Ability to learn and use prayers from the Druidistic realm
+D:Nature powers use the wisdom stat
+A:1:Cast a spell
+I:1000
+
+N:29:Mindcraft
+D:Ability to focus the powers of the mind
+D:Mindpowers use the wisdom stat
+A:2:Use Mindcraft
+I:1000
+
+f:Mindcraft:Spirituality%10
+f:Prayer:Spirituality%10
+f:Druidistic:Spirituality%10
+f:Mindcraft:Spirituality%10
+
+f:Mindcraft:Magic%10
+f:Prayer:Magic%10
+f:Druidistic:Magic%10
+f:Mindcraft:Magic%10
+
+
+################################## MISC SKILLS ###############################
+
+N:30:Misc
+D:Not a real skill, it is only used to regroup some skills
+I:0
+
+N:9:Music
+D:Ability to learn and sing songs
+D:Songs use the charisma stat
+A:1:Cast a special spell
+I:1000
+
+N:33:Antimagic
+D:Ability to generates an antimagic field
+A:3:Use antimagic
+I:1000
+
+N:39:Alchemy
+D:Ability to use essenses to modify/create magic items
+A:5:Use Alchemy
+I:1000
+
+# Antimagic exclude all magic
+E:Magic-Device:Antimagic
+E:Mana:Antimagic
+E:Fire:Antimagic
+E:Air:Antimagic
+E:Water:Antimagic
+E:Earth:Antimagic
+E:Conveyance:Antimagic
+E:Divination:Antimagic
+E:Temporal:Antimagic
+E:Meta:Antimagic
+E:Mind:Antimagic
+E:Nature:Antimagic
+E:Udun:Antimagic
+E:Sorcery:Antimagic
+E:Daemon:Antimagic
+E:Runecraft:Antimagic
+E:Necromancy:Antimagic
+E:Mindcraft:Antimagic
+E:Prayer:Antimagic
+E:Druidistic:Antimagic
+E:Mindcraft:Antimagic
+E:Thaumaturgy:Antimagic
+
+################################## SNEAKINESS SKILLS ###############################
+
+N:35:Sneakiness
+D:General ability at the sneakiness skills.
+D:It also affects the searching abilities
+I:0
+
+N:36:Stealth
+D:Ability to move unoticed, silently
+I:0
+
+N:37:Disarming
+D:Ability to disarm the various traps
+I:0
+
+N:38:Trapping
+D:Ability to set monster traps
+A:14:Set trap
+I:0
+
+N:40:Stealing
+D:Ability to steal objects
+A:15:Steal object
+I:0
+
+N:46:Dodging
+D:Ability to dodge blows and bolts
+A:16:Check dodge chance
+I:0
+
+f:Stealth:Sneakiness%15
+f:Disarming:Sneakiness%10
+f:Trapping:Sneakiness%15
+f:Backstab:Sneakiness%5
+f:Stealing:Sneakiness%15
+f:Dodging:Sneakiness%10
+
+
+################################## MONSTER SKILLS ################################
+
+N:48:Monster-lore
+D:General ability at the monster related skills, ability to gain experience
+D:from friendly kills. It also affects the number of companions you can have
+I:0
+
+N:44:Summoning
+D:Ability to create totems from monsters and use them to summon monsters
+A:13:Manipulate totems
+I:1000
+
+N:49:Corpse-preservation
+D:Ability to not destroy the monster corpse when killing them
+I:0
+
+N:50:Possession
+D:Ability to incarnate into monsters
+A:11:Use the possession skill
+I:0
+
+N:8:Symbiosis
+D:Ability to enter in symbiosis with monsters unable to move by themselves
+D:Spells use the intelligence stat
+A:1:Cast a special spell
+I:1000
+
+N:32:Mimicry
+D:Ability to use cloaks of mimicry to chance form
+A:6:Use Mimicry
+I:1000
+
+f:Possession:Monster-lore%10
+f:Corpse-preservation:Monster-lore%10
+f:Summoning:Monster-lore%10
+f:Symbiosis:Monster-lore%10
+f:Mimicry:Monster-lore%10
+
+################################## SKILL TREE ################################
+
+T:Main:Combat
+T:Combat:Weaponmastery
+T:Weaponmastery:Sword-mastery
+T:Sword-mastery:Critical-hits
+T:Weaponmastery:Axe-mastery
+T:Weaponmastery:Hafted-mastery
+T:Weaponmastery:Polearm-mastery
+T:Combat:Archery
+T:Archery:Sling-mastery
+T:Archery:Bow-mastery
+T:Archery:Crossbow-mastery
+T:Archery:Boomerang-mastery
+T:Combat:Barehand-combat
+T:Combat:Bearform-combat
+
+T:Main:Sneakiness
+T:Sneakiness:Stealth
+T:Sneakiness:Disarming
+T:Sneakiness:Trapping
+T:Sneakiness:Backstab
+T:Sneakiness:Stealing
+T:Sneakiness:Dodging
+
+T:Main:Magic
+T:Magic:Magic-Device
+T:Magic:Spell-learning
+T:Magic:Spell-power
+T:Magic:Sorcery
+T:Magic:Mana
+T:Magic:Fire
+T:Magic:Water
+T:Magic:Air
+T:Magic:Earth
+T:Magic:Meta
+T:Magic:Conveyance
+T:Magic:Divination
+T:Magic:Temporal
+T:Magic:Mind
+T:Magic:Nature
+T:Magic:Udun
+T:Magic:Daemon
+T:Magic:Necromancy
+T:Magic:Runecraft
+T:Magic:Thaumaturgy
+
+T:Main:Spirituality
+T:Spirituality:Prayer
+T:Spirituality:Druidistic
+T:Spirituality:Mindcraft
+
+T:Main:Monster-lore
+T:Monster-lore:Summoning
+T:Monster-lore:Corpse-preservation
+T:Monster-lore:Possession
+T:Monster-lore:Symbiosis
+T:Monster-lore:Mimicry
+
+T:Main:Misc
+T:Misc:Alchemy
+T:Misc:Antimagic
+T:Misc:Music

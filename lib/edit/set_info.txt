@@ -14,7 +14,7 @@
 # P:artifact index:number of item needed:pval
 # F:flags
 
-V:2.8.1
+V:2.0.0
 
 # The Elven Gifts, took from Oangband
 

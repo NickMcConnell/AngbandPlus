@@ -2,7 +2,7 @@
 -- Written by Waldemar Celes
 -- TeCGraf/PUC-Rio
 -- Jul 1998
--- $Id: package.lua,v 1.1.1.1 2002/02/23 21:39:22 darkgod Exp $
+-- $Id: package.lua,v 1.4 2002/01/03 13:45:08 takkaria Exp $
 
 -- This code is free software; you can redistribute it and/or modify it.
 -- The software provided hereunder is on an "as is" basis, and
@@ -78,7 +78,7 @@ end
 function classPackage:preamble ()
  output('/*\n')
  output('** Lua binding: '..self.name..'\n')
- output('** Generated automatically by '..TOLUA_VERSION..' on '..date()..'.\n')
+ output('** Generated automatically by '..TOLUA_VERSION..'\n')
  output('*/\n\n')
 
  output('#include "lua/tolua.h"\n\n')
@@ -143,7 +143,7 @@ end
 -- write header file
 function classPackage:header ()
  output('/*\n') output('** Lua binding: '..self.name..'\n')
- output('** Generated automatically by '..TOLUA_VERSION..' on '..date()..'.\n')
+ output('** Generated automatically by '..TOLUA_VERSION..'.\n')
  output('*/\n\n')
 
  if not flags.h then

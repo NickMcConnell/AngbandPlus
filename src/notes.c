@@ -21,16 +21,16 @@ cptr notes_file(void)
 {
 	char fname[15];
 	static char buf[500];
-        char base_name[9];
+	char base_name[9];
 
 	/* Hack -- extract first 8 characters of name */
 	strncpy(base_name, player_name, 8);
 
-        base_name[8] = '\0';
+	base_name[8] = '\0';
 
 	/* Create the file name from the character's name plus .txt */
-        sprintf(fname, "%s.nte", base_name);
-        path_build(buf, 500, ANGBAND_DIR_NOTE, fname);
+	sprintf(fname, "%s.nte", base_name);
+	path_build(buf, 500, ANGBAND_DIR_NOTE, fname);
 
 	/* return the filename */
 	return buf;
@@ -44,25 +44,25 @@ cptr notes_file(void)
 void output_note(char *final_note)
 {
 	FILE *fff;
-	
+
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
 
 	/* Grab */
 	safe_setuid_grab();
-	
+
 	/* Open notes file */
 	fff = my_fopen(notes_file(), "a");
-	
+
 	/* Drop */
 	safe_setuid_drop();
-  
+
 	/* Failure */
 	if (!fff) return;
-	
+
 	/* Add note, and close note file */
 	fprintf(fff, final_note);
-  
+
 	my_fclose(fff);
 }
 
@@ -73,21 +73,21 @@ void output_note(char *final_note)
  */
 void add_note(char *note, char code)
 {
-        char buf[100];
-        char final_note[100];
-        char long_day[50];
+	char buf[100];
+	char final_note[100];
+	char long_day[50];
 	char depths[32];
-        char *tmp;
-	
+	char *tmp;
+
 	/* Get the first 60 chars - so do not have an overflow */
-        tmp = C_WIPE(buf, 100, char);
+	tmp = C_WIPE(buf, 100, char);
 	strncpy(buf, note, 60);
 
 	/* Get date and time */
-        sprintf(long_day, "%ld:%02ld %s, %s", (bst(HOUR, turn) % 12 == 0) ? 12 : (bst(HOUR, turn) % 12), bst(MINUTE, turn), (bst(HOUR, turn) < 12) ? "AM" : "PM", get_month_name(bst(DAY, turn), FALSE, FALSE));
+	sprintf(long_day, "%ld:%02ld %s, %s", (bst(HOUR, turn) % 12 == 0) ? 12 : (bst(HOUR, turn) % 12), bst(MINUTE, turn), (bst(HOUR, turn) < 12) ? "AM" : "PM", get_month_name(bst(DAY, turn), FALSE, FALSE));
 
 	/* Get depth  */
- 
+
 	if (!dun_level)
 	{
 		strcpy(depths, "  Town");
@@ -96,15 +96,15 @@ void add_note(char *note, char code)
 	{
 		sprintf(depths, "%4dft", dun_level * 50);
 	}
- 	else
+	else
 	{
 		sprintf(depths, "Lev%3d", dun_level);
 	}
-            
+
 	/* Make note */
-        sprintf(final_note, "%-20s %s %c: %s\n", long_day,
-                 depths, code, buf);
-      
+	sprintf(final_note, "%-20s %s %c: %s\n", long_day,
+		 depths, code, buf);
+
 	/* Output to the notes file */
 	output_note(final_note);
 }
@@ -113,41 +113,41 @@ void add_note(char *note, char code)
 /* Add note to file using type specified by note_number */
 void add_note_type(int note_number)
 {
-        char long_day[50], true_long_day[50];
+	char long_day[50], true_long_day[50];
 	char buf[1024];
 	time_t ct = time((time_t*)0);
-	
+
 	/* Get the date */
-        strftime(true_long_day, 30, "%Y-%m-%d at %H:%M:%S", localtime(&ct));
-	
+	strftime(true_long_day, 30, "%Y-%m-%d at %H:%M:%S", localtime(&ct));
+
 	/* Get the date */
-        sprintf(buf, "%ld", bst(YEAR, turn) + START_YEAR);
-        sprintf(long_day, "%ld:%02ld %s the %s of III %s", (bst(HOUR, turn) % 12 == 0) ? 12 : (bst(HOUR, turn) % 12), bst(MINUTE, turn), (bst(HOUR, turn) < 12) ? "AM" : "PM", get_month_name(bst(DAY, turn), FALSE, FALSE), buf);
-	
+	sprintf(buf, "%ld", bst(YEAR, turn) + START_YEAR);
+	sprintf(long_day, "%ld:%02ld %s the %s of III %s", (bst(HOUR, turn) % 12 == 0) ? 12 : (bst(HOUR, turn) % 12), bst(MINUTE, turn), (bst(HOUR, turn) < 12) ? "AM" : "PM", get_month_name(bst(DAY, turn), FALSE, FALSE), buf);
+
 	switch(note_number)
 	{
 		case NOTE_BIRTH:
 		{
 			/* Player has just been born */
 			char player[100];
-			
+
 			/* Build the string containing the player information */
-                        sprintf(player, "the %s %s", get_player_race_name(p_ptr->prace, p_ptr->pracem), class_info[p_ptr->pclass].title + c_name);
-			
+			sprintf(player, "the %s %s", get_player_race_name(p_ptr->prace, p_ptr->pracem), class_info[p_ptr->pclass].spec[p_ptr->pspec].title + c_name);
+
 			if (p_ptr->realm1 != REALM_NONE)
 			{
 				strcat(player, " of ");
-                                strcat(player, realm_names[p_ptr->realm1][0]);
+				strcat(player, realm_names[p_ptr->realm1][0]);
 			}
-	 		
+
 			if (p_ptr->realm2 != REALM_NONE)
 			{
 				strcat(player, " and ");
-                                strcat(player, realm_names[p_ptr->realm2][0]);
+				strcat(player, realm_names[p_ptr->realm2][0]);
 			}
-			
+
 			/* Add in "character start" information */
-                        sprintf(buf,
+			sprintf(buf,
 				"\n"
 				"================================================\n"
 				"%s %s\n"
@@ -157,38 +157,38 @@ void add_note_type(int note_number)
 				player_name, player, true_long_day);
 		}
 		break;
-		
+
 		case NOTE_WINNER:
 		{
-                        sprintf(buf,
+			sprintf(buf,
 				"%s slew Morgoth on %s\n"
 				"Long live %s!\n"
 				"================================================\n",
 				player_name, long_day, player_name);
 		}
 		break;
-		
+
 		case NOTE_SAVE_GAME:
 		{
 			/* Saving the game */
-                        sprintf(buf, "\nSession end: %s\n", true_long_day);
+			sprintf(buf, "\nSession end: %s\n", true_long_day);
 		}
-                break;
-		
+		break;
+
 		case NOTE_ENTER_DUNGEON:
 		{
 			/* Entering the game after a break. */
-                        sprintf(buf,
+			sprintf(buf,
 			"================================================\n"
 			"New session start: %s\n"
 			"\n",
 			true_long_day);
 		}
 		break;
-		
+
 		default: return;
 	}
-	
+
 	/* Output the notes to the file */
 	output_note(buf);
 }

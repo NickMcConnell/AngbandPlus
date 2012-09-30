@@ -518,7 +518,7 @@ static void setup_gamma_table(void)
 	/* Activate the table */
 	gamma_table_ready = TRUE;
 }
-	
+
 #endif /* SUPPORT_GAMMA */
 
 
@@ -625,7 +625,7 @@ static void Term_xtra_dos_react(void)
 		{
 			/* Warning */
 			plog("Cannot initialize sound!");
-			
+
 			/* Cannot enable */
 			arg_sound = FALSE;
 		}
@@ -708,7 +708,7 @@ static void Term_xtra_dos_clear(void)
 	{
 		/* Draw the Term black */
 		rectfill(screen,
-	        	x1, y1, x1 + w1 - 1, y1 + h1 - 1,
+			x1, y1, x1 + w1 - 1, y1 + h1 - 1,
 			COLOR_OFFSET + TERM_DARK);
 	}
 }
@@ -748,7 +748,7 @@ static errr Term_xtra_dos(int n, int v)
 		case TERM_XTRA_EVENT:
 		{
 #ifdef USE_SOCK
-                        irc_poll(pern_irc);
+			irc_poll(pern_irc);
 #endif
 			/* Process one event */
 			return (Term_xtra_dos_event(v));
@@ -768,7 +768,7 @@ static errr Term_xtra_dos(int n, int v)
 		case TERM_XTRA_BORED:
 		{
 #ifdef USE_SOCK
-                        irc_poll(pern_irc);
+			irc_poll(pern_irc);
 #endif
 
 #ifdef USE_SOUND
@@ -823,7 +823,7 @@ static errr Term_xtra_dos(int n, int v)
 		case TERM_XTRA_DELAY:
 		{
 #ifdef USE_SOCK
-                        irc_poll(pern_irc);
+			irc_poll(pern_irc);
 #endif
 			/* Delay if needed */
 			if (v > 0) delay(v);
@@ -1199,7 +1199,7 @@ static errr Term_wipe_dos(int x, int y, int n)
 	{
 		/* Draw a black block */
 		rectfill(screen, x1, y1, x1 + w1 - 1, y1 + h1 - 1,
-	        	COLOR_OFFSET + TERM_DARK);
+			COLOR_OFFSET + TERM_DARK);
 	}
 
 	/* Success */
@@ -1249,7 +1249,7 @@ static errr Term_text_dos(int x, int y, int n, byte a, const char *cp)
 
 		/* Dump the text */
 		textout(screen, td->font, text, x1, y1,
-		       	COLOR_OFFSET + (a & 0x0F));
+			COLOR_OFFSET + (a & 0x0F));
 	}
 
 	/* Stretch needed */
@@ -1263,10 +1263,10 @@ static errr Term_text_dos(int x, int y, int n, byte a, const char *cp)
 		{
 			/* Build a one character string */
 			text[0] = cp[i];
-	
+
 			/* Dump some text */
 			textout(screen, td->font, text, x1, y1,
-		        	COLOR_OFFSET + (a & 0x0F));
+				COLOR_OFFSET + (a & 0x0F));
 
 			/* Advance */
 			x1 += td->tile_wid;
@@ -1669,10 +1669,10 @@ GRX_BITMAP *load_grx_bmps(PACKFILE *f, FNTfile_header *hdr,
 		/* oops, out of space! */
 		if (bmp_size > GRX_TMP_SIZE)
 		{
-	 		free(temp);
-	 		for (t--; t>=0; t--) free(bmp[t]);
-	 		free(bmp);
-	 		return NULL;
+			free(temp);
+			for (t--; t>=0; t--) free(bmp[t]);
+			free(bmp);
+			return NULL;
 		}
 
 		/* alloc space for converted bitmap */

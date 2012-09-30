@@ -6,8 +6,7 @@ hobbits, live in the earth in burrow-like homes. Gnomes make excellent
 mages, and have very good saving throws. They are good at searching, 
 disarming, perception, and stealth. They have lower strength than humans 
 so they are not very good at fighting with hand weapons. Gnomes have fair 
-infra-vision, so they can detect warm-blooded creatures at a distance. A 
-gnome may choose between being a warrior, mage, priest, or rogue. Gnomes 
+infra-vision, so they can detect warm-blooded creatures at a distance. Gnomes 
 are intrinsically protected against paralysis and some slowing effects. At
 higher levels, Gnomes learn to teleport at will.
 

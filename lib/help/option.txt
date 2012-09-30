@@ -1,5 +1,5 @@
 |||||oy
-#####R=== Options and Effects (T.o.M.E. 1.x.x) ===
+#####R=== Options and Effects (PernAngband 5.x.x) ===
 
 Most of the "options" are accessible through the '=' command, which provides
 an interface to the various "sets" of options available to the player.
@@ -82,19 +82,12 @@ can also be viewed from the option menu while playing, but not changed then.
 #####GAllow use of some 'joke' monsters    [joke_monsters]
     Allows monsters flagged as being some of DarkGod's jokes to be generated.
 
-#####GPlayer starts at the bottom of the dungeon    [astral_option]
-    The player starts as a ghost down at dungeon level 98 (4900'). The player 
-    must attempt to *walk* up to the top of the dungeon (word of recall does
-    not work) and reach the town. Once they have reached the town, word of 
-    recall becomes active, and the player may recall back down to battle 
-    Morgoth. Generally a very short game!
-
 #####GAlways make small levels    [always_small_level]
     Overwrites the in-game option of small_levels, generating smaller levels
     whenever possible.
 
 #####GYou can receive fates, good or bad    [fate_option]
-    Allows the player to turn off T.o.M.E.'s *****fatespoi.txt*0[fates] for that character.
+    Allows the player to turn off ToME's *****fatespoi.txt*0[fates] for that character.
 
 
 #####RIN GAME OPTIONS
@@ -115,9 +108,7 @@ off at will during the course of the game.
     "[y/n]" prompt.
     
 #####GPrompt for various information    [other_query_flag]
-    Forces the game to ask you before taking various actions, such as using
-    things which might cause your pack to overflow.  Forces the game to ask
-    you which hand to place rings on.
+    No longer used.
     
 #####GPrompt before picking things up    [carry_query_flag]
     Forces the game to ask you if you want to pick something up when you
@@ -163,9 +154,9 @@ off at will during the course of the game.
     indicate what the player is "using" the object for, such as "wielding"
     or "wearing" (in a given location).  After you have played for a while,
     this information is no longer useful, and can be annoying.
-    Note that in T.o.M.E. this option no longer controls the "plain 
+    Note that in ToME this option no longer controls the "plain 
     flavoured object descriptions": a separate option for them has been added
-    under "T.o.M.E. Options".
+    under "ToME Options".
 
 #####GShow weights in object lists    [show_weights]
     Display the weights of objects in the "inventory" and "equipment" lists,
@@ -242,7 +233,7 @@ off at will during the course of the game.
     beginning to run out of fuel.
 
 #####GDisturb whenever random things happen    [disturb_other]
-    In T.o.M.E., uncursed teleporting items may teleport you around
+    In ToME, uncursed teleporting items may teleport you around
     sometimes, asking for your confirmation (and possibly disturbing
     your rest). If you unset this option, they will stop asking you
     and teleporting you randomly. Cursed items will neither ask for
@@ -369,6 +360,12 @@ off at will during the course of the game.
     "lit", and are thus drawn in "white", unless the "view_yellow_lite"
     option is set, in which case they are drawn in "yellow".
 
+#####GAllow some monsters to carry light    [monster_lite]
+    This option allows some monsters to carry light sources around with them,
+    lighting up the space around them. It can also allow you to see when some 
+    monsters are heading your way before they reach the bend in the corridor
+    that you are hiding behind . . . 
+
 #####GGenerate dungeons with aligned rooms    [dungeon_align]
     Force all rooms to be "aligned" with the "panel" divisions.  This results
     in a much "prettier" dungeon, but may result in fewer greater vaults.
@@ -393,7 +390,7 @@ off at will during the course of the game.
     compiled in on all platforms.
 
 #####GPlain object descriptions    [plain_descriptions]
-    In T.o.M.E., this option disables "full" names for identified
+    In ToME, this option disables "full" names for identified
     'flavored' objects, in other words, if this option is not in use, an
     identified Potion of Speed could be listed (for example) as a
     Blue Potion of Speed. If you prefer simpler, less verbose
@@ -408,15 +405,15 @@ off at will during the course of the game.
     and to use this information to choose the best attacks.
 
 #####GMonsters behave stupidly    [stupid_monsters]
-    T.o.M.E. incorporates Keldon Jones' improved monster Artificial
+    ToME incorporates Keldon Jones' improved monster Artificial
     Intelligence patch. While this patch most certainly makes monsters
     behave more realistically, they will also be more deadly with the
     improved AI. If you are a sissy, set this option to get the old,
     really stupid monster AI.
     Note that the new AI is a bit processing power expensive. If you have
-    an old computer (386sx) and T.o.M.E. is running too slowly, you could
+    an old computer (386sx) and ToME is running too slowly, you could
     try turning stupid_monsters on. Or buying that Pentium II so you can
-    run T.o.M.E.. :-)
+    run ToME. :-)
 
 #####GAllow unusually small dungeon levels    [small_levels]
     This option enables the creation of levels of varying sizes. Levels 
@@ -444,10 +441,7 @@ off at will during the course of the game.
     this behavior always, so "purists" should turn it on.
     
 #####GReduce view-radius in town    [view_reduce_view]
-    Reduce the "radius" of the player's "view" by half when the player
-    is in town.  This makes running faster in town, and also allows the
-    player to ignore monsters in town which are more than ten grids away,
-    which is usually safe, since none have distance attacks.
+    No longer in use.
 
 #####GAvoid checking for user abort    [avoid_abort]
     Avoid checking to see if the user has pressed a key during resting
@@ -560,13 +554,9 @@ off at will during the course of the game.
     dungeon around the player. Can be useful to prevent off-screen breaths.
 
 
-#####R=== T.o.M.E. Options ===
+#####R=== ToME Options ===
 
-Features which are unique to T.o.M.E. are collected in this menu.
-
-#####GShow silly messages when fighting    [flavored_attacks]
-    Generates silly messages from monsters each time they are hit, missed, try
-    to hit you, etc.
+Features which are unique to ToME are collected in this menu.
 
 #####GIngame contextual help    [ingame_help]
     Setting this option allows the game to trigger a help message the first time
@@ -588,11 +578,23 @@ Features which are unique to T.o.M.E. are collected in this menu.
     Setting this option to yes automatically clears any messages from the top
     of the window. Be warned that this could be dangerous - as you don't 
     actually get to see the messages unless you use ^P.
+    
+#####GPlayer char represent his/her health    [player_char_health]
+    Setting this option to yes only affects the player character when playing
+    in ASCII. As the player becomes injured, their icon changes to a figure
+    representing the percentage of health remaining, for example if they are
+    down to 68% of their maximum hitpoints, their character will be a '6' 
+    instead of a '@'. The character used only starts changing once the player
+    has lost at least 30% of their maximum hitpoints.
+
+#####GStats are represented in a linear way    [linear_stats]
+    Setting this option to yes alters the display of character stats from 
+    3-18/220 to 3-38.
 
 
 #####R=== Stacking Options ===
 
-In T.o.M.E. items are allowed to stack on floors and monsters are allowed 
+In ToME items are allowed to stack on floors and monsters are allowed 
 to maintain inventories. To enable these features set the following options:
 
 #####GAllow objects to stack on the floor   [testing_stack]
@@ -648,9 +650,9 @@ him. For all of these reasons, you may want to use these options:
 #####R=== Squelch Stuff ===
 
 Allows you to set options for the game to automatically destroy objects 
-upon their generation, for example skeletons, essences, cursed daggers,
-etc. Useful for reducing the clutter in the dungeon, and reducing the amount
-of loot to have to sort through.
+when you identify them, for example skeletons, essences, cursed daggers, etc.
+Useful for reducing the clutter in the dungeon, and reducing the amount of 
+loot to have to sort through.
 
 
 #####R=== Window Flags ===
@@ -696,5 +698,5 @@ command in another character file, hence saving all the initial time of having
 to reset all the options every time you wish to play.
 
 
-+++ Ben +++ (Updated by Dark God and Dawnmist for T.o.M.E.)
++++ Ben +++ (Updated by Dark God and Dawnmist for ToME)
 

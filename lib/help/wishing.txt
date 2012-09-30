@@ -1,6 +1,6 @@
 #####R=== Wishes ===
 
-Some items in T.o.M.E. will grant the user the ability to "wish" for an
+Some items in ToME will grant the user the ability to "wish" for an
 object that they are interested in. As such, these are generally very rare
 and very powerful objects.
 

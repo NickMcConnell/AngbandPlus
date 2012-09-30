@@ -1,3 +1,10 @@
+/* File: player.pkg */
+
+/*
+ * Purpose: Lua interface defitions for the player.
+ * To be processed by tolua to generate C source code.
+ */
+
 $#include "angband.h"
 
 typedef char* cptr;
@@ -49,10 +56,9 @@ typedef unsigned int u32b;
 #define PU_POWERS       0x00000080L     /* Calculate powers */
 /* xxx (many) */
 #define PU_UN_VIEW      0x00010000L     /* Forget view */
-#define PU_UN_LITE      0x00020000L     /* Forget lite */
 /* xxx (many) */
 #define PU_VIEW         0x00100000L     /* Update view */
-#define PU_LITE         0x00200000L     /* Update lite */
+#define PU_MON_LITE     0x00200000L     /* Update monster light */
 /* xxx */
 #define PU_MONSTERS     0x01000000L     /* Update monsters */
 #define PU_DISTANCE     0x02000000L     /* Update distances */
@@ -79,7 +85,7 @@ typedef unsigned int u32b;
 #define PR_CUT          0x00001000L     /* Display Extra (Cut) */
 #define PR_STUN         0x00002000L     /* Display Extra (Stun) */
 #define PR_HUNGER       0x00004000L     /* Display Extra (Hunger) */
-#define PR_TANK         0x00008000L     /* Display Tanker */
+#define PR_PIETY        0x00008000L     /* Display Piety */
 #define PR_BLIND        0x00010000L     /* Display Extra (Blind) */
 #define PR_CONFUSED     0x00020000L     /* Display Extra (Confused) */
 #define PR_AFRAID       0x00040000L     /* Display Extra (Afraid) */
@@ -93,7 +99,8 @@ typedef unsigned int u32b;
 #define PR_MAP          0x04000000L     /* Display Map */
 #define PR_WIPE         0x08000000L     /* Hack -- Total Redraw */
 #define PR_MH           0x10000000L     /* Display Monster hitpoints */
-/* xxx */
+#define PR_MH           0x10000000L     /* Display Monster hitpoints */
+#define PR_DTRAP        0x20000000L     /* Display Extra (DTrap) */
 /* xxx */
 /* xxx */
 
@@ -117,37 +124,63 @@ typedef unsigned int u32b;
 #define PW_BORG_1       0x00004000L     /* Display borg messages */
 #define PW_BORG_2       0x00008000L     /* Display borg status */
 
+/*
+ * Mimic Shapes
+ */
+#define MIMIC_ABOMINATION     1
+#define MIMIC_WOLF            2
+#define MIMIC_APE             3
+#define MIMIC_GOAT            4
+#define MIMIC_INSECT          5
+#define MIMIC_SPARROW         6
+#define MIMIC_ENT             7
+#define MIMIC_VAMPIRE         8
+#define MIMIC_SPIDER          9
+#define MIMIC_MANA_BALL       10
+#define MIMIC_FIRE_CLOUD      11
+#define MIMIC_COLD_CLOUD      12
+#define MIMIC_CHAOS_CLOUD     13
+#define MIMIC_GOST            14
+#define MIMIC_KOBOLD          15
+#define MIMIC_DRAGON          16
+#define MIMIC_DEMON           17
+#define MIMIC_HOUND           18
+#define MIMIC_QUYLTHULG       19
+#define MIMIC_MAIAR           20
+#define MIMIC_SERPENT         21
+#define MIMIC_GIANT           22
+#define MIMIC_VALAR           23
+#define MIMIC_WEREWOLF        24
+#define MIMIC_BALROG          25
+#define MIMIC_DEMON_LORD      26
+#define MIMIC_BEAR            27
 
-struct deity
+
+struct deity_type
 {
-        cptr name;
-        cptr god_of;
-        byte grace_deduction;
-        byte rarity;
-        byte race1;
-        byte race2;
-        cptr desc;
+	cptr name;
+        cptr desc[10];
 };
-extern deity deity_info[MAX_GODS];
+extern deity_type deity_info[MAX_GODS];
 
 struct player_type
 {
 	s16b oldpy;		/* Previous player location -KMW- */
 	s16b oldpx;		/* Previous player location -KMW- */
 
-        byte psex;              /* Sex index */
-        byte prace;             /* Race index */
-        byte pracem;            /* Race Mod index */
+	byte psex;              /* Sex index */
+	byte prace;             /* Race index */
+	byte pracem;            /* Race Mod index */
 	byte pclass;		/* Class index */
-        u16b realm1;            /* First magic realm */
-        u16b realm2;            /* Second magic realm */
-        byte mimic_form;        /* Actualy transformation */
-        byte oops;              /* Unused */
+	u16b realm1;            /* First magic realm */
+	u16b realm2;            /* Second magic realm */
+	byte mimic_form;        /* Actualy transformation */
+	byte oops;              /* Unused */
 
 	byte hitdie;		/* Hit dice (sides) */
-        u16b expfact;           /* Experience factor */                            
+	u16b expfact;           /* Experience factor */                            
 
-        byte allow_one_death;   /* Blood of life */
+	byte allow_one_death;   /* Blood of life */
 
 	s16b age;			/* Characters age */
 	s16b ht;			/* Height */
@@ -167,44 +200,43 @@ struct player_type
 	s16b inside_quest;		/* Inside quest level */
 	bool exit_bldg;			/* Goal obtained in arena? -KMW- */
 
-        s32b wilderness_x;              /* Coordinates in the wilderness */
+	s32b wilderness_x;              /* Coordinates in the wilderness */
 	s32b wilderness_y;
-        bool wild_mode;                 /* TRUE = Small map, FLASE = Big map */
-        bool old_wild_mode;             /* TRUE = Small map, FLASE = Big map */
+	bool wild_mode;                 /* TRUE = Small map, FLASE = Big map */
+	bool old_wild_mode;             /* TRUE = Small map, FLASE = Big map */
 
 	s16b mhp;			/* Max hit pts */
 	s16b chp;			/* Cur hit pts */
-        u16b chp_frac;                  /* Cur hit frac (times 2^16) */
-        s16b hp_mod;                    /* A modificator(permanent) */
+	u16b chp_frac;                  /* Cur hit frac (times 2^16) */
+	s16b hp_mod;                    /* A modificator(permanent) */
 
 	s16b msp;			/* Max mana pts */
 	s16b csp;			/* Cur mana pts */
 	u16b csp_frac;		/* Cur mana frac (times 2^16) */
 
-        s16b msane;                   /* Max sanity */
-        s16b csane;                   /* Cur sanity */
-        u16b csane_frac;              /* Cur sanity frac */
+	s16b msane;                   /* Max sanity */
+	s16b csane;                   /* Cur sanity */
+	u16b csane_frac;              /* Cur sanity frac */
 
-        s16b mtp;                       /* Max tank pts */
-        s16b ctp;                       /* Cur tank pts */
-        s16b tp_aux1;                   /* aux1 tank pts */
-        s16b tp_aux2;                   /* aux2 tank pts */
+	s16b mtp;                       /* Max tank pts */
+	s16b ctp;                       /* Cur tank pts */
+	s16b tp_aux1;                   /* aux1 tank pts */
+	s16b tp_aux2;                   /* aux2 tank pts */
 
-        s32b grace;                   /* Your God's appreciation factor. */
-        s32b god_favor;               /* Last time you asked for a favor. */
-        byte pgod;                    /* Your God. */
+	s32b grace;                   /* Your God's appreciation factor. */
+	byte pgod;                    /* Your God. */
 
-        s16b max_plv;                   /* Max Player Level */
+	s16b max_plv;                   /* Max Player Level */
 
-        s16b stat_max[6];               /* Current "maximal" stat values */
-        s16b stat_cur[6];               /* Current "natural" stat values */
+	s16b stat_max[6];               /* Current "maximal" stat values */
+	s16b stat_cur[6];               /* Current "natural" stat values */
 
-        s16b luck_cur;                  /* Current "natural" luck value (range -30 <> 30) */
-        s16b luck_max;                  /* Current "maximal base" luck value (range -30 <> 30) */
-        s16b luck_base;                 /* Current "base" luck value (range -30 <> 30) */
+	s16b luck_cur;                  /* Current "natural" luck value (range -30 <> 30) */
+	s16b luck_max;                  /* Current "maximal base" luck value (range -30 <> 30) */
+	s16b luck_base;                 /* Current "base" luck value (range -30 <> 30) */
 
 	s16b fast;			/* Timed -- Fast */
-        s16b lightspeed;                /* Timed -- Light Speed */
+	s16b lightspeed;                /* Timed -- Light Speed */
 	s16b slow;			/* Timed -- Slow */
 	s16b blind;			/* Timed -- Blindness */
 	s16b paralyzed;		/* Timed -- Paralysis */
@@ -215,15 +247,15 @@ struct player_type
 	s16b cut;			/* Timed -- Cut */
 	s16b stun;			/* Timed -- Stun */
 
-        s16b protevil;          /* Timed -- Protection from Evil*/
-        s16b protgood;          /* Timed -- Protection from Good*/
-        s16b protundead;        /* Timed -- Protection from Undead*/
+	s16b protevil;          /* Timed -- Protection from Evil*/
+	s16b protgood;          /* Timed -- Protection from Good*/
+	s16b protundead;        /* Timed -- Protection from Undead*/
 	s16b invuln;		/* Timed -- Invulnerable */
 	s16b hero;			/* Timed -- Heroism */
 	s16b shero;			/* Timed -- Super Heroism */
 	s16b shield;		/* Timed -- Shield Spell */
-        s16b shield_power;      /* Timed -- Shield Spell Power */
-        s16b shield_opt;        /* Timed -- Shield Spell options */
+	s16b shield_power;      /* Timed -- Shield Spell Power */
+	s16b shield_opt;        /* Timed -- Shield Spell options */
 	s16b blessed;		/* Timed -- Blessed */
 	s16b tim_invis;		/* Timed -- See Invisible */
 	s16b tim_infra;		/* Timed -- Infra Vision */
@@ -233,48 +265,55 @@ struct player_type
 	s16b oppose_fire;	/* Timed -- oppose heat */
 	s16b oppose_cold;	/* Timed -- oppose cold */
 	s16b oppose_pois;	/* Timed -- oppose poison */
-        s16b oppose_ld;         /* Timed -- oppose light & dark */
-        s16b oppose_cc;         /* Timed -- oppose chaos & confusion */
-        s16b oppose_ss;         /* Timed -- oppose sound & shards */
-        s16b oppose_nex;        /* Timed -- oppose nexus */
+	s16b oppose_ld;         /* Timed -- oppose light & dark */
+	s16b oppose_cc;         /* Timed -- oppose chaos & confusion */
+	s16b oppose_ss;         /* Timed -- oppose sound & shards */
+	s16b oppose_nex;        /* Timed -- oppose nexus */
 
 
-        s16b tim_esp;       /* Timed ESP */
-        s16b tim_wraith;    /* Timed wraithform */
-        s16b tim_ffall;     /* Timed Levitation */
-        s16b tim_fire_aura; /* Timed Fire Aura */
+	s16b tim_esp;       /* Timed ESP */
+	s16b tim_wraith;    /* Timed wraithform */
+	s16b tim_ffall;     /* Timed Levitation */
+	s16b tim_fly;       /* Timed Levitation */
+	s16b tim_fire_aura; /* Timed Fire Aura */
+	s16b tim_regen;      /* Timed regen */
+	s16b tim_regen_pow;      /* Timed regen */
+	s16b tim_poison;    /* Timed poison hands */
+	s16b tim_thunder;   /* Timed thunderstorm */
+	s16b tim_thunder_p1;/* Timed thunderstorm */
+	s16b tim_thunder_p2;/* Timed thunderstorm */
 
-        s16b resist_magic;  /* Timed Resist Magic (later) */
-        s16b tim_invisible; /* Timed Invisibility */
-        s16b tim_inv_pow;   /* Power of timed invisibility */
-        s16b tim_mimic;     /* Timed Mimic */
-        s16b tim_lite;      /* Timed Lite */
-        s16b holy;          /* Holy Aura */
-        s16b walk_water;    /* Walk over water as a god */
-        s16b tim_mental_barrier; /* Sustain Int&Wis */
-        s16b strike;        /* True Strike(+25 hit) */
-        s16b meditation;    /* Meditation(+50 mana -25 to hit/to dam) */
-        s16b tim_reflect;   /* Timed Reflection */
-        s16b tim_res_time;  /* Timed Resistance to Time */
-        s16b tim_deadly;    /* Timed deadly blow */
-        s16b prob_travel;   /* Timed probability travel */
-        s16b disrupt_shield;/* Timed disruption shield */
-        s16b parasite;      /* Timed parasite */
-        s16b parasite_r_idx;/* Timed parasite monster */
-        u32b loan;
-        u32b loan_time;/* Timer -- loan */
+	s16b resist_magic;  /* Timed Resist Magic (later) */
+	s16b tim_invisible; /* Timed Invisibility */
+	s16b tim_inv_pow;   /* Power of timed invisibility */
+	s16b tim_mimic;     /* Timed Mimic */
+	s16b tim_lite;      /* Timed Lite */
+	s16b holy;          /* Holy Aura */
+	s16b walk_water;    /* Walk over water as a god */
+	s16b tim_mental_barrier; /* Sustain Int&Wis */
+	s16b strike;        /* True Strike(+25 hit) */
+	s16b meditation;    /* Meditation(+50 mana -25 to hit/to dam) */
+	s16b tim_reflect;   /* Timed Reflection */
+	s16b tim_res_time;  /* Timed Resistance to Time */
+	s16b tim_deadly;    /* Timed deadly blow */
+	s16b prob_travel;   /* Timed probability travel */
+	s16b disrupt_shield;/* Timed disruption shield */
+	s16b parasite;      /* Timed parasite */
+	s16b parasite_r_idx;/* Timed parasite monster */
+	u32b loan;
+	u32b loan_time;/* Timer -- loan */
 
-        s16b immov_cntr;    /* Timed -- Last ``immovable'' command. */
+	s16b immov_cntr;    /* Timed -- Last ``immovable'' command. */
 
-        s16b chaos_patron;
-        u32b muta1;
-        u32b muta2;
-        u32b muta3;
+	s16b chaos_patron;
+	u32b muta1;
+	u32b muta2;
+	u32b muta3;
 
-        s16b recall_dungeon;    /* Recall in which dungeon */
+	s16b recall_dungeon;    /* Recall in which dungeon */
 	s16b word_recall;	/* Word of recall counter */
 
-        s32b energy;            /* Current energy */
+	s32b energy;            /* Current energy */
 
 	s16b food;			/* Current nutrition */
 
@@ -285,7 +324,7 @@ struct player_type
 
 	s16b old_spells;
 
-        s16b xtra_spells;       /* Number of xtra spell learned(via potion) */
+	s16b xtra_spells;       /* Number of xtra spell learned(via potion) */
 
 	s16b cur_lite;		/* Radius of lite (if any) */
 
@@ -303,11 +342,11 @@ struct player_type
 	s16b stat_cnt[6];	/* Counter for temporary drains */
 	s16b stat_los[6];	/* Amount of temporary drains */
 
-        bool immune_acid;       /* Immunity to acid */
+	bool immune_acid;       /* Immunity to acid */
 	bool immune_elec;	/* Immunity to lightning */
 	bool immune_fire;	/* Immunity to fire */
 	bool immune_cold;	/* Immunity to cold */
-        bool immune_neth;       /* Immunity to nether */
+	bool immune_neth;       /* Immunity to nether */
 
 	bool resist_acid;	/* Resist acid */
 	bool resist_elec;	/* Resist lightning */
@@ -326,17 +365,17 @@ struct player_type
 	bool resist_blind;	/* Resist blindness */
 	bool resist_neth;	/* Resist nether */
 	bool resist_fear;	/* Resist fear */
-        bool resist_continuum;  /* Resist space-time continuum disruption */
+	bool resist_continuum;  /* Resist space-time continuum disruption */
 
-        bool sensible_fire;     /* Fire does more damage on the player */
+	bool sensible_fire;     /* Fire does more damage on the player */
 
-        bool reflect;       /* Reflect 'bolt' attacks */
-        bool sh_fire;       /* Fiery 'immolation' effect */
-        bool sh_elec;       /* Electric 'immolation' effect */
-        bool wraith_form;   /* wraithform */
+	bool reflect;       /* Reflect 'bolt' attacks */
+	bool sh_fire;       /* Fiery 'immolation' effect */
+	bool sh_elec;       /* Electric 'immolation' effect */
+	bool wraith_form;   /* wraithform */
 
-        bool anti_magic;    /* Anti-magic */
-        bool anti_tele;     /* Prevent teleportation */
+	bool anti_magic;    /* Anti-magic */
+	bool anti_tele;     /* Prevent teleportation */
 
 	bool sustain_str;	/* Keep strength */
 	bool sustain_int;	/* Keep intelligence */
@@ -349,23 +388,23 @@ struct player_type
 	bool teleport;		/* Random teleporting */
 
 	bool exp_drain;		/* Experience draining */
-        byte drain_mana;        /* mana draining */
-        byte drain_life;        /* hp draining */
+	byte drain_mana;        /* mana draining */
+	byte drain_life;        /* hp draining */
 
-        bool climb;             /* Can climb mountains */
-        bool fly;               /* Can fly over some features */
-        bool ffall;             /* No damage falling */
-        bool lite;              /* Permanent light */
+	bool climb;             /* Can climb mountains */
+	bool fly;               /* Can fly over some features */
+	bool ffall;             /* No damage falling */
+	bool lite;              /* Permanent light */
 	bool free_act;		/* Never paralyzed */
 	bool see_inv;		/* Can see invisible */
 	bool regenerate;	/* Regenerate hit pts */
 	bool hold_life;		/* Resist life draining */
-        u32b telepathy;         /* Telepathy */
+	u32b telepathy;         /* Telepathy */
 	bool slow_digest;	/* Slower digestion */
 	bool bless_blade;	/* Blessed blade */
-        byte xtra_might;        /* Extra might bow */
+	byte xtra_might;        /* Extra might bow */
 	bool impact;		/* Earthquake blows */
-        bool auto_id;           /* Auto id items */
+	bool auto_id;           /* Auto id items */
 
 	s16b dis_to_h;		/* Known bonus to hit */
 	s16b dis_to_d;		/* Known bonus to dam */
@@ -373,16 +412,19 @@ struct player_type
 
 	s16b dis_ac;		/* Known base ac */
 
-        s16b to_m;                      /* Bonus to mana */
-        s16b to_s;                      /* Bonus to spell */
+	s16b to_m;                      /* Bonus to mana */
+	s16b to_s;                      /* Bonus to spell */
 	s16b to_h;			/* Bonus to hit */
 	s16b to_d;			/* Bonus to dam */
 	s16b to_a;			/* Bonus to ac */
 
+	s16b num_blow;		/* Number of blows */
+	s16b num_fire;		/* Number of shots */
+
 	s16b ac;			/* Base ac */
 
-        byte antimagic;         /* Power of the anti magic field */
-        byte antimagic_dis;     /* Radius of the anti magic field */
+	byte antimagic;         /* Power of the anti magic field */
+	byte antimagic_dis;     /* Radius of the anti magic field */
 
 	s16b see_infra;		/* Infravision range */
 
@@ -397,31 +439,49 @@ struct player_type
 	s16b skill_tht;		/* Skill: To hit (throwing) */
 	s16b skill_dig;		/* Skill: Digging */
 
-        s16b companion_killed;  /* Number of companion death */
-        bool black_breath;      /* The Tolkien's Black Breath */
-        u16b body_monster;        /* In which body is the player */
-        bool powers_mod[POWER_MAX_INIT]; /* Intrinsinc powers */
-        bool powers[power_max];
+        s16b skill_points;
+
+        s16b control;                   /* Controlled monster */
+        byte control_dir;               /* Controlled monster */
+	s16b companion_killed;  /* Number of companion death */
+	bool black_breath;      /* The Tolkien's Black Breath */
+	u16b body_monster;        /* In which body is the player */
+	bool powers_mod[POWER_MAX_INIT]; /* Intrinsinc powers */
+	bool powers[power_max];
+
+        byte spellbinder_num;   /* Number of spells bound */
+        u32b spellbinder[4];    /* Spell bounds */
+        byte spellbinder_trigger;       /* Spellbinder trigger condition */
 
 	/*** Temporary fields ***/
 
-        bool leaving;                   /* True if player is leaving */
+	bool leaving;                   /* True if player is leaving */
 };
+
+/*
+ * Spellbinder triggers
+ */
+#define SPELLBINDER_HP75        1
+#define SPELLBINDER_HP50        2
+#define SPELLBINDER_HP25        3
 
 struct player_race
 {
-        s32b title;                     /* Type of race */
-        s32b desc;
+	s32b title;                     /* Type of race */
+	s32b desc;
 };
 
 struct player_race_mod
 {
-        s32b title;                     /* Type of race mod */
-        s32b desc;                      /* Desc */
-        bool place;                     /* TRUE = race race modifier, FALSE = Race modifier race */
+	s32b title;                     /* Type of race mod */
+	s32b desc;                      /* Desc */
+	bool place;                     /* TRUE = race race modifier, FALSE = Race modifier race */
 };
 
 extern s32b energy_use;
+
+extern u16b total_winner;
+extern u16b has_won;
 
 extern player_type *p_ptr @ player;
 extern u16b max_rp_idx;
@@ -437,7 +497,9 @@ extern char *c_name;
 extern char *c_text;
 extern s16b py;
 extern s16b px;
+extern bool flush_failure;
 
+extern bool set_shadow(int v);
 extern bool set_parasite(int v, int r);
 extern bool set_disrupt_shield(int v);
 extern bool set_prob_travel(int v);
@@ -449,10 +511,12 @@ extern bool set_strike(int v);
 extern bool set_walk_water(int v);
 extern bool set_tim_ffall(int v);
 extern bool set_tim_fire_aura(int v);
+extern bool set_tim_regen(int v, int p);
 extern bool set_holy(int v);
 extern void set_grace(s32b v);
 extern bool set_mimic(int v, int p);
 extern bool set_no_breeders(int v);
+extern bool set_tim_esp(int v);
 extern bool set_invis(int v,int p);
 extern bool set_lite(int v);
 extern bool set_blind(int v);
@@ -461,10 +525,22 @@ extern bool set_poisoned(int v);
 extern bool set_afraid(int v);
 extern bool set_paralyzed(int v);
 extern bool set_image(int v);
-extern bool set_fast(int v);
+extern bool set_fast(int v, int p);
 extern bool set_light_speed(int v);
 extern bool set_slow(int v);
-extern bool set_shield(int v, int p, s16b o);
+extern bool set_shield(int v, int p, s16b o, s16b d1, s16b d2);
+
+/*
+ * Shield effect options
+ */
+#define SHIELD_NONE             0x0000
+#define SHIELD_COUNTER          0x0001
+#define SHIELD_FIRE             0x0002
+#define SHIELD_GREAT_FIRE       0x0004
+#define SHIELD_FEAR             0x0008
+
+extern bool set_tim_thunder(int v, int p1, int p2);
+extern bool set_tim_fly(int v);
 extern bool set_blessed(int v);
 extern bool set_hero(int v);
 extern bool set_shero(int v);
@@ -475,6 +551,7 @@ extern bool set_invuln(int v);
 extern bool set_tim_invis(int v);
 extern bool set_tim_infra(int v);
 extern bool set_mental_barrier(int v);
+extern bool set_poison(int v);
 extern bool set_oppose_acid(int v);
 extern bool set_oppose_elec(int v);
 extern bool set_oppose_fire(int v);
@@ -486,8 +563,39 @@ extern bool set_oppose_ss(int v);
 extern bool set_oppose_nex(int v);
 extern bool set_stun(int v);
 extern bool set_cut(int v);
+
 extern bool set_food(int v);
+/*
+ * Player "food" crucial values
+ */
+#define PY_FOOD_MAX             15000   /* Food value (Bloated) */
+#define PY_FOOD_FULL    10000   /* Food value (Normal) */
+#define PY_FOOD_ALERT   2000    /* Food value (Hungry) */
+#define PY_FOOD_WEAK    1000    /* Food value (Weak) */
+#define PY_FOOD_FAINT   500             /* Food value (Fainting) */
+#define PY_FOOD_STARVE  100             /* Food value (Starving) */
+
 extern void check_experience(void);
 extern void check_experience_obj(object_type *o_ptr);
 extern void gain_exp(s32b amount);
 extern void lose_exp(s32b amount);
+extern bool no_lite(void);
+
+extern s16b dun_level;
+
+
+/*
+ * God's defines
+ */
+#define GOD_ALL                 -1
+#define GOD_NONE                0
+#define GOD_ERU                 1
+#define GOD_MANWE               2
+#define GOD_TULKAS              3
+#define GOD_MELKOR              4
+#define MAX_GODS                5
+
+extern void inc_piety(char god, s32b amt);
+extern void abandon_god(char god);
+extern int wisdom_scale(int max);
+extern void follow_god(int god, bool silent);

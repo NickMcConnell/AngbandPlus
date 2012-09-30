@@ -9,21 +9,42 @@ comfortably, and still unable to be anything even remotely approaching
 effective with it. To compensate for their ability to cast all spells, 
 Sorcerors gain no experience from casting new spells.
 
-#####GPrimary Stats
-Intelligence (spellcasting stat)
+#####GStarting Stat Modifiers
+Strength         -5
+Intelligence     +3
+Wisdom           +0
+Dexterity        +1
+Constitution     -2
+Charisma         +1
+Bonus Blows      0
+Hit Die          +d0
+Exp Penalty      30%
 
-#####GMagic Usage
-The Sorcerer can't fight with a weapon unless it's a Mage Staff. But 
-they can use every spell of their seven magic realms. They have no need
-to learn the spells - they already know them, and as soon as their 
-character level permits they are capable of casting any of them. They
-still, however, are required to read the spells from their spellbooks - 
-so will need to be choosy about which spells and books they wish to 
-take with them into the dungeon (with 6 realms, their backpack could
-fill extremely quickly!!!)
-
-Sorcerors can cast spells from the following realms:
-*****m_chaos.txt*0[Chaos]   *****m_illus.txt*0[Illusion]   *****m_magery.txt*0[Magery]   *****m_nether.txt*0[Nether]   *****m_shadow.txt*0[Shadow]   *****m_sigald.txt*0[Sigaldry]   *****m_spirit.txt*0[Spirit]
+#####GStarting Skills:
+#####BSkill                   Start Level     Skill Point Gains
+Combat                  0.000           [0.000]
+  Weaponmastery         0.000           [0.000]
+Sneakiness              1.000           [0.900]
+Magic                   1.000           [1.000]
+  Sorcery               1.000           [0.800]
+  Spell-power           0.000           [0.600]
+  Mana                  0.000           [0.600]
+  Fire                  0.000           [0.600]
+  Water                 0.000           [0.600]
+  Air                   0.000           [0.600]
+  Earth                 0.000           [0.600]
+  Temporal              0.000           [0.600]
+  Divination            0.000           [0.600]
+  Conveyance            0.000           [0.600]
+  Nature                0.000           [0.600]
+  Meta                  0.000           [0.600]
+  Mind                  0.000           [0.600]
+  Necromancy            0.000           [0.800]
+  Runecraft             0.000           [0.800]
+  Thaumaturgy           0.000           [0.800]
+Spirituality            1.000           [0.550]
+  Prayer                0.000           [0.500]
+Monster-lore            0.000           [0.500]
 
 #####GStarting Equipment
 A sorceror begins the game with:

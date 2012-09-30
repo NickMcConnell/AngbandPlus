@@ -2552,7 +2552,7 @@ becomes 0, allowing spells to summon fiery blades and such
   idea
 - Cannot reset recall to Mount Doom
 - The game time is now counted with the elven calendar (reckoning of Imladris)
-  (It isnt PERFECT, every 12 years it should have years or 368 days, but I
+  (It isnt PERFECT, every 12 years it should have years of 368 days, but I
   dont think many will get upset :)
   A year is 365 days, with 6 months (Tuile, Laire, Yavie, Quelle, Hrive and
   Coire), 3 middle days(Enderi) and one starting(Yestare) and one ending
@@ -3072,59 +3072,122 @@ becomes 0, allowing spells to summon fiery blades and such
 
 01/01/2001 - PernAngband 5.1.0 aka "Into the Fire"
 
-01/01/2002
-[B]- Removed farmoer maggot abuse
-[B]- Fixed a bug with forgetten spells
-[P]- Vampires can be elves and high elves again
+2002/02/19
+[B]- Normal (non-vampire) races didn't get mana regenerated at Inn -- pelpel
+[B]- The Mathom house acted like a normal shop when selling.  -- Kusunose
+[B]- '-s' crashed the game. Thanks kobayashi for the fix -- pelpel
+[O]- Combining rod and rod tip now considers rod's cheapness flag.
+     -- Kusunose
+[B]- Beastmaster Shanty overpayed a bounty if monster's corpses are stacked.
+     -- Kusunose
+[B]- The random text code left files open in many error cases -- pelpel
 
-07/01/2002
-[B]- Fixed a bug in the experimental Blade class
-[B]- Fixed a bug with summoning friendly monsters via lua scripts thanks to
-     Kobayasi
+2002/02/20
+[B]- WeaponMasters were not restricted with their weapons.  -- Kusunose
+[B]- Info text of 'disrupt mind' was described as 'dam'.  -- Kusunose
+[B]- Fixed the "automatic ego filter" bug in the squeltch filter -- pelpel
 
-09/01/2001
-[B]- FIxed a bug with Melinda proundfoot
-[B]- Fixed the monster casting at other monsters but targetting you bug
+2002/02/26
+[B]- The polymorph random effect could crash the game. Thanks Kevin W.
+     Thomas for the detailed analysis of the problem -- pelpel
+[B]- Stat draining effect of Black breath could crash the game. Thanks
+     Kevin W. Thomas again for the patch -- pelpel
+[B]- With easy_disarm set, players were totally safe from detected traps,
+     whatever messages might say -- pelpel
+[B]- Ego graphics code is now only active when and only when 16x16 tiles
+     are selected -- pelpel
+[B]- Quest entrances/exits now require players to type '>'/'<' commands
+     to move in/out -- pelpel
+[m]- Shimmering terrain features no longer shimmer while running/resting,
+     to make them more bearable on slower machines and slow I/O systems
+     like GCU -- pelpel
+[I]- Incorporated the hopefully improved running code from the CVS version.
+     It uses CAN_RUN and DONT_NOTICE_RUNNING flags for non-conditional
+     checks (i.e. not controlled by the disturbance flags or requiring
+     immunity), so that most running problem can be fixed by editing
+     f_info.txt -- pelpel
 
-11/01/2001
-[B]- Sacrificing wands now reduce the charges
-[P]- Enabled the Black Knight class
-[B]- Fixed the store info file thanks to wrabhit23
+2002/02/27
+[B]- Many room walls didn't have the CAVE_ROOM flag set -- pelpel
+[m]- The tunnel code (ordinary one) now performs double check for
+     feat_wall_outer and CAVE_ROOM, so it is safe to use any terrain
+     features for outer wall, including those identical to fill_type.
+     Note: These two changes have very significant effect on the Sacred
+     Land of Mountains. I'm not 100% sure if this is what DG intended,
+     but I believe so reading flags given to it in d_info.txt -- pelpel
+[D]- There should be less not-at-all secret "secret" doors.
+     This does *not* mean that ancient prob, but those mountains enbedded in
+     plain wall in Barrow-Downs, for example -- pelpel
+[I]- Inven/equip/item choice in subwindows now clears to the bottom of screen,
+     to avoid glitches and in accordance with the way it worked -- pelpel
+[I]- Identify and *Identify* don't list known/fully known items in
+     object selection -- pelpel
+[m]- Depth/field name area is now 13 character long, so that names like
+     "shallow water" will fit, and "Lothlorien" is not truncated in GCU.
+     Also added short dungeon name prefix to the depth-in-feet mode -- pelpel
 
-12/01/2001 - PernAngband 5.1.1 aka "The Hour of the Wolf"
+2002/2/28
+[B]- Dungeon town generation could crash the game. Thanks Mogami
+     for the analysis of the problem -- pelpel
 
-12/02/2002
-[B]- Fixed a bug in the hook code that may or may not be the cause of
-     various quest-related bugs
-[B]- Fixed a bug in the 6 monster randquest thanks to Louis-Frederic Michaud
+1/03/2002
+[B]- Supplied missing suid code in 1) savefile removal action in the startup
+     screen, 2) time table lookup, 3) dungeon savefile removal, and
+     4) bone file removal.  Thanks kobayasi for the patch -- pelpel
+[B]- Less platform-dependent savefile processing code for the game start
+     menu, thanks again for kobayasi. It now uses files.c utility routines
+	 for building appropriate savefile names -- pelpel
+[B]- Magical branding of weapon/ammo, when successful, now sets enchanted
+     item's discount rate to 100%, so that one can no longer make vast
+     profit or easily gain his/her deity's favour.  Code adopted from
+     T.o.M.E. 2.0.0 CVS -- pelpel
 
-13/02/2002
-[I]- added special lighting effects as I did to the CVS -- pelpel
-[B]- fixed running problem with small tree, sand and ash 
-     fixed running problem with traps in the Maze  -- pelpel
-[B]- auto-squelch no longer requires typing space when there's
-     no "-more-" prompt telling players to do so.  -- pelpel
-[B]- * corridors connecting exists to dungeon no longer creates unconnected
-       dungeon sections or destroy room walls
-     * fixed a possible cause of crashes in the Maze
-     * guardian artefacts could be lost when their creation is abort by
-       the "too many objects" error.
-     * final guardian artefacts were never created if they are normal k_info
-       artefacts.
-[B]- main-xaw.c -- IRC client support, use of traditional term names for
-     resource specifications and main window is labeled "PernAngband" :)
-[B]- monster2.c -- monster inventory allocation code could cause permanent
-     loss of artefacts, again if it's aborted by "too many objects" error.
-[B]- object1.c -- there were extra spaces in names of many Ego items.
-[B]- object2.c -- TV_RANDART type artefacts were never preserved in some
-     places.
-[B]- q_troll.c -- the reward artefact wasn't preserved when o_pop() failed.
-[B]- squeltch.c -- {good} items are now destroyed when it's told
-     "Destroy Good" and the "strong" pseudo-ID is in effect.
-[I]- New lighting code by pelpel
-[B]- Fixed some bugs with multiuser systems
-[B]- The xbow of the elves was designed as the ultimate ARMOR
-[B]- Do not drop from wild if player were not in wild mode in previous turn;
-     it put player in wrong place and could crash the game.  -- Kusunose
-[B]- Fixed get_com interface for lua
-[B]- Summoning monsters from totems could crash the game.  -- Kusunose
+03/03/2002
+[P]- Give Ents scrolls of satisfy hunger instead of some food.  -- Kusunose
+[M]- Added a command to dismiss companions in the pet menu. Code adopted
+     from T.o.M.E. 2.0.0 CVS -- Kusunose
+
+04/03/2002
+[B]- '/' in item selection didn't update screen correctly -- pelpel
+[m]- Moved auto-squelch code from process_player() to process_world() -- pelpel
+
+05/03/2002
+[m]- CAVE_TRDT wasn't cleared when a trap is disarmed, which had some
+     subtle effects and forced coders to double check c_ptr->info and
+     c_ptr->t_idx in various places -- pelpel
+
+06/03/2002
+[B]- Level generation could cause infinite loop in the Sacred Land of
+     Mountains -- pelpel
+[B]- Player ghosts were disabled in a way causing special feeling on
+     every level -- pelpel
+[m]- Changed repeated message code to V-CVS one -- pelpel
+[m]- Added another graphics mode variable called graphics_mode :),
+     somewhat like use_graphics in ZAngband, but it doesn't
+     require any changes to main-xxx.c. It's set within reset_visuals()
+     and used by map_info(), so that it doesn't have to do streq()
+     each time it is called -- pelpel
+[B]- Took 64-bit safe RNG from Vanilla -- pelpel
+
+11/04/2002
+[B]- Gave SPECIAL_GENE flags to the k_info.txt entries of SPECIAL_GENE
+     special artefacts -- pelpel
+
+20/04/2002
+[B]- Player is now guaranteed to have initialive after entering a level.
+     Thanks Joseph William Dixon for the patch -- pelpel
+
+22/04/2002
+[m]- Renamed 422colors.prf to 422color.prf, to make it fit with the 8.3 naming
+     convention -- pelpel
+
+24/04/2002
+[m]- Add support for multiline comments in lua: --[[ ... ]]
+
+28/04/2002
+[B]- Fixed a bug that caused gods start casting nasty effects when player's
+     grace becomes negative. It should have been -60000.  -- Kusunose
+[D]- The inn in Bree is now The Prancing Pony.  -- Kusunose
+[m]- Improved lua interface for defining new 'm' keys, magic powers, quests, ...
+
+05/05/2002 - T.o.M.E. 1.0.0 aka "Between the Darkness and the Light"

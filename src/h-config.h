@@ -47,7 +47,7 @@
     #define USE_IBM_SVGA
   #endif
 
- 
+
 #endif
 
 /*

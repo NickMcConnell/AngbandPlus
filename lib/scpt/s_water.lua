@@ -1,0 +1,77 @@
+-- handle the water school
+
+TIDALWAVE = add_spell
+{
+	["name"] = 	"Tidal Wave",
+        ["school"] = 	{SCHOOL_WATER},
+        ["level"] = 	16,
+        ["mana"] = 	16,
+        ["mana_max"] = 	40,
+        ["fail"] = 	20,
+        ["spell"] = 	function()
+		        fire_wave(GF_WAVE, 0, 40 + get_level(TIDALWAVE, 200), 0, 6 + get_level(TIDALWAVE, 10), EFF_WAVE)
+	end,
+	["info"] = 	function()
+			return "dam "..(40 + get_level(TIDALWAVE,  200)).." rad "..(6 + get_level(TIDALWAVE,  10))
+	end,
+        ["desc"] =	{
+        		"Summons a monstruous tidal wave that will expand and crush the",
+                        "monsters under it's mighty waves"
+        }
+}
+
+ICESTORM = add_spell
+{
+	["name"] = 	"Ice Storm",
+        ["school"] = 	{SCHOOL_WATER},
+        ["level"] = 	22,
+        ["mana"] = 	30,
+        ["mana_max"] = 	60,
+        ["fail"] = 	20,
+        ["spell"] = 	function()
+        		local type
+        
+        		if get_level(ICESTORM, 50) >= 10 then type = GF_ICE
+                        else type = GF_COLD end
+		        fire_wave(type, 0, 80 + get_level(ICESTORM, 200), 1 + get_level(ICESTORM, 3, 0), 20 + get_level(ICESTORM, 70), EFF_STORM)
+	end,
+	["info"] = 	function()
+			return "dam "..(80 + get_level(ICESTORM, 200)).." rad "..(1 + get_level(ICESTORM, 3, 0)).." dur "..(20 + get_level(ICESTORM, 70))
+	end,
+        ["desc"] =	{
+        		"Engulfs you in a storm of roaring cold that strikes your foes",
+                        "At level 10 it turns into shards of ice"
+        }
+}
+
+ENTPOTION = add_spell
+{
+	["name"] = 	"Ent's Potion",
+        ["school"] = 	{SCHOOL_WATER},
+        ["level"] = 	6,
+        ["mana"] = 	7,
+        ["mana_max"] = 	15,
+        ["fail"] = 	20,
+        ["spell"] = 	function()
+        		set_food(PY_FOOD_MAX - 1)
+                        msg_print("The Ent's Potion fills your stomach.")
+        		if get_level(ENTPOTION, 50) >= 5 then
+                        	set_afraid(0)
+                        end
+        		if get_level(ENTPOTION, 50) >= 12 then
+                        	set_hero(player.hero + randint(25) + 25 + get_level(ENTPOTION, 40))
+                        end
+	end,
+	["info"] = 	function()
+        		if get_level(ENTPOTION, 50) >= 12 then
+                                return "dur "..(25 + get_level(ENTPOTION, 40)).."+d25"
+                        else
+				return ""
+                        end
+	end,
+        ["desc"] =	{
+                        "Fills up your stomach",
+                        "At level 5 it boldens your heart",
+                        "At level 12 it make you heroic"
+        }
+}

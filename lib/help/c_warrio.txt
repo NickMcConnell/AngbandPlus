@@ -8,13 +8,33 @@ and a good Dexterity can really help at times. A Warrior will be good
 at Fighting and Throwing/Bows, but bad at most other skills.
 A Warrior learns no magic.
 
-#####GPrimary Stats
-Strength
-Constitution
+#####GStarting Stat Modifiers
+Strength         +5
+Intelligence     -2
+Wisdom           -2
+Dexterity        +2
+Constitution     +2
+Charisma         -1
+Bonus Blows      3
+Hit Die          +d9
+Exp Penalty      0%
 
-#####GMagic Usage
-Warriors cast no spells. They hate magic. In fact, they even gain 
-experience for destroying high level spellbooks.
+#####GStarting Skills:
+#####BSkill                   Start Level     Skill Point Gains
+Combat                  2.000           [0.800]
+  Weaponmastery         1.000           [0.850]
+    Sword-mastery       0.000           [0.200]
+    Axe-mastery         0.000           [0.200]
+    Hafted-mastery      0.000           [0.200]
+    Polearm-mastery     0.000           [0.200]
+  Archery               1.000           [0.600]
+Sneakiness              1.000           [0.900]
+  Disarming             1.000           [0.900]
+Magic                   1.000           [0.300]
+Spirituality            1.000           [0.400]
+  Prayer                0.000           [0.500]
+Monster-lore            0.000           [0.500]
+Antimagic               0.000           [0.550]
 
 #####GStarting Equipment
 A warrior begins the game with:

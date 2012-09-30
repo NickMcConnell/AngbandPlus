@@ -1,0 +1,118 @@
+# File: font-mac.prf
+
+#
+# This file is used by Angband (when it was compiled using "main-mac.c")
+# to specify simple attr/char remappings using a standard font, allowing
+# the use of the Macintosh's special characters for some things.
+#
+
+
+### Terrain Features ###
+
+# fountain (white / long s)
+F:2:1/-70
+
+# fountain (light dark / long s)
+F:15:8/-70
+
+# stream of shallow water (light blue / double tilde)
+F:84:14/-59
+
+# pool of deep lava (red / double tilde)
+F:85:4/-59
+
+# stream of shallow lava (light umber / double tilde)
+F:86:15/-59
+
+# dead tree (light dark / yen sign)
+F:92:8/-76
+
+# tree (light green / yen sign)
+F:96:13/-76
+
+# mountain chain (light umber / triangle)
+F:97:15/-58
+
+# high mountain chain (light slate / triangle)
+F:101:9/-58
+
+# Between gate (purple / Omega)
+F:160:10/-67
+
+# Altar of Forests (green / pi)
+F:161:5/-71
+
+# Altar of Water (blue / pi)
+F:162:6/-71
+
+# Altar of Earth (umber / pi)
+F:163:7/-71
+
+# Altar of Darkness (light dark / pi)
+F:164:8/-71
+
+# Altar of Moon (purple / pi)
+F:165:10/-71
+
+# Altar of Sun (yellow / pi)
+F:166:11/-71
+
+# Altar of Rage (light red / pi)
+F:167:12/-71
+
+# Altar of Winds (light blue / pi)
+F:168:14/-71
+
+# Altar of Stars (light umber / pi)
+F:169:15/-71
+
+# Altar of Being (light slate / pi)
+F:170:9/-71
+
+# Altar of Randomness (purple / pi)
+F:171:10/-71
+
+# stream of tainted water (umber / double tilde)
+F:174:7/-59
+
+# Between gate (purple / Omega)
+F:176:10/-67
+
+# pool of deep water (blue / double tilde)
+F:187:6/-59
+
+# small tree (green / yen sign)
+F:202:5/-76
+
+# Underground Tunnel (light umber / Omega)
+F:204:15/-67
+
+
+### Monsters ###
+
+# Old Man Willow (slate / yen sign)
+R:206:2/-76
+
+# Tangleweed (green / yen sign)
+R:248:5/-76
+
+# Poison ivy (green / yen sign)
+R:266:5/-76
+
+# Giant Venus Flytrap (green / yen sign)
+R:317:5/-76
+
+# Huorn (green / yen sign)
+R:329:5/-76
+
+# Xiclotlan (light dark / yen sign)
+R:396:8/-76
+
+# Ent (light green / yen sign)
+R:708:13/-76
+
+# Quickbeam, the Ent (light green / yen sign)
+R:714:13/-76
+
+# Fangorn the Treebeard, Lord of the Ents (light green / yen sign)
+R:934:13/-76

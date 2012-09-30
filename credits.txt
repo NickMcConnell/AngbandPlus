@@ -31,13 +31,17 @@ drop me a line please) in no particular order:
 - Luc French for lots of ideas & code
 - Kieron for some patches
 - Runescrye for ra_info.txt and surely more :)
+- Fearof4s for lua patches and lua toturial
+- Pav Lucistnik for some patches
 
 - All that I forgot in the list, hit me a bit then email me to get added
 
-- All the friendly people of the PernAngband mailling list
+- All the friendly people of the ToME mailling list
 - All the friendly people of #angband
 
 - TeCGraf for the Lua scripting language(www.lua.org)
 - Reuben Thomas for the lua bitlib
 - Waldemar Celes for tolua(automatic wrapper generator for lua, like swig, but
   this one actually works :)
+
+- J.R.R. Tolkien for the best fantasy ever !

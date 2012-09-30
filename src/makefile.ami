@@ -11,7 +11,7 @@ OBJS = \
   object1.o object2.o traps.o monster1.o monster2.o monster3.o \
   xtra1.o xtra2.o spells1.o spells2.o help.o \
   melee1.o melee2.o save.o files.o notes.o \
-  status.o randart.o \
+  status.o randart.o gods.o \
   cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o cmd7.o \
   store.o birth.o loadsave.o ghost.o powers.o \
   wizard1.o wizard2.o wild.o plots.o \
@@ -94,6 +94,7 @@ wizard1.o: wizard1.c $(INCS)
 wizard2.o: wizard2.c $(INCS)
 xtra1.o: xtra1.c $(INCS)
 xtra2.o: xtra2.c $(INCS)
+gods.o: gods.c $(INCS)
 levels.o: levels.c $(INCS)
 ghost.o: ghost.c $(INCS)
 squeltch.o: squeltch.c $(INCS)

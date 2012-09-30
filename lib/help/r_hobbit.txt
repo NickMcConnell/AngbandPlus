@@ -5,10 +5,9 @@ Hobbits, or Halflings, are very good at bows, throwing, and have good
 saving throws. They also are very good at searching, disarming, perception,
 and stealth; so they make excellent rogues, but prefer to be called 
 burglars. They are much weaker than humans, and no good at melee fighting.
-Halflings have fair infravision, so they can detect warm creatures at a 
-distance. Hobbits can choose between being a warrior, mage, or rogue. 
-They have their dexterity sustained and in time they learn to cook a 
-delicious meal from available ingredients.
+Halflings have fair infra-vision, so they can detect warm creatures at a 
+distance. Hobbits have their dexterity sustained and in time they learn to cook a 
+delicious meal from available ingredients.  They're sturdy constitutions also allow them to resist the insidious poison of the ring-wraiths
 
 #####GStat Modifiers
 Strength        -2   

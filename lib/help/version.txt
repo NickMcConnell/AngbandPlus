@@ -1,5 +1,5 @@
 |||||oy
-#####R====== T.o.M.E. Brief History =======
+#####R====== ToME Brief History =======
 
 When Zangband came to it 2.2.0 version I (DarkGod) was an Angband winner and
 I had been a C programmer for a long time, so I decided to take the sources
@@ -15,14 +15,12 @@ the race powers that I wasn't able to code at the time). So I removed
 much of the Zelazny stuff and replaced it with Tolkien and Pernish stuff.
 And so the history of PernAngband began with the version 2.9.9a.
 
-In 2002, at the request of Anne McCaffrey, the author and copyright holder
-to Pern novels and related materials, and because the game is in fact
-the most faithful to Tolkien than other Angband variants, it has changed
-its name from PernAngband to the Troubles of Middle Earth, or T.o.M.E.
-for short.
+Now, in PernAngband 5.x.x, PernAngband is a thriving Angband variant
+with plenty of unique features.
 
-Now, in T.o.M.E. 1.x.x, it is a thriving Angband variant with plenty of
-unique features.
+Then came some legal problems with Annce McCaffrey estate and ubisoft and
+I had to remove the pern stuff, so the game got rename to ToME,
+the Troubles of Middle Earth.
 
 #####R=== Zangband History and Information ===
 

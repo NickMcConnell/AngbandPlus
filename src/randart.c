@@ -23,109 +23,109 @@
  */
 static bool grab_one_power(int *ra_idx, object_type *o_ptr, bool good, s16b *max_times)
 {
-        int i = 0, j;
-        int *ok_ra, ok_num = 0;
-        bool ret = FALSE;
-        s32b f1, f2, f3, f4, f5, esp;
+	int i = 0, j;
+	int *ok_ra, ok_num = 0;
+	bool ret = FALSE;
+	s32b f1, f2, f3, f4, f5, esp;
 
-        C_MAKE(ok_ra, max_ra_idx, int);
+	C_MAKE(ok_ra, max_ra_idx, int);
 
-        /* Grab the ok randart */
-        for (i = 0; i < max_ra_idx; i++)
-        {
-                randart_part_type *ra_ptr = &ra_info[i];
-                bool ok = FALSE;
+	/* Grab the ok randart */
+	for (i = 0; i < max_ra_idx; i++)
+	{
+		randart_part_type *ra_ptr = &ra_info[i];
+		bool ok = FALSE;
 
 		/* Must have the correct fields */
-                for (j = 0; j < 20; j++)
-                {
-                        if (ra_ptr->tval[j] == o_ptr->tval)
-                        {
-                                if ((ra_ptr->min_sval[j] <= o_ptr->sval) && (ra_ptr->max_sval[j] >= o_ptr->sval)) ok = TRUE;
-                        }
+		for (j = 0; j < 20; j++)
+		{
+			if (ra_ptr->tval[j] == o_ptr->tval)
+			{
+				if ((ra_ptr->min_sval[j] <= o_ptr->sval) && (ra_ptr->max_sval[j] >= o_ptr->sval)) ok = TRUE;
+			}
 
-                        if (ok) break;
-                }
-                if (!ok)
-                {
-                        /* Doesnt count as a try*/
-                        continue;
-                }
+			if (ok) break;
+		}
+		if (!ok)
+		{
+			/* Doesnt count as a try*/
+			continue;
+		}
 
-                /* Good should be good, bad should be bad */
-                if (good && (ra_ptr->value <= 0)) continue;
-                if ((!good) && (ra_ptr->value > 0)) continue;
+		/* Good should be good, bad should be bad */
+		if (good && (ra_ptr->value <= 0)) continue;
+		if ((!good) && (ra_ptr->value > 0)) continue;
 
-                if (max_times[i] >= ra_ptr->max) continue;
+		if (max_times[i] >= ra_ptr->max) continue;
 
-                /* Must NOT have the antagonic flags */
-                object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
-                if (f1 & ra_ptr->aflags1) continue;
-                if (f2 & ra_ptr->aflags2) continue;
-                if (f3 & ra_ptr->aflags3) continue;
-                if (f4 & ra_ptr->aflags4) continue;
-                if (f5 & ra_ptr->aflags5) continue;
-                if (esp & ra_ptr->aesp) continue;
+		/* Must NOT have the antagonic flags */
+		object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
+		if (f1 & ra_ptr->aflags1) continue;
+		if (f2 & ra_ptr->aflags2) continue;
+		if (f3 & ra_ptr->aflags3) continue;
+		if (f4 & ra_ptr->aflags4) continue;
+		if (f5 & ra_ptr->aflags5) continue;
+		if (esp & ra_ptr->aesp) continue;
 
-                /* ok */
-                ok_ra[ok_num++] = i;
-        }
+		/* ok */
+		ok_ra[ok_num++] = i;
+	}
 
-        /* Now test them a few times */
-        for (i = 0; i < ok_num * 10; i++)
+	/* Now test them a few times */
+	for (i = 0; i < ok_num * 10; i++)
 	{
-                randart_part_type *ra_ptr;
+		randart_part_type *ra_ptr;
 
-                i = ok_ra[rand_int(ok_num)];
-                ra_ptr = &ra_info[i];
+		i = ok_ra[rand_int(ok_num)];
+		ra_ptr = &ra_info[i];
 
-                /* XXX XXX Enforce minimum player level (loosely) */
-                if (ra_ptr->level > p_ptr->lev)
+		/* XXX XXX Enforce minimum player level (loosely) */
+		if (ra_ptr->level > p_ptr->lev)
 		{
 			/* Acquire the "out-of-depth factor" */
-                        int d = (ra_ptr->level - p_ptr->lev);
+			int d = (ra_ptr->level - p_ptr->lev);
 
 			/* Roll for out-of-depth creation */
-                        if (rand_int(d) != 0)
-                        {
-                                continue;
-                        }
+			if (rand_int(d) != 0)
+			{
+				continue;
+			}
 		}
 
 		/* We must make the "rarity roll" */
-                if (rand_int(ra_ptr->mrarity) < ra_ptr->rarity)
-                {
-                        continue;
-                }
+		if (rand_int(ra_ptr->mrarity) < ra_ptr->rarity)
+		{
+			continue;
+		}
 
-                /* Hack -- mark the item as an ego */
-                *ra_idx = i;
-                max_times[i]++;
+		/* Hack -- mark the item as an ego */
+		*ra_idx = i;
+		max_times[i]++;
 
 		/* Success */
-                ret = TRUE;
-                break;
+		ret = TRUE;
+		break;
 	}
 
-        C_FREE(ok_ra, max_ra_idx, int);
+	C_FREE(ok_ra, max_ra_idx, int);
 
-        /* Return */
-        return (ret);
+	/* Return */
+	return (ret);
 }
 
 void give_activation_power (object_type * o_ptr)
 {
-	int type = 0, chance = 0;
+	/* int type = 0, chance = 0; */
 
 
 	/* A type was chosen... */
-#if 0 // DGDGDGDG
+#if 0 /* DGDGDGDG -- Todo later */
 	o_ptr->xtra2 = type;
 	o_ptr->art_flags3 |= TR3_ACTIVATE;
 	o_ptr->timeout = 0;
 #else
-        o_ptr->xtra2 = 0;
-        o_ptr->art_flags3 &= ~TR3_ACTIVATE;
+	o_ptr->xtra2 = 0;
+	o_ptr->art_flags3 &= ~TR3_ACTIVATE;
 	o_ptr->timeout = 0;
 #endif
 }
@@ -133,13 +133,13 @@ void give_activation_power (object_type * o_ptr)
 
 int get_activation_power()
 {
-        object_type *o_ptr, forge;
+	object_type *o_ptr, forge;
 
-        o_ptr = &forge;
+	o_ptr = &forge;
 
-        give_activation_power(o_ptr);
+	give_activation_power(o_ptr);
 
-        return o_ptr->xtra2;
+	return o_ptr->xtra2;
 }
 
 #define MIN_NAME_LEN 5
@@ -253,12 +253,12 @@ startover:
 
 void get_random_name(char * return_name)
 {
-        char *word = make_word();
+	char *word = make_word();
 
-        if (rand_int(3) == 0)
-                sprintf(return_name, "'%s'", word);
-        else
-                sprintf(return_name, "of %s", word);
+	if (rand_int(3) == 0)
+		sprintf(return_name, "'%s'", word);
+	else
+		sprintf(return_name, "of %s", word);
 }
 
 
@@ -266,87 +266,86 @@ bool create_artifact(object_type *o_ptr, bool a_scroll, bool get_name)
 {
 	char new_name[80];
 	int powers = 0, i;
-        s32b total_flags, total_power = 0;
+	s32b total_flags, total_power = 0;
 	bool a_cursed = FALSE;
-        u32b f1, f2, f3, f4, f5, esp;
-        s16b *max_times;
-        s16b pval = 0;
-        bool limit_blows = FALSE;
+	u32b f1, f2, f3, f4, f5, esp;
+	s16b *max_times;
+	s16b pval = 0;
+	bool limit_blows = FALSE;
 
 	strcpy(new_name,"");
 
 	if ((!a_scroll) && (randint(A_CURSED)==1)) a_cursed = TRUE;
 
-        i = 0;
-        while (ra_gen[i].chance)
-        {
-                powers += damroll(ra_gen[i].dd, ra_gen[i].ds) + ra_gen[i].plus;
-                i++;
-        }
+	i = 0;
+	while (ra_gen[i].chance)
+	{
+		powers += damroll(ra_gen[i].dd, ra_gen[i].ds) + ra_gen[i].plus;
+		i++;
+	}
 
-        if ((!a_cursed) && (randint(30) == 1)) powers *= 2;
+	if ((!a_cursed) && (randint(30) == 1)) powers *= 2;
 
 	if (a_cursed) powers /= 2;
 
-        C_MAKE(max_times, max_ra_idx, s16b);
+	C_MAKE(max_times, max_ra_idx, s16b);
 
 	/* Main loop */
-        while (powers)
+	while (powers)
 	{
-                int ra_idx;
-                randart_part_type *ra_ptr;
+		int ra_idx;
+		randart_part_type *ra_ptr;
 
-                powers--;
+		powers--;
 
-                if (!grab_one_power(&ra_idx, o_ptr, TRUE, max_times)) continue;
+		if (!grab_one_power(&ra_idx, o_ptr, TRUE, max_times)) continue;
 
-                ra_ptr = &ra_info[ra_idx];
+		ra_ptr = &ra_info[ra_idx];
 
-                if (wizard) msg_format("Additing randart power: %d", ra_idx);
+		if (wizard) msg_format("Additing randart power: %d", ra_idx);
 
-                total_power += ra_ptr->value;
-                
-                o_ptr->art_flags1 |= ra_ptr->flags1;
-                o_ptr->art_flags2 |= ra_ptr->flags2;
-                o_ptr->art_flags3 |= ra_ptr->flags3;
-                o_ptr->art_flags4 |= ra_ptr->flags4;
-                o_ptr->art_flags5 |= ra_ptr->flags5;
-                o_ptr->art_esp |= ra_ptr->esp;
+		total_power += ra_ptr->value;
 
-                add_random_ego_flag(o_ptr, ra_ptr->fego, &limit_blows);
+		o_ptr->art_flags1 |= ra_ptr->flags1;
+		o_ptr->art_flags2 |= ra_ptr->flags2;
+		o_ptr->art_flags3 |= ra_ptr->flags3;
+		o_ptr->art_flags4 |= ra_ptr->flags4;
+		o_ptr->art_flags5 |= ra_ptr->flags5;
+		o_ptr->art_esp |= ra_ptr->esp;
 
-                /* get flags */
-                object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
+		add_random_ego_flag(o_ptr, ra_ptr->fego, &limit_blows);
+
+		/* get flags */
+		object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
 
 		/* Hack -- acquire "cursed" flag */
-                if (f3 & TR3_CURSED) o_ptr->ident |= (IDENT_CURSED);
+		if (f3 & TR3_CURSED) o_ptr->ident |= (IDENT_CURSED);
 
-                /* Hack -- obtain bonuses */
-                if (ra_ptr->max_to_h > 0) o_ptr->to_h += randint(ra_ptr->max_to_h);
-                if (ra_ptr->max_to_h < 0) o_ptr->to_h -= randint(-ra_ptr->max_to_h);
-                if (ra_ptr->max_to_d > 0) o_ptr->to_d += randint(ra_ptr->max_to_d);
-                if (ra_ptr->max_to_d < 0) o_ptr->to_d -= randint(-ra_ptr->max_to_d);
-                if (ra_ptr->max_to_a > 0) o_ptr->to_a += randint(ra_ptr->max_to_a);
-                if (ra_ptr->max_to_a < 0) o_ptr->to_a -= randint(-ra_ptr->max_to_a);
+		/* Hack -- obtain bonuses */
+		if (ra_ptr->max_to_h > 0) o_ptr->to_h += randint(ra_ptr->max_to_h);
+		if (ra_ptr->max_to_h < 0) o_ptr->to_h -= randint(-ra_ptr->max_to_h);
+		if (ra_ptr->max_to_d > 0) o_ptr->to_d += randint(ra_ptr->max_to_d);
+		if (ra_ptr->max_to_d < 0) o_ptr->to_d -= randint(-ra_ptr->max_to_d);
+		if (ra_ptr->max_to_a > 0) o_ptr->to_a += randint(ra_ptr->max_to_a);
+		if (ra_ptr->max_to_a < 0) o_ptr->to_a -= randint(-ra_ptr->max_to_a);
 
-                /* Hack -- obtain pval */
-                if (((pval > ra_ptr->max_pval) && ra_ptr->max_pval) || (!pval)) pval = ra_ptr->max_pval;
+		/* Hack -- obtain pval */
+		if (((pval > ra_ptr->max_pval) && ra_ptr->max_pval) || (!pval)) pval = ra_ptr->max_pval;
 	};
-        C_FREE(max_times, max_ra_idx, s16b);
+	C_FREE(max_times, max_ra_idx, s16b);
 
-        if (pval > 0) o_ptr->pval = randint(pval);
-        if (pval < 0) o_ptr->pval = randint(-pval);
+	if (pval > 0) o_ptr->pval = randint(pval);
+	if (pval < 0) o_ptr->pval = randint(-pval);
 
-        /* No insane number of blows */  
-        if (limit_blows && (o_ptr->art_flags1 & TR1_BLOWS))
-        {
-                if (o_ptr->pval > 2)
-                        o_ptr->pval -= randint(o_ptr->pval - 2);
-        }
+	/* No insane number of blows */  
+	if (limit_blows && (o_ptr->art_flags1 & TR1_BLOWS))
+	{
+		if (o_ptr->pval > 2) o_ptr->pval = randint(2);
+	}
 
 	/* Just to be sure */
 	o_ptr->art_flags3 |= ( TR3_IGNORE_ACID | TR3_IGNORE_ELEC |
-	                       TR3_IGNORE_FIRE | TR3_IGNORE_COLD);
+			       TR3_IGNORE_FIRE | TR3_IGNORE_COLD);
 
 	total_flags = flag_cost(o_ptr, o_ptr->pval);
 	if (cheat_peek) msg_format("%ld", total_flags);
@@ -354,40 +353,40 @@ bool create_artifact(object_type *o_ptr, bool a_scroll, bool get_name)
 	if (a_cursed) curse_artifact(o_ptr);
 
 	/* Extract the flags */
-        object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
+	object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
 
-        if(get_name)
-        {
-                if (a_scroll)
-                {
-                        char dummy_name[80];
-                        strcpy(dummy_name, "");
-                        identify_fully_aux(o_ptr, NULL);
-                        o_ptr->ident |= IDENT_STOREB; /* This will be used later on... */
-                        if (!(get_string("What do you want to call the artifact? ", dummy_name, 80)))
-                                sprintf(new_name, "of '%s'", player_name);
-                        else
-                        {
-                                strcpy(new_name,"called '");
-                                strcat(new_name,dummy_name);
-                                strcat(new_name,"'");
-                        }
-                        /* Identify it fully */
-                        object_aware(o_ptr);
-                        object_known(o_ptr);
+	if(get_name)
+	{
+		if (a_scroll)
+		{
+			char dummy_name[80];
+			strcpy(dummy_name, "");
+			identify_fully_aux(o_ptr, NULL);
+			o_ptr->ident |= IDENT_STOREB; /* This will be used later on... */
+			if (!(get_string("What do you want to call the artifact? ", dummy_name, 80)))
+				sprintf(new_name, "of '%s'", player_name);
+			else
+			{
+				strcpy(new_name,"called '");
+				strcat(new_name,dummy_name);
+				strcat(new_name,"'");
+			}
+			/* Identify it fully */
+			object_aware(o_ptr);
+			object_known(o_ptr);
 
-                        /* Mark the item as fully known */
-                        o_ptr->ident |= (IDENT_MENTAL);
-                }
-                else
-                {
-                        get_random_name(new_name);
-                }
-        }
+			/* Mark the item as fully known */
+			o_ptr->ident |= (IDENT_MENTAL);
+		}
+		else
+		{
+			get_random_name(new_name);
+		}
+	}
 
 	/* Save the inscription */
 	o_ptr->art_name = quark_add(new_name);
-        o_ptr->name2 = o_ptr->name2b = 0;
+	o_ptr->name2 = o_ptr->name2b = 0;
 
 	/* Window stuff */
 	p_ptr->window |= (PW_INVEN | PW_EQUIP);
@@ -407,7 +406,7 @@ bool artifact_scroll(void)
 
 
 	/* Enchant weapon/armour */
-        item_tester_hook = item_tester_hook_artifactable;
+	item_tester_hook = item_tester_hook_artifactable;
 
 	/* Get an item */
 	q = "Enchant which item? ";
@@ -432,10 +431,10 @@ bool artifact_scroll(void)
 
 	/* Describe */
 	msg_format("%s %s radiate%s a blinding light!",
-	          ((item >= 0) ? "Your" : "The"), o_name,
-	          ((o_ptr->number > 1) ? "" : "s"));
+		  ((item >= 0) ? "Your" : "The"), o_name,
+		  ((o_ptr->number > 1) ? "" : "s"));
 
-        if (artifact_p(o_ptr))
+	if (artifact_p(o_ptr))
 	{
 		msg_format("The %s %s already %s!",
 		    o_name, ((o_ptr->number > 1) ? "are" : "is"),
@@ -459,7 +458,7 @@ bool artifact_scroll(void)
 			msg_format("%d of your %s %s destroyed!",(o_ptr->number)-1, o_name, (o_ptr->number>2?"were":"was"));
 			o_ptr->number = 1;
 		}
-                okay = create_artifact(o_ptr, TRUE, TRUE);
+		okay = create_artifact(o_ptr, TRUE, TRUE);
 	}
 
 	/* Failure */

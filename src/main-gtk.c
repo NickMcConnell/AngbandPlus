@@ -38,9 +38,9 @@
  *
  * Angband 2.9.3 and close variants don't require any.
  *
- * Angband 2.9.4 (alpha) removed the short-lived can_save flag,
- * so please #define can_save TRUE, or remove
- * all the references to it. It also changed long-lived
+ * Angband 2.9.4 alpha and later removed the short-lived
+ * can_save flag, so please #define can_save TRUE, or remove
+ * all the references to it. They also changed long-lived
  * z-virt macro names. Find C_FREE/C_KILL and replace them
  * with FREE/KILL, which takes one pointer parameter.
  *
@@ -56,23 +56,24 @@
  * If you like to use SUPPORT_GAMMA, copy the code bracketed
  * inside of #ifdef SUPPORT_GAMMA in util.c of Angband 2.9.1 or greater.
  */
-#define PERNANGBAND
+#define TOME
 
-#ifdef PERNANGBAND
+#ifdef TOME
 # define ANG293_COMPAT	/* Requires V2.9.3 compatibility code */
 # define ANG291_COMPAT	/* Requires V2.9.1 compatibility code */
 # define ANG281_RESET_VISUALS	/* The old style reset_visuals() */
 # define INTERACTIVE_GAMMA	/* Supports interactive gamma correction */
 # define SAVEFILE_SCREEN	/* New/Open integrated into the game */
-#endif /* PERNANGBAND */
+#endif /* TOME */
 
 /*
  * Some examples
  */
-#ifdef ANGBAND294
+#ifdef ANGBAND300
 # define can_save TRUE	/* Mimick the short-lived flag */
 # define C_FREE(P,N,T)	FREE(P)	/* Emulate the long-lived macro */
-#endif /* ANGBAND294 */
+# define USE_TRANSPARENCY	/* Because it's default now */
+#endif /* ANGBAND300 */
 
 #ifdef GUMBAND
 # define ANG293_COMPAT	/* Requires V2.9.3 compatibility code */
@@ -89,6 +90,12 @@
 
 
 #ifdef USE_GTK
+
+/* Force ANSI standard */
+/* #define __STRICT_ANSI__ */
+
+/* No GCC-specific includes */
+/* #undef __GNUC__ */
 
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
@@ -274,13 +281,13 @@ static cptr get_default_font(int term)
 	cptr font_name;
 
 	/* Window specific font name */
-	sprintf(buf, "ANGBAND_X11_FONT_%s", angband_term_name[term]);
+	strnfmt(buf, 64, "ANGBAND_X11_FONT_%s", angband_term_name[term]);
 
 	/* Check environment for that font */
 	font_name = getenv(buf);
 
 	/* Window specific font name */
-	sprintf(buf, "ANGBAND_X11_FONT_%d", term);
+	strnfmt(buf, 64, "ANGBAND_X11_FONT_%d", term);
 
 	/* Check environment for that font */
 	if (!font_name) font_name = getenv(buf);
@@ -336,7 +343,11 @@ static bool use_transparency = TRUE;
 /*
  * Hook to "release" memory
  */
+#ifdef ANGBAND300
+static vptr hook_rnfree(vptr v)
+#else
 static vptr hook_rnfree(vptr v, huge size)
+#endif /* ANGBAND300 */
 {
 	/* Dispose */
 	g_free(v);
@@ -458,7 +469,7 @@ static void setup_gamma_table(void)
 	 * XXX It may be a good idea to prevent use of very high gamma values,
 	 * say, greater than 2.5, which is gamma of normal CRT display IIRC.
 	 */
-	if ((gamma_val <= 0) || (gamma_val >= 256))
+	if ((gamma_val <= 0) || (gamma_val >= 256)) return;
 
 	/* Build the gamma correction table */
 	build_gamma_table(gamma_val);
@@ -1129,11 +1140,11 @@ static void scale_icon(
 			for (xi = 0; xi < ox; xi++)
 			{
 				temp[xi].red = (prev[xi].red * (oy - sifrac) +
-				                next[xi].red * sifrac);
+						next[xi].red * sifrac);
 				temp[xi].green = (prev[xi].green * (oy - sifrac) +
-				                  next[xi].green * sifrac);
+						  next[xi].green * sifrac);
 				temp[xi].blue = (prev[xi].blue * (oy - sifrac) +
-				                 next[xi].blue * sifrac);
+						 next[xi].blue * sifrac);
 			}
 
 			/* write row to output image: */
@@ -1259,7 +1270,7 @@ static GdkRGBImage *resize_tiles_smooth(
 		for (x1 = 0, x2 = 0; (x1 < width1) && (x2 < width2); x1 += ix, x2 += ox)
 		{
 			scale_icon(im, tmp, x1, y1, x2, y2,
-			          ix, iy, ox, oy);
+				  ix, iy, ox, oy);
 		}
 	}
 
@@ -1282,11 +1293,11 @@ static void copy_pixels(
 	GdkRGBImage *new_image)
 {
 	int i;
-	
+
 	/* Get source and destination */
 	byte *src = &old_image->image[offset * old_image->width * 3];
 	byte *dst = &new_image->image[y * new_image->width * 3];
-	
+
 	/* Copy to the image */
 	for (i = 0; i < wid; i++)
 	{
@@ -1322,11 +1333,11 @@ static void copy_pixels(
 	GdkRGBImage *new_image)
 {
 	int i;
-	
+
 	/* Get source and destination */
 	byte *src = &old_image->image[offset * old_image->width * 4];
 	byte *dst = &new_image->image[y * new_image->width * 4];
-	
+
 	/* Copy to the image */
 	for (i = 0; i < wid; i++)
 	{
@@ -1384,7 +1395,7 @@ static GdkRGBImage *resize_tiles_fast(
 	 * Calculate an offsets table, so the transformation
 	 * is faster.  This is much like the Bresenham algorithm
 	 */
-	
+
 	/* Set up x offset table */
 	C_MAKE(xoffsets, new_wid, int);
 
@@ -1394,7 +1405,7 @@ static GdkRGBImage *resize_tiles_fast(
 
 	/* Start at left */
 	offset = 0;
-	
+
 	/* Half-tile offset so 'line' is centered correctly */
 	rem_tot = new_wid / 2;
 
@@ -1402,10 +1413,10 @@ static GdkRGBImage *resize_tiles_fast(
 	{
 		/* Store into the table */
 		xoffsets[i] = offset;
-		
+
 		/* Move to next entry */
 		offset += add;
-		
+
 		/* Take care of fractional part */
 		rem_tot += remainder;
 		if (rem_tot >= new_wid)
@@ -1416,14 +1427,14 @@ static GdkRGBImage *resize_tiles_fast(
 	}
 
 	/* Scan each row */
-	
+
 	/* Initialize line parameters */
 	add = old_hgt / new_hgt;
 	remainder = old_hgt % new_hgt;
 
 	/* Start at left */
 	offset = 0;
-	
+
 	/* Half-tile offset so 'line' is centered correctly */
 	rem_tot = new_hgt / 2;
 
@@ -1431,10 +1442,10 @@ static GdkRGBImage *resize_tiles_fast(
 	{
 		/* Copy pixels to new image */
 		copy_pixels(new_wid, i, offset, xoffsets, old_image, new_image);
-				
+
 		/* Move to next entry */
 		offset += add;
-		
+
 		/* Take care of fractional part */
 		rem_tot += remainder;
 		if (rem_tot >= new_hgt)
@@ -1443,10 +1454,10 @@ static GdkRGBImage *resize_tiles_fast(
 			offset++;
 		}
 	}
-	
+
 	/* Free offset table */
 	C_FREE(xoffsets, new_wid, int);
-	
+
 	return (new_image);
 }
 
@@ -1592,7 +1603,7 @@ static GdkRGBImage *load_xpm(cptr filename)
 	bool ret;
 	pal_type *pal = NULL;
 	pal_type *head[HASH_SIZE];
-	u32b buflen;
+	u32b buflen = 0;
 	char *lin = NULL;
 	char buf[1024];
 
@@ -1708,7 +1719,7 @@ static GdkRGBImage *load_xpm(cptr filename)
 
 		/* Read colour */
 		else if ((1 != sscanf(&buf[j], "#%06lX", &tmp)) &&
-		         (1 != sscanf(&buf[j], "#%06lx", &tmp)))
+			 (1 != sscanf(&buf[j], "#%06lx", &tmp)))
 		{
 			/* Notify error */
 			plog("Badly formatted colour");
@@ -1840,7 +1851,7 @@ oops:
 /*
  * A BMP loader, yet another duplication of maid-x11.c functions.
  *
- * Another version, again, because of different image format and
+ * Another duplication, again because of different image format and
  * avoidance of colour allocation.
  *
  * XXX XXX XXX XXX Should avoid using a propriatary and closed format.
@@ -1994,13 +2005,6 @@ GdkRGBImage *load_bmp(cptr filename)
 	    (file_hdr.type != 19778) ||
 	    (info_hdr.size != 40))
 	{
-		/*
-		 * WAS: quit_fmt(...)
-		 *
-		 * A program should NEVER quit on such a trivial error.
-		 * Ditto for *numerous* occurences of quit_fmt() below,
-		 * that are no more.
-		 */
 		plog(format("Incorrect BMP file format %s", filename));
 		fclose(f);
 		return (NULL);
@@ -2101,7 +2105,7 @@ GdkRGBImage *load_bmp(cptr filename)
 			{
 				/* Technically 1 bit is legal too */
 				plog(format("Illegal bit count %d in %s",
-				         info_hdr.bit_count, filename));
+					 info_hdr.bit_count, filename));
 				gdk_rgb_image_destroy(result);
 				fclose(f);
 				return (NULL);
@@ -2162,6 +2166,9 @@ static void graf_nuke()
 	{
 		/* Access term_data structure */
 		td = &data[i];
+
+		/* Disable graphics */
+		td->t.higher_pict = FALSE;
 
 		/* Free previously allocated tiles */
 		if (td->tiles) gdk_rgb_image_destroy(td->tiles);
@@ -2246,6 +2253,9 @@ static bool graf_init(
 		/* Shouldn't waste anything for unused terms */
 		if (!td->shown) continue;
 
+		/* Enable graphics */
+		td->t.higher_pict = TRUE;
+
 		/* See if we need rescaled tiles XXX */
 		if ((td->tiles == NULL) ||
 		    (td->tiles->width != td->font_wid * tile_cols) ||
@@ -2319,7 +2329,7 @@ static bool graf_init(
 # endif /* USE_TRANSPARENCY */
 
 	}
-	
+
 
 	/* Alas, we need to free wasted images */
 	if (result == FALSE) graf_nuke();
@@ -2344,7 +2354,7 @@ static void init_graphics(void)
 {
 	cptr tile_name;
 
-	u16b graf_wid, graf_hgt;
+	u16b graf_wid = 0, graf_hgt = 0;
 
 
 	/* No graphics requests are made - Can't this be simpler? XXX XXX */
@@ -2366,6 +2376,7 @@ static void init_graphics(void)
 	switch (graf_mode_request)
 	{
 		/* ASCII - no graphics whatsoever */
+		default:
 		case GRAF_MODE_NONE:
 		{
 			tile_name = NULL;
@@ -2375,10 +2386,13 @@ static void init_graphics(void)
 		}
 
 		/*
-		 * 8x8 tiles originally written for the Amiga port
-		 * by Lars Haugseth, converted to 256 colours and
-		 * expanded by the Z devteam(?)
-		 * Dawnmist is working on it for T.o.M.E.
+		 * 8x8 tiles originally collected for the Amiga port
+		 * from several contributers by Lars Haugseth, converted
+		 * to 256 colours and expanded by the Z devteam
+		 *
+		 * Use the "old" tile assignments
+		 *
+		 * Dawnmist is working on it for ToME
 		 */
 		case GRAF_MODE_OLD:
 		{
@@ -2393,7 +2407,7 @@ static void init_graphics(void)
 		/*
 		 * Adam Bolt's 16x16 tiles
 		 * "new" tile assignments
-		 * It is updated for T.o.M.E. by Andreas Koch
+		 * It is updated for ToME by Andreas Koch
 		 */
 		case GRAF_MODE_NEW:
 		{
@@ -2661,7 +2675,7 @@ static void overlay_tiles_2(
 				td->tiles,
 				s_x + x,
 				s_y + y);
-			
+
 			/* If it's in background color, use terrain instead */
 			if (pix == td->bg_pixel)
 				pix = gdk_rgb_image_get_pixel(
@@ -2710,7 +2724,7 @@ static void overlay_tiles_3(
 				td->tiles,
 				e_x + x,
 				e_y + y);
-			
+
 			/*
 			 * If it's background colour, try to use one from
 			 * the second layer
@@ -2720,7 +2734,7 @@ static void overlay_tiles_3(
 					td->tiles,
 					s_x + x,
 					s_y + y);
-			
+
 			/*
 			 * If it's background colour again, fall back to
 			 * the terrain layer
@@ -2758,7 +2772,7 @@ static errr Term_pict_gtk(
 	const byte *ap, const char *cp,
 	const byte *tap, const char *tcp,
 	const byte *eap, const char *ecp)
-#  else
+#  else /* USE_EGO_GRAPHICS */
 static errr Term_pict_gtk(
 	int x, int y, int n,
 	const byte *ap, const char *cp,
@@ -2804,7 +2818,7 @@ static errr Term_pict_gtk(
 
 		byte ea;
 		char ec;
-		int e_x, e_y;
+		int e_x = 0, e_y = 0;
 		bool has_overlay;
 
 #  endif /* USE_EGO_GRAPHICS */
@@ -2961,8 +2975,8 @@ static errr Term_pict_gtk(
 				td->font_wid,
 				td->font_hgt);
 
-				/* Hack -- Prevent potential display problem */
-				gdk_flush();
+			/* Hack -- Prevent potential display problem */
+			gdk_flush();
 		}
 
 # else /* USE_TRANSPARENCY */
@@ -2991,7 +3005,7 @@ static errr Term_pict_gtk(
 	/* Success */
 	return (0);
 }
-		
+
 #endif /* USE_GRAPHICS */
 
 
@@ -3405,7 +3419,7 @@ static void new_event_handler(
 
 /*
  * Load fond specified by an XLFD fontname and
- * set up related term_data members on success
+ * set up related term_data members
  */
 static void load_font(term_data *td, cptr fontname)
 {
@@ -3796,7 +3810,7 @@ static gboolean keypress_event_handler(
 		&& (event->keyval >= GDK_KP_0) && (event->keyval <= GDK_KP_9))
 	{
 		/* Build the macro trigger string */
-		sprintf(msg, "%cS_%X%c", 31, event->keyval, 13);
+		strnfmt(msg, 128, "%cS_%X%c", 31, event->keyval, 13);
 
 		/* Enqueue the "macro trigger" string */
 		for (i = 0; msg[i]; i++) Term_keypress(msg[i]);
@@ -3870,7 +3884,7 @@ static gboolean keypress_event_handler(
 	}
 
 	/* Build the macro trigger string */
-	sprintf(msg, "%c%s%s%s%s_%X%c", 31,
+	strnfmt(msg, 128, "%c%s%s%s%s_%X%c", 31,
 		mc ? "N" : "", ms ? "S" : "",
 		mo ? "O" : "", mx ? "M" : "",
 		event->keyval, 13);
@@ -4118,6 +4132,7 @@ static gboolean expose_event_handler(
 static errr term_data_init(term_data *td, int i)
 {
 	term *t = &td->t;
+	char *p;
 
 	td->cols = 80;
 	td->rows = 24;
@@ -4129,7 +4144,7 @@ static errr term_data_init(term_data *td, int i)
 	td->name = string_make(angband_term_name[i]);
 
 	/* Instance names should start with a lowercase letter XXX */
-	td->name[0] = tolower(td->name[0]);
+	for (p = (char *)td->name; *p; p++) *p = tolower(*p);
 
 	/* Use a "soft" cursor */
 	t->soft_cursor = TRUE;
@@ -4144,7 +4159,6 @@ static errr term_data_init(term_data *td, int i)
 	t->curs_hook = Term_curs_gtk;
 #ifdef USE_GRAPHICS
 	t->pict_hook = Term_pict_gtk;
-	t->higher_pict = TRUE;
 #endif /* USE_GRAPHICS */
 	t->nuke_hook = Term_nuke_gtk;
 
@@ -4440,7 +4454,8 @@ void check_menu_item(cptr path, bool checked)
 	g_assert(widget != NULL);
 	g_assert(GTK_IS_CHECK_MENU_ITEM(widget));
 
-	/* Put/remove check mark
+	/*
+	 * Put/remove check mark
 	 *
 	 * Mega-Hack -- The function supposed to be used here,
 	 * gtk_check_menu_item_set_active(), emits an "activate" signal
@@ -4725,7 +4740,7 @@ static void add_menu_update_callbacks()
  */
 static void init_gtk_window(term_data *td, int i)
 {
-	GtkWidget *menu_bar, *box;
+	GtkWidget *menu_bar = NULL, *box;
 	cptr font;
 
 	bool main_window = (i == 0) ? TRUE : FALSE;
@@ -4874,6 +4889,22 @@ static void hook_quit(cptr str)
 	/* Terminate the program */
 	gtk_exit(0);
 }
+
+
+#ifdef ANGBAND300
+
+/*
+ * Help message for this port
+ */
+const char help_gtk[] =
+	"GTK for X11, subopts -n<windows>\n"
+	"           -b(acking store disabled)\n"
+#ifdef USE_GRAPHICS
+	"           -o(ld graphics) -s(moothscale disabled) -t(ransparency on)\n"
+#endif /* USE_GRAPHICS */
+	"           and standard GTK options";
+
+#endif /* ANGBAND300 */
 
 
 /*

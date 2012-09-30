@@ -11,29 +11,46 @@ and has the best saving throw to resist effects of spells cast at him.
 There is no reason a mage cannot become a good fighter, but spells are 
 their true realm. 
 
-#####GPrimary Stats
-Intelligence (spellcasting stat)
-Dexterity.
+#####GStarting Stat Modifiers
+Strength         -5
+Intelligence     +3
+Wisdom           +0
+Dexterity        +1
+Constitution     -2
+Charisma         +1
+Bonus Blows      0
+Hit Die          +d0
+Exp Penalty      30%
 
-#####GMagic Usage
-A mage can choose up to two realms of magic to master.
-
-The [[[[[Bfirst realm] can be a choice of:
-*****m_magery.txt*0[Magery], *****m_shadow.txt*0[Shadow], *****m_nether.txt*0[Nether] or *****m_magic.txt*0[Magic].
-
-The [[[[[Bsecond realm] is determined by which realm you chose as your 
-first realm of magic. 
-- If you chose Magery or Nether, your second realm will be *****m_sigald.txt*0[Sigaldry]
-- If you chose Shadow your second realm will be *****m_spirit.txt*0[Spirit].
-- If you chose Magic, you will not have a second realm.
-
-Mages have the least restrictions in choosing and learning spells. Even
-then, they are still bound in certain ways. Mages can learn up to 64 
-spells, thus having to choose which spells to learn.
+#####GStarting Skills:
+#####BSkill                   Start Level     Skill Point Gains
+Combat                  1.000           [0.200]
+  Weaponmastery         0.700           [0.400]
+Sneakiness              1.000           [0.900]
+Magic                   1.000           [0.900]
+  Sorcery               0.000           [0.400]
+  Spell-power           0.000           [0.600]
+  Mana                  1.000           [0.900]
+  Fire                  0.000           [0.900]
+  Water                 0.000           [0.900]
+  Air                   0.000           [0.900]
+  Earth                 0.000           [0.900]
+  Temporal              0.000           [0.900]
+  Divination            0.000           [0.900]
+  Conveyance            0.000           [0.900]
+  Nature                0.000           [0.900]
+  Meta                  0.000           [0.900]
+  Mind                  0.000           [0.900]
+  Necromancy            0.000           [0.600]
+  Runecraft             0.000           [0.600]
+  Thaumaturgy           0.000           [0.600]
+Spirituality            1.000           [0.550]
+  Prayer                0.000           [0.500]
+Monster-lore            0.000           [0.500]
 
 #####GStarting Equipment
 A mage begins the game with:
-    L1 spellbooks of chosen realms
+    A book of Cantrips
     A dagger
     A wand of fire bolts
 If they are *very* lucky they may also begin with:

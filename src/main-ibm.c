@@ -426,7 +426,7 @@ static void setup_gamma_table(void)
 	/* Activate the table */
 	gamma_table_ready = TRUE;
 }
-	
+
 #endif /* SUPPORT_GAMMA */
 
 
@@ -775,7 +775,7 @@ static errr Term_xtra_ibm(int n, int v)
 		case TERM_XTRA_EVENT:
 		{
 #ifdef USE_SOCK
-                        irc_poll(pern_irc);
+			irc_poll(pern_irc);
 #endif
 			/* Process one event */
 			return (Term_xtra_ibm_event(v));
@@ -1188,11 +1188,11 @@ unsigned short __dpmi_sel = 0x0000;
 #define _farsetsel(x) __dpmi_sel=(x)
 extern void _farnspokeb(unsigned long offset, unsigned char value);
 #pragma aux _farnspokeb =        \
-          "push   fs"            \
-          "mov    fs,__dpmi_sel" \
-          "mov    fs:[eax],bl"   \
-          "pop    fs"            \
-          parm [eax] [bl];
+	  "push   fs"            \
+	  "mov    fs,__dpmi_sel" \
+	  "mov    fs:[eax],bl"   \
+	  "pop    fs"            \
+	  parm [eax] [bl];
 
 #else /* USE_WAT */
 
@@ -1261,88 +1261,88 @@ void enable_graphic_font(const char *font)
 #ifdef USE_DOSSOCK
 void *zsock_connect(char *hos, short port)
 {
-        struct hostent *host;
+	struct hostent *host;
 	struct sockaddr_in sin;
-        int *client;
+	int *client;
 
-        MAKE(client, int);
-        *client = socket(AF_INET, SOCK_STREAM, 0);
+	MAKE(client, int);
+	*client = socket(AF_INET, SOCK_STREAM, 0);
 
-        host = gethostbyname(hos);
+	host = gethostbyname(hos);
 
-        memset(&sin, 0, sizeof sin);
-     	sin.sin_family = AF_INET;
-     	sin.sin_addr.s_addr = ((struct in_addr *)(host->h_addr))->s_addr;
-        sin.sin_port = htons(port);
+	memset(&sin, 0, sizeof sin);
+	sin.sin_family = AF_INET;
+	sin.sin_addr.s_addr = ((struct in_addr *)(host->h_addr))->s_addr;
+	sin.sin_port = htons(port);
 
-        if (connect(*client, (struct sockaddr*)&sin, sizeof sin) == -1)
-     	{
-         	/* could not connect to server */
-                return NULL;
-     	}
+	if (connect(*client, (struct sockaddr*)&sin, sizeof sin) == -1)
+	{
+		/* could not connect to server */
+		return NULL;
+	}
 
 	return client;
 }
 
 bool zsock_can_read(void *client)
 {
-        struct timeval t;
-        fd_set rd;
-        int *c = client;
+	struct timeval t;
+	fd_set rd;
+	int *c = client;
 
-        FD_ZERO(&rd);
-        FD_SET(*c, &rd);
-        t.tv_sec = 0;
-        t.tv_usec = 0;
-        select(*c + 1, &rd, NULL, NULL, &t);
-        if (FD_ISSET(*c, &rd)) return TRUE;
-        else return (FALSE);
+	FD_ZERO(&rd);
+	FD_SET(*c, &rd);
+	t.tv_sec = 0;
+	t.tv_usec = 0;
+	select(*c + 1, &rd, NULL, NULL, &t);
+	if (FD_ISSET(*c, &rd)) return TRUE;
+	else return (FALSE);
 }
 
 bool zsock_wait(void *client)
 {
-        struct timeval t;
-        fd_set rd;
-        int *c = client;
+	struct timeval t;
+	fd_set rd;
+	int *c = client;
 
-        t.tv_sec = 30;
-        t.tv_usec = 0;
+	t.tv_sec = 30;
+	t.tv_usec = 0;
 
-        FD_ZERO(&rd);
-        FD_SET(*c, &rd);
-        select(*c + 1, &rd, NULL, NULL, &t);
-        if (FD_ISSET(*c, &rd)) return TRUE;
-        else return (FALSE);
+	FD_ZERO(&rd);
+	FD_SET(*c, &rd);
+	select(*c + 1, &rd, NULL, NULL, &t);
+	if (FD_ISSET(*c, &rd)) return TRUE;
+	else return (FALSE);
 }
 
 void zsock_disconnect(void *client)
 {
-        close(*(int*)client);
-        FREE(client, int);
+	close(*(int*)client);
+	FREE(client, int);
 }
 
 void zsock_send(void *sock, char *str)
 {
-        send(*(int*)sock, str, strlen(str), 0);
+	send(*(int*)sock, str, strlen(str), 0);
 }
 
 void zsock_recv(void *sock, char *str, int len)
 {
-        char c;
-        int l = 0;
+	char c;
+	int l = 0;
 
-        while ((l < len) && zsock_can_read(sock))
-        {
-                if (!recv(*(int*)sock, &c, 1, 0))
-                {
-                        irc_disconnect();
-                        break;
-                }
-                if (c == '\r') continue;
-                if (c == '\n') break;
-                str[l++] = c;
-        }
-        str[l] = '\0';
+	while ((l < len) && zsock_can_read(sock))
+	{
+		if (!recv(*(int*)sock, &c, 1, 0))
+		{
+			irc_disconnect();
+			break;
+		}
+		if (c == '\r') continue;
+		if (c == '\n') break;
+		str[l++] = c;
+	}
+	str[l] = '\0';
 }
 #endif
 

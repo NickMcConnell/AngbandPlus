@@ -1,5 +1,5 @@
 /*
-** $Id: print.h,v 1.1.1.1 2002/02/23 21:40:28 darkgod Exp $
+** $Id: print.h,v 1.2 2001/11/26 23:00:27 darkgod Exp $
 ** extracted automatically from lopcodes.h by mkprint.lua -- DO NOT EDIT
 ** See Copyright Notice in lua.h
 */

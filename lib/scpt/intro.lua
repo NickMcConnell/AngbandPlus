@@ -63,10 +63,10 @@ function tome_intro()
         if (TRUE == drop_text_left(TERM_L_GREEN, "Eru Iluvatar,", 10, 0)) then screen_load() return end
         if (TRUE == drop_text_right(TERM_L_GREEN, "Manwe", 11, -1)) then screen_load() return end
         if (TRUE == drop_text_left(TERM_WHITE, "and", 12, 0)) then screen_load() return end
-        if (TRUE == drop_text_right(TERM_L_GREEN, "All the T.o.M.E contributors(see credits.txt)", 13, -1)) then screen_load() return end
+        if (TRUE == drop_text_right(TERM_L_GREEN, "All the T.o.M.E. contributors(see credits.txt)", 13, -1)) then screen_load() return end
 
         if (TRUE == drop_text_left(TERM_WHITE, "present", 15, 1)) then screen_load() return end
-        if (TRUE == drop_text_right(TERM_YELLOW, "T.o.M.E", 16, 0)) then screen_load() return end
+        if (TRUE == drop_text_right(TERM_YELLOW, "T.o.M.E.", 16, 0)) then screen_load() return end
 
         if (TRUE == drop_text_left(TERM_WHITE, "[Press any key to continue]", 23, -1)) then screen_load() return end
         Term_putch(0, 0, TERM_DARK, 32)

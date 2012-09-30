@@ -1,6 +1,6 @@
 /*
 ** Lua binding: util
-** Generated automatically by tolua 4.0a - angband on Sun Apr 28 23:13:34 2002.
+** Generated automatically by tolua 4.0a - angband on Sun Jul 14 13:51:26 2002.
 */
 
 #include "lua/tolua.h"
@@ -11,17 +11,12 @@ void tolua_util_close (lua_State* tolua_S);
 
 #include "angband.h"
 #include "plots.h"
-extern s32b intMod(s32b a, s32b b);
-extern s32b intAnd(s32b a, s32b b);
-extern s32b intOr(s32b a, s32b b);
-extern s32b intXor(s32b a, s32b b);
-extern s32b intShiftl(s32b a, s32b b);
-extern s32b intShiftr(s32b a, s32b b);
-extern s32b intBitNot(s32b b);
+static bool lua_cave_is(cave_type *c_ptr, s32b flag) { return (f_info[c_ptr->feat].flags1 & flag); }
 
 /* function to register type */
 static void toluaI_reg_types (lua_State* tolua_S)
 {
+ tolua_usertype(tolua_S,"cave_type");
 }
 
 /* error messages */
@@ -57,6 +52,38 @@ static int toluaI_set_util_old_turn(lua_State* tolua_S)
  if (!tolua_istype(tolua_S,1,LUA_TNUMBER,0))
  TOLUA_ERR_ASSIGN;
   old_turn = ((s32b)  tolua_getnumber(tolua_S,1,0));
+ return 0;
+}
+
+/* get function: cur_wid */
+static int toluaI_get_util_cur_wid(lua_State* tolua_S)
+{
+ tolua_pushnumber(tolua_S,(long)cur_wid);
+ return 1;
+}
+
+/* set function: cur_wid */
+static int toluaI_set_util_cur_wid(lua_State* tolua_S)
+{
+ if (!tolua_istype(tolua_S,1,LUA_TNUMBER,0))
+ TOLUA_ERR_ASSIGN;
+  cur_wid = ((s16b)  tolua_getnumber(tolua_S,1,0));
+ return 0;
+}
+
+/* get function: cur_hgt */
+static int toluaI_get_util_cur_hgt(lua_State* tolua_S)
+{
+ tolua_pushnumber(tolua_S,(long)cur_hgt);
+ return 1;
+}
+
+/* set function: cur_hgt */
+static int toluaI_set_util_cur_hgt(lua_State* tolua_S)
+{
+ if (!tolua_istype(tolua_S,1,LUA_TNUMBER,0))
+ TOLUA_ERR_ASSIGN;
+  cur_hgt = ((s16b)  tolua_getnumber(tolua_S,1,0));
  return 0;
 }
 
@@ -132,6 +159,25 @@ static int toluaI_util_move_cursor00(lua_State* tolua_S)
  return 0;
 tolua_lerror:
  tolua_error(tolua_S,"#ferror in function 'move_cursor'.");
+ return 0;
+}
+
+/* function: flush */
+static int toluaI_util_flush00(lua_State* tolua_S)
+{
+ if (
+ !tolua_isnoobj(tolua_S,1)
+ )
+ goto tolua_lerror;
+ else
+ {
+ {
+  flush();
+ }
+ }
+ return 0;
+tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'flush'.");
  return 0;
 }
 
@@ -253,6 +299,46 @@ tolua_lerror:
  return 0;
 }
 
+/* function: Term_save */
+static int toluaI_util_Term_save00(lua_State* tolua_S)
+{
+ if (
+ !tolua_isnoobj(tolua_S,1)
+ )
+ goto tolua_lerror;
+ else
+ {
+ {
+  errr toluaI_ret = (errr)  Term_save();
+ tolua_pushnumber(tolua_S,(long)toluaI_ret);
+ }
+ }
+ return 1;
+tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'Term_save'.");
+ return 0;
+}
+
+/* function: Term_load */
+static int toluaI_util_Term_load00(lua_State* tolua_S)
+{
+ if (
+ !tolua_isnoobj(tolua_S,1)
+ )
+ goto tolua_lerror;
+ else
+ {
+ {
+  errr toluaI_ret = (errr)  Term_load();
+ tolua_pushnumber(tolua_S,(long)toluaI_ret);
+ }
+ }
+ return 1;
+tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'Term_load'.");
+ return 0;
+}
+
 /* function: c_put_str */
 static int toluaI_util_c_put_str00(lua_State* tolua_S)
 {
@@ -304,6 +390,31 @@ static int toluaI_util_c_prt00(lua_State* tolua_S)
  return 0;
 tolua_lerror:
  tolua_error(tolua_S,"#ferror in function 'c_prt'.");
+ return 0;
+}
+
+/* function: prt */
+static int toluaI_util_prt00(lua_State* tolua_S)
+{
+ if (
+ !tolua_istype(tolua_S,1,LUA_TSTRING,0) ||
+ !tolua_istype(tolua_S,2,LUA_TNUMBER,0) ||
+ !tolua_istype(tolua_S,3,LUA_TNUMBER,0) ||
+ !tolua_isnoobj(tolua_S,4)
+ )
+ goto tolua_lerror;
+ else
+ {
+  cptr str = ((cptr)  tolua_getstring(tolua_S,1,0));
+  int row = ((int)  tolua_getnumber(tolua_S,2,0));
+  int col = ((int)  tolua_getnumber(tolua_S,3,0));
+ {
+  prt(str,row,col);
+ }
+ }
+ return 0;
+tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'prt'.");
  return 0;
 }
 
@@ -562,6 +673,34 @@ tolua_lerror:
  return 0;
 }
 
+/* function: value_scale */
+static int toluaI_util_value_scale00(lua_State* tolua_S)
+{
+ if (
+ !tolua_istype(tolua_S,1,LUA_TNUMBER,0) ||
+ !tolua_istype(tolua_S,2,LUA_TNUMBER,0) ||
+ !tolua_istype(tolua_S,3,LUA_TNUMBER,0) ||
+ !tolua_istype(tolua_S,4,LUA_TNUMBER,0) ||
+ !tolua_isnoobj(tolua_S,5)
+ )
+ goto tolua_lerror;
+ else
+ {
+  int value = ((int)  tolua_getnumber(tolua_S,1,0));
+  int vmax = ((int)  tolua_getnumber(tolua_S,2,0));
+  int max = ((int)  tolua_getnumber(tolua_S,3,0));
+  int min = ((int)  tolua_getnumber(tolua_S,4,0));
+ {
+  s32b toluaI_ret = (s32b)  value_scale(value,vmax,max,min);
+ tolua_pushnumber(tolua_S,(long)toluaI_ret);
+ }
+ }
+ return 1;
+tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'value_scale'.");
+ return 0;
+}
+
 /* get function: process_hooks_restart */
 static int toluaI_get_util_process_hooks_restart(lua_State* tolua_S)
 {
@@ -645,8 +784,8 @@ tolua_lerror:
  return 0;
 }
 
-/* function: pern_dofile */
-static int toluaI_util_pern_dofile00(lua_State* tolua_S)
+/* function: tome_dofile */
+static int toluaI_util_tome_dofile00(lua_State* tolua_S)
 {
  if (
  !tolua_istype(tolua_S,1,LUA_TSTRING,0) ||
@@ -657,179 +796,56 @@ static int toluaI_util_pern_dofile00(lua_State* tolua_S)
  {
   char* file = ((char*)  tolua_getstring(tolua_S,1,0));
  {
-  bool toluaI_ret = (bool)  pern_dofile(file);
+  bool toluaI_ret = (bool)  tome_dofile(file);
  tolua_pushnumber(tolua_S,(long)toluaI_ret);
  }
  }
  return 1;
 tolua_lerror:
- tolua_error(tolua_S,"#ferror in function 'pern_dofile'.");
+ tolua_error(tolua_S,"#ferror in function 'tome_dofile'.");
  return 0;
 }
 
-/* function: intMod */
-static int toluaI_util_mod00(lua_State* tolua_S)
+/* function: exec_lua */
+static int toluaI_util_exec_lua00(lua_State* tolua_S)
 {
  if (
- !tolua_istype(tolua_S,1,LUA_TNUMBER,0) ||
- !tolua_istype(tolua_S,2,LUA_TNUMBER,0) ||
- !tolua_isnoobj(tolua_S,3)
- )
- goto tolua_lerror;
- else
- {
-  s32b a = ((s32b)  tolua_getnumber(tolua_S,1,0));
-  s32b b = ((s32b)  tolua_getnumber(tolua_S,2,0));
- {
-  s32b toluaI_ret = (s32b)  intMod(a,b);
- tolua_pushnumber(tolua_S,(long)toluaI_ret);
- }
- }
- return 1;
-tolua_lerror:
- tolua_error(tolua_S,"#ferror in function 'mod'.");
- return 0;
-}
-
-/* function: intAnd */
-static int toluaI_util_band00(lua_State* tolua_S)
-{
- if (
- !tolua_istype(tolua_S,1,LUA_TNUMBER,0) ||
- !tolua_istype(tolua_S,2,LUA_TNUMBER,0) ||
- !tolua_isnoobj(tolua_S,3)
- )
- goto tolua_lerror;
- else
- {
-  s32b a = ((s32b)  tolua_getnumber(tolua_S,1,0));
-  s32b b = ((s32b)  tolua_getnumber(tolua_S,2,0));
- {
-  s32b toluaI_ret = (s32b)  intAnd(a,b);
- tolua_pushnumber(tolua_S,(long)toluaI_ret);
- }
- }
- return 1;
-tolua_lerror:
- tolua_error(tolua_S,"#ferror in function 'band'.");
- return 0;
-}
-
-/* function: intOr */
-static int toluaI_util_bor00(lua_State* tolua_S)
-{
- if (
- !tolua_istype(tolua_S,1,LUA_TNUMBER,0) ||
- !tolua_istype(tolua_S,2,LUA_TNUMBER,0) ||
- !tolua_isnoobj(tolua_S,3)
- )
- goto tolua_lerror;
- else
- {
-  s32b a = ((s32b)  tolua_getnumber(tolua_S,1,0));
-  s32b b = ((s32b)  tolua_getnumber(tolua_S,2,0));
- {
-  s32b toluaI_ret = (s32b)  intOr(a,b);
- tolua_pushnumber(tolua_S,(long)toluaI_ret);
- }
- }
- return 1;
-tolua_lerror:
- tolua_error(tolua_S,"#ferror in function 'bor'.");
- return 0;
-}
-
-/* function: intXor */
-static int toluaI_util_bxor00(lua_State* tolua_S)
-{
- if (
- !tolua_istype(tolua_S,1,LUA_TNUMBER,0) ||
- !tolua_istype(tolua_S,2,LUA_TNUMBER,0) ||
- !tolua_isnoobj(tolua_S,3)
- )
- goto tolua_lerror;
- else
- {
-  s32b a = ((s32b)  tolua_getnumber(tolua_S,1,0));
-  s32b b = ((s32b)  tolua_getnumber(tolua_S,2,0));
- {
-  s32b toluaI_ret = (s32b)  intXor(a,b);
- tolua_pushnumber(tolua_S,(long)toluaI_ret);
- }
- }
- return 1;
-tolua_lerror:
- tolua_error(tolua_S,"#ferror in function 'bxor'.");
- return 0;
-}
-
-/* function: intShiftl */
-static int toluaI_util_bshl00(lua_State* tolua_S)
-{
- if (
- !tolua_istype(tolua_S,1,LUA_TNUMBER,0) ||
- !tolua_istype(tolua_S,2,LUA_TNUMBER,0) ||
- !tolua_isnoobj(tolua_S,3)
- )
- goto tolua_lerror;
- else
- {
-  s32b a = ((s32b)  tolua_getnumber(tolua_S,1,0));
-  s32b b = ((s32b)  tolua_getnumber(tolua_S,2,0));
- {
-  s32b toluaI_ret = (s32b)  intShiftl(a,b);
- tolua_pushnumber(tolua_S,(long)toluaI_ret);
- }
- }
- return 1;
-tolua_lerror:
- tolua_error(tolua_S,"#ferror in function 'bshl'.");
- return 0;
-}
-
-/* function: intShiftr */
-static int toluaI_util_bshr00(lua_State* tolua_S)
-{
- if (
- !tolua_istype(tolua_S,1,LUA_TNUMBER,0) ||
- !tolua_istype(tolua_S,2,LUA_TNUMBER,0) ||
- !tolua_isnoobj(tolua_S,3)
- )
- goto tolua_lerror;
- else
- {
-  s32b a = ((s32b)  tolua_getnumber(tolua_S,1,0));
-  s32b b = ((s32b)  tolua_getnumber(tolua_S,2,0));
- {
-  s32b toluaI_ret = (s32b)  intShiftr(a,b);
- tolua_pushnumber(tolua_S,(long)toluaI_ret);
- }
- }
- return 1;
-tolua_lerror:
- tolua_error(tolua_S,"#ferror in function 'bshr'.");
- return 0;
-}
-
-/* function: intBitNot */
-static int toluaI_util_bnot00(lua_State* tolua_S)
-{
- if (
- !tolua_istype(tolua_S,1,LUA_TNUMBER,0) ||
+ !tolua_istype(tolua_S,1,LUA_TSTRING,0) ||
  !tolua_isnoobj(tolua_S,2)
  )
  goto tolua_lerror;
  else
  {
-  s32b b = ((s32b)  tolua_getnumber(tolua_S,1,0));
+  char* file = ((char*)  tolua_getstring(tolua_S,1,0));
  {
-  s32b toluaI_ret = (s32b)  intBitNot(b);
+  int toluaI_ret = (int)  exec_lua(file);
  tolua_pushnumber(tolua_S,(long)toluaI_ret);
  }
  }
  return 1;
 tolua_lerror:
- tolua_error(tolua_S,"#ferror in function 'bnot'.");
+ tolua_error(tolua_S,"#ferror in function 'exec_lua'.");
+ return 0;
+}
+
+/* function: lua_print_hook */
+static int toluaI_util_print_hook00(lua_State* tolua_S)
+{
+ if (
+ !tolua_istype(tolua_S,1,LUA_TSTRING,0) ||
+ !tolua_isnoobj(tolua_S,2)
+ )
+ goto tolua_lerror;
+ else
+ {
+  cptr str = ((cptr)  tolua_getstring(tolua_S,1,0));
+ {
+  lua_print_hook(str);
+ }
+ }
+ return 0;
+tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'print_hook'.");
  return 0;
 }
 
@@ -874,6 +890,1124 @@ static int toluaI_util_save_number_key00(lua_State* tolua_S)
  return 0;
 tolua_lerror:
  tolua_error(tolua_S,"#ferror in function 'save_number_key'.");
+ return 0;
+}
+
+/* get function: adj_mag_study */
+static int toluaI_get_util_adj_mag_study(lua_State* tolua_S)
+{
+ int toluaI_index;
+ if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
+ tolua_error(tolua_S,"invalid type in array indexing.");
+ toluaI_index = (int)tolua_getnumber(tolua_S,2,0)-1;
+ if (toluaI_index<0 || toluaI_index>=100)
+ tolua_error(tolua_S,"array indexing out of range.");
+ tolua_pushnumber(tolua_S,(long)adj_mag_study[toluaI_index]);
+ return 1;
+}
+
+/* set function: adj_mag_study */
+static int toluaI_set_util_adj_mag_study(lua_State* tolua_S)
+{
+ int toluaI_index;
+ if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
+ tolua_error(tolua_S,"invalid type in array indexing.");
+ toluaI_index = (int)tolua_getnumber(tolua_S,2,0)-1;
+ if (toluaI_index<0 || toluaI_index>=100)
+ tolua_error(tolua_S,"array indexing out of range.");
+  adj_mag_study[toluaI_index] = ((byte)  tolua_getnumber(tolua_S,3,0));
+ return 0;
+}
+
+/* get function: adj_mag_mana */
+static int toluaI_get_util_adj_mag_mana(lua_State* tolua_S)
+{
+ int toluaI_index;
+ if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
+ tolua_error(tolua_S,"invalid type in array indexing.");
+ toluaI_index = (int)tolua_getnumber(tolua_S,2,0)-1;
+ if (toluaI_index<0 || toluaI_index>=100)
+ tolua_error(tolua_S,"array indexing out of range.");
+ tolua_pushnumber(tolua_S,(long)adj_mag_mana[toluaI_index]);
+ return 1;
+}
+
+/* set function: adj_mag_mana */
+static int toluaI_set_util_adj_mag_mana(lua_State* tolua_S)
+{
+ int toluaI_index;
+ if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
+ tolua_error(tolua_S,"invalid type in array indexing.");
+ toluaI_index = (int)tolua_getnumber(tolua_S,2,0)-1;
+ if (toluaI_index<0 || toluaI_index>=100)
+ tolua_error(tolua_S,"array indexing out of range.");
+  adj_mag_mana[toluaI_index] = ((byte)  tolua_getnumber(tolua_S,3,0));
+ return 0;
+}
+
+/* get function: adj_mag_fail */
+static int toluaI_get_util_adj_mag_fail(lua_State* tolua_S)
+{
+ int toluaI_index;
+ if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
+ tolua_error(tolua_S,"invalid type in array indexing.");
+ toluaI_index = (int)tolua_getnumber(tolua_S,2,0)-1;
+ if (toluaI_index<0 || toluaI_index>=100)
+ tolua_error(tolua_S,"array indexing out of range.");
+ tolua_pushnumber(tolua_S,(long)adj_mag_fail[toluaI_index]);
+ return 1;
+}
+
+/* set function: adj_mag_fail */
+static int toluaI_set_util_adj_mag_fail(lua_State* tolua_S)
+{
+ int toluaI_index;
+ if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
+ tolua_error(tolua_S,"invalid type in array indexing.");
+ toluaI_index = (int)tolua_getnumber(tolua_S,2,0)-1;
+ if (toluaI_index<0 || toluaI_index>=100)
+ tolua_error(tolua_S,"array indexing out of range.");
+  adj_mag_fail[toluaI_index] = ((byte)  tolua_getnumber(tolua_S,3,0));
+ return 0;
+}
+
+/* get function: adj_mag_stat */
+static int toluaI_get_util_adj_mag_stat(lua_State* tolua_S)
+{
+ int toluaI_index;
+ if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
+ tolua_error(tolua_S,"invalid type in array indexing.");
+ toluaI_index = (int)tolua_getnumber(tolua_S,2,0)-1;
+ if (toluaI_index<0 || toluaI_index>=100)
+ tolua_error(tolua_S,"array indexing out of range.");
+ tolua_pushnumber(tolua_S,(long)adj_mag_stat[toluaI_index]);
+ return 1;
+}
+
+/* set function: adj_mag_stat */
+static int toluaI_set_util_adj_mag_stat(lua_State* tolua_S)
+{
+ int toluaI_index;
+ if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
+ tolua_error(tolua_S,"invalid type in array indexing.");
+ toluaI_index = (int)tolua_getnumber(tolua_S,2,0)-1;
+ if (toluaI_index<0 || toluaI_index>=100)
+ tolua_error(tolua_S,"array indexing out of range.");
+  adj_mag_stat[toluaI_index] = ((byte)  tolua_getnumber(tolua_S,3,0));
+ return 0;
+}
+
+/* get function: adj_chr_gold */
+static int toluaI_get_util_adj_chr_gold(lua_State* tolua_S)
+{
+ int toluaI_index;
+ if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
+ tolua_error(tolua_S,"invalid type in array indexing.");
+ toluaI_index = (int)tolua_getnumber(tolua_S,2,0)-1;
+ if (toluaI_index<0 || toluaI_index>=100)
+ tolua_error(tolua_S,"array indexing out of range.");
+ tolua_pushnumber(tolua_S,(long)adj_chr_gold[toluaI_index]);
+ return 1;
+}
+
+/* set function: adj_chr_gold */
+static int toluaI_set_util_adj_chr_gold(lua_State* tolua_S)
+{
+ int toluaI_index;
+ if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
+ tolua_error(tolua_S,"invalid type in array indexing.");
+ toluaI_index = (int)tolua_getnumber(tolua_S,2,0)-1;
+ if (toluaI_index<0 || toluaI_index>=100)
+ tolua_error(tolua_S,"array indexing out of range.");
+  adj_chr_gold[toluaI_index] = ((byte)  tolua_getnumber(tolua_S,3,0));
+ return 0;
+}
+
+/* get function: adj_int_dev */
+static int toluaI_get_util_adj_int_dev(lua_State* tolua_S)
+{
+ int toluaI_index;
+ if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
+ tolua_error(tolua_S,"invalid type in array indexing.");
+ toluaI_index = (int)tolua_getnumber(tolua_S,2,0)-1;
+ if (toluaI_index<0 || toluaI_index>=100)
+ tolua_error(tolua_S,"array indexing out of range.");
+ tolua_pushnumber(tolua_S,(long)adj_int_dev[toluaI_index]);
+ return 1;
+}
+
+/* set function: adj_int_dev */
+static int toluaI_set_util_adj_int_dev(lua_State* tolua_S)
+{
+ int toluaI_index;
+ if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
+ tolua_error(tolua_S,"invalid type in array indexing.");
+ toluaI_index = (int)tolua_getnumber(tolua_S,2,0)-1;
+ if (toluaI_index<0 || toluaI_index>=100)
+ tolua_error(tolua_S,"array indexing out of range.");
+  adj_int_dev[toluaI_index] = ((byte)  tolua_getnumber(tolua_S,3,0));
+ return 0;
+}
+
+/* get function: adj_wis_sav */
+static int toluaI_get_util_adj_wis_sav(lua_State* tolua_S)
+{
+ int toluaI_index;
+ if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
+ tolua_error(tolua_S,"invalid type in array indexing.");
+ toluaI_index = (int)tolua_getnumber(tolua_S,2,0)-1;
+ if (toluaI_index<0 || toluaI_index>=100)
+ tolua_error(tolua_S,"array indexing out of range.");
+ tolua_pushnumber(tolua_S,(long)adj_wis_sav[toluaI_index]);
+ return 1;
+}
+
+/* set function: adj_wis_sav */
+static int toluaI_set_util_adj_wis_sav(lua_State* tolua_S)
+{
+ int toluaI_index;
+ if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
+ tolua_error(tolua_S,"invalid type in array indexing.");
+ toluaI_index = (int)tolua_getnumber(tolua_S,2,0)-1;
+ if (toluaI_index<0 || toluaI_index>=100)
+ tolua_error(tolua_S,"array indexing out of range.");
+  adj_wis_sav[toluaI_index] = ((byte)  tolua_getnumber(tolua_S,3,0));
+ return 0;
+}
+
+/* get function: adj_dex_dis */
+static int toluaI_get_util_adj_dex_dis(lua_State* tolua_S)
+{
+ int toluaI_index;
+ if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
+ tolua_error(tolua_S,"invalid type in array indexing.");
+ toluaI_index = (int)tolua_getnumber(tolua_S,2,0)-1;
+ if (toluaI_index<0 || toluaI_index>=100)
+ tolua_error(tolua_S,"array indexing out of range.");
+ tolua_pushnumber(tolua_S,(long)adj_dex_dis[toluaI_index]);
+ return 1;
+}
+
+/* set function: adj_dex_dis */
+static int toluaI_set_util_adj_dex_dis(lua_State* tolua_S)
+{
+ int toluaI_index;
+ if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
+ tolua_error(tolua_S,"invalid type in array indexing.");
+ toluaI_index = (int)tolua_getnumber(tolua_S,2,0)-1;
+ if (toluaI_index<0 || toluaI_index>=100)
+ tolua_error(tolua_S,"array indexing out of range.");
+  adj_dex_dis[toluaI_index] = ((byte)  tolua_getnumber(tolua_S,3,0));
+ return 0;
+}
+
+/* get function: adj_int_dis */
+static int toluaI_get_util_adj_int_dis(lua_State* tolua_S)
+{
+ int toluaI_index;
+ if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
+ tolua_error(tolua_S,"invalid type in array indexing.");
+ toluaI_index = (int)tolua_getnumber(tolua_S,2,0)-1;
+ if (toluaI_index<0 || toluaI_index>=100)
+ tolua_error(tolua_S,"array indexing out of range.");
+ tolua_pushnumber(tolua_S,(long)adj_int_dis[toluaI_index]);
+ return 1;
+}
+
+/* set function: adj_int_dis */
+static int toluaI_set_util_adj_int_dis(lua_State* tolua_S)
+{
+ int toluaI_index;
+ if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
+ tolua_error(tolua_S,"invalid type in array indexing.");
+ toluaI_index = (int)tolua_getnumber(tolua_S,2,0)-1;
+ if (toluaI_index<0 || toluaI_index>=100)
+ tolua_error(tolua_S,"array indexing out of range.");
+  adj_int_dis[toluaI_index] = ((byte)  tolua_getnumber(tolua_S,3,0));
+ return 0;
+}
+
+/* get function: adj_dex_ta */
+static int toluaI_get_util_adj_dex_ta(lua_State* tolua_S)
+{
+ int toluaI_index;
+ if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
+ tolua_error(tolua_S,"invalid type in array indexing.");
+ toluaI_index = (int)tolua_getnumber(tolua_S,2,0)-1;
+ if (toluaI_index<0 || toluaI_index>=100)
+ tolua_error(tolua_S,"array indexing out of range.");
+ tolua_pushnumber(tolua_S,(long)adj_dex_ta[toluaI_index]);
+ return 1;
+}
+
+/* set function: adj_dex_ta */
+static int toluaI_set_util_adj_dex_ta(lua_State* tolua_S)
+{
+ int toluaI_index;
+ if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
+ tolua_error(tolua_S,"invalid type in array indexing.");
+ toluaI_index = (int)tolua_getnumber(tolua_S,2,0)-1;
+ if (toluaI_index<0 || toluaI_index>=100)
+ tolua_error(tolua_S,"array indexing out of range.");
+  adj_dex_ta[toluaI_index] = ((byte)  tolua_getnumber(tolua_S,3,0));
+ return 0;
+}
+
+/* get function: adj_str_td */
+static int toluaI_get_util_adj_str_td(lua_State* tolua_S)
+{
+ int toluaI_index;
+ if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
+ tolua_error(tolua_S,"invalid type in array indexing.");
+ toluaI_index = (int)tolua_getnumber(tolua_S,2,0)-1;
+ if (toluaI_index<0 || toluaI_index>=100)
+ tolua_error(tolua_S,"array indexing out of range.");
+ tolua_pushnumber(tolua_S,(long)adj_str_td[toluaI_index]);
+ return 1;
+}
+
+/* set function: adj_str_td */
+static int toluaI_set_util_adj_str_td(lua_State* tolua_S)
+{
+ int toluaI_index;
+ if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
+ tolua_error(tolua_S,"invalid type in array indexing.");
+ toluaI_index = (int)tolua_getnumber(tolua_S,2,0)-1;
+ if (toluaI_index<0 || toluaI_index>=100)
+ tolua_error(tolua_S,"array indexing out of range.");
+  adj_str_td[toluaI_index] = ((byte)  tolua_getnumber(tolua_S,3,0));
+ return 0;
+}
+
+/* get function: adj_dex_th */
+static int toluaI_get_util_adj_dex_th(lua_State* tolua_S)
+{
+ int toluaI_index;
+ if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
+ tolua_error(tolua_S,"invalid type in array indexing.");
+ toluaI_index = (int)tolua_getnumber(tolua_S,2,0)-1;
+ if (toluaI_index<0 || toluaI_index>=100)
+ tolua_error(tolua_S,"array indexing out of range.");
+ tolua_pushnumber(tolua_S,(long)adj_dex_th[toluaI_index]);
+ return 1;
+}
+
+/* set function: adj_dex_th */
+static int toluaI_set_util_adj_dex_th(lua_State* tolua_S)
+{
+ int toluaI_index;
+ if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
+ tolua_error(tolua_S,"invalid type in array indexing.");
+ toluaI_index = (int)tolua_getnumber(tolua_S,2,0)-1;
+ if (toluaI_index<0 || toluaI_index>=100)
+ tolua_error(tolua_S,"array indexing out of range.");
+  adj_dex_th[toluaI_index] = ((byte)  tolua_getnumber(tolua_S,3,0));
+ return 0;
+}
+
+/* get function: adj_str_th */
+static int toluaI_get_util_adj_str_th(lua_State* tolua_S)
+{
+ int toluaI_index;
+ if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
+ tolua_error(tolua_S,"invalid type in array indexing.");
+ toluaI_index = (int)tolua_getnumber(tolua_S,2,0)-1;
+ if (toluaI_index<0 || toluaI_index>=100)
+ tolua_error(tolua_S,"array indexing out of range.");
+ tolua_pushnumber(tolua_S,(long)adj_str_th[toluaI_index]);
+ return 1;
+}
+
+/* set function: adj_str_th */
+static int toluaI_set_util_adj_str_th(lua_State* tolua_S)
+{
+ int toluaI_index;
+ if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
+ tolua_error(tolua_S,"invalid type in array indexing.");
+ toluaI_index = (int)tolua_getnumber(tolua_S,2,0)-1;
+ if (toluaI_index<0 || toluaI_index>=100)
+ tolua_error(tolua_S,"array indexing out of range.");
+  adj_str_th[toluaI_index] = ((byte)  tolua_getnumber(tolua_S,3,0));
+ return 0;
+}
+
+/* get function: adj_str_wgt */
+static int toluaI_get_util_adj_str_wgt(lua_State* tolua_S)
+{
+ int toluaI_index;
+ if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
+ tolua_error(tolua_S,"invalid type in array indexing.");
+ toluaI_index = (int)tolua_getnumber(tolua_S,2,0)-1;
+ if (toluaI_index<0 || toluaI_index>=100)
+ tolua_error(tolua_S,"array indexing out of range.");
+ tolua_pushnumber(tolua_S,(long)adj_str_wgt[toluaI_index]);
+ return 1;
+}
+
+/* set function: adj_str_wgt */
+static int toluaI_set_util_adj_str_wgt(lua_State* tolua_S)
+{
+ int toluaI_index;
+ if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
+ tolua_error(tolua_S,"invalid type in array indexing.");
+ toluaI_index = (int)tolua_getnumber(tolua_S,2,0)-1;
+ if (toluaI_index<0 || toluaI_index>=100)
+ tolua_error(tolua_S,"array indexing out of range.");
+  adj_str_wgt[toluaI_index] = ((byte)  tolua_getnumber(tolua_S,3,0));
+ return 0;
+}
+
+/* get function: adj_str_hold */
+static int toluaI_get_util_adj_str_hold(lua_State* tolua_S)
+{
+ int toluaI_index;
+ if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
+ tolua_error(tolua_S,"invalid type in array indexing.");
+ toluaI_index = (int)tolua_getnumber(tolua_S,2,0)-1;
+ if (toluaI_index<0 || toluaI_index>=100)
+ tolua_error(tolua_S,"array indexing out of range.");
+ tolua_pushnumber(tolua_S,(long)adj_str_hold[toluaI_index]);
+ return 1;
+}
+
+/* set function: adj_str_hold */
+static int toluaI_set_util_adj_str_hold(lua_State* tolua_S)
+{
+ int toluaI_index;
+ if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
+ tolua_error(tolua_S,"invalid type in array indexing.");
+ toluaI_index = (int)tolua_getnumber(tolua_S,2,0)-1;
+ if (toluaI_index<0 || toluaI_index>=100)
+ tolua_error(tolua_S,"array indexing out of range.");
+  adj_str_hold[toluaI_index] = ((byte)  tolua_getnumber(tolua_S,3,0));
+ return 0;
+}
+
+/* get function: adj_str_dig */
+static int toluaI_get_util_adj_str_dig(lua_State* tolua_S)
+{
+ int toluaI_index;
+ if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
+ tolua_error(tolua_S,"invalid type in array indexing.");
+ toluaI_index = (int)tolua_getnumber(tolua_S,2,0)-1;
+ if (toluaI_index<0 || toluaI_index>=100)
+ tolua_error(tolua_S,"array indexing out of range.");
+ tolua_pushnumber(tolua_S,(long)adj_str_dig[toluaI_index]);
+ return 1;
+}
+
+/* set function: adj_str_dig */
+static int toluaI_set_util_adj_str_dig(lua_State* tolua_S)
+{
+ int toluaI_index;
+ if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
+ tolua_error(tolua_S,"invalid type in array indexing.");
+ toluaI_index = (int)tolua_getnumber(tolua_S,2,0)-1;
+ if (toluaI_index<0 || toluaI_index>=100)
+ tolua_error(tolua_S,"array indexing out of range.");
+  adj_str_dig[toluaI_index] = ((byte)  tolua_getnumber(tolua_S,3,0));
+ return 0;
+}
+
+/* get function: adj_str_blow */
+static int toluaI_get_util_adj_str_blow(lua_State* tolua_S)
+{
+ int toluaI_index;
+ if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
+ tolua_error(tolua_S,"invalid type in array indexing.");
+ toluaI_index = (int)tolua_getnumber(tolua_S,2,0)-1;
+ if (toluaI_index<0 || toluaI_index>=100)
+ tolua_error(tolua_S,"array indexing out of range.");
+ tolua_pushnumber(tolua_S,(long)adj_str_blow[toluaI_index]);
+ return 1;
+}
+
+/* set function: adj_str_blow */
+static int toluaI_set_util_adj_str_blow(lua_State* tolua_S)
+{
+ int toluaI_index;
+ if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
+ tolua_error(tolua_S,"invalid type in array indexing.");
+ toluaI_index = (int)tolua_getnumber(tolua_S,2,0)-1;
+ if (toluaI_index<0 || toluaI_index>=100)
+ tolua_error(tolua_S,"array indexing out of range.");
+  adj_str_blow[toluaI_index] = ((byte)  tolua_getnumber(tolua_S,3,0));
+ return 0;
+}
+
+/* get function: adj_dex_blow */
+static int toluaI_get_util_adj_dex_blow(lua_State* tolua_S)
+{
+ int toluaI_index;
+ if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
+ tolua_error(tolua_S,"invalid type in array indexing.");
+ toluaI_index = (int)tolua_getnumber(tolua_S,2,0)-1;
+ if (toluaI_index<0 || toluaI_index>=100)
+ tolua_error(tolua_S,"array indexing out of range.");
+ tolua_pushnumber(tolua_S,(long)adj_dex_blow[toluaI_index]);
+ return 1;
+}
+
+/* set function: adj_dex_blow */
+static int toluaI_set_util_adj_dex_blow(lua_State* tolua_S)
+{
+ int toluaI_index;
+ if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
+ tolua_error(tolua_S,"invalid type in array indexing.");
+ toluaI_index = (int)tolua_getnumber(tolua_S,2,0)-1;
+ if (toluaI_index<0 || toluaI_index>=100)
+ tolua_error(tolua_S,"array indexing out of range.");
+  adj_dex_blow[toluaI_index] = ((byte)  tolua_getnumber(tolua_S,3,0));
+ return 0;
+}
+
+/* get function: adj_dex_safe */
+static int toluaI_get_util_adj_dex_safe(lua_State* tolua_S)
+{
+ int toluaI_index;
+ if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
+ tolua_error(tolua_S,"invalid type in array indexing.");
+ toluaI_index = (int)tolua_getnumber(tolua_S,2,0)-1;
+ if (toluaI_index<0 || toluaI_index>=100)
+ tolua_error(tolua_S,"array indexing out of range.");
+ tolua_pushnumber(tolua_S,(long)adj_dex_safe[toluaI_index]);
+ return 1;
+}
+
+/* set function: adj_dex_safe */
+static int toluaI_set_util_adj_dex_safe(lua_State* tolua_S)
+{
+ int toluaI_index;
+ if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
+ tolua_error(tolua_S,"invalid type in array indexing.");
+ toluaI_index = (int)tolua_getnumber(tolua_S,2,0)-1;
+ if (toluaI_index<0 || toluaI_index>=100)
+ tolua_error(tolua_S,"array indexing out of range.");
+  adj_dex_safe[toluaI_index] = ((byte)  tolua_getnumber(tolua_S,3,0));
+ return 0;
+}
+
+/* get function: adj_con_fix */
+static int toluaI_get_util_adj_con_fix(lua_State* tolua_S)
+{
+ int toluaI_index;
+ if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
+ tolua_error(tolua_S,"invalid type in array indexing.");
+ toluaI_index = (int)tolua_getnumber(tolua_S,2,0)-1;
+ if (toluaI_index<0 || toluaI_index>=100)
+ tolua_error(tolua_S,"array indexing out of range.");
+ tolua_pushnumber(tolua_S,(long)adj_con_fix[toluaI_index]);
+ return 1;
+}
+
+/* set function: adj_con_fix */
+static int toluaI_set_util_adj_con_fix(lua_State* tolua_S)
+{
+ int toluaI_index;
+ if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
+ tolua_error(tolua_S,"invalid type in array indexing.");
+ toluaI_index = (int)tolua_getnumber(tolua_S,2,0)-1;
+ if (toluaI_index<0 || toluaI_index>=100)
+ tolua_error(tolua_S,"array indexing out of range.");
+  adj_con_fix[toluaI_index] = ((byte)  tolua_getnumber(tolua_S,3,0));
+ return 0;
+}
+
+/* get function: adj_con_mhp */
+static int toluaI_get_util_adj_con_mhp(lua_State* tolua_S)
+{
+ int toluaI_index;
+ if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
+ tolua_error(tolua_S,"invalid type in array indexing.");
+ toluaI_index = (int)tolua_getnumber(tolua_S,2,0)-1;
+ if (toluaI_index<0 || toluaI_index>=100)
+ tolua_error(tolua_S,"array indexing out of range.");
+ tolua_pushnumber(tolua_S,(long)adj_con_mhp[toluaI_index]);
+ return 1;
+}
+
+/* set function: adj_con_mhp */
+static int toluaI_set_util_adj_con_mhp(lua_State* tolua_S)
+{
+ int toluaI_index;
+ if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
+ tolua_error(tolua_S,"invalid type in array indexing.");
+ toluaI_index = (int)tolua_getnumber(tolua_S,2,0)-1;
+ if (toluaI_index<0 || toluaI_index>=100)
+ tolua_error(tolua_S,"array indexing out of range.");
+  adj_con_mhp[toluaI_index] = ((byte)  tolua_getnumber(tolua_S,3,0));
+ return 0;
+}
+
+/* function: repeat_push */
+static int toluaI_util_repeat_push00(lua_State* tolua_S)
+{
+ if (
+ !tolua_istype(tolua_S,1,LUA_TNUMBER,0) ||
+ !tolua_isnoobj(tolua_S,2)
+ )
+ goto tolua_lerror;
+ else
+ {
+  int what = ((int)  tolua_getnumber(tolua_S,1,0));
+ {
+  repeat_push(what);
+ }
+ }
+ return 0;
+tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'repeat_push'.");
+ return 0;
+}
+
+/* function: repeat_pull */
+static int toluaI_util_repeat_pull00(lua_State* tolua_S)
+{
+ if (
+ !tolua_istype(tolua_S,1,LUA_TNUMBER,1) ||
+ !tolua_isnoobj(tolua_S,2)
+ )
+ goto tolua_lerror;
+ else
+ {
+  int what = ((int)  tolua_getnumber(tolua_S,1,0));
+ {
+  bool toluaI_ret = (bool)  repeat_pull(&what);
+ tolua_pushnumber(tolua_S,(long)toluaI_ret);
+ tolua_pushnumber(tolua_S,(long)what);
+ }
+ }
+ return 2;
+tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'repeat_pull'.");
+ return 0;
+}
+
+/* function: repeat_check */
+static int toluaI_util_repeat_check00(lua_State* tolua_S)
+{
+ if (
+ !tolua_isnoobj(tolua_S,1)
+ )
+ goto tolua_lerror;
+ else
+ {
+ {
+  repeat_check();
+ }
+ }
+ return 0;
+tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'repeat_check'.");
+ return 0;
+}
+
+/* function: get_count */
+static int toluaI_util_get_count00(lua_State* tolua_S)
+{
+ if (
+ !tolua_istype(tolua_S,1,LUA_TNUMBER,0) ||
+ !tolua_istype(tolua_S,2,LUA_TNUMBER,0) ||
+ !tolua_isnoobj(tolua_S,3)
+ )
+ goto tolua_lerror;
+ else
+ {
+  int number = ((int)  tolua_getnumber(tolua_S,1,0));
+  int max = ((int)  tolua_getnumber(tolua_S,2,0));
+ {
+  get_count(number,max);
+ }
+ }
+ return 0;
+tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'get_count'.");
+ return 0;
+}
+
+/* get function: info of class  cave_type */
+static int toluaI_get_util_cave_type_info(lua_State* tolua_S)
+{
+  cave_type* self = (cave_type*)  tolua_getusertype(tolua_S,1,0);
+ if (!self) TOLUA_ERR_SELF;
+ tolua_pushnumber(tolua_S,(long)self->info);
+ return 1;
+}
+
+/* set function: info of class  cave_type */
+static int toluaI_set_util_cave_type_info(lua_State* tolua_S)
+{
+  cave_type* self = (cave_type*)  tolua_getusertype(tolua_S,1,0);
+ if (!self) TOLUA_ERR_SELF;
+ if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
+ TOLUA_ERR_ASSIGN;
+  self->info = ((u16b)  tolua_getnumber(tolua_S,2,0));
+ return 0;
+}
+
+/* get function: feat of class  cave_type */
+static int toluaI_get_util_cave_type_feat(lua_State* tolua_S)
+{
+  cave_type* self = (cave_type*)  tolua_getusertype(tolua_S,1,0);
+ if (!self) TOLUA_ERR_SELF;
+ tolua_pushnumber(tolua_S,(long)self->feat);
+ return 1;
+}
+
+/* set function: feat of class  cave_type */
+static int toluaI_set_util_cave_type_feat(lua_State* tolua_S)
+{
+  cave_type* self = (cave_type*)  tolua_getusertype(tolua_S,1,0);
+ if (!self) TOLUA_ERR_SELF;
+ if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
+ TOLUA_ERR_ASSIGN;
+  self->feat = ((byte)  tolua_getnumber(tolua_S,2,0));
+ return 0;
+}
+
+/* get function: o_idx of class  cave_type */
+static int toluaI_get_util_cave_type_o_idx(lua_State* tolua_S)
+{
+  cave_type* self = (cave_type*)  tolua_getusertype(tolua_S,1,0);
+ if (!self) TOLUA_ERR_SELF;
+ tolua_pushnumber(tolua_S,(long)self->o_idx);
+ return 1;
+}
+
+/* set function: o_idx of class  cave_type */
+static int toluaI_set_util_cave_type_o_idx(lua_State* tolua_S)
+{
+  cave_type* self = (cave_type*)  tolua_getusertype(tolua_S,1,0);
+ if (!self) TOLUA_ERR_SELF;
+ if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
+ TOLUA_ERR_ASSIGN;
+  self->o_idx = ((s16b)  tolua_getnumber(tolua_S,2,0));
+ return 0;
+}
+
+/* get function: m_idx of class  cave_type */
+static int toluaI_get_util_cave_type_m_idx(lua_State* tolua_S)
+{
+  cave_type* self = (cave_type*)  tolua_getusertype(tolua_S,1,0);
+ if (!self) TOLUA_ERR_SELF;
+ tolua_pushnumber(tolua_S,(long)self->m_idx);
+ return 1;
+}
+
+/* set function: m_idx of class  cave_type */
+static int toluaI_set_util_cave_type_m_idx(lua_State* tolua_S)
+{
+  cave_type* self = (cave_type*)  tolua_getusertype(tolua_S,1,0);
+ if (!self) TOLUA_ERR_SELF;
+ if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
+ TOLUA_ERR_ASSIGN;
+  self->m_idx = ((s16b)  tolua_getnumber(tolua_S,2,0));
+ return 0;
+}
+
+/* get function: t_idx of class  cave_type */
+static int toluaI_get_util_cave_type_t_idx(lua_State* tolua_S)
+{
+  cave_type* self = (cave_type*)  tolua_getusertype(tolua_S,1,0);
+ if (!self) TOLUA_ERR_SELF;
+ tolua_pushnumber(tolua_S,(long)self->t_idx);
+ return 1;
+}
+
+/* set function: t_idx of class  cave_type */
+static int toluaI_set_util_cave_type_t_idx(lua_State* tolua_S)
+{
+  cave_type* self = (cave_type*)  tolua_getusertype(tolua_S,1,0);
+ if (!self) TOLUA_ERR_SELF;
+ if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
+ TOLUA_ERR_ASSIGN;
+  self->t_idx = ((s16b)  tolua_getnumber(tolua_S,2,0));
+ return 0;
+}
+
+/* get function: special of class  cave_type */
+static int toluaI_get_util_cave_type_special(lua_State* tolua_S)
+{
+  cave_type* self = (cave_type*)  tolua_getusertype(tolua_S,1,0);
+ if (!self) TOLUA_ERR_SELF;
+ tolua_pushnumber(tolua_S,(long)self->special);
+ return 1;
+}
+
+/* set function: special of class  cave_type */
+static int toluaI_set_util_cave_type_special(lua_State* tolua_S)
+{
+  cave_type* self = (cave_type*)  tolua_getusertype(tolua_S,1,0);
+ if (!self) TOLUA_ERR_SELF;
+ if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
+ TOLUA_ERR_ASSIGN;
+  self->special = ((s16b)  tolua_getnumber(tolua_S,2,0));
+ return 0;
+}
+
+/* get function: special2 of class  cave_type */
+static int toluaI_get_util_cave_type_special2(lua_State* tolua_S)
+{
+  cave_type* self = (cave_type*)  tolua_getusertype(tolua_S,1,0);
+ if (!self) TOLUA_ERR_SELF;
+ tolua_pushnumber(tolua_S,(long)self->special2);
+ return 1;
+}
+
+/* set function: special2 of class  cave_type */
+static int toluaI_set_util_cave_type_special2(lua_State* tolua_S)
+{
+  cave_type* self = (cave_type*)  tolua_getusertype(tolua_S,1,0);
+ if (!self) TOLUA_ERR_SELF;
+ if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
+ TOLUA_ERR_ASSIGN;
+  self->special2 = ((s16b)  tolua_getnumber(tolua_S,2,0));
+ return 0;
+}
+
+/* get function: inscription of class  cave_type */
+static int toluaI_get_util_cave_type_inscription(lua_State* tolua_S)
+{
+  cave_type* self = (cave_type*)  tolua_getusertype(tolua_S,1,0);
+ if (!self) TOLUA_ERR_SELF;
+ tolua_pushnumber(tolua_S,(long)self->inscription);
+ return 1;
+}
+
+/* set function: inscription of class  cave_type */
+static int toluaI_set_util_cave_type_inscription(lua_State* tolua_S)
+{
+  cave_type* self = (cave_type*)  tolua_getusertype(tolua_S,1,0);
+ if (!self) TOLUA_ERR_SELF;
+ if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
+ TOLUA_ERR_ASSIGN;
+  self->inscription = ((s16b)  tolua_getnumber(tolua_S,2,0));
+ return 0;
+}
+
+/* get function: mana of class  cave_type */
+static int toluaI_get_util_cave_type_mana(lua_State* tolua_S)
+{
+  cave_type* self = (cave_type*)  tolua_getusertype(tolua_S,1,0);
+ if (!self) TOLUA_ERR_SELF;
+ tolua_pushnumber(tolua_S,(long)self->mana);
+ return 1;
+}
+
+/* set function: mana of class  cave_type */
+static int toluaI_set_util_cave_type_mana(lua_State* tolua_S)
+{
+  cave_type* self = (cave_type*)  tolua_getusertype(tolua_S,1,0);
+ if (!self) TOLUA_ERR_SELF;
+ if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
+ TOLUA_ERR_ASSIGN;
+  self->mana = ((byte)  tolua_getnumber(tolua_S,2,0));
+ return 0;
+}
+
+/* get function: mimic of class  cave_type */
+static int toluaI_get_util_cave_type_mimic(lua_State* tolua_S)
+{
+  cave_type* self = (cave_type*)  tolua_getusertype(tolua_S,1,0);
+ if (!self) TOLUA_ERR_SELF;
+ tolua_pushnumber(tolua_S,(long)self->mimic);
+ return 1;
+}
+
+/* set function: mimic of class  cave_type */
+static int toluaI_set_util_cave_type_mimic(lua_State* tolua_S)
+{
+  cave_type* self = (cave_type*)  tolua_getusertype(tolua_S,1,0);
+ if (!self) TOLUA_ERR_SELF;
+ if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
+ TOLUA_ERR_ASSIGN;
+  self->mimic = ((byte)  tolua_getnumber(tolua_S,2,0));
+ return 0;
+}
+
+/* get function: effect of class  cave_type */
+static int toluaI_get_util_cave_type_effect(lua_State* tolua_S)
+{
+  cave_type* self = (cave_type*)  tolua_getusertype(tolua_S,1,0);
+ if (!self) TOLUA_ERR_SELF;
+ tolua_pushnumber(tolua_S,(long)self->effect);
+ return 1;
+}
+
+/* set function: effect of class  cave_type */
+static int toluaI_set_util_cave_type_effect(lua_State* tolua_S)
+{
+  cave_type* self = (cave_type*)  tolua_getusertype(tolua_S,1,0);
+ if (!self) TOLUA_ERR_SELF;
+ if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
+ TOLUA_ERR_ASSIGN;
+  self->effect = ((s16b)  tolua_getnumber(tolua_S,2,0));
+ return 0;
+}
+
+/* function: lua_cave_is */
+static int toluaI_util_cave_is00(lua_State* tolua_S)
+{
+ if (
+ !tolua_istype(tolua_S,1,tolua_tag(tolua_S,"cave_type"),0) ||
+ !tolua_istype(tolua_S,2,LUA_TNUMBER,0) ||
+ !tolua_isnoobj(tolua_S,3)
+ )
+ goto tolua_lerror;
+ else
+ {
+  cave_type* c_ptr = ((cave_type*)  tolua_getusertype(tolua_S,1,0));
+  s32b flag = ((s32b)  tolua_getnumber(tolua_S,2,0));
+ {
+  bool toluaI_ret = (bool)  lua_cave_is(c_ptr,flag);
+ tolua_pushnumber(tolua_S,(long)toluaI_ret);
+ }
+ }
+ return 1;
+tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'cave_is'.");
+ return 0;
+}
+
+/* function: lua_get_cave */
+static int toluaI_util_cave00(lua_State* tolua_S)
+{
+ if (
+ !tolua_istype(tolua_S,1,LUA_TNUMBER,0) ||
+ !tolua_istype(tolua_S,2,LUA_TNUMBER,0) ||
+ !tolua_isnoobj(tolua_S,3)
+ )
+ goto tolua_lerror;
+ else
+ {
+  int y = ((int)  tolua_getnumber(tolua_S,1,0));
+  int x = ((int)  tolua_getnumber(tolua_S,2,0));
+ {
+  cave_type* toluaI_ret = (cave_type*)  lua_get_cave(y,x);
+ tolua_pushusertype(tolua_S,(void*)toluaI_ret,tolua_tag(tolua_S,"cave_type"));
+ }
+ }
+ return 1;
+tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'cave'.");
+ return 0;
+}
+
+/* function: set_target */
+static int toluaI_util_set_target00(lua_State* tolua_S)
+{
+ if (
+ !tolua_istype(tolua_S,1,LUA_TNUMBER,0) ||
+ !tolua_istype(tolua_S,2,LUA_TNUMBER,0) ||
+ !tolua_isnoobj(tolua_S,3)
+ )
+ goto tolua_lerror;
+ else
+ {
+  int y = ((int)  tolua_getnumber(tolua_S,1,0));
+  int x = ((int)  tolua_getnumber(tolua_S,2,0));
+ {
+  set_target(y,x);
+ }
+ }
+ return 0;
+tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'set_target'.");
+ return 0;
+}
+
+/* get function: m_allow_special */
+static int toluaI_get_util_m_allow_special(lua_State* tolua_S)
+{
+ int toluaI_index;
+ if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
+ tolua_error(tolua_S,"invalid type in array indexing.");
+ toluaI_index = (int)tolua_getnumber(tolua_S,2,0)-1;
+ if (toluaI_index<0 || toluaI_index>=max_r_idx)
+ tolua_error(tolua_S,"array indexing out of range.");
+ tolua_pushnumber(tolua_S,(long)m_allow_special[toluaI_index]);
+ return 1;
+}
+
+/* set function: m_allow_special */
+static int toluaI_set_util_m_allow_special(lua_State* tolua_S)
+{
+ int toluaI_index;
+ if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
+ tolua_error(tolua_S,"invalid type in array indexing.");
+ toluaI_index = (int)tolua_getnumber(tolua_S,2,0)-1;
+ if (toluaI_index<0 || toluaI_index>=max_r_idx)
+ tolua_error(tolua_S,"array indexing out of range.");
+  m_allow_special[toluaI_index] = ((bool)  tolua_getnumber(tolua_S,3,0));
+ return 0;
+}
+
+/* get function: k_allow_special */
+static int toluaI_get_util_k_allow_special(lua_State* tolua_S)
+{
+ int toluaI_index;
+ if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
+ tolua_error(tolua_S,"invalid type in array indexing.");
+ toluaI_index = (int)tolua_getnumber(tolua_S,2,0)-1;
+ if (toluaI_index<0 || toluaI_index>=max_k_idx)
+ tolua_error(tolua_S,"array indexing out of range.");
+ tolua_pushnumber(tolua_S,(long)k_allow_special[toluaI_index]);
+ return 1;
+}
+
+/* set function: k_allow_special */
+static int toluaI_set_util_k_allow_special(lua_State* tolua_S)
+{
+ int toluaI_index;
+ if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
+ tolua_error(tolua_S,"invalid type in array indexing.");
+ toluaI_index = (int)tolua_getnumber(tolua_S,2,0)-1;
+ if (toluaI_index<0 || toluaI_index>=max_k_idx)
+ tolua_error(tolua_S,"array indexing out of range.");
+  k_allow_special[toluaI_index] = ((bool)  tolua_getnumber(tolua_S,3,0));
+ return 0;
+}
+
+/* get function: a_allow_special */
+static int toluaI_get_util_a_allow_special(lua_State* tolua_S)
+{
+ int toluaI_index;
+ if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
+ tolua_error(tolua_S,"invalid type in array indexing.");
+ toluaI_index = (int)tolua_getnumber(tolua_S,2,0)-1;
+ if (toluaI_index<0 || toluaI_index>=max_a_idx)
+ tolua_error(tolua_S,"array indexing out of range.");
+ tolua_pushnumber(tolua_S,(long)a_allow_special[toluaI_index]);
+ return 1;
+}
+
+/* set function: a_allow_special */
+static int toluaI_set_util_a_allow_special(lua_State* tolua_S)
+{
+ int toluaI_index;
+ if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
+ tolua_error(tolua_S,"invalid type in array indexing.");
+ toluaI_index = (int)tolua_getnumber(tolua_S,2,0)-1;
+ if (toluaI_index<0 || toluaI_index>=max_a_idx)
+ tolua_error(tolua_S,"array indexing out of range.");
+  a_allow_special[toluaI_index] = ((bool)  tolua_getnumber(tolua_S,3,0));
+ return 0;
+}
+
+/* function: cave_set_feat */
+static int toluaI_util_cave_set_feat00(lua_State* tolua_S)
+{
+ if (
+ !tolua_istype(tolua_S,1,LUA_TNUMBER,0) ||
+ !tolua_istype(tolua_S,2,LUA_TNUMBER,0) ||
+ !tolua_istype(tolua_S,3,LUA_TNUMBER,0) ||
+ !tolua_isnoobj(tolua_S,4)
+ )
+ goto tolua_lerror;
+ else
+ {
+  int y = ((int)  tolua_getnumber(tolua_S,1,0));
+  int x = ((int)  tolua_getnumber(tolua_S,2,0));
+  int feat = ((int)  tolua_getnumber(tolua_S,3,0));
+ {
+  cave_set_feat(y,x,feat);
+ }
+ }
+ return 0;
+tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'cave_set_feat'.");
+ return 0;
+}
+
+/* function: show_file */
+static int toluaI_util_show_file00(lua_State* tolua_S)
+{
+ if (
+ !tolua_istype(tolua_S,1,LUA_TSTRING,0) ||
+ !tolua_istype(tolua_S,2,LUA_TSTRING,0) ||
+ !tolua_istype(tolua_S,3,LUA_TNUMBER,0) ||
+ !tolua_istype(tolua_S,4,LUA_TNUMBER,0) ||
+ !tolua_isnoobj(tolua_S,5)
+ )
+ goto tolua_lerror;
+ else
+ {
+  cptr name = ((cptr)  tolua_getstring(tolua_S,1,0));
+  cptr what = ((cptr)  tolua_getstring(tolua_S,2,0));
+  int line = ((int)  tolua_getnumber(tolua_S,3,0));
+  int mode = ((int)  tolua_getnumber(tolua_S,4,0));
+ {
+  bool toluaI_ret = (bool)  show_file(name,what,line,mode);
+ tolua_pushnumber(tolua_S,(long)toluaI_ret);
+ }
+ }
+ return 1;
+tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'show_file'.");
+ return 0;
+}
+
+/* get function: target_who */
+static int toluaI_get_util_target_who(lua_State* tolua_S)
+{
+ tolua_pushnumber(tolua_S,(long)target_who);
+ return 1;
+}
+
+/* set function: target_who */
+static int toluaI_set_util_target_who(lua_State* tolua_S)
+{
+ if (!tolua_istype(tolua_S,1,LUA_TNUMBER,0))
+ TOLUA_ERR_ASSIGN;
+  target_who = ((s16b)  tolua_getnumber(tolua_S,1,0));
+ return 0;
+}
+
+/* get function: target_col */
+static int toluaI_get_util_target_col(lua_State* tolua_S)
+{
+ tolua_pushnumber(tolua_S,(long)target_col);
+ return 1;
+}
+
+/* set function: target_col */
+static int toluaI_set_util_target_col(lua_State* tolua_S)
+{
+ if (!tolua_istype(tolua_S,1,LUA_TNUMBER,0))
+ TOLUA_ERR_ASSIGN;
+  target_col = ((s16b)  tolua_getnumber(tolua_S,1,0));
+ return 0;
+}
+
+/* get function: target_row */
+static int toluaI_get_util_target_row(lua_State* tolua_S)
+{
+ tolua_pushnumber(tolua_S,(long)target_row);
+ return 1;
+}
+
+/* set function: target_row */
+static int toluaI_set_util_target_row(lua_State* tolua_S)
+{
+ if (!tolua_istype(tolua_S,1,LUA_TNUMBER,0))
+ TOLUA_ERR_ASSIGN;
+  target_row = ((s16b)  tolua_getnumber(tolua_S,1,0));
+ return 0;
+}
+
+/* get function: max_bact */
+static int toluaI_get_util_max_bact(lua_State* tolua_S)
+{
+ tolua_pushnumber(tolua_S,(long)max_bact);
+ return 1;
+}
+
+/* set function: max_bact */
+static int toluaI_set_util_max_bact(lua_State* tolua_S)
+{
+ if (!tolua_istype(tolua_S,1,LUA_TNUMBER,0))
+ TOLUA_ERR_ASSIGN;
+  max_bact = ((int)  tolua_getnumber(tolua_S,1,0));
  return 0;
 }
 
@@ -978,6 +2112,7 @@ int tolua_util_open (lua_State* tolua_S)
  toluaI_reg_types(tolua_S);
  tolua_constant(tolua_S,NULL,"TRUE",TRUE);
  tolua_constant(tolua_S,NULL,"FALSE",FALSE);
+ tolua_constant(tolua_S,NULL,"ESCAPE",ESCAPE);
  tolua_constant(tolua_S,NULL,"TERM_DARK",TERM_DARK);
  tolua_constant(tolua_S,NULL,"TERM_WHITE",TERM_WHITE);
  tolua_constant(tolua_S,NULL,"TERM_SLATE",TERM_SLATE);
@@ -1038,19 +2173,26 @@ int tolua_util_open (lua_State* tolua_S)
  tolua_constant(tolua_S,NULL,"HOOK_LOAD_GAME",HOOK_LOAD_GAME);
  tolua_constant(tolua_S,NULL,"HOOK_LEVEL_REGEN",HOOK_LEVEL_REGEN);
  tolua_constant(tolua_S,NULL,"HOOK_LEVEL_END_GEN",HOOK_LEVEL_END_GEN);
+ tolua_constant(tolua_S,NULL,"HOOK_BUILDING_ACTION",HOOK_BUILDING_ACTION);
  tolua_globalvar(tolua_S,"turn",toluaI_get_util_turn,toluaI_set_util_turn);
  tolua_globalvar(tolua_S,"old_turn",toluaI_get_util_old_turn,toluaI_set_util_old_turn);
+ tolua_globalvar(tolua_S,"cur_wid",toluaI_get_util_cur_wid,toluaI_set_util_cur_wid);
+ tolua_globalvar(tolua_S,"cur_hgt",toluaI_get_util_cur_hgt,toluaI_set_util_cur_hgt);
  tolua_function(tolua_S,NULL,"bst",toluaI_util_bst00);
  tolua_function(tolua_S,NULL,"path_build",toluaI_util_path_build00);
  tolua_function(tolua_S,NULL,"move_cursor",toluaI_util_move_cursor00);
+ tolua_function(tolua_S,NULL,"flush",toluaI_util_flush00);
  tolua_globalvar(tolua_S,"inkey_scan",toluaI_get_util_inkey_scan,toluaI_set_util_inkey_scan);
  tolua_function(tolua_S,NULL,"inkey",toluaI_util_inkey00);
  tolua_function(tolua_S,NULL,"cmsg_print",toluaI_util_cmsg_print00);
  tolua_function(tolua_S,NULL,"msg_print",toluaI_util_msg_print00);
  tolua_function(tolua_S,NULL,"screen_save",toluaI_util_screen_save00);
  tolua_function(tolua_S,NULL,"screen_load",toluaI_util_screen_load00);
+ tolua_function(tolua_S,NULL,"Term_save",toluaI_util_Term_save00);
+ tolua_function(tolua_S,NULL,"Term_load",toluaI_util_Term_load00);
  tolua_function(tolua_S,NULL,"c_put_str",toluaI_util_c_put_str00);
  tolua_function(tolua_S,NULL,"c_prt",toluaI_util_c_prt00);
+ tolua_function(tolua_S,NULL,"prt",toluaI_util_prt00);
  tolua_function(tolua_S,NULL,"clear_from",toluaI_util_clear_from00);
  tolua_function(tolua_S,NULL,"askfor_aux",toluaI_util_askfor_aux00);
  tolua_function(tolua_S,NULL,"get_string",toluaI_util_get_string00);
@@ -1062,20 +2204,83 @@ int tolua_util_open (lua_State* tolua_S)
  tolua_function(tolua_S,NULL,"luck",toluaI_util_luck00);
  tolua_function(tolua_S,NULL,"get_player_race_name",toluaI_util_get_player_race_name00);
  tolua_function(tolua_S,NULL,"quit",toluaI_util_quit00);
+ tolua_function(tolua_S,NULL,"value_scale",toluaI_util_value_scale00);
  tolua_globalvar(tolua_S,"process_hooks_restart",toluaI_get_util_process_hooks_restart,toluaI_set_util_process_hooks_restart);
  tolua_function(tolua_S,NULL,"dump_hooks",toluaI_util_dump_hooks00);
  tolua_function(tolua_S,NULL,"add_hook_script",toluaI_util_add_hook_script00);
  tolua_function(tolua_S,NULL,"del_hook_name",toluaI_util_del_hook_name00);
- tolua_function(tolua_S,NULL,"pern_dofile",toluaI_util_pern_dofile00);
- tolua_function(tolua_S,NULL,"mod",toluaI_util_mod00);
- tolua_function(tolua_S,NULL,"band",toluaI_util_band00);
- tolua_function(tolua_S,NULL,"bor",toluaI_util_bor00);
- tolua_function(tolua_S,NULL,"bxor",toluaI_util_bxor00);
- tolua_function(tolua_S,NULL,"bshl",toluaI_util_bshl00);
- tolua_function(tolua_S,NULL,"bshr",toluaI_util_bshr00);
- tolua_function(tolua_S,NULL,"bnot",toluaI_util_bnot00);
+ tolua_function(tolua_S,NULL,"tome_dofile",toluaI_util_tome_dofile00);
+ tolua_function(tolua_S,NULL,"exec_lua",toluaI_util_exec_lua00);
+ tolua_function(tolua_S,NULL,"print_hook",toluaI_util_print_hook00);
  tolua_function(tolua_S,NULL,"register_savefile",toluaI_util_register_savefile00);
  tolua_function(tolua_S,NULL,"save_number_key",toluaI_util_save_number_key00);
+ tolua_globalarray(tolua_S,"adj_mag_study",toluaI_get_util_adj_mag_study,toluaI_set_util_adj_mag_study);
+ tolua_globalarray(tolua_S,"adj_mag_mana",toluaI_get_util_adj_mag_mana,toluaI_set_util_adj_mag_mana);
+ tolua_globalarray(tolua_S,"adj_mag_fail",toluaI_get_util_adj_mag_fail,toluaI_set_util_adj_mag_fail);
+ tolua_globalarray(tolua_S,"adj_mag_stat",toluaI_get_util_adj_mag_stat,toluaI_set_util_adj_mag_stat);
+ tolua_globalarray(tolua_S,"adj_chr_gold",toluaI_get_util_adj_chr_gold,toluaI_set_util_adj_chr_gold);
+ tolua_globalarray(tolua_S,"adj_int_dev",toluaI_get_util_adj_int_dev,toluaI_set_util_adj_int_dev);
+ tolua_globalarray(tolua_S,"adj_wis_sav",toluaI_get_util_adj_wis_sav,toluaI_set_util_adj_wis_sav);
+ tolua_globalarray(tolua_S,"adj_dex_dis",toluaI_get_util_adj_dex_dis,toluaI_set_util_adj_dex_dis);
+ tolua_globalarray(tolua_S,"adj_int_dis",toluaI_get_util_adj_int_dis,toluaI_set_util_adj_int_dis);
+ tolua_globalarray(tolua_S,"adj_dex_ta",toluaI_get_util_adj_dex_ta,toluaI_set_util_adj_dex_ta);
+ tolua_globalarray(tolua_S,"adj_str_td",toluaI_get_util_adj_str_td,toluaI_set_util_adj_str_td);
+ tolua_globalarray(tolua_S,"adj_dex_th",toluaI_get_util_adj_dex_th,toluaI_set_util_adj_dex_th);
+ tolua_globalarray(tolua_S,"adj_str_th",toluaI_get_util_adj_str_th,toluaI_set_util_adj_str_th);
+ tolua_globalarray(tolua_S,"adj_str_wgt",toluaI_get_util_adj_str_wgt,toluaI_set_util_adj_str_wgt);
+ tolua_globalarray(tolua_S,"adj_str_hold",toluaI_get_util_adj_str_hold,toluaI_set_util_adj_str_hold);
+ tolua_globalarray(tolua_S,"adj_str_dig",toluaI_get_util_adj_str_dig,toluaI_set_util_adj_str_dig);
+ tolua_globalarray(tolua_S,"adj_str_blow",toluaI_get_util_adj_str_blow,toluaI_set_util_adj_str_blow);
+ tolua_globalarray(tolua_S,"adj_dex_blow",toluaI_get_util_adj_dex_blow,toluaI_set_util_adj_dex_blow);
+ tolua_globalarray(tolua_S,"adj_dex_safe",toluaI_get_util_adj_dex_safe,toluaI_set_util_adj_dex_safe);
+ tolua_globalarray(tolua_S,"adj_con_fix",toluaI_get_util_adj_con_fix,toluaI_set_util_adj_con_fix);
+ tolua_globalarray(tolua_S,"adj_con_mhp",toluaI_get_util_adj_con_mhp,toluaI_set_util_adj_con_mhp);
+ tolua_function(tolua_S,NULL,"repeat_push",toluaI_util_repeat_push00);
+ tolua_function(tolua_S,NULL,"repeat_pull",toluaI_util_repeat_pull00);
+ tolua_function(tolua_S,NULL,"repeat_check",toluaI_util_repeat_check00);
+ tolua_function(tolua_S,NULL,"get_count",toluaI_util_get_count00);
+ tolua_constant(tolua_S,NULL,"FF1_NO_WALK",FF1_NO_WALK);
+ tolua_constant(tolua_S,NULL,"FF1_NO_VISION",FF1_NO_VISION);
+ tolua_constant(tolua_S,NULL,"FF1_CAN_LEVITATE",FF1_CAN_LEVITATE);
+ tolua_constant(tolua_S,NULL,"FF1_CAN_PASS",FF1_CAN_PASS);
+ tolua_constant(tolua_S,NULL,"FF1_FLOOR",FF1_FLOOR);
+ tolua_constant(tolua_S,NULL,"FF1_WALL",FF1_WALL);
+ tolua_constant(tolua_S,NULL,"FF1_PERMANENT",FF1_PERMANENT);
+ tolua_constant(tolua_S,NULL,"FF1_CAN_FLY",FF1_CAN_FLY);
+ tolua_constant(tolua_S,NULL,"FF1_REMEMBER",FF1_REMEMBER);
+ tolua_constant(tolua_S,NULL,"FF1_NOTICE",FF1_NOTICE);
+ tolua_constant(tolua_S,NULL,"FF1_DONT_NOTICE_RUNNING",FF1_DONT_NOTICE_RUNNING);
+ tolua_constant(tolua_S,NULL,"FF1_CAN_RUN",FF1_CAN_RUN);
+ tolua_constant(tolua_S,NULL,"FF1_DOOR",FF1_DOOR);
+ tolua_constant(tolua_S,NULL,"FF1_SUPPORT_LIGHT",FF1_SUPPORT_LIGHT);
+ tolua_constant(tolua_S,NULL,"FF1_CAN_CLIMB",FF1_CAN_CLIMB);
+ tolua_constant(tolua_S,NULL,"FF1_TUNNELABLE",FF1_TUNNELABLE);
+ tolua_constant(tolua_S,NULL,"FF1_WEB",FF1_WEB);
+ tolua_constant(tolua_S,NULL,"FF1_ATTR_MULTI",FF1_ATTR_MULTI);
+ tolua_cclass(tolua_S,"cave_type","");
+ tolua_tablevar(tolua_S,"cave_type","info",toluaI_get_util_cave_type_info,toluaI_set_util_cave_type_info);
+ tolua_tablevar(tolua_S,"cave_type","feat",toluaI_get_util_cave_type_feat,toluaI_set_util_cave_type_feat);
+ tolua_tablevar(tolua_S,"cave_type","o_idx",toluaI_get_util_cave_type_o_idx,toluaI_set_util_cave_type_o_idx);
+ tolua_tablevar(tolua_S,"cave_type","m_idx",toluaI_get_util_cave_type_m_idx,toluaI_set_util_cave_type_m_idx);
+ tolua_tablevar(tolua_S,"cave_type","t_idx",toluaI_get_util_cave_type_t_idx,toluaI_set_util_cave_type_t_idx);
+ tolua_tablevar(tolua_S,"cave_type","special",toluaI_get_util_cave_type_special,toluaI_set_util_cave_type_special);
+ tolua_tablevar(tolua_S,"cave_type","special2",toluaI_get_util_cave_type_special2,toluaI_set_util_cave_type_special2);
+ tolua_tablevar(tolua_S,"cave_type","inscription",toluaI_get_util_cave_type_inscription,toluaI_set_util_cave_type_inscription);
+ tolua_tablevar(tolua_S,"cave_type","mana",toluaI_get_util_cave_type_mana,toluaI_set_util_cave_type_mana);
+ tolua_tablevar(tolua_S,"cave_type","mimic",toluaI_get_util_cave_type_mimic,toluaI_set_util_cave_type_mimic);
+ tolua_tablevar(tolua_S,"cave_type","effect",toluaI_get_util_cave_type_effect,toluaI_set_util_cave_type_effect);
+ tolua_function(tolua_S,NULL,"cave_is",toluaI_util_cave_is00);
+ tolua_function(tolua_S,NULL,"cave",toluaI_util_cave00);
+ tolua_function(tolua_S,NULL,"set_target",toluaI_util_set_target00);
+ tolua_globalarray(tolua_S,"m_allow_special",toluaI_get_util_m_allow_special,toluaI_set_util_m_allow_special);
+ tolua_globalarray(tolua_S,"k_allow_special",toluaI_get_util_k_allow_special,toluaI_set_util_k_allow_special);
+ tolua_globalarray(tolua_S,"a_allow_special",toluaI_get_util_a_allow_special,toluaI_set_util_a_allow_special);
+ tolua_function(tolua_S,NULL,"cave_set_feat",toluaI_util_cave_set_feat00);
+ tolua_function(tolua_S,NULL,"show_file",toluaI_util_show_file00);
+ tolua_globalvar(tolua_S,"target_who",toluaI_get_util_target_who,toluaI_set_util_target_who);
+ tolua_globalvar(tolua_S,"target_col",toluaI_get_util_target_col,toluaI_set_util_target_col);
+ tolua_globalvar(tolua_S,"target_row",toluaI_get_util_target_row,toluaI_set_util_target_row);
+ tolua_globalvar(tolua_S,"max_bact",toluaI_get_util_max_bact,toluaI_set_util_max_bact);
  tolua_function(tolua_S,NULL,"get_map_size",toluaI_util_get_map_size00);
  tolua_function(tolua_S,NULL,"load_map",toluaI_util_load_map00);
  tolua_function(tolua_S,NULL,"alloc_room",toluaI_util_alloc_room00);
@@ -1086,6 +2291,7 @@ void tolua_util_close (lua_State* tolua_S)
 {
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TRUE");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"FALSE");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"ESCAPE");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TERM_DARK");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TERM_WHITE");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TERM_SLATE");
@@ -1146,15 +2352,23 @@ void tolua_util_close (lua_State* tolua_S)
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"HOOK_LOAD_GAME");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"HOOK_LEVEL_REGEN");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"HOOK_LEVEL_END_GEN");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"HOOK_BUILDING_ACTION");
  lua_getglobals(tolua_S);
  lua_pushstring(tolua_S,"turn"); lua_pushnil(tolua_S); lua_rawset(tolua_S,-3);
  lua_pop(tolua_S,1);
  lua_getglobals(tolua_S);
  lua_pushstring(tolua_S,"old_turn"); lua_pushnil(tolua_S); lua_rawset(tolua_S,-3);
  lua_pop(tolua_S,1);
+ lua_getglobals(tolua_S);
+ lua_pushstring(tolua_S,"cur_wid"); lua_pushnil(tolua_S); lua_rawset(tolua_S,-3);
+ lua_pop(tolua_S,1);
+ lua_getglobals(tolua_S);
+ lua_pushstring(tolua_S,"cur_hgt"); lua_pushnil(tolua_S); lua_rawset(tolua_S,-3);
+ lua_pop(tolua_S,1);
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"bst");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"path_build");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"move_cursor");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"flush");
  lua_getglobals(tolua_S);
  lua_pushstring(tolua_S,"inkey_scan"); lua_pushnil(tolua_S); lua_rawset(tolua_S,-3);
  lua_pop(tolua_S,1);
@@ -1163,8 +2377,11 @@ void tolua_util_close (lua_State* tolua_S)
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"msg_print");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"screen_save");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"screen_load");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"Term_save");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"Term_load");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"c_put_str");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"c_prt");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"prt");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"clear_from");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"askfor_aux");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"get_string");
@@ -1176,22 +2393,82 @@ void tolua_util_close (lua_State* tolua_S)
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"luck");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"get_player_race_name");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"quit");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"value_scale");
  lua_getglobals(tolua_S);
  lua_pushstring(tolua_S,"process_hooks_restart"); lua_pushnil(tolua_S); lua_rawset(tolua_S,-3);
  lua_pop(tolua_S,1);
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"dump_hooks");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"add_hook_script");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"del_hook_name");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"pern_dofile");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"mod");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"band");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"bor");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"bxor");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"bshl");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"bshr");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"bnot");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"tome_dofile");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"exec_lua");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"print_hook");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"register_savefile");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"save_number_key");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"adj_mag_study");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"adj_mag_mana");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"adj_mag_fail");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"adj_mag_stat");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"adj_chr_gold");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"adj_int_dev");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"adj_wis_sav");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"adj_dex_dis");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"adj_int_dis");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"adj_dex_ta");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"adj_str_td");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"adj_dex_th");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"adj_str_th");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"adj_str_wgt");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"adj_str_hold");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"adj_str_dig");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"adj_str_blow");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"adj_dex_blow");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"adj_dex_safe");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"adj_con_fix");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"adj_con_mhp");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"repeat_push");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"repeat_pull");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"repeat_check");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"get_count");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"FF1_NO_WALK");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"FF1_NO_VISION");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"FF1_CAN_LEVITATE");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"FF1_CAN_PASS");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"FF1_FLOOR");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"FF1_WALL");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"FF1_PERMANENT");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"FF1_CAN_FLY");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"FF1_REMEMBER");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"FF1_NOTICE");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"FF1_DONT_NOTICE_RUNNING");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"FF1_CAN_RUN");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"FF1_DOOR");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"FF1_SUPPORT_LIGHT");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"FF1_CAN_CLIMB");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"FF1_TUNNELABLE");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"FF1_WEB");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"FF1_ATTR_MULTI");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"cave_type");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"cave_is");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"cave");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"set_target");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"m_allow_special");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"k_allow_special");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"a_allow_special");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"cave_set_feat");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"show_file");
+ lua_getglobals(tolua_S);
+ lua_pushstring(tolua_S,"target_who"); lua_pushnil(tolua_S); lua_rawset(tolua_S,-3);
+ lua_pop(tolua_S,1);
+ lua_getglobals(tolua_S);
+ lua_pushstring(tolua_S,"target_col"); lua_pushnil(tolua_S); lua_rawset(tolua_S,-3);
+ lua_pop(tolua_S,1);
+ lua_getglobals(tolua_S);
+ lua_pushstring(tolua_S,"target_row"); lua_pushnil(tolua_S); lua_rawset(tolua_S,-3);
+ lua_pop(tolua_S,1);
+ lua_getglobals(tolua_S);
+ lua_pushstring(tolua_S,"max_bact"); lua_pushnil(tolua_S); lua_rawset(tolua_S,-3);
+ lua_pop(tolua_S,1);
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"get_map_size");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"load_map");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"alloc_room");

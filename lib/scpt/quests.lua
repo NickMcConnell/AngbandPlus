@@ -12,6 +12,7 @@ end
 __quest_hook = {}
 __quest_callbacks = {}
 __quest_callbacks_max = 0
+__quest_dynamic_desc = {}
 
 function add_quest(q)
 	local i, index, d, z, qq
@@ -24,11 +25,20 @@ function add_quest(q)
         
 	i = new_quest(q.name);
         setglobal(q.global, i)
-        z = 0
-        for index, d in q.desc do
-		quest_desc(i, z, d);
-                z = z + 1
-	end
+
+        -- Make it save & load
+	add_loadsave("quest("..q.global..").status")
+
+        if type(q.desc) == "table" then
+	        z = 0
+        	for index, d in q.desc do
+			quest_desc(i, z, d);
+	                z = z + 1
+		end
+        else
+                __quest_dynamic_desc[i] = q.desc
+                quest(i).dynamic_desc = TRUE
+        end
         quest(i).level = q.level
         if not q.silent then
         	quest(i).silent = FALSE
@@ -44,6 +54,7 @@ function add_quest(q)
         if q.data then
         	for index, d in q.data do
                 	setglobal(index, d)
+		        -- Make it save & load
 	     	        add_loadsave(index)
 	        end
         end

@@ -19,7 +19,7 @@
 
 # Version stamp (required)
 
-V:2.8.1
+V:2.0.0
 
 N:0:Nothing
 C:0:0:0
@@ -105,13 +105,13 @@ N:20:Receive bounty money
 C:0:0:0
 I:39:0:b
 
-N:21:View quest monster
+N:21:Get quest monster
 C:0:0:0
-I:40:0:m
+I:54:0:q
 
 N:22:Turn in quest corpse
 C:0:0:0
-I:41:0:q
+I:55:0:m
 
 N:23:Compare weapons
 C:220:200:180

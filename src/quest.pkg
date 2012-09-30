@@ -1,3 +1,10 @@
+/* File: quest.pkg */
+
+/*
+ * Purpose: Lua interface defitions for quests.
+ * To be processed by tolua to generate C source code.
+ */
+
 $#include "angband.h"
 
 typedef char* cptr;
@@ -20,13 +27,15 @@ typedef unsigned int u32b;
 
 struct quest_type
 {
-        bool silent;
+	bool silent;
 
-        s16b status;            /* Is the quest taken, completed, finished? */
+        bool dynamic_desc;      /* Do we need to ask a function to get the description ? */
+
+	s16b status;            /* Is the quest taken, completed, finished? */
 
 	s16b level;             /* Dungeon level */
 
-        byte type;              /* Lua or C ? */
+	byte type;              /* Lua or C ? */
 };
 
 extern s16b max_q_idx;
@@ -36,3 +45,5 @@ $static quest_type *lua_get_quest(int q_idx){return &quest[q_idx];}
 static quest_type *lua_get_quest @ quest(int q_idx);
 extern s16b    add_new_quest @ new_quest(char *name);
 extern void    desc_quest @ quest_desc(int q_idx, int d, char *desc);
+
+extern int lua_get_new_bounty_monster@get_new_bounty_monster(int lev);

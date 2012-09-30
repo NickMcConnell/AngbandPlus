@@ -5,7 +5,7 @@ Dunedain are a race of hardy men from the West. This elder race surpasses
 human abilities in every field, especially constitution. However, being 
 men of the world, very little is new to them, and levels are very hard for
 them to gain. They can play most classes. Their constitution cannot be 
-reduced.
+reduced and they regain hit points quickly.
 
 #####GStat Modifiers
 Strength        +1   

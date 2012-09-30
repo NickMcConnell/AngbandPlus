@@ -293,8 +293,6 @@ extern int last_paused;
 
 /**** Available Functions ****/
 
-extern char* clean80(int y, char* in, bool color);
-
 extern errr Term_user(int n);
 extern errr Term_xtra(int n, int v);
 
@@ -340,7 +338,9 @@ extern errr Term_key_push(int k);
 extern errr Term_inkey(char *ch, bool wait, bool take);
 
 extern errr Term_save(void);
+extern term_win* Term_save_to(void);
 extern errr Term_load(void);
+extern errr Term_load_from(term_win *save, bool final);
 
 extern errr Term_exchange(void);
 

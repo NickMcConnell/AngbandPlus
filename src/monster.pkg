@@ -1,3 +1,10 @@
+/* File: monster.pkg */
+
+/*
+ * Purpose: Lua interface defitions for monsters.
+ * To be processed by tolua to generate C source code.
+ */
+
 $#include "angband.h"
 
 typedef char* cptr;
@@ -254,6 +261,7 @@ static monster_type lua_monster_forge @ monster_forge;
 #define RF7_NO_TARGET           0x00000800  /* Cannot be targeted */
 #define RF7_AI_ANNOY            0x00001000  /* Try to tease the player */
 #define RF7_AI_SPECIAL          0x00002000  /* For quests */
+#define RF7_NO_THEFT			0x00040000  /* Monster is immune to theft */
 
 
 /*
@@ -299,6 +307,18 @@ static monster_type lua_monster_forge @ monster_forge;
 #define RF9_SPECIAL_GENE        0x00002000      /* The monster can only be generated in special conditions like quests, special dungeons, ... */
 #define RF9_NEVER_GENE          0x00004000      /* The monster cannot be normaly generated */
 
+/*
+ * Special Monster Flags
+ */
+#define MFLAG_VIEW      0x01    /* Monster is in line of sight */
+#define MFLAG_QUEST     0x02    /* Monster is subject to a quest */
+#define MFLAG_PARTIAL   0x04    /* Monster is a partial summon */
+#define MFLAG_CONTROL   0x08    /* Monster is controled */
+#define MFLAG_BORN      0x10    /* Monster is still being born */
+#define MFLAG_NICE      0x20    /* Monster is still being nice */
+#define MFLAG_SHOW      0x40    /* Monster is recently memorized */
+#define MFLAG_MARK      0x80    /* Monster is currently memorized */
+
 struct monster_blow
 {
 	byte method;
@@ -310,7 +330,7 @@ struct monster_blow
 struct monster_race
 {
 	u32b name;				/* Name (offset) */
-        u32b text;                              /* Text (offset) */
+	u32b text;                              /* Text (offset) */
 
 	byte hdice;				/* Creatures hit dice count */
 	byte hside;				/* Creatures hit dice sides */
@@ -323,7 +343,7 @@ struct monster_race
 
 	s32b mexp;				/* Exp value for kill */
 
-        s32b weight;                            /* Weight of the monster */
+	s32b weight;                            /* Weight of the monster */
 
 	byte freq_inate;		/* Inate spell frequency */
 	byte freq_spell;		/* Other spell frequency */
@@ -338,11 +358,11 @@ struct monster_race
 	u32b flags8;			/* Flags 8 (wilderness info) */
 	u32b flags9;			/* Flags 9 (drops info) */
 
-        monster_blow blow[4];           /* Up to four blows per round */
+	monster_blow blow[4];           /* Up to four blows per round */
 
-        byte body_parts[BODY_MAX];      /* To help to decide what to use when body changing */
+	byte body_parts[BODY_MAX];      /* To help to decide what to use when body changing */
 
-        byte level;                     /* Level of creature */
+	byte level;                     /* Level of creature */
 	byte rarity;			/* Rarity of creature */
 
 
@@ -354,7 +374,7 @@ struct monster_race
 	char x_char;			/* Desired monster character */
 
 
-        s16b max_num;                   /* Maximum population allowed per level */
+	s16b max_num;                   /* Maximum population allowed per level */
 
 	byte cur_num;			/* Monster population on current level */
 
@@ -386,21 +406,21 @@ struct monster_race
 	u32b r_flags5;			/* Observed racial flags */
 	u32b r_flags6;			/* Observed racial flags */
 	u32b r_flags7;			/* Observed racial flags */
-        u32b r_flags8;                  /* Observed racial flags */
-        u32b r_flags9;                  /* Observed racial flags */
+	u32b r_flags8;                  /* Observed racial flags */
+	u32b r_flags9;                  /* Observed racial flags */
 
-        bool on_saved;                  /* Is the (unique) on a saved level ? */
+	bool on_saved;                  /* Is the (unique) on a saved level ? */
 
-        byte total_visible;             /* Amount of this race that are visible */
+	byte total_visible;             /* Amount of this race that are visible */
 
-        obj_theme drops;                /* The drops type */
+	obj_theme drops;                /* The drops type */
 };
 
 struct monster_type
 {
 	s16b r_idx;			/* Monster race index */
 
-        u16b ego;                       /* Ego monster type */
+	u16b ego;                       /* Ego monster type */
 
 	byte fy;			/* Y location on map */
 	byte fx;			/* X location on map */
@@ -408,12 +428,12 @@ struct monster_type
 	s16b hp;			/* Current Hit points */
 	s16b maxhp;			/* Max Hit points */
 
-        monster_blow blow[4];           /* Up to four blows per round */
+	monster_blow blow[4];           /* Up to four blows per round */
 
-        byte speed;                     /* Speed (normally 110) */
-        byte level;                     /* Level of creature */
-        s16b ac;                        /* Armour Class */
-        u32b exp;                       /* Experience */
+	byte speed;                     /* Speed (normally 110) */
+	byte level;                     /* Level of creature */
+	s16b ac;                        /* Armour Class */
+	u32b exp;                       /* Experience */
 
 	s16b csleep;		/* Inactive counter */
 
@@ -424,8 +444,8 @@ struct monster_type
 	byte confused;		/* Monster is confused */
 	byte monfear;		/* Monster is afraid */
 
-        s16b bleeding;          /* Monster is bleeding */
-        s16b poisoned;          /* Monster is poisoned */
+	s16b bleeding;          /* Monster is bleeding */
+	s16b poisoned;          /* Monster is poisoned */
 
 	byte cdis;			/* Current dis from player */
 
@@ -437,21 +457,30 @@ struct monster_type
 
 	u32b smart;			/* Field for "smart_learn" */
 
-        s16b status;                    /* Status(friendly, pet, companion, ..) */
+	s16b status;                    /* Status(friendly, pet, companion, ..) */
 
-        s16b target;                    /* Monster target */
+	s16b target;                    /* Monster target */
 
-        s16b possessor;                 /* Is it under the control of a possessor ? */
+	s16b possessor;                 /* Is it under the control of a possessor ? */
 };
 
+$static monster_type *lua_get_monster(int m_idx){return (&m_list[m_idx]);}
+static monster_type *lua_get_monster @ monster(int m_idx);
 extern monster_type m_list[max_m_idx];
 extern monster_race* race_info_idx(int r_idx, int ego);
 extern void delete_monster_idx(int i);
 extern s16b m_pop(void);
 extern errr get_mon_num_prep(void);
 extern s16b get_mon_num(int level);
-extern void monster_desc(char *desc, monster_type *m_ptr, int mode);
+
+$static char *lua_monster_desc(monster_type *m_ptr, int mode){static char buf[200]; monster_desc(buf, m_ptr, mode); return buf;}
+static char *lua_monster_desc @ monster_desc(monster_type *m_ptr, int mode);
+
+$static char *lua_monster_race_desc(int r_idx, int ego){static char buf[200]; monster_race_desc(buf, r_idx, ego); return buf;}
+static char *lua_monster_race_desc @ monster_race_desc(int r_idx, int ego);
+
 extern void monster_race_desc(char *desc, int r_idx, int ego);
+extern void monster_carry(monster_type *m_ptr, int m_idx, object_type *q_ptr);
 extern bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp, int status);
 extern bool place_monster(int y, int x, bool slp, bool grp);
 extern s16b place_monster_one(int y, int x, int r_idx, int ego, bool slp, int status);
@@ -459,5 +488,52 @@ extern int is_friend(monster_type *m_ptr);
 extern bool is_enemy(monster_type *m_ptr, monster_type *t_ptr);
 extern bool change_side(monster_type *m_ptr);
 extern void find_position(int y, int x, int *yy = 0, int *xx = 0);
-extern bool lua_summon_monster @ summon_monster(int y, int x, int lev, bool friend, char *fct);
+extern int summon_specific_level;
+extern bool summon_specific(int y1, int x1, int lev, int type);
+extern bool summon_specific_friendly(int y1, int x1, int lev, int type, bool Group_ok);
+extern bool lua_summon_monster @ summon_monster_aux(int y, int x, int lev, bool friend, char *fct);
 extern bool can_create_companion();
+extern void monster_set_level(int m_idx, int level);
+
+/*
+ * Legal restrictions for "summon_specific()"
+ */
+#define SUMMON_ANT                  11
+#define SUMMON_SPIDER               12
+#define SUMMON_HOUND                13
+#define SUMMON_HYDRA                14
+#define SUMMON_ANGEL                15
+#define SUMMON_DEMON                16
+#define SUMMON_UNDEAD               17
+#define SUMMON_DRAGON               18
+#define SUMMON_HI_UNDEAD            21
+#define SUMMON_HI_DRAGON            22
+#define SUMMON_WRAITH               31
+#define SUMMON_UNIQUE               32
+#define SUMMON_BIZARRE1             33
+#define SUMMON_BIZARRE2             34
+#define SUMMON_BIZARRE3             35
+#define SUMMON_BIZARRE4             36
+#define SUMMON_BIZARRE5             37
+#define SUMMON_BIZARRE6             38
+#define SUMMON_HI_DEMON             39
+#define SUMMON_KIN                  40
+#define SUMMON_DAWN                 41
+#define SUMMON_ANIMAL               42
+#define SUMMON_ANIMAL_RANGER        43
+#define SUMMON_HI_UNDEAD_NO_UNIQUES 44
+#define SUMMON_HI_DRAGON_NO_UNIQUES 45
+#define SUMMON_NO_UNIQUES           46
+#define SUMMON_PHANTOM              47
+#define SUMMON_ELEMENTAL            48
+#define SUMMON_DRAGONRIDER          49
+#define SUMMON_BLUE_HORROR          50
+#define SUMMON_BUG                  51
+#define SUMMON_RNG                  52
+#define SUMMON_MINE                 53
+#define SUMMON_HUMAN                54
+#define SUMMON_SHADOWS              55
+#define SUMMON_GHOST                56
+#define SUMMON_QUYLTHULG            57
+
+extern bool do_control_reconnect();

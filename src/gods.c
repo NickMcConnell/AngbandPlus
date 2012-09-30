@@ -1,0 +1,116 @@
+/* File: gods.c */
+
+/* Purpose: Deities code */
+
+/*
+ * Copyright (c) 2002 DarkGod
+ *
+ * This software may be copied and distributed for educational, research, and
+ * not for profit purposes provided that this copyright and statement are
+ * included in all such copies.
+ */
+
+#include "angband.h"
+
+/*
+ * Add amt piety is god is god
+ */
+void inc_piety(int god, s32b amt)
+{
+        if ((god == GOD_ALL) || (god == p_ptr->pgod))
+                set_grace(p_ptr->grace + amt);
+}
+
+/*
+ * Renounce to religion
+ */
+void abandon_god(int god)
+{
+        if ((god == GOD_ALL) || (god == p_ptr->pgod))
+        {
+                p_ptr->pgod = GOD_NONE;
+                set_grace(0);
+        }
+}
+
+/*
+ * Get a religion
+ */
+void follow_god(int god, bool silent)
+{
+        if (p_ptr->pgod == GOD_NONE)
+        {
+                p_ptr->pgod = god;
+
+                /* Melkor offer Udun magic */
+                GOD(GOD_MELKOR)
+                {
+                        s_info[SKILL_UDUN].hidden = FALSE;
+                        if (!silent) msg_print("You feel the dark powers of melkor in you, you can now use the Udun skill.");
+                }
+        }
+}
+
+/*
+ * Show religious info.
+ */
+bool show_god_info(bool ext)
+{
+	int pgod = p_ptr->pgod;
+	int tmp;
+
+	deity_type *d_ptr;
+
+	if (pgod < 0)
+	{
+		msg_print("You don't worship anyone.");
+		msg_print(NULL);
+		return FALSE;
+	}
+	else
+	{
+                int i;
+
+		d_ptr = &deity_info[pgod];
+
+		msg_print(NULL);
+
+		character_icky = TRUE;
+		Term_save();
+
+                roff(format("You worship %s. ", d_ptr->name));
+                for (i = 0; (i < 10) && (d_ptr->desc[i] != NULL); i++)
+                        roff(d_ptr->desc[i]);
+		roff("\n");
+
+		tmp = inkey();
+
+		Term_load();
+		character_icky = FALSE;
+	}
+
+	return TRUE;
+}
+
+/*
+ * Rescale the wisdom value to a 0 <-> max range
+ */
+int wisdom_scale(int max)
+{
+        int i = p_ptr->stat_ind[A_WIS];
+
+        return (i * max) / 37;
+}
+
+/* Find a god by name */
+int find_god(cptr name)
+{
+        int i;
+
+        for (i = 0; i < MAX_GODS; i++)
+        {
+		/* The name matches */
+                if (streq(deity_info[i].name, name)) return (i);
+        }
+        return -1;
+}

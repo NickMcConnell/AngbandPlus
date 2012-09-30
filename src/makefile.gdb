@@ -29,7 +29,7 @@ OBJS = \
   store.o birth.o wizard1.o wizard2.o bldg.o cmovie.o \
   cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o cmd7.o \
   loadsave.o files.o levels.o notes.o squeltch.o \
-  status.o randart.o \
+  status.o randart.o gods.o skills.o \
   xtra1.o xtra2.o spells1.o spells2.o melee1.o melee2.o \
   object1.o object2.o traps.o monster1.o monster2.o monster3.o \
   variable.o tables.o util.o cave.o ghost.o wild.o powers.o \
@@ -73,17 +73,17 @@ LIBS = -lpc -lalleg $(LUALIBS)
 
 TOLUA = tolua.exe
 
-default: ../tome.bin $(TOLUA)
+default: ../tome.exe $(TOLUA)
 
-release: ../tome.bin
+release: ../tome.exe
 	upx -9 ../tome.exe
 #         copy tome.exe ..
 #         del tome.exe
 
-install: ../tome.bin
+install: ../tome.exe
 #        copy tome.exe ..
 
-all: ../tome.bin
+all: ../tome.exe
 #        @echo All done.  Use 'make install' to install.
 
 $(TOLUA): $(TOLUAOBJS) lua/tolua.c lua/tolualua.c
@@ -94,7 +94,7 @@ $(TOLUA): $(TOLUAOBJS) lua/tolua.c lua/tolualua.c
 # Link executables
 #
 
-../tome.bin: $(OBJS)
+../tome.exe: $(OBJS)
 	$(CC) $(CFLAGS) -o $@ $(OBJS) $(LIBS)
 
 

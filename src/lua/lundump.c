@@ -1,5 +1,5 @@
 /*
-** $Id: lundump.c,v 1.1.1.1 2002/02/23 21:39:09 darkgod Exp $
+** $Id: lundump.c,v 1.3 2001/11/26 23:00:26 darkgod Exp $
 ** load bytecodes from files
 ** See Copyright Notice in lua.h
 */

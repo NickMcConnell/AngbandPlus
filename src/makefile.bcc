@@ -42,7 +42,7 @@ CCOPTS = -jb -j1 -Hc -tW -lGn -w- \
 	-DUSE_TRANSPARENCY -DUSE_EGO_GRAPHICS -DSUPPORT_GAMMA \
 	-I$(BCCDIR)\include -I. -Ilua -DUSE_LUA \
 	-DUSE_SOCK -DUSE_WINSOCK \
-        -DIRC_SERVER=\"irc.worldirc.org\" -DIRC_PORT=\"6667\" -DIRC_CHANNEL=\"\#*bandirc\"
+        -DIRC_SERVER=\"irc.worldirc.org\" -DIRC_PORT=\"6667\" -DIRC_CHANNEL=\"\#angband\"
 
 # Compile flags:
 CPPFLAGS= $(CCOPTS) $(DBGOPT)
@@ -50,6 +50,8 @@ CPPFLAGS= $(CCOPTS) $(DBGOPT)
 ######################## Targets ##################################
 
 OBJ = \
+	gods.obj \
+        skills.obj \
         irc.obj \
 	birth.obj \
 	bldg.obj \

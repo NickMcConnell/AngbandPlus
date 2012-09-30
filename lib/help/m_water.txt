@@ -1,0 +1,21 @@
+|||||oy
+#####R === ToME Magic - Water School ===
+
+The water school of magic contains spells where the the element of water is 
+used to create the final spell effect. There are rumours of a "Tome of the 
+Everrunning Wave" which contains all the water school spells within it's 
+bindings.
+
+#####GWater Spells
+The are three spells available for the water school. These Spells are:
+1. [[[[[BEnt's Potion] (school level 6)
+   Fills up your stomach (i.e. satify hunger).
+   At spell level 5 it boldens your heart (boldness).
+   At level 12 it make you heroic.
+2. [[[[[BTidal Wave] (school level 16)
+   Summons a monstruous tidal wave that will expand and crush monsters under
+   it's mighty waves.
+3. [[[[[BIce Storm] (school level 20)
+   Engulfs you in a storm of roaring cold that strikes your foes.
+   At spell level 10 it turns into shards of ice.
+

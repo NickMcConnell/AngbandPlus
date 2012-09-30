@@ -24,7 +24,7 @@
 # Comment out this line if you don't want Lua scripting
 LUA=TRUE
 
-IRCARGS = -DUSE_SOCK -DUSE_WINSOCK -DIRC_SERVER=\"irc.worldirc.org\" -DIRC_PORT=\"6667\" -DIRC_CHANNEL=\"\#*bandirc\"
+IRCARGS = -DUSE_SOCK -DUSE_WINSOCK -DIRC_SERVER=\"irc.worldirc.org\" -DIRC_PORT=\"6667\" -DIRC_CHANNEL=\"\#angband\"
 
 
 
@@ -43,16 +43,16 @@ IRCARGS = -DUSE_SOCK -DUSE_WINSOCK -DIRC_SERVER=\"irc.worldirc.org\" -DIRC_PORT=
 ##
 
 # Where lib/ files goes
-#LIBDIR = /usr/lib/games/tome/
+#LIBDIR = /usr/lib/games/pernband/
 # Sysadmins of commercial Unix and/or BSD might prefer this
-#LIBDIR = /usr/local/lib/tome/
+#LIBDIR = /usr/local/lib/pernband/
 # If you like the old default, use this one
 LIBDIR = ./lib/
 # Another example: single user installation using absolute path
-#LIBDIR = /home/myloginname/lib/tome/
+#LIBDIR = /home/myloginname/lib/pern/
 
 
-# Where T.o.M.E. binary goes
+# Where PernAngband binary goes
 #BINDIR = /usr/local/games
 # Another common location
 #BINDIR = /usr/local/bin
@@ -276,11 +276,11 @@ BASESRCS = \
   melee1.c melee2.c loadsave.c files.c \
   cmd1.c cmd2.c cmd3.c cmd4.c cmd5.c cmd6.c cmd7.c \
   store.c birth.c notes.c help.c \
-  status.c randart.c \
+  status.c randart.c gods.c \
   wizard1.c wizard2.c levels.c ghost.c \
   generate.c dungeon.c init1.c init2.c \
   bldg.c squeltch.c wild.c powers.c plots.c \
-  irc.c \
+  irc.c skills.c \
   readdib.c angband.rc main-win.c main.c
 
 BASEOBJS = \
@@ -289,7 +289,7 @@ BASEOBJS = \
   store.o birth.o wizard1.o wizard2.o bldg.o cmovie.o \
   cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o cmd7.o \
   loadsave.o files.o levels.o notes.o squeltch.o \
-  status.o randart.o irc.o \
+  status.o randart.o irc.o skills.o gods.o \
   xtra1.o xtra2.o spells1.o spells2.o melee1.o melee2.o \
   object1.o object2.o traps.o monster1.o monster2.o monster3.o \
   variable.o tables.o util.o cave.o ghost.o wild.o powers.o \

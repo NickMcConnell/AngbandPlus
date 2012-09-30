@@ -60,6 +60,7 @@ bool arg_sound;				/* Command arg -- Request special sounds */
 bool arg_graphics;			/* Command arg -- Request graphics mode */
 bool arg_force_original;	/* Command arg -- Request original keyset */
 bool arg_force_roguelike;	/* Command arg -- Request roguelike keyset */
+bool arg_bigtile = FALSE;	/* Command arg -- Request big tile mode */
 
 /*
  * Various things
@@ -120,9 +121,11 @@ bool wizard;			/* Is the player currently in Wizard mode? */
 
 bool use_sound;			/* The "sound" mode is enabled */
 bool use_graphics;		/* The "graphics" mode is enabled */
+bool use_bigtile = FALSE;
 byte graphics_mode;		/* Current graphics mode */
 
 u16b total_winner;		/* Semi-Hack -- Game has been won */
+u16b has_won;              /* Semi-Hack -- Game has been won */
 
 u16b panic_save;		/* Track some special "conditions" */
 u16b noscore;			/* Track various "cheating" conditions */
@@ -214,6 +217,7 @@ bool find_examine;			/* Run into potential corners */
 bool disturb_move;			/* Disturb whenever any monster moves */
 bool disturb_near;			/* Disturb whenever viewable monster moves */
 bool disturb_panel;			/* Disturb whenever map panel changes */
+bool disturb_detect;		/* Disturb whenever leaving trap-detected area */
 bool disturb_state;			/* Disturn whenever player state changes */
 bool disturb_minor;			/* Disturb whenever boring things happen */
 bool disturb_other;			/* Disturb whenever various things happen */
@@ -225,7 +229,9 @@ bool speak_unique;		/* Speaking uniques + shopkeepers */
 bool small_levels;		/* Allow unusually small dungeon levels */
 bool empty_levels;		/* Allow empty 'arena' levels */
 bool always_small_level;        /* Small levels */
+#if 0 /* It's controlled by insanity -- pelpel */
 bool flavored_attacks;          /* Show silly messages when fighting */
+#endif
 bool player_symbols;		/* Use varying symbols for the player char */
 bool plain_descriptions;	/* Plain object descriptions */
 bool stupid_monsters;		/* Monsters use old AI */
@@ -249,6 +255,8 @@ bool expand_list;			/* Expand the power of the list commands */
 
 bool view_perma_grids;		/* Map remembers all perma-lit grids */
 bool view_torch_grids;		/* Map remembers all torch-lit grids */
+
+bool monster_lite;			/* Allow some monsters to carry light */
 
 bool dungeon_align;			/* Generate dungeons with aligned rooms */
 bool dungeon_stair;			/* Generate dungeons with connected stairs */
@@ -336,6 +344,15 @@ s16b max_panel_rows, max_panel_cols;
 s16b panel_row_min, panel_row_max;
 s16b panel_col_min, panel_col_max;
 s16b panel_col_prt, panel_row_prt;
+
+/*
+ * Dungeon graphics info
+ * Why the first two are byte and the rest s16b???
+ */
+byte feat_wall_outer = FEAT_WALL_OUTER;	/* Outer wall of rooms */
+byte feat_wall_inner = FEAT_WALL_INNER;	/* Inner wall of rooms */
+s16b floor_type[100];	/* Dungeon floor */
+s16b fill_type[100];	/* Dungeon filler */
 
 /*
  * Player location in dungeon
@@ -531,7 +548,7 @@ term *angband_term[ANGBAND_TERM_MAX];
  */
 char angband_term_name[8][16] =
 {
-	"Tome",
+	"ToME",
 	"Mirror",
 	"Recall",
 	"Choice",
@@ -682,7 +699,7 @@ u16b max_real_towns;
 /*
  * The towns [max_towns]
  */
-town_type *town;
+town_type *town_info;
 
 
 /*
@@ -762,6 +779,7 @@ player_sex *sp_ptr;
 player_race *rp_ptr;
 player_race_mod *rmp_ptr;
 player_class *cp_ptr;
+player_spec *spp_ptr;
 
 
 /*
@@ -770,8 +788,6 @@ player_class *cp_ptr;
 u32b spell_learned[MAX_REALM][2];   /* bit mask of spells learned */
 u32b spell_worked[MAX_REALM][2];    /* bit mask of spells tried and worked */
 u32b spell_forgotten[MAX_REALM][2]; /* bit mask of spells learned but forgotten */
-byte spell_order[64];               /* order spells learned/remembered/forgotten */
-byte realm_order[64];               /* order realms learned/remembered/forgotten */
 byte spell_level[MAX_REALM][64];    /* spell levels */
 
 
@@ -868,6 +884,14 @@ header *d_head;
 dungeon_info_type *d_info;
 char *d_name;
 char *d_text;
+
+/*
+ * Player skills arrays
+ */
+header *s_head;
+skill_type *s_info;
+char *s_name;
+char *s_text;
 
 /*
  * Player race arrays
@@ -1045,6 +1069,14 @@ cptr ANGBAND_DIR_XTRA;
 cptr ANGBAND_DIR_CMOV;
 
 /*
+ * Some variables values are created on the fly XXX XXX
+ */
+
+char pref_tmp_value[8];
+
+
+
+/*
  * Total Hack -- allow all items to be listed (even empty ones)
  * This is only used by "do_cmd_inven_e()" and is cleared there.
  */
@@ -1118,6 +1150,12 @@ u16b max_wild_y;
  */
 wilderness_map **wild_map;
 
+
+/*
+ * Maximum number of skills in s_info.txt
+ */
+u16b old_max_s_idx = 0;
+u16b max_s_idx;
 
 /*
  * Maximum number of monsters in r_info.txt
@@ -1241,6 +1279,12 @@ random_artifact random_artifacts[MAX_RANDARTS];
 s16b bounties[MAX_BOUNTIES][2];
 
 /*
+ * Spell description
+ */
+bool info_spell = FALSE;
+char spell_txt[50];
+
+/*
  * Random spells.
  */
 random_spell random_spells[MAX_SPELLS];
@@ -1279,9 +1323,6 @@ s16b *max_dlv;
  * Number of total bounties the player had had.
  */
 u32b total_bounties;
-
-/* The real realm array */
-magic_type realm_info[MAX_REALM][64];
 
 /* The Doppleganger index in m_list */
 s16b doppleganger;
@@ -1373,11 +1414,6 @@ bool generate_special_feeling = FALSE;
 bool auto_more;
 
 /*
- * hack -- do not use player defined char/attr to record movies
- */
-bool hack_map_info_default = FALSE;
-
-/*
  * Dungeon flags
  */
 s32b dungeon_flags1;
@@ -1414,3 +1450,43 @@ quest_type *quest;
  * Display the player as a special symbol when in bad health ?
  */
 bool player_char_health;
+
+
+/*
+ * The spell list of schools
+ */
+s16b max_spells;
+spell_type *school_spells;
+s16b max_schools;
+school_type *schools;
+
+/*
+ * Lasting spell effects
+ */
+int project_time = 0;
+s32b project_time_effect = 0;
+effect_type effects[MAX_EFFECTS];
+
+/*
+ * General skills set
+ */
+char gen_skill_basem[MAX_SKILLS];
+u32b gen_skill_base[MAX_SKILLS];
+char gen_skill_modm[MAX_SKILLS];
+s16b gen_skill_mod[MAX_SKILLS];
+
+/*
+ * Display stats as linear
+ */
+bool linear_stats;
+
+/*
+ * Table of "cli" macros.
+ */
+cli_comm *cli_info;
+int cli_total = 0;
+
+/*
+ * max_bact, only used so that lua scripts can add new bacts without worrying about the numbers
+ */
+int max_bact = 54;

@@ -38,16 +38,19 @@
 ##
 ## Before you type "make depend; make", please follow these three steps.
 ##
-## 1. Lua-support and GNU Make ifdef's
+## 1. Support for Lua scripting, builtin IRC client support and
+##    GNU Make ifdef's
 ##
 ## The ifdef ... endif struct may not be supported by 'make'
 ## you are using.  GNU make does and Berkeley make doesn't, for example.
 ## If it doesn't, you can still manually enable/disable them with minimum
 ## amount of effort:
+##
 ## If you are using Berkeley make, substitute .ifdef for ifdef
 ## and .endif for endif
-## If your make doesn't seem to have such construct, then
-## (1) Search for lines containing ifdef and endif (one occurence for each)
+##
+## If your make doesn't seem to understand such construct, then
+## (1) Search for lines containing ifdef and endif
 ## (2) Comment these lines out
 ## (3-optional) Comment out lines surrounded by these if you are
 ##     *not* going to compile the game with Lua scripting enabled.
@@ -56,7 +59,8 @@
 # Comment out this line if you don't want Lua scripting
 LUA=TRUE
 
-IRCARGS = -DUSE_SOCK -DUSE_UNIXSOCK -DIRC_SERVER=\"irc.worldirc.org\" -DIRC_PORT=\"6667\" -DIRC_CHANNEL=\"\#*bandirc\"
+# Comment out this line if you don't want the IRC support
+IRC=TRUE
 
 
 ##
@@ -83,7 +87,7 @@ LIBDIR = /usr/lib/games/tome/
 #LIBDIR = /home/myloginname/lib/tome/
 
 
-# Where T.o.M.E. binary goes
+# Where PernAngband binary goes
 BINDIR = /usr/local/games
 # Another common location
 #BINDIR = /usr/local/bin
@@ -144,7 +148,8 @@ CC = gcc
 #
 COPTS = -Wall -O1 -pipe -g
 INCLUDES = -I/usr/X11R6/include
-DEFINES = -DUSE_X11 -DUSE_GCU -DSUPPORT_GAMMA
+DEFINES = -DUSE_X11 -DUSE_GCU \
+	-DUSE_EGO_GRAPHICS -DUSE_TRANSPARENCY -DSUPPORT_GAMMA
 LIBS = -lX11 -lcurses -L/usr/X11R6/lib
 
 
@@ -153,15 +158,15 @@ LIBS = -lX11 -lcurses -L/usr/X11R6/lib
 ##
 #COPTS = -Wall -O1 -pipe -g
 #INCLUDES = `gtk-config --cflags`
-#DEFINES = -DUSE_GTK -DUSE_TRANSPARENCY -DSUPPORT_GAMMA
-#LIBS = -lX11 -L/usr/X11R6/lib `gtk-config --libs`
+#DEFINES = -DUSE_GTK -DUSE_TRANSPARENCY -DUSE_EGO_GRAPHICS -DSUPPORT_GAMMA
+#LIBS = `gtk-config --libs`
 
 #
 # Variation -- Only support "main-x11.c" (not "main-gcu.c")
 #
 #COPTS = -Wall -O1 -pipe -g
-#INCLUDES =
-#DEFINES = -DUSE_X11
+#INCLUDES = -I/usr/X11R6/include
+#DEFINES = -DUSE_X11 -DUSE_TRANSPARENCY -DUSE_EGO_GRAPHICS -DSUPPORT_GAMMA
 #LIBS = -lX11 -L/usr/X11R6/lib
 
 
@@ -178,8 +183,9 @@ LIBS = -lX11 -lcurses -L/usr/X11R6/lib
 ## Variation -- Use "main-xaw.c" instead of "main-x11.c"
 ##
 #COPTS = -Wall -O1 -pipe -g
-#INCLUDES =
-#DEFINES = -DUSE_XAW -DUSE_GCU
+#INCLUDES = -I/usr/X11R6/include
+#DEFINES = -DUSE_XAW -DUSE_GCU \
+#	-DUSE_TRANSPARENCY -DUSE_EGO_GRAPHICS -DSUPPORT_GAMMA
 #LIBS = -lXaw -lXmu -lXt -lX11 -lcurses -ltermcap -L/usr/X11R6/lib
 
 
@@ -187,8 +193,9 @@ LIBS = -lX11 -lcurses -L/usr/X11R6/lib
 ## Variation -- Use "main-cap.c" instead of "main-gcu.c"
 ##
 #COPTS = -Wall -O1 -pipe -g
-#INCLUDES =
-#DEFINES = -DUSE_X11 -DUSE_CAP
+#INCLUDES = -I/usr/X11R6/include
+#DEFINES = -DUSE_X11 -DUSE_CAP \
+#	-DUSE_TRANSPARENCY -DUSE_EGO_GRAPHICS -DSUPPORT_GAMMA
 #LIBS = -lX11 -ltermcap
 
 
@@ -205,8 +212,9 @@ LIBS = -lX11 -lcurses -L/usr/X11R6/lib
 ##
 #COPTS = -Wall -O2 -fomit-frame-pointer -m486
 #INCLUDES = -I/usr/X11R6/include -I/usr/include/ncurses
-#DEFINES = -DUSE_X11 -DUSE_GCU
-#LIBS = -L/usr/X11R6/lib -lX11 -lncurses
+#DEFINES = -DUSE_X11 -DUSE_GCU \
+#	-DUSE_TRANSPARENCY -DUSE_EGO_GRAPHICS -DSUPPORT_GAMMA
+#LIBS = -lX11 -lncurses -L/usr/X11R6/lib
 
 
 ##
@@ -214,8 +222,9 @@ LIBS = -lX11 -lcurses -L/usr/X11R6/lib
 ##
 #COPTS = -Wall -O2 -fomit-frame-pointer
 #INCLUDES = -I/usr/X11R6/include -I/usr/include/ncurses
-#DEFINES = -DUSE_X11 -DUSE_GCU -DUSE_TPOSIX -DUSE_CURS_SET
-#LIBS = -lX11 -lncurses
+#DEFINES = -DUSE_X11 -DUSE_GCU -DUSE_TPOSIX -DUSE_CURS_SET \
+#	-DUSE_TRANSPARENCY -DUSE_EGO_GRAPHICS -DSUPPORT_GAMMA
+#LIBS = -lX11 -lncurses -L/usr/X11R6/lib
 #LDFLAGS = -s
 
 
@@ -225,8 +234,9 @@ LIBS = -lX11 -lcurses -L/usr/X11R6/lib
 ##
 #COPTS = -Wall -O2 -fomit-frame-pointer -m486
 #INCLUDES = -I/usr/X11R6/include
-#DEFINES = -DUSE_X11 -DUSE_GCU -DUSE_NCURSES
-#LIBS = -L/usr/X11R6/lib -lX11 -lncurses
+#DEFINES = -DUSE_X11 -DUSE_GCU -DUSE_NCURSES \
+#	-DUSE_TRANSPARENCY -DUSE_EGO_GRAPHICS -DSUPPORT_GAMMA
+#LIBS = -lX11 -lncurses -L/usr/X11R6/lib
 
 
 ##
@@ -234,16 +244,19 @@ LIBS = -lX11 -lcurses -L/usr/X11R6/lib
 ##
 #COPTS = -Wall -O1 -pipe -g
 #INCLUDES =
-#DEFINES = -DUSE_X11 -DUSE_GCU -DSOLARIS
+#DEFINES = -DUSE_X11 -DUSE_GCU -DSOLARIS \
+#	-DUSE_TRANSPARENCY -DUSE_EGO_GRAPHICS -DSUPPORT_GAMMA
 #LIBS = -lX11 -lsocket -lcurses
 
 
 ##
 ## Variation -- compile for SGI Indigo runnig Irix
+## The SGI has hardware gamma correction.
 ##
 #COPTS = -Wall -O1 -pipe -g
 #INCLUDES =
-#DEFINES = -DUSE_X11 -DUSE_GCU -DSGI
+#DEFINES = -DUSE_X11 -DUSE_GCU -DSGI \
+#	-DUSE_TRANSPARENCY -DUSE_EGO_GRAPHICS
 #LIBS = -lX11 -lcurses -ltermcap -lsun
 
 
@@ -255,7 +268,8 @@ LIBS = -lX11 -lcurses -L/usr/X11R6/lib
 ##COPTS = -std -O -g3 -Olimit 4000
 #COPTS = -std -g
 #INCLUDES =
-#DEFINES = -DUSE_X11 -DUSE_GCU
+#DEFINES = -DUSE_X11 -DUSE_GCU \
+#	-DUSE_TRANSPARENCY -DUSE_EGO_GRAPHICS -DSUPPORT_GAMMA
 #LIBS   = -lX11 -lcurses -ltermcap -lrpcsvc
 
 
@@ -264,7 +278,8 @@ LIBS = -lX11 -lcurses -L/usr/X11R6/lib
 ##
 #COPTS = -Wall -O1 -pipe -g
 #INCLUDES =
-#DEFINES = -DUSE_X11 -DUSE_GCU -DISC
+#DEFINES = -DUSE_X11 -DUSE_GCU -DISC \
+#	-DUSE_TRANSPARENCY -DUSE_EGO_GRAPHICS -DSUPPORT_GAMMA
 #LIBS = -lX11 -lcurses -lnsl_s -linet -lcposix
 
 
@@ -284,30 +299,36 @@ LIBS = -lX11 -lcurses -L/usr/X11R6/lib
 #
 
 BASESRCS = \
-  z-util.c z-virt.c z-form.c z-rand.c z-term.c \
-  variable.c tables.c util.c cave.c cmovie.c \
-  object1.c object2.c traps.c monster1.c monster2.c monster3.c \
-  xtra1.c xtra2.c spells1.c spells2.c \
-  melee1.c melee2.c loadsave.c files.c \
+  main-gtk.c main-gcu.c main-x11.c main-xaw.c \
+  z-rand.c z-util.c z-form.c z-virt.c z-term.c \
+  variable.c tables.c plots.c util.c cave.c dungeon.c \
+  melee1.c melee2.c \
+  object1.c object2.c randart.c squeltch.c traps.c \
+  monster1.c monster2.c monster3.c ghost.c \
+  xtra1.c xtra2.c skills.c powers.c gods.c \
+  spells1.c spells2.c \
+  status.c files.c notes.c loadsave.c \
   cmd1.c cmd2.c cmd3.c cmd4.c cmd5.c cmd6.c cmd7.c \
-  store.c birth.c notes.c help.c \
-  status.c randart.c \
-  wizard1.c wizard2.c levels.c ghost.c \
-  generate.c dungeon.c init1.c init2.c \
-  bldg.c squeltch.c wild.c powers.c plots.c \
-  main-gtk.c main-cap.c main-gcu.c main-x11.c main-xaw.c main.c irc.c
+  help.c \
+  generate.c wild.c levels.c store.c bldg.c \
+  cmovie.c irc.c \
+  wizard2.c init2.c birth.c wizard1.c init1.c main.c 
 
 BASEOBJS = \
-  main-gtk.o main.o main-gcu.o main-x11.o main-xaw.o \
-  generate.o dungeon.o init1.o init2.o plots.o help.o \
-  store.o birth.o wizard1.o wizard2.o bldg.o cmovie.o \
+  main-gtk.o main-gcu.o main-x11.o main-xaw.o \
+  z-rand.o z-util.o z-form.o z-virt.o z-term.o \
+  variable.o tables.o plots.o util.o cave.o dungeon.o \
+  melee1.o melee2.o \
+  object1.o object2.o randart.o squeltch.o traps.o \
+  monster1.o monster2.o monster3.o ghost.o \
+  xtra1.o xtra2.o skills.o powers.o gods.o \
+  spells1.o spells2.o \
+  status.o files.o notes.o loadsave.o \
   cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o cmd7.o \
-  loadsave.o files.o levels.o notes.o squeltch.o \
-  status.o randart.o \
-  xtra1.o xtra2.o spells1.o spells2.o melee1.o melee2.o \
-  object1.o object2.o traps.o monster1.o monster2.o monster3.o \
-  variable.o tables.o util.o cave.o ghost.o wild.o powers.o \
-  z-term.o z-rand.o z-form.o z-virt.o z-util.o irc.o
+  help.o \
+  generate.o wild.o levels.o store.o bldg.o \
+  cmovie.o irc.o \
+  wizard2.o init2.o birth.o wizard1.o init1.o main.o 
 
 LUASRCS = \
   script.c lua_bind.c \
@@ -345,32 +366,56 @@ OBJS = $(BASEOBJS)
 # Compiler options
 #
 
-CFLAGS = $(COPTS) $(INCLUDES) $(DEFINES) -DDEFAULT_PATH=\"$(LIBDIR)\" $(IRCARGS)
+CFLAGS = $(COPTS) $(INCLUDES) $(DEFINES) -DDEFAULT_PATH=\"$(LIBDIR)\"
 
 
 #
 # Lua support
 #
 
-LUAFLAGS = -DUSE_LUA -Ilua -I.
-
 ifdef LUA
-SRCS += $(LUASRCS)
-OBJS += $(LUAOBJS)
-SRCS += $(TOLUASRCS)
-OBJS += $(TOLUAOBJS)
-CFLAGS += $(LUAFLAGS)
+
+INCLUDES += -Ilua -I.
+DEFINES += -DUSE_LUA
+SRCS = $(LUASRCS) $(TOLUASRCS) $(BASESRCS)
+OBJS = $(LUAOBJS) $(TOLUAOBJS) $(BASEOBJS)
+
+# Force recreation of stub files when lua source files are updated
+# To be included in dependency rules
+TOLUADEP = $(TOLUASRCS) lua/tolua.c lua/tolualua.c
+
 endif
 
 
 #
+# IRC support
+#
+
+ifdef IRC
+
+IRC_SERVER=irc.worldirc.org
+IRC_PORT=6667
+IRC_CHANNEL=\#angband
+
+DEFINES += \
+	-DUSE_SOCK -DUSE_UNIXSOCK \
+	-DIRC_SERVER=\"$(IRC_SERVER)\" \
+	-DIRC_PORT=\"$(IRC_PORT)\" \
+	-DIRC_CHANNEL=\"$(IRC_CHANNEL)\"
+
+endif
+
+
 # Build the binary. The new base target.
 #
 
 TARGET = tome
-TOLUA = ./tolua
 
-default: $(TARGET) $(TOLUA)
+ifdef LUA
+TOLUA = ./tolua
+endif
+
+default: $(TOLUA) $(TARGET)
 	@echo "*** Note: In order to use the install rule, which now actually"
 	@echo "*** handles the installation of the library dir, you need to edit"
 	@echo "*** this makefile, going to the top and making sure LIBDIR suits"
@@ -439,28 +484,29 @@ plots.o: q_rand.c q_main.c q_one.c \
 #
 
 ifdef LUA
-w_mnster.c: monster.pkg $(TOLUA)
+
+w_mnster.c: monster.pkg $(TOLUADEP)
 	$(TOLUA) -n monster -o w_mnster.c monster.pkg
 
-w_player.c: player.pkg $(TOLUA)
+w_player.c: player.pkg $(TOLUADEP)
 	$(TOLUA) -n player -o w_player.c player.pkg
 
-w_play_c.c: player_c.pkg $(TOLUA)
+w_play_c.c: player_c.pkg $(TOLUADEP)
 	$(TOLUA) -n player_c -o w_play_c.c player_c.pkg
 
-w_z_pack.c: z_pack.pkg $(TOLUA)
+w_z_pack.c: z_pack.pkg $(TOLUADEP)
 	$(TOLUA) -n z_pack -o w_z_pack.c z_pack.pkg
 
-w_obj.c: object.pkg $(TOLUA)
+w_obj.c: object.pkg $(TOLUADEP)
 	$(TOLUA) -n object -o w_obj.c object.pkg
 
-w_util.c: util.pkg $(TOLUA)
+w_util.c: util.pkg $(TOLUADEP)
 	$(TOLUA) -n util -o w_util.c util.pkg
 
-w_spells.c: spells.pkg $(TOLUA)
+w_spells.c: spells.pkg $(TOLUADEP)
 	$(TOLUA) -n spells -o w_spells.c spells.pkg
 
-w_quest.c: quest.pkg $(TOLUA)
+w_quest.c: quest.pkg $(TOLUADEP)
 	$(TOLUA) -n quest -o w_quest.c quest.pkg
 
 endif

@@ -64,29 +64,39 @@ extern unsigned _ovrbuffer = 0x1500;
 #ifdef PRIVATE_USER_PATH
 
 /*
- * Check existence of ".tome/" directory in the user's
+ * Check existence of ".ToME/" directory in the user's
  * home directory or try to create it if it doesn't exist.
  * Returns FALSE if all the attempts fail.
  */
 static bool check_create_user_dir(void)
 {
 	char dirpath[1024];
-	struct stat stat_buf; /* Is this used anywhere else in *bands? */
+
+	/* Is this used anywhere else in *bands? */
+	struct stat stat_buf;
+
 	int ret;
+
 
 	/* Get an absolute path from the filename */
 	path_parse(dirpath, 1024, PRIVATE_USER_PATH);
 
-	/* See if it already exists */
+
+	/* Become user -- it's still running suid */
 	safe_setuid_drop();
+
+	/* See if it already exists */
 	ret = stat(dirpath, &stat_buf);
-	safe_setuid_grab();
+
 
 	/* It does */
 	if (ret == 0)
 	{
 		/* Now we see if it's a directory */
 		if ((stat_buf.st_mode & S_IFMT) == S_IFDIR) return (TRUE);
+
+		/* Become game */
+		safe_setuid_grab();
 
 		/*
 		 * Something prevents us from create a directory with
@@ -98,9 +108,10 @@ static bool check_create_user_dir(void)
 	/* No - this maybe the first time. Try to create a directory */
 	else
 	{
-		/* Create the ~/.tome directory */
-		safe_setuid_drop();
+                /* Create the ~/.ToME directory */
 		ret = mkdir(dirpath, 0700);
+
+		/* Become game */
 		safe_setuid_grab();
 
 		/* An error occured */
@@ -484,8 +495,8 @@ int main(int argc, char *argv[])
 			{
 				if (!argv[i][2]) goto usage;
 				strcpy(player_name, &argv[i][2]);
-                                strcpy(player_base, &argv[i][2]);
-                                no_begin_screen = TRUE;
+				strcpy(player_base, &argv[i][2]);
+				no_begin_screen = TRUE;
 				break;
 			}
 
@@ -497,30 +508,31 @@ int main(int argc, char *argv[])
 				break;
 			}
 
-                        case 'h':
-                        case 'H':
+			case 'h':
+			case 'H':
 			{
-                                char *s;
-                                int j;
+				char *s;
+				int j;
 
-                                for (j = i + 1; j < argc; j++)
-                                {
-                                        s = argv[j];
+                                init_lua();
+				for (j = i + 1; j < argc; j++)
+				{
+					s = argv[j];
 
-                                        while (*s != '.') s++;
-                                        *s = '\0'; s++;
-                                        txt_to_html(argv[j], s, FALSE, FALSE);
-                                }
+					while (*s != '.') s++;
+					*s = '\0'; s++;
+					txt_to_html("head.aux", "foot.aux", argv[j], s, FALSE, FALSE);
+				}
 
-                                return 0;
+				return 0;
 			}
 
-                        case 'c':
-                        case 'C':
+			case 'c':
+			case 'C':
 			{
-                                chg_to_txt(argv[i + 1], argv[i + 2]);
+				chg_to_txt(argv[i + 1], argv[i + 2]);
 
-                                return 0;
+				return 0;
 			}
 
 			case 'd':
@@ -542,25 +554,103 @@ int main(int argc, char *argv[])
 			default:
 			usage:
 			{
-                                int j;
+				int j;
 
 				/* Dump usage information */
-                                for (j = 0; j < argc; j++) printf("%s ", argv[j]);
-                                printf("\n");
+				for (j = 0; j < argc; j++) printf("%s ", argv[j]);
+				printf("\n");
 				puts("Usage: angband [options] [-- subopts]");
-                                puts("  -n                 Start a new character");
-                                puts("  -f                 Request fiddle mode");
-                                puts("  -w                 Request wizard mode");
-                                puts("  -v                 Request sound mode");
-                                puts("  -g                 Request graphics mode");
-                                puts("  -o                 Request original keyset");
-                                puts("  -r                 Request rogue-like keyset");
-                                puts("  -h <list of files> Convert helpfile to htlm");
-                                puts("  -c f1 f2           Convert changelog f1 to nice txt f2");
-                                puts("  -s<num>            Show <num> high scores");
-                                puts("  -u<who>            Use your <who> savefile");
-                                puts("  -m<sys>            Force 'main-<sys>.c' usage");
-                                puts("  -d<def>            Define a 'lib' dir sub-path");
+				puts("  -n                 Start a new character");
+				puts("  -f                 Request fiddle mode");
+				puts("  -w                 Request wizard mode");
+				puts("  -v                 Request sound mode");
+				puts("  -g                 Request graphics mode");
+				puts("  -o                 Request original keyset");
+				puts("  -r                 Request rogue-like keyset");
+				puts("  -h <list of files> Convert helpfile to htlm");
+				puts("  -c f1 f2           Convert changelog f1 to nice txt f2");
+				puts("  -s<num>            Show <num> high scores");
+				puts("  -u<who>            Use your <who> savefile");
+				puts("  -m<sys>            Force 'main-<sys>.c' usage");
+				puts("  -d<def>            Define a 'lib' dir sub-path");
+
+#ifdef USE_GTK
+				puts("  -mgtk              To use GTK");
+				puts("  --                 Sub options");
+				puts("  -- -n#             Number of terms to use");
+				puts("  -- -b              Turn off software backing store");
+# ifdef USE_GRAPHICS
+				puts("  -- -s              Turn off smoothscaling graphics");
+				puts("  -- -o              Requests \"old\" graphics");
+				puts("  -- -g              Requests \"new\" graphics");
+				puts("  -- -t              Enable transparency effect");
+# endif /* USE_GRAPHICS */
+#endif /* USE_GTK */
+
+#ifdef USE_XAW
+				puts("  -mxaw              To use XAW");
+				puts("  --                 Sub options");
+				puts("  -- -n#             Number of terms to use");
+				puts("  -- -d<name>        Display to use");
+# ifdef USE_GRAPHICS
+				puts("  -- -s              Turn off smoothscaling graphics");
+				puts("  -- -o              Requests \"old\" graphics");
+# endif /* USE_GRAPHICS */
+#endif /* USE_XAW */
+
+#ifdef USE_X11
+				puts("  -mx11              To use X11");
+				puts("  --                 Sub options");
+				puts("  -- -n#             Number of terms to use");
+				puts("  -- -d<name>        Display to use");
+# ifdef USE_GRAPHICS
+				puts("  -- -s              Turn off smoothscaling graphics");
+				puts("  -- -o              Requests \"old\" graphics");
+				puts("  -- -b              Requests double-width tiles");
+# endif /* USE_GRAPHICS */
+#endif /* USE_X11 */
+
+#ifdef USE_GCU
+				puts("  -mgcu              To use curses");
+				puts("  --                 Sub options");
+				puts("  -- -b              Requests big screen");
+#endif /* USE_GCU */
+
+#ifdef USE_CAP
+				puts("  -mcap              To use termcap");
+#endif /* USE_CAP */
+
+#ifdef USE_DOS
+				puts("  -mdos              To use Allegro");
+#endif /* USE_DOS */
+
+#ifdef USE_IBM
+				puts("  -mibm              To use IBM/PC console");
+#endif /* USE_IBM */
+
+#ifdef USE_EMX
+				puts("  -memx              To use EMX");
+#endif /* USE_EMX */
+
+#ifdef USE_SLA
+				puts("  -msla              To use SLang");
+#endif /* USE_SLA */
+
+#ifdef USE_LSL
+				puts("  -mlsl              To use SVGALIB");
+#endif /* USE_LSL */
+
+#ifdef USE_AMI
+				puts("  -mami              To use Amiga");
+#endif /* USE_AMI */
+
+#ifdef USE_VME
+				puts("  -mvme              To use VM/ESA");
+#endif /* USE_VME */
+
+#ifdef USE_SDL
+				puts("  -msdl              To use SDL");
+#endif /* USE_SDL */
 
 				/* Actually abort the process */
 				quit(NULL);
@@ -577,7 +667,7 @@ int main(int argc, char *argv[])
 
 
 	/* Process the player name */
-        process_player_name(TRUE);
+	process_player_name(TRUE);
 
 
 
@@ -764,8 +854,23 @@ int main(int argc, char *argv[])
 	}
 #endif
 
+
+#ifdef USE_SDL
+	/* Attempt to use the "main-sdl.c" support */
+	if (!done && (!mstr || (streq(mstr, "sdl"))))
+	{
+		extern errr init_sdl(int, char**);
+		if (0 == init_sdl(argc, argv))
+		{
+			ANGBAND_SYS = "sdl";
+			done = TRUE;
+		}
+	}
+#endif
+
 	/* Make sure we have a display! */
 	if (!done) quit("Unable to prepare any 'display module'!");
+
 
 	/* Catch nasty signals */
 	signals_init();

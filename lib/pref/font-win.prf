@@ -94,8 +94,8 @@ F:172:4/31
 # Underground Tunnel (slate / solid block)
 F:173:2/127
 
-# lava wall (light red / solid block)
-F:177:12/127
+# lava wall (white / solid block) -- indistinguishable from normal granite
+F:177:1/127
 
 # glass wall (light blue / centered dot)
 F:188:14/31
@@ -197,7 +197,7 @@ R:247:1/31
 # Landmine (white / centered dot)
 R:333:1/31
 
-# It (light slate /centered dot)
+# It (light slate / centered dot)
 R:393:9/31
 
 # Chaos tile (purple / centered dot)
