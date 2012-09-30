@@ -29,8 +29,6 @@
  *	#include <sys/types.h>
  *	#include <sys/stat.h>
  *	#endif CHECK_MODIFICATION_TIME
- *
- * Support for Carbon is not in the code and the project file XXX XXX
  */
 
 #if defined(__MWERKS__)
@@ -45,6 +43,20 @@
  * Activate the Macintosh-specific code
  */
 #define MACINTOSH
+
+/*
+ * PernAngband specific main-xxx.c features
+ */
+/* We have in-game savefile chooser */
+#define SAVEFILE_SCREEN
+/* We have Angband 2.8.1-style reset_visuals() */
+#define ANG281_RESET_VISUALS
+/* We support transparency effect, but don't have use_transparency variable */
+#define NO_USE_TRANSPARENCY_VAR
+/* Creator code */
+#define ANGBAND_CREATOR 'PrnA'
+/* Preferences file name */
+#define ANGBAND_PREFERENCES "PernAngband Preferences"
 
 /*
  * Activate transparency effect for 16x16 tileset.

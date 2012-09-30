@@ -149,6 +149,10 @@ static bool player_handle_trap_of_walls(void)
             cy = py+dy;
             if (!in_bounds(cy, cx)) continue;
             cv_ptr = &cave[cy][cx];
+
+// DGDGDGDG
+            if (cv_ptr->m_idx) continue;
+
             /* Lose room and vault */
             cv_ptr->info &= ~(CAVE_ROOM | CAVE_ICKY);
             /* Lose light and knowledge */
@@ -232,13 +236,17 @@ static bool player_handle_trap_of_walls(void)
                   if (sn)
                   {
                      s16b m_idx = cave[cy][cx].m_idx;
+
                      /* Update the new location */
                      cave[sy][sx].m_idx = m_idx;
+
                      /* Update the old location */
                      cave[cy][cx].m_idx = 0;
+
                      /* Move the monster */
                      m_ptr->fy = sy;
                      m_ptr->fx = sx;
+
                      /* do not change fz */
                      /* don't make rock on that square! */
                      if ( (sx>=(px-2)) &&
@@ -250,8 +258,10 @@ static bool player_handle_trap_of_walls(void)
                      }
                      /* Update the monster (new location) */
                      update_mon(m_idx, TRUE);
+
                      /* Redraw the old grid */
                      lite_spot(cy, cx);
+
                      /* Redraw the new grid */
                      lite_spot(sy, sx);
                   } /* if sn */
@@ -1723,7 +1733,7 @@ static bool item_tester_hook_potion(object_type *o_ptr)
  */
 void do_cmd_set_trap(void)                
 {
-	int item_kit, item_load;
+        int item_kit, item_load, i;
 	int num;
 
 	object_type *o_ptr, *j_ptr, *i_ptr;
@@ -1851,15 +1861,19 @@ void do_cmd_set_trap(void)
 
 	/* Modify, Describe, Optimize */
 	inven_item_increase(item_kit, -1);
-        if (!o_ptr->number) item_load--;
 	inven_item_describe(item_kit);
-	inven_item_optimize(item_kit);
-
-	/* Modify, Describe, Optimize */
 	inven_item_increase(item_load, -num);
 	inven_item_describe(item_load);
-	inven_item_optimize(item_load);
-				                             
+
+        for (i = 0; i < INVEN_WIELD; i++)
+        {
+                if (inven_item_optimize(i)) break;
+        }
+        for (i = 0; i < INVEN_WIELD; i++)
+        {
+                inven_item_optimize(i);
+        }
+
 	/* Actually set the trap */
 	cave_set_feat(py, px, FEAT_MON_TRAP);
 }
@@ -2572,6 +2586,7 @@ bool mon_hit_trap(int m_idx)
 	bool remove = FALSE;
 	bool dead = FALSE;
 	bool fear = FALSE;
+        s32b special = 0;
 
 	int dam, chance, shots;
         int mul = 0;
@@ -2771,7 +2786,7 @@ bool mon_hit_trap(int m_idx)
 	                                	}
                                         	
                                         	/* Apply slays, brand, critical hits */
-        					dam = tot_dam_aux(load_o_ptr, dam, m_ptr);
+                                                dam = tot_dam_aux(load_o_ptr, dam, m_ptr, &special);
 						dam = critical_shot(load_o_ptr->weight, load_o_ptr->to_h, dam);
 						
 						/* No negative damage */
@@ -2789,7 +2804,9 @@ bool mon_hit_trap(int m_idx)
 						{
 							/* Message */
 							message_pain(m_idx, dam);
-	
+
+                                                        if (special) attack_special(m_ptr, special, dam);
+
 							/* Take note */
 							if (fear && m_ptr->ml)
 							{
@@ -2971,7 +2988,7 @@ bool mon_hit_trap(int m_idx)
 	}
 
 	/* Special trap effect -- teleport to */
-	if ((f2 & TRAP2_TELEPORT_TO) && !disarm)
+        if ((f2 & TRAP2_TELEPORT_TO) && (!disarm) && (!dead))
 	{
                 teleport_monster_to(m_idx, py, px);
 	}

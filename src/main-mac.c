@@ -66,10 +66,10 @@
  *
  * Important Resources in the resource file:
  *
- *   FREF 130 = 'PrnA' / 'APPL' (application)
- *   FREF 129 = 'PrnA' / 'SAVE' (save file)
- *   FREF 130 = 'PrnA' / 'TEXT' (bone file, generic text file)
- *   FREF 131 = 'PrnA' / 'DATA' (binary image file, score file)
+ *   FREF 130 = ANGBAND_CREATOR / 'APPL' (application)
+ *   FREF 129 = ANGBAND_CREATOR / 'SAVE' (save file)
+ *   FREF 130 = ANGBAND_CREATOR / 'TEXT' (bone file, generic text file)
+ *   FREF 131 = ANGBAND_CREATOR / 'DATA' (binary image file, score file)
  *
  *   DLOG 128 = "About Angband..."
  *
@@ -93,7 +93,8 @@
  *   PICT 1002 = Graphics tile set (16x16 images)
  *   PICT 1003 = Graphics tile set (16x16 masks)
  *
- * Note: pictRows need to be adjusted when tile set(s) is/are updated. 
+ * Note: You can no longer use the exit menu unless you build the programme
+ *       with an appropriate compile-time option.
  *
  *
  * File name patterns:
@@ -144,13 +145,35 @@
 
 #include "angband.h"
 
-/*
- * Activate PernAngband-specific codes
- */
-#define PERNANGBAND
-
 
 #ifdef MACINTOSH
+
+/*
+ * Variant-dependent features:
+ *
+ * #define ALLOW_BIG_SCREEN (O and Z. Dr's big screen needs more work)
+ * #define ANG281_RESET_VISUALS (Cth, Gum, Pern, Z)
+ * #define SAVEFILE_SCREEN (Pern)
+ * #define AUTO_SAVE_ARG_REQUIRED (O and Z)
+ * #define ANGBAND_PREFERENCES "_your_variant_name_ Preferences"
+ * #define ANGBAND_CREATOR four letter code for your variant, if any.
+ *  or use the default one.
+ *
+ * If a variant supports transparency effect for 16x16 tiles but doesn't
+ * have variable use_transparency in the code (i.e. Pern), then
+ * #define NO_USE_TRANSPARENCY_VAR
+ */
+
+/* Default creator signature */
+# ifndef ANGBAND_CREATOR
+#  define ANGBAND_CREATOR 'A271'
+# endif
+
+/* Default preferences file name */
+# ifndef ANGBAND_PREFERENCES
+#  define ANGBAND_PREFERENCES "Angband Preferences"
+# endif
+
 
 #include <Types.h>
 #include <Gestalt.h>
@@ -359,10 +382,16 @@ static bool initialized = FALSE;
 
 
 
+#ifdef ALLOW_QUITING
+
 /*
  * CodeWarrior uses Universal Procedure Pointers
  */
 static ModalFilterUPP ynfilterUPP;
+
+#endif /* ALLOW_QUITING */
+
+
 
 #ifdef USE_SFL_CODE
 
@@ -375,7 +404,6 @@ AEEventHandlerUPP AEH_Print_UPP;
 AEEventHandlerUPP AEH_Open_UPP;
 
 #endif
-
 
 
 
@@ -712,9 +740,30 @@ static void term_data_check_font(term_data *td)
  */
 static void term_data_check_size(term_data *td)
 {
-	/* Minimal window size */
-	if (td->cols < 1) td->cols = 1;
-	if (td->rows < 1) td->rows = 1;
+	/* Minimal window size for the Angband window */
+	if (td == &data[0])
+	{
+#ifdef ALLOW_BIG_SCREEN
+
+		/* Enforce minimal size */
+		if (td->cols < 80) td->cols = 80;
+		if (td->rows < 24) td->rows = 24;
+
+#else
+
+		/* Enforce the traditional size */
+		if (td->cols != 80) td->cols = 80;
+		if (td->rows != 24) td->rows = 24;
+
+#endif /* ALLOW_BIG_SCREEN */
+	}
+	
+	/* Allow small windows for the rest */
+	else
+	{
+		if (td->cols < 1) td->cols = 1;
+		if (td->rows < 1) td->rows = 1;
+	}
 
 	/* Minimal tile size */
 	if (td->tile_wid < 4) td->tile_wid = 4;
@@ -844,19 +893,21 @@ static void term_data_redraw(term_data *td)
  * Constants
  */
 
-static int pictID = 1001;						/* 8x8 tiles; 16x16 tiles are 1002 */
-static int maskID = 1001;						/* 8x8 tiles; 16x16 tiles are 1003 */
+static int pictID = 1001;				/* 8x8 tiles; 16x16 tiles are 1002 */
+static int maskID = 1001;				/* 8x8 tiles; 16x16 tiles are 1003 */
 
-static int grafWidth = 8;						/* Always equal to grafHeight */
-static int grafHeight = 8;						/* Either 8 or 16 */
+static int grafWidth = 8;				/* Always equal to grafHeight */
+static int grafHeight = 8;				/* Either 8 or 16 */
 
-static int pictCols = 32;						/* Never changed */
-static int pictRows = 79;						/* 16x16 tiles are 71 rows */
+static int pictCols;					/* Number of columns in tiles */
+static int pictRows;					/* Number of rows in tiles */
 
 #define kMaxChannels 10
 
-static bool arg_transparency;					/* "Fake" arg for tile support */
+static bool arg_transparency;			/* "Fake" arg for tile support */
+#ifdef NO_USE_TRANSPARENCY_VAR
 static bool use_transparency;	
+#endif /* NO_USE_TRANSPARENCY_VAR */
 
 /*
  * Forward Declare
@@ -879,10 +930,6 @@ struct FrameRec
 	GWorldPtr		maskPort;
 	PixMapHandle	maskPixHndl;
 	PixMapPtr		maskPix;
-
-	GWorldPtr		bufferPort;
-	PixMapHandle	bufferPixHndl;
-	PixMapPtr		bufferPix;
 };
 
 
@@ -910,12 +957,6 @@ static void BenSWLockFrame(FrameRec *srcFrameP)
 	HLockHi((Handle)pixMapH);
 	srcFrameP->maskPixHndl = pixMapH;
 	srcFrameP->maskPix = (PixMapPtr)StripAddress(*(Handle)pixMapH);
-
-	pixMapH = GetGWorldPixMap(srcFrameP->bufferPort);
-	(void)LockPixels(pixMapH);
-	HLockHi((Handle)pixMapH);
-	srcFrameP->bufferPixHndl = pixMapH;
-	srcFrameP->bufferPix = (PixMapPtr)StripAddress(*(Handle)pixMapH);
 }
 
 
@@ -939,14 +980,6 @@ static void BenSWUnlockFrame(FrameRec *srcFrameP)
 	}
 
 	srcFrameP->maskPix = NULL;
-
-	if (srcFrameP->bufferPort != NULL)
-	{
-		HUnlock((Handle)srcFrameP->bufferPixHndl);
-		UnlockPixels(srcFrameP->bufferPixHndl);
-	}
-
-	srcFrameP->bufferPix = NULL;
 }
 
 
@@ -954,7 +987,6 @@ static void BenSWUnlockFrame(FrameRec *srcFrameP)
 static OSErr BenSWCreateGWorldFromPict(
 	GWorldPtr *pictGWorld,
 	GWorldPtr *maskGWorld,
-	GWorldPtr *bufferGWorld,
 	PicHandle pictH,
 	PicHandle maskH)
 {
@@ -981,6 +1013,10 @@ static OSErr BenSWCreateGWorldFromPict(
 		/* Obtain size rectangle */
 		pictRect = (**pictH).picFrame;
 		OffsetRect(&pictRect, -pictRect.left, -pictRect.top);
+
+		/* Calculate and set numbers of rows and columns */
+		pictRows = pictRect.bottom / grafHeight;
+		pictCols = pictRect.right / grafWidth;
 
 		/* Create a GWorld */
 		err = NewGWorld(&tempGWorld, depth, &pictRect, nil,
@@ -1056,40 +1092,6 @@ static OSErr BenSWCreateGWorldFromPict(
 		SetGWorld(saveGWorld, saveGDevice);
 	}
 
-	{
-		tempGWorld = NULL;
-
-		/* Reset */
-		*bufferGWorld = NULL;
-
-		/* Get depth */
-		depth = data[0].pixelDepth;
-
-		/* Get GDH */
-		theGDH = data[0].theGDH;
-
-		/* Obtain size rectangle */
-		pictRect.left = 0;
-		pictRect.right = SCREEN_WID * grafWidth;
-		pictRect.top = 0;
-		pictRect.bottom = SCREEN_HGT * grafHeight;
-
-		OffsetRect(&pictRect, -pictRect.left, -pictRect.top);
-
-		/* Create a GWorld */
-		err = NewGWorld(&tempGWorld, depth, &pictRect, nil,
-						theGDH, noNewDevice);
-
-		/* Success */
-		if (err != noErr)
-		{
-			return (err);
-		}
-
-		/* Save pointer */
-		*bufferGWorld = tempGWorld;
-	}
-
 	/* Success */
 	return (0);
 }
@@ -1104,7 +1106,6 @@ static errr globe_init(void)
 
 	GWorldPtr tempPictGWorldP;
 	GWorldPtr tempPictMaskGWorldP;
-	GWorldPtr tempPictBufferGWorldP;
 
 	PicHandle newPictH;
 	PicHandle newMaskH;
@@ -1127,7 +1128,6 @@ static errr globe_init(void)
 		/* Create GWorld */
 		err = BenSWCreateGWorldFromPict(&tempPictGWorldP,
 		                                &tempPictMaskGWorldP,
-		                                &tempPictBufferGWorldP,
 		                                newPictH,
 		                                newMaskH);
 
@@ -1150,7 +1150,6 @@ static errr globe_init(void)
 				/* Save GWorld */
 				frameP->framePort = tempPictGWorldP;
 				frameP->maskPort = tempPictMaskGWorldP;
-				frameP->bufferPort = tempPictBufferGWorldP;
 
 				/* Lock it */
 				BenSWLockFrame(frameP);
@@ -1177,7 +1176,6 @@ static errr globe_nuke(void)
 		/* Dispose of the GWorld */
 		DisposeGWorld(frameP->framePort);
 		DisposeGWorld(frameP->maskPort);
-		DisposeGWorld(frameP->bufferPort);
 
 		/* Dispose of the memory */
 		DisposePtr((Ptr)frameP);
@@ -1406,11 +1404,11 @@ static errr Term_xtra_mac_react(void)
 		term_data_resize(td);
 
 		/* Reset visuals */
-#ifdef PERNANGBAND
+#ifdef ANG281_RESET_VISUALS
 		reset_visuals();
-#else /* PERNANGBAND */
+#else /* ANG281_RESET_VISUALS */
 		reset_visuals(TRUE);
-#endif /* PERNANGBAND */
+#endif /* ANG281_RESET_VISUALS */
 	}
 
 	/* Handle graphics */
@@ -1433,11 +1431,11 @@ static errr Term_xtra_mac_react(void)
 		term_data_resize(td);
 
 		/* Reset visuals */
-#ifdef PERNANGBAND
+#ifdef ANG281_RESET_VISUALS
 		reset_visuals();
-#else /* PERNANGBAND */
+#else /* ANG281_RESET_VISUALS */
 		reset_visuals(TRUE);
-#endif /* PERNANGBAND */
+#endif /* ANG281_RESET_VISUALS */
 	}
 
 #endif /* ANGBAND_LITE_MAC */
@@ -1568,7 +1566,7 @@ static errr Term_xtra_mac(int n, int v)
 		case TERM_XTRA_BORED:
 		{
 			/* Process an event */
-			(void)CheckEvents(0);
+			(void)CheckEvents(FALSE);
 
 			/* Success */
 			return (0);
@@ -2256,7 +2254,7 @@ static void init_windows(void)
 			ptocstr((StringPtr)foo);
 
 			/* Append the preference file name */
-			strcat(foo, "PernAngband Preferences");
+			strcat(foo, ANGBAND_PREFERENCES);
 
 			/* Open the preference file */
 			fff = fopen(foo, "r");
@@ -2279,8 +2277,8 @@ static void init_windows(void)
 		SetVol(0, env.sysVRefNum);
 
 		/* Open the file */
-		fff = fopen(":Preferences:PernAngband Preferences", "r");
-		if (!fff) fff = fopen(":PernAngband Preferences", "r");
+		fff = fopen(":Preferences:" ANGBAND_PREFERENCES, "r");
+		if (!fff) fff = fopen(":" ANGBAND_PREFERENCES, "r");
 
 		/* Restore */
 		HSetVol(0, savev, saved);
@@ -2370,7 +2368,7 @@ static void save_pref_file(void)
 			ptocstr((StringPtr)foo);
 
 			/* Append the preference file name */
-			strcat(foo, "PernAngband Preferences");
+			strcat(foo, ANGBAND_PREFERENCES);
 
 			/* Open the preference file */
 			fff = fopen(foo, "w");
@@ -2393,8 +2391,8 @@ static void save_pref_file(void)
 		SetVol(0, env.sysVRefNum);
 
 		/* Open the preference file */
-		fff = fopen(":Preferences:PernAngband Preferences", "w");
-		if (!fff) fff = fopen(":PernAngband Preferences", "w");
+		fff = fopen(":Preferences:" ANGBAND_PREFERENCES, "w");
+		if (!fff) fff = fopen(":" ANGBAND_PREFERENCES, "w");
 
 		/* Restore */
 		HSetVol(0, savev, saved);
@@ -2412,6 +2410,8 @@ static void save_pref_file(void)
 }
 
 
+
+#ifdef ALLOW_QUITING
 
 /*
  * A simple "Yes/No" filter to parse "key press" events in dialog windows
@@ -2458,12 +2458,11 @@ static pascal Boolean ynfilter(DialogPtr dialog, EventRecord *event, short *ip)
 	return (0);
 }
 
-#ifndef PERNANGBAND
+#endif /* ALLOW_QUITING */
 
-/*
- * Save game loading menus are made obsolete by
- * DG's in-game savefile menu screen.
- */
+
+
+#ifndef SAVEFILE_SCREEN
 
 /*
  * Handle menu: "File" + "New"
@@ -2584,7 +2583,7 @@ static void do_menu_file_open(bool all)
 	quit(NULL);
 }
 
-#endif /* !PERNANGBAND */
+#endif /* !SAVEFILE_SCREEN */
 
 
 /*
@@ -2607,12 +2606,12 @@ static void handle_open_when_ready(void)
 		/* Flush input */
 		flush();
 
-#ifdef PERNANGBAND
+#ifdef SAVEFILE_SCREEN
 
 		/* User double-clicked savefile; no savefile screen */
 		no_begin_screen = TRUE;
 
-#endif /* PERNANGBAND */
+#endif /* SAVEFILE_SCREEN */
 
 		/* Play a game */
 		play_game(FALSE);
@@ -2898,7 +2897,7 @@ static void setup_menus(void)
 		CheckItem(m, i, FALSE);
 	}
 
-#ifndef PERNANGBAND
+#ifndef SAVEFILE_SCREEN
 
 	/* Enable "new"/"open..."/"import..." */
 	if (initialized && !game_in_progress)
@@ -2920,11 +2919,15 @@ static void setup_menus(void)
 		EnableItem(m, 5);
 	}
 
+#ifdef ALLOW_QUITING */
+
 	/* Enable "exit" */
 	if (TRUE)
 	{
 		EnableItem(m, 7);
 	}
+
+#endif /* ALLOW_QUITING */
 
 	/* Enable "quit" */
 	if (!initialized || !character_generated || inkey_flag)
@@ -2932,7 +2935,7 @@ static void setup_menus(void)
 		EnableItem(m, 8);
 	}
 
-#else /* DG's new savefile screen system */
+#else /* In-game savefile handling */
 
 	/* Enable "close" */
 	if (initialized)
@@ -2946,11 +2949,15 @@ static void setup_menus(void)
 		EnableItem(m, 2);
 	}
 
+#ifdef ALLOW_QUITING
+
 	/* Enable "exit" */
 	if (TRUE)
 	{
 		EnableItem(m, 4);
 	}
+
+#endif /* ALLOW_QUITING */
 
 	/* Enable "quit" */
 	if (!initialized || !character_generated || inkey_flag)
@@ -2958,7 +2965,7 @@ static void setup_menus(void)
 		EnableItem(m, 5);
 	}
 
-#endif /* !PERNANGBAND */
+#endif /* !SAVEFILE_SCREEN */
 
 
 	/* Edit menu */
@@ -3264,7 +3271,7 @@ static void menu(long mc)
 		{
 			switch (selection)
 			{
-#ifndef PERNANGBAND
+#ifndef SAVEFILE_SCREEN
 
 				/* New */
 				case 1:
@@ -3312,10 +3319,16 @@ static void menu(long mc)
 					msg_flag = FALSE;
 
 					/* Hack -- Save the game */
+#ifndef AUTO_SAVE_ARG_REQUIRED
 					do_cmd_save_game();
+#else
+					do_cmd_save_game(FALSE);
+#endif /* !AUTO_SAVE_ARG_REQUIRED */
 
 					break;
 				}
+
+#ifdef ALLOW_QUITING
 
 				/* Exit (without save) */
 				case 7:
@@ -3345,6 +3358,8 @@ static void menu(long mc)
 					break;
 				}
 
+#endif /* ALLOW_QUITING */
+
 				/* Quit (with save) */
 				case 8:
 				{
@@ -3355,7 +3370,11 @@ static void menu(long mc)
 						msg_flag = FALSE;
 
 						/* Save the game */
+#ifndef AUTO_SAVE_ARG_REQUIRED
 						do_cmd_save_game();
+#else
+						do_cmd_save_game(FALSE);
+#endif /* !AUTO_SAVE_ARG_REQUIRED */
 					}
 
 					/* Quit */
@@ -3363,7 +3382,7 @@ static void menu(long mc)
 					break;
 				}
 
-#else /* DG's new savefile screen */
+#else /* In-game savefile handling */
 
 				/* Close */
 				case 1:
@@ -3390,10 +3409,16 @@ static void menu(long mc)
 					msg_flag = FALSE;
 
 					/* Hack -- Save the game */
+#ifndef AUTO_SAVE_ARG_REQUIRED
 					do_cmd_save_game();
+#else
+					do_cmd_save_game(FALSE);
+#endif /* !AUTO_SAVE_ARG_REQUIRED */
 
 					break;
 				}
+
+#ifdef ALLOW_QUITING
 
 				/* Exit (without save) */
 				case 4:
@@ -3423,6 +3448,8 @@ static void menu(long mc)
 					break;
 				}
 
+#endif /* ALLOW_QUITING */
+
 				/* Quit (with save) */
 				case 5:
 				{
@@ -3433,7 +3460,11 @@ static void menu(long mc)
 						msg_flag = FALSE;
 
 						/* Save the game */
+#ifndef AUTO_SAVE_ARG_REQUIRED
 						do_cmd_save_game();
+#else
+						do_cmd_save_game(FALSE);
+#endif /* !AUTO_SAVE_ARG_REQUIRED */
 					}
 
 					/* Quit */
@@ -3441,7 +3472,7 @@ static void menu(long mc)
 					break;
 				}
 
-#endif /* !PERNANGBAND */
+#endif /* !SAVEFILE_SCREEN */
 
 			}
 			break;
@@ -3670,7 +3701,6 @@ static void menu(long mc)
 						pictID = 1002;
 						maskID = 1003;
 						grafWidth = grafHeight = 16;
-						pictRows = 71;
 					}
 					else
 					{
@@ -3679,7 +3709,6 @@ static void menu(long mc)
 						pictID = 1001;
 						maskID = 1001;
 						grafWidth = grafHeight = 8;
-						pictRows = 79;
 					}
 
 					/* Hack -- Force redraw */
@@ -3914,6 +3943,8 @@ static pascal OSErr AEH_Open(AppleEvent *theAppleEvent,
  * 0-7:82-89
  * 8-9:91-92
  *
+ * backslash/vertical bar (Japanese keyboard):93
+ *
  * F5: 96
  * F6: 97
  * F7: 98
@@ -4060,7 +4091,7 @@ static bool CheckEvents(bool wait)
 				setup_menus();
 
 				/* Mega-Hack -- allow easy exit if nothing to save */
-				if (!character_generated && (ch=='Q' || ch=='q')) ch = 'e';
+				/* if (!character_generated && (ch=='Q' || ch=='q')) ch = 'e'; */
 
 				/* Run the Menu-Handler */
 				menu(MenuKey(ch));
@@ -4077,7 +4108,7 @@ static bool CheckEvents(bool wait)
 			ObscureCursor();
 
 			/* Normal key -> simple keypress */
-			if (ck < 64)
+			if ((ck < 64) || (ck == 93))
 			{
 				/* Enqueue the keypress */
 				Term_keypress(ch);
@@ -4095,11 +4126,11 @@ static bool CheckEvents(bool wait)
 				/* Send the "keypad" modifier */
 				Term_keypress('K');
 
-				/* Terminate the trigger */
-				Term_keypress(13);
-
 				/* Send the "ascii" keypress */
 				Term_keypress(ch);
+
+				/* Terminate the trigger */
+				Term_keypress(13);
 			}
 
 			/* Bizarre key -> encoded keypress */
@@ -4225,11 +4256,23 @@ static bool CheckEvents(bool wait)
 					/* Oops */
 					if (!td) break;
 
+#ifndef ALLOW_BIG_SCREEN
+
 					/* Fake rectangle */
 					r.left = 20 * td->tile_wid + td->size_ow1;
 					r.right = 80 * td->tile_wid + td->size_ow1 + td->size_ow2 + 1;
 					r.top = 1 * td->tile_hgt + td->size_oh1;
 					r.bottom = 24 * td->tile_hgt + td->size_oh1 + td->size_oh2 + 1;
+
+#else /* ALLOW_BIG_SCREEN */
+
+					/* Fake rectangle */
+					r.left = 20 * td->tile_wid + td->size_ow1;
+					r.right = qd.screenBits.bounds.right;
+					r.top = 1 * td->tile_hgt + td->size_oh1;
+					r.bottom = qd.screenBits.bounds.bottom;
+
+#endif /* ALLOW_BIG_SCREEN */
 
 					/* Grow the rectangle */
 					newsize = GrowWindow(w, event.where, &r);
@@ -4735,7 +4778,7 @@ int main(void)
 #if defined(MACINTOSH) && !defined(applec)
 
 	/* Mark ourself as the file creator */
-	_fcreator = 'PrnA';
+	_fcreator = ANGBAND_CREATOR;
 
 	/* Default to saving a "text" file */
 	_ftype = 'TEXT';
@@ -4743,12 +4786,12 @@ int main(void)
 #endif
 
 
-#if defined(__MWERKS__)
+#if defined(ALLOW_QUITING) && defined(__MWERKS__)
 
 	/* Obtian a "Universal Procedure Pointer" */
 	ynfilterUPP = NewModalFilterProc(ynfilter);
 
-#endif
+#endif /* ALLOW_QUITING && __MWERKS__ */
 
 
 	/* Hook in some "z-virt.c" hooks */
@@ -4820,7 +4863,7 @@ int main(void)
 	/* Handle "open_when_ready" */
 	handle_open_when_ready();
 
-#ifndef PERNANGBAND
+#ifndef SAVEFILE_SCREEN
 
 	/* Prompt the user */
 	prt("[Choose 'New' or 'Open' from the 'File' menu]", 23, 15);
@@ -4848,7 +4891,7 @@ int main(void)
 	/* Quit */
 	quit(NULL);
 
-#endif /* !PERNANGBAND */
+#endif /* !SAVEFILE_SCREEN */
 }
 
 #endif /* MACINTOSH */

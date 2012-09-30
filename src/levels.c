@@ -16,6 +16,7 @@
 /*
  * Return the parameter of the given command in the given file
  */
+static int start_line = 0;
 bool get_command(const char *file, char comm, char *param)
 {
 	char buf[1024];
@@ -43,10 +44,12 @@ bool get_command(const char *file, char comm, char *param)
 		if (!buf[0] || (buf[0] == '#')) continue;
 
                 /* Is it the command we are looking for ? */
-                if (buf[0] == comm)
+                if ((i > start_line) && (buf[0] == comm))
 		{
 			/* Acquire the text */
 			s = buf+2;
+
+                        start_line = i;
 
                         /* Get the parameter */
                         strcpy(param, s);
@@ -77,6 +80,7 @@ int get_branch()
         sprintf(file, "dun%d.%d", dungeon_type, dun_level - d_info[dungeon_type].mindepth);
 
         /* Get and return the branch */
+        start_line = 0;
         if (get_command(file, 'B', buf)) return (atoi(buf));
 
         /* No branch ? return 0 */
@@ -93,7 +97,8 @@ int get_fbranch()
         sprintf(file, "dun%d.%d", dungeon_type, dun_level - d_info[dungeon_type].mindepth);
 
         /* Get and return the branch */
-        if (get_command(file, 'F', buf)) return (atoi(buf));
+        start_line = 0;
+        if (get_command(file, 'A', buf)) return (atoi(buf));
 
         /* No branch ? return 0 */
         else return 0;
@@ -109,6 +114,7 @@ int get_flevel()
         sprintf(file, "dun%d.%d", dungeon_type, dun_level - d_info[dungeon_type].mindepth);
 
         /* Get and return the level */
+        start_line = 0;
         if (get_command(file, 'L', buf)) return (atoi(buf));
 
         /* No level ? return 0 */
@@ -125,6 +131,152 @@ bool get_dungeon_save(char *buf)
         sprintf(file, "dun%d.%d", dungeon_type, dun_level - d_info[dungeon_type].mindepth);
 
         /* Get and return the level */
+        start_line = 0;
         if (get_command(file, 'S', buf)) return (TRUE);
+        else return FALSE;
+}
+
+/*
+ * Return the special level
+ */
+bool get_dungeon_special(char *buf)
+{
+        char file[20];
+
+        sprintf(file, "dun%d.%d", dungeon_type, dun_level - d_info[dungeon_type].mindepth);
+
+        /* Get and return the level */
+        start_line = 0;
+        if (get_command(file, 'U', buf)) return (TRUE);
+        else return FALSE;
+}
+
+/*
+ * Return the special level name
+ */
+bool get_dungeon_name(char *buf)
+{
+        char file[20];
+
+        sprintf(file, "dun%d.%d", dungeon_type, dun_level - d_info[dungeon_type].mindepth);
+
+        /* Get and return the level */
+        start_line = 0;
+        if (get_command(file, 'N', buf)) return (TRUE);
+        else return FALSE;
+}
+
+/*
+ * Level flags
+ */
+static cptr level_flags1[] =
+{
+        "NO_TELEPORT",
+        "ASK_LEAVE",
+        "NO_STAIR",
+        "SPECIAL",
+        "NO_NEW_MONSTER",
+        "DESC",
+        "NO_GENO",
+        "XXX3",
+        "XXX3",
+        "XXX3",
+        "XXX3",
+        "XXX3",
+	"XXX3",
+        "XXX3",
+        "XXX3",
+        "XXX3",
+        "XXX3",
+        "XXX3",
+        "XXX3",
+        "XXX3",
+        "XXX3",
+        "XXX3",
+        "XXX3",
+        "XXX3",
+        "XXX3",
+        "XXX3",
+        "XXX3",
+        "XXX3",
+        "XXX3",
+        "XXX3",
+        "XXX3",
+        "XXX3",
+};
+
+/*
+ * Grab one level flag from a textual string
+ */
+static errr grab_one_level_flag(cptr what)
+{
+	int i;
+
+	/* Check flags1 */
+	for (i = 0; i < 32; i++)
+	{
+                if (streq(what, level_flags1[i]))
+		{
+                        dungeon_flags1 |= (1L << i);
+			return (0);
+		}
+	}
+
+	/* Oops */
+        msg_format("Unknown level flag '%s'.", what);
+
+	/* Error */
+	return (1);
+}
+
+/*
+ * Return the special level name
+ */
+void get_level_flags()
+{
+        char file[20];
+        char buf[1024], *s, *t;
+
+        sprintf(file, "dun%d.%d", dungeon_type, dun_level - d_info[dungeon_type].mindepth);
+
+        start_line = 0;
+
+        /* Parse until done */
+        while (get_command(file, 'F', buf))
+        {
+                /* Parse every entry textually */
+                for (s = buf; *s; )
+                {
+                        /* Find the end of this entry */
+                        for (t = s; *t && (*t != ' ') && (*t != '|'); ++t) /* loop */;
+
+                        /* Nuke and skip any dividers */
+                        if (*t)
+                        {
+                                *t++ = '\0';
+                                while (*t == ' ' || *t == '|') t++;
+                        }
+
+                        /* Parse this entry */
+                        if (0 != grab_one_level_flag(s)) return;
+
+                        /* Start the next entry */
+                        s = t;
+                }
+        }
+}
+
+/*
+ * Return the special level desc
+ */
+bool get_level_desc(char *buf)
+{
+        char file[20];
+
+        sprintf(file, "dun%d.%d", dungeon_type, dun_level - d_info[dungeon_type].mindepth);
+
+        /* Get and return the level */
+        start_line = 0;
+        if (get_command(file, 'D', buf)) return (TRUE);
         else return FALSE;
 }

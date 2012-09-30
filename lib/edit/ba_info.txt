@@ -179,7 +179,7 @@ C:0:0:0
 I:49:0:q
 
 N:39:Herbal Healing
-C:5000:1000:0
+C:50000:10000:0
 I:50:0:h
 
 N:40:Song of Lore

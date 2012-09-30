@@ -87,10 +87,7 @@ D:a west-east-south road
 W:5:0:14:1:6:,
 X:1:1:88:88:89:89:89:89:89:89:89:89:89:89:89:89:96:96
 
-N:11:Volcano
-D:a hole to the center of a volcano
-W:55:1005:0:7:10:5
-X:88:88:88:86:86:86:85:85:85:85:85:85:85:85:85:97:97:97
+# XXX
 
 N:12:The Nether Realm
 D:the entrance to the netherworld
@@ -160,7 +157,7 @@ X:1:1:88:88:89:89:89:89:89:89:89:89:89:89:89:89:96:96
 N:25:high mountain
 D:a high mountain chain
 W:80:0:0:101:11:M
-X:1:1:89:89:88:96:96:97:101:101:101:101:101:101:101:101:101:101
+X:101:101:101:101:101:101:101:101:101:101:101:101:101:101:101:101:101:101
 
 N:26:Gondolin 
 D:The pillaged city of the Noldor

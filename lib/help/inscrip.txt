@@ -13,14 +13,14 @@ parchment first ;-).
 
 #####GLight up the Room
 Inscription: 'ure nimir' (sun shine)
-Parchment: Numenorean for beginners
+Parchment: Numenorean for beginners (I)
 Triggered by: Player, Monster.
 Grid Mana Needed: 30
 Effect: Lights up the current room
 
 #####GDarkness in Room
 Inscription: 'lomi gimli' (night stars)
-Parchment: Numenorean for beginners
+Parchment: Numenorean for beginners (II)
 Triggered by: Player, Monster.
 Grid Mana Needed: 10
 Effect: Casts the room into darkness

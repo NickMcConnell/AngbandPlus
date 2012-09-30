@@ -620,7 +620,7 @@ F:SPEED | AGGRAVATE
 
 ### Weapons ###
 
-N:65:(Holy Avenger)
+N:65:of Aman
 T:15:0:255
 T:21:0:255
 T:22:0:255
@@ -720,7 +720,7 @@ X:A:24:15
 W:0:2:44:2500
 C:0:0:0:0
 R:100
-F:SLAY_WEAP
+F:SLAY_WEAP | WOUNDING
 
 N:72:of Spinning
 T:125:0:255
@@ -1055,13 +1055,13 @@ F:R_ANY | R_LOW | SUSTAIN | R_HIGH
 R:10
 F:R_IMMUNITY | R_ANY
 
-N:99:Dragonrider
+N:99:of the Dragonriders
 T:15:0:255
 T:21:0:255
 T:22:0:255
 T:23:0:255
 T:24:0:255
-X:B:24:22
+X:A:24:22
 W:0:1:100:7000
 C:4:4:0:2
 R:100
@@ -1130,7 +1130,7 @@ W:0:1:1:0
 C:-20:-20:-10:0
 R:100
 F:SEE_INVIS | AGGRAVATE | HEAVY_CURSE | CURSED | BLACK_BREATH | DRAIN_EXP | 
-F:AUTO_CURSE | CURSE_NO_DROP
+F:AUTO_CURSE | CURSE_NO_DROP | WOUNDING
 
 N:104:of Nothingness
 T:125:0:255
@@ -1847,3 +1847,13 @@ C:0:0:0:2
 R:100
 F:PVAL_M2
 
+
+# Diggers only
+
+N:178:Magical
+T:20:0:255
+X:B:24:4
+W:0:1:10:500
+C:0:0:0:0
+Z:stone to mud
+R:100

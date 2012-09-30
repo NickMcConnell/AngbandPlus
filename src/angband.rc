@@ -6,7 +6,7 @@ ANGBAND MENU
  {
   MENUITEM "&Save", 110
   MENUITEM SEPARATOR
-  MENUITEM "&Abort", 120
+  MENUITEM "A&bort", 120
   MENUITEM "E&xit", 121
  }
 

@@ -582,7 +582,7 @@ static bool inn_comm(int cmd)
 			break;
 
 		case BACT_REST: /* Rest for the night */
-			dawnval = ((turn % (10L * TOWN_DAWN)));
+                        dawnval = ((turn % (10L * DAY)));
                         if ((p_ptr->pracem == RMOD_VAMPIRE)||(p_ptr->mimic_form==MIMIC_VAMPIRE)){
                         if (dawnval < 50000) {  /* nighttime */
 				if ((p_ptr->poisoned > 0) || (p_ptr->cut > 0))
@@ -1729,6 +1729,11 @@ bool bldg_process_command(store_type *s_ptr, int i)
 		{
                         s32b i, price, req;
 			
+			if(p_ptr->loan)
+				{
+				msg_print("You already have a loan!");
+				break;
+				}
 			for (i = price = 0; i < INVEN_TOTAL; i++)
 				price += object_value_real(&inventory[i]);
 			price += p_ptr->au;

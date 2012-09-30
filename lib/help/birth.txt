@@ -129,8 +129,8 @@ note that the "lucky" starting equipment for races has not yet been enabled.
      *****r_deathm.txt*0[Death Mold]         *****r_hafelf.txt*0[Half-Elf]          *****r_human.txt*0[Human]
      *****r_drgnri.txt*0[Dragonrider]        *****r_hafgia.txt*0[Half-Giant]        *****r_kobold.txt*0[Kobold]
      *****r_duned.txt*0[Dunedain]           *****r_hafogr.txt*0[Half-Ogre]         *****r_pettyd.txt*0[Petty Dwarf]
-     *****r_dwarf.txt*0[Dwarf]              *****r_haforc.txt*0[Half-Orc]          *****r_rohank.txt*0[Rohan Knight]
-     *****r_elf.txt*0[Elf]                *****r_haftro.txt*0[Half-Troll]        *****r_wodelf.txt*0[Wood Elf]
+     *****r_dwarf.txt*0[Dwarf]              *****r_haforc.txt*0[Orc]               *****r_rohank.txt*0[Rohan Knight]
+     *****r_elf.txt*0[Elf]                *****r_haftro.txt*0[Troll]             *****r_wodelf.txt*0[Wood Elf]
      *****r_ent.txt*0[Ent]                *****r_hielf.txt*0[High-Elf]          *****r_yeek.txt*0[Yeek]
 
 
@@ -146,7 +146,7 @@ starting equipment for race-modifiers has not yet been enabled.
      *****rm_class.txt*0[Classical]                *****rm_zomb.txt*0[Zombie]
      *****rm_vamp.txt*0[Vampire]                  *****rm_barb.txt*0[Barbarian]
      *****rm_spec.txt*0[Spectre]                  *****rm_herm.txt*0[Hermit]
-     *****rm_skel.txt*0[Skeleton]
+     *****rm_skel.txt*0[Skeleton]                 *****rm_corru.txt*0[Corrupted]
 
 #####R=== Classes ===
  
@@ -321,8 +321,8 @@ Elf           Yes     Yes     Yes     Yes     Yes     No      Yes     No
 Hobbit        Yes     Yes     No      Yes     No      No      No      No
 Gnome         Yes     Yes     Yes     Yes     No      No      No      No
 Dwarf         Yes     No      Yes     No      No      No      No      No
-Half-Orc      Yes     No      Yes     Yes     No      No      No      Yes
-Half-Troll    Yes     No      Yes     No      No      No      No      No
+Orc           Yes     No      Yes     Yes     No      No      No      Yes
+Troll         Yes     No      Yes     No      No      No      No      No
 Dunadan       Yes     Yes     Yes     Yes     Yes     Yes     Yes     Yes
 High-Elf      Yes     Yes     Yes     Yes     Yes     No      Yes     No
 Half-Ogre     Yes     Yes     Yes     No      No      No      No      No
@@ -346,8 +346,8 @@ Elf           Yes     Yes     Yes    Yes     Yes   Yes     Yes    Yes   No
 Hobbit        No      No      Yes    No      Yes   Yes     Yes    Yes   No
 Gnome         No      Yes     Yes    No      Yes   Yes     Yes    No    No
 Dwarf         No      No      No     No      Yes   Yes     Yes    Yes   No
-Half-Orc      Yes     No      No     No      No    Yes     No     No    Yes
-Half-Troll    No      No      No     No      No    No      No     No    Yes
+Orc           Yes     No      No     No      No    Yes     No     No    Yes
+Troll         No      No      No     No      No    No      No     No    Yes
 Dunadan       Yes     Yes     Yes    Yes     Yes   No      Yes    Yes   No
 High-Elf      Yes     Yes     Yes    Yes     Yes   Yes     Yes    Yes   No
 Half-Ogre     No      No      Yes    No      No    No      No     No    Yes
@@ -370,8 +370,8 @@ Elf           Yes     Yes   Yes   Yes     Yes    Yes    No
 Hobbit        No      No    No    Yes     Yes    No     No
 Gnome         No      No    Yes   No      Yes    No     No
 Dwarf         No      No    No    No      No     Yes    No
-Half-Orc      Yes     No    No    No      No     No     Yes
-Half-Troll    No      No    No    No      No     No     Yes
+Orc           Yes     No    No    No      No     No     Yes
+Troll         No      No    No    No      No     No     Yes
 Dunadan       Yes     Yes   Yes   Yes     Yes    Yes    No
 High-Elf      Yes     Yes   Yes   Yes     Yes    Yes    No
 Half-Ogre     No      No    No    No      No     No     Yes
@@ -395,8 +395,8 @@ Elf           No      Yes     Yes
 Hobbit        Yes     No      No
 Gnome         No      Yes     No
 Dwarf         Yes     No      Yes
-Half-Orc      Yes     No      Yes
-Half-Troll    Yes     No      Yes
+Orc           Yes     No      Yes
+Troll         Yes     No      Yes
 Dunadan       Yes     Yes     Yes
 High-Elf      No      Yes     Yes
 Half-Ogre     No      No      No
@@ -420,13 +420,13 @@ are listed in the following table.
 #####GRaces:
 #####B                       STR  INT  WIS  DEX  CON  CHR  Hit Dice  Rqd Exp/level
            Human        0    0    0    0    0    0      10         +0%
-           Half-Elf    -1   +1   +1   +1   -1   +1       9         +10%
+           Half-Elf     0   +1   +1   +1   -1   +1       9         +10%
            Elf         -1   +2   +2   +1   -2   +2       8         +20%
            Hobbit      -2   +2   +1   +3   +2   +1       7         +10%
            Gnome       -1   +2    0   +2   +1   -2       8         +35%
            Dwarf       +2   -2   +2   -2   +2   -3      11         +35%
-           Half-Orc    +2   -1    0    0   +1   -4      10         +10%
-           Half-Troll  +4   -4   -2   -4   +3   -6      12         +37%
+           Orc         +2   -1    0   +1   +1   -4      10         +10%
+           Troll       +4   -4   -2   -4   +3   -6      12         +37%
            Dunadan     +1   +2   +2   +2   +3   +2      10         +80%
            High-Elf    +1   +3   +2   +3   +1   +5      10         +100%
            Half-Ogre   +3   -1   -1   -1   +3   -3      12         +30%
@@ -493,8 +493,8 @@ are listed in the following table.
            Hobbit       +15  +18  +18  +5   +12  +15  -10  +20    40 feet
            Gnome        +10  +12  +12  +3   +6   +13  -8   +12    40 feet
            Dwarf        +2   +9   +10  -1   +7   +10  +15  +0     50 feet
-           Half-Orc     -3   -3   -3   -1   +0   +7   +12  -5     30 feet
-           Half-Troll   -5   -8   -8   -2   -1   +5   +20  -10    30 feet
+           Orc          -3   -3   -3   -1   +0   +7   +12  -5     30 feet
+           Troll        -5   -8   -8   -2   -1   +5   +20  -10    30 feet
            Dunadan      +4   +5   +5   +2   +3   +13  +15  +10    None
            High-Elf     +4   +20  +20  +4   +3   +14  +10  +25    40 feet
            Half-Ogre    -3   -5   -5   -2   -1   +5   +20  +0     30 feet

@@ -206,6 +206,7 @@ static int get_spell(int *sn, cptr prompt, int sval, bool known, object_type *o_
 				redraw = TRUE;
 
 				/* Save the screen */
+                                character_icky = TRUE;
 				Term_save();
 
 				/* Display a list of spells */
@@ -220,6 +221,7 @@ static int get_spell(int *sn, cptr prompt, int sval, bool known, object_type *o_
 
 				/* Restore the screen */
 				Term_load();
+                                character_icky = FALSE;
 			}
 
 			/* Redo asking */
@@ -277,7 +279,11 @@ static int get_spell(int *sn, cptr prompt, int sval, bool known, object_type *o_
 
 
 	/* Restore the screen */
-	if (redraw) Term_load();
+        if (redraw)
+        {
+                Term_load();
+                character_icky = FALSE;
+        }
 
 
 	/* Show choices */
@@ -350,6 +356,7 @@ void do_cmd_browse_aux(object_type *o_ptr)
 
 
 	/* Save the screen */
+        character_icky = TRUE;
 	Term_save();
 
 	/* Display the spells */
@@ -379,6 +386,7 @@ void do_cmd_browse_aux(object_type *o_ptr)
 
                         /* Restore the screen */
                         Term_load();
+                        character_icky = FALSE;
 
                         get_spell_all_hack = FALSE;
 
@@ -779,10 +787,10 @@ void do_poly_self(void)
 
 		while ( power>rand_int(20) && rand_int(10)==1 )
 		{
-			/* Polymorph into a less mutated form */
+                        /* Polymorph into a less corrupted form */
 			power -= 10;
 
-			lose_mutation(0);
+                        lose_corruption(0);
 		}
 
 		/* Restrict the race choices by exp penalty so weak polymorph
@@ -863,7 +871,7 @@ void do_poly_self(void)
 		if (randint(6)==1)
 		{
 			msg_print("You find living difficult in your present form!");
-			take_hit(damroll(randint(10),p_ptr->lev), "a lethal mutation");
+                        take_hit(damroll(randint(10),p_ptr->lev), "a lethal corruption");
 			power -= 10;
 		}
 	}
@@ -878,7 +886,7 @@ void do_poly_self(void)
 	while ((power > rand_int(15)) && (rand_int(3) == 1))
 	{
 		power -= 7;
-		(void) gain_random_mutation(0);
+                (void) gain_random_corruption(0);
 	}
 
 	if (power > rand_int(5))
@@ -890,7 +898,7 @@ void do_poly_self(void)
 	/* Note: earlier deductions may have left power < 0 already. */
 	while (power > 0)
 	{
-		mutate_player();
+                corrupt_player();
 		power--;
 	}
 }
@@ -1191,7 +1199,7 @@ void wild_magic(int spell)
 		break;
 	case 27:
 	case 28:
-		(void) gain_random_mutation(0);
+                (void) gain_random_corruption(0);
 		break;
 	case 29:
 	case 30:
@@ -1776,8 +1784,7 @@ void cast_magery_spell(int spell, byte level)
         int     to_s = level + p_ptr->to_s;
         long    rad, dam;
 
-	if (p_ptr->pclass == CLASS_MAGE) beam = plev;
-	else if (p_ptr->pclass == CLASS_HIGH_MAGE) beam = plev + 10;
+        if (cp_ptr->flags1 & CF1_BEAM) beam = plev + 10;
 	else beam = plev / 2;
 
 	switch (spell)
@@ -1786,7 +1793,7 @@ void cast_magery_spell(int spell, byte level)
                         dam = apply_power_dice(4, to_s, 1);
                         if (info_spell)
                         {
-                                sprintf(spell_txt, " dur %dd%ld", 3 + ((plev - 1) / 5), dam);
+                                sprintf(spell_txt, " dam %dd%ld", 3 + ((plev - 1) / 5), dam);
                                 return;
                         }
 				if (!get_aim_dir(&dir)) return;
@@ -2452,8 +2459,7 @@ void cast_shadow_spell(int spell, byte level)
         int     to_s = level + p_ptr->to_s;
         long    dam = 0, rad;
 
-	if (p_ptr->pclass == CLASS_MAGE) beam = plev;
-	else if (p_ptr->pclass == CLASS_HIGH_MAGE) beam = plev + 10;
+        if (cp_ptr->flags1 & CF1_BEAM) beam = plev + 10;
 	else beam = plev / 2;
 
 	switch (spell)
@@ -2899,7 +2905,7 @@ void cast_shadow_spell(int spell, byte level)
 
                         if (info_spell) return;
 
-                        if(special_flag){msg_print("Not on special levels!");break;}
+                        if (dungeon_flags1 & LF1_NO_TELEPORT) {msg_print("Not on special levels!");break;}
 
                         msg_print("You open a between gate. Choose a destination.");
                         if (!tgt_pt(&ii,&ij)) break;
@@ -3339,8 +3345,7 @@ void cast_chaos_spell(int spell, byte level)
         int     to_s = level + p_ptr->to_s;
         long    rad, dam;
 
-	if (p_ptr->pclass == CLASS_MAGE) beam = plev;
-	else if (p_ptr->pclass == CLASS_HIGH_MAGE) beam = plev + 10;
+        if (cp_ptr->flags1 & CF1_BEAM) beam = plev + 10;
 	else beam = plev / 2;
 
 	switch (spell)
@@ -3731,9 +3736,7 @@ void cast_nether_spell(int spell, byte level)
         long    dam, rad;
         bool no_trump = FALSE;
 
-	if (p_ptr->pclass == CLASS_MAGE) beam = plev;
-	else if (p_ptr->pclass == CLASS_HIGH_MAGE) beam = plev + 10;
-        else if (p_ptr->pclass == CLASS_NECRO) beam = plev + 20;
+        if (cp_ptr->flags1 & CF1_BEAM) beam = plev + 10;
         else beam = plev / 2;
 
 	switch (spell)
@@ -4490,8 +4493,7 @@ void cast_crusade_spell(int spell, byte level)
         int     to_s = level + p_ptr->to_s;
         long    dam, rad;
 
-	if (p_ptr->pclass == CLASS_MAGE) beam = plev;
-	else if (p_ptr->pclass == CLASS_HIGH_MAGE) beam = plev + 10;
+        if (cp_ptr->flags1 & CF1_BEAM) beam = plev + 10;
 	else beam = plev / 2;
 
 	switch (spell)
@@ -4801,8 +4803,7 @@ void cast_sigaldry_spell(int spell, byte level)
         int     to_s = level + p_ptr->to_s;
         long    dam, rad;
 
-	if (p_ptr->pclass == CLASS_MAGE) beam = plev;
-	else if (p_ptr->pclass == CLASS_HIGH_MAGE) beam = plev + 10;
+        if (cp_ptr->flags1 & CF1_BEAM) beam = plev + 10;
 	else beam = plev / 2;
 
 	switch (spell)
@@ -5030,7 +5031,7 @@ void cast_sigaldry_spell(int spell, byte level)
 
                         if (info_spell) return;
 
-             if(special_flag){msg_print("Not on special levels!");break;}
+             if(dungeon_flags1 & LF1_NO_TELEPORT){msg_print("Not on special levels!");break;}
 
              msg_print("You open a between gate. Choose a destination.");
              if (!tgt_pt(&ii,&ij)) return;
@@ -5488,6 +5489,7 @@ int use_symbiotic_power(int r_idx, bool great, bool only_number, bool no_cost)
 				redraw = TRUE;
 
 				/* Save the screen */
+                                character_icky = TRUE;
 				Term_save();
 
 				prt ("", y++, x);
@@ -5537,6 +5539,7 @@ int use_symbiotic_power(int r_idx, bool great, bool only_number, bool no_cost)
 
 				/* Restore the screen */
 				Term_load();
+                                character_icky = FALSE;
 			}
 
 			/* Redo asking */
@@ -5593,7 +5596,11 @@ int use_symbiotic_power(int r_idx, bool great, bool only_number, bool no_cost)
 	}
 
 	/* Restore the screen */
-	if (redraw) Term_load();
+        if (redraw)
+        {
+                Term_load();
+                character_icky = FALSE;
+        }
 
 	/* Abort if needed */
 	if (!flag)
@@ -5887,18 +5894,18 @@ int use_symbiotic_power(int r_idx, bool great, bool only_number, bool no_cost)
                         }
                         break;
                 case 68: /* Blink */
-                        if(special_flag) {msg_print("No teleport on special levels ...");break;}
+                        if(dungeon_flags1 & LF1_NO_TELEPORT) {msg_print("No teleport on special levels ...");break;}
                         teleport_player(10);
                         break;
                 case 69: /* Teleport */
-                        if(special_flag) {msg_print("No teleport on special levels ...");break;}
+                        if(dungeon_flags1 & LF1_NO_TELEPORT) {msg_print("No teleport on special levels ...");break;}
                         teleport_player(plev * 5);
                         break;
                 case 70: /* tele to */
                         {
                              int ii,ij;
 
-                             if(special_flag) {msg_print("No teleport on special levels ...");break;}
+                             if(dungeon_flags1 & LF1_NO_TELEPORT) {msg_print("No teleport on special levels ...");break;}
                              msg_print("You go between.");
                              if (!tgt_pt(&ii,&ij)) break;
                              p_ptr->energy -= 60 - plev;
@@ -5913,12 +5920,12 @@ int use_symbiotic_power(int r_idx, bool great, bool only_number, bool no_cost)
                         }
                         break;
                 case 71: /* tele away */
-                        if(special_flag) {msg_print("No teleport on special levels ...");break;}
+                        if(dungeon_flags1 & LF1_NO_TELEPORT) {msg_print("No teleport on special levels ...");break;}
                         if (!get_aim_dir(&dir)) break;
                         (void)fire_beam(GF_AWAY_ALL, dir, plev);
                         break;
                 case 72: /* tele level */
-                        if(special_flag) {msg_print("No teleport on special levels ...");break;}
+                        if(dungeon_flags1 & LF1_NO_TELEPORT) {msg_print("No teleport on special levels ...");break;}
 			teleport_player_level();
 			break;
                 case 73: /* darkness */
@@ -6615,8 +6622,7 @@ void cast_tribal_spell(int spell, byte level)
         int     to_s = level + p_ptr->to_s;
         long    dam, rad;
 
-	if (p_ptr->pclass == CLASS_MAGE) beam = plev;
-	else if (p_ptr->pclass == CLASS_HIGH_MAGE) beam = plev + 10;
+        if (cp_ptr->flags1 & CF1_BEAM) beam = plev + 10;
 	else beam = plev / 2;
 
 	switch (spell)
@@ -6924,8 +6930,7 @@ void cast_druid_spell(int spell, byte level)
 
         int amt = 0, att = 0;
 
-	if (p_ptr->pclass == CLASS_MAGE) beam = plev;
-	else if (p_ptr->pclass == CLASS_HIGH_MAGE) beam = plev + 10;
+        if (cp_ptr->flags1 & CF1_BEAM) beam = plev + 10;
 	else beam = plev / 2;
 
 	switch (spell)
@@ -7627,8 +7632,7 @@ void cast_spirit_spell(int spell, byte level)
 	/* Access the spell */
         magic_type *s_ptr = &realm_info[REALM_SPIRIT][spell];
 
-	if (p_ptr->pclass == CLASS_MAGE) beam = plev;
-	else if (p_ptr->pclass == CLASS_HIGH_MAGE) beam = plev + 10;
+        if (cp_ptr->flags1 & CF1_BEAM) beam = plev + 10;
 	else beam = plev / 2;
 
 	switch (spell)

@@ -2355,8 +2355,21 @@ void cmsg_print(byte color, cptr msg)
 	
 	/* Memorize the message */
         if (character_generated) message_add(msg, color);
-	
-	
+
+	/* Handle "auto_more" */
+	if (auto_more)
+	{	
+                /* Window stuff */
+                p_ptr->window |= (PW_MESSAGE);
+
+		/* Force window update */
+		window_stuff();
+
+		/* Done */
+		return;
+	}
+
+
 	/* Copy it */
 	strcpy(buf, msg);
 	
@@ -3721,4 +3734,83 @@ int test_item_name(cptr name)
                 if (stricmp(name, obj_name) == 0) return (i);
        }
        return (0);
+}
+
+/*
+ * Break scalar time
+ */
+s32b bst(s32b what, s32b t)
+{
+        s32b turns = t + (10 * DAY_START);
+
+        switch (what)
+	{
+                case MINUTE:
+                        return ((turns / 10 / MINUTE) % 60);
+                case HOUR:
+                        return (turns / 10 / (HOUR) % 24);
+                case DAY:
+                        return (turns / 10 / (DAY) % 365);
+                case YEAR:
+                        return (turns / 10 / (YEAR));
+                default:
+                        return (0);
+	}
+}	    
+
+cptr get_month_name(int day, bool full, bool compact)
+{
+        int i = 8;
+        static char buf[40];
+
+        /* Find the period name */
+        while ((i > 0) && (day < month_day[i]))
+        {
+                i--;
+        }
+
+        switch (i)
+        {
+                /* Yestare/Mettare */
+                case 0:
+                case 8:
+                {
+                        char buf2[20];
+
+                        sprintf(buf2, get_day(day + 1));
+                        if (full) sprintf(buf, "%s (%s day)", month_name[i], buf2);
+                        else sprintf(buf, "%s", month_name[i]);
+                        break;
+                }
+                /* 'Normal' months + Enderi */
+                default:
+                {
+                        char buf2[20];
+                        char buf3[20];
+
+                        sprintf(buf2, get_day(day + 1 - month_day[i]));
+                        sprintf(buf3, get_day(day + 1));
+
+                        if (full) sprintf(buf, "%s day of %s (%s day)", buf2, month_name[i], buf3);
+                        else if (compact) sprintf(buf, "%s day of %s", buf2, month_name[i]);
+                        else sprintf(buf, "%s %s", buf2, month_name[i]);
+                        break;
+                }
+        }
+
+        return (buf);
+}
+
+cptr get_day(int day)
+{
+        static char buf[20];
+        cptr p = "th";
+
+        if ((day / 10) == 1) ;
+        else if ((day % 10) == 1) p = "st";
+        else if ((day % 10) == 2) p = "nd";
+        else if ((day % 10) == 3) p = "rd";
+
+        sprintf(buf, "%d%s", day, p);
+        return (buf);
 }

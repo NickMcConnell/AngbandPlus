@@ -7,7 +7,7 @@ stealth, bows, and magic, but they are not as good at hand weapons. Half-
 elves may choose any class and do not receive any intrinsic abilities.
 
 #####GStat Modifiers
-Strength        -1   
+Strength        0
 Intelligence    +1   
 Wisdom          +1   
 Dexterity       +1   

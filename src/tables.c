@@ -1275,7 +1275,7 @@ player_race race_info[MAX_RACES] =
 	{
 		"Half-Elf",
                 "A crossbreed of elf and human, they get the best of the two races.",
-		{ -1,  1,  1,  1, -1,  1 },
+                { 0,  1,  1,  1, -1,  1 },
 		2,  3,  3,  1, 6,  11, -1,  5,
 		9,  110,
 		24, 16,
@@ -1343,9 +1343,9 @@ player_race race_info[MAX_RACES] =
                 {1, 1, 1, 2, 1, 1},
 	},
 	{
-		"Half-Orc",
-                "A crossbreed between humans and orcs.\nQuite strong but not very smart.",
-		{  2, -1,  0,  0,  1, -4 },
+                "Orc",
+                "Quite strong but not very smart.",
+                {  2, -1,  0,  1,  1, -4 },
 		-3, -3, -3,  -1,  0, 7, 12, -5,
 		10,  110,
 		11,  4,
@@ -1357,8 +1357,8 @@ player_race race_info[MAX_RACES] =
                 {1, 1, 1, 2, 1, 1},
 	},
 	{
-		"Half-Troll",
-                "A crossbreed between humans and trolls.\nThey can bear the light of the sun.\nThey are extremely strong and dumb.",
+                "Troll",
+                "They can bear the light of the sun.\nThey are extremely strong and dumb.",
 		{ 4, -4, -2, -4,  3, -6 },
 		-5, -8, -8, -2,  -1, 5, 20, -10,
 		12,  137,
@@ -1721,6 +1721,27 @@ player_race_mod race_mod_info[MAX_RACE_MODS] =
                 { -1, -1, -1, -1},
                 {0, 0, 0, 0, 0, 0},
 	},
+
+	{
+		"Corrupted",
+                "Infused with the corruption of Morgoth, these unfortunates randomly gain\nand lose corruptions as they gain expirience.",
+                TRUE,
+		    {  0,  0,  0,  0,  0,  0 },
+                0,  0,  0,  0,  0,  0,  0,  0,
+                0,  20, 
+               /* Note that while it could be higher, the EXP reflects the large number of harmful corruptions in addition to the good ones. */
+                0,  0,
+                0,  0, 0, 0,
+                0, 0, 0, 0,
+                0,
+                0xFFFFFFF - BIT(RACE_MOLD) - BIT(RACE_ENT),
+                /* Ents and Death Molds are incorruptable for our purposes. */
+                0,
+                0,
+                { -1, -1, -1, -1},
+                {0, 0, 0, 0, 0, 0},
+	},
+
 };
 /*
  * Player Race Mods
@@ -1760,6 +1781,7 @@ player_class class_info[MAX_CLASS] =
                 12, 7,  10, 0,  0,  0,  45, 45,
                 9,  0,
                 { -1, -1, -1, -1},
+                0,
 	},
 
 	{
@@ -1770,6 +1792,7 @@ player_class class_info[MAX_CLASS] =
 		7,  13, 9,  0,  0,  0,  15, 15,
                 0, 30,
                 { -1, -1, -1, -1},
+                CF1_NO_GLOVES | CF1_ZERO_FAIL,
 	},
 
 	{
@@ -1780,6 +1803,7 @@ player_class class_info[MAX_CLASS] =
 		7,  10, 12, 0,  0,  0, 20, 20,
                 2, 20,
                 { PWR_DET_CURSE, -1, -1, -1},
+                CF1_BLESS_WEAPON | CF1_ZERO_FAIL,
 	},
 
 	{
@@ -1790,6 +1814,7 @@ player_class class_info[MAX_CLASS] =
 		15, 10, 10, 0,  0,  0, 40, 30,
                 6, 25,
                 { PWR_LAY_TRAP, -1, -1, -1},
+                0,
 	},
 
 	{
@@ -1800,6 +1825,7 @@ player_class class_info[MAX_CLASS] =
 		8,  10, 10, 0,  0,  0,  30, 45,
                 4, 30,
                 { -1, -1, -1, -1},
+                0,
 	},
 
 	{
@@ -1810,6 +1836,7 @@ player_class class_info[MAX_CLASS] =
 		7,  10, 11, 0,  0,  0,  35, 30,
                 6, 35,
                 { -1, -1, -1, -1},
+                0,
 	},
 
 	{
@@ -1820,6 +1847,7 @@ player_class class_info[MAX_CLASS] =
 		7,  10,  9, 0,  0,  0,  20, 20,
                 4, 50,
                 { -1, -1, -1, -1},
+                0,
 	},
 
 	{
@@ -1830,6 +1858,7 @@ player_class class_info[MAX_CLASS] =
 		7,  11, 10, 0,  0,  0,  34, 29,
                 6, 35,
                 { -1, -1, -1, -1},
+                0,
 	},
 
 	{
@@ -1840,6 +1869,7 @@ player_class class_info[MAX_CLASS] =
 		15, 11, 10, 0,  0,  0, 40, 30,
                 6, 40,
                 { -1, -1, -1, -1},
+                CF1_BLESS_WEAPON,
 	},
 
         {
@@ -1850,6 +1880,7 @@ player_class class_info[MAX_CLASS] =
                 10, 10, 10, 0,   0,  0, 20, 30,
                 2, 25,
                 { -1, -1, -1, -1},
+                0,
         },
 
 	{
@@ -1860,6 +1891,7 @@ player_class class_info[MAX_CLASS] =
 		7,  13, 9,  0,  0,  0,  15, 15,
                 0, 30,
                 { -1, -1, -1, -1},
+                CF1_NO_GLOVES | CF1_ZERO_FAIL | CF1_BEAM,
 	},
 
 	{
@@ -1870,6 +1902,7 @@ player_class class_info[MAX_CLASS] =
                 11, 13, 9,  0,  0,  0,  25, 25,
                 0, 40,
                 { -1, -1, -1, -1},
+                0,
 	},
 
 	{
@@ -1879,7 +1912,8 @@ player_class class_info[MAX_CLASS] =
                 20, 36, 30, 4,  16, 20, 56, 20,
 		7,  13, 9,  0,  0,  0,  15, 15,
                 0, 20,
-                { PWR_SUMMON_MONSTER, -1, -1, -1},
+                { PWR_SUMMON_MONSTER, PWR_COMPANION, -1, -1},
+                0,
 	},
 
 	{
@@ -1890,6 +1924,7 @@ player_class class_info[MAX_CLASS] =
                 7,  30, 9,  0,  0,  0,  15, 15,
                 0, 40,
                 { -1, -1, -1, -1},
+                0,
 	},
 
 	{
@@ -1900,6 +1935,7 @@ player_class class_info[MAX_CLASS] =
                 4,  3,  9,  0,  0,  0,  15, 15,
                 0, 20,
                 { -1, -1, -1, -1},
+                0,
 	},
 
 	{
@@ -1910,6 +1946,7 @@ player_class class_info[MAX_CLASS] =
                 8,  13, 12, 0,  0,  0,  15, 15,
                 0, 50,
                 { -1, -1, -1, -1},
+                CF1_ZERO_FAIL,
 	},
 
 	{
@@ -1920,6 +1957,7 @@ player_class class_info[MAX_CLASS] =
                 7,  13, 9,  0,  0,  0,   7,  7,
                 0, 20,
                 { -1, -1, -1, -1},
+                0,
 	},
 
 	{
@@ -1930,6 +1968,7 @@ player_class class_info[MAX_CLASS] =
                 7,  13, 9,  0,  0,  0,   7,  7,
                 0, 40,
                 { -1, -1, -1, -1},
+                0,
 	},
 
 	{
@@ -1940,16 +1979,18 @@ player_class class_info[MAX_CLASS] =
                 12, 7,  10, 0,  0,  0,  25, 25,
                 9, 40,
                 { -1, -1, -1, -1},
+                0,
 	},
 
 	{
                 "Sorceror",
-"Masters of the Art of Sorcery, they devote their life to magic.\nSorcerors can use every magic realm, but at the cost of being\nhopeless at hand to hand combat.",
+                "Masters of the Art of Sorcery, they devote their life to magic.\nSorcerors can use every magic realm, but at the cost of being\nhopeless at hand to hand combat.",
                 { -5, 6, 4, 2, -5, 1},
                 35, 48, 38, 3, 22, 12, 10, 15,
                 22, 17, 20, 0,  0,  0, 15, 15,
                 4, 60,
                 { -1, -1, -1, -1},
+                CF1_ZERO_FAIL,
 	},
 
 	{
@@ -1960,6 +2001,7 @@ player_class class_info[MAX_CLASS] =
 		8,  10, 10, 0,  0,  0,  30, 45,
                 4, 30,
                 { -1, -1, -1, -1},
+                0,
 	},
 
 	{ /* Added -KMW- */
@@ -1970,6 +2012,7 @@ player_class class_info[MAX_CLASS] =
 		7,  13, 9,  0,  0,  0,  15, 15,
                 0, 30,
                 { -1, -1, -1, -1},
+                CF1_ZERO_FAIL,
 	},
 
 	{
@@ -1980,6 +2023,7 @@ player_class class_info[MAX_CLASS] =
                 7,  10, 10, 0,  0,  0, 18, 20,
                 3, 30,
                 { -1, -1, -1, -1},
+                CF1_ZERO_FAIL,
 	},
 
 	{
@@ -1989,7 +2033,8 @@ player_class class_info[MAX_CLASS] =
                 16, 40, 42, 3,  10, 8, 35, 20,
                 9,  16, 3, 0,  0,  0, 10, 5,
                 1, 40,
-                { PWR_NECRO, -1, -1, -1},
+                { PWR_NECRO, PWR_COMPANION, -1, -1},
+                CF1_ZERO_FAIL,
 	},
 
 	{
@@ -2000,6 +2045,7 @@ player_class class_info[MAX_CLASS] =
                 12,  0, 18, 0,  4,  5, 45, 45,
                 10, 20,
                 { -1, -1, -1, -1},
+                0,
 	},
 
 	{ /* Added -SC- */
@@ -2010,6 +2056,7 @@ player_class class_info[MAX_CLASS] =
 		7,  15, 10,  0,  0,  0,  15, 10,
                 0, 30,
                 { -1, -1, -1, -1},
+                0,
 	},
 
 	{
@@ -2020,6 +2067,7 @@ player_class class_info[MAX_CLASS] =
                 10,   3,  8,  0,  0,  0, 45, 10,
                 9, 30,
                 { -1, -1, -1, -1},
+                0,
 	},
 
 	{ /* -SC- */
@@ -2030,6 +2078,7 @@ player_class class_info[MAX_CLASS] =
 		9,  13, 10, 0, 0,  0,  15, 15,
                 3, 35,
                 { PWR_MERCHANT, PWR_MIDAS_TCH, -1, -1},
+                0,
 	},
 };
 
@@ -3836,7 +3885,7 @@ cptr spell_names[MAX_REALM][64][2] =
 
                 /* Arcane Chants */
                 {"Ethereal Eye", "This spell will magically map your surroundings, and give you see invisible."},
-                {"Fire Bolt", "Creates a bolt of ice aimed at the target."},
+                {"Fire Bolt", "Creates a bolt of fire aimed at the target."},
                 {"Identification", "This spell identifies an item."},
                 {"Typhoon Daze", "This spell creates a confusion area effect centered on you."},
                 {"Time Distortion", "This spell slows all monsters in your immediate area."},
@@ -4458,124 +4507,124 @@ cptr spell_names[MAX_REALM][64][2] =
 
 	{
 		/* Illusions for Beginners (sval 0) */
-                {"Confusion Bolt", ""},
-                {"Detect Monsters", ""},
-                {"Phase Door", ""},
-                {"Light Area", ""},
-                {"Treasure Detection", ""},
-                {"Fear", ""},
-                {"Object Detection", ""},
-                {"Find Hidden Traps/Doors", ""},
-                {"Stinking Cloud", ""},
+                {"Confusion Bolt", "Casts an energy bolt that confuses the monster it hits."},
+                {"Detect Monsters", "Detects visible monsters within an area around you."},
+                {"Phase Door", "Teleports you to a nearby location."},
+                {"Light Area", "Lights up the area around you."},
+                {"Treasure Detection", "Locates treasures in the area around you."},
+                {"Fear", "Causes a monster (or monsters) to become frightened of you."},
+                {"Object Detection", "Locates objects in the area around you."},
+                {"Find Hidden Traps/Doors", "Locates traps, doors and stairs in the area around you."},
+                {"Stinking Cloud", "Casts a cloud of poisonous gas at your foes."},
 
 		/* Tricks and Visions (sval 1) */
-                {"Infravision", ""},
-                {"Sleep", ""},
-                {"Trap/Door Destruction", ""},
-                {"Fog Cloud", ""},
-                {"Cure Poison", ""},
-                {"Satisfy Hunger", ""},
-                {"Shadow Door", ""},
-                {"Shadow Monster", ""},
-                {"Turn Stone to Mud", ""},
+                {"Infravision", "Temporarily increases your ability to see warm-blooded lifeforms."},
+                {"Sleep", "Causes a targetted monster to fall asleep."},
+                {"Trap/Door Destruction", "Destroys all traps and doors next to the caster."},
+                {"Fog Cloud", "Casts a cloud of poison at your foes."},
+                {"Cure Poison", "Cures the caster of the effects of poison."},
+                {"Satisfy Hunger", "Makes the caster feel fully satisfied."},
+                {"Shadow Door", "Creates doors around the caster."},
+                {"Shadow Monster", "Summons an illusionary beast that rushes to attack, then disappears."},
+                {"Turn Stone to Mud", "Causes stone to dissolve."},
 
 		/* Phantasms and Illusions (sval 2) */
-                {"Detect Invisible", ""},
-                {"Recharge Item", ""},
-                {"Brand Ammo", ""},
-                {"Spear of Light", ""},
-                {"Chaos", ""},
-                {"Mental Barrier", ""},
-                {"True Sight", ""},
-                {"Slow Monster", ""},
+                {"Detect Invisible", "Detects the presence of invisible things."},
+                {"Recharge Item", "Increases the charge within a magical item."},
+                {"Brand Ammo", "Fire/Frost brands a pile of ammunition."},
+                {"Spear of Light", "Casts a beam of light."},
+                {"Chaos", "Unleashes chaotic energy in a powerful explosion."},
+                {"Mental Barrier", "Creates a protective barrier around your intellect."},
+                {"True Sight", "Empowers you with a vision of the area around you."},
+                {"Slow Monster", "Reduces the speed of a nearby monster."},
 
 		/* Shadows and Prisms (sval 3) */
-                {"Shadow Ball", ""},
-                {"Bolt of Darkness", ""},
-                {"Shadow Form", ""},
-                {"Haste Self", ""},
-                {"Prismatic Wall", ""},
-                {"Prismatic Spray", ""},
-                {"Chromatic Shield", ""},
+                {"Shadow Ball", "Casts a ball of shadow to engulf your foes."},
+                {"Bolt of Darkness", "Casts a malevolent bolt of darkness at your foe."},
+                {"Shadow Form", "Alters the caster's form to that of a shadow."},
+                {"Haste Self", "Increases the speed of the caster for a limited time."},
+                {"Prismatic Wall", "Creates a wall of force at a point that no monster may pass."},
+                {"Prismatic Spray", "A ball of light sprays out from your fingertips."},
+                {"Chromatic Shield", "A shield of corruscating light surrounds your form."},
 
 		/* Knowledge of Kenault (sval 5) */
-                {"Wizard Lock", ""},
-                {"Bedlam", ""},
-                {"Word of Recall", ""},
-                {"Detect Enchantment", ""},
-                {"Probing", ""},
-                {"Sunfire", ""},
+                {"Wizard Lock", "Magically spikes a door to prevent anyone openning it."},
+                {"Bedlam", "Calls a ball of chaos down upon your foes."},
+                {"Word of Recall", "Teleports you between the dungeon and the town."},
+                {"Detect Enchantment", "Detects objects that contain enchantments."},
+                {"Probing", "Probes monsters to discover their abilities."},
+                {"Sunfire", "Releases the energy of a miniature sun upon your foes."},
 
 		/* Bigby's Handbook (sval 8) */
-                {"Bigby's Interposing Hand", ""},
-                {"Bigby's Phantom Hand", ""},
-                {"Bigby's Forceful Hand", ""},
-                {"Bigby's Grasping Hand", ""},
-                {"Bigby's Clenched Fist", ""},
-                {"Bigby's Crushing Hand", ""},
-                {"Force Blast", ""},
+                {"Bigby's Interposing Hand", "Surrounds the caster with squares that may not be entered by a monster."},
+                {"Bigby's Phantom Hand", "Creates a line of phantasms that attack and confuse the enemy then disappear."},
+                {"Bigby's Forceful Hand", "Creates a line of shadowy monsters that attack the enemy then disappear."},
+                {"Bigby's Grasping Hand", "Slows a line of monsters."},
+                {"Bigby's Clenched Fist", "A beam of force projects from your clenched fist."},
+                {"Bigby's Crushing Hand", "A beam of crushing gravity projects from the caster."},
+                {"Force Blast", "A ball of pure force explodes upon your foes."},
 
 		/* Otiluke's Spheres (sval 6) */
-                {"Sphere of Light", ""},
-                {"Sphere of Darkness", ""},
-                {"Sphere of Confusion", ""},
-                {"Sphere of Chaos", ""},
-                {"Sphere of Sound", ""},
-                {"Explosion", ""},
+                {"Sphere of Light", "Casts a sphere of light at your foes."},
+                {"Sphere of Darkness", "Casts a sphere of darkness at your foes."},
+                {"Sphere of Confusion", "Casts a sphere of confusion at your foes."},
+                {"Sphere of Chaos", "Casts a sphere of chaotic energy at your foes."},
+                {"Sphere of Sound", "Casts a sphere of sound at your foes."},
+                {"Explosion", "Creates a powerful explosion of shrapnel."},
 
 		/* Serten's Immunities (sval 4) */
-                {"Remove Fear", ""},
-                {"Resist Light & Dark", ""},
-                {"Resist Poison", ""},
-                {"Resist Chaos & Confusion", ""},
-                {"Resist Sound & Shards", ""},
-                {"Resist Nexus", ""},
+                {"Remove Fear", "Allows the caster to regain their failing courage."},
+                {"Resist Light & Dark", "Protects the caster from the ravages of light and darkness."},
+                {"Resist Poison", "Protects the caster from the ravages of poison."},
+                {"Resist Chaos & Confusion", "Protects the caster from the ravages of Chaos and Confusion."},
+                {"Resist Sound & Shards", "Protects the caster from the ravages of Sound and Shards."},
+                {"Resist Nexus", "Protects the caster from the ravages of Nexus."},
 
 		/* Boccob's Book of Shadows (sval 7) */
-                {"Invisibility", ""},
-                {"Shadow Monsters", ""},
-                {"Shadow Ball", ""},
-                {"Shadow Sacrifices", ""},
-                {"Shadow Gate", ""},
-                {"Summon Shadows", ""},
+                {"Invisibility", "Makes the caster invisible."},
+                {"Shadow Monsters", "Invokes a group of shadowy monsters who attack, then vanish."},
+                {"Shadow Ball", "Creates a ball of darkness to ravage your foes."},
+                {"Shadow Sacrifices", "Sacrifices your lifeforce to increase your magic."},
+                {"Shadow Gate", "Opens a gate to another portion of the level."},
+                {"Summon Shadows", "Summons a spirit to your aid."},
 	},
 
         /* Tribal */
         {
-                {"Slumber", ""},
-                {"Lightning Bolt", ""},
-                {"Bewilder", ""},
-                {"Song of Morning", ""},
-                {"Recuperation", ""},
-                {"Meditate", ""},
-                {"Wolf Spirit", ""},
-                {"Dress Wounds", ""},
+                {"Slumber", "Sends a monster or group of monsters to sleep."},
+                {"Lightning Bolt", "Casts a bolt of lightning."},
+                {"Bewilder", "Confuses a monster of group of monsters."},
+                {"Song of Morning", "Creates a miniature sun-rise over a group of monsters."},
+                {"Recuperation", "Heals the caster"},
+                {"Meditate", "Protects the caster while they heal their mind."},
+                {"Wolf Spirit", "Allows the caster to take on the form of a Wolf."},
+                {"Dress Wounds", "Heals the caster of wounds and cuts."},
 
-                {"Grow Berries", ""},
-                {"Sense Presence", ""},
-                {"Punishment", ""},
-                {"Life Drain", ""},
-                {"Beetle Spirit", ""},
-                {"Call Nature", ""},
-                {"Bird Spirit", ""},
-                {"Winter's Fury", ""},
+                {"Grow Berries", "Feeds the caster."},
+                {"Sense Presence", "Detects monsters around the caster."},
+                {"Punishment", "Releases a ball of magical energy, centered on the caster."},
+                {"Life Drain", "Physically drains the caster to release a targetted ball of magic."},
+                {"Beetle Spirit", "Allows the caster to take the form of an insect."},
+                {"Call Nature", "Summons ants and spiders to the aid of the caster."},
+                {"Bird Spirit", "Allows the caster to take the form of a sparrow."},
+                {"Winter's Fury", "Releases a pair of balls of freezing cold."},
 
-                {"Stun", ""},
-                {"Remove Evil", ""},
-                {"Destroy Traps", ""},
-                {"Lore", ""},
-                {"Invoked Destruction", ""},
-                {"Ruins", ""},
-                {"Fright", ""},
-                {"Winds of Displacement", ""},
+                {"Stun", "Sleeps, confuses and slows all monsters next to the caster."},
+                {"Remove Evil", "Removes evil magics from items worn by the caster."},
+                {"Destroy Traps", "Destroys traps adjacent to the caster."},
+                {"Lore", "Identifies the history of an object."},
+                {"Invoked Destruction", "Creates a fireball centered on the caster."},
+                {"Ruins", "Creates a ball of destruction centered on the caster."},
+                {"Fright", "Attempts to frighten all nearby monsters."},
+                {"Winds of Displacement", "High winds scatter your enemies about the level."},
 
-                {"Death Chant", ""},
-                {"Storm's Fury", ""},
-                {"Call Hydras", ""},
-                {"Lifeblood", ""},
-                {"Invoke Winds", ""},
-                {"Dispel Evil", ""},
-                {"Mystic Forces", ""},
+                {"Death Chant", "Physically drains the caster to release 2 powerful balls of magic."},
+                {"Storm's Fury", "Releases a lightning storm."},
+                {"Call Hydras", "Summons Hydras to your aid."},
+                {"Lifeblood", "Uses caster's experience to heal and restore their body."},
+                {"Invoke Winds", "High winds scatter your enemies."},
+                {"Dispel Evil", "Damages all evil creatures around you."},
+                {"Mystic Forces", "Releases mystical forces in a powerful attack!"},
                 {"", ""},
         },
 
@@ -4635,46 +4684,46 @@ cptr spell_names[MAX_REALM][64][2] =
 	/* Demon -SCSCSC- */
 	{
 		/* Dark Incantations */
-                {"Detect Good", ""},
-                {"Phase Door", ""},
-                {"Resist Fire", ""},
-                {"Unearthly Blessing", ""},
-                {"Steal Thoughts", ""},
-                {"Demon Eyes", ""},
-                {"Mend Flesh", ""},
-                {"Vision", ""},
+                {"Detect Good", "Detects all good beings near you."},
+                {"Phase Door", "Teleport you a few squares."},
+                {"Resist Fire", "Makes you resistant to fire for a short duration."},
+                {"Unearthly Blessing", "Temporarily protects you and increases your fighting accuracy."},
+                {"Steal Thoughts", "Attempts to confuse monsters."},
+                {"Demon Eyes", "Allows you to detect all monsters for a short duration."},
+                {"Mend Flesh", "Heals you."},
+                {"Vision", "Reveals the level around you."},
 
 		/* Immortal Rituals */
-                {"Detect Angels and Demons", ""},
-                {"Protection from Good", ""},
-                {"Invisibility", ""},
-                {"Manes Summoning", ""},
-                {"Demoncloak", ""},
-                {"Breath Fire", ""},
-                {"Fire Blade", ""},
-                {"Circle of Madness", ""},
+                {"Detect Angels and Demons", "Detects angels and demons near you."},
+                {"Protection from Good", "Deflects attacks made by good beings."},
+                {"Invisibility", "Turns you invisible."},
+                {"Manes Summoning", "Summons an inferior demon to your aid."},
+                {"Demoncloak", "Protects you from fire and cold and shields you."},
+                {"Breath Fire", "Unleashes a powerful fire ball."},
+                {"Fire Blade", "Hastes you, surrounds you with fire and makes you fight with berserk fury."},
+                {"Circle of Madness", "Fires explosions of chaos, confusion and charm."},
 
 		/* Minions of Azathoth */
-                {"Bladecalm", ""},
-                {"Control Demons", ""},
-                {"Revive", ""},
-                {"Trap Demonsoul", ""},
-                {"Discharge Minions", ""},
-                {"Summon Demons", ""},
+                {"Bladecalm", "It needs to be coded :)"},
+                {"Control Demons", "Attempts to charm demons."},
+                {"Revive", "It will revive dead demons."},
+                {"Trap Demonsoul", "Attempts to enslave a demon."},
+                {"Discharge Minions", "Makes all your pets explode like powerful bombs."},
+                {"Summon Demons", "Calls some demons to your aid."},
 
 		/* Demonthoughts */
-                {"Rain of Lava", ""},
-                {"Kiss of the Succubus", ""},
-                {"Immortality", ""},
-                {"Glyph of Warding", ""},
-                {"Lava Storm", ""},
-                {"Demonform", ""},
+                {"Rain of Lava", "Creates a ball of lava."},
+                {"Kiss of the Succubus", "Unleashes a ball of nexus."},
+                {"Immortality", "Allows you to resist the ravages of time."},
+                {"Glyph of Warding", "It will create a glyph that prevents monsters movement."},
+                {"Lava Storm", "Creates a powerful ball of lava."},
+                {"Demonform", "Turns you into a demon lord for a short duration."},
 
 		/* Hellfire Tome */
-                {"Unholy word", ""},
-                {"Hellfire", ""},
-                {"Armageddon", ""},
-                {"Shield of the Damned", ""},
+                {"Unholy word", "Heals and cures you."},
+                {"Hellfire", "Creates 2 balls of powerful hellfire."},
+                {"Armageddon", "Sends into oblivion all monsters near you."},
+                {"Shield of the Damned", "Makes you nearly invulnerable for a short duration."},
 	},
 
         /* Spirit */
@@ -5268,16 +5317,16 @@ option_type option_info[] =
         { &show_labels,                 TRUE,   1,      11,
 	"show_labels",                  "Show labels in object listings" },
 
-        { &show_weights,                TRUE,  1,       12,
+        { &show_weights,                TRUE,   1,       12,
 	"show_weights",                 "Show weights in object listings" },
 
-        { &show_inven_graph,            FALSE,  1,      13,
+        { &show_inven_graph,            TRUE,   1,      13,
 	"show_inven_graph",             "Show graphics in inventory list" },
 
-        { &show_equip_graph,            FALSE,  1,      14,
+        { &show_equip_graph,            TRUE,   1,      14,
 	"show_equip_graph",             "Show graphics in equipment list" },
 
-        { &show_store_graph,            FALSE,  1,      15,
+        { &show_store_graph,            TRUE,   1,      15,
 	"show_store_graph",             "Show graphics in stores" },
 
         { &show_choices,                TRUE,  1,       16,
@@ -5489,6 +5538,9 @@ option_type option_info[] =
         { &autoload_old_colors,         FALSE,  5,      3,
         "old_colors",                   "Use the old(Z) coloring scheme(reload the game)" },
 
+        { &auto_more,                   FALSE,  5,      4,
+        "auto_more",                    "Automatically clear '-more-' prompts" },
+
         /*** Birth Options ***/
 
 #if 0 /* XXX free -- no more used */
@@ -5507,10 +5559,10 @@ option_type option_info[] =
 
         { &point_based,                 FALSE,  6,      17,
         "point_based",                  "Generate character using a point system" },
-
+#if 0
         { &special_lvls,                TRUE,   6,      4,
         "special_lvls",                 "Allow the use of special, unique, levels" },
-
+#endif
         { &permanent_levels,            FALSE,  6,      5,
         "permanent_levels",             "Generate persistent dungeons" },
 
@@ -6420,7 +6472,7 @@ magic_power necro_powers[MAX_NECRO_POWERS] =
 {
 	/* Level gained,  cost,  %fail,  name */
         {  1,   2, 10, "Call Darkness", "Call upon the darkness to hurt your foes." },       /* Bolt/beam/ball/LOS of dark */
-        { 10,   6, 20, "Raise Dead", "Brings back your foes in the form of various undead." },          /* Ball */
+        {  5,   6, 20, "Raise Dead", "Brings back your foes in the form of various undead." },          /* Ball */
         { 25,  10, 25, "Summon Undead", "Call undead creatures(s) to your help." },       /* Summon one(some) undead(s) */
         { 30,  15, 20, "Vampirism", "Drain the life of your foes into your own." },           /* Bolt */
         { 35, 100, 25, "Death", "Instantly kills you opponent and you, turning yourself into an undead." },               /* The Death word, always bolt put your HP to 1 */
@@ -7201,9 +7253,9 @@ activation activation_info[MAX_T_ACT] = {
   {"acquirement",30000,163},
   {"something weird",50,164},
   {"aggravation",0,165},
-  {"mutation",100,166},
+  {"corruption",100,166},
   {"cure insanity",2000,167},
-  {"cure mutation",2000,168},
+  {"cure corruption",2000,168},
   {"light absortion",800,169},
 };
 
@@ -7220,8 +7272,8 @@ music music_info[MAX_MUSICS] = {
   {"singing a song of brightness",MUSIC_LITE,60,20,4,1,5},
   {"singing a immaterial song",MUSIC_SHADOW,30,50,2,5,15},
   {"singing a godness song",MUSIC_HOLY,20,100,20,6,15},
-  {"singing a *godness* song",MUSIC_HOLY,30,100,20,5,15}, /* Never random, only for the Drum of Piemur */
-  {"singing a *charming* song",MUSIC_CHARME,20,100,20,1,15}, /* Never random, only for the Flute of Menolly */
+  {"singing a *godness* song",MUSIC_HOLY,30,100,20,5,100}, /* Never random, only for the Drum of Piemur */
+  {"singing a *charming* song",MUSIC_CHARME,20,100,20,1,100}, /* Never random, only for the Flute of Menolly */
 };
 
 /*
@@ -7300,7 +7352,7 @@ inscription_info_type inscription_info[MAX_INSCRIPTIONS] =
  * Inscriptions for pseudo-id
  */
 cptr sense_desc[]= {"whoops","cursed","average","good","good","excellent",
-		    "worthless","terrible","special","broken","uncursed"};
+                    "worthless","terrible","special","broken",""};
 
 /*
  * Flag groups used for art creation, level gaining weapons, ...
@@ -7425,7 +7477,7 @@ flags_group flags_groups[MAX_FLAG_GROUP] =
         },
 };
 
-/* Power, the first 32 are the mutations */
+/* Power, the first 32 are the corruptions */
 power_type powers_type[POWER_MAX] =
 {
         {
@@ -7618,10 +7670,10 @@ power_type powers_type[POWER_MAX] =
                 7, 15, A_CHR, 8,
         },
         {
-                "laser eye",
-                "Your eyes can fire laser beams.",
-                "Your eyes burn for a moment.",
-                "Your eyes burn for a moment, then feel soothed.",
+                "spear of darkness",
+                "You can create a spear of darkness.",
+                "An illusory spear of darkness appears in your hand.",
+                "The spear of darkness disappear.",
                 7, 10, A_WIS, 9,
         },
         {
@@ -7836,6 +7888,13 @@ power_type powers_type[POWER_MAX] =
                 "You can no longer use the merchant abilities.",
                 0, 0, 0, 0,
         },
+        {
+                "turn pet into companion",
+                "You can turn a pet into a companion.",
+                "You suddently gain authority over your pets..",
+                "You can no longer convert pets into companions.",
+                2, 10, A_CHR, 10,
+        },
 };
 
 /*
@@ -7844,6 +7903,7 @@ power_type powers_type[POWER_MAX] =
 quest_type quest[MAX_Q_IDX] =
 {
         {
+                FALSE,
                 NULL,
                 {
                         NULL,
@@ -7865,6 +7925,7 @@ quest_type quest[MAX_Q_IDX] =
                 {0, 0},
         },
         {
+                FALSE,
                 "Dol Guldur",
                 {
                         "The forest of Mirkwood is a very dangerous place to go, mainly due to",
@@ -7879,13 +7940,14 @@ quest_type quest[MAX_Q_IDX] =
                         NULL,
                 },
                 QUEST_STATUS_TAKEN,
-                33,
+                70,
 
                 &plots[PLOT_MAIN],
                 quest_necro_init_hook,
                 {0, 0},
         },
         {
+                FALSE,
                 "Sauron",
                 {
                         "It is time to take the battle to Morgoth. But, before you can",
@@ -7907,6 +7969,7 @@ quest_type quest[MAX_Q_IDX] =
                 {0, 0},
         },
         {
+                FALSE,
                 "Morgoth",
                 {
                         "Your final quest is the ultimate quest that has always been",
@@ -7930,6 +7993,7 @@ quest_type quest[MAX_Q_IDX] =
 
         /* Bree plot */
         {
+                FALSE,
                 "Thieves!!!",
                 {
                         "There are thieves robbing my people! They live in a small",
@@ -7952,6 +8016,7 @@ quest_type quest[MAX_Q_IDX] =
         },
 
         {
+                FALSE,
                 "Random Quest",
                 {
                         NULL,
@@ -7974,6 +8039,7 @@ quest_type quest[MAX_Q_IDX] =
         },
 
         {
+                FALSE,
                 "Lost Hobbit",
                 {
                         "Merton Proundfoot, a young hobbit, seems to have disappeared.",
@@ -7996,6 +8062,7 @@ quest_type quest[MAX_Q_IDX] =
         },
 
         {
+                FALSE,
                 "The Dark Horseman",
                 {
                         "A dark cloaked horseman has been spoted several time in town.",
@@ -8018,6 +8085,7 @@ quest_type quest[MAX_Q_IDX] =
         },
 
         {
+                FALSE,
                 "The Trolls Glade",
                 {
                         "A group of Forest Trolls settled in an abandoned fortress in the",
@@ -8040,6 +8108,7 @@ quest_type quest[MAX_Q_IDX] =
         },
 
         {
+                FALSE,
                 "The Wight Grave",
                 {
                         "The Barrow-Downs hides lots of mysteries and dangers...",
@@ -8063,6 +8132,7 @@ quest_type quest[MAX_Q_IDX] =
 
         /* Lorien plot */
         {
+                FALSE,
                 "Spiders of Mirkwood",
                 {
                         "Powers lurk deep within Mirkwood. Spiders have blocked the",
@@ -8084,6 +8154,7 @@ quest_type quest[MAX_Q_IDX] =
                 {0, 0},
         },
         {
+                FALSE,
                 "Poisoned water",
                 {
                         "A curse has beset Lothlorien. All trees along the shorelines of Nimrodel",
@@ -8106,6 +8177,7 @@ quest_type quest[MAX_Q_IDX] =
         },
         /* Other quests */
         {
+                FALSE,
                 "The Broken Sword",
                 {
                         "You have found Narsil, a broken sword. It is said that the sword that",
@@ -8128,6 +8200,7 @@ quest_type quest[MAX_Q_IDX] =
         },
         /* Gondolin plot */
         {
+                FALSE,
                 "Eol the Dark Elf",
                 {
                         "We have disturbing tidings. Eol the Dark Elf has come seeking his kin in",
@@ -8149,6 +8222,7 @@ quest_type quest[MAX_Q_IDX] =
                 {0, 0},
         },
         {
+                FALSE,
                 "Nirnaeth Arnoediad",
                 {
                         "The fortunes of war in the north turn against us.",
@@ -8170,6 +8244,7 @@ quest_type quest[MAX_Q_IDX] =
                 {0, 0},
         },
         {
+                FALSE,
                 "Invasion of Gondolin",
                 {
                         "Morgoth is upon us! Dragons and Balrogs have poured over secret",
@@ -8191,6 +8266,7 @@ quest_type quest[MAX_Q_IDX] =
                 {0, 0},
         },
         {
+                FALSE,
                 "The Last Alliance",
                 {
                         "The armies of Morgoth are closing in on the last remaining strongholds",
@@ -8201,12 +8277,36 @@ quest_type quest[MAX_Q_IDX] =
                         "how to use the Between: we need you to open a Between gate in our own city,",
                         "and that of Gondolin.",
                         "Simply travel to gondolin, but beware of rebel dragonriders.",
+                        NULL,
+                        NULL,
                 },
                 QUEST_STATUS_UNTAKEN,
                 60,
 
                 &plots[PLOT_MINAS],
                 quest_between_init_hook,
+                {0, 0},
+        },
+        {
+                FALSE,
+                "The One Ring",
+                {
+                        "Find the One Ring, then bring it to Mount Doom, in Mordor to drop",
+                        "it in the Great Fire where it was once forged.",
+                        "But beware, *NEVER* use it, or you will be corrupted.",
+                        "Once destroyed you will be able to permanently defeat Sauron.",
+                        NULL,
+                        NULL,
+                        NULL,
+                        NULL,
+                        NULL,
+                        NULL,
+                },
+                QUEST_STATUS_UNTAKEN,
+                99,
+
+                &plots[PLOT_MAIN],
+                quest_one_init_hook,
                 {0, 0},
         },
 };
@@ -8411,4 +8511,40 @@ between_exit between_exits[MAX_BETWEEN_EXITS] =
                 10, 35,
                 0, 0
         },
+};
+
+/*
+ * Months
+ */
+int month_day[9] =
+{
+        0,      /* 1 day */
+
+        1,      /* 54 days */
+        55,     /* 72 days */
+        127,    /* 54 days */
+
+        181,    /* 3 days */
+
+        184,    /* 54 days */
+        238,    /* 72 days */
+        310,    /* 54 days */
+
+        364,    /* 1 day */
+};
+cptr month_name[9] =
+{
+        "Yestare",
+
+        "Tuile",
+        "Laire",
+        "Yavie",
+
+        "Enderi",
+
+        "Quelle",
+        "Hrive",
+        "Coire",
+
+        "Mettare",
 };

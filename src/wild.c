@@ -400,7 +400,7 @@ void wilderness_gen(int refresh)
 
 
 	/* Day time */
-	if ((turn % (10L * TOWN_DAWN)) < ((10L * TOWN_DAWN) / 2))
+        if ((turn % (10L * DAY)) < ((10L * DAY) / 2))
 		daytime = TRUE;
 	else
 		daytime = FALSE;
@@ -934,7 +934,7 @@ static void town_gen_hack(int t_idx, int qy, int qx)
         for (x = qx; x < qx + SCREEN_WID; x++)
         for (y = qy; y < qy + SCREEN_HGT; y++)
 	{
-                int m_idx;
+                int m_idx, r_idx;
 
                 /* Only in town */
                 if (!in_bounds(y, x)) continue;
@@ -943,9 +943,11 @@ static void town_gen_hack(int t_idx, int qy, int qx)
 
                 if (rand_int(100)) continue;
 
-                hack_allow_special = TRUE;
-                m_idx = place_monster_one(y, x, get_mon_num(0), 0, TRUE, MSTATUS_ENEMY);
-                hack_allow_special = FALSE;
+                r_idx = get_mon_num(0);
+                m_allow_special[r_idx] = TRUE;
+                m_idx = place_monster_one(y, x, r_idx, 0, TRUE, MSTATUS_ENEMY);
+                m_allow_special[r_idx] = FALSE;
+
                 if (m_idx)
                 {
                         monster_type *m_ptr = &m_list[m_idx];
@@ -1068,7 +1070,7 @@ static void town_gen_circle(int t_idx, int qy, int qx)
         for (x = qx; x < qx + SCREEN_WID; x++)
         for (y = qy; y < qy + SCREEN_HGT; y++)
 	{
-                int m_idx;
+                int m_idx, r_idx;
 
                 /* Only in town */
                 if (!in_bounds(y, x)) continue;
@@ -1077,9 +1079,10 @@ static void town_gen_circle(int t_idx, int qy, int qx)
 
                 if (rand_int(100)) continue;
 
-                hack_allow_special = TRUE;
-                m_idx = place_monster_one(y, x, get_mon_num(0), 0, TRUE, MSTATUS_ENEMY);
-                hack_allow_special = FALSE;
+                r_idx = get_mon_num(0);
+                m_allow_special[r_idx] = TRUE;
+                m_idx = place_monster_one(y, x, r_idx, 0, TRUE, MSTATUS_ENEMY);
+                m_allow_special[r_idx] = FALSE;
                 if (m_idx)
                 {
                         monster_type *m_ptr = &m_list[m_idx];

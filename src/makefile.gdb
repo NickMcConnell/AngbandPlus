@@ -27,6 +27,7 @@ OBJS = \
   store.o birth.o wizard1.o wizard2.o help.o \
   cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o cmd7.o \
   loadsave.o files.o levels.o notes.o cmovie.o \
+  status.o randart.o \
   xtra1.o xtra2.o spells1.o spells2.o melee1.o melee2.o \
   object1.o object2.o traps.o monster1.o monster2.o monster3.o \
   variable.o tables.o util.o cave.o ghost.o plots.o \

@@ -2465,9 +2465,11 @@ static void setup_menus(void)
 	    	           MF_BYCOMMAND | MF_ENABLED);
 	}
 
+#ifdef ALLOW_QUITING
 	/* Menu "File", Item "Abort" */
 	EnableMenuItem(hm, IDM_FILE_ABORT,
 	               MF_BYCOMMAND | MF_ENABLED);
+#endif
 
 	/* Menu "File", Item "Exit" */
 	EnableMenuItem(hm, IDM_FILE_EXIT,
@@ -2777,6 +2779,7 @@ static void process_menus(WORD wCmd)
 			break;
 		}
 
+#ifdef ALLOW_QUITING
 		/* Abort */
 		case IDM_FILE_ABORT:
 		{
@@ -2793,6 +2796,7 @@ static void process_menus(WORD wCmd)
 			quit(NULL);
 			break;
 		}
+#endif
 
 		case IDM_WINDOW_VIS_0:
 		{
@@ -3866,6 +3870,7 @@ static void init_stuff(void)
 	validate_dir(ANGBAND_DIR_INFO);
         validate_dir(ANGBAND_DIR_NOTE);
 	validate_dir(ANGBAND_DIR_SAVE);
+        validate_dir(ANGBAND_DIR_PREF);
 	validate_dir(ANGBAND_DIR_USER);
 	validate_dir(ANGBAND_DIR_XTRA);
 	validate_dir(ANGBAND_DIR_CMOV);

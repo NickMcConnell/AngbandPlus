@@ -155,6 +155,7 @@ bool quest_null_hook(int q_idx)
 
 /**************************** Main plot ***************************/
 #include "q_main.c"
+#include "q_one.c"
 
 /**************************** Bree plot ***************************/
 #include "q_thief.c"

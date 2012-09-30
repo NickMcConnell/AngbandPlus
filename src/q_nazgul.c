@@ -23,9 +23,9 @@ bool quest_nazgul_gen_hook(int small)
         }
 
         /* Place the nazgul */
-        hack_allow_special = TRUE;
+        m_allow_special[test_monster_name("Uvatha the Horseman")] = TRUE;
         place_monster_one(y, x, test_monster_name("Uvatha the Horseman"), 0, FALSE, MSTATUS_ENEMY);
-        hack_allow_special = FALSE;
+        m_allow_special[test_monster_name("Uvatha the Horseman")] = FALSE;
 
         return FALSE;
 }

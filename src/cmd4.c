@@ -692,7 +692,7 @@ static void do_cmd_options_autosave(cptr info)
 /*
  * Interact with some options
  */
-void do_cmd_options_aux(int page, cptr info)
+void do_cmd_options_aux(int page, cptr info, bool read_only)
 {
 	char	ch;
 
@@ -774,6 +774,8 @@ void do_cmd_options_aux(int page, cptr info)
 			case 'Y':
 			case '6':
 			{
+                                if (read_only) break;
+
 				(*option_info[opt[k]].o_var) = TRUE;
 				k = (k + 1) % n;
 				break;
@@ -783,6 +785,8 @@ void do_cmd_options_aux(int page, cptr info)
 			case 'N':
 			case '4':
 			{
+                                if (read_only) break;
+
 				(*option_info[opt[k]].o_var) = FALSE;
 				k = (k + 1) % n;
 				break;
@@ -1134,10 +1138,12 @@ void do_cmd_options(void)
 		prt("(2) Disturbance Options", 5, 5);
 		prt("(3) Game-Play Options", 6, 5);
 		prt("(4) Efficiency Options", 7, 5);
+                prt("(P/5) PernAngband Options", 8, 5);
+                prt("(6) Birth Options(read only)", 9, 5);
 
-                prt("(P/5) PernAngband Options", 9, 5);
 		/* Testing */
 		prt("(S) Stacking Options", 10, 5);
+
 		/* Special choices */
 		prt("(D) Base Delay Factor", 11, 5);
 		prt("(H) Hitpoint Warning", 12, 5);
@@ -1215,7 +1221,7 @@ void do_cmd_options(void)
 			case '1':
 			{
 				/* Process the general options */
-                                do_cmd_options_aux(1, "User Interface Options");
+                                do_cmd_options_aux(1, "User Interface Options", FALSE);
 				break;
 			}
 
@@ -1223,7 +1229,7 @@ void do_cmd_options(void)
 			case '2':
 			{
 				/* Spawn */
-				do_cmd_options_aux(2, "Disturbance Options");
+                                do_cmd_options_aux(2, "Disturbance Options", FALSE);
 				break;
 			}
 
@@ -1231,7 +1237,7 @@ void do_cmd_options(void)
 			case '3':
 			{
 				/* Spawn */
-				do_cmd_options_aux(3, "Game-Play Options");
+                                do_cmd_options_aux(3, "Game-Play Options", FALSE);
 				break;
 			}
 
@@ -1239,14 +1245,21 @@ void do_cmd_options(void)
 			case '4':
 			{
 				/* Spawn */
-				do_cmd_options_aux(4, "Efficiency Options");
+                                do_cmd_options_aux(4, "Efficiency Options", FALSE);
 				break;
 			}
 
                         /* PernAngband Options */
                         case 'P': case 'p': case '5':
 			{
-                                do_cmd_options_aux(5, "PernAngband Options");
+                                do_cmd_options_aux(5, "PernAngband Options", FALSE);
+				break;
+			}
+
+                        /* Birth Options - read only */
+                        case '6':
+			{
+                                do_cmd_options_aux(6, "Birth Options(read only)", TRUE);
 				break;
 			}
 
@@ -1256,7 +1269,7 @@ void do_cmd_options(void)
 			case 's':
 			{
 				/* Spawn */
-                                do_cmd_options_aux(7, "Stacking Options");
+                                do_cmd_options_aux(7, "Stacking Options", FALSE);
 				break;
 			}
 
@@ -2335,12 +2348,10 @@ void do_cmd_visuals(void)
                                 if (i == 'c')
                                 {
                                         r_ptr->x_char = (byte)(cc + 1);
-                                        un_pref_char[(byte)r_ptr->x_char] = r_ptr->d_char;
                                 }
                                 if (i == 'C')
                                 {
                                         r_ptr->x_char = (byte)(cc - 1);
-                                        un_pref_char[(byte)r_ptr->x_char] = r_ptr->d_char;
                                 }
 			}
 		}
@@ -2398,12 +2409,10 @@ void do_cmd_visuals(void)
                                 if (i == 'c')
                                 {
                                         k_info[k].x_char = (byte)(cc + 1);
-                                        un_pref_char[(byte)k_info[k].x_char] = k_info[k].d_char;
                                 }
                                 if (i == 'C')
                                 {
                                         k_info[k].x_char = (byte)(cc - 1);
-                                        un_pref_char[(byte)k_info[k].x_char] = k_info[k].d_char;
                                 }
 			}
 		}
@@ -2445,7 +2454,7 @@ void do_cmd_visuals(void)
 
 				/* Prompt */
 				Term_putstr(0, 22, -1, TERM_WHITE,
-				            "Command (n/N/a/A/c/C): ");
+                                            "Command (n/N/a/A/c/C/d): ");
 
 				/* Get a command */
 				i = inkey();
@@ -2461,12 +2470,15 @@ void do_cmd_visuals(void)
                                 if (i == 'c')
                                 {
                                         f_info[f].x_char = (byte)(cc + 1);
-                                        un_pref_char[(byte)f_info[f].x_char] = f_info[f].d_char;
                                 }
                                 if (i == 'C')
                                 {
                                         f_info[f].x_char = (byte)(cc - 1);
-                                        un_pref_char[(byte)f_info[f].x_char] = f_info[f].d_char;
+                                }
+                                if (i == 'd')
+                                {
+                                        f_info[f].x_char = f_ptr->d_char;
+                                        f_info[f].x_attr = f_ptr->d_attr;
                                 }
 			}
 		}
@@ -2826,7 +2838,7 @@ void do_cmd_feeling(void)
 	if (feeling > 10) feeling = 10;
 
         /* Feeling of the fate */
-        if ((fate_flag) && (!special_flag) && (!p_ptr->inside_quest))
+        if ((fate_flag) && (!(dungeon_flags1 & LF1_SPECIAL)) && (!p_ptr->inside_quest))
 	{
                 msg_print("You feel that you will meet your fate here.");
 	}
@@ -2844,9 +2856,12 @@ void do_cmd_feeling(void)
 	}
 
         /* No useful feeling in special levels */
-        if (special_flag)
+        if (dungeon_flags1 & LF1_DESC)
 	{
-                msg_print("Looks like a special level.");
+                char buf[1024];
+
+                if (!get_level_desc(buf)) msg_print("Someone forgot to describe this level!");
+                else msg_print(buf);
 		return;
 	}
 
@@ -3849,10 +3864,10 @@ static void do_cmd_knowledge_objects(void)
 }
 
 /*
- * List mutations we have...
+ * List corruptions we have...
  *
  */
-void do_cmd_knowledge_mutations(void)
+void do_cmd_knowledge_corruptions(void)
 {
 	FILE *fff;
 	char file_name[1024];
@@ -3863,14 +3878,14 @@ void do_cmd_knowledge_mutations(void)
 	/* Open a new file */
 	fff = my_fopen(file_name, "w");
 
-	/* Dump the mutations to file */
-	if (fff) dump_mutations(fff);
+        /* Dump the corruptions to file */
+        if (fff) dump_corruptions(fff);
 
 	/* Close the file */
 	my_fclose(fff);
 
 	/* Display the file contents */
-	show_file(file_name, "Mutations", 0, 0);
+        show_file(file_name, "Corruptions", 0, 0);
 
 	/* Remove the file */
 	fd_kill(file_name);
@@ -3907,7 +3922,7 @@ static void do_cmd_knowledge_quests(void)
                         fprintf(fff, "Number: %d, Killed: %ld.\n", random_quests[dun_level].type, quest[QUEST_RANDOM].data[0]);
                         fprintf(fff, "\n");
                 }
-                else
+                else if (!quest[i].silent)
                 {
                         if (quest[i].status == QUEST_STATUS_TAKEN)
                         {
@@ -4006,7 +4021,7 @@ void do_cmd_knowledge(void)
 		prt("(2) Display known uniques", 5, 5);
 		prt("(3) Display known objects", 6, 5);
 		prt("(4) Display kill count", 7, 5);
-		prt("(5) Display mutations", 8, 5);
+                prt("(5) Display corruptions", 8, 5);
 		prt("(6) Display current pets", 9, 5);
 		prt("(7) Display current quests", 10, 5);
                 prt("(8) Display current fates", 11, 5);
@@ -4037,8 +4052,8 @@ void do_cmd_knowledge(void)
 		case '4': /* Kill count  */
 			do_cmd_knowledge_kill_count();
 			break;
-		case '5': /* Mutations */
-			do_cmd_knowledge_mutations();
+                case '5': /* corruptions */
+                        do_cmd_knowledge_corruptions();
 			break;
 		case '6': /* Pets */
 			do_cmd_knowledge_pets();
@@ -4124,15 +4139,13 @@ void do_cmd_change_movement(int i)
 /*
  * Display the time and date
  */
-void do_cmd_time(void)
+void do_cmd_time()
 {
-	s32b len = 10L * TOWN_DAWN;
-	s32b tick = turn % len + len / 4;
-
-	int day = turn / len + 1;
-	int hour = (24 * tick / len) % 24;
-	int min = (1440 * tick / len) % 60;
+        int day = bst(DAY, turn);
+        int hour = bst(HOUR, turn);
+        int min = bst(MINUTE, turn);
 	int full = hour * 100 + min;
+        char buf2[20];
 
 	int start = 9999;
 	int end = -9999;
@@ -4145,12 +4158,15 @@ void do_cmd_time(void)
 
 	FILE *fff;
 
-	strcpy(desc, "It is a strange time.");
+        strcpy(desc, "It is a strange time.");
+
+        sprintf(buf2, get_day(bst(YEAR, turn) + START_YEAR));
+        msg_format("This is %s of the %s year of the third age.", get_month_name(day, wizard, FALSE), buf2);
 
 	/* Message */
-	msg_format("This is day %d. The time is %d:%02d %s.",
-				  day, (hour % 12 == 0) ? 12 : (hour % 12),
-				  min, (hour < 12) ? "AM" : "PM");
+        msg_format("The time is %d:%02d %s.",
+                                 (hour % 12 == 0) ? 12 : (hour % 12),
+                                 min, (hour < 12) ? "AM" : "PM");
 
 	/* Find the path */
 	if (!rand_int(10) || p_ptr->image)

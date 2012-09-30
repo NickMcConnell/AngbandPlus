@@ -95,7 +95,7 @@ static int cat_type[256];
 static cptr categories[] =
 {
         NULL,"Swords","Polearms","Blunt Weapons","Axe","Daemon Books",
-        "Bows","Ammo","Dig/M.Staff/Boom",
+        "Bows","Ammo","Dig/M.Staff/Boom/Trap",
         "Body Armour","Dragon Armour","Other Armour",
         "Rings","Amulets",
         "Potions", "Potions(2!)","Scrolls",
@@ -174,6 +174,7 @@ static void init_categories(void)
 	cat_type[TV_DIGGING]=ITEM_DIGGER;
 	cat_type[TV_MSTAFF]=ITEM_DIGGER;
 	cat_type[TV_BOOMERANG]=ITEM_DIGGER;
+        cat_type[TV_TRAPKIT]=ITEM_DIGGER;
 	
 	/* Stuff to protect me */
 	cat_type[TV_SOFT_ARMOR]=ITEM_BODY_ARMOUR;

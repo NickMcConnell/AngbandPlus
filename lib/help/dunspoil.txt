@@ -105,11 +105,6 @@ The Land Of Rhun is located on a large plain, and has been taken over
 by Ulfang the Black, Morgoth's first Easterling follower.
 Equivalent to dungeon levels 26 to 40.
 
-#####GVolcano
-A steaming cave in the center of the Volcano, this place is *hot*. 
-Itangast is rumoured to reside within the very heart of the Volcano.
-Equivalent to dungeon levels 30 to 45.
-
 #####GThe Mines of Moria
 A stone door leads down to the depths of the Moria. Once the home of
 the dwarves, evil things have crept in and taken over the mines. 
@@ -162,6 +157,12 @@ A big, dark and frightening tunnel leading to a Dragon's Lair, this
 large cave is the ancestral home of the Dragons. Glaurung, Father of
 the Dragons has long made his home here. 
 Equivalent to dungeon levels 60 to 72.
+
+#####GMount Doom
+A steaming cave in the center of Mount Doom, this place is *hot*.
+It is said that Sauron forged the One Ring here and that it's the only place
+where it could be destroyed.
+Equivalent to dungeon levels 85 to 99.
 
 #####GVanilla Dungeon
 The classic dungeon of Angband, it contains within it's depths 

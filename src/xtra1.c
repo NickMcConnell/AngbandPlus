@@ -751,7 +751,8 @@ static void prt_depth(void)
 	{
 		strcpy(depths, "Arena");
 	}
-        if (special_flag)
+        else if (get_dungeon_name(depths)) {}
+        else if (dungeon_flags1 & LF1_SPECIAL)
 	{
                 strcpy(depths, "Special");
         }
@@ -773,8 +774,8 @@ static void prt_depth(void)
 	}
 	else
 	{
-                if (d_ptr->flags1 & DF1_TOWER) (void)sprintf(depths, "Lev -%d", dun_level);
-                else (void)sprintf(depths, "Lev %d", dun_level);
+                if (d_ptr->flags1 & DF1_TOWER) (void)sprintf(depths, "%c%c%c -%d", d_ptr->short_name[0], d_ptr->short_name[1], d_ptr->short_name[2], dun_level);
+                else (void)sprintf(depths, "%c%c%c %d", d_ptr->short_name[0], d_ptr->short_name[1], d_ptr->short_name[2],dun_level);
 	}
 
 	/* Right-Adjust the "depth", and clear old values */
@@ -1191,6 +1192,12 @@ static void health_redraw(void)
 
 		/* Asleep */
 		if (m_ptr->csleep) attr = TERM_BLUE;
+
+                /* Poisoned */
+                if (m_ptr->poisoned) attr = TERM_GREEN;
+
+                /* Bleeding */
+                if (m_ptr->bleeding) attr = TERM_RED;
 
 		/* Convert percent into "health" */
 		len = (pct < 10) ? 1 : (pct < 90) ? (pct / 10 + 1) : 10;
@@ -2020,7 +2027,7 @@ static void calc_powers(void)
         /* Get intrinsincs */
         for (i = 0; i < POWER_SLOT; i++) p_ptr->powers[i] = p_ptr->powers_mod[i];
 
-        /* Add mutations */
+        /* Add corruptions */
         p_ptr->powers[0] |= p_ptr->muta1;
 
         /* Add objects powers */
@@ -2231,7 +2238,7 @@ static void calc_mana(void)
         if (msp && (p_ptr->pracem == RMOD_HERMIT)) msp += msp / 5;
 
 	/* Only mages are affected */
-        if (mp_ptr->spell_book == TV_MAGERY_BOOK)
+        if (cp_ptr->flags1 & CF1_NO_GLOVES)
 	{
 		/* Assume player is not encumbered by gloves */
 		p_ptr->cumber_glove = FALSE;
@@ -3417,8 +3424,8 @@ void calc_bonuses(void)
 	p_ptr->aggravate = FALSE;
 	p_ptr->teleport = FALSE;
 	p_ptr->exp_drain = FALSE;
-        p_ptr->drain_mana = FALSE;
-        p_ptr->drain_life = FALSE;
+        p_ptr->drain_mana = 0;
+        p_ptr->drain_life = 0;
 	p_ptr->bless_blade = FALSE;
         p_ptr->xtra_might = 0;
         p_ptr->auto_id = FALSE;
@@ -3750,7 +3757,7 @@ void calc_bonuses(void)
 	}
 
 
-	/* I'm adding the mutations here for the lack of a better place... */
+        /* I'm adding the corruptions here for the lack of a better place... */
 	if (p_ptr->muta3)
 	{
 		if (p_ptr->muta3 & MUT3_HYPER_STR)
@@ -3996,8 +4003,8 @@ void calc_bonuses(void)
 		/* Various flags */
 		if (f3 & (TR3_AGGRAVATE)) p_ptr->aggravate = TRUE;
 		if (f3 & (TR3_TELEPORT)) p_ptr->teleport = TRUE;
-                if (f5 & (TR5_DRAIN_MANA)) p_ptr->drain_mana = TRUE;
-                if (f5 & (TR5_DRAIN_HP)) p_ptr->drain_life = TRUE;
+                if (f5 & (TR5_DRAIN_MANA)) p_ptr->drain_mana++;
+                if (f5 & (TR5_DRAIN_HP)) p_ptr->drain_life++;
 		if (f3 & (TR3_DRAIN_EXP)) p_ptr->exp_drain = TRUE;
 		if (f3 & (TR3_BLESSED)) p_ptr->bless_blade = TRUE;
                 if (f3 & (TR3_XTRA_MIGHT)) p_ptr->xtra_might += o_ptr->pval;
@@ -4514,7 +4521,7 @@ void calc_bonuses(void)
 
 
 	/* Extract the current weight (in tenth pounds) */
-	j = total_weight;
+	j = calc_total_weight();
 
 	/* Extract the "weight limit" (in tenth pounds) */
 	i = weight_limit();
@@ -5714,14 +5721,23 @@ void gain_fate(byte fate)
                         switch(fates[i].fate)
                         {
                                 case FATE_FIND_O:
-                                        fates[i].o_idx = get_obj_num(max_dlv[dungeon_type] + randint(10));
+                                {
+                                        while (TRUE)
+                                        {
+                                                object_kind *k_ptr;
+
+                                                fates[i].o_idx = get_obj_num(max_dlv[dungeon_type] + randint(10));
+                                                k_ptr = &k_info[fates[i].o_idx];
+
+                                                if (!(k_ptr->flags3 & TR3_INSTA_ART) && !(k_ptr->flags3 & TR3_NORM_ART)) break;
+                                        }
                                         level = rand_range(max_dlv[dungeon_type] - 20, max_dlv[dungeon_type] + 20);
                                         fates[i].level = (level < 1)?1:(level > 98)?98:level;
                                         fates[i].serious = rand_int(2);
                                         fates[i].know = FALSE;
                                         if (wizard) msg_format("New fate : Find object %d on level %d", fates[i].o_idx, fates[i].level);
                                         break;
-
+                                }
                                 case FATE_FIND_R:
                                         /* Prepare allocation table */
                                         get_mon_num_prep();

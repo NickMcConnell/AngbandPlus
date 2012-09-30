@@ -26,6 +26,7 @@ OBJS = \
   store.o birth.o wizard1.o wizard2.o bldg.o cmovie.o \
   cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o cmd7.o \
   loadsave.o files.o levels.o notes.o squeltch.o \
+  status.o randart.o \
   xtra1.o xtra2.o spells1.o spells2.o melee1.o melee2.o \
   object1.o object2.o traps.o monster1.o monster2.o monster3.o \
   variable.o tables.o util.o cave.o ghost.o wild.o powers.o \
@@ -87,7 +88,7 @@ clean:
 cleanall: clean
 	del *.exe
 
-plots.o: q_rand.c q_main.c \
+plots.o: q_rand.c q_main.c q_one.c \
 	q_thief.c q_hobbit.c q_nazgul.c q_troll.c q_wight.c \
 	q_spider.c q_poison.c \
 	q_eol.c q_nirna.c q_invas.c \

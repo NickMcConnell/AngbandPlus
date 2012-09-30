@@ -743,14 +743,18 @@ void reset_visuals(void)
 	if (use_graphics)
 	{
 		/* Process "graf.prf" */
+                user_process_pref_file = FALSE;
 		process_pref_file("graf.prf");
+                user_process_pref_file = TRUE;
 	}
 
 	/* Normal symbols */
 	else
 	{
 		/* Process "font.prf" */
+                user_process_pref_file = FALSE;
 		process_pref_file("font.prf");
+                user_process_pref_file = TRUE;
 	}
 }
 
@@ -879,6 +883,13 @@ int object_power(object_type *o_ptr)
 		ego_item_type *e_ptr = &e_info[o_ptr->name2];
 
                 if (power == -1) power = e_ptr->power;
+
+                if (o_ptr->name2b)
+                {
+                        ego_item_type *e_ptr = &e_info[o_ptr->name2b];
+
+                        if (power == -1) power = e_ptr->power;
+                }
 	}
 
 	/* Artifact */
@@ -915,7 +926,7 @@ void object_flags_known(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3, u32b *
 	(*f3) = k_ptr->flags3;
         (*f4) = k_ptr->flags4;
         (*f5) = k_ptr->flags5;
-        (*f4) = k_ptr->esp;
+        (*esp) = k_ptr->esp;
 
 
 #ifdef SPOIL_ARTIFACTS
@@ -945,7 +956,7 @@ void object_flags_known(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3, u32b *
 	}
 
 	/* Random artifact ! */
-        if (o_ptr->art_flags1 || o_ptr->art_flags2 || o_ptr->art_flags4 || o_ptr->art_flags5 || o_ptr->art_esp)
+        if (o_ptr->art_flags1 || o_ptr->art_flags2 || o_ptr->art_flags3 || o_ptr->art_flags4 || o_ptr->art_flags5 || o_ptr->art_esp)
 	{
 		(*f1) |= o_ptr->art_flags1;
 		(*f2) |= o_ptr->art_flags2;
@@ -1672,6 +1683,9 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		}
 	}
 
+        /* Mega Hack */
+        if (known && (k_ptr->flags3 & TR3_NORM_ART)) basenm = (k_name + k_ptr->name);
+
 
 	/* Start dumping the result */
 	t = tmp_val;
@@ -1686,13 +1700,18 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
                 else r_ptr = &r_info[o_ptr->pval];
 
 		/* Grab any ego-item name */
-                if (known && o_ptr->name2 && (o_ptr->tval != TV_ROD_MAIN))
+                if (known && (o_ptr->name2 || o_ptr->name2b) && (o_ptr->tval != TV_ROD_MAIN))
 		{
 			ego_item_type *e_ptr = &e_info[o_ptr->name2];
+                        ego_item_type *e2_ptr = &e_info[o_ptr->name2b];
 
                         if (e_ptr->before)
                         {
                                 ego = e_ptr->name + e_name;
+                        }
+                        else if (e2_ptr->before)
+                        {
+                                ego = e2_ptr->name + e_name;
                         }
                 }
 
@@ -1763,13 +1782,19 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		}
 
 		/* Grab any ego-item name */
-                if (known && o_ptr->name2 && (o_ptr->tval != TV_ROD_MAIN))
+                if (known && (o_ptr->name2 || o_ptr->name2b) && (o_ptr->tval != TV_ROD_MAIN))
 		{
 			ego_item_type *e_ptr = &e_info[o_ptr->name2];
+                        ego_item_type *e2_ptr = &e_info[o_ptr->name2b];
 
                         if (e_ptr->before)
                         {
                                 t = object_desc_str(t, (e_name + e_ptr->name));
+                                t = object_desc_chr(t, ' ');
+                        }
+                        if (e2_ptr->before)
+                        {
+                                t = object_desc_str(t, (e_name + e2_ptr->name));
                                 t = object_desc_chr(t, ' ');
                         }
 		}
@@ -1813,13 +1838,19 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		}
 
 		/* Grab any ego-item name */
-                if (known && o_ptr->name2 && (o_ptr->tval != TV_ROD_MAIN))
+                if (known && (o_ptr->name2 || o_ptr->name2b) && (o_ptr->tval != TV_ROD_MAIN))
 		{
 			ego_item_type *e_ptr = &e_info[o_ptr->name2];
+                        ego_item_type *e2_ptr = &e_info[o_ptr->name2b];
 
                         if (e_ptr->before)
                         {
                                 t = object_desc_str(t, (e_name + e_ptr->name));
+                                t = object_desc_chr(t, ' ');
+                        }
+                        if (e2_ptr->before)
+                        {
+                                t = object_desc_str(t, (e_name + e2_ptr->name));
                                 t = object_desc_chr(t, ' ');
                         }
 		}
@@ -1882,7 +1913,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 
 
 	/* Append the "kind name" to the "base name" */
-        if ((append_name) && ( (!artifact_p(o_ptr) || (k_ptr->flags3 & TR3_NORM_ART))))
+        if ((append_name) && (!artifact_p(o_ptr)))
 	{
 		t = object_desc_str(t, " of ");
 		t = object_desc_str(t, (k_name + k_ptr->name));
@@ -1931,14 +1962,20 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
                 }
 
 		/* Grab any ego-item name */
-                else if (o_ptr->name2 && (o_ptr->tval != TV_ROD_MAIN))
+                else if ((o_ptr->name2 || o_ptr->name2b) && (o_ptr->tval != TV_ROD_MAIN))
 		{
 			ego_item_type *e_ptr = &e_info[o_ptr->name2];
+                        ego_item_type *e2_ptr = &e_info[o_ptr->name2b];
 
                         if (!e_ptr->before)
                         {
                                 t = object_desc_chr(t, ' ');
                                 t = object_desc_str(t, (e_name + e_ptr->name));
+                        }
+                        if (!e2_ptr->before)
+                        {
+                                t = object_desc_chr(t, ' ');
+                                t = object_desc_str(t, (e_name + e2_ptr->name));
                         }
 		}
 	}
@@ -2283,7 +2320,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 
 
 	/* Indicate "charging" artifacts XXX XXX XXX */
-        if (known && o_ptr->timeout && (o_ptr->name2 != EGO_MSTAFF_SPELL) && (o_ptr->tval!=TV_EGG) && (o_ptr->tval != TV_ROD_MAIN) && (o_ptr->tval != TV_LITE))
+        if (known && o_ptr->timeout && (!is_ego_p(o_ptr, EGO_MSTAFF_SPELL)) && (o_ptr->tval!=TV_EGG) && (o_ptr->tval != TV_ROD_MAIN) && (o_ptr->tval != TV_LITE))
 	{
 		/* Hack -- Dump " (charging)" if relevant */
 		t = object_desc_str(t, " (charging)");
@@ -2297,12 +2334,12 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	}
 
         /* Indicate "charging" Mage Staffs XXX XXX XXX */
-        if (known && o_ptr->timeout && (o_ptr->name2==EGO_MSTAFF_SPELL) && (o_ptr->tval!=TV_EGG))
+        if (known && o_ptr->timeout && (is_ego_p(o_ptr, EGO_MSTAFF_SPELL)) && (o_ptr->tval!=TV_EGG))
 	{
                 /* Hack -- Dump " (charging spell1)" if relevant */
                 t = object_desc_str(t, " (charging spell1)");
 	}
-        if (known && o_ptr->xtra2 && (o_ptr->name2==EGO_MSTAFF_SPELL))
+        if (known && o_ptr->xtra2 && (is_ego_p(o_ptr, EGO_MSTAFF_SPELL)))
 	{
                 /* Hack -- Dump " (charging spell2)" if relevant */
                 t = object_desc_str(t, " (charging spell2)");
@@ -2451,7 +2488,7 @@ cptr item_activation(object_type *o_ptr, byte num)
 	 * for art_name
 	 */
 
-        if (o_ptr->name2 == EGO_MSTAFF_SPELL)
+        if (is_ego_p(o_ptr, EGO_MSTAFF_SPELL))
         {
                 int gf, mod, mana;
 
@@ -3163,7 +3200,7 @@ cptr item_activation(object_type *o_ptr, byte num)
         {
                 return "stop or resume the egg development";
         }
-        if (o_ptr->name2 == EGO_INST_DRAGONKIND)
+        if (is_ego_p(o_ptr, EGO_INST_DRAGONKIND))
 	{
                 switch(o_ptr->pval2)
                 {
@@ -3192,23 +3229,23 @@ cptr item_activation(object_type *o_ptr, byte num)
                         return "aggravate monster every 100 turns";
                 }
         }
-        if (o_ptr->name2 == EGO_DRAGON)
+        if (is_ego_p(o_ptr, EGO_DRAGON))
 	{
 		return "teleport every 50+d50 turns";
 	}
-        if (o_ptr->name2 == EGO_JUMP)
+        if (is_ego_p(o_ptr, EGO_JUMP))
 	{
                 return "phasing every 10+d10 turns";
 	}
-        if (o_ptr->name2 == EGO_SPINING)
+        if (is_ego_p(o_ptr, EGO_SPINING))
 	{
                 return "spining around every 50+d25 turns";
 	}
-        if (o_ptr->name2 == EGO_NOLDOR)
+        if (is_ego_p(o_ptr, EGO_NOLDOR))
 	{
                 return "detect treasure every 10+d20 turns";
 	}
-        if (o_ptr->name2 == EGO_SPECTRAL)
+        if (is_ego_p(o_ptr, EGO_SPECTRAL))
         {
                 return "wraith-form every 50+d50 turns";
         }
@@ -3501,7 +3538,8 @@ bool identify_fully_aux(object_type *o_ptr, FILE *fff)
 	if (f3 & (TR3_ACTIVATE))
 	{
 		info[i++] = "It can be activated for...";
-                if (o_ptr->name2 == EGO_MSTAFF_SPELL){
+                if (is_ego_p(o_ptr, EGO_MSTAFF_SPELL))
+                {
                         info[i++] = item_activation(o_ptr,1);
                         info[i++] = "And...";
                 }
@@ -3652,6 +3690,11 @@ bool identify_fully_aux(object_type *o_ptr, FILE *fff)
 		info[i++] = "It is very sharp and can cut your foes.";
 	}
 
+        if (f5 & (TR5_WOUNDING))
+	{
+                info[i++] = "It is very sharp and make your foes bleed.";
+	}
+
 	if (f1 & (TR1_KILL_DRAGON))
 	{
 		info[i++] = "It is a great bane of dragons.";
@@ -3698,11 +3741,11 @@ bool identify_fully_aux(object_type *o_ptr, FILE *fff)
 	}
         if (f1 & (TR1_MANA))
 	{
-                info[i++] = "It increases your mana capacity.";
+                info[i++] = "It affects your mana capacity.";
 	}
         if (f1 & (TR1_SPELL))
 	{
-                info[i++] = "It increases your spell power.";
+                info[i++] = "It affects your spell power.";
 	}
 
         if (f2 & (TR2_INVIS))
@@ -3711,7 +3754,7 @@ bool identify_fully_aux(object_type *o_ptr, FILE *fff)
 	}
         if (f2 & (TR2_LIFE))
 	{
-                info[i++] = "It increases your life.";
+                info[i++] = "It affects your hit points.";
 	}
         if (o_ptr->tval != TV_TRAPKIT)
         {
@@ -4046,6 +4089,10 @@ bool identify_fully_aux(object_type *o_ptr, FILE *fff)
 	{
                 info[i++] = "It can clone monsters.";
 	}
+        if (f4 & (TR4_CURSE_NO_DROP))
+	{
+                info[i++] = "It cannot be droped while cursed.";
+	}
         if (f3 & (TR3_AUTO_CURSE))
 	{
                 info[i++] = "It can re-curse itself.";
@@ -4082,6 +4129,7 @@ bool identify_fully_aux(object_type *o_ptr, FILE *fff)
         else
         {
                 /* Save the screen */
+                character_icky = TRUE;
                 Term_save();
 
                 /* Erase the screen */
@@ -4111,6 +4159,7 @@ bool identify_fully_aux(object_type *o_ptr, FILE *fff)
 
                 /* Restore the screen */
                 Term_load();
+                character_icky = FALSE;
         }
 
 	/* Gave knowledge */
@@ -4797,6 +4846,7 @@ void show_inven(void)
 #ifdef AMIGA
 			if (a & 0x80) a |= 0x40;
 #endif
+                        if (!o_ptr->k_idx) c = ' ';
 
 			Term_draw(col + 3, j + 1, a, c);
 		}
@@ -4972,6 +5022,7 @@ void show_equip(void)
 #ifdef AMIGA
 			if (a & 0x80) a |= 0x40;
 #endif
+                        if (!o_ptr->k_idx) c = ' ';
 
 			Term_draw(col + 3, j + 1, a, c);
 		}
@@ -6166,9 +6217,6 @@ int wear_ammo(object_type *o_ptr)
 	/* Wear the new stuff */
 	object_copy(o_ptr, q_ptr);
 
-	/* Increase the weight */
-	total_weight += q_ptr->weight;
-
 	/* Increment the equip counter by hand */
 	equip_cnt++;
 
@@ -6262,7 +6310,7 @@ bool can_carry_heavy(object_type *o_ptr)
                         i = weight_limit();
 
 			/* Calculate current encumbarance */
-                        j = total_weight;
+                        j = calc_total_weight();
 
 			/* Apply encumbarance from weight */
 			if (j > i/2) old_enc = ((j - (i/2)) / (i / 10));

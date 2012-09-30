@@ -43,11 +43,11 @@
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 5
 #define FAKE_VER_MINOR 0
-#define FAKE_VER_PATCH 0
+#define FAKE_VER_PATCH 1
 
 #define ANGBAND_2_8_1
 
-#define SAVEFILE_VERSION 21
+#define SAVEFILE_VERSION 29
 
 /*
  * This value is not currently used
@@ -160,7 +160,7 @@
 /*
  * Maximum number of player "race mod" types (see "table.c", etc)
  */
-#define MAX_RACE_MODS       7
+#define MAX_RACE_MODS       8
 
 /*
  * Maximum number of player "class" types (see "table.c", etc)
@@ -243,7 +243,7 @@
 #define MUT1_STERILITY                  0x01000000L
 #define MUT1_PANIC_HIT                  0x02000000L
 #define MUT1_DAZZLE                     0x04000000L
-#define MUT1_LASER_EYE                  0x08000000L
+#define MUT1_DARKRAY                    0x08000000L
 #define MUT1_RECALL                     0x10000000L
 #define MUT1_BANISH                     0x20000000L
 #define MUT1_COLD_TOUCH                 0x40000000L
@@ -459,7 +459,14 @@
 /*
  * Misc constants
  */
-#define TOWN_DAWN               10000   /* Number of turns from dawn to dawn XXX */
+#define DAY                     11520                   /* Number of turns per day */
+#define YEAR                    (DAY * 365)             /* Number of turns per year */
+#define HOUR                    (DAY / 24)              /* Number of turns per hour */
+#define MINUTE                  (HOUR / 60)             /* Number of turns per minute */
+#define DAY_START               (HOUR * 6)              /* Sunrise */
+#define START_YEAR              2890                    /* Bilbo birthday year */
+#define START_DAY               (DAY * (42 + 127))      /* Bilbo birthday */
+
 #define BREAK_GLYPH             550             /* Rune of protection resistance */
 #define BREAK_MINOR_GLYPH       99             /* For explosive runes */
 #define BTH_PLUS_ADJ    3       /* Adjust BTH per plus-to-hit */
@@ -713,6 +720,7 @@
 #define RMOD_ZOMBIE             4
 #define RMOD_BARBARIAN          5
 #define RMOD_HERMIT             6
+#define RMOD_MUTANT             7
 
 
 /*
@@ -746,6 +754,12 @@
 #define CLASS_DAEMONOLOGIST     25
 #define CLASS_WEAPONMASTER      26
 #define CLASS_MERCHANT          27
+
+/* Class flags */
+#define CF1_ZERO_FAIL           0x00000001L     /* Fail rates can reach 0% */
+#define CF1_NO_GLOVES           0x00000002L     /* Gloves disrupts magic */
+#define CF1_BLESS_WEAPON        0x00000004L     /* hafted disrupts magic */
+#define CF1_BEAM                0x00000008L     /* higher beam chances */
 
 /*** Screen Locations ***/
 
@@ -925,6 +939,7 @@
 #define FEAT_MUD                0x5E
 #define FEAT_ICE_WALL           0x5F
 #define FEAT_MARKER             172
+#define FEAT_GREAT_FIRE         178
 
 /* Terrain */
 #define FEAT_TREES			0x60
@@ -1810,6 +1825,7 @@
 #define SV_STAFF_DESTRUCTION            29
 #define SV_STAFF_NOTHING                30
 #define SV_STAFF_WISHING                31
+#define SV_STAFF_GANDALF                32
 
 /* jk - the first valuable staff */
 #define SV_STAFF_NASTY_STAFF              4
@@ -1847,6 +1863,7 @@
 #define SV_WAND_ROCKETS                 29
 #define SV_WAND_NOTHING                 30
 #define SV_WAND_WALL_CREATION           31
+#define SV_WAND_THRAIN                  32
 
 /* jk - the first valuable wand */
 #define SV_WAND_NASTY_WAND               3
@@ -2942,6 +2959,7 @@
 #define TR5_KILL_UNDEAD         0x00000010L     /* Execute Undead */
 #define TR5_CRIT                0x00000020L     /* More critical hits */
 #define TR5_ATTR_MULTI          0x00000040L     /* Object shimmer -- only allowed in k_info */
+#define TR5_WOUNDING            0x00000080L     /* Wounds monsters */
 
 /* ESP defines */
 #define ESP_ORC                 0x00000001L
@@ -3063,6 +3081,15 @@
 #define DF1_ADJUST_LEVEL_1      0x10000000L
 #define DF1_ADJUST_LEVEL_2      0x20000000L
 #define DF1_NO_RECALL           0x40000000L
+
+/* Level flags */
+#define LF1_NO_TELEPORT         0x00000001L
+#define LF1_ASK_LEAVE           0x00000002L
+#define LF1_NO_STAIR            0x00000004L
+#define LF1_SPECIAL             0x00000008L
+#define LF1_NO_NEW_MONSTER      0x00000010L
+#define LF1_DESC                0x00000020L
+#define LF1_NO_GENO             0x00000040L
 
 /*** Monster blow constants ***/
 
@@ -3511,7 +3538,7 @@
      ((T)->tval == TV_RANDART ? random_artifacts[(T)->sval].attr : \
          (k_info[(T)->k_idx].flavor) ? \
 	 (misc_to_attr[k_info[(T)->k_idx].flavor]) : \
-	 (k_info[(T)->k_idx].x_attr))
+         (((hack_map_info_default)?k_info[(T)->k_idx].d_attr:k_info[(T)->k_idx].x_attr)))
 
 /*
  * Return the "char" for a given item.
@@ -3521,7 +3548,7 @@
 #define object_char(T) \
 	((k_info[(T)->k_idx].flavor) ? \
 	 (misc_to_char[k_info[(T)->k_idx].flavor]) : \
-	 (k_info[(T)->k_idx].x_char))
+         (((hack_map_info_default)?k_info[(T)->k_idx].d_char:k_info[(T)->k_idx].x_char)))
 
 
 
@@ -3541,6 +3568,13 @@
  */
 #define ego_item_p(T) \
         ((T)->name2 ? TRUE : FALSE)
+
+/*
+ * Ego-Items use the "name2" field
+ */
+#define is_ego_p(T, e) \
+        (((T)->name2 == (e)) || ((T)->name2b == (e)))
+
 
 
 /*
@@ -3981,10 +4015,11 @@ extern int PlayerUID;
 /*
  * Initialization flags
  */
-#define INIT_SHOW_TEXT        1
-#define INIT_ASSIGN           2
-#define INIT_CREATE_DUNGEON   4
-#define INIT_GET_SIZE         8
+#define INIT_SHOW_TEXT        0x01
+#define INIT_ASSIGN           0x02
+#define INIT_CREATE_DUNGEON   0x04
+#define INIT_GET_SIZE         0x08
+#define INIT_POSITION         0x10
 
 /*
  * Mimic Shapes
@@ -4247,7 +4282,7 @@ extern int PlayerUID;
 /*
  * Powers (mutation, activations, ...)
  */
-#define POWER_MAX                      58
+#define POWER_MAX                      59
 #define POWER_SLOT                     ((POWER_MAX / 32) + 1)
 
 #define PWR_SPIT_ACID                  0
@@ -4277,7 +4312,7 @@ extern int PlayerUID;
 #define PWR_STERILITY                  24
 #define PWR_PANIC_HIT                  25
 #define PWR_DAZZLE                     26
-#define PWR_LASER_EYE                  27
+#define PWR_DARKRAY                    27
 #define PWR_RECALL                     28
 #define PWR_BANISH                     29
 #define PWR_COLD_TOUCH                 30
@@ -4309,6 +4344,7 @@ extern int PlayerUID;
 #define PWR_MAGIC_MAP                   55
 #define PWR_LAY_TRAP                    56
 #define PWR_MERCHANT                    57
+#define PWR_COMPANION                   58
 
 #define ADD_POWER(pow, p)       ((pow)[(p) / 32] |= BIT((p) % 32))
 
@@ -4343,7 +4379,8 @@ extern int PlayerUID;
 #define QUEST_NIRNAETH          14
 #define QUEST_INVASION          15
 #define QUEST_BETWEEN           16
-#define MAX_Q_IDX               17
+#define QUEST_ONE               17
+#define MAX_Q_IDX               18
 
 #define MAX_RANDOM_QUESTS_TYPES 7
 
@@ -4379,7 +4416,8 @@ extern int PlayerUID;
 #define HOOK_STAIR              18
 #define HOOK_MONSTER_AI         19
 #define HOOK_PLAYER_LEVEL       20
-#define MAX_HOOKS               21
+#define HOOK_WIELD              21
+#define MAX_HOOKS               22
 
 /*
  * Defines for loadsave.c
@@ -4398,3 +4436,9 @@ extern int PlayerUID;
 #define HELP1_FOUNTAIN          0x00000004
 #define HELP1_IDENTIFY          0x00000008
 #define HELP1_WILD_MODE         0x00000010
+
+/*
+ * Special weapon effects
+ */
+#define SPEC_POIS               0x00000001L
+#define SPEC_CUT                0x00000002L

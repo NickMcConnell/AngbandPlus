@@ -91,6 +91,7 @@ void init_file_paths(char *path)
         string_free(ANGBAND_DIR_NOTE);
 	string_free(ANGBAND_DIR_SAVE);
 	string_free(ANGBAND_DIR_SCPT);
+        string_free(ANGBAND_DIR_PREF);
 	string_free(ANGBAND_DIR_USER);
 	string_free(ANGBAND_DIR_XTRA);
 	string_free(ANGBAND_DIR_CMOV);
@@ -121,6 +122,7 @@ void init_file_paths(char *path)
         ANGBAND_DIR_NOTE = string_make("");
 	ANGBAND_DIR_SAVE = string_make("");
         ANGBAND_DIR_SCPT = string_make("");
+        ANGBAND_DIR_PREF = string_make("");
 	ANGBAND_DIR_USER = string_make("");
 	ANGBAND_DIR_XTRA = string_make("");
 	ANGBAND_DIR_CMOV = string_make("");
@@ -173,6 +175,10 @@ void init_file_paths(char *path)
 	/* Build a path name */
         strcpy(tail, "scpt");
         ANGBAND_DIR_SCPT = string_make(path);
+
+	/* Build a path name */
+        strcpy(tail, "pref");
+        ANGBAND_DIR_PREF = string_make(path);
 
 	/* Build a path name */
 	strcpy(tail, "user");
@@ -1360,6 +1366,234 @@ static errr init_e_info(void)
 
 	/* Error */
 	if (err) quit("Cannot parse 'e_info.raw' file.");
+
+	/* Success */
+	return (0);
+}
+
+
+/*
+ * Initialize the "ra_info" array, by parsing a binary "image" file
+ */
+static errr init_ra_info_raw(int fd)
+{
+	header test;
+
+	/* Read and Verify the header */
+	if (fd_read(fd, (char*)(&test), sizeof(header)) ||
+            (test.v_major != ra_head->v_major) ||
+            (test.v_minor != ra_head->v_minor) ||
+            (test.v_patch != ra_head->v_patch) ||
+            (test.v_extra != ra_head->v_extra) ||
+            (test.info_num != ra_head->info_num) ||
+            (test.info_len != ra_head->info_len) ||
+            (test.head_size != ra_head->head_size) ||
+            (test.info_size != ra_head->info_size))
+	{
+		/* Error */
+		return (-1);
+	}
+
+
+	/* Accept the header */
+        (*ra_head) = test;
+
+
+        /* Allocate the "ra_info" array */
+        C_MAKE(ra_info, ra_head->info_num, randart_part_type);
+
+        /* Read the "ra_info" array */
+        fd_read(fd, (char*)(ra_info), ra_head->info_size);
+
+        /* Success */
+	return (0);
+}
+
+
+
+/*
+ * Initialize the "ra_info" array
+ *
+ * Note that we let each entry have a unique "name" and "text" string,
+ * even if the string happens to be empty (everyone has a unique '\0').
+ */
+static errr init_ra_info(void)
+{
+	int fd;
+
+	int mode = 0644;
+
+	errr err = 0;
+
+	FILE *fp;
+
+	/* General buffer */
+	char buf[1024];
+
+
+	/*** Make the "header" ***/
+
+	/* Allocate the "header" */
+        MAKE(ra_head, header);
+
+	/* Save the "version" */
+        ra_head->v_major = VERSION_MAJOR;
+        ra_head->v_minor = VERSION_MINOR;
+        ra_head->v_patch = VERSION_PATCH;
+        ra_head->v_extra = 0;
+
+	/* Save the "record" information */
+        ra_head->info_num = max_ra_idx;
+        ra_head->info_len = sizeof(randart_part_type);
+
+        /* Save the size of "ra_head" and "ra_info" */
+        ra_head->head_size = sizeof(header);
+        ra_head->info_size = ra_head->info_num * ra_head->info_len;
+
+
+#ifdef ALLOW_TEMPLATES
+
+	/*** Load the binary image file ***/
+
+	/* Build the filename */
+        path_build(buf, 1024, ANGBAND_DIR_DATA, "ra_info.raw");
+
+	/* Attempt to open the "raw" file */
+	fd = fd_open(buf, O_RDONLY);
+
+	/* Process existing "raw" file */
+	if (fd >= 0)
+	{
+
+#ifdef CHECK_MODIFICATION_TIME
+
+                err = check_modification_date(fd, "ra_info.txt");
+
+#endif /* CHECK_MODIFICATION_TIME */
+
+		
+		/* Attempt to parse the "raw" file */
+		if (!err)
+                        err = init_ra_info_raw(fd);
+
+		/* Close it */
+		(void)fd_close(fd);
+
+		/* Success */
+		if (!err) return (0);
+
+		/* Information */
+                msg_print("Ignoring obsolete/defective 'ra_info.raw' file.");
+		msg_print(NULL);
+	}
+
+
+	/*** Make the fake arrays ***/
+
+        /* Fake the size of "ra_name" and "ra_text" */
+	fake_name_size = FAKE_NAME_SIZE;
+	fake_text_size = FAKE_TEXT_SIZE;
+
+        /* Allocate the "ra_info" array */
+        C_MAKE(ra_info, ra_head->info_num, randart_part_type);
+
+	/*** Load the ascii template file ***/
+
+	/* Build the filename */
+        path_build(buf, 1024, ANGBAND_DIR_EDIT, "ra_info.txt");
+
+	/* Open the file */
+	fp = my_fopen(buf, "r");
+
+	/* Parse it */
+        if (!fp) quit("Cannot open 'ra_info.txt' file.");
+
+	/* Parse the file */
+        err = init_ra_info_txt(fp, buf);
+
+	/* Close it */
+	my_fclose(fp);
+
+	/* Errors */
+	if (err)
+	{
+		cptr oops;
+
+		/* Error string */
+		oops = (((err > 0) && (err < 8)) ? err_str[err] : "unknown");
+
+		/* Oops */
+                msg_format("Error %d at line %d of 'ra_info.txt'.", err, error_line);
+		msg_format("Record %d contains a '%s' error.", error_idx, oops);
+		msg_format("Parsing '%s'.", buf);
+		msg_print(NULL);
+
+		/* Quit */
+                quit("Error in 'ra_info.txt' file.");
+	}
+
+
+	/*** Dump the binary image file ***/
+
+	/* File type is "DATA" */
+	FILE_TYPE(FILE_TYPE_DATA);
+
+	/* Build the filename */
+        path_build(buf, 1024, ANGBAND_DIR_DATA, "ra_info.raw");
+
+	/* Kill the old file */
+	safe_setuid_grab();
+	(void)fd_kill(buf);
+
+	/* Attempt to create the raw file */
+	fd = fd_make(buf, mode);
+	safe_setuid_drop();
+
+	/* Dump to the file */
+	if (fd >= 0)
+	{
+		/* Dump it */
+                fd_write(fd, (char*)(ra_head), ra_head->head_size);
+
+                /* Dump the "ra_info" array */
+                fd_write(fd, (char*)(ra_info), ra_head->info_size);
+
+		/* Close */
+		(void)fd_close(fd);
+	}
+
+
+	/*** Kill the fake arrays ***/
+
+        /* Free the "ra_info" array */
+        C_KILL(ra_info, ra_head->info_num, randart_part_type);
+
+	/* Forget the array sizes */
+	fake_name_size = 0;
+	fake_text_size = 0;
+
+#endif	/* ALLOW_TEMPLATES */
+
+
+	/*** Load the binary image file ***/
+
+	/* Build the filename */
+        path_build(buf, 1024, ANGBAND_DIR_DATA, "ra_info.raw");
+
+	/* Attempt to open the "raw" file */
+	fd = fd_open(buf, O_RDONLY);
+
+	/* Process existing "raw" file */
+        if (fd < 0) quit("Cannot load 'ra_info.raw' file.");
+
+	/* Attempt to parse the "raw" file */
+        err = init_ra_info_raw(fd);
+
+	/* Close it */
+	(void)fd_close(fd);
+
+	/* Error */
+        if (err) quit("Cannot parse 'ra_info.raw' file.");
 
 	/* Success */
 	return (0);
@@ -3711,6 +3945,11 @@ static errr init_other(void)
 
 	/*** Prepare the "dungeon" information ***/
 
+        /* Allocate and Wipe the special gene flags */
+        C_MAKE(m_allow_special, max_m_idx, bool);
+        C_MAKE(k_allow_special, max_k_idx, bool);
+        C_MAKE(a_allow_special, max_a_idx, bool);
+
 	/* Allocate and Wipe the object list */
 	C_MAKE(o_list, max_o_idx, object_type);
 
@@ -3723,10 +3962,10 @@ static errr init_other(void)
         /* Allocate and Wipe the max dungeon level */
         C_MAKE(max_dlv, max_d_idx, s16b);
 
+        /* Allocate and Wipe the special levels */
         for (i = 0; i < MAX_DUNGEON_DEPTH; i++)
-	{
-                /* Allocate and Wipe the special level history */
-                C_MAKE(spec_history[i], max_d_idx, byte);
+        {
+                C_MAKE(special_lvl[i], max_d_idx, bool);
         }
 
 	/* Allocate and wipe each line of the cave */
@@ -3834,12 +4073,6 @@ static errr init_other(void)
 
 	/* Hack -- Just call the "format()" function */
         (void)format("%s (%s).", "Dark God <darkgod@ifrance.com>", MAINTAINER);
-
-        /*** Init the un preffing array ***/
-        for (i = 0; i < 256; i++)
-        {
-                un_pref_char[i] = 0;
-        }
 
 	/* Success */
 	return (0);
@@ -4240,6 +4473,10 @@ void init_angband(void)
 	note("[Initializing arrays... (ego-items)]");
 	if (init_e_info()) quit("Cannot initialize ego-items");
 
+        /* Initialize randart parts info */
+        note("[Initializing arrays... (randarts)]");
+        if (init_ra_info()) quit("Cannot initialize randarts");
+
 	/* Initialize monster info */
 	note("[Initializing arrays... (monsters)]");
 	if (init_r_info()) quit("Cannot initialize monsters");
@@ -4297,19 +4534,21 @@ void init_angband(void)
 	note("[Initializing user pref files...]");
 
 	/* Access the "basic" pref file */
+        user_process_pref_file = FALSE;
 	strcpy(buf, "pref.prf");
-
-	/* Process that file */
-	process_pref_file(buf);
-
-	/* Access the "user" pref file */
-	sprintf(buf, "user.prf");
 
 	/* Process that file */
 	process_pref_file(buf);
 
 	/* Access the "basic" system pref file */
 	sprintf(buf, "pref-%s.prf", ANGBAND_SYS);
+
+	/* Process that file */
+	process_pref_file(buf);
+        user_process_pref_file = TRUE;
+
+	/* Access the "user" pref file */
+	sprintf(buf, "user.prf");
 
 	/* Process that file */
 	process_pref_file(buf);

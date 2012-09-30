@@ -1,6 +1,6 @@
-             /----------------------------------------\
-            <  Adventurer's guide to the Middle Earth  >
-             \----------------------------------------/
+#####R             /----------------------------------------\
+#####R            <  Adventurer's guide to the Middle Earth  >
+#####R             \----------------------------------------/
                                    
 
 
@@ -13,25 +13,23 @@ makes travelling safer and faster, but you can't enter wilderness
 dungeons from it.
 
 
-I) The Towns
+#####GI) The Towns
 
 You start in a small village named Bree in the western part of the Middle Earth.
 Here you will also find the entrace to the Barrow-Downs, a
 fairly safe and simple dungeon.
 
 When the Barrow-Downs become too easy for you, and Bree too small,
-you might consider going to Lothlorien, the land of Galadriel. Note that
-you should take a lot of food with you, for it is a long journey. You'll have
+you might consider going to Lothlorien, the land of Galadriel. [[[[[BNote that]
+[[[[[Byou should take a lot of food with you, for it is a long journey.] You'll have
 to head south-east following the Moria mountain's chain, then walk around
-the forest of Fangorn to head north to finally find your destination.
-The Forest of Mirkwood, another dungeon which is north east
-of Lothlorien, is guarded by the mighty Shelob.
+the forest of Fangorn to head north to finally find your destination. The Forest
+of Mirkwood (another dungeon) can be found to the north east of Lothlorien.
 
 If you survive this dangerous dungeon, you should head south, following
 the Anduin river. There, near the dark land of Mordor, you will find the
-great town of Gondor,
-Minas Anor. From there you can want to pay a "visit" to the land of Mordor,
-which is east of Minas Anor.
+great town of Gondor, Minas Anor. From there you can want to pay a "visit" to 
+the land of Mordor, which is east of Minas Anor.
 
 After Mordor you should finally travel to Gondolin, the hidden town of the
 Noldor. First go back to Bree, and then from there walk northeast and you
@@ -39,20 +37,20 @@ will find it. From this city, you will be able to attack Angband, the
 dungeon of Morgoth, which is north west west of Gondolin.
 
 
-II) Other strange and frightening places
+#####GII) Other strange and frightening places
 
-The Old Forest to the west is a the remains of the big forests of the first
+The Old Forest to the west is the last remains of the big forests of the first
 age, but it has been corrupted. It is said it is guarded by a living tree.
-
-The Maze: To the south of Bree there is a magical Maze. Many adventurers
-that ventured there never came back... It is rumored that a Minotaur is
-lurking down there, guarding an ancient and powerful artifact.
-Bring along digging equipment and some means to recall.
 
 You may also wish to investigate the Orc Caves north of Bree; they are
 another place suitable for those finished with the Barrow-Downs. They also
 are rumored to hold great
 mysteries.
+
+The Maze: To the south of Bree there is a magical Maze. Many adventurers
+that ventured there never came back... It is rumored that a Minotaur is
+lurking down there, guarding an ancient and powerful artifact.
+Bring along digging equipment and some means to recall.
 
 East of Bree you will find the horrible and frightening Graveyard. Avoid
 this place until you are a powerful hero, for the mightiest of undead
@@ -71,7 +69,7 @@ Many other strange places wait to be explored by the valiant adventurer,
 but their locations are secret. You will have to find them yourself!
 
 
-III) Equipment issues
+#####GIII) Equipment issues
 
 Beware adventurer! If you plan to go down into the dungeons be prepared. Some
 items you will need badly.
@@ -82,6 +80,6 @@ Second things to mention are your combat equipment. Sometimes the weapon and
 armor you got from your mentor are not enough for the nasties inside the
 dungeons.
 
-And third and most important, always carry a shovel or other digger with you,
+And third and most important, [[[[[Balways carry a shovel or other digger with you],
 because there is much rubble in the dungeons, which you cannot clear with
 your hands.

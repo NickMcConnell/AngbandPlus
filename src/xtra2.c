@@ -78,7 +78,7 @@ bool set_parasite(int v, int r)
                         }
                         else
                         {
-                                cmsg_print(TERM_L_BLUE, "The hideous thing growing in you seems to dies.");
+                                cmsg_print(TERM_L_BLUE, "The hideous thing growing in you seems to die.");
                         }
                         notice = TRUE;
 		}
@@ -3035,7 +3035,7 @@ void check_experience(void)
 {
 	int		i;
 	bool level_reward = FALSE;
-	bool level_mutation = FALSE;
+        bool level_corruption = FALSE;
 
 
 	/* Note current level */
@@ -3105,7 +3105,12 @@ void check_experience(void)
 			{
 				level_reward = TRUE;
 			}
-		}
+                        if ((p_ptr->pracem == RMOD_MUTANT) &&
+                            (randint(3) == 1))
+                        {
+                                level_corruption = TRUE;
+                        }
+                }
 
 		/* Sound */
 		sound(SOUND_LEVEL);
@@ -3146,18 +3151,17 @@ void check_experience(void)
 			level_reward = FALSE;
 		}
 
-		if (level_mutation)
+                if (level_corruption)
 		{
 			msg_print("You feel different...");
-			(void)gain_random_mutation(0);
-			level_mutation = FALSE;
+                        corrupt_corrupted();
+                        level_corruption = FALSE;
 		}
 	}
 
         /* Hook it ! */
         process_hooks(HOOK_PLAYER_LEVEL, 0);
 }
-
 /*
  * Advance experience levels and print experience
  */
@@ -3231,6 +3235,16 @@ void gain_exp(s32b amount)
                         if (o_ptr->exp > PY_MAX_EXP) o_ptr->exp = PY_MAX_EXP;
                 }
         }
+
+	  if ((p_ptr->max_exp > 0) && (p_ptr->pracem == RMOD_MUTANT))
+	  {
+		if ((randint(p_ptr->max_exp) < amount) || (randint(12000000) < amount))
+		{
+			msg_print("You feel different...");
+                        corrupt_corrupted();
+		};
+		/* 12,000,000 is equal to double Morgoth's raw XP value (60,000 * his Dlev (100))*/
+	  };
 
         /* Gain some experience */
         p_ptr->exp += amount / num;
@@ -4175,6 +4189,11 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
                                 msg_print("Somehow you feel he is not totaly destroyed...");
                                 r_ptr->max_num = 1;
                         }
+                        else if ((m_ptr->r_idx == test_monster_name("Sauron, the Sorcerer")) && (quest[QUEST_ONE].status < QUEST_STATUS_FINISHED))
+                        {
+                                msg_print("Sauron will not be permanently defeated until the One Ring is eiter destroyed or used...");
+                                r_ptr->max_num = 1;
+                        }
                         else
                         {
                                 r_ptr->max_num = 0;
@@ -4928,6 +4947,7 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 					if (recall)
 					{
 						/* Save */
+                                                character_icky = TRUE;
 						Term_save();
 
 						/* Recall on screen */
@@ -4941,6 +4961,7 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 
 						/* Restore */
 						Term_load();
+                                                character_icky = FALSE;
 					}
 
 					/* Normal */
@@ -5122,7 +5143,10 @@ static int target_set_aux(int y, int x, int mode, cptr info)
                 }
 
 		/* Feature (apply "mimic") */
-		feat = f_info[c_ptr->feat].mimic;
+                if (c_ptr->mimic)
+                        feat = c_ptr->mimic;
+                else
+                        feat = f_info[c_ptr->feat].mimic;
 
 		/* Require knowledge about grid, or ability to see grid */
 		if (!(c_ptr->info & (CAVE_MARK)) && !player_can_see_bold(y,x))
@@ -5806,9 +5830,9 @@ void gain_level_reward(int chosen_reward)
 
 	if ((randint(6) == 1) && !chosen_reward)
 	{
-		msg_format("%^s rewards you with a mutation!",
+                msg_format("%^s rewards you with a corruption!",
 			chaos_patrons[p_ptr->chaos_patron]);
-		(void)gain_random_mutation(0);
+                (void)gain_random_corruption(0);
 		return;
 	}
 
@@ -6208,7 +6232,7 @@ bool tgt_pt(int *x,int *y)
 }
 
 
-bool gain_random_mutation(int choose_mut)
+bool gain_random_corruption(int choose_mut)
 {
 	int attempts_left = 20;
 	cptr muta_desc = "";
@@ -6334,7 +6358,7 @@ bool gain_random_mutation(int choose_mut)
 			break;
 		case 65: case 66: case 67:
 			muta_class = &(p_ptr->muta1);
-			muta_which = MUT1_LASER_EYE;
+                        muta_which = MUT1_DARKRAY;
 			break;
 		case 68: case 69:
 			muta_class = &(p_ptr->muta1);
@@ -6710,7 +6734,7 @@ bool gain_random_mutation(int choose_mut)
                         muta_which = MUT1_GROW_MOLD;
 		}
 
-		msg_print("You mutate!");
+                msg_print("You get corrupted by the dark powers of Morgoth!");
                 if (muta_class != &(p_ptr->muta1)) msg_print(muta_desc);
 		*(muta_class) |= muta_which;
 		p_ptr->update |= PU_BONUS;
@@ -6851,7 +6875,7 @@ bool gain_random_mutation(int choose_mut)
 	}
 }
 
-bool lose_mutation(int choose_mut)
+bool lose_corruption(int choose_mut)
 {
 	int attempts_left = 20;
 	cptr muta_desc = "";
@@ -6977,7 +7001,7 @@ bool lose_mutation(int choose_mut)
 			break;
 		case 65: case 66: case 67:
 			muta_class = &(p_ptr->muta1);
-			muta_which = MUT1_LASER_EYE;
+                        muta_which = MUT1_DARKRAY;
 			break;
 		case 68: case 69:
 			muta_class = &(p_ptr->muta1);
@@ -7445,7 +7469,7 @@ bool get_hack_dir(int *dp)
 }
 
 
-void dump_mutations(FILE * OutFile)
+void dump_corruptions(FILE * OutFile)
 {
 	
 	if (!OutFile) return;
@@ -7560,9 +7584,9 @@ void dump_mutations(FILE * OutFile)
 		{
 			fprintf(OutFile, " You can emit confusing, blinding radiation.\n");
 		}
-		if (p_ptr->muta1 & MUT1_LASER_EYE)
+                if (p_ptr->muta1 & MUT1_DARKRAY)
 		{
-			fprintf(OutFile, " Your eyes can fire laser beams.\n");
+                        fprintf(OutFile, " You can create a spear of darkness.\n");
 		}
 		if (p_ptr->muta1 & MUT1_RECALL)
 		{
@@ -7658,7 +7682,7 @@ void dump_mutations(FILE * OutFile)
 		}
 		if (p_ptr->muta2 & MUT2_NORMALITY)
 		{
-			fprintf(OutFile, " You may be mutated, but you're recovering.\n");
+                        fprintf(OutFile, " You may be corrupted, but you're recovering.\n");
 		}
 		if (p_ptr->muta2 & MUT2_WRAITH)
 		{
@@ -7877,6 +7901,7 @@ bool show_god_info(bool ext) {
 
     msg_print(NULL);
 
+    character_icky = TRUE;
     Term_save();
 
     roff(format("You worship %s, the %s deity of %s. ", d_ptr->name,
@@ -7898,6 +7923,7 @@ bool show_god_info(bool ext) {
     tmp = inkey();
 
     Term_load();
+    character_icky = FALSE;
   }
 
   return TRUE;
@@ -8548,3 +8574,20 @@ void make_wish(void)
                 }
         }
 }
+
+
+/* Corrupted have a 1/3 chance of losing a mutation each time this is called, 
+   assuming they have any in the first place */
+
+void corrupt_corrupted (void)
+{
+	if (randint(3) == 1)
+        {
+                if (!(lose_corruption (0)))
+                        gain_random_corruption(0);
+        }
+        else
+                gain_random_corruption(0);
+        return;
+}
+

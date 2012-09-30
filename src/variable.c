@@ -145,11 +145,9 @@ bool shimmer_objects;           /* Hack -- optimize multi-hued objects */
 bool repair_monsters;	/* Hack -- optimize detect monsters */
 bool repair_objects;	/* Hack -- optimize detect objects */
 
-s32b total_weight;              /* Total weight being carried */
-
 s16b inven_nxt;			/* Hack -- unused */
 bool hack_mind;
-bool hack_mutation;
+bool hack_corruption;
 int artifact_bias;
 bool is_autosave = FALSE;
 
@@ -801,6 +799,12 @@ ego_item_type *e_info;
 char *e_name;
 char *e_text;
 
+/*
+ * The randart arrays
+ */
+header *ra_head;
+randart_part_type *ra_info;
+
 /* jk */
 /* the trap-arrays */
 header *t_head;
@@ -957,6 +961,12 @@ cptr ANGBAND_DIR_SAVE;
 cptr ANGBAND_DIR_SCPT;
 
 /*
+ * Default "preference" files (ascii)
+ * These files are rarely portable between platforms
+ */
+cptr ANGBAND_DIR_PREF;
+
+/*
  * User "preference" files (ascii)
  * These files are rarely portable between platforms
  */
@@ -1086,6 +1096,11 @@ u16b max_a_idx;
 u16b max_e_idx;
 
 /*
+ * Maximum number of randarts in ra_info.txt
+ */
+u16b max_ra_idx;
+
+/*
  * Maximum number of dungeon types in d_info.txt
  */
 u16b max_d_idx;
@@ -1129,9 +1144,6 @@ u16b max_wf_idx;
  * Flags for initialization
  */
 int init_flags;
-
-/* True if on special level */
-bool special_flag;
 
 /* True if on an ambush */
 bool ambush_flag;
@@ -1189,15 +1201,6 @@ byte vanilla_town = FALSE;
  * 6 = Hell
  */
 byte dungeon_type;
-
-
-/*
- * Special levels table
- * 0 = no special
- * 1 = special level unused
- * 2 = special level used
- */
-byte *spec_history[MAX_DUNGEON_DEPTH];
 s16b *max_dlv;
 
 /*
@@ -1232,7 +1235,9 @@ bool take_notes, auto_notes;
 /*
  * Such an ugly hack ...
  */
-bool hack_allow_special = FALSE;
+bool *m_allow_special;
+bool *k_allow_special;
+bool *a_allow_special;
 
 /*
  * Gives a random object to newly created characters
@@ -1275,11 +1280,6 @@ s16b plots[MAX_PLOTS];
 random_quest random_quests[MAX_RANDOM_QUEST];
 
 /*
- * Provies a quick way to un_pref a char(for cmovie)
- */
-char un_pref_char[256];
-
-/*
  * Show exp left
  */
 bool exp_need;
@@ -1293,3 +1293,28 @@ bool autoload_old_colors;
  * Fated ?
  */
 bool fate_option;
+
+/*
+ * Special levels
+ */
+bool *special_lvl[MAX_DUNGEON_DEPTH];
+
+/*
+ * Auto more
+ */
+bool auto_more;
+
+/*
+ * hack -- do not use player defined char/attr to record movies
+ */
+bool hack_map_info_default = FALSE;
+
+/*
+ * Dungeon flags
+ */
+s32b dungeon_flags1;
+
+/*
+ * The last character displayed
+ */
+birther previous_char;

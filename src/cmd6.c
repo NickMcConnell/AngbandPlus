@@ -2014,7 +2014,7 @@ static bool quaff_potion(int tval, int sval, int pval)
 			do_cmd_rerate();
 			if (p_ptr->muta1 || p_ptr->muta2 || p_ptr->muta3)
 			{
-				msg_print("You are cured of all mutations.");
+                                msg_print("You are cured of all corruptions.");
 				p_ptr->muta1 = p_ptr->muta2 = p_ptr->muta3 = 0;
 				p_ptr->update |= PU_BONUS;
 				handle_stuff();
@@ -2031,8 +2031,8 @@ static bool quaff_potion(int tval, int sval, int pval)
                       }
                 case SV_POTION_MUTATION:
                 {
-                        msg_print("You fell a change coming over you !");
-                        gain_random_mutation(0);
+                        msg_print("You feel the dark corruptions of Morgoth coming over you !");
+                        gain_random_corruption(0);
                         ident = TRUE;
                         break;
                 }
@@ -2230,6 +2230,7 @@ void do_cmd_drink_fountain(void)
 	cave_type *c_ptr = &cave[py][px];
 	bool ident;
 	int tval, sval, pval = 0;
+	int i;
 
         /* We quaff or we fill ? */
         if (!get_check("Do you want to quaff from the fountain ?"))
@@ -2251,6 +2252,17 @@ void do_cmd_drink_fountain(void)
 	else {
 		tval = TV_POTION2;
 		sval = c_ptr->special - SV_POTION_LAST;
+	}
+
+	for (i = 0; i < max_k_idx; i++)
+	{
+		object_kind *k_ptr = &k_info[i];
+
+		if (k_ptr->tval != tval) continue;
+		if (k_ptr->sval != sval) continue;
+
+		pval = k_ptr->pval;
+		break;
 	}
 
 	ident = quaff_potion(tval, sval, pval);
@@ -3253,6 +3265,13 @@ void do_cmd_use_staff(void)
 	/* Analyze the staff */
 	switch (o_ptr->sval)
 	{
+                case SV_STAFF_GANDALF:
+		{
+                        project_hack(GF_HOLY_FIRE, 150);
+                        ident = TRUE;
+			break;
+		}
+
                 case SV_STAFF_WISHING:
 		{
                         make_wish();
@@ -3556,7 +3575,6 @@ void do_cmd_use_staff(void)
 
 		/* Unstack the used item */
 		o_ptr->number--;
-		total_weight -= q_ptr->weight;
 		item = inven_carry(q_ptr, FALSE);
 
 		/* Message */
@@ -3755,6 +3773,7 @@ void do_cmd_aim_wand(void)
 			break;
 		}
 
+                case SV_WAND_THRAIN:
 		case SV_WAND_STONE_TO_MUD:
 		{
 			if (wall_to_mud(dir)) ident = TRUE;
@@ -4738,7 +4757,7 @@ void do_cmd_activate(void)
         }
 
 	/* Check the recharge */
-        if ((o_ptr->timeout) && ((o_ptr->name2!=EGO_MSTAFF_SPELL) || o_ptr->xtra2))
+        if ((o_ptr->timeout) && ((!is_ego_p(o_ptr, EGO_MSTAFF_SPELL)) || o_ptr->xtra2))
 	{
 		msg_print("It whines, glows and fades...");
 		return;
@@ -4751,7 +4770,7 @@ void do_cmd_activate(void)
 	/* Sound */
 	sound(SOUND_ZAP);
 
-        if (o_ptr->name2 == EGO_MSTAFF_SPELL)
+        if (is_ego_p(o_ptr, EGO_MSTAFF_SPELL))
         {
                         while (TRUE)
 			{
@@ -5003,13 +5022,17 @@ void do_cmd_activate(void)
 			}
                         case ART_FLAR:
 			{
-                                if (special_flag)
+                                if (dungeon_flags1 & LF1_NO_TELEPORT)
                                 {
                                         msg_print("No teleport on special levels...");
                                         break;
                                 }
 
-                                if(special_flag){msg_print("Not on special levels!");break;}
+                                if (dungeon_flags1 & LF1_NO_TELEPORT)
+                                {
+                                        msg_print("Not on special levels!");
+                                        break;
+                                }
 
                                 msg_print("You open a between gate. Choose a destination.");
                                 if (!tgt_pt(&ii,&ij)) return;
@@ -5286,7 +5309,7 @@ void do_cmd_activate(void)
 
 			case ART_COLANNON:
 			{
-                                if (special_flag)
+                                if (dungeon_flags1 & LF1_NO_TELEPORT)
                                 {
                                         msg_print("No teleport on special levels...");
                                         break;
@@ -5866,7 +5889,7 @@ void do_cmd_activate(void)
 		/* Done */
 		return;
 	}
-        else if (o_ptr->name2 == EGO_INST_DRAGONKIND)
+        else if (is_ego_p(o_ptr, EGO_INST_DRAGONKIND))
 	{
                 fire_ball(o_ptr->pval2, 5, 300, 7);
 
@@ -5896,7 +5919,7 @@ void do_cmd_activate(void)
 		/* Success */
 		return;
 	}
-        else if (o_ptr->name2 == EGO_DRAGON)
+        else if (is_ego_p(o_ptr, EGO_DRAGON))
 	{
 		teleport_player(100);
 		o_ptr->timeout = 50 + randint(50);
@@ -5907,7 +5930,7 @@ void do_cmd_activate(void)
 		/* Done */
 		return;
 	}
-        else if (o_ptr->name2 == EGO_JUMP)
+        else if (is_ego_p(o_ptr, EGO_JUMP))
 	{
                 teleport_player(10);
                 o_ptr->timeout = 10 + randint(10);
@@ -5918,7 +5941,7 @@ void do_cmd_activate(void)
 		/* Done */
 		return;
 	}
-        else if (o_ptr->name2 == EGO_SPINING)
+        else if (is_ego_p(o_ptr, EGO_SPINING))
 	{
                 do_spin();
                 o_ptr->timeout = 50 + randint(25);
@@ -5929,7 +5952,7 @@ void do_cmd_activate(void)
 		/* Done */
 		return;
 	}
-        else if (o_ptr->name2 == EGO_NOLDOR)
+        else if (is_ego_p(o_ptr, EGO_NOLDOR))
 	{
                 detect_treasure();
                 o_ptr->timeout = 10 + randint(20);
@@ -5940,7 +5963,7 @@ void do_cmd_activate(void)
 		/* Done */
 		return;
 	}
-        else if (o_ptr->name2 == EGO_SPECTRAL)
+        else if (is_ego_p(o_ptr, EGO_SPECTRAL))
         {
                 if (!p_ptr->wraith_form)
                         set_shadow(20 + randint(20));
@@ -6932,7 +6955,7 @@ static bool activate_random_artifact(object_type * o_ptr)
 
 		case ACT_DIM_DOOR:
 		{
-             if(special_flag){msg_print("Not on special levels!");break;}
+             if(dungeon_flags1 & LF1_NO_TELEPORT){msg_print("Not on special levels!");break;}
 
              msg_print("You open a between gate. Choose a destination.");
              if (!tgt_pt(&ii,&ij)) return FALSE;
@@ -7124,7 +7147,7 @@ static bool activate_random_artifact(object_type * o_ptr)
 			aggravate_monsters(1);
                         break;
                 case ACT_MUT:
-                        gain_random_mutation(0);
+                        gain_random_corruption(0);
                         break;
                 case ACT_CURE_INSANITY:
                         heal_insanity(damroll(10,10));
@@ -7132,7 +7155,7 @@ static bool activate_random_artifact(object_type * o_ptr)
                 case ACT_CURE_MUT:
 			if (p_ptr->muta1 || p_ptr->muta2 || p_ptr->muta3)
 			{
-				msg_print("You are cured of all mutations.");
+                                msg_print("You are cured of all corruptions.");
 				p_ptr->muta1 = p_ptr->muta2 = p_ptr->muta3 = 0;
 				p_ptr->update |= PU_BONUS;
 				handle_stuff();

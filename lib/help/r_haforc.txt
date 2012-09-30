@@ -1,20 +1,20 @@
-#####R=== Half-Orcs ===
+#####R=== Orcs ===
 
 #####GDescription
-Half-Orcs make excellent warriors and decent priests, but are terrible at 
+Orcs make excellent warriors and decent priests, but are terrible at 
 magic. They are as bad as dwarves at stealth, and horrible at searching, 
-disarming, and perception. Half-Orcs are quite ugly, and tend to pay more 
-for goods in town. Half-Orcs do make good warriors and rogues, for the 
-simple reason that Half-Orcs tend to have great constitutions and lots of 
+disarming, and perception. Orcs are quite ugly, and tend to pay more 
+for goods in town. Orcs do make good warriors and rogues, for the 
+simple reason that Orcs tend to have great constitutions and lots of 
 hit points. Because of their preference to living underground to on the 
-surface, half-orcs resist darkness attacks. Upon reaching experience level
-3, a half-orc learns to dispel any fear that may be upon him or her.
+surface, orcs resist darkness attacks. Upon reaching experience level
+3, an orc learns to dispel any fear that may be upon him or her.
 
 #####GStat Modifiers
 Strength        +2   
 Intelligence    -1   
 Wisdom          0   
-Dexterity       0   
+Dexterity       +1   
 Constitution    +1   
 Charisma        -4       
 Hit Dice Sides  10         

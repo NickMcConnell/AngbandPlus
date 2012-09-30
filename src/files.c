@@ -12,7 +12,7 @@
 
 #include "angband.h"
 
-extern void do_cmd_knowledge_mutations();
+extern void do_cmd_knowledge_corruptions();
 
 
 /*
@@ -243,6 +243,7 @@ s16b tokenize(char *buf, s16b num, char **tokens, char delim1, char delim2)
  * Specify visual information, given an index, and some data
  *   V:<num>:<kv>:<rv>:<gv>:<bv>
  */
+bool user_process_pref_file = TRUE;
 errr process_pref_file_aux(char *buf)
 {
 	int i, j, n1, n2;
@@ -286,7 +287,6 @@ errr process_pref_file_aux(char *buf)
                         if (n2)
                         {
                                 r_ptr->x_char = n2;
-                                un_pref_char[(byte)r_ptr->x_char] = r_ptr->d_char;
                         }
                         return (0);
 		}
@@ -308,7 +308,6 @@ errr process_pref_file_aux(char *buf)
                         if (n2)
                         {
                                 k_ptr->x_char = n2;
-                                un_pref_char[(byte)k_ptr->x_char] = k_ptr->d_char;
                         }
                         return (0);
 		}
@@ -330,7 +329,6 @@ errr process_pref_file_aux(char *buf)
                         if (n2)
                         {
                                 f_ptr->x_char = n2;
-                                un_pref_char[(byte)f_ptr->x_char] = f_ptr->d_char;
                         }
 			return (0);
 		}
@@ -769,7 +767,8 @@ errr process_pref_file(cptr name)
 
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_USER, name);
+        if (user_process_pref_file) path_build(buf, 1024, ANGBAND_DIR_USER, name);
+        else path_build(buf, 1024, ANGBAND_DIR_PREF, name);
 
 	/* Open the file */
 	safe_setuid_grab();
@@ -777,8 +776,10 @@ errr process_pref_file(cptr name)
 	safe_setuid_drop();
 
 	/* No such file */
-	if (!fp) return (-1);
-
+        if (!fp)
+        {
+                return (-1);
+        }
 
 	/* Process the file */
 	while (0 == my_fgets(fp, buf, 1024))
@@ -1485,7 +1486,7 @@ static void display_player_various(void)
 /*
  * Obtain the "flags" for the player as if he was an item
  */
-static void player_flags(u32b *f1, u32b *f2, u32b *f3, u32b *f4, u32b *f5, u32b *esp)
+void player_flags(u32b *f1, u32b *f2, u32b *f3, u32b *f4, u32b *f5, u32b *esp)
 {
 	/* Clear */
         (*f1) = (*f2) = (*f3) = (*f4) = (*f5) = (*esp) = 0L;
@@ -1639,6 +1640,7 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3, u32b *f4, u32b *f5, u32b 
         case RACE_ENT:
         (*f3) |= (TR3_SLOW_DIGEST);
         (*f2) |= (TR2_SENS_FIRE);
+	(*f1) |= (TR1_SPEED);
         if (p_ptr->lev > 4)
         {
             (*f3) |= TR3_SEE_INVIS;
@@ -1971,7 +1973,7 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3, u32b *f4, u32b *f5, u32b 
                 if(r_ptr->flags7 & RF7_CAN_FLY) (*f3) |= TR3_FEATHER;
         }
 
-	/* Mutations */
+        /* corruptions */
 	if (p_ptr->muta3)
 	{
 		if (p_ptr->muta3 & MUT3_FLESH_ROT)
@@ -2538,7 +2540,7 @@ static void display_player_stat_info(void)
 		a = TERM_SLATE;
 		c = '.';
 
-		/* Mutations ... */
+                /* corruptions ... */
 		if (p_ptr->muta3)
 		{
 			int dummy = 0;
@@ -3017,7 +3019,7 @@ static void display_player_ben_one(int mode)
  * Mode 4 = current flags (part 3)
  * Mode 5 = current flags (part 4)
  * Mode 6 = current flags (part 5 -- esp)
- * Mode 7 = mutations
+ * Mode 7 = corruptions
  */
 void display_player(int mode)
 {
@@ -3091,7 +3093,7 @@ void display_player(int mode)
                         c_put_str(TERM_L_BLUE, realm_names[p_ptr->realm2], 8, 9);
 
 		/* Age, Height, Weight, Social */
-		prt_num("Age          ", (int)p_ptr->age, 2, 32, TERM_L_BLUE);
+                prt_num("Age          ", (int)p_ptr->age + bst(YEAR, turn - (START_DAY * 10)), 2, 32, TERM_L_BLUE);
 		prt_num("Height       ", (int)p_ptr->ht, 3, 32, TERM_L_BLUE);
 		prt_num("Weight       ", (int)p_ptr->wt, 4, 32, TERM_L_BLUE);
 		prt_num("Social Class ", (int)p_ptr->sc, 5, 32, TERM_L_BLUE);
@@ -3188,7 +3190,7 @@ void display_player(int mode)
 #endif
     else if (mode == 7)
     {
-        do_cmd_knowledge_mutations();
+        do_cmd_knowledge_corruptions();
     }
 
 	/* Special */
@@ -3630,8 +3632,8 @@ errr file_character(cptr name, bool full)
 
 	if (p_ptr->muta1 || p_ptr->muta2 || p_ptr->muta3)
 	{
-		fprintf(fff, "\n\n  [Mutations]\n\n");
-		dump_mutations(fff);
+                fprintf(fff, "\n\n  [Corruptions]\n\n");
+                dump_corruptions(fff);
 	}
 
 	for (i = 0; i < MAX_FATES; i++)
@@ -3726,6 +3728,35 @@ errr file_character(cptr name, bool full)
  *
  * XXX XXX XXX Allow the user to "save" the current file.
  */
+
+/*
+ * A structure to hold (some of == XXX) the hyperlink information.
+ * This prevents excessive use of stack.
+ */
+struct hyperlink
+{
+	/* Path buffer */
+	char path[1024];
+
+	/* General buffer */
+	char rbuf[1024];
+
+	/* Hold a string to find */
+	char finder[81];
+
+	/* Hold a string to show */
+	char shower[81];
+
+	/* Describe this thing */
+	char caption[128];
+
+	/* Hypertext info */
+	char link[400][32], link_key[400];
+	int  link_x[400], link_y[400], link_line[400];
+};
+
+typedef struct hyperlink hyperlink_type;
+
 bool show_file(cptr name, cptr what, int line, int mode)
 {
         int i, k, x;
@@ -3753,68 +3784,54 @@ bool show_file(cptr name, cptr what, int line, int mode)
 	/* Find this string (if any) */
 	cptr find = NULL;
 
-	/* Hold a string to find */
-	char finder[81];
+	/* Char array type of hyperlink info */
+	hyperlink_type *h_ptr;
 
-	/* Hold a string to show */
-	char shower[81];
+	/* Pointer to general buffer in the above */
+	char *buf;
 
-	/* Describe this thing */
-	char caption[128];
-
-	/* Path buffer */
-	char path[1024];
-
-	/* General buffer */
-        char rbuf[1024], *buf = rbuf;
-
-        /* Hypertext info */
-        char link[400][32], link_key[400];
-        int  link_x[400], link_y[400], link_line[400];
         int  cur_link = 0, max_link = 0;
 
-	/* Wipe finder */
-	strcpy(finder, "");
 
-	/* Wipe shower */
-	strcpy(shower, "");
+	/* Allocate hyperlink data */
+	MAKE(h_ptr, hyperlink_type);
 
-	/* Wipe caption */
-	strcpy(caption, "");
+	/* Setup buffer pointer */
+        buf = h_ptr->rbuf;
 
         /* Wipe the links */
         for (i = 0; i < 400; i++)
         {
-                link_x[i] = -1;
+                h_ptr->link_x[i] = -1;
         }
 
 	/* Hack XXX XXX XXX */
 	if (what)
 	{
-		/* Caption */
-		strcpy(caption, what);
+                /* h_ptr->caption */
+                strcpy(h_ptr->caption, what);
 
 		/* Access the "file" */
-		strcpy(path, name);
+                strcpy(h_ptr->path, name);
 
 		/* Open */
 		safe_setuid_grab();
-		fff = my_fopen(path, "r");
+                fff = my_fopen(h_ptr->path, "r");
 		safe_setuid_drop();
 	}
 
 	/* Look in "help" */
 	if (!fff)
 	{
-		/* Caption */
-		sprintf(caption, "Help file '%s'", name);
+                /* h_ptr->caption */
+                sprintf(h_ptr->caption, "Help file '%s'", name);
 
 		/* Build the filename */
-                path_build(path, 1024, ANGBAND_DIR_HELP, name);
+                path_build(h_ptr->path, 1024, ANGBAND_DIR_HELP, name);
 
 		/* Open the file */
 		safe_setuid_grab();
-		fff = my_fopen(path, "r");
+                fff = my_fopen(h_ptr->path, "r");
 		safe_setuid_drop();
 		safe_setuid_drop();
 		safe_setuid_drop();
@@ -3825,30 +3842,30 @@ bool show_file(cptr name, cptr what, int line, int mode)
 	/* Look in "info" */
 	if (!fff)
 	{
-		/* Caption */
-		sprintf(caption, "Info file '%s'", name);
+                /* h_ptr->caption */
+                sprintf(h_ptr->caption, "Info file '%s'", name);
 
 		/* Build the filename */
-		path_build(path, 1024, ANGBAND_DIR_INFO, name);
+                path_build(h_ptr->path, 1024, ANGBAND_DIR_INFO, name);
 
 		/* Open the file */
 		safe_setuid_grab();
-		fff = my_fopen(path, "r");
+                fff = my_fopen(h_ptr->path, "r");
 		safe_setuid_drop();
 	}
 
         /* Look in "file" */
 	if (!fff)
 	{
-		/* Caption */
-                sprintf(caption, "File '%s'", name);
+                /* h_ptr->caption */
+                sprintf(h_ptr->caption, "File '%s'", name);
 
 		/* Build the filename */
-                path_build(path, 1024, ANGBAND_DIR_FILE, name);
+                path_build(h_ptr->path, 1024, ANGBAND_DIR_FILE, name);
 
 		/* Open the file */
 		safe_setuid_grab();
-		fff = my_fopen(path, "r");
+                fff = my_fopen(h_ptr->path, "r");
 		safe_setuid_drop();
 	}
 
@@ -3859,6 +3876,9 @@ bool show_file(cptr name, cptr what, int line, int mode)
 		msg_format("Cannot open '%s'.", name);
 		msg_print(NULL);
 
+		/* Free hyperlink info */
+		KILL(h_ptr, hyperlink_type);
+
 		/* Oops */
 		return (TRUE);
 	}
@@ -3868,14 +3888,14 @@ bool show_file(cptr name, cptr what, int line, int mode)
 	while (TRUE)
 	{
 		/* Read a line or stop */
-                if (my_fgets(fff, rbuf, 1024)) break;
+                if (my_fgets(fff, h_ptr->rbuf, 1024)) break;
 
                 /* Get a color */
-                if (prefix(rbuf, "#####"))
+                if (prefix(h_ptr->rbuf, "#####"))
                 {
-                        buf = &rbuf[6];
+                        buf = &h_ptr->rbuf[6];
                 }
-                else buf = rbuf;
+                else buf = h_ptr->rbuf;
 
                 /* Get the link colors */
                 if (prefix(buf, "|||||"))
@@ -3907,28 +3927,28 @@ bool show_file(cptr name, cptr what, int line, int mode)
 
                                 for (z = 0; z < 20; z++) tmp[z] = '\0';
 
-                                link_x[max_link] = x;
-                                link_y[max_link] = next;
+                                h_ptr->link_x[max_link] = x;
+                                h_ptr->link_y[max_link] = next;
 
                                 if (buf[xx] == '/')
                                 {
                                         xx++;
-                                        link_key[max_link] = buf[xx];
+                                        h_ptr->link_key[max_link] = buf[xx];
                                         xx++;
                                         xdeb += 2;
                                 }
                                 else
                                 {
-                                        link_key[max_link] = 0;
+                                        h_ptr->link_key[max_link] = 0;
                                 }
 
                                 /* Zap the link info */
                                 while (buf[xx] != '*')
                                 {
-                                        link[max_link][xx - xdeb] = buf[xx];
+                                        h_ptr->link[max_link][xx - xdeb] = buf[xx];
                                         xx++;
                                 }
-                                link[max_link][xx - xdeb] = '\0';
+                                h_ptr->link[max_link][xx - xdeb] = '\0';
                                 xx++;
                                 stmp = xx;
                                 while (buf[xx] != '[')
@@ -3938,7 +3958,7 @@ bool show_file(cptr name, cptr what, int line, int mode)
                                 }
                                 xx++;
                                 tmp[xx - stmp] = '\0';
-                                link_line[max_link] = -atoi(tmp);
+                                h_ptr->link_line[max_link] = -atoi(tmp);
                                 max_link++;
                         }
                         x++;
@@ -3972,11 +3992,18 @@ bool show_file(cptr name, cptr what, int line, int mode)
 
 			/* Hack -- Re-Open the file */
 			safe_setuid_grab();
-			fff = my_fopen(path, "r");
+                        fff = my_fopen(h_ptr->path, "r");
 			safe_setuid_drop();
 
+
 			/* Oops */
-			if (!fff) return (FALSE);
+			if (!fff)
+			{
+				/* Free hyperlink info */
+				KILL(h_ptr, hyperlink_type);
+				
+				return (FALSE);
+			}
 
 			/* File has been restarted */
 			next = 0;
@@ -3999,15 +4026,15 @@ bool show_file(cptr name, cptr what, int line, int mode)
 			if (!i) line = next;
 
 			/* Get a line of the file or stop */
-                        if (my_fgets(fff, rbuf, 1024)) break;
+                        if (my_fgets(fff, h_ptr->rbuf, 1024)) break;
 
                         /* Get a color */
-                        if (prefix(rbuf, "#####"))
+                        if (prefix(h_ptr->rbuf, "#####"))
                         {
-                                color = color_char_to_attr(rbuf[5]);
-                                buf = &rbuf[6];
+                                color = color_char_to_attr(h_ptr->rbuf[5]);
+                                buf = &h_ptr->rbuf[6];
                         }
-                        else buf = rbuf;
+                        else buf = h_ptr->rbuf;
 
 			/* Count the "real" lines */
 			next++;
@@ -4029,16 +4056,16 @@ bool show_file(cptr name, cptr what, int line, int mode)
 			find = NULL;
 
                         /* Be sure to get a correct cur_link */
-                        if (link_y[cur_link] >= line + 20)
+                        if (h_ptr->link_y[cur_link] >= line + 20)
                         {
-                                while ((cur_link > 0) && (link_y[cur_link] >= line + 20))
+                                while ((cur_link > 0) && (h_ptr->link_y[cur_link] >= line + 20))
                                 {
                                         cur_link--;
                                 }
                         }
-                        if (link_y[cur_link] < line)
+                        if (h_ptr->link_y[cur_link] < line)
                         {
-                                while ((cur_link < max_link) && (link_y[cur_link] < line))
+                                while ((cur_link < max_link) && (h_ptr->link_y[cur_link] < line))
                                 {
                                         cur_link++;
                                 }
@@ -4063,7 +4090,7 @@ bool show_file(cptr name, cptr what, int line, int mode)
                                         /* Ok print the link name */
                                         while (buf[xx] != ']')
                                         {
-                                                if ((link_x[cur_link] == x) && (link_y[cur_link] == line + i))
+                                                if ((h_ptr->link_x[cur_link] == x) && (h_ptr->link_y[cur_link] == line + i))
                                                         Term_putch(print_x, i + 2, link_color_sel, buf[xx]);
                                                 else
                                                         Term_putch(print_x, i + 2, link_color, buf[xx]);
@@ -4096,18 +4123,18 @@ bool show_file(cptr name, cptr what, int line, int mode)
                         }
                         color = TERM_WHITE;
 
-			/* Hilite "shower" */
-			if (shower[0])
+                        /* Hilite "h_ptr->shower" */
+                        if (h_ptr->shower[0])
 			{
 				cptr str = buf;
 
 				/* Display matches */
-				while ((str = strstr(str, shower)) != NULL)
+                                while ((str = strstr(str, h_ptr->shower)) != NULL)
 				{
-					int len = strlen(shower);
+                                        int len = strlen(h_ptr->shower);
 
 					/* Display the match */
-					Term_putstr(str-buf, i+2, len, TERM_YELLOW, shower);
+                                        Term_putstr(str-buf, i+2, len, TERM_YELLOW, h_ptr->shower);
 
 					/* Advance */
 					str += len;
@@ -4131,7 +4158,7 @@ bool show_file(cptr name, cptr what, int line, int mode)
 		/* Show a general "title" */
                 prt(format("[PernAngband %d.%d.%d, %s, Line %d/%d]",
 		           FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH,
-		           caption, line, size), 0, 0);
+                           h_ptr->caption, line, size), 0, 0);
 
 		/* Prompt -- menu screen */
 		if (menu)
@@ -4163,25 +4190,25 @@ bool show_file(cptr name, cptr what, int line, int mode)
 		/* Hack -- try showing */
 		if (k == '=')
 		{
-			/* Get "shower" */
+                        /* Get "h_ptr->shower" */
 			prt("Show: ", 23, 0);
-			(void)askfor_aux(shower, 80);
+                        (void)askfor_aux(h_ptr->shower, 80);
 		}
 
 		/* Hack -- try finding */
 		if (k == '/')
 		{
-			/* Get "finder" */
+                        /* Get "h_ptr->finder" */
 			prt("Find: ", 23, 0);
-			if (askfor_aux(finder, 80))
+                        if (askfor_aux(h_ptr->finder, 80))
 			{
 				/* Find it */
-				find = finder;
+                                find = h_ptr->finder;
 				back = line;
 				line = line + 1;
 
 				/* Show it */
-				strcpy(shower, finder);
+                                strcpy(h_ptr->shower, h_ptr->finder);
 			}
 		}
 
@@ -4240,8 +4267,8 @@ bool show_file(cptr name, cptr what, int line, int mode)
                         cur_link++;
                         if (cur_link >= max_link) cur_link = max_link - 1;
 
-                        if (link_y[cur_link] < line) line = link_y[cur_link];
-                        if (link_y[cur_link] >= line + 20) line = link_y[cur_link] - 20;
+                        if (h_ptr->link_y[cur_link] < line) line = h_ptr->link_y[cur_link];
+                        if (h_ptr->link_y[cur_link] >= line + 20) line = h_ptr->link_y[cur_link] - 20;
 		}
                 /* Return one link */
                 if (k == '4')
@@ -4249,17 +4276,17 @@ bool show_file(cptr name, cptr what, int line, int mode)
                         cur_link--;
                         if (cur_link < 0) cur_link = 0;
 
-                        if (link_y[cur_link] < line) line = link_y[cur_link];
-                        if (link_y[cur_link] >= line + 20) line = link_y[cur_link] - 20;
+                        if (h_ptr->link_y[cur_link] < line) line = h_ptr->link_y[cur_link];
+                        if (h_ptr->link_y[cur_link] >= line + 20) line = h_ptr->link_y[cur_link] - 20;
 		}
 
 		/* Recurse on numbers */
                 if (k == '\r')
 		{
-                        if (link_x[cur_link] != -1)
+                        if (h_ptr->link_x[cur_link] != -1)
                         {
                                 /* Recurse on that file */
-                                if (!show_file(link[cur_link], NULL, link_line[cur_link], mode)) k = ESCAPE;
+                                if (!show_file(h_ptr->link[cur_link], NULL, h_ptr->link_line[cur_link], mode)) k = ESCAPE;
                         }
                 }
 
@@ -4269,10 +4296,10 @@ bool show_file(cptr name, cptr what, int line, int mode)
                 /* No other key ? lets look for a shortcut */
                 for (i = 0; i < max_link; i++)
                 {
-                        if (link_key[i] == k)
+                        if (h_ptr->link_key[i] == k)
                         {
                                 /* Recurse on that file */
-                                if (!show_file(link[i], NULL, link_line[i], mode)) k = ESCAPE;
+                                if (!show_file(h_ptr->link[i], NULL, h_ptr->link_line[i], mode)) k = ESCAPE;
                                 break;
                         }
                 }
@@ -4280,6 +4307,9 @@ bool show_file(cptr name, cptr what, int line, int mode)
 
 	/* Close the file */
 	my_fclose(fff);
+
+	/* Free hyperlink buffers */
+	KILL(h_ptr, hyperlink_type);
 
 	/* Escape */
 	if (k == ESCAPE) return (FALSE);
@@ -4918,6 +4948,7 @@ static void show_info(void)
 		if (!out_val[0]) break;
 
 		/* Save screen */
+                character_icky = TRUE;
 		Term_save();
 
 		/* Dump a character file */
@@ -4925,6 +4956,7 @@ static void show_info(void)
 
 		/* Load screen */
 		Term_load();
+                character_icky = FALSE;
 	}
 
 
@@ -4997,7 +5029,7 @@ static void show_info(void)
 					c_put_str(tval_to_attr[o_ptr->tval], o_name, j+2, 7);
 				}
 
-				/* Caption */
+                                /* h_ptr->caption */
                                 prt(format("Your home contains (page %d): -more-", k+1), 0, 0);
 
 				/* Wait for it */

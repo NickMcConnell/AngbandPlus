@@ -1,6 +1,8 @@
 # Created by Mynstral (mynstral@thehelm.com)
 # Made for PernAngband on 14/08/2001
 
+# Monsters starts awake
+N:0
 
 # Permanent wall
 F:X:63:3
@@ -46,7 +48,7 @@ D:XTTT..TTTT.T.T.T..T.T....T...T..T.T..G..L..B.,,..B..L..G..T....T...T....T....T
 D:XTT.TT..T.T.T.T.T...T...T....T.T..T.T.G..L...,,....L..G..T..T...T..T.......T...T....T..T..TT...X
 D:XTTT.T..T.T..T.T..T...T..T....TT..T.T..GG....,,.....GG...T.T...T.T...T..T.T...T....T...T..T.T..X
 D:XTT...T.T..T....T....T....T....T...T....T.T..,,,.....T...T..T...T.....T...T...T..T..T...T..T.T.X
-D:XT..T.T...T...T...T.....T....T....T....T...T..,,..T...T...T...T....T.....T......T....T.....T..TX
+D:XT..T.T...T...T...T.....T....T....T....T...TTTTTTTT...T...T...T....T.....T......T....T.....T..TX
 D:XT.T...T...T..T.T...T.T.T..T...T.T...T...T.T...,.T...T...T...T...T..T.....T....T....T...T...T.TX
 D:XTT.T.T.T.T..T..T.T.T.....T....T..T...T.......,,..T........T...T...T...T...T.....T..T..T...TTT.X
 D:X..TT...T..T.....T...T....T...T...T...T..T...,,.....T..T..T.....T.T...T...T...T..T..T.T...T.TT.X
@@ -66,4 +68,4 @@ D:XTT.T.T.TT.T.TTTT.T..TT.T.T.TT.T.T.T..T....,,.T...T...T....T..TTTTTTTT.T.T.T.T
 D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
 # Starting position
-P:15:46
+P:17:47

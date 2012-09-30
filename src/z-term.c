@@ -2736,6 +2736,8 @@ char* clean80(int y, char* in, bool color)
         static char out[81];
         int walker = 0;
 
+        hack_map_info_default = TRUE;
+
         while(walker < 80)
 	{
                 if (!color)
@@ -2745,9 +2747,21 @@ char* clean80(int y, char* in, bool color)
                                 out[walker] = ' ';
                         }
                         /* Only for the map */
-                        else if (((walker - panel_col_prt) < SCREEN_WID) && ((y - panel_row_prt) < SCREEN_HGT) && ((walker - panel_col_prt) >= 0) && ((y - panel_row_prt) >= 0) && (un_pref_char[(byte)in[walker]]))
+                        else if ((!character_icky) && ((walker - 13) < SCREEN_WID) && ((y - 1) < SCREEN_HGT) && ((walker - 13) >= 0) && ((y - 1) >= 0))
                         {
-                                out[walker] = un_pref_char[(byte)in[walker]];
+                                byte a;
+                                byte c;
+#ifdef USE_TRANSPARENCY
+                                byte ta;
+                                char tc;
+
+                                /* Examine the grid */
+                                map_info(y + panel_row_prt, walker + panel_col_prt, &a, &c, &ta, &tc);
+#else /* USE_TRANSPARENCY */
+                                /* Examine the grid */
+                                map_info(y + panel_row_prt, walker + panel_col_prt, &a, &c);
+#endif /* USE_TRANSPARENCY */
+                                out[walker] = c;
                         }
                         else
                         {
@@ -2756,11 +2770,34 @@ char* clean80(int y, char* in, bool color)
                 }
                 else
                 {
-                        out[walker] = conv_color[(byte)in[walker]];
+                        if ((!character_icky) && ((walker - 13) < SCREEN_WID) && ((y - 1) < SCREEN_HGT) && ((walker - 13) >= 0) && ((y - 1) >= 0))
+                        {
+                                byte a;
+                                byte c;
+#ifdef USE_TRANSPARENCY
+                                byte ta;
+                                char tc;
+
+                                /* Examine the grid */
+                                map_info(y + panel_row_prt, walker + panel_col_prt, &a, &c, &ta, &tc);
+#else /* USE_TRANSPARENCY */
+                                /* Examine the grid */
+                                map_info(y + panel_row_prt, walker + panel_col_prt, &a, &c);
+#endif /* USE_TRANSPARENCY */
+                                out[walker] = conv_color[a];
+message_add(format("%c %d", conv_color[a], a), TERM_VIOLET);
+                        }
+                        else
+                        {
+                                out[walker] = conv_color[(byte)in[walker]];
+                        }
                 }
                 walker++;
 	}
         out[80] = 0;
+
+        hack_map_info_default = FALSE;
+
         return out;
 }
 

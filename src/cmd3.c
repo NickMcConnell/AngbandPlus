@@ -32,6 +32,7 @@ void do_cmd_inven(void)
 	command_wrk = FALSE;
 
 	/* Save the screen */
+        character_icky = TRUE;
 	Term_save();
 
 	/* Hack -- show empty slots */
@@ -46,7 +47,7 @@ void do_cmd_inven(void)
 /* Broken */
 #if 0
     /* Extract the current weight (in tenth pounds) */
-	j = total_weight;
+	j = calc_total_weight();
 
 	/* Extract the "weight limit" (in tenth pounds) */
     i = adj_str_wgt[p_ptr->stat_ind[A_STR]] * 100;
@@ -58,9 +59,13 @@ void do_cmd_inven(void)
        (total_weight * 100) / ((capacity_tester) / 2));
 
 #else
+	{
+		s32b total_weight = calc_total_weight();
+
     sprintf(out_val, "Inventory: carrying %ld.%ld pounds (%ld%% of capacity). Command: ",
            total_weight / 10, total_weight % 10,
        (total_weight * 100) / ((adj_str_wgt[p_ptr->stat_ind[A_STR]] * 100) / 2));
+	}
 #endif
 	/* Get a command */
 	prt(out_val, 0, 0);
@@ -70,6 +75,7 @@ void do_cmd_inven(void)
 
 	/* Restore the screen */
 	Term_load();
+        character_icky = FALSE;
 
 
 	/* Process "Escape" */
@@ -101,6 +107,7 @@ void do_cmd_equip(void)
 	command_wrk = TRUE;
 
 	/* Save the screen */
+        character_icky = TRUE;
 	Term_save();
 
 	/* Hack -- show empty slots */
@@ -113,9 +120,14 @@ void do_cmd_equip(void)
 	item_tester_full = FALSE;
 
 	/* Build a prompt */
-   sprintf(out_val, "Equipment: carrying %ld.%ld pounds (%ld%% of capacity). Command: ",
-           total_weight / 10, total_weight % 10,
-       (total_weight * 100) / ((adj_str_wgt[p_ptr->stat_ind[A_STR]] * 100) / 2));
+        {
+                s32b total_weight = calc_total_weight();
+
+  		/* Build a prompt */
+                sprintf(out_val, "Equipment: carrying %ld.%ld pounds (%ld%% of capacity). Command: ",
+                        total_weight / 10, total_weight % 10,
+                        (total_weight * 100) / ((adj_str_wgt[p_ptr->stat_ind[A_STR]] * 100) / 2));
+        }
 
 	/* Get a command */
 	prt(out_val, 0, 0);
@@ -125,6 +137,7 @@ void do_cmd_equip(void)
 
 	/* Restore the screen */
 	Term_load();
+	character_icky = FALSE;
 
 
 	/* Process "Escape" */
@@ -220,7 +233,6 @@ void do_cmd_wield(void)
 		o_ptr = &o_list[0 - item];
 	}
 
-
 	/* Check the slot */
 	slot = wield_slot(o_ptr);
 
@@ -238,18 +250,21 @@ void do_cmd_wield(void)
 		return;
 	}
 
-    if ((cursed_p(o_ptr)) && (wear_confirm)
-        && (object_known_p(o_ptr) || (o_ptr->ident & (IDENT_SENSE))))
-    {
-        char dummy[512];
+        if ((cursed_p(o_ptr)) && (wear_confirm)
+                && (object_known_p(o_ptr) || (o_ptr->ident & (IDENT_SENSE))))
+        {
+                char dummy[512];
 
 		/* Describe it */
-        object_desc(o_name, o_ptr, FALSE, 0);
+                object_desc(o_name, o_ptr, FALSE, 0);
 
-        sprintf(dummy, "Really use the %s {cursed}? ", o_name);
-        if (!(get_check(dummy)))
-            return;
-    }
+                sprintf(dummy, "Really use the %s {cursed}? ", o_name);
+                if (!(get_check(dummy)))
+                        return;
+        }
+
+        /* Can we wield */
+        if (process_hooks(HOOK_WIELD, item)) return;
 
 	/* Extract the flags */
         object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
@@ -348,9 +363,6 @@ void do_cmd_wield(void)
 
 	/* Wear the new stuff */
 	object_copy(o_ptr, q_ptr);
-
-	/* Increase the weight */
-	total_weight += q_ptr->weight * q_ptr->number;
 
 	/* Increment the equip counter by hand */
 	equip_cnt++;
@@ -502,6 +514,9 @@ void do_cmd_drop(void)
 
         object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
 
+        /* Can we drop */
+        if (process_hooks(HOOK_DROP, item)) return;
+
 	/* Hack -- Cannot remove cursed items */
         if (cursed_p(o_ptr))
 	{
@@ -536,9 +551,6 @@ void do_cmd_drop(void)
 		/* Allow user abort */
 		if (amt <= 0) return;
 	}
-
-        /* Can we drop */
-        if (process_hooks(HOOK_DROP, item)) return;
 
 	/* Take a partial turn */
 	energy_use = 50;
@@ -850,6 +862,7 @@ void do_cmd_observe(void)
                         info[i++] = "You need to *identify* the item to know more about it...";
 
                         /* Save the screen */
+                        character_icky = TRUE;
                         Term_save();
 
                         /* Erase the screen */
@@ -879,6 +892,7 @@ void do_cmd_observe(void)
 
                         /* Restore the screen */
                         Term_load();
+                        character_icky = FALSE;
                 }
 		return;
 	}
@@ -1801,6 +1815,7 @@ void do_cmd_query_symbol(void)
 			if (recall)
 			{
 				/* Save the screen */
+                                character_icky = TRUE;
 				Term_save();
 
 				/* Recall on screen */
@@ -1818,6 +1833,7 @@ void do_cmd_query_symbol(void)
 			{
 				/* Restore */
 				Term_load();
+                                character_icky = FALSE;
 			}
 
 			/* Normal commands */
@@ -1983,6 +1999,7 @@ bool research_mon()
 			if (recall)
 			{
 				/* Save the screen */
+                                character_icky = TRUE;
 				Term_save();
 
 				/* Recall on screen */
@@ -2008,6 +2025,7 @@ bool research_mon()
 			{
 				/* Restore */
 				Term_load();
+                                character_icky = FALSE;
 			}
 
 			/* Normal commands */
@@ -2211,16 +2229,6 @@ void do_cmd_portable_hole(void)
 	
 	set_portable_hole_weight();
 
-        /* Recalc weight */
-        total_weight = 0;
-        for (i = 0; i < INVEN_TOTAL; i++)
-        {
-                object_type *o_ptr = &inventory[i];
-
-                if (!o_ptr->k_idx) continue;
-
-                total_weight += (o_ptr->number * o_ptr->weight);                
-        }
 	/* Recalculate bonuses */
 	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
 	p_ptr->update |= (PU_BONUS);

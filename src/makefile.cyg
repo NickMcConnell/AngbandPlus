@@ -29,6 +29,7 @@ SRCS = \
 	cmd6.c \
         cmd7.c \
         cmovie.c \
+        randart.c \
 	dungeon.c \
 	files.c \
 	generate.c \
@@ -66,6 +67,7 @@ SRCS = \
 	spells1.c \
 	spells2.c \
         squeltch.c \
+        status.c \
 	store.c \
 	tables.c \
         traps.c \
@@ -96,6 +98,7 @@ EXOBJS = \
 	cmd6.o \
         cmd7.o \
         cmovie.o \
+        randart.o \
 	dungeon.o \
 	files.o \
 	generate.o \
@@ -121,6 +124,7 @@ EXOBJS = \
 	spells1.o \
 	spells2.o \
         squeltch.o \
+        status.o \
 	store.o \
 	tables.o \
         traps.o \
@@ -271,6 +275,9 @@ main.o: main.c $(INCS)
 main-win.o: main-win.c $(INCS)
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
+randart.o: randart.c $(INCS)
+	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
+
 melee1.o: melee1.c $(INCS)
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
@@ -327,6 +334,9 @@ spells2.o: spells2.c $(INCS)
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
 squeltch.o: squeltch.c $(INCS)
+	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
+
+status.o: status.c $(INCS)
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
 store.o: store.c $(INCS)

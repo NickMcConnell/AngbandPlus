@@ -48,6 +48,13 @@ static void do_ver_u32b(u32b*, u32b, u32b, int);
 static void do_ver_s32b(s32b*, u32b, s32b, int);
 static void do_ver_string(char*, int, u32b, char*, int);
 
+static void skip_ver_byte(u32b, int);
+static void skip_ver_u16b(u32b, int);
+static void skip_ver_s16b(u32b, int);
+static void skip_ver_u32b(u32b, int);
+static void skip_ver_s32b(u32b, int);
+static void skip_ver_string(u32b, int);
+
 errr rd_savefile(void);
 
 #ifdef SAFER_PANICS
@@ -184,6 +191,38 @@ if(flag == LS_LOAD)
 }
 
 /*
+ * Load/Save quick start data
+ */
+void do_quick_start(int flag)
+{
+        int i;
+
+        do_ver_s16b(&previous_char.sex, 29, 0, flag);
+        do_ver_s16b(&previous_char.race, 29, 0, flag);
+        do_ver_s16b(&previous_char.rmod, 29, 0, flag);
+        do_ver_s16b(&previous_char.class, 29, 0, flag);
+        do_ver_byte(&previous_char.quests, 29, 0, flag);
+        do_ver_s16b(&previous_char.realm1, 29, 0, flag);
+        do_ver_s16b(&previous_char.realm2, 29, 0, flag);
+        do_ver_byte(&previous_char.god, 29, 0, flag);
+        do_ver_s32b(&previous_char.grace, 29, 0, flag);
+        do_ver_s32b(&previous_char.god_favor, 29, 0, flag);
+        do_ver_s16b(&previous_char.age, 29, 0, flag);
+        do_ver_s16b(&previous_char.wt, 29, 0, flag);
+        do_ver_s16b(&previous_char.ht, 29, 0, flag);
+        do_ver_s16b(&previous_char.sc, 29, 0, flag);
+        do_ver_s32b(&previous_char.au, 29, 0, flag);
+
+        for (i = 0; i < 6; i++) do_ver_s16b(&(previous_char.stat[i]), 29, 0, flag);
+
+        do_ver_s16b(&previous_char.chaos_patron, 29, 0, flag);
+        do_ver_u32b(&previous_char.weapon, 29, 0, flag);
+        do_ver_byte(&previous_char.quick_ok, 29, 0, flag);
+
+        for (i = 0; i < 4; i++) do_ver_string(previous_char.history[i], 60, 29, "", flag);
+}
+
+/*
  * Misc. other data
  */
 static void do_extra(int flag)
@@ -220,9 +259,25 @@ static void do_extra(int flag)
 			note(format("Too many (%d) max level by dungeon type!", tmp16s));
 		}
 
-	for (i = 0; i < tmp8u; i++)
-	       for (j = 0; j < tmp16s; j++)
-			do_byte(&(spec_history[j][i]), flag);
+        for (i = 0; i < tmp8u; i++)
+                for (j = 0; j < tmp16s; j++)
+                        skip_ver_byte(21, flag);
+
+        /* Load the special levels history */
+        for (i = 0; i < 1 + (max_d_idx * MAX_DUNGEON_DEPTH / 32); i++)
+        {
+                skip_ver_s32b(25, flag);
+        }
+
+        /* Load the special levels history */
+        for (i = 0; i < max_d_idx; i++)
+        for (j = 0; j < MAX_DUNGEON_DEPTH; j++)
+        {
+                do_ver_byte(&special_lvl[j][i], 26, 0, flag);
+        }
+
+        /* Load the quick start data */
+        do_quick_start(flag);
 
 	/* Race/Class/Gender/Spells */
 	do_byte(&p_ptr->prace, flag);
@@ -413,7 +468,7 @@ static void do_extra(int flag)
 	do_byte(&p_ptr->maximize, flag);
 	do_byte(&p_ptr->preserve, flag);
 	do_byte(&p_ptr->special, flag);
-	do_byte(&special_flag, flag);
+        skip_ver_byte(24, flag);
         do_ver_byte(&ambush_flag, 20, FALSE, flag);
 	do_byte(&p_ptr->allow_one_death, flag);
 	do_s16b(&p_ptr->xtra_spells, flag);
@@ -727,15 +782,34 @@ bool save_player(void)
 }
 
 static bool file_exist(char *buf)
-{	/* FIXME! Can't we use access() for this? */
-int fd;
-fd = fd_open(buf, O_RDONLY);
-if(fd >= 0)
+{
+        int fd;
+        bool result;
+
+#ifdef SET_UID
+#ifdef SECURE
+	/* Set "games" permissions */
+	beGames();
+#endif /* SECURE */
+#endif /* SET_UID */
+
+        safe_setuid_grab();
+        fd = fd_open(buf, O_RDONLY);
+        safe_setuid_drop();
+        if(fd >= 0)
 	{
-	fd_close(fd);
-	return(TRUE);
+                fd_close(fd);
+                result = TRUE;
 	}
-else return(FALSE);
+        else result=FALSE;
+
+#ifdef SET_UID
+#ifdef SECURE
+	/* Drop "games" permissions */
+	bePlayer();
+#endif /* SECURE */
+#endif /* SET_UID */
+	return result;
 }
 
 /*
@@ -1199,6 +1273,17 @@ if((flag == LS_LOAD) && (vernum < version))
 do_byte(v,flag); /* Otherwise, go as normal */
 }
 
+static void skip_ver_byte(u32b version, int flag)
+	/* Reads and discards a byte if the savefile is as old as/older than version */
+{
+if((flag == LS_LOAD) && (vernum <= version))
+	{
+	byte forget;
+	do_byte(&forget, flag);
+	}
+return;
+}
+
 static void do_ver_u16b(u16b* v, u32b version, u16b defval, int flag)
 {
 if((flag == LS_LOAD) && (vernum < version))
@@ -1207,6 +1292,16 @@ if((flag == LS_LOAD) && (vernum < version))
 	return;
 	}
 do_u16b(v,flag);
+}
+
+static void skip_ver_u16b(u32b version, int flag)
+{
+if( (flag == LS_LOAD) && (vernum <= version))
+	{
+	u16b forget;
+	do_u16b(&forget, flag);
+	}
+return;
 }
 
 static void do_ver_s16b(s16b* v, u32b version, s16b defval, int flag)
@@ -1219,6 +1314,16 @@ if((flag == LS_LOAD) && (vernum < version))
 do_s16b(v,flag);
 }
 
+static void skip_ver_s16b(u32b version, int flag)
+{
+if((flag == LS_LOAD) && (vernum <= version))
+	{
+	s16b forget;
+	do_s16b(&forget, flag);
+	}
+return;
+}
+
 static void do_ver_u32b(u32b* v, u32b version, u32b defval, int flag)
 {
 if((flag == LS_LOAD) && (vernum < version))
@@ -1227,6 +1332,16 @@ if((flag == LS_LOAD) && (vernum < version))
 	return;
 	}
 do_u32b(v,flag);
+}
+
+static void skip_ver_u32b(u32b version, int flag)
+{
+if( (flag == LS_LOAD) && (vernum <= version))
+	{
+	u32b forget;
+	do_u32b(&forget, flag);
+	}
+return;
 }
 
 static void do_ver_s32b(s32b* v, u32b version, s32b defval, int flag)
@@ -1239,6 +1354,16 @@ if((flag == LS_LOAD) && (vernum < version))
 do_s32b(v,flag);
 }
 
+static void skip_ver_s32b(u32b version, int flag)
+{
+if( (flag == LS_LOAD) && (vernum <= version))
+	{
+	s32b forget;
+	do_s32b(&forget, flag);
+	}
+return;
+}
+
 static void do_ver_string(char* str, int max, u32b version, char* defval, int flag)
 	/* Careful, remember the argument order here */
 {
@@ -1249,6 +1374,17 @@ static void do_ver_string(char* str, int max, u32b version, char* defval, int fl
 		return;
 		}
 do_string(str, max, flag);
+}
+
+static void skip_ver_string(u32b version, int flag)
+	/* This function is slow and bulky */
+{
+if( (flag == LS_LOAD) && (vernum <= version))
+	{
+	char forget[1000];
+	do_string(forget, 999, flag);
+	}
+return;
 }
 
 /*
@@ -1364,7 +1500,9 @@ static void do_item(object_type *o_ptr, int flag)
 	do_s32b(&o_ptr->weight, flag);
 
 	do_byte(&o_ptr->name1, flag);
-	do_byte(&o_ptr->name2, flag);
+        skip_ver_byte(27, flag);
+        do_ver_s16b(&o_ptr->name2, 28, 0, flag);
+        do_ver_s16b(&o_ptr->name2b, 28, 0, flag);
 	do_s16b(&o_ptr->timeout, flag);
 
 	do_s16b(&o_ptr->to_h, flag);
@@ -1587,6 +1725,9 @@ static void do_monster(monster_type *m_ptr, int flag)
 	do_s16b(&m_ptr->ac, flag);
 	do_s32b(&m_ptr->exp, flag);
 	do_s16b(&m_ptr->target, flag);
+
+        do_ver_s16b(&m_ptr->bleeding, 27, 0, flag);
+        do_ver_s16b(&m_ptr->poisoned, 27, 0, flag);
 
         do_ver_byte(&m_ptr->mflag, 21, 0, flag);
         if (flag == LS_LOAD) m_ptr->mflag &= PERM_MFLAG_MASK;
@@ -2030,9 +2171,6 @@ if(flag == LS_LOAD)
 	object_type forge;
 	object_type *q_ptr;
 
-	/* No weight */
-	total_weight = 0;
-
 	/* No items */
 	inven_cnt = 0;
 	equip_cnt = 0;
@@ -2066,9 +2204,6 @@ if(flag == LS_LOAD)
 			/* Copy object */
 			object_copy(&inventory[n], q_ptr);
 
-			/* Add the weight */
-			total_weight += (q_ptr->number * q_ptr->weight);
-
 			/* One more item */
 			equip_cnt++;
 		}
@@ -2091,9 +2226,6 @@ if(flag == LS_LOAD)
 
 			/* Copy object */
 			object_copy(&inventory[n], q_ptr);
-
-			/* Add the weight */
-			total_weight += (q_ptr->number * q_ptr->weight);
 
 			/* One more item */
 			inven_cnt++;
@@ -2187,6 +2319,8 @@ static bool do_dungeon(int flag)
 	do_s16b(&cur_wid, flag);
 	do_s16b(&max_panel_rows, flag);
 	do_s16b(&max_panel_cols, flag);
+
+        do_ver_s32b(&dungeon_flags1, 24, 0, flag);
 
         /* TO prevent bugs with evolving dungeons */
         for (i = 0; i < 100; i++)

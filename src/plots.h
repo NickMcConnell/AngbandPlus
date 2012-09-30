@@ -9,6 +9,7 @@ extern bool quest_random_init_hook(int q_idx);
 
 /******* Plot main ********/
 extern bool quest_necro_init_hook(int q_idx);
+extern bool quest_one_init_hook(int q_idx);
 extern bool quest_sauron_init_hook(int q_idx);
 extern bool quest_morgoth_init_hook(int q_idx);
 

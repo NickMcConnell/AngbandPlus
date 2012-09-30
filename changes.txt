@@ -2469,3 +2469,134 @@ becomes 0, allowing spells to summon fiery blades and such
 - Merchants can request ego items(same interface as wishes)
 - Towns in dungeons now get townpeople in it ... leveled townpeople
 - Eggs are now , instead of o
+
+17/08/2001 - PernAngband 5.0.0 aka "Mirmidonic Carbonizer"
+- Birth options now appear in the normal option screen, but as read only
+
+18/08/2001
+- Special levels reworked
+- Volcano is now Mount Doom and is found on level 65 of Mordor
+- fixed help system crash thanks to pelpel
+
+21/08/2001
+- fixed the hypnotic gaze bug
+- reduced between gates damage
+- daemon books can be enchanted
+
+19/08/2001
+- Beginning work on a new, better status screen. For now, it's assigned
+  to the debugging menu as the 'A' command. -- Improv
+- fatespoil.txt changed to fatespoi.txt
+- rogues get some shots for their trapkit at birth
+- Cannot dismiss the princess anymore
+
+23/08/2001
+- Fixed the special levels, thanks to mynstral
+- Described Daemon realm
+
+23/08/2001 - PernAngband 5.0.0b aka "Mirmidonic Carbonizer II"
+- Default pref files are in lib/pref
+- Random quests are disabled when using ironman_room
+- Add auto_more option -- beware it can be very dangerous
+
+24/08/2001
+- Increased general store price limit
+- Trapkits added to squelch list
+- Fixed a bug when displaying some k_info artifacts
+- Wand of Gandalf and Thrain are now k_info artifacts
+- Fixed 2 bugs with rogue traps
+
+25/08/2001
+- Necromancers can turn pets into companions
+
+26/08/2001
+- Special levels are no more fully known
+- Fixed fountain bug; shape of XXX did not take effect  -- Kusunose
+- Described Illusion and Tribal realm spells -- Dawnmist.
+
+27/08/2001
+- Fixed bug with scrollable list of powers
+- Added Magical diggers, they grant stone to mud power
+- Added the Corrupted subrace gaining corruptions as they level thanks to
+  Luc French
+- Changed mutations to corruptions
+- Dragonriders are no more considered evil
+
+28/08/2001
+- Fixed some cmovie bugs
+- Fixed *godness* song on non artifacts
+- Greatly increased herbal healing price in gondolin, since it cures black
+  breath
+- Fixed bug with store item creation -- Kusunose
+
+29/08/2001
+- Totaly rewrote the random artifact system. It now use an external ra_info
+  file to define what power the artifact will get. The format is very similar
+  to e_info(expect it doesnt include the 5 flags sets). Each entry define for
+  which tval/sval it can be applied. Then when the game wants to create a
+  randart it simply defines a number of powers to grab and randomly pick up
+  the powers from ra_info(following the restriction, rarity and levels).
+  This allow a totaly change of the randarts if needed, an easy addition of
+  new powers, ...
+
+30/08/2001
+- Hidden doors are now hidden, in mirkwood they will look like trees, in
+  barrow downs they will be mountains or trees, and so on
+- Beastmasters can turn a pet into a companion
+
+31/08/2001
+- Half elf lost the str penality
+- Half orcs and half Trolls or now Orcs and Trolls
+- Saved levels are deleted when a new character is created
+- Renamed Holy Advangers to weapons of Aman, thanks to Timo Pietila for the
+  idea
+- Cannot reset recall to Mount Doom
+- The game time is now counted with the elven calendar (reckoning of Imladris)
+  (It isnt PERFECT, every 12 years it should have years or 368 days, but I
+  dont think many will get upset :)
+  A year is 365 days, with 6 months (Tuile, Laire, Yavie, Quelle, Hrive and
+  Coire), 3 middle days(Enderi) and one starting(Yestare) and one ending
+  (Mettare) day.
+  The game begins the 43rd Yavie the year 2890 of the third age, note that it
+  is the birthday of Bilbo :)
+- Note files (mainly) use the elven calendar to record things
+
+02/09/2001
+- Fixed several bugs (runespell deletion, ego wand and staff stacking etc)
+  thanks to oops  --  Kusunose
+
+03/09/2001
+- Changed the 'Lev xxx' thing to a 3 letter name corresponding to the current
+  place(dungeon, orc cave, ..)
+- Enabled f_info D: line with an index(0 is general desc, 1 is to (forbid)
+  tunneling)
+- Changed the way total weight is calculed thanks to Kieron Dunbar
+- One can edit his background history at birth :)
+- Lich ego monsters can use the base monster powers
+- Raise death can bring a lich
+
+04/09/2001
+- Enabled E: line in f_info(same format as d_info)
+- F: lines enabled in lib/dngn files, they specify flags for the level
+- Fixed a bug with special level generation
+- Add bleeding and poisoning monster effects from EyAngband
+- The One Ring quest
+
+05/09/2001
+- Fixed the crashing bug after level 100 in angband
+- Gave Sauron 30% chances to drop The One if it is not already created
+- Code now allows bi-ego objects, thoght they are impossible to generate yet.
+  It will allow additing weapon/armors qulities(crude, broken, ..) easily
+- Add a quick start option that let you use the same char as you previous one.
+  Everything is the same execpt life rating
+
+06/09/2001
+- Abort menu in the Windows version is now compile option, Disabled by
+  default.  -- Kusunose
+
+07/09/2001
+- When a new day comes the game tells the player(at midnight)
+- Drain hp and mana are cumulative
+- Fixed file existence function for dumb systems :)
+
+07/09/2001 - PernAngband 5.0.1 aka "Brunswik Disipator"

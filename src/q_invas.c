@@ -26,7 +26,6 @@ bool quest_invasion_gen_hook(int q_idx)
 	get_mon_num_prep();
 
         init_flags = INIT_CREATE_DUNGEON;
-        hack_allow_special = TRUE;
         process_dungeon_file_full = TRUE;
         process_dungeon_file("maeglin.map", &ystart, &xstart, cur_hgt, cur_wid, TRUE);
         process_dungeon_file_full = FALSE;
@@ -43,7 +42,6 @@ bool quest_invasion_gen_hook(int q_idx)
                         cave_set_feat(py, px, FEAT_LESS);
                 }
         }
-        hack_allow_special = FALSE;
 
         return TRUE;
 }

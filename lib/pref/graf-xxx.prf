@@ -750,7 +750,7 @@ R:140:0x9A:0x99
 R:141:0x9E:0x93
 
 # Novice ranger
-R:142:0x9C:0x83
+R:142:0x9B:0x9B
 
 # Giant salamander
 R:143:0x93:0x95
@@ -1357,11 +1357,11 @@ R:343:0x95:0x9A
 # Weir
 R:344:0xA0:0x96
 
-# Whale
-R:345:0xBE:0x8B
+# Ranger
+R:345:0x9C:0x83
 
-# Electric eel
-R:346:0xBE:0x8C
+# Paladin
+R:346:0x8D:0x9C
 
 # Werewolf
 R:347:0x8F:0x85
@@ -2254,7 +2254,7 @@ R:642:0x9A:0x96
 R:643:0xBB:0x98
 
 # Ancient red dragon
-R:454:0x8F:0x91
+R:644:0x8F:0x91
 
 # Ancient gold dragon
 R:645:0x8F:0x92
@@ -2912,6 +2912,296 @@ R:861:0x92:0x9E
 # The Serpent of Chaos
 R:862:0x9F:0x8E
 
+#863:Human Warrior
+#864:Elven archer
+#865:Dwarven warrior
+#866:Elite uruk
+#867:The Philosophy Teacher
+#868:The Variant Maintainer
+#869:Random Number Generator
+#870:Rocket mine
+#871:Bouncing mine
+#872:The Balrog of Moria
+#873:The Icky Queen
+#874:Rot jelly
+#875:Death
+#876:Famine
+#877:Pestilence
+#878:War
+#879:Pike
+
+# Electric eel
+R:880:0xBE:0x8C
+
+#881:Giant crayfish
+#882:Mermaid
+#883:Box jellyfish
+
+# Giant piranha
+R:884:0xBE:0x84
+
+# Piranha
+R:885:0xBE:0x80
+
+#886:Bullywug
+#887:Bullywug warrior
+#888:Bullywug shaman
+
+# Whale
+R:889:0xBE:0x8B
+
+#890:Sand mite
+#891:Octopus
+
+# Giant octopus
+R:892:0xBE:0x93
+
+#893:Eye of the deep
+#894:Murk dweller
+#895:Drowned soul
+#896:Tiger shark
+#897:Hammerhead shark
+
+# Great white shark
+R:898:0xBE:0x8F
+
+#899:Aquatic golem
+#900:Aquatic kobold
+
+# White shark
+R:901:0xBE:0x89
+
+#902:Scrag
+
+# Jaws
+R:903:0xBE:0x92
+
+#904:Aquatic elf
+#905:Aquatic elven warrior
+#906:Aquatic elven shaman
+#907:Stargazer
+#908:Elder stargazer
+#909:Flounder
+#910:Giant turtle
+#911:Baby dragon turtle
+#912:Young dragon turtle
+#913:Mature dragon turtle
+#914:Ancient dragon turtle
+
+# Fastitocalon
+R:915:0xBE:0x97
+
+#916:Undead stargazer
+
+# Killer whale
+R:917:0xBE:0x8E
+
+#918:Merrow
+#919:Water naga
+#920:Devilfish
+#921:Undead devilfish
+#922:Moby Dick, the White Whale
+#923:Aquatic hound
+#924:Water demon
+
+# Ixitxachitl
+R:925:0xBE:0x86
+
+# Ixitxachitl priest
+R:926:0xBE:0x8A
+
+# Vampiric ixitxachitl
+R:927:0xBE:0x90
+
+#928:Mathilde, the Science Student
+#929:Child spirit
+#930:Young spirit
+#931:Mature spirit
+#932:Experienced spirit
+#933:Wise spirit
+
+# Fangorn the Treebeard, Lord of the Ents
+R:934:0xC2:0x95
+
+# Gandalf the Grey
+R:935:0xC3:0x88
+
+# Nar, the Dwarf
+R:936:0x99/0x84
+
+#937:Novice mindcrafter
+#938:Great Swamp Wyrm
+#939:Great Bile Wyrm
+#940:Blue Firelizard
+#941:Green Firelizard
+#942:Brown Firelizard
+#943:Bronze Firelizard
+#944:Gold Firelizard
+#945:High-elven ranger
+
+# Uvatha the Horseman
+R:946:0x95/0x8B
+
+# Adunaphel the Quiet
+R:947:0x95/0x8C
+
+# Akhorahil the Blind
+R:948:0x95/0x8D
+
+# Ren the Unclean
+R:949:0x95/0x82
+
+# Ji Indur Dawndeath
+R:950:0x95/0x8F
+
+# Dwar, Dog Lord of Waw
+R:951:0x95/0x8F
+
+# Hoarmurath of Dir
+R:952:0x95/0x92
+
+# Khamul, the Black Easterling
+R:953:0x95/0x93
+
+# The Witch-King of Angmar
+R:954:0x95/0x96
+
+#955:Green Dragonrider
+#956:Blue Dragonrider
+#957:Brown Dragonrider
+#958:Bronze Dragonrider
+#959:Gold Dragonrider
+#960:Thread
+
+# Gorlim, Betrayer of Barahir
+R:961:0x9D/0x83
+
+#962:The Blubbering idiot, agent of black market, Simon the weak
+#963:Aranea
+#964:Elder aranea
+#965:Giant brown tick
+#966:Dolphiner
+#967:Novice possessor (soul)
+#968:Bat of Gorgoroth
+#969:The Princess
+#970:Merton Proudfoot, the lost hobbit
+#971:The Wight-King of the Barrow-downs
+#972:Hurin Thalion, the Last Lord of Dor-Lomin
+#973:Experienced possessor (soul)
+#974:Old possessor (soul)
+#975:Death orb
+#976:Bronze dragon worm
+#977:Gold dragon worm
+#978:Moldoux, the Defenceless Mold
+#979:The Physics Teacher
+#980:Ar-Pharazon the Golden
+#981:Doppelganger
+#982:Marylene, Heartbreakeress of the Netherworld
+#983:The Greater Lag Monster
+#984:Hrungnir, the Stone Giant
+
+#Bullroarer the Hobbit
+R:985:0x98:0x9D
+
+#3-headed hydra
+R:986:0x93:0x99
+
+# Uldor the Accursed
+R:987:0x9C/0x93
+
+# Mystic
+R:988:0x9C/0x97
+
+#989:Elder vampire
+
+# Ulfang the Black
+R:990:0x9C/0x99
+
+# Demonologist
+R:991:0x9C/0x9D
+
+# Hezrou
+R:992:0x9E/0x9C
+
+# Glabrezu
+R:993:0x9E/0x9D
+
+# Nalfeshnee
+R:994:0x9E/0x9E
+
+# Marilith
+R:995:0x9E/0x9F
+
+# Lesser Balrog
+R:996:0x9F/0x80
+
+# Master mystic
+R:997:0x9D/0x85
+
+# Grand master mystic
+R:998:0x9D/0x87
+
+# Erinyes
+R:999:0x9E/0x9A
+
+#1000:Novice mindcrafter
+#1001:Polyphemus, the Blind Cyclops
+#1002:Great Wyrm of Perplexity
+#1003:Hound of Tindalos
+#1004:Great Wyrm of Thunder
+#1005:Silver mouse
+#1006:The Rat King
+#1007:Vort the Kobold Queen
+
+# Giant black louse
+R:1008:0x9A/0x87
+
+#1009:Fire Phantom
+#1010:The Insane Player
+#1011:Glaryssa, Succubus Queen
+#1012:Vermicious Knid
+#1013:Bone golem
+#1014:Snake of Yig
+#1015:Bronze golem
+#1016:Dimensional shambler
+#1017:Cultist
+#1018:Cult leader
+#1019:Servitor of the outer gods
+
+# Avatar of Nyarlathotep
+R:1020:0xC3:0x85
+
+#1021:Thiazi, the Storm Giant
+
+# Hypnos, Lord of Sleep
+R:1022:0xC3:0x8D
+
+#1023:Blue dragon worm
+#1024:White dragon worm
+#1025:Green dragon worm
+#1026:Black dragon worm
+#1027:Red dragon worm
+#1028:Multi-hued dragon worm
+
+#1029:The Minotaur of the Labyrinth
+R:1029:0x91:0x95
+
+#1030:The Sandworm Queen
+#1031:Sandworm
+#1032:Tik'srvzllat
+#1033:The Glass Golem
+
+# The White Balrog
+R:1034:0x9F:0x82
+
+#1035:Golgarach, the Living Rock
+#1036:Atlas, the Titan
+#1037:Kronos, Lord of the Titans
+
+# Water hound
+R:1038:0x96/0x83
+
+#1039:Improv, the mighty MoLD
 
 # Feature attr/char definitions
 
@@ -4597,6 +4887,10 @@ K:522:0xB6:0x80
 
 # new amulet
 K:523:0xB6:0x80
+
+# & Phial~
+K:661:0x87:0x9D
+
 
 # Load the special player pictures
 %:xtra-xxx.prf

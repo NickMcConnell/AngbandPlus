@@ -26,11 +26,9 @@ bool quest_spider_gen_hook(int q_idx)
 	get_mon_num_prep();
 
         init_flags = INIT_CREATE_DUNGEON;
-        hack_allow_special = TRUE;
         process_dungeon_file_full = TRUE;
         process_dungeon_file("spiders.map", &ystart, &xstart, cur_hgt, cur_wid, TRUE);
         process_dungeon_file_full = FALSE;
-        hack_allow_special = FALSE;
 
         return TRUE;
 }
@@ -82,6 +80,7 @@ bool quest_spider_finish_hook(int q_idx)
 
         /* Continue the plot */
         *(quest[q_idx].plot) = QUEST_POISON;
+        quest[*(quest[q_idx].plot)].init(*(quest[q_idx].plot));
 
         del_hook(HOOK_QUEST_FINISH, quest_spider_finish_hook);
         process_hooks_restart = TRUE;

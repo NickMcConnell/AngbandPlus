@@ -127,6 +127,7 @@ struct feature_type
 {
         u32b name;              /* Name (offset) */
         u32b text;              /* Text (offset) */
+        u32b tunnel;            /* Text for tunneling */
 
         byte mimic;             /* Feature to mimic */
 
@@ -144,6 +145,11 @@ struct feature_type
 	char x_char;		/* Desired feature character */
 
         byte shimmer[7];        /* Shimmer colors */
+
+        int d_dice[4];                  /* Number of dices */
+        int d_side[4];                  /* Number of sides */
+        int d_frequency[4];             /* Frequency of damage (1 is the minimum) */
+        int d_type[4];                  /* Type of damage */
 };
 
 
@@ -317,6 +323,40 @@ struct ego_item_type
 };
 
 
+/*
+ * Information about "random artifacts parts".
+ */
+typedef struct randart_part_type randart_part_type;
+
+struct randart_part_type
+{
+        byte tval[20];
+        byte min_sval[20];
+        byte max_sval[20];
+
+        byte level;             /* Minimum level */
+        byte rarity;            /* Object rarity */
+        byte mrarity;           /* Object rarity */
+
+        s16b max_to_h;          /* Maximum to-hit bonus */
+        s16b max_to_d;          /* Maximum to-dam bonus */
+        s16b max_to_a;          /* Maximum to-ac bonus */
+
+        s32b max_pval;          /* Maximum pval */
+
+        s32b value;             /* power value */
+        s16b max;               /* Number of time it can appear on a single item */
+
+        u32b flags1;            /* Ego-Item Flags, set 1 */
+        u32b flags2;            /* Ego-Item Flags, set 2 */
+        u32b flags3;            /* Ego-Item Flags, set 3 */
+        u32b flags4;            /* Ego-Item Flags, set 4 */
+        u32b flags5;            /* Ego-Item Flags, set 5 */
+        u32b esp;               /* ESP flags */
+        u32b fego;              /* ego flags */
+
+        s16b power;             /* Power granted(if any) */
+};
 
 
 /*
@@ -689,7 +729,8 @@ struct object_type
         s32b exp;               /* Item exp */
 
 	byte name1;			/* Artifact type, if any */
-	byte name2;			/* Ego-Item type, if any */
+        s16b name2;                     /* Ego-Item type, if any */
+        s16b name2b;                    /* Second Ego-Item type, if any */
 
 	byte xtra1;			/* Extra info type */
         s16b xtra2;                     /* Extra info index */
@@ -765,6 +806,9 @@ struct monster_type
 	byte stunned;		/* Monster is stunned */
 	byte confused;		/* Monster is confused */
 	byte monfear;		/* Monster is afraid */
+
+        s16b bleeding;          /* Monster is bleeding */
+        s16b poisoned;          /* Monster is poisoned */
 
 	byte cdis;			/* Current dis from player */
 
@@ -1134,6 +1178,8 @@ struct player_class
 	s16b c_exp;			/* Class experience factor */
 
         s16b powers[4];        /* Powers of the class */
+
+        s32b flags1;            /* flags */
 };
 
 
@@ -1409,8 +1455,8 @@ struct player_type
 	bool teleport;		/* Random teleporting */
 
 	bool exp_drain;		/* Experience draining */
-        bool drain_mana;        /* mana draining */
-        bool drain_life;        /* hp draining */
+        byte drain_mana;        /* mana draining */
+        byte drain_life;        /* hp draining */
 
         bool climb;             /* Can climb mountains */
         bool fly;               /* Can fly over some features */
@@ -1764,6 +1810,7 @@ struct dungeon_info_type
 {
         u32b name;                      /* Name */
         u32b text;                      /* Description */
+        char short_name[3];             /* Short name */
 
         s16b floor1;                    /* Floor tile 1 */
         byte floor_percent1[2];         /* Chance of type 1 */
@@ -1795,6 +1842,7 @@ struct dungeon_info_type
         byte rule_percents[100];        /* Flat rule percents */
         rule_type rules[5];             /* Monster generation rules */
 
+        int final_object;               /* The object you'll find at the bottom */
         int final_artifact;             /* The artifact you'll find at the bottom */
         int final_guardian;             /* The artifact's guardian. If an artifact is specified, then it's NEEDED */
 
@@ -1873,6 +1921,8 @@ typedef struct quest_type quest_type;
                       
 struct quest_type
 {
+        bool silent;
+
         cptr name;              /* Quest name */
 
         cptr desc[10];          /* Quest desc */
@@ -1928,3 +1978,42 @@ struct between_exit
         s16b d_idx;             /* Dungeon to land onto */
         s16b level;
 };
+
+/*
+ * A structure to hold "rolled" information
+ */
+typedef struct birther birther;
+struct birther
+{
+        s16b sex;
+        s16b race;
+        s16b rmod;
+        s16b class;
+
+        byte quests;
+
+        s16b realm1;
+        s16b realm2;
+
+        byte god;
+        s32b grace;
+        s32b god_favor;
+
+	s16b age;
+	s16b wt;
+	s16b ht;
+	s16b sc;
+
+	s32b au;
+
+	s16b stat[6];
+
+	s16b chaos_patron;
+
+	u32b weapon;
+
+	char history[4][60];
+
+        bool quick_ok;
+};
+

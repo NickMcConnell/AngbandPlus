@@ -26,7 +26,6 @@ bool quest_troll_gen_hook(int q_idx)
 	get_mon_num_prep();
 
         init_flags = INIT_CREATE_DUNGEON;
-        hack_allow_special = TRUE;
         process_dungeon_file_full = TRUE;
         process_dungeon_file("trolls.map", &ystart, &xstart, cur_hgt, cur_wid, TRUE);
         process_dungeon_file_full = FALSE;
@@ -38,7 +37,9 @@ bool quest_troll_gen_hook(int q_idx)
                 {
                         int m_idx;
 
+                        m_allow_special[test_monster_name("Tom the Stone Troll")] = TRUE;
                         m_idx = place_monster_one(y, x, test_monster_name("Tom the Stone Troll"), 0, FALSE, MSTATUS_ENEMY);
+                        m_allow_special[test_monster_name("Tom the Stone Troll")] = FALSE;
 
                         if (m_idx)
                         {
@@ -46,6 +47,8 @@ bool quest_troll_gen_hook(int q_idx)
 
                                 /* Get local object */
                                 object_type forge, *q_ptr = &forge;
+
+                                a_allow_special[ART_GLAMDRING] = TRUE;
 
                                 /* Mega-Hack -- Prepare to make "Glamdring" */
                                 object_prep(q_ptr, lookup_kind(TV_SWORD, SV_BROAD_SWORD));
@@ -55,6 +58,8 @@ bool quest_troll_gen_hook(int q_idx)
 
                                 /* Mega-Hack -- Actually create "Glamdring" */
                                 apply_magic(q_ptr, -1, TRUE, TRUE, TRUE);
+
+                                a_allow_special[ART_GLAMDRING] = FALSE;
 
                                 /* Get new object */
                                 o_idx = o_pop();
@@ -79,7 +84,6 @@ bool quest_troll_gen_hook(int q_idx)
                         }
                 }
         }
-        hack_allow_special = FALSE;
 
         /* Reinitialize the ambush ... hehehe */
         cquest.data[0] = FALSE;
@@ -94,6 +98,7 @@ bool quest_troll_finish_hook(int q_idx)
 
         /* Continue the plot */
         *(quest[q_idx].plot) = QUEST_NAZGUL;
+        quest[*(quest[q_idx].plot)].init(*(quest[q_idx].plot));
 
         del_hook(HOOK_QUEST_FINISH, quest_troll_finish_hook);
         process_hooks_restart = TRUE;

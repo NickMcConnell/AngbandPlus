@@ -2003,7 +2003,7 @@ s16b place_monster_one(int y, int x, int r_idx, int ego, bool slp, int status)
         }
 
         /* Require no monster free grid, or special permission */
-        if ((cave[y][x].info & CAVE_FREE) && (!hack_allow_special))
+        if ((cave[y][x].info & CAVE_FREE) && (!m_allow_special[r_idx]))
         {
                 if (wizard) cmsg_format(TERM_L_RED, "WARNING: Refused monster(%d): CAVE_FREE", r_idx);
                 return 0;
@@ -2048,7 +2048,7 @@ s16b place_monster_one(int y, int x, int r_idx, int ego, bool slp, int status)
 	}
 
         /* Unallow some uniques to be generated outside of their quests/special levels/dungeons */
-        if ((r_ptr->flags9 & RF9_SPECIAL_GENE) && !hack_allow_special && !vanilla_town)
+        if ((r_ptr->flags9 & RF9_SPECIAL_GENE) && (!m_allow_special[r_idx]))
         {
                 if (wizard) cmsg_format(TERM_L_RED, "WARNING: Refused monster(%d): SPECIAL_GENE", r_idx);
                 return 0;
@@ -2062,7 +2062,7 @@ s16b place_monster_one(int y, int x, int r_idx, int ego, bool slp, int status)
         }
 
         /* Hack -- "unique" monsters must be "unique" */
-        if ((r_ptr->flags1 & (RF1_UNIQUE)) && (r_ptr->max_num == -1) && (!hack_allow_special))
+        if ((r_ptr->flags1 & (RF1_UNIQUE)) && (r_ptr->max_num == -1) && (!m_allow_special[r_idx]))
 	{
 		/* Cannot create */
                 if (wizard) cmsg_format(TERM_L_RED, "WARNING: Refused monster %d: unique not unique", r_idx);
@@ -2087,17 +2087,17 @@ s16b place_monster_one(int y, int x, int r_idx, int ego, bool slp, int status)
 #endif
 	/* Hack -- "unique" monsters must be "unique" */
 #if 0
-        if ((r_ptr->flags1 & (RF1_UNIQUE)) && (r_ptr->cur_num >= r_ptr->max_num) && (!hack_allow_special))
+        if ((r_ptr->flags1 & (RF1_UNIQUE)) && (r_ptr->cur_num >= r_ptr->max_num) && (!m_allow_special[r_idx]))
 #else
 #if 0
-        if ((r_ptr->flags1 & (RF1_UNIQUE)) && (r_ptr->cur_num >= r_ptr->max_num) && (!hack_allow_special) && (r_ptr->max_num != -1))
+        if ((r_ptr->flags1 & (RF1_UNIQUE)) && (r_ptr->cur_num >= r_ptr->max_num) && (!m_allow_special[r_idx]) && (r_ptr->max_num != -1))
 #else
         if ((r_ptr->flags1 & (RF1_UNIQUE)) && (r_ptr->cur_num >= r_ptr->max_num) && (r_ptr->max_num != -1))
 #endif
 #endif
 	{
 		/* Cannot create */
-                if (wizard) cmsg_print(TERM_L_RED, "WARNING: Refused monster: cur_num >= max_num");
+                if (wizard) cmsg_format(TERM_L_RED, "WARNING: Refused monster %d: cur_num >= max_num", r_idx);
                 return 0;
 	}
 
@@ -2179,7 +2179,7 @@ s16b place_monster_one(int y, int x, int r_idx, int ego, bool slp, int status)
 	/* Friendly? */
         if (r_ptr->flags7 & RF7_PET)
 	{
-                m_ptr->status = MSTATUS_PET;
+                m_ptr->status = MSTATUS_FRIEND;
 	}
 
 	/* Assume no sleeping */
@@ -2204,8 +2204,6 @@ s16b place_monster_one(int y, int x, int r_idx, int ego, bool slp, int status)
 
                 int j;
 
-                bool old_hack_allow_special = hack_allow_special;
-
                 int force_coin = get_coin_type(r_ptr);
 
                 int dump_item = 0;
@@ -2214,8 +2212,6 @@ s16b place_monster_one(int y, int x, int r_idx, int ego, bool slp, int status)
                 object_type *q_ptr;
 
                 int number = 0;
-
-                hack_allow_special = FALSE;
 
                 /* Average dungeon and monster levels */
                 object_level = (dun_level + r_ptr->level) / 2;
@@ -2287,8 +2283,6 @@ s16b place_monster_one(int y, int x, int r_idx, int ego, bool slp, int status)
 
                 /* Reset the object level */
                 object_level = dun_level;
-
-                hack_allow_special = old_hack_allow_special;
 
                 /* Reset "coin" type */
                 coin_type = 0;

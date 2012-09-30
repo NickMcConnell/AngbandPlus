@@ -26,11 +26,9 @@ bool quest_nirnaeth_gen_hook(int q_idx)
 	get_mon_num_prep();
 
         init_flags = INIT_CREATE_DUNGEON;
-        hack_allow_special = TRUE;
         process_dungeon_file_full = TRUE;
         process_dungeon_file("nirnaeth.map", &ystart, &xstart, cur_hgt, cur_wid, TRUE);
         process_dungeon_file_full = FALSE;
-        hack_allow_special = FALSE;
 
         /* Count the number of monsters */
         cquest.data[0] = 0;

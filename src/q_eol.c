@@ -61,9 +61,9 @@ bool quest_eol_gen_hook(int q_idx)
                 /* Place eol at the other end */
                 if (!m_idx)
                 {
-                        hack_allow_special = TRUE;
+                        m_allow_special[test_monster_name("Eol, the Dark Elf")] = TRUE;
                         m_idx = place_monster_one(y, x, test_monster_name("Eol, the Dark Elf"), 0, FALSE, MSTATUS_ENEMY);
-                        hack_allow_special = FALSE;
+                        m_allow_special[test_monster_name("Eol, the Dark Elf")] = FALSE;
                 }
 
                 if (magik(18))
@@ -101,6 +101,7 @@ bool quest_eol_finish_hook(int q_idx)
 
         /* Continue the plot */
         *(quest[q_idx].plot) = QUEST_NIRNAETH;
+        quest[*(quest[q_idx].plot)].init(*(quest[q_idx].plot));
 
         del_hook(HOOK_QUEST_FINISH, quest_eol_finish_hook);
         process_hooks_restart = TRUE;

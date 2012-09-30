@@ -2198,7 +2198,7 @@ static bool monst_spell_monst(int m_idx)
 			/* RF6_TPORT */
 		case 160+5:
 			{
-			if (special_flag) break; /* No teleport on special levels */
+                        if (dungeon_flags1 & LF1_NO_TELEPORT) break; /* No teleport on special levels */
 			else
 			{
 				disturb(1, 0);
@@ -2218,7 +2218,7 @@ static bool monst_spell_monst(int m_idx)
 			/* RF6_TELE_AWAY */
                 case 160+7:
 			{
-			if (special_flag) break;
+                        if (dungeon_flags1 & LF1_NO_TELEPORT) break;
 				
 				if (!direct) break;
 				else
@@ -6172,12 +6172,91 @@ static void process_monster(int m_idx, bool is_frien)
 	bool            did_pass_wall;
 	bool            did_kill_wall;
 	bool            gets_angry = FALSE;
-	bool inv;
+        bool            inv;
+        bool            xxx = FALSE;
 
 	inv = player_invis(m_ptr);
 
         if (r_ptr->flags9 & RF9_DOPPLEGANGER) doppleganger = m_idx;
-	
+
+	/* Handle "bleeding" */
+	if (m_ptr->bleeding)
+	{
+		int d = 1 + (m_ptr->maxhp / 50); 
+		if (d > m_ptr->bleeding) d = m_ptr->bleeding;
+
+		/* Exit if the monster dies */
+		if (mon_take_hit(m_idx, d, &xxx," bleeds to death.")) return;
+
+		/* Hack -- Recover from bleeding */
+		if (m_ptr->bleeding > d)
+		{
+			/* Recover somewhat */
+			m_ptr->bleeding -= d;
+		}
+
+		/* Fully recover */
+		else
+		{
+			/* Recover fully */
+			m_ptr->bleeding = 0;
+
+			/* Message if visible */
+			if (m_ptr->ml)
+			{
+				char m_name[80];
+
+				/* Get the monster name */
+				monster_desc(m_name, m_ptr, 0);
+
+				/* Dump a message */
+                                msg_format("%^s is no longer bleeding.", m_name);
+
+				/* Hack -- Update the health bar */
+                                if (health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
+			}
+		}
+	}
+
+	/* Handle "poisoned" */
+	if (m_ptr->poisoned)
+	{
+		int d = (m_ptr->poisoned) / 10; 
+		if (d < 1) d = 1;
+
+		/* Exit if the monster dies */
+		if (mon_take_hit(m_idx, d, &xxx," dies of poison.")) return;
+
+		/* Hack -- Recover from bleeding */
+		if (m_ptr->poisoned > d)
+		{
+			/* Recover somewhat */
+			m_ptr->poisoned -= d;
+		}
+
+		/* Fully recover */
+		else
+		{
+			/* Recover fully */
+			m_ptr->poisoned = 0;
+
+			/* Message if visible */
+			if (m_ptr->ml)
+			{
+				char m_name[80];
+
+				/* Get the monster name */
+				monster_desc(m_name, m_ptr, 0);
+
+				/* Dump a message */
+                                msg_format("%^s is no longer poisoned.", m_name);
+
+				/* Hack -- Update the health bar */
+                                if (health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
+			}
+		}
+	}
+
 	/* Handle "sleep" */
 	if (m_ptr->csleep)
 	{
@@ -7441,7 +7520,9 @@ void process_monsters(void)
 			test = TRUE;
 		}
 #endif /* MONSTER_FLOW */
-		
+
+                /* Running away wont save them ! */
+                if (m_ptr->poisoned || m_ptr->bleeding) test = TRUE;
 		
 		/* Do nothing */
 		if (!test) continue;

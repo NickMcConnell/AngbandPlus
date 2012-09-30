@@ -26,7 +26,6 @@ bool quest_wight_gen_hook(int q_idx)
 	get_mon_num_prep();
 
         init_flags = INIT_CREATE_DUNGEON;
-        hack_allow_special = TRUE;
         process_dungeon_file_full = TRUE;
         process_dungeon_file("wights.map", &ystart, &xstart, cur_hgt, cur_wid, TRUE);
         process_dungeon_file_full = FALSE;
@@ -38,7 +37,9 @@ bool quest_wight_gen_hook(int q_idx)
                 {
                         int m_idx = 0;
 
+                        m_allow_special[test_monster_name("The Wight-King of the Barrow-downs")] = TRUE;
                         m_idx = place_monster_one(y, x, test_monster_name("The Wight-King of the Barrow-downs"), 0, FALSE, MSTATUS_ENEMY);
+                        m_allow_special[test_monster_name("The Wight-King of the Barrow-downs")] = FALSE;
 
                         if (m_idx)
                         {
@@ -96,7 +97,6 @@ bool quest_wight_gen_hook(int q_idx)
                         }
                 }
         }
-        hack_allow_special = FALSE;
 
         return TRUE;
 }
@@ -129,6 +129,7 @@ bool quest_wight_finish_hook(int q_idx)
 
         /* Continue the plot */
         *(quest[q_idx].plot) = QUEST_NAZGUL;
+        quest[*(quest[q_idx].plot)].init(*(quest[q_idx].plot));
 
         del_hook(HOOK_QUEST_FINISH, quest_wight_finish_hook);
         process_hooks_restart = TRUE;

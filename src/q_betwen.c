@@ -39,6 +39,8 @@ bool quest_between_move_hook(int loc)
 	p_ptr->leaving = TRUE;
 
         cmsg_print(TERM_YELLOW, "Looks like a full wing of dragonriders ambushes you !");
+        cmsg_print(TERM_YELLOW, "T'ron steps forth and speak: 'The secret of the between");
+        cmsg_print(TERM_YELLOW, "will not be used by any but the dragonriders!'");
 
         return FALSE;
 }
@@ -67,11 +69,12 @@ bool quest_between_gen_hook(int q_idx)
 	get_mon_num_prep();
 
         init_flags = INIT_CREATE_DUNGEON;
-        hack_allow_special = TRUE;
         process_dungeon_file_full = TRUE;
         process_dungeon_file("between.map", &ystart, &xstart, cur_hgt, cur_wid, TRUE);
         process_dungeon_file_full = FALSE;
-        hack_allow_special = FALSE;
+
+        /* Otherwise instadeath */
+        energy_use = 0;
 
         return TRUE;
 }
@@ -127,6 +130,17 @@ bool quest_between_dump_hook(int q_idx)
         }
         return (FALSE);
 }
+bool quest_between_forbid_hook(int q_idx)
+{
+        if (q_idx != QUEST_BETWEEN) return (FALSE);
+
+        if (p_ptr->lev < 40)
+        {
+                c_put_str(TERM_WHITE, "I fear you are not ready for the next quest, come back later.", 8, 0);
+                return (TRUE);
+        }
+        return (FALSE);
+}
 bool quest_between_init_hook(int q_idx)
 {
         if ((cquest.status >= QUEST_STATUS_TAKEN) && (cquest.status < QUEST_STATUS_FINISHED))
@@ -137,5 +151,6 @@ bool quest_between_init_hook(int q_idx)
                 add_hook(HOOK_MONSTER_DEATH, quest_between_death_hook, "between_death");
         }
         add_hook(HOOK_CHAR_DUMP, quest_between_dump_hook, "between_dump");
+        add_hook(HOOK_INIT_QUEST, quest_between_forbid_hook, "between_forbid");
         return (FALSE);
 }

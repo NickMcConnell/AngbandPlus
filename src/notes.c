@@ -75,14 +75,16 @@ void add_note(char *note, char code)
 {
         char buf[100];
         char final_note[100];
-	char long_day[25];
-	time_t ct = time((time_t*)NULL);
+        char long_day[50];
 	char depths[32];
         char *tmp;
 	
 	/* Get the first 60 chars - so do not have an overflow */
         tmp = C_WIPE(buf, 100, char);
 	strncpy(buf, note, 60);
+
+	/* Get date and time */
+        sprintf(long_day, "%ld:%02ld %s, %s", (bst(HOUR, turn) % 12 == 0) ? 12 : (bst(HOUR, turn) % 12), bst(MINUTE, turn), (bst(HOUR, turn) < 12) ? "AM" : "PM", get_month_name(bst(DAY, turn), FALSE, FALSE));
 
 	/* Get depth  */
  
@@ -99,11 +101,8 @@ void add_note(char *note, char code)
 		sprintf(depths, "Lev%3d", dun_level);
 	}
             
-	/* Get date and time */
-	strftime(long_day, 10, "%H:%M:%S", localtime(&ct));
-  
 	/* Make note */
-	sprintf(final_note, "%s %9ld %s %c: %s\n", long_day, turn,
+        sprintf(final_note, "%-20s %s %c: %s\n", long_day,
                  depths, code, buf);
       
 	/* Output to the notes file */
@@ -114,12 +113,16 @@ void add_note(char *note, char code)
 /* Add note to file using type specified by note_number */
 void add_note_type(int note_number)
 {
-	char long_day[30];
+        char long_day[50], true_long_day[50];
 	char buf[1024];
 	time_t ct = time((time_t*)0);
 	
 	/* Get the date */
-	strftime(long_day, 30, "%Y-%m-%d at %H:%M:%S", localtime(&ct));
+        strftime(true_long_day, 30, "%Y-%m-%d at %H:%M:%S", localtime(&ct));
+	
+	/* Get the date */
+        sprintf(buf, "%ld", bst(YEAR, turn) + START_YEAR);
+        sprintf(long_day, "%ld:%02ld %s the %s of III %s", (bst(HOUR, turn) % 12 == 0) ? 12 : (bst(HOUR, turn) % 12), bst(MINUTE, turn), (bst(HOUR, turn) < 12) ? "AM" : "PM", get_month_name(bst(DAY, turn), FALSE, FALSE), buf);
 	
 	switch(note_number)
 	{
@@ -145,7 +148,7 @@ void add_note_type(int note_number)
 			}
 			
 			/* Add in "character start" information */
-                        sprintf(buf, "\n================================================\n%s %s\nBorn on %s\n================================================\n\n", player_name, player, long_day);
+                        sprintf(buf, "\n================================================\n%s %s\nBorn on %s\n================================================\n\n", player_name, player, true_long_day);
 		}
 		break;
 		
@@ -158,14 +161,14 @@ void add_note_type(int note_number)
 		case NOTE_SAVE_GAME:
 		{
 			/* Saving the game */
-			sprintf(buf, "\nSession end: %s\n", long_day);
+                        sprintf(buf, "\nSession end: %s\n", true_long_day);
 		}
                 break;
 		
 		case NOTE_ENTER_DUNGEON:
 		{
 			/* Entering the game after a break. */
-                        sprintf(buf, "================================================\nNew session start: %s\n\n", long_day);
+                        sprintf(buf, "================================================\nNew session start: %s\n\n", true_long_day);
 		}
 		break;
 		

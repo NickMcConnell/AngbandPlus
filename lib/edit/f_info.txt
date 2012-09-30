@@ -36,12 +36,14 @@ F:FLOOR | SUPPORT_LIGHT
 N:2:fountain
 G:_:w
 F:FLOOR | NOTICE | REMEMBER
+D:0:The liquid here seems magical.
 
 # 0x03 --> glyph of warding
 
 N:3:glyph of warding
 G:;:y
 F:FLOOR | NOTICE | SUPPORT_LIGHT
+D:0:There is a mighty spell here.
 
 # 0x04 --> open door
 
@@ -60,20 +62,24 @@ F:FLOOR | NOTICE
 N:6:up staircase
 G:<:w
 F:FLOOR | PERMANENT | NOTICE | SUPPORT_LIGHT | REMEMBER
+D:1:You cannot tunnel a stair.
 
 # 0x07 --> down stairs (perm)
 
 N:7:down staircase
 G:>:w
 F:FLOOR | PERMANENT | NOTICE | SUPPORT_LIGHT | REMEMBER
+D:1:You cannot tunnel a stair.
 
 N:8:quest entrance
 G:>:y
 F:FLOOR | PERMANENT | REMEMBER | NOTICE
+D:1:You cannot tunnel a quest entrance.
 
 N:9:quest exit
 G:<:y
 F:FLOOR | PERMANENT | REMEMBER | NOTICE
+D:1:You cannot tunnel a quest exit.
 
 N:10:quest down level
 G:>:r
@@ -90,19 +96,23 @@ F:FLOOR | PERMANENT | REMEMBER | NOTICE
 N:13:shaft down
 G:>:U
 F:FLOOR | PERMANENT | REMEMBER | NOTICE
+D:1:You cannot tunnel a shaft.
 
 N:14:shaft up
 G:<:U
 F:FLOOR | PERMANENT | REMEMBER | NOTICE
+D:1:You cannot tunnel a shaft.
 
 # 0x0F -> empty fountain
 N:15:fountain
 G:_:D
 F:FLOOR | NOTICE | REMEMBER
+D:0:The fountain seems empty.
 
 N:16:web
 G:+:y
 F:CAN_PASS | NOTICE | WEB | NOTICE | TUNNELABLE
+D:1:You tunnel through the web.
 
 # 0x11 --> 0x1F -- UNUSED
 
@@ -113,6 +123,7 @@ G:+:U
 M:32
 F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE | DOOR
 F:TUNNELABLE
+D:1:You bash the boor.
 
 # 0x2x --> locked door (power 1)
 
@@ -121,6 +132,7 @@ G:+:U
 M:32
 F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE | DOOR
 F:TUNNELABLE
+D:1:You bash the boor.
 
 # 0x2x --> locked door (power 2)
 
@@ -129,6 +141,7 @@ G:+:U
 M:32
 F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE | DOOR
 F:TUNNELABLE
+D:1:You bash the boor.
 
 # 0x2x --> locked door (power 3)
 
@@ -137,6 +150,7 @@ G:+:U
 M:32
 F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE | DOOR
 F:TUNNELABLE
+D:1:You bash the boor.
 
 # 0x2x --> locked door (power 4)
 
@@ -145,6 +159,7 @@ G:+:U
 M:32
 F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE | DOOR
 F:TUNNELABLE
+D:1:You bash the boor.
 
 # 0x2x --> locked door (power 5)
 
@@ -153,6 +168,7 @@ G:+:U
 M:32
 F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE | DOOR
 F:TUNNELABLE
+D:1:You bash the boor.
 
 # 0x2x --> locked door (power 6)
 
@@ -161,6 +177,7 @@ G:+:U
 M:32
 F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE | DOOR
 F:TUNNELABLE
+D:1:You bash the boor.
 
 # 0x2x --> locked door (power 7)
 
@@ -169,6 +186,7 @@ G:+:U
 M:32
 F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE | DOOR
 F:TUNNELABLE
+D:1:You bash the boor.
 
 # 0x2x --> jammed door (power 0)
 
@@ -177,6 +195,7 @@ G:+:U
 M:32
 F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE
 F:TUNNELABLE
+D:1:You bash the boor.
 
 # 0x2x --> jammed door (power 1)
 
@@ -185,6 +204,7 @@ G:+:U
 M:32
 F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE
 F:TUNNELABLE
+D:1:You bash the boor.
 
 # 0x2x --> jammed door (power 2)
 
@@ -193,6 +213,7 @@ G:+:U
 M:32
 F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE
 F:TUNNELABLE
+D:1:You bash the boor.
 
 # 0x2x --> jammed door (power 3)
 
@@ -201,6 +222,7 @@ G:+:U
 M:32
 F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE
 F:TUNNELABLE
+D:1:You bash the boor.
 
 # 0x2x --> jammed door (power 4)
 
@@ -209,6 +231,7 @@ G:+:U
 M:32
 F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE
 F:TUNNELABLE
+D:1:You bash the boor.
 
 # 0x2x --> jammed door (power 5)
 
@@ -217,6 +240,7 @@ G:+:U
 M:32
 F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE
 F:TUNNELABLE
+D:1:You bash the boor.
 
 # 0x2x --> jammed door (power 6)
 
@@ -225,6 +249,7 @@ G:+:U
 M:32
 F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE
 F:TUNNELABLE
+D:1:You bash the boor.
 
 # 0x2x --> jammed door (power 7)
 
@@ -233,6 +258,7 @@ G:+:U
 M:32
 F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE
 F:TUNNELABLE
+D:1:You bash the boor.
 
 # 0x30 --> secret door
 
@@ -241,6 +267,7 @@ G:#:w
 M:56
 F:WALL | NO_WALK | CAN_PASS | NO_VISION | DOOR
 F:TUNNELABLE
+D:1:You tunnel.
 
 # 0x31 --> rubble
 
@@ -249,6 +276,7 @@ G:::w
 F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE
 F:CAN_FLY | SUPPORT_LIGHT
 F:TUNNELABLE
+D:1:You dig in the rubble.
 
 # 0x32 --> magma vein
 
@@ -256,6 +284,7 @@ N:50:magma vein
 G:%:s
 F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE | SUPPORT_LIGHT
 F:TUNNELABLE
+D:1:You tunnel into the magma vein.
 
 # 0x33 --> quartz vein
 
@@ -263,6 +292,7 @@ N:51:quartz vein
 G:%:w
 F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE | SUPPORT_LIGHT
 F:TUNNELABLE
+D:1:You tunnel into the quartz vein.
 
 # 0x34 --> magma vein + treasure
 
@@ -271,6 +301,7 @@ G:%:s
 M:50
 F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE | SUPPORT_LIGHT
 F:TUNNELABLE
+D:1:You tunnel into the magma vein.
 
 # 0x35 --> quartz vein + treasure
 
@@ -279,6 +310,7 @@ G:%:w
 M:51
 F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE | SUPPORT_LIGHT
 F:TUNNELABLE
+D:1:You tunnel into the quartz vein.
 
 # 0x36 --> magma vein + known treasure
 
@@ -286,6 +318,7 @@ N:54:magma vein with treasure
 G:*:o
 F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE | SUPPORT_LIGHT
 F:TUNNELABLE
+D:1:You tunnel into the magma vein.
 
 # 0x37 --> quartz vein + known treasure
 
@@ -293,6 +326,7 @@ N:55:quartz vein with treasure
 G:*:o
 F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE | SUPPORT_LIGHT
 F:TUNNELABLE
+D:1:You tunnel into the quartz vein.
 
 # 0x38 --> granite wall -- basic
 
@@ -300,6 +334,7 @@ N:56:granite wall
 G:#:w
 F:WALL | NO_WALK | CAN_PASS | NO_VISION | SUPPORT_LIGHT
 F:TUNNELABLE
+D:1:You tunnel into the granite wall.
 
 # 0x39 --> granite wall -- inner
 
@@ -308,6 +343,7 @@ G:#:w
 M:56
 F:WALL | NO_WALK | CAN_PASS | NO_VISION | SUPPORT_LIGHT
 F:TUNNELABLE
+D:1:You tunnel into the granite wall.
 
 # 0x3A --> granite wall -- outer
 
@@ -316,6 +352,7 @@ G:#:w
 M:56
 F:WALL | NO_WALK | CAN_PASS | NO_VISION | SUPPORT_LIGHT
 F:TUNNELABLE
+D:1:You tunnel into the granite wall.
 
 # 0x3B --> granite wall -- solid
 
@@ -324,6 +361,7 @@ G:#:w
 M:56
 F:WALL | NO_WALK | CAN_PASS | NO_VISION | SUPPORT_LIGHT
 F:TUNNELABLE
+D:1:You tunnel into the granite wall.
 
 # 0x3C --> permanent wall -- basic (perm)
 
@@ -355,6 +393,7 @@ F:WALL | NO_WALK | NO_VISION | PERMANENT | SUPPORT_LIGHT
 N:64:explosive rune
 G:*:R
 F:FLOOR | CAN_LEVITATE | CAN_FLY | NOTICE | SUPPORT_LIGHT
+D:0:This rune seems instable.
 
 N:65:Straight Road startpoint
 G:*:w
@@ -424,18 +463,22 @@ S:B:B:B:B:B:B:b
 F:ATTR_MULTI
 F:FLOOR | CAN_LEVITATE | CAN_FLY | REMEMBER | SUPPORT_LIGHT
 
+# -1 = player level
 N:85:pool of deep lava
 G:.:R
+E:-1d2:1:FIRE
 F:FLOOR | CAN_LEVITATE | CAN_FLY | REMEMBER | SUPPORT_LIGHT
 
 N:86:stream of shallow lava
 G:.:r
+E:-1d1:1:FIRE
 F:FLOOR | CAN_LEVITATE | CAN_FLY | REMEMBER | SUPPORT_LIGHT
 
 N:87:dark pit
 G:#:D
 F:CAN_LEVITATE | CAN_FLY
 F:NO_WALK | SUPPORT_LIGHT
+D:0:Ohhh, it is dark and deep.
 
 N:88:dirt
 G:.:u
@@ -447,6 +490,7 @@ F:FLOOR | SUPPORT_LIGHT
 
 N:90:ice
 G:.:W
+E:1d1:50:ICE
 F:FLOOR | NOTICE
 
 N:91:sand
@@ -458,6 +502,8 @@ G:#:D
 F:CAN_FLY
 F:WALL | NO_WALK | NO_VISION | NOTICE
 F:TUNNELABLE
+D:0:a tree blocking your way
+D:1:You chop away at the dead tree.
 
 N:93:ash
 G:.:D
@@ -471,18 +517,24 @@ N:95:ice wall
 G:#:W
 F:WALL | NO_WALK | CAN_PASS | NO_VISION | SUPPORT_LIGHT
 F:TUNNELABLE
+D:0:an ice wall blocking your way
+D:1:You tunnel into the ice wall... Oh chilly.
 
 N:96:tree
 G:#:G
 F:CAN_FLY | SUPPORT_LIGHT
 F:WALL | NO_WALK | NO_VISION
 F:TUNNELABLE
+D:0:a tree blocking your way
+D:1:You chop away at the tree.
 
 N:97:mountain chain
 G:^:U
 F:CAN_CLIMB | CAN_PASS | SUPPORT_LIGHT
 F:WALL | NO_WALK | NO_VISION
-F:TUNNELABLE
+F:PERMANENT
+D:0:a hard stone block blocking your way
+D:1:You cannot tunnel into such a hard stone.
 
 # 0x62 --> sandwall
 
@@ -490,6 +542,8 @@ N:98:sandwall
 G:#:y
 F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE
 F:TUNNELABLE
+D:0:a sandwall blocking your way
+D:1:You easily dig into the sandwall.
 
 # 0x63 --> sandwall + treasure
 
@@ -498,6 +552,8 @@ G:%:y
 M:98
 F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE
 F:TUNNELABLE
+D:0:a sandwall blocking your way
+D:1:You easily dig into the sandwall.
 
 # 0x64 --> sandwall + known treasure
 
@@ -505,66 +561,83 @@ N:100:sandwall with treasure
 G:*:o
 F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE
 F:TUNNELABLE
+D:0:a sandwall blocking your way
+D:1:You easily tunnel into the sandwall.
 
 N:101:high mountain chain
 G:^:W
 F:WALL | NO_WALK | NO_VISION | PERMANENT
+D:0:a very hard stone block blocking your way
+D:1:This rock is far too hard.
 
 N:102:nether mist
 G:.:v
 S:v:R:r:v:R:r:D
+E:1d1:40:NETHER
 F:ATTR_MULTI
 F:FLOOR | DONT_NOTICE_RUNNING | CAN_RUN
 
 N:160:Between gate
 G:+:v
 F:FLOOR | REMEMBER | NOTICE | PERMANENT
+D:0:A dark rift opens to the between here.
 
 ###### Here are the altars. ######
 
 N:161:Altar of Forests
 G:0:g
 F:FLOOR | REMEMBER | NOTICE
+D:0:You feel in peace with nature here.
 
 N:162:Altar of Water
 G:0:b
 F:FLOOR | REMEMBER | NOTICE
+D:0:Images of oceans fills your mind.
 
 N:163:Altar of Earth
 G:0:u
 F:FLOOR | REMEMBER | NOTICE
+D:0:You sudently think about forging and mining.
 
 N:164:Altar of Darkness
 G:0:D
 F:FLOOR | REMEMBER | NOTICE
+D:0:You do no feel at ease here.
 
 N:165:Altar of Moon
 G:0:v
 F:FLOOR | REMEMBER | NOTICE
+D:0:The altar glows in siver light.
 
 N:166:Altar of Sun
 G:0:y
 F:FLOOR | REMEMBER | NOTICE
+D:0:The altar glows in bright light.
 
 N:167:Altar of Rage
 G:0:R
 F:FLOOR | REMEMBER | NOTICE
+D:0:The feel the need to battle evilness.
 
 N:168:Altar of Winds
 G:0:B
 F:FLOOR | REMEMBER | NOTICE
+D:0:You grow a desire to become a bird.
 
 N:169:Altar of Stars
 G:0:U
 F:FLOOR | REMEMBER | NOTICE
+D:0:Beautiful images of night skies fills your mind.
 
 N:170:Altar of Being
 G:0:W
 F:FLOOR | REMEMBER | NOTICE
+D:0:You feal at peace.
 
 N:171:Altar of Randomness
 G:0:v
 F:FLOOR | REMEMBER | NOTICE
+D:0:Ever changing images fills your mind.
 
 # Used as a marked for random quests
 N:172:floor
@@ -575,6 +648,7 @@ F:FLOOR
 N:173:Underground Tunnel
 G:#:s
 F:FLOOR | REMEMBER | SUPPORT_LIGHT | DONT_NOTICE_RUNNING | CAN_RUN
+D:0:Oh, an underground tunnel!
 
 # Tainted water
 N:174:stream of tainted water
@@ -588,15 +662,25 @@ F:FLOOR
 N:176:Between gate
 G:+:v
 F:FLOOR | REMEMBER | NOTICE | PERMANENT
+D:0:A dark rift opens to the between here.
 
 N:177:lava wall
 G:#:R
 S:R:R:r:r:U:u:R
 F:ATTR_MULTI
-F:WALL | NO_WALK | CAN_PASS | NO_VISION | SUPPORT_LIGHT
-F:TUNNELABLE
+F:WALL | NO_WALK | NO_VISION | PERMANENT
+D:0:a lava wall blocking your way
+D:1:The lava is far too hot to tunnel into it.
 
-# XXX 178 - 186
+N:178:Great Fire
+G:%:v
+S:R:R:y:v:y:v:R
+E:150d2:1:HELL_FIRE
+F:ATTR_MULTI
+F:FLOOR | REMEMBER | NOTICE | PERMANENT
+D:0:This fire is to powerful it could destroy even the most powerful artifacts.
+
+# XXX 179 - 186
 
 # 187 --> terrain -- deep water
 
@@ -610,11 +694,14 @@ F:FLOOR | CAN_LEVITATE | CAN_FLY | REMEMBER | SUPPORT_LIGHT
 N:188:glass wall
 G:.:B
 F:NO_WALK | WALL | PERMANENT | NOTICE
+D:0:a glass wall blocking your way
+D:1:This glass seems to be totaly impenetrable.
 
 # Illusion wall -- can't see but can pass
 N:189:illusion wall
 G:#:w
 F:FLOOR | NO_VISION | REMEMBER | SUPPORT_LIGHT | DONT_NOTICE_RUNNING
+D:0:Looks like this wall is not so real.
 
 # Grass roof
 N:190:Grass roof
@@ -689,11 +776,14 @@ F:FLOOR | NOTICE
 N:204:Underground Tunnel
 G:^:U
 F:FLOOR | REMEMBER | SUPPORT_LIGHT | DONT_NOTICE_RUNNING | CAN_RUN
+D:0:Oh, an underground tunnel!
 
 # Fire
 N:205:a blazing fire
 G:%:y
 S:y:y:y:R:r:y:R
+E:-1d2:1:FIRE
+D:0:The blazing fire burns you!
 F:ATTR_MULTI
 F:FLOOR | CAN_FLY | REMEMBER | SUPPORT_LIGHT
 
@@ -702,3 +792,4 @@ N:206:pile of rubble
 G:::w
 F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE
 F:CAN_FLY | SUPPORT_LIGHT | PERMANENT
+D:1:Looks like this pile of rubble is quite hard.

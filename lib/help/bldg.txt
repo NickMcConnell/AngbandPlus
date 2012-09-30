@@ -21,7 +21,7 @@ found in some towns. These Buildings (represented by +'s) include:
 [[[[[GMayor's Office/Castle:] The home office for the town, adventurer's looking
 for work besides exploring the dungeon should hunt in here.
 [[[[[GPet Shop:] Great place to purchase eggs and get pets.
-[[[[[GThe Soothsayer:] To discover what *****/afatespoil.txt*0[fates ("a")] lie in store for you.
+[[[[[GThe Soothsayer:] To discover what *****/afatespoi.txt*0[fates ("a")] lie in store for you.
 [[[[[GThe Inn:] Wine, dine, rest and relax!
 [[[[[GThe Weyr:] Dragonriders are masters of teleportation, and will consent to bear 
 you to your chosen dungeon destination for a fee.

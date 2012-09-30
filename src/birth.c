@@ -26,40 +26,8 @@
  */
 #define MAX_TRIES 100
 
-/*
- * Forward declare
- */
-typedef struct birther birther;
-
-/*
- * A structure to hold "rolled" information
- */
-struct birther
-{
-	s16b age;
-	s16b wt;
-	s16b ht;
-	s16b sc;
-
-	s32b au;
-
-	s16b stat[6];
-
-	s16b chaos_patron;
-
-	u32b weapon;
-
-	char history[4][60];
-};
-
-
-
-/*
- * The last character displayed
- */
-static birther prev;
-
-
+/* Max quests */
+static byte max_quests = 0;
 
 /*
  * Forward declare
@@ -907,7 +875,7 @@ byte choose_realm(s32b choices)
 		else if (c == '=')
 		{
 			screen_save();
-			do_cmd_options_aux(6, "Startup Options");
+                        do_cmd_options_aux(6, "Startup Options", FALSE);
 			screen_load();
 		}
 		else bell();
@@ -1040,28 +1008,42 @@ static void save_prev_data(void)
 	/*** Save the current data ***/
 
 	/* Save the data */
-	prev.age = p_ptr->age;
-	prev.wt = p_ptr->wt;
-	prev.ht = p_ptr->ht;
-	prev.sc = p_ptr->sc;
-	prev.au = p_ptr->au;
+        previous_char.sex = p_ptr->psex;
+        previous_char.race = p_ptr->prace;
+        previous_char.rmod = p_ptr->pracem;
+        previous_char.class = p_ptr->pclass;
+
+        previous_char.realm1 = p_ptr->realm1;
+        previous_char.realm2 = p_ptr->realm2;
+
+        previous_char.quests = max_quests;
+
+        previous_char.god = p_ptr->pgod;
+        previous_char.grace = p_ptr->grace;
+        previous_char.god_favor = p_ptr->god_favor;
+
+        previous_char.age = p_ptr->age;
+        previous_char.wt = p_ptr->wt;
+        previous_char.ht = p_ptr->ht;
+        previous_char.sc = p_ptr->sc;
+        previous_char.au = p_ptr->au;
 
 	/* Save the stats */
 	for (i = 0; i < 6; i++)
 	{
-		prev.stat[i] = p_ptr->stat_max[i];
+                previous_char.stat[i] = p_ptr->stat_max[i];
 	}
 
 	/* Save the chaos patron */
-	prev.chaos_patron = p_ptr->chaos_patron;
+        previous_char.chaos_patron = p_ptr->chaos_patron;
 
 	/* Save the weapon specialty */
-	prev.weapon = p_ptr->class_extra1;
+        previous_char.weapon = p_ptr->class_extra1;
 
 	/* Save the history */
 	for (i = 0; i < 4; i++)
 	{
-		strcpy(prev.history[i], history[i]);
+                strcpy(previous_char.history[i], history[i]);
 	}
 }
 
@@ -1069,7 +1051,7 @@ static void save_prev_data(void)
 /*
  * Load the previous data
  */
-static void load_prev_data(void)
+static void load_prev_data(bool save)
 {
 	int i;
 
@@ -1107,57 +1089,58 @@ static void load_prev_data(void)
 	/*** Load the previous data ***/
 
 	/* Load the data */
-	p_ptr->age = prev.age;
-	p_ptr->wt = prev.wt;
-	p_ptr->ht = prev.ht;
-	p_ptr->sc = prev.sc;
-	p_ptr->au = prev.au;
+        p_ptr->age = previous_char.age;
+        p_ptr->wt = previous_char.wt;
+        p_ptr->ht = previous_char.ht;
+        p_ptr->sc = previous_char.sc;
+        p_ptr->au = previous_char.au;
 
 	/* Load the stats */
 	for (i = 0; i < 6; i++)
 	{
-		p_ptr->stat_max[i] = prev.stat[i];
-		p_ptr->stat_cur[i] = prev.stat[i];
+                p_ptr->stat_max[i] = previous_char.stat[i];
+                p_ptr->stat_cur[i] = previous_char.stat[i];
 	}
 
 	/* Load the chaos patron */
-	p_ptr->chaos_patron = prev.chaos_patron;
+        p_ptr->chaos_patron = previous_char.chaos_patron;
 
 	/* Load the weapon specialty */
-	p_ptr->class_extra1 = prev.weapon;
+        p_ptr->class_extra1 = previous_char.weapon;
 
 	/* Load the history */
 	for (i = 0; i < 4; i++)
 	{
-		strcpy(history[i], prev.history[i]);
+                strcpy(history[i], previous_char.history[i]);
 	}
 
 
 	/*** Save the current data ***/
+        if (!save) return;
 
 	/* Save the data */
-	prev.age = temp.age;
-	prev.wt = temp.wt;
-	prev.ht = temp.ht;
-	prev.sc = temp.sc;
-	prev.au = temp.au;
+        previous_char.age = temp.age;
+        previous_char.wt = temp.wt;
+        previous_char.ht = temp.ht;
+        previous_char.sc = temp.sc;
+        previous_char.au = temp.au;
 
 	/* Save the stats */
 	for (i = 0; i < 6; i++)
 	{
-		prev.stat[i] = temp.stat[i];
+                previous_char.stat[i] = temp.stat[i];
 	}
 
 	/* Save the chaos patron */
-	prev.chaos_patron = temp.chaos_patron;
+        previous_char.chaos_patron = temp.chaos_patron;
 
 	/* Save the weapon specialty */
-	prev.weapon = temp.weapon;
+        previous_char.weapon = temp.weapon;
 
 	/* Save the history */
 	for (i = 0; i < 4; i++)
 	{
-		strcpy(prev.history[i], temp.history[i]);
+                strcpy(previous_char.history[i], temp.history[i]);
 	}
 }
 
@@ -1736,6 +1719,9 @@ static void birth_put_stats(void)
 static void player_wipe(void)
 {
         int i, j;
+
+        /* Wipe special levels */
+        wipe_saved();
         
         /* No mana multiplier */
         p_ptr->to_m = 0;
@@ -1746,7 +1732,23 @@ static void player_wipe(void)
 	/* Wipe the history */
 	for (i = 0; i < 4; i++)
 	{
-		strcpy(history[i], "");
+                for (j = 0; j < 60; j++)
+                {
+                        if (j < 59) history[i][j] = ' ';
+                        else history[i][j] = '\0';
+                }
+	}
+
+        /* No corruptions yet */
+        p_ptr->muta1 = 0;
+        p_ptr->muta2 = 0;
+        p_ptr->muta3 = 0;
+
+        /* Wipe the towns */
+        for (i = 0; i < max_d_idx; i++)
+        for (j = 0; j < MAX_DUNGEON_DEPTH; j++)
+	{
+                special_lvl[j][i] = 0;
 	}
 
         /* Wipe the towns */
@@ -1774,9 +1776,6 @@ static void player_wipe(void)
                 rune_spells[i].rune2 = 0;
                 rune_spells[i].mana = 0;
 	}
-
-	/* No weight */
-	total_weight = 0;
 
 	/* No items */
 	inven_cnt = 0;
@@ -2478,6 +2477,17 @@ static void player_outfit(void)
                 t_info[TRAP_OF_DAGGER_I].ident = TRUE;
                 t_info[TRAP_OF_POISON_NEEDLE].ident = TRUE;
                 t_info[TRAP_OF_FIRE_BOLT].ident = TRUE;
+
+                /* Hack -- Give the player a some ammo for the traps */
+                object_prep(q_ptr, lookup_kind(TV_SHOT, SV_AMMO_NORMAL));
+                q_ptr->number = (byte)rand_range(5,15);
+                object_aware(q_ptr);
+		object_known(q_ptr);
+
+		/* These objects are "storebought" */
+		q_ptr->ident |= IDENT_STOREB;
+
+		(void)inven_carry(q_ptr, FALSE);
         }
 
         if (p_ptr->pclass == CLASS_MERCHANT)
@@ -2912,6 +2922,7 @@ int dump_gods(int sel)
 }
 
 /* Ask questions */
+static bool do_quick_start = FALSE;
 static bool player_birth_aux_ask()
 {
         int i, k, n, v, sel;
@@ -2949,18 +2960,56 @@ static bool player_birth_aux_ask()
 	/*** Instructions ***/
 
 	/* Display some helpful information */
-        Term_putstr(5, 7, -1, TERM_WHITE,
-		"Please answer the following questions.  Most of the questions");
         Term_putstr(5, 8, -1, TERM_WHITE,
-		"display a set of standard answers, and many will also accept");
+		"Please answer the following questions.  Most of the questions");
         Term_putstr(5, 9, -1, TERM_WHITE,
-		"some special responses, including 'Q' to quit, 'S' to restart,");
+		"display a set of standard answers, and many will also accept");
         Term_putstr(5, 10, -1, TERM_WHITE,
+		"some special responses, including 'Q' to quit, 'S' to restart,");
+        Term_putstr(5, 11, -1, TERM_WHITE,
 		"and '?' for help.  Note that 'Q' and 'S' must be capitalized.");
 
 
+        /*** Quick Start ***/
+
+        if (previous_char.quick_ok)
+        {
+                /* Extra info */
+                Term_putstr(1, 15, -1, TERM_WHITE,
+                        "Do you want to use the quick start function(same character as your last one).");
+
+                /* Choose */
+                while (1)
+                {
+                        sprintf(buf, "Use quick start (y/n)?");
+                        put_str(buf, 20, 2);
+                        c = inkey();
+                        if (c == 'Q') quit(NULL);
+                        else if (c == 'S') return (FALSE);
+                        else if ((c == 'y') || (c == 'Y'))
+                        {
+                                do_quick_start = TRUE;
+                                break;
+                        }
+                        else
+                        {
+                                do_quick_start = FALSE;
+                                break;
+                        }
+                }
+        }
+
+	/* Clean up */
+	clear_from(15);
+
 	/*** Player sex ***/
 
+        if (do_quick_start)
+        {
+                k = previous_char.sex;
+        }
+        else
+        {
 	/* Extra info */
 	Term_putstr(5, 15, -1, TERM_WHITE,
 		"Your 'sex' does not have any significant gameplay effects.");
@@ -2997,11 +3046,12 @@ static bool player_birth_aux_ask()
 			else if (c == '=')
 			{
 				screen_save();
-				do_cmd_options_aux(6, "Startup Options");
+                                do_cmd_options_aux(6, "Startup Options", FALSE);
 				screen_load();
 			}
 		else bell();
 	}
+        }
 
 	/* Set sex */
 	p_ptr->psex = k;
@@ -3017,10 +3067,16 @@ static bool player_birth_aux_ask()
 
 	/*** Player race ***/
 
+        if (do_quick_start)
+        {
+                k = previous_char.race;
+        }
+        else
+        {
 	/* Extra info */
         Term_putstr(5, 16, -1, TERM_WHITE,
 		"Your 'race' determines various intrinsic factors and bonuses.");
-	hack_mutation = FALSE;
+        hack_corruption = FALSE;
 
 	/* Dump races */
         sel = 0;
@@ -3046,7 +3102,7 @@ static bool player_birth_aux_ask()
                 else if (c == '=')
                 {
                         screen_save();
-                        do_cmd_options_aux(6, "Startup Options");
+                        do_cmd_options_aux(6, "Startup Options", FALSE);
                         screen_load();
                 }
                 else if (c == '2')
@@ -3082,7 +3138,7 @@ static bool player_birth_aux_ask()
                 }
                 else bell();
 	}
-
+        }
 	/* Set race */
 	p_ptr->prace = k;
 	rp_ptr = &race_info[p_ptr->prace];
@@ -3092,7 +3148,7 @@ static bool player_birth_aux_ask()
         c_put_str(TERM_L_BLUE, str, 4, 9);
 
 	/* Get a random name */
-	create_random_name(p_ptr->prace, player_name);
+        if (!do_quick_start) create_random_name(p_ptr->prace, player_name);
 
 	/* Display */
         c_put_str(TERM_L_BLUE, player_name, 2, 9);
@@ -3102,6 +3158,14 @@ static bool player_birth_aux_ask()
 
 
         /*** Player race mod ***/
+        if (do_quick_start)
+        {
+                k = previous_char.rmod;
+                p_ptr->pracem = k;
+                rmp_ptr = &race_mod_info[p_ptr->pracem];
+        }
+        else
+        {
         for (n = 0; n < 100; n++) racem[n] = 0;
 
         max_racem = 0;
@@ -3157,7 +3221,7 @@ static bool player_birth_aux_ask()
                         else if (c == '=')
                         {
                                 screen_save();
-                                do_cmd_options_aux(6, "Startup Options");
+                                do_cmd_options_aux(6, "Startup Options", FALSE);
                                 screen_load();
                         }
                         else if (c == '2')
@@ -3200,7 +3264,7 @@ static bool player_birth_aux_ask()
 
 	/* Display */
         c_put_str(TERM_L_BLUE, buf, 4, 9);
-
+        }
 
         /* I know, gotos are EVIL, sorry */
 repeat_player_class:
@@ -3210,6 +3274,15 @@ repeat_player_class:
 
 
 	/*** Player class ***/
+        if (do_quick_start)
+        {
+                k = previous_char.class;
+                p_ptr->pclass = k;
+                cp_ptr = &class_info[p_ptr->pclass];
+                mp_ptr = &magic_info[p_ptr->pclass];
+        }
+        else
+        {
         restrict = rp_ptr->choice + rmp_ptr->pclass - rmp_ptr->mclass;
 
 	/* Extra info */
@@ -3240,7 +3313,7 @@ repeat_player_class:
                 else if (c == '=')
                 {
                         screen_save();
-                        do_cmd_options_aux(6, "Startup Options");
+                        do_cmd_options_aux(6, "Startup Options", FALSE);
                         screen_load();
                 }
 		else bell();
@@ -3279,7 +3352,7 @@ repeat_player_class:
                 else if (c == '=')
                 {
                         screen_save();
-                        do_cmd_options_aux(6, "Startup Options");
+                        do_cmd_options_aux(6, "Startup Options", FALSE);
                         screen_load();
                 }
                 else if (c == '2')
@@ -3323,6 +3396,7 @@ repeat_player_class:
         }
 #endif
         p_ptr->pclass = class_types[k];
+        }
 	cp_ptr = &class_info[p_ptr->pclass];
 	mp_ptr = &magic_info[p_ptr->pclass];
 	str = cp_ptr->title;
@@ -3334,6 +3408,15 @@ repeat_player_class:
 	clear_from(15);
 
         /*** Player god ***/
+        if (do_quick_start)
+        {
+                k = previous_char.god;
+                p_ptr->pgod = k;
+                set_grace(previous_char.grace);
+                p_ptr->god_favor = previous_char.god_favor;
+        }
+        else
+        {
         if (p_ptr->pclass == CLASS_DRUID)
         {
                 p_ptr->pgod = GOD_YAVANNA;
@@ -3363,7 +3446,7 @@ repeat_player_class:
                         else if (c == '=')
                         {
                                 screen_save();
-                                do_cmd_options_aux(6, "Startup Options");
+                                do_cmd_options_aux(6, "Startup Options", FALSE);
                                 screen_load();
                         }
                         else if (c == '2')
@@ -3430,29 +3513,60 @@ repeat_player_class:
                         p_ptr->god_favor = -20000;
                 }
         }
-
+        }
 
 	/* Clean up */
         clear_from(12);
 
-        /* get the realms */
-        get_realms();
+        if (do_quick_start)
+        {
+                p_ptr->realm1 = previous_char.realm1;
+                p_ptr->realm2 = previous_char.realm2;
+        }
+        else
+        {
+                /* get the realms */
+                get_realms();
 
-	if (p_ptr->realm1 || p_ptr->realm2)
-                put_str("Magic :", 6, 1);
-	if (p_ptr->realm1)
-                c_put_str(TERM_L_BLUE, realm_names[p_ptr->realm1], 6, 9);
-	if (p_ptr->realm2)
-                c_put_str(TERM_L_BLUE, realm_names[p_ptr->realm2], 7, 9);
+                if (p_ptr->realm1 || p_ptr->realm2)
+                        put_str("Magic :", 6, 1);
+                if (p_ptr->realm1)
+                        c_put_str(TERM_L_BLUE, realm_names[p_ptr->realm1], 6, 9);
+                if (p_ptr->realm2)
+                        c_put_str(TERM_L_BLUE, realm_names[p_ptr->realm2], 7, 9);
 
 
-	/* Clear */
-	clear_from(15);
+                /* Clear */
+                clear_from(15);
 
-        /* Maximize, preserve and sepcial levels init */
-        p_ptr->maximize = maximize;
-        p_ptr->preserve = preserve;
-        p_ptr->special = special_lvls;
+                /*  */
+                if (get_check("Do you want to modify the options"))
+                {
+                        screen_save();
+                        do_cmd_options_aux(6, "Startup Options", FALSE);
+                        screen_load();
+                }
+        }
+
+        /* Set birth options: maximize, preserve, sepcial levels and astral */
+	p_ptr->maximize = maximize;
+	p_ptr->preserve = preserve;
+	p_ptr->special = special_lvls;
+	p_ptr->astral = astral_option;
+	 /*
+	  * A note by pelpel. (remove this please)
+	  * Be it the new Vanilla way (adult vs. birth options) or
+	  * the old one (player_type members), it would be less confusing
+	  * to handle birth-only options in a uniform fashion,the above and
+	  * the following:
+	  * permanent_levels,
+	  * ironman_rooms,
+	  * cth_monsters,
+	  * zang_monsters,
+	  * joke_monsters,
+	  * always_small_level, and
+	  * fate_option
+	  */
 
 
         /* Set dungeon seed */
@@ -3463,29 +3577,11 @@ repeat_player_class:
                 seed_dungeon = 0;
         }
 
-
-        /* Clear */
-        clear_from(15);
-
-        /*  */
-        if (get_check("Do you want to modify the options"))
-        {
-                screen_save();
-                do_cmd_options_aux(6, "Startup Options");
-                screen_load();
-        }
-
-        /* hack astral = vanilla town */
-        if (astral_option)
-        {
-                p_ptr->astral = TRUE;
-        }
-
         /* Set the recall dungeon accordingly */
-        if (astral_option)
+        if (p_ptr->astral)
         {
                 dungeon_type = DUNGEON_MANDOS;
-                p_ptr->recall_dungeon = DUNGEON_MANDOS;
+                p_ptr->recall_dungeon = DUNGEON_GALGALS;
 
                 /* Somewhere in the misty mountains */
                 p_ptr->wilderness_x = 45;
@@ -3503,11 +3599,17 @@ repeat_player_class:
 	/*** User enters number of quests ***/
 	/* Heino Vander Sanden and Jimmy De Laet */
 
-	/* Extra info */
-	Term_putstr(5, 15, -1, TERM_WHITE,
-		"Please input the number of optional quests you'd like to perform");
-	Term_putstr(5, 16, -1, TERM_WHITE,
-		"If you do not want any optional quests, enter 0");
+        if (!ironman_rooms)
+        {
+        if (do_quick_start)
+        {
+                v = previous_char.quests;
+        }
+        else
+        {
+        /* Extra info */
+        Term_putstr(5, 15, -1, TERM_WHITE, "Please input the number of optional quests you'd like to perform");
+        Term_putstr(5, 16, -1, TERM_WHITE, "If you do not want any optional quests, enter 0");
 
 	/* Ask the number of additional quests */
 	while (TRUE)
@@ -3536,6 +3638,7 @@ repeat_player_class:
 
 	/* Clear */
 	clear_from(15);
+        }
 
 	/* Set the quest monster hook */
 	get_mon_num_hook = monster_quest;
@@ -3546,6 +3649,8 @@ repeat_player_class:
 	/* Generate quests */
         for (i = 0; i < MAX_RANDOM_QUEST; i++) random_quests[i].type = 0;
         if (v) gen_random_quests(v);
+        max_quests = v;
+        }
 
 	p_ptr->inside_quest = 0;
 
@@ -4079,7 +4184,7 @@ static bool player_birth_aux_auto()
 			/* Previous character */
 			if (prev && (c == 'p'))
 			{
-				load_prev_data();
+                                load_prev_data(TRUE);
 				continue;
 			}
 
@@ -4127,24 +4232,119 @@ static bool player_birth_aux_auto()
 static bool player_birth_aux()
 {
 	char c;
+        int y = 0, x = 0;
+        char old_history[4][60];
+        int i, j;
 
         /* Ask */
         if (!player_birth_aux_ask()) return (FALSE);
 
 	/*** Generate ***/
 
+        if (do_quick_start)
+        {
+                load_prev_data(FALSE);
+
+                /* Roll for base hitpoints */
+                get_extra();
+
+                /* Calculate the bonuses and hitpoints */
+                p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_BODY);
+
+                /* Update stuff */
+                update_stuff();
+
+                /* Fully healed */
+                p_ptr->chp = p_ptr->mhp;
+
+                /* Fully rested */
+                p_ptr->csp = p_ptr->msp;
+        }
+        else
+        {
 	/* Point based */
 	if (point_based)
 	{
                 if (!player_birth_aux_point()) return FALSE;
 	}
-
 	/* Auto-roll */
 	else
 	{
                 if (!player_birth_aux_auto()) return FALSE;
 	}
 
+        /* Edit character background */
+        for (i = 0; i < 4; i++)
+        {
+                sprintf(old_history[i], "%s", history[i]);
+        }
+        /* Turn 0 to space */
+	for (i = 0; i < 4; i++)
+	{
+                for (j = 0; j < 59; j++)
+                {
+                        if (history[i][j] == '\0') history[i][j] = ' ';
+                }
+	}
+        display_player(1);
+        c_put_str(TERM_L_GREEN, "(Character Background - Edit Mode)", 15, 20);
+        while (TRUE)
+        {
+                for (i = 0; i < 4; i++)
+                {
+                        put_str(history[i], i + 16, 10);
+                }
+                c_put_str(TERM_L_BLUE, format("%c", history[y][x]), y + 16, x + 10);
+
+		/* Place cursor just after cost of current stat */
+                Term_gotoxy(x + 10, y + 16);
+
+                c = inkey();
+
+                if (c == '8')
+                {
+                        y--;
+                        if (y < 0) y = 3;
+                }
+                else if (c == '2')
+                {
+                        y++;
+                        if (y > 3) y = 0;
+                }
+                else if (c == '6')
+                {
+                        x++;
+                        if (x > 59) x = 0;
+                }
+                else if (c == '4')
+                {
+                        x--;
+                        if (x < 0) x = 59;
+                }
+                else if (c == '\r')
+                {
+                        break;
+                }
+                else if (c == ESCAPE)
+                {
+                        for (i = 0; i < 4; i++)
+                        {
+                                sprintf(history[i], "%s", old_history[i]);
+                                put_str(history[i], i + 16, 10);
+                        }
+                        break;
+                }
+                else
+                {
+                        history[y][x++] = c;
+                        if (x > 58)
+                        {
+                                x = 0;
+                                y++;
+                                if (y > 3) y = 0;
+                        }
+                }
+        }
 
 
 	/*** Finish up ***/
@@ -4165,6 +4365,11 @@ static bool player_birth_aux()
 
 	/* Start over */
 	if (c == 'S') return (FALSE);
+        }
+
+        /* Save this for the next character */
+        previous_char.quick_ok = TRUE;
+        save_prev_data();
 
 	/* Accept */
 	return (TRUE);
@@ -4416,42 +4621,6 @@ void player_birth(void)
 
 	/* Select bounty monsters. */
 	select_bounties();
-
-	/* special levels */
-        for (i = 0; i < max_d_idx; i++)
-                for (n = 0; n < MAX_DUNGEON_DEPTH; n++)
-                        spec_history[n][i] = 0;
-
-        /* Initialize variable according to text file v_info.txt */
-
-	if (p_ptr->special)
-	{
-                /* Initialize the vaults */
-                init_v_info();
-
-                for (n = 1; n < max_v_idx; n++)
-                {
-                        vault_type *v_ptr = &v_info[n];
-
-                        if (v_ptr->typ == 99)
-                        {
-                                spec_history[v_ptr->lvl - d_info[v_ptr->dun_type].mindepth][v_ptr->dun_type] = 1;
-
-                                for (i = 0; i < 10; i++)
-                                {
-                                        if (v_ptr->mon[i] != 0) /* a monster */
-                                        {       
-                                                monster_race    *r_ptr = &r_info[v_ptr->mon[i]];
-                                                if (r_ptr->flags1 & RF1_UNIQUE)
-                                                        /* Hack -- set to -1 will not generate them nor show them in the unique killed list */
-                                                        r_ptr->max_num = -1;
-                                                else
-                                                        r_ptr->max_num--;
-                                        }
-                                }
-                        }
-                }
-	}
 }
 
 char savefile_names[46][30];
@@ -4566,7 +4735,7 @@ void save_savefile_names()
 static void dump_savefiles(int sel, int max)
 {
         int i;
-        char buf[40];
+        char buf[40], pre = ' ', post = ')';
         char ind;
 
         for (i = 0; i < max; i++)
@@ -4574,9 +4743,20 @@ static void dump_savefiles(int sel, int max)
                 ind = I2A(i % 26);
                 if (i >= 26) ind = toupper(ind);
 
-                if (i == 0) sprintf(buf, "%c) New Character", ind);
-                else if (i == 1) sprintf(buf, "%c) Load Savefile", ind);
-                else sprintf(buf, "%c) %s", ind, savefile_names[i - 2]);
+                if (sel == i)
+                {
+                        pre = '[';
+                        post = ']';
+                }
+                else
+                {
+                        pre = ' ';
+                        post = ')';
+                }
+
+                if (i == 0) sprintf(buf, "%c%c%c New Character", pre, ind, post);
+                else if (i == 1) sprintf(buf, "%c%c%c Load Savefile", pre, ind, post);
+                else sprintf(buf, "%c%c%c %s", pre, ind, post, savefile_names[i - 2]);
                 
                 if (sel == i)
                 {
@@ -4615,8 +4795,9 @@ bool begin_screen()
                 Term_clear();
 
                 /* Let the user choose */
-                c_put_str(TERM_YELLOW, "Welcome in PernAngband, to play you will need a character.", 1, 10);
+                c_put_str(TERM_YELLOW, "Welcome to PernAngband, to play you will need a character.", 1, 10);
                 put_str("Press 8/2/4/6 to move, Return to select, Backspace to delete a savefile.", 3, 3);
+                put_str("and Esc to quit.", 4, 32);
 
                 dump_savefiles(sel, max);
 
@@ -4704,6 +4885,8 @@ bool begin_screen()
 
                         if (islower(k)) x = A2I(k);
                         else x = A2I(tolower(k)) + 26;
+
+                        if ((x < 2) || (x >= max)) continue;
 
                         sprintf(player_base, "%s", savefile_names[x - 2]);
 

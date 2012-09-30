@@ -626,6 +626,9 @@ static bool store_object_similar(object_type *o_ptr, object_type *j_ptr)
 	/* Require identical "ego-item" names */
 	if (o_ptr->name2 != j_ptr->name2) return (0);
 
+	/* Require identical "ego-item" names */
+        if (o_ptr->name2b != j_ptr->name2b) return (0);
+
 	/* Random artifacts don't stack !*/
 	if (o_ptr->art_name || j_ptr->art_name) return (0);
 
@@ -1362,7 +1365,7 @@ static void store_create(void)
                         chance = st_info[st_ptr->st_idx].table[item][1];
 
 			/* Don't allow k_info artifacts */
-			if ( k_info[i].flags3 & TR3_NORM_ART )
+			if ((i <= 10000) && (k_info[i].flags3 & TR3_NORM_ART))
 				continue;
 
                         /* Does it passes the rarity check ? */
@@ -1408,7 +1411,11 @@ static void store_create(void)
 		}
 
 		/* Don't allow k_info artifacts */
-		if ( k_info[i].flags3 & TR3_NORM_ART )
+                if (k_info[i].flags3 & TR3_NORM_ART)
+			continue;
+
+                /* Don't allow artifacts */
+                if (k_info[i].flags3 & TR3_INSTA_ART)
 			continue;
 
 		/* Get local object */
@@ -1561,6 +1568,8 @@ static void display_entry(int pos)
 		if (a & 0x80)
 			a |= 0x40;
 #endif
+
+                if (!o_ptr->k_idx) c = ' ';
 
 		Term_draw(3, i + 6, a, c);
 	}
@@ -2987,6 +2996,8 @@ void store_sell(void)
 
 	char o_name[80];
 
+        u32b f1, f2, f3, f4, f5, esp;
+
 
 	/* Prepare a prompt */
 	if (cur_store_num == 7) q = "Drop which item? ";
@@ -3019,14 +3030,30 @@ void store_sell(void)
 	}
 
 
-	/* Hack -- Cannot remove cursed items */
-	if ((item >= INVEN_WIELD) && cursed_p(o_ptr))
-	{
-		/* Oops */
-		msg_print("Hmmm, it seems to be cursed.");
+        object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
 
-		/* Nope */
-		return;
+	/* Hack -- Cannot remove cursed items */
+        if (cursed_p(o_ptr))
+	{
+                if (item >= INVEN_WIELD)
+                {
+                        /* Oops */
+                        msg_print("Hmmm, it seems to be cursed.");
+
+                        /* Nope */
+                        return;
+                }
+                else
+                {
+                        if (f4 & TR4_CURSE_NO_DROP)
+                        {
+                                /* Oops */
+                                msg_print("Hmmm, you seem to be unable to drop it.");
+
+                                /* Nope */
+                                return;
+                        }
+                }
 	}
 
 

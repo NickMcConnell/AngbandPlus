@@ -19,8 +19,9 @@ macros in progress), "fresh" (dump any pending output to the screen).
 
 #####R=== Birth/Startup Options ===
 
-The birth or startup options are only accessible during character creation, and
-can be accessed by typing = during the creation process.
+The birth or startup options are only able to be changed during character 
+creation, and can be accessed by typing = during the creation process. They
+can also be viewed from the option menu while playing, but not changed then.
 
 #####GMaximise stats    [maximise]
     Maximize causes the "race" and "class" stat bonuses to be applied as 
@@ -47,12 +48,6 @@ can be accessed by typing = during the creation process.
     results in the player being able to get one or two really high stats, at the
     expense of other not-so-important stats. Unused points convert into starting
     gold for the player.
-
-#####GAllow the use of special, unique, levels    [special_lvls]
-    Setting this option will result in the game generating a few unique levels
-    like special towns within the dungeon. These levels will only ever be 
-    encountered by a character once, but may have great rewards and nasty 
-    monsters within them.
 
 #####GGenerate persistent dungeons    [permanent_levels]
     Setting this option means that level 1 of the dungeon will always have
@@ -85,7 +80,7 @@ can be accessed by typing = during the creation process.
 
 #####GAllow use of 'Zangbandish' monsters    [zang_monsters]
     Allows monsters flagged as being from the Zangband variant of Angband to be 
-    generated.
+    generated, they are generaly silly, but not really joke.
 
 #####GAllow use of some 'joke' monsters    [joke_monsters]
     Allows monsters flagged as being some of DarkGod's jokes to be generated.
@@ -102,7 +97,7 @@ can be accessed by typing = during the creation process.
     whenever possible.
 
 #####GYou can receive fates, good or bad    [fate_option]
-    Allows the player to turn off PernAngband's *****fatespoil.txt*0[fates] for that character.
+    Allows the player to turn off PernAngband's *****fatespoi.txt*0[fates] for that character.
 
 
 #####RIN GAME OPTIONS
@@ -591,6 +586,11 @@ Features which are unique to PernAngband are collected in this menu.
     standard Angband monster colors to the Z-based monster colors. Since this
     alters the display and monster memory display, you need to reload the game
     when you alter this setting before it will display the new colors.
+
+#####GAutomatically clear '-more-' prompts    [auto_more] 
+    Setting this option to yes automatically clears any messages from the top
+    of the window. Be warned that this could be dangerous - as you don't 
+    actually get to see the messages unless you use ^P.
 
 
 #####R=== Stacking Options ===

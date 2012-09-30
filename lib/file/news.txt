@@ -1,6 +1,6 @@
 
             *********************************************************
-            ** PernAngband 5.0.0  **  The Troubles of Middle Earth **
+            ** PernAngband 5.0.1 **  The Troubles of Middle Earth  **
             *********************************************************
 
                "One Ring to rule them all, One Ring to find them

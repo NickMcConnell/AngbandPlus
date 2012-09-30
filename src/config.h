@@ -236,7 +236,7 @@
  * OPTION: Delay the loading of the "f_text" array until it is actually
  * needed, saving ~1K, since "feature" descriptions are unused.
  */
-#define DELAY_LOAD_F_TEXT
+/* #define DELAY_LOAD_F_TEXT */
 
 /*
  * OPTION: Delay the loading of the "k_text" array until it is actually

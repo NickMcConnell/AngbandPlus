@@ -65,6 +65,22 @@ static void enhance_random(object_type *o_ptr,int n,u32b f1,u32b f2,u32b f3,u32b
 #endif
 
 /*
+ * Calculate the player's total inventory weight.
+ */
+s32b calc_total_weight(void)
+{
+	int i;
+	s32b total;
+	for (i = total = 0; i < INVEN_TOTAL; i++)
+	{
+		object_type *o_ptr = &inventory[i];
+
+		if (o_ptr->k_idx) total += o_ptr->weight * o_ptr->number;
+	}
+	return total;
+}
+
+/*
  * Excise a dungeon object from any stacks
  */
 void excise_object_idx(int o_idx)
@@ -1186,6 +1202,17 @@ s32b object_value_real(object_type *o_ptr)
 
 		/* Hack -- Reward the ego-item with a bonus */
 		value += e_ptr->cost;
+
+                if (o_ptr->name2b)
+                {
+                        ego_item_type *e_ptr = &e_info[o_ptr->name2b];
+
+                        /* Hack -- "worthless" ego-items */
+                        if (!e_ptr->cost) return (0L);
+
+                        /* Hack -- Reward the ego-item with a bonus */
+                        value += e_ptr->cost;
+                }
 	}
 
 
@@ -1543,6 +1570,12 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
                         /* Beware artifatcs should not combibne with "lesser" thing */
                         if (o_ptr->name1 != j_ptr->name1) return (0);
 
+			/* Do not combine different ego or normal ones */
+                        if (o_ptr->name2 != j_ptr->name2) return (0);
+
+			/* Do not combine different ego or normal ones */
+                        if (o_ptr->name2b != j_ptr->name2b) return (0);
+
 			/* Assume okay */
 			break;
 		}
@@ -1562,6 +1595,12 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
 
                         /* Do not combine recharged ones with non recharged ones. */
                         if ((f4 & TR4_RECHARGED) != (f14 & TR4_RECHARGED)) return (0);
+
+			/* Do not combine different ego or normal ones */
+                        if (o_ptr->name2 != j_ptr->name2) return (0);
+
+			/* Do not combine different ego or normal ones */
+                        if (o_ptr->name2b != j_ptr->name2b) return (0);
 
 			/* Assume okay */
 			break;
@@ -1642,6 +1681,9 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
 
 			/* Require identical "ego-item" names */
 			if (o_ptr->name2 != j_ptr->name2) return (FALSE);
+
+			/* Do not combine different ego or normal ones */
+                        if (o_ptr->name2b != j_ptr->name2b) return (0);
 
 			/* Hack -- Never stack "powerful" items */
 			if (o_ptr->xtra1 || j_ptr->xtra1) return (FALSE);
@@ -2084,7 +2126,7 @@ static bool make_artifact_special(object_type *o_ptr)
                 if (!(a_ptr->flags3 & TR3_INSTA_ART)) continue;
 
                 /* Cannot generate some artifacts because they can only exists in special dungeons/quests/... */
-                if ((a_ptr->flags4 & TR4_SPECIAL_GENE) && !hack_allow_special && !vanilla_town) continue;
+                if ((a_ptr->flags4 & TR4_SPECIAL_GENE) && (!a_allow_special[i]) && (!vanilla_town)) continue;
 
 		/* XXX XXX Enforce minimum "depth" (loosely) */
 		if (a_ptr->level > dun_level)
@@ -2171,7 +2213,7 @@ static bool make_artifact(object_type *o_ptr)
                 if (a_ptr->flags3 & TR3_INSTA_ART) continue;
 
                 /* Cannot generate some artifacts because they can only exists in special dungeons/quests/... */
-                if ((a_ptr->flags4 & TR4_SPECIAL_GENE) && !hack_allow_special && !vanilla_town) continue;
+                if ((a_ptr->flags4 & TR4_SPECIAL_GENE) && (!a_allow_special[i]) && (!vanilla_town)) continue;
 
 		/* Must have the correct fields */
 		if (a_ptr->tval != o_ptr->tval) continue;
@@ -2476,7 +2518,7 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 		}
                 case TV_MSTAFF:
                 {
-                        if (o_ptr->name2 == EGO_MSTAFF_SPELL)
+                        if (is_ego_p(o_ptr, EGO_MSTAFF_SPELL))
                         {
                                 int gf[2], i;
 
@@ -3203,7 +3245,7 @@ static void a_m_aux_4(object_type *o_ptr, int level, int power)
                         }
                         else
                         {
-                                if (o_ptr->name2 == EGO_INST_DRAGONKIND)
+                                if (is_ego_p(o_ptr, EGO_INST_DRAGONKIND))
                                 {
                                         switch(randint(4))
                                         {
@@ -3255,6 +3297,332 @@ void trap_hack(object_type *o_ptr)
 	}
 }
 
+/* Add a random glag to the ego item */
+void add_random_ego_flag(object_type *o_ptr, int fego, bool *limit_blows)
+{
+                                if (fego & ETR4_SUSTAIN)
+                                {
+                                        /* Make a random sustain */
+                                        switch(randint(6))
+                                        {
+                                                case 1: o_ptr->art_flags2 |= TR2_SUST_STR; break;
+                                                case 2: o_ptr->art_flags2 |= TR2_SUST_INT; break;
+                                                case 3: o_ptr->art_flags2 |= TR2_SUST_WIS; break;
+                                                case 4: o_ptr->art_flags2 |= TR2_SUST_DEX; break;
+                                                case 5: o_ptr->art_flags2 |= TR2_SUST_CON; break;
+                                                case 6: o_ptr->art_flags2 |= TR2_SUST_CHR; break;
+                                        }
+                                }
+
+                                if (fego & ETR4_OLD_RESIST)
+                                {
+                                       /* Make a random resist, equal probabilities */ 
+                                       switch (randint(11))
+                                       {
+                                                       case  1: o_ptr->art_flags2 |= (TR2_RES_BLIND);  break;
+                                                       case  2: o_ptr->art_flags2 |= (TR2_RES_CONF);   break;
+                                                       case  3: o_ptr->art_flags2 |= (TR2_RES_SOUND);  break;
+                                                       case  4: o_ptr->art_flags2 |= (TR2_RES_SHARDS); break;
+                                                       case  5: o_ptr->art_flags2 |= (TR2_RES_NETHER); break;
+                                                       case  6: o_ptr->art_flags2 |= (TR2_RES_NEXUS);  break;
+                                                       case  7: o_ptr->art_flags2 |= (TR2_RES_CHAOS);  break;
+                                                       case  8: o_ptr->art_flags2 |= (TR2_RES_DISEN);  break;
+                                                       case  9: o_ptr->art_flags2 |= (TR2_RES_POIS);   break;
+                                                       case 10: o_ptr->art_flags2 |= (TR2_RES_DARK);   break;
+                                                       case 11: o_ptr->art_flags2 |= (TR2_RES_LITE);   break;
+                                               }
+                                       }
+                                
+                                       if (fego & ETR4_ABILITY)
+                                       {
+                                               /* Choose an ability */
+                                               switch (randint(8))
+                                               {
+                                                       case 1: o_ptr->art_flags3 |= (TR3_FEATHER);     break;
+                                                       case 2: o_ptr->art_flags3 |= (TR3_LITE1);        break;
+                                                       case 3: o_ptr->art_flags3 |= (TR3_SEE_INVIS);   break;
+                                                       case 4: o_ptr->art_esp |= (ESP_ALL);   break;
+                                                       case 5: o_ptr->art_flags3 |= (TR3_SLOW_DIGEST); break;
+                                                       case 6: o_ptr->art_flags3 |= (TR3_REGEN);       break;
+                                                       case 7: o_ptr->art_flags2 |= (TR2_FREE_ACT);    break;
+                                                       case 8: o_ptr->art_flags2 |= (TR2_HOLD_LIFE);   break;
+                                               }
+                                       }
+                                
+                                       if (fego & ETR4_R_ELEM)
+                                       {
+                                               /* Make an acid/elec/fire/cold/poison resist */
+                                               random_resistance(o_ptr, FALSE, randint(14) + 4);                                        
+                                       }
+                                       if (fego & ETR4_R_LOW)
+                                       {
+                                               /* Make an acid/elec/fire/cold resist */
+                                               random_resistance(o_ptr, FALSE, randint(12) + 4);                                        
+                                       }
+                                
+                                       if (fego & ETR4_R_HIGH)
+                                       {
+                                               /* Make a high resist */
+                                               random_resistance(o_ptr, FALSE, randint(22) + 16);                                       
+                                       }
+                                       if (fego & ETR4_R_ANY)
+                                       {
+                                               /* Make any resist */
+                                               random_resistance(o_ptr, FALSE, randint(34) + 4);                                        
+                                       }
+                                
+                                       if (fego & ETR4_R_DRAGON)
+                                       {
+                                               /* Make "dragon resist" */
+                                               dragon_resist(o_ptr);
+                                       }
+                                                                        
+                                       if (fego & ETR4_SLAY_WEAP)
+                                       {
+                                               /* Make a Weapon of Slaying */
+                                        
+                                               if (randint(3) == 1) /* double damage */
+                                                       o_ptr->dd *= 2;
+                                               else
+                                               {
+                                                       do
+                                                       {
+                                                               o_ptr->dd++;
+                                                       }
+                                                       while (randint(o_ptr->dd) == 1);
+                                                       do
+                                                       {
+                                                               o_ptr->ds++;
+                                                       }
+                                                       while (randint(o_ptr->ds) == 1);
+                                               }
+                                               if (randint(5) == 1)
+                                               {
+                                                       o_ptr->art_flags1 |= TR1_BRAND_POIS;
+                                               }
+                                               if (o_ptr->tval == TV_SWORD && (randint(3) == 1))
+                                               {
+                                                       o_ptr->art_flags1 |= TR1_VORPAL;
+                                               }
+                                       }
+                                
+                                       if (fego & ETR4_DAM_DIE)
+                                       {
+                                               /* Increase damage dice */
+                                               o_ptr->dd++;                             
+                                       }
+                                
+                                       if (fego & ETR4_DAM_SIZE)
+                                       {
+                                               /* Increase damage dice size */
+                                               o_ptr->ds++; 
+                                       }
+                                
+                                       if (fego & ETR4_LIMIT_BLOWS)
+                                       {
+                                               /* Swap this flag */
+                                               *limit_blows = !(*limit_blows);
+                                       }
+                                
+                                       if (fego & ETR4_PVAL_M1)
+                                       {
+                                               /* Increase pval */
+                                               o_ptr->pval++;
+                                       }
+                                
+                                       if (fego & ETR4_PVAL_M2)
+                                       {
+                                               /* Increase pval */
+                                               o_ptr->pval += m_bonus(2, dun_level);
+                                       }
+                                
+                                       if (fego & ETR4_PVAL_M3)
+                                       {
+                                               /* Increase pval */
+                                               o_ptr->pval += m_bonus(3, dun_level);
+                                       }
+                                
+                                       if (fego & ETR4_PVAL_M5)
+                                       {
+                                               /* Increase pval */
+                                               o_ptr->pval += m_bonus(5, dun_level);
+                                       }
+                                       if (fego & ETR4_AC_M1)
+                                       {
+                                               /* Increase ac */
+                                               o_ptr->to_a++;
+                                       }
+                                
+                                       if (fego & ETR4_AC_M2)
+                                       {
+                                               /* Increase ac */
+                                               o_ptr->to_a += m_bonus(2, dun_level);
+                                       }
+                                
+                                       if (fego & ETR4_AC_M3)
+                                       {
+                                               /* Increase ac */
+                                               o_ptr->to_a += m_bonus(3, dun_level);
+                                       }
+                                
+                                       if (fego & ETR4_AC_M5)
+                                       {
+                                               /* Increase ac */
+                                               o_ptr->to_a += m_bonus(5, dun_level);
+                                       }
+                                       if (fego & ETR4_TH_M1)
+                                       {
+                                               /* Increase to hit */
+                                               o_ptr->to_h++;
+                                       }
+                                
+                                       if (fego & ETR4_TH_M2)
+                                       {
+                                               /* Increase to hit */
+                                               o_ptr->to_h += m_bonus(2, dun_level);
+                                       }
+                                
+                                       if (fego & ETR4_TH_M3)
+                                       {
+                                               /* Increase to hit */
+                                               o_ptr->to_h += m_bonus(3, dun_level);
+                                       }
+                                
+                                       if (fego & ETR4_TH_M5)
+                                       {
+                                               /* Increase to hit */
+                                               o_ptr->to_h += m_bonus(5, dun_level);
+                                       }
+                                       if (fego & ETR4_TD_M1)
+                                       {
+                                               /* Increase to dam */
+                                               o_ptr->to_d++;
+                                       }
+                                
+                                       if (fego & ETR4_TD_M2)
+                                       {
+                                               /* Increase to dam */
+                                               o_ptr->to_d += m_bonus(2, dun_level);
+                                       }
+                                
+                                       if (fego & ETR4_TD_M3)
+                                       {
+                                               /* Increase to dam */
+                                               o_ptr->to_d += m_bonus(3, dun_level);
+                                       }
+                                
+                                       if (fego & ETR4_TD_M5)
+                                       {
+                                               /* Increase to dam */
+                                               o_ptr->to_d += m_bonus(5, dun_level);
+                                       }
+                                       if (fego & ETR4_R_P_ABILITY)
+                                       {
+                                               /* Add a random pval-affected ability */
+                                               /* This might cause boots with + to blows */
+                                               switch (randint(6))
+                                               {
+                                                       case 1:o_ptr->art_flags1 |= TR1_STEALTH; break;
+                                                       case 2:o_ptr->art_flags1 |= TR1_SEARCH; break;
+                                                       case 3:o_ptr->art_flags1 |= TR1_INFRA; break;
+                                                       case 4:o_ptr->art_flags1 |= TR1_TUNNEL; break;
+                                                       case 5:o_ptr->art_flags1 |= TR1_SPEED; break;
+                                                       case 6:o_ptr->art_flags1 |= TR1_BLOWS; break;                                            
+                                               }
+                                                
+                                       }
+                                       if (fego & ETR4_R_STAT)
+                                       {
+                                               /* Add a random stat */
+                                               switch (randint(6))
+                                               {
+                                                       case 1:o_ptr->art_flags1 |= TR1_STR; break;
+                                                       case 2:o_ptr->art_flags1 |= TR1_INT; break;
+                                                       case 3:o_ptr->art_flags1 |= TR1_WIS; break;
+                                                       case 4:o_ptr->art_flags1 |= TR1_DEX; break;
+                                                       case 5:o_ptr->art_flags1 |= TR1_CON; break;
+                                                       case 6:o_ptr->art_flags1 |= TR1_CHR; break;                                              
+                                               }
+                                       }
+                                       if (fego & ETR4_R_STAT_SUST)
+                                       {
+                                               /* Add a random stat and sustain it */
+                                               switch (randint(6))
+                                               {
+                                                       case 1:
+                                                       {
+                                                               o_ptr->art_flags1 |= TR1_STR;
+                                                               o_ptr->art_flags2 |= TR2_SUST_STR;
+                                                               break;
+                                                       }
+                                                
+                                                       case 2:
+                                                       {
+                                                               o_ptr->art_flags1 |= TR1_INT;
+                                                               o_ptr->art_flags2 |= TR2_SUST_INT;
+                                                               break;
+                                                       }
+                                                
+                                                       case 3:
+                                                       {
+                                                               o_ptr->art_flags1 |= TR1_WIS;
+                                                               o_ptr->art_flags2 |= TR2_SUST_WIS;
+                                                               break;
+                                                       }
+                                                
+                                                       case 4:
+                                                       {
+                                                               o_ptr->art_flags1 |= TR1_DEX;
+                                                               o_ptr->art_flags2 |= TR2_SUST_DEX;
+                                                               break;
+                                                       }
+                                                
+                                                       case 5:
+                                                       {
+                                                               o_ptr->art_flags1 |= TR1_CON;
+                                                               o_ptr->art_flags2 |= TR2_SUST_CON;
+                                                               break;
+                                                       }
+                                                       case 6:
+                                                       {
+                                                       o_ptr->art_flags1 |= TR1_CHR;
+                                                       o_ptr->art_flags2 |= TR2_SUST_CHR;
+                                                       break;
+                                                       }                                                
+                                               }
+                                       }
+                                       if (fego & ETR4_R_IMMUNITY)
+                                       {
+                                               /* Give a random immunity */
+                                               switch (randint(4))
+                                               {
+                                                       case 1:
+                                                       {
+                                                               o_ptr->art_flags2 |= TR2_IM_FIRE;
+                                                               o_ptr->art_flags3 |= TR3_IGNORE_FIRE;
+                                                               break;
+                                                       }
+                                                       case 2:
+                                                       {
+                                                               o_ptr->art_flags2 |= TR2_IM_ACID;
+                                                               o_ptr->art_flags3 |= TR3_IGNORE_ACID;
+                                                               break;
+                                                       }
+                                                       case 3:
+                                                       {
+                                                               o_ptr->art_flags2 |= TR2_IM_ELEC;
+                                                               o_ptr->art_flags3 |= TR3_IGNORE_ELEC;
+                                                               break;
+                                                       }
+                                                       case 4:
+                                                       {
+                                                               o_ptr->art_flags2 |= TR2_IM_COLD;
+                                                               o_ptr->art_flags3 |= TR3_IGNORE_COLD;
+                                                               break;
+                                                       }
+                                               }
+                                       }
+}
 
 /*
  * Complete the "creation" of an object by applying "magic" to the item
@@ -3296,7 +3664,7 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
         if (k_info[o_ptr->k_idx].flags3 & TR3_NORM_ART)
         {
                 /* Ahah! we tried to trick us !! */
-                if (k_info[o_ptr->k_idx].artifact)
+                if ((k_info[o_ptr->k_idx].artifact) || ((k_info[o_ptr->k_idx].flags4 & TR4_SPECIAL_GENE) && (!k_allow_special[o_ptr->k_idx])))
                 {
                         object_prep(o_ptr, lookup_kind(k_info[o_ptr->k_idx].btval, k_info[o_ptr->k_idx].bsval));
                         if (wizard) msg_print("We've been tricked!");
@@ -3370,6 +3738,15 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 		/* Roll for an artifact */
 		if (make_artifact(o_ptr)) break;
 	}
+
+        /* DGDGDGDG -- mega hack -- to lazy to do it properly with hooks :) */
+        if ((o_ptr->name1 == ART_POWER) && (quest[QUEST_ONE].status < QUEST_STATUS_TAKEN))
+        {
+                o_ptr->name1 = 0;
+                o_ptr->name2 = 0;
+                o_ptr->name2b = 0;
+                object_prep(o_ptr, lookup_kind(TV_RING, SV_RING_INVIS));
+        }
 
 
 	/* Hack -- analyze artifacts */
@@ -3479,10 +3856,17 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 	/* Hack -- analyze ego-items */
 	else if (o_ptr->name2)
 	{
-		ego_item_type *e_ptr = &e_info[o_ptr->name2];
+                ego_item_type *e_ptr;
                 int j;
                 bool limit_blows = FALSE;
                 u32b f1, f2, f3, f4, f5, esp;
+                s16b e_idx;
+
+                e_idx = o_ptr->name2;
+
+/* Ok now, THAT is truly ugly */
+try_an_other_ego:
+                e_ptr = &e_info[e_idx];
 
 		/* Hack -- extra powers */
                 for (j = 0; j < 5; j++)
@@ -3497,334 +3881,7 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
                                 o_ptr->art_flags5 |= e_ptr->flags5[j];
                                 o_ptr->art_esp |= e_ptr->esp[j];
 
-                                if (e_ptr->fego[j] & ETR4_SUSTAIN)
-                                {
-                                        /* Make a random sustain */
-                                        switch(randint(6))
-                                        {
-                                                case 1: o_ptr->art_flags2 |= TR2_SUST_STR; break;
-                                                case 2: o_ptr->art_flags2 |= TR2_SUST_INT; break;
-                                                case 3: o_ptr->art_flags2 |= TR2_SUST_WIS; break;
-                                                case 4: o_ptr->art_flags2 |= TR2_SUST_DEX; break;
-                                                case 5: o_ptr->art_flags2 |= TR2_SUST_CON; break;
-                                                case 6: o_ptr->art_flags2 |= TR2_SUST_CHR; break;
-                                        }
-                                }
-
-                                if (e_ptr->fego[j] & ETR4_OLD_RESIST)
-                                {
-                                       /* Make a random resist, equal probabilities */ 
-                                       switch (randint(11))
-                                       {
-                                                       case  1: o_ptr->art_flags2 |= (TR2_RES_BLIND);  break;
-                                                       case  2: o_ptr->art_flags2 |= (TR2_RES_CONF);   break;
-                                                       case  3: o_ptr->art_flags2 |= (TR2_RES_SOUND);  break;
-                                                       case  4: o_ptr->art_flags2 |= (TR2_RES_SHARDS); break;
-                                                       case  5: o_ptr->art_flags2 |= (TR2_RES_NETHER); break;
-                                                       case  6: o_ptr->art_flags2 |= (TR2_RES_NEXUS);  break;
-                                                       case  7: o_ptr->art_flags2 |= (TR2_RES_CHAOS);  break;
-                                                       case  8: o_ptr->art_flags2 |= (TR2_RES_DISEN);  break;
-                                                       case  9: o_ptr->art_flags2 |= (TR2_RES_POIS);   break;
-                                                       case 10: o_ptr->art_flags2 |= (TR2_RES_DARK);   break;
-                                                       case 11: o_ptr->art_flags2 |= (TR2_RES_LITE);   break;
-                                               }
-                                       }
-                                
-                                       if (e_ptr->fego[j] & ETR4_ABILITY)
-                                       {
-                                               /* Choose an ability */
-                                               switch (randint(8))
-                                               {
-                                                       case 1: o_ptr->art_flags3 |= (TR3_FEATHER);     break;
-                                                       case 2: o_ptr->art_flags3 |= (TR3_LITE1);        break;
-                                                       case 3: o_ptr->art_flags3 |= (TR3_SEE_INVIS);   break;
-                                                       case 4: o_ptr->art_esp |= (ESP_ALL);   break;
-                                                       case 5: o_ptr->art_flags3 |= (TR3_SLOW_DIGEST); break;
-                                                       case 6: o_ptr->art_flags3 |= (TR3_REGEN);       break;
-                                                       case 7: o_ptr->art_flags2 |= (TR2_FREE_ACT);    break;
-                                                       case 8: o_ptr->art_flags2 |= (TR2_HOLD_LIFE);   break;
-                                               }
-                                       }
-                                
-                                       if (e_ptr->fego[j] & ETR4_R_ELEM)
-                                       {
-                                               /* Make an acid/elec/fire/cold/poison resist */
-                                               random_resistance(o_ptr, FALSE, randint(14) + 4);                                        
-                                       }
-                                       if (e_ptr->fego[j] & ETR4_R_LOW)
-                                       {
-                                               /* Make an acid/elec/fire/cold resist */
-                                               random_resistance(o_ptr, FALSE, randint(12) + 4);                                        
-                                       }
-                                
-                                       if (e_ptr->fego[j] & ETR4_R_HIGH)
-                                       {
-                                               /* Make a high resist */
-                                               random_resistance(o_ptr, FALSE, randint(22) + 16);                                       
-                                       }
-                                       if (e_ptr->fego[j] & ETR4_R_ANY)
-                                       {
-                                               /* Make any resist */
-                                               random_resistance(o_ptr, FALSE, randint(34) + 4);                                        
-                                       }
-                                
-                                       if (e_ptr->fego[j] & ETR4_R_DRAGON)
-                                       {
-                                               /* Make "dragon resist" */
-                                               dragon_resist(o_ptr);
-                                       }
-                                                                        
-                                       if (e_ptr->fego[j] & ETR4_SLAY_WEAP)
-                                       {
-                                               /* Make a Weapon of Slaying */
-                                        
-                                               if (randint(3) == 1) /* double damage */
-                                                       o_ptr->dd *= 2;
-                                               else
-                                               {
-                                                       do
-                                                       {
-                                                               o_ptr->dd++;
-                                                       }
-                                                       while (randint(o_ptr->dd) == 1);
-                                                       do
-                                                       {
-                                                               o_ptr->ds++;
-                                                       }
-                                                       while (randint(o_ptr->ds) == 1);
-                                               }
-                                               if (randint(5) == 1)
-                                               {
-                                                       o_ptr->art_flags1 |= TR1_BRAND_POIS;
-                                               }
-                                               if (o_ptr->tval == TV_SWORD && (randint(3) == 1))
-                                               {
-                                                       o_ptr->art_flags1 |= TR1_VORPAL;
-                                               }
-                                       }
-                                
-                                       if (e_ptr->fego[j] & ETR4_DAM_DIE)
-                                       {
-                                               /* Increase damage dice */
-                                               o_ptr->dd++;                             
-                                       }
-                                
-                                       if (e_ptr->fego[j] & ETR4_DAM_SIZE)
-                                       {
-                                               /* Increase damage dice size */
-                                               o_ptr->ds++; 
-                                       }
-                                
-                                       if (e_ptr->fego[j] & ETR4_LIMIT_BLOWS)
-                                       {
-                                               /* Swap this flag */
-                                               limit_blows = !limit_blows;
-                                       }
-                                
-                                       if (e_ptr->fego[j] & ETR4_PVAL_M1)
-                                       {
-                                               /* Increase pval */
-                                               o_ptr->pval++;
-                                       }
-                                
-                                       if (e_ptr->fego[j] & ETR4_PVAL_M2)
-                                       {
-                                               /* Increase pval */
-                                               o_ptr->pval += m_bonus(2, dun_level);
-                                       }
-                                
-                                       if (e_ptr->fego[j] & ETR4_PVAL_M3)
-                                       {
-                                               /* Increase pval */
-                                               o_ptr->pval += m_bonus(3, dun_level);
-                                       }
-                                
-                                       if (e_ptr->fego[j] & ETR4_PVAL_M5)
-                                       {
-                                               /* Increase pval */
-                                               o_ptr->pval += m_bonus(5, dun_level);
-                                       }
-                                       if (e_ptr->fego[j] & ETR4_AC_M1)
-                                       {
-                                               /* Increase ac */
-                                               o_ptr->to_a++;
-                                       }
-                                
-                                       if (e_ptr->fego[j] & ETR4_AC_M2)
-                                       {
-                                               /* Increase ac */
-                                               o_ptr->to_a += m_bonus(2, dun_level);
-                                       }
-                                
-                                       if (e_ptr->fego[j] & ETR4_AC_M3)
-                                       {
-                                               /* Increase ac */
-                                               o_ptr->to_a += m_bonus(3, dun_level);
-                                       }
-                                
-                                       if (e_ptr->fego[j] & ETR4_AC_M5)
-                                       {
-                                               /* Increase ac */
-                                               o_ptr->to_a += m_bonus(5, dun_level);
-                                       }
-                                       if (e_ptr->fego[j] & ETR4_TH_M1)
-                                       {
-                                               /* Increase to hit */
-                                               o_ptr->to_h++;
-                                       }
-                                
-                                       if (e_ptr->fego[j] & ETR4_TH_M2)
-                                       {
-                                               /* Increase to hit */
-                                               o_ptr->to_h += m_bonus(2, dun_level);
-                                       }
-                                
-                                       if (e_ptr->fego[j] & ETR4_TH_M3)
-                                       {
-                                               /* Increase to hit */
-                                               o_ptr->to_h += m_bonus(3, dun_level);
-                                       }
-                                
-                                       if (e_ptr->fego[j] & ETR4_TH_M5)
-                                       {
-                                               /* Increase to hit */
-                                               o_ptr->to_h += m_bonus(5, dun_level);
-                                       }
-                                       if (e_ptr->fego[j] & ETR4_TD_M1)
-                                       {
-                                               /* Increase to dam */
-                                               o_ptr->to_d++;
-                                       }
-                                
-                                       if (e_ptr->fego[j] & ETR4_TD_M2)
-                                       {
-                                               /* Increase to dam */
-                                               o_ptr->to_d += m_bonus(2, dun_level);
-                                       }
-                                
-                                       if (e_ptr->fego[j] & ETR4_TD_M3)
-                                       {
-                                               /* Increase to dam */
-                                               o_ptr->to_d += m_bonus(3, dun_level);
-                                       }
-                                
-                                       if (e_ptr->fego[j] & ETR4_TD_M5)
-                                       {
-                                               /* Increase to dam */
-                                               o_ptr->to_d += m_bonus(5, dun_level);
-                                       }
-                                       if (e_ptr->fego[j] & ETR4_R_P_ABILITY)
-                                       {
-                                               /* Add a random pval-affected ability */
-                                               /* This might cause boots with + to blows */
-                                               switch (randint(6))
-                                               {
-                                                       case 1:o_ptr->art_flags1 |= TR1_STEALTH; break;
-                                                       case 2:o_ptr->art_flags1 |= TR1_SEARCH; break;
-                                                       case 3:o_ptr->art_flags1 |= TR1_INFRA; break;
-                                                       case 4:o_ptr->art_flags1 |= TR1_TUNNEL; break;
-                                                       case 5:o_ptr->art_flags1 |= TR1_SPEED; break;
-                                                       case 6:o_ptr->art_flags1 |= TR1_BLOWS; break;                                            
-                                               }
-                                                
-                                       }
-                                       if (e_ptr->fego[j] & ETR4_R_STAT)
-                                       {
-                                               /* Add a random stat */
-                                               switch (randint(6))
-                                               {
-                                                       case 1:o_ptr->art_flags1 |= TR1_STR; break;
-                                                       case 2:o_ptr->art_flags1 |= TR1_INT; break;
-                                                       case 3:o_ptr->art_flags1 |= TR1_WIS; break;
-                                                       case 4:o_ptr->art_flags1 |= TR1_DEX; break;
-                                                       case 5:o_ptr->art_flags1 |= TR1_CON; break;
-                                                       case 6:o_ptr->art_flags1 |= TR1_CHR; break;                                              
-                                               }
-                                       }
-                                       if (e_ptr->fego[j] & ETR4_R_STAT_SUST)
-                                       {
-                                               /* Add a random stat and sustain it */
-                                               switch (randint(6))
-                                               {
-                                                       case 1:
-                                                       {
-                                                               o_ptr->art_flags1 |= TR1_STR;
-                                                               o_ptr->art_flags2 |= TR2_SUST_STR;
-                                                               break;
-                                                       }
-                                                
-                                                       case 2:
-                                                       {
-                                                               o_ptr->art_flags1 |= TR1_INT;
-                                                               o_ptr->art_flags2 |= TR2_SUST_INT;
-                                                               break;
-                                                       }
-                                                
-                                                       case 3:
-                                                       {
-                                                               o_ptr->art_flags1 |= TR1_WIS;
-                                                               o_ptr->art_flags2 |= TR2_SUST_WIS;
-                                                               break;
-                                                       }
-                                                
-                                                       case 4:
-                                                       {
-                                                               o_ptr->art_flags1 |= TR1_DEX;
-                                                               o_ptr->art_flags2 |= TR2_SUST_DEX;
-                                                               break;
-                                                       }
-                                                
-                                                       case 5:
-                                                       {
-                                                               o_ptr->art_flags1 |= TR1_CON;
-                                                               o_ptr->art_flags2 |= TR2_SUST_CON;
-                                                               break;
-                                                       }
-                                                       case 6:
-                                                       {
-                                                       o_ptr->art_flags1 |= TR1_CHR;
-                                                       o_ptr->art_flags2 |= TR2_SUST_CHR;
-                                                       break;
-                                                       }                                                
-                                               }
-                                       }
-                                       if (e_ptr->fego[j] & ETR4_R_IMMUNITY)
-                                       {
-                                               /* Give a random immunity */
-                                               switch (randint(4))
-                                               {
-                                                       case 1:
-                                                       {
-                                                               o_ptr->art_flags2 |= TR2_IM_FIRE;
-                                                               o_ptr->art_flags3 |= TR3_IGNORE_FIRE;
-                                                               break;
-                                                       }
-                                                       case 2:
-                                                       {
-                                                               o_ptr->art_flags2 |= TR2_IM_ACID;
-                                                               o_ptr->art_flags3 |= TR3_IGNORE_ACID;
-                                                               break;
-                                                       }
-                                                       case 3:
-                                                       {
-                                                               o_ptr->art_flags2 |= TR2_IM_ELEC;
-                                                               o_ptr->art_flags3 |= TR3_IGNORE_ELEC;
-                                                               break;
-                                                       }
-                                                       case 4:
-                                                       {
-                                                               o_ptr->art_flags2 |= TR2_IM_COLD;
-                                                               o_ptr->art_flags3 |= TR3_IGNORE_COLD;
-                                                               break;
-                                                       }
-                                               }
-                                       }
-                                
-                                       if (e_ptr->fego[j] & ETR4_LIMIT_BLOWS)
-                                       {
-                                               /* Swap this flag */
-                                               limit_blows = !limit_blows;
-                                       }                                
+                                add_random_ego_flag(o_ptr, e_ptr->fego[j], &limit_blows);
                         }
                 }
 
@@ -3855,6 +3912,12 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 
 		/* Hack -- apply rating bonus */
 		rating += e_ptr->rating;
+
+                if (o_ptr->name2b && (o_ptr->name2b != e_idx))
+                {
+                        e_idx = o_ptr->name2b;
+                        goto try_an_other_ego;
+                }
 
 		/* Cheat -- describe the item */
                 if ((cheat_peek)||(p_ptr->precognition)) object_mention(o_ptr);
@@ -4022,14 +4085,14 @@ bool kind_is_legal(int k_idx)
 
         if (!kind_is_theme(k_idx)) return FALSE;
 
-        if (k_info[k_idx].flags4 & TR4_SPECIAL_GENE)
+        if (k_ptr->flags4 & TR4_SPECIAL_GENE)
         {
-                if (hack_allow_special) return TRUE;
+                if (k_allow_special[k_idx]) return TRUE;
                 else return FALSE;
         }
 
         /* No 2 times the same normal artifact */
-        if ((k_info[k_idx].flags3 & TR3_NORM_ART) && (k_info[k_idx].artifact))
+        if ((k_ptr->flags3 & TR3_NORM_ART) && (k_ptr->artifact))
         {
                 return FALSE;
         }
@@ -4894,9 +4957,6 @@ void inven_item_increase(int item, int num)
 		/* Add the number */
 		o_ptr->number += num;
 
-		/* Add the weight */
-		total_weight += (num * o_ptr->weight);
-
 		/* Recalculate bonuses */
 		p_ptr->update |= (PU_BONUS);
 
@@ -4915,15 +4975,15 @@ void inven_item_increase(int item, int num)
 /*
  * Erase an inventory slot if it has no more items
  */
-void inven_item_optimize(int item)
+bool inven_item_optimize(int item)
 {
 	object_type *o_ptr = &inventory[item];
 
 	/* Only optimize real items */
-	if (!o_ptr->k_idx) return;
+        if (!o_ptr->k_idx) return (FALSE);
 
 	/* Only optimize empty items */
-	if (o_ptr->number) return;
+        if (o_ptr->number) return (FALSE);
 
 	/* The item is in the pack */
 	if (item < INVEN_WIELD)
@@ -4971,6 +5031,8 @@ void inven_item_optimize(int item)
 
 	/* Window stuff */
 	p_ptr->window |= (PW_SPELL);
+
+        return (TRUE);
 }
 
 
@@ -5136,9 +5198,6 @@ s16b inven_carry(object_type *o_ptr, bool final)
 				/* Combine the items */
 				object_absorb(j_ptr, o_ptr);
 
-				/* Increase the weight */
-				total_weight += (o_ptr->number * o_ptr->weight);
-
 				/* Recalculate bonuses */
 				p_ptr->update |= (PU_BONUS);
 
@@ -5265,9 +5324,6 @@ s16b inven_carry(object_type *o_ptr, bool final)
 	o_ptr->next_o_idx = 0;
 	o_ptr->held_m_idx = 0;
 	
-	/* Increase the weight */
-	total_weight += (o_ptr->number * o_ptr->weight);
-
 	/* Count the items */
 	inven_cnt++;
 
@@ -5872,19 +5928,13 @@ s16b spell_chance(int spell,int realm)
 	 * Non mage/priest characters never get too good
 	 * (added high mage, mindcrafter)
 	 */
-	if ((p_ptr->pclass != CLASS_PRIEST) &&
-	    (p_ptr->pclass != CLASS_MAGE) &&
-            (p_ptr->pclass != CLASS_DRUID) &&
-	    (p_ptr->pclass != CLASS_MINDCRAFTER) &&
-            (p_ptr->pclass != CLASS_HIGH_MAGE) &&
-            (p_ptr->pclass != CLASS_ILLUSIONIST) &&
-            (p_ptr->pclass != CLASS_SORCERER))
+        if (!(cp_ptr->flags1 & CF1_ZERO_FAIL))
 	{
 		if (minfail < 5) minfail = 5;
 	}
 
 	/* Hack -- Priest prayer penalty for "edged" weapons  -DGK */
-	if ((p_ptr->pclass == 2) && (p_ptr->icky_wield)) chance += 25;
+        if ((cp_ptr->flags1 & CF1_BLESS_WEAPON) && (p_ptr->icky_wield)) chance += 25;
 
 	/* Minimum failure rate */
 	if (chance < minfail) chance = minfail;

@@ -822,10 +822,11 @@ static void regen_monsters(void)
 		monster_type *m_ptr = &m_list[i];
                 monster_race *r_ptr = race_inf(m_ptr);
 
-
-
 		/* Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
+
+                /* Dont regen bleeding/poisonned monsters */
+                if (m_ptr->bleeding || m_ptr->poisoned) continue;
 
 		/* Allow regeneration (if needed) */
 		if (m_ptr->hp < m_ptr->maxhp)
@@ -1167,6 +1168,45 @@ static void check_music()
         gere_music(p_ptr->class_extra1);
 }
 
+
+/* Generate the feature effect */
+void apply_effect(int y, int x)
+{
+        cave_type *c_ptr = &cave[y][x];
+        feature_type *f_ptr = &f_info[c_ptr->feat];
+
+        if (f_ptr->d_frequency[0] != 0)
+        {
+                int i;
+
+                for (i = 0; i < 4; i++)
+                {
+                        /* Check the frequency */
+                        if (f_ptr->d_frequency[i] == 0) continue;
+
+                        if (((turn % f_ptr->d_frequency[i]) == 0) &&
+                            ((f_ptr->d_side[i] != 0) || (f_ptr->d_dice[i] != 0)))
+                        {
+                                int l, dam = 0;
+                                int d = f_ptr->d_dice[i], s = f_ptr->d_side[i];
+
+                                if (d == -1) d = p_ptr->lev;
+                                if (s == -1) s = p_ptr->lev;
+
+                                /* Roll damage */
+                                for (l = 0; l < d; l++)
+                                {
+                                        dam += randint(s);
+                                }
+
+                                /* Apply damage */
+                                project(-100, 0, y, x, dam, f_ptr->d_type[i], PROJECT_KILL | PROJECT_HIDE);
+                        }
+                }
+        }
+        
+}
+
 bool is_recall = FALSE;
 
 /*
@@ -1267,12 +1307,12 @@ static void process_world(void)
 	if (!dun_level)
 	{
 		/* Hack -- Daybreak/Nighfall in town */
-		if (!(turn % ((10L * TOWN_DAWN) / 2)))
+                if (!(turn % ((10L * DAY) / 2)))
 		{
 			bool dawn;
 
 			/* Check for dawn */
-			dawn = (!(turn % (10L * TOWN_DAWN)));
+                        dawn = (!(turn % (10L * DAY)));
 
 			/* Day breaks */
                         if (dawn && (!p_ptr->wild_mode))
@@ -1338,6 +1378,15 @@ static void process_world(void)
 		}
 	}
 
+        /* Tell a day passed */
+        if (!((turn + (DAY_START * 10L)) % (10L * DAY)))
+        {
+                char buf[20];
+
+                sprintf(buf, get_day(bst(YEAR, turn) + START_YEAR));
+                cmsg_format(TERM_L_GREEN, "Today it is %s of the %s year of the third age.", get_month_name(bst(DAY, turn), wizard, FALSE), buf);
+        }
+
 	/* Set back the rewards once a day */
 	if (!(turn % (10L * STORE_TURNS)))
 	{
@@ -1373,13 +1422,13 @@ static void process_world(void)
                 if (rand_int(2) || (p_ptr->wild_mode))
                 {
                         /* Discount player items */
-                        int i, tries = 200;
+                        int z, tries = 200;
                         object_type *o_ptr;
 
                         while (tries--)
                         {
-                                i = rand_int(INVEN_TOTAL);
-                                o_ptr = &inventory[i];
+                                z = rand_int(INVEN_TOTAL);
+                                o_ptr = &inventory[z];
 
                                 if (!o_ptr->k_idx) continue;
 
@@ -1392,8 +1441,8 @@ static void process_world(void)
                                 o_ptr->discount += 70;
                                 if (o_ptr->discount >= 100) o_ptr->discount = 100;
 
-                                inven_item_optimize(i);
-                                inven_item_describe(i);
+                                inven_item_optimize(z);
+                                inven_item_describe(z);
                                 p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
                         }
                 }
@@ -1433,7 +1482,7 @@ static void process_world(void)
         if ((rand_int(d_info[dungeon_type].max_m_alloc_chance) == 0) && !(p_ptr->inside_arena) && !(p_ptr->inside_quest))
 	{
 		/* Make a new monster */
-		if (!special_flag) (void)alloc_monster(MAX_SIGHT + 5, FALSE);
+                if (!(dungeon_flags1 & LF1_NO_NEW_MONSTER)) (void)alloc_monster(MAX_SIGHT + 5, FALSE);
 	}
 
 	/* Hack -- Check for creature regeneration */
@@ -1455,7 +1504,7 @@ static void process_world(void)
 	{
 		if ((!dun_level)
 		    && (!(p_ptr->resist_lite)) && !(p_ptr->invuln)
-		    && (!((turn / ((10L * TOWN_DAWN)/2)) % 2)))
+                    && (!((turn / ((10L * DAY)/2)) % 2)))
 		{
 			if (cave[py][px].info & (CAVE_GLOW))
 			{
@@ -1491,65 +1540,10 @@ static void process_world(void)
 		}
 	}
 
-	if ((cave[py][px].feat == FEAT_SHAL_LAVA) &&
-		!p_ptr->invuln && !p_ptr->immune_fire && !p_ptr->ffall &&
-		(p_ptr->pclass != CLASS_DAEMONOLOGIST))
-	{
-		int damage = p_ptr->lev;
-
-		if (cave[py][px].feat == FEAT_SHAL_LAVA) damage = damage / 2;
-
-                if (p_ptr->sensible_fire) damage = damage * 2;
-		if (p_ptr->resist_fire) damage = damage / 3;
-		if (p_ptr->oppose_fire) damage = damage / 3;
-
-		/* Take damage */
-		msg_print("The lava burns you!");
-		take_hit(damage, "shallow lava");
-		cave_no_regen = TRUE;
-	}
-
-        else if (((cave[py][px].feat == FEAT_FIRE) || (cave[py][px].feat == FEAT_DEEP_LAVA)) &&
-		!p_ptr->invuln && !p_ptr->immune_fire &&
-		(p_ptr->pclass != CLASS_DAEMONOLOGIST))
-	{
-		int damage = p_ptr->lev * 2;
-		cptr message;
-		cptr hit_from;
-
-                if (p_ptr->sensible_fire) damage = damage * 2;
-		if (p_ptr->resist_fire) damage = damage / 3;
-		if (p_ptr->oppose_fire) damage = damage / 3;
-
-		if (p_ptr->ffall)
-		{
-			damage = damage / 5;
-
-			message = "The heat burns you!";
-                        if (cave[py][px].feat == FEAT_FIRE) hit_from = "flying over blazing fire";
-                        else hit_from = "flying over deep lava";
-		}
-		else
-		{
-			message = "The lava burns you!";
-                        if (cave[py][px].feat == FEAT_FIRE) hit_from = "blazing fire";
-                        else hit_from = "deep lava";
-		}
-
-		if (damage)
-		{
-			/* Take damage */
-			msg_print(message);
-			take_hit(damage, hit_from);
-
-			cave_no_regen = TRUE;
-		}
-	}
-
         /* Drown in deep water unless the player have levitation or water walking */
         else if ((cave[py][px].feat == FEAT_DEEP_WATER) && !p_ptr->ffall && !p_ptr->    walk_water)
 	{
-		if (total_weight > ((adj_str_wgt[p_ptr->stat_ind[A_STR]] * 100) / 2))
+		if (calc_total_weight() > ((adj_str_wgt[p_ptr->stat_ind[A_STR]] * 100) / 2))
 		{
 			/* Take damage */
 			msg_print("You are drowning!");
@@ -2306,6 +2300,8 @@ static void process_world(void)
                 }
         }
 
+        apply_effect(py, px);
+
         /* Every 1500 turns, warn about any Black Breath not gotten from an equipped
          * object, and stop any resting. -LM-
          */
@@ -2391,7 +2387,7 @@ static void process_world(void)
 	p_ptr->update |= (PU_TORCH);
 
 
-	/*** Process mutation effects ***/
+        /*** Process corruption effects ***/
         if (p_ptr->muta2 && (!p_ptr->wild_mode) && (dun_level))
 	{
 		if ((p_ptr->muta2 & MUT2_BERS_RAGE) && (randint(3000)==1))
@@ -2663,7 +2659,7 @@ static void process_world(void)
 		if ((p_ptr->muta2 & MUT2_NORMALITY) &&
 			(randint(5000)==1))
 		{
-			lose_mutation(0);
+                        lose_corruption(0);
 		}
 		if ((p_ptr->muta2 & MUT2_WRAITH) && !(p_ptr->anti_magic) &&
 			(randint(3000)==13))
@@ -2889,7 +2885,10 @@ static void process_world(void)
 	/* Drain Mana */
 	if (p_ptr->drain_mana && p_ptr->csp)
 	{
-		p_ptr->csp--;
+                p_ptr->csp -= p_ptr->drain_mana;
+                if (magik(30)) p_ptr->csp -= p_ptr->drain_mana;
+
+                if (p_ptr->csp < 0) p_ptr->csp = 0;
 
 		/* Redraw */
 		p_ptr->redraw |= (PR_MANA);
@@ -2901,7 +2900,7 @@ static void process_world(void)
 	/* Drain Hitpoints */
         if (p_ptr->drain_life)
 	{
-		int drain = 1 + rand_int(p_ptr->mhp / 100);
+                int drain = p_ptr->drain_life + rand_int(p_ptr->mhp / 100);
 
 		p_ptr->chp -= (drain < p_ptr->chp ? drain : p_ptr->chp);
 
@@ -3012,7 +3011,7 @@ static void process_world(void)
 		}
 
                 /* Recharge activatable mage staffs */
-                if ((o_ptr->xtra2 > 0) && (o_ptr->name2 == EGO_MSTAFF_SPELL))
+                if ((o_ptr->xtra2 > 0) && (is_ego_p(o_ptr, EGO_MSTAFF_SPELL)))
 		{
 			/* Recharge */
                         o_ptr->xtra2--;
@@ -4428,11 +4427,11 @@ static void process_player(void)
 
 	/*** Apply energy ***/
 
-	if (hack_mutation)
+        if (hack_corruption)
 	{
 		msg_print("You feel different!");
-		(void)gain_random_mutation(0);
-		hack_mutation = FALSE;
+                (void)gain_random_corruption(0);
+                hack_corruption = FALSE;
 	}
 
 	/* Give the player some energy */
@@ -4739,7 +4738,7 @@ static void process_player(void)
 				}
 			}
 
-                        /* Shimmer objects if needed */
+                        /* Shimmer features if needed */
                         if (!avoid_other)
 			{
                                 /* Shimmer multi-hued features */
@@ -4748,7 +4747,7 @@ static void process_player(void)
                                         for (i = panel_col_min; i <= panel_col_max; i++)
                                         {
                                                 /* Acquire object -- for speed only base items are allowed to shimmer */
-                                                feature_type *f_ptr = &f_info[cave[j][i].feat];
+                                                feature_type *f_ptr = &f_info[(cave[j][i].mimic)?cave[j][i].mimic:f_info[cave[j][i].feat].mimic];
 		
                                                 /* Skip non-multi-hued monsters */
                                                 if (!(f_ptr->flags1 & (FF1_ATTR_MULTI))) continue;
@@ -4895,8 +4894,8 @@ static void dungeon(void)
         if (!dungeon_stair) create_down_shaft = create_up_shaft = FALSE;
 
 	/* no connecting stairs on special levels */
-	if (special_flag) create_down_stair = create_up_stair = FALSE;
-        if (special_flag) create_down_shaft = create_up_shaft = FALSE;
+        if (!(dungeon_flags1 & LF1_NO_STAIR)) create_down_stair = create_up_stair = FALSE;
+        if (!(dungeon_flags1 & LF1_NO_STAIR)) create_down_shaft = create_up_shaft = FALSE;
 
 	/* Make a stairway. */
         if ((create_up_stair || create_down_stair || create_up_shaft ||
@@ -5340,7 +5339,7 @@ void play_game(bool new_game)
         int i, tmp_dun;
         bool cheat_death=FALSE;
 
-	hack_mutation = FALSE;
+        hack_corruption = FALSE;
 
 	/* Hack -- Character is "icky" */
 	character_icky = TRUE;
@@ -5447,9 +5446,9 @@ void play_game(bool new_game)
 		/* Hack -- enter the world */
                 /* Mega-hack Vampires and Spectres start in the dungeon */
                 if ((p_ptr->pracem == RMOD_VAMPIRE) || (p_ptr->pracem == RMOD_SPECTRE) || (p_ptr->pracem == RMOD_SKELETON) || (p_ptr->pracem == RMOD_ZOMBIE))
-                        turn = (10L * TOWN_DAWN / 2) + 1;
+                        turn = (10L * DAY / 2) + (START_DAY * 10);
                 else
-                        turn = 1;
+                        turn = START_DAY * 10;
 	}
 
         /*** Calculate the magic table for the player class ***/
@@ -5485,6 +5484,8 @@ void play_game(bool new_game)
 	/* Window stuff */
 	window_stuff();
 
+        /* load user file */
+        process_pref_file("user.prf");
 
 	/* Load the "pref" files */
 	load_all_pref_files();
@@ -5537,7 +5538,9 @@ void play_game(bool new_game)
         /* Should we use old colors */
         if (autoload_old_colors)
         {
+                user_process_pref_file = FALSE;
                 process_pref_file("422colors.prf");
+                user_process_pref_file = TRUE;
         }
 
 

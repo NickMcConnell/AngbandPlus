@@ -480,7 +480,7 @@ static void image_monster(byte *ap, char *cp)
 	int n = strlen(image_monster_hack);
 
 	/* Random symbol from set above */
-	if (use_graphics)
+        if (use_graphics && (!hack_map_info_default))
 	{
 		/* Normal graphics */
 		if (!(streq(ANGBAND_SYS, "ibm")))
@@ -517,8 +517,11 @@ static void image_monster(byte *ap, char *cp)
 static cptr image_object_hack = \
 "?/|\\\"!$()_-=[]{},~";
 
+/* For compiler which recognizes multibyte characters in a source code. */
 static cptr image_object_hack_ibm = \
-"€“”—¤¦«­®º»¼½ÀÁÂÃÄÈÉÊËÍÎÓÚç";
+	"\x05\x0b\x0c\x0e\x0f\x10\x11\x13\x14\x15\x17\x18\x19\x1c\x1e\x80"
+	"\x81\x93\x94\x97\xa4\xa6\xab\xad\xae\xba\xbb\xbc\xbd\xc0\xc1\xc2"
+	"\xc3\xc4\xc8\xc9\xca\xcb\xcd\xce\xd3\xda\xe7";
 
 /*
  * Mega-Hack -- Hallucinatory object
@@ -527,7 +530,7 @@ static void image_object(byte *ap, char *cp)
 {
 	int n = strlen(image_object_hack);
 
-	if (use_graphics)
+        if (use_graphics && (!hack_map_info_default))
 	{
 		if (!(streq(ANGBAND_SYS, "ibm")))
 		{
@@ -763,8 +766,8 @@ void map_info(int y, int x, byte *ap, char *cp)
                         f_ptr = &f_info[feat];
 
 			/* Normal char */
-			c = f_ptr->x_char;
-                        a = f_ptr->x_attr;
+                        c = (hack_map_info_default)?f_ptr->d_char:f_ptr->x_char;
+                        a = (hack_map_info_default)?f_ptr->d_attr:f_ptr->x_attr;
 
 			/* Normal attr */
                         if ((!avoid_other) && (!((a & 0x80) && (c & 0x80))) && (f_ptr->flags1 & FF1_ATTR_MULTI)) a = f_ptr->shimmer[rand_int(7)];
@@ -869,10 +872,10 @@ void map_info(int y, int x, byte *ap, char *cp)
 			f_ptr = &f_info[FEAT_NONE];
 
 			/* Normal attr */
-			a = f_ptr->x_attr;
+                        a = (hack_map_info_default)?f_ptr->d_attr:f_ptr->x_attr;
 
 			/* Normal char */
-			c = f_ptr->x_char;
+                        c = (hack_map_info_default)?f_ptr->d_char:f_ptr->x_char;
 		}
 	}
 
@@ -892,8 +895,8 @@ void map_info(int y, int x, byte *ap, char *cp)
 			f_ptr = &f_info[feat];
 
 			/* Normal char */
-			c = f_ptr->x_char;
-                        a = f_ptr->x_attr;
+                        c = (hack_map_info_default)?f_ptr->d_char:f_ptr->x_char;
+                        a = (hack_map_info_default)?f_ptr->d_attr:f_ptr->x_attr;
 
 			/* Normal attr */
                         if ((!avoid_other) && (!((a & 0x80) && (c & 0x80))) && (f_ptr->flags1 & FF1_ATTR_MULTI)) a = f_ptr->shimmer[rand_int(7)];
@@ -901,8 +904,8 @@ void map_info(int y, int x, byte *ap, char *cp)
                         /* MEGA HACK -- show a building at it is supposed to be */
                         if (feat == FEAT_SHOP)
                         {
-                                c = st_info[c_ptr->special].x_char;
-                                a = st_info[c_ptr->special].x_attr;
+                                c = (hack_map_info_default)?st_info[c_ptr->special].d_char:st_info[c_ptr->special].x_char;
+                                a = (hack_map_info_default)?st_info[c_ptr->special].d_attr:st_info[c_ptr->special].x_attr;
                         }
 
 			/* Add trap color - Illusory wall masks everythink */
@@ -1026,11 +1029,9 @@ void map_info(int y, int x, byte *ap, char *cp)
 			/* Access darkness */
 			f_ptr = &f_info[FEAT_NONE];
 
-			/* Normal attr */
-			a = f_ptr->x_attr;
-
-			/* Normal char */
-			c = f_ptr->x_char;
+                        /* Normal attr/char */
+                        c = (hack_map_info_default)?f_ptr->d_char:f_ptr->x_char;
+                        a = (hack_map_info_default)?f_ptr->d_attr:f_ptr->x_attr;
 		}
 	}
 
@@ -1104,11 +1105,9 @@ void map_info(int y, int x, byte *ap, char *cp)
                                 r_ptr = &r_info[m_ptr->r_idx];
                         }
 
-			/* Desired attr */
-			a = r_ptr->x_attr;
-
-			/* Desired char */
-			c = r_ptr->x_char;
+                        /* Desired attr/char */
+                        c = (hack_map_info_default)?r_ptr->d_char:r_ptr->x_char;
+                        a = (hack_map_info_default)?r_ptr->d_attr:r_ptr->x_attr;
 
 			/* Ignore weird codes */
 			if (avoid_other)
@@ -1140,8 +1139,8 @@ void map_info(int y, int x, byte *ap, char *cp)
 					{
 						if (!(streq(ANGBAND_SYS, "ibm")))
 						{
-							(*cp) = r_info[randint(max_r_idx-2)].x_char;
-							(*ap) = r_info[randint(max_r_idx-2)].x_attr;
+                                                        (*cp) = (hack_map_info_default)?r_info[randint(max_r_idx-2)].d_char:r_info[randint(max_r_idx-2)].x_char;
+                                                        (*ap) = (hack_map_info_default)?r_info[randint(max_r_idx-2)].d_attr:r_info[randint(max_r_idx-2)].x_attr;
 						}
 						else
 						{
@@ -1222,10 +1221,11 @@ void map_info(int y, int x, byte *ap, char *cp)
 
 		/* Get the "player" attr */
                 if (r_ptr->flags1 & RF1_ATTR_MULTI) a = get_shimmer_color();
-                else a = r_ptr->x_attr;
+                else a = (hack_map_info_default)?r_ptr->d_attr:r_ptr->x_attr;
 
 		/* Get the "player" char */
-		c = r_ptr->x_char;
+                c = (hack_map_info_default)?r_ptr->d_char:r_ptr->x_char;
+                a = (hack_map_info_default)?r_ptr->d_attr:r_ptr->x_attr;
 
 #ifdef USE_GRAPHICS
 #ifdef VARIABLE_PLAYER_GRAPH

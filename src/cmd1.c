@@ -178,7 +178,7 @@ s16b critical_norm(int weight, int plus, int dam)
  * Note that most brands and slays are x3, except Slay Animal (x2),
  * Slay Evil (x2), and Kill dragon (x5).
  */
-s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
+s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, s32b *special)
 {
 	int mult = 1;
 
@@ -456,7 +456,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 				}
 			}
 
-			/* Brand (Poison) - Zangband*/
+                        /* Brand (Poison) */
 			if (f1 & (TR1_BRAND_POIS))
 			{
 				/* Notice immunity */
@@ -476,12 +476,35 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
                                                 r_ptr->r_flags9 |= (RF9_SUSCEP_POIS);
 					}
                                         if (mult < 6) mult = 6;
+                                        if (magik(95)) *special |= SPEC_POIS;
 				}
 
 				/* Otherwise, take the damage */
 				else
 				{
 					if (mult < 3) mult = 3;
+                                        if (magik(50)) *special |= SPEC_POIS;
+				}
+			}
+
+                        /* Wounding */
+                        if (f5 & (TR5_WOUNDING))
+			{
+				/* Notice immunity */
+#if 0 // DGDGDGDG
+                                if (r_ptr->flags3 & (RF3_NO_CUT))
+				{
+					if (m_ptr->ml)
+					{
+                                                r_ptr->r_flags3 |= (RF3_NO_CUT);
+					}
+				}
+
+				/* Otherwise, take the damage */
+				else
+#endif
+				{
+                                        if (magik(50)) *special |= SPEC_CUT;
 				}
 			}
 			break;
@@ -545,6 +568,8 @@ void search(void)
 
 					/* Pick a door XXX XXX XXX */
 					cave_set_feat(y, x, FEAT_DOOR_HEAD + 0x00);
+                                        cave[y][x].mimic = 0;
+                                        lite_spot(y, x);
 
 					/* Disturb */
 					disturb(0, 0);
@@ -1931,6 +1956,262 @@ static void flavored_attack(int percent, char* output) {
 
 }
 
+/* Monk bare handed attacks */
+void py_attack_monk(int *k, monster_type *m_ptr)
+{
+        int special_effect = 0, stun_effect = 0, times = 0;
+        martial_arts * ma_ptr = &ma_blows[0], * old_ptr = &ma_blows[0];
+        int resist_stun = 0;
+        monster_race *r_ptr = race_inf(m_ptr);
+        char m_name[80];
+
+	/* Extract monster name (or "it") */
+	monster_desc(m_name, m_ptr, 0);
+
+        if (r_ptr->flags1 & RF1_UNIQUE) resist_stun += 88;
+        if (r_ptr->flags3 & RF3_NO_CONF) resist_stun += 44;
+        if (r_ptr->flags3 & RF3_NO_SLEEP) resist_stun += 44;
+        if ((r_ptr->flags3 & RF3_UNDEAD) || (r_ptr->flags3 & RF3_NONLIVING)) resist_stun += 88;
+
+        /* Attempt 'times' */
+        for (times = 0; times < (p_ptr->lev<7?1:p_ptr->lev/7); times++)
+        {
+                do
+                {
+                        ma_ptr = &ma_blows[(randint(MAX_MA))-1];
+                }
+
+                while ((ma_ptr->min_level > p_ptr->lev) || (randint(p_ptr->lev) < ma_ptr->chance));
+
+                /* keep the highest level attack available we found */
+                if ((ma_ptr->min_level > old_ptr->min_level) && !(p_ptr->stun || p_ptr->confused))
+                {
+                        old_ptr = ma_ptr;
+
+                        if (wizard && cheat_xtra)
+                        {
+                                msg_print("Attack re-selected.");
+                        }
+                }
+                else
+                {
+                        ma_ptr = old_ptr;
+                }
+        }
+
+        *k = damroll(ma_ptr->dd, ma_ptr->ds);
+
+        if (ma_ptr->effect == MA_KNEE)
+        {
+                if (r_ptr->flags1 & RF1_MALE)
+                {
+                        msg_format("You hit %s in the groin with your knee!", m_name);
+                        sound(SOUND_PAIN);
+                        special_effect = MA_KNEE;
+                }
+                else
+                        msg_format(ma_ptr->desc, m_name);
+        }
+        else if (ma_ptr->effect == MA_SLOW)
+        {
+                if (!((r_ptr->flags1 & RF1_NEVER_MOVE) || strchr("UjmeEv$,DdsbBFIJQSXclnw!=?", r_ptr->d_char)))
+                {
+                        msg_format("You kick %s in the ankle.", m_name);
+                        special_effect = MA_SLOW;
+                }
+                else msg_format(ma_ptr->desc, m_name);
+        }
+        else
+        {
+                if (ma_ptr->effect)
+                {
+                        stun_effect = (ma_ptr->effect/2) + randint(ma_ptr->effect/2);
+                }
+
+                msg_format(ma_ptr->desc, m_name);
+        }
+
+        *k = critical_norm(p_ptr->lev * (randint(10)), ma_ptr->min_level, *k);
+
+        if ((special_effect == MA_KNEE) && ((*k + p_ptr->to_d) < m_ptr->hp))
+        {
+                msg_format("%^s moans in agony!", m_name);
+                stun_effect = 7 + randint(13);
+                resist_stun /= 3;
+        }
+        else if ((special_effect == MA_SLOW) && ((*k + p_ptr->to_d) < m_ptr->hp))
+        {
+                if (!(r_ptr->flags1 & RF1_UNIQUE) &&
+                        (randint(p_ptr->lev) > m_ptr->level) &&
+                        m_ptr->mspeed > 60)
+                {
+                        msg_format("%^s starts limping slower.", m_name);
+                        m_ptr->mspeed -= 10;
+                }
+        }
+
+        if (stun_effect && ((*k + p_ptr->to_d) < m_ptr->hp))
+        {
+                if (p_ptr->lev > randint(m_ptr->level + resist_stun + 10))
+                {
+                        if (m_ptr->stunned)
+                                msg_format("%^s is still stunned.", m_name);
+                        else
+                                msg_format("%^s is stunned.", m_name);
+
+                        m_ptr->stunned += (stun_effect);
+                }
+        }
+}
+
+/* Apply nazgul effects */
+void do_nazgul(int *k, int *num, int num_blow, int weap, monster_race *r_ptr, object_type *o_ptr)
+{
+        u32b f1, f2, f3, f4, f5, esp;
+
+        object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
+
+        /* Mega Hack -- Hitting Nazgul is REALY dangerous(ideas from Akhronath) */
+        if (r_ptr->flags7 & RF7_NAZGUL)
+        {
+                if ((!o_ptr->name2) && (!artifact_p(o_ptr)))
+                {
+                        msg_print("Your weapon *DISINTEGRATES*!");
+                        *k = 0;
+                        inven_item_increase(INVEN_WIELD + weap, -1);
+                        inven_item_optimize(INVEN_WIELD + weap);
+
+                        /* To stop attacking */
+                        *num = num_blow;
+                }
+                else if (o_ptr->name2)
+                {
+                        if (!(f1 & TR1_SLAY_EVIL) && !(f1 & TR1_SLAY_UNDEAD))
+                        {
+                                msg_print("The Ringwraith is IMPERVIOUS to the mundane weapon.");
+                                *k = 0;
+                        }
+
+                        /* 25% chance of getting destroyed */
+                        if (magik(25))
+                        {
+                                msg_print("Your weapon is destroyed !");
+                                inven_item_increase(INVEN_WIELD + weap, -1);
+                                inven_item_optimize(INVEN_WIELD + weap);
+
+                                /* To stop attacking */
+                                *num = num_blow;
+                        }
+                }
+                else if (artifact_p(o_ptr))
+                {
+                        if (!(f1 & TR1_SLAY_EVIL) && !(f1 & TR1_SLAY_UNDEAD))
+                        {
+                                msg_print("The Ringwraith is IMPERVIOUS to the mundane weapon.");
+                                *k = 0;
+                        }
+
+                        apply_disenchant(INVEN_WIELD + weap);
+
+                        /* 1/1000 chance of getting destroyed */
+                        if (!rand_int(1000))
+                        {
+                                msg_print("Your weapon is destroyed !");
+                                inven_item_increase(INVEN_WIELD + weap, -1);
+                                inven_item_optimize(INVEN_WIELD + weap);
+
+                                /* To stop attacking */
+                                *num = num_blow;
+                        }
+                }
+
+                /* If any damage is done, then 25% chance of getting the Black Breath */
+                if (*k)
+                {
+                        if (magik(25))
+                        {
+                                msg_print("Your foe calls upon your soul!");
+                                msg_print("You feel the Black Breath slowly draining you of life...");
+                                p_ptr->black_breath = TRUE;
+                        }
+                }
+        }
+}
+
+/*
+ * Apply the special effects of an attack
+ */
+void attack_special(monster_type *m_ptr, byte special, int dam)
+{
+	char m_name[80];
+	
+        monster_race *r_ptr = race_inf(m_ptr);
+
+	/* Extract monster name (or "it") */
+	monster_desc(m_name, m_ptr, 0);
+
+	/* Special - Cut monster */
+        if (special & SPEC_CUT)
+	{
+#if 0 // DGDGDG
+		/* Cut the monster */
+		if (r_ptr->flags3 & (RF3_NO_CUT))
+		{
+			if (m_ptr->ml)
+			{
+				l_ptr->r_flags3 |= (RF3_NO_CUT);
+			}
+		}
+                else
+#endif
+                if (rand_int(100) >= r_ptr->level)
+		{
+			/* Already partially poisoned */
+                        if (m_ptr->bleeding) msg_format("%^s is bleeding more strongly.", m_name);
+			/* Was not poisoned */
+                        else msg_format("%^s is bleeding.", m_name);
+
+			m_ptr->bleeding += dam*2;
+		}
+	}
+
+	/* Special - Poison monster */
+	if (special & SPEC_POIS) 
+	{
+		/* Poison the monster */
+                if (r_ptr->flags3 & (RF3_IM_POIS))
+                {
+                        if (m_ptr->ml)
+                        {
+                                r_ptr->r_flags3 |= (RF3_IM_POIS);
+                        }
+                }
+                /* Notice susceptibility */
+                else if (r_ptr->flags9 & (RF9_SUSCEP_POIS))
+                {
+                        if (m_ptr->ml)
+                        {
+                                r_ptr->r_flags9 |= (RF9_SUSCEP_POIS);
+                        }
+			/* Already partially poisoned */
+                        if (m_ptr->poisoned) msg_format("%^s is more poisoned.", m_name);
+			/* Was not poisoned */
+                        else msg_format("%^s is poisoned.", m_name);
+
+                        m_ptr->poisoned += dam * 2;
+                }
+		else if (rand_int(100) >= r_ptr->level)
+		{
+			/* Already partially poisoned */
+                        if (m_ptr->poisoned) msg_format("%^s is more poisoned.", m_name);
+			/* Was not poisoned */
+                        else msg_format("%^s is poisoned.", m_name);
+
+			m_ptr->poisoned += dam;
+		}
+	}
+}
+
 /*
  * Player attacks a (poor, defenseless) creature        -RAK-
  *
@@ -1939,6 +2220,7 @@ static void flavored_attack(int percent, char* output) {
 void py_attack(int y, int x, int max_blow)
 {
 	int		num = 0, k, bonus, chance;
+        s32b            special = 0;
 
 	cave_type       *c_ptr = &cave[y][x];
 
@@ -2090,7 +2372,7 @@ void py_attack(int y, int x, int max_blow)
 					/* Vampiric (20%) */
 					chaos_effect = 1;
 				}
-			    else if (randint(250) == 1)
+                                else if (randint(250) == 1)
 				{
 					/* Quake (0.12%) */
 					chaos_effect = 2;
@@ -2121,121 +2403,20 @@ void py_attack(int y, int x, int max_blow)
 					drain_result = 0;
 			}
 
-			if (f1 & TR1_VORPAL && (randint((o_ptr->name1 == ART_VORPAL_BLADE)?3:6) == 1))
+                        if (f1 & TR1_VORPAL && (randint(6) == 1))
 				vorpal_cut = TRUE;
 			else vorpal_cut = FALSE;
 
 			if (p_ptr->pclass == CLASS_MONK && monk_empty_hands())
 			{
-				int special_effect = 0, stun_effect = 0, times = 0;
-				martial_arts * ma_ptr = &ma_blows[0], * old_ptr = &ma_blows[0];
-				int resist_stun = 0;
-				if (r_ptr->flags1 & RF1_UNIQUE) resist_stun += 88;
-				if (r_ptr->flags3 & RF3_NO_CONF) resist_stun += 44;
-				if (r_ptr->flags3 & RF3_NO_SLEEP) resist_stun += 44;
-				if ((r_ptr->flags3 & RF3_UNDEAD) || (r_ptr->flags3 & RF3_NONLIVING))
-					resist_stun += 88;
-
-				for (times = 0; times < (p_ptr->lev<7?1:p_ptr->lev/7); times++)
-				/* Attempt 'times' */
-				{
-					do
-					{
-						ma_ptr = &ma_blows[(randint(MAX_MA))-1];
-					}
-					while ((ma_ptr->min_level > p_ptr->lev)
-					    || (randint(p_ptr->lev)<ma_ptr->chance));
-
-					/* keep the highest level attack available we found */
-					if ((ma_ptr->min_level > old_ptr->min_level) &&
-					    !(p_ptr->stun || p_ptr->confused))
-					{
-						old_ptr = ma_ptr;
-
-						if (wizard && cheat_xtra)
-						{
-							msg_print("Attack re-selected.");
-						}
-					}
-					else
-					{
-						ma_ptr = old_ptr;
-					}
-				}
-
-				k = damroll(ma_ptr->dd, ma_ptr->ds);
-
-				if (ma_ptr->effect == MA_KNEE)
-				{
-					if (r_ptr->flags1 & RF1_MALE)
-					{
-						msg_format("You hit %s in the groin with your knee!", m_name);
-						sound(SOUND_PAIN);
-						special_effect = MA_KNEE;
-					}
-					else
-						msg_format(ma_ptr->desc, m_name);
-				}
-
-				else if (ma_ptr->effect == MA_SLOW)
-				{
-					if (!((r_ptr->flags1 & RF1_NEVER_MOVE)
-					    || strchr("UjmeEv$,DdsbBFIJQSXclnw!=?", r_ptr->d_char)))
-					{
-						msg_format("You kick %s in the ankle.", m_name);
-						special_effect = MA_SLOW;
-					}
-					else msg_format(ma_ptr->desc, m_name);
-				}
-				else
-				{
-					if (ma_ptr->effect)
-					{
-						stun_effect = (ma_ptr->effect/2) + randint(ma_ptr->effect/2);
-					}
-
-					msg_format(ma_ptr->desc, m_name);
-				}
-
-				k = critical_norm(p_ptr->lev * (randint(10)), ma_ptr->min_level, k);
-
-				if ((special_effect == MA_KNEE) && ((k + p_ptr->to_d) < m_ptr->hp))
-				{
-					msg_format("%^s moans in agony!", m_name);
-					stun_effect = 7 + randint(13);
-					resist_stun /= 3;
-				}
-
-				else if ((special_effect == MA_SLOW) && ((k + p_ptr->to_d) < m_ptr->hp))
-				{
-					if (!(r_ptr->flags1 & RF1_UNIQUE) &&
-                                            (randint(p_ptr->lev) > m_ptr->level) &&
-					    m_ptr->mspeed > 60)
-					{
-						msg_format("%^s starts limping slower.", m_name);
-						m_ptr->mspeed -= 10;
-					}
-				}
-
-				if (stun_effect && ((k + p_ptr->to_d) < m_ptr->hp))
-				{
-                                        if (p_ptr->lev > randint(m_ptr->level + resist_stun + 10))
-					{
-						if (m_ptr->stunned)
-                                                        msg_format("%^s is still stunned.", m_name);
-						else
-							msg_format("%^s is stunned.", m_name);
-
-						m_ptr->stunned += (stun_effect);
-					}
-				}
+                                py_attack_monk(&k, m_ptr);
 			}
 
 			/* Handle normal weapon */
 			else if (o_ptr->k_idx)
 			{
 				k = damroll(o_ptr->dd, o_ptr->ds);
-				k = tot_dam_aux(o_ptr, k, m_ptr);
+                                k = tot_dam_aux(o_ptr, k, m_ptr, &special);
 
 				if (backstab)
 				{
@@ -2258,91 +2439,17 @@ void py_attack(int y, int x, int max_blow)
 				{
 					int step_k = k;
 
-					if ((o_ptr->name1 == ART_ELVAGIL) && randint(2)!=1)
-					{
-						char chainsword_noise[80];
-						get_rnd_line("chainswd.txt", chainsword_noise);
-						msg_print(chainsword_noise);
-					}
-
-					if (o_ptr->name1 == ART_VORPAL_BLADE)
-						msg_print("Your Vorpal Blade goes snicker-snack!");
-					else
-						msg_format("Your weapon cuts deep into %s!", m_name);
+                                        msg_format("Your weapon cuts deep into %s!", m_name);
 					do
 					{
 						k += step_k;
 					}
-					while (randint((o_ptr->name1 == ART_VORPAL_BLADE)?2:4)==1);
+                                        while (randint(4) == 1);
 				}
 
 				k += o_ptr->to_d;
 
-                                /* Mega Hack -- Hitting Nazgul is REALY dangerous(ideas from Akhronath) */
-                                if(r_ptr->flags7 & RF7_NAZGUL)
-                                {
-                                        if((!o_ptr->name2) && (!artifact_p(o_ptr)))
-                                        {
-                                                msg_print("Your weapon *DISINTEGRATES*!");
-                                                k = 0;
-                                                inven_item_increase(INVEN_WIELD + weap, -1);
-                                                inven_item_optimize(INVEN_WIELD + weap);
-
-                                                /* To stop attacking */
-                                                num = num_blow;
-                                        }
-                                        else if(o_ptr->name2)
-                                        {
-                                                if(!(f1 & TR1_SLAY_EVIL) && !(f1 & TR1_SLAY_UNDEAD))
-                                                {
-                                                        msg_print("The Ringwraith is IMPERVIOUS to the mundane weapon.");
-                                                        k = 0;
-                                                }
-
-                                                /* 25% chance of getting destroyed */
-                                                if(magik(25))
-                                                {
-                                                        msg_print("Your weapon is destroyed !");
-                                                        inven_item_increase(INVEN_WIELD + weap, -1);
-                                                        inven_item_optimize(INVEN_WIELD + weap);
-
-                                                        /* To stop attacking */
-                                                        num = num_blow;
-                                                }
-                                        }
-                                        else if(artifact_p(o_ptr))
-                                        {
-                                                if(!(f1 & TR1_SLAY_EVIL) && !(f1 & TR1_SLAY_UNDEAD))
-                                                {
-                                                        msg_print("The Ringwraith is IMPERVIOUS to the mundane weapon.");
-                                                        k = 0;
-                                                }
-
-                                                apply_disenchant(INVEN_WIELD + weap);
-
-                                                /* 1/1000 chance of getting destroyed */
-                                                if(!rand_int(1000))
-                                                {
-                                                        msg_print("Your weapon is destroyed !");
-                                                        inven_item_increase(INVEN_WIELD + weap, -1);
-                                                        inven_item_optimize(INVEN_WIELD + weap);
-
-                                                        /* To stop attacking */
-                                                        num = num_blow;
-                                                }
-                                        }
-
-                                        /* If any damage is done, then 25% chance of getting the Black Breath */
-                                        if(k)
-                                        {
-                                                if(magik(25))
-                                                {
-                                                        msg_print("Your foe calls upon your soul!");
-                                                        msg_print("You feel the Black Breath slowly draining you of life...");
-                                                        p_ptr->black_breath = TRUE;
-                                                }
-                                        }
-                                }
+                                do_nazgul(&k, &num, num_blow, weap, r_ptr, o_ptr);
 			}
 
                         /* May it clone the monster ? */
@@ -2356,8 +2463,7 @@ void py_attack(int y, int x, int max_blow)
 			k += p_ptr->to_d;
 
                         /* Penalty for could-2H when having a shield */
-                        if ((f4 & TR4_COULD2H) && inventory[INVEN_ARM].k_idx)
-                             k /= 2;
+                        if ((f4 & TR4_COULD2H) && inventory[INVEN_ARM].k_idx) k /= 2;
 
 			/* No negative damage */
 			if (k < 0) k = 0;
@@ -2403,6 +2509,8 @@ void py_attack(int y, int x, int max_blow)
 			{
 				msg_format("You do %d (out of %d) damage.", k, m_ptr->hp);
 			}
+
+                        if (special) attack_special(m_ptr, special, k);
 
 			/* Damage, check for fear and death */
 			if (mon_take_hit(c_ptr->m_idx, k, &fear, NULL))
@@ -2755,7 +2863,7 @@ bool player_can_enter(byte feature)
 			{
 				int wt = (adj_str_wgt[p_ptr->stat_ind[A_STR]] * 100) / 2;
 
-                                if ((total_weight < wt) || (p_ptr->ffall))
+                                if ((calc_total_weight() < wt) || (p_ptr->ffall))
 					return (TRUE);
 				else
 					return (FALSE);
@@ -2828,7 +2936,6 @@ bool player_can_enter(byte feature)
 
 	return (TRUE);
 }
-
 
 /*
  * Move player in the given direction, with the given "pickup" flag.
@@ -3115,8 +3222,13 @@ void move_player_aux(int dir, int do_pickup, int run)
 			/* Wall (or secret door) */
 			else
 			{
-				msg_print("You feel a wall blocking your way.");
-				c_ptr->info |= (CAVE_MARK);
+                                int feat;
+
+                                if (c_ptr->mimic) feat = c_ptr->mimic;
+                                else feat = f_info[c_ptr->feat].mimic;
+
+                                msg_format("You feel %s.", f_text + f_info[feat].text);
+                                c_ptr->info |= (CAVE_MARK);
 				lite_spot(y, x);
 			}
 		}
@@ -3171,7 +3283,12 @@ void move_player_aux(int dir, int do_pickup, int run)
 			{
                                 if (!easy_tunnel)
                                 {
-                                        msg_print("There is a wall blocking your way.");
+                                        int feat;
+
+                                        if (c_ptr->mimic) feat = c_ptr->mimic;
+                                        else feat = f_info[c_ptr->feat].mimic;
+
+                                        msg_format("There is %s.", f_text + f_info[feat].text);
 
                                         if (!(p_ptr->confused || p_ptr->stun || p_ptr->image))
                                                 energy_use = 0;
@@ -3205,7 +3322,7 @@ void move_player_aux(int dir, int do_pickup, int run)
 	if (oktomove)
 	{
                 int oy, ox;
-
+                int feat;
 
 		/* Save old location */
 		oy = py;
@@ -3214,6 +3331,9 @@ void move_player_aux(int dir, int do_pickup, int run)
 		/* Move the player */
 		py = y;
 		px = x;
+
+                if (cave[py][px].mimic) feat = cave[py][px].mimic;
+                else feat = cave[py][px].feat;
 
 		/* Redraw new spot */
 		lite_spot(py, px);
@@ -3242,6 +3362,11 @@ void move_player_aux(int dir, int do_pickup, int run)
 		/* Window stuff */
                 if (!run) p_ptr->window |= (PW_OVERHEAD);
 
+                /* Mega-hack some feature descs */
+                if (f_info[cave[py][px].feat].text > 1)
+                {
+                        msg_print(f_text + f_info[feat].text);
+                }
 
 		/* Spontaneous Searching */
 		if ((p_ptr->skill_fos >= 50) ||
@@ -4311,6 +4436,7 @@ void do_cmd_pet(void)
 				redraw = TRUE;
 
 				/* Save the screen */
+                                character_icky = TRUE;
 				Term_save();
 
 				prt("", y++, x);
@@ -4340,6 +4466,7 @@ void do_cmd_pet(void)
 
 				/* Restore the screen */
 				Term_load();
+                                character_icky = FALSE;
 			}
 
 			/* Redo asking */
@@ -4393,7 +4520,11 @@ void do_cmd_pet(void)
 	}
 
 	/* Restore the screen */
-	if (redraw) Term_load();
+        if (redraw)
+        {
+                Term_load();
+                character_icky = FALSE;
+        }
 
 	/* Abort if needed */
 	if (!flag)
@@ -4469,10 +4600,13 @@ void do_cmd_pet(void)
 			/* Process the monsters (backwards) */
 			for (pet_ctr = m_max - 1; pet_ctr >= 1; pet_ctr--)
 			{
+                                monster_race *r_ptr;
+
 				/* Access the monster */
 				m_ptr = &m_list[pet_ctr];
+                                r_ptr = &r_info[m_ptr->r_idx];
 
-                                if ((m_ptr->status == MSTATUS_PET) || (m_ptr->status == MSTATUS_FRIEND)) /* Get rid of it! */
+                                if ((!(r_ptr->flags7 & RF7_NO_DEATH)) && ((m_ptr->status == MSTATUS_PET) || (m_ptr->status == MSTATUS_FRIEND))) /* Get rid of it! */
 				{
 					bool delete_this = FALSE;
 

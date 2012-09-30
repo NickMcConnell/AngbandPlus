@@ -13,7 +13,7 @@
 #include "angband.h"
 
 void do_cmd_wizard_body(s16b);
-void new_status(void);
+extern void status_main(void);
 
 /*
  * Adds a lvl to a monster
@@ -160,12 +160,10 @@ static void wiz_create_named_art()
 {
 	object_type forge;
 	object_type *q_ptr;
-        object_kind *k_ptr;
         int i,a_idx;
         cptr p="Number of the artifact :";
         char out_val[80];
         artifact_type *a_ptr;
-        u32b f1, f2, f3, f4, f5, esp;
 
         if (!get_string(p, out_val, 4)) return;
         a_idx = atoi(out_val);                                
@@ -198,6 +196,7 @@ static void wiz_create_named_art()
 	/* Save the name */
 	q_ptr->name1 = a_idx;
 
+#if 0 /* Old ugly method */
 	/* Extract the fields */
 	q_ptr->pval = a_ptr->pval;
 	q_ptr->ac = a_ptr->ac;
@@ -226,7 +225,9 @@ static void wiz_create_named_art()
 	random_artifact_resistance(q_ptr);
 
         a_ptr->cur_num = 1;
-
+#else
+        apply_magic(q_ptr, -1, TRUE, TRUE, TRUE);
+#endif
 	/* Drop the artifact from heaven */
 	drop_near(q_ptr, -1, py, px);
 
@@ -237,12 +238,8 @@ static void wiz_create_named_art()
 /*
  * Hack -- quick debugging hook
  */
-void do_cmd_wiz_hack_ben(int max)
+void do_cmd_wiz_hack_ben(int day)
 {
-        int i;
-
-        for (i = 0; i < POWER_SLOT; i++) p_ptr->powers_mod[i] = 0xFFFFFFFF;
-
 	/* Success */
         return;
 }
@@ -800,6 +797,12 @@ static void wiz_tweak_item(object_type *o_ptr)
         o_ptr->name2 = atoi(tmp_val);
 	wiz_display_item(o_ptr);
 
+        p = "Enter new 'name2b' setting: ";
+        sprintf(tmp_val, "%d", o_ptr->name2b);
+	if (!get_string(p, tmp_val, 5)) return;
+        o_ptr->name2b = atoi(tmp_val);
+	wiz_display_item(o_ptr);
+
         p = "Enter new 'sval' setting: ";
         sprintf(tmp_val, "%d", o_ptr->sval);
 	if (!get_string(p, tmp_val, 5)) return;
@@ -1210,7 +1213,7 @@ static void do_cmd_wiz_play(void)
 		wiz_display_item(q_ptr);
 
 		/* Get choice */
-                if (!get_com("[a]ccept [s]tatistics [r]eroll [t]weak [q]uantity flag[g]roup [f]lag? ", &ch))
+                if (!get_com("[a]ccept [s]tatistics [r]eroll [t]weak [q]uantity apply[m]agic? ", &ch))
 		{
 			changed = FALSE;
 			break;
@@ -1242,14 +1245,14 @@ static void do_cmd_wiz_play(void)
 			wiz_quantity_item(q_ptr);
 		}
 
-                if (ch == 'g' || ch == 'G')
+                if (ch == 'm' || ch == 'M')
 		{
-                        gain_flag_group(q_ptr, FALSE);
-		}
+                        int e = q_ptr->name2, eb = q_ptr->name2b;
 
-                if (ch == 'f' || ch == 'F')
-		{
-                        gain_flag_group_flag(q_ptr, FALSE);
+                        object_prep(q_ptr, q_ptr->k_idx);
+                        q_ptr->name2 = e;
+                        q_ptr->name2b = eb;
+                        apply_magic(q_ptr, dun_level, FALSE, FALSE, FALSE);
 		}
 	}
 
@@ -1567,9 +1570,9 @@ static void do_cmd_wiz_named(int r_idx, bool slp)
 		if (!cave_empty_bold(y, x)) continue;
 
 		/* Place it (allow groups) */
-                hack_allow_special = TRUE;
+                m_allow_special[r_idx] = TRUE;
                 if (place_monster_aux(y, x, r_idx, slp, TRUE, MSTATUS_ENEMY)) break;
-                hack_allow_special = FALSE;
+                m_allow_special[r_idx] = FALSE;
 	}
 }
 
@@ -1590,7 +1593,7 @@ void do_cmd_wiz_named_friendly(int r_idx, bool slp)
 	if (r_idx >= max_r_idx-1) return;
 
 	/* Try 10 times */
-        hack_allow_special = TRUE;
+        m_allow_special[r_idx] = TRUE;
 	for (i = 0; i < 10; i++)
 	{
 		int d = 1;
@@ -1604,7 +1607,7 @@ void do_cmd_wiz_named_friendly(int r_idx, bool slp)
 		/* Place it (allow groups) */
                 if (place_monster_aux(y, x, r_idx, slp, TRUE, MSTATUS_PET)) break;
 	}
-        hack_allow_special = FALSE;
+        m_allow_special[r_idx] = FALSE;
 }
 
 
@@ -1692,7 +1695,7 @@ void do_cmd_debug(void)
 #endif /* ALLOW_SPOILERS */
 
 		case 'A':
-		new_status();
+		status_main();
 		break;
 
 		/* Hack -- Help */
@@ -1800,9 +1803,9 @@ void do_cmd_debug(void)
 			map_area();
 			break;
 
-		/* Mutation */
+                /* corruption */
 		case 'M':
-			(void) gain_random_mutation(command_arg);
+                        (void) gain_random_corruption(command_arg);
 			break;
 
 		/* Specific reward */
@@ -1997,59 +2000,4 @@ static int i = 0;
 #endif
 
 #endif
-
-void new_status(void)
-		/* Improv's amazing new status screen */
-{
-char statstr[8];
-char statnm[4];
-int i; /* Iterator */
-int stat = 0; /* Stat pointer */
-character_icky = TRUE;
-Term_save();
-clear_from(0);
-
-c_put_str(TERM_L_BLUE, "Statistics", 0,1);
-
-for(i=0;i<6;i++)
-	{
-	switch(i)
-		{
-		case 0:
-			stat = A_STR;
-			strcpy(statnm,"Str");
-			break;
-		case 1:
-			stat = A_INT;
-			strcpy(statnm,"Int");
-			break;
-		case 2:
-			stat = A_WIS;
-			strcpy(statnm,"Wis");
-			break;
-		case 3:
-			stat = A_CON;
-			strcpy(statnm,"Con");
-			break;
-		case 4:
-			stat = A_DEX;
-			strcpy(statnm,"Dex");
-			break;
-		case 5:
-			stat = A_CHR;
-			strcpy(statnm,"Chr");
-			break;
-		}
-	c_put_str(TERM_L_RED, statnm, i+1,0);
-	cnv_stat(p_ptr->stat_use[stat], statstr);
-	c_put_str(TERM_GREEN, statstr, i+1, 4);
-	}
-
-Term_fresh();
-sleep(2);
-Term_load();
-character_icky = FALSE;
-p_ptr->redraw |= (PR_WIPE|PR_BASIC|PR_EXTRA|PR_MAP);
-handle_stuff();
-}
 

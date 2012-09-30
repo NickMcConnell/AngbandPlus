@@ -121,6 +121,7 @@ bool quest_thieves_finish_hook(int q_idx)
 
         /* Continue the plot */
         *(quest[q_idx].plot) = QUEST_HOBBIT;
+        quest[*(quest[q_idx].plot)].init(*(quest[q_idx].plot));
 
         del_hook(HOOK_QUEST_FINISH, quest_thieves_finish_hook);
         process_hooks_restart = TRUE;

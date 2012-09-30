@@ -145,7 +145,7 @@ void do_cmd_go_up(void)
         c_ptr = &cave[py][px];
   
         /* test if on special level */
-        if (special_flag)
+        if ((dungeon_flags1 & LF1_ASK_LEAVE))
         {
                 prt("Leave this unique level forever (y/n) ? ",0,0);
                 flush();
@@ -302,7 +302,7 @@ static bool between_effect(void)
                 {
                         int reduc = ((p_ptr->ac + p_ptr->to_a) / 50) + 1;
 
-                        take_hit(distance(by,bx,py,px) / reduc, "going Between");
+                        take_hit(distance(by,bx,py,px) / (10 * reduc), "going Between");
                 }
 
                 swap_position(by, bx);
@@ -348,11 +348,13 @@ void do_cmd_go_down(void)
   
         /* Player grid */
         c_ptr = &cave[py][px];
+
+        if (p_ptr->astral && (dun_level == 98)) return;
   
 	if (c_ptr->t_idx == TRAP_OF_SINKING) fall_trap = TRUE;
   
         /* test if on special level */
-        if (special_flag)
+        if ((dungeon_flags1 & LF1_ASK_LEAVE))
         {
                 prt("Leave this unique level forever (y/n) ? ",0,0);
                 flush();
@@ -1363,7 +1365,7 @@ static bool do_cmd_tunnel_test(int y, int x)
         if (!(f_info[cave[y][x].feat].flags1 & FF1_TUNNELABLE))
 	{
 		/* Message */
-                msg_print("You cannot tunnel that.");
+                msg_print(f_text + f_info[cave[y][x].feat].tunnel);
 
 		/* Nope */
 		return (FALSE);
@@ -1419,6 +1421,7 @@ static bool twall(int y, int x, byte feat)
 bool do_cmd_tunnel_aux(int y, int x, int dir)
 {
         cave_type *c_ptr = &cave[y][x];
+        feature_type *f_ptr = &f_info[c_ptr->feat];
 
 	bool more = FALSE;
 
@@ -1444,15 +1447,9 @@ bool do_cmd_tunnel_aux(int y, int x, int dir)
 	sound(SOUND_DIG);
 
 	/* Titanium */
-        if (f_info[c_ptr->feat].flags1 & FF1_PERMANENT)
+        if (f_ptr->flags1 & FF1_PERMANENT)
 	{
-		msg_print("This seems to be permanent rock.");
-	}
-
-	/* No tunnelling through mountains */
-	else if (c_ptr->feat == FEAT_MOUNTAIN)
-	{
-		msg_print("You can't tunnel through that!");
+                msg_print(f_text + f_ptr->tunnel);
 	}
 
         else if ((c_ptr->feat == FEAT_TREES) || (c_ptr->feat == FEAT_DEAD_TREE))
@@ -1467,7 +1464,7 @@ bool do_cmd_tunnel_aux(int y, int x, int dir)
 		else
 		{
 			/* We may continue chopping */
-			msg_print("You chop away at the tree.");
+                        msg_print(f_text + f_ptr->tunnel);
 			more = TRUE;
 
 			/* Occasional Search XXX XXX */
@@ -1490,7 +1487,7 @@ bool do_cmd_tunnel_aux(int y, int x, int dir)
 		else
 		{
 			/* We may continue tunelling */
-			msg_print("You tunnel into the granite wall.");
+                        msg_print(f_text + f_ptr->tunnel);
 			more = TRUE;
 		}
 	}
@@ -1560,27 +1557,11 @@ bool do_cmd_tunnel_aux(int y, int x, int dir)
 			}
 		}
 
-		/* Failure (quartz) */
-		else if (hard)
-		{
-			/* Message, continue digging */
-			msg_print("You tunnel into the quartz vein.");
-			more = TRUE;
-		}
-
-		/* Failure (sand) */
-		else if (soft)
-		{
-			/* Message, continue digging */
-			msg_print("You tunnel into the sandwall.");
-			more = TRUE;
-		}
-		
-		/* Failure (magma) */
+                /* Failure */
 		else
 		{
 			/* Message, continue digging */
-			msg_print("You tunnel into the magma vein.");
+                        msg_print(f_text + f_ptr->tunnel);
 			more = TRUE;
 		}
 	}
@@ -1611,7 +1592,7 @@ bool do_cmd_tunnel_aux(int y, int x, int dir)
 		else
 		{
 			/* Message, keep digging */
-			msg_print("You dig in the rubble.");
+                        msg_print(f_text + f_ptr->tunnel);
 			more = TRUE;
 		}
 	}
@@ -1631,8 +1612,13 @@ bool do_cmd_tunnel_aux(int y, int x, int dir)
 		/* Keep trying */
 		else
 		{
+                        int feat;
+
+                        if (c_ptr->mimic) feat = c_ptr->mimic;
+                        else feat = c_ptr->feat;
+
 			/* We may continue tunelling */
-			msg_print("You tunnel into the granite wall.");
+                        msg_print(f_text + f_info[feat].tunnel);
 			more = TRUE;
 
 			/* Occasional Search XXX XXX */
@@ -1653,7 +1639,7 @@ bool do_cmd_tunnel_aux(int y, int x, int dir)
 		else
 		{
 			/* We may continue tunelling */
-			msg_print("You tunnel into the door.");
+                        msg_print(f_text + f_ptr->tunnel);
 			more = TRUE;
 		}
 	}
@@ -1725,12 +1711,6 @@ void do_cmd_tunnel(void)
 		{
 			/* Message */
 			msg_print("You cannot tunnel through air.");
-		}
-
-		/* No tunnelling through mountains */
-		else if (c_ptr->feat == FEAT_MOUNTAIN)
-		{
-			msg_print("You can't tunnel through that!");
 		}
 
 		/* A monster is in the way */
@@ -2962,6 +2942,7 @@ void do_cmd_fire(void)
 	int bonus, chance;
 	int cur_dis, visible;
         int breakage = -1, num_ricochet = 0;
+        s32b special = 0;
 
 	object_type forge;
 	object_type *q_ptr;
@@ -3312,7 +3293,7 @@ void do_cmd_fire(void)
                                         }
 
                                         /* Apply special damage XXX XXX XXX */
-                                        tdam = tot_dam_aux(q_ptr, tdam, m_ptr);
+                                        tdam = tot_dam_aux(q_ptr, tdam, m_ptr, &special);
                                         tdam = critical_shot(q_ptr->weight, q_ptr->to_h, tdam);
 
                                         /* No negative damage */
@@ -3336,6 +3317,8 @@ void do_cmd_fire(void)
                                         {
                                                 /* Message */
                                                 message_pain(c_ptr->m_idx, tdam);
+
+                                                if (special) attack_special(m_ptr, special, tdam);
 
                                                 /* Take note */
                                                 if (fear && m_ptr->ml)
@@ -3430,6 +3413,7 @@ int throw_mult = 1;
 void do_cmd_throw(void)
 {
 	int dir, item;
+        s32b special = 0;
 	int j, y, x, ny, nx, ty, tx;
 	int chance, tdam, tdis;
 	int mul, div;
@@ -3517,7 +3501,7 @@ void do_cmd_throw(void)
 	missile_char = object_char(q_ptr);
 
 	/* Extract a "distance multiplier" */
-	/* Changed for 'launcher' mutation */
+        /* Changed for 'launcher' corruption */
 	mul = 10 + 2 * (throw_mult - 1);
 
 	/* Enforce a minimum "weight" of one pound */
@@ -3670,7 +3654,7 @@ void do_cmd_throw(void)
 				}
 
 				/* Apply special damage XXX XXX XXX */
-				tdam = tot_dam_aux(q_ptr, tdam, m_ptr);
+                                tdam = tot_dam_aux(q_ptr, tdam, m_ptr, &special);
 				tdam = critical_shot(q_ptr->weight, q_ptr->to_h, tdam);
 
 				/* No negative damage */
@@ -3694,6 +3678,8 @@ void do_cmd_throw(void)
 				{
 					/* Message */
 					message_pain(c_ptr->m_idx, tdam);
+
+                                        if (special) attack_special(m_ptr, special, tdam);
 
 					/* Anger friends */
                                         if (!(k_info[q_ptr->k_idx].tval == TV_POTION))
@@ -3807,6 +3793,7 @@ void do_cmd_boomerang(void)
 	char missile_char;
 
 	char o_name[80];
+        s32b special = 0;
 
 	int msec = delay_factor * delay_factor * delay_factor;
 
@@ -3836,7 +3823,7 @@ void do_cmd_boomerang(void)
 	missile_char = object_char(q_ptr);
 
 	/* Extract a "distance multiplier" */
-	/* Changed for 'launcher' mutation */
+        /* Changed for 'launcher' corruption */
 	mul = 10 + 2 * (throw_mult - 1);
 
 	/* Enforce a minimum "weight" of one pound */
@@ -3985,7 +3972,7 @@ void do_cmd_boomerang(void)
 				}
 
 				/* Apply special damage XXX XXX XXX */
-				tdam = tot_dam_aux(q_ptr, tdam, m_ptr);
+                                tdam = tot_dam_aux(q_ptr, tdam, m_ptr, &special);
 				tdam = critical_shot(q_ptr->weight, q_ptr->to_h, tdam);
 
 				/* No negative damage */
@@ -4009,6 +3996,8 @@ void do_cmd_boomerang(void)
 				{
 					/* Message */
 					message_pain(c_ptr->m_idx, tdam);
+
+                                        if (special) attack_special(m_ptr, special, tdam);
 
 					/* Anger friends */
                                         if (!(k_info[q_ptr->k_idx].tval == TV_POTION))
@@ -4364,10 +4353,10 @@ void do_cmd_immovable_special(void) {
     prt("Do what special action:", 2, 0);
 
     /* Give some choices */
-    prt("(1) Teleport to a specific place.", 4, 5);
-    prt("(2) Fetch an item.", 5, 5);
-    prt("(3) Go up 50'", 6, 5);
-    prt("(4) Go down 50'", 7, 5);
+    prt("(a) Teleport to a specific place.", 4, 5);
+    prt("(b) Fetch an item.", 5, 5);
+    prt("(c) Go up 50'", 6, 5);
+    prt("(d) Go down 50'", 7, 5);
 
     /* Prompt */
     prt("Command: ", 9, 0);
@@ -4379,7 +4368,7 @@ void do_cmd_immovable_special(void) {
     if (i == ESCAPE) break;
 
     /* Tele-to */
-    if (i == '1') {
+    if (i == 'a') {
       Term_load();
       character_icky = FALSE;
       did_load = TRUE;
@@ -4394,7 +4383,7 @@ void do_cmd_immovable_special(void) {
     }
 
     /* Fetch item */
-    else if (i == '2') {
+    else if (i == 'b') {
       Term_load();
       character_icky = FALSE;
       did_load = TRUE;
@@ -4407,7 +4396,7 @@ void do_cmd_immovable_special(void) {
     }
 
     /* Move up */
-    else if (i == '3') {
+    else if (i == 'c') {
       Term_load();
       character_icky = FALSE;
       did_load = TRUE;
@@ -4419,7 +4408,7 @@ void do_cmd_immovable_special(void) {
     }
 
     /* Move down */
-    else if (i == '4') {
+    else if (i == 'd') {
       Term_load();
       character_icky = FALSE;
       did_load = TRUE;
@@ -4784,6 +4773,7 @@ void do_cmd_create_artifact()
         pval = 1;
 
         /* Save the screen */
+        character_icky = TRUE;
         Term_save();
 
         for(j = 0; j < 4; j++)
@@ -4885,6 +4875,7 @@ void do_cmd_create_artifact()
 
         /* Restore the screen */
         Term_load();
+	character_icky = FALSE;
 
         if (abord || (q_ptr->exp - exp < 0)) return;
 

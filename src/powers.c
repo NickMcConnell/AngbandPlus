@@ -173,6 +173,35 @@ static void power_activate(int power)
 
         switch(power)
 	{
+                case PWR_COMPANION:
+			{
+                                if (!can_create_companion())
+                                {
+                                        msg_print("You cannot have more companions.");
+                                }
+                                else
+                                {
+                                        monster_type *m_ptr;
+                                        int ii, jj;
+
+                                        msg_print("Select the friendly monster:");
+                                        if (!tgt_pt(&ii,&jj)) return;
+
+                                        if (cave[jj][ii].m_idx)
+                                        {
+                                                m_ptr = &m_list[cave[jj][ii].m_idx];
+
+                                                if (m_ptr->status != MSTATUS_PET)
+                                                {
+                                                        msg_print("You cannot convert this monster.");
+                                                        return;
+                                                }
+
+                                                m_ptr->status = MSTATUS_COMPANION;
+                                        }
+                                }
+			}
+			break;
                 case PWR_MERCHANT:
 			/* Select power to use */
 			while (TRUE)
@@ -584,7 +613,7 @@ static void power_activate(int power)
                         }
                         if (amber_power == 2)
 			{
-                        if(special_flag) {msg_print("No teleport on special levels ...");break;}
+                        if(dungeon_flags1 & LF1_NO_TELEPORT) {msg_print("No teleport on special levels ...");break;}
                                 x_ptr_foo.level = 3;
                                 x_ptr_foo.cost = 15;
                                 x_ptr_foo.stat = A_CON;
@@ -606,7 +635,7 @@ static void power_activate(int power)
                         }
                         if (amber_power == 3)
 			{
-                                if (special_flag)
+                                if (dungeon_flags1 & LF1_NO_TELEPORT)
                                 {
                                 msg_print("No recall on special levels..");
                                 break;
@@ -1185,7 +1214,7 @@ static void power_activate(int power)
 				}
 				break;
 
-                        case PWR_LASER_EYE:
+                        case PWR_DARKRAY:
 				{
 					if (!get_aim_dir(&dir)) return;
 					fire_beam(GF_LITE, dir, 2*p_ptr->lev);
@@ -1306,7 +1335,7 @@ static void print_power_batch(int *p, int start, int max, bool mode)
                 j++;
         }
         if (mode) prt("", 2 + j, 20);
-        prt(format("Select a power (a-%c), +/- to scroll:", I2A(j)), 0, 0);
+        prt(format("Select a power (a-%c), +/- to scroll:", I2A(j - 1)), 0, 0);
 }
 
 
@@ -1331,6 +1360,7 @@ static power_type* select_power(int *x_idx)
                 }
         }
 
+        character_icky = TRUE;
         Term_save();
 
         while (1)
@@ -1348,34 +1378,43 @@ static power_type* select_power(int *x_idx)
                 {
                         mode = (mode)?FALSE:TRUE;
                         Term_load();
+                        character_icky = FALSE;
                 }
                 else if (which == '+')
                 {
                         start += 20;
                         if (start >= max) start -= 20;
                         Term_load();
+                        character_icky = FALSE;
                 }
                 else if (which == '-')
                 {
                         start -= 20;
                         if (start < 0) start += 20;
                         Term_load();
+                        character_icky = FALSE;
                 }
                 else
                 {
                         which = tolower(which);
-                        if (A2I(which) >= max)
+                        if (start + A2I(which) >= max)
+                        {
+                                bell();
+                                continue;
+                        }
+                        if (start + A2I(which) < 0)
                         {
                                 bell();
                                 continue;
                         }
 
-                        *x_idx = p[A2I(which)];
-                        ret = &powers_type[p[A2I(which)]];
+                        *x_idx = p[start + A2I(which)];
+                        ret = &powers_type[p[start + A2I(which)]];
                         break;
                 }
         }
         Term_load();
+	character_icky = FALSE;
 
         return ret;
 }
@@ -1390,6 +1429,7 @@ void do_cmd_power()
         else
         {
                 x_idx = command_arg - 1;
+                if ((x_idx < 0) || (x_idx >= POWER_MAX)) return;
                 x_ptr = &powers_type[x_idx];
         }
 

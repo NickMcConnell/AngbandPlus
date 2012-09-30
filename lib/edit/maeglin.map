@@ -1,6 +1,9 @@
 # Created by Mynstral (mynstral@thehelm.com)
 # Made for PernAngband on 26/07/2001
 
+# Monsters starts awake
+N:0
+
 # Permanent wall
 F:X:63:3
 

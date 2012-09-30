@@ -11,6 +11,7 @@ OBJS = \
   object1.o object2.o traps.o monster1.o monster2.o monster3.o \
   xtra1.o xtra2.o spells1.o spells2.o help.o \
   melee1.o melee2.o save.o files.o notes.o \
+  status.o randart.o \
   cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o cmd7.o \
   store.o birth.o loadsave.o ghost.o powers.o \
   wizard1.o wizard2.o wild.o plots.o \
@@ -77,12 +78,14 @@ object1.o: object1.c $(INCS)
 object2.o: object2.c $(INCS)
 powers.o: powers.c $(INCS)
 help.o: help.c $(INCS)
+randart.o: randart.c $(INCS)
 tarps.o: traps.c $(INCS)
 bldg.o: bldg.c $(INCS)
 plots.o: plots.c $(INCS)
 sound-ami.o: sound-ami.c sound-ami.h
 spells1.o: spells1.c $(INCS)
 spells2.o: spells2.c $(INCS)
+status.o: status.c $(INCS)
 store.o: store.c $(INCS)
 tables.o: tables.c $(INCS)
 util.o: util.c $(INCS)

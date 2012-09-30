@@ -1,0 +1,5 @@
+N:Deathwatch
+U:s_death.map
+D:This level looks fileld wtih evilness.
+F:DESC | NO_GENO | NO_NEW_MONSTER | SPECIAL | NO_STAIR
+F:ASK_LEAVE | NO_TELEPORT

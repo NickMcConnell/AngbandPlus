@@ -423,6 +423,13 @@ void teleport_player(int dis)
 		return;
 	}
 
+        if (dungeon_flags1 & LF1_NO_TELEPORT)
+        {
+                msg_print("No teleport on special levels...");
+                return;
+        }
+
+
 	if (dis > 200) dis = 200; /* To be on the safe side... */
 
 	/* Minimum distance */
@@ -691,6 +698,12 @@ void teleport_player_to(int ny, int nx)
 		return;
 	}
 
+        if (dungeon_flags1 & LF1_NO_TELEPORT)
+        {
+                msg_print("No teleport on special levels...");
+                return;
+        }
+
 	/* Find a usable location */
 	while (1)
 	{
@@ -759,6 +772,11 @@ void teleport_player_level(void)
 		msg_print("There is no effect.");
 		return;
 	}
+        if (dungeon_flags1 & LF1_NO_TELEPORT)
+        {
+                msg_print("No teleport on special levels...");
+                return;
+        }
 
         if(p_ptr->resist_continuum) {msg_print("The space-time continuum can't be disrupted."); return;}
 
@@ -2175,7 +2193,7 @@ bool apply_disenchant(int mode)
 }
 
 
-void mutate_player(void)
+void corrupt_player(void)
 {
 	int max1, cur1, max2, cur2, ii, jj;
 
@@ -2204,7 +2222,7 @@ static void apply_nexus(monster_type *m_ptr)
 {
         if (m_ptr == NULL) return;
 
-	if (!special_flag)
+        if (!(dungeon_flags1 & LF1_NO_TELEPORT))
 	{
 	switch (randint(7))
 	{
@@ -2242,7 +2260,7 @@ static void apply_nexus(monster_type *m_ptr)
 			}
 
 			msg_print("Your body starts to scramble...");
-			mutate_player();
+                        corrupt_player();
 			break;
 		}
 	}
@@ -3363,15 +3381,19 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 
 
 /* Array of raisable ego monster */
-#define MAX_RAISE 6
+#define MAX_RAISE 10
 static int raise_ego[MAX_RAISE] =
 {
         1,      /* Skeleton */
         1,      /* Skeleton */
         1,      /* Skeleton */
+        1,      /* Skeleton */
+        2,      /* Zombie */
         2,      /* Zombie */
         2,      /* Zombie */
         4,      /* Spectre */
+        4,      /* Spectre */
+        3,      /* Lich */
 };
 
 /*
@@ -3830,6 +3852,12 @@ bool project_m(int who, int r, int y, int x, int dam, int typ)
 	/* Stunning setting (amount to stun) */
 	int do_stun = 0;
 
+        /* Bleeding amount */
+        int do_cut = 0;
+
+        /* Poison amount */
+        int do_pois = 0;
+
 	/* Sleep amount (amount to sleep) */
 	int do_sleep = 0;
 
@@ -3846,7 +3874,7 @@ bool project_m(int who, int r, int y, int x, int dam, int typ)
 	/* Assume a default death */
 	cptr note_dies = " dies.";
 
-        seen = (m_ptr->ml && (who != -100))?TRUE:FALSE;
+        seen = (m_ptr->ml && ((who != -101) && (who != -100)))?TRUE:FALSE;
 
 	/* Walls protect monsters */
 	/* (No, they don't)  */
@@ -4116,16 +4144,19 @@ bool project_m(int who, int r, int y, int x, int dam, int typ)
 		case GF_POIS:
 		{
 			if (seen) obvious = TRUE;
+                        if (magik(25)) do_pois = (10 + randint(11) + r) / (r + 1);
                         if (r_ptr->flags9 & (RF9_SUSCEP_POIS))
 			{
                                 note = " is hit hard.";
                                 dam *= 3;
+                                do_pois *= 2;
                                 if (seen) r_ptr->r_flags9 |= (RF9_SUSCEP_POIS);
 			}
 			if (r_ptr->flags3 & (RF3_IM_POIS))
 			{
 				note = " resists a lot.";
 				dam /= 9;
+                                do_pois = 0;
 				if (seen) r_ptr->r_flags3 |= (RF3_IM_POIS);
 			}
 			break;
@@ -4270,10 +4301,12 @@ bool project_m(int who, int r, int y, int x, int dam, int typ)
 		case GF_SHARDS:
 		{
 			if (seen) obvious = TRUE;
+                        if (magik(33)) do_cut = (10 + randint(15) +r) / (r + 1);
 			if (r_ptr->flags4 & (RF4_BR_SHAR))
 			{
 				note = " resists.";
 				dam *= 3; dam /= (randint(6)+6);
+                                do_cut = 0;
 			}
 			break;
 		}
@@ -4283,10 +4316,12 @@ bool project_m(int who, int r, int y, int x, int dam, int typ)
 		{
 			if (seen) obvious = TRUE;
 
+                        if (magik(12)) do_cut = (10 + randint(15) +r) / (r + 1);
 			if (r_ptr->flags4 & (RF4_BR_SHAR))
 			{
 				note = " resists somewhat.";
 				dam /= 2;
+                                do_cut = 0;
 			}
 			break;
 		}
@@ -4848,16 +4883,19 @@ bool project_m(int who, int r, int y, int x, int dam, int typ)
 		{
 			if (seen) obvious = TRUE;
 			do_stun = (randint(15) + 1) / (r + 1);
+                        if (magik(33)) do_cut = (10 + randint(15) +r) / (r + 1);
                         if (r_ptr->flags3 & (RF3_SUSCEP_COLD))
 			{
                                 note = " is hit hard.";
                                 dam *= 3;
+                                do_cut *= 2;
                                 if (seen) r_ptr->r_flags3 |= (RF3_SUSCEP_COLD);
 			}
 			if (r_ptr->flags3 & (RF3_IM_COLD))
 			{
 				note = " resists a lot.";
 				dam /= 9;
+                                do_cut = 0;
 				if (seen) r_ptr->r_flags3 |= (RF3_IM_COLD);
 			}
 			break;
@@ -5135,7 +5173,7 @@ bool project_m(int who, int r, int y, int x, int dam, int typ)
                                 if (is_friend(m_ptr) < 0)
                                 {
                                         note = " suddenly seems friendly!";
-                                        change_side(m_ptr);
+                                        m_ptr->status = MSTATUS_FRIEND;
                                 }
 			}
 
@@ -5581,7 +5619,7 @@ bool project_m(int who, int r, int y, int x, int dam, int typ)
 		case GF_AWAY_UNDEAD:
 		{
 
-                        if (special_flag) break;/* No teleport on special levels */
+                        if (dungeon_flags1 & LF1_NO_TELEPORT) break;/* No teleport on special levels */
 			/* Only affect undead */
 			if (r_ptr->flags3 & (RF3_UNDEAD))
 			{
@@ -5627,7 +5665,7 @@ bool project_m(int who, int r, int y, int x, int dam, int typ)
 		/* Teleport evil (Use "dam" as "power") */
 		case GF_AWAY_EVIL:
 		{
-                        if (special_flag) break;/* No teleport on special levels */
+                        if (dungeon_flags1 & LF1_NO_TELEPORT) break;/* No teleport on special levels */
 			/* Only affect evil */
 			if (r_ptr->flags3 & (RF3_EVIL))
 			{
@@ -5675,7 +5713,7 @@ bool project_m(int who, int r, int y, int x, int dam, int typ)
 		{
 			bool resists_tele = FALSE;
 
-                        if (special_flag) break;/* No teleport on special levels */
+                        if (dungeon_flags1 & LF1_NO_TELEPORT) break;/* No teleport on special levels */
 			if (r_ptr->flags3 & (RF3_RES_TELE))
 			{
 				if (r_ptr->flags1 & (RF1_UNIQUE))
@@ -6088,6 +6126,20 @@ bool project_m(int who, int r, int y, int x, int dam, int typ)
 		if ((who > 0) && (dam > m_ptr->hp)) dam = m_ptr->hp;
 	}
 
+        if (do_pois && (!(r_ptr->flags3 & RF3_IM_POIS)) && (!(r_ptr->flags3 & RF4_BR_POIS)))
+        {
+                if (m_ptr->poisoned) note = " is more poisoned.";
+                else note = " is poisoned.";
+                m_ptr->poisoned += do_pois;
+        }
+
+        if (do_cut && (!(r_ptr->flags4 & RF4_BR_WALL)))
+        {
+                if (m_ptr->bleeding) note = " bleeds more strongly.";
+                else note = " starts bleeding.";
+                m_ptr->bleeding += do_cut;
+        }
+
 	/* Check for death */
         if (dam > m_ptr->hp)
 	{
@@ -6440,7 +6492,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 
 
         /* Effects done by the plane cannot bounce */
-        if (p_ptr->reflect && !a_rad && !(randint(10)==1) && (who != -100))
+        if (p_ptr->reflect && !a_rad && !(randint(10)==1) && ((who != -101) && (who != -100)))
 	{
                 int t_y, t_x;
 		int max_attempts = 10;
@@ -6501,6 +6553,11 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
         {
                 sprintf(killer, "%s",
                         d_name + d_info[dungeon_type].name);
+        }
+        if (who == -101)
+        {
+                sprintf(killer, "%s",
+                        f_name + f_info[cave[py][px].feat].name);
         }
 
         if (who >= -1)
@@ -6601,7 +6658,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 					if (randint(4)==1) /* 4 */
 						do_poly_self();
 					else
-						mutate_player();
+                                                corrupt_player();
 				}
 
 				if (randint(6)==1)
@@ -6756,7 +6813,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 				if (randint(3)==1)
 				{
 					msg_print("Your body is twisted by chaos!");
-					(void)gain_random_mutation(0);
+                                        (void)gain_random_corruption(0);
 				}
 			}
 			if (!p_ptr->resist_neth && !p_ptr->resist_chaos)
@@ -7041,7 +7098,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 		/* Gravity -- stun plus slowness plus teleport */
 		case GF_GRAVITY:
 		{
-                        if (special_flag) break;/* No teleport on special levels */
+                        if (dungeon_flags1 & LF1_NO_TELEPORT) break;/* No teleport on special levels */
 			if (fuzzy) msg_print("You are hit by something heavy!");
 			msg_print("Gravity warps around you.");
                         if(!unsafe)
@@ -7411,7 +7468,7 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
 	}
 
 	/* Start at player */
-        else if ((who <= 0) && (who != -100))
+        else if ((who <= 0) && ((who != -101) && (who != -100)))
 	{
 		x1 = px;
 		y1 = py;
@@ -7468,7 +7525,7 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
 
 
 	/* Calculate the projection path */
-        if (who == -100)
+        if ((who == -101) || (who == -100))
                 path_n = 0;
         else
                 path_n = project_path(path_g, MAX_RANGE, y1, x1, y2, x2, flg);

@@ -22,9 +22,9 @@ bool quest_hobbit_gen_hook(int q_idx)
         }
 
         /* Place the hobbit */
-        hack_allow_special = TRUE;
+        m_allow_special[test_monster_name("Merton Proudfoot, the lost hobbit")] = TRUE;
         place_monster_one(y, x, test_monster_name("Merton Proudfoot, the lost hobbit"), 0, FALSE, MSTATUS_FRIEND);
-        hack_allow_special = FALSE;
+        m_allow_special[test_monster_name("Merton Proudfoot, the lost hobbit")] = FALSE;
 
         return FALSE;
 }
@@ -47,6 +47,7 @@ bool quest_hobbit_finish_hook(int q_idx)
 
         /* Continue the plot */
         *(quest[q_idx].plot) = (!rand_int(2))?QUEST_TROLL:QUEST_WIGHT;
+        quest[*(quest[q_idx].plot)].init(*(quest[q_idx].plot));
 
         del_hook(HOOK_QUEST_FINISH, quest_hobbit_finish_hook);
         process_hooks_restart = TRUE;

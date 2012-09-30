@@ -3,6 +3,7 @@ bool quest_random_death_hook(int m_idx)
         int r_idx = m_list[m_idx].r_idx;
 
         if (!(d_info[dungeon_type].flags1 & DF1_PRINCIPAL)) return (FALSE);
+        if ((dun_level < 1) || (dun_level >= MAX_RANDOM_QUEST)) return (FALSE);
         if (!random_quests[dun_level].type) return (FALSE);
         if (p_ptr->inside_quest) return (FALSE);
         if (random_quests[dun_level].r_idx != r_idx) return (FALSE);
@@ -78,6 +79,7 @@ bool quest_random_turn_hook(int q_idx)
 bool quest_random_feeling_hook(int q_idx)
 {
         if (!(d_info[dungeon_type].flags1 & DF1_PRINCIPAL)) return (FALSE);
+        if ((dun_level < 1) || (dun_level >= MAX_RANDOM_QUEST)) return (FALSE);
         if (!random_quests[dun_level].type) return (FALSE);
         if (p_ptr->inside_quest) return (FALSE);
         if (!dun_level) return (FALSE);
@@ -96,6 +98,7 @@ bool quest_random_gen_hook(int xy)
 	cave_type *c_ptr;
 
         if (!(d_info[dungeon_type].flags1 & DF1_PRINCIPAL)) return (FALSE);
+        if ((dun_level < 1) || (dun_level >= MAX_RANDOM_QUEST)) return (FALSE);
         if (!random_quests[dun_level].type) return (FALSE);
         if (p_ptr->inside_quest) return (FALSE);
         if (quest[QUEST_RANDOM].data[1]) return (FALSE);
@@ -141,9 +144,7 @@ bool quest_random_gen_hook(int xy)
         ystart = y1;
         init_flags = INIT_CREATE_DUNGEON;
         process_dungeon_file_full = TRUE;
-        hack_allow_special = TRUE;
         process_dungeon_file(format("qrand%d.map", random_quests[dun_level].type), &ystart, &xstart, cur_hgt, cur_wid, TRUE);
-        hack_allow_special = FALSE;
         process_dungeon_file_full = FALSE;
 
         for (x = x1; x < xstart; x++)
@@ -155,14 +156,14 @@ bool quest_random_gen_hook(int xy)
                         monster_type *m_ptr;
                         int i;
 
-                        hack_allow_special = TRUE;
+                        m_allow_special[random_quests[dun_level].r_idx] = TRUE;
                         i = place_monster_one(y, x, random_quests[dun_level].r_idx, 0, FALSE, MSTATUS_ENEMY);
+                        m_allow_special[random_quests[dun_level].r_idx] = FALSE;
                         if (i)
                         {
                                 m_ptr = &m_list[i];
                                 m_ptr->mflag |= MFLAG_QUEST;
                         }
-                        hack_allow_special = FALSE;
                 }
         }
 
