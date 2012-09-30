@@ -602,7 +602,7 @@ static void prt_sp(void)
  */
 static void prt_depth(void)
 {
-	char depths[32];
+	char depths[T_NAME_LEN];
 
 	if (p_ptr->inside_quest)
 	{
@@ -612,7 +612,7 @@ static void prt_depth(void)
 	{
 		if (p_ptr->town_num)
 		{
-			strncpy(depths, town[p_ptr->town_num].name, 31);
+			strncpy(depths, town[p_ptr->town_num].name, T_NAME_LEN);
 			depths[31] = '\0';
 		}
 		else
@@ -628,7 +628,7 @@ static void prt_depth(void)
 	}
 
 	/* Right-Adjust the "depth", and clear old values */
-	prt(format("%7s", depths), Term->hgt - 1, COL_DEPTH);
+	prt(format("%17s", depths), Term->hgt - 1, COL_DEPTH);
 }
 
 
@@ -740,8 +740,7 @@ static void prt_poisoned(void)
 
 
 /*
- * Prints Searching, Resting, Paralysis, or 'count' status
- * Display is always exactly 10 characters wide (see below)
+ * Prints Searching, Resting, or 'count' status
  *
  * This function was a major bottleneck when resting, so a lot of
  * the text formatting code was optimized in place below.
@@ -752,37 +751,28 @@ static void prt_state(void)
 
 	char text[16];
 
-
-	/* Paralysis */
-	if (p_ptr->paralyzed)
-	{
-		attr = TERM_RED;
-
-		strcpy(text, "Paralyzed!");
-	}
-
 	/* Resting */
-	else if (p_ptr->resting)
+	if (p_ptr->resting)
 	{
 		int i;
 
 		/* Start with "Rest" */
-		strcpy(text, "Rest      ");
+		strcpy(text, "R     ");
 
 		/* Extensive (timed) rest */
 		if (p_ptr->resting >= 1000)
 		{
 			i = p_ptr->resting / 100;
-			text[9] = '0';
-			text[8] = '0';
-			text[7] = '0' + (i % 10);
+			text[5] = '0';
+			text[4] = '0';
+			text[3] = '0' + (i % 10);
 			if (i >= 10)
 			{
 				i = i / 10;
-				text[6] = '0' + (i % 10);
+				text[2] = '0' + (i % 10);
 				if (i >= 10)
 				{
-					text[5] = '0' + (i / 10);
+					text[1] = '0' + (i / 10);
 				}
 			}
 		}
@@ -791,37 +781,37 @@ static void prt_state(void)
 		else if (p_ptr->resting >= 100)
 		{
 			i = p_ptr->resting;
-			text[9] = '0' + (i % 10);
+			text[5] = '0' + (i % 10);
 			i = i / 10;
-			text[8] = '0' + (i % 10);
-			text[7] = '0' + (i / 10);
+			text[4] = '0' + (i % 10);
+			text[3] = '0' + (i / 10);
 		}
 
 		/* Medium (timed) rest */
 		else if (p_ptr->resting >= 10)
 		{
 			i = p_ptr->resting;
-			text[9] = '0' + (i % 10);
-			text[8] = '0' + (i / 10);
+			text[5] = '0' + (i % 10);
+			text[4] = '0' + (i / 10);
 		}
 
 		/* Short (timed) rest */
 		else if (p_ptr->resting > 0)
 		{
 			i = p_ptr->resting;
-			text[9] = '0' + (i);
+			text[5] = '0' + (i);
 		}
 
 		/* Rest until healed */
 		else if (p_ptr->resting == -1)
 		{
-			text[5] = text[6] = text[7] = text[8] = text[9] = '*';
+			text[1] = text[2] = text[3] = text[4] = text[5] = '*';
 		}
 
 		/* Rest until done */
 		else if (p_ptr->resting == -2)
 		{
-			text[5] = text[6] = text[7] = text[8] = text[9] = '&';
+			text[1] = text[2] = text[3] = text[4] = text[5] = '&';
 		}
 	}
 
@@ -830,24 +820,24 @@ static void prt_state(void)
 	{
 		if (p_ptr->command_rep > 999)
 		{
-			(void)sprintf(text, "Rep. %3d00", p_ptr->command_rep / 100);
+			(void)sprintf(text, "C%3d00", p_ptr->command_rep / 100);
 		}
 		else
 		{
-			(void)sprintf(text, "Repeat %3d", p_ptr->command_rep);
+			(void)sprintf(text, "C  %3d", p_ptr->command_rep);
 		}
 	}
 
 	/* Searching */
 	else if (p_ptr->searching)
 	{
-		strcpy(text, "Searching ");
+		strcpy(text, "Search");
 	}
 
 	/* Nothing interesting */
 	else
 	{
-		strcpy(text, "          ");
+		strcpy(text, "      ");
 	}
 
 	/* Display the info (or blanks) */
@@ -856,7 +846,7 @@ static void prt_state(void)
 
 
 /*
- * Prints the speed of a character.			-CJS-
+ * Prints the speed or paralysis of a character.		-CJS-
  */
 static void prt_speed(void)
 {
@@ -868,22 +858,50 @@ static void prt_speed(void)
 	/* Hack -- Visually "undo" the Search Mode Slowdown */
 	if (p_ptr->searching) i += 10;
 
+	/* Paralysis */
+	if (p_ptr->paralyzed)
+	{
+		attr = TERM_RED;
+
+		strcpy(buf, "Paralyzed!");
+	}
+	
 	/* Fast */
-	if (i > 110)
+	else if (i > 110)
 	{
 		attr = TERM_L_GREEN;
-		sprintf(buf, "Fast (+%d)", (i - 110));
+		
+		if (i <= 110 + 99)
+		{ 
+			/* Two digits */
+			sprintf(buf, "Fast (+%d)", (i - 110));
+		}
+		else
+		{
+			/* Hack - save space */
+			sprintf(buf, "Fast (***)");
+		}
 	}
 
 	/* Slow */
 	else if (i < 110)
 	{
 		attr = TERM_L_UMBER;
-		sprintf(buf, "Slow (-%d)", (110 - i));
+		
+		if (i >= 110 - 99)
+		{
+			/* Two digits */
+			sprintf(buf, "Slow (-%d)", (110 - i));
+		}
+		else
+		{
+			/* Hack - save space */
+			sprintf(buf, "Slow (***)");
+		}
 	}
 
 	/* Display the speed */
-	c_put_str(attr, format("%-14s", buf), Term->hgt - 1, COL_SPEED);
+	c_put_str(attr, format("%-10s", buf), Term->hgt - 1, COL_SPEED);
 }
 
 
@@ -891,7 +909,7 @@ static void prt_study(void)
 {
 	if (p_ptr->new_spells)
 	{
-		put_str("Study", Term->hgt - 1, 64);
+		put_str("Study", Term->hgt - 1, COL_STUDY);
 	}
 	else
 	{

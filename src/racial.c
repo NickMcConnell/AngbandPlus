@@ -173,10 +173,6 @@ static void cmd_racial_power_aux(const mutation_type *mut_ptr)
 				/* Create the food ration */
 				object_prep(q_ptr, 21);
 
-#ifdef USE_SCRIPT
-				q_ptr->python = object_create_callback(q_ptr);
-#endif /* USE_SCRIPT */
-
 				/* Drop the object from heaven */
 				(void)drop_near(q_ptr, -1, p_ptr->py, p_ptr->px);
 				msg_print("You cook some food.");
@@ -784,7 +780,9 @@ void do_cmd_racial_power(void)
         repeat_push(i);
 	}
 
-	if (power_desc[i].number < 0)
+	
+	
+	if (power_desc[i].number == -1)
 	{
 		cmd_racial_power_aux(power_desc[i].power);
 	}

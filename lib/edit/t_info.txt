@@ -375,7 +375,7 @@ I:NO_LOOK | MERGE
 D:15:1:0:0:0:0:255:255
 F:0,field_action_counter_init
 F:10,field_action_door_bash | 11,field_action_door_gf
-F:15,field_action_delete | 16,field_action_interact_disarm
+F:15,field_action_delete | 16,field_action_interact_open
 F:17,field_action_door_jam_monster
 
 
@@ -1262,7 +1262,7 @@ N:130:Supplies Store
 G:1:u
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
-D:0:0:9:0:0:40:60:0
+D:0:0:9:0:20:40:30:0
 F:2,field_action_door_store
 F:18,field_action_issupplies_tester
 
@@ -1358,6 +1358,6 @@ N:141:Healer
 G:9:y
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
-D:9:100:0:0:0:0:0:0
+D:9:80:0:0:0:0:0:0
 F:2,field_action_door_build
 F:18,field_action_healer1 | 19,field_action_healer2

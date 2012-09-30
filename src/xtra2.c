@@ -614,10 +614,6 @@ bool monster_death(int m_idx, bool explode)
 		else
 			q_ptr->flags3 |= (TR3_AGGRAVATE);
 
-#ifdef USE_SCRIPT
-		q_ptr->python = object_create_callback(q_ptr);
-#endif /* USE_SCRIPT */
-
 		/* Drop it in the dungeon */
 		(void)drop_near(q_ptr, -1, y, x);
 	}
@@ -693,10 +689,6 @@ bool monster_death(int m_idx, bool explode)
 
 		apply_magic(q_ptr, object_level, 0, 0);
 
-#ifdef USE_SCRIPT
-		q_ptr->python = object_create_callback(q_ptr);
-#endif /* USE_SCRIPT */
-
 		/* Drop it in the dungeon */
 		(void)drop_near(q_ptr, -1, y, x);
 	}
@@ -715,10 +707,6 @@ bool monster_death(int m_idx, bool explode)
 
 		q_ptr->flags3 |= (TR3_IGNORE_ACID | TR3_IGNORE_ELEC |
 						 TR3_IGNORE_FIRE | TR3_IGNORE_COLD);
-
-#ifdef USE_SCRIPT
-		q_ptr->python = object_create_callback(q_ptr);
-#endif /* USE_SCRIPT */
 
 		/* Drop it in the dungeon */
 		(void)drop_near(q_ptr, -1, y, x);
@@ -883,10 +871,6 @@ bool monster_death(int m_idx, bool explode)
 			dump_item++;
 		}
 
-#ifdef USE_SCRIPT
-		q_ptr->python = object_create_callback(q_ptr);
-#endif /* USE_SCRIPT */
-
 		/* Drop it in the dungeon */
 		(void)drop_near(q_ptr, -1, y, x);
 	}
@@ -903,28 +887,30 @@ bool monster_death(int m_idx, bool explode)
 	 */
 	if (reward)
 	{
-		/* Get local object */
-		q_ptr = &forge;
-
-		/* Wipe the object */
-		object_wipe(q_ptr);
-
-		/* Average of 20 great objects per game */
-		if (randint0(number_of_quests()) < 20)
+		while (TRUE)
 		{
-			/* Make a great object */
-			make_object(q_ptr, 30, dun_theme);
-		}
-		else
-		{
-			/* Make a good object */
-			make_object(q_ptr, 15, dun_theme);
-		}
+			/* Get local object */
+			q_ptr = &forge;
 
-#ifdef USE_SCRIPT
-		q_ptr->python = object_create_callback(q_ptr);
-#endif /* USE_SCRIPT */
+			/* Wipe the object */
+			object_wipe(q_ptr);
 
+			/* Average of 20 great objects per game */
+			if (randint0(number_of_quests()) < 20)
+			{
+				/* Make a great object */
+				make_object(q_ptr, 30, dun_theme);
+			}
+			else
+			{
+				/* Make a good object */
+				make_object(q_ptr, 15, dun_theme);
+			}
+		
+			/* We need a 'good' item - so check the price */
+			if (object_value_real(q_ptr) > 100 * p_ptr->depth) break;
+		}
+		
 		/* Drop it in the dungeon */
 		(void)drop_near(q_ptr, -1, y, x);
 	}
@@ -2662,6 +2648,7 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 				(feat == FEAT_DEEP_ACID) ||
 				(feat == FEAT_SHAL_ACID) ||
 				(feat == FEAT_JUNGLE) ||
+				(feat == FEAT_SNOW) ||
 				(feat == FEAT_GRASS_LONG))
 			{
 				s3 ="";
@@ -3575,10 +3562,6 @@ void gain_level_reward(int chosen_reward)
 			(void) random_resistance(q_ptr, rand_range(5, 38), 0);
 			
 			add_ego_flags(q_ptr, EGO_CHAOTIC);
-
-#ifdef USE_SCRIPT
-			q_ptr->python = object_create_callback(q_ptr);
-#endif /* USE_SCRIPT */
 
 			/* Drop it in the dungeon */
 			(void)drop_near(q_ptr, -1, py, px);

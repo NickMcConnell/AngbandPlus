@@ -202,13 +202,6 @@ extern s16b quark__num;
 extern cptr *quark__str;
 extern u16b quark__tim;
 extern u16b *quark__use;
-extern u16b message__next;
-extern u16b message__last;
-extern u16b message__head;
-extern u16b message__tail;
-extern u16b *message__ptr;
-extern char *message__buf;
-extern byte *message__color;
 extern option_type option_info[OPT_MAX];
 extern u32b window_flag[8];
 extern u32b window_mask[8];
@@ -606,7 +599,7 @@ extern bool are_enemies(const monster_type *m_ptr1, const monster_type *m_ptr2);
 extern bool monster_living(const monster_race *r_ptr);
 
 /* flavor.c */
-extern void get_table_name(char *out_string);
+extern void get_table_name(char *out_string, bool quotes);
 extern void flavor_init(void);
 extern void object_desc(char *buf, const object_type *o_ptr, int pref, int mode);
 extern void object_desc_store(char *buf, const object_type *o_ptr, int pref, int mode);
@@ -670,6 +663,7 @@ extern void compact_objects(int size);
 extern void wipe_o_list(void);
 extern s16b o_pop(void);
 extern errr get_obj_num_prep(void);
+extern errr get_obj_store_prep(void);
 extern s16b get_obj_num(int level, int min_level);
 extern void object_known(object_type *o_ptr);
 extern void object_aware(object_type *o_ptr);
@@ -901,9 +895,9 @@ extern void build_init(int town_num, int build_num, byte build_type);
 
 /* util.c */
 extern errr path_parse(char *buf, int max, cptr file);
-extern errr path_temp(char *buf, int max);
 extern errr path_build(char *buf, int max, cptr path, cptr file);
 extern FILE *my_fopen(cptr file, cptr mode);
+extern FILE *my_fopen_temp(char *buf, int max);
 extern errr my_fgets(FILE *fff, char *buf, huge n);
 extern errr my_fputs(FILE *fff, cptr buf, huge n);
 extern errr my_fclose(FILE *fff);
@@ -929,6 +923,7 @@ extern sint macro_find_exact(cptr pat);
 extern char inkey(void);
 extern cptr quark_str(s16b num);
 extern s16b quark_add(cptr str);
+extern void message_init(void);
 extern s16b message_num(void);
 extern cptr message_str(int age);
 extern byte message_color(int age);
@@ -1099,6 +1094,7 @@ extern errr init_object_alloc(void);
 extern void k_info_reset(void);
 
 /* wild.c */
+extern void select_town_name(char *name, int pop);
 extern void light_dark_block(blk_ptr block_ptr, int x, int y);
 extern void change_level(int);
 extern u16b init_choice_tree(wild_bound_box_type *bound, u16b type);

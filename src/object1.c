@@ -844,7 +844,7 @@ bool identify_fully_aux(const object_type *o_ptr)
 	{
 		if (o_ptr->flags3 & TR3_INSTA_ART)
 		{
-			info[i++] = "It provides light (radius 3) forever.";
+			info[i++] = "It provides light (radius 3).";
 		}
 		else if (o_ptr->sval == SV_LITE_LANTERN)
 		{
@@ -1960,7 +1960,8 @@ void display_inven(void)
 		attr = tval_to_attr[o_ptr->tval % 128];
 
 		/* Grey out charging items */
-		if (o_ptr->timeout && (o_ptr->tval != TV_LITE))
+		if (o_ptr->timeout && 
+			((o_ptr->tval != TV_LITE) || (o_ptr->flags3 & TR3_INSTA_ART)))
 		{
 			attr = TERM_L_DARK;
 		}
@@ -2037,7 +2038,8 @@ void display_equip(void)
 		attr = tval_to_attr[o_ptr->tval % 128];
 
 		/* Grey out charging items */
-		if (o_ptr->timeout && (o_ptr->tval != TV_LITE))
+		if (o_ptr->timeout && 
+			((o_ptr->tval != TV_LITE) || (o_ptr->flags3 & TR3_INSTA_ART)))
 		{
 			attr = TERM_L_DARK;
 		}
@@ -2143,7 +2145,8 @@ void show_inven(void)
 		out_color[k] = tval_to_attr[o_ptr->tval % 128];
 
 		/* Grey out charging items */
-		if (o_ptr->timeout && (o_ptr->tval != TV_LITE))
+		if (o_ptr->timeout && 
+			((o_ptr->tval != TV_LITE) || (o_ptr->flags3 & TR3_INSTA_ART)))
 		{
 			out_color[k] = TERM_L_DARK;
 		}
@@ -2280,7 +2283,8 @@ void show_equip(void)
 		out_color[k] = tval_to_attr[o_ptr->tval % 128];
 
 		/* Grey out charging items */
-		if (o_ptr->timeout && (o_ptr->tval != TV_LITE))
+		if (o_ptr->timeout && 
+			((o_ptr->tval != TV_LITE) || (o_ptr->flags3 & TR3_INSTA_ART)))
 		{
 			out_color[k] = TERM_L_DARK;
 		}

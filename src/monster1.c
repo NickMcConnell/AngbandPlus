@@ -1461,6 +1461,17 @@ void display_visible(void)
 		Term_erase(0, y, 255);
 	}
 
+	/* Are we hallucinating? */
+	if (p_ptr->image)
+	{
+		/* Go to top left of screen */
+		Term_gotoxy(0, 10);
+	
+		Term_addstr(-1, TERM_VIOLET, "Hallucinations");
+	
+		return;
+	}
+	
 	i = p_ptr->max_seen_r_idx;
 
 	/* Show the list */

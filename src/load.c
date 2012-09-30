@@ -450,17 +450,7 @@ static void rd_item(object_type *o_ptr)
 		s32b tmp32s;
 
 		rd_s32b(&tmp32s);
-#ifdef USE_SCRIPT
-		if (tmp32s)
-		{
-			char *python_object = (char*) malloc(tmp32s + 1);
-			rd_string(python_object, tmp32s + 1);
-			o_ptr->python = object_load_callback(python_object);
-			free(python_object);
-		}
-#else /* USE_SCRIPT */
 		strip_bytes(tmp32s);
-#endif /* USE_SCRIPT */
 	}
 
 	/* Obtain the "kind" template */
@@ -758,18 +748,7 @@ static void rd_field(field_type *f_ptr)
 	}
 
 	rd_s32b(&tmp32s);
-#ifdef USE_SCRIPT
-	if (tmp32s)
-	{
-		char *python_field = (char*) malloc(tmp32s + 1);
-		rd_string(python_field, tmp32s + 1);
-		f_ptr->python = field_load_callback(python_field);
-		free(python_field);
-	}
-#else /* USE_SCRIPT */
 	strip_bytes(tmp32s);
-#endif /* USE_SCRIPT */
-
 }
 
 
@@ -3107,7 +3086,26 @@ static errr rd_savefile_new_aux(void)
 			rd_byte(&town[i].y);
 
 			/* Name */
-			rd_string(town[i].name, 32);
+			if (sf_version < 26)
+			{
+				char temp_buffer[32];
+				
+				rd_string(temp_buffer, 32);
+				
+				/* Get a new name */
+				if (vanilla_town)
+				{
+					strcpy(town[i].name, "Town");
+				}
+				else
+				{
+					select_town_name(town[i].name, town[i].pop);
+				}
+			}
+			else
+			{
+				rd_string(town[i].name, T_NAME_LEN);
+			}
 			
 			/* Allocate the stores */
 			C_MAKE(town[i].store, town[i].numstores, store_type);

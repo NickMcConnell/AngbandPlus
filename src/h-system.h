@@ -133,6 +133,7 @@ extern long atol();
 
 #include <stdarg.h>
 
+
 /* Include maid-x11.c */
 #if defined(USE_X11) || defined(USE_XAW) || defined(USE_XPJ)
 	#define USE_XMAID

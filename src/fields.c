@@ -166,10 +166,6 @@ void delete_field_idx(int fld_idx)
 		note_spot(y, x);
 	}
 
-#ifdef USE_SCRIPT
-	field_delete_callback(j_ptr);
-#endif /* USE_SCRIPT */
-
 	/* Wipe the field */
 	field_wipe(j_ptr);
 
@@ -207,10 +203,6 @@ void delete_field_ptr(s16b *fld_idx)
 		note_spot(y, x);
 	}
 
-#ifdef USE_SCRIPT
-	field_delete_callback(f_ptr);
-#endif /* USE_SCRIPT */
-
 	/* Wipe the field */
 	field_wipe(f_ptr);
 
@@ -237,10 +229,6 @@ void delete_field_aux(s16b *fld_idx_ptr)
 
 		/* Acquire next field */
 		next_f_idx = f_ptr->next_f_idx;
-
-#ifdef USE_SCRIPT
-		field_delete_callback(f_ptr);
-#endif /* USE_SCRIPT */
 
 		/* Wipe the field */
 		field_wipe(f_ptr);
@@ -340,13 +328,8 @@ static void compact_fields_aux(int i1, int i2)
 		}
 	}
 
-
 	/* Structure copy */
 	fld_list[i2] = fld_list[i1];
-
-#ifdef USE_SCRIPT
-	field_delete_callback(f_ptr);
-#endif /* USE_SCRIPT */
 
 	/* Wipe the hole */
 	field_wipe(f_ptr);
@@ -568,10 +551,6 @@ void wipe_f_list(void)
 		/* Hack -- see above */
 		c_ptr->fld_idx = 0;
 
-#ifdef USE_SCRIPT
-		field_delete_callback(f_ptr);
-#endif /* USE_SCRIPT */
-
 		/* Wipe the field */
 		field_wipe(f_ptr);
 	}
@@ -656,10 +635,6 @@ void field_copy(field_type *f_ptr, field_type *j_ptr)
 {
 	/* Copy the structure */
 	COPY(f_ptr, j_ptr, field_type);
-
-#ifdef USE_SCRIPT
-	j_ptr->python = field_copy_callback(f_ptr, j_ptr);
-#endif /* USE_SCRIPT */
 }
 
 
@@ -4471,6 +4446,9 @@ void field_action_issupplies_tester(s16b *field_ptr, vptr input)
 	/* Restore tval */
 	item_tester_tval = tval_save;
 	
+	/* Check for weapons / armour */
+	f_o_ptr->result |= item_tester_hook_weapon_armour(f_o_ptr->o_ptr);
+	
 	/*
 	 * Trigger on rechargable items, potions, or books
 	 * (We only want scrolls as magic items in the supplies store)
@@ -4478,6 +4456,8 @@ void field_action_issupplies_tester(s16b *field_ptr, vptr input)
 	f_o_ptr->result = (f_o_ptr->result ||
 		item_tester_hook_recharge(f_o_ptr->o_ptr) ||
 		item_tester_hook_is_book(f_o_ptr->o_ptr));
+	
+	/* This leaves the store with scrolls, tools, ammo, and diggers. */
 }
 
 

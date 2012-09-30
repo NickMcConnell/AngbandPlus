@@ -2480,6 +2480,11 @@ static void process_monster(int m_idx)
 			do_move = TRUE;
 		}
 
+		/* Hack -- closed doors are no obstacle */
+		else if (c_ptr->feat == FEAT_CLOSED)
+		{
+			do_move = TRUE;
+		}
 
 		/* Monster moves through walls (and doors) */
 		else if (r_ptr->flags2 & RF2_PASS_WALL)
@@ -2514,9 +2519,8 @@ static void process_monster(int m_idx)
 			/* Note changes to viewable region */
 			if (player_can_see_bold(ny, nx)) do_view = TRUE;
 		}
-		else if (((c_ptr->feat >= FEAT_RUBBLE) &&
-			(c_ptr->feat <= FEAT_WALL_SOLID))
-			 || (c_ptr->feat == FEAT_PILLAR))
+		
+		else if (c_ptr->feat & 0x20)
 		{
 			/* This monster cannot walk through walls */
 			do_move = FALSE;

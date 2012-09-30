@@ -375,19 +375,19 @@ LIBS = -lX11 -lcurses -ltermcap -L/usr/X11R6/lib $(PYLIB)
 
 
 #
+# Build the "ZAngband" program
+#
+
+zangband: $(OBJS)
+	$(CC) $(CFLAGS) -o zangband $(OBJS) $(LDFLAGS) $(LIBS)
+
+
+#
 # Hack -- "install" as the base target
 #
 
-install: testing
-	cp testing ..
-
-
-#
-# Build the "Angband" program
-#
-
-testing: $(OBJS)
-	$(CC) $(CFLAGS) -o testing $(OBJS) $(LDFLAGS) $(LIBS)
+install: zangband
+	cp zangband ..
 
 
 #
@@ -395,7 +395,7 @@ testing: $(OBJS)
 #
 
 clean:
-	-rm *.bak *.o
+	-rm -f *.bak *.o
 
 
 #

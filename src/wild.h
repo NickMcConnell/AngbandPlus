@@ -58,6 +58,11 @@
 #define DT_LEFT		0x04
 #define DT_RIGHT	0x08
 
+/* Town size cutoffs for names */
+#define T_SIZE_SMALL	(128 + 30)
+#define T_SIZE_TOWN		(128 + 50)
+#define T_SIZE_CITY		(128 + 70)
+#define T_SIZE_CASTLE	(128 +	100)
 
 
 /* Some useful macros */

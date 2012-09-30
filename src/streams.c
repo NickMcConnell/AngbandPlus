@@ -152,7 +152,7 @@ void add_river(int feat1, int feat2)
 	x2 = rand_range(min_wid + 1, max_wid - 2);
 
 	/* Hack -- Choose ending point somewhere on boundary */
-	switch(randint1(4))
+	switch (randint1(4))
 	{
 		case 1:
 		{

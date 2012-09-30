@@ -243,12 +243,14 @@ errr path_parse(char *buf, int max, cptr file)
 #endif /* SET_UID */
 
 
+#ifndef HAVE_MKSTEMP
+
 /*
  * Hack -- acquire a "temporary" file name if possible
  *
  * This filename is always in "system-specific" form.
  */
-errr path_temp(char *buf, int max)
+static errr path_temp(char *buf, int max)
 {
 	cptr s;
 
@@ -264,6 +266,8 @@ errr path_temp(char *buf, int max)
 	/* Success */
 	return (0);
 }
+
+#endif /* HAVE_MKSTEMP */
 
 
 /*
@@ -346,6 +350,39 @@ errr my_fclose(FILE *fff)
 
 
 #endif /* ACORN */
+
+
+#ifdef HAVE_MKSTEMP
+
+FILE *my_fopen_temp(char *buf, int max)
+{
+	int fd;
+
+	/* Prepare the buffer for mkstemp */
+	strncpy(buf, "/tmp/anXXXXXX", max);
+
+	/* Secure creation of a temporary file */
+	fd = mkstemp(buf);
+
+	/* Check the file-descriptor */
+	if (fd < 0) return (NULL);
+
+	/* Return a file stream */
+	return (fdopen(fd, "w"));
+}
+
+#else /* HAVE_MKSTEMP */
+
+FILE *my_fopen_temp(char *buf, int max)
+{
+	/* Generate a temporary filename */
+	if (path_temp(buf, max)) return (NULL);
+
+	/* Open the file */
+	return (my_fopen(buf, "w"));
+}
+
+#endif /* HAVE_MKSTEMP */
 
 
 /*
@@ -1927,6 +1964,7 @@ static s16b compact_quarks(void)
 	return (empty);
 }
 
+
 /*
  * Add a new "quark" to the set of quarks.
  */
@@ -2019,6 +2057,55 @@ cptr quark_str(s16b i)
  * extremely efficient, both in space and time, for use with the Borg.
  */
 
+
+/*
+ * The next "free" index to use
+ */
+u16b message__next;
+
+/*
+ * The index of the oldest message (none yet)
+ */
+u16b message__last;
+
+/*
+ * The next "free" offset
+ */
+u16b message__head;
+
+/*
+ * The offset to the oldest used char (none yet)
+ */
+u16b message__tail;
+
+/*
+ * The array of offsets, by index [MESSAGE_MAX]
+ */
+u16b *message__ptr;
+
+/*
+ * The array of chars, by offset [MESSAGE_BUF]
+ */
+char *message__buf;
+
+/*
+ * The array[MESSAGE_MAX] of bytes for the colors of messages
+ */
+byte *message__color;
+
+
+/*
+ * Initialize the "message" package
+ */
+void message_init(void)
+{
+	C_MAKE(message__ptr, MESSAGE_MAX, u16b);
+	C_MAKE(message__buf, MESSAGE_BUF, char);
+	C_MAKE(message__color, MESSAGE_MAX, byte);
+
+	/* Hack -- No messages yet */
+	message__tail = MESSAGE_BUF;
+}
 
 
 /*

@@ -310,6 +310,14 @@
     #endif
 #endif
 
+/*
+ * Try to use safe tempfile handling on multi-user machines.
+ *
+ * Activate this if you have mkstemp().
+ */
+#ifdef SET_UID
+/* #define HAVE_MKSTEMP */
 #endif
 
+#endif
 

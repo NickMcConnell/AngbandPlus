@@ -3804,7 +3804,7 @@ static void build_type14(int by0, int bx0)
 	/* Add some walls */
 	
 	/* Select what type of room */
-	switch(randint0(5))
+	switch (randint0(5))
 	{
 		case 0:
 		{

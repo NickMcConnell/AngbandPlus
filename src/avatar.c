@@ -235,7 +235,7 @@ void get_virtues(void)
 	/* Get a virtue for realm1 */
 	if (p_ptr->realm1)
 	{
-		switch(p_ptr->realm1)
+		switch (p_ptr->realm1)
 		{
 		case 1:
 			if (exist_virtue(V_VITALITY))
@@ -271,7 +271,7 @@ void get_virtues(void)
 	/* Get a virtue for realm2 */
 	if (p_ptr->realm2)
 	{
-		switch(p_ptr->realm2)
+		switch (p_ptr->realm2)
 		{
 		case 1:
 			if (exist_virtue(V_VITALITY))

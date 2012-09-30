@@ -1,4 +1,4 @@
-# CVS: Last edit by $Author: sfuerst $ on $Date: 2001/05/19 04:45:17 $
+# CVS: Last edit by $Author: sfuerst $ on $Date: 2001/06/26 10:03:36 $
 # File: k_info.txt
 
 
@@ -1954,7 +1954,7 @@ N:260:Restore Life Levels
 G:!:d
 I:75:41:0
 W:25:0:4:1500
-A:65/1
+A:45/1:60/1:80/1
 P:0:1d1:0:0:0
 
 N:261:Resist Heat

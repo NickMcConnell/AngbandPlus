@@ -221,10 +221,6 @@ void do_cmd_browse_aux(const object_type *o_ptr)
 	byte spells[64];
 
 
-#ifdef USE_SCRIPT
-	if (object_browse_callback(o_ptr)) return;
-#endif /* USE_SCRIPT */
-
 	/* Access the item's sval */
 	sval = o_ptr->sval;
 

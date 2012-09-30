@@ -371,12 +371,19 @@ static bool object_flavor(int k_idx)
 }
 
 
-void get_table_name(char *out_string)
+void get_table_name(char *out_string, bool quotes)
 {
-	int testcounter = rand_range(2, 4);
+	int testcounter = rand_range(2, 3);
 
-	strcpy(out_string, "'");
-
+	if (quotes)
+	{
+		strcpy(out_string, "'");
+	}
+	else
+	{
+		out_string[0] = 0;
+	}
+	
 	if (one_in_(3))
 	{
 		while (testcounter--)
@@ -385,7 +392,7 @@ void get_table_name(char *out_string)
 	else
 	{
 		char Syllable[80];
-		testcounter = rand_range(2, 3);
+
 		while (testcounter--)
 		{
 			(void)get_rnd_line("elvish.txt", 0, Syllable);
@@ -393,10 +400,16 @@ void get_table_name(char *out_string)
 		}
 	}
 
-	out_string[1] = toupper(out_string[1]);
-
-	strcat(out_string, "'");
-
+	if (quotes)
+	{
+		out_string[1] = toupper(out_string[1]);
+		strcat(out_string, "'");
+	}
+	else
+	{
+		out_string[0] = toupper(out_string[0]);
+	}
+	
 	out_string[18] = '\0';
 
 	return;

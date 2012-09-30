@@ -582,27 +582,8 @@ static void wr_item(const object_type *o_ptr)
 		wr_string("");
 	}
 
-#ifdef USE_SCRIPT
-	{
-		cptr python_object = object_save_callback(o_ptr);
-		if (python_object && *python_object)
-		{
-			wr_s32b(strlen(python_object));
-			wr_string(python_object);
-			string_free(python_object);
-		}
-		else
-		{
-			/* No Python object */
-			wr_s32b(0);
-		}
-	}
-#else /* USE_SCRIPT */
-
 	/* No Python object */
 	wr_s32b(0);
-
-#endif /* USE_SCRIPT */
 
 	/* The new flags */
 	wr_s32b(o_ptr->cost);
@@ -661,28 +642,8 @@ static void wr_field(const field_type *f_ptr)
 		wr_byte(f_ptr->data[i]);
 	}
 
-
-#ifdef USE_SCRIPT
-	{
-		cptr python_field = field_save_callback(f_ptr);
-		if (python_field && *python_field)
-		{
-			wr_s32b(strlen(python_field));
-			wr_string(python_field);
-			string_free(python_field);
-		}
-		else
-		{
-			/* No Python field */
-			wr_s32b(0);
-		}
-	}
-#else /* USE_SCRIPT */
-
 	/* No Python object */
 	wr_s32b(0);
-
-#endif /* USE_SCRIPT */
 }
 
 

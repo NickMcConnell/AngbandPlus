@@ -1,4 +1,3 @@
-# CVS: Last edit by $Author: rr9 $ on $Date: 2001/05/23 11:30:34 $
 # File: pref-x11.prf
 
 #
@@ -50,7 +49,7 @@ A:5
 P:^__FFB5\r
 P:^__FF80\r
 P:^__FFDC\r
-P:^__????\r
+P:^__FF9D\r
 
 A:6
 P:^__FFB6\r

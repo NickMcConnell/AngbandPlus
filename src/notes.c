@@ -79,7 +79,14 @@ void add_note(cptr note, char code)
 	/* Get depth */
 	if (!p_ptr->depth)
 	{
-		strnfmt(depths, 32, "  Town");
+		if (p_ptr->town_num)
+		{
+			strnfmt(depths, 32, "  Town");
+		}
+		else
+		{
+			strnfmt(depths, 32, "  Wild");
+		}
 	}
 	else if (depth_in_feet)
 	{
@@ -114,7 +121,7 @@ void add_note_type(int note_number)
 	/* Get the date */
 	strftime(long_day, 30, "%Y-%m-%d at %H:%M:%S", localtime(&ct));
 
-	switch(note_number)
+	switch (note_number)
 	{
 		case NOTE_BIRTH:
 		{

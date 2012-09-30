@@ -160,7 +160,7 @@ static term_data data[MAX_TERM_DATA];
 /*
  * Current number of windows open
  */
-static int num_term = MAX_TERM_DATA;
+static int num_term = 1;
 
 /*
  * New fields for the Angband widget record

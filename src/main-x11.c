@@ -1792,7 +1792,7 @@ static errr CheckEvent(bool wait)
 			hgt = rows * td->fnt->hgt + (oy + oy);
 
 			/* Resize the Term (if needed) */
-			(void) Term_resize(cols, rows);
+			(void)Term_resize(cols, rows);
 
 			/* Resize the windows if any "change" is needed */
 			if ((Infowin->w != wid) || (Infowin->h != hgt))
@@ -2127,10 +2127,10 @@ static errr term_data_init(term_data *td, int i)
 	char res_class[20];
 
 	XSizeHints *sh;
-	
+
 	/* Get default font for this term */
 	font = get_default_font(i);
-	
+
 	/* Window specific location (x) */
 	sprintf(buf, "ANGBAND_X11_AT_X_%d", i);
 	str = getenv(buf);
@@ -2300,7 +2300,7 @@ errr init_x11(int argc, char *argv[])
 
 	cptr dpy_name = "";
 
-	int num_term = MAX_TERM_DATA;
+	int num_term = 3;
 
 #ifdef USE_GRAPHICS
 
@@ -2312,6 +2312,7 @@ errr init_x11(int argc, char *argv[])
 #ifdef USE_TRANSPARENCY
 
 	char *TmpData;
+
 #endif /* USE_TRANSPARENCY */
 
 #endif /* USE_GRAPHICS */

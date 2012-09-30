@@ -162,6 +162,79 @@ static void place_player_start(s32b *x, s32b *y, u16b this_town)
 	*y = town[this_town].y * 16 + wild_stairs_y;
 }
 
+/* Pick a name for the town based on population */
+void select_town_name(char *name, int pop)
+{
+	char buf[T_NAME_LEN + 1];
+	int len;
+	
+	/* Get a normal 'elvish' name */
+	get_table_name(buf, FALSE);
+	
+	/* Get length */
+	len = strlen(buf) - 1;
+	
+	if (pop < T_SIZE_SMALL)
+	{
+		/* Hamlet */
+		if ((len < T_NAME_LEN - 5) && one_in_(2))
+		{
+			strcat(buf, "ville");
+		}
+	}
+	else if (pop < T_SIZE_TOWN)
+	{
+		/* Tiny town */
+		if ((len < T_NAME_LEN - 4) && one_in_(2))
+		{
+			strcat(buf, " Dun");
+		}
+	}
+	else if (pop < T_SIZE_CITY)
+	{
+		/* Large Town */
+		if ((len < T_NAME_LEN - 3) && one_in_(2))
+		{
+			strcat(buf, "ton");
+		}
+	}
+	else if (pop < T_SIZE_CASTLE)
+	{
+		/* City */
+		if ((len < T_NAME_LEN - 4) && one_in_(4))
+		{
+			strcat(buf, "ford");
+		}
+		else if ((len < T_NAME_LEN - 5) && one_in_(3))
+		{
+			strcat(buf, " City");
+		}
+		else if ((len < T_NAME_LEN - 5) && one_in_(2))
+		{
+			strcat(buf, " View");
+		}
+		else if ((len < T_NAME_LEN - 5) && one_in_(2))
+		{
+			strcat(buf, " Fort");
+		}
+	}
+	else
+	{
+		/* Castle */
+		if ((len < T_NAME_LEN - 7) && one_in_(2))
+		{
+			strcat(buf, " Castle");	
+		}
+		else if ((len < T_NAME_LEN - 5) && one_in_(2))
+		{
+			strcat(buf, " Keep");
+		}
+	}
+	
+	/* Copy into result */
+	strcpy(name, buf);
+} 
+
 
 /* Select a store or building "appropriate" for a given position */
 static u16b select_building(byte pop, byte magic, byte law, u16b *build,
@@ -192,6 +265,8 @@ static u16b select_building(byte pop, byte magic, byte law, u16b *build,
 		wild_build[i].gen = (u16b)(MAX_SHORT / total);
 	}
 
+	/* Note that cities of size 11 have a small chance to have stairs. */
+	
 	/* Effects for cities */
 	if (build_num > 11)
 	{
@@ -201,7 +276,7 @@ static u16b select_building(byte pop, byte magic, byte law, u16b *build,
 		/* Hack - Increase possibility of 'general' features */
 		for (i = 0; i < MAX_CITY_BUILD; i++)
 		{
-			if (wild_build[i].type == BT_GENERAL)
+			if (build_is_general(i))
 			{
 				wild_build[i].gen *= ((build_num - 5) / 6);
 			}
@@ -213,14 +288,14 @@ static u16b select_building(byte pop, byte magic, byte law, u16b *build,
 		for (i = 0; i < MAX_CITY_BUILD; i++)
 		{
 			/* No 'filler' buildings in small towns. */
-			if (wild_build[i].type == BT_GENERAL)
+			if (build_is_general(i))
 			{
 				wild_build[i].gen = 0;
 			}
 		}
 	}
 
-	/* Hack - Not more than one home */
+	/* Hack - Not more than one home per city */
 	if (build[BUILD_STORE_HOME])
 	{
 		wild_build[BUILD_STORE_HOME].gen = 0;
@@ -238,7 +313,7 @@ static u16b select_building(byte pop, byte magic, byte law, u16b *build,
 	total = randint0(total);
 
 	/* Later add checks for silliness */
-	/* (A small town with 5 "homes" would be silly */
+	/* (A small town with 5 "homes" would be silly) */
 
 
 	/* Find which building we've got */
@@ -345,9 +420,8 @@ static bool create_city(int x, int y, int town_num)
 	int i, j, k, l;
 
 	/* Hack - fix this XXX XXX */
-	/* First town must have a low pop */
 
-/*	int pop = wild[y][x].trans.pop_map; */
+	/* int pop = wild[y][x].trans.pop_map; */
 	int pop = (1 << randint0(7)) + 128;
 	int law = wild[y][x].trans.law_map;
 	int magic;
@@ -369,11 +443,8 @@ static bool create_city(int x, int y, int town_num)
 	/* Hack - the first town is special */
 	if (town_num == 1)
 	{ 
-		/* the first town must have stairs - so use a low pop */
+		/* Use a low pop - we don't want too many blank buildings */
 		pop = 32 + 128;
-		
-		/* Medium magic */
-		magic = 150;
 	}
 		
 	/* Wipe the list of allocated buildings */
@@ -381,7 +452,7 @@ static bool create_city(int x, int y, int town_num)
 	(void)C_WIPE(build_list, (WILD_BLOCK_SIZE * WILD_BLOCK_SIZE), u16b);
 
 	/* Add town */
-	strcpy(t_ptr->name, "town");
+	select_town_name(t_ptr->name, pop);
 	t_ptr->seed = randint0(0x10000000);
 
 	t_ptr->type = 2;
@@ -886,7 +957,7 @@ static void init_vanilla_town(void)
 	int i, j;
 
 	/* Only one town */
-	strcpy(town[1].name, "town");
+	strcpy(town[1].name, "Town");
 	town[1].seed = randint0(0x10000000);
 	town[1].numstores = 9;
 	town[1].type = 1;
@@ -948,7 +1019,7 @@ static void init_vanilla_town(void)
  * three parameters (hgt,pop,law) is proportional to log(n).
  * This speeds up wilderness generation alot.  (Note the
  * "obvious" method of using a linear search to find matching
- * wilderness creation functions is too slow.
+ * wilderness creation functions is too slow.)
  *
  * The "type" value has two different uses.  One is to specify
  * which axis of the parameter space is being split.  The other
@@ -1001,7 +1072,7 @@ static u16b get_gen_type(byte hgt, byte pop, byte law)
 			 * Get lower two bits of type to decribe which of
 			 * (hgt,pop,law) cutoff refers to.
 			 */
-			switch(tree_ptr->info & 3)
+			switch (tree_ptr->info & 0x03)
 			{
 				case DT_HGT:
 				{
@@ -2077,7 +2148,7 @@ static u16b add_node(wild_bound_box_type *bound,
 			 * Get lower two bits of type to decribe which of
 			 * (hgt,pop,law) cutoff refers to.
 			 */
-			switch(tree_ptr->info & 3)
+			switch (tree_ptr->info & 3)
 			{
 				case DT_HGT:
 				{

@@ -554,7 +554,6 @@ bool gain_mutation(int choose_mut)
 		muta_which = mut_ptr->which;
 
 		msg_print("You mutate!");
-		msg_print(mut_ptr->desc_text);
 		msg_print(mut_ptr->gain_text);
 		
 		/* Gain the mutation */
@@ -787,11 +786,12 @@ void do_cmd_knowledge_mutations(void)
 	FILE *fff;
 	char file_name[1024];
 
-	/* Temporary file */
-	if (path_temp(file_name, 1024)) return;
 
-	/* Open a new file */
-	fff = my_fopen(file_name, "w");
+	/* Open a temporary file */
+	fff = my_fopen_temp(file_name, sizeof(file_name));
+
+	/* Failure */
+	if (!fff) return;
 
 	/* Dump the mutations to file */
 	if (fff) dump_mutations(fff);
@@ -1080,11 +1080,11 @@ void mutation_power_aux(const mutation_type *mut_ptr)
 			move_wild();
 		}
 		
-		/* Process fields under the player. */
-		field_hook(&area(py, px)->fld_idx, FIELD_ACT_PLAYER_ENTER, NULL);
-
 		lite_spot(py, px);
 		lite_spot(oy, ox);
+		
+		/* Process fields under the player. */
+		field_hook(&area(py, px)->fld_idx, FIELD_ACT_PLAYER_ENTER, NULL);
 
 		verify_panel();
 

@@ -6150,7 +6150,7 @@ option_type option_info[OPT_MAX] =
 	{FALSE, 1, "stack_force_costs",		"Merge discounts when stacking" },
 	{TRUE,  5, "show_labels",			"Show labels in object listings" },
 	{TRUE,  5, "show_weights",			"Show weights in object listings" },
-	{TRUE,  0, NULL,					"Number 12" },
+	{FALSE, 8, "view_monster_grids",	"Map remembers monster-lit grids" },
 	{TRUE,  0, NULL,					"Number 13" },
 	{FALSE, 2, "ring_bell",				"Audible bell (on errors, etc)" },
 	{TRUE,  5, "use_color",				"Use color if possible (slow)" },
@@ -6399,7 +6399,7 @@ option_type option_info[OPT_MAX] =
 	{FALSE, 3, "take_notes",			"Allow notes to be appended to a file" },
 	{TRUE,  0, NULL,					"Number 253" },
 	{TRUE,  8, "testing_stack",			"Allow objects to stack on floor" },
-	{TRUE,  0, NULL,					"Number 255" },
+	{TRUE,  0, NULL,					NULL },
 };
 
 const int birth_options[OPT_BIRTH + 1] =
@@ -7265,11 +7265,11 @@ const mutation_type mutations[MUT_SETS_MAX * MUT_PER_SET] =
 
 	{
 	    MUT1_DAZZLE,
-	    "You can run for your life after hitting something.",
-	    "You suddenly understand how thieves feel.",
-	    "You no longer feel jumpy.",
+		"You can emit confusing, blinding radiation.",
+		"You gain the ability to emit dazzling lights.",
+		"You lose the ability to emit dazzling lights.",
 	    "Dazzle",
-	    10, 12, A_DEX, 14,
+	    7, 15, A_CHR, 8,
 	    0
 	},
 

@@ -2125,13 +2125,10 @@ static errr init_other(void)
 	C_MAKE(quark__str, QUARK_MAX, cptr);
 	C_MAKE(quark__use, QUARK_MAX, u16b);
 
-	/* Message variables */
-	C_MAKE(message__ptr, MESSAGE_MAX, u16b);
-	C_MAKE(message__buf, MESSAGE_BUF, char);
-	C_MAKE(message__color, MESSAGE_MAX, byte);
+	
+	/* Prepare the "message" package */
+	message_init();
 
-	/* Hack -- No messages yet */
-	message__tail = MESSAGE_BUF;
 
 	/* Clear the spell colour strings */
 	(void)C_WIPE(gf_color, MAX_GF, cptr);

@@ -175,10 +175,6 @@ void delete_object_idx(int o_idx)
 		}
 	}
 
-#ifdef USE_SCRIPT
-	object_delete_callback(j_ptr);
-#endif /* USE_SCRIPT */
-
 	/* Wipe the object */
 	object_wipe(j_ptr);
 
@@ -213,10 +209,6 @@ void delete_object(int y, int x)
 		/* Acquire next object */
 		next_o_idx = o_ptr->next_o_idx;
 
-#ifdef USE_SCRIPT
-		object_delete_callback(o_ptr);
-#endif /* USE_SCRIPT */
-
 		/* Wipe the object */
 		object_wipe(o_ptr);
 
@@ -230,6 +222,7 @@ void delete_object(int y, int x)
 	/* Visual update */
 	lite_spot(y, x);
 }
+
 
 /*
  * Deletes all objects at given location
@@ -248,10 +241,6 @@ void delete_object_location(cave_type *c_ptr)
 
 		/* Acquire next object */
 		next_o_idx = o_ptr->next_o_idx;
-
-#ifdef USE_SCRIPT
-		object_delete_callback(o_ptr);
-#endif /* USE_SCRIPT */
 
 		/* Wipe the object */
 		object_wipe(o_ptr);
@@ -342,10 +331,6 @@ static void compact_objects_aux(int i1, int i2)
 
 	/* Structure copy */
 	o_list[i2] = o_list[i1];
-
-#ifdef USE_SCRIPT
-	object_delete_callback(o_ptr);
-#endif /* USE_SCRIPT */
 
 	/* Wipe the hole */
 	object_wipe(o_ptr);
@@ -530,10 +515,6 @@ void wipe_o_list(void)
 			c_ptr->o_idx = 0;
 		}
 
-#ifdef USE_SCRIPT
-		object_delete_callback(o_ptr);
-#endif /* USE_SCRIPT */
-
 		/* Wipe the object */
 		object_wipe(o_ptr);
 	}
@@ -641,6 +622,75 @@ errr get_obj_num_prep(void)
 
 
 /*
+ * Apply store "object restriction function" to the "object allocation table"
+ */
+errr get_obj_store_prep(void)
+{
+	int i;
+
+	object_type dummy_object;
+	object_type *o_ptr = &dummy_object;
+
+	/* The field to use */
+	s16b *fld_ptr = &area(p_ptr->py, p_ptr->px)->fld_idx;
+	
+	/* Thing to pass to the action functions */
+	field_obj_test f_o_t;
+	
+	/* Get the entry */
+	alloc_entry *table = alloc_kind_table;
+	
+	/* Clear the object */
+	object_wipe(o_ptr);
+
+	
+	/* Scan the allocation table */
+	for (i = 0; i < alloc_kind_size; i++)
+	{
+		/* Init the object (we only care about tval and sval) */
+		o_ptr->tval = k_info[table[i].index].tval;
+		o_ptr->sval = k_info[table[i].index].sval;
+		
+		/* Save information to pass to the field action function */
+		f_o_t.o_ptr = o_ptr;
+	
+		/* Default is to reject this rejection */
+		f_o_t.result = FALSE;
+		
+		/* Will the store !not! buy this item? */
+		field_hook(fld_ptr, FIELD_ACT_STORE_ACT1, (vptr) &f_o_t);
+		
+		/* We don't want this item type? */
+		if (f_o_t.result == TRUE)
+		{
+			/* Clear the probability */
+			table[i].prob2 = 0;
+			continue;
+		}
+		
+		/* Change the default to acceptance */
+		f_o_t.result = TRUE;
+		
+		/* Will the store buy this item? */
+		field_hook(fld_ptr, FIELD_ACT_STORE_ACT2, (vptr) &f_o_t);
+
+		/* We don't want this item type? */
+		if (f_o_t.result == FALSE)
+		{
+			/* Clear the probability */
+			table[i].prob2 = 0;
+			continue;
+		}
+
+		/* Keep the current probability (initialised earlier) */
+	}
+
+	/* Success */
+	return (0);
+}
+
+
+/*
  * Choose an object kind that seems "appropriate" to the given level
  *
  * This function uses the "prob2" field of the "object allocation table",
@@ -715,7 +765,7 @@ s16b get_obj_num(int level, int min_level)
 		value1 -= table[i].prob2;
 
 		/* A match? */
-		if (value1 <= 0L) break;
+		if (value1 < 0L) break;
 	}
 
 	/* Result */
@@ -1708,10 +1758,6 @@ void object_copy(object_type *o_ptr, const object_type *j_ptr)
 {
 	/* Copy the structure */
 	COPY(o_ptr, j_ptr, object_type);
-
-#ifdef USE_SCRIPT
-	o_ptr->python = object_copy_callback(o_ptr, j_ptr);
-#endif /* USE_SCRIPT */
 }
 
 
@@ -1753,6 +1799,11 @@ void object_prep(object_type *o_ptr, int k_idx)
 
 	/* Set cost */
 	o_ptr->cost = k_ptr->cost;
+	
+	/* Save the flags */
+	o_ptr->flags1 = k_ptr->flags1;
+	o_ptr->flags2 = k_ptr->flags2;
+	o_ptr->flags3 = k_ptr->flags3;
 
 	/* Hack -- worthless items are always "broken" */
 	if (o_ptr->cost <= 0) o_ptr->ident |= (IDENT_BROKEN);
@@ -3507,7 +3558,7 @@ static void a_m_aux_4(object_type *o_ptr)
 			
 			/* Hack - remove pval */
 			o_ptr->pval = 0;
-
+			
 			break;
 		}
 
@@ -3739,6 +3790,16 @@ void apply_magic(object_type *o_ptr, int lev, int lev_dif, byte flags)
 		else if (randint0(100) < f) flags |= OC_FORCE_BAD;
 	}
 
+	if (o_ptr->flags3 & TR3_INSTA_ART)
+	{
+		/* Paranoia - we have an artifact!!! */
+		msg_print("Error Condition - artifact passed to apply_magic");
+		msg_format("Object sval:%d Object flags3:%d",
+			o_ptr->sval, o_ptr->flags3);
+		msg_print("Submit a bugreport please. :-)");
+		return;
+	}
+	
 	/* Apply magic */
 	switch (o_ptr->tval)
 	{
@@ -3834,7 +3895,7 @@ byte kind_is_match(int k_idx)
 	if ((match_sv == SV_ANY) || (k_ptr->sval == match_sv)) return (100);
 
 	/* Not a match */
-	return (FALSE);
+	return (0);
 }
 
 
@@ -4121,10 +4182,6 @@ void place_object(int y, int x, bool good, bool great)
 		/* Place the object */
 		c_ptr->o_idx = o_idx;
 
-#ifdef USE_SCRIPT
-		o_ptr->python = object_create_callback(o_ptr);
-#endif /* USE_SCRIPT */
-
 		/* Notice + Redraw */
 		note_spot(y, x);
 	}
@@ -4240,10 +4297,6 @@ void place_gold(int y, int x)
 
 		/* Place the object */
 		c_ptr->o_idx = o_idx;
-
-#ifdef USE_SCRIPT
-		o_ptr->python = object_create_callback(o_ptr);
-#endif /* USE_SCRIPT */
 
 		/* Notice + Redraw */
 		note_spot(y, x);
@@ -4643,21 +4696,28 @@ void acquirement(int y1, int x1, int num, bool great, bool known)
 	/* Acquirement */
 	while (num--)
 	{
-		/* Get local object */
-		i_ptr = &object_type_body;
-
-		/* Wipe the object */
-		object_wipe(i_ptr);
-
-		if (great)
+		/* We want a good object */
+		while (TRUE)
 		{
-			/* Make a great object (if possible) */
-			if (!make_object(i_ptr, 40, theme)) continue;
-		}
-		else
-		{
-			/* Make a good object (if possible) */
-			if (!make_object(i_ptr, 20, theme)) continue;
+			/* Get local object */
+			i_ptr = &object_type_body;
+
+			/* Wipe the object */
+			object_wipe(i_ptr);
+	
+			if (great)
+			{
+				/* Make a great object (if possible) */
+				if (!make_object(i_ptr, 40, theme)) continue;
+			}
+			else
+			{
+				/* Make a good object (if possible) */
+				if (!make_object(i_ptr, 20, theme)) continue;
+			}
+
+			/* Check to see if the object is worth anything */
+			if (object_value_real(i_ptr) > 0) break;
 		}
 
 		if (known)
@@ -4665,10 +4725,6 @@ void acquirement(int y1, int x1, int num, bool great, bool known)
 			object_aware(i_ptr);
 			object_known(i_ptr);
 		}
-
-#ifdef USE_SCRIPT
-		i_ptr->python = object_create_callback(i_ptr);
-#endif /* USE_SCRIPT */
 
 		/* Drop the object */
 		(void)drop_near(i_ptr, -1, y1, x1);
@@ -4784,10 +4840,6 @@ void inven_item_optimize(int item)
 		/* One less item */
 		p_ptr->inven_cnt--;
 
-#ifdef USE_SCRIPT
-		object_delete_callback(&inventory[item]);
-#endif /* USE_SCRIPT */
-
 		/* Slide everything down */
 		for (i = item; i < INVEN_PACK; i++)
 		{
@@ -4807,10 +4859,6 @@ void inven_item_optimize(int item)
 	{
 		/* One less item */
 		p_ptr->equip_cnt--;
-
-#ifdef USE_SCRIPT
-		object_delete_callback(&inventory[item]);
-#endif /* USE_SCRIPT */
 
 		/* Erase the empty slot */
 		object_wipe(&inventory[item]);
@@ -5094,11 +5142,6 @@ s16b inven_carry(object_type *o_ptr)
 			object_copy(&inventory[k+1], &inventory[k]);
 		}
 
-#ifdef USE_SCRIPT
-		/* Not a real deletion */
-		/* object_delete_callback(&inventory[i]); */
-#endif /* USE_SCRIPT */
-
 		/* Wipe the empty slot */
 		object_wipe(&inventory[i]);
 	}
@@ -5339,10 +5382,6 @@ void combine_pack(void)
 					/* Structure copy */
 					inventory[k] = inventory[k+1];
 				}
-
-#ifdef USE_SCRIPT
-				object_delete_callback(&inventory[k]);
-#endif /* USE_SCRIPT */
 
 				/* Erase the "final" slot */
 				object_wipe(&inventory[k]);

@@ -3183,17 +3183,17 @@ static void do_cmd_knowledge_uniques(void)
 	/* Sort the array by dungeon depth of monsters */
 	ang_sort(who, &why, n);
 
-	/* Temporary file */
-	if (path_temp(file_name, 1024))
+	/* Open a temporary file */
+	fff = my_fopen_temp(file_name, 1024);
+
+	/* Failure */
+	if (!fff)
 	{
 		/* XXX XXX Free the "who" array */
 		C_KILL(who, max_r_idx, u16b);
 
 		return;
 	}
-
-	/* Open a new file */
-	fff = my_fopen(file_name, "w");
 
 	/* Scan the monster races */
 	for (i = 0; i < n; i++)
@@ -3358,11 +3358,11 @@ static void do_cmd_knowledge_pets(void)
 	char            file_name[1024];
 
 
-	/* Temporary file */
-	if (path_temp(file_name, 1024)) return;
+	/* Open a temporary file */
+	fff = my_fopen_temp(file_name, 1024);
 
-	/* Open a new file */
-	fff = my_fopen(file_name, "w");
+	/* Failure */
+	if (!fff) return;
 
 	/* Process the monsters (backwards) */
 	for (i = m_max - 1; i >= 1; i--)
@@ -3464,17 +3464,17 @@ static void do_cmd_knowledge_kill_count(void)
 	/* Sort the array by dungeon depth of monsters */
 	ang_sort(who, &why, n);
 
-	/* Temporary file */
-	if (path_temp(file_name, 1024))
+	/* Open a temporary file */
+	fff = my_fopen_temp(file_name, 1024);
+
+	/* Failure */
+	if (!fff)
 	{
 		/* XXX XXX Free the "who" array */
 		C_KILL(who, max_r_idx, u16b);
 
 		return;
 	}
-
-	/* Open a new file */
-	fff = my_fopen(file_name, "w");
 
 	{
 		/* Monsters slain */
@@ -3608,11 +3608,11 @@ static void do_cmd_knowledge_objects(void)
 	char file_name[1024];
 
 
-	/* Temporary file */
-	if (path_temp(file_name, 1024)) return;
+	/* Open a temporary file */
+	fff = my_fopen_temp(file_name, 1024);
 
-	/* Open a new file */
-	fff = my_fopen(file_name, "w");
+	/* Failure */
+	if (!fff) return;
 
 	/* Scan the object kinds */
 	for (k = 1; k < max_k_idx; k++)
@@ -3663,13 +3663,13 @@ static void do_cmd_knowledge_virtues(void)
 	char file_name[1024];
 
 
-	/* Temporary file */
-	if (path_temp(file_name, 1024)) return;
+	/* Open a temporary file */
+	fff = my_fopen_temp(file_name, 1024);
 
-	/* Open a new file */
-	fff = my_fopen(file_name, "w");
+	/* Failure */
+	if (!fff) return;
 
-	if (fff) dump_virtues(fff);
+	dump_virtues(fff);
 
 	/* Close the file */
 	my_fclose(fff);
@@ -3696,11 +3696,12 @@ static void do_cmd_knowledge_quests(void)
 	int i;
 	int rand_level = 100;
 
-	/* Temporary file */
-	if (path_temp(file_name, 1024)) return;
+	
+	/* Open a temporary file */
+	fff = my_fopen_temp(file_name, 1024);
 
-	/* Open a new file */
-	fff = my_fopen(file_name, "w");
+	/* Failure */
+	if (!fff) return;
 
 	for (i = 1; i < max_quests; i++)
 	{

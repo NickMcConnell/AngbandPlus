@@ -72,7 +72,7 @@ void have_nightmare(int r_idx)
 
 	r_ptr->r_flags4 |= RF4_ELDRITCH_HORROR;
 
-	switch(p_ptr->prace)
+	switch (p_ptr->prace)
 	{
 		/* Imps may make a saving throw */
 		case RACE_IMP:
@@ -411,7 +411,7 @@ static void display_build(const field_type *f_ptr, const store_type *b_ptr)
 	/* Add in the charisma factor */
 	factor += adj_chr_gold[p_ptr->stat_ind[A_CHR]];
 	
-	factor = ((factor + 100) * bo_ptr->inflate) / 100;
+	factor = ((factor + 100) * bo_ptr->inflate) / 400;
 
 	Term_clear();
 	sprintf(tmp_str, "%s (%s) %s", owner_name, race_name, build_name);
@@ -1932,7 +1932,7 @@ static bool process_build_hook(field_type *f_ptr, store_type *b_ptr)
 	/* Add in the charisma factor */
 	factor += adj_chr_gold[p_ptr->stat_ind[A_CHR]];
 	
-	factor = ((factor + 100) * bo_ptr->inflate) / 100;
+	factor = ((factor + 100) * bo_ptr->inflate) / 400;
 	
 	field_hook(&area(p_ptr->py, p_ptr->px)->fld_idx,
 		 FIELD_ACT_STORE_ACT2, (vptr) &factor);

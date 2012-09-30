@@ -719,13 +719,7 @@ static bool store_will_buy(const object_type *o_ptr)
 	}
 	
 	/* Good items only */
-	if (info_flags & ST_REST_GOOD)
-	{
-		if (!item_tester_hook_is_good(o_ptr)) return (FALSE);
-	}
-	
-	/* Great items only */
-	if (info_flags & ST_REST_GREAT)
+	if ((info_flags & ST_REST_GOOD) || (info_flags & ST_REST_GREAT))
 	{
 		if (!item_tester_hook_is_good(o_ptr)) return (FALSE);
 	}
@@ -1053,10 +1047,6 @@ static void store_item_optimize(int item)
 	/* Must have no items */
 	if (o_ptr->number) return;
 
-#ifdef USE_SCRIPT
-	object_delete_callback(o_ptr);
-#endif /* USE_SCRIPT */
-
 	/* One less item */
 	st_ptr->stock_num--;
 
@@ -1120,7 +1110,7 @@ static void store_create(void)
 	
 	obj_theme theme;
 
-	byte restrict = f_ptr->data[7];
+	byte restricted = f_ptr->data[7];
 		
 	/* Paranoia -- no room left */
 	if (st_ptr->stock_num >= st_ptr->max_stock) return;
@@ -1140,6 +1130,8 @@ static void store_create(void)
 	/* Prepare allocation table */
 	get_obj_num_prep();
 
+	/* Limit table with store-only items */
+	get_obj_store_prep();
 
 	/* Hack -- consider up to twenty items */
 	for (tries = 0; tries < 20; tries++)
@@ -1160,12 +1152,12 @@ static void store_create(void)
 		object_prep(q_ptr, kind);
 		
 		/* Create object based on restrictions */
-		if (restrict & ST_REST_GREAT)
+		if (restricted & ST_REST_GREAT)
 		{
 			/* Apply some "low-level" magic (great) */
 			apply_magic(q_ptr, level, 30, OC_FORCE_GOOD);
 		}
-		else if (restrict & ST_REST_GOOD)
+		else if (restricted & ST_REST_GOOD)
 		{
 			/* Apply some "low-level" magic (good) */
 			apply_magic(q_ptr, level, 15, OC_NONE);
@@ -1197,10 +1189,6 @@ static void store_create(void)
 
 		/* Mass produce and/or Apply discount */
 		mass_produce(q_ptr);
-
-#ifdef USE_SCRIPT
-		q_ptr->python = object_create_callback(q_ptr);
-#endif /* USE_SCRIPT */
 
 		/* Attempt to carry the (known) item */
 		(void)store_carry(q_ptr);
@@ -1588,7 +1576,7 @@ static void store_maint(void)
 	if (j >= st_ptr->max_stock) j = st_ptr->max_stock - 1;
 
 	/* Acquire some new items */
-	while ((st_ptr->stock_num < j) && (i < 100))
+	while ((st_ptr->stock_num < j) && (i < 30))
 	{
 		/* Increment counter so we avoid taking too long */
 		i++;
@@ -2496,6 +2484,7 @@ static void store_purchase(int *store_top)
 
 				/* Erase the "feeling" */
 				j_ptr->feeling = FEEL_NONE;
+
 				/* Give it to the player */
 				item_new = inven_carry(j_ptr);
 
@@ -2962,12 +2951,6 @@ static void store_examine(int store_top)
 	/* Describe it fully */
 	if (!identify_fully_aux(o_ptr))
 		msg_print("You see nothing special.");
-
-#ifdef USE_SCRIPT
-
-	store_examine_callback(o_ptr);
-
-#endif /* USE_SCRIPT */
 
 	return;
 }

@@ -84,8 +84,6 @@ static void do_cmd_eat_food_aux(int item)
 
 #ifdef USE_SCRIPT
 	eat_callback(o_ptr->sval);
-
-	if (!object_eat_callback(o_ptr))
 #endif /* USE_SCRIPT */
 
 	{
@@ -338,10 +336,6 @@ static void do_cmd_eat_food_aux(int item)
 
 			/* Create the item */
 			object_prep(q_ptr, lookup_kind(o_ptr->tval, o_ptr->sval));
-
-#ifdef USE_SCRIPT
-			q_ptr->python = object_create_callback(q_ptr);
-#endif /* USE_SCRIPT */
 
 			/* Drop the object from heaven */
 			(void)drop_near(q_ptr, -1, p_ptr->py, p_ptr->px);
@@ -779,7 +773,6 @@ static void do_cmd_quaff_potion_aux(int item)
 
 			msg_print("You feel life flow through your body!");
 			restore_level();
-			hp_player(5000);
 			(void)set_poisoned(0);
 			(void)set_blind(0);
 			(void)set_confused(0);
@@ -792,6 +785,11 @@ static void do_cmd_quaff_potion_aux(int item)
 			(void)do_res_stat(A_WIS);
 			(void)do_res_stat(A_INT);
 			(void)do_res_stat(A_CHR);
+
+			/* Recalculate max. hitpoints */
+			update_stuff();
+
+			hp_player(5000);
 			ident = TRUE;
 			break;
 		}

@@ -35,7 +35,7 @@
 /*
  * Current version string
  */
-#define VERSION_STRING	"2.6.0"
+#define VERSION_STRING	"2.6.1"
 
 
 /*
@@ -45,7 +45,7 @@
 #define VERSION_MINOR   8
 #define VERSION_PATCH   1
 
-#define SAVEFILE_VERSION 25
+#define SAVEFILE_VERSION 26
 
 /* Added for ZAngband */
 #ifdef USE_SCRIPT
@@ -57,7 +57,7 @@
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 2
 #define FAKE_VER_MINOR 6
-#define FAKE_VER_PATCH 0
+#define FAKE_VER_PATCH 1
 #endif /* USE_SCRIPT */
 
 #define ANGBAND_2_8_1
@@ -125,6 +125,9 @@
 
 /* Number of gates in the city */
 #define MAX_GATES				4
+
+/* Maximum length of town name + '/0' */
+#define T_NAME_LEN	18
 
 /* Building types */
 #define BT_GENERAL		0
@@ -496,11 +499,6 @@
 /* Hallucination stuff */
 #define MAX_SILLY_ATTACK		28
 
-/* A hack for cave.c */
-#define BMP_FIRST_PC_CLASS		164
-#define BMP_FIRST_PC_RACE		128
-
-
 /*
  * Size of memory reserved for initialization of some arrays
  */
@@ -623,7 +621,7 @@
 #define MON_MULT_ADJ    		8       /* High value slows multiplication */
 #define MON_SUMMON_ADJ  		2       /* Adjust level of summoned creatures */
 #define MON_DRAIN_LIFE  		2		/* Percent of player exp drained per hit */
-#define USE_DEVICE      		3       /* x> Harder devices x< Easier devices     */
+#define USE_DEVICE      		3       /* x> Harder devices x< Easier devices */
 
 
 /* "Biases" for random artifact gen */
@@ -955,6 +953,9 @@
 #define ROW_STAT                8
 #define COL_STAT                0       /* "xxx   xxxxxx" */
 
+#define ROW_STATBAR             14
+#define COL_STATBAR             0       /* "Status bar" */
+
 #define ROW_AC                  15
 #define COL_AC                  0       /* "Cur AC xxxxx" */
 
@@ -973,14 +974,15 @@
 #define ROW_INFO                20
 #define COL_INFO                0       /* "xxxxxxxxxxxx" */
 
-#define ROW_MAP					1
-#define COL_MAP                 13		/* The map of the dungeon */
-
 #define ROW_CUT                 21
 #define COL_CUT                 0       /* <cut> */
 
 #define ROW_STUN                22
 #define COL_STUN                0       /* <stun> */
+
+#define ROW_MAP					1
+#define COL_MAP                 13		/* The map of the dungeon */
+
 
 #define COL_HUNGRY              0       /* "Weak" / "Hungry" / "Full" / "Gorged" */
 
@@ -994,15 +996,13 @@
 
 #define COL_STATE               38      /* <state> */
 
-#define COL_SPEED               49      /* "Slow (-NN)" or "Fast (+NN)" */
+#define COL_SPEED               45      /* "Slow (-NN)" or "Fast (+NN)" */
 
-#define COL_STUDY               64      /* "Study" */
+#define COL_STUDY               56      /* "Study" */
 
-#define COL_DEPTH               70      /* "Lev NNN" / "NNNN ft" */
+#define COL_DEPTH               62      /* "Lev NNN" / "NNNN ft" / town name */
 
 
-#define ROW_STATBAR             14
-#define COL_STATBAR             0       /* "Status bar" */
 
 #define MAX_EFFECTS				30	/* Max #of player timed effects*/
 
@@ -1112,7 +1112,7 @@
 #define FEAT_FOUNTAIN       0x72
 #define FEAT_JUNGLE		    0x73
 
-/* Gap  */
+/* Gap */
 
 /* Slow "floor" terrains */
 #define FEAT_BUSH		    0x80
@@ -2313,7 +2313,7 @@
 #define CAVE_GLOW       0x02    /* self-illuminating */
 #define CAVE_ICKY       0x04    /* part of a vault */
 #define CAVE_ROOM       0x08    /* part of a room */
-#define CAVE_LITE       0x10    /* lite flag  */
+#define CAVE_LITE       0x10    /* lite flag */
 #define CAVE_VIEW       0x20    /* view flag */
 #define CAVE_TEMP       0x40    /* temp flag */
 #define CAVE_XTRA       0x80    /* misc flag */
@@ -3058,7 +3058,7 @@
  * New monster race bit flags
  */
 #define RF4_SHRIEK          0x00000001  /* Shriek for help */
-#define RF4_ELDRITCH_HORROR 0x00000002  /* Sanity-blasting horror    */
+#define RF4_ELDRITCH_HORROR 0x00000002  /* Sanity-blasting horror */
 #define RF4_XXX3            0x00000004  /* (?) */
 #define RF4_ROCKET          0x00000008  /* TY: Rocket */
 #define RF4_ARROW_1         0x00000010  /* Fire an arrow (light) */
@@ -3443,7 +3443,7 @@
 #define stack_force_costs		p_ptr->options[9]
 #define show_labels				p_ptr->options[10]
 #define show_weights			p_ptr->options[11]
-/* {TRUE,  0, NULL,					"Number 12" }, p_ptr->options[12] */
+#define view_monster_grids		p_ptr->options[12]
 /* {TRUE,  0, NULL,					"Number 13" }, p_ptr->options[13] */
 #define ring_bell				p_ptr->options[14]
 #define use_color				p_ptr->options[15]
@@ -4069,7 +4069,7 @@ extern int PlayerUID;
 #define SOUND_BITE      35 /* A monster bites you */
 #define SOUND_CLAW      36 /* A monster claws you */
 #define SOUND_M_SPELL   37 /* A monster casts a miscellaneous spell */
-#define SOUND_SUMMON    38 /* A monster casts a summoning spell  */
+#define SOUND_SUMMON    38 /* A monster casts a summoning spell */
 #define SOUND_BREATH    39 /* A monster breathes */
 #define SOUND_BALL      40 /* A monster casts a ball / bolt spell */
 #define SOUND_M_HEAL    41 /* A monster heals itself somehow */
@@ -4081,7 +4081,7 @@ extern int PlayerUID;
 #define SOUND_SLIME     47 /* A monster drools/spits/etc on you */
 #define SOUND_WAIL      48 /* A monster wails */
 #define SOUND_WINNER    49 /* Just won the game! */
-#define SOUND_FIRE      50 /* An item was burned  */
+#define SOUND_FIRE      50 /* An item was burned */
 #define SOUND_ACID      51 /* An item was destroyed by acid */
 #define SOUND_ELEC      52 /* An item was destroyed by electricity */
 #define SOUND_COLD      53 /* An item was shattered */

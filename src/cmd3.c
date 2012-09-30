@@ -878,6 +878,13 @@ static void do_cmd_refill_lamp(void)
 	{
 		/* The lantern is empty */
 		o_ptr->timeout = 0;
+		
+		/* Optimise pack space */
+		if (item >=0)
+		{
+			/* Combine the pack */
+			p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+		}
 	}
 
 	/* Recalculate torch */

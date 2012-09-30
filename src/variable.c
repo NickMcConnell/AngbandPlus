@@ -294,42 +294,6 @@ u16b *quark__use;
 
 
 /*
- * The next "free" index to use
- */
-u16b message__next;
-
-/*
- * The index of the oldest message (none yet)
- */
-u16b message__last;
-
-/*
- * The next "free" offset
- */
-u16b message__head;
-
-/*
- * The offset to the oldest used char (none yet)
- */
-u16b message__tail;
-
-/*
- * The array of offsets, by index [MESSAGE_MAX]
- */
-u16b *message__ptr;
-
-/*
- * The array of chars, by offset [MESSAGE_BUF]
- */
-char *message__buf;
-
-/*
- * The array[MESSAGE_MAX] of bytes for the colors of messages
- */
-byte *message__color;
-
-
-/*
  * The array of window options
  */
 u32b window_flag[8];

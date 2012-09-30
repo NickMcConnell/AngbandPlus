@@ -338,12 +338,15 @@ void teleport_player(int dis)
 	int d, i, min, ox, oy;
 	int tries = 0;
 
-	int xx = -1, yy;
+	int xx, yy;
 
 	/* Initialize */
 	int y = py;
 	int x = px;
 
+	monster_type *m_ptr;
+	u16b m_idx;
+	
 	bool look = TRUE;
 	cave_type *c_ptr;
 
@@ -442,20 +445,20 @@ void teleport_player(int dis)
 		p_ptr->wilderness_y = py;
 		move_wild();
 	}
-		
-	/* Process fields under the player. */
-	field_hook(&area(py, px)->fld_idx,
-		 FIELD_ACT_PLAYER_ENTER, NULL);
-
+	
 	/* Redraw the old spot */
 	lite_spot(oy, ox);
+		
+	/* Redraw the new spot */
+	lite_spot(py, px);
+	
+	/* Process fields under the player. */
+	field_hook(&area(py, px)->fld_idx, FIELD_ACT_PLAYER_ENTER, NULL);
 
 	/* Monsters with teleport ability may follow the player */
-	while (xx < 2)
+	for (xx = -1; xx <= 1; xx++)
 	{
-		yy = -1;
-
-		while (yy < 2)
+		for (yy = -1; yy <= 1; yy++)
 		{
 			if ((xx == 0) && (yy == 0))
 			{
@@ -463,29 +466,28 @@ void teleport_player(int dis)
 			}
 			else
 			{
-				if (in_bounds2(oy + yy, ox + xx) && area(oy + yy, ox + xx)->m_idx)
+				x = ox + xx;
+				y = oy + yy;
+				
+				if (in_bounds2(y, x) && area(y, x)->m_idx)
 				{
-					if ((r_info[m_list[area(oy + yy, ox + xx)->m_idx].r_idx].flags6 & RF6_TPORT) &&
-					    !(r_info[m_list[area(oy + yy, ox + xx)->m_idx].r_idx].flags3 & RF3_RES_TELE))
+					m_idx = area(y, x)->m_idx;
+					m_ptr = &m_list[m_idx];
+					
+					if ((r_info[m_ptr->r_idx].flags6 & RF6_TPORT) &&
+					    !(r_info[m_ptr->r_idx].flags3 & RF3_RES_TELE) &&
+						!(m_ptr->csleep))
 						/*
-						 * The latter limitation is to avoid
+						 * The RES_TELE limitation is to avoid
 						 * totally unkillable suckers...
 						 */
 					{
-						if (!(m_list[area(oy + yy, ox + xx)->m_idx].csleep))
-							teleport_to_player(area(oy + yy, ox + xx)->m_idx);
+						teleport_to_player(m_idx);
 					}
 				}
 			}
-
-			yy++;
 		}
-
-		xx++;
 	}
-
-	/* Redraw the new spot */
-	lite_spot(py, px);
 
 	/* Check for new panel (redraw map) */
 	verify_panel();
@@ -581,16 +583,15 @@ void teleport_player_to(int ny, int nx)
 		p_ptr->wilderness_y = py;
 		move_wild();
 	}
-		
-	/* Process fields under the player. */
-	field_hook(&area(py, px)->fld_idx,
-		 FIELD_ACT_PLAYER_ENTER, NULL);
-
+	
 	/* Redraw the old spot */
 	lite_spot(oy, ox);
 
 	/* Redraw the new spot */
 	lite_spot(py, px);
+
+	/* Process fields under the player. */
+	field_hook(&area(py, px)->fld_idx, FIELD_ACT_PLAYER_ENTER, NULL);
 
 	/* Check for new panel (redraw map) */
 	verify_panel();

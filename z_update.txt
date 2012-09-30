@@ -2,6 +2,45 @@ This is a document file listing the changes in Zangband (compared to
 the standard Angband 2.8.1.) No long explanations, just a list. See
 code for details. In reversed chronological order (more or less):
 
+ZAngband 2.6.1:
+- The supplies store can sell ammo.
+- Added an option so that you can set the map to remember monster-lit
+  grids.
+- Made potions of restore life levels more common.
+- Items from acquirement() can not be worthless anymore.
+- Quest rewards are now worth at least (100 * dungeon_level) gold pieces.
+- The object selection routines used by stores when stocking themselves
+  should be much faster.
+- Towns now have random names.
+- Added autoconf support.
+- Potions of Life will now give back full hitpoints even if CON was
+  drained.
+- Fixed the building prices.  They were off by a factor of four.
+- The options screen could display bogus options.
+- Fixed problem with the description given when looking at snow.
+- Fixed problem with displaying charging artifact lights in the wrong
+  colour.
+- Fixed an off-by-one error in the object selection function.
+- The inventory is now reorganized after refueling from a lantern.
+- The monster list term is now turned off when hallucinating.
+- Interactions with traps shouldn't cause any display glitches.
+- Door bashing with '+' command works again.
+- Fixed an error that was preventing the throwing mutation from working.
+- Only display the 'gain' message when getting a mutation.
+- Fixed problem with monsters being able to walk though wall-like squares.
+- Fixed problem when recalling into the dungeon when the overhead map term
+  was turned on.
+- Fixed duplicated mutation information for the 'dazzle' mutation.
+- Updated the message you get when *identifying* artifact lights.
+- Fixed the problem with starting the game on 64bit machines.
+- Corrected the color palette for the 16x16 tiles in the DOS version.
+- The curses interface should now be more compatible with some BSD curses
+  versions.
+- The '5' key on the numeric keypad should now work in the X11 version.
+- The X11 and XAW versions default to three windows instead of eight.
+- Use the mkstemp() function where available instead of the insecure
+  tmpnam().
+
 ZAngband 2.6.0:
 - The starting town has a fixed list of stores now.
 - Changed how the sanity-blasting effect of monsters works.  It will

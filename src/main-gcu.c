@@ -457,6 +457,9 @@ static void keymap_game_prepare(void)
  */
 static errr Term_xtra_gcu_alive(int v)
 {
+	int x, y;
+
+
 	/* Suspend */
 	if (!v)
 	{
@@ -474,13 +477,11 @@ static errr Term_xtra_gcu_alive(int v)
 		/* Flush the curses buffer */
 		(void)refresh();
 
-#ifdef SPECIAL_BSD
-		/* this moves curses to bottom right corner */
-		mvcur(curscr->cury, curscr->curx, LINES - 1, 0);
-#else
-		/* this moves curses to bottom right corner */
-		mvcur(curscr->_cury, curscr->_curx, LINES - 1, 0);
-#endif
+		/* Get current cursor position */
+		getyx(curscr, y, x);
+
+		/* Move the cursor to bottom right corner */
+		mvcur(y, x, LINES - 1, 0);
 
 		/* Exit curses */
 		endwin();
@@ -541,6 +542,7 @@ static void Term_init_gcu(term *t)
  */
 static void Term_nuke_gcu(term *t)
 {
+	int x, y;
 	term_data *td = (term_data *)(t->data);
 
 	/* Delete this window */
@@ -557,13 +559,11 @@ static void Term_nuke_gcu(term *t)
 	start_color();
 #endif
 
-#ifdef SPECIAL_BSD
-	/* This moves curses to bottom right corner */
-	mvcur(curscr->cury, curscr->curx, LINES - 1, 0);
-#else
-	/* This moves curses to bottom right corner */
-	mvcur(curscr->_cury, curscr->_curx, LINES - 1, 0);
-#endif
+	/* Get current cursor position */
+	getyx(curscr, y, x);
+
+	/* Move the cursor to bottom right corner */
+	mvcur(y, x, LINES - 1, 0);
 
 	/* Flush the curses buffer */
 	(void)refresh();
@@ -956,7 +956,7 @@ static void hook_quit(cptr str)
 
 
 /*
- * Prepare "curses" for use by the file "term.c"
+ * Prepare "curses" for use by the file "z-term.c"
  *
  * Installs the "hook" functions defined above, and then activates
  * the main screen "term", which clears the screen and such things.
@@ -977,7 +977,7 @@ errr init_gcu(void)
 	/* Initialize for USG Unix */
 	if (initscr() == NULL) return (-1);
 #else
-	/* Initialize for others systems */
+	/* Initialize for other systems */
 	if (initscr() == (WINDOW*)ERR) return (-1);
 #endif
 
@@ -985,9 +985,11 @@ errr init_gcu(void)
 	quit_aux = hook_quit;
 	core_aux = hook_quit;
 
-	/* Hack -- Require large screen, or Quit with message */
-	i = ((LINES < 24) || (COLS < 80));
-	if (i) quit("Angband needs an 80x24 'curses' screen");
+	/* Require standard size screen */
+	if ((LINES < 24) || (COLS < 80))
+	{
+		quit("Angband needs at least an 80x24 'curses' screen");
+	}
 
 #ifdef USE_GRAPHICS
 	/* Set graphics flag */

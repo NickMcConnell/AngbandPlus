@@ -887,7 +887,7 @@ static void town_gen(u16b town_num)
 
 /*
  * Overlay the town block
- * If the town is not build correctly, build it
+ * If the town is not built correctly, build it
  */
 static void overlay_town(int y, int x, u16b w_town, blk_ptr block_ptr)
 {
@@ -939,11 +939,11 @@ static void overlay_town(int y, int x, u16b w_town, blk_ptr block_ptr)
 		{
 			c_ptr = &cave[yy + j][xx + i];
 
-			if (c_ptr->feat != FEAT_NONE)
-			{
-				/* Only copy if there is something there. */
-				block_ptr[j][i].feat = c_ptr->feat;
-			}
+			/* Only copy if there is something there. */
+			if (c_ptr->feat == FEAT_NONE) continue;
+			
+			/* Copy the terrain */
+			block_ptr[j][i].feat = c_ptr->feat;
 
 			/*
 			 * Instantiate field
@@ -2564,6 +2564,9 @@ void move_wild(void)
 	 */
 	if ((x == wild_grid.x) && (y == wild_grid.y)) return;
 
+	/* Redraw depth */
+	p_ptr->redraw |= (PR_DEPTH);
+	
 	dx = x - wild_grid.x;
 	dy = y - wild_grid.y;
 

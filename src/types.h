@@ -12,16 +12,6 @@
 
 
 /*
- * This file should ONLY be included by "angband.h"
- */
-
-#ifdef USE_SCRIPT
-
-#include "Python.h"
-
-#endif /* USE_SCRIPT */
-
-/*
  * Note that "char" may or may not be signed, and that "signed char"
  * may or may not work on all machines.  So always use "s16b" or "s32b"
  * for signed values.  Also, note that unsigned values cause math problems
@@ -769,7 +759,7 @@ struct object_type
 
 	byte dd, ds;		/* Damage dice/sides */	
 
-	byte ident;			/* Special flags  */
+	byte ident;			/* Special flags */
 
 	byte marked;		/* Object is marked */
 
@@ -793,10 +783,6 @@ struct object_type
 	byte feeling;       /* Game generated inscription number (eg, pseudo-id) */
 
 	byte activate;		/* Activation type */
-
-#ifdef USE_SCRIPT
-	PyObject *python;
-#endif /* USE_SCRIPT */
 
 #ifdef SCRIPT_OBJ_KIND
 	char *name;
@@ -944,11 +930,8 @@ struct field_type
 	s16b counter;			/* Counter for timed effects */
 	
 	byte priority;			/* LOS priority higher = more visible */
-
-#ifdef USE_SCRIPT
-	PyObject *python;
-#endif /* USE_SCRIPT */
 };
+
 
 /*
  * This is the type of the array that is used to parse t_info.txt
@@ -1101,7 +1084,7 @@ struct player_magic
 	int spell_book;		/* Tval of spell books (if any) */
 	int spell_xtra;		/* Something for later */
 
-	int spell_stat;		/* Stat for spells (if any)  */
+	int spell_stat;		/* Stat for spells (if any) */
 	int spell_type;		/* Spell type (mage/priest) */
 
 	int spell_first;		/* Level of first spell */
@@ -1159,14 +1142,13 @@ struct player_race
 	byte m_m_wt;		/* mod weight (males) */
 
 	byte f_b_ht;		/* base height (females) */
-	byte f_m_ht;		/* mod height (females)	  */
+	byte f_m_ht;		/* mod height (females)	*/
 	byte f_b_wt;		/* base weight (females) */
 	byte f_m_wt;		/* mod weight (females) */
 
 	byte infra;			/* Infra-vision	range */
 
 	u16b choice;        /* Legal class choices */
-/*    byte choice_xtra;   */
 };
 
 
@@ -1659,7 +1641,7 @@ struct store_type
 typedef struct town_type town_type;
 struct town_type
 {
-	char        name[32];
+	char        name[T_NAME_LEN];	/* Town name */
 	u32b        seed;		/* Seed for RNG */
 	store_type	*store;		/* The stores[numstores] */
 	

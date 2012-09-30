@@ -1332,7 +1332,7 @@ static void get_random_name(char *return_name, byte tval, int power)
 	    (tval == TV_AMULET) ||
 	    (tval == TV_RING))
 	{
-		get_table_name(return_name);
+		get_table_name(return_name, TRUE);
 	}
 	else
 	{
@@ -3113,12 +3113,6 @@ void create_named_art(int a_idx, int y, int x)
 	if (a_ptr->flags3 & TR3_CURSED) q_ptr->ident |= (IDENT_CURSED);
 
 	random_artifact_resistance(q_ptr);
-
-#ifdef USE_SCRIPT
-
-	q_ptr->python = object_create_callback(q_ptr);
-
-#endif /* USE_SCRIPT */
 
 	if (!a_ptr->cost)
 	{

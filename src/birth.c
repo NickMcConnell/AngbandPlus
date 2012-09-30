@@ -1701,10 +1701,6 @@ static void player_outfit(void)
 			/* These objects are "storebought" */
 			q_ptr->ident |= IDENT_STOREB;
 
-#ifdef USE_SCRIPT
-			q_ptr->python = object_create_callback(q_ptr);
-#endif /* USE_SCRIPT */
-
 			(void)inven_carry(q_ptr);
 
 			break;
@@ -1716,10 +1712,6 @@ static void player_outfit(void)
 			q_ptr->number = (byte)rand_range(3, 7);
 			object_aware(q_ptr);
 			object_known(q_ptr);
-
-#ifdef USE_SCRIPT
-			q_ptr->python = object_create_callback(q_ptr);
-#endif /* USE_SCRIPT */
 
 			(void)inven_carry(q_ptr);
 		}
@@ -1741,10 +1733,6 @@ static void player_outfit(void)
 		/* These objects are "storebought" */
 		q_ptr->ident |= IDENT_STOREB;
 
-#ifdef USE_SCRIPT
-		q_ptr->python = object_create_callback(q_ptr);
-#endif /* USE_SCRIPT */
-
 		(void)inven_carry(q_ptr);
 	}
 	else
@@ -1755,10 +1743,6 @@ static void player_outfit(void)
 		q_ptr->timeout = rand_range(3, 7) * 500;
 		object_aware(q_ptr);
 		object_known(q_ptr);
-
-#ifdef USE_SCRIPT
-		q_ptr->python = object_create_callback(q_ptr);
-#endif /* USE_SCRIPT */
 
 		(void)inven_carry(q_ptr);
 	}
@@ -1778,10 +1762,6 @@ static void player_outfit(void)
 		object_aware(q_ptr);
 		object_known(q_ptr);
 
-#ifdef USE_SCRIPT
-		q_ptr->python = object_create_callback(q_ptr);
-#endif /* USE_SCRIPT */
-
 		(void)inven_carry(q_ptr);
 
 		/* Hack -- Give the player some arrows */
@@ -1792,10 +1772,6 @@ static void player_outfit(void)
 
 		object_aware(q_ptr);
 		object_known(q_ptr);
-
-#ifdef USE_SCRIPT
-		q_ptr->python = object_create_callback(q_ptr);
-#endif /* USE_SCRIPT */
 
 		(void)inven_carry(q_ptr);
 	}
@@ -1811,10 +1787,6 @@ static void player_outfit(void)
 
 		object_aware(q_ptr);
 		object_known(q_ptr);
-
-#ifdef USE_SCRIPT
-		q_ptr->python = object_create_callback(q_ptr);
-#endif /* USE_SCRIPT */
 
 		(void)inven_carry(q_ptr);
 	}
@@ -1855,10 +1827,6 @@ static void player_outfit(void)
 
 		object_aware(q_ptr);
 		object_known(q_ptr);
-
-#ifdef USE_SCRIPT
-		q_ptr->python = object_create_callback(q_ptr);
-#endif /* USE_SCRIPT */
 
 		(void)inven_carry(q_ptr);
 	}
@@ -2077,17 +2045,12 @@ static bool get_player_class(void)
  */
 static bool player_birth_aux_1(void)
 {
-	int i, j, k, n, v;
-
-	cptr str;
+	int i, j, v;
 
 	int level;
 
-	char ch;
-
 	char p2 = ')';
 
-	char buf[80];
 	char inp[80];
 
 
@@ -2102,6 +2065,11 @@ static bool player_birth_aux_1(void)
 	if (result == -1) return FALSE;
 
 #else /* USE_SCRIPT */
+
+	char buf[80];
+	cptr str;
+	char ch;
+	int k, n;
 
 	/*** Instructions ***/
 

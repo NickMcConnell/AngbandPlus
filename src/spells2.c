@@ -2427,16 +2427,15 @@ bool earthquake(int cy, int cx, int r)
 				p_ptr->wilderness_y = py;
 				move_wild();
 			}
-
-			/* Process fields under the player. */
-			field_hook(&area(py, px)->fld_idx,
-				 FIELD_ACT_PLAYER_ENTER, NULL);
-
+			
 			/* Redraw the old spot */
 			lite_spot(oy, ox);
 
 			/* Redraw the new spot */
 			lite_spot(py, px);
+
+			/* Process fields under the player. */
+			field_hook(&area(py, px)->fld_idx, FIELD_ACT_PLAYER_ENTER, NULL);
 
 			/* Check for new panel */
 			verify_panel();
@@ -3227,23 +3226,22 @@ bool teleport_swap(int dir)
 		p_ptr->wilderness_y = py;
 		move_wild();
 	}
-
-	/* Process fields under the player. */
-	field_hook(&area(py, px)->fld_idx,
-		FIELD_ACT_PLAYER_ENTER, NULL);
-
+	
 	/* Update the monster (new location) */
 	update_mon(area(ty, tx)->m_idx, TRUE);
-
-	/* Process fields under the monster. */
-	field_hook(&area(m_ptr->fy, m_ptr->fx)->fld_idx,
-		FIELD_ACT_MONSTER_ENTER, (vptr) m_ptr);
-
+	
 	/* Redraw the old grid */
 	lite_spot(ty, tx);
 
 	/* Redraw the new grid */
 	lite_spot(py, px);
+
+	/* Process fields under the player. */
+	field_hook(&area(py, px)->fld_idx, FIELD_ACT_PLAYER_ENTER, NULL);
+
+	/* Process fields under the monster. */
+	field_hook(&area(m_ptr->fy, m_ptr->fx)->fld_idx,
+		FIELD_ACT_MONSTER_ENTER, (vptr) m_ptr);
 
 	/* Check for new panel (redraw map) */
 	verify_panel();
@@ -3596,10 +3594,8 @@ bool activate_ty_curse(bool stop_ty, int *count)
 {
 	int px = p_ptr->px;
 	int py = p_ptr->py;
-
-	int stat = 0;
-
 	u16b flg = (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP);
+
 
 	do
 	{
@@ -3712,7 +3708,9 @@ bool activate_ty_curse(bool stop_ty, int *count)
 			}
 			default:
 			{
-				while (stat < 6)
+				int stat = 0;
+
+				while (stat < A_MAX)
 				{
 					do
 					{

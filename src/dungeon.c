@@ -3433,6 +3433,12 @@ static void dungeon(void)
 
 		/* Process the world */
 		process_world();
+		
+		/* Hack -- Notice death or departure */
+		if (!p_ptr->playing || p_ptr->is_dead) break;
+		
+		/* Handle "leaving" */
+		if (p_ptr->leaving) break;
 
 		/* Notice stuff */
 		if (p_ptr->notice) notice_stuff();

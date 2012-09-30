@@ -478,10 +478,6 @@ static void chest_death(int y, int x, s16b o_idx)
 			if (!make_object(q_ptr, 15, dun_theme)) continue;
 		}
 
-#ifdef USE_SCRIPT
-		q_ptr->python = object_create_callback(q_ptr);
-#endif /* USE_SCRIPT */
-
 		/* Drop it in the dungeon */
 		(void)drop_near(q_ptr, -1, y, x);
 	}
