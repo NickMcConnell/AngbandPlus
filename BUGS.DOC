@@ -1,0 +1,26 @@
+"xxx recovers its courage." sometimes doesn't get the monster name right.
+I'm looking for the cause but this is not top priority right now. For the
+moment, you'll have to put up with the occasional "(null) recovers its
+courage." and other interesting messages.
+This bug did not exist in Angband--. It appeared when I upgraded to 1.40
+sources. Has monster_name been changed in 1.40?
+
+Scrolls of Rumor are occasionally (very rarely) empty. Not top priority.
+
+Hangups occasionally (very, VERY rarely). These have happened only when using
+Nhsound, so I believe this is caused by memory architecture problems (too
+little low memory). But to be sure, I recommend that you save often (& backup
+the save file if you want to be really REALLY sure) - especially if you find
+some great item.
+
+Destroyed levels and levels of unusual sizes have no effect on the feeling
+you get, the rating calculation ignores their plusses.
+
+Routines that use the function getLine (such as death messages, rumors etc)
+tend to garble up the following line in recall previous line(s).
+
+A very minor bug - the graphical player character symbol is outside the
+comparison range in tcio.c's print map. This means that the player will not
+always show up on 'M'ap.
+
+There is something wrong with the speed calculation/display in search mode.

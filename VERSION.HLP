@@ -1,0 +1,668 @@
+                          VMS Moria Version 4.8
+Version 0.1  : 03/25/83
+Version 1.0  : 05/01/84
+Version 2.0  : 07/10/84
+Version 3.0  : 11/20/84
+Version 4.0  : 01/20/85
+
+Modules :
+     V1.0  Dungeon Generator      - RAK
+           Character Generator    - RAK & JWT
+           Moria Module           - RAK
+           Miscellaneous          - RAK & JWT
+     V2.0  Town Level & Misc      - RAK
+     V3.0  Internal Help & Misc   - RAK
+     V4.0  Source Release Version - RAK
+
+Robert Alan Koeneke               Jimmey Wayne Todd Jr.
+Student/University of Oklahoma    Student/University of Oklahoma
+
+
+
+
+
+                        Umoria Version 5.2 (formerly UNIX Moria)
+Version 4.83 :  5/14/87
+Version 4.85 : 10/26/87
+Version 4.87 :  5/27/88
+Version 5.0  :  11/2/89
+Version 5.2  :   5/9/90
+
+James E. Wilson, U.C. Berkeley
+                 wilson@ernie.Berkeley.EDU
+                 ...!ucbvax!ucbernie!wilson
+
+Other contributors:
+D. G. Kneller         - MSDOS Moria port
+Christopher J. Stuart - recall, options, inventory, and running code
+Curtis McCauley       - Macintosh Moria port
+Stephen A. Jacobs     - Atari ST Moria port
+William Setzer        - object naming code
+David J. Grabiner     - numerous bug reports, and consistency checking
+Dan Bernstein         - UNIX hangup signal fix, many bug fixes
+and many others...
+
+
+
+
+
+
+Copyright (c) 1989 James E. Wilson, Robert A. Keoneke
+  This software may be copied and distributed for educational, research, and
+  not for profit purposes provided that this copyright and statement are
+  included in all such copies.
+
+Umoria Version 5.2, patch level 1
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   Angband was based on Umoria 5.2.1, and heavily modifed by several
+students at the University of Warwick, England, who wanted to expand the
+game, but who also wanted to keep, or even strengthen, Moria's firm
+grounding in Tolkien lore.  The resulting heavily customized Moria was
+not intended for outside release, but merely as a local version of Moria,
+to run only on Warwick's Unix system.
+
+  Sometime in its development, before it was released and ported, the
+existing Unix code got the unlikely version number 'Angband 2.4.Frog-knows'.
+
+The prime delevopers of Angband were:
+
+        Angband Version 2.4 Alex Cutler, Andy Astrand.
+        Angband Version 2.5 Sean Marsh. Contributions from Geoff Hill and 
+                                         lots of players at the U of W.
+
+
+Eventually, the Unix Angband source was released and ported:
+
+        PC port: Charles F. Teague II
+              with color code by Justin Anderson,
+              with targetting code by Chris Wilde,
+              and with many other helpful patches by people across the net.
+        PC Angband version history:
+        ===========================
+
+Apr 11 1993        Original Release
+          This version contains many bugs, including the dreaded stack
+        overflow trouble.  I have one confirmed report of Angband
+        erasing CMOS settings due to this bug.  Don't use this version!
+
+Apr 20 1993        Updated Executable
+          As the seriousness of the stack overflow problem became
+        apparent, I rushed the updated executable.  Uploaded to
+        ftp.cis.ksu.edu as 'ang11exe.exe', it corrects the stack overflow
+        problems, and has a few minor changes.  Also, it contains
+        compiler-generated stack checking code to prevent any stack
+        overflow that I missed from harming your system.
+
+May 20 1993        Second Update
+          The first update was a rush job.  This meant that I did not
+        get a chance to playtest it very thoroughly, and some problems
+        slipped through the cracks (I had forgotten to change the
+        delete high score code, so trying to do this generated a "Stack
+        overflow!!" message).  Now I've had time to track down many
+        bugs, and to add in some of the features I wanted.
+          This update still includes the compiler-generated stack
+        checking code as a precaution.
+          Source code and a new executable uploaded to ftp.cis.ksu.edu
+        as 'ang12src.exe' and 'ang12exe.exe'.
+
+Aug 17 1993       Third Update
+          This update corrects many more bugs, including the "mush bug",
+        and many others.  This update also includes several new features,
+        including the ability to target spells/arrows/etc without being "in-
+        line", colorized inventories, etc.  For a listing of the non-trivial
+        bugs and fixes, see the file 'version.pc'.
+          Again, the stack-checking code was left in as a precaution.
+          Source code has been uploaded to ftp.cis.ksu.edu as 'angsrc13.exe',
+        and two versions of the executable have been uploaded.  The first,
+        'angexe13.exe', is the update, with the normal 128k buffer used for
+        overlays.  The second, 'angmem13.exe' is the same update, with a 192k
+        buffer used for overlays.  As a result, this version will require
+        more memory to run, but, if you have the memory required, it should
+        run faster.
+
+Aug 28 1993       Fourth Update (minor update to third update)
+          There were a few problems with the 1.3 version of PC Angband,
+        notably the trouble with Nexus breaths, and the trouble with the
+        inventory sort losing your weapon if it got confused.  Also, the
+        code to cast a bolt or ball spell and the display code were
+        intoreably slow in the 'angexe13.exe' version, especially if you
+        weren't able to run a disk cache.  This update fixes those bugs,
+        and should run better than 'angexe13.exe'.  Source code has been
+        uploaded to ftp.cis.ksu.edu as 'angsr131.exe', and the executable
+        as 'angex131.exe'.  The executable uses a 128k overlay buffer (the
+        same as 'angexe13.exe' did) and it requires only about 505k of
+        free memory to run.  However, Angband 1.31 will now detect the
+        presence of available EMS memory, and make use of up to 155k of
+        it to improve the performance of the overalys.  If you have memory
+        over 640k, you will probably want to read your manuals about how
+        to make EMS memory available.  If you cannot make EMS memory
+        available, you can still get nearly the same performance by using
+        a disk cache.  For ideas on freeing up memory, or for an example
+        of how to set up EMS memory, see the file 'free-mem.doc' packaged
+        with this update.
+
+
+-----------------------------------------------------------------------------
+ZANGBAND: Is a direct descendant of Angband--. This means that they have
+a lot of features in common. Also, they share a weird sense of humor.
+Disclaimer: This is the Angband variant of MY dreams. Not necessarily yours.
+But if you enjoy it, that's great!
+
+Unlike Angband--, Zangband is based on the PC version 1.40 of Angband.
+Thus, with the new compact spell resist messages, one Angband-- feature
+has been lost:  curious messages, such as "Vecna the Emperor Lich is
+dead already!" (now it is simply "Vecna the Emperor Lich resists." - or was
+it "...is immune."?)
+
+
+
+The PC binaries: There are two executables, one that requires 550k low memory
+(TINYZANG.EXE) and one that requires nearly 600k (HUGEZANG.EXE). The latter
+may perform better so if you can free up enough low memory, I recommend you
+use it. On the other hand, if it behaves strangely for you (e.g. hangs the
+computer, fails to save your character, fails to read your save file), you
+should use the first (TINYZANG.EXE) executable, which may be a bit slower.
+Please also note that the Nhsound program requires some low memory (this may
+cause problems). Fortunately, it is an external TSR so you don't HAVE to load
+it if you are uhm... low on low memory. Smartdrive and available EMS memory
+can drastically improve the performance of the program.
+My computer has 617k low memory (~630 bytes) and can run HUGEZANG.EXE with
+Nhsound reasonably well (more specifically, passably in 6Mhz mode and pretty
+darn well in 66Mhz mode - it is a DX2).
+!! To "install" the executable:
+!!  1)  unzip the archive with "pkunzip -d zangexe.zip" (or "... a:zangexe.zip"
+!!      or whatever). The -d flag is important, otherwise you have to set up
+!!      a BONES subdirectory
+!!  2) If you have SB-compatible soundcard and you want to use Nhsound, type
+!!     "unzip nhsoundz". Otherwise you could "del nhsoundz.zip"
+!!  3) Choose an executable to use and rename it to ZANGBAND.EXE:
+!!      "rename TINYZANG.EXE ZANGBAND.EXE"
+!!      or "rename HUGEZANG.EXE ZANGBAND.EXE"
+!!  4) Modify Z.BAT (e.g "edit Z.BAT") and choose which font file to use. It
+!!     has the less messy version as the default.
+!!  5) Run Zangband by typing "Z"(+enter)
+
+
+ACCESSORIES:
+(Note! The accessories are present only in the archive with the executable
+because I'm under the impression that people who want the sources are likely
+to be working on non-pc systems and have no use for them).
+
+* Nhsound 2.0, courtesy of Samuli Takala - included in the archives with his
+kind permission. The program is a memory resident which requires a sound-
+blaster compatible soundcard. It will watch the first line of the screen
+for certain key words and if it spots one, it will play the sample linked
+to the word (see the Nhsound docs for details). I have configured the program
+to run nicely with Zangband, but there are a few problems. First, there are
+often many key words in one line, and you hear only one of them. Secondly,
+this program takes (with my configuration)   about 360k xms and some low
+memory. Thirdly, removing the program from memory is not done exceedingly
+well - it seems to leave a few bytes of crap behind. (So don't load & unload
+many times repeatedly or you'll have to reboot your computer!)
+I've also managed to hang the computer with Nhsound. If your computer hangs,
+try using Zangband without Nhsound (or save often).
+On the other hand, if you have a 386 or higher and a lot of memory, you may
+want to use this program (I use it on my 486 and enjoy it a lot).
+* Mike Marcelais's Angedit graphics editor NOT included YET. He has sent to me
+(twice, actually), but my uudecoder bitches about it ("Short file"). However,
+"end" line is there. If somebody knows what I should do about this, please
+contact me NOW! I will release Mike's editor program as soon as I get the
+archive fixed. I don't think it is the decoder's fault as I have tried on two
+different unix systems and a pc decoder and none has succeeded). Please note
+that Mike's program is shareware and if you use it for a longer period, you
+should register it by sending him $10. Further details in the documentation
+(in the archive with the editor).
+However... I have included his chrset.exe in this archive so you can use the
+two chrdata files I have made (CHRALPHA.DAT with pretty normal font and
+CHRGOTH.DAT with a pretty messy "gothic" font that I created for Nethack a
+year ago) to see what my graphics are like. The documentation and the graphics
+editor are missing...
+
+
+
+ZANGBAND 1.0 - COMPLETELY NEW FEATURES
+
+
+* New / different monsters, even sicker than the old ones. Among the nastier
+novelties you will find Cyberdemons and Greater wall monsters.
+* New monster spells / spell types.
+New Types:
+        Type:           Resistance:     Effect if no resistance:
+        Rocket          Resist Shards   Stuns, wounds, does more damage
+        Radiation       Resist Poison   Drains stats, swaps stats(mutation),
+                                        more damage. Polymorphs monsters.
+New Spells / What monsters can use them?
+        Type:           Spell/breath:           Some monsters that have it:
+        Rocket          Rocket                  Cyberdemon, win monster
+        Radiation       Ball of Radiation       Terminator, Predator, Lobo
+        Radiation       Toxic waste breath      Godzilla, win monster
+        (Chaos)         Invoke Raw Logrus       Lord of Chaos, win monster
+* Monster fear is now stored in the save file (so they won't forget they were
+afraid if you save & restore).
+* Patches stolen from Unix Angband. More patches stolen from FAngband. See
+below for complete lists.
+* Hopefully made Chaos tiles and Barons of hell appear less frequently out
+of depth. The reason for their behavior was probably caused by their being
+too high up in the monster list. (I also beefed up barons slightly, and took
+them deeper...)
+Similarly, moved some other monsters that were too high up in the list lower.
+* Finally, you can NAME the random artifacts you create whatever you like!
+IMO, this mod alone would justified a new version. There is a limit of 16
+characters on the length of the name, but other than that you can really
+give the weapon any name you want. You will be prompted to give a name if
+you succesfully read a Scroll of Artifact Creation. Note that this name is
+PERMANENT, you cannot rename artifacts! :->
+Here are some sample named artifacts from my wizard character's save file:
+        The Pike called Flamme (2d5) (+3,+20).
+        The Small sword called MegaJuppiLuonnon (1d6) (+6,+9).
+        The Broadsword called CloudSword (2d5) (+17,+4).
+        The Spear called Vorpal Blade (1d6) (+4,+10) {Hhahahahahah}.
+        The Mace of Disruption called MagigonnaDieSoon (6d10) (+15,+1) (+3).
+Ok, they are stupid names so shoot me :> I've included those names here just
+so you can see how this works (i.e. item type + "called" + the name you give)
+You can also use spaces and non-letter characters (if you really want to):
+        The Trident called Adamant!"#%(&)={ (1d9) (+5,+6).
+        The Dagger called Sadistic *GRIN* (1d4) (+19,+10) [+5] (+2).
+Thanks to C.W. Swiger who helped me read DESC.C! (And who also helped me
+eliminate the most likely reason for the stack overflows I had experienced).
+The Artifact Creation also is smarter now when calculating the new price of the
+item. Really valuable flags make it more expensive.
+* Removed the extra "Purple speckled..." from TABLES.C (it could have
+resulted in two different kinds of Purple Speckled Potions).
+* Fixed a bug that made it possible to uncurse the One Ring.
+* Only warriors can wear the Terror Mask relatively safely now. I warned
+you...
+* Hacked MAIN.C and CREATE.C so that a new character will always see his/her
+life rating after being created & named. I thought that all characters really
+deserve to see this, as it seems to be THE most important statistic of your
+character, because it cannot be changed! As a general rule, if your life rating
+is less than 100%, you may want to reroll the character (he'd never gain
+acceptable hit points!) and if it is more than 120%, you will probably want
+to keep the character, no matter how poor stats.
+Oh, you ask what life rating is. Well, when you create a character, the
+computer will randomly roll for his hit points for each level he may gain
+and stores the results in an array. When your max hp changes, it gets the
+amount of hp from the array it produced when your character was created.
+Life rating is an average telling how good these rolls were, overall...
+* Death messages for unique monsters put into a separate file. Practically,
+this does not take any more memory (only disk space) or slow down the program,
+but it has several advantages:
+        -The messages are in quotes now
+                'AAARGH!'    (not AAARGH!)
+        -Some messages were poorly suited for monsters
+                e.g. Mickey Mouse says:  Finish him!
+         They are in death.txt, but not in mondeath.txt
+* A new type of curse (TR_TY_CURSE) for objects. It can do a various
+NASTY things...
+* Potions of self knowledge are more common now!
+* Books of the Dead are dark blue now. Thanks to whoever had this idea.
+* Slightly touched the code for potions of Confusion. Also, changed the name
+to Potions of Booze (as in Nethack) which describes them better now.
+* Moved the racial intrinsic ability from CTRL-S to 'I' to avoid hangups
+on CTRL-S
+* Ouch. If the kill money for a unique exceeded 32000 gold pieces, bad things
+happened. You could be rewarded with -30000 gold pieces. I rewrote the reward
+code to avoid wraparounds. All rewards are considerably saner (smaller) now,
+and always multiples of 250.
+* Minor fixes (like Gremlins not giving all that much xp).
+* You will be prompted whether you really want to use your racial intrinsic,
+when using it could be fatal. The warnings may be seem to start a bit too
+early, but that was necessary: otherwise a character whose mhp was lower than
+10 would have never got a warning (if he was silly enough to try). Better safe
+than sorry.
+* Hacked the monster / movement code to work with Mike Marcelais's font
+program. Since his program is shareware, the code is option-controlled (people
+who don't want to register can turn graphics off).
+* Ekrem Soylemez's code for levels of varying sizes. About 1 level in 3 will
+have unusual size. To make small levels a bit more fair for the player, the
+amount of monsters per level & size of packs (for group monsters) will be
+related to the dungeon depth & level size... but once you get deep enough,
+even levels that are only one screen big have as many monsters as normal sized
+levels!
+* Made it impossible to use Scrolls of Artifact Creation on ammo! (I found
+out that making artifact ammo was a truly wicked cheesy abuse... you could
+drop them around the town and sell them one by one to get money (no monster
+would pick them up as they were artifacts, every one of them). Yes, you had
+to sell them one at a time because no shopkeeper could pay the real price for
+the bunch!)
+* Fixed a bug that had made the better DSMs non-activable due to their being
+moved further down in the object list... man, did this suck! But I'm happy I
+found this before releasing the new version :-> Can anybody give me a reason
+why I _should_ add new items where the comment tells you to? Because if you
+put new items there, you will have to rewrite the object index references in
+Dungeon.c or you can't activate some DSMs (or some artifact cloaks)! To me,
+adding new items after the DSMs seems a much better idea.
+* Yet another bug caused by this index thing. Misc1.c was not enchanting
+the higher DSMs correctly because it was referring to their index positions.
+They had smaller plusses than intended and you could find such items as
+Chaos Dragon Scalemail of Resist Cold - or even PDSM of Resist Acid. ARGH!
+(Fixed)
+If I find ONE more such index reference, I will probably start sadistically
+slaughtering coders who make the code use index references and then "kindly"
+instruct you to add new items in a place where they mess up the references...
+(*moan*, *groan*, *growl*, *howl*)
+* Rods of Havoc sometimes shoot balls of destruction in every direction!
+* The Chainsword can "speak" sometimes if you are wielding it. (CHAINSWD.TXT
+has the strings it can use). If you edit chainswd.txt and want to use Nhsound,
+I advice you to use the words "roars" and "VROOOOM!" often... :->
+* Wands of Rockets implemented... (also fixed a bug that caused them to
+be always empty when created :-)
+* Whoops! My new code for scrolls of summon monsters was missing a break in
+the switch statement. This caused the character to blink after reading the
+scroll (making it marginally less dangerous :-) Fixed.
+* All orcs resist darkness (just like pc half-orcs).
+* Not all monsters will run away if you hurt them bad enough. Zombies, for
+example, are just too dumb to run away. Magical fear may still work on some
+"fearless" monsters, though.
+* Dwarfs (the English plural) -> Dwarves (the Tolkien plural)
+* Fixed a 1.40 bug that allowed you to id ego weapons by trying to throw
+them. No more "Really throw a Mace (2d4)?"
+* Not all uniques will speak. Some are animals (Morgenstern, the Queen Ant)
+and thus don't speak any comprehensible language. Others (Groo) are just too
+dumb to say anything.
+* (Melee) Weapons of Slaying implemented. These do more damage than normal
+ones, but should never be in the artifact class (although it is theoretically
+possible...)
+* Couple of new items suggested in a post implemented:
+        Weapons of Lightning
+        Potions of Curing (instead of mushrooms that were suggested)
+        Potions of Resistance
+  (There are already rings with "high" resistances in them... both separately
+  and the "all-you-need-in-one" of Lordly Protection)
+* Completely cleaned up the "Which monsters show up on ESP" code (by defining
+two auxiliary flags for monsters). This also had the extra benefit of making
+new monsters easier to handle.
+* A new flag for defining monsters that are "not living" (in addition to
+undead & demons). This made the code a bit simpler in certain spots, made new
+monsters more convenient to code in and also... while doing this I found &
+fixed some cases of truly rotten logic in the 1.40 sources (like that "if x is
+a demon OR if x is a demon" which really was there in the throwing code...
+another one, not as bad (i.e. not immediately obvious) was in the look code:
+"if x's symbol is not 'g' OR if x's symbol is not 'v' OR if x's symbol is not
+'X'..."  it's pretty difficult to find a monster whose symbol is all those at
+the same time)
+* If you are using graphics, very unstable shapechangers (Chaos
+shapechangers, Lords of Chaos and Dworkin Barimen) will look different every
+turn.
+* Summoning traps turned into a nastier variant...
+* There are only male shopkeepers now. If you use the Nhsound program, you'll
+find out why.
+* Radically changed & cleaned up the test to use the racial intrinsic. It is
+no longer based on Wisdom (as this seemed to favor the priest - in most races),
+only on level. There is an "optimum" level for the ability (depending on your
+race - and for half-trolls, also class). If you are at least that level, you
+have a 75% chance of success. If not, the chance is 75-5*difference %. There
+is, however, a minimum chance (5%) of succeeding even if your character is
+level 1. Some races (e.g. high-elf) may make several independant tests. This
+means that one time you might succeed to detect evil & get prot from evil, and
+another detect evil & dispel evil (but not get prot. from evil which is
+"between" them).
+Being stunned reduces the chance of success, and being confused makes using
+the intrinsic impossible.
+* Two new pit types: Zoo (animal monsters) and House of Evil (evil monsters).
+Not as great as the "Animal realm" and "Realm of Evil" sketched in a post
+eons ago, but they cost very little program length (I made them use the same
+code as Dragon pits). I don't suppose anybody would like to see "Hot Place"
+(fire resisters pit), "Monster Gym" (max_hp monsters pit) or... "Dungeoneer's
+Heaven!" (Good drop monsters pit)? :> Adding these would be trivial right now.
+With the graphics alphabet mix pits have become quite redundant. But I'm
+leaving them in for people who want to play this on some other platform or
+otherwise with the graphics turned off.
+* Most qualthyglhgluthgluthugs (quylthulgs?) seemed to be "natural". Since
+I don't THINK they should be animals, I changed this.
+* Changed the new spell destroys slightly (mostly using Fangband destroys now
+for items)
+* Fixed a bug in store1.c: there was no case for TV_ROD which caused the
+shopkeeper to always think he had paid just the right sum for any unidentified
+rod (so you would have never got "The shopkeeper dances around in joy!" or
+such if sold an unidentified Rod of Speed)
+* Added an alias ',' for the command 'g'et (for people who think Nethack)
+* Better message: "You see here an open door." (as in Nethack) instead of the
+"On the floor: an open door." (of the standard binaries).
+* Bows (& slings?) of Might get one or more random high resistances to make
+missile weapons more competitive at higher levels. Also, there is now ammo
+of Lightning that is pretty destructive.
+* Some swords are Blades of Sharpness now. I can only say that these weapons
+may sometimes score truly AMAZING hits (if a critical hit is otherwise scored
+at the same time as the Sharpness critical). Of the artifacts, the Chainsword
+and the Vorpal Blade are Blades of Sharpness. The Vorpal Blade is the sharpest
+of them all.
+* "You're head stops stinging." -> "Your head stops stinging." in POTIONS.C,
+PRAYER.C, RODS.C and STAFFS.C.
+* Gauntlets of Slaying sometimes have better plusses.
+* I've experimentally put in Ekrem Soylemez's new speed code. This code has
+a larger scale (the "standard" unit is 10 instead of 1). This means that speed
+is even less powerful than with the 1.40 new code (which it otherwise uses).
+There are no big changes in the treasure yet, except that Rings of Speed are
+now more common and you can use two simultaneously. All permanent speed items
+have bigger (variable) plusses. Temporary speed is always +10/-5 (*sigh*).
+Encumbrance penalties are progressive: the more extra weight you carry the
+more severe the penalty. Since the penalties are not all that drastic at
+first, I've brought the carry limits down a bit (they were ridiculously high
+in the first place).
+At the moment, the biggest changes lie in the monster code. First there are
+10 different kinds of speed that will be recalled as "fast", "at normal speed",
+"slowly" etc. There are two benefits of a bigger range: 1) Monster a and
+monster b were "fast" in the old code. Now Monster a can have speed 34 and
+Monster b can have speed 38 (or whatever you like). 2) When a new monster of
+the type is created, its speed will get a random modifier. Thus, every single
+monster will have its own "unique" speed: you can meet a pack of monsters (of
+the same kind) but they don't all move at exactly the same speed!
+* Put the currently unused Artifact-list-into-file command inside an #if 0.
+This made the executable somewhat (~5k) smaller.
+* Finally fixed a Berserking-vs-Fear-attack bug that had been there for all
+too long a time. The attack would not check for existing Berserk or Hero flag,
+so it could result in bogus "You scream in terror!" messages. (The Fear spell
+had the same problem).
+* Dragon Shields and Dragon Helmets added. All resist acid, plus get one
+or more random resistances. Normally, these random resistances will be the
+basic elemental types (Fire, Cold, Lightning), but occasionally they may get
+resist poison or a "high" resistance.
+The color of a dragon shield or dragon helmet will give you some clue about
+its powers.
+* Experimentally put in Aaron Mandelbaum's "numbered" ammo mod. Now you
+can inscribe a number from 0 to 9 into your ammo and to shoot ammo number
+(n) you have to type t(n), e.g. "t1". This inscription also works as an 
+"alias" for various other commands (eat, identify, quaff etc).
+More specifically, I'm using Randy Hutson's modified version of the patch.
+* Fixed a tiny bug that caused you to lose a turn if you decided not throw
+away an object after getting prompted.
+* Artifacts have _slightly_ better chance to resist disenchantment than in
+the standard version.
+* David Sward's diff to show many more spells a mage/ranger can learn, e.g.
+"Learn which spell (1 left)?"
+* Took away the dot from "poisonous food" so you'll no longer see "killed
+by poisonous food.." I wonder if anybody has ever come across this anyway.
+* Since demons in my variant are related with the Courts of Chaos, all demons
+have a 33% chance of resisting chaos attacks.
+* I seem to have taken the "colorized hurt monster" messages code from
+somewhere (maybe Drangband) but it is not currently enabled. I put it inside
+an #if 0 because the code is not stable enough.
+
+
+The following features have been inherited (not in the C++ sense, at least
+not literally :-) from Angband--:
+* Hound pits ("Z")
+* Chapels (priests and angels)
+* Dragon pits replaced with generic dragon pits
+* Treasure pits ($ ! / | ?)
+* Gazillions of "new" monsters to replace a huge lot of old ones. Some
+monsters are slightly different. High level monsters *much* tougher now
+* The same things with artifacts
+* Ringil now aggravates monsters
+* Bladeturner now activates for breath, too
+* Spell/prayerbooks renamed, different shopkeepers, some spells renamed
+* Better (?) messages
+* Some monster classes changed
+* Tulwars replaced with falchions
+* Changed some of the constants in constant.h (dungeon generation)
+* Chaos creatures change color every turn
+* Slay Demon does double damage against angels.
+* Added a *CRITICAL* hit above *GREAT* hit. Only the Vorpal Blade should be
+heavy enough to score a *CRITICAL* hit. Also, a minor mod to the hits/round
+table...
+* The ranks above Superb are called Chaos Rank and Amber Rank
+* Different descriptions for unidentified potions, scrolls, wands, rings...
+* More uniques have SPECIAL drop now! But... they are ***TOUGH***... 
+* Instead of Good feelings etc you will now get Bad feelings and the like.
+The best non-special feeling ("You faint as horrible visions of sudden death
+fill your mind!") will cause your character get pass out when you get it.
+* Potions of speed are slightly more common.
+* Different ego weapons
+* More randomness in ego weapon creation (1/7 chance that a Slay Dragon
+weapon is Execute Dragon etc). Dragonslaying weapons may resist various
+elemental attack types
+* Defenders and armor of Resistance may sometimes resist poison
+* SU weapons resist life level loss, sometimes also Nether
+* Rods of Havoc that shoot wide-area ball spells
+* Scroll of Artifact Creation: Works like the priestly Elemental Brand
+        spell, but gives up to 8 (rarely even more) flags to the weapon you
+        are wielding. Better have some potions of self knowledge handy when
+        you try this. (I know what all you save file cheaters are going to
+        do with this one - don't waste your time trying to get Speed +x,
+        as this flag can never be produced with the scroll). Replaces
+        Scroll of Holy Prayer which I never... oh, you knew the rest? :-)
+        About as rare as Scrolls of Acquirement, start deeper than
+        *Acquirement*.
+        If you are wielding no weapons or are wielding a weapon which already
+        has a second string in its name (i.e. artifact or excellent
+        weapon), you have wasted the scroll and the enchantment fails.
+        The program will tell you something like "You can feel a powerful
+        weapon in your hands, but it vanishes!"
+        Backupping your save file and reading the scroll until you get
+        something really "kool" is _strongly_ discouraged by the author:
+        it seems to reduce the fun and excitement considerably.
+         (This is probably the worst kind of cheating currently possible -
+         not counting save file editing).
+* Potions of Water no longer cursed, Glyphs of Warding are LIGHTCYAN
+* Harmful potions (and food) will often do damage if thrown
+* Mages also have a spell to detect invisible monsters, but they are not
+so good at it.
+* Typo fixes in monster descriptions.
+* Wands of Death that attempt to kill a monster instantly. Uniques, undead
+and various monsters that obviously are not alive are immune to this. Also,
+the monster gets a saving throw which is based on its level & the player's
+level.
+* Amberite race to replace the Dunadain. Their intrinsic power is Regeneration.
+* The Rings of Power now also function as Rings of Slaying.
+* Black DSM grants immunity to acid.
+* Rumors: Scrolls of Rumor, shopkeepers occasionally whispering rumors.
+* Death messages when the player dies.
+* More spell destroy types.
+* Racial activable abilities for the races (usually at high level, more
+expensive as you gain more mana/hp). Use 'I' to activate
+        Humans: self knowledge
+        Elves, Half-elves: haste self
+        Dwarfs: detect traps, detection
+        Gnomes: teleport self
+        Hobbits: create food
+        Half-orcs: remove fear, probing
+        Half-trolls: berserking
+        Amberites: pattern mind-walking (CTRL-Z)!!! (Automatically successful,
+                                if your level is high enough. Costs a LOT of
+                                hit points)
+                   shadow shifting (I)
+        High Elves: detect evil, protection from evil, dispel evil
+* Rings of Lordly Protection (good + to ac, resist poison, resist life level
+loss, resist disenchantment and a random resistance)
+* Speaking uniques: Threats and - when a unique dies  - death messages & rumors
+* Wanted uniques and rewards
+* Different (random) error messages
+* More dangerous summoning with the cursed items
+
+
+
+
+Features stolen from FAngband (with DGK's kind permission):
+        - Monster fear code
+        - Rings of Ice etc have a variable random ac bonus
+        - FeatherFall protecting against Gravity attacks
+        - turn undead causing fear instead of confusion
+        - Gauntlets of Free Action not causing mana penalty for mages
+        - Rods of Wall Building
+        - Better code (than mine) for handling such composite descriptions as
+        "Black Potion of Death"
+        - Random High Resistance code for Robes of the magi, armor of
+        elvenkind, several artifacts
+        - Wands of Fear
+        - Destroyed levels: 1 level in 15 will have "Destruction" cast
+          on it in various places when it is created. Player ghosts are
+          much more common in such ancient ruins and battlefields...
+        - Various Rings of xxx resistance (plus some of my own)
+        - Rings of Resist Fear (also gave this flag to some other items).
+        - Rings / Weapons of Extra Attacks
+        - Shining DSM -> Pseudo DSM
+        - Quick messages as an option (i.e. ANY key passes -more- )
+        - Delayed feelings: You no longer get a feeling when you enter a
+          level! Instead, you have to explore. To see the feeling - if it has
+          been generated - type 'v' ('v'iew feeling).
+          Coders might be interested in hearing that even though I made all
+          the necessary changes to the savefile (reading/writing the feeling
+          etc.) the old savefile still worked! (of course there was no saved
+          feeling for the existing level, but after entering a new one it
+          worked nicely).
+          WARNING: This makes the "You faint..." feeling even nastier than
+          it is already, since there's no telling when you get the feeling!
+        - Equippy characters as an option. They look rather neat with graphics.
+        - New spell destroy types
+        - A simplified version of light area doing (very little) damage to
+          monsters that are hurt by light
+        - Blessed Blades that priests can wield without penalties. Since I'm
+          not using the edged-weapon-causes-bigger-prayer-failure-chance code,
+          and I wanted to give normal edged weapons some extra penalty, I
+          doubled the tohit & todam penalties for non-blessed edged weapons.
+          I gave the Blessed Blade attribute to several artifacts, Holy
+          Avengers and "Blessed Blades" (new kind of ego weapon, also grants
+          bonus to Wis as in Fangband).
+        - When you enchant weapons, the maximum + to damage will depend
+          on the damage dice of the weapon (e.g. a dagger can have a maximum
+          of +4 to damage while a Blade of Chaos can have much better 
+          plusses)
+
+
+
+A few patches stolen from Charles Swiger's Unix Angband (with CWS's kind
+permission)
+        -Check for killed uniques (|)  This command allows you to see a list
+         of the uniques you have defeated. Wizard characters will get a
+         listing of all uniques
+        -Check for created artifacts in town (~)  Of course, this has been
+                changed slightly as the selection of artifacts is different
+                in A--
+                By typing this command you can see if you have missed any
+                artifacts. You have to be a wizard to use this command in
+                the dungeon (others can use it only in the town).
+        -Improved code for line_spell
+        -Food Creation goes directly to your belly (one spell equals to one
+         pint of fine grade mush, so no change game-balance-wise)
+        -Heiko Herold's fix for dispel_creature
+        -Whips of fire also resist fire
+        -Monsters will no longer be afraid if they completely heal themselves
+        -New seed for the RNG for new characters!
+        -ID'ing off the floor (keys '-' plus '>' and '.' which I added for
+                               people who think Nethack)
+        -Actually save monster max hp instead of the "quick fix" that 1.40
+         uses. Goodbye, monster heal bug (I hope :)!
+        -Some weapons of Slay Evil are Blessed Blades
+        -Fixed messages for priests when they remove / re-wield weapons that
+         they do not like
+
+
+Feedback, bug messages, ideas etc are always welcome.
+(Better yet, send me a fix... :-> )
+
+       Topi Ylinen     f1toyl@kielo.uta.fi
+
