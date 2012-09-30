@@ -3244,7 +3244,7 @@ bool place_monster(int y, int x, bool slp, bool grp)
 bool alloc_horde(int y, int x)
 {
 	monster_race *r_ptr = NULL;
-	int r_idx;
+	int r_idx = 0;
 	int m_idx;
 	int attempts = 1000;
 	int cy = y;

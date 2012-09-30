@@ -12,6 +12,14 @@
  * Automatically generated "variable" declarations
  */
 
+extern int max_macrotrigger;
+extern char *macro_template;
+extern char *macro_modifier_chr;
+extern char *macro_modifier_name[MAX_MACRO_MOD];
+extern char *macro_trigger_name[MAX_MACRO_TRIG];
+extern char *macro_trigger_keycode[2][MAX_MACRO_TRIG];
+
+
 /* 日本語版機能追加で使う */
 extern int level_up;
 
@@ -441,6 +449,7 @@ extern dungeon_info_type *d_info;
 extern char *d_name;
 extern char *d_text;
 extern cptr ANGBAND_SYS;
+extern cptr ANGBAND_KEYBOARD;
 extern cptr ANGBAND_GRAF;
 extern cptr ANGBAND_DIR;
 extern cptr ANGBAND_DIR_APEX;

@@ -393,7 +393,13 @@ static named_num gf_desc[] =
  *
  * Specify the set of colors to use when drawing a zapped spell
  *   Z:<type>:<str>
+ *
+ * Specify a macro trigger template and macro trigger names.
+ *   T:<template>:<modifier chr>:<modifier name1>:<modifier name2>:...
+ *   T:<trigger>:<keycode>:<shift-keycode>
+ *
  */
+
 errr process_pref_file_command(char *buf)
 {
 	int i, j, n1, n2;
@@ -644,7 +650,95 @@ errr process_pref_file_command(char *buf)
 			}
 		}
 	}
+	/* set macro trigger names and a template */
+	/* Process "T:<trigger>:<keycode>:<shift-keycode>" */
+	/* Process "T:<template>:<modifier chr>:<modifier name>:..." */
+	else if (buf[0] == 'T')
+	{
+		int len, tok;
+		tok = tokenize(buf+2, 2+MAX_MACRO_MOD, zz, 0);
+		if (tok >= 4)
+		{
+			int i;
+			int num;
 
+			if (macro_template != NULL)
+			{
+				free(macro_template);
+				macro_template = NULL;
+				for (i = 0; i < max_macrotrigger; i++)
+					free(macro_trigger_name[i]);
+				max_macrotrigger = 0;
+			}
+			
+			if (*zz[0] == '\0') return 0; /* clear template */
+			num = strlen(zz[1]);
+			if (2 + num != tok) return 1; /* error */
+
+			len = strlen(zz[0])+1+num+1;
+			for (i = 0; i < num; i++)
+				len += strlen(zz[2+i])+1;
+			macro_template = malloc(len);
+
+			strcpy(macro_template, zz[0]);
+			macro_modifier_chr =
+				macro_template + strlen(macro_template) + 1;
+			strcpy(macro_modifier_chr, zz[1]);
+			macro_modifier_name[0] =
+				macro_modifier_chr + strlen(macro_modifier_chr) + 1;
+			for (i = 0; i < num; i++)
+			{
+				strcpy(macro_modifier_name[i], zz[2+i]);
+				macro_modifier_name[i+1] = macro_modifier_name[i] + 
+					strlen(macro_modifier_name[i]) + 1;
+			}
+		}
+		else if (tok >= 2)
+		{
+			int m;
+			char *t, *s;
+			if (max_macrotrigger >= MAX_MACRO_TRIG)
+			{
+#ifdef JP
+				msg_print("マクロトリガーの設定が多すぎます!");
+#else
+				msg_print("Too many macro triggers!");
+#endif
+				return 1;
+			}
+			m = max_macrotrigger;
+			max_macrotrigger++;
+
+			len = strlen(zz[0]) + 1 + strlen(zz[1]) + 1;
+			if (tok == 3)
+				len += strlen(zz[2]) + 1;
+			macro_trigger_name[m] = malloc(len);
+
+			t = macro_trigger_name[m];
+			s = zz[0];
+			while (*s)
+			{
+				if ('\\' == *s) s++;
+				*t++ = *s++;
+			}
+			*t = '\0';
+
+			macro_trigger_keycode[0][m] = macro_trigger_name[m] +
+				strlen(macro_trigger_name[m]) + 1;
+			strcpy(macro_trigger_keycode[0][m], zz[1]);
+			if (tok == 3)
+			{
+				macro_trigger_keycode[1][m] = macro_trigger_keycode[0][m] +
+					strlen(macro_trigger_keycode[0][m]) + 1;
+				strcpy(macro_trigger_keycode[1][m], zz[2]);
+			}
+			else
+			{
+				macro_trigger_keycode[1][m] = macro_trigger_keycode[0][m];
+			}
+		}
+		return 0;
+	}
 
 	/* Failure */
 	return (1);
@@ -818,6 +912,11 @@ static cptr process_pref_file_expr(char **sp, char *fp)
 			{
 				v = ANGBAND_SYS;
 			}
+
+                        else if (streq(b+1, "KEYBOARD"))
+                        {
+                                v = ANGBAND_KEYBOARD;
+                        }
 
 			/* Graphics */
 			else if (streq(b+1, "GRAF"))
@@ -4604,7 +4703,7 @@ fprintf(fff, "  [ キャラクタの装備 ]\n\n");
 #ifdef JP
 				strcpy(o_name, "(武器を両手持ち)");
 #else
-				strcpy(o_name, "(wielding a weapon with two-handed.)");
+				strcpy(o_name, "(wielding with two-hands)");
 #endif
 			fprintf(fff, "%c%s %s\n",
 				index_to_label(i), paren, o_name);

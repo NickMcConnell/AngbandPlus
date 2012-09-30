@@ -4803,3 +4803,6 @@ extern int PlayerUID;
 #define HTTP_TIMEOUT    20              /* Timeout length (second) */
 #define SCORE_SERVER "www.kmc.gr.jp"    /* Default score server url */
 #define SCORE_PORT 80                   /* Default score server port */
+
+#define MAX_MACRO_MOD 12
+#define MAX_MACRO_TRIG 200
