@@ -5784,7 +5784,7 @@ switch (realm)
             case 17: sprintf(p, " dam %dd8", (5+((plev)/10))); break;
             case 19: sprintf(p, " dam %d", 80 + plev); break;
             case 24: sprintf(p, " dam %dd8", (9 + ((plev/10)))); break;
-            case 25: sprintf(p, " dam %d", 65 + plev); break;
+            case 25: sprintf(p, " dam %d each", (3*plev)/2); break;
             case 26: sprintf(p, " dam %d", 75 + plev); break;
             case 27: strcpy (p, " dam 75 / 150"); break;
             case 28: sprintf(p, " dam %d", 120 + plev); break;

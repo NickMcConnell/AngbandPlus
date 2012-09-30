@@ -1792,10 +1792,34 @@ void do_cmd_cast(void)
                 fire_beam(GF_GRAVITY, dir, damroll(9+((plev-5)/4), 8));
             break;
         case 25: /* Meteor Swarm  */
+#if 1
+           {
+		       int x, y, dx, dy, d, count = 0;
+		       int b = 10 + randint(10); 
+		       for (i = 0; i < b; i++) {
+			   do {
+			       count++;
+			       if (count > 1000)  break;
+			       x = px - 5 + randint(10);
+			       y = py - 5 + randint(10);
+			       dx = (px > x) ? (px - x) : (x - px);
+			       dy = (py > y) ? (py - y) : (y - py);
+			       /* Approximate distance */
+                   d = (dy > dx) ? (dy + (dx>>1)) : (dx + (dy>>1));
+               } while ((d > 5) || (!(player_has_los_bold(y, x))));
+			   
+			   if (count > 1000)   break;
+			   count = 0;
+               project(0, 2, y, x, (plev*3)/2, GF_METEOR, PROJECT_KILL|PROJECT_JUMP|PROJECT_ITEM);
+		       }
+		   }
+	           break;
+#else
 			if (!get_aim_dir(&dir)) return;
 			fire_ball(GF_METEOR, dir,
 				65 + (plev), 3 + (plev/40));
 			break;
+#endif
 		case 26: /* Flame Strike */
 			fire_ball(GF_FIRE, 0,
                 150 + (2*plev), 8);

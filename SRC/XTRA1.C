@@ -1493,6 +1493,10 @@ static void calc_mana(void)
 	/* Hack -- usually add one mana */
 	if (msp) msp++;
 
+    /* Hack: High mages have a 25% mana bonus */
+    if (msp && (p_ptr->pclass == CLASS_HIGH_MAGE))
+        msp += msp / 4;
+
 
 	/* Only mages are affected */
     if (mp_ptr->spell_book == TV_SORCERY_BOOK)

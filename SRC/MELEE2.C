@@ -2592,9 +2592,12 @@ void curse_equipment(int chance, int heavy_chance)
     if (changed)
     {
         msg_print("There is a malignant black aura surrounding you...");
-        if (streq(quark_str(o_ptr->note), "uncursed"))
+        if (o_ptr->note)
         {
-            o_ptr->note = 0;
+            if (streq(quark_str(o_ptr->note), "uncursed"))
+            {
+                o_ptr->note = 0;
+            }
         }
     }
 }
@@ -2726,7 +2729,7 @@ bool make_attack_spell(int m_idx)
            if (rand_int(100) >=  chance) return (FALSE);
  
            /* Sometimes forbid inate attacks (breaths) */
-           if (rand_int(100) >= chance) no_inate = TRUE;
+           if (rand_int(100) >= (chance * 2)) no_inate = TRUE;
         }
  
 

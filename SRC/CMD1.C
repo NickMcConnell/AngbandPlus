@@ -1465,7 +1465,7 @@ void py_attack(int y, int x)
             }
 	    }
 			/* Confusion attack */
-            if ((p_ptr->confusing) || (chaos_effect && (randint(20)!=1)))
+            if ((p_ptr->confusing) || (chaos_effect && (randint(10)!=1)))
 			{
 				/* Cancel glowing hands */
 				p_ptr->confusing = FALSE;

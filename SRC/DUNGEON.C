@@ -1566,7 +1566,7 @@ static void process_world(void)
                     {
                           disturb(0,0);
                           p_ptr->redraw |= PR_EXTRA;
-                          (void)set_image(p_ptr->image + rand_int(150) + 150);
+                          (void)set_image(p_ptr->image + rand_int(50) + 20);
                     }
                 }
             if ((p_ptr->muta2 & MUT2_FLATULENT) &&

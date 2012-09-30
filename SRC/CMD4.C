@@ -2873,6 +2873,10 @@ void plural_aux(char * Name)
     {
         strcpy (&(Name[NameLen-4]), "ice");
     }
+    else if (streq(&(Name[NameLen-3]), "man"))
+    {
+        strcpy (&(Name[NameLen-3]), "men");
+    }
     else if (streq(&(Name[NameLen-2]), "ex"))
     {
         strcpy (&(Name[NameLen-2]), "ices");
