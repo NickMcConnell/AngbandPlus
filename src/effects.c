@@ -59,7 +59,7 @@ bool set_blind(int v)
 	if (!notice) return (FALSE);
 
 	/* Disturb */
-	if (disturb_state) disturb(0, 0);
+	if (disturb_state) disturb(FALSE);
 
 	/* Fully update the visuals - hack set torch to be radius 0 */
 	p_ptr->update |= (PU_UN_VIEW | PU_VIEW | PU_MONSTERS | PU_TORCH);
@@ -123,7 +123,7 @@ bool set_confused(int v)
 	if (!notice) return (FALSE);
 
 	/* Disturb */
-	if (disturb_state) disturb(0, 0);
+	if (disturb_state) disturb(FALSE);
 
 	/* Redraw the "confused" */
 	p_ptr->redraw |= (PR_CONFUSED);
@@ -173,7 +173,7 @@ bool set_poisoned(int v)
 	if (!notice) return (FALSE);
 
 	/* Disturb */
-	if (disturb_state) disturb(0, 0);
+	if (disturb_state) disturb(FALSE);
 
 	/* Redraw the "poisoned" */
 	p_ptr->redraw |= (PR_POISONED);
@@ -225,7 +225,7 @@ bool set_afraid(int v)
 	if (!notice) return (FALSE);
 
 	/* Disturb */
-	if (disturb_state) disturb(0, 0);
+	if (disturb_state) disturb(FALSE);
 
 	/* Redraw the "afraid" */
 	p_ptr->redraw |= (PR_AFRAID);
@@ -278,7 +278,7 @@ bool set_paralyzed(int v)
 	if (!notice) return (FALSE);
 
 	/* Disturb */
-	if (disturb_state) disturb(0, 0);
+	if (disturb_state) disturb(FALSE);
 
 	/* Redraw the state */
 	p_ptr->redraw |= (PR_STATE);
@@ -333,7 +333,7 @@ bool set_image(int v)
 	if (!notice) return (FALSE);
 
 	/* Disturb */
-	if (disturb_state) disturb(0, 0);
+	if (disturb_state) disturb(FALSE);
 
 	/* Redraw map */
 	p_ptr->redraw |= (PR_MAP);
@@ -395,7 +395,7 @@ bool set_fast(int v)
 	if (!notice) return (FALSE);
 
 	/* Disturb */
-	if (disturb_state) disturb(0, 0);
+	if (disturb_state) disturb(FALSE);
 
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
@@ -448,7 +448,7 @@ bool set_slow(int v)
 	if (!notice) return (FALSE);
 
 	/* Disturb */
-	if (disturb_state) disturb(0, 0);
+	if (disturb_state) disturb(FALSE);
 
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
@@ -501,7 +501,7 @@ bool set_shield(int v)
 	if (!notice) return (FALSE);
 
 	/* Disturb */
-	if (disturb_state) disturb(0, 0);
+	if (disturb_state) disturb(FALSE);
 
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
@@ -555,7 +555,7 @@ bool set_blessed(int v)
 	if (!notice) return (FALSE);
 
 	/* Disturb */
-	if (disturb_state) disturb(0, 0);
+	if (disturb_state) disturb(FALSE);
 
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
@@ -608,7 +608,7 @@ bool set_hero(int v)
 	if (!notice) return (FALSE);
 
 	/* Disturb */
-	if (disturb_state) disturb(0, 0);
+	if (disturb_state) disturb(FALSE);
 
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
@@ -664,7 +664,7 @@ bool set_shero(int v)
 	if (!notice) return (FALSE);
 
 	/* Disturb */
-	if (disturb_state) disturb(0, 0);
+	if (disturb_state) disturb(FALSE);
 
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
@@ -720,7 +720,7 @@ bool set_protevil(int v)
 	if (!notice) return (FALSE);
 
 	/* Disturb */
-	if (disturb_state) disturb(0, 0);
+	if (disturb_state) disturb(FALSE);
 
 	/* Handle stuff */
 	handle_stuff();
@@ -787,7 +787,7 @@ bool set_wraith_form(int v)
 	if (!notice) return (FALSE);
 
 	/* Disturb */
-	if (disturb_state) disturb(0, 0);
+	if (disturb_state) disturb(FALSE);
 
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
@@ -864,7 +864,7 @@ bool set_invuln(int v)
 	if (!notice) return (FALSE);
 
 	/* Disturb */
-	if (disturb_state) disturb(0, 0);
+	if (disturb_state) disturb(FALSE);
 
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
@@ -917,7 +917,7 @@ bool set_tim_esp(int v)
 	if (!notice) return (FALSE);
 
 	/* Disturb */
-	if (disturb_state) disturb(0, 0);
+	if (disturb_state) disturb(FALSE);
 
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
@@ -973,7 +973,7 @@ bool set_tim_invis(int v)
 	if (!notice) return (FALSE);
 
 	/* Disturb */
-	if (disturb_state) disturb(0, 0);
+	if (disturb_state) disturb(FALSE);
 
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
@@ -1029,7 +1029,7 @@ bool set_tim_infra(int v)
 	if (!notice) return (FALSE);
 
 	/* Disturb */
-	if (disturb_state) disturb(0, 0);
+	if (disturb_state) disturb(FALSE);
 
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
@@ -1085,7 +1085,7 @@ bool set_oppose_acid(int v)
 	if (!notice) return (FALSE);
 
 	/* Disturb */
-	if (disturb_state) disturb(0, 0);
+	if (disturb_state) disturb(FALSE);
 
 	/* Handle stuff */
 	handle_stuff();
@@ -1135,7 +1135,7 @@ bool set_oppose_elec(int v)
 	if (!notice) return (FALSE);
 
 	/* Disturb */
-	if (disturb_state) disturb(0, 0);
+	if (disturb_state) disturb(FALSE);
 
 	/* Handle stuff */
 	handle_stuff();
@@ -1185,7 +1185,7 @@ bool set_oppose_fire(int v)
 	if (!notice) return (FALSE);
 
 	/* Disturb */
-	if (disturb_state) disturb(0, 0);
+	if (disturb_state) disturb(FALSE);
 
 	/* Handle stuff */
 	handle_stuff();
@@ -1235,7 +1235,7 @@ bool set_oppose_cold(int v)
 	if (!notice) return (FALSE);
 
 	/* Disturb */
-	if (disturb_state) disturb(0, 0);
+	if (disturb_state) disturb(FALSE);
 
 	/* Handle stuff */
 	handle_stuff();
@@ -1285,7 +1285,7 @@ bool set_oppose_pois(int v)
 	if (!notice) return (FALSE);
 
 	/* Disturb */
-	if (disturb_state) disturb(0, 0);
+	if (disturb_state) disturb(FALSE);
 
 	/* Handle stuff */
 	handle_stuff();
@@ -1402,16 +1402,16 @@ bool set_stun(int v)
 		 * explained away by their "superior mental skills" or
 		 * something...
 		 */
-		if ((randint1(1000) < v || randint1(16) == 1) &&
+		if ((randint1(1000) < v || one_in_(16)) &&
 		 (!(p_ptr->pclass == CLASS_MINDCRAFTER)))
 		{
 			msg_print("A vicious blow hits your head.");
-			if (randint1(3) == 1)
+			if (one_in_(3))
 			{
 				if (!p_ptr->sustain_int) (void)do_dec_stat(A_INT);
 				if (!p_ptr->sustain_wis) (void)do_dec_stat(A_WIS);
 			}
-			else if (randint1(2) == 1)
+			else if (one_in_(2))
 			{
 				if (!p_ptr->sustain_int) (void)do_dec_stat(A_INT);
 			}
@@ -1434,7 +1434,7 @@ bool set_stun(int v)
 			/* None */
 			case 0:
 			msg_print("You are no longer stunned.");
-			if (disturb_state) disturb(0, 0);
+			if (disturb_state) disturb(FALSE);
 			break;
 		}
 
@@ -1449,7 +1449,7 @@ bool set_stun(int v)
 	if (!notice) return (FALSE);
 
 	/* Disturb */
-	if (disturb_state) disturb(0, 0);
+	if (disturb_state) disturb(FALSE);
 
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
@@ -1626,7 +1626,7 @@ bool set_cut(int v)
 		/* Notice */
 		notice = TRUE;
 
-		if (randint1(1000) < v || randint1(16) == 1)
+		if (randint1(1000) < v || one_in_(16))
 		{
 			if (!p_ptr->sustain_chr)
 			{
@@ -1646,7 +1646,7 @@ bool set_cut(int v)
 			/* None */
 			case 0:
 			msg_print("You are no longer bleeding.");
-			if (disturb_state) disturb(0, 0);
+			if (disturb_state) disturb(FALSE);
 			break;
 		}
 
@@ -1661,7 +1661,7 @@ bool set_cut(int v)
 	if (!notice) return (FALSE);
 
 	/* Disturb */
-	if (disturb_state) disturb(0, 0);
+	if (disturb_state) disturb(FALSE);
 
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
@@ -1872,7 +1872,7 @@ bool set_food(int v)
 	if (!notice) return (FALSE);
 
 	/* Disturb */
-	if (disturb_state) disturb(0, 0);
+	if (disturb_state) disturb(FALSE);
 
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
@@ -2002,7 +2002,7 @@ bool dec_stat(int stat, int amount, int permanent)
 			if (loss < 1) loss = 1;
 
 			/* Randomize the loss */
-			loss = ((randint1(loss) + loss) * amount) / 100;
+			loss = (rand_range(loss, loss * 2) * amount) / 100;
 
 			/* Maximal loss */
 			if (loss < amount/2) loss = amount/2;
@@ -2044,7 +2044,7 @@ bool dec_stat(int stat, int amount, int permanent)
 			/* and one-half of the stat bonus times the percentage, with a */
 			/* minimum damage of half the percentage. -CWS */
 			loss = (((max-18) / 2 + 1) / 2 + 1);
-			loss = ((randint1(loss) + loss) * amount) / 100;
+			loss = (rand_range(loss, loss * 2) * amount) / 100;
 			if (loss < amount/2) loss = amount/2;
 
 			/* Lose some points */
@@ -2208,7 +2208,7 @@ bool do_dec_stat(int stat)
 	}
 
 	/* Sustain */
-	if (sust && (!ironman_nightmare || randint0(13)))
+	if (sust && !(ironman_nightmare && one_in_(13)))
 	{
 		/* Message */
 		msg_format("You feel %s for a moment, but the feeling passes.",
@@ -2219,7 +2219,7 @@ bool do_dec_stat(int stat)
 	}
 
 	/* Attempt to reduce the stat */
-	if (dec_stat(stat, 10, (ironman_nightmare && !randint0(13))))
+	if (dec_stat(stat, 10, (ironman_nightmare && !one_in_(13))))
 	{
 		/* Message */
 		msg_format("You feel very %s.", desc_stat_neg[stat]);
@@ -2384,7 +2384,7 @@ void do_poly_wounds(void)
 	s16b wounds = p_ptr->cut;
 	s16b hit_p = (p_ptr->mhp - p_ptr->chp);
 	s16b change = damroll(p_ptr->lev, 5);
-	bool Nasty_effect = (randint1(5) == 1);
+	bool Nasty_effect = (one_in_(5));
 
 	if (!(wounds || hit_p || Nasty_effect)) return;
 
@@ -2411,7 +2411,7 @@ void do_poly_self(void)
 
 	chg_virtue(V_CHANCE, 1);
 
-	if ((power > randint0(20)) && (randint0(3) == 1))
+	if ((power > randint0(20)) && one_in_(3))
 	{
 		char effect_msg[80] = "";
 		int new_race, expfact, goalexpfact;
@@ -2419,7 +2419,7 @@ void do_poly_self(void)
 		/* Some form of racial polymorph... */
 		power -= 10;
 
-		if ((power > randint0(5)) && (randint0(4) == 1))
+		if ((power > randint0(5)) && one_in_(4))
 		{
 			/* sex change */
 			power -= 2;
@@ -2438,7 +2438,7 @@ void do_poly_self(void)
 			}
 		}
 
-		if ((power > randint0(30)) && (randint0(5) == 1))
+		if ((power > randint0(30)) && one_in_(5))
 		{
 			int tmp = 0;
 
@@ -2447,9 +2447,9 @@ void do_poly_self(void)
 
 			while (tmp < 6)
 			{
-				if (randint0(2) == 1)
+				if (one_in_(2))
 				{
-					(void)dec_stat(tmp, randint1(6) + 6, (randint1(3) == 1));
+					(void)dec_stat(tmp, rand_range(6, 12), one_in_(3));
 					power -= 1;
 				}
 				tmp++;
@@ -2470,7 +2470,7 @@ void do_poly_self(void)
 			}
 		}
 
-		while ((power > randint0(20)) && (randint0(10) == 1))
+		while ((power > randint0(20)) && one_in_(10))
 		{
 			/* Polymorph into a less mutated form */
 			power -= 10;
@@ -2542,7 +2542,7 @@ void do_poly_self(void)
 		lite_spot(p_ptr->py, p_ptr->px);
 	}
 
-	if ((power > randint0(30)) && (randint0(6) == 1))
+	if ((power > randint0(30)) && one_in_(6))
 	{
 		int tmp = 0;
 
@@ -2552,10 +2552,10 @@ void do_poly_self(void)
 		msg_print("Your internal organs are rearranged!");
 		while (tmp < 6)
 		{
-			(void)dec_stat(tmp, randint1(6) + 6, (randint1(3) == 1));
+			(void)dec_stat(tmp, rand_range(6, 12), one_in_(3));
 			tmp++;
 		}
-		if (randint1(6) == 1)
+		if (one_in_(6))
 		{
 			msg_print("You find living difficult in your present form!");
 			take_hit(damroll(randint1(10), p_ptr->lev), "a lethal mutation");
@@ -2563,17 +2563,17 @@ void do_poly_self(void)
 		}
 	}
 
-	if ((power > randint0(20)) && (randint0(4) == 1))
+	if ((power > randint0(20)) && one_in_(4))
 	{
 		power -= 10;
 
 		do_cmd_rerate();
 	}
 
-	while ((power > randint0(15)) && (randint0(3) == 1))
+	while ((power > randint0(15)) && one_in_(3))
 	{
 		power -= 7;
-		(void)gain_random_mutation(0);
+		(void)gain_mutation(0);
 	}
 
 	if (power > randint0(5))
@@ -2588,6 +2588,9 @@ void do_poly_self(void)
 		mutate_player();
 		power--;
 	}
+	
+	/* Hack - reset visuals so the player's tile can change */
+	reset_visuals();
 }
 
 
@@ -2615,12 +2618,12 @@ void take_hit(int damage, cptr hit_from)
 	if (p_ptr->is_dead) return;
 
 	/* Disturb */
-	disturb(1, 0);
+	disturb(TRUE);
 
 	/* Mega-Hack -- Apply "invulnerability" */
 	if (p_ptr->invuln && (damage < 9000))
 	{
-		if (randint1(PENETRATE_INVULNERABILITY) == 1)
+		if (one_in_(PENETRATE_INVULNERABILITY))
 		{
 			pen_invuln = TRUE;
 		}
@@ -2633,7 +2636,7 @@ void take_hit(int damage, cptr hit_from)
 	if (p_ptr->wraith_form)
 	{
 		damage /= 10;
-		if ((damage == 0) && (randint1(10) == 1)) damage = 1;
+		if ((damage == 0) && one_in_(10)) damage = 1;
 	}
 
 	/* Hurt the player */
@@ -2644,6 +2647,9 @@ void take_hit(int damage, cptr hit_from)
 
 	/* Window stuff */
 	p_ptr->window |= (PW_PLAYER);
+
+	/* Do not skip the message */
+	p_ptr->skip_more = FALSE;
 
 	if (pen_invuln)
 		msg_print("The attack penetrates your shield of invulnerability!");

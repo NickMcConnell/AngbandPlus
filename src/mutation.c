@@ -13,528 +13,498 @@
 #include "angband.h"
 
 
-bool gain_random_mutation(int choose_mut)
-{
-	int     attempts_left = 20;
-	cptr    muta_desc = "";
-	bool    muta_chosen = FALSE;
-	u32b    muta_which = 0;
-	u32b    *muta_class = NULL;
 
-	if (choose_mut) attempts_left = 1;
+/*
+ * Hack - to allow bias for collecting
+ * certain mutations dependent upon your race
+ */
+#define M1_HYPN_GAZE	 2
+#define M1_SHRIEK		13
+#define M1_POLYMORPH	17
+#define M2_HORNS		39
+#define M2_TENTACLES	48
+
+
+/* Does the player have the given mutation? */
+bool player_has_mut(int mutation)
+{
+	if (mutation < MUT_PER_SET)
+	{
+		return (p_ptr->muta1 & mutations[mutation].which ? TRUE : FALSE);
+	}
+	else if (mutation < MUT_PER_SET * 2)
+	{
+		return (p_ptr->muta2 & mutations[mutation].which ? TRUE : FALSE);
+	}
+	else
+	{
+		return (p_ptr->muta3 & mutations[mutation].which ? TRUE : FALSE);
+	}
+} 
+ 
+
+/*
+ * Select a random mutation.
+ *
+ * Note that if choose_mut is non-zero (specified
+ * via p_ptr->command_arg in debugging mode) we
+ * select the specified mutation.
+ *
+ * This function is really silly.
+ * We should use the (depth) rarity method used
+ * for everything else to select the mutation
+ */
+static bool select_mutation(int choose_mut, bool gain, int *mutation)
+{
+	u32b flag;
+
+	int attempts_left;
+	
+	int num = -1;
+
+
+	/* Sanity check */
+	if (choose_mut < 0 || choose_mut > 193) choose_mut = 0;
+
+	attempts_left = (choose_mut ? 1 : (gain ? 20 : 2000));
 
 	while (attempts_left--)
 	{
 		switch (choose_mut ? choose_mut : randint1(193))
 		{
 		case 1: case 2: case 3: case 4:
-			muta_class = &(p_ptr->muta1);
-			muta_which = MUT1_SPIT_ACID;
-			muta_desc = "You gain the ability to spit acid.";
+			/* Spit acid */
+			num = 0;
 			break;
 		case 5: case 6: case 7:
-			muta_class = &(p_ptr->muta1);
-			muta_which = MUT1_BR_FIRE;
-			muta_desc = "You gain the ability to breathe fire.";
+			/* Breathe fire */
+			num = 1;
 			break;
 		case 8: case 9:
-			muta_class = &(p_ptr->muta1);
-			muta_which = MUT1_HYPN_GAZE;
-			muta_desc = "Your eyes look mesmerizing...";
+			/* Hypnotic gaze */
+			num = 2;
 			break;
 		case 10: case 11:
-			muta_class = &(p_ptr->muta1);
-			muta_which = MUT1_TELEKINES;
-			muta_desc = "You gain the ability to move objects telekinetically.";
+			/* Telekinesis */
+			num = 3;
 			break;
 		case 12: case 13: case 14:
-			muta_class = &(p_ptr->muta1);
-			muta_which = MUT1_VTELEPORT;
-			muta_desc = "You gain the power of teleportation at will.";
+			/* Vteleport */
+			num = 4;
 			break;
 		case 15: case 16:
-			muta_class = &(p_ptr->muta1);
-			muta_which = MUT1_MIND_BLST;
-			muta_desc = "You gain the power of Mind Blast.";
+			/* Mind blast */
+			num = 5;
 			break;
 		case 17: case 18:
-			muta_class = &(p_ptr->muta1);
-			muta_which = MUT1_RADIATION;
-			muta_desc = "You start emitting hard radiation.";
+			/* Radiation */
+			num = 6;
 			break;
 		case 19: case 20:
-			muta_class = &(p_ptr->muta1);
-			muta_which = MUT1_VAMPIRISM;
-			muta_desc = "You become vampiric.";
+			/* Vampirism */
+			num = 7;
 			break;
 		case 21: case 22: case 23:
-			muta_class = &(p_ptr->muta1);
-			muta_which = MUT1_SMELL_MET;
-			muta_desc = "You smell a metallic odor.";
+			/* Smell metal */
+			num = 8;
 			break;
 		case 24: case 25: case 26: case 27:
-			muta_class = &(p_ptr->muta1);
-			muta_which = MUT1_SMELL_MON;
-			muta_desc = "You smell filthy monsters.";
+			/* Smell monsters */
+			num = 9;
 			break;
 		case 28: case 29: case 30:
-			muta_class = &(p_ptr->muta1);
-			muta_which = MUT1_BLINK;
-			muta_desc = "You gain the power of minor teleportation.";
+			/* Blink */
+			num = 10;
 			break;
 		case 31: case 32:
-			muta_class = &(p_ptr->muta1);
-			muta_which = MUT1_EAT_ROCK;
-			muta_desc = "The walls look delicious.";
+			/* Eat rock */
+			num = 11;
 			break;
 		case 33: case 34:
-			muta_class = &(p_ptr->muta1);
-			muta_which = MUT1_SWAP_POS;
-			muta_desc = "You feel like walking a mile in someone else's shoes.";
+			/* Swap position */
+			num = 12;
 			break;
 		case 35: case 36: case 37:
-			muta_class = &(p_ptr->muta1);
-			muta_which = MUT1_SHRIEK;
-			muta_desc = "Your vocal cords get much tougher.";
+			/* Shriek */
+			num = 13;
 			break;
 		case 38: case 39: case 40:
-			muta_class = &(p_ptr->muta1);
-			muta_which = MUT1_ILLUMINE;
-			muta_desc = "You can light up rooms with your presence.";
+			/* Illuminate */
+			num = 14;
 			break;
 		case 41: case 42:
-			muta_class = &(p_ptr->muta1);
-			muta_which = MUT1_DET_CURSE;
-			muta_desc = "You can feel evil magics.";
+			/* Detect curse */
+			num = 15;
 			break;
 		case 43: case 44: case 45:
-			muta_class = &(p_ptr->muta1);
-			muta_which = MUT1_BERSERK;
-			muta_desc = "You feel a controlled rage.";
+			/* Berserk */
+			num = 16;
 			break;
 		case 46:
-			muta_class = &(p_ptr->muta1);
-			muta_which = MUT1_POLYMORPH;
-			muta_desc = "Your body seems mutable.";
+			/* Polymorph */
+			num = 17;
 			break;
 		case 47: case 48:
-			muta_class = &(p_ptr->muta1);
-			muta_which = MUT1_MIDAS_TCH;
-			muta_desc = "You gain the Midas touch.";
+			/* Midas */
+			num = 18;
 			break;
 		case 49:
-			muta_class = &(p_ptr->muta1);
-			muta_which = MUT1_GROW_MOLD;
-			muta_desc = "You feel a sudden affinity for mold.";
+			/* Mold */
+			num = 19;
 			break;
 		case 50: case 51: case 52:
-			muta_class = &(p_ptr->muta1);
-			muta_which = MUT1_RESIST;
-			muta_desc = "You feel like you can protect yourself.";
+			/* Resist Elements */
+			num = 20;
 			break;
 		case 53: case 54: case 55:
-			muta_class = &(p_ptr->muta1);
-			muta_which = MUT1_EARTHQUAKE;
-			muta_desc = "You gain the ability to wreck the dungeon.";
+			/* Earthquake */
+			num = 21;
 			break;
 		case 56:
-			muta_class = &(p_ptr->muta1);
-			muta_which = MUT1_EAT_MAGIC;
-			muta_desc = "Your magic items look delicious.";
+			/* Eat magic */
+			num = 22;
 			break;
 		case 57: case 58:
-			muta_class = &(p_ptr->muta1);
-			muta_which = MUT1_WEIGH_MAG;
-			muta_desc = "You feel you can better understand the magic around you.";
+			/* Weigh magic */
+			num = 23;
 			break;
 		case 59:
-			muta_class = &(p_ptr->muta1);
-			muta_which = MUT1_STERILITY;
-			muta_desc = "You can give everything around you a headache.";
+			/* Sterilize */
+			num = 24;
 			break;
 		case 60: case 61:
-			muta_class = &(p_ptr->muta1);
-			muta_which = MUT1_PANIC_HIT;
-			muta_desc = "You suddenly understand how thieves feel.";
+			/* Panic hit */
+			num = 25;
 			break;
 		case 62: case 63: case 64:
-			muta_class = &(p_ptr->muta1);
-			muta_which = MUT1_DAZZLE;
-			muta_desc = "You gain the ability to emit dazzling lights.";
+			/* Dazzle */
+			num = 26;
 			break;
 		case 65: case 66: case 67:
-			muta_class = &(p_ptr->muta1);
-			muta_which = MUT1_LASER_EYE;
-			muta_desc = "Your eyes burn for a moment.";
+			/* Laser eye */
+			num = 27;
 			break;
 		case 68: case 69:
-			muta_class = &(p_ptr->muta1);
-			muta_which = MUT1_RECALL;
-			muta_desc = "You feel briefly homesick, but it passes.";
+			/* Recall */
+			num = 28;
 			break;
 		case 70:
-			muta_class = &(p_ptr->muta1);
-			muta_which = MUT1_BANISH;
-			muta_desc = "You feel a holy wrath fill you.";
+			/* Banish */
+			num = 29;
 			break;
 		case 71: case 72:
-			muta_class = &(p_ptr->muta1);
-			muta_which = MUT1_COLD_TOUCH;
-			muta_desc = "Your hands get very cold.";
+			/* Cold touch */
+			num = 30;
 			break;
 		case 73: case 74:
-			muta_class = &(p_ptr->muta1);
-			muta_which = MUT1_LAUNCHER;
-			muta_desc = "Your throwing arm feels much stronger.";
+			/* Throw */
+			num = 31;
 			break;
 		case 75:
-			muta_class = &(p_ptr->muta2);
-			muta_which = MUT2_BERS_RAGE;
-			muta_desc = "You become subject to fits of berserk rage!";
+			/* Berserk */
+			num = 32;
 			break;
 		case 76:
-			muta_class = &(p_ptr->muta2);
-			muta_which = MUT2_COWARDICE;
-			muta_desc = "You become an incredible coward!";
+			/* Fear */
+			num = 33;
 			break;
 		case 77:
-			muta_class = &(p_ptr->muta2);
-			muta_which = MUT2_RTELEPORT;
-			muta_desc = "Your position seems very uncertain...";
+			/* Teleport */
+			num = 34;
 			break;
 		case 78:
-			muta_class = &(p_ptr->muta2);
-			muta_which = MUT2_ALCOHOL;
-			muta_desc = "Your body starts producing alcohol!";
+			/* Ethanol */
+			num = 35;
 			break;
 		case 79:
-			muta_class = &(p_ptr->muta2);
-			muta_which = MUT2_HALLU;
-			muta_desc = "You are afflicted by a hallucinatory insanity!";
+			/* Hallucinate */
+			num = 36;
 			break;
 		case 80:
-			muta_class = &(p_ptr->muta2);
-			muta_which = MUT2_FLATULENT;
-			muta_desc = "You become subject to uncontrollable flatulence.";
+			/* Flatulent */
+			num = 37;
 			break;
 		case 81: case 82:
-			muta_class = &(p_ptr->muta2);
-			muta_which = MUT2_SCOR_TAIL;
-			muta_desc = "You grow a scorpion tail!";
+			/* Scorpion */
+			num = 38; 
 			break;
 		case 83: case 84:
-			muta_class = &(p_ptr->muta2);
-			muta_which = MUT2_HORNS;
-			muta_desc = "Horns pop forth into your forehead!";
+			/* Horns */
+			num = 39;
 			break;
 		case 85: case 86:
-			muta_class = &(p_ptr->muta2);
-			muta_which = MUT2_BEAK;
-			muta_desc = "Your mouth turns into a sharp, powerful beak!";
+			/* Beak */
+			num = 40;
 			break;
 		case 87: case 88:
-			muta_class = &(p_ptr->muta2);
-			muta_which = MUT2_ATT_DEMON;
-			muta_desc = "You start attracting demons.";
+			/* Demons */
+			num = 41;
 			break;
 		case 89:
-			muta_class = &(p_ptr->muta2);
-			muta_which = MUT2_PROD_MANA;
-			muta_desc = "You start producing magical energy uncontrollably.";
+			/* Mana */
+			num = 42;
 			break;
 		case 90: case 91:
-			muta_class = &(p_ptr->muta2);
-			muta_which = MUT2_SPEED_FLUX;
-			muta_desc = "You become manic-depressive.";
+			/* Speed flux */
+			num = 43;
 			break;
 		case 92: case 93:
-			muta_class = &(p_ptr->muta2);
-			muta_which = MUT2_BANISH_ALL;
-			muta_desc = "You feel a terrifying power lurking behind you.";
+			/* Banish */
+			num = 44;
 			break;
 		case 94:
-			muta_class = &(p_ptr->muta2);
-			muta_which = MUT2_EAT_LIGHT;
-			muta_desc = "You feel a strange kinship with Ungoliant.";
+			/* Eat lite */
+			num = 45;
 			break;
 		case 95: case 96:
-			muta_class = &(p_ptr->muta2);
-			muta_which = MUT2_TRUNK;
-			muta_desc = "Your nose grows into an elephant-like trunk.";
+			/* Trunk */
+			num = 46;
 			break;
 		case 97:
-			muta_class = &(p_ptr->muta2);
-			muta_which = MUT2_ATT_ANIMAL;
-			muta_desc = "You start attracting animals.";
+			/* Animal */
+			num = 47;
 			break;
 		case 98:
-			muta_class = &(p_ptr->muta2);
-			muta_which = MUT2_TENTACLES;
-			muta_desc = "Evil-looking tentacles sprout from your sides.";
+			/* Tentacles */
+			num = 48;
 			break;
 		case 99:
-			muta_class = &(p_ptr->muta2);
-			muta_which = MUT2_RAW_CHAOS;
-			muta_desc = "You feel the universe is less stable around you.";
+			/* Raw Chaos */
+			num = 49;
 			break;
 		case 100: case 101: case 102:
-			muta_class = &(p_ptr->muta2);
-			muta_which = MUT2_NORMALITY;
-			muta_desc = "You feel strangely normal.";
+			/* Normal */
+			num = 50;
 			break;
 		case 103:
-			muta_class = &(p_ptr->muta2);
-			muta_which = MUT2_WRAITH;
-			muta_desc = "You start to fade in and out of the physical world.";
+			/* Wraith */
+			num = 51;
 			break;
 		case 104:
-			muta_class = &(p_ptr->muta2);
-			muta_which = MUT2_POLY_WOUND;
-			muta_desc = "You feel forces of chaos entering your old scars.";
+			/* Poly wound */
+			num = 52;
 			break;
 		case 105:
-			muta_class = &(p_ptr->muta2);
-			muta_which = MUT2_WASTING;
-			muta_desc = "You suddenly contract a horrible wasting disease.";
+			/* Disease */
+			num = 53;
 			break;
 		case 106:
-			muta_class = &(p_ptr->muta2);
-			muta_which = MUT2_ATT_DRAGON;
-			muta_desc = "You start attracting dragons.";
+			/* Dragon */
+			num = 54;
 			break;
 		case 107: case 108:
-			muta_class = &(p_ptr->muta2);
-			muta_which = MUT2_WEIRD_MIND;
-			muta_desc = "Your thoughts suddenly take off in strange directions.";
+			/* Esp */
+			num = 55;
 			break;
 		case 109:
-			muta_class = &(p_ptr->muta2);
-			muta_which = MUT2_NAUSEA;
-			muta_desc = "Your stomach starts to roil nauseously.";
+			/* Sick */
+			num = 56;
 			break;
 		case 110: case 111:
 			/* Chaos warriors already have a chaos deity */
 			if (p_ptr->pclass != CLASS_CHAOS_WARRIOR)
 			{
-				muta_class = &(p_ptr->muta2);
-				muta_which = MUT2_CHAOS_GIFT;
-				muta_desc = "You attract the notice of a chaos deity!";
+				/* Patron */
+				num = 57;
 			}
 			break;
 		case 112:
-			muta_class = &(p_ptr->muta2);
-			muta_which = MUT2_WALK_SHAD;
-			muta_desc = "You feel like reality is as thin as paper.";
+			/* Shadow walk */
+			num = 58;
 			break;
 		case 113: case 114:
-			muta_class = &(p_ptr->muta2);
-			muta_which = MUT2_WARNING;
-			muta_desc = "You suddenly feel paranoid.";
+			/* Warn */
+			num = 59;
 			break;
 		case 115:
-			muta_class = &(p_ptr->muta2);
-			muta_which = MUT2_INVULN;
-			muta_desc = "You are blessed with fits of invulnerability.";
+			/* Invuln */
+			num = 60;
 			break;
 		case 116: case 117:
-			muta_class = &(p_ptr->muta2);
-			muta_which = MUT2_SP_TO_HP;
-			muta_desc = "You are subject to fits of magical healing.";
+			/* Healing */
+			num = 61;
 			break;
 		case 118:
-			muta_class = &(p_ptr->muta2);
-			muta_which = MUT2_HP_TO_SP;
-			muta_desc = "You are subject to fits of painful clarity.";
+			/* HP2SP */
+			num = 62;
 			break;
 		case 119:
-			muta_class = &(p_ptr->muta2);
-			muta_which = MUT2_DISARM;
-			muta_desc = "Your feet grow to four times their former size.";
+			/* Disarm */
+			num = 63;
 			break;
 		case 120: case 121: case 122:
-			muta_class = &(p_ptr->muta3);
-			muta_which = MUT3_HYPER_STR;
-			muta_desc = "You turn into a superhuman he-man!";
+			/* Strong */
+			num = 64;
 			break;
 		case 123: case 124: case 125:
-			muta_class = &(p_ptr->muta3);
-			muta_which = MUT3_PUNY;
-			muta_desc = "Your muscles wither away...";
+			/* Weak */
+			num = 65;
 			break;
 		case 126: case 127: case 128:
-			muta_class = &(p_ptr->muta3);
-			muta_which = MUT3_HYPER_INT;
-			muta_desc = "Your brain evolves into a living computer!";
+			/* Smart */
+			num = 66;
 			break;
 		case 129: case 130: case 131:
-			muta_class = &(p_ptr->muta3);
-			muta_which = MUT3_MORONIC;
-			muta_desc = "Your brain withers away...";
+			/* Dumb */
+			num = 67;
 			break;
 		case 132: case 133:
-			muta_class = &(p_ptr->muta3);
-			muta_which = MUT3_RESILIENT;
-			muta_desc = "You become extraordinarily resilient.";
+			/* Con */
+			num = 68;
 			break;
 		case 134: case 135:
-			muta_class = &(p_ptr->muta3);
-			muta_which = MUT3_XTRA_FAT;
-			muta_desc = "You become sickeningly fat!";
+			/* Fat */
+			num = 69;
 			break;
 		case 136: case 137:
-			muta_class = &(p_ptr->muta3);
-			muta_which = MUT3_ALBINO;
-			muta_desc = "You turn into an albino! You feel frail...";
+			/* Frail */
+			num = 70;
 			break;
 		case 138: case 139: case 140:
-			muta_class = &(p_ptr->muta3);
-			muta_which = MUT3_FLESH_ROT;
-			muta_desc = "Your flesh is afflicted by a rotting disease!";
+			/* Rot */
+			num = 71;
 			break;
 		case 141: case 142:
-			muta_class = &(p_ptr->muta3);
-			muta_which = MUT3_SILLY_VOI;
-			muta_desc = "Your voice turns into a ridiculous squeak!";
+			/* Squeak */
+			num = 72;
 			break;
 		case 143: case 144:
-			muta_class = &(p_ptr->muta3);
-			muta_which = MUT3_BLANK_FAC;
-			muta_desc = "Your face becomes completely featureless!";
+			/* Blank face */
+			num = 73;
 			break;
 		case 145:
-			muta_class = &(p_ptr->muta3);
-			muta_which = MUT3_ILL_NORM;
-			muta_desc = "You start projecting a reassuring image.";
+			/* Illusion face */
+			num = 74;
 			break;
 		case 146: case 147: case 148:
-			muta_class = &(p_ptr->muta3);
-			muta_which = MUT3_XTRA_EYES;
-			muta_desc = "You grow an extra pair of eyes!";
+			/* eyes */
+			num = 75;
 			break;
 		case 149: case 150:
-			muta_class = &(p_ptr->muta3);
-			muta_which = MUT3_MAGIC_RES;
-			muta_desc = "You become resistant to magic.";
+			/* Res magic */
+			num = 76;
 			break;
 		case 151: case 152: case 153:
-			muta_class = &(p_ptr->muta3);
-			muta_which = MUT3_XTRA_NOIS;
-			muta_desc = "You start making strange noise!";
+			/* Noise */
+			num = 77;
 			break;
 		case 154: case 155: case 156:
-			muta_class = &(p_ptr->muta3);
-			muta_which = MUT3_INFRAVIS;
-			muta_desc = "Your infravision is improved.";
+			/* Infra */
+			num = 78;
 			break;
 		case 157: case 158:
-			muta_class = &(p_ptr->muta3);
-			muta_which = MUT3_XTRA_LEGS;
-			muta_desc = "You grow an extra pair of legs!";
+			/* Legs fast */
+			num = 79;
 			break;
 		case 159: case 160:
-			muta_class = &(p_ptr->muta3);
-			muta_which = MUT3_SHORT_LEG;
-			muta_desc = "Your legs turn into short stubs!";
+			/* Legs slow */
+			num = 80;
 			break;
 		case 161: case 162:
-			muta_class = &(p_ptr->muta3);
-			muta_which = MUT3_ELEC_TOUC;
-			muta_desc = "Electricity starts running through you!";
+			/* Aura elec */
+			num = 81;
 			break;
 		case 163: case 164:
-			muta_class = &(p_ptr->muta3);
-			muta_which = MUT3_FIRE_BODY;
-			muta_desc = "Your body is enveloped in flames!";
+			/* Aura fire */
+			num = 82;
 			break;
 		case 165: case 166: case 167:
-			muta_class = &(p_ptr->muta3);
-			muta_which = MUT3_WART_SKIN;
-			muta_desc = "Disgusting warts appear everywhere on you!";
+			/* Warts */
+			num = 83;
 			break;
 		case 168: case 169: case 170:
-			muta_class = &(p_ptr->muta3);
-			muta_which = MUT3_SCALES;
-			muta_desc = "Your skin turns into black scales!";
+			/* Scales */
+			num = 84;
 			break;
 		case 171: case 172:
-			muta_class = &(p_ptr->muta3);
-			muta_which = MUT3_IRON_SKIN;
-			muta_desc = "Your skin turns to steel!";
+			/* Iron */
+			num = 85;
 			break;
 		case 173: case 174:
-			muta_class = &(p_ptr->muta3);
-			muta_which = MUT3_WINGS;
-			muta_desc = "You grow a pair of wings.";
+			/* Wings */
+			num = 86;
 			break;
 		case 175: case 176: case 177:
-			muta_class = &(p_ptr->muta3);
-			muta_which = MUT3_FEARLESS;
-			muta_desc = "You become completely fearless.";
+			/* Res fear */
+			num = 87;
 			break;
 		case 178: case 179:
-			muta_class = &(p_ptr->muta3);
-			muta_which = MUT3_REGEN;
-			muta_desc = "You start regenerating.";
+			/* Regen */
+			num = 88;
 			break;
 		case 180: case 181:
-			muta_class = &(p_ptr->muta3);
-			muta_which = MUT3_ESP;
-			muta_desc = "You develop a telepathic ability!";
+			/* ESP */
+			num = 89;
 			break;
 		case 182: case 183: case 184:
-			muta_class = &(p_ptr->muta3);
-			muta_which = MUT3_LIMBER;
-			muta_desc = "Your muscles become limber.";
+			/* Limber */
+			num = 90;
 			break;
 		case 185: case 186: case 187:
-			muta_class = &(p_ptr->muta3);
-			muta_which = MUT3_ARTHRITIS;
-			muta_desc = "Your joints suddenly hurt.";
+			/* Arthritis */
+			num = 91;
 			break;
 		case 188:
-			muta_class = &(p_ptr->muta3);
-#ifdef MUT3_RES_TIME
-			muta_which = MUT3_RES_TIME;
-			muta_desc = "You feel immortal.";
-#endif /* MUT3_RES_TIME */
-			muta_which = MUT3_BAD_LUCK;
-			muta_desc = "There is a malignant black aura surrounding you...";
+			/* Bad luck */
+			num = 92;
 			break;
 		case 189:
-			muta_class = &(p_ptr->muta3);
-			muta_which = MUT3_VULN_ELEM;
-			muta_desc = "You feel strangely exposed.";
+			/* Bad element */
+			num = 93;
 			break;
 		case 190: case 191: case 192:
-			muta_class = &(p_ptr->muta3);
-			muta_which = MUT3_MOTION;
-			muta_desc = "You move with new assurance.";
+			/* Stealth */
+			num = 94;
 			break;
 		case 193:
-			muta_class = &(p_ptr->muta3);
-#ifdef MUT3_SUS_STATS
-			muta_which = MUT3_SUS_STATS;
-			muta_desc = "You feel like you can recover from anything.";
-#endif /* MUT3_SUS_STATS */
-			muta_which = MUT3_GOOD_LUCK;
-			muta_desc = "There is a benevolent white aura surrounding you...";
+			/* Good luck */
+			num = 95;
 			break;
 		default:
-			muta_class = NULL;
-			muta_which = 0;
+			num = -1;
 		}
 
-		if (muta_class && muta_which)
+		/* Have we picked anything? */
+		if (num >= 0)
 		{
-			if (!(*muta_class & muta_which))
+			/* Can we gain / lose the mutation as desired? */
+			if (num < MUT_PER_SET)
 			{
-				muta_chosen = TRUE;
+				flag = p_ptr->muta1;
 			}
+			else if (num < MUT_PER_SET * 2)
+			{
+				flag = p_ptr->muta2;
+			}
+			else
+			{
+				flag = p_ptr->muta3;
+			}
+
+			/* Save the mutation we are using */
+			*mutation = num;
+			
+			return ((flag & mutations[num].which ? FALSE : TRUE) == gain);
 		}
-		if (muta_chosen) break;
 	}
 
-	if (!muta_chosen)
+	return FALSE;
+}
+
+
+/*
+ * Gain a mutation
+ */
+bool gain_mutation(int choose_mut)
+{
+	mutation_type *mut_ptr;
+	
+	u32b muta_which;
+
+	int num;
+	
+	/* Choose a mutation */
+	if (!select_mutation(choose_mut, TRUE, &num))
 	{
 		msg_print("You feel normal.");
 		return FALSE;
@@ -547,52 +517,62 @@ bool gain_random_mutation(int choose_mut)
 		  !(p_ptr->muta1 & MUT1_HYPN_GAZE) &&
 		   (randint1(10) < 7))
 		{
-			muta_class = &(p_ptr->muta1);
-			muta_which = MUT1_HYPN_GAZE;
-			muta_desc = "Your eyes look mesmerizing...";
+			num = M1_HYPN_GAZE;
 		}
 
 		else if (p_ptr->prace == RACE_IMP &&
 			!(p_ptr->muta2 & MUT2_HORNS) &&
 			(randint1(10) < 7))
 		{
-			muta_class = &(p_ptr->muta2);
-			muta_which = MUT2_HORNS;
-			muta_desc = "Horns pop forth into your forehead!";
+			num = M2_HORNS;
 		}
 
 		else if (p_ptr->prace == RACE_YEEK &&
 			!(p_ptr->muta1 & MUT1_SHRIEK) &&
 			(randint1(10) < 7))
 		{
-			muta_class = &(p_ptr->muta1);
-			muta_which = MUT1_SHRIEK;
-			muta_desc = "Your vocal cords get much tougher.";
+			num = M1_SHRIEK;
 		}
 
 		else if (p_ptr->prace == RACE_BEASTMAN &&
 			!(p_ptr->muta1 & MUT1_POLYMORPH) &&
 			(randint1(10) < 2))
 		{
-			muta_class = &(p_ptr->muta1);
-			muta_which = MUT1_POLYMORPH;
-			muta_desc = "Your body seems mutable.";
+			num = M1_POLYMORPH;
 		}
 
 		else if (p_ptr->prace == RACE_MIND_FLAYER &&
 			!(p_ptr->muta2 & MUT2_TENTACLES) &&
 			(randint1(10) < 7))
 		{
-			muta_class = &(p_ptr->muta2);
-			muta_which = MUT2_TENTACLES;
-			muta_desc = "Evil-looking tentacles sprout from your mouth.";
+			num = M2_TENTACLES;
 		}
+		
+		/* Point to the mutation */
+		mut_ptr = &mutations[num];
+
+		muta_which = mut_ptr->which;
 
 		msg_print("You mutate!");
-		msg_print(muta_desc);
-		*muta_class |= muta_which;
+		msg_print(mut_ptr->desc_text);
+		msg_print(mut_ptr->gain_text);
+		
+		/* Gain the mutation */
+		if (num < MUT_PER_SET)
+		{
+			p_ptr->muta1 |= muta_which;
+		}
+		else if (num < MUT_PER_SET * 2)
+		{
+			p_ptr->muta2 |= muta_which;
+		}
+		else
+		{
+			p_ptr->muta3 |= muta_which;
+		}
 
-		if (muta_class == &(p_ptr->muta3))
+		/* Some mutations cancel others */
+		if (num >= MUT_PER_SET * 2)
 		{
 			if (muta_which == MUT3_PUNY)
 			{
@@ -695,7 +675,7 @@ bool gain_random_mutation(int choose_mut)
 				}
 			}
 		}
-		else if (muta_class == &(p_ptr->muta2))
+		else if (num >= MUT_PER_SET)
 		{
 			if (muta_which == MUT2_COWARDICE)
 			{
@@ -730,532 +710,42 @@ bool gain_random_mutation(int choose_mut)
 	}
 }
 
-
+/*
+ * Lose a mutation
+ */
 bool lose_mutation(int choose_mut)
 {
-	int attempts_left = 20;
-	cptr muta_desc = "";
-	bool muta_chosen = FALSE;
-	u32b muta_which = 0;
-	u32b *muta_class = NULL;
+	int num;
+	
+	u32b muta_which;
+	mutation_type *mut_ptr;
 
-	if (choose_mut) attempts_left = 1;
-
-	while (attempts_left--)
-	{
-		switch (choose_mut ? choose_mut : randint1(194))
-		{
-		case 1: case 2: case 3: case 4:
-			muta_class = &(p_ptr->muta1);
-			muta_which = MUT1_SPIT_ACID;
-			muta_desc = "You lose the ability to spit acid.";
-			break;
-		case 5: case 6: case 7:
-			muta_class = &(p_ptr->muta1);
-			muta_which = MUT1_BR_FIRE;
-			muta_desc = "You lose the ability to breathe fire.";
-			break;
-		case 8: case 9:
-			muta_class = &(p_ptr->muta1);
-			muta_which = MUT1_HYPN_GAZE;
-			muta_desc = "Your eyes look uninteresting.";
-			break;
-		case 10: case 11:
-			muta_class = &(p_ptr->muta1);
-			muta_which = MUT1_TELEKINES;
-			muta_desc = "You lose the ability to move objects telekinetically.";
-			break;
-		case 12: case 13: case 14:
-			muta_class = &(p_ptr->muta1);
-			muta_which = MUT1_VTELEPORT;
-			muta_desc = "You lose the power of teleportation at will.";
-			break;
-		case 15: case 16:
-			muta_class = &(p_ptr->muta1);
-			muta_which = MUT1_MIND_BLST;
-			muta_desc = "You lose the power of Mind Blast.";
-			break;
-		case 17: case 18:
-			muta_class = &(p_ptr->muta1);
-			muta_which = MUT1_RADIATION;
-			muta_desc = "You stop emitting hard radiation.";
-			break;
-		case 19: case 20:
-			muta_class = &(p_ptr->muta1);
-			muta_which = MUT1_VAMPIRISM;
-			muta_desc = "You are no longer vampiric.";
-			break;
-		case 21: case 22: case 23:
-			muta_class = &(p_ptr->muta1);
-			muta_which = MUT1_SMELL_MET;
-			muta_desc = "You no longer smell a metallic odor.";
-			break;
-		case 24: case 25: case 26: case 27:
-			muta_class = &(p_ptr->muta1);
-			muta_which = MUT1_SMELL_MON;
-			muta_desc = "You no longer smell filthy monsters.";
-			break;
-		case 28: case 29: case 30:
-			muta_class = &(p_ptr->muta1);
-			muta_which = MUT1_BLINK;
-			muta_desc = "You lose the power of minor teleportation.";
-			break;
-		case 31: case 32:
-			muta_class = &(p_ptr->muta1);
-			muta_which = MUT1_EAT_ROCK;
-			muta_desc = "The walls look unappetizing.";
-			break;
-		case 33: case 34:
-			muta_class = &(p_ptr->muta1);
-			muta_which = MUT1_SWAP_POS;
-			muta_desc = "You feel like staying in your own shoes.";
-			break;
-		case 35: case 36: case 37:
-			muta_class = &(p_ptr->muta1);
-			muta_which = MUT1_SHRIEK;
-			muta_desc = "Your vocal cords get much weaker.";
-			break;
-		case 38: case 39: case 40:
-			muta_class = &(p_ptr->muta1);
-			muta_which = MUT1_ILLUMINE;
-			muta_desc = "You can no longer light up rooms with your presence.";
-			break;
-		case 41: case 42:
-			muta_class = &(p_ptr->muta1);
-			muta_which = MUT1_DET_CURSE;
-			muta_desc = "You can no longer feel evil magics.";
-			break;
-		case 43: case 44: case 45:
-			muta_class = &(p_ptr->muta1);
-			muta_which = MUT1_BERSERK;
-			muta_desc = "You no longer feel a controlled rage.";
-			break;
-		case 46:
-			muta_class = &(p_ptr->muta1);
-			muta_which = MUT1_POLYMORPH;
-			muta_desc = "Your body seems stable.";
-			break;
-		case 47: case 48:
-			muta_class = &(p_ptr->muta1);
-			muta_which = MUT1_MIDAS_TCH;
-			muta_desc = "You lose the Midas touch.";
-			break;
-		case 49:
-			muta_class = &(p_ptr->muta1);
-			muta_which = MUT1_GROW_MOLD;
-			muta_desc = "You feel a sudden dislike for mold.";
-			break;
-		case 50: case 51: case 52:
-			muta_class = &(p_ptr->muta1);
-			muta_which = MUT1_RESIST;
-			muta_desc = "You feel like you might be vulnerable.";
-			break;
-		case 53: case 54: case 55:
-			muta_class = &(p_ptr->muta1);
-			muta_which = MUT1_EARTHQUAKE;
-			muta_desc = "You lose the ability to wreck the dungeon.";
-			break;
-		case 56:
-			muta_class = &(p_ptr->muta1);
-			muta_which = MUT1_EAT_MAGIC;
-			muta_desc = "Your magic items no longer look delicious.";
-			break;
-		case 57: case 58:
-			muta_class = &(p_ptr->muta1);
-			muta_which = MUT1_WEIGH_MAG;
-			muta_desc = "You no longer sense magic.";
-			break;
-		case 59:
-			muta_class = &(p_ptr->muta1);
-			muta_which = MUT1_STERILITY;
-			muta_desc = "You hear a massed sigh of relief.";
-			break;
-		case 60: case 61:
-			muta_class = &(p_ptr->muta1);
-			muta_which = MUT1_PANIC_HIT;
-			muta_desc = "You no longer feel jumpy.";
-			break;
-		case 62: case 63: case 64:
-			muta_class = &(p_ptr->muta1);
-			muta_which = MUT1_DAZZLE;
-			muta_desc = "You lose the ability to emit dazzling lights.";
-			break;
-		case 65: case 66: case 67:
-			muta_class = &(p_ptr->muta1);
-			muta_which = MUT1_LASER_EYE;
-			muta_desc = "Your eyes burn for a moment, then feel soothed.";
-			break;
-		case 68: case 69:
-			muta_class = &(p_ptr->muta1);
-			muta_which = MUT1_RECALL;
-			muta_desc = "You feel briefly homesick.";
-			break;
-		case 70:
-			muta_class = &(p_ptr->muta1);
-			muta_which = MUT1_BANISH;
-			muta_desc = "You no longer feel a holy wrath.";
-			break;
-		case 71: case 72:
-			muta_class = &(p_ptr->muta1);
-			muta_which = MUT1_COLD_TOUCH;
-			muta_desc = "Your hands warm up.";
-			break;
-		case 73: case 74:
-			muta_class = &(p_ptr->muta1);
-			muta_which = MUT1_LAUNCHER;
-			muta_desc = "Your throwing arm feels much weaker.";
-			break;
-		case 75:
-			muta_class = &(p_ptr->muta2);
-			muta_which = MUT2_BERS_RAGE;
-			muta_desc = "You are no longer subject to fits of berserk rage!";
-			break;
-		case 76:
-			muta_class = &(p_ptr->muta2);
-			muta_which = MUT2_COWARDICE;
-			muta_desc = "You are no longer an incredible coward!";
-			break;
-		case 77:
-			muta_class = &(p_ptr->muta2);
-			muta_which = MUT2_RTELEPORT;
-			muta_desc = "Your position seems more certain.";
-			break;
-		case 78:
-			muta_class = &(p_ptr->muta2);
-			muta_which = MUT2_ALCOHOL;
-			muta_desc = "Your body stops producing alcohol!";
-			break;
-		case 79:
-			muta_class = &(p_ptr->muta2);
-			muta_which = MUT2_HALLU;
-			muta_desc = "You are no longer afflicted by a hallucinatory insanity!";
-			break;
-		case 80:
-			muta_class = &(p_ptr->muta2);
-			muta_which = MUT2_FLATULENT;
-			muta_desc = "You are no longer subject to uncontrollable flatulence.";
-			break;
-		case 81: case 82:
-			muta_class = &(p_ptr->muta2);
-			muta_which = MUT2_SCOR_TAIL;
-			muta_desc = "You lose your scorpion tail!";
-			break;
-		case 83: case 84:
-			muta_class = &(p_ptr->muta2);
-			muta_which = MUT2_HORNS;
-			muta_desc = "Your horns vanish from your forehead!";
-			break;
-		case 85: case 86:
-			muta_class = &(p_ptr->muta2);
-			muta_which = MUT2_BEAK;
-			muta_desc = "Your mouth reverts to normal!";
-			break;
-		case 87: case 88:
-			muta_class = &(p_ptr->muta2);
-			muta_which = MUT2_ATT_DEMON;
-			muta_desc = "You stop attracting demons.";
-			break;
-		case 89:
-			muta_class = &(p_ptr->muta2);
-			muta_which = MUT2_PROD_MANA;
-			muta_desc = "You stop producing magical energy uncontrollably.";
-			break;
-		case 90: case 91:
-			muta_class = &(p_ptr->muta2);
-			muta_which = MUT2_SPEED_FLUX;
-			muta_desc = "You are no longer manic-depressive.";
-			break;
-		case 92: case 93:
-			muta_class = &(p_ptr->muta2);
-			muta_which = MUT2_BANISH_ALL;
-			muta_desc = "You no longer feel a terrifying power lurking behind you.";
-			break;
-		case 94:
-			muta_class = &(p_ptr->muta2);
-			muta_which = MUT2_EAT_LIGHT;
-			muta_desc = "You feel the world's a brighter place.";
-			break;
-		case 95: case 96:
-			muta_class = &(p_ptr->muta2);
-			muta_which = MUT2_TRUNK;
-			muta_desc = "Your nose returns to a normal length.";
-			break;
-		case 97:
-			muta_class = &(p_ptr->muta2);
-			muta_which = MUT2_ATT_ANIMAL;
-			muta_desc = "You stop attracting animals.";
-			break;
-		case 98:
-			muta_class = &(p_ptr->muta2);
-			muta_which = MUT2_TENTACLES;
-			muta_desc = "Your tentacles vanish from your sides.";
-			break;
-		case 99:
-			muta_class = &(p_ptr->muta2);
-			muta_which = MUT2_RAW_CHAOS;
-			muta_desc = "You feel the universe is more stable around you.";
-			break;
-		case 100: case 101: case 102:
-			muta_class = &(p_ptr->muta2);
-			muta_which = MUT2_NORMALITY;
-			muta_desc = "You feel normally strange.";
-			break;
-		case 103:
-			muta_class = &(p_ptr->muta2);
-			muta_which = MUT2_WRAITH;
-			muta_desc = "You are firmly in the physical world.";
-			break;
-		case 104:
-			muta_class = &(p_ptr->muta2);
-			muta_which = MUT2_POLY_WOUND;
-			muta_desc = "You feel forces of chaos departing your old scars.";
-			break;
-		case 105:
-			muta_class = &(p_ptr->muta2);
-			muta_which = MUT2_WASTING;
-			muta_desc = "You are cured of the horrible wasting disease!";
-			break;
-		case 106:
-			muta_class = &(p_ptr->muta2);
-			muta_which = MUT2_ATT_DRAGON;
-			muta_desc = "You stop attracting dragons.";
-			break;
-		case 107: case 108:
-			muta_class = &(p_ptr->muta2);
-			muta_which = MUT2_WEIRD_MIND;
-			muta_desc = "Your thoughts return to boring paths.";
-			break;
-		case 109:
-			muta_class = &(p_ptr->muta2);
-			muta_which = MUT2_NAUSEA;
-			muta_desc = "Your stomach stops roiling.";
-			break;
-		case 110: case 111:
-			muta_class = &(p_ptr->muta2);
-			muta_which = MUT2_CHAOS_GIFT;
-			muta_desc = "You lose the attention of the chaos deities.";
-			break;
-		case 112:
-			muta_class = &(p_ptr->muta2);
-			muta_which = MUT2_WALK_SHAD;
-			muta_desc = "You feel like you're trapped in reality.";
-			break;
-		case 113: case 114:
-			muta_class = &(p_ptr->muta2);
-			muta_which = MUT2_WARNING;
-			muta_desc = "You no longer feel paranoid.";
-			break;
-		case 115:
-			muta_class = &(p_ptr->muta2);
-			muta_which = MUT2_INVULN;
-			muta_desc = "You are no longer blessed with fits of invulnerability.";
-			break;
-		case 116: case 117:
-			muta_class = &(p_ptr->muta2);
-			muta_which = MUT2_SP_TO_HP;
-			muta_desc = "You are no longer subject to fits of magical healing.";
-			break;
-		case 118:
-			muta_class = &(p_ptr->muta2);
-			muta_which = MUT2_HP_TO_SP;
-			muta_desc = "You are no longer subject to fits of painful clarity.";
-			break;
-		case 119:
-			muta_class = &(p_ptr->muta2);
-			muta_which = MUT2_DISARM;
-			muta_desc = "Your feet shrink to their former size.";
-			break;
-		case 120: case 121: case 122:
-			muta_class = &(p_ptr->muta3);
-			muta_which = MUT3_HYPER_STR;
-			muta_desc = "Your muscles revert to normal.";
-			break;
-		case 123: case 124: case 125:
-			muta_class = &(p_ptr->muta3);
-			muta_which = MUT3_PUNY;
-			muta_desc = "Your muscles revert to normal.";
-			break;
-		case 126: case 127: case 128:
-			muta_class = &(p_ptr->muta3);
-			muta_which = MUT3_HYPER_INT;
-			muta_desc = "Your brain reverts to normal.";
-			break;
-		case 129: case 130: case 131:
-			muta_class = &(p_ptr->muta3);
-			muta_which = MUT3_MORONIC;
-			muta_desc = "Your brain reverts to normal.";
-			break;
-		case 132: case 133:
-			muta_class = &(p_ptr->muta3);
-			muta_which = MUT3_RESILIENT;
-			muta_desc = "You become ordinarily resilient again.";
-			break;
-		case 134: case 135:
-			muta_class = &(p_ptr->muta3);
-			muta_which = MUT3_XTRA_FAT;
-			muta_desc = "You benefit from a miracle diet!";
-			break;
-		case 136: case 137:
-			muta_class = &(p_ptr->muta3);
-			muta_which = MUT3_ALBINO;
-			muta_desc = "You are no longer an albino!";
-			break;
-		case 138: case 139: case 140:
-			muta_class = &(p_ptr->muta3);
-			muta_which = MUT3_FLESH_ROT;
-			muta_desc = "Your flesh is no longer afflicted by a rotting disease!";
-			break;
-		case 141: case 142:
-			muta_class = &(p_ptr->muta3);
-			muta_which = MUT3_SILLY_VOI;
-			muta_desc = "Your voice returns to normal.";
-			break;
-		case 143: case 144:
-			muta_class = &(p_ptr->muta3);
-			muta_which = MUT3_BLANK_FAC;
-			muta_desc = "Your facial features return.";
-			break;
-		case 145:
-			muta_class = &(p_ptr->muta3);
-			muta_which = MUT3_ILL_NORM;
-			muta_desc = "You stop projecting a reassuring image.";
-			break;
-		case 146: case 147: case 148:
-			muta_class = &(p_ptr->muta3);
-			muta_which = MUT3_XTRA_EYES;
-			muta_desc = "Your extra eyes vanish!";
-			break;
-		case 149: case 150:
-			muta_class = &(p_ptr->muta3);
-			muta_which = MUT3_MAGIC_RES;
-			muta_desc = "You become susceptible to magic again.";
-			break;
-		case 151: case 152: case 153:
-			muta_class = &(p_ptr->muta3);
-			muta_which = MUT3_XTRA_NOIS;
-			muta_desc = "You stop making strange noise!";
-			break;
-		case 154: case 155: case 156:
-			muta_class = &(p_ptr->muta3);
-			muta_which = MUT3_INFRAVIS;
-			muta_desc = "Your infravision is degraded.";
-			break;
-		case 157: case 158:
-			muta_class = &(p_ptr->muta3);
-			muta_which = MUT3_XTRA_LEGS;
-			muta_desc = "Your extra legs disappear!";
-			break;
-		case 159: case 160:
-			muta_class = &(p_ptr->muta3);
-			muta_which = MUT3_SHORT_LEG;
-			muta_desc = "Your legs lengthen to normal.";
-			break;
-		case 161: case 162:
-			muta_class = &(p_ptr->muta3);
-			muta_which = MUT3_ELEC_TOUC;
-			muta_desc = "Electricity stops running through you.";
-			break;
-		case 163: case 164:
-			muta_class = &(p_ptr->muta3);
-			muta_which = MUT3_FIRE_BODY;
-			muta_desc = "Your body is no longer enveloped in flames.";
-			break;
-		case 165: case 166: case 167:
-			muta_class = &(p_ptr->muta3);
-			muta_which = MUT3_WART_SKIN;
-			muta_desc = "Your warts disappear!";
-			break;
-		case 168: case 169: case 170:
-			muta_class = &(p_ptr->muta3);
-			muta_which = MUT3_SCALES;
-			muta_desc = "Your scales vanish!";
-			break;
-		case 171: case 172:
-			muta_class = &(p_ptr->muta3);
-			muta_which = MUT3_IRON_SKIN;
-			muta_desc = "Your skin reverts to flesh!";
-			break;
-		case 173: case 174:
-			muta_class = &(p_ptr->muta3);
-			muta_which = MUT3_WINGS;
-			muta_desc = "Your wings fall off.";
-			break;
-		case 175: case 176: case 177:
-			muta_class = &(p_ptr->muta3);
-			muta_which = MUT3_FEARLESS;
-			muta_desc = "You begin to feel fear again.";
-			break;
-		case 178: case 179:
-			muta_class = &(p_ptr->muta3);
-			muta_which = MUT3_REGEN;
-			muta_desc = "You stop regenerating.";
-			break;
-		case 180: case 181:
-			muta_class = &(p_ptr->muta3);
-			muta_which = MUT3_ESP;
-			muta_desc = "You lose your telepathic ability!";
-			break;
-		case 182: case 183: case 184:
-			muta_class = &(p_ptr->muta3);
-			muta_which = MUT3_LIMBER;
-			muta_desc = "Your muscles stiffen.";
-			break;
-		case 185: case 186: case 187:
-			muta_class = &(p_ptr->muta3);
-			muta_which = MUT3_ARTHRITIS;
-			muta_desc = "Your joints stop hurting.";
-			break;
-		case 188:
-			muta_class = &(p_ptr->muta3);
-#ifdef MUT3_RES_TIME
-			muta_which = MUT3_RES_TIME;
-			muta_desc = "You feel all too mortal.";
-#endif /* MUT3_RES_TIME */
-			muta_which = MUT3_BAD_LUCK;
-			muta_desc = "Your black aura swirls and fades.";
-			break;
-		case 189:
-			muta_class = &(p_ptr->muta3);
-			muta_which = MUT3_VULN_ELEM;
-			muta_desc = "You feel less exposed.";
-			break;
-		case 190: case 191: case 192:
-			muta_class = &(p_ptr->muta3);
-			muta_which = MUT3_MOTION;
-			muta_desc = "You move with less assurance.";
-			break;
-		case 193: case 194:
-			muta_class = &(p_ptr->muta3);
-#ifdef MUT3_SUS_STATS
-			muta_which = MUT3_SUS_STATS;
-			muta_desc = "You no longer feel like you can recover from anything.";
-#endif /* MUT3_SUS_STATS */
-			muta_which = MUT3_GOOD_LUCK;
-			muta_desc = "Your white aura shimmers and fades.";
-			break;
-		default:
-			muta_class = NULL;
-			muta_which = 0;
-		}
-
-		if (muta_class && muta_which)
-		{
-			if (*(muta_class) & muta_which)
-			{
-				muta_chosen = TRUE;
-			}
-		}
-		if (muta_chosen) break;
-	}
-
-	if (!muta_chosen)
+	
+	if (!select_mutation(choose_mut, FALSE, &num))
 	{
 		return FALSE;
 	}
 	else
 	{
-		msg_print(muta_desc);
-		*(muta_class) &= ~(muta_which);
+		/* Point to the mutation */
+		mut_ptr = &mutations[num];
+		
+		muta_which = mut_ptr->which;
+		
+		msg_print(mut_ptr->lose_text);
+		
+		if (num < MUT_PER_SET)
+		{
+			p_ptr->muta1 &= ~(muta_which);
+		}
+		else if (num < MUT_PER_SET * 2)
+		{
+			p_ptr->muta2 &= ~(muta_which);
+		}
+		else
+		{
+			p_ptr->muta3 &= ~(muta_which);
+		}
 
 		p_ptr->update |= PU_BONUS;
 		handle_stuff();
@@ -1265,415 +755,25 @@ bool lose_mutation(int choose_mut)
 }
 
 
+/*
+ * Print out a description of the current mutations
+ */
 void dump_mutations(FILE *OutFile)
 {
+	mutation_type *mut_ptr;
+	
+	int i;
+
 	if (!OutFile) return;
 
-	if (p_ptr->muta1)
+	/* Run through the mutations */
+	for (i = 0; i < MUT_PER_SET * 3; i++)
 	{
-		if (p_ptr->muta1 & MUT1_SPIT_ACID)
-		{
-			fprintf(OutFile, " You can spit acid (dam lvl).\n");
-		}
-		if (p_ptr->muta1 & MUT1_BR_FIRE)
-		{
-			fprintf(OutFile, " You can breathe fire (dam lvl * 2).\n");
-		}
-		if (p_ptr->muta1 & MUT1_HYPN_GAZE)
-		{
-			fprintf(OutFile, " Your gaze is hypnotic.\n");
-		}
-		if (p_ptr->muta1 & MUT1_TELEKINES)
-		{
-			fprintf(OutFile, " You are telekinetic.\n");
-		}
-		if (p_ptr->muta1 & MUT1_VTELEPORT)
-		{
-			fprintf(OutFile, " You can teleport at will.\n");
-		}
-		if (p_ptr->muta1 & MUT1_MIND_BLST)
-		{
-			fprintf(OutFile, " You can Mind Blast your enemies.\n");
-		}
-		if (p_ptr->muta1 & MUT1_RADIATION)
-		{
-			fprintf(OutFile, " You can emit hard radiation at will.\n");
-		}
-		if (p_ptr->muta1 & MUT1_VAMPIRISM)
-		{
-			fprintf(OutFile, " You can drain life from a foe like a vampire.\n");
-		}
-		if (p_ptr->muta1 & MUT1_SMELL_MET)
-		{
-			fprintf(OutFile, " You can smell nearby precious metal.\n");
-		}
-		if (p_ptr->muta1 & MUT1_SMELL_MON)
-		{
-			fprintf(OutFile, " You can smell nearby monsters.\n");
-		}
-		if (p_ptr->muta1 & MUT1_BLINK)
-		{
-			fprintf(OutFile, " You can teleport yourself short distances.\n");
-		}
-		if (p_ptr->muta1 & MUT1_EAT_ROCK)
-		{
-			fprintf(OutFile, " You can consume solid rock.\n");
-		}
-		if (p_ptr->muta1 & MUT1_SWAP_POS)
-		{
-			fprintf(OutFile, " You can switch locations with another being.\n");
-		}
-		if (p_ptr->muta1 & MUT1_SHRIEK)
-		{
-			fprintf(OutFile, " You can emit a horrible shriek.\n");
-		}
-		if (p_ptr->muta1 & MUT1_ILLUMINE)
-		{
-			fprintf(OutFile, " You can emit bright light.\n");
-		}
-		if (p_ptr->muta1 & MUT1_DET_CURSE)
-		{
-			fprintf(OutFile, " You can feel the danger of evil magic.\n");
-		}
-		if (p_ptr->muta1 & MUT1_BERSERK)
-		{
-			fprintf(OutFile, " You can drive yourself into a berserk frenzy.\n");
-		}
-		if (p_ptr->muta1 & MUT1_POLYMORPH)
-		{
-			fprintf(OutFile, " You can polymorph yourself at will.\n");
-		}
-		if (p_ptr->muta1 & MUT1_MIDAS_TCH)
-		{
-			fprintf(OutFile, " You can turn ordinary items to gold.\n");
-		}
-		if (p_ptr->muta1 & MUT1_GROW_MOLD)
-		{
-			fprintf(OutFile, " You can cause mold to grow near you.\n");
-		}
-		if (p_ptr->muta1 & MUT1_RESIST)
-		{
-			fprintf(OutFile, " You can harden yourself to the ravages of the elements.\n");
-		}
-		if (p_ptr->muta1 & MUT1_EARTHQUAKE)
-		{
-			fprintf(OutFile, " You can bring down the dungeon around your ears.\n");
-		}
-		if (p_ptr->muta1 & MUT1_EAT_MAGIC)
-		{
-			fprintf(OutFile, " You can consume magic energy for your own use.\n");
-		}
-		if (p_ptr->muta1 & MUT1_WEIGH_MAG)
-		{
-			fprintf(OutFile, " You can feel the strength of the magics affecting you.\n");
-		}
-		if (p_ptr->muta1 & MUT1_STERILITY)
-		{
-			fprintf(OutFile, " You can cause mass impotence.\n");
-		}
-		if (p_ptr->muta1 & MUT1_PANIC_HIT)
-		{
-			fprintf(OutFile, " You can run for your life after hitting something.\n");
-		}
-		if (p_ptr->muta1 & MUT1_DAZZLE)
-		{
-			fprintf(OutFile, " You can emit confusing, blinding radiation.\n");
-		}
-		if (p_ptr->muta1 & MUT1_LASER_EYE)
-		{
-			fprintf(OutFile, " Your eyes can fire laser beams.\n");
-		}
-		if (p_ptr->muta1 & MUT1_RECALL)
-		{
-			fprintf(OutFile, " You can travel between town and the depths.\n");
-		}
-		if (p_ptr->muta1 & MUT1_BANISH)
-		{
-			fprintf(OutFile, " You can send evil creatures directly to Hell.\n");
-		}
-		if (p_ptr->muta1 & MUT1_COLD_TOUCH)
-		{
-			fprintf(OutFile, " You can freeze things with a touch.\n");
-		}
-		if (p_ptr->muta1 & MUT1_LAUNCHER)
-		{
-			fprintf(OutFile, " You can hurl objects with great force.\n");
-		}
-	}
+		mut_ptr = &mutations[i];
 
-	if (p_ptr->muta2)
-	{
-		if (p_ptr->muta2 & MUT2_BERS_RAGE)
+		if (player_has_mut(i))
 		{
-			fprintf(OutFile, " You are subject to berserker fits.\n");
-		}
-		if (p_ptr->muta2 & MUT2_COWARDICE)
-		{
-			fprintf(OutFile, " You are subject to cowardice.\n");
-		}
-		if (p_ptr->muta2 & MUT2_RTELEPORT)
-		{
-			fprintf(OutFile, " You are teleporting randomly.\n");
-		}
-		if (p_ptr->muta2 & MUT2_ALCOHOL)
-		{
-			fprintf(OutFile, " Your body produces alcohol.\n");
-		}
-		if (p_ptr->muta2 & MUT2_HALLU)
-		{
-			fprintf(OutFile, " You have a hallucinatory insanity.\n");
-		}
-		if (p_ptr->muta2 & MUT2_FLATULENT)
-		{
-			fprintf(OutFile, " You are subject to uncontrollable flatulence.\n");
-		}
-		if (p_ptr->muta2 & MUT2_PROD_MANA)
-		{
-			fprintf(OutFile, " You are producing magical energy uncontrollably.\n");
-		}
-		if (p_ptr->muta2 & MUT2_ATT_DEMON)
-		{
-			fprintf(OutFile, " You attract demons.\n");
-		}
-		if (p_ptr->muta2 & MUT2_SCOR_TAIL)
-		{
-			fprintf(OutFile, " You have a scorpion tail (poison, 3d7).\n");
-		}
-		if (p_ptr->muta2 & MUT2_HORNS)
-		{
-			fprintf(OutFile, " You have horns (dam. 2d6).\n");
-		}
-		if (p_ptr->muta2 & MUT2_BEAK)
-		{
-			fprintf(OutFile, " You have a beak (dam. 2d4).\n");
-		}
-		if (p_ptr->muta2 & MUT2_SPEED_FLUX)
-		{
-			fprintf(OutFile, " You move faster or slower randomly.\n");
-		}
-		if (p_ptr->muta2 & MUT2_BANISH_ALL)
-		{
-			fprintf(OutFile, " You sometimes cause nearby creatures to vanish.\n");
-		}
-		if (p_ptr->muta2 & MUT2_EAT_LIGHT)
-		{
-			fprintf(OutFile, " You sometimes feed off of the light around you.\n");
-		}
-		if (p_ptr->muta2 & MUT2_TRUNK)
-		{
-			fprintf(OutFile, " You have an elephantine trunk (dam 1d4).\n");
-		}
-		if (p_ptr->muta2 & MUT2_ATT_ANIMAL)
-		{
-			fprintf(OutFile, " You attract animals.\n");
-		}
-		if (p_ptr->muta2 & MUT2_TENTACLES)
-		{
-			fprintf(OutFile, " You have evil looking tentacles (dam 2d5).\n");
-		}
-		if (p_ptr->muta2 & MUT2_RAW_CHAOS)
-		{
-			fprintf(OutFile, " You occasionally are surrounded with raw chaos.\n");
-		}
-		if (p_ptr->muta2 & MUT2_NORMALITY)
-		{
-			fprintf(OutFile, " You may be mutated, but you're recovering.\n");
-		}
-		if (p_ptr->muta2 & MUT2_WRAITH)
-		{
-			fprintf(OutFile, " You fade in and out of physical reality.\n");
-		}
-		if (p_ptr->muta2 & MUT2_POLY_WOUND)
-		{
-			fprintf(OutFile, " Your health is subject to chaotic forces.\n");
-		}
-		if (p_ptr->muta2 & MUT2_WASTING)
-		{
-			fprintf(OutFile, " You have a horrible wasting disease.\n");
-		}
-		if (p_ptr->muta2 & MUT2_ATT_DRAGON)
-		{
-			fprintf(OutFile, " You attract dragons.\n");
-		}
-		if (p_ptr->muta2 & MUT2_WEIRD_MIND)
-		{
-			fprintf(OutFile, " Your mind randomly expands and contracts.\n");
-		}
-		if (p_ptr->muta2 & MUT2_NAUSEA)
-		{
-			fprintf(OutFile, " You have a seriously upset stomach.\n");
-		}
-		if (p_ptr->muta2 & MUT2_CHAOS_GIFT)
-		{
-			fprintf(OutFile, " Chaos deities give you gifts.\n");
-		}
-		if (p_ptr->muta2 & MUT2_WALK_SHAD)
-		{
-			fprintf(OutFile, " You occasionally stumble into other shadows.\n");
-		}
-		if (p_ptr->muta2 & MUT2_WARNING)
-		{
-			fprintf(OutFile, " You receive warnings about your foes.\n");
-		}
-		if (p_ptr->muta2 & MUT2_INVULN)
-		{
-			fprintf(OutFile, " You occasionally feel invincible.\n");
-		}
-		if (p_ptr->muta2 & MUT2_SP_TO_HP)
-		{
-			fprintf(OutFile, " Your blood sometimes rushes to your muscles.\n");
-		}
-		if (p_ptr->muta2 & MUT2_HP_TO_SP)
-		{
-			fprintf(OutFile, " Your blood sometimes rushes to your head.\n");
-		}
-		if (p_ptr->muta2 & MUT2_DISARM)
-		{
-			fprintf(OutFile, " You occasionally stumble and drop things.\n");
-		}
-	}
-
-	if (p_ptr->muta3)
-	{
-		if (p_ptr->muta3 & MUT3_HYPER_STR)
-		{
-			fprintf(OutFile, " You are superhumanly strong (+4 STR).\n");
-		}
-		if (p_ptr->muta3 & MUT3_PUNY)
-		{
-			fprintf(OutFile, " You are puny (-4 STR).\n");
-		}
-		if (p_ptr->muta3 & MUT3_HYPER_INT)
-		{
-			fprintf(OutFile, " Your brain is a living computer (+4 INT/WIS).\n");
-		}
-		if (p_ptr->muta3 & MUT3_MORONIC)
-		{
-			fprintf(OutFile, " You are moronic (-4 INT/WIS).\n");
-		}
-		if (p_ptr->muta3 & MUT3_RESILIENT)
-		{
-			fprintf(OutFile, " You are very resilient (+4 CON).\n");
-		}
-		if (p_ptr->muta3 & MUT3_XTRA_FAT)
-		{
-			fprintf(OutFile, " You are extremely fat (+2 CON, -2 speed).\n");
-		}
-		if (p_ptr->muta3 & MUT3_ALBINO)
-		{
-			fprintf(OutFile, " You are albino (-4 CON).\n");
-		}
-		if (p_ptr->muta3 & MUT3_FLESH_ROT)
-		{
-			fprintf(OutFile, " Your flesh is rotting (-2 CON, -1 CHR).\n");
-		}
-		if (p_ptr->muta3 & MUT3_SILLY_VOI)
-		{
-			fprintf(OutFile, " Your voice is a silly squeak (-4 CHR).\n");
-		}
-		if (p_ptr->muta3 & MUT3_BLANK_FAC)
-		{
-			fprintf(OutFile, " Your face is featureless (-1 CHR).\n");
-		}
-		if (p_ptr->muta3 & MUT3_ILL_NORM)
-		{
-			fprintf(OutFile, " Your appearance is masked with illusion.\n");
-		}
-		if (p_ptr->muta3 & MUT3_XTRA_EYES)
-		{
-			fprintf(OutFile, " You have an extra pair of eyes (+15 search).\n");
-		}
-		if (p_ptr->muta3 & MUT3_MAGIC_RES)
-		{
-			fprintf(OutFile, " You are resistant to magic.\n");
-		}
-		if (p_ptr->muta3 & MUT3_XTRA_NOIS)
-		{
-			fprintf(OutFile, " You make a lot of strange noise (-3 stealth).\n");
-		}
-		if (p_ptr->muta3 & MUT3_INFRAVIS)
-		{
-			fprintf(OutFile, " You have remarkable infravision (+3).\n");
-		}
-		if (p_ptr->muta3 & MUT3_XTRA_LEGS)
-		{
-			fprintf(OutFile, " You have an extra pair of legs (+3 speed).\n");
-		}
-		if (p_ptr->muta3 & MUT3_SHORT_LEG)
-		{
-			fprintf(OutFile, " Your legs are short stubs (-3 speed).\n");
-		}
-		if (p_ptr->muta3 & MUT3_ELEC_TOUC)
-		{
-			fprintf(OutFile, " Electricity is running through your veins.\n");
-		}
-		if (p_ptr->muta3 & MUT3_FIRE_BODY)
-		{
-			fprintf(OutFile, " Your body is enveloped in flames.\n");
-		}
-		if (p_ptr->muta3 & MUT3_WART_SKIN)
-		{
-			fprintf(OutFile, " Your skin is covered with warts (-2 CHR, +5 AC).\n");
-		}
-		if (p_ptr->muta3 & MUT3_SCALES)
-		{
-			fprintf(OutFile, " Your skin has turned into scales (-1 CHR, +10 AC).\n");
-		}
-		if (p_ptr->muta3 & MUT3_IRON_SKIN)
-		{
-			fprintf(OutFile, " Your skin is made of steel (-1 DEX, +25 AC).\n");
-		}
-		if (p_ptr->muta3 & MUT3_WINGS)
-		{
-			fprintf(OutFile, " You have wings.\n");
-		}
-		if (p_ptr->muta3 & MUT3_FEARLESS)
-		{
-			fprintf(OutFile, " You are completely fearless.\n");
-		}
-		if (p_ptr->muta3 & MUT3_REGEN)
-		{
-			fprintf(OutFile, " You are regenerating.\n");
-		}
-		if (p_ptr->muta3 & MUT3_ESP)
-		{
-			fprintf(OutFile, " You are telepathic.\n");
-		}
-		if (p_ptr->muta3 & MUT3_LIMBER)
-		{
-			fprintf(OutFile, " Your body is very limber (+3 DEX).\n");
-		}
-		if (p_ptr->muta3 & MUT3_ARTHRITIS)
-		{
-			fprintf(OutFile, " Your joints ache constantly (-3 DEX).\n");
-		}
-#ifdef MUT3_RES_TIME
-		if (p_ptr->muta3 & MUT3_RES_TIME)
-		{
-			fprintf(OutFile, " You are protected from the ravages of time.\n");
-		}
-#endif /* MUT3_RES_TIME */
-		if (p_ptr->muta3 & MUT3_VULN_ELEM)
-		{
-			fprintf(OutFile, " You are susceptible to damage from the elements.\n");
-		}
-		if (p_ptr->muta3 & MUT3_MOTION)
-		{
-			fprintf(OutFile, " Your movements are precise and forceful (+1 STL).\n");
-		}
-#ifdef MUT3_SUS_STATS
-		if (p_ptr->muta3 & MUT3_SUS_STATS)
-		{
-			fprintf(OutFile, " Your body resists serious damage.\n");
-		}
-#endif /* MUT3_SUS_STATS */
-		if (p_ptr->muta3 & MUT3_GOOD_LUCK)
-		{
-			fprintf(OutFile, " There is a white aura surrounding you.\n");
-		}
-		if (p_ptr->muta3 & MUT3_BAD_LUCK)
-		{
-			fprintf(OutFile, " There is a black aura surrounding you.\n");
+			fprintf(OutFile, "%s\n", mut_ptr->desc_text);
 		}
 	}
 }
@@ -1707,6 +807,7 @@ void do_cmd_knowledge_mutations(void)
 }
 
 
+/* This works by masking off the lowest order set bits one at a time */
 static int count_bits(u32b x)
 {
 	int n = 0;
@@ -1761,7 +862,10 @@ int calc_mutant_regenerate_mod(void)
 }
 
 
-void mutation_power_aux(u32b power)
+/*
+ * Use an activatable mutation power
+ */
+void mutation_power_aux(mutation_type *mut_ptr)
 {
 	int px = p_ptr->px;
 	int py = p_ptr->py;
@@ -1771,554 +875,1088 @@ void mutation_power_aux(u32b power)
 	cptr    q, s;
 
 
-	switch (power)
+	if (!(racial_aux(mut_ptr->level, mut_ptr->cost, mut_ptr->stat,
+		 mut_ptr->diff))) return;
+
+	if (mut_ptr->which == MUT1_SPIT_ACID)
 	{
-		case MUT1_SPIT_ACID:
-			if (racial_aux(9, 9, A_DEX, 15))
-			{
-				msg_print("You spit acid...");
-				if (get_aim_dir(&dir))
-					fire_ball(GF_ACID, dir, lvl, 1 + (lvl / 30));
-			}
-			break;
+		msg_print("You spit acid...");
+		if (get_aim_dir(&dir))
+		{
+			fire_ball(GF_ACID, dir, lvl, 1 + (lvl / 30));
+		}
+	}
 
-		case MUT1_BR_FIRE:
-			if (racial_aux(20, lvl, A_CON, 18))
-			{
-				msg_print("You breathe fire...");
-				if (get_aim_dir(&dir))
-					fire_ball(GF_FIRE, dir, lvl * 2, 1 + (lvl / 20));
-			}
-			break;
+	else if (mut_ptr->which == MUT1_BR_FIRE)
+	{
+		msg_print("You breathe fire...");
+		if (get_aim_dir(&dir))
+		{
+			fire_ball(GF_FIRE, dir, lvl * 2, 1 + (lvl / 20));
+		}
+	}
 
-		case MUT1_HYPN_GAZE:
-			if (racial_aux(12, 12, A_CHR, 18))
-			{
-				msg_print("Your eyes look mesmerizing...");
-				if (get_aim_dir(&dir))
-					(void)charm_monster(dir, lvl);
-			}
-			break;
+	else if (mut_ptr->which == MUT1_HYPN_GAZE)
+	{
+		msg_print("Your eyes look mesmerizing...");
+		if (get_aim_dir(&dir))
+		{
+			(void)charm_monster(dir, lvl);
+		}
+	}
 
-		case MUT1_TELEKINES:
-			if (racial_aux(9, 9, A_WIS, 14))
-			{
-				msg_print("You concentrate...");
-				if (get_aim_dir(&dir))
-					fetch(dir, lvl * 10, TRUE);
-			}
-			break;
+	else if (mut_ptr->which == MUT1_TELEKINES)
+	{
+		msg_print("You concentrate...");
+		if (get_aim_dir(&dir))
+		{
+			fetch(dir, lvl * 10, TRUE);
+		}
+	}
 
-		case MUT1_VTELEPORT:
-			if (racial_aux(7, 7, A_WIS, 15))
-			{
-				msg_print("You concentrate...");
-				teleport_player(10 + 4 * lvl);
-			}
-			break;
+	else if (mut_ptr->which == MUT1_VTELEPORT)
+	{
+		msg_print("You concentrate...");
+		teleport_player(10 + 4 * lvl);
+	}
+	else if (mut_ptr->which == MUT1_MIND_BLST)
+	{
+		msg_print("You concentrate...");
+		if (get_aim_dir(&dir))
+		{
+			fire_bolt(GF_PSI, dir, damroll(3 + ((lvl - 1) / 5), 3));
+		}
+		else
+		{
+			/* Is this statement needed? */
+			return;
+		}
+	}
 
-		case MUT1_MIND_BLST:
-			if (racial_aux(5, 3, A_WIS, 15))
-			{
-				msg_print("You concentrate...");
-				if (!get_aim_dir(&dir)) return;
-					fire_bolt(GF_PSI, dir, damroll(3 + ((lvl - 1) / 5), 3));
-			}
-			break;
+	else if (mut_ptr->which == MUT1_RADIATION)
+	{
+		msg_print("Radiation flows from your body!");
+		fire_ball(GF_NUKE, 0, (lvl * 2), 3 + (lvl / 20));
+	}
 
-		case MUT1_RADIATION:
-			if (racial_aux(15, 15, A_CON, 14))
-			{
-				msg_print("Radiation flows from your body!");
-				fire_ball(GF_NUKE, 0, (lvl * 2), 3 + (lvl / 20));
-			}
-			break;
+	else if (mut_ptr->which == MUT1_VAMPIRISM)
+	{
+		int x, y, dummy;
+		cave_type *c_ptr;
 
-		case MUT1_VAMPIRISM:
-			if (racial_aux(2, (1 + (lvl / 3)), A_CON, 9))
-			{
-				int x, y, dummy;
-				cave_type *c_ptr;
+		/* Handle player fear */
+		if (p_ptr->afraid)
+		{
+			/* Message */
+			msg_print("You are too afraid!");
+			return;
+		}
 
-				/* Handle player fear */
-				if (p_ptr->afraid)
-				{
-					/* Message */
-					msg_print("You are too afraid!");
-					return;
-				}
+		/* Only works on adjacent monsters */
+		if (!get_rep_dir(&dir,FALSE)) return;
+		y = py + ddy[dir];
+		x = px + ddx[dir];
 
-				/* Only works on adjacent monsters */
-				if (!get_rep_dir(&dir,FALSE)) return;
-				y = py + ddy[dir];
-				x = px + ddx[dir];
+		/* paranoia */
+		if (!in_bounds2(y, x)) return;
 
-				/* paranoia */
-				if (!in_bounds2(y, x)) return;
+		c_ptr = area(y, x);
 
-				c_ptr = area(y, x);
+		if (!(c_ptr->m_idx))
+		{
+			msg_print("You bite into thin air!");
+			return;
+		}
+		msg_print("You grin and bare your fangs...");
 
-				if (!(c_ptr->m_idx))
-				{
-					msg_print("You bite into thin air!");
-					break;
-				}
+		dummy = lvl * 2;
 
-				msg_print("You grin and bare your fangs...");
+		if (drain_gain_life(dir, dummy))
+		{
+			/* Gain nutritional sustenance: 150/hp drained */
+			/* A Food ration gives 5000 food points (by contrast) */
+			/* Don't ever get more than "Full" this way */
+			/* But if we ARE Gorged,  it won't cure us */
+			dummy = p_ptr->food + MIN(5000, 100 * dummy);
+			if (p_ptr->food < PY_FOOD_MAX)   /* Not gorged already */
+				(void)set_food(dummy >= PY_FOOD_MAX ? PY_FOOD_MAX-1 : dummy);
+		}
+		else
+			msg_print("Yechh. That tastes foul.");
+	}
 
-				dummy = lvl * 2;
+	else if (mut_ptr->which == MUT1_SMELL_MET)
+	{
+		(void)detect_treasure();
+	}
 
-				if (drain_gain_life(dir, dummy))
-				{
-					/* Gain nutritional sustenance: 150/hp drained */
-					/* A Food ration gives 5000 food points (by contrast) */
-					/* Don't ever get more than "Full" this way */
-					/* But if we ARE Gorged,  it won't cure us */
-					dummy = p_ptr->food + MIN(5000, 100 * dummy);
-					if (p_ptr->food < PY_FOOD_MAX)   /* Not gorged already */
-						(void)set_food(dummy >= PY_FOOD_MAX ? PY_FOOD_MAX-1 : dummy);
-				}
-				else
-					msg_print("Yechh. That tastes foul.");
-			}
-			break;
+	else if (mut_ptr->which == MUT1_SMELL_MON)
+	{
+		(void)detect_monsters_normal();
+	}
 
-		case MUT1_SMELL_MET:
-			if (racial_aux(3, 2, A_INT, 12))
-			{
-				(void)detect_treasure();
-			}
-			break;
+	else if (mut_ptr->which == MUT1_BLINK)
+	{
+		teleport_player(10);
+	}
 
-		case MUT1_SMELL_MON:
-			if (racial_aux(5, 4, A_INT, 15))
-			{
-				(void)detect_monsters_normal();
-			}
-			break;
-
-		case MUT1_BLINK:
-			if (racial_aux(3, 3, A_WIS, 12))
-			{
-				teleport_player(10);
-			}
-			break;
-
-		case MUT1_EAT_ROCK:
-			if (racial_aux(8, 12, A_CON, 18))
-			{
-				int x, y, ox, oy;
-				cave_type *c_ptr;
+	else if (mut_ptr->which == MUT1_EAT_ROCK)
+	{
+		int x, y, ox, oy;
+		cave_type *c_ptr;
 				
-				if (!get_rep_dir(&dir,FALSE)) break;
-				y = py + ddy[dir];
-				x = px + ddx[dir];
+		if (!get_rep_dir(&dir,FALSE)) return;
+		y = py + ddy[dir];
+		x = px + ddx[dir];
 
-				/* paranoia */
-				if (!in_bounds2(y, x)) return;
+		/* paranoia */
+		if (!in_bounds2(y, x)) return;
 
-				c_ptr = area(y, x);
+		c_ptr = area(y, x);
 
-				if (cave_floor_grid(c_ptr))
-				{
-					msg_print("You bite into thin air!");
-					break;
-				}
-				else if (((c_ptr->feat >= FEAT_PERM_EXTRA) &&
-					(c_ptr->feat <= FEAT_PERM_SOLID)) ||
-					(c_ptr->feat == FEAT_MOUNTAIN))
-				{
-					msg_print("Ouch!  This wall is harder than your teeth!");
-					break;
-				}
-				else if (c_ptr->m_idx)
-				{
-					msg_print("There's something in the way!");
-					break;
-				}
-				else if (c_ptr->feat == FEAT_TREES)
-				{
-					msg_print("You don't like the woody taste!");
-					break;
-				}
-				else
-				{
-					if ((c_ptr->feat >= FEAT_CLOSED) &&
-						(c_ptr->feat <= FEAT_RUBBLE))
-					{
-						(void)set_food(p_ptr->food + 3000);
-					}
-					else if ((c_ptr->feat >= FEAT_MAGMA) &&
-						(c_ptr->feat <= FEAT_QUARTZ_K))
-					{
-						(void)set_food(p_ptr->food + 5000);
-					}
-					else
-					{
-						msg_print("This granite is very filling!");
-						(void)set_food(p_ptr->food + 10000);
-					}
-				}
-				(void)wall_to_mud(dir);
+		if (cave_floor_grid(c_ptr))
+		{
+			msg_print("You bite into thin air!");
+			return;
+		}
+		else if (((c_ptr->feat >= FEAT_PERM_EXTRA) &&
+			(c_ptr->feat <= FEAT_PERM_SOLID)) ||
+			(c_ptr->feat == FEAT_MOUNTAIN))
+		{
+			msg_print("Ouch!  This wall is harder than your teeth!");
+			return;
+		}
+		else if (c_ptr->m_idx)
+		{
+			msg_print("There's something in the way!");
+			return;
+		}
+		else if (c_ptr->feat == FEAT_TREES)
+		{
+			msg_print("You don't like the woody taste!");
+			return;
+		}
+		else
+		{
+			if ((c_ptr->feat >= FEAT_CLOSED) &&
+				(c_ptr->feat <= FEAT_RUBBLE))
+			{
+				(void)set_food(p_ptr->food + 3000);
+			}
+			else if ((c_ptr->feat >= FEAT_MAGMA) &&
+				(c_ptr->feat <= FEAT_QUARTZ_K))
+			{
+				(void)set_food(p_ptr->food + 5000);
+			}
+			else
+			{
+				msg_print("This granite is very filling!");
+				(void)set_food(p_ptr->food + 10000);
+			}
+		}
+		(void)wall_to_mud(dir);
 
-				/* Save old location */
-				oy = py;
-				ox = px;
+		/* Save old location */
+		oy = py;
+		ox = px;
 
-				/* Process fields under the player. */
-				field_hook(&area(py, px)->fld_idx,
-					 FIELD_ACT_PLAYER_LEAVE, NULL);
+		/* Process fields under the player. */
+		field_hook(&area(py, px)->fld_idx,
+			 FIELD_ACT_PLAYER_LEAVE, NULL);
 
-				/* Move the player */
-				py = y;
-				px = x;
-
-				/* Move the player */
-				p_ptr->py = y;
-				p_ptr->px = x;
-
-				if (!p_ptr->depth)
-				{
-					/* Scroll wilderness */
-					p_ptr->wilderness_x = px;
-					p_ptr->wilderness_y = py;
-					move_wild();
-				}
+		/* Move the player */
+		py = y;
+		px = x;
 		
-				/* Process fields under the player. */
-				field_hook(&area(py, px)->fld_idx,
-			 		FIELD_ACT_PLAYER_ENTER, NULL);
+		/* Move the player */
+		p_ptr->py = y;
+		p_ptr->px = x;
 
-				lite_spot(py, px);
-				lite_spot(oy, ox);
+		if (!p_ptr->depth)
+		{
+			/* Scroll wilderness */
+			p_ptr->wilderness_x = px;
+			p_ptr->wilderness_y = py;
+			move_wild();
+		}
+		
+		/* Process fields under the player. */
+		field_hook(&area(py, px)->fld_idx, FIELD_ACT_PLAYER_ENTER, NULL);
 
-				verify_panel();
+		lite_spot(py, px);
+		lite_spot(oy, ox);
 
-				p_ptr->update |= (PU_VIEW | PU_FLOW | PU_MON_LITE);
-				p_ptr->update |= (PU_DISTANCE);
-				p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
-				
-			}
-			break;
+		verify_panel();
 
-		case MUT1_SWAP_POS:
-			if (racial_aux(15, 12, A_DEX, 16))
-			{
-				if (get_aim_dir(&dir))
-					(void)teleport_swap(dir);
-			}
-			break;
+		p_ptr->update |= (PU_VIEW | PU_FLOW | PU_MON_LITE);
+		p_ptr->update |= (PU_DISTANCE);
+		p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
+	}
 
-		case MUT1_SHRIEK:
-			if (racial_aux(20, 14, A_CON, 16))
-			{
-				(void)fire_ball(GF_SOUND, 0, 2 * lvl, 8);
-				(void)aggravate_monsters(0);
-			}
-			break;
+	else if (mut_ptr->which == MUT1_SWAP_POS)
+	{
+		if (get_aim_dir(&dir))
+		{
+			(void)teleport_swap(dir);
+		}
+	}
 
-		case MUT1_ILLUMINE:
-			if (racial_aux(3, 2, A_INT, 10))
-			{
-				(void)lite_area(damroll(2, (lvl / 2)), (lvl / 10) + 1);
-			}
-			break;
+	else if (mut_ptr->which == MUT1_SHRIEK)
+	{
+		(void)fire_ball(GF_SOUND, 0, 2 * lvl, 8);
+		(void)aggravate_monsters(0);
+	}
 
-		case MUT1_DET_CURSE:
-			if (racial_aux(7, 14, A_WIS, 14))
-			{
-				int i;
+	else if (mut_ptr->which == MUT1_ILLUMINE)
+	{
+		(void)lite_area(damroll(2, (lvl / 2)), (lvl / 10) + 1);
+	}
 
-				for (i = 0; i < INVEN_TOTAL; i++)
-				{
-					object_type *o_ptr = &inventory[i];
+	else if (mut_ptr->which	== MUT1_DET_CURSE)
+	{
+		int i;
 
-					if (!o_ptr->k_idx) continue;
-					if (!cursed_p(o_ptr)) continue;
+		for (i = 0; i < INVEN_TOTAL; i++)
+		{
+			object_type *o_ptr = &inventory[i];
 
-					o_ptr->feeling = FEEL_CURSED;
-				}
-			}
-			break;
+			if (!o_ptr->k_idx) continue;
+			if (!cursed_p(o_ptr)) continue;
 
-		case MUT1_BERSERK:
-			if (racial_aux(8, 8, A_STR, 14))
-			{
-				(void)set_shero(p_ptr->shero + randint1(25) + 25);
-				(void)hp_player(30);
-				(void)set_afraid(0);
-			}
-			break;
+			o_ptr->feeling = FEEL_CURSED;
+		}
+	}
 
-		case MUT1_POLYMORPH:
-			if (racial_aux(18, 20, A_CON, 18))
-			{
+	else if (mut_ptr->which == MUT1_BERSERK)
+	{
+		if (!p_ptr->shero)
+		{
+			(void)hp_player(30);
+		}
+		
+		(void)set_shero(p_ptr->shero + rand_range(25, 50));
+		(void)set_afraid(0);
+	}
+
+	else if (mut_ptr->which == MUT1_POLYMORPH)
+	{
 				do_poly_self();
-			}
-			break;
+	}
 
-		case MUT1_MIDAS_TCH:
-			if (racial_aux(10, 5, A_INT, 12))
+	else if (mut_ptr->which == MUT1_MIDAS_TCH)
+	{
+		(void)alchemy();
+	}
+
+	/* Summon pet molds around the player */
+	else if (mut_ptr->which == MUT1_GROW_MOLD)
+	{
+		int i;
+
+		for (i = 0; i < 8; i++)
+		{
+			summon_specific(-1, py, px, lvl, SUMMON_BIZARRE1, FALSE, TRUE, TRUE);
+		}
+	}
+
+	else if (mut_ptr->which == MUT1_RESIST)
+	{
+		int num = lvl / 10;
+		int dur = rand_range(20, 40);
+
+		if (randint0(5) < num)
+		{
+			(void)set_oppose_acid(p_ptr->oppose_acid + dur);
+			num--;
+		}
+		if (randint0(4) < num)
+		{
+			(void)set_oppose_elec(p_ptr->oppose_elec + dur);
+			num--;
+		}
+		if (randint0(3) < num)
+		{
+			(void)set_oppose_fire(p_ptr->oppose_fire + dur);
+			num--;
+		}
+		if (randint0(2) < num)
+		{
+			(void)set_oppose_cold(p_ptr->oppose_cold + dur);
+			num--;
+		}
+		if (num)
+		{
+			(void)set_oppose_pois(p_ptr->oppose_pois + dur);
+			num--;
+		}
+	}
+
+	else if (mut_ptr->which == MUT1_EARTHQUAKE)
+	{
+		earthquake(py, px, 10);
+	}
+
+	else if (mut_ptr->which == MUT1_EAT_MAGIC)
+	{
+		object_type * o_ptr;
+		int lev, item;
+
+		item_tester_hook = item_tester_hook_recharge;
+
+		/* Get an item */
+		q = "Drain which item? ";
+		s = "You have nothing to drain.";
+		if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+
+		if (item >= 0)
+		{
+			o_ptr = &inventory[item];
+		}
+		else
+		{
+			o_ptr = &o_list[0 - item];
+		}
+
+		lev = get_object_level(o_ptr);
+
+		if (o_ptr->tval == TV_ROD)
+		{
+			if (o_ptr->pval > 0)
 			{
-				(void)alchemy();
+				msg_print("You can't absorb energy from a discharged rod.");
 			}
-			break;
-
-		/* Summon pet molds around the player */
-		case MUT1_GROW_MOLD:
-			if (racial_aux(1, 6, A_CON, 14))
+			else
 			{
-				int i;
-				for (i = 0; i < 8; i++)
-				{
-					summon_specific(-1, py, px, lvl, SUMMON_BIZARRE1, FALSE, TRUE, TRUE);
-				}
+				p_ptr->csp += 2 * lev;
+				o_ptr->pval = 500;
 			}
-			break;
-
-		case MUT1_RESIST:
-			if (racial_aux(10, 12, A_CON, 12))
+		}
+		else
+		{
+			if (o_ptr->pval > 0)
 			{
-				int num = lvl / 10;
-				int dur = randint1(20) + 20;
-
-				if (randint0(5) < num)
-				{
-					(void)set_oppose_acid(p_ptr->oppose_acid + dur);
-					num--;
-				}
-				if (randint0(4) < num)
-				{
-					(void)set_oppose_elec(p_ptr->oppose_elec + dur);
-					num--;
-				}
-				if (randint0(3) < num)
-				{
-					(void)set_oppose_fire(p_ptr->oppose_fire + dur);
-					num--;
-				}
-				if (randint0(2) < num)
-				{
-					(void)set_oppose_cold(p_ptr->oppose_cold + dur);
-					num--;
-				}
-				if (num)
-				{
-					(void)set_oppose_pois(p_ptr->oppose_pois + dur);
-					num--;
-				}
+				p_ptr->csp += o_ptr->pval * lev;
+				o_ptr->pval = 0;
 			}
-			break;
-
-		case MUT1_EARTHQUAKE:
-			if (racial_aux(12, 12, A_STR, 16))
+			else
 			{
-				earthquake(py, px, 10);
+				msg_print("There's no energy there to absorb!");
 			}
-			break;
+			o_ptr->ident |= IDENT_EMPTY;
+		}
 
-		case MUT1_EAT_MAGIC:
-			if (racial_aux(17, 1, A_WIS, 15))
+		if (p_ptr->csp > p_ptr->msp)
+		{
+			p_ptr->csp = p_ptr->msp;
+		}
+
+		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+		p_ptr->window |= (PW_INVEN);
+	}
+
+	else if (mut_ptr->which == MUT1_WEIGH_MAG)
+	{
+		report_magics();
+	}
+
+	/* Fake a population explosion. */
+	else if (mut_ptr->which == MUT1_STERILITY)
+	{
+		msg_print("You suddenly have a headache!");
+		take_hit(rand_range(17, 34), "the strain of forcing abstinence");
+		num_repro += MAX_REPRO;
+	}
+
+	else if (mut_ptr->which == MUT1_PANIC_HIT)
+	{
+		int x, y;
+
+		if (!get_rep_dir(&dir,FALSE)) return;
+		y = py + ddy[dir];
+		x = px + ddx[dir];
+
+		/* paranoia */
+		if (!in_bounds2(y, x)) return;
+
+		if (area(y, x)->m_idx)
+		{
+			py_attack(y, x);
+			teleport_player(30);
+		}
+		else
+		{
+			msg_print("You don't see any monster in this direction");
+			msg_print(NULL);
+		}
+	}
+
+	else if (mut_ptr->which == MUT1_DAZZLE)
+	{
+		stun_monsters(lvl * 4);
+		confuse_monsters(lvl * 4);
+		turn_monsters(lvl * 4);
+	}
+
+	else if (mut_ptr->which == MUT1_LASER_EYE)
+	{
+		if (get_aim_dir(&dir))
+			fire_beam(GF_LITE, dir, 2 * lvl);
+	}
+
+	else if (mut_ptr->which == MUT1_RECALL)
+	{
+		word_of_recall();
+	}
+
+	else if (mut_ptr->which == MUT1_BANISH)
+	{
+		int x, y;
+		cave_type *c_ptr;
+		monster_type *m_ptr;
+		monster_race *r_ptr;
+
+		if (!get_rep_dir(&dir,FALSE)) return;
+		y = py + ddy[dir];
+		x = px + ddx[dir];
+
+		/* paranoia */
+		if (!in_bounds2(y, x)) return;
+
+		c_ptr = area(y, x);
+
+		if (!c_ptr->m_idx)
+		{
+			msg_print("You sense no evil there!");
+			return;
+		}
+
+		m_ptr = &m_list[c_ptr->m_idx];
+		r_ptr = &r_info[m_ptr->r_idx];
+
+		if ((r_ptr->flags3 & RF3_EVIL) &&
+		    !(r_ptr->flags1 & RF1_QUESTOR) &&
+		    !(r_ptr->flags1 & RF1_UNIQUE))
+		{
+			/* Delete the monster, rather than killing it. */
+			delete_monster_idx(c_ptr->m_idx);
+			msg_print("The evil creature vanishes in a puff of sulfurous smoke!");
+		}
+		else
+		{
+			msg_print("Your invocation is ineffectual!");
+		}
+	}				
+	else if (mut_ptr->which == MUT1_COLD_TOUCH)
+	{
+		int x, y;
+		cave_type *c_ptr;
+
+		if (!get_rep_dir(&dir,FALSE)) return;
+		y = py + ddy[dir];
+		x = px + ddx[dir];
+
+		/* paranoia */
+		if (!in_bounds2(y, x)) return;
+		
+		c_ptr = area(y, x);
+		
+		if (!c_ptr->m_idx)
+		{
+			msg_print("You wave your hands in the air.");
+			return;
+		}
+		fire_bolt(GF_COLD, dir, 2 * lvl);
+	}
+	
+	/* Gives a multiplier of 2 at first, up to 3 at level 30 */
+	else if (mut_ptr->which == MUT1_LAUNCHER)
+	{
+		do_cmd_throw_aux(2 + lvl / 30);
+	}
+}
+
+
+/*
+ * Proces the random mutations
+ */
+void mutation_random_aux(mutation_type *mut_ptr)
+{
+	if (!one_in_(mut_ptr->chance * 100)) return;
+	
+	if (mut_ptr->which == MUT2_BERS_RAGE)
+	{
+		disturb(FALSE);
+		msg_print("RAAAAGHH!");
+		msg_print("You feel a fit of rage coming over you!");
+		(void)set_shero(p_ptr->shero + 10 + randint1(p_ptr->lev));
+	}
+
+	else if (mut_ptr->which == MUT2_COWARDICE)
+	{
+		if (!(p_ptr->resist_fear || p_ptr->hero || p_ptr->shero))
+		{
+			disturb(FALSE);
+			msg_print("It's so dark... so scary!");
+			set_afraid(p_ptr->afraid + rand_range(13, 40));
+		}
+	}			
+
+	else if (mut_ptr->which == MUT2_RTELEPORT)
+	{
+		if (!p_ptr->resist_nexus && !p_ptr->muta1 & MUT1_VTELEPORT &&
+		    !p_ptr->anti_tele)
+		{
+			disturb(FALSE);				
+			
+			/* Teleport player */
+			msg_print("Your position suddenly seems very uncertain...");
+			msg_print(NULL);
+			teleport_player(40);
+		}
+	}
+	
+	else if (mut_ptr->which == MUT2_ALCOHOL)
+	{
+		if (!p_ptr->resist_confu && !p_ptr->resist_chaos)
+		{
+			disturb(FALSE);
+			p_ptr->redraw |= PR_EXTRA;
+			msg_print("You feel a SSSCHtupor cOmINg over yOu... *HIC*!");
+		}			
+		
+		if (!p_ptr->resist_confu)
+		{
+			(void)set_confused(p_ptr->confused + rand_range(15, 35));
+		}
+
+		if (!p_ptr->resist_chaos)
+		{
+			if (one_in_(20))
 			{
-				object_type * o_ptr;
-				int lev, item;
-
-				item_tester_hook = item_tester_hook_recharge;
-
-				/* Get an item */
-				q = "Drain which item? ";
-				s = "You have nothing to drain.";
-				if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) break;
-
-				if (item >= 0)
-				{
-					o_ptr = &inventory[item];
-				}
-				else
-				{
-					o_ptr = &o_list[0 - item];
-				}
-
-				lev = get_object_level(o_ptr);
-
-				if (o_ptr->tval == TV_ROD)
-				{
-					if (o_ptr->pval > 0)
-					{
-						msg_print("You can't absorb energy from a discharged rod.");
-					}
-					else
-					{
-						p_ptr->csp += 2 * lev;
-						o_ptr->pval = 500;
-					}
-				}
-				else
-				{
-					if (o_ptr->pval > 0)
-					{
-						p_ptr->csp += o_ptr->pval * lev;
-						o_ptr->pval = 0;
-					}
-					else
-					{
-						msg_print("There's no energy there to absorb!");
-					}
-					o_ptr->ident |= IDENT_EMPTY;
-				}
-
-				if (p_ptr->csp > p_ptr->msp)
-				{
-					p_ptr->csp = p_ptr->msp;
-				}
-
-				p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-				p_ptr->window |= (PW_INVEN);
+				msg_print(NULL);
+				if (one_in_(3)) lose_all_info();
+				else wiz_dark();
+				teleport_player(100);
+				wiz_dark();
+				msg_print("You wake up somewhere with a sore head...");
+				msg_print("You can't remember a thing, or how you got here!");
 			}
-			break;
-
-		case MUT1_WEIGH_MAG:
-			if (racial_aux(6, 6, A_INT, 10))
+			else
 			{
-				report_magics();
-			}
-			break;
-
-		case MUT1_STERILITY:
-			if (racial_aux(12, 23, A_CHR, 15))
-			{
-				/* Fake a population explosion. */
-				msg_print("You suddenly have a headache!");
-				take_hit(randint1(17) + 17, "the strain of forcing abstinence");
-				num_repro += MAX_REPRO;
-			}
-			break;
-
-		case MUT1_PANIC_HIT:
-			if (racial_aux(10, 12, A_DEX, 14))
-			{
-				int x, y;
-
-				if (!get_rep_dir(&dir,FALSE)) return;
-				y = py + ddy[dir];
-				x = px + ddx[dir];
-
-				/* paranoia */
-				if (!in_bounds2(y, x)) return;
-
-				if (area(y, x)->m_idx)
+				if (one_in_(3))
 				{
-					py_attack(y, x);
-					teleport_player(30);
+					msg_print("Thishcischs GooDSChtuff!");
+					(void)set_image(p_ptr->image + rand_range(150, 300));
 				}
-				else
-				{
-					msg_print("You don't see any monster in this direction");
-					msg_print(NULL);
-				}
-			}
-			break;
+ 			}
+		}
+	}				
+	
+	else if (mut_ptr->which == MUT2_HALLU)
+	{
+		if (!p_ptr->resist_chaos)
+		{
+			disturb(FALSE);
+			p_ptr->redraw |= PR_EXTRA;
+			(void)set_image(p_ptr->image + rand_range(20, 70));
+		}
+	}			
+				
+	else if (mut_ptr->which == MUT2_FLATULENT)
+	{
+		disturb(FALSE);
 
-		case MUT1_DAZZLE:
-			if (racial_aux(7, 15, A_CHR, 8))
+		msg_print("BRRAAAP! Oops.");
+		msg_print(NULL);
+		fire_ball(GF_POIS, 0, p_ptr->lev, 3);
+	}
+
+	else if ((mut_ptr->which == MUT2_PROD_MANA) && !p_ptr->anti_magic)
+	{
+		int dire = 0;
+		disturb(FALSE);
+		msg_print("Magical energy flows through you! You must release it!");
+		flush();
+		msg_print(NULL);
+		(void)get_hack_dir(&dire);
+		fire_ball(GF_MANA, dire, p_ptr->lev * 2, 3);
+	}				
+
+	else if ((mut_ptr->which == MUT2_ATT_DEMON) && !p_ptr->anti_magic)
+	{
+		bool pet = (one_in_(6));
+
+		if (summon_specific((pet ? -1 : 0), p_ptr->py, p_ptr->px,
+				 p_ptr->depth, SUMMON_DEMON, TRUE, FALSE, pet))
+		{
+			msg_print("You have attracted a demon!");
+			disturb(FALSE);
+		}
+	}
+
+	else if (mut_ptr->which == MUT2_SPEED_FLUX)
+	{
+		disturb(FALSE);
+		if (one_in_(2))
+		{
+			msg_print("You feel less energetic.");
+			if (p_ptr->fast > 0)
 			{
-				stun_monsters(lvl * 4);
-				confuse_monsters(lvl * 4);
-				turn_monsters(lvl * 4);
+				set_fast(0);
 			}
-			break;
-
-		case MUT1_LASER_EYE:
-			if (racial_aux(7, 10, A_WIS, 9))
+			else
 			{
-				if (get_aim_dir(&dir))
-					fire_beam(GF_LITE, dir, 2 * lvl);
+				set_slow(p_ptr->slow + rand_range(10, 40));
 			}
-			break;
-
-		case MUT1_RECALL:
-			if (racial_aux(17, 50, A_INT, 16))
+		}
+		else
+		{
+			msg_print("You feel more energetic.");
+			if (p_ptr->slow > 0)
 			{
-				word_of_recall();
+				set_slow(0);
 			}
-			break;
-
-		case MUT1_BANISH:
-			if (racial_aux(25, 25, A_WIS, 18))
+			else
 			{
-				int x, y;
-				cave_type *c_ptr;
-				monster_type *m_ptr;
-				monster_race *r_ptr;
-
-				if (!get_rep_dir(&dir,FALSE)) return;
-				y = py + ddy[dir];
-				x = px + ddx[dir];
-
-				/* paranoia */
-				if (!in_bounds2(y, x)) return;
-
-				c_ptr = area(y, x);
-
-				if (!c_ptr->m_idx)
-				{
-					msg_print("You sense no evil there!");
-					break;
-				}
-
-				m_ptr = &m_list[c_ptr->m_idx];
-				r_ptr = &r_info[m_ptr->r_idx];
-
-				if ((r_ptr->flags3 & RF3_EVIL) &&
-				    !(r_ptr->flags1 & RF1_QUESTOR) &&
-				    !(r_ptr->flags1 & RF1_UNIQUE))
-				{
-					/* Delete the monster, rather than killing it. */
-					delete_monster_idx(c_ptr->m_idx);
-					msg_print("The evil creature vanishes in a puff of sulfurous smoke!");
-				}
-				else
-				{
-					msg_print("Your invocation is ineffectual!");
-				}
+				set_fast(p_ptr->fast + rand_range(10, 40));
 			}
-			break;
+		}
+		msg_print(NULL);
+	}
 
-		case MUT1_COLD_TOUCH:
-			if (racial_aux(2, 2, A_CON, 11))
+	else if (mut_ptr->which == MUT2_BANISH_ALL)
+	{
+		disturb(FALSE);
+		msg_print("You suddenly feel almost lonely.");
+		banish_monsters(100);
+		msg_print(NULL);
+	}
+
+	else if (mut_ptr->which == MUT2_EAT_LIGHT)
+ 	{
+		object_type *o_ptr;
+		cave_type *c_ptr = area(p_ptr->py, p_ptr->px);
+
+		msg_print("A shadow passes over you.");
+		msg_print(NULL);
+
+		/* Absorb light from the current possition */
+		if (c_ptr->info & CAVE_GLOW)
+		{
+			hp_player(10);
+		}
+
+		o_ptr = &inventory[INVEN_LITE];
+
+		/* Absorb some fuel in the current lite */
+		if (o_ptr->tval == TV_LITE)
+		{
+			/* Use some fuel (except on artifacts) */
+			if (!(o_ptr->flags3 & TR3_INSTA_ART) && (o_ptr->pval > 0))
 			{
-				int x, y;
-				cave_type *c_ptr;
+				/* Heal the player a bit */
+				hp_player(o_ptr->pval / 20);
 
-				if (!get_rep_dir(&dir,FALSE)) return;
-				y = py + ddy[dir];
-				x = px + ddx[dir];
+				/* Decrease life-span of lite */
+				o_ptr->pval /= 2;
 
-				/* paranoia */
-				if (!in_bounds2(y, x)) return;
+				msg_print("You absorb energy from your light!");
 
-				c_ptr = area(y, x);
-
-				if (!c_ptr->m_idx)
-				{
-					msg_print("You wave your hands in the air.");
-					break;
-				}
-				fire_bolt(GF_COLD, dir, 2 * lvl);
+				/* Notice interesting fuel steps */
+				notice_lite_change(o_ptr);
 			}
-			break;
+		}
 
-		/* XXX_XXX_XXX Hack!  MUT1_LAUNCHER is negative, see above */
-		case 3: /* MUT1_LAUNCHER */
-			if (racial_aux(1, lvl, A_STR, 6))
-			{
-				/* Gives a multiplier of 2 at first, up to 3 at level 30 */
-				do_cmd_throw_aux(2 + lvl / 30);
-			}
-			break;
+		/*
+		 * Unlite the area (radius 10) around player and
+		 * do 50 points damage to every affected monster
+		 */
+		unlite_area(50, 10);
+	}	
+			
+	else if ((mut_ptr->which == MUT2_ATT_ANIMAL) && !p_ptr->anti_magic)
+	{
+		bool pet = (one_in_(3));
 
+		if (summon_specific((pet ? -1 : 0), p_ptr->py, p_ptr->px,
+			 p_ptr->depth, SUMMON_ANIMAL, TRUE, FALSE, pet))
+		{
+			msg_print("You have attracted an animal!");
+			disturb(FALSE);
+		}
+	}
+
+	else if ((mut_ptr->which == MUT2_RAW_CHAOS) && !p_ptr->anti_magic)
+	{
+		disturb(FALSE);
+		msg_print("You feel the world warping around you!");
+		msg_print(NULL);
+		fire_ball(GF_CHAOS, 0, p_ptr->lev, 8);
+	}
+
+	else if (mut_ptr->which == MUT2_NORMALITY)
+	{
+		if (!lose_mutation(0))
+		{
+			msg_print("You feel oddly normal.");
+		}
+	}
+
+	else if ((mut_ptr->which == MUT2_WRAITH) && !p_ptr->anti_magic)
+	{
+		disturb(FALSE);
+		msg_print("You feel insubstantial!");
+		msg_print(NULL);
+		set_wraith_form(p_ptr->wraith_form +
+			 rand_range(p_ptr->lev / 2, p_ptr->lev));
+	}
+
+	else if (mut_ptr->which == MUT2_POLY_WOUND)
+	{
+		do_poly_wounds();
+	}
+
+	else if (mut_ptr->which == MUT2_WASTING)
+	{
+		int which_stat = randint0(6);
+		int sustained = FALSE;
+
+		switch (which_stat)
+		{
+		case A_STR:
+			if (p_ptr->sustain_str) sustained = TRUE;
+			break;
+		case A_INT:
+			if (p_ptr->sustain_int) sustained = TRUE;
+			break;
+		case A_WIS:
+			if (p_ptr->sustain_wis) sustained = TRUE;
+			break;
+		case A_DEX:
+			if (p_ptr->sustain_dex) sustained = TRUE;
+			break;
+		case A_CON:
+			if (p_ptr->sustain_con) sustained = TRUE;
+			break;
+		case A_CHR:
+			if (p_ptr->sustain_chr) sustained = TRUE;
+			break;
 		default:
-			p_ptr->energy_use = 0;
-			msg_format("Power %s not implemented. Oops.", power);
+			msg_print("Invalid stat chosen!");
+			sustained = TRUE;
+		}
+
+		if (!sustained)
+		{
+			disturb(FALSE);
+			msg_print("You can feel yourself wasting away!");
+			msg_print(NULL);
+#if 0
+			(void)dec_stat(which_stat, rand_range(6, 12), one_in_(3));
+#else
+			(void)dec_stat(which_stat, rand_range(6, 12), 0);
+#endif
+		}
+	}
+
+	else if ((mut_ptr->which == MUT2_ATT_DRAGON) && !p_ptr->anti_magic)
+	{
+		bool pet = (one_in_(5));
+
+		if (summon_specific((pet ? -1 : 0), p_ptr->py, p_ptr->px,
+			 p_ptr->depth, SUMMON_DRAGON, TRUE, FALSE, pet))
+		{
+			msg_print("You have attracted a dragon!");
+			disturb(FALSE);
+		}
+	}
+
+	else if ((mut_ptr->which == MUT2_WEIRD_MIND) && !p_ptr->anti_magic)
+	{
+		if (p_ptr->tim_esp > 0)
+		{
+			msg_print("Your mind feels cloudy!");
+			set_tim_esp(0);
+		}
+		else
+		{
+			msg_print("Your mind expands!");
+			set_tim_esp(p_ptr->lev);
+		}
+	}
+
+	else if ((mut_ptr->which == MUT2_NAUSEA) && !p_ptr->slow_digest)
+	{
+		disturb(FALSE);
+		msg_print("Your stomach roils, and you lose your lunch!");
+		msg_print(NULL);
+		set_food(PY_FOOD_WEAK);
+	}
+
+	else if ((mut_ptr->which == MUT2_WALK_SHAD) && !p_ptr->anti_magic)
+	{
+		alter_reality();
+	}
+
+	else if (mut_ptr->which == MUT2_WARNING)
+	{
+		int danger_amount = 0;
+		int monster;
+
+		for (monster = 0; monster < m_max; monster++)
+		{
+			monster_type    *m_ptr = &m_list[monster];
+			monster_race    *r_ptr = &r_info[m_ptr->r_idx];
+
+			/* Paranoia -- Skip dead monsters */
+			if (!m_ptr->r_idx) continue;
+		
+			if (r_ptr->level >= p_ptr->lev)
+			{
+				danger_amount += r_ptr->level - p_ptr->lev + 1;
+			}
+		}
+
+		if (danger_amount > 100)
+			msg_print("You feel utterly terrified!");
+		else if (danger_amount > 50)
+			msg_print("You feel terrified!");
+		else if (danger_amount > 20)
+			msg_print("You feel very worried!");
+		else if (danger_amount > 10)
+			msg_print("You feel paranoid!");
+		else if (danger_amount > 5)
+			msg_print("You feel almost safe.");
+		else
+			msg_print("You feel lonely.");
+	}
+
+	else if ((mut_ptr->which == MUT2_INVULN) && !p_ptr->anti_magic)
+	{
+		disturb(FALSE);
+		msg_print("You feel invincible!");
+		msg_print(NULL);
+		(void)set_invuln(p_ptr->invuln + rand_range(8, 16));
+	}
+				
+	else if (mut_ptr->which == MUT2_SP_TO_HP)
+	{
+		int wounds = p_ptr->mhp - p_ptr->chp;		
+
+		if (wounds > 0)
+		{
+			int healing = p_ptr->csp;
+			
+			if (healing > wounds)
+			{
+				healing = wounds;
+			}
+	
+			hp_player(healing);
+			p_ptr->csp -= healing;
+		}
+	}
+
+	else if ((mut_ptr->which == MUT2_HP_TO_SP) && !p_ptr->anti_magic)
+	{
+		int wounds = p_ptr->msp - p_ptr->csp;
+		
+		if (wounds > 0)
+		{
+			int healing = p_ptr->chp;
+
+			if (healing > wounds)
+			{
+				healing = wounds;
+			}
+		
+			p_ptr->csp += healing;
+			take_hit(healing, "blood rushing to the head");
+		}
+	}
+
+	else if (mut_ptr->which == MUT2_DISARM)
+	{
+		object_type *o_ptr;
+
+		disturb(FALSE);
+		msg_print("You trip over your own feet!");
+		take_hit(randint1(p_ptr->wt / 6), "tripping");
+
+		msg_print(NULL);
+		o_ptr = &inventory[INVEN_WIELD];
+			if ((o_ptr->k_idx) && !cursed_p(o_ptr))
+		{
+			msg_print("You drop your weapon!");
+			inven_drop(INVEN_WIELD, 1);
+		}
+	}
+}
+
+/* Constan mutation effects */
+void mutation_effect(void)
+{
+	/* Hyper Strength */
+	if (p_ptr->muta3 & MUT3_HYPER_STR)
+	{
+		p_ptr->stat_add[A_STR] += 4;
+	}
+
+	/* Puny */
+	if (p_ptr->muta3 & MUT3_PUNY)
+	{
+		p_ptr->stat_add[A_STR] -= 4;
+	}
+
+	/* Living computer */
+	if (p_ptr->muta3 & MUT3_HYPER_INT)
+	{
+		p_ptr->stat_add[A_INT] += 4;
+		p_ptr->stat_add[A_WIS] += 4;
+	}
+
+	/* Moronic */
+	if (p_ptr->muta3 & MUT3_MORONIC)
+	{
+		p_ptr->stat_add[A_INT] -= 4;
+		p_ptr->stat_add[A_WIS] -= 4;
+	}
+
+	if (p_ptr->muta3 & MUT3_RESILIENT)
+	{
+		p_ptr->stat_add[A_CON] += 4;
+	}
+
+	if (p_ptr->muta3 & MUT3_XTRA_FAT)
+	{
+		p_ptr->stat_add[A_CON] += 2;
+		p_ptr->pspeed -= 2;
+	}
+
+	if (p_ptr->muta3 & MUT3_ALBINO)
+	{
+		p_ptr->stat_add[A_CON] -= 4;
+	}
+
+	if (p_ptr->muta3 & MUT3_FLESH_ROT)
+	{
+		p_ptr->stat_add[A_CON] -= 2;
+		p_ptr->stat_add[A_CHR] -= 1;
+		p_ptr->regenerate = FALSE;
+		/* Cancel innate regeneration */
+	}
+
+	if (p_ptr->muta3 & MUT3_SILLY_VOI)
+	{
+		p_ptr->stat_add[A_CHR] -= 4;
+	}
+
+	if (p_ptr->muta3 & MUT3_BLANK_FAC)
+	{
+		p_ptr->stat_add[A_CHR] -= 1;
+	}
+
+	if (p_ptr->muta3 & MUT3_XTRA_EYES)
+	{
+		p_ptr->skill_fos += 15;
+		p_ptr->skill_srh += 15;
+	}
+
+	if (p_ptr->muta3 & MUT3_MAGIC_RES)
+	{
+		p_ptr->skill_sav += (15 + (p_ptr->lev / 5));
+	}
+
+	if (p_ptr->muta3 & MUT3_XTRA_NOIS)
+	{
+		p_ptr->skill_stl -= 3;
+	}
+
+	if (p_ptr->muta3 & MUT3_INFRAVIS)
+	{
+		p_ptr->see_infra += 3;
+	}
+
+	if (p_ptr->muta3 & MUT3_XTRA_LEGS)
+	{
+		p_ptr->pspeed += 3;
+	}
+
+	if (p_ptr->muta3 & MUT3_SHORT_LEG)
+	{
+		p_ptr->pspeed -= 3;
+	}
+
+	if (p_ptr->muta3 & MUT3_ELEC_TOUC)
+	{
+		p_ptr->sh_elec = TRUE;
+	}
+
+	if (p_ptr->muta3 & MUT3_FIRE_BODY)
+	{
+		p_ptr->sh_fire = TRUE;
+		p_ptr->lite = TRUE;
+	}
+
+	if (p_ptr->muta3 & MUT3_WART_SKIN)
+	{
+		p_ptr->stat_add[A_CHR] -= 2;
+		p_ptr->to_a += 5;
+		p_ptr->dis_to_a += 5;
+	}
+
+	if (p_ptr->muta3 & MUT3_SCALES)
+	{
+		p_ptr->stat_add[A_CHR] -= 1;
+		p_ptr->to_a += 10;
+		p_ptr->dis_to_a += 10;
+	}
+
+	if (p_ptr->muta3 & MUT3_IRON_SKIN)
+	{
+		p_ptr->stat_add[A_DEX] -= 1;
+		p_ptr->to_a += 25;
+		p_ptr->dis_to_a += 25;
+	}
+
+	if (p_ptr->muta3 & MUT3_WINGS)
+	{
+		p_ptr->ffall = TRUE;
+	}
+
+	if (p_ptr->muta3 & MUT3_FEARLESS)
+	{
+		p_ptr->resist_fear = TRUE;
+	}
+
+	if (p_ptr->muta3 & MUT3_REGEN)
+	{
+		p_ptr->regenerate = TRUE;
+	}
+
+	if (p_ptr->muta3 & MUT3_ESP)
+	{
+		p_ptr->telepathy = TRUE;
+	}
+
+	if (p_ptr->muta3 & MUT3_LIMBER)
+	{
+		p_ptr->stat_add[A_DEX] += 3;
+	}
+
+	if (p_ptr->muta3 & MUT3_ARTHRITIS)
+	{
+		p_ptr->stat_add[A_DEX] -= 3;
+	}
+
+	if (p_ptr->muta3 & MUT3_MOTION)
+	{
+		p_ptr->free_act = TRUE;
+		p_ptr->skill_stl += 1;
+	}
+
+	if (p_ptr->muta3 & MUT3_ILL_NORM)
+	{
+		p_ptr->stat_add[A_CHR] = 0;
 	}
 }

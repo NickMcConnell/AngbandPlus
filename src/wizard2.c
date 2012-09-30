@@ -162,8 +162,8 @@ static void prt_binary(u32b flags, int row, int col)
 
 /*
  * Output a rarity graph for a type of object.
- * This function is very out of date.
- * It doesn't print the correct distribution.
+ *
+ * Use a monte-carlo method to calculate the probabilities.
  */
 static void prt_alloc(object_type *o_ptr, int row, int col, u32b monte)
 {
@@ -732,7 +732,7 @@ static int wiz_create_itemtype(void)
 		}
 	}
 
-	/* Me need to know the maximal possible remembered object_index */
+	/* We need to know the maximal possible remembered object_index */
 	max_num = num;
 
 	/* Choose! */
@@ -805,8 +805,9 @@ static void wiz_reroll_item(object_type *o_ptr)
 
 	bool changed = FALSE;
 
-	/* Hack -- leave artifacts alone */
-	if (o_ptr->flags3 & TR3_INSTA_ART) return;
+	/* Hack -- leave normal artifacts alone */
+	if ((o_ptr->flags3 & TR3_INSTA_ART) &&
+		(o_ptr->activate > 128)) return;
 
 	/* Get local object */
 	q_ptr = &forge;
@@ -1027,8 +1028,8 @@ static void do_cmd_wiz_play(void)
 	/* Display the item */
 	wiz_display_item(q_ptr);
 
-	/* Display the rarity graph */
-	prt_alloc(o_ptr, 2, 0, 1000);
+	/* Display the rarity graph - turned off for now (too slow).*/
+	/* prt_alloc(o_ptr, 2, 0, 1000); */
 
 	/* The main loop */
 	while (TRUE)
@@ -1906,15 +1907,20 @@ void do_cmd_debug(void)
 		case 'l':
 			do_cmd_wiz_learn();
 			break;
+		
+		/* Lose Mutation */
+		case 'L':
+			(void)lose_mutation(p_ptr->command_arg);
+			break;
 
 		/* Magic Mapping */
 		case 'm':
 			map_area();
 			break;
 
-		/* Mutation */
+		/* Gain Mutation */
 		case 'M':
-			(void)gain_random_mutation(p_ptr->command_arg);
+			(void)gain_mutation(p_ptr->command_arg);
 			break;
 
 		/* Specific reward */

@@ -1,4 +1,4 @@
-# CVS: Last edit by $Author: sfuerst $ on $Date: 2001/02/15 10:26:32 $
+# CVS: Last edit by $Author: sfuerst $ on $Date: 2001/03/03 11:04:40 $
 # File: graf-new.prf
 
 #
@@ -2182,6 +2182,59 @@ K:562:0xB6/0x85
 # Haramakido
 K:563:0xB6/0x81
 
+# Incandescent Light of Edison
+K:564:0x8D/0x9E
+
+# Diamond Edge
+K:565:0xB5/0x9B
+
+# Scroll of Mundanity
+K:566:0x83/0x9C
+
+# Magical Figurine
+K:567:0xBF/0x86
+
+# Wooden statue
+K:568:0xBF/0x87
+
+# Clay statue
+K:569:0xBF/0x88
+
+# Stone statue
+K:570:0xBF/0x89
+
+# Iron statue
+K:571:0xBF/0x8A
+
+# Copper statue
+K:572:0xBF/0x8B
+
+# Silver statue
+K:573:0xBF/0x8C
+
+# Golden statue
+K:574:0xBF/0x8D
+
+# Ivory statue
+K:575:0xBF/0x8E
+
+# Mithril statue
+K:576:0xBF/0x8F
+
+# Ornate statue
+K:577:0xBF/0x90
+
+# blank
+#K:578
+
+# blank
+#K:579
+
+# T-shirt
+K:580:0x8B/0x9D
+
+# Steel Bolt
+K:581:0xB6/0x8E
 
 ##### Monster attr/char definitions #####
 
@@ -4787,7 +4840,7 @@ T:31:0x81/0x8F
 T:32:0x82/0x83
 
 # Jammed Door
-T:33:0x82/0x83
+T:33:0x82/0x86
 
 # General Store
 T:34:0x82/0x87

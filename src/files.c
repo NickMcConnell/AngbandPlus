@@ -429,6 +429,23 @@ errr process_pref_file_aux(char *buf)
 			return (0);
 		}
 	}
+	
+	/* Process "W:<num>:<a>/<c>" -- xtra attr/char for terrain features */
+	else if (buf[0] == 'W')
+	{
+		if (tokenize(buf+2, 3, zz, TOKENIZE_CHECKQUOTE) == 3)
+		{
+			feature_type *f_ptr;
+			i = (huge)strtol(zz[0], NULL, 0);
+			n1 = strtol(zz[1], NULL, 0);
+			n2 = strtol(zz[2], NULL, 0);
+			if ((i < 0) || (i >= max_f_idx)) return (1);
+			f_ptr = &f_info[i];
+			if (n1) f_ptr->w_attr = n1;
+			if (n2) f_ptr->w_char = n2;
+			return (0);
+		}
+	}
 
 	/* Process "S:<num>:<a>/<c>" -- attr/char for special things */
 	else if (buf[0] == 'S')
@@ -1319,7 +1336,7 @@ static void display_player_abilities(void)
 	int         muta_att = 0;
 	long		avgdam;
 	u32b            f1, f2, f3;
-	int		energy_fire = 100;
+	int		energy_fire;
 	int		shots, shot_frac;
 
 	object_type		*o_ptr;
@@ -1340,56 +1357,16 @@ static void display_player_abilities(void)
 	tmp = p_ptr->to_h + o_ptr->to_h;
 	xthb = p_ptr->skill_thb + (tmp * BTH_PLUS_ADJ);
 
-	/* If the player is wielding one? */
+	/* Is the player is wielding a shooter? */
 	if (o_ptr->k_idx)
 	{
-		/* Analyze the launcher */
-		switch (o_ptr->sval)
-		{
-			/* Sling and ammo */
-			case SV_SLING:
-			{
-				energy_fire = 50;
-				break;
-			}
-
-			/* Short Bow and Arrow */
-			case SV_SHORT_BOW:
-			{
-				energy_fire = 100;
-				break;
-			}
-
-			/* Long Bow and Arrow */
-			case SV_LONG_BOW:
-			{
-				energy_fire = 100;
-				break;
-			}
-
-			/* Light Crossbow and Bolt */
-			case SV_LIGHT_XBOW:
-			{
-				energy_fire = 120;
-				break;
-			}
-
-			/* Heavy Crossbow and Bolt */
-			case SV_HEAVY_XBOW:
-			{
-				if (p_ptr->stat_use[A_DEX] >= 16)
-				{
-					energy_fire = 150;
-				}
-				else
-				{
-					/* players with low dex will take longer to load */
-					energy_fire = 200;
-				}
-			}
-			break;
-		}
+		energy_fire = p_ptr->bow_energy;
 	}
+	else
+	{
+		energy_fire = 100;
+	}
+	
 	/* Calculate shots per round  - note "strange" formula. */
 
 	/* The real number of shots per round is (1 + n)/2 */
@@ -1402,9 +1379,9 @@ static void display_player_abilities(void)
 	dambonus = p_ptr->dis_to_d;
 	if (object_known_p(o_ptr)) dambonus += o_ptr->to_d;
 	damdice = o_ptr->dd;
-	damsides = o_ptr->ds;   /* dam += (o_ptr->dd * (o_ptr->ds + 1)) >> 1; */
+	damsides = o_ptr->ds;
 	blows = p_ptr->num_blow;
-	/* dam *= p_ptr->num_blow; */
+	
 
 	/* Basic abilities */
 
@@ -1464,13 +1441,8 @@ static void display_player_abilities(void)
 
 	put_str("Avg.Dam./Rnd:", 18, COL_SKILLS3);
 
-
-	if (dambonus > 0)
-		avgdam = (100 + deadliness_conversion[dambonus]);
-	else if (dambonus > -31)
-		avgdam = (100 - deadliness_conversion[ABS(dambonus)]);
-	else
-		avgdam = 0;
+	/* Deadliness conversion table */
+	avgdam = deadliness_calc(dambonus);
 
 	/* Effect of damage dice x2 */
 	avgdam *= damdice * (damsides + 1);
@@ -1550,10 +1522,14 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3)
 			(*f2) |= (TR2_RES_FEAR);
 		break;
 	case CLASS_MONK:
-		if ((p_ptr->lev > 9) && !monk_heavy_armor())
-			(*f1) |= TR1_SPEED;
-		if ((p_ptr->lev > 24) && !monk_heavy_armor())
-			(*f2) |= (TR2_FREE_ACT);
+		/* Monks get extra abilities if unencumbered */
+		if (!p_ptr->monk_armour_stat)
+		{
+			if (p_ptr->lev > 9)
+				(*f1) |= TR1_SPEED;
+			if (p_ptr->lev > 24)
+				(*f2) |= (TR2_FREE_ACT);
+		}
 		break;
 	case CLASS_MINDCRAFTER:
 		if (p_ptr->lev > 9)
@@ -1787,23 +1763,6 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3)
 		{
 			(*f2) |= TR2_FREE_ACT;
 		}
-
-#ifdef MUT3_SUS_STATS
-		if (p_ptr->muta3 & MUT3_SUS_STATS)
-		{
-			(*f2) |= TR2_SUST_CON;
-			if (p_ptr->lev > 9)
-				(*f2) |= TR2_SUST_STR;
-			if (p_ptr->lev > 19)
-				(*f2) |= TR2_SUST_DEX;
-			if (p_ptr->lev > 29)
-				(*f2) |= TR2_SUST_WIS;
-			if (p_ptr->lev > 39)
-				(*f2) |= TR2_SUST_INT;
-			if (p_ptr->lev > 49)
-				(*f2) |= TR2_SUST_CHR;
-		}
-#endif /* MUT3_SUS_STATS */
 	}
 
 	/* Remove flags that were not in Moria */
@@ -1962,7 +1921,7 @@ static void display_player_flag_info(void)
 	display_player_flag_aux(row++, col, "AuraElec:", 3, TR3_SH_ELEC, 0);
 	display_player_flag_aux(row++, col, "NoTelprt:", 3, TR3_NO_TELE, 0);
 	display_player_flag_aux(row++, col, "No Magic:", 3, TR3_NO_MAGIC, 0);
-	display_player_flag_aux(row++, col, "Cursed  :", 3, TR3_CURSED | TR3_HEAVY_CURSE | TR3_PERMA_CURSE , 0);
+	display_player_flag_aux(row++, col, "Cursed  :", 3, TR3_HEAVY_CURSE | TR3_PERMA_CURSE , 0);
 	display_player_flag_aux(row++, col, "DrainExp:", 3, TR3_DRAIN_EXP, 0);
 	display_player_flag_aux(row++, col, "Teleport:", 3, TR3_TELEPORT, 0);
 
@@ -2155,6 +2114,12 @@ static void display_player_stat_info(void)
 					/* Label boost */
 					if (o_ptr->pval < 10) c = '0' + o_ptr->pval;
 				}
+				
+				if (f2 & 1 << stat)
+				{
+					/* Dark green for sustained stats. */
+					a = TERM_GREEN;
+				}
 
 				/* Bad */
 				if (o_ptr->pval < 0)
@@ -2168,7 +2133,7 @@ static void display_player_stat_info(void)
 			}
 
 			/* Sustain */
-			if (f2 & 1 << stat)
+			else if (f2 & 1 << stat)
 			{
 				/* Dark green "s" */
 				a = TERM_GREEN;
@@ -2405,19 +2370,7 @@ static void display_player_middle(void)
 	if (object_known_p(o_ptr)) show_todam += o_ptr->to_d;
 
 	/* convert to oangband "deadliness" */
-	if (show_todam > 0)
-	{
-		percentdam = (100 + deadliness_conversion[show_todam]);
-	}
-	else if (show_todam > -31)
-	{
-		percentdam = (100 - deadliness_conversion[ABS(show_todam)]);
-	}
-	else
-	{
-		percentdam = 0;
-	}
-
+	percentdam = deadliness_calc(show_todam);
 
 	/*** Bonuses ***/
 
@@ -2987,7 +2940,7 @@ errr file_character(cptr name, bool full)
 		{
 			st_ptr = &town[i].store[j];
 			
-			if (st_ptr->type == STORE_HOME)
+			if (st_ptr->type == BUILD_STORE_HOME)
 			{
 				/* Home -- if anything there */
 				if (st_ptr->stock_num)
@@ -2999,7 +2952,7 @@ errr file_character(cptr name, bool full)
 					for (k = 0; k < st_ptr->stock_num; k++)
 					{
 						object_desc(o_name, &st_ptr->stock[k], TRUE, 3);
-						fprintf(fff, "%c%s %s\n", I2A(i), paren, o_name);
+						fprintf(fff, "%c%s %s\n", I2A(k), paren, o_name);
 					}
 	
 					/* Add an empty line */
@@ -3820,7 +3773,7 @@ void do_cmd_save_game(int is_autosave)
 	else
 	{
 		/* Disturb the player */
-		disturb(1, 0);
+		disturb(TRUE);
 	}
 
 	/* Clear messages */
@@ -4119,7 +4072,7 @@ static void show_info(void)
 		{
 			st_ptr = &town[i].store[j];
 			
-			if (st_ptr->type == STORE_HOME)
+			if (st_ptr->type == BUILD_STORE_HOME)
 			{
 				/* Hack -- Know everything in the home */
 				for (k = 0; k < st_ptr->stock_num; k++)
@@ -4202,7 +4155,7 @@ static void show_info(void)
 		{
 			st_ptr = &town[i].store[l];
 			
-			if (st_ptr->type == STORE_HOME)
+			if (st_ptr->type == BUILD_STORE_HOME)
 			{
 				/* Home -- if anything there */
 				if (st_ptr->stock_num)
@@ -4483,7 +4436,7 @@ void exit_game_panic(void)
 	prt("", 0, 0);
 
 	/* Hack -- turn off some things */
-	disturb(1, 0);
+	disturb(TRUE);
 
 	/* Mega-Hack -- Delay death */
 	if (p_ptr->chp < 0) p_ptr->is_dead = FALSE;

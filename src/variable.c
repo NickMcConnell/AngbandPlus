@@ -78,7 +78,6 @@ bool character_icky;		/* The game is in an icky full screen mode */
 bool character_xtra;		/* The game is in an icky startup mode */
 
 u32b seed_flavor;		/* Hack -- consistent object colors */
-u32b seed_town;			/* Hack -- consistent town layout */
 
 bool msg_flag;			/* Used in msg_print() for "buffering" */
 
@@ -89,8 +88,6 @@ s16b max_wid;
 
 obj_theme dun_theme;	/* Current dungeon object theme */
 s16b num_repro;			/* Current reproducer count */
-
-bool mon_fight;			/* Monster fighting indicator */
 
 s16b object_level;		/* Current object creation level */
 s16b monster_level;		/* Current monster creation level */
@@ -117,6 +114,7 @@ bool shimmer_monsters;	/* Hack -- optimize multi-hued monsters */
 
 bool repair_monsters;	/* Hack -- optimize detect monsters */
 
+/* Are these needed? */
 bool hack_mind;
 bool hack_mutation;
 
@@ -133,12 +131,15 @@ s16b hack_m_idx = 0;	/* Hack -- see "process_monsters()" */
 s16b hack_m_idx_ii = 0;
 s16b *hack_fld_ptr = NULL; /* Hack -- see "fields.c" */
 
+/* Can we get rid of this at all? */
 char summon_kin_type;   /* Hack, by Julian Lighton: summon 'relatives' */
 
+/* This probably can be moved to player_type */
 int total_friends = 0;
 s32b total_friend_levels = 0;
 s32b friend_align = 0;
 
+/* Is this needed? */
 int leaving_quest = 0;
 
 s16b store_cache_num = 0;	/* Number of stores with stock */
@@ -172,7 +173,7 @@ bool cheat_live;
 byte feeling;			/* Most recent feeling */
 s16b rating;			/* Level's current rating */
 
-bool good_item_flag;		/* True if "Artifact" on this level */
+bool good_item_flag;	/* True if "Artifact" on this level */
 
 bool closing_flag;		/* Dungeon is closing */
 
@@ -486,9 +487,6 @@ cave_type *(*area)(int, int);
 /* block used to generate plasma fractal for random wilderness */
 u16b *temp_block[WILD_BLOCK_SIZE + 1];
 
-/* block used to make towns and cities in the wilderness */
-u16b *town_block[WILD_BLOCK_SIZE + 1];
-
 /* cache of blocks near the player */
 cave_type **wild_cache[WILD_BLOCKS];
 
@@ -581,6 +579,8 @@ alloc_entry *alloc_ego_table;
 /*
  * Specify attr/char pairs for visual special effects
  * Be sure to use "index & 0x7F" to avoid illegal access
+ *
+ * Can we decrease the size to 128??
  */
 byte misc_to_attr[256];
 char misc_to_char[256];
@@ -772,6 +772,8 @@ cptr ANGBAND_DIR_USER;
 cptr ANGBAND_DIR_XTRA;
 
 
+/* Can these inventory hacks be cleaned up somehow? */
+
 /*
  * Total Hack -- allow all items to be listed (even empty ones)
  * This is only used by "do_cmd_inven_e()" and is cleared there.
@@ -793,7 +795,6 @@ byte item_tester_tval;
 bool (*item_tester_hook)(object_type*);
 
 
-
 /*
  * Current "comp" function for ang_sort()
  */
@@ -811,19 +812,15 @@ void (*ang_sort_swap)(vptr u, vptr v, int a, int b);
  * Hack -- function hooks to restrict "get_mon_num_prep()" function
  */
 monster_hook_type get_mon_num_hook;
+
+/* This is a mess. :-/ */
 monster_hook_type get_mon_num2_hook;
 
 
 /*
  * Hack -- function hook to restrict "get_obj_num_prep()" function
  */
-bool (*get_obj_num_hook)(int k_idx);
-
-
-/* Hack, monk armour */
-bool monk_armour_aux;
-bool monk_notify_aux;
-
+byte (*get_obj_num_hook)(int k_idx);
 
 
 /*
@@ -902,6 +899,9 @@ u16b max_w_node;
  */
 u16b max_w_block;
 
+
+/* Get rid of the quest stuff? */
+
 /*
  * Quest info
  */
@@ -922,6 +922,10 @@ int quest_text_line;
  */
 cptr gf_color[MAX_GF];
 
+
+
+/* Get rid of this? */
+
 /*
  * Flags for initialization
  */
@@ -941,5 +945,8 @@ int highscore_fd = -1;
  */
 bool monster_terrain_sensitive = TRUE;
 
+
+/* Get rid of this... */
 int mutant_regenerate_mod = 100;
+
 

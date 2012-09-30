@@ -373,11 +373,11 @@ static bool object_flavor(int k_idx)
 
 void get_table_name(char *out_string)
 {
-	int testcounter = randint1(3) + 1;
+	int testcounter = rand_range(2, 4);
 
 	strcpy(out_string, "'");
 
-	if (randint1(3) == 2)
+	if (one_in_(3))
 	{
 		while (testcounter--)
 			strcat(out_string, syllables[randint0(MAX_SYLLABLES)]);
@@ -385,7 +385,7 @@ void get_table_name(char *out_string)
 	else
 	{
 		char Syllable[80];
-		testcounter = randint1(2) + 1;
+		testcounter = rand_range(2, 3);
 		while (testcounter--)
 		{
 			(void)get_rnd_line("elvish.txt", 0, Syllable);
@@ -533,7 +533,7 @@ void flavor_init(void)
 	/* Potions */
 	for (i = 4; i < MAX_COLORS; i++)
 	{
-		j = randint0(MAX_COLORS - 4) + 4;
+		j = rand_range(4, MAX_COLORS - 1);
 		temp_adj = potion_adj[i];
 		potion_adj[i] = potion_adj[j];
 		potion_adj[j] = temp_adj;
@@ -834,10 +834,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 
 	u32b            f1, f2, f3;
 
-	object_type	*bow_ptr;
-
-	/* describe what type of ammo item is. (0=none) */
-	byte		ammotype = 0;
+	object_type	*bow_ptr;	
 
 	/* damage dice, damage sides, damage bonus, energy */
 	int		dd, ds, db, energy_use;
@@ -1419,14 +1416,6 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		t = object_desc_num(t, o_ptr->ds);
 		t = object_desc_chr(t, p2);
 
-		/* Set ammotype - used later to show avg damages */
-		if (o_ptr->tval == TV_SHOT)
-			ammotype = 1;
-		if (o_ptr->tval == TV_ARROW)
-			ammotype = 2;
-		if (o_ptr->tval == TV_BOLT)
-			ammotype = 3;
-
 		/* All done */
 		break;
 
@@ -1521,12 +1510,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	bow_ptr = &inventory[INVEN_BOW];
 
 	/* if have a firing weapon + ammo matches bow */
-	if (bow_ptr->k_idx &&
-	    (((bow_ptr->sval == SV_SLING) && (ammotype == 1)) ||
-		 (((bow_ptr->sval == SV_SHORT_BOW) ||
-	     (bow_ptr->sval == SV_LONG_BOW)) && (ammotype == 2)) ||
-	     (((bow_ptr->sval == SV_LIGHT_XBOW) ||
-	     (bow_ptr->sval == SV_HEAVY_XBOW)) && (ammotype == 3))))
+	if (bow_ptr->k_idx && (p_ptr->ammo_tval == o_ptr->tval))
 	{
 		/* See if the bow is "known" - then set damage bonus */
 		if (object_known_p(bow_ptr))
@@ -1547,79 +1531,14 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		dd = o_ptr->dd;
 		ds = o_ptr->ds;
 
-		if (db > 0)
-			avgdam = (100 + deadliness_conversion[db]);
-		else if (db > -31)
-			avgdam = (100 - deadliness_conversion[ABS(db)]);
-		else
-			avgdam = 0;
+		avgdam = deadliness_calc(db);
 
 		/* effect of damage dice x2 */
 		avgdam *= dd * (ds + 1);
-
-		/* Stop compiler warnings */
-		energy_use = 100;
-		tmul = 1;
-
-		/* Analyze the launcher */
-		switch (bow_ptr->sval)
-		{
-			/* Sling and ammo */
-			case SV_SLING:
-			{
-				tmul = 2;
-				energy_use = 50;
-				break;
-			}
-
-			/* Short Bow and Arrow */
-			case SV_SHORT_BOW:
-			{
-				tmul = 2;
-				energy_use = 100;
-				break;
-			}
-
-			/* Long Bow and Arrow */
-			case SV_LONG_BOW:
-			{
-				if (p_ptr->stat_use[A_STR] >= 16)
-				{
-					tmul = 3;
-				}
-				else
-				{
-					/* weak players cannot use a longbow well */
-					tmul = 2;
-				}
-				energy_use = 100;
-				break;
-			}
-
-			/* Light Crossbow and Bolt */
-			case SV_LIGHT_XBOW:
-			{
-				tmul = 4;
-				energy_use = 120;
-				break;
-			}
-
-			/* Heavy Crossbow and Bolt */
-			case SV_HEAVY_XBOW:
-			{
-				tmul = 5;
-				if (p_ptr->stat_use[A_DEX] >= 16)
-				{
-					energy_use = 150;
-				}
-				else
-				{
-					/* players with low dex will take longer to load */
-					energy_use = 200;
-				}
-			break;
-			}
-		}
+		
+		/* Bow properties */
+		energy_use = p_ptr->bow_energy;
+		tmul = p_ptr->ammo_mult;
 
 		/* Get extra "power" from "extra might" */
 		if (p_ptr->xtra_might) tmul++;
@@ -1905,4 +1824,35 @@ copyback:
 	tmp_val[79] = '\0';
 	t = tmp_val;
 	while ((*(buf++) = *(t++))); /* copy the string over */
+}
+
+/*
+ * Hack -- describe an item currently in a store's inventory
+ * This allows an item to *look* like the player is "aware" of it
+ */
+void object_desc_store(char *buf, object_type *o_ptr, int pref, int mode)
+{
+	/* Save the "aware" flag */
+	bool hack_aware = object_aware_p(o_ptr);
+
+	/* Save the "known" flag */
+	bool hack_known = (o_ptr->ident & (IDENT_KNOWN)) ? TRUE : FALSE;
+
+
+	/* Set the "known" flag */
+	o_ptr->ident |= (IDENT_KNOWN);
+
+	/* Force "aware" for description */
+	k_info[o_ptr->k_idx].aware = TRUE;
+
+
+	/* Describe the object */
+	object_desc(buf, o_ptr, pref, mode);
+
+
+	/* Restore "aware" flag */
+	k_info[o_ptr->k_idx].aware = hack_aware;
+
+	/* Clear the known flag */
+	if (!hack_known) o_ptr->ident &= ~(IDENT_KNOWN);
 }

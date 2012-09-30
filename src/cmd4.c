@@ -58,7 +58,8 @@ void do_cmd_redraw(void)
 	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_MESSAGE | PW_OVERHEAD | PW_DUNGEON | PW_MONSTER | PW_OBJECT);
+	p_ptr->window |= (PW_MESSAGE | PW_OVERHEAD | PW_DUNGEON |
+		 PW_MONSTER | PW_VISIBLE | PW_OBJECT);
 
 	/* Hack -- update */
 	handle_stuff();
@@ -156,7 +157,8 @@ void redraw_window(void)
 	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_MESSAGE | PW_OVERHEAD | PW_DUNGEON | PW_MONSTER | PW_OBJECT);
+	p_ptr->window |= (PW_MESSAGE | PW_OVERHEAD | PW_DUNGEON |
+		 PW_MONSTER | PW_VISIBLE | PW_OBJECT);
 
 	/* Hack -- update */
 	handle_stuff();
@@ -3711,8 +3713,7 @@ static void do_cmd_knowledge_quests(void)
 			p_ptr->inside_quest = i;
 
 			/* Get the quest text */
-			init_flags = INIT_SHOW_TEXT;
-			process_dungeon_file("q_info.txt", 0, 0, 0, 0);
+			process_dungeon_file("q_info.txt", INIT_SHOW_TEXT);
 
 			/* Reset the old quest number */
 			p_ptr->inside_quest = old_quest;
@@ -3931,7 +3932,7 @@ void do_cmd_time(void)
 				  min, (hour < 12) ? "AM" : "PM");
 
 	/* Find the path */
-	if (!randint0(10) || p_ptr->image)
+	if (one_in_(10) || p_ptr->image)
 	{
 		path_build(buf, 1024, ANGBAND_DIR_FILE, "timefun.txt");
 	}
@@ -3987,7 +3988,7 @@ void do_cmd_time(void)
 			num++;
 
 			/* Apply the randomizer */
-			if (!randint0(num)) strcpy(desc, buf + 2);
+			if (one_in_(num)) strcpy(desc, buf + 2);
 
 			/* Next... */
 			continue;

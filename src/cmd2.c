@@ -262,7 +262,7 @@ void do_cmd_search(void)
 	if (cmd_search_callback(p_ptr->py, p_ptr->px))
 	{
 		/* Disturb */
-		disturb(0, 0);
+		disturb(FALSE);
 
 		return;
 	}
@@ -465,7 +465,7 @@ static void chest_death(int y, int x, s16b o_idx)
 		object_wipe(q_ptr);
 
 		/* Small chests often drop gold */
-		if (small && (randint0(100) < 25))
+		if (small && one_in_(4))
 		{
 			/* Make some gold */
 			if (!make_gold(q_ptr, 0)) continue;
@@ -544,7 +544,7 @@ static void chest_trap(int y, int x, s16b o_idx)
 		msg_print("A puff of green gas surrounds you!");
 		if (!(p_ptr->resist_pois || p_ptr->oppose_pois))
 		{
-			(void)set_poisoned(p_ptr->poisoned + 10 + randint1(20));
+			(void)set_poisoned(p_ptr->poisoned + rand_range(10, 30));
 		}
 	}
 
@@ -555,14 +555,14 @@ static void chest_trap(int y, int x, s16b o_idx)
 
 		if (!p_ptr->free_act)
 		{
-			(void)set_paralyzed(p_ptr->paralyzed + 10 + randint1(20));
+			(void)set_paralyzed(p_ptr->paralyzed + rand_range(10, 30));
 		}
 	}
 
 	/* Summon monsters */
 	if (trap & (CHEST_SUMMON))
 	{
-		int num = 2 + randint1(3);
+		int num = rand_range(3, 5);
 		msg_print("You are enveloped in a cloud of smoke!");
 
 		for (i = 0; i < num; i++)
@@ -860,7 +860,7 @@ bool do_cmd_open_aux(int y, int x)
 		if (p_ptr->confused || p_ptr->image) i = i / 10;
 
 		/* Success? */
-		if (!field_hook_single(fld_ptr, FIELD_ACT_INTERACT, (void *) &i))
+		if (!field_hook_single(fld_ptr, FIELD_ACT_INTERACT, (vptr) &i))
 		{
 			/* Update some things */
 			p_ptr->update |= (PU_VIEW | PU_MONSTERS | PU_MON_LITE);
@@ -958,7 +958,7 @@ void do_cmd_open(void)
 		if (cmd_open_callback(y, x))
 		{
 			/* Don't repeat the action */
-			disturb(0, 0);
+			disturb(FALSE);
 			return;
 		}
 #endif /* USE_SCRIPT */
@@ -1008,7 +1008,7 @@ void do_cmd_open(void)
 	}
 
 	/* Cancel repeat unless we may continue */
-	if (!more) disturb(0, 0);
+	if (!more) disturb(FALSE);
 }
 
 
@@ -1107,7 +1107,7 @@ void do_cmd_close(void)
 			/* Message */
 			msg_print("You see nothing there to close.");
 
-			disturb(0, 0);
+			disturb(FALSE);
 			return;
 		}
 
@@ -1143,7 +1143,7 @@ void do_cmd_close(void)
 	}
 
 	/* Cancel repeat unless we may continue */
-	if (!more) disturb(0, 0);
+	if (!more) disturb(FALSE);
 }
 
 
@@ -1197,7 +1197,7 @@ static bool do_cmd_tunnel_aux(int y, int x)
 	int dig = p_ptr->skill_dig;
 	
 	s16b *fld_ptr = field_hook_find(&c_ptr->fld_idx,
-			 FIELD_ACT_INTERACT_TEST, (void *) &action);
+			 FIELD_ACT_INTERACT_TEST, (vptr) &action);
 			 
 	/* Take a turn */
 	p_ptr->energy_use = 100;
@@ -1217,7 +1217,7 @@ static bool do_cmd_tunnel_aux(int y, int x)
 
 	if (*fld_ptr && (action == 0))
 	{
-		if (!field_hook_single(fld_ptr, FIELD_ACT_INTERACT, (void *)&dig))
+		if (!field_hook_single(fld_ptr, FIELD_ACT_INTERACT, (vptr)&dig))
 		{
 			/* Notice new floor grids */
 			if (!cave_floor_grid(c_ptr))
@@ -1272,7 +1272,7 @@ static bool do_cmd_tunnel_aux(int y, int x)
 			more = TRUE;
 
 			/* Occasional Search XXX XXX */
-			if (randint0(100) < 25) search();
+			if (one_in_(4)) search();
 		}
 	}
 
@@ -1295,7 +1295,7 @@ static bool do_cmd_tunnel_aux(int y, int x)
 			more = TRUE;
 
 			/* Occasional Search XXX XXX */
-			if (randint0(100) < 25) search();
+			if (one_in_(4)) search();
 		}
 	}
 
@@ -1319,7 +1319,7 @@ static bool do_cmd_tunnel_aux(int y, int x)
 			more = TRUE;
 
 			/* Occasional Search XXX XXX */
-			if (randint0(100) < 25) search();
+			if (one_in_(4)) search();
 		}
 	}
 
@@ -1327,7 +1327,8 @@ static bool do_cmd_tunnel_aux(int y, int x)
 	else if (((c_ptr->feat >= FEAT_WALL_EXTRA) &&
 	          (c_ptr->feat <= FEAT_WALL_SOLID)) ||
 	         (c_ptr->feat == FEAT_MOUNTAIN) ||
-	         (c_ptr->feat == FEAT_SNOW_MOUNTAIN))
+	         (c_ptr->feat == FEAT_SNOW_MOUNTAIN) ||
+			 (c_ptr->feat == FEAT_PILLAR))
 	{
 		/* Tunnel */
 		if ((p_ptr->skill_dig > 40 + randint0(1600)) && twall(y, x, FEAT_FLOOR))
@@ -1424,7 +1425,7 @@ static bool do_cmd_tunnel_aux(int y, int x)
 			msg_print("You have removed the rubble.");
 
 			/* Hack -- place an object */
-			if (randint0(100) < 10)
+			if (one_in_(10))
 			{
 				/* Create a simple object */
 				place_object(y, x, FALSE, FALSE);
@@ -1462,7 +1463,7 @@ static bool do_cmd_tunnel_aux(int y, int x)
 			more = TRUE;
 
 			/* Occasional Search XXX XXX */
-			if (randint0(100) < 25) search();
+			if (one_in_(4)) search();
 		}
 	}
 
@@ -1523,7 +1524,7 @@ void do_cmd_tunnel(void)
 			msg_print("You cannot tunnel outside the wilderness.");
 
 			/* Do not repeat */
-			disturb(0, 0);
+			disturb(FALSE);
 
 			/* exit */
 			return;
@@ -1577,7 +1578,7 @@ void do_cmd_tunnel(void)
 	}
 
 	/* Cancel repetition unless we can continue */
-	if (!more) disturb(0, 0);
+	if (!more) disturb(FALSE);
 }
 
 
@@ -1715,7 +1716,7 @@ bool do_cmd_disarm_aux(cave_type *c_ptr, int dir)
 	if (p_ptr->confused || p_ptr->image) i = i / 10;
 
 	/* Success */
-	if (!field_hook_single(fld_ptr, FIELD_ACT_INTERACT, (void *)&i))
+	if (!field_hook_single(fld_ptr, FIELD_ACT_INTERACT, (vptr)&i))
 	{
 		/* Message */
 		msg_format("You have disarmed the %s.", t_ptr->name);
@@ -1811,7 +1812,7 @@ void do_cmd_disarm(void)
 			/* Message */
 			msg_print("You see nothing there to disarm.");
 
-			disturb(0, 0);
+			disturb(FALSE);
 			return;
 		}
 
@@ -1854,7 +1855,7 @@ void do_cmd_disarm(void)
 	}
 
 	/* Cancel repeat unless told not to */
-	if (!more) disturb(0, 0);
+	if (!more) disturb(FALSE);
 }
 
 
@@ -1904,7 +1905,7 @@ void do_cmd_alter(void)
 			/* Oops */
 			msg_print("You attack the empty air.");
 
-			disturb(0, 0);
+			disturb(FALSE);
 			return;
 		}
 
@@ -1922,7 +1923,7 @@ void do_cmd_alter(void)
 		}
 
 		else if (*field_hook_find(&c_ptr->fld_idx, FIELD_ACT_INTERACT_TEST,
-		                          (void *)&action))
+		                          (vptr)&action))
 		{
 			switch (action)
 			{
@@ -1957,7 +1958,8 @@ void do_cmd_alter(void)
 		          (c_ptr->feat == FEAT_SNOW_MOUNTAIN) ||
 		          (c_ptr->feat == FEAT_PINE_TREE) ||
 		          (c_ptr->feat == FEAT_SNOW_TREE) ||
-		          (c_ptr->feat == FEAT_JUNGLE)))
+		          (c_ptr->feat == FEAT_JUNGLE) ||
+				  (c_ptr->feat == FEAT_PILLAR)))
 		{
 			/* Tunnel */
 			more = do_cmd_tunnel_aux(y, x);
@@ -1987,7 +1989,7 @@ void do_cmd_alter(void)
 	}
 
 	/* Cancel repetition unless we can continue */
-	if (!more) disturb(0, 0);
+	if (!more) disturb(FALSE);
 }
 
 
@@ -2050,7 +2052,7 @@ void do_cmd_spike(void)
 			/* Message */
 			msg_print("You see nothing there to spike.");
 
-			disturb(0, 0);
+			disturb(FALSE);
 			return;
 		}
 
@@ -2143,7 +2145,7 @@ void do_cmd_walk(int pickup)
 	}
 
 	/* Cancel repeat unless we may continue */
-	if (!more) disturb(0, 0);
+	if (!more) disturb(FALSE);
 }
 
 
@@ -2200,7 +2202,7 @@ void do_cmd_stay(int pickup)
 
 
 	/* Spontaneous Searching */
-	if ((p_ptr->skill_fos >= 50) || (0 == randint0(50 - p_ptr->skill_fos)))
+	if ((p_ptr->skill_fos >= 50) || one_in_(50 - p_ptr->skill_fos))
 	{
 		search();
 	}
@@ -2513,7 +2515,7 @@ void do_cmd_fire_aux(int item, object_type *j_ptr)
 	object_type *o_ptr;
 
 	int tdis, thits, tmul;
-	int cur_dis, visible;
+	int cur_dis;
 
 	int chance2;
 
@@ -2535,7 +2537,7 @@ void do_cmd_fire_aux(int item, object_type *j_ptr)
 	if ((j_ptr->name2 == EGO_VELOCITY) || (j_ptr->name2 == EGO_ACCURACY))
 	{
 		/* Occasional boost to shot. */
-		if (randint1(16) == 1)
+		if (one_in_(16))
 		{
 			if (j_ptr->name2 == EGO_VELOCITY) special_dam = TRUE;
 			else if (j_ptr->name2 == EGO_ACCURACY) special_hit = TRUE;
@@ -2602,68 +2604,9 @@ void do_cmd_fire_aux(int item, object_type *j_ptr)
 	bonus = (p_ptr->to_h + i_ptr->to_h + j_ptr->to_h);
 	chance = (p_ptr->skill_thb + (bonus * BTH_PLUS_ADJ));
 
-	/* Assume a base multiplier */
-	tmul = 1;
-
-	/* Analyze the launcher */
-	switch (j_ptr->sval)
-	{
-		/* Sling and ammo */
-		case SV_SLING:
-		{
-			tmul = 2;
-			p_ptr->energy_use = 50;
-			break;
-		}
-
-		/* Short Bow and Arrow */
-		case SV_SHORT_BOW:
-		{
-			tmul = 2;
-			p_ptr->energy_use = 100;
-			break;
-		}
-
-		/* Long Bow and Arrow */
-		case SV_LONG_BOW:
-		{
-			if (p_ptr->stat_use[A_STR] >= 16)
-			{
-				tmul = 3;
-			}
-			else
-			{
-				/* weak players cannot use a longbow well */
-				tmul = 2;
-			}
-			p_ptr->energy_use = 100;
-			break;
-		}
-
-		/* Light Crossbow and Bolt */
-		case SV_LIGHT_XBOW:
-		{
-			tmul = 4;
-			p_ptr->energy_use = 120;
-			break;
-		}
-
-		/* Heavy Crossbow and Bolt */
-		case SV_HEAVY_XBOW:
-		{
-			tmul = 5;
-			if (p_ptr->stat_use[A_DEX] >= 16)
-			{
-				p_ptr->energy_use = 150;
-			}
-			else
-			{
-				/* players with low dex will take longer to load */
-				p_ptr->energy_use = 200;
-			}
-			break;
-		}
-	}
+	/* Shooter properties */
+	p_ptr->energy_use = p_ptr->bow_energy;
+	tmul = p_ptr->ammo_mult;
 
 	/* Get extra "power" from "extra might" */
 	if (p_ptr->xtra_might) tmul++;
@@ -2772,16 +2715,13 @@ void do_cmd_fire_aux(int item, object_type *j_ptr)
 			monster_type *m_ptr = &m_list[c_ptr->m_idx];
 			monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
-			/* Check the visibility */
-			visible = m_ptr->ml;
-
 			chance2 = chance - cur_dis;
 
 			/* Note the collision */
 			hit_body = TRUE;
 
 			/* Sleeping, visible monsters are easier to hit. -LM- */
-			if ((m_ptr->csleep) && (visible))
+			if ((m_ptr->csleep) && (m_ptr->ml))
 				sleeping_bonus = 5 + p_ptr->lev / 5;
 
 			/* Monsters in rubble can take advantage of cover. -LM- */
@@ -2815,6 +2755,24 @@ void do_cmd_fire_aux(int item, object_type *j_ptr)
 			if (special_hit) armour /= 3;
 #endif /* 0 */
 
+			/* Look to see if we've spotted a mimic */
+			if ((m_ptr->smart & SM_MIMIC) && m_ptr->ml)
+			{
+				char m_name2[80];
+		
+				/* Get name */
+				monster_desc (m_name2, m_ptr, 0x88);
+				
+				/* Toggle flag */
+				m_ptr->smart &= ~(SM_MIMIC);
+				
+				/* It is in the monster list now */
+				update_mon_vis(m_ptr->r_idx, 1);
+		
+				/* We've spotted it */
+				msg_format("You've found %s!", m_name2);
+			}
+
 			/* Did we hit it (penalize range) */
 			if (test_hit_fire(chance2 + sleeping_bonus, armour, m_ptr->ml))
 			{
@@ -2833,14 +2791,11 @@ void do_cmd_fire_aux(int item, object_type *j_ptr)
 				/* Get "the monster" or "it" */
 				monster_desc(m_name, m_ptr, 0);
 
-				if (visible)
-				{
-					/* Hack -- Track this monster race */
-					if (m_ptr->ml) monster_race_track(m_ptr->r_idx);
+				/* Hack -- Track this monster race */
+				if (m_ptr->ml) monster_race_track(m_ptr->r_idx);
 
-					/* Hack -- Track this monster */
-					if (m_ptr->ml) health_track(c_ptr->m_idx);
-				}
+				/* Hack -- Track this monster */
+				if (m_ptr->ml) health_track(c_ptr->m_idx);
 
 				/* The basic damage-determination formula is the same in
 				 * archery as it is in melee (apart from the launcher mul-
@@ -2860,20 +2815,13 @@ void do_cmd_fire_aux(int item, object_type *j_ptr)
 
 				/* multiply by critical shot. (10x inflation) + level damage bonus */
 				tdam *= critical_shot(chance2, sleeping_bonus,
-					o_name, m_name, visible);
+					o_name, m_name, m_ptr->ml);
 
 				/*
 				 * Convert total Deadliness into a percentage, and apply
 				 * it as a bonus or penalty. (100x inflation)
 				 */
-				if (total_deadliness > 0)
-					tdam *= (100 +
-					deadliness_conversion[total_deadliness]);
-				else if (total_deadliness > -31)
-					tdam *= (100 -
-					deadliness_conversion[ABS(total_deadliness)]);
-				else
-					tdam = 0;
+				tdam *= deadliness_calc(total_deadliness);
 
 				/* Get the whole number of dice by deflating the result. */
 				tdam_whole = tdam / 10000;
@@ -3003,7 +2951,7 @@ void do_cmd_throw_aux(int mult)
 	int chance, chance2, tdis;
 	int breakage;
 	int mul, div;
-	int cur_dis, visible;
+	int cur_dis;
 
 	long tdam;
 	int tdam_remainder, tdam_whole;
@@ -3203,9 +3151,6 @@ void do_cmd_throw_aux(int mult)
 			monster_type *m_ptr = &m_list[c_ptr->m_idx];
 			monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
-			/* Check the visibility */
-			visible = m_ptr->ml;
-
 			/* Calculate the projectile accuracy, modified by distance. */
 			chance2 = chance - distance(py, px, y, x);
 
@@ -3232,6 +3177,24 @@ void do_cmd_throw_aux(int mult)
 			/* Note the collision */
 			hit_body = TRUE;
 
+			/* Look to see if we've spotted a mimic */
+			if ((m_ptr->smart & SM_MIMIC) && m_ptr->ml)
+			{
+				char m_name2[80];
+		
+				/* Get name */
+				monster_desc (m_name2, m_ptr, 0x88);
+				
+				/* Toggle flag */
+				m_ptr->smart &= ~(SM_MIMIC);
+				
+				/* It is in the monster list now */
+				update_mon_vis(m_ptr->r_idx, 1);
+		
+				/* We've spotted it */
+				msg_format("You've found %s!", m_name2);
+			}
+			
 			/* Did we hit it (penalize range) */
 			if (test_hit_fire(chance - cur_dis, r_ptr->ac + terrain_bonus, m_ptr->ml))
 			{
@@ -3250,15 +3213,11 @@ void do_cmd_throw_aux(int mult)
 				/* Get "the monster" or "it" */
 				monster_desc(m_name, m_ptr, 0);
 
-				/* Handle visible monster */
-				if (visible)
-				{
-					/* Hack -- Track this monster race */
-					if (m_ptr->ml) monster_race_track(m_ptr->r_idx);
+				/* Hack -- Track this monster race */
+				if (m_ptr->ml) monster_race_track(m_ptr->r_idx);
 
-					/* Hack -- Track this monster */
-					if (m_ptr->ml) health_track(c_ptr->m_idx);
-				}
+				/* Hack -- Track this monster */
+				if (m_ptr->ml) health_track(c_ptr->m_idx);
 
 				/* sum all the applicable additions to Deadliness. */
 				total_deadliness = p_ptr->to_d + q_ptr->to_d;
@@ -3291,7 +3250,7 @@ void do_cmd_throw_aux(int mult)
 				 * (10x inflation)
 				 */
 				if (f2 & (TR2_THROW)) tdam *= critical_shot
-					(chance2, sleeping_bonus, o_name, m_name, visible);
+					(chance2, sleeping_bonus, o_name, m_name, m_ptr->ml);
 				else tdam *= 10;
 
 				/* Convert total or object-only Deadliness into a percen-
@@ -3299,26 +3258,11 @@ void do_cmd_throw_aux(int mult)
 				 */
 				if (f2 & (TR2_THROW))
 				{
-					if (total_deadliness > 0)
-						tdam *= (100 +
-						    deadliness_conversion[total_deadliness]);
-					else if (total_deadliness > -31)
-						tdam *= (100 -
-						    deadliness_conversion[ABS(total_deadliness)]);
-					else
-						tdam = 0;
+					tdam *= deadliness_calc(total_deadliness);
 				}
-
 				else
 				{
-					if (q_ptr->to_d > 0)
-						tdam *= (100 +
-						    deadliness_conversion[q_ptr->to_d]);
-					else if (q_ptr->to_d > -31)
-						tdam *= (100 -
-						     deadliness_conversion[ABS(q_ptr->to_d)]);
-					else
-						tdam = 0;
+					tdam *= deadliness_calc(q_ptr->to_d);
 				}
 
 				/* Get the whole number of dice by deflating the result. */

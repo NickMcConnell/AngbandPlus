@@ -211,10 +211,10 @@ errr path_parse(char *buf, int max, cptr file)
 	if (!pw) return (1);
 
 	/* Make use of the info */
-	(void)strcpy(buf, pw->pw_dir);
+	(void)strncpy(buf, pw->pw_dir, max);
 
 	/* Append the rest of the filename, if any */
-	if (s) (void)strcat(buf, s);
+	if (s) (void)strncat(buf, s, max);
 
 	/* Success */
 	return (0);
@@ -1890,100 +1890,39 @@ char inkey(void)
 
 
 /*
- * Sorting hook -- comp function -- by "access time"
- *
- * We use "u" and "v" to point to arrays of "x" and "y" positions,
- * and sort the arrays by the value in y.  The value in x is
- * saved as a reference to the old position in the list.
- */
-static bool ang_sort_comp_a_time(vptr u, vptr v, int a, int b)
-{
-	s16b *y = (s16b*)(v);
-
-	/* Compare them */
-	return (y[a] <= y[b]);
-}
-
-
-/*
- * Sorting hook -- swap function -- by "access time"
- *
- * We use "u" and "v" to point to arrays of "x" and "y" positions,
- * and sort the arrays by the value in y.  The value in x is
- * saved as a reference to the old position in the list.
- */
-static void ang_sort_swap_a_time(vptr u, vptr v, int a, int b)
-{
-	s16b *x = (s16b*)(u);
-	s16b *y = (s16b*)(v);
-
-	s16b temp;
-
-	/* Swap "x" */
-	temp = x[a];
-	x[a] = x[b];
-	x[b] = temp;
-
-	/* Swap "y" */
-	temp = y[a];
-	y[a] = y[b];
-	y[b] = temp;
-}
-
-
-/*
  * Out of space - Compact the quarks
  */
 static s16b compact_quarks(void)
 {
-	s16b empty, i;
+	s16b i, empty = 1;
 	
-	/* Save the times */
+	u16b min_use = quark__use[quark__num - 1];
+	
+	/* Find least recently used quark */
 	for (i = 1; i < quark__num; i++)
 	{
-		temp_x[i] = i;
-		temp_y[i] = quark__use[i];
-	}
-	
-	temp_n = quark__num;
-	
-	/* Set the sort hooks */
-	ang_sort_comp = ang_sort_comp_a_time;
-	ang_sort_swap = ang_sort_swap_a_time;
-
-	/* Sort by access time */
-	ang_sort(temp_x, temp_y, temp_n);
-
-	
-	/* Find the one with the least non-zero time */
-	i = 1;
-	
-	while (!temp_y[i]) i++;
-	
-	/* Save the most unused temporary quark */
-	empty = i;
-	
-	
-	/* Reset all the times to something "smaller" */
-	for (;i < quark__num; i++)
-	{
-		/* Paranoia */
-		if (temp_x[i])
+		if (quark__use[i] < min_use)
 		{
-			quark__use[temp_x[i]] = temp_y[i];
+			/* Less used than current quark? */
+			empty = i;
+			min_use = quark__use[i];
 		}
+	}
+		
+	/* Reset all the times to something "smaller" */
+	for (i = 1; i < quark__num; i++)
+	{
+		/* Hack XXX XXX - just use old value divided by QUARK_COMPACT */
+		quark__use[i] = quark__use[i] / QUARK_COMPACT;
 	}
 
 	/* 
 	 * Reset the time
 	 *
-	 * Note that QUARK_MAX * 3 must be less than the
+	 * Note that QUARK_MAX * QUARK_COMPACT must be less than the
 	 * size of a s16b.
 	 */
 	quark__tim = quark__num + 1;
-
-	/* Reset temp_n */
-	temp_n = 0;
 
 	return (empty);
 }
@@ -1998,9 +1937,6 @@ s16b quark_add(cptr str)
 	/* Look for an existing quark */
 	for (i = 1; i < quark__num; i++)
 	{
-		/* Check for non-permanence */
-		if (!quark__use[i]) continue;
-		
 		/* Check for equality */
 		if (streq(quark__str[i], str)) return (i);
 	}
@@ -2034,58 +1970,14 @@ s16b quark_add(cptr str)
 
 
 /*
- * Add a new permanent "quark" to the set of quarks.
- */
-s16b quark_add_perm(cptr str)
-{
-	int i;
-
-	/* Look for an existing quark */
-	for (i = 1; i < quark__num; i++)
-	{
-		/* Check for permanence */
-		if (quark__use[i]) continue;
-		
-		/* Check for equality */
-		if (streq(quark__str[i], str)) return (i);
-	}
-
-	/* Paranoia -- Require room */
-	if (quark__num == QUARK_MAX)
-	{
-		i = compact_quarks();
-		
-		/* Paranoia - no room? */
-		if (!i) return(0);
-		
-		/* Delete the old quark */
-		string_free(quark__str[i]);
-	}
-	else
-	{
-		/* New maximal quark */
-		quark__num = i + 1;
-	}
-
-	/* Add a new quark */
-	quark__str[i] = string_make(str);
-
-	/* Make it permanent */
-	quark__use[i] = 0;
-
-	/* Return the index */
-	return (i);
-}
-
-/*
  * This function looks up a quark
  */
 cptr quark_str(s16b i)
 {
 	cptr q;
 
-	/* Verify */
-	if ((i < 0) || (i >= quark__num)) i = 0;
+	/* Paranoia */
+	if ((i < 0) || (i >= quark__num)) return (NULL);
 
 	/* Access the quark */
 	q = quark__str[i];
@@ -2094,7 +1986,7 @@ cptr quark_str(s16b i)
 	quark__use[i] = ++quark__tim;
 	
 	/* Compact from time to time */
-	if (quark__tim > 3 * QUARK_MAX)
+	if (quark__tim > QUARK_COMPACT * QUARK_MAX)
 	{
 		(void) compact_quarks();
 	}
@@ -2443,17 +2335,28 @@ static void msg_flush(int x)
 	/* Hack -- fake monochrome */
 	if (!use_color || ironman_moria) a = TERM_WHITE;
 
-	/* Pause for response */
-	Term_putstr(x, 0, -1, a, "-more-");
-
-	/* Get an acceptable keypress */
-	while (1)
+	if (!p_ptr->skip_more)
 	{
-		int cmd = inkey();
-		if (quick_messages) break;
-		if ((cmd == ESCAPE) || (cmd == ' ')) break;
-		if ((cmd == '\n') || (cmd == '\r')) break;
-		bell();
+		/* Pause for response */
+		Term_putstr(x, 0, -1, a, "-more-");
+
+		/* Get an acceptable keypress */
+		while (1)
+		{
+			int cmd = inkey();
+
+                        if (cmd == ESCAPE)
+			{
+				/* Skip all the prompt until player's turn */
+				p_ptr->skip_more = TRUE;	
+				break;
+			}
+
+			if (quick_messages) break;
+			if (cmd == ' ') break;
+			if ((cmd == '\n') || (cmd == '\r')) break;
+			bell();
+		}
 	}
 
 	/* Clear the line */
@@ -3041,6 +2944,9 @@ bool get_check(cptr prompt)
 
 	char buf[80];
 
+	/* Do not skip */
+	p_ptr->skip_more = FALSE;
+
 	/* Paranoia XXX XXX XXX */
 	msg_print(NULL);
 
@@ -3276,6 +3182,9 @@ void request_command(int shopping)
 		{
 			/* Hack -- no flush needed */
 			msg_flag = FALSE;
+
+			/* Reset the skip_more flag */
+			p_ptr->skip_more = FALSE;
 
 			/* Activate "command mode" */
 			inkey_flag = TRUE;
@@ -3702,137 +3611,6 @@ void repeat_check(void)
 		repeat_push(what);
 	}
 }
-
-
-
-#ifdef SORT_R_INFO
-
-/*
- * Array size for which InsertionSort
- * is used instead of QuickSort
- */
-#define CUTOFF 4
-
-
-/*
- * Exchange two sort-entries
- * (should probably be coded inline
- * for speed increase)
- */
-static void swap(tag_type *a, tag_type *b)
-{
-	tag_type temp;
-
-	temp.tag = a->tag;
-	temp.pointer = a->pointer;
-
-	a->tag = b->tag;
-	a->pointer = b->pointer;
-
-	b->tag = temp.tag;
-	b->pointer = temp.pointer;
-}
-
-
-/*
- * Insertion-Sort algorithm
- * (used by the Quicksort algorithm)
- */
-static void InsertionSort(tag_type elements[], int number)
-{
-	int j, P;
-
-	tag_type tmp;
-
-	for (P = 1; P < number; P++)
-	{
-		tmp = elements[P];
-		for (j = P; (j > 0) && (elements[j - 1].tag > tmp.tag); j--)
-			elements[j] = elements[j - 1];
-		elements[j] = tmp;
-	}
-}
-
-
-/*
- * Helper function for Quicksort
- */
-static tag_type median3(tag_type elements[], int left, int right)
-{
-	int center = (left + right) / 2;
-
-	if (elements[left].tag > elements[center].tag)
-		swap(&elements[left], &elements[center]);
-	if (elements[left].tag > elements[right].tag)
-		swap(&elements[left], &elements[right]);
-	if (elements[center].tag > elements[right].tag)
-		swap(&elements[center], &elements[right]);
-
-	swap(&elements[center], &elements[right - 1]);
-	return (elements[right - 1]);
-}
-
-
-/*
- * Quicksort algorithm
- *
- * The "median of three" pivot selection eliminates
- * the bad case of already sorted input.
- *
- * We use InsertionSort for smaller sub-arrays,
- * because it is faster in this case.
- *
- * For details see: "Data Structures and Algorithm
- * Analysis in C" by Mark Allen Weiss.
- */
-static void quicksort(tag_type elements[], int left, int right)
-{
-	int i, j;
-	tag_type pivot;
-
-	if (left + CUTOFF <= right)
-	{
-		pivot = median3(elements, left, right);
-
-		i = left; j = right -1;
-
-		while (TRUE)
-		{
-			while (elements[++i].tag < pivot.tag);
-			while (elements[--j].tag > pivot.tag);
-
-			if (i < j)
-				swap(&elements[i], &elements[j]);
-			else
-				break;
-		}
-
-		/* Restore pivot */
-		swap(&elements[i], &elements[right - 1]);
-
-		quicksort(elements, left, i - 1);
-		quicksort(elements, i + 1, right);
-	}
-	else
-	{
-		/* Use InsertionSort on small arrays */
-		InsertionSort(elements + left, right - left + 1);
-	}
-}
-
-
-/*
- * Frontend for the sorting algorithm
- *
- * Sorts an array of tagged pointers
- * with <number> elements.
- */
-void tag_sort(tag_type elements[], int number)
-{
-	quicksort(elements, 0, number - 1);
-}
-
-#endif /* SORT_R_INFO */
 
 
 #ifdef SUPPORT_GAMMA

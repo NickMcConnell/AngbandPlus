@@ -1472,6 +1472,180 @@ b_own_type b_owners[MAX_BLDG][MAX_B_OWN] =
 		{ "Wop of the high",	125,			RACE_GNOME},
 		{ "Kaquin of the West",	95,				RACE_HIGH_ELF},
 	},
+	
+	{
+		/* Library */
+		{ "Agpoan",				 85,			RACE_HUMAN},
+		{ "Wewton", 			100,			RACE_HALF_ELF},
+		{ "Masoognnix", 		110,			RACE_VAMPIRE},
+		{ "Pagpon",				120,			RACE_AMBERITE},
+		{ "Leiwthen",			100,			RACE_HIGH_ELF},
+	},
+};
+
+
+/*
+ * Buying and selling adjustments for race combinations.
+ * Entry[owner][player] gives the basic "cost inflation".
+ */
+byte rgold_adj[MAX_RACES][MAX_RACES] =
+{
+	/*
+	 * Hum, HfE, Elf,  Hal, Gno, Dwa, HfO, HfT, Dun, HiE, Barbarian,
+	 * HfOg, HGn, HTn, Cyc, Yek, Klc, Kbd, Nbl, DkE, Drc, Mind Flayer,
+	 * Imp,  Glm, Skl, Zombie, Vampire, Spectre
+	 */
+
+	/* Human */
+	{ 100, 105, 105, 110, 113, 115, 120, 125, 100, 105, 100,
+	  124, 120, 110, 125, 115, 120, 120, 120, 120, 115, 120,
+	  115, 105, 125, 125, 125, 125, 105, 120 },
+
+	/* Half-Elf */
+	{ 110, 100, 100, 105, 110, 120, 125, 130, 110, 100, 110,
+	  120, 115, 108, 115, 110, 110, 120, 120, 115, 115, 110,
+	  120, 110, 110, 110, 120, 110, 100, 125 },
+
+	/* Elf */
+	{ 110, 105, 100, 105, 110, 120, 125, 130, 110, 100, 110,
+	  120, 120, 105, 120, 110, 105, 125, 125, 110, 115, 108,
+	  120, 115, 110, 110, 120, 110, 100, 125},
+
+	/* Halfling */
+	{ 115, 110, 105,  95, 105, 110, 115, 130, 115, 105, 115,
+	  125, 120, 120, 125, 115, 110, 120, 120, 120, 115, 115,
+	  120, 110, 120, 120, 130, 110, 110, 130 },
+
+	/* Gnome */
+	{ 115, 115, 110, 105,  95, 110, 115, 130, 115, 110, 115,
+	  120, 125, 110, 120, 110, 105, 120, 110, 110, 105, 110,
+	  120, 101, 110, 110, 120, 120, 115, 130 },
+
+	/* Dwarf */
+	{ 115, 120, 120, 110, 110,	95, 125, 135, 115, 120, 115,
+	  125, 140, 130, 130, 120, 115, 115, 115, 135, 125, 120,
+	  120, 105, 115, 115, 115, 115, 120, 130 },
+
+	/* Half-Orc */
+	{ 115, 120, 125, 115, 115, 130, 110, 115, 115, 125, 115,
+	  110, 110, 120, 110, 120, 125, 115, 115, 110, 120, 110,
+	  115, 125, 120, 120, 115, 120, 125, 115 },
+
+	/* Half-Troll */
+	{ 110, 115, 115, 110, 110, 130, 110, 110, 110, 115, 110,
+	  110, 115, 120, 110, 120, 120, 110, 110, 110, 115, 110,
+	  110, 115, 112, 112, 115, 112, 120, 110 },
+
+	/* Amberite (Dunedain)	*/
+	{ 100, 105, 105, 110, 113, 115, 120, 125, 100, 105, 100,
+	  120, 120, 105, 120, 115, 105, 115, 120, 110, 105, 105,
+	  120, 105, 120, 120, 125, 120, 105, 135 },
+
+	/* High_Elf */
+	{ 110, 105, 100, 105, 110, 120, 125, 130, 110, 100, 110,
+	  125, 125, 101, 120, 115, 110, 115, 125, 110, 110, 110,
+	  125, 115, 120, 120, 125, 120, 100, 125 },
+
+	/* Human / Barbarian (copied from human) */
+	{ 100, 105, 105, 110, 113, 115, 120, 125, 100, 105, 100,
+	  124, 120, 110, 125, 115, 120, 120, 120, 120, 115, 120,
+	  115, 105, 125, 125, 130, 125, 115, 120 },
+
+	/* Half-Ogre: theoretical, copied from half-troll */
+	{ 110, 115, 115, 110, 110, 130, 110, 110, 110, 115, 110,
+	  110, 115, 120, 110, 120, 120, 110, 110, 110, 115, 110,
+	  110, 115, 112, 112, 115, 112, 120, 110 },
+
+	/* Half-Giant: theoretical, copied from half-troll */
+	{ 110, 115, 115, 110, 110, 130, 110, 110, 110, 115, 110,
+	  110, 115, 120, 110, 120, 120, 110, 110, 110, 115, 110,
+	  110, 115, 112, 112, 115, 112, 130, 120 },
+
+	/* Half-Titan: theoretical, copied from High_Elf */
+	{ 110, 105, 100, 105, 110, 120, 125, 130, 110, 100, 110,
+	  125, 125, 101, 120, 115, 110, 115, 125, 110, 110, 110,
+	  125, 115, 120, 120, 120, 120, 130, 130   },
+
+	/* Cyclops: theoretical, copied from half-troll */
+	{ 110, 115, 115, 110, 110, 130, 110, 110, 110, 115, 110,
+	  110, 115, 120, 110, 120, 120, 110, 110, 110, 115, 110,
+	  110, 115, 112, 112, 115, 112, 130, 130  },
+
+	/* Yeek: theoretical, copied from Half-Orc */
+	{ 115, 120, 125, 115, 115, 130, 110, 115, 115, 125, 115,
+	  110, 110, 120, 110, 120, 125, 115, 115, 110, 120, 110,
+	  115, 125, 120, 120, 120, 120, 130, 130  },
+
+	/* Klackon: theoretical, copied from Gnome */
+	{ 115, 115, 110, 105,  95, 110, 115, 130, 115, 110, 115,
+	  120, 125, 110, 120, 110, 105, 120, 110, 110, 105, 110,
+	  120, 101, 110, 110, 120, 120, 130, 130  },
+
+	/* Kobold: theoretical, copied from Half-Orc */
+	{ 115, 120, 125, 115, 115, 130, 110, 115, 115, 125, 115,
+	  110, 110, 120, 110, 120, 125, 115, 115, 110, 120, 110,
+	  115, 125, 120, 120, 120, 120, 130, 130  },
+
+	/* Nibelung: theoretical, copied from Dwarf */
+	{ 115, 120, 120, 110, 110,	95, 125, 135, 115, 120, 115,
+	  125, 140, 130, 130, 120, 115, 115, 115, 135, 125, 120,
+	  120, 105, 115, 115, 120, 120, 130, 130   },
+
+	/* Dark Elf */
+	{ 110, 110, 110, 115, 120, 130, 115, 115, 120, 110, 115,
+	  115, 115, 116, 115, 120, 120, 115, 115, 101, 110, 110,
+	  110, 110, 112, 122, 110, 110, 110, 115  },
+
+	/* Draconian: theoretical, copied from High_Elf */
+	{ 110, 105, 100, 105, 110, 120, 125, 130, 110, 100, 110,
+	  125, 125, 101, 120, 115, 110, 115, 125, 110, 110, 110,
+	  125, 115, 120, 120, 120, 120, 130, 130  },
+
+	/* Mind Flayer: theoretical, copied from High_Elf */
+	{ 110, 105, 100, 105, 110, 120, 125, 130, 110, 100, 110,
+	  125, 125, 101, 120, 115, 110, 115, 125, 110, 110, 110,
+	  125, 115, 120, 120, 120, 120, 130, 130   },
+
+	/* Imp: theoretical, copied from High_Elf */
+	{ 110, 105, 100, 105, 110, 120, 125, 130, 110, 100, 110,
+	  125, 125, 101, 120, 115, 110, 115, 125, 110, 110, 110,
+	  125, 115, 120, 120, 120, 120, 130, 130   },
+
+	/* Golem: theoretical, copied from High_Elf */
+	{ 110, 105, 100, 105, 110, 120, 125, 130, 110, 100, 110,
+	  125, 125, 101, 120, 115, 110, 115, 125, 110, 110, 110,
+	  125, 115, 120, 120, 120, 120, 130, 130 },
+
+	/* Skeleton: theoretical, copied from half-orc */
+	{ 115, 120, 125, 115, 115, 130, 110, 115, 115, 125, 115,
+	  110, 110, 120, 110, 120, 125, 115, 115, 110, 120, 110,
+	  115, 125, 120, 120, 120, 120, 130, 130   },
+
+	/* Zombie: Theoretical, copied from half-orc */
+	{ 115, 120, 125, 115, 115, 130, 110, 115, 115, 125, 115,
+	  110, 110, 120, 110, 120, 125, 115, 115, 110, 120, 110,
+	  115, 125, 120, 120, 120, 120, 130, 130   },
+
+	/* Vampire: Theoretical, copied from half-orc */
+	{ 115, 120, 125, 115, 115, 130, 110, 115, 115, 125, 115,
+	  110, 110, 120, 110, 120, 125, 115, 115, 110, 120, 110,
+	  115, 125, 120, 120, 120, 120, 130, 130   },
+
+	/* Spectre: Theoretical, copied from half-orc */
+	{ 115, 120, 125, 115, 115, 130, 110, 115, 115, 125, 115,
+	  110, 110, 120, 110, 120, 125, 115, 115, 110, 120, 110,
+	  115, 125, 120, 120, 120, 120, 130, 130   },
+
+	/* Sprite: Theoretical, copied from half-orc */
+	{ 115, 120, 125, 115, 115, 130, 110, 115, 115, 125, 115,
+	  110, 110, 120, 110, 120, 125, 115, 115, 110, 120, 110,
+	  115, 125, 120, 120, 120, 120, 130, 130   },
+
+	/* Beastman: Theoretical, copied from half-orc */
+	{ 115, 120, 125, 115, 115, 130, 110, 115, 115, 125, 115,
+	  110, 110, 120, 110, 120, 125, 115, 115, 110, 120, 110,
+	  115, 125, 120, 120, 120, 120, 130, 130   },
+
 };
 
 
@@ -5907,7 +6081,7 @@ cptr window_flag_desc[32] =
 	"Display object recall",
 	"Display dungeon view",
 	"Display snap-shot",
-	NULL,
+	"Display visible monsters",
 	"Display script messages",
 	"Display borg messages",
 	"Display borg status",
@@ -6502,7 +6676,7 @@ cptr silly_attacks[MAX_SILLY_ATTACK] =
 };
 
 /* Field function's + names */
-field_action f_action[FIELD_ACTION_TYPES] =
+field_action f_action[] =
 {
 	/* Null - Do absolutely nothing */
 	{NULL, "nothing"}, 
@@ -6659,5 +6833,1368 @@ field_action f_action[FIELD_ACTION_TYPES] =
 	
 	/* Buildings open when walked on */
 	{field_action_door_build, "field_action_door_build"},
+
+	/* Weaponmaster part 1 */
+	{field_action_weaponmaster1, "field_action_weaponmaster1"},
+	
+	/* Weaponmaster part 2 */
+	{field_action_weaponmaster2, "field_action_weaponmaster2"},
+	
+	/* Recharge items part 1 */
+	{field_action_recharge1, "field_action_recharge1"},
+	
+	/* Recharge items part 2 */
+	{field_action_recharge2, "field_action_recharge2"},
+	
+	/* Enchant weapons part 1 */
+	{field_action_weaponplus1, "field_action_weaponplus1"},
+	
+	/* Enchant weapons part 2 */
+	{field_action_weaponplus2, "field_action_weaponplus2"},
+	
+	/* Enchant armour part 1 */
+	{field_action_armourplus1, "field_action_armourplus1"},
+	
+	/* Enchant armour part 2 */
+	{field_action_armourplus2, "field_action_armourplus2"},
+	
+	/* Mutatalist part 1 */
+	{field_action_mutate1, "field_action_mutate1"},
+	
+	/* Mutatalist part 2 */
+	{field_action_mutate2, "field_action_mutate2"},
+	
+	/* Map maker part 1 */
+	{field_action_buymap1, "field_action_buymap1"},
+	
+	/* Map maker part 2 */
+	{field_action_buymap2, "field_action_buymap2"},
+	
+	/* Libarary part 1 */
+	{field_action_library1, "field_action_library1"},
+	
+	/* Library part 2 */
+	{field_action_library2, "field_action_library2"},
+	
+	/* Bookstore */
+	{field_action_isbook_tester, "field_action_isbook_tester"},
+	
+	/* Weaponstore */
+	{field_action_isweapon_tester, "field_action_isweapon_tester"},
+	
+	/* Armourstore */
+	{field_action_isarmour_tester, "field_action_isarmour_tester"},
+	
+	/* Weapon/Armour store */
+	{field_action_isweaparmour_tester, "field_action_isweaparmour_tester"},
+	
+	/* Ammostore */
+	{field_action_isammo_tester, "field_action_isammo_tester"},
+	
+	/* Potion store */
+	{field_action_ispotion_tester, "field_action_ispotion_tester"},
+	
+	/* Scroll store */
+	{field_action_isscroll_tester, "field_action_isscroll_tester"},
+	
+	/* Statue store */
+	{field_action_isstatue_tester, "field_action_isstatue_tester"},
+	
+	/* Figurine store */
+	{field_action_isfigurine_tester, "field_action_isfigurine_tester"},
+	
+	/* Food store */
+	{field_action_isfood_tester, "field_action_isfood_tester"},
+	
+	/* Rechargable items store */
+	{field_action_isrecharge_tester, "field_action_isrecharge_tester"},
+	
+	/* Jewels store */
+	{field_action_isjewel_tester, "field_action_isjewel_tester"},
+	
+	/* Wieldable items store */
+	{field_action_iswield_tester, "field_action_iswield_tester"},
+	
+	/* Fletcher store */
+	{field_action_isfletcher_tester, "field_action_isfletcher_tester"},
+	
+	/* Swordsman */
+	{field_action_issword_tester, "field_action_issword_tester"},
+	
+	/* Axeman */
+	{field_action_isnonsword_tester, "field_action_isnonsword_tester"},
+
+	/* Shieldsman */
+	{field_action_isshield_tester, "field_action_isshield_tester"},
+	
+	/* Clothes store */
+	{field_action_isclothes_tester, "field_action_isclothes_tester"},
+	
+	/* Hard Armour store */
+	{field_action_ishardarmour_tester, "field_action_ishardarmour_tester"},
+	
+	/* Pure Hard armour store */
+	{field_action_isphardarmour_tester, "field_action_isphardarmour_tester"},
+	
+	/* Helms maker */
+	{field_action_ishelm_tester, "field_action_ishelm_tester"},
+	
+	/* Non-scroll magic items maker */
+	{field_action_issupplies_tester, "field_action_issupplies_tester"},
+
+	/* Done */
+	{NULL, NULL}
 };
+
+/*
+ * The mutations:
+ *
+ * Actual mutation,
+ * Description of mutation
+ * Text on gaining mutation
+ * Text on losing mutation
+ * Short text (for choosing activatable mutations)
+ * level, cost, stat, difficulty (each for activatable mutations only)
+ * chance (random mutations only)
+ */
+mutation_type mutations[MUT_SETS_MAX * MUT_PER_SET] =
+{
+	/* Activatable mutations */
+	{
+		MUT1_SPIT_ACID,
+		"You can spit acid.",
+		"You gain the ability to spit acid.",
+		"You lose the ability to spit acid.",
+		"Spit acid (dam lvl)",
+		9, 9, A_DEX, 15,
+		0
+	},
+
+	{
+		MUT1_BR_FIRE,
+		"You can breathe fire.",
+		"You gain the ability to breathe fire.",
+		"You lose the ability to breathe fire.",
+		"Fire breath (dam lvl*2)",
+		20, 20, A_CON, 18,
+		0
+	},
+
+	{
+		MUT1_HYPN_GAZE,
+		"Your gaze is hypnotic.",
+		"Your eyes look mesmerizing...",
+		"Your eyes look uninteresting.",
+		"Hypnotic gaze",
+		12, 12, A_CHR, 18,
+		0
+	},
+
+	{
+		MUT1_TELEKINES,
+		"You are telekinetic.",
+		"You gain the ability to move objects telekinetically.",
+		"You lose the ability to move objects telekinetically.",
+		"Telekinesis",
+		9, 9, A_WIS, 14,
+		0
+	},
+
+	{
+	 	MUT1_VTELEPORT,
+		"You can teleport at will.",
+		"You gain the power of teleportation at will.",
+		"You lose the power of teleportation at will.",
+		"Teleport",
+		7, 7, A_WIS, 15,
+		0
+	},
+
+	{
+		MUT1_MIND_BLST,
+		"You can Mind Blast your enemies.",
+		"You gain the power of Mind Blast.",
+		"You lose the power of Mind Blast.",
+		"Mind blast",
+		5, 3, A_WIS, 15,
+		0
+	},
+
+	{
+		MUT1_RADIATION,
+		"You can emit hard radiation at will.",
+		"You start emitting hard radiation.",
+		"You stop emitting hard radiation.",
+		"Emit radiation",
+		15, 15, A_CON, 14,
+		0
+	},
+
+	{
+	    MUT1_VAMPIRISM,
+	    "You can drain life from a foe like a vampire.",
+	    "You become vampiric.",
+	    "You are no longer vampiric.",
+	    "Vampiric drain",
+	    10, 10, A_CON, 9,
+	    0
+	},
+
+	{
+	    MUT1_SMELL_MET,
+	    "You can smell nearby precious metal.",
+	    "You smell a metallic odor.",
+	    "You no longer smell a metallic odor.",
+	    "Smell metal",
+	    3, 2, A_INT, 12,
+	    0
+	},
+
+	{
+	    MUT1_SMELL_MON,
+	    "You can smell nearby monsters.",
+	    "You smell filthy monsters.",
+	    "You no longer smell filthy monsters.",
+	    "Smell monsters",
+	    5, 4, A_INT, 15,
+	    0
+	},
+
+	{
+	    MUT1_BLINK,
+	    "You can teleport yourself short distances.",
+	    "You gain the power of minor teleportation.",
+	    "You lose the power of minor teleportation.",
+	    "Blink",
+	    3, 3, A_WIS, 12,
+	    0
+	},
+
+	{
+	    MUT1_EAT_ROCK,
+	    "You can consume solid rock.",
+	    "The walls look delicious.",
+	    "The walls look unappetizing.",
+	    "eat rock",
+	    8, 12, A_CON, 18,
+	    0
+	},
+
+	{
+	    MUT1_SWAP_POS,
+	    "You can switch locations with another being.",
+	    "You feel like walking a mile in someone else's shoes.",
+	    "You feel like staying in your own shoes.",
+	    "Swap position",
+	    15, 12, A_DEX, 16,
+	    0
+	},
+
+	{
+		MUT1_SHRIEK,
+	    "You can emit a horrible shriek.",
+	    "Your vocal cords get much tougher.",
+	    "Your vocal cords get much weaker.",
+	    "Shriek",
+	    20, 14, A_CON, 16,
+	    0
+	},
+
+	{
+	    MUT1_ILLUMINE,
+	    "You can emit bright light.",
+	    "You can light up rooms with your presence.",
+	    "You can no longer light up rooms with your presence.",
+	    "Illuminate area",
+	    3, 2, A_INT, 10,
+	    0
+	},
+
+	{
+	    MUT1_DET_CURSE,
+	    "You can feel the danger of evil magic.",
+	    "You can feel evil magics.",
+	    "You can no longer feel evil magics.",
+	    "Detect curses",
+	    7, 14, A_WIS, 14,
+	    0
+	},
+
+	{
+	    MUT1_BERSERK,
+	    "You can drive yourself into a berserk frenzy.",
+	    "You feel a controlled rage.",
+	    "You no longer feel a controlled rage.",
+	    "Berserk",
+	    8, 8, A_STR, 14,
+	    0
+	},
+
+	{
+	    MUT1_POLYMORPH,
+	    "You can polymorph yourself at will.",
+	    "Your body seems mutable.",
+	    "Your body seems stable.",
+	    "Polymorph",
+	    18, 20, A_CON, 18,
+	    0
+	},
+
+	{
+	    MUT1_MIDAS_TCH,
+	    "You can turn ordinary items to gold.",
+	    "You gain the Midas touch.",
+	    "You lose the Midas touch.",
+	    "Midas touch",
+	    10, 5, A_INT, 12,
+	    0
+	},
+
+	{
+	    MUT1_GROW_MOLD,
+	    "You can cause mold to grow near you.",
+	    "You feel a sudden affinity for mold.",
+	    "You feel a sudden dislike for mold.",
+	    "Grow mold",
+	    1, 6, A_CON, 14,
+	    0
+	},
+
+	{
+	    MUT1_RESIST,
+	    "You can harden yourself to the ravages of the elements.",
+	    "You feel like you can protect yourself.",
+	    "You feel like you might be vulnerable.",
+	    "Resist elements",
+	    10, 12, A_CON, 12,
+	    0
+	},
+
+	{
+	    MUT1_EARTHQUAKE,
+	    "You can bring down the dungeon around your ears.",
+	    "You gain the ability to wreck the dungeon.",
+	    "You lose the ability to wreck the dungeon.",
+	    "Earthquake",
+	    12, 12, A_STR, 16,
+	    0
+	},
+
+	{
+	    MUT1_EAT_MAGIC,
+	    "You can consume magic energy for your own use.",
+	    "Your magic items look delicious.",
+	    "Your magic items no longer look delicious.",
+	    "Eat magic",
+	    17, 1, A_WIS, 15,
+	    0
+	},
+
+	{
+	    MUT1_WEIGH_MAG,
+	    "You can feel the strength of the magics affecting you.",
+	    "You feel you can better understand the magic around you.",
+	    "You no longer sense magic.",
+	    "Weigh magic",
+	    6, 6, A_INT, 10,
+	    0
+	},
+
+	{
+	    MUT1_STERILITY,
+	    "You can cause mass impotence.",
+	    "You can give everything around you a headache.",
+	    "You hear a massed sigh of relief.",
+	    "Sterilize",
+	    12, 23, A_CHR, 15,
+	    0
+	},
+
+	{
+	    MUT1_PANIC_HIT,
+	    "You can run for your life after hitting something.",
+	    "You suddenly understand how thieves feel.",
+	    "You no longer feel jumpy.",
+	    "Panic hit",
+	    10, 12, A_DEX, 14,
+	    0
+	},
+
+	{
+	    MUT1_DAZZLE,
+	    "You can run for your life after hitting something.",
+	    "You suddenly understand how thieves feel.",
+	    "You no longer feel jumpy.",
+	    "Dazzle",
+	    10, 12, A_DEX, 14,
+	    0
+	},
+
+	{
+	    MUT1_LASER_EYE,
+	    "Your eyes can fire laser beams.",
+	    "Your eyes burn for a moment.",
+	    "Your eyes burn for a moment, then feel soothed.",
+	    "Laser eye",
+	    7, 10, A_WIS, 9,
+	    0
+	},
+
+	{
+	    MUT1_RECALL,
+	    "You can travel between town and the depths.",
+	    "You feel briefly homesick, but it passes.",
+	    "You feel briefly homesick.",
+	    "Recall",
+	    17, 50, A_INT, 16,
+	    0
+	},
+
+	{
+	    MUT1_BANISH,
+	    "You can send evil creatures directly to Hell.",
+	    "You feel a holy wrath fill you.",
+	    "You no longer feel a holy wrath.",
+	    "Banish evil",
+	    25, 25, A_WIS, 18,
+	    0
+	},
+
+	{
+	    MUT1_COLD_TOUCH,
+	    "You can freeze things with a touch.",
+	    "Your hands get very cold.",
+	    "Your hands warm up.",
+	    "Cold touch",
+	    2, 2, A_CON, 11,
+	    0
+	},
+
+	{
+	    MUT1_LAUNCHER,
+	    "You can hurl objects with great force.",
+	    "Your throwing arm feels much stronger.",
+	    "Your throwing arm feels much weaker.",
+	    "Throw object",
+	    10, 15, A_STR, 6,
+	    0
+	},
+
+	/* Randomly activating mutations */
+	{
+	    MUT2_BERS_RAGE,
+	    "You are subject to berserker fits.",
+	    "You become subject to fits of berserk rage!",
+	    "You are no longer subject to fits of berserk rage!",
+	    "(nothing)",
+	    0, 0, 0, 0,
+	    30
+	 },
+
+	{
+	    MUT2_COWARDICE,
+	    "You are subject to cowardice.",
+	    "You become an incredible coward!",
+	    "You are no longer an incredible coward!",
+	    "(nothing)",
+	    0, 0, 0, 0,
+	    30
+	},
+
+	{
+	    MUT2_RTELEPORT,
+	    "You are teleporting randomly.",
+	    "Your position seems very uncertain...",
+	    "Your position seems more certain.",
+	    "(nothing)",
+	    0, 0, 0, 0,
+	    50
+	},
+
+	{
+	    MUT2_ALCOHOL,
+	    "Your body produces alcohol.",
+	    "Your body starts producing alcohol!",
+	    "Your body stops producing alcohol!",
+	    "(nothing)",
+	    0, 0, 0, 0,
+	    64
+	},
+
+	{
+	    MUT2_HALLU,
+	    "You have a hallucinatory insanity.",
+	    "You are afflicted by a hallucinatory insanity!",
+	    "You are no longer afflicted by a hallucinatory insanity!",
+	    "(nothing)",
+	    0, 0, 0, 0,
+	    64
+	},
+
+	{
+	    MUT2_FLATULENT,
+	    "You are subject to uncontrollable flatulence.",
+	    "You become subject to uncontrollable flatulence.",
+	    "You are no longer subject to uncontrollable flatulence.",
+	    "(nothing)",
+	    0, 0, 0, 0,
+	    30
+	},
+
+	{
+	    MUT2_SCOR_TAIL,
+	    "You have a scorpion tail (poison, 3d7).",
+	    "You grow a scorpion tail!",
+	    "You lose your scorpion tail!",
+	    "(nothing)",
+	    0, 0, 0, 0,
+	    0
+	},
+
+	{
+	    MUT2_HORNS,
+	    "You have horns (dam. 2d6).",
+	    "Horns pop forth into your forehead!",
+	    "Your horns vanish from your forehead!",
+	    "(nothing)",
+	    0, 0, 0, 0,
+	    0
+	},
+
+	{
+	    MUT2_BEAK,
+	    "You have a beak (dam. 2d4).",
+	    "Your mouth turns into a sharp, powerful beak!",
+	    "Your mouth reverts to normal!",
+	    "(nothing)",
+	    0, 0, 0, 0,
+	    0
+	},
+
+	{
+	    MUT2_ATT_DEMON,
+	    "You attract demons.",
+	    "You start attracting demons.",
+	    "You stop attracting demons.",
+	    "(nothing)",
+	    0, 0, 0, 0,
+	    66
+	},
+
+	{
+	    MUT2_PROD_MANA,
+	    "You are producing magical energy uncontrollably.",
+	    "You start producing magical energy uncontrollably.",
+	    "You stop producing magical energy uncontrollably.",
+	    "(nothing)",
+	    0, 0, 0, 0,
+	    90
+	},
+
+	{
+	    MUT2_SPEED_FLUX,
+	    "You move faster or slower randomly.",
+	    "You become manic-depressive.",
+	    "You are no longer manic-depressive.",
+	    "(nothing)",
+	    0, 0, 0, 0,
+	    60
+	},
+
+	{
+	    MUT2_BANISH_ALL,
+	    "You sometimes cause nearby creatures to vanish.",
+	    "You feel a terrifying power lurking behind you.",
+	    "You no longer feel a terrifying power lurking behind you.",
+	    "(nothing)",
+	    0, 0, 0, 0,
+	    90
+	},
+
+	{
+	    MUT2_EAT_LIGHT,
+	    "You sometimes feed off of the light around you.",
+	    "You feel a strange kinship with Ungoliant.",
+	    "You feel the world's a brighter place.",
+	    "(nothing)",
+	    0, 0, 0, 0,
+	    30
+	},
+
+	{
+	    MUT2_TRUNK,
+	    "You have an elephantine trunk (dam 1d4).",
+	    "Your nose grows into an elephant-like trunk.",
+	    "Your nose returns to a normal length.",
+	    "(nothing)",
+	    0, 0, 0, 0,
+	    0
+	},
+
+	{
+	    MUT2_ATT_ANIMAL,
+	    "You attract animals.",
+	    "You start attracting animals.",
+	    "You stop attracting animals.",
+	    "(nothing)",
+	    0, 0, 0, 0,
+	    70
+	},
+
+	{
+	    MUT2_TENTACLES,
+	    "You have evil looking tentacles (dam 2d5).",
+	    "Evil-looking tentacles sprout from your sides.",
+	    "Your tentacles vanish from your sides.",
+	    "(nothing)",
+	    0, 0, 0, 0,
+	    0
+	},
+
+	{
+	    MUT2_RAW_CHAOS,
+	    "You occasionally are surrounded with raw chaos.",
+	    "You feel the universe is less stable around you.",
+	    "You feel the universe is more stable around you.",
+	    "(nothing)",
+	    0, 0, 0, 0,
+	    80
+	},
+
+	{
+	    MUT2_NORMALITY,
+	    "You may be mutated, but you're recovering.",
+	    "You feel strangely normal.",
+	    "You feel normally strange.",
+	    "(nothing)",
+	    0, 0, 0, 0,
+	    50
+	},
+
+	{
+	    MUT2_WRAITH,
+	    "You fade in and out of physical reality.",
+	    "You start to fade in and out of the physical world.",
+	    "You are firmly in the physical world.",
+	    "(nothing)",
+	    0, 0, 0, 0,
+	    30
+	},
+
+	{
+	    MUT2_POLY_WOUND,
+	    "Your health is subject to chaotic forces.",
+	    "You feel forces of chaos entering your old scars.",
+	    "You feel forces of chaos departing your old scars.",
+	    "(nothing)",
+	    0, 0, 0, 0,
+	    30
+	},
+
+	{
+	    MUT2_WASTING,
+	    "You have a horrible wasting disease.",
+	    "You suddenly contract a horrible wasting disease.",
+	    "You are cured of the horrible wasting disease!",
+	    "(nothing)",
+	    0, 0, 0, 0,
+	    30
+	},
+
+	{
+	    MUT2_ATT_DRAGON,
+	    "You attract dragons.",
+	    "You start attracting dragons.",
+	    "You stop attracting dragons.",
+	    "(nothing)",
+	    0, 0, 0, 0,
+	    30
+	},
+
+	{
+	    MUT2_WEIRD_MIND,
+	    "Your mind randomly expands and contracts.",
+	    "Your thoughts suddenly take off in strange directions.",
+	    "Your thoughts return to boring paths.",
+	    "(nothing)",
+	    0, 0, 0, 0,
+	    30
+	},
+
+	{
+	    MUT2_NAUSEA,
+	    "You have a seriously upset stomach.",
+	    "Your stomach starts to roil nauseously.",
+	    "Your stomach stops roiling.",
+	    "(nothing)",
+	    0, 0, 0, 0,
+	    90
+	},
+
+	{
+	    MUT2_CHAOS_GIFT,
+	    "Chaos deities give you gifts.",
+	    "You attract the notice of a chaos deity!",
+	    "You lose the attention of the chaos deities.",
+	    "(nothing)",
+	    0, 0, 0, 0,
+	    0
+	},
+
+	{
+	    MUT2_WALK_SHAD,
+	    "You occasionally stumble into other shadows.",
+	    "You feel like reality is as thin as paper.",
+	    "You feel like you're trapped in reality.",
+	    "(nothing)",
+	    0, 0, 0, 0,
+	    120
+	},
+
+	{
+	    MUT2_WARNING,
+	    "You receive warnings about your foes.",
+	    "You suddenly feel paranoid.",
+	    "You no longer feel paranoid.",
+	    "(nothing)",
+	    0, 0, 0, 0,
+	    10
+	},
+
+	{
+	    MUT2_INVULN,
+	    "You occasionally feel invincible.",
+	    "You are blessed with fits of invulnerability.",
+	    "You are no longer blessed with fits of invulnerability.",
+	    "(nothing)",
+	    0, 0, 0, 0,
+	    50
+	},
+
+	{
+	    MUT2_SP_TO_HP,
+	    "Your blood sometimes rushes to your muscles.",
+	    "You are subject to fits of magical healing.",
+	    "You are no longer subject to fits of magical healing.",
+	    "(nothing)",
+	    0, 0, 0, 0,
+	    20
+	},
+
+	{
+	    MUT2_HP_TO_SP,
+	    "Your blood sometimes rushes to your head.",
+	    "You are subject to fits of painful clarity.",
+	    "You are no longer subject to fits of painful clarity.",
+	    "(nothing)",
+	    0, 0, 0, 0,
+	    40
+	},
+
+	{
+	    MUT2_DISARM,
+	    "You occasionally stumble and drop things.",
+	    "Your feet grow to four times their former size.",
+	    "Your feet shrink to their former size.",
+	    "(nothing)",
+	    0, 0, 0, 0,
+	    100
+	},
+
+	/* Other Mutations */
+  	{
+		MUT3_HYPER_STR,
+	    "You are superhumanly strong (+4 STR).",
+	    "You turn into a superhuman he-man!",
+	    "Your muscles revert to normal.",
+	    "(nothing)",
+	    0, 0, 0, 0,
+	    0
+	},
+
+	{
+	    MUT3_PUNY,
+	    "You are puny (-4 STR).",
+	    "Your muscles wither away...",
+	    "Your muscles revert to normal.",
+	    "(nothing)",
+	    0, 0, 0, 0,
+	    0
+	},
+
+	{
+	    MUT3_HYPER_INT,
+	    "Your brain is a living computer (+4 INT/WIS).",
+	    "Your brain evolves into a living computer!",
+	    "Your brain reverts to normal.",
+	    "(nothing)",
+	    0, 0, 0, 0,
+	    0
+	},
+
+	{
+	    MUT3_MORONIC,
+	    "You are moronic (-4 INT/WIS).",
+	    "Your brain withers away...",
+	    "Your brain reverts to normal.",
+	    "(nothing)",
+	    0, 0, 0, 0,
+	    0
+	},
+
+	{
+	    MUT3_RESILIENT,
+	    "You are very resilient (+4 CON).",
+	    "You become extraordinarily resilient.",
+	    "You become ordinarily resilient again.",
+	    "(nothing)",
+	    0, 0, 0, 0,
+	    0
+	},
+
+	{
+	    MUT3_XTRA_FAT,
+	    "You are extremely fat (+2 CON, -2 speed).",
+	    "You become sickeningly fat!",
+	    "You benefit from a miracle diet!",
+	    "(nothing)",
+	    0, 0, 0, 0,
+	    0
+	},
+
+	{
+	    MUT3_ALBINO,
+	    "You are albino (-4 CON).",
+	    "You turn into an albino! You feel frail...",
+	    "You are no longer an albino!",
+	    "(nothing)",
+	    0, 0, 0, 0,
+	    0
+	},
+
+	{
+	    MUT3_FLESH_ROT,
+	    "Your flesh is rotting (-2 CON, -1 CHR).",
+	    "Your flesh is afflicted by a rotting disease!",
+	    "Your flesh is no longer afflicted by a rotting disease!",
+	    "(nothing)",
+	    0, 0, 0, 0,
+	    0
+	},
+
+	{
+	    MUT3_SILLY_VOI,
+	    "Your voice is a silly squeak (-4 CHR).",
+	    "Your voice turns into a ridiculous squeak!",
+	    "Your voice returns to normal.",
+	    "(nothing)",
+	    0, 0, 0, 0,
+	    0
+	},
+
+	{
+	    MUT3_BLANK_FAC,
+	    "Your face is featureless (-1 CHR).",
+	    "Your face becomes completely featureless!",
+	    "Your facial features return.",
+	    "(nothing)",
+	    0, 0, 0, 0,
+	    0
+	},
+
+	{
+	    MUT3_ILL_NORM,
+	    "Your appearance is masked with illusion.",
+	    "You start projecting a reassuring image.",
+	    "You stop projecting a reassuring image.",
+	    "(nothing)",
+	    0, 0, 0, 0,
+	    0
+	},
+
+	{
+	    MUT3_XTRA_EYES,
+	    "You have an extra pair of eyes (+15 search).",
+	    "You grow an extra pair of eyes!",
+	    "Your extra eyes vanish!",
+	    "(nothing)",
+	    0, 0, 0, 0,
+	    0
+	},
+
+	{
+	    MUT3_MAGIC_RES,
+	    "You are resistant to magic.",
+	    "You become resistant to magic.",
+	    "You become susceptible to magic again.",
+	    "(nothing)",
+	    0, 0, 0, 0,
+	    0
+	},
+
+	{
+	    MUT3_XTRA_NOIS,
+	    "You make a lot of strange noise (-3 stealth).",
+	    "You start making strange noise!",
+	    "You stop making strange noise!",
+	    "(nothing)",
+	    0, 0, 0, 0,
+	    0
+	},
+
+	{
+	    MUT3_INFRAVIS,
+	    "You have remarkable infravision (+3).",
+	    "Your infravision is improved.",
+	    "Your infravision is degraded.",
+	    "(nothing)",
+	    0, 0, 0, 0,
+	    0
+	},
+
+	{
+	    MUT3_XTRA_LEGS,
+	    "You have an extra pair of legs (+3 speed).",
+	    "You grow an extra pair of legs!",
+	    "Your extra legs disappear!",
+	    "(nothing)",
+	    0, 0, 0, 0,
+	    0
+	},
+
+	{
+	    MUT3_SHORT_LEG,
+	    "Your legs are short stubs (-3 speed).",
+	    "Your legs turn into short stubs!",
+	    "Your legs lengthen to normal.",
+	    "(nothing)",
+	    0, 0, 0, 0,
+	    0
+	},
+
+	{
+	    MUT3_ELEC_TOUC,
+	    "Electricity is running through your veins.",
+	    "Electricity starts running through you!",
+	    "Electricity stops running through you.",
+	    "(nothing)",
+	    0, 0, 0, 0,
+	    0
+	},
+
+	{
+	    MUT3_FIRE_BODY,
+	    "Your body is enveloped in flames.",
+	    "Your body is enveloped in flames!",
+	    "Your body is no longer enveloped in flames.",
+	    "(nothing)",
+	    0, 0, 0, 0,
+	    0
+	},
+
+	{
+	    MUT3_WART_SKIN,
+	    "Your skin is covered with warts (-2 CHR, +5 AC).",
+	    "Disgusting warts appear everywhere on you!",
+	    "Your warts disappear!",
+	    "(nothing)",
+	    0, 0, 0, 0,
+	    0
+	},
+
+	{
+	    MUT3_SCALES,
+	    "Your skin has turned into scales (-1 CHR, +10 AC).",
+	    "Your skin turns into black scales!",
+	    "Your scales vanish!",
+	    "(nothing)",
+	    0, 0, 0, 0,
+	    0
+	},
+
+	{
+	    MUT3_IRON_SKIN,
+	    "Your skin is made of steel (-1 DEX, +25 AC).",
+	    "Your skin turns to steel!",
+	    "Your skin reverts to flesh!",
+	    "(nothing)",
+	    0, 0, 0, 0,
+	    0
+	},
+
+	{
+	    MUT3_WINGS,
+	    "You have wings.",
+	    "You grow a pair of wings.",
+	    "Your wings fall off.",
+	    "(nothing)",
+	    0, 0, 0, 0,
+	    0
+	},
+
+	{
+	    MUT3_FEARLESS,
+	    "You are completely fearless.",
+	    "You become completely fearless.",
+	    "You begin to feel fear again.",
+	    "(nothing)",
+	    0, 0, 0, 0,
+	    0
+	},
+
+	{
+	    MUT3_REGEN,
+	    "You are regenerating.",
+	    "You start regenerating.",
+	    "You stop regenerating.",
+	    "(nothing)",
+	    0, 0, 0, 0,
+	    0
+	},
+
+	{
+	    MUT3_ESP,
+	    "You are telepathic.",
+	    "You develop a telepathic ability!",
+	    "You lose your telepathic ability!",
+	    "(nothing)",
+	    0, 0, 0, 0,
+	    0
+	},
+
+	{
+	    MUT3_LIMBER,
+	    "Your body is very limber (+3 DEX).",
+	    "Your muscles become limber.",
+	    "Your muscles stiffen.",
+	    "(nothing)",
+	    0, 0, 0, 0,
+	    0
+	},
+
+	{
+	    MUT3_ARTHRITIS,
+	    "Your joints ache constantly (-3 DEX).",
+	    "Your joints suddenly hurt.",
+	    "Your joints stop hurting.",
+	    "(nothing)",
+	    0, 0, 0, 0,
+	    0
+	},
+
+	{
+	    MUT3_BAD_LUCK,
+	    "There is a black aura surrounding you.",
+	    "There is a malignant black aura surrounding you...",
+	    "Your black aura swirls and fades.",
+	    "(nothing)",
+	    0, 0, 0, 0,
+	    0
+	},
+
+	{
+	    MUT3_VULN_ELEM,
+	    "You are susceptible to damage from the elements.",
+	    "You feel strangely exposed.",
+	    "You feel less exposed.",
+	    "(nothing)",
+	    0, 0, 0, 0,
+	    0
+	},
+
+	{
+	    MUT3_MOTION,
+	    "Your movements are precise and forceful (+1 STL).",
+	    "You move with new assurance.",
+	    "You move with less assurance.",
+	    "(nothing)",
+	    0, 0, 0, 0,
+	    0
+	},
+
+	{
+		MUT3_GOOD_LUCK,
+		"There is a white aura surrounding you.",
+		"There is a benevolent white aura surrounding you...",
+		"Your white aura shimmers and fades.",
+		"(nothing)",
+		0, 0, 0, 0,
+		0
+	}
+};
+
+
+/*
+ * The racial powers:
+ *
+ * Actual mutation,
+ * Description of mutation
+ * Text on gaining mutation
+ * Text on losing mutation
+ * Short text (for choosing activatable mutations)
+ * level, cost, stat, difficulty (each for activatable mutations only)
+ * chance (random mutations only)
+ */
+mutation_type race_powers[MAX_RACE_POWERS] =
+{
+	{
+	    RACE_DWARF,
+	    "You can find traps, doors and stairs.",
+	    "(nothing)",
+	    "(nothing)",
+	    "Detect doors+traps",
+	    5, 5, A_WIS, 12,
+	    0
+	},
+
+	{
+	    RACE_NIBELUNG,
+	    "You can find traps, doors and stairs.",
+	    "(nothing)",
+	    "(nothing)",
+	    "Detect doors+traps",
+	    10, 5, A_WIS, 10,
+	    0
+	},
+
+	{
+	    RACE_HOBBIT,
+	    "You can forage in the dungeon.",
+	    "(nothing)",
+	    "(nothing)",
+	    "Create food",
+	    15, 10, A_INT, 10,
+	    0
+	},
+
+	{
+	    RACE_GNOME,
+	    "You can move youself accross the dungeon.",
+	    "(nothing)",
+	    "(nothing)",
+	    "Telport (range 10 + plev)",
+	    5, 10, A_INT, 12,
+	    0
+	},
+
+	{
+	    RACE_HALF_ORC,
+	    "You can conquer your fears.",
+	    "(nothing)",
+	    "(nothing)",
+	    "Remove fear",
+	    3, 5, A_WIS, 8,
+	    0
+	},
+
+	{
+	    RACE_HALF_TROLL,
+	    "You can conquer your fears.",
+	    "(nothing)",
+	    "(nothing)",
+	    "Remove fear",
+	    10, 12, A_WIS, 9,
+	    0
+	},
+
+	{
+	    RACE_BARBARIAN,
+	    "You can drive yourself into a berserk frenzy.",
+	    "(nothing)",
+	    "(nothing)",
+	    "Berserk",
+	    8, 10, A_WIS, 9,
+	    0
+	},
+
+	{
+	    RACE_AMBERITE,
+	    "You can cross into other shadows.",
+	    "(nothing)",
+	    "(nothing)",
+	    "Shadow shifting",
+	    30, 50, A_INT, 50,
+	    0
+	},
+
+	{
+	    RACE_AMBERITE,
+	    "You can mentally walk the pattern.",
+	    "(nothing)",
+	    "(nothing)",
+	    "Pattern mindwalking",
+	    40, 75, A_WIS, 50,
+	    0
+	},
+
+	{
+	    RACE_HALF_OGRE,
+	    "You can set traps for your enemies.",
+	    "(nothing)",
+	    "(nothing)",
+	    "Explosive rune",
+	    25, 35, A_INT, 15,
+	    0
+	},
+
+	{
+	    RACE_HALF_GIANT,
+	    "You can reduce the dungeon to rubble.",
+	    "(nothing)",
+	    "(nothing)",
+	    "Stone to mud",
+	    20, 10, A_STR, 12,
+	    0
+	},
+
+	{
+	    RACE_HALF_TITAN,
+	    "You can learn about the dungeon's inhabitants.",
+	    "(nothing)",
+	    "(nothing)",
+	    "Probing",
+	    35, 20, A_STR, 12,
+	    0
+	},
+
+	{
+	    RACE_CYCLOPS,
+	    "You can throw boulders with great force.",
+	    "(nothing)",
+	    "(nothing)",
+	    "Throw boulder (dam 3/2 * lev)",
+	    20, 15, A_STR, 12,
+	    0
+	},
+
+	{
+	    RACE_YEEK,
+	    "You can make a terrifying scream.",
+	    "(nothing)",
+	    "(nothing)",
+	    "Scare monsters",
+	    15, 15, A_WIS, 10,
+	    0
+	},
+
+	{
+	    RACE_SPECTRE,
+	    "You can wail to terrify your enemies.",
+	    "(nothing)",
+	    "(nothing)",
+	    "Scare monsters",
+	    4, 6, A_INT, 3,
+	    0
+	},
+
+	{
+	    RACE_KLACKON,
+	    "You can spit acid.",
+	    "(nothing)",
+	    "(nothing)",
+	    "Spit acid (dam lvl)",
+	    9, 9, A_DEX, 14,
+	    0
+	},
+
+	{
+	    RACE_KOBOLD,
+	    "You can throw poisoned darts.",
+	    "(nothing)",
+	    "(nothing)",
+	    "Poison dart (dam lvl)",
+	    12, 8, A_DEX, 14,
+	    0
+	},
+
+	{
+	    RACE_DARK_ELF,
+	    "You can fire magic missiles.",
+	    "(nothing)",
+	    "(nothing)",
+	    "Magic missile (3+(lev-1)/5)d4",
+	    2, 2, A_INT, 9,
+	    0
+	},
+
+	{
+	    RACE_DRACONIAN,
+	    "You can breathe like a dragon.",
+	    "(nothing)",
+	    "(nothing)",
+	    "Dragon breath",
+	    15, 25, A_CON, 12,
+	    0
+	},
+
+	{
+	    RACE_MIND_FLAYER,
+	    "You can blast your enemies with psionic energy.",
+	    "(nothing)",
+	    "(nothing)",
+	    "Mind blast (dam lvl)",
+	    15, 12, A_INT, 14,
+	    0
+	},
+
+	{
+	    RACE_IMP,
+	    "You can cast fire bolts/balls.",
+	    "(nothing)",
+	    "(nothing)",
+	    "Fire bolt/ball (dam lvl)",
+	    9, 15, A_WIS, 15,
+	    0
+	},
+
+	{
+	    RACE_GOLEM,
+	    "You can turn your skin to stone.",
+	    "(nothing)",
+	    "(nothing)",
+	    "Stone skin (dur 1d20+30)",
+	    20, 15, A_CON, 8,
+	    0
+	},
+
+	{
+	    RACE_SKELETON,
+	    "You can recover lost life force.",
+	    "(nothing)",
+	    "(nothing)",
+	    "Restore life",
+	    30, 30, A_WIS, 18,
+	    0
+	},
+
+	{
+	    RACE_ZOMBIE,
+	    "You can recover lost life force.",
+	    "(nothing)",
+	    "(nothing)",
+	    "Restore life",
+	    30, 30, A_WIS, 18,
+	    0
+	},
+
+	{
+	    RACE_VAMPIRE,
+	    "You can steal life from a foe.",
+	    "(nothing)",
+	    "(nothing)",
+	    "Drain life",
+	    5, 10, A_CON, 9,
+	    0
+	},
+
+	{
+	    RACE_SPRITE,
+	    "You can throw magic dust which induces sleep.",
+	    "(nothing)",
+	    "(nothing)",
+	    "Sleeping dust",
+	    12, 12, A_INT, 15,
+	    0
+	},
+};    
 

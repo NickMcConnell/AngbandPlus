@@ -36,7 +36,7 @@ static int monster_critical(int dice, int sides, int dam)
 	/* Super-charge */
 	if (dam >= 20)
 	{
-		while (randint0(100) < 2) max++;
+		while (one_in_(50)) max++;
 	}
 
 	/* Critical damage */
@@ -166,7 +166,6 @@ bool make_attack_normal(int m_idx)
 	/* Scan through all four blows */
 	for (ap_cnt = 0; ap_cnt < 4; ap_cnt++)
 	{
-		bool visible = FALSE;
 		bool obvious = FALSE;
 
 		int power = 0;
@@ -180,19 +179,17 @@ bool make_attack_normal(int m_idx)
 		int d_dice = r_ptr->blow[ap_cnt].d_dice;
 		int d_side = r_ptr->blow[ap_cnt].d_side;
 
+		/* Stop attacking if the aggressor dies (fire sheath etc.) */
+		if (!alive) break;
 
 		/* Hack -- no more attacks */
 		if (!method) break;
-
 
 		/* Stop if player is dead or gone */
 		if (!p_ptr->playing || p_ptr->is_dead) break;
 
 		/* Handle "leaving" */
 		if (p_ptr->leaving) break;
-
-		/* Extract visibility (before blink) */
-		if (m_ptr->ml) visible = TRUE;
 
 		/* Extract the attack "power" */
 		switch (effect)
@@ -235,7 +232,7 @@ bool make_attack_normal(int m_idx)
 		if (!effect || check_hit(power, rlev))
 		{
 			/* Always disturbing */
-			disturb(1, 0);
+			disturb(TRUE);
 
 
 			/* Hack -- Apply "protection from evil" */
@@ -436,7 +433,7 @@ bool make_attack_normal(int m_idx)
 
 				case RBM_SHOW:
 				{
-					if (randint1(3) == 1)
+					if (one_in_(3))
 						act = "sings 'We are a happy family.'";
 					else
 						act = "sings 'I love you, you love me.'";
@@ -448,10 +445,10 @@ bool make_attack_normal(int m_idx)
 			/* Message */
 			if (act)
 			{
-				if ((p_ptr->image) && (randint1(3) == 1))
+				if ((p_ptr->image) && one_in_(3))
 				{
 					msg_format("%^s %s you.", m_name,
-					           silly_attacks[randint1(MAX_SILLY_ATTACK) - 1]);
+					           silly_attacks[randint0(MAX_SILLY_ATTACK)]);
 				}
 				else
 					msg_format("%^s %s", m_name, act);
@@ -526,7 +523,7 @@ bool make_attack_normal(int m_idx)
 						if (!p_ptr->resist_disen)
 						{
 							/* Apply disenchantment */
-							if (apply_disenchant(0)) obvious = TRUE;
+							if (apply_disenchant()) obvious = TRUE;
 						}
 
 						/* Learn about the player */
@@ -616,7 +613,7 @@ bool make_attack_normal(int m_idx)
 							msg_print("You quickly protect your money pouch!");
 
 							/* Occasional blink anyway */
-							if (randint0(3)) blinked = TRUE;
+							if (!one_in_(3)) blinked = TRUE;
 						}
 
 						/* Eat gold */
@@ -748,42 +745,6 @@ bool make_attack_normal(int m_idx)
 									m_ptr->hold_o_idx = o_idx;
 								}
 							}
-							else
-							{
-								if (strstr((r_name + r_ptr->name), "black market") &&
-									randint1(2) != 1)
-								{
-									s16b o_idx;
-
-									/* Make an object */
-									o_idx = o_pop();
-
-									/* Success */
-									if (o_idx)
-									{
-										object_type *j_ptr;
-										if (cheat_xtra || cheat_peek)
-										msg_print("Moving object to black market...");
-
-										/* Get new object */
-										j_ptr = &o_list[o_idx];
-
-										/* Copy object */
-										object_copy(j_ptr, o_ptr);
-
-										/* Modify number */
-										j_ptr->number = 1;
-
-										/* Wand / rod stacking */
-										distribute_charges(o_ptr, j_ptr, --o_ptr->number);
-
-										/* Forget mark */
-										j_ptr->marked = FALSE;
-
-										move_to_black_market(j_ptr);
-									}
-								}
-							}
 
 							/* Steal the items */
 							inven_item_increase(i, -1);
@@ -857,7 +818,7 @@ bool make_attack_normal(int m_idx)
 							 (!(o_ptr->flags3 & TR3_INSTA_ART)))
 						{
 							/* Reduce fuel */
-							o_ptr->pval -= (250 + randint1(250));
+							o_ptr->pval -= (s16b)rand_range(250, 500);
 							if (o_ptr->pval < 1) o_ptr->pval = 1;
 
 							/* Notice */
@@ -1278,10 +1239,10 @@ bool make_attack_normal(int m_idx)
 						}
 
 						/* Damage CON (10% chance) */
-						if (randint1(100) < 11)
+						if (randint0(100) < 10)
 						{
 							/* 1% chance for perm. damage */
-							bool perm = (randint1(10) == 1);
+							bool perm = (one_in_(10));
 							if (dec_stat(A_CON, randint1(10), perm)) obvious = TRUE;
 						}
 
@@ -1423,10 +1384,10 @@ bool make_attack_normal(int m_idx)
 				{
 					case 0: k = 0; break;
 					case 1: k = randint1(5); break;
-					case 2: k = randint1(5) + 5; break;
-					case 3: k = randint1(20) + 20; break;
-					case 4: k = randint1(50) + 50; break;
-					case 5: k = randint1(100) + 100; break;
+					case 2: k = rand_range(5, 10); break;
+					case 3: k = rand_range(20, 40); break;
+					case 4: k = rand_range(50, 100); break;
+					case 5: k = rand_range(100, 200); break;
 					case 6: k = 300; break;
 					default: k = 500; break;
 				}
@@ -1448,10 +1409,10 @@ bool make_attack_normal(int m_idx)
 				{
 					case 0: k = 0; break;
 					case 1: k = randint1(5); break;
-					case 2: k = randint1(10) + 10; break;
-					case 3: k = randint1(20) + 20; break;
-					case 4: k = randint1(30) + 30; break;
-					case 5: k = randint1(40) + 40; break;
+					case 2: k = rand_range(10, 20); break;
+					case 3: k = rand_range(20, 40); break;
+					case 4: k = rand_range(30, 60); break;
+					case 5: k = rand_range(40, 80); break;
 					case 6: k = 100; break;
 					default: k = 200; break;
 				}
@@ -1549,7 +1510,7 @@ bool make_attack_normal(int m_idx)
 				if (m_ptr->ml)
 				{
 					/* Disturbing */
-					disturb(1, 0);
+					disturb(TRUE);
 
 					/* Message */
 					msg_format("%^s misses you.", m_name);
@@ -1561,7 +1522,7 @@ bool make_attack_normal(int m_idx)
 
 
 		/* Analyze "visible" monsters only */
-		if (visible)
+		if (alive && m_ptr->ml)
 		{
 			/* Count "obvious" attacks (and ones that cause damage) */
 			if (obvious || damage || (r_ptr->r_blows[ap_cnt] > 10))
@@ -1571,13 +1532,23 @@ bool make_attack_normal(int m_idx)
 				{
 					r_ptr->r_blows[ap_cnt]++;
 				}
+				
+				/* Look to see if we've spotted a mimic */
+				if (m_ptr->smart & SM_MIMIC)
+				{
+					/* Toggle flag */
+					m_ptr->smart &= ~(SM_MIMIC);
+					
+					/* It is in the monster list now */
+					update_mon_vis(m_ptr->r_idx, 1);
+				}
 			}
 		}
 	}
 
 
 	/* Blink away */
-	if (blinked)
+	if (blinked && alive)
 	{
 		msg_print("The thief flees laughing!");
 		teleport_away(m_idx, MAX_SIGHT * 2 + 5);
@@ -1590,7 +1561,7 @@ bool make_attack_normal(int m_idx)
 		r_ptr->r_deaths++;
 	}
 
-	if (m_ptr->ml && fear)
+	if (alive && m_ptr->ml && fear)
 	{
 		sound(SOUND_FLEE);
 		msg_format("%^s flees in terror!", m_name);

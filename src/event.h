@@ -41,10 +41,7 @@ extern char inkey_borg_callback(bool inkey_base, bool inkey_xtra,
 extern char inkey_callback(char key);
 
 /* Birth */
-extern long get_world_callback(void);
-extern long get_player_class_callback(void);
-extern long get_player_realms_callback(void);
-extern long get_player_race_callback(void);
+extern long player_birth_callback(void);
 
 extern bool get_player_flags_callback(void);
 extern bool player_outfit_callback(void);
@@ -84,6 +81,7 @@ extern cptr field_save_callback(field_type *f_ptr);
 extern PyObject* field_load_callback(char *code);
 
 extern bool use_skill_callback(void);
+extern bool process_command_callback(char command);
 
 /* Script callbacks */
 extern cptr get_script_window_line(int line);
@@ -114,23 +112,24 @@ extern cptr get_script_window_line(int line);
 #define DELETE_MONSTER_EVENT         23
 #define INKEY_BORG_EVENT             24
 #define INKEY_EVENT                  25
-#define GET_PLAYER_CLASS_EVENT       26
+/* XXX */
 #define GET_PLAYER_FLAGS_EVENT       27
 #define SENSE_INVENTORY_EVENT        28
 #define DESTROY_OBJECT_EVENT         29
-#define GET_PLAYER_RACE_EVENT        30
+/* XXX */
 #define OBJECT_CREATE_EVENT          31
 #define OBJECT_LOAD_EVENT            32
 #define PLAYER_OUTFIT_EVENT          33
 #define WILDERNESS_INIT_EVENT        34
 #define FREE_OBJECT_KIND_LIST_EVENT  35
 #define INIT_OBJECT_KIND_LIST_EVENT  36
-#define GET_PLAYER_REALMS_EVENT      37
-#define GET_WORLD_EVENT              38
+/* XXX */
 #define COPY_MONSTER_EVENT           39
 #define USE_SKILL_EVENT              40
 #define GET_SCRIPT_WINDOW_LINE_EVENT 41
 #define PLAY_GAME_EVENT              42
 #define FIELD_LOAD_EVENT             43
+#define PROCESS_COMMAND_EVENT        44
+#define PLAYER_BIRTH_EVENT           45
 
-#define MAX_EVENT                    44
+#define MAX_EVENT                    46

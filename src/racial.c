@@ -116,12 +116,12 @@ bool racial_aux(s16b min_level, int cost, int use_stat, int difficulty)
 
 	if (use_hp)
 	{
-		take_hit((cost / 2) + randint1(cost / 2),
+		take_hit(rand_range(cost / 2, cost),
 			"concentrating too hard");
 	}
 	else
 	{
-		p_ptr->csp -= (cost / 2) + randint1(cost / 2);
+		p_ptr->csp -= (s16b)rand_range(cost / 2, cost);
 	}
 
 
@@ -132,8 +132,8 @@ bool racial_aux(s16b min_level, int cost, int use_stat, int difficulty)
 	p_ptr->window |= (PW_PLAYER | PW_SPELL);
 
 	/* Success? */
-	if (randint1(p_ptr->stat_cur[use_stat]) >=
-	    ((difficulty / 2) + randint1(difficulty / 2)))
+	if (randint1(p_ptr->stat_cur[use_stat]) >= 
+		rand_range(difficulty / 2, difficulty))
 	{
 		return TRUE;
 	}
@@ -143,26 +143,25 @@ bool racial_aux(s16b min_level, int cost, int use_stat, int difficulty)
 }
 
 
-static void cmd_racial_power_aux(s32b command)
+static void cmd_racial_power_aux(mutation_type *mut_ptr)
 {
 	s16b        plev = p_ptr->lev;
 	int         dir = 0;
 
-
-	switch (p_ptr->prace)
+	if (racial_aux(mut_ptr->level, mut_ptr->cost, mut_ptr->stat, mut_ptr->diff))
 	{
-		case RACE_DWARF:
-			if (racial_aux(5, 5, A_WIS, 12))
+		switch (p_ptr->prace)
+		{
+			case RACE_DWARF:
 			{
 				msg_print("You examine your surroundings.");
 				(void)detect_traps();
 				(void)detect_doors();
 				(void)detect_stairs();
-			}
-			break;
+				break;
+			}		
 
-		case RACE_HOBBIT:
-			if (racial_aux(15, 10, A_INT, 10))
+			case RACE_HOBBIT:
 			{
 				object_type *q_ptr;
 				object_type forge;
@@ -180,42 +179,41 @@ static void cmd_racial_power_aux(s32b command)
 				/* Drop the object from heaven */
 				(void)drop_near(q_ptr, -1, p_ptr->py, p_ptr->px);
 				msg_print("You cook some food.");
+				
+				break;
 			}
-			break;
 
-		case RACE_GNOME:
-			if (racial_aux(5, (5 + (plev / 5)), A_INT, 12))
+			case RACE_GNOME:
 			{
 				msg_print("Blink!");
 				teleport_player(10 + plev);
+				break;
 			}
-			break;
 
-		case RACE_HALF_ORC:
-			if (racial_aux(3, 5, A_WIS,
-			    (p_ptr->pclass == CLASS_WARRIOR ? 5 : 10)))
+			case RACE_HALF_ORC:
 			{
 				msg_print("You play tough.");
 				(void)set_afraid(0);
+				break;
 			}
-			break;
 
-		case RACE_HALF_TROLL:
-			if (racial_aux(10, 12, A_WIS,
-			    (p_ptr->pclass == CLASS_WARRIOR ? 6 : 12)))
+			case RACE_HALF_TROLL:
 			{
 				msg_print("RAAAGH!");
+				if (!p_ptr->shero)
+				{
+					(void)hp_player(30);
+				}
 				(void)set_afraid(0);
-
 				(void)set_shero(p_ptr->shero + 10 + randint1(plev));
-				(void)hp_player(30);
+				
+				break;
 			}
-			break;
 
-		case RACE_AMBERITE:
-			if (command == -2)
+			case RACE_AMBERITE:
 			{
-				if (racial_aux(40, 75, A_WIS, 50))
+				/* Hack - use levels to choose ability */
+				if (mut_ptr->level == 30)
 				{
 					msg_print("You picture the Pattern in your mind and walk it...");
 					(void)set_poisoned(0);
@@ -232,11 +230,8 @@ static void cmd_racial_power_aux(s32b command)
 					(void)do_res_stat(A_CHR);
 					(void)restore_level();
 				}
-			}
 
-			else if (command == -1)
-			{
-				if (racial_aux(30, 50, A_INT, 50))
+				else if (mut_ptr->level == 40)
 				{
 					/* No effect in arena or quest */
 					if (p_ptr->inside_quest)
@@ -253,65 +248,61 @@ static void cmd_racial_power_aux(s32b command)
 						p_ptr->leaving = TRUE;
 					}
 				}
+				break;
 			}
-			break;
 
-		case RACE_BARBARIAN:
-			if (racial_aux(8, 10, A_WIS, (p_ptr->pclass == CLASS_WARRIOR ? 6 : 12)))
+			case RACE_BARBARIAN:
 			{
 				msg_print("Raaagh!");
+				if (!p_ptr->shero)
+				{
+					(void)hp_player(30);
+				}
+				
 				(void)set_afraid(0);
-
 				(void)set_shero(p_ptr->shero + 10 + randint1(plev));
-				(void)hp_player(30);
+				break;
 			}
-			break;
 
-		case RACE_HALF_OGRE:
-			if (racial_aux(25, 35, A_INT, 15))
+			case RACE_HALF_OGRE:
 			{
 				msg_print("You carefully set an explosive rune...");
 				explosive_rune();
+				break;
 			}
-			break;
 
-		case RACE_HALF_GIANT:
-			if (racial_aux(20, 10, A_STR, 12))
+			case RACE_HALF_GIANT:
 			{
 				if (!get_aim_dir(&dir)) break;
 				msg_print("You bash at a stone wall.");
 				(void)wall_to_mud(dir);
+				break;
 			}
-			break;
 
-		case RACE_HALF_TITAN:
-			if (racial_aux(35, 20, A_INT, 12))
+			case RACE_HALF_TITAN:
 			{
 				msg_print("You examine your foes...");
 				probing();
+				break;
 			}
-			break;
 
-		case RACE_CYCLOPS:
-			if (racial_aux(20, 15, A_STR, 12))
+			case RACE_CYCLOPS:
 			{
 				if (!get_aim_dir(&dir)) break;
 				msg_print("You throw a huge boulder.");
 				fire_bolt(GF_MISSILE, dir, (3 * plev) / 2);
+				break;
 			}
-			break;
 
-		case RACE_YEEK:
-			if (racial_aux(15, 15, A_WIS, 10))
+			case RACE_YEEK:
 			{
 				if (!get_aim_dir(&dir)) break;
 				msg_print("You make a horrible scream!");
 				(void)fear_monster(dir, plev);
+				break;
 			}
-			break;
 
-		case RACE_KLACKON:
-			if (racial_aux(9, 9, A_DEX, 14))
+			case RACE_KLACKON:
 			{
 				if (!get_aim_dir(&dir)) break;
 				msg_print("You spit acid.");
@@ -319,42 +310,38 @@ static void cmd_racial_power_aux(s32b command)
 					fire_bolt(GF_ACID, dir, plev);
 				else
 					fire_ball(GF_ACID, dir, plev, 2);
+				break;
 			}
-			break;
 
-		case RACE_KOBOLD:
-			if (racial_aux(12, 8, A_DEX, 14))
+			case RACE_KOBOLD:
 			{
 				if (!get_aim_dir(&dir)) break;
 				msg_print("You throw a dart of poison.");
 				fire_bolt(GF_POIS, dir, plev);
+				break;
 			}
-			break;
 
-		case RACE_NIBELUNG:
-			if (racial_aux(10, 5, A_WIS, 10))
+			case RACE_NIBELUNG:
 			{
 				msg_print("You examine your surroundings.");
 				(void)detect_traps();
 				(void)detect_doors();
 				(void)detect_stairs();
+				break;
 			}
-			break;
 
-		case RACE_DARK_ELF:
-			if (racial_aux(2, 2, A_INT, 9))
+			case RACE_DARK_ELF:
 			{
 				if (!get_aim_dir(&dir)) break;
 				msg_print("You cast a magic missile.");
 				fire_bolt_or_beam(10, GF_MISSILE, dir,
 				    damroll(3 + ((plev - 1) / 5), 4));
+				break;
 			}
-			break;
 
-		case RACE_DRACONIAN:
-			if (racial_aux(1, plev, A_CON, 12))
+			case RACE_DRACONIAN:
 			{
-				int  Type = ((randint1(3) == 1) ? GF_COLD : GF_FIRE);
+				int  Type = (one_in_(3) ? GF_COLD : GF_FIRE);
 				cptr Type_desc = ((Type == GF_COLD) ? "cold" : "fire");
 
 				if (randint1(100) < plev)
@@ -363,7 +350,7 @@ static void cmd_racial_power_aux(s32b command)
 					{
 						case CLASS_WARRIOR:
 						case CLASS_RANGER:
-							if (randint1(3) == 1)
+							if (one_in_(3))
 							{
 								Type = GF_MISSILE;
 								Type_desc = "the elements";
@@ -377,7 +364,7 @@ static void cmd_racial_power_aux(s32b command)
 						case CLASS_MAGE:
 						case CLASS_WARRIOR_MAGE:
 						case CLASS_HIGH_MAGE:
-							if (randint1(3) == 1)
+							if (one_in_(3))
 							{
 								Type = GF_MANA;
 								Type_desc = "mana";
@@ -389,7 +376,7 @@ static void cmd_racial_power_aux(s32b command)
 							}
 							break;
 						case CLASS_CHAOS_WARRIOR:
-							if (randint1(3) != 1)
+							if (!one_in_(3))
 							{
 								Type = GF_CONFUSION;
 								Type_desc = "confusion";
@@ -401,7 +388,7 @@ static void cmd_racial_power_aux(s32b command)
 							}
 							break;
 						case CLASS_MONK:
-							if (randint1(3) != 1)
+							if (!one_in_(3))
 							{
 								Type = GF_CONFUSION;
 								Type_desc = "confusion";
@@ -413,7 +400,7 @@ static void cmd_racial_power_aux(s32b command)
 							}
 							break;
 						case CLASS_MINDCRAFTER:
-							if (randint1(3) != 1)
+							if (!one_in_(3))
 							{
 								Type = GF_CONFUSION;
 								Type_desc = "confusion";
@@ -426,7 +413,7 @@ static void cmd_racial_power_aux(s32b command)
 							break;
 						case CLASS_PRIEST:
 						case CLASS_PALADIN:
-							if (randint1(3) == 1)
+							if (one_in_(3))
 							{
 								Type = GF_HELL_FIRE;
 								Type_desc = "hellfire";
@@ -438,7 +425,7 @@ static void cmd_racial_power_aux(s32b command)
 							}
 							break;
 						case CLASS_ROGUE:
-							if (randint1(3) == 1)
+							if (one_in_(3))
 							{
 								Type = GF_DARK;
 								Type_desc = "darkness";
@@ -456,11 +443,10 @@ static void cmd_racial_power_aux(s32b command)
 				msg_format("You breathe %s.", Type_desc);
 				fire_ball(Type, dir, plev * 2,
 				    (plev / 15) + 1);
+				break;
 			}
-			break;
 
-		case RACE_MIND_FLAYER:
-			if (racial_aux(15, 12, A_INT, 14))
+			case RACE_MIND_FLAYER:
 			{
 				if (!get_aim_dir(&dir)) break;
 				else
@@ -468,11 +454,11 @@ static void cmd_racial_power_aux(s32b command)
 					msg_print("You concentrate and your eyes glow red...");
 					fire_bolt(GF_PSI, dir, plev);
 				}
+				
+				break;
 			}
-			break;
 
-		case RACE_IMP:
-			if (racial_aux(9, 15, A_WIS, 15))
+			case RACE_IMP:
 			{
 				if (!get_aim_dir(&dir)) break;
 				if (plev >= 30)
@@ -485,27 +471,24 @@ static void cmd_racial_power_aux(s32b command)
 					msg_print("You cast a bolt of fire.");
 					fire_bolt(GF_FIRE, dir, plev);
 				}
+				break;
 			}
-			break;
 
-		case RACE_GOLEM:
-			if (racial_aux(20, 15, A_CON, 8))
+			case RACE_GOLEM:
 			{
-				(void)set_shield(p_ptr->shield + randint1(20) + 30);
+				(void)set_shield(p_ptr->shield + rand_range(30, 50));
+				break;
 			}
-			break;
 
-		case RACE_SKELETON:
-		case RACE_ZOMBIE:
-			if (racial_aux(30, 30, A_WIS, 18))
+			case RACE_SKELETON:
+			case RACE_ZOMBIE:
 			{
 				msg_print("You attempt to restore your lost energies.");
 				(void)restore_level();
+				break;
 			}
-			break;
 
-		case RACE_VAMPIRE:
-			if (racial_aux(2, (1 + (plev / 3)), A_CON, 9))
+			case RACE_VAMPIRE:
 			{
 				int y, x, dummy;
 				cave_type *c_ptr;
@@ -540,32 +523,31 @@ static void cmd_racial_power_aux(s32b command)
 				}
 				else
 					msg_print("Yechh. That tastes foul.");
+				break;
 			}
-			break;
 
-		case RACE_SPECTRE:
-			if (racial_aux(4, 6, A_INT, 3))
+			case RACE_SPECTRE:
 			{
 				msg_print("You emit an eldritch howl!");
 				if (!get_aim_dir(&dir)) break;
 				(void)fear_monster(dir, plev);
+				break;
 			}
-			break;
 
-		case RACE_SPRITE:
-			if (racial_aux(12, 12, A_INT, 15))
+			case RACE_SPRITE:
 			{
 				msg_print("You throw some magic dust...");
 				if (plev < 25)
 					sleep_monsters_touch();
 				else
 					(void)sleep_monsters();
+				break;
 			}
-			break;
 
-		default:
-			msg_print("This race has no bonus power.");
-			p_ptr->energy_use = 0;
+			default:
+				msg_print("This race has no bonus power.");
+				p_ptr->energy_use = 0;
+		}
 	}
 
 	/* Redraw mana and hp */
@@ -585,6 +567,7 @@ struct power_desc_type
 	int  cost;
 	int  fail;
 	int  number;
+	mutation_type *power;
 };
 
 
@@ -595,22 +578,23 @@ void do_cmd_racial_power(void)
 {
 	power_desc_type power_desc[36];
 	int             num, ask, i = 0;
-	int             lvl = p_ptr->lev;
 	bool            flag, redraw;
-	bool            warrior = ((p_ptr->pclass == CLASS_WARRIOR) ? TRUE : FALSE);
-	bool            has_racial = FALSE;
 	char            choice;
 	char            out_val[160];
+	
+	mutation_type	*mut_ptr;
 
-
+	/* Wipe desc */
 	for (num = 0; num < 36; num++)
 	{
 		strcpy(power_desc[num].name, "");
 		power_desc[num].number = 0;
 	}
 
+	/* Reset num */
 	num = 0;
 
+	/* Not when we're confused */
 	if (p_ptr->confused)
 	{
 		msg_print("You are too confused to use any powers!");
@@ -618,489 +602,48 @@ void do_cmd_racial_power(void)
 		return;
 	}
 
-	switch (p_ptr->prace)
+	/* Look for racial powers */
+	for (i = 0; i < MAX_RACE_POWERS; i++)
 	{
-		case RACE_DWARF:
-			strcpy(power_desc[0].name, "detect doors+traps");
-			power_desc[0].level = 5;
-			power_desc[0].cost = 5;
-			power_desc[0].fail = 100 - racial_chance(5, A_WIS, 12);
-			has_racial = TRUE;
-			break;
-		case RACE_NIBELUNG:
-			strcpy(power_desc[0].name, "detect doors+traps");
-			power_desc[0].level = 10;
-			power_desc[0].cost = 5;
-			power_desc[0].fail = 100 - racial_chance(10, A_WIS, 10);
-			has_racial = TRUE;
-			break;
-		case RACE_HOBBIT:
-			strcpy(power_desc[0].name, "create food");
-			power_desc[0].level = 15;
-			power_desc[0].cost = 10;
-			power_desc[0].fail = 100 - racial_chance(15, A_INT, 10);
-			has_racial = TRUE;
-			break;
-		case RACE_GNOME:
-			sprintf(power_desc[0].name, "teleport (range %d)", 10 + lvl);
-			power_desc[0].level = 5;
-			power_desc[0].cost = 5 + (lvl / 5);
-			power_desc[0].fail = 100 - racial_chance(5, A_INT, 12);
-			has_racial = TRUE;
-			break;
-		case RACE_HALF_ORC:
-			strcpy(power_desc[0].name, "remove fear");
-			power_desc[0].level = 3;
-			power_desc[0].cost = 5;
-			power_desc[0].fail = 100 - racial_chance(3, A_WIS, (warrior ? 5 : 10));
-			has_racial = TRUE;
-			break;
-		case RACE_HALF_TROLL:
-			strcpy(power_desc[0].name, "berserk");
-			power_desc[0].level = 10;
-			power_desc[0].cost = 12;
-			power_desc[0].fail = 100 - racial_chance(10, A_WIS, (warrior ? 6 : 12));
-			has_racial = TRUE;
-			break;
-		case RACE_BARBARIAN:
-			strcpy(power_desc[0].name, "berserk");
-			power_desc[0].level = 8;
-			power_desc[0].cost = 10;
-			power_desc[0].fail = 100 - racial_chance(8, A_WIS, (warrior ? 6 : 12));
-			has_racial = TRUE;
-			break;
-		case RACE_AMBERITE:
-			strcpy(power_desc[0].name, "Shadow Shifting");
-			power_desc[0].level = 30;
-			power_desc[0].cost = 50;
-			power_desc[0].fail = 100 - racial_chance(30, A_INT, 50);
-			strcpy(power_desc[1].name, "Pattern Mindwalking");
-			power_desc[1].level = 40;
-			power_desc[1].cost = 75;
-			power_desc[1].fail = 100 - racial_chance(40, A_WIS, 50);
-			power_desc[1].number = -2;
-			num++;
-			has_racial = TRUE;
-			break;
-		case RACE_HALF_OGRE:
-			strcpy(power_desc[0].name, "explosive rune");
-			power_desc[0].level = 25;
-			power_desc[0].cost = 35;
-			power_desc[0].fail = 100 - racial_chance(25, A_INT, 15);
-			has_racial = TRUE;
-			break;
-		case RACE_HALF_GIANT:
-			strcpy(power_desc[0].name, "stone to mud");
-			power_desc[0].level = 20;
-			power_desc[0].cost = 10;
-			power_desc[0].fail = 100 - racial_chance(20, A_STR, 12);
-			has_racial = TRUE;
-			break;
-		case RACE_HALF_TITAN:
-			strcpy(power_desc[0].name, "probing");
-			power_desc[0].level = 35;
-			power_desc[0].cost = 20;
-			power_desc[0].fail = 100 - racial_chance(35, A_INT, 12);
-			has_racial = TRUE;
-			break;
-		case RACE_CYCLOPS:
-			sprintf(power_desc[0].name, "throw boulder (dam %d)", (3 * lvl) / 2);
-			power_desc[0].level = 20;
-			power_desc[0].cost = 15;
-			power_desc[0].fail = 100 - racial_chance(20, A_STR, 12);
-			has_racial = TRUE;
-			break;
-		case RACE_YEEK:
-			strcpy(power_desc[0].name, "scare monster");
-			power_desc[0].level = 15;
-			power_desc[0].cost = 15;
-			power_desc[0].fail = 100 - racial_chance(15, A_WIS, 10);
-			has_racial = TRUE;
-			break;
-		case RACE_SPECTRE:
-			strcpy(power_desc[0].name, "scare monster");
-			power_desc[0].level = 4;
-			power_desc[0].cost = 6;
-			power_desc[0].fail = 100 - racial_chance(4, A_INT, 3);
-			has_racial = TRUE;
-			break;
-		case RACE_KLACKON:
-			sprintf(power_desc[0].name, "spit acid (dam %d)", lvl);
-			power_desc[0].level = 9;
-			power_desc[0].cost = 9;
-			power_desc[0].fail = 100 - racial_chance(9, A_DEX, 14);
-			has_racial = TRUE;
-			break;
-		case RACE_KOBOLD:
-			sprintf(power_desc[0].name, "poison dart (dam %d)", lvl);
-			power_desc[0].level = 12;
-			power_desc[0].cost = 8;
-			power_desc[0].fail = 100 - racial_chance(12, A_DEX, 14);
-			has_racial = TRUE;
-			break;
-		case RACE_DARK_ELF:
-			sprintf(power_desc[0].name, "magic missile (dm %dd%d)", 3 + ((lvl - 1) / 5), 4);
-			power_desc[0].level = 2;
-			power_desc[0].cost = 2;
-			power_desc[0].fail = 100 - racial_chance(2, A_INT, 9);
-			has_racial = TRUE;
-			break;
-		case RACE_DRACONIAN:
-			sprintf(power_desc[0].name, "breath weapon (dam %d)", lvl * 2);
-			power_desc[0].level = 1;
-			power_desc[0].cost = lvl;
-			power_desc[0].fail = 100 - racial_chance(1, A_CON, 12);
-			has_racial = TRUE;
-			break;
-		case RACE_MIND_FLAYER:
-			sprintf(power_desc[0].name, "mind blast (dam %d)", lvl);
-			power_desc[0].level = 15;
-			power_desc[0].cost = 12;
-			power_desc[0].fail = 100 - racial_chance(15, A_INT, 14);
-			has_racial = TRUE;
-			break;
-		case RACE_IMP:
-			sprintf(power_desc[0].name, "fire bolt/ball (dam %d)", lvl);
-			power_desc[0].level = 9;
-			power_desc[0].cost = 15;
-			power_desc[0].fail = 100 - racial_chance(9, A_WIS, 15);
-			has_racial = TRUE;
-			break;
-		case RACE_GOLEM:
-			strcpy(power_desc[0].name, "stone skin (dur 1d20+30)");
-			power_desc[0].level = 20;
-			power_desc[0].cost = 15;
-			power_desc[0].fail = 100 - racial_chance(20, A_CON, 8);
-			has_racial = TRUE;
-			break;
-		case RACE_SKELETON:
-		case RACE_ZOMBIE:
-			strcpy(power_desc[0].name, "restore life");
-			power_desc[0].level = 30;
-			power_desc[0].cost = 30;
-			power_desc[0].fail = 100 - racial_chance(30, A_WIS, 18);
-			has_racial = TRUE;
-			break;
-		case RACE_VAMPIRE:
-			strcpy(power_desc[0].name, "drain life");
-			power_desc[0].level = 2;
-			power_desc[0].cost = 1 + (lvl / 3);
-			power_desc[0].fail = 100 - racial_chance(2, A_CON, 9);
-			has_racial = TRUE;
-			break;
-		case RACE_SPRITE:
-			strcpy(power_desc[0].name, "sleeping dust");
-			power_desc[0].level = 12;
-			power_desc[0].cost = 12;
-			power_desc[0].fail = 100 - racial_chance(12, A_INT, 15);
-			has_racial = TRUE;
-			break;
-		default:
-			strcpy(power_desc[0].name, "(none)");
+		mut_ptr = &race_powers[i];
+		
+		if (mut_ptr->which == p_ptr->prace)
+		{
+			strcpy(power_desc[num].name, mut_ptr->name);
+			power_desc[num].level = mut_ptr->level;
+			power_desc[num].cost = mut_ptr->cost;
+			power_desc[num].fail = 100 -
+				racial_chance(mut_ptr->level, mut_ptr->stat, mut_ptr->diff);
+			power_desc[num].number = -1;
+			power_desc[num++].power = mut_ptr;
+		}	
 	}
 
-	if (!has_racial && !p_ptr->muta1)
+	/* Not if we don't have any */
+	if (num == 0 && !p_ptr->muta1)
 	{
 		msg_print("You have no powers to activate.");
 		p_ptr->energy_use = 0;
 		return;
 	}
-
-	if (has_racial)
-	{
-		power_desc[0].number = -1;
-		num++;
-	}
-
+	
+	/* Look for appropriate mutations */
 	if (p_ptr->muta1)
 	{
-		if (p_ptr->muta1 & MUT1_SPIT_ACID)
+		for (i = 0; i < MUT_PER_SET; i++)
 		{
-			strcpy(power_desc[num].name, "spit acid");
-			power_desc[num].level = 9;
-			power_desc[num].cost = 9;
-			power_desc[num].fail = 100 - racial_chance(9, A_DEX, 15);
-			power_desc[num++].number = MUT1_SPIT_ACID;
-		}
-
-		if (p_ptr->muta1 & MUT1_BR_FIRE)
-		{
-			strcpy(power_desc[num].name, "fire breath");
-			power_desc[num].level = 20;
-			power_desc[num].cost = lvl;
-			power_desc[num].fail = 100 - racial_chance(20, A_CON, 18);
-			power_desc[num++].number = MUT1_BR_FIRE;
-		}
-
-		if (p_ptr->muta1 & MUT1_HYPN_GAZE)
-		{
-			strcpy(power_desc[num].name, "hypnotic gaze");
-			power_desc[num].level = 12;
-			power_desc[num].cost = 12;
-			power_desc[num].fail = 100 - racial_chance(12, A_CHR, 18);
-			power_desc[num++].number = MUT1_HYPN_GAZE;
-		}
-
-		if (p_ptr->muta1 & MUT1_TELEKINES)
-		{
-			strcpy(power_desc[num].name, "telekinesis");
-			power_desc[num].level = 9;
-			power_desc[num].cost = 9;
-			power_desc[num].fail = 100 - racial_chance(9, A_WIS, 14);
-			power_desc[num++].number = MUT1_TELEKINES;
-		}
-
-		if (p_ptr->muta1 & MUT1_VTELEPORT)
-		{
-			strcpy(power_desc[num].name, "teleport");
-			power_desc[num].level = 7;
-			power_desc[num].cost = 7;
-			power_desc[num].fail = 100 - racial_chance(7, A_WIS, 15);
-			power_desc[num++].number = MUT1_VTELEPORT;
-		}
-
-		if (p_ptr->muta1 & MUT1_MIND_BLST)
-		{
-			strcpy(power_desc[num].name, "mind blast");
-			power_desc[num].level = 5;
-			power_desc[num].cost = 3;
-			power_desc[num].fail = 100 - racial_chance(5, A_WIS, 15);
-			power_desc[num++].number = MUT1_MIND_BLST;
-		}
-
-		if (p_ptr->muta1 & MUT1_RADIATION)
-		{
-			strcpy(power_desc[num].name, "emit radiation");
-			power_desc[num].level = 15;
-			power_desc[num].cost = 15;
-			power_desc[num].fail = 100 - racial_chance(15, A_CON, 14);
-			power_desc[num++].number = MUT1_RADIATION;
-		}
-
-		if (p_ptr->muta1 & MUT1_VAMPIRISM)
-		{
-			strcpy(power_desc[num].name, "vampiric drain");
-			power_desc[num].level = 2;
-			power_desc[num].cost = (1 + (lvl / 3));
-			power_desc[num].fail = 100 - racial_chance(2, A_CON, 9);
-			power_desc[num++].number = MUT1_VAMPIRISM;
-		}
-
-		if (p_ptr->muta1 & MUT1_SMELL_MET)
-		{
-			strcpy(power_desc[num].name, "smell metal");
-			power_desc[num].level = 3;
-			power_desc[num].cost = 2;
-			power_desc[num].fail = 100 - racial_chance(3, A_INT, 12);
-			power_desc[num++].number = MUT1_SMELL_MET;
-		}
-
-		if (p_ptr->muta1 & MUT1_SMELL_MON)
-		{
-			strcpy(power_desc[num].name, "smell monsters");
-			power_desc[num].level = 5;
-			power_desc[num].cost = 4;
-			power_desc[num].fail = 100 - racial_chance(5, A_INT, 15);
-			power_desc[num++].number = MUT1_SMELL_MON;
-		}
-
-		if (p_ptr->muta1 & MUT1_BLINK)
-		{
-			strcpy(power_desc[num].name, "blink");
-			power_desc[num].level = 3;
-			power_desc[num].cost = 3;
-			power_desc[num].fail = 100 - racial_chance(3, A_WIS, 12);
-			power_desc[num++].number = MUT1_BLINK;
-		}
-
-		if (p_ptr->muta1 & MUT1_EAT_ROCK)
-		{
-			strcpy(power_desc[num].name, "eat rock");
-			power_desc[num].level = 8;
-			power_desc[num].cost = 12;
-			power_desc[num].fail = 100 - racial_chance(8, A_CON, 18);
-			power_desc[num++].number = MUT1_EAT_ROCK;
-		}
-
-		if (p_ptr->muta1 & MUT1_SWAP_POS)
-		{
-			strcpy(power_desc[num].name, "swap position");
-			power_desc[num].level = 15;
-			power_desc[num].cost = 12;
-			power_desc[num].fail = 100 - racial_chance(15, A_DEX, 16);
-			power_desc[num++].number = MUT1_SWAP_POS;
-		}
-
-		if (p_ptr->muta1 & MUT1_SHRIEK)
-		{
-			strcpy(power_desc[num].name, "shriek");
-			power_desc[num].level = 20;
-			power_desc[num].cost = 14;
-			power_desc[num].fail = 100 - racial_chance(20, A_CON, 16);
-			power_desc[num++].number = MUT1_SHRIEK;
-		}
-
-		if (p_ptr->muta1 & MUT1_ILLUMINE)
-		{
-			strcpy(power_desc[num].name, "illuminate");
-			power_desc[num].level = 3;
-			power_desc[num].cost = 2;
-			power_desc[num].fail = 100 - racial_chance(3, A_INT, 10);
-			power_desc[num++].number = MUT1_ILLUMINE;
-		}
-
-		if (p_ptr->muta1 & MUT1_DET_CURSE)
-		{
-			strcpy(power_desc[num].name, "detect curses");
-			power_desc[num].level = 7;
-			power_desc[num].cost = 14;
-			power_desc[num].fail = 100 - racial_chance(7, A_WIS, 14);
-			power_desc[num++].number = MUT1_DET_CURSE;
-		}
-
-		if (p_ptr->muta1 & MUT1_BERSERK)
-		{
-			strcpy(power_desc[num].name, "berserk");
-			power_desc[num].level = 8;
-			power_desc[num].cost = 8;
-			power_desc[num].fail = 100 - racial_chance(8, A_STR, 14);
-			power_desc[num++].number = MUT1_BERSERK;
-		}
-
-		if (p_ptr->muta1 & MUT1_POLYMORPH)
-		{
-			strcpy(power_desc[num].name, "polymorph");
-			power_desc[num].level = 18;
-			power_desc[num].cost = 20;
-			power_desc[num].fail = 100 - racial_chance(18, A_CON, 18);
-			power_desc[num++].number = MUT1_POLYMORPH;
-		}
-
-		if (p_ptr->muta1 & MUT1_MIDAS_TCH)
-		{
-			strcpy(power_desc[num].name, "midas touch");
-			power_desc[num].level = 10;
-			power_desc[num].cost = 5;
-			power_desc[num].fail = 100 - racial_chance(10, A_INT, 12);
-			power_desc[num++].number = MUT1_MIDAS_TCH;
-		}
-
-		if (p_ptr->muta1 & MUT1_GROW_MOLD)
-		{
-			strcpy(power_desc[num].name, "grow mold");
-			power_desc[num].level = 1;
-			power_desc[num].cost = 6;
-			power_desc[num].fail = 100 - racial_chance(1, A_CON, 14);
-			power_desc[num++].number = MUT1_GROW_MOLD;
-		}
-
-		if (p_ptr->muta1 & MUT1_RESIST)
-		{
-			strcpy(power_desc[num].name, "resist elements");
-			power_desc[num].level = 10;
-			power_desc[num].cost = 12;
-			power_desc[num].fail = 100 - racial_chance(10, A_CON, 12);
-			power_desc[num++].number = MUT1_RESIST;
-		}
-
-		if (p_ptr->muta1 & MUT1_EARTHQUAKE)
-		{
-			strcpy(power_desc[num].name, "earthquake");
-			power_desc[num].level = 12;
-			power_desc[num].cost = 12;
-			power_desc[num].fail = 100 - racial_chance(12, A_STR, 16);
-			power_desc[num++].number = MUT1_EARTHQUAKE;
-		}
-
-		if (p_ptr->muta1 & MUT1_EAT_MAGIC)
-		{
-			strcpy(power_desc[num].name, "eat magic");
-			power_desc[num].level = 17;
-			power_desc[num].cost = 1;
-			power_desc[num].fail = 100 - racial_chance(17, A_WIS, 15);
-			power_desc[num++].number = MUT1_EAT_MAGIC;
-		}
-
-		if (p_ptr->muta1 & MUT1_WEIGH_MAG)
-		{
-			strcpy(power_desc[num].name, "weigh magic");
-			power_desc[num].level = 6;
-			power_desc[num].cost = 6;
-			power_desc[num].fail = 100 - racial_chance(6, A_INT, 10);
-			power_desc[num++].number = MUT1_WEIGH_MAG;
-		}
-
-		if (p_ptr->muta1 & MUT1_STERILITY)
-		{
-			strcpy(power_desc[num].name, "sterilize");
-			power_desc[num].level = 12;
-			power_desc[num].cost = 23;
-			power_desc[num].fail = 100 - racial_chance(12, A_CHR, 15);
-			power_desc[num++].number = MUT1_STERILITY;
-		}
-
-		if (p_ptr->muta1 & MUT1_PANIC_HIT)
-		{
-			strcpy(power_desc[num].name, "panic hit");
-			power_desc[num].level = 10;
-			power_desc[num].cost = 12;
-			power_desc[num].fail = 100 - racial_chance(10, A_DEX, 14);
-			power_desc[num++].number = MUT1_PANIC_HIT;
-		}
-
-		if (p_ptr->muta1 & MUT1_DAZZLE)
-		{
-			strcpy(power_desc[num].name, "dazzle");
-			power_desc[num].level = 7;
-			power_desc[num].cost = 15;
-			power_desc[num].fail = 100 - racial_chance(7, A_CHR, 8);
-			power_desc[num++].number = MUT1_DAZZLE;
-		}
-
-		if (p_ptr->muta1 & MUT1_LASER_EYE)
-		{
-			strcpy(power_desc[num].name, "laser eye");
-			power_desc[num].level = 7;
-			power_desc[num].cost = 10;
-			power_desc[num].fail = 100 - racial_chance(7, A_WIS, 9);
-			power_desc[num++].number = MUT1_LASER_EYE;
-		}
-
-		if (p_ptr->muta1 & MUT1_RECALL)
-		{
-			strcpy(power_desc[num].name, "recall");
-			power_desc[num].level = 17;
-			power_desc[num].cost = 50;
-			power_desc[num].fail = 100 - racial_chance(17, A_INT, 16);
-			power_desc[num++].number = MUT1_RECALL;
-		}
-
-		if (p_ptr->muta1 & MUT1_BANISH)
-		{
-			strcpy(power_desc[num].name, "banish evil");
-			power_desc[num].level = 25;
-			power_desc[num].cost = 25;
-			power_desc[num].fail = 100 - racial_chance(25, A_WIS, 18);
-			power_desc[num++].number = MUT1_BANISH;
-		}
-
-		if (p_ptr->muta1 & MUT1_COLD_TOUCH)
-		{
-			strcpy(power_desc[num].name, "cold touch");
-			power_desc[num].level = 2;
-			power_desc[num].cost = 2;
-			power_desc[num].fail = 100 - racial_chance(2, A_CON, 11);
-			power_desc[num++].number = MUT1_COLD_TOUCH;
-		}
-
-		if (p_ptr->muta1 & MUT1_LAUNCHER)
-		{
-			strcpy(power_desc[num].name, "throw object");
-			power_desc[num].level = 1;
-			power_desc[num].cost = lvl;
-			power_desc[num].fail = 100 - racial_chance(1, A_STR, 6);
-			/* XXX_XXX_XXX Hack! MUT1_LAUNCHER counts as negative... */
-			power_desc[num++].number = 3;
+			mut_ptr = &mutations[i];
+			
+			if (p_ptr->muta1 & mut_ptr->which)
+			{
+				strcpy(power_desc[num].name, mut_ptr->name);
+				power_desc[num].level = mut_ptr->level;
+				power_desc[num].cost = mut_ptr->cost;
+				power_desc[num].fail = 100 -
+					racial_chance(mut_ptr->level, mut_ptr->stat, mut_ptr->diff);
+				power_desc[num].number = mut_ptr->which;
+				power_desc[num++].power = mut_ptr;
+			}
 		}
 	}
 
@@ -1114,133 +657,139 @@ void do_cmd_racial_power(void)
 	(void)strnfmt(out_val, 78, "(Powers %c-%c, *=List, ESC=exit) Use which power? ",
 		I2A(0), (num <= 26) ? I2A(num - 1) : '0' + num - 27);
 
-if (!repeat_pull(&i) || i<0 || i>=num) {
-	/* Get a spell from the user */
-	while (!flag && get_com(out_val, &choice))
+	if (!repeat_pull(&i) || i<0 || i>=num)
 	{
-		/* Request redraw */
-		if ((choice == ' ') || (choice == '*') || (choice == '?'))
+		/* Get a spell from the user */
+		while (!flag && get_com(out_val, &choice))
 		{
-			/* Show the list */
-			if (!redraw)
+			/* Request redraw */
+			if ((choice == ' ') || (choice == '*') || (choice == '?'))
 			{
-				byte y = 1, x = 0;
-				int ctr = 0;
-				char dummy[80];
-				char letter;
-				int x1, y1;
-
-				strcpy(dummy, "");
-
-				/* Show list */
-				redraw = TRUE;
-
-				/* Save the screen */
-				screen_save();
-
-				/* Print header(s) */
-				if (num < 17)
-					prt("                            Lv Cost Fail", y++, x);
-				else
-					prt("                            Lv Cost Fail                            Lv Cost Fail", y++, x);
-
-				/* Print list */
-				while (ctr < num)
+				/* Show the list */
+				if (!redraw)
 				{
-					/* letter/number for power selection */
-					if (ctr < 26)
-						letter = I2A(ctr);
-					else
-						letter = '0' + ctr - 26;
-					x1 = ((ctr < 17) ? x : x + 40);
-					y1 = ((ctr < 17) ? y + ctr : y + ctr - 17);
+					byte y = 1, x = 0;
+					int ctr = 0;
+					char dummy[80];
+					char letter;
+					int x1, y1;
 
-					sprintf(dummy, " %c) %-23.23s %2d %4d %3d%%", letter, power_desc[ctr].name, power_desc[ctr].level, power_desc[ctr].cost, power_desc[ctr].fail);
-					prt(dummy, y1, x1);
-					ctr++;
+					strcpy(dummy, "");
+
+					/* Show list */
+					redraw = TRUE;
+
+					/* Save the screen */
+					screen_save();
+
+					/* Print header(s) */
+					if (num < 17)
+						prt("                            Lv Cost Fail", y++, x);
+					else
+						prt("                            Lv Cost Fail                            Lv Cost Fail", y++, x);
+
+					/* Print list */
+					while (ctr < num)
+					{
+						/* letter/number for power selection */
+						if (ctr < 26)
+							letter = I2A(ctr);
+						else
+							letter = '0' + ctr - 26;
+						x1 = ((ctr < 17) ? x : x + 40);
+						y1 = ((ctr < 17) ? y + ctr : y + ctr - 17);
+
+						sprintf(dummy, " %c) %-23.23s %2d %4d %3d%%",
+							letter,
+							power_desc[ctr].name,
+							power_desc[ctr].level,
+							power_desc[ctr].cost,
+							power_desc[ctr].fail);
+						prt(dummy, y1, x1);
+						ctr++;
+					}
 				}
+
+				/* Hide the list */
+				else
+				{
+					/* Hide list */
+					redraw = FALSE;
+
+					/* Restore the screen */
+					screen_load();
+				}
+
+				/* Redo asking */
+				continue;
 			}
 
-			/* Hide the list */
+			if (choice == '\r' && num == 1)
+			{
+				choice = 'a';
+			}
+
+			if (isalpha(choice))
+			{
+				/* Note verify */
+				ask = (isupper(choice));
+
+				/* Lowercase */
+				if (ask) choice = tolower(choice);
+
+				/* Extract request */
+				i = (islower(choice) ? A2I(choice) : -1);
+			}
 			else
 			{
-				/* Hide list */
-				redraw = FALSE;
+				ask = FALSE; /* Can't uppercase digits */
 
-				/* Restore the screen */
-				screen_load();
+				i = choice - '0' + 26;
 			}
 
-			/* Redo asking */
-			continue;
+			/* Totally Illegal */
+			if ((i < 0) || (i >= num))
+			{
+				bell();
+				continue;
+			}
+
+			/* Verify it */
+			if (ask)
+			{
+				char tmp_val[160];
+	
+				/* Prompt */
+				(void)strnfmt(tmp_val, 78, "Use %s? ", power_desc[i].name);
+
+				/* Belay that order */
+				if (!get_check(tmp_val)) continue;
+			}
+
+			/* Stop the loop */
+			flag = TRUE;
 		}
 
-		if (choice == '\r' && num == 1)
+		/* Restore the screen */
+		if (redraw) screen_load();
+
+		/* Abort if needed */
+		if (!flag)
 		{
-			choice = 'a';
+			p_ptr->energy_use = 0;
+			return;
 		}
-
-		if (isalpha(choice))
-		{
-			/* Note verify */
-			ask = (isupper(choice));
-
-			/* Lowercase */
-			if (ask) choice = tolower(choice);
-
-			/* Extract request */
-			i = (islower(choice) ? A2I(choice) : -1);
-		}
-		else
-		{
-			ask = FALSE; /* Can't uppercase digits */
-
-			i = choice - '0' + 26;
-		}
-
-		/* Totally Illegal */
-		if ((i < 0) || (i >= num))
-		{
-			bell();
-			continue;
-		}
-
-		/* Verify it */
-		if (ask)
-		{
-			char tmp_val[160];
-
-			/* Prompt */
-			(void)strnfmt(tmp_val, 78, "Use %s? ", power_desc[i].name);
-
-			/* Belay that order */
-			if (!get_check(tmp_val)) continue;
-		}
-
-		/* Stop the loop */
-		flag = TRUE;
-	}
-
-	/* Restore the screen */
-	if (redraw) screen_load();
-
-	/* Abort if needed */
-	if (!flag)
-	{
-		p_ptr->energy_use = 0;
-		return;
-	}
 
         repeat_push(i);
-        } /*if (!repeat_pull(&i) || ...)*/
+	}
 
 	if (power_desc[i].number < 0)
 	{
-		cmd_racial_power_aux(power_desc[i].number);
+		cmd_racial_power_aux(power_desc[i].power);
 	}
 	else
 	{
-		mutation_power_aux(power_desc[i].number);
+		mutation_power_aux(power_desc[i].power);
 	}
 
 	/* Success */

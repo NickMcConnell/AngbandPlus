@@ -845,7 +845,7 @@ static errr Term_text_gcu(int x, int y, int n, byte a, cptr s)
 		/* Special characters? */
 		if (use_blocks)
 		{
-			
+#ifdef ACS_CKBOARD
 			/* Determine picture to use */
 			if (s[i] == '#')
 			{
@@ -859,8 +859,11 @@ static errr Term_text_gcu(int x, int y, int n, byte a, cptr s)
 			}
 			else
 			{
-			        pic = s[i];
+				pic = s[i];
 			}
+#else /* ACS_CKBOARD */
+			pic = s[i];
+#endif /* ACS_CKBOARD */
 
 			/* Draw the picture */
 			waddch(td->win, pic);
@@ -944,6 +947,9 @@ static errr term_data_init_gcu(term_data *td, int rows, int cols, int y, int x, 
 /* The hook to exit curses on a failure */
 static void hook_quit(cptr str)
 {
+	/* Ignore parameter */
+	(void) str;
+	
 	/* Exit curses */
 	endwin();
 }
@@ -1090,8 +1096,18 @@ errr init_gcu(void)
 		int rows, cols, y, x;
 
 		/* Hack - the main window is huge */
-		cols = 80 + (COLS - 80) / 4;
-		rows = 24 + (LINES - 24) / 2;
+		
+		/* Work out how much extra room we have */
+		cols = (COLS - 80) / 4;
+		rows = (LINES - 24) / 2;
+		
+		/* Prevent stupidly small windows */
+		if (cols < 25) cols = 0;
+		if (rows < 10) rows = 0;
+		
+		/* Ok - so we now have the size of the main window */
+		cols += 80;
+		rows += 24;
 
 		/* Decide on size and position */
 		switch (i)
@@ -1152,7 +1168,5 @@ errr init_gcu(void)
 	return (0);
 }
 
-
 #endif /* USE_GCU */
-
 

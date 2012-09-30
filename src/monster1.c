@@ -29,10 +29,6 @@ static cptr wd_his[3] =
     (((c) == 1) ? (s) : (p))
 
 
-
-
-
-
 /*
  * Determine if the "armor" is known
  * The higher the level, the fewer kills needed.
@@ -193,7 +189,7 @@ static void roff_aux(int r_idx, int remem)
 	if (r_ptr->flags1 & RF1_FEMALE)  flags1 |= (RF1_FEMALE);
 
 	/* Assume some "creation" flags */
-	if (r_ptr->flags1 & RF1_FRIEND)  flags1 |= (RF1_FRIEND);
+	if (r_ptr->flags1 & RF1_CHAR_MIMIC)  flags1 |= (RF1_CHAR_MIMIC);
 	if (r_ptr->flags1 & RF1_FRIENDS) flags1 |= (RF1_FRIENDS);
 	if (r_ptr->flags1 & RF1_ESCORT)  flags1 |= (RF1_ESCORT);
 	if (r_ptr->flags1 & RF1_ESCORTS) flags1 |= (RF1_ESCORTS);
@@ -567,12 +563,17 @@ static void roff_aux(int r_idx, int remem)
 	}
 
 	/* Describe friends */
-	else if ((flags1 & RF1_FRIEND) || (flags1 & RF1_FRIENDS))
+	else if (flags1 & RF1_FRIENDS)
 	{
 		roff(format("%^s usually appears in groups.  ",
 		            wd_he[msex]));
 	}
 
+	else if (flags1 & RF1_CHAR_MIMIC)
+	{
+		roff(format("%^s is a mimic.  ",
+		            wd_he[msex]));
+	}
 
 	/* Collect inate attacks */
 	if (flags4 & RF4_SHRIEK)  vp[vn++] = "shriek for help";
@@ -1349,8 +1350,11 @@ static void roff_top(int r_idx)
 	a2 = r_ptr->x_attr;
 
 	/* Hack -- fake monochrome */
-	if (!use_color || ironman_moria) a1 = TERM_WHITE;
-	if (!use_color || ironman_moria) a2 = TERM_WHITE;
+	if (!use_color || ironman_moria)
+	{
+		a1 = TERM_WHITE;
+		a2 = TERM_WHITE;
+	}
 
 
 	/* Clear the top line */
@@ -1437,6 +1441,106 @@ void display_roff(int r_idx)
 	/* Describe monster */
 	roff_top(r_idx);
 }
+
+
+/*
+ * Hack -- show a list of the visible monsters in the current "term" window
+ */
+void display_visible(void)
+{
+	int i, y;
+	char c1, c2;
+	byte a1, a2;
+	monster_race *r_ptr;
+
+
+	/* Erase the window */
+	for (y = 0; y < Term->hgt; y++)
+	{
+		/* Erase the line */
+		Term_erase(0, y, 255);
+	}
+
+	i = p_ptr->max_seen_r_idx;
+
+	/* Show the list */
+	for (y = 0; y < Term->hgt; y++)
+	{
+		/* No more to display */
+		if (!i) return;
+		
+		/* Go to left of screen */
+		Term_gotoxy(0, y);
+		
+		/* Note we have assumed that r_info.txt has been sorted */
+		
+		/* Access monster */
+		r_ptr = &r_info[i];
+		
+		/* Access the chars */
+		c1 = r_ptr->d_char;
+		c2 = r_ptr->x_char;
+
+		/* Access the attrs */
+		a1 = r_ptr->d_attr;
+		a2 = r_ptr->x_attr;
+
+		/* Hack -- fake monochrome */
+		if (!use_color || ironman_moria)
+		{
+			a1 = TERM_WHITE;
+			a2 = TERM_WHITE;
+		}
+
+		/* Dump the name */
+		if (r_ptr->flags1 & RF1_UNIQUE)
+		{
+			Term_addstr(-1, TERM_L_BLUE, (r_name + r_ptr->name));
+		}
+		else
+		{
+			Term_addstr(-1, TERM_WHITE, (r_name + r_ptr->name));
+		}		
+
+		/* Append the "standard" attr/char info */
+		Term_addstr(-1, TERM_WHITE, " ('");
+		Term_addch(a1, c1);
+		Term_addstr(-1, TERM_WHITE, "')");
+
+		/* Append the "optional" attr/char info */
+		Term_addstr(-1, TERM_WHITE, "/('");
+		Term_addch(a2, c2);
+		Term_addstr(-1, TERM_WHITE, "'):");
+
+		/* Wizards get extra info */
+		if (p_ptr->wizard)
+		{
+			char buf[6];
+
+			sprintf(buf, "%d", i);
+	
+			Term_addstr(-1, TERM_WHITE, " (");
+			Term_addstr(-1, TERM_L_BLUE, buf);
+			Term_addch(TERM_WHITE, ')');
+		}
+		
+		/* Append count */
+		roff(format("[%d]",r_ptr->r_see));
+		
+		/* Look for the next one */
+		while (i > 0)
+		{
+			i--;
+			
+			if (r_info[i].r_see)
+			{
+				break;
+			}
+		}
+	}
+}
+
+
 
 static byte mon_wild;
 static monster_hook_type wild_mon_hook;

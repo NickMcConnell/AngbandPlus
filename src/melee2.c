@@ -168,8 +168,6 @@ void mon_take_hit_mon(int m_idx, int dam, bool *fear, cptr note)
 
 	char m_name[160];
 
-	bool seen = m_ptr->ml;
-
 	/* Can the player be aware of this attack? */
 	bool known = (m_ptr->cdis <= MAX_SIGHT);
 
@@ -182,9 +180,9 @@ void mon_take_hit_mon(int m_idx, int dam, bool *fear, cptr note)
 	/* Wake it up */
 	m_ptr->csleep = 0;
 
-	if (m_ptr->invulner && randint0(PENETRATE_INVULNERABILITY))
+	if (m_ptr->invulner && !one_in_(PENETRATE_INVULNERABILITY))
 	{
-		if (seen)
+		if (m_ptr->ml)
 		{
 			msg_format("%^s is unharmed.", m_name);
 		}
@@ -219,9 +217,9 @@ void mon_take_hit_mon(int m_idx, int dam, bool *fear, cptr note)
 			if (known)
 			{
 				/* Unseen death by normal attack */
-				if (!seen)
+				if (!m_ptr->ml)
 				{
-					mon_fight = TRUE;
+					p_ptr->mon_fight = TRUE;
 				}
 				/* Death by special attack */
 				else if (note)
@@ -242,7 +240,7 @@ void mon_take_hit_mon(int m_idx, int dam, bool *fear, cptr note)
 
 			/* Generate treasure */
 			(void) monster_death(m_idx);
-
+			
 			/* Delete the monster */
 			delete_monster_idx(m_idx);
 
@@ -1316,7 +1314,7 @@ static bool monst_attack_monst(int m_idx, int t_idx)
 
 	if (!see_either && known)
 	{
-		mon_fight = TRUE;
+		p_ptr->mon_fight = TRUE;
 	}
 
 	/* Scan through all four blows */
@@ -1335,12 +1333,12 @@ static bool monst_attack_monst(int m_idx, int t_idx)
 		int d_dice = r_ptr->blow[ap_cnt].d_dice;
 		int d_side = r_ptr->blow[ap_cnt].d_side;
 
-		/* Stop attacking if the target dies! */
+		/* Stop attacking if the target teleports away */
 		if (t_ptr->fx != x_saver || t_ptr->fy != y_saver)
 			break;
 
 		/* Stop attacking if the aggressor dies (fire sheath etc.) */
-		if (m_ptr->hp < 0) return TRUE;
+		if ((!m_ptr->r_idx) || (!t_ptr->r_idx)) return TRUE;
 
 		/* Hack -- no more attacks */
 		if (!method) break;
@@ -1499,7 +1497,7 @@ static bool monst_attack_monst(int m_idx, int t_idx)
 
 			case RBM_EXPLODE:
 				{
-					if (see_either) disturb(1, 0);
+					if (see_either) disturb(TRUE);
 					act = "explodes.";
 					explode = TRUE;
 					touched = FALSE;
@@ -1566,10 +1564,46 @@ static bool monst_attack_monst(int m_idx, int t_idx)
 			/* Message */
 			if (act && see_either)
 			{
-				if ((p_ptr->image) && (randint1(3) == 1))
+				/* Look to see if we've spotted a mimic */
+				if ((m_ptr->smart & SM_MIMIC) && see_m)
+				{
+					char m_name2[80];
+		
+					/* Get name */
+					monster_desc (m_name2, m_ptr, 0x88);
+		
+					/* Toggle flag */
+					m_ptr->smart &= ~(SM_MIMIC);
+					
+					/* It is in the monster list now */
+					update_mon_vis(m_ptr->r_idx, 1);
+		
+					/* We've spotted it */
+					msg_format("You see %s!", m_name2);
+				}
+
+				/* Look to see if we've spotted a mimic */
+				if ((t_ptr->smart & SM_MIMIC) && see_t)
+				{
+					char t_name2[80];
+		
+					/* Get name */
+					monster_desc (t_name2, t_ptr, 0x88);
+					
+					/* Toggle flag */
+					t_ptr->smart &= ~(SM_MIMIC);
+
+					/* It is in the monster list now */
+					update_mon_vis(t_ptr->r_idx, 1);
+		
+					/* We've spotted it */
+					msg_format("You see %s!", t_name2);
+				}
+
+				if ((p_ptr->image) && one_in_(3))
 				{
 					strfmt(temp, "%s %s.",
-					       silly_attacks[randint1(MAX_SILLY_ATTACK)-1],t_name);
+					       silly_attacks[randint0(MAX_SILLY_ATTACK)],t_name);
 				}
 				else
 					strfmt(temp, act, t_name);
@@ -1629,7 +1663,7 @@ static bool monst_attack_monst(int m_idx, int t_idx)
 			case RBE_EAT_GOLD:
 				{
 					pt = damage = 0;
-					if (randint1(2) == 1) blinked = TRUE;
+					if (one_in_(2)) blinked = TRUE;
 					break;
 				}
 
@@ -1767,7 +1801,7 @@ static bool monst_attack_monst(int m_idx, int t_idx)
 						{
 							blinked = FALSE;
 							msg_format("%^s is suddenly very hot!", m_name);
-							if (t_ptr->ml)
+							if (see_t)
 								tr_ptr->r_flags2 |= RF2_AURA_FIRE;
 						}
 						project(t_idx, 0, m_ptr->fy, m_ptr->fx,
@@ -1784,7 +1818,7 @@ static bool monst_attack_monst(int m_idx, int t_idx)
 						{
 							blinked = FALSE;
 							msg_format("%^s is suddenly very cold!", m_name);
-							if (t_ptr->ml)
+							if (see_t)
 								tr_ptr->r_flags3 |= RF3_AURA_COLD;
 						}
 						project(t_idx, 0, m_ptr->fy, m_ptr->fx,
@@ -1800,7 +1834,7 @@ static bool monst_attack_monst(int m_idx, int t_idx)
 						{
 							blinked = FALSE;
 							msg_format("%^s gets zapped!", m_name);
-							if (t_ptr->ml)
+							if (see_t)
 								tr_ptr->r_flags2 |= RF2_AURA_ELEC;
 						}
 						project(t_idx, 0, m_ptr->fy, m_ptr->fx,
@@ -1813,7 +1847,7 @@ static bool monst_attack_monst(int m_idx, int t_idx)
 			}
 		}
 
-		/* Monster missed player */
+		/* Monster missed the monster */
 		else
 		{
 			/* Analyze failed attacks */
@@ -1882,7 +1916,7 @@ static bool monst_attack_monst(int m_idx, int t_idx)
 		}
 		else if (known)
 		{
-			mon_fight = TRUE;
+			p_ptr->mon_fight = TRUE;
 		}
 
 		teleport_away(m_idx, MAX_SIGHT * 2 + 5);
@@ -1931,6 +1965,9 @@ static void process_monster(int m_idx)
 
 	monster_type    *y_ptr;
 
+	
+	char m_name[80];
+
 	bool            do_turn;
 	bool            do_move;
 	bool            do_view;
@@ -1949,10 +1986,10 @@ static void process_monster(int m_idx)
 	if (r_ptr->flags2 & (RF2_QUANTUM))
 	{
 		/* Sometimes skip move */
-		if (!randint0(2)) return;
+		if (one_in_(2)) return;
 
 		/* Sometimes die */
-		if (!randint0((m_idx % 100) + 10) && !(r_ptr->flags1 & RF1_QUESTOR))
+		if (one_in_((m_idx % 100) + 10) && !(r_ptr->flags1 & RF1_QUESTOR))
 		{
 			bool sad = FALSE;
 
@@ -1993,7 +2030,7 @@ static void process_monster(int m_idx)
 	c_ptr = area(oy,ox);
 
 	/* Process fields under the monster. */
-	field_hook(&c_ptr->fld_idx, FIELD_ACT_MONSTER_ON, (void *) m_ptr);
+	field_hook(&c_ptr->fld_idx, FIELD_ACT_MONSTER_ON, (vptr) m_ptr);
 
 	/* Handle "sleep" */
 	if (m_ptr->csleep)
@@ -2042,7 +2079,7 @@ static void process_monster(int m_idx)
 				m_ptr->csleep = 0;
 
 				/* Notice the "waking up" */
-				if (m_ptr->ml)
+				if ((m_ptr->ml) && (!(m_ptr->smart & SM_MIMIC)))
 				{
 					char m_name[80];
 
@@ -2133,7 +2170,7 @@ static void process_monster(int m_idx)
 			m_ptr->confused = 0;
 
 			/* Message if visible */
-			if (m_ptr->ml)
+			if ((m_ptr->ml) && (!(m_ptr->smart & SM_MIMIC)))
 			{
 				char m_name[80];
 
@@ -2212,8 +2249,6 @@ static void process_monster(int m_idx)
 	}
 
 
-
-
 	/* Attempt to "multiply" if able and allowed */
 	if ((r_ptr->flags2 & RF2_MULTIPLY) && (num_repro < MAX_REPRO))
 	{
@@ -2232,7 +2267,7 @@ static void process_monster(int m_idx)
 		}
 
 		/* Hack -- multiply slower in crowded areas */
-		if ((k < 4) && (!k || !randint0(k * MON_MULT_ADJ)))
+		if ((k < 4) && (!k || one_in_(k * MON_MULT_ADJ)))
 		{
 			/* Try to multiply */
 			if (multiply_monster(m_idx, FALSE, is_friendly(m_ptr), is_pet(m_ptr)))
@@ -2251,8 +2286,7 @@ static void process_monster(int m_idx)
 
 
 	/* Hack! "Cyber" monster makes noise... */
-	if (strstr((r_name + r_ptr->name), "Cyber") &&
-	    (randint1(CYBERNOISE) == 1) &&
+	if (strstr((r_name + r_ptr->name), "Cyber") && one_in_(CYBERNOISE) &&
 	    !m_ptr->ml && (m_ptr->cdis <= MAX_SIGHT))
 	{
 		msg_print("You hear heavy steps.");
@@ -2263,8 +2297,7 @@ static void process_monster(int m_idx)
 
 	/* Some monsters can speak */
 	if (speak_unique &&
-	    (r_ptr->flags2 & RF2_CAN_SPEAK) &&
-		(randint1(SPEAK_CHANCE) == 1) &&
+	    (r_ptr->flags2 & RF2_CAN_SPEAK) && one_in_(SPEAK_CHANCE) &&
 		player_has_los_grid(c_ptr))
 	{
 		char m_name[80];
@@ -2324,8 +2357,7 @@ static void process_monster(int m_idx)
 	}
 
 	/* 75% random movement */
-	else if ((r_ptr->flags1 & RF1_RAND_50) &&
-				(r_ptr->flags1 & RF1_RAND_25) &&
+	else if ((r_ptr->flags1 & RF1_RAND_50) && (r_ptr->flags1 & RF1_RAND_25) &&
 	         (randint0(100) < 75))
 	{
 		/* Memorize flags */
@@ -2337,8 +2369,7 @@ static void process_monster(int m_idx)
 	}
 
 	/* 50% random movement */
-	else if ((r_ptr->flags1 & RF1_RAND_50) &&
-				(randint0(100) < 50))
+	else if ((r_ptr->flags1 & RF1_RAND_50) && (randint0(100) < 50))
 	{
 		/* Memorize flags */
 		if (m_ptr->ml) r_ptr->r_flags1 |= (RF1_RAND_50);
@@ -2348,8 +2379,7 @@ static void process_monster(int m_idx)
 	}
 
 	/* 25% random movement */
-	else if ((r_ptr->flags1 & RF1_RAND_25) &&
-				(randint0(100) < 25))
+	else if ((r_ptr->flags1 & RF1_RAND_25) && (randint0(100) < 25))
 	{
 		/* Memorize flags */
 		if (m_ptr->ml) r_ptr->r_flags1 |= RF1_RAND_25;
@@ -2363,11 +2393,6 @@ static void process_monster(int m_idx)
 	{
 		/* Try four "random" directions */
 		mm[0] = mm[1] = mm[2] = mm[3] = 5;
-
-		/* Look for an enemy */
-#if 0  /* Hack - Too slow.  Mimic pits are horrible with this on. */
-		get_enemy_dir(m_ptr, mm);
-#endif /* 0 */
 	}
 
 	/* Pets will follow the player */
@@ -2520,7 +2545,7 @@ static void process_monster(int m_idx)
 			/* Monster destroyed a wall */
 			did_kill_wall = TRUE;
 
-			if (randint1(GRINDNOISE) == 1)
+			if (one_in_(GRINDNOISE))
 			{
 				msg_print("There is a grinding sound.");
 			}
@@ -2570,7 +2595,7 @@ static void process_monster(int m_idx)
 		
 		/* Call the hook */
 		field_hook(&c_ptr->fld_idx, FIELD_ACT_MON_ENTER_TEST,
-			 (void *) &mon_enter_test);
+			 (vptr) &mon_enter_test);
 			 
 		/* Take turn in some cases. */
 		if (!mon_enter_test.do_move && do_move) do_turn = TRUE;
@@ -2704,10 +2729,27 @@ static void process_monster(int m_idx)
 			/* Take a turn */
 			do_turn = TRUE;
 
-			
+			/* Look to see if we've spotted a mimic */
+			if ((m_ptr->smart & SM_MIMIC) && m_ptr->ml)
+			{
+				char m_name2[80];
+		
+				/* Get name */
+				monster_desc (m_name2, m_ptr, 0x88);
+				
+				/* Toggle flag */
+				m_ptr->smart &= ~(SM_MIMIC);
+		
+				/* It is in the monster list now */
+				update_mon_vis(m_ptr->r_idx, 1);
+						
+				/* We've spotted it */
+				msg_format("You see %s!", m_name2);
+			}
+
 			/* Process fields under the monster. */
 			field_hook(&old_ptr->fld_idx,
-				 FIELD_ACT_MONSTER_LEAVE, (void *) m_ptr);
+				 FIELD_ACT_MONSTER_LEAVE, (vptr) m_ptr);
 			
 			/* Hack -- Update the old location */
 			old_ptr->m_idx = c_ptr->m_idx;
@@ -2738,7 +2780,7 @@ static void process_monster(int m_idx)
 			
 			/* Process fields under the monster. */
 			field_hook(&old_ptr->fld_idx,
-				 FIELD_ACT_MONSTER_ENTER, (void *) m_ptr);
+				 FIELD_ACT_MONSTER_ENTER, (vptr) m_ptr);
 
 			/* Redraw the old grid */
 			lite_spot(oy, ox);
@@ -2753,7 +2795,7 @@ static void process_monster(int m_idx)
 			{
 				/* Disturb */
 				if (is_hostile(m_ptr))
-					disturb(0, 0);
+					disturb(FALSE);
 			}
 
 			/* Scan all objects in the grid */
@@ -2784,7 +2826,6 @@ static void process_monster(int m_idx)
 
 					u32b flg3 = 0L;
 
-					char m_name[80];
 					char o_name[80];
 
 					/* Extract some flags */
@@ -3041,7 +3082,7 @@ void process_monsters(int min_energy)
 	friend_align = 0;
 
 	/* Clear monster fighting indicator */
-	mon_fight = FALSE;
+	p_ptr->mon_fight = FALSE;
 
 	/* Memorize old race */
 	old_monster_race_idx = p_ptr->monster_race_idx;

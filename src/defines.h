@@ -35,7 +35,7 @@
 /*
  * Current version string
  */
-#define VERSION_STRING	"2.5.4"
+#define VERSION_STRING	"2.5.5"
 
 
 /*
@@ -45,7 +45,7 @@
 #define VERSION_MINOR   8
 #define VERSION_PATCH   1
 
-#define SAVEFILE_VERSION 23
+#define SAVEFILE_VERSION 24
 
 /* Added for ZAngband */
 #ifdef USE_SCRIPT
@@ -57,7 +57,7 @@
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 2
 #define FAKE_VER_MINOR 5
-#define FAKE_VER_PATCH 4
+#define FAKE_VER_PATCH 5
 #endif /* USE_SCRIPT */
 
 #define ANGBAND_2_8_1
@@ -126,20 +126,14 @@
 /* Number of gates in the city */
 #define MAX_GATES				4
 
+/* Building types */
+#define BT_GENERAL		0
+#define BT_STORE		1
+#define BT_BUILD		2
 
-/* The store types */
-#define STORE_GENERAL   0
-#define STORE_ARMOURY   1
-#define STORE_WEAPON    2
-#define STORE_TEMPLE    3
-#define STORE_ALCHEMIST 4
-#define STORE_MAGIC     5
-#define STORE_BLACK     6
-#define STORE_HOME      7
-#define STORE_BOOK      8
 
 /*
- * Total number of stores (see "store.c", etc)
+ * Total number of stores in vanilla town (see "store.c", etc)
  */
 #define MAX_STORES      9
 
@@ -156,18 +150,10 @@
 #define MAX_OWNERS			32
 
 
-/* The building types */
-#define BLDG_WEAPONMASTER	0
-#define BLDG_RECHARGE		1
-#define BLDG_PLUS_WEAPON	2
-#define BLDG_PLUS_ARMOUR	3
-#define BLDG_MUTATE			4
-#define BLDG_MAP			5
-
 /*
  * Total number of buildings (see "bldg.c", etc)
  */
-#define MAX_BLDG		6
+#define MAX_BLDG			7
 
 /* List of building types */
 #define	BUILD_STORE_GENERAL		0
@@ -188,15 +174,128 @@
 #define BUILD_NONE				15
 #define BUILD_BLANK				16
 #define BUILD_MAP				17
+#define BUILD_WEAPON1			18
+#define BUILD_WEAPON2			19
+#define BUILD_WEAPON3			20
+#define BUILD_WEAPON4			21
+#define BUILD_WEAPON5			22
+#define BUILD_ARMOUR1			23
+#define BUILD_ARMOUR2			24
+#define BUILD_ARMOUR3			25
+#define BUILD_ARMOUR4			26
+#define BUILD_ARMOUR5			27
+#define BUILD_SWORD0			28
+#define BUILD_SWORD1			29
+#define BUILD_SWORD2			30
+#define BUILD_SWORD3			31
+#define BUILD_SWORD4			32
+#define BUILD_SWORD5			33
+#define BUILD_SHIELD0			34
+#define BUILD_SHIELD1			35
+#define BUILD_SHIELD2			36
+#define BUILD_SHIELD3			37
+#define BUILD_SHIELD4			38
+#define BUILD_SHIELD5			39
+#define BUILD_AXE0				40
+#define BUILD_AXE1				41
+#define BUILD_AXE2				42
+#define BUILD_AXE3				43
+#define BUILD_AXE4				44
+#define BUILD_AXE5				45
+#define BUILD_AMMO0				46
+#define BUILD_AMMO1				47
+#define BUILD_AMMO2				48
+#define BUILD_FLET0				49
+#define BUILD_FLET1				50
+#define BUILD_FLET2				51
+#define BUILD_FLET3				52
+#define BUILD_WARHALL0			53
+#define BUILD_WARHALL1			54
+#define BUILD_WARHALL2			55
+#define BUILD_WARHALL3			56
+#define BUILD_WARHALL4			57
+#define BUILD_WARHALL5			58
+#define BUILD_CLOTH0			59
+#define BUILD_CLOTH1			60
+#define BUILD_HARMOUR0			61
+#define BUILD_HARMOUR1			62
+#define BUILD_HARMOUR2			63
+#define BUILD_HARMOUR3			64
+#define BUILD_HARMOUR4			65
+#define BUILD_HARMOUR5			66
+#define BUILD_HAT0				67
+#define BUILD_HAT1				68
+#define BUILD_HAT2				69
+#define BUILD_HAT3				70
+#define BUILD_JEWEL0			71
+#define BUILD_JEWEL1			72
+#define BUILD_JEWEL2			73
+#define BUILD_JEWEL3			74
+#define BUILD_JEWEL4			75
+#define BUILD_STATUE0			76
+#define BUILD_STATUE1			77
+#define BUILD_FIGUR0			78
+#define BUILD_FIGUR1			79
+#define BUILD_POTION0			80
+#define BUILD_POTION1			81
+#define BUILD_POTION2			82
+#define BUILD_POTION3			83
+#define BUILD_POTION4			84
+#define BUILD_SCROLL0			85
+#define BUILD_SCROLL1			86
+#define BUILD_SCROLL2			87
+#define BUILD_SCROLL3			88
+#define BUILD_SCROLL4			89
+#define BUILD_MAGIC0			90
+#define BUILD_MAGIC1			91
+#define BUILD_MAGIC2			92
+#define BUILD_MAGIC3			93
+#define BUILD_MAGIC4			94
+#define BUILD_BOOK1				95
+#define BUILD_TEMPLE1			96
+#define BUILD_TEMPLE2			97
+#define BUILD_TEMPLE3			98
+#define BUILD_SUPPLIES0			99
+#define BUILD_SUPPLIES1			100
+#define BUILD_BLACK1			101
+#define BUILD_BLACK2			102
+#define BUILD_ALCHEMY1			103
+#define BUILD_ALCHEMY2			104
+#define BUILD_JUNK				105
+#define BUILD_FOOD				106
+#define BUILD_LIBRARY			107
 
 /* Maximum number of "building" types in a city */
-#define MAX_CITY_BUILD			18
+#define MAX_CITY_BUILD			108
 
 
 /*
  * Total number of owners per building (see "bldg.c", etc)
  */
 #define MAX_B_OWN			5
+
+
+/*
+ * Store constants
+ */
+#define STORE_INVEN_MAX 24		/* Max number of discrete objs in inven */
+
+#define STORE_TURNOVER  9		/* Normal shop turnover, per day */
+#define STORE_MIN_KEEP1 6		/* Min slots to "always" keep full */
+#define STORE_MAX_KEEP1 18		/* Max slots to "always" keep full */
+#define STORE_MIN_KEEP2 3		/* Min slots to "always" keep full */
+#define STORE_MAX_KEEP2 9		/* Max slots to "always" keep full */
+#define STORE_SHUFFLE   21		/* 1/Chance (per day) of an owner changing */
+#define STORE_TURNS     1000	/* Number of turns between turnovers */
+
+/* Store extra flags */
+#define ST_REST_BLESSED		0x01	/* Blessed items */
+#define ST_REST_GOOD		0x02	/* Good items only */
+#define ST_REST_GREAT		0x04	/* Great items only */
+#define ST_HALF_INVEN		0x08	/* One page of inventory */
+#define ST_GREED			0x10	/* Double prices */
+#define ST_ULTRA_GREED		0x20	/* Quadruple prices */
+
 
 
 /*
@@ -256,6 +355,9 @@
 #define REW_SER_MONS    36
 
 /* Chaos mutations */
+#define MUT_SETS_MAX	 3
+#define MUT_PER_SET		32
+
 
 /* "Activatable" mutations must be in MUT1_* */
 #define MUT1_SPIT_ACID                  0x00000001L
@@ -294,7 +396,7 @@
 /* Randomly activating mutations must be MUT2_* */
 #define MUT2_BERS_RAGE                  0x00000001L
 #define MUT2_COWARDICE                  0x00000002L
-#define MUT2_RTELEPORT                  0x00000004L /* Random teleport, instability */
+#define MUT2_RTELEPORT                  0x00000004L /* Random teleport */
 #define MUT2_ALCOHOL                    0x00000008L
 #define MUT2_HALLU                      0x00000010L
 #define MUT2_FLATULENT                  0x00000020L
@@ -361,6 +463,11 @@
 #define MUT3_VULN_ELEM                  0x20000000L
 #define MUT3_MOTION                     0x40000000L
 #define MUT3_GOOD_LUCK                  0x80000000L
+
+/*
+ * The racial powers
+ */
+#define MAX_RACE_POWERS		26
 
 
 /* Monk martial arts... */
@@ -466,6 +573,13 @@
 /* Was 512... 256 quarks added for random artifacts */
 
 /*
+ * Number of times to pass through quark list while compacting.
+ * QUARK_COMPACT * QUARK_MAX must be less than MAX_SHORT
+ */
+#define QUARK_COMPACT	3
+
+
+/*
  * OPTION: Maximum number of messages to remember (see "utils.c")
  * Default: assume maximal memorization of 2048 total messages
  */
@@ -488,19 +602,6 @@
  * Maximum value storable in a "s16b" (hard-coded)
  */
 #define MAX_SHORT       32767
-
-
-/*
- * Store constants
- */
-#define STORE_INVEN_MAX 24              /* Max number of discrete objs in inven */
-#define STORE_CHOICES   48              /* Number of items to choose stock from */
-#define STORE_OBJ_LEVEL 10              /* Magic Level for normal stores */
-#define STORE_TURNOVER  9               /* Normal shop turnover, per day */
-#define STORE_MIN_KEEP  6               /* Min slots to "always" keep full */
-#define STORE_MAX_KEEP  18              /* Max slots to "always" keep full */
-#define STORE_SHUFFLE   21              /* 1/Chance (per day) of an owner changing */
-#define STORE_TURNS     1000		    /* Number of turns between turnovers */
 
 
 /*
@@ -889,7 +990,7 @@
 #define ROW_STATBAR             14
 #define COL_STATBAR             0       /* "Status bar" */
 
-#define MAX_EFFECTS		30	/* Max #of player timed effects*/
+#define MAX_EFFECTS				30	/* Max #of player timed effects*/
 
 
 /*** Terrain Feature Indexes (see "lib/edit/f_info.txt") ***/
@@ -910,8 +1011,8 @@
 
 /* Passable floors */
 
-#define FEAT_SAND		0x08
-#define FEAT_SALT		0x09
+#define FEAT_SAND			0x08
+#define FEAT_SALT			0x09
 #define FEAT_WET_MUD		0x0A
 #define FEAT_DRY_MUD		0x0B
 #define FEAT_FLOOR_TILE		0x0C
@@ -1072,6 +1173,97 @@
 #define FT_BUILD_PLUS_ARMOUR	0x002E
 #define FT_BUILD_MUTATE			0x002F
 #define FT_BUILD_MAP			0x0030
+#define FT_STORE_WEAPON1		0x0031
+#define FT_STORE_WEAPON2		0x0032
+#define FT_STORE_WEAPON3		0x0033
+#define FT_STORE_WEAPON4		0x0034
+#define FT_STORE_WEAPON5		0x0035
+#define FT_STORE_ARMOUR1		0x0036
+#define FT_STORE_ARMOUR2		0x0037
+#define FT_STORE_ARMOUR3		0x0038
+#define FT_STORE_ARMOUR4		0x0039
+#define FT_STORE_ARMOUR5		0x003A
+#define FT_STORE_SWORD0			0x003B
+#define FT_STORE_SWORD1			0x003C
+#define FT_STORE_SWORD2			0x003D
+#define FT_STORE_SWORD3			0x003E
+#define FT_STORE_SWORD4			0x003F
+#define FT_STORE_SWORD5			0x0040
+#define FT_STORE_SHIELD0		0x0041
+#define FT_STORE_SHIELD1		0x0042
+#define FT_STORE_SHIELD2		0x0043
+#define FT_STORE_SHIELD3		0x0044
+#define FT_STORE_SHIELD4		0x0045
+#define FT_STORE_SHIELD5		0x0046
+#define FT_STORE_AXE0			0x0047
+#define FT_STORE_AXE1			0x0048
+#define FT_STORE_AXE2			0x0049
+#define FT_STORE_AXE3			0x004A
+#define FT_STORE_AXE4			0x004B
+#define FT_STORE_AXE5			0x004C
+#define FT_STORE_AMMO0			0x004D
+#define FT_STORE_AMMO1			0x004E
+#define FT_STORE_AMMO2			0x004F
+#define FT_STORE_FLET0			0x0050
+#define FT_STORE_FLET1			0x0051
+#define FT_STORE_FLET2			0x0052
+#define FT_STORE_FLET3			0x0053
+#define FT_STORE_WARHALL0		0x0054
+#define FT_STORE_WARHALL1		0x0055
+#define FT_STORE_WARHALL2		0x0056
+#define FT_STORE_WARHALL3		0x0057
+#define FT_STORE_WARHALL4		0x0058
+#define FT_STORE_WARHALL5		0x0059
+#define FT_STORE_CLOTH0			0x005A
+#define FT_STORE_CLOTH1			0x005B
+#define FT_STORE_HARMOUR0		0x005C
+#define FT_STORE_HARMOUR1		0x005D
+#define FT_STORE_HARMOUR2		0x005E
+#define FT_STORE_HARMOUR3		0x005F
+#define FT_STORE_HARMOUR4		0x0060
+#define FT_STORE_HARMOUR5		0x0061
+#define FT_STORE_HAT0			0x0062
+#define FT_STORE_HAT1			0x0063
+#define FT_STORE_HAT2			0x0064
+#define FT_STORE_HAT3			0x0065
+#define FT_STORE_JEWEL0			0x0066
+#define FT_STORE_JEWEL1			0x0067
+#define FT_STORE_JEWEL2			0x0068
+#define FT_STORE_JEWEL3			0x0069
+#define FT_STORE_JEWEL4			0x006A
+#define FT_STORE_STATUE0		0x006B
+#define FT_STORE_STATUE1		0x006C
+#define FT_STORE_FIGUR0			0x006D
+#define FT_STORE_FIGUR1			0x006E
+#define FT_STORE_POTION0		0x006F
+#define FT_STORE_POTION1		0x0070
+#define FT_STORE_POTION2		0x0071
+#define FT_STORE_POTION3		0x0072
+#define FT_STORE_POTION4		0x0073
+#define FT_STORE_SCROLL0		0x0074
+#define FT_STORE_SCROLL1		0x0075
+#define FT_STORE_SCROLL2		0x0076
+#define FT_STORE_SCROLL3		0x0077
+#define FT_STORE_SCROLL4		0x0078
+#define FT_STORE_MAGIC0			0x0079
+#define FT_STORE_MAGIC1			0x007A
+#define FT_STORE_MAGIC2			0x007B
+#define FT_STORE_MAGIC3			0x007C
+#define FT_STORE_MAGIC4			0x007D
+#define FT_STORE_BOOK1			0x007E
+#define FT_STORE_TEMPLE1		0x007F
+#define FT_STORE_TEMPLE2		0x0080
+#define FT_STORE_TEMPLE3		0x0081
+#define FT_STORE_SUPPLIES0		0x0082
+#define FT_STORE_SUPPLIES1		0x0083
+#define FT_STORE_BLACK1			0x0084
+#define FT_STORE_BLACK2			0x0085
+#define FT_STORE_ALCHEMY1		0x0086
+#define FT_STORE_ALCHEMY2		0x0087
+#define FT_STORE_JUNK			0x0088
+#define FT_STORE_FOOD			0x0089
+#define FT_BUILD_LIBRARY		0x008A
+
 
 /*** Artifact indexes (see "lib/edit/a_info.txt") ***/
 
@@ -1479,7 +1671,7 @@
 #define TV_SPIKE         5      /* Spikes ('~') */
 #define TV_CHEST         7      /* Chests ('&') */
 #define TV_FIGURINE      8      /* Magical figurines */
-#define TV_STATUE        9      /* Statue, what a silly object... */
+#define TV_STATUE        9      /* Statue */
 /*#define TV_CORPSE       10  */    /* Corpses are now fields */
 #define TV_SHOT         16      /* Ammo for slings */
 #define TV_ARROW        17      /* Ammo for bows */
@@ -2087,6 +2279,7 @@
  * Object creation flags
  * These are the values passable to apply_magic
  */
+#define OC_NONE			0x00
 #define OC_NORMAL		0x01
 #define OC_FORCE_BAD	0x02
 #define OC_FORCE_GOOD	0x04
@@ -2183,7 +2376,7 @@
 #define SM_OPP_FIRE             0x00040000
 #define SM_OPP_COLD             0x00080000
 #define SM_OPP_POIS             0x00100000
-#define SM_OPP_XXX1             0x00200000 /* (unused) */
+#define SM_MIMIC                0x00200000 /* XXX Unknown Mimic */
 #define SM_CLONED               0x00400000 /* XXX Cloned */
 #define SM_PET                  0x00800000 /* XXX Pet */
 #define SM_IMM_ACID             0x01000000
@@ -2286,7 +2479,7 @@
 #define PW_OBJECT       0x00000200L     /* Display object recall */
 #define PW_DUNGEON      0x00000400L     /* Display dungeon view */
 #define PW_SNAPSHOT     0x00000800L     /* Display snap-shot */
-/* xxx */
+#define PW_VISIBLE		0x00001000L		/* Display monster visible list */
 #define PW_SCRIPT       0x00002000L     /* Display script messages */
 #define PW_BORG_1       0x00004000L     /* Display borg messages */
 #define PW_BORG_2       0x00008000L     /* Display borg status */
@@ -2743,14 +2936,14 @@
 #define RF1_MALE                0x00000004  /* Male gender */
 #define RF1_FEMALE              0x00000008  /* Female gender */
 #define RF1_CHAR_CLEAR          0x00000010  /* Absorbs symbol */
-#define RF1_CHAR_MULTI          0x00000020  /* Changes symbol */
+#define RF1_CHAR_MIMIC          0x00000020  /* Changes symbol */
 #define RF1_ATTR_CLEAR          0x00000040  /* Absorbs color */
 #define RF1_ATTR_MULTI          0x00000080  /* Changes color */
 #define RF1_FORCE_DEPTH         0x00000100  /* Start at "correct" depth */
 #define RF1_FORCE_MAXHP         0x00000200  /* Start with max hitpoints */
 #define RF1_FORCE_SLEEP         0x00000400  /* Start out sleeping */
 #define RF1_FORCE_EXTRA         0x00000800  /* Start out something */
-#define RF1_FRIEND              0x00001000  /* Arrive with a friend */
+#define RF1_XXX_1               0x00001000  /* Unused */
 #define RF1_FRIENDS             0x00002000  /* Arrive with some friends */
 #define RF1_ESCORT              0x00004000  /* Arrive with an escort */
 #define RF1_ESCORTS             0x00008000  /* Arrive with some escorts */
@@ -4021,11 +4214,10 @@ extern int PlayerUID;
 /*
  * Initialization flags
  */
+#define INIT_NORMAL				0x00
 #define INIT_SHOW_TEXT          0x01
 #define INIT_ASSIGN             0x02
-#define INIT_CREATE_DUNGEON     0x04
-#define INIT_ONLY_FEATURES      0x08
-#define INIT_ONLY_BUILDINGS     0x10
+
 
 /*
  * Quest flags
@@ -4093,7 +4285,7 @@ extern int PlayerUID;
 #define FIELD_INFO_NO_MAGIC	0x0200  /* Grid blocks magic */
 #define FIELD_INFO_NO_OBJCT	0x0400  /* Grid cannot hold objects */
 #define FIELD_INFO_PERM		0x0800	/* Grid is not affected by disintegrate */
-#define FIELD_INFO_DUMMY11	0x1000
+#define FIELD_INFO_IGNORE	0x1000	/* Grid is below the object layer */
 #define FIELD_INFO_DUMMY12	0x2000
 #define FIELD_INFO_DUMMY13	0x4000
 #define FIELD_INFO_DUMMY14  0x8000
@@ -4129,11 +4321,10 @@ extern int PlayerUID;
 #define FIELD_ACT_SPECIAL		15	/* Special, type specific action */
 #define FIELD_ACT_INTERACT_TEST	16	/* Test for type of player interaction */
 #define FIELD_ACT_MON_ENTER_TEST 17 /* Monster attempts to enter grid */
+#define FIELD_ACT_STORE_ACT1	18	/* Store / building prelimiary action */
+#define FIELD_ACT_STORE_ACT2	19	/* Store / building final action */
 
-#define FIELD_ACTION_MAX		18	/* The last action + 1 */
-
-
-#define FIELD_ACTION_TYPES  54 /* Number of FIELD_ACT functions in tables.c */
+#define FIELD_ACTION_MAX		20
 
 
 

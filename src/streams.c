@@ -72,7 +72,7 @@ static void recursive_river(int x1, int y1, int x2, int y2, int feat1, int feat2
 		recursive_river(x1 + dx + changex, y1 + dy + changey, x2, y2, feat1, feat2, width);
 
 		/* Split the river some of the time - junctions look cool */
-		if ((randint1(DUN_WAT_CHG) == 1) && (width > 0))
+		if (one_in_(DUN_WAT_CHG) && (width > 0))
 		{
 			recursive_river(x1 + dx + changex, y1 + dy + changey,
 			                x1 + 8 * (dx + changex), y1 + 8 * (dy + changey),
@@ -250,7 +250,7 @@ void build_streamer(int feat, int chance)
 			c_ptr->feat = feat;
 
 			/* Hack -- Add some (known) treasure */
-			if (randint0(chance) == 0) c_ptr->feat += 0x04;
+			if (one_in_(chance)) c_ptr->feat += 0x04;
 			
 			/*
 			 * So this means that all the treasure is known as soon as it is
@@ -307,7 +307,7 @@ void place_trees(int x, int y)
 				 * Clear previous contents, add feature
 				 * The border mainly gets trees, while the center gets rubble
 				 */
-				if ((distance(j, i, y, x) > 1) || (randint1(100) < 25))
+				if ((distance(j, i, y, x) > 1) || one_in_(4))
 				{
 					if (randint1(100) < 75)
 						cave[j][i].feat = FEAT_TREES;
@@ -324,7 +324,7 @@ void place_trees(int x, int y)
 	}
 
 	/* No up stairs in ironman mode */
-	if (!ironman_downward && (randint1(3) == 1))
+	if (!ironman_downward && one_in_(3))
 	{
 		/* up stair */
 		cave[y][x].feat = FEAT_LESS;
@@ -454,7 +454,7 @@ void build_cavern(void)
 	while (!done)
 	{
 		/* testing values for these parameters: feel free to adjust */
-		grd = randint1(4) + 4;
+		grd = rand_range(4, 8);
 
 		/* want average of about 16 */
 		roug = randint1(8) * randint1(4);
@@ -500,7 +500,7 @@ void build_lake(int type)
 	while (!done)
 	{
 		/* testing values for these parameters: feel free to adjust */
-		grd = randint1(3) + 4;
+		grd = rand_range(3, 7);
 
 		/* want average of about 16 */
 		roug = randint1(8) * randint1(4);

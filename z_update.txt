@@ -2,6 +2,86 @@ This is a document file listing the changes in Zangband (compared to
 the standard Angband 2.8.1.) No long explanations, just a list. See
 code for details. In reversed chronological order (more or less):
 
+ZAngband 2.5.5:
+- Items of Curing now heal hp as well as removing bad effects.
+- Disenchantment resist protects against disenchanment traps.
+- Improved the saving throw for artifacts against being blasted.
+- Fixed bug in the 'cursed' line on the info screen.
+- Fixed crash when there are too many 'interesting' squares to look at.
+- Store entrances no longer block magical effects.
+- No traps in rivers.
+- {empty} wands and staves are 'noticed' when you find out, not later on.
+- Changed distribution of figurines, so they do not depend on the players
+  current depth.  (Otherwise figurines in stores aren't very useful.)
+- Corpse decay messages are only displayed if disturb_minor is on.
+- Improved quest rewards.
+- Added about one hundred new store types (Jeweler, Clothes Store,
+  Fletcher, Scroll Store, Ammo Supplies, Potion Store, Food store, ...).
+- The starting town has a supplies store that carries potions, scrolls,
+  weapons, armor, food, light sources, ...
+- Added a 'monster list' term type, which displays a list of the monsters
+  you can see.
+- Added 16x16 tiles for most objects.
+- Corpses now last longer before they decay.
+- Random artifacts have a chance to get boosted damage dice.
+- Balance changes:
+  - Boots and gloves are more common deeper in the dungeon.
+  - Changed some of the better '1dx' weapons to be 1d(2x) or there-abouts.
+  - Most of these weapons are deeper in the dungeon than they used to be.
+    (This makes some of the spears more useful in [O]-based combat.)
+  - Moved the various healing potions in depth.
+  - Changed the damage dice on some artifacts.  
+  - Rods should now be deeper than the corresponding staves.
+  - Increased the gold value of hit, damage and AC bonuses.
+- The identification menus will only show unid'ed items.
+- The magesmith now enchants items differently. You get more for your gold.
+- The game tries less hard to make objects of a given depth, and is more
+  efficient at using object themes.
+- Pressing -ESC- at the -more- prompt skips all messages until the you are
+  hurt, or your turn comes around.
+- {bad} items are on average less bad.
+- You are allowed to tweak random artifacts in debug mode.
+- Changed the weaponmaster so that it looks at one weapon, and also 
+  *identifies* it for you.
+- Your gold is displayed on the screen when you are in a building.
+- Made mimics harder to spot.
+- Random quests won't use "easy" monsters.
+- Cloaks of Aman get high resists like they should.
+- Optimised the 'projected view'.
+- Fixed the labels in the chardump so that homes are listed properly.
+- The 'destroy on pickup' now works alot more like the normal destroy
+  command.
+- Changed the behavior of traps so that they trigger and disarm more often.
+- Fixed the message on entering a quest with one remaining monster.
+- Light sources in your inventory are sorted by fuel level.
+- Fixed how corpses look in 16x16 tiles.  Transparency is used properly.
+- Generating artifact spoilers now works properly.
+- The players tile changes when polymorphed.
+- You can now tunnel into pillars.
+- The RNG is now re-initialised when loading a dead character.
+- Do not calculate the probability distribution of objects in debug mode,
+  unless asked.
+- Prevented the winning artifacts from being generated early.
+- Prices for services in buildings depend on your charisma and race.
+- Objects that sustain and increase a stat are shown more clearly on the
+  information screen.
+- Artifact creation scrolls can no longer be used on ammo.
+- Fixed bugs in the lighting code.
+- Fixed a bug with earthquakes and fields.
+- Unidentified items can no longer be sold for their real price.  The
+  'base' price will be used, as it should have been.
+- Fixed bug in the berserk mutation.
+- Oceans look nicer now.
+- Towns have a minimum seperation.
+- Removed unused info.txt files for the old fixed quests.
+- Ego diggers get the correct pval.
+- Fixed inequity between monster drops and items in vaults.  Both use the
+  same method now.
+- Monsters stop attacking when they die from an aura.
+- Tweaked main-gcu.c so it worked better on BSD machines.
+- Prevented stupidly small windows in the main-gcu port, when the
+  screen was slightly larger than 80x24.
+
 ZAngband 2.5.4:
 - Tweaked the initial towns and their surroundings to make them more
   hospitable to starting characters.

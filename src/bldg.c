@@ -98,11 +98,11 @@ void have_nightmare(int r_idx)
 	{
 		if (!p_ptr->resist_confu)
 		{
-			(void)set_confused(p_ptr->confused + randint0(4) + 4);
+			(void)set_confused(p_ptr->confused + rand_range(4, 8));
 		}
 		if (!p_ptr->resist_chaos && one_in_(3))
 		{
-			(void)set_image(p_ptr->image + randint0(250) + 150);
+			(void)set_image(p_ptr->image + rand_range(250, 400));
 		}
 		return;
 	}
@@ -120,11 +120,11 @@ void have_nightmare(int r_idx)
 	{
 		if (!p_ptr->resist_confu)
 		{
-			(void)set_confused(p_ptr->confused + randint0(4) + 4);
+			(void)set_confused(p_ptr->confused + rand_range(4, 8));
 		}
 		if (!p_ptr->free_act)
 		{
-			(void)set_paralyzed(p_ptr->paralyzed + randint0(4) + 4);
+			(void)set_paralyzed(p_ptr->paralyzed + rand_range(4, 8));
 		}
 		while (!saving_throw(p_ptr->skill_sav))
 		{
@@ -136,7 +136,7 @@ void have_nightmare(int r_idx)
 		}
 		if (!p_ptr->resist_chaos)
 		{
-			(void)set_image(p_ptr->image + randint0(250) + 150);
+			(void)set_image(p_ptr->image + rand_range(250, 400));
 		}
 		return;
 	}
@@ -282,7 +282,7 @@ void quest_discovery(int q_idx)
 	msg_print(find_quest[rand_range(0, 5)]);
 	msg_print(NULL);
 
-	if (q_num == 1)
+	if (r_ptr->flags1 & RF1_UNIQUE)
 	{
 		/* Unique */
 		msg_format("Beware, this level is protected by %s!", name);
@@ -290,7 +290,9 @@ void quest_discovery(int q_idx)
 	else
 	{
 		/* Normal monsters */
-		plural_aux(name);
+		if (q_num > 1)
+			plural_aux(name);
+
 		msg_format("Be warned, this level is guarded by %d %s!", q_num, name);
 	}
 }
@@ -431,10 +433,10 @@ static void building_prt_gold(void)
 {
 	char tmp_str[80];
 
-	prt("Gold Remaining: ", 23, 53);
+	prt("Gold Remaining: ", 23, 40);
 
 	sprintf(tmp_str, "%9ld", (long)p_ptr->au);
-	prt(tmp_str, 23, 68);
+	prt(tmp_str, 23, 55);
 }
 
 
@@ -447,73 +449,33 @@ static void display_build(field_type *f_ptr, store_type *b_ptr)
 	
 	b_own_type *bo_ptr = &b_owners[f_ptr->data[0]][b_ptr->owner];
 	
+	int factor;
+	
 	cptr build_name = t_info[f_ptr->t_idx].name;
 	cptr owner_name = (bo_ptr->owner_name);
 	cptr race_name = race_info[bo_ptr->owner_race].title;
+	
+	/* Compute the racial factor */
+	factor = rgold_adj[bo_ptr->owner_race][p_ptr->prace];
+
+	/* Add in the charisma factor */
+	factor += adj_chr_gold[p_ptr->stat_ind[A_CHR]];
+	
+	factor = ((300 - factor) * bo_ptr->inflate) / 100;
 
 	Term_clear();
 	sprintf(tmp_str, "%s (%s) %s", owner_name, race_name, build_name);
 	prt(tmp_str, 2, 1);
 	prt("You may:", 19, 0);
-
-
-	prt(" ESC) Exit building", 23, 0);
-
+	
+	
 	/* Display building-specific information */
-	switch (f_ptr->data[0])
-	{
-		case BLDG_WEAPONMASTER:
-		{
-			sprintf(tmp_str, " E) Examine Weapons (%dgp)",
-				 f_ptr->data[1] * bo_ptr->inflate);
-			c_put_str(TERM_YELLOW, tmp_str, 19, 35);
-			break;
-		}
-		
-		case BLDG_RECHARGE:
-		{
-			sprintf(tmp_str, " R) Recharge Items");
-			c_put_str(TERM_YELLOW, tmp_str, 19, 0);
-			sprintf(tmp_str, " I) Identify Items (%dgp)",
-			f_ptr->data[2] * bo_ptr->inflate);
-			c_put_str(TERM_YELLOW, tmp_str, 19, 35);
-			break;
-		}
-		
-		case BLDG_PLUS_WEAPON:
-		{
-			sprintf(tmp_str, " E) Enchant Weapons (%dgp)",
-				 f_ptr->data[1] * bo_ptr->inflate);
-			c_put_str(TERM_YELLOW, tmp_str, 19, 35);
-			break;
-		}
-		
-		case BLDG_PLUS_ARMOUR:
-		{
-			sprintf(tmp_str, " E) Enchant Armour (%dgp)",
-				 f_ptr->data[1] * bo_ptr->inflate);
-			c_put_str(TERM_YELLOW, tmp_str, 19, 35);
-			break;
-		}
-		
-		case BLDG_MUTATE:
-		{
-			sprintf(tmp_str, " E) Expose yourself to raw chaos (%dgp)",
-				 f_ptr->data[1] * bo_ptr->inflate * (count_mutations() + 1));
-			c_put_str(TERM_YELLOW, tmp_str, 19, 30);
-			break;
-		}
-		
-		case BLDG_MAP:
-		{
-			sprintf(tmp_str, " E) Examine Map (%dgp)",
-				 f_ptr->data[1] * bo_ptr->inflate);
-			c_put_str(TERM_YELLOW, tmp_str, 19, 35);
-			break;
-		}
-	}
-
-
+	field_hook(&area(p_ptr->py, p_ptr->px)->fld_idx,
+		 FIELD_ACT_STORE_ACT1, (vptr) &factor);
+		 
+	prt(" ESC) Exit building", 23, 0);
+		 
+	/* Show your gold */
 	building_prt_gold();
 }
 
@@ -549,7 +511,7 @@ static void display_fruit(int row, int col, int fruit)
 			prt(                   " Orange ", row + 8, col);
 			break;
 		case 2: /* sword */
-			c_put_str(TERM_SLATE, "   /\\  " , row, col);
+			c_put_str(TERM_SLATE, "   /\\   " , row, col);
 			c_put_str(TERM_SLATE, "   ##   " , row + 1, col);
 			c_put_str(TERM_SLATE, "   ##   " , row + 2, col);
 			c_put_str(TERM_SLATE, "   ##   " , row + 3, col);
@@ -975,8 +937,7 @@ static void get_questinfo(int questnum)
 	p_ptr->inside_quest = questnum;
 
 	/* Get the quest text */
-	init_flags = INIT_SHOW_TEXT | INIT_ASSIGN;
-	process_dungeon_file("q_info.txt", 0, 0, 0, 0);
+	process_dungeon_file("q_info.txt", INIT_SHOW_TEXT | INIT_ASSIGN);
 
 	/* Reset the old quest number */
 	p_ptr->inside_quest = old_quest;
@@ -1056,14 +1017,14 @@ static void castle_quest(void)
 			if (q_ptr->r_idx == 0)
 			{
 				/* Random monster at least 5 - 10 levels out of deep */
-				q_ptr->r_idx = get_mon_num(q_ptr->level + 4 + randint1(6));
+				q_ptr->r_idx = get_mon_num(q_ptr->level + rand_range(5, 10));
 			}
 
 			r_ptr = &r_info[q_ptr->r_idx];
 
 			while ((r_ptr->flags1 & RF1_UNIQUE) || (r_ptr->rarity != 1))
 			{
-				q_ptr->r_idx = get_mon_num(q_ptr->level) + 4 + randint1(6);
+				q_ptr->r_idx = get_mon_num(q_ptr->level) + rand_range(5, 10);
 				r_ptr = &r_info[q_ptr->r_idx];
 			}
 
@@ -1073,7 +1034,7 @@ static void castle_quest(void)
 				if (randint1(10) > 7)
 					q_ptr->max_num = 1;
 				else
-					q_ptr->max_num = randint1(3) + 1;
+					q_ptr->max_num = rand_range(2, 4);
 			}
 
 			q_ptr->cur_num = 0;
@@ -1107,6 +1068,10 @@ static void town_history(void)
 
 #endif /* 0 */
 
+
+#define WEP_MAST_COL1	2
+#define WEP_MAST_COL2	45
+
 /*
  * Display the damage figure of an object
  * (used by compare_weapon_aux1)
@@ -1115,7 +1080,7 @@ static void town_history(void)
  * the current +dam of the player.
  */
 static void compare_weapon_aux2(object_type *o_ptr, int numblows,
-	 int r, int c, cptr attr, byte color, byte slay)
+	 int r, cptr attr, byte color, byte slay)
 {
 	char tmp_str[80];
 	long maxdam, mindam;
@@ -1125,12 +1090,7 @@ static void compare_weapon_aux2(object_type *o_ptr, int numblows,
 
 	dambonus = o_ptr->to_d + p_ptr->to_d;
 
-	if (dambonus > 0)
-		mindam = (100 + deadliness_conversion[dambonus]);
-	else if (dambonus > -31)
-		mindam = (100 - deadliness_conversion[ABS(dambonus)]);
-	else
-		mindam = 0;
+	mindam = deadliness_calc(dambonus);
 	
 	/* Include effects of slaying bonus */
 	mindam = (mindam * slay) / 10;
@@ -1148,13 +1108,13 @@ static void compare_weapon_aux2(object_type *o_ptr, int numblows,
 	intmindam = mindam / 100;
 
 	/* Print the intro text */
-	c_put_str(color, attr, r, c);
+	c_put_str(color, attr, r, WEP_MAST_COL2);
 
 	/* Calculate the min and max damage figures */
-	sprintf(tmp_str, "Attack: %d-%d damage", intmindam, intmaxdam);
+	sprintf(tmp_str, " %d-%d damage", intmindam, intmaxdam);
 
 	/* Print the damage */
-	put_str(tmp_str, r, c + 8);
+	put_str(tmp_str, r, WEP_MAST_COL2 + 8);
 }
 
 
@@ -1164,28 +1124,142 @@ static void compare_weapon_aux2(object_type *o_ptr, int numblows,
  * Only accurate for the current weapon, because it includes
  * the current number of blows for the player.
  */
-static void compare_weapon_aux1(object_type *o_ptr, int col, int r)
+static void compare_weapon_aux1(object_type *o_ptr)
 {
+	int r = 10;
+	
 	u32b f1, f2, f3;
 
 	/* Get the flags of the weapon */
 	object_flags(o_ptr, &f1, &f2, &f3);
 
 	/* Print the relevant lines */
-	if (f1 & TR1_SLAY_ANIMAL) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, "Animals:", TERM_YELLOW, 17);
-	if (f1 & TR1_SLAY_EVIL)   compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, "Evil:", TERM_YELLOW, 15);
-	if (f1 & TR1_SLAY_UNDEAD) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, "Undead:", TERM_YELLOW, 20);
-	if (f1 & TR1_SLAY_DEMON)  compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, "Demons:", TERM_YELLOW, 20);
-	if (f1 & TR1_SLAY_ORC)    compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, "Orcs:", TERM_YELLOW, 20);
-	if (f1 & TR1_SLAY_TROLL)  compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, "Trolls:", TERM_YELLOW, 20);
-	if (f1 & TR1_SLAY_GIANT)  compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, "Giants:", TERM_YELLOW, 20);
-	if (f1 & TR1_SLAY_DRAGON) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, "Dragons:", TERM_YELLOW, 20);
-	if (f1 & TR1_KILL_DRAGON) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, "Dragons:", TERM_YELLOW, 30);
-	if (f1 & TR1_BRAND_ACID)  compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, "Acid:", TERM_RED, 20);
-	if (f1 & TR1_BRAND_ELEC)  compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, "Elec:", TERM_RED, 20);
-	if (f1 & TR1_BRAND_FIRE)  compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, "Fire:", TERM_RED, 20);
-	if (f1 & TR1_BRAND_COLD)  compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, "Cold:", TERM_RED, 20);
-	if (f1 & TR1_BRAND_POIS)  compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, "Poison:", TERM_RED, 20);
+	if (f1 & TR1_SLAY_ANIMAL) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++,
+	 	"Animals:", TERM_YELLOW, 17);
+	if (f1 & TR1_SLAY_EVIL)   compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++,
+		"Evil:", TERM_YELLOW, 15);
+	if (f1 & TR1_SLAY_UNDEAD) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, 
+		"Undead:", TERM_YELLOW, 20);
+	if (f1 & TR1_SLAY_DEMON)  compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, 
+		"Demons:", TERM_YELLOW, 20);
+	if (f1 & TR1_SLAY_ORC)    compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, 
+		"Orcs:", TERM_YELLOW, 20);
+	if (f1 & TR1_SLAY_TROLL)  compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, 
+		"Trolls:", TERM_YELLOW, 20);
+	if (f1 & TR1_SLAY_GIANT)  compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, 
+		"Giants:", TERM_YELLOW, 20);
+	if (f1 & TR1_SLAY_DRAGON) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, 	
+		"Dragons:", TERM_YELLOW, 20);
+	if (f1 & TR1_KILL_DRAGON) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, 
+		"Dragons:", TERM_YELLOW, 30);
+	if (f1 & TR1_BRAND_ACID)  compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, 
+		"Acid:", TERM_RED, 20);
+	if (f1 & TR1_BRAND_ELEC)  compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, 
+		"Elec:", TERM_RED, 20);
+	if (f1 & TR1_BRAND_FIRE)  compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, 
+		"Fire:", TERM_RED, 20);
+	if (f1 & TR1_BRAND_COLD)  compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, 
+		"Cold:", TERM_RED, 20);
+	if (f1 & TR1_BRAND_POIS)  compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, 
+		"Poison:", TERM_RED, 20);
+}
+
+
+/*
+ * Calculate the probability of successful hit for a weapon and certain AC
+ *
+ * Only accurate for the current weapon, because it includes
+ * player's +to_hit.
+ */
+static int hit_prob(int to_h, int ac)
+{
+		int chance = p_ptr->skill_thn + (p_ptr->to_h + to_h) * BTH_PLUS_ADJ;
+		int prob = 0;
+		
+		if (chance > 0 && ac < chance) prob = (100 * (chance - ac) / chance);
+		return (5 + 95 * prob / 100);
+}
+
+/*
+ * Calculate the probability randint1(x)+randint1(100) < r
+ * in unit of 1/(100*x) 	r>100 is assumed
+ */
+static int critical_prob_aux(int x, int r)
+{
+	/*
+	 * Ex. r=130 x=60
+	 * x
+	 * 6******.... \
+	 * 5*******... n 
+	 * 4********.. | 
+	 * 3*********. /
+	 * 2**********
+	 * 1**********  
+	 *  1234567890
+	 */
+	int n = x + 1 - (r - 100);
+
+	if (n <= 0) return(100 * x);
+
+	if (n <= 100) return (100 * x - n * (n - 1) / 2);
+
+	/*
+	 *  Ex. r=130 x=150
+	 *  #(o) = 100*(100-1)/2
+	 *  #(.) = 100*(n-100) 
+	 *
+	 * x
+	 * 5oooooooooo \
+	 * 4.ooooooooo |
+	 * 3..oooooooo |
+	 * 2...ooooooo |
+	 * 1*...oooooo |
+	 * 0**...ooooo n
+	 * 9***...oooo |
+	 * 8****...ooo |
+	 * 7*****...oo |
+	 * 6******...o |
+	 * 5*******... |
+	 * 4********.. |
+	 * 3*********. /
+	 * 2**********
+	 * 1**********  
+	 *  1234567890
+	 */
+	 
+	return (100 * x - 100 * (100 - 1) / 2 - (n - 100) * 100);
+}
+
+/*
+ * Calculate the probability of critical hit for a weapon 
+ *
+ * Only accurate for the current weapon, because it includes
+ * player's +to_hit.
+ */
+static int critical_prob(int to_h, int r1, int r2)
+{
+	int prob1, prob2;
+	int chance = p_ptr->skill_thn + (p_ptr->to_h + to_h) * BTH_PLUS_ADJ;
+
+	if (chance <= 0) return(0);
+	
+	prob1 = critical_prob_aux(chance, r1);
+	
+	if (r2 == 0)
+	{
+		prob2 = 100 * chance;
+	}
+	else
+	{
+		prob2 = critical_prob_aux(chance, r2); 
+	}
+	/*
+	 *  		chance  	 prob2 - prob1
+	 *   100 *  ------	*  --------------- 
+	 *		  200+chance    100 * chance 
+	 */
+	 
+	 return (chance * (prob2 - prob1) * 100 / ((chance + 200) * chance * 100)); 
 }
 
 
@@ -1195,7 +1269,7 @@ static void compare_weapon_aux1(object_type *o_ptr, int col, int r)
  * Only accurate for the current weapon, because it includes
  * various info about the player's +to_dam and number of blows.
  */
-static void list_weapon(object_type *o_ptr, int row, int col)
+static void list_weapon(object_type *o_ptr)
 {
 	char o_name[80];
 	char tmp_str[80];
@@ -1205,32 +1279,63 @@ static void list_weapon(object_type *o_ptr, int row, int col)
 
 	int intmaxdam, intmindam;
 
+	/* Modification to the critical multiplier */
+	int mult_crit = 120 / (o_ptr->dd * (o_ptr->ds + 1));
+	
+	/* Bounds checking */      
+	if (mult_crit > 20) mult_crit = 20;
+	if (mult_crit < 10) mult_crit = 10;
+
+
 	/* Print the weapon name */
 	object_desc(o_name, o_ptr, TRUE, 0);
-	c_put_str(TERM_YELLOW, o_name, row, col);
+	c_put_str(TERM_L_BLUE, o_name, 6, WEP_MAST_COL1);
 
 	/* Print to_hit and to_dam of the weapon */
 	sprintf(tmp_str, "To Hit: %d  Deadliness: %d", o_ptr->to_h, o_ptr->to_d);
-	put_str(tmp_str, row+1, col);
+	put_str(tmp_str, 8, WEP_MAST_COL1);
 
-	/* Print the weapons base damage dice */
-	sprintf(tmp_str, "Dice: %d   Sides: %d", o_ptr->dd, o_ptr->ds);
-	put_str(tmp_str, row+2, col);
+	/* Print the weapons base damage dice and blows */
+	sprintf(tmp_str, "Dice: %dd%d    Number of Blows: %d",
+		 o_ptr->dd, o_ptr->ds, p_ptr->num_blow);
+	put_str(tmp_str, 10, WEP_MAST_COL1);
 
-	/* Print the player's number of blows */
-	sprintf(tmp_str, "Number of Blows: %d", p_ptr->num_blow);
-	put_str(tmp_str, row+3, col);
-
-	c_put_str(TERM_YELLOW, "Possible Damage:", row+5, col);
+	/* Print hit probabilities */
+	sprintf(tmp_str, "Enemy AC:  Low   Medium  High");
+	put_str(tmp_str, 12, WEP_MAST_COL1);
+	
+	sprintf(tmp_str, "Hit Prob:  %2d%% %2d%% %2d%% %2d%% %2d%%", 
+		hit_prob(o_ptr->to_h, 25), hit_prob(o_ptr->to_h, 50),
+		hit_prob(o_ptr->to_h, 75), hit_prob(o_ptr->to_h, 100),
+		hit_prob(o_ptr->to_h, 200));
+	put_str(tmp_str, 13, WEP_MAST_COL1);
+	
+	/* Print critical hit probabilities */
+	sprintf(tmp_str, "Critical: 1.0 %1d.%1d %1d.%1d %1d.%1d %1d.%1d %1d.%1d %1d.%1d",
+		mult_crit * 15 / 100, (mult_crit * 15 / 10) % 10, 
+		mult_crit * 17 / 100, (mult_crit * 17 / 10) % 10, 
+		mult_crit * 20 / 100, (mult_crit * 20 / 10) % 10, 
+		mult_crit * 23 / 100, (mult_crit * 23 / 10) % 10, 
+		mult_crit * 27 / 100, (mult_crit * 27 / 10) % 10, 
+		mult_crit * 32 / 100, (mult_crit * 32 / 10) % 10);
+	put_str(tmp_str, 15, WEP_MAST_COL1);
+	
+	sprintf(tmp_str, "          %2d%% %2d%% %2d%% %2d%% %2d%% %2d%% %2d%%",
+		100 - critical_prob(o_ptr->to_h, 0, 0),
+		critical_prob(o_ptr->to_h, 0, 100),
+		critical_prob(o_ptr->to_h, 100, 160),
+		critical_prob(o_ptr->to_h, 160, 210),
+		critical_prob(o_ptr->to_h, 210, 250),
+		critical_prob(o_ptr->to_h, 250, 280),
+		critical_prob(o_ptr->to_h, 280, 0));
+  
+	put_str(tmp_str, 16, WEP_MAST_COL1);
+	
+	c_put_str(TERM_L_BLUE, "Possible Damage:", 6, WEP_MAST_COL2);
 
 	dambonus = o_ptr->to_d + p_ptr->to_d;
 
-	if (dambonus > 0)
-		mindam = (100 + deadliness_conversion[dambonus]);
-	else if (dambonus > -31)
-		mindam = (100 - deadliness_conversion[ABS(dambonus)]);
-	else
-		mindam = 0;
+	mindam = deadliness_calc(dambonus);
 
 	/* Effect of damage dice */
 	maxdam = mindam * (o_ptr->ds * o_ptr->dd);
@@ -1242,7 +1347,7 @@ static void list_weapon(object_type *o_ptr, int row, int col)
 
 	/* Damage for one blow (if it hits) */
 	sprintf(tmp_str, "One Strike: %d-%d damage", intmindam, intmaxdam);
-	put_str(tmp_str, row+6, col+1);
+	put_str(tmp_str, 7, WEP_MAST_COL2);
 
 	/* rescale */
 	intmaxdam = (maxdam * p_ptr->num_blow) / 100;
@@ -1250,50 +1355,9 @@ static void list_weapon(object_type *o_ptr, int row, int col)
 
 	/* Damage for the complete attack (if all blows hit) */
 	sprintf(tmp_str, "One Attack: %d-%d damage", intmindam, intmaxdam);
-	put_str(tmp_str, row+7, col+1);
+	put_str(tmp_str, 8, WEP_MAST_COL2);
 }
 
-
-/*
- * Hook to specify "weapon"
- */
-static bool item_tester_hook_melee_weapon(object_type *o_ptr)
-{
-	switch (o_ptr->tval)
-	{
-		case TV_SWORD:
-		case TV_HAFTED:
-		case TV_POLEARM:
-		case TV_DIGGING:
-		{
-			return (TRUE);
-		}
-	}
-
-	return (FALSE);
-}
-
-#if 0 
-
-/*
- * Hook to specify "ammo"
- */
-static bool item_tester_hook_ammo(object_type *o_ptr)
-{
-	switch (o_ptr->tval)
-	{
-		case TV_SHOT:
-		case TV_ARROW:
-		case TV_BOLT:
-		{
-			return (TRUE);
-		}
-	}
-
-	return (FALSE);
-}
-
-#endif /* 0 */
 
 /*
  * Compare weapons
@@ -1301,80 +1365,48 @@ static bool item_tester_hook_ammo(object_type *o_ptr)
  * Copies the weapons to compare into the weapon-slot and
  * compares the values for both weapons.
  */
-static void compare_weapons(void)
+bool compare_weapons(void)
 {
-	int item, item2;
-	object_type *o1_ptr, *o2_ptr;
-	object_type orig_weapon;
-	object_type *i_ptr;
-	cptr q, s;
-	int row = 6;
+	object_type *o_ptr;
 
 	/* Clear the screen */
 	clear_bldg(6, 18);
 
-	/* Store copy of original wielded weapon */
-	i_ptr = &inventory[INVEN_WIELD];
-	object_copy(&orig_weapon, i_ptr);
+	/* Point to wielded weapon */
+	o_ptr = &inventory[INVEN_WIELD];
+	
+	/* Check to see if we have one */
+	if (!o_ptr->k_idx)
+	{
+		msg_print("You need to wield a weapon.");
+		return (FALSE);
+	}
 
-	/* Only compare melee weapons */
-	item_tester_hook = item_tester_hook_melee_weapon;
+	put_str("Based on your current abilities, here is what your weapon will do:", 4, 2);
 
-	/* Get the first weapon */
-	q = "What is your first weapon? ";
-	s = "You have nothing to compare.";
-	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN))) return;
+	/* Identify the weapon */
+	identify_item(o_ptr);
+	
+	/* *Identify* the weapon for the player */
+	o_ptr->ident |= IDENT_MENTAL;
+	
+	/* Save all the known flags */
+	o_ptr->kn_flags1 = o_ptr->flags1;
+	o_ptr->kn_flags2 = o_ptr->flags2;
+	o_ptr->kn_flags3 = o_ptr->flags3;
+	
+	/* Erase the "feeling" */
+	o_ptr->feeling = FEEL_NONE;
 
-	/* Get the item (in the pack) */
-	o1_ptr = &inventory[item];
-
-	/* Only compare melee weapons */
-	item_tester_hook = item_tester_hook_melee_weapon;
-
-	/* Get the second weapon */
-	q = "What is your second weapon? ";
-	s = "You have nothing to compare.";
-	if (!get_item(&item2, q, s, (USE_EQUIP | USE_INVEN))) return;
-
-	/* Get the item (in the pack) */
-	o2_ptr = &inventory[item2];
-
-	put_str("Based on your current abilities, here is what your weapons will do", 4, 2);
-
-	/* Copy first weapon into the weapon slot (if it's not already there) */
-	if (o1_ptr != i_ptr)
-		object_copy(i_ptr, o1_ptr);
-
-	/* Get the new values */
-	calc_bonuses();
 
 	/* List the new values */
-	list_weapon(o1_ptr, row, 2);
-	compare_weapon_aux1(o1_ptr, 2, row + 8);
-
-	/* Copy second weapon into the weapon slot (if it's not already there) */
-	if (o2_ptr != i_ptr)
-		object_copy(i_ptr, o2_ptr);
-	else
-		object_copy(i_ptr, &orig_weapon);
-
-	/* Get the new values */
-	calc_bonuses();
-
-	/* List the new values */
-	list_weapon(o2_ptr, row, 40);
-	compare_weapon_aux1(o2_ptr, 40, row + 8);
-
-	/* Copy back the original weapon into the weapon slot */
-	object_copy(i_ptr, &orig_weapon);
-
-	/* Reset the values for the old weapon */
-	calc_bonuses();
+	list_weapon(o_ptr);
+	compare_weapon_aux1(o_ptr);
 
 	put_str("(Only highest damage applies per monster. Special damage not cumulative.)", 20, 0);
 
 	/* Done */
-	return;
+	return (TRUE);
 }
 
 
@@ -1382,9 +1414,9 @@ static void compare_weapons(void)
 /*
  * Enchant item
  */
-static bool enchant_item(int cost, int to_hit, int to_dam, int to_ac)
+bool enchant_item(s32b cost, bool to_hit, bool to_dam, bool to_ac)
 {
-	int         i, item;
+	int         item;
 	bool        okay = FALSE;
 	object_type *o_ptr;
 	cptr        q, s;
@@ -1413,43 +1445,27 @@ static bool enchant_item(int cost, int to_hit, int to_dam, int to_ac)
 		return (FALSE);
 	}
 
+	/* Note that enchanting something a negative number of times will fail */
+
 	/* Enchant to hit */
-	for (i = 0; i < to_hit; i++)
+	if ((to_hit) && (enchant(o_ptr,  maxenchant - o_ptr->to_h,
+		(ENCH_TOHIT | ENCH_FORCE))))
 	{
-		if (o_ptr->to_h < maxenchant)
-		{
-			if (enchant(o_ptr, 1, (ENCH_TOHIT | ENCH_FORCE)))
-			{
-				okay = TRUE;
-				break;
-			}
-		}
+		okay = TRUE;
 	}
 
 	/* Enchant to damage */
-	for (i = 0; i < to_dam; i++)
+	if ((to_dam) && (enchant(o_ptr, maxenchant - o_ptr->to_d,
+		(ENCH_TODAM | ENCH_FORCE))))
 	{
-		if (o_ptr->to_d < maxenchant)
-		{
-			if (enchant(o_ptr, 1, (ENCH_TODAM | ENCH_FORCE)))
-			{
-				okay = TRUE;
-				break;
-			}
-		}
+		okay = TRUE;
 	}
 
 	/* Enchant to AC */
-	for (i = 0; i < to_ac; i++)
+	if ((to_ac) && (enchant(o_ptr, maxenchant - o_ptr->to_a,
+		(ENCH_TOAC | ENCH_FORCE))))
 	{
-		if (o_ptr->to_a < maxenchant)
-		{
-			if (enchant(o_ptr, 1, (ENCH_TOAC | ENCH_FORCE)))
-			{
-				okay = TRUE;
-				break;
-			}
-		}
+		okay = TRUE;
 	}
 
 	/* Failure */
@@ -1489,7 +1505,7 @@ static bool enchant_item(int cost, int to_hit, int to_dam, int to_ac)
  * for recharging wands and staves are dependent on the cost of
  * the base-item.
  */
-static void building_recharge(long cost)
+void building_recharge(s32b cost)
 {
 	int         item, lev;
 	object_type *o_ptr;
@@ -1897,167 +1913,33 @@ void do_cmd_quest(void)
 
 #endif /* 0 */
 
-/* Does the player have enough gold for this action? */
-static bool test_gold(int *cost)
-{
-	if (p_ptr->au < *cost)
-	{
-		/* Player does not have enough gold */
-
-		msg_format("You need %d gold to do this!", *cost);
-		msg_print(NULL);
-		
-		*cost = 0;
-		
-		return (FALSE);
-	
-	}
-	
-	/* Player has enough gold */
-	return (TRUE);
-}
 
 static bool process_build_hook(field_type *f_ptr, store_type *b_ptr)
 {
-	int		cost = 0;
-	bool	done = FALSE;
-	
 	b_own_type *bo_ptr = &b_owners[f_ptr->data[0]][b_ptr->owner];
 	
-	switch (f_ptr->data[0])
+	int		factor;
+	
+	/* Compute the racial factor */
+	factor = rgold_adj[bo_ptr->owner_race][p_ptr->prace];
+
+	/* Add in the charisma factor */
+	factor += adj_chr_gold[p_ptr->stat_ind[A_CHR]];
+	
+	factor = ((300 - factor) * bo_ptr->inflate) / 100;
+	
+	field_hook(&area(p_ptr->py, p_ptr->px)->fld_idx,
+		 FIELD_ACT_STORE_ACT2, (vptr) &factor);
+		
+	/* Hack XXX XXX, factor is returned as 2 if we want a redraw */
+	if (factor == 2)
 	{
-		case BLDG_WEAPONMASTER:
-		{
-			if (p_ptr->command_cmd == 'E')
-			{
-				cost = f_ptr->data[1] * bo_ptr->inflate;
-				
-				if (test_gold(&cost))
-				{
-					compare_weapons();
-				}
-				
-				done = TRUE;
-			}
-			
-			break;
-		}
-		
-		case BLDG_RECHARGE:
-		{
-			if (p_ptr->command_cmd == 'R')
-			{
-				building_recharge(f_ptr->data[1] * bo_ptr->inflate);
-				
-				done = TRUE;
-			}
-			
-			if (p_ptr->command_cmd == 'I')
-			{
-				cost = f_ptr->data[2] * bo_ptr->inflate;
-				
-				if (test_gold(&cost))
-				{
-					identify_pack();
-
-					/* Combine / Reorder the pack (later) */
-					p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-
-					msg_print("Your posessions have been identified.");
-					msg_print(NULL);
-				}
-								
-				done = TRUE;
-			}
-
-			break;	
-		}
-		
-		case BLDG_PLUS_WEAPON:
-		{
-			if (p_ptr->command_cmd == 'E')
-			{
-				item_tester_hook = item_tester_hook_melee_weapon;
-				
-				enchant_item(f_ptr->data[1] * bo_ptr->inflate, 1, 1, 0);
-				
-				done = TRUE;
-			}		
-		
-			break;
-		}
-		
-		case BLDG_PLUS_ARMOUR:
-		{
-			if (p_ptr->command_cmd == 'E')
-			{
-				item_tester_hook = item_tester_hook_armour;
-				
-				enchant_item(f_ptr->data[1] * bo_ptr->inflate, 0, 0, 1);
-				
-				done = TRUE;
-			}
-		
-			break;
-		}
-		
-		case BLDG_MUTATE:
-		{
-			if (p_ptr->command_cmd == 'E')
-			{
-				cost = f_ptr->data[1] * bo_ptr->inflate * (count_mutations()+1);
-				
-				if (test_gold(&cost))
-				{
-					if (lose_mutation(0))
-					{
-						msg_print("You feel oddly normal.");
-					}
-					else
-					{
-						(void) gain_random_mutation(0);
-					}
-					
-					/* Display messages */
-					msg_print(NULL);
-					
-					/* Redraw screen */
-					display_build(f_ptr, b_ptr);
-				}
-				
-				done = TRUE;
-			}
-			
-			break;
-		}
-		
-		case BLDG_MAP:
-		{
-			if (p_ptr->command_cmd == 'E')
-			{
-				cost = f_ptr->data[1] * bo_ptr->inflate;
-				
-				if (test_gold(&cost))
-				{
-					msg_print("You learn of the lay of the lands.");
-					
-					/* Map a radius-20 circle around the player */
-					map_wilderness(20,
-						 p_ptr->wilderness_x / 16, p_ptr->wilderness_y / 16);
-				}
-				
-				done = TRUE;
-			}
-			
-			break;
-		}
+		/* Redraw screen */
+		display_build(f_ptr, b_ptr);
 	}
 	
-	/* Subtract off cost */
-	p_ptr->au -= cost;
-	
 	/* Did we do anything? */
-	return (done);
+	return (factor);
 }
 
 
@@ -2381,8 +2263,11 @@ void do_cmd_bldg(field_type *f_ptr)
 		clear_from(21);
 
 		/* Basic commands */
-		prt(" ESC) Exit from Building.", 22, 0);
-		
+		prt(" ESC) Exit building", 23, 0);
+		 
+		/* Show your gold */
+		building_prt_gold();
+	
 		/* Get a command */
 		request_command(FALSE);
 

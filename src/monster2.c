@@ -105,7 +105,12 @@ void delete_monster_idx(int i)
 	/* Hack -- count the number of "reproducers" */
 	if (r_ptr->flags2 & (RF2_MULTIPLY)) num_repro--;
 
-
+	/* Decrement visibility count */
+	if (m_ptr->ml && !(m_ptr->smart & SM_MIMIC))
+	{
+		update_mon_vis(m_ptr->r_idx, -1);
+	}
+	
 	/* Hack -- remove target monster */
 	if (i == p_ptr->target_who) p_ptr->target_who = 0;
 
@@ -355,6 +360,9 @@ void wipe_m_list(void)
 		/* Hack -- Reduce the racial counter */
 		r_ptr->cur_num--;
 
+		/* Clear seen list */
+		r_ptr->r_see = 0;		
+
 		/* Check to see if monster is accessable on map */
 		y = m_ptr->fy;
 		x = m_ptr->fx;
@@ -387,6 +395,10 @@ void wipe_m_list(void)
 
 	/* Hack -- no more tracking */
 	health_track(0);
+	
+	/* Hack -- reset "visible" counter */
+	p_ptr->max_seen_r_idx = 0;
+	p_ptr->window |= PW_VISIBLE;
 }
 
 
@@ -534,7 +546,7 @@ s16b get_mon_num(int level)
 	if (level > 0)
 	{
 		/* Nightmare mode allows more out-of depth monsters */
-		if (ironman_nightmare && !randint0(NASTY_MON))
+		if (ironman_nightmare && one_in_(NASTY_MON))
 		{
 			/* What a bizarre calculation */
 			level = 1 + (level * MAX_DEPTH / randint1(MAX_DEPTH));
@@ -542,14 +554,14 @@ s16b get_mon_num(int level)
 		else
 		{
 			/* Occasional "nasty" monster */
-			if (!randint0(NASTY_MON))
+			if (one_in_(NASTY_MON))
 			{
 				/* Boost the level */
 				level += 7;
 			}
 
 			/* Occasional "nasty" monster */
-			if (!randint0(NASTY_MON))
+			if (one_in_(NASTY_MON))
 			{
 				/* Boost the level */
 				level += 7;
@@ -678,6 +690,9 @@ s16b get_mon_num(int level)
  *
  * If no m_ptr arg is given (?), the monster is assumed to be hidden,
  * unless the "Assume Visible" mode is requested.
+ * Does this really work???  It looks like r_ptr is initialised even
+ * if m_ptr is NULL.  Perhaps this craziness can be removed. -SF-
+ *
  *
  * If no r_ptr arg is given, it is extracted from m_ptr and r_info
  * If neither m_ptr nor r_ptr is given, the monster is assumed to
@@ -717,7 +732,7 @@ void monster_desc(char *desc, monster_type *m_ptr, int mode)
 	/* Are we hallucinating? (Idea from Nethack...) */
 	if (p_ptr->image)
 	{
-		if (randint1(2) == 1)
+		if (one_in_(2))
 		{
 			if (!get_rnd_line("silly.txt", m_ptr->r_idx, silly_name))
 				named = TRUE;
@@ -954,7 +969,7 @@ void sanity_blast(monster_type *m_ptr, bool necro)
 		if (!(r_ptr->flags2 & RF2_ELDRITCH_HORROR))
 			return; /* oops */
 
-		if (is_pet(m_ptr) && (randint1(8) != 1))
+		if (is_pet(m_ptr) && !one_in_(8))
 			return; /* Pet eldritch horrors are safe most of the time */
 
 		if (saving_throw(p_ptr->skill_sav * 100 / power))
@@ -968,7 +983,7 @@ void sanity_blast(monster_type *m_ptr, bool necro)
 			msg_format("You behold the %s visage of %s!",
 				funny_desc[randint0(MAX_SAN_FUNNY)], m_name);
 
-			if (randint1(3) == 1)
+			if (one_in_(3))
 			{
 				msg_print(funny_comments[randint0(MAX_SAN_COMMENT)]);
 				p_ptr->image = p_ptr->image + randint1(r_ptr->level);
@@ -1004,11 +1019,11 @@ void sanity_blast(monster_type *m_ptr, bool necro)
 	{
 		if (!p_ptr->resist_confu)
 		{
-			(void)set_confused(p_ptr->confused + randint0(4) + 4);
+			(void)set_confused(p_ptr->confused + rand_range(4, 8));
 		}
 		if (!p_ptr->resist_chaos && one_in_(3))
 		{
-			(void)set_image(p_ptr->image + randint0(250) + 150);
+			(void)set_image(p_ptr->image + rand_range(150, 400));
 		}
 		return;
 	}
@@ -1024,11 +1039,11 @@ void sanity_blast(monster_type *m_ptr, bool necro)
 	{
 		if (!p_ptr->resist_confu)
 		{
-			(void)set_confused(p_ptr->confused + randint0(4) + 4);
+			(void)set_confused(p_ptr->confused + rand_range(4, 8));
 		}
 		if (!p_ptr->free_act)
 		{
-			(void)set_paralyzed(p_ptr->paralyzed + randint0(4) + 4);
+			(void)set_paralyzed(p_ptr->paralyzed + rand_range(4, 8));
 		}
 		while (randint0(100) > p_ptr->skill_sav)
 			(void)do_dec_stat(A_INT);
@@ -1036,7 +1051,7 @@ void sanity_blast(monster_type *m_ptr, bool necro)
 			(void)do_dec_stat(A_WIS);
 		if (!p_ptr->resist_chaos)
 		{
-			(void)set_image(p_ptr->image + randint0(250) + 150);
+			(void)set_image(p_ptr->image + rand_range(150, 400));
 		}
 	}
 
@@ -1114,6 +1129,48 @@ void sanity_blast(monster_type *m_ptr, bool necro)
 
 	p_ptr->update |= PU_BONUS;
 	handle_stuff();
+}
+
+
+void update_mon_vis(u16b r_idx, int increment)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+	int i;
+
+	/* Changes on screen */
+	p_ptr->window |= PW_VISIBLE;
+
+	/* Paranoia */
+	if (!r_ptr->r_see && (increment == -1)) quit("Monster visibility error!");
+
+	/* Update the counter */
+	r_ptr->r_see += increment;
+	
+	/* Update 'most powerful seen monster' */
+	if (r_ptr->r_see)
+	{
+		/* Check to see if we have spotted a more powerful monster */
+		if (r_idx > p_ptr->max_seen_r_idx)
+		{
+			/* Track this monster */
+			p_ptr->max_seen_r_idx = r_idx;
+		}
+	}
+	else
+	{
+		/* Look to see if we need to recalculate max_seen_ridx */
+		if (r_idx == p_ptr->max_seen_r_idx)
+		{
+			for (i = r_idx - 1; i > 0; i--)
+			{
+				/* Can we see this monster? */
+				if (r_info[i].r_see) break;
+			}
+			
+			/* Record it */
+			p_ptr->max_seen_r_idx = i;
+		}
+	}
 }
 
 
@@ -1346,6 +1403,12 @@ void update_mon(int m_idx, bool full)
 			/* Mark as visible */
 			m_ptr->ml = TRUE;
 
+			/* Increment monster visibility counter if we know about it */
+			if (!(m_ptr->smart & SM_MIMIC))
+			{
+				update_mon_vis(m_ptr->r_idx, 1);
+			}
+			
 			/* Draw the monster */
 			lite_spot(fy, fx);
 
@@ -1365,7 +1428,7 @@ void update_mon(int m_idx, bool full)
 			if (disturb_move)
 			{
 				if (is_hostile(m_ptr))
-					disturb(1, 0);
+					disturb(TRUE);
 			}
 		}
 	}
@@ -1379,6 +1442,12 @@ void update_mon(int m_idx, bool full)
 			/* Mark as not visible */
 			m_ptr->ml = FALSE;
 
+			/* Decrement monster visibility counter if we know about it */
+			if (!(m_ptr->smart & SM_MIMIC))
+			{
+				update_mon_vis(m_ptr->r_idx, -1);
+			}
+			
 			/* Erase the monster */
 			lite_spot(fy, fx);
 
@@ -1389,7 +1458,7 @@ void update_mon(int m_idx, bool full)
 			if (disturb_move)
 			{
 				if (is_hostile(m_ptr))
-					disturb(1, 0);
+					disturb(TRUE);
 			}
 		}
 	}
@@ -1408,7 +1477,7 @@ void update_mon(int m_idx, bool full)
 			if (disturb_move)
 			{
 				if (is_hostile(m_ptr))
-					disturb(1, 0);
+					disturb(TRUE);
 			}
 		}
 	}
@@ -1426,7 +1495,7 @@ void update_mon(int m_idx, bool full)
 			if (disturb_move)
 			{
 				if (is_hostile(m_ptr))
-					disturb(1, 0);
+					disturb(TRUE);
 			}
 		}
 	}
@@ -1553,7 +1622,7 @@ bool place_monster_one(int y, int x, int r_idx, bool slp, bool friendly, bool pe
 		
 	/* Call the hook */
 	field_hook(&c_ptr->fld_idx, FIELD_ACT_MON_ENTER_TEST,
-		 (void *) &mon_enter_test);
+		 (vptr) &mon_enter_test);
 			 
 	/* Get result */
 	if (!mon_enter_test.do_move) return (FALSE);
@@ -1704,6 +1773,12 @@ bool place_monster_one(int y, int x, int r_idx, bool slp, bool friendly, bool pe
 		m_ptr->mflag |= (MFLAG_BORN);
 	}
 
+	/* Hack - are we a mimic? */
+	if (r_ptr->flags1 & RF1_CHAR_MIMIC) 
+	{
+		/* The player doesn't know about us yet */
+		m_ptr->smart |= SM_MIMIC;
+	}
 
 	/* Update the monster */
 	update_mon(c_ptr->m_idx, TRUE);
@@ -2041,7 +2116,7 @@ bool alloc_horde(int y, int x)
 
 	summon_kin_type = r_ptr->d_char;
 
-	for (attempts = randint1(10) + 5; attempts; attempts--)
+	for (attempts = rand_range(5, 15); attempts; attempts--)
 	{
 		scatter(&cy, &cx, y, x, 5);
 
@@ -2486,7 +2561,7 @@ bool summon_specific(int who, int y1, int x1, int lev, int type,
 		
 		/* Call the hook */
 		field_hook(&c_ptr->fld_idx, FIELD_ACT_MON_ENTER_TEST, 
-			 (void *)&mon_enter_test);
+			 (vptr) &mon_enter_test);
 			 
 		/* Get result */
 		if (!mon_enter_test.do_move) continue;

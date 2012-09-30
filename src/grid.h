@@ -26,6 +26,9 @@
 #define LAKE_EWATER		6
 #define LAKE_EFIRE		7
 #define LAKE_CAVERN		8
+#define LAKE_RUBBLE		9
+#define LAKE_SAND		10
+#define LAKE_ROCK		11
 
 
 /* Externs */

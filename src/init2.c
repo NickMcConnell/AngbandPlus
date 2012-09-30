@@ -1991,7 +1991,7 @@ errr init_t_info(void)
 static errr init_misc(void)
 {
 	/* Initialize the values */
-	process_dungeon_file("misc.txt", 0, 0, 0, 0);
+	process_dungeon_file("misc.txt", INIT_NORMAL);
 
 	return 0;
 }
@@ -2048,13 +2048,6 @@ static errr init_other(void)
 	{
 		/* Allocate one row of the temp_block */
 		C_MAKE(temp_block[i], WILD_BLOCK_SIZE + 1, u16b);
-	}
-
-	/* Allocate town temp block */
-	for (i = 0; i < WILD_BLOCK_SIZE + 1; i++)
-	{
-		/* Allocate one row of the town_block */
-		C_MAKE(town_block[i], WILD_BLOCK_SIZE + 1, u16b);
 	}
 
 	/* Allocate cache of wilderness blocks */
@@ -2180,59 +2173,6 @@ static errr init_alloc(void)
 	int i;
 	monster_race *r_ptr;
 
-#ifdef SORT_R_INFO
-
-	tag_type *elements;
-
-	/* Allocate the "r_info" array */
-	C_MAKE(elements, max_r_idx, tag_type);
-
-	/* Scan the monsters */
-	for (i = 1; i < max_r_idx; i++)
-	{
-		elements[i].tag = r_info[i].level;
-		elements[i].pointer = (void*)i;
-	}
-
-	tag_sort(elements, max_r_idx);
-
-	/*** Initialize monster allocation info ***/
-
-	/* Size of "alloc_race_table" */
-	alloc_race_size = max_r_idx;
-
-	/* Allocate the alloc_race_table */
-	C_MAKE(alloc_race_table, alloc_race_size, alloc_entry);
-
-	/* Scan the monsters */
-	for (i = 1; i < max_r_idx; i++)
-	{
-		/* Get the i'th race */
-		r_ptr = &r_info[(int)elements[i].pointer];
-
-		/* Count valid pairs */
-		if (r_ptr->rarity)
-		{
-			int p, x;
-
-			/* Extract the base level */
-			x = r_ptr->level;
-
-			/* Extract the base probability */
-			p = (100 / r_ptr->rarity);
-
-			/* Load the entry */
-			alloc_race_table[i].index = (int)elements[i].pointer;
-			alloc_race_table[i].level = x;
-			alloc_race_table[i].prob1 = p;
-			alloc_race_table[i].prob2 = p;
-			alloc_race_table[i].prob3 = p;
-		}
-	}
-
-#else /* SORT_R_INFO */
-
-	int j;
 	alloc_entry *table;
 	s16b num[MAX_DEPTH];
 	s16b aux[MAX_DEPTH];
@@ -2240,10 +2180,10 @@ static errr init_alloc(void)
 	/*** Analyze monster allocation info ***/
 
 	/* Clear the "aux" array */
-	C_WIPE(&aux, MAX_DEPTH, s16b);
+	(void) C_WIPE(&aux, MAX_DEPTH, s16b);
 
 	/* Clear the "num" array */
-	C_WIPE(&num, MAX_DEPTH, s16b);
+	(void) C_WIPE(&num, MAX_DEPTH, s16b);
 
 	/* Size of "alloc_race_table" */
 	alloc_race_size = 0;
@@ -2318,14 +2258,6 @@ static errr init_alloc(void)
 			aux[x]++;
 		}
 	}
-
-#endif /* SORT_R_INFO */
-
-#if 0
-
-	write_r_info_txt();
-
-#endif
 
 	/* Init "alloc_kind_table" and "alloc_ego_table" */
 	(void)init_object_alloc();

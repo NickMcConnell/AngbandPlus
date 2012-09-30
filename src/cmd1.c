@@ -13,8 +13,38 @@
 #include "angband.h"
 #define MAX_VAMPIRIC_DRAIN 100
 
-
-
+/*
+ * Calculate the deadliness based on the attack power.
+ * This function takes into account bounds checking,
+ * and then just looks at the deadliness_conversion
+ * table in tables.c
+ *
+ * This number is 'inflated' by 100 from the eventual
+ * multiplier to the damage dealt.
+ */
+int deadliness_calc(int attack_power)
+{
+	if (attack_power > 255)
+	{
+		/* Really high deadliness */
+		return (355);
+	}
+	
+	if (attack_power > 0)
+	{
+		/* Normal deadliness */
+		return (100 + deadliness_conversion[attack_power]);
+	}
+	
+	if (attack_power > -31)
+	{
+		/* Cursed items */
+		return (100 - deadliness_conversion[ABS(attack_power)]);
+	}
+	
+	/* Really powerful minus yields zero damage */
+	return (0);
+}
 
 
 /*
@@ -82,14 +112,15 @@ static sint critical_melee(int chance, int sleeping_bonus, char m_name[], object
 	/* Test for critical hit. */
 	if (randint1(i + 200) <= i)
 	{
-		/* Encourage the player to make sneak attacks on
+		/*
+		 * Encourage the player to make sneak attacks on
 		 * sleeping monsters. -LM-
 		 */
 		if ((sleeping_bonus) && (p_ptr->pclass == CLASS_ROGUE))
 			msg_print("You ruthlessly sneak attack!");
 
-
-		/* Hack - Weapons that normally do little damage benefit most from
+		/*
+		 * Hack - Weapons that normally do little damage benefit most from
 		 * critical hits (10x inflation).
 		 */
 		mult_m_crit = 120 / (o_ptr->dd * (o_ptr->ds + 1));
@@ -100,7 +131,8 @@ static sint critical_melee(int chance, int sleeping_bonus, char m_name[], object
 		/* Determine level of critical hit */
 		k = randint1(i) + randint1(100);
 
-		/* This portion of the function determines the level of critical hit,
+		/*
+		 * This portion of the function determines the level of critical hit,
 		 * the critical mult_m_crit, and displays an appropriate combat
 		 * message.  A distinction is often made between edged and blunt
 		 * weapons.  Unfortunately, whips sometimes display rather odd
@@ -160,7 +192,8 @@ static sint critical_melee(int chance, int sleeping_bonus, char m_name[], object
 		mult_m_crit /= 10;
 	}
 
-	/* If the blow is not a critical hit, display the default attack
+	/*
+	 * If the blow is not a critical hit, display the default attack
 	 * message and apply the standard multiplier.
 	 */
 	else
@@ -235,11 +268,10 @@ static s16b critical_norm(int weight, int plus, int dam)
  */
 s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 {
-
 	/*
-	* mult is scaled to be *10 so that the fractional slays can be stored
-	* in an integer. -SF-
-	*/
+	 * mult is scaled to be *10 so that the fractional slays can be stored
+	 * in an integer. -SF-
+	 */
 	int mult = 10;
 
 
@@ -520,7 +552,7 @@ void search(void)
 				if (player_search_grid_callback(y, x))
 				{
 					/* Disturb */
-					disturb(0, 0);
+					disturb(FALSE);
 
 					return;
 				}
@@ -547,7 +579,7 @@ void search(void)
 						msg_print("You have found a trap.");
 
 						/* Disturb */
-						disturb(0, 0);
+						disturb(FALSE);
 					}
 				}
 
@@ -564,7 +596,7 @@ void search(void)
 					note_spot(y, x);
 
 					/* Disturb */
-					disturb(0, 0);
+					disturb(FALSE);
 				}
 
 				/* Scan all objects in the grid */
@@ -594,13 +626,14 @@ void search(void)
 						object_known(o_ptr);
 
 						/* Notice it */
-						disturb(0, 0);
+						disturb(FALSE);
 					}
 				}
 			}
 		}
 	}
 }
+
 
 /*
  * Determine if the object can be picked up, and has "=g" in its inscription.
@@ -631,6 +664,7 @@ bool auto_pickup_okay(object_type *o_ptr)
 	/* Don't auto pickup */
 	return (FALSE);
 }
+
 
 /*
  * Helper routine for py_pickup().
@@ -663,6 +697,7 @@ void py_pickup_aux(int o_idx)
 	/* Delete the object */
 	delete_object_idx(o_idx);
 }
+
 
 #if 0
 
@@ -785,7 +820,7 @@ void carry(int pickup)
 		next_o_idx = o_ptr->next_o_idx;
 
 		/* Hack -- disturb */
-		disturb(0, 0);
+		disturb(FALSE);
 
 		/* Pick up gold */
 		if (o_ptr->tval == TV_GOLD)
@@ -875,18 +910,9 @@ void carry(int pickup)
 					
 					if ((i == 'K') || (i == 'k'))
 					{
-						/* Artifact? */
-						if (!can_player_destroy_object(o_ptr))
+						/* Physically try to destroy the item */
+						if	(destroy_item_aux(o_ptr, o_ptr->number))
 						{
-							/* Describe the object (with {terrible/special}) */
-							object_desc(o_name, o_ptr, TRUE, 3);
-
-							/* Message */
-							msg_format("You cannot destroy the %s.", o_name);
-						}
-						else
-						{
-							/* Destroy the object */
 							delete_object_idx(this_o_idx);
 						}
 					}
@@ -1170,7 +1196,7 @@ static void natural_attack(s16b m_idx, int attack, bool *fear, bool *mdeath)
 	chance = (p_ptr->skill_thn + (bonus * BTH_PLUS_ADJ));
 
 	/* Test for hit */
-	if ((!(r_ptr->flags2 & RF2_QUANTUM) || !randint0(2)) &&
+	if ((!(r_ptr->flags2 & RF2_QUANTUM) || one_in_(2)) &&
 	    test_hit_combat(chance, r_ptr->ac, m_ptr->ml))
 	{
 		/* Sound */
@@ -1235,9 +1261,9 @@ static void natural_attack(s16b m_idx, int attack, bool *fear, bool *mdeath)
 	}
 }
 
-/**** The monster bashing code. -LM- ****/
+
 static bool monster_bash(int *blows, int sleeping_bonus, cave_type *c_ptr,
-			bool *fear, char *m_name)
+                         bool *fear, char *m_name)
 {
 	int bash_chance, bash_quality, bash_dam;
 
@@ -1250,7 +1276,8 @@ static bool monster_bash(int *blows, int sleeping_bonus, cave_type *c_ptr,
 		bash_chance = 0;
 	}
 
-	/* Players do not bash if they could otherwise take advantage of special
+	/*
+	 * Players do not bash if they could otherwise take advantage of special
 	 * bonuses against sleeping monsters, or if the monster is low-level.
 	 */
 	else if ((sleeping_bonus) || (r_ptr->level < p_ptr->lev / 2))
@@ -1414,7 +1441,7 @@ static void monk_attack(monster_type *m_ptr, long *k, char *m_name)
 	{
 		if (ma_ptr->effect)
 		{
-			stun_effect = (ma_ptr->effect / 2) + randint1(ma_ptr->effect / 2);
+			stun_effect = rand_range(ma_ptr->effect / 2, ma_ptr->effect);
 		}
 
 		msg_format(ma_ptr->desc, m_name);
@@ -1425,7 +1452,7 @@ static void monk_attack(monster_type *m_ptr, long *k, char *m_name)
 	if ((special_effect == MA_KNEE) && ((*k + p_ptr->to_d) < m_ptr->hp))
 	{
 		msg_format("%^s moans in agony!", m_name);
-		stun_effect = 7 + randint1(13);
+		stun_effect = rand_range(8, 20);
 		resist_stun /= 3;
 	}
 
@@ -1505,7 +1532,7 @@ void py_attack(int y, int x)
 
 
 	/* Disturb the player */
-	disturb(0, 0);
+	disturb(FALSE);
 
 	/* Initial blows available. */
 	blows = p_ptr->num_blow;
@@ -1541,6 +1568,24 @@ void py_attack(int y, int x)
 
 	/* Track a new monster */
 	if (m_ptr->ml) health_track(c_ptr->m_idx);
+	
+	/* Look to see if we've spotted a mimic */
+	if (m_ptr->smart & SM_MIMIC)
+	{
+		char m_name2[80];
+		
+		/* Get name */
+		monster_desc (m_name2, m_ptr, 0x88);
+		
+		/* Toggle flag */
+		m_ptr->smart &= ~(SM_MIMIC);
+		
+		/* It is in the monster list now */
+		update_mon_vis(m_ptr->r_idx, 1);
+		
+		/* We've spotted it */
+		msg_format("You've found %s!", m_name2);
+	}
 
 	/* Stop if friendly */
 	if (!is_hostile(m_ptr) &&
@@ -1613,9 +1658,6 @@ void py_attack(int y, int x)
 	/* Initialize. */
 	total_deadliness = p_ptr->to_d + o_ptr->to_d;
 
-	/* Paranoia.  Ensure legal table access. */
-	if (total_deadliness > 150) total_deadliness = 150;
-
 	/* Calculate the "attack quality".  As BTH_PLUS_ADJ has been reduced
 	 * to 1, base skill and modifiers to skill are given equal weight. -LM-
 	 */
@@ -1638,27 +1680,26 @@ void py_attack(int y, int x)
 			object_flags(o_ptr, &f1, &f2, &f3);
 
 			/* Select a chaotic effect (50% chance) */
-			if ((f1 & TR1_CHAOTIC) && (randint1(2) == 1))
+			if ((f1 & TR1_CHAOTIC) && (one_in_(2)))
 			{
-				if (randint1(10) == 1)
-					chg_virtue(V_CHANCE, 1);
+				if (one_in_(10)) chg_virtue(V_CHANCE, 1);
 
 				if (randint1(5) < 3)
 				{
 					/* Vampiric (20%) */
 					chaos_effect = 1;
 				}
-				else if (randint1(250) == 1)
+				else if (one_in_(250))
 				{
 					/* Quake (0.12%) */
 					chaos_effect = 2;
 				}
-				else if (randint1(10) != 1)
+				else if (!one_in_(10))
 				{
 					/* Confusion (26.892%) */
 					chaos_effect = 3;
 				}
-				else if (randint1(2) == 1)
+				else if (one_in_(2))
 				{
 					/* Teleport away (1.494%) */
 					chaos_effect = 4;
@@ -1680,11 +1721,13 @@ void py_attack(int y, int x)
 					drain_result = 0;
 			}
 
-			if ((f1 & TR1_VORPAL) && (randint1((o_ptr->activate + 128 == ART_VORPAL_BLADE) ? 3 : 6) == 1))
+			if ((f1 & TR1_VORPAL) && (one_in_((o_ptr->activate + 128 == ART_VORPAL_BLADE) ? 3 : 6)))
 				vorpal_cut = TRUE;
 			else vorpal_cut = FALSE;
 
-			if ((p_ptr->pclass == CLASS_MONK) && monk_empty_hands())
+			/* Monk attack? */
+			if ((p_ptr->pclass == CLASS_MONK) &&
+				 (!(inventory[INVEN_WIELD].k_idx)))
 			{
 				/* Make a special monk attack */
 				monk_attack(m_ptr, &k, m_name);
@@ -1702,16 +1745,11 @@ void py_attack(int y, int x)
 				/* multiply by critical hit. (10x inflation) */
 				k *= critical_melee(chance, sleeping_bonus, m_name, o_ptr);
 
-				/* Convert total Deadliness into a percentage, and apply
+				/*
+				 * Convert total Deadliness into a percentage, and apply
 				 * it as a bonus or penalty. (100x inflation)
 				 */
-				if (total_deadliness > 0)
-					k *= (100 + deadliness_conversion[total_deadliness]);
-				else if (total_deadliness > -31)
-					k *= (100 -
-					deadliness_conversion[ABS(total_deadliness)]);
-				else
-					k = 0;
+				k *= deadliness_calc(total_deadliness);
 
 				/* Get the whole number of dice by deflating the result. */
 				k_whole = k / 10000;
@@ -1720,7 +1758,8 @@ void py_attack(int y, int x)
 				k_remainder = k % 10000;
 
 
-				/* Calculate and combine the damages of the whole and
+				/*
+				 * Calculate and combine the damages of the whole and
 				 * fractional dice.
 				 */
 				k = damroll(k_whole, o_ptr->ds) +
@@ -1731,18 +1770,16 @@ void py_attack(int y, int x)
 
 
 
-				if ((p_ptr->impact && ((k > 50) || randint1(7) == 1)) ||
-					 (chaos_effect == 2))
+				if ((p_ptr->impact && ((k > 50) || one_in_(7))) ||
+				    (chaos_effect == 2))
 				{
 					do_quake = TRUE;
 				}
-				
+
 				/* 
 				 * All of these artifact-specific effects
 				 * should be pythonized.
 				 */
-				
-
 				if (vorpal_cut)
 				{
 					/*
@@ -1758,7 +1795,7 @@ void py_attack(int y, int x)
 
 					int inc_chance = (o_ptr->activate + 128 == ART_VORPAL_BLADE) ? 2 : 4;
 
-					if ((o_ptr->activate + 128 == ART_CHAINSWORD) && (randint1(2) != 1))
+					if ((o_ptr->activate + 128 == ART_CHAINSWORD) && one_in_(2))
 					{
 						char chainsword_noise[1024];
 						if (!get_rnd_line("chainswd.txt", 0, chainsword_noise))
@@ -1847,14 +1884,17 @@ void py_attack(int y, int x)
 
 			touch_zap_player(m_ptr);
 
-			/* Are we draining it?  A little note: If the monster is
-			dead, the drain does not work... */
-
+			/*
+			 * Are we draining it?  A little note: If the monster is
+			 * dead, the drain does not work...
+			 */
 			if (drain_result)
 			{
-				drain_result -= m_ptr->hp;  /* Calculate the difference */
+				/* Calculate the difference */
+				drain_result -= m_ptr->hp;
 
-				if (drain_result > 0) /* Did we really hurt it? */
+				/* Did we really hurt it? */
+				if (drain_result > 0)
 				{
 					drain_heal = damroll(4, drain_result / 6);
 
@@ -1881,10 +1921,9 @@ void py_attack(int y, int x)
 							drain_msg = FALSE;
 						}
 
-						drain_heal = (drain_heal * mutant_regenerate_mod) / 100;
-
-						hp_player(drain_heal);
 						/* We get to keep some of it! */
+						drain_heal = (drain_heal * mutant_regenerate_mod) / 100;
+						hp_player(drain_heal);
 					}
 				}
 			}
@@ -1920,7 +1959,6 @@ void py_attack(int y, int x)
 					m_ptr->confused += 10 + randint0(p_ptr->lev) / 5;
 				}
 			}
-
 			else if (chaos_effect == 4)
 			{
 				bool resists_tele = FALSE;
@@ -1949,7 +1987,6 @@ void py_attack(int y, int x)
 					no_extra = TRUE;
 				}
 			}
-
 			else if ((chaos_effect == 5) && cave_floor_grid(c_ptr) &&
 			         (randint1(90) > r_ptr->level))
 			{
@@ -2019,8 +2056,7 @@ void py_attack(int y, int x)
 
 	if (drain_left != MAX_VAMPIRIC_DRAIN)
 	{
-		if (randint1(4) == 1)
-			chg_virtue(V_VITALITY, 1);
+		if (one_in_(4)) chg_virtue(V_VITALITY, 1);
 	}
 
 	/* Mega-Hack -- apply earthquake brand */
@@ -2070,7 +2106,7 @@ static bool pattern_seq(int c_y, int c_x, int n_y, int n_x)
 	if (!pattern_tile(c_y, c_x) && !pattern_tile(n_y, n_x))
 		return TRUE;
 
-	if (area(n_y,n_x)->feat == FEAT_PATTERN_START)
+	if (area(n_y, n_x)->feat == FEAT_PATTERN_START)
 	{
 		if (!pattern_tile(c_y, c_x) &&
 			 !p_ptr->confused && !p_ptr->stun && !p_ptr->image)
@@ -2084,8 +2120,8 @@ static bool pattern_seq(int c_y, int c_x, int n_y, int n_x)
 			return TRUE;
 	}
 	else if ((area(n_y, n_x)->feat == FEAT_PATTERN_OLD) ||
-				(area(n_y, n_x)->feat == FEAT_PATTERN_END) ||
-				(area(n_y, n_x)->feat == FEAT_PATTERN_XTRA2))
+	         (area(n_y, n_x)->feat == FEAT_PATTERN_END) ||
+	         (area(n_y, n_x)->feat == FEAT_PATTERN_XTRA2))
 	{
 		if (pattern_tile(c_y, c_x))
 		{
@@ -2108,7 +2144,7 @@ static bool pattern_seq(int c_y, int c_x, int n_y, int n_x)
 		}
 	}
 	else if ((area(n_y, n_x)->feat == FEAT_PATTERN_XTRA1) ||
-				(area(c_y, c_x)->feat == FEAT_PATTERN_XTRA1))
+	         (area(c_y, c_x)->feat == FEAT_PATTERN_XTRA1))
 	{
 		return TRUE;
 	}
@@ -2131,8 +2167,8 @@ static bool pattern_seq(int c_y, int c_x, int n_y, int n_x)
 		}
 	}
 	else if ((area(c_y,c_x)->feat == FEAT_PATTERN_OLD) ||
-				(area(c_y,c_x)->feat == FEAT_PATTERN_END) ||
-				(area(c_y,c_x)->feat == FEAT_PATTERN_XTRA2))
+	         (area(c_y,c_x)->feat == FEAT_PATTERN_END) ||
+	         (area(c_y,c_x)->feat == FEAT_PATTERN_XTRA2))
 	{
 		if (!pattern_tile(n_y, n_x))
 		{
@@ -2191,12 +2227,12 @@ static bool pattern_seq(int c_y, int c_x, int n_y, int n_x)
 					break;
 				default:
 					if (p_ptr->wizard)
-						msg_format("Funny Pattern walking, %d.", *area(c_y,c_x));
+						msg_format("Funny Pattern walking, %d.", *area(c_y, c_x));
 					return TRUE; /* Goof-up */
 			}
 
-			if ((area(n_y,n_x)->feat == ok_move) ||
-				 (area(n_y,n_x)->feat == area(c_y,c_x)->feat))
+			if ((area(n_y, n_x)->feat == ok_move) ||
+			    (area(n_y, n_x)->feat == area(c_y, c_x)->feat))
 				return TRUE;
 
 			else
@@ -2271,7 +2307,7 @@ void move_player(int dir, int do_pickup)
 	}
 
 	/* Examine the destination */
-	c_ptr = area(y,x);
+	c_ptr = area(y, x);
 
 	/* Get the monster */
 	m_ptr = &m_list[c_ptr->m_idx];
@@ -2287,15 +2323,17 @@ void move_player(int dir, int do_pickup)
 	/* unless in Shadow Form */
 	if (p_ptr->wraith_form || p_ptr->pass_wall)
 		p_can_pass_walls = TRUE;
+
+	/* Never walk through permanent features */
 	if ((c_ptr->feat >= FEAT_PERM_EXTRA) &&
 	    (c_ptr->feat <= FEAT_PERM_SOLID))
 	{
 		p_can_pass_walls = FALSE;
 	}
-	
+
 	/* Get passability of field(s) if there */
 	p_can_pass_fields = !(fields_have_flags(c_ptr->fld_idx,
-		 FIELD_INFO_NO_ENTER));
+	                                        FIELD_INFO_NO_ENTER));
 
 	/* Hack -- attack monsters */
 	if (c_ptr->m_idx && (m_ptr->ml || cave_floor_grid(c_ptr) || p_can_pass_walls))
@@ -2363,19 +2401,18 @@ void move_player(int dir, int do_pickup)
 	 * Rangers can move without penality
 	 */
 	else if ((c_ptr->feat == FEAT_TREES) ||
-		(c_ptr->feat == FEAT_PINE_TREE) ||
-		(c_ptr->feat == FEAT_SNOW_TREE))
+	         (c_ptr->feat == FEAT_PINE_TREE) ||
+	         (c_ptr->feat == FEAT_SNOW_TREE))
 	{
 		oktomove = TRUE;
 		if (p_ptr->pclass != CLASS_RANGER) p_ptr->energy_use += 10;
 	}
 
 	/* Some terrains are hard to move through */
-
 	else if ((c_ptr->feat == FEAT_MOUNTAIN) ||
-		(c_ptr->feat == FEAT_SNOW_MOUNTAIN) ||
-		(c_ptr->feat == FEAT_OBELISK) ||
-		(c_ptr->feat == FEAT_BOULDER))
+	         (c_ptr->feat == FEAT_SNOW_MOUNTAIN) ||
+	         (c_ptr->feat == FEAT_OBELISK) ||
+	         (c_ptr->feat == FEAT_BOULDER))
 	{
 		oktomove = TRUE;
 		p_ptr->energy_use += 10;
@@ -2402,7 +2439,7 @@ void move_player(int dir, int do_pickup)
 				oktomove = FALSE;
 
 				/* Disturb the player */
-				disturb(0, 0);
+				disturb(FALSE);
 			}
 		}
 		else
@@ -2410,7 +2447,7 @@ void move_player(int dir, int do_pickup)
 			oktomove = FALSE;
 
 			/* Disturb the player */
-			disturb(0, 0);
+			disturb(FALSE);
 
 			/* Notice things in the dark */
 			if ((!(c_ptr->info & CAVE_MARK)) &&
@@ -2455,7 +2492,7 @@ void move_player(int dir, int do_pickup)
 		oktomove = FALSE;
 
 		/* Disturb the player */
-		disturb(0, 0);
+		disturb(FALSE);
 
 		/* Notice things in the dark */
 		if ((!(c_ptr->info & (CAVE_MARK))) &&
@@ -2524,7 +2561,7 @@ void move_player(int dir, int do_pickup)
 		}
 
 		/* To avoid a loop with running */
-		disturb(0, 0);
+		disturb(FALSE);
 
 		oktomove = FALSE;
 	}
@@ -2599,15 +2636,14 @@ void move_player(int dir, int do_pickup)
 			/* We are out of range */
 				
 			/* Disturb */
-			disturb(0, 0);
+			disturb(FALSE);
 				
 			/* Reset the detection flag */
 			p_ptr->detected = FALSE;
 		}
 
 		/* Spontaneous Searching */
-		if ((p_ptr->skill_fos >= 50) ||
-		    (0 == randint0(50 - p_ptr->skill_fos)))
+		if ((p_ptr->skill_fos >= 50) || one_in_(50 - p_ptr->skill_fos))
 		{
 			search();
 		}
@@ -2627,7 +2663,7 @@ void move_player(int dir, int do_pickup)
 		else if (area(y,x)->feat == FEAT_QUEST_ENTER)
 		{
 			/* Disturb */
-			disturb(0, 0);
+			disturb(FALSE);
 
 			/* Hack -- Enter quest level */
 			p_ptr->command_new = '[';
@@ -3463,7 +3499,7 @@ void run_step(int dir)
 			msg_print("You cannot run in that direction.");
 
 			/* Disturb */
-			disturb(0, 0);
+			disturb(FALSE);
 
 			/* Done */
 			return;
@@ -3483,7 +3519,7 @@ void run_step(int dir)
 		if (run_test())
 		{
 			/* Disturb */
-			disturb(0, 0);
+			disturb(FALSE);
 
 			/* Done */
 			return;
@@ -3499,3 +3535,4 @@ void run_step(int dir)
 	/* Move the player, using the "pickup" flag */
 	move_player(p_ptr->run_cur_dir, FALSE);
 }
+

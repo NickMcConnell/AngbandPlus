@@ -463,8 +463,8 @@ static void image_monster(byte *ap, char *cp)
 	/* Random symbol from set above */
 	if (use_graphics)
 	{
-		(*cp) = r_info[randint1(max_r_idx-1)].x_char;
-		(*ap) = r_info[randint1(max_r_idx-1)].x_attr;
+		(*cp) = r_info[randint1(max_r_idx - 1)].x_char;
+		(*ap) = r_info[randint1(max_r_idx - 1)].x_attr;
 	}
 	else
 	/* Text mode */
@@ -494,8 +494,8 @@ static void image_object(byte *ap, char *cp)
 
 	if (use_graphics)
 	{
-		(*cp) = k_info[randint1(max_k_idx-1)].x_char;
-		(*ap) = k_info[randint1(max_k_idx-1)].x_attr;
+		(*cp) = k_info[randint1(max_k_idx - 1)].x_char;
+		(*ap) = k_info[randint1(max_k_idx - 1)].x_attr;
 	}
 	else
 	{
@@ -713,7 +713,7 @@ static void variable_player_graph(byte *a, char *c)
 							*a = TERM_VIOLET;
 						break;
 					case CLASS_CHAOS_WARRIOR:
-						*a = randint0(14) + 1;
+						*a = randint1(14);
 						break;
 					case CLASS_MAGE:
 					case CLASS_HIGH_MAGE:
@@ -876,7 +876,7 @@ static void variable_player_graph(byte *a, char *c)
  * which means their color changes, and "ATTR_CLEAR", which means they take
  * the color of whatever is under them, and "CHAR_CLEAR", which means that
  * they take the symbol of whatever is under them.  Technically, the flag
- * "CHAR_MULTI" is supposed to indicate that a monster looks strange when
+ * "CHAR_MIMIC" is supposed to indicate that a monster looks strange when
  * examined, but this flag is currently ignored.  All of these flags are
  * ignored if the "avoid_other" option is set, since checking for these
  * conditions is expensive and annoying on some systems.
@@ -967,7 +967,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 	byte info;
 
 	byte a;
-	byte c;
+	char c;
 
 	bool feat_not_ascii;
 	s16b halluc = p_ptr->image;
@@ -1065,9 +1065,22 @@ void map_info(int y, int x, byte *ap, char *cp)
 
 #ifdef USE_TRANSPARENCY
 	/* Save the terrain info for the transparency effects */
-	(*tap) = a;
-	(*tcp) = c;
-
+	
+	/* Does the feature have "extended terrain" information? */
+	if (f_ptr->w_attr)
+	{
+		/*
+		 * Store extended terrain information. 
+		 * Note hack to get lighting right.
+		 */
+		(*tap) = f_ptr->w_attr + a - f_ptr->x_attr;
+		(*tcp) = f_ptr->w_char + c - f_ptr->x_char;
+	}
+	else
+	{
+		(*tap) = a;
+		(*tcp) = c;
+	}
 #endif /* USE_TRANSPARENCY */
 
 	/* Handle "player" */
@@ -1128,12 +1141,12 @@ void map_info(int y, int x, byte *ap, char *cp)
 				{
 					if (use_graphics)
 					{
-						c = r_info[randint1(max_r_idx-1)].x_char;
-						a = r_info[randint1(max_r_idx-1)].x_attr;
+						c = r_info[randint1(max_r_idx - 1)].x_char;
+						a = r_info[randint1(max_r_idx - 1)].x_attr;
 					}
 					else
 					{
-						c = (randint1(25) == 1 ?
+						c = (one_in_(25) ?
 							image_object_hack[randint1(strlen(image_object_hack))] :
 							image_monster_hack[randint1(strlen(image_monster_hack))]);
 					}
@@ -1242,6 +1255,17 @@ void map_info(int y, int x, byte *ap, char *cp)
 			}
 			else
 			{
+				/* Hack - no monochrome effects.  Add them later? */
+				
+				/* Do we need to look at objects? */
+				if (fld_ptr->info & (FIELD_INFO_IGNORE))
+				{
+					c = fld_ptr->f_char;
+					a = fld_ptr->f_attr;
+					break;
+				}
+				
+				
 				/* Above objects */
 
 				/* Normal char */
@@ -1249,8 +1273,6 @@ void map_info(int y, int x, byte *ap, char *cp)
 
 				/* Normal attr */
 				(*ap) = fld_ptr->f_attr;
-
-				/* Hack - no monochrome effects.  Add them later? */
 
 				/* Done */
 				return;
@@ -2638,6 +2660,9 @@ static bool ang_sort_comp_hook_longs(vptr u, vptr v, int a, int b)
 {
 	long *x = (long*)(u);
 
+	/* Hack - ignore v */
+	(void) v;
+	
 	return (x[a] <= x[b]);
 }
 
@@ -2653,6 +2678,9 @@ static void ang_sort_swap_hook_longs(vptr u, vptr v, int a, int b)
 
 	long temp;
 
+	/* Hack - ignore v */
+	(void) v;
+	
 	/* Swap */
 	temp = x[a];
 	x[a] = x[b];
@@ -3053,8 +3081,8 @@ void update_view(void)
 			temp_n++;
 		}
 
-		/* Clear "CAVE_VIEW" and "CAVE_LITE" flags */
-		info &= ~(CAVE_VIEW | CAVE_LITE);
+		/* Clear "CAVE_VIEW" flag */
+		info &= ~(CAVE_VIEW);
 
 		/* Save cave info */
 		c_ptr->info = info;
@@ -3200,8 +3228,19 @@ void update_view(void)
 					/* Torch-lit grids */
 					if (p->d <= radius)
 					{
-						/* Mark as "CAVE_LITE" */
-						info |= (CAVE_LITE);
+						if (!(info & CAVE_LITE))
+						{
+							/* Mark as "CAVE_LITE" */
+							info |= (CAVE_LITE);
+							
+							/* Clear the 'do not update flag' */
+							info &= ~(CAVE_TEMP);
+						}
+					}
+					else if (info & CAVE_LITE)
+					{
+						/* Clear the flag, and then redraw */
+						info &= ~(CAVE_LITE | CAVE_TEMP);
 					}
 
 					/* Memorize? */
@@ -3262,24 +3301,43 @@ void update_view(void)
 					/* Torch-lit grids */
 					if (p->d <= radius)
 					{
-						/* Mark as "CAVE_LITE", "CAVE_MARK" */
-						info |= (CAVE_LITE | CAVE_MARK);
-					}
-
-					/* Perma-lit grids */
-					else if (info & (CAVE_GLOW))
-					{
-						int yy, xx;
-
-						/* Hack -- move one grid towards player */
-						yy = (y < py) ? (y + 1) : (y > py) ? (y - 1) : y;
-						xx = (x < px) ? (x + 1) : (x > px) ? (x - 1) : x;
-
-						/* Check for "local" illumination */
-						if (area(yy, xx)->info & (CAVE_GLOW))
+						if (!(info & CAVE_LITE))
 						{
-							/* Memorize */
+							/* Mark as "CAVE_LITE" */
+							info |= (CAVE_LITE | CAVE_MARK);
+														
+							/* Clear the 'do not update flag' */
+							info &= ~(CAVE_TEMP);
+						}
+						else
+						{
+							/* Mark as "CAVE_MARK" */
 							info |= (CAVE_MARK);
+						}
+					}
+					else 
+					{
+						if (info & CAVE_LITE)
+						{
+							/* Clear the flag, and then redraw */
+							info &= ~(CAVE_LITE | CAVE_TEMP);
+						}
+
+						/* Perma-lit grids */
+						if (info & (CAVE_GLOW))
+						{
+							int yy, xx;
+
+							/* Hack -- move one grid towards player */
+							yy = (y < py) ? (y + 1) : (y > py) ? (y - 1) : y;
+							xx = (x < px) ? (x + 1) : (x > px) ? (x - 1) : x;
+	
+							/* Check for "local" illumination */
+							if (area(yy, xx)->info & (CAVE_GLOW))
+							{
+								/* Memorize */
+								info |= (CAVE_MARK);
+							}
 						}
 					}
 
@@ -3381,12 +3439,20 @@ void update_view(void)
 				info &= ~(CAVE_MARK);
 			}
 
+			/* Clear the cave-lite flag */
+			info &= ~(CAVE_LITE);
+			
+			/* Save cave info */
+			c_ptr->info = info;
+			
 			/* Redraw */
 			lite_spot(y, x);
 		}
-
-		/* Save cave info */
-		c_ptr->info = info;
+		else
+		{
+			/* Save cave info */
+			c_ptr->info = info;
+		}
 	}
 
 	/* None left */
@@ -4358,7 +4424,7 @@ void object_kind_track(int k_idx)
  *
  * All disturbance cancels repeated commands, resting, and running.
  */
-void disturb(int stop_search, int unused_flag)
+void disturb(bool stop_search)
 {
 	/* Cancel repeated commands */
 	if (p_ptr->command_rep)

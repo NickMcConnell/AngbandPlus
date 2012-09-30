@@ -27,6 +27,9 @@
 /* Minimum fractional distance a road can approach a non-connecting town */
 #define ROAD_MIN		3
 
+/* Minimum separation between towns */
+#define TOWN_MIN_DIST	16
+
 
 /* Dodgy replacement for SCREEN_WID and SCREEN_HGT */
 
@@ -41,16 +44,48 @@
 #define ROAD_BORDER		(WILD_BLOCK_SIZE * 120)
 #define GROUND_LEVEL	(WILD_BLOCK_SIZE * 100)
 
-extern int wild_stairs_x;
-extern int wild_stairs_y;
+/* Some useful macros */
+#define build_is_store(X) \
+	(wild_build[X].type == BT_STORE)
+
+#define build_is_general(X) \
+	(wild_build[X].type == BT_GENERAL)
+
+#define build_is_build(X) \
+	(wild_build[X].type == BT_BUILD)
+
+/* Wilderness building info type */
+typedef struct wild_building_type wild_building_type;
+
+struct wild_building_type
+{
+	u16b	gen;	/* Created */
+	u16b	field;	/* Field type, if applicable */
+	
+	byte	type;	/* Type of building */
+	
+	/* Suggested location in parameter space */
+	byte	pop;
+	byte	magic;
+	byte	law;
+	
+	u16b	rarity;	/* Rarity of store */
+};
+
 
 /* Externs */
-extern bool build_is_general(byte type);
+
+extern int wild_stairs_x;
+extern int wild_stairs_y;
+extern wild_building_type	wild_build[MAX_CITY_BUILD];
+extern byte build_x[WILD_BLOCK_SIZE * WILD_BLOCK_SIZE];
+extern byte build_y[WILD_BLOCK_SIZE * WILD_BLOCK_SIZE];
+
+extern byte fill_town_driver(void);
 extern void clear_temp_block(void);
 extern void set_temp_corner_val(u16b val);
 extern void set_temp_mid(u16b val);
 extern void frac_block(void);
-extern bool town_blank(int x, int y, int xsize, int ysize);
 extern void draw_city(u16b town_num);
 extern void van_town_gen(u16b town_num);
 extern void init_wild_cache(void);

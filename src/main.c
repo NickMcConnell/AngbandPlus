@@ -35,6 +35,9 @@ static void quit_hook(cptr s)
 {
 	int j;
 
+	/* Ignore s */
+	(void) s;
+	
 	/* Scan windows */
 	for (j = 8 - 1; j >= 0; j--)
 	{

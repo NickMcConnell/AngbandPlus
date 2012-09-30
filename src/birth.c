@@ -769,17 +769,6 @@ static byte choose_realm(byte choices)
  */
 static bool get_player_realms(void)
 {
-#ifdef USE_SCRIPT
-	int result = get_player_realms_callback();
-
-	if (result == -1)
-		/* Restart */
-		return FALSE;
-	else if (result == 1)
-		/* Success */
-		return TRUE;
-#endif /* USE_SCRIPT */
-
 	/* Select the first realm */
 	p_ptr->realm1 = choose_realm(realm_choices1[p_ptr->pclass]);
 
@@ -1005,11 +994,11 @@ static int adjust_stat(int value, int amount, int auto_roll)
 			}
 			else if (value < 18+70)
 			{
-				value += ((auto_roll ? 15 : randint1(15)) + 5);
+				value += (auto_roll ? 15 : rand_range(5, 20));
 			}
 			else if (value < 18+90)
 			{
-				value += ((auto_roll ? 6 : randint1(6)) + 2);
+				value += (auto_roll ? 6 : rand_range(2, 8));
 			}
 			else if (value < 18+100)
 			{
@@ -1463,7 +1452,7 @@ static void get_money(void)
 	int i, gold;
 
 	/* Social Class determines starting gold */
-	gold = (p_ptr->sc * 6) + randint1(100) + 300;
+	gold = (p_ptr->sc * 6) + rand_range(300, 400);
 
 	/* Process the stats */
 	for (i = 0; i < A_MAX; i++)
@@ -1900,17 +1889,6 @@ static bool get_player_race(void)
 	char    buf[80];
 
 
-#ifdef USE_SCRIPT
-	int result = get_player_race_callback();
-
-	if (result == -1)
-		/* Restart */
-		return FALSE;
-	else if (result == 1)
-		/* Success */
-		return TRUE;
-#endif /* USE_SCRIPT */
-
 	/* Extra info */
 	Term_putstr(5, 15, -1, TERM_WHITE,
 		"Your 'race' determines various intrinsic factors and bonuses.");
@@ -2022,17 +2000,6 @@ static bool get_player_class(void)
 	cptr    str;
 
 
-#ifdef USE_SCRIPT
-	int result = get_player_class_callback();
-
-	if (result == -1)
-		/* Restart */
-		return FALSE;
-	else if (result == 1)
-		/* Success */
-		return TRUE;
-#endif /* USE_SCRIPT */
-
 	/* Extra info */
 	Term_putstr(5, 15, -1, TERM_WHITE,
 		"Your 'class' determines various intrinsic abilities and bonuses.");
@@ -2132,9 +2099,18 @@ static bool player_birth_aux_1(void)
 	char buf[80];
 	char inp[80];
 
+
 #ifdef USE_SCRIPT
+
 	int result;
-#endif /* USE_SCRIPT */
+
+	/* Generate the player */
+	result = player_birth_callback();
+
+	/* Restart ? */
+	if (result == -1) return FALSE;
+
+#else /* USE_SCRIPT */
 
 	/*** Instructions ***/
 
@@ -2151,20 +2127,6 @@ static bool player_birth_aux_1(void)
 	Term_putstr(5, 13, -1, TERM_WHITE,
 	            "and '?' for help.  Note that 'Q' and 'S' must be capitalized.");
 
-
-#ifdef USE_SCRIPT
-	/*
-	 * Ask for the world
-	 */
-	result = get_world_callback();
-
-	if (result == -1)
-		/* Restart */
-		return FALSE;
-
-	/* Clean up */
-	clear_from(15);
-#endif /* USE_SCRIPT */
 
 	/*** Player sex ***/
 
@@ -2250,6 +2212,8 @@ static bool player_birth_aux_1(void)
 	/* Choose the magic realms */
 	if (!get_player_realms()) return FALSE;
 
+#endif /* USE_SCRIPT */
+
 	/* Clear */
 	clear_from(20);
 
@@ -2270,7 +2234,6 @@ static bool player_birth_aux_1(void)
 	/* Ask the number of additional quests */
 	while (TRUE)
 	{
-
 		put_str(format("Number of additional quests? (<%u) ", MAX_RANDOM_QUEST - MIN_RANDOM_QUEST + 2), 20, 2);
 
 		/* Get a the number of additional quest */
@@ -2306,9 +2269,8 @@ static bool player_birth_aux_1(void)
 	clear_from(15);
 
 	/* Init the random quests */
-	init_flags = INIT_ASSIGN;
 	p_ptr->inside_quest = MIN_RANDOM_QUEST;
-	process_dungeon_file("q_info.txt", 0, 0, 0, 0);
+	process_dungeon_file("q_info.txt", INIT_ASSIGN);
 	p_ptr->inside_quest = 0;
 
 	/* Prepare allocation table */
@@ -2336,6 +2298,9 @@ static bool player_birth_aux_1(void)
 
 			r_idx = get_mon_num(level);
 			r_ptr = &r_info[r_idx];
+
+			/* Look at the monster - only "hard" monsters for quests */
+			if (r_ptr->flags1 & (RF1_NEVER_MOVE | RF1_FRIENDS)) continue;
 
 			/* Save the index if the monster is deeper than current monster */
 			if (!q_ptr->r_idx || (r_info[r_idx].level > r_info[q_ptr->r_idx].level))
@@ -2375,13 +2340,12 @@ static bool player_birth_aux_1(void)
 	}
 
 	/* Init the two main quests (Oberon + Serpent) */
-	init_flags = INIT_ASSIGN;
 	p_ptr->inside_quest = QUEST_OBERON;
-	process_dungeon_file("q_info.txt", 0, 0, 0, 0);
+	process_dungeon_file("q_info.txt", INIT_ASSIGN);
 	quest[QUEST_OBERON].status = QUEST_STATUS_TAKEN;
 
 	p_ptr->inside_quest = QUEST_SERPENT;
-	process_dungeon_file("q_info.txt", 0, 0, 0, 0);
+	process_dungeon_file("q_info.txt", INIT_ASSIGN);
 	quest[QUEST_SERPENT].status = QUEST_STATUS_TAKEN;
 	p_ptr->inside_quest = 0;
 
@@ -2557,13 +2521,13 @@ static bool player_birth_aux_2(void)
 		/* Prev stat */
 		if (ch == '8')
 		{
-			stat = (stat + 5) % 6;
+			stat = (stat + A_MAX - 1) % A_MAX;
 		}
 
 		/* Next stat */
 		if (ch == '2')
 		{
-			stat = (stat + 1) % 6;
+			stat = (stat + 1) % A_MAX;
 		}
 
 		/* Decrease stat */

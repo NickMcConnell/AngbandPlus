@@ -972,6 +972,12 @@ static void object_analyze(object_type *o_ptr, obj_desc_list *desc_ptr)
 	analyze_misc(o_ptr, desc_ptr->misc_desc);
 
 	desc_ptr->activation = item_activation(o_ptr);
+
+	if (streq("nothing", desc_ptr->activation))
+	{
+		/* Display nothing, if there is no activation */
+		desc_ptr->activation = "";
+	}
 }
 
 
@@ -1188,10 +1194,12 @@ static bool make_fake_artifact(object_type *o_ptr, int a_idx)
 	/* Create the artifact */
 	object_prep(o_ptr, i);
 
-	/* Save the activation */
-	o_ptr->activate = a_idx + 128;
+	/* Save the artifact flags */
+	o_ptr->flags1 |= a_ptr->flags1;
+	o_ptr->flags2 |= a_ptr->flags2;
+	o_ptr->flags3 |= a_ptr->flags3;
 
-	/* Extract the fields */
+	/* Set the fields */
 	o_ptr->pval = a_ptr->pval;
 	o_ptr->ac = a_ptr->ac;
 	o_ptr->dd = a_ptr->dd;
@@ -1201,9 +1209,15 @@ static bool make_fake_artifact(object_type *o_ptr, int a_idx)
 	o_ptr->to_d = a_ptr->to_d;
 	o_ptr->weight = a_ptr->weight;
 
+	/* Mega-Hack -- set activation */
+	o_ptr->activate = a_idx + 128;
+
 	/* Do not make another one */
 	a_ptr->cur_num = 1;
 
+	/* Hack: Some artifacts get random extra powers */
+	random_artifact_resistance(o_ptr);
+	
 	/* Save the inscription */
 	o_ptr->xtra_name = quark_add(a_name + a_ptr->name);
 
@@ -1792,9 +1806,9 @@ static void spoil_mon_info(cptr fname)
 			else spoil_out("an escort.  ");
 		}
 
-		if ((flags1 & RF1_FRIEND) || (flags1 & RF1_FRIENDS))
+		if (flags1 & (RF1_CHAR_MIMIC))
 		{
-			sprintf(buf, "%s usually appears in groups.  ", wd_che[msex]);
+			sprintf(buf, "%s is a mimic.  ", wd_che[msex]);
 			spoil_out(buf);
 		}
 
@@ -2336,6 +2350,193 @@ static void spoil_mon_info(cptr fname)
 
 
 
+/*
+ * Create a spoiler file for nutations
+ */
+static void spoil_mutation(cptr fname)
+{
+	int i;
+	char buf[1024];
+
+	mutation_type *mut_ptr;
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_USER, fname);
+
+	/* File type is "TEXT" */
+	FILE_TYPE(FILE_TYPE_TEXT);
+
+	/* Open the file */
+	fff = my_fopen(buf, "w");
+
+	/* Oops */
+	if (!fff)
+	{
+		msg_print("Cannot create spoiler file.");
+		return;
+	}
+
+	/* Dump the header */
+	sprintf(buf, "Mutation Spoilers for Zangband Version %d.%d.%d",
+	        FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH);
+	spoiler_underline(buf);
+	spoiler_blanklines(1);
+
+	for (i = 0; i < MUT_PER_SET * 3; i++)
+	{
+		mut_ptr = &mutations[i];
+
+		/* Headers */
+		if (i == 0)
+		{
+			/* Activatable mutations */
+			sprintf(buf, "The activatable mutations");
+			spoiler_underline(buf);
+			spoiler_blanklines(1);
+		}
+		else if (i == MUT_PER_SET)
+		{
+			/* Random mutations */
+			sprintf(buf, "Randomly activating mutations");
+			spoiler_underline(buf);
+			spoil_out(NULL);		
+		}
+		else if (i == MUT_PER_SET * 2)
+		{
+			/* Other mutations */
+			sprintf(buf, "Other mutations");
+			spoiler_underline(buf);
+			spoil_out(NULL);		
+		}
+		
+		/* Describe mutation */
+		sprintf(buf, mut_ptr->desc_text);
+		spoil_out(buf);
+
+		/* Type 1? */
+		if (i < MUT_PER_SET)
+		{
+			sprintf(buf, "- Activation: %s \n", mut_ptr->name);
+			spoil_out(buf);
+
+			sprintf(buf, "- Min. level: %d \n", mut_ptr->level);
+			spoil_out(buf);
+
+			sprintf(buf, "- HP/SP Cost: %d \n", mut_ptr->cost);
+			spoil_out(buf);
+
+			sprintf(buf, "- Statistic : %3s \n", 
+				stat_names_reduced[mut_ptr->stat]);
+			spoil_out(buf);
+
+			sprintf(buf, "- Difficulty: %d \n", mut_ptr->diff);
+			spoil_out(buf);
+		}
+		
+		/* Type 2? */
+		else if (i < MUT_PER_SET * 2)
+		{
+			if (mut_ptr->chance > 0)
+			{
+				sprintf(buf, "- Chance/turn: 1-in-%d\n", mut_ptr->chance * 100);
+				spoil_out(buf);
+			}	
+		}
+
+		spoiler_blanklines(1);
+	}
+
+	/* Check for errors */
+	if (ferror(fff) || my_fclose(fff))
+	{
+		msg_print("Cannot close spoiler file.");
+		return;
+	}
+
+	/* Message */
+	msg_print("Successfully created a spoiler file.");
+}
+
+
+/*
+ * Create a spoiler file for artifacts
+ */
+static void spoil_rac_pow(cptr fname)
+{
+	int i;
+	char buf[1024];
+
+	mutation_type *mut_ptr;
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_USER, fname);
+
+	/* File type is "TEXT" */
+	FILE_TYPE(FILE_TYPE_TEXT);
+
+	/* Open the file */
+	fff = my_fopen(buf, "w");
+
+	/* Oops */
+	if (!fff)
+	{
+		msg_print("Cannot create spoiler file.");
+		return;
+	}
+
+	/* Dump the header */
+	sprintf(buf, "Racial Powers Spoilers for Zangband Version %d.%d.%d",
+	        FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH);
+	spoiler_underline(buf);
+	spoiler_blanklines(1);
+
+	/* The Racial Powers */
+	sprintf(buf, "The Racial Powers");
+	spoiler_underline(buf);
+	spoiler_blanklines(1);
+
+	for (i = 0; i < MAX_RACE_POWERS; i++)
+	{
+		mut_ptr = &race_powers[i];
+
+
+
+		/* Describe power */
+		rp_ptr = &race_info[mut_ptr->which];
+		sprintf(buf, "%s", rp_ptr->title);
+		spoiler_underline(buf);
+
+		sprintf(buf, mut_ptr->desc_text);
+		spoil_out(buf);
+
+		sprintf(buf, "- Activation: %s \n", mut_ptr->name);
+		spoil_out(buf);
+
+		sprintf(buf, "- Min. level: %d \n", mut_ptr->level);
+		spoil_out(buf);
+
+		sprintf(buf, "- HP/SP Cost: %d \n", mut_ptr->cost);
+		spoil_out(buf);
+
+		sprintf(buf, "- Statistic : %3s \n", stat_names_reduced[mut_ptr->stat]);
+		spoil_out(buf);
+
+		sprintf(buf, "- Difficulty: %d \n", mut_ptr->diff);
+		spoil_out(buf);
+
+		spoiler_blanklines(1);
+	}
+
+	/* Check for errors */
+	if (ferror(fff) || my_fclose(fff))
+	{
+		msg_print("Cannot close spoiler file.");
+		return;
+	}
+
+	/* Message */
+	msg_print("Successfully created a spoiler file.");
+}
 
 
 /*
@@ -2373,6 +2574,8 @@ void do_cmd_spoilers(void)
 		prt("(2) Brief Artifact Info (artifact.spo)", 6, 5);
 		prt("(3) Brief Monster Info (mon-desc.spo)", 7, 5);
 		prt("(4) Full Monster Info (mon-info.spo)", 8, 5);
+		prt("(5) Brief Mutation Info (mutation.spo)", 9, 5);
+		prt("(6) Brief Racial Powers Info (rac-pow.spo)", 10, 5);
 
 		/* Prompt */
 		prt("Command: ", 12, 0);
@@ -2409,7 +2612,19 @@ void do_cmd_spoilers(void)
 		{
 			spoil_mon_info("mon-info.spo");
 		}
+		
+		/* Option (5) */
+		else if (i == '5')
+		{
+			spoil_mutation("mutation.spo");
+		}
 
+		/* Option (6) */
+		else if (i == '6')
+		{
+			spoil_rac_pow("rac-pow.spo");
+		}
+		
 		/* Oops */
 		else
 		{

@@ -536,7 +536,7 @@ void do_cmd_mindcraft(void)
 			else if (b < 15)
 			{
 				msg_print("Weird visions seem to dance before your eyes...");
-				set_image(p_ptr->image + 5 + randint1(10));
+				set_image(p_ptr->image + rand_range(5, 15));
 			}
 			else if (b < 45)
 			{
@@ -604,7 +604,7 @@ void do_cmd_mindcraft(void)
 			msg_print("You have damaged your mind!");
 
 			/* Reduce constitution */
-			(void)dec_stat(A_WIS, 15 + randint1(10), perm);
+			(void)dec_stat(A_WIS, rand_range(15, 25), perm);
 		}
 	}
 

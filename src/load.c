@@ -865,15 +865,9 @@ static errr rd_store(int town_number, int store_number)
 	}
 	
 	
-	/* Initialise the store */
-	if (build_is_store(type))
-	{
-		store_init(town_number, store_number, type);
-	}
-	else
-	{
-		st_ptr->type = type;
-	}
+	/* Hack - Initialise the store (even if not really a store) */
+	store_init(town_number, store_number, type);
+
 	
 	/* Restore the saved parameters */
 	st_ptr->store_open = store_open;
@@ -924,7 +918,7 @@ static errr rd_store(int town_number, int store_number)
 		rd_item(q_ptr);
 
 		/* Acquire valid items */
-		if (st_ptr->stock_num < STORE_INVEN_MAX)
+		if (st_ptr->stock_num < st_ptr->max_stock)
 		{
 			int k = st_ptr->stock_num++;
 
@@ -1362,8 +1356,12 @@ static void rd_extra(void)
 
 	/* Hack -- the two "special seeds" */
 	rd_u32b(&seed_flavor);
-	rd_u32b(&seed_town);
-
+	
+	if (sf_version < 24)
+	{
+		/* No more seed_town */
+		strip_bytes(4);
+	}
 
 	/* Special stuff */
 	rd_u16b(&p_ptr->panic_save);
@@ -1926,7 +1924,7 @@ static void load_wild_data(void)
 }
 
 /* The version when the format of the wilderness last changed */
-#define VERSION_CHANGE_WILD		23
+#define VERSION_CHANGE_WILD		24
 
 
 /*
@@ -2772,9 +2770,8 @@ static errr rd_savefile_new_aux(void)
 		clear_from(15);
 
 		/* Init the random quests */
-		init_flags = INIT_ASSIGN;
 		p_ptr->inside_quest = MIN_RANDOM_QUEST;
-		process_dungeon_file("q_info.txt", 0, 0, 0, 0);
+		process_dungeon_file("q_info.txt", INIT_ASSIGN);
 		p_ptr->inside_quest = 0;
 
 		/* Prepare allocation table */
@@ -2791,7 +2788,7 @@ static errr rd_savefile_new_aux(void)
 			for (j = 0; j < MAX_TRIES; j++)
 			{
 				/* Random monster 5 - 10 levels out of depth */
-				q_ptr->r_idx = get_mon_num(q_ptr->level + 4 + randint1(6));
+				q_ptr->r_idx = get_mon_num(q_ptr->level + rand_range(4, 10));
 
 				r_ptr = &r_info[q_ptr->r_idx];
 
@@ -2809,18 +2806,17 @@ static errr rd_savefile_new_aux(void)
 			}
 			else
 			{
-				q_ptr->max_num = 5 + (s16b)randint0(q_ptr->level/3 + 5);
+				q_ptr->max_num = (s16b)rand_range(5, q_ptr->level/3 + 10);
 			}
 		}
 
 		/* Init the two main quests (Oberon + Serpent) */
-		init_flags = INIT_ASSIGN;
 		p_ptr->inside_quest = QUEST_OBERON;
-		process_dungeon_file("q_info.txt", 0, 0, 0, 0);
+		process_dungeon_file("q_info.txt", INIT_ASSIGN);
 		quest[QUEST_OBERON].status = QUEST_STATUS_TAKEN;
 
 		p_ptr->inside_quest = QUEST_SERPENT;
-		process_dungeon_file("q_info.txt", 0, 0, 0, 0);
+		process_dungeon_file("q_info.txt", INIT_ASSIGN);
 		quest[QUEST_SERPENT].status = QUEST_STATUS_TAKEN;
 		p_ptr->inside_quest = 0;
 	}
@@ -2860,7 +2856,7 @@ static errr rd_savefile_new_aux(void)
 			if (c == '*')
 			{
 				c = 'y';
-				if (randint1(2) == 1)
+				if (one_in_(2))
 					c = 'n';
 				break;
 			}
@@ -2909,7 +2905,7 @@ static errr rd_savefile_new_aux(void)
 			if (c == '*')
 			{
 				c = 'y';
-				if (randint1(2) == 1)
+				if (one_in_(2))
 					c = 'n';
 				break;
 			}
