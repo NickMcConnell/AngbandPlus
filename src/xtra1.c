@@ -3644,6 +3644,29 @@ void window_stuff(void)
 		fix_message();
 	}
 
+	/* Display object recall */
+	if (p_ptr->window & (PW_OBJECT))
+	{
+		p_ptr->window &= ~(PW_OBJECT);
+		fix_object();
+	}
+	
+	/* Display monster recall */
+	if (p_ptr->window & (PW_MONSTER))
+	{
+		p_ptr->window &= ~(PW_MONSTER);
+		fix_monster();
+	}
+
+	/* Do not update map it, doesn't exist */
+	if (!character_dungeon) return;
+
+	/* Display monster list */
+	if (p_ptr->window & (PW_VISIBLE))
+	{
+		p_ptr->window &= ~(PW_VISIBLE);
+		fix_visible();
+	}
 	/* Display overhead view */
 	if (p_ptr->window & (PW_OVERHEAD))
 	{
@@ -3656,27 +3679,6 @@ void window_stuff(void)
 	{
 		p_ptr->window &= ~(PW_DUNGEON);
 		fix_dungeon();
-	}
-
-	/* Display monster recall */
-	if (p_ptr->window & (PW_MONSTER))
-	{
-		p_ptr->window &= ~(PW_MONSTER);
-		fix_monster();
-	}
-
-	/* Display monster list */
-	if (p_ptr->window & (PW_VISIBLE))
-	{
-		p_ptr->window &= ~(PW_VISIBLE);
-		fix_visible();
-	}
-
-	/* Display object recall */
-	if (p_ptr->window & (PW_OBJECT))
-	{
-		p_ptr->window &= ~(PW_OBJECT);
-		fix_object();
 	}
 }
 

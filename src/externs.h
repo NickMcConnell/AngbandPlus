@@ -571,8 +571,8 @@ extern bool item_tester_hook_is_book(const object_type *o_ptr);
 extern bool item_tester_okay(const object_type *o_ptr);
 extern void display_inven(void);
 extern void display_equip(void);
-extern void show_list(s16b o_list_ptr);
-extern void show_equip(void);
+extern void show_list(s16b o_list_ptr, bool store);
+extern void show_equip(bool store);
 extern void toggle_inven_equip(void);
 extern object_type *get_item(cptr pmt, cptr str, int mode);
 extern void delete_held_object(s16b *o_idx_ptr, object_type *o_ptr);
@@ -813,6 +813,7 @@ extern void map_wilderness(int radius, s32b x, s32b y);
 extern void sanity_blast(const monster_type *m_ptr);
 
 /* store.c */
+extern s32b price_item(object_type *o_ptr, bool flip);
 extern bool allocate_store(store_type *st_ptr);
 extern store_type *get_current_store(void);
 extern void do_cmd_store(const field_type *f_ptr);
@@ -1072,6 +1073,8 @@ extern dun_type *dungeon(void);
 extern void move_dun_level(int direction);
 extern int max_dun_level_reached(void);
 extern cptr building_name(byte build_type);
+extern void building_char(byte build_type, byte *a, char *c);
+
 
 /* avatar.c */
 extern cptr virtue[MAX_VIRTUE];

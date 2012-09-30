@@ -116,6 +116,7 @@ ZUTILOBJS := z-util.o z-virt.o z-form.o z-rand.o z-term.o
 BORGOBJS := \
 	zborg1.o zborg2.o zborg3.o zborg4.o zborg5.o \
 	zborg6.o zborg7.o zborg8.o zborg9.o \
+	zbmagic1.o zbmagic2.o zbmagic3.o
 
 
 ##
@@ -636,13 +637,21 @@ zborg2.o: zborg1.h zborg2.h maid-grf.h
 zborg3.o: zborg1.h zborg3.h maid-grf.h
 zborg4.o: zborg1.h zborg2.h zborg3.h zborg4.h maid-grf.h
 zborg5.o: zborg1.h zborg2.h zborg3.h zborg4.h zborg5.h maid-grf.h
-zborg6.o: zborg1.h zborg2.h zborg3.h zborg4.h zborg5.h zborg6.h maid-grf.h
+zborg6.o: zborg1.h zborg2.h zborg3.h zborg4.h zborg5.h zborg6.h maid-grf.h \
+			zbmagic.h
 zborg7.o: zborg1.h zborg2.h zborg3.h zborg4.h zborg5.h zborg6.h zborg7.h \
 			maid-grf.h
 zborg8.o: zborg1.h zborg2.h zborg3.h zborg4.h zborg5.h zborg6.h zborg7.h \
 			zborg8.h maid-grf.h
 zborg9.o: zborg1.h zborg2.h zborg3.h zborg4.h zborg5.h zborg6.h zborg7.h \
 			zborg8.h zborg9.h maid-grf.h
+zbmagic1.o: zborg1.h zborg2.h zborg3.h zborg4.h zborg5.h zborg6.h maid-grf.h \
+			zbmagic.h
+zbmagic2.o: zborg1.h zborg2.h zborg3.h zborg4.h zborg5.h zborg6.h maid-grf.h \
+			zbmagic.h
+zbmagic3.o: zborg1.h zborg2.h zborg3.h zborg4.h zborg5.h zborg6.h maid-grf.h \
+			zbmagic.h
+
 
 ##
 ## Compiling angband.rc

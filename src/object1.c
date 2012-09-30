@@ -1714,7 +1714,7 @@ void display_equip(void)
  *
  * Hack -- do not display "trailing" empty slots
  */
-void show_list(s16b o_list_ptr)
+void show_list(s16b o_list_ptr, bool store)
 {
 	int i, j;
 	int k, l;
@@ -1731,6 +1731,8 @@ void show_list(s16b o_list_ptr)
 	char c;
 
 	int wid, hgt;
+	
+	int extra = 0;
 
 	/* Get size */
 	Term_get_size(&wid, &hgt);
@@ -1739,18 +1741,19 @@ void show_list(s16b o_list_ptr)
 	len = wid - 51;
 
 	/* Maximum space allowed for descriptions */
-	lim = wid - 4;
-
-	/* Require space for weight (if needed) */
-	if (show_weights) lim -= 9;
-
-	/* Require space for icon */
-	lim -= 2;
+	lim = wid - 6;
 
 	/* Initialise counters */
 	i = -1;
 	j = 0;
 	k = -1;
+	
+	/* How much extra room do we need? */
+	if (show_weights) extra += 9;
+	if (store) extra += 11;
+	
+	/* Notice the extra space required */
+	lim -= extra;
 
 	/* Display the inventory */
 	OBJ_ITT_START (o_list_ptr, o_ptr)
@@ -1782,6 +1785,9 @@ void show_list(s16b o_list_ptr)
 
 		/* Be sure to account for the weight */
 		if (show_weights) l += 9;
+		
+		/* Account for the price */
+		if (store) l += 10;
 
 		/* Account for icon if displayed */
 		l += 2;
@@ -1795,12 +1801,12 @@ void show_list(s16b o_list_ptr)
 	if (len > wid - 4)
 	{
 		col = 0;
-		lim = wid - 9;
+		lim = wid - extra;
 	}
 	else
 	{
 		col = (wid - len - 1) / 2;
-		lim = col + len - 9;
+		lim = col + len - extra;
 	}
 
 	/* Output each entry */
@@ -1838,6 +1844,23 @@ void show_list(s16b o_list_ptr)
 		{
 			int wgt = o_ptr->weight * o_ptr->number;
 			put_fstr(lim, j + 1, "%3d.%1d lb", wgt / 10, wgt % 10);
+			
+			if (store)
+			{
+				/* Extract the price */
+				u32b price = price_item(o_ptr, TRUE);
+
+				/* Actually draw the price */
+				put_fstr(lim + 9, j + 1, "%9ld  ", (long)price);
+			}
+		}
+		else if (store)
+		{
+			/* Extract the price */
+			u32b price = price_item(o_ptr, TRUE);
+
+			/* Actually draw the price */
+			put_fstr(lim, j + 1, "%9ld  ", (long)price);
 		}
 	}
 
@@ -1849,7 +1872,7 @@ void show_list(s16b o_list_ptr)
 /*
  * Display the equipment.
  */
-void show_equip(void)
+void show_equip(bool store)
 {
 	int i, j, k, l;
 	int col, len, lim;
@@ -1865,25 +1888,27 @@ void show_equip(void)
 	char c;
 
 	int wid, hgt;
-
+	
+	int extra = 0;
+	
 	/* Get size */
 	Term_get_size(&wid, &hgt);
-
-
+	
 	/* Maximal length */
 	len = wid - 51;
 
 	/* Maximum space allowed for descriptions */
-	lim = wid - 4;
+	lim = wid - 6;
 
 	/* Require space for labels (if needed) */
 	if (show_labels) lim -= (14 + 2);
-
-	/* Require space for weight (if needed) */
-	if (show_weights) lim -= 9;
-
-	/* Old show_equip_graph option Perm. on. */
-	lim -= 2;
+	
+	/* How much extra room do we need? */
+	if (show_weights) extra += 9;
+	if (store) extra += 11;
+	
+	/* Notice the extra space required */
+	lim -= extra;
 
 	/* Scan the equipment list */
 	for (k = 0, i = 0; i < EQUIP_MAX; i++)
@@ -1916,6 +1941,9 @@ void show_equip(void)
 
 		/* Increase length for weight (if needed) */
 		if (show_weights) l += 9;
+		
+		/* Increase length for price (if needed) */
+		if (store) l += 11;
 
 		/* old show_equip_graph option perm. on. */
 		l += 2;
@@ -1931,12 +1959,12 @@ void show_equip(void)
 	if (len > wid - 4)
 	{
 		col = 0;
-		lim = wid - 9;
+		lim = wid - extra;
 	}
 	else
 	{
 		col = (wid - len - 1) / 2;
-		lim = col + len - 9;
+		lim = col + len - extra;
 	}
 
 	/* Output each entry */
@@ -1991,11 +2019,32 @@ void show_equip(void)
 					 out_color[j], out_desc[j]);
 		}
 
-		/* Display the weight if needed */
-		if (show_weights && o_ptr->number)
+		/* Item here? */
+		if (o_ptr->number)
 		{
-			int wgt = o_ptr->weight * o_ptr->number;
-			put_fstr(lim, j + 1, "%3d.%d lb", wgt / 10, wgt % 10);
+			/* Display the weight if needed */
+			if (show_weights)
+			{
+				int wgt = o_ptr->weight * o_ptr->number;
+				put_fstr(lim, j + 1, "%3d.%1d lb", wgt / 10, wgt % 10);
+			
+				if (store)
+				{
+					/* Extract the price */
+					u32b price = price_item(o_ptr, TRUE);
+
+					/* Actually draw the price */
+					put_fstr(lim + 9, j + 1, "%9ld  ", (long)price);
+				}
+			}
+			else if (store)
+			{
+				/* Extract the price */
+				u32b price = price_item(o_ptr, TRUE);
+
+				/* Actually draw the price */
+				put_fstr(lim, j + 1, "%9ld  ", (long)price);
+			}
 		}
 	}
 
@@ -2276,8 +2325,8 @@ static bool toggle_windows(bool toggle, int command_wrk)
 /*
  * Show the prompt for items
  */
-static void show_item_prompt(bool inven, bool equip, bool floor, cptr pmt,
-                             int command_wrk)
+static void show_item_prompt(bool inven, bool equip, bool floor, bool store,
+							cptr pmt, int command_wrk)
 {
 	int i;
 
@@ -2297,7 +2346,7 @@ static void show_item_prompt(bool inven, bool equip, bool floor, cptr pmt,
 			get_label_bounds(p_ptr->inventory, &n1, &n2);
 
 			/* Redraw */
-			show_list(p_ptr->inventory);
+			show_list(p_ptr->inventory, store);
 
 			/* Begin the prompt */
 			len = strnfmt(out_val, 160, "Inven:");
@@ -2333,7 +2382,7 @@ static void show_item_prompt(bool inven, bool equip, bool floor, cptr pmt,
 			}
 
 			/* Redraw */
-			show_equip();
+			show_equip(store);
 
 			/* Begin the prompt */
 			len = strnfmt(out_val, 160, "Equip:");
@@ -2356,8 +2405,8 @@ static void show_item_prompt(bool inven, bool equip, bool floor, cptr pmt,
 
 			if (easy_floor)
 			{
-				/* Redraw  */
-				show_list(c_ptr->o_idx);
+				/* Redraw */
+				show_list(c_ptr->o_idx, store);
 
 				/* Begin the prompt */
 				len = strnfmt(out_val, 160, "Floor:");
@@ -2579,6 +2628,7 @@ object_type *get_item(cptr pmt, cptr str, int mode)
 	bool equip = FALSE;
 	bool inven = FALSE;
 	bool floor = FALSE;
+	bool store = FALSE;
 
 	bool allow_equip = FALSE;
 	bool allow_inven = FALSE;
@@ -2602,7 +2652,7 @@ object_type *get_item(cptr pmt, cptr str, int mode)
 	if (mode & (USE_EQUIP)) equip = TRUE;
 	if (mode & (USE_INVEN)) inven = TRUE;
 	if (mode & (USE_FLOOR)) floor = TRUE;
-
+	if (mode & (USE_STORE)) store = TRUE;
 
 	/* Paranoia XXX XXX XXX */
 	message_flush();
@@ -2715,7 +2765,7 @@ object_type *get_item(cptr pmt, cptr str, int mode)
 		toggle = toggle_windows(toggle, command_wrk);
 
 		/* Display the prompt */
-		show_item_prompt(allow_inven, allow_equip, allow_floor, pmt,
+		show_item_prompt(allow_inven, allow_equip, allow_floor, store, pmt,
 						 command_wrk);
 
 		/* Get a key */

@@ -1136,10 +1136,10 @@ static void process_world(void)
 
 	if ((c_ptr->feat == FEAT_SHAL_SWAMP) &&	!(FLAG(p_ptr, TR_FEATHER)))
 	{
-		int damage = resist(p_ptr->lev, res_pois_lvl);
+		int damage = resist(p_ptr->lev / 2 + 1, res_pois_lvl);
 
 		/* Hack - some resistance will save you */
-		if (damage > p_ptr->lev)
+		if (damage >= p_ptr->lev)
 		{
 			/* Take damage */
 			msgf("The plants poison you!");
@@ -1150,7 +1150,7 @@ static void process_world(void)
 
 	else if ((c_ptr->feat == FEAT_DEEP_SWAMP) && !p_ptr->tim.invuln)
 	{
-		int damage = resist(p_ptr->lev * 2, res_pois_lvl);
+		int damage = resist(p_ptr->lev, res_pois_lvl);
 		cptr message;
 		cptr hit_from;
 

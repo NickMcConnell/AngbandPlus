@@ -1,4 +1,4 @@
-# CVS: Last edit by $Author: sfuerst $ on $Date: 2003/10/07 18:32:35 $
+# CVS: Last edit by $Author: sfuerst $ on $Date: 2003/11/21 17:52:53 $
 # File: Makefile.win
 
 # For Borland C++ 4.52 Win16 and Win32
@@ -34,7 +34,8 @@ SRCS = \
   mspells1.c mspells2.c scores.c mind.c maid-grf.c \
   bldg.c obj_kind.c wild1.c wild2.c wild3.c avatar.c notes.c \
   zborg1.c zborg2.c zborg3.c zborg4.c zborg5.c \
-  zborg6.c zborg7.c zborg8.c zborg9.c
+  zborg6.c zborg7.c zborg8.c zborg9.c \
+  zbmagic1.c zbmagic2.c zbmagic3.c
 
 OBJS = \
   z-util.obj z-virt.obj z-form.obj z-rand.obj z-term.obj \
@@ -52,7 +53,8 @@ OBJS = \
   mspells1.obj mspells2.obj scores.obj mind.obj maid-grf.obj \
   bldg.obj obj_kind.obj wild1.obj wild2.obj wild3.obj avatar.obj notes.obj \
   zborg1.obj zborg2.obj zborg3.obj zborg4.obj zborg5.obj \
-  zborg6.obj zborg7.obj zborg8.obj zborg9.obj
+  zborg6.obj zborg7.obj zborg8.obj zborg9.obj \
+  zbmagic1.obj zbmagic2.obj zbmagic3.obj
   
 
 OBJS32 = \
@@ -71,7 +73,8 @@ OBJS32 = \
   mspells1.o32 mspells2.o32 scores.o32 mind.o32 maid-grf.o32 \
   bldg.o32 obj_kind.o32 wild1.o32 wild2.o32 wild3.o32 avatar.o32 notes.o32 \
   zborg1.o32 zborg2.o32 zborg3.o32 zborg4.o32 zborg5.o32 \
-  zborg6.o32 zborg7.o32 zborg8.o32 zborg9.o32
+  zborg6.o32 zborg7.o32 zborg8.o32 zborg9.o32 \
+  zbmagic1.o32 zbmagic2.o32 zbmagic3.o32
 
 default: bccw16.cfg angband cleanobj bccw32.cfg angband32 cleanobj32
 
@@ -189,7 +192,8 @@ artifact mutation flavor spells3 +
 mspells1 mspells2 scores mind maid-grf +
 main-win readdib bldg wild1 wild2 wild3 avatar notes +
 zborg1 zborg2 zborg3 zborg4 zborg5 zborg6 +
-zborg7 zborg8 zborg9,+
+zborg7 zborg8 zborg9 +
+zbmagic1 zbmagic2 zbmagic3,+
 ..\angband.exe,..\angband.map,import cwl,..\ext-win\src\angband.def
 |
 	$(RC) -31 ..\ext-win\src\angband.rc ..\angband.exe
@@ -223,7 +227,8 @@ mspells1.o32 mspells2.o32 scores.o32 mind.o32 maid-grf.o32 +
 main-win.o32 readdib.o32 bldg.o32 wild1.o32 wild2.o32 wild3.o32 +
 avatar.o32 notes.o32 +
 zborg1.o32 zborg2.o32 zborg3.o32 zborg4.o32 zborg5.o32 +
-zborg6.o32 zborg7.o32 zborg8.o32 zborg9.o32,+
+zborg6.o32 zborg7.o32 zborg8.o32 zborg9.o32 +
+zbmagic1.o32 zbmagic2.o32 zbmagic3.o32,+
 ..\angband32.exe,..\angband.map,import32 cw32,..\ext-win\src\angband.def
 |
 	$(RC32) -w32 ..\ext-win\src\angband.rc ..\angband32.exe

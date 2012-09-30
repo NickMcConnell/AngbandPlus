@@ -2,7 +2,86 @@ This is a document file listing the changes in Zangband (compared to
 the standard Angband 2.8.1.) No long explanations, just a list. See
 code for details. In reversed chronological order (more or less):
 
+Zangband 2.7.4b
+- Lots of borg updates including:
+  The borg can use ego items which are not *id*'d.
+  The borg is more intelligent with light sources, and with
+  spells that produce light.
+  The borg now discards more 'boring' items without bothering
+  to identify them.
+  The borg uses various detection types in a better order.
+  Major changes to the borg defence code.
+  The borg will *id* rings of lordly protection.
+  The floor can now be displayed with ^zg
+  The borg will use rods/wands of disarming.
+  Stopped the borg from collecting rods of pesticide once it
+  has reached lvl 25.
+  Added mindcrafters and high_mage as classes that want to
+  reach 0% failure rates.
+  Fixed calculation of borg armour class.
+  Added some code that if the borg has no light but still can
+  cast light_area then he should light area anytime he is next
+  to a dark spot.
+  Rewrote the recharging routine to include {empty} wands and
+  staffs.
+- Fixed the release so that spell.lua isn't left out.
+- Fixed script for speed, poison and salt water potions.
+- Fixed loading of savefiles with 'out of bounds' wilderness
+  blocks.
+- Changed build system to differentiate compile from link in
+  sanitized make output.
+- Allow post-release versions, like this 'b' version to work
+  with the build system.
+- Prevent message quest targets being homes.
+- Added more diagnostics to the 'test fields' debug command.
+- Fix bug in the fields code which was corrupting squares
+  with multiple traps/corpses on them.
+- Make the output from doing '/*' shorter, so it wasn't
+  truncated.
+- Allow browsing of any spellbook, since examining them will
+  tell you what's inside anyway.
+- Made uniques killed list in colour.
+- Made known objects list in colour.
+- Made town list show store/building attr/chars.
+- Fixed crash in overhead map caused by jumping between levels.
+- Fixed bug in monster AI found by valgrind.
+- Fixed glitch in reset recall prompt.
+- Fixed timeout of esp.
+- Fixed wipe_o_list() so that objects in stores are deleted
+  instead of slowly filling the objects list with dead objects
+  as you play more and more games.
+- Fixed the alter-stats debug command to use the new internal
+  stat limits.
+- Fix create_traps() so that it checks for 'naked' grids as
+  commented.
+- Greatly tweaked wilderness generation so that the closer
+  dungeons and quests to the starting town tend to be the least
+  dangerous.  The game now tries even harder to place the player
+  in an 'easy' spot in the wilderness.
+- Fix the mindcrafter out of mana prompt.
+- Fix problem with the recursion C->lua->C->lua in
+  apply_object_trigger() stomping on the 'current' object, and
+  thus causing scripts to fail.
+- Fixed wands of haste monster to use the correct function.
+- Allowed randarts to have poison immunity.
+- Fix shallow swamps so they work properly, and can poison again.
+- Fix poison counter code so that poison resistance reduces
+  the amount added appropriately.  If you have a 'double' resist
+  (timed + normal), then the counter doesn't get incremented.
+- Pruned out a huge number of functions from the API exported to
+  lua.  This should improve compilation time.
+- Added an extra option 'check_tranaction' so the user can decide
+  if they want to be prompted for buying/selling items in stores.
+- Added price to item list so you can now shop with even fewer
+  keypresses.
+- Fixed inventory damage so double resistance prevents it again.
+- Adjusted pricing of ego items and object flags.
+- Fixed all uses of get_check() in lua scripts.
+- Changed the tolua utility to generate smaller wrapper .c files
+  by using macros for common operations.
+- Fix typo in 'fund a lost relic'.
 
+ 
 Zangband 2.7.4
 - Moved the lua scripts for objects into k_info.txt instead of
   having them in object.lua  Object scripts are saved in the

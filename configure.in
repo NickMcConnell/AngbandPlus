@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.57)
-AC_INIT(Zangband, 2.7.4, bugs@zangband.org)
+AC_INIT(Zangband, 2.7.4b, bugs@zangband.org)
 AC_CONFIG_SRCDIR([src/angband.h])
 AC_CONFIG_HEADER([src/autoconf.h])
 

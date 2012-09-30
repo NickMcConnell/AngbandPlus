@@ -3301,6 +3301,32 @@ void do_cmd_save_screen(void)
 
 
 /*
+ * Print a monster string, taking into account the strange
+ * formatting of the '$' and '#' characters, as well as
+ * doing colour correctly.
+ */
+static void print_monster_string(FILE *fff, byte a, char c, cptr name, int num)
+{
+	if (c == '$')
+	{
+		/* Hack - no unique coins */
+		froff(fff, "  %s$$" CLR_WHITE "     %d pile of %s\n", color_seq[a], num, name);
+	}
+	else
+	{
+		if (num)
+		{
+			froff(fff, "  %s%c" CLR_WHITE "     %d %s\n", color_seq[a], c, num, name);
+		}
+		else
+		{
+			froff(fff, "  %s%c" CLR_WHITE "     %s\n", color_seq[a], c, name);
+		}
+	}
+}
+
+
+/*
  * Display known uniques
  */
 static bool do_cmd_knowledge_uniques(int dummy)
@@ -3370,11 +3396,21 @@ static bool do_cmd_knowledge_uniques(int dummy)
 	for (i = 0; i < n; i++)
 	{
 		monster_race *r_ptr = &r_info[who[i]];
-		bool dead = (r_ptr->max_num == 0);
 
-		/* Print a message */
-		froff(fff, "     %-45s is %s\n", (r_name + r_ptr->name),
-				(dead ? "dead" : "alive"));
+		if (r_ptr->max_num == 0)
+		{
+			/* Dead */
+			print_monster_string(fff, r_ptr->x_attr, r_ptr->x_char,
+				format(CLR_L_DARK "%s is dead.", (r_name + r_ptr->name)),
+					 0);
+		}
+		else
+		{
+			/* Alive */
+			print_monster_string(fff, r_ptr->x_attr, r_ptr->x_char, 
+				format(CLR_L_BLUE "%s is alive.", (r_name + r_ptr->name)),
+					0);
+		}
 	}
 
 	/* Free the "who" array */
@@ -3544,39 +3580,6 @@ bool do_cmd_knowledge_pets(int dummy)
 	(void)fd_kill(file_name);
 	
 	return (FALSE);
-}
-
-
-/*
- * Print a monster string, taking into account the strange
- * formatting of the '$' and '#' characters, as well as
- * doing colour correctly.
- */
-static void print_monster_string(FILE *fff, byte a, char c, cptr name, int num)
-{
-	if (c == '$')
-	{
-		/* Hack - no unique coins */
-		froff(fff, "%s$$" CLR_WHITE "     %d pile of %s\n", color_seq[a], num, name);
-	}
-#if 0
-	else if (c == '#')
-	{
-	
-	
-	}
-#endif
-	else
-	{
-		if (num)
-		{
-			froff(fff, "%s%c" CLR_WHITE "     %d %s\n", color_seq[a], c, num, name);
-		}
-		else
-		{
-			froff(fff, "%s%c" CLR_WHITE "     %s\n", color_seq[a], c, name);
-		}
-	}
 }
 
 
@@ -3767,6 +3770,10 @@ static bool do_cmd_knowledge_objects(int dummy)
 
 	char file_name[1024];
 	
+	byte a;
+	char c;
+	cptr attr;
+	
 	/* Hack - ignore parameter */
 	(void) dummy;
 
@@ -3791,9 +3798,22 @@ static bool do_cmd_knowledge_objects(int dummy)
 
 			/* Create fake object */
 			o_ptr = object_prep(k);
-
-			/* Print a message */
-			froff(fff, "     %v\n", OBJECT_STORE_FMT(o_ptr, FALSE, 0));
+			
+			a = object_attr(o_ptr);
+			c = object_char(o_ptr);
+			
+			attr = color_seq[tval_to_attr[o_ptr->tval % 128]];
+			
+			if (c == '$')
+			{
+				/* Print a message ('$' needs to be escaped) */
+				froff(fff, " %s$$%s  %v\n", color_seq[a], attr, OBJECT_STORE_FMT(o_ptr, FALSE, 0));
+			}
+			else
+			{
+				/* Print a message */
+				froff(fff, " %s%c%s  %v\n", color_seq[a], c, attr, OBJECT_STORE_FMT(o_ptr, FALSE, 0));
+			}
 		}
 	}
 
@@ -3868,9 +3888,10 @@ void dump_town_info(FILE *fff, int town)
 {
 	int j;
 
-	char stores_info[2048];
-	
 	cptr build_name;
+	
+	char c;
+	byte a;
 
 	bool visited = FALSE;
 
@@ -3895,23 +3916,6 @@ void dump_town_info(FILE *fff, int town)
 		/* Build a buffer with the information (If visited, and if it is a town) */
 		if (visited)
 		{
-			/* Clear stores and place information */
-			stores_info[0] = '\0';
-
-			/* Built stores information */
-			for (j = 0; j < pl_ptr->numstores;j++)
-			{
-				build_name = building_name(pl_ptr->store[j].type);
-
-				/* Make a string, but only if this is a real building */
-				if (!streq(build_name, "Nothing"))
-				{
-					/* Append information about store */
-					strnfmt(stores_info, 2048, "%s     %s\n",
-							stores_info, build_name);
-				}
-			}
-
 			/* write stairs information to file */
 			if (pl_ptr->dungeon)
 			{
@@ -3922,8 +3926,23 @@ void dump_town_info(FILE *fff, int town)
 				froff(fff, "%s\n", pl_ptr->name);
 			}
 
-			/* Write to file */
-			froff(fff, stores_info);
+			/* Built stores information */
+			for (j = 0; j < pl_ptr->numstores; j++)
+			{
+				build_name = building_name(pl_ptr->store[j].type);
+
+				/* Make a string, but only if this is a real building */
+				if (!streq(build_name, "Nothing"))
+				{
+					/* Get attr/char */
+					building_char(pl_ptr->store[j].type, &a, &c);
+				
+					/* Append information about store */
+					froff(fff, "  %s%c" CLR_WHITE "   %s\n", color_seq[a], c, build_name);
+				}
+			}
+
+			/* Seperator */
 			froff(fff, "\n");
 		}
 	}

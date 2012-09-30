@@ -433,7 +433,7 @@ static int borg_danger_aux1(int r_idx)
 				/* if invulnurable, no damage */
 				if ((borg_goi) && !borg_attacking)
 					z /= 25;
-				/* only morgoth. HACK to make it easier to fight him */
+				/* only Serpent. HACK to make it easier to fight him */
 				break;
 			}
 
@@ -3126,10 +3126,10 @@ static s32b borg_power_aux3(void)
 
 	/* Hack -- Reward light radius */
 	value += (bp_ptr->cur_lite * 100000L);
-	
 
 	/* Hack -- Reward for wearing a permanent light */
 	if (bp_ptr->britelite) value += 5000;
+
 	/* Hack -- Reward speed */
 
 	if (bp_ptr->speed >= 150)
@@ -3177,7 +3177,7 @@ static s32b borg_power_aux3(void)
 		value += adj_mag_stat[my_stat_ind[A_INT]] * 5010L;
 
 		/* mage should try to get min fail to 0 */
-		if (borg_class == CLASS_MAGE)
+		if (borg_class == CLASS_MAGE || borg_class == CLASS_HIGH_MAGE)
 		{
 			/* Bonus for mages to in order to keep GOI fail rate down */
 			if (borg_spell_legal(REALM_SORCERY, 3, 7) ||
@@ -3205,7 +3205,7 @@ static s32b borg_power_aux3(void)
 		value += adj_mag_stat[my_stat_ind[A_WIS]] * 3000L;
 
 		/* priest should try to get min fail to 0 */
-		if (borg_class == CLASS_PRIEST)
+		if (borg_class == CLASS_PRIEST || borg_class == CLASS_MINDCRAFTER)
 		{
 			/* Bonus for priests to in order to keep Holy Word fail rate down */
 			if (borg_spell_legal(REALM_LIFE, 2, 6)) value +=
@@ -3289,7 +3289,7 @@ static s32b borg_power_aux3(void)
 	{
 		if (FLAG(bp_ptr, TR_FEATHER)) value += 50;
 	}
-	if (bp_ptr->britelite) value += 10000L;
+
 	if (FLAG(bp_ptr, TR_TELEPATHY))
 	{
 		if (FLAG(bp_ptr, TR_SEE_INVIS)) value += 500L;
@@ -3443,12 +3443,9 @@ static s32b borg_power_aux3(void)
 
 
 	/*** Reward powerful armor ***/
-	if (bp_ptr->ac < 15) value += bp_ptr->ac * 2000L;
-	if ((bp_ptr->ac >= 15) && (bp_ptr->ac < 75))
-	{
-		value += bp_ptr->ac * 1500L + 28350L;
-	}
-	if (bp_ptr->ac >= 75) value += bp_ptr->ac * 500L + 73750L;
+	value += 2000 * MIN(bp_ptr->ac, 15);
+	value += 1500 * MIN_FLOOR(bp_ptr->ac, 15, 75);
+	value += 500 * MIN_FLOOR(bp_ptr->ac, 75, 200);
 
 	/*** Penalize various things ***/
 
@@ -3575,18 +3572,50 @@ static s32b borg_power_aux4(void)
 {
 	int book, realm;
 	int max_carry;
+	list_item *l_ptr = look_up_equip_slot(EQUIP_LITE);
 
 	s32b value = 0L;
 
 	/*** Basic abilities ***/
 
-	/*
-	 * Reward collecting fuel,
-	 * if you have a perma light source you get all these points,
-	 * except for a Lantern of Everburning, that still needs fuel
-	 */
-	value += 6000 * MIN(bp_ptr->able.fuel, 5);
-	value += 600 * MIN_FLOOR(bp_ptr->able.fuel, 5, 10);
+	/* Reward collecting fuel,	 */
+	value += 6000 * MIN(bp_ptr->able.fuel, 3);
+	value += 600 * MIN_FLOOR(bp_ptr->able.fuel, 3, 7);
+
+	if (!l_ptr)
+	{
+		/* Reward collecting a light */
+		value += 30000 * MIN(amt_lantern + amt_torch, 1);
+	}
+	else
+	{
+		/* If the borg wields a torch */
+		if (k_info[l_ptr->k_idx].sval == SV_LITE_TORCH)
+		{
+			/* reward carrying a lantern when you don't use it */
+			value += 500 * MIN(amt_lantern, 1);
+
+			/* If you need fuel prefer torches */
+			if (bp_ptr->able.fuel < 1000) value += 50 * MIN(amt_torch, 7);
+
+			/*
+			 * The flasks acts as molotov cocktails, but they can't
+			 * outshine the torches for value, because they are fuel too
+			 */
+			if (bp_ptr->lev < 15) value += 5 * MIN(amt_flask, 20);
+		}
+
+		/* If the borg wields a lantern */
+		if (k_info[l_ptr->k_idx].sval == SV_LITE_LANTERN)
+		{
+			/* If you need fuel prefer flasks/lanterns */
+			if (bp_ptr->able.fuel < 1000)
+				value += 50 * MIN(amt_lantern + amt_flask, 7);
+
+			/* Keep some more flasks as molotov cocktails */
+			if (bp_ptr->lev < 15) value += 50 * MIN_FLOOR(amt_flask, 7, 20);
+		}
+	}
 
 	/* Reward Food */
 
@@ -3608,7 +3637,7 @@ static s32b borg_power_aux4(void)
 	value += 1000 * MIN_FLOOR(bp_ptr->food, 25, max_carry);
 
 	/* If you can digest food */
-	if (!FLAG(bp_ptr, TR_CANT_EAT))
+	if (!FLAG(bp_ptr, TR_CANT_EAT) && bp_ptr->food < 1000)
 	{
 		/* Prefer to buy HiCalorie foods over LowCalorie */
 		value += 20 * MIN(5 * amt_food_hical, max_carry);
@@ -3952,9 +3981,6 @@ static s32b borg_power_aux4(void)
 
 	/* Being too heavy is really bad */
 	value -= bp_ptr->weight / adj_str_wgt[my_stat_ind[A_STR]];
-
-	/* Reward empty slots */
-	value += 400 * MIN(INVEN_PACK - inven_num, 5);
 
 	/* Return the value */
 	return (value);
@@ -4318,7 +4344,7 @@ static cptr borg_prepared_aux2(int depth)
 
 	/*** Essential Items for Level 100 ***/
 
-	/* must have lots of restore mana to go after MORGOTH */
+	/* must have lots of restore mana to go after Serpent */
 	if (!bp_ptr->winner)
 	{
 		if ((bp_ptr->msp > 100) && (bp_ptr->able.mana < 15)) return ("15ResMana");

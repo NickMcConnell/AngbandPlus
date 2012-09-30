@@ -95,12 +95,18 @@ void delete_monster_idx(int i)
 	y = m_ptr->fy;
 	x = m_ptr->fx;
 
-
 	/* Hack -- Reduce the racial counter */
 	r_ptr->cur_num--;
 
 	/* Hack -- count the number of "reproducers" */
 	if (FLAG(r_ptr, RF_MULTIPLY)) num_repro--;
+	
+	/* Notice changes in lighting */		
+	if (FLAG(r_ptr, RF_LITE_1) || FLAG(r_ptr, RF_LITE_2))
+	{
+		/* Update some things */
+		p_ptr->update |= (PU_MON_LITE);
+	}
 
 	/* Decrement visibility count */
 	if (m_ptr->ml && !(m_ptr->smart & SM_MIMIC))
@@ -260,10 +266,6 @@ void compact_monsters(int size)
 			num++;
 		}
 	}
-
-	/* Update some things */
-	p_ptr->update |= (PU_MON_LITE);
-
 
 	/* Excise dead monsters (backwards!) */
 	for (i = m_max - 1; i >= 1; i--)

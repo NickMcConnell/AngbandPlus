@@ -89,7 +89,7 @@ L:USE:	wiz_lite()
 L:USE:	msgf("The Jewel drains your vitality...")
 L:USE:	take_hit(damroll(3, 8), "the Jewel of Judgement")
 L:USE:	detect_traps(); detect_doors(); detect_stairs()
-L:USE:	if get_check("Activate recall? ") then word_of_recall() end
+L:USE:	if (get_check("Activate recall? ") ~= 0) then word_of_recall() end
 L:USE:	object.timeout = rand_range(20, 40)
 L:DESC:	return "dangerous clairvoyance and recall every 20-40 turns"
 L:TIMED:	if randint0(999) == 0 and bAnd(player.flags[2], TR2_NO_MAGIC) == 0
@@ -842,7 +842,7 @@ L:USE:	msgf("Your gauntlets are covered in acid...")
 L:USE:	local success; local dir; success, dir = get_aim_dir()
 L:USE:	if not success then return end
 L:USE:	fire_bolt(GF_ACID, dir, damroll(8, 8))
-L:USE:	object_timeout = rand_range(5, 10)
+L:USE:	object.timeout = rand_range(5, 10)
 L:DESC:	return "acid bolt (8d8) every 5-10 turns"
 
 

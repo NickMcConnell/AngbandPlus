@@ -40,6 +40,9 @@
 #define VER_PATCH 4
 #define VER_EXTRA 0
 
+/* Versions after release */
+#define VER_AFTER "b"
+
 /* Stringify argument */
 #define Z_STR(a) Z_STR1(a)
 
@@ -59,7 +62,7 @@
  * Current version string
  */
 #define VERSION_STRING \
-	Z_STR(VER_MAJOR) "." Z_STR(VER_MINOR) "." Z_STR(VER_PATCH) PRE_VERSION
+	Z_STR(VER_MAJOR) "." Z_STR(VER_MINOR) "." Z_STR(VER_PATCH) PRE_VERSION VER_AFTER
 
 #define ANGBAND_2_8_1
 #define ZANGBAND
@@ -2542,7 +2545,7 @@
 #define USE_EQUIP	0x01		/* Allow equip items */
 #define USE_INVEN	0x02		/* Allow inven items */
 #define USE_FLOOR	0x04		/* Allow floor items */
-
+#define USE_STORE	0x10		/* Selling to store */
 
 /*
  * Bit flags for the "p_ptr->notice" variable
@@ -4281,7 +4284,7 @@ static __inline void COPY_FLAG_AUX(const u32b *flags1, u32b *flags2, int num, u3
 #define avoid_center			p_ptr->options[155]
 /* {TRUE,  0, NULL,					"Number 172" }, p_ptr->options[156] */
 #define limit_messages			p_ptr->options[157]
-/* {TRUE,  0, NULL,					"Number 174" }, p_ptr->options[158] */
+#define check_transaction		p_ptr->options[158]
 /* {TRUE,  0, NULL,					"Number 175" }, p_ptr->options[159] */
 /* {TRUE,  0, NULL,					"Number 176" }, p_ptr->options[160] */
 /* {TRUE,  0, NULL,					"Number 177" }, p_ptr->options[161] */

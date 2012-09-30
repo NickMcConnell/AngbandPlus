@@ -38,7 +38,6 @@ extern bool borg_obj_star_id_able(list_item *l_ptr);
 extern bool borg_test_stuff(void);
 extern bool borg_test_stuff_pseudo(void);
 extern bool borg_test_stuff_star(void);
-extern bool borg_takeoff_stuff(void);
 extern bool borg_wear_stuff(void);
 extern bool borg_unwear_stuff(void);
 extern bool borg_wears_cursed(bool heavy);

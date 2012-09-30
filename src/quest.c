@@ -1514,6 +1514,9 @@ static quest_type *insert_message_quest(int dist)
 		{
 			int field_num = wild_build[st_ptr->type].field;
 			
+			/* Hack XXX XXX - not homes */
+			if (field_num == FT_STORE_HOME) continue;
+			
 			owner_num = t_info[field_num].data_init[0];
 			
 			/* Store or building? */
@@ -1523,7 +1526,6 @@ static quest_type *insert_message_quest(int dist)
 				const owner_type *ot_ptr = &owners[owner_num][st_ptr->owner];
 				
 				owner = ot_ptr->owner_name;
-			
 			}
 			else
 			{
@@ -1690,7 +1692,7 @@ static menu_type quest_menu[QUEST_MENU_MAX] =
 	{"To hunt down a bounty of monsters", NULL, request_bounty, MN_ACTIVE},
 	{"To send a message to someone far away", NULL, request_message, MN_ACTIVE},
 	{"To find a lost ruin", NULL, request_find_place, MN_ACTIVE},
-	{"To fund a lost relic", NULL, request_find_item, MN_ACTIVE},
+	{"To find a lost relic", NULL, request_find_item, MN_ACTIVE},
 	MENU_END
 };
 

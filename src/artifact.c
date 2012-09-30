@@ -126,7 +126,10 @@ static void random_resistance(object_type *o_ptr, int specific)
 			break;
 		case 17:
 		case 18:
-			SET_FLAG(o_ptr, TR_RES_POIS);
+			if (!one_in_(LOW_IM_LUCK))
+				SET_FLAG(o_ptr, TR_RES_POIS);
+			else
+				SET_FLAG(o_ptr, TR_IM_POIS);
 			break;
 		case 19:
 		case 20:

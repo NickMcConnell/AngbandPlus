@@ -384,14 +384,14 @@ static void do_cmd_wiz_change_aux(void)
 		strnfmt(tmp_val, 160, "%d", p_ptr->stat[i].max);
 
 		/* Query */
-		if (!get_string(tmp_val, 4, "%s (3-118): ", stat_names[i])) return;
+		if (!get_string(tmp_val, 4, "%s (30-400): ", stat_names[i])) return;
 
 		/* Extract */
 		tmp_int = atoi(tmp_val);
 
 		/* Verify */
 		if (tmp_int > stat_cap(i)) tmp_int = stat_cap(i);
-		else if (tmp_int < 3) tmp_int = 3;
+		else if (tmp_int < 30) tmp_int = 30;
 
 		/* Save it */
 		p_ptr->stat[i].cur = p_ptr->stat[i].max = tmp_int;
@@ -1649,6 +1649,13 @@ void do_cmd_debug(void)
 		{
 			/* Self-Knowledge */
 			self_knowledge();
+			break;
+		}
+		
+		case 'K':
+		{
+			/* Debug lua stack depth */
+			debug_lua_stack();
 			break;
 		}
 

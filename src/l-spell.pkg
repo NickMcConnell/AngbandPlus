@@ -109,11 +109,9 @@ typedef int errr;
 /***** Functions *****/
 
 /* spells1.c */
-extern void take_hit(int damage, cptr kb_str);
 extern bool project(int who, int rad, int x, int y, int dam, int typ, u16b flg);
 
 /* spells2.c */
-extern void message_pain(int m_idx, int dam);
 extern void self_knowledge(void);
 extern bool detect_traps(void);
 extern bool detect_doors(void);
@@ -145,8 +143,6 @@ extern bool dispel_undead(int dam);
 extern bool dispel_monsters(int dam);
 extern bool dispel_living(int dam);
 extern bool dispel_demons(int dam);
-extern bool raise_dead(int x, int y, bool pet);
-extern bool turn_undead(void);
 extern bool destroy_area(int x1, int y1, int r);
 extern bool earthquake(int cx, int cy, int r);
 extern void lite_room(int x1, int y1);
@@ -182,10 +178,6 @@ extern bool trap_creation(void);
 extern bool glyph_creation(void);
 extern bool destroy_doors_touch(void);
 extern bool sleep_monsters_touch(void);
-extern bool activate_ty_curse(bool stop_ty, int *count);
-extern int activate_hi_summon(void);
-extern int summon_cyber(int who, int x, int y);
-extern void wall_breaker(void);
 extern bool confuse_monsters(int dam);
 extern bool charm_monsters(int dam);
 extern bool charm_animals(int dam);
@@ -203,10 +195,7 @@ extern bool charm_monster(int dir, int plev);
 extern bool control_one_undead(int dir, int plev);
 extern bool charm_animal(int dir, int plev);
 extern bool mindblast_monsters(int dam);
-extern void report_magics(void);
 extern bool teleport_swap(int dir);
-extern bool project_hook(int typ, int dir, int dam, u16b flg);
-extern bool project_hack(int typ, int dam);
 
 /* spells3.c */
 extern bool teleport_away(int m_idx, int dis);
@@ -218,7 +207,6 @@ extern void recall_player(int turns);
 extern void word_of_recall(void);
 extern bool apply_disenchant(void);
 extern void mutate_player(void);
-extern void apply_nexus(const monster_type *m_ptr);
 extern void phlogiston(void);
 extern void brand_weapon(int brand_type);
 extern void call_the_(void);
@@ -240,20 +228,6 @@ extern void identify_item(object_type *o_ptr);
 extern bool identify_fully(void);
 extern bool recharge(int num);
 extern bool bless_weapon(void);
-extern bool potion_smash_effect(int who, int x, int y, object_type *o_ptr);
-extern void display_spell_list(void);
-extern s16b spell_chance(int spell, int realm);
-extern bool spell_okay(int spell, bool known, int realm);
-extern void print_spells(byte *spells, int num, int x, int y, int realm);
-extern bool hates_acid(const object_type *o_ptr);
-extern bool hates_elec(const object_type *o_ptr);
-extern bool hates_fire(const object_type *o_ptr);
-extern bool hates_cold(const object_type *o_ptr);
-extern int set_acid_destroy(object_type *o_ptr);
-extern int set_elec_destroy(object_type *o_ptr);
-extern int set_fire_destroy(object_type *o_ptr);
-extern int set_cold_destroy(object_type *o_ptr);
-extern int inven_damage(inven_func typ, int perc);
 extern bool acid_dam(int dam, cptr kb_str);
 extern bool elec_dam(int dam, cptr kb_str);
 extern bool fire_dam(int dam, cptr kb_str);
@@ -266,7 +240,6 @@ extern bool brand_bolts(void);
 extern bool polymorph_monster(int x, int y);
 extern bool dimension_door(void);
 extern void map_wilderness(int radius, s32b x, s32b y);
-extern void sanity_blast(const monster_type *m_ptr);
 
 extern void map_area(void);
 extern void wiz_lite(void);

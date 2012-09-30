@@ -1143,6 +1143,10 @@ static bool get_move_retreat(monster_type *m_ptr, int *tx, int *ty)
 	/* If the monster is well away from danger, let it relax. */
 	if (m_ptr->cdis >= FLEE_RANGE)
 	{
+		/* Don't go anywhere */
+		*tx = m_ptr->fx;
+		*ty = m_ptr->fy;
+	
 		return (FALSE);
 	}
 

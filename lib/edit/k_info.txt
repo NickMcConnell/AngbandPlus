@@ -1,4 +1,4 @@
-# CVS: Last edit by $Author: sfuerst $ on $Date: 2003/11/10 18:49:41 $
+# CVS: Last edit by $Author: sfuerst $ on $Date: 2003/12/03 22:38:42 $
 # File: k_info.txt
 
 
@@ -2218,7 +2218,7 @@ W:5:0:4:5
 A:5/1
 P:0:1d1:0:0:0
 F:EASY_KNOW
-L:USE:	ident = res_pois_lvel() ~= 0 and inc_poisoned(rand_range(10, 25))
+L:USE:	ident = res_pois_lvl() ~= 0 and inc_poisoned(rand_range(10, 25))
 L:SMASH:project(who, 2, x, y, damroll(3, 6), GF_POIS,
 L:SMASH:    (PROJECT_JUMP + PROJECT_ITEM + PROJECT_KILL)); return TRUE,TRUE
 
@@ -2229,7 +2229,7 @@ W:2:0:4:100
 A:2/16:65/1
 P:0:1d1:0:0:0
 F:EASY_KNOW
-L:USE:	ident + PROJECT= inc_fast(rand_range(15, 40))
+L:USE:	ident = inc_fast(rand_range(15, 40))
 L:SMASH:project(who, 2, x, y, 0, GF_OLD_SPEED,
 L:SMASH:    (PROJECT_JUMP + PROJECT_ITEM + PROJECT_KILL)); return FALSE,TRUE
 
@@ -2294,7 +2294,7 @@ F:EASY_KNOW
 L:USE:	msgf("The potion makes you vomit!")
 L:USE:	if player.food > PY_FOOD_STARVE - 1 then set_food(PY_FOOD_STARVE - 1) end
 L:USE:	clear_poisoned()
-L:USE:	inc_paralzyed(4)
+L:USE:	inc_paralyzed(4)
 L:SMASH:return TRUE,FALSE
 
 N:256:Enlightenment
@@ -2493,7 +2493,7 @@ I:65:1:29
 W:2:0:10:50
 A:4/2
 P:0:1d1:0:0:0
-L:USE:	ident = haste_monster(dir)
+L:USE:	ident = speed_monster(dir)
 
 N:277:Slow Monster
 G:-:d
@@ -4759,7 +4759,7 @@ I:70:23:0
 W:23:0:5:0
 A:23/10:63/10
 F:EASY_KNOW
-L:USE:	result = mundane_scroll()
+L:USE:	result = mundane_spell()
 
 N:567:& Magical Figurine~ of #
 G:`:g

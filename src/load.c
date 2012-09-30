@@ -2419,7 +2419,8 @@ static errr rd_dungeon(void)
 		if (o_ptr->k_idx)
 		{
 			/* Hack - ignore items */
-			if (ignore_stuff && (o_ptr->ix || o_ptr->iy))
+			if (ignore_stuff && (o_ptr->ix || o_ptr->iy) &&
+				 !in_bounds2(o_ptr->ix, o_ptr->iy))
 			{
 				object_wipe(o_ptr);
 				continue;
@@ -2431,13 +2432,6 @@ static errr rd_dungeon(void)
 			/* Dungeon items */
 			if (o_ptr->ix || o_ptr->iy)
 			{
-				if (!in_bounds2(o_ptr->ix, o_ptr->iy))
-				{
-					note("Object placement error (%d,%d)", o_ptr->ix,
-						  o_ptr->iy);
-					return (152);
-				}
-				
 				/* Hack - set region of object if is in the dungeon */
 				o_ptr->region = cur_region;
 
@@ -2509,18 +2503,12 @@ static errr rd_dungeon(void)
 		/* Hack - set region of monster */
 		m_ptr->region = cur_region;
 
-		if (!ignore_stuff)
+		if (!ignore_stuff && in_bounds2(m_ptr->fx, m_ptr->fy))
 		{
 			/* Oops */
 			if (i != m_idx)
 			{
 				note("Monster allocation error (%d <> %d)", i, m_idx);
-				return (162);
-			}
-
-			if (!in_bounds2(m_ptr->fx, m_ptr->fy))
-			{
-				note("Monster placement error (%d,%d)", m_ptr->fx, m_ptr->fy);
 				return (162);
 			}
 
@@ -2568,8 +2556,6 @@ static errr rd_dungeon(void)
 		/* Read the fields */
 		for (i = 1; i < limit; i++)
 		{
-			int fld_idx;
-
 			field_type temp_field;
 			field_type *f_ptr = &temp_field;
 
@@ -2579,20 +2565,13 @@ static errr rd_dungeon(void)
 			/* Hack - set region of field */
 			f_ptr->region = cur_region;
 
-			if (!ignore_stuff)
+			if (!ignore_stuff && in_bounds2(f_ptr->fx, f_ptr->fy))
 			{
 				/* Access the fields location */
 				c_ptr = area(f_ptr->fx, f_ptr->fy);
 
 				/* Build a stack */
-				fld_idx = field_add(f_ptr, c_ptr);
-
-				/* Oops */
-				if (i != fld_idx)
-				{
-					note("Field allocation error (%d <> %d)", i, fld_idx);
-					return (152);
-				}
+				field_add(f_ptr, c_ptr);
 			}
 		}
 	}

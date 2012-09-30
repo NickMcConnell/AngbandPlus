@@ -2300,7 +2300,7 @@ static int target_set_aux(int x, int y, int mode, cptr info)
 						screen_save();
 
 						/* Display */
-						show_list(c_ptr->o_idx);
+						show_list(c_ptr->o_idx, FALSE);
 
 						/* Prompt */
 						prtf(0, 0, "Hit any key to continue");

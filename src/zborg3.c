@@ -872,7 +872,7 @@ int look_up_index(list_item *l_ptr)
 
 
 /*
- * Hack -- refuel a torch
+ * Hack -- refuel a torch with the minimal torch
  */
 bool borg_refuel_torch(void)
 {
@@ -882,8 +882,11 @@ bool borg_refuel_torch(void)
 	/* Must first wield before one can refuel */
 	if (!equipment[EQUIP_LITE].k_idx) return (FALSE);
 
-	/* Must wield torch */
+ 	/* Must wield torch */
 	if (k_info[equipment[EQUIP_LITE].k_idx].sval != SV_LITE_TORCH) return (FALSE);
+
+	/* Cast phlogiston */
+	if (borg_spell_fail(REALM_ARCANE, 1, 1, 40)) return (TRUE);
 
 	/* Look for the minimal torch */
 	for (slot = 0; slot < inven_num; slot++)
@@ -898,7 +901,10 @@ bool borg_refuel_torch(void)
 
 		/* Ignore torches with the most fuel */
 		if (l_ptr->timeout >= fuel) continue;
-		
+
+		/* Is this an ego_torch? */
+		if (borg_obj_is_ego_art(l_ptr)) continue;
+
 		/* My favorite torch */
 		b_slot = slot;
 		fuel = l_ptr->timeout;
@@ -924,32 +930,58 @@ bool borg_refuel_torch(void)
  */
 bool borg_refuel_lantern(void)
 {
+	int slot, b_slot = -1, fuel = 14999;
 	list_item *l_ptr;
 
-	/* Look for a torch */
-	l_ptr = borg_slot(TV_FLASK, 0);
+	/* Must first wield before one can refuel */
+	if (!equipment[EQUIP_LITE].k_idx) return (FALSE);
 
-	/* None available */
-	if (!l_ptr) return (FALSE);
-
-	/* Need to be wielding a light */
-	if (!equipment[EQUIP_LITE].k_idx)
-	{
-		return (FALSE);
-	}
-
-	/* Cant refuel a torch with oil */
+ 	/* Must wield lantern */
 	if (k_info[equipment[EQUIP_LITE].k_idx].sval != SV_LITE_LANTERN)
-	{
 		return (FALSE);
+
+	/* Cast phlogiston */
+	if (borg_spell_fail(REALM_ARCANE, 1, 1, 40)) return (TRUE);
+
+	/* Loop through the inventory backwards */
+	for (slot = inven_num - 1; slot >= 0; slot--)
+	{
+		l_ptr = &inventory[slot];
+
+		/* Maybe fuel with a Lantern? */
+		if (l_ptr->tval == TV_LITE &&
+			k_info[l_ptr->k_idx].sval == SV_LITE_LANTERN)
+		{
+			/* Ignore lanterns with the most fuel */
+			if (l_ptr->timeout >= fuel) continue;
+
+			/* My favorite lantern */
+			b_slot = slot;
+			fuel = l_ptr->timeout;
+		}
+		else
+		{
+			/* Maybe fuel with a flask? */
+			if (l_ptr->tval == TV_FLASK)
+			{
+				/* Get out of the loop */
+				break;
+			}
+		}
 	}
+
+	/* b_slot holds best lantern, slot holds flask, let's see if there is one */
+	if (b_slot == -1 && slot == -1) return (FALSE);
+
+	/* Found no lantern but a flask */
+	if (b_slot == -1) b_slot = slot;
 
 	/* Log the message */
-	borg_note_fmt("# Refueling with %s.", l_ptr->o_name);
+	borg_note_fmt("# Refueling with %s.", inventory[b_slot].o_name);
 
 	/* Perform the action */
 	borg_keypress('F');
-	borg_keypress(I2A(look_up_index(l_ptr)));
+	borg_keypress(I2A(b_slot));
 
 	/* Success */
 	return (TRUE);
@@ -1187,10 +1219,24 @@ bool borg_use_unknown(void)
 	return (FALSE);
 }
 
+/* Check if the given scroll (by sval) can be read */
+bool borg_read_scroll_fail(int sval)
+{
+	/* Dark */
+	if (!map_loc(c_x, c_y)->flags & MAP_GLOW &&
+		!bp_ptr->cur_lite) return (FALSE);
 
-/*
- * Hack -- attempt to read the given scroll (by sval)
- */
+	/* Blind or Confused */
+	if (bp_ptr->status.blind || bp_ptr->status.confused) return (FALSE);
+
+	/* Is the scroll available? */
+	if (!borg_slot(TV_SCROLL, sval)) return (FALSE);
+
+	/* The borg has the scroll and can read it too */
+	return (TRUE);
+}
+
+/* Attempt to read the given scroll (by sval) */
 bool borg_read_scroll(int sval)
 {
 	list_item *l_ptr;
@@ -1265,7 +1311,7 @@ bool borg_use_item_fail(list_item *l_ptr, bool risky)
 
 
 /* To zap a rod or not */
-static bool borg_rod_aux(int sval, bool zap)
+static bool borg_rod_aux(int sval, bool zap, bool fail)
 {
 	int slot;
 	list_item *l_ptr;
@@ -1282,7 +1328,7 @@ static bool borg_rod_aux(int sval, bool zap)
 	if (l_ptr->timeout == l_ptr->number) return (FALSE);
 
 	/* Can we zap this rod */
-	if (!borg_use_item_fail(l_ptr, FALSE)) return (FALSE);
+	if (fail && !borg_use_item_fail(l_ptr, FALSE)) return (FALSE);
 
 	/* Do we want to zap it? */
 	if (zap)
@@ -1299,16 +1345,22 @@ static bool borg_rod_aux(int sval, bool zap)
 	return (TRUE);
 }
 
-/* Can we zap this rod? */
+/* Does the borg have this rod? */
 bool borg_equips_rod(int sval)
 {
-	return (borg_rod_aux(sval, FALSE));
+	return (borg_rod_aux(sval, FALSE, FALSE));
+}
+
+/* Does the borg have this rod and will be able to zap it? */
+bool borg_equips_rod_fail(int sval)
+{
+	return (borg_rod_aux(sval, FALSE, TRUE));
 }
 
 /* Let's zap this rod if possible  */
 bool borg_zap_rod(int sval)
 {
-	return (borg_rod_aux(sval, TRUE));
+	return (borg_rod_aux(sval, TRUE, FALSE));
 }
 
 
@@ -1432,9 +1484,10 @@ static bool borg_staff_aux(int sval, bool use, bool fail)
 	/* Do the fail check */
 	if (fail)
 	{
-		if (sval == SV_STAFF_TELEPORTATION)
+		if (sval == SV_STAFF_TELEPORTATION ||
+			sval == SV_STAFF_DESTRUCTION)
 		{
-			/* Take more risk if you want to teleport */
+			/* Take more risk if you want to teleport or destruct */
 			if (!borg_use_item_fail(l_ptr, TRUE)) return (FALSE);
 		}
 		else
@@ -1459,33 +1512,32 @@ static bool borg_staff_aux(int sval, bool use, bool fail)
 	return (TRUE);
 }
 
-/*
- * Hack -- attempt to use the requested staff (by sval)
- */
+/* Attempt to use the requested staff (by sval) */
 bool borg_use_staff(int sval)
 {
 	/* Use the staff (if available) without fail check */
 	return borg_staff_aux(sval, TRUE, FALSE);
 }
 
-/*
- * Hack -- attempt to use the requested staff (by sval) and
- * make a fail check on it.
- */
+/* Attempt to use the staff (by sval) and make a fail check on it. */
 bool borg_use_staff_fail(int sval)
 {
 	/* Use the staff with fail check */
 	return borg_staff_aux(sval, TRUE, TRUE);
 }
 
-/*
- * Hack -- checks staff (by sval) and
- * make a fail check on it.
- */
+/* Checks staff (by sval) and makes a fail check on it. */
 bool borg_equips_staff_fail(int sval)
 {
 	/* Do not use the staff, just do the fail check */
 	return borg_staff_aux(sval, FALSE, TRUE);
+}
+
+/* Checks staff (by sval) and without a fail check. */
+bool borg_equips_staff(int sval)
+{
+	/* Do not use the staff, just do the fail check */
+	return borg_staff_aux(sval, FALSE, FALSE);
 }
 
 /*
@@ -1497,7 +1549,7 @@ bool borg_equips_staff_fail(int sval)
 bool borg_check_artifact(list_item *l_ptr, bool real_use)
 {
 	/* Skip empty items */
-	if (!l_ptr) return (FALSE);
+	if (!l_ptr || !l_ptr->k_idx) return (FALSE);
 
 	/* Skip non-artifacts */
 	if (!(KN_FLAG(l_ptr, TR_INSTA_ART))) return (FALSE);
@@ -1991,7 +2043,7 @@ int borg_spell_fail_rate(int realm, int book, int what)
 	{
 		l_ptr = &equipment[EQUIP_WIELD];
 
-		if (l_ptr &&
+		if (l_ptr->k_idx &&
 			(l_ptr->tval == TV_SWORD || l_ptr->tval == TV_POLEARM) &&
 			!KN_FLAG(l_ptr, TR_BLESSED))
 		{
@@ -2090,36 +2142,16 @@ bool borg_spell(int realm, int book, int what)
 /* Determines if a book contains spells that can be reliably cast */
 bool borg_uses_book(int realm, int book)
 {
-	int spell, fail, b_fail = 100;
-	int real_mana;
-
-	/* Remember how much mana there was */
-	real_mana = bp_ptr->csp;
-
-	/* Use the max_mana to get the optimal fail_rate */
-	bp_ptr->csp = bp_ptr->msp;
+	int spell;
 
 	/* Loop through the spells */
 	for (spell = 0; spell < 8; spell++)
 	{
-		/* get the fail_rate for this spell */
-		fail = borg_spell_fail_rate(realm, book, spell);
-
-		/* Collect the minimum fail_rate */
-		b_fail = MIN(b_fail, fail);
+		/* Is this an easy spell? */
+		if (borg_spell_legal_fail(realm, book, spell, 40)) return (TRUE);
 	}
 
-	/* Restore the real amount of mana */
-	bp_ptr->csp = real_mana;
-
-	/* Does this book have easy spells? */
-	if (b_fail <= 40)
-	{
-		/* it is a usable book */
-		return (TRUE);
-	}
-
-	/* Only hard spells */
+	/* Only hard / impossible spells */
 	return (FALSE);
 }
 

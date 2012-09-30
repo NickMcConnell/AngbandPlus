@@ -250,8 +250,8 @@ void do_cmd_browse(void)
 		return;
 	}
 
-	/* Restrict choices to "useful" books */
-	item_tester_tval = mp_ptr->spell_book;
+	/* Restrict choices to books */
+	item_tester_hook = item_tester_hook_is_book;
 
 	/* Get an item */
 	q = "Browse which book? ";
@@ -1989,7 +1989,7 @@ static bool cast_trump_spell(int spell, bool success)
 
 				/* Ask for a level */
 				if (get_string(tmp_val, 11, "Reset to which level (1-%d): ",
-								 d_ptr->recall_depth))
+								 max_depth))
 				{
 					/* Extract request */
 					dummy = atoi(tmp_val);

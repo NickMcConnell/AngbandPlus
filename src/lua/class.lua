@@ -2,7 +2,7 @@
 -- Written by Waldemar Celes
 -- TeCGraf/PUC-Rio
 -- Jul 1998
--- $Id: class.lua,v 1.1 2001/10/29 17:49:53 rr9 Exp $
+-- $Id: class.lua,v 1.2 2003/12/04 17:46:14 sfuerst Exp $
 
 -- This code is free software; you can redistribute it and/or modify it.
 -- The software provided hereunder is on an "as is" basis, and
@@ -37,7 +37,7 @@ end
 
 -- unregister class
 function classClass:unregister ()
- output(' lua_pushnil(tolua_S); lua_setglobal(tolua_S,"'..self.name..'");')
+ output(' TOLUA_UNDEF('..self.name..');')
 end
 
 -- output tags

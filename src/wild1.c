@@ -3331,7 +3331,7 @@ static void create_wild_info(int *bestx, int *besty)
 			w_ptr->trans.info = 0;
 
 			/* How good is this spot to put a town? */
-			if (w_ptr->trans.law_map < 20)
+			if ((law < 20) && (hgt > 160))
 			{
 				/* Hack - Only record the first such place */
 				if ((x == -1) && (y == -1))
@@ -3346,7 +3346,7 @@ static void create_wild_info(int *bestx, int *besty)
 	/* Save best town location */
 	*bestx = x;
 	*besty = y;
-
+	
 	/* Free the temp data */
 	FREE(wild_temp_dist);
 }
@@ -3539,7 +3539,7 @@ void create_wilderness(void)
 	{
 		count++;
 
-		if (count > 10) quit("Cannot make wilderness, adjust constraints.");
+		if (count > 50) quit("Cannot make wilderness, adjust constraints.");
 
 		/* Clear the wilderness */
 		wipe_wilderness();

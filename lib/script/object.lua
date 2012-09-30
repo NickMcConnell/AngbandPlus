@@ -136,7 +136,7 @@ function werewindle()
 	elseif n <= 12 then
 		stair_creation()
 	else
-		if get_check("Leave this level? ") then
+		if (get_check("Leave this level? ") ~= 0) then
 			if autosave_l then do_cmd_save_game(TRUE) end
 			player.state.leaving = TRUE
 		end

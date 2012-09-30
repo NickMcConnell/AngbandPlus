@@ -121,66 +121,60 @@ static s16b value_feeling[] =
  */
 bool borg_item_icky(list_item *l_ptr)
 {
-	object_kind *k_ptr = &k_info[l_ptr->k_idx];
+	int sval = k_info[l_ptr->k_idx].sval;
 
 	/* if its average, dump it if you want to. */
 	if (strstr(l_ptr->o_name, "{average")) return (TRUE);
+
+	/* things that are good/excellent/special/tainted need ID so are not icky */
+	if (strstr(l_ptr->o_name, "{special") ||
+		strstr(l_ptr->o_name, "{terrible") ||
+		strstr(l_ptr->o_name, "{excellent") ||
+		strstr(l_ptr->o_name, "{tainted")) return (FALSE);
 
 	/* Mega-Hack -- allow "icky" items */
 	if (borg_class == CLASS_PRIEST ||
 		borg_class == CLASS_RANGER ||
 		borg_class == CLASS_MAGE || (bp_ptr->lev < 20))
 	{
-		/* things that are good/excelent/special */
-		if (strstr(l_ptr->o_name, "{special") ||
-			strstr(l_ptr->o_name, "{terrible") ||
-			strstr(l_ptr->o_name, "{excellent"))
-			/* not icky */
-			return (FALSE);
 
-		/* Broken dagger/sword, Filthy rag */
-		if (((l_ptr->tval == TV_SWORD) && (k_ptr->sval == SV_BROKEN_DAGGER)) ||
-			((l_ptr->tval == TV_SWORD) && (k_ptr->sval == SV_BROKEN_SWORD)) ||
-			((l_ptr->tval == TV_SOFT_ARMOR) && (k_ptr->sval == SV_FILTHY_RAG)))
-		{
-			return (TRUE);
-		}
+		/* Swords */
+		if (l_ptr->tval == TV_SWORD)
+				return (sval == SV_BROKEN_DAGGER ||
+						sval == SV_BROKEN_SWORD ||
+						sval == SV_DAGGER);
 
-		/* Dagger, Sling */
-		if (((l_ptr->tval == TV_SWORD) && (k_ptr->sval == SV_DAGGER)) ||
-			((l_ptr->tval == TV_BOW) && (k_ptr->sval == SV_SLING)))
-		{
-			return (TRUE);
-		}
+		/* Hafted */
+		if (l_ptr->tval == TV_HAFTED)
+			return (sval == SV_CLUB ||
+					sval == SV_WHIP);
 
-		/* Cloak, Robe */
-		if (((l_ptr->tval == TV_CLOAK) && (k_ptr->sval == SV_CLOAK)) ||
-			((l_ptr->tval == TV_SOFT_ARMOR) && (k_ptr->sval == SV_ROBE)))
-		{
-			return (TRUE);
-		}
+		/* Sling */
+		if (l_ptr->tval == TV_BOW) return (sval == SV_SLING);
+
+		/* Rags and Robes */
+		if (l_ptr->tval == TV_SOFT_ARMOR)
+			return (sval == SV_FILTHY_RAG ||
+					sval == SV_SOFT_LEATHER_ARMOR ||
+					sval == SV_SOFT_STUDDED_LEATHER ||
+					sval == SV_ROBE);
+
+		/* Cloak */
+		if (l_ptr->tval == TV_CLOAK) return (sval == SV_CLOAK);
 
 		/* Leather Gloves */
-		if ((l_ptr->tval == TV_GLOVES) &&
-			(k_ptr->sval == SV_SET_OF_LEATHER_GLOVES))
-		{
-			return (TRUE);
-		}
+		if (l_ptr->tval == TV_GLOVES)
+			return (sval == SV_SET_OF_LEATHER_GLOVES);
+
+		/* Helmet */
+		if (l_ptr->tval == TV_HELM) return (sval == SV_HARD_LEATHER_CAP);
 
 		/* Assume the item is not icky */
 		return (FALSE);
 	}
 
-	/*
-	 * Process other classes which do get pseudo ID
-	 * things that are good/excelent/special/no P-ID
-	 */
-	if (strstr(l_ptr->o_name, "{special") || strstr(l_ptr->o_name, "{terrible")
-		|| strstr(l_ptr->o_name, "{excellent"))
-		return (FALSE);
 
-
-		/*** {Good} items in inven, But I have {excellent} in equip ***/
+	/*** {Good} items in inven, But I have {excellent} in equip ***/
 
 	if (strstr(l_ptr->o_name, "{good"))
 	{
@@ -190,10 +184,15 @@ bool borg_item_icky(list_item *l_ptr)
 		slot = borg_wield_slot(l_ptr);
 
 		/* Obtain my equipped item in the slot */
-		l_ptr = &equipment[slot];
+		l_ptr = look_up_equip_slot(slot);
 
-		/* Is my item an ego or artifact? */
-		if (slot != -1 && borg_obj_is_ego_art(l_ptr)) return (TRUE);
+		/* Is the equipped item an ego or artifact? */
+		if (l_ptr &&
+			(borg_obj_is_ego_art(l_ptr) ||
+			strstr(l_ptr->o_name, "{special") ||
+			strstr(l_ptr->o_name, "{terrible") ||
+			strstr(l_ptr->o_name, "{excellent") ||
+			strstr(l_ptr->o_name, "{tainted"))) return (TRUE);
 	}
 
 	/* Assume not icky, I should have extra ID for the item */
@@ -399,7 +398,6 @@ bool borg_check_lite(void)
 	bool do_wall;
 	bool do_evil;
 
-	bool do_lite_aux = FALSE;
 
 
 	/* Never in town */
@@ -585,10 +583,11 @@ bool borg_check_lite(void)
 	if (do_evil && (!when_detect_evil || (borg_t - when_detect_evil >= 9)))
 	{
 		/* Check for traps */
-		if (borg_spell_fail(REALM_LIFE, 0, 0, 20) ||
+		if (borg_spell_fail(REALM_NATURE, 0, 0, 20) ||
 			borg_spell_fail(REALM_ARCANE, 0, 3, 20) ||
-			borg_spell_fail(REALM_NATURE, 0, 0, 20) ||
 			borg_spell_fail(REALM_SORCERY, 0, 0, 20) ||
+			borg_spell_fail(REALM_DEATH, 0, 3, 20) ||
+			borg_spell_fail(REALM_LIFE, 0, 0, 20) ||
 			borg_spell_fail(REALM_DEATH, 0, 0, 20))
 		{
 			borg_note("# Checking for monsters.");
@@ -660,11 +659,11 @@ bool borg_check_lite(void)
 		}
 	}
 	/* add them up */
-	if (floors <= 11) do_lite = do_lite_aux = FALSE;
+	if (floors <= 11) do_lite = FALSE;
 
 	/* Vampires need to be careful for Light */
 	if (FLAG(bp_ptr, TR_HURT_LITE) && !FLAG(bp_ptr, TR_RES_LITE))
-		do_lite = do_lite_aux = FALSE;
+		do_lite = FALSE;
 
 	/* Hack -- call lite */
 	if (do_lite && (!when_call_lite || (borg_t - when_call_lite >= 7)))
@@ -692,6 +691,72 @@ bool borg_check_lite(void)
 		}
 	}
 
+	/* What to do when the borg has no light */
+	if (!bp_ptr->cur_lite)
+	{
+		/* Set to default */
+		do_lite = FALSE;
+
+		/* Check all the surrounding spots */
+		for (x = c_x - 1; x <= c_x + 1; x++)
+		{
+			for (y = c_y - 1; y <= c_y + 1; y++)
+			{
+				/* Check if it is on the map */
+				if (!map_in_bounds(x, y)) continue;
+
+				/* Is it a dark spot */
+				if (!(map_loc(x, y)->flags & MAP_GLOW))
+				{
+					/* Think about lighting up */
+					do_lite = TRUE;
+
+					/* Remember where */
+					g_x = x;
+					g_y = y;
+				}
+			}
+		}
+
+		if (do_lite)
+		{
+			/* Can the borg cast a light area? */
+			if (borg_zap_rod(SV_ROD_ILLUMINATION) ||
+				borg_use_staff(SV_STAFF_LITE) ||
+				borg_read_scroll(SV_SCROLL_LIGHT) ||
+				borg_spell(REALM_ARCANE, 0, 5) ||
+				borg_spell(REALM_CHAOS, 0, 2) ||
+				borg_spell(REALM_NATURE, 0, 4) ||
+				borg_spell(REALM_SORCERY, 0, 3) ||
+				borg_spell(REALM_LIFE, 0, 4) ||
+				borg_mutation(MUT1_ILLUMINE))
+			{
+				/* making lite */
+				borg_note("# Trying to light the whole dungeon");
+
+				return (TRUE);
+			}
+
+			/* Release target */
+			borg_keypress('*');
+			borg_keypress(ESCAPE);
+
+			/* Can the borg cast a beam of light */
+			if (borg_spell(REALM_NATURE, 1, 4) ||
+				borg_spell(REALM_ARCANE, 2, 4) ||
+				borg_zap_rod(SV_ROD_LITE) ||
+				borg_aim_wand(SV_WAND_LITE))
+			{	
+				/* making lite */
+				borg_note("# Trying to light the whole dungeon");
+
+				/* show me the way */
+				borg_keypress(I2D(borg_extract_dir(c_x, c_y, g_x, g_y)));
+
+				return (TRUE);
+			}
+		}
+	}
 
 	/* Hack -- Wizard Lite */
 	if (TRUE && (!when_wizard_lite || (borg_t - when_wizard_lite >= 1000)))
@@ -725,7 +790,6 @@ bool borg_check_lite_only(void)
 	map_block *mb_ptr;
 
 	bool do_lite;
-	bool do_lite_aux = FALSE;
 
 	/* Never in town */
 	if (!bp_ptr->depth) return (FALSE);
@@ -793,7 +857,7 @@ bool borg_check_lite_only(void)
 		}
 	}
 	/* add them up */
-	if (floors <= 11) do_lite = do_lite_aux = FALSE;
+	if (floors <= 11) do_lite = FALSE;
 
 	/* Hack -- call lite */
 	if (do_lite && (!when_call_lite || (borg_t - when_call_lite >= 7)))
@@ -1285,20 +1349,13 @@ bool borg_enchanting(void)
 }
 
 
-/*
- * Recharge things
- *
- * XXX XXX XXX Prioritize available items
- */
+/* Recharge things.  Rods go first, then staffs and wands last. */
 bool borg_recharging(void)
 {
-	int i = -1;
-	bool charge = FALSE;
+	int i, charge = -1;
 
 	/* Forbid blind/confused */
 	if (bp_ptr->status.blind || bp_ptr->status.confused) return (FALSE);
-
-	/* XXX XXX XXX Dark */
 
 	/* Look for an item to recharge */
 	for (i = 0; i < inven_num; i++)
@@ -1308,66 +1365,50 @@ bool borg_recharging(void)
 		/* Skip empty /unaware items */
 		if (!l_ptr->k_idx) continue;
 
-		/* Skip non-identified items */
-		if (!borg_obj_known_p(l_ptr)) continue;
-
-		/* assume we can't charge it. */
-		charge = FALSE;
-
-		/* Wands with no charges can be charged */
-		if ((l_ptr->tval == TV_WAND) && (l_ptr->pval < 1))
-			charge = TRUE;
-
-		/* recharge staves sometimes */
-		if (l_ptr->tval == TV_STAFF)
+		/* Wands or staffs with no charges can be charged */
+		if ((l_ptr->tval == TV_WAND || l_ptr->tval == TV_STAFF) &&
+			((borg_obj_known_p(l_ptr) && l_ptr->pval < 1) ||
+			strstr(l_ptr->o_name, "{empty")))
 		{
-			/*
-			 * Allow staves to be recharged at 2 charges if
-			 * the borg has the big recharge spell. And its not a *Dest*
-			 */
-			if ((l_ptr->pval < 3) &&
-				k_info[l_ptr->k_idx].sval < SV_STAFF_POWER)
-				charge = TRUE;
-
-			/* recharge any staff at 0 charges */
-			if (l_ptr->pval < 1)
-				charge = TRUE;
+			/* Settle for this wand/staff. */
+			charge = i;
 		}
 
-		/* recharge rods that are 'charging' if we have the big recharge */
-		/* spell */
-		if (l_ptr->tval == TV_ROD && l_ptr->timeout)
+		/*
+		 * Recharging rods is not a smart idea as it is a real pain if your 
+		 * precious rod of recall is consumed by wild magic.
+		 * So only allow a Rod of Healing to be recharged when the borg is
+		 * low on HP and presumably will use the rod next turn.
+		 */
+		if (l_ptr->tval == TV_ROD && l_ptr->timeout &&
+			k_info[l_ptr->k_idx].sval == SV_ROD_HEALING && bp_ptr->chp < 100)
 		{
-			/*
-			 * Don't do this.  The borg will continue until wild magic consumes
-			 * his rod.  Not fun if it is the Rod of Recall.
-			 * There can be situations when it is a good thing to do, but when???
-			charge = TRUE;*/
-			charge = FALSE;
-		}
+			/* Settle for this rod */
+			charge = i;
 
-		/* get the next item if we are not to charge this one */
-		if (!charge) continue;
-
-		/* Attempt to recharge */
-		if (borg_activate_artifact(ART_THINGOL, FALSE) ||
-			borg_spell(REALM_ARCANE, 3, 0) ||
-			borg_spell(REALM_CHAOS, 2, 2) ||
-			borg_read_scroll(SV_SCROLL_RECHARGING) ||
-			borg_spell(REALM_SORCERY, 0, 7))
-		{
-			/* Message */
-			borg_note_fmt("Recharging %s", l_ptr->o_name);
-
-			/* Recharge the item */
-			borg_keypress(I2A(i));
-
-			/* Success */
-			return (TRUE);
-		}
-		else
-			/* if we fail once, no need to try again. */
+			/* Rods go first so leave the loop */
 			break;
+		}
+	}
+
+	/* Don't try to recharge if there is nothing to recharge */
+	if (charge == -1) return (FALSE);
+
+	/* Attempt to recharge */
+	if (borg_activate_artifact(ART_THINGOL, FALSE) ||
+		borg_spell(REALM_ARCANE, 3, 0) ||
+		borg_spell(REALM_CHAOS, 2, 2) ||
+		borg_spell(REALM_SORCERY, 0, 7) ||
+		borg_read_scroll(SV_SCROLL_RECHARGING))
+	{
+		/* Message */
+		borg_note_fmt("Recharging %s", inventory[charge].o_name);
+
+		/* Recharge the item */
+		borg_keypress(I2A(charge));
+
+		/* Success */
+		return (TRUE);
 	}
 
 	/* Nope */
@@ -1492,6 +1533,66 @@ static bool borg_consume(list_item *l_ptr)
 }
 
 /*
+ * Should we *id* this item?
+ */
+bool borg_obj_star_id_able(list_item *l_ptr)
+{
+	/* Is there an object at all? */
+	if (!l_ptr) return (FALSE);
+
+	/* Demand that the item is identified */
+	if (!borg_obj_known_p(l_ptr)) return (FALSE);
+	
+	/* Some non-ego items should be *id'ed too */
+	if (l_ptr->tval == TV_SHIELD &&
+	 	k_info[l_ptr->k_idx].sval == SV_DRAGON_SHIELD) return (TRUE);
+	if (l_ptr->tval == TV_HELM &&
+	 	k_info[l_ptr->k_idx].sval == SV_DRAGON_HELM) return (TRUE);
+	if (l_ptr->tval == TV_CLOAK &&
+	 	k_info[l_ptr->k_idx].sval == SV_SHADOW_CLOAK) return (TRUE);
+	if (l_ptr->tval == TV_RING &&
+	 	k_info[l_ptr->k_idx].sval == SV_RING_LORDLY) return (TRUE);
+
+	/* not an ego object */
+	if (!borg_obj_is_ego_art(l_ptr)) return (FALSE);
+
+	/* Artifacts */
+	if (KN_FLAG(l_ptr, TR_INSTA_ART)) return (TRUE);
+
+	/* Weapons */
+	if (streq(l_ptr->xtra_name, "(Holy Avenger)")) return (TRUE);
+	if (streq(l_ptr->xtra_name, "(Defender)")) return (TRUE);
+	if (streq(l_ptr->xtra_name, "(Blessed)")) return (TRUE);
+	if (streq(l_ptr->xtra_name, "of Westernesse")) return (TRUE);
+	if (streq(l_ptr->xtra_name, "of Slay Dragon")) return (TRUE);
+	if (streq(l_ptr->xtra_name, "of *Slay* Dragon")) return (TRUE);
+	if (streq(l_ptr->xtra_name, "(Chaotic)")) return (TRUE);
+	if (streq(l_ptr->xtra_name, "of Slaying")) return (TRUE);
+	if (streq(l_ptr->xtra_name, "(Vampiric)")) return (TRUE);
+	if (streq(l_ptr->xtra_name, "(Trump Weapon)")) return (TRUE);
+	if (streq(l_ptr->xtra_name, "(Pattern Weapon)")) return (TRUE);
+
+	/* Bow */
+	if (streq(l_ptr->xtra_name, "of Might")) return (TRUE);
+
+	/* Armour */
+	if (streq(l_ptr->xtra_name, "of Permanence")) return (TRUE);
+	if (streq(l_ptr->xtra_name, "of Resistance")) return (TRUE);
+	if (streq(l_ptr->xtra_name, "of Elvenkind")) return (TRUE);
+
+	/* Hat */
+	if (streq(l_ptr->xtra_name, "of the Magi")) return (TRUE);
+	if (streq(l_ptr->xtra_name, "of Lordliness")) return (TRUE);
+	if (streq(l_ptr->xtra_name, "of Seeing")) return (TRUE);
+
+	/* Cloak */
+	if (streq(l_ptr->xtra_name, "of Aman")) return (TRUE);
+
+	/* Any object that reaches here has nothing interesting to *id* */
+	return (FALSE);
+}
+
+/*
  * Destroy 'number' items
  */
 static void borg_destroy_item(list_item *l_ptr, int slot, int number)
@@ -1508,7 +1609,7 @@ static void borg_destroy_item(list_item *l_ptr, int slot, int number)
 	borg_keypresses(buf);
 
 	/* Destroy that item */
-	if (!(KN_FLAG(l_ptr, TR_INSTA_ART)))
+	if (!KN_FLAG(l_ptr, TR_INSTA_ART))
 	{
 		/* Is the Sorcery Alchemy spell available? */
 		if (borg_spell_okay_fail(REALM_SORCERY, 3, 6, 40))
@@ -1582,6 +1683,8 @@ static bool borg_crush_unidentified(list_item* item)
 		case TV_WAND:
 		{
 			if (k_info[item->k_idx].sval == SV_WAND_CLONE_MONSTER) return TRUE;
+			if (k_info[item->k_idx].sval == SV_WAND_HASTE_MONSTER) return TRUE;
+			if (k_info[item->k_idx].sval == SV_WAND_HEAL_MONSTER) return TRUE;
 			break;
 		}
 	}
@@ -1624,83 +1727,69 @@ bool borg_crush_junk(void)
 		/* Hack - we need to work this out properly */
 		value = 0;
 
-		/* Try not to crush ammo */
-		if (l_ptr->tval == my_ammo_tval) value = 100L;
-
 		/* Skip non "worthless" items */
 		if (l_ptr->tval >= TV_FIGURINE)
 		{
+			/* Keep items that need to be *id*'d */
+			if (strstr(l_ptr->o_name, "{special") ||
+				strstr(l_ptr->o_name, "{terrible") ||
+				(!borg_obj_known_full(l_ptr) &&
+				borg_obj_star_id_able(l_ptr))) continue;
+
 			/* unknown? */
-			if (!borg_crush_unidentified(l_ptr) &&
-				!borg_obj_known_p(l_ptr) &&
-				!(strstr(l_ptr->o_name, "{average") ||
-				  strstr(l_ptr->o_name, "{cursed") ||
-				  strstr(l_ptr->o_name, "{bad") ||
-				  strstr(l_ptr->o_name, "{dubious") ||
-				  strstr(l_ptr->o_name, "{worthless"))) continue;
-
-			/* Pretend pile isn't there */
-			l_ptr->treat_as = TREAT_AS_GONE;
-
-			/* Evaluate the inventory */
-			p = borg_power();
-
-			/* Include the effects of value of items */
-			value = old_value - bp_ptr->value;
-
-			/* Restore item */
-			l_ptr->treat_as = TREAT_AS_NORM;
-
-			/* Do not junk useful things */
-			if (my_power > p) continue;
-
-			/*
-			 * Destroy these regardless of value,
-			 * it is too troublesome to decurse, id and sell them.
-			 */
-			if (strstr(l_ptr->o_name, "{cursed") ||
+			if (!borg_obj_known_p(l_ptr) &&
+				(borg_crush_unidentified(l_ptr) ||
+				strstr(l_ptr->o_name, "{average") ||
+				strstr(l_ptr->o_name, "{cursed") ||
 				strstr(l_ptr->o_name, "{bad") ||
+				strstr(l_ptr->o_name, "{broken") ||
 				strstr(l_ptr->o_name, "{dubious") ||
-				strstr(l_ptr->o_name, "{worthless"))
+				strstr(l_ptr->o_name, "{worthless"))) value = 0;
+			else
 			{
-				value = 0;
+				/* Pretend pile isn't there */
+				l_ptr->treat_as = TREAT_AS_GONE;
+
+				/* Evaluate the inventory */
+				p = borg_power();
+
+				/* Include the effects of value of items */
+				value = old_value - bp_ptr->value;
+
+				/* Restore item */
+				l_ptr->treat_as = TREAT_AS_NORM;
+
+				/* Do not junk useful things */
+				if (my_power > p) continue;
 			}
 
 			/* up to level 5, keep anything of value 100 or better */
-			if (bp_ptr->depth < 5 && value > 100)
-				continue;
+			if (bp_ptr->depth < 5 && value > 100) continue;
+			
 			/* up to level 15, keep anything of value 100 or better */
-			if (bp_ptr->depth < 15 && value > 200)
-				continue;
+			if (bp_ptr->depth < 15 && value > 200) continue;
+			
 			/* up to level 30, keep anything of value 500 or better */
-			if (bp_ptr->depth < 30 && value > 500)
-				continue;
+			if (bp_ptr->depth < 30 && value > 500) continue;
+			
 			/* up to level 40, keep anything of value 1000 or better */
-			if (bp_ptr->depth < 40 && value > 1000)
-				continue;
+			if (bp_ptr->depth < 40 && value > 1000) continue;
+			
 			/* up to level 60, keep anything of value 1200 or better */
-			if (bp_ptr->depth < 60 && value > 1200)
-				continue;
+			if (bp_ptr->depth < 60 && value > 1200) continue;
+			
 			/* up to level 80, keep anything of value 1400 or better */
-			if (bp_ptr->depth < 80 && value > 1400)
-				continue;
+			if (bp_ptr->depth < 80 && value > 1400) continue;
+			
 			/* up to level 90, keep anything of value 1600 or better */
-			if (bp_ptr->depth < 90 && value > 1600)
-				continue;
+			if (bp_ptr->depth < 90 && value > 1600) continue;
+			
 			/* up to level 95, keep anything of value 1800 or better */
-			if (bp_ptr->depth < 95 && value > 1800)
-				continue;
+			if (bp_ptr->depth < 95 && value > 1800) continue;
+			
 			/* below level 127, keep anything of value 2000 or better */
-			if (bp_ptr->depth < 127 && value > 2000)
-				continue;
+			if (bp_ptr->depth < 127 && value > 2000) continue;
 		}
-
-		/* Hack -- skip good un-id'd "artifacts" */
-		if (strstr(l_ptr->o_name, "{special")) continue;
-		if (strstr(l_ptr->o_name, "{terrible")) continue;
-
-		/* hack check anything interesting */
-		if (borg_obj_star_id_able(l_ptr) && !borg_obj_known_full(l_ptr)) continue;
 
 		/* Message */
 		borg_note_fmt("# Junking junk (valued at %d)", value);
@@ -1761,32 +1850,31 @@ bool borg_crush_hole(void)
 		/* Don't crush our spell books */
 		if (borg_has_realm(l_ptr->tval - TV_BOOKS_MIN + 1)) continue;
 
-		/* Hack -- skip artifacts and ego items not fully identified */
-		if (borg_obj_is_ego_art(l_ptr) && !borg_obj_known_full(l_ptr)) continue;
-		if (strstr(l_ptr->o_name, "{special")) continue;
-		if (strstr(l_ptr->o_name, "{terrible")) continue;
+		/* Skip items that need to be *id*'d */
+		if (strstr(l_ptr->o_name, "{special") ||
+			strstr(l_ptr->o_name, "{terrible") ||
+			(!borg_obj_known_full(l_ptr) &&
+			borg_obj_star_id_able(l_ptr))) continue;
 
 		/* Get sval */
 		sval = k_info[l_ptr->k_idx].sval;
 
 		/* never crush cool stuff that we might be needing later */
-		if ((l_ptr->tval == TV_POTION && sval == SV_POTION_RESTORE_MANA) &&
-			bp_ptr->msp) continue;
-		if ((l_ptr->tval == TV_POTION) && (sval == SV_POTION_HEALING)) continue;
-		if ((l_ptr->tval == TV_POTION) &&
-			(sval == SV_POTION_STAR_HEALING)) continue;
-		if (l_ptr->tval == TV_POTION && sval == SV_POTION_LIFE) continue;
-		if (l_ptr->tval == TV_POTION && sval == SV_POTION_SPEED) continue;
-		if (l_ptr->tval == TV_SCROLL &&
-			sval == SV_SCROLL_PROTECTION_FROM_EVIL) continue;
-		if (l_ptr->tval == TV_SCROLL &&
-			sval == SV_SCROLL_RUNE_OF_PROTECTION) continue;
-		if ((l_ptr->tval == TV_SCROLL) && (sval == SV_SCROLL_TELEPORT_LEVEL) &&
-			(bp_ptr->able.teleport_level < 1000)) continue;
-		if ((l_ptr->tval == TV_ROD) && (sval == SV_ROD_HEALING ||
-										(sval == SV_ROD_MAPPING)) &&
-			(borg_class == CLASS_WARRIOR) && (l_ptr->number <= 5)) continue;
+		if (l_ptr->tval == TV_POTION &&
+			(sval == SV_POTION_RESTORE_MANA ||
+			sval == SV_POTION_HEALING ||
+			sval == SV_POTION_STAR_HEALING ||
+			sval == SV_POTION_LIFE ||
+			sval == SV_POTION_SPEED)) continue;
 
+		if (l_ptr->tval == TV_SCROLL &&
+			(sval == SV_SCROLL_PROTECTION_FROM_EVIL ||
+			sval == SV_SCROLL_RUNE_OF_PROTECTION ||
+			sval == SV_SCROLL_TELEPORT_LEVEL)) continue;
+
+		if (l_ptr->tval == TV_ROD &&
+			(sval == SV_ROD_HEALING ||
+			sval == SV_ROD_RECALL)) continue;
 
 		/* Pretend one item isn't there */
 		l_ptr->treat_as = TREAT_AS_LESS;
@@ -1861,10 +1949,11 @@ bool borg_crush_slow(void)
 		/* Skip "good" unknown items (unless "icky") */
 		if (!borg_obj_known_p(l_ptr) && !borg_item_icky(l_ptr)) continue;
 
-		/* Hack -- Skip artifacts */
-		if (borg_obj_is_ego_art(l_ptr) && !borg_obj_known_full(l_ptr)) continue;
-		if (strstr(l_ptr->o_name, "{special")) continue;
-		if (strstr(l_ptr->o_name, "{terrible")) continue;
+		/* Skip items that need to be *id*'d */
+		if (strstr(l_ptr->o_name, "{special") ||
+			strstr(l_ptr->o_name, "{terrible") ||
+			(!borg_obj_known_full(l_ptr) &&
+			borg_obj_star_id_able(l_ptr))) continue;
 
 		/* Pretend item is less */
 		l_ptr->treat_as = TREAT_AS_LESS;
@@ -1908,63 +1997,6 @@ bool borg_crush_slow(void)
 	return (FALSE);
 }
 
-/*
- * Should we *id* this item?
- */
-bool borg_obj_star_id_able(list_item *l_ptr)
-{
-	/* Is there an object at all? */
-	if (!l_ptr) return (FALSE);
-
-	/* Demand that the item is identified */
-	if (!borg_obj_known_p(l_ptr)) return (FALSE);
-	
-	/* Some non-ego items should be *id'ed too */
-	if (l_ptr->tval == TV_SHIELD &&
-	 	k_info[l_ptr->k_idx].sval == SV_DRAGON_SHIELD) return (TRUE);
-	if (l_ptr->tval == TV_HELM &&
-	 	k_info[l_ptr->k_idx].sval == SV_DRAGON_HELM) return (TRUE);
-	if (l_ptr->tval == TV_CLOAK &&
-	 	k_info[l_ptr->k_idx].sval == SV_SHADOW_CLOAK) return (TRUE);
-
-	/* not an ego object */
-	if (!borg_obj_is_ego_art(l_ptr)) return (FALSE);
-
-	/* Artifacts */
-	if (KN_FLAG(l_ptr, TR_INSTA_ART)) return (TRUE);
-
-	/* Weapons */
-	if (streq(l_ptr->xtra_name, "(Holy Avenger)")) return (TRUE);
-	if (streq(l_ptr->xtra_name, "(Defender)")) return (TRUE);
-	if (streq(l_ptr->xtra_name, "(Blessed)")) return (TRUE);
-	if (streq(l_ptr->xtra_name, "of Westernesse")) return (TRUE);
-	if (streq(l_ptr->xtra_name, "of Slay Dragon")) return (TRUE);
-	if (streq(l_ptr->xtra_name, "of *Slay* Dragon")) return (TRUE);
-	if (streq(l_ptr->xtra_name, "(Chaotic)")) return (TRUE);
-	if (streq(l_ptr->xtra_name, "of Slaying")) return (TRUE);
-	if (streq(l_ptr->xtra_name, "(Vampiric)")) return (TRUE);
-	if (streq(l_ptr->xtra_name, "(Trump Weapon)")) return (TRUE);
-	if (streq(l_ptr->xtra_name, "(Pattern Weapon)")) return (TRUE);
-
-	/* Bow */
-	if (streq(l_ptr->xtra_name, "of Might")) return (TRUE);
-
-	/* Armour */
-	if (streq(l_ptr->xtra_name, "of Permanence")) return (TRUE);
-	if (streq(l_ptr->xtra_name, "of Resistance")) return (TRUE);
-	if (streq(l_ptr->xtra_name, "of Elvenkind")) return (TRUE);
-
-	/* Hat */
-	if (streq(l_ptr->xtra_name, "of the Magi")) return (TRUE);
-	if (streq(l_ptr->xtra_name, "of Lordliness")) return (TRUE);
-	if (streq(l_ptr->xtra_name, "of Seeing")) return (TRUE);
-
-	/* Cloak */
-	if (streq(l_ptr->xtra_name, "of Aman")) return (TRUE);
-
-	/* Any object that reaches here has nothing interesting to *id* */
-	return (FALSE);
-}
 
 /*
  * Identify items if possible
@@ -2662,7 +2694,8 @@ bool borg_wear_stuff(void)
 			!strstr(l_ptr->o_name, "{special")) continue;
 
 		/* apw do not wear not *id* artifacts */
-		if (!borg_obj_known_full(l_ptr) && borg_obj_is_ego_art(l_ptr)) continue;
+		if (!borg_obj_known_full(l_ptr) &&
+			borg_obj_star_id_able(l_ptr)) continue;
 
 		/* skip it if it has not been decursed */
 		if (KN_FLAG(l_ptr, TR_CURSED) ||

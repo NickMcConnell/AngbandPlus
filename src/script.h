@@ -60,5 +60,10 @@ extern void apply_object_trigger(int trigger_id, object_type *o_ptr, cptr format
  */
 extern bool use_object(object_type *o_ptr, bool *ident);
 
+/*
+ * Debug lua stack depth
+ */
+extern void debug_lua_stack(void);
+
 #endif /* INCLUDED_SCRIPT_H */
 

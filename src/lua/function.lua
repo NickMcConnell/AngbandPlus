@@ -2,7 +2,7 @@
 -- Written by Waldemar Celes
 -- TeCGraf/PUC-Rio
 -- Jul 1998
--- $Id: function.lua,v 1.2 2002/04/15 18:39:32 sfuerst Exp $
+-- $Id: function.lua,v 1.5 2003/12/04 17:40:58 sfuerst Exp $
 
 -- This code is free software; you can redistribute it and/or modify it.
 -- The software provided hereunder is on an "as is" basis, and
@@ -58,43 +58,53 @@ function classFunction:supcode ()
  output("{")
 
  -- check types
- output(' if (\n')
+ output(' if (')
  -- check self
  local narg
+ local count = 0
  if class then narg=2 else narg=1 end
  if class and self.name~='new' and static==nil then
   if self.const == 'const' then
-   output('     !tolua_istype(tolua_S,1,',self.parent.ctag,',0) ||\n') 
+   output('!tolua_istype(tolua_S,1,',self.parent.ctag,',0) ||\n') 
   else
-   output('     !tolua_istype(tolua_S,1,',self.parent.tag,',0) ||\n') 
+   output('!tolua_istype(tolua_S,1,',self.parent.tag,',0) ||\n') 
   end
+  count = 1
  end
  -- check args
  if self.args[1].type ~= 'void' then
   local i=1
   while self.args[i] do
    if isbasic(self.args[i].type) ~= 'value' then
-    output('     !'..self.args[i]:outchecktype(narg)..' ||\n')
+    if count == 0 then
+     output('!'..self.args[i]:outchecktype(narg)..' ||\n')
+	 count=1
+	else
+	 output('     !'..self.args[i]:outchecktype(narg)..' ||\n')
+	end
    end
    narg = narg+1
    i = i+1
   end
  end
 
- -- check end of list 
- output('     !tolua_isnoobj(tolua_S,'..narg..')\n )\n')
+ -- check end of list
+ if count == 0 then
+  output('!tolua_isnoobj(tolua_S,'..narg..'))\n')
+  count=1
+ else
+  output('     !tolua_isnoobj(tolua_S,'..narg..'))\n')
+ end
  output(' {')
  -- call overloaded function or generate error
  local overload = strsub(self.cname,-2,-1) - 1
  if overload >= 0 then
   output('  return '..strsub(self.cname,1,-3)..format("%02d",overload)..'(tolua_S);')
  else
-  output('  tolua_error(tolua_S,"#ferror in function \''..self.lname..'\'.");')
-  output('  return 0;')
+  output('  TOLUA_ERR_FN('..self.lname..');')
  end
- output(' }')
- output(' else\n {')
- 
+ output(' } else')
+ output(' {')
  -- declare self, if the case
  local narg
  if class then narg=2 else narg=1 end
@@ -137,12 +147,11 @@ function classFunction:supcode ()
  elseif class and self.name == 'operator&[]' then
   output('  self->operator[](',self.args[1].name,') = ',self.args[2].name,';')
  else
-  output('  {')
   if self.type ~= '' and self.type ~= 'void' then
-   output('  ',self.mod,self.type,self.ptr,'toluaI_ret = ')
+   output(' ',self.mod,self.type,self.ptr,'toluaI_ret = ')
    output('(',self.mod,self.type,self.ptr,') ')
   else
-   output('  ')
+   output(' ')
   end
   if class and self.name=='new' then
    output('new',class,'(')
@@ -171,7 +180,7 @@ function classFunction:supcode ()
    nret = nret + 1
    local t,ct = isbasic(self.type)
    if t then
-    output('   tolua_push'..t..'(tolua_S,(',ct,')toluaI_ret);')
+    output('  tolua_push'..t..'(tolua_S,(',ct,')toluaI_ret);')
    else
     if self.ptr == '' then
      output('   {')
@@ -195,7 +204,6 @@ function classFunction:supcode ()
    nret = nret + self.args[i]:retvalue()
    i = i+1
   end
-  output('  }')
 
   -- set array element values
   if class then narg=2 else narg=1 end
@@ -217,7 +225,6 @@ function classFunction:supcode ()
    end
   end
  end
-
  output(' }')
  output(' return '..nret..';')
 
@@ -231,14 +238,14 @@ function classFunction:register ()
  if parent then
   output(' tolua_function(tolua_S,"'..parent..'","'..self.lname..'",'..self.cname..');')
  else
-  output(' tolua_function(tolua_S,NULL,"'..self.lname..'",'..self.cname..');')
+  output(' TOLUA_FUN('..self.lname..','..self.cname..');') 
  end
 end
 
 -- unregister function
 function classFunction:unregister ()
  if self:inclass()==nil and self:inmodule()==nil then
-  output(' lua_pushnil(tolua_S); lua_setglobal(tolua_S,"'..self.lname..'");')
+  output(' TOLUA_UNDEF('..self.lname..');')
  end
 end
 

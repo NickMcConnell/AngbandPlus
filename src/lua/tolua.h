@@ -3,7 +3,7 @@
 ** TeCGraf/PUC-Rio
 ** http://www.tecgraf.puc-rio.br/~celes/tolua
 ** Jul 1998
-** $Id: tolua.h,v 1.2 2002/04/01 11:54:31 sfuerst Exp $
+** $Id: tolua.h,v 1.5 2003/12/04 17:49:53 sfuerst Exp $
 */
 
 /* This code is free software; you can redistribute it and/or modify it.
@@ -114,6 +114,28 @@ extern int tolua_tag_string;
 extern int tolua_tag_userdata;
 extern int tolua_tag_table;
 extern int tolua_tag_function;
+
+/* Extra defines */
+#define TOLUA_GET_SELF(C) \
+  C* self = (C *) tolua_getusertype(tolua_S,1,0); \
+  if (!self) tolua_error(tolua_S,"invalid 'self'")
+#define TOLUA_ARRAY_SELF(C) \
+  C* self; \
+  lua_pushstring(tolua_S,".self"); \
+  lua_rawget(tolua_S,1); \
+  self = (C *)  lua_touserdata(tolua_S,-1)
+#define TOLUA_ARRAY_INDEX(S,D) \
+  if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0)) \
+  tolua_error(tolua_S,"invalid type in array indexing."); \
+  toluaI_index = (int)tolua_getnumber(tolua_S,2,0); \
+  if (toluaI_index<0 || toluaI_index>=D) \
+  tolua_error(tolua_S,"array:" S " indexing out of range.");
+
+#define TOLUA_ERR_ASSIGN tolua_error(tolua_S,"#vinvalid type in variable assignment.")
+#define TOLUA_ERR_FN(F) tolua_error(tolua_S,"#ferror in function" #F); return 0;
+#define TOLUA_DEF(N) tolua_constant(tolua_S,NULL, #N, N)
+#define TOLUA_FUN(L,N) tolua_function(tolua_S,NULL, #L, N)
+#define TOLUA_UNDEF(L) lua_pushnil(tolua_S); lua_setglobal(tolua_S,#L)
 
 #ifdef __cplusplus
 }

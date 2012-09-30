@@ -8,14 +8,6 @@ typedef int sint;
 
 /***** Constants *****/
 
-/* Triggers */
-#define MAX_TRIGGER             5
-#define TRIGGER_USE             0
-#define TRIGGER_MAKE            1
-#define TRIGGER_BONUS           2
-#define TRIGGER_SMASH           3
-#define TRIGGER_DESC		4
-
 /*
  * Special "xtra" object powers for ego items and some artifacts
  */
@@ -35,70 +27,8 @@ typedef int sint;
 #define EGO_XTRA_POWER          6
 
 
-/*** Object "tval" and "sval" codes ***/
-
-
 /*
- * The values for the "tval" field of various objects.
- *
- * This value is the primary means by which items are sorted in the
- * player inventory, followed by "sval" and "cost".
- *
- * Note that as of 2.7.8, the "item flags" apply to all items, though
- * only armor and weapons and a few other items use any of these flags.
- */
-
-#define TV_ANY			 0		/* Used for matching all objects */
-#define TV_SKELETON      1      /* Skeletons ('~') */
-#define TV_BOTTLE        2      /* Empty bottles ('!') */
-#define TV_JUNK          3      /* Sticks, Pottery, etc ('~') */
-#define TV_SPIKE         5      /* Spikes ('~') */
-#define TV_CHEST         7      /* Chests ('&') */
-#define TV_FIGURINE      8      /* Magical figurines */
-#define TV_STATUE        9      /* Statue */
-/*#define TV_CORPSE       10  */    /* Corpses are now fields */
-#define TV_SHOT         16      /* Ammo for slings */
-#define TV_ARROW        17      /* Ammo for bows */
-#define TV_BOLT         18      /* Ammo for x-bows */
-#define TV_BOW          19      /* Slings/Bows/Xbows */
-#define TV_DIGGING      20      /* Shovels/Picks */
-#define TV_HAFTED       21      /* Priest Weapons */
-#define TV_POLEARM      22      /* Axes and Pikes */
-#define TV_SWORD        23      /* Edged Weapons */
-#define TV_BOOTS        30      /* Boots */
-#define TV_GLOVES       31      /* Gloves */
-#define TV_HELM         32      /* Helms */
-#define TV_CROWN        33      /* Crowns */
-#define TV_SHIELD       34      /* Shields */
-#define TV_CLOAK        35      /* Cloaks */
-#define TV_SOFT_ARMOR   36      /* Soft Armor */
-#define TV_HARD_ARMOR   37      /* Hard Armor */
-#define TV_DRAG_ARMOR   38      /* Dragon Scale Mail */
-#define TV_LITE         39      /* Lites (including Specials) */
-#define TV_AMULET       40      /* Amulets (including Specials) */
-#define TV_RING         45      /* Rings (including Specials) */
-#define TV_STAFF        55
-#define TV_WAND         65
-#define TV_ROD          66
-#define TV_SCROLL       70
-#define TV_POTION       75
-#define TV_FLASK        77
-#define TV_FOOD         80
-#define TV_LIFE_BOOK    90
-#define TV_SORCERY_BOOK 91
-#define TV_NATURE_BOOK  92
-#define TV_CHAOS_BOOK   93
-#define TV_DEATH_BOOK   94
-#define TV_TRUMP_BOOK   95
-#define TV_ARCANE_BOOK  96
-#define TV_GOLD         100     /* Gold can only be picked up by players */
-
-#define TV_BOOKS_MIN    TV_LIFE_BOOK  /* First tval of spellbooks */
-#define TV_BOOKS_MAX    TV_ARCANE_BOOK  /* Last tval of spellbooks */
-
-
-/*
- * Use for wand of wonder
+ * Use sval codes for wand of wonder
  */
 #define SV_WAND_HEAL_MONSTER             0
 #define SV_WAND_HASTE_MONSTER            1
@@ -125,20 +55,6 @@ typedef int sint;
 #define SV_WAND_FIRE_BALL               22
 #define SV_WAND_COLD_BALL               23
 #define SV_WAND_WONDER                  24
-
-
-#define OBJ_GOLD_LIST   480     /* First "gold" entry */
-#define MAX_GOLD        18      /* Number of "gold" entries */
-
-/*
- * Object creation flags
- * These are the values passable to apply_magic
- */
-#define OC_NONE			0x00
-#define OC_NORMAL		0x01
-#define OC_FORCE_BAD	0x02
-#define OC_FORCE_GOOD	0x04
-
 
 
 
@@ -301,65 +217,6 @@ typedef int sint;
 
 /***** Types *****/
 
-struct object_kind
-{
-	u32b name;			/* Name (offset) */
-	u32b text;			/* Text (offset) */
-
-	byte tval;			/* Object type */
-	byte sval;			/* Object sub type */
-
-	s16b pval;			/* Object extra info */
-
-	s16b to_h;			/* Bonus to hit */
-	s16b to_d;			/* Bonus to damage */
-	s16b to_a;			/* Bonus to armor */
-
-	s16b ac;			/* Base armor */
-
-	byte dd;			/* Damage dice/sides */
-	byte ds;
-
-	s16b weight;		/* Weight */
-
-	s32b cost;			/* Object "base cost" */
-
-	u32b flags[4];		/* Flags */
-
-	byte locale[4];		/* Allocation level(s) */
-	byte chance[4];		/* Allocation chance(s) */
-
-	byte level;			/* Level */	
-	
-	byte extra;			/* Unused for now */
-	
-	byte d_attr;		/* Default object attribute */
-	char d_char;		/* Default object character */
-
-
-	byte x_attr;		/* Desired object attribute */
-	char x_char;		/* Desired object character */
-
-
-	byte flavor;			/* Special object flavor (or zero) */
-
-	bool easy_know;		/* This object is always known (if aware) */
-
-
-	bool aware;			/* The player is "aware" of the item's effects */
-
-	bool tried;			/* The player has "tried" one of the items */
-};
-
-
-struct obj_theme
-{
-	byte treasure;
-	byte combat;
-	byte magic;
-	byte tools;
-};
-
 struct object_type
 {
 	s16b k_idx;			/* Kind index (zero if "dead") */
@@ -411,33 +268,8 @@ struct object_type
 };
 
 
-/***** Variables *****/
-
-extern s16b o_max;
-extern s16b o_cnt;
-extern object_type o_list[o_max];
-extern object_kind k_info[z_info->k_max];
-extern char *k_name;
-extern char *k_text;
-extern char *a_name;
-extern char *a_text;
-
-
 /***** Functions *****/
 
-extern void reset_visuals(void);
-extern bool identify_fully_aux(const object_type *o_ptr);
-extern s16b wield_slot(const object_type *o_ptr);
-extern cptr mention_use(int i);
-extern cptr describe_use(int i);
-extern void item_charges(object_type *o_ptr);
-extern void item_describe(object_type *o_ptr);
-extern object_type *item_split(object_type *o_ptr, int num);
-extern void item_increase(object_type *o_ptr, int num);
-extern bool inven_carry_okay(const object_type *o_ptr);
-extern object_type *inven_carry(object_type *o_ptr);
-extern object_type *inven_takeoff(object_type *o_ptr);
-extern void inven_drop(object_type *o_ptr, int amt);
 extern bool item_tester_hook_weapon(const object_type *o_ptr);
 extern bool item_tester_hook_melee_weapon(const object_type *o_ptr);
 extern bool item_tester_hook_nonsword(const object_type *o_ptr);
@@ -457,65 +289,7 @@ extern bool item_tester_hook_is_blessed(const object_type *o_ptr);
 extern bool item_tester_hook_is_good(const object_type *o_ptr);
 extern bool item_tester_hook_is_great(const object_type *o_ptr);
 extern bool item_tester_hook_is_book(const object_type *o_ptr);
-extern bool item_tester_okay(const object_type *o_ptr);
-extern void display_inven(void);
-extern void display_equip(void);
-extern void show_list(s16b o_list_ptr);
-extern void show_equip(void);
-extern void toggle_inven_equip(void);
-extern object_type *get_item(cptr pmt, cptr str, int mode);
-extern void delete_dungeon_object(object_type *o_ptr);
-extern void delete_object(int x, int y);
-extern void delete_object_list(s16b *o_idx_ptr);
-extern void drop_object_list(s16b *o_idx_ptr, int x, int y);
-extern void object_known(object_type *o_ptr);
-extern void object_aware(object_type *o_ptr);
-extern void object_tried(object_type *o_ptr);
-extern void object_mental(object_type *o_ptr);
-extern s32b flag_cost(const object_type *o_ptr, int plusses);
-extern s32b object_value(const object_type *o_ptr);
-extern s32b object_value_real(const object_type *o_ptr);
-extern void distribute_charges(object_type *o_ptr, object_type *q_ptr, int amt);
-extern void reduce_charges(object_type *o_ptr, int amt);
-extern bool object_similar(const object_type *o_ptr, const object_type *j_ptr);
-extern void object_absorb(object_type *o_ptr, object_type *j_ptr);
-extern s16b lookup_kind(int tval, int sval);
-extern void object_wipe(object_type *o_ptr);
-extern object_type *object_prep(int k_idx);
 extern void add_ego_flags(object_type *o_ptr, byte ego);
 extern void add_ego_power(int power, object_type *o_ptr);
-extern s16b m_bonus(int max, int level);
-extern void apply_magic(object_type *o_ptr, int lev, int lev_dif, byte flags);
-extern void init_match_hook(byte tval, byte sval);
-extern byte kind_is_match(int k_idx);
-extern void init_match_theme(obj_theme theme);
-extern byte kind_is_theme(int k_idx);
-extern object_type *make_object(int level, int delta_level, obj_theme *theme);
-extern void place_object(int x, int y, bool good, bool great, int delta_level);
-extern object_type *make_gold(int level, int coin_type);
-extern void place_gold(int x, int y);
-extern void drop_near(object_type *o_ptr, int chance, int x, int y);
 extern void acquirement(int x1, int y1, int num, bool great, bool known);
-extern cptr item_activation(const object_type *o_ptr);
-extern bool can_player_destroy_object(object_type *o_ptr);
-extern void display_koff(int k_idx);
-
-/* artifact.c */
-extern bool create_artifact(object_type *o_ptr, int level, bool a_scroll);
-extern void create_named_art(int a_idx, int x, int y);
-
-/* obj_kind.c */
-extern errr k_info_alloc(void);
-extern errr k_info_free(void);
-extern object_kind *k_info_add(object_kind *k_info_entry);
-extern byte get_object_level(const object_type *o_ptr);
-extern cptr get_object_name(const object_type *o_ptr);
-extern byte get_object_d_attr(const object_type *o_ptr);
-extern byte get_object_x_attr(const object_type *o_ptr);
-extern char get_object_d_char(const object_type *o_ptr);
-extern char get_object_x_char(const object_type *o_ptr);
-extern bool get_object_aware(const object_type *o_ptr);
-extern bool get_object_tried(const object_type *o_ptr);
-extern bool object_is_potion(const object_type *o_ptr);
-extern errr init_object_alloc(void);
-extern void k_info_reset(void);
+extern void ring_of_power(int dir);

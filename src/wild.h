@@ -88,6 +88,12 @@
 #define T_SIZE_CITY		(128 + 70)
 #define T_SIZE_CASTLE	(128 +	100)
 
+/* Town building constants */
+#define CITY_OUTSIDE	0
+#define CITY_WALL		1
+#define CITY_INSIDE		2
+
+
 /* Quest status */
 #define QUEST_STATUS_UNTAKEN		0
 #define QUEST_STATUS_TAKEN			1

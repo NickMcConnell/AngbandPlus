@@ -372,8 +372,8 @@ void compact_objects(int size)
 
 /*
  * Delete all the non-held items.
- * Items in stores, and in the players inventory are not
- * touched.  Items in monster inventories are wiped by
+ * Items in the players inventory are not touched.
+ * Items in monster inventories are wiped by
  * calling wipe_m_list() before this function.
  *
  * Hack -- we clear the "c_ptr->o_idx" field for every grid
@@ -388,17 +388,34 @@ void wipe_o_list(void)
 	int x, y;
 
 	cave_type *c_ptr;
-
+	
+	object_type *o_ptr;
+	
+	/* Set all objects to be unallocated */
+	for (i = 1; i < o_max; i++)
+	{
+		o_ptr = &o_list[i];
+		
+		o_ptr->allocated = FALSE;
+	}
+	
+	/* Save players inventory (only objects in a list to save) */
+	OBJ_ITT_START (p_ptr->inventory, o_ptr)
+	{
+		o_ptr->allocated = TRUE;
+	}
+	OBJ_ITT_END;
+	
 	/* Delete the existing objects */
 	for (i = 1; i < o_max; i++)
 	{
-		object_type *o_ptr = &o_list[i];
+		o_ptr = &o_list[i];
 
 		/* Skip dead objects */
 		if (!o_ptr->k_idx) continue;
 
-		/* Skip non-dungeon objects */
-		if (!(o_ptr->ix || o_ptr->iy)) continue;
+		/* Skip allocated objects */
+		if (o_ptr->allocated) continue;
 
 		/* Preserve artifacts */
 		if (preserve_mode && (FLAG(o_ptr, TR_INSTA_ART)) &&
@@ -407,10 +424,22 @@ void wipe_o_list(void)
 		{
 			a_info[o_ptr->a_idx].cur_num = 0;
 		}
-
+		
 		/* Access location */
 		y = o_ptr->iy;
 		x = o_ptr->ix;
+		
+		/* Store item? */
+		if (!x && !y)
+		{
+			/* Hack - just kill it */
+			object_wipe(o_ptr);
+
+			/* Count objects */
+			o_cnt--;
+			
+			continue;
+		}
 
 		/* Access grid */
 		c_ptr = area(x, y);
@@ -984,8 +1013,9 @@ s32b flag_cost(const object_type *o_ptr, int plusses)
 	if (FLAG(o_ptr, TR_DEX)) total += (500 * plusses);
 	if (FLAG(o_ptr, TR_CON)) total += (500 * plusses);
 	if (FLAG(o_ptr, TR_CHR)) total += (250 * plusses);
+
 	if ((FLAG(o_ptr, TR_SP)) && (plusses > 0)) total += (2500 * plusses);
-	if (FLAG(o_ptr, TR_CHAOTIC)) total += 5000;
+	if (FLAG(o_ptr, TR_CHAOTIC)) total += 500;
 	if (FLAG(o_ptr, TR_VAMPIRIC)) total += 5000;
 	if (FLAG(o_ptr, TR_STEALTH)) total += (50 * plusses);
 	if (FLAG(o_ptr, TR_SEARCH)) total += (50 * plusses);
@@ -993,57 +1023,66 @@ s32b flag_cost(const object_type *o_ptr, int plusses)
 	if (FLAG(o_ptr, TR_TUNNEL)) total += (20 * plusses);
 	if ((FLAG(o_ptr, TR_SPEED)) && (plusses > 0)) total += (500 * sqvalue(plusses));
 	if ((FLAG(o_ptr, TR_BLOWS)) && (plusses > 0)) total += (500 * sqvalue(plusses));
-	if (FLAG(o_ptr, TR_XXX1)) total += 0;
+
 	if (FLAG(o_ptr, TR_SLAY_ANIMAL)) total += 750;
-	if (FLAG(o_ptr, TR_SLAY_EVIL)) total += 1000;
-	if (FLAG(o_ptr, TR_SLAY_UNDEAD)) total += 800;
-	if (FLAG(o_ptr, TR_SLAY_DEMON)) total += 800;
-	if (FLAG(o_ptr, TR_SLAY_ORC)) total += 300;
-	if (FLAG(o_ptr, TR_SLAY_TROLL)) total += 750;
-	if (FLAG(o_ptr, TR_SLAY_GIANT)) total += 750;
+	if (FLAG(o_ptr, TR_SLAY_EVIL))   total += 750;
+	if (FLAG(o_ptr, TR_SLAY_UNDEAD)) total += 750;
+	if (FLAG(o_ptr, TR_SLAY_DEMON))  total += 750;
+	if (FLAG(o_ptr, TR_SLAY_ORC))    total += 750;
+	if (FLAG(o_ptr, TR_SLAY_TROLL))  total += 750;
+	if (FLAG(o_ptr, TR_SLAY_GIANT))  total += 750;
 	if (FLAG(o_ptr, TR_SLAY_DRAGON)) total += 750;
 	if (FLAG(o_ptr, TR_KILL_DRAGON)) total += 1500;
+
 	if (FLAG(o_ptr, TR_VORPAL)) total += 1500;
 	if (FLAG(o_ptr, TR_IMPACT)) total += 1500;
-	if (FLAG(o_ptr, TR_BRAND_POIS)) total += 1500;
-	if (FLAG(o_ptr, TR_BRAND_ACID)) total += 1500;
-	if (FLAG(o_ptr, TR_BRAND_ELEC)) total += 1500;
-	if (FLAG(o_ptr, TR_BRAND_FIRE)) total += 1500;
-	if (FLAG(o_ptr, TR_BRAND_COLD)) total += 1500;
+
+	if (FLAG(o_ptr, TR_BRAND_POIS)) total += 750;
+	if (FLAG(o_ptr, TR_BRAND_ACID)) total += 750;
+	if (FLAG(o_ptr, TR_BRAND_ELEC)) total += 750;
+	if (FLAG(o_ptr, TR_BRAND_FIRE)) total += 750;
+	if (FLAG(o_ptr, TR_BRAND_COLD)) total += 750;
+
 	if (FLAG(o_ptr, TR_SUST_STR)) total += 200;
 	if (FLAG(o_ptr, TR_SUST_INT)) total += 200;
 	if (FLAG(o_ptr, TR_SUST_WIS)) total += 200;
 	if (FLAG(o_ptr, TR_SUST_DEX)) total += 200;
 	if (FLAG(o_ptr, TR_SUST_CON)) total += 200;
-	if (FLAG(o_ptr, TR_SUST_CHR)) total += 100;
-	if (FLAG(o_ptr, TR_XXX1)) total += 0;
+	if (FLAG(o_ptr, TR_SUST_CHR)) total += 200;
+
 	if (FLAG(o_ptr, TR_IM_POIS)) total += 10000;
 	if (FLAG(o_ptr, TR_IM_ACID)) total += 10000;
 	if (FLAG(o_ptr, TR_IM_ELEC)) total += 10000;
 	if (FLAG(o_ptr, TR_IM_FIRE)) total += 10000;
 	if (FLAG(o_ptr, TR_IM_COLD)) total += 10000;
+	if (FLAG(o_ptr, TR_IM_LITE)) total += 10000;
+	if (FLAG(o_ptr, TR_IM_DARK)) total += 10000;
+
 	if (FLAG(o_ptr, TR_THROW)) total += 2000;
 	if (FLAG(o_ptr, TR_REFLECT)) total += 5000;
-	if (FLAG(o_ptr, TR_FREE_ACT)) total += 3000;
-	if (FLAG(o_ptr, TR_HOLD_LIFE)) total += 2000;
-	if (FLAG(o_ptr, TR_RES_ACID)) total += 750;
-	if (FLAG(o_ptr, TR_RES_ELEC)) total += 750;
-	if (FLAG(o_ptr, TR_RES_FIRE)) total += 750;
-	if (FLAG(o_ptr, TR_RES_COLD)) total += 750;
-	if (FLAG(o_ptr, TR_RES_POIS)) total += 1500;
-	if (FLAG(o_ptr, TR_RES_FEAR)) total += 1000;
-	if (FLAG(o_ptr, TR_RES_LITE)) total += 750;
-	if (FLAG(o_ptr, TR_RES_DARK)) total += 750;
-	if (FLAG(o_ptr, TR_RES_BLIND)) total += 1000;
-	if (FLAG(o_ptr, TR_RES_CONF)) total += 2000;
-	if (FLAG(o_ptr, TR_RES_SOUND)) total += 1000;
-	if (FLAG(o_ptr, TR_RES_SHARDS)) total += 1000;
-	if (FLAG(o_ptr, TR_RES_NETHER)) total += 2000;
-	if (FLAG(o_ptr, TR_RES_NEXUS)) total += 500;
-	if (FLAG(o_ptr, TR_RES_CHAOS)) total += 2000;
-	if (FLAG(o_ptr, TR_RES_DISEN)) total += 5000;
+
+	if (FLAG(o_ptr, TR_RES_ACID))   total += 500;
+	if (FLAG(o_ptr, TR_RES_ELEC))   total += 500;
+	if (FLAG(o_ptr, TR_RES_FIRE))   total += 500;
+	if (FLAG(o_ptr, TR_RES_COLD))   total += 500;
+	if (FLAG(o_ptr, TR_RES_POIS))   total += 1500;
+	if (FLAG(o_ptr, TR_RES_FEAR))   total += 1500;
+	if (FLAG(o_ptr, TR_RES_LITE))   total += 1500;
+	if (FLAG(o_ptr, TR_RES_DARK))   total += 1500;
+	if (FLAG(o_ptr, TR_RES_BLIND))  total += 1500;
+	if (FLAG(o_ptr, TR_RES_CONF))   total += 1500;
+	if (FLAG(o_ptr, TR_RES_SOUND))  total += 1500;
+	if (FLAG(o_ptr, TR_RES_SHARDS)) total += 1500;
+	if (FLAG(o_ptr, TR_RES_NETHER)) total += 1500;
+	if (FLAG(o_ptr, TR_RES_NEXUS))  total += 1500;
+	if (FLAG(o_ptr, TR_RES_CHAOS))  total += 1500;
+	if (FLAG(o_ptr, TR_RES_DISEN))  total += 1500;
+
 	if (FLAG(o_ptr, TR_SH_FIRE)) total += 1000;
 	if (FLAG(o_ptr, TR_SH_ELEC)) total += 1000;
+	if (FLAG(o_ptr, TR_SH_ACID)) total += 1000;
+	if (FLAG(o_ptr, TR_SH_COLD)) total += 1000;
+
 	if (FLAG(o_ptr, TR_QUESTITEM)) total += 0;
 	if (FLAG(o_ptr, TR_XXX4)) total += 0;
 	if (FLAG(o_ptr, TR_NO_TELE)) total += 1500;
@@ -1053,18 +1092,25 @@ s32b flag_cost(const object_type *o_ptr, int plusses)
 	if (FLAG(o_ptr, TR_HIDE_TYPE)) total += 0;
 	if (FLAG(o_ptr, TR_SHOW_MODS)) total += 0;
 	if (FLAG(o_ptr, TR_INSTA_ART)) total += 0;
-	if (FLAG(o_ptr, TR_FEATHER)) total += 250;
-	if (FLAG(o_ptr, TR_LITE)) total += 750;
-	if (FLAG(o_ptr, TR_SEE_INVIS)) total += 2000;
-	if (FLAG(o_ptr, TR_TELEPATHY)) total += 10000;
-	if (FLAG(o_ptr, TR_SLOW_DIGEST)) total += 750;
-	if (FLAG(o_ptr, TR_REGEN)) total += 1000;
-	if (FLAG(o_ptr, TR_XTRA_MIGHT)) total += 5000;
-	if (FLAG(o_ptr, TR_XTRA_SHOTS)) total += 5000;
-	if (FLAG(o_ptr, TR_IGNORE_ACID)) total += 200;
+
+	/* EGO_XTRA_ABILITY */
+	if (FLAG(o_ptr, TR_SLOW_DIGEST)) total += 250;
+	if (FLAG(o_ptr, TR_FEATHER))     total += 250;
+	if (FLAG(o_ptr, TR_LITE))        total += 500;
+	if (FLAG(o_ptr, TR_SEE_INVIS))   total += 500;
+	if (FLAG(o_ptr, TR_REGEN))       total += 1000;
+	if (FLAG(o_ptr, TR_FREE_ACT))    total += 1000;
+	if (FLAG(o_ptr, TR_HOLD_LIFE))   total += 2000;
+	if (FLAG(o_ptr, TR_TELEPATHY))   total += 2000;
+
+	if (FLAG(o_ptr, TR_XTRA_MIGHT)) total += 1000;
+	if (FLAG(o_ptr, TR_XTRA_SHOTS)) total += 1000;
+
+	if (FLAG(o_ptr, TR_IGNORE_ACID)) total += 50;
 	if (FLAG(o_ptr, TR_IGNORE_ELEC)) total += 50;
 	if (FLAG(o_ptr, TR_IGNORE_FIRE)) total += 50;
 	if (FLAG(o_ptr, TR_IGNORE_COLD)) total += 50;
+
 	if (FLAG(o_ptr, TR_ACTIVATE)) total += 0;
 	if (FLAG(o_ptr, TR_DRAIN_EXP)) total -= 12500;
 	if (FLAG(o_ptr, TR_TELEPORT))
@@ -1079,13 +1125,9 @@ s32b flag_cost(const object_type *o_ptr, int plusses)
 	if (FLAG(o_ptr, TR_CURSED)) total -= 5000;
 	if (FLAG(o_ptr, TR_HEAVY_CURSE)) total -= 12500;
 	if (FLAG(o_ptr, TR_PERMA_CURSE)) total -= 15000;
-	if (FLAG(o_ptr, TR_LUCK_10)) total += 1000;
-	if (FLAG(o_ptr, TR_IM_LITE)) total += 2500;
-	if (FLAG(o_ptr, TR_IM_DARK)) total += 5000;
-	if (FLAG(o_ptr, TR_SH_ACID)) total += 1250;
-	if (FLAG(o_ptr, TR_SH_COLD)) total += 1000;
+	if (FLAG(o_ptr, TR_LUCK_10)) total += 3000;
 	if (FLAG(o_ptr, TR_MUTATE)) total += 500;
-	if (FLAG(o_ptr, TR_PATRON)) total += 1500;
+	if (FLAG(o_ptr, TR_PATRON)) total += 500;
 	if (FLAG(o_ptr, TR_STRANGE_LUCK)) total += 2000;
 	if (FLAG(o_ptr, TR_PASS_WALL)) total += 25000;
 	if (FLAG(o_ptr, TR_GHOUL_TOUCH)) total += 750;
@@ -1137,6 +1179,7 @@ s32b object_value_real(const object_type *o_ptr)
 	s32b value;
 
 	object_kind *k_ptr = &k_info[o_ptr->k_idx];
+	object_type dummy;
 
 	/* Base cost */
 	value = o_ptr->cost;
@@ -1144,65 +1187,30 @@ s32b object_value_real(const object_type *o_ptr)
 	/* Hack -- "worthless" items */
 	if (!value) return (0L);
 
-	/* Mega Hack - extra price due to some flags... */
-
-	/* Analyze pval bonus */
-	switch (o_ptr->tval)
+	/* 
+	 * For non-artifact items, count the flag value
+	 */
+	if (!o_ptr->a_idx)
 	{
-		case TV_SHOT:
-		case TV_ARROW:
-		case TV_BOLT:
-		case TV_BOW:
-		case TV_DIGGING:
-		case TV_HAFTED:
-		case TV_POLEARM:
-		case TV_SWORD:
-		case TV_BOOTS:
-		case TV_GLOVES:
-		case TV_HELM:
-		case TV_CROWN:
-		case TV_SHIELD:
-		case TV_CLOAK:
-		case TV_SOFT_ARMOR:
-		case TV_HARD_ARMOR:
-		case TV_DRAG_ARMOR:
-		case TV_LITE:
-		case TV_AMULET:
-		case TV_RING:
+		int divisor = 1;
+
+		/* Ammo gets less value from flags */
+		if (o_ptr->tval == TV_SHOT ||
+		    o_ptr->tval == TV_ARROW ||
+		    o_ptr->tval == TV_BOLT)
 		{
-			/* Hack -- Negative "pval" is always bad */
-			if (o_ptr->pval < 0) return (0L);
-
-			/* No pval */
-			if (!o_ptr->pval) break;
-
-			/* Give credit for stat bonuses */
-			if (FLAG(o_ptr, TR_STR)) value += (o_ptr->pval * 200L);
-			if (FLAG(o_ptr, TR_INT)) value += (o_ptr->pval * 200L);
-			if (FLAG(o_ptr, TR_WIS)) value += (o_ptr->pval * 200L);
-			if (FLAG(o_ptr, TR_DEX)) value += (o_ptr->pval * 200L);
-			if (FLAG(o_ptr, TR_CON)) value += (o_ptr->pval * 200L);
-			if (FLAG(o_ptr, TR_CHR)) value += (o_ptr->pval * 200L);
-
-			/* Give credit for mana increase */
-			if (FLAG(o_ptr, TR_SP)) value += (o_ptr->pval * 1000L);
-
-			/* Give credit for stealth and searching */
-			if (FLAG(o_ptr, TR_STEALTH)) value += (o_ptr->pval * 100L);
-			if (FLAG(o_ptr, TR_SEARCH)) value += (o_ptr->pval * 100L);
-
-			/* Give credit for infra-vision and tunneling */
-			if (FLAG(o_ptr, TR_INFRA)) value += (o_ptr->pval * 30L);
-			if (FLAG(o_ptr, TR_TUNNEL)) value += (o_ptr->pval * 20L);
-
-			/* Give credit for extra attacks */
-			if (FLAG(o_ptr, TR_BLOWS)) value += (sqvalue(o_ptr->pval) * 500L);
-
-			/* Give credit for speed bonus */
-			if (FLAG(o_ptr, TR_SPEED)) value += (sqvalue(o_ptr->pval) * 500L);
-
-			break;
+			divisor = 20;
 		}
+
+		/* Initialize the dummy object */
+		memcpy(&dummy, o_ptr, sizeof(object_type));
+
+		/* Copy the flags from the type to the dummy object */
+		memcpy(dummy.flags, k_ptr->flags, sizeof(dummy.flags));
+
+		/* Price the object's flags vs the default flags */
+		value += flag_cost(o_ptr, o_ptr->pval) / divisor;
+		value -= flag_cost(&dummy, 1) / divisor;
 	}
 
 
@@ -2233,16 +2241,8 @@ void add_ego_flags(object_type *o_ptr, byte ego)
 			o_ptr->trigger[i] = quark_add(e_text + e_ptr->trigger[i]);
 	}
 
-	if (!e_ptr->cost)
-	{
-		/* Hack -- "worthless" ego-items */
-		o_ptr->cost = 0L;
-	}
-	else
-	{
-		/* Add in cost of ego item */
-		o_ptr->cost = k_info[o_ptr->k_idx].cost + e_ptr->cost;
-	}
+	/* Add in cost of ego item */
+	o_ptr->cost = k_info[o_ptr->k_idx].cost + e_ptr->cost;
 }
 
 
@@ -3913,7 +3913,7 @@ void place_specific_object(int x, int y, int level, int k_idx)
 	}
 
 	/* Add the object to the ground */
-	put_object(o_ptr, x, y);
+	drop_near(o_ptr, -1, x, y);
 }
 
 

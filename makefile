@@ -86,8 +86,13 @@ define CC
 	@ echo CC $@
 	@ $(CC_AUX) 
 endef
+define LINK
+	@ echo LINK $@
+	@ $(CC_AUX)
+endef
 else
 CC = $(CC_AUX)
+LINK = $(CC_AUX)
 endif
 
 
@@ -98,7 +103,7 @@ endif
 ## Compile zangband.
 ##
 zangband: $(objs-y)
-	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS) $(LIBS) $(DEFS)
+	$(LINK) $(CFLAGS) -o $@ $^ $(LDFLAGS) $(LIBS) $(DEFS)
 
 ##
 ## .c files
@@ -165,8 +170,13 @@ VER_MINOR := `grep "\#define VER_MINOR" src/defines.h | sed s/\#define\ VER_MINO
 VER_PATCH := `grep "\#define VER_PATCH" src/defines.h | sed s/\#define\ VER_PATCH\ //`
 VER_EXTRA := \
 	`grep "\#define VER_EXTRA" src/defines.h | sed s/\#define\ VER_EXTRA\ /pre/ | sed s/pre0//`
+VER_AFTER := \
+	`grep "\#define VER_AFTER" src/defines.h | sed s/\#define\ VER_AFTER\ // | sed s/\"//g`
 
-VERSION := $(VER_MAJOR).$(VER_MINOR).$(VER_PATCH)$(VER_EXTRA)
+#
+# Expand now, so don't have quoting problems
+#
+VERSION := $(shell echo $(VER_MAJOR).$(VER_MINOR).$(VER_PATCH)$(VER_EXTRA)$(VER_AFTER))
 
 
 distgz: dist
@@ -180,7 +190,7 @@ clean:
 
 distclean: clean
 	-rm -f $(distclean-files)
-	
+
 test:
 	@echo I will build:
 	@echo $(objs-y)

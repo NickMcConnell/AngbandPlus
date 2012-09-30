@@ -1544,6 +1544,22 @@ static void borg_parse_aux(cptr msg, int len)
 		return;
 	}
 
+	/* If the borg opens an open door */
+	if (prefix(msg, "You see nothing there to open") &&
+		!bp_ptr->status.confused)
+	{
+		borg_open_door_failed = TRUE;
+		return;
+	}
+
+	/* If the borg closes an closed door */
+	if (prefix(msg, "You see nothing there to close") &&
+		!bp_ptr->status.confused)
+	{
+		borg_close_door_failed = TRUE;
+		return;
+	}
+
 	/* check for mis-alter command.  Sometime induced by never_move guys */
 	if (streq(msg, "You spin around.") && !bp_ptr->status.confused)
 	{
@@ -3346,7 +3362,7 @@ void do_cmd_borg(void)
 			{
 				case '.':
 				{
-					feat = FEAT_FLOOR;
+					feat = map_loc(c_x, c_y)->feat;
 					break;
 				}
 				case ',':

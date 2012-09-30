@@ -4450,7 +4450,7 @@ static void show_info(void)
 
 	/* Equipment -- if any */
 	item_tester_full = TRUE;
-	show_equip();
+	show_equip(FALSE);
 
 	prtf(0, 0, "You are using: -more-");
 
@@ -4465,7 +4465,7 @@ static void show_info(void)
 
 	/* Inventory -- if any */
 	item_tester_full = TRUE;
-	show_list(p_ptr->inventory);
+	show_list(p_ptr->inventory, FALSE);
 
 	prtf(0, 0, "You are carrying: -more-");
 

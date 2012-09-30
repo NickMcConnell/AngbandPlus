@@ -473,7 +473,7 @@ void do_cmd_mindcraft(void)
 		msgf("You do not have enough mana to use this power.");
 
 		/* Verify */
-		if (get_check("Stop now? ")) return;
+		if (!get_check("Attempt it anyway? ")) return;
 	}
 
 	/* Spell failure chance */

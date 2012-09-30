@@ -161,8 +161,10 @@ extern bool borg_eat_unknown(void);
 extern bool borg_use_unknown(void);
 extern bool borg_quaff_unknown(void);
 extern bool borg_read_unknown(void);
+extern bool borg_read_scroll_fail(int sval);
 extern bool borg_read_scroll(int sval);
 extern bool borg_use_item_fail(list_item *l_ptr, bool risky);
+extern bool borg_equips_rod_fail(int sval);
 extern bool borg_equips_rod(int sval);
 extern bool borg_zap_rod(int sval);
 extern bool borg_aim_wand(int sval);
@@ -170,6 +172,7 @@ extern bool borg_equips_wand_fail(int sval);
 extern bool borg_use_staff(int sval);
 extern bool borg_use_staff_fail(int sval);
 extern bool borg_equips_staff_fail(int sval);
+extern bool borg_equips_staff(int sval);
 extern bool borg_activate_artifact(int name1, bool secondary);	/* apw */
 extern bool borg_activate_rand_art(int effect);
 extern bool borg_check_artifact(list_item *l_ptr, bool real_use);

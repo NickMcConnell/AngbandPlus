@@ -125,6 +125,7 @@ OBJ = \
 	ui.obj \
 	l-monst.obj l-object.obj l-player.obj l-random.obj l-ui.obj \
 	l-misc.obj l-spell.obj \
+	zbmagic1.obj zbmagic2.obj zbmagic3.obj \
 	zborg1.obj zborg2.obj zborg3.obj zborg4.obj zborg5.obj \
 	zborg6.obj zborg7.obj zborg8.obj zborg9.obj \
 	$(LUAOBJS)

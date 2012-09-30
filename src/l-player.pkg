@@ -7,6 +7,21 @@ typedef int errr;
 /***** Constants *****/
 
 /*
+ * Player class constants (hard-coded by save-files, arrays, etc)
+ */
+#define CLASS_WARRIOR            0
+#define CLASS_MAGE               1
+#define CLASS_PRIEST             2
+#define CLASS_ROGUE              3
+#define CLASS_RANGER             4
+#define CLASS_PALADIN            5
+#define CLASS_WARRIOR_MAGE       6
+#define CLASS_CHAOS_WARRIOR      7
+#define CLASS_MONK               8
+#define CLASS_MINDCRAFTER        9
+#define CLASS_HIGH_MAGE         10
+
+/*
  * Indexes of the various "stats" (hard-coded by savefiles, etc).
  */
 #define A_STR	0
@@ -44,83 +59,9 @@ typedef int errr;
 #define PY_FOOD_FAINT	500		/* Food value (Fainting) */
 #define PY_FOOD_STARVE	100		/* Food value (Starving) */
 
-/*
- * Player regeneration constants
- */
-#define PY_REGEN_NORMAL		197		/* Regen factor*2^16 when full */
-#define PY_REGEN_WEAK		98		/* Regen factor*2^16 when weak */
-#define PY_REGEN_FAINT		33		/* Regen factor*2^16 when fainting */
-#define PY_REGEN_HPBASE		1442	/* Min amount hp regen*2^16 */
-#define PY_REGEN_MNBASE		524		/* Min amount mana regen*2^16 */
-
 
 /***** Types *****/
 
-struct player_race
-{
-	cptr title;			/* Type of race */
-
-	s16b r_adj[A_MAX];		/* Racial stat bonuses */
-
-	s16b r_dis;			/* disarming */
-	s16b r_dev;			/* magic devices */
-	s16b r_sav;			/* saving throw */
-	s16b r_stl;			/* stealth */
-	s16b r_sns;			/* sensing ability */
-	s16b r_fos;			/* search frequency */
-	s16b r_thn;			/* combat (normal) */
-	s16b r_thb;			/* combat (shooting) */
-
-	byte r_mhp;			/* Race hit-dice modifier */
-	byte r_exp;			/* Race experience factor */
-
-	byte b_age;			/* base age */
-	byte m_age;			/* mod age */
-
-	byte m_b_ht;		/* base height (males) */
-	byte m_m_ht;		/* mod height (males) */
-	byte m_b_wt;		/* base weight (males) */
-	byte m_m_wt;		/* mod weight (males) */
-
-	byte f_b_ht;		/* base height (females) */
-	byte f_m_ht;		/* mod height (females)	*/
-	byte f_b_wt;		/* base weight (females) */
-	byte f_m_wt;		/* mod weight (females) */
-
-	byte infra;			/* Infra-vision	range */
-
-	u16b choice;        /* Legal class choices */
-};
-
-struct player_class
-{
-	cptr title;			/* Type of class */
-
-	s16b c_adj[A_MAX];		/* Class stat modifier */
-
-	s16b c_dis;			/* class disarming */
-	s16b c_dev;			/* class magic devices */
-	s16b c_sav;			/* class saving throws */
-	s16b c_stl;			/* class stealth */
-	s16b c_sns;			/* class sensing ability */
-	s16b c_fos;			/* class searching frequency */
-	s16b c_thn;			/* class to hit (normal) */
-	s16b c_thb;			/* class to hit (bows) */
-
-	s16b x_dis;			/* extra disarming */
-	s16b x_dev;			/* extra magic devices */
-	s16b x_sav;			/* extra saving throws */
-	s16b x_stl;			/* extra stealth */
-	s16b x_sns;			/* extra sensing ability */
-	s16b x_fos;			/* extra searching frequency */
-	s16b x_thn;			/* extra to hit (normal) */
-	s16b x_thb;			/* extra to hit (bows) */
-
-	s16b c_mhp;			/* Class hit-dice adjustment */
-	s16b c_exp;			/* Class experience factor */
-
-	byte pet_upkeep_div; /* Pet upkeep divider */
-};
 
 struct player_data
 {
@@ -388,12 +329,11 @@ struct player_type
 
 /***** Variables *****/
 
-extern const player_sex *sp_ptr;
-extern const player_race *rp_ptr;
-extern const player_class *cp_ptr;
-extern const player_magic *mp_ptr;
 extern player_type *p_ptr @ player;
 
+/* Hack - options */
+extern bool ironman_nightmare;
+extern byte autosave_l;
 
 /***** Functions *****/
 
@@ -439,7 +379,6 @@ extern bool clear_stun(void);
 extern bool inc_cut(int v);
 extern bool clear_cut(void);
 extern bool set_food(int v);
-extern void check_experience(void);
 extern void gain_exp(s32b amount);
 extern void lose_exp(s32b amount);
 extern bool hp_player(int num);
@@ -453,3 +392,5 @@ extern bool res_stat(int stat);
 extern bool lose_all_info(void);
 extern bool restore_level(void);
 extern bool player_res(u32b flag);
+extern void have_nightmare(void);
+extern void do_cmd_save_game(int is_autosave);

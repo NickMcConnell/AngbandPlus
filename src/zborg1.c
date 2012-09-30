@@ -88,6 +88,7 @@ u32b borg_rand_local;	/* Save personal setting */
  */
 
 s32b borg_t = 0L;	/* Current "time" */
+s32b borg_temp_fill_valid = 0L;	/* When were the monster arrays filled */
 s32b need_see_inviso = 0;	/* cast this when required */
 s32b borg_see_inv = 0;
 bool vault_on_level;	/* Borg will search for a vault */
@@ -144,7 +145,6 @@ s16b avoidance = 0;	/* Current danger thresh-hold */
 
 bool borg_failure;	/* Notice failure */
 
-bool borg_simulate;	/* Simulation flag */
 bool borg_attacking;	/* Simulation flag */
 bool borg_offsetting;	/* offset ball attacks */
 
@@ -174,6 +174,8 @@ s16b borg_game_ratio;	/* the ratio of borg time to game time */
 bool borg_shield;
 bool borg_on_glyph;	/* borg is standing on a glyph of warding */
 bool borg_create_door;	/* borg is going to create doors */
+bool borg_open_door_failed = FALSE;
+bool borg_close_door_failed = FALSE;
 bool borg_sleep_spell;
 bool borg_sleep_spell_ii;
 bool borg_slow_spell;	/* borg is about to cast the spell */
@@ -252,6 +254,9 @@ bool my_need_enchant_to_d;	/* Need some enchantment */
 s16b amt_food_scroll;
 s16b amt_food_hical;
 s16b amt_food_lowcal;
+s16b amt_torch;
+s16b amt_lantern;
+s16b amt_flask;
 
 s16b amt_slow_poison;
 s16b amt_cure_confusion;

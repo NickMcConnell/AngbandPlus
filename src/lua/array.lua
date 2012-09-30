@@ -2,7 +2,7 @@
 -- Written by Waldemar Celes
 -- TeCGraf/PUC-Rio
 -- Jul 1999
--- $Id: array.lua,v 1.3 2003/10/23 21:28:01 sfuerst Exp $
+-- $Id: array.lua,v 1.4 2003/12/04 17:23:54 sfuerst Exp $
 
 -- This code is free software; you can redistribute it and/or modify it.
 -- The software provided hereunder is on an "as is" basis, and
@@ -63,27 +63,17 @@ function classArray:supcode ()
  -- declare self, if the case
  local _,_,static = strfind(self.mod,'^%s*(static)')
  if class and static==nil then
-  output(' ',class,'*','self;')
-  output(' lua_pushstring(tolua_S,".self");')
-  output(' lua_rawget(tolua_S,1);')
-  output(' self = ')
-  output('(',class,'*) ')
-  output('lua_touserdata(tolua_S,-1);')
+  output(' TOLUA_ARRAY_SELF(',class,');')
  elseif static then
   _,_,self.mod = strfind(self.mod,'^%s*static%s%s*(.*)')
  end
 
- -- check index
- output(' if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))')
- output('  tolua_error(tolua_S,"invalid type in array indexing.");')
- output(' toluaI_index = (int)tolua_getnumber(tolua_S,2,0);')
- output(' if (toluaI_index<0 || toluaI_index>='..self.dim..')')
-
- if class then
-  output('  tolua_error(tolua_S,"array',class,':',self.name,' indexing out of range.");')
- else
-  output('  tolua_error(tolua_S,"array:',self.name,' indexing out of range.");')
- end
+  -- check index
+  if class then
+   output(' TOLUA_ARRAY_INDEX("',class,':',self.name,'",',self.dim,');')
+  else
+   output(' TOLUA_ARRAY_INDEX("',self.name,'",',self.dim,');')
+  end
  
  -- return value
  local t,ct = isbasic(self.type)
@@ -117,25 +107,16 @@ function classArray:supcode ()
   -- declare self, if the case
   local _,_,static = strfind(self.mod,'^%s*(static)')
   if class and static==nil then
-   output(' ',class,'*','self;')
-   output(' lua_pushstring(tolua_S,".self");')
-   output(' lua_rawget(tolua_S,1);')
-   output(' self = ')
-   output('(',class,'*) ')
-   output('lua_touserdata(tolua_S,-1);')
+   output(' TOLUA_ARRAY_SELF(',class,');')
   elseif static then
    _,_,self.mod = strfind(self.mod,'^%s*static%s%s*(.*)')
   end
  
   -- check index
-  output(' if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))')
-  output('  tolua_error(tolua_S,"invalid type in array indexing.");')
-  output(' toluaI_index = (int)tolua_getnumber(tolua_S,2,0);')
-  output(' if (toluaI_index<0 || toluaI_index>='..self.dim..')')
   if class then
-   output('  tolua_error(tolua_S,"array',class,':',self.name,' indexing out of range.");')
+   output(' TOLUA_ARRAY_INDEX("',class,':',self.name,'",',self.dim,');')
   else
-   output('  tolua_error(tolua_S,"array:',self.name,' indexing out of range.");')
+   output(' TOLUA_ARRAY_INDEX("',self.name,'",',self.dim,');')
   end
 
 

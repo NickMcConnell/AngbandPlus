@@ -176,6 +176,20 @@ cptr building_name(byte build_type)
 	return (t_info[field_num].name);
 }
 
+/*
+ * Return the building attributes given a building "type"
+ */
+void building_char(byte build_type, byte *a, char *c)
+{
+	u16b field_num;
+	
+	/* Look up the field type */
+	field_num = wild_build[build_type].field;
+	
+	/* Get attr/char */
+	*a = t_info[field_num].d_attr;
+	*c = t_info[field_num].d_char;
+}
 
 /* Find a place for the player */
 static void place_player_start(s32b *x, s32b *y, u16b this_town)
@@ -432,16 +446,16 @@ static void fill_town(byte x, byte y)
 		u16b *block_data = &temp_block[y][x];
 
 		/* Do not continue if hit a previously done area. */
-		if (*block_data == 1) return;
+		if (*block_data == CITY_WALL) return;
 
 		/* Do not redo a building */
-		if (*block_data == 2) return;
+		if (*block_data == CITY_INSIDE) return;
 
 		/* Save the square */
 		build_pop[build_count] = *block_data / WILD_BLOCK_SIZE;
 
 		/* Do not redo this square */
-		*block_data = 2;
+		*block_data = CITY_INSIDE;
 	}
 
 	build_x[build_count] = x;
@@ -472,7 +486,7 @@ static void find_walls(void)
 			if (temp_block[j][i] < WILD_BLOCK_SIZE * 128)
 			{
 				/* Outside the town */
-				temp_block[j][i] = 0;
+				temp_block[j][i] = CITY_OUTSIDE;
 			}
 		}
 	}
@@ -483,7 +497,7 @@ static void find_walls(void)
 		for (j = 0; j < WILD_BLOCK_SIZE; j++)
 		{
 			/* Is a "city block" */
-			if (temp_block[j][i])
+			if (temp_block[j][i] != CITY_OUTSIDE)
 			{
 				/* Scan around */
 				for (k = -1; k <= 1; k++)
@@ -495,23 +509,22 @@ static void find_walls(void)
 							(j + l >= 0) && (j + l < WILD_BLOCK_SIZE))
 						{
 							/* Is it outside? */
-							if (!temp_block[j + l][i + k])
+							if (temp_block[j + l][i + k] == CITY_OUTSIDE)
 							{
 								/* Make a wall */
-								temp_block[j][i] = 1;
+								temp_block[j][i] = CITY_WALL;
 							}
 						}
 						else
 						{
 							/* Make a wall */
-							temp_block[j][i] = 1;
+							temp_block[j][i] = CITY_WALL;
 						}
 					}
 				}
 			}
 		}
 	}
-
 }
 
 /*
@@ -520,7 +533,7 @@ static void find_walls(void)
 static byte fill_town_driver(void)
 {
 	/* Paranoia - middle square must be in the town */
-	if (!temp_block[WILD_BLOCK_SIZE / 2][WILD_BLOCK_SIZE / 2]) return (0);
+	if (temp_block[WILD_BLOCK_SIZE / 2][WILD_BLOCK_SIZE / 2] == CITY_OUTSIDE) return (0);
 
 	build_count = 0;
 
@@ -547,7 +560,7 @@ static void remove_islands(void)
 		for (j = 0; j < WILD_BLOCK_SIZE; j++)
 		{
 			/* Is a "wall block" */
-			if (temp_block[j][i] == 1)
+			if (temp_block[j][i] == CITY_WALL)
 			{
 				city_block = FALSE;
 				
@@ -561,7 +574,7 @@ static void remove_islands(void)
 							(j + l >= 0) && (j + l < WILD_BLOCK_SIZE))
 						{
 							/* Is it a city block? */
-							if (temp_block[j + l][i + k] == 2)
+							if (temp_block[j + l][i + k] == CITY_INSIDE)
 							{
 								/* We are next to a city */
 								city_block = TRUE;
@@ -571,7 +584,7 @@ static void remove_islands(void)
 				}
 
 				/* No islands */
-				if (!city_block) temp_block[j][i] = 0;
+				if (!city_block) temp_block[j][i] = CITY_OUTSIDE;
 			}
 		}
 	}
@@ -684,7 +697,7 @@ static bool create_city(int x, int y, int town_num)
 		for (j = 0; j < WILD_BLOCK_SIZE; j++)
 		{
 			/* Is it a city block? */
-			if (temp_block[j][i])
+			if (temp_block[j][i] != CITY_OUTSIDE)
 			{
 				w_ptr = &wild[y + j / 2][x + i / 2].trans;
 
@@ -1183,7 +1196,7 @@ void draw_city(place_type *pl_ptr)
 		for (j = 0; j < WILD_BLOCK_SIZE; j++)
 		{
 			/* Are we a wall? */
-			if (temp_block[j][i] == 1)
+			if (temp_block[j][i] == CITY_WALL)
 			{
 				/* Get coords in region */
 				y = j * 8;
@@ -1191,25 +1204,25 @@ void draw_city(place_type *pl_ptr)
 
 
 				/* Wall goes up */
-				if ((j > 0) && (temp_block[j - 1][i] == 1))
+				if ((j > 0) && (temp_block[j - 1][i] == CITY_WALL))
 				{
 					generate_fill(x + 3, y, x + 4, y + 4, FEAT_PERM_SOLID);
 				}
 
 				/* Wall goes left */
-				if ((i > 0) && (temp_block[j][i - 1] == 1))
+				if ((i > 0) && (temp_block[j][i - 1] == CITY_WALL))
 				{
 					generate_fill(x, y + 3, x + 4, y + 4, FEAT_PERM_SOLID);
 				}
 
 				/* Wall goes right */
-				if ((i < WILD_BLOCK_SIZE - 1) && (temp_block[j][i + 1] == 1))
+				if ((i < WILD_BLOCK_SIZE - 1) && (temp_block[j][i + 1] == CITY_WALL))
 				{
 					generate_fill(x + 3, y + 3, x + 7, y + 4, FEAT_PERM_SOLID);
 				}
 
 				/* Wall goes down */
-				if ((j < WILD_BLOCK_SIZE - 1) && (temp_block[j + 1][i] == 1))
+				if ((j < WILD_BLOCK_SIZE - 1) && (temp_block[j + 1][i] == CITY_WALL))
 				{
 					generate_fill(x + 3, y + 3, x + 4, y + 7, FEAT_PERM_SOLID);
 				}
@@ -2090,8 +2103,11 @@ static bool blank_spot(int x, int y, int xsize, int ysize, int town_num, bool to
 	int dist;
 
 	/* Hack - Population check */
-	if (randint0(256) > wild[y][x].trans.pop_map) return (FALSE);
-
+	if (town_num != 1)
+	{
+		if (randint0(256) > wild[y][x].trans.pop_map) return (FALSE);
+	}
+	
 	for (i = x - 1; i < x + xsize + 2; i++)
 	{
 		for (j = y - 1; j < y + ysize + 2; j++)
@@ -2332,7 +2348,7 @@ byte the_floor(void)
 }
 
 
-static bool create_towns(int xx, int yy)
+static bool create_towns(int *xx, int *yy)
 {
 	int x, y, i;
 	bool first_try = TRUE;
@@ -2352,11 +2368,8 @@ static bool create_towns(int xx, int yy)
 		if (first_try)
 		{
 			/* Try the "easiest" spot in the wilderness */
-			x = xx;
-			y = yy;
-
-			/* Only try once here */
-			first_try = FALSE;
+			x = *xx;
+			y = *yy;
 		}
 		else
 		{
@@ -2369,10 +2382,25 @@ static bool create_towns(int xx, int yy)
 		 * See if a city will fit.
 		 * (Need a 8x8 block free.)
 		 */
-		if (!blank_spot(x, y, 8, 8, place_count, TRUE)) continue;
+		if (!blank_spot(x, y, 8, 8, place_count, TRUE))
+		{
+			/* Need to make town on easiest place */
+			if (first_try) return (FALSE);
+		
+			continue;
+		}
 
-		/* Generate it */
-		if (!create_city(x, y, place_count)) continue;
+		/* Generate it (could use short-circuit here, but is ugly) */
+		if (!create_city(x, y, place_count))
+		{
+			/* Need to make town on easiest place */
+			if (first_try) return (FALSE);
+		
+			continue;
+		}
+		
+		/* We have a town at the easiest spot */
+		first_try = FALSE;
 		
 		/* get wildernesss + place pointers */
 		w_ptr = &wild[y][x].trans;
@@ -2446,6 +2474,9 @@ static bool create_towns(int xx, int yy)
 
 	/* Hack - No current region */
 	set_region(0);
+	
+	*xx = pl_ptr->x;
+	*yy = pl_ptr->y;
 
 	/* Success */
 	return (TRUE);
@@ -2457,7 +2488,7 @@ static bool create_towns(int xx, int yy)
  * at this location in the wilderness?
  * The lower the score, the better the match.
  */
-static long score_dungeon(const wild_gen2_type *w_ptr, const dun_gen_type *d_ptr)
+static long score_dungeon(const wild_gen2_type *w_ptr, const dun_gen_type *d_ptr, int dist)
 {
 	long score = 0, value;
 	
@@ -2473,12 +2504,16 @@ static long score_dungeon(const wild_gen2_type *w_ptr, const dun_gen_type *d_ptr
 	value = w_ptr->law_map - d_ptr->min_level;
 	score += value * value;
 	
+	/* Near dungeons should be easy */
+	value = dist * d_ptr->min_level;
+	score += value * value;
+		
 	return (score);
 }
 
 
 /* Add in dungeons into the wilderness */
-static void create_dungeons(void)
+static void create_dungeons(int xx, int yy)
 {
 	int i, j;
 	
@@ -2563,7 +2598,8 @@ static void create_dungeons(void)
 			/* Get location */
 			w_ptr = &wild[pl_ptr->y][pl_ptr->x].trans;
 			
-			score = score_dungeon(w_ptr, &dungeons[dungeon_list[i]]);
+			score = score_dungeon(w_ptr, &dungeons[dungeon_list[i]],
+									distance(xx, yy, pl_ptr->x, pl_ptr->y));
 			
 			/* Better dungeon? */
 			if ((best == -1) || (score < best_val))
@@ -2602,7 +2638,7 @@ static void create_dungeons(void)
 /*
  * Place the quests on the wilderness
  */
-static void create_quests(void)
+static void create_quests(int xx, int yy)
 {
 	int x, y;
 
@@ -2617,6 +2653,9 @@ static void create_quests(void)
 		/* Get a random position */
 		x = randint0(max_wild);
 		y = randint0(max_wild);
+		
+		/* Not too close to the starting town */
+		if (distance(xx, yy, x, y) < 20) continue;
 	
 		/* Pick quest size / type */
 		pick_wild_quest(&xsize, &ysize, &flags);
@@ -2647,13 +2686,13 @@ bool init_places(int xx, int yy)
 	place_count = 1;
 	
 	/* Create towns */
-	if (!create_towns(xx, yy)) return (FALSE);
+	if (!create_towns(&xx, &yy)) return (FALSE);
 
 	/* Create dungeons */
-	create_dungeons();
+	create_dungeons(xx, yy);
 	
 	/* Create quests */
-	create_quests();
+	create_quests(xx, yy);
 	
 	/* Hack - set global region back to wilderness value */
 	set_region(0);

@@ -16,7 +16,7 @@
  */
 
 int num_food;
-int num_mold;
+int num_food_scroll;
 int num_ident;
 int num_star_ident;
 int num_star_remove_curse;
@@ -1193,11 +1193,13 @@ static void borg_notice_lite(void)
 			/* Permanently glowing */
 			bp_ptr->britelite = TRUE;
 			
-			/*
-			 * Lantern of Everburning still needs fuel.
-			 * Any other perm light does not.
-			 */
-			if (k_ptr->sval != SV_LITE_LANTERN) bp_ptr->able.fuel += 1000;
+			/* Is this not a Lantern of Everburning without fuel. */
+			if (k_ptr->sval != SV_LITE_LANTERN ||
+				l_ptr->timeout)
+			{
+				/* No need for fuel */
+				bp_ptr->able.fuel += 1000;
+			}
 		}
 		
 		/* Artifact lites -- radius three */
@@ -1745,6 +1747,12 @@ static void borg_notice_rods(list_item *l_ptr, int number)
 		}
 
 		case SV_ROD_PESTICIDE:
+		{
+			/* Only for small borgs */
+			if (bp_ptr->lev > 25) break;
+
+			/* Fall through */
+		}
 		case SV_ROD_FIRE_BALL:
 		case SV_ROD_ACID_BALL:
 		case SV_ROD_ELEC_BALL:
@@ -1781,7 +1789,7 @@ static void borg_notice_rods(list_item *l_ptr, int number)
 static void borg_notice_wands(list_item *l_ptr, int number)
 {
 	int sval = k_info[l_ptr->k_idx].sval;
-	int tval = 0, non_empty = 0;
+	int pval = 0, non_empty = 0;
 
 
 	/* Is this is a pile a wands with unknown charges? */
@@ -1790,26 +1798,26 @@ static void borg_notice_wands(list_item *l_ptr, int number)
 		/* Set the number of wands, later we guess how many charges there are */
 		non_empty = number;
 	}
-	/* This pile of wands has known tval or is empty */
+	/* This pile of wands has known pval or is empty */
 	else
 	{
 		/* Counting this wand while getting it from a shop or home */
 		if (l_ptr->treat_as == TREAT_AS_SHOP)
 		{
 			/* We get 1 wand and not all the charges */
-			tval = l_ptr->tval / l_ptr->number;
+			pval = l_ptr->pval / l_ptr->number;
 		}
 		/* Counting this pile while selling one */
 		else if (l_ptr->treat_as == TREAT_AS_LESS)
 		{
 			/* We get all the charges except for the charges of one wand */
-			tval = l_ptr->tval - l_ptr->tval / l_ptr->number;
+			pval = l_ptr->pval - l_ptr->pval / l_ptr->number;
 		}
 		/* Just count the stack will you */
 		else
 		{
 			/* All the charges */
-			tval = l_ptr->tval;
+			pval = l_ptr->pval;
 		}
 	}
 
@@ -1828,7 +1836,7 @@ static void borg_notice_wands(list_item *l_ptr, int number)
 		case SV_WAND_ROCKETS:
 		{
 			/* count the charges */
-			bp_ptr->able.ball += tval + 5 * non_empty;
+			bp_ptr->able.ball += pval + 5 * non_empty;
 
 			break;
 		}
@@ -1844,7 +1852,7 @@ static void borg_notice_wands(list_item *l_ptr, int number)
 		case SV_WAND_COLD_BOLT:
 		{
 			/* count the charges */
-			bp_ptr->able.bolt += tval + 2 * non_empty;
+			bp_ptr->able.bolt += pval + 2 * non_empty;
 
 			break;
 		}
@@ -1867,7 +1875,7 @@ static void borg_notice_staves(list_item *l_ptr, int number)
 	int sval = k_info[l_ptr->k_idx].sval;
 
 	/*
-	 * Staves should not be carried to Morgoth, he drains
+	 * Staves should not be carried to The Serpent, he drains
 	 * them to heal himself- not good at all
 	 */
 	if ((bp_ptr->max_depth >= 99) && !bp_ptr->winner)
@@ -2083,50 +2091,22 @@ static void borg_notice_inven_item(list_item *l_ptr)
 
 		case TV_FLASK:
 		{
-			/* Flasks */
-			list_item* l_ptr = look_up_equip_slot(EQUIP_LITE);
+			bp_ptr->able.fuel += number;
+			amt_flask += number;
 
-			/* Does the borg wield a light item? */
-			if (l_ptr)
-			{
-				/* Is that a lantern */
-				if (k_info[l_ptr->k_idx].sval == SV_LITE_LANTERN)
-				{
-					/* Count the flask as fuel */
-					bp_ptr->able.fuel += number;
-				}
-			}
-
-			/* Count as (crappy) Missiles */
-			if (bp_ptr->lev < 15)
-			{
-				bp_ptr->able.missile += number / 2;
-			}
 			break;
 		}
 
 		case TV_LITE:
 		{
-			/* Torches or Lanterns */
-			l_ptr = look_up_equip_slot(EQUIP_LITE);
+			/* If not empty, count whatever it is as 1 fuel */
+			if (l_ptr->timeout) bp_ptr->able.fuel += number;
 
-			/* Does the borg wield a light item? */
-			if (l_ptr)
-			{
-				/* Is that a lantern */
-				if (k_info[l_ptr->k_idx].sval == SV_LITE_LANTERN)
-				{
-					/* Count the lantern as 1 fuel */
-					if (k_ptr->sval == SV_LITE_LANTERN) bp_ptr->able.fuel += 1;
-				}
-				
-				/* Is that a torch */
-				if (k_info[l_ptr->k_idx].sval == SV_LITE_TORCH)
-				{
-					/* Count the torches as fuel */
-					if (k_ptr->sval == SV_LITE_TORCH) bp_ptr->able.fuel += number;
-				}
-			}
+			/* Count a lantern as lantern fuel */
+			if (k_ptr->sval == SV_LITE_LANTERN) amt_lantern += number;
+			
+			/* Count a torch as torch fuel */
+			if (k_ptr->sval == SV_LITE_TORCH) amt_torch += number;
 			
 			break;
 		}
@@ -2236,6 +2216,7 @@ static void borg_notice_inven(void)
 	/* Search equipment for swapped items */
 	for (i = 0; i < equip_num; i++)
 	{
+		/* Don't use look_up_equip_slot here! */
 		l_ptr = &equipment[i];
 
 		/* A known item? */
@@ -2331,6 +2312,9 @@ static void borg_notice_aux2(void)
 	amt_food_scroll = 0;
 	amt_food_hical = 0;
 	amt_food_lowcal = 0;
+	amt_torch = 0;
+	amt_lantern = 0;
+	amt_flask = 0;
 
 	/* Reset healing */
 	amt_slow_poison = 0;
@@ -2398,11 +2382,12 @@ static void borg_notice_aux2(void)
 	 */
 
 	/* Handle "satisfy hunger" -> infinite food */
-	if (borg_spell_legal_fail(REALM_LIFE, 0, 7, 10) ||
-		borg_spell_legal_fail(REALM_ARCANE, 2, 7, 10) ||
-		borg_spell_legal_fail(REALM_NATURE, 0, 3, 10) ||
+	if (borg_spell_legal_fail(REALM_LIFE, 0, 7, 40) ||
+		borg_spell_legal_fail(REALM_ARCANE, 2, 7, 40) ||
+		borg_spell_legal_fail(REALM_NATURE, 0, 3, 40) ||
 		borg_racial_check(RACE_HOBBIT, TRUE))
 	{
+		amt_food_scroll += 1000;
 		bp_ptr->food += 1000;
 	}
 
@@ -2494,6 +2479,12 @@ static void borg_notice_aux2(void)
 	if (borg_spell_legal(REALM_LIFE, 1, 5))
 	{
 		bp_ptr->able.pfe += 1000;
+	}
+
+	/* Handle "phlogiston" */
+	if (borg_spell_legal_fail(REALM_ARCANE, 1, 1, 40))
+	{
+		bp_ptr->able.fuel += 1000;
 	}
 
 	/* Handle "rune of protection" glyph" */
@@ -2653,7 +2644,7 @@ static void borg_notice_aux2(void)
 
 	if (!FLAG(bp_ptr, TR_CANT_EAT))
 	{
-		bp_ptr->food += amt_food_hical * 5;
+		bp_ptr->food += amt_food_hical * 3;
 		if (bp_ptr->food <= 30)
 		{
 			bp_ptr->food += amt_food_lowcal;
@@ -2909,6 +2900,7 @@ static void borg_notice_home_clear(void)
 
 	/* Reset basic */
 	num_food = 0;
+	num_food_scroll = 0;
 	num_ident = 0;
 	num_star_ident = 0;
 	num_recall = 0;
@@ -3560,6 +3552,7 @@ static void borg_notice_home_scroll(list_item *l_ptr)
 
 		case SV_SCROLL_SATISFY_HUNGER:
 		{
+			num_food_scroll += l_ptr->number;
 			num_food += l_ptr->number;
 			break;
 		}
@@ -3578,6 +3571,7 @@ static void borg_notice_home_spells(void)
 		borg_spell_legal_fail(REALM_NATURE, 0, 3, 10))
 	{
 		num_food += 1000;
+		num_food_scroll += 1000;
 	}
 
 	/* Handle "identify" -> infinite identifies */
@@ -4522,115 +4516,109 @@ static s32b borg_power_home_aux2(void)
 
 	s32b value = 0L;
 
-
 	/*** Basic abilities ***/
 
 	/* Collect food */
 	value += 8000 * MIN(num_food, 20);
-	value += 800 * MIN_FLOOR(num_food, 20, 50);
-	value += 80 * MIN_FLOOR(num_food, 50, 99);
+	value += 800 * MIN_FLOOR(num_food, 20, 2 * bp_ptr->lev - 1);
+
+	/* Emphasize on collecting scrolls of food above mere rations */
+	value += 10 * MIN(num_food_scroll, MAX(20, bp_ptr->lev * 2 - 1));
 
 	/* Collect ident */
 	value += 2000 * MIN(num_ident, 20);
-	value += 200 * MIN_FLOOR(num_ident, 20, 50);
-	value += 20 * MIN_FLOOR(num_ident, 50, 99);
+	value += 200 * MIN_FLOOR(num_ident, 20, 2 * bp_ptr->lev - 1);
 
 	/* Collect *id*ent */
 	value += 5000 * MIN(num_star_ident, 10);
-	value += 500 * MIN_FLOOR(num_ident, 10, 50);
-	value += 50 * MIN_FLOOR(num_ident, 50, 99);
+	value += 500 * MIN_FLOOR(num_ident, 10, 2 * bp_ptr->lev - 1);
 
 	/* Collect *remove curse* */
 	value += 5000 * MIN(num_star_remove_curse, 5);
-	value += 50 * MIN_FLOOR(num_star_remove_curse, 5, 99);
+	value += 50 * MIN_FLOOR(num_star_remove_curse, 5, bp_ptr->lev * 2 - 1);
 
 	/* apw Collect pfe */
 	value += 2000 * MIN(num_pfe, 5);
-	value += 200 * MIN_FLOOR(num_pfe, 5, 99);
+	value += 200 * MIN_FLOOR(num_pfe, 5, bp_ptr->lev * 2 - 1);
 
 	/* apw Collect glyphs */
-	value += 5000 * MIN(num_glyph, 20);
-	value += 500 * MIN_FLOOR(num_glyph, 20, 99);
+	value += 5000 * MIN(num_glyph, bp_ptr->lev * 2 - 1);
 
 	/* Reward Genocide scrolls. Just scrolls, mainly used for the Serpent */
-	value += 5000 * MIN(num_genocide, 20);
-	value += 500 * MIN_FLOOR(num_genocide, 20, 99);
+	value += 5000 * MIN(num_genocide, bp_ptr->lev * 2 - 1);
 
-	/* Reward Mass Genocide scrolls. Just scrolls, mainly used for Morgoth */
-	value += 5000 * MIN(num_mass_genocide, 20);
-	value += 500 * MIN_FLOOR(num_mass_genocide, 20, 99);
+	/* Reward Mass Genocide scrolls. Just scrolls, mainly used for Serpent */
+	value += 5000 * MIN(num_mass_genocide, bp_ptr->lev * 2 - 1);
 
 	/* Reward Resistance Potions for Warriors */
 	if (borg_class == CLASS_WARRIOR)
 	{
 		value += 1000 * MIN(num_pot_rheat, 20);
-		value += 100 * MIN_FLOOR(num_pot_rheat, 20, 99);
+		value += 100 * MIN_FLOOR(num_pot_rheat, 20, bp_ptr->lev * 2 - 1);
 		value += 1000 * MIN(num_pot_rcold, 20);
-		value += 100 * MIN_FLOOR(num_pot_rcold, 20, 99);
+		value += 100 * MIN_FLOOR(num_pot_rcold, 20, bp_ptr->lev * 2 - 1);
 	}
 
 	/* Collect recall */
 	value += 3000 * MIN(num_recall, 20);
-	value += 300 * MIN_FLOOR(num_recall, 20, 99);
+	value += 300 * MIN_FLOOR(num_recall, 20, bp_ptr->lev * 2 - 1);
 
 	/* Collect escape */
 	value += 3000 * MIN(num_escape, 20);
-	value += 300 * MIN_FLOOR(num_escape, 20, 99);
+	value += 300 * MIN_FLOOR(num_escape, 20, bp_ptr->lev * 2 - 1);
 
 	/* Collect teleport */
 	value += 1000 * MIN(num_teleport, 20);
-	value += 100 * MIN_FLOOR(num_teleport, 20, 99);
+	value += 100 * MIN_FLOOR(num_teleport, 20, bp_ptr->lev * 2 - 1);
 
 	/* Collect teleport level scrolls */
 	value += 1000 * MIN(num_teleport_level, 20);
-	value += 100 * MIN_FLOOR(num_teleport_level, 20, 99);
+	value += 100 * MIN_FLOOR(num_teleport_level, 20, bp_ptr->lev * 2 - 1);
 
 	/* Collect Speed */
 	value += 4000 * MIN(num_speed, 20);
-	value += 400 * MIN_FLOOR(num_speed, 20, 99);
+	value += 400 * MIN_FLOOR(num_speed, 20, bp_ptr->lev * 2 - 1);
 
 	/* Collect Berserk */
 	value += 400 * MIN(num_berserk, 20);
-	value += 40 * MIN_FLOOR(num_berserk, 20, 99);
+	value += 40 * MIN_FLOOR(num_berserk, 20, bp_ptr->lev * 2 - 1);
 
-	/* Collect Invuln Potions (As if you'd ever find 99 potions) */
-	value += 5000 * MIN(num_goi_pot, 99);
+	/* Collect Invuln Potions (As if you'd ever find so many potions) */
+	value += 5000 * MIN(num_goi_pot, bp_ptr->lev * 2 - 1);
 
 	/* Collect heal */
 	value += 3000 * MIN(num_heal, 20);
-	value += 300 * MIN_FLOOR(num_heal, 20, 99);
+	value += 300 * MIN_FLOOR(num_heal, 20, bp_ptr->lev * 2 - 1);
 	value += 8000 * MIN(num_ez_heal, 20);
-	value += 800 * MIN_FLOOR(num_ez_heal, 20, 99);
+	value += 800 * MIN_FLOOR(num_ez_heal, 20, bp_ptr->lev * 2 - 1);
 
 	/* Potion of Mana */
 	if (borg_class != CLASS_WARRIOR)
 	{
 		value += 2000 * MIN(num_mana, 20);
-		value += 200 * MIN_FLOOR(num_mana, 20, 99);
+		value += 200 * MIN_FLOOR(num_mana, 20, bp_ptr->lev * 2 - 1);
 	}
 
 	/* Collect cure critical */
 	value += 3500 * MIN(num_cure_critical, 50);
-	value += 350 * MIN_FLOOR(num_cure_critical, 50, 99);
+	value += 350 * MIN_FLOOR(num_cure_critical, 50, bp_ptr->lev * 2 - 1);
 
 	/* Collect cure serious - but they aren't as good */
 	value += 750 * MIN(num_cure_serious, 20);
-	value += 75 * MIN_FLOOR(num_cure_serious, 20, 99);
+	value += 75 * MIN_FLOOR(num_cure_serious, 20, bp_ptr->lev * 2 - 1);
 
 	/*** Various ***/
 
 	/* Fixing Stats */
-	if (bp_ptr->lev == 50) value += 500L * num_fix_exp;
-	if (bp_ptr->lev > 35)
-	{
-		value += 5000 * MIN(num_fix_exp, 20);
-		value += 500 * MIN_FLOOR(num_fix_exp, 20, 99);
-	}
+	if (bp_ptr->lev == 50) value += 50L * MIN(num_fix_exp, bp_ptr->lev * 2 -1);
 	else
+	{
 		value += 5000 * MIN(num_fix_exp, 5);
+		value += 500 * MIN_FLOOR(num_fix_exp, 5, bp_ptr->lev * 2 - 1);
+	}
 
 	/* Keep shrooms in the house */
-	value += 5000 * MIN(num_fix_stat[6], 99);
+	value += 5000 * MIN(num_fix_stat[6], bp_ptr->lev * 2 - 1);
 
 	/*** Hack -- books ***/
 
@@ -4665,6 +4653,9 @@ static s32b borg_power_home_aux2(void)
 				value += 4000 * MIN_FLOOR(num_book[realm][book],
 										  min_book,
 										  (bp_ptr->lev + 1) / 2);
+				value += 400 * MIN_FLOOR(num_book[realm][book],
+										  (bp_ptr->lev + 1) / 2,
+										  bp_ptr->lev * 2 - 1);
 			}
 		}
 	}

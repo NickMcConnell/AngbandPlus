@@ -2,7 +2,7 @@
 -- Written by Waldemar Celes
 -- TeCGraf/PUC-Rio
 -- Jul 1998
--- $Id: variable.lua,v 1.1 2001/10/29 17:49:53 rr9 Exp $
+-- $Id: variable.lua,v 1.3 2003/12/04 12:16:03 sfuerst Exp $
 
 -- This code is free software; you can redistribute it and/or modify it.
 -- The software provided hereunder is on an "as is" basis, and
@@ -59,17 +59,10 @@ function classVariable:supcode ()
  -- declare self, if the case
  local _,_,static = strfind(self.mod,'^%s*(static)')
  if class and static==nil then
-  output(' ',class,'*','self = ')
-  output('(',class,'*) ')
-  output('tolua_getusertype(tolua_S,1,0);')
+-- get and check self value  
+  output('  TOLUA_GET_SELF(',class,');');
  elseif static then
   _,_,self.mod = strfind(self.mod,'^%s*static%s%s*(.*)')
- end
-
-
- -- check self value
- if class and static==nil then
-  output('  if (!self) TOLUA_ERR_SELF;');
  end
 
  -- return value
@@ -101,11 +94,8 @@ function classVariable:supcode ()
   -- declare self, if the case
   local narg=1
   if class and static==nil then
-   output(' ',class,'*','self = ')
-   output('(',class,'*) ')
-   output('tolua_getusertype(tolua_S,1,0);')
-   -- check self value
-   output('  if (!self) TOLUA_ERR_SELF;');
+   -- set and check self value
+   output('  TOLUA_GET_SELF(',class,');');
    narg = narg+1
   elseif static then
    _,_,self.mod = strfind(self.mod,'^%s*static%s%s*(.*)')

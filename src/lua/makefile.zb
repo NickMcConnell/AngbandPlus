@@ -25,7 +25,7 @@ objs-y += $(LUAOBJS)
 TOLUAOBJS := $(addprefix src/lua/,tolua.o tolualua.o liolib.o) $(LUAOBJS)
 
 src/lua/tolua: $(TOLUAOBJS)
-	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS) $(LIBS)
+	$(LINK) $(CFLAGS) -o $@ $^ $(LDFLAGS) $(LIBS)
 
 
 # Wrappers also depend on these

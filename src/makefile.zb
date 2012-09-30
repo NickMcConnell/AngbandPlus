@@ -52,7 +52,8 @@ ZUTILOBJS := $(addprefix src/,\
 
 BORGOBJS := $(addprefix src/,\
 	zborg1.o zborg2.o zborg3.o zborg4.o zborg5.o \
-	zborg6.o zborg7.o zborg8.o zborg9.o)
+	zborg6.o zborg7.o zborg8.o zborg9.o \
+	zbmagic1.o zbmagic2.o zbmagic3.o)
 
 
 ##
@@ -177,7 +178,7 @@ src/zborg4.o: src/zborg1.h src/zborg2.h src/zborg3.h src/zborg4.h \
 src/zborg5.o: src/zborg1.h src/zborg2.h src/zborg3.h src/zborg4.h \
 				src/zborg5.h src/maid-grf.h
 src/zborg6.o: src/zborg1.h src/zborg2.h src/zborg3.h src/zborg4.h \
-				src/zborg5.h src/zborg6.h src/maid-grf.h
+				src/zborg5.h src/zborg6.h src/maid-grf.h src/zbmagic.h
 src/zborg7.o: src/zborg1.h src/zborg2.h src/zborg3.h src/zborg4.h \
 				src/zborg5.h src/zborg6.h src/zborg7.h src/maid-grf.h
 src/zborg8.o: src/zborg1.h src/zborg2.h src/zborg3.h src/zborg4.h \
@@ -186,6 +187,13 @@ src/zborg8.o: src/zborg1.h src/zborg2.h src/zborg3.h src/zborg4.h \
 src/zborg9.o: src/zborg1.h src/zborg2.h src/zborg3.h src/zborg4.h \
 				src/zborg5.h src/zborg6.h src/zborg7.h src/zborg8.h \
 				src/zborg9.h src/maid-grf.h
+src/zbmagic1.o: src/zborg1.h src/zborg2.h src/zborg3.h src/zborg4.h \
+				src/zborg5.h src/zborg6.h src/maid-grf.h src/zbmagic.h
+src/zbmagic2.o: src/zborg1.h src/zborg2.h src/zborg3.h src/zborg4.h \
+				src/zborg5.h src/zborg6.h src/maid-grf.h src/zbmagic.h
+src/zbmagic3.o: src/zborg1.h src/zborg2.h src/zborg3.h src/zborg4.h \
+				src/zborg5.h src/zborg6.h src/maid-grf.h src/zbmagic.h
+
 
 ##
 ## Build wrappers

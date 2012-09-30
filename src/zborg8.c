@@ -236,8 +236,11 @@ static bool borg_object_similar(list_item *l_ptr, list_item *q_ptr)
 /*
  * Sell items to the current shop
  */
-static void borg_think_shop_sell(int item, list_item *l_ptr)
+static void borg_think_shop_sell(int item, list_item *l_ptr, bool home)
 {
+	/* Ignore parameter */
+	(void) home;
+
 	/* Log */
 	borg_note_fmt("# Selling %s", l_ptr->o_name);
 
@@ -255,13 +258,6 @@ static void borg_think_shop_sell(int item, list_item *l_ptr)
 	borg_note_fmt("# Sending key %c", I2A(item));
 	borg_keypress(I2A(item));
 
-	/* Mega-Hack -- Accept the price */
-	borg_keypress('n');
-	borg_keypress('\r');
-	borg_keypress('\r');
-	borg_keypress('\r');
-	borg_keypress('\r');
-
 	/* Increment 'use' count */
 	borg_shops[shop_num].u_count++;
 
@@ -273,12 +269,15 @@ static void borg_think_shop_sell(int item, list_item *l_ptr)
 /*
  * Buy items from the current shop
  */
-static void borg_think_shop_buy(int item)
+static void borg_think_shop_buy(int item, bool home)
 {
 	list_item *l_ptr = &cur_list[item];
 
 	byte t_a;
 	char buf[2];
+
+	/* Ignore unused parameter */
+	(void) home;
 
 	/* Keep it small */
 	buf[1] = '\0';
@@ -307,13 +306,6 @@ static void borg_think_shop_buy(int item)
 
 	/* Buy the desired item */
 	borg_keypress(I2A(item % (STORE_INVEN_MAX / 2)));
-
-	/* Mega-Hack -- Accept the price */
-	borg_keypress('n');
-	borg_keypress('\r');
-	borg_keypress('\r');
-	borg_keypress('\r');
-	borg_keypress('\r');
 
 	/* Increment 'use' count */
 	borg_shops[shop_num].u_count++;
@@ -495,7 +487,7 @@ static bool borg_think_home_sell_aux(void)
 	{
 		goal_shop = home_shop;
 
-		borg_think_shop_sell(index, &inventory[index]);
+		borg_think_shop_sell(index, &inventory[index], TRUE);
 
 		/* We have goal */
 		return (TRUE);
@@ -647,7 +639,7 @@ static bool borg_think_shop_sell_aux(int shop)
 		goal_shop = shop;
 
 		/* Sell that item */
-		borg_think_shop_sell(b_i, &inventory[b_i]);
+		borg_think_shop_sell(b_i, &inventory[b_i], FALSE);
 
 		/* Success */
 		return (TRUE);
@@ -663,24 +655,22 @@ static bool borg_think_shop_sell_aux(int shop)
  */
 static s32b borg_think_buy_slot(list_item *l_ptr, int slot, bool home)
 {
-	list_item *q_ptr = &equipment[slot];
+	list_item *q_ptr = look_up_equip_slot(slot);
 
 	s32b p;
 
 	/* Paranoia */
-	if (KN_FLAG(q_ptr, TR_CURSED) ||
+	if (q_ptr &&
+		(KN_FLAG(q_ptr, TR_CURSED) ||
 		KN_FLAG(q_ptr, TR_HEAVY_CURSE) ||
-		KN_FLAG(q_ptr, TR_PERMA_CURSE))
+		KN_FLAG(q_ptr, TR_PERMA_CURSE)))
 	{
-		/* Hack, trying to wield into cursed slot - avoid this */
-		p = borg_power();
-
 		/* Return 'bad' value */
-		return (p - 1);
+		return (0);
 	}
 
 	/* Swap items */
-	q_ptr->treat_as = TREAT_AS_SWAP;
+	if (q_ptr) q_ptr->treat_as = TREAT_AS_SWAP;
 	l_ptr->treat_as = TREAT_AS_SWAP;
 
 	/* Evaluate the inventory */
@@ -690,7 +680,7 @@ static s32b borg_think_buy_slot(list_item *l_ptr, int slot, bool home)
 	if (home) p += borg_power_home();
 
 	/* Fix items */
-	equipment[slot].treat_as = TREAT_AS_NORM;
+	if (q_ptr) q_ptr->treat_as = TREAT_AS_NORM;
 	l_ptr->treat_as = TREAT_AS_NORM;
 
 	/* Return power */
@@ -698,8 +688,29 @@ static s32b borg_think_buy_slot(list_item *l_ptr, int slot, bool home)
 }
 
 
+/* Make sure the borg keeps money back for food and light */
+static bool borg_spends_gold_okay(list_item *l_ptr)
+{
+	/* Always allow buying fuel */
+	if (l_ptr->tval == TV_LITE ||
+		l_ptr->tval == TV_FLASK) return (TRUE);
 
-/*
+	/* Nothing else to be bought if the borg is this low on money */
+	if (borg_gold < 20) return (FALSE);
+
+	/* Allow food to be bought when there is more than 20 gold */
+	if (l_ptr->tval == TV_FOOD ||
+		(l_ptr->tval == TV_SCROLL &&
+		k_info[l_ptr->k_idx].sval == SV_SCROLL_SATISFY_HUNGER)) return (TRUE);
+
+	/* Nothing else to be bought if the borg is this low on money */
+	if (borg_gold < 100) return (FALSE);
+
+	/* Spend away */
+	return (TRUE);
+}
+
+	/*
  * Step 3 -- buy "useful" things from a shop (to be used)
  */
 static bool borg_think_shop_buy_aux(int shop)
@@ -707,7 +718,7 @@ static bool borg_think_shop_buy_aux(int shop)
 	int slot;
 
 	int n, b_n = -1;
-	s32b p, b_p = 0L;
+	s32b p = 0L, b_p = 0L;
 	s32b c, b_c = 0L;
 
 	/* Require one empty slot */
@@ -750,20 +761,14 @@ static bool borg_think_shop_buy_aux(int shop)
 		/* Consider new equipment */
 		if (slot >= 0)
 		{
-			list_item *k_ptr = &equipment[slot];
-		
-			/* skip this object if the slot is occupied by a cursed item */
-			if (k_ptr ||
-				strstr(k_ptr->o_name, "{cursed") ||
-				KN_FLAG(k_ptr, TR_CURSED) ||
-				KN_FLAG(k_ptr, TR_HEAVY_CURSE)) continue;
-
 			/* Get power for doing swap */
 			p = borg_think_buy_slot(l_ptr, slot, FALSE);
+
+			/* Also check if it is an item for the inventory */
 		}
 
 		/* Consider new inventory */
-		else
+		if (p <= b_p)
 		{
 			/* Hack - use 'INVEN_LESS' to say we want it in the inventory */
 			l_ptr->treat_as = TREAT_AS_LESS;
@@ -777,6 +782,9 @@ static bool borg_think_shop_buy_aux(int shop)
 
 		/* Obtain the "cost" of the item */
 		c = l_ptr->cost;
+
+		/* Is it too costly? */
+		if (!borg_spends_gold_okay(l_ptr)) continue;
 
 		/* Penalize the cost of expensive items */
 		if (c > borg_gold / 10) p -= c;
@@ -803,7 +811,7 @@ static bool borg_think_shop_buy_aux(int shop)
 		goal_shop = shop;
 
 		/* Buy that item */
-		borg_think_shop_buy(b_n);
+		borg_think_shop_buy(b_n, FALSE);
 
 		/* Success */
 		return (TRUE);
@@ -821,7 +829,7 @@ static bool borg_think_home_buy_aux(void)
 {
 	int slot;
 	int n, b_n = -1;
-	s32b p, b_p = 0L;
+	s32b p = 0L, b_p = 0L;
 	s32b p_left = 0;
 	s32b p_right = 0;
 
@@ -892,7 +900,7 @@ static bool borg_think_home_buy_aux(void)
 		goal_shop = home_shop;
 
 		/* Buy that item */
-		borg_think_shop_buy(b_n);
+		borg_think_shop_buy(b_n, TRUE);
 
 		/* Success */
 		return (TRUE);
@@ -946,6 +954,9 @@ static bool borg_think_shop_grab_aux(int shop)
 		/* Obtain the "cost" of the item */
 		c = l_ptr->cost;
 
+		/* Is it too costly? */
+		if (!borg_spends_gold_okay(l_ptr)) continue;
+
 		/* Ignore too expensive items */
 		if (borg_gold < c) continue;
 
@@ -974,7 +985,7 @@ static bool borg_think_shop_grab_aux(int shop)
 		goal_shop = shop;
 
 		/* Buy that item */
-		borg_think_shop_buy(b_n);
+		borg_think_shop_buy(b_n, FALSE);
 
 		/* Hack - get out of the store */
 		borg_keypress(ESCAPE);
@@ -1034,7 +1045,7 @@ static bool borg_think_home_grab_aux(void)
 		goal_shop = home_shop;
 
 		/* Grab that item */
-		borg_think_shop_buy(b_n);
+		borg_think_shop_buy(b_n, TRUE);
 
 		/* Success */
 		return (TRUE);
@@ -1196,13 +1207,21 @@ bool borg_think_store(void)
  */
 static bool borg_think_dungeon_brave(void)
 {
+	int dir;
 	/*** Local stuff ***/
 
 	/* Attack monsters */
 	if (borg_attack(TRUE)) return (TRUE);
 
-	/* Cast a light beam to remove fear of an area */
-	if (borg_lite_beam(FALSE)) return (TRUE);
+	/* Test a light beam to remove fear of an area */
+	if (borg_lite_beam(TRUE, &dir))
+	{
+		/* Cast that beam */
+		(void)borg_lite_beam(FALSE, &dir);
+
+		/* Ready */
+		return (TRUE);
+	}
 
 	/*** Flee (or leave) the level ***/
 

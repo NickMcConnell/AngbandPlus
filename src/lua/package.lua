@@ -2,7 +2,7 @@
 -- Written by Waldemar Celes
 -- TeCGraf/PUC-Rio
 -- Jul 1998
--- $Id: package.lua,v 1.5 2002/04/01 20:20:20 sfuerst Exp $
+-- $Id: package.lua,v 1.8 2003/12/04 14:06:42 sfuerst Exp $
 
 -- This code is free software; you can redistribute it and/or modify it.
 -- The software provided hereunder is on an "as is" basis, and
@@ -103,11 +103,6 @@ function classPackage:preamble ()
  output('(void) tolua_S;	/* Hack - prevent compiler warnings */')
  foreach(_usertype,function(n,v) output(' tolua_usertype(tolua_S,"',v,'");') end)
  output('}')
- output('\n')
-
- output('/* error messages */')
- output('#define TOLUA_ERR_SELF tolua_error(tolua_S,\"invalid \'self\'\")')
- output('#define TOLUA_ERR_ASSIGN tolua_error(tolua_S,\"#vinvalid type in variable assignment.\")')
  output('\n')
 end
 

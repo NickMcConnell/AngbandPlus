@@ -134,7 +134,7 @@ void delete_field_ptr(field_type *f_ptr)
 	FLD_ITT_END;
 	
 	/* We shouldn't get here! */
-	quit("Cannot field to delete!");
+	quit("Cannot find field to delete!");
 	return;
 }
 
@@ -644,6 +644,7 @@ s16b field_add(field_type *f_ptr, cave_type *c_ptr)
 	/* If a previous node exists */
 	if (q_ptr)
 	{
+		fld_list[new_idx].next_f_idx = q_ptr->next_f_idx;
 		q_ptr->next_f_idx = new_idx;
 	}
 	else
@@ -1197,7 +1198,9 @@ void test_field_data_integrity(void)
 {
 	int i, j;
 	cave_type *c_ptr;
-	field_type *f_ptr;
+	field_type *f_ptr, *j_ptr;
+	
+	bool found;
 
 	/* Test cave data structure */
 	for (i = p_ptr->min_wid; i < p_ptr->max_wid; i++)
@@ -1230,6 +1233,41 @@ void test_field_data_integrity(void)
 				}
 			}
 			FLD_ITT_END;
+		}
+	}
+	
+	/* Test linkage to cave data structures */
+	for (i = 0; i < fld_max; i++)
+	{
+		f_ptr = &fld_list[i];
+		
+		if (!f_ptr->t_idx) continue;
+		
+		/* Needs to be in bounds */
+		if (!in_bounds2(f_ptr->fx, f_ptr->fy))
+		{
+			msgf("Field out of bounds: %d", i);
+			continue;
+		}
+		
+		c_ptr = area(f_ptr->fx, f_ptr->fy);
+		
+		found = FALSE;
+		
+		/* We need to be in the linked list at the location */
+		FLD_ITT_START (c_ptr->fld_idx, j_ptr)
+		{
+			if (f_ptr == j_ptr)
+			{
+				found = TRUE;
+				break;
+			}
+		}
+		FLD_ITT_END;
+		
+		if (!found)
+		{
+			msgf("Field not linked correctly (%d,%d): %d", f_ptr->fx, f_ptr->fy, i);
 		}
 	}
 }
@@ -1421,9 +1459,19 @@ bool field_action_corpse_decay(field_type *f_ptr, va_list vp)
 	u16b r_idx = ((u16b)f_ptr->data[1]) * 256 + f_ptr->data[2];
 
 	monster_type *m_ptr;
-
+	
+	bool visible = FALSE;
+	
 	/* Hack - ignore 'vp' */
 	(void) vp;
+	
+	/* Is it visible? */
+	if (in_boundsp(f_ptr->fx, f_ptr->fy))
+	{
+		pcave_type *pc_ptr = parea(f_ptr->fx, f_ptr->fy);
+		
+		if (player_has_los_grid(pc_ptr)) visible = TRUE;
+	}
 	
 	if (ironman_nightmare)
 	{
@@ -1432,7 +1480,7 @@ bool field_action_corpse_decay(field_type *f_ptr, va_list vp)
 								  r_idx, FALSE, FALSE, FALSE);
 		if (m_ptr)
 		{
-			if (player_has_los_grid(parea(f_ptr->fx, f_ptr->fy)))
+			if (visible)
 			{
 				if (disturb_minor) msgf("The %s rises.", t_ptr->name);
 			}
@@ -1442,7 +1490,7 @@ bool field_action_corpse_decay(field_type *f_ptr, va_list vp)
 		}
 
 		/* Paranoia */
-		else if (player_has_los_grid(parea(f_ptr->fx, f_ptr->fy)))
+		else if (visible)
 		{
 			/* Let player know what happened. */
 			if (disturb_minor) msgf("The %s decays.", t_ptr->name);
@@ -1451,7 +1499,7 @@ bool field_action_corpse_decay(field_type *f_ptr, va_list vp)
 	}
 	else
 	{
-		if (player_has_los_grid(parea(f_ptr->fx, f_ptr->fy)))
+		if (visible)
 		{
 			/* Let player know what happened. */
 			if (disturb_minor) msgf("The %s decays.", t_ptr->name);
