@@ -46,7 +46,7 @@ void follow_god(int god, bool silent)
 	}
 
 	/* Are we allowed ? */
-	if (process_hooks(HOOK_FOLLOW_GOD, "(d,s)", "", god, "ask"))
+	if (process_hooks(HOOK_FOLLOW_GOD, "(d,s)", god, "ask"))
 		return;
 
 	if (p_ptr->pgod == GOD_NONE)
@@ -61,7 +61,7 @@ void follow_god(int god, bool silent)
 		}
 
 		/* Anything to be done? */
-		process_hooks(HOOK_FOLLOW_GOD, "(d,s)", "", god, "done");
+		process_hooks(HOOK_FOLLOW_GOD, "(d,s)", god, "done");
 	}
 }
 

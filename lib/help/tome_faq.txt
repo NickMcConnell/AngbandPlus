@@ -249,9 +249,31 @@ Flare. Deathmolds are marked as experimental for a reason you know. Morphic
 oils can also help if you're having trouble communictaing with monsters. A very
 beautiful Elf springs to mind as possibly causing some problems if you are in 
 Deathmold form.
+~~~~~24|Fumblefingers quests
+~~~~~25|Abbreviations|FF
+#####G------------------------------------------------------------------------------
+#####GQ: What or who is Fumblefingers? How do I get his quests?
+FF is short for Fumblefingers, the name that some players give to the adventurer
+who keeps having his sword stolen by monsters and asking you to find it for
+him. So named because he often seems to lose it to molds and other creatures
+you wouldn't expect to be able to pickpocket!
+During birth you'll be asked to specify a number of random quests you would like 
+to attempt to complete. Some of these quests will take the form of princess quests, 
+others will be fumble-finger quests. If you complete the task he sets you 
+sucessfully, he'll offer to join you as a companion. If you do not want him to 
+join you, he'll offer to teach you some new skills. Quite handy.
+~~~~~26|Random quests are not working.
+#####G------------------------------------------------------------------------------
+#####GQ: Where has the option gone to set the number of random quests?
+#####G   Why aren't there any after the Barrow-downs?
+Turning on either of the options "Allow permanent dungeon levels" or "Always 
+create special rooms" will disable random quests.
+Random quests can only be found in the four main dungeons (Barrowdowns, Mirkwood, 
+Mordor and Angband). 
 
 #####G------------------------------------------------------------------------------
 #####GQ: The game is so slow...
 
 A: Yeah :(
 Try disabling the various options marked as (slow)
+

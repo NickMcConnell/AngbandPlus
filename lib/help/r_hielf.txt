@@ -3,13 +3,13 @@
 #####R=== High-Elves ===
 
 #####GDescription
-High-elves are a race of immortal beings dating from the beginning of time.
-They are masters of all skills, and are strong and intelligent, although 
-their wisdom is sometimes suspect. They can play all classes except 
-Rogues, and very well at that. High-elves begin their lives able to see 
-the unseen, and resist light effects just like regular elves. However, 
-there are few things that they have not seen already, and experience is 
-very hard for them to gain.
+High-elves are a race of immortal beings dating from the beginning of
+time.  They are masters of all skills, and are strong and intelligent.
+They can play all classes except Rogues, and very well at that.
+High-elves begin their lives able to see the unseen, and resist light
+effects just like regular elves.  However, there are few things that
+they have not seen already, and experience is very hard for them to
+gain.
 
 #####GStat Modifiers
 Strength        +1   

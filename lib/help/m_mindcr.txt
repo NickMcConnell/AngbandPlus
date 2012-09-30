@@ -18,7 +18,6 @@ as usual through the *****skills.txt*21[Magic] skill.
    At level 20 it maps out the surrounding area.
    At level 25 it gives you ESP for a time.
    At level 30 it also detects objects and treasure.
-   At level 40 it gives permanent ESP.
    At level 45 it fully shows the entire level.
 2. [[[[[sNeural blast] (Level 2) Cost:1
    Fires a bolt or beam, to stun and damage monsters.

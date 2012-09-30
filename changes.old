@@ -5154,3 +5154,22 @@ becomes 0, allowing spells to summon fiery blades and such
 [P]- Bear form will now starts at -5 speed but end at +5
 
 29/06/2003 -- T.o.M.E 2.2.1 aka "There All the Honor Lies"
+
+09/07/2003
+[B]- Prevent forbidden staves from being generated
+
+14/07/2003
+[B]- Really fix the God quest this time, we hope
+
+15/07/2003
+[m]- Mac OS X Module support
+[m]- Solaris compile workaround from Kevin W. Thomas
+
+16/07/2003
+[B]- Fix broken status in auto automatizer rules -- neil
+[m]- Valid XHTML in the HTML screenshots now -- neil
+
+17/07/2003
+[B]- HPUX support -- neil
+
+20/07/2003 -- T.o.M.E 2.2.2 aka 'And Now For a Word'

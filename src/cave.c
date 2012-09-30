@@ -2260,7 +2260,7 @@ void lite_spot(int y, int x)
 #else /* USE_TRANSPARENCY */
 
 		/* Examine the grid */
-		map_info(y, x, &a, &c);
+		map_info(y, x, &a, (char *) &c);
 
 		/* Hack -- Queue it */
 		Term_queue_char(panel_col_of(x), y - panel_row_prt, a, c);
@@ -5203,7 +5203,7 @@ void disturb(int stop_search, int unused_flag)
  */
 int is_quest(int level)
 {
-	int i = random_quest_number(dun_level);
+	int i = random_quest_number();
 
 	/* Check quests */
 	if (p_ptr->inside_quest)

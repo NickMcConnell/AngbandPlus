@@ -5,10 +5,10 @@
 #include "angband.h"
 
 
-#if !defined(MACINTOSH) && defined(CHECK_MODIFICATION_TIME)
+#if !defined(MACINTOSH) && !defined(RISCOS) && defined(CHECK_MODIFICATION_TIME)
 #include <sys/types.h>
 #include <sys/stat.h>
-#endif /* !MACINTOSH && CHECK_MODIFICATION_TIME */
+#endif /* !MACINTOSH && !RISCOS && CHECK_MODIFICATION_TIME */
 
 
 /*
@@ -72,7 +72,7 @@
 void init_file_paths(char *path)
 {
 	char *tail;
-
+	int   pathlen;
 
 	/*** Free everything ***/
 
@@ -101,12 +101,33 @@ void init_file_paths(char *path)
 
 
 	/*** Prepare the "path" ***/
-
-	/* Hack -- save the main directory */
-	ANGBAND_DIR = string_make(path);
-
+	
+	pathlen = strlen(path);
+	
+	/* Hack -- save the main directory without trailing PATH_SEP if present */
+	if (strlen(PATH_SEP) > 0 && pathlen > 0)
+	{
+		int seplen = strlen(PATH_SEP);
+		
+		if (strcmp(path + pathlen - seplen, PATH_SEP) == 0)
+		{
+			path[pathlen - seplen] = '\0';
+			ANGBAND_DIR = string_make(path);
+			path[pathlen - seplen] = *PATH_SEP;
+		}
+		else
+		{
+			ANGBAND_DIR = string_make(path);
+		}
+	}
+	else
+	{
+		ANGBAND_DIR = string_make(path);
+	}
+	
 	/* Prepare to append to the Base Path */
-	tail = path + strlen(path);
+	tail = path + pathlen;
+        
 
 
 #ifdef VM
@@ -183,10 +204,6 @@ void init_file_paths(char *path)
 	ANGBAND_DIR_PATCH = string_make(path);
 
 	/* Build a path name */
-	strcpy(tail, "save");
-	ANGBAND_DIR_SAVE = string_make(path);
-
-	/* Build a path name */
 	strcpy(tail, "scpt");
 	ANGBAND_DIR_SCPT = string_make(path);
 
@@ -204,11 +221,20 @@ void init_file_paths(char *path)
 		ANGBAND_DIR_USER = string_make(user_path);
 		ANGBAND_DIR_NOTE = string_make(user_path);
 		ANGBAND_DIR_CMOV = string_make(user_path);
+		
+		/* Savefiles are in user directory */
+		strcat(user_path, "/save");
+		ANGBAND_DIR_SAVE = string_make(user_path);
+		savefile_setuid = 0;
 	}
 
 #else /* PRIVATE_USER_PATH */
-
-/* Build a path name */
+	
+	/* Build a path name */
+	strcpy(tail, "save");
+	ANGBAND_DIR_SAVE = string_make(path);
+	
+	/* Build a path name */
 	strcpy(tail, "user");
 	ANGBAND_DIR_USER = string_make(path);
 
@@ -238,19 +264,19 @@ void init_file_paths(char *path)
 
 # if defined(m68k)
 		next = "m68k";
-# endif 
+# endif
 
 # if defined(i386)
 		next = "i386";
-# endif 
+# endif
 
 # if defined(sparc)
 		next = "sparc";
-# endif 
+# endif
 
 # if defined(hppa)
 		next = "hppa";
-# endif 
+# endif
 
 		/* Use special directory */
 		if (next)
@@ -308,7 +334,7 @@ static cptr err_str[9] =
 #endif /* ALLOW_TEMPLATES */
 
 
-#ifdef CHECK_MODIFICATION_TIME
+#if !defined(RISCOS) && defined(CHECK_MODIFICATION_TIME)
 
 static errr check_modification_date(int fd, cptr template_file)
 {
@@ -428,7 +454,7 @@ static errr init_f_info(void)
 {
 	int fd;
 
-	int mode = 0644;
+	int mode = FILE_MODE;
 
 	errr err = 0;
 
@@ -711,7 +737,7 @@ static errr init_k_info(void)
 {
 	int fd;
 
-	int mode = 0644;
+	int mode = FILE_MODE;
 
 	errr err = 0;
 
@@ -1150,7 +1176,7 @@ static errr init_set_info(void)
 {
 	int fd;
 
-	int mode = 0644;
+	int mode = FILE_MODE;
 
 	errr err = 0;
 
@@ -1374,7 +1400,7 @@ static errr init_a_info(void)
 {
 	int fd;
 
-	int mode = 0644;
+	int mode = FILE_MODE;
 
 	errr err = 0;
 
@@ -1600,7 +1626,7 @@ static errr init_s_info(void)
 
 	/* int i; */
 
-	int mode = 0644;
+	int mode = FILE_MODE;
 
 	errr err = 0;
 
@@ -1822,7 +1848,7 @@ static errr init_ab_info(void)
 
 	/* int i; */
 
-	int mode = 0644;
+	int mode = FILE_MODE;
 
 	errr err = 0;
 
@@ -2102,7 +2128,7 @@ static errr init_e_info(void)
 {
 	int fd;
 
-	int mode = 0644;
+	int mode = FILE_MODE;
 
 	errr err = 0;
 
@@ -2368,7 +2394,7 @@ static errr init_ra_info(void)
 {
 	int fd;
 
-	int mode = 0644;
+	int mode = FILE_MODE;
 
 	errr err = 0;
 
@@ -3073,7 +3099,7 @@ static errr init_r_info(void)
 {
 	int fd;
 
-	int mode = 0644;
+	int mode = FILE_MODE;
 
 	errr err = 0;
 
@@ -3297,7 +3323,7 @@ static errr init_re_info(void)
 {
 	int fd;
 
-	int mode = 0644;
+	int mode = FILE_MODE;
 
 	errr err = 0;
 
@@ -3514,7 +3540,7 @@ static errr init_d_info(void)
 {
 	int fd;
 
-	int mode = 0644;
+	int mode = FILE_MODE;
 
 	errr err = 0;
 
@@ -3740,7 +3766,7 @@ static errr init_player_info(void)
 
 	int i;
 
-	int mode = 0644;
+	int mode = FILE_MODE;
 
 	errr err = 0;
 
@@ -4094,7 +4120,7 @@ static errr init_st_info(void)
 {
 	int fd;
 
-	int mode = 0644;
+	int mode = FILE_MODE;
 
 	errr err = 0;
 
@@ -4311,7 +4337,7 @@ static errr init_ow_info(void)
 {
 	int fd;
 
-	int mode = 0644;
+	int mode = FILE_MODE;
 
 	errr err = 0;
 
@@ -4528,7 +4554,7 @@ static errr init_ba_info(void)
 {
 	int fd;
 
-	int mode = 0644;
+	int mode = FILE_MODE;
 
 	errr err = 0;
 
@@ -4745,7 +4771,7 @@ static errr init_wf_info(void)
 {
 	int fd;
 
-	int mode = 0644;
+	int mode = FILE_MODE;
 
 	errr err = 0;
 
@@ -5027,7 +5053,7 @@ static errr init_t_info(void)
 {
 	int fd;
 
-	int mode = 0644;
+	int mode = FILE_MODE;
 
 	errr err = 0;
 
@@ -5241,6 +5267,7 @@ static errr init_t_info(void)
 static errr init_al_info_raw(int fd)
 {
 	header test;
+	char *hack;
 
 	/* Read and Verify the header */
 	if (fd_read(fd, (char*)(&test), sizeof(header)) ||
@@ -5273,7 +5300,8 @@ static errr init_al_info_raw(int fd)
 	fd_read(fd, (char*)(al_name), al_head->name_size);
 
 	/* Allocate the "al_text" array */
-	C_MAKE((char *)a_select_flags, al_head->text_size, char );
+	C_MAKE(hack, al_head->text_size, char );
+	a_select_flags = (artifact_select_flag *) hack;
 
 	/* Read the "al_info" array */
 	fd_read(fd, (char*)(a_select_flags), al_head->text_size);
@@ -5291,7 +5319,7 @@ errr init_al_info(void)
 {
 	int fd;
 
-	int mode = 0644;
+	int mode = FILE_MODE;
 
 	errr err;
 
@@ -5379,10 +5407,15 @@ fd = -1;
 	/* ok, so we fudge a bit, but
 	   fake text size will ALWAYS be larger
 	   than 32*5*sizeof(artifact_select_flag) = 10 int and 5 bytes
-	   which is the maximum size of the a_select_flags array 
+	   which is the maximum size of the a_select_flags array
 	   */
 	C_MAKE(al_name, fake_name_size, char);
-	C_MAKE((char *)a_select_flags, fake_text_size, char);
+
+	{
+		char *hack;
+		C_MAKE(hack, fake_text_size, char);
+		a_select_flags = (artifact_select_flag *) hack;
+	}
 
 	/*** Load the ascii template file ***/
 
@@ -5474,7 +5507,10 @@ fd = -1;
 
 	/* Free the 'Fake' arrays */
 	C_KILL(al_name, al_head->name_size, char);
-	C_KILL((char *)a_select_flags, al_head->text_size, char);
+	{
+		char *hack = (char *) a_select_flags;
+		C_KILL(hack, al_head->text_size, char);
+	}
 
 	/* Forget the array sizes */
 	fake_name_size = 0;
@@ -5579,7 +5615,7 @@ errr init_v_info(void)
 {
 	int fd;
 
-	int mode = 0644;
+	int mode = FILE_MODE;
 
 	errr err;
 
@@ -6545,7 +6581,7 @@ void init_angband(void)
 {
 	int fd = -1;
 
-	int mode = 0644;
+	int mode = FILE_MODE;
 
 	FILE *fp;
 

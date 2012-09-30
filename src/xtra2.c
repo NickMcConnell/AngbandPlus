@@ -4721,6 +4721,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 			inc_piety(GOD_TULKAS, inc / 2);
 			PRAY_GOD(GOD_TULKAS)
 			{
+				inc_piety(GOD_TULKAS, inc / 2);
 				if (r_ptr->flags3 & RF3_DEMON) inc_piety(GOD_TULKAS, inc);
 			}
 		}

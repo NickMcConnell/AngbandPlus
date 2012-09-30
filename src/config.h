@@ -122,21 +122,6 @@
 #endif
 
 
-
-
-/*
- * OPTION: for the AFS distributed file system, define this to ensure that
- * the program is secure with respect to the setuid code.  This option has
- * not been tested (to the best of my knowledge).  This option may require
- * some weird tricks with "player_uid" and such involving "defines".
- * Note that this option used the AFS library routines Authenticate(),
- * bePlayer(), beGames() to enforce the proper priviledges.
- * You may need to turn "SAFE_SETUID" off to use this option.
- */
-/* #define SECURE */
-
-
-
 /*
  * OPTION: Verify savefile Checksums (Angband 2.7.0 and up)
  * This option can help prevent "corruption" of savefiles, and also
@@ -592,3 +577,10 @@
  * Panic saves have a different name
  */
 #define SAFER_PANICS
+
+/*
+ * Allow makefiles to override the default file mode
+ */
+#ifndef FILE_MODE
+#define FILE_MODE 0644
+#endif

@@ -230,7 +230,7 @@ bool quest_ultra_good_death_hook(char *fmt)
 		inven_carry(q_ptr, FALSE);
 	}
 	return (FALSE);
-};
+}
 bool quest_ultra_good_dump_hook(char *fmt)
 {
 	if (quest[QUEST_ULTRA_GOOD].status >= QUEST_STATUS_TAKEN)

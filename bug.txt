@@ -14,4 +14,4 @@
 [B]- Nazguls should only drop their rings once.
 [B]- character running on a know trap should stop BEFORE triggering it
 
-[V]  T.o.M.E 2.2.0 aka "???"
+[V]  T.o.M.E 2.2.3 aka "The Quality of Mercy"

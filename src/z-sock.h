@@ -50,7 +50,7 @@ struct ip_connection
 #define ZSOCK_TIMER_DELAY       100
 
 /* Timer callbacks */
-typedef void (*timer_callback)();
+typedef void (*timer_callback)(void);
 typedef struct timer_callback_list timer_callback_list;
 struct timer_callback_list
 {
@@ -65,7 +65,7 @@ typedef struct zsock_hooks zsock_hooks;
 struct zsock_hooks
 {
 	/* Creates a struct */
-	ip_connection *(*new_connection)();
+	ip_connection *(*new_connection)(void);
 
 	/* Free it */
 	void (*free_connection)(ip_connection *c);
@@ -122,6 +122,6 @@ struct zsock_hooks
 
 extern zsock_hooks zsock;
 
-extern bool zsock_init();
+extern bool zsock_init(void);
 
 #endif

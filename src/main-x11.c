@@ -110,6 +110,8 @@
 #include <dirent.h>
 #include <limits.h>
 
+#include <sys/time.h>
+
 /* /me pffts Solaris */
 #ifndef NAME_MAX
 #define	NAME_MAX	_POSIX_NAME_MAX

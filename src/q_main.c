@@ -66,7 +66,7 @@ bool quest_morgoth_hook(char *fmt)
 		quest[*(quest[QUEST_MORGOTH].plot)].init(*(quest[QUEST_MORGOTH].plot));
 	}
 	return (FALSE);
-};
+}
 bool quest_morgoth_dump_hook(char *fmt)
 {
 	if (quest[QUEST_MORGOTH].status >= QUEST_STATUS_COMPLETED)
@@ -111,7 +111,7 @@ bool quest_sauron_hook(char *fmt)
 		process_hooks_restart = TRUE;
 	}
 	return (FALSE);
-};
+}
 
 bool quest_sauron_resurect_hook(char *fmt)
 {
@@ -164,7 +164,7 @@ bool quest_necro_hook(char *fmt)
 		process_hooks_restart = TRUE;
 	}
 	return (FALSE);
-};
+}
 bool quest_necro_init_hook(int q_idx)
 {
 	if ((quest[QUEST_NECRO].status >= QUEST_STATUS_TAKEN) && (quest[QUEST_NECRO].status < QUEST_STATUS_FINISHED))

@@ -35,8 +35,8 @@
 /*
  * Release state, CVS or not, remember to switch it when making releases
  */
+/*#define IS_CVS          ""*/
 #define IS_CVS          ""
-/*#define IS_CVS          "(CVS)"*/
 
 #define ANGBAND_2_8_1
 
@@ -273,7 +273,7 @@
  * must also be large enough to allow "good enough" use as a circular queue,
  * to calculate monster flow, but note that the flow code is "paranoid".
  */
-#define TEMP_MAX 1536
+#define TEMP_MAX 16384
 
 
 /*

@@ -7,6 +7,8 @@ extensively by neglecting the study of magic. They also tend to be more stealthy
 and careful in their dungeon exploration, but aren't so good at stealing,
 trapping and disarming as their more "peaceful" counterparts.
 
+Assassins have access to the schools of *****m_convey.txt*0[Conveyance], *****m_divin.txt*0[Divination] and *****m_tempo.txt*0[Temporal] magic.
+
 #####GStarting Stat Modifiers
 Strength       +2
 Intelligence   +1

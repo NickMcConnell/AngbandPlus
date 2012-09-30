@@ -7468,7 +7468,7 @@ void symbiotic_info(char *p, int power)
 		}
 	case 5:
 		{
-			strnfmt(p, 80, " heal %d\%", 15 + get_skill_scale(SKILL_SYMBIOTIC, 35));
+			strnfmt(p, 80, " heal %d%%", 15 + get_skill_scale(SKILL_SYMBIOTIC, 35));
 			break;
 		}
 	}

@@ -2823,7 +2823,6 @@ void output_ammo_dam(object_type *o_ptr, int mult, int mult2, cptr against, cptr
 	int is_boomerang = (o_ptr->tval == TV_BOOMERANG);
 	int tmul = get_shooter_mult(b_ptr) + p_ptr->xtra_might;
 	if (is_boomerang) tmul = p_ptr->throw_mult;
-	tmul += p_ptr->xtra_might;
 
 	dam = (o_ptr->dd + (o_ptr->dd * o_ptr->ds)) * 5;
 	dam += o_ptr->to_d * 10;
@@ -6231,17 +6230,20 @@ void pickup_ammo()
 			msg_print("You add the ammo to your quiver.");
 			slot = wear_ammo(o_ptr);
 
-			/* Get the item again */
-			o_ptr = &p_ptr->inventory[slot];
+			if (slot != -1)
+			{
+				/* Get the item again */
+				o_ptr = &p_ptr->inventory[slot];
 
-			/* Describe the object */
-			object_desc(o_name, o_ptr, TRUE, 3);
+				/* Describe the object */
+				object_desc(o_name, o_ptr, TRUE, 3);
 
-			/* Message */
-			msg_format("You have %s (%c).", o_name, index_to_label(slot));
+				/* Message */
+				msg_format("You have %s (%c).", o_name, index_to_label(slot));
 
-			/* Delete the object */
-			delete_object_idx(this_o_idx);
+				/* Delete the object */
+				delete_object_idx(this_o_idx);
+			}
 		}
 
 		/* Acquire next object */
@@ -6335,19 +6337,23 @@ void object_pickup(int this_o_idx)
 			slot = inven_carry(o_ptr, FALSE);
 		}
 
-		/* Get the item again */
-		o_ptr = &p_ptr->inventory[slot];
+		/* Sanity check */
+		if (slot != -1)
+		{
+			/* Get the item again */
+			o_ptr = &p_ptr->inventory[slot];
 
-		object_track(o_ptr);
+			object_track(o_ptr);
 
-		/* Describe the object */
-		object_desc(o_name, o_ptr, TRUE, 3);
+			/* Describe the object */
+			object_desc(o_name, o_ptr, TRUE, 3);
 
-		/* Message */
-		msg_format("You have %s (%c).", o_name, index_to_label(slot));
+			/* Message */
+			msg_format("You have %s (%c).", o_name, index_to_label(slot));
 
-		/* Delete the object */
-		delete_object_idx(this_o_idx);
+			/* Delete the object */
+			delete_object_idx(this_o_idx);
+		}
 	}
 }
 

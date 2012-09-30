@@ -243,6 +243,10 @@ function gen_rule_fct(r)
 			local s = find_skill_i(r[1])
 			assert(s ~= -1, "no skill "..r[1])
 			return function(object) if get_skill(%s) >= tonumber(%r.args.min) and get_skill(%s) <= tonumber(%r.args.max) then return TRUE end end
+		elseif r.label == "ability" then
+			local s = find_ability(r[1])
+			assert(s ~= -1, "no ability "..r[1])
+			return function(object) if has_ability(%s) == TRUE then return TRUE end end
 		end
 	end
 end
@@ -263,7 +267,7 @@ function gen_full_rule(t)
 	end
 
 	if not (t.args.module == game_module) then
-		return TRUE
+		return function() end
 	end
 
 	-- Check for which action to do
@@ -442,7 +446,7 @@ function auto_aux:new_rule(sel, nam, typ, arg)
 			["table"] =
 			{
 				label = "rule",
-				args = { name = nam, type = typ, inscription = arg },
+				args = { name = nam, type = typ, inscription = arg, module = game_module },
 			},
 			["fct"] = function (object) end
 		}
@@ -452,7 +456,7 @@ function auto_aux:new_rule(sel, nam, typ, arg)
 			["table"] =
 			{
 				label = "rule",
-				args = { name = nam, type = typ },
+				args = { name = nam, type = typ, module = game_module },
 			},
 			["fct"] = function (object) end
 		}
@@ -721,6 +725,17 @@ auto_aux.types_desc =
 
 			return xml:collect(s)
 	       	end,
+	},
+	["ability"] =
+	{
+		"Check is true if player has the ability",
+		xml:collect([[<ability>Ammo creation</ability>]]),
+		function()
+			local n = input_box("Ability name?", 79)
+			if n == "" then return end
+			if find_ability(n) == -1 then return end
+			return xml:collect("<ability>"..n.."</ability>")
+		end,
 	},
 }
 

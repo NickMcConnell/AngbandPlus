@@ -1486,7 +1486,7 @@ static void fix_m_list(void)
 				o_ptr = &o_list[m_ptr->hold_o_idx];
 
 				/* Memorized objects */
-				if (o_ptr->marked) continue;
+				if (!o_ptr->marked) continue;
 			}
 			else
 			{
@@ -3290,9 +3290,9 @@ void calc_bonuses(bool silent)
 	if (p_ptr->tim_roots)
 	{
 		set_stun(0);
-		p_ptr->to_d_melee += p_ptr->tim_roots;
-		p_ptr->to_a += p_ptr->tim_roots;
-		p_ptr->dis_to_a += p_ptr->tim_roots;
+		p_ptr->to_d_melee += p_ptr->tim_roots_dam;
+		p_ptr->to_a += p_ptr->tim_roots_ac;
+		p_ptr->dis_to_a += p_ptr->tim_roots_ac;
 	}
 
 	/* Temporary "Beserk" */

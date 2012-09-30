@@ -57,3 +57,12 @@ otherwise) or grant some very powerful attacks and summons.
 Their "spells" are used by the 'm' command; as their Symbiosis skill
 raises, they automatically gain more powers.
 For more detail about the specific powers, look here: *****m_symbio.txt*0[Symbiosis]
+~~~~~03|Symbiant|Naming your symbiote
+#####GNaming your symbiote
+For those sentimental Symbiants who like to name your symbiotes, you 
+can use the Inscribe command '{'. Inscribe your hypnotized symbiote 
+with "#named Fido" (or whatever name you choose, but don't forget the 
+leading '#'), and it will be listed in your equipment as "a Red Mold 
+named Fido", and the game will refer to your symbiote by name ("Fido 
+is healed", for instance, rather than "Your Red mold is healed").
+

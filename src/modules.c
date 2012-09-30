@@ -28,18 +28,39 @@ void module_reset_dir(cptr dir, cptr new_path)
 	if (!strcmp(dir, "help")) d = &ANGBAND_DIR_HELP;
 	if (!strcmp(dir, "info")) d = &ANGBAND_DIR_INFO;
 	if (!strcmp(dir, "note")) d = &ANGBAND_DIR_NOTE;
-	if (!strcmp(dir, "save")) d = &ANGBAND_DIR_SAVE;
 	if (!strcmp(dir, "scpt")) d = &ANGBAND_DIR_SCPT;
 	if (!strcmp(dir, "patch")) d = &ANGBAND_DIR_PATCH;
 	if (!strcmp(dir, "pref")) d = &ANGBAND_DIR_PREF;
 	if (!strcmp(dir, "user")) d = &ANGBAND_DIR_USER;
 	if (!strcmp(dir, "xtra")) d = &ANGBAND_DIR_XTRA;
+#ifndef PRIVATE_USER_PATH
+	if (!strcmp(dir, "save")) d = &ANGBAND_DIR_SAVE;
+#else /* PRIVATE_USER_PATH */
+	if (!strcmp(dir, "save"))
+	{
+		d = &ANGBAND_DIR_SAVE;
 
-	/* Build the new path */
-	strnfmt(buf, 1024, "%s%s%s%s%s", ANGBAND_DIR_MODULES, PATH_SEP, new_path, PATH_SEP, dir);
-
-	string_free(*d);
-	*d = string_make(buf);
+		/* Build the new path */
+		strnfmt(buf, 1024, "%s%s%s", ANGBAND_DIR_SAVE, PATH_SEP, new_path);
+		
+		string_free(*d);
+		*d = string_make(buf);
+		
+		/* Make it if needed */
+		if (!private_check_user_directory(*d)) quit(format("Unable to create module save dir %s\n", *d));
+		
+		/* Tell the savefile code that we must not use setuid */
+		savefile_setuid = FALSE;
+	}
+	else
+#endif /* PRIVATE_USER_PATH */
+	{
+		/* Build the new path */
+		strnfmt(buf, 1024, "%s%s%s%s%s", ANGBAND_DIR_MODULES, PATH_SEP, new_path, PATH_SEP, dir);
+		
+		string_free(*d);
+		*d = string_make(buf);
+	}
 }
 
 static void dump_modules(int sel, int max)

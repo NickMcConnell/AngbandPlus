@@ -1,12 +1,60 @@
-T.o.M.E. 2.2.2 aka 'And Now For a Word' changes
+# Keys:
+#   I = Interface, M = Monster, O = Object, G = Gameplay,
+#   m = Misc, P = Player, D = Dungeon, B = Bug
 
-Misc changes:
-- Mac OS X Module support
-- Solaris compile workaround from Kevin W. Thomas
-- Valid XHTML in the HTML screenshots now -- neil
+20/07/2003
+[P]- No more involuntary corruptions
 
-Bug fixes:
-- Prevent forbidden staves from being generated
-- Really fix the God quest this time, we hope
-- Fix broken status in auto automatizer rules -- neil
-- HPUX support -- neil
+02/08/2003
+[B]- Fixed crash on 'l'ook in rare conditions, thanks slappy0042
+[B]- Fixed inflation of ammo damage display, patch by 'Zizzo' -- neil
+
+05/08/2003
+[m]- Help updates - spectres lose hp when passing walls, thieves cannot shoot
+     arrows (very well), non-geomancer mages have a 0.00 modifier to Geomancy.
+     -- fearoffours
+[m]- Help updates - typo in rm_spec.txt and High-elves have good wisdom
+     -- fearoffours.
+
+08/08/2003
+[B]- Tulkas piety gains now match the documentation -- jules
+
+10/08/2003
+[m]- helpfiles - Clearer geomancy skill values for non-Geomancer Mages, a note
+     about effect of stealing from shops in skills.txt, and some FAQ additions
+     about FF and random quests. -- fearoffours
+
+13/08/2003
+[B]- Manwe, Eru, Yavanna, and Tulkas will not yet you start following them if you
+     are wearing the One -- neil
+
+24/08/2003
+[B]- Set number of charges correctly when a wand is stolen -- neil
+
+26/08/2003
+[m]- Scott Bigham's tome-autoabil.diff:  Adds a new automatizer class
+     <ability>, which is true when you have the given ability -- neil
+
+27/08/2003
+[m]- Riscos support thanks to Antony Sidwell
+
+30/08/2003
+[m]- Savefiles are now stores in ~/.tome/save[/modulename] on multiuser systems
+[m]- Apply patches based on those from FreeBSD ports -- neil
+
+06/09/2003
+[O]- Beaked Axes, Battle Axes and Lochaber Axes are recognized as polearms
+     again. -- neil
+[O]- Misleading "polearm" description removed from non-polearm
+     Quarterstaff -- neil
+
+14/09/2003
+[m]- Added help for 'repeat last command' to command.txt. -- fearoffours
+
+15/09/2003
+[B]- Fixed autopickup of ammo crash under some circumstances
+[B]- Fix monster list mimic bug
+[B]- Tree Roots incorrect bonuses fixed
+[B]- Fixed incorrect display of some skill bonuses
+
+[V]  T.o.M.E 2.2.3 aka 'The Quality of Mercy'

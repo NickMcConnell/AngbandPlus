@@ -154,10 +154,10 @@ CC = gcc
 #
 COPTS = -Wall -O1 -pipe -g
 INCLUDES = -I/usr/X11R6/include
-DEFINES = -DUSE_X11 -DUSE_GCU \
+DEFINES = -DUSE_X11 \
 	-DUSE_EGO_GRAPHICS -DUSE_TRANSPARENCY -DSUPPORT_GAMMA \
 	-DUSE_PRECISE_CMOVIE -DUSE_UNIXSOCK
-LIBS = -lX11 -lcurses -L/usr/X11R6/lib
+LIBS = -lX11 -L/usr/X11R6/lib
 
 
 
@@ -329,7 +329,7 @@ BASESRCS = \
   help.c \
   generate.c gen_maze.c gen_evol.c wild.c levels.c store.c bldg.c \
   cmovie.c irc.c \
-  wizard2.c init2.c birth.c wizard1.c init1.c main.c 
+  wizard2.c init2.c birth.c wizard1.c init1.c main.c
 
 BASEOBJS = \
   main-gtk.o main-gcu.o main-x11.o main-xaw.o main-sdl.o \
@@ -345,7 +345,7 @@ BASEOBJS = \
   help.o \
   generate.o gen_maze.o gen_evol.o wild.o levels.o store.o bldg.o \
   cmovie.o irc.o \
-  wizard2.o init2.o birth.o wizard1.o init1.o main.o 
+  wizard2.o init2.o birth.o wizard1.o init1.o main.o
 
 LUASRCS = \
   script.c lua_bind.c \
@@ -471,7 +471,7 @@ install: default
 #
 
 clean:
-	rm -f *.bak *.o
+	rm -f *.bak *.o lua/*.o
 
 
 #

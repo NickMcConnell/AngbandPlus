@@ -3550,7 +3550,7 @@ int load_savefile_names()
 #ifdef SAVEFILE_USE_UID
 	strnfmt(tmp, 50, "user.%d.svg", player_uid);
 #else
-strcpy(tmp, "global.svg");
+	strcpy(tmp, "global.svg");
 #endif /* SAVEFILE_USE_UID */
 	path_build(buf, 1024, ANGBAND_DIR_SAVE, tmp);
 
@@ -3558,13 +3558,13 @@ strcpy(tmp, "global.svg");
 	FILE_TYPE(FILE_TYPE_TEXT);
 
 	/* Grab permission */
-	safe_setuid_grab();
+	if (savefile_setuid) safe_setuid_grab();
 
 	/* Read the file */
 	fff = my_fopen(buf, "r");
 
 	/* Drop permission */
-	safe_setuid_drop();
+	if (savefile_setuid) safe_setuid_drop();
 
 	/* Failure */
 	if (!fff) return (0);
@@ -3637,13 +3637,13 @@ strcpy(tmp, "global.svg");
 		FILE_TYPE(FILE_TYPE_SAVE);
 
 		/* Grab permission */
-		safe_setuid_grab();
+		if (savefile_setuid) safe_setuid_grab();
 
 		/* Try to open the savefile */
 		fd = fd_open(savefile, O_RDONLY);
 
 		/* Drop permission */
-		safe_setuid_drop();
+		if (savefile_setuid) safe_setuid_drop();
 
 		/* Still existing ? */
 		if (fd >= 0)
@@ -3686,13 +3686,13 @@ void save_savefile_names()
 	FILE_TYPE(FILE_TYPE_TEXT);
 
 	/* Grab permission */
-	safe_setuid_grab();
+	if (savefile_setuid) safe_setuid_grab();
 
 	/* Read the file */
 	fff = my_fopen(buf, "w");
 
 	/* Drop permission */
-	safe_setuid_drop();
+	if (savefile_setuid) safe_setuid_drop();
 
 	/* Failure */
 	if (!fff) return;
@@ -3855,13 +3855,13 @@ savefile_try_again:
 			process_player_name(TRUE);
 
 			/* Grab permission */
-			safe_setuid_grab();
+			if (savefile_setuid) safe_setuid_grab();
 
 			/* Remove the savefile */
 			fd_kill(savefile);
 
 			/* Drop permission */
-			safe_setuid_drop();
+			if (savefile_setuid) safe_setuid_drop();
 
 			/* Restore 'player_base' and 'savefile' */
 			strncpy(player_base, player_base_save, 32);

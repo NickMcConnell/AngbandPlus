@@ -44,7 +44,7 @@ drop me a line please) in no particular order:
 - John Gilmore for alchemy improvements patch
 - Massimiliano Marangio for lots and lots of help updates, typo corrections, 
   bug fixes etc.
-- Neil Stevens <neil@qualityassistant.com> for some polishing
+- Neil Stevens <neil@hakubi.us> for some polishing
 - Jeff Epler for automatizer improvements, and certainly more in the future ;)
 - Scott Bigham for some cool patches
 - Magua(magua@speakeasy.net) who wrote the java applet to play cmovies online

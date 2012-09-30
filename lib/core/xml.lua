@@ -198,6 +198,21 @@ function xml:english_xml(t, tab, not_flag)
 		xml.write(TERM_WHITE, tostring(t.args.max))
 		xml.write(TERM_WHITE, "\n")
 	    end
+	elseif t.label == "ability" then
+	    local s = t[1]
+	    if not_flag then
+		xml.write(TERM_WHITE, tab)
+		xml.write(ecol, "You do not have the ")
+		xml.write(bcol, s)
+		xml.write(ecol, " ability")
+		xml.write(TERM_WHITE, "\n")
+	    else
+		xml.write(TERM_WHITE, tab)
+		xml.write(ecol, "You have the ")
+		xml.write(bcol, s)
+		xml.write(ecol, " ability")
+		xml.write(TERM_WHITE, "\n")
+	    end
 	elseif t.label == "level" then
 	    if not_flag then
 		xml.write(TERM_WHITE, tab)

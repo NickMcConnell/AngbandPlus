@@ -110,7 +110,7 @@ bool quest_thieves_hook(char *fmt)
 		return (FALSE);
 	}
 	return FALSE;
-};
+}
 bool quest_thieves_finish_hook(char *fmt)
 {
 	s32b q_idx;

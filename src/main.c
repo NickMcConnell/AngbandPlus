@@ -10,6 +10,11 @@
 
 #include "angband.h"
 
+/* Use runtime location of lib directory */
+#ifdef ENABLE_BINRELOC
+#include "prefix.h"
+#endif
+
 
 /*
  * Some machines have a "main()" function in their "main-xxx.c" file,
@@ -64,23 +69,14 @@ extern unsigned _ovrbuffer = 0x1500;
 #ifdef PRIVATE_USER_PATH
 
 /*
- * Check existence of ".ToME/" directory in the user's
- * home directory or try to create it if it doesn't exist.
- * Returns FALSE if all the attempts fail.
+ * Check and create if needed the directory dirpath
  */
-static bool check_create_user_dir(void)
+bool private_check_user_directory(cptr dirpath)
 {
-	char dirpath[1024];
-
 	/* Is this used anywhere else in *bands? */
 	struct stat stat_buf;
 
 	int ret;
-
-
-	/* Get an absolute path from the filename */
-	path_parse(dirpath, 1024, PRIVATE_USER_PATH);
-
 
 	/* See if it already exists */
 	ret = stat(dirpath, &stat_buf);
@@ -94,7 +90,7 @@ static bool check_create_user_dir(void)
 		/*
 		 * Something prevents us from create a directory with
 		 * the same pathname
-		 */ 
+		 */
 		return (FALSE);
 	}
 
@@ -110,6 +106,24 @@ static bool check_create_user_dir(void)
 		/* Success */
 		return (TRUE);
 	}
+}
+
+/*
+ * Check existence of ".ToME/" directory in the user's
+ * home directory or try to create it if it doesn't exist.
+ * Returns FALSE if all the attempts fail.
+ */
+static bool check_create_user_dir(void)
+{
+	char dirpath[1024];
+	char savepath[1024];
+
+	/* Get an absolute path from the filename */
+	path_parse(dirpath, 1024, PRIVATE_USER_PATH);
+	strcpy(savepath, dirpath);
+	strcat(savepath, "/save");
+
+	return private_check_user_directory(dirpath) && private_check_user_directory(savepath);
 }
 
 #endif /* PRIVATE_USER_PATH */
@@ -150,7 +164,11 @@ static void init_stuff(void)
 	tail = getenv("ANGBAND_PATH");
 
 	/* Use the angband_path, or a default */
+#ifndef ENABLE_BINRELOC
 	strcpy(path, tail ? tail : DEFAULT_PATH);
+#else /* Runtime lookup of location */
+	strcpy(path, br_strcat(DATADIR, "/tome/lib"));
+#endif
 
 	/* Hack -- Add a path separator (only if needed) */
 	if (!suffix(path, PATH_SEP)) strcat(path, PATH_SEP);
@@ -321,11 +339,6 @@ int main(int argc, char *argv[])
 	/* Default permissions on files */
 	(void)umask(022);
 
-# ifdef SECURE
-	/* Authenticate */
-	Authenticate();
-# endif  /* SECURE */
-
 #endif /* SET_UID */
 
 
@@ -351,7 +364,7 @@ int main(int argc, char *argv[])
 	player_euid = geteuid();
 	player_egid = getegid();
 
-# endif 
+# endif
 
 # if 0	/* XXX XXX XXX */
 

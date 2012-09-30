@@ -56,9 +56,9 @@ void safe_setuid_drop(void)
 			quit("setregid(): cannot set permissions correctly!");
 		}
 
-# endif 
+# endif
 
-# endif 
+# endif
 
 #endif
 	}
@@ -1814,6 +1814,9 @@ void player_flags(u32b *f1, u32b *f2, u32b *f3, u32b *f4, u32b *f5, u32b *esp)
 
 	if (get_skill(SKILL_DAEMON) > 20) (*f2) |= TR2_RES_CONF;
 	if (get_skill(SKILL_DAEMON) > 30) (*f2) |= TR2_RES_FEAR;
+	if (get_skill(SKILL_MINDCRAFT) >= 40) (*esp) |= ESP_ALL;
+	if (p_ptr->melee_style == SKILL_HAND && get_skill(SKILL_HAND) > 24 && !monk_heavy_armor())
+		(*f2) |= TR2_FREE_ACT;
 
 	/* Classes */
 	for (i = 1; i <= p_ptr->lev; i++)
@@ -4631,7 +4634,7 @@ void process_player_base()
 {
 	char temp[128];
 
-#ifdef SAVEFILE_USE_UID
+#if defined(SAVEFILE_USE_UID) && !defined(PRIVATE_USER_PATH)
 	/* Rename the savefile, using the player_uid and player_base */
 	(void)sprintf(temp, "%d.%s", player_uid, player_base);
 #else

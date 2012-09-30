@@ -2474,6 +2474,12 @@ void store_stole(void)
 		   an infinite money supply */
 		j_ptr->discount = 100;
 
+		if (o_ptr->tval == TV_WAND)
+		{
+			j_ptr->pval = o_ptr->pval * amt / o_ptr->number;
+			o_ptr->pval -= j_ptr->pval;
+		}
+
 		/* Describe the transaction */
 		object_desc(o_name, j_ptr, TRUE, 3);
 

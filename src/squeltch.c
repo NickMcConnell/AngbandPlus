@@ -154,6 +154,7 @@ static cptr types_list[] =
 	"class",
 	"level",
 	"skill",
+	"ability",
 	"comment",
 	NULL,
 };

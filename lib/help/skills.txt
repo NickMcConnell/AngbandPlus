@@ -56,7 +56,11 @@ At the end of each skill is a pair of numbers. The first represents your
 current level of knowledge in the skill, and the second how much an advance
 in this knowledge investing one skill point in this skill would produce. So,
 in the above example, if the player invested one skillpoint in their combat
-skill, the skill would increase from 02.000 to 02.800.
+skill, the skill would increase from 02.000 to 02.800. This improvement is 
+based on a fraction of a skill point. For example, a skill point put into 
+Weaponmastery raises Combat by 0.5 skill points. So a Warrior investing a skill 
+point into Weaponmastery would have his Combat skill raised by 0.5 * [0.800] 
+while a Runecrafter would have his Combat skill raised by 0.5 * [0.200].
 
 As well as this, skills are grouped together in similar types. Looking under
 the combat skill, there are subtypes of weaponmastery, archery and antimagic.
@@ -79,7 +83,7 @@ apply your new skills :).
 
 All skills have a maximum level of 50, and as long as you can learn a skill, 
 and have enough skill points to pump into it, it is theoretically possible to 
-get it to level 50 on matter what your race, class or how you leant it. 
+get it to level 50 no matter what your race, class or how you learned it. 
 
 Each skill affects you character differently. It may be worth getting one or 
 more of your characters skills to 50, it may not be worth investing [[[[[Bany] skill 
@@ -266,8 +270,11 @@ to your Sneakiness skill.
 ~~~~~19|Skills|Stealing
 [[[[[BStealing]
 This skill is a sub-skill of the Sneakiness skill. It affects your ability
-to steal items from monsters and shops. Spending 1 skill point on your
-Stealing skill adds 0.15 bonus skill points to your Sneakiness skill.
+to steal items from monsters and shops. Be careful when stealing from shops, 
+if you're caught, the shopkeeper will close his doors to you and not open 
+them again. I have heard that shop keepers do not stay in one shop forever 
+though. Spending 1 skill point on your Stealing skill adds 0.15 bonus skill 
+points to your Sneakiness skill.
 ~~~~~20|Skills|Dodging
 [[[[[BDodging]
 This skill is a sub-skill of the Sneakiness skill. It affects your ability
@@ -298,8 +305,9 @@ This skill is a sub-skill of the Magic skill. It boosts the casting level of
 any spell you are capable of casting. For example, if you have level one in
 the mana school, you could cast "Manathrust". For every two skill levels of
 Spell-power, Manathrust becomes more powerful, adding +1 casting level to the
-spell. Spending 1 skill point on your Spell-power skill adds 0.2 bonus skill
-points to your Magic skill.
+spell. Note that this is not exactly the same as certain magic items which 
+boost spell power. Spending 1 skill point on your Spell-power skill adds 0.2 
+bonus skill points to your Magic skill.
 
 [[[[[BThis skill only affects the 11 primary schools] (Mana, Earth, Air, Fire, 
 Water, Meta, Mind, Temporal, Conveyance, Divination and Nature), as well as

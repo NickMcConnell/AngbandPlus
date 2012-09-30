@@ -5,7 +5,7 @@
 extern bool quest_null_hook(int q);
 
 /******* Random Quests ********/
-extern bool is_randhero();
+extern bool is_randhero(void);
 extern bool quest_random_init_hook(int q_idx);
 
 /******* Plot main ********/

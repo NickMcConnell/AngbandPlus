@@ -5,9 +5,11 @@
 #####GDescription
 
 Another powerful undead creature: the spectre is a ghastly apparition,
-surrounded by an unearthly green glow. They exist only partially on our
-plane of existence: half-corporeal, they can pass through walls.  As
-undead, they have a firm hold on their life force, see invisible, and
+surrounded by an unearthly glow. They exist only partially on our
+plane of existence: half-corporeal, they can pass through walls, though 
+this takes requires a sacrifice of some of their life-force. As a result 
+they cannot rest whilst passing through a wall. 
+As undead, they have a firm hold on their life force, see invisible, and
 resist poison and cold. They also resist nether.  Spectres make superb
 spellcasters, but their physical form is very weak.  Like Zombies,
 Spectres gain almost no nutrition from ordinary food.

@@ -825,13 +825,13 @@ void save_dungeon(void)
 	path_build(name, 1024, ANGBAND_DIR_SAVE, tmp);
 
 	/* Grab permission */
-	safe_setuid_grab();
+	if (savefile_setuid) safe_setuid_grab();
 
 	/* Open the file */
 	fff = my_fopen(name, "wb");
 
 	/* Drop permission */
-	safe_setuid_drop();
+	if (savefile_setuid) safe_setuid_drop();
 
 #ifdef BZ_SAVES
 	bz_prep(LS_SAVE);
@@ -863,13 +863,13 @@ static bool save_player_aux(char *name)
 	FILE_TYPE(FILE_TYPE_SAVE);
 
 	/* Grab permission */
-	safe_setuid_grab();
+	if (savefile_setuid) safe_setuid_grab();
 
 	/* Create the savefile */
 	fd = fd_make(name, mode);
 
 	/* Drop permission */
-	safe_setuid_drop();
+	if (savefile_setuid) safe_setuid_drop();
 
 	/* File is okay */
 	if (fd >= 0)
@@ -878,13 +878,13 @@ static bool save_player_aux(char *name)
 		(void)fd_close(fd);
 
 		/* Grab permission */
-		safe_setuid_grab();
+		if (savefile_setuid) safe_setuid_grab();
 
 		/* Open the savefile */
 		fff = my_fopen(name, "wb");
 
 		/* Drop permission */
-		safe_setuid_drop();
+		if (savefile_setuid) safe_setuid_drop();
 
 #ifdef BZ_SAVES
 		bz_prep(LS_SAVE);
@@ -911,13 +911,13 @@ static bool save_player_aux(char *name)
 		if (!ok)
 		{
 			/* Grab permission */
-			safe_setuid_grab();
+			if (savefile_setuid) safe_setuid_grab();
 
 			/* Remove "broken" files */
 			(void)fd_kill(name);
 
 			/* Drop permission */
-			safe_setuid_drop();
+			if (savefile_setuid) safe_setuid_drop();
 		}
 	}
 
@@ -943,17 +943,6 @@ bool save_player(void)
 #endif /* SAFER PANICS */
 
 
-#ifdef SET_UID
-
-#ifdef SECURE
-
-	/* Get "games" permissions */
-	beGames();
-
-#endif
-
-#endif
-
 #ifdef SAFER_PANICS
 	if (panic_save)
 	{
@@ -965,21 +954,16 @@ bool save_player(void)
 		strcat(panicsave, ".pnc");
 
 		/* Grab permission */
-		safe_setuid_grab();
+		if (savefile_setuid) safe_setuid_grab();
 
 		/* Remove any old panic saves */
 		fd_kill(panicsave);
 
 		/* Drop permission */
-		safe_setuid_drop();
+		if (savefile_setuid) safe_setuid_drop();
 
 		/* Save character */
 		save_player_aux(panicsave);
-
-#ifdef SECURE
-		/* Drop "games" permissions */
-		bePlayer();
-#endif /* SECURE */
 
 		return TRUE;
 	}
@@ -997,13 +981,13 @@ bool save_player(void)
 #endif /* VM */
 
 	/* Grab permission */
-	safe_setuid_grab();
+	if (savefile_setuid) safe_setuid_grab();
 
 	/* Remove it */
 	fd_kill(safe);
 
 	/* Drop permission */
-	safe_setuid_drop();
+	if (savefile_setuid) safe_setuid_drop();
 
 	/* Attempt to save the player */
 	if (save_player_aux(safe))
@@ -1021,7 +1005,7 @@ bool save_player(void)
 #endif /* VM */
 
 		/* Grab permission */
-		safe_setuid_grab();
+		if (savefile_setuid) safe_setuid_grab();
 
 		/* Remove it */
 		fd_kill(temp);
@@ -1036,7 +1020,7 @@ bool save_player(void)
 		fd_kill(temp);
 
 		/* Drop permission */
-		safe_setuid_drop();
+		if (savefile_setuid) safe_setuid_drop();
 
 		/* Hack -- Pretend the character was loaded */
 		character_loaded = TRUE;
@@ -1048,29 +1032,19 @@ bool save_player(void)
 		strcat(temp, ".lok");
 
 		/* Grab permission */
-		safe_setuid_grab();
+		if (savefile_setuid) safe_setuid_grab();
 
 		/* Remove lock file */
 		fd_kill(temp);
 
 		/* Drop permission */
-		safe_setuid_drop();
+		if (savefile_setuid) safe_setuid_drop();
 
 #endif
 
 		/* Success */
 		result = TRUE;
 	}
-
-
-#ifdef SET_UID
-#ifdef SECURE
-
-	/* Drop "games" permissions */
-	bePlayer();
-
-#endif /* SECURE */
-#endif /* SET_UID */
 
 	save_savefile_names();
 
@@ -1083,21 +1057,14 @@ bool file_exist(char *buf)
 	int fd;
 	bool result;
 
-#ifdef SET_UID
-#ifdef SECURE
-	/* Set "games" permissions */
-	beGames();
-#endif /* SECURE */
-#endif /* SET_UID */
-
 	/* Grab permission */
-	safe_setuid_grab();
+	if (savefile_setuid) safe_setuid_grab();
 
 	/* Open savefile */
 	fd = fd_open(buf, O_RDONLY);
 
 	/* Drop permission */
-	safe_setuid_drop();
+	if (savefile_setuid) safe_setuid_drop();
 
 	/* File exists */
 	if (fd >= 0)
@@ -1108,12 +1075,6 @@ bool file_exist(char *buf)
 	else
 		result = FALSE;
 
-#ifdef SET_UID
-#ifdef SECURE
-	/* Drop "games" permissions */
-	bePlayer();
-#endif /* SECURE */
-#endif /* SET_UID */ 
 	return result;
 }
 
@@ -1205,13 +1166,13 @@ bool load_player(void)
 		strcat(temp, ".lok");
 
 		/* Grab permission */
-		safe_setuid_grab();
+		if (savefile_setuid) safe_setuid_grab();
 
 		/* Check for lock */
 		fkk = my_fopen(temp, "r");
 
 		/* Drop permission */
-		safe_setuid_drop();
+		if (savefile_setuid) safe_setuid_drop();
 
 		/* Oops, lock exists */
 		if (fkk)
@@ -1228,13 +1189,13 @@ bool load_player(void)
 		}
 
 		/* Grab permission */
-		safe_setuid_grab();
+		if (savefile_setuid) safe_setuid_grab();
 
 		/* Create a lock file */
 		fkk = my_fopen(temp, "w");
 
 		/* Drop permission */
-		safe_setuid_drop();
+		if (savefile_setuid) safe_setuid_drop();
 
 		/* Dump a line of info */
 		fprintf(fkk, "Lock file for savefile '%s'\n", savefile);
@@ -1250,13 +1211,13 @@ bool load_player(void)
 	if (!err)
 	{
 		/* Grab permission */
-		safe_setuid_grab();
+		if (savefile_setuid) safe_setuid_grab();
 
 		/* Open the savefile */
 		fd = fd_open(savefile, O_RDONLY);
 
 		/* Drop permission */
-		safe_setuid_drop();
+		if (savefile_setuid) safe_setuid_drop();
 
 		/* No file */
 		if (fd < 0) err = -1;
@@ -1268,13 +1229,13 @@ bool load_player(void)
 #ifdef SAFER_PANICS
 
 	/* Grab permission */
-	safe_setuid_grab();
+	if (savefile_setuid) safe_setuid_grab();
 
 	/* Open panic save file */
 	testfd = fd_open(panic_fname, O_RDONLY);
 
 	/* Drop permission */
-	safe_setuid_drop();
+	if (savefile_setuid) safe_setuid_drop();
 
 	fd_close(testfd);
 
@@ -1287,13 +1248,13 @@ bool load_player(void)
 		fd_close(fd);
 
 		/* Grab permission */
-		safe_setuid_grab();
+		if (savefile_setuid) safe_setuid_grab();
 
 		/* Prefer panic saves over real saves */
 		fd = fd_open(panic_fname, O_RDONLY);
 
 		/* Drop permission */
-		safe_setuid_drop();
+		if (savefile_setuid) safe_setuid_drop();
 
 		/* This is not the error if we're at this pt */
 		what = "";
@@ -1306,7 +1267,7 @@ bool load_player(void)
 	if (!err)
 	{
 		/* Grab permission */
-		safe_setuid_grab();
+		if (savefile_setuid) safe_setuid_grab();
 
 #ifdef VERIFY_TIMESTAMP
 
@@ -1316,10 +1277,11 @@ bool load_player(void)
 #endif
 
 		/* Open the file XXX XXX XXX XXX Should use Angband file interface */
-		fff = fdopen(fd, "r");
+		fff = my_fopen(savefile, "rb");
+/*		fff = fdopen(fd, "r"); */
 
 		/* Drop permission */
-		safe_setuid_drop();
+		if (savefile_setuid) safe_setuid_drop();
 
 #ifdef BZ_SAVES
 		bz_prep(LS_LOAD);
@@ -1334,7 +1296,8 @@ bool load_player(void)
 #endif /* BZ_SAVES */
 
 		/* XXX XXX XXX XXX Should use Angband file interface */
-		fclose(fff);
+		my_fclose(fff);
+		/* fclose(fff) */
 
 		/* Close the file */
 		fd_close(fd);
@@ -1441,7 +1404,7 @@ bool load_player(void)
 		if (panicload)
 		{
 			/* Grab permission */
-			safe_setuid_grab();
+			if (savefile_setuid) safe_setuid_grab();
 
 			/*
 			 * Done loading, it'll either immediately panic and re-save, or
@@ -1451,7 +1414,7 @@ bool load_player(void)
 			fd_kill(panic_fname);
 
 			/* Drop permission */
-			safe_setuid_drop();
+			if (savefile_setuid) safe_setuid_drop();
 		}
 #endif /* SAFER_PANICS */
 
@@ -1472,13 +1435,13 @@ bool load_player(void)
 		strcat(temp, ".lok");
 
 		/* Grab permission */
-		safe_setuid_grab();
+		if (savefile_setuid) safe_setuid_grab();
 
 		/* Remove lock */
 		fd_kill(temp);
 
 		/* Drop permission */
-		safe_setuid_drop();
+		if (savefile_setuid) safe_setuid_drop();
 	}
 
 #endif
@@ -2977,13 +2940,13 @@ bool load_dungeon(char *ext)
 	path_build(name, 1024, ANGBAND_DIR_SAVE, tmp);
 
 	/* Grab permission */
-	safe_setuid_grab();
+	if (savefile_setuid) safe_setuid_grab();
 
 	/* Open the file */
 	fff = my_fopen(name, "rb");
 
 	/* Drop permission */
-	safe_setuid_drop();
+	if (savefile_setuid) safe_setuid_drop();
 
 	if (fff == NULL)
 	{
@@ -3551,13 +3514,13 @@ errr rd_savefile(void)
 #endif /* SAFER_PANICS */
 
 		/* Grab permission */
-		safe_setuid_grab();
+		if (savefile_setuid) safe_setuid_grab();
 
 		/* The savefile is a binary file */
 		fff = my_fopen(savefile, "rb");
 
 		/* Drop permission */
-		safe_setuid_drop();
+		if (savefile_setuid) safe_setuid_drop();
 
 #ifdef BZ_SAVES
 		bz_prep(LS_LOAD);
@@ -3571,13 +3534,13 @@ errr rd_savefile(void)
 		strcat(panic_fname, ".pnc");
 
 		/* Grab permission */
-		safe_setuid_grab();
+		if (savefile_setuid) safe_setuid_grab();
 
 		/* Open panic save file */
 		fff = my_fopen(panic_fname, "rb");
 
 		/* Drop permission */
-		safe_setuid_drop();
+		if (savefile_setuid) safe_setuid_drop();
 
 #ifdef BZ_SAVES
 		if (fff)
