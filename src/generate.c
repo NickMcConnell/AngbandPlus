@@ -412,6 +412,9 @@ static bool cave_gen(void)
 	if (max_hgt - min_hgt < 23) max_vault_ok--;
 	if (max_wid - min_wid < 34) max_vault_ok--;
 
+	/* Hack - no vaults in moria mode */
+	if (ironman_moria) max_vault_ok = 0;
+
 	/* Randomize the dungeon creation values */
 	dun_rooms = rand_range(DUN_ROOMS_MIN, DUN_ROOMS_MAX);
 	dun_tun_rnd = rand_range(DUN_TUN_RND_MIN, DUN_TUN_RND_MAX);
@@ -570,9 +573,19 @@ static bool cave_gen(void)
 
 				/* Type 6 -- Monster pit (5%) */
 				if ((k < 36) && room_build(y, x, 6)) continue;
-
+				
 				/* Type 10 -- Random vault (11%) */
-				if ((k < 47) && room_build(y, x, 10)) continue;
+				if (k < 47)
+				{
+					if (max_vault_ok > 0)
+					{
+						if (room_build(y, x, 10)) continue;
+					}
+					else
+					{
+						if (cheat_room) msg_print("Refusing a random vault.");
+					}
+				}
 #endif
 
 			}

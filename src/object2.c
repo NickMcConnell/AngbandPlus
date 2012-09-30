@@ -1318,6 +1318,9 @@ void distribute_charges(object_type *o_ptr, object_type *q_ptr, int amt)
 {
 	int new_charges;
 
+	/* Paranoia */
+	if (!o_ptr->number) return;
+
 	/*
 	 * Hack -- If rods or wands are dropped, the total maximum timeout or
 	 * charges needs to be allocated between the two stacks.  If all the items
@@ -1528,9 +1531,6 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
 
 			/* Require identical "pval" code */
 			if (o_ptr->pval != j_ptr->pval) return (FALSE);
-
-			/* Artifacts + Ego items never stack */
-			if (o_ptr->xtra_name || j_ptr->xtra_name) return (FALSE);
 
 			/* Hack -- Never stack recharging items */
 			if (o_ptr->timeout || j_ptr->timeout) return (FALSE);
@@ -1996,7 +1996,7 @@ static byte get_ego_num(int level)
 
 
 	/* Pick an ego item */
-	value = randint0(total);
+	value = randint1(total);
 
 	/* Find the ego item */
 	for (i = 0; i < alloc_ego_size; i++)

@@ -840,18 +840,60 @@ void carry(int pickup)
 			/* Pick up the item (if requested and allowed) */
 			else
 			{
-				int okay = TRUE;
-
 				/* Hack -- query every item */
 				if (carry_query_flag)
 				{
+					int i;
 					char out_val[160];
-					sprintf(out_val, "Pick up %s? ", o_name);
-					okay = get_check(out_val);
-				}
+					
+					/* Paranoia XXX XXX XXX */
+					msg_print(NULL);
+					
+					sprintf(out_val, "Pick up %s? [y/n/k] ", o_name);
+					
+					/* Prompt for it */
+					prt(out_val, 0, 0);
 
+					/* Get an acceptable answer */
+					while (TRUE)
+					{
+						i = inkey();
+						if (quick_messages) break;
+						if (i == ESCAPE) break;
+						if (strchr("YyNnKk", i)) break;
+						bell();
+					}
+
+					/* Erase the prompt */
+					prt("", 0, 0);
+					
+					if ((i == 'Y') || (i == 'y'))
+					{
+						/* Pick up the object */
+						py_pickup_aux(this_o_idx);
+					}
+					
+					if ((i == 'K') || (i == 'k'))
+					{
+						/* Artifact? */
+						if (!can_player_destroy_object(o_ptr))
+						{
+							/* Describe the object (with {terrible/special}) */
+							object_desc(o_name, o_ptr, TRUE, 3);
+
+							/* Message */
+							msg_format("You cannot destroy the %s.", o_name);
+						}
+						else
+						{
+							/* Destroy the object */
+							delete_object_idx(this_o_idx);
+						}
+					}
+				}
+				
 				/* Attempt to pick up an object. */
-				if (okay)
+				else
 				{
 					/* Pick up the object */
 					py_pickup_aux(this_o_idx);

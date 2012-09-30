@@ -2078,7 +2078,7 @@ bool alloc_monster(int dis, bool slp)
 	cave_type	*c_ptr;
 
 	/* Find a legal, distant, unoccupied, space */
-	while (attempts_left--)
+	while (--attempts_left)
 	{
 		/* Pick a location */
 		y = rand_range(min_hgt, max_hgt - 1);

@@ -2,6 +2,41 @@ This is a document file listing the changes in Zangband (compared to
 the standard Angband 2.8.1.) No long explanations, just a list. See
 code for details. In reversed chronological order (more or less):
 
+ZAngband 2.5.4:
+- Tweaked the initial towns and their surroundings to make them more
+  hospitable to starting characters.
+- Tweaked item distribution to make weapons more common in the deeper
+  dungeon and bad items less common generally.
+- Neither vaults nor random artifacts will be generated when in
+  ironman_moria mode.
+- Changed the pick-up prompt to (y/n/k) where 'k' will destroy the
+  item.
+- Water in the wilderness is no longer lit at night.
+- If an invisible monster drops a corpse when killed, the kill counter
+  is incremented.
+- Added additional shopkeepers for each special building.
+- Added additional context sensitive help for the birth process and for
+  debugging commands. Minor fixes and updates to the help files.
+- Added an experimental main-xpj.c file which uses a projected 3d
+  view (pre-alpha, do not use).
+- Added Debian and OpenBSD (needs testing) options to the standard
+  makefile.
+- Updated mask.bmp and the graphics pref files.
+- Fixed an error in the calculation of activation energy for magical
+  devices.
+- Fixed some loopholes in the imnplementation of the recall code.
+- Fixed a bug which prevented ego ammo from stacking properly.
+- Fixed a bug with the graphics tiles for shop and building doors.
+- Fixed a bug allowing <Weapons> of Resist Acid to be created.
+- Fixed a bug with the ancestral kill count.
+- Fixed a problem with roguelike commands in the special buildings.
+- Fixed the bug which occasionally crashed the game when monsters
+  stole from the player.
+- Fixed the mutatalist so it shows you the altered prices as you gain
+  and lose mutations.
+- The Cygwin makefile will now produce executables that work without the
+  "cygwin1.dll".
+
 ZAngband 2.5.3:
 - Added roads between the towns to the wilderness.
 - Added lakes (of various kinds) to the wilderness.

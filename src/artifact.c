@@ -813,7 +813,8 @@ static int random_slay(object_type *o_ptr, int artifact_bias)
 	else if (artifact_bias == BIAS_ROGUE && (o_ptr->tval != TV_BOW))
 	{
 		if ((((o_ptr->tval == TV_SWORD) && (o_ptr->sval == SV_DAGGER)) ||
-		     ((o_ptr->tval == TV_POLEARM) && (o_ptr->sval == SV_SPEAR))) &&
+		     ((o_ptr->tval == TV_POLEARM) && (o_ptr->sval == SV_SPEAR)) ||
+			 ((o_ptr->tval == TV_POLEARM) && (o_ptr->sval == SV_HATCHET))) &&
 			 !(o_ptr->flags2 & TR2_THROW))
 		{
 			/* Free power for rogues... */
@@ -1385,6 +1386,9 @@ bool create_artifact(object_type *o_ptr, bool a_scroll)
 	int     warrior_artifact_bias = 0;
 	int		artifact_bias = 0;
 
+	/* Moria had no artifacts */
+	if (ironman_moria) return (FALSE);
+	
 	/* No activation yet */
 	o_ptr->activate = 0;
 

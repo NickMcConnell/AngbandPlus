@@ -741,7 +741,12 @@ static byte choose_realm(byte choices)
 		}
 		k = (islower(c) ? A2I(c) : -1);
 		if ((k >= 0) && (k < n)) break;
-		if (c == '?') do_cmd_help();
+		if (c == '?')
+		{
+			screen_save();
+			show_file("magic.txt#MagicRealms", NULL, 0, 0);
+			screen_load();
+		}
 		else if (c == '=')
 		{
 			screen_save();
@@ -1969,7 +1974,12 @@ static bool get_player_race(void)
 		{
 			k = (islower(c) ? A2I(c) : -1);
 			if ((k >= 0) && (k < n)) break;
-			if (c == '?') do_cmd_help();
+			if (c == '?')
+			{
+				screen_save();
+				show_file("charattr.txt#TheRaces", NULL, 0, 0);
+				screen_load();
+			}
 			else if (c == '=')
 			{
 				screen_save();
@@ -2068,7 +2078,12 @@ static bool get_player_class(void)
 		}
 		k = (islower(c) ? A2I(c) : -1);
 		if ((k >= 0) && (k < n)) break;
-		if (c == '?') do_cmd_help();
+		if (c == '?')
+		{
+			screen_save();
+			show_file("charattr.txt#TheClasses", NULL, 0, 0);
+			screen_load();
+		}
 		else if (c == '=')
 		{
 			screen_save();
@@ -2194,7 +2209,12 @@ static bool player_birth_aux_1(void)
 
 		k = (islower(ch) ? A2I(ch) : -1);
 		if ((k >= 0) && (k < n)) break;
-		if (ch == '?') do_cmd_help();
+		if (ch == '?')
+		{
+			screen_save();
+			show_file("charattr.txt#TheSexes", NULL, 0, 0);
+			screen_load();
+		}
 		else if (ch == '=')
 		{
 			screen_save();
@@ -2919,7 +2939,9 @@ static bool player_birth_aux_3(void)
 			/* Help */
 			if (ch == '?')
 			{
-				do_cmd_help();
+				screen_save();
+				show_file("birth.txt#CharDisplay", NULL, 0, 0);
+				screen_load();
 				continue;
 			}
 			else if (ch == '=')

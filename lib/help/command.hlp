@@ -9,6 +9,7 @@ Please choose one of the following online help files:
     (4) Command Counts              (command.txt#CommandCounts)
     (5) Selection of Objects        (command.txt#ObjectSelection)
     (6) Command Descriptions        (commdesc.hlp)
+    (7) Wizard and Debugging Modes  (wizard.txt)
 
     (?) Help System Commands        (helpinfo.txt)
 
@@ -20,3 +21,4 @@ Please choose one of the following online help files:
 ***** [4] command.txt#CommandCounts
 ***** [5] command.txt#ObjectSelection
 ***** [6] commdesc.hlp
+***** [7] wizard.txt

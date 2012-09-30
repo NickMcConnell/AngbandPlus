@@ -513,7 +513,7 @@ static void rd_item(object_type *o_ptr)
 	}
 
 	/* Hack -- extract the "broken" flag */
-	if (!o_ptr->pval < 0) o_ptr->ident |= (IDENT_BROKEN);
+	if (o_ptr->pval < 0) o_ptr->ident |= (IDENT_BROKEN);
 	
 	if (sf_version < 19)
 	{

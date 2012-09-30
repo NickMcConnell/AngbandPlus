@@ -1,4 +1,4 @@
-# CVS: Last edit by $Author: sfuerst $ on $Date: 2000/03/28 12:55:16 $
+# CVS: Last edit by $Author: sfuerst $ on $Date: 2001/02/11 11:00:34 $
 # File: graf-x11.prf
 
 
@@ -27,7 +27,7 @@ V:31:0x01:0x60:0xF0:0x40
 
 
 # Hack -- initialization
-?:[NOT [EQU $SYS xxx]]
+?:[NOT [IOR [EQU $SYS xxx] [EQU $SYS xpj]]]
 
 # Standard file
 ?:[EQU $GRAF old]
@@ -40,3 +40,9 @@ V:31:0x01:0x60:0xF0:0x40
 
 ?:1
 
+# The projected view uses a different pref file,
+# but the same colours and fonts as main-x11
+?:[EQU $SYS xpj]
+%:graf-xpj.prf
+
+?:1

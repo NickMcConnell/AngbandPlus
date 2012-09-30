@@ -12,10 +12,10 @@
 /*
  * This file helps Angband work with UNIX/X11 computers.
  *
- * To use this file, compile with "USE_X11" defined, and link against all
+ * To use this file, compile with "USE_XPJ" defined, and link against all
  * the various "X11" libraries which may be needed.
  *
- * See also "main-xaw.c".
+ * See also "main-x11.c" and "main-xaw.c".
  *
  * Part of this file provides a user interface package composed of several
  * pseudo-objects, including "metadpy" (a display), "infowin" (a window),
@@ -26,70 +26,8 @@
  * The rest of this file is an implementation of "main-xxx.c" for X11.
  *
  * Most of this file is by Ben Harrison (benh@phial.com).
- */
-
-/*
- * The following shell script can be used to launch Angband, assuming that
- * it was extracted into "~/Angband", and compiled using "USE_X11", on a
- * Linux machine, with a 1280x1024 screen, using 6 windows (with the given
- * characteristics), with gamma correction of 1.8 -> (1 / 1.8) * 256 = 142,
- * and without graphics (add "-g" for graphics).  Just copy this comment
- * into a file, remove the leading " * " characters (and the head/tail of
- * this comment), and make the file executable.
- *
- *
- * #!/bin/csh
- *
- * # Describe attempt
- * echo "Launching angband..."
- * sleep 2
- *
- * # Main window
- * setenv ANGBAND_X11_FONT_0 10x20
- * setenv ANGBAND_X11_AT_X_0 5
- * setenv ANGBAND_X11_AT_Y_0 510
- *
- * # Message window
- * setenv ANGBAND_X11_FONT_1 8x13
- * setenv ANGBAND_X11_AT_X_1 5
- * setenv ANGBAND_X11_AT_Y_1 22
- * setenv ANGBAND_X11_ROWS_1 35
- *
- * # Inventory window
- * setenv ANGBAND_X11_FONT_2 8x13
- * setenv ANGBAND_X11_AT_X_2 635
- * setenv ANGBAND_X11_AT_Y_2 182
- * setenv ANGBAND_X11_ROWS_3 23
- *
- * # Equipment window
- * setenv ANGBAND_X11_FONT_3 8x13
- * setenv ANGBAND_X11_AT_X_3 635
- * setenv ANGBAND_X11_AT_Y_3 22
- * setenv ANGBAND_X11_ROWS_3 12
- *
- * # Monster recall window
- * setenv ANGBAND_X11_FONT_4 6x13
- * setenv ANGBAND_X11_AT_X_4 817
- * setenv ANGBAND_X11_AT_Y_4 847
- * setenv ANGBAND_X11_COLS_4 76
- * setenv ANGBAND_X11_ROWS_4 11
- *
- * # Object recall window
- * setenv ANGBAND_X11_FONT_5 6x13
- * setenv ANGBAND_X11_AT_X_5 817
- * setenv ANGBAND_X11_AT_Y_5 520
- * setenv ANGBAND_X11_COLS_5 76
- * setenv ANGBAND_X11_ROWS_5 24
- *
- * # The build directory
- * cd ~/Angband
- *
- * # Gamma correction
- * setenv ANGBAND_X11_GAMMA 142
- *
- * # Launch Angband
- * ./src/angband -mx11 -- -n6 &
- *
+ * The old main-x11.c has been changed to use 3d-projection by
+ * Steven Fuerst.
  */
 
 
@@ -97,8 +35,23 @@
 #include "angband.h"
 
 
-#ifdef USE_X11
+#ifdef USE_XPJ
 
+
+#ifndef USE_GRAPHICS
+#error Must have USE_GRAPHICS compile-time flag on.
+#endif
+
+#ifndef USE_TRANSPARENCY
+#error Must have USE_TRANSPARENCY compile-time flag on.
+#endif
+
+/* Hack - tile size for Adam Bolt tiles */
+#define P_TILE_SIZE	16
+
+/* Hack - Font size in main window */
+#undef DEFAULT_X11_FONT_0
+#define DEFAULT_X11_FONT_0		"9x15"
 
 #ifndef __MAKEDEPEND__
 #include <X11/Xlib.h>
@@ -114,10 +67,6 @@
 #include "maid-x11.c"
 
 
-/*
- * Hack -- avoid some compiler warnings
- */
-#define IGNORE_UNUSED_FUNCTIONS
 
 
 /*
@@ -329,6 +278,288 @@ struct infofnt
 
 
 
+/**** Angband data structures ****/
+
+/*
+ * Forward declare
+ */
+typedef struct term_data term_data;
+
+/*
+ * A structure for each "term"
+ */
+struct term_data
+{
+	term t;
+
+	infofnt *fnt;
+
+	infowin *win;
+
+	XImage *tiles;
+
+	/* Tempory storage for overlaying tiles. */
+	XImage *TmpImage;
+	
+	/* Tempory storage for skewing tiles. */
+	XImage *SkewImage;
+};
+
+
+/*
+ * The number of term data structures
+ */
+#define MAX_TERM_DATA 8
+
+/*
+ * The array of term data structures
+ */
+static term_data data[MAX_TERM_DATA];
+
+/* Tables used to rapidly calculate which pixel to plot */
+static u16b pj_table1[16][8];
+static u16b pj_table2[16][8];
+
+/* Bitflags used in the tables */
+
+/* Floor */
+#define PJ_T_FLOOR1		0x0001
+#define PJ_T_FLOOR2		0x0002
+
+/* Transparent Top */
+#define PJ_T_TOP_T1		0x0004
+#define PJ_T_TOP_T2		0x0008
+
+/* Diagonal walls "behind" everything */
+#define PJ_T_WALL1		0x0010
+#define PJ_T_WALL2		0x0020
+
+/* Overlaying tiles */
+#define PJ_T_OVER1		0x0040
+#define PJ_T_OVER3		0x0080
+
+/* Horizontal walls in front of overlays */
+#define PJ_T_WALLF		0x0100
+#define PJ_T_WALLB		0x0200
+
+/* Overlaying tiles */
+#define PJ_T_OVER2		0x0400
+#define PJ_T_OVER4		0x0800
+
+/* Ceiling */
+#define PJ_T_TOP1		0x1000
+#define PJ_T_TOP2		0x2000
+
+
+
+/**** Bit numbers ****/
+
+/* Floor */
+#define PJ_FLOOR1		0
+#define PJ_FLOOR2		1
+
+/* Transparent Top */
+#define PJ_TOP_T1		2
+#define PJ_TOP_T2		3
+
+/* Diagonal walls "behind" everything */
+#define PJ_WALL1		4
+#define PJ_WALL2		5
+
+/* Overlaying tiles */
+#define PJ_OVER1		6
+#define PJ_OVER3		7
+
+/* Horizontal walls in front of overlays */
+#define PJ_WALLF		8
+#define PJ_WALLB		9
+
+/* Overlaying tiles */
+#define PJ_OVER2		10
+#define PJ_OVER4		11
+
+/* Ceiling */
+#define PJ_TOP1			12
+#define PJ_TOP2			13
+
+/* Number of bits used */
+#define PJ_MAX			14
+
+static byte bit_high_lookup[256] =
+{
+	0, 1, 2, 2, 3, 3, 3, 3,
+	4, 4, 4, 4, 4, 4, 4, 4,
+	5, 5, 5, 5, 5, 5, 5, 5,
+	5, 5, 5, 5, 5, 5, 5, 5,
+	6, 6, 6, 6, 6, 6, 6, 6,
+	6, 6, 6, 6, 6, 6, 6, 6,
+	6, 6, 6, 6, 6, 6, 6, 6,
+	6, 6, 6, 6, 6, 6, 6, 6,
+	7, 7, 7, 7, 7, 7, 7, 7,
+	7, 7, 7, 7, 7, 7, 7, 7,
+	7, 7, 7, 7, 7, 7, 7, 7,
+	7, 7, 7, 7, 7, 7, 7, 7,
+	7, 7, 7, 7, 7, 7, 7, 7,
+	7, 7, 7, 7, 7, 7, 7, 7,
+	7, 7, 7, 7, 7, 7, 7, 7,
+	7, 7, 7, 7, 7, 7, 7, 7,
+	8, 8, 8, 8, 8, 8, 8, 8,
+	8, 8, 8, 8, 8, 8, 8, 8,
+	8, 8, 8, 8, 8, 8, 8, 8,
+	8, 8, 8, 8, 8, 8, 8, 8,
+	8, 8, 8, 8, 8, 8, 8, 8,
+	8, 8, 8, 8, 8, 8, 8, 8,
+	8, 8, 8, 8, 8, 8, 8, 8,
+	8, 8, 8, 8, 8, 8, 8, 8,
+	8, 8, 8, 8, 8, 8, 8, 8,
+	8, 8, 8, 8, 8, 8, 8, 8,
+	8, 8, 8, 8, 8, 8, 8, 8,
+	8, 8, 8, 8, 8, 8, 8, 8,
+	8, 8, 8, 8, 8, 8, 8, 8,
+	8, 8, 8, 8, 8, 8, 8, 8,
+	8, 8, 8, 8, 8, 8, 8, 8,
+	8, 8, 8, 8, 8, 8, 8, 8
+};
+
+static int t_offsetx1[PJ_MAX] =
+{
+	0,
+	P_TILE_SIZE,
+	P_TILE_SIZE / 2,
+	P_TILE_SIZE / 2,
+	0,
+	0,
+	-P_TILE_SIZE / 4,
+	(3 * P_TILE_SIZE) / 4,
+	P_TILE_SIZE / 2,
+	P_TILE_SIZE / 2,
+	P_TILE_SIZE / 4,
+	0,
+	P_TILE_SIZE / 2,
+	P_TILE_SIZE / 2
+};
+
+static int t_offsety1[PJ_MAX] =
+{
+	0,
+	0,
+	0,
+	0,
+	P_TILE_SIZE,
+	0,
+	P_TILE_SIZE / 2,
+	P_TILE_SIZE / 2,
+	0,
+	0,
+	-P_TILE_SIZE / 2,
+	0,
+	0,
+	0
+};
+
+static int t_xscale[PJ_MAX] =
+{
+	-1,
+	-1,
+	-1,
+	-1,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	-1,
+	-1
+};
+
+static int t_offsetx2[PJ_MAX] =
+{
+	P_TILE_SIZE / 2,
+	0,
+	0,
+	P_TILE_SIZE,
+	0,
+	0,
+	P_TILE_SIZE / 4,
+	0,
+	0,
+	0,
+	(3 * P_TILE_SIZE) / 4,
+	-P_TILE_SIZE / 4,
+	0,
+	P_TILE_SIZE
+};
+
+static int t_offsety2[PJ_MAX] =
+{
+	0,
+	0,
+	0,
+	0,
+	P_TILE_SIZE,
+	0,
+	P_TILE_SIZE / 2,
+	0,
+	0,
+	0,
+	-P_TILE_SIZE / 2,
+	-P_TILE_SIZE / 2,
+	0,
+	0
+};
+
+static bool wall_flip[PJ_MAX] =
+{
+	0,
+	0,
+	0,
+	0,
+	1,
+	1,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0
+};
+
+/*
+ * For optimisation purposes - two arrays of bits for a row,
+ * marking whether or not this 16x16 block has changed.
+ *
+ * Hack - only "type2" rectangles change the values in this
+ * array, whereas "type1" rectangles are still affected
+ */
+static u32b pj_row1[32];
+static u32b pj_row2[32];
+static int pj_cur_row;
+
+
+/*
+ * Hack -- cursor color
+ */
+static infoclr *xor;
+
+/*
+ * Actual color table
+ */
+static infoclr *clr[256];
+
+/*
+ * Color info (unused, red, green, blue).
+ */
+static byte color_table[256][4];
+
+/*
+ * The "blank" pixel - used for transparency
+ */
+static Pixell pix_blank;
 
 /**** Generic Macros ****/
 
@@ -514,36 +745,6 @@ static errr Metadpy_init_2(Display *dpy, cptr name)
 }
 
 
-#ifndef IGNORE_UNUSED_FUNCTIONS
-
-/*
- * Nuke the current metadpy
- */
-static errr Metadpy_nuke(void)
-{
-	metadpy *m = Metadpy;
-
-
-	/* If required, Free the Display */
-	if (m->nuke)
-	{
-		/* Close the Display */
-		XCloseDisplay(m->dpy);
-
-		/* Forget the Display */
-		m->dpy = (Display*)(NULL);
-
-		/* Do not nuke it again */
-		m->nuke = 0;
-	}
-
-	/* Return Success */
-	return (0);
-}
-
-#endif /* IGNORE_UNUSED_FUNCTIONS */
-
-
 /*
  * General Flush/ Sync/ Discard routine
  */
@@ -554,6 +755,13 @@ static errr Metadpy_update(int flush, int sync, int discard)
 
 	/* Sync if desired, using 'discard' */
 	if (sync) XSync(Metadpy->dpy, discard);
+
+	/* Clear the arrays used for optimisation */
+	(void) C_WIPE(pj_row1, 32, u32b);
+	(void) C_WIPE(pj_row2, 32, u32b);
+	
+	/* Hack - use crazy row to mark "nothing entered yet" */
+	pj_cur_row = -255;
 
 	/* Success */
 	return (0);
@@ -587,45 +795,6 @@ static errr Infowin_set_name(cptr name)
 	if (st) XSetWMName(Metadpy->dpy, Infowin->win, &tp);
 	return (0);
 }
-
-
-#ifndef IGNORE_UNUSED_FUNCTIONS
-
-/*
- * Set the icon name of Infowin
- */
-static errr Infowin_set_icon_name(cptr name)
-{
-	Status st;
-	XTextProperty tp;
-	char buf[128];
-	char *bp = buf;
-	strcpy(buf, name);
-	st = XStringListToTextProperty(&bp, 1, &tp);
-	if (st) XSetWMIconName(Metadpy->dpy, Infowin->win, &tp);
-	return (0);
-}
-
-
-/*
- * Nuke Infowin
- */
-static errr Infowin_nuke(void)
-{
-	infowin *iwin = Infowin;
-
-	/* Nuke if requested */
-	if (iwin->nuke)
-	{
-		/* Destory the old window */
-		XDestroyWindow(Metadpy->dpy, iwin->win);
-	}
-
-	/* Success */
-	return (0);
-}
-
-#endif /* IGNORE_UNUSED_FUNCTIONS */
 
 
 /*
@@ -668,25 +837,6 @@ static errr Infowin_prepare(Window xid)
 }
 
 
-#ifndef IGNORE_UNUSED_FUNCTIONS
-
-/*
- * Initialize a new 'infowin'.
- */
-static errr Infowin_init_real(Window xid)
-{
-	/* Wipe it clean */
-	(void)WIPE(Infowin, infowin);
-
-	/* Start out non-nukable */
-	Infowin->nuke = 0;
-
-	/* Attempt to Prepare ourself */
-	return (Infowin_prepare(xid));
-}
-
-#endif /* IGNORE_UNUSED_FUNCTIONS */
-
 
 /*
  * Init an infowin by giving some data.
@@ -717,20 +867,7 @@ static errr Infowin_init_data(Window dad, int x, int y, int w, int h,
 	/* What happened here?  XXX XXX XXX */
 
 	/* If no parent given, depend on root */
-	if (dad == None)
-
-/* #ifdef USE_GRAPHICS
-
-		xid = XCreateWindow(Metadpy->dpy, Metadpy->root, x, y, w, h, b, 8, InputOutput, CopyFromParent, 0, 0);
-
-	else
-*/
-
-/* #else */
-
-		dad = Metadpy->root;
-
-/* #endif */
+	if (dad == None) dad = Metadpy->root;
 
 	/* Create the Window XXX Error Check */
 	xid = XCreateSimpleWindow(Metadpy->dpy, dad, x, y, w, h, b, fg, bg);
@@ -779,22 +916,6 @@ static errr Infowin_map(void)
 }
 
 
-#ifndef IGNORE_UNUSED_FUNCTIONS
-
-/*
- * Request that Infowin be unmapped
- */
-static errr Infowin_unmap(void)
-{
-	/* Execute the Un-Mapping */
-	XUnmapWindow(Metadpy->dpy, Infowin->win);
-
-	/* Success */
-	return (0);
-}
-
-#endif /* IGNORE_UNUSED_FUNCTIONS */
-
 
 /*
  * Request that Infowin be raised
@@ -808,22 +929,6 @@ static errr Infowin_raise(void)
 	return (0);
 }
 
-
-#ifndef IGNORE_UNUSED_FUNCTIONS
-
-/*
- * Request that Infowin be lowered
- */
-static errr Infowin_lower(void)
-{
-	/* Lower towards invisibility */
-	XLowerWindow(Metadpy->dpy, Infowin->win);
-
-	/* Success */
-	return (0);
-}
-
-#endif /* IGNORE_UNUSED_FUNCTIONS */
 
 
 /*
@@ -852,23 +957,6 @@ static errr Infowin_resize(int w, int h)
 }
 
 
-#ifndef IGNORE_UNUSED_FUNCTIONS
-
-/*
- * Move and Resize an infowin
- */
-static errr Infowin_locate(int x, int y, int w, int h)
-{
-	/* Execute the request */
-	XMoveResizeWindow(Metadpy->dpy, Infowin->win, x, y, w, h);
-
-	/* Success */
-	return (0);
-}
-
-#endif /* IGNORE_UNUSED_FUNCTIONS */
-
-
 /*
  * Visually clear Infowin
  */
@@ -880,24 +968,6 @@ static errr Infowin_wipe(void)
 	/* Success */
 	return (0);
 }
-
-
-#ifndef IGNORE_UNUSED_FUNCTIONS
-
-/*
- * Visually Paint Infowin with the current color
- */
-static errr Infowin_fill(void)
-{
-	/* Execute the request */
-	XFillRectangle(Metadpy->dpy, Infowin->win, Infoclr->gc,
-	               0, 0, Infowin->w, Infowin->h);
-
-	/* Success */
-	return (0);
-}
-
-#endif /* IGNORE_UNUSED_FUNCTIONS */
 
 
 /*
@@ -961,108 +1031,6 @@ static int Infoclr_Opcode(cptr str)
 	return (-1);
 }
 
-
-#ifndef IGNORE_UNUSED_FUNCTIONS
-
-/*
- * Request a Pixell by name.  Note: uses 'Metadpy'.
- *
- * Inputs:
- *      name: The name of the color to try to load (see below)
- *
- * Output:
- *	The Pixell value that metched the given name
- *	'Metadpy->fg' if the name was unparseable
- *
- * Valid forms for 'name':
- *	'fg', 'bg', 'zg', '<name>' and '#<code>'
- */
-static Pixell Infoclr_Pixell(cptr name)
-{
-	XColor scrn;
-
-	/* Attempt to Parse the name */
-	if (name && name[0])
-	{
-		/* The 'bg' color is available */
-		if (streq(name, "bg")) return (Metadpy->bg);
-
-		/* The 'fg' color is available */
-		if (streq(name, "fg")) return (Metadpy->fg);
-
-		/* The 'zg' color is available */
-		if (streq(name, "zg")) return (Metadpy->zg);
-
-		/* The 'white' color is available */
-		if (streq(name, "white")) return (Metadpy->white);
-
-		/* The 'black' color is available */
-		if (streq(name, "black")) return (Metadpy->black);
-
-		/* Attempt to parse 'name' into 'scrn' */
-		if (!(XParseColor(Metadpy->dpy, Metadpy->cmap, name, &scrn)))
-		{
-			plog_fmt("Warning: Couldn't parse color '%s'\n", name);
-		}
-
-		/* Attempt to Allocate the Parsed color */
-		if (!(XAllocColor(Metadpy->dpy, Metadpy->cmap, &scrn)))
-		{
-			plog_fmt("Warning: Couldn't allocate color '%s'\n", name);
-		}
-
-		/* The Pixel was Allocated correctly */
-		else return (scrn.pixel);
-	}
-
-	/* Warn about the Default being Used */
-	plog_fmt("Warning: Using 'fg' for unknown color '%s'\n", name);
-
-	/* Default to the 'Foreground' color */
-	return (Metadpy->fg);
-}
-
-
-/*
- * Initialize a new 'infoclr' with a real GC.
- */
-static errr Infoclr_init_1(GC gc)
-{
-	infoclr *iclr = Infoclr;
-
-	/* Wipe the iclr clean */
-	(void)WIPE(iclr, infoclr);
-
-	/* Assign the GC */
-	iclr->gc = gc;
-
-	/* Success */
-	return (0);
-}
-
-
-/*
- * Nuke an old 'infoclr'.
- */
-static errr Infoclr_nuke(void)
-{
-	infoclr *iclr = Infoclr;
-
-	/* Deal with 'GC' */
-	if (iclr->nuke)
-	{
-		/* Free the GC */
-		XFreeGC(Metadpy->dpy, iclr->gc);
-	}
-
-	/* Forget the current */
-	Infoclr = (infoclr*)(NULL);
-
-	/* Success */
-	return (0);
-}
-
-#endif /* IGNORE_UNUSED_FUNCTIONS */
 
 
 /*
@@ -1174,36 +1142,6 @@ static errr Infoclr_change_fg(Pixell fg)
 
 
 
-#ifndef IGNORE_UNUSED_FUNCTIONS
-
-/*
- * Nuke an old 'infofnt'.
- */
-static errr Infofnt_nuke(void)
-{
-	infofnt *ifnt = Infofnt;
-
-	/* Deal with 'name' */
-	if (ifnt->name)
-	{
-		/* Free the name */
-		string_free(ifnt->name);
-	}
-
-	/* Nuke info if needed */
-	if (ifnt->nuke)
-	{
-		/* Free the font */
-		XFreeFont(Metadpy->dpy, ifnt->info);
-	}
-
-	/* Success */
-	return (0);
-}
-
-#endif /* IGNORE_UNUSED_FUNCTIONS */
-
-
 /*
  * Prepare a new 'infofnt'
  */
@@ -1224,36 +1162,10 @@ static errr Infofnt_prepare(XFontStruct *info)
 	ifnt->hgt = info->ascent + info->descent;
 	ifnt->wid = cs->width;
 
-#ifdef OBSOLETE_SIZING_METHOD
-	/* Extract default sizing info */
-	ifnt->asc = cs->ascent;
-	ifnt->hgt = (cs->ascent + cs->descent);
-	ifnt->wid = cs->width;
-#endif
-
 	/* Success */
 	return (0);
 }
 
-
-#ifndef IGNORE_UNUSED_FUNCTIONS
-
-/*
- * Initialize a new 'infofnt'.
- */
-static errr Infofnt_init_real(XFontStruct *info)
-{
-	/* Wipe the thing */
-	(void)WIPE(Infofnt, infofnt);
-
-	/* No nuking */
-	Infofnt->nuke = 0;
-
-	/* Attempt to prepare it */
-	return (Infofnt_prepare(info));
-}
-
-#endif /* IGNORE_UNUSED_FUNCTIONS */
 
 
 /*
@@ -1322,17 +1234,27 @@ static errr Infofnt_text_std(int x, int y, cptr str, int len)
 	if (len < 0) len = strlen(str);
 
 
-	/*** Decide where to place the string, vertically ***/
+	if (Term->data == &data[0])
+	{
+		/*** Decide where to place the string, horizontally ***/
 
-	/* Ignore Vertical Justifications */
-	y = (y * Infofnt->hgt) + Infofnt->asc + Infowin->oy;
+		/* Line up with x at left edge of column 'x' */
+		x = x * P_TILE_SIZE + (y + 1) * P_TILE_SIZE / 2 + Infowin->ox;
+		
+		/* Ignore Vertical Justifications */
+		y = y * P_TILE_SIZE + P_TILE_SIZE / 2 + Infofnt->asc + Infowin->oy;
+	}
+	else
+	{
+		/* Ignore Vertical Justifications */
+		y = y * Infofnt->hgt + Infofnt->asc + Infowin->oy;
 
 
-	/*** Decide where to place the string, horizontally ***/
+		/*** Decide where to place the string, horizontally ***/
 
-	/* Line up with x at left edge of column 'x' */
-	x = (x * Infofnt->wid) + Infowin->ox;
-
+		/* Line up with x at left edge of column 'x' */
+		x = x * Infofnt->wid + Infowin->ox;
+	}	
 
 	/*** Actually draw 'str' onto the infowin ***/
 
@@ -1343,7 +1265,22 @@ static errr Infofnt_text_std(int x, int y, cptr str, int len)
 	/*** Handle the fake mono we can enforce on fonts ***/
 
 	/* Monotize the font */
-	if (Infofnt->mono)
+	if (Term->data == &data[0])
+	{
+		/* Do each character */
+		for (i = 0; i < len; ++i)
+		{
+			/* Fill Rectangle with black */
+			XFillRectangle(Metadpy->dpy, Infowin->win, clr[0]->gc,
+							 x + i * P_TILE_SIZE, y - Infofnt->asc,
+							 P_TILE_SIZE, P_TILE_SIZE);
+			
+			/* Note that the Infoclr is set up to contain the Infofnt */
+			XDrawImageString(Metadpy->dpy, Infowin->win, Infoclr->gc,
+			                 x + i * P_TILE_SIZE, y , str + i, 1);
+		}
+	}
+	else if (Infofnt->mono)
 	{
 		/* Do each character */
 		for (i = 0; i < len; ++i)
@@ -1354,14 +1291,13 @@ static errr Infofnt_text_std(int x, int y, cptr str, int len)
 		}
 	}
 
-	/* Assume monoospaced font */
+	/* Assume monospaced font */
 	else
 	{
 		/* Note that the Infoclr is set up to contain the Infofnt */
 		XDrawImageString(Metadpy->dpy, Infowin->win, Infoclr->gc,
 		                 x, y, str, len);
 	}
-
 
 	/* Success */
 	return (0);
@@ -1381,23 +1317,41 @@ static errr Infofnt_text_non(int x, int y, cptr str, int len)
 	/* Negative length is a flag to count the characters in str */
 	if (len < 0) len = strlen(str);
 
-	/* The total width will be 'len' chars * standard width */
-	w = len * Infofnt->wid;
+
+	if (Term->data == &data[0])
+	{
+		/*** Decide where to place the string, horizontally ***/
+		
+		/* Line up with x at left edge of column 'x' */
+		x = x * P_TILE_SIZE + (y + 1) * P_TILE_SIZE / 2 + Infowin->ox;
+		
+		/* Ignore Vertical Justifications */
+		y = y * P_TILE_SIZE + P_TILE_SIZE / 2 + Infowin->oy;
+	
+		/* P_TILE_SIZE (a single row) high */
+		h = P_TILE_SIZE;
+		
+		/* The total width will be 'len' chars * P_TILE_SIZE */
+		w = len * P_TILE_SIZE;
+
+	}
+	else
+	{
+		/* Ignore Vertical Justifications */
+		y = y * Infofnt->hgt + Infowin->oy;
 
 
-	/*** Find the X dimensions ***/
+		/*** Decide where to place the string, horizontally ***/
 
-	/* Line up with x at left edge of column 'x' */
-	x = x * Infofnt->wid + Infowin->ox;
-
-
-	/*** Find other dimensions ***/
-
-	/* Simply do 'Infofnt->hgt' (a single row) high */
-	h = Infofnt->hgt;
-
-	/* Simply do "at top" in row 'y' */
-	y = y * h + Infowin->oy;
+		/* Line up with x at left edge of column 'x' */
+		x = x * Infofnt->wid + Infowin->ox;
+		
+		/* Simply do 'Infofnt->hgt' (a single row) high */
+		h = Infofnt->hgt;
+		
+		/* The total width will be 'len' chars * standard width */
+		w = len * Infofnt->wid;
+	}
 
 
 	/*** Actually 'paint' the area ***/
@@ -1417,64 +1371,6 @@ static errr Infofnt_text_non(int x, int y, cptr str, int len)
 /*
  * Angband specific code follows... (ANGBAND)
  */
-
-
-/*
- * Hack -- cursor color
- */
-static infoclr *xor;
-
-/*
- * Actual color table
- */
-static infoclr *clr[256];
-
-/*
- * Color info (unused, red, green, blue).
- */
-static byte color_table[256][4];
-
-/*
- * Forward declare
- */
-typedef struct term_data term_data;
-
-/*
- * A structure for each "term"
- */
-struct term_data
-{
-	term t;
-
-	infofnt *fnt;
-
-	infowin *win;
-
-#ifdef USE_GRAPHICS
-
-	XImage *tiles;
-
-#ifdef USE_TRANSPARENCY
-
-	/* Tempory storage for overlaying tiles. */
-	XImage *TmpImage;
-
-#endif
-
-#endif
-
-};
-
-
-/*
- * The number of term data structures
- */
-#define MAX_TERM_DATA 8
-
-/*
- * The array of term data structures
- */
-static term_data data[MAX_TERM_DATA];
 
 
 
@@ -1728,18 +1624,35 @@ static errr CheckEvent(bool wait)
 			/* Clear the window */
 			/*Infowin_wipe();*/
 
-			x1 = (xev->xexpose.x - Infowin->ox)/Infofnt->wid;
-			x2 = (xev->xexpose.x + xev->xexpose.width -
-				 Infowin->ox)/Infofnt->wid;
-
-			y1 = (xev->xexpose.y - Infowin->oy)/Infofnt->hgt;
-			y2 = (xev->xexpose.y + xev->xexpose.height -
-				 Infowin->oy)/Infofnt->hgt;
-
-			Term_redraw_section(x1, y1, x2, y2);
+			
 
 			/* Redraw */
-			/*Term_redraw();*/
+			if (window == 0)
+			{
+				x1 = (xev->xexpose.x - Infowin->ox)/P_TILE_SIZE;
+				x2 = (xev->xexpose.x + xev->xexpose.width -
+					 Infowin->ox)/P_TILE_SIZE;
+
+				y1 = (xev->xexpose.y - Infowin->oy)/P_TILE_SIZE;
+				y2 = (xev->xexpose.y + xev->xexpose.height -
+					 Infowin->oy)/P_TILE_SIZE;
+				
+				/* Hack - area invalidated on main window is not a rectangle */
+				Term_redraw_section(x1 - y2 / 2, y1, x2 + y2 / 2, y2);
+				/* Term_redraw(); */
+			}
+			else
+			{
+				x1 = (xev->xexpose.x - Infowin->ox)/Infofnt->wid;
+				x2 = (xev->xexpose.x + xev->xexpose.width -
+					 Infowin->ox)/Infofnt->wid;
+
+				y1 = (xev->xexpose.y - Infowin->oy)/Infofnt->hgt;
+				y2 = (xev->xexpose.y + xev->xexpose.height -
+					 Infowin->oy)/Infofnt->hgt;
+				
+				Term_redraw_section(x1, y1, x2, y2);
+			}
 
 			break;
 		}
@@ -1772,9 +1685,25 @@ static errr CheckEvent(bool wait)
 			Infowin->w = xev->xconfigure.width;
 			Infowin->h = xev->xconfigure.height;
 
-			/* Determine "proper" number of rows/cols */
-			cols = ((Infowin->w - (ox + ox)) / td->fnt->wid);
-			rows = ((Infowin->h - (oy + oy)) / td->fnt->hgt);
+			if (window == 0)
+			{
+				/* Determine "proper" number of rows/cols */
+#if 0				
+				rows = 24;
+				
+				cols = 80;
+#endif /* 0 */
+				cols = (Infowin->w - (ox + ox)) / P_TILE_SIZE - 1;
+				rows = (Infowin->h - (oy + oy)) / P_TILE_SIZE - 1;
+
+			}
+			else
+			{
+				/* Determine "proper" number of rows/cols */
+				cols = (Infowin->w - (ox + ox)) / td->fnt->wid;
+				rows = (Infowin->h - (oy + oy)) / td->fnt->hgt;
+			}
+
 
 			/* Hack -- minimal size */
 			if (cols < 1) cols = 1;
@@ -1787,9 +1716,19 @@ static errr CheckEvent(bool wait)
 				if (rows < 24) rows = 24;
 			}
 
-			/* Desired size of window */
-			wid = cols * td->fnt->wid + (ox + ox);
-			hgt = rows * td->fnt->hgt + (oy + oy);
+			if (window == 0)
+			{ 
+				/* Desired size of window */
+
+				wid = (cols + 1) * P_TILE_SIZE + ox * 2;
+				hgt = (rows + 1) * P_TILE_SIZE + oy * 2;
+			}
+			else
+			{
+				/* Desired size of window */
+				wid = cols * td->fnt->wid + ox * 2;
+				hgt = rows * td->fnt->hgt + oy * 2;
+			}
 
 			/* Resize the Term (if needed) */
 			(void) Term_resize(cols, rows);
@@ -1822,7 +1761,7 @@ static errr CheckEvent(bool wait)
 /*
  * Handle "activation" of a term
  */
-static errr Term_xtra_x11_level(int v)
+static errr Term_xtra_xpj_level(int v)
 {
 	term_data *td = (term_data*)(Term->data);
 
@@ -1844,7 +1783,7 @@ static errr Term_xtra_x11_level(int v)
 /*
  * React to changes
  */
-static errr Term_xtra_x11_react(void)
+static errr Term_xtra_xpj_react(void)
 {
 	int i;
 
@@ -1887,7 +1826,7 @@ static errr Term_xtra_x11_react(void)
 /*
  * Handle a "special request"
  */
-static errr Term_xtra_x11(int n, int v)
+static errr Term_xtra_xpj(int n, int v)
 {
 	/* Handle a subset of the legal requests */
 	switch (n)
@@ -1908,7 +1847,7 @@ static errr Term_xtra_x11(int n, int v)
 		case TERM_XTRA_FLUSH: while (!CheckEvent(FALSE)); return (0);
 
 		/* Handle change in the "level" */
-		case TERM_XTRA_LEVEL: return (Term_xtra_x11_level(v));
+		case TERM_XTRA_LEVEL: return (Term_xtra_xpj_level(v));
 
 		/* Clear the screen */
 		case TERM_XTRA_CLEAR: Infowin_wipe(); return (0);
@@ -1917,7 +1856,7 @@ static errr Term_xtra_x11(int n, int v)
 		case TERM_XTRA_DELAY: usleep(1000 * v); return (0);
 
 		/* React to changes */
-		case TERM_XTRA_REACT: return (Term_xtra_x11_react());
+		case TERM_XTRA_REACT: return (Term_xtra_xpj_react());
 	}
 
 	/* Unknown */
@@ -1930,7 +1869,7 @@ static errr Term_xtra_x11(int n, int v)
  *
  * Consider a rectangular outline like "main-mac.c".  XXX XXX
  */
-static errr Term_curs_x11(int x, int y)
+static errr Term_curs_xpj(int x, int y)
 {
 	/* Draw the cursor */
 	Infoclr_set(xor);
@@ -1943,26 +1882,12 @@ static errr Term_curs_x11(int x, int y)
 }
 
 
-/*
- * Erase some characters.
- */
-static errr Term_wipe_x11(int x, int y, int n)
-{
-	/* Erase (use black) */
-	Infoclr_set(clr[TERM_DARK]);
-
-	/* Mega-Hack -- Erase some space */
-	Infofnt_text_non(x, y, "", n);
-
-	/* Success */
-	return (0);
-}
 
 
 /*
  * Draw some textual characters.
  */
-static errr Term_text_x11(int x, int y, int n, byte a, cptr s)
+static errr Term_text_xpj(int x, int y, int n, byte a, cptr s)
 {
 	/* Draw the text */
 	Infoclr_set(clr[a]);
@@ -1975,37 +1900,527 @@ static errr Term_text_x11(int x, int y, int n, byte a, cptr s)
 }
 
 
-#ifdef USE_GRAPHICS
+static errr draw_rect_t1(int x, int y, term_data *td, int xp, int yp)
+{
+	term_win *window = td->t.scr;
+	int i, j, val;
+	unsigned long pixel;
+
+	/* Locations of tiles in bitmap */
+	byte xt[PJ_MAX];
+	byte yt[PJ_MAX];
+	
+	/* List of posibly visible tiles */
+	u16b mask = 0, value;
+	
+	/* The tile attr / char pairs */
+	byte a;
+	char c;
+	byte ta;
+	char tc;
+	
+	/* Look to see if we are already drawn */
+	if (y == pj_cur_row)
+	{
+		/* Are we drawn? */
+		if (pj_row1[x / 32] & (1L << (x % 32))) return (0);
+	}
+	else if (y == pj_cur_row - 1)
+	{
+		/* Are we drawn? */
+		if (pj_row2[x / 32] & (1L << (x % 32))) return (0);
+	}
+	else if (y == pj_cur_row + 1)
+	{
+		/* We've moved to another row */
+		
+		/* Copy the contents of the pj_row1[] array */
+		C_COPY(pj_row2, pj_row1, 32, u32b);
+		
+		/* Wipe the old "current row" */
+		(void) C_WIPE(pj_row1, 32, u32b);
+		
+		/* We are now at a larger row */
+		pj_cur_row++;
+	}
+	else
+	{
+		/* Clear the arrays used for optimisation */
+		(void) C_WIPE(pj_row1, 32, u32b);
+		(void) C_WIPE(pj_row2, 32, u32b);
+	
+		/* We are at row y */
+		pj_cur_row = y;
+	}
+	
+	if ((x > 0) && (y >= 0))
+	{
+		/* Get tiles we need */
+		a = window->a[y][x - 1];
+		c = window->c[y][x - 1];
+		ta = window->ta[y][x - 1];
+		tc = window->tc[y][x - 1];
+		
+		/* Solid wall? */
+		if (tc & 0x40)
+		{
+			mask |= (PJ_T_WALLF | PJ_T_WALL2);
+			xt[PJ_WALLF] = tc & 0x3F;
+			yt[PJ_WALLF] = ta & 0x7F;
+			xt[PJ_WALL2] = tc & 0x3F;
+			yt[PJ_WALL2] = ta & 0x7F;
+		}
+		
+		/* Is the terrain null? */
+		else
+		{
+			if (ta & 0x80)
+			{
+				mask |= PJ_T_FLOOR2;
+				xt[PJ_FLOOR2] = tc & 0x3F;
+				yt[PJ_FLOOR2] = ta & 0x7F;
+			}
+	
+			/* Are we overlaying anything? */
+			if ((a & 0x80) && ((a != ta) || (c != tc)))
+			{
+				mask |= PJ_T_OVER3;
+				xt[PJ_OVER3] = c & 0x3F;
+				yt[PJ_OVER3] = a & 0x7F;
+			}
+		}
+	}
+	
+	if ((x >= 0) && (y >= 0))
+	{
+		/* Get tiles we need */
+		a = window->a[y][x];
+		c = window->c[y][x];
+		ta = window->ta[y][x];
+		tc = window->tc[y][x];
+		
+		/* Solid wall? */
+		if (tc & 0x40)
+		{
+			mask |= PJ_T_WALL1;
+			xt[PJ_WALL1] = tc & 0x3F;
+			yt[PJ_WALL1] = ta & 0x7F;
+		}
+		
+		/* Is the terrain null? */
+		else
+		{
+			if (ta & 0x80)
+			{
+				mask |= PJ_T_FLOOR1;
+				xt[PJ_FLOOR1] = tc & 0x3F;
+				yt[PJ_FLOOR1] = ta & 0x7F;
+			}
+	
+			/* Are we overlaying anything? */
+			if ((a & 0x80) && ((a != ta) || (c != tc)))
+			{
+				mask |= PJ_T_OVER1;
+				xt[PJ_OVER1] = c & 0x3F;
+				yt[PJ_OVER1] = a & 0x7F;
+			}
+		}
+	}
+	
+	/* Check below */
+	if ((x > 0) && (y < td->t.hgt - 1))
+	{
+		/* Get tiles we need */
+		a = window->a[y + 1][x - 1];
+		c = window->c[y + 1][x - 1];
+		ta = window->ta[y + 1][x - 1];
+		tc = window->tc[y + 1][x - 1];
+		
+		/* Solid wall? */
+		if (tc & 0x40)
+		{
+			mask |= PJ_T_WALLB | PJ_T_TOP1 | PJ_T_TOP_T1;
+			xt[PJ_WALLB] = tc & 0x3F;
+			yt[PJ_WALLB] = ta & 0x7F;
+			xt[PJ_TOP1] = tc & 0x3F;
+			yt[PJ_TOP1] = ta & 0x7F;
+			xt[PJ_TOP_T1] = tc & 0x3F;
+			yt[PJ_TOP_T1] = ta & 0x7F;
+
+			mask &= (~PJ_T_WALLF);
+		}
+		
+		/* Are we overlaying anything? */
+		else if ((a & 0x80) && ((a != ta) || (c != tc)))
+		{
+			mask |= PJ_T_OVER2;
+			xt[PJ_OVER2] = c & 0x3F;
+			yt[PJ_OVER2] = a & 0x7F;
+		}
+	}
+
+	/* Plot the pixels onto the bitmap */
+	for (i = 0; i < P_TILE_SIZE / 2; i++)
+	{
+		for (j = 0; j < P_TILE_SIZE; j++)
+		{
+			/* Get tiles on this pixel */
+			value = pj_table1[j][i] & mask;
+			
+			pixel = pix_blank;
+			
+			while (pixel == pix_blank)
+			{
+				
+				/* Get the number of the bit to look at */
+				val = bit_high_lookup[value / 256];
+	
+				if (val)
+				{
+					val += 7;
+				}
+				else
+				{
+					val = bit_high_lookup[value];
+					
+					/* Check for null case */
+					if (!val)
+					{
+						/* No allowable tile - use (0,0) */
+						pixel = XGetPixel(td->tiles, 0, 0);
+						break;
+					}
+					
+					val--;
+				}
+				
+	
+				/* 
+				 * Update the bit so that transparency works
+				 * (by getting rid of the bit we are using now.)
+				 */
+				value &= (~(1 << val));
+	
+				/* Pick the pixel to use */
+				pixel = XGetPixel(td->tiles,
+					xt[val] * P_TILE_SIZE + i + t_offsetx1[val]
+						+ t_xscale[val] * j / 2 + i * wall_flip[val],
+					yt[val] * P_TILE_SIZE + j + t_offsety1[val]
+						 - 2 * i * wall_flip[val]);
+			}
+			
+			XPutPixel(td->SkewImage, i, j, pixel);
+		}
+	}
+
+	/* Draw to screen */
+	XPutImage(Metadpy->dpy, td->win->win,
+	  	     clr[0]->gc,
+    	     td->SkewImage,
+			 0, 0, xp, yp,
+		     P_TILE_SIZE / 2, P_TILE_SIZE);
+
+	return (0);
+}
+
+static errr draw_rect_t2(int x, int y, term_data *td, int xp, int yp)
+{
+	term_win *window = td->t.scr;
+	int i, j, val;
+	unsigned long pixel;
+
+	/* Locations of tiles in bitmap */
+	byte xt[PJ_MAX];
+	byte yt[PJ_MAX];
+	
+	/* List of posibly visible tiles */
+	u16b mask = 0, value;
+	
+	/* The tile attr / char pairs */
+	byte a;
+	char c;
+	byte ta;
+	char tc;
+	
+	/* Look to see if we are already drawn */
+	int cur_col = x / 32;
+	u32b row_mask = (1L << (x % 32));
+	
+	if (y == pj_cur_row)
+	{
+		/* Are we drawn? */
+		if (pj_row1[cur_col] & row_mask) return (0);
+	
+		/* Not drawn - mark we are drawn */
+		pj_row1[cur_col] |= row_mask;
+	}
+	else if (y == pj_cur_row - 1)
+	{
+		/* Are we drawn? */
+		if (pj_row2[cur_col] & row_mask) return (0);
+		
+		/* Not drawn - mark we are drawn */
+		pj_row2[cur_col] |= row_mask;
+	}
+	/* This should never happen */
+#if 0	
+	else
+	{
+		/* Clear the arrays used for optimisation */
+		(void) C_WIPE(pj_row1, 32, u32b);
+		(void) C_WIPE(pj_row2, 32, u32b);
+	
+		/* We are at row y */
+		pj_cur_row = y;
+	}
+#endif /* 0 */
+	
+	if ((x >= 0) && (y >= 0))
+	{
+		/* Get tiles we need */
+		a = window->a[y][x];
+		c = window->c[y][x];
+		ta = window->ta[y][x];
+		tc = window->tc[y][x];
+		
+		/* Solid wall? */
+		if (tc & 0x40)
+		{
+			mask |= (PJ_T_WALLF);
+			xt[PJ_WALLF] = tc & 0x3F;
+			yt[PJ_WALLF] = ta & 0x7F;
+		}
+		
+		/* Is the terrain null? */
+		else
+		{
+			if (ta & 0x80)
+			{
+				mask |= PJ_T_FLOOR1;
+				xt[PJ_FLOOR1] = tc & 0x3F;
+				yt[PJ_FLOOR1] = ta & 0x7F;
+			}
+	
+			/* Are we overlaying anything? */
+			if ((a & 0x80) && ((a != ta) || (c != tc)))
+			{
+				mask |= PJ_T_OVER1;
+				xt[PJ_OVER1] = c & 0x3F;
+				yt[PJ_OVER1] = a & 0x7F;
+			}
+		}
+	}
+	
+	/* Check to the left */
+	if ((x > 0) && (y < td->t.hgt - 1))
+	{
+		/* Get tiles we need */
+		a = window->a[y + 1][x - 1];
+		c = window->c[y + 1][x - 1];
+		ta = window->ta[y + 1][x - 1];
+		tc = window->tc[y + 1][x - 1];
+		
+		/* Solid wall? */
+		if (tc & 0x40)
+		{
+			mask |= (PJ_T_TOP2 | PJ_T_TOP_T2);
+			xt[PJ_TOP2] = tc & 0x3F;
+			yt[PJ_TOP2] = ta & 0x7F;
+			xt[PJ_TOP_T2] = tc & 0x3F;
+			yt[PJ_TOP_T2] = ta & 0x7F;
+		}
+		
+		/* Are we overlaying anything? */
+		else if ((a & 0x80) && ((a != ta) || (c != tc)))
+		{
+			mask |= PJ_T_OVER2;
+			xt[PJ_OVER2] = c & 0x3F;
+			yt[PJ_OVER2] = a & 0x7F;
+		}
+	}
+	
+	
+	/* Check below */
+	if ((x >= 0) && (y < td->t.hgt - 1))
+	{
+		/* Get tiles we need */
+		a = window->a[y + 1][x];
+		c = window->c[y + 1][x];
+		ta = window->ta[y + 1][x];
+		tc = window->tc[y + 1][x];
+		
+		/* Solid wall? */
+		if (tc & 0x40)
+		{
+			mask |= PJ_T_WALLB | PJ_T_WALL2 | PJ_T_TOP1 | PJ_T_TOP_T1;
+			xt[PJ_WALLB] = tc & 0x3F;
+			yt[PJ_WALLB] = ta & 0x7F;
+			xt[PJ_TOP1] = tc & 0x3F;
+			yt[PJ_TOP1] = ta & 0x7F;
+			xt[PJ_TOP_T1] = tc & 0x3F;
+			yt[PJ_TOP_T1] = ta & 0x7F;
+			xt[PJ_WALL2] = tc & 0x3F;
+			yt[PJ_WALL2] = ta & 0x7F;
+
+			mask &= (~PJ_T_WALLF);
+		}
+		
+		/* Are we overlaying anything? */
+		else if ((a & 0x80) && ((a != ta) || (c != tc)))
+		{
+			mask |= PJ_T_OVER4;
+			xt[PJ_OVER4] = c & 0x3F;
+			yt[PJ_OVER4] = a & 0x7F;
+		}
+	}
+
+	/* Plot the pixels onto the bitmap */
+	for (i = 0; i < P_TILE_SIZE / 2; i++)
+	{
+		for (j = 0; j < P_TILE_SIZE; j++)
+		{
+			/* Get tiles on this pixel */
+			value = pj_table2[j][i] & mask;
+			
+			pixel = pix_blank;
+			
+			while (pixel == pix_blank)
+			{
+				
+				/* Get the number of the bit to look at */
+				val = bit_high_lookup[value / 256];
+	
+				if (val)
+				{
+					val += 7;
+				}
+				else
+				{
+					val = bit_high_lookup[value];
+					
+					/* Check for null case */
+					if (!val)
+					{
+						/* No allowable tile - use (0,0) */
+						pixel = XGetPixel(td->tiles, 0, 0);
+						break;
+					}
+					
+					val--;
+				}
+				
+	
+				/* 
+				 * Update the bit so that transparency works
+				 * (by getting rid of the bit we are using now.)
+				 */
+				value &= (~(1 << val));
+	
+				/* Pick the pixel to use */
+				pixel = XGetPixel(td->tiles,
+					xt[val] * P_TILE_SIZE + i + t_offsetx2[val] +
+						 t_xscale[val] * j / 2,
+					yt[val] * P_TILE_SIZE + j + t_offsety2[val]);
+			}
+			
+			XPutPixel(td->SkewImage, i, j, pixel);
+		}
+	}
+
+	/* Draw to screen */
+	XPutImage(Metadpy->dpy, td->win->win,
+	  	     clr[0]->gc,
+    	     td->SkewImage,
+			 0, 0, xp, yp,
+		     P_TILE_SIZE / 2, P_TILE_SIZE);
+
+	return (0);
+}
+
+
+static errr Term_pict_skew(int x, int y, int n, term_data *td)
+{
+	int i, xp, yp;
+	
+	xp = x * P_TILE_SIZE + y * P_TILE_SIZE / 2 + Infowin->ox;
+	yp = (y + 1) * P_TILE_SIZE + Infowin->oy;
+	
+	/* Draw left 8x16 bock */
+	draw_rect_t1(x, y, td, xp, yp);
+	
+	/* Draw center 8x16 block */
+	draw_rect_t2(x, y, td, xp + P_TILE_SIZE / 2, yp);
+	
+	/* Draw upper left */
+	draw_rect_t2(x, y - 1, td, xp, yp - P_TILE_SIZE);
+	
+	/* Draw upper center */
+	draw_rect_t1(x + 1, y - 1, td, xp + P_TILE_SIZE / 2, yp - P_TILE_SIZE);
+
+	/* Draw the middle section */
+	for (i = 0; i < n - 1; i++)
+	{
+		x++;
+		xp += P_TILE_SIZE;
+		
+		/* Draw end 8x16 block */
+		draw_rect_t1(x, y, td, xp, yp);
+		
+		/* Draw center 8x16 block */
+		draw_rect_t2(x, y, td, xp + P_TILE_SIZE / 2, yp);
+		
+		/* Draw upper right */
+		draw_rect_t2(x, y - 1, td, xp, yp - P_TILE_SIZE);
+	
+		/* Draw upper center */
+		draw_rect_t1(x + 1, y - 1, td, xp + P_TILE_SIZE / 2, yp - P_TILE_SIZE);
+	}
+	
+	x++;
+	xp += P_TILE_SIZE;
+	
+	/* Draw end 8x16 block */
+	draw_rect_t1(x, y, td, xp, yp);
+	
+	/* Draw upper right */
+	draw_rect_t2(x, y - 1, td, xp, yp - P_TILE_SIZE);
+	
+	/* Done */
+	return(0);
+}
 
 /*
  * Draw some graphical characters.
  */
-# ifdef USE_TRANSPARENCY
-static errr Term_pict_x11(int x, int y, int n, const byte *ap, const char *cp, const byte *tap, const char *tcp)
-# else /* USE_TRANSPARENCY */
-static errr Term_pict_x11(int x, int y, int n, const byte *ap, const char *cp)
-# endif /* USE_TRANSPARENCY */
+static errr Term_pict_xpj(int x, int y, int n, const byte *ap, const char *cp, const byte *tap, const char *tcp)
 {
 	int i, x1, y1;
 
 	byte a;
 	char c;
 
+	byte wid, hgt;
 
-#ifdef USE_TRANSPARENCY
 	byte ta;
 	char tc;
 
 	int x2, y2;
 	int k,l;
 
-	unsigned long pixel, blank;
-#endif /* USE_TRANSPARENCY */
+	Pixell pixel;
 
-	term_data *td = (term_data*)(Term->data);
+	term_data *td = (term_data*)(Term->data);	
 
-	y *= Infofnt->hgt;
-	x *= Infofnt->wid;
+	if (td == &data[0])
+	{
+		return (Term_pict_skew(x, y, n, td));		
+	}
+
+	hgt = Infofnt->hgt;
+	wid = Infofnt->wid;
+	
+	y *= hgt;
+	x *= wid;
 
 	/* Add in affect of window boundaries */
 	y += Infowin->oy;
@@ -2017,18 +2432,16 @@ static errr Term_pict_x11(int x, int y, int n, const byte *ap, const char *cp)
 		c = *cp++;
 
 		/* For extra speed - cache these values */
-		x1 = (c&0x7F) * td->fnt->wid;
-		y1 = (a&0x7F) * td->fnt->hgt;
-
-#ifdef USE_TRANSPARENCY
+		x1 = (c&0x7F) * wid;
+		y1 = (a&0x7F) * hgt;
 
 		ta = *tap++;
 		tc = *tcp++;
 
 		/* For extra speed - cache these values */
-		x2 = (tc&0x7F) * td->fnt->wid;
-		y2 = (ta&0x7F) * td->fnt->hgt;
-
+		x2 = (tc&0x7F) * wid;
+		y2 = (ta&0x7F) * hgt;
+		
 		/* Optimise the common case */
 		if ((x1 == x2) && (y1 == y2))
 		{
@@ -2038,20 +2451,17 @@ static errr Term_pict_x11(int x, int y, int n, const byte *ap, const char *cp)
 		  	        td->tiles,
 		  	        x1, y1,
 		  	        x, y,
-		  	        td->fnt->wid, td->fnt->hgt);
+		  	        wid, hgt);
 		}
 		else
 		{
-
-			/* Mega Hack^2 - assume the top left corner is "black" */
-			blank = XGetPixel(td->tiles, 0, td->fnt->hgt * 6);
-
-			for (k = 0; k < td->fnt->wid; k++)
+			for (k = 0; k < wid; k++)
 			{
-				for (l = 0; l < td->fnt->hgt; l++)
+				for (l = 0; l < hgt; l++)
 				{
 					/* If mask set... */
-					if ((pixel = XGetPixel(td->tiles, x1 + k, y1 + l)) == blank)
+					if ((pixel = XGetPixel(td->tiles, x1 + k, y1 + l))
+						 == pix_blank)
 					{
 						/* Output from the terrain */
 						pixel = XGetPixel(td->tiles, x2 + k, y2 + l);
@@ -2069,29 +2479,42 @@ static errr Term_pict_x11(int x, int y, int n, const byte *ap, const char *cp)
 		    	      clr[0]->gc,
 		     	     td->TmpImage,
 		     	     0, 0, x, y,
-		     	     td->fnt->wid, td->fnt->hgt);
+		     	     wid, hgt);
 		}
 
-#else /* USE_TRANSPARENCY */
-
-		/* Draw object / terrain */
-		XPutImage(Metadpy->dpy, td->win->win,
-		          clr[0]->gc,
-		          td->tiles,
-		          x1, y1,
-		          x, y,
-		          td->fnt->wid, td->fnt->hgt);
-
-#endif /* USE_TRANSPARENCY */
-		x += td->fnt->wid;
+		x += wid;
 	}
 
 	/* Success */
 	return (0);
 }
 
-#endif /* USE_GRAPHICS */
 
+/*
+ * Erase some characters.
+ */
+static errr Term_wipe_xpj(int x, int y, int n)
+{
+#if 0
+	/* Erase (use black) */
+	Infoclr_set(clr[TERM_DARK]);
+
+	/* Mega-Hack -- Erase some space */
+	Infofnt_text_non(x, y, "", n);
+	
+#endif 0
+
+	byte dummy[3] = {0x80, 0x80, 0x80};
+	int i;
+	
+	for (i = 0; i < n; i++)
+	{
+		Term_pict_xpj(x, y, 1, &dummy[1], &dummy[1], &dummy[1], &dummy[1]);
+	}
+	
+	/* Success */
+	return (0);
+}
 
 
 /*
@@ -2241,9 +2664,17 @@ static errr term_data_init(term_data *td, int i)
 	/* Hack -- key buffer size */
 	num = ((i == 0) ? 1024 : 16);
 
-	/* Assume full size windows */
-	wid = cols * td->fnt->wid + (ox + ox);
-	hgt = rows * td->fnt->hgt + (oy + oy);
+	if (i == 0)
+	{
+		wid = (cols + 1) * P_TILE_SIZE + rows * P_TILE_SIZE / 2 + ox * 2;
+		hgt = (rows + 1) * P_TILE_SIZE + oy * 2;
+	}
+	else
+	{
+		/* Assume full size windows */
+		wid = cols * td->fnt->wid + (ox + ox);
+		hgt = rows * td->fnt->hgt + (oy + oy);
+	}
 
 	/* Create a top-window */
 	MAKE(td->win, infowin);
@@ -2284,12 +2715,15 @@ static errr term_data_init(term_data *td, int i)
 	/* Main window has a differing minimum size */
 	if (i == 0)
 	{
-		/* Main window min size is 80x24 */
 		sh->flags = PMinSize | PMaxSize;
-		sh->min_width = 80 * td->fnt->wid + (ox + ox);
-		sh->min_height = 24 * td->fnt->hgt + (oy + oy);
-		sh->max_width = 255 * td->fnt->wid + (ox + ox);
-		sh->max_height = 255 * td->fnt->hgt + (oy + oy);
+		sh->min_height = (24 + 1) * P_TILE_SIZE + oy * 2;
+		sh->min_width = (80 + 1) * P_TILE_SIZE + ox * 2;
+		sh->max_height = (255 + 1) * P_TILE_SIZE + oy * 2;
+		sh->max_width = (255 + 1) * P_TILE_SIZE + ox * 2 + 255 * P_TILE_SIZE / 2;
+		/* Resize increment */
+		sh->flags |= PResizeInc;
+		sh->width_inc = P_TILE_SIZE * 3 / 2;
+		sh->height_inc = P_TILE_SIZE;
 	}
 
 	/* Other windows can be shrunk to 1x1 */
@@ -2297,16 +2731,18 @@ static errr term_data_init(term_data *td, int i)
 	{
 		/* Other windows */
 		sh->flags = PMinSize | PMaxSize;
-		sh->min_width = td->fnt->wid + (ox + ox);
-		sh->min_height = td->fnt->hgt + (oy + oy);
-		sh->max_width = 255 * td->fnt->wid + (ox + ox);
-		sh->max_height = 255 * td->fnt->hgt + (oy + oy);
+		sh->min_width = td->fnt->wid + ox * 2;
+		sh->min_height = td->fnt->hgt + oy * 2;
+		sh->max_width = 255 * td->fnt->wid + ox * 2;
+		sh->max_height = 255 * td->fnt->hgt + oy * 2;
+		
+		/* Resize increment */
+		sh->flags |= PResizeInc;
+		sh->width_inc = td->fnt->wid;
+		sh->height_inc = td->fnt->hgt;
 	}
 
-	/* Resize increment */
-	sh->flags |= PResizeInc;
-	sh->width_inc = td->fnt->wid;
-	sh->height_inc = td->fnt->hgt;
+	
 
 	/* Base window size */
 	sh->flags |= PBaseSize;
@@ -2335,10 +2771,10 @@ static errr term_data_init(term_data *td, int i)
 	t->char_blank = ' ';
 
 	/* Hooks */
-	t->xtra_hook = Term_xtra_x11;
-	t->curs_hook = Term_curs_x11;
-	t->wipe_hook = Term_wipe_x11;
-	t->text_hook = Term_text_x11;
+	t->xtra_hook = Term_xtra_xpj;
+	t->curs_hook = Term_curs_xpj;
+	t->wipe_hook = Term_wipe_xpj;
+	t->text_hook = Term_text_xpj;
 
 	/* Save the data */
 	t->data = td;
@@ -2352,30 +2788,22 @@ static errr term_data_init(term_data *td, int i)
 
 
 /*
- * Initialization function for an "X11" module to Angband
+ * Initialization function for an "XPJ" module to Angband
  */
-errr init_x11(int argc, char *argv[])
+errr init_xpj(int argc, char *argv[])
 {
-	int i;
+	int i, j;
 
 	cptr dpy_name = "";
 
 	int num_term = MAX_TERM_DATA;
-
-#ifdef USE_GRAPHICS
 
 	char filename[1024];
 
 	int pict_wid = 0;
 	int pict_hgt = 0;
 
-#ifdef USE_TRANSPARENCY
-
 	char *TmpData;
-#endif /* USE_TRANSPARENCY */
-
-#endif /* USE_GRAPHICS */
-
 
 	/* Parse args */
 	for (i = 1; i < argc; i++)
@@ -2386,13 +2814,11 @@ errr init_x11(int argc, char *argv[])
 			continue;
 		}
 
-#ifdef USE_GRAPHICS
 		if (prefix(argv[i], "-s"))
 		{
 			smoothRescaling = FALSE;
 			continue;
 		}
-#endif /* USE_GRAPHICS */
 
 		if (prefix(argv[i], "-n"))
 		{
@@ -2468,43 +2894,21 @@ errr init_x11(int argc, char *argv[])
 	/* Activate the "Angband" window screen */
 	Term_activate(&data[0].t);
 
+	/* Try the "16x16.bmp" file */
+	path_build(filename, 1024, ANGBAND_DIR_XTRA, "graf/16x16.bmp");
 
-#ifdef USE_GRAPHICS
-
-	/* Try graphics */
-	if (arg_graphics)
+	/* Use the "16x16.bmp" file if it exists */
+	if (0 == fd_close(fd_open(filename, O_RDONLY)))
 	{
-		/* Try the "16x16.bmp" file */
-		path_build(filename, 1024, ANGBAND_DIR_XTRA, "graf/16x16.bmp");
+		/* Use graphics */
+		use_graphics = TRUE;
+		arg_graphics = TRUE;
 
-		/* Use the "16x16.bmp" file if it exists */
-		if (0 == fd_close(fd_open(filename, O_RDONLY)))
-		{
-			/* Use graphics */
-			use_graphics = TRUE;
+		use_transparency = TRUE;
 
-			use_transparency = TRUE;
+		pict_wid = pict_hgt = 16;
 
-			pict_wid = pict_hgt = 16;
-
-			ANGBAND_GRAF = "new";
-		}
-		else
-		{
-			/* Try the "8x8.bmp" file */
-			path_build(filename, 1024, ANGBAND_DIR_XTRA, "graf/8x8.bmp");
-
-			/* Use the "8x8.bmp" file if it exists */
-			if (0 == fd_close(fd_open(filename, O_RDONLY)))
-			{
-				/* Use graphics */
-				use_graphics = TRUE;
-
-				pict_wid = pict_hgt = 8;
-
-				ANGBAND_GRAF = "old";
-			}
-		}
+		ANGBAND_GRAF = "new";
 	}
 
 	/* Load graphics */
@@ -2525,19 +2929,29 @@ errr init_x11(int argc, char *argv[])
 			term *t = &td->t;
 
 			/* Graphics hook */
-			t->pict_hook = Term_pict_x11;
+			t->pict_hook = Term_pict_xpj;
 
 			/* Use graphics sometimes */
 			t->higher_pict = TRUE;
 
-			/* Resize tiles */
-			td->tiles =
-			ResizeImage(dpy, tiles_raw,
-			            pict_wid, pict_hgt,
-			            td->fnt->wid, td->fnt->hgt);
+			if (i == 0)
+			{
+				/* Resize tiles */
+				td->tiles =
+					ResizeImage(dpy, tiles_raw,
+					pict_wid, pict_hgt,
+					P_TILE_SIZE, P_TILE_SIZE);
+			}
+			else
+			{
+				/* Resize tiles */
+				td->tiles =
+					ResizeImage(dpy, tiles_raw,
+					pict_wid, pict_hgt,
+					td->fnt->wid, td->fnt->hgt);
+			}
 		}
 
-#ifdef USE_TRANSPARENCY
 		/* Initialize the transparency masks */
 		for (i = 0; i < num_term; i++)
 		{
@@ -2552,28 +2966,159 @@ errr init_x11(int argc, char *argv[])
 			ii = 1;
 			jj = (depth - 1) >> 2;
 			while (jj >>= 1) ii <<= 1;
-			total = td->fnt->wid * td->fnt->hgt * ii;
-
+			
+			if (i == 0)
+			{
+				total = P_TILE_SIZE * P_TILE_SIZE * ii;
+			}
+			else
+			{
+				total = td->fnt->wid * td->fnt->hgt * ii;
+			}
 
 			TmpData = (char *)malloc(total);
 
-			td->TmpImage = XCreateImage(dpy,visual,depth,
-				ZPixmap, 0, TmpData,
-				td->fnt->wid, td->fnt->hgt, 32, 0);
+			if (i == 0)
+			{
+				/* Normal tiles */
+				td->TmpImage = XCreateImage(dpy,visual,depth,
+					ZPixmap, 0, TmpData,
+					P_TILE_SIZE, P_TILE_SIZE, 32, 0);
+				
+				/* Skewed tiles */
+				TmpData = (char *)malloc(total / 2);
+				
+				td->SkewImage = XCreateImage(dpy,visual,depth,
+					ZPixmap, 0, TmpData,
+					P_TILE_SIZE / 2, P_TILE_SIZE, 32, 0);
+			}
+			else
+			{
+				td->TmpImage = XCreateImage(dpy,visual,depth,
+					ZPixmap, 0, TmpData,
+					td->fnt->wid, td->fnt->hgt, 32, 0);
+			}
 
 		}
-#endif /* USE_TRANSPARENCY */
-
-
 		/* Free tiles_raw? XXX XXX */
 	}
+	else
+	{
+		quit("Could not initialise graphics!");
+	}
 
-#endif /* USE_GRAPHICS */
+	/*
+	 * Precalculate the tables used to draw the tiles
+	 *
+	 * This caches the position of each possibility of
+	 * where tiles can be. By masking the value in the table,
+	 * you can quickly determine what to draw.
+	 */
+	for (i = 0; i < 8; i++)
+	{
+		for (j = 0; j < 16; j++)
+		{
+			/* Table 1 */
+			pj_table1[j][i] = PJ_T_WALLF;
+			
+			if ((j + i) % 2)
+			{
+				pj_table1[j][i] |= PJ_T_TOP1;
+			}
+			else
+			{
+				pj_table1[j][i] |= PJ_T_TOP_T1;
+			}
+			
+			if ((j + i) % 3)
+			{
+				pj_table1[j][i] |= PJ_T_WALLB;
+			}
+			
+			if (j >= 8)
+			{
+				pj_table1[j][i] |= PJ_T_OVER2;
+			}
+			else if (i < 4)
+			{
+				pj_table1[j][i] |= PJ_T_OVER3;
+			}
+			else
+			{
+				pj_table1[j][i] |= PJ_T_OVER1;
+			}
+			
+			if (i - j / 2 >= 0)
+			{
+				pj_table1[j][i] |= (PJ_T_WALL1 | PJ_T_FLOOR1);
+			}
+			else
+			{
+				pj_table1[j][i] |= (PJ_T_WALL2 | PJ_T_FLOOR2);
+			}
+			
+			
+			/* Table 2 */
+			pj_table2[j][i] = PJ_T_FLOOR1 | PJ_T_WALLF;
+			
+			if ((j + i) % 3)
+			{
+				pj_table2[j][i] |= PJ_T_WALLB;
+			}
 
+			if (j < 8)
+			{
+				pj_table2[j][i] |= PJ_T_OVER1;
+			}
+			else if (i < 4)
+			{
+				pj_table2[j][i] |= PJ_T_OVER2;
+			}
+			else
+			{
+				pj_table2[j][i] |= PJ_T_OVER4;
+			}
+
+			if (i - j / 2 >= 0)
+			{
+				if ((i + j) % 2)
+				{
+					pj_table2[j][i] |= PJ_T_TOP1;
+				}
+				else
+				{
+					pj_table2[j][i] |= PJ_T_TOP_T1;
+				}
+			}
+			else
+			{
+				if ((i + j) % 2)
+				{
+					pj_table2[j][i] |= PJ_T_TOP2;
+				}
+				else
+				{
+					pj_table2[j][i] |= PJ_T_TOP_T2;
+				}
+				
+				pj_table2[j][i] |= PJ_T_WALL1 | PJ_T_WALL2;
+			}
+		}
+	}
+	
+	/* Mega Hack^2 - assume the top left corner is "black" */
+	pix_blank = XGetPixel(data[0].tiles, 0, P_TILE_SIZE * 6);
+	
+	/* Clear the arrays used for optimisation */
+	(void) C_WIPE(pj_row1, 32, u32b);
+	(void) C_WIPE(pj_row2, 32, u32b);
+	
+	/* Hack - use crazy row to mark "nothing entered yet" */
+	pj_cur_row = -255;
+	
 
 	/* Success */
 	return (0);
 }
 
-#endif /* USE_X11 */
-
+#endif /* USE_XPJ */

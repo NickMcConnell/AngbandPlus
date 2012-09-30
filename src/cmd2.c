@@ -2885,8 +2885,8 @@ void do_cmd_fire_aux(int item, object_type *j_ptr)
 				 * Calculate and combine the damages of the whole and
 				 * fractional dice.
 				 */
-				tdam = damroll(tdam_whole, o_ptr->ds) +
-					(tdam_remainder * damroll(1, o_ptr->ds) / 10000);
+				tdam = damroll(tdam_whole, i_ptr->ds) +
+					(tdam_remainder * damroll(1, i_ptr->ds) / 10000);
 
 #if 0
 				/* If a weapon of velocity activates, increase damage. */

@@ -84,6 +84,9 @@ void reset_visuals(void)
 		/* Process "font.prf" */
 		process_pref_file("font.prf");
 	}
+
+	/* Fields have to notice the change of visuals. */
+	init_fields();
 }
 
 

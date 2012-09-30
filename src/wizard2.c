@@ -683,7 +683,7 @@ static int wiz_create_itemtype(void)
 		prt(format("[%c] %s", ch, tvals[num].desc), row, col);
 	}
 
-	/* Me need to know the maximal possible tval_index */
+	/* We need to know the maximal possible tval_index */
 	max_num = num;
 
 	/* Choose! */
@@ -1816,7 +1816,9 @@ void do_cmd_debug(void)
 
 		/* Hack -- Help */
 		case '?':
-		do_cmd_help();
+		screen_save();
+		show_file("wizard.txt", NULL, 0 , 0);
+		screen_load();
 		break;
 
 

@@ -1422,31 +1422,55 @@ b_own_type b_owners[MAX_BLDG][MAX_B_OWN] =
 	{
 		/* Weaponmaster */
 		{ "Suiyan",				150,			RACE_HUMAN},
+		{ "Aadocpeth",			100,			RACE_SKELETON},
+		{ "Ognoqutoin",			95,				RACE_HALF_TROLL},
+		{ "Nothall",			125,			RACE_DWARF},
+		{ "Athoang",			90,				RACE_GNOME},
 	},
 	
 	{
 		/* Zymurgist */
 		{ "Tanistil",			100,			RACE_ELF},
+		{ "Paitnaw",			110,			RACE_IMP},
+		{ "Thiaeth",			125,			RACE_SPECTRE},
+		{ "Kaoghequin",			90,				RACE_YEEK},
+		{ "Yaowing",			95,				RACE_HIGH_ELF},
 	},
 	
 	{
 		/* Magesmith Weapons */
 		{ "Aotnron",			100,			RACE_HALF_ORC},
+		{ "Pwetholn",			95,				RACE_AMBERITE},
+		{ "Tim",				120,			RACE_HUMAN},
+		{ "Waowenth",			130,			RACE_ELF},
+		{ "Yiquent",			90,				RACE_VAMPIRE},
 	},
 	
 	{
 		/* Magesmith Armour */
 		{ "Paoingth",			100,			RACE_DARK_ELF},
+		{ "Aargh'nt",			130,			RACE_BEASTMAN},
+		{ "Wylntes",			125,			RACE_ELF},
+		{ "Baongthan",			90,				RACE_DWARF},
+		{ "Vitholm",			105,			RACE_SPRITE},
 	},
 	
 	{
 		/* Mutations */
 		{ "Aaognwth",			120,			RACE_HUMAN},
+		{ "Naothwell",			130,			RACE_DARK_ELF},
+		{ "Jaltip",				95,				RACE_BEASTMAN},
+		{ "Yillwyn",			100,			RACE_KLACKON},
+		{ "Zyxlen",				110,			RACE_GOLEM},
 	},
 	
 	{
 		/* Maps */
 		{ "Fsanong of the East", 90,			RACE_HUMAN},
+		{ "Paginoth the Strider", 100,			RACE_ELF},
+		{ "Xaingol the Wanderer", 110,			RACE_ZOMBIE},
+		{ "Wop of the high",	125,			RACE_GNOME},
+		{ "Kaquin of the West",	95,				RACE_HIGH_ELF},
 	},
 };
 

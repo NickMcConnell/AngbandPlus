@@ -107,6 +107,13 @@ racial abilities, which may also include special resistances and
 activations.
 
 
+***** <TheSexes>
+=== Gender ===
+
+You character may be male or female.  Males tend to be heavier but
+there are no significant gameplay differences between the two sexes.
+
+
 ***** <TheRaces>
 === Races ===
 

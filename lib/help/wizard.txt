@@ -1,0 +1,83 @@
+=== Wizard and Debugging Modes ===
+
+There are two ways of fiddling with the game: Wizard mode and debugging
+mode. Both mark your savefile and prevent your character from making
+the high score list. You will be warned when you enter wizard or
+debugging mode and will have to confirm that you really wish to do so
+by pressing 'y' at the appropriate prompt.
+
+
+=== Wizard mode ===
+
+Wizard mode does nothing else except keep your character alive, provide
+verbose information on all damage you do to monsters, and explain why
+an object disappears. To enter wizard mode, hold down the ctrl key and
+press 'w'.
+
+
+=== Debugging mode ===
+
+Debugging mode is a bit more useful. To enter debug mode for the first
+time, hold down the ctrl key and press 'a', and respond yes to the
+warning and question the game provides you with. Any command you type
+immediately after holding down the ctrl key and press 'a' will be
+processed as a debug command. The debug commands are:
+
+"ESC": Cancel the debug prompt.
+'"': Generate spoliers on artifacts, objects and monsters.
+'a': Cure everything that ails you.
+'b': Asks you for a target on screen, and takes you there.
+'c': Create any object. This command brings up a screen to choose a
+     general object kind, then a screen to select a specific object.
+'d': Detect everything.
+'e': Edit character's internal statistics, experience, and gold.
+'f': *Identify* an object.
+'g': Uses a command count to generate that many good or better quality
+     objects. May take a command count.
+'h': Rerolls all your level bonuses to base hitpoints, and displays a
+     figure indicating how they compare to the average (the life
+     rating).
+'i': Identify an object.
+'j': Jump to any level.
+'k': Display some screens of information about the player.
+'l': Learn about all objects with a generation level less than or equal
+     to the command count. Requires a command count.
+'m': Magic map the local area.
+'n': Use the command count to summon the monster with that index.
+     Requires a command count.&nbsp; Consult r_info.txt for monster
+     indexes.
+'o': Tweak an object's quality, pval, bonuses to Skill, Deadliness,
+     and armour class, and quantity. Don't forget to 'a'ccept the
+     changes when done. This command also allows you to roll up a very
+     large number of objects, and find out how good your object is
+     compared to others of its type.
+'p': Phase door.
+'q': Marks current quests as completed.
+'r': Recieve Chaos Patron gift/punishment. A command count may be used
+     used to specify which gift you wish to recieve. For a list, go to
+     the Chaos Patron spoiler page, and start from the first entry of
+     the 'What can they do?' section, starting with one.
+'s': Use the command count to try summoning that many random monsters
+     or monster groups. May take a command count.
+'t': Teleport.
+'u': Ultimate mapping - Illuminate EVERY square on the level.
+'v': Uses a command count to generate that many excellent or better
+     quality objects. May take a command count.
+'w': Fully wizard-light the level, including vaults.
+'x': Add the command count to player experience, or double current
+     experience and add one. May take a command count.
+'z': Either use maximum sighting range or a command count to remove
+     all monsters up to that range. May take a command count.
+'A': Prints your current alignment.
+'C': [To be completed].
+'F': do_cmd_wiz_feature. Takes a command count.
+'H': Summons a group of similar creatures(never OOD).
+'M': Get a Mutation. Use the commmand count to specify a mutation.
+'N': Summon a pet. Must use command count to specify index # of pet.
+'Z': All the monsters on the level vanish (not killed).
+'_': Debugs the monster flow code.
+'@': Activates a python script of your choice. (For future use).
+
+To enter a command count: type '0', enter the number desired, and press
+enter. When prompted for a command, hold down the ctrl key and type
+'a', then immediately enter a debug command.

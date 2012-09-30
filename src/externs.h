@@ -795,6 +795,7 @@ extern void teleport_to_player(int m_idx);
 extern void teleport_player(int dis);
 extern void teleport_player_to(int ny, int nx);
 extern void teleport_player_level(void);
+extern bool check_down_wild(void);
 extern void recall_player(int turns);
 extern void word_of_recall(void);
 extern bool apply_disenchant(int mode);
@@ -994,7 +995,7 @@ extern void do_poly_self(void);
 
 /* xtra2.c */
 extern void check_experience(void);
-extern void monster_death(int m_idx);
+extern bool monster_death(int m_idx);
 extern bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note);
 extern void panel_center(void);
 extern bool change_panel(int dy, int dx);

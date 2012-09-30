@@ -502,6 +502,14 @@ int main(int argc, char *argv[])
 				puts("  -- -n#   Number of terms to use");
 #endif /* USE_X11 */
 
+#ifdef USE_XPJ
+				puts("  -mxpj    To use XPJ");
+				puts("  --       Sub options");
+				puts("  -- -d    Set display name");
+				puts("  -- -s    Turn off smoothscaling graphics");
+				puts("  -- -n#   Number of terms to use");
+#endif /* USE_XPJ */
+
 #ifdef USE_GCU
 				puts("  -mgcu    To use GCU (GNU Curses)");
 #endif /* USE_GCU */
@@ -577,6 +585,7 @@ int main(int argc, char *argv[])
 	}
 #endif
 
+
 #ifdef USE_X11
 	/* Attempt to use the "main-x11.c" support */
 	if (!done && (!mstr || (streq(mstr, "x11"))))
@@ -589,6 +598,21 @@ int main(int argc, char *argv[])
 		}
 	}
 #endif
+
+
+#ifdef USE_XPJ
+	/* Attempt to use the "main-xpj.c" support */
+	if (!done && (!mstr || (streq(mstr, "xpj"))))
+	{
+		extern errr init_xpj(int, char**);
+		if (0 == init_xpj(argc, argv))
+		{
+			ANGBAND_SYS = "xpj";
+			done = TRUE;
+		}
+	}
+#endif
+
 
 #ifdef USE_GCU
 	/* Attempt to use the "main-gcu.c" support */

@@ -223,6 +223,7 @@ race and class which you have chosen. The exact quantum of this
 modification can be found in the Character Attributes section (see
 charattr.txt#StatBonusTable [a]).
 
+***** <CharDisplay>
 Once a character that matches or exceeds your expectations has been
 rolled, the computer will display the character for you to look at and
 also display the character's life-rating (see below [b]). If you accept

@@ -241,7 +241,7 @@ void mon_take_hit_mon(int m_idx, int dam, bool *fear, cptr note)
 			}
 
 			/* Generate treasure */
-			monster_death(m_idx);
+			(void) monster_death(m_idx);
 
 			/* Delete the monster */
 			delete_monster_idx(m_idx);
@@ -1971,7 +1971,7 @@ static void process_monster(int m_idx)
 			}
 
 			/* Generate treasure, etc */
-			monster_death(m_idx);
+			(void) monster_death(m_idx);
 
 			/* Delete the monster */
 			delete_monster_idx(m_idx);

@@ -3449,7 +3449,7 @@ static void process_menus(WORD wCmd)
 
 				/* React to changes */
 				Term_xtra_win_react();
-
+				
 				/* Hack -- Force redraw */
 				Term_key_push(KTRL('R'));
 			}
@@ -3473,7 +3473,7 @@ static void process_menus(WORD wCmd)
 
 				/* React to changes */
 				Term_xtra_win_react();
-
+				
 				/* Hack -- Force redraw */
 				Term_key_push(KTRL('R'));
 			}

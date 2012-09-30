@@ -622,6 +622,8 @@ void teleport_player_level(void)
 		msg_print("There is no effect.");
 		return;
 	}
+	
+	if (!check_down_wild()) return;
 
 	if (p_ptr->anti_tele)
 	{
@@ -679,29 +681,13 @@ void teleport_player_level(void)
 }
 
 
-
-/*
- * Recall the player to town or dungeon
- */
-void recall_player(int turns)
+bool check_down_wild(void)
 {
-	/*
-	 * TODO: Recall the player to the last
-	 * visited town when in the wilderness
-	 */
-
-	/* Ironman option */
-	if (ironman_downward)
-	{
-		msg_print("Nothing happens.");
-		return;
-	}
-	
 	/* Hack - no recalling in the middle of the wilderness */
 	if ((!p_ptr->depth) && (!p_ptr->town_num))
 	{
 		msg_print("Nothing happens.");
-		return;
+		return (FALSE);
 	}
 	
 	/* Cannot recall in towns with no dungeon */
@@ -723,10 +709,33 @@ void recall_player(int turns)
 		if (!found)
 		{
 			msg_print("Nothing happens.");
-			return;
+			return (FALSE);
 		}
 	}
 
+	return (TRUE);
+}
+
+
+/*
+ * Recall the player to town or dungeon
+ */
+void recall_player(int turns)
+{
+	/*
+	 * TODO: Recall the player to the last
+	 * visited town when in the wilderness
+	 */
+
+	/* Ironman option */
+	if (ironman_downward)
+	{
+		msg_print("Nothing happens.");
+		return;
+	}
+
+	if (!check_down_wild()) return;	
+	
 	if (p_ptr->depth && (p_ptr->max_depth > p_ptr->depth) &&
 		 !p_ptr->inside_quest)
 	{
@@ -1536,6 +1545,8 @@ void stair_creation(void)
 		msg_print("The object resists the spell.");
 		return;
 	}
+	
+	if (!check_down_wild()) return;
 
 	/* XXX XXX XXX */
 	delete_object(py, px);

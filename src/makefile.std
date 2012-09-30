@@ -20,8 +20,9 @@
 # the visual modules for various types of IBM-PC computers,
 # must be compiled with special Makefiles, see elsewhere.
 #
-# Note that "main-lsl.c", the visual module for ???,
-# must be compiled with "Makefile.lsl", see elsewhere.
+# Note that "main-lsl.c", the visual module for linux svga,
+# is depreciated.  Do not use this unless you feel like making
+# a heap of new tiles.
 #
 # Note that "main-acn.c", the visual module for Risc Acorn,
 # must be compiled with "Makefile.acn", see elsewhere.
@@ -52,7 +53,7 @@ SRCS = \
 	artifact.c mutation.c flavor.c spells3.c \
 	mspells1.c mspells2.c scores.c mind.c \
 	bldg.c obj_kind.c wild1.c wild2.c avatar.c notes.c\
-	main-cap.c main-gcu.c main-x11.c main-xaw.c main.c
+	main-cap.c main-gcu.c main-x11.c main-xaw.c main-xpj.c main.c
 
 OBJS = \
 	z-util.o z-virt.o z-form.o z-rand.o z-term.o \
@@ -68,7 +69,7 @@ OBJS = \
 	artifact.o mutation.o flavor.o spells3.o \
 	mspells1.o mspells2.o scores.o mind.o \
 	bldg.o obj_kind.o wild1.o wild2.o avatar.o notes.o\
-	main-cap.o main-gcu.o main-x11.o main-xaw.o main.o
+	main-cap.o main-gcu.o main-x11.o main-xaw.o main-xpj.o main.o
 
 
 
@@ -139,6 +140,20 @@ LIBS = -lX11 -lcurses -ltermcap -L/usr/X11R6/lib
 #CFLAGS = -Wall -O2 -fno-strength-reduce -pipe -g -D"USE_XAW" -D"USE_GCU"
 #LIBS = -L/usr/X11R6/lib -lXaw -lXext -lSM -lICE -lXmu -lXt \
 #	-lX11 -lcurses
+
+
+## Variation - Debian 
+#
+#CFLAGS = -Wall -W -O2 -fno-strength-reduce -m486 -pipe -g \
+#         -D"USE_GCU" -D"USE_TRANSPARENCY" -D"USE_XPJ" -D"USE_X11"
+#LIBS = -lX11 -lcurses -lncurses -L/usr/X11R6/lib
+
+
+## Variation - OpenBSD 
+#
+#CFLAGS = -Wall -O2 -fno-strength-reduce -pipe -g -I/usr/x11r6/include \
+#         -D"USE_X11" -D"USE_GCU" -D"USE_TRANSPARENCY"
+#LIBS = -lX11 -lcurses -ltermcap -L/usr/X11R6/lib
 
 
 ##
@@ -326,8 +341,9 @@ init2.o: init2.c $(INCS)
 load.o: load.c $(INCS)
 main-cap.o: main-cap.c $(INCS)
 main-gcu.o: main-gcu.c $(INCS)
-main-x11.o: main-x11.c $(INCS)
-main-xaw.o: main-xaw.c $(INCS)
+main-x11.o: main-x11.c $(INCS) maid-x11.c
+main-xaw.o: main-xaw.c $(INCS) maid-x11.c
+main-xpj.o: main-xpj.c $(INCS) maid-x11.c
 main.o: main.c $(INCS)
 melee1.o: melee1.c $(INCS)
 melee2.o: melee2.c $(INCS)

@@ -35,7 +35,7 @@
 /*
  * Current version string
  */
-#define VERSION_STRING	"2.5.3"
+#define VERSION_STRING	"2.5.4"
 
 
 /*
@@ -57,7 +57,7 @@
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 2
 #define FAKE_VER_MINOR 5
-#define FAKE_VER_PATCH 3
+#define FAKE_VER_PATCH 4
 #endif /* USE_SCRIPT */
 
 #define ANGBAND_2_8_1
@@ -196,7 +196,7 @@
 /*
  * Total number of owners per building (see "bldg.c", etc)
  */
-#define MAX_B_OWN			1
+#define MAX_B_OWN			5
 
 
 /*

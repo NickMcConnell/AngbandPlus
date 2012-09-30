@@ -1620,6 +1620,9 @@ static void display_entry(int pos)
 	if (a & 0x80) a |= 0x40;
 #endif
 
+	/* Hack -- fake monochrome */
+	if (!use_color || ironman_moria) a = TERM_WHITE;
+
 	Term_draw(3, i + 6, a, c);
 
 	/* Describe an item in the home */

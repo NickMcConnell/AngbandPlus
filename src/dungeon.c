@@ -4107,9 +4107,6 @@ void play_game(bool new_game)
 		seed_town = 0;
 	}
 	
-	/* Init the fields */
-	init_fields();
-	
 	/* Normal machine (process player name) */
 	if (savefile[0])
 	{
@@ -4154,8 +4151,7 @@ void play_game(bool new_game)
 #endif
 
 	/* Load the "pref" files */
-	load_all_pref_files();	
-	
+	load_all_pref_files();
 
 	/* Set or clear "rogue_like_commands" if requested */
 	if (arg_force_original) rogue_like_commands = FALSE;
@@ -4164,16 +4160,15 @@ void play_game(bool new_game)
 	/* Initialize vault info */
 	if (init_v_info()) quit("Cannot initialize vaults");
 
-	
 	/* React to changes */
 	Term_xtra(TERM_XTRA_REACT, 0);
-	
+
 	/* Window stuff */
 	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER);
 
 	/* Window stuff */
 	p_ptr->window |= (PW_MONSTER);
-	
+
 	/* Window stuff */
 	window_stuff();
 

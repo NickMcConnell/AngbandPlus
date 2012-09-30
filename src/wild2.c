@@ -68,7 +68,7 @@ void light_dark_block(blk_ptr block_ptr, int x, int y)
 				if (!(((c_ptr->feat >= FEAT_OPEN) &&
 				    (c_ptr->feat <= FEAT_MORE)) ||
 				    ((c_ptr->feat >= FEAT_CLOSED) &&
-					(c_ptr->feat <= FEAT_SHAL_LAVA))))
+					(c_ptr->feat <= FEAT_PERM_SOLID))))
 				{
 					/* Forget the grid */
 					c_ptr->info &= ~(CAVE_GLOW | CAVE_MARK);

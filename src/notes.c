@@ -15,7 +15,7 @@
 
 /*
  * A short helper function for add_note and other
- * functions that returns the file name for the notes file.
+ * functions that returns the file name for the note-taking file.
  */
 cptr notes_file(void)
 {

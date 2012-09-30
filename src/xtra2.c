@@ -205,7 +205,7 @@ static int get_coin_type(monster_race *r_ptr)
  * Note that monsters can now carry objects, and when a monster dies,
  * it drops all of its objects, which may disappear in crowded rooms.
  */
-void monster_death(int m_idx)
+bool monster_death(int m_idx)
 {
 	int i, j, y, x, ny, nx, i2, j2;
 
@@ -230,6 +230,7 @@ void monster_death(int m_idx)
 	bool cloned = FALSE;
 	bool create_stairs = FALSE;
 	bool reward = FALSE;
+	bool dropped_corpse = FALSE;
 	int force_coin = get_coin_type(r_ptr);
 
 	int quest_num;
@@ -564,7 +565,10 @@ void monster_death(int m_idx)
 					(void)field_hook_single(hack_fld_ptr,
 						 FIELD_ACT_INIT, m_ptr);
 				}
-			}		
+			}
+			
+			/* We dropped a corpse */
+			dropped_corpse = TRUE;		
 		}
 	}
 #endif /* USE_CORPSES */
@@ -931,7 +935,7 @@ void monster_death(int m_idx)
 #endif /* USE_SCRIPT */
 
 	/* Only process "Quest Monsters" */
-	if (!(r_ptr->flags1 & RF1_QUESTOR)) return;
+	if (!(r_ptr->flags1 & RF1_QUESTOR)) return (dropped_corpse);
 
 	/* Winner? */
 	if (strstr((r_name + r_ptr->name), "Serpent of Chaos"))
@@ -947,6 +951,9 @@ void monster_death(int m_idx)
 		msg_print("You have won the game!");
 		msg_print("You may retire (commit suicide) when you are ready.");
 	}
+	
+	/* Return TRUE if we dropped a corpse for the player to see */
+	return (dropped_corpse);
 }
 
 /*
@@ -1023,6 +1030,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 
 	/* Innocent until proven otherwise */
 	bool        innocent = TRUE, thief = FALSE;
+	bool		corpse = FALSE;
 	int         i;
 
 	/* Redraw (later) if needed */
@@ -1220,7 +1228,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		gain_exp(new_exp);
 
 		/* Generate treasure */
-		monster_death(m_idx);
+		corpse = monster_death(m_idx);
 
 		/* When the player kills a Unique, it stays dead */
 		if (r_ptr->flags1 & RF1_UNIQUE) r_ptr->max_num = 0;
@@ -1246,7 +1254,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		if (r_ptr->flags3 & RF3_UNIQUE_7) r_ptr->max_num--;
 
 		/* Recall even invisible uniques or winners */
-		if (m_ptr->ml || (r_ptr->flags1 & RF1_UNIQUE))
+		if (m_ptr->ml || (r_ptr->flags1 & RF1_UNIQUE) || corpse)
 		{
 			/* Count kills this life */
 			if (r_ptr->r_pkills < MAX_SHORT) r_ptr->r_pkills++;

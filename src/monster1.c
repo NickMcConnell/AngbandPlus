@@ -130,9 +130,6 @@ static void roff_aux(int r_idx, int remem)
 		/* Save the "old" memory */
 		save_mem = *r_ptr;
 
-		/* Hack -- Maximal kills */
-		r_ptr->r_tkills = MAX_SHORT;
-
 		/* Hack -- Maximal info */
 		r_ptr->r_wake = r_ptr->r_ignore = MAX_UCHAR;
 
@@ -202,7 +199,7 @@ static void roff_aux(int r_idx, int remem)
 	if (r_ptr->flags1 & RF1_ESCORTS) flags1 |= (RF1_ESCORTS);
 
 	/* Killing a monster reveals some properties */
-	if (r_ptr->r_tkills)
+	if (r_ptr->r_tkills || cheat_know)
 	{
 		/* Know "race" flags */
 		if (r_ptr->flags3 & RF3_ORC)      flags3 |= (RF3_ORC);
@@ -369,7 +366,7 @@ static void roff_aux(int r_idx, int remem)
 		roff(format("%^s lives in the town", wd_he[msex]));
 		old = TRUE;
 	}
-	else if (r_ptr->r_tkills)
+	else if (r_ptr->r_tkills || cheat_know)
 	{
 		if (depth_in_feet)
 		{
@@ -470,7 +467,7 @@ static void roff_aux(int r_idx, int remem)
 
 
 	/* Describe experience if known */
-	if (r_ptr->r_tkills)
+	if (r_ptr->r_tkills || cheat_know)
 	{
 		/* Introduction */
 		if (flags1 & RF1_UNIQUE)
@@ -1002,7 +999,7 @@ static void roff_aux(int r_idx, int remem)
 	/* Do we know how aware it is? */
 	if ((((int)r_ptr->r_wake * (int)r_ptr->r_wake) > r_ptr->sleep) ||
 	          (r_ptr->r_ignore == MAX_UCHAR) ||
-	         ((r_ptr->sleep == 0) && (r_ptr->r_tkills >= 10)))
+	         ((r_ptr->sleep == 0) && ((r_ptr->r_tkills >= 10) || cheat_know)))
 	{
 		cptr act;
 

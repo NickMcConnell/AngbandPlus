@@ -297,7 +297,7 @@ static XImage *ReadBMP(Display *dpy, char *Name)
 
 	Res = XCreateImage(dpy, visual, depth, ZPixmap, 0 /*offset*/,
 	                   Data, infoheader.biWidth, infoheader.biHeight,
-	                   8 /*bitmap_pad*/, 0 /*bytes_per_line*/);
+	                   32 /*bitmap_pad*/, 0 /*bytes_per_line*/);
 
 	/* Failure */
 	if (Res == NULL)

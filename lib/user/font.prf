@@ -1,4 +1,4 @@
-# CVS: Last edit by $Author: remco $ on $Date: 1999/09/30 10:08:48 $
+# CVS: Last edit by $Author: sfuerst $ on $Date: 2001/02/11 11:00:34 $
 # File: font.prf
 
 #
@@ -26,7 +26,7 @@
 
 ##### System Specific Subfiles #####
 
-?:[IOR [EQU $SYS xaw] [EQU $SYS x11]]
+?:[IOR [EQU $SYS xaw] [EQU $SYS x11] [EQU $SYS xpj]]
 %:font-x11.prf
 
 ?:[EQU $SYS gcu]

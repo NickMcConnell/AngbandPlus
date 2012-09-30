@@ -3196,7 +3196,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 				sad = TRUE;
 
 			/* Generate treasure, etc */
-			monster_death(c_ptr->m_idx);
+			(void) monster_death(c_ptr->m_idx);
 		
 			/* Delete the monster */
 			delete_monster_idx(c_ptr->m_idx);

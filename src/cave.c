@@ -1067,6 +1067,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 	/* Save the terrain info for the transparency effects */
 	(*tap) = a;
 	(*tcp) = c;
+
 #endif /* USE_TRANSPARENCY */
 
 	/* Handle "player" */
@@ -1233,6 +1234,11 @@ void map_info(int y, int x, byte *ap, char *cp)
 
 				/* Normal attr */
 				a = fld_ptr->f_attr;
+#ifdef USE_TRANSPARENCY
+				/* Save the terrain info for the transparency effects */
+				(*tap) = a;
+				(*tcp) = c;
+#endif /* USE_TRANSPARENCY */
 			}
 			else
 			{

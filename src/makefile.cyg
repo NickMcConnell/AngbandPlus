@@ -8,11 +8,11 @@
 
 CC      =       gcc
 WRES    =       windres
-LIBS    =       -s -mwindows -e _mainCRTStartup -lwinmm
-CFLAGS  =       -Wall -O2 -fno-strength-reduce -DUSE_TRANSPARENCY -DWINDOWS
+LIBS    =       -s -mno-cygwin -mwindows -e _mainCRTStartup -lwinmm
+CFLAGS  =       -Wall -mno-cygwin -O2 -fno-strength-reduce -DUSE_TRANSPARENCY -DWINDOWS
 
 
-SRCS		= \
+SRCS = \
 	angband.rc \
 	artifact.c \
 	avatar.c \
@@ -75,7 +75,7 @@ SRCS		= \
 	z-virt.c 
 
 
-EXOBJS	= \
+EXOBJS = \
 	angband.res \
 	artifact.o \
 	avatar.o \
@@ -138,13 +138,13 @@ EXOBJS	= \
 	z-virt.o 
 
 
-HDRS		= \
+HDRS = \
 	h-basic.h \
 	h-define.h h-type.h \
 	h-system.h h-config.h
 
 
-INCS		= \
+INCS = \
 	angband.h \
 	z-config.h defines.h \
 	types.h externs.h \

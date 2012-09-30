@@ -100,23 +100,29 @@ static u16b select_building(byte pop, byte magic, byte law, u16b *build,
 	{
 		b_select[BUILD_NONE] = 0;
 		b_select[BUILD_BLANK] = 0;
+		b_select[BUILD_RECHARGE] = 0;
+		b_select[BUILD_PLUS_WEAPON] = 0;
+		b_select[BUILD_PLUS_ARMOUR] = 0;
+		b_select[BUILD_MUTATE] = 0;
+		b_select[BUILD_MAP] = 0;
 	}
 
 	/* Blank buildings are much more common for large towns */
-	if (build_num > 9)
+	else
 	{
 		b_select[BUILD_NONE] = 1;
 		b_select[BUILD_BLANK] = 1;
+		
+		/* Some buildings are normally rare */
+		b_select[BUILD_RECHARGE] += 2;
+		b_select[BUILD_PLUS_WEAPON] += 2;
+		b_select[BUILD_PLUS_ARMOUR] += 2;
+		b_select[BUILD_MUTATE] += 4;
+		b_select[BUILD_MAP] +=2;
 	}
 	
 	/* Not more than one home */
 	if (build[BUILD_STORE_HOME]) b_select[BUILD_STORE_HOME] = 0;
-
-	/* Some buildings are normally rare */
-	b_select[BUILD_RECHARGE] += 2;
-	b_select[BUILD_PLUS_WEAPON] += 2;
-	b_select[BUILD_PLUS_ARMOUR] += 2;
-	b_select[BUILD_MUTATE] += 4;
 	
 	/* Calculate total */
 	for (i = 0; i < MAX_CITY_BUILD; i++)
@@ -3915,6 +3921,7 @@ void create_wilderness(void)
 			{
 				/* Toughness (level 0 - 64) */
 				w_ptr->done.mon_gen = ((256 - law) + (256 - pop)) / 4 ;
+				w_ptr->done.mon_gen = MAX(1, w_ptr->done.mon_gen - 10);
 
 				/* No monsters (probability 0 - 16) */
 				w_ptr->done.mon_prob = pop / 16;

@@ -506,7 +506,7 @@ static void display_build(field_type *f_ptr, store_type *b_ptr)
 		
 		case BLDG_MAP:
 		{
-			sprintf(tmp_str, " B) Buy Map (%dgp)",
+			sprintf(tmp_str, " E) Examine Map (%dgp)",
 				 f_ptr->data[1] * bo_ptr->inflate);
 			c_put_str(TERM_YELLOW, tmp_str, 19, 35);
 			break;
@@ -2017,6 +2017,12 @@ static bool process_build_hook(field_type *f_ptr, store_type *b_ptr)
 					{
 						(void) gain_random_mutation(0);
 					}
+					
+					/* Display messages */
+					msg_print(NULL);
+					
+					/* Redraw screen */
+					display_build(f_ptr, b_ptr);
 				}
 				
 				done = TRUE;
@@ -2027,7 +2033,7 @@ static bool process_build_hook(field_type *f_ptr, store_type *b_ptr)
 		
 		case BLDG_MAP:
 		{
-			if (p_ptr->command_cmd == 'B')
+			if (p_ptr->command_cmd == 'E')
 			{
 				cost = f_ptr->data[1] * bo_ptr->inflate;
 				

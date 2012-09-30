@@ -1,4 +1,4 @@
-# CVS: Last edit by $Author: sfuerst $ on $Date: 2001/01/18 10:47:30 $
+# CVS: Last edit by $Author: jianson $ on $Date: 2001/02/16 03:47:08 $
 ##### Special attr/char values #####
 
 
@@ -4998,6 +4998,24 @@ T:41:0x81:0x98
 
 # Bookstore
 T:42:0xCB:0x90
+
+# Weaponmaster
+T:43:0xCB/0x97
+
+# Zymurgist
+T:44:0xCB/0x98
+
+# Magesmith (weapon)
+T:45:0xCC/0x9D
+
+# Magesmith (armour)
+T:46:0xCC/0x9D
+
+# Mutatalist
+T:47:0xCB/0x9F
+
+# Map Maker
+T:48:0xCB/0x9A
 
 
 # Load the special player pictures
