@@ -147,6 +147,7 @@ static bool wearable_p(object_type *o_ptr)
 		case TV_DIGGING:
 		case TV_HAFTED:
 		case TV_POLEARM:
+                case TV_MSTAFF:
 		case TV_SWORD:
 		case TV_BOOTS:
 		case TV_GLOVES:
@@ -1276,6 +1277,11 @@ static void rd_extra(void)
 	{
 		rd_string(history[i], 60);
 	}
+	
+	for (i=1;i<101;i++)
+	{
+		rd_byte(&p_ptr->spec_history[i]);
+	}
 
 	/* Class/Race/Gender/Spells */
 	rd_byte(&p_ptr->prace);
@@ -1283,6 +1289,7 @@ static void rd_extra(void)
 	rd_byte(&p_ptr->psex);
 	rd_byte(&p_ptr->realm1);
 	rd_byte(&p_ptr->realm2);
+        rd_byte(&p_ptr->mimic_form);
 	rd_byte(&tmp8u);        /* oops */
 
 	/* Special Race/Class info */
@@ -1380,6 +1387,11 @@ static void rd_extra(void)
 	rd_s16b(&p_ptr->csp);
 	rd_u16b(&p_ptr->csp_frac);
 
+        rd_s16b(&p_ptr->mtp);
+        rd_s16b(&p_ptr->ctp);
+        rd_s16b(&p_ptr->tp_aux1);
+        rd_s16b(&p_ptr->tp_aux2);
+
 	rd_s16b(&p_ptr->max_plv);
 	rd_s16b(&p_ptr->max_dlv);
 
@@ -1434,9 +1446,9 @@ static void rd_extra(void)
 		p_ptr->tim_esp = 0;
 		p_ptr->wraith_form = 0;
 		p_ptr->resist_magic = 0;
-		p_ptr->tim_xtra1 = 0;
-		p_ptr->tim_xtra2 = 0;
-		p_ptr->tim_xtra3 = 0;
+                p_ptr->tim_invisible = 0;
+                p_ptr->tim_inv_pow = 0;
+                p_ptr->tim_mimic = 0;
 		p_ptr->tim_xtra4 = 0;
 		p_ptr->tim_xtra5 = 0;
 		p_ptr->tim_xtra6 = 0;
@@ -1452,9 +1464,9 @@ static void rd_extra(void)
 		rd_s16b(&p_ptr->tim_esp);
 		rd_s16b(&p_ptr->wraith_form);
 		rd_s16b(&p_ptr->resist_magic);
-		rd_s16b(&p_ptr->tim_xtra1);
-		rd_s16b(&p_ptr->tim_xtra2);
-		rd_s16b(&p_ptr->tim_xtra3);
+                rd_s16b(&p_ptr->tim_invisible);
+                rd_s16b(&p_ptr->tim_inv_pow);
+                rd_s16b(&p_ptr->tim_mimic);
 		rd_s16b(&p_ptr->tim_xtra4);
 		rd_s16b(&p_ptr->tim_xtra5);
 		rd_s16b(&p_ptr->tim_xtra6);
@@ -1476,10 +1488,30 @@ static void rd_extra(void)
 	rd_byte(&p_ptr->searching);
 	rd_byte(&p_ptr->maximize);
 	rd_byte(&p_ptr->preserve);
-	rd_byte(&tmp8u);
+	rd_byte(&p_ptr->special);
+	rd_byte(&special_flag);
+        rd_byte(&p_ptr->allow_one_death);
 
-	/* Future use */
+        /* Future use */
 	for (i = 0; i < 48; i++) rd_byte(&tmp8u);
+
+        /* Aux variables */
+        rd_u32b(&p_ptr->class_extra1);
+        rd_u32b(&p_ptr->class_extra2);
+        rd_u32b(&p_ptr->class_extra3);
+        rd_u32b(&p_ptr->class_extra4);
+        rd_u32b(&p_ptr->class_extra5);
+        rd_u32b(&p_ptr->class_extra6);
+        rd_u32b(&p_ptr->class_extra7);
+
+        rd_u32b(&p_ptr->race_extra1);
+        rd_u32b(&p_ptr->race_extra2);
+        rd_u32b(&p_ptr->race_extra3);
+        rd_u32b(&p_ptr->race_extra4);
+        rd_u32b(&p_ptr->race_extra5);
+        rd_u32b(&p_ptr->race_extra6);
+        rd_u32b(&p_ptr->race_extra7);
+
 
 	/* Skip the flags */
 	strip_bytes(12);
@@ -2276,8 +2308,8 @@ static errr rd_dungeon_aux(void)
 		/* Hack -- ignore "broken" monsters */
 		if (q_ptr->r_idx <= 0) continue;
 
-		/* Hack -- ignore "broken" monsters */
-		if (q_ptr->r_idx >= max_r_idx) continue;
+		/* Hack -- ignore "player ghosts" */
+		if (q_ptr->r_idx >= max_r_idx-1) continue;
 
 
 		/* Get a new record */
@@ -2819,7 +2851,6 @@ static errr rd_savefile_new_aux(void)
 	}
 	if (arg_fiddle) note("Loaded Object Memory");
 
-#if 0
 	/*
 	 * Initialize arena and rewards information
 	 */
@@ -2835,18 +2866,14 @@ static errr rd_savefile_new_aux(void)
 	p_ptr->wilderness_x = 4;
 	p_ptr->wilderness_y = 4;
 
-#endif
-
 	/* Init the wilderness seeds */
-	for (i = 0; i < max_wild_x; i++)
+	for (i = 0; i < MAX_WILD_X; i++)
 	{
-		for (j = 0; j < max_wild_y; j++)
+		for (j = 0; j < MAX_WILD_Y; j++)
 		{
 			wilderness[j][i].seed = rand_int(0x10000000);
 		}
 	}
-
-	p_ptr->wilderness = 1;
 
 	/* 2.1.3 or newer version */
 	if (!z_older_than(2, 1, 3))
@@ -2886,6 +2913,9 @@ static errr rd_savefile_new_aux(void)
 			/* Load quest status if quest is running */
 			if (quest[i].status == 1)
 			{
+                                rd_s16b(&quest[i].k_idx);
+                                if(quest[i].k_idx)
+                                        a_info[quest[i].k_idx].flags3 |= TR3_QUESTITEM;
 				rd_s16b(&quest[i].cur_num);
 				rd_s16b(&quest[i].max_num);
 				rd_s16b(&quest[i].type);
@@ -2896,15 +2926,6 @@ static errr rd_savefile_new_aux(void)
 				}
 
 				rd_s16b(&quest[i].r_idx);
-
-				/* Load quest item index */
-				if (!z_older_than(2, 2, 1))
-				{
-					rd_s16b(&quest[i].k_idx);
-
-					if (quest[i].k_idx)
-						a_info[quest[i].k_idx].flags3 |= TR3_QUESTITEM;
-				}
 
 				if (z_older_than(2, 2, 0))
 				{
@@ -2917,15 +2938,6 @@ static errr rd_savefile_new_aux(void)
 			}
 		}
 
-		if (!z_older_than(2, 2, 1))
-		{
-			/* "Hard quests" flag */
-			rd_byte(&p_ptr->hard_quests);
-
-			/* "Wilderness" flag */
-			rd_byte(&p_ptr->wilderness);
-		}
-
 		/* Position in the wilderness */
 		rd_s32b(&p_ptr->wilderness_x);
 		rd_s32b(&p_ptr->wilderness_y);
@@ -2935,7 +2947,7 @@ static errr rd_savefile_new_aux(void)
 		rd_s32b(&wild_y_size);
 
 		/* Incompatible save files */
-		if ((wild_x_size > max_wild_x) || (wild_y_size > max_wild_y))
+		if ((wild_x_size > MAX_WILD_X) || (wild_y_size > MAX_WILD_Y))
 		{
 			note(format("Wilderness is too big (%u/%u)!", wild_x_size, wild_y_size));
 			return (23);
@@ -3032,7 +3044,7 @@ static errr rd_savefile_new_aux(void)
 		Term_putstr(5, 15, -1, TERM_WHITE,
 			"You can input yourself the number of quest you'd like to");
 		Term_putstr(5, 16, -1, TERM_WHITE,
-			"perform next to two obligatory ones ( Oberon and the Serpent of Chaos )");
+                        "perform next to two obligatory ones ( Sauron and Morgoth )");
 		Term_putstr(5, 17, -1, TERM_WHITE,
 			"In case you do not want any additional quest, just enter 0");
 
@@ -3069,8 +3081,11 @@ static errr rd_savefile_new_aux(void)
 		process_dungeon_file("q_info.txt", &ystart, &xstart, 0, 0);
 		p_ptr->inside_quest = 0;
 
+		/* Set the quest monster hook */
+		get_mon_num_hook = monster_quest;
+
 		/* Prepare allocation table */
-		get_mon_num_prep(monster_quest, NULL);
+		get_mon_num_prep();
 
 		/* Generate quests */
 		for (i = MIN_RANDOM_QUEST + v - 1; i >= MIN_RANDOM_QUEST; i--)
@@ -3106,118 +3121,19 @@ static errr rd_savefile_new_aux(void)
 			}
 		}
 
-		/* Init the two main quests (Oberon + Serpent) */
+                /* Init the two main quests (Sauron + Morgoth) */
 		init_flags = INIT_ASSIGN;
-		p_ptr->inside_quest = QUEST_OBERON;
+                p_ptr->inside_quest = QUEST_SAURON;
 		process_dungeon_file("q_info.txt", &ystart, &xstart, 0, 0);
-		quest[QUEST_OBERON].status = QUEST_STATUS_TAKEN;
+                quest[QUEST_SAURON].status = QUEST_STATUS_TAKEN;
 
-		p_ptr->inside_quest = QUEST_SERPENT;
+                p_ptr->inside_quest = QUEST_MORGOTH;
 		process_dungeon_file("q_info.txt", &ystart, &xstart, 0, 0);
-		quest[QUEST_SERPENT].status = QUEST_STATUS_TAKEN;
+                quest[QUEST_MORGOTH].status = QUEST_STATUS_TAKEN;
 		p_ptr->inside_quest = 0;
 	}
 
-	/*
-	 * Select 'hard random quests mode'
-	 * when importing old savefiles.
-	 */
-	if (z_older_than(2, 2, 1))
-	{
-		char c;
-		
-		/* Clear */
-		clear_from(15);
-
-		/*** Hard quests mode ***/
-
-		/* Extra info */
-		Term_putstr(5, 14, -1, TERM_WHITE,
-			"Using 'hard quests' mode makes the random quests harder, because");
-		Term_putstr(5, 15, -1, TERM_WHITE,
-			"you have to kill all monsters at the same visit to the quest level.");
-		Term_putstr(5, 16, -1, TERM_WHITE,
-			"If you leave the level while some quest monsters are still alive,");
-		Term_putstr(5, 17, -1, TERM_WHITE,
-			"then all killed quest monsters are revived on your next visit");
-		Term_putstr(5, 18, -1, TERM_WHITE,
-			"to this level.");
-
-		/* Ask about "hard quests" mode */
-		while (1)
-		{
-			put_str("Use 'Hard quests'? (y/n/*) ", 20, 2);
-			c = inkey();
-			if (c == 'Q') quit(NULL);
-			if (c == 'S') return (FALSE);
-			if (c == '*')
-			{
-				c = 'y';
-				if (randint(2) == 1)
-					c = 'n';
-				break;
-			}
-			if (c == ESCAPE) break;
-			if ((c == 'y') || (c == 'n')) break;
-			if (c == '?') do_cmd_help();
-			else bell();
-		}
-
-		/* Set "maximize" mode */
-		p_ptr->hard_quests = (c == 'y');
-
-		/* Clear */
-		clear_from(15);
-	}
-
 	if (arg_fiddle) note("Loaded Quests");
-
-	/* A version without the wilderness */
-	if (z_older_than(2, 1, 2))
-	{
-		char c;
-
-		/* Clear */
-		clear_from(15);
-
-		/*** Wilderness mode ***/
-
-		/* Extra info */
-		Term_putstr(5, 14, -1, TERM_WHITE,
-			"'Wilderness' mode enables the extended wilderness of ZAngband");
-		Term_putstr(5, 15, -1, TERM_WHITE,
-			"giving you a wilderness and several new towns to explore.");
-		Term_putstr(5, 16, -1, TERM_WHITE,
-			"Switching off 'wilderness' mode is recommended for slower computers,");
-		Term_putstr(5, 16, -1, TERM_WHITE,
-			"because the wilderness slows down the system a bit.");
-
-		/* Ask about "wilderness" mode */
-		while (1)
-		{
-			put_str("Use 'wilderness'? (y/n/*) ", 20, 2);
-			c = inkey();
-			if (c == 'Q') quit(NULL);
-			if (c == 'S') return (FALSE);
-			if (c == '*')
-			{
-				c = 'y';
-				if (randint(2) == 1)
-					c = 'n';
-				break;
-			}
-			if (c == ESCAPE) break;
-			if ((c == 'y') || (c == 'n')) break;
-			if (c == '?') do_cmd_help();
-			else bell();
-		}
-
-		/* Set "wilderness" mode */
-		p_ptr->wilderness = !(c == 'n');
-
-		/* Clear */
-		clear_from(15);
-	}
 
 
 	/* Load the Artifacts */
@@ -3373,6 +3289,11 @@ static errr rd_savefile_new_aux(void)
 	}
 
 #endif
+
+
+	/* Hack -- no ghosts */
+	r_info[max_r_idx-1].max_num = 0;
+
 
 	/* Success */
 	return (0);

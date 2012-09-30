@@ -55,16 +55,11 @@ programmers:
 
 	Jeff Duprey for the new mutations.	
 
-	John Duffin and Leigh Silas Hanrihan for the new items.
-
-	Marten Woxberg for many new ideas.
+	Leigh Silas Hanrihan for the new items.
 
 	Benny S. Hofmann, Aram Harrow, Greg Harvey, Keldon Jones,
-	Graham Murray, Remco Gerlich, Tim Baker, Oscar Nelson,
-	Adam Horowitz, David A. Henry, "Strikes", Chris Hadgis,
-	David Howdon, Jenni Henzel, Stephen Lee, "John",
-	Gwidon S. Naskrent, Eric Wright, Bob Martin, and many
-	others for bugreports, patches, bugfixes, and ideas.
+	Graham Murray, Remco Gerlich, Tim Baker and many others
+	for bugreports, patches, bugfixes, and ideas.
 
 
 ZAngband 2.1.0c was Topi's last version, he has got a job and and

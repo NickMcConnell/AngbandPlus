@@ -1797,3 +1797,102 @@ D:%.X9+^^^^^^^^^^^^^^^^^+,,,,,,,,,,,,,,,+8X%
 D:%.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX%
 D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+
+N:80:Deathwatch
+X:99:110:52:127
+Y:96:98:120:126:178:195:206:112:140:159:27:72:53:21
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X XXXXXXXXXXXX                                                                                                                X
+D:X X..........X        XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX                                                                 X
+D:X X....>.....X        X.XdX.X.X.XcX.X.X...XcX.X.XcX.X.XgXd+2X                                                                 X
+D:X X..........X        XDXDXDXDXDXDXDXDX...XDXDXDXDXDXDXDXDXXX      XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX          X
+D:X XXXXXDXXXXXX        X...............D...D...............X        X...f............a...XXXXX.......b..f....a....+1X          X
+D:X     X.X             XDXDXDXDXDXDXDXDX..cXDXDXDXDXDXDXDXDX        X........b...........XXXXX...a..........b.....XXX          X
+D:X     X.X             X.XcX.XcXdX.X.X.X...XcX.XdXcX.X.X.XgX        XXXXXXXXXXDDXXXXXXXXXXXXXXXXXXXXXXXXDDXXXXXXXXX            X
+D:X     X.X             XXXXXXXXXXXXXXXXX.c.XXXXXXXXXXXXXXXXX        XXXXXXXXXXDDXXXXXXXXXXXXXXXXXXXXXXXXDDXXXXXXXXX            X
+D:X     X.X                XXX          X...X                        X...........f...a....XXXXX....b.a...........b.X            X
+D:X    XX.XX               X.XXXXXXXXXXXXDDDXXXXX                    X..f...b.............XXXXX..a....f.....b..a...X            X
+D:X   XX...XX            XXXDXXXXXXXXX.......c.XX                    XXXXXXXXXXDDXXXXXXXXXXXXXXXXXXXXXXXXDDXXXXXXXXX            X
+D:X  XX.....XX           XdD........D...c......dX                    X........a...............a....................X            X
+D:X XX.......XX          XXXDXXXXXXXX......c....X                    Xf....b..........f............a.........f.....X            X
+D:X X.........X            XeX      XX.........XX                    X.............a.......b...........a...........X            X
+D:X XXXXX.XXXXX            X.X       XXXXDDDXXXX                     X....a...............................a........X            X
+D:X     X.X                X.X          X...X                        XXXXXXXXXXXXXXXXXXXXX...XXXXXXXXXXXXXXXXXXXXXXX            X
+D:X     X.X                X.X          X...X                                            X...X                                  X
+D:X     X.X                X.X         XX...XX                                           X.b.X                                  X
+D:X     X.X                X.X        XX.....XX                                          X...X                                  X
+D:X    XXDXX  XXXX         X.X       XX.......XX                                         X..bX                                  X
+D:X    X...XXXX..X         XdX      XX...ccc...XX                                        X...X                                  X
+D:X    X...+..D..X         X.X     XX....ccc...dXX                                       X...X                                  X
+D:X    X...XXXX..X         X.X    XX.d..ccicc....XX                          XXXXXXXXXXXXXDDDXXXXXXXXXXXX                       X
+D:X    XX.XX  XXXX         X.X   XX......ccc..g...XX                        XX......a...............f...XX                      X
+D:X     X.X                X.X  XX...g...ccc.......XX                     XXX..f.........................XX            XXXXX    X
+D:X     X.X                X.X  X......g.........g..X                    XX..................b....a.......XX           Xa.aX    X
+D:X     X.X                XgX  XXXX..XXXXXXX..XXXXXX                   XX.....a.........a..............a..XX          X.a.X    X
+D:X     X.X                X.X     X..X     X..X                 XXXXXXXX..........f........................XX         XDXXX    X
+D:X     X.X                X.X     Xd.XXXXXXX..XXXXXXX           X.....D...b.................b...f...........XXXXXXXXXXX.X      X
+D:X     X.X                X.X     X...c.......D.....X           X.....D...........a..h.............a........D......a....X      X
+D:X     X.X                X.X     X.......c.g.D.....X           X...XXXX.....b.............................XXXXXXXXXXXX.X      X
+D:X  XXXX.XXXX             X.X     XXXXXXXXXXXXXXXX..XXXXXXX     X...X  XX..............a......a...........XX          X.X      X
+D:X  X.......X             X.X                    X........XXXXXXX...X   XX.........f.............f.......XX           X.X      X
+D:X  XXX...XXX             X.X                    X..d...............X    XX.....b...........b.........f.XX            XaX      X
+D:X  X.......X             X.X                    X........XXXXXXX...X     XX..........b................XX             X.X      X
+D:X  XXXX.XXXX             X.X                    XXXXXXXXXX     XXXXX      XXXXXXXXXXXXDDDDDXXXXXXXXXXXX              X.X      X
+D:X     X.X                XDXXXXXXXXXXXXXXX                                           X.....X                         X.X      X
+D:X     X.X                X..d...e......d.XXXXXXXXXXX      XXXXXXXXXXXX               X.b...X                         X.X      X
+D:X     X.X                X....e..g.......D.........X      X.d..gg..eeX             XXX.....XX                        X.X      X
+D:X     X.X         XXXXX  X..g..d.....e...XXXXXXXXDDXXXXXXXX....gg..eeXXXXX        XX...XXX..XXX                 XXXXXXDXX     X
+D:X     X.X         XeeeX  XDXXXXXXXXXXXXXXX  Xg.d.......D.e..e..gg..eej+3+%       XX....XXX....XXXXXX          XXX...D..aX     X
+D:X     X.X         XegX  XX.XX               X....e....eD.e.....gg..eedXXX%       X.............X...X          XaD...X...X     X
+D:X  XXXX.XXX       XX+XXXX...X               X.d........XXXX....gg..eeXX  % XXXXX XXXXXXXXXXXX..D...X          XXX..aX...X     X
+D:X  X......X        XX.......X            XXXX...e...d..XXXX...dgg..eeX   % X...X     XX.....D..XXXXXX           XXXXXXXDXX    X
+D:X  X......X         X.g.....XXXXXX       X..D....g..e..Dd.XXXXXXXXXXXX   % XXXDXX    X......X..X....X                X...X    X
+D:X  X......X         X...d...DeeeeX       X..XXXXXXXXXXXX..X              +  X...X    XXXXXXXX..X....X                X...X    X
+D:X  X......X         X.....e.XXXXXX       XXXX          XXXX              %  X...XXXXXX X....D..D....X         XXXXXXXXDXDXXXX X
+D:X  XXXDDXXXXXXXXXXXXXX+XXXXXX                                            %  X....X...X X..XXX..XXXXXXXXX      X.....a..X....X X
+D:X    X........%........X                                                 %+%%....D...XXXXXX.D..D.....+.X      X........X...PX X
+D:X    XXXXXXXXXXXXXXXXXXX                                                    XXXXXX..........X..X.....XXX      XXXXXXXXXXXXXXX X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# key to below
+# X:type:rating:height:width
+# type must be 99 for a special level
+# Y:mon1:mon2:mon3:mon4:mon5:mon6:mon7:mon8:mon9:mon10:item1:item2:item3:lvl
+# mon1-10 refers to monster numbers in file r_info.txt
+# item1-3 refers to artifact numbers in file a_info.txt
+# D:text representation of dungeon
+# X - undiggable wall
+# # - diggable wall
+# + - secret door
+# D - normal door
+# . - floor
+# P - player position
+# a,b,c,d,e,f,g,h,i,j - monsters referring to Y: stats mon1-mon10
+# 1,2,3 - artifacts referring to y: stats item1-item3
+# only 1 (one) stairs up or down per special level
+# this is where the player will start
+
+N:81:Treasure Room
+X:99:110:21:72
+Y:85:117:195:239:423:0:0:0:0:0:2:0:0:11
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X                                                        XXXXXXXXXXXXXXX
+D:X     XXXXXXXXXXXXX                                      X....e....d...X
+D:X     X  e    e   X       XXX                            X.............X
+D:X     X           X       X1X                            X.b.....a...b.X
+D:X     X    e    e X       XDX   XXXXXXXXXXXXXXXX         XXXXXXXX.XXXXXX
+D:X     XXXXXX#XXXXXX   XXXXX+XXXXX....c.....c...X                X#X....X
+D:X          X#X        Xe..e.e..eX.b....a.a...b.X                X#X....X
+D:X          XdX        X.dd.d.dd.X....d.....d...X                X#X....X
+D:X          X#X        XXXXXcXXXXXXXX...e.e...XXX                X#X....X
+D:X          X#XXX          X+X      X.XXXXXXX.X                  X#X....X
+D:X          X##cX          XbX      X.+.eee.+.X     XXXXXXXXXXXXXX#XXX..X
+D:X        XXX#XXX          X+X      X.XXXXXXX.X     X########...b....X..X
+D:X        Xb##X            XaX    XXX+XXXXXXX+XXX   X#XXXXXXXXXXXXXX.X..X
+D:X        XXX#XXX          X+XXXXXX....c........X   XcX............X.X..X
+D:X          X###X          X......+..a..........X   X#X............X.X..X
+D:X          X##aX          X.XXXXXX...........d.X   X#X............XaX..X
+D:X          X#XXX          X......+....b........XXXXX#X...........XX+XXXX
+D:XXXXXXXXXXXX#XXXXXXXXXXXXXXXX#XXXX...........d.......X...........X.....X
+D:X>##e#####a###b...c...d.......X  XXXXXXXXXXXXXXXXXXXdX...........X..P..X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX

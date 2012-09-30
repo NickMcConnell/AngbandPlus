@@ -7,7 +7,7 @@
 
 # Thieves Hideout
 ?:[EQU $QUEST_NUMBER 1]
-%:q0000001.txt
+%:q00troll.txt
 
 # Sever
 ?:[EQU $QUEST_NUMBER 2]
@@ -33,13 +33,13 @@
 ?:[EQU $QUEST_NUMBER 7]
 %:q0000007.txt
 
-# Oberon
+# Sauron
 ?:[EQU $QUEST_NUMBER 8]
-%:q_oberon.txt
+%:q_sauron.txt
 
-# Serpent of Chaos
+# Morgoth
 ?:[EQU $QUEST_NUMBER 9]
-%:q_serpen.txt
+%:q_morgot.txt
 
 # Node of Sorcery
 ?:[EQU $QUEST_NUMBER 10]
@@ -64,4 +64,3 @@
 # Random quests (always adressed with number 40)
 ?:[EQU $QUEST_NUMBER 40]
 %:q_random.txt
-

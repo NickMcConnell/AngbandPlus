@@ -31,35 +31,31 @@ R:0:0x92/0x87
 R:0:0x92/0x88
 ?:[AND [EQU $CLASS Warrior] [EQU $RACE High-Elf] ]
 R:0:0x92/0x89
-?:[AND [EQU $CLASS Warrior] [EQU $RACE Amberite] ]
+?:[AND [EQU $CLASS Warrior] [EQU $RACE Dunadan] ]
 R:0:0x92/0x8A
 ?:[AND [EQU $CLASS Warrior] [EQU $RACE Barbarian] ]
 R:0:0x92/0x8B
-?:[AND [EQU $CLASS Warrior] [EQU $RACE Half-Ogre] ]
+?:[AND [EQU $CLASS Warrior] [EQU $RACE Ogre] ]
 R:0:0x92/0x8C
 ?:[AND [EQU $CLASS Warrior] [EQU $RACE Half-Giant] ]
 R:0:0x92/0x8D
 ?:[AND [EQU $CLASS Warrior] [EQU $RACE Half-Titan] ]
 R:0:0x92/0x8E
-?:[AND [EQU $CLASS Warrior] [EQU $RACE Cyclops] ]
-R:0:0x92/0x8F
-?:[AND [EQU $CLASS Warrior] [EQU $RACE Yeek] ]
-R:0:0x92/0x90
-?:[AND [EQU $CLASS Warrior] [EQU $RACE Klackon] ]
-R:0:0x92/0x91
 ?:[AND [EQU $CLASS Warrior] [EQU $RACE Kobold] ]
 R:0:0x92/0x92
 ?:[AND [EQU $CLASS Warrior] [EQU $RACE Nibelung] ]
 R:0:0x92/0x93
-?:[AND [EQU $CLASS Warrior] [EQU $RACE Dark-Elf] ]
+?:[AND [EQU $CLASS Warrior] [EQU $RACE Dark Elf] ]
 R:0:0x92/0x94
-?:[AND [EQU $CLASS Warrior] [EQU $RACE Draconian] ]
+?:[AND [EQU $CLASS Warrior] [EQU $RACE RohanKnight] ]
+R:0:0x93/0x91
+?:[AND [EQU $CLASS Warrior] [EQU $RACE DragonRider] ]
 R:0:0x92/0x95
 ?:[AND [EQU $CLASS Warrior] [EQU $RACE Mindflayer] ]
 R:0:0x92/0x96
 ?:[AND [EQU $CLASS Warrior] [EQU $RACE Imp] ]
 R:0:0x92/0x97
-?:[AND [EQU $CLASS Warrior] [EQU $RACE Golem] ]
+?:[AND [EQU $CLASS Warrior] [EQU $RACE Ent] ]
 R:0:0x92/0x98
 ?:[AND [EQU $CLASS Warrior] [EQU $RACE Skeleton] ]
 R:0:0x92/0x99
@@ -94,11 +90,11 @@ R:0:0x93/0x87
 R:0:0x93/0x88
 ?:[AND [EQU $CLASS Mage] [EQU $RACE High-Elf] ]
 R:0:0x93/0x89
-?:[AND [EQU $CLASS Mage] [EQU $RACE Amberite] ]
+?:[AND [EQU $CLASS Mage] [EQU $RACE Dunadan] ]
 R:0:0x93/0x8A
 ?:[AND [EQU $CLASS Mage] [EQU $RACE Barbarian] ]
 R:0:0x93/0x8B
-?:[AND [EQU $CLASS Mage] [EQU $RACE Half-Ogre] ]
+?:[AND [EQU $CLASS Mage] [EQU $RACE Ogre] ]
 R:0:0x93/0x8C
 ?:[AND [EQU $CLASS Mage] [EQU $RACE Half-Giant] ]
 R:0:0x93/0x8D
@@ -108,21 +104,21 @@ R:0:0x93/0x8E
 R:0:0x93/0x8F
 ?:[AND [EQU $CLASS Mage] [EQU $RACE Yeek] ]
 R:0:0x93/0x90
-?:[AND [EQU $CLASS Mage] [EQU $RACE Klackon] ]
+?:[AND [EQU $CLASS Mage] [EQU $RACE RohanKnight] ]
 R:0:0x93/0x91
 ?:[AND [EQU $CLASS Mage] [EQU $RACE Kobold] ]
 R:0:0x93/0x92
 ?:[AND [EQU $CLASS Mage] [EQU $RACE Nibelung] ]
 R:0:0x93/0x93
-?:[AND [EQU $CLASS Mage] [EQU $RACE Dark-Elf] ]
+?:[AND [EQU $CLASS Mage] [EQU $RACE Dark Elf] ]
 R:0:0x93/0x94
-?:[AND [EQU $CLASS Mage] [EQU $RACE Draconian] ]
+?:[AND [EQU $CLASS Mage] [EQU $RACE DragonRider] ]
 R:0:0x93/0x95
 ?:[AND [EQU $CLASS Mage] [EQU $RACE Mindflayer] ]
 R:0:0x93/0x96
 ?:[AND [EQU $CLASS Mage] [EQU $RACE Imp] ]
 R:0:0x93/0x97
-?:[AND [EQU $CLASS Mage] [EQU $RACE Golem] ]
+?:[AND [EQU $CLASS Mage] [EQU $RACE Ent] ]
 R:0:0x93/0x98
 ?:[AND [EQU $CLASS Mage] [EQU $RACE Skeleton] ]
 R:0:0x93/0x99
@@ -157,11 +153,11 @@ R:0:0x94/0x87
 R:0:0x94/0x88
 ?:[AND [EQU $CLASS Priest] [EQU $RACE High-Elf] ]
 R:0:0x94/0x89
-?:[AND [EQU $CLASS Priest] [EQU $RACE Amberite] ]
+?:[AND [EQU $CLASS Priest] [EQU $RACE Dunadan] ]
 R:0:0x94/0x8A
 ?:[AND [EQU $CLASS Priest] [EQU $RACE Barbarian] ]
 R:0:0x94/0x8B
-?:[AND [EQU $CLASS Priest] [EQU $RACE Half-Ogre] ]
+?:[AND [EQU $CLASS Priest] [EQU $RACE Ogre] ]
 R:0:0x94/0x8C
 ?:[AND [EQU $CLASS Priest] [EQU $RACE Half-Giant] ]
 R:0:0x94/0x8D
@@ -171,21 +167,21 @@ R:0:0x94/0x8E
 R:0:0x94/0x8F
 ?:[AND [EQU $CLASS Priest] [EQU $RACE Yeek] ]
 R:0:0x94/0x90
-?:[AND [EQU $CLASS Priest] [EQU $RACE Klackon] ]
+?:[AND [EQU $CLASS Priest] [EQU $RACE RohanKnight] ]
 R:0:0x94/0x91
 ?:[AND [EQU $CLASS Priest] [EQU $RACE Kobold] ]
 R:0:0x94/0x92
 ?:[AND [EQU $CLASS Priest] [EQU $RACE Nibelung] ]
 R:0:0x94/0x93
-?:[AND [EQU $CLASS Priest] [EQU $RACE Dark-Elf] ]
+?:[AND [EQU $CLASS Priest] [EQU $RACE Dark Elf] ]
 R:0:0x94/0x94
-?:[AND [EQU $CLASS Priest] [EQU $RACE Draconian] ]
+?:[AND [EQU $CLASS Priest] [EQU $RACE DragonRider] ]
 R:0:0x94/0x95
 ?:[AND [EQU $CLASS Priest] [EQU $RACE Mindflayer] ]
 R:0:0x94/0x96
 ?:[AND [EQU $CLASS Priest] [EQU $RACE Imp] ]
 R:0:0x94/0x97
-?:[AND [EQU $CLASS Priest] [EQU $RACE Golem] ]
+?:[AND [EQU $CLASS Priest] [EQU $RACE Ent] ]
 R:0:0x94/0x98
 ?:[AND [EQU $CLASS Priest] [EQU $RACE Skeleton] ]
 R:0:0x94/0x99
@@ -220,11 +216,11 @@ R:0:0x95/0x87
 R:0:0x95/0x88
 ?:[AND [EQU $CLASS Rogue] [EQU $RACE High-Elf] ]
 R:0:0x95/0x89
-?:[AND [EQU $CLASS Rogue] [EQU $RACE Amberite] ]
+?:[AND [EQU $CLASS Rogue] [EQU $RACE Dunadan] ]
 R:0:0x95/0x8A
 ?:[AND [EQU $CLASS Rogue] [EQU $RACE Barbarian] ]
 R:0:0x95/0x8B
-?:[AND [EQU $CLASS Rogue] [EQU $RACE Half-Ogre] ]
+?:[AND [EQU $CLASS Rogue] [EQU $RACE Ogre] ]
 R:0:0x95/0x8C
 ?:[AND [EQU $CLASS Rogue] [EQU $RACE Half-Giant] ]
 R:0:0x95/0x8D
@@ -234,21 +230,21 @@ R:0:0x95/0x8E
 R:0:0x95/0x8F
 ?:[AND [EQU $CLASS Rogue] [EQU $RACE Yeek] ]
 R:0:0x95/0x90
-?:[AND [EQU $CLASS Rogue] [EQU $RACE Klackon] ]
+?:[AND [EQU $CLASS Rogue] [EQU $RACE RohanKnight] ]
 R:0:0x95/0x91
 ?:[AND [EQU $CLASS Rogue] [EQU $RACE Kobold] ]
 R:0:0x95/0x92
 ?:[AND [EQU $CLASS Rogue] [EQU $RACE Nibelung] ]
 R:0:0x95/0x93
-?:[AND [EQU $CLASS Rogue] [EQU $RACE Dark-Elf] ]
+?:[AND [EQU $CLASS Rogue] [EQU $RACE Dark Elf] ]
 R:0:0x95/0x94
-?:[AND [EQU $CLASS Rogue] [EQU $RACE Draconian] ]
+?:[AND [EQU $CLASS Rogue] [EQU $RACE DragonRider] ]
 R:0:0x95/0x95
 ?:[AND [EQU $CLASS Rogue] [EQU $RACE Mindflayer] ]
 R:0:0x95/0x96
 ?:[AND [EQU $CLASS Rogue] [EQU $RACE Imp] ]
 R:0:0x95/0x97
-?:[AND [EQU $CLASS Rogue] [EQU $RACE Golem] ]
+?:[AND [EQU $CLASS Rogue] [EQU $RACE Ent] ]
 R:0:0x95/0x98
 ?:[AND [EQU $CLASS Rogue] [EQU $RACE Skeleton] ]
 R:0:0x95/0x99
@@ -283,11 +279,11 @@ R:0:0x96/0x87
 R:0:0x96/0x88
 ?:[AND [EQU $CLASS Ranger] [EQU $RACE High-Elf] ]
 R:0:0x96/0x89
-?:[AND [EQU $CLASS Ranger] [EQU $RACE Amberite] ]
+?:[AND [EQU $CLASS Ranger] [EQU $RACE Dunadan] ]
 R:0:0x96/0x8A
 ?:[AND [EQU $CLASS Ranger] [EQU $RACE Barbarian] ]
 R:0:0x96/0x8B
-?:[AND [EQU $CLASS Ranger] [EQU $RACE Half-Ogre] ]
+?:[AND [EQU $CLASS Ranger] [EQU $RACE Ogre] ]
 R:0:0x96/0x8C
 ?:[AND [EQU $CLASS Ranger] [EQU $RACE Half-Giant] ]
 R:0:0x96/0x8D
@@ -297,21 +293,21 @@ R:0:0x96/0x8E
 R:0:0x96/0x8F
 ?:[AND [EQU $CLASS Ranger] [EQU $RACE Yeek] ]
 R:0:0x96/0x90
-?:[AND [EQU $CLASS Ranger] [EQU $RACE Klackon] ]
+?:[AND [EQU $CLASS Ranger] [EQU $RACE RohanKnight] ]
 R:0:0x96/0x91
 ?:[AND [EQU $CLASS Ranger] [EQU $RACE Kobold] ]
 R:0:0x96/0x92
 ?:[AND [EQU $CLASS Ranger] [EQU $RACE Nibelung] ]
 R:0:0x96/0x93
-?:[AND [EQU $CLASS Ranger] [EQU $RACE Dark-Elf] ]
+?:[AND [EQU $CLASS Ranger] [EQU $RACE Dark Elf] ]
 R:0:0x96/0x94
-?:[AND [EQU $CLASS Ranger] [EQU $RACE Draconian] ]
+?:[AND [EQU $CLASS Ranger] [EQU $RACE DragonRider] ]
 R:0:0x96/0x95
 ?:[AND [EQU $CLASS Ranger] [EQU $RACE Mindflayer] ]
 R:0:0x96/0x96
 ?:[AND [EQU $CLASS Ranger] [EQU $RACE Imp] ]
 R:0:0x96/0x97
-?:[AND [EQU $CLASS Ranger] [EQU $RACE Golem] ]
+?:[AND [EQU $CLASS Ranger] [EQU $RACE Ent] ]
 R:0:0x96/0x98
 ?:[AND [EQU $CLASS Ranger] [EQU $RACE Skeleton] ]
 R:0:0x96/0x99
@@ -346,11 +342,11 @@ R:0:0x97/0x87
 R:0:0x97/0x88
 ?:[AND [EQU $CLASS Paladin] [EQU $RACE High-Elf] ]
 R:0:0x97/0x89
-?:[AND [EQU $CLASS Paladin] [EQU $RACE Amberite] ]
+?:[AND [EQU $CLASS Paladin] [EQU $RACE Dunadan] ]
 R:0:0x97/0x8A
 ?:[AND [EQU $CLASS Paladin] [EQU $RACE Barbarian] ]
 R:0:0x97/0x8B
-?:[AND [EQU $CLASS Paladin] [EQU $RACE Half-Ogre] ]
+?:[AND [EQU $CLASS Paladin] [EQU $RACE Ogre] ]
 R:0:0x97/0x8C
 ?:[AND [EQU $CLASS Paladin] [EQU $RACE Half-Giant] ]
 R:0:0x97/0x8D
@@ -360,21 +356,21 @@ R:0:0x97/0x8E
 R:0:0x97/0x8F
 ?:[AND [EQU $CLASS Paladin] [EQU $RACE Yeek] ]
 R:0:0x97/0x90
-?:[AND [EQU $CLASS Paladin] [EQU $RACE Klackon] ]
+?:[AND [EQU $CLASS Paladin] [EQU $RACE RohanKnight] ]
 R:0:0x97/0x91
 ?:[AND [EQU $CLASS Paladin] [EQU $RACE Kobold] ]
 R:0:0x97/0x92
 ?:[AND [EQU $CLASS Paladin] [EQU $RACE Nibelung] ]
 R:0:0x97/0x93
-?:[AND [EQU $CLASS Paladin] [EQU $RACE Dark-Elf] ]
+?:[AND [EQU $CLASS Paladin] [EQU $RACE Dark Elf] ]
 R:0:0x97/0x94
-?:[AND [EQU $CLASS Paladin] [EQU $RACE Draconian] ]
+?:[AND [EQU $CLASS Paladin] [EQU $RACE DragonRider] ]
 R:0:0x97/0x95
 ?:[AND [EQU $CLASS Paladin] [EQU $RACE Mindflayer] ]
 R:0:0x97/0x96
 ?:[AND [EQU $CLASS Paladin] [EQU $RACE Imp] ]
 R:0:0x97/0x97
-?:[AND [EQU $CLASS Paladin] [EQU $RACE Golem] ]
+?:[AND [EQU $CLASS Paladin] [EQU $RACE Ent] ]
 R:0:0x97/0x98
 ?:[AND [EQU $CLASS Paladin] [EQU $RACE Skeleton] ]
 R:0:0x97/0x99
@@ -409,11 +405,11 @@ R:0:0x98/0x87
 R:0:0x98/0x88
 ?:[AND [EQU $CLASS Warrior-Mage] [EQU $RACE High-Elf] ]
 R:0:0x98/0x89
-?:[AND [EQU $CLASS Warrior-Mage] [EQU $RACE Amberite] ]
+?:[AND [EQU $CLASS Warrior-Mage] [EQU $RACE Dunadan] ]
 R:0:0x98/0x8A
 ?:[AND [EQU $CLASS Warrior-Mage] [EQU $RACE Barbarian] ]
 R:0:0x98/0x8B
-?:[AND [EQU $CLASS Warrior-Mage] [EQU $RACE Half-Ogre] ]
+?:[AND [EQU $CLASS Warrior-Mage] [EQU $RACE Ogre] ]
 R:0:0x98/0x8C
 ?:[AND [EQU $CLASS Warrior-Mage] [EQU $RACE Half-Giant] ]
 R:0:0x98/0x8D
@@ -423,21 +419,21 @@ R:0:0x98/0x8E
 R:0:0x98/0x8F
 ?:[AND [EQU $CLASS Warrior-Mage] [EQU $RACE Yeek] ]
 R:0:0x98/0x90
-?:[AND [EQU $CLASS Warrior-Mage] [EQU $RACE Klackon] ]
+?:[AND [EQU $CLASS Warrior-Mage] [EQU $RACE RohanKnight] ]
 R:0:0x98/0x91
 ?:[AND [EQU $CLASS Warrior-Mage] [EQU $RACE Kobold] ]
 R:0:0x98/0x92
 ?:[AND [EQU $CLASS Warrior-Mage] [EQU $RACE Nibelung] ]
 R:0:0x98/0x93
-?:[AND [EQU $CLASS Warrior-Mage] [EQU $RACE Dark-Elf] ]
+?:[AND [EQU $CLASS Warrior-Mage] [EQU $RACE Dark Elf] ]
 R:0:0x98/0x94
-?:[AND [EQU $CLASS Warrior-Mage] [EQU $RACE Draconian] ]
+?:[AND [EQU $CLASS Warrior-Mage] [EQU $RACE DragonRider] ]
 R:0:0x98/0x95
 ?:[AND [EQU $CLASS Warrior-Mage] [EQU $RACE Mindflayer] ]
 R:0:0x98/0x96
 ?:[AND [EQU $CLASS Warrior-Mage] [EQU $RACE Imp] ]
 R:0:0x98/0x97
-?:[AND [EQU $CLASS Warrior-Mage] [EQU $RACE Golem] ]
+?:[AND [EQU $CLASS Warrior-Mage] [EQU $RACE Ent] ]
 R:0:0x98/0x98
 ?:[AND [EQU $CLASS Warrior-Mage] [EQU $RACE Skeleton] ]
 R:0:0x98/0x99
@@ -472,11 +468,11 @@ R:0:0x99/0x87
 R:0:0x99/0x88
 ?:[AND [EQU $CLASS Chaos-Warrior] [EQU $RACE High-Elf] ]
 R:0:0x99/0x89
-?:[AND [EQU $CLASS Chaos-Warrior] [EQU $RACE Amberite] ]
+?:[AND [EQU $CLASS Chaos-Warrior] [EQU $RACE Dunadan] ]
 R:0:0x99/0x8A
 ?:[AND [EQU $CLASS Chaos-Warrior] [EQU $RACE Barbarian] ]
 R:0:0x99/0x8B
-?:[AND [EQU $CLASS Chaos-Warrior] [EQU $RACE Half-Ogre] ]
+?:[AND [EQU $CLASS Chaos-Warrior] [EQU $RACE Ogre] ]
 R:0:0x99/0x8C
 ?:[AND [EQU $CLASS Chaos-Warrior] [EQU $RACE Half-Giant] ]
 R:0:0x99/0x8D
@@ -486,21 +482,21 @@ R:0:0x99/0x8E
 R:0:0x99/0x8F
 ?:[AND [EQU $CLASS Chaos-Warrior] [EQU $RACE Yeek] ]
 R:0:0x99/0x90
-?:[AND [EQU $CLASS Chaos-Warrior] [EQU $RACE Klackon] ]
+?:[AND [EQU $CLASS Chaos-Warrior] [EQU $RACE RohanKnight] ]
 R:0:0x99/0x91
 ?:[AND [EQU $CLASS Chaos-Warrior] [EQU $RACE Kobold] ]
 R:0:0x99/0x92
 ?:[AND [EQU $CLASS Chaos-Warrior] [EQU $RACE Nibelung] ]
 R:0:0x99/0x93
-?:[AND [EQU $CLASS Chaos-Warrior] [EQU $RACE Dark-Elf] ]
+?:[AND [EQU $CLASS Chaos-Warrior] [EQU $RACE Dark Elf] ]
 R:0:0x99/0x94
-?:[AND [EQU $CLASS Chaos-Warrior] [EQU $RACE Draconian] ]
+?:[AND [EQU $CLASS Chaos-Warrior] [EQU $RACE DragonRider] ]
 R:0:0x99/0x95
 ?:[AND [EQU $CLASS Chaos-Warrior] [EQU $RACE Mindflayer] ]
 R:0:0x99/0x96
 ?:[AND [EQU $CLASS Chaos-Warrior] [EQU $RACE Imp] ]
 R:0:0x99/0x97
-?:[AND [EQU $CLASS Chaos-Warrior] [EQU $RACE Golem] ]
+?:[AND [EQU $CLASS Chaos-Warrior] [EQU $RACE Ent] ]
 R:0:0x99/0x98
 ?:[AND [EQU $CLASS Chaos-Warrior] [EQU $RACE Skeleton] ]
 R:0:0x99/0x99
@@ -535,11 +531,11 @@ R:0:0x9A/0x87
 R:0:0x9A/0x88
 ?:[AND [EQU $CLASS Monk] [EQU $RACE High-Elf] ]
 R:0:0x9A/0x89
-?:[AND [EQU $CLASS Monk] [EQU $RACE Amberite] ]
+?:[AND [EQU $CLASS Monk] [EQU $RACE Dunadan] ]
 R:0:0x9A/0x8A
 ?:[AND [EQU $CLASS Monk] [EQU $RACE Barbarian] ]
 R:0:0x9A/0x8B
-?:[AND [EQU $CLASS Monk] [EQU $RACE Half-Ogre] ]
+?:[AND [EQU $CLASS Monk] [EQU $RACE Ogre] ]
 R:0:0x9A/0x8C
 ?:[AND [EQU $CLASS Monk] [EQU $RACE Half-Giant] ]
 R:0:0x9A/0x8D
@@ -549,21 +545,21 @@ R:0:0x9A/0x8E
 R:0:0x9A/0x8F
 ?:[AND [EQU $CLASS Monk] [EQU $RACE Yeek] ]
 R:0:0x9A/0x90
-?:[AND [EQU $CLASS Monk] [EQU $RACE Klackon] ]
+?:[AND [EQU $CLASS Monk] [EQU $RACE RohanKnight] ]
 R:0:0x9A/0x91
 ?:[AND [EQU $CLASS Monk] [EQU $RACE Kobold] ]
 R:0:0x9A/0x92
 ?:[AND [EQU $CLASS Monk] [EQU $RACE Nibelung] ]
 R:0:0x9A/0x93
-?:[AND [EQU $CLASS Monk] [EQU $RACE Dark-Elf] ]
+?:[AND [EQU $CLASS Monk] [EQU $RACE Dark Elf] ]
 R:0:0x9A/0x94
-?:[AND [EQU $CLASS Monk] [EQU $RACE Draconian] ]
+?:[AND [EQU $CLASS Monk] [EQU $RACE DragonRider] ]
 R:0:0x9A/0x95
 ?:[AND [EQU $CLASS Monk] [EQU $RACE Mindflayer] ]
 R:0:0x9A/0x96
 ?:[AND [EQU $CLASS Monk] [EQU $RACE Imp] ]
 R:0:0x9A/0x97
-?:[AND [EQU $CLASS Monk] [EQU $RACE Golem] ]
+?:[AND [EQU $CLASS Monk] [EQU $RACE Ent] ]
 R:0:0x9A/0x98
 ?:[AND [EQU $CLASS Monk] [EQU $RACE Skeleton] ]
 R:0:0x9A/0x99
@@ -598,11 +594,11 @@ R:0:0x9B/0x87
 R:0:0x9B/0x88
 ?:[AND [EQU $CLASS Mindcrafter] [EQU $RACE High-Elf] ]
 R:0:0x9B/0x89
-?:[AND [EQU $CLASS Mindcrafter] [EQU $RACE Amberite] ]
+?:[AND [EQU $CLASS Mindcrafter] [EQU $RACE Dunadan] ]
 R:0:0x9B/0x8A
 ?:[AND [EQU $CLASS Mindcrafter] [EQU $RACE Barbarian] ]
 R:0:0x9B/0x8B
-?:[AND [EQU $CLASS Mindcrafter] [EQU $RACE Half-Ogre] ]
+?:[AND [EQU $CLASS Mindcrafter] [EQU $RACE Ogre] ]
 R:0:0x9B/0x8C
 ?:[AND [EQU $CLASS Mindcrafter] [EQU $RACE Half-Giant] ]
 R:0:0x9B/0x8D
@@ -612,21 +608,21 @@ R:0:0x9B/0x8E
 R:0:0x9B/0x8F
 ?:[AND [EQU $CLASS Mindcrafter] [EQU $RACE Yeek] ]
 R:0:0x9B/0x90
-?:[AND [EQU $CLASS Mindcrafter] [EQU $RACE Klackon] ]
+?:[AND [EQU $CLASS Mindcrafter] [EQU $RACE RohanKnight] ]
 R:0:0x9B/0x91
 ?:[AND [EQU $CLASS Mindcrafter] [EQU $RACE Kobold] ]
 R:0:0x9B/0x92
 ?:[AND [EQU $CLASS Mindcrafter] [EQU $RACE Nibelung] ]
 R:0:0x9B/0x93
-?:[AND [EQU $CLASS Mindcrafter] [EQU $RACE Dark-Elf] ]
+?:[AND [EQU $CLASS Mindcrafter] [EQU $RACE Dark Elf] ]
 R:0:0x9B/0x94
-?:[AND [EQU $CLASS Mindcrafter] [EQU $RACE Draconian] ]
+?:[AND [EQU $CLASS Mindcrafter] [EQU $RACE DragonRider] ]
 R:0:0x9B/0x95
 ?:[AND [EQU $CLASS Mindcrafter] [EQU $RACE Mindflayer] ]
 R:0:0x9B/0x96
 ?:[AND [EQU $CLASS Mindcrafter] [EQU $RACE Imp] ]
 R:0:0x9B/0x97
-?:[AND [EQU $CLASS Mindcrafter] [EQU $RACE Golem] ]
+?:[AND [EQU $CLASS Mindcrafter] [EQU $RACE Ent] ]
 R:0:0x9B/0x98
 ?:[AND [EQU $CLASS Mindcrafter] [EQU $RACE Skeleton] ]
 R:0:0x9B/0x99
@@ -661,11 +657,11 @@ R:0:0x9C/0x87
 R:0:0x9C/0x88
 ?:[AND [EQU $CLASS High-Mage] [EQU $RACE High-Elf] ]
 R:0:0x9C/0x89
-?:[AND [EQU $CLASS High-Mage] [EQU $RACE Amberite] ]
+?:[AND [EQU $CLASS High-Mage] [EQU $RACE Dunadan] ]
 R:0:0x9C/0x8A
 ?:[AND [EQU $CLASS High-Mage] [EQU $RACE Barbarian] ]
 R:0:0x9C/0x8B
-?:[AND [EQU $CLASS High-Mage] [EQU $RACE Half-Ogre] ]
+?:[AND [EQU $CLASS High-Mage] [EQU $RACE Ogre] ]
 R:0:0x9C/0x8C
 ?:[AND [EQU $CLASS High-Mage] [EQU $RACE Half-Giant] ]
 R:0:0x9C/0x8D
@@ -675,21 +671,21 @@ R:0:0x9C/0x8E
 R:0:0x9C/0x8F
 ?:[AND [EQU $CLASS High-Mage] [EQU $RACE Yeek] ]
 R:0:0x9C/0x90
-?:[AND [EQU $CLASS High-Mage] [EQU $RACE Klackon] ]
+?:[AND [EQU $CLASS High-Mage] [EQU $RACE RohanKnight] ]
 R:0:0x9C/0x91
 ?:[AND [EQU $CLASS High-Mage] [EQU $RACE Kobold] ]
 R:0:0x9C/0x92
 ?:[AND [EQU $CLASS High-Mage] [EQU $RACE Nibelung] ]
 R:0:0x9C/0x93
-?:[AND [EQU $CLASS High-Mage] [EQU $RACE Dark-Elf] ]
+?:[AND [EQU $CLASS High-Mage] [EQU $RACE Dark Elf] ]
 R:0:0x9C/0x94
-?:[AND [EQU $CLASS High-Mage] [EQU $RACE Draconian] ]
+?:[AND [EQU $CLASS High-Mage] [EQU $RACE DragonRider] ]
 R:0:0x9C/0x95
 ?:[AND [EQU $CLASS High-Mage] [EQU $RACE Mindflayer] ]
 R:0:0x9C/0x96
 ?:[AND [EQU $CLASS High-Mage] [EQU $RACE Imp] ]
 R:0:0x9C/0x97
-?:[AND [EQU $CLASS High-Mage] [EQU $RACE Golem] ]
+?:[AND [EQU $CLASS High-Mage] [EQU $RACE Ent] ]
 R:0:0x9C/0x98
 ?:[AND [EQU $CLASS High-Mage] [EQU $RACE Skeleton] ]
 R:0:0x9C/0x99
@@ -703,4 +699,259 @@ R:0:0x9C/0x9C
 R:0:0x9C/0x9D
 ?:[AND [EQU $CLASS High-Mage] [EQU $RACE Beastman] ]
 R:0:0x9C/0x9E
+
+?:[AND [EQU $CLASS Alchemist] [EQU $RACE Human] ]
+R:0:0x9C/0x80
+?:[AND [EQU $CLASS Alchemist] [EQU $RACE Half-Elf] ]
+R:0:0x9C/0x81
+?:[AND [EQU $CLASS Alchemist] [EQU $RACE Elf] ]
+R:0:0x9C/0x82
+?:[AND [EQU $CLASS Alchemist] [EQU $RACE Hobbit] ]
+R:0:0x9C/0x83
+?:[AND [EQU $CLASS Alchemist] [EQU $RACE Gnome] ]
+R:0:0x9C/0x84
+?:[AND [EQU $CLASS Alchemist] [EQU $RACE Dwarf] ]
+R:0:0x9C/0x85
+?:[AND [EQU $CLASS Alchemist] [EQU $RACE Half-Orc] ]
+R:0:0x9C/0x86
+?:[AND [EQU $CLASS Alchemist] [EQU $RACE Half-Troll] ]
+R:0:0x9C/0x87
+?:[AND [EQU $CLASS Alchemist] [EQU $RACE Dunadan] ]
+R:0:0x9C/0x88
+?:[AND [EQU $CLASS Alchemist] [EQU $RACE High-Elf] ]
+R:0:0x9C/0x89
+?:[AND [EQU $CLASS Alchemist] [EQU $RACE Dunadan] ]
+R:0:0x9C/0x8A
+?:[AND [EQU $CLASS Alchemist] [EQU $RACE Barbarian] ]
+R:0:0x9C/0x8B
+?:[AND [EQU $CLASS Alchemist] [EQU $RACE Ogre] ]
+R:0:0x9C/0x8C
+?:[AND [EQU $CLASS Alchemist] [EQU $RACE Half-Giant] ]
+R:0:0x9C/0x8D
+?:[AND [EQU $CLASS Alchemist] [EQU $RACE Half-Titan] ]
+R:0:0x9C/0x8E
+?:[AND [EQU $CLASS Alchemist] [EQU $RACE Cyclops] ]
+R:0:0x9C/0x8F
+?:[AND [EQU $CLASS Alchemist] [EQU $RACE Yeek] ]
+R:0:0x9C/0x90
+?:[AND [EQU $CLASS Alchemist] [EQU $RACE RohanKnight] ]
+R:0:0x9C/0x91
+?:[AND [EQU $CLASS Alchemist] [EQU $RACE Kobold] ]
+R:0:0x9C/0x92
+?:[AND [EQU $CLASS Alchemist] [EQU $RACE Nibelung] ]
+R:0:0x9C/0x93
+?:[AND [EQU $CLASS Alchemist] [EQU $RACE Dark Elf] ]
+R:0:0x9C/0x94
+?:[AND [EQU $CLASS Alchemist] [EQU $RACE DragonRider] ]
+R:0:0x9C/0x95
+?:[AND [EQU $CLASS Alchemist] [EQU $RACE Mindflayer] ]
+R:0:0x9C/0x96
+?:[AND [EQU $CLASS Alchemist] [EQU $RACE Imp] ]
+R:0:0x9C/0x97
+?:[AND [EQU $CLASS Alchemist] [EQU $RACE Ent] ]
+R:0:0x9C/0x98
+?:[AND [EQU $CLASS Alchemist] [EQU $RACE Skeleton] ]
+R:0:0x9C/0x99
+?:[AND [EQU $CLASS Alchemist] [EQU $RACE Zombie] ]
+R:0:0x9C/0x9A
+?:[AND [EQU $CLASS Alchemist] [EQU $RACE Vampire] ]
+R:0:0x9C/0x9B
+?:[AND [EQU $CLASS Alchemist] [EQU $RACE Spectre] ]
+R:0:0x9C/0x9C
+?:[AND [EQU $CLASS Alchemist] [EQU $RACE Sprite] ]
+R:0:0x9C/0x9D
+?:[AND [EQU $CLASS Alchemist] [EQU $RACE Beastman] ]
+R:0:0x9C/0x9E
+
+?:[AND [EQU $CLASS BeastMaster] [EQU $RACE Human] ]
+R:0:0x96/0x80
+?:[AND [EQU $CLASS BeastMaster] [EQU $RACE Half-Elf] ]
+R:0:0x96/0x81
+?:[AND [EQU $CLASS BeastMaster] [EQU $RACE Elf] ]
+R:0:0x96/0x82
+?:[AND [EQU $CLASS BeastMaster] [EQU $RACE Hobbit] ]
+R:0:0x96/0x83
+?:[AND [EQU $CLASS BeastMaster] [EQU $RACE Gnome] ]
+R:0:0x96/0x84
+?:[AND [EQU $CLASS BeastMaster] [EQU $RACE Dwarf] ]
+R:0:0x96/0x85
+?:[AND [EQU $CLASS BeastMaster] [EQU $RACE Half-Orc] ]
+R:0:0x96/0x86
+?:[AND [EQU $CLASS BeastMaster] [EQU $RACE Half-Troll] ]
+R:0:0x96/0x87
+?:[AND [EQU $CLASS BeastMaster] [EQU $RACE Dunadan] ]
+R:0:0x96/0x88
+?:[AND [EQU $CLASS BeastMaster] [EQU $RACE High-Elf] ]
+R:0:0x96/0x89
+?:[AND [EQU $CLASS BeastMaster] [EQU $RACE Dunadan] ]
+R:0:0x96/0x8A
+?:[AND [EQU $CLASS BeastMaster] [EQU $RACE Barbarian] ]
+R:0:0x96/0x8B
+?:[AND [EQU $CLASS BeastMaster] [EQU $RACE Ogre] ]
+R:0:0x96/0x8C
+?:[AND [EQU $CLASS BeastMaster] [EQU $RACE Half-Giant] ]
+R:0:0x96/0x8D
+?:[AND [EQU $CLASS BeastMaster] [EQU $RACE Half-Titan] ]
+R:0:0x96/0x8E
+?:[AND [EQU $CLASS BeastMaster] [EQU $RACE Cyclops] ]
+R:0:0x96/0x8F
+?:[AND [EQU $CLASS BeastMaster] [EQU $RACE Yeek] ]
+R:0:0x96/0x90
+?:[AND [EQU $CLASS BeastMaster] [EQU $RACE RohanKnight] ]
+R:0:0x96/0x91
+?:[AND [EQU $CLASS BeastMaster] [EQU $RACE Kobold] ]
+R:0:0x96/0x92
+?:[AND [EQU $CLASS BeastMaster] [EQU $RACE Nibelung] ]
+R:0:0x96/0x93
+?:[AND [EQU $CLASS BeastMaster] [EQU $RACE Dark Elf] ]
+R:0:0x96/0x94
+?:[AND [EQU $CLASS BeastMaster] [EQU $RACE DragonRider] ]
+R:0:0x96/0x95
+?:[AND [EQU $CLASS BeastMaster] [EQU $RACE Mindflayer] ]
+R:0:0x96/0x96
+?:[AND [EQU $CLASS BeastMaster] [EQU $RACE Imp] ]
+R:0:0x96/0x97
+?:[AND [EQU $CLASS BeastMaster] [EQU $RACE Ent] ]
+R:0:0x96/0x98
+?:[AND [EQU $CLASS BeastMaster] [EQU $RACE Skeleton] ]
+R:0:0x96/0x99
+?:[AND [EQU $CLASS BeastMaster] [EQU $RACE Zombie] ]
+R:0:0x96/0x9A
+?:[AND [EQU $CLASS BeastMaster] [EQU $RACE Vampire] ]
+R:0:0x96/0x9B
+?:[AND [EQU $CLASS BeastMaster] [EQU $RACE Spectre] ]
+R:0:0x96/0x9C
+?:[AND [EQU $CLASS BeastMaster] [EQU $RACE Sprite] ]
+R:0:0x96/0x9D
+?:[AND [EQU $CLASS BeastMaster] [EQU $RACE Beastman] ]
+R:0:0x96/0x9E
+
+?:[EQU $CLASS Mimic]
+R:0:0x91/0x95
+
+?:[AND [EQU $CLASS Alchemist] [EQU $RACE Human] ]
+R:0:0x93/0x80
+?:[AND [EQU $CLASS Alchemist] [EQU $RACE Half-Elf] ]
+R:0:0x93/0x81
+?:[AND [EQU $CLASS Alchemist] [EQU $RACE Elf] ]
+R:0:0x93/0x82
+?:[AND [EQU $CLASS Alchemist] [EQU $RACE Hobbit] ]
+R:0:0x93/0x83
+?:[AND [EQU $CLASS Alchemist] [EQU $RACE Gnome] ]
+R:0:0x93/0x84
+?:[AND [EQU $CLASS Alchemist] [EQU $RACE Dwarf] ]
+R:0:0x93/0x85
+?:[AND [EQU $CLASS Alchemist] [EQU $RACE Half-Orc] ]
+R:0:0x93/0x86
+?:[AND [EQU $CLASS Alchemist] [EQU $RACE Half-Troll] ]
+R:0:0x93/0x87
+?:[AND [EQU $CLASS Alchemist] [EQU $RACE Dunadan] ]
+R:0:0x93/0x88
+?:[AND [EQU $CLASS Alchemist] [EQU $RACE High-Elf] ]
+R:0:0x93/0x89
+?:[AND [EQU $CLASS Alchemist] [EQU $RACE Dunadan] ]
+R:0:0x93/0x8A
+?:[AND [EQU $CLASS Alchemist] [EQU $RACE Barbarian] ]
+R:0:0x93/0x8B
+?:[AND [EQU $CLASS Alchemist] [EQU $RACE Ogre] ]
+R:0:0x93/0x8C
+?:[AND [EQU $CLASS Alchemist] [EQU $RACE Half-Giant] ]
+R:0:0x93/0x8D
+?:[AND [EQU $CLASS Alchemist] [EQU $RACE Half-Titan] ]
+R:0:0x93/0x8E
+?:[AND [EQU $CLASS Alchemist] [EQU $RACE Cyclops] ]
+R:0:0x93/0x8F
+?:[AND [EQU $CLASS Alchemist] [EQU $RACE Yeek] ]
+R:0:0x93/0x90
+?:[AND [EQU $CLASS Alchemist] [EQU $RACE RohanKnight] ]
+R:0:0x93/0x91
+?:[AND [EQU $CLASS Alchemist] [EQU $RACE Kobold] ]
+R:0:0x93/0x92
+?:[AND [EQU $CLASS Alchemist] [EQU $RACE Nibelung] ]
+R:0:0x93/0x93
+?:[AND [EQU $CLASS Alchemist] [EQU $RACE Dark Elf] ]
+R:0:0x93/0x94
+?:[AND [EQU $CLASS Alchemist] [EQU $RACE DragonRider] ]
+R:0:0x93/0x95
+?:[AND [EQU $CLASS Alchemist] [EQU $RACE Mindflayer] ]
+R:0:0x93/0x96
+?:[AND [EQU $CLASS Alchemist] [EQU $RACE Imp] ]
+R:0:0x93/0x97
+?:[AND [EQU $CLASS Alchemist] [EQU $RACE Ent] ]
+R:0:0x93/0x98
+?:[AND [EQU $CLASS Alchemist] [EQU $RACE Skeleton] ]
+R:0:0x93/0x99
+?:[AND [EQU $CLASS Alchemist] [EQU $RACE Zombie] ]
+R:0:0x93/0x9A
+?:[AND [EQU $CLASS Alchemist] [EQU $RACE Vampire] ]
+R:0:0x93/0x9B
+?:[AND [EQU $CLASS Alchemist] [EQU $RACE Spectre] ]
+R:0:0x93/0x9C
+?:[AND [EQU $CLASS Alchemist] [EQU $RACE Sprite] ]
+R:0:0x93/0x9D
+?:[AND [EQU $CLASS Alchemist] [EQU $RACE Beastman] ]
+R:0:0x93/0x9E
+
+?:[AND [EQU $CLASS BeastMaster] [EQU $RACE Human] ]
+R:0:0x96/0x80
+?:[AND [EQU $CLASS BeastMaster] [EQU $RACE Half-Elf] ]
+R:0:0x96/0x81
+?:[AND [EQU $CLASS BeastMaster] [EQU $RACE Elf] ]
+R:0:0x96/0x82
+?:[AND [EQU $CLASS BeastMaster] [EQU $RACE Hobbit] ]
+R:0:0x96/0x83
+?:[AND [EQU $CLASS BeastMaster] [EQU $RACE Gnome] ]
+R:0:0x96/0x84
+?:[AND [EQU $CLASS BeastMaster] [EQU $RACE Dwarf] ]
+R:0:0x96/0x85
+?:[AND [EQU $CLASS BeastMaster] [EQU $RACE Half-Orc] ]
+R:0:0x96/0x86
+?:[AND [EQU $CLASS BeastMaster] [EQU $RACE Half-Troll] ]
+R:0:0x96/0x87
+?:[AND [EQU $CLASS BeastMaster] [EQU $RACE Dunadan] ]
+R:0:0x96/0x88
+?:[AND [EQU $CLASS BeastMaster] [EQU $RACE High-Elf] ]
+R:0:0x96/0x89
+?:[AND [EQU $CLASS BeastMaster] [EQU $RACE Dunadan] ]
+R:0:0x96/0x8A
+?:[AND [EQU $CLASS BeastMaster] [EQU $RACE Barbarian] ]
+R:0:0x96/0x8B
+?:[AND [EQU $CLASS BeastMaster] [EQU $RACE Ogre] ]
+R:0:0x96/0x8C
+?:[AND [EQU $CLASS BeastMaster] [EQU $RACE Half-Giant] ]
+R:0:0x96/0x8D
+?:[AND [EQU $CLASS BeastMaster] [EQU $RACE Half-Titan] ]
+R:0:0x96/0x8E
+?:[AND [EQU $CLASS BeastMaster] [EQU $RACE Cyclops] ]
+R:0:0x96/0x8F
+?:[AND [EQU $CLASS BeastMaster] [EQU $RACE Yeek] ]
+R:0:0x96/0x90
+?:[AND [EQU $CLASS BeastMaster] [EQU $RACE RohanKnight] ]
+R:0:0x96/0x91
+?:[AND [EQU $CLASS BeastMaster] [EQU $RACE Kobold] ]
+R:0:0x96/0x92
+?:[AND [EQU $CLASS BeastMaster] [EQU $RACE Nibelung] ]
+R:0:0x96/0x93
+?:[AND [EQU $CLASS BeastMaster] [EQU $RACE Dark Elf] ]
+R:0:0x96/0x94
+?:[AND [EQU $CLASS BeastMaster] [EQU $RACE DragonRider] ]
+R:0:0x96/0x95
+?:[AND [EQU $CLASS BeastMaster] [EQU $RACE Mindflayer] ]
+R:0:0x96/0x96
+?:[AND [EQU $CLASS BeastMaster] [EQU $RACE Imp] ]
+R:0:0x96/0x97
+?:[AND [EQU $CLASS BeastMaster] [EQU $RACE Ent] ]
+R:0:0x96/0x98
+?:[AND [EQU $CLASS BeastMaster] [EQU $RACE Skeleton] ]
+R:0:0x96/0x99
+?:[AND [EQU $CLASS BeastMaster] [EQU $RACE Zombie] ]
+R:0:0x96/0x9A
+?:[AND [EQU $CLASS BeastMaster] [EQU $RACE Vampire] ]
+R:0:0x96/0x9B
+?:[AND [EQU $CLASS BeastMaster] [EQU $RACE Spectre] ]
+R:0:0x96/0x9C
+?:[AND [EQU $CLASS BeastMaster] [EQU $RACE Sprite] ]
+R:0:0x96/0x9D
+?:[AND [EQU $CLASS BeastMaster] [EQU $RACE Beastman] ]
+R:0:0x96/0x9E
 

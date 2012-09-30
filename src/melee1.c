@@ -143,7 +143,7 @@ bool make_attack_normal(int m_idx)
 	if (r_ptr->flags1 & (RF1_NEVER_BLOW)) return (FALSE);
 
 	/* ...nor if friendly */
-	if (!is_hostile(m_ptr)) return FALSE;
+	if (is_pet(m_ptr))  return FALSE;
 
 	/* Total armor */
 	ac = p_ptr->ac + p_ptr->to_a;

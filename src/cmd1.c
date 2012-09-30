@@ -811,7 +811,7 @@ static void hit_trap(void)
 			num = 2 + randint(3);
 			for (i = 0; i < num; i++)
 			{
-				(void)summon_specific(py, px, dun_level, 0, TRUE, FALSE, FALSE);
+				(void)summon_specific(py, px, dun_level, 0);
 			}
 
 			if (dun_level>randint(100)) /* No nasty effect for low levels */
@@ -982,27 +982,6 @@ void touch_zap_player(monster_type *m_ptr)
 		}
 	}
 
-	if (r_ptr->flags3 & (RF3_AURA_COLD))
-	{
-		if (!(p_ptr->immune_cold))
-		{
-			char aura_dam[80];
-
-			aura_damage = damroll(1 + (r_ptr->level / 26), 1 + (r_ptr->level / 17));
-
-			/* Hack -- Get the "died from" name */
-			monster_desc(aura_dam, m_ptr, 0x88);
-
-			msg_print("You are suddenly very cold!");
-
-			if (p_ptr->oppose_cold) aura_damage = (aura_damage+2) / 3;
-			if (p_ptr->resist_cold) aura_damage = (aura_damage+2) / 3;
-
-			take_hit(aura_damage, aura_dam);
-			r_ptr->r_flags3 |= RF3_AURA_COLD;
-			handle_stuff();
-		}
-	}
 
 	if (r_ptr->flags2 & (RF2_AURA_ELEC))
 	{
@@ -1107,10 +1086,10 @@ static void natural_attack(s16b m_idx, int attack, bool *fear, bool *mdeath)
 			msg_format("You do %d (out of %d) damage.", k, m_ptr->hp);
 		}
 
-		if (!is_hostile(m_ptr))
+		if (is_pet(m_ptr))
 		{
 			msg_format("%^s gets angry!", m_name);
-			set_hostile(m_ptr);
+			set_pet(m_ptr, FALSE);
 		}
 
 		/* Damage, check for fear and mdeath */
@@ -1215,7 +1194,7 @@ void py_attack(int y, int x)
 	if (m_ptr->ml) health_track(c_ptr->m_idx);
 
 	/* Stop if friendly */
-	if (!is_hostile(m_ptr) &&
+	if (is_pet(m_ptr) &&
 	    ! (p_ptr->stun || p_ptr->confused || p_ptr->image ||
 	    ((p_ptr->muta2 & MUT2_BERS_RAGE) && p_ptr->shero) ||
 	    !(m_ptr->ml)))
@@ -1502,10 +1481,10 @@ void py_attack(int y, int x)
 				break;
 			}
 
-			if (!is_hostile(m_ptr))
+			if (is_pet(m_ptr))
 			{
 				msg_format("%^s gets angry!", m_name);
-				set_hostile(m_ptr);
+				set_pet(m_ptr, FALSE);
 			}
 
 			touch_zap_player(m_ptr);
@@ -1609,7 +1588,7 @@ void py_attack(int y, int x)
 						delete_monster_idx(c_ptr->m_idx);
 
 						/* Create a new monster (no groups) */
-						(void)place_monster_aux(y, x, tmp, FALSE, FALSE, FALSE, FALSE);
+						(void)place_monster_aux(y, x, tmp, FALSE, FALSE, FALSE);
 
 						/* XXX XXX XXX Hack -- Assume success */
 
@@ -1870,6 +1849,13 @@ bool player_can_enter(byte feature)
 			}
 
 		case FEAT_MOUNTAIN:
+			{
+				if (p_ptr->ffall)
+					return (TRUE);
+				else
+					return (FALSE);
+			}
+
 		case FEAT_PERM_EXTRA:
 		case FEAT_PERM_INNER:
 		case FEAT_PERM_OUTER:
@@ -2015,7 +2001,7 @@ void move_player(int dir, int do_pickup)
 	{
 
 		/* Attack -- only if we can see it OR it is not in a wall */
-		if (!is_hostile(m_ptr) &&
+		if (is_pet(m_ptr) &&
 		    !(p_ptr->confused || p_ptr->image || !(m_ptr->ml) || p_ptr->stun ||
 		    ((p_ptr->muta2 & MUT2_BERS_RAGE) && p_ptr->shero)) &&
 		    (pattern_seq(py, px, y, x)) &&
@@ -2033,7 +2019,7 @@ void move_player(int dir, int do_pickup)
 			if (m_ptr->ml) health_track(c_ptr->m_idx);
 
 			/* displace? */
-			if (stormbringer && (randint(1000) > 666))
+			if (stormbringer && (randint(1000)>666))
 			{
 				py_attack(y,x);
 			}
@@ -2114,7 +2100,7 @@ void move_player(int dir, int do_pickup)
 		oktomove = FALSE;
 	}
 
-	else if (c_ptr->feat == FEAT_MOUNTAIN)
+        else if ((c_ptr->feat == FEAT_MOUNTAIN) && !p_ptr->ffall)
 	{
 		msg_print("You can't climb the mountains!");
 		running = 0;
@@ -2125,10 +2111,10 @@ void move_player(int dir, int do_pickup)
 	 * has effective -10 speed
 	 * Rangers can move without penality
 	 */
-	else if (c_ptr->feat == FEAT_TREES)
+        else if (c_ptr->feat == FEAT_TREES)
 	{
 		oktomove = TRUE;
-		if (p_ptr->pclass != CLASS_RANGER) energy_use += 10;
+                if ((p_ptr->pclass != CLASS_RANGER) || !p_ptr->ffall) energy_use += 10;
 	}
 
 	else if ((c_ptr->feat >= FEAT_QUEST_ENTER) &&
@@ -2179,6 +2165,12 @@ void move_player(int dir, int do_pickup)
 				lite_spot(y, x);
 			}
 
+                        /* Mountain and levitation */
+                        else if ((c_ptr->feat == FEAT_MOUNTAIN) && p_ptr->ffall)
+			{
+                                oktomove=TRUE;
+			}
+
 			/* Wall (or secret door) */
 			else
 			{
@@ -2226,8 +2218,14 @@ void move_player(int dir, int do_pickup)
 				}
 			}
 
+                        /* Mountain and levitation */
+                        else if ((c_ptr->feat == FEAT_MOUNTAIN) && p_ptr->ffall)
+			{
+                                oktomove=TRUE;
+			}
+
 			/* Wall (or secret door) */
-			else
+                        else
 			{
 				msg_print("There is a wall blocking your way.");
 

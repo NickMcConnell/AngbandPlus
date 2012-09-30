@@ -85,13 +85,19 @@ void do_cmd_rerate(void)
  * Create the artifact of the specified number -- DAN
  *
  */
-static void wiz_create_named_art(int a_idx)
+static void wiz_create_named_art()
 {
 	object_type forge;
 	object_type *q_ptr;
-	int i;
+        int i,a_idx;
+        cptr p="Number of the artifact :";
+        char out_val[80];
+        artifact_type *a_ptr;
 
-	artifact_type *a_ptr = &a_info[a_idx];
+        if (!get_string(p, out_val, 4)) return;
+        a_idx = atoi(out_val);                                
+
+        a_ptr = &a_info[a_idx];
 
 	/* Get local object */
 	q_ptr = &forge;
@@ -193,12 +199,11 @@ static void do_cmd_wiz_hack_ben(void)
 		}
 	}
 
+#endif
+
 	/* Oops */
 	msg_print("Oops.");
 	(void) probing();
-
-#endif
-
 }
 
 
@@ -517,11 +522,16 @@ static tval_desc tvals[] =
 	{ TV_DEATH_BOOK,        "Death Spellbook"      },
 	{ TV_TRUMP_BOOK,        "Trump Spellbook"      },
 	{ TV_ARCANE_BOOK,       "Arcane Spellbook",    },
+        { TV_MIMIC_BOOK,        "Book of Lore"         },
 	{ TV_SPIKE,             "Spikes"               },
 	{ TV_DIGGING,           "Digger"               },
 	{ TV_CHEST,             "Chest"                },
 	{ TV_FOOD,              "Food"                 },
 	{ TV_FLASK,             "Flask"                },
+        { TV_MSTAFF,            "Mage Staff"           },
+        { TV_FIRESTONE,         "Firestone"            },
+        { TV_BATERIE,           "Baterie"              },
+        { TV_PARCHEMENT,        "Parchement"           },
 	{ 0,                    NULL                   }
 };
 
@@ -1176,6 +1186,38 @@ static void wiz_create_item(void)
 	msg_print("Allocated.");
 }
 
+static void wiz_create_item_2(void)
+{
+	object_type forge;
+	object_type *q_ptr;
+        int i,a_idx;
+        cptr p="Number of the object :";
+        char out_val[80];
+
+        if (!get_string(p, out_val, 4)) return;
+        a_idx = atoi(out_val);                                
+
+        q_ptr = &k_info[a_idx];
+
+	/* Return if failed */
+        if (!a_idx) return;
+
+	/* Get local object */
+	q_ptr = &forge;
+
+	/* Create the item */
+        object_prep(q_ptr, a_idx);
+
+	/* Apply magic (no messages, no artifacts) */
+	apply_magic(q_ptr, dun_level, FALSE, FALSE, FALSE);
+
+	/* Drop the object from heaven */
+	drop_near(q_ptr, -1, py, px);
+
+	/* All done */
+	msg_print("Allocated.");
+}
+
 
 /*
  * Cure everything instantly
@@ -1203,6 +1245,9 @@ static void do_cmd_wiz_cure_all(void)
 	/* Restore mana */
 	p_ptr->csp = p_ptr->msp;
 	p_ptr->csp_frac = 0;
+
+        /* Restore tank */
+        p_ptr->ctp = p_ptr->mtp;
 
 	/* Cure stuff */
 	(void)set_blind(0);
@@ -1318,7 +1363,7 @@ static void do_cmd_wiz_summon(int num)
 
 	for (i = 0; i < num; i++)
 	{
-        (void)summon_specific(py, px, dun_level, 0, TRUE, FALSE, FALSE);
+        (void)summon_specific(py, px, dun_level, 0);
 	}
 }
 
@@ -1336,7 +1381,7 @@ static void do_cmd_wiz_named(int r_idx, bool slp)
 	/* if (!r_idx) return; */
 
 	/* Prevent illegal monsters */
-	if (r_idx >= max_r_idx) return;
+	if (r_idx >= max_r_idx-1) return;
 
 	/* Try 10 times */
 	for (i = 0; i < 10; i++)
@@ -1350,7 +1395,7 @@ static void do_cmd_wiz_named(int r_idx, bool slp)
 		if (!cave_empty_bold(y, x)) continue;
 
 		/* Place it (allow groups) */
-        if (place_monster_aux(y, x, r_idx, slp, TRUE, FALSE, FALSE)) break;
+        if (place_monster_aux(y, x, r_idx, slp, TRUE, FALSE)) break;
 	}
 }
 
@@ -1368,7 +1413,7 @@ static void do_cmd_wiz_named_friendly(int r_idx, bool slp)
 	/* if (!r_idx) return; */
 
 	/* Prevent illegal monsters */
-	if (r_idx >= max_r_idx) return;
+	if (r_idx >= max_r_idx-1) return;
 
 	/* Try 10 times */
 	for (i = 0; i < 10; i++)
@@ -1382,7 +1427,7 @@ static void do_cmd_wiz_named_friendly(int r_idx, bool slp)
 		if (!cave_empty_bold(y, x)) continue;
 
 		/* Place it (allow groups) */
-        if (place_monster_aux(y, x, r_idx, slp, TRUE, FALSE, TRUE)) break;
+        if (place_monster_aux(y, x, r_idx, slp, TRUE, TRUE)) break;
 	}
 }
 
@@ -1519,13 +1564,18 @@ void do_cmd_debug(void)
 		break;
 
 		/* Create any object */
+                case '-':
+                wiz_create_item_2();
+		break;
+
+		/* Create any object */
 		case 'c':
 		wiz_create_item();
 		break;
 
 		/* Create a named artifact */
 		case 'C':
-		wiz_create_named_art(command_arg);
+                wiz_create_named_art();
 		break;
 
 		/* Detect everything */
@@ -1701,6 +1751,15 @@ void do_cmd_debug(void)
 		do_cmd_wiz_script();
 		break;
 #endif /* USE_SLANG */
+
+                case '*':
+                p_ptr->tim_mimic=100;
+                p_ptr->mimic_form=command_arg;
+                /* Redraw title */
+                p_ptr->redraw |= (PR_TITLE);
+                /* Recalculate bonuses */
+                p_ptr->update |= (PU_BONUS);
+                break;
 
 		/* Not a Wizard Command */
 		default:

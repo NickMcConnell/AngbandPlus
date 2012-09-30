@@ -6,11 +6,8 @@
 %:t_pref.txt
 
 # Town 1
-?:[AND [EQU $TOWN 1] [EQU $WILDERNESS 1] ]
+?:[EQU $TOWN 1]
 %:t0000001.txt
-?:[AND [EQU $TOWN 1] [EQU $WILDERNESS 0] ]
-%:t_lite.txt
-?:1
 
 # Town 2
 ?:[EQU $TOWN 2]

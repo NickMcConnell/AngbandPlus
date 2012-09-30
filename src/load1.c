@@ -2457,8 +2457,8 @@ static errr rd_dungeon_old(void)
 		/* Hack -- ignore "broken" monsters */
 		if (q_ptr->r_idx <= 0) continue;
 
-		/* Hack -- ignore "broken" monsters */
-		if (q_ptr->r_idx >= max_r_idx) continue;
+		/* Hack -- ignore "player ghosts" */
+		if (q_ptr->r_idx >= max_r_idx-1) continue;
 
 
 		/* Access the race */
@@ -2772,6 +2772,9 @@ static errr rd_savefile_old_aux(void)
 		/* Only one unique monster */
 		if (r_ptr->flags1 & (RF1_UNIQUE)) r_ptr->max_num = 1;
 
+		/* Hack -- No ghosts */
+		if (i == max_r_idx-1) r_ptr->max_num = 0;
+
 		/* Note death */
 		if (tmp32u) r_ptr->max_num = 0;
 	}
@@ -2922,6 +2925,23 @@ static errr rd_savefile_old_aux(void)
 		note("Loaded dungeon");
 	}
 
+
+	/* Hack -- no ghosts */
+	r_info[max_r_idx-1].max_num = 0;
+
+
+	/* Hack -- reset morgoth XXX XXX XXX */
+	r_info[max_r_idx-2].max_num = 1;
+
+	/* Hack -- reset sauron XXX XXX XXX */
+	r_info[max_r_idx-3].max_num = 1;
+
+
+	/* Hack -- reset morgoth XXX XXX XXX */
+	r_info[max_r_idx-2].r_pkills = 0;
+
+	/* Hack -- reset sauron XXX XXX XXX */
+	r_info[max_r_idx-3].r_pkills = 0;
 
 	/* Hack -- maximize mode */
 	if (arg_crappy) p_ptr->maximize = TRUE;

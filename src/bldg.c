@@ -9,6 +9,8 @@
  * bldg.c as written by Ivan Tkatchev
  *
  * Changed for ZAngband by Robert Ruehlmann
+ *
+ * Changed for PernAngband by Dark God
  */
 
 #include "angband.h"
@@ -19,7 +21,6 @@ static bool leave_bldg = FALSE;
 /* remember building location */
 static int building_loc = 0;
 
-static bool reinit_wilderness = FALSE;
 
 static bool is_owner(building_type *bldg)
 {
@@ -621,9 +622,12 @@ static bool inn_comm(int cmd)
 	switch(cmd)
 	{
 		case BACT_FOOD: /* Buy food & drink */
-			msg_print("The barkeep gives you some gruel and a beer.");
-			msg_print(NULL);
-			(void) set_food(PY_FOOD_MAX - 1);
+                        if(p_ptr->prace!=RACE_VAMPIRE){
+                                msg_print("The barkeep gives you some gruel and a beer.");
+                                msg_print(NULL);
+                                (void) set_food(PY_FOOD_MAX - 1);
+                        }else
+                                msg_print("Your a vampire and I don't have any food for you!");
 			break;
 
 		case BACT_REST: /* Rest for the night */
@@ -646,6 +650,7 @@ static bool inn_comm(int cmd)
 					p_ptr->stun = 0;
 					msg_print("You awake refreshed for the new day.");
 					p_ptr->leftbldg = TRUE;
+					p_ptr->leaving = TRUE;
 				}
 			}
 			else
@@ -762,8 +767,6 @@ static void castle_quest(void)
 		q_ptr->status = QUEST_STATUS_REWARDED;
 
 		get_questinfo(q_index);
-
-		reinit_wilderness = TRUE;
 	}
 
 	/* Quest is still unfinished */
@@ -777,8 +780,6 @@ static void castle_quest(void)
 	else if (q_ptr->status == QUEST_STATUS_UNTAKEN)
 	{
 		q_ptr->status = QUEST_STATUS_TAKEN;
-
-		reinit_wilderness = TRUE;
 
 		/* Assign a new quest */
 		if (q_ptr->type == 2)
@@ -955,8 +956,8 @@ static void greet_reward(int gclass)
 					sval = SV_SHADOW_CLOAK;
 					break;
 				case 5:
-					tval = TV_STAFF;
-					sval = SV_STAFF_POWER;
+                                        tval = TV_MSTAFF;
+                                        sval = 1;
 					break;
 			}
 	}
@@ -1323,7 +1324,7 @@ static bool research_item(void)
  */
 static void bldg_process_command(building_type *bldg, int i)
 {
-
+	object_type *q_ptr, forge;
 	int bact = bldg->actions[i];
 	int bcost;
 	bool paid = FALSE;
@@ -1497,6 +1498,38 @@ static void bldg_process_command(building_type *bldg, int i)
 				paid = TRUE;
 			}
 			break;
+                case BACT_BUYFIRESTONE:
+                        amt = get_quantity("How many firestone(10 gold each)? ", 1000);
+			if (amt > 0)
+			{
+                                bcost=amt*10;
+                                if(p_ptr->au>=bcost){
+                                paid=TRUE;
+                                msg_print("You have bought some firestone(s) !");
+
+                                /* Hack -- Give the player Firestone! */
+                                q_ptr = &forge;
+                                object_prep(q_ptr, lookup_kind(TV_FIRESTONE, SV_FIRE_SMALL));
+                                q_ptr->number = amt;
+                                object_aware(q_ptr);
+                                object_known(q_ptr);
+                                drop_near(q_ptr, -1, py, px);
+                                }else msg_print("You do not have the gold!");
+			}
+			break;
+                case BACT_COMEBACKTIME:
+                        if(p_ptr->prace==RACE_DRAGONRIDER){
+                                if (do_res_stat(A_STR)) paid = TRUE;
+                                if (do_res_stat(A_INT)) paid = TRUE;
+                                if (do_res_stat(A_WIS)) paid = TRUE;
+                                if (do_res_stat(A_DEX)) paid = TRUE;
+                                if (do_res_stat(A_CON)) paid = TRUE;
+                                if (do_res_stat(A_CHR)) paid = TRUE;
+                                p_ptr->chp-=1000;
+                                if(p_ptr->chp<=0)p_ptr->chp=1;
+                        }else msg_print("Hum .. you are NOT a DragonRider , you need a dragon to go between !");
+			break;
+
 	}
 
 	if (paid)
@@ -1625,8 +1658,7 @@ void do_cmd_bldg(void)
 	msg_print(NULL);
 
 	/* Reinit wilderness to activate quests ... */
-	if (reinit_wilderness)
-		wilderness_gen(1);
+	wilderness_gen(1);
 
 	/* Hack -- Decrease "icky" depth */
 	character_icky--;
@@ -1671,7 +1703,7 @@ void quest_discovery(int q_idx)
 
 	strcpy(name, (r_name + r_ptr->name));
 
-	msg_print(find_quest[rand_range(0, 4)]);
+	msg_print(find_quest[rand_range(0,4)]);
 	msg_print(NULL);
 
 	if (q_num == 1)

@@ -45,12 +45,12 @@ F:ACTIVATE | SEE_INVIS | HOLD_LIFE |
 F:INSTA_ART | SPEED
 
 
-# The Arkenstone of Thrain -> JoJ
+# The Arkenstone of Thrain
 # Was +2 WIS/DEX
 
-N:3:of Judgement
+N:3:of Thrain
 I:39:6:3
-W:50:50:5:150000
+W:50:50:5:50000
 P:0:1d1:0:0:0
 F:ACTIVATE | SEE_INVIS | HOLD_LIFE | RES_CHAOS |
 F:INSTA_ART | SPEED | WIS | INT
@@ -87,12 +87,20 @@ F:SEE_INVIS | FREE_ACT | REGEN | LITE |
 F:INSTA_ART
 
 
-# Artifact 7 is unused
+# The Ring of F'lar
+
+N:7:of F'lar
+I:45:52:5
+W:50:25:2:75000
+F:STR | INT | CON | CHR | STEALTH | HIDE_TYPE |
+F:IM_FIRE | ACTIVATE | SEARCH |
+F:TELEPATHY | SEE_INVIS | FEATHER |
+F:INSTA_ART
 
 
 # The Ring of Barahir -> Frakir
 
-N:8:'Frakir'
+N:8:of Barahir
 I:45:32:1
 W:50:25:2:75000
 F:STR | INT | WIS | DEX | CON | CHR | STEALTH | HIDE_TYPE | 
@@ -137,14 +145,15 @@ F:INSTA_ART
 
 
 # The Ring of Power (Vilya)
+#W:90:50:2:300000
 
 N:12:of Power (Vilya)
 I:45:36:3
-W:90:50:2:300000
+W:1:1:10:10
 P:0:1d1:12:12:0
 F:STR | INT | WIS | DEX | CON | CHR | SPEED | HIDE_TYPE | 
 F:ACTIVATE | HOLD_LIFE | FREE_ACT | SEE_INVIS | 
-F:FEATHER | SLOW_DIGEST | REGEN | 
+F:FEATHER | SLOW_DIGEST | REGEN |
 F:SUST_INT | SUST_WIS | SUST_STR | SUST_DEX | IM_ELEC | 
 F:INSTA_ART
 
@@ -156,8 +165,8 @@ I:45:37:5
 W:100:100:2:5000000
 P:0:1d1:15:15:0
 F:STR | INT | WIS | DEX | CON | CHR | SPEED | HIDE_TYPE | 
-F:ACTIVATE | CURSED | HEAVY_CURSE | PERMA_CURSE |
-F:AGGRAVATE | DRAIN_EXP | SEE_INVIS | REGEN | TY_CURSE |
+F:ACTIVATE | CURSED | HEAVY_CURSE | PERMA_CURSE | INVIS |
+F:AGGRAVATE | DRAIN_EXP | SEE_INVIS | REGEN | FREE_ACT |
 F:IM_FIRE | IM_COLD | IM_ELEC | IM_ACID |
 F:SUST_STR | SUST_DEX | SUST_CON | 
 F:SUST_INT | SUST_WIS | SUST_CHR | 
@@ -339,7 +348,7 @@ F:SUST_WIS | SUST_DEX | SUST_CON | SUST_CHR
 
 # The Massive Iron Crown of Morgoth
 
-N:34:of Chaos
+N:34:of Morgoth
 I:33:50:125
 W:100:1:20:10000000
 P:0:1d1:0:0:0
@@ -347,7 +356,7 @@ F:STR | INT | WIS | DEX | CON | CHR | INFRA | HIDE_TYPE |
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_POIS | 
 F:RES_LITE | RES_DARK | RES_CONF | RES_NEXUS | 
 F:LITE | SEE_INVIS | TELEPATHY |
-F:CURSED | HEAVY_CURSE | PERMA_CURSE | NO_TELE
+F:CURSED | HEAVY_CURSE | PERMA_CURSE |
 F:INSTA_ART
 
 
@@ -425,7 +434,7 @@ F:TELEPORT
 
 # The Golden Crown of Gondor -> Amber
 
-N:42:of Amber
+N:42:of Gondor
 I:33:11:3
 W:40:40:30:125000
 P:0:1d1:0:0:15
@@ -491,7 +500,7 @@ N:49:of Luthien
 I:35:6:2
 W:40:40:5:55000
 P:6:0d0:0:0:20
-F:INT | WIS | CHR | HIDE_TYPE | SPEED | STEALTH |
+F:INT | WIS | CHR | HIDE_TYPE | SPEED | STEALTH | INVIS |
 F:RES_ACID | RES_FIRE | RES_COLD | ACTIVATE
 
 
@@ -501,7 +510,7 @@ N:50:of Tuor
 I:35:6:4
 W:40:40:5:35000
 P:6:0d0:0:0:12
-F:STEALTH | 
+F:STEALTH | INVIS |
 F:FREE_ACT | IM_ACID | SEE_INVIS
 
 
@@ -615,7 +624,21 @@ P:6:1d1:0:0:20
 F:STR | CON | HIDE_TYPE | SPEED
 
 
-# Artifact 63 is unused
+# The Seeker Arrow of Bard
+# This is, of course, from my 'Artifact Ammo' thread and doesn't need much
+# explanation.  It's rather nasty and deals 1000 or more damage on a
+# normal hit to a dragon. :)  Doesn't put a dent in Sky Drakes and Power
+# Dragons, tho it's still good for helping to take down Smaug, Tiamat and
+# the other dragon uniques.
+# P+ changed name, rarity to 30
+
+N:63:of Bard
+I:17:2:0
+W:55:30:2:50000
+P:0:8d4:20:15:0
+F:SLAY_ANIMAL | SLAY_EVIL | SLAY_UNDEAD | SLAY_DEMON | 
+F:SLAY_ORC | SLAY_TROLL | SLAY_GIANT | SLAY_DRAGON | KILL_DRAGON | 
+F:BRAND_ACID | BRAND_ELEC | BRAND_FIRE | BRAND_COLD | BRAND_POIS
 
 
 # The Main Gauche of Maedhros
@@ -772,7 +795,7 @@ F:RES_FIRE | RES_CHAOS | FREE_ACT | SEE_INVIS | AGGRAVATE | SHOW_MODS
 
 # The Two-Handed Sword 'Mormegil' -> Twilight
 
-N:78:'Twilight'
+N:78:'Mormegil'
 I:23:25:10
 W:30:15:250:0
 P:0:4d6:-40:-60:-50
@@ -1299,7 +1322,12 @@ F:SPEED |
 F:RES_FIRE | XTRA_MIGHT | ACTIVATE | SHOW_MODS
 
 
-# Artifact 127 is unused
+# The Mage Staff of Gandalf
 
-
-
+N:127:of Gandalf
+I:6:1:12
+W:100:100:20:9000000
+P:0:1d4:-19:-19:0
+F:INT | MANA | SPELL | ACTIVATE |
+F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD |
+F:SEE_INVIS | TELEPATHY

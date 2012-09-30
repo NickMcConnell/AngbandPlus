@@ -26,6 +26,23 @@
 
 
 /*
+ * Grow trees
+ */
+void grow_trees(int rad)
+{
+        int a,i,j;
+
+        for(a=0;a<rad*rad+11;a++){
+                i=(Rand_mod((rad*2)+1)-rad+Rand_mod((rad*2)+1)-rad)/2;
+                j=(Rand_mod((rad*2)+1)-rad+Rand_mod((rad*2)+1)-rad)/2;
+                if (cave_clean_bold(py+i, px+j))
+                {
+                        cave_set_feat(py+i, px+j, FEAT_TREES);
+                }
+        }
+}
+
+/*
  * Increase players hit points, notice effects
  */
 bool hp_player(int num)
@@ -92,6 +109,11 @@ void warding_glyph(void)
 	if (!cave_clean_bold(py, px))
 	{
 		msg_print("The object resists the spell.");
+		return;
+	}
+	if (special_flag)
+	{
+		msg_print("No glyph of warding on special level.");
 		return;
 	}
 
@@ -621,29 +643,6 @@ void self_knowledge(void)
 			if (plev > 19)
 				info[i++] = "You can break stone walls (cost 10).";
 			break;
-		case RACE_HALF_TITAN:
-			if (plev > 34)
-				info[i++] = "You can probe monsters (cost 20).";
-			break;
-		case RACE_CYCLOPS:
-			if (plev > 19)
-			{
-				sprintf(Dummy, "You can throw a boulder, dam. %d (cost 15).",
-				    3 * plev);
-				info[i++] = Dummy;
-			}
-			break;
-		case RACE_YEEK:
-			if (plev > 14)
-				info[i++] = "You can make a terrifying scream (cost 15).";
-			break;
-		case RACE_KLACKON:
-			if (plev > 8)
-			{
-				sprintf(Dummy, "You can spit acid, dam. %d (cost 9).", plev);
-				info[i++] = Dummy;
-			}
-			break;
 		case RACE_KOBOLD:
 			if (plev > 11)
 			{
@@ -660,36 +659,6 @@ void self_knowledge(void)
 				info[i++] = Dummy;
 			}
 			break;
-		case RACE_DRACONIAN:
-			sprintf(Dummy, "You can breathe, dam. %d (cost %d).", 2 * plev, plev);
-			info[i++] = Dummy;
-			break;
-		case RACE_MIND_FLAYER:
-			if (plev > 14)
-				sprintf(Dummy, "You can mind blast your enemies, dam %d (cost 12).", plev);
-			info[i++] = Dummy;
-			break;
-		case RACE_IMP:
-			if (plev > 29)
-			{
-				sprintf(Dummy, "You can cast a Fire Ball, dam. %d (cost 15).", plev);
-				info[i++] = Dummy;
-			}
-			else if (plev > 8)
-			{
-				sprintf(Dummy, "You can cast a Fire Bolt, dam. %d (cost 15).", plev);
-				info[i++] = Dummy;
-			}
-			break;
-		case RACE_GOLEM:
-			if (plev > 19)
-				info[i++] = "You can turn your skin to stone, dur d20+30 (cost 15).";
-			break;
-		case RACE_ZOMBIE:
-		case RACE_SKELETON:
-			if (plev > 29)
-				info[i++] = "You can restore lost life forces (cost 30).";
-			break;
 		case RACE_VAMPIRE:
 			if (plev > 1)
 			{
@@ -704,11 +673,20 @@ void self_knowledge(void)
 				info[i++] = "You can wail to terrify your enemies (cost 3).";
 			}
 			break;
-		case RACE_SPRITE:
-			if (plev > 11)
+                case RACE_ENT:
+			if (plev > 3)
 			{
-				info[i++] = "You can throw magic dust which induces sleep (cost 12).";
-			}
+                                info[i++] = "You can make the trees grow, (cost 6).";
+                        }
+        		break;
+                case RACE_DRAGONRIDER:
+                        info[i++] = "You can breathe a big flame , bolt , ball or beam (cost Firestone).";
+                        info[i++] = "You can go between to teleport, (cost 3).";
+                        info[i++] = "You can go between to return in Town, (cost 17).";
+			break;
+                case RACE_RKNIGHT:
+                        sprintf(Dummy, "You can flash a bright aura, dam. %d (cost 9).", plev*2);
+                        info[i++] = Dummy;
 			break;
 		default:
 			break;
@@ -1113,6 +1091,10 @@ void self_knowledge(void)
 		}
 	}
 
+if (p_ptr->allow_one_death)
+{
+  info[i++] = "The blood of life flows through your veins.";
+}
 	if (p_ptr->blind)
 	{
 		info[i++] = "You cannot see.";
@@ -2076,7 +2058,7 @@ bool detect_objects_gold(void)
 		msg_print("You sense the presence of treasure!");
 	}
 
-	if (detect_monsters_string("$"))
+	if (detect_monsters_string("$*"))
 	{
 		detect = TRUE;
 	}
@@ -2585,6 +2567,11 @@ void stair_creation(void)
 	if (!cave_valid_bold(py, px))
 	{
 		msg_print("The object resists the spell.");
+		return;
+	}
+	if (special_flag)
+	{
+		msg_print("No stair creation on special levels...");
 		return;
 	}
 
@@ -4905,10 +4892,13 @@ void aggravate_monsters(int who)
 				speed = TRUE;
 			}
 
-			/* Friendly monster may get angry (50% chance) */
-			if (!is_hostile(m_ptr) && (randint(2) == 1))
+			/* Pets may get angry (50% chance) */
+			if (is_pet(m_ptr))
 			{
-				set_hostile(m_ptr);
+				if (randint(2)==1)
+				{
+					set_pet(m_ptr, FALSE);
+				}
 			}
 		}
 	}
@@ -4930,6 +4920,7 @@ bool genocide(bool player_cast)
 	bool    result = FALSE;
 	int     msec = delay_factor * delay_factor * delay_factor;
 
+        if (special_flag) return(FALSE);
 
 	/* Mega-Hack -- Get a monster symbol */
 	(void)(get_com("Choose a monster race (by symbol) to genocide: ", &typ));
@@ -4998,6 +4989,7 @@ bool mass_genocide(bool player_cast)
 
 	int     msec = delay_factor * delay_factor * delay_factor;
 
+        if (special_flag) return(FALSE);
 
 	/* Delete the (nearby) monsters */
 	for (i = 1; i < m_max; i++)
@@ -6366,7 +6358,7 @@ void activate_ty_curse(void)
 			activate_hi_summon();
 			if (randint(6) != 1) break;
 		case 7: case 8: case 9: case 18:
-			(void) summon_specific(py, px, dun_level, 0, TRUE, FALSE, FALSE);
+			(void) summon_specific(py, px, dun_level, 0);
 			if (randint(6) != 1) break;
 		case 10: case 11: case 12:
 			msg_print("You feel your life draining away...");
@@ -6430,51 +6422,51 @@ void activate_hi_summon(void)
 		switch(randint(26) + (dun_level / 20) )
 		{
 			case 1: case 2:
-				(void) summon_specific(py, px, dun_level, SUMMON_ANT, TRUE, FALSE, FALSE);
+				(void) summon_specific(py, px, dun_level, SUMMON_ANT);
 				break;
 			case 3: case 4:
-				(void) summon_specific(py, px, dun_level, SUMMON_SPIDER, TRUE, FALSE, FALSE);
+				(void) summon_specific(py, px, dun_level, SUMMON_SPIDER);
 				break;
 			case 5: case 6:
-				(void) summon_specific(py, px, dun_level, SUMMON_HOUND, TRUE, FALSE, FALSE);
+				(void) summon_specific(py, px, dun_level, SUMMON_HOUND);
 				break;
 			case 7: case 8:
-				(void) summon_specific(py, px, dun_level, SUMMON_HYDRA, TRUE, FALSE, FALSE);
+				(void) summon_specific(py, px, dun_level, SUMMON_HYDRA);
 				break;
 			case 9: case 10:
-				(void) summon_specific(py, px, dun_level, SUMMON_ANGEL, TRUE, FALSE, FALSE);
+				(void) summon_specific(py, px, dun_level, SUMMON_ANGEL);
 				break;
 			case 11: case 12:
-				(void) summon_specific(py, px, dun_level, SUMMON_UNDEAD, TRUE, FALSE, FALSE);
+				(void) summon_specific(py, px, dun_level, SUMMON_UNDEAD);
 				break;
 			case 13: case 14:
-				(void) summon_specific(py, px, dun_level, SUMMON_DRAGON, TRUE, FALSE, FALSE);
+				(void) summon_specific(py, px, dun_level, SUMMON_DRAGON);
 				break;
 			case 15: case 16:
-				(void) summon_specific(py, px, dun_level, SUMMON_DEMON, TRUE, FALSE, FALSE);
+				(void) summon_specific(py, px, dun_level, SUMMON_DEMON);
 				break;
 			case 17:
-				(void) summon_specific(py, px, dun_level, SUMMON_AMBERITES, TRUE, FALSE, FALSE);
+				(void) summon_specific(py, px, dun_level, SUMMON_WRAITH);
 				break;
 			case 18: case 19:
-				(void) summon_specific(py, px, dun_level, SUMMON_UNIQUE, TRUE, FALSE, FALSE);
+				(void) summon_specific(py, px, dun_level, SUMMON_UNIQUE);
 				break;
 			case 20: case 21:
-				(void) summon_specific(py, px, dun_level, SUMMON_HI_UNDEAD, TRUE, FALSE, FALSE);
+				(void) summon_specific(py, px, dun_level, SUMMON_HI_UNDEAD);
 				break;
 			case 22: case 23:
-				(void) summon_specific(py, px, dun_level, SUMMON_HI_DRAGON, TRUE, FALSE, FALSE);
+				(void) summon_specific(py, px, dun_level, SUMMON_HI_DRAGON);
 				break;
 			case 24: case 25:
-				(void) summon_specific(py, px, 100, SUMMON_CYBER, TRUE, FALSE, FALSE);
+				(void) summon_specific(py, px, 100, SUMMON_CYBER);
 				break;
 			default:
-				(void) summon_specific(py, px,(((dun_level * 3) / 2) + 5), 0, TRUE, FALSE, FALSE);
+				(void) summon_specific(py, px,(((dun_level * 3) / 2) + 5), 0);
 		}
 	}
 }
 
-/* ToDo: check */
+
 void summon_cyber(void)
 {
 	int i;
@@ -6482,7 +6474,7 @@ void summon_cyber(void)
 
 	for (i = 0; i < max_cyber; i++)
 	{
-		(void)summon_specific(py, px, 100, SUMMON_CYBER, TRUE, FALSE, FALSE);
+		(void)summon_specific(py, px, 100, SUMMON_CYBER);
 	}
 }
 
@@ -6835,23 +6827,16 @@ bool charm_animal(int dir, int plev)
 
 void alter_reality(void)
 {
-	if (!is_quest(dun_level) && dun_level)
-	{
-		msg_print("The world changes!");
+	msg_print("The world changes!");
 
-		if (autosave_l)
-		{
-			is_autosave = TRUE;
-			msg_print("Autosaving the game...");
-			do_cmd_save_game();
-			is_autosave = FALSE;
-		}
-
-		/* Leaving */
-		p_ptr->leaving = TRUE;
-	}
-	else
+	if (autosave_l)
 	{
-		msg_print("The world seems to change for a moment!");
+		is_autosave = TRUE;
+		msg_print("Autosaving the game...");
+		do_cmd_save_game();
+		is_autosave = FALSE;
 	}
+
+	/* Leaving */
+	p_ptr->leaving = TRUE;
 }

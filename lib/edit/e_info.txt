@@ -24,6 +24,25 @@
 
 V:2.8.1
 
+### Mage Staff ###
+
+N:1:of Mana
+X:24:20
+W:0:0:0:10000
+C:0:0:0:3
+F:MANA
+
+N:2:of Spell
+X:24:30
+W:0:0:0:20000
+C:0:0:0:3
+F:SPELL
+
+N:3:of Mana & Spell
+X:24:60
+W:0:0:0:50000
+C:0:0:0:3
+F:MANA | SPELL
 
 ### Body Armor ###
 
@@ -47,7 +66,7 @@ X:30:12
 W:0:0:0:600
 F:RES_COLD | IGNORE_COLD
 
-N:8:of Resistance
+N:8:of Resistanc
 X:30:20
 W:0:0:0:12500
 C:0:0:10:0
@@ -64,7 +83,11 @@ F:STEALTH |
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | 
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-# 10 (unused)
+N:10:of Power
+X:24:60
+W:0:0:0:40000
+C:0:0:0:3
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 # OnePower
 
@@ -121,12 +144,19 @@ C:0:0:5:0
 F:REFLECT
 F:IGNORE_ELEC | IGNORE_ACID | IGNORE_COLD | IGNORE_FIRE
 
-# 22 (unused)
-
-# 23 (unused)
-
-
 ### Crowns and Helms ###
+
+N:22:of the Dwarves
+X:33:13
+C:0:0:0:2
+W:0:0:0:500
+F:INFRA | CON | RES_FIRE
+
+N:23:of the Noldor
+X:33:13
+C:0:0:0:2
+W:0:0:0:500
+F:DEX | SUST_DEX | ACTIVATE
 
 N:24:of Intelligence
 X:33:13
@@ -348,7 +378,11 @@ W:0:0:0:200000
 C:0:0:0:10
 F:SPEED | HIDE_TYPE
 
-# 60 (unused)
+N:60:of Jumping
+X:35:16
+W:0:0:0:500
+C:0:0:0:3
+F:ACTIVATE
 
 N:61:of Noise
 X:35:0

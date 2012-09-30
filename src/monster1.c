@@ -602,17 +602,9 @@ static void roff_aux(int r_idx, int remem)
 	{
 		roff(format("%^s is surrounded by flames and electricity.  ", wd_he[msex]));
 	}
-	else if ((flags3 & (RF3_AURA_COLD)) && (flags2 & (RF2_AURA_ELEC)))
-	{
-		roff(format("%^s is surrounded by ice and electricity.  ", wd_he[msex]));
-	}
 	else if (flags2 & (RF2_AURA_FIRE))
 	{
 		roff(format("%^s is surrounded by flames.  ", wd_he[msex]));
-	}
-	else if (flags3 & (RF3_AURA_COLD))
-	{
-		roff(format("%^s is surrounded by ice.  ", wd_he[msex]));
 	}
 	else if (flags2 & (RF2_AURA_ELEC))
 	{
@@ -787,7 +779,7 @@ static void roff_aux(int r_idx, int remem)
 	if (flags6 & (RF6_S_HI_UNDEAD))     vp[vn++] = "summon Greater Undead";
 	if (flags6 & (RF6_S_HI_DRAGON))     vp[vn++] = "summon Ancient Dragons";
 	if (flags6 & (RF6_S_CYBER))         vp[vn++] = "summon Cyberdemons";
-	if (flags6 & (RF6_S_AMBERITES))     vp[vn++] = "summon Lords of Amber";
+        if (flags6 & (RF6_S_WRAITH))        vp[vn++] = "summon Ringwraith";
 	if (flags6 & (RF6_S_UNIQUE))        vp[vn++] = "summon Unique Monsters";
 
 	/* Describe spells */
@@ -1503,9 +1495,6 @@ bool monster_quest(int r_idx)
 	/* No random quests for multiplying monsters */
 	if (r_ptr->flags2 & RF2_MULTIPLY) return FALSE;
 
-	/* No quests to kill friendly monsters */
-	if (r_ptr->flags7 & RF7_FRIENDLY) return FALSE;
-
 	return TRUE;
 }
 
@@ -1650,107 +1639,94 @@ bool monster_lava(int r_idx)
 }
 
 
-monster_hook_type get_monster_hook(void)
+void set_mon_num_hook(void)
 {
 	if (!dun_level)
 	{
 		switch(wilderness[p_ptr->wilderness_y][p_ptr->wilderness_x].terrain)
 		{
 		case TERRAIN_TOWN:
-			return monster_town;
+			get_mon_num_hook = monster_town;
+			break;
 		case TERRAIN_DEEP_WATER:
-			return monster_ocean;
+			get_mon_num_hook = monster_ocean;
+			break;
 		case TERRAIN_SHALLOW_WATER:
-			return monster_shore;
+			get_mon_num_hook = monster_shore;
+			break;
 		case TERRAIN_DIRT:
-			return monster_waste;
+			get_mon_num_hook = monster_waste;
+			break;
 		case TERRAIN_GRASS:
-			return monster_grass;
+			get_mon_num_hook = monster_grass;
+			break;
 		case TERRAIN_TREES:
-			return monster_wood;
+			get_mon_num_hook = monster_wood;
+			break;
 		case TERRAIN_SHALLOW_LAVA:
 		case TERRAIN_DEEP_LAVA:
-			return monster_volcano;
+			get_mon_num_hook = monster_volcano;
+			break;
 		case TERRAIN_MOUNTAIN:
-			return monster_mountain;
+			get_mon_num_hook = monster_mountain;
+			break;
 		default:
-			return monster_dungeon;
+			get_mon_num_hook = monster_dungeon;
+			break;
 		}
 	}
 	else
 	{
-		return monster_dungeon;
+		get_mon_num_hook = monster_dungeon;
 	}
 }
 
 
-monster_hook_type get_monster_hook2(int y, int x)
+void set_mon_num2_hook(int y, int x)
 {
 	/* Set the monster list */
 	switch (cave[y][x].feat)
 	{
 	case FEAT_SHAL_WATER:
-		return monster_shallow_water;
+		get_mon_num2_hook = monster_shallow_water;
+		break;
 	case FEAT_DEEP_WATER:
-		return monster_deep_water;
+		get_mon_num2_hook = monster_deep_water;
+		break;
 	case FEAT_DEEP_LAVA:
 	case FEAT_SHAL_LAVA:
-		return monster_lava;
+		get_mon_num2_hook = monster_lava;
+		break;
 	default:
-		return NULL;
+		get_mon_num2_hook = NULL;
+		break;
 	}
 }
 
 
-bool is_friendly(monster_type *m_ptr)
-{
-	if (m_ptr->smart & SM_FRIENDLY)
-		return (TRUE);
-	else
-		return (FALSE);
-}
-
-void set_friendly(monster_type *m_ptr)
-{
-	m_ptr->smart |= SM_FRIENDLY;
-}
-
 bool is_pet(monster_type *m_ptr)
 {
-	if (m_ptr->smart & SM_PET)
+	if (m_ptr->smart & (SM_FRIEND))
+	{
 		return (TRUE);
+	}
 	else
+	{
 		return (FALSE);
+	}
 }
 
-
-void set_pet(monster_type *m_ptr)
+void set_pet(monster_type *m_ptr, bool pet)
 {
-	m_ptr->smart |= SM_PET;
-}
-
-/*
- * Is the monster friendly or a pet?
- */
-bool is_hostile(monster_type *m_ptr)
-{
-	if (is_friendly(m_ptr) || is_pet(m_ptr))
-		return (FALSE);
+	if (pet)
+	{
+		m_ptr->smart |= SM_FRIEND;
+	}
 	else
-		return (TRUE);
+	{
+		m_ptr->smart &= ~SM_FRIEND;
+	}
 }
-
-
-/*
- * Makes the monster hostile towards the player
- */
-void set_hostile(monster_type *m_ptr)
-{
-	m_ptr->smart &= ~SM_PET;
-	m_ptr->smart &= ~SM_FRIENDLY;
-}
-
-
 
 /*
  * Check if monster can cross terrain
@@ -1795,38 +1771,3 @@ bool monster_can_cross_terrain(byte feat, monster_race *r_ptr)
 	return TRUE;
 }
 
-
-/*
- * Check if two monsters are enemies
- */
-bool are_enemies(monster_type *m_ptr1, monster_type *m_ptr2)
-{
-	monster_race *r_ptr1 = &r_info[m_ptr1->r_idx];
-	monster_race *r_ptr2 = &r_info[m_ptr2->r_idx];
-
-	/* Never pet vs. pet, friendly vs. friendly, normal vs. normal */
-	if ((is_friendly(m_ptr1) == is_friendly(m_ptr2)) &&
-		(is_pet(m_ptr1) == is_pet(m_ptr2)))
-	{
-		return FALSE;
-	}
-
-	/* Pet vs. normal */
-	if ((is_pet(m_ptr1) && !is_friendly(m_ptr2)) ||
-	    (is_pet(m_ptr2) && !is_friendly(m_ptr1)))
-	{
-		return TRUE;
-	}
-
-	/* Friendly vs. opposite aligned normal or pet */
-	if (((r_ptr1->flags3 & RF3_EVIL) &&
-	     (r_ptr2->flags3 & RF3_GOOD)) ||
-	    ((r_ptr1->flags3 & RF3_GOOD) &&
-	     (r_ptr2->flags3 & RF3_EVIL)))
-	{
-			return TRUE;
-	}
-
-	/* Default */
-	return FALSE;
-}

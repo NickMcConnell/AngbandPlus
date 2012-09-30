@@ -885,12 +885,18 @@ static void wr_extra(void)
 		wr_string(history[i]);
 	}
 
+	for (i=1;i<101;i++)
+	{
+		wr_byte(p_ptr->spec_history[i]);
+	}
+
 	/* Race/Class/Gender/Spells */
 	wr_byte(p_ptr->prace);
 	wr_byte(p_ptr->pclass);
 	wr_byte(p_ptr->psex);
     wr_byte(p_ptr->realm1);
     wr_byte(p_ptr->realm2);
+        wr_byte(p_ptr->mimic_form);
 	wr_byte(0);     /* oops */
 
 	wr_byte(p_ptr->hitdie);
@@ -939,6 +945,11 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->csp);
 	wr_u16b(p_ptr->csp_frac);
 
+        wr_s16b(p_ptr->mtp);
+        wr_s16b(p_ptr->ctp);
+        wr_s16b(p_ptr->tp_aux1);
+        wr_s16b(p_ptr->tp_aux2);
+
 	/* Max Player and Dungeon Levels */
 	wr_s16b(p_ptr->max_plv);
 	wr_s16b(p_ptr->max_dlv);
@@ -984,9 +995,9 @@ static void wr_extra(void)
     wr_s16b(p_ptr->tim_esp);
     wr_s16b(p_ptr->wraith_form);
     wr_s16b(p_ptr->resist_magic);
-    wr_s16b(p_ptr->tim_xtra1);
-    wr_s16b(p_ptr->tim_xtra2);
-    wr_s16b(p_ptr->tim_xtra3);
+    wr_s16b(p_ptr->tim_invisible);
+    wr_s16b(p_ptr->tim_inv_pow);
+    wr_s16b(p_ptr->tim_mimic);
     wr_s16b(p_ptr->tim_xtra4);
     wr_s16b(p_ptr->tim_xtra5);
     wr_s16b(p_ptr->tim_xtra6);
@@ -1005,10 +1016,29 @@ static void wr_extra(void)
 	wr_byte(p_ptr->searching);
 	wr_byte(p_ptr->maximize);
 	wr_byte(p_ptr->preserve);
-	wr_byte(0);
+	wr_byte(p_ptr->special);
+	wr_byte(special_flag);
+        wr_byte(p_ptr->allow_one_death);
 
 	/* Future use */
 	for (i = 0; i < 12; i++) wr_u32b(0L);
+
+        /* Auxilliary variables */
+        wr_u32b(p_ptr->class_extra1);
+        wr_u32b(p_ptr->class_extra2);
+        wr_u32b(p_ptr->class_extra3);
+        wr_u32b(p_ptr->class_extra4);
+        wr_u32b(p_ptr->class_extra5);
+        wr_u32b(p_ptr->class_extra6);
+        wr_u32b(p_ptr->class_extra7);
+
+        wr_u32b(p_ptr->race_extra1);
+        wr_u32b(p_ptr->race_extra2);
+        wr_u32b(p_ptr->race_extra3);
+        wr_u32b(p_ptr->race_extra4);
+        wr_u32b(p_ptr->race_extra5);
+        wr_u32b(p_ptr->race_extra6);
+        wr_u32b(p_ptr->race_extra7);
 
 	/* Ignore some flags */
 	wr_u32b(0L);    /* oops */
@@ -1395,31 +1425,25 @@ static bool wr_savefile_new(void)
 		/* Save quest status if quest is running */
 		if (quest[i].status == 1)
 		{
+                        wr_s16b(quest[i].k_idx);
 			wr_s16b(quest[i].cur_num);
 			wr_s16b(quest[i].max_num);
 			wr_s16b(quest[i].type);
 			wr_s16b(quest[i].r_idx);
-			wr_s16b(quest[i].k_idx);
 		}
 	}
-
-	/* Dump the "hard quests" flag */
-	wr_byte(p_ptr->hard_quests);
-
-	/* Dump the wilderness flag */
-	wr_byte(p_ptr->wilderness);
 
 	/* Dump the position in the wilderness */
 	wr_s32b(p_ptr->wilderness_x);
 	wr_s32b(p_ptr->wilderness_y);
 
-	wr_s32b(max_wild_x);
-	wr_s32b(max_wild_y);
+	wr_s32b(MAX_WILD_X);
+	wr_s32b(MAX_WILD_Y);
 
 	/* Dump the wilderness seeds */
-	for (i = 0; i < max_wild_x; i++)
+	for (i = 0; i < MAX_WILD_X; i++)
 	{
-		for (j = 0; j < max_wild_y; j++)
+		for (j = 0; j < MAX_WILD_Y; j++)
 		{
 			wr_u32b(wilderness[j][i].seed);
 		}

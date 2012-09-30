@@ -89,7 +89,6 @@ B:0:N:The White Horse Inn:Otick:Human
 B:0:A:0:Rest for the night:20:20:r:17:0
 B:0:A:1:Buy food and drink:1:1:f:18:0
 B:0:A:2:Listen for rumors:0:0:u:19:0
-B:0:R:2:2:2:2:2:2:2:2:2:2:2:2:2:2:2:2:2:2:2:2:2:2:0:0:0:0:0:0:2
 
 B:1:N:Mayor:Uldrik:Human
 B:1:A:0:Request quest:0:0:q:6:0

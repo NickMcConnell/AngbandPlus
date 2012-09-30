@@ -153,7 +153,7 @@ static void get_enemy_dir(monster_type *m_ptr, int *mm)
 				enemy_ptr = &m_list[cave[y][x].m_idx];
 
 				/* Valid target if enemy and not asleep */
-				if (are_enemies(enemy_ptr, m_ptr) &&
+				if ((is_pet(enemy_ptr) != is_pet(m_ptr)) &&
 					!enemy_ptr->csleep)
 				{
 					/* Extract the direction */
@@ -234,6 +234,7 @@ static void mon_take_hit_mon(int m_idx, int dam, bool *fear, cptr note)
 	
 	monster_race	*r_ptr = &r_info[m_ptr->r_idx];
 	
+	s32b            div, new_exp, new_exp_frac;
 	
 	/* Redraw (later) if needed */
 	if (health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
@@ -296,6 +297,34 @@ static void mon_take_hit_mon(int m_idx, int dam, bool *fear, cptr note)
 			{
 				msg_format("%^s is killed.", m_name);
 			}
+
+#ifdef PET_GAIN_EXP
+                if(p_ptr->pclass==CLASS_BEASTMASTER){
+		/* Maximum player level */
+		div = p_ptr->max_plv;
+
+		/* Give some experience for the kill */
+		new_exp = ((long)r_ptr->mexp * r_ptr->level) / div;
+
+		/* Handle fractional experience */
+		new_exp_frac = ((((long)r_ptr->mexp * r_ptr->level) % div)
+		                * 0x10000L / div) + p_ptr->exp_frac;
+
+		/* Keep track of experience */
+		if (new_exp_frac >= 0x10000L)
+		{
+			new_exp++;
+			p_ptr->exp_frac = new_exp_frac - 0x10000;
+		}
+		else
+		{
+			p_ptr->exp_frac = new_exp_frac;
+		}
+
+		/* Gain experience */
+                gain_exp(new_exp);
+                }
+#endif
 			
 			/* Generate treasure */
 			monster_death(m_idx);
@@ -742,8 +771,8 @@ static bool summon_possible(int y1, int x1)
 /*
  * Determine if a bolt spell will hit the player.
  *
- * This is exactly like "projectable", but it will
- * return FALSE if a monster is in the way.
+ * This is exactly like "projectable", but it will return FALSE if a monster
+ * is in the way.
  */
 static bool clean_shot(int y1, int x1, int y2, int x2)
 {
@@ -761,7 +790,6 @@ static bool clean_shot(int y1, int x1, int y2, int x2)
 		/* Never pass through monsters */
 		if (dist && cave[y][x].m_idx > 0)
 		{
-			/* Pets don't care */
 			if (!is_pet(&m_list[cave[y][x].m_idx])) break;
 		}
 		
@@ -1125,9 +1153,10 @@ static bool monst_spell_monst(int m_idx)
 	bool see_either;
 	bool see_both;
 	
-	bool friendly = is_friendly(m_ptr);
-	bool pet = is_pet(m_ptr);
-
+	bool friendly = FALSE;
+	
+	if (is_pet(m_ptr)) friendly = TRUE;
+	
 	/* Cannot cast spells when confused */
 	if (m_ptr->confused) return (FALSE);
 	
@@ -1154,7 +1183,7 @@ static bool monst_spell_monst(int m_idx)
 		if (!t_ptr->r_idx) continue;
 		
 		/* Monster must be 'an enemy' */
-		if (!are_enemies(m_ptr, t_ptr)) continue;
+		if ((is_pet(m_ptr)) == (is_pet(t_ptr))) continue;
 		
 		/* Hack -- no fighting >100 squares from player */
 		if (t_ptr->cdis > MAX_RANGE) continue;
@@ -2337,10 +2366,14 @@ static bool monst_spell_monst(int m_idx)
 			/* RF6_TPORT */
 		case 160+5:
 			{
+			if (special_flag) break; /* No teleport on special levels */
+			else
+			{
 				disturb(1, 0);
 				if (see_m) msg_format("%^s teleports away.", m_name);
 				teleport_away(m_idx, MAX_SIGHT * 2 + 5);
 				break;
+                        }
 			}
 			
 			/* RF6_XXX3X6 */
@@ -2365,6 +2398,7 @@ static bool monst_spell_monst(int m_idx)
 			/* RF6_TELE_AWAY */
 		case 160+9:
 			{
+			if (special_flag) break;
 				
 				if (!direct) break;
 				else
@@ -2465,7 +2499,10 @@ static bool monst_spell_monst(int m_idx)
 				summon_kin_type = r_ptr->d_char; /* Big hack */
 				for (k = 0; k < 6; k++)
 				{
-					count += summon_specific(y, x, rlev, SUMMON_KIN, TRUE, friendly, pet);
+					if (friendly)
+						count += summon_specific_friendly(y, x, rlev, SUMMON_KIN, TRUE);
+					else
+						count += summon_specific(y, x, rlev, SUMMON_KIN);
 				}
 				if (blind && count) msg_print("You hear many things appear nearby.");
 				
@@ -2481,7 +2518,7 @@ static bool monst_spell_monst(int m_idx)
 				else msg_format("%^s magically summons Cyberdemons!", m_name);
 				if (blind && count) msg_print("You hear heavy steps nearby.");
 				if (friendly)
-					summon_specific(y, x, rlev, SUMMON_CYBER, TRUE, TRUE, pet);
+					summon_specific_friendly(y, x, rlev, SUMMON_CYBER, TRUE);
 				else
 					summon_cyber();
 				break;
@@ -2490,14 +2527,16 @@ static bool monst_spell_monst(int m_idx)
 			/* RF6_S_MONSTER */
 		case 160+18:
 			{
-				int type = (friendly ? SUMMON_NO_UNIQUES : 0);
-
 				disturb(1, 0);
 				if (blind || !see_m) msg_format("%^s mumbles.", m_name);
 				else msg_format("%^s magically summons help!", m_name);
-
-				count += summon_specific(y, x, rlev, type, FALSE, friendly, pet);
-
+				for (k = 0; k < 1; k++)
+				{
+					if (friendly)
+						count += summon_specific_friendly(y, x, rlev, SUMMON_NO_UNIQUES, TRUE);
+					else
+						count += summon_specific(y, x, rlev, 0);
+				}
 				if (blind && count) msg_print("You hear something appear nearby.");
 				break;
 			}
@@ -2505,15 +2544,15 @@ static bool monst_spell_monst(int m_idx)
 			/* RF6_S_MONSTERS */
 		case 160+19:
 			{
-				int type = (friendly ? SUMMON_NO_UNIQUES : 0);
-
 				disturb(1, 0);
 				if (blind || !see_m) msg_format("%^s mumbles.", m_name);
 				else msg_format("%^s magically summons monsters!", m_name);
-
 				for (k = 0; k < 8; k++)
 				{
-					count += summon_specific(y, x, rlev, type, TRUE, friendly, pet);
+					if (friendly)
+						count += summon_specific_friendly(y, x, rlev, SUMMON_NO_UNIQUES, TRUE);
+					else
+						count += summon_specific(y, x, rlev, 0);
 				}
 				if (blind && count) msg_print("You hear many things appear nearby.");
 				break;
@@ -2527,7 +2566,10 @@ static bool monst_spell_monst(int m_idx)
 				else msg_format("%^s magically summons ants.", m_name);
 				for (k = 0; k < 6; k++)
 				{
-					count += summon_specific(y, x, rlev, SUMMON_ANT, TRUE, friendly, pet);
+					if (friendly)
+						count += summon_specific_friendly(y, x, rlev, SUMMON_ANT, TRUE);
+					else
+						count += summon_specific(y, x, rlev, SUMMON_ANT);
 				}
 				if (blind && count) msg_print("You hear many things appear nearby.");
 				break;
@@ -2541,7 +2583,10 @@ static bool monst_spell_monst(int m_idx)
 				else msg_format("%^s magically summons spiders.", m_name);
 				for (k = 0; k < 6; k++)
 				{
-					count += summon_specific(y, x, rlev, SUMMON_SPIDER, TRUE, friendly, pet);
+					if (friendly)
+						count += summon_specific_friendly(y, x, rlev, SUMMON_SPIDER, TRUE);
+					else
+						count += summon_specific(y, x, rlev, SUMMON_SPIDER);
 				}
 				if (blind && count) msg_print("You hear many things appear nearby.");
 				break;
@@ -2555,7 +2600,10 @@ static bool monst_spell_monst(int m_idx)
 				else msg_format("%^s magically summons hounds.", m_name);
 				for (k = 0; k < 6; k++)
 				{
-					count += summon_specific(y, x, rlev, SUMMON_HOUND, TRUE, friendly, pet);
+					if (friendly)
+						count += summon_specific_friendly(y, x, rlev, SUMMON_HOUND, TRUE);
+					else
+						count += summon_specific(y, x, rlev, SUMMON_HOUND);
 				}
 				if (blind && count) msg_print("You hear many things appear nearby.");
 				break;
@@ -2569,7 +2617,10 @@ static bool monst_spell_monst(int m_idx)
 				else msg_format("%^s magically summons hydras.", m_name);
 				for (k = 0; k < 6; k++)
 				{
-					count += summon_specific(y, x, rlev, SUMMON_HYDRA, TRUE, friendly, pet);
+					if (friendly)
+						count += summon_specific_friendly(y, x, rlev, SUMMON_HYDRA, TRUE);
+					else
+						count += summon_specific(y, x, rlev, SUMMON_HYDRA);
 				}
 				if (blind && count) msg_print("You hear many things appear nearby.");
 				break;
@@ -2583,7 +2634,10 @@ static bool monst_spell_monst(int m_idx)
 				else msg_format("%^s magically summons an angel!", m_name);
 				for (k = 0; k < 1; k++)
 				{
-					count += summon_specific(y, x, rlev, SUMMON_ANGEL, TRUE, friendly, pet);
+					if (friendly)
+						count += summon_specific_friendly(y, x, rlev, SUMMON_ANGEL, TRUE);
+					else
+						count += summon_specific(y, x, rlev, SUMMON_ANGEL);
 				}
 				if (blind && count) msg_print("You hear something appear nearby.");
 				break;
@@ -2597,7 +2651,10 @@ static bool monst_spell_monst(int m_idx)
 				else msg_format("%^s magically summons a demon from the Courts of Chaos!", m_name);
 				for (k = 0; k < 1; k++)
 				{
-					count += summon_specific(y, x, rlev, SUMMON_DEMON, TRUE, friendly, pet);
+					if (friendly)
+						count += summon_specific_friendly(y, x, rlev, SUMMON_DEMON, TRUE);
+					else
+						count += summon_specific(y, x, rlev, SUMMON_DEMON);
 				}
 				if (blind && count) msg_print("You hear something appear nearby.");
 				break;
@@ -2611,7 +2668,10 @@ static bool monst_spell_monst(int m_idx)
 				else msg_format("%^s magically summons an undead adversary!", m_name);
 				for (k = 0; k < 1; k++)
 				{
-					count += summon_specific(y, x, rlev, SUMMON_UNDEAD, TRUE, friendly, pet);
+					if (friendly)
+						count += summon_specific_friendly(y, x, rlev, SUMMON_UNDEAD, TRUE);
+					else
+						count += summon_specific(y, x, rlev, SUMMON_UNDEAD);
 				}
 				if (blind && count) msg_print("You hear something appear nearby.");
 				break;
@@ -2625,7 +2685,10 @@ static bool monst_spell_monst(int m_idx)
 				else msg_format("%^s magically summons a dragon!", m_name);
 				for (k = 0; k < 1; k++)
 				{
-					count += summon_specific(y, x, rlev, SUMMON_DRAGON, TRUE, friendly, pet);
+					if (friendly)
+						count += summon_specific_friendly(y, x, rlev, SUMMON_DRAGON, TRUE);
+					else
+						count += summon_specific(y, x, rlev, SUMMON_DRAGON);
 				}
 				if (blind && count) msg_print("You hear something appear nearby.");
 				break;
@@ -2634,14 +2697,15 @@ static bool monst_spell_monst(int m_idx)
 			/* RF6_S_HI_UNDEAD */
 		case 160+28:
 			{
-				int type = (friendly ? SUMMON_HI_UNDEAD_NO_UNIQUES : SUMMON_HI_UNDEAD);
-
 				disturb(1, 0);
 				if (blind || !see_m) msg_format("%^s mumbles.", m_name);
 				else msg_format("%^s magically summons greater undead!", m_name);
 				for (k = 0; k < 8; k++)
 				{
-					count += summon_specific(y, x, rlev, type, TRUE, friendly, pet);
+					if (friendly)
+						count += summon_specific_friendly(y, x, rlev, SUMMON_HI_UNDEAD_NO_UNIQUES, TRUE);
+					else
+						count += summon_specific(y, x, rlev, SUMMON_HI_UNDEAD);
 				}
 				if (blind && count)
 				{
@@ -2653,14 +2717,15 @@ static bool monst_spell_monst(int m_idx)
 			/* RF6_S_HI_DRAGON */
 		case 160+29:
 			{
-				int type = (friendly ? SUMMON_HI_DRAGON_NO_UNIQUES : SUMMON_HI_DRAGON);
-
 				disturb(1, 0);
 				if (blind || !see_m) msg_format("%^s mumbles.", m_name);
 				else msg_format("%^s magically summons ancient dragons!", m_name);
 				for (k = 0; k < 8; k++)
 				{
-					count += summon_specific(y, x, rlev, type, TRUE, friendly, pet);
+					if (friendly)
+						count += summon_specific_friendly(y, x, rlev, SUMMON_HI_DRAGON_NO_UNIQUES, TRUE);
+					else
+						count += summon_specific(y, x, rlev, SUMMON_HI_DRAGON);
 				}
 				if (blind && count)
 				{
@@ -2669,17 +2734,27 @@ static bool monst_spell_monst(int m_idx)
 				break;
 			}
 			
-			/* RF6_S_AMBERITES */
+			/* RF6_S_WRAITH */
 		case 160+30:
 			{
 				disturb(1, 0);
 				if (blind || !see_m) msg_format("%^s mumbles.", m_name);
-				else msg_format("%^s magically summons Lords of Amber!", m_name);
+                                else msg_format("%^s magically summons Wraith!", m_name);
+				
 				
 				for (k = 0; k < 8; k++)
 				{
-					count += summon_specific(y, x, rlev, SUMMON_AMBERITES, TRUE, FALSE, FALSE);
+					count += summon_specific(y, x, rlev, SUMMON_WRAITH);
 				}
+				
+#if 0
+				/* these are not Lords of Amber... */
+				for (k = 0; k < 12; k++)
+				{
+					count += summon_specific(y, x, rlev, SUMMON_HI_UNDEAD);
+				}
+#endif
+				
 				if (blind && count)
 				{
 					msg_print("You hear immortal beings appear nearby.");
@@ -2694,8 +2769,15 @@ static bool monst_spell_monst(int m_idx)
 				if (blind || !see_m) msg_format("%^s mumbles.", m_name);
 				else msg_format("%^s magically summons special opponents!", m_name);
 				for (k = 0; k < 8; k++)
+				{   if (!friendly)
+				count += summon_specific(y, x, rlev, SUMMON_UNIQUE);
+				}
+				for (k = 0; k < 8; k++)
 				{
-					count += summon_specific(y, x, rlev, SUMMON_UNIQUE, TRUE, FALSE, FALSE);
+					if (friendly)
+						count += summon_specific_friendly(y, x, rlev, SUMMON_HI_UNDEAD_NO_UNIQUES, TRUE);
+					else
+						count += summon_specific(y, x, rlev, SUMMON_HI_UNDEAD);
 				}
 				if (blind && count)
 				{
@@ -2896,8 +2978,8 @@ bool make_attack_spell(int m_idx)
 	if (m_ptr->confused) return (FALSE);
 
 	/* Cannot cast spells when nice */
-	if (m_ptr->mflag & MFLAG_NICE) return (FALSE);
-	if (!is_hostile(m_ptr)) return (FALSE);
+	if (m_ptr->mflag & (MFLAG_NICE)) return (FALSE);
+	if (is_pet(m_ptr)) return (FALSE);
 
 	/* Hack -- Extract the spell probability */
 	chance = (r_ptr->freq_inate + r_ptr->freq_spell) / 2;
@@ -4253,7 +4335,7 @@ bool make_attack_spell(int m_idx)
 			 
 			 for (k = 0; k < 6; k++)
 			 {
-				 count += summon_specific(y, x, rlev, SUMMON_KIN, TRUE, FALSE, FALSE);
+				 count += summon_specific(y, x, rlev, SUMMON_KIN);
 			 }
 			 if (blind && count) msg_print("You hear many things appear nearby.");
 			 
@@ -4279,7 +4361,7 @@ bool make_attack_spell(int m_idx)
 			 else msg_format("%^s magically summons help!", m_name);
 			 for (k = 0; k < 1; k++)
 			 {
-				 count += summon_specific(y, x, rlev, 0, TRUE, FALSE, FALSE);
+				 count += summon_specific(y, x, rlev, 0);
 			 }
 			 if (blind && count) msg_print("You hear something appear nearby.");
 			 break;
@@ -4293,7 +4375,7 @@ bool make_attack_spell(int m_idx)
 			 else msg_format("%^s magically summons monsters!", m_name);
 			 for (k = 0; k < 8; k++)
 			 {
-				 count += summon_specific(y, x, rlev, 0, TRUE, FALSE, FALSE);
+				 count += summon_specific(y, x, rlev, 0);
 			 }
 			 if (blind && count) msg_print("You hear many things appear nearby.");
 			 break;
@@ -4307,7 +4389,7 @@ bool make_attack_spell(int m_idx)
 			 else msg_format("%^s magically summons ants.", m_name);
 			 for (k = 0; k < 6; k++)
 			 {
-				 count += summon_specific(y, x, rlev, SUMMON_ANT, TRUE, FALSE, FALSE);
+				 count += summon_specific(y, x, rlev, SUMMON_ANT);
 			 }
 			 if (blind && count) msg_print("You hear many things appear nearby.");
 			 break;
@@ -4321,7 +4403,7 @@ bool make_attack_spell(int m_idx)
 			 else msg_format("%^s magically summons spiders.", m_name);
 			 for (k = 0; k < 6; k++)
 			 {
-				 count += summon_specific(y, x, rlev, SUMMON_SPIDER, TRUE, FALSE, FALSE);
+				 count += summon_specific(y, x, rlev, SUMMON_SPIDER);
 			 }
 			 if (blind && count) msg_print("You hear many things appear nearby.");
 			 break;
@@ -4335,7 +4417,7 @@ bool make_attack_spell(int m_idx)
 			 else msg_format("%^s magically summons hounds.", m_name);
 			 for (k = 0; k < 6; k++)
 			 {
-				 count += summon_specific(y, x, rlev, SUMMON_HOUND, TRUE, FALSE, FALSE);
+				 count += summon_specific(y, x, rlev, SUMMON_HOUND);
 			 }
 			 if (blind && count) msg_print("You hear many things appear nearby.");
 			 break;
@@ -4349,7 +4431,7 @@ bool make_attack_spell(int m_idx)
 			 else msg_format("%^s magically summons hydras.", m_name);
 			 for (k = 0; k < 6; k++)
 			 {
-				 count += summon_specific(y, x, rlev, SUMMON_HYDRA, TRUE, FALSE, FALSE);
+				 count += summon_specific(y, x, rlev, SUMMON_HYDRA);
 			 }
 			 if (blind && count) msg_print("You hear many things appear nearby.");
 			 break;
@@ -4363,7 +4445,7 @@ bool make_attack_spell(int m_idx)
 			 else msg_format("%^s magically summons an angel!", m_name);
 			 for (k = 0; k < 1; k++)
 			 {
-				 count += summon_specific(y, x, rlev, SUMMON_ANGEL, TRUE, FALSE, FALSE);
+				 count += summon_specific(y, x, rlev, SUMMON_ANGEL);
 			 }
 			 if (blind && count) msg_print("You hear something appear nearby.");
 			 break;
@@ -4377,7 +4459,7 @@ bool make_attack_spell(int m_idx)
 			 else msg_format("%^s magically summons a demon from the Courts of Chaos!", m_name);
 			 for (k = 0; k < 1; k++)
 			 {
-				 count += summon_specific(y, x, rlev, SUMMON_DEMON, TRUE, FALSE, FALSE);
+				 count += summon_specific(y, x, rlev, SUMMON_DEMON);
 			 }
 			 if (blind && count) msg_print("You hear something appear nearby.");
 			 break;
@@ -4391,7 +4473,7 @@ bool make_attack_spell(int m_idx)
 			 else msg_format("%^s magically summons an undead adversary!", m_name);
 			 for (k = 0; k < 1; k++)
 			 {
-				 count += summon_specific(y, x, rlev, SUMMON_UNDEAD, TRUE, FALSE, FALSE);
+				 count += summon_specific(y, x, rlev, SUMMON_UNDEAD);
 			 }
 			 if (blind && count) msg_print("You hear something appear nearby.");
 			 break;
@@ -4405,7 +4487,7 @@ bool make_attack_spell(int m_idx)
 			 else msg_format("%^s magically summons a dragon!", m_name);
 			 for (k = 0; k < 1; k++)
 			 {
-				 count += summon_specific(y, x, rlev, SUMMON_DRAGON, TRUE, FALSE, FALSE);
+				 count += summon_specific(y, x, rlev, SUMMON_DRAGON);
 			 }
 			 if (blind && count) msg_print("You hear something appear nearby.");
 			 break;
@@ -4419,7 +4501,7 @@ bool make_attack_spell(int m_idx)
 			 else msg_format("%^s magically summons greater undead!", m_name);
 			 for (k = 0; k < 8; k++)
 			 {
-				 count += summon_specific(y, x, rlev, SUMMON_HI_UNDEAD, TRUE, FALSE, FALSE);
+				 count += summon_specific(y, x, rlev, SUMMON_HI_UNDEAD);
 			 }
 			 if (blind && count)
 			 {
@@ -4436,7 +4518,7 @@ bool make_attack_spell(int m_idx)
 			 else msg_format("%^s magically summons ancient dragons!", m_name);
 			 for (k = 0; k < 8; k++)
 			 {
-				 count += summon_specific(y, x, rlev, SUMMON_HI_DRAGON, TRUE, FALSE, FALSE);
+				 count += summon_specific(y, x, rlev, SUMMON_HI_DRAGON);
 			 }
 			 if (blind && count)
 			 {
@@ -4445,18 +4527,27 @@ bool make_attack_spell(int m_idx)
 			 break;
 		 }
 		 
-		 /* RF6_S_AMBERITES */
+		 /* RF6_S_WRAITH */
 	 case 160+30:
 		 {
 			 disturb(1, 0);
 			 if (blind) msg_format("%^s mumbles.", m_name);
-			 else msg_format("%^s magically summons Lords of Amber!", m_name);
+                         else msg_format("%^s magically summons Wraith!", m_name);
 			 
 			 
 			 for (k = 0; k < 8; k++)
 			 {
-				 count += summon_specific(y, x, rlev, SUMMON_AMBERITES, TRUE, FALSE, FALSE);
+				 count += summon_specific(y, x, rlev, SUMMON_WRAITH);
 			 }
+			 
+#if 0
+			 /* these are not Lords of Amber... */
+			 for (k = 0; k < 12; k++)
+			 {
+				 count += summon_specific(y, x, rlev, SUMMON_HI_UNDEAD);
+			 }
+#endif
+			 
 			 if (blind && count)
 			 {
 				 msg_print("You hear immortal beings appear nearby.");
@@ -4472,11 +4563,11 @@ bool make_attack_spell(int m_idx)
 			 else msg_format("%^s magically summons special opponents!", m_name);
 			 for (k = 0; k < 8; k++)
 			 {
-				 count += summon_specific(y, x, rlev, SUMMON_UNIQUE, TRUE, FALSE, FALSE);
+				 count += summon_specific(y, x, rlev, SUMMON_UNIQUE);
 			 }
 			 for (k = 0; k < 8; k++)
 			 {
-				 count += summon_specific(y, x, rlev, SUMMON_HI_UNDEAD, TRUE, FALSE, FALSE);
+				 count += summon_specific(y, x, rlev, SUMMON_HI_UNDEAD);
 			 }
 			 if (blind && count)
 			 {
@@ -4555,7 +4646,7 @@ static int mon_will_run(int m_idx)
 	/* Keep monsters from running too far away */
 	if (m_ptr->cdis > MAX_SIGHT + 5) return (FALSE);
 	
-	/* Pets don't run away */
+	/* Friends don't run away */
 	if (is_pet(m_ptr)) return (FALSE);
 	
 	/* All "afraid" monsters will run away */
@@ -4603,27 +4694,27 @@ static int mon_will_run(int m_idx)
 #ifdef MONSTER_FLOW
 
 /*
- * Choose the "best" direction for "flowing"
- *
- * Note that ghosts and rock-eaters are never allowed to "flow",
- * since they should move directly towards the player.
- *
- * Prefer "non-diagonal" directions, but twiddle them a little
- * to angle slightly towards the player's actual location.
- *
- * Allow very perceptive monsters to track old "spoor" left by
- * previous locations occupied by the player.  This will tend
- * to have monsters end up either near the player or on a grid
- * recently occupied by the player (and left via "teleport").
- *
- * Note that if "smell" is turned on, all monsters get vicious.
- *
- * Also note that teleporting away from a location will cause
- * the monsters who were chasing you to converge on that location
- * as long as you are still near enough to "annoy" them without
- * being close enough to chase directly.  I have no idea what will
- * happen if you combine "smell" with low "aaf" values.
- */
+* Choose the "best" direction for "flowing"
+*
+* Note that ghosts and rock-eaters are never allowed to "flow",
+* since they should move directly towards the player.
+*
+* Prefer "non-diagonal" directions, but twiddle them a little
+* to angle slightly towards the player's actual location.
+*
+* Allow very perceptive monsters to track old "spoor" left by
+* previous locations occupied by the player.  This will tend
+* to have monsters end up either near the player or on a grid
+* recently occupied by the player (and left via "teleport").
+*
+* Note that if "smell" is turned on, all monsters get vicious.
+*
+* Also note that teleporting away from a location will cause
+* the monsters who were chasing you to converge on that location
+* as long as you are still near enough to "annoy" them without
+* being close enough to chase directly.  I have no idea what will
+* happen if you combine "smell" with low "aaf" values.
+*/
 static bool get_moves_aux(int m_idx, int *yp, int *xp)
 {
 	int i, y, x, y1, x1, when = 0, cost = 999;
@@ -4973,7 +5064,7 @@ static bool get_moves(int m_idx, int *mm)
 	y = m_ptr->fy - y2;
 	x = m_ptr->fx - x2;
 	
-	if (!stupid_monsters && is_hostile(m_ptr))
+	if (!stupid_monsters && !is_pet(m_ptr))
 	{
 	/*
 	 * Animal packs try to get the player out of corridors
@@ -5044,7 +5135,7 @@ static bool get_moves(int m_idx, int *mm)
 	}
 	
 	/* Apply fear if possible and necessary */
-	if (stupid_monsters || is_pet(m_ptr))
+	if ((stupid_monsters) || (is_pet(m_ptr)))
 	{
 		if (mon_will_run(m_idx))
 		{
@@ -5750,23 +5841,6 @@ static bool monst_attack_monst(int m_idx,int t_idx)
 							GF_FIRE, PROJECT_KILL | PROJECT_STOP);
 					}
 
-					/* Aura cold */
-					if ((tr_ptr->flags3 & RF3_AURA_COLD) &&
-						!(r_ptr->flags3 & RF3_IM_COLD))
-					{
-						if (m_ptr->ml || t_ptr->ml)
-						{
-							blinked = FALSE;
-							msg_format("%^s is suddenly very cold!", m_name);
-							if(t_ptr->ml)
-								tr_ptr->r_flags3 |= RF3_AURA_COLD;
-						}
-						project(t_idx, 0, m_ptr->fy, m_ptr->fx,
-							damroll (1 + ((tr_ptr->level) / 26),
-							1 + ((tr_ptr->level) / 17)),
-							GF_COLD, PROJECT_KILL | PROJECT_STOP);
-					}
-
 					/* Aura elec */
 					if ((tr_ptr->flags2 & (RF2_AURA_ELEC)) && !(r_ptr->flags3 & (RF3_IM_ELEC)))
 					{
@@ -5870,6 +5944,42 @@ static bool monst_attack_monst(int m_idx,int t_idx)
  */
 static u32b noise = 0L;
 
+/* Determine whether the player is invisible to a monster */
+static bool player_invis(monster_type * m_ptr)
+{
+	s16b inv, mlv;
+	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+        inv = p_ptr->invis;
+
+	mlv = (s16b) r_ptr->level;
+
+	if (r_ptr->flags3 & RF3_NO_SLEEP)
+		mlv += 10;
+	if (r_ptr->flags3 & RF3_DRAGON)
+		mlv += 20;
+	if (r_ptr->flags3 & RF3_UNDEAD)
+		mlv += 15;
+	if (r_ptr->flags3 & RF3_DEMON)
+		mlv += 15;
+	if (r_ptr->flags3 & RF3_ANIMAL)
+		mlv += 15;
+	if (r_ptr->flags3 & RF3_ORC)
+		mlv -= 15;
+	if (r_ptr->flags3 & RF3_TROLL)
+		mlv -= 10;
+	if (r_ptr->flags2 & RF2_STUPID)
+		mlv /= 2;
+	if (r_ptr->flags2 & RF2_SMART)
+		mlv = (mlv * 5) / 4;
+	if (r_ptr->flags1 & RF1_QUESTOR)
+		inv = 0;
+	if (r_ptr->flags2 & RF2_INVISIBLE)
+                inv = 0;
+        if (mlv < 1)
+                mlv = 1;
+        return (inv >= randint(mlv*2));
+}
 
 /*
  * Process a monster
@@ -5897,7 +6007,7 @@ static u32b noise = 0L;
  *
  * A "direction" of "5" means "pick a random direction".
  */
-static void process_monster(int m_idx)
+static void process_monster(int m_idx, bool is_friend)
 {
 	monster_type    *m_ptr = &m_list[m_idx];
 	monster_race    *r_ptr = &r_info[m_ptr->r_idx];
@@ -5923,6 +6033,9 @@ static void process_monster(int m_idx)
 	bool            did_pass_wall;
 	bool            did_kill_wall;
 	bool            gets_angry = FALSE;
+	bool inv;
+
+	inv = player_invis(m_ptr);
 	
 	
 	/* Handle "sleep" */
@@ -6070,12 +6183,12 @@ static void process_monster(int m_idx)
 	}
 	
 	/* No one wants to be your friend if you're aggravating */
-	if (!is_hostile(m_ptr) && p_ptr->aggravate)
+	if ((is_pet(m_ptr)) && (p_ptr->aggravate))
 		gets_angry = TRUE;
 	
-	/* Paranoia... no pet uniques outside wizard mode -- TY */
-	if (is_pet(m_ptr) && !wizard &&
-	    (r_ptr->flags1 & RF1_UNIQUE))
+	/* Paranoia... no friendly uniques outside wizard mode -- TY */
+	if ((is_pet(m_ptr)) && !(wizard) &&
+		(r_ptr->flags1 & (RF1_UNIQUE)))
 		gets_angry = TRUE;
 	
 	if (gets_angry)
@@ -6083,7 +6196,7 @@ static void process_monster(int m_idx)
 		char m_name[80];
 		monster_desc(m_name, m_ptr, 0);
 		msg_format("%^s suddenly becomes hostile!", m_name);
-		set_hostile(m_ptr);
+		set_pet(m_ptr, FALSE);
 	}
 	
 	/* Handle "fear" */
@@ -6140,27 +6253,39 @@ static void process_monster(int m_idx)
 			}
 		}
 		
+		if (is_pet(m_ptr))
+		{
+			is_friend = TRUE;
+		}
+		else
+		{
+			is_friend = FALSE;
+		}
+		
+		
 		/* Hack -- multiply slower in crowded areas */
 		if ((k < 4) && (!k || !rand_int(k * MON_MULT_ADJ)))
 		{
 			/* Try to multiply */
-			if (multiply_monster(m_idx, FALSE, is_friendly(m_ptr), is_pet(m_ptr)))
+			if (multiply_monster(m_idx, (is_friend), FALSE))
 			{
 				/* Take note if visible */
 				if (m_ptr->ml)
 				{
 					r_ptr->r_flags2 |= (RF2_MULTIPLY);
 				}
-
+				
 				/* Multiplying takes energy */
 				return;
 			}
 		}
 	}
-
-
+	
+	
+	
+	
 	/* Hack! "Cyber" monster makes noise... */
-	if (strstr((r_name + r_ptr->name), "Cyber"))
+	if (strstr((r_name + r_ptr->name),"Cyber"))
 	{
 		if (randint(CYBERNOISE) == 1)
 		{
@@ -6219,11 +6344,11 @@ static void process_monster(int m_idx)
 			}
 		}
 	}
-
-
+	
+	
 	/* Attempt to cast a spell */
 	if (make_attack_spell(m_idx)) return;
-
+	
 	/*
 	 * Attempt to cast a spell at an enemy other than the player
 	 * (may slow the game a smidgeon, but I haven't noticed.)
@@ -6237,7 +6362,7 @@ static void process_monster(int m_idx)
 
 
 	/* Confused -- 100% random */
-	if (m_ptr->confused)
+        if (m_ptr->confused || (inv==TRUE))
 	{
 		/* Try four "random" directions */
 		mm[0] = mm[1] = mm[2] = mm[3] = 5;
@@ -6277,20 +6402,22 @@ static void process_monster(int m_idx)
 		/* Try four "random" directions */
 		mm[0] = mm[1] = mm[2] = mm[3] = 5;
 	}
-	/* Pets will follow the player */
-	else if (is_pet(m_ptr) && (m_ptr->cdis > FOLLOW_DISTANCE))
+	/* pet movement */	
+	else if (is_pet(m_ptr))
 	{
-		get_moves(m_idx, mm);
-	}
-	/* Friendly monster movement */	
-	else if (!is_hostile(m_ptr))
-	{
-		/* by default, move randomly */
-		mm[0] = mm[1] = mm[2] = mm[3] = 5;
+		if (m_ptr->cdis > FOLLOW_DISTANCE)
+		{
+			get_moves(m_idx, mm);
+		}
+		else
+		{
+			/* by default, move randomly */
+			mm[0] = mm[1] = mm[2] = mm[3] = 5;
 
-		/* Look for an enemy */
-		get_enemy_dir(m_ptr, mm);
+			get_enemy_dir(m_ptr, mm);
+		}
 	}
+
 	/* Normal movement */
 	else
 	{
@@ -6517,7 +6644,7 @@ static void process_monster(int m_idx)
 		}
 
 		/* Hack -- check for Glyph of Warding */
-		if (do_move && (c_ptr->feat == FEAT_GLYPH) &&
+		else if (do_move && (c_ptr->feat == FEAT_GLYPH) &&
 		    !(r_ptr->flags1 & RF1_NEVER_BLOW))
 		{
 			/* Assume no move allowed */
@@ -6621,7 +6748,6 @@ static void process_monster(int m_idx)
 			/* Kill weaker monsters */
 			if ((r_ptr->flags2 & RF2_KILL_BODY) &&
 				(r_ptr->mexp > z_ptr->mexp) && (cave_floor_bold(ny,nx)) &&
-				!(is_friendly(m_ptr) && is_friendly(m2_ptr)) &&
 				!(is_pet(m_ptr) && is_pet(m2_ptr)))
 				/* Friends don't kill friends... */
 			{
@@ -6641,8 +6767,7 @@ static void process_monster(int m_idx)
 			}
 			
 			/* Attack 'enemies' */
-			else if (are_enemies(m_ptr, m2_ptr) ||
-			    m_ptr->confused)
+			else if ((is_pet(m_ptr) != is_pet(m2_ptr)) || m_ptr->confused)
 			{
 				do_move = FALSE;
 				/* attack */
@@ -6739,7 +6864,7 @@ static void process_monster(int m_idx)
 				disturb_near)))
 			{
 				/* Disturb */
-				if (is_hostile(m_ptr) || disturb_pets)
+				if (!is_pet(m_ptr) || disturb_pets)
 					disturb(0, 0);
 			}
 
@@ -6880,7 +7005,7 @@ static void process_monster(int m_idx)
 	
 	/* If we haven't done anything, try casting a spell again */
 	if (!do_turn && !do_move && !m_ptr->monfear && !stupid_monsters &&
-		!make_attack_spell(m_idx))
+		!is_pet(m_ptr))
 	{
 		/* Cast spell */
 		if (make_attack_spell(m_idx)) return;
@@ -6987,6 +7112,7 @@ void process_monsters(void)
 	int             fx, fy;
 	
 	bool            test;
+	bool            is_friend = FALSE;
 	
 	monster_type    *m_ptr;
 	monster_race    *r_ptr;
@@ -7054,7 +7180,7 @@ void process_monsters(void)
 		/* Ignore "dead" monsters */
 		if (!m_ptr->r_idx) continue;
 		
-		/* Calculate "upkeep" for pets */
+		/* Calculate "upkeep" for friendly monsters */
 		if (is_pet(m_ptr))
 		{
 			total_friends++;
@@ -7138,8 +7264,10 @@ void process_monsters(void)
 		/* Save global index */
 		hack_m_idx = i;
 		
+		if (is_pet(m_ptr)) is_friend = TRUE;
+		
 		/* Process the monster */
-		process_monster(i);
+		process_monster(i, is_friend);
 		
 		/* Hack -- notice death or departure */
 		if (!alive || death) break;

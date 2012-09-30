@@ -16,6 +16,114 @@
 
 
 
+/*
+ * Set "p_ptr->tim_invis", and "p_ptr->tim_inv_pow",
+ * notice observable changes
+ */
+bool set_invis(int v, int p)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+                if (!p_ptr->tim_invisible)
+		{
+			msg_print("You feel your body fade away.");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+                if (p_ptr->tim_invisible)
+		{
+			msg_print("You are no longer invisible.");
+			notice = TRUE;
+			p = 0;
+		}
+	}
+
+	/* Use the value */
+        p_ptr->tim_invisible = v;
+	p_ptr->tim_inv_pow = p;
+
+	/* Nothing to notice */
+	if (!notice)
+		return (FALSE);
+
+	/* Disturb */
+	if (disturb_state)
+		disturb(0, 0);
+
+	/* Redraw invisibility */
+	p_ptr->redraw |= (PR_INVIS);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Result */
+	return (TRUE);
+}
+
+/*
+ * Set "p_ptr->tim_mimic", and "p_ptr->mimic_form",
+ * notice observable changes
+ */
+bool set_mimic(int v, int p)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+                if (!p_ptr->tim_mimic)
+		{
+                        msg_print("You feel that your body change.");
+                        p_ptr->mimic_form=p;
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+                if (p_ptr->tim_mimic)
+		{
+                        msg_print("You are no longer transformed.");
+                        p_ptr->mimic_form=0;
+			notice = TRUE;
+			p = 0;
+		}
+	}
+
+	/* Use the value */
+        p_ptr->tim_mimic = v;
+
+	/* Nothing to notice */
+	if (!notice)
+		return (FALSE);
+
+	/* Disturb */
+	if (disturb_state)
+		disturb(0, 0);
+
+        /* Redraw title */
+        p_ptr->redraw |= (PR_TITLE);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Result */
+	return (TRUE);
+}
 
 /*
  * Set "p_ptr->blind", notice observable changes
@@ -1257,7 +1365,7 @@ bool set_stun(int v)
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
-    if (p_ptr->prace == RACE_GOLEM)
+    if (p_ptr->prace == RACE_ENT)
         v = 0;
 
 	/* Knocked out */
@@ -1407,10 +1515,7 @@ bool set_cut(int v)
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
-    if (p_ptr->prace == RACE_GOLEM || p_ptr->prace == RACE_SKELETON ||
-        p_ptr->prace == RACE_SPECTRE )
-        v = 0;
-    else if (p_ptr->prace == RACE_ZOMBIE && p_ptr->lev > 11)
+    if (p_ptr->prace == RACE_SPECTRE )
         v = 0;
 
     /* Mortal wound */
@@ -1881,10 +1986,6 @@ void check_experience(void)
 			{
 				level_reward = TRUE;
 			}
-			if (p_ptr->prace == RACE_BEASTMAN)
-			{
-				if (randint(5)==1) level_mutation = TRUE;
-			}
 		}
 
 		/* Sound */
@@ -2131,7 +2232,7 @@ void monster_death(int m_idx)
 	 */
 	else if (strstr((r_name + r_ptr->name),"the Dawn"))
 	{
-		if (!(randint(20) == 13))
+		if (!(randint(20)==13))
 		{
 			int wy = py, wx = px;
 			int attempts = 100;
@@ -2144,35 +2245,21 @@ void monster_death(int m_idx)
 
 			if (attempts > 0)
 			{
-				if (summon_specific(wy, wx, 100, SUMMON_DAWN, FALSE, is_friendly(m_ptr), is_pet(m_ptr)))
+				if (is_pet(m_ptr))
 				{
-					if (player_can_see_bold(wy, wx))
-						msg_print ("A new warrior steps forth!");
+					if (summon_specific_friendly(wy, wx, 100, SUMMON_DAWN, FALSE))
+					{
+						if (player_can_see_bold(wy, wx))
+							msg_print ("A new warrior steps forth!");
+					}
 				}
-			}
-		}
-	}
-
-	/* Pink horrors are replaced with 2 Blue horrors */
-	else if (strstr((r_name + r_ptr->name),"ink horror"))
-	{
-		for (i = 0; i < 2; i++)
-		{
-			int wy = py, wx = px;
-			int attempts = 100;
-
-			do
-			{
-				scatter(&wy, &wx, py, px, 3, 0);
-			}
-			while (!(in_bounds(wy,wx) && cave_floor_bold(wy,wx)) && --attempts);
-
-			if (attempts > 0)
-			{
-				if (summon_specific(wy, wx, 100, SUMMON_BLUE_HORROR, FALSE, is_friendly(m_ptr), is_pet(m_ptr)))
+				else
 				{
-					if (player_can_see_bold(wy, wx))
-						msg_print ("A blue horror appears!");
+					if (summon_specific(wy, wx, 100, SUMMON_DAWN))
+					{
+						if (player_can_see_bold(wy, wx))
+							msg_print ("A new warrior steps forth!");
+					}
 				}
 			}
 		}
@@ -2185,23 +2272,13 @@ void monster_death(int m_idx)
 		(void)project(m_idx, 6, y, x, 100, GF_CHAOS, flg);
 	}
 
-	/* Bloodletters of Khorne drop a blade of chaos */
-	else if (strstr((r_name + r_ptr->name),"Bloodletter"))
-	{
-		/* Get local object */
-		q_ptr = &forge;
+	/* ToDo: Bloodletter of Khorne should drop a blade of chaos */
+	/* ToDo: Pink horrors should be replaced with 2 Blue horrors */
 
-		/* Prepare to make a Blade of Chaos */
-		object_prep(q_ptr, lookup_kind(TV_SWORD, SV_BLADE_OF_CHAOS));
-
-		/* Drop it in the dungeon */
-		drop_near(q_ptr, -1, py, px);
-	}
-	
 	/* Mega-Hack -- drop "winner" treasures */
 	else if (r_ptr->flags1 & (RF1_DROP_CHOSEN))
 	{
-		if (strstr((r_name + r_ptr->name),"Serpent of Chaos"))
+                if (strstr((r_name + r_ptr->name),"Morgoth, Lord of Darkness"))
 		{
 			/* Get local object */
 			q_ptr = &forge;
@@ -2239,30 +2316,17 @@ void monster_death(int m_idx)
 			int chance = 0;
 			int I_kind = 0;
 
-			if (strstr((r_name + r_ptr->name),"Oberon,"))
-			{
-				if (randint(3)==1)
-				{
-					a_idx = ART_THRAIN;
-					chance = 33;
-				}
-				else
-				{
-					a_idx = ART_GONDOR;
-					chance = 50;
-				}
-			}
-			else if (strstr((r_name + r_ptr->name),"Barimen"))
-			{
-				a_idx = ART_THRAIN;
-				chance = 20;
-			}
-			else if (strstr((r_name + r_ptr->name),"Sauron,"))
+                        if (strstr((r_name + r_ptr->name),"Sauron, the Sorcerer"))
 			{
 				a_idx = ART_POWER;
-				chance = 25;
+                                chance = 50;
 			}
-			else if (strstr((r_name + r_ptr->name),"Brand, "))
+                        else if (strstr((r_name + r_ptr->name),"The Witch-King of Angmar"))
+			{
+                                a_idx = ART_THRAIN;
+                                chance = 30;
+			}
+                        else if (strstr((r_name + r_ptr->name),"Brand, Mad Visionary of Amber"))
 			{
 				if (randint(3)!=1)
 				{
@@ -2275,7 +2339,7 @@ void monster_death(int m_idx)
 					chance = 33;
 				}
 			}
-			else if (strstr((r_name + r_ptr->name),"Corwin,"))
+                        else if (strstr((r_name + r_ptr->name),"Corwin, Lord of Avalon"))
 			{
 				if (randint(3)!=1)
 				{
@@ -2288,37 +2352,37 @@ void monster_death(int m_idx)
 					chance = 33;
 				}
 			}
-			else if (strstr((r_name + r_ptr->name),"Saruman of"))
+                        else if (strstr((r_name + r_ptr->name),"Saruman of Many Colours"))
 			{
 				a_idx = ART_ELENDIL;
 				chance = 20;
 			}
-			else if (strstr((r_name + r_ptr->name),"Fiona the"))
+                        else if (strstr((r_name + r_ptr->name),"Fiona the Sorceress"))
 			{
 				a_idx = ART_BELANGIL;
 				chance = 50;
 			}
-			else if (strstr((r_name + r_ptr->name),"Julian, "))
+                        else if (strstr((r_name + r_ptr->name),"Julian, Master of Forest Amber"))
 			{
 				a_idx = ART_CELEBORN;
 				chance = 45;
 			}
-			else if (strstr((r_name + r_ptr->name),"Klings"))
+                        else if (strstr((r_name + r_ptr->name),"Klingsor, Evil Master of Magic"))
 			{
 				a_idx = ART_OROME;
 				chance = 40;
 			}
-			else if (strstr((r_name + r_ptr->name),"Groo"))
+                        else if (strstr((r_name + r_ptr->name),"Groo the Wanderer"))
 			{
 				a_idx = ART_AGLARANG;
 				chance = 75;
 			}
-			else if (strstr((r_name + r_ptr->name),"Hagen,"))
+                        else if (strstr((r_name + r_ptr->name),"Hagen, son of Alberich"))
 			{
 				a_idx = ART_NIMLOTH;
 				chance = 66;
 			}
-			else if (strstr((r_name + r_ptr->name),"Caine,"))
+                        else if (strstr((r_name + r_ptr->name),"Caine, the Conspirator"))
 			{
 				a_idx = ART_ANGRIST;
 				chance = 50;
@@ -2511,7 +2575,7 @@ void monster_death(int m_idx)
 				}
 
 				/* Finish the two main quests without rewarding */
-				if ((i == QUEST_OBERON) || (i == QUEST_SERPENT))
+                                if ((i == QUEST_SAURON) || (i == QUEST_MORGOTH))
 				{
 					quest[i].status = QUEST_STATUS_FINISHED;
 				}
@@ -2569,13 +2633,10 @@ void monster_death(int m_idx)
 	{
 		number_mon = 0;
 
-		/* Count all hostile monsters */
 		for (i2 = 0; i2 < cur_wid; ++i2)
 			for (j2 = 0; j2 < cur_hgt; j2++)
 				if (cave[j2][i2].m_idx > 0)
-					if (is_hostile(&m_list[cave[j2][i2].m_idx]))
-						number_mon++;
-
+					number_mon++;
 
 		if ((number_mon - 1) == 0)
 		{
@@ -2644,7 +2705,7 @@ void monster_death(int m_idx)
 	if (!(r_ptr->flags1 & (RF1_QUESTOR))) return;
 
 	/* Winner? */
-	if (strstr((r_name + r_ptr->name),"Serpent of Chaos"))
+        if (strstr((r_name + r_ptr->name),"Morgoth, Lord of Darkness"))
 	{
 		/* Total winner */
 		total_winner = TRUE;
@@ -3363,7 +3424,6 @@ static bool target_set_accept(int y, int x)
 		if (c_ptr->feat == FEAT_MAGMA_K) return (TRUE);
 		if (c_ptr->feat == FEAT_QUARTZ_K) return (TRUE);
 
-#if 0
 		/* Notice water, lava, ... */
 		if (c_ptr->feat == FEAT_DEEP_WATER) return (TRUE);
 		if (c_ptr->feat == FEAT_SHAL_WATER) return (TRUE);
@@ -3374,7 +3434,6 @@ static bool target_set_accept(int y, int x)
 		if (c_ptr->feat == FEAT_DARK_PIT) return (TRUE);
 		if (c_ptr->feat == FEAT_TREES) return (TRUE);
 		if (c_ptr->feat == FEAT_MOUNTAIN) return (TRUE);
-#endif
 
 		/* Notice quest features */
 		if (c_ptr->feat == FEAT_QUEST_ENTER) return (TRUE);
@@ -3567,20 +3626,11 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 					/* Normal */
 					else
 					{
-						cptr attitude;
-
-						if (is_pet(m_ptr))
-							attitude = " (pet) ";
-						else if (is_friendly(m_ptr))
-							attitude = " (friendly) ";
-						else
-							attitude = " ";
-
 						/* Describe, and prompt for recall */
 						sprintf(out_val, "%s%s%s%s (%s)%s%s[r,%s]",
 						    s1, s2, s3, m_name, look_mon_desc(c_ptr->m_idx),
 						    (m_ptr->smart & SM_CLONED ? " (clone)": ""),
-						    attitude, info);
+						    (is_pet(m_ptr) ? " (friendly) " : " "), info);
 
 						prt(out_val, 0, 0);
 
@@ -3734,30 +3784,17 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 
 			/* Pick a prefix */
 			if (*s2 && ((feat >= FEAT_MINOR_GLYPH) &&
-			   (feat <= FEAT_PATTERN_XTRA2)))
-			{
-				s2 = "on ";
-			}
-			else if (*s2 && ((feat >= FEAT_DOOR_HEAD) &&
-				(feat <= FEAT_PERM_SOLID)))
-			{
-				s2 = "in ";
-			}
+			   (feat <= FEAT_PATTERN_XTRA2))) s2 = "on ";
+			else if (*s2 && (feat >= FEAT_DOOR_HEAD)) s2 = "in ";
+
+			/* Pick proper indefinite article */
+			s3 = (is_a_vowel(name[0])) ? "an " : "a ";
 
 			/* Hack -- special introduction for store & building doors -KMW- */
 			if (((feat >= FEAT_SHOP_HEAD) && (feat <= FEAT_SHOP_TAIL)) ||
 			    ((feat >= FEAT_BLDG_HEAD) && (feat <= FEAT_BLDG_TAIL)))
 			{
 				s3 = "the entrance to the ";
-			}
-			else if ((feat == FEAT_FLOOR) || (feat == FEAT_DIRT))
-			{
-				s3 ="";
-			}
-			else
-			{
-				/* Pick proper indefinite article */
-				s3 = (is_a_vowel(name[0])) ? "an " : "a ";
 			}
 
 			/* Display a message */
@@ -4517,7 +4554,7 @@ void gain_level_reward(int chosen_reward)
 			msg_print("'My pets, destroy the arrogant mortal!'");
 			for (dummy = 0; dummy < randint(5) + 1; dummy++)
 			{
-				(void)summon_specific(py, px, dun_level, 0, TRUE, FALSE, FALSE);
+				(void)summon_specific(py, px, dun_level, 0);
 			}
 			break;
 		case REW_H_SUMMON:
@@ -4680,18 +4717,18 @@ void gain_level_reward(int chosen_reward)
 			break;
 		case REW_SER_DEMO:
 			msg_format("%s rewards you with a demonic servant!",chaos_patrons[p_ptr->chaos_patron]);
-			if (!(summon_specific(py, px, dun_level, SUMMON_DEMON, FALSE, TRUE, TRUE)))
-				msg_print("Nobody ever turns up...");
+			if (!(summon_specific_friendly(py, px, dun_level, SUMMON_DEMON, FALSE)))
+			msg_print("Nobody ever turns up...");
 			break;
 		case REW_SER_MONS:
 			msg_format("%s rewards you with a servant!",chaos_patrons[p_ptr->chaos_patron]);
-			if (!(summon_specific(py, px, dun_level, SUMMON_NO_UNIQUES, FALSE, TRUE, TRUE)))
-				msg_print("Nobody ever turns up...");
+			if (!(summon_specific_friendly(py, px, dun_level, SUMMON_NO_UNIQUES, FALSE)))
+			msg_print("Nobody ever turns up...");
 			break;
 		case REW_SER_UNDE:
 			msg_format("%s rewards you with an undead servant!",chaos_patrons[p_ptr->chaos_patron]);
-			if (!(summon_specific(py, px, dun_level, SUMMON_UNDEAD, FALSE, TRUE, TRUE)))
-				msg_print("Nobody ever turns up...");
+			if (!(summon_specific_friendly(py, px, dun_level, SUMMON_UNDEAD, FALSE)))
+			msg_print("Nobody ever turns up...");
 			break;
 		default:
 			msg_format("The voice of %s stammers:",
@@ -5283,42 +5320,6 @@ bool gain_random_mutation(int choose_mut)
 			muta_desc = "Your eyes look mesmerizing...";
 		}
 	
-		else if (p_ptr->prace == RACE_IMP &&
-			!(p_ptr->muta2 & MUT2_HORNS) &&
-			(randint(10)<7))
-		{
-			muta_class = &(p_ptr->muta2);
-			muta_which = MUT2_HORNS;
-			muta_desc = "Horns pop forth into your forehead!";
-		}
-	
-		else if (p_ptr->prace == RACE_YEEK &&
-			!(p_ptr->muta1 & MUT1_SHRIEK) &&
-			(randint(10)<7))
-		{
-			muta_class = &(p_ptr->muta1);
-			muta_which = MUT1_SHRIEK;
-			muta_desc = "Your vocal cords get much tougher.";
-		}
-	
-		else if (p_ptr->prace == RACE_BEASTMAN &&
-			!(p_ptr->muta1 & MUT1_POLYMORPH) &&
-			(randint(10)<2))
-		{
-			muta_class = &(p_ptr->muta1);
-			muta_which = MUT1_POLYMORPH;
-			muta_desc = "Your body seems mutable.";
-		}
-	
-		else if (p_ptr->prace == RACE_MIND_FLAYER &&
-			!(p_ptr->muta2 & MUT2_TENTACLES) &&
-			(randint(10)<7))
-		{
-			muta_class = &(p_ptr->muta2);
-			muta_which = MUT2_TENTACLES;
-			muta_desc = "Evil-looking tentacles sprout from your mouth.";
-		}
-
 		msg_print("You mutate!");
 		msg_print(muta_desc);
 		*(muta_class) |= muta_which;

@@ -446,8 +446,8 @@ static void image_monster(byte *ap, char *cp)
 		/* Normal graphics */
 		if (!(streq(ANGBAND_SYS, "ibm")))
 		{
-			(*cp) = r_info[randint(max_r_idx-1)].x_char;
-			(*ap) = r_info[randint(max_r_idx-1)].x_attr;
+			(*cp) = r_info[randint(max_r_idx-2)].x_char;
+			(*ap) = r_info[randint(max_r_idx-2)].x_attr;
 		}
 		else
 		/* IBM-pseudo graphics */
@@ -1057,8 +1057,8 @@ void map_info(int y, int x, byte *ap, char *cp)
 					{
 						if (!(streq(ANGBAND_SYS, "ibm")))
 						{
-							(*cp) = r_info[randint(max_r_idx-1)].x_char;
-							(*ap) = r_info[randint(max_r_idx-1)].x_attr;
+							(*cp) = r_info[randint(max_r_idx-2)].x_char;
+							(*ap) = r_info[randint(max_r_idx-2)].x_attr;
 						}
 						else
 						{
@@ -1276,14 +1276,9 @@ void map_info(int y, int x, byte *ap, char *cp)
 							c = 168;
 							break;
 						case RACE_HALF_GIANT:
-						case RACE_HALF_TITAN:
-						case RACE_CYCLOPS:
 							c = 145;
 							break;
-						case RACE_YEEK:
-							c = 209;
-							break;
-						case RACE_KLACKON:
+                                                case RACE_RKNIGHT:
 							c = 229;
 							break;
 						case RACE_KOBOLD:
@@ -1295,7 +1290,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 						case RACE_DARK_ELF:
 							c = 223;
 							break;
-						case RACE_DRACONIAN:
+                                                case RACE_DRAGONRIDER:
 							if (p_ptr->lev < 20)
 								c = 240;
 							else if (p_ptr->lev < 40)
@@ -1303,39 +1298,14 @@ void map_info(int y, int x, byte *ap, char *cp)
 							else
 								c = 137;
 							break;
-						case RACE_MIND_FLAYER:
-							c = 236;
-							break;
-						case RACE_IMP:
-							c = 142;
-							break;
-						case RACE_GOLEM:
+                                                case RACE_ENT:
 							c = 6;
-							break;
-						case RACE_SKELETON:
-							if (p_ptr->pclass == CLASS_MAGE ||
-								p_ptr->pclass == CLASS_PRIEST ||
-								p_ptr->pclass == CLASS_HIGH_MAGE ||
-								p_ptr->pclass == CLASS_MONK ||
-								p_ptr->pclass == CLASS_MINDCRAFTER)
-								c = 159;
-							else
-								c = 181;
-							break;
-						case RACE_ZOMBIE:
-							c = 221;
 							break;
 						case RACE_VAMPIRE:
 							c = 217;
 							break;
 						case RACE_SPECTRE:
 							c = 241;
-							break;
-						case RACE_SPRITE:
-							c = 244;
-							break;
-						case RACE_BEASTMAN:
-							c = 154;
 							break;
 					}
 				}
@@ -1684,7 +1654,7 @@ static byte priority_table[][2] =
 	{ FEAT_QUARTZ_K, 19 },
 	{ FEAT_MAGMA_K, 19 },
 
-	/* water, lava, & trees */
+	/* water, lava, & trees oh my! -KMW- */
 	{ FEAT_DEEP_WATER, 20 },
 	{ FEAT_SHAL_WATER, 20 },
 	{ FEAT_DEEP_LAVA, 20 },
@@ -3362,10 +3332,7 @@ void map_area(void)
 			c_ptr = &cave[y][x];
 
 			/* All non-walls are "checked" */
-			if ((c_ptr->feat < FEAT_SECRET) ||
-			    (c_ptr->feat == FEAT_RUBBLE) ||
-			   ((c_ptr->feat >= FEAT_MINOR_GLYPH) &&
-			    (c_ptr->feat <= FEAT_TREES)))
+			if (c_ptr->feat < FEAT_SECRET)
 			{
 				/* Memorize normal features */
 				if (c_ptr->feat > FEAT_INVIS)

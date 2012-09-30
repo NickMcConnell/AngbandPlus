@@ -870,8 +870,8 @@ s32b flag_cost(object_type * o_ptr, int plusses)
 		total += (10000 + (2500 * plusses));
 	if ((f1 & TR1_BLOWS) && (plusses > 0))
 		total += (10000 + (2500 * plusses));
-	if (f1 & TR1_XXX1) total += 0;
-	if (f1 & TR1_XXX2) total += 0;
+        if (f1 & TR1_MANA) total += 0;
+        if (f1 & TR1_SPELL) total += 0;
 	if (f1 & TR1_SLAY_ANIMAL) total += 3500;
 	if (f1 & TR1_SLAY_EVIL) total += 4500;
 	if (f1 & TR1_SLAY_UNDEAD) total += 3500;
@@ -894,7 +894,7 @@ s32b flag_cost(object_type * o_ptr, int plusses)
 	if (f2 & TR2_SUST_DEX) total += 850;
 	if (f2 & TR2_SUST_CON) total += 850;
 	if (f2 & TR2_SUST_CHR) total += 250;
-	if (f2 & TR2_XXX1) total += 0;
+        if (f2 & TR2_INVIS) total += 0;
 	if (f2 & TR2_XXX2) total += 0;
 	if (f2 & TR2_IM_ACID) total += 10000;
 	if (f2 & TR2_IM_ELEC) total += 10000;
@@ -2405,6 +2405,61 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 		}
 
 
+                case TV_MSTAFF:
+		{
+			/* Very Good */
+			if (power > 1)
+			{
+                                o_ptr->to_h=-o_ptr->to_h;
+                                o_ptr->to_d=-o_ptr->to_d;
+				/* Roll for an ego-item */
+                                switch (randint(8))
+				{
+                                        case 1: case 3: case 5: case 7:
+					{
+                                                o_ptr->name2 = EGO_MANA;
+                                                o_ptr->pval = m_bonus(6, level);
+                                                break;
+                                        }
+                                        case 2: case 4:
+					{
+                                                o_ptr->name2 = EGO_SPELL;
+                                                o_ptr->pval = m_bonus(6, level);
+                                                break;
+                                        }
+                                        case 6:
+					{
+                                                o_ptr->name2 = EGO_MANA_SPELL;
+                                                o_ptr->pval = m_bonus(6, level);
+                                                break;
+                                        }
+                                        case 8:
+                                        {
+                                                o_ptr->name2 = EGO_MSTAFF_POWER;
+                                                o_ptr->xtra2 = (randint(10)+1) + ((randint(10)+1)<<4);
+                                                o_ptr->art_flags3 |= TR3_ACTIVATE;
+                                                o_ptr->pval = 0;
+                                                o_ptr->timeout = 0;
+                                                break;
+                                        }
+                                }
+			}
+
+			/* Very cursed */
+			else if (power < -1)
+			{
+				/* Roll for ego-item */
+				if (rand_int(MAX_DEPTH) < level)
+				{
+                                        o_ptr->name2 = EGO_MANA;
+                                        o_ptr->pval = 0;
+                                        if (randint(10)==1) o_ptr->art_flags3 |= TR3_TY_CURSE;
+				}
+			}
+
+			break;
+		}
+
 		case TV_BOW:
 		{
 			/* Very good */
@@ -2814,7 +2869,7 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 				else
 				{
 					/* Roll for ego-item */
-					switch (randint(24))
+                                        switch (randint(27))
 					{
 						case 1:
 						{
@@ -2832,6 +2887,11 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 						case 10: case 11: case 12: case 13:
 						{
 							o_ptr->name2 = EGO_QUIET;
+							break;
+						}
+                                                case 14: case 15: case 16:
+						{
+                                                        o_ptr->name2 = EGO_JUMP;
 							break;
 						}
 
@@ -2984,7 +3044,7 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 					else
 					{
 						/* Roll for ego-item */
-						switch (randint(14))
+                                                switch (randint(16))
 						{
 							case 1: case 2:
 							{
@@ -3012,6 +3072,18 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 								o_ptr->name2 = EGO_LITE;
 								break;
 							}
+                                                        case 11:
+                                                        {
+                                                                o_ptr->name2 = EGO_DWARVES;
+                                                                o_ptr->pval = m_bonus(3, level);
+                                                                break;
+                                                        }
+                                                        case 12:
+                                                        {
+                                                                o_ptr->name2 = EGO_NOLDOR;
+                                                                o_ptr->pval = m_bonus(3, level);
+                                                                break;
+                                                        }
 							default:
 							{
 								o_ptr->name2 = EGO_INFRAVISION;
@@ -3567,6 +3639,15 @@ static void a_m_aux_4(object_type *o_ptr, int level, int power)
 
 			break;
 		}
+  case TV_POTION:
+    if (o_ptr->sval == SV_POTION_BLOOD)
+       { 
+	 /* Rating boost */
+	 rating += 25;
+	 /*  Mention the item */
+	 if ( cheat_peek) object_mention(o_ptr);
+       } 
+    break;
 	}
 }
 
@@ -3716,6 +3797,7 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 		case TV_DIGGING:
 		case TV_HAFTED:
 		case TV_POLEARM:
+                case TV_MSTAFF:
 		case TV_SWORD:
 		case TV_BOW:
 		case TV_SHOT:
@@ -3943,6 +4025,12 @@ static bool kind_is_good(int k_idx)
 		case TV_TRUMP_BOOK:
 		{
 			if (k_ptr->sval >= SV_BOOK_MIN_GOOD) return (TRUE);
+			return (FALSE);
+		}
+
+                case TV_MIMIC_BOOK:
+		{
+                        if (k_ptr->sval >= MIMIC_MIN_GOOD) return (TRUE);
 			return (FALSE);
 		}
 
@@ -4624,8 +4712,11 @@ void pick_trap(int y, int x)
 		/* Hack -- pick a trap */
 		feat = FEAT_TRAP_HEAD + rand_int(16);
 
+		/* Hack -- no teleport traps on special levels */
+		if ((feat == FEAT_TRAP_HEAD + 0x05) && (special_flag)) continue;
+
 		/* Hack -- no trap doors on special levels */
-		if ((feat == FEAT_TRAP_HEAD + 0x00) && (p_ptr->inside_arena || is_quest(dun_level)))
+                if ((feat == FEAT_TRAP_HEAD + 0x00) && (p_ptr->inside_arena || is_quest(dun_level) || special_flag))
 			continue;
 
 		/* Hack -- no trap doors on the deepest level */

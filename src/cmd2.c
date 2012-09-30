@@ -20,9 +20,20 @@ void do_cmd_go_up(void)
 {
 	bool go_up = FALSE;
 	cave_type *c_ptr;
+        char i;
 
 	/* Player grid */
 	c_ptr = &cave[py][px];
+
+	/* test if on special level */
+	if (special_flag)
+	{
+		prt("Leave this unique level forever (y/n) ? ",0,0);
+		flush();
+		i=inkey();
+		prt("",0,0);
+		if (i != 'y') return;
+	}
 
 	/* Quest up stairs */
 	if (c_ptr->feat == FEAT_QUEST_UP)
@@ -131,11 +142,22 @@ void do_cmd_go_down(void)
 	cave_type *c_ptr;
 	bool go_down = FALSE;
 	bool fall_trap = FALSE;
+        char i;
 
 	/* Player grid */
 	c_ptr = &cave[py][px];
 
 	if (c_ptr->feat == (FEAT_TRAP_HEAD + 0x00)) fall_trap = TRUE;
+
+	/* test if on special level */
+	if (special_flag)
+	{
+		prt("Leave this unique level forever (y/n) ? ",0,0);
+		flush();
+		i=inkey();
+		prt("",0,0);
+		if (i != 'y') return;
+	}
 
 	/* Quest down stairs */
 	if (c_ptr->feat == FEAT_QUEST_DOWN)
@@ -473,7 +495,7 @@ static void chest_trap(int y, int x, s16b o_idx)
 			if (randint(100)<dun_level)
 				activate_hi_summon();
 			else
-				(void)summon_specific(y, x, dun_level, 0, TRUE, FALSE, FALSE);
+				(void)summon_specific(y, x, dun_level, 0);
 		}
 	}
 
@@ -2419,7 +2441,7 @@ static int breakage_chance(object_type *o_ptr)
 		case TV_POTION:
 		case TV_BOTTLE:
 		case TV_FOOD:
-		case TV_JUNK:
+                case TV_FIRESTONE:
 		{
 			return (100);
 		}
@@ -2762,12 +2784,12 @@ void do_cmd_fire(void)
 					if (m_ptr->ml) health_track(c_ptr->m_idx);
 
 					/* Anger friends */
-					if (!is_hostile(m_ptr))
+					if (is_pet(m_ptr))
 					{
 						char m_name[80];
 						monster_desc(m_name, m_ptr, 0);
 						msg_format("%s gets angry!", m_name);
-						set_hostile(m_ptr);
+						set_pet(m_ptr, FALSE);
 					}
 				}
 
@@ -3092,13 +3114,13 @@ void do_cmd_throw(void)
 					message_pain(c_ptr->m_idx, tdam);
 
 					/* Anger friends */
-					if (!is_hostile(m_ptr) &&
+					if (is_pet(m_ptr) &&
 					    (!(k_info[q_ptr->k_idx].tval == TV_POTION)))
 					{
 						char m_name[80];
 						monster_desc(m_name, m_ptr, 0);
 						msg_format("%s gets angry!", m_name);
-						set_hostile(m_ptr);
+						set_pet(m_ptr, FALSE);
 					}
 
 					/* Take note */
@@ -3136,12 +3158,12 @@ void do_cmd_throw(void)
 
 			if (potion_smash_effect(1, y, x, q_ptr->sval))
 			{
-				if (cave[y][x].m_idx && !is_hostile(&m_list[cave[y][x].m_idx]))
+				if (cave[y][x].m_idx && is_pet(&m_list[cave[y][x].m_idx]))
 				{
 					char m_name[80];
 					monster_desc(m_name, &m_list[cave[y][x].m_idx], 0);
 					msg_format("%s gets angry!", m_name);
-					set_hostile(&m_list[cave[y][x].m_idx]);
+					set_pet(&m_list[cave[y][x].m_idx], FALSE);
 				}
 			}
 
@@ -3236,6 +3258,58 @@ bool racial_aux(s16b min_level, int cost, int use_stat, int difficulty)
 	msg_print("You've failed to concentrate hard enough.");
 	return FALSE;
 }
+bool racial_aux_tank(s16b min_level, int cost , int use_stat, int difficulty)
+{
+        if (p_ptr->ctp < cost)
+	{
+                return FALSE;
+	}
+
+	if (p_ptr->lev < min_level)
+	{
+		msg_format("You need to attain level %d to use this power.", min_level);
+		energy_use = 0;
+		return FALSE;
+	}
+
+	else if (p_ptr->confused)
+	{
+		msg_print("You are too confused to use this power.");
+		energy_use = 0;
+		return FALSE;
+	}
+
+	/* Else attempt to do it! */
+
+	if (p_ptr->stun) difficulty += p_ptr -> stun;
+	else if (p_ptr->lev > min_level)
+	{
+		int lev_adj = ((p_ptr->lev - min_level)/3);
+		if (lev_adj > 10) lev_adj = 10;
+		difficulty -= lev_adj;
+	}
+
+	if (difficulty < 5) difficulty = 5;
+
+	/* take time and pay the price */
+	energy_use = 100;
+        p_ptr->ctp -= (cost / 2 ) + (randint(cost / 2));
+
+        p_ptr->redraw |= (PR_TANK);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_PLAYER);
+	p_ptr->window |= (PW_SPELL);
+
+
+	/* Success? */
+	if (randint(p_ptr->stat_cur[use_stat]) >=
+	    ((difficulty / 2) + randint(difficulty / 2)))
+	return TRUE;
+
+	msg_print("You've failed to concentrate hard enough.");
+	return FALSE;
+}
 
 static void cmd_racial_power_aux (void)
 {
@@ -3243,16 +3317,18 @@ static void cmd_racial_power_aux (void)
 	char ch = 0;
 	int amber_power = 0;
 	int dir = 0;
-	int Type = (randint(3)==1?GF_COLD:GF_FIRE);
-	cptr Type_desc = (Type == GF_COLD?"cold":"fire");
 	object_type *q_ptr;
 	object_type forge;
 	int dummy = 0;
 	cave_type *c_ptr;
 	int y = 0, x = 0;
+	int	ii = 0, ij = 0;
+        char out_val[80];
+        cptr p = "Power of the flame: ";
     
-    
-	switch(p_ptr->prace)
+
+        if(!p_ptr->tim_mimic)
+        switch(p_ptr->prace)
 	{
 		case RACE_DWARF:
 			if (racial_aux(5, 5, A_WIS, 12))
@@ -3401,43 +3477,51 @@ static void cmd_racial_power_aux (void)
 			}
 			break;
 
-		case RACE_HALF_TITAN:
-			if (racial_aux(35, 20, A_INT, 12))
+                case RACE_RKNIGHT:
+			/* Select power to use */
+			while (TRUE)
 			{
-				msg_print("You examine your foes...");
-				probing();
+                                if (!get_com("Use [F]lash aura or [H]oly fury  ?", &ch))
+				{
+					amber_power = 0;
+					break;
+				}
+
+                                if (ch == 'F' || ch == 'f')
+				{
+					amber_power = 1;
+					break;
+				}
+
+                                if (ch == 'H' || ch == 'h')
+				{
+					amber_power = 2;
+					break;
+				}
 			}
+
+			if (amber_power == 1)
+			{
+                                if (racial_aux(1, 9, A_CHR, 7))
+                                {
+                                        if (!(get_aim_dir(&dir))) break;
+                                        msg_print("You flash a bright aura.");
+                                        if (p_ptr->lev < 10)
+                                                fire_bolt(GF_CONFUSION, dir, plev*2);
+                                        else
+                                                fire_ball(GF_CONFUSION, dir, plev*2, 2);
+                                }
+                        }
+                        if (amber_power == 2)
+			{
+                                if (racial_aux(5, 9, A_WIS, 7))
+                                {
+                                        (void)set_shero(p_ptr->shero + 8 + randint(plev));
+                                        (void)hp_player(40);
+                                }
+                        }
 			break;
 
-		case RACE_CYCLOPS:
-			if (racial_aux(20, 15, A_STR, 12))
-			{
-				if (!get_aim_dir(&dir)) break;
-				msg_print("You throw a huge boulder.");
-				fire_bolt(GF_MISSILE, dir, (3 * p_ptr->lev) / 2);
-			}
-			break;
-
-		case RACE_YEEK:
-			if (racial_aux(15, 15, A_WIS, 10))
-			{
-				if (!get_aim_dir(&dir)) break;
-				msg_print("You make a horrible scream!");
-				(void)fear_monster(dir, plev);
-			}
-			break;
-
-		case RACE_KLACKON:
-			if (racial_aux(9, 9, A_DEX, 14))
-			{
-				if (!(get_aim_dir(&dir))) break;
-				msg_print("You spit acid.");
-				if (p_ptr->lev < 25)
-					fire_bolt(GF_ACID, dir, plev);
-				else
-					fire_ball(GF_ACID, dir, plev, 2);
-			}
-			break;
 
 		case RACE_KOBOLD:
 			if (racial_aux(12, 8, A_DEX, 14))
@@ -3468,153 +3552,108 @@ static void cmd_racial_power_aux (void)
 			}
 			break;
 
-		case RACE_DRACONIAN:
-			if (randint(100)<p_ptr->lev)
-			{
-				switch (p_ptr->pclass)
-				{
-					case CLASS_WARRIOR:
-					case CLASS_RANGER:
-						if (randint(3)==1)
-						{
-							Type = GF_MISSILE;
-							Type_desc = "the elements";
-						}
-						else
-						{
-							Type = GF_SHARDS;
-							Type_desc = "shards";
-						}
-						break;
-					case CLASS_MAGE:
-					case CLASS_WARRIOR_MAGE:
-					case CLASS_HIGH_MAGE:
-						if (randint(3)==1)
-						{
-							Type = GF_MANA;
-							Type_desc = "mana";
-						}
-						else
-						{
-							Type = GF_DISENCHANT;
-							Type_desc = "disenchantment";
-						}
-						break;
-					case CLASS_CHAOS_WARRIOR:
-						if (randint(3)!=1)
-						{
-							Type = GF_CONFUSION;
-							Type_desc = "confusion";
-						}
-						else
-						{
-							Type = GF_CHAOS;
-							Type_desc = "chaos";
-						}
-						break;
-					case CLASS_MONK:
-						if (randint(3)!=1)
-						{
-							Type = GF_CONFUSION;
-							Type_desc = "confusion";
-						}
-						else
-						{
-							Type = GF_SOUND;
-							Type_desc = "sound";
-						}
-						break;
-					case CLASS_MINDCRAFTER:
-						if (randint(3)!=1)
-						{
-							Type = GF_CONFUSION;
-							Type_desc = "confusion";
-						}
-						else
-						{
-							Type = GF_PSI;
-							Type_desc = "mental energy";
-						}
-						break;
-					case CLASS_PRIEST:
-					case CLASS_PALADIN:
-						if (randint(3)==1)
-						{
-							Type = GF_HELL_FIRE;
-							Type_desc = "hellfire";
-						}
-						else
-						{
-							Type = GF_HOLY_FIRE;
-							Type_desc = "holy fire";
-						}
-						break;
-					case CLASS_ROGUE:
-						if (randint(3)==1)
-						{
-							Type = GF_DARK;
-							Type_desc = "darkness";
-						}
-						else
-						{
-							Type = GF_POIS;
-							Type_desc = "poison";
-						}
-						break;
-				}
-			}
-			if (racial_aux(1, p_ptr->lev, A_CON, 12))
-			{
-				if (!get_aim_dir(&dir)) break;
-				msg_format("You breathe %s.", Type_desc);
-				fire_ball(Type, dir, (p_ptr->lev)*2,
-				    ((p_ptr->lev)/15) + 1);
-			}
-			break;
+                case RACE_DRAGONRIDER:
 
-		case RACE_MIND_FLAYER:
-			if (racial_aux(15, 12, A_INT, 14))
+			/* Select power to use */
+			while (TRUE)
 			{
-				if (!get_aim_dir(&dir)) break;
-				else
+                                if (!get_com("Use [F]lame breathing , Flame [D]amage , [G]o between , come [B]ack in town ?", &ch))
 				{
-					msg_print("You concentrate and your eyes glow red...");
-					fire_bolt(GF_PSI, dir, plev);
+					amber_power = 0;
+					break;
 				}
-			}
-			break;
 
-		case RACE_IMP:
-			if (racial_aux(9, 15, A_WIS, 15))
-			{
-				if (!get_aim_dir(&dir)) break;
-				if (p_ptr->lev >= 30)
+                                if (ch == 'F' || ch == 'f')
 				{
-					msg_print("You cast a ball of fire.");
-					fire_ball(GF_FIRE, dir, plev, 2);
+					amber_power = 1;
+					break;
 				}
-				else
+
+                                if (ch == 'G' || ch == 'g')
 				{
-					msg_print("You cast a bolt of fire.");
-					fire_bolt(GF_FIRE, dir, plev);
+					amber_power = 2;
+					break;
 				}
-			}
-			break;
 
-		case RACE_GOLEM:
-			if (racial_aux(20, 15, A_CON, 8))
-			{
-				(void)set_shield(p_ptr->shield + randint(20) + 30);
-			}
-			break;
+                                if (ch == 'B' || ch == 'b')
+				{
+                                        amber_power = 3;
+					break;
+				}
 
-		case RACE_SKELETON:
-		case RACE_ZOMBIE:
-			if (racial_aux(30, 30, A_WIS, 18))
-			{
-				msg_print("You attempt to restore your lost energies.");
-				(void)restore_level();
+                                if (ch == 'D' || ch == 'd')
+				{
+                                        amber_power = 4;
+					break;
+				}
+
 			}
+
+			if (amber_power == 1)
+			{
+                                if (racial_aux_tank(0, p_ptr->tp_aux1, A_STR, 6))
+                                {
+                                        if (!get_aim_dir(&dir)) break;
+                                        msg_format("You breathe an big flame.");
+                                        if(p_ptr->race_extra1==0)
+                                                fire_bolt(GF_METEOR, dir, p_ptr->tp_aux1*4);
+                                        if(p_ptr->race_extra1==1)
+                                                fire_ball(GF_METEOR, dir, p_ptr->tp_aux1*2,((p_ptr->lev)/10) + 1);
+                                        if(p_ptr->race_extra1==2)
+                                                fire_beam(GF_METEOR, dir, p_ptr->tp_aux1*3);
+                                        p_ptr->energy -= 100;
+                                }
+                        }
+                        if (amber_power == 2)
+			{
+                        if(special_flag) {msg_print("No teleport on special levels ...");break;}
+                                if (racial_aux(3, 4, A_CON, 6)){
+                             msg_print("You go between. Show the destination to your Dragon.");
+                             if (!tgt_pt(&ii,&ij)) return;
+                             p_ptr->energy -= 60 - plev;
+                             if (!cave_empty_bold(ij,ii) || (cave[ij][ii].info & CAVE_ICKY) ||
+                             (distance(ij,ii,py,px) > plev*20 + 2) || !(cave[ij][ii].info & CAVE_MARK))
+                             {
+                                 msg_print("You fail to show the destination correctly!");
+                                 p_ptr->energy -= 100;
+                                 teleport_player(10);
+                             }
+                             else teleport_player_to(ij,ii);
+                             }
+
+                        }
+                        if (amber_power == 3)
+			{
+                                if (special_flag)
+                                {
+                                msg_print("No recall on special levels..");
+                                break;
+                                }
+                                if (racial_aux(7, 11, A_CON, 6)){
+                                if(dun_level==0)
+                                        msg_print("You are stupid , you are already in town !");
+                                else{
+                                        msg_print("You go between and show your Dragon the Town");
+                                        p_ptr->energy -= 100;
+                                        p_ptr->word_recall=1;
+                                }
+                                }
+                        }
+                        if (amber_power == 4)
+			{
+                                /* Ask for power */
+                                if (!get_com("Type of the flame , [B]olt ,B[a]ll or B[e]am ?", &ch)) return;
+                                if((ch=='B')||(ch=='b'))p_ptr->race_extra1=0;
+                                if((ch=='A')||(ch=='a'))p_ptr->race_extra1=1;
+                                if((ch=='E')||(ch=='e'))p_ptr->race_extra1=2;
+
+                                itoa(p_ptr->tp_aux1,out_val,10);
+
+                                /* Ask for power */
+                                if (!get_string(p, out_val, 4)) return;
+
+                                p_ptr->tp_aux1 = atoi(out_val);                                
+                        }
 			break;
 
 		case RACE_VAMPIRE:
@@ -3663,14 +3702,12 @@ static void cmd_racial_power_aux (void)
 			}
 			break;
 
-		case RACE_SPRITE:
-			if (racial_aux(12, 12, A_INT, 15))
+
+                case RACE_ENT:
+                        if (racial_aux(2, 6, A_CON, 3))
 			{
-				msg_print("You throw some magic dust...");
-				if (p_ptr->lev < 25)
-					sleep_monsters_touch();
-				else
-					(void)sleep_monsters();
+                                msg_print("You made the trees grow!");
+                                grow_trees((plev/8<1)?1:plev/8);
 			}
 			break;
 
@@ -3678,6 +3715,111 @@ static void cmd_racial_power_aux (void)
 			msg_print("This race has no bonus power.");
 			energy_use = 0;
 	}
+        else
+        switch(p_ptr->mimic_form)
+        {
+                case MIMIC_ENT:
+                        if (racial_aux(0, 6, A_CON, 3))
+			{
+                                msg_print("You made the trees grow!");
+                                grow_trees((plev/8<1)?1:plev/8);
+			}
+			break;
+                case MIMIC_MANA_BALL:
+                        if(special_flag) {msg_print("No teleport on special levels ...");break;}
+                        if (racial_aux(1, (5+(plev/5)), A_INT, 12))
+			{
+				teleport_player(10 + (plev));
+			}
+                        break;
+                case MIMIC_VAMPIRE:
+                                if (racial_aux(1, p_ptr->lev, A_CON, 14))
+				{
+					if (!get_aim_dir(&dir)) return;
+					if (drain_life(dir, (p_ptr->lev * 2)))
+						hp_player(p_ptr->lev + randint(p_ptr->lev));
+				}
+                        break;
+                case MIMIC_FIRE_CLOUD:
+                                if (racial_aux(1, p_ptr->lev, A_CON, 12))
+				{
+					msg_print("You breathe fire...");
+					if (get_aim_dir(&dir))
+						fire_ball(GF_FIRE, dir, p_ptr->lev * 2, 1 + (p_ptr->lev/20));
+				}
+                        break;
+                case MIMIC_COLD_CLOUD:
+                                if (racial_aux(1, p_ptr->lev, A_CON, 12))
+				{
+                                        msg_print("You breathe cold...");
+					if (get_aim_dir(&dir))
+                                                fire_ball(GF_COLD, dir, p_ptr->lev * 2, 1 + (p_ptr->lev/20));
+				}
+                        break;
+                case MIMIC_CHAOS_CLOUD:
+                                if (racial_aux(1, p_ptr->lev, A_CON, 12))
+				{
+                                        msg_print("You breathe chaos...");
+					if (get_aim_dir(&dir))
+                                                fire_ball(GF_CHAOS, dir, p_ptr->lev * 2, 1 + (p_ptr->lev/20));
+				}
+                        break;
+                case MIMIC_KOBOLD:
+			if (racial_aux(12, 8, A_DEX, 14))
+			{
+				if(!get_aim_dir(&dir)) break;
+				msg_print("You throw a dart of poison.");
+				fire_bolt(GF_POIS, dir, plev);
+			}
+			break;
+                case MIMIC_DEMON:
+			if (racial_aux(9, 15, A_WIS, 15))
+			{
+				if (!get_aim_dir(&dir)) break;
+				if (p_ptr->lev >= 30)
+				{
+					msg_print("You cast a ball of fire.");
+					fire_ball(GF_FIRE, dir, plev, 2);
+				}
+				else
+				{
+					msg_print("You cast a bolt of fire.");
+					fire_bolt(GF_FIRE, dir, plev);
+				}
+			}
+			break;
+                case MIMIC_DRAGON:
+			if (racial_aux(1, p_ptr->lev, A_CON, 12))
+			{
+				if (!get_aim_dir(&dir)) break;
+                                msg_format("You breathe the elements.");
+                                fire_ball(GF_MISSILE, dir, (p_ptr->lev)*2,
+				    ((p_ptr->lev)/15) + 1);
+			}
+			break;
+                case MIMIC_QUYLTHULG:
+                        if (racial_aux(1, 10, A_CHR, 6))
+			{
+                                do_cmd_beastmaster();
+                        }
+			break;
+                case MIMIC_VALAR:
+                        if (racial_aux(1, 30, A_CHR, 6))
+			{
+                        msg_print("The power of Eru Iluvatar flow trought you!");
+                        msg_print("The world change!");
+                if (autosave_l)
+                {
+                    is_autosave = TRUE;
+                    msg_print("Autosaving the game...");
+                    do_cmd_save_game();
+                    is_autosave = FALSE;
+                }
+			/* Leaving */
+			p_ptr->leaving = TRUE;
+                        }
+			break;
+        }
 
 	p_ptr->redraw |= (PR_HP | PR_MANA);
 	p_ptr->window |= (PW_PLAYER);
@@ -3686,7 +3828,7 @@ static void cmd_racial_power_aux (void)
 
 
 /*
- * Allow user to choose a power (racial / mutation) to activate
+ * Allow user to choose a power (racial / mutation / mimic) to activate
  */
 void do_cmd_racial_power(void)
 {
@@ -3733,6 +3875,7 @@ void do_cmd_racial_power(void)
 		return;
 	}
 
+        if(!p_ptr->tim_mimic)
 	switch (p_ptr->prace)
 	{
 		case RACE_DWARF:
@@ -3818,43 +3961,11 @@ void do_cmd_racial_power(void)
 			has_racial = TRUE;
 			break;
 
-		case RACE_HALF_TITAN:
-			if (lvl < 35)
-				racial_power = "probing            (racial, lvl 35, cost 20)";
-			else
-				racial_power = "probing            (racial, cost 20, INT 12@35)";
-			has_racial = TRUE;
-			break;
-
-		case RACE_CYCLOPS:
-			if (lvl < 20)
-				racial_power = "throw boulder      (racial, lvl 20, cost 15, dam 3*lvl)";
-			else
-				racial_power = "throw boulder      (racial, cost 15, dam 3*lvl, STR 12@20)";
-			has_racial = TRUE;
-			break;
-
-		case RACE_YEEK:
-			if (lvl < 15)
-				racial_power = "scare monster      (racial, lvl 15, cost 15)";
-			else
-				racial_power = "scare monster      (racial, cost 15, WIS 10@15)";
-			has_racial = TRUE;
-			break;
-
 		case RACE_SPECTRE:
 			if (lvl < 4)
 				racial_power = "scare monster      (racial, lvl 4, cost 3)";
 			else
 				racial_power = "scare monster      (racial, cost 3, INT 3@5)";
-			has_racial = TRUE;
-			break;
-
-		case RACE_KLACKON:
-			if (lvl < 9)
-				racial_power = "spit acid          (racial, lvl 9, cost 9, dam lvl)";
-			else
-				racial_power = "spit acid          (racial, cost 9, dam lvl, DEX 14@9)";
 			has_racial = TRUE;
 			break;
 
@@ -3874,43 +3985,6 @@ void do_cmd_racial_power(void)
 			has_racial = TRUE;
 			break;
 
-		case RACE_DRACONIAN:
-			racial_power = "breath weapon      (racial, cost lvl, dam 2*lvl, CON 12@1)";
-			has_racial = TRUE;
-			break;
-
-		case RACE_MIND_FLAYER:
-			if (lvl < 15)
-				racial_power = "mind blast         (racial, lvl 15, cost 12, dam lvl)";
-			else
-				racial_power = "mind blast         (racial, cost 12, dam lvl, INT 14@15)";
-			has_racial = TRUE;
-			break;
-
-		case RACE_IMP:
-			if (lvl < 9)
-				racial_power = "fire bolt/ball     (racial, lvl 9/30, cost 15, dam lvl)";
-			else
-				racial_power = "fire bolt/ball(30) (racial, cost 15, dam lvl, WIS 15@9)";
-			has_racial = TRUE;
-			break;
-
-		case RACE_GOLEM:
-			if (lvl < 20)
-				racial_power = "stone skin         (racial, lvl 20, cost 15, dur 30+d20)";
-			else
-				racial_power = "stone skin         (racial, cost 15, dur 30+d20, CON 8@20)";
-			has_racial = TRUE;
-			break;
-
-		case RACE_SKELETON:
-		case RACE_ZOMBIE:
-			if (lvl < 30)
-				racial_power = "restore life       (racial, lvl 30, cost 30)";
-			else
-				racial_power = "restore life       (racial, cost 30, WIS 18@30)";
-			has_racial = TRUE;
-			break;
 
 		case RACE_VAMPIRE:
 			if (lvl < 2)
@@ -3920,14 +3994,74 @@ void do_cmd_racial_power(void)
 			has_racial = TRUE;
 			break;
 
-		case RACE_SPRITE:
-			if (lvl < 12)
-				racial_power = "sleeping dust      (racial, lvl 12, cost 12)";
-			else
-				racial_power = "sleeping dust      (racial, cost 12, INT 15@12)";
+                case RACE_RKNIGHT:
+                        racial_power = "Rohan's Kinght's Powers";
+			has_racial = TRUE;
+			break;
+                case RACE_DRAGONRIDER:
+                        racial_power = "Dragon's Powers";
+			has_racial = TRUE;
+			break;
+                case RACE_ENT:
+			if (lvl < 2)
+                                racial_power = "Grow trees (need level 2)";
+                        else
+                                racial_power = "Grow trees (cost 6)";
 			has_racial = TRUE;
 			break;
 	}
+        else
+        switch(p_ptr->mimic_form)
+        {
+                case MIMIC_ENT:
+                        racial_power = "Grow trees (cost 6)";
+			has_racial = TRUE;
+                        break;
+                case MIMIC_VAMPIRE:
+                        racial_power = "drain life         (mimic, cost 1 + lvl/3, CON 9@2)";
+			has_racial = TRUE;
+                        break;
+                case MIMIC_MANA_BALL:
+                        racial_power = "teleport           (mimic, cost 5 + lvl/5, INT 12@5)";
+			has_racial = TRUE;
+                        break;
+                case MIMIC_FIRE_CLOUD:
+                        racial_power = "breath fire        (mimic, cost lvl, dam 2*lvl, CON 12@1)";
+			has_racial = TRUE;
+                        break;
+                case MIMIC_COLD_CLOUD:
+                        racial_power = "breath cold        (mimic, cost lvl, dam 2*lvl, CON 12@1)";
+			has_racial = TRUE;
+                        break;
+                case MIMIC_CHAOS_CLOUD:
+                        racial_power = "breath chaos       (mimic, cost lvl, dam 2*lvl, CON 12@1)";
+			has_racial = TRUE;
+                        break;
+                case MIMIC_GOST:
+                        racial_power = "scare monster      (mimic, cost 3, INT 3@5)";
+			has_racial = TRUE;
+                        break;
+                case MIMIC_KOBOLD:
+                        racial_power = "poison dart        (mimic, cost 8, dam lvl, DEX 14@12)";
+			has_racial = TRUE;
+                        break;
+                case MIMIC_DRAGON:
+                        racial_power = "breath weapon      (mimic, cost lvl, dam 2*lvl, CON 12@1)";
+			has_racial = TRUE;
+                        break;
+                case MIMIC_DEMON:
+                        racial_power = "fire bolt/ball(30) (mimic, cost 15, dam lvl, WIS 15@9)";
+			has_racial = TRUE;
+                        break;
+                case MIMIC_QUYLTHULG:
+                        racial_power = "summon monster     (mimic, cost 10, CHR 6@5)";
+			has_racial = TRUE;
+                        break;
+                case MIMIC_VALAR:
+                        racial_power = "remake the world   (mimic, cost 30, INT 12@5)";
+			has_racial = TRUE;
+                        break;
+        }
 
 	/* Calculate pets */
 	/* Process the monsters (backwards) */
@@ -4634,14 +4768,13 @@ void do_cmd_racial_power(void)
 				}
 				break;
 
-			/* Summon pet molds around the player */
 			case MUT1_GROW_MOLD:
 				if (racial_aux(1, 6, A_CON, 14))
 				{
 					int i;
-					for (i = 0; i < 8; i++)
+					for (i=0; i < 8; i++)
 					{
-						summon_specific(py, px, p_ptr->lev, SUMMON_BIZARRE1, FALSE, TRUE, TRUE);
+						summon_specific_friendly(py, px, p_ptr->lev, SUMMON_BIZARRE1, FALSE);
 					}
 				}
 				break;

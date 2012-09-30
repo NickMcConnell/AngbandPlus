@@ -11,10 +11,6 @@
 
 # Zangband notes:
 
-# Semantics of S_AMBERITES: Since all non-Tolkienian unique Ringwraiths
-# have been removed (i.e. all except the Witch-king of Angmar and
-# Khamul), the spell summons unique Amberites instead of Ringwraiths.
-
 # Currently, "unique" monsters are just "special" monster races, with
 # the requirement that only one monster of that race can exist at a time,
 # and when it is killed, it can never again be generated.
@@ -2659,7 +2655,7 @@ I:110:9d9:15:18:40
 W:12:1:0:40
 B:GAZE:PARALYZE:1d2
 B:GAZE:CONFUSE:1d2
-F:CAN_FLY | IM_POIS | WILD_TOO | WILD_WOOD | DROP_CORPSE | EVIL
+F:CAN_FLY | IM_POIS | WILD_TOO | WILD_WOOD | DROP_CORPSE
 S:1_IN_8
 S:HOLD | CONF
 D:A floating eye surrounded by number of smaller eyestalks. Its 
@@ -2868,12 +2864,12 @@ D:A dark elven torso merged with the bloated form of a giant spider.
 
 N:235:Mongbat
 G:b:U
-I:113:10d10:20:80:8
-W:13:3:0:65
+I:110:10d10:20:80:8
+W:13:2:0:65
 B:CLAW:HURT:1d4
 B:CLAW:HURT:1d4
 B:BITE:POISON:1d8
-F:ANIMAL | EVIL | FRIEND | FRIENDS | CAN_FLY | FORCE_MAXHP |
+F:ANIMAL | EVIL | FRIENDS | CAN_FLY | FORCE_MAXHP |
 F:IM_COLD | IM_ELEC | IM_POIS | WEIRD_MIND | DROP_CORPSE
 D:Devil-bats, notoriously difficult to kill.
 
@@ -3047,7 +3043,7 @@ W:14:3:0:40
 B:BITE:BLIND:1d10
 B:BITE:BLIND:1d10
 F:OPEN_DOOR | DROP_SKELETON | DROP_CORPSE
-D:This strange creature looks like a miniature tyrannosaurus. It has 
+D:This strange creature looks like a miniature tyrannosaur. It has 
 D:empty, pale eyes and a sharp beak, which it aims at your eyes 
 D:as it jumps at you! 
 
@@ -4816,7 +4812,7 @@ B:HIT:HURT:3d7
 B:HIT:UN_BONUS
 F:UNIQUE | MALE | CAN_SPEAK | DROP_SKELETON | DROP_CORPSE
 F:FORCE_SLEEP | FORCE_MAXHP | 
-F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | DROP_CHOSEN |
+F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
 F:OPEN_DOOR | BASH_DOOR | EVIL |
 F:IM_FIRE | IM_COLD | NO_CONF | NO_SLEEP | RES_TELE
 S:1_IN_8 | 
@@ -4887,7 +4883,7 @@ S:1_IN_9 |
 S:TPORT | BLINK | TELE_AWAY
 D:This creature just might crush you.
 
-N:389:Tyrannosaurus
+N:389:Tyrannosaur
 G:R:g
 I:120:200d3:20:70:20
 W:24:2:0:350
@@ -5041,8 +5037,6 @@ B:TOUCH:UN_BONUS:1d10
 F:STUPID | WEIRD_MIND | RES_DISE | DROP_CORPSE
 F:IM_ACID | IM_POIS | 
 F:NO_CONF | 
-S:1_IN_6
-S:DRAIN_MANA
 D:It looks like an anteater, and there is a static feeling 
 D:crackling around its long trunk.
 
@@ -5147,7 +5141,7 @@ B:CLAW:COLD:2d4
 B:BUTT:HURT:2d9
 F:RAND_25 | DROP_90 | DROP_60
 F:OPEN_DOOR | BASH_DOOR | AURA_COLD | IM_COLD |
-F:ANIMAL | DROP_CORPSE | EVIL
+F:ANIMAL | DROP_CORPSE
 S:1_IN_8
 S:BR_COLD | BO_ICEE | BO_COLD | BA_COLD
 D:A creature with a sharp horn: "the hairy myth-thing of the 
@@ -5722,7 +5716,7 @@ B:GAZE:TERRIFY:2d4
 B:GAZE:BLIND:2d4
 B:BUTT:HURT:2d6
 B:BITE:HURT:2d12
-F:ONLY_GOLD | DROP_2D2 | DROP_CORPSE | EVIL |
+F:ONLY_GOLD | DROP_2D2 | DROP_CORPSE
 F:BASH_DOOR | CAN_SWIM | WILD_TOO |  WILD_SWAMP |
 F:ANIMAL | IM_POIS
 D:A strange ox-like form with a huge head but a thin, weak neck, it looks 
@@ -6012,7 +6006,7 @@ F:IM_COLD | IM_POIS |
 F:NO_CONF | NO_SLEEP | NO_FEAR
 D:It is a troll skeleton animated by dark dweomers.
 
-N:466:Skeletal tyrannosaurus
+N:466:Skeletal tyrannosaur 
 G:R:w
 I:120:50d10:20:55:20
 W:30:2:0:225
@@ -6024,7 +6018,7 @@ F:EMPTY_MIND | COLD_BLOOD | OPEN_DOOR | BASH_DOOR |
 F:EVIL | ANIMAL | UNDEAD | 
 F:IM_COLD | IM_POIS | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
-D:It is the skeleton of a tyrannosaurus, animated by dark dweomers.
+D:It is the skeleton of a tyrannosaur, animated by dark dweomers.
 
 N:467:Jaws
 G:~:w
@@ -6141,7 +6135,7 @@ B:BUTT:HURT:3d9
 B:BITE:POISON:1d10
 B:KICK:HURT:2d4
 F:FORCE_SLEEP | ANIMAL | MOVE_BODY | WILD_TOO | WILD_WOOD |
-F:BASH_DOOR | IM_POIS | IM_ACID | DROP_CORPSE | EVIL
+F:BASH_DOOR | IM_POIS | IM_ACID | DROP_CORPSE
 S:1_IN_8 | 
 S:BR_POIS
 D:A bull whose skin is made of steel plates. Watch out for its 
@@ -6278,7 +6272,7 @@ B:BITE:FIRE:5d4
 B:BITE:FIRE:5d4
 B:BITE:FIRE:5d4
 F:WEIRD_MIND | BASH_DOOR | AURA_FIRE | CAN_FLY | DROP_CORPSE
-F:IM_FIRE | EVIL |
+F:IM_FIRE |
 F:ANIMAL
 D:It is a fast moving creature of chaos, a gigantic black bat 
 D:surrounded by flickering bright red flames.
@@ -6600,7 +6594,7 @@ W:33:7:0:2000
 B:HIT:HURT:9d1
 B:HIT:HURT:6d5
 B:HIT:HURT:25d1
-B:HIT:HURT:30d1
+B:HIT:HURT:6d5
 F:UNIQUE | MALE | WEIRD_MIND | CAN_SPEAK |
 F:FORCE_MAXHP | WILD_TOO | DROP_CORPSE
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD |
@@ -7061,7 +7055,7 @@ W:35:4:0:250
 B:BITE:POISON:1d6
 B:STING:POISON:1d6
 F:WEIRD_MIND | BASH_DOOR | FRIENDS | ELDRITCH_HORROR | DROP_CORPSE
-F:ANIMAL | EVIL
+F:ANIMAL
 D:Bloated purple spiders with long, bristly legs.
 
 N:536:Star vampire
@@ -8313,7 +8307,7 @@ B:TOUCH:FIRE:1d10
 B:TOUCH:LOSE_WIS:1d10
 B:TOUCH:FIRE:1d10
 B:TOUCH:LOSE_INT:1d10
-F:FORCE_SLEEP | FORCE_MAXHP | RAND_25 | CAN_FLY | EVIL |
+F:FORCE_SLEEP | FORCE_MAXHP | RAND_25 | CAN_FLY |
 F:SMART | EMPTY_MIND | AURA_FIRE | RES_PLAS | KILL_ITEM |
 F:PASS_WALL | IM_ACID | IM_FIRE | IM_ELEC | IM_POIS | 
 F:NO_CONF | NO_SLEEP | NO_FEAR | NONLIVING | NO_STUN
@@ -9094,23 +9088,25 @@ D:winged things... not altogether crows, nor moles, nor buzzards,
 D:nor ants, nor decomposed human beings, but something I cannot 
 D:and must not recall."
 
-N:660:Rinaldo, son of Brand
-G:p:w
-I:120:16d100:20:120:40
-W:41:3:0:7000
-B:HIT:HURT:8d6
-B:HIT:HURT:8d6
-B:HIT:UN_BONUS:6d8
-B:HIT:UN_BONUS:6d8
-F:UNIQUE | MALE | CAN_SPEAK | AMBERITE | DROP_SKELETON | DROP_CORPSE
+N:660:Ji Indur Dawndeath
+G:W:D
+I:120:18d100:90:70:10
+W:43:4:0:12000
+B:HIT:HURT:5d5
+B:HIT:HURT:5d5
+B:TOUCH:EXP_40
+B:TOUCH:EXP_40
+F:UNIQUE | MALE | 
 F:FORCE_SLEEP | FORCE_MAXHP | 
-F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | 
-F:SMART | OPEN_DOOR | BASH_DOOR |
-F:IM_ACID | IM_COLD | IM_ELEC | IM_POIS | NO_CONF | NO_SLEEP | RES_TELE
-S:1_IN_2 | 
-S:CAUSE_3 | BO_WATE | BO_MANA | BA_CHAO
-D:The madman's son is a Logrus Master, almost as great a 
-D:menace as his father.
+F:ONLY_ITEM | DROP_4D2 | DROP_GOOD | 
+F:INVISIBLE | COLD_BLOOD | OPEN_DOOR | BASH_DOOR | MOVE_BODY | 
+F:EVIL | UNDEAD | IM_FIRE | IM_COLD | IM_POIS | 
+F:HURT_LITE | NO_CONF | NO_SLEEP
+S:1_IN_3 | 
+S:BLIND | HOLD | SCARE | CAUSE_3 | BA_FIRE | BA_NETH | 
+S:S_UNDEAD
+D:This Ringwraith was a weak-minded sorcerer-king who fell easily under 
+D:Sauron's power.
 
 N:661:Archon
 G:A:y
@@ -9319,7 +9315,7 @@ D:An undead master of the vicious Zephyr hounds.
 
 N:672:Juggernaut of Khorne
 G:g:D
-I:125:90d19:12:90:10
+I:120:90d19:12:90:10
 W:43:3:0:2500
 B:BUTT:HURT:6d6
 B:CRUSH:HURT:8d6
@@ -9327,7 +9323,7 @@ B:CRUSH:HURT:8d6
 B:BUTT:HURT:6d6
 F:COLD_BLOOD | BASH_DOOR | REFLECTING | KILL_ITEM |
 F:IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | DEMON |
-F:NO_CONF | NO_SLEEP | NO_FEAR | NONLIVING | EVIL
+F:NO_CONF | NO_SLEEP | NO_FEAR | NONLIVING
 D:A great, vicious beast whose flesh is made of steel and whose 
 D:blood is fire. It charges at you ignoring everything else.
 
@@ -9504,7 +9500,7 @@ B:ENGULF:LOSE_CON:4d10
 B:ENGULF:LOSE_CON:4d10
 B:ENGULF:LOSE_CON:4d10
 F:FORCE_SLEEP | ELDRITCH_HORROR | PASS_WALL | 
-F:INVISIBLE | DROP_2D2 | DROP_4D2 | CAN_FLY | EVIL |
+F:INVISIBLE | DROP_2D2 | DROP_4D2 | CAN_FLY |
 F:OPEN_DOOR | BASH_DOOR | MOVE_BODY | POWERFUL |
 F:SMART | IM_FIRE | IM_COLD | IM_ELEC | IM_ACID | IM_POIS
 S:1_IN_4 | 
@@ -9919,7 +9915,7 @@ S:BR_FIRE | BR_ACID
 D:A huge aquatic dragon, its shell is as large as a small island. Some 
 D:have called this creature a dragon-turtle.
 
-N:705:Spectral tyrannosaurus
+N:705:Spectral tyrannosaur
 G:R:G
 I:120:70d50:25:120:30
 W:46:3:0:15000
@@ -9936,7 +9932,7 @@ F:OPEN_DOOR | BASH_DOOR | MOVE_BODY
 S:1_IN_6 | 
 S:HOLD | SCARE | 
 S:BR_NEXU | BR_POIS | BR_NETH
-D:A deadly undead horror which looks like a skeletal tyrannosaurus 
+D:A deadly undead horror which looks like a skeletal tyrannosaur 
 D:surrounded by a sickly green glow.
 
 N:706:Yibb-Tstll the Patient One
@@ -9945,9 +9941,9 @@ I:120:99d21:20:100:20
 W:46:2:0:16000
 B:TOUCH:LOSE_ALL:1d166
 B:TOUCH:LOSE_ALL:1d166
-F:FORCE_SLEEP | ELDRITCH_HORROR | NEVER_MOVE | REGENERATE |
+F:UNIQUE | FORCE_SLEEP | ELDRITCH_HORROR | NEVER_MOVE | REGENERATE |
 F:DROP_2D2 | DROP_4D2  | CAN_FLY | DROP_GOOD | ONLY_ITEM |
-F:POWERFUL | EVIL | CAN_SPEAK | UNIQUE |
+F:POWERFUL |
 F:SMART | IM_FIRE | IM_COLD | IM_ELEC | IM_ACID | IM_POIS
 S:1_IN_4 | 
 S:BR_NUKE | S_DEMON | DARKNESS | S_UNDEAD | ANIM_DEAD 
@@ -9967,7 +9963,7 @@ B:CLAW:LOSE_WIS:5d10
 B:BITE:CONFUSE:5d10
 F:FORCE_SLEEP | ELDRITCH_HORROR | PASS_WALL | UNIQUE |
 F:INVISIBLE | DROP_2D2 | DROP_4D2 | CAN_FLY | DROP_GOOD | ONLY_ITEM |
-F:OPEN_DOOR | BASH_DOOR | MOVE_BODY | POWERFUL | EVIL |
+F:OPEN_DOOR | BASH_DOOR | MOVE_BODY | POWERFUL |
 F:SMART | IM_FIRE | IM_COLD | IM_ELEC | IM_ACID | IM_POIS
 S:1_IN_4 | 
 S:BR_WALL | TELE_AWAY | BR_GRAV | TELE_LEVEL | S_DEMON | S_UNDEAD |
@@ -9978,19 +9974,21 @@ D:could even adumbrate the loathsome, unholy, non-human, extra-galactic
 D:horror and hatefulness and unutterabl evil of that forbidden spawn 
 D:of black chaos, and illimitable night."
 
-N:708:Ent
-G:#:G
-I:120:40d100:30:120:15
-W:46:3:0:12500
-B:CRUSH:HURT:12d13
-B:CRUSH:HURT:12d13
-B:CRUSH:HURT:12d13
-B:CRUSH:HURT:12d13
-F:FORCE_SLEEP | FORCE_MAXHP | FRIENDLY |
-F:ONLY_ITEM | DROP_4D2 | DROP_GOOD | MOVE_BODY |
-F:SMART | TAKE_ITEM | OPEN_DOOR | BASH_DOOR |
-F:GOOD | ANIMAL 
-D:A treeherd, a sentient, moving tree. Its wrath is fearsome!
+N:708:Bert the Stone Troll
+G:T:W
+I:110:11d100:20:70:50
+W:33:7:0:2000
+B:HIT:HURT:5d5
+B:BITE:HURT:2d10
+B:BITE:HURT:2d3
+F:UNIQUE | MALE | 
+F:FORCE_MAXHP | 
+F:ESCORT | 
+F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
+F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
+F:EVIL | TROLL | IM_COLD | IM_POIS | HURT_LITE | HURT_ROCK
+D:Big, brawny, powerful and with a taste for hobbit.  He has friends called 
+D:Bill and Tom.
 
 N:709:Hru
 G:P:s
@@ -10060,39 +10058,37 @@ D:The mighty dragon of the Norse myth, Fafner was a giant who slew his
 D:brother to win a treasure hoard, and then transformed himself into 
 D:a dragon, greedily watching over his hoard.
 
-N:713:Fangorn the Treebeard
-G:#:G
-I:120:50d100:30:120:15
-W:47:3:0:13500
-B:CRUSH:HURT:13d13
-B:CRUSH:HURT:13d13
-B:CRUSH:HURT:13d13
-B:CRUSH:HURT:13d13
-F:FORCE_SLEEP | FORCE_MAXHP | UNIQUE | CAN_SPEAK |
-F:ONLY_ITEM | DROP_4D2 | DROP_GOOD | MOVE_BODY |
-F:SMART | TAKE_ITEM | OPEN_DOOR | BASH_DOOR |
-F:GOOD | ANIMAL | FRIENDLY
-D:The oldest of all ents, a respected and feared ancient creature.
+N:713:Bill the Stone Troll
+G:T:W
+I:110:11d100:20:70:50
+W:33:7:0:2000
+B:HIT:HURT:5d5
+B:BITE:HURT:2d10
+B:BITE:HURT:2d3
+F:UNIQUE | MALE | 
+F:FORCE_MAXHP | 
+F:ESCORT | 
+F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
+F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
+F:EVIL | TROLL | IM_COLD | IM_POIS | HURT_LITE | HURT_ROCK
+D:Big, brawny, powerful and with a taste for hobbit.  He has friends called 
+D:Bert and Tom.
 
-N:714:Zhar the Twin Obscenity
-G:R:D
-I:120:50d100:30:120:15
-W:47:3:0:15000
-B:CRUSH:HURT:23d13
-B:CRUSH:HURT:23d13
-B:CRUSH:HURT:23d13
-F:FORCE_SLEEP | FORCE_MAXHP | UNIQUE | ELDRITCH_HORROR |
-F:ONLY_ITEM | DROP_4D2 | DROP_GOOD | KILL_BODY |
-F:SMART | TAKE_ITEM | OPEN_DOOR | BASH_DOOR | CAN_SWIM |
-F:EVIL
-S:1_IN_6
-S:S_DEMON | SHRIEK | CONF | SCARE | MIND_BLAST | BLIND 
-D:"The thing that crouched in the weird green dusk was a living mass 
-D:of shuddering horror, a ghastly mountain of sensate, quivering 
-D:flesh, whose tentacles, far-flung in the dim reaches of the 
-D:subterranean cavern, emitted a strange humming sound, while from 
-D:the depths of the creature's body came a weird and horrific 
-D:undulation."
+N:714:Tom the Stone Troll
+G:T:W
+I:110:11d100:20:70:50
+W:33:7:0:2000
+B:HIT:HURT:5d5
+B:BITE:HURT:2d10
+B:BITE:HURT:2d3
+F:UNIQUE | MALE | 
+F:FORCE_MAXHP | 
+F:ESCORT | 
+F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
+F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
+F:EVIL | TROLL | IM_COLD | IM_POIS | HURT_LITE | HURT_ROCK
+D:Big, brawny, powerful and with a taste for hobbit.  He has friends called 
+D:Bert and Bill.
 
 N:715:Glaurung, Father of the Dragons
 G:D:r
@@ -10900,8 +10896,8 @@ D:reptile, partially that of a gigantic octopus. It will destroy you.
 
 N:758:Bloodthirster
 G:U:r
-I:140:60d70:30:180:20
-W:55:3:0:19500
+I:130:60d70:30:180:20
+W:55:3:0:18500
 B:HIT:HURT:50d1
 B:HIT:HURT:50d1
 B:HIT:HURT:50d1
@@ -10993,35 +10989,26 @@ D:earned a high position in the church, and his skill with both weapon and
 D:spell only justify his position further.  His combination of both dwarven 
 D:strength and priestly wisdom are a true match for any adventurer.
 
-N:763:Dworkin Barimen
-G:p:v
-I:130:100d48:25:195:10
-W:56:2:0:22200
-B:HIT:CONFUSE:4d8
-B:HIT:TERRIFY:5d6
-B:HIT:PARALYZE:5d6
-B:HIT:BLIND:4d8
-F:UNIQUE | MALE | AMBERITE | DROP_CORPSE
-F:FORCE_SLEEP | FORCE_MAXHP | SHAPECHANGER | CAN_SPEAK |
-F:ONLY_ITEM | DROP_1D2 | DROP_4D2 | DROP_GOOD | CAN_FLY |
-F:OPEN_DOOR | BASH_DOOR | ATTR_MULTI | RES_DISE | ATTR_ANY | RES_TELE
-F:IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | NO_CONF | NO_SLEEP | 
-S:1_IN_4 | 
-S:HEAL | BLIND | CONF | SCARE | CAUSE_4 | BRAIN_SMASH | 
-S:FORGET | S_MONSTERS | BA_CHAO | BLINK | TPORT | TELE_TO |
-S:TELE_AWAY | S_DEMON
-D:Once this now gnomish creature created the universe with the Jewel 
-D:of Judgement - or so you have been told. There is little sanity left 
-D:in his present form even if he still has the power. "He was a small 
-D:man. Tiny, might be an even better word. He was around five feet tall 
-D:and a hunchback. His hair and beard were as heavy as (Corwin's). The 
-D:only distinguishing features in that great mass of fur were 
-D:his long, hook nose and his almost black eyes, now squinted 
-D:against the light... Dworkin: 'I am Oberon's prisoner.' Corwin: 
-D:'Oh? None of us knew that Dad had locked you up.' (Corwin) heard 
-D:(Dworkin) weeping. 'Yes,' he said after a long time. 'He didn't 
-D:trust me.' 'Why not?' 'I told him I'd thought of a way to 
-D:destroy Amber. I described it to him, and he locked me in.'"
+N:763:Hoarmurath of Dir
+G:W:D
+I:120:25d100:90:100:10
+W:52:3:0:40000
+B:HIT:HURT:10d10
+B:HIT:HURT:5d5
+B:TOUCH:EXP_80
+B:WAIL:TERRIFY
+F:UNIQUE | MALE | 
+F:FORCE_SLEEP | FORCE_MAXHP | SMART | 
+F:ONLY_ITEM | DROP_2D2 | DROP_4D2 | DROP_GOOD | 
+F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR | MOVE_BODY | 
+F:EVIL | UNDEAD | IM_COLD | IM_POIS | 
+F:HURT_LITE | NO_CONF | NO_SLEEP
+S:1_IN_3 | 
+S:BLIND | HOLD | SCARE | CAUSE_3 | CAUSE_4 | MIND_BLAST | 
+S:BO_COLD | BA_COLD | BA_NETH | 
+S:S_UNDEAD
+D:A Ringwraith powerful in fell sorcery, he yearns for the life he has lost 
+D:for a life of everlasting torment.
 
 N:764:Uriel, Angel of Fire
 G:A:R
@@ -11102,7 +11089,7 @@ F:FORCE_SLEEP | FORCE_MAXHP | CAN_FLY |
 F:ONLY_ITEM | DROP_3D2 | DROP_4D2 | DROP_GOOD | 
 F:IM_ACID | IM_FIRE | IM_POIS | IM_COLD |  ELDRITCH_HORROR |
 F:NEVER_MOVE | RES_NEXU | REFLECTING | PASS_WALL
-F:NO_CONF | NO_SLEEP | EVIL 
+F:NO_CONF | NO_SLEEP
 S:1_IN_3 | 
 S:TELE_AWAY | S_MONSTERS | TELE_LEVEL | BR_NEXU | TPORT | BLINK
 D:"Not shapeless, but so complex that the eye could recognize no 
@@ -11169,7 +11156,7 @@ B:HIT:EXP_80:10d10
 F:UNIQUE | MALE | CAN_SPEAK |
 F:FORCE_SLEEP | FORCE_MAXHP | SMART | DROP_CORPSE
 F:ONLY_ITEM | DROP_1D2 | DROP_4D2 | DROP_GOOD | 
-F:OPEN_DOOR | BASH_DOOR | RES_NEXU | RES_NETH | EVIL | 
+F:OPEN_DOOR | BASH_DOOR | RES_NEXU | RES_NETH |  
 F:IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | NO_CONF | NO_SLEEP | 
 S:1_IN_4 | 
 S:BA_FIRE | BA_CHAO | CONF | TPORT | S_DEMON | BR_CHAO | BA_MANA
@@ -11201,28 +11188,21 @@ D:Originally known as the White, Saruman fell prey to Sauron's wiles. He
 D:searches forever for the One Ring, to become a mighty Sorcerer-King of the 
 D:world.
 
-N:772:Gandalf the Grey
-G:p:v
-I:120:49d101:101:100:0
-W:60:7:0:35000
-B:HIT:UN_BONUS:6d8
-B:HIT:UN_BONUS:6d8
-B:HIT:TERRIFY:5d5
-B:HIT:TERRIFY:5d5
-F:UNIQUE | MALE | CAN_SPEAK | FRIENDLY |
-F:FORCE_SLEEP | FORCE_MAXHP | REFLECTING | RES_TELE |
-F:ONLY_ITEM | DROP_2D2 | DROP_3D2 | DROP_4D2 | DROP_GOOD |
-F:SMART | OPEN_DOOR | BASH_DOOR | 
-F:GOOD | IM_FIRE | IM_COLD | 
-F:IM_ELEC | IM_POIS | NO_CONF | NO_SLEEP
-S:1_IN_2 | 
-S:HEAL | HASTE | TPORT | TELE_AWAY | BLIND | CONF | SCARE | 
-S:CAUSE_4 | BRAIN_SMASH | FORGET | TRAPS | 
-S:BA_FIRE | BO_FIRE | BO_PLAS | BO_MANA | CAUSE_4 |
-S:S_MONSTER | S_ANGEL | S_DRAGON | S_KIN 
-D:The wizard who opposed Saruman, and in the end, was the only 
-D:one of the Istari to succeed in his task. Gandalf is very 
-D:wise and specializes in fire magic.
+N:772:Uvatha the Horseman
+G:W:D
+I:120:12d100:90:60:10
+W:40:3:0:7000
+B:HIT:HURT:6d6
+B:HIT:HURT:6d6
+B:HIT:EXP_80:4d6
+B:HIT:EXP_80:4d6
+F:UNIQUE | MALE | 
+F:FORCE_MAXHP | 
+F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | 
+F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR | MOVE_BODY | 
+F:EVIL | UNDEAD | IM_COLD | IM_POIS | HURT_LITE | NO_CONF | NO_SLEEP
+D:A tall black cloaked Ringwraith, he is a master of horsemanship.  He longs 
+D:to taste your blood.
 
 N:773:Brand, Mad Visionary of Amber
 G:p:v
@@ -11320,7 +11300,7 @@ B:HIT:BLIND:10d5
 B:HIT:PARALYZE:15d1
 F:UNIQUE | FEMALE | CAN_SPEAK |
 F:FORCE_SLEEP | FORCE_MAXHP | 
-F:ESCORT | ESCORTS | EVIL |
+F:ESCORT | ESCORTS | 
 F:ONLY_ITEM | DROP_4D2 | DROP_GOOD | 
 F:INVISIBLE | OPEN_DOOR | BASH_DOOR | 
 F:IM_FIRE | IM_COLD | IM_POIS | NO_CONF | NO_SLEEP
@@ -11340,7 +11320,7 @@ B:CLAW:HURT:10d10
 B:CLAW:HURT:10d10
 B:BITE:HURT:10d10
 B:BITE:HURT:10d10
-F:ATTR_MULTI | EVIL |
+F:ATTR_MULTI | 
 F:FORCE_SLEEP | FORCE_MAXHP | RES_TELE
 F:ONLY_ITEM | DROP_60 | DROP_90 | 
 F:BASH_DOOR | CAN_FLY | DROP_CORPSE
@@ -11414,7 +11394,7 @@ B:BITE:FIRE:5d12
 B:CRUSH:HURT:6d15
 B:CRUSH:HURT:6d15
 F:FORCE_SLEEP | FORCE_MAXHP | AQUATIC | WILD_TOO | WILD_OCEAN |
-F:IM_FIRE | IM_ACID | IM_COLD | IM_POIS | EVIL |
+F:IM_FIRE | IM_ACID | IM_COLD | IM_POIS |
 F:DRAGON | NO_CONF | NO_SLEEP | NO_FEAR | DROP_CORPSE
 S:1_IN_9
 S:BR_FIRE | BR_ACID | BR_DARK |
@@ -11576,7 +11556,7 @@ B:CLAW:HURT:6d12
 B:CLAW:HURT:6d12
 B:CLAW:HURT:6d12
 B:BITE:HURT:9d14
-F:ATTR_MULTI | CAN_FLY | EVIL |
+F:ATTR_MULTI | CAN_FLY |
 F:FORCE_SLEEP | FORCE_MAXHP | AURA_FIRE | AURA_ELEC | RES_TELE
 F:IM_FIRE | IM_ACID | IM_POIS | IM_COLD | IM_ELEC | AURA_COLD |
 F:ONLY_ITEM | DROP_2D2 | DROP_3D2 | DROP_4D2 | DROP_GOOD |
@@ -11624,7 +11604,7 @@ F:IM_POIS | NO_CONF | NO_SLEEP
 S:1_IN_3 | 
 S:BLIND | HOLD | CONF | 
 S:BA_DARK | BA_NETH | 
-S:S_AMBERITES | S_HI_UNDEAD | S_KIN
+S:S_WRAITH | S_HI_UNDEAD | S_KIN
 D:This huge affront to existence twists and tears at the fabric of space.
 D:Darkness itself recoils from the touch of Tselakus as he leaves a trail
 D:of death and destruction. Mighty claws rend reality as he
@@ -12240,7 +12220,7 @@ F:ANIMAL | EVIL |
 F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_1 | 
 S:S_MONSTER | S_MONSTERS | S_UNDEAD | S_DEMON | S_DRAGON | S_ANGEL | 
-S:S_HYDRA | S_SPIDER | S_ANT | S_HOUND | S_UNIQUE | S_AMBERITES | 
+S:S_HYDRA | S_SPIDER | S_ANT | S_HOUND | S_UNIQUE | S_WRAITH | 
 S:S_HI_UNDEAD | S_HI_DRAGON | S_KIN
 D:This disgusting creature squeals and snorts as it writhes on the floor.  
 D:It pulsates with evil.  Its intent is to overwhelm you with monster after 
@@ -12331,7 +12311,7 @@ F:EVIL | DEMON | IM_ACID | IM_ELEC |
 F:IM_COLD | IM_POIS | NO_CONF | NO_SLEEP
 S:1_IN_3 | 
 S:TELE_AWAY | BLIND | HOLD | SCARE |  BRAIN_SMASH | 
-S:BR_DARK | BA_DARK | BR_NETH | HAND_DOOM | FORGET |
+S:BR_DARK | BA_DARK | BR_NETH | HAND_DOOM |
 S:S_HI_UNDEAD | S_DEMON | S_MONSTERS | S_HYDRA
 D:"...it was a gigantic eye staring down at them. Around the eye, 
 D:the sky split; deep clefts opened through which the darkness 
@@ -12519,7 +12499,7 @@ F:REGENERATE
 S:1_IN_5 | 
 S:SHRIEK | HASTE | HEAL | DRAIN_MANA | TPORT | TELE_TO | TELE_AWAY |
 S:TELE_LEVEL | FORGET | S_CYBER | S_DEMON | HAND_DOOM | S_HI_UNDEAD |
-S:S_UNIQUE | S_HI_DRAGON | BA_DARK | BA_MANA | S_AMBERITES | ANIM_DEAD
+S:S_UNIQUE | S_HI_DRAGON | BA_DARK | BA_MANA | S_WRAITH | ANIM_DEAD
 D:Loki, the god of mischief, is a nasty person. He will use every 
 D:dirty trick in the book, and then some. In the end, his half-giant 
 D:heritage is bound to show, as he will defect to the side of the 
@@ -12917,7 +12897,7 @@ B:CRUSH:HURT:30d10
 B:CRUSH:HURT:30d10
 B:BITE:HURT:5d60
 F:UNIQUE |FORCE_MAXHP | FORCE_SLEEP | AQUATIC  | WILD_TOO | WILD_OCEAN |
-F:MOVE_BODY | KILL_WALL | IM_FIRE | IM_POIS | IM_ACID | IM_COLD | EVIL |
+F:MOVE_BODY | KILL_WALL | IM_FIRE | IM_POIS | IM_ACID | IM_COLD |
 F:RES_WATE | RES_PLAS | RES_NEXU | NO_STUN | REGENERATE | DROP_CORPSE
 F:NO_CONF | NO_SLEEP 
 S:1_IN_8
@@ -12998,33 +12978,36 @@ D:somewhat bloated corpulence... It lumbered slobberingly into sight
 D:and gropingly squeezed its gelatinous green immensity through the 
 D:black doorway... A mountain shambled or walked."
 
-# Sauron is no longer a quest monster (in Zangband), just a "normal" one.
+# Oberon is no longer a quest monster (in PernAngband), just a "normal" one.
 
-N:858:Sauron, the Sorcerer
-G:p:o
-I:130:105d100:100:160:0
-W:98:1:0:50000
-B:HIT:UN_BONUS:10d12
-B:HIT:UN_BONUS:10d12
-B:TOUCH:UN_POWER
-B:TOUCH:UN_POWER
-F:UNIQUE | MALE | CAN_SPEAK | REFLECTING |
-F:FORCE_SLEEP | FORCE_MAXHP |
+N:858:Oberon, King of Amber
+G:p:v
+I:145:99d111:100:165:0
+W:99:1:0:65000
+B:HIT:UN_BONUS:12d12
+B:HIT:UN_POWER:12d12
+B:HIT:CONFUSE:10d2
+B:HIT:BLIND:3d2
+F:UNIQUE | MALE | CAN_SPEAK | DROP_CORPSE
+F:ATTR_MULTI | AMBERITE | RES_TELE
+F:FORCE_SLEEP | FORCE_MAXHP | FORCE_DEPTH | 
 F:ONLY_ITEM | DROP_2D2 | DROP_3D2 | DROP_4D2 | DROP_GOOD | DROP_GREAT |
-F:DROP_CHOSEN |
+F:DROP_CHOSEN | REFLECTING | AURA_FIRE | AURA_ELEC
 F:SMART | OPEN_DOOR | BASH_DOOR | MOVE_BODY | REGENERATE | 
-F:EVIL | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | 
-F:NO_CONF | NO_SLEEP | NO_FEAR | RES_TELE
+F:EVIL | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | POWERFUL |
+F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_2 | 
-S:TPORT | TELE_LEVEL | BLIND | CONF | SCARE | CAUSE_4 | 
-S:BRAIN_SMASH | FORGET |
-S:BO_ICEE | BO_MANA | BO_PLAS | 
-S:BA_MANA | BA_FIRE | BA_WATE | BA_NETH | BA_DARK | 
-S:S_MONSTERS | S_DEMON | S_HI_UNDEAD | S_HI_DRAGON |
-S:HAND_DOOM | ANIM_DEAD
-D:Mighty in spells and enchantments,
-D:he created the One Ring.  His eyes glow with power and his gaze seeks to 
-D:destroy your soul.  He has many servants, and rarely fights without them.
+S:TPORT | SCARE | BLIND | S_DEMON | S_ANGEL | S_MONSTERS |
+S:TELE_TO | CONF | BO_MANA | BA_FIRE | BRAIN_SMASH | BA_NETH |
+S:BO_ICEE | CAUSE_4 | BA_WATE | BO_PLAS | TELE_LEVEL | TELE_AWAY |
+S:FORGET | DARKNESS | BA_MANA | S_HI_DRAGON | S_HI_UNDEAD | BA_CHAO
+S:S_WRAITH | S_CYBER | HAND_DOOM
+D:Oberon, the father or grandfather of most Amberites, is as powerful 
+D:as ever. He is afraid that you will upset the balance and will not 
+D:let you harm the Serpent of Chaos. "Oberon, Lord of Amber, stood before 
+D:me in his green and his gold. High, wide and thick, his beard black and 
+D:shot with silver, his hair the same. Green rings in gold settings and 
+D:a blade of golden color. "
 
 N:859:The Unicorn of Order
 G:q:w
@@ -13047,89 +13030,51 @@ S:1_IN_3 |
 S:SHRIEK | BR_SOUN | BR_LITE | BR_INER | BR_TIME | BR_SHAR | 
 S:BR_PLAS | BR_MANA | BR_DISI | DRAIN_MANA | HEAL | HASTE |
 S:TELE_AWAY | BLINK | TPORT | FORGET | 
-S:S_MONSTERS | S_HI_DRAGON | S_AMBERITES | S_CYBER | S_UNIQUE
+S:S_MONSTERS | S_HI_DRAGON | S_WRAITH | S_CYBER | S_UNIQUE
 D:The Unicorn of Order, who once stole an eye from the great Serpent 
 D:of chaos, is watching the events unfold with growing distress. It 
 D:regards you as a mortal meddling in the affairs of immortals, and 
 D:attempts to eliminate you.
 
-# Oberon is the first Quest monster in Zangband: he must be killed before
-# the Serpent of Chaos
+# Sauron is the first Quest monster in PernAngband: he must be killed before
+# the Morgoth
 
-N:860:Oberon, King of Amber
-G:p:v
-I:145:99d111:100:165:0
-W:99:1:0:65000
-B:HIT:UN_BONUS:12d12
-B:HIT:UN_POWER:12d12
-B:HIT:CONFUSE:10d2
-B:HIT:BLIND:3d2
-F:UNIQUE | QUESTOR | MALE | CAN_SPEAK | DROP_CORPSE
-F:ATTR_MULTI | AMBERITE | RES_TELE
-F:FORCE_SLEEP | FORCE_MAXHP | FORCE_DEPTH | 
-F:ONLY_ITEM | DROP_2D2 | DROP_3D2 | DROP_4D2 | DROP_GOOD | DROP_GREAT |
-F:DROP_CHOSEN | REFLECTING | AURA_FIRE | AURA_ELEC
-F:SMART | OPEN_DOOR | BASH_DOOR | MOVE_BODY | REGENERATE | 
-F:EVIL | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | POWERFUL |
-F:NO_CONF | NO_SLEEP | NO_FEAR
-S:1_IN_2 | 
-S:TPORT | SCARE | BLIND | S_DEMON | S_ANGEL | S_MONSTERS |
-S:TELE_TO | CONF | BO_MANA | BA_FIRE | BRAIN_SMASH | BA_NETH |
-S:BO_ICEE | CAUSE_4 | BA_WATE | BO_PLAS | TELE_LEVEL | TELE_AWAY |
-S:FORGET | DARKNESS | BA_MANA | S_HI_DRAGON | S_HI_UNDEAD | BA_CHAO
-S:S_AMBERITES | S_CYBER | HAND_DOOM
-D:Oberon, the father or grandfather of most Amberites, is as powerful 
-D:as ever. He is afraid that you will upset the balance and will not 
-D:let you harm the Serpent of Chaos. "Oberon, Lord of Amber, stood before 
-D:me in his green and his gold. High, wide and thick, his beard black and 
-D:shot with silver, his hair the same. Green rings in gold settings and 
-D:a blade of golden color. "
-
-# Morgoth, mr normal monster!
-
-N:861:Morgoth, Lord of Darkness
-G:P:D
-I:140:200d100:100:150:0
-W:100:1:0:60000
-B:HIT:SHATTER:20d10
-B:HIT:SHATTER:20d10
-B:HIT:LOSE_ALL:10d12
+N:860:Sauron, the Sorcerer
+G:p:o
+I:130:105d100:100:160:0
+W:98:1:0:50000
+B:HIT:UN_BONUS:14d12
+B:HIT:UN_BONUS:14d12
 B:TOUCH:UN_POWER
-F:UNIQUE | MALE | 
-F:FORCE_SLEEP | FORCE_MAXHP | FORCE_DEPTH | 
-F:ONLY_ITEM | DROP_1D2 | DROP_2D2 | DROP_3D2 | DROP_4D2 | 
-F:DROP_GOOD | DROP_GREAT | 
-F:SMART | KILL_WALL | MOVE_BODY | AURA_COLD |
-F:REGENERATE | 
-F:EVIL | IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | 
-F:NO_CONF | NO_SLEEP | NO_FEAR
-S:1_IN_3 | 
-S:BRAIN_SMASH | 
-S:BA_MANA | BO_MANA | BA_NETH | ANIM_DEAD 
-S:S_MONSTERS | S_UNIQUE | S_AMBERITES | S_HI_UNDEAD | S_HI_DRAGON
-D:He is the Master of the Pits of Angband.  His figure is like a black 
-D:mountain crowned with Lightning.  He rages with everlasting anger, his 
-D:body scarred by Fingolfin's eight mighty wounds.  He can never rest from 
-D:his pain, but seeks forever to dominate all that is light and good in the 
-D:world.  He is the origin of man's fear of darkness and created many foul 
-D:creatures with his evil powers.  Orcs, Dragons, and Trolls are his most 
-D:foul corruptions, causing much pain and suffering in the world to please 
-D:him.  His disgusting visage, twisted with evil, is crowned with iron, the 
-D:two remaining Silmarils forever burning him.  Grond, the mighty Hammer of 
-D:the Underworld, cries defiance as he strides towards you to crush you to a 
-D:pulp!
+B:TOUCH:UN_POWER
+F:UNIQUE | QUESTOR | MALE | CAN_SPEAK | REFLECTING |
+F:FORCE_SLEEP | FORCE_MAXHP |
+F:ONLY_ITEM | DROP_2D2 | DROP_3D2 | DROP_4D2 | DROP_GOOD | DROP_GREAT |
+F:DROP_CHOSEN |
+F:SMART | OPEN_DOOR | BASH_DOOR | MOVE_BODY | REGENERATE | 
+F:EVIL | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | 
+F:NO_CONF | NO_SLEEP | NO_FEAR | RES_TELE
+S:1_IN_2 | 
+S:TPORT | TELE_LEVEL | BLIND | CONF | SCARE | CAUSE_4 | 
+S:BRAIN_SMASH | FORGET |
+S:BO_ICEE | BO_MANA | BO_PLAS | 
+S:BA_MANA | BA_FIRE | BA_WATE | BA_NETH | BA_DARK | 
+S:S_MONSTERS | S_DEMON | S_HI_UNDEAD | S_HI_DRAGON |
+S:HAND_DOOM | ANIM_DEAD
+D:Mighty in spells and enchantments,
+D:he created the One Ring.  His eyes glow with power and his gaze seeks to 
+D:destroy your soul.  He has many servants, and rarely fights without them.
 
-# You must kill the SoC to complete the final quest, and win the game.
 
-N:862:The Serpent of Chaos
+N:861:The Serpent of Chaos
 G:J:D
-I:155:200d150:111:175:0
+I:155:200d90:111:175:0
 W:100:1:0:66666
 B:CRUSH:SHATTER:22d10
 B:CRUSH:SHATTER:22d10
 B:BITE:LOSE_ALL:10d12
 B:TOUCH:UN_POWER
-F:UNIQUE | QUESTOR | CAN_SPEAK | ATTR_MULTI | ATTR_ANY |
+F:UNIQUE | CAN_SPEAK | ATTR_MULTI | ATTR_ANY |
 F:FORCE_SLEEP | FORCE_MAXHP | FORCE_DEPTH |
 F:REFLECTING | AURA_FIRE | AURA_ELEC | AURA_COLD |
 F:ONLY_ITEM | DROP_1D2 | DROP_2D2 | DROP_3D2 | DROP_4D2 | 
@@ -13141,12 +13086,48 @@ F:NO_CONF | NO_SLEEP | NO_FEAR | NO_STUN | RES_TELE
 S:1_IN_3 | 
 S:S_MONSTERS | BR_CHAO | BA_CHAO | ROCKET | BRAIN_SMASH | S_CYBER |
 S:BR_NETH | HASTE | BR_MANA | S_HI_UNDEAD | S_HI_DRAGON | S_UNIQUE |
-S:S_AMBERITES | BR_NUKE | BR_POIS | BR_DISI | HAND_DOOM
-D:The Big Boss himself. Before the universe the Serpent was. The Unicorn 
-D:of Order fought with Serpent and stole one of its eyes, known as the 
-D:Jewel of Judgement. With the Jewel, Dworkin drew the Pattern and thus 
-D:gave birth to the infinite worlds of shadow. Now the balance has been 
-D:disrupted, the Pattern damaged, and all the shadow is being absorbed by 
-D:the Serpent. Unless it is stopped, the word as we know it will come to 
-D:an end, all order reverting to Primal Chaos.
+S:S_WRAITH | BR_NUKE | BR_POIS | BR_DISI | HAND_DOOM
+D:The Unicorn of Order fought with Serpent and stole one of its eyes,
+D:known as the Jewel of Judgement. With the Jewel, Dworkin drew the Pattern
+D:and thus gave birth to the infinite worlds of shadow. Now the balance has
+D:been disrupted, the Pattern damaged, and all the shadow is being absorbed 
+D:by the Serpent.
+
+# Morgoth, quest monster!
+
+N:862:Morgoth, Lord of Darkness
+G:P:D
+I:140:200d100:100:150:0
+W:100:1:0:60000
+B:HIT:SHATTER:24d10
+B:HIT:SHATTER:24d10
+B:HIT:LOSE_ALL:10d12
+B:TOUCH:UN_POWER
+F:UNIQUE | QUESTOR | CAN_SPEAK | MALE | 
+F:FORCE_SLEEP | FORCE_MAXHP | FORCE_DEPTH | 
+F:ONLY_ITEM | DROP_1D2 | DROP_2D2 | DROP_3D2 | DROP_4D2 | 
+F:DROP_GOOD | DROP_GREAT | DROP_CHOSEN | RES_NETH |
+F:SMART | KILL_WALL | MOVE_BODY | AURA_COLD |
+F:REGENERATE | POWERFUL |
+F:EVIL | IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | 
+F:NO_CONF | NO_SLEEP | NO_FEAR | NO_STUN | RES_TELE
+S:1_IN_3 | 
+S:BRAIN_SMASH | 
+S:BA_MANA | BO_MANA | BA_NETH | ANIM_DEAD 
+S:S_MONSTERS | S_UNIQUE | S_WRAITH | S_HI_UNDEAD | S_HI_DRAGON
+S:BR_CHAO | BA_CHAO | ROCKET |
+S:HASTE | S_HI_UNDEAD | S_HI_DRAGON | S_UNIQUE |
+S:S_WRAITH | BR_NUKE | BR_POIS | BR_DISI | HAND_DOOM
+D:He is the most powerful of the valar, the equal of Manw‰.
+D:He is the Master of the Pits of Angband.  His figure is like a black 
+D:mountain crowned with Lightning.  He rages with everlasting anger, his 
+D:body scarred by Fingolfin's eight mighty wounds.  He can never rest from 
+D:his pain, but seeks forever to dominate all that is light and good in the 
+D:world.  He is the origin of man's fear of darkness and created many foul 
+D:creatures with his evil powers.  Orcs, Dragons, and Trolls are his most 
+D:foul corruptions, causing much pain and suffering in the world to please 
+D:him.  His disgusting visage, twisted with evil, is crowned with iron, the 
+D:two remaining Silmarils forever burning him.  Grond, the mighty Hammer of 
+D:the Underworld, cries defiance as he strides towards you to crush you to a 
+D:pulp!
 

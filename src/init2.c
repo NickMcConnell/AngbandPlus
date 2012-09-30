@@ -413,11 +413,9 @@ static errr init_f_info(void)
 		/* Success */
 		if (!err) return (0);
 
-#if 0
 		/* Information */
 		msg_print("Ignoring obsolete/defective 'f_info.raw' file.");
 		msg_print(NULL);
-#endif
 	}
 
 
@@ -674,11 +672,9 @@ static errr init_k_info(void)
 		/* Success */
 		if (!err) return (0);
 
-#if 0
 		/* Information */
 		msg_print("Ignoring obsolete/defective 'k_info.raw' file.");
 		msg_print(NULL);
-#endif
 	}
 
 
@@ -935,11 +931,9 @@ static errr init_a_info(void)
 		/* Success */
 		if (!err) return (0);
 
-#if 0
 		/* Information */
 		msg_print("Ignoring obsolete/defective 'a_info.raw' file.");
 		msg_print(NULL);
-#endif
 	}
 
 
@@ -1198,11 +1192,9 @@ static errr init_e_info(void)
 		/* Success */
 		if (!err) return (0);
 
-#if 0
 		/* Information */
 		msg_print("Ignoring obsolete/defective 'e_info.raw' file.");
 		msg_print(NULL);
-#endif
 	}
 
 
@@ -1459,11 +1451,9 @@ static errr init_r_info(void)
 		/* Success */
 		if (!err) return (0);
 
-#if 0
 		/* Information */
 		msg_print("Ignoring obsolete/defective 'r_info.raw' file.");
 		msg_print(NULL);
-#endif
 	}
 
 
@@ -1722,11 +1712,9 @@ errr init_v_info(void)
 		/* Success */
 		if (!err) return (0);
 
-#if 0
 		/* Information */
 		msg_print("Ignoring obsolete/defective 'v_info.raw' file.");
 		msg_print(NULL);
-#endif
 	}
 
 
@@ -2520,29 +2508,6 @@ static errr init_quests(void)
 	return 0;
 }
 
-/*
- * Pointer to wilderness_type
- */
-typedef wilderness_type *wilderness_type_ptr;
-
-/*
- * Initialize wilderness array
- */
-static errr init_wilderness(void)
-{
-	int i;
-
-	/* Allocate the wilderness (two-dimension array) */
-	C_MAKE(wilderness, max_wild_y, wilderness_type_ptr);
-	C_MAKE(wilderness[0], max_wild_x * max_wild_y, wilderness_type);
-
-	/* Init the other pointers */
-	for (i = 1; i < max_wild_y; i++)
-		wilderness[i] = wilderness[0] + i * max_wild_x;
-
-	return 0;
-}
-
 
 /*
  * Initialize some other arrays
@@ -2779,59 +2744,6 @@ static errr init_alloc(void)
 		}
 	}
 
-#ifdef SORT_R_INFO
-
-	{
-		tag_type *elements;
-
-		/* Allocate the "r_info" array */
-		C_MAKE(elements, max_r_idx, tag_type);
-
-		/* Scan the monsters */
-		for (i = 1; i < max_r_idx; i++)
-		{
-			elements[i].tag = r_info[i].level;
-			elements[i].pointer = (void*)i;
-		}
-
-		tag_sort(elements, max_r_idx);
-
-		/*** Initialize monster allocation info ***/
-
-		/* Size of "alloc_race_table" */
-		alloc_race_size = max_r_idx;
-
-		/* Allocate the alloc_race_table */
-		C_MAKE(alloc_race_table, alloc_race_size, alloc_entry);
-
-		/* Scan the monsters */
-		for (i = 1; i < max_r_idx; i++)
-		{
-			/* Get the i'th race */
-			r_ptr = &r_info[(int)elements[i].pointer];
-
-			/* Count valid pairs */
-			if (r_ptr->rarity)
-			{
-				int p, x;
-
-				/* Extract the base level */
-				x = r_ptr->level;
-
-				/* Extract the base probability */
-				p = (100 / r_ptr->rarity);
-
-				/* Load the entry */
-				alloc_race_table[i].index = (int)elements[i].pointer;
-				alloc_race_table[i].level = x;
-				alloc_race_table[i].prob1 = p;
-				alloc_race_table[i].prob2 = p;
-				alloc_race_table[i].prob3 = p;
-			}
-		}
-	}
-
-#else /* SORT_R_INFO */
 
 	/*** Analyze monster allocation info ***/
 
@@ -2844,8 +2756,8 @@ static errr init_alloc(void)
 	/* Size of "alloc_race_table" */
 	alloc_race_size = 0;
 
-	/* Scan the monsters */
-	for (i = 1; i < max_r_idx; i++)
+	/* Scan the monsters (not the ghost) */
+	for (i = 1; i < max_r_idx - 1; i++)
 	{
 		/* Get the i'th race */
 		r_ptr = &r_info[i];
@@ -2880,8 +2792,8 @@ static errr init_alloc(void)
 	/* Access the table entry */
 	table = alloc_race_table;
 
-	/* Scan the monsters */
-	for (i = 1; i < max_r_idx; i++)
+	/* Scan the monsters (not the ghost) */
+	for (i = 1; i < max_r_idx - 1; i++)
 	{
 		/* Get the i'th race */
 		r_ptr = &r_info[i];
@@ -2915,7 +2827,6 @@ static errr init_alloc(void)
 		}
 	}
 
-#endif /* SORT_R_INFO */
 
 	/* Success */
 	return (0);
@@ -3141,10 +3052,6 @@ void init_angband(void)
 	note("[Initializing arrays... (monsters)]");
 	if (init_r_info()) quit("Cannot initialize monsters");
 
-	/* Initialize wilderness array */
-	note("[Initializing arrays... (wilderness)]");
-	if (init_wilderness()) quit("Cannot initialize wilderness");
-
 	/* Initialize town array */
 	note("[Initializing arrays... (towns)]");
 	if (init_towns()) quit("Cannot initialize towns");
@@ -3198,3 +3105,6 @@ void init_angband(void)
 	/* Done */
 	note("[Initialization complete]");
 }
+
+
+

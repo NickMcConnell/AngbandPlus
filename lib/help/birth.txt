@@ -76,7 +76,7 @@ class.  As the experience rises, so does the level, and as the level rises,
 certain other abilities and characteristics rise as well.  Deep down inside,
 the real objective of the game is to increase your experience, and certain
 other characteristics, and also to collect useful items, to give you a decent
-chance against the great Serpent of Chaos.  Certain monsters can "drain" your
+chance against the powerful Morgoth .  Certain monsters can "drain" your
 experience, and thus your level, which will cause you to lose all of the
 effects of the higher level.  Luckily, you can restore drained experience
 through magical means, or by simply regaining the experience all over again.
@@ -197,16 +197,12 @@ have intrinsic abilities.
                their strength sustained.  At higher levels, Half-Trolls learn
                to enter a berserk fury, and regenerate wounds automatically.
 
-          Amberites
-               The Amberites are a reputedly immortal race, who are endowed
-               with numerous advantages, not only their longevity.  They are
-               very tough and endurant; their constitution cannot be reduced,
-               and their ability to heal wounds far surpasses that of any
-               other race.  Having seen virtually everything, very little
-               is new to them, and they gain levels much slower than the
-               other races.  But should they advance high enough, they will
-               learn the innate Amberite powers of Pattern Mindwalking and
-               Shadow Shifting.
+          Dunadan
+               Dunedain are a race of hardy men from the West.  This elder
+               race surpasses human abilities in every field, especially
+               constitution.  However, being men of the world, very little is
+               new to them, and levels are very hard to gain...  They can
+               play all classes.  Their constitution cannot be reduced.
 
           High-Elf
                High-elves are a race of immortal beings dating from the
@@ -254,40 +250,6 @@ have intrinsic abilities.
                 resistant to shards, and like Half-Ogres and Half-Trolls,
                 they have their strength sustained.
 
-        Half-Titan
-                Half-mortal descendants of the mighty titans, these
-                immensely powerful creatures put almost any other race
-                to shame. They may lack the fascinating special powers
-                of certain other races, but their enhanced attributes
-                more than make up for that. They learn to estimate the
-                strengths of their foes, and their love for law and
-                order makes them resistant to the effects of Chaos.
-
-        Cyclops
-                With but one eye, a cyclops can see more than many
-                with two eyes. They are headstrong, and loud noises
-                bother them very little. They are not quite qualified
-                for the magic using professions, but as a certain Mr
-                Ulysses can testify, their accuracy with thrown rocks
-                can be deadly...
-
-        Yeek
-                Yeeks are among the most pathetic creatures. Fortunately,
-                their horrible screams can scare away less confident foes,
-                and their skin becomes more and more resistant to acid,
-                as they gain experience. But having said that, even a
-                mediocre monster can proverbially wipe the floor with
-                an unwary yeek.
-
-        Klackon
-                Klackons are bizarre semi-intelligent ant-like insectoid
-                creatures. They make great servants and warriors, but
-                their mental abilities are severely limited. Obedient
-                and well-ordered, they can never be confused. They are
-                also very nimble, and become faster as they advance
-                levels. They are also very acidic, inherently resisting
-                acid, and capable of spitting acid at higher levels.
-
         Kobold
                 Kobolds are a weak goblin race. They love poisoned weapons,
                 and can learn to throw poisoned darts (of which they carry
@@ -311,76 +273,6 @@ have intrinsic abilities.
                 magic missile attack available to them at a low level. With
                 their keen sight, they also learn to see invisible things
                 as their relatives High-Elves do, but at a higher level.
-
-        Draconian
-                A humanoid race with dragon-like attributes. As they advance
-                levels, they gain new elemental resistances (up to Poison
-                Resistance), and they also have a breath weapon, which
-                becomes more powerful with experience. The exact type of
-                the breath weapon depends on the draconian's class and
-                level. With their wings, they can easily escape any pit
-                trap unharmed.
-
-        Mind Flayer
-                A secretive and mysterious ancient race. Their civilization
-                may well be older than any other on our planet, and their
-                intelligence and wisdom are naturally sustained, and are so
-                great that they enable Mind Flayers to become more powerful
-                spellcasters than any other race, even if their physical
-                attributes are a good deal less admirable. As they advance
-                levels, they gain the powers of See Invisible, Telepathy
-                and a mind blast attack.
-
-        Imp
-                A demon-creature from the nether-world, naturally resistant
-                to fire attacks, and capable of learning fire bolt and fire
-                ball attacks. They are little loved by other races, but
-                can perform fairly well in most professions.
-
-        Golem
-                A golem is an artificial creature, built from a lifeless
-                raw material like clay, and awakened to life. They are
-                nearly mindless, making them useless for professions which
-                rely on magic, but as warriors they are very tough. They
-                are resistant to poison, they can see invisible things,
-                and move freely. At higher levels, they also become resistant
-                to attacks which threaten to drain away their life force.
-                They also learn to temporarily turn their skin into a very
-                hard, stonelike substance. In the most recent version, golems
-                gain very little nutrition from ordinary food. They need to
-                collect scrolls of satisfy hunger, or perish of exhaustion
-                when the life force animating their body runs out. In the
-                most recent version golems also gain natural armor class
-                bonus from their tough body.
-
-        Skeleton
-                There are two types of skeletons: the ordinary, warrior-
-                like skeletons, and the spell-using skeletons, which are
-                also called liches. As undead beings, skeletons need to
-                worry very little about poison or attacks that can drain
-                life. They do not really use eyes for perceiving things,
-                and are thus not fooled by invisibility. Their bones are
-                resistant to sharp shrapnels (not much to cut there),
-                and they will quickly become resistant to cold. Should
-                a skeleton be unlucky enough to lose some of his or her
-                remaining life, he or she will learn to restore it at
-                will. It is very hard for skeletons to eat food or drink
-                potions. Although the magical effects of these will affect
-                the skeleton even without entering the skeleton's (non-
-                existent) belly, the potion / food itself will fall through
-                the skeleton's jaws, giving no nutritional benefit.
-
-        Zombie
-                Much like Skeletons, Zombies too are undead horrors: they
-                are resistant to life-draining attacks, and can learn to
-                restore their life-force. Like skeletons, they become
-                resistant to cold-based attacks (actually earlier than
-                skeletons), resist poison and can see invisible. While
-                still vulnerable to cuts (unlike skeletons), Zombies are
-                resistant to Nether. Like golems, they gain very little
-                nutrition from the food of mortals. However, Zombies are,
-                as the name implies, practically mindless: in this company,
-                Groo would seem a genius.
 
         Vampire
                 One of the mightier undead creatures, the Vampire is an
@@ -418,28 +310,30 @@ have intrinsic abilities.
                 weak. Like Golems and Zombies, Spectres gain almost no
                 nutrition from ordinary food.
 
-        Sprite
-                One of the several fairy races, sprites are very small.
-                They have tiny wings, and can fly over traps that may open
-                up beneath them. They enjoy sunlight intensely, and need
-                worry little about light based attacks. Although physically
-                among the weakest races, Sprites are very talented in magic,
-                and can become highly skilled wizards. Sprites have the
-                special power of spraying Sleeping Dust, and at higher
-                levels they learn to fly faster.
+	Ent
+		The Ent are a powerful race dating from the beginning of the world.
+		Some of them are older than the older high-elves ! There were made
+		to protect the trees from the man and the elves, being very strong
+		they also are slow. Also as the gardian of the trees they have the
+		innate ability of making the trees grow to protect them !
 
-        Beastman
-                This race is a blasphemous abomination produced by Chaos.
-                It is not an independent race but rather a humanoid creature,
-                most often a human, twisted by the Chaos, or a nightmarsh
-                crossbreed of a human and a beast. All Beastmen are accustomed
-                to Chaos so much that they are untroubled by confusion and
-                sound, although raw Logrus can still have effects on them.
-                Beastmen revel in chaos, as it twists them more and more.
-                Beastmen are subject to mutations: when they have been
-                created, they receive a random mutation. After that,
-                every time they advance a level they have a little chance
-                of gaining yet another mutation.
+        Rohan's Knight
+                The mighty knights come from the Rohan , with their fast horses.
+		They gain exra speed with levels and have a fast +5 from the
+		beginning of their live !
+		They are very wise and can enter in an Holy Fury or made
+		a Flash Aura to confuse the monster !
+
+        DragonRider
+		The desperation of the elves has send a Telepathic wave into
+		the space and the time. And on the far planet Pern , the 
+		DragonRider , witch are human mounting powerful but friendly
+                dragon , have received the telepathic message and they've decided
+                to come back in time and to travel through the light-years to help
+                Arda ! Their dragon can breath flame after eating the firestone
+		They are also very thelepathic , and the most important they can
+                go in a place called BETWEEN to travel through space and time !
+
 
 
 === Classes ===
@@ -550,11 +444,11 @@ have intrinsic abilities.
                between the warrior  and mage classes. While their brothers,
                the Rangers, specialize in Nature magic and survival skills,
                true Warrior-Mages attempt to reach the best of both worlds:
-               as magicians,  they are  trained  in  Arcane magic  and  can
-               select  another realm,  eventually  learning every spell  in
-               both of them  (although  slower  than  true  magicians);  as
-               warriors they are much superior to the usual Mage class. The
-               Warrior-Mage  is   a   truly  powerful  class,    which   is
+               as magicians, they are  trained in  Arcane or Sorcery  magic
+               and can  select  anothe r realm, eventually  learning  every
+               spell in both of them (although slower than true magicians);
+               as warriors they are much superior to the usual Mage class .
+               The Warrior-Mage  is a truly  powerful  class,    which   is
                recommended  for  the  players   who want to cast spells but
                whose mages tend to  die too quickly.   However,  the  power
                does not  come  without  a  price:   Warrior-Mages   require
@@ -619,6 +513,23 @@ have intrinsic abilities.
                magic  and  studies it extremely well,   gaining substantial
                benefits in mana costs, minimum levels and failure rates.
  
+	Beastmaster
+                They live in tune with the monter , witch they can summon.
+		Being master of monster they can only weild a whip or something
+                like that without a penality.
+                They also have a great charisma to control their pets.
+
+	Alchemist
+                The alchemists can use the power bateries to move or convert
+		the power of the ring , amulet , staff ... With this powers they
+		can have good objects at lower levels. And if they are good used
+                it can become a powerful class.
+
+        Mimic
+                The Mimics are a class that use the books of lore to transform
+                themselves into other beings ! When transformed they lose
+                their racial powers/resistances and gain the powers/resistance
+                of the being they are transformed in.
 
 === Stats ===
 
@@ -768,58 +679,40 @@ High-Elf      Yes     Yes     Yes     Yes     Yes     No      Yes     No
 Barbarian     Yes     No      Yes     Yes     Yes     No      No      Yes
 Half-Ogre     Yes     Yes     Yes     No      No      No      No      No
 Half-Giant    Yes     No      No      No      Yes     No      No      No
-Half-Titan    Yes     Yes     Yes     No      No      Yes     No      No
-Cyclops       Yes     No      Yes     No      No      No      No      No
-Yeek          Yes     Yes     Yes     Yes     No      No      No      No
-Klackon       Yes     No      No      No      Yes     No      No      No
 Kobold        Yes     No      No      Yes     No      No      No      No
 Nibelung      Yes     Yes     Yes     Yes     No      No      No      No
 Dark Elf      Yes     Yes     Yes     Yes     Yes     No      Yes     Yes
-Draconian     Yes     Yes     Yes     No      No      No      Yes     No
-Mind Flayer   No      Yes     Yes     No      No      No      Yes     No
-Imp           Yes     Yes     No      Yes     No      No      Yes     Yes
-Golem         Yes     No      No      No      No      No      No      No
-Skeleton      Yes     Yes     Yes     Yes     No      No      No      No
-Zombie        Yes     No      No      No      No      No      No      No
 Vampire       Yes     Yes     Yes     Yes     Yes     Yes     Yes     Yes
 Spectre       No      Yes     Yes     Yes     No      No      Yes     No
-Sprite        No      Yes     Yes     Yes     Yes     No      Yes     No
-Beastman      Yes     Yes     Yes     Yes     No      No      Yes     Yes
+Ent           Yes     No      Yes     No      No      Yes     Yes     No
+RohanKnight   Yes     No      No      No      Yes     Yes     Yes     Yes
+DragonRider   Yes     No      No      No      Yes     Yes     Yes     No
 
 
 
-                     Mind-   High
-            Monk    crafter  Mage
-Human         Yes     Yes     Yes
-Half-Elf      Yes     Yes     Yes
-Elf           Yes     Yes     Yes
-Hobbit        No      No      Yes
-Gnome         No      Yes     Yes
-Dwarf         No      No      No
-Half-Orc      Yes     No      No
-Half-Troll    No      No      No
-Dunadan       Yes     Yes     Yes
-High-Elf      Yes     Yes     Yes
-Barbarian     No      No      No
-Half-Ogre     No      No      Yes
-Half-Giant    No      No      No
-Half-Titan    Yes     Yes     Yes
-Cyclops       No      No      No
-Yeek          No      Yes     Yes
-Klackon       No      No      No
-Kobold        No      No      No
-Nibelung      No      No      Yes
-Dark Elf      Yes     Yes     Yes
-Draconian     Yes     Yes     Yes
-Mind Flayer   Yes     Yes     Yes
-Imp           Yes     Yes     Yes
-Golem         No      No      No
-Skeleton      Yes     Yes     Yes
-Zombie        No      No      No
-Vampire       Yes     Yes     Yes
-Spectre       Yes     Yes     Yes
-Sprite        No      Yes     Yes
-Beastman      Yes     Yes     Yes
+                     Mind-   High   Beast-  Alch-
+            Monk    crafter  Mage   Master  emist Mimic
+Human         Yes     Yes     Yes    Yes     Yes   No
+Half-Elf      Yes     Yes     Yes    Yes     Yes   Yes
+Elf           Yes     Yes     Yes    Yes     Yes   Yes
+Hobbit        No      No      Yes    No      Yes   Yes
+Gnome         No      Yes     Yes    No      Yes   Yes
+Dwarf         No      No      No     No      Yes   Yes
+Half-Orc      Yes     No      No     No      No    Yes
+Half-Troll    No      No      No     No      No    No
+Dunadan       Yes     Yes     Yes    Yes     Yes   No
+High-Elf      Yes     Yes     Yes    Yes     Yes   Yes
+Barbarian     No      No      No     No      No    No
+Half-Ogre     No      No      Yes    No      No    No
+Half-Giant    No      No      No     No      No    No
+Kobold        No      No      No     No      No    Yes
+Nibelung      No      No      Yes    No      Yes   Yes
+Dark Elf      Yes     Yes     Yes    Yes     Yes   Yes
+Vampire       Yes     Yes     Yes    No      Yes   Yes
+Spectre       Yes     Yes     Yes    No      No    No 
+Ent           No      No      Yes    Yes     Yes   No
+RohanKngith   No      No      Yes    No      No    No
+DragonRider   No      Yes     Yes    Yes     No    No
 
 
 
@@ -854,28 +747,19 @@ are listed in the following table.
            Dwarf       +2   -2   +2   -2   +2   -3      11         +35%
            Half-Orc    +2   -1    0    0   +1   -4      10         +10%
            Half-Troll  +4   -4   -2   -4   +3   -6      12         +37%
-           Amberite    +1   +2   +2   +2   +3   +2      10         +125%
+           Dunadan     +1   +2   +2   +2   +3   +2      10         +125%
            High-Elf    +1   +3   +2   +3   +1   +5      10         +100%
            Barbarian   +3   -2   -1   +1   +2   -2      11         +20%
            Half-Ogre   +3   -1   -1   -1   +3   -3      12         +30%
            Half-Giant  +4   -2   -2   -2   +3   -3      13         +50% (*)
-           Half-Titan  +5   +1   +1   -2   +3   +1      14         +155% (*)
-           Cyclops     +4   -3   -3   -3   +4   -6      13         +30%
-           Yeek        -2   +1   +1   +1   -2   -7       7          +0%
-           Klackon     +2   -1   -1   +1   +2   -2      12         +35% (**)
            Kobold      +1   -1    0   +1    0   -4       9         +25%
            Nibelung    +1   -1   +2    0   +2   -4      11         +35%
            Dark Elf    -1   +3   +2   +2   -2   +1       9         +50%
-           Draconian   +2   +1   +1   +1   +2   -3      11         +150%
-           Mind Flayer -3   +4   +4    0   -2   -5       9         +40%
-           Imp         -1   -1   -1   +1   +2   -3      10         +10%
-           Golem       +4   -5   -5    0   +4   -4      12         +100% (**)
-           Skeleton     0   -2   -2    0   +1   -4      10         +45% (*)
-           Zombie      +2   -6   -6   +1   +4   -5      13         +35% (*)
            Vampire     +3   +3   -1   -1   +1   +2      11         +100% (**)
            Spectre     -5   +4   +4   +2   -3   -6       7         +80% (**)
-           Sprite      -4   +3   +3   +3   -2   +2       7         +75% (**)
-           Beastman    +2   -2   -1   -1   +2   -4      11         +40% (**)
+	   Ent         +10  -3   +2   -5   +11  -3      12         +135%
+	   RohanKnight +4   -2   +3   +1   +4   +2      10         +120%
+	   DragonRider +6   +3  -10    0   +6   +8      15         +160%
 
                 (*) = Changed in 2.0.6.
                 (**) = Changed or new in 2.1.0.
@@ -893,6 +777,9 @@ are listed in the following table.
            Monk          +2      -1      +1      +3      +2      +1
            Mindcrafter   -1       0      +3      -1      -1      +2
            High Mage     -5      +4       0       0      -2      +1
+           BeastMaster   +2      -4      -2      +2      +2      +5
+           Alchemist     -2      +3      +4      +2      -2       0
+           Mimic         +2       0       0      +5      -1       1
  
  
 === Ability Tables (updated for 2.0.6) ===
@@ -908,28 +795,19 @@ are listed in the following table.
            Dwarf        +2   +9   +10  -1   +7   +10  +15  +0     50 feet
            Half-Orc     -3   -3   -3   -1   +0   +7   +12  -5     30 feet
            Half-Troll   -5   -8   -8   -2   -1   +5   +20  -10    30 feet
-           Amberite     +4   +5   +5   +2   +3   +13  +15  +10    None
+           Dunadan      +4   +5   +5   +2   +3   +13  +15  +10    None
            High-Elf     +4   +20  +20  +4   +3   +14  +10  +25    40 feet
            Barbarian    -2   -10  +2   -1   +1   +7   +12  +10    None
            Half-Ogre    -3   -5   -5   -2   -1   +5   +20  +0     30 feet
            Half-Giant   -6   -8   -6   -2   -1   +5   +25  +5     30 feet
-           Half-Titan   -5   +5   +2   -2   +1   +8   +25  +0     None
-           Cyclops      -4   -5   -5   -2   -2   +5   +20  +12    10 feet
-           Yeek         +2   +4   +10  +3   +5   +15  -5   -5     20 feet
-           Klackon      +10  +5   +5   +0   -1   +10  +5   +5     20 feet
            Kobold       -2   -3   -2   -1   +1   +8   +10  -8     30 feet
            Nibelung     +3   +5   +10  +1   +5   +10  +9   +0     50 feet
            Dark Elf     +5   +15  +20  +3   +8   +12  -5   +10    50 feet
-           Draconian    -2   +5   +3   +0   +1   +10  +5   +5     20 feet
-           Mind Flayer  +10  +25  +15  +2   +5   +12  -10  -5     40 feet
-           Imp          -3   +2   -1   +1   -1   +10  +5   -5     30 feet
-           Golem        -5   -5   +10  -1   -1   +8   +20  +0     40 feet
-           Skeleton     -5   -5   +5   -1   -1   +8   +10  +0     20 feet
-           Zombie       -5   -5   +8   -1   -1   +5   +15  +0     20 feet
            Vampire      +4   +10  +10  +4   +1   +8   +5   +0     50 feet
            Spectre      +10  +25  +20  +5   +5   +14  -15  -5     50 feet
-           Sprite       +10  +10  +10  +4   +10  +10  -12  +0     40 feet
-           Beastman     -5   -2   -1   -1   -1   +5   +12  +5     None
+           Ent          +5   +5   +20  -6   +5   +4   +15  +5     50 feet
+           RohanKnight  +10  +5   +5   -8   +1   +1   +5   +5     None
+           DragonRider  +6    0   +10  -16  +30  +10  +15  +5     None
  
 
                 Disarm  Device  Save    Stealth Search  Melee   Missile XP
@@ -944,6 +822,9 @@ Chaos Warrior   20+7    25+11   25+10   1       14/12   65+34   40+29   +35%
 Monk            45+15   32+11   28+10   5       32/24   64+40   60+30   +40%
 Mindcrafter     30+10   30+10   30+10   3       22/16   50+20   40+30   +25%
 High Mage       30+7    36+13   30+9    2       15/20   34+15   20+15   +30%
+BeastMaster     20+7    36+13   30+9    4       16/20   56+15   20+15   +10%
+Alchemist       30+7    60+30   10+9    2       26/20   14+15   20+15   +50%
+Mimic           10+11   11+13   30+9    22      26/20   44+25   40+25   +30%
 
   
 

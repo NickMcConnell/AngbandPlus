@@ -597,7 +597,7 @@
 /* #define USE_SLANG */
 
 /*
- * Use the new sorting routines for creation
- * of the monster allocation table
+ * Pet give exp to beastmaster
  */
-#define SORT_R_INFO
+#define PET_GAIN_EXP
+

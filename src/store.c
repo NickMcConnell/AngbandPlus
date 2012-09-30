@@ -132,16 +132,13 @@ static cptr comment_6[MAX_COMMENT_6] =
 static void say_comment_1(void)
 {
 	char rumour[80];
-
 	msg_print(comment_1[rand_int(MAX_COMMENT_1)]);
-
-	if ((randint(RUMOR_CHANCE) == 1) && speak_unique)
-	{
-		msg_print("The shopkeeper whispers something into your ear:");
+	if (randint(RUMOR_CHANCE) == 1 && speak_unique )
+	   { msg_print("The shopkeeper whispers something into your ear:");
 
 		get_rnd_line("rumors.txt", rumour);
 		msg_print(rumour);
-	}
+		}
 }
 
 
@@ -354,158 +351,113 @@ static owner_type *ot_ptr = NULL;
 static byte rgold_adj[MAX_RACES][MAX_RACES] =
 {
 	/*Hum, HfE, Elf,  Hal, Gno, Dwa, HfO, HfT, Dun, HiE, Barbarian,
-	 HfOg, HGn, HTn, Cyc, Yek, Klc, Kbd, Nbl, DkE, Drc, Mind Flayer,
-	 Imp,  Glm, Skl, Zombie, Vampire, Spectre */
+         HfOg, HGn, Klc, Kbd, Nbl, DkE, Drc,
+         Vampire, Spectre */
 
 	/* Human */
 	{ 100, 105, 105, 110, 113, 115, 120, 125, 100, 105, 100,
-	  124, 120, 110, 125, 115, 120, 120, 120, 120, 115, 120,
-	  115, 105, 125, 125, 125, 125, 105, 120 },
+          124, 120, 120, 120, 120, 120, 115,
+          105, 120 },
 
 	/* Half-Elf */
 	{ 110, 100, 100, 105, 110, 120, 125, 130, 110, 100, 110,
-	  120, 115, 108, 115, 110, 110, 120, 120, 115, 115, 110,
-	  120, 110, 110, 110, 120, 110, 100, 125 },
+          120, 115, 108, 115, 110, 110, 120,
+          100, 125 },
 
 	/* Elf */
 	{ 110, 105, 100, 105, 110, 120, 125, 130, 110, 100, 110,
-	  120, 120, 105, 120, 110, 105, 125, 125, 110, 115, 108,
-	  120, 115, 110, 110, 120, 110, 100, 125},
+          110, 105, 125, 125, 110, 115, 108,
+          100, 125},
 
 	/* Halfling */
 	{ 115, 110, 105,  95, 105, 110, 115, 130, 115, 105, 115,
-	  125, 120, 120, 125, 115, 110, 120, 120, 120, 115, 115,
-	  120, 110, 120, 120, 130, 110, 110, 130 },
+          115, 110, 120, 120, 120, 115, 115,
+          110, 130 },
 
 	/* Gnome */
 	{ 115, 115, 110, 105,  95, 110, 115, 130, 115, 110, 115,
-	  120, 125, 110, 120, 110, 105, 120, 110, 110, 105, 110,
-	  120, 101, 110, 110, 120, 120, 115, 130 },
+          110, 105, 120, 110, 110, 105, 110,
+          115, 130 },
 
 	/* Dwarf */
 	{ 115, 120, 120, 110, 110,	95, 125, 135, 115, 120, 115,
-	  125, 140, 130, 130, 120, 115, 115, 115, 135, 125, 120,
-	  120, 105, 115, 115, 115, 115, 120, 130 },
+          120, 115, 115, 115, 135, 125, 120,
+          120, 130 },
 
 	/* Half-Orc */
 	{ 115, 120, 125, 115, 115, 130, 110, 115, 115, 125, 115,
-	  110, 110, 120, 110, 120, 125, 115, 115, 110, 120, 110,
-	  115, 125, 120, 120, 115, 120, 125, 115 },
+          120, 125, 115, 115, 110, 120, 110,
+          125, 115 },
 
 	/* Half-Troll */
 	{ 110, 115, 115, 110, 110, 130, 110, 110, 110, 115, 110,
-	  110, 115, 120, 110, 120, 120, 110, 110, 110, 115, 110,
-	  110, 115, 112, 112, 115, 112, 120, 110 },
+          120, 120, 110, 110, 110, 115, 110,
+          120, 110 },
 
-	/* Amberite (Dunedain)	*/
+        /* Dunedain  */
 	{ 100, 105, 105, 110, 113, 115, 120, 125, 100, 105, 100,
-	  120, 120, 105, 120, 115, 105, 115, 120, 110, 105, 105,
-	  120, 105, 120, 120, 125, 120, 105, 135 },
+          115, 105, 115, 120, 110, 105, 105,
+          105, 135 },
 
 	/* High_Elf */
 	{ 110, 105, 100, 105, 110, 120, 125, 130, 110, 100, 110,
-	  125, 125, 101, 120, 115, 110, 115, 125, 110, 110, 110,
-	  125, 115, 120, 120, 125, 120, 100, 125 },
+          115, 110, 115, 125, 110, 110, 110,
+          100, 125 },
 
 	/* Human / Barbarian (copied from human) */
 	{ 100, 105, 105, 110, 113, 115, 120, 125, 100, 105, 100,
-	  124, 120, 110, 125, 115, 120, 120, 120, 120, 115, 120,
-	  115, 105, 125, 125, 130, 125, 115, 120 },
+          115, 120, 120, 120, 120, 115, 120,
+          115, 120 },
 
 	/* Half-Ogre: theoretical, copied from half-troll */
 	{ 110, 115, 115, 110, 110, 130, 110, 110, 110, 115, 110,
-	  110, 115, 120, 110, 120, 120, 110, 110, 110, 115, 110,
-	  110, 115, 112, 112, 115, 112, 120, 110 },
+          120, 120, 110, 110, 110, 115, 110,
+          120, 110 },
 
 	/* Half-Giant: theoretical, copied from half-troll */
 	{ 110, 115, 115, 110, 110, 130, 110, 110, 110, 115, 110,
-	  110, 115, 120, 110, 120, 120, 110, 110, 110, 115, 110,
-	  110, 115, 112, 112, 115, 112, 130, 120 },
-
-	/* Half-Titan: theoretical, copied from High_Elf */
-	{ 110, 105, 100, 105, 110, 120, 125, 130, 110, 100, 110,
-	  125, 125, 101, 120, 115, 110, 115, 125, 110, 110, 110,
-	  125, 115, 120, 120, 120, 120, 130, 130   },
-
-	/* Cyclops: theoretical, copied from half-troll */
-	{ 110, 115, 115, 110, 110, 130, 110, 110, 110, 115, 110,
-	  110, 115, 120, 110, 120, 120, 110, 110, 110, 115, 110,
-	  110, 115, 112, 112, 115, 112, 130, 130  },
-
-	/* Yeek: theoretical, copied from Half-Orc */
-	{ 115, 120, 125, 115, 115, 130, 110, 115, 115, 125, 115,
-	  110, 110, 120, 110, 120, 125, 115, 115, 110, 120, 110,
-	  115, 125, 120, 120, 120, 120, 130, 130  },
-
-	/* Klackon: theoretical, copied from Gnome */
-	{ 115, 115, 110, 105,  95, 110, 115, 130, 115, 110, 115,
-	  120, 125, 110, 120, 110, 105, 120, 110, 110, 105, 110,
-	  120, 101, 110, 110, 120, 120, 130, 130  },
+          120, 120, 110, 110, 110, 115, 110,
+          130, 120 },
 
 	/* Kobold: theoretical, copied from Half-Orc */
 	{ 115, 120, 125, 115, 115, 130, 110, 115, 115, 125, 115,
-	  110, 110, 120, 110, 120, 125, 115, 115, 110, 120, 110,
-	  115, 125, 120, 120, 120, 120, 130, 130  },
+          120, 125, 115, 115, 110, 120, 110,
+          130, 130  },
 
 	/* Nibelung: theoretical, copied from Dwarf */
 	{ 115, 120, 120, 110, 110,	95, 125, 135, 115, 120, 115,
-	  125, 140, 130, 130, 120, 115, 115, 115, 135, 125, 120,
-	  120, 105, 115, 115, 120, 120, 130, 130   },
+          120, 115, 115, 115, 135, 125, 120,
+          130, 130   },
 
 	/* Dark Elf */
 	{ 110, 110, 110, 115, 120, 130, 115, 115, 120, 110, 115,
-	  115, 115, 116, 115, 120, 120, 115, 115, 101, 110, 110,
-	  110, 110, 112, 122, 110, 110, 110, 115  },
-
-	/* Draconian: theoretical, copied from High_Elf */
-	{ 110, 105, 100, 105, 110, 120, 125, 130, 110, 100, 110,
-	  125, 125, 101, 120, 115, 110, 115, 125, 110, 110, 110,
-	  125, 115, 120, 120, 120, 120, 130, 130  },
-
-	/* Mind Flayer: theoretical, copied from High_Elf */
-	{ 110, 105, 100, 105, 110, 120, 125, 130, 110, 100, 110,
-	  125, 125, 101, 120, 115, 110, 115, 125, 110, 110, 110,
-	  125, 115, 120, 120, 120, 120, 130, 130   },
-
-	/* Imp: theoretical, copied from High_Elf */
-	{ 110, 105, 100, 105, 110, 120, 125, 130, 110, 100, 110,
-	  125, 125, 101, 120, 115, 110, 115, 125, 110, 110, 110,
-	  125, 115, 120, 120, 120, 120, 130, 130   },
-
-	/* Golem: theoretical, copied from High_Elf */
-	{ 110, 105, 100, 105, 110, 120, 125, 130, 110, 100, 110,
-	  125, 125, 101, 120, 115, 110, 115, 125, 110, 110, 110,
-	  125, 115, 120, 120, 120, 120, 130, 130 },
-
-	/* Skeleton: theoretical, copied from half-orc */
-	{ 115, 120, 125, 115, 115, 130, 110, 115, 115, 125, 115,
-	  110, 110, 120, 110, 120, 125, 115, 115, 110, 120, 110,
-	  115, 125, 120, 120, 120, 120, 130, 130   },
-
-	/* Zombie: Theoretical, copied from half-orc */
-	{ 115, 120, 125, 115, 115, 130, 110, 115, 115, 125, 115,
-	  110, 110, 120, 110, 120, 125, 115, 115, 110, 120, 110,
-	  115, 125, 120, 120, 120, 120, 130, 130   },
+          120, 120, 115, 115, 101, 110, 110,
+          110, 115  },
 
 	/* Vampire: Theoretical, copied from half-orc */
 	{ 115, 120, 125, 115, 115, 130, 110, 115, 115, 125, 115,
-	  110, 110, 120, 110, 120, 125, 115, 115, 110, 120, 110,
-	  115, 125, 120, 120, 120, 120, 130, 130   },
+          120, 125, 115, 115, 110, 120, 110,
+          130, 130   },
 
 	/* Spectre: Theoretical, copied from half-orc */
 	{ 115, 120, 125, 115, 115, 130, 110, 115, 115, 125, 115,
-	  110, 110, 120, 110, 120, 125, 115, 115, 110, 120, 110,
-	  115, 125, 120, 120, 120, 120, 130, 130   },
+          120, 125, 115, 115, 110, 120, 110,
+          130, 130   },
 
-	/* Sprite: Theoretical, copied from half-orc */
-	{ 115, 120, 125, 115, 115, 130, 110, 115, 115, 125, 115,
-	  110, 110, 120, 110, 120, 125, 115, 115, 110, 120, 110,
-	  115, 125, 120, 120, 120, 120, 130, 130   },
+        /* Ent: theoretical, copied from Gnome */
+	{ 115, 115, 110, 105,  95, 110, 115, 130, 115, 110, 115,
+          110, 105, 120, 110, 110, 105, 110,
+          130, 130  },
 
-	/* Beastman: Theoretical, copied from half-orc */
-	{ 115, 120, 125, 115, 115, 130, 110, 115, 115, 125, 115,
-	  110, 110, 120, 110, 120, 125, 115, 115, 110, 120, 110,
-	  115, 125, 120, 120, 120, 120, 130, 130   },
+        /* Rohan's Knight: theoretical, copied from Gnome */
+	{ 115, 115, 110, 105,  95, 110, 115, 130, 115, 110, 115,
+          110, 105, 120, 110, 110, 105, 110,
+          130, 130  },
+
+        /* DragonRider: theoretical, copied from High_Elf */
+	{ 110, 105, 100, 105, 110, 120, 125, 130, 110, 100, 110,
+          115, 110, 115, 125, 110, 110, 110,
+          130, 130  },
 
 };
 
@@ -640,6 +592,7 @@ static void mass_produce(object_type *o_ptr)
 		case TV_DEATH_BOOK:
 		case TV_TRUMP_BOOK:
 		case TV_ARCANE_BOOK:
+                case TV_MIMIC_BOOK:
 		{
 			if (cost <= 50L) size += mass_roll(2, 3);
 			if (cost <= 500L) size += mass_roll(1, 3);
@@ -978,6 +931,7 @@ static bool store_will_buy(object_type *o_ptr)
 				case TV_DEATH_BOOK:
 				case TV_TRUMP_BOOK:
 				case TV_ARCANE_BOOK:
+                                case TV_MIMIC_BOOK:
 				case TV_AMULET:
 				case TV_RING:
 				case TV_STAFF:
@@ -1004,6 +958,7 @@ static bool store_will_buy(object_type *o_ptr)
 						case TV_LIFE_BOOK:
 						case TV_TRUMP_BOOK:
 						case TV_ARCANE_BOOK:
+                                                case TV_MIMIC_BOOK:
 					break;
 				default:
 					return (FALSE);
@@ -1091,15 +1046,14 @@ static int home_carry(object_type *o_ptr)
 		if (!object_known_p(o_ptr)) continue;
 		if (!object_known_p(j_ptr)) break;
 
-		/*
-		 * Hack:  otherwise identical rods sort by
-		 * increasing recharge time --dsb
-		 */
-		if (o_ptr->tval == TV_ROD)
-		{
-			if (o_ptr->pval < j_ptr->pval) break;
-			if (o_ptr->pval > j_ptr->pval) continue;
-		}
+  
+	   /* Hack:  otherwise identical rods sort by
+		  increasing recharge time --dsb */
+	   if (o_ptr->tval == TV_ROD)
+	   {
+		   if (o_ptr->pval < j_ptr->pval) break;
+		   if (o_ptr->pval > j_ptr->pval) continue;
+	   }
 
 		/* Objects sort by decreasing value */
 		j_value = object_value(j_ptr);
@@ -1190,16 +1144,15 @@ static int store_carry(object_type *o_ptr)
 		if (o_ptr->sval < j_ptr->sval) break;
 		if (o_ptr->sval > j_ptr->sval) continue;
 
-		/*
-		 * Hack:  otherwise identical rods sort by
-		 * increasing recharge time --dsb 
-		 */
-		if (o_ptr->tval == TV_ROD)
-		{
-			if (o_ptr->pval < j_ptr->pval) break;
-			if (o_ptr->pval > j_ptr->pval) continue;
-		}
 
+	   /* Hack:  otherwise identical rods sort by
+		  increasing recharge time --dsb */
+	   if (o_ptr->tval == TV_ROD)
+	   {
+		   if (o_ptr->pval < j_ptr->pval) break;
+		   if (o_ptr->pval > j_ptr->pval) continue;
+	   }
+  
 		/* Evaluate that slot */
 		j_value = object_value(j_ptr);
 
@@ -1759,6 +1712,7 @@ static int get_stock(int *com_val, cptr pmt, int i, int j)
 	/* Get the item index */
 	if (repeat_pull(com_val))
 	{
+				
 		/* Verify the item */
 		if ((*com_val >= i) && (*com_val <= j))
 		{
@@ -2009,8 +1963,8 @@ static int get_haggle(cptr pmt, s32b *poffer, s32b price, int final)
  * Return TRUE if offer is NOT okay
  */
 static bool receive_offer(cptr pmt, s32b *poffer,
-                          s32b last_offer, int factor,
-                          s32b price, int final)
+						  s32b last_offer, int factor,
+						  s32b price, int final)
 {
 	/* Haggle till done */
 	while (TRUE)
@@ -2125,7 +2079,7 @@ static bool purchase_haggle(object_type *o_ptr, s32b *price)
 			(void)sprintf(out_val, "%s :  %ld", pmt, (long)cur_ask);
 			put_str(out_val, 1, 0);
 			cancel = receive_offer("What do you offer? ",
-			                       &offer, last_offer, 1, cur_ask, final);
+								   &offer, last_offer, 1, cur_ask, final);
 
 			if (cancel)
 			{
@@ -2926,64 +2880,71 @@ static void store_sell(void)
 }
 
 
-/*
- * Examine an item in a store			   -JDL-
- */
-static void store_examine(void)
-{
-	int         i;
-	int         item;
-	object_type *o_ptr;
-	char        o_name[80];
-	char        out_val[160];
+
+ /*
+  * Examine an item in a store			   -JDL-
+  */
+ static void store_examine(void)
+ {
+   int i;
+   int item;
+
+   object_type *o_ptr;
+
+   char o_name[80];
+
+   char out_val[160];
 
 
-	/* Empty? */
-	if (st_ptr->stock_num <= 0)
-	{
-		if (cur_store_num == 7) msg_print("Your home is empty.");
-		else msg_print("I am currently out of stock.");
-		return;
-	}
+   /* Empty? */
+   if (st_ptr->stock_num <= 0)
+   {
+	   if (cur_store_num == 7) msg_print("Your home is empty.");
+	   else msg_print("I am currently out of stock.");
+	   return;
+   }
 
 
-	/* Find the number of objects on this and following pages */
-	i = (st_ptr->stock_num - store_top);
+   /* Find the number of objects on this and following pages */
+   i = (st_ptr->stock_num - store_top);
 
-	/* And then restrict it to the current page */
-	if (i > 12) i = 12;
+   /* And then restrict it to the current page */
+   if (i > 12) i = 12;
 
-	/* Prompt */
-	sprintf(out_val, "Which item do you want to examine? ");
+   /* Prompt */
+   sprintf(out_val, "Which item do you want to examine? ");
 
-	/* Get the item number to be examined */
-	if (!get_stock(&item, out_val, 0, i-1)) return;
+   /* Get the item number to be examined */
+   if (!get_stock(&item, out_val, 0, i-1)) return;
 
-	/* Get the actual index */
-	item = item + store_top;
+   /* Get the actual index */
+   item = item + store_top;
 
-	/* Get the actual item */
-	o_ptr = &st_ptr->stock[item];
+   /* Get the actual item */
+   o_ptr = &st_ptr->stock[item];
 
-	/* Require full knowledge */
-	if (!(o_ptr->ident & (IDENT_MENTAL)))
-	{
-		/* This can only happen in the home */
-		msg_print("You have no special knowledge about that item.");
-		return;
-	}
+   /* Require full knowledge */
+   if (!(o_ptr->ident & (IDENT_MENTAL)))
+   {
+	   /* This can only happen in the home */
+		   msg_print("You have no special knowledge about that item.");
+		   return;
+   }
 
-	/* Description */
-	object_desc(o_name, o_ptr, TRUE, 3);
+   /* Description */
+   object_desc(o_name, o_ptr, TRUE, 3);
 
-	/* Describe */
-	msg_format("Examining %s...", o_name);
+   /* Describe */
+   msg_format("Examining %s...", o_name);
 
-	/* Describe it fully */
-	if (!identify_fully_aux(o_ptr)) msg_print("You see nothing special.");
+   /* Describe it fully */
+   if (!identify_fully_aux(o_ptr)) msg_print("You see nothing special.");
 
-	return;
-}
+   return;
+ }
+
+
+
 
 
 /*
@@ -3017,14 +2978,14 @@ static void store_process_command(void)
 	/* Parse the command */
 	switch (command_cmd)
 	{
-		/* Leave */
+			/* Leave */
 		case ESCAPE:
 		{
 			leave_store = TRUE;
 			break;
 		}
 
-		/* Browse */
+			/* Browse */
 		case ' ':
 		{
 			if (st_ptr->stock_num <= 12)
@@ -3040,7 +3001,7 @@ static void store_process_command(void)
 			break;
 		}
 
-		/* Redraw */
+			/* Redraw */
 		case KTRL('R'):
 		{
 			do_cmd_redraw();
@@ -3048,43 +3009,46 @@ static void store_process_command(void)
 			break;
 		}
 
-		/* Get (purchase) */
+			/* Get (purchase) */
 		case 'g':
 		{
 			store_purchase();
 			break;
 		}
 
-		/* Drop (Sell) */
+			/* Drop (Sell) */
 		case 'd':
 		{
 			store_sell();
 			break;
 		}
 
-		/* Examine */
-		case 'x':
-		{
-			store_examine();
-			break;
-		}
+		   /* Examine */
+	   case 'x':
+	   {
+		   store_examine();
+		   break;
+	   }
 
-		/* Ignore return */
+
+			/* Ignore return */
 		case '\r':
 		{
 			break;
 		}
 
-		/*** Inventory Commands ***/
 
-		/* Wear/wield equipment */
+
+			/*** Inventory Commands ***/
+
+			/* Wear/wield equipment */
 		case 'w':
 		{
 			do_cmd_wield();
 			break;
 		}
 
-		/* Take off equipment */
+			/* Take off equipment */
 		case 't':
 		{
 			do_cmd_takeoff();
@@ -3093,7 +3057,7 @@ static void store_process_command(void)
 
 #if 0
 
-		/* Drop an item */
+			/* Drop an item */
 		case 'd':
 		{
 			do_cmd_drop();
@@ -3102,21 +3066,21 @@ static void store_process_command(void)
 
 #endif
 
-		/* Destroy an item */
+			/* Destroy an item */
 		case 'k':
 		{
 			do_cmd_destroy();
 			break;
 		}
 
-		/* Equipment list */
+			/* Equipment list */
 		case 'e':
 		{
 			do_cmd_equip();
 			break;
 		}
 
-		/* Inventory list */
+			/* Inventory list */
 		case 'i':
 		{
 			do_cmd_inven();
@@ -3124,16 +3088,16 @@ static void store_process_command(void)
 		}
 
 
-		/*** Various commands ***/
+			/*** Various commands ***/
 
-		/* Identify an object */
+			/* Identify an object */
 		case 'I':
 		{
 			do_cmd_observe();
 			break;
 		}
 
-		/* Hack -- toggle windows */
+			/* Hack -- toggle windows */
 		case KTRL('I'):
 		{
 			toggle_inven_equip();
@@ -3142,23 +3106,23 @@ static void store_process_command(void)
 
 
 
-		/*** Use various objects ***/
+			/*** Use various objects ***/
 
-		/* Browse a book */
+			/* Browse a book */
 		case 'b':
 		{
 			do_cmd_browse();
 			break;
 		}
 
-		/* Inscribe an object */
+			/* Inscribe an object */
 		case '{':
 		{
 			do_cmd_inscribe();
 			break;
 		}
 
-		/* Uninscribe an object */
+			/* Uninscribe an object */
 		case '}':
 		{
 			do_cmd_uninscribe();
@@ -3167,23 +3131,23 @@ static void store_process_command(void)
 
 
 
-		/*** Help and Such ***/
+			/*** Help and Such ***/
 
-		/* Help */
+			/* Help */
 		case '?':
 		{
 			do_cmd_help();
 			break;
 		}
 
-		/* Identify symbol */
+			/* Identify symbol */
 		case '/':
 		{
 			do_cmd_query_symbol();
 			break;
 		}
 
-		/* Character description */
+			/* Character description */
 		case 'C':
 		{
 			do_cmd_change_name();
@@ -3192,88 +3156,89 @@ static void store_process_command(void)
 		}
 
 
-		/*** System Commands ***/
+			/*** System Commands ***/
 
-		/* Hack -- User interface */
+			/* Hack -- User interface */
 		case '!':
 		{
 			(void)Term_user(0);
 			break;
 		}
 
-		/* Single line from a pref file */
+			/* Single line from a pref file */
 		case '"':
 		{
 			do_cmd_pref();
 			break;
 		}
 
-		/* Interact with macros */
+			/* Interact with macros */
 		case '@':
 		{
 			do_cmd_macros();
 			break;
 		}
 
-		/* Interact with visuals */
+			/* Interact with visuals */
 		case '%':
 		{
 			do_cmd_visuals();
 			break;
 		}
 
-		/* Interact with colors */
+			/* Interact with colors */
 		case '&':
 		{
 			do_cmd_colors();
 			break;
 		}
 
-		/* Interact with options */
+			/* Interact with options */
 		case '=':
 		{
 			do_cmd_options();
 			break;
 		}
 
-		/*** Misc Commands ***/
 
-		/* Take notes */
+			/*** Misc Commands ***/
+
+			/* Take notes */
 		case ':':
 		{
 			do_cmd_note();
 			break;
 		}
 
-		/* Version info */
+			/* Version info */
 		case 'V':
 		{
 			do_cmd_version();
 			break;
 		}
 
-		/* Repeat level feeling */
+			/* Repeat level feeling */
 		case KTRL('F'):
 		{
 			do_cmd_feeling();
 			break;
 		}
 
-		/* Show previous message */
+			/* Show previous message */
 		case KTRL('O'):
 		{
 			do_cmd_message_one();
 			break;
 		}
 
-		/* Show previous messages */
+			/* Show previous messages */
 		case KTRL('P'):
 		{
 			do_cmd_messages();
 			break;
 		}
 
-		/* Check artifacts, uniques etc. */
+			/* Check artifacts, uniques etc. */
 		case '~':
 		case '|':
 		{
@@ -3281,21 +3246,22 @@ static void store_process_command(void)
 			break;
 		}
 
-		/* Load "screen dump" */
+			/* Load "screen dump" */
 		case '(':
 		{
 			do_cmd_load_screen();
 			break;
 		}
 
-		/* Save "screen dump" */
+			/* Save "screen dump" */
 		case ')':
 		{
 			do_cmd_save_screen();
 			break;
 		}
 
-		/* Hack -- Unknown command */
+
+			/* Hack -- Unknown command */
 		default:
 		{
 			msg_print("That command does not work in stores.");
@@ -3436,8 +3402,8 @@ void do_cmd_store(void)
 		   prt(" s) Sell an item.", 23, 31);
 		}
   
-		/* Add in the eXamine option */
-		prt(" x) eXamine an item.", 22, 56);
+	   /* Add in the eXamine option */
+	   prt(" x) eXamine an item.", 22, 56);
 
 		/* Prompt */
 		prt("You may: ", 21, 0);
@@ -3768,3 +3734,255 @@ void move_to_black_market(object_type * o_ptr)
 	(void)store_carry(o_ptr);
 	object_wipe(o_ptr); /* Don't leave a bogus object behind... */
 }
+/*
+ * Enter the home, and interact with it from the dungeon (trump magic).
+ *
+ * Note that we use the standard "request_command()" function
+ * to get a command, allowing us to use "command_arg" and all
+ * command macros and other nifty stuff, but we use the special
+ * "shopping" argument, to force certain commands to be converted
+ * into other commands, normally, we convert "p" (pray) and "m"
+ * (cast magic) into "g" (get), and "s" (search) into "d" (drop).
+ */
+void do_cmd_home_trump(void)
+{
+	int 		which;
+	int			maintain_num;
+	int 		tmp_chr;
+	int			i;
+
+	/* Extract the store code */
+        which = 7;
+
+	/* Hack -- Check the "locked doors" */
+	if (town[p_ptr->town_num].store[which].store_open >= turn)
+	{
+		msg_print("The doors are locked.");
+		return;
+	}
+
+	/* Calculate the number of store maintainances since the last visit */
+	maintain_num = (turn - town[p_ptr->town_num].store[which].last_visit) / (10L * STORE_TURNS);
+
+	/* Maintain the store max. 10 times */
+	if (maintain_num > 10) maintain_num = 10;
+
+	if (maintain_num)
+	{
+		/* Maintain the store */
+		for (i = 0; i < maintain_num; i++)
+			store_maint(p_ptr->town_num, which);
+
+		/* Save the visit */
+		town[p_ptr->town_num].store[which].last_visit = turn;
+	}
+
+	/* Forget the lite */
+	forget_lite();
+
+	/* Forget the view */
+	forget_view();
+	
+
+	/* Hack -- Character is in "icky" mode */
+	character_icky = TRUE;
+
+
+	/* No command argument */
+	command_arg = 0;
+
+	/* No repeated command */
+	command_rep = 0;
+
+	/* No automatic command */
+	command_new = 0;
+
+
+	/* Save the store number */
+	cur_store_num = which;
+
+	/* Save the store and owner pointers */
+	st_ptr = &town[p_ptr->town_num].store[cur_store_num];
+	ot_ptr = &owners[cur_store_num][st_ptr->owner];
+
+
+	/* Start at the beginning */
+	store_top = 0;
+
+	/* Display the store */
+	display_store();
+
+	/* Do not leave */
+	leave_store = FALSE;
+
+	/* Interact with player */
+	while (!leave_store)
+	{
+		/* Hack -- Clear line 1 */
+		prt("", 1, 0);
+
+		/* Hack -- Check the charisma */
+		tmp_chr = p_ptr->stat_use[A_CHR];
+
+		/* Clear */
+		clear_from(21);
+		
+
+		/* Basic commands */
+		prt(" ESC) Exit from Building.", 22, 0);
+
+		/* Browse if necessary */
+		if (st_ptr->stock_num > 12)
+		{
+			prt(" SPACE) Next page of stock", 23, 0);
+		}
+
+		/* Home commands */
+		if (cur_store_num == 7)
+		{
+		   prt(" g) Get an item.", 22, 31);
+		   prt(" d) Drop an item.", 23, 31);
+		}
+  
+		/* Shop commands XXX XXX XXX */
+		else
+		{
+		   prt(" p) Purchase an item.", 22, 31);
+		   prt(" s) Sell an item.", 23, 31);
+		}
+  
+	   /* Add in the eXamine option */
+	   prt(" x) eXamine an item.", 22, 56);
+
+		/* Prompt */
+		prt("You may: ", 21, 0);
+
+		/* Get a command */
+		request_command(TRUE);
+
+		/* Process the command */
+		store_process_command();
+
+		/* Hack -- Character is still in "icky" mode */
+		character_icky = TRUE;
+
+		/* Notice stuff */
+		notice_stuff();
+
+		/* Handle stuff */
+		handle_stuff();
+
+		/* XXX XXX XXX Pack Overflow */
+		if (inventory[INVEN_PACK].k_idx)
+		{
+			int item = INVEN_PACK;			
+
+			object_type *o_ptr = &inventory[item];
+
+			/* Hack -- Flee from the store */
+			if (cur_store_num != 7)
+			{
+				/* Message */
+				msg_print("Your pack is so full that you flee the store...");
+
+				/* Leave */
+				leave_store = TRUE;
+			}
+
+			/* Hack -- Flee from the home */
+			else if (!store_check_num(o_ptr))
+			{
+				/* Message */
+				msg_print("Your pack is so full that you flee your home...");
+
+				/* Leave */
+				leave_store = TRUE;
+			}
+
+			/* Hack -- Drop items into the home */
+			else
+			{
+				int item_pos;
+
+				object_type forge;
+				object_type *q_ptr;
+
+				char o_name[80];
+
+
+				/* Give a message */
+				msg_print("Your pack overflows!");
+
+				/* Get local object */
+				q_ptr = &forge;
+	
+				/* Grab a copy of the item */
+				object_copy(q_ptr, o_ptr);
+
+				/* Describe it */
+				object_desc(o_name, q_ptr, TRUE, 3);
+
+				/* Message */
+				msg_format("You drop %s (%c).", o_name, index_to_label(item));
+
+				/* Remove it from the players inventory */
+				inven_item_increase(item, -255);
+				inven_item_describe(item);
+				inven_item_optimize(item);
+
+				/* Handle stuff */
+				handle_stuff();
+
+				/* Let the home carry it */
+				item_pos = home_carry(q_ptr);
+
+				/* Redraw the home */
+				if (item_pos >= 0)
+				{
+					store_top = (item_pos / 12) * 12;
+					display_inventory();
+				}
+			}
+		}
+
+		/* Hack -- Redisplay store prices if charisma changes */
+		if (tmp_chr != p_ptr->stat_use[A_CHR]) display_inventory();
+
+		/* Hack -- get kicked out of the store */
+		if (st_ptr->store_open >= turn) leave_store = TRUE;
+	}
+
+
+	/* Hack -- Character is no longer in "icky" mode */
+	character_icky = FALSE;
+
+
+	/* Hack -- Cancel automatic command */
+	command_new = 0;
+
+	/* Hack -- Cancel "see" mode */
+	command_see = FALSE;
+	
+
+	/* Flush messages XXX XXX XXX */
+	msg_print(NULL);
+
+
+	/* Clear the screen */
+	Term_clear();
+
+
+	/* Update everything */
+	p_ptr->update |= (PU_VIEW | PU_LITE);
+	p_ptr->update |= (PU_MONSTERS);
+
+	/* Redraw entire screen */
+	p_ptr->redraw |= (PR_BASIC | PR_EXTRA | PR_EQUIPPY);
+
+	/* Redraw map */
+	p_ptr->redraw |= (PR_MAP);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_OVERHEAD);
+}
+

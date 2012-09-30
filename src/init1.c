@@ -207,7 +207,7 @@ static cptr r_info_flags3[] =
 	"ANIMAL",
 	"AMBERITE",
 	"GOOD",
-	"AURA_COLD",
+	"AURA_COLD", /* TODO: Implement aura_cold */
 	"NONLIVING",
 	"HURT_LITE",
 	"HURT_ROCK",
@@ -344,7 +344,7 @@ static cptr r_info_flags6[] =
 	"S_DRAGON",
 	"S_HI_UNDEAD",
 	"S_HI_DRAGON",
-	"S_AMBERITES",
+	"S_WRAITH",
 	"S_UNIQUE"
 };
 
@@ -479,8 +479,8 @@ static cptr k_info_flags1[] =
 	"DEX",
 	"CON",
 	"CHR",
-	"XXX1",
-	"XXX2",
+        "MANA",
+        "SPELL",
 	"STEALTH",
 	"SEARCH",
 	"INFRA",
@@ -518,7 +518,7 @@ static cptr k_info_flags2[] =
 	"SUST_DEX",
 	"SUST_CON",
 	"SUST_CHR",
-	"XXX1",
+        "INVIS",
 	"XXX2",
 	"IM_ACID",
 	"IM_ELEC",
@@ -773,6 +773,40 @@ errr init_v_info_txt(FILE *fp, char *buf, bool start)
 			v_ptr->rat = rat;
 			v_ptr->hgt = hgt;
 			v_ptr->wid = wid;
+
+			/* Next... */
+			continue;
+		}
+
+		/* There better be a current v_ptr */
+		if (!v_ptr) return (3);
+
+		/* Process monster, item and level info for special levels */
+		if (buf[0] == 'Y')
+		{
+
+			int mon1,mon2,mon3,mon4,mon5,mon6,mon7,mon8,mon9;
+			int mon10,item1,item2,item3,lvl;
+
+			/* Scan for the values */
+			if (14 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d",
+			  &mon1,&mon2,&mon3,&mon4,&mon5,&mon6,&mon7,&mon8,&mon9,&mon10,&item1,&item2,&item3,&lvl)) return (1);
+
+			/* Save the values */
+			v_ptr->mon1 = mon1;
+			v_ptr->mon2 = mon2;
+			v_ptr->mon3 = mon3;
+			v_ptr->mon4 = mon4;
+			v_ptr->mon5 = mon5;
+			v_ptr->mon6 = mon6;
+			v_ptr->mon7 = mon7;
+			v_ptr->mon8 = mon8;
+			v_ptr->mon9 = mon9;
+			v_ptr->mon10 = mon10;
+			v_ptr->item1 = item1;
+			v_ptr->item2 = item2;
+			v_ptr->item3 = item3;
+			v_ptr->lvl = lvl;
 
 			/* Next... */
 			continue;
@@ -2407,6 +2441,39 @@ errr init_r_info_txt(FILE *fp, char *buf)
 	++r_head->text_size;
 
 
+	/* XXX XXX XXX The ghost is unused */
+
+	/* Mega-Hack -- acquire "ghost" */
+	r_ptr = &r_info[max_r_idx-1];
+
+	/* Acquire the next index */
+	r_ptr->name = r_head->name_size;
+	r_ptr->text = r_head->text_size;
+
+	/* Save some space for the ghost info */
+	r_head->name_size += 64;
+	r_head->text_size += 64;
+
+	/* Hack -- Default name/text for the ghost */
+	strcpy(r_name + r_ptr->name, "Nobody, the Undefined Ghost");
+	strcpy(r_text + r_ptr->text, "It seems strangely familiar...");
+
+	/* Hack -- set the char/attr info */
+	r_ptr->d_attr = r_ptr->x_attr = TERM_WHITE;
+	r_ptr->d_char = r_ptr->x_char = 'G';
+
+	/* Hack -- Try to prevent a few "potential" bugs */
+	r_ptr->flags1 |= (RF1_UNIQUE);
+
+	/* Hack -- Try to prevent a few "potential" bugs */
+	r_ptr->flags1 |= (RF1_NEVER_MOVE | RF1_NEVER_BLOW);
+
+	/* Hack -- Try to prevent a few "potential" bugs */
+	r_ptr->hdice = r_ptr->hside = 1;
+
+	/* Hack -- Try to prevent a few "potential" bugs */
+	r_ptr->mexp = 1L;
+
 	for (i = 1; i < max_r_idx; i++)
 	{
 		/* Invert flag WILD_ONLY <-> RF8_DUNGEON */
@@ -2674,9 +2741,6 @@ static errr process_dungeon_file_aux(char *buf, int *yval, int *xval, int ymax, 
 			/* Lay down a floor */
 			c_ptr->feat = letter[idx].feature;
 
-			/* Only the features */
-			if (init_flags & INIT_ONLY_FEATURES) continue;
-
 			/* Cave info */
 			c_ptr->info = letter[idx].cave_info;
 
@@ -2697,7 +2761,7 @@ static errr process_dungeon_file_aux(char *buf, int *yval, int *xval, int ymax, 
 				r_info[monster_index].max_num++;
 
 				/* Place it */
-				place_monster_aux(y, x, monster_index, TRUE, FALSE, FALSE, FALSE);
+				place_monster_aux(y, x, monster_index, TRUE, FALSE, FALSE);
 			}
 
 			/* Object (and possible trap) */
@@ -2766,7 +2830,7 @@ static errr process_dungeon_file_aux(char *buf, int *yval, int *xval, int ymax, 
 				object_prep(o_ptr, object_index);
 
 				/* Apply magic (no messages, no artifacts) */
-				apply_magic(o_ptr, dun_level, FALSE, TRUE, FALSE);
+				apply_magic(o_ptr, dun_level, FALSE, FALSE, FALSE);
 
 				drop_near(o_ptr, -1, y, x);
 			}
@@ -3162,17 +3226,6 @@ static errr process_dungeon_file_aux(char *buf, int *yval, int *xval, int ymax, 
 				max_m_idx = atoi(zz[1]); 
 			}
 
-			/* Wilderness size */
-			else if (zz[0][0] == 'W')
-			{
-				/* Maximum wild_x_size */
-				if (zz[0][1] == 'X')
-					max_wild_x = atoi(zz[1]); 
-				/* Maximum wild_y_size */
-				if (zz[0][1] == 'Y')
-					max_wild_y = atoi(zz[1]); 
-			}
-
 			return (0);
 		}
 	}
@@ -3403,13 +3456,6 @@ static cptr process_dungeon_file_expr(char **sp, char *fp)
 			else if (streq(b+1, "VARIANT"))
 			{
 				v = "ZANGBAND";
-			}
-
-			/* Wilderness */
-			else if (streq(b+1, "WILDERNESS"))
-			{
-				sprintf(tmp, "%d", p_ptr->wilderness);
-				v = tmp;
 			}
 		}
 

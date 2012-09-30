@@ -963,7 +963,7 @@ static bool hates_acid(object_type *o_ptr)
 		/* Junk is useless */
 		case TV_SKELETON:
 		case TV_BOTTLE:
-		case TV_JUNK:
+                case TV_FIRESTONE:
 		{
 			return (TRUE);
 		}
@@ -1731,6 +1731,8 @@ void mutate_player(void)
  */
 static void apply_nexus(monster_type *m_ptr)
 {
+	if (!special_flag)
+	{
 	switch (randint(7))
 	{
 		case 1: case 2: case 3:
@@ -1771,6 +1773,7 @@ static void apply_nexus(monster_type *m_ptr)
 			break;
 		}
 	}
+        }
 }
 
 
@@ -2799,6 +2802,8 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 
 	cptr name = (r_name + r_ptr->name);
 
+	s32b            div, new_exp, new_exp_frac;
+
 	/* Is the monster "seen"? */
 	bool seen = m_ptr->ml;
 
@@ -2874,7 +2879,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		note_dies = " is destroyed.";
 	}
 
-	if (!who && !is_hostile(m_ptr))
+	if (!who && is_pet(m_ptr))
 	{
 		bool get_angry = FALSE;
 		/* Grrr? */
@@ -2949,7 +2954,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		if (get_angry == TRUE && !(who))
 		{
 			msg_format("%^s gets angry!", m_name);
-			set_hostile(m_ptr);
+			set_pet(m_ptr, FALSE);
 		}
 	}
 
@@ -3572,7 +3577,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 
 		case GF_DOMINATION:
 		{
-			if (!is_hostile(m_ptr)) break;
+			if (is_pet(m_ptr)) break;
 			if (seen) obvious = TRUE;
 
 			/* Attempt a saving throw */
@@ -3639,7 +3644,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 				if ((dam > 29) && (randint(100) < dam))
 				{
 					note = " is in your thrall!";
-					set_pet(m_ptr);
+					set_pet(m_ptr, TRUE);
 				}
 				else
 				{
@@ -3768,14 +3773,11 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		/* Clone monsters (Ignore "dam") */
 		case GF_OLD_CLONE:
 		{
-			bool friendly = FALSE;
-			bool pet = FALSE;
+			bool is_friend = FALSE;
 
 			if (seen) obvious = TRUE;
-			if (is_friendly(m_ptr) && (randint(3) != 1))
-				friendly = TRUE;
-			if (is_pet(m_ptr) && (randint(3) != 1))
-				pet = TRUE;
+			if (is_pet(m_ptr) && (randint(3)!=1))
+				is_friend = TRUE;
 
 			/* Heal fully */
 			m_ptr->hp = m_ptr->maxhp;
@@ -3784,7 +3786,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			if (m_ptr->mspeed < 150) m_ptr->mspeed += 10;
 
 			/* Attempt to clone. */
-			if (multiply_monster(c_ptr->m_idx, TRUE, friendly, pet))
+			if (multiply_monster(c_ptr->m_idx, is_friend, TRUE))
 			{
 				note = " spawns!";
 			}
@@ -3951,7 +3953,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			else
 			{
 				note = " suddenly seems friendly!";
-				set_pet(m_ptr);
+				set_pet(m_ptr, TRUE);
 			}
 
 			/* No "real" damage */
@@ -3991,7 +3993,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			else
 			{
 				note = " is in your thrall!";
-				set_pet(m_ptr);
+				set_pet(m_ptr, TRUE);
 			}
 
 			/* No "real" damage */
@@ -4029,7 +4031,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			else
 			{
 				note = " is tamed!";
-				set_pet(m_ptr);
+				set_pet(m_ptr, TRUE);
 			}
 
 			/* No "real" damage */
@@ -4193,6 +4195,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		case GF_AWAY_UNDEAD:
 		{
 
+                        if (special_flag) break;/* No teleport on special levels */
 			/* Only affect undead */
 			if (r_ptr->flags3 & (RF3_UNDEAD))
 			{
@@ -4238,6 +4241,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		/* Teleport evil (Use "dam" as "power") */
 		case GF_AWAY_EVIL:
 		{
+                        if (special_flag) break;/* No teleport on special levels */
 			/* Only affect evil */
 			if (r_ptr->flags3 & (RF3_EVIL))
 			{
@@ -4285,6 +4289,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		{
 			bool resists_tele = FALSE;
 
+                        if (special_flag) break;/* No teleport on special levels */
 			if (r_ptr->flags3 & (RF3_RES_TELE))
 			{
 				if (r_ptr->flags1 & (RF1_UNIQUE))
@@ -4633,16 +4638,14 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 	/* Mega-Hack -- Handle "polymorph" -- monsters get a saving throw */
 	else if (do_poly && (randint(90) > r_ptr->level))
 	{
-		bool friendly = FALSE;
-		bool pet = FALSE;
+		bool charm = FALSE;
 		int new_r_idx;
 		int old_r_idx = m_ptr->r_idx;
 
 		/* Default -- assume no polymorph */
 		note = " is unaffected!";
 
-		friendly = is_friendly(m_ptr);
-		pet = is_pet(m_ptr);
+		charm = is_pet(m_ptr) ? TRUE : FALSE;
 
 		/* Pick a "new" monster race */
 		new_r_idx = poly_r_idx(old_r_idx);
@@ -4663,10 +4666,10 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			delete_monster_idx(c_ptr->m_idx);
 
 			/* Create a new monster (no groups) */
-			if (!place_monster_aux(y, x, new_r_idx, FALSE, FALSE, friendly, pet))
+			if (!place_monster_aux(y, x, new_r_idx, FALSE, FALSE, charm))
 			{
 				/* Placing the new monster failed */
-				place_monster_aux(y, x, old_r_idx, FALSE, FALSE, friendly, pet);
+				place_monster_aux(y, x, old_r_idx, FALSE, FALSE, charm);
 				obvious = FALSE;
 				note = " is unaffected!";
 			}
@@ -4783,6 +4786,34 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 
 			if (is_pet(m_ptr) && !(m_ptr->ml))
 				sad = TRUE;
+
+#ifdef PET_GAIN_EXP
+                if(p_ptr->pclass==CLASS_BEASTMASTER){
+		/* Maximum player level */
+		div = p_ptr->max_plv;
+
+		/* Give some experience for the kill */
+		new_exp = ((long)r_ptr->mexp * r_ptr->level) / div;
+
+		/* Handle fractional experience */
+		new_exp_frac = ((((long)r_ptr->mexp * r_ptr->level) % div)
+		                * 0x10000L / div) + p_ptr->exp_frac;
+
+		/* Keep track of experience */
+		if (new_exp_frac >= 0x10000L)
+		{
+			new_exp++;
+			p_ptr->exp_frac = new_exp_frac - 0x10000;
+		}
+		else
+		{
+			p_ptr->exp_frac = new_exp_frac;
+		}
+
+		/* Gain experience */
+                gain_exp(new_exp);
+                }
+#endif
 
 			/* Generate treasure, etc */
 			monster_death(c_ptr->m_idx);
@@ -5393,7 +5424,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 			{
 				(void)set_blind(p_ptr->blind + randint(5) + 2);
 			}
-			if (p_ptr->prace == RACE_VAMPIRE)
+                        if ((p_ptr->prace == RACE_VAMPIRE)||(p_ptr->mimic_form == MIMIC_VAMPIRE))
 			{
 				msg_print("The light scorches your flesh!");
 				dam *= 2;
@@ -5422,7 +5453,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 			{
 				dam *= 4; dam /= (randint(6) + 6);
 
-				if (p_ptr->prace == RACE_VAMPIRE) dam = 0;
+                                if ((p_ptr->prace == RACE_VAMPIRE)||(p_ptr->mimic_form == MIMIC_VAMPIRE)) dam = 0;
 			}
 			else if (!blind && !p_ptr->resist_blind)
 			{
@@ -5496,6 +5527,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 		/* Gravity -- stun plus slowness plus teleport */
 		case GF_GRAVITY:
 		{
+                        if (special_flag) break;/* No teleport on special levels */
 			if (fuzzy) msg_print("You are hit by something heavy!");
 			msg_print("Gravity warps around you.");
 			teleport_player(5);
@@ -6287,7 +6319,7 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
   *    o_ptr --- pointer to the potion object.
   */
 bool potion_smash_effect(int who, int y, int x, int o_sval)
-{
+ {
 	int     radius = 2;
 	int     dt = 0;
 	int     dam = 0;

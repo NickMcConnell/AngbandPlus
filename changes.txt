@@ -1,0 +1,47 @@
+24/10/98 - PernAngband 2.9.9a
+- Added the DragonRider from the Anne McCaffrey's Books , masters of
+  teleportation.
+- The CTRL+l key leave the game without saving
+- Added the Tanker point, like the mana point , but can only be refilled
+  by eating the Firestone(for the DragonRider)
+- Added the Rohan's Knight race , fast and wise
+- Added the Ent race , can grow trees , though but slow
+- Removed some race from Zangband
+- Added the BeastMaster class which can summon some pet
+- Added the Blood of Life
+- DragonRider now can choose to breathe bolt beam or ball
+- Added the Unique level patch from Glenn Vanzanden
+- Added the Mage Staff , with new ego item:
+        -of Mana : multiply your max mana
+        -of Spell : Increase your spell power
+        -of Mana & Spell : try to find !:)
+        -of Power : Activale for some spell, they cary 2 spell
+  All the ego mage staffs have a penality to damage and to hit
+- Added The Mage Staff of Gandalf , extremly powerful but even more rare than
+  the One Ring !
+- Added the boots of jumping activable for phase door every 10+d10 turns
+- Added Helm of the Dwarves and of the Noldor
+- Beastmaster's pet now give experience to the player
+- Added the Alchemist class which use the power bateries to convert magic item
+- New unique level : Treasure room at level 11
+- Replaced the Trump Hound form the Trump realm by the Trump Home spell , which
+  allows the player to access to her/his home from everywhere in the dungeon
+- Added the new artifact The Ring of F'lar , which is belonging to F'lar the
+  powerful DragonRider
+
+26/10/98
+- Added the Potion of Mutation
+- Warrior-Mage now can choose Sorcery instead of Arcane
+- Invisibility , Potion of Invisibility , Ring of Invisibility and
+  The One Ring has now invisibility like in the Lord Of The Rings !!!
+- Added the parchement from Kamband
+
+30/10/98
+- Ported PernAngband to the new Zangband 2.2.0
+- Added the mimic class
+- Some Zangband bugs are fixed
+- The DragonRider can now only teleport on known terrain , because they must
+  mentaly show the destination to their dragons but to do this they MUST
+  have seen the destination before(like in the Anne McCaffrey books) !
+- The Ringwraith are come back !
+- Some Unique like Bert,Tom,Bill are come back, while other(gandalf , fangorn) leave!

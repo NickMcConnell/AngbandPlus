@@ -113,7 +113,7 @@ static grouper group_item[] =
 	{ TV_SPIKE,         "Various" },
 	{ TV_LITE,          NULL },
 	{ TV_FLASK,         NULL },
-	{ TV_JUNK,          NULL },
+        { TV_FIRESTONE,     NULL },
 	{ TV_BOTTLE,        NULL },
 	{ TV_SKELETON,      NULL },
 
@@ -969,7 +969,7 @@ static void object_analyze(object_type *o_ptr, obj_desc_list *desc_ptr)
 
 	analyze_misc(o_ptr, desc_ptr->misc_desc);
 
-	desc_ptr->activation = item_activation(o_ptr);
+        desc_ptr->activation = item_activation(o_ptr,0);
 }
 
 
@@ -1347,8 +1347,8 @@ static void spoil_mon_desc(cptr fname)
 		"----", "---", "---", "---", "--", "--", "-----------");
 
 
-	/* Scan the monsters */
-	for (i = 1; i < max_r_idx; i++)
+	/* Scan the monsters (except the ghost) */
+	for (i = 1; i < max_r_idx - 1; i++)
 	{
 		monster_race *r_ptr = &r_info[i];
 
@@ -1565,9 +1565,9 @@ static void spoil_mon_info(cptr fname)
 	spoil_out("------------------------------------------\n\n");
 
 	/*
-	 * List all monsters in order
+	 * List all monsters in order (except the ghost).
 	 */
-	for (n = 1; n < max_r_idx; n++)
+	for (n = 1; n < max_r_idx - 1; n++)
 	{
 		monster_race *r_ptr = &r_info[n];
 
@@ -1721,19 +1721,13 @@ static void spoil_mon_info(cptr fname)
 
 		if (flags2 & (RF2_AURA_FIRE))
 		{
-			sprintf(buf, "%s is surrounded by flames.  ", wd_che[msex]);
-			spoil_out(buf);
-		}
-
-		if (flags3 & (RF3_AURA_COLD))
-		{
-			sprintf(buf, "%s is surrounded by ice.  ", wd_che[msex]);
+			sprintf(buf, "%s is surrounded in flames.  ", wd_che[msex]);
 			spoil_out(buf);
 		}
 
 		if (flags2 & (RF2_AURA_ELEC))
 		{
-			sprintf(buf, "%s is surrounded by electricity.  ", wd_che[msex]);
+			sprintf(buf, "%s is surrounded in electricity.  ", wd_che[msex]);
 			spoil_out(buf);
 		}
 
@@ -1885,7 +1879,7 @@ static void spoil_mon_info(cptr fname)
 		if (flags6 & (RF6_S_HI_UNDEAD))       vp[vn++] = "summon greater undead";
 		if (flags6 & (RF6_S_HI_DRAGON))       vp[vn++] = "summon ancient dragons";
 		if (flags6 & (RF6_S_CYBER))           vp[vn++] = "summon Cyberdemons";
-		if (flags6 & (RF6_S_AMBERITES))       vp[vn++] = "summon Lords of Amber";
+                if (flags6 & (RF6_S_WRAITH))          vp[vn++] = "summon Ringwraith";
 		if (flags6 & (RF6_S_UNIQUE))          vp[vn++] = "summon unique monsters";
 
 		if (vn)

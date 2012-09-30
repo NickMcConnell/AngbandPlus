@@ -11,11 +11,11 @@
 #ifndef HAS_MEMSET
 
 /*
- * For those systems that don't have "memset()"
- *
- * Set the value of each of 'n' bytes starting at 's' to 'c', return 's'
- * If 'n' is negative, you will erase a whole lot of memory.
- */
+* For those systems that don't have "memset()"
+*
+* Set the value of each of 'n' bytes starting at 's' to 'c', return 's'
+* If 'n' is negative, you will erase a whole lot of memory.
+*/
 char *memset(char *s, int c, huge n)
 {
 	char *t;
@@ -30,10 +30,10 @@ char *memset(char *s, int c, huge n)
 #ifndef HAS_STRICMP
 
 /*
- * For those systems that don't have "stricmp()"
- *
- * Compare the two strings "a" and "b" ala "strcmp()" ignoring case.
- */
+* For those systems that don't have "stricmp()"
+*
+* Compare the two strings "a" and "b" ala "strcmp()" ignoring case.
+*/
 int stricmp(cptr a, cptr b)
 {
 	cptr s1, s2;
@@ -58,10 +58,10 @@ int stricmp(cptr a, cptr b)
 # ifndef HAS_USLEEP
 
 /*
- * For those systems that don't have "usleep()" but need it.
- *
- * Fake "usleep()" function grabbed from the inl netrek server -cba
- */
+* For those systems that don't have "usleep()" but need it.
+*
+* Fake "usleep()" function grabbed from the inl netrek server -cba
+*/
 int usleep(huge usecs)
 {
 	struct timeval      Timer;
@@ -109,8 +109,8 @@ extern struct passwd *getpwnam();
 
 
 /*
- * Find a default user name from the system.
- */
+* Find a default user name from the system.
+*/
 void user_name(char *buf, int id)
 {
 #ifdef SET_UID
@@ -141,41 +141,41 @@ void user_name(char *buf, int id)
 
 
 /*
- * The concept of the "file" routines below (and elsewhere) is that all
- * file handling should be done using as few routines as possible, since
- * every machine is slightly different, but these routines always have the
- * same semantics.
- *
- * In fact, perhaps we should use the "path_parse()" routine below to convert
- * from "canonical" filenames (optional leading tilde's, internal wildcards,
- * slash as the path seperator, etc) to "system" filenames (no special symbols,
- * system-specific path seperator, etc).  This would allow the program itself
- * to assume that all filenames are "Unix" filenames, and explicitly "extract"
- * such filenames if needed (by "path_parse()", or perhaps "path_canon()").
- *
- * Note that "path_temp" should probably return a "canonical" filename.
- *
- * Note that "my_fopen()" and "my_open()" and "my_make()" and "my_kill()"
- * and "my_move()" and "my_copy()" should all take "canonical" filenames.
- *
- * Note that "canonical" filenames use a leading "slash" to indicate an absolute
- * path, and a leading "tilde" to indicate a special directory, and default to a
- * relative path, but MSDOS uses a leading "drivename plus colon" to indicate the
- * use of a "special drive", and then the rest of the path is parsed "normally",
- * and MACINTOSH uses a leading colon to indicate a relative path, and an embedded
- * colon to indicate a "drive plus absolute path", and finally defaults to a file
- * in the current working directory, which may or may not be defined.
- *
- * We should probably parse a leading "~~/" as referring to "ANGBAND_DIR". (?)
- */
+* The concept of the "file" routines below (and elsewhere) is that all
+* file handling should be done using as few routines as possible, since
+* every machine is slightly different, but these routines always have the
+* same semantics.
+*
+* In fact, perhaps we should use the "path_parse()" routine below to convert
+* from "canonical" filenames (optional leading tilde's, internal wildcards,
+* slash as the path seperator, etc) to "system" filenames (no special symbols,
+* system-specific path seperator, etc).  This would allow the program itself
+* to assume that all filenames are "Unix" filenames, and explicitly "extract"
+* such filenames if needed (by "path_parse()", or perhaps "path_canon()").
+*
+* Note that "path_temp" should probably return a "canonical" filename.
+*
+* Note that "my_fopen()" and "my_open()" and "my_make()" and "my_kill()"
+* and "my_move()" and "my_copy()" should all take "canonical" filenames.
+*
+* Note that "canonical" filenames use a leading "slash" to indicate an absolute
+* path, and a leading "tilde" to indicate a special directory, and default to a
+* relative path, but MSDOS uses a leading "drivename plus colon" to indicate the
+* use of a "special drive", and then the rest of the path is parsed "normally",
+* and MACINTOSH uses a leading colon to indicate a relative path, and an embedded
+* colon to indicate a "drive plus absolute path", and finally defaults to a file
+* in the current working directory, which may or may not be defined.
+*
+* We should probably parse a leading "~~/" as referring to "ANGBAND_DIR". (?)
+*/
 
 
 #ifdef ACORN
 
 
 /*
- * Most of the "file" routines for "ACORN" should be in "main-acn.c"
- */
+* Most of the "file" routines for "ACORN" should be in "main-acn.c"
+*/
 
 
 #else /* ACORN */
@@ -184,12 +184,12 @@ void user_name(char *buf, int id)
 #ifdef SET_UID
 
 /*
- * Extract a "parsed" path from an initial filename
- * Normally, we simply copy the filename into the buffer
- * But leading tilde symbols must be handled in a special way
- * Replace "~user/" by the home directory of the user named "user"
- * Replace "~/" by the home directory of the current user
- */
+* Extract a "parsed" path from an initial filename
+* Normally, we simply copy the filename into the buffer
+* But leading tilde symbols must be handled in a special way
+* Replace "~user/" by the home directory of the user named "user"
+* Replace "~/" by the home directory of the current user
+*/
 errr path_parse(char *buf, int max, cptr file)
 {
 	cptr		u, s;
@@ -253,11 +253,11 @@ errr path_parse(char *buf, int max, cptr file)
 
 
 /*
- * Extract a "parsed" path from an initial filename
- *
- * This requires no special processing on simple machines,
- * except for verifying the size of the filename.
- */
+* Extract a "parsed" path from an initial filename
+*
+* This requires no special processing on simple machines,
+* except for verifying the size of the filename.
+*/
 errr path_parse(char *buf, int max, cptr file)
 {
 	/* Accept the filename */
@@ -272,10 +272,10 @@ errr path_parse(char *buf, int max, cptr file)
 
 
 /*
- * Hack -- acquire a "temporary" file name if possible
- *
- * This filename is always in "system-specific" form.
- */
+* Hack -- acquire a "temporary" file name if possible
+*
+* This filename is always in "system-specific" form.
+*/
 errr path_temp(char *buf, int max)
 {
 	cptr s;
@@ -295,18 +295,18 @@ errr path_temp(char *buf, int max)
 
 
 /*
- * Create a new path by appending a file (or directory) to a path
- *
- * This requires no special processing on simple machines, except
- * for verifying the size of the filename, but note the ability to
- * bypass the given "path" with certain special file-names.
- *
- * Note that the "file" may actually be a "sub-path", including
- * a path and a file.
- *
- * Note that this function yields a path which must be "parsed"
- * using the "parse" function above.
- */
+* Create a new path by appending a file (or directory) to a path
+*
+* This requires no special processing on simple machines, except
+* for verifying the size of the filename, but note the ability to
+* bypass the given "path" with certain special file-names.
+*
+* Note that the "file" may actually be a "sub-path", including
+* a path and a file.
+*
+* Note that this function yields a path which must be "parsed"
+* using the "parse" function above.
+*/
 errr path_build(char *buf, int max, cptr path, cptr file)
 {
 	/* Special file */
@@ -343,8 +343,8 @@ errr path_build(char *buf, int max, cptr path, cptr file)
 
 
 /*
- * Hack -- replacement for "fopen()"
- */
+* Hack -- replacement for "fopen()"
+*/
 FILE *my_fopen(cptr file, cptr mode)
 {
 	char                buf[1024];
@@ -358,8 +358,8 @@ FILE *my_fopen(cptr file, cptr mode)
 
 
 /*
- * Hack -- replacement for "fclose()"
- */
+* Hack -- replacement for "fclose()"
+*/
 errr my_fclose(FILE *fff)
 {
 	/* Require a file */
@@ -377,12 +377,12 @@ errr my_fclose(FILE *fff)
 
 
 /*
- * Hack -- replacement for "fgets()"
- *
- * Read a string, without a newline, to a file
- *
- * Process tabs, strip internal non-printables
- */
+* Hack -- replacement for "fgets()"
+*
+* Read a string, without a newline, to a file
+*
+* Process tabs, strip internal non-printables
+*/
 errr my_fgets(FILE *fff, char *buf, huge n)
 {
 	huge i = 0;
@@ -441,12 +441,12 @@ errr my_fgets(FILE *fff, char *buf, huge n)
 
 
 /*
- * Hack -- replacement for "fputs()"
- *
- * Dump a string, plus a newline, to a file
- *
- * XXX XXX XXX Process internal weirdness?
- */
+* Hack -- replacement for "fputs()"
+*
+* Dump a string, plus a newline, to a file
+*
+* XXX XXX XXX Process internal weirdness?
+*/
 errr my_fputs(FILE *fff, cptr buf, huge n)
 {
 	/* XXX XXX */
@@ -464,19 +464,19 @@ errr my_fputs(FILE *fff, cptr buf, huge n)
 
 
 /*
- * Most of the "file" routines for "ACORN" should be in "main-acn.c"
- *
- * Many of them can be rewritten now that only "fd_open()" and "fd_make()"
- * and "my_fopen()" should ever create files.
- */
+* Most of the "file" routines for "ACORN" should be in "main-acn.c"
+*
+* Many of them can be rewritten now that only "fd_open()" and "fd_make()"
+* and "my_fopen()" should ever create files.
+*/
 
 
 #else /* ACORN */
 
 
 /*
- * Code Warrior is a little weird about some functions
- */
+* Code Warrior is a little weird about some functions
+*/
 #ifdef BEN_HACK
 extern int open(const char *, int, ...);
 extern int close(int);
@@ -487,8 +487,8 @@ extern long lseek(int, long, int);
 
 
 /*
- * The Macintosh is a little bit brain-dead sometimes
- */
+* The Macintosh is a little bit brain-dead sometimes
+*/
 #ifdef MACINTOSH
 # define open(N,F,M) \
 ((M), open((char*)(N),F))
@@ -498,16 +498,16 @@ write(F,(char*)(B),S)
 
 
 /*
- * Several systems have no "O_BINARY" flag
- */
+* Several systems have no "O_BINARY" flag
+*/
 #ifndef O_BINARY
 # define O_BINARY 0
 #endif /* O_BINARY */
 
 
 /*
- * Hack -- attempt to delete a file
- */
+* Hack -- attempt to delete a file
+*/
 errr fd_kill(cptr file)
 {
 	char                buf[1024];
@@ -524,8 +524,8 @@ errr fd_kill(cptr file)
 
 
 /*
- * Hack -- attempt to move a file
- */
+* Hack -- attempt to move a file
+*/
 errr fd_move(cptr file, cptr what)
 {
 	char                buf[1024];
@@ -546,8 +546,8 @@ errr fd_move(cptr file, cptr what)
 
 
 /*
- * Hack -- attempt to copy a file
- */
+* Hack -- attempt to copy a file
+*/
 errr fd_copy(cptr file, cptr what)
 {
 	char                buf[1024];
@@ -568,18 +568,18 @@ errr fd_copy(cptr file, cptr what)
 
 
 /*
- * Hack -- attempt to open a file descriptor (create file)
- *
- * This function should fail if the file already exists
- *
- * Note that we assume that the file should be "binary"
- *
- * XXX XXX XXX The horrible "BEN_HACK" code is for compiling under
- * the CodeWarrior compiler, in which case, for some reason, none
- * of the "O_*" flags are defined, and we must fake the definition
- * of "O_RDONLY", "O_WRONLY", and "O_RDWR" in "A-win-h", and then
- * we must simulate the effect of the proper "open()" call below.
- */
+* Hack -- attempt to open a file descriptor (create file)
+*
+* This function should fail if the file already exists
+*
+* Note that we assume that the file should be "binary"
+*
+* XXX XXX XXX The horrible "BEN_HACK" code is for compiling under
+* the CodeWarrior compiler, in which case, for some reason, none
+* of the "O_*" flags are defined, and we must fake the definition
+* of "O_RDONLY", "O_WRONLY", and "O_RDWR" in "A-win-h", and then
+* we must simulate the effect of the proper "open()" call below.
+*/
 int fd_make(cptr file, int mode)
 {
 	char                buf[1024];
@@ -609,10 +609,10 @@ int fd_make(cptr file, int mode)
 
 
 /*
- * Hack -- attempt to open a file descriptor (existing file)
- *
- * Note that we assume that the file should be "binary"
- */
+* Hack -- attempt to open a file descriptor (existing file)
+*
+* Note that we assume that the file should be "binary"
+*/
 int fd_open(cptr file, int flags)
 {
 	char                buf[1024];
@@ -626,10 +626,10 @@ int fd_open(cptr file, int flags)
 
 
 /*
- * Hack -- attempt to lock a file descriptor
- *
- * Legal lock types -- F_UNLCK, F_RDLCK, F_WRLCK
- */
+* Hack -- attempt to lock a file descriptor
+*
+* Legal lock types -- F_UNLCK, F_RDLCK, F_WRLCK
+*/
 errr fd_lock(int fd, int what)
 {
 	/* XXX XXX */
@@ -690,8 +690,8 @@ errr fd_lock(int fd, int what)
 
 
 /*
- * Hack -- attempt to seek on a file descriptor
- */
+* Hack -- attempt to seek on a file descriptor
+*/
 errr fd_seek(int fd, huge n)
 {
 	huge p;
@@ -714,8 +714,8 @@ errr fd_seek(int fd, huge n)
 
 
 /*
- * Hack -- attempt to truncate a file descriptor
- */
+* Hack -- attempt to truncate a file descriptor
+*/
 errr fd_chop(int fd, huge n)
 {
 	/* XXX XXX */
@@ -735,8 +735,8 @@ errr fd_chop(int fd, huge n)
 
 
 /*
- * Hack -- attempt to read data from a file descriptor
- */
+* Hack -- attempt to read data from a file descriptor
+*/
 errr fd_read(int fd, char *buf, huge n)
 {
 	/* Verify the fd */
@@ -768,8 +768,8 @@ errr fd_read(int fd, char *buf, huge n)
 
 
 /*
- * Hack -- Attempt to write data to a file descriptor
- */
+* Hack -- Attempt to write data to a file descriptor
+*/
 errr fd_write(int fd, cptr buf, huge n)
 {
 	/* Verify the fd */
@@ -801,8 +801,8 @@ errr fd_write(int fd, cptr buf, huge n)
 
 
 /*
- * Hack -- attempt to close a file descriptor
- */
+* Hack -- attempt to close a file descriptor
+*/
 errr fd_close(int fd)
 {
 	/* Verify the fd */
@@ -822,54 +822,54 @@ errr fd_close(int fd)
 
 
 /*
- * XXX XXX XXX Important note about "colors" XXX XXX XXX
- *
- * The "TERM_*" color definitions list the "composition" of each
- * "Angband color" in terms of "quarters" of each of the three color
- * components (Red, Green, Blue), for example, TERM_UMBER is defined
- * as 2/4 Red, 1/4 Green, 0/4 Blue.
- *
- * The following info is from "Torbjorn Lindgren" (see "main-xaw.c").
- *
- * These values are NOT gamma-corrected.  On most machines (with the
- * Macintosh being an important exception), you must "gamma-correct"
- * the given values, that is, "correct for the intrinsic non-linearity
- * of the phosphor", by converting the given intensity levels based
- * on the "gamma" of the target screen, which is usually 1.7 (or 1.5).
- *
- * The actual formula for conversion is unknown to me at this time,
- * but you can use the table below for the most common gamma values.
- *
- * So, on most machines, simply convert the values based on the "gamma"
- * of the target screen, which is usually in the range 1.5 to 1.7, and
- * usually is closest to 1.7.  The converted value for each of the five
- * different "quarter" values is given below:
- *
- *  Given     Gamma 1.0       Gamma 1.5       Gamma 1.7     Hex 1.7
- *  -----       ----            ----            ----          ---
- *   0/4        0.00            0.00            0.00          #00
- *   1/4        0.25            0.27            0.28          #47
- *   2/4        0.50            0.55            0.56          #8f
- *   3/4        0.75            0.82            0.84          #d7
- *   4/4        1.00            1.00            1.00          #ff
- *
- * Note that some machines (i.e. most IBM machines) are limited to a
- * hard-coded set of colors, and so the information above is useless.
- *
- * Also, some machines are limited to a pre-determined set of colors,
- * for example, the IBM can only display 16 colors, and only 14 of
- * those colors resemble colors used by Angband, and then only when
- * you ignore the fact that "Slate" and "cyan" are not really matches,
- * so on the IBM, we use "orange" for both "Umber", and "Light Umber"
- * in addition to the obvious "Orange", since by combining all of the
- * "indeterminate" colors into a single color, the rest of the colors
- * are left with "meaningful" values.
- */
+* XXX XXX XXX Important note about "colors" XXX XXX XXX
+*
+* The "TERM_*" color definitions list the "composition" of each
+* "Angband color" in terms of "quarters" of each of the three color
+* components (Red, Green, Blue), for example, TERM_UMBER is defined
+* as 2/4 Red, 1/4 Green, 0/4 Blue.
+*
+* The following info is from "Torbjorn Lindgren" (see "main-xaw.c").
+*
+* These values are NOT gamma-corrected.  On most machines (with the
+* Macintosh being an important exception), you must "gamma-correct"
+* the given values, that is, "correct for the intrinsic non-linearity
+* of the phosphor", by converting the given intensity levels based
+* on the "gamma" of the target screen, which is usually 1.7 (or 1.5).
+*
+* The actual formula for conversion is unknown to me at this time,
+* but you can use the table below for the most common gamma values.
+*
+* So, on most machines, simply convert the values based on the "gamma"
+* of the target screen, which is usually in the range 1.5 to 1.7, and
+* usually is closest to 1.7.  The converted value for each of the five
+* different "quarter" values is given below:
+*
+*  Given     Gamma 1.0       Gamma 1.5       Gamma 1.7     Hex 1.7
+*  -----       ----            ----            ----          ---
+*   0/4        0.00            0.00            0.00          #00
+*   1/4        0.25            0.27            0.28          #47
+*   2/4        0.50            0.55            0.56          #8f
+*   3/4        0.75            0.82            0.84          #d7
+*   4/4        1.00            1.00            1.00          #ff
+*
+* Note that some machines (i.e. most IBM machines) are limited to a
+* hard-coded set of colors, and so the information above is useless.
+*
+* Also, some machines are limited to a pre-determined set of colors,
+* for example, the IBM can only display 16 colors, and only 14 of
+* those colors resemble colors used by Angband, and then only when
+* you ignore the fact that "Slate" and "cyan" are not really matches,
+* so on the IBM, we use "orange" for both "Umber", and "Light Umber"
+* in addition to the obvious "Orange", since by combining all of the
+* "indeterminate" colors into a single color, the rest of the colors
+* are left with "meaningful" values.
+*/
 
 
 /*
- * Move the cursor
- */
+* Move the cursor
+*/
 void move_cursor(int row, int col)
 {
 	Term_gotoxy(col, row);
@@ -878,16 +878,16 @@ void move_cursor(int row, int col)
 
 
 /*
- * Convert a decimal to a single digit octal number
- */
+* Convert a decimal to a single digit octal number
+*/
 static char octify(uint i)
 {
 	return (hexsym[i%8]);
 }
 
 /*
- * Convert a decimal to a single digit hex number
- */
+* Convert a decimal to a single digit hex number
+*/
 static char hexify(uint i)
 {
 	return (hexsym[i%16]);
@@ -895,8 +895,8 @@ static char hexify(uint i)
 
 
 /*
- * Convert a octal-digit into a decimal
- */
+* Convert a octal-digit into a decimal
+*/
 static int deoct(char c)
 {
 	if (isdigit(c)) return (D2I(c));
@@ -904,8 +904,8 @@ static int deoct(char c)
 }
 
 /*
- * Convert a hexidecimal-digit into a decimal
- */
+* Convert a hexidecimal-digit into a decimal
+*/
 static int dehex(char c)
 {
 	if (isdigit(c)) return (D2I(c));
@@ -916,12 +916,12 @@ static int dehex(char c)
 
 
 /*
- * Hack -- convert a printable string into real ascii
- *
- * I have no clue if this function correctly handles, for example,
- * parsing "\xFF" into a (signed) char.  Whoever thought of making
- * the "sign" of a "char" undefined is a complete moron.  Oh well.
- */
+* Hack -- convert a printable string into real ascii
+*
+* I have no clue if this function correctly handles, for example,
+* parsing "\xFF" into a (signed) char.  Whoever thought of making
+* the "sign" of a "char" undefined is a complete moron.  Oh well.
+*/
 void text_to_ascii(char *buf, cptr str)
 {
 	char *s = buf;
@@ -1042,8 +1042,8 @@ void text_to_ascii(char *buf, cptr str)
 
 
 /*
- * Hack -- convert a string into a printable form
- */
+* Hack -- convert a string into a printable form
+*/
 void ascii_to_text(char *buf, cptr str)
 {
 	char *s = buf;
@@ -1125,24 +1125,24 @@ void ascii_to_text(char *buf, cptr str)
 
 
 /*
- * The "macro" package
- *
- * Functions are provided to manipulate a collection of macros, each
- * of which has a trigger pattern string and a resulting action string
- * and a small set of flags.
- */
+* The "macro" package
+*
+* Functions are provided to manipulate a collection of macros, each
+* of which has a trigger pattern string and a resulting action string
+* and a small set of flags.
+*/
 
 
 
 /*
- * Determine if any macros have ever started with a given character.
- */
+* Determine if any macros have ever started with a given character.
+*/
 static bool macro__use[256];
 
 
 /*
- * Find the macro (if any) which exactly matches the given pattern
- */
+* Find the macro (if any) which exactly matches the given pattern
+*/
 sint macro_find_exact(cptr pat)
 {
 	int i;
@@ -1169,8 +1169,8 @@ sint macro_find_exact(cptr pat)
 
 
 /*
- * Find the first macro (if any) which contains the given pattern
- */
+* Find the first macro (if any) which contains the given pattern
+*/
 static sint macro_find_check(cptr pat)
 {
 	int i;
@@ -1197,8 +1197,8 @@ static sint macro_find_check(cptr pat)
 
 
 /*
- * Find the first macro (if any) which contains the given pattern and more
- */
+* Find the first macro (if any) which contains the given pattern and more
+*/
 static sint macro_find_maybe(cptr pat)
 {
 	int i;
@@ -1228,8 +1228,8 @@ static sint macro_find_maybe(cptr pat)
 
 
 /*
- * Find the longest macro (if any) which starts with the given pattern
- */
+* Find the longest macro (if any) which starts with the given pattern
+*/
 static sint macro_find_ready(cptr pat)
 {
 	int i, t, n = -1, s = -1;
@@ -1263,19 +1263,19 @@ static sint macro_find_ready(cptr pat)
 
 
 /*
- * Add a macro definition (or redefinition).
- *
- * We should use "act == NULL" to "remove" a macro, but this might make it
- * impossible to save the "removal" of a macro definition.  XXX XXX XXX
- *
- * We should consider refusing to allow macros which contain existing macros,
- * or which are contained in existing macros, because this would simplify the
- * macro analysis code.  XXX XXX XXX
- *
- * We should consider removing the "command macro" crap, and replacing it
- * with some kind of "powerful keymap" ability, but this might make it hard
- * to change the "roguelike" option from inside the game.  XXX XXX XXX
- */
+* Add a macro definition (or redefinition).
+*
+* We should use "act == NULL" to "remove" a macro, but this might make it
+* impossible to save the "removal" of a macro definition.  XXX XXX XXX
+*
+* We should consider refusing to allow macros which contain existing macros,
+* or which are contained in existing macros, because this would simplify the
+* macro analysis code.  XXX XXX XXX
+*
+* We should consider removing the "command macro" crap, and replacing it
+* with some kind of "powerful keymap" ability, but this might make it hard
+* to change the "roguelike" option from inside the game.  XXX XXX XXX
+*/
 errr macro_add(cptr pat, cptr act)
 {
 	int n;
@@ -1318,8 +1318,8 @@ errr macro_add(cptr pat, cptr act)
 
 
 /*
- * Initialize the "macro" package
- */
+* Initialize the "macro" package
+*/
 errr macro_init(void)
 {
 	/* Macro patterns */
@@ -1334,33 +1334,33 @@ errr macro_init(void)
 
 
 /*
- * Local "need flush" variable
- */
+* Local "need flush" variable
+*/
 static bool flush_later = FALSE;
 
 
 /*
- * Local variable -- we are inside a "macro action"
- *
- * Do not match any macros until "ascii 30" is found.
- */
+* Local variable -- we are inside a "macro action"
+*
+* Do not match any macros until "ascii 30" is found.
+*/
 static bool parse_macro = FALSE;
 
 /*
- * Local variable -- we are inside a "macro trigger"
- *
- * Strip all keypresses until a low ascii value is found.
- */
+* Local variable -- we are inside a "macro trigger"
+*
+* Strip all keypresses until a low ascii value is found.
+*/
 static bool parse_under = FALSE;
 
 
 /*
- * Flush all input chars.  Actually, remember the flush,
- * and do a "special flush" before the next "inkey()".
- *
- * This is not only more efficient, but also necessary to make sure
- * that various "inkey()" codes are not "lost" along the way.
- */
+* Flush all input chars.  Actually, remember the flush,
+* and do a "special flush" before the next "inkey()".
+*
+* This is not only more efficient, but also necessary to make sure
+* that various "inkey()" codes are not "lost" along the way.
+*/
 void flush(void)
 {
 	/* Do it later */
@@ -1369,24 +1369,24 @@ void flush(void)
 
 
 /*
- * Flush the screen, make a noise
- */
+* Flush the screen, make a noise
+*/
 void bell(void)
 {
 	/* Mega-Hack -- Flush the output */
 	Term_fresh();
-
+	
 	/* Make a bell noise (if allowed) */
 	if (ring_bell) Term_xtra(TERM_XTRA_NOISE, 0);
-
+	
 	/* Flush the input (later!) */
 	flush();
 }
 
 
 /*
- * Hack -- Make a (relevant?) sound
- */
+* Hack -- Make a (relevant?) sound
+*/
 void sound(int val)
 {
 	/* No sound */
@@ -1399,22 +1399,22 @@ void sound(int val)
 
 
 /*
- * Helper function called only from "inkey()"
- *
- * This function does almost all of the "macro" processing.
- *
- * We use the "Term_key_push()" function to handle "failed" macros, as well
- * as "extra" keys read in while choosing the proper macro, and also to hold
- * the action for the macro, plus a special "ascii 30" character indicating
- * that any macro action in progress is complete.  Embedded macros are thus
- * illegal, unless a macro action includes an explicit "ascii 30" character,
- * which would probably be a massive hack, and might break things.
- *
- * Only 500 (0+1+2+...+29+30) milliseconds may elapse between each key in
- * the macro trigger sequence.  If a key sequence forms the "prefix" of a
- * macro trigger, 500 milliseconds must pass before the key sequence is
- * known not to be that macro trigger.  XXX XXX XXX
- */
+* Helper function called only from "inkey()"
+*
+* This function does almost all of the "macro" processing.
+*
+* We use the "Term_key_push()" function to handle "failed" macros, as well
+* as "extra" keys read in while choosing the proper macro, and also to hold
+* the action for the macro, plus a special "ascii 30" character indicating
+* that any macro action in progress is complete.  Embedded macros are thus
+* illegal, unless a macro action includes an explicit "ascii 30" character,
+* which would probably be a massive hack, and might break things.
+*
+* Only 500 (0+1+2+...+29+30) milliseconds may elapse between each key in
+* the macro trigger sequence.  If a key sequence forms the "prefix" of a
+* macro trigger, 500 milliseconds must pass before the key sequence is
+* known not to be that macro trigger.  XXX XXX XXX
+*/
 static char inkey_aux(void)
 {
 	int k = 0, n, p = 0, w = 0;
@@ -1552,24 +1552,24 @@ static char inkey_aux(void)
 
 
 /*
- * Mega-Hack -- special "inkey_next" pointer.  XXX XXX XXX
- *
- * This special pointer allows a sequence of keys to be "inserted" into
- * the stream of keys returned by "inkey()".  This key sequence will not
- * trigger any macros, and cannot be bypassed by the Borg.  It is used
- * in Angband to handle "keymaps".
- */
+* Mega-Hack -- special "inkey_next" pointer.  XXX XXX XXX
+*
+* This special pointer allows a sequence of keys to be "inserted" into
+* the stream of keys returned by "inkey()".  This key sequence will not
+* trigger any macros, and cannot be bypassed by the Borg.  It is used
+* in Angband to handle "keymaps".
+*/
 static cptr inkey_next = NULL;
 
 
 #ifdef ALLOW_BORG
 
 /*
- * Mega-Hack -- special "inkey_hack" hook.  XXX XXX XXX
- *
- * This special function hook allows the "Borg" (see elsewhere) to take
- * control of the "inkey()" function, and substitute in fake keypresses.
- */
+* Mega-Hack -- special "inkey_hack" hook.  XXX XXX XXX
+*
+* This special function hook allows the "Borg" (see elsewhere) to take
+* control of the "inkey()" function, and substitute in fake keypresses.
+*/
 char (*inkey_hack)(int flush_first) = NULL;
 
 #endif /* ALLOW_BORG */
@@ -1577,67 +1577,67 @@ char (*inkey_hack)(int flush_first) = NULL;
 
 
 /*
- * Get a keypress from the user.
- *
- * This function recognizes a few "global parameters".  These are variables
- * which, if set to TRUE before calling this function, will have an effect
- * on this function, and which are always reset to FALSE by this function
- * before this function returns.  Thus they function just like normal
- * parameters, except that most calls to this function can ignore them.
- *
- * If "inkey_xtra" is TRUE, then all pending keypresses will be flushed,
- * and any macro processing in progress will be aborted.  This flag is
- * set by the "flush()" function, which does not actually flush anything
- * itself, but rather, triggers delayed input flushing via "inkey_xtra".
- *
- * If "inkey_scan" is TRUE, then we will immediately return "zero" if no
- * keypress is available, instead of waiting for a keypress.
- *
- * If "inkey_base" is TRUE, then all macro processing will be bypassed.
- * If "inkey_base" and "inkey_scan" are both TRUE, then this function will
- * not return immediately, but will wait for a keypress for as long as the
- * normal macro matching code would, allowing the direct entry of macro
- * triggers.  The "inkey_base" flag is extremely dangerous!
- *
- * If "inkey_flag" is TRUE, then we will assume that we are waiting for a
- * normal command, and we will only show the cursor if "hilite_player" is
- * TRUE (or if the player is in a store), instead of always showing the
- * cursor.  The various "main-xxx.c" files should avoid saving the game
- * in response to a "menu item" request unless "inkey_flag" is TRUE, to
- * prevent savefile corruption.
- *
- * If we are waiting for a keypress, and no keypress is ready, then we will
- * refresh (once) the window which was active when this function was called.
- *
- * Note that "back-quote" is automatically converted into "escape" for
- * convenience on machines with no "escape" key.  This is done after the
- * macro matching, so the user can still make a macro for "backquote".
- *
- * Note the special handling of "ascii 30" (ctrl-caret, aka ctrl-shift-six)
- * and "ascii 31" (ctrl-underscore, aka ctrl-shift-minus), which are used to
- * provide support for simple keyboard "macros".  These keys are so strange
- * that their loss as normal keys will probably be noticed by nobody.  The
- * "ascii 30" key is used to indicate the "end" of a macro action, which
- * allows recursive macros to be avoided.  The "ascii 31" key is used by
- * some of the "main-xxx.c" files to introduce macro trigger sequences.
- *
- * Hack -- we use "ascii 29" (ctrl-right-bracket) as a special "magic" key,
- * which can be used to give a variety of "sub-commands" which can be used
- * any time.  These sub-commands could include commands to take a picture of
- * the current screen, to start/stop recording a macro action, etc.
- *
- * If "angband_term[0]" is not active, we will make it active during this
- * function, so that the various "main-xxx.c" files can assume that input
- * is only requested (via "Term_inkey()") when "angband_term[0]" is active.
- *
- * Mega-Hack -- This function is used as the entry point for clearing the
- * "signal_count" variable, and of the "character_saved" variable.
- *
- * Hack -- Note the use of "inkey_next" to allow "keymaps" to be processed.
- *
- * Mega-Hack -- Note the use of "inkey_hack" to allow the "Borg" to steal
- * control of the keyboard from the user.
- */
+* Get a keypress from the user.
+*
+* This function recognizes a few "global parameters".  These are variables
+* which, if set to TRUE before calling this function, will have an effect
+* on this function, and which are always reset to FALSE by this function
+* before this function returns.  Thus they function just like normal
+* parameters, except that most calls to this function can ignore them.
+*
+* If "inkey_xtra" is TRUE, then all pending keypresses will be flushed,
+* and any macro processing in progress will be aborted.  This flag is
+* set by the "flush()" function, which does not actually flush anything
+* itself, but rather, triggers delayed input flushing via "inkey_xtra".
+*
+* If "inkey_scan" is TRUE, then we will immediately return "zero" if no
+* keypress is available, instead of waiting for a keypress.
+*
+* If "inkey_base" is TRUE, then all macro processing will be bypassed.
+* If "inkey_base" and "inkey_scan" are both TRUE, then this function will
+* not return immediately, but will wait for a keypress for as long as the
+* normal macro matching code would, allowing the direct entry of macro
+* triggers.  The "inkey_base" flag is extremely dangerous!
+*
+* If "inkey_flag" is TRUE, then we will assume that we are waiting for a
+* normal command, and we will only show the cursor if "hilite_player" is
+* TRUE (or if the player is in a store), instead of always showing the
+* cursor.  The various "main-xxx.c" files should avoid saving the game
+* in response to a "menu item" request unless "inkey_flag" is TRUE, to
+* prevent savefile corruption.
+*
+* If we are waiting for a keypress, and no keypress is ready, then we will
+* refresh (once) the window which was active when this function was called.
+*
+* Note that "back-quote" is automatically converted into "escape" for
+* convenience on machines with no "escape" key.  This is done after the
+* macro matching, so the user can still make a macro for "backquote".
+*
+* Note the special handling of "ascii 30" (ctrl-caret, aka ctrl-shift-six)
+* and "ascii 31" (ctrl-underscore, aka ctrl-shift-minus), which are used to
+* provide support for simple keyboard "macros".  These keys are so strange
+* that their loss as normal keys will probably be noticed by nobody.  The
+* "ascii 30" key is used to indicate the "end" of a macro action, which
+* allows recursive macros to be avoided.  The "ascii 31" key is used by
+* some of the "main-xxx.c" files to introduce macro trigger sequences.
+*
+* Hack -- we use "ascii 29" (ctrl-right-bracket) as a special "magic" key,
+* which can be used to give a variety of "sub-commands" which can be used
+* any time.  These sub-commands could include commands to take a picture of
+* the current screen, to start/stop recording a macro action, etc.
+*
+* If "angband_term[0]" is not active, we will make it active during this
+* function, so that the various "main-xxx.c" files can assume that input
+* is only requested (via "Term_inkey()") when "angband_term[0]" is active.
+*
+* Mega-Hack -- This function is used as the entry point for clearing the
+* "signal_count" variable, and of the "character_saved" variable.
+*
+* Hack -- Note the use of "inkey_next" to allow "keymaps" to be processed.
+*
+* Mega-Hack -- Note the use of "inkey_hack" to allow the "Borg" to steal
+* control of the keyboard from the user.
+*/
 char inkey(void)
 {
 	int v;
@@ -1870,24 +1870,24 @@ char inkey(void)
 
 
 /*
- * We use a global array for all inscriptions to reduce the memory
- * spent maintaining inscriptions.  Of course, it is still possible
- * to run out of inscription memory, especially if too many different
- * inscriptions are used, but hopefully this will be rare.
- *
- * We use dynamic string allocation because otherwise it is necessary
- * to pre-guess the amount of quark activity.  We limit the total
- * number of quarks, but this is much easier to "expand" as needed.
- *
- * Any two items with the same inscription will have the same "quark"
- * index, which should greatly reduce the need for inscription space.
- *
- * Note that "quark zero" is NULL and should not be "dereferenced".
- */
+* We use a global array for all inscriptions to reduce the memory
+* spent maintaining inscriptions.  Of course, it is still possible
+* to run out of inscription memory, especially if too many different
+* inscriptions are used, but hopefully this will be rare.
+*
+* We use dynamic string allocation because otherwise it is necessary
+* to pre-guess the amount of quark activity.  We limit the total
+* number of quarks, but this is much easier to "expand" as needed.
+*
+* Any two items with the same inscription will have the same "quark"
+* index, which should greatly reduce the need for inscription space.
+*
+* Note that "quark zero" is NULL and should not be "dereferenced".
+*/
 
 /*
- * Add a new "quark" to the set of quarks.
- */
+* Add a new "quark" to the set of quarks.
+*/
 s16b quark_add(cptr str)
 {
 	int i;
@@ -1914,8 +1914,8 @@ s16b quark_add(cptr str)
 
 
 /*
- * This function looks up a quark
- */
+* This function looks up a quark
+*/
 cptr quark_str(s16b i)
 {
 	cptr q;
@@ -1934,31 +1934,31 @@ cptr quark_str(s16b i)
 
 
 /*
- * Second try for the "message" handling routines.
- *
- * Each call to "message_add(s)" will add a new "most recent" message
- * to the "message recall list", using the contents of the string "s".
- *
- * The messages will be stored in such a way as to maximize "efficiency",
- * that is, we attempt to maximize the number of sequential messages that
- * can be retrieved, given a limited amount of storage space.
- *
- * We keep a buffer of chars to hold the "text" of the messages, not
- * necessarily in "order", and an array of offsets into that buffer,
- * representing the actual messages.  This is made more complicated
- * by the fact that both the array of indexes, and the buffer itself,
- * are both treated as "circular arrays" for efficiency purposes, but
- * the strings may not be "broken" across the ends of the array.
- *
- * The "message_add()" function is rather "complex", because it must be
- * extremely efficient, both in space and time, for use with the Borg.
- */
+* Second try for the "message" handling routines.
+*
+* Each call to "message_add(s)" will add a new "most recent" message
+* to the "message recall list", using the contents of the string "s".
+*
+* The messages will be stored in such a way as to maximize "efficiency",
+* that is, we attempt to maximize the number of sequential messages that
+* can be retrieved, given a limited amount of storage space.
+*
+* We keep a buffer of chars to hold the "text" of the messages, not
+* necessarily in "order", and an array of offsets into that buffer,
+* representing the actual messages.  This is made more complicated
+* by the fact that both the array of indexes, and the buffer itself,
+* are both treated as "circular arrays" for efficiency purposes, but
+* the strings may not be "broken" across the ends of the array.
+*
+* The "message_add()" function is rather "complex", because it must be
+* extremely efficient, both in space and time, for use with the Borg.
+*/
 
 
 
 /*
- * How many messages are "available"?
- */
+* How many messages are "available"?
+*/
 s16b message_num(void)
 {
 	int last, next, n;
@@ -1980,8 +1980,8 @@ s16b message_num(void)
 
 
 /*
- * Recall the "text" of a saved message
- */
+* Recall the "text" of a saved message
+*/
 cptr message_str(int age)
 {
 	s16b x;
@@ -2007,8 +2007,8 @@ cptr message_str(int age)
 
 
 /*
- * Add a new message, with great efficiency
- */
+* Add a new message, with great efficiency
+*/
 void message_add(cptr str)
 {
 	int i, k, x, n;
@@ -2178,8 +2178,8 @@ void message_add(cptr str)
 
 
 /*
- * Hack -- flush
- */
+* Hack -- flush
+*/
 static void msg_flush(int x)
 {
 	byte a = TERM_L_BLUE;
@@ -2206,30 +2206,30 @@ static void msg_flush(int x)
 
 
 /*
- * Output a message to the top line of the screen.
- *
- * Break long messages into multiple pieces (40-72 chars).
- *
- * Allow multiple short messages to "share" the top line.
- *
- * Prompt the user to make sure he has a chance to read them.
- *
- * These messages are memorized for later reference (see above).
- *
- * We could do "Term_fresh()" to provide "flicker" if needed.
- *
- * The global "msg_flag" variable can be cleared to tell us to
- * "erase" any "pending" messages still on the screen.
- *
- * XXX XXX XXX Note that we must be very careful about using the
- * "msg_print()" functions without explicitly calling the special
- * "msg_print(NULL)" function, since this may result in the loss
- * of information if the screen is cleared, or if anything is
- * displayed on the top line.
- *
- * XXX XXX XXX Note that "msg_print(NULL)" will clear the top line
- * even if no messages are pending.  This is probably a hack.
- */
+* Output a message to the top line of the screen.
+*
+* Break long messages into multiple pieces (40-72 chars).
+*
+* Allow multiple short messages to "share" the top line.
+*
+* Prompt the user to make sure he has a chance to read them.
+*
+* These messages are memorized for later reference (see above).
+*
+* We could do "Term_fresh()" to provide "flicker" if needed.
+*
+* The global "msg_flag" variable can be cleared to tell us to
+* "erase" any "pending" messages still on the screen.
+*
+* XXX XXX XXX Note that we must be very careful about using the
+* "msg_print()" functions without explicitly calling the special
+* "msg_print(NULL)" function, since this may result in the loss
+* of information if the screen is cleared, or if anything is
+* displayed on the top line.
+*
+* XXX XXX XXX Note that "msg_print(NULL)" will clear the top line
+* even if no messages are pending.  This is probably a hack.
+*/
 void msg_print(cptr msg)
 {
 	static p = 0;
@@ -2384,8 +2384,8 @@ void screen_load(void)
 
 
 /*
- * Display a formatted message, using "vstrnfmt()" and "msg_print()".
- */
+* Display a formatted message, using "vstrnfmt()" and "msg_print()".
+*/
 void msg_format(cptr fmt, ...)
 {
 	va_list vp;
@@ -2408,11 +2408,11 @@ void msg_format(cptr fmt, ...)
 
 
 /*
- * Display a string on the screen using an attribute.
- *
- * At the given location, using the given attribute, if allowed,
- * add the given string.  Do not clear the line.
- */
+* Display a string on the screen using an attribute.
+*
+* At the given location, using the given attribute, if allowed,
+* add the given string.  Do not clear the line.
+*/
 void c_put_str(byte attr, cptr str, int row, int col)
 {
 	/* Hack -- fake monochrome */
@@ -2423,8 +2423,8 @@ void c_put_str(byte attr, cptr str, int row, int col)
 }
 
 /*
- * As above, but in "white"
- */
+* As above, but in "white"
+*/
 void put_str(cptr str, int row, int col)
 {
 	/* Spawn */
@@ -2434,9 +2434,9 @@ void put_str(cptr str, int row, int col)
 
 
 /*
- * Display a string on the screen using an attribute, and clear
- * to the end of the line.
- */
+* Display a string on the screen using an attribute, and clear
+* to the end of the line.
+*/
 void c_prt(byte attr, cptr str, int row, int col)
 {
 	/* Hack -- fake monochrome */
@@ -2450,8 +2450,8 @@ void c_prt(byte attr, cptr str, int row, int col)
 }
 
 /*
- * As above, but in "white"
- */
+* As above, but in "white"
+*/
 void prt(cptr str, int row, int col)
 {
 	/* Spawn */
@@ -2462,19 +2462,19 @@ void prt(cptr str, int row, int col)
 
 
 /*
- * Print some (colored) text to the screen at the current cursor position,
- * automatically "wrapping" existing text (at spaces) when necessary to
- * avoid placing any text into the last column, and clearing every line
- * before placing any text in that line.  Also, allow "newline" to force
- * a "wrap" to the next line.  Advance the cursor as needed so sequential
- * calls to this function will work correctly.
- *
- * Once this function has been called, the cursor should not be moved
- * until all the related "c_roff()" calls to the window are complete.
- *
- * This function will correctly handle any width up to the maximum legal
- * value of 256, though it works best for a standard 80 character width.
- */
+* Print some (colored) text to the screen at the current cursor position,
+* automatically "wrapping" existing text (at spaces) when necessary to
+* avoid placing any text into the last column, and clearing every line
+* before placing any text in that line.  Also, allow "newline" to force
+* a "wrap" to the next line.  Advance the cursor as needed so sequential
+* calls to this function will work correctly.
+*
+* Once this function has been called, the cursor should not be moved
+* until all the related "c_roff()" calls to the window are complete.
+*
+* This function will correctly handle any width up to the maximum legal
+* value of 256, though it works best for a standard 80 character width.
+*/
 void c_roff(byte a, cptr str)
 {
 	int x, y;
@@ -2571,8 +2571,8 @@ void c_roff(byte a, cptr str)
 }
 
 /*
- * As above, but in "white"
- */
+* As above, but in "white"
+*/
 void roff(cptr str)
 {
 	/* Spawn */
@@ -2583,8 +2583,8 @@ void roff(cptr str)
 
 
 /*
- * Clear part of the screen
- */
+* Clear part of the screen
+*/
 void clear_from(int row)
 {
 	int y;
@@ -2601,16 +2601,16 @@ void clear_from(int row)
 
 
 /*
- * Get some input at the cursor location.
- * Assume the buffer is initialized to a default string.
- * Note that this string is often "empty" (see below).
- * The default buffer is displayed in yellow until cleared.
- * Pressing RETURN right away accepts the default entry.
- * Normal chars clear the default and append the char.
- * Backspace clears the default or deletes the final char.
- * ESCAPE clears the buffer and the window and returns FALSE.
- * RETURN accepts the current buffer contents and returns TRUE.
- */
+* Get some input at the cursor location.
+* Assume the buffer is initialized to a default string.
+* Note that this string is often "empty" (see below).
+* The default buffer is displayed in yellow until cleared.
+* Pressing RETURN right away accepts the default entry.
+* Normal chars clear the default and append the char.
+* Backspace clears the default or deletes the final char.
+* ESCAPE clears the buffer and the window and returns FALSE.
+* RETURN accepts the current buffer contents and returns TRUE.
+*/
 bool askfor_aux(char *buf, int len)
 {
 	int y, x;
@@ -2702,15 +2702,15 @@ bool askfor_aux(char *buf, int len)
 
 
 /*
- * Get a string from the user
- *
- * The "prompt" should take the form "Prompt: "
- *
- * Note that the initial contents of the string is used as
- * the default response, so be sure to "clear" it if needed.
- *
- * We clear the input, and return FALSE, on "ESCAPE".
- */
+* Get a string from the user
+*
+* The "prompt" should take the form "Prompt: "
+*
+* Note that the initial contents of the string is used as
+* the default response, so be sure to "clear" it if needed.
+*
+* We clear the input, and return FALSE, on "ESCAPE".
+*/
 bool get_string(cptr prompt, char *buf, int len)
 {
 	bool res;
@@ -2733,12 +2733,12 @@ bool get_string(cptr prompt, char *buf, int len)
 
 
 /*
- * Verify something with the user
- *
- * The "prompt" should take the form "Query? "
- *
- * Note that "[y/n]" is appended to the prompt.
- */
+* Verify something with the user
+*
+* The "prompt" should take the form "Query? "
+*
+* Note that "[y/n]" is appended to the prompt.
+*/
 bool get_check(cptr prompt)
 {
 	int i;
@@ -2776,12 +2776,12 @@ bool get_check(cptr prompt)
 
 
 /*
- * Prompts for a keypress
- *
- * The "prompt" should take the form "Command: "
- *
- * Returns TRUE unless the character is "Escape"
- */
+* Prompts for a keypress
+*
+* The "prompt" should take the form "Command: "
+*
+* Returns TRUE unless the character is "Escape"
+*/
 bool get_com(cptr prompt, char *command)
 {
 	/* Paranoia XXX XXX XXX */
@@ -2805,10 +2805,10 @@ bool get_com(cptr prompt, char *command)
 
 
 /*
- * Request a "quantity" from the user
- *
- * Hack -- allow "command_arg" to specify a quantity
- */
+* Request a "quantity" from the user
+*
+* Hack -- allow "command_arg" to specify a quantity
+*/
 s16b get_quantity(cptr prompt, int max)
 {
 	int amt;
@@ -2895,8 +2895,8 @@ s16b get_quantity(cptr prompt, int max)
 
 
 /*
- * Pause for user response XXX XXX XXX
- */
+* Pause for user response XXX XXX XXX
+*/
 void pause_line(int row)
 {
 	int i;
@@ -2908,31 +2908,31 @@ void pause_line(int row)
 
 
 /*
- * Hack -- special buffer to hold the action of the current keymap
- */
+* Hack -- special buffer to hold the action of the current keymap
+*/
 static char request_command_buffer[256];
 
 
 
 /*
- * Request a command from the user.
- *
- * Sets p_ptr->command_cmd, p_ptr->command_dir, p_ptr->command_rep,
- * p_ptr->command_arg.  May modify p_ptr->command_new.
- *
- * Note that "caret" ("^") is treated specially, and is used to
- * allow manual input of control characters.  This can be used
- * on many machines to request repeated tunneling (Ctrl-H) and
- * on the Macintosh to request "Control-Caret".
- *
- * Note that "backslash" is treated specially, and is used to bypass any
- * keymap entry for the following character.  This is useful for macros.
- *
- * Note that this command is used both in the dungeon and in
- * stores, and must be careful to work in both situations.
- *
- * Note that "p_ptr->command_new" may not work any more.  XXX XXX XXX
- */
+* Request a command from the user.
+*
+* Sets p_ptr->command_cmd, p_ptr->command_dir, p_ptr->command_rep,
+* p_ptr->command_arg.  May modify p_ptr->command_new.
+*
+* Note that "caret" ("^") is treated specially, and is used to
+* allow manual input of control characters.  This can be used
+* on many machines to request repeated tunneling (Ctrl-H) and
+* on the Macintosh to request "Control-Caret".
+*
+* Note that "backslash" is treated specially, and is used to bypass any
+* keymap entry for the following character.  This is useful for macros.
+*
+* Note that this command is used both in the dungeon and in
+* stores, and must be careful to work in both situations.
+*
+* Note that "p_ptr->command_new" may not work any more.  XXX XXX XXX
+*/
 void request_command(int shopping)
 {
 	int i;
@@ -3216,8 +3216,8 @@ void request_command(int shopping)
 
 
 /*
- * Check a char for "vowel-hood"
- */
+* Check a char for "vowel-hood"
+*/
 bool is_a_vowel(int ch)
 {
 	switch (ch)
@@ -3243,13 +3243,13 @@ bool is_a_vowel(int ch)
 #if 0
 
 /*
- * Replace the first instance of "target" in "buf" with "insert"
- * If "insert" is NULL, just remove the first instance of "target"
- * In either case, return TRUE if "target" is found.
- *
- * XXX Could be made more efficient, especially in the
- * case where "insert" is smaller than "target".
- */
+* Replace the first instance of "target" in "buf" with "insert"
+* If "insert" is NULL, just remove the first instance of "target"
+* In either case, return TRUE if "target" is found.
+*
+* XXX Could be made more efficient, especially in the
+* case where "insert" is smaller than "target".
+*/
 static bool insert_str(char *buf, cptr target, cptr insert)
 {
 	int   i, len;
@@ -3411,133 +3411,3 @@ void repeat_check(void)
 }
 
 #endif /* ALLOW_REPEAT -- TNB */
-
-
-#ifdef SORT_R_INFO
-
-/*
- * Array size for which InsertionSort
- * is used instead of QuickSort
- */
-#define CUTOFF 4
-
-
-/*
- * Exchange two sort-entries
- * (should probably be coded inline
- * for speed increase)
- */
-static void swap(tag_type *a, tag_type *b)
-{
-	tag_type temp;
-
-	temp.tag = a->tag;
-	temp.pointer = a->pointer;
-
-	a->tag = b->tag;
-	a->pointer = b->pointer;
-
-	b->tag = temp.tag;
-	b->pointer = temp.pointer;
-}
-
-
-/*
- * Insertion-Sort algorithm
- * (used by the Quicksort algorithm)
- */
-static void InsertionSort(tag_type elements[], int number)
-{
-	int j, P;
-
-	tag_type tmp;
-
-	for (P = 1; P < number; P++)
-	{
-		tmp = elements[P];
-		for (j = P; (j > 0) && (elements[j - 1].tag > tmp.tag); j--)
-			elements[j] = elements[j - 1];
-		elements[j] = tmp;
-	}
-}
-
-
-/*
- * Helper function for Quicksort
- */
-static tag_type median3(tag_type elements[], int left, int right)
-{
-	int center = (left + right) / 2;
-
-	if (elements[left].tag > elements[center].tag)
-		swap(&elements[left], &elements[center]);
-	if (elements[left].tag > elements[right].tag)
-		swap(&elements[left], &elements[right]);
-	if (elements[center].tag > elements[right].tag)
-		swap(&elements[center], &elements[right]);
-
-	swap(&elements[center], &elements[right - 1]);
-	return (elements[right - 1]);
-}
-
-
-/*
- * Quicksort algorithm
- *
- * The "median of three" pivot selection eliminates
- * the bad case of already sorted input.
- *
- * We use InsertionSort for smaller sub-arrays,
- * because it is faster in this case.
- *
- * For details see: "Data Structures and Algorithm
- * Analysis in C" by Mark Allen Weiss.
- */
-static void quicksort(tag_type elements[], int left, int right)
-{
-	int i, j;
-	tag_type pivot;
-
-	if (left + CUTOFF <= right)
-	{
-		pivot = median3(elements, left, right);
-
-		i = left; j = right -1;
-
-		while (TRUE)
-		{
-			while (elements[++i].tag < pivot.tag) ;
-			while (elements[--j].tag > pivot.tag) ;
-
-			if (i < j)
-				swap(&elements[i], &elements[j]);
-			else
-				break;
-		}
-
-		/* Restore pivot */
-		swap(&elements[i], &elements[right - 1]);
-
-		quicksort(elements, left, i - 1);
-		quicksort(elements, i + 1, right);
-	}
-	else
-	{
-		/* Use InsertionSort on small arrays */
-		InsertionSort(elements + left, right - left + 1);
-	}
-}
-
-
-/*
- * Frontend for the sorting algorithm
- *
- * Sorts an array of tagged pointers
- * with <number> elements.
- */
-void tag_sort(tag_type elements[], int number)
-{
-	quicksort(elements, 0, number - 1);
-}
-
-#endif /* SORT_R_INFO */

@@ -2566,6 +2566,13 @@ void do_cmd_feeling(void)
 	if (feeling < 0) feeling = 0;
 	if (feeling > 10) feeling = 10;
 
+        /* No useful feeling in special levels */
+        if (special_flag)
+	{
+                msg_print("Looks like a special level.");
+		return;
+	}
+
 	/* No useful feeling in quests */
 	if (p_ptr->inside_quest)
 	{
@@ -2995,7 +3002,7 @@ static void do_cmd_knowledge_uniques(void)
 	fff = my_fopen(file_name, "w");
 
 	/* Scan the monster races */
-	for (k = 1; k < max_r_idx; k++)
+	for (k = 1; k < max_r_idx-1; k++)
 	{
 		monster_race *r_ptr = &r_info[k];
 
@@ -3139,7 +3146,7 @@ static void do_cmd_knowledge_pets(void)
 		/* Ignore "dead" monsters */
 		if (!m_ptr->r_idx) continue;
 
-		/* Calculate "upkeep" for pets */
+		/* Calculate "upkeep" for friendly monsters */
 		if (is_pet(m_ptr))
 		{
 			char pet_name[80];
@@ -3203,7 +3210,7 @@ static void do_cmd_knowledge_kill_count(void)
 		/* Monsters slain */
 		int kk;
 
-		for (kk = 1; kk < max_r_idx; kk++)
+		for (kk = 1; kk < max_r_idx-1; kk++)
 		{
 			monster_race *r_ptr = &r_info[kk];
 
@@ -3238,7 +3245,7 @@ static void do_cmd_knowledge_kill_count(void)
 	Total = 0;
 
 	/* Scan the monster races */
-	for (k = 1; k < max_r_idx; k++)
+	for (k = 1; k < max_r_idx-1; k++)
 	{
 		monster_race *r_ptr = &r_info[k];
 
@@ -3583,7 +3590,8 @@ void do_cmd_knowledge(void)
 
 
 /*
- * Check on the status of an active quest
+ * Check on the status of an active quest -KMW-
+ * TODO: Spill out status when not a simple kill # monster.
  */
 void do_cmd_checkquest(void)
 {

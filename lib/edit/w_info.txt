@@ -6,8 +6,6 @@
 
 # Road Flags: Sum of NORTH 1, SOUTH 2, EAST 4, WEST 8
 
-?:[EQU $WILDERNESS 1]
-
 # Edge of the world
 W:F:#:0
 
@@ -33,16 +31,16 @@ W:F:M:11:50
 W:F:V:10:60
 
 # Town 1
-W:F:1:1:0:1:0:Outpost
+W:F:1:1:0:1:0:Bree
 
 # Town 2
-W:F:2:1:0:2:0:Telmora
+W:F:2:1:0:2:0:Gondolin
 
 # Town 3
-W:F:5:1:0:3:0:Morivant
+W:F:5:1:0:3:0:Minas Anor
 
 # Town 4
-W:F:6:7:4:4:0:Angwil
+W:F:6:7:4:4:0:Menegroth
 
 # Grassland with road east-west-south
 W:F:-:6:3:0:14
@@ -50,13 +48,14 @@ W:F:-:6:3:0:14
 # Grassland with road north-south
 W:F:|:6:3:0:3
 
+
 # Wilderness layout
 W:D:##########
 W:D:#GGGGMVMM#
 W:D:#GGG5GGMM#
 W:D:#GGG|GGGG#
 W:D:#GGG1-2GG#
-W:D:#GGDD|DGG#
+W:D:#GGFF|FGG#
 W:D:#WSFF6FFS#
 W:D:#WWSSSSSS#
 W:D:#WWWWWWWW#
@@ -64,22 +63,4 @@ W:D:##########
 
 # Starting position
 W:P:4:4
-
-?:[EQU $WILDERNESS 0]
-
-# Edge of the world
-W:F:#:0
-
-# Town 1
-W:F:1:1:0:1:0:Town
-
-# Wilderness layout
-W:D:###
-W:D:#1#
-W:D:###
-
-# Starting position
-W:P:1:1
-
-?:1
 

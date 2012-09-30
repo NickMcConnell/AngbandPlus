@@ -192,7 +192,7 @@ static byte food_col[MAX_SHROOM] =
 
 static cptr potion_adj[MAX_COLORS] =
 {
-	"Clear", "Light Brown", "Icky Green", "xxx",
+        "Clear", "Light Brown", "Icky Green", "Strangely Phosphorescent",
 	"Azure", "Blue", "Blue Speckled", "Black", "Brown", "Brown Speckled",
 	"Bubbling", "Chartreuse", "Cloudy", "Copper Speckled", "Crimson", "Cyan",
 	"Dark Blue", "Dark Green", "Dark Red", "Gold Speckled", "Green",
@@ -209,7 +209,7 @@ static cptr potion_adj[MAX_COLORS] =
 
 static byte potion_col[MAX_COLORS] =
 {
-	TERM_WHITE, TERM_L_UMBER, TERM_GREEN, 0,
+        TERM_WHITE, TERM_L_UMBER, TERM_GREEN, TERM_MULTI,
 	TERM_L_BLUE, TERM_BLUE, TERM_BLUE, TERM_L_DARK, TERM_UMBER, TERM_UMBER,
 	TERM_L_WHITE, TERM_L_GREEN, TERM_WHITE, TERM_L_UMBER, TERM_RED, TERM_L_BLUE,
 	TERM_BLUE, TERM_GREEN, TERM_RED, TERM_YELLOW, TERM_GREEN,
@@ -381,13 +381,14 @@ static bool object_easy_know(int i)
 		case TV_DEATH_BOOK:
 		case TV_TRUMP_BOOK:
 		case TV_ARCANE_BOOK:
+                case TV_MIMIC_BOOK:
 		{
 			return (TRUE);
 		}
 
 		/* Simple items */
 		case TV_FLASK:
-		case TV_JUNK:
+                case TV_FIRESTONE:
 		case TV_BOTTLE:
 		case TV_SKELETON:
 		case TV_SPIKE:
@@ -400,6 +401,7 @@ static bool object_easy_know(int i)
 		case TV_POTION:
 		case TV_SCROLL:
 		case TV_ROD:
+                case TV_BATERIE:
 		{
 			return (TRUE);
 		}
@@ -432,7 +434,7 @@ static byte default_tval_to_attr(int tval)
 	{
 		case TV_SKELETON:
 		case TV_BOTTLE:
-		case TV_JUNK:
+                case TV_FIRESTONE:
 		{
 			return (TERM_WHITE);
 		}
@@ -471,6 +473,7 @@ static byte default_tval_to_attr(int tval)
 
 		case TV_HAFTED:
 		case TV_POLEARM:
+                case TV_MSTAFF:
 		case TV_SWORD:
 		{
 			return (TERM_L_WHITE);
@@ -493,6 +496,7 @@ static byte default_tval_to_attr(int tval)
 			return (TERM_SLATE);
 		}
 
+                case TV_BATERIE:
 		case TV_AMULET:
 		{
 			return (TERM_ORANGE);
@@ -569,6 +573,10 @@ static byte default_tval_to_attr(int tval)
 		{
 			return (TERM_L_WHITE);
 		}
+                case TV_MIMIC_BOOK:
+                {
+                        return (TERM_UMBER);
+                }
 	}
 
 	return (TERM_WHITE);
@@ -1339,885 +1347,6 @@ static char *object_desc_int(char *t, sint v)
  *   2 -- The Cloak of Death [1,+3] (+2 to Stealth)
  *   3 -- The Cloak of Death [1,+3] (+2 to Stealth) {nifty}
  */
-#if 0 /* Replaced with Julian Lighton's improved code */
-void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
-{
-	cptr            basenm, modstr;
-	int                     power, indexx;
-
-	bool            aware = FALSE;
-	bool            known = FALSE;
-
-	bool            append_name = FALSE;
-
-	bool            show_weapon = FALSE;
-	bool            show_armour = FALSE;
-
-	cptr            s, u;
-	char            *t;
-
-	char            p1 = '(', p2 = ')';
-	char            b1 = '[', b2 = ']';
-	char            c1 = '{', c2 = '}';
-
-	char            tmp_val[160];
-
-	u32b            f1, f2, f3;
-
-	object_kind             *k_ptr = &k_info[o_ptr->k_idx];
-
-
-	/* Extract some flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
-
-
-	/* See if the object is "aware" */
-	if (object_aware_p(o_ptr)) aware = TRUE;
-
-	/* See if the object is "known" */
-	if (object_known_p(o_ptr)) known = TRUE;
-
-	/* Hack -- Extract the sub-type "indexx" */
-	indexx = o_ptr->sval;
-
-	/* Extract default "base" string */
-	basenm = (k_name + k_ptr->name);
-
-	/* Assume no "modifier" string */
-	modstr = "";
-
-
-	/* Analyze the object */
-	switch (o_ptr->tval)
-	{
-		/* Some objects are easy to describe */
-		case TV_SKELETON:
-		case TV_BOTTLE:
-		case TV_JUNK:
-		case TV_SPIKE:
-		case TV_FLASK:
-		case TV_CHEST:
-		{
-			break;
-		}
-
-		/* Missiles/ Bows/ Weapons */
-		case TV_SHOT:
-		case TV_BOLT:
-		case TV_ARROW:
-		case TV_BOW:
-		case TV_HAFTED:
-		case TV_POLEARM:
-		case TV_SWORD:
-		case TV_DIGGING:
-		{
-			show_weapon = TRUE;
-			break;
-		}
-
-		/* Armour */
-		case TV_BOOTS:
-		case TV_GLOVES:
-		case TV_CLOAK:
-		case TV_CROWN:
-		case TV_HELM:
-		case TV_SHIELD:
-		case TV_SOFT_ARMOR:
-		case TV_HARD_ARMOR:
-		case TV_DRAG_ARMOR:
-		{
-			show_armour = TRUE;
-			break;
-		}
-
-		/* Lites (including a few "Specials") */
-		case TV_LITE:
-		{
-			break;
-		}
-
-		/* Amulets (including a few "Specials") */
-		case TV_AMULET:
-		{
-			/* Known artifacts */
-			if (artifact_p(o_ptr) && aware) break;
-
-			/* Color the object */
-			modstr = amulet_adj[indexx];
-			if (aware) append_name = TRUE;
-
-			if ((plain_descriptions && aware) ||
-			    (o_ptr->ident & IDENT_STOREB))
-				basenm = "& Amulet~";
-			else
-				basenm = aware ? "& # Amulet~" : "& # Amulet~";
-			break;
-		}
-
-		/* Rings (including a few "Specials") */
-		case TV_RING:
-		{
-			/* Known artifacts */
-			if (artifact_p(o_ptr) && aware) break;
-
-			/* Color the object */
-			modstr = ring_adj[indexx];
-			if (aware) append_name = TRUE;
-
-			if ((plain_descriptions && aware) || (o_ptr->ident & IDENT_STOREB))
-				basenm = "& Ring~";
-			else
-				basenm = aware ? "& # Ring~" : "& # Ring~";
-
-			/* Hack -- The One Ring */
-			if (!aware && (o_ptr->sval == SV_RING_POWER)) modstr = "Plain Gold";
-
-			break;
-		}
-
-		/* Staves */
-		case TV_STAFF:
-		{
-			/* Color the object */
-			modstr = staff_adj[indexx];
-			if (aware) append_name = TRUE;
-
-			if ((plain_descriptions && aware) || (o_ptr->ident & IDENT_STOREB))
-				basenm = "& Staff~";
-			else
-				basenm = aware ? "& # Staff~" : "& # Staff~";
-			break;
-		}
-
-		/* Wands */
-        case TV_WAND:
-		{
-			/* Color the object */
-			modstr = wand_adj[indexx];
-			if (aware) append_name = TRUE;
-
-			if ((plain_descriptions && aware) || (o_ptr->ident & IDENT_STOREB))
-				basenm = "& Wand~";
-			else
-				basenm = aware ? "& # Wand~" : "& # Wand~";
-
-			break;
-		}
-
-		/* Rods */
-		case TV_ROD:
-		{
-			/* Color the object */
-			modstr = rod_adj[indexx];
-			if (aware) append_name = TRUE;
-
-			if ((plain_descriptions && aware) || (o_ptr->ident & IDENT_STOREB))
-				basenm = "& Rod~";
-			else
-				basenm = aware ? "& # Rod~" : "& # Rod~";
-
-			break;
-		}
-
-		/* Scrolls */
-		case TV_SCROLL:
-		{
-			/* Color the object */
-			modstr = scroll_adj[indexx];
-			if (aware) append_name = TRUE;
-
-			if (((plain_descriptions) && (aware)) || o_ptr->ident & IDENT_STOREB)
-				basenm = "& Scroll~";
-			else
-				basenm = aware ? "& Scroll~ titled \"#\"" : "& Scroll~ titled \"#\"";
-
-			break;
-		}
-
-		/* Potions */
-		case TV_POTION:
-		{
-			/* Color the object */
-			modstr = potion_adj[indexx];
-			if (aware) append_name = TRUE;
-
-			if (((plain_descriptions) && (aware))  || o_ptr->ident & IDENT_STOREB)
-				basenm = "& Potion~";
-			else
-				basenm = aware ? "& # Potion~" : "& # Potion~";
-
-			break;
-		}
-
-		/* Food */
-		case TV_FOOD:
-		{
-			/* Ordinary food is "boring" */
-			if (o_ptr->sval >= SV_FOOD_MIN_FOOD) break;
-
-			/* Color the object */
-			modstr = food_adj[indexx];
-			if (aware) append_name = TRUE;
-
-			if (((plain_descriptions) && (aware))  || o_ptr->ident & IDENT_STOREB)
-				basenm = "& Mushroom~";
-			else
-				basenm = aware ? "& # Mushroom~" : "& # Mushroom~";
-
-			break;
-		}
-
-
-		/* Magic Books (Life) */
-		case TV_LIFE_BOOK:
-		{
-			modstr = basenm;
-			if (mp_ptr->spell_book == TV_LIFE_BOOK)
-				basenm = "& Book~ of Life Magic #";
-			else
-				basenm = "& Life Spellbook~ #";
-			break;
-		}
-
-		/* Magic Books (Sorcery) */
-		case TV_SORCERY_BOOK:
-		{
-			modstr = basenm;
-			if(mp_ptr->spell_book == TV_LIFE_BOOK)
-				basenm = "& Book~ of Sorcery #";
-			else
-				basenm = "& Sorcery Spellbook~ #";
-			break;
-		}
-
-		/* Magic Books (Nature) */
-		case TV_NATURE_BOOK:
-		{
-			modstr = basenm;
-			if(mp_ptr->spell_book == TV_LIFE_BOOK)
-				basenm = "& Book~ of Nature Magic #";
-			else
-				basenm = "& Nature Spellbook~ #";
-			break;
-		}
-
-		/* Magic Books (Chaos) */
-		case TV_CHAOS_BOOK:
-		{
-			modstr = basenm;
-			if(mp_ptr->spell_book == TV_LIFE_BOOK)
-				basenm = "& Book~ of Chaos Magic #";
-			else
-				basenm = "& Chaos Spellbook~ #";
-			break;
-		}
-
-		/* Magic Books (Death) */
-		case TV_DEATH_BOOK:
-		{
-			modstr = basenm;
-			if(mp_ptr->spell_book == TV_LIFE_BOOK)
-				basenm = "& Book~ of Death Magic #";
-			else
-				basenm = "& Death Spellbook~ #";
-			break;
-		}
-
-		/* Magic Books (Trump) */
-		case TV_TRUMP_BOOK:
-		{
-			modstr = basenm;
-			if(mp_ptr->spell_book == TV_LIFE_BOOK)
-				basenm = "& Book~ of Trump Magic #";
-			else
-				basenm = "& Trump Spellbook~ #";
-			break;
-		}
-
-		/* Magic Books (Arcane) */
-		case TV_ARCANE_BOOK:
-		{
-			modstr = basenm;
-			if(mp_ptr->spell_book == TV_LIFE_BOOK)
-				basenm = "& Book~ of Arcane Magic #";
-			else
-				basenm = "& Arcane Spellbook~ #";
-			break;
-		}
-
-		/* Hack -- Gold/Gems */
-		case TV_GOLD:
-		{
-			strcpy(buf, basenm);
-			return;
-		}
-
-		/* Used in the "inventory" routine */
-		default:
-		{
-			strcpy(buf, "(nothing)");
-			return;
-		}
-	}
-
-
-	/* Start dumping the result */
-	t = buf;
-
-	/* The object "expects" a "number" */
-	if (basenm[0] == '&')
-	{
-		/* Skip the ampersand (and space) */
-		s = basenm + 2;
-
-		/* No prefix */
-		if (!pref)
-		{
-			/* Nothing */
-		}
-
-		/* Hack -- None left */
-		else if (o_ptr->number <= 0)
-		{
-			t = object_desc_str(t, "no more ");
-		}
-
-		/* Extract the number */
-		else if (o_ptr->number > 1)
-		{
-			t = object_desc_num(t, o_ptr->number);
-			t = object_desc_chr(t, ' ');
-		}
-
-		/* Hack -- The only one of its kind */
-		else if (known && (artifact_p(o_ptr) || o_ptr->art_name))
-		{
-			t = object_desc_str(t, "The ");
-		}
-
-		/* A single one, with a vowel in the modifier */
-		else if ((*s == '#') && (is_a_vowel(modstr[0])))
-		{
-			t = object_desc_str(t, "an ");
-		}
-
-		/* A single one, with a vowel */
-		else if (is_a_vowel(*s))
-		{
-			t = object_desc_str(t, "an ");
-		}
-
-		/* A single one, without a vowel */
-		else
-		{
-			t = object_desc_str(t, "a ");
-		}
-	}
-
-	/* Hack -- objects that "never" take an article */
-	else
-	{
-		/* No ampersand */
-		s = basenm;
-
-		/* No pref */
-		if (!pref)
-		{
-			/* Nothing */
-		}
-
-		/* Hack -- all gone */
-		else if (o_ptr->number <= 0)
-		{
-			t = object_desc_str(t, "no more ");
-		}
-
-		/* Prefix a number if required */
-		else if (o_ptr->number > 1)
-		{
-			t = object_desc_num(t, o_ptr->number);
-			t = object_desc_chr(t, ' ');
-		}
-
-		/* Hack -- The only one of its kind */
-		else if (known && (artifact_p(o_ptr) || o_ptr->art_name))
-		{
-			t = object_desc_str(t, "The ");
-		}
-
-		/* Hack -- single items get no prefix */
-		else
-		{
-			/* Nothing */
-		}
-	}
-
-	/* Paranoia -- skip illegal tildes */
-	/* while (*s == '~') s++; */
-
-	/* Copy the string */
-	for (; *s; s++)
-	{
-		/* Pluralizer */
-		if (*s == '~')
-		{
-			/* Add a plural if needed */
-			if (o_ptr->number != 1)
-			{
-				char k = t[-1];
-
-				/* XXX XXX XXX Mega-Hack */
-
-				/* Hack -- "Cutlass-es" and "Torch-es" */
-				if ((k == 's') || (k == 'h')) *t++ = 'e';
-
-				/* Add an 's' */
-				*t++ = 's';
-			}
-		}
-
-		/* Modifier */
-		else if (*s == '#')
-		{
-			/* Insert the modifier */
-			for (u = modstr; *u; u++) *t++ = *u;
-		}
-
-		/* Normal */
-		else
-		{
-			/* Copy */
-			*t++ = *s;
-		}
-	}
-
-	/* Terminate */
-	*t = '\0';
-
-
-	/* Append the "kind name" to the "base name" */
-	if (append_name)
-	{
-		t = object_desc_str(t, " of ");
-		t = object_desc_str(t, (k_name + k_ptr->name));
-	}
-
-
-	/* Hack -- Append "Artifact" or "Special" names */
-	if (known)
-	{
-		/* Is it a new random artifact ? */
-		if (o_ptr->art_name)
-	    {
-#if 0
-			if (o_ptr->ident & IDENT_STOREB)
-				t = object_desc_str(t, " called '");
-			else
-#endif
-			t = object_desc_chr(t, ' ');
-
-			t = object_desc_str(t, quark_str(o_ptr->art_name));
-
-#if 0
-			if (o_ptr->ident & IDENT_STOREB)
-				t = object_desc_chr(t, '\'');
-#endif
-		}
-
-		/* Grab any artifact name */
-		else if (o_ptr->name1)
-		{
-			artifact_type *a_ptr = &a_info[o_ptr->name1];
-
-			t = object_desc_chr(t, ' ');
-			t = object_desc_str(t, (a_name + a_ptr->name));
-		}
-
-		/* Grab any ego-item name */
-		else if (o_ptr->name2)
-		{
-			ego_item_type *e_ptr = &e_info[o_ptr->name2];
-
-			t = object_desc_chr(t, ' ');
-			t = object_desc_str(t, (e_name + e_ptr->name));
-		}
-	}
-
-
-	/* No more details wanted */
-	if (mode < 1) return;
-
-
-	/* Hack -- Chests must be described in detail */
-	if (o_ptr->tval == TV_CHEST)
-	{
-		/* Not searched yet */
-		if (!known)
-		{
-			/* Nothing */
-		}
-
-		/* May be "empty" */
-		else if (!o_ptr->pval)
-		{
-			t = object_desc_str(t, " (empty)");
-		}
-
-		/* May be "disarmed" */
-		else if (o_ptr->pval < 0)
-		{
-			if (chest_traps[o_ptr->pval])
-			{
-				t = object_desc_str(t, " (disarmed)");
-			}
-			else
-			{
-				t = object_desc_str(t, " (unlocked)");
-			}
-		}
-
-		/* Describe the traps, if any */
-		else
-		{
-			/* Describe the traps */
-			switch (chest_traps[o_ptr->pval])
-			{
-				case 0:
-				{
-					t = object_desc_str(t, " (Locked)");
-					break;
-				}
-				case CHEST_LOSE_STR:
-				{
-					t = object_desc_str(t, " (Poison Needle)");
-					break;
-				}
-				case CHEST_LOSE_CON:
-				{
-					t = object_desc_str(t, " (Poison Needle)");
-					break;
-				}
-				case CHEST_POISON:
-				{
-					t = object_desc_str(t, " (Gas Trap)");
-					break;
-				}
-				case CHEST_PARALYZE:
-				{
-					t = object_desc_str(t, " (Gas Trap)");
-					break;
-				}
-				case CHEST_EXPLODE:
-				{
-					t = object_desc_str(t, " (Explosion Device)");
-					break;
-				}
-				case CHEST_SUMMON:
-				{
-					t = object_desc_str(t, " (Summoning Runes)");
-					break;
-				}
-				default:
-				{
-					t = object_desc_str(t, " (Multiple Traps)");
-					break;
-				}
-			}
-		}
-	}
-
-
-	/* Display the item like a weapon */
-	if (f3 & (TR3_SHOW_MODS)) show_weapon = TRUE;
-
-	/* Display the item like a weapon */
-	if (o_ptr->to_h && o_ptr->to_d) show_weapon = TRUE;
-
-	/* Display the item like armour */
-	if (o_ptr->ac) show_armour = TRUE;
-
-
-	/* Dump base weapon info */
-	switch (o_ptr->tval)
-	{
-		/* Missiles and Weapons */
-		case TV_SHOT:
-		case TV_BOLT:
-		case TV_ARROW:
-		case TV_HAFTED:
-		case TV_POLEARM:
-		case TV_SWORD:
-		case TV_DIGGING:
-
-		/* Append a "damage" string */
-		t = object_desc_chr(t, ' ');
-		t = object_desc_chr(t, p1);
-		t = object_desc_num(t, o_ptr->dd);
-		t = object_desc_chr(t, 'd');
-		t = object_desc_num(t, o_ptr->ds);
-		t = object_desc_chr(t, p2);
-
-		/* All done */
-		break;
-
-
-		/* Bows get a special "damage string" */
-		case TV_BOW:
-
-		/* Mega-Hack -- Extract the "base power" */
-		power = (o_ptr->sval % 10);
-
-		/* Apply the "Extra Might" flag */
-		if (f3 & (TR3_XTRA_MIGHT)) power++;
-
-		/* Append a special "damage" string */
-		t = object_desc_chr(t, ' ');
-		t = object_desc_chr(t, p1);
-		t = object_desc_chr(t, 'x');
-		t = object_desc_num(t, power);
-		t = object_desc_chr(t, p2);
-
-		/* All done */
-		break;
-	}
-
-
-	/* Add the weapon bonuses */
-	if (known)
-	{
-		/* Show the tohit/todam on request */
-		if (show_weapon)
-		{
-			t = object_desc_chr(t, ' ');
-			t = object_desc_chr(t, p1);
-			t = object_desc_int(t, o_ptr->to_h);
-			t = object_desc_chr(t, ',');
-			t = object_desc_int(t, o_ptr->to_d);
-			t = object_desc_chr(t, p2);
-		}
-
-		/* Show the tohit if needed */
-		else if (o_ptr->to_h)
-		{
-			t = object_desc_chr(t, ' ');
-			t = object_desc_chr(t, p1);
-			t = object_desc_int(t, o_ptr->to_h);
-			t = object_desc_chr(t, p2);
-		}
-
-		/* Show the todam if needed */
-		else if (o_ptr->to_d)
-		{
-			t = object_desc_chr(t, ' ');
-			t = object_desc_chr(t, p1);
-			t = object_desc_int(t, o_ptr->to_d);
-			t = object_desc_chr(t, p2);
-		}
-	}
-
-
-	/* Add the armor bonuses */
-	if (known)
-	{
-		/* Show the armor class info */
-		if (show_armour)
-		{
-			t = object_desc_chr(t, ' ');
-			t = object_desc_chr(t, b1);
-			t = object_desc_num(t, o_ptr->ac);
-			t = object_desc_chr(t, ',');
-			t = object_desc_int(t, o_ptr->to_a);
-			t = object_desc_chr(t, b2);
-		}
-
-		/* No base armor, but does increase armor */
-		else if (o_ptr->to_a)
-		{
-			t = object_desc_chr(t, ' ');
-			t = object_desc_chr(t, b1);
-			t = object_desc_int(t, o_ptr->to_a);
-			t = object_desc_chr(t, b2);
-		}
-	}
-
-	/* Hack -- always show base armor */
-	else if (show_armour)
-	{
-		t = object_desc_chr(t, ' ');
-		t = object_desc_chr(t, b1);
-		t = object_desc_num(t, o_ptr->ac);
-		t = object_desc_chr(t, b2);
-	}
-
-
-	/* No more details wanted */
-	if (mode < 2) return;
-
-
-	/* Hack -- Wands and Staffs have charges */
-	if (known &&
-	    ((o_ptr->tval == TV_STAFF) ||
-	     (o_ptr->tval == TV_WAND)))
-	{
-		/* Dump " (N charges)" */
-		t = object_desc_chr(t, ' ');
-		t = object_desc_chr(t, p1);
-		t = object_desc_num(t, o_ptr->pval);
-		t = object_desc_str(t, " charge");
-		if (o_ptr->pval != 1) t = object_desc_chr(t, 's');
-		t = object_desc_chr(t, p2);
-	}
-
-	/* Hack -- Rods have a "charging" indicator */
-	else if (known && (o_ptr->tval == TV_ROD))
-	{
-		/* Hack -- Dump " (charging)" if relevant */
-		if (o_ptr->pval) t = object_desc_str(t, " (charging)");
-	}
-
-	/* Hack -- Process Lanterns/Torches */
-	else if ((o_ptr->tval == TV_LITE) && (!artifact_p(o_ptr)))
-	{
-		/* Hack -- Turns of light for normal lites */
-		t = object_desc_str(t, " (with ");
-		t = object_desc_num(t, o_ptr->pval);
-		t = object_desc_str(t, " turns of light)");
-	}
-
-
-	/* Dump "pval" flags for wearable items */
-	if (known && (f1 & (TR1_PVAL_MASK)))
-	{
-		/* Start the display */
-		t = object_desc_chr(t, ' ');
-		t = object_desc_chr(t, p1);
-
-		/* Dump the "pval" itself */
-		t = object_desc_int(t, o_ptr->pval);
-
-		/* Do not display the "pval" flags */
-		if (f3 & (TR3_HIDE_TYPE))
-		{
-			/* Nothing */
-		}
-
-		/* Speed */
-		else if (f1 & (TR1_SPEED))
-		{
-			/* Dump " to speed" */
-			t = object_desc_str(t, " to speed");
-		}
-
-		/* Attack speed */
-		else if (f1 & (TR1_BLOWS))
-		{
-			/* Add " attack" */
-			t = object_desc_str(t, " attack");
-
-			/* Add "attacks" */
-			if (ABS(o_ptr->pval) != 1) t = object_desc_chr(t, 's');
-		}
-
-		/* Stealth */
-		else if (f1 & (TR1_STEALTH))
-		{
-			/* Dump " to stealth" */
-			t = object_desc_str(t, " to stealth");
-		}
-
-		/* Search */
-		else if (f1 & (TR1_SEARCH))
-		{
-			/* Dump " to searching" */
-			t = object_desc_str(t, " to searching");
-		}
-
-		/* Infravision */
-		else if (f1 & (TR1_INFRA))
-		{
-			/* Dump " to infravision" */
-			t = object_desc_str(t, " to infravision");
-		}
-
-		/* Tunneling */
-		else if (f1 & (TR1_TUNNEL))
-		{
-			/* Nothing */
-		}
-
-		/* Finish the display */
-		t = object_desc_chr(t, p2);
-	}
-
-
-	/* Indicate "charging" artifacts XXX XXX XXX */
-	if (known && o_ptr->timeout)
-	{
-		/* Hack -- Dump " (charging)" if relevant */
-		t = object_desc_str(t, " (charging)");
-	}
-
-
-	/* No more details wanted */
-	if (mode < 3) return;
-
-
-	/* No inscription yet */
-	tmp_val[0] = '\0';
-
-	/* Use the standard inscription if available */
-	if (o_ptr->note)
-	{
-		strcpy(tmp_val, quark_str(o_ptr->note));
-	}
-
-	/* Note "cursed" if the item is known to be cursed */
-	else if (cursed_p(o_ptr) && (known || (o_ptr->ident & (IDENT_SENSE))))
-	{
-		strcpy(tmp_val, "cursed");
-	}
-
-	/* Mega-Hack -- note empty wands/staffs */
-	else if (!known && (o_ptr->ident & (IDENT_EMPTY)))
-	{
-		strcpy(tmp_val, "empty");
-	}
-
-	/* Note "tried" if the object has been tested unsuccessfully */
-	else if (!aware && object_tried_p(o_ptr))
-	{
-		strcpy(tmp_val, "tried");
-	}
-
-	/* Note the discount, if any */
-	else if (o_ptr->discount)
-	{
-		object_desc_num(tmp_val, o_ptr->discount);
-		strcat(tmp_val, "% off");
-	}
-
-	/* Append the inscription, if any */
-	if (tmp_val[0])
-	{
-		int n;
-
-		/* Hack -- How much so far */
-		n = (t - buf);
-
-		/* Paranoia -- do not be stupid */
-		if (n > 75) n = 75;
-
-		/* Hack -- shrink the inscription */
-		tmp_val[75 - n] = '\0';
-
-		/* Append the inscription */
-		t = object_desc_chr(t, ' ');
-		t = object_desc_chr(t, c1);
-		t = object_desc_str(t, tmp_val);
-		t = object_desc_chr(t, c2);
-	}
-}
-#else
 void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 {
 	cptr            basenm, modstr;
@@ -2268,10 +1397,10 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	/* Analyze the object */
 	switch (o_ptr->tval)
 	{
-		/* Some objects are easy to describe */
+			/* Some objects are easy to describe */
 		case TV_SKELETON:
 		case TV_BOTTLE:
-		case TV_JUNK:
+                case TV_FIRESTONE:
 		case TV_SPIKE:
 		case TV_FLASK:
 		case TV_CHEST:
@@ -2280,13 +1409,14 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		}
 
 
-		/* Missiles/ Bows/ Weapons */
+			/* Missiles/ Bows/ Weapons */
 		case TV_SHOT:
 		case TV_BOLT:
 		case TV_ARROW:
 		case TV_BOW:
 		case TV_HAFTED:
 		case TV_POLEARM:
+                case TV_MSTAFF:
 		case TV_SWORD:
 		case TV_DIGGING:
 		{
@@ -2295,7 +1425,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		}
 
 
-		/* Armour */
+			/* Armour */
 		case TV_BOOTS:
 		case TV_GLOVES:
 		case TV_CLOAK:
@@ -2311,7 +1441,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		}
 
 
-		/* Lites (including a few "Specials") */
+			/* Lites (including a few "Specials") */
 		case TV_LITE:
 		{
 			break;
@@ -2367,7 +1497,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 			break;
 		}
 
-		case TV_WAND:
+        case TV_WAND:
 		{
 			/* Color the object */
 			modstr = wand_adj[indexx];
@@ -2430,86 +1560,106 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 			break;
 		}
 
-		/* Magic Books */
-		case TV_LIFE_BOOK:
+
+			/* Magic Books */
+	case TV_LIFE_BOOK:
+		modstr = basenm;
+		if (mp_ptr->spell_book == TV_LIFE_BOOK)
+			basenm = "& Book~ of Life Magic #";
+		else
+			basenm = "& Life Spellbook~ #";
+		break;
+
+	case TV_SORCERY_BOOK:
 		{
 			modstr = basenm;
-			if (mp_ptr->spell_book == TV_LIFE_BOOK)
-				basenm = "& Book~ of Life Magic #";
-			else
-				basenm = "& Life Spellbook~ #";
+            if(mp_ptr->spell_book == TV_LIFE_BOOK)
+                basenm = "& Book~ of Sorcery #";
+            else
+                basenm = "& Sorcery Spellbook~ #";
 			break;
 		}
 
-		case TV_SORCERY_BOOK:
+	case TV_NATURE_BOOK:
 		{
 			modstr = basenm;
-			if(mp_ptr->spell_book == TV_LIFE_BOOK)
-				basenm = "& Book~ of Sorcery #";
-			else
-				basenm = "& Sorcery Spellbook~ #";
+            if(mp_ptr->spell_book == TV_LIFE_BOOK)
+                basenm = "& Book~ of Nature Magic #";
+            else
+                basenm = "& Nature Spellbook~ #";
 			break;
 		}
 
-		case TV_NATURE_BOOK:
+	case TV_CHAOS_BOOK:
 		{
 			modstr = basenm;
-			if(mp_ptr->spell_book == TV_LIFE_BOOK)
-				basenm = "& Book~ of Nature Magic #";
-			else
-				basenm = "& Nature Spellbook~ #";
+            if(mp_ptr->spell_book == TV_LIFE_BOOK)
+                basenm = "& Book~ of Chaos Magic #";
+            else
+                basenm = "& Chaos Spellbook~ #";
 			break;
 		}
-
-		case TV_CHAOS_BOOK:
+	case TV_DEATH_BOOK:
 		{
 			modstr = basenm;
-			if(mp_ptr->spell_book == TV_LIFE_BOOK)
-				basenm = "& Book~ of Chaos Magic #";
-			else
-				basenm = "& Chaos Spellbook~ #";
-			break;
-		}
-
-		case TV_DEATH_BOOK:
-		{
-			modstr = basenm;
-			if(mp_ptr->spell_book == TV_LIFE_BOOK)
-				basenm = "& Book~ of Death Magic #";
-			else
-				basenm = "& Death Spellbook~ #";
-			break;
-		}
-
-		case TV_TRUMP_BOOK:
-		{
-			modstr = basenm;
-			if(mp_ptr->spell_book == TV_LIFE_BOOK)
-				basenm = "& Book~ of Trump Magic #";
-			else
-				basenm = "& Trump Spellbook~ #";
-			break;
-		}
-
-		case TV_ARCANE_BOOK:
-		{
-			modstr = basenm;
-			if(mp_ptr->spell_book == TV_LIFE_BOOK)
-				basenm = "& Book~ of Arcane Magic #";
-			else
-				basenm = "& Arcane Spellbook~ #";
+            if(mp_ptr->spell_book == TV_LIFE_BOOK)
+                basenm = "& Book~ of Death Magic #";
+            else
+                basenm = "& Death Spellbook~ #";
 			break;
 		}
 
 
-		/* Hack -- Gold/Gems */
+    case TV_TRUMP_BOOK:
+		{
+			modstr = basenm;
+            if(mp_ptr->spell_book == TV_LIFE_BOOK)
+                basenm = "& Book~ of Trump Magic #";
+            else
+                basenm = "& Trump Spellbook~ #";
+			break;
+		}
+
+    case TV_ARCANE_BOOK:
+		{
+			modstr = basenm;
+            if(mp_ptr->spell_book == TV_LIFE_BOOK)
+                basenm = "& Book~ of Arcane Magic #";
+            else
+                basenm = "& Arcane Spellbook~ #";
+			break;
+		}
+
+            case TV_MIMIC_BOOK:
+		{
+			modstr = basenm;
+                        basenm = "& Book of Lore~ #";
+			break;
+		}
+
+            case TV_BATERIE:
+		{
+			modstr = basenm;
+                        basenm = "& Power Baterie~ of #";
+			break;
+		}
+
+            case TV_PARCHEMENT:
+		{
+			modstr = basenm;
+                        basenm = "& Parchement~ - #";
+			break;
+		}
+
+
+			/* Hack -- Gold/Gems */
 		case TV_GOLD:
 		{
 			strcpy(buf, basenm);
 			return;
 		}
 
-		/* Used in the "inventory" routine */
+			/* Used in the "inventory" routine */
 		default:
 		{
 			strcpy(buf, "(nothing)");
@@ -2547,7 +1697,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		}
 
 		/* Hack -- The only one of its kind */
-		else if (known && (artifact_p(o_ptr) || o_ptr->art_name))
+	else if (known && (artifact_p(o_ptr) || o_ptr->art_name))
 		{
 			t = object_desc_str(t, "The ");
 		}
@@ -2597,7 +1747,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		}
 
 		/* Hack -- The only one of its kind */
-		else if (known && (artifact_p(o_ptr) || o_ptr->art_name))
+	else if (known && (artifact_p(o_ptr) || o_ptr->art_name))
 		{
 			t = object_desc_str(t, "The ");
 		}
@@ -2663,26 +1813,28 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	/* Hack -- Append "Artifact" or "Special" names */
 	if (known)
 	{
-		/* Is it a new random artifact ? */
-		if (o_ptr->art_name)
-	    {
-#if 0
-			if (o_ptr->ident & IDENT_STOREB)
-				t = object_desc_str(t, " called '");
-			else
-#endif
-				t = object_desc_chr(t, ' ');
 
-			t = object_desc_str(t, quark_str(o_ptr->art_name));
+	/* Is it a new random artifact ? */
+	if (o_ptr->art_name)
+    {
+#if 0
+        if (o_ptr->ident & IDENT_STOREB)
+            t = object_desc_str(t, " called '");
+        else
+#endif
+			t = object_desc_chr(t, ' ');
+
+        t = object_desc_str(t, quark_str(o_ptr->art_name));
 
 #if 0
-			if (o_ptr->ident & IDENT_STOREB)
-				t = object_desc_chr(t, '\'');
+        if (o_ptr->ident & IDENT_STOREB)
+            t = object_desc_chr(t, '\'');
 #endif
-		}
+	}
 	
+
 		/* Grab any artifact name */
-		else if (o_ptr->name1)
+	else if (o_ptr->name1)
 		{
 			artifact_type *a_ptr = &a_info[o_ptr->name1];
 
@@ -2803,6 +1955,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		case TV_ARROW:
 		case TV_HAFTED:
 		case TV_POLEARM:
+                case TV_MSTAFF:
 		case TV_SWORD:
 		case TV_DIGGING:
 
@@ -2906,6 +2059,11 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		t = object_desc_chr(t, b2);
 	}
 
+        if((o_ptr->tval==TV_MSTAFF)&&(known)&&(o_ptr->name2!=EGO_MSTAFF_POWER)){
+                t = object_desc_str(t, "(x");
+                t = object_desc_num(t, o_ptr->pval);
+                t = object_desc_chr(t, ')');
+        }
 
 	/* No more details wanted */
 	if (mode < 2) goto copyback;
@@ -3014,6 +2172,18 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		t = object_desc_str(t, " (charging)");
 	}
 
+        /* Indicate "charging" Mage Staffs XXX XXX XXX */
+        if (known && o_ptr->timeout && (o_ptr->name2==EGO_MSTAFF_POWER))
+	{
+                /* Hack -- Dump " (charging spell1)" if relevant */
+                t = object_desc_str(t, " (charging spell1)");
+	}
+        if (known && o_ptr->pval && (o_ptr->name2==EGO_MSTAFF_POWER))
+	{
+                /* Hack -- Dump " (charging spell2)" if relevant */
+                t = object_desc_str(t, " (charging spell2)");
+	}
+
 
 	/* No more details wanted */
 	if (mode < 3) goto copyback;
@@ -3079,7 +2249,6 @@ copyback:
 	t = tmp_val;
 	while((*(buf++) = *(t++))); /* copy the string over */
 }
-#endif
 
 
 /*
@@ -3120,9 +2289,10 @@ void object_desc_store(char *buf, object_type *o_ptr, int pref, int mode)
  * Determine the "Activation" (if any) for an artifact
  * Return a string, or NULL for "no activation"
  */
-cptr item_activation(object_type *o_ptr)
+cptr item_activation(object_type *o_ptr,byte num)
 {
 	u32b f1, f2, f3;
+        byte spell;
 
 	/* Extract the flags */
 	object_flags(o_ptr, &f1, &f2, &f3);
@@ -3137,6 +2307,63 @@ cptr item_activation(object_type *o_ptr)
 	 * a name. Thus we eliminate other possibilities instead of checking
 	 * for art_name
 	 */
+
+        if(o_ptr->name2==EGO_MSTAFF_POWER){
+                if(num==0)spell=o_ptr->xtra2&15;
+                if(num==1)spell=o_ptr->xtra2>>4;
+                switch (spell)
+		{
+                        case SPELL_BO_POIS:
+			{
+                                return "stinking cloud (12), rad. 1, every 4+d4 turns";
+			}
+                        case SPELL_BO_ELEC:
+			{
+				return "lightning bolt (4d8) every 6+d6 turns";
+			}
+                        case SPELL_BO_ACID:
+			{
+				return "acid bolt (5d8) every 5+d5 turns";
+			}
+                        case SPELL_BO_COLD:
+			{
+				return "frost bolt (6d8) every 7+d7 turns";
+			}
+                        case SPELL_BO_FIRE:
+			{
+				return "fire bolt (9d8) every 8+d8 turns";
+			}
+                        case SPELL_CURE:
+			{
+				return "heal 4d8 & wounds every 3+d3 turns";
+			}
+                        case SPELL_WRAITH:
+			{
+				return "wraith form (level/2 + d(level/2)) every 1000 turns";
+			}
+                        case SPELL_ID_FULL:
+			{
+				return "identify true every 750 turns";
+			}
+                        case SPELL_ID_PLAIN:
+			{
+				return "identify spell every 10 turns";
+			}
+                        case SPELL_MAPPING:
+                        {
+                                return "magic mapping and light every 50+d50 turns";
+                        }
+                        case SPELL_INVIS:
+                        {
+                                return "invisibility (level + d(level)) every 500+d500 turns";
+                        }
+			default:
+			{
+				return "something undefined";
+			}
+		}
+        }
+
 
 	if (!(o_ptr->name1) &&
 	    !(o_ptr->name2) &&
@@ -3643,6 +2870,10 @@ cptr item_activation(object_type *o_ptr)
 		{
 			return "protection from evil every 225+d225 turns";
 		}
+                case ART_FLAR:
+		{
+                        return "dimension door every 100 turns";
+		}
 		case ART_BARAHIR:
 		{
 			return "a strangling attack (100) every 100+d100 turns";
@@ -3671,12 +2902,24 @@ cptr item_activation(object_type *o_ptr)
 		{
 			return "rays of fear in every direction";
 		}
+                case ART_GANDALF:
+                {
+                        return "restore mana every 666 turns";
+                }
 	}
 
 
 	if (o_ptr->name2 == EGO_TRUMP)
 	{
 		return "teleport every 50+d50 turns";
+	}
+        if (o_ptr->name2 == EGO_JUMP)
+	{
+                return "phasing every 10+d10 turns";
+	}
+        if (o_ptr->name2 == EGO_NOLDOR)
+	{
+                return "detect treasure every 10+d20 turns";
 	}
 
 	if (o_ptr->tval == TV_RING)
@@ -3779,7 +3022,11 @@ bool identify_fully_aux(object_type *o_ptr)
 	if (f3 & (TR3_ACTIVATE))
 	{
 		info[i++] = "It can be activated for...";
-		info[i++] = item_activation(o_ptr);
+                if(o_ptr->name2==EGO_MSTAFF_POWER){
+                        info[i++] = item_activation(o_ptr,1);
+                        info[i++] = "And...";
+                }
+                info[i++] = item_activation(o_ptr,0);
 		info[i++] = "...if it is being worn.";
 	}
 
@@ -4276,6 +3523,7 @@ s16b wield_slot(object_type *o_ptr)
 		case TV_DIGGING:
 		case TV_HAFTED:
 		case TV_POLEARM:
+                case TV_MSTAFF:
 		case TV_SWORD:
 		{
 			return (INVEN_WIELD);

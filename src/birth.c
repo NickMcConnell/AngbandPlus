@@ -349,14 +349,7 @@ static hist_type bg[] =
 	{"a Large Kobold.  ",   95, 83, 80, 65 },
 	{"Mughash, the Kobold Lord.  ",     100, 83, 80, 100 },
 
-	{"You are one of several children of a Klackon hive queen.  "
-	, 100, 84, 85, 50 },
-
-	{"You have red skin, ", 40, 85, 86, 50 },
-	{"You have black skin, ", 90, 85, 86, 50 },
-	{"You have yellow skin, ", 100, 85, 86, 50 },
-
-	{"and black eyes.", 100, 86, 0, 50 },
+        {"You are one of several children of a Rohan's Knight.  ", 100, 84, 1, 50 },
 
 	{"You are one of several children of ", 100, 87, 88, 89 },
 
@@ -367,34 +360,29 @@ static hist_type bg[] =
 	{"a Nibelung Shaman.  ", 95, 88, 18, 100 },
 	{"Mime, the Nibelung.  ", 100, 88, 18, 100 },
 
-	{"You are one of several children of a Draconian ", 85, 89, 90, 50  },
-	{"You are the only child of a Draconian ", 100, 89, 90, 55 },
+        {"You are one of several children of a DragonRider ", 85, 89, 90, 50  },
+        {"You are the only child of a DragonRider ", 100, 89, 90, 55 },
 
 	{"Warrior.  ", 50, 90, 91, 50 },
-	{"Priest.  ", 65, 90, 91, 65 },
 	{"Mage.  ", 85, 90, 91, 70 },
-	{"Noble.  ", 100, 90, 91, 100 },
 
-	{"You have green wings, green skin and yellow belly.", 30, 91, 0, 50 },
-	{"You have green wings, and green skin.", 55, 91, 0, 50 },
-	{"You have red wings, and red skin.", 80, 91, 0, 50 },
-	{"You have black wings, and black skin.", 90, 91, 0, 50 },
-	{"You have metallic skin, and shining wings.", 100, 91, 0, 50},
+        {"You have a Green Dragon.", 30, 91, 0, 10 },
+        {"You have a Blue Dragon.", 55, 91, 0, 30 },
+        {"You have a Brown Dragon.", 80, 91, 0, 50 },
+        {"You have a Bronze Dragon.", 90, 91, 0, 70 },
+        {"You have a Gold Dragon.", 100, 91, 0, 80},
 
 	{"You have slimy skin, empty glowing eyes, and ", 100, 92, 93, 80 },
 	{"three tentacles around your mouth.", 20, 93, 0, 45 },
 	{"four tentacles around your mouth.", 80, 93, 0, 50 },
 	{"five tentacles around your mouth.", 100, 93, 0, 55 },
 
-	{"You ancestor was ", 100, 94, 95, 50 },
+        {"You are of an unknown generation of Ent.", 30, 94, 95, 30 },
+        {"You are of the third generation of Ent.", 40, 94, 95, 50 },
+        {"You are of the second generation of Ent.", 60, 94, 95, 60 },
+        {"You are one of the first beings, who were born on Arda.", 100, 94, 95, 80 },
 
-	{"a mindless demonic spawn.  ", 30, 95, 96, 20 },
-	{"a minor demon.  ", 60, 95, 96, 50 },
-	{"a major demon.  ", 90, 95, 96, 75 },
-	{"a demon lord.  ", 100, 95, 96, 99 },
-
-	{"You have red skin, ", 50, 96, 97, 50 },
-	{"You have brown skin, ", 100, 96, 97, 50},
+        {"You have a green skin and unflexible members.", 100, 95, 0, 50 },
 
 	{"claws, fangs, spikes, and glowing red eyes.", 40, 97, 0, 50 },
 	{"claws, fangs, and glowing red eyes.", 70, 97, 0, 50 },
@@ -713,7 +701,7 @@ static void get_realms()
 	switch (pclas)
 	{
 	case CLASS_WARRIOR_MAGE:
-		p_ptr->realm1 = REALM_ARCANE;
+                p_ptr->realm1 = choose_realm( CH_SORCERY | CH_ARCANE);
 		break;
 	case CLASS_CHAOS_WARRIOR:
 		p_ptr->realm1 = REALM_CHAOS;
@@ -1157,27 +1145,12 @@ static void get_history(void)
 			chart = 75;
 			break;
 		}
-		case RACE_HALF_TITAN:
-		{
-			chart = 76;
-			break;
-		}
-		case RACE_CYCLOPS:
-		{
-			chart = 77;
-			break;
-		}
-		case RACE_YEEK:
-		{
-			chart = 78;
-			break;
-		}
 		case RACE_KOBOLD:
 		{
 			chart = 82;
 			break;
 		}
-		case RACE_KLACKON:
+                case RACE_RKNIGHT:
 		{
 			chart = 84;
 			break;
@@ -1187,34 +1160,14 @@ static void get_history(void)
 			chart = 87;
 			break;
 		}
-		case RACE_DRACONIAN:
+                case RACE_DRAGONRIDER:
 		{
 			chart = 89;
 			break;
 		}
-		case RACE_MIND_FLAYER:
+                case RACE_ENT:
 		{
-			chart = 92;
-			break;
-		}
-		case RACE_IMP:
-		{
-			chart = 94;
-			break;
-		}
-		case RACE_GOLEM:
-		{
-			chart = 98;
-			break;
-		}
-		case RACE_SKELETON:
-		{
-			chart = 102;
-			break;
-		}
-		case RACE_ZOMBIE:
-		{
-			chart = 107;
+                        chart = 94;
 			break;
 		}
 		case RACE_VAMPIRE:
@@ -1225,16 +1178,6 @@ static void get_history(void)
 		case RACE_SPECTRE:
 		{
 			chart = 118;
-			break;
-		}
-		case RACE_SPRITE:
-		{
-			chart = 124;
-			break;
-		}
-		case RACE_BEASTMAN:
-		{
-			chart = 129;
 			break;
 		}
 		default:
@@ -1505,6 +1448,10 @@ static void player_wipe(void)
 	}
 
 
+	/* Hack -- no ghosts */
+	r_info[max_r_idx-1].max_num = 0;
+
+
 	/* Hack -- Well fed player */
 	p_ptr->food = PY_FOOD_FULL - 1;
 
@@ -1620,6 +1567,27 @@ static byte player_init[MAX_CLASS][3][2] =
 		{ TV_SWORD, SV_DAGGER },
 		{ TV_RING, SV_RING_SUSTAIN_INT}
 	},
+
+	{
+                /* Mimic */
+                { TV_MIMIC_BOOK, 2 },
+		{ TV_POTION, SV_POTION_HEALING },
+		{ TV_SWORD, SV_DAGGER },
+	},
+
+	{
+                /* BeastMaster */
+                { TV_RING, SV_RING_SUSTAIN_CHR },
+                { TV_HAFTED, SV_WHIP },
+                { TV_HARD_ARMOR, SV_METAL_SCALE_MAIL }
+	},
+
+	{
+                /* Alchemist */
+		{ TV_SWORD, SV_DAGGER },
+                { TV_BATERIE, SV_BATERIE_EXPLOSION },
+                { TV_BOTTLE, 1 },
+	},
 };
 
 
@@ -1639,8 +1607,7 @@ static void player_outfit(void)
 	/* Get local object */
 	q_ptr = &forge;
 
-	if (p_ptr->prace == RACE_GOLEM || p_ptr->prace == RACE_SKELETON ||
-		p_ptr->prace == RACE_ZOMBIE || p_ptr->prace == RACE_VAMPIRE ||
+        if (p_ptr->prace == RACE_VAMPIRE ||
 		p_ptr->prace == RACE_SPECTRE)
 	{
 		/* Hack -- Give the player scrolls of satisfy hunger */
@@ -1709,6 +1676,22 @@ static void player_outfit(void)
 		object_aware(q_ptr);
 		object_known(q_ptr);
 		(void)inven_carry(q_ptr, FALSE);
+	}
+        if (p_ptr->prace == RACE_DRAGONRIDER)
+	{
+		/* Hack -- Give the player scrolls of light */
+                object_prep(q_ptr, lookup_kind(TV_FIRESTONE, SV_FIRE_SMALL));
+                q_ptr->number = (byte)rand_range(8,15);
+		object_aware(q_ptr);
+		object_known(q_ptr);
+
+		/* These objects are "storebought" */
+		q_ptr->ident |= IDENT_STOREB;
+
+		(void)inven_carry(q_ptr, FALSE);
+
+                p_ptr->tp_aux1=4;
+                p_ptr->ctp=4;
 	}
 
 	/* Hack -- Give the player three useful objects */
@@ -1785,6 +1768,7 @@ static bool player_birth_aux()
 
 	int xstart = 0;
 	int ystart = 0;
+
 
 	/*** Intro ***/
 
@@ -1880,11 +1864,7 @@ static bool player_birth_aux()
 		str = rp_ptr->title;
 		
 		/* Display */
-
-		if (n<RACE_VAMPIRE)
-			sprintf(buf, "%c%c %s", I2A(n), p2, str);
-		else
-			sprintf(buf, "%d%c %s", (n - RACE_ZOMBIE), p2, str); /* HACK */
+                sprintf(buf, "%c%c %s", I2A(n), p2, str);
 		put_str(buf, 18 + (n/5), 2 + 15 * (n%5));
 	}
 
@@ -1898,39 +1878,13 @@ static bool player_birth_aux()
 		if (c == 'S') return (FALSE);
 		if (c == '*')
 		{
-			k = randint(RACE_BEASTMAN + 1) - 1;
-			if (k == RACE_BEASTMAN)
-				hack_mutation = TRUE;
+                        k = randint(MAX_RACES);
 			break;
 		}
-        if (c == '1')
-        {
-            k = RACE_VAMPIRE;
-            break;
-        }
-        else if (c == '2')
-        {
-            k = RACE_SPECTRE;
-            break;
-        }
-        else if (c == '3')
-        {
-            k = RACE_SPRITE;
-            break;
-        }
-        else if (c == '4')
-        {
-            k = RACE_BEASTMAN;
-            hack_mutation = TRUE;
-            break;
-        }
-        else
-        {
             k = (islower(c) ? A2I(c) : -1);
             if ((k >= 0) && (k < n)) break;
             if (c == '?') do_cmd_help();
             else bell();
-        }
 	}
 
 	/* Set race */
@@ -2092,6 +2046,36 @@ static bool player_birth_aux()
 	/* Set "preserve" mode */
 	p_ptr->preserve = (c == 'y');
 
+	/* Initialize allow_one_death */
+	p_ptr->allow_one_death = FALSE;
+
+	/* Clear */
+	clear_from(20);
+
+	/*** Special levels ***/
+
+	/* Extra info */
+	Term_putstr(5, 15, -1, TERM_WHITE,
+		"Using special levels allows usage of pre-defined unique levels.");
+	Term_putstr(5, 16, -1, TERM_WHITE,
+		"These can make the game harder, but more interesting.   ");
+
+	/* Ask about "special" mode */
+	while (1)
+	{
+		put_str("Use special levels? (y/n) ", 20, 2);
+		c = inkey();
+		if (c == 'Q') quit(NULL);
+		if (c == 'S') return (FALSE);
+		if (c == ESCAPE) break;
+		if ((c == 'y') || (c == 'n')) break;
+                if (c == '?') do_cmd_help();
+		else bell();
+	}
+
+	/* Set "special" mode */
+	p_ptr->special = (c == 'y');
+
 	/* Clear */
 	clear_from(20);
 
@@ -2229,7 +2213,7 @@ static bool player_birth_aux()
 	Term_putstr(5, 15, -1, TERM_WHITE,
 		"You can input yourself the number of quest you'd like to");
 	Term_putstr(5, 16, -1, TERM_WHITE,
-		"perform next to two obligatory ones ( Oberon and the Serpent of Chaos )");
+                "perform next to two obligatory ones ( Sauron and Morgoth )");
 	Term_putstr(5, 17, -1, TERM_WHITE,
 		"In case you do not want any additional quest, just enter 0");
 
@@ -2266,8 +2250,11 @@ static bool player_birth_aux()
 	process_dungeon_file("q_info.txt", &ystart, &xstart, 0, 0);
 	p_ptr->inside_quest = 0;
 
+	/* Set the quest monster hook */
+	get_mon_num_hook = monster_quest;
+
 	/* Prepare allocation table */
-	get_mon_num_prep(monster_quest, NULL);
+	get_mon_num_prep();
 
 	/* Generate quests */
 	for (i = MIN_RANDOM_QUEST + v - 1; i >= MIN_RANDOM_QUEST; i--)
@@ -2303,104 +2290,16 @@ static bool player_birth_aux()
 		}
 	}
 
-	/* Init the two main quests (Oberon + Serpent) */
+        /* Init the two main quests (Sauron + Morgoth) */
 	init_flags = INIT_ASSIGN;
-	p_ptr->inside_quest = QUEST_OBERON;
+        p_ptr->inside_quest = QUEST_SAURON;
 	process_dungeon_file("q_info.txt", &ystart, &xstart, 0, 0);
-	quest[QUEST_OBERON].status = QUEST_STATUS_TAKEN;
+        quest[QUEST_SAURON].status = QUEST_STATUS_TAKEN;
 
-	p_ptr->inside_quest = QUEST_SERPENT;
+        p_ptr->inside_quest = QUEST_MORGOTH;
 	process_dungeon_file("q_info.txt", &ystart, &xstart, 0, 0);
-	quest[QUEST_SERPENT].status = QUEST_STATUS_TAKEN;
+        quest[QUEST_MORGOTH].status = QUEST_STATUS_TAKEN;
 	p_ptr->inside_quest = 0;
-
-	/* Only if random quests are selected */
-	if (v)
-	{
-		/* Clear */
-		clear_from(15);
-
-
-		/*** Hard quests mode ***/
-
-		/* Extra info */
-		Term_putstr(5, 14, -1, TERM_WHITE,
-			"Using 'hard quests' mode makes the random quests harder, because");
-		Term_putstr(5, 15, -1, TERM_WHITE,
-			"you have to kill all monsters at the same visit to the quest level.");
-		Term_putstr(5, 16, -1, TERM_WHITE,
-			"If you leave the level while some quest monsters are still alive,");
-		Term_putstr(5, 17, -1, TERM_WHITE,
-			"then all killed quest monsters are revived on your next visit");
-		Term_putstr(5, 18, -1, TERM_WHITE,
-			"to this level.");
-
-		/* Ask about "hard quests" mode */
-		while (1)
-		{
-			put_str("Use 'Hard quests'? (y/n/*) ", 20, 2);
-			c = inkey();
-			if (c == 'Q') quit(NULL);
-			if (c == 'S') return (FALSE);
-			if (c == '*')
-			{
-				c = 'y';
-				if (randint(2) == 1)
-					c = 'n';
-				break;
-			}
-			if (c == ESCAPE) break;
-			if ((c == 'y') || (c == 'n')) break;
-			if (c == '?') do_cmd_help();
-			else bell();
-		}
-
-		/* Set "hard quests" mode */
-		p_ptr->hard_quests = (c == 'y');
-	}
-
-	/*** ZAngband Lite :-) ***/
-
-	/* Clear */
-	clear_from(15);
-
-	/*** Wilderness mode ***/
-
-	/* Extra info */
-	Term_putstr(5, 14, -1, TERM_WHITE,
-		"'Wilderness' mode enables the extended wilderness of ZAngband");
-	Term_putstr(5, 15, -1, TERM_WHITE,
-		"giving you a wilderness and several new towns to explore.");
-	Term_putstr(5, 16, -1, TERM_WHITE,
-		"Switching off 'wilderness' mode is recommended for slower computers,");
-	Term_putstr(5, 16, -1, TERM_WHITE,
-		"because the wilderness slows down the system a bit.");
-
-	/* Ask about "wilderness" mode */
-	while (1)
-	{
-		put_str("Use 'wilderness'? (y/n/*) ", 20, 2);
-		c = inkey();
-		if (c == 'Q') quit(NULL);
-		if (c == 'S') return (FALSE);
-		if (c == '*')
-		{
-			c = 'y';
-			if (randint(2) == 1)
-				c = 'n';
-			break;
-		}
-		if (c == ESCAPE) break;
-		if ((c == 'y') || (c == 'n')) break;
-		if (c == '?') do_cmd_help();
-		else bell();
-	}
-
-	/* Set "wilderness" mode */
-	p_ptr->wilderness = !(c == 'n');
-
-	/* Clear */
-	clear_from(15);
 
 
 	/*** Generate ***/
@@ -2495,10 +2394,10 @@ static bool player_birth_aux()
 
 				/* Make sure they see everything */
 				Term_fresh();
-
+#if 0
 				/* Delay 1/10 second */
 				if (flag) Term_xtra(TERM_XTRA_DELAY, 100);
-
+#endif
 				/* Do not wait for a key */
 				inkey_scan = TRUE;
 
@@ -2663,7 +2562,7 @@ static bool player_birth_aux()
  */
 void player_birth(void)
 {
-	int i,j;
+        int i,j,n;
 
 	/* Create a new character */
 	while (1)
@@ -2698,12 +2597,100 @@ void player_birth(void)
 	}
 
 	/* Init wilderness seeds */
-	for (i = 0; i < max_wild_x; i++)
+	for (i = 0; i < MAX_WILD_X; i++)
 	{
-		for (j = 0; j < max_wild_y; j++)
+		for (j = 0; j < MAX_WILD_Y; j++)
 		{
 			wilderness[j][i].seed = rand_int(0x10000000);
 		}
+	}
+
+	/* special levels */
+	for (n=1;n<101;n++)
+		p_ptr->spec_history[n]=0;
+
+	/* initialize variable according to text file v_info.txt */
+
+	if (p_ptr->special)
+	{
+        init_v_info();
+        for (n=1;n<max_v_idx;n++)
+	{
+		vault_type *v_ptr = &v_info[n];
+		if (v_ptr->typ == 99)
+		{
+
+			p_ptr->spec_history[v_ptr->lvl]=1;
+			if (v_ptr->mon1 != 0) /* a monster */
+				{       
+				monster_race    *r_ptr = &r_info[v_ptr->mon1];
+				r_ptr->max_num--;       /* if unique, kills them */
+				}
+			if (v_ptr->mon2 != 0) /* a monster */
+				{       
+				monster_race    *r_ptr = &r_info[v_ptr->mon2];
+				r_ptr->max_num--;       /* if unique, kills them */
+				}
+			if (v_ptr->mon3 != 0) /* a monster */
+				{       
+				monster_race    *r_ptr = &r_info[v_ptr->mon3];
+				r_ptr->max_num--;       /* if unique, kills them */
+				}
+			if (v_ptr->mon4 != 0) /* a monster */
+				{       
+				monster_race    *r_ptr = &r_info[v_ptr->mon4];
+				r_ptr->max_num--;       /* if unique, kills them */
+				}
+			if (v_ptr->mon5 != 0) /* a monster */
+				{       
+				monster_race    *r_ptr = &r_info[v_ptr->mon5];
+				r_ptr->max_num--;       /* if unique, kills them */
+				}
+			if (v_ptr->mon6 != 0) /* a monster */
+				{       
+				monster_race    *r_ptr = &r_info[v_ptr->mon6];
+				r_ptr->max_num--;       /* if unique, kills them */
+				}
+			if (v_ptr->mon7 != 0) /* a monster */
+				{       
+				monster_race    *r_ptr = &r_info[v_ptr->mon7];
+				r_ptr->max_num--;       /* if unique, kills them */
+				}
+			if (v_ptr->mon8 != 0) /* a monster */
+				{       
+				monster_race    *r_ptr = &r_info[v_ptr->mon8];
+				r_ptr->max_num--;       /* if unique, kills them */
+				}
+			if (v_ptr->mon9 != 0) /* a monster */
+				{       
+				monster_race    *r_ptr = &r_info[v_ptr->mon9];
+				r_ptr->max_num--;       /* if unique, kills them */
+				}
+			if (v_ptr->mon10 != 0) /* a monster */
+				{       
+				monster_race    *r_ptr = &r_info[v_ptr->mon10];
+				r_ptr->max_num--;       /* if unique, kills them */
+				}
+			if (v_ptr->item1 != 0) /* artifact */
+				{
+				artifact_type   *a_ptr = &a_info[v_ptr->item1];
+				a_ptr->cur_num = 1;     /* mark artifact found */
+				}
+			if (v_ptr->item2 != 0) /* artifact */
+				{
+				artifact_type   *a_ptr = &a_info[v_ptr->item2];
+				a_ptr->cur_num = 1;     /* mark artifact found */
+				}
+			if (v_ptr->item3 != 0) /* artifact */
+				{
+				artifact_type   *a_ptr = &a_info[v_ptr->item3];
+				a_ptr->cur_num = 1;     /* mark artifact found */
+				}
+
+		
+		}
+
+	}
 	}
 }
 

@@ -1388,6 +1388,7 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3)
 	}
 
 	/* Races */
+        if(!p_ptr->mimic_form)
 	switch (p_ptr->prace)
 	{
 	case RACE_ELF:
@@ -1442,23 +1443,6 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3)
 		(*f2) |= (TR2_RES_SHARDS);
 		(*f2) |= (TR2_SUST_STR);
 		break;
-	case RACE_HALF_TITAN:
-		(*f2) |= (TR2_RES_CHAOS);
-		break;
-	case RACE_CYCLOPS:
-		(*f2) |= (TR2_RES_SOUND);
-		break;
-	case RACE_YEEK:
-		(*f2) |= (TR2_RES_ACID);
-		if (p_ptr->lev > 19)
-			(*f2) |= (TR2_IM_ACID);
-		break;
-	case RACE_KLACKON:
-		(*f2) |= (TR2_RES_CONF);
-		(*f2) |= (TR2_RES_ACID);
-		if (p_ptr->lev > 9)
-			(*f1) |= TR1_SPEED;
-		break;
 	case RACE_KOBOLD:
 		(*f2) |= (TR2_RES_POIS);
 		break;
@@ -1470,57 +1454,6 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3)
 		(*f2) |= (TR2_RES_DARK);
 		if (p_ptr->lev > 19)
 			(*f3) |= (TR3_SEE_INVIS);
-		break;
-	case RACE_DRACONIAN:
-		(*f3) |= TR3_FEATHER;
-		if (p_ptr->lev > 4)
-			(*f2) |= (TR2_RES_FIRE);
-		if (p_ptr->lev > 9)
-			(*f2) |= (TR2_RES_COLD);
-		if (p_ptr->lev > 14)
-			(*f2) |= (TR2_RES_ACID);
-		if (p_ptr->lev > 19)
-			(*f2) |= (TR2_RES_ELEC);
-		if (p_ptr->lev > 34)
-			(*f2) |= (TR2_RES_POIS);
-		break;
-	case RACE_MIND_FLAYER:
-		(*f2) |= (TR2_SUST_INT);
-		(*f2) |= (TR2_SUST_WIS);
-		if (p_ptr->lev > 14)
-			(*f3) |= (TR3_SEE_INVIS);
-		if (p_ptr->lev > 29)
-			(*f3) |= (TR3_TELEPATHY);
-		break;
-	case RACE_IMP:
-		(*f2) |= (TR2_RES_FIRE);
-		if (p_ptr->lev > 9)
-			(*f3) |= (TR3_SEE_INVIS);
-		break;
-	case RACE_GOLEM:
-		(*f3) |= (TR3_SEE_INVIS);
-		(*f2) |= (TR2_FREE_ACT);
-		(*f2) |= (TR2_RES_POIS);
-		(*f3) |= (TR3_SLOW_DIGEST);
-		if (p_ptr->lev > 34)
-			(*f2) |= (TR2_HOLD_LIFE);
-		break;
-	case RACE_SKELETON:
-		(*f3) |= (TR3_SEE_INVIS);
-		(*f2) |= (TR2_RES_SHARDS);
-		(*f2) |= (TR2_HOLD_LIFE);
-		(*f2) |= (TR2_RES_POIS);
-		if (p_ptr->lev > 9)
-			(*f2) |= (TR2_RES_COLD);
-		break;
-	case RACE_ZOMBIE:
-		(*f3) |= (TR3_SEE_INVIS);
-		(*f2) |= (TR2_HOLD_LIFE);
-		(*f2) |= (TR2_RES_NETHER);
-		(*f2) |= (TR2_RES_POIS);
-		(*f3) |= (TR3_SLOW_DIGEST);
-		if (p_ptr->lev > 4)
-			(*f2) |= (TR2_RES_COLD);
 		break;
 	case RACE_VAMPIRE:
 		(*f2) |= (TR2_HOLD_LIFE);
@@ -1540,19 +1473,239 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3)
 		if (p_ptr->lev > 34)
 			(*f3) |= TR3_TELEPATHY;
 		break;
-	case RACE_SPRITE:
-		(*f2) |= (TR2_RES_LITE);
-		(*f3) |= (TR3_FEATHER);
-		if (p_ptr->lev > 9)
-			(*f1) |= (TR1_SPEED);
-		break;
-	case RACE_BEASTMAN:
-		(*f2) |= (TR2_RES_SOUND);
-		(*f2) |= (TR2_RES_CONF);
-		break;
+
+        case RACE_DRAGONRIDER:
+            (*f3) |= TR3_FEATHER;
+        if (p_ptr->lev > 3)
+        {
+            (*f3) |= TR3_TELEPATHY;
+        }
+        if (p_ptr->lev > 4)
+        {
+            (*f2) |= (TR2_RES_FIRE);
+        }
+        if (p_ptr->lev > 9)
+        {
+            (*f2) |= (TR2_RES_COLD);
+        }
+        if (p_ptr->lev > 14)
+        {
+            (*f2) |= (TR2_RES_ACID);
+        }
+        if (p_ptr->lev > 19)
+        {
+            (*f2) |= (TR2_RES_ELEC);
+        }
+        if (p_ptr->lev > 34)
+        {
+            (*f2) |= (TR2_RES_POIS);
+        }
+        break;
+
+        case RACE_ENT:
+        (*f3) |= (TR3_SLOW_DIGEST);
+        if (p_ptr->lev > 4)
+        {
+            (*f3) |= TR3_SEE_INVIS;
+        }
+        if (p_ptr->lev > 24)
+        {
+            (*f3) |= TR3_TELEPATHY;
+        }
+        break;
+
+        case RACE_RKNIGHT:
+        (*f1) |= TR1_SPEED;
+        break;
+
 	default:
 		; /* Do nothing */
 	}
+        else
+        switch(p_ptr->mimic_form)
+        {
+                case MIMIC_GOAT:
+                {
+                        (*f3) |= (TR3_SLOW_DIGEST);
+                        break;
+                }
+                case MIMIC_INSECT:
+                {
+                        (*f3) |= (TR3_TELEPATHY);
+                        break;
+                }
+                case MIMIC_SPARROW:
+                {
+                        (*f3) |= (TR3_FEATHER);
+                        break;
+                }
+                case MIMIC_VAMPIRE:
+                {
+                        (*f3) |= (TR2_HOLD_LIFE);
+                        (*f3) |= (TR2_RES_DARK);
+                        (*f3) |= (TR2_RES_NEXUS);
+                        (*f3) |= (TR2_RES_BLIND);
+                        (*f3) |= (TR3_LITE);
+                        break;
+                }
+                case MIMIC_SPIDER:
+                {
+                        (*f3) |= (TR2_RES_FEAR);
+                        (*f3) |= (TR2_RES_POIS);
+                        break;
+                }
+                case MIMIC_MANA_BALL:
+                {
+                        (*f3) |= (TR3_FEATHER);
+                        (*f2) |= (TR2_INVIS);
+                        (*f3) |= (TR3_TELEPORT);
+                        (*f3) |= (TR2_RES_DISEN);
+                        break;
+                }
+                case MIMIC_FIRE_CLOUD:
+                {
+                        (*f3) |= (TR2_RES_LITE);
+                        (*f3) |= (TR2_IM_FIRE);
+                        (*f3) |= (TR3_SH_FIRE);
+                        break;
+                }
+                case MIMIC_COLD_CLOUD:
+                {
+                        (*f3) |= (TR2_RES_LITE);
+                        (*f3) |= (TR2_IM_COLD);
+                        (*f3) |= (TR3_SH_ELEC);
+                        (*f3) |= (TR3_TELEPATHY);
+                        (*f3) |= (TR3_REGEN);
+                        break;
+                }
+                case MIMIC_CHAOS_CLOUD:
+                {
+                        (*f3) |= (TR2_RES_DISEN);
+                        (*f3) |= (TR2_RES_CHAOS);
+                        (*f3) |= (TR2_RES_LITE);
+                        (*f3) |= (TR2_IM_FIRE);
+                        (*f3) |= (TR2_IM_COLD);
+                        (*f3) |= (TR3_SH_FIRE);
+                        (*f3) |= (TR3_SH_ELEC);
+                        break;
+                }
+                case MIMIC_GOST:
+                {
+                        (*f3) |= (TR3_WRAITH);
+                        (*f2) |= TR2_HOLD_LIFE;
+                        break;
+                }
+                case MIMIC_KOBOLD:
+                {
+                        (*f2) |= TR2_RES_POIS;
+                        break;
+                }
+                case MIMIC_DRAGON:
+                {
+                        (*f3) |= TR3_FEATHER;
+                        (*f2) |= TR2_RES_FIRE;
+                        (*f2) |= TR2_RES_COLD;
+                        (*f2) |= TR2_RES_ELEC;
+                        (*f2) |= TR2_RES_DARK;
+                        break;
+                }
+                case MIMIC_DEMON:
+                {
+                        (*f2) |= TR2_RES_CHAOS;
+                        (*f2) |= TR2_RES_NETHER;
+                        (*f2) |= TR2_HOLD_LIFE;
+                        break;
+                }
+                case MIMIC_HOUND:
+                {
+                        (*f1) |= TR1_SPEED;
+                        (*f2) |= TR2_RES_LITE;
+                        (*f2) |= TR2_RES_DARK;
+                        break;
+                }
+                case MIMIC_QUYLTHULG:
+                {
+                        (*f3) |= TR3_SEE_INVIS;
+                        break;
+                }
+                case MIMIC_MAIAR:
+                {
+                        (*f2) |= TR2_IM_ACID;
+                        (*f2) |= TR2_IM_ELEC;
+                        (*f2) |= TR2_IM_FIRE;
+                        (*f2) |= TR2_IM_COLD;
+                        (*f2) |= TR2_RES_POIS;
+                        (*f2) |= TR2_RES_LITE;
+                        (*f2) |= TR2_RES_DARK;
+                        (*f2) |= TR2_RES_CHAOS;
+                        (*f2) |= TR2_HOLD_LIFE;
+                        (*f3) |= TR3_FEATHER;
+                        (*f3) |= TR3_REGEN;
+                        break;
+                }
+                case MIMIC_SERPENT:
+                {
+                        (*f1) |= TR1_SPEED;
+                        break;
+                }
+                case MIMIC_GIANT:
+                {
+                        (*f2) |= TR2_RES_ACID;
+                        (*f2) |= TR2_RES_ELEC;
+                        (*f2) |= TR2_RES_FIRE;
+                        (*f2) |= TR2_RES_COLD;
+                        (*f2) |= TR2_RES_POIS;
+                        (*f2) |= TR2_RES_CONF;
+                        (*f2) |= TR2_RES_SOUND;
+                        (*f2) |= TR2_RES_LITE;
+                        (*f2) |= TR2_RES_DARK;
+                        (*f2) |= TR2_RES_NEXUS;
+                        (*f2) |= TR2_RES_FEAR;
+                        (*f2) |= TR2_REFLECT;
+                        break;
+                }
+                case MIMIC_VALAR:
+                {
+                        (*f3) |= TR3_SEE_INVIS;
+                        (*f2) |= TR2_FREE_ACT;
+                        (*f3) |= TR3_SLOW_DIGEST;
+                        (*f3) |= TR3_REGEN;
+                        (*f3) |= TR3_FEATHER;
+                        (*f2) |= TR2_HOLD_LIFE;
+                        (*f3) |= TR3_TELEPATHY;
+                        (*f3) |= TR3_LITE;
+                        (*f2) |= TR2_SUST_STR;
+                        (*f1) |= TR1_INT;
+                        (*f1) |= TR1_WIS;
+                        (*f1) |= TR1_DEX;
+                        (*f1) |= TR1_CON;
+                        (*f1) |= TR1_CHR;
+                        (*f2) |= TR2_RES_ACID;
+                        (*f2) |= TR2_RES_ELEC;
+                        (*f2) |= TR2_RES_FIRE;
+                        (*f2) |= TR2_RES_COLD;
+                        (*f2) |= TR2_RES_POIS;
+                        (*f2) |= TR2_RES_CONF;
+                        (*f2) |= TR2_RES_SOUND;
+                        (*f2) |= TR2_RES_LITE;
+                        (*f2) |= TR2_RES_DARK;
+                        (*f2) |= TR2_RES_CHAOS;
+                        (*f2) |= TR2_RES_DISEN;
+                        (*f2) |= TR2_RES_SHARDS;
+                        (*f2) |= TR2_RES_NEXUS;
+                        (*f2) |= TR2_RES_BLIND;
+                        (*f2) |= TR2_RES_NETHER;
+                        (*f2) |= TR2_RES_FEAR;
+                        (*f2) |= TR2_REFLECT;
+                        (*f3) |= TR3_SH_FIRE;
+                        (*f3) |= TR3_SH_ELEC;
+                        (*f2) |= TR2_IM_FIRE;
+                        (*f2) |= TR2_IM_COLD;
+                        (*f2) |= TR2_IM_ELEC;
+                        (*f2) |= TR2_IM_ACID;
+                        break;
+                }
+        }
 
 	/* Mutations */
 	if (p_ptr->muta3)
@@ -2677,9 +2830,7 @@ errr file_character(cptr name, bool full)
 	else
 		fprintf(fff, "\n Autoscum:           OFF");
 
-	if (always_small_levels)
-		fprintf(fff, "\n Small Levels:       ALL");
-	else if (small_levels)
+	if (small_levels)
 		fprintf(fff, "\n Small Levels:       ON");
 	else
 		fprintf(fff, "\n Small Levels:       OFF");
@@ -2749,7 +2900,7 @@ errr file_character(cptr name, bool full)
 		int k;
 		s32b Total = 0;
 
-		for (k = 1; k < max_r_idx; k++)
+		for (k = 1; k < max_r_idx-1; k++)
 		{
 			monster_race *r_ptr = &r_info[k];
 
@@ -3713,7 +3864,7 @@ static void print_tomb(void)
  */
 static void show_info(void)
 {
-	int             i, j, k, l;
+	int             i, j, k;
 	object_type		*o_ptr;
 	store_type		*st_ptr;
 
@@ -3826,9 +3977,9 @@ static void show_info(void)
 	}
 
 	/* Homes in the different towns */
-	for (l = 1; l < max_towns; l++)
+	for (k = 1; k < max_towns; k++)
 	{
-		st_ptr = &town[l].store[7];
+		st_ptr = &town[k].store[7];
 
 		/* Home -- if anything there */
 		if (st_ptr->stock_num)
@@ -3870,6 +4021,7 @@ static void show_info(void)
 
 
 
+
 /*
  * Semi-Portable High Score List Entry (128 bytes) -- BEN
  *
@@ -3907,6 +4059,11 @@ struct high_score
 	char cur_dun[4];		/* Current Dungeon Level (number) */
 	char max_lev[4];		/* Max Player Level (number) */
 	char max_dun[4];		/* Max Dungeon Level (number) */
+
+	char arena_number[4];	/* Arena level attained -KMW- */
+	char inside_arena[4];   /* Did the player die in the arena? */
+	char inside_quest[4];   /* Did the player die in a quest? */
+	char exit_bldg[4];	/* Can the player exit arena? Goal obtained? -KMW- */
 
 	char how[32];		/* Method of death (string) */
 };
@@ -4033,12 +4190,11 @@ static int highscore_add(high_score *score)
  */
 static void display_scores_aux(int from, int to, int note, high_score *score)
 {
-	int		i, j, k, n, attr, place;
-
+	int         i, j, k, n, place;
+	byte        attr;
+	char        out_val[256];
+	char        tmp_val[160];
 	high_score	the_score;
-
-	char	out_val[256];
-	char	tmp_val[160];
 
 
 	/* Paranoia -- it may not have opened */
@@ -4090,6 +4246,7 @@ static void display_scores_aux(int from, int to, int note, high_score *score)
 
 			cptr user, gold, when, aged;
 
+			int in_arena, in_quest;
 
 			/* Hack -- indicate death in yellow */
 			attr = (j == note) ? TERM_YELLOW : TERM_WHITE;
@@ -4123,6 +4280,9 @@ static void display_scores_aux(int from, int to, int note, high_score *score)
 			cdun = atoi(the_score.cur_dun);
 			mdun = atoi(the_score.max_dun);
 
+			in_arena = atoi(the_score.inside_arena);
+			in_quest = atoi(the_score.inside_quest);
+
 			/* Hack -- extract the gold and such */
 			for (user = the_score.uid; isspace(*user); user++) /* loop */;
 			for (when = the_score.day; isspace(*when); when++) /* loop */;
@@ -4142,14 +4302,26 @@ static void display_scores_aux(int from, int to, int note, high_score *score)
 			c_put_str(attr, out_val, n*4 + 2, 0);
 
 			/* Another line of info */
-			sprintf(out_val, "               Killed by %s on %s %d",
-			        the_score.how, "Dungeon Level", cdun);
-
+			if (in_arena)
+			{
+				sprintf(out_val, "               Killed by %s in the Arena",
+				    the_score.how);
+			}
+			else if (in_quest)
+			{
+				sprintf(out_val, "               Killed by %s while questing",
+				    the_score.how);
+			}
 			/* Hack -- some people die in the town */
-			if (!cdun)
+			else if (!cdun)
 			{
 				sprintf(out_val, "               Killed by %s in the Town",
 				        the_score.how);
+			}
+			else
+			{
+				sprintf(out_val, "               Killed by %s on %s %d",
+				    the_score.how, "Dungeon Level", cdun);
 			}
 
 			/* Append a "maximum level" */
@@ -4211,6 +4383,217 @@ void display_scores(int from, int to)
 	/* Quit */
 	quit(NULL);
 }
+
+
+/*
+ * show_highclass - selectively list highscores based on class
+ * -KMW-
+ */
+void show_highclass(int building)
+{
+
+	register int i = 0, j, m = 0;
+	int pr, pc, clev, al;
+	high_score the_score;
+	char buf[1024], out_val[256];
+
+	switch(building)
+	{
+		case 1:
+			prt("               Busts of Greatest Kings", 5, 0);
+			break;
+		case 2:
+			prt("               Plaque - Greatest Arena Champions", 5, 0);
+			break;
+		case 10:
+			prt("               Plaque - Greatest Fighters", 5, 0);
+			break;
+		case 11:
+			prt("               Spires of the Greatest Magic-Users", 5, 0);
+			break;
+		case 12:
+			prt("               Busts of Greatest Priests", 5, 0);
+			break;
+		case 13:
+			prt("               Wall Inscriptions - Greatest Thieves", 5, 0);
+			break;
+		case 14:
+			prt("               Plaque - Greatest Rangers", 5, 0);
+			break;
+		case 15:
+			prt("               Plaque - Greatest Paladins", 5, 0);
+			break;
+		case 16:
+			prt("               Spires of the Greatest Illusionists", 5, 0);
+			break;
+		default: 
+			bell();
+			break;
+	}
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_APEX, "scores.raw");
+
+	highscore_fd = fd_open(buf, O_RDONLY);
+
+	if (highscore_fd < 0)
+	{
+		msg_print("Score file unavailable.");
+		msg_print(NULL);
+		return;
+	}
+
+	if (highscore_seek(0)) return;
+
+	for (i = 0; i < MAX_HISCORES; i++)
+		if (highscore_read(&the_score)) break;
+
+	m=0;
+	j=0;
+	clev = 0;
+
+	while ((m < 9) || (j < MAX_HISCORES))
+	{
+		if (highscore_seek(j)) break;
+		if (highscore_read(&the_score)) break;
+		pr = atoi(the_score.p_r);
+		pc = atoi(the_score.p_c);
+		clev = atoi(the_score.cur_lev);
+		al = atoi(the_score.arena_number);
+		if (((pc == (building - 10)) && (building != 1) && (building != 2)) ||
+		    ((building == 1) && (clev >= PY_MAX_LEVEL)) ||
+		    ((building == 2) && (al > MAX_ARENA_MONS)))
+		{
+			sprintf(out_val, "%3d) %s the %s (Level %2d)",
+			    (m + 1), the_score.who,race_info[pr].title, clev);
+			prt(out_val, (m + 7), 0);
+			m++;
+		}
+		j++;
+	}
+
+	/* Now, list the active player if they qualify */
+	if ((building == 1) && (p_ptr->lev >= PY_MAX_LEVEL))
+	{
+		sprintf(out_val, "You) %s the %s (Level %2d)",
+		    player_name,race_info[p_ptr->prace].title, p_ptr->lev);
+		prt(out_val, (m + 8), 0);
+	}
+	else if ((building == 2) && (p_ptr->arena_number > MAX_ARENA_MONS))
+	{
+		sprintf(out_val, "You) %s the %s (Level %2d)",
+		    player_name,race_info[p_ptr->prace].title, p_ptr->lev);
+		prt(out_val, (m + 8), 0);
+	}
+	else if ((building != 1) && (building != 2))
+	{
+		if ((p_ptr->lev > clev) && (p_ptr->pclass == (building - 10)))
+		{
+			sprintf(out_val, "You) %s the %s (Level %2d)",
+			    player_name,race_info[p_ptr->prace].title, p_ptr->lev);
+			prt(out_val, (m + 8), 0);
+		}
+	}
+
+	(void)fd_close(highscore_fd);
+	highscore_fd = -1;
+	msg_print("Hit any key to continue");
+	msg_print(NULL);
+	for (j=5;j<18;j++)
+		prt("",j,0);
+}
+
+
+/*
+ * Race Legends
+ * -KMW- 
+ */
+void race_score(int race_num)
+{
+	register int i = 0, j, m = 0;
+	int pr, pc, clev, al, lastlev;
+	high_score the_score;
+	char buf[1024], out_val[256], tmp_str[80];
+
+	lastlev = 0;
+
+	/* rr9: TODO - pluralize the race */
+	sprintf(tmp_str,"The Greatest of all the %s", race_info[race_num].title);
+	prt(tmp_str, 5, 15);
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_APEX, "scores.raw");
+
+	highscore_fd = fd_open(buf, O_RDONLY);
+
+	if (highscore_fd < 0)
+	{
+		msg_print("Score file unavailable.");
+		msg_print(NULL);
+		return;
+	}
+
+	if (highscore_seek(0)) return;
+
+ 	for (i = 0; i < MAX_HISCORES; i++)
+	{
+		if (highscore_read(&the_score)) break;
+	}
+
+	m=0;
+	j=0;
+
+	while ((m < 10) || (j < MAX_HISCORES))
+	{
+		if (highscore_seek(j)) break;
+		if (highscore_read(&the_score)) break;
+		pr = atoi(the_score.p_r);
+		pc = atoi(the_score.p_c);
+		clev = atoi(the_score.cur_lev);
+		al = atoi(the_score.arena_number);
+		if (pr == race_num)
+		{
+			sprintf(out_val, "%3d) %s the %s (Level %3d)",
+			    (m + 1), the_score.who,
+			race_info[pr].title, clev);
+			prt(out_val, (m + 7), 0);
+			m++;
+			lastlev = clev;  
+		}
+		j++;
+	}
+
+	/* add player if qualified */
+	if ((p_ptr->prace == race_num) && (p_ptr->lev >= lastlev))
+	{
+		sprintf(out_val, "You) %s the %s (Level %3d)",
+		    player_name, race_info[p_ptr->prace].title, p_ptr->lev);
+		prt(out_val, (m + 8), 0);
+	}
+
+	(void)fd_close(highscore_fd);
+	highscore_fd = -1;
+}
+
+
+/*
+ * Race Legends
+ * -KMW-
+ */
+void race_legends(void)
+{
+	int i,j;
+
+	for (i = 0; i < MAX_RACES; i++)
+	{
+		race_score(i);
+		msg_print("Hit any key to continue");
+		msg_print(NULL);
+		for (j = 5; j < 19; j++)
+			prt("", j, 0);
+	}
+}
+
 
 
 
@@ -4334,6 +4717,11 @@ static errr top_twenty(void)
 	sprintf(the_score.max_lev, "%3d", p_ptr->max_plv);
 	sprintf(the_score.max_dun, "%3d", p_ptr->max_dlv);
 
+	sprintf(the_score.arena_number,"%3d", p_ptr->arena_number); /* -KMW- */
+	sprintf(the_score.inside_arena,"%3d", p_ptr->inside_arena);
+	sprintf(the_score.inside_quest,"%3d", p_ptr->inside_quest);
+	sprintf(the_score.exit_bldg,"%3d", p_ptr->exit_bldg); /* -KMW- */
+
 	/* Save the cause of death (31 chars) */
 	sprintf(the_score.how, "%-.31s", died_from);
 
@@ -4417,6 +4805,11 @@ static errr predict_score(void)
 	sprintf(the_score.max_lev, "%3d", p_ptr->max_plv);
 	sprintf(the_score.max_dun, "%3d", p_ptr->max_dlv);
 
+	sprintf(the_score.arena_number,"%3d", p_ptr->arena_number); /* -KMW- */
+	sprintf(the_score.inside_arena,"%3d", p_ptr->inside_arena);
+	sprintf(the_score.inside_quest,"%3d", p_ptr->inside_quest);
+	sprintf(the_score.exit_bldg,"%3d", p_ptr->exit_bldg); /* -KMW- */
+
 	/* Hack -- no cause of death */
 	strcpy(the_score.how, "nobody (yet!)");
 
@@ -4443,193 +4836,6 @@ static errr predict_score(void)
 	return (0);
 }
 
-
-
-/*
- * show_highclass - selectively list highscores based on class
- * -KMW-
- */
-void show_highclass(int building)
-{
-
-	register int i = 0, j, m = 0;
-	int pr, pc, clev/*, al*/;
-	high_score the_score;
-	char buf[1024], out_val[256];
-
-#if 0
-	switch(building)
-	{
-		case 1:
-			prt("               Busts of Greatest Kings", 5, 0);
-			break;
-		case 2:
-			prt("               Plaque - Greatest Arena Champions", 5, 0);
-			break;
-		case 10:
-			prt("               Plaque - Greatest Fighters", 5, 0);
-			break;
-		case 11:
-			prt("               Spires of the Greatest Magic-Users", 5, 0);
-			break;
-		case 12:
-			prt("               Busts of Greatest Priests", 5, 0);
-			break;
-		case 13:
-			prt("               Wall Inscriptions - Greatest Thieves", 5, 0);
-			break;
-		case 14:
-			prt("               Plaque - Greatest Rangers", 5, 0);
-			break;
-		case 15:
-			prt("               Plaque - Greatest Paladins", 5, 0);
-			break;
-		case 16:
-			prt("               Spires of the Greatest Illusionists", 5, 0);
-			break;
-		default: 
-			bell();
-			break;
-	}
-#endif
-
-	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_APEX, "scores.raw");
-
-	highscore_fd = fd_open(buf, O_RDONLY);
-
-	if (highscore_fd < 0)
-	{
-		msg_print("Score file unavailable.");
-		msg_print(NULL);
-		return;
-	}
-
-	if (highscore_seek(0)) return;
-
-	for (i = 0; i < MAX_HISCORES; i++)
-		if (highscore_read(&the_score)) break;
-
-	m=0;
-	j=0;
-	clev = 0;
-
-	while ((m < 9) || (j < MAX_HISCORES))
-	{
-		if (highscore_seek(j)) break;
-		if (highscore_read(&the_score)) break;
-		pr = atoi(the_score.p_r);
-		pc = atoi(the_score.p_c);
-		clev = atoi(the_score.cur_lev);
-
-		sprintf(out_val, "%3d) %s the %s (Level %2d)",
-		    (m + 1), the_score.who,race_info[pr].title, clev);
-		prt(out_val, (m + 7), 0);
-		m++;
-		j++;
-	}
-
-	sprintf(out_val, "You) %s the %s (Level %2d)",
-	    player_name,race_info[p_ptr->prace].title, p_ptr->lev);
-	prt(out_val, (m + 8), 0);
-
-	(void)fd_close(highscore_fd);
-	highscore_fd = -1;
-	msg_print("Hit any key to continue");
-	msg_print(NULL);
-	for (j=5;j<18;j++) prt("",j,0);
-}
-
-
-/*
- * Race Legends
- * -KMW- 
- */
-void race_score(int race_num)
-{
-	register int i = 0, j, m = 0;
-	int pr, pc, clev, lastlev;
-	high_score the_score;
-	char buf[1024], out_val[256], tmp_str[80];
-
-	lastlev = 0;
-
-	/* rr9: TODO - pluralize the race */
-	sprintf(tmp_str,"The Greatest of all the %s", race_info[race_num].title);
-	prt(tmp_str, 5, 15);
-
-	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_APEX, "scores.raw");
-
-	highscore_fd = fd_open(buf, O_RDONLY);
-
-	if (highscore_fd < 0)
-	{
-		msg_print("Score file unavailable.");
-		msg_print(NULL);
-		return;
-	}
-
-	if (highscore_seek(0)) return;
-
- 	for (i = 0; i < MAX_HISCORES; i++)
-	{
-		if (highscore_read(&the_score)) break;
-	}
-
-	m=0;
-	j=0;
-
-	while ((m < 10) || (j < MAX_HISCORES))
-	{
-		if (highscore_seek(j)) break;
-		if (highscore_read(&the_score)) break;
-		pr = atoi(the_score.p_r);
-		pc = atoi(the_score.p_c);
-		clev = atoi(the_score.cur_lev);
-
-		if (pr == race_num)
-		{
-			sprintf(out_val, "%3d) %s the %s (Level %3d)",
-			    (m + 1), the_score.who,
-			race_info[pr].title, clev);
-			prt(out_val, (m + 7), 0);
-			m++;
-			lastlev = clev;  
-		}
-		j++;
-	}
-
-	/* add player if qualified */
-	if ((p_ptr->prace == race_num) && (p_ptr->lev >= lastlev))
-	{
-		sprintf(out_val, "You) %s the %s (Level %3d)",
-		    player_name, race_info[p_ptr->prace].title, p_ptr->lev);
-		prt(out_val, (m + 8), 0);
-	}
-
-	(void)fd_close(highscore_fd);
-	highscore_fd = -1;
-}
-
-
-/*
- * Race Legends
- * -KMW-
- */
-void race_legends(void)
-{
-	int i,j;
-
-	for (i = 0; i < MAX_RACES; i++)
-	{
-		race_score(i);
-		msg_print("Hit any key to continue");
-		msg_print(NULL);
-		for (j = 5; j < 19; j++)
-			prt("", j, 0);
-	}
-}
 
 
 /*

@@ -123,6 +123,8 @@ static void sense_inventory(void)
 	switch (p_ptr->pclass)
 	{
 		case CLASS_WARRIOR:
+                case CLASS_BEASTMASTER:
+                case CLASS_MIMIC:
 		{
 			/* Good sensing */
 			if (0 != rand_int(9000L / (plev * plev + 40))) return;
@@ -134,7 +136,9 @@ static void sense_inventory(void)
 			break;
 		}
 
-		case CLASS_MAGE: case CLASS_HIGH_MAGE:
+                case CLASS_MAGE:
+                case CLASS_ALCHEMIST:
+                case CLASS_HIGH_MAGE:
 		{
 			/* Very bad (light) sensing */
 			if (0 != rand_int(240000L / (plev + 5))) return;
@@ -882,7 +886,7 @@ static void process_world(void)
 	if ((rand_int(MAX_M_ALLOC_CHANCE) == 0) && !(p_ptr->inside_arena) && !(p_ptr->inside_quest))
 	{
 		/* Make a new monster */
-		(void)alloc_monster(MAX_SIGHT + 5, FALSE);
+		if (!special_flag) (void)alloc_monster(MAX_SIGHT + 5, FALSE);
 	}
 
 	/* Hack -- Check for creature regeneration */
@@ -900,7 +904,7 @@ static void process_world(void)
 
 
 	/* (Vampires) Take damage from sunlight */
-	if (p_ptr->prace == RACE_VAMPIRE)
+        if ((p_ptr->prace == RACE_VAMPIRE)||(p_ptr->mimic_form == MIMIC_VAMPIRE))
 	{
 		if ((!dun_level)
 		    && (!(p_ptr->resist_lite)) && !(p_ptr->invuln)
@@ -944,16 +948,15 @@ static void process_world(void)
 	{
 		int damage = p_ptr->lev;
 
+		if (cave[py][px].feat == FEAT_SHAL_LAVA) damage = damage / 2;
+
 		if (p_ptr->resist_fire) damage = damage / 3;
 		if (p_ptr->oppose_fire) damage = damage / 3;
 
-		if (damage)
-		{
-			/* Take damage */
-			msg_print("The lava burns you!");
-			take_hit(damage, "shallow lava");
-			cave_no_regen = TRUE;
-		}
+		/* Take damage */
+		msg_print("The lava burns you!");
+		take_hit(damage, "shallow lava");
+		cave_no_regen = TRUE;
 	}
 
 	else if ((cave[py][px].feat == FEAT_DEEP_LAVA) &&
@@ -1016,6 +1019,7 @@ static void process_world(void)
 		}
 		else if (!(p_ptr->invuln) &&
 		    !(p_ptr->wraith_form) &&
+                    (p_ptr->prace != RACE_DRAGONRIDER) &&
 		    ((p_ptr->chp > ((p_ptr->lev)/5)) || (p_ptr->prace != RACE_SPECTRE)))
 		{
 			cptr dam_desc;
@@ -1251,6 +1255,18 @@ static void process_world(void)
 		(void)set_blind(p_ptr->blind - 1);
 	}
 
+        /* Timed mimic */
+        if (p_ptr->tim_mimic)
+	{
+                (void)set_mimic(p_ptr->tim_mimic - 1, p_ptr->mimic_form);
+        }
+
+	/* Timed invisibility */
+        if (p_ptr->tim_invisible)
+	{
+                (void)set_invis(p_ptr->tim_invisible - 1, p_ptr->tim_inv_pow);
+        }
+ 
 	/* Times see-invisible */
 	if (p_ptr->tim_invis)
 	{
@@ -1563,10 +1579,19 @@ static void process_world(void)
 		if ((p_ptr->muta2 & MUT2_ATT_DEMON) &&
 		    (!(p_ptr->anti_magic)) && (randint(6666)==666))
 		{
-			bool pet = (randint(6) == 1);
+			bool d_summon = FALSE;
+			if (randint(6)==1)
+			{
+				d_summon = summon_specific_friendly(py, px,
+				    dun_level, SUMMON_DEMON, TRUE);
+			}
+			else
+			{
+				d_summon = summon_specific(py, px,
+				    dun_level, SUMMON_DEMON);
+			}
 
-			if (summon_specific(py, px,
-				    dun_level, SUMMON_DEMON, TRUE, FALSE, pet))
+			if (d_summon)
 			{
 				msg_print("You have attracted a demon!");
 				disturb(0,0);
@@ -1577,7 +1602,7 @@ static void process_world(void)
 		{
 			
 			disturb(0,0);
-			if (randint(2) == 1)
+			if (randint(2)==1)
 			{
 				msg_print("You feel less energetic.");
 				if (p_ptr->fast > 0)
@@ -1617,92 +1642,48 @@ static void process_world(void)
 			}
 			msg_print(NULL);
 		}
-
 		if ((p_ptr->muta2 & MUT2_EAT_LIGHT) &&
-			(randint(3000) == 1))
+			(randint(3000)==1))
 		{
-			object_type *o_ptr;
-
+			object_type * o_ptr;
+			cave_type * c_ptr;
+			
 			msg_print("A shadow passes over you.");
 			msg_print(NULL);
-
-			/* Absorb light from the current possition */
-			if (cave[py][px].info & CAVE_GLOW)
+			
+			c_ptr = &cave[py][px];
+			if (c_ptr->info & CAVE_GLOW)
 			{
+				c_ptr->info &= !CAVE_GLOW;
 				hp_player(10);
 			}
-
+			
 			o_ptr = &inventory[INVEN_LITE];
-
-			/* Absorb some fuel in the current lite */
-			if (o_ptr->tval == TV_LITE)
+			if (o_ptr && o_ptr->pval > 0)
 			{
-				/* Use some fuel (except on artifacts) */
-				if (!artifact_p(o_ptr) && (o_ptr->pval > 0))
-				{
-					/* Heal the player a bit */
-					hp_player(o_ptr->pval/20);
-
-					/* Decrease life-span of lite */
-					o_ptr->pval /= 2;
-
-					msg_print("You absorb energy from your light!");
-
-					/*
-					 * ToDo: Implement a function to handle
-					 * changes of the fuel
-					 */
-
-					/* Hack -- notice interesting fuel steps */
-					if ((o_ptr->pval < 100) || (!(o_ptr->pval % 100)))
-					{
-						/* Window stuff */
-						p_ptr->window |= (PW_EQUIP);
-					}
-
-					/* Hack -- Special treatment when blind */
-					if (p_ptr->blind)
-					{
-						/* Hack -- save some light for later */
-						if (o_ptr->pval == 0) o_ptr->pval++;
-					}
-
-					/* The light is now out */
-					else if (o_ptr->pval == 0)
-					{
-						disturb(0, 0);
-						msg_print("Your light has gone out!");
-					}
-
-					/* The light is getting dim */
-					else if ((o_ptr->pval < 100) && (!(o_ptr->pval % 10)))
-					{
-						if (disturb_minor) disturb(0, 0);
-						msg_print("Your light is growing faint.");
-					}
-				}
+				hp_player(o_ptr->pval/20);
+				o_ptr->pval /= 2;
+				msg_print("You absorb energy from your light!");
 			}
-
-			/*
-			 * Unlite the area (radius 10) around player and
-			 * do 50 points damage to every affected monster
-			 */
-			unlite_area(50, 10);
+			unlite_area(py, px);
 		}
-
-		if ((p_ptr->muta2 & MUT2_ATT_ANIMAL) &&
-		   !(p_ptr->anti_magic) && (randint(7000) == 1))
+		if ((p_ptr->muta2 & MUT2_ATT_ANIMAL) && !(p_ptr->anti_magic) &&
+			(randint(7000)==1))
 		{
-			bool pet = (randint(3)==1);
-
-			if (summon_specific(py, px, dun_level, SUMMON_ANIMAL,
-			    TRUE, FALSE, pet))
+			
+			bool a_summon = FALSE;
+			if (randint(3)==1)
+				a_summon = summon_specific_friendly(py,
+				px, dun_level, SUMMON_ANIMAL, TRUE);
+			else
+				a_summon = summon_specific(py,
+				px, dun_level, SUMMON_ANIMAL);
+			if (a_summon)
 			{
 				msg_print("You have attracted an animal!");
 				disturb(0,0);
 			}
 		}
-
 		if ((p_ptr->muta2 & MUT2_RAW_CHAOS) && !(p_ptr->anti_magic) &&
 			(randint(8000)==1))
 		{
@@ -1770,13 +1751,18 @@ static void process_world(void)
 				(void)dec_stat(which_stat, randint(6)+6, randint(3)==1);
 			}
 		}
-		if ((p_ptr->muta2 & MUT2_ATT_DRAGON) &&
-		   !(p_ptr->anti_magic) && (randint(3000) == 13))
+		if ((p_ptr->muta2 & MUT2_ATT_DRAGON) && !(p_ptr->anti_magic) &&
+			(randint(3000)==13))
 		{
-			bool pet = (randint(5) == 1);
-
-			if (summon_specific(py, px, dun_level, SUMMON_DRAGON,
-			    TRUE, FALSE, pet))
+			
+			bool d_summon = FALSE;
+			if (randint(5)==1)
+				d_summon = summon_specific_friendly(py,
+				px, dun_level, SUMMON_DRAGON, TRUE);
+			else
+				d_summon = summon_specific(py,
+				px, dun_level, SUMMON_DRAGON);
+			if (d_summon)
 			{
 				msg_print("You have attracted a dragon!");
 				disturb(0,0);
@@ -2266,6 +2252,12 @@ static void process_command(void)
 			break;
 		}
 
+                case KTRL('L'):
+		{
+                        exit(0);
+                        break;
+                }
+
 		/*** Wizard Commands ***/
 
 		/* Toggle Wizard Mode */
@@ -2582,6 +2574,12 @@ static void process_command(void)
 					cptr which_power = "magic";
 					if (p_ptr->pclass == CLASS_MINDCRAFTER)
 						which_power = "psionic powers";
+                                        else if (p_ptr->pclass == CLASS_BEASTMASTER)
+                                                which_power = "summoning powers";
+                                        else if (p_ptr->pclass == CLASS_ALCHEMIST)
+                                                which_power = "alchemist powers";
+                                        else if (p_ptr->pclass == CLASS_MIMIC)
+                                                which_power = "mimic powers";
 					else if (mp_ptr->spell_book == TV_LIFE_BOOK)
 						which_power = "prayer";
 
@@ -2593,6 +2591,12 @@ static void process_command(void)
 				{
 					if (p_ptr->pclass == CLASS_MINDCRAFTER)
 						do_cmd_mindcraft();
+                                        else if (p_ptr->pclass == CLASS_BEASTMASTER)
+                                                do_cmd_beastmaster();
+                                        else if (p_ptr->pclass == CLASS_ALCHEMIST)
+                                                do_cmd_alchemist();
+                                        else if (p_ptr->pclass == CLASS_MIMIC)
+                                                do_cmd_mimic();
 					else
 						do_cmd_cast();
 				}
@@ -3497,6 +3501,9 @@ static void dungeon(void)
 	/* Option -- no connected stairs */
 	if (!dungeon_stair) create_down_stair = create_up_stair = FALSE;
 
+	/* no connecting stairs on special levels */
+	if (special_flag) create_down_stair = create_up_stair = FALSE;
+
 	/* Make a stairway. */
 	if (create_up_stair || create_down_stair)
 	{
@@ -3833,6 +3840,7 @@ static void load_all_pref_files(void)
 void play_game(bool new_game)
 {
 	int i;
+        bool cheat_death=FALSE;
 
 	hack_mutation = FALSE;
 
@@ -4048,9 +4056,19 @@ void play_game(bool new_game)
 		/* Accidental Death */
 		if (alive && death)
 		{
-			/* Mega-Hack -- Allow player to cheat death */
-			if ((wizard || cheat_live) && !get_check("Die? "))
-			{
+  cheat_death = FALSE;
+  if (p_ptr->allow_one_death>0)
+    {
+      cheat_death = TRUE;
+      if(p_ptr->allow_one_death>1)p_ptr->allow_one_death--; else p_ptr->allow_one_death=0;
+      msg_print("You have been saved by the Blood of Life!");
+      msg_print(NULL);
+    }
+  else
+    if ((wizard || cheat_live) && !get_check("Die? "))
+      {
+	cheat_death = TRUE;
+
 				/* Mark social class, reset age, if needed */
 				if (p_ptr->sc) p_ptr->sc = p_ptr->age = 0;
 
@@ -4059,11 +4077,11 @@ void play_game(bool new_game)
 
 				/* Mark savefile */
 				noscore |= 0x0001;
-
-				/* Message */
-				msg_print("You invoke wizard mode and cheat death.");
-				msg_print(NULL);
-
+	msg_print("You invoke wizard mode and cheat death.");
+	msg_print(NULL);
+      }
+  if (cheat_death)
+    {
 				/* Restore hit points */
 				p_ptr->chp = p_ptr->mhp;
 				p_ptr->chp_frac = 0;
@@ -4071,6 +4089,9 @@ void play_game(bool new_game)
 				/* Restore spell points */
 				p_ptr->csp = p_ptr->msp;
 				p_ptr->csp_frac = 0;
+
+                                /* Restore tank points */
+                                p_ptr->ctp = p_ptr->mtp;
 
 				/* Hack -- Healing */
 				(void)set_blind(0);

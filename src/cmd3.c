@@ -1250,7 +1250,7 @@ static cptr ident_info[] =
 	"{:A missile (arrow/bolt/shot)",
 	"|:An edged weapon (sword/dagger/etc)",
 	"}:A launcher (bow/crossbow/sling)",
-	"~:Aquatic monster, tool (or miscellaneous item)",
+	"~:A tool (or miscellaneous item)",
 	NULL
 };
 
@@ -1474,7 +1474,7 @@ void do_cmd_query_symbol(void)
 
 
 	/* Collect matching monsters */
-	for (n = 0, i = 1; i < max_r_idx; i++)
+	for (n = 0, i = 1; i < max_r_idx-1; i++)
 	{
 		monster_race *r_ptr = &r_info[i];
 
@@ -1673,7 +1673,7 @@ bool research_mon()
 
 
 	/* Collect matching monsters */
-	for (n = 0, i = 1; i < max_r_idx; i++)
+	for (n = 0, i = 1; i < max_r_idx-1; i++)
 	{
 		monster_race *r_ptr = &r_info[i];
 

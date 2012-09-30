@@ -1913,9 +1913,6 @@ static bool vault_aux_jelly(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
-	/* Decline town monsters */
-	if (!monster_dungeon(r_idx)) return FALSE;
-
 	/* Decline unique monsters */
 	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
 
@@ -1937,9 +1934,6 @@ static bool vault_aux_animal(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
-	/* Decline town monsters */
-	if (!monster_dungeon(r_idx)) return FALSE;
-
 	/* Decline unique monsters */
 	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
 
@@ -1958,9 +1952,6 @@ static bool vault_aux_undead(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
-	/* Decline town monsters */
-	if (!monster_dungeon(r_idx)) return FALSE;
-
 	/* Decline unique monsters */
 	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
 
@@ -1978,9 +1969,6 @@ static bool vault_aux_undead(int r_idx)
 static bool vault_aux_chapel(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
-
-	/* Decline town monsters */
-	if (!monster_dungeon(r_idx)) return FALSE;
 
 	/* Decline unique monsters */
 	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
@@ -2003,9 +1991,6 @@ static bool vault_aux_kennel(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
-	/* Decline town monsters */
-	if (!monster_dungeon(r_idx)) return FALSE;
-
 	/* Decline unique monsters */
 	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
 
@@ -2020,9 +2005,6 @@ static bool vault_aux_kennel(int r_idx)
 static bool vault_aux_treasure(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
-
-	/* Decline town monsters */
-	if (!monster_dungeon(r_idx)) return FALSE;
 
 	/* Decline unique monsters */
 	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
@@ -2044,9 +2026,6 @@ static bool vault_aux_treasure(int r_idx)
  */
 static bool vault_aux_clone(int r_idx)
 {
-	/* Decline town monsters */
-	if (!monster_dungeon(r_idx)) return FALSE;
-
 	return (r_idx == template_race);
 }
 
@@ -2056,9 +2035,6 @@ static bool vault_aux_clone(int r_idx)
  */
 static bool vault_aux_symbol(int r_idx)
 {
-	/* Decline town monsters */
-	if (!monster_dungeon(r_idx)) return FALSE;
-
 	return ((r_info[r_idx].d_char == (r_info[template_race].d_char))
 		&& !(r_info[r_idx].flags1 & RF1_UNIQUE));
 }
@@ -2070,9 +2046,6 @@ static bool vault_aux_symbol(int r_idx)
 static bool vault_aux_orc(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
-
-	/* Decline town monsters */
-	if (!monster_dungeon(r_idx)) return FALSE;
 
 	/* Decline unique monsters */
 	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
@@ -2093,9 +2066,6 @@ static bool vault_aux_troll(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
-	/* Decline town monsters */
-	if (!monster_dungeon(r_idx)) return FALSE;
-
 	/* Decline unique monsters */
 	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
 
@@ -2113,9 +2083,6 @@ static bool vault_aux_troll(int r_idx)
 static bool vault_aux_giant(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
-
-	/* Decline town monsters */
-	if (!monster_dungeon(r_idx)) return FALSE;
 
 	/* Decline unique monsters */
 	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
@@ -2141,9 +2108,6 @@ static bool vault_aux_dragon(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
-	/* Decline town monsters */
-	if (!monster_dungeon(r_idx)) return FALSE;
-
 	/* Decline unique monsters */
 	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
 
@@ -2164,9 +2128,6 @@ static bool vault_aux_dragon(int r_idx)
 static bool vault_aux_demon(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
-
-	/* Decline town monsters */
-	if (!monster_dungeon(r_idx)) return FALSE;
 
 	/* Decline unique monsters */
 	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
@@ -2217,7 +2178,7 @@ static void build_type5(int yval, int xval)
 
 	bool		empty = FALSE;
 
-	monster_hook_type vault_monster_hook;
+	bool (*old_get_mon_num_hook)(int r_idx);
 
 	/* Large room */
 	y1 = yval - 4;
@@ -2268,7 +2229,6 @@ static void build_type5(int yval, int xval)
 		c_ptr = &cave[y][x2+1];
 		c_ptr->feat = FEAT_WALL_INNER;
 	}
-
 	for (x = x1 - 1; x <= x2 + 1; x++)
 	{
 		c_ptr = &cave[y1-1][x];
@@ -2291,41 +2251,39 @@ static void build_type5(int yval, int xval)
 	/* Hack -- Choose a nest type */
 	tmp = randint(dun_level);
 
+	old_get_mon_num_hook = get_mon_num_hook;
+
 	if ((tmp < 25) && (randint(2) != 1))
 	{
-		do
-		{
-			template_race = randint(max_r_idx - 1);
-		}
-		while ((r_info[template_race].flags1 & RF1_UNIQUE)
-		  || (((r_info[template_race].level) + randint(5)) > (dun_level + randint(5))));
-
-		if ((randint(2)!=1) && (dun_level >= (25 + randint(15))))
-		{
-			name = "symbol clone";
-			vault_monster_hook = vault_aux_symbol;
-		}
-		else
-		{
-			name = "clone";
-			vault_monster_hook = vault_aux_clone;
-		}
-	}
-
-	/* Monster nest (jelly) */
+            do  { template_race = randint(max_r_idx - 2); }
+                while ((r_info[template_race].flags1 & RF1_UNIQUE)
+                        || (((r_info[template_race].level) + randint(5)) >
+                            (dun_level + randint(5))));
+        if ((randint(2)!=1) && (dun_level >= (25 + randint(15))))
+        {
+            name = "symbol clone";
+            get_mon_num_hook = vault_aux_symbol;
+        }
+        else
+        {
+            name = "clone";
+            get_mon_num_hook = vault_aux_clone;
+        }
+    }
     else if (tmp < 25)
+	/* Monster nest (jelly) */
 	{
 		/* Describe */
 		name = "jelly";
 
 		/* Restrict to jelly */
-		vault_monster_hook = vault_aux_jelly;
+		get_mon_num_hook = vault_aux_jelly;
 	}
 
 	else if (tmp < 50)
 	{
 		name = "treasure";
-		vault_monster_hook = vault_aux_treasure;
+		get_mon_num_hook = vault_aux_treasure;
 	}
 
 	/* Monster nest (animal) */
@@ -2334,7 +2292,7 @@ static void build_type5(int yval, int xval)
 		if (randint(3)==1)
 		{
 			name = "kennel";
-			vault_monster_hook = vault_aux_kennel;
+			get_mon_num_hook = vault_aux_kennel;
 		}
 		else
 		{
@@ -2342,7 +2300,7 @@ static void build_type5(int yval, int xval)
 			name = "animal";
 
 			/* Restrict to animal */
-			vault_monster_hook = vault_aux_animal;
+			get_mon_num_hook = vault_aux_animal;
 		}
 	}
 
@@ -2352,7 +2310,7 @@ static void build_type5(int yval, int xval)
 		if (randint(3)==1)
 		{
 			name = "chapel";
-			vault_monster_hook = vault_aux_chapel;
+			get_mon_num_hook = vault_aux_chapel;
 		}
 		else
 		{
@@ -2360,13 +2318,13 @@ static void build_type5(int yval, int xval)
 			name = "undead";
 
 			/* Restrict to undead */
-			vault_monster_hook = vault_aux_undead;
+			get_mon_num_hook = vault_aux_undead;
 		}
 	}
 
 
 	/* Prepare allocation table */
-	get_mon_num_prep(vault_monster_hook, NULL);
+	get_mon_num_prep();
 
 
 	/* Pick some monster types */
@@ -2378,6 +2336,13 @@ static void build_type5(int yval, int xval)
 		/* Notice failure */
 		if (!what[i]) empty = TRUE;
 	}
+
+
+	/* Remove restriction */
+	get_mon_num_hook = old_get_mon_num_hook;
+
+	/* Prepare allocation table */
+	get_mon_num_prep();
 
 
 	/* Oops */
@@ -2410,7 +2375,7 @@ static void build_type5(int yval, int xval)
 			int r_idx = what[rand_int(64)];
 
 			/* Place that "random" monster (no groups) */
-            (void)place_monster_aux(y, x, r_idx, FALSE, FALSE, FALSE, FALSE);
+            (void)place_monster_aux(y, x, r_idx, FALSE, FALSE, FALSE);
 		}
 	}
 }
@@ -2467,7 +2432,7 @@ static void build_type6(int yval, int xval)
 	bool        empty = FALSE;
 	cave_type   *c_ptr;
 	cptr        name;
-	monster_hook_type vault_monster_hook;
+	bool (*old_get_mon_num_hook)(int r_idx);
 
 
 	/* Large room */
@@ -2540,6 +2505,8 @@ static void build_type6(int yval, int xval)
 	/* Choose a pit type */
 	tmp = randint(dun_level);
 
+	old_get_mon_num_hook = get_mon_num_hook;
+
 	/* Orc pit */
 	if (tmp < 20)
 	{
@@ -2547,7 +2514,7 @@ static void build_type6(int yval, int xval)
 		name = "orc";
 
 		/* Restrict monster selection */
-		vault_monster_hook = vault_aux_orc;
+		get_mon_num_hook = vault_aux_orc;
 	}
 
 	/* Troll pit */
@@ -2557,7 +2524,7 @@ static void build_type6(int yval, int xval)
 		name = "troll";
 
 		/* Restrict monster selection */
-		vault_monster_hook = vault_aux_troll;
+		get_mon_num_hook = vault_aux_troll;
 	}
 
 	/* Giant pit */
@@ -2567,31 +2534,31 @@ static void build_type6(int yval, int xval)
 		name = "giant";
 
 		/* Restrict monster selection */
-		vault_monster_hook = vault_aux_giant;
+		get_mon_num_hook = vault_aux_giant;
 	}
 
-	else if (tmp < 70)
-	{
-		if (randint(4)!=1)
-		{
-			/* Message */
-			name = "ordered clones";
+    else if (tmp < 70)
+    {
+        if (randint(4)!=1)
+        {
+            /* Message */
+            name = "ordered clones";
 
-			do
-			{
-				template_race = randint(max_r_idx - 1);
-			}
-			while ((r_info[template_race].flags1 & RF1_UNIQUE)
-			  || (((r_info[template_race].level) + randint(5)) > (dun_level + randint(5))));
+                do  { template_race = randint(max_r_idx - 2); }
+                    while ((r_info[template_race].flags1 & RF1_UNIQUE)
+                            || (((r_info[template_race].level) + randint(5)) >
+                                (dun_level + randint(5))));
 
-			/* Restrict selection */
-			vault_monster_hook = vault_aux_symbol;
-		}
-		else
-		{
-			name = "ordered chapel";
-			vault_monster_hook = vault_aux_chapel;
-		}
+            /* Restrict selection */
+            get_mon_num_hook = vault_aux_symbol;
+        }
+        else
+        {
+
+            name = "ordered chapel";
+            get_mon_num_hook = vault_aux_chapel;
+        }
+
     }
 
 
@@ -2684,7 +2651,7 @@ static void build_type6(int yval, int xval)
 		}
 
 		/* Restrict monster selection */
-		vault_monster_hook = vault_aux_dragon;
+		get_mon_num_hook = vault_aux_dragon;
 	}
 
 	/* Demon pit */
@@ -2694,11 +2661,11 @@ static void build_type6(int yval, int xval)
 		name = "demon";
 
 		/* Restrict monster selection */
-		vault_monster_hook = vault_aux_demon;
+		get_mon_num_hook = vault_aux_demon;
 	}
 
 	/* Prepare allocation table */
-	get_mon_num_prep(vault_monster_hook, NULL);
+	get_mon_num_prep();
 
 
 	/* Pick some monster types */
@@ -2710,6 +2677,13 @@ static void build_type6(int yval, int xval)
 		/* Notice failure */
 		if (!what[i]) empty = TRUE;
 	}
+
+
+	/* Remove restriction */
+	get_mon_num_hook = old_get_mon_num_hook;
+
+	/* Prepare allocation table */
+	get_mon_num_prep();
 
 
 	/* Oops */
@@ -2778,51 +2752,51 @@ static void build_type6(int yval, int xval)
 	/* Top and bottom rows */
 	for (x = xval - 9; x <= xval + 9; x++)
 	{
-		place_monster_aux(yval - 2, x, what[0], FALSE, FALSE, FALSE, FALSE);
-		place_monster_aux(yval + 2, x, what[0], FALSE, FALSE, FALSE, FALSE);
+		place_monster_aux(yval - 2, x, what[0], FALSE, FALSE, FALSE);
+		place_monster_aux(yval + 2, x, what[0], FALSE, FALSE, FALSE);
 	}
 
 	/* Middle columns */
 	for (y = yval - 1; y <= yval + 1; y++)
 	{
-		place_monster_aux(y, xval - 9, what[0], FALSE, FALSE, FALSE, FALSE);
-		place_monster_aux(y, xval + 9, what[0], FALSE, FALSE, FALSE, FALSE);
+		place_monster_aux(y, xval - 9, what[0], FALSE, FALSE, FALSE);
+		place_monster_aux(y, xval + 9, what[0], FALSE, FALSE, FALSE);
 
-		place_monster_aux(y, xval - 8, what[1], FALSE, FALSE, FALSE, FALSE);
-		place_monster_aux(y, xval + 8, what[1], FALSE, FALSE, FALSE, FALSE);
+		place_monster_aux(y, xval - 8, what[1], FALSE, FALSE, FALSE);
+		place_monster_aux(y, xval + 8, what[1], FALSE, FALSE, FALSE);
 
-		place_monster_aux(y, xval - 7, what[1], FALSE, FALSE, FALSE, FALSE);
-		place_monster_aux(y, xval + 7, what[1], FALSE, FALSE, FALSE, FALSE);
+		place_monster_aux(y, xval - 7, what[1], FALSE, FALSE, FALSE);
+		place_monster_aux(y, xval + 7, what[1], FALSE, FALSE, FALSE);
 
-		place_monster_aux(y, xval - 6, what[2], FALSE, FALSE, FALSE, FALSE);
-		place_monster_aux(y, xval + 6, what[2], FALSE, FALSE, FALSE, FALSE);
+		place_monster_aux(y, xval - 6, what[2], FALSE, FALSE, FALSE);
+		place_monster_aux(y, xval + 6, what[2], FALSE, FALSE, FALSE);
 
-		place_monster_aux(y, xval - 5, what[2], FALSE, FALSE, FALSE, FALSE);
-		place_monster_aux(y, xval + 5, what[2], FALSE, FALSE, FALSE, FALSE);
+		place_monster_aux(y, xval - 5, what[2], FALSE, FALSE, FALSE);
+		place_monster_aux(y, xval + 5, what[2], FALSE, FALSE, FALSE);
 
-		place_monster_aux(y, xval - 4, what[3], FALSE, FALSE, FALSE, FALSE);
-		place_monster_aux(y, xval + 4, what[3], FALSE, FALSE, FALSE, FALSE);
+		place_monster_aux(y, xval - 4, what[3], FALSE, FALSE, FALSE);
+		place_monster_aux(y, xval + 4, what[3], FALSE, FALSE, FALSE);
 
-		place_monster_aux(y, xval - 3, what[3], FALSE, FALSE, FALSE, FALSE);
-		place_monster_aux(y, xval + 3, what[3], FALSE, FALSE, FALSE, FALSE);
+		place_monster_aux(y, xval - 3, what[3], FALSE, FALSE, FALSE);
+		place_monster_aux(y, xval + 3, what[3], FALSE, FALSE, FALSE);
 
-		place_monster_aux(y, xval - 2, what[4], FALSE, FALSE, FALSE, FALSE);
-		place_monster_aux(y, xval + 2, what[4], FALSE, FALSE, FALSE, FALSE);
+		place_monster_aux(y, xval - 2, what[4], FALSE, FALSE, FALSE);
+		place_monster_aux(y, xval + 2, what[4], FALSE, FALSE, FALSE);
 	}
 
 	/* Above/Below the center monster */
 	for (x = xval - 1; x <= xval + 1; x++)
 	{
-		place_monster_aux(yval + 1, x, what[5], FALSE, FALSE, FALSE, FALSE);
-		place_monster_aux(yval - 1, x, what[5], FALSE, FALSE, FALSE, FALSE);
+		place_monster_aux(yval + 1, x, what[5], FALSE, FALSE, FALSE);
+		place_monster_aux(yval - 1, x, what[5], FALSE, FALSE, FALSE);
 	}
 
 	/* Next to the center monster */
-	place_monster_aux(yval, xval + 1, what[6], FALSE, FALSE, FALSE, FALSE);
-	place_monster_aux(yval, xval - 1, what[6], FALSE, FALSE, FALSE, FALSE);
+	place_monster_aux(yval, xval + 1, what[6], FALSE, FALSE, FALSE);
+	place_monster_aux(yval, xval - 1, what[6], FALSE, FALSE, FALSE);
 
 	/* Center monster */
-	place_monster_aux(yval, xval, what[7], FALSE, FALSE, FALSE, FALSE);
+	place_monster_aux(yval, xval, what[7], FALSE, FALSE, FALSE);
 }
 
 
@@ -4093,35 +4067,25 @@ static void generate_area(int y, int x, bool border, bool corner)
 		init_buildings();
 
 		/* Initialize the town */
-		if (border | corner)
-			init_flags = INIT_CREATE_DUNGEON | INIT_ONLY_FEATURES;
-		else
-			init_flags = INIT_CREATE_DUNGEON;
-
+		init_flags = INIT_CREATE_DUNGEON;
 		process_dungeon_file("t_info.txt", &ystart, &xstart, cur_hgt, cur_wid);
 	}
 	else
 	{
 		int table_size = sizeof(terrain_table[0]) / sizeof(int);
 		int roughness = 1; /* The roughness of the level. */
-		int terrain = wilderness[y][x].terrain;;
+		int terrain[3][3]; /* The terrain around the current area */
 
-		/* The outer wall is easy */
-		if (terrain == TERRAIN_EDGE)
-		{
-			/* Create level background */
-			for (y1 = 0; y1 < MAX_HGT; y1++)
-			{
-				for (x1 = 0; x1 < MAX_WID; x1++)
-				{
-					cave[y1][x1].feat = FEAT_PERM_SOLID;
-				}
-			}
-
-			/* We are done already */
-			return;
-		}
-
+		/* Initialize the terrain array */
+		terrain[0][0] = wilderness[y - 1][x - 1].terrain;
+		terrain[0][1] = wilderness[y - 1][x].terrain;
+		terrain[0][2] = wilderness[y - 1][x + 1].terrain;
+		terrain[1][0] = wilderness[y][x - 1].terrain;
+		terrain[1][1] = wilderness[y][x].terrain;
+		terrain[1][2] = wilderness[y][x + 1].terrain;
+		terrain[2][0] = wilderness[y + 1][x - 1].terrain;
+		terrain[2][1] = wilderness[y + 1][x].terrain;
+		terrain[2][2] = wilderness[y + 1][x + 1].terrain;
 
 		/* Hack -- Use the "simple" RNG */
 		Rand_quick = TRUE;
@@ -4146,9 +4110,13 @@ static void generate_area(int y, int x, bool border, bool corner)
 		 * ToDo: calculate the medium height of the adjacent
 		 * terrains for every corner.
 		 */
+	/*	terrain[0][0] = (terrain[0][0] + terrain[0][1] + terrain[1][0] + terrain[1][1]) / 4;*/
 		cave[1][1].feat = (byte)rand_int(table_size);
+	/*	terrain[2][0] = (terrain[1][0] + terrain[1][1] + terrain[2][0] + terrain[2][1]) / 4;*/
 		cave[MAX_HGT-2][1].feat = (byte)rand_int(table_size);
+	/*	terrain[0][2] = (terrain[0][1] + terrain[0][2] + terrain[1][1] + terrain[1][2]) / 4;*/
 		cave[1][MAX_WID-2].feat = (byte)rand_int(table_size);
+	/*	terrain[2][2] = (terrain[1][1] + terrain[1][2] + terrain[2][1] + terrain[2][2]) / 4;*/
 		cave[MAX_HGT-2][MAX_WID-2].feat = (byte)rand_int(table_size);
 
 		if (!corner)
@@ -4164,9 +4132,10 @@ static void generate_area(int y, int x, bool border, bool corner)
 		{
 			for (x1 = 1; x1 < MAX_WID-1; x1++)
 			{
-				cave[y1][x1].feat = terrain_table[terrain][cave[y1][x1].feat];
+				cave[y1][x1].feat = terrain_table[terrain[1][1]][cave[y1][x1].feat];
 			}
 		}
+
 	}
 
 	if (!corner)
@@ -4250,8 +4219,11 @@ void wilderness_gen(int refresh)
 	x = p_ptr->wilderness_x;
 	y = p_ptr->wilderness_y;
 
+	/* Set the correct monster hook */
+	set_mon_num_hook();
+
 	/* Prepare allocation table */
-	get_mon_num_prep(get_monster_hook(), NULL);
+	get_mon_num_prep();
 
 	/* North border */
 	generate_area(y-1, x, TRUE, FALSE);
@@ -4421,8 +4393,11 @@ static bool cave_gen(void)
 
 	dun_data dun_body;
 
+	/* Set the correct monster hook */
+	set_mon_num_hook();
+
 	/* Prepare allocation table */
-	get_mon_num_prep(get_monster_hook(), NULL);
+	get_mon_num_prep();
 
 	/* Global data */
 	dun = &dun_body;
@@ -4741,12 +4716,6 @@ static bool cave_gen(void)
 			}
 			else
 			{
-				/* Hard quests -> revive all monsters */
-				if (p_ptr->hard_quests)
-				{
-					quest[i].cur_num = 0;
-				}
-
 				for (j = 0; j < (quest[i].max_num - quest[i].cur_num); j++)
 				{
 					for (k = 0; k < SAFE_MAX_ATTEMPTS; k++)
@@ -4762,7 +4731,7 @@ static bool cave_gen(void)
 						}
 
 						/* Try to place the monster */
-						if (place_monster_aux(y, x, quest[i].r_idx, FALSE, FALSE, FALSE, FALSE))
+						if (place_monster_aux(y, x, quest[i].r_idx, FALSE, FALSE, FALSE))
 						{
 							/* Success */
 							break;
@@ -4945,7 +4914,7 @@ static void arena_gen(void)
 	build_arena();
 
 	place_monster_aux(py+5, px, arena_monsters[p_ptr->arena_number],
-	    FALSE, FALSE, FALSE, FALSE);
+	    FALSE, FALSE, 0);
 }
 
 
@@ -4971,11 +4940,372 @@ static void quest_gen(void)
 
 	dun_level = quest[p_ptr->inside_quest].level;
 
+	/* Set the correct monster hook */
+	set_mon_num_hook();
+
 	/* Prepare allocation table */
-	get_mon_num_prep(get_monster_hook(), NULL);
+	get_mon_num_prep();
 
 	init_flags = INIT_CREATE_DUNGEON | INIT_ASSIGN;
 	process_dungeon_file("q_info.txt", &ystart, &xstart, cur_hgt, cur_wid);
+}
+
+/*
+ * Hack -- fill in "special" rooms
+ */
+void build_special(int yval, int xval, int ymax, int xmax, cptr data)
+{
+	int dx, dy, x, y;
+
+	cptr t;
+
+	cave_type *c_ptr;
+	
+	vault_type    *v_ptr;
+	int             i;
+	
+        for (i=1;i<max_v_idx;i++)
+	{
+		v_ptr = &v_info[i];
+		if (v_ptr->lvl == dun_level)
+			break;
+	}
+
+	
+	/* Place dungeon features and objects */
+	for (t = data, dy = 0; dy < ymax; dy++)
+	{
+		for (dx = 0; dx < xmax; dx++, t++)
+		{
+			/* Extract the location */
+			x = dx + 2;
+			y = dy + 2;
+			
+			/* Hack -- skip "non-grids" */
+			if (*t == ' ') continue;
+
+			/* Access the grid */
+			c_ptr = &cave[y][x];
+
+			/* Lay down a floor */
+                        c_ptr->feat = FEAT_FLOOR;
+		       
+			/* Analyze the grid */
+			switch (*t)
+			{
+				/* Granite wall (outer) */
+				case '%':
+				c_ptr->feat = FEAT_WALL_OUTER;
+				break;
+
+				/* Stairs up */
+				case '<':
+				place_up_stairs(y,x);
+				break;
+
+				/* Stairs down */
+				case '>':
+				place_down_stairs(y,x);
+				break;
+
+				/* Player position */
+				case 'P':
+				px=x;
+				py=y;
+				break;
+
+				/* Granite wall (inner) */
+				case '#':
+				c_ptr->feat = FEAT_WALL_INNER;
+				break;
+
+				/* Permanent wall (inner) */
+				case 'X':
+				c_ptr->feat = FEAT_PERM_INNER;
+				break;
+
+				/* Secret doors */
+				case '+':
+				place_secret_door(y, x);
+				break;
+
+				/* Trap */
+				case '^':
+				place_trap(y, x);
+				break;
+
+				/* Random door */
+				case 'D':
+				place_random_door(y, x);
+				break;
+			}
+		}
+	}
+
+
+	/* Place dungeon monsters and objects */
+	for (t = data, dy = 0; dy < ymax; dy++)
+	{
+		for (dx = 0; dx < xmax; dx++, t++)
+		{
+			/* Extract the grid */
+			x = dx + 2;
+			y = dy + 2;
+
+			/* Hack -- skip "non-grids" */
+			if (*t == ' ') continue;
+
+			/* Analyze the symbol */
+			switch (*t)
+			{
+				/* Monster */
+				case 'a':       /* monster 1 */
+				{
+					monster_race    *r_ptr = &r_info[v_ptr->mon1];
+					r_ptr->max_num++;       /* make alive again */
+                                        place_monster_aux(y,x,v_ptr->mon1,FALSE,FALSE,FALSE);
+					break;
+				}
+
+				/* Monster */
+				case 'b':       /* monster 2 */
+				{
+					monster_race    *r_ptr = &r_info[v_ptr->mon2];
+					r_ptr->max_num++;       /* make alive again */
+                                        place_monster_aux(y,x,v_ptr->mon2,FALSE,FALSE,FALSE);
+					break;
+				}
+
+				/* Monster */
+				case 'c':       /* monster 3 */
+				{
+					monster_race    *r_ptr = &r_info[v_ptr->mon3];
+					r_ptr->max_num++;       /* make alive again */
+                                        place_monster_aux(y,x,v_ptr->mon3,FALSE,FALSE,FALSE);
+					break;
+				}
+
+				/* Monster */
+				case 'd':       /* monster 4 */
+				{
+					monster_race    *r_ptr = &r_info[v_ptr->mon4];
+                                        r_ptr->max_num++;       /* make alive again */
+                                        place_monster_aux(y,x,v_ptr->mon4,FALSE,FALSE,FALSE);
+					break;
+				}
+
+				/* Monster */
+				case 'e':       /* monster 5 */
+				{
+					monster_race    *r_ptr = &r_info[v_ptr->mon5];
+					r_ptr->max_num++;       /* make alive again */
+                                        place_monster_aux(y,x,v_ptr->mon5,FALSE,FALSE,FALSE);
+					break;
+				}
+
+				/* Monster */
+				case 'f':       /* monster 6 */
+				{
+					monster_race    *r_ptr = &r_info[v_ptr->mon6];
+					r_ptr->max_num++;       /* make alive again */
+                                        place_monster_aux(y,x,v_ptr->mon6,FALSE,FALSE,FALSE);
+					break;
+				}
+
+				/* Monster */
+				case 'g':       /* monster 7 */
+				{
+					monster_race    *r_ptr = &r_info[v_ptr->mon7];
+					r_ptr->max_num++;       /* make alive again */
+                                        place_monster_aux(y,x,v_ptr->mon7,FALSE,FALSE,FALSE);
+					break;
+				}
+
+				/* Monster */
+				case 'h':       /* monster 8 */
+				{
+					monster_race    *r_ptr = &r_info[v_ptr->mon8];
+					r_ptr->max_num++;       /* make alive again */
+                                        place_monster_aux(y,x,v_ptr->mon8,FALSE,FALSE,FALSE);
+					break;
+				}
+
+				/* Monster */
+				case 'i':       /* monster 9 */
+				{
+					monster_race    *r_ptr = &r_info[v_ptr->mon9];
+					r_ptr->max_num++;       /* make alive again */
+                                        place_monster_aux(y,x,v_ptr->mon9,FALSE,FALSE,FALSE);
+					break;
+				}
+
+				/* Monster */
+				case 'j':       /* monster 10 */
+				{
+					monster_race    *r_ptr = &r_info[v_ptr->mon10];
+					r_ptr->max_num++;       /* make alive again */
+                                        place_monster_aux(y,x,v_ptr->mon10,FALSE,FALSE,FALSE);
+					break;
+				}
+
+				/* Artifact */
+				case '1':       /* artifact 1 */
+				{
+					artifact_type   *a_ptr = &a_info[v_ptr->item1];
+					object_type     forge;
+					object_type     *q_ptr;
+					object_type     *o_ptr;
+					
+					s16b            o_idx;
+					int             k_idx;
+					
+					q_ptr = &forge;
+					object_wipe(q_ptr);
+					k_idx = lookup_kind(a_ptr->tval, a_ptr->sval);
+					object_prep(q_ptr, k_idx);
+					q_ptr->name1 = v_ptr->item1;
+
+		/* Extract the other fields */
+		q_ptr->pval = a_ptr->pval;
+		q_ptr->ac = a_ptr->ac;
+		q_ptr->dd = a_ptr->dd;
+		q_ptr->ds = a_ptr->ds;
+		q_ptr->to_a = a_ptr->to_a;
+		q_ptr->to_h = a_ptr->to_h;
+		q_ptr->to_d = a_ptr->to_d;
+		q_ptr->weight = a_ptr->weight;
+
+
+					o_idx = o_pop();
+					o_ptr = &o_list[o_idx];
+					object_copy(o_ptr,q_ptr);
+					o_ptr->iy = y;
+					o_ptr->ix = x;
+					c_ptr = &cave[y][x];
+					o_ptr->next_o_idx = c_ptr->o_idx;
+					c_ptr->o_idx = o_idx;
+
+					break;
+				}
+				
+				/* Artifact */
+				case '2':       /* artifact 2 */
+				{
+					artifact_type   *a_ptr = &a_info[v_ptr->item2];
+					object_type     forge;
+					object_type     *q_ptr;
+					object_type     *o_ptr;
+					
+					s16b            o_idx;
+					int             k_idx;
+					
+					q_ptr = &forge;
+					object_wipe(q_ptr);
+					k_idx = lookup_kind(a_ptr->tval, a_ptr->sval);
+					object_prep(q_ptr, k_idx);
+					q_ptr->name1 = v_ptr->item2;
+
+		/* Extract the other fields */
+		q_ptr->pval = a_ptr->pval;
+		q_ptr->ac = a_ptr->ac;
+		q_ptr->dd = a_ptr->dd;
+		q_ptr->ds = a_ptr->ds;
+		q_ptr->to_a = a_ptr->to_a;
+		q_ptr->to_h = a_ptr->to_h;
+		q_ptr->to_d = a_ptr->to_d;
+		q_ptr->weight = a_ptr->weight;
+
+
+					o_idx = o_pop();
+					o_ptr = &o_list[o_idx];
+					object_copy(o_ptr,q_ptr);
+					o_ptr->iy = y;
+					o_ptr->ix = x;
+					c_ptr = &cave[y][x];
+					o_ptr->next_o_idx = c_ptr->o_idx;
+					c_ptr->o_idx = o_idx;
+
+					break;
+				}
+
+				/* Artifact */
+				case '3':       /* artifact 3 */
+				{
+					artifact_type   *a_ptr = &a_info[v_ptr->item3];
+					object_type     forge;
+					object_type     *q_ptr;
+					object_type     *o_ptr;
+					
+					s16b            o_idx;
+					int             k_idx;
+					
+					q_ptr = &forge;
+					object_wipe(q_ptr);
+					k_idx = lookup_kind(a_ptr->tval, a_ptr->sval);
+					object_prep(q_ptr, k_idx);
+					q_ptr->name1 = v_ptr->item3;
+
+		/* Extract the other fields */
+		q_ptr->pval = a_ptr->pval;
+		q_ptr->ac = a_ptr->ac;
+		q_ptr->dd = a_ptr->dd;
+		q_ptr->ds = a_ptr->ds;
+		q_ptr->to_a = a_ptr->to_a;
+		q_ptr->to_h = a_ptr->to_h;
+		q_ptr->to_d = a_ptr->to_d;
+		q_ptr->weight = a_ptr->weight;
+
+
+					o_idx = o_pop();
+					o_ptr = &o_list[o_idx];
+					object_copy(o_ptr,q_ptr);
+					o_ptr->iy = y;
+					o_ptr->ix = x;
+					c_ptr = &cave[y][x];
+					o_ptr->next_o_idx = c_ptr->o_idx;
+					c_ptr->o_idx = o_idx;
+
+					break;
+				}
+
+				/* Monster and/or object */
+				case ',':
+				{
+					if (rand_int(100) < 50)
+					{
+						monster_level = dun_level + 3;
+						place_monster(y, x, TRUE, TRUE);
+						monster_level = dun_level;
+					}
+					if (rand_int(100) < 50)
+					{
+						object_level = dun_level + 7;
+						place_object(y, x, FALSE, FALSE);
+						object_level = dun_level;
+					}
+					break;
+				}
+			}
+		}
+	}
+}
+
+
+void build_special_level(void)
+{
+	vault_type    *v_ptr;
+	int             i;
+	
+        for (i=1;i<max_v_idx;i++)
+	{
+		v_ptr = &v_info[i];
+		if (v_ptr->lvl == dun_level)
+			break;
+	}
+       
+	build_special(33,99,v_ptr->hgt,v_ptr->wid,v_text + v_ptr->text);
+
+
 }
 
 
@@ -5058,6 +5388,9 @@ void generate_cave(void)
 		/* Nothing good here yet */
 		rating = 0;
 
+		/* No special level here yet */
+		special_flag = FALSE;
+
 		/* Build the arena -KMW- */
 		if (p_ptr->inside_arena)
 		{
@@ -5090,11 +5423,12 @@ void generate_cave(void)
 			wilderness_gen(0);
 		}
 
+                /* Build a special level */
+
 		/* Build a real level */
 		else
 		{
-			if (always_small_levels ||
-			    ((randint(SMALL_LEVEL)==1) && small_levels))
+			if ((randint(SMALL_LEVEL)==1) && small_levels)
 			{
 				if (cheat_room)
 					msg_print ("A 'small' dungeon level.");
@@ -5132,11 +5466,29 @@ void generate_cave(void)
 			}
 
 			/* Make a dungeon */
+                if (p_ptr->spec_history[dun_level] == 1)
+                {
+                        int x,y;
+                        /* wipe all cave to permanant rock */
+                        for (y=0;y<cur_hgt;y++)
+                        {
+                                for (x=0;x>cur_wid;x++)
+                                {
+                                        cave_type *c_ptr =&cave[y][x];
+                                        c_ptr->feat = FEAT_PERM_INNER;
+                                }
+                        }
+                        build_special_level();
+                        p_ptr->spec_history[dun_level] = 2;
+                        special_flag = TRUE;
+                } else{
+                        special_flag = FALSE;
 			if (!cave_gen())
 			{
 				why = "could not place player";
 				okay = FALSE;
-			}
+                        }
+                        }
 		}
 
 

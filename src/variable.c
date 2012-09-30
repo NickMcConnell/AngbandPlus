@@ -223,7 +223,6 @@ bool alert_failure;		/* Alert user to various failures */
 bool last_words;		/* Get last words upon dying */
 bool speak_unique;		/* Speaking uniques + shopkeepers */
 bool small_levels;		/* Allow unusually small dungeon levels */
-bool always_small_levels;		/* Use always unusually small dungeon levels */
 bool empty_levels;		/* Allow empty 'arena' levels */
 bool player_symbols;		/* Use varying symbols for the player char */
 bool equippy_chars;		/* Back by popular demand... */
@@ -917,8 +916,8 @@ void (*ang_sort_swap)(vptr u, vptr v, int a, int b);
 /*
  * Hack -- function hooks to restrict "get_mon_num_prep()" function
  */
-monster_hook_type get_mon_num_hook;
-monster_hook_type get_mon_num2_hook;
+bool (*get_mon_num_hook)(int r_idx);
+bool (*get_mon_num2_hook)(int r_idx);
 
 
 /*
@@ -943,7 +942,7 @@ bool easy_disarm = TRUE;
 /*
  * Wilderness
  */
-wilderness_type **wilderness;
+wilderness_type wilderness[MAX_WILD_Y][MAX_WILD_X];
 
 
 /*
@@ -998,12 +997,6 @@ u16b max_o_idx;
 u16b max_m_idx;
 
 /*
- * Maximum size of the wilderness
- */
-s32b max_wild_x;
-s32b max_wild_y;
-
-/*
  * Quest info
  */
 quest_type *quest;
@@ -1022,3 +1015,6 @@ int quest_text_line;
  * Flags for initialization
  */
 int init_flags;
+
+bool special_flag;              /* True if on special level */
+
