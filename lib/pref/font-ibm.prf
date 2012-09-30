@@ -1,0 +1,134 @@
+# File: font-ibm.prf
+
+#
+# This file is used by Angband (when it was compiled using "main-ibm.c")
+# to specify simple attr/char remappings using a standard font, allowing
+# the use of the IBM's built in pseudo-graphic pictures for walls and such.
+#
+
+
+
+### Terrain Features ###
+
+
+#
+# Floors (white / centered dot)
+#
+
+F:1:1/-7:LIT
+
+#
+# Invis traps (white / centered dot)
+#
+
+F:2:1/-7:LIT
+
+
+#
+# Magma (slate / special solid block)
+#
+
+F:50:2/-80:LIT
+F:52:2/-80:LIT
+
+
+#
+# Quartz (light slate / special solid block)
+#
+
+F:51:9/-80:LIT
+F:53:9/-80:LIT
+
+
+#
+# Secret door (white / solid block)
+#
+
+F:48:1/-79
+
+#
+# Granite walls (white / solid block)
+#
+
+F:56:1/-79:LIT
+F:57:1/-79:LIT
+F:58:1/-79:LIT
+F:59:1/-79:LIT
+
+#
+# Permanent rock (white / solid block)
+#
+
+F:60:15/-79:LIT
+F:61:15/-79:LIT
+F:62:15/-79:LIT
+F:63:15/-79:LIT
+
+# Space monster
+R:144:0x00:-7
+
+# Lurker
+R:247:0x01:-7
+
+# Stunwall
+R:326:0x09:-79
+
+# Landmine
+R:333:0x01:-7
+
+# Livingstone
+R:336:0x09:-79
+
+# Vampiric mist
+R:365:0x08:-79
+
+# It
+R:393:0x09:-7
+
+# Xiclotlan
+R:396:0x08:-79
+
+# Roper
+R:426:0x08:-79
+
+# Lesser wall monster
+R:448:0x09:-79
+
+# Chaos tile
+R:458:0x0A:-7
+
+# Mist giant
+R:552:0x0E:-79
+
+# Trapper
+R:565:0x01:-7
+
+# Time bomb
+R:567:0x01:-7
+
+# Weird fume
+R:625:0x0A:-79
+
+# Dark young of Shub-Niggurath
+R:677:0x08:-79
+
+# Colour out of space
+R:678:0x0A:-7
+
+# Greater wall monster
+R:718:0x09:-79
+
+# Ahtu, Avatar of Nyarlathotep
+R:761:0x08:-79
+
+# Null the Living Void
+R:803:0x00:-7
+
+# Behinder
+R:868:0x00:-7
+
+# Noxious fume
+R:875:0x0B:-79
+
+# Creeping dust
+R:880:0x0A:-7

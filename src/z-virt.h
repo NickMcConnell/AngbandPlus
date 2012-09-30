@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: remco $ on $Date: 1999/09/30 10:08:55 $ */
 /* File: z-virt.h */
 
 /*
@@ -18,6 +17,7 @@
  * Memory management routines.
  *
  * Set ralloc_aux to modify the memory allocation routine.
+ * Set rnrealloc_aux to modify the memory allocation routine.
  * Set rnfree_aux to modify the memory de-allocation routine.
  * Set rpanic_aux to let the program react to memory failures.
  *
@@ -149,6 +149,9 @@ extern vptr (*rpanic_aux)(huge);
 /* Replacement hook for "ralloc()" */
 extern vptr (*ralloc_aux)(huge);
 
+/* Replacement hook for "rnrealloc()" */
+extern vptr (*rnrealloc_aux)(vptr,huge);
+
 
 /**** Available functions ****/
 
@@ -160,6 +163,9 @@ extern vptr rpanic(huge len);
 
 /* Allocate (and return) 'len', or dump core */
 extern vptr ralloc(huge len);
+
+/* realloc version of ralloc */
+extern vptr rnrealloc(vptr p, huge newlen, int addlen);
 
 /* Create a "dynamic string" */
 extern cptr string_make(cptr str);

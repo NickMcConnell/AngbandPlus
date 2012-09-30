@@ -1,0 +1,842 @@
+=== XAngband バージョン履歴 ===
+
+この文章では XAngband の歴史が解説されています。開発の歴史の上で主な
+出来事だけを、以前の作者や管理者のコメントを交えてまとめてあります。
+
+=== XAngband 1.3.0 ===
+2008/10/01
+  新領域呪術を追加。
+  - 呪術用のコードを記述したmagic.cを追加
+  新職業魔道具使いを追加。
+  指定した位置まで自動で歩行するトラベルコマンドを実装。
+  - 次元の扉・トラベル位置指定時に'<','>'で階段を指定可能
+  願いを実装
+  - 新アイテム願いの杖を追加
+  - デバグコマンドに願いを追加
+  軟化属性の追加
+  - 今後使用の予定
+  一部アイテムの使用変更
+  - 癒しの杖、ロッド、発動で薬と同様にHP回復
+  - 神罰エゴに邪悪退散の発動を追加
+  その他、バランス調整とバグフィクス
+  - 二刀流時の右手武器消失バグを修正
+
+=== XAngband 1.2.0 ===
+2007/11/13
+  新職業憑依術師を追加。
+   - 憑依術師用のコードを記述したsnatch.cを追加
+   - 憑依術師の魔法用のコードを記述したmspells3.cを追加
+  二刀流の実装。
+   - 二刀流をするとボーナスの得られる新アーティファクトを追加
+  魔法道具の威力がレベルに応じて増加するように変更。
+  VanillaからSDL SoundFXパッチを適用。
+  GCU版の表示の改善(おそらく)。
+  その他、バランス調整とバグフィクス。
+
+=== XAngband 1.1.1 ===
+2007/1/11
+  能力値のベースが17の時の能力強化で2あがった場合18/10になるように。
+  アーティファクトを6個追加。
+  一部クエストの名称を変更、修正。
+  オークの鉱山クエストのモンスター配置を微修正。
+  モンスターの思い出の説明文の表示をやや修正。
+  元素使いの古い城の報酬を飛行石に。
+  windows版のサブウィンドウサイズによるクラッシュバグを修正。
+  windows版スクリーンコピー機能を改良。
+  英語に関するエトセトラ。
+  その他バランス調整とバグフィクス。
+
+=== XAngband 1.1.0 ===
+2006/10/17
+  英語化。
+  新職業スナイパーを追加。
+   - スナイパー用のコードを記述したsnipe.cを追加
+  レンジャーの仕様を変更。
+   - ZAngbandの盗賊に近いものに。
+  調査の呪文/ロッド等で調査中に完全な思い出が見られるよう変更。
+  一部エゴアイテムの能力の改定
+  中継機能の更新。
+   - コンパイルオプションCHUUKEIの廃止。
+   - 受信効率の向上。
+  ムービー録画・再生機能の搭載。
+  その他バグフィクス。
+
+=== XAngband 1.0.2 ===
+2006/4/27
+  装備で得られる能力として魔法道具使用能力を追加。
+   - 魔法道具使用のアミュレットを追加。
+   - 篭手用のエゴとして魔力支配を追加。
+  武器のエゴアイテムを刷新
+   - *スレイヤー*の武器を廃止し、その能力をスレイヤーの武器に。
+   - 新たに8つのエゴを追加。
+   - 焼棄、凍結、溶解、電撃、毒殺の5つのエゴに発動を追加
+  一部エゴアイテムの能力の改訂。
+　仙術の呪文のうち死の光線と引き寄せを、念動力とモンスター追放に変更。
+  ランダムアーティファクト武器のダイス数が増えることのあるよう修正。
+  マクロ等の入力でテンキーが常に数字を入力するように修正。
+  その他バグフィクス。
+
+=== XAngband 1.0.1 ===
+2005/3/23
+  新職業元素使いを追加。
+   - 元素使い用のコードを記述したelement.cを追加。
+  エゴ(妖刀)及びモルグルを殺戮の武器と同様にダイスが増えるように変更。
+  最新のvanilla風に力の指輪を強化。幽鬼の指輪もやや強化。
+  階の雰囲気に応じた階数表示の色分けを導入。
+  windows版に画面コピー機能を追加。
+  sound.prfで設定したさまざまな効果音がきちんと鳴るように修正。
+  モンスターが木の地形に召喚されるように修正。
+  ボルトやビームにも短射程が設定できるように修正。
+  厚さ1マスの壁中のモンスターの向こうに投擲したアイテムが落ちないように修正。
+  アイテム表示のソート条件の修正。
+  我が家でもアイテム自動詰め替えを行うように変更。
+  カーソルキーやテンキー等の特殊キーの処理を変愚蛮怒仕様に。
+  モンスター、アイテム、地形の知識メニューを変愚蛮怒仕様に。
+  シンボルのビジュアルエディタを変愚蛮怒仕様に。
+  'l'ookコマンドを変愚蛮怒仕様に。
+  暗い地形のシンボルも変更できるように変更。
+  自動拾いエディタをvz風味に(from 変愚蛮怒)。
+  自動拾い関連コードのバージョンアップ(from 変愚蛮怒)。
+  ダンジョンの部屋生成コードのバージョンアップ。
+  光源関係の表示のバグ修正。
+  その他インターフェースの改良とバグフィクス。
+  一部モンスター及びアイテムの説明文の追加と修正。
+
+=== XAngband 1.0.0 ===
+2003/8/19
+  バージョンを1.0.0に。
+  武器匠に折れた武器を修復する新サービス。
+  地下ダンジョンにランダムに街が生成される。
+  アイテム選択形式の魔法道具使用をキャンセルしてもターンを消費しない。
+  レイシャルパワーをキャンセルしてもターンを消費しない。
+  すべてのアイテムで{@ma}のようにアルファベット刻みを有効に変更。
+  警告がより正確に行われるよう改良。
+  光っているモンスターがダンジョンに入ったときから光っているよう修正。
+  ブレス形状の整形。
+  ホビットのレイシャルパワーのバグを修正。
+  デバグモードのオブジェクトコマンドで☆幽鬼の指輪を生成できる。
+  デバグコマンドで次元の扉を使用できる。
+  ブラックマーケットで販売価格がオーバーフローするバグを修正。
+  命中修正がマイナスの時に0除算するバグを修正。
+  その他インターフェースの改良とバグフィクス。
+
+=== XAngband 0.7.2 ===
+2003/4/3
+  バリアント名を「簡単愚蛮怒」から「XAngband」に変更。
+  打撃戦闘システムをO-combatからVanilla方式に変更。
+    - 種族、職業の打撃/射撃スキルを修正
+    - 固定アーティファクトの能力を修正
+    - 最大HPの計算式を修正
+    - プレイヤーの攻撃魔法のダメージやコストを一部修正
+    - モンスターの攻撃魔法のダメージを一部修正
+    - クリティカルが出やすいよう修正
+  新職業「考古学者」を追加。
+    - 採掘道具のダメージダイスを多少強化
+    - 専用クエスト「幻影の街」を追加。(自然の特異点を廃止)
+  アンバーシリーズのモンスターを廃止。
+    - アンバーの王族を違うユニークに変更
+    - 99階のクエストはサウロン、100階はモルゴスを倒すよう変更
+    - アンバー由来のアーティファクトの名称を変更
+    - アンバー関係のランダムアーティファクト銘や噂を削除
+    - アンバー召喚の魔法を廃止
+  指輪の幽鬼(ナズグル)は必ず☆幽鬼の指輪を落とす。
+  ライフレートを95〜105の間に限定するよう変更。
+  新生の薬を廃止して、*経験*の薬を追加。
+  悪い効果のみのアイテムとキノコを廃止して、全復活の薬を追加。
+  トラップ/ドア破壊の魔法棒を消滅の魔法棒(1体抹殺)に置き換え。
+  無双の魔法の装備無力化を魔法道具に使用できないよう変更。
+  銘付きエゴアイテムの追加能力が既存のものとかぶらないよう変更。
+  銘付きエゴアイテムにランダムな発動が付くよう変更。(確率1/7)
+  シンダリン語の語彙を用いてランダムな銘を生成するルーチンを実装。
+  昇り坑道、下り坑道を追加。(2階単位で階移動。from 変愚蛮怒)
+  モンスターの攻撃魔法に上級デーモン召喚とスター・バーストを追加。
+  モンスターが壁を回りこんでプレイヤーの位置を追跡するように変更。
+  easy_disarm、easy_open使用時に足元の罠解除や箱開封ができるよう変更。
+  指輪、アミュレットの簡易鑑定を実装。
+  種族による店主との相性を廃止。
+  ランダムバルトの出現率をやや減少。
+  突然変異を96個からなもの32個に削減(発動系は全部消した)。
+  固定アーティファクト発動のコードを整理。
+  アーティファクトおよびエゴの発動を外部ファイルに記述できるよう変更。
+  一部のモンスターを違うものに置き換え。
+  一部のモンスターの能力を調整。
+   - アングマールの魔王に地獄ブレスを追加
+   - 八岐大蛇をかなり強化
+  一部アイテムの能力やレアリティを調整。
+   -  三種の神器、天の沼矛を強化。
+   - (妖刀)のダメージ修正がプラスになるよう変更。
+   - 攻撃用魔法道具の攻撃力アップ
+  視界外のモンスターの行動メッセージを無視するオプションを追加。
+  行動中止オプションに「木は通過する」を追加。
+  打撃時にモンスターのヘルスバーが1撃ごとに更新されるよう変更。
+  WindowsNT/2000/XPで起動時にフォントがにじむバグを修正。
+  その他インターフェースの改良とバグフィクス。
+
+=== KantAngband 0.5.0 ===
+2002/12/13
+  超能力にテレキネシスを追加。
+  新クエスト「オークの鉱山」を追加。(仙術の特異点を廃止)
+  新クエスト「地下遺跡」を追加。(カオスの特異点を廃止)
+  魔法道具など基本アイテムの効果の説明分を追加。
+  0.4.0の打撃命中強化を受けて生命の領域の構成を少々変更。
+  アイテム/モンスター一覧をEyAngband風に変更。(Thx to So-Miyaさん)
+  プレイ記録機能を強化。
+  ダガーとスピアを投擲向きに変更。
+  ミュルニール用に投げたアイテムが戻ってくる機能を追加。
+  easy_floorで床上の23個以上のアイテム山を選択可能に。
+  フラキアの警告をアイテムフラグ化。
+  ironman_hengbandにランダムスピードシステムを追加。
+  モンスターの加減速を永続的効果から一時的効果に変更。
+  徳を廃止。
+  カオスパトロンを廃止し、パトロンの変異を時間耐性の変異に変更。
+  ベースアイテム、アーティファクトを少々追加。
+  一部のモンスターを置き換え。
+  その他バグフィクス。
+
+=== KantAngband 0.4.0 ===
+2002/11/12
+  新職業アーチャーを実装。
+  職業ごとのレイシャルパワーを実装。
+  エゴ、アーティファクトを追加、削除、調整。
+  モリバントの武器匠にエゴを銘付きに強化するサービスを導入。
+  一部のモンスターの出現階と能力を調整。
+  寺院を中心に店で販売するアイテムを調整。
+  ログルス使いのクエストの報酬を帰還のロッドに変更。
+  自動拾い関係の改善。
+  トラップ未感知エリアの表示オプションを導入。
+  その他バグフィックス。
+
+=== KantAngband 0.3.0 ===
+2002/6/2
+  クイックスタートと生い立ちエディタを導入。
+  クローン地獄のユニークをクローン扱い。
+  {=g}と刻んだアイテムの自動拾いを最優先。
+  自動拾いエディターの導入。
+  クエストの内容を見せてから受けるかどうか確認。
+  弓に攻撃属性(4元素と毒)が付く。
+  サブウィンドウを前面に固定できる。(only windows)
+  仙術の魔法を小幅修正、無双の魔法を大幅改訂。
+  オプションコマンドメニューの構造変更。
+  ストームブリンガー装備中は友好的なモンスターも確認無しで攻撃。
+  'C'コマンドのステータス画面のレイアウト変更。
+  消費魔力減少フラグ、魔道師の杖、消費魔力減少の指輪を導入。
+  その他様々なバグフィックス。
+
+=== KantAngband 0.2.1 ===
+2002/5/18
+  トランプの塔で帰還をキャンセルできる。
+  日本語特別オプション廃止。
+  『らいおんはーと』追加。
+  その他バグフィックス。
+
+=== KantAngband 0.2.0 以前 ===
+
+  職業と種族の種類を厳選。
+  戦士系職業の打撃力を強化。
+  ゲーム開始時のHP/MPを多めにした。
+  魔法の領域が3つに絞り、各領域の魔法書を3冊に変更。
+  「生命」「仙術」の魔法を簡単愚仕様に変更。
+  新魔法領域「無双」を実装。
+  新たなベースアイテム、エゴ、アーティファクトを追加。
+  書店に替わり高級品を扱う店「魔装具店」を導入。
+  ランダムアーティファクトはバイアスによって付く名前が変わる。
+  銘のあるエゴアイテムを導入。
+  ランダムクエストはユニークが守る。
+  4つの街の我が家を1つに統合。
+  メニュー選択によりコマンドを実行を導入。
+  難易度を上げる初期オプションironman_hengbandを実装。
+
+
+---------- 以下は古いです ----------
+
+=== Zangband の歴史 ===
+
+この文章では Zangband の歴史が解説されています。開発の歴史の上で主な出
+来事だけを、以前の作者や管理者のコメントを交えてまとめてあります。詳細
+な開発履歴は z_update.txt を参照してください。
+
+
+=== Zangband 2.5.0 ===
+
+この開発バージョンで初めて新しいランダムな荒野が導入されました。前の
+バージョンと違い荒野で移動するとマップが切り替わることなくスクロール
+し、また地形も非常にバラエティが増えました。Zangband 2.5.0 では更にモ
+ンスターとアイテムの大規模なバランス調整を行ってあります。
+
+
+=== Zangband 2.3.5 ===
+
+このバージョンで初めて Oangband の戦闘システムが新たに導入されました。
+大きな違いは呪文を使う職業が直接攻撃に頼れなくなったこと、各職業の最大
+攻撃回数が減ったこと、装備による攻撃回数増加が稀になったこと、武器の基
+本ダメージがより重要になったこと、クリティカルヒットの仕様変更などで
+す。
+
+
+=== Zangband 2.2.0 ===
+
+このバージョンでは拡張された荒野や固定クエスト(Kangbandから)などが導入
+されました。街、クエスト、荒野はテキストファイルを編集することで容易に
+変更できます。以下のレビューはZangbandの元祖作者、Topi Ylinen氏による
+ものです。
+
+--- バージョン 2.2.0 (by Topi Ylinen)---
+
+Zangband 2.2.0 はこれまでで最も変化したバージョンといえます。歴史的
+バージョン(Angband-- や Zangband 1.*)は主にモンスターやアイテムを変更
+し、バージョン 2.0.*〜2.1.* は新しい種族と要素を加えましたが、Zangband
+2.2.0 ではゲームの根本を劇的に変更しました。
+
+新しいコンセプトは Kangband から取ったもので、荒野や新しい地形、カスタ
+マイズ可能なクエストやマップなどです。この変更に対して、ランダムネスが
+減って予測できる部分が増える、と反対する人もいるかもしれませんが、実際
+は新しい仕様によりゲームから失われる物は何もありません。全ては昔のシス
+テムに「追加」されたのです。ポピュラーになったZangband 2.1.1 の「ラン
+ダムクエスト」も健在です。ただし出現する階はランダムでなくなりました
+が。
+
+とはいえ、あらかじめプログラムされている部分はマップとクエストに限られ
+ています。今のところ荒野のマップは比較的小さくクエストの数は多くないの
+で、プレイヤーたちはすぐに馴染めるでしょう。街やクエストは lib/edit に
+定義ファイルを付け加えるだけで追加でき、再コンパイルは不要なので新しい
+バージョンのプレイヤーは自分でクエストを作って、それを全ての Zangband
+プレイヤーと共有することができすのです！
+
+クエストと荒野の他にも Zangband 2.2.0 では新しいモンスター(300近くいま
+す。Vanillaから取ってきたものもいますが)、いくつかの新しい武器と防具、
+52以上の新しい突然変異が加わりました。突然変異は合計で98種類になりまし
+た。つまり Zangband のベテランにとっても新しい発見と経験がたくさんある
+だろう、ということです。合計850以上のモンスターの種族を実装するには 16
+ビットのメモリ管理コードを取り除く必要がありました。Zangband 2.* では
+16ビットコードをサポートしてないのでこれによる影響はありません。
+
+
+その他のあまり目立たない変更としては、ペットのAIの改良と s-lang のサ
+ポートがあります。後者はまだ使われていませんが、アイテムやモンスターや
+クエストなどを非常に強力にカスタマイズすることができるようになります。
+あらゆる機能が編集可能なファイルから呼び出すことができ、再コンパイルの
+必要がないからです。
+
+
+=== Zangband 2.1.0d ===
+
+これは Robert Ruehlmann 氏がZangbandの新しい管理者になってから最初に出
+たバージョンです。彼自身の言葉によれば...
+
+「ZAngband 2.1.0c は Topi氏による最後のバージョンです。彼は仕事に就いて
+ZAngband を開発する時間がなくなってしまいました。彼は新しい管理者を募
+り、私がその仕事を引き継ぐことになりました。自己紹介しましょう、私の名
+前は Robert Ruehlmann、DOS 用のグラフィカル Angband の作者であり、『
+Thangorodrim - The Angband Page』(http://thangorodrim.angband.org)のウ
+ェブマスターです。」
+
+
+=== バージョン 1.0 - 2.1.0c ===
+
+以下の文は Topi Ylinen 氏による開発の記録です。
+
+Zangband の起源は、今となっては廃れて大昔に消えてしまった、「
+Angband--」という(多少誤解を招く)名前のPC用バリアントでした。このバリ
+アントの作者は救いがたいアングバンド中毒者(以前はモリアのベテランにし
+て勝利者)で、スタンダードなモンスターに飽きて新しいモンスターを導入し
+ようと考えていました。Angband--は PC Angband 1.31 のソースを元に作ら
+れ、ロジャー・ゼラズニイの小説「アンバー」の世界設定を使っていました。
+
+後にこの人間はもっといいマシンを手に入れてプログラムを学び、PC Zangband
+を作りました。ほとんどの Angband--のモンスターは生き残ってPC Zangband
+1.0 に入りました。PC Zangband 1.0 は PC用 Angband で初めてフォントを使
+った簡単なグラフィックを導入し、それはPC用Angband 1.40 にも導入されま
+した。
+
+しかしこの人間はまだ中毒が治りませんでした。彼は同じくらい中毒になって
+いる「Civilization」タイプのファンタジーシミュレーション「Master of
+Magic」から新しい魔法のシステムのアイディアを得て、それを導入しまし
+た。このシステムは他の Angband--や PC Zangband 1.0の良い部分と共に現在
+の Zangband (2.*)にも導入されています。コードは Ben Harrison氏による
+Angband 2.8.1 を元にしているので、他のシステムにも容易に移植できます(
+以前のバージョンはdos-pc専用でした)。
+
+同時に、この人間(私、Topi Ylinen)はスタンダードなアングバンドのモンス
+ターは弱すぎると考え、デスソードやサイバーデーモン、パワーワイアームな
+どを導入することになります。
+
+
+=== 謝辞 ===
+
+Zangband の新しいバージョンは以下のすばらしい Angband プログラマーの方
+々の助力なしには生まれ得なかったでしょう。
+
+Topi would like to thank:
+
+        Ben Harrison, for obvious reasons.
+
+        Greg Wooledge, who pointed out a bug in the dos compiler, which
+        was preventing Topi's progress with the first 2.* version of
+        Zangband and for various patches.
+
+        Julian Lighton, who must have sent Topi more ideas, patches, and
+        bug reports, than all the others toghether.
+
+        Robert Ruehlmann, whose nice new main-dos.c enables SVGA
+        graphics and even windows in ms-dos.
+
+        Paul Sexton, who is responsible for about 50% of the new code in
+        2.1.0.
+
+Robert would also like to thank:
+
+        Heino Vander Sanden, who created the quest-code and Dean
+        Anderson, whose patch showed me the quickest way to implement
+        the quests.
+
+        Adam Bolt, who created the new ZAngband tiles.
+
+        Scott Bigham, for the S-Lang patch.
+
+        Jeff Duprey for the new mutations.
+
+        John Duffin and Leigh Silas Hanrihan for the new items.
+
+        Marten Woxberg for many new ideas.
+
+        Ken Wigle for allowing me to include his town and quest code.
+
+        Tim Baker for many patches and bugfixes and for ZAngbandTk.
+
+        Chris Weisiger for many new vault layouts.
+
+        Juergen Neitzel for countless new rumors.
+
+        Topi Ylinen, Mark Howson, Adam Horowitz, Oscar Nelson and all
+        the other regular members of the #angband chat channel for
+        giving me lots of new ideas and being good friends.
+
+        Benny S. Hofmann, Aram Harrow, Greg Harvey, Keldon Jones, Graham
+        Murray, Remco Gerlich, Tim Baker, Oscar Nelson, Adam Horowitz,
+        David A. Henry, "Strikes", Chris Hadgis, David Howdon, Jenni
+        Henzel, Stephen Lee, Gwidon S. Naskrent, Eric Wright, Bob
+        Martin, Jeff Coleburn, Ethan Sicotte, Brandon Walker, Kelly
+        Trinh, Brian Graham, James W. Sager III, John Holton, Larry
+        Bassel, Markus Linnala, Musus Umbra, Mike Hommel, Christopher
+        Stranczek, Werner Baer, Andreas Koch, Jon Boehnker, Jason
+        Willoughby, David Paoletti and many others for bugreports,
+        patches, bugfixes, and ideas.
+=== (スタンダードなAngbandの)バージョン履歴の摘要 ===
+
+初め Robert Alan Koeneke によって "VMS Moria" ができました(1985)。
+
+その次に James E. Wilson によって "Umoria"(Unix Moria) ができました(1989)。
+
+アングバンドの直系の祖先である "moria" の歴史についての詳細は様々なところで
+見つけることができますし、このファイルにも作者の Robert Alan Koeneke からの
+メッセージが掲載されています。"moria" は様々なシステム上に移植されていますし、
+独自のニュースグループを持ち、独自のファンもいることに注意して下さい。
+
+1990 年に、Alex Cutler と Andy Astrand が Warwick 大学の生徒たちの協力を得て
+UMoria 5.2.1 をベースに Angband 1.0 を作りました。彼らはゲームの背景となるトー
+ルキンの世界を維持し充実させつつ、ゲームを拡張していきました。オリジナルから
+の変更点としては、モンスターやアイテムの増加、ユニーク・モンスターや伝説のア
+イテム(artifact)、始動コマンド、アイテムの感じ、階の雰囲気、特別な部屋、の追
+加などがありました。
+
+年月を経て Sean Marsh, Geoff Hill, Charles Teague などの人達がソースの改良を
+行い "Angband 2.4.frog_knows" と呼ばれるバージョンがリリースされました。これ
+は UNIX システム上でしか動かないものでしたが、様々な人が様々なシステムに移植
+を行っていました。移植されたうちで最も意義深いものは、古い DOS マシン用の
+"PC Angband 1.4" で、それにはカラーの搭載と、他にも様々な改良が施されていまし
+た。それらのうちいくつかはオフィシャルなソースにも反映されました。
+
+その次に Charles Swiger(cs4w+@andrew.cmu.edu) が混乱を整理しようと試み、いく
+つかのバージョンを経て、1993 年 11 月のある日の Angband 2.5.1(多少の違いはあ
+る)から始めて、1994 年末の Angband 2.6.2 までを主導しました。カラー使用のサ
+ポートを追加した Macintosh 版を作成した Keith Randall を含め何人かの人々が、
+(主に Unix/NeXT が中心だった) Angband 2.6.1 を他のプラットフォームに移植しま
+した。この時期の変更のいくつかは、"net"(*訳注:Nethackのことか)、PC Angband
+1.4 や UMoria 5.5、FAngband のような様々な Angband の「亜種」からヒントを得
+ていました。
+
+Angband 2.6.1 は Unix/NeXT マシンを主な対象としており、それは画面操作とキー操
+作のすべてに関してローレベルの "curses" コマンドの使用を必要としていました。
+どのバージョンも新たなシステムへの移植に際しては根本的なソース修正が必要であ
+り、"curses" エミュレータのように機能する画面操作のソース作成が通常必要でし
+た。そのようにして移植された中には Keith Randall による "Macintosh Angband 
+2.6.1" があり、それはカラーのサポートが追加され、Angband 2.7.0 の最初のリリー
+スの基礎を形成しています。
+
+1994 年の後半、私(Ben Harrison)は Angband のソースと戯れていましたが、それは
+"rogue" ゲームにおける古い "rogue-o-matic" プログラムのような、 Angband の自
+動プレイの一種を作れるかどうか主に検討していたからです。Macintosh バージョン
+のコンパイルの困難さとソースの複雑さがそれを不可能としていましたので、そこで
+私は自分自身の使用のために様々な方法でソースの整頓を始めました。
+
+1994 年の末に Charles Swiger が就職をしたために Angband のサポートができなく
+なったことをアナウンスしました。これは Angband newsgroup に代表される Angband
+社会に少なからぬ狼狽を与え、様々な人々が Angband のサポートを継続するために
+「委員会」を発足させようとしました。委員会は混乱以外の何ものも与えませんでし
+たので(例えば COBOL を考えようとか)、1995 年の初日に私が自分のソースを発表し
+てそれを "Angband 2.7.0" と呼び、基本的に新たな Angband の管理者となると言っ
+たときには、ほとんど反対はありませんでした。もしくは、少なくとも私はそう感じ
+ました。
+
+Angband 2.7.0 は(バグだらけでしたが)ソースをひじょうにきれいに書き直しました
+ので、その他のことと相まって、Macintosh と UNIX に始まる多くのプラットフォー
+ムへの移植が容易になりました。そして多くの時間をバグ出しに費やして、X11 や様々
+な IBM 機版を含めた Angband 2.7.2 になりました。Angband 2.7.4 は ftp サイト
+"ftp.cis.ksu.edu" に公開され、すぐに好評を博しました。おそらく OS2 や Windows
+Amiga や Linux への移植がその好評に寄与したのでしょう。Angband 2.7.5 と 2.7.6
+はマクロやユーザー設定ファイルのような重要な機能が追加され、ソースの整理も引
+き続き行われました。Angband 2.7.8 は、安心して友人に配布できるような、もう一
+つの「安定した」バージョンを供給すべく設計されました。これにはオンライン・ヘ
+ルプ用の新しいヘルプ・ファイルとスポイラー・ファイルに加えて、様々な細かな変
+更やいくらかの新しい特徴が追加されました。
+
+Angband 2.7.8 が発表された後に、私はそれぞれのバージョンでのすべての変更点
+(少し漏れたのもありますが)を記録しておくために web site を立ち上げ、Official
+Mirror Server をサポートするための新たな開発者 ftp server の使用ができるよう
+になりました。この web site は現在 Officail Angband Home Page(http://www.
+phial.com)に恒久的に置かれています。不幸にも、続く 6 つのバージョンは
+Angband 2.7.9v1 から Angband 2.7.9v6 とナンバーされていますが、実際はどれも
+大幅なバージョンアップです。Angband 2.8.0 と Angband 2.8.1 は普通のバージョ
+ンナンバーを付けようとして発表されました。Angband 2.8.2 と Angband 2.8.3 は
+少々のランダムな特徴を付け、ソースを少し整理し、グラフィックをサポートし、い
+くつかの新しいシステムをサポートしました。
+
+Official Angband Home Page("http://www.phial.com/angband/")では Angband の最
+新情報だけでなく、バージョン間の変更点の一覧や、次なるバージョンで計画されて
+いる変更点や、Angband に関連した様々な email アドレスや web site の一覧などを
+提供しています。
+
+
+=== Angband 2.6.1 から 2.7.9 までの主な変更点 ===
+
+2.6.1 から 2.7.8 にかけて、どこが変更されたか、そしていつ変更されたかを特定す
+るのは大変困難なことです。どのバージョンも以前のバージョンからのひじょうに多
+くの変更点があり、diff ファイルがソース自体より多くなってしまうほどのものなの
+です。様々なプラットフォーム用の新しい "main-xxx.c" の作成と、ソース中に注記
+されているその他の少々の例外を除いて、ほとんどの変更点は私自身がソースを書き
+ました。その変更には自発的なものもありますが、ほとんどは Angband プレーヤーの
+提案や意見の結果として行われたものです。
+
+もっとも重要な修正は、他の修正作業すべてをずっと簡単かつ安全にするための、大
+量の「コードレベルの整理」でした。コードをほとんど一から書き直すことがたびた
+びでしたので、多くの場合、例えば "diff -r" をもってしてもコードが認識できな
+いほど、この修正は大幅なものでした。
+
+次に重要な修正は、Angband をわずか 50 行程度のコード追加で新しいマシンに実装
+できるようにする、汎用 "z-term.c" パッケージの構築でした。Angband 2.7.9 はこ
+うして多くのマシン、Macintosh, PowerMac, Unix/X11, Unix/Curses(*訳注:Curses 
+とは端末に依存しないプログラム作成を支援する高機能なルーチンライブラリの名前
+で、つまり、それを利用して実装されたということ), Amiga, Windows, OS2-386, 
+DOS-386 上、さらには DOS-286 上でさえも修正なしで実行できています。
+
+Angband 2.6.1 から 2.7.9 までの変更点全てをリストアップするのは困難です。それ
+らの多くは大量のコードレベルの整理通過のさいに作られたものだからです。変更の
+大半はユーザーからは分かりませんが、シンプルさと能率の良さや、コードサイズの
+縮小をもたらし、また、他の多くの改造の可能性を裏書きしてくれました。例えば、
+bolt, beam, ball などを取り扱う "project()" コードや、視線の計算を単純化する
+"update_view()" コード、あるいはダンジョンの新規の階を構築する "generate()" 
+コードなどです。"process_monsters()" や "update_monsters()" 関数、新たな
+"objdes()", "lite_spot()" ルーチンを含めて、多くの変更が効率の向上に向けられ
+ました。汎用 "Term" パッケージは効果的な画面更新、カラーの使用を可能にします。
+
+しかし、ともかくも、一切手間暇かけず、ただ思い付くままに順不列に並べてみます。
+どうにかして私は、このファイルを更新することから忌避してきました。本当は今の
+うちにでも手をつけなければならないのですが。最新の変更やバグ修正などは 
+Official Angband Home Page で確認することができます。
+
+    color
+    macros
+    keymaps
+    user pref files
+    generic feature array, with template file
+    generic object array, with template file
+    generic artifact array, with template file
+    generic ego-item array, with template file
+    generic monster array, with template fils
+    generic vault array, with template file
+    binary image files for the template files
+    special stat effect tables
+    a special table of spells
+    a special table of options
+    inventory tagging
+    inventory restrictions
+    using objects off the floor
+    various new runtime options
+    the new "destroy" command
+    the new "examine" command
+    the new "note" command
+    the new "dump screen" command
+    the new "load screen" command
+    the new "un-inscribe" command
+    the new "change visuals" command
+    the new "change colors" command
+    the new "change macros" command
+    the new "save game" command
+    the new "fire" vs "throw" commands
+    rearranged equipment slots
+    a standard bow slot
+    an extra inventory slot
+    an underlying keyset
+    refueling torches
+    better monster memory
+    nicer targetting mode
+    object stacking
+    the recall window
+    the choice window
+    the mirror window
+    new high score code
+    special lighting effects
+    intelligent monsters
+    new monster flags
+    text formatting code
+    much cleaner store code
+    generic spell projections
+    scrolls of *identify*
+    maximize mode
+    preserve mode
+    new inscription code
+    new message recall code
+    new spell and prayer code
+    massive cleanup of effects code
+    new object allocation routines
+    powerful (but simple) on line help
+    robust savefile cheat preventers
+    new official cheating options
+    new blindness code
+    new hallucination code
+    optimized object description code
+    new keypress input routines
+    actual object discounts
+    fractional (assymptotic) speed
+    postponing updates/redraws
+    run-time price determination
+    better wizard commands
+    the automatic player
+    launchers of extra shots
+    elemental ignore flags
+    new ego-item types
+    new player ghost creation
+    no more sliding objects
+    no more sliding monsters
+    new object flags
+    new chest trap code
+    regularized the artifact code
+    regularized the ego-item code
+    new monster abilities
+    new monster spell attacks
+    some new store owners
+    run-time skill computation
+    player kills vs anscestor kills
+    better room illumination code
+    better group monster code
+    table access through pointers
+    more redefinable constants
+    slightly new screen layout
+    extreme code cleaning
+    extreme optimizations
+
+
+=== 元著作者よりの手紙 ===
+
+From: koeneke@ionet.net (Robert Alan Koeneke)
+Newsgroups: rec.games.roguelike.angband,rec.games.roguelike.moria
+Subject: Early history of Moria
+Date: Wed, 21 Feb 1996 04:20:51 GMT
+
+私はモリア(Moria)の起源やそのローグ(Rogue)との関係を尋ねるメールを頂きまし
+た。ここでモリアの始まりについてのテキストを投稿したいと思います。
+
+まず第一に自己紹介ですが、私が正真正銘の、初めにモリアを作った Robert Koeneke
+です。私は人をハマらせるようなゲームを作ったことに対する苦情のメールをたくさ
+ん頂きました。私がインターネットに接続できたのはつい最近のことです。そう、最
+近の世間の風潮にあおられて、やっとインターネットに関心を持ち始めたような会社
+に私は勤めているのです。そこで私はニュースグループにモリアの名を見つけて本当
+に驚きました。またアングバンドを見つけて更に驚きました。というのも、私は今ま
+でアングバンドの存在を知らなかったのです。アングバンドを作っている方と連絡を
+とったこともあるはずなのでしょうが...。私は長年多くの方に、無償配布をする限
+り、追加や改良の許可を与えてきました。私は常に、ゲームを売るのではなく、無償
+配布することを提案してきました。
+
+ところで...
+
+1980 年か 81 年頃に、私はオクラホマ大学のエンジニアリング・コースに入りまし
+た。エンジニアリング研究所では初期の UNIX の元で PDP 1170 が稼働していました。
+私は昔からコンピューターの扱いが得意でしたので、自然にシステム管理者と親しく
+なりました。ある晩、彼らは私を誘って、いくつかのゲームをさせてくれました。そ
+のゲームとは初期のスタートレック・ゲームと巨大洞窟アドベンチャー(後に単に「ア
+ドベンチャー」と呼ばれる)でした。そしてその晩遅く、「ローグ」と呼ばれる新し
+いダンジョン・ゲームをやらせてもらいました。
+
+そうです、私は初めにローグの洗礼をうけたのであって、モリアが私の頭にひらめい
+たのはその後のことなのです。実際、皆さんがモリアとその派生のゲームをやるため
+に費やした何百万もの時間は、すべてローグが存在したことにその原因があるといっ
+てもいいくらいです。
+
+ローグにハマったすぐ後、私は学生コンピューター・アシスタントとして、今までと
+違った部門での仕事につきました。私の仕事場のコンピューターは VMS の走る初期
+の VAX 11/780 でしたが、当時はそのコンピューター用のゲームなどはまったくあり
+ませんでした。エンジニアリング研究所の管理者は、コンピューターの唯一の目的は
+仕事だと考えているような、まったくとんでもない人でした。想像して下さい、そう、
+ゲームができないのです、ローグができないのです！
+
+これは全く耐え難いことでした！そこで私は自分自身でローグを作ることを決意し、
+これがモリア・ベータ 1.0 となったのです。私の VMS システムでは FORTRAN IV と
+PASCAL V1.? と BASIC を使用することができました。ゲームのほとんどは文字列操
+作が必要でしたので、私は VMS BASIC でモリアを作り始めました。このモリアは私の
+記憶にある限りでは、見た目はローグにそっくりなものでした。この後、私はそれを
+どのように改良し、どのような違いを出すかのアイデアを考えることにし、一年くら
+いはそのモリアに手を触れませんでした。
+
+1983 年頃に、モリアを現在のような形態に生まれ変わらせる原因となった二つのこと
+が起きました。私は婚約し、そしてあれの唯一の特効薬はそれを忘れるまで働くこと
+だけでした。また私は PASCAL のオペレーティング・システム・クラスに参加するこ
+とになったのです。
+
+ですから、私は新しいバージョンの VMS PASCAL を研究し、新しい機能があることを
+発見しました。可変長文字列！わぉ...
+
+その夏、私は VMS PASCAL でモリア 1.0 を完成させました。その夏だけで、私はデー
+タ構造や最適化や簡潔なプログラミング方法を学び、学生生活の中で最も充実した時
+となりました。私はすぐにモリアにハマった人達にひっぱりだこになることになりま
+したが、それらの人達はすべてオクラホマ大学の学生でした。
+
+私は親友の Jimmey Todd に、ゲームのためのより優れたキャラクター生成システム
+を作成してくれるように頼み、その結果として技能や生い立ちといったシステムが生
+まれたのです。Jimmey は同様にゲーム中の多くの機能の改善を手伝ってくれて、そ
+の努力が、モリア 2.0 に結実することになりました。
+
+続く二年の間、私はゲームのプレイヤーの意見をたくさん聞き、それに基づいてゲー
+ムの問題点を修正し、ゲームを拡張し、プレイヤーに挑戦し続けました。誰かが何と
+かしてゲームをクリアーしてしまうと、私はすぐにその原因を突き止め、ゲームを更
+に難しくしました。一度は「これは絶対にクリア不可能だ」と誓ったこともありまし
+たが、なんと一週間後には私の友人がクリアーしてしまいました！彼のキャラクター
+「イギー」は、ゲームに「邪悪なるイギー」として登場することになり、不滅のもの
+となりました。もちろん、彼がゲームをクリアーするのに使ったトリックを、二度と
+使えないようにすぐにつぶしたのは言うまでもありません。
+
+1985 年頃に私はソースを他の大学に送り始めました。オクラホマ大学とテキサス大
+学のフットボールの対抗戦の直前に、私はテキサス大学にソースのコピーを送るよう
+に頼まれました...。私は拒めませんでした...。私はソースを改造して町の乞食を
+「オクラホマ大学フットボールファン」とし、それらを最高速度で移動するようにし、
+最高速度で増殖するようにしました。出会って起こしてしまうと、それはあっと言う
+間に何百にも増殖して床を埋め尽くし、プレイヤーを押しつぶしてしまうようになっ
+ていました...。私はすぐに苦情を受け取り、その「改良点」を無効にする方法を教
+えました！
+
+1986 年から 87 年の間に、私の手がけた最終公式バージョンであるモリア 4.7 がリ
+リースされました。私がオクラホマ大学を卒業してアメリカン・エアラインに就職し
+た時には(ご想像の通り現在もそこで働いています)、私はモリア 5.0 を製作していま
+した。モリア 5.0 は完全にソースを書き直し、多くの良質な改善を含み、水、小川、
+湖、池やそこに生息する水棲モンスターなどが追加されていました。また通常は光源
+として松明のように使われるが、魔法のオーラ(火の防御やモンスターを怒らせる)も
+発散する「ミステリアス・オーブ」といったアイテムも追加されていました。また新
+しい武器や財宝もありました。私は大学を去るにあたってそれを大学の学生アシスタ
+ントに残しましたが、きっとそれはすぐに忘れ去られて消え失せてしまったのだと思
+います。私の知る限り、そのソースはなくなってしまったようです。
+
+私はゲームをいじってみたいという人達に許可を与えました。ソースを C に変換して
+も良いかを尋ねてきた人達もいましたが、著作権表示さえきちんと守り、それを無償
+で配布し、売らないのなら良いと答えました。尋ねてきた人達のうち C への書き替え
+に成功した人もいると思います。
+
+私は今まで、モリアを遊んでいる人達からの冒険談や、システム管理者からの私が生
+まれた日を呪う手紙など、何千もの手紙を世界中から頂きました。鉄のカーテン(それ
+があったとき)の向こうからの、VAX 上のゲームについての手紙も頂きました(貿易法
+により、それはそこにあってはいけないものの様な気がしますが)。私は今まで受け
+取ったすべての手紙の発信元を地図上にピンでとめていましたが、その作業は諦めざ
+るを得ないものとなりました！
+
+私の作ったものがいまだに生き続けているということを知って、私はとても幸せです。
+私は新しいモリアやアングバンドをダウンロードして遊んでみようと思います。多分、
+私を驚かせるような何かが追加されているのでしょうね。それは楽しいことになるの
+でしょう。私はいままでモリアをやって驚いたことがなかったのですから。
+
+Robert Alan Koeneke
+koeneke@ionet.net
+
+
+=== 過去のバージョンについての履歴 ===
+
+
+                          VMS Moria Version 4.8
+Version 0.1  : 83/03/25
+Version 1.0  : 84/05/01
+Version 2.0  : 84/07/10
+Version 3.0  : 84/11/20
+Version 4.0  : 85/01/20
+
+モジュール :
+     V1.0  ダンジョン 生成        - RAK
+           キャラクター 生成      - RAK & JWT
+           Moria モジュール       - RAK
+           その他                 - RAK & JWT
+     V2.0  町の階 & その他        - RAK
+     V3.0  内部ヘルプ & その他    - RAK
+     V4.0  ソース発表バージョン   - RAK
+
+Robert Alan Koeneke               Jimmey Wayne Todd Jr.
+Oklahoma 大学/学生                Oklahoma 大学/学生
+
+
+
+
+
+                        Umoria Version 5.2 (以前は UNIX Moria)
+Version 4.83 :  87/5/14
+Version 4.85 : 87/10/26
+Version 4.87 :  88/5/27
+Version 5.0  :  89/11/2
+Version 5.2  :   90/5/9
+
+James E. Wilson, U.C. Berkeley 校
+                 wilson@ernie.Berkeley.EDU
+                 ...!ucbvax!ucbernie!wilson
+
+他の寄稿者たち:
+D. G. Kneller         - MSDOS 版 Moria を作成
+Christopher J. Stuart - recall、option、inventory、running コードを書いた
+Curtis McCauley       - Macintosh 版 Moria を作成
+Stephen A. Jacobs     - Atari ST 版 Moria を作成
+William Setzer        - object 命名コードを書いた
+David J. Grabiner     - たくさんのバグレポートと一貫したチェック
+Dan Bernstein         - UNIX hangup signal や多くのバグをフィックス
+及びその他大勢の人たち...
+
+
+
+
+Copyright (c) 1989 James E. Wilson, Robert A. Keoneke
+  このソフトウェアは教育や研究のためならば、そして利益を目的としないのならば
+  複写および配布してよい。ただし、この著作権と文章は記載しておくこと。
+  This software may be copied and distributed for educational, research, and
+  not for profit purposes provided that this copyright and statement are
+  included in all such copies.
+
+Umoria Version 5.2, patch level 1
+
+Angband Version 2.0   Alex Cutler, Andy Astrand, Sean Marsh, Geoff Hill, 
+                      Charles Teague.
+
+Angband Version 2.4   : 05/09/93
+
+Angband Version 2.5   : 12/05/93 Charles Swiger
+
+Angband Version 2.6   : 09/04/94 Charles Swiger
+
+Angband Version 2.7   : 01/01/95  Ben Harrison
+
+Angband Version 2.8   : 01/01/97  Ben Harrison
+
+
+Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
+このソフトウェアは教育や研究のためならば、そして利益を目的としないのならば
+複写および配布してよい。ただし、この著作権と文章は記載しておくこと。
+This software may be copied and distributed for educational, research,
+and not for profit purposes provided that this copyright and statement
+are included in all such copies.  Other copyrights may also apply.
+
+
+-- 2.7.9v3 翻訳: 怒涛の暇人(ＳＵＳ、KUNI、傀儡、音丸、ＦＩＲＳＴ各氏に感謝!)
+-- 2.7.9v6 改訂: しとしん
+-- 2.8.0   改訂: しとしん
+-- 2.8.3   改訂: しとしん

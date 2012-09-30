@@ -1,4 +1,62 @@
-=== Zangband History and Information ===
+=== XAngband History and Information ===
+
+=== XAngband 1.3.0 ===
+2008/10/01
+  New realm 'Magic'.
+  New class 'Device-User'.
+  New command 'Travel' - automatically walking toward a target point.
+  New item 'Staff of wishing', and new debug command 'wishing'.
+  Some objects are more usefully now.
+  Bug fix and etc.
+
+=== XAngband 1.2.0 ===
+2007/11/23
+  New class 'Snatcher'.
+  Now you can do two handed combat.
+  Damages of magic devices increase according to player level.
+  Patched SDL SoundFX patch (from Vanilla).
+  Bug fix and etc.
+
+=== XAngband 1.1.1 ===
+2007/1/11
+  Gain 2 bonuses to stat when base stat is 17 makes it 18/10 instead of 18/01.
+  Some new artifacts is added.
+  Changed Reward of Old Castle for Elementalist to Stone of Flying.
+  Some descriptions of items and monsters is added.
+  Sub window crash bug of windows version is fixed.
+  Miner font issue in a dump is fixed.
+  Bug fix and etc.
+
+=== XAngband 1.1.0 ===
+2006/10/17
+  XAngband were transrated to English.
+  New class 'Sniper'.
+  Rangers were changed to like Rogue of ZAngband/Hengband.
+  Recall monsters in probing.
+  Features for broadcasting XAngband plays.
+  Bug fix and etc.
+
+=== Before XAngband 1.1 ===
+  Rearrange for classes, races, realms, monsters, mutations, items and etc.
+  New some items, egos, artifacts and monsters.
+  New realm 'Combat'.
+  New class 'Archer'.
+  New class 'Archaerogist'.
+  New class 'Elementalist'.
+  Some new quests.
+  Bookstore was changed to Ego store.
+  Some ego items have their own names (and one extra abilities). 
+  Selected unique defends random quest levels.
+  Difficult option 'ironman_hengband'.
+  Nuzguls drop wraith rings which are like rings of power.
+  Improving service of ego items in Morivant.
+  Repair service of broken daggers/swords.
+  Screen copy function for Windows binary.
+
+
+----------------------------
+---------- Oldies ----------
+----------------------------
 
 Versions 1.0 - 2.1.0c
 ---------------------

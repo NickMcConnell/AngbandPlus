@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 2000/05/18 17:29:15 $ */
 /* File: readbits.c */
 
 /*
@@ -73,7 +72,7 @@ static DWORD PASCAL lread(int fh, VOID FAR *pv, DWORD ul)
 		ul -= MAXREAD;
 		hp += MAXREAD;
 	}
-	if (_lread(fh, (LPSTR)hp, (WORD)ul) != (WORD)ul)
+	if (_lread(fh, (LPSTR)hp, (WORD)ul) != ul)
 		return 0;
 	return ulT;
 }
@@ -98,7 +97,7 @@ static HPALETTE PASCAL NEAR MakeDIBPalette(LPBITMAPINFOHEADER lpInfo)
 	if (lpInfo->biClrUsed)
 	{
 		npPal = (PLOGPALETTE)LocalAlloc(LMEM_FIXED, sizeof(LOGPALETTE) +
-		                                 (WORD)lpInfo->biClrUsed * sizeof(PALETTEENTRY));
+						 (WORD)lpInfo->biClrUsed * sizeof(PALETTEENTRY));
 		if (!npPal)
 			return(FALSE);
 
@@ -109,7 +108,7 @@ static HPALETTE PASCAL NEAR MakeDIBPalette(LPBITMAPINFOHEADER lpInfo)
 		lpRGB = (RGBQUAD FAR *)((LPSTR)lpInfo + lpInfo->biSize);
 
 		/* copy colors from the color table to the LogPalette structure */
-		for (i = 0; i < lpInfo->biClrUsed; i++, lpRGB++)
+		for (i = 0; i < (WORD)lpInfo->biClrUsed; i++, lpRGB++)
 		{
 			npPal->palPalEntry[i].peRed = lpRGB->rgbRed;
 			npPal->palPalEntry[i].peGreen = lpRGB->rgbGreen;
@@ -143,7 +142,7 @@ static HPALETTE PASCAL NEAR MakeDIBPalette(LPBITMAPINFOHEADER lpInfo)
  * (unable to create objects, both pointer are invalid).
  */
 static BOOL NEAR PASCAL MakeBitmapAndPalette(HDC hDC, HANDLE hDIB,
-                                             HPALETTE * phPal, HBITMAP * phBitmap)
+					     HPALETTE * phPal, HBITMAP * phBitmap)
 {
 	LPBITMAPINFOHEADER lpInfo;
 	BOOL result = FALSE;
@@ -159,9 +158,9 @@ static BOOL NEAR PASCAL MakeBitmapAndPalette(HDC hDC, HANDLE hDIB,
 		RealizePalette(hDC);
 
 		lpBits = ((LPSTR)lpInfo + (WORD)lpInfo->biSize +
-		          (WORD)lpInfo->biClrUsed * sizeof(RGBQUAD));
+			  (WORD)lpInfo->biClrUsed * sizeof(RGBQUAD));
 		hBitmap = CreateDIBitmap(hDC, lpInfo, CBM_INIT, lpBits,
-		                         (LPBITMAPINFO)lpInfo, DIB_RGB_COLORS);
+					 (LPBITMAPINFO)lpInfo, DIB_RGB_COLORS);
 
 		SelectPalette(hDC, hOldPal, TRUE);
 		RealizePalette(hDC);
@@ -209,7 +208,7 @@ BOOL ReadDIB(HWND hWnd, LPSTR lpFileName, DIBINIT *pInfo)
 		return (FALSE);
 
 	pInfo->hDIB = GlobalAlloc(GHND, (DWORD)(sizeof(BITMAPINFOHEADER) +
-	                          256 * sizeof(RGBQUAD)));
+				  256 * sizeof(RGBQUAD)));
 
 	if (!pInfo->hDIB)
 		return (FALSE);
@@ -258,7 +257,7 @@ BOOL ReadDIB(HWND hWnd, LPSTR lpFileName, DIBINIT *pInfo)
 	if (lpbi->biSizeImage == 0)
 	{
 		lpbi->biSizeImage = (((((lpbi->biWidth * (DWORD)lpbi->biBitCount) + 31) & ~31) >> 3)
-		                     * lpbi->biHeight);
+				     * lpbi->biHeight);
 	}
 
 	/* otherwise wouldn't work with 16 color bitmaps -- S.K. */
@@ -318,7 +317,7 @@ BOOL ReadDIB(HWND hWnd, LPSTR lpFileName, DIBINIT *pInfo)
 
 		hDC = GetDC(hWnd);
 		if (!MakeBitmapAndPalette(hDC, pInfo->hDIB, &(pInfo->hPalette),
-		                          &(pInfo->hBitmap)))
+					  &(pInfo->hBitmap)))
 		{
 			ReleaseDC(hWnd,hDC);
 			goto ErrExit2;

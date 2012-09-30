@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/07/19 13:49:09 $ */
 /* File: cmd6.c */
 
 /* Purpose: Object commands */
@@ -84,227 +83,50 @@ static void do_cmd_eat_food_aux(int item)
 	/* Object level */
 	lev = get_object_level(o_ptr);
 
-#ifdef USE_SCRIPT
-	eat_callback(o_ptr->sval);
-
-	if (!object_eat_callback(o_ptr))
-#endif /* USE_SCRIPT */
-
+	/* Analyze the food */
+	switch (o_ptr->sval)
 	{
-		/* Analyze the food */
-		switch (o_ptr->sval)
+#ifdef JP
+		/* それぞれの食べ物の感想をオリジナルより細かく表現 */
+		case SV_FOOD_SLIME_MOLD:
 		{
-			case SV_FOOD_POISON:
-			{
-				if (!(p_ptr->resist_pois || p_ptr->oppose_pois))
-				{
-					if (set_poisoned(p_ptr->poisoned + rand_int(10) + 10))
-					{
-						ident = TRUE;
-					}
-				}
-				break;
-			}
+			msg_print("これはなんとも形容しがたい味だ。");
+			ident = TRUE;
+			break;
+		}
 
-			case SV_FOOD_BLINDNESS:
-			{
-				if (!p_ptr->resist_blind)
-				{
-					if (set_blind(p_ptr->blind + rand_int(200) + 200))
-					{
-						ident = TRUE;
-					}
-				}
-				break;
-			}
+		case SV_FOOD_RATION:
+		{
+			msg_print("これはおいしい。");
+			ident = TRUE;
+			break;
+		}
+#else
+		case SV_FOOD_RATION:
+		case SV_FOOD_SLIME_MOLD:
+		{
+			msg_print("That tastes good.");
+			ident = TRUE;
+			break;
+		}
+#endif
 
-			case SV_FOOD_PARANOIA:
-			{
-				if (!p_ptr->resist_fear)
-				{
-					if (set_afraid(p_ptr->afraid + rand_int(10) + 10))
-					{
-						ident = TRUE;
-					}
-				}
-				break;
-			}
-
-			case SV_FOOD_CONFUSION:
-			{
-				if (!p_ptr->resist_conf)
-				{
-					if (set_confused(p_ptr->confused + rand_int(10) + 10))
-					{
-						ident = TRUE;
-					}
-				}
-				break;
-			}
-
-			case SV_FOOD_HALLUCINATION:
-			{
-				if (!p_ptr->resist_chaos)
-				{
-					if (set_image(p_ptr->image + rand_int(250) + 250))
-					{
-						ident = TRUE;
-					}
-				}
-				break;
-			}
-
-			case SV_FOOD_PARALYSIS:
-			{
-				if (!p_ptr->free_act)
-				{
-					if (set_paralyzed(p_ptr->paralyzed + rand_int(10) + 10))
-					{
-						ident = TRUE;
-					}
-				}
-				break;
-			}
-
-			case SV_FOOD_WEAKNESS:
-			{
-				take_hit(damroll(6, 6), "poisonous food");
-				(void)do_dec_stat(A_STR);
-				ident = TRUE;
-				break;
-			}
-
-			case SV_FOOD_SICKNESS:
-			{
-				take_hit(damroll(6, 6), "poisonous food");
-				(void)do_dec_stat(A_CON);
-				ident = TRUE;
-				break;
-			}
-
-			case SV_FOOD_STUPIDITY:
-			{
-				take_hit(damroll(8, 8), "poisonous food");
-				(void)do_dec_stat(A_INT);
-				ident = TRUE;
-				break;
-			}
-
-			case SV_FOOD_NAIVETY:
-			{
-				take_hit(damroll(8, 8), "poisonous food");
-				(void)do_dec_stat(A_WIS);
-				ident = TRUE;
-				break;
-			}
-
-			case SV_FOOD_UNHEALTH:
-			{
-				take_hit(damroll(10, 10), "poisonous food");
-				(void)do_dec_stat(A_CON);
-				ident = TRUE;
-				break;
-			}
-
-			case SV_FOOD_DISEASE:
-			{
-				take_hit(damroll(10, 10), "poisonous food");
-				(void)do_dec_stat(A_STR);
-				ident = TRUE;
-				break;
-			}
-
-			case SV_FOOD_CURE_POISON:
-			{
-				if (set_poisoned(0)) ident = TRUE;
-				break;
-			}
-
-			case SV_FOOD_CURE_BLINDNESS:
-			{
-				if (set_blind(0)) ident = TRUE;
-				break;
-			}
-
-			case SV_FOOD_CURE_PARANOIA:
-			{
-				if (set_afraid(0)) ident = TRUE;
-				break;
-			}
-
-			case SV_FOOD_CURE_CONFUSION:
-			{
-				if (set_confused(0)) ident = TRUE;
-				break;
-			}
-
-			case SV_FOOD_CURE_SERIOUS:
-			{
-				if (hp_player(damroll(4, 8))) ident = TRUE;
-				break;
-			}
-
-			case SV_FOOD_RESTORE_STR:
-			{
-				if (do_res_stat(A_STR)) ident = TRUE;
-				break;
-			}
-
-			case SV_FOOD_RESTORE_CON:
-			{
-				if (do_res_stat(A_CON)) ident = TRUE;
-				break;
-			}
-
-			case SV_FOOD_RESTORING:
-			{
-				if (do_res_stat(A_STR)) ident = TRUE;
-				if (do_res_stat(A_INT)) ident = TRUE;
-				if (do_res_stat(A_WIS)) ident = TRUE;
-				if (do_res_stat(A_DEX)) ident = TRUE;
-				if (do_res_stat(A_CON)) ident = TRUE;
-				if (do_res_stat(A_CHR)) ident = TRUE;
-				break;
-			}
-
-
-			case SV_FOOD_RATION:
-			case SV_FOOD_BISCUIT:
-			case SV_FOOD_JERKY:
-			case SV_FOOD_SLIME_MOLD:
-			{
-				msg_print("That tastes good.");
-				ident = TRUE;
-				break;
-			}
-
-			case SV_FOOD_WAYBREAD:
-			{
-				msg_print("That tastes good.");
-				(void)set_poisoned(0);
-				(void)hp_player(damroll(4, 8));
-				ident = TRUE;
-				break;
-			}
-
-			case SV_FOOD_PINT_OF_ALE:
-			case SV_FOOD_PINT_OF_WINE:
-			{
-				msg_print("That tastes good.");
-				ident = TRUE;
-				break;
-			}
+		case SV_FOOD_WAYBREAD:
+		{
+#ifdef JP
+			msg_print("これはひじょうに美味だ。");
+#else
+			msg_print("That tastes good.");
+#endif
+			(void)set_poisoned(0);
+			(void)hp_player(damroll(4, 8));
+			ident = TRUE;
+			break;
 		}
 	}
 
 	/* Combine / Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-
-	if (!(object_aware_p(o_ptr)))
-	{
-		chg_virtue(V_PATIENCE, -1);
-		chg_virtue(V_CHANCE, 1);
-	}
 
 	/* We have tried it */
 	object_tried(o_ptr);
@@ -325,45 +147,71 @@ static void do_cmd_eat_food_aux(int item)
 	{
 		/* Reduced nutritional benefit */
 		(void)set_food(p_ptr->food + (o_ptr->pval / 10));
+#ifdef JP
+msg_print("あなたのような者にとって食糧など僅かな栄養にしかならない。");
+#else
 		msg_print("Mere victuals hold scant sustenance for a being such as yourself.");
+#endif
+
 		if (p_ptr->food < PY_FOOD_ALERT)   /* Hungry */
+#ifdef JP
+msg_print("あなたの飢えは新鮮な血によってのみ満たされる！");
+#else
 			msg_print("Your hunger can only be satisfied with fresh blood!");
+#endif
+
 	}
-	else if (p_ptr->prace == RACE_SKELETON)
+	else if ((p_ptr->prace == RACE_SKELETON) ||
+		((p_ptr->pclass == CLASS_SNATCHER) && (r_info[p_ptr->r_idx].d_char == 's')))
 	{
-		if (!((o_ptr->sval == SV_FOOD_WAYBREAD) ||
-		      (o_ptr->sval < SV_FOOD_BISCUIT)))
+		if (!(o_ptr->sval == SV_FOOD_WAYBREAD))
 		{
 			object_type forge;
 			object_type *q_ptr = &forge;
 
+#ifdef JP
+			msg_print("食べ物がアゴを素通りして落ちた！");
+#else
 			msg_print("The food falls through your jaws!");
+#endif
 
 			/* Create the item */
 			object_prep(q_ptr, lookup_kind(o_ptr->tval, o_ptr->sval));
-
-#ifdef USE_SCRIPT
-			q_ptr->python = object_create_callback(q_ptr);
-#endif /* USE_SCRIPT */
 
 			/* Drop the object from heaven */
 			(void)drop_near(q_ptr, -1, py, px);
 		}
 		else
 		{
+#ifdef JP
+			msg_print("食べ物がアゴを素通りして落ち、消えた！");
+#else
 			msg_print("The food falls through your jaws and vanishes!");
+#endif
 		}
 	}
 	else if ((p_ptr->prace == RACE_GOLEM) ||
-	         (p_ptr->prace == RACE_ZOMBIE) ||
-	         (p_ptr->prace == RACE_SPECTRE))
+		 (p_ptr->prace == RACE_ZOMBIE) ||
+		 (p_ptr->prace == RACE_SPECTRE) ||
+		 ((p_ptr->pclass == CLASS_SNATCHER) && (r_info[p_ptr->r_idx].flags3 & (RF3_UNDEAD))))
 	{
+#ifdef JP
+		msg_print("生者の食物はあなたにとってほとんど栄養にならない。");
+#else
 		msg_print("The food of mortals is poor sustenance for you.");
+#endif
 		set_food(p_ptr->food + ((o_ptr->pval) / 20));
 	}
 	else
 	{
-		(void)set_food(p_ptr->food + o_ptr->pval);
+		if (o_ptr->sval == SV_FOOD_WAYBREAD)
+		{
+			(void)set_food(PY_FOOD_MAX - 1);
+		}
+		else
+		{
+			(void)set_food(p_ptr->food + o_ptr->pval);
+		}
 	}
 
 	/* Destroy a food in the pack */
@@ -397,8 +245,14 @@ void do_cmd_eat_food(void)
 	item_tester_tval = TV_FOOD;
 
 	/* Get an item */
+#ifdef JP
+	q = "どれを食べますか? ";
+	s = "食べ物がない。";
+#else
 	q = "Eat which item? ";
 	s = "You have nothing to eat.";
+#endif
+
 	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
 
 	/* Eat the object */
@@ -413,9 +267,6 @@ static void do_cmd_quaff_potion_aux(int item)
 {
 	int         ident, lev;
 	object_type	*o_ptr;
-	object_type forge;
-	object_type *q_ptr;
-
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -429,31 +280,6 @@ static void do_cmd_quaff_potion_aux(int item)
 		o_ptr = &o_list[0 - item];
 	}
 
-	/* Get local object */
-	q_ptr = &forge;
-
-	/* Obtain a local object */
-	object_copy(q_ptr, o_ptr);
-
-	/* Single object */
-	q_ptr->number = 1;
-
-	/* Reduce and describe inventory */
-	if (item >= 0)
-	{
-		inven_item_increase(item, -1);
-		inven_item_describe(item);
-		inven_item_optimize(item);
-	}
-
-	/* Reduce and describe floor item */
-	else
-	{
-		floor_item_increase(0 - item, -1);
-		floor_item_describe(0 - item);
-		floor_item_optimize(0 - item);
-	}
-
 	/* Sound */
 	sound(SOUND_QUAFF);
 
@@ -465,210 +291,48 @@ static void do_cmd_quaff_potion_aux(int item)
 	ident = FALSE;
 
 	/* Object level */
-	lev = get_object_level(q_ptr);
+	lev = get_object_level(o_ptr);
 
 	/* Analyze the potion */
-	switch (q_ptr->sval)
+	switch (o_ptr->sval)
 	{
+#ifdef JP
+		/* 飲みごたえをオリジナルより細かく表現 */
 		case SV_POTION_WATER:
-		case SV_POTION_APPLE_JUICE:
-		case SV_POTION_SLIME_MOLD:
+		{
+			msg_print("口の中がさっぱりした。");
+			msg_print("のどの渇きが少しおさまった。");
+			ident = TRUE;
+			break;
+		}
+#else
+		case SV_POTION_WATER:
 		{
 			msg_print("You feel less thirsty.");
 			ident = TRUE;
 			break;
 		}
-
-		case SV_POTION_SLOWNESS:
-		{
-			if (set_slow(p_ptr->slow + randint(25) + 15)) ident = TRUE;
-			break;
-		}
-
-		case SV_POTION_SALT_WATER:
-		{
-			msg_print("The potion makes you vomit!");
-			(void)set_food(PY_FOOD_STARVE - 1);
-			(void)set_poisoned(0);
-			(void)set_paralyzed(p_ptr->paralyzed + 4);
-			ident = TRUE;
-			break;
-		}
-
-		case SV_POTION_POISON:
-		{
-			if (!(p_ptr->resist_pois || p_ptr->oppose_pois))
-			{
-				if (set_poisoned(p_ptr->poisoned + rand_int(15) + 10))
-				{
-					ident = TRUE;
-				}
-			}
-			break;
-		}
-
-		case SV_POTION_BLINDNESS:
-		{
-			if (!p_ptr->resist_blind)
-			{
-				if (set_blind(p_ptr->blind + rand_int(100) + 100))
-				{
-					ident = TRUE;
-				}
-			}
-			break;
-		}
-
-		case SV_POTION_CONFUSION: /* Booze */
-		{
-			chg_virtue(V_HARMONY, -1);
-
-			if (!p_ptr->resist_conf)
-			{
-				if (set_confused(p_ptr->confused + rand_int(20) + 15))
-				{
-					ident = TRUE;
-				}
-			}
-
-			if (!p_ptr->resist_chaos)
-			{
-				if (one_in_(2))
-				{
-					if (set_image(p_ptr->image + rand_int(150) + 150))
-					{
-						ident = TRUE;
-					}
-				}
-				if (one_in_(13))
-				{
-					ident = TRUE;
-					if (one_in_(3)) lose_all_info();
-					else wiz_dark();
-					teleport_player(100);
-					wiz_dark();
-					msg_print("You wake up somewhere with a sore head...");
-					msg_print("You can't remember a thing, or how you got here!");
-				}
-			}
-			break;
-		}
-
-		case SV_POTION_SLEEP:
-		{
-			if (!p_ptr->free_act)
-			{
-				msg_print("You fall asleep.");
-
-				if (ironman_nightmare)
-				{
-					msg_print("A horrible vision enters your mind.");
-
-					/* Pick a nightmare */
-					get_mon_num_prep(get_nightmare, NULL);
-
-					/* Have some nightmares */
-					have_nightmare(get_mon_num(MAX_DEPTH));
-
-					/* Remove the monster restriction */
-					get_mon_num_prep(NULL, NULL);
-				}
-				if (set_paralyzed(p_ptr->paralyzed + rand_int(4) + 4))
-				{
-					ident = TRUE;
-				}
-			}
-			break;
-		}
-
-		case SV_POTION_LOSE_MEMORIES:
-		{
-			if (!p_ptr->hold_life && (p_ptr->exp > 0))
-			{
-				msg_print("You feel your memories fade.");
-
-				chg_virtue(V_KNOWLEDGE, -5);
-
-				lose_exp(p_ptr->exp / 4);
-				ident = TRUE;
-			}
-			break;
-		}
-
-		case SV_POTION_RUINATION:
-		{
-			msg_print("Your nerves and muscles feel weak and lifeless!");
-			take_hit(damroll(10, 10), "a potion of Ruination");
-			(void)dec_stat(A_DEX, 25, TRUE);
-			(void)dec_stat(A_WIS, 25, TRUE);
-			(void)dec_stat(A_CON, 25, TRUE);
-			(void)dec_stat(A_STR, 25, TRUE);
-			(void)dec_stat(A_CHR, 25, TRUE);
-			(void)dec_stat(A_INT, 25, TRUE);
-			ident = TRUE;
-			break;
-		}
-
-		case SV_POTION_DEC_STR:
-		{
-			if (do_dec_stat(A_STR)) ident = TRUE;
-			break;
-		}
-
-		case SV_POTION_DEC_INT:
-		{
-			if (do_dec_stat(A_INT)) ident = TRUE;
-			break;
-		}
-
-		case SV_POTION_DEC_WIS:
-		{
-			if (do_dec_stat(A_WIS)) ident = TRUE;
-			break;
-		}
-
-		case SV_POTION_DEC_DEX:
-		{
-			if (do_dec_stat(A_DEX)) ident = TRUE;
-			break;
-		}
-
-		case SV_POTION_DEC_CON:
-		{
-			if (do_dec_stat(A_CON)) ident = TRUE;
-			break;
-		}
-
-		case SV_POTION_DEC_CHR:
-		{
-			if (do_dec_stat(A_CHR)) ident = TRUE;
-			break;
-		}
+#endif
 
 		case SV_POTION_DETONATIONS:
 		{
+#ifdef JP
+			msg_print("体の中で激しい爆発が起きた！");
+			take_hit(damroll(50, 20), "爆発の薬");
+#else
 			msg_print("Massive explosions rupture your body!");
 			take_hit(damroll(50, 20), "a potion of Detonation");
+#endif
+
 			(void)set_stun(p_ptr->stun + 75);
 			(void)set_cut(p_ptr->cut + 5000);
 			ident = TRUE;
 			break;
 		}
 
-		case SV_POTION_DEATH:
-		{
-			chg_virtue(V_VITALITY, -1);
-			chg_virtue(V_UNLIFE, 5);
-
-			msg_print("A feeling of Death flows through your body.");
-			take_hit(5000, "a potion of Death");
-			ident = TRUE;
-			break;
-		}
-
 		case SV_POTION_INFRAVISION:
 		{
-			if (set_tim_infra(p_ptr->tim_infra + 100 + randint(100)))
+			if (set_tim_infra(p_ptr->tim_infra + 100 + randint1(100)))
 			{
 				ident = TRUE;
 			}
@@ -677,16 +341,10 @@ static void do_cmd_quaff_potion_aux(int item)
 
 		case SV_POTION_DETECT_INVIS:
 		{
-			if (set_tim_invis(p_ptr->tim_invis + 12 + randint(12)))
+			if (set_tim_invis(p_ptr->tim_invis + 12 + randint1(12)))
 			{
 				ident = TRUE;
 			}
-			break;
-		}
-
-		case SV_POTION_SLOW_POISON:
-		{
-			if (set_poisoned(p_ptr->poisoned / 2)) ident = TRUE;
 			break;
 		}
 
@@ -696,17 +354,11 @@ static void do_cmd_quaff_potion_aux(int item)
 			break;
 		}
 
-		case SV_POTION_BOLDNESS:
-		{
-			if (set_afraid(0)) ident = TRUE;
-			break;
-		}
-
 		case SV_POTION_SPEED:
 		{
 			if (!p_ptr->fast)
 			{
-				if (set_fast(randint(25) + 15)) ident = TRUE;
+				if (set_fast(randint1(25) + 15)) ident = TRUE;
 			}
 			else
 			{
@@ -717,7 +369,7 @@ static void do_cmd_quaff_potion_aux(int item)
 
 		case SV_POTION_RESIST_HEAT:
 		{
-			if (set_oppose_fire(p_ptr->oppose_fire + randint(10) + 10))
+			if (set_oppose_fire(p_ptr->oppose_fire + randint1(10) + 10))
 			{
 				ident = TRUE;
 			}
@@ -726,7 +378,7 @@ static void do_cmd_quaff_potion_aux(int item)
 
 		case SV_POTION_RESIST_COLD:
 		{
-			if (set_oppose_cold(p_ptr->oppose_cold + randint(10) + 10))
+			if (set_oppose_cold(p_ptr->oppose_cold + randint1(10) + 10))
 			{
 				ident = TRUE;
 			}
@@ -736,7 +388,7 @@ static void do_cmd_quaff_potion_aux(int item)
 		case SV_POTION_HEROISM:
 		{
 			if (set_afraid(0)) ident = TRUE;
-			if (set_hero(p_ptr->hero + randint(25) + 25)) ident = TRUE;
+			if (set_hero(p_ptr->hero + randint1(25) + 25)) ident = TRUE;
 			if (hp_player(10)) ident = TRUE;
 			break;
 		}
@@ -744,7 +396,7 @@ static void do_cmd_quaff_potion_aux(int item)
 		case SV_POTION_BESERK_STRENGTH:
 		{
 			if (set_afraid(0)) ident = TRUE;
-			if (set_shero(p_ptr->shero + randint(25) + 25)) ident = TRUE;
+			if (set_shero(p_ptr->shero + randint1(25) + 25)) ident = TRUE;
 			if (hp_player(30)) ident = TRUE;
 			break;
 		}
@@ -801,12 +453,13 @@ static void do_cmd_quaff_potion_aux(int item)
 
 		case SV_POTION_LIFE:
 		{
-			chg_virtue(V_VITALITY, 1);
-			chg_virtue(V_UNLIFE, -5);
-
+#ifdef JP
+			msg_print("体中に生命力が満ちあふれてきた！");
+#else
 			msg_print("You feel life flow through your body!");
+#endif
+
 			restore_level();
-			hp_player(5000);
 			(void)set_poisoned(0);
 			(void)set_blind(0);
 			(void)set_confused(0);
@@ -819,6 +472,7 @@ static void do_cmd_quaff_potion_aux(int item)
 			(void)do_res_stat(A_WIS);
 			(void)do_res_stat(A_INT);
 			(void)do_res_stat(A_CHR);
+			hp_player(5000);
 			ident = TRUE;
 			break;
 		}
@@ -829,7 +483,12 @@ static void do_cmd_quaff_potion_aux(int item)
 			{
 				p_ptr->csp = p_ptr->msp;
 				p_ptr->csp_frac = 0;
-				msg_print("Your feel your head clear.");
+#ifdef JP
+				msg_print("頭がハッキリとした。");
+#else
+				msg_print("You feel your head clear.");
+#endif
+
 				p_ptr->redraw |= (PR_MANA);
 				p_ptr->window |= (PW_PLAYER);
 				p_ptr->window |= (PW_SPELL);
@@ -841,6 +500,17 @@ static void do_cmd_quaff_potion_aux(int item)
 		case SV_POTION_RESTORE_EXP:
 		{
 			if (restore_level()) ident = TRUE;
+			break;
+		}
+
+		case SV_POTION_RESTORING:
+		{
+			if (do_res_stat(A_STR)) ident = TRUE;
+			if (do_res_stat(A_INT)) ident = TRUE;
+			if (do_res_stat(A_WIS)) ident = TRUE;
+			if (do_res_stat(A_DEX)) ident = TRUE;
+			if (do_res_stat(A_CON)) ident = TRUE;
+			if (do_res_stat(A_CHR)) ident = TRUE;
 			break;
 		}
 
@@ -929,9 +599,12 @@ static void do_cmd_quaff_potion_aux(int item)
 
 		case SV_POTION_ENLIGHTENMENT:
 		{
-			chg_virtue(V_ENLIGHTEN, 1);
-
+#ifdef JP
+			msg_print("自分の置かれている状況が脳裏に浮かんできた...");
+#else
 			msg_print("An image of your surroundings forms in your mind...");
+#endif
+
 			wiz_lite();
 			ident = TRUE;
 			break;
@@ -939,17 +612,22 @@ static void do_cmd_quaff_potion_aux(int item)
 
 		case SV_POTION_STAR_ENLIGHTENMENT:
 		{
+#ifdef JP
+			msg_print("更なる啓蒙を感じた...");
+#else
 			msg_print("You begin to feel more enlightened...");
+#endif
+
 			msg_print(NULL);
 			wiz_lite();
 			(void)do_inc_stat(A_INT);
 			(void)do_inc_stat(A_WIS);
-			(void)detect_traps();
-			(void)detect_doors();
-			(void)detect_stairs();
-			(void)detect_treasure();
-			(void)detect_objects_gold();
-			(void)detect_objects_normal();
+			(void)detect_traps(DETECT_RAD_DEFAULT);
+			(void)detect_doors(DETECT_RAD_DEFAULT);
+			(void)detect_stairs(DETECT_RAD_DEFAULT);
+			(void)detect_treasure(DETECT_RAD_DEFAULT);
+			(void)detect_objects_gold(DETECT_RAD_DEFAULT);
+			(void)detect_objects_normal(DETECT_RAD_DEFAULT);
 			identify_pack();
 			self_knowledge();
 			ident = TRUE;
@@ -958,7 +636,12 @@ static void do_cmd_quaff_potion_aux(int item)
 
 		case SV_POTION_SELF_KNOWLEDGE:
 		{
+#ifdef JP
+			msg_print("自分自身のことが少しは分かった気がする...");
+#else
 			msg_print("You begin to know yourself a little better...");
+#endif
+
 			msg_print(NULL);
 			self_knowledge();
 			ident = TRUE;
@@ -967,13 +650,16 @@ static void do_cmd_quaff_potion_aux(int item)
 
 		case SV_POTION_EXPERIENCE:
 		{
-			chg_virtue(V_ENLIGHTEN, 1);
-
 			if (p_ptr->exp < PY_MAX_EXP)
 			{
 				s32b ee = (p_ptr->exp / 2) + 10;
 				if (ee > 100000L) ee = 100000L;
+#ifdef JP
+				msg_print("更に経験を積んだような気がする。");
+#else
 				msg_print("You feel more experienced.");
+#endif
+
 				gain_exp(ee);
 				ident = TRUE;
 			}
@@ -982,11 +668,11 @@ static void do_cmd_quaff_potion_aux(int item)
 
 		case SV_POTION_RESISTANCE:
 		{
-			(void)set_oppose_acid(p_ptr->oppose_acid + randint(20) + 20);
-			(void)set_oppose_elec(p_ptr->oppose_elec + randint(20) + 20);
-			(void)set_oppose_fire(p_ptr->oppose_fire + randint(20) + 20);
-			(void)set_oppose_cold(p_ptr->oppose_cold + randint(20) + 20);
-			(void)set_oppose_pois(p_ptr->oppose_pois + randint(20) + 20);
+			(void)set_oppose_acid(p_ptr->oppose_acid + randint1(20) + 20);
+			(void)set_oppose_elec(p_ptr->oppose_elec + randint1(20) + 20);
+			(void)set_oppose_fire(p_ptr->oppose_fire + randint1(20) + 20);
+			(void)set_oppose_cold(p_ptr->oppose_cold + randint1(20) + 20);
+			(void)set_oppose_pois(p_ptr->oppose_pois + randint1(20) + 20);
 			ident = TRUE;
 			break;
 		}
@@ -1005,23 +691,27 @@ static void do_cmd_quaff_potion_aux(int item)
 
 		case SV_POTION_INVULNERABILITY:
 		{
-			(void)set_invuln(p_ptr->invuln + randint(7) + 7);
+			(void)set_invuln(p_ptr->invuln + randint1(7) + 7);
 			ident = TRUE;
 			break;
 		}
 
-		case SV_POTION_NEW_LIFE:
+		case SV_POTION_STAR_EXPERIENCE:
 		{
-			do_cmd_rerate();
-			if (p_ptr->muta1 || p_ptr->muta2 || p_ptr->muta3)
-			{
-				chg_virtue(V_CHANCE, -5);
+			restore_level();
 
-				msg_print("You are cured of all mutations.");
-				p_ptr->muta1 = p_ptr->muta2 = p_ptr->muta3 = 0;
-				p_ptr->update |= PU_BONUS;
-				handle_stuff();
+			if (p_ptr->lev < PY_MAX_LEVEL)
+			{
+				s32b ee = player_exp[p_ptr->lev - 1] * p_ptr->expfact / 100L;
+				ee -= p_ptr->max_exp;
+#ifdef JP
+				msg_print("更に経験を積んだような気がする。");
+#else
+				msg_print("You feel more experienced.");
+#endif
+				gain_exp(ee);
 			}
+
 			ident = TRUE;
 			break;
 		}
@@ -1029,26 +719,25 @@ static void do_cmd_quaff_potion_aux(int item)
 
 	if (p_ptr->prace == RACE_SKELETON)
 	{
+#ifdef JP
+msg_print("液体の一部はあなたのアゴを素通りして落ちた！");
+#else
 		msg_print("Some of the fluid falls through your jaws!");
-		(void)potion_smash_effect(0, py, px, q_ptr->k_idx);
+#endif
+
+		(void)potion_smash_effect(0, py, px, o_ptr->k_idx);
 	}
 
 	/* Combine / Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
-	if (!(object_aware_p(o_ptr)))
-	{
-		chg_virtue(V_PATIENCE, -1);
-		chg_virtue(V_CHANCE, 1);
-	}
-
 	/* The item has been tried */
-	object_tried(q_ptr);
+	object_tried(o_ptr);
 
 	/* An identification was made */
-	if (ident && !object_aware_p(q_ptr))
+	if (ident && !object_aware_p(o_ptr))
 	{
-		object_aware(q_ptr);
+		object_aware(o_ptr);
 		gain_exp((lev + (p_ptr->lev >> 1)) / p_ptr->lev);
 	}
 
@@ -1072,6 +761,22 @@ static void do_cmd_quaff_potion_aux(int item)
 		default:
 			(void)set_food(p_ptr->food + o_ptr->pval);
 	}
+
+	/* Reduce and describe inventory */
+	if (item >= 0)
+	{
+		inven_item_increase(item, -1);
+		inven_item_describe(item);
+		inven_item_optimize(item);
+	}
+
+	/* Reduce and describe floor item */
+	else
+	{
+		floor_item_increase(0 - item, -1);
+		floor_item_describe(0 - item);
+		floor_item_optimize(0 - item);
+	}
 }
 
 
@@ -1084,9 +789,22 @@ void do_cmd_quaff_potion(void)
 	item_tester_tval = TV_POTION;
 
 	/* Get an item */
+#ifdef JP
+	q = "どの薬を飲みますか? ";
+	s = "飲める薬がない。";
+#else
 	q = "Quaff which potion? ";
 	s = "You have no potions to quaff.";
+#endif
+
 	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+
+	/* Magic */
+	if (p_ptr->keep_magic)
+	{
+		if (!(p_ptr->keep_spells & MS_INHAIL_POTION))
+			(void)stop_magic_spell_all();
+	}
 
 	/* Quaff the potion */
 	do_cmd_quaff_potion_aux(item);
@@ -1102,13 +820,10 @@ void do_cmd_quaff_potion(void)
  */
 static void do_cmd_read_scroll_aux(int item)
 {
-	int         k, used_up, ident, lev;
+	int         k, used_up, ident, lev, aware;
 	object_type *o_ptr;
 	char        Rumor[1024];
 
-
-	/* Don't save while reading the scroll */
-	can_save = FALSE;
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -1138,66 +853,6 @@ static void do_cmd_read_scroll_aux(int item)
 	/* Analyze the scroll */
 	switch (o_ptr->sval)
 	{
-		case SV_SCROLL_DARKNESS:
-		{
-			if (!(p_ptr->resist_blind) && !(p_ptr->resist_dark))
-			{
-				(void)set_blind(p_ptr->blind + 3 + randint(5));
-			}
-			if (unlite_area(10, 3)) ident = TRUE;
-			break;
-		}
-
-		case SV_SCROLL_AGGRAVATE_MONSTER:
-		{
-			msg_print("There is a high pitched humming noise.");
-			aggravate_monsters(0);
-			ident = TRUE;
-			break;
-		}
-
-		case SV_SCROLL_CURSE_ARMOR:
-		{
-			if (curse_armor()) ident = TRUE;
-			break;
-		}
-
-		case SV_SCROLL_CURSE_WEAPON:
-		{
-			if (curse_weapon()) ident = TRUE;
-			break;
-		}
-
-		case SV_SCROLL_SUMMON_MONSTER:
-		{
-			for (k = 0; k < randint(3); k++)
-			{
-				if (summon_specific(0, py, px, dun_level, 0, TRUE, FALSE, FALSE))
-				{
-					ident = TRUE;
-				}
-			}
-			break;
-		}
-
-		case SV_SCROLL_SUMMON_UNDEAD:
-		{
-			for (k = 0; k < randint(3); k++)
-			{
-				if (summon_specific(0, py, px, dun_level, SUMMON_UNDEAD, TRUE, FALSE, FALSE))
-				{
-					ident = TRUE;
-				}
-			}
-			break;
-		}
-
-		case SV_SCROLL_TRAP_CREATION:
-		{
-			if (trap_creation()) ident = TRUE;
-			break;
-		}
-
 		case SV_SCROLL_PHASE_DOOR:
 		{
 			teleport_player(10);
@@ -1244,7 +899,12 @@ static void do_cmd_read_scroll_aux(int item)
 		{
 			if (remove_curse())
 			{
+#ifdef JP
+				msg_print("誰かに見守られているような気がする。");
+#else
 				msg_print("You feel as if someone is watching over you.");
+#endif
+
 				ident = TRUE;
 			}
 			break;
@@ -1252,8 +912,15 @@ static void do_cmd_read_scroll_aux(int item)
 
 		case SV_SCROLL_STAR_REMOVE_CURSE:
 		{
-			remove_all_curse();
-			ident = TRUE;
+			if (remove_all_curse())
+			{
+#ifdef JP
+				msg_print("誰かに見守られているような気がする。");
+#else
+				msg_print("You feel as if someone is watching over you.");
+#endif
+				ident = TRUE;
+			}
 			break;
 		}
 
@@ -1280,14 +947,14 @@ static void do_cmd_read_scroll_aux(int item)
 
 		case SV_SCROLL_STAR_ENCHANT_ARMOR:
 		{
-			if (!enchant_spell(0, 0, randint(3) + 2)) used_up = FALSE;
+			if (!enchant_spell(0, 0, randint1(3) + 2)) used_up = FALSE;
 			ident = TRUE;
 			break;
 		}
 
 		case SV_SCROLL_STAR_ENCHANT_WEAPON:
 		{
-			if (!enchant_spell(randint(3), randint(3), 0)) used_up = FALSE;
+			if (!enchant_spell(randint1(3), randint1(3), 0)) used_up = FALSE;
 			ident = TRUE;
 			break;
 		}
@@ -1302,7 +969,7 @@ static void do_cmd_read_scroll_aux(int item)
 		case SV_SCROLL_MUNDANITY:
 		{
 			ident = TRUE;
-			if (!mundane_spell()) used_up = FALSE;
+			if (!mundane_spell(FALSE)) used_up = FALSE;
 			break;
 		}
 
@@ -1314,40 +981,41 @@ static void do_cmd_read_scroll_aux(int item)
 
 		case SV_SCROLL_MAPPING:
 		{
-			map_area();
+			map_area(DETECT_RAD_MAP);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_SCROLL_DETECT_GOLD:
 		{
-			if (detect_treasure()) ident = TRUE;
-			if (detect_objects_gold()) ident = TRUE;
+			if (detect_treasure(DETECT_RAD_DEFAULT)) ident = TRUE;
+			if (detect_objects_gold(DETECT_RAD_DEFAULT)) ident = TRUE;
 			break;
 		}
 
 		case SV_SCROLL_DETECT_ITEM:
 		{
-			if (detect_objects_normal()) ident = TRUE;
+			if (detect_objects_normal(DETECT_RAD_DEFAULT)) ident = TRUE;
 			break;
 		}
 
 		case SV_SCROLL_DETECT_TRAP:
 		{
-			if (detect_traps()) ident = TRUE;
+			bool known = object_known_p(o_ptr);
+			if (detect_traps_aux(DETECT_RAD_DEFAULT, known)) ident = TRUE;
 			break;
 		}
 
 		case SV_SCROLL_DETECT_DOOR:
 		{
-			if (detect_doors()) ident = TRUE;
-			if (detect_stairs()) ident = TRUE;
+			if (detect_doors(DETECT_RAD_DEFAULT)) ident = TRUE;
+			if (detect_stairs(DETECT_RAD_DEFAULT)) ident = TRUE;
 			break;
 		}
 
 		case SV_SCROLL_DETECT_INVIS:
 		{
-			if (detect_monsters_invis()) ident = TRUE;
+			if (detect_monsters_invis(DETECT_RAD_DEFAULT)) ident = TRUE;
 			break;
 		}
 
@@ -1359,19 +1027,19 @@ static void do_cmd_read_scroll_aux(int item)
 
 		case SV_SCROLL_BLESSING:
 		{
-			if (set_blessed(p_ptr->blessed + randint(12) + 6)) ident = TRUE;
+			if (set_blessed(p_ptr->blessed + randint1(12) + 6)) ident = TRUE;
 			break;
 		}
 
 		case SV_SCROLL_HOLY_CHANT:
 		{
-			if (set_blessed(p_ptr->blessed + randint(24) + 12)) ident = TRUE;
+			if (set_blessed(p_ptr->blessed + randint1(24) + 12)) ident = TRUE;
 			break;
 		}
 
 		case SV_SCROLL_HOLY_PRAYER:
 		{
-			if (set_blessed(p_ptr->blessed + randint(48) + 24)) ident = TRUE;
+			if (set_blessed(p_ptr->blessed + randint1(48) + 24)) ident = TRUE;
 			break;
 		}
 
@@ -1379,7 +1047,12 @@ static void do_cmd_read_scroll_aux(int item)
 		{
 			if (p_ptr->confusing == 0)
 			{
+#ifdef JP
+				msg_print("手が輝き始めた。");
+#else
 				msg_print("Your hands begin to glow.");
+#endif
+
 				p_ptr->confusing = TRUE;
 				ident = TRUE;
 				p_ptr->redraw |= (PR_STATUS);
@@ -1390,7 +1063,7 @@ static void do_cmd_read_scroll_aux(int item)
 		case SV_SCROLL_PROTECTION_FROM_EVIL:
 		{
 			k = 3 * p_ptr->lev;
-			if (set_protevil(p_ptr->protevil + randint(25) + k)) ident = TRUE;
+			if (set_protevil(p_ptr->protevil + randint1(25) + k)) ident = TRUE;
 			break;
 		}
 
@@ -1412,7 +1085,12 @@ static void do_cmd_read_scroll_aux(int item)
 			if (destroy_area(py, px, 15, TRUE))
 				ident = TRUE;
 			else
+#ifdef JP
+msg_print("ダンジョンが揺れた...");
+#else
 				msg_print("The dungeon trembles...");
+#endif
+
 
 			break;
 		}
@@ -1425,14 +1103,14 @@ static void do_cmd_read_scroll_aux(int item)
 
 		case SV_SCROLL_GENOCIDE:
 		{
-			(void)genocide(TRUE);
+			(void)genocide(300);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_SCROLL_MASS_GENOCIDE:
 		{
-			(void)mass_genocide(TRUE);
+			(void)mass_genocide(300);
 			ident = TRUE;
 			break;
 		}
@@ -1446,7 +1124,7 @@ static void do_cmd_read_scroll_aux(int item)
 
 		case SV_SCROLL_STAR_ACQUIREMENT:
 		{
-			acquirement(py, px, randint(2) + 1, TRUE, FALSE);
+			acquirement(py, px, randint1(2) + 1, TRUE, FALSE);
 			ident = TRUE;
 			break;
 		}
@@ -1457,7 +1135,12 @@ static void do_cmd_read_scroll_aux(int item)
 			fire_ball(GF_FIRE, 0, 150, 4);
 			/* Note: "Double" damage since it is centered on the player ... */
 			if (!(p_ptr->oppose_fire || p_ptr->resist_fire || p_ptr->immune_fire))
-				take_hit(50 + randint(50), "a Scroll of Fire");
+#ifdef JP
+take_hit(50+randint1(50), "炎の巻物");
+#else
+				take_hit(50 + randint1(50), "a Scroll of Fire");
+#endif
+
 			ident = TRUE;
 			break;
 		}
@@ -1467,7 +1150,12 @@ static void do_cmd_read_scroll_aux(int item)
 		{
 			fire_ball(GF_ICE, 0, 175, 4);
 			if (!(p_ptr->oppose_cold || p_ptr->resist_cold || p_ptr->immune_cold))
-				take_hit(100 + randint(100), "a Scroll of Ice");
+#ifdef JP
+take_hit(100+randint1(100), "氷の巻物");
+#else
+				take_hit(100 + randint1(100), "a Scroll of Ice");
+#endif
+
 			ident = TRUE;
 			break;
 		}
@@ -1476,48 +1164,88 @@ static void do_cmd_read_scroll_aux(int item)
 		{
 			fire_ball(GF_CHAOS, 0, 222, 4);
 			if (!p_ptr->resist_chaos)
-				take_hit(111 + randint(111), "a Scroll of Logrus");
+#ifdef JP
+take_hit(111+randint1(111), "ログルスの巻物");
+#else
+				take_hit(111 + randint1(111), "a Scroll of Logrus");
+#endif
+
 			ident = TRUE;
 			break;
 		}
 
 		case SV_SCROLL_RUMOR:
 		{
-			errr err = 0;
+			errr err;
 
-			switch (randint(20))
+			switch (randint1(20))
 			{
 				case 1:
+#ifdef JP
+err = get_rnd_line("chainswd_j.txt", 0, Rumor);
+#else
 					err = get_rnd_line("chainswd.txt", 0, Rumor);
+#endif
+
 					break;
 				case 2:
+#ifdef JP
+err = get_rnd_line("error_j.txt", 0, Rumor);
+#else
 					err = get_rnd_line("error.txt", 0, Rumor);
+#endif
+
 					break;
 				case 3:
 				case 4:
 				case 5:
+#ifdef JP
+err = get_rnd_line("death_j.txt", 0, Rumor);
+#else
 					err = get_rnd_line("death.txt", 0, Rumor);
+#endif
+
 					break;
 				default:
+#ifdef JP
+err = get_rnd_line_jonly("rumors_j.txt", 0, Rumor, 10);
+#else
 					err = get_rnd_line("rumors.txt", 0, Rumor);
+#endif
+
 					break;
 			}
 
 			/* An error occured */
+#ifdef JP
+if (err) strcpy(Rumor, "嘘の噂もある。");
+#else
 			if (err) strcpy(Rumor, "Some rumors are wrong.");
+#endif
 
+
+#ifdef JP
+msg_print("巻物にはメッセージが書かれている:");
+#else
 			msg_print("There is message on the scroll. It says:");
+#endif
+
 			msg_print(NULL);
 			msg_format("%s", Rumor);
 			msg_print(NULL);
+#ifdef JP
+msg_print("巻物は煙を立てて消え去った！");
+#else
 			msg_print("The scroll disappears in a puff of smoke!");
+#endif
+
 			ident = TRUE;
 			break;
 		}
 
 		case SV_SCROLL_ARTIFACT:
 		{
-			(void)artifact_scroll();
+			if (!artifact_scroll()) used_up = FALSE;
 			ident = TRUE;
 			break;
 		}
@@ -1527,17 +1255,13 @@ static void do_cmd_read_scroll_aux(int item)
 	/* Combine / Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
-	if (!(object_aware_p(o_ptr)))
-	{
-		chg_virtue(V_PATIENCE, -1);
-		chg_virtue(V_CHANCE, 1);
-	}
-
 	/* The item was tried */
 	object_tried(o_ptr);
 
 	/* An identification was made */
-	if (ident && !object_aware_p(o_ptr))
+	aware = object_aware_p(o_ptr);
+
+	if (ident && !aware)
 	{
 		object_aware(o_ptr);
 		gain_exp((lev + (p_ptr->lev >> 1)) / p_ptr->lev);
@@ -1550,8 +1274,7 @@ static void do_cmd_read_scroll_aux(int item)
 	/* Hack -- allow certain scrolls to be "preserved" */
 	if (!used_up)
 	{
-		/* Can save again */
-		can_save = TRUE;
+		if (aware) energy_use = 0;
 
 		return;
 	}
@@ -1573,9 +1296,6 @@ static void do_cmd_read_scroll_aux(int item)
 		floor_item_describe(0 - item);
 		floor_item_optimize(0 - item);
 	}
-
-	/* Can save again */
-	can_save = TRUE;
 }
 
 
@@ -1587,17 +1307,32 @@ void do_cmd_read_scroll(void)
 	/* Check some conditions */
 	if (p_ptr->blind)
 	{
+#ifdef JP
+		msg_print("目が見えない。");
+#else
 		msg_print("You can't see anything.");
+#endif
+
 		return;
 	}
 	if (no_lite())
 	{
+#ifdef JP
+		msg_print("明かりがないので、暗くて読めない。");
+#else
 		msg_print("You have no light to read by.");
+#endif
+
 		return;
 	}
 	if (p_ptr->confused)
 	{
+#ifdef JP
+		msg_print("混乱していて読めない。");
+#else
 		msg_print("You are too confused!");
+#endif
+
 		return;
 	}
 
@@ -1606,12 +1341,62 @@ void do_cmd_read_scroll(void)
 	item_tester_tval = TV_SCROLL;
 
 	/* Get an item */
+#ifdef JP
+	q = "どの巻物を読みますか? ";
+	s = "読める巻物がない。";
+#else
 	q = "Read which scroll? ";
 	s = "You have no scrolls to read.";
+#endif
+
 	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+
+	/* Magic */
+	if (p_ptr->keep_magic)
+	{
+		if (p_ptr->lev < 35)
+			(void)stop_magic_spell_all();
+		else
+		{
+			if (keeping_magic_spell_fully())
+				if (!stop_magic_spell()) return;
+		}
+	}
 
 	/* Read the scroll */
 	do_cmd_read_scroll_aux(item);
+}
+
+
+bool can_use_device(int lev, bool cursed)
+{
+	int chance;
+
+	/* Base chance of success */
+	chance = p_ptr->skill_dev;
+
+	/* Confusion hurts skill */
+	if (p_ptr->confused) chance = chance / 2;
+
+	/* Cursed items are difficult to activate */
+	if (cursed) chance /= 3;
+
+	/* Hight level objects are harder */
+	chance = chance - ((lev > 50) ? 50 : lev);
+
+	/* Give everyone a (slight) chance */
+	if ((chance < USE_DEVICE) && !randint0(USE_DEVICE - chance + 1))
+	{
+		chance = USE_DEVICE;
+	}
+
+	/* Roll for usage */
+	if ((chance < USE_DEVICE) || (randint1(chance) < USE_DEVICE))
+	{
+		return FALSE;
+	}
+
+	return TRUE;
 }
 
 
@@ -1624,7 +1409,7 @@ void do_cmd_read_scroll(void)
  */
 static void do_cmd_use_staff_aux(int item)
 {
-	int         ident, chance, k, lev;
+	int         ident, k, lev, aware;
 	object_type *o_ptr;
 
 
@@ -1648,13 +1433,20 @@ static void do_cmd_use_staff_aux(int item)
 	/* Mega-Hack -- refuse to use a pile from the ground */
 	if ((item < 0) && (o_ptr->number > 1))
 	{
+#ifdef JP
+		msg_print("まずはスタッフを拾わなければ。");
+#else
 		msg_print("You must first pick up the staffs.");
+#endif
 		return;
 	}
 
 
 	/* Take a turn */
-	energy_use = 100;
+	if (p_ptr->pclass == CLASS_DEVICE_USER)
+		energy_use = 90 - p_ptr->lev;
+	else
+		energy_use = 100;
 
 	/* Not identified yet */
 	ident = FALSE;
@@ -1662,26 +1454,15 @@ static void do_cmd_use_staff_aux(int item)
 	/* Extract the item level */
 	lev = get_object_level(o_ptr);
 
-	/* Base chance of success */
-	chance = p_ptr->skill_dev;
-
-	/* Confusion hurts skill */
-	if (p_ptr->confused) chance = chance / 2;
-
-	/* Hight level objects are harder */
-	chance = chance - ((lev > 50) ? 50 : lev);
-
-	/* Give everyone a (slight) chance */
-	if ((chance < USE_DEVICE) && (rand_int(USE_DEVICE - chance + 1) == 0))
-	{
-		chance = USE_DEVICE;
-	}
-
 	/* Roll for usage */
-	if ((chance < USE_DEVICE) || (randint(chance) < USE_DEVICE))
+	if (!can_use_device(lev, FALSE))
 	{
 		if (flush_failure) flush();
+#ifdef JP
+		msg_print("スタッフをうまく使えなかった。");
+#else
 		msg_print("You failed to use the staff properly.");
+#endif
 		sound(SOUND_FAIL);
 		return;
 	}
@@ -1690,7 +1471,11 @@ static void do_cmd_use_staff_aux(int item)
 	if (o_ptr->pval <= 0)
 	{
 		if (flush_failure) flush();
+#ifdef JP
+		msg_print("このスタッフにはもう魔力が残っていない。");
+#else
 		msg_print("The staff has no charges left.");
+#endif
 		o_ptr->ident |= (IDENT_EMPTY);
 
 		/* Combine / Reorder the pack (later) */
@@ -1707,40 +1492,6 @@ static void do_cmd_use_staff_aux(int item)
 	/* Analyze the staff */
 	switch (o_ptr->sval)
 	{
-		case SV_STAFF_DARKNESS:
-		{
-			if (!(p_ptr->resist_blind) && !(p_ptr->resist_dark))
-			{
-				if (set_blind(p_ptr->blind + 3 + randint(5))) ident = TRUE;
-			}
-			if (unlite_area(10, 3)) ident = TRUE;
-			break;
-		}
-
-		case SV_STAFF_SLOWNESS:
-		{
-			if (set_slow(p_ptr->slow + randint(30) + 15)) ident = TRUE;
-			break;
-		}
-
-		case SV_STAFF_HASTE_MONSTERS:
-		{
-			if (speed_monsters()) ident = TRUE;
-			break;
-		}
-
-		case SV_STAFF_SUMMONING:
-		{
-			for (k = 0; k < randint(4); k++)
-			{
-				if (summon_specific(0, py, px, dun_level, 0, TRUE, FALSE, FALSE))
-				{
-					ident = TRUE;
-				}
-			}
-			break;
-		}
-
 		case SV_STAFF_TELEPORTATION:
 		{
 			teleport_player(100);
@@ -1761,7 +1512,11 @@ static void do_cmd_use_staff_aux(int item)
 			{
 				if (!p_ptr->blind)
 				{
+#ifdef JP
+					msg_print("スタッフは一瞬ブルーに輝いた...");
+#else
 					msg_print("The staff glows blue for a moment...");
+#endif
 				}
 				ident = TRUE;
 			}
@@ -1776,7 +1531,11 @@ static void do_cmd_use_staff_aux(int item)
 
 			if (!p_ptr->blind)
 			{
+#ifdef JP
+				msg_print("スタッフの先が明るく輝いた...");
+#else
 				msg_print("The end of the staff glows brightly...");
+#endif
 			}
 			for (k = 0; k < num; k++)
 			{
@@ -1791,7 +1550,7 @@ static void do_cmd_use_staff_aux(int item)
 					if ((y != py) || (x != px)) break;
 				}
 
-				project(0, 0, y, x, damroll(6, 8), GF_LITE_WEAK,
+				project(0, 0, y, x, damroll(6 + p_ptr->lev / 8, 10), GF_LITE_WEAK,
 						  (PROJECT_BEAM | PROJECT_THRU | PROJECT_GRID | PROJECT_KILL));
 			}
 			ident = TRUE;
@@ -1806,57 +1565,60 @@ static void do_cmd_use_staff_aux(int item)
 
 		case SV_STAFF_MAPPING:
 		{
-			map_area();
+			map_area(DETECT_RAD_MAP);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_STAFF_DETECT_GOLD:
 		{
-			if (detect_treasure()) ident = TRUE;
-			if (detect_objects_gold()) ident = TRUE;
+			if (detect_treasure(DETECT_RAD_DEFAULT)) ident = TRUE;
+			if (detect_objects_gold(DETECT_RAD_DEFAULT)) ident = TRUE;
 			break;
 		}
 
 		case SV_STAFF_DETECT_ITEM:
 		{
-			if (detect_objects_normal()) ident = TRUE;
+			if (detect_objects_normal(DETECT_RAD_DEFAULT)) ident = TRUE;
 			break;
 		}
 
 		case SV_STAFF_DETECT_TRAP:
 		{
-			if (detect_traps()) ident = TRUE;
+			bool known = object_known_p(o_ptr);
+			if (detect_traps_aux(DETECT_RAD_DEFAULT, known)) ident = TRUE;
 			break;
 		}
 
 		case SV_STAFF_DETECT_DOOR:
 		{
-			if (detect_doors()) ident = TRUE;
-			if (detect_stairs()) ident = TRUE;
+			if (detect_doors(DETECT_RAD_DEFAULT)) ident = TRUE;
+			if (detect_stairs(DETECT_RAD_DEFAULT)) ident = TRUE;
 			break;
 		}
 
 		case SV_STAFF_DETECT_INVIS:
 		{
-			if (detect_monsters_invis()) ident = TRUE;
+			if (detect_monsters_invis(DETECT_RAD_DEFAULT)) ident = TRUE;
 			break;
 		}
 
 		case SV_STAFF_DETECT_EVIL:
 		{
-			if (detect_monsters_evil()) ident = TRUE;
+			if (detect_monsters_evil(DETECT_RAD_DEFAULT)) ident = TRUE;
 			break;
 		}
 
 		case SV_STAFF_CURE_LIGHT:
 		{
-			if (hp_player(randint(8))) ident = TRUE;
+			if (hp_player(damroll(2, 8))) ident = TRUE;
+			if (set_shero(0)) ident = TRUE;
 			break;
 		}
 
 		case SV_STAFF_CURING:
 		{
+			if (hp_player(50)) ident = TRUE;
 			if (set_blind(0)) ident = TRUE;
 			if (set_poisoned(0)) ident = TRUE;
 			if (set_confused(0)) ident = TRUE;
@@ -1882,7 +1644,11 @@ static void do_cmd_use_staff_aux(int item)
 				p_ptr->csp = p_ptr->msp;
 				p_ptr->csp_frac = 0;
 				ident = TRUE;
-				msg_print("Your feel your head clear.");
+#ifdef JP
+				msg_print("頭がハッキリとした。");
+#else
+				msg_print("You feel your head clear.");
+#endif
 				p_ptr->redraw |= (PR_MANA);
 				p_ptr->window |= (PW_PLAYER);
 				p_ptr->window |= (PW_SPELL);
@@ -1906,11 +1672,7 @@ static void do_cmd_use_staff_aux(int item)
 		{
 			if (!p_ptr->fast)
 			{
-				if (set_fast(randint(30) + 15)) ident = TRUE;
-			}
-			else
-			{
-				(void)set_fast(p_ptr->fast + 5);
+				if (set_fast(randint1(30) + 15)) ident = TRUE;
 			}
 			break;
 		}
@@ -1924,21 +1686,21 @@ static void do_cmd_use_staff_aux(int item)
 
 		case SV_STAFF_DISPEL_EVIL:
 		{
-			if (dispel_evil(60)) ident = TRUE;
+			if (dispel_evil(80)) ident = TRUE;
 			break;
 		}
 
 		case SV_STAFF_POWER:
 		{
-			if (dispel_monsters(120)) ident = TRUE;
+			if (dispel_monsters(150)) ident = TRUE;
 			break;
 		}
 
 		case SV_STAFF_HOLINESS:
 		{
-			if (dispel_evil(120)) ident = TRUE;
+			if (dispel_evil(150)) ident = TRUE;
 			k = 3 * p_ptr->lev;
-			if (set_protevil(p_ptr->protevil + randint(25) + k)) ident = TRUE;
+			if (set_protevil(p_ptr->protevil + randint1(25) + k)) ident = TRUE;
 			if (set_poisoned(0)) ident = TRUE;
 			if (set_afraid(0)) ident = TRUE;
 			if (hp_player(50)) ident = TRUE;
@@ -1949,7 +1711,7 @@ static void do_cmd_use_staff_aux(int item)
 
 		case SV_STAFF_GENOCIDE:
 		{
-			(void)genocide(TRUE);
+			(void)genocide(200);
 			ident = TRUE;
 			break;
 		}
@@ -1959,8 +1721,11 @@ static void do_cmd_use_staff_aux(int item)
 			if (earthquake(py, px, 10))
 				ident = TRUE;
 			else
+#ifdef JP
+				msg_print("ダンジョンが揺れた。");
+#else
 				msg_print("The dungeon trembles.");
-
+#endif
 			break;
 		}
 
@@ -1971,12 +1736,37 @@ static void do_cmd_use_staff_aux(int item)
 
 			break;
 		}
-	}
 
-	if (!(object_aware_p(o_ptr)))
-	{
-		chg_virtue(V_PATIENCE, -1);
-		chg_virtue(V_CHANCE, 1);
+		case SV_STAFF_WISHING:
+		{
+			int i, r;
+			int prob = (p_ptr->lev * 2);
+
+#ifdef JP
+			msg_print("あなたは望みのものを手に入れられる！");
+#else
+			msg_print("You may wish for an object.");
+#endif
+
+			ident = TRUE;
+
+			for (i = 0; i < 5; i++)
+			{
+				r = do_cmd_wishing(prob, TRUE, TRUE);
+				if (r >= 0) break;
+			}
+
+			if ((r < 1) && (!p_ptr->blind))	/* failed */
+			{
+#ifdef JP
+				msg_print("スタッフは一瞬ブルーに輝いた...");
+#else
+				msg_print("The staff glows blue for a moment...");
+#endif
+			}
+
+			break;
+		}
 	}
 
 	/* Combine / Reorder the pack (later) */
@@ -1986,7 +1776,9 @@ static void do_cmd_use_staff_aux(int item)
 	object_tried(o_ptr);
 
 	/* An identification was made */
-	if (ident && !object_aware_p(o_ptr))
+	aware = object_aware_p(o_ptr);
+
+	if (ident && !aware)
 	{
 		object_aware(o_ptr);
 		gain_exp((lev + (p_ptr->lev >> 1)) / p_ptr->lev);
@@ -1997,7 +1789,12 @@ static void do_cmd_use_staff_aux(int item)
 
 
 	/* Hack -- some uses are "free" */
-	if (!use_charge) return;
+	if (!use_charge)
+	{
+		if (aware) energy_use = 0;
+
+		return;
+	}
 
 
 	/* Use a single charge */
@@ -2027,7 +1824,12 @@ static void do_cmd_use_staff_aux(int item)
 		item = inven_carry(q_ptr);
 
 		/* Message */
+#ifdef JP
+		msg_print("スタッフをまとめなおした。");
+#else
 		msg_print("You unstack your staff.");
+#endif
+
 	}
 
 	/* Describe charges in the pack */
@@ -2053,8 +1855,14 @@ void do_cmd_use_staff(void)
 	item_tester_tval = TV_STAFF;
 
 	/* Get an item */
+#ifdef JP
+	q = "どのスタッフを使いますか? ";
+	s = "使えるスタッフがない。";
+#else
 	q = "Use which staff? ";
 	s = "You have no staff to use.";
+#endif
+
 	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
 
 	do_cmd_use_staff_aux(item);
@@ -2083,7 +1891,7 @@ void do_cmd_use_staff(void)
  */
 static void do_cmd_aim_wand_aux(int item)
 {
-	int         lev, ident, chance, dir, sval;
+	int         lev, ident, dir, sval;
 	object_type *o_ptr;
 
 
@@ -2102,7 +1910,11 @@ static void do_cmd_aim_wand_aux(int item)
 	/* Mega-Hack -- refuse to aim a pile from the ground */
 	if ((item < 0) && (o_ptr->number > 1))
 	{
+#ifdef JP
+		msg_print("まずはワンドを拾わなければ。");
+#else
 		msg_print("You must first pick up the wands.");
+#endif
 		return;
 	}
 
@@ -2112,7 +1924,10 @@ static void do_cmd_aim_wand_aux(int item)
 
 
 	/* Take a turn */
-	energy_use = 100;
+	if (p_ptr->pclass == CLASS_DEVICE_USER)
+		energy_use = 90 - p_ptr->lev;
+	else
+		energy_use = 100;
 
 	/* Not identified yet */
 	ident = FALSE;
@@ -2120,26 +1935,15 @@ static void do_cmd_aim_wand_aux(int item)
 	/* Get the level */
 	lev = get_object_level(o_ptr);
 
-	/* Base chance of success */
-	chance = p_ptr->skill_dev;
-
-	/* Confusion hurts skill */
-	if (p_ptr->confused) chance = chance / 2;
-
-	/* Hight level objects are harder */
-	chance = chance - ((lev > 50) ? 50 : lev);
-
-	/* Give everyone a (slight) chance */
-	if ((chance < USE_DEVICE) && (rand_int(USE_DEVICE - chance + 1) == 0))
-	{
-		chance = USE_DEVICE;
-	}
-
 	/* Roll for usage */
-	if ((chance < USE_DEVICE) || (randint(chance) < USE_DEVICE))
+	if (!can_use_device(lev, FALSE))
 	{
 		if (flush_failure) flush();
+#ifdef JP
+		msg_print("ワンドをうまく使えなかった。");
+#else
 		msg_print("You failed to use the wand properly.");
+#endif
 		sound(SOUND_FAIL);
 		return;
 	}
@@ -2148,7 +1952,11 @@ static void do_cmd_aim_wand_aux(int item)
 	if (o_ptr->pval <= 0)
 	{
 		if (flush_failure) flush();
+#ifdef JP
+		msg_print("このワンドにはもう魔力が残っていない。");
+#else
 		msg_print("The wand has no charges left.");
+#endif
 		o_ptr->ident |= (IDENT_EMPTY);
 
 		/* Combine / Reorder the pack (later) */
@@ -2168,9 +1976,7 @@ static void do_cmd_aim_wand_aux(int item)
 	/* XXX Hack -- Wand of wonder can do anything before it */
 	if (sval == SV_WAND_WONDER)
 	{
-		sval = rand_int(SV_WAND_WONDER);
-		if (sval < SV_WAND_TELEPORT_AWAY)
-			chg_virtue(V_CHANCE, 1);
+		sval = randint0(SV_WAND_WONDER);
 	}
 
 	/* Analyze the wand */
@@ -2206,9 +2012,9 @@ static void do_cmd_aim_wand_aux(int item)
 			break;
 		}
 
-		case SV_WAND_TRAP_DOOR_DEST:
+		case SV_WAND_ANNIHILATION:
 		{
-			if (destroy_door(dir)) ident = TRUE;
+			if (annihilation(250, dir)) ident = TRUE;
 			break;
 		}
 
@@ -2220,7 +2026,11 @@ static void do_cmd_aim_wand_aux(int item)
 
 		case SV_WAND_LITE:
 		{
+#ifdef JP
+			msg_print("青く輝く光線が放たれた。");
+#else
 			msg_print("A line of blue shimmering light appears.");
+#endif
 			(void)lite_line(dir);
 			ident = TRUE;
 			break;
@@ -2252,7 +2062,7 @@ static void do_cmd_aim_wand_aux(int item)
 
 		case SV_WAND_DRAIN_LIFE:
 		{
-			if (drain_life(dir, 75)) ident = TRUE;
+			if (drain_life(dir, 80 + p_ptr->lev)) ident = TRUE;
 			break;
 		}
 
@@ -2264,21 +2074,21 @@ static void do_cmd_aim_wand_aux(int item)
 
 		case SV_WAND_STINKING_CLOUD:
 		{
-			fire_ball(GF_POIS, dir, 12, 2);
+			fire_ball(GF_POIS, dir, 12 + p_ptr->lev / 4, 2);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_MAGIC_MISSILE:
 		{
-			fire_bolt_or_beam(20, GF_MISSILE, dir, damroll(2, 6));
+			fire_bolt_or_beam(20, GF_MISSILE, dir, damroll(2 + p_ptr->lev / 10, 6));
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_ACID_BOLT:
 		{
-			fire_bolt_or_beam(20, GF_ACID, dir, damroll(3, 8));
+			fire_bolt_or_beam(20, GF_ACID, dir, damroll(6 + p_ptr->lev / 7, 8));
 			ident = TRUE;
 			break;
 		}
@@ -2292,97 +2102,105 @@ static void do_cmd_aim_wand_aux(int item)
 
 		case SV_WAND_FIRE_BOLT:
 		{
-			fire_bolt_or_beam(20, GF_FIRE, dir, damroll(6, 8));
+			fire_bolt_or_beam(20, GF_FIRE, dir, damroll(7 + p_ptr->lev / 6, 8));
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_COLD_BOLT:
 		{
-			fire_bolt_or_beam(20, GF_COLD, dir, damroll(3, 8));
+			fire_bolt_or_beam(20, GF_COLD, dir, damroll(5 + p_ptr->lev / 8, 8));
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_ACID_BALL:
 		{
-			fire_ball(GF_ACID, dir, 60, 2);
+			fire_ball(GF_ACID, dir, 60 + 3 * p_ptr->lev / 4, 2);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_ELEC_BALL:
 		{
-			fire_ball(GF_ELEC, dir, 32, 2);
+			fire_ball(GF_ELEC, dir, 40 + 3 * p_ptr->lev / 4, 2);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_FIRE_BALL:
 		{
-			fire_ball(GF_FIRE, dir, 72, 2);
+			fire_ball(GF_FIRE, dir, 70 + 3 * p_ptr->lev / 4, 2);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_COLD_BALL:
 		{
-			fire_ball(GF_COLD, dir, 48, 2);
+			fire_ball(GF_COLD, dir, 50 + 3 * p_ptr->lev / 4, 2);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_WONDER:
 		{
+#ifdef JP
+			msg_print("おっと、謎のワンドを始動させた。");
+#else
 			msg_print("Oops.  Wand of wonder activated.");
+#endif
 			break;
 		}
 
 		case SV_WAND_DRAGON_FIRE:
 		{
-			fire_ball(GF_FIRE, dir, 100, 3);
+			sound(SOUND_BREATH);
+			fire_ball(GF_FIRE, dir, 200, -3);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_DRAGON_COLD:
 		{
-			fire_ball(GF_COLD, dir, 80, 3);
+			sound(SOUND_BREATH);
+			fire_ball(GF_COLD, dir, 180, -3);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_DRAGON_BREATH:
 		{
-			switch (randint(5))
+			sound(SOUND_BREATH);
+
+			switch (randint1(5))
 			{
 				case 1:
 				{
-					fire_ball(GF_ACID, dir, 100, 3);
+					fire_ball(GF_ACID, dir, 240, -3);
 					break;
 				}
 
 				case 2:
 				{
-					fire_ball(GF_ELEC, dir, 80, 3);
+					fire_ball(GF_ELEC, dir, 210, -3);
 					break;
 				}
 
 				case 3:
 				{
-					fire_ball(GF_FIRE, dir, 100, 3);
+					fire_ball(GF_FIRE, dir, 240, -3);
 					break;
 				}
 
 				case 4:
 				{
-					fire_ball(GF_COLD, dir, 80, 3);
+					fire_ball(GF_COLD, dir, 210, -3);
 					break;
 				}
 
 				default:
 				{
-					fire_ball(GF_POIS, dir, 60, 3);
+					fire_ball(GF_POIS, dir, 180, -3);
 					break;
 				}
 			}
@@ -2391,17 +2209,36 @@ static void do_cmd_aim_wand_aux(int item)
 			break;
 		}
 
-		case SV_WAND_ANNIHILATION:
+		case SV_WAND_DISINTEGRATE: /* Disintegrate */
 		{
-			fire_ball(GF_DISINTEGRATE, dir, 125 + randint(100), 2);
+			fire_ball(GF_DISINTEGRATE, dir, 200 + p_ptr->lev * 2, 2);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_ROCKETS:
 		{
+#ifdef JP
+			msg_print("ロケットを発射した！");
+#else
 			msg_print("You launch a rocket!");
-			fire_ball(GF_ROCKET, dir, 250, 2);
+#endif
+			sound(SOUND_ROCKET);
+			fire_ball(GF_ROCKET, dir, 250 + p_ptr->lev * 3, 2);
+			ident = TRUE;
+			break;
+		}
+
+		case SV_WAND_STRIKING:
+		{
+			fire_bolt(GF_METEOR, dir, damroll(15 + p_ptr->lev / 3, 13));
+			ident = TRUE;
+			break;
+		}
+
+		case SV_WAND_ELEC_BOLT:
+		{
+			fire_bolt_or_beam(20, GF_ELEC, dir, damroll(5 + p_ptr->lev / 9, 8));
 			ident = TRUE;
 			break;
 		}
@@ -2410,12 +2247,6 @@ static void do_cmd_aim_wand_aux(int item)
 
 	/* Combine / Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-
-	if (!(object_aware_p(o_ptr)))
-	{
-		chg_virtue(V_PATIENCE, -1);
-		chg_virtue(V_CHANCE, 1);
-	}
 
 	/* Mark it as tried */
 	object_tried(o_ptr);
@@ -2457,8 +2288,14 @@ void do_cmd_aim_wand(void)
 	item_tester_tval = TV_WAND;
 
 	/* Get an item */
+#ifdef JP
+	q = "どのワンドで狙いますか? ";
+	s = "使えるワンドがない。";
+#else
 	q = "Aim which wand? ";
 	s = "You have no wand to aim.";
+#endif
+
 	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
 
 	/* Aim the wand */
@@ -2478,7 +2315,7 @@ void do_cmd_aim_wand(void)
  */
 static void do_cmd_zap_rod_aux(int item)
 {
-	int         ident, chance, dir, lev;
+	int         ident, dir, lev, aware;
 	object_type *o_ptr;
 
 	/* Hack -- let perception get aborted */
@@ -2502,7 +2339,11 @@ static void do_cmd_zap_rod_aux(int item)
 	/* Mega-Hack -- refuse to zap a pile from the ground */
 	if ((item < 0) && (o_ptr->number > 1))
 	{
+#ifdef JP
+		msg_print("まずはロッドを拾わなければ。");
+#else
 		msg_print("You must first pick up the rods.");
+#endif
 		return;
 	}
 
@@ -2517,7 +2358,10 @@ static void do_cmd_zap_rod_aux(int item)
 
 
 	/* Take a turn */
-	energy_use = 100;
+	if (p_ptr->pclass == CLASS_DEVICE_USER)
+		energy_use = 90 - p_ptr->lev;
+	else
+		energy_use = 100;
 
 	/* Not identified yet */
 	ident = FALSE;
@@ -2525,26 +2369,15 @@ static void do_cmd_zap_rod_aux(int item)
 	/* Extract the item level */
 	lev = get_object_level(o_ptr);
 
-	/* Base chance of success */
-	chance = p_ptr->skill_dev;
-
-	/* Confusion hurts skill */
-	if (p_ptr->confused) chance = chance / 2;
-
-	/* Hight level objects are harder */
-	chance = chance - ((lev > 50) ? 50 : lev);
-
-	/* Give everyone a (slight) chance */
-	if ((chance < USE_DEVICE) && (rand_int(USE_DEVICE - chance + 1) == 0))
-	{
-		chance = USE_DEVICE;
-	}
-
 	/* Roll for usage */
-	if ((chance < USE_DEVICE) || (randint(chance) < USE_DEVICE))
+	if (!can_use_device(lev, FALSE))
 	{
 		if (flush_failure) flush();
+#ifdef JP
+		msg_print("うまくロッドを使えなかった。");
+#else
 		msg_print("You failed to use the rod properly.");
+#endif
 		sound(SOUND_FAIL);
 		return;
 	}
@@ -2555,14 +2388,22 @@ static void do_cmd_zap_rod_aux(int item)
 	if ((o_ptr->number == 1) && (o_ptr->timeout))
 	{
 		if (flush_failure) flush();
+#ifdef JP
+		msg_print("このロッドはまだ魔力を充填している最中だ。");
+#else
 		msg_print("The rod is still charging.");
+#endif
 		return;
 	}
 	/* A stack of rods lacks enough energy. */
 	else if ((o_ptr->number > 1) && (o_ptr->timeout > o_ptr->pval - k_ptr->pval))
 	{
 		if (flush_failure) flush();
+#ifdef JP
+		msg_print("そのロッドはまだ充填中です。");
+#else
 		msg_print("The rods are all still charging.");
+#endif
 		return;
 	}
 
@@ -2577,14 +2418,15 @@ static void do_cmd_zap_rod_aux(int item)
 	{
 		case SV_ROD_DETECT_TRAP:
 		{
-			if (detect_traps()) ident = TRUE;
+			bool known = object_known_p(o_ptr);
+			if (detect_traps_aux(DETECT_RAD_DEFAULT, known)) ident = TRUE;
 			break;
 		}
 
 		case SV_ROD_DETECT_DOOR:
 		{
-			if (detect_doors()) ident = TRUE;
-			if (detect_stairs()) ident = TRUE;
+			if (detect_doors(DETECT_RAD_DEFAULT)) ident = TRUE;
+			if (detect_stairs(DETECT_RAD_DEFAULT)) ident = TRUE;
 			break;
 		}
 
@@ -2610,14 +2452,14 @@ static void do_cmd_zap_rod_aux(int item)
 
 		case SV_ROD_MAPPING:
 		{
-			map_area();
+			map_area(DETECT_RAD_MAP);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_ROD_DETECTION:
 		{
-			detect_all();
+			detect_all(DETECT_RAD_DEFAULT);
 			ident = TRUE;
 			break;
 		}
@@ -2631,6 +2473,7 @@ static void do_cmd_zap_rod_aux(int item)
 
 		case SV_ROD_CURING:
 		{
+			if (hp_player(50)) ident = TRUE;
 			if (set_blind(0)) ident = TRUE;
 			if (set_poisoned(0)) ident = TRUE;
 			if (set_confused(0)) ident = TRUE;
@@ -2664,7 +2507,7 @@ static void do_cmd_zap_rod_aux(int item)
 		{
 			if (!p_ptr->fast)
 			{
-				if (set_fast(randint(30) + 15)) ident = TRUE;
+				if (set_fast(randint1(30) + 15)) ident = TRUE;
 			}
 			else
 			{
@@ -2675,8 +2518,7 @@ static void do_cmd_zap_rod_aux(int item)
 
 		case SV_ROD_PESTICIDE:
 		{
-			fire_ball(GF_POIS, dir, 8, 3);
-			ident = TRUE;
+			if (dispel_monsters(4)) ident = TRUE;
 			break;
 		}
 
@@ -2694,7 +2536,11 @@ static void do_cmd_zap_rod_aux(int item)
 
 		case SV_ROD_LITE:
 		{
+#ifdef JP
+			msg_print("青く輝く光線が放たれた。");
+#else
 			msg_print("A line of blue shimmering light appears.");
+#endif
 			(void)lite_line(dir);
 			ident = TRUE;
 			break;
@@ -2714,7 +2560,7 @@ static void do_cmd_zap_rod_aux(int item)
 
 		case SV_ROD_DRAIN_LIFE:
 		{
-			if (drain_life(dir, 75)) ident = TRUE;
+			if (drain_life(dir, 75 + 3 * p_ptr->lev / 2)) ident = TRUE;
 			break;
 		}
 
@@ -2726,56 +2572,56 @@ static void do_cmd_zap_rod_aux(int item)
 
 		case SV_ROD_ACID_BOLT:
 		{
-			fire_bolt_or_beam(10, GF_ACID, dir, damroll(6, 8));
+			fire_bolt_or_beam(10, GF_ACID, dir, damroll(7 + p_ptr->lev / 7, 8));
 			ident = TRUE;
 			break;
 		}
 
 		case SV_ROD_ELEC_BOLT:
 		{
-			fire_bolt_or_beam(10, GF_ELEC, dir, damroll(3, 8));
+			fire_bolt_or_beam(10, GF_ELEC, dir, damroll(5 + p_ptr->lev / 9, 8));
 			ident = TRUE;
 			break;
 		}
 
 		case SV_ROD_FIRE_BOLT:
 		{
-			fire_bolt_or_beam(10, GF_FIRE, dir, damroll(8, 8));
+			fire_bolt_or_beam(10, GF_FIRE, dir, damroll(8 + p_ptr->lev / 6, 8));
 			ident = TRUE;
 			break;
 		}
 
 		case SV_ROD_COLD_BOLT:
 		{
-			fire_bolt_or_beam(10, GF_COLD, dir, damroll(5, 8));
+			fire_bolt_or_beam(10, GF_COLD, dir, damroll(6 + p_ptr->lev / 8, 8));
 			ident = TRUE;
 			break;
 		}
 
 		case SV_ROD_ACID_BALL:
 		{
-			fire_ball(GF_ACID, dir, 60, 2);
+			fire_ball(GF_ACID, dir, 60 + p_ptr->lev, 2);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_ROD_ELEC_BALL:
 		{
-			fire_ball(GF_ELEC, dir, 32, 2);
+			fire_ball(GF_ELEC, dir, 40 + p_ptr->lev, 2);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_ROD_FIRE_BALL:
 		{
-			fire_ball(GF_FIRE, dir, 72, 2);
+			fire_ball(GF_FIRE, dir, 70 + p_ptr->lev, 2);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_ROD_COLD_BALL:
 		{
-			fire_ball(GF_COLD, dir, 48, 2);
+			fire_ball(GF_COLD, dir, 50 + p_ptr->lev, 2);
 			ident = TRUE;
 			break;
 		}
@@ -2786,23 +2632,25 @@ static void do_cmd_zap_rod_aux(int item)
 			ident = TRUE;
 			break;
 		}
+
+		case SV_ROD_STONE_TO_MUD:
+		{
+			if (wall_to_mud(dir)) ident = TRUE;
+			break;
+		}
 	}
 
 
 	/* Combine / Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
-	if (!(object_aware_p(o_ptr)))
-	{
-		chg_virtue(V_PATIENCE, -1);
-		chg_virtue(V_CHANCE, 1);
-	}
-
 	/* Tried the object */
 	object_tried(o_ptr);
 
 	/* Successfully determined the object function */
-	if (ident && !object_aware_p(o_ptr))
+	aware = object_aware_p(o_ptr);
+
+	if (ident && !aware)
 	{
 		object_aware(o_ptr);
 		gain_exp((lev + (p_ptr->lev >> 1)) / p_ptr->lev);
@@ -2814,6 +2662,8 @@ static void do_cmd_zap_rod_aux(int item)
 	/* Hack -- deal with cancelled zap */
 	if (!use_charge)
 	{
+		if (aware) energy_use = 0;
+
 		o_ptr->timeout -= k_ptr->pval;
 		return;
 	}
@@ -2829,8 +2679,14 @@ void do_cmd_zap_rod(void)
 	item_tester_tval = TV_ROD;
 
 	/* Get an item */
+#ifdef JP
+	q = "どのロッドを振りますか? ";
+	s = "使えるロッドがない。";
+#else
 	q = "Zap which rod? ";
 	s = "You have no rod to zap.";
+#endif
+
 	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
 
 	/* Zap the rod */
@@ -2868,13 +2724,18 @@ static bool item_tester_hook_activate(object_type *o_ptr)
 void ring_of_power(int dir)
 {
 	/* Pick a random effect */
-	switch (randint(10))
+	switch (randint1(10))
 	{
 		case 1:
 		case 2:
 		{
 			/* Message */
+#ifdef JP
+			msg_print("あなたは悪性のオーラに包み込まれた。");
+#else
 			msg_print("You are surrounded by a malignant aura.");
+#endif
+
 			sound(SOUND_EVIL);
 
 			/* Decrease all stats (permanently) */
@@ -2896,7 +2757,12 @@ void ring_of_power(int dir)
 		case 3:
 		{
 			/* Message */
+#ifdef JP
+			msg_print("あなたは強力なオーラに包み込まれた。");
+#else
 			msg_print("You are surrounded by a powerful aura.");
+#endif
+
 
 			/* Dispel monsters */
 			dispel_monsters(1000);
@@ -2957,7 +2823,10 @@ static void do_cmd_activate_aux(int item)
 	}
 
 	/* Take a turn */
-	energy_use = 100;
+	if (p_ptr->pclass == CLASS_DEVICE_USER)
+		energy_use = 100;
+	else
+		energy_use = 100;
 
 	/* Extract the item level */
 	lev = get_object_level(o_ptr);
@@ -2965,29 +2834,15 @@ static void do_cmd_activate_aux(int item)
 	/* Hack -- use artifact level instead */
 	if (artifact_p(o_ptr)) lev = a_info[o_ptr->name1].level;
 
-	/* Base chance of success */
-	chance = p_ptr->skill_dev;
-
-	/* Confusion hurts skill */
-	if (p_ptr->confused) chance /= 2;
-
-	/* Cursed items are difficult to activate */
-	if (o_ptr->ident & IDENT_CURSED) chance /= 3;
-
-	/* Hight level objects are harder */
-	chance = chance - ((lev > 50) ? 50 : lev);
-
-	/* Give everyone a (slight) chance */
-	if ((chance < USE_DEVICE) && (rand_int(USE_DEVICE - chance + 1) == 0))
-	{
-		chance = USE_DEVICE;
-	}
-
 	/* Roll for usage */
-	if ((chance < USE_DEVICE) || (randint(chance) < USE_DEVICE))
+	if (!can_use_device(lev, (bool)(o_ptr->ident & IDENT_CURSED)))
 	{
 		if (flush_failure) flush();
+#ifdef JP
+		msg_print("うまく始動させることができなかった。");
+#else
 		msg_print("You failed to activate it properly.");
+#endif
 		sound(SOUND_FAIL);
 		return;
 	}
@@ -2995,19 +2850,27 @@ static void do_cmd_activate_aux(int item)
 	/* Check the recharge */
 	if (o_ptr->timeout)
 	{
+#ifdef JP
+		msg_print("それは微かに音を立て、輝き、消えた...");
+#else
 		msg_print("It whines, glows and fades...");
+#endif
 		return;
 	}
 
 
 	/* Activate the artifact */
+#ifdef JP
+	msg_print("始動させた...");
+#else
 	msg_print("You activate it...");
+#endif
 
 	/* Sound */
 	sound(SOUND_ZAP);
 
-
-	if (o_ptr->art_name && o_ptr->xtra2)
+	/* Have specified activation */
+	if (o_ptr->xtra2)
 	{
 		(void)activate_random_artifact(o_ptr);
 
@@ -3024,127 +2887,52 @@ static void do_cmd_activate_aux(int item)
 		/* Choose effect */
 		switch (o_ptr->name1)
 		{
-			case ART_GALADRIEL:
+			case ART_JUDGE:
 			{
-				msg_print("The phial wells with clear light...");
-				lite_area(damroll(2, 15), 3);
-				o_ptr->timeout = rand_int(10) + 10;
-				break;
-			}
-
-			case ART_ELENDIL:
-			{
-				msg_print("The star shines brightly...");
-				map_area();
-				lite_area(damroll(2, 15), 3);
-				o_ptr->timeout = rand_int(50) + 50;
-				break;
-			}
-
-			case ART_THRAIN:
-			{
-				msg_print("The Jewel flashes bright red!");
+#ifdef JP
+				msg_print("アーケン石はあなたの体力を奪った...");
+				take_hit(damroll(3,8), "スラインのアーケン石");
+				msg_print("アーケン石は赤く明るく光った！");
+#else
+				msg_print("The Arkenstone drains your vitality...");
+				take_hit(damroll(3, 8), "the Arkenstone of Thrain");
+				msg_print("The Arkenstone flashes bright red!");
+#endif
 				wiz_lite();
-				msg_print("The Jewel drains your vitality...");
-				take_hit(damroll(3, 8), "the Jewel of Judgement");
-				(void)detect_traps();
-				(void)detect_doors();
-				(void)detect_stairs();
-
+#ifdef JP
+				if (get_check("帰還の力を使いますか？"))
+#else
 				if (get_check("Activate recall? "))
+#endif
 				{
 					word_of_recall();
 				}
-
-				o_ptr->timeout = rand_int(20) + 20;
+				o_ptr->timeout = randint0(20) + 20;
 				break;
 			}
-
-			case ART_CARLAMMAS:
-			{
-				msg_print("The amulet lets out a shrill wail...");
-				k = 3 * p_ptr->lev;
-				(void)set_protevil(p_ptr->protevil + randint(25) + k);
-				o_ptr->timeout = rand_int(225) + 225;
-				break;
-			}
-
-			case ART_INGWE:
-			{
-				msg_print("The amulet floods the area with goodness...");
-				dispel_evil(p_ptr->lev * 5);
-				o_ptr->timeout = rand_int(300) + 300;
-				break;
-			}
-
-			case ART_BARAHIR:
-			{
-				msg_print("You order Frakir to strangle your opponent.");
-				if (!get_aim_dir(&dir)) return;
-				if (drain_life(dir, 100))
-				o_ptr->timeout = rand_int(100) + 100;
-				break;
-			}
-
-			case ART_TULKAS:
-			{
-				msg_print("The ring glows brightly...");
-				if (!p_ptr->fast)
-				{
-					(void)set_fast(randint(75) + 75);
-				}
-				else
-				{
-					(void)set_fast(p_ptr->fast + 5);
-				}
-				o_ptr->timeout = rand_int(150) + 150;
-				break;
-			}
-
-			case ART_NARYA:
-			{
-				msg_print("The ring glows deep red...");
-				if (!get_aim_dir(&dir)) return;
-				fire_ball(GF_FIRE, dir, 120, 3);
-				o_ptr->timeout = rand_int(225) + 225;
-				break;
-			}
-
-			case ART_NENYA:
-			{
-				msg_print("The ring glows bright white...");
-				if (!get_aim_dir(&dir)) return;
-				fire_ball(GF_COLD, dir, 200, 3);
-				o_ptr->timeout = rand_int(325) + 325;
-				break;
-			}
-
-			case ART_VILYA:
-			{
-				msg_print("The ring glows deep blue...");
-				if (!get_aim_dir(&dir)) return;
-				fire_ball(GF_ELEC, dir, 250, 3);
-				o_ptr->timeout = rand_int(425) + 425;
-				break;
-			}
-
 			case ART_POWER:
 			{
+#ifdef JP
+				msg_print("指輪は漆黒に輝いた...");
+#else
 				msg_print("The ring glows intensely black...");
+#endif
 				if (!get_aim_dir(&dir)) return;
 				ring_of_power(dir);
-				o_ptr->timeout = rand_int(450) + 450;
+				o_ptr->timeout = randint0(450) + 450;
 				break;
 			}
-
 			case ART_RAZORBACK:
 			{
 				int num = damroll(5, 3);
 				int y, x;
 				int attempts;
 
+#ifdef JP
+				msg_print("鎧が稲妻で覆われた...");
+#else
 				msg_print("Your armor is surrounded by lightning...");
-
+#endif
 				for (k = 0; k < num; k++)
 				{
 					attempts = 1000;
@@ -3165,263 +2953,86 @@ static void do_cmd_activate_aux(int item)
 				o_ptr->timeout = 1000;
 				break;
 			}
-
 			case ART_BLADETURNER:
 			{
 				if (!get_aim_dir(&dir)) return;
+#ifdef JP
+				msg_print("あなたはエレメントのブレスを吐いた。");
+#else
 				msg_print("You breathe the elements.");
-				fire_ball(GF_MISSILE, dir, 300, 4);
+#endif
+				fire_ball(GF_MISSILE, dir, 300, -4);
+#ifdef JP
+				msg_print("アーマーが様々な色に輝いた...");
+#else
 				msg_print("Your armor glows many colours...");
+#endif
 				(void)set_afraid(0);
-				(void)set_shero(p_ptr->shero + randint(50) + 50);
+				(void)set_shero(p_ptr->shero + randint1(50) + 50);
 				(void)hp_player(30);
-				(void)set_blessed(p_ptr->blessed + randint(50) + 50);
-				(void)set_oppose_acid(p_ptr->oppose_acid + randint(50) + 50);
-				(void)set_oppose_elec(p_ptr->oppose_elec + randint(50) + 50);
-				(void)set_oppose_fire(p_ptr->oppose_fire + randint(50) + 50);
-				(void)set_oppose_cold(p_ptr->oppose_cold + randint(50) + 50);
-				(void)set_oppose_pois(p_ptr->oppose_pois + randint(50) + 50);
+				(void)set_blessed(p_ptr->blessed + randint1(50) + 50);
+				(void)set_oppose_acid(p_ptr->oppose_acid + randint1(50) + 50);
+				(void)set_oppose_elec(p_ptr->oppose_elec + randint1(50) + 50);
+				(void)set_oppose_fire(p_ptr->oppose_fire + randint1(50) + 50);
+				(void)set_oppose_cold(p_ptr->oppose_cold + randint1(50) + 50);
+				(void)set_oppose_pois(p_ptr->oppose_pois + randint1(50) + 50);
 				o_ptr->timeout = 400;
 				break;
 			}
-
-			case ART_SOULKEEPER:
+			case ART_LOHENGRIN:
 			{
-				msg_print("Your armor glows a bright white...");
-				msg_print("You feel much better...");
-				(void)hp_player(1000);
-				(void)set_cut(0);
-				o_ptr->timeout = 888;
-				break;
-			}
-
-			case ART_BELEGENNON:
-			{
+#ifdef JP
+				msg_print("天国の歌が聞こえる...");
+#else
 				msg_print("A heavenly choir sings...");
+#endif
 				(void)set_poisoned(0);
 				(void)set_cut(0);
 				(void)set_stun(0);
 				(void)set_confused(0);
 				(void)set_blind(0);
-				(void)set_hero(p_ptr->hero + randint(25) + 25);
+				(void)set_hero(p_ptr->hero + randint1(25) + 25);
 				(void)hp_player(777);
 				o_ptr->timeout = 300;
 				break;
 			}
-
-			case ART_CELEBORN:
-			{
-				msg_print("Your armor glows deep blue...");
-				(void)genocide(TRUE);
-				o_ptr->timeout = 500;
-				break;
-			}
-
 			case ART_CASPANION:
 			{
+#ifdef JP
+				msg_print("アーマーが赤く明るく輝いた...");
+#else
 				msg_print("Your armor glows bright red...");
+#endif
 				destroy_doors_touch();
 				o_ptr->timeout = 10;
 				break;
 			}
-
-			case ART_DOR:
-			case ART_TERROR:
-			{
-				turn_monsters(40 + p_ptr->lev);
-				o_ptr->timeout = 3 * (p_ptr->lev + 10);
-				break;
-			}
-
-			case ART_HOLHENNETH:
-			{
-				msg_print("Your helm glows bright white...");
-				msg_print("An image forms in your mind...");
-				detect_all();
-				o_ptr->timeout = rand_int(55) + 55;
-				break;
-			}
-
-			case ART_GONDOR:
-			{
-				msg_print("Your crown glows deep blue...");
-				msg_print("You feel a warm tingling inside...");
-				(void)hp_player(700);
-				(void)set_cut(0);
-				o_ptr->timeout = 250;
-				break;
-			}
-
-			case ART_COLLUIN:
-			{
-				msg_print("Your cloak glows many colours...");
-				(void)set_oppose_acid(p_ptr->oppose_acid + randint(20) + 20);
-				(void)set_oppose_elec(p_ptr->oppose_elec + randint(20) + 20);
-				(void)set_oppose_fire(p_ptr->oppose_fire + randint(20) + 20);
-				(void)set_oppose_cold(p_ptr->oppose_cold + randint(20) + 20);
-				(void)set_oppose_pois(p_ptr->oppose_pois + randint(20) + 20);
-				o_ptr->timeout = 111;
-				break;
-			}
-
 			case ART_HOLCOLLETH:
 			{
+#ifdef JP
+				msg_print("クロークが深いブルーに輝いた...");
+#else
 				msg_print("Your cloak glows deep blue...");
+#endif
 				sleep_monsters_touch();
 				o_ptr->timeout = 55;
 				break;
 			}
-
-			case ART_THINGOL:
-			{
-				msg_print("Your cloak glows bright yellow...");
-				recharge(130);
-				o_ptr->timeout = 70;
-				break;
-			}
-
-			case ART_COLANNON:
-			{
-				msg_print("Your cloak twists space around you...");
-				teleport_player(100);
-				o_ptr->timeout = 45;
-				break;
-			}
-
-			case ART_LUTHIEN:
-			{
-				msg_print("Your cloak glows a deep red...");
-				restore_level();
-				o_ptr->timeout = 450;
-				break;
-			}
-
-			case ART_CAMMITHRIM:
-			{
-				msg_print("Your gloves glow extremely brightly...");
-				if (!get_aim_dir(&dir)) return;
-				fire_bolt(GF_MISSILE, dir, damroll(2, 6));
-				o_ptr->timeout = 2;
-				break;
-			}
-
-			case ART_PAURHACH:
-			{
-				msg_print("Your gauntlets are covered in fire...");
-				if (!get_aim_dir(&dir)) return;
-				fire_bolt(GF_FIRE, dir, damroll(9, 8));
-				o_ptr->timeout = rand_int(8) + 8;
-				break;
-			}
-
-			case ART_CORWIN:
-			{
-				msg_print("Your gauntlets are covered in frost...");
-				if (!get_aim_dir(&dir)) return;
-				fire_bolt(GF_COLD, dir, damroll(6, 8));
-				o_ptr->timeout = rand_int(7) + 7;
-				break;
-			}
-
-			case ART_PAURAEGEN:
-			{
-				msg_print("Your gauntlets are covered in sparks...");
-				if (!get_aim_dir(&dir)) return;
-				fire_bolt(GF_ELEC, dir, damroll(4, 8));
-				o_ptr->timeout = rand_int(6) + 6;
-				break;
-			}
-
-			case ART_PAURNEN:
-			{
-				msg_print("Your gauntlets are covered in acid...");
-				if (!get_aim_dir(&dir)) return;
-				fire_bolt(GF_ACID, dir, damroll(5, 8));
-				o_ptr->timeout = rand_int(5) + 5;
-				break;
-			}
-
 			case ART_FINGOLFIN:
 			{
+#ifdef JP
+				msg_print("セスタスに魔法のトゲが現れた...");
+#else
 				msg_print("Your cesti grows magical spikes...");
+#endif
 				if (!get_aim_dir(&dir)) return;
 				fire_bolt(GF_ARROW, dir, 150);
-				o_ptr->timeout = rand_int(90) + 90;
+				o_ptr->timeout = randint0(90) + 90;
 				break;
 			}
-
-			case ART_FEANOR:
+			case ART_KUSANAGI:
 			{
-				msg_print("Your boots glow bright green...");
-				if (!p_ptr->fast)
-				{
-					(void)set_fast(randint(20) + 20);
-				}
-				else
-				{
-					(void)set_fast(p_ptr->fast + 5);
-				}
-				o_ptr->timeout = 200;
-				break;
-			}
-
-			case ART_DAL:
-			{
-				msg_print("Your boots glow deep blue...");
-				(void)set_afraid(0);
-				(void)set_poisoned(0);
-				o_ptr->timeout = 5;
-				break;
-			}
-
-			case ART_NARTHANC:
-			{
-				msg_print("Your dagger is covered in fire...");
-				if (!get_aim_dir(&dir)) return;
-				fire_bolt(GF_FIRE, dir, damroll(9, 8));
-				o_ptr->timeout = rand_int(8) + 8;
-				break;
-			}
-
-			case ART_NIMTHANC:
-			{
-				msg_print("Your dagger is covered in frost...");
-				if (!get_aim_dir(&dir)) return;
-				fire_bolt(GF_COLD, dir, damroll(6, 8));
-				o_ptr->timeout = rand_int(7) + 7;
-				break;
-			}
-
-			case ART_DETHANC:
-			{
-				msg_print("Your dagger is covered in sparks...");
-				if (!get_aim_dir(&dir)) return;
-				fire_bolt(GF_ELEC, dir, damroll(4, 8));
-				o_ptr->timeout = rand_int(6) + 6;
-				break;
-			}
-
-			case ART_RILIA:
-			{
-				msg_print("Your dagger throbs deep green...");
-				if (!get_aim_dir(&dir)) return;
-				fire_ball(GF_POIS, dir, 12, 3);
-				o_ptr->timeout = rand_int(4) + 4;
-				break;
-			}
-
-			case ART_BELANGIL:
-			{
-				msg_print("Your dagger is covered in frost...");
-				if (!get_aim_dir(&dir)) return;
-				fire_ball(GF_COLD, dir, 48, 2);
-				o_ptr->timeout = rand_int(5) + 5;
-				break;
-			}
-
-			case ART_ANGUIREL:
-			{
-				switch (randint(13))
+				switch (randint1(13))
 				{
 				case 1: case 2: case 3: case 4: case 5:
 					teleport_player(10);
@@ -3433,7 +3044,11 @@ static void do_cmd_activate_aux(int item)
 					(void)stair_creation();
 					break;
 				default:
+#ifdef JP
+					if (get_check("この階を去りますか？"))
+#else
 					if (get_check("Leave this level? "))
+#endif
 					{
 						if (autosave_l) do_cmd_save_game(TRUE);
 
@@ -3444,176 +3059,189 @@ static void do_cmd_activate_aux(int item)
 				o_ptr->timeout = 35;
 				break;
 			}
-
-			case ART_RINGIL:
-			{
-				msg_print("Your sword glows an intense blue...");
-				if (!get_aim_dir(&dir)) return;
-				fire_ball(GF_COLD, dir, 100, 2);
-				o_ptr->timeout = 300;
-				break;
-			}
-
 			case ART_DAWN:
 			{
+#ifdef JP
+				msg_print("暁の師団を召喚した。");
+#else
 				msg_print("You summon the Legion of the Dawn.");
+#endif
 				(void)summon_specific(-1, py, px, dun_level, SUMMON_DAWN, TRUE, TRUE, TRUE);
-				o_ptr->timeout = 500 + randint(500);
+				o_ptr->timeout = 500 + randint1(500);
 				break;
 			}
-
-			case ART_ANDURIL:
+			case ART_NAIN:
 			{
-				msg_print("Your sword glows an intense red...");
-				if (!get_aim_dir(&dir)) return;
-				fire_ball(GF_FIRE, dir, 72, 2);
-				o_ptr->timeout = 400;
-				break;
-			}
-
-			case ART_THEODEN:
-			{
-				msg_print("Your axe blade glows black...");
-				if (!get_aim_dir(&dir)) return;
-				drain_life(dir, 120);
-				o_ptr->timeout = 400;
-				break;
-			}
-
-			case ART_AEGLOS:
-			{
-				msg_print("Your spear crackles with electricity...");
-				if (!get_aim_dir(&dir)) return;
-				fire_ball(GF_ELEC, dir, 100, 3);
-				o_ptr->timeout = 500;
-				break;
-			}
-
-			case ART_OROME:
-			{
-				msg_print("Your spear pulsates...");
+#ifdef JP
+				msg_print("つるはしが鼓動した...");
+#else
+				msg_print("Your mattock pulsates...");
+#endif
 				if (!get_aim_dir(&dir)) return;
 				wall_to_mud(dir);
-				o_ptr->timeout = 5;
+				o_ptr->timeout = 2;
 				break;
 			}
-
-			case ART_EONWE:
+			case ART_BRAND:
 			{
-				msg_print("Your axe lets out a long, shrill note...");
-				(void)mass_genocide(TRUE);
-				o_ptr->timeout = 1000;
+#ifdef JP
+				msg_print("クロスボウが深紅に輝いた...");
+#else
+				msg_print("Your crossbow glows deep red...");
+#endif
+				(void)brand_bolts();
+				o_ptr->timeout = 999;
 				break;
 			}
-
-			case ART_LOTHARANG:
+			case ART_MURAMASA:
 			{
-				msg_print("Your battle axe radiates deep purple...");
-				hp_player(damroll(4, 8));
-				(void)set_cut((p_ptr->cut / 2) - 50);
-				o_ptr->timeout = rand_int(3) + 3;
+#ifdef JP
+				if (get_check("本当に使いますか？"))
+#else
+				if (get_check("Are you sure?!"))
+#endif
+				{
+					o_ptr->timeout = 1;
+					do_inc_stat(A_STR);
+					if ( one_in_(2) ){
+						inven_item_increase(INVEN_WIELD, -1);
+						inven_item_optimize(INVEN_WIELD);
+#ifdef JP
+						msg_print("村正は壊れた！");
+#else
+						msg_print("The Muramasa is destroyed!");
+#endif
+					}
+				}
 				break;
 			}
-
-			case ART_ULMO:
+			case ART_FLY_STONE:
 			{
-				msg_print("Your trident glows deep red...");
+#ifdef JP
+				msg_print("石が青白く光った．．．");
+#else
+				msg_print("Your stone glows pale...");
+#endif
 				if (!get_aim_dir(&dir)) return;
-				teleport_monster(dir);
-				o_ptr->timeout = 150;
+				fire_ball(GF_MANA, dir, 400, 4);
+				o_ptr->timeout = randint0(250) + 250;
 				break;
 			}
-
-			case ART_AVAVIR:
+			case ART_PALANTIR:
 			{
-				if (dun_level && (p_ptr->max_dlv > dun_level))
+				monster_type *m_ptr;
+				monster_race *r_ptr;
+				int i;
+			
+#ifdef JP
+				msg_print("奇妙な場所が頭の中に浮かんだ．．．");
+#else
+				msg_print("Some strange places show up in your mind. And you see ...");
+#endif
+			
+				/* Process the monsters (backwards) */
+				for (i = m_max - 1; i >= 1; i--)
 				{
-					if (get_check("Reset recall depth? "))
-					p_ptr->max_dlv = dun_level;
-				}
-
-				msg_print("Your scythe glows soft white...");
-				if (!p_ptr->word_recall)
-				{
-					p_ptr->word_recall = randint(20) + 15;
-					msg_print("The air about you becomes charged...");
-					p_ptr->redraw |= (PR_STATUS);
-				}
-				else
-				{
-					p_ptr->word_recall = 0;
-					msg_print("A tension leaves the air around you...");
-					p_ptr->redraw |= (PR_STATUS);
+					/* Access the monster */
+					m_ptr = &m_list[i];
+					
+					/* Ignore "dead" monsters */
+					if (!m_ptr->r_idx) continue;
+					
+					r_ptr = &r_info[m_ptr->r_idx];
+					
+					if(r_ptr->flags1 & RF1_UNIQUE)
+					{
+#ifdef JP
+						msg_format("%s． ",r_name + r_ptr->name);
+#else
+						msg_format("%s. ",r_name + r_ptr->name);
+#endif
+					}
 				}
 				o_ptr->timeout = 200;
 				break;
 			}
-
-			case ART_TOTILA:
+			case ART_HURIN:
 			{
-				msg_print("Your flail glows in scintillating colours...");
-				if (!get_aim_dir(&dir)) return;
-				confuse_monster(dir, 20);
-				o_ptr->timeout = 15;
+				(void)set_fast(p_ptr->fast + randint1(50) + 50);
+				hp_player(10);
+				set_afraid(0);
+				set_hero(p_ptr->hero + randint1(50) + 50);
+				o_ptr->timeout = randint0(200) + 100;
 				break;
 			}
-
-			case ART_FIRESTAR:
+			case ART_NUMAHOKO:
 			{
-				msg_print("Your morning star rages in fire...");
+#ifdef JP
+				msg_print("矛が深い青色に鼓動している...");
+#else
+				msg_print("Your dagger throbs deep blue...");
+#endif
 				if (!get_aim_dir(&dir)) return;
-				fire_ball(GF_FIRE, dir, 72, 3);
-				o_ptr->timeout = 100;
+				fire_ball(GF_WATER, dir, 200, 3);
+				o_ptr->timeout = 250;
 				break;
 			}
-
-			case ART_TARATOL:
+			case ART_INCANUS:
 			{
-				msg_print("Your mace glows bright green...");
-				if (!p_ptr->fast)
+#ifdef JP
+				msg_print("ローブが純粋な魔力で震えた。");
+#else
+				msg_print("The robe pulsates with raw mana...");
+#endif
+				if (!get_aim_dir(&dir)) return;
+				fire_bolt(GF_MANA, dir, 120);
+				o_ptr->timeout = randint0(120) + 120;
+				break;
+			}
+			case ART_GIL_GALAD:
+			{
+#ifdef JP
+				msg_print("盾が眩しい光で輝いた．．．");
+#else
+				msg_print("Your shield gleams with blinding light...");
+#endif
+				fire_ball(GF_LITE, 0, 300, 6);
+				confuse_monsters(3 * p_ptr->lev / 2);
+				o_ptr->timeout = 250;
+				break;
+			}
+			case ART_LIGHT_SABRE:
+			{
+				activate_light_sabre(o_ptr, TRUE);
+				break;
+			}
+			case ART_STONE_LORE:
+			{
+				if(one_in_(5))
 				{
-					(void)set_fast(randint(20) + 20);
+					if (one_in_(100)) (void)identify_fully();
+					else (void)ident_spell();
 				}
 				else
 				{
-					(void)set_fast(p_ptr->fast + 5);
+					char noise[1024];
+#ifdef JP
+					if (!get_rnd_line("rumors_j.txt", 0, noise))
+						msg_format("「%s」", noise);
+#else
+					if (!get_rnd_line("rumors.txt", 0, noise))
+						msg_format("'%s'", noise);
+#endif
 				}
-				o_ptr->timeout = rand_int(100) + 100;
 				break;
 			}
-
-			case ART_ERIRIL:
+			case ART_PITCH_DARK_NIGHT:
 			{
-				msg_print("Your quarterstaff glows yellow...");
-				if (!ident_spell()) return;
-				o_ptr->timeout = 10;
-				break;
-			}
-
-			case ART_OLORIN:
-			{
-				msg_print("Your quarterstaff glows brightly...");
-				detect_all();
-				probing();
-				identify_fully();
-				o_ptr->timeout = 1000;
-				break;
-			}
-
-			case ART_TURMIL:
-			{
-				msg_print("Your hammer glows white...");
+#ifdef JP
+				msg_print("アミュレットは漆黒に輝いた...");
+#else
+				msg_print("The amulet glows intensely black...");
+#endif
 				if (!get_aim_dir(&dir)) return;
-				drain_life(dir, 90);
-				o_ptr->timeout = 70;
-				break;
-			}
-
-			case ART_BRAND:
-			{
-				msg_print("Your crossbow glows deep red...");
-				(void)brand_bolts();
-				o_ptr->timeout = 999;
+				fire_ball(GF_DARK, dir, 250, 3);
+				o_ptr->timeout = randint0(150) + 150;
 				break;
 			}
 		}
@@ -3625,11 +3253,75 @@ static void do_cmd_activate_aux(int item)
 		return;
 	}
 
-
-	else if (o_ptr->name2 == EGO_TRUMP)
+	/* Ego items */
+	else if (o_ptr->name2)
 	{
-		teleport_player(100);
-		o_ptr->timeout = 50 + randint(50);
+		switch(o_ptr->name2)
+		{
+			case EGO_SEEING:
+				(void)detect_monsters_normal(DETECT_RAD_DEFAULT);
+				o_ptr->timeout = randint0(10) + 10;
+				break;
+			case EGO_MAGICAL_SHOT:
+				if (!get_aim_dir(&dir)) break;
+				fire_bolt(GF_ARROW, dir, (50 + p_ptr->lev * 2));
+				o_ptr->timeout = randint0(7) + 7;
+				break;
+			case EGO_BRAND_ACID:
+				if (!get_aim_dir(&dir)) break;
+				fire_ball(GF_ACID, dir, 100, 2);
+				(void)set_oppose_acid(p_ptr->oppose_acid + randint1(20) + 20);
+				o_ptr->timeout = randint0(50) + 50;
+				break;
+			case EGO_BRAND_COLD:
+				if (!get_aim_dir(&dir)) break;
+				fire_ball(GF_COLD, dir, 100, 2);
+				(void)set_oppose_cold(p_ptr->oppose_cold + randint1(20) + 20);
+				o_ptr->timeout = randint0(50) + 50;
+				break;
+			case EGO_BRAND_FIRE:
+				if (!get_aim_dir(&dir)) break;
+				fire_ball(GF_FIRE, dir, 100, 2);
+				(void)set_oppose_fire(p_ptr->oppose_fire + randint1(20) + 20);
+				o_ptr->timeout = randint0(50) + 50;
+				break;
+			case EGO_BRAND_ELEC:
+				if (!get_aim_dir(&dir)) break;
+				fire_ball(GF_ELEC, dir, 100, 2);
+				(void)set_oppose_elec(p_ptr->oppose_elec + randint1(20) + 20);
+				o_ptr->timeout = randint0(50) + 50;
+				break;
+			case EGO_BRAND_POIS:
+				if (!get_aim_dir(&dir)) break;
+				fire_ball(GF_POIS, dir, 100, 2);
+				(void)set_oppose_pois(p_ptr->oppose_pois + randint1(20) + 20);
+				o_ptr->timeout = randint0(50) + 50;
+				break;
+			case EGO_WEAP_LITE:
+			{
+				int num = damroll(5, 3);
+				int y, x;
+				int attempts;
+
+				for (k = 0; k < num; k++)
+				{
+					attempts = 1000;
+
+					while (attempts--)
+					{
+						scatter(&y, &x, py, px, 4, 0);
+						if (!cave_floor_bold(y, x)) continue;
+						if ((y != py) || (x != px)) break;
+					}
+
+					project(0, 0, y, x, damroll(6, 8), GF_LITE_WEAK,
+							  (PROJECT_BEAM | PROJECT_THRU | PROJECT_GRID | PROJECT_KILL));
+				}
+
+				o_ptr->timeout = randint0(50) + 50;
+				break;
+			}
+		}
 
 		/* Window stuff */
 		p_ptr->window |= (PW_INVEN | PW_EQUIP);
@@ -3650,129 +3342,191 @@ static void do_cmd_activate_aux(int item)
 		{
 			case SV_DRAGON_BLUE:
 			{
+#ifdef JP
+				msg_print("あなたは稲妻のブレスを吐いた。");
+#else
 				msg_print("You breathe lightning.");
-				fire_ball(GF_ELEC, dir, 100, 2);
-				o_ptr->timeout = rand_int(450) + 450;
+#endif
+				fire_ball(GF_ELEC, dir, 100, -2);
+				o_ptr->timeout = randint0(450) + 450;
 				break;
 			}
 
 			case SV_DRAGON_WHITE:
 			{
+#ifdef JP
+				msg_print("あなたは冷気のブレスを吐いた。");
+#else
 				msg_print("You breathe frost.");
-				fire_ball(GF_COLD, dir, 110, 2);
-				o_ptr->timeout = rand_int(450) + 450;
+#endif
+				fire_ball(GF_COLD, dir, 110, -2);
+				o_ptr->timeout = randint0(450) + 450;
 				break;
 			}
 
 			case SV_DRAGON_BLACK:
 			{
+#ifdef JP
+				msg_print("あなたは酸のブレスを吐いた。");
+#else
 				msg_print("You breathe acid.");
-				fire_ball(GF_ACID, dir, 130, 2);
-				o_ptr->timeout = rand_int(450) + 450;
+#endif
+				fire_ball(GF_ACID, dir, 130, -2);
+				o_ptr->timeout = randint0(450) + 450;
 				break;
 			}
 
 			case SV_DRAGON_GREEN:
 			{
+#ifdef JP
+				msg_print("あなたは毒ガスのブレスを吐いた。");
+#else
 				msg_print("You breathe poison gas.");
-				fire_ball(GF_POIS, dir, 150, 2);
-				o_ptr->timeout = rand_int(450) + 450;
+#endif
+				fire_ball(GF_POIS, dir, 150, -2);
+				o_ptr->timeout = randint0(450) + 450;
 				break;
 			}
 
 			case SV_DRAGON_RED:
 			{
+#ifdef JP
+				msg_print("あなたは火炎のブレスを吐いた。");
+#else
 				msg_print("You breathe fire.");
-				fire_ball(GF_FIRE, dir, 200, 2);
-				o_ptr->timeout = rand_int(450) + 450;
+#endif
+				fire_ball(GF_FIRE, dir, 200, -2);
+				o_ptr->timeout = randint0(450) + 450;
 				break;
 			}
 
 			case SV_DRAGON_MULTIHUED:
 			{
-				chance = rand_int(5);
+				chance = randint0(5);
+#ifdef JP
+				msg_format("あなたは%sのブレスを吐いた。",
+					   ((chance == 1) ? "稲妻" :
+					    ((chance == 2) ? "冷気" :
+					     ((chance == 3) ? "酸" :
+					      ((chance == 4) ? "毒ガス" : "火炎")))));
+#else
 				msg_format("You breathe %s.",
-				           ((chance == 1) ? "lightning" :
-				            ((chance == 2) ? "frost" :
-				             ((chance == 3) ? "acid" :
-				              ((chance == 4) ? "poison gas" : "fire")))));
+					   ((chance == 1) ? "lightning" :
+					    ((chance == 2) ? "frost" :
+					     ((chance == 3) ? "acid" :
+					      ((chance == 4) ? "poison gas" : "fire")))));
+#endif
 				fire_ball(((chance == 1) ? GF_ELEC :
-				           ((chance == 2) ? GF_COLD :
-				            ((chance == 3) ? GF_ACID :
-				             ((chance == 4) ? GF_POIS : GF_FIRE)))),
-				          dir, 250, 2);
-				o_ptr->timeout = rand_int(225) + 225;
+					   ((chance == 2) ? GF_COLD :
+					    ((chance == 3) ? GF_ACID :
+					     ((chance == 4) ? GF_POIS : GF_FIRE)))),
+					  dir, 250, -2);
+				o_ptr->timeout = randint0(225) + 225;
 				break;
 			}
 
 			case SV_DRAGON_BRONZE:
 			{
+#ifdef JP
+				msg_print("あなたは混乱のブレスを吐いた。");
+#else
 				msg_print("You breathe confusion.");
-				fire_ball(GF_CONFUSION, dir, 120, 2);
-				o_ptr->timeout = rand_int(450) + 450;
+#endif
+				fire_ball(GF_CONFUSION, dir, 120, -2);
+				o_ptr->timeout = randint0(450) + 450;
 				break;
 			}
 
 			case SV_DRAGON_GOLD:
 			{
+#ifdef JP
+				msg_print("あなたは轟音のブレスを吐いた。");
+#else
 				msg_print("You breathe sound.");
-				fire_ball(GF_SOUND, dir, 130, 2);
-				o_ptr->timeout = rand_int(450) + 450;
+#endif
+				fire_ball(GF_SOUND, dir, 130, -2);
+				o_ptr->timeout = randint0(450) + 450;
 				break;
 			}
 
 			case SV_DRAGON_CHAOS:
 			{
-				chance = rand_int(2);
+				chance = randint0(2);
+#ifdef JP
+				msg_format("あなたは%sのブレスを吐いた。",
+					   ((chance == 1 ? "カオス" : "劣化")));
+#else
 				msg_format("You breathe %s.",
-				           ((chance == 1 ? "chaos" : "disenchantment")));
+					   ((chance == 1 ? "chaos" : "disenchantment")));
+#endif
 				fire_ball((chance == 1 ? GF_CHAOS : GF_DISENCHANT),
-				          dir, 220, 2);
-				o_ptr->timeout = rand_int(300) + 300;
+					  dir, 220, -2);
+				o_ptr->timeout = randint0(300) + 300;
 				break;
 			}
 
 			case SV_DRAGON_LAW:
 			{
-				chance = rand_int(2);
+				chance = randint0(2);
+#ifdef JP
+				msg_format("あなたは%sのブレスを吐いた。",
+					   ((chance == 1 ? "轟音" : "破片")));
+#else
 				msg_format("You breathe %s.",
-				           ((chance == 1 ? "sound" : "shards")));
+					   ((chance == 1 ? "sound" : "shards")));
+#endif
 				fire_ball((chance == 1 ? GF_SOUND : GF_SHARDS),
-				          dir, 230, 2);
-				o_ptr->timeout = rand_int(300) + 300;
+					  dir, 230, -2);
+				o_ptr->timeout = randint0(300) + 300;
 				break;
 			}
 
 			case SV_DRAGON_BALANCE:
 			{
-				chance = rand_int(4);
+				chance = randint0(4);
+#ifdef JP
+				msg_format("あなたは%sのブレスを吐いた",
+					   ((chance == 1) ? "カオス" :
+					    ((chance == 2) ? "劣化" :
+					     ((chance == 3) ? "轟音" : "破片"))));
+#else
 				msg_format("You breathe %s.",
-				           ((chance == 1) ? "chaos" :
-				            ((chance == 2) ? "disenchantment" :
-				             ((chance == 3) ? "sound" : "shards"))));
+					   ((chance == 1) ? "chaos" :
+					    ((chance == 2) ? "disenchantment" :
+					     ((chance == 3) ? "sound" : "shards"))));
+#endif
 				fire_ball(((chance == 1) ? GF_CHAOS :
-				           ((chance == 2) ? GF_DISENCHANT :
-				            ((chance == 3) ? GF_SOUND : GF_SHARDS))),
-				          dir, 250, 2);
-				o_ptr->timeout = rand_int(300) + 300;
+					   ((chance == 2) ? GF_DISENCHANT :
+					    ((chance == 3) ? GF_SOUND : GF_SHARDS))),
+					  dir, 250, -2);
+				o_ptr->timeout = randint0(300) + 300;
 				break;
 			}
 
 			case SV_DRAGON_SHINING:
 			{
-				chance = rand_int(2);
+				chance = randint0(2);
+#ifdef JP
+				msg_format("あなたは%sのブレスを吐いた。",
+					   ((chance == 0 ? "閃光" : "暗黒")));
+#else
 				msg_format("You breathe %s.",
-				           ((chance == 0 ? "light" : "darkness")));
-				fire_ball((chance == 0 ? GF_LITE : GF_DARK), dir, 200, 2);
-				o_ptr->timeout = rand_int(300) + 300;
+					   ((chance == 0 ? "light" : "darkness")));
+#endif
+				fire_ball((chance == 0 ? GF_LITE : GF_DARK), dir, 200, -2);
+				o_ptr->timeout = randint0(300) + 300;
 				break;
 			}
 
 			case SV_DRAGON_POWER:
 			{
+#ifdef JP
+				msg_print("あなたはエレメントのブレスを吐いた。");
+#else
 				msg_print("You breathe the elements.");
-				fire_ball(GF_MISSILE, dir, 300, 3);
-				o_ptr->timeout = rand_int(300) + 300;
+#endif
+				fire_ball(GF_MISSILE, dir, 300, -3);
+				o_ptr->timeout = randint0(300) + 300;
 				break;
 			}
 		}
@@ -3793,25 +3547,33 @@ static void do_cmd_activate_aux(int item)
 		{
 			case SV_RING_ACID:
 			{
-				fire_ball(GF_ACID, dir, 50, 2);
-				(void)set_oppose_acid(p_ptr->oppose_acid + randint(20) + 20);
-				o_ptr->timeout = rand_int(50) + 50;
+				fire_ball(GF_ACID, dir, 100, 2);
+				(void)set_oppose_acid(p_ptr->oppose_acid + randint1(20) + 20);
+				o_ptr->timeout = randint0(50) + 50;
 				break;
 			}
 
 			case SV_RING_ICE:
 			{
-				fire_ball(GF_COLD, dir, 50, 2);
-				(void)set_oppose_cold(p_ptr->oppose_cold + randint(20) + 20);
-				o_ptr->timeout = rand_int(50) + 50;
+				fire_ball(GF_COLD, dir, 100, 2);
+				(void)set_oppose_cold(p_ptr->oppose_cold + randint1(20) + 20);
+				o_ptr->timeout = randint0(50) + 50;
 				break;
 			}
 
 			case SV_RING_FLAMES:
 			{
-				fire_ball(GF_FIRE, dir, 50, 2);
-				(void)set_oppose_fire(p_ptr->oppose_fire + randint(20) + 20);
-				o_ptr->timeout = rand_int(50) + 50;
+				fire_ball(GF_FIRE, dir, 100, 2);
+				(void)set_oppose_fire(p_ptr->oppose_fire + randint1(20) + 20);
+				o_ptr->timeout = randint0(50) + 50;
+				break;
+			}
+
+			case SV_RING_ELEC:
+			{
+				fire_ball(GF_ELEC, dir, 100, 2);
+				(void)set_oppose_elec(p_ptr->oppose_elec + randint1(20) + 20);
+				o_ptr->timeout = randint0(50) + 50;
 				break;
 			}
 		}
@@ -3824,7 +3586,12 @@ static void do_cmd_activate_aux(int item)
 	}
 
 	/* Mistake */
+#ifdef JP
+	msg_print("おっと、このアイテムは始動できない。");
+#else
 	msg_print("Oops.  That object cannot be activated.");
+#endif
+
 }
 
 
@@ -3838,8 +3605,14 @@ void do_cmd_activate(void)
 	item_tester_hook = item_tester_hook_activate;
 
 	/* Get an item */
+#ifdef JP
+	q = "どのアイテムを始動させますか? ";
+	s = "始動できるアイテムを装備していない。";
+#else
 	q = "Activate which item? ";
 	s = "You have nothing to activate.";
+#endif
+
 	if (!get_item(&item, q, s, (USE_EQUIP))) return;
 
 	/* Activate the item */
@@ -3916,8 +3689,14 @@ void do_cmd_use(void)
 	item_tester_hook = item_tester_hook_use;
 
 	/* Get an item */
+#ifdef JP
+q = "どれを使いますか？";
+s = "使えるものがありません。";
+#else
 	q = "Use which item? ";
 	s = "You have nothing to use.";
+#endif
+
 	if (!get_item(&item, q, s, (USE_INVEN | USE_EQUIP | USE_FLOOR))) return;
 
 	/* Get the item (in the pack) */
@@ -3990,17 +3769,32 @@ void do_cmd_use(void)
 			/* Check some conditions */
 			if (p_ptr->blind)
 			{
+#ifdef JP
+msg_print("目が見えない。");
+#else
 				msg_print("You can't see anything.");
+#endif
+
 				return;
 			}
 			if (no_lite())
 			{
+#ifdef JP
+msg_print("明かりがないので、暗くて読めない。");
+#else
 				msg_print("You have no light to read by.");
+#endif
+
 				return;
 			}
 			if (p_ptr->confused)
 			{
+#ifdef JP
+msg_print("混乱していて読めない！");
+#else
 				msg_print("You are too confused!");
+#endif
+
 				return;
 			}
 
@@ -4013,7 +3807,74 @@ void do_cmd_use(void)
 		case TV_ARROW:
 		case TV_BOLT:
 		{
-			do_cmd_fire_aux(item, &inventory[INVEN_BOW]);
+			(void)do_cmd_fire_aux(item, &inventory[INVEN_BOW]);
+			break;
+		}
+
+		/* Activate an artifact */
+		default:
+		{
+			do_cmd_activate_aux(item);
+			break;
+		}
+	}
+}
+
+
+/*
+ * Use magic devide for device-users
+ */
+void do_cmd_use_device(void)
+{
+	int         item;
+	object_type *o_ptr;
+	cptr        q, s;
+
+	/* Prepare the hook */
+	item_tester_hook = item_tester_hook_recharge;
+
+	/* Get an item */
+#ifdef JP
+	q = "どれを使いますか？";
+	s = "使えるものがありません。";
+#else
+	q = "Use which item? ";
+	s = "You have nothing to use.";
+#endif
+
+	if (!get_item(&item, q, s, (USE_INVEN | USE_EQUIP | USE_FLOOR))) return;
+
+	/* Get the item (in the pack) */
+	if (item >= 0)
+	{
+		o_ptr = &inventory[item];
+	}
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr = &o_list[0 - item];
+	}
+
+	switch (o_ptr->tval)
+	{
+		/* Aim a wand */
+		case TV_WAND:
+		{
+			do_cmd_aim_wand_aux(item);
+			break;
+		}
+
+		/* Use a staff */
+		case TV_STAFF:
+		{
+			do_cmd_use_staff_aux(item);
+			break;
+		}
+
+		/* Zap a rod */
+		case TV_ROD:
+		{
+			do_cmd_zap_rod_aux(item);
 			break;
 		}
 

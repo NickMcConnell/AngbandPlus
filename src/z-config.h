@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/07/19 13:51:55 $ */
 /* File: z-config.h */
 
 /* Purpose: Angband specific configuration stuff */
@@ -17,6 +16,22 @@
 /* Allow various special stuff (sound, graphics, etc.) */
 #define USE_SPECIAL
 
+#ifndef HAVE_CONFIG_H
+#ifdef JP
+
+#define USE_FONTSET
+#define USE_XIM
+
+#if defined(USE_FONTSET) || defined(USE_XIM)
+#define USE_LOCALE
+#endif
+
+#ifndef USE_FONTSET
+#define _JP
+#endif
+
+#endif
+#endif /* HAVE_CONFIG_H */
 
 /*
  * Look through the following lines, and where a comment includes the
@@ -253,13 +268,17 @@
  * OPTION: Delay the loading of the "k_text" array until it is actually
  * needed, saving ~1K, since "object" descriptions are unused.
  */
+#ifndef JP
 #define DELAY_LOAD_K_TEXT
+#endif
 
 /*
  * OPTION: Delay the loading of the "a_text" array until it is actually
  * needed, saving ~1K, since "artifact" descriptions are unused.
  */
+#ifndef JP
 #define DELAY_LOAD_A_TEXT
+#endif
 
 /*
  * OPTION: Delay the loading of the "e_text" array until it is actually
@@ -389,17 +408,6 @@
 
 
 /*
- * OPTION: Hack -- Windows stuff
- */
-#ifdef WINDOWS
-
-/* Do not handle signals */
-# undef HANDLE_SIGNALS
-
-#endif
-
-
-/*
  * OPTION: Hack -- EMX stuff
  */
 #ifdef USE_EMX
@@ -433,6 +441,15 @@
 
 
 /*
+ * OPTION: Create and use a hidden directory in the users home directory
+ * for storing pref-files and character-dumps.
+ */
+#ifdef SET_UID
+#define PRIVATE_USER_PATH "~/.angband"
+#endif /* SET_UID */
+
+
+/*
  * On multiuser systems, add the "uid" to savefile names
  */
 #ifdef SET_UID
@@ -463,9 +480,11 @@
  * player's name, it will then save the savefile elsewhere.  Note that
  * this also gives a method of "bypassing" the "VERIFY_TIMESTAMP" code.
  */
+/*
 #if defined(MACINTOSH) || defined(WINDOWS) || defined(AMIGA)
 # define SAVEFILE_MUTABLE
 #endif
+*/
 
 
 /*
@@ -482,6 +501,66 @@
 #define MAINTAINER	"rr9@angband.org"
 
 
+#ifdef JP
+#ifndef USE_FONTSET
+/*
+ * OPTION: Default font (when using X11).
+ */
+#define DEFAULT_X11_FONT  "a24"
+#define DEFAULT_X11_KFONT "kanji24"
+#define DEFAULT_X11_FONT_SUB  "a16"
+#define DEFAULT_X11_KFONT_SUB "kanji16"
+
+
+/*
+ * OPTION: Default fonts (when using X11)
+ */
+#define DEFAULT_X11_FONT_0  DEFAULT_X11_FONT
+#define DEFAULT_X11_KFONT_0 DEFAULT_X11_KFONT
+#define DEFAULT_X11_FONT_1  DEFAULT_X11_FONT_SUB
+#define DEFAULT_X11_KFONT_1 DEFAULT_X11_KFONT_SUB
+#define DEFAULT_X11_FONT_2  DEFAULT_X11_FONT_SUB
+#define DEFAULT_X11_KFONT_2 DEFAULT_X11_KFONT_SUB
+#define DEFAULT_X11_FONT_3  DEFAULT_X11_FONT_SUB
+#define DEFAULT_X11_KFONT_3 DEFAULT_X11_KFONT_SUB
+#define DEFAULT_X11_FONT_4  DEFAULT_X11_FONT_SUB
+#define DEFAULT_X11_KFONT_4 DEFAULT_X11_KFONT_SUB
+#define DEFAULT_X11_FONT_5  DEFAULT_X11_FONT_SUB
+#define DEFAULT_X11_KFONT_5 DEFAULT_X11_KFONT_SUB
+#define DEFAULT_X11_FONT_6  DEFAULT_X11_FONT_SUB
+#define DEFAULT_X11_KFONT_6 DEFAULT_X11_KFONT_SUB
+#define DEFAULT_X11_FONT_7  DEFAULT_X11_FONT_SUB
+#define DEFAULT_X11_KFONT_7 DEFAULT_X11_KFONT_SUB
+
+#else
+/*
+ * OPTION: Default font (when using X11).
+ */
+#define DEFAULT_X11_FONT \
+	"-*-*-medium-r-normal--24-*-*-*-*-*-iso8859-1" \
+	",-*-*-medium-r-normal--24-*-*-*-*-*-jisx0208.1983-0"
+/*	"12x24" \
+	",kanji24"*/
+#define DEFAULT_X11_FONT_SUB \
+	"-*-*-medium-r-normal--16-*-*-*-*-*-iso8859-1" \
+	",-*-*-medium-r-normal--16-*-*-*-*-*-jisx0208.1983-0"
+/*	"8x16" \
+	",kanji16"*/
+
+/*
+ * OPTION: Default fonts (when using X11)
+ */
+#define DEFAULT_X11_FONT_0		DEFAULT_X11_FONT
+#define DEFAULT_X11_FONT_1		DEFAULT_X11_FONT_SUB
+#define DEFAULT_X11_FONT_2		DEFAULT_X11_FONT_SUB
+#define DEFAULT_X11_FONT_3		DEFAULT_X11_FONT_SUB
+#define DEFAULT_X11_FONT_4		DEFAULT_X11_FONT_SUB
+#define DEFAULT_X11_FONT_5		DEFAULT_X11_FONT_SUB
+#define DEFAULT_X11_FONT_6		DEFAULT_X11_FONT_SUB
+#define DEFAULT_X11_FONT_7		DEFAULT_X11_FONT_SUB
+#endif
+
+#else
 /*
  * OPTION: Default font (when using X11).
  */
@@ -498,6 +577,8 @@
 #define DEFAULT_X11_FONT_5		"5x8"
 #define DEFAULT_X11_FONT_6		"5x8"
 #define DEFAULT_X11_FONT_7		"5x8"
+#endif
+
 
 /*
  * OPTION: Gamma correct X11 colours.
@@ -570,9 +651,6 @@
 /* Do we want different characters for different races? */
 # define VARIABLE_PLAYER_GRAPH
 
-/* For longer martial arts descriptions */
-# define VERBOSE_MARTIAL_ARTS
-
 /* Allow hordes of 'similar' monsters */
 # define MONSTER_HORDES
 
@@ -613,26 +691,15 @@
  * Check the modification time of *_info.raw files
  * (by Keldon Jones)
  */
+#ifndef MAC_MPW
 #define CHECK_MODIFICATION_TIME
+#endif
 
 /*
  * Use the new sorting routines for creation
  * of the monster allocation table
  */
 #define SORT_R_INFO
-
-/*
- * Use a scripting language
- */
-/* #define USE_SCRIPT */
-
-#ifdef USE_SCRIPT
-/*
- * Python is statically linked into ZAngband
- */
-# define STATIC_PYTHON
-/* # define SCRIPT_OBJ_KIND */
-#endif /* USE_SCRIPT */
 
 /*
  * Monsters can drop corpses when killed

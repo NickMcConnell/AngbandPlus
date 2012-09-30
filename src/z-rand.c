@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 2000/01/04 17:42:38 $ */
 /* File: z-rand.c */
 
 /* Purpose: a simple random number generator -BEN- */
@@ -25,7 +24,7 @@
  * and is much less subject to low-bit-non-randomness problems.
  *
  * You can select your favorite flavor by proper definition of the
- * "rand_int()" macro in the "defines.h" file.
+ * "randint0()" macro in the "defines.h" file.
  *
  * Note that, in Angband 2.8.0, the "state" table will be saved in the
  * savefile, so a special "initialization" phase will be necessary.
@@ -304,7 +303,7 @@ s16b randnor(int mean, int stand)
 	if (stand < 1) return (mean);
 
 	/* Roll for probability */
-	tmp = (s16b)rand_int(32768);
+	tmp = (s16b)randint0(32768);
 
 	/* Binary Search */
 	while (low < high)
@@ -328,7 +327,7 @@ s16b randnor(int mean, int stand)
 	offset = (long)stand * (long)low / RANDNOR_STD;
 
 	/* One half should be negative */
-	if (rand_int(100) < 50) return (mean - offset);
+	if (randint0(100) < 50) return (mean - offset);
 
 	/* One half should be positive */
 	return (mean + offset);
@@ -342,7 +341,7 @@ s16b randnor(int mean, int stand)
 s16b damroll(int num, int sides)
 {
 	int i, sum = 0;
-	for (i = 0; i < num; i++) sum += randint(sides);
+	for (i = 0; i < num; i++) sum += randint1(sides);
 	return (sum);
 }
 
@@ -353,6 +352,33 @@ s16b damroll(int num, int sides)
 s16b maxroll(int num, int sides)
 {
 	return (num * sides);
+}
+
+
+/*
+ * Given a numerator and a denominator, supply a properly rounded result,
+ * using the RNG to smooth out remainders.  -LM-
+ */
+s32b div_round(s32b n, s32b d)
+{
+	s32b tmp;
+
+	/* Refuse to divide by zero */
+	if (!d) return (n);
+
+	/* Division */
+	tmp = n / d;
+
+	/* Rounding */
+	if ((ABS(n) % ABS(d)) > randint0(ABS(d)))
+	{
+		/* Increase the absolute value */
+		if (n * d > 0L) tmp += 1L;
+		else            tmp -= 1L;
+	}
+
+	/* Return */
+	return (tmp);
 }
 
 
@@ -417,5 +443,5 @@ bool quick_rand(void)
  */
 void quick_rand_add(void)
 {
-	qrand_table[quick_rand_place++] = (randint(2) == 1);
+	qrand_table[quick_rand_place++] = (randint1(2) == 1);
 }

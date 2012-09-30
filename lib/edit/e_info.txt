@@ -1,4 +1,9 @@
-# CVS: Last edit by $Author: jianson $ on $Date: 1999/11/29 12:35:24 $
+#JZ# Zangband 日本語訳: 板倉
+#JZ# 「#J0#」で始まるコメントは日本語板 Angband のしとしんさんによる
+#JZ# もので、「#JZ#」で始まるコメントは日本語版 Zangband で新たに
+#JZ# 加わった項目です。日本語アングバンド同様、私（板倉）以外の方の
+#JZ# コメントにはその方の名前を記載しています。
+#JZ#
 # File: e_info.txt
 
 
@@ -54,54 +59,57 @@ V:2.8.1
 
 ### Body Armor ###
 
-N:4:of Resist Acid
-X:30:16
-W:0:0:0:1000
+N:4:耐酸の
+E:of Resist Acid
+X:31:10
+W:0:8:0:1000
 F:RES_ACID | IGNORE_ACID
 
-N:5:of Resist Lightning
-X:30:10
-W:0:0:0:400
+N:5:耐電の
+E:of Resist Lightning
+X:31:10
+W:0:8:0:400
 F:RES_ELEC | IGNORE_ELEC
 
-N:6:of Resist Fire
-X:30:14
-W:0:0:0:800
+N:6:耐火の
+E:of Resist Fire
+X:31:10
+W:0:8:0:800
 F:RES_FIRE | IGNORE_FIRE
 
-N:7:of Resist Cold
-X:30:12
-W:0:0:0:600
+N:7:耐冷の
+E:of Resist Cold
+X:31:10
+W:0:8:0:600
 F:RES_COLD | IGNORE_COLD
 
-N:8:of Resistance
-X:30:20
-W:0:0:0:12500
+N:8:耐性の
+E:of Resistance
+X:31:20
+W:0:12:0:12500
 C:0:0:10:0
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | 
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | XTRA_H_RES
 
-# OnePower
-
-N:9:of Elvenkind
-X:30:25
-W:0:0:0:15000
+N:9:エルフの
+E:of Elvenkind
+X:31:25
+W:0:12:0:15000
 C:0:0:10:3
 F:STEALTH | 
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | 
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | XTRA_H_RES
 
 # 10 (unused)
 
-# OnePower
-
-N:11:of Permanence
-X:30:30
+N:11:永続の
+E:of Permanence
+X:31:30
 W:0:0:0:30000
 C:0:0:10:0
 F:SUST_STR | SUST_DEX | SUST_CON | SUST_INT | SUST_WIS | SUST_CHR | 
 F:HOLD_LIFE | RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | 
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | XTRA_H_RES
 
 # 12 (unused)
 
@@ -114,543 +122,713 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 ### Shields ###
 
-N:16:of Resist Acid
-X:32:16
-W:0:0:0:1000
+N:16:耐酸の
+E:of Resist Acid
+X:25:10
+W:0:12:0:1000
 F:RES_ACID | IGNORE_ACID
 
-N:17:of Resist Lightning
-X:32:10
-W:0:0:0:400
+N:17:耐電の
+E:of Resist Lightning
+X:25:10
+W:0:8:0:400
 F:RES_ELEC | IGNORE_ELEC
 
-N:18:of Resist Fire
-X:32:14
-W:0:0:0:800
+N:18:耐火の
+E:of Resist Fire
+X:25:10
+W:0:8:0:800
 F:RES_FIRE | IGNORE_FIRE
 
-N:19:of Resist Cold
-X:32:12
-W:0:0:0:600
+N:19:耐冷の
+E:of Resist Cold
+X:25:10
+W:0:8:0:600
 F:RES_COLD | IGNORE_COLD
 
-N:20:of Resistance
-X:32:20
-W:0:0:0:12500
+N:20:耐性の
+E:of Resistance
+X:25:20
+W:0:12:0:12500
 C:0:0:10:0
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | 
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | XTRA_RES
 
-N:21:of Reflection
-X:32:20
-W:0:0:0:15000
+#JZ#
+N:21:反射の
+E:of Reflection
+X:25:20
+W:0:12:0:10000
 C:0:0:5:0
 F:REFLECT
 F:IGNORE_ELEC | IGNORE_ACID | IGNORE_COLD | IGNORE_FIRE
 
-# 22 (unused)
+N:22:光と影の
+E:of Night and Day
+X:25:15
+W:0:12:0:8000
+C:0:0:5:0
+F:RES_LITE | RES_DARK
 
-# 23 (unused)
+N:23:力の
+E:of Might
+X:25:20
+W:0:24:0:15000
+C:5:5:10:3
+F:STR | CON | IGNORE_ACID | IGNORE_FIRE | XTRA_H_RES
 
 
 ### Crowns and Helms ###
 
-N:24:of Intelligence
+N:24:知能の
+E:of Intelligence
 X:33:13
-C:0:0:0:2
-W:0:0:0:500
+C:0:0:0:4
+W:0:12:0:500
 F:INT | SUST_INT
 
-N:25:of Wisdom
+N:25:賢明の
+E:of Wisdom
 X:33:13
-W:0:0:0:500
-C:0:0:0:2
+W:0:12:0:500
+C:0:0:0:4
 F:WIS | SUST_WIS
 
-N:26:of Beauty
+N:26:美貌の
+E:of Beauty
 X:33:8
-W:0:0:0:1000
+W:0:12:0:1000
 C:0:0:0:4
 F:CHR | SUST_CHR
 
 # OneAbility
 
-N:27:of the Magi
+#J0#
+#J0# 名前の訳は都々目さんによる
+#J0#
+N:27:賢者の
+E:of the Magi
 X:33:15
-W:0:0:0:7500
+W:0:24:0:15000
 C:0:0:0:3
 F:INT | SUST_INT | 
-F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | 
+F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | XTRA_H_RES | XTRA_POWER |
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:28:of Might
+N:28:力の
+E:of Might
 X:33:19
-W:0:0:0:2000
-C:0:0:0:3
-F:STR | DEX | CON | SUST_STR | SUST_DEX | SUST_CON | FREE_ACT
+W:0:24:0:10000
+C:5:5:0:3
+F:STR | DEX | CON | SUST_STR | SUST_DEX | SUST_CON |
+F:FREE_ACT | XTRA_H_RES | SHOW_MODS
 
-N:29:of Lordliness
+N:29:尊厳の
+E:of Lordliness
 X:33:17
-W:0:0:0:2000
-C:0:0:0:3
-F:WIS | CHR | SUST_WIS | SUST_CHR
+W:0:12:0:8000
+C:0:0:5:3
+F:WIS | CHR | SUST_WIS | SUST_CHR | LITE | XTRA_H_RES |
+F:IGNORE_ACID
 
-N:30:of Seeing
+N:30:鋭敏の
+E:of Seeing
 X:33:8
-W:0:0:0:1000
-C:0:0:0:5
+W:0:12:0:1000
+C:0:0:0:8
 F:SEARCH | RES_BLIND | SEE_INVIS
 
-N:31:of Infravision
+N:31:赤外線視力の
+E:of Infravision
 X:33:11
-W:0:0:0:500
-C:0:0:0:5
+W:0:6:0:500
+C:0:0:0:8
 F:INFRA | HIDE_TYPE
 
-N:32:of Light
+N:32:光の
+E:of Light
 X:33:6
-W:0:0:0:500
-F:LITE | RES_LITE
+W:0:12:0:500
+A:111
+F:LITE | RES_LITE | ACTIVATE
 
-N:33:of Telepathy
+N:33:テレパシーの
+E:of Telepathy
 X:33:20
-W:0:0:0:50000
+W:0:24:0:20000
 F:TELEPATHY
 
-N:34:of Regeneration
+N:34:急速回復の
+E:of Regeneration
 X:33:10
-W:0:0:0:1500
+W:0:24:0:1500
 F:REGEN
 
-N:35:of Teleportation
-X:33:0
-W:0:0:0:0
-F:TELEPORT
+N:35:守りの
+E:of Protection
+X:33:10
+C:0:0:10:0
+W:0:6:0:1000
+F:IGNORE_ACID
 
-N:36:of Stupidity
+N:36:テレポートの
+E:of Teleportation
+X:33:0
+W:0:24:0:500
+A:125
+F:TELEPORT | ACTIVATE
+
+N:37:太古の忌まわしい
+E:of Ancient Curse
+X:33:0
+C:0:0:0:3
+W:0:32:0:0
+F:STR | INT | WIS | DEX | CON | CHR | HIDE_TYPE |
+F:RES_COLD | RES_POIS | RES_NEXUS | RES_NETHER | SH_COLD |
+F:LITE | SEE_INVIS | XTRA_H_RES | XTRA_POWER |
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+N:38:道化師の
+E:of Fool
 X:33:0
 C:0:0:0:5
-W:0:0:0:0
-F:INT
+W:0:12:0:0
+F:INT | WIS | CHR | AGGRAVATE
 
-N:37:of Naivety
+N:39:疾病の
+E:of Sickliness
 X:33:0
-C:0:0:0:5
-W:0:0:0:0
-F:WIS
-
-N:38:of Ugliness
-X:33:0
-C:0:0:0:5
-W:0:0:0:0
-F:CHR
-
-N:39:of Sickliness
-X:33:0
-C:0:0:0:5
-W:0:0:0:0
-F:STR | DEX | CON
+C:5:5:0:5
+W:0:12:0:0
+F:STR | DEX | CON | DRAIN_EXP | SHOW_MODS
 
 
 ### Cloaks ###
 
-N:40:of Protection
-X:31:10
-W:0:0:0:500
+N:40:守りの
+E:of Protection
+X:32:10
+W:0:6:0:500
 C:0:0:10:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:41:of Stealth
-X:31:10
-W:0:0:0:500
+#J0#
+#J0# 岸さんの訳です
+#J0#
+N:41:忍びの
+E:of Stealth
+X:32:10
+W:0:6:0:500
 C:0:0:0:3
 F:STEALTH
 
 # OnePower
 
-N:42:of Aman
-X:31:20
-W:0:0:0:4000
+N:42:至福の地アマンの
+E:of Aman
+X:32:20
+W:0:24:0:12500
 C:0:0:20:3
 F:STEALTH | 
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | XTRA_H_RES
 
 # Aura, Fire
-N:43:of Immolation
-X:31:16
-W:0:0:0:4000
+#JZ#
+N:43:灼熱の
+E:of Immolation
+X:32:16
+W:0:24:0:4000
 C:0:0:4:0
 F:IGNORE_ACID | IGNORE_FIRE | SH_FIRE | RES_FIRE
 
-N:44:of Enveloping
-X:31:0
-W:0:0:0:0
-C:10:10:0:0
-F:SHOW_MODS
+N:44:正義の
+E:of Justice
+X:32:20
+W:0:240:0:100000
+C:0:0:10:3
+A:98
+F:STR | RES_FEAR | ACTIVATE
 
-N:45:of Vulnerability
-X:31:0
-W:0:0:0:0
-C:0:0:50:0
-F:AGGRAVATE
+N:45:乞食の
+E:of Bagger
+X:32:0
+W:0:12:0:0
+C:0:0:10:3
+F:STR | CON | CHR | IGNORE_ACID
 
-N:46:of Irritation
-X:31:0
-W:0:0:0:0
-C:15:15:0:0
+#J0#
+#J0# felicia.x さんの訳です
+#J0#
+N:46:いらつきの
+E:of Irritation
+X:32:0
+W:0:24:0:0
+C:15:15:50:0
 F:AGGRAVATE | SHOW_MODS
 
 # Aura, Electricity
-N:47:of Electricity
-X:31:16
-W:0:0:0:4000
+#JZ#
+N:47:電撃の
+E:of Electricity
+X:32:16
+W:0:24:0:4000
 C:0:0:4:0
 F:IGNORE_ACID | IGNORE_ELEC | SH_ELEC | RES_ELEC
 
 
-
 ### Gloves ###
 
-N:48:of Free Action
+N:48:麻痺知らずの
+E:of Free Action
 X:34:11
 F:FREE_ACT
-W:0:0:0:1000
+W:0:6:0:1000
 
-N:49:of Slaying
+N:49:殺戮の
+E:of Slaying
 X:34:17
-W:0:0:0:1500
-C:6:6:0:0
+W:0:8:0:2500
+C:10:10:0:0
 F:SHOW_MODS
 
-N:50:of Agility
+N:50:俊敏の
+E:of Agility
 X:34:14
-W:0:0:0:1000
+W:0:12:0:1000
 C:0:0:0:5
 F:DEX | HIDE_TYPE
 
-N:51:of Power
+N:51:腕力の
+E:of Power
 X:34:22
-W:0:0:0:2500
+W:0:24:0:8000
 C:5:5:0:5
-F:STR | SHOW_MODS | HIDE_TYPE
+F:STR | SHOW_MODS | HIDE_TYPE | XTRA_H_RES
 
-# 52 (unused)
+N:52:隠者の
+E:of Hermit
+X:34:20
+W:0:24:0:10000
+C:0:0:0:3
+F:INT | WIS | STEALTH | FREE_ACT
 
-# 53 (unused)
+N:53:魔弾の
+E:of Magical Shot
+X:34:20
+W:0:24:0:15000
+C:0:0:12:0
+F:SUST_STR | SUST_DEX | RES_SHARDS | IGNORE_ACID | ACTIVATE
 
-N:54:of Weakness
+N:54:魔力支配の
+E:of Magic Mastery
+X:34:20
+W:0:24:0:10000
+C:0:0:0:4
+F:MAGIC_MASTERY | HIDE_TYPE
+
+N:55:脆弱の
+E:of Weakness
 X:34:0
-W:0:0:0:0
-C:0:0:0:10
-F:STR
-
-N:55:of Clumsiness
-X:34:0
-W:0:0:0:0
-C:0:0:0:10
-F:DEX
+W:0:12:0:0
+C:5:5:0:10
+F:STR | DEX | SHOW_MODS
 
 
 ### Boots ###
 
-N:56:of Levitation
+#JZ#
+N:56:浮遊の
+E:of Levitation
 X:35:7
-W:0:0:0:250
+W:0:3:0:250
 F:FEATHER
 
-N:57:of Stealth
+#J0#
+#J0# 岸さんの訳です
+#J0#
+N:57:忍びの
+E:of Stealth
 X:35:16
-W:0:0:0:500
+W:0:4:0:500
 C:0:0:0:3
 F:STEALTH
 
-N:58:of Free Action
+N:58:麻痺知らずの
+E:of Free Action
 X:35:15
-W:0:0:0:1000
+W:0:6:0:1000
 F:FREE_ACT
 
-N:59:of Speed
+N:59:スピードの
+E:of Speed
 X:35:25
-W:0:0:0:200000
+W:0:24:0:100000
 C:0:0:0:10
 F:SPEED | HIDE_TYPE
 
-# 60 (unused)
+N:60:ドワーフの
+E:of Dwarf
+X:35:20
+W:0:8:0:8000
+C:0:0:10:4
+F:STR | CON | IGNORE_ACID
 
-N:61:of Noise
+N:61:騒音の
+E:of Noise
 X:35:0
-W:0:0:0:0
+W:0:24:0:0
 F:AGGRAVATE
 
-N:62:of Slowness
+N:62:のろまの
+E:of Slowness
 X:35:0
-W:0:0:0:0
+W:0:24:0:0
 C:0:0:0:5
 F:SPEED
 
-N:63:of Annoyance
+N:63:厄介者の
+E:of Annoyance
 X:35:0
-W:0:0:0:0
+W:0:24:0:0
 C:0:0:0:10
 F:SPEED | AGGRAVATE
 
 
 ### Weapons ###
 
-# OneSustain
-
-N:64:(Holy Avenger)
+N:64:(聖戦者)
+E:(Holy Avenger)
 X:24:30
-W:0:0:0:20000
+W:0:24:0:20000
 C:6:6:4:4
 F:WIS | 
-F:SLAY_EVIL | SLAY_UNDEAD | SLAY_DEMON | 
-F:SEE_INVIS | BLESSED | RES_FEAR
+F:SLAY_EVIL | SLAY_UNDEAD | SLAY_DEMON |
+F:SEE_INVIS | BLESSED | RES_FEAR | ONE_SUSTAIN
 
-# OneSustain
-
-N:65:(Defender)
+N:65:(防衛者)
+E:(Defender)
 X:24:25
-W:0:0:0:15000
+W:0:24:0:15000
 C:4:4:8:4
 F:STEALTH | 
 F:FREE_ACT | SEE_INVIS | FEATHER | REGEN | 
-F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | 
+F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | ONE_SUSTAIN | XTRA_H_RES |
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-# OneAbility
-
-N:66:(Blessed)
+N:66:(祝福)
+E:(Blessed)
 X:24:20
-W:0:0:0:5000
+W:0:24:0:5000
 C:0:0:0:3
 F:WIS | 
-F:BLESSED
+F:BLESSED | XTRA_POWER
 
 # 67 (unused)
 
-N:68:of Westernesse
+N:68:西方国の
+E:of Westernesse
 X:24:20
-W:0:0:0:20000
+W:0:24:0:15000
 C:5:5:0:2
 F:STR | DEX | CON | 
 F:SLAY_ORC | SLAY_TROLL | SLAY_GIANT | 
 F:FREE_ACT | SEE_INVIS
 
-N:69:of Extra Attacks
+N:69:追加攻撃の
+E:of Extra Attacks
 X:24:20
-W:0:0:0:10000
+W:0:12:0:10000
 C:0:0:0:3
 F:BLOWS
 
-N:70:of Slaying
+N:70:殺戮の
+E:of Slaying
 X:24:15
-W:0:0:0:2500
+W:0:12:0:2500
 C:0:0:0:0
 
 # 71 (unused)
 
 # The "Elemental" brands (4) (6)
 
-N:72:of Melting
+N:72:溶解の
+E:of Melting
 X:24:15
-W:0:0:0:8000
-F:BRAND_ACID | RES_ACID | IGNORE_ACID
+W:0:24:0:8000
+F:BRAND_ACID | RES_ACID | IGNORE_ACID | ACTIVATE
 
-N:73:of Shocking
+N:73:電撃の
+E:of Shocking
 X:24:20
-W:0:0:0:4500
-F:BRAND_ELEC | RES_ELEC | IGNORE_ELEC
+W:0:24:0:4500
+F:BRAND_ELEC | RES_ELEC | IGNORE_ELEC | ACTIVATE
 
-N:74:of Burning
+N:74:焼棄の
+E:of Burning
 X:24:20
-W:0:0:0:3000
-F:BRAND_FIRE | RES_FIRE | IGNORE_FIRE | LITE
+W:0:24:0:3000
+F:BRAND_FIRE | RES_FIRE | IGNORE_FIRE | LITE | ACTIVATE
 
-N:75:of Freezing
+N:75:凍結の
+E:of Freezing
 X:24:15
-W:0:0:0:2500
-F:BRAND_COLD | RES_COLD | IGNORE_COLD
+W:0:24:0:2500
+F:BRAND_COLD | RES_COLD | IGNORE_COLD | ACTIVATE
 
-N:76:of Poisoning
+#JZ#
+N:76:毒殺の
+E:of Venom
 X:24:20
-W:0:0:0:4500
-F:BRAND_POIS | RES_POIS
+W:0:24:0:4500
+F:BRAND_POIS | RES_POIS | ACTIVATE
 
-N:77:(Chaotic)
+#JZ#
+N:77:(混沌)
+E:(Chaotic)
 X:24:28
-W:0:0:0:10000
-F:CHAOTIC | RES_CHAOS | IGNORE_ELEC | IGNORE_ACID | IGNORE_FIRE
+W:0:24:0:10000
+F:CHAOTIC | RES_CHAOS | IGNORE_ELEC | IGNORE_ACID | IGNORE_FIRE | XTRA_RES
 
-N:78:of Sharpness
+#JZ#
+N:78:切れ味の
+E:of Sharpness
 X:24:20
-W:0:0:0:5000
+W:0:12:0:5000
 F:VORPAL | TUNNEL
 
-N:79:of Earthquakes
+#JZ#
+N:79:地震の
+E:of Earthquakes
 X:24:20
-W:0:0:0:4000
+W:0:12:0:4000
 C:0:0:0:3
 F:TUNNEL | IMPACT
 
 # The "Slay" brands (8)
 
-N:80:of Slay Animal
+N:80:アニマルスレイヤーの
+E:of Slay Animal
 X:24:18
-W:0:0:0:3500
-F:SLAY_ANIMAL
-
-N:81:of Slay Evil
-X:24:18
-W:0:0:0:3500
-F:SLAY_EVIL
-
-N:82:of Slay Undead
-X:24:18
-W:0:0:0:3500
-F:SLAY_UNDEAD
-
-N:83:of Slay Demon
-X:24:14
-W:0:0:0:2500
-F:SLAY_DEMON
-
-N:84:of Slay Orc
-X:24:10
-W:0:0:0:2500
-F:SLAY_ORC
-
-N:85:of Slay Troll
-X:24:10
-W:0:0:0:2500
-F:SLAY_TROLL
-
-N:86:of Slay Giant
-X:24:14
-W:0:0:0:2500
-F:SLAY_GIANT
-
-N:87:of Slay Dragon
-X:24:18
-W:0:0:0:3500
-F:SLAY_DRAGON
-
-# The "Kill" brands (8)
-
-N:88:of *Slay* Animal
-X:24:20
-W:0:0:0:6000
+W:0:15:0:5000
 C:0:0:0:2
 F:INT | SLAY_ANIMAL | REGEN
 
-N:89:of *Slay* Evil
-X:24:20
-W:0:0:0:5000
+N:81:滅邪の
+E:of Slay Evil
+X:24:18
+W:0:15:0:5000
 C:0:0:0:2
-F:WIS | SLAY_EVIL | BLESSED
+F:WIS | SLAY_EVIL | BLESSED | RES_FEAR
 
-N:90:of *Slay* Undead
-X:24:24
-W:0:0:0:8000
+N:82:アンデッドスレイヤーの
+E:of Slay Undead
+X:24:18
+W:0:15:0:6500
 C:0:0:0:2
-F:WIS | SLAY_UNDEAD | SEE_INVIS
+F:WIS | SLAY_UNDEAD | SEE_INVIS | HOLD_LIFE | RES_NETHER
 
-N:91:of *Slay* Demon
-X:24:16
-W:0:0:0:4000
-C:0:0:0:2
-F:INT | SLAY_DEMON
-
-N:92:of *Slay* Orc
+N:83:デーモンスレイヤーの
+E:of Slay Demon
 X:24:14
-W:0:0:0:4000
+W:0:10:0:4000
 C:0:0:0:2
-F:DEX | SLAY_ORC
+F:INT | SLAY_DEMON | RES_FIRE
 
-N:93:of *Slay* Troll
+N:84:オークスレイヤーの
+E:of Slay Orc
+X:24:10
+W:0:10:0:4000
+C:0:0:0:2
+F:DEX | INFRA | SLAY_ORC | RES_DARK | HIDE_TYPE
+
+N:85:トロルスレイヤーの
+E:of Slay Troll
+X:24:10
+W:0:10:0:4000
+C:5:0:0:5
+F:STR | SLAY_TROLL | REGEN
+
+N:86:ジャイアントスレイヤーの
+E:of Slay Giant
 X:24:14
-W:0:0:0:4000
+W:0:10:0:4000
 C:0:0:0:2
-F:STR | SLAY_TROLL
+F:STR | SLAY_GIANT | FREE_ACT
 
-N:94:of *Slay* Giant
-X:24:16
-W:0:0:0:4000
-C:0:0:0:2
-F:STR | SLAY_GIANT
-
-N:95:of *Slay* Dragon
-X:24:24
-W:0:0:0:6000
+N:87:ドラゴンスレイヤーの
+E:of Slay Dragon
+X:24:18
+W:0:15:0:5000
 C:0:0:0:1
-F:CON | SLAY_DRAGON | KILL_DRAGON
+F:CON | SLAY_DRAGON | XTRA_E_RES | XTRA_D_RES
 
-N:96:(Vampiric)
+# The "Kill" brands (8) -> New egos (8)
+
+N:88:勇者の
+E:of Brave
+X:24:20
+W:0:40:0:15000
+C:8:8:0:2
+F:INT | WIS | CHR | RES_FEAR | HOLD_LIFE | SEE_INVIS |
+F:SLAY_EVIL | KILL_DRAGON | SLAY_UNDEAD | XTRA_POWER
+
+N:89:神罰の
+E:of Holy Wrath
+X:24:20
+W:0:40:0:8000
+C:5:5:0:4
+A:23
+F:STR | WIS | SLAY_DEMON | SLAY_UNDEAD | LITE | BLESSED |
+F:ACTIVATE
+
+N:90:エルフの
+E:of Elvenkind
+X:24:24
+W:0:40:0:8000
+C:3:3:0:2
+F:INT | DEX | CHR | STEALTH | SLAY_ORC | SLAY_TROLL | SLAY_GIANT |
+F:LITE | SLOW_DIGEST
+
+N:91:虹色の
+E:of Prism
+X:24:16
+W:0:40:0:8000
+F:BRAND_FIRE | BRAND_COLD | BRAND_ELEC | LITE |
+F:IGNORE_FIRE | IGNORE_COLD | IGNORE_ELEC
+
+N:92:光の
+E:of Light
+X:24:14
+W:0:40:0:6000
+C:3:3:0:4
+F:SEARCH | INFRA | HIDE_TYPE |
+F:BRAND_ELEC | RES_ELEC | RES_LITE | RES_BLIND | SH_ELEC |
+F:LITE | ACTIVATE
+
+N:93:護りの
+E:of Protection
+X:24:14
+W:0:40:0:6000
+C:0:0:15:0
+A:94
+F:SEE_INVIS | FREE_ACT | REGEN | SLOW_DIGEST | HOLD_LIFE | WARNING |
+F:ONE_SUSTAIN | ACTIVATE
+
+N:94:妖精の
+E:of Fairy
+X:24:16
+W:0:60:0:8000
+C:0:10:0:2
+F:DEX | CHR | STEALTH | MAGIC_MASTERY |
+F:SLOW_DIGEST | LITE | FEATHER
+
+N:95:疾風の
+E:of Quickness
+X:24:24
+W:0:60:0:100000
+C:0:0:0:4
+A:95
+F:SPEED | ACTIVATE
+
+#JZ#
+N:96:(吸血)
+E:(Vampiric)
 X:24:25
-W:0:0:0:10000
+W:0:12:0:10000
 F:VAMPIRIC | HOLD_LIFE
 
-# 97 (unused)
-
-N:98:(Trump Weapon)
+N:97:(悪魔)
+E:(Demonic)
 X:24:22
-W:0:0:0:7000
-C:4:4:0:2
-F:SLAY_EVIL | TELEPORT | FREE_ACT | SEARCH |
-F:REGEN | SLOW_DIGEST | RES_NEXUS | ACTIVATE
+W:0:24:0:15000
+C:6:6:4:4
+F:INT | BRAND_FIRE | BRAND_POIS |
+F:RES_FIRE | RES_NETHER | SEE_INVIS | XTRA_H_RES
 
-N:99:(Pattern Weapon)
+N:98:(秩序)
+E:(Lawful)
+X:24:22
+W:0:12:0:12000
+C:4:4:0:2
+A:84
+F:SLAY_EVIL | FREE_ACT | SEARCH |
+F:REGEN | SLOW_DIGEST | RES_NEXUS | ACTIVATE | XTRA_H_RES
+
+N:99:(破邪)
+E:(Crusader)
 X:24:26
-W:0:0:0:25000
+W:0:24:0:25000
 C:6:6:0:2
 F:STR | CON |
 F:SLAY_EVIL | SLAY_DEMON | SLAY_UNDEAD |
-F:FREE_ACT | SEE_INVIS |
+F:FREE_ACT | SEE_INVIS | XTRA_H_RES
 
-N:100:of Digging
-X:24:4
-W:0:0:0:500
+#J0#
+#J0# 岸さんの訳です
+#J0#
+N:100:穴掘りの
+E:of Digging
+X:36:4
+W:0:10:0:500
 C:0:0:0:5
 F:TUNNEL | BRAND_ACID | 
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 # 101 (unused)
 
-N:102:of Morgul
+N:102:モルグルの
+E:of Morgul
 X:24:0
-W:0:0:0:0
+W:0:8:0:0
 C:20:20:10:0
-F:SEE_INVIS | AGGRAVATE | HEAVY_CURSE | CURSED
+F:SLAY_UNDEAD | BRAND_POIS |
+F:SEE_INVIS | AGGRAVATE | CURSED | HEAVY_CURSE
 
-# 103 (unused)
+N:103:(妖刀)
+E:(Weird Weapon)
+X:24:0
+W:0:16:0:0
+C:10:10:0:3
+F:INT | WIS | VORPAL | VAMPIRIC | SLAY_DRAGON |
+F:SLAY_ANIMAL | SLAY_ORC | SLAY_TROLL | SLAY_GIANT |
+F:DRAIN_EXP | AGGRAVATE | CURSED | HEAVY_CURSE
 
 
 ### Missile Launchers ###
 
-N:104:of Accuracy
-X:25:10
-W:0:0:0:1000
-C:15:5:0:0
+N:104:高精度の
+E:of Accuracy
+X:26:10
+W:0:4:0:1000
+C:10:5:0:0
 
-N:105:of Velocity
-X:25:10
-W:0:0:0:1000
-C:5:15:0:0
+N:105:高速度の
+E:of Velocity
+X:26:10
+W:0:4:0:1000
+C:5:10:0:0
 
-# 106 (unused)
+N:106:狩人の
+E:of Hunter
+X:26:25
+W:0:12:0:15000
+C:5:5:0:4
+F:XTRA_SHOTS | STEALTH | XTRA_H_RES
 
 # 107 (unused)
 
-N:108:of Extra Might
-X:25:20
-W:0:0:0:10000
-C:5:10:0:0
-F:XTRA_MIGHT
+N:108:強力射の
+E:of Extra Might
+X:26:20
+W:0:8:0:10000
+C:3:5:0:0
+F:XTRA_MIGHT | XTRA_RES
 
-N:109:of Extra Shots
-X:25:20
-C:10:5:0:0
-W:0:0:0:10000
+N:109:強速射の
+E:of Extra Shots
+X:26:20
+C:5:3:0:0
+W:0:8:0:10000
 F:XTRA_SHOTS
 
 # 110 (unused)
@@ -660,17 +838,25 @@ F:XTRA_SHOTS
 
 ### Ammo ###
 
-N:112:of Hurt Animal
+N:112:アニマルキラーの
+E:of Hurt Animal
 X:23:10
-W:0:0:0:25
+W:0:12:0:25
 F:SLAY_ANIMAL
 
-N:113:of Hurt Evil
+N:113:破邪の
+E:of Hurt Evil
 X:23:10
-W:0:0:0:25
+W:0:12:0:25
 F:SLAY_EVIL
 
-# 114 (unused)
+N:114:聖なる
+E:of Holy Might
+X:23:20
+W:0:36:0:60
+C:5:5:0:0
+F:SLAY_EVIL | SLAY_DEMON | SLAY_UNDEAD | BRAND_FIRE | BLESSED
+F:IGNORE_FIRE | IGNORE_ACID
 
 # 115 (unused)
 
@@ -680,55 +866,87 @@ F:SLAY_EVIL
 
 # 118 (unused)
 
-N:119:of Hurt Dragon
+N:119:ドラゴンキラーの
+E:of Hurt Dragon
 X:23:10
 F:SLAY_DRAGON
-W:0:0:0:35
+W:0:24:0:35
 
-N:120:of Slaying
+N:120:殺戮の
+E:of Slaying
 X:23:15
-W:0:0:0:20
+W:0:24:0:20
 C:12:12:0:0
 
-N:121:of Shocking
+N:121:電撃の
+E:of Shocking
 X:23:10
 F:BRAND_ELEC | IGNORE_ELEC
-W:0:0:0:30
+W:0:24:0:30
 
-N:122:of Flame
+N:122:火炎の
+E:of Flame
 X:23:10
 F:BRAND_FIRE | IGNORE_FIRE
-W:0:0:0:30
+W:0:24:0:30
 
-N:123:of Frost
+N:123:冷気の
+E:of Frost
 X:23:10
 F:BRAND_COLD | IGNORE_COLD
-W:0:0:0:25
+W:0:24:0:25
 
-N:124:of Wounding
+N:124:殺傷の
+E:of Wounding
 X:23:5
-W:0:0:0:20
+W:0:8:0:20
 C:6:6:0:0
 
-N:125:of Backbiting
+N:125:陰口の
+E:of Backbiting
 X:23:0
-W:0:0:0:0
+W:0:24:0:0
 C:50:50:0:0
 
 
 ### Special Broken Items ###
 
 # Destroyed Weapon
-N:126:(Shattered)
+N:126:(不良品)
+E:(Shattered)
 X:24:0
 W:0:0:0:0
 C:5:5:0:0
 
 # Destroyed Body Armor
 
-N:127:(Blasted)
-X:30:0
+N:127:(粗悪品)
+E:(Blasted)
+X:31:0
 W:0:0:0:0
 C:0:0:10:0
 
+### New Ego ###
 
+# Aura, Cold
+N:128:極寒の
+E:of Cold
+X:32:16
+W:0:24:0:4000
+C:0:0:4:0
+F:IGNORE_ACID | IGNORE_COLD | SH_COLD | RES_COLD
+
+N:129:生命の息吹の
+E:of Life Stream
+X:32:16
+W:0:24:0:15000
+C:0:0:10:2
+A:84
+F:CON | REGEN | HOLD_LIFE | SUST_CON | ACTIVATE
+
+N:130:粉砕の
+E:of Disruption
+X:36:15
+W:0:24:0:2500
+C:0:0:0:2
+F:TUNNEL |

@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: sfuerst $ on $Date: 1999/12/31 00:31:35 $ */
 /* File: obj_kind.c */
 
 /* Purpose: Code for the object templates */
@@ -77,7 +76,12 @@ object_kind *k_info_add(object_kind *k_info_entry)
 		k_info = realloc(k_info, k_info_size * sizeof(object_kind));
 
 		/* Failure */
+#ifdef JP
+if (!k_info) quit("メモリー不足!");
+#else
 		if (!k_info) quit("Out of memory!");
+#endif
+
 
 		/* Wipe the new memory */
 		(void) C_WIPE(&k_info[(k_info_size - K_INFO_RESIZE)], K_INFO_RESIZE, object_kind);
@@ -151,7 +155,12 @@ errr init_object_alloc(void)
 	}
 
 	/* Paranoia */
+#ifdef JP
+if (!num[0]) quit("町のアイテムがない！");
+#else
 	if (!num[0]) quit("No town objects!");
+#endif
+
 
 
 	/*** Initialize object allocation info ***/
@@ -207,97 +216,33 @@ errr init_object_alloc(void)
 
 byte get_object_level(object_type *o_ptr)
 {
-#if 0
-	return (byte)get_object_level_callback(o_ptr);
-#else
 	return k_info[o_ptr->k_idx].level;
-#endif
 }
 
 
 s32b get_object_cost(object_type *o_ptr)
 {
-#if 0
-	return get_object_cost_callback(o_ptr);
-#else
 	return k_info[o_ptr->k_idx].cost;
-#endif
 }
 
 
 cptr get_object_name(object_type *o_ptr)
 {
-#if 0
-	return get_object_name_callback(o_ptr);
-#else
 	return (k_name + k_info[o_ptr->k_idx].name);
-#endif
-}
-
-
-/* Default object attribute */
-byte get_object_d_attr(object_type *o_ptr)
-{
-#if 0
-	return get_object_d_attr_callback(o_ptr);
-#else
-	return k_info[o_ptr->k_idx].d_attr;
-#endif
-}
-
-
-/* Default object character */
-byte get_object_x_attr(object_type *o_ptr)
-{
-#if 0
-	return get_object_x_attr_callback(o_ptr);
-#else
-	return k_info[o_ptr->k_idx].x_attr;
-#endif
-}
-
-
-/* Desired object attribute */
-char get_object_d_char(object_type *o_ptr)
-{
-#if 0
-	return get_object_d_char_callback(o_ptr);
-#else
-	return k_info[o_ptr->k_idx].d_char;
-#endif
-}
-
-
-/* Desired object character */
-char get_object_x_char(object_type *o_ptr)
-{
-#if 0
-	return get_object_x_char_callback(o_ptr);
-#else
-	return k_info[o_ptr->k_idx].x_char;
-#endif
 }
 
 
 /* The player is "aware" of the item's effects */
 bool get_object_aware(object_type *o_ptr)
 {
-#if 0
-	return get_object_aware_callback(o_ptr);
-#else
 	return k_info[o_ptr->k_idx].aware;
-#endif
 }
 
 
 /* The player has "tried" one of the items */
 bool get_object_tried(object_type *o_ptr)
 {
-#if 0
-	return get_object_tried_callback(o_ptr);
-#else
 	return k_info[o_ptr->k_idx].tried;
-#endif
 }
 
 

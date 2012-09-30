@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/07/19 13:51:21 $ */
 /* File: variable.c */
 
 /* Purpose: Angband variables */
@@ -26,6 +25,29 @@ cptr copyright[5] =
 	"are included in all such copies."
 };
 
+/*
+ * Macro trigger
+ */
+int max_macrotrigger = 0;
+cptr macro_template = NULL;
+cptr macro_modifier_chr;
+cptr macro_modifier_name[MAX_MACRO_MOD];
+cptr macro_trigger_name[MAX_MACRO_TRIG];
+cptr macro_trigger_keycode[2][MAX_MACRO_TRIG];
+
+
+#ifdef JP
+/* XTRA HACK LVUP */
+/* レベルアップの時に上昇量を表示するのに使う */
+int level_up = 0;
+#endif
+
+/* 
+ *  List for auto-picker/destroyer entries
+ */
+int max_autopick = 0;
+int max_max_autopick = 0;
+autopick_type *autopick_list = NULL;
 
 /*
  * Executable version
@@ -44,9 +66,9 @@ byte sf_patch;			/* Savefile's "version_patch" */
 byte sf_extra;			/* Savefile's "version_extra" */
 u32b sf_version;		/* Savefile's "version" */
 
-byte z_major;           /* Savefile version for Zangband */
-byte z_minor;
-byte z_patch;
+byte k_major;           /* Savefile version for Kantangband / XAngband */
+byte k_minor;
+byte k_patch;
 
 /*
  * Savefile information
@@ -66,6 +88,7 @@ byte arg_graphics;			/* Command arg -- Request graphics mode */
 bool arg_monochrome;		/* Command arg -- Request monochrome mode */
 bool arg_force_original;	/* Command arg -- Request original keyset */
 bool arg_force_roguelike;	/* Command arg -- Request roguelike keyset */
+bool arg_bigtile = FALSE;	/* Command arg -- Request big tile mode */
 
 /*
  * Various things
@@ -120,12 +143,13 @@ s16b monster_level;		/* Current monster creation level */
 s16b base_level;        /* Base dungeon level */
 
 s32b turn;				/* Current game turn */
-s32b old_turn;			/* Turn when level began (feelings) */
+s32b old_turn;			/* Turn when level began */
 
 bool wizard;			/* Is the player currently in Wizard mode? */
 
 bool use_sound;			/* The "sound" mode is enabled */
 bool use_graphics;		/* The "graphics" mode is enabled */
+bool use_bigtile = FALSE;
 
 u16b total_winner;		/* Semi-Hack -- Game has been won */
 
@@ -174,6 +198,8 @@ s32b friend_align = 0;
 
 int leaving_quest = 0;
 
+bool superb_shot = FALSE;
+int snipe_type = SP_NONE;
 
 /*
  * Software options (set via the '=' command).  See "tables.c"
@@ -201,6 +227,11 @@ bool show_details;			/* Show details in certain sub-windows */
 
 bool ring_bell;				/* Ring the bell (on errors, etc) */
 bool use_color;				/* Use color if possible (slow) */
+bool auto_more;				/* Skip all -more- */
+bool stop_more;				/* Dont skip -more- when you are damaged */
+bool command_menu;			/* Use command menu */
+bool over_exert;			/* use spell over exert */
+bool display_path;			/* display path of spell and arrow */
 
 bool show_inven_graph;		/* Show graphics in inventory */
 bool show_equip_graph;		/* Show graphics in equip list */
@@ -212,6 +243,7 @@ bool show_store_graph;		/* Show graphics in store */
 
 bool find_ignore_stairs;	/* Run past stairs */
 bool find_ignore_doors;		/* Run through open doors */
+bool find_ignore_trees;		/* Run through trees */
 bool find_cut;				/* Run past known corners */
 bool find_examine;			/* Run into potential corners */
 
@@ -226,6 +258,7 @@ bool alert_hitpoint;		/* Alert user to critical hitpoints */
 bool alert_failure;		/* Alert user to various failures */
 bool last_words;		/* Get last words upon dying */
 bool speak_unique;		/* Speaking uniques + shopkeepers */
+bool ignore_unview;		/* Ignore messages whenever any monster does */
 bool small_levels;		/* Allow unusually small dungeon levels */
 bool always_small_levels;		/* Use always unusually small dungeon levels */
 bool empty_levels;		/* Allow empty 'arena' levels */
@@ -238,7 +271,8 @@ bool auto_destroy;		/* Known worthless items are destroyed without confirmation 
 bool confirm_stairs;		/* Prompt before staircases... */
 bool wear_confirm;		/* Confirm before putting on known cursed items */
 bool disturb_pets;		/* Pets moving nearby disturb us */
-
+bool disturb_trap_detect;       /* Disturb when leaving trap detected area */
+bool alert_trap_detect;         /* Alert when leaving trap detected area */
 
 
 /* Option Set 3 -- Game-Play */
@@ -270,9 +304,19 @@ bool smart_cheat;			/* Monsters exploit player weaknesses */
 
 bool take_notes;                        /* Allow notes to be added to a file */
 bool auto_notes;                        /* Automatically take notes */
+bool record_artifact;
+bool record_randart;
+bool record_unique;
+bool record_quest;
+bool dump_abilities;
+bool dump_messages;
 
 bool point_based;                       /* Point-based generation */
+bool delay_autoroll;                    /* Delay in autoroll */
+bool ironman_hengband;                  /* Forbid abuse */
+bool view_unsafe_grids;		/* Map marked by detect traps */
 
+bool allow_debug_opts;   /* Allow use of debug/cheat options */
 
 /* Option Set 4 -- Efficiency */
 
@@ -300,12 +344,8 @@ bool view_bright_lite;		/* Use special colors for 'viewable' grids */
 bool view_granite_lite;		/* Use special colors for wall grids (slow) */
 bool view_special_lite;		/* Use special colors for floor grids (slow) */
 
-/* Option set 5 -- Testing */
-
-bool testing_stack;			/* Test the stacking code */
-
-bool testing_carry;			/* Test the carrying code */
-
+bool new_ascii_graphics;	/* Show a clear contrast between light and dark */
+bool always_show_list;
 
 /* Cheating options */
 
@@ -319,9 +359,12 @@ bool cheat_live;		/* Allow player to avoid death */
 
 /* Special options */
 
-byte hitpoint_warn;		/* Hitpoint warning (0 to 9) */
+byte hitpoint_warn = 3;		/* Hitpoint warning (0 to 9) default 30 %*/
+byte spellpoint_warn = 3;	/* Spellpoint warning (0 to 9) default 30 %*/
 
-byte delay_factor;		/* Delay factor (0 to 9) */
+bool prompt_hitpoint = TRUE;		/* Force prompt when hitpoint warning */
+
+byte delay_factor = 2;		/* Delay factor (0 to 9) default 2 */
 
 byte autosave_l;        /* Autosave before entering new levels */
 byte autosave_t;        /* Timed autosave */
@@ -332,11 +375,6 @@ s16b autosave_freq;     /* Autosave frequency */
  * Dungeon variables
  */
 
-byte feeling;			/* Most recent feeling */
-s16b rating;			/* Level's current rating */
-
-bool good_item_flag;		/* True if "Artifact" on this level */
-
 bool closing_flag;		/* Dungeon is closing */
 
 
@@ -344,8 +382,6 @@ bool closing_flag;		/* Dungeon is closing */
  * Dungeon size info
  */
 
-s16b max_panel_rows, max_panel_cols;
-s16b panel_row, panel_col;
 s16b panel_row_min, panel_row_max;
 s16b panel_col_min, panel_col_max;
 s16b panel_col_prt, panel_row_prt;
@@ -393,9 +429,10 @@ char history[4][60];
 
 /*
  * Buffer to hold the current savefile name
+ * 'savefile' holds full path name. 'savefile_base' holds only base name.
  */
 char savefile[1024];
-
+char savefile_base[40];
 
 /*
  * Array of grids lit by player lite (see "cave.c")
@@ -403,6 +440,13 @@ char savefile[1024];
 s16b lite_n;
 s16b lite_y[LITE_MAX];
 s16b lite_x[LITE_MAX];
+
+/*
+ * Array of grids lit by monster lite (see "cave.c")
+ */
+s16b mon_lite_n;
+s16b mon_lite_y[MON_LITE_MAX];
+s16b mon_lite_x[MON_LITE_MAX];
 
 /*
  * Array of grids viewable to the player (see "cave.c")
@@ -454,7 +498,7 @@ s16b quark__num;
  * The pointers to the quarks [QUARK_MAX]
  */
 cptr *quark__str;
-
+int current_quark_max;
 
 /*
  * The next "free" index to use
@@ -512,7 +556,7 @@ term *angband_term[8];
  */
 char angband_term_name[8][16] =
 {
-	"Zangband",
+	VERSION_NAME,
 	"Term-1",
 	"Term-2",
 	"Term-3",
@@ -744,17 +788,27 @@ s16b player_hp[PY_MAX_LEVEL];
 
 
 /*
+ * The last character rolled,
+ * holded for quick start
+ */
+birther previous_char;
+
+
+/*
  * The vault generation arrays
  */
-header *v_head;
 vault_type *v_info;
 char *v_name;
 char *v_text;
 
 /*
+ * The magic info
+ */
+player_magic *m_info;
+
+/*
  * The terrain feature arrays
  */
-header *f_head;
 feature_type *f_info;
 char *f_name;
 char *f_text;
@@ -762,7 +816,6 @@ char *f_text;
 /*
  * The object kind arrays
  */
-header *k_head;
 object_kind *k_info;
 char *k_name;
 char *k_text;
@@ -770,7 +823,6 @@ char *k_text;
 /*
  * The artifact arrays
  */
-header *a_head;
 artifact_type *a_info;
 char *a_name;
 char *a_text;
@@ -778,7 +830,6 @@ char *a_text;
 /*
  * The ego-item arrays
  */
-header *e_head;
 ego_item_type *e_info;
 char *e_name;
 char *e_text;
@@ -787,7 +838,6 @@ char *e_text;
 /*
  * The monster race arrays
  */
-header *r_head;
 monster_race *r_info;
 char *r_name;
 char *r_text;
@@ -798,6 +848,16 @@ char *r_text;
  * This variable is used to choose an appropriate "pref-xxx" file
  */
 cptr ANGBAND_SYS = "xxx";
+
+/*
+ * Hack -- The special Angband "Keyboard Suffix"
+ * This variable is used to choose an appropriate macro-trigger definition
+ */
+#ifdef JP
+cptr ANGBAND_KEYBOARD = "JAPAN";
+#else
+cptr ANGBAND_KEYBOARD = "0";
+#endif
 
 /*
  * Hack -- The special Angband "Graphics Suffix"
@@ -858,6 +918,12 @@ cptr ANGBAND_DIR_HELP;
  * These files are portable between platforms
  */
 cptr ANGBAND_DIR_INFO;
+
+/*
+ * Default user "preference" files (ascii)
+ * These files are rarely portable between platforms
+ */
+cptr ANGBAND_DIR_PREF;
 
 /*
  * Savefiles for current characters (binary)
@@ -943,12 +1009,20 @@ bool easy_floor;
 #endif /* ALLOW_EASY_FLOOR -- TNB */
 
 bool use_command;
+bool numpad_as_cursorkey;	/* Use numpad keys as cursor key in editor mode */
 bool center_player;
 bool avoid_center;
-bool pillar_tunnels;
+bool abbrev_extra;	/* Describe obj's extra resistances by abbreviation */
+bool abbrev_all;	/* Describe obj's all resistances by abbreviation */
+bool exp_need;
 
 /* Auto-destruction options */
-bool destroy_worthless;
+bool destroy_items;
+bool destroy_feeling;
+bool destroy_identify;
+bool leave_worth;
+bool leave_equip;
+bool leave_chest;
 
 /*
  * Wilderness
@@ -972,10 +1046,12 @@ u16b max_quests;
  */
 u16b max_r_idx;
 
+
 /*
  * Maximum number of items in k_info.txt
  */
 u16b max_k_idx;
+
 
 /*
  * Maximum number of vaults in v_info.txt
@@ -1059,7 +1135,6 @@ bool ironman_shops;           /* Stores are permanently closed */
 bool ironman_small_levels;    /* Always create unusually small dungeon levels */
 bool ironman_downward;        /* Don't allow climbing upwards/recalling */
 bool ironman_autoscum;        /* Permanently enable the autoscummer */
-bool ironman_hard_quests;     /* Quest monsters get reinforcements */
 bool lite_town;               /* Use "lite" town without wilderness */
 bool ironman_empty_levels;    /* Always create empty 'arena' levels */
 bool terrain_streams;         /* Create terrain 'streamers' in the dungeon */
@@ -1074,4 +1149,24 @@ bool fast_autoroller;
 
 bool use_transparency = FALSE; /* Use transparent tiles */
 
-bool can_save = TRUE;         /* Game can be saved */
+bool can_save = FALSE;         /* Game can be saved */
+u32b playtime;			/* Total playtime */
+u32b start_time;		/* Start time of Game */
+
+bool not_gain_energy = FALSE;   /* Gain energy flag */
+
+bool reset_concent = FALSE;   /* Concentration reset flag */
+
+/* for chuukei */
+bool chuukei_server;
+bool chuukei_client;
+char *server_name;
+int server_port;
+
+/* for movie */
+bool browsing_movie;
+
+#ifdef TRAVEL
+/* for travel */
+travel_type travel;
+#endif

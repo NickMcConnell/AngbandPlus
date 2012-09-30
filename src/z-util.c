@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 2000/05/18 17:29:33 $ */
 /* File: z-util.c */
 
 /* Purpose: Low level utilities -BEN- */

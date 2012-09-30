@@ -544,7 +544,7 @@ Allow monsters to carry objects    [testing_carry]
     monsters which "crush" objects are not affected by this option.
 
 
-***** <BaseDealy>
+***** <BaseDelay>
 === Base Delay Factor ===
 
 The "delay_factor" value, if non-zero, is used to "slow down" the game,

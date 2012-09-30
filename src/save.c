@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 2000/08/06 09:19:47 $ */
 /* File: save.c */
 
 /* Purpose: interact with savefiles */
@@ -544,7 +543,7 @@ static void wr_item(object_type *o_ptr)
 
 	wr_byte(o_ptr->tval);
 	wr_byte(o_ptr->sval);
-	wr_s16b(o_ptr->pval);
+	wr_s32b(o_ptr->pval);
 
 	wr_byte(o_ptr->discount);
 	wr_byte(o_ptr->number);
@@ -552,7 +551,7 @@ static void wr_item(object_type *o_ptr)
 
 	wr_byte(o_ptr->name1);
 	wr_byte(o_ptr->name2);
-	wr_s16b(o_ptr->timeout);
+	wr_s32b(o_ptr->timeout);
 
 	wr_s16b(o_ptr->to_h);
 	wr_s16b(o_ptr->to_d);
@@ -590,6 +589,7 @@ static void wr_item(object_type *o_ptr)
 	/* Extra information */
 	wr_byte(o_ptr->xtra1);
 	wr_byte(o_ptr->xtra2);
+	wr_s16b(o_ptr->xtra3);
 
 	/* Feelings */
 	wr_byte(o_ptr->feeling);
@@ -614,27 +614,18 @@ static void wr_item(object_type *o_ptr)
 		wr_string("");
 	}
 
-#ifdef USE_SCRIPT
+	/* If it is a "new" named ego, save the name */
+	if (o_ptr->ego_name)
 	{
-		cptr python_object = object_save_callback(o_ptr);
-		if (python_object && *python_object)
-		{
-			wr_s32b(strlen(python_object));
-			wr_string(python_object);
-			string_free(python_object);
-		}
-		else
-		{
-			/* No Python object */
-			wr_s32b(0);
-		}
+		wr_string(quark_str(o_ptr->ego_name));
 	}
-#else /* USE_SCRIPT */
+	else
+	{
+		wr_string("");
+	}
 
 	/* No Python object */
 	wr_s32b(0);
-
-#endif /* USE_SCRIPT */
 }
 
 
@@ -650,12 +641,17 @@ static void wr_monster(monster_type *m_ptr)
 	wr_s16b(m_ptr->maxhp);
 	wr_s16b(m_ptr->csleep);
 	wr_byte(m_ptr->mspeed);
-	wr_byte(m_ptr->energy);
+	wr_s16b(m_ptr->energy_need);
+	wr_byte(m_ptr->hasted);
+	wr_byte(m_ptr->slowed);
 	wr_byte(m_ptr->stunned);
 	wr_byte(m_ptr->confused);
 	wr_byte(m_ptr->monfear);
 	wr_byte(m_ptr->invulner);
 	wr_u32b(m_ptr->smart);
+	wr_s16b(m_ptr->target_y);
+	wr_s16b(m_ptr->target_x);
+	wr_u32b(m_ptr->flags);
 	wr_byte(0);
 }
 
@@ -812,6 +808,9 @@ static void wr_options(void)
 	/* Write "hitpoint_warn" */
 	wr_byte(hitpoint_warn);
 
+	/* Write "spellpoint_warn" */
+	wr_byte(spellpoint_warn);
+
 
 	/*** Cheating options ***/
 
@@ -888,12 +887,48 @@ static void wr_ghost(void)
 	int i;
 
 	/* Name */
+#ifdef JP
+wr_string("不正なゴースト");
+#else
 	wr_string("Broken Ghost");
+#endif
+
 
 	/* Hack -- stupid data */
 	for (i = 0; i < 60; i++) wr_byte(0);
 }
 
+
+/*
+ * Save quick start data
+ */
+static void save_quick_start(void)
+{
+	int i;
+
+	wr_byte(previous_char.psex);
+	wr_byte(previous_char.prace);
+	wr_byte(previous_char.pclass);
+	wr_byte(previous_char.realm1);
+	wr_byte(previous_char.realm2);
+
+	wr_s16b(previous_char.age);
+	wr_s16b(previous_char.ht);
+	wr_s16b(previous_char.wt);
+	wr_s16b(previous_char.sc);
+	wr_s32b(previous_char.au);
+
+	for (i = 0; i < 6; i++) wr_s16b(previous_char.stat_max[i]);
+
+	for (i = 0; i < PY_MAX_LEVEL; i++) wr_s16b(previous_char.player_hp[i]);
+
+	wr_s16b(previous_char.chaos_patron);
+
+	for (i = 0; i < 4; i++) wr_string(previous_char.history[i]);
+
+	wr_byte(previous_char.quests);
+	wr_byte((byte)previous_char.quick_ok);
+}
 
 /*
  * Write some "extra" info
@@ -905,6 +940,8 @@ static void wr_extra(void)
 	wr_string(player_name);
 
 	wr_string(died_from);
+
+	save_quick_start();
 
 	for (i = 0; i < 4; i++)
 	{
@@ -947,7 +984,7 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->inside_arena);
 	wr_s16b(p_ptr->inside_quest);
 	wr_byte(p_ptr->exit_bldg);
-	wr_byte(p_ptr->leftbldg); /* save building leave status -KMW- */
+	wr_byte(0); /* Unused */
 
 	wr_s16b(p_ptr->oldpx);
 	wr_s16b(p_ptr->oldpy);
@@ -984,7 +1021,7 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->food);
 	wr_s16b(0);     /* old "food_digested" */
 	wr_s16b(0);     /* old "protection" */
-	wr_s16b(p_ptr->energy);
+	wr_s16b(p_ptr->energy_need);
 	wr_s16b(p_ptr->fast);
 	wr_s16b(p_ptr->slow);
 	wr_s16b(p_ptr->afraid);
@@ -997,51 +1034,54 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->hero);
 	wr_s16b(p_ptr->shero);
 	wr_s16b(p_ptr->shield);
+	wr_s16b(p_ptr->magicdef);
+	wr_s16b(p_ptr->musou);
 	wr_s16b(p_ptr->blessed);
 	wr_s16b(p_ptr->tim_invis);
 	wr_s16b(p_ptr->word_recall);
 	wr_s16b(p_ptr->see_infra);
 	wr_s16b(p_ptr->tim_infra);
+	wr_s16b(p_ptr->tim_regen);
+	wr_s16b(p_ptr->tim_sh_fire);
+	wr_s16b(p_ptr->tim_sh_elec);
+	wr_s16b(p_ptr->tim_sh_cold);
 	wr_s16b(p_ptr->oppose_fire);
 	wr_s16b(p_ptr->oppose_cold);
 	wr_s16b(p_ptr->oppose_acid);
 	wr_s16b(p_ptr->oppose_elec);
 	wr_s16b(p_ptr->oppose_pois);
 	wr_s16b(p_ptr->tim_esp);
-	wr_s16b(p_ptr->wraith_form);
+	wr_s16b(p_ptr->tim_wraith);
 	wr_s16b(p_ptr->resist_magic);
+	wr_s16b(p_ptr->tim_radar);
+	wr_s16b(p_ptr->tim_sentence);	/* Magic */
 	wr_s16b(p_ptr->tim_xtra1);
 	wr_s16b(p_ptr->tim_xtra2);
 	wr_s16b(p_ptr->tim_xtra3);
 	wr_s16b(p_ptr->tim_xtra4);
 	wr_s16b(p_ptr->tim_xtra5);
 	wr_s16b(p_ptr->tim_xtra6);
-	wr_s16b(p_ptr->tim_xtra7);
-	wr_s16b(p_ptr->tim_xtra8);
 
 	wr_s16b(p_ptr->chaos_patron);
-	wr_u32b(p_ptr->muta1);
-	wr_u32b(p_ptr->muta2);
-	wr_u32b(p_ptr->muta3);
-
-	for (i = 0; i < MAX_PLAYER_VIRTUES; i++)
-	{
-		wr_s16b(p_ptr->virtues[i]);
-	}
-
-	for (i = 0; i < MAX_PLAYER_VIRTUES; i++)
-	{
-		wr_s16b(p_ptr->vir_types[i]);
-	}
+	wr_u32b(p_ptr->muta);
+	wr_u32b(p_ptr->concent);
+	wr_u32b(p_ptr->r_idx);
 
 	wr_byte(p_ptr->confusing);
 	wr_byte(0);     /* oops */
-	wr_byte(0);     /* oops */
+	wr_byte(p_ptr->autopick_autoregister);
 	wr_byte(0);     /* oops */
 	wr_byte(p_ptr->searching);
 	wr_byte(maximize_mode);
 	wr_byte(preserve_mode);
 	wr_byte(0);
+
+	/* Magic */
+	wr_s16b(p_ptr->keep_magic);
+	wr_u32b(p_ptr->keep_spells);
+	wr_s16b(p_ptr->rvs_x);
+	wr_s16b(p_ptr->rvs_y);
+	wr_s32b(p_ptr->rvs_d);
 
 	/* Future use */
 	for (i = 0; i < 12; i++) wr_u32b(0L);
@@ -1067,13 +1107,19 @@ static void wr_extra(void)
 	wr_byte(death);
 
 	/* Write feeling */
-	wr_byte(feeling);
+	wr_byte(p_ptr->feeling);
+
+	/* Turn when level began */
+	wr_s32b(old_turn);
 
 	/* Turn of last "feeling" */
-	wr_s32b(old_turn);
+	wr_s32b(p_ptr->feeling_turn);
 
 	/* Current turn */
 	wr_s32b(turn);
+
+	/* Current total playtime */
+	wr_u32b(playtime);
 }
 
 
@@ -1086,7 +1132,7 @@ static void wr_dungeon(void)
 	int i, y, x;
 
 	byte tmp8u;
-	u16b tmp16s;
+	u16b tmp16u;
 
 	byte count;
 	byte prev_char;
@@ -1105,15 +1151,15 @@ static void wr_dungeon(void)
 	wr_u16b(px);
 	wr_u16b(cur_hgt);
 	wr_u16b(cur_wid);
-	wr_u16b(max_panel_rows);
-	wr_u16b(max_panel_cols);
+	wr_u16b(0); /* max_panel_rows */
+	wr_u16b(0); /* max_panel_cols */
 
 
 	/*** Simple "Run-Length-Encoding" of cave ***/
 
 	/* Note that this will induce two wasted bytes */
 	count = 0;
-	prev_char = 0;
+	prev_s16b = 0;
 
 	/* Dump the cave */
 	for (y = 0; y < cur_hgt; y++)
@@ -1124,14 +1170,14 @@ static void wr_dungeon(void)
 			c_ptr = &cave[y][x];
 
 			/* Extract a byte */
-			tmp8u = c_ptr->info;
+			tmp16u = c_ptr->info;
 
 			/* If the run is broken, or too full, flush it */
-			if ((tmp8u != prev_char) || (count == MAX_UCHAR))
+			if ((tmp16u != prev_s16b) || (count == MAX_UCHAR))
 			{
 				wr_byte((byte)count);
-				wr_byte((byte)prev_char);
-				prev_char = tmp8u;
+				wr_u16b((u16b)prev_s16b);
+				prev_s16b = tmp16u;
 				count = 1;
 			}
 
@@ -1147,7 +1193,7 @@ static void wr_dungeon(void)
 	if (count)
 	{
 		wr_byte((byte)count);
-		wr_byte((byte)prev_char);
+		wr_u16b((byte)prev_s16b);
 	}
 
 
@@ -1250,14 +1296,14 @@ static void wr_dungeon(void)
 			c_ptr = &cave[y][x];
 
 			/* Extract a byte */
-			tmp16s = c_ptr->special;
+			tmp16u = c_ptr->special;
 
 			/* If the run is broken, or too full, flush it */
-			if ((tmp16s != prev_s16b) || (count == MAX_UCHAR))
+			if ((tmp16u != prev_s16b) || (count == MAX_UCHAR))
 			{
 				wr_byte((byte)count);
 				wr_u16b(prev_s16b);
-				prev_s16b = tmp16s;
+				prev_s16b = tmp16u;
 				count = 1;
 			}
 
@@ -1353,7 +1399,7 @@ static bool wr_savefile_new(void)
 	wr_byte(FAKE_VER_PATCH);
 	xor_byte = 0;
 
-	tmp8u = (byte)rand_int(256);
+	tmp8u = (byte)randint0(256);
 	wr_byte(tmp8u);
 
 
@@ -1380,8 +1426,22 @@ static bool wr_savefile_new(void)
 
 	/* Space */
 	wr_u32b(0L);
-	wr_u32b(0L);
+	wr_u16b(0);
+	wr_byte(0);
 
+#ifdef JP
+# ifdef EUC
+	/* EUC kanji code */
+	wr_byte(2);
+# endif
+# ifdef SJIS
+	/* SJIS kanji code */
+	wr_byte(3);
+# endif
+#else
+	/* ASCII */
+	wr_byte(1);
+#endif
 
 	/* Write the RNG state */
 	wr_randomizer();
@@ -1408,7 +1468,6 @@ static bool wr_savefile_new(void)
 	wr_u16b(tmp16u);
 	for (i = 0; i < tmp16u; i++) wr_lore(i);
 
-
 	/* Dump the object memory */
 	tmp16u = max_k_idx;
 	wr_u16b(tmp16u);
@@ -1422,6 +1481,10 @@ static bool wr_savefile_new(void)
 	tmp16u = max_quests;
 	wr_u16b(tmp16u);
 
+	/* Dump the quests */
+	tmp8u = MAX_RANDOM_QUEST - MIN_RANDOM_QUEST;
+	wr_byte(tmp8u);
+
 	for (i = 0; i < max_quests; i++)
 	{
 		/* Save status for every quest */
@@ -1431,8 +1494,10 @@ static bool wr_savefile_new(void)
 		/* (prevents problems with multi-level quests) */
 		wr_s16b(quest[i].level);
 
+		wr_byte(quest[i].complev);
+
 		/* Save quest status if quest is running */
-		if (quest[i].status == QUEST_STATUS_TAKEN)
+		if (quest[i].status == QUEST_STATUS_TAKEN || quest[i].status == QUEST_STATUS_COMPLETED || ((i >= MIN_RANDOM_QUEST) && (i <= MAX_RANDOM_QUEST)))
 		{
 			wr_s16b(quest[i].cur_num);
 			wr_s16b(quest[i].max_num);
@@ -1549,28 +1614,8 @@ static bool wr_savefile_new(void)
 		/* Dump the ghost */
 		wr_ghost();
 
-#ifdef USE_SCRIPT
-		{
-			cptr callbacks = callbacks_save_callback();
-			if (callbacks && *callbacks)
-			{
-				wr_s32b(strlen(callbacks));
-				wr_string(callbacks);
-				string_free(callbacks);
-			}
-			else
-			{
-				/* No scripts */
-				wr_s32b(0);
-			}
-		}
-#else /* USE_SCRIPT */
-
 		/* No scripts */
 		wr_s32b(0);
-
-#endif /* USE_SCRIPT */
-
 	}
 
 
@@ -1598,7 +1643,7 @@ static bool save_player_aux(char *name)
 {
 	bool    ok = FALSE;
 
-	int             fd = -1;
+	int             fd;
 
 	int             mode = 0644;
 
@@ -1684,6 +1729,9 @@ bool save_player(void)
 
 	/* Remove it */
 	fd_kill(safe);
+
+	/* Update playtime */
+	update_playtime();
 
 	/* Attempt to save the player */
 	if (save_player_aux(safe))
@@ -1774,17 +1822,15 @@ bool save_player(void)
  */
 bool load_player(void)
 {
-	int             fd = -1;
-
-	errr    err = 0;
-
-	byte    vvv[4];
+	int fd = -1;
+	errr err = 0;
+	byte vvv[4];
 
 #ifdef VERIFY_TIMESTAMP
 	struct stat     statbuf;
 #endif
 
-	cptr    what = "generic";
+	cptr what = "generic";
 
 
 	/* Paranoia */
@@ -1806,7 +1852,11 @@ bool load_player(void)
 	if (access(savefile, 0) < 0)
 	{
 		/* Give a message */
+#ifdef JP
+		msg_print("セーブファイルがありません。");
+#else
 		msg_print("Savefile does not exist.");
+#endif
 		msg_print(NULL);
 
 		/* Allow this */
@@ -1839,7 +1889,11 @@ bool load_player(void)
 			my_fclose(fkk);
 
 			/* Message */
+#ifdef JP
+			msg_print("セーブファイルは現在使用中です。");
+#else
 			msg_print("Savefile is currently in use.");
+#endif
 			msg_print(NULL);
 
 			/* Oops */
@@ -1858,7 +1912,6 @@ bool load_player(void)
 
 #endif
 
-
 	/* Okay */
 	if (!err)
 	{
@@ -1869,7 +1922,11 @@ bool load_player(void)
 		if (fd < 0) err = -1;
 
 		/* Message (below) */
+#ifdef JP
+		if (err) what = "セーブファイルを開けません。";
+#else
 		if (err) what = "Cannot open savefile";
+#endif
 	}
 
 	/* Process file */
@@ -1885,7 +1942,11 @@ bool load_player(void)
 		if (fd_read(fd, (char*)(vvv), 4)) err = -1;
 
 		/* What */
+#ifdef JP
+		if (err) what = "セーブファイルを読めません。";
+#else
 		if (err) what = "Cannot read savefile";
+#endif
 
 		/* Close the file */
 		(void)fd_close(fd);
@@ -1896,57 +1957,22 @@ bool load_player(void)
 	{
 
 		/* Extract version */
-		z_major = vvv[0];
-		z_minor = vvv[1];
-		z_patch = vvv[2];
+		k_major = vvv[0];
+		k_minor = vvv[1];
+		k_patch = vvv[2];
 		sf_extra = vvv[3];
-		sf_major = 2;
-		sf_minor = 8;
-		sf_patch = 1;
-
-
-		/* Pre-2.1.0: Assume 2.0.6 (same as 2.0.0 - 2.0.5) */
-		if ((z_major == sf_major) &&
-		    (z_minor == sf_minor) &&
-		    (z_patch == sf_patch))
-		{
-			z_major = 2;
-			z_minor = 0;
-			z_patch = 6;
-		}
-
-		/* Very old savefiles */
-		if ((sf_major == 5) && (sf_minor == 2))
-		{
-			sf_major = 2;
-			sf_minor = 5;
-		}
-
-		/* Extremely old savefiles */
-		if (sf_major > 2)
-		{
-			sf_major = 1;
-		}
 
 		/* Clear screen */
 		Term_clear();
 
-		/* Parse "new" savefiles */
-		if ((sf_major == 2) && (sf_minor >= 7))
-		{
-			/* Attempt to load */
-			err = rd_savefile_new();
-		}
-
-		/* Parse "future" savefiles */
-		else
-		{
-			/* Error XXX XXX XXX */
-			err = -1;
-		}
+		err = rd_savefile_new();
 
 		/* Message (below) */
+#ifdef JP
+		if (err) what = "セーブファイルを解析出来ません。";
+#else
 		if (err) what = "Cannot parse savefile";
+#endif
 	}
 
 	/* Paranoia */
@@ -1956,7 +1982,11 @@ bool load_player(void)
 		if (!turn) err = -1;
 
 		/* Message (below) */
+#ifdef JP
+		if (err) what = "セーブファイルが壊れています";
+#else
 		if (err) what = "Broken savefile";
+#endif
 	}
 
 #ifdef VERIFY_TIMESTAMP
@@ -1968,7 +1998,11 @@ bool load_player(void)
 		    sf_when < (statbuf.st_ctime - 100))
 		{
 			/* Message */
+#ifdef JP
+			what = "無効なタイム・スタンプです";
+#else
 			what = "Invalid timestamp";
+#endif
 
 			/* Oops */
 			err = -1;
@@ -1981,20 +2015,17 @@ bool load_player(void)
 	if (!err)
 	{
 		/* Give a conversion warning */
-		if ((FAKE_VER_MAJOR != z_major) ||
-		    (FAKE_VER_MINOR != z_minor) ||
-		    (FAKE_VER_PATCH != z_patch))
+		if ((FAKE_VER_MAJOR != k_major) ||
+		    (FAKE_VER_MINOR != k_minor) ||
+		    (FAKE_VER_PATCH != k_patch))
 		{
-			if (z_major == 2 && z_minor == 0 && z_patch == 6)
-			{
-				msg_print("Converted a 2.0.* savefile.");
-			}
-			else
-			{
 				/* Message */
-				msg_format("Converted a %d.%d.%d savefile.",
-				    z_major, z_minor, z_patch);
-			}
+#ifdef JP
+			msg_format("バージョン %d.%d.%d 用のセーブ・ファイルを変換しました。",
+#else
+			msg_format("Converted a %d.%d.%d savefile.",
+#endif
+			    k_major, k_minor, k_patch);
 			msg_print(NULL);
 		}
 
@@ -2016,9 +2047,6 @@ bool load_player(void)
 
 			/* Count lives */
 			sf_lives++;
-
-			/* Forget turns */
-			turn = old_turn = 0;
 
 			/* Done */
 			return (TRUE);
@@ -2058,8 +2086,12 @@ bool load_player(void)
 
 
 	/* Message */
+#ifdef JP
+	msg_format("エラー(%s)がバージョン%d.%d.%d 用セーブファイル読み込中に発生。",
+#else
 	msg_format("Error (%s) reading %d.%d.%d savefile.",
-		   what, z_major, z_minor, z_patch);
+#endif
+		   what, k_major, k_minor, k_patch);
 	msg_print(NULL);
 
 	/* Oops */

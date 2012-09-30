@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: remco $ on $Date: 1999/09/30 10:09:00 $ */
 /* File: h-system.h */
 
 #ifndef INCLUDED_H_SYSTEM_H
@@ -51,9 +50,15 @@
 #include <time.h>
 
 
-#ifdef MACINTOSH
-# include <unix.h>
-#endif /* MACINTOSH */
+#if defined(MACINTOSH)
+# if defined(MAC_MPW)
+#  ifdef __STDC__
+#   undef __STDC__
+#  endif
+# else
+#  include <unix.h>
+# endif
+#endif
 
 
 #if defined(WINDOWS) || defined(MSDOS) || defined(USE_EMX)
@@ -102,30 +107,7 @@
 #include <unistd.h>
 #endif /* __DJGPP__ */
 
-
-#ifdef SET_UID
-
-#ifdef USG
-# include <string.h>
-#else
-# include <strings.h>
-# ifndef strstr
-extern char *strstr();
-# endif
-# ifndef strchr
-extern char *strchr();
-# endif
-# ifndef strrchr
-extern char *strrchr();
-# endif
-#endif
-
-#else /* SET_UID */
-
-# include <string.h>
-
-#endif /* SET_UID */
-
+#include <string.h>
 
 #if !defined(linux) && !defined(__MWERKS__) && !defined(ACORN) && !defined(WIN32)
 extern long atol();

@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/01/09 00:14:40 $ */
 /* File: main.c */
 
 /*
@@ -19,13 +18,6 @@
 
 
 #if !defined(MACINTOSH) && !defined(WINDOWS) && !defined(ACORN)
-
-#ifdef USE_SCRIPT
-
-#include "Python.h"
-
-#endif /* USE_SCRIPT */
-
 
 /*
  * A hook for "quit()".
@@ -66,6 +58,41 @@ __near long __stack = 32768L;
 extern unsigned _stklen = 32768U;
 extern unsigned _ovrbuffer = 0x1500;
 #endif
+
+#ifdef PRIVATE_USER_PATH
+
+/*
+ * Create an ".angband/" directory in the users home directory.
+ *
+ * ToDo: Add error handling.
+ * ToDo: Only create the directories when actually writing files.
+ */
+static void create_user_dir(void)
+{
+	char dirpath[1024];
+	char subdirpath[1024];
+
+	/* Drop privs */
+	safe_setuid_drop();
+
+	/* Get an absolute path from the filename */
+	path_parse(dirpath, 1024, PRIVATE_USER_PATH);
+
+	/* Create the ~/.angband/ directory */
+	mkdir(dirpath, 0700);
+
+	/* Build the path to the variant-specific sub-directory */
+	path_build(subdirpath, sizeof(subdirpath), dirpath, VERSION_NAME);
+
+	/* Create the directory */
+	mkdir(subdirpath, 0700);
+
+	/* Grab privs */
+	safe_setuid_grab();
+}
+
+#endif /* PRIVATE_USER_PATH */
+
 
 /*
  * Initialize and verify the file paths, and the score file.
@@ -129,7 +156,7 @@ static void change_path(cptr info)
 	cptr s;
 
 	/* Find equal sign */
-	s = strchr(info, '=');
+	s = my_strchr(info, '=');
 
 	/* Verify equal sign */
 	if (!s) quit_fmt("Try '-d<what>=<path>' not '-d%s'", info);
@@ -350,6 +377,13 @@ int main(int argc, char *argv[])
 	user_name(op_ptr->full_name, player_uid);
 #endif /* ANGBAND_2_8_1 */
 
+#ifdef PRIVATE_USER_PATH
+
+	/* Create a directory for the users files. */
+	create_user_dir();
+
+#endif /* PRIVATE_USER_PATH */
+
 #endif /* SET_UID */
 
 
@@ -452,6 +486,29 @@ int main(int argc, char *argv[])
 				break;
 			}
 
+			case 'p':
+			{
+				if (!argv[i][2]) goto usage;
+				chuukei_server = TRUE;
+				connect_chuukei_server(&argv[i][2]);
+				break;
+			}
+
+			case 'c':
+			{
+				if (!argv[i][2]) goto usage;
+				chuukei_client = TRUE;
+				connect_chuukei_server(&argv[i][2]);
+				break;
+			}
+
+			case 'x':
+			{
+				if (!argv[i][2]) goto usage;
+				prepare_browse_movie(&argv[i][2]);
+				break;
+			}			
+
 			case '-':
 			{
 				argv[i] = argv[0];
@@ -505,7 +562,7 @@ int main(int argc, char *argv[])
 	/* Drop privs (so X11 will work correctly), unless we are running */
 	/* the Linux-SVGALib version. */
 #ifndef USE_LSL
- 	safe_setuid_drop();
+	safe_setuid_drop();
 #endif
 
 
@@ -661,7 +718,7 @@ int main(int argc, char *argv[])
 
 	/* Grab privs (dropped above for X11) */
 #ifndef USE_LSL
- 	safe_setuid_grab();
+	safe_setuid_grab();
 #endif
 
 

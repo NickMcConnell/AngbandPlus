@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: ebock $ on $Date: 1999/10/11 14:03:47 $ */
 /* File: angband.h */
 
 /* Main "Angband" header file */
@@ -45,10 +44,6 @@
 #include "defines.h"
 #include "types.h"
 #include "externs.h"
-
-#ifdef USE_SCRIPT
-#include "event.h"
-#endif /* USE_SCRIPT */
 
 /***** Some copyright messages follow below *****/
 

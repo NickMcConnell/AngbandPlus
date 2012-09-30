@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/07/19 13:51:41 $ */
 /* File: wizard1.c */
 
 /* Purpose: Spoiler generation -BEN- */
@@ -23,26 +22,49 @@ static cptr attr_to_text(byte a)
 {
 	switch (a)
 	{
-		case TERM_DARK:    return ("xxx");
-		case TERM_WHITE:   return ("White");
-		case TERM_SLATE:   return ("Slate");
-		case TERM_ORANGE:  return ("Orange");
-		case TERM_RED:     return ("Red");
-		case TERM_GREEN:   return ("Green");
-		case TERM_BLUE:    return ("Blue");
-		case TERM_UMBER:   return ("Umber");
-		case TERM_L_DARK:  return ("L.Dark");
-		case TERM_L_WHITE: return ("L.Slate");
-		case TERM_VIOLET:  return ("Violet");
-		case TERM_YELLOW:  return ("Yellow");
-		case TERM_L_RED:   return ("L.Red");
-		case TERM_L_GREEN: return ("L.Green");
-		case TERM_L_BLUE:  return ("L.Blue");
-		case TERM_L_UMBER: return ("L.Umber");
+#ifdef JP
+	case TERM_DARK:    return ("   XXX色");
+	case TERM_WHITE:   return ("    白色");
+	case TERM_SLATE:   return ("  青灰色");
+	case TERM_ORANGE:  return ("オレンジ");
+	case TERM_RED:     return ("    赤色");
+	case TERM_GREEN:   return ("    緑色");
+	case TERM_BLUE:    return ("    青色");
+	case TERM_UMBER:   return ("  琥珀色");
+	case TERM_L_DARK:  return ("    灰色");
+	case TERM_L_WHITE: return ("明青灰色");
+	case TERM_VIOLET:  return ("    紫色");
+	case TERM_YELLOW:  return ("    黄色");
+	case TERM_L_RED:   return ("  明赤色");
+	case TERM_L_GREEN: return ("  明緑色");
+	case TERM_L_BLUE:  return ("  明青色");
+	case TERM_L_UMBER: return ("明琥珀色");
+#else
+	case TERM_DARK:    return ("    xxx");
+	case TERM_WHITE:   return ("  White");
+	case TERM_SLATE:   return ("  Slate");
+	case TERM_ORANGE:  return (" Orange");
+	case TERM_RED:     return ("    Red");
+	case TERM_GREEN:   return ("  Green");
+	case TERM_BLUE:    return ("   Blue");
+	case TERM_UMBER:   return ("  Umber");
+	case TERM_L_DARK:  return (" L.Dark");
+	case TERM_L_WHITE: return ("L.Slate");
+	case TERM_VIOLET:  return (" Violet");
+	case TERM_YELLOW:  return (" Yellow");
+	case TERM_L_RED:   return ("  L.Red");
+	case TERM_L_GREEN: return ("L.Green");
+	case TERM_L_BLUE:  return (" L.Blue");
+	case TERM_L_UMBER: return ("L.Umber");
+#endif
 	}
 
 	/* Oops */
-	return ("Icky");
+#ifdef JP
+	return ("    変な");
+#else
+	return ("   Icky");
+#endif
 }
 
 
@@ -68,10 +90,56 @@ typedef struct
  */
 static grouper group_item[] =
 {
+#ifdef JP
+	{ TV_SHOT,          "射撃物" },
+	{ TV_ARROW,         NULL },
+	{ TV_BOLT,          NULL },
+	{ TV_BOW,           "弓" },
+
+	{ TV_SWORD,         "武器" },
+	{ TV_POLEARM,       NULL },
+	{ TV_HAFTED,        NULL },
+	{ TV_DIGGING,       NULL },
+
+	{ TV_SOFT_ARMOR,    "防具（体）" },
+	{ TV_HARD_ARMOR,    NULL },
+	{ TV_DRAG_ARMOR,    NULL },
+	{ TV_CLOAK,         "防具（その他）" },
+	{ TV_SHIELD,        NULL },
+	{ TV_HELM,          NULL },
+	{ TV_CROWN,         NULL },
+	{ TV_GLOVES,        NULL },
+	{ TV_BOOTS,         NULL },
+
+	{ TV_AMULET,        "アミュレット" },
+	{ TV_RING,          "指輪" },
+	{ TV_SCROLL,        "巻物" },
+	{ TV_POTION,        "薬" },
+	{ TV_FOOD,          "食料" },
+
+	{ TV_ROD,           "ロッド" },
+	{ TV_WAND,          "ワンド" },
+	{ TV_STAFF,         "スタッフ" },
+
+	{ TV_LIFE_BOOK,     "魔法書（生命）" },
+	{ TV_SORCERY_BOOK,  "魔法書（仙術）" },
+	{ TV_MUSOU_BOOK,    "魔法書（無双）" },
+	{ TV_MAGIC_BOOK,    "魔法書（呪術）" },
+
+	{ TV_CHEST,         "箱" },
+	{ TV_FIGURINE,      "人形" },
+	{ TV_STATUE,        "像" },
+	{ TV_CORPSE,        "死体" },
+	{ TV_SPIKE,         "その他" },
+	{ TV_LITE,          NULL },
+	{ TV_FLASK,         NULL },
+	{ TV_JUNK,          NULL },
+	{ TV_BOTTLE,        NULL },
+	{ TV_SKELETON,      NULL },
+#else
 	{ TV_SHOT,          "Ammo" },
 	{ TV_ARROW,         NULL },
 	{ TV_BOLT,          NULL },
-
 	{ TV_BOW,           "Bows" },
 
 	{ TV_SWORD,         "Weapons" },
@@ -82,7 +150,6 @@ static grouper group_item[] =
 	{ TV_SOFT_ARMOR,    "Armour (Body)" },
 	{ TV_HARD_ARMOR,    NULL },
 	{ TV_DRAG_ARMOR,    NULL },
-
 	{ TV_CLOAK,         "Armour (Misc)" },
 	{ TV_SHIELD,        NULL },
 	{ TV_HELM,          NULL },
@@ -92,7 +159,6 @@ static grouper group_item[] =
 
 	{ TV_AMULET,        "Amulets" },
 	{ TV_RING,          "Rings" },
-
 	{ TV_SCROLL,        "Scrolls" },
 	{ TV_POTION,        "Potions" },
 	{ TV_FOOD,          "Food" },
@@ -103,25 +169,21 @@ static grouper group_item[] =
 
 	{ TV_LIFE_BOOK,     "Books (Life)" },
 	{ TV_SORCERY_BOOK,  "Books (Sorcery)" },
-	{ TV_NATURE_BOOK,   "Books (Nature)" },
-	{ TV_CHAOS_BOOK,    "Books (Chaos)" },
-	{ TV_DEATH_BOOK,    "Books (Death)" },
-	{ TV_TRUMP_BOOK,    "Books (Trump)" },
-	{ TV_ARCANE_BOOK,   "Books (Arcane)" },
+	{ TV_MUSOU_BOOK,    "Books (Combat)" },
+	{ TV_MAGIC_BOOK,    "Books (Magic)" },
 
 	{ TV_CHEST,         "Chests" },
-
 	{ TV_FIGURINE,      "Magical Figurines" },
 	{ TV_STATUE,        "Statues" },
 	{ TV_CORPSE,        "Corpses" },
-
 	{ TV_SPIKE,         "Various" },
 	{ TV_LITE,          NULL },
 	{ TV_FLASK,         NULL },
 	{ TV_JUNK,          NULL },
 	{ TV_BOTTLE,        NULL },
 	{ TV_SKELETON,      NULL },
-
+#endif
+	
 	{ 0, "" }
 };
 
@@ -163,7 +225,7 @@ static void kind_info(char *buf, char *dam, char *wgt, int *lev, s32b *val, int 
 
 
 	/* Description (too brief) */
-	object_desc_store(buf, q_ptr, FALSE, 0);
+	object_desc(buf, q_ptr, OD_NAME_ONLY | OD_STORE);
 
 
 	/* Misc info */
@@ -235,7 +297,7 @@ static void spoil_obj_desc(cptr fname)
 
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_USER, fname);
+	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, fname);
 
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
@@ -252,8 +314,8 @@ static void spoil_obj_desc(cptr fname)
 
 
 	/* Header */
-	fprintf(fff, "Spoiler File -- Basic Items (ZAngband %d.%d.%d)\n\n\n",
-		FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH);
+	fprintf(fff, "Spoiler File -- Basic Items (%s %d.%d.%d)\n\n\n",
+		VERSION_NAME, FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH);
 
 	/* More Header */
 	fprintf(fff, "%-45s     %8s%7s%5s%9s\n",
@@ -327,7 +389,7 @@ static void spoil_obj_desc(cptr fname)
 			if (k_ptr->tval != group_item[i].tval) continue;
 
 			/* Hack -- Skip instant-artifacts */
-			if (k_ptr->flags3 & (TR3_INSTA_ART)) continue;
+			if (k_ptr->gen_flags & (TRG_INSTA_ART)) continue;
 
 			/* Save the index */
 			who[n++] = k;
@@ -381,6 +443,29 @@ static void spoil_obj_desc(cptr fname)
  */
 static grouper group_artifact[] =
 {
+#ifdef JP
+	{ TV_SWORD,             "刀剣" },
+	{ TV_POLEARM,           "槍/斧" },
+	{ TV_HAFTED,            "鈍器" },
+	{ TV_DIGGING,           "シャベル/つるはし" },
+	{ TV_BOW,               "飛び道具" },
+	{ TV_ARROW,             "矢" },
+
+	{ TV_SOFT_ARMOR,        "鎧" },
+	{ TV_HARD_ARMOR,        NULL },
+	{ TV_DRAG_ARMOR,        NULL },
+
+	{ TV_CLOAK,             "クローク" },
+	{ TV_SHIELD,            "盾" },
+	{ TV_HELM,              "兜/冠" },
+	{ TV_CROWN,             NULL },
+	{ TV_GLOVES,            "籠手" },
+	{ TV_BOOTS,             "靴" },
+
+	{ TV_LITE,              "光源" },
+	{ TV_AMULET,            "アミュレット" },
+	{ TV_RING,              "指輪" },
+#else
 	{ TV_SWORD,             "Edged Weapons" },
 	{ TV_POLEARM,           "Polearms" },
 	{ TV_HAFTED,            "Hafted Weapons" },
@@ -400,7 +485,7 @@ static grouper group_artifact[] =
 	{ TV_LITE,              "Light Sources" },
 	{ TV_AMULET,            "Amulets" },
 	{ TV_RING,              "Rings" },
-
+#endif
 	{ 0, NULL }
 };
 
@@ -435,12 +520,21 @@ struct flag_desc
 
 static flag_desc stat_flags_desc[] =
 {
+#ifdef JP
+	{ TR1_STR,        "腕力" },
+	{ TR1_INT,        "知能" },
+	{ TR1_WIS,        "賢さ" },
+	{ TR1_DEX,        "器用さ" },
+	{ TR1_CON,        "耐久力" },
+	{ TR1_CHR,        "魅力" }
+#else
 	{ TR1_STR,        "STR" },
 	{ TR1_INT,        "INT" },
 	{ TR1_WIS,        "WIS" },
 	{ TR1_DEX,        "DEX" },
 	{ TR1_CON,        "CON" },
 	{ TR1_CHR,        "CHR" }
+#endif
 };
 
 /*
@@ -450,12 +544,23 @@ static flag_desc stat_flags_desc[] =
 
 static flag_desc pval_flags1_desc[] =
 {
+#ifdef JP
+	{ TR1_STEALTH,    "隠密" },
+	{ TR1_SEARCH,     "探索" },
+	{ TR1_INFRA,      "赤外線視力" },
+	{ TR1_TUNNEL,     "採掘" },
+	{ TR1_BLOWS,      "攻撃回数" },
+	{ TR1_SPEED,      "スピード" },
+	{ TR1_MAGIC_MASTERY, "魔法道具使用" }
+#else
 	{ TR1_STEALTH,    "Stealth" },
 	{ TR1_SEARCH,     "Searching" },
 	{ TR1_INFRA,      "Infravision" },
 	{ TR1_TUNNEL,     "Tunneling" },
 	{ TR1_BLOWS,      "Attacks" },
-	{ TR1_SPEED,      "Speed" }
+	{ TR1_SPEED,      "Speed" },
+	{ TR1_MAGIC_MASTERY, "Magic device" }
+#endif
 };
 
 /*
@@ -464,6 +569,17 @@ static flag_desc pval_flags1_desc[] =
 
 static flag_desc slay_flags_desc[] =
 {
+#ifdef JP
+	{ TR1_SLAY_ANIMAL,        "動物" },
+	{ TR1_SLAY_EVIL,          "邪悪" },
+	{ TR1_SLAY_UNDEAD,        "アンデッド" },
+	{ TR1_SLAY_DEMON,         "悪魔" },
+	{ TR1_SLAY_ORC,           "オーク" },
+	{ TR1_SLAY_TROLL,         "トロル" },
+	{ TR1_SLAY_GIANT,         "巨人" },
+	{ TR1_SLAY_DRAGON,        "ドラゴン" },
+	{ TR1_KILL_DRAGON,        "*ドラゴン*" },
+#else
 	{ TR1_SLAY_ANIMAL,        "Animal" },
 	{ TR1_SLAY_EVIL,          "Evil" },
 	{ TR1_SLAY_UNDEAD,        "Undead" },
@@ -473,6 +589,7 @@ static flag_desc slay_flags_desc[] =
 	{ TR1_SLAY_GIANT,         "Giant" },
 	{ TR1_SLAY_DRAGON,        "Dragon" },
 	{ TR1_KILL_DRAGON,        "Xdragon" }
+#endif
 };
 
 /*
@@ -485,6 +602,18 @@ static flag_desc slay_flags_desc[] =
  */
 static flag_desc brand_flags_desc[] =
 {
+#ifdef JP
+	{ TR1_BRAND_ACID,         "溶解" },
+	{ TR1_BRAND_ELEC,         "電撃" },
+	{ TR1_BRAND_FIRE,         "焼棄" },
+	{ TR1_BRAND_COLD,         "凍結" },
+	{ TR1_BRAND_POIS,         "毒殺" },
+
+	{ TR1_CHAOTIC,            "混沌" },
+	{ TR1_VAMPIRIC,           "吸血" },
+	{ TR1_IMPACT,             "地震" },
+	{ TR1_VORPAL,             "切れ味" },
+#else
 	{ TR1_BRAND_ACID,         "Acid Brand" },
 	{ TR1_BRAND_ELEC,         "Lightning Brand" },
 	{ TR1_BRAND_FIRE,         "Flame Tongue" },
@@ -495,6 +624,7 @@ static flag_desc brand_flags_desc[] =
 	{ TR1_VAMPIRIC,           "Vampiric" },
 	{ TR1_IMPACT,             "Earthquake impact on hit" },
 	{ TR1_VORPAL,             "Very sharp" },
+#endif
 };
 
 
@@ -503,6 +633,24 @@ static flag_desc brand_flags_desc[] =
  */
 static const flag_desc resist_flags_desc[] =
 {
+#ifdef JP
+	{ TR2_RES_ACID,   "酸" },
+	{ TR2_RES_ELEC,   "電撃" },
+	{ TR2_RES_FIRE,   "火炎" },
+	{ TR2_RES_COLD,   "冷気" },
+	{ TR2_RES_POIS,   "毒" },
+	{ TR2_RES_FEAR,   "恐怖"},
+	{ TR2_RES_LITE,   "閃光" },
+	{ TR2_RES_DARK,   "暗黒" },
+	{ TR2_RES_BLIND,  "盲目" },
+	{ TR2_RES_CONF,   "混乱" },
+	{ TR2_RES_SOUND,  "轟音" },
+	{ TR2_RES_SHARDS, "破片" },
+	{ TR2_RES_NETHER, "地獄" },
+	{ TR2_RES_NEXUS,  "因果混乱" },
+	{ TR2_RES_CHAOS,  "カオス" },
+	{ TR2_RES_DISEN,  "劣化" },
+#else
 	{ TR2_RES_ACID,   "Acid" },
 	{ TR2_RES_ELEC,   "Lightning" },
 	{ TR2_RES_FIRE,   "Fire" },
@@ -519,6 +667,7 @@ static const flag_desc resist_flags_desc[] =
 	{ TR2_RES_NEXUS,  "Nexus" },
 	{ TR2_RES_CHAOS,  "Chaos" },
 	{ TR2_RES_DISEN,  "Disenchantment" },
+#endif
 };
 
 /*
@@ -527,10 +676,17 @@ static const flag_desc resist_flags_desc[] =
 
 static const flag_desc immune_flags_desc[] =
 {
+#ifdef JP
+	{ TR2_IM_ACID,    "酸" },
+	{ TR2_IM_ELEC,    "電撃" },
+	{ TR2_IM_FIRE,    "火炎" },
+	{ TR2_IM_COLD,    "冷気" },
+#else
 	{ TR2_IM_ACID,    "Acid" },
 	{ TR2_IM_ELEC,    "Lightning" },
 	{ TR2_IM_FIRE,    "Fire" },
 	{ TR2_IM_COLD,    "Cold" },
+#endif
 };
 
 /*
@@ -539,12 +695,21 @@ static const flag_desc immune_flags_desc[] =
  */
 static const flag_desc sustain_flags_desc[] =
 {
+#ifdef JP
+	{ TR2_SUST_STR,   "腕力" },
+	{ TR2_SUST_INT,   "知能" },
+	{ TR2_SUST_WIS,   "賢さ" },
+	{ TR2_SUST_DEX,   "器用さ" },
+	{ TR2_SUST_CON,   "耐久力" },
+	{ TR2_SUST_CHR,   "魅力" },
+#else
 	{ TR2_SUST_STR,   "STR" },
 	{ TR2_SUST_INT,   "INT" },
 	{ TR2_SUST_WIS,   "WIS" },
 	{ TR2_SUST_DEX,   "DEX" },
 	{ TR2_SUST_CON,   "CON" },
 	{ TR2_SUST_CHR,   "CHR" },
+#endif
 };
 
 /*
@@ -553,10 +718,17 @@ static const flag_desc sustain_flags_desc[] =
 
 static const flag_desc misc_flags2_desc[] =
 {
+#ifdef JP
+	{ TR2_THROW,      "投擲" },
+	{ TR2_REFLECT,    "反射" },
+	{ TR2_FREE_ACT,   "麻痺知らず" },
+	{ TR2_HOLD_LIFE,  "生命力維持" },
+#else
 	{ TR2_THROW,      "Throwing" },
 	{ TR2_REFLECT,    "Reflection" },
 	{ TR2_FREE_ACT,   "Free Action" },
 	{ TR2_HOLD_LIFE,  "Hold Life" },
+#endif
 };
 
 /*
@@ -568,8 +740,28 @@ static const flag_desc misc_flags2_desc[] =
 
 static const flag_desc misc_flags3_desc[] =
 {
+#ifdef JP
+	{ TR3_SH_FIRE,            "火炎オーラ" },
+	{ TR3_SH_ELEC,            "電撃オーラ" },
+	{ TR3_SH_COLD,            "冷気オーラ" },
+	{ TR3_NO_TELE,            "反テレポート" },
+	{ TR3_NO_MAGIC,           "反魔法" },
+	{ TR3_WRAITH,             "幽体化" },
+	{ TR3_FEATHER,            "浮遊" },
+	{ TR3_SEE_INVIS,          "可視透明" },
+	{ TR3_TELEPATHY,          "テレパシー" },
+	{ TR3_SLOW_DIGEST,        "遅消化" },
+	{ TR3_REGEN,              "急速回復" },
+	{ TR3_WARNING,            "警告" },
+	{ TR3_XTRA_SHOTS,         "追加射撃" },        /* always +1? */
+	{ TR3_DRAIN_EXP,          "経験値吸収" },
+	{ TR3_AGGRAVATE,          "反感" },
+	{ TR3_BLESSED,            "祝福" },
+	{ TR3_DEC_MANA,           "消費魔力減少" },
+#else
 	{ TR3_SH_FIRE,            "Fiery Aura" },
 	{ TR3_SH_ELEC,            "Electric Aura" },
+	{ TR3_SH_COLD,            "Cold Aura" },
 	{ TR3_NO_TELE,            "Prevent Teleportation" },
 	{ TR3_NO_MAGIC,           "Anti-Magic" },
 	{ TR3_WRAITH,             "Wraith Form" },
@@ -577,11 +769,14 @@ static const flag_desc misc_flags3_desc[] =
 	{ TR3_SEE_INVIS,          "See Invisible" },
 	{ TR3_TELEPATHY,          "ESP" },
 	{ TR3_SLOW_DIGEST,        "Slow Digestion" },
+	{ TR3_WARNING,            "Warning" },
 	{ TR3_REGEN,              "Regeneration" },
 	{ TR3_XTRA_SHOTS,         "+1 Extra Shot" },        /* always +1? */
 	{ TR3_DRAIN_EXP,          "Drains Experience" },
 	{ TR3_AGGRAVATE,          "Aggravates" },
 	{ TR3_BLESSED,            "Blessed Blade" },
+	{ TR3_DEC_MANA,           "Decrease Need Mana" },
+#endif
 };
 
 
@@ -649,6 +844,7 @@ typedef struct
 	/* A list of various magical qualities an object may have */
 	cptr misc_magic[N_ELEMENTS(misc_flags2_desc) + N_ELEMENTS(misc_flags3_desc)
 			+ 1       /* Permanent Light */
+			+ 1       /* TY curse */
 			+ 1       /* type of curse */
 			+ 1];     /* sentinel NULL */
 
@@ -723,7 +919,7 @@ static cptr *spoiler_flag_aux(const u32b art_flags, const flag_desc *flag_ptr,
 static void analyze_general (object_type *o_ptr, char *desc_ptr)
 {
 	/* Get a "useful" description of the object */
-	object_desc_store(desc_ptr, o_ptr, TRUE, 1);
+	object_desc(desc_ptr, o_ptr, OD_NAME_AND_ENCHANT | OD_STORE);
 }
 
 
@@ -754,12 +950,17 @@ static void analyze_pval (object_type *o_ptr, pval_info_type *p_ptr)
 	affects_list = p_ptr->pval_affects;
 
 	/* Create the "+N" string */
-	sprintf(p_ptr->pval_desc, "%s%d", POSITIZE(o_ptr->pval), o_ptr->pval);
+	sprintf(p_ptr->pval_desc, "%s%d", POSITIZE(o_ptr->pval), 
+		(int)(o_ptr->pval));
 
 	/* First, check to see if the pval affects all stats */
 	if ((f1 & all_stats) == all_stats)
 	{
+#ifdef JP
+		*affects_list++ = "全能力";
+#else
 		*affects_list++ = "All stats";
+#endif
 	}
 
 	/* Are any stats affected? */
@@ -852,7 +1053,11 @@ static void analyze_sustains (object_type *o_ptr, cptr *sustain_list)
 	/* Simplify things if an item sustains all stats */
 	if ((f2 & all_sustains) == all_sustains)
 	{
+#ifdef JP
+		*sustain_list++ = "全能力";
+#else
 		*sustain_list++ = "All stats";
+#endif
 	}
 
 	/* Should we bother? */
@@ -889,7 +1094,11 @@ static void analyze_misc_magic (object_type *o_ptr, cptr *misc_list)
 	 */
 	if ((o_ptr->tval == TV_LITE) && artifact_p(o_ptr))
 	{
+#ifdef JP
+		*misc_list++ = "永久光源(半径3)";
+#else
 		*misc_list++ = "Permanent Light(3)";
+#endif
 	}
 
 	/*
@@ -897,7 +1106,11 @@ static void analyze_misc_magic (object_type *o_ptr, cptr *misc_list)
 	 */
 	if (f3 & (TR3_LITE))
 	{
+#ifdef JP
+		*misc_list++ = "永久光源(半径1)";
+#else
 		*misc_list++ = "Permanent Light(1)";
+#endif
 	}
 
 	/*
@@ -906,24 +1119,38 @@ static void analyze_misc_magic (object_type *o_ptr, cptr *misc_list)
 	 * being "lightly cursed".
 	 */
 
-	if (cursed_p(o_ptr))
+	if (f3 & TR3_TY_CURSE)
 	{
-		if (f3 & TR3_TY_CURSE)
-		{
-			*misc_list++ = "Ancient Curse";
-		}
-		if (f3 & TR3_PERMA_CURSE)
-		{
-			*misc_list++ = "Permanently Cursed";
-		}
-		else if (f3 & TR3_HEAVY_CURSE)
-		{
-			*misc_list++ = "Heavily Cursed";
-		}
-		else
-		{
-			*misc_list++ = "Cursed";
-		}
+#ifdef JP
+		*misc_list++ = "太古の怨念";
+#else
+		*misc_list++ = "Ancient Curse";
+#endif
+	}
+
+	if (f3 & TR3_PERMA_CURSE)
+	{
+#ifdef JP
+		*misc_list++ = "永遠の呪い";
+#else
+		*misc_list++ = "Permanently Cursed";
+#endif
+	}
+	else if (f3 & TR3_HEAVY_CURSE)
+	{
+#ifdef JP
+		*misc_list++ = "強力な呪い";
+#else
+		*misc_list++ = "Heavily Cursed";
+#endif
+	}
+	else if (f3 & TR3_CURSED)
+	{
+#ifdef JP
+		*misc_list++ = "呪い";
+#else
+		*misc_list++ = "Cursed";
+#endif
 	}
 
 	/* Terminate the description list */
@@ -941,9 +1168,15 @@ static void analyze_misc (object_type *o_ptr, char *misc_desc)
 {
 	artifact_type *a_ptr = &a_info[o_ptr->name1];
 
+#ifdef JP
+	sprintf(misc_desc, "レベル %u, 希少度 %u, %d.%d kg, ＄%ld",
+		a_ptr->level, a_ptr->rarity,
+		lbtokg1(a_ptr->weight), lbtokg2(a_ptr->weight), a_ptr->cost);
+#else
 	sprintf(misc_desc, "Level %u, Rarity %u, %d.%d lbs, %ld Gold",
 		a_ptr->level, a_ptr->rarity,
 		a_ptr->weight / 10, a_ptr->weight % 10, a_ptr->cost);
+#endif
 }
 
 
@@ -973,7 +1206,6 @@ static void object_analyze(object_type *o_ptr, obj_desc_list *desc_ptr)
 	desc_ptr->activation = item_activation(o_ptr);
 }
 
-
 static void print_header(void)
 {
 	char buf[80];
@@ -983,8 +1215,8 @@ static void print_header(void)
 		VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
 	spoiler_underline(buf);
 #else /* FAKE_VERSION */
-	sprintf(buf, "Artifact Spoilers for Zangband Version %d.%d.%d",
-	        FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH);
+	sprintf(buf, "Artifact Spoilers for %s Version %d.%d.%d",
+		VERSION_NAME, FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH);
 	spoiler_underline(buf);
 #endif /* FAKE_VERSION */
 
@@ -1136,12 +1368,27 @@ static void spoiler_print_art(obj_desc_list *art_ptr)
 	if (pval_ptr->pval_desc[0])
 	{
 		/* Mention the effects of pval */
+#ifdef JP
+		sprintf(buf, "%sの修正:", pval_ptr->pval_desc);
+#else
 		sprintf(buf, "%s to", pval_ptr->pval_desc);
+#endif
 		spoiler_outlist(buf, pval_ptr->pval_affects, ITEM_SEP);
 	}
 
 	/* Now deal with the description lists */
 
+#ifdef JP
+	spoiler_outlist("対:", art_ptr->slays, ITEM_SEP);
+
+	spoiler_outlist("武器属性:", art_ptr->brands, LIST_SEP);
+
+	spoiler_outlist("免疫:", art_ptr->immunities, ITEM_SEP);
+
+	spoiler_outlist("耐性:", art_ptr->resistances, ITEM_SEP);
+
+	spoiler_outlist("維持:", art_ptr->sustains, ITEM_SEP);
+#else
 	spoiler_outlist("Slay", art_ptr->slays, ITEM_SEP);
 
 	spoiler_outlist("", art_ptr->brands, LIST_SEP);
@@ -1151,20 +1398,82 @@ static void spoiler_print_art(obj_desc_list *art_ptr)
 	spoiler_outlist("Resist", art_ptr->resistances, ITEM_SEP);
 
 	spoiler_outlist("Sustain", art_ptr->sustains, ITEM_SEP);
-
+#endif
 	spoiler_outlist("", art_ptr->misc_magic, LIST_SEP);
 
 
 	/* Write out the possible activation at the primary indention level */
 	if (art_ptr->activation)
 	{
+#ifdef JP
+		fprintf(fff, "%s発動: %s\n", INDENT1, art_ptr->activation);
+#else
 		fprintf(fff, "%sActivates for %s\n", INDENT1, art_ptr->activation);
+#endif
 	}
 
 	/* End with the miscellaneous facts */
 	fprintf(fff, "%s%s\n\n", INDENT1, art_ptr->misc_desc);
 }
 
+
+void dump_object(FILE *fp, object_type *o_ptr)
+{
+	char buf[80];
+	obj_desc_list obj;
+	pval_info_type *pval_ptr = &obj.pval_info;
+
+	fff = fp;
+	object_analyze(o_ptr, &obj);
+
+	/* An "empty" pval description indicates that the pval affects nothing */
+	if (pval_ptr->pval_desc[0])
+	{
+		/* Mention the effects of pval */
+#ifdef JP
+		sprintf(buf, "  %sの修正:", pval_ptr->pval_desc);
+#else
+		sprintf(buf, "  %s to", pval_ptr->pval_desc);
+#endif
+		spoiler_outlist(buf, pval_ptr->pval_affects, ITEM_SEP);
+	}
+
+	/* Now deal with the description lists */
+
+#ifdef JP
+	spoiler_outlist("  対:", obj.slays, ITEM_SEP);
+
+	spoiler_outlist("  武器属性:", obj.brands, LIST_SEP);
+
+	spoiler_outlist("  免疫:", obj.immunities, ITEM_SEP);
+
+	spoiler_outlist("  耐性:", obj.resistances, ITEM_SEP);
+
+	spoiler_outlist("  維持:", obj.sustains, ITEM_SEP);
+#else
+	spoiler_outlist("  Slay", obj.slays, ITEM_SEP);
+
+	spoiler_outlist("  ", obj.brands, LIST_SEP);
+
+	spoiler_outlist("  Immunity to", obj.immunities, ITEM_SEP);
+
+	spoiler_outlist("  Resist", obj.resistances, ITEM_SEP);
+
+	spoiler_outlist("  Sustain", obj.sustains, ITEM_SEP);
+#endif
+	spoiler_outlist("  ", obj.misc_magic, LIST_SEP);
+
+
+	/* Write out the possible activation at the primary indention level */
+	if (obj.activation)
+	{
+#ifdef JP
+		fprintf(fff, "%s  発動: %s\n", INDENT1, obj.activation);
+#else
+		fprintf(fff, "%s  Activates for %s\n", INDENT1, obj.activation);
+#endif
+	}
+}
 
 /*
  * Hack -- Create a "forged" artifact
@@ -1193,6 +1502,7 @@ static bool make_fake_artifact(object_type *o_ptr, int name1)
 
 	/* Extract the fields */
 	o_ptr->pval = a_ptr->pval;
+	o_ptr->xtra2 = a_ptr->activate;
 	o_ptr->ac = a_ptr->ac;
 	o_ptr->dd = a_ptr->dd;
 	o_ptr->ds = a_ptr->ds;
@@ -1222,7 +1532,7 @@ static void spoil_artifact(cptr fname)
 
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_USER, fname);
+	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, fname);
 
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
@@ -1288,9 +1598,6 @@ static void spoil_artifact(cptr fname)
 }
 
 
-
-
-
 /*
  * Create a spoiler file for monsters   -BEN-
  */
@@ -1313,7 +1620,7 @@ static void spoil_mon_desc(cptr fname)
 
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_USER, fname);
+	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, fname);
 
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
@@ -1335,8 +1642,8 @@ static void spoil_mon_desc(cptr fname)
 		VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
 	fprintf(fff, "------------------------------------------\n\n");
 #else
-	fprintf(fff, "Monster Spoilers for Zangband Version %d.%d.%d\n",
-	        FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH);
+	fprintf(fff, "Monster Spoilers for %s Version %d.%d.%d\n",
+		VERSION_NAME, FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH);
 	fprintf(fff, "------------------------------------------\n\n");
 #endif
 
@@ -1385,10 +1692,17 @@ static void spoil_mon_desc(cptr fname)
 		}
 		else
 		{
+#ifdef JP
+			sprintf(nam, "    %s", name);
+#else
 			sprintf(nam, "The %s", name);
+#endif
 		}
 
 
+#ifdef JP
+		nam[null_pos_j(nam, 39)] = 0;
+#endif
 		/* Level */
 		sprintf(lev, "%d", r_ptr->level);
 
@@ -1423,7 +1737,11 @@ static void spoil_mon_desc(cptr fname)
 		sprintf(exp, "%ld", (long)(r_ptr->mexp));
 
 		/* Hack -- use visual instead */
+#ifdef JP
+		sprintf(exp, "%s'%c'", attr_to_text(r_ptr->d_attr), r_ptr->d_char);
+#else
 		sprintf(exp, "%s '%c'", attr_to_text(r_ptr->d_attr), r_ptr->d_char);
+#endif
 
 		/* Dump the info */
 		fprintf(fff, "%-40.40s%4s%4s%6s%8s%4s  %11.11s\n",
@@ -1449,8 +1767,6 @@ static void spoil_mon_desc(cptr fname)
 }
 
 
-
-
 /*
  * Monster spoilers by: smchorse@ringer.cs.utsa.edu (Shawn McHorse)
  *
@@ -1461,9 +1777,12 @@ static void spoil_mon_desc(cptr fname)
  * Pronoun arrays
  */
 static cptr wd_che[3] =
+#ifdef JP
+{ "それ", "彼", "彼女" };
+#else
 { "It", "He", "She" };
-static cptr wd_lhe[3] =
-{ "it", "he", "she" };
+#endif
+
 
 /*
  * Buffer text to the given file. (-SHAWN-)
@@ -1475,6 +1794,10 @@ static void spoil_out(cptr str)
 
 	/* Line buffer */
 	static char roff_buf[256];
+
+#ifdef JP
+	bool iskanji2=0;
+#endif
 
 	/* Current pointer into line roff_buf */
 	static char *roff_p = roff_buf;
@@ -1502,33 +1825,66 @@ static void spoil_out(cptr str)
 	/* Scan the given string, character at a time */
 	for (; *str; str++)
 	{
+#ifdef JP
+		char cbak;
+		int k_flag = iskanji(*str);
+#endif
 		char ch = *str;
 		int wrap = (ch == '\n');
 
+#ifdef JP
+		if (!isprint(ch) && !k_flag && !iskanji2) ch = ' ';
+		if(k_flag && !iskanji2) iskanji2 = TRUE; else iskanji2 = FALSE;
+		if ( roff_p >= roff_buf+( (k_flag) ? 74 : 75) ) wrap=1;
+		if ((ch == ' ') && (roff_p + 2 >= roff_buf + ((k_flag) ? 74 : 75))) wrap = 1;
+#else
 		if (!isprint(ch)) ch = ' ';
 		if (roff_p >= roff_buf + 75) wrap = 1;
 		if ((ch == ' ') && (roff_p + 2 >= roff_buf + 75)) wrap = 1;
+#endif
 
 		/* Handle line-wrap */
 		if (wrap)
 		{
 			*roff_p = '\0';
 			r = roff_p;
+#ifdef JP
+			cbak=' ';
+#endif
 			if (roff_s && (ch != ' '))
 			{
+#ifdef JP
+				cbak=*roff_s;
+#endif
 				*roff_s = '\0';
 				r = roff_s + 1;
 			}
 			fprintf(fff, "%s\n", roff_buf);
 			roff_s = NULL;
 			roff_p = roff_buf;
+#ifdef JP
+			if(cbak != ' ') *roff_p++ = cbak; 
+#endif
 			while (*r) *roff_p++ = *r++;
 		}
 
 		/* Save the char */
 		if ((roff_p > roff_buf) || (ch != ' '))
 		{
+#ifdef JP
+		  if( !k_flag ){
+			if (ch == ' ' || ch == '(' ) roff_s = roff_p;
+		  }
+		  else{
+		    if( iskanji2 && 
+			strncmp(str, "。", 2) != 0 && 
+			strncmp(str, "、", 2) != 0 &&
+			strncmp(str, "ィ", 2) != 0 &&
+			strncmp(str, "ー", 2) != 0) roff_s = roff_p;
+		  }
+#else
 			if (ch == ' ') roff_s = roff_p;
+#endif
 			*roff_p++ = ch;
 		}
 	}
@@ -1542,7 +1898,7 @@ static void spoil_mon_info(cptr fname)
 {
 	char buf[1024];
 	int msex, vn, i, j, k, n, count = 0;
-	bool breath, magic, sin;
+	bool breath, magic;
 	cptr p, q;
 	cptr vp[64];
 	u32b flags1, flags2, flags3, flags4, flags5, flags6;
@@ -1550,9 +1906,14 @@ static void spoil_mon_info(cptr fname)
 	u16b why = 2;
 	s16b *who;
 
+#ifdef JP
+	char            jverb_buf[64];
+#else
+	bool sin;
+#endif
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_USER, fname);
+	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, fname);
 
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
@@ -1573,10 +1934,9 @@ static void spoil_mon_info(cptr fname)
 	sprintf(buf, "Monster Spoilers for Angband Version %d.%d.%d\n",
 		VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
 #else
-	sprintf(buf, "Monster Spoilers for Zangband Version %d.%d.%d\n",
-	     FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH);
+	sprintf(buf, "Monster Spoilers for %s Version %d.%d.%d\n",
+		VERSION_NAME, FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH);
 #endif
-
 	spoil_out(buf);
 	spoil_out("------------------------------------------\n\n");
 
@@ -1632,11 +1992,17 @@ static void spoil_mon_info(cptr fname)
 		}
 		else
 		{
+#ifndef JP
 			spoil_out("The ");
+#endif
 		}
 
 		/* Name */
+#ifdef JP
+		sprintf(buf, "%s/%s  (", (r_name + r_ptr->name), (r_name + r_ptr->E_name));  /* ---)--- */
+#else
 		sprintf(buf, "%s  (", (r_name + r_ptr->name));  /* ---)--- */
+#endif
 		spoil_out(buf);
 
 		/* Color */
@@ -1645,7 +2011,6 @@ static void spoil_mon_info(cptr fname)
 		/* Symbol --(-- */
 		sprintf(buf, " '%c')\n", r_ptr->d_char);
 		spoil_out(buf);
-
 
 		/* Indent */
 		sprintf(buf, "=== ");
@@ -1693,12 +2058,27 @@ static void spoil_mon_info(cptr fname)
 		sprintf(buf, "Exp:%ld\n", (long)(r_ptr->mexp));
 		spoil_out(buf);
 
-
 		/* Describe */
 		spoil_out(r_text + r_ptr->text);
+#ifdef JP
+		spoil_out(" ");
+		spoil_out("この");
+
+		if (flags2 & RF2_ELDRITCH_HORROR) spoil_out("狂気を誘う");/*nuke me*/
+		if (flags3 & RF3_ANIMAL)          spoil_out("自然界の");
+		if (flags3 & RF3_EVIL)            spoil_out("邪悪なる");
+		if (flags3 & RF3_GOOD)            spoil_out("善良な");
+		if (flags3 & RF3_UNDEAD)          spoil_out("アンデッドの");
+
+		if (flags3 & RF3_DRAGON)   spoil_out("ドラゴン");
+		else if (flags3 & RF3_DEMON)    spoil_out("デーモン");
+		else if (flags3 & RF3_GIANT)    spoil_out("ジャイアント");
+		else if (flags3 & RF3_TROLL)    spoil_out("トロル");
+		else if (flags3 & RF3_ORC)      spoil_out("オーク");
+		else if (flags3 & RF3_AMBERITE) spoil_out("神族");/*nuke me*/
+		else                            spoil_out("モンスター");
+#else
 		spoil_out("  ");
-
-
 		spoil_out("This");
 
 		if (flags2 & (RF2_ELDRITCH_HORROR)) spoil_out (" sanity-blasting");
@@ -1712,110 +2092,260 @@ static void spoil_mon_info(cptr fname)
 		else if (flags3 & (RF3_GIANT)) spoil_out(" giant");
 		else if (flags3 & (RF3_TROLL)) spoil_out(" troll");
 		else if (flags3 & (RF3_ORC)) spoil_out(" orc");
-		else if (flags3 & (RF3_AMBERITE)) spoil_out (" Amberite");
+		else if (flags3 & (RF3_AMBERITE)) spoil_out (" Spirit");
 		else spoil_out(" creature");
+#endif
 
+#ifdef JP
+		spoil_out("は");
+#else
 		spoil_out(" moves");
+#endif
 
 		if ((flags1 & (RF1_RAND_50)) && (flags1 & (RF1_RAND_25)))
 		{
+#ifdef JP
+			spoil_out("かなり不規則に");
+#else
 			spoil_out(" extremely erratically");
+#endif
 		}
 		else if (flags1 & (RF1_RAND_50))
 		{
+#ifdef JP
+			spoil_out("幾分不規則に");
+#else
 			spoil_out(" somewhat erratically");
+#endif
 		}
 		else if (flags1 & (RF1_RAND_25))
 		{
+#ifdef JP
+			spoil_out("少々不規則に");
+#else
 			spoil_out(" a bit erratically");
+#endif
 		}
 		else
 		{
+#ifdef JP
+			spoil_out("普通に");
+#else
 			spoil_out(" normally");
+#endif
 		}
 
+#ifdef JP
+		spoil_out("動いている");
+#endif
 		if (flags1 & (RF1_NEVER_MOVE))
 		{
+#ifdef JP
+			spoil_out("が、侵入者を追跡しない");
+#else
 			spoil_out(", but does not deign to chase intruders");
+#endif
 		}
-
+#ifdef JP
+		spoil_out("。");
+#else
 		spoil_out(".  ");
+#endif
 
 		if (!r_ptr->level || (flags1 & (RF1_FORCE_DEPTH)))
 		{
+#ifdef JP
+			if(r_ptr->level == 0) sprintf(buf, "%sは地上にのみ出現する。", wd_che[msex]);
+			else sprintf(buf, "%sは%d階以降にしか出現しない。", wd_che[msex], r_ptr->level);
+#else
 			sprintf(buf, "%s is never found out of depth.  ", wd_che[msex]);
+#endif
 			spoil_out(buf);
 		}
 
 		if (flags1 & (RF1_FORCE_SLEEP))
 		{
+#ifdef JP
+			sprintf(buf, "%sは普段は眠っている。", wd_che[msex]);
+#else
 			sprintf(buf, "%s is always created sluggish.  ", wd_che[msex]);
+#endif
 			spoil_out(buf);
 		}
 
-		if (flags2 & (RF2_AURA_FIRE))
+		if ((flags2 & RF2_AURA_FIRE) && (flags2 & RF2_AURA_ELEC) && (flags3 & RF3_AURA_COLD))
 		{
+#ifdef JP
+			sprintf(buf, "%sは炎と氷とスパークに包まれている。", wd_che[msex]);
+#else
+			sprintf(buf, "%s is surrounded by flames and electricity.  ", wd_che[msex]);
+#endif
+			spoil_out(buf);
+		}
+		else if ((flags2 & RF2_AURA_FIRE) && (flags2 & RF2_AURA_ELEC))
+		{
+#ifdef JP
+			sprintf(buf, "%sは炎とスパークに包まれている。", wd_che[msex]);
+#else
+			sprintf(buf, "%s is surrounded by flames and electricity.  ", wd_che[msex]);
+#endif
+			spoil_out(buf);
+		}
+		else if ((flags2 & RF2_AURA_FIRE) && (flags3 & RF3_AURA_COLD))
+		{
+#ifdef JP
+			sprintf(buf, "%sは炎と氷に包まれている。", wd_che[msex]);
+#else
+			sprintf(buf, "%s is surrounded by flames and electricity.  ", wd_che[msex]);
+#endif
+			spoil_out(buf);
+		}
+		else if ((flags3 & RF3_AURA_COLD) && (flags2 & RF2_AURA_ELEC))
+		{
+#ifdef JP
+			sprintf(buf, "%sは氷とスパークに包まれている。", wd_che[msex]);
+#else
+			sprintf(buf, "%s is surrounded by ice and electricity.  ", wd_che[msex]);
+#endif
+			spoil_out(buf);
+		}
+		else if (flags2 & RF2_AURA_FIRE)
+		{
+#ifdef JP
+			sprintf(buf, "%sは炎に包まれている。", wd_che[msex]);
+#else
 			sprintf(buf, "%s is surrounded by flames.  ", wd_che[msex]);
+#endif
 			spoil_out(buf);
 		}
-
-		if (flags3 & (RF3_AURA_COLD))
+		else if (flags3 & RF3_AURA_COLD)
 		{
+#ifdef JP
+			sprintf(buf, "%sは氷に包まれている。", wd_che[msex]);
+#else
 			sprintf(buf, "%s is surrounded by ice.  ", wd_che[msex]);
+#endif
 			spoil_out(buf);
 		}
-
-		if (flags2 & (RF2_AURA_ELEC))
+		else if (flags2 & RF2_AURA_ELEC)
 		{
+#ifdef JP
+			sprintf(buf, "%sはスパークに包まれている。", wd_che[msex]);
+#else
 			sprintf(buf, "%s is surrounded by electricity.  ", wd_che[msex]);
+#endif
 			spoil_out(buf);
 		}
 
 		if (flags2 & (RF2_REFLECTING))
 		{
+#ifdef JP
+			sprintf(buf, "%sは矢の呪文を跳ね返す。", wd_che[msex]);
+#else
 			sprintf(buf, "%s reflects bolt spells.  ", wd_che[msex]);
+#endif
 			spoil_out(buf);
 		}
 
-		if (flags1 & (RF1_ESCORT))
+		/* Describe escorts */
+		if ((flags1 & RF1_ESCORT) || (flags1 & RF1_ESCORTS))
 		{
-			sprintf(buf, "%s usually appears with ", wd_che[msex]);
+#ifdef JP
+			sprintf(buf, "%sは通常護衛を伴って現れる。", wd_che[msex]);
+#else
+			sprintf(buf, "%s usually appears with escorts.  ", wd_che[msex]);
+#endif
 			spoil_out(buf);
-			if (flags1 & (RF1_ESCORTS)) spoil_out("escorts.  ");
-			else spoil_out("an escort.  ");
 		}
 
-		if ((flags1 & RF1_FRIEND) || (flags1 & RF1_FRIENDS))
+		/* Describe friends */
+		else if ((flags1 & RF1_FRIEND) || (flags1 & RF1_FRIENDS))
 		{
+#ifdef JP
+			sprintf(buf, "%sは通常集団で現れる。", wd_che[msex]);
+#else
 			sprintf(buf, "%s usually appears in groups.  ", wd_che[msex]);
+#endif
 			spoil_out(buf);
 		}
 
 		/* Collect inate attacks */
 		vn = 0;
+#ifdef JP
+		if (flags4 & RF4_SHRIEK)  vp[vn++] = "悲鳴で助けを求める";
+		if (flags4 & RF4_ROCKET)  vp[vn++] = "ロケットを発射する";
+		if (flags4 & RF4_ARROW_1) vp[vn++] = "矢を撃つ";
+		if (flags4 & RF4_ARROW_2) vp[vn++] = "数回矢を撃つ";
+		if (flags4 & RF4_ARROW_3) vp[vn++] = "射撃をする";
+		if (flags4 & RF4_ARROW_4) vp[vn++] = "数回射撃をする";
+#else
 		if (flags4 & RF4_SHRIEK)  vp[vn++] = "shriek for help";
-		if (flags4 & RF4_XXX3)    vp[vn++] = "do something";
 		if (flags4 & RF4_ROCKET)  vp[vn++] = "shoot a rocket";
-		if (flags4 & RF4_ARROW_1) vp[vn++] = "fire arrows";
+		if (flags4 & RF4_ARROW_1) vp[vn++] = "fire an arrow";
 		if (flags4 & RF4_ARROW_2) vp[vn++] = "fire arrows";
-		if (flags4 & RF4_ARROW_3) vp[vn++] = "fire missiles";
+		if (flags4 & RF4_ARROW_3) vp[vn++] = "fire a missile";
 		if (flags4 & RF4_ARROW_4) vp[vn++] = "fire missiles";
+#endif
 
 		if (vn)
 		{
-			spoil_out(wd_che[msex]);
+#ifdef JP
+			sprintf(buf, "%sは", wd_che[msex]);
+#else
+			sprintf(buf, "%s", wd_che[msex]);
+#endif
+			spoil_out(buf);
+
 			for (i = 0; i < vn; i++)
 			{
+#ifdef JP
+				if(i != vn-1)
+				{
+					jverb(vp[i],jverb_buf, JVERB_OR);
+					spoil_out(jverb_buf);
+					spoil_out("り、");
+				}
+				else  spoil_out(vp[i]);
+#else
 				if (!i) spoil_out(" may ");
 				else if (i < vn-1) spoil_out(", ");
 				else spoil_out(" or ");
 				spoil_out(vp[i]);
+#endif
 			}
+#ifdef JP
+			spoil_out("ことができる。");
+#else
 			spoil_out(".  ");
+#endif
 		}
 
 		/* Collect breaths */
 		vn = 0;
+#ifdef JP
+		if (flags4 & (RF4_BR_ACID)) vp[vn++] = "酸";
+		if (flags4 & (RF4_BR_ELEC)) vp[vn++] = "稲妻";
+		if (flags4 & (RF4_BR_FIRE)) vp[vn++] = "火炎";
+		if (flags4 & (RF4_BR_COLD)) vp[vn++] = "冷気";
+		if (flags4 & (RF4_BR_POIS)) vp[vn++] = "毒";
+		if (flags4 & (RF4_BR_NETH)) vp[vn++] = "地獄";
+		if (flags4 & (RF4_BR_LITE)) vp[vn++] = "閃光";
+		if (flags4 & (RF4_BR_DARK)) vp[vn++] = "暗黒";
+		if (flags4 & (RF4_BR_CONF)) vp[vn++] = "混乱";
+		if (flags4 & (RF4_BR_SOUN)) vp[vn++] = "轟音";
+		if (flags4 & (RF4_BR_CHAO)) vp[vn++] = "カオス";
+		if (flags4 & (RF4_BR_DISE)) vp[vn++] = "劣化";
+		if (flags4 & (RF4_BR_NEXU)) vp[vn++] = "因果混乱";
+		if (flags4 & (RF4_BR_TIME)) vp[vn++] = "時間逆転";
+		if (flags4 & (RF4_BR_INER)) vp[vn++] = "遅鈍";
+		if (flags4 & (RF4_BR_GRAV)) vp[vn++] = "重力";
+		if (flags4 & (RF4_BR_SHAR)) vp[vn++] = "破片";
+		if (flags4 & (RF4_BR_PLAS)) vp[vn++] = "プラズマ";
+		if (flags4 & (RF4_BR_WALL)) vp[vn++] = "フォース";
+		if (flags4 & (RF4_BR_MANA)) vp[vn++] = "魔力";
+		if (flags4 & (RF4_BR_NUKE)) vp[vn++] = "放射性廃棄物";
+		if (flags4 & (RF4_BR_DISI)) vp[vn++] = "分解";
+#else
 		if (flags4 & (RF4_BR_ACID)) vp[vn++] = "acid";
 		if (flags4 & (RF4_BR_ELEC)) vp[vn++] = "lightning";
 		if (flags4 & (RF4_BR_FIRE)) vp[vn++] = "fire";
@@ -1838,23 +2368,109 @@ static void spoil_mon_info(cptr fname)
 		if (flags4 & (RF4_BR_MANA)) vp[vn++] = "mana";
 		if (flags4 & (RF4_BR_NUKE)) vp[vn++] = "toxic waste";
 		if (flags4 & (RF4_BR_DISI)) vp[vn++] = "disintegration";
+#endif
 
 		if (vn)
 		{
 			breath = TRUE;
-			spoil_out(wd_che[msex]);
+#ifdef JP
+			sprintf(buf, "%sは", wd_che[msex]);
+#else
+			sprintf(buf, "%s", wd_che[msex]);
+#endif
+			spoil_out(buf);
+
 			for (i = 0; i < vn; i++)
 			{
+#ifdef JP
+				if ( i != 0 ) spoil_out("や");
+#else
 				if (!i) spoil_out(" may breathe ");
 				else if (i < vn-1) spoil_out(", ");
 				else spoil_out(" or ");
+#endif
 				spoil_out(vp[i]);
 			}
+#ifdef JP
+			spoil_out("のブレスを");
+			if (flags2 & (RF2_POWERFUL)) spoil_out("強力に");
+			spoil_out("吐くことがあ");
+#else
 			if (flags2 & (RF2_POWERFUL)) spoil_out(" powerfully");
+#endif
 		}
 
 		/* Collect spells */
 		vn = 0;
+#ifdef JP
+		if (flags5 & (RF5_BA_ACID))           vp[vn++] = "アシッド・ボール";
+		if (flags5 & (RF5_BA_ELEC))           vp[vn++] = "サンダー・ボール";
+		if (flags5 & (RF5_BA_FIRE))           vp[vn++] = "ファイア・ボール";
+		if (flags5 & (RF5_BA_COLD))           vp[vn++] = "アイス・ボール";
+		if (flags5 & (RF5_BA_POIS))           vp[vn++] = "悪臭雲";
+		if (flags5 & (RF5_BA_NETH))           vp[vn++] = "地獄球";
+		if (flags5 & (RF5_BA_WATE))           vp[vn++] = "ウォーター・ボール";
+		if (flags4 & (RF4_BA_NUKE))           vp[vn++] = "放射能球";
+		if (flags5 & (RF5_BA_MANA))           vp[vn++] = "魔力の嵐";
+		if (flags5 & (RF5_BA_DARK))           vp[vn++] = "暗黒の嵐";
+		if (flags4 & (RF4_BA_LITE))           vp[vn++] = "スター・バースト";
+		if (flags4 & (RF4_BA_CHAO))           vp[vn++] = "カオス球";
+		if (flags6 & (RF6_HAND_DOOM))         vp[vn++] = "破滅の手";
+		if (flags5 & (RF5_DRAIN_MANA))        vp[vn++] = "魔力吸収";
+		if (flags5 & (RF5_MIND_BLAST))        vp[vn++] = "精神攻撃";
+		if (flags5 & (RF5_BRAIN_SMASH))       vp[vn++] = "脳攻撃";
+		if (flags5 & (RF5_CAUSE_1))           vp[vn++] = "軽傷＋呪い";
+		if (flags5 & (RF5_CAUSE_2))           vp[vn++] = "重傷＋呪い";
+		if (flags5 & (RF5_CAUSE_3))           vp[vn++] = "致命傷＋呪い";
+		if (flags5 & (RF5_CAUSE_4))           vp[vn++] = "瀕死傷";
+		if (flags5 & (RF5_BO_ACID))           vp[vn++] = "アシッド・ボルト";
+		if (flags5 & (RF5_BO_ELEC))           vp[vn++] = "サンダー・ボルト";
+		if (flags5 & (RF5_BO_FIRE))           vp[vn++] = "ファイア・ボルト";
+		if (flags5 & (RF5_BO_COLD))           vp[vn++] = "アイス・ボルト";
+		if (flags5 & (RF5_BO_POIS))           vp[vn++] = "ポイズン・ボルト";
+		if (flags5 & (RF5_BO_NETH))           vp[vn++] = "地獄の矢";
+		if (flags5 & (RF5_BO_WATE))           vp[vn++] = "ウォーター・ボルト";
+		if (flags5 & (RF5_BO_MANA))           vp[vn++] = "魔力の矢";
+		if (flags5 & (RF5_BO_PLAS))           vp[vn++] = "プラズマ・ボルト";
+		if (flags5 & (RF5_BO_ICEE))           vp[vn++] = "極寒の矢";
+		if (flags5 & (RF5_MISSILE))           vp[vn++] = "マジックミサイル";
+		if (flags5 & (RF5_SCARE))             vp[vn++] = "恐怖";
+		if (flags5 & (RF5_BLIND))             vp[vn++] = "目くらまし";
+		if (flags5 & (RF5_CONF))              vp[vn++] = "混乱";
+		if (flags5 & (RF5_SLOW))              vp[vn++] = "減速";
+		if (flags5 & (RF5_HOLD))              vp[vn++] = "麻痺";
+		if (flags6 & (RF6_HASTE))             vp[vn++] = "加速";
+		if (flags6 & (RF6_HEAL))              vp[vn++] = "治癒";
+		if (flags6 & (RF6_INVULNER))          vp[vn++] = "無敵化";
+		if (flags6 & (RF6_BLINK))             vp[vn++] = "ショートテレポート";
+		if (flags6 & (RF6_TPORT))             vp[vn++] = "テレポート";
+		if (flags6 & (RF6_XXX3))              vp[vn++] = "何か";
+		if (flags6 & (RF6_XXX4))              vp[vn++] = "何か";
+		if (flags6 & (RF6_TELE_TO))           vp[vn++] = "テレポートバック";
+		if (flags6 & (RF6_TELE_AWAY))         vp[vn++] = "テレポートアウェイ";
+		if (flags6 & (RF6_TELE_LEVEL))        vp[vn++] = "レベルテレポート";
+		if (flags6 & (RF6_XXX5))              vp[vn++] = "何か";
+		if (flags6 & (RF6_DARKNESS))          vp[vn++] = "暗闇";
+		if (flags6 & (RF6_TRAPS))             vp[vn++] = "トラップ";
+		if (flags6 & (RF6_FORGET))            vp[vn++] = "記憶消去";
+		if (flags6 & (RF6_RAISE_DEAD))        vp[vn++] = "死者復活";
+		if (flags6 & (RF6_S_MONSTER))         vp[vn++] = "モンスター一体召喚";
+		if (flags6 & (RF6_S_MONSTERS))        vp[vn++] = "モンスター複数召喚";
+		if (flags6 & (RF6_S_KIN))             vp[vn++] = "救援召喚";
+		if (flags6 & (RF6_S_ANT))             vp[vn++] = "アリ召喚";
+		if (flags6 & (RF6_S_SPIDER))          vp[vn++] = "クモ召喚";
+		if (flags6 & (RF6_S_HOUND))           vp[vn++] = "ハウンド召喚";
+		if (flags6 & (RF6_S_HYDRA))           vp[vn++] = "ヒドラ召喚";
+		if (flags6 & (RF6_S_ANGEL))           vp[vn++] = "天使召喚";
+		if (flags6 & (RF6_S_DEMON))           vp[vn++] = "デーモン召喚";
+		if (flags6 & (RF6_S_UNDEAD))          vp[vn++] = "アンデッド召喚";
+		if (flags6 & (RF6_S_DRAGON))          vp[vn++] = "ドラゴン召喚";
+		if (flags6 & (RF6_S_HI_UNDEAD))       vp[vn++] = "強力なアンデッド召喚";
+		if (flags6 & (RF6_S_HI_DRAGON))       vp[vn++] = "古代ドラゴン召喚";
+		if (flags6 & (RF6_S_CYBER))           vp[vn++] = "サイバーデーモン召喚";
+		if (flags6 & (RF6_S_HI_DEMON))        vp[vn++] = "上級デーモン召喚";
+		if (flags6 & (RF6_S_UNIQUE))          vp[vn++] = "ユニークモンスター召喚";
+#else
 		if (flags5 & (RF5_BA_ACID))           vp[vn++] = "produce acid balls";
 		if (flags5 & (RF5_BA_ELEC))           vp[vn++] = "produce lightning balls";
 		if (flags5 & (RF5_BA_FIRE))           vp[vn++] = "produce fire balls";
@@ -1865,7 +2481,8 @@ static void spoil_mon_info(cptr fname)
 		if (flags4 & (RF4_BA_NUKE))           vp[vn++] = "produce balls of radiation";
 		if (flags5 & (RF5_BA_MANA))           vp[vn++] = "produce mana storms";
 		if (flags5 & (RF5_BA_DARK))           vp[vn++] = "produce darkness storms";
-		if (flags4 & (RF4_BA_CHAO))           vp[vn++] = "invoke raw Logrus";
+		if (flags4 & (RF4_BA_LITE))           vp[vn++] = "invoke star burst";
+		if (flags4 & (RF4_BA_CHAO))           vp[vn++] = "produce chaos balls";
 		if (flags6 & (RF6_HAND_DOOM))         vp[vn++] = "invoke the Hand of Doom";
 		if (flags5 & (RF5_DRAIN_MANA))        vp[vn++] = "drain mana";
 		if (flags5 & (RF5_MIND_BLAST))        vp[vn++] = "cause mind blasting";
@@ -1919,43 +2536,83 @@ static void spoil_mon_info(cptr fname)
 		if (flags6 & (RF6_S_HI_UNDEAD))       vp[vn++] = "summon greater undead";
 		if (flags6 & (RF6_S_HI_DRAGON))       vp[vn++] = "summon ancient dragons";
 		if (flags6 & (RF6_S_CYBER))           vp[vn++] = "summon Cyberdemons";
-		if (flags6 & (RF6_S_AMBERITES))       vp[vn++] = "summon Lords of Amber";
+		if (flags6 & (RF6_S_HI_DEMON))        vp[vn++] = "summon greater demon";
 		if (flags6 & (RF6_S_UNIQUE))          vp[vn++] = "summon unique monsters";
+#endif
 
 		if (vn)
 		{
 			magic = TRUE;
 			if (breath)
 			{
+#ifdef JP
+				spoil_out("り、なおかつ");
+#else
 				spoil_out(", and is also");
+#endif
 			}
 			else
 			{
-				spoil_out(wd_che[msex]);
-				spoil_out(" is");
+#ifdef JP
+				sprintf(buf, "%sは", wd_che[msex]);
+#else
+				sprintf(buf, "%s is", wd_che[msex]);
+#endif
+				spoil_out(buf);
 			}
 
+#ifdef JP
+			/* Adverb */
+			if (flags2 & (RF2_SMART)) spoil_out("的確に");
+
+			/* Verb Phrase */
+			spoil_out("魔法を使うことができ、");
+#else
 			spoil_out(" magical, casting spells");
 			if (flags2 & (RF2_SMART)) spoil_out(" intelligently");
+#endif
 
 			for (i = 0; i < vn; i++)
 			{
+#ifdef JP
+				if ( n != 0 ) spoil_out("、");
+#else
 				if (!i) spoil_out(" which ");
 				else if (i < vn-1) spoil_out(", ");
 				else spoil_out(" or ");
+#endif
 				spoil_out(vp[i]);
 			}
+#ifdef JP
+			spoil_out("の呪文を唱えることがあ");
+#endif
 		}
 
 		if (breath || magic)
 		{
+#ifdef JP
+			sprintf(buf, "る(確率:約1/%d)。",
+				200 / (r_ptr->freq_inate + r_ptr->freq_spell));
+			spoil_out(buf);
+#else
 			sprintf(buf, "; 1 time in %d.  ",
 				200 / (r_ptr->freq_inate + r_ptr->freq_spell));
 			spoil_out(buf);
+#endif
 		}
 
 		/* Collect special abilities. */
 		vn = 0;
+#ifdef JP
+		if (flags2 & (RF2_OPEN_DOOR)) vp[vn++] = "ドアを開ける";
+		if (flags2 & (RF2_BASH_DOOR)) vp[vn++] = "ドアを打ち破る";
+		if (flags2 & (RF2_PASS_WALL)) vp[vn++] = "壁をすり抜ける";
+		if (flags2 & (RF2_KILL_WALL)) vp[vn++] = "壁を掘り進む";
+		if (flags2 & (RF2_MOVE_BODY)) vp[vn++] = "弱いモンスターを押しのける";
+		if (flags2 & (RF2_KILL_BODY)) vp[vn++] = "弱いモンスターを倒す";
+		if (flags2 & (RF2_TAKE_ITEM)) vp[vn++] = "アイテムを拾う";
+		if (flags2 & (RF2_KILL_ITEM)) vp[vn++] = "アイテムを壊す";
+#else
 		if (flags2 & (RF2_OPEN_DOOR)) vp[vn++] = "open doors";
 		if (flags2 & (RF2_BASH_DOOR)) vp[vn++] = "bash down doors";
 		if (flags2 & (RF2_PASS_WALL)) vp[vn++] = "pass through walls";
@@ -1964,137 +2621,305 @@ static void spoil_mon_info(cptr fname)
 		if (flags2 & (RF2_KILL_BODY)) vp[vn++] = "destroy weaker monsters";
 		if (flags2 & (RF2_TAKE_ITEM)) vp[vn++] = "pick up objects";
 		if (flags2 & (RF2_KILL_ITEM)) vp[vn++] = "destroy objects";
+#endif
+
 
 		if (vn)
 		{
 			spoil_out(wd_che[msex]);
+#ifdef JP
+			spoil_out("は");
+#endif
 			for (i = 0; i < vn; i++)
 			{
+#ifdef JP
+				if(i != vn-1)
+				{
+					jverb(vp[i],jverb_buf, JVERB_AND);
+					spoil_out(jverb_buf);
+					spoil_out("、");
+				}
+				else  spoil_out(vp[i]);
+#else
 				if (!i) spoil_out(" can ");
 				else if (i < vn-1) spoil_out(", ");
 				else spoil_out(" and ");
 				spoil_out(vp[i]);
+#endif
 			}
+#ifdef JP
+			spoil_out("ことができる。");
+#else
 			spoil_out(".  ");
+#endif
 		}
 
 		if (flags2 & (RF2_INVISIBLE))
 		{
 			spoil_out(wd_che[msex]);
+#ifdef JP
+			spoil_out("は透明で目に見えない。");
+#else
 			spoil_out(" is invisible.  ");
+#endif
 		}
 		if (flags2 & (RF2_COLD_BLOOD))
 		{
 			spoil_out(wd_che[msex]);
+#ifdef JP
+			spoil_out("は冷血動物である。");
+#else
 			spoil_out(" is cold blooded.  ");
+#endif
 		}
 		if (flags2 & (RF2_EMPTY_MIND))
 		{
 			spoil_out(wd_che[msex]);
+#ifdef JP
+			spoil_out("はテレパシーでは感知できない。");
+#else
 			spoil_out(" is not detected by telepathy.  ");
+#endif
 		}
 		if (flags2 & (RF2_WEIRD_MIND))
 		{
 			spoil_out(wd_che[msex]);
+#ifdef JP
+			spoil_out("はまれにテレパシーで感知できる。");
+#else
 			spoil_out(" is rarely detected by telepathy.  ");
+#endif
 		}
 		if (flags2 & (RF2_MULTIPLY))
 		{
 			spoil_out(wd_che[msex]);
+#ifdef JP
+			spoil_out("は爆発的に増殖する。");
+#else
 			spoil_out(" breeds explosively.  ");
+#endif
 		}
 		if (flags2 & (RF2_REGENERATE))
 		{
 			spoil_out(wd_che[msex]);
+#ifdef JP
+			spoil_out("は素早く体力を回復する。");
+#else
 			spoil_out(" regenerates quickly.  ");
+#endif
 		}
 
 		/* Collect susceptibilities */
 		vn = 0;
+#ifdef JP
+		if (flags3 & (RF3_HURT_ROCK)) vp[vn++] = "岩を除去するもの";
+		if (flags3 & (RF3_HURT_LITE)) vp[vn++] = "明るい光";
+		if (flags3 & (RF3_HURT_FIRE)) vp[vn++] = "火";
+		if (flags3 & (RF3_HURT_COLD)) vp[vn++] = "冷気";
+#else
 		if (flags3 & (RF3_HURT_ROCK)) vp[vn++] = "rock remover";
 		if (flags3 & (RF3_HURT_LITE)) vp[vn++] = "bright light";
 		if (flags3 & (RF3_HURT_FIRE)) vp[vn++] = "fire";
 		if (flags3 & (RF3_HURT_COLD)) vp[vn++] = "cold";
+#endif
 
 		if (vn)
 		{
-			spoil_out(wd_che[msex]);
+#ifdef JP
+			sprintf(buf, "%sには", wd_che[msex]);
+#else
+			sprintf(buf, "%s", wd_che[msex]);
+#endif
+			spoil_out(buf);
+
 			for (i = 0; i < vn; i++)
 			{
-				if (!i) spoil_out(" is hurt by ");
+#ifdef JP
+				if ( i != 0 ) spoil_out("や");
+#else
+				if (i == 0) spoil_out(" is hurt by ");
 				else if (i < vn-1) spoil_out(", ");
 				else spoil_out(" and ");
+#endif
 				spoil_out(vp[i]);
 			}
+
+			/* End */
+#ifdef JP
+			spoil_out("でダメージを与えられる。");
+#else
 			spoil_out(".  ");
+#endif
 		}
 
 		/* Collect immunities */
 		vn = 0;
+#ifdef JP
+		if (flags3 & (RF3_IM_ACID)) vp[vn++] = "酸";
+		if (flags3 & (RF3_IM_ELEC)) vp[vn++] = "電撃";
+		if (flags3 & (RF3_IM_FIRE)) vp[vn++] = "火";
+		if (flags3 & (RF3_IM_COLD)) vp[vn++] = "冷気";
+		if (flags3 & (RF3_IM_POIS)) vp[vn++] = "毒";
+#else
 		if (flags3 & (RF3_IM_ACID)) vp[vn++] = "acid";
 		if (flags3 & (RF3_IM_ELEC)) vp[vn++] = "lightning";
 		if (flags3 & (RF3_IM_FIRE)) vp[vn++] = "fire";
 		if (flags3 & (RF3_IM_COLD)) vp[vn++] = "cold";
 		if (flags3 & (RF3_IM_POIS)) vp[vn++] = "poison";
+#endif
 
 		if (vn)
 		{
-			spoil_out(wd_che[msex]);
+#ifdef JP
+			sprintf(buf, "%sは", wd_che[msex]);
+#else
+			sprintf(buf, "%s", wd_che[msex]);
+#endif
+			spoil_out(buf);
 			for (i = 0; i < vn; i++)
 			{
+#ifdef JP
+				if ( i != 0 ) spoil_out("と");
+#else
 				if (!i) spoil_out(" resists ");
 				else if (i < vn-1) spoil_out(", ");
 				else spoil_out(" and ");
+#endif
 				spoil_out(vp[i]);
 			}
+#ifdef JP
+			spoil_out("の耐性を持っている。");
+#else
 			spoil_out(".  ");
+#endif
 		}
 
 		/* Collect resistances */
 		vn = 0;
-		if (flags3 & (RF3_RES_NETH)) vp[vn++] = "nether";
+#ifdef JP
+		if (flags4 & RF4_BR_LITE)    vp[vn++] = "閃光";
+		if ((flags4 & RF4_BR_DARK) || (flags3 & RF3_ORC) || (flags3 & RF3_HURT_LITE)) vp[vn++] = "閃光";
+		if ((flags3 & RF3_RES_NETH) || (flags3 & RF3_UNDEAD)) vp[vn++] = "地獄";
+		if (flags3 & (RF3_RES_WATE)) vp[vn++] = "水";
+		if (flags3 & (RF3_RES_PLAS)) vp[vn++] = "プラズマ";
+		if (flags4 & RF4_BR_SHAR) vp[vn++] = "破片";
+		if (flags4 & RF4_BR_SOUN) vp[vn++] = "轟音";
+		if (flags4 & RF4_BR_CONF) vp[vn++] = "混乱";
+		if (flags4 & RF4_BR_CHAO) vp[vn++] = "カオス";
+		if (flags3 & (RF3_RES_NEXU)) vp[vn++] = "因果混乱";
+		if (flags3 & (RF3_RES_DISE)) vp[vn++] = "劣化";
+		if (flags4 & RF4_BR_WALL) vp[vn++] = "フォース";
+		if (flags4 & RF4_BR_INER) vp[vn++] = "遅鈍";
+		if (flags4 & RF4_BR_TIME) vp[vn++] = "時間逆転";
+		if (flags4 & RF4_BR_GRAV) vp[vn++] = "重力";
+		if ((flags3 & RF3_RES_TELE) && !(r_ptr->flags1 & RF1_UNIQUE)) vp[vn++] = "テレポート";
+#else
+		if (flags4 & RF4_BR_LITE)    vp[vn++] = "light";
+		if ((flags4 & RF4_BR_DARK) || (flags3 & RF3_ORC) || (flags3 & RF3_HURT_LITE)) vp[vn++] = "dark";
+		if ((flags3 & RF3_RES_NETH) || (flags3 & RF3_UNDEAD)) vp[vn++] = "nether";
 		if (flags3 & (RF3_RES_WATE)) vp[vn++] = "water";
 		if (flags3 & (RF3_RES_PLAS)) vp[vn++] = "plasma";
+		if (flags4 & RF4_BR_SHAR) vp[vn++] = "shards";
+		if (flags4 & RF4_BR_SOUN) vp[vn++] = "sound";
+		if (flags4 & RF4_BR_CONF) vp[vn++] = "confusion";
+		if (flags4 & RF4_BR_CHAO) vp[vn++] = "chaos";
 		if (flags3 & (RF3_RES_NEXU)) vp[vn++] = "nexus";
 		if (flags3 & (RF3_RES_DISE)) vp[vn++] = "disenchantment";
-		if (flags3 & (RF3_RES_TELE)) vp[vn++] = "teleportation";
+		if (flags4 & RF4_BR_WALL) vp[vn++] = "force";
+		if (flags4 & RF4_BR_INER) vp[vn++] = "inertia";
+		if (flags4 & RF4_BR_TIME) vp[vn++] = "time";
+		if (flags4 & RF4_BR_GRAV) vp[vn++] = "gravity";
 		if ((flags3 & RF3_RES_TELE) && !(r_ptr->flags1 & RF1_UNIQUE)) vp[vn++] = "teleportation";
+#endif
 
 		if (vn)
 		{
-			spoil_out(wd_che[msex]);
+#ifdef JP
+			sprintf(buf, "%sは", wd_che[msex]);
+#else
+			sprintf(buf, "%s", wd_che[msex]);
+#endif
+			spoil_out(buf);
 			for (i = 0; i < vn; i++)
 			{
+#ifdef JP
+				if ( i != 0 ) spoil_out("と");
+#else
 				if (!i) spoil_out(" resists ");
 				else if (i < vn-1) spoil_out(", ");
 				else spoil_out(" and ");
+#endif
 				spoil_out(vp[i]);
 			}
+#ifdef JP
+			spoil_out("の耐性を持っている。");
+#else
 			spoil_out(".  ");
+#endif
 		}
 
 		/* Collect non-effects */
 		vn = 0;
+#ifdef JP
+		if (flags3 & (RF3_NO_STUN)) vp[vn++] = "朦朧としない";
+		if (flags3 & (RF3_NO_FEAR)) vp[vn++] = "恐怖を感じない";
+		if (flags3 & (RF3_NO_CONF)) vp[vn++] = "混乱しない";
+		if (flags3 & (RF3_NO_SLEEP)) vp[vn++] = "眠らされない";
+		if ((flags3 & RF3_RES_TELE) && (r_ptr->flags1 & RF1_UNIQUE)) vp[vn++] = "テレポートされない";
+#else
 		if (flags3 & (RF3_NO_STUN)) vp[vn++] = "stunned";
 		if (flags3 & (RF3_NO_FEAR)) vp[vn++] = "frightened";
 		if (flags3 & (RF3_NO_CONF)) vp[vn++] = "confused";
 		if (flags3 & (RF3_NO_SLEEP)) vp[vn++] = "slept";
 		if ((flags3 & RF3_RES_TELE) && (r_ptr->flags1 & RF1_UNIQUE)) vp[vn++] = "teleported";
+#endif
+
 
 		if (vn)
 		{
-			spoil_out(wd_che[msex]);
+#ifdef JP
+			sprintf(buf, "%sは", wd_che[msex]);
+#else
+			sprintf(buf, "%s", wd_che[msex]);
+#endif
+			spoil_out(buf);
 			for (i = 0; i < vn; i++)
 			{
+#ifdef JP
+				if ( n != 0 ) spoil_out("し、");
+#else
 				if (!i) spoil_out(" cannot be ");
 				else if (i < vn-1) spoil_out(", ");
 				else spoil_out(" or ");
+#endif
 				spoil_out(vp[i]);
 			}
+#ifdef JP
+			spoil_out("。");
+#else
 			spoil_out(".  ");
+#endif
 		}
 
 		spoil_out(wd_che[msex]);
+#ifdef JP
+		spoil_out("は侵入者");
+		if (r_ptr->sleep > 200)     spoil_out("を無視しがちであるが");
+		else if (r_ptr->sleep > 95) spoil_out("に対してほとんど注意を払わないが");
+		else if (r_ptr->sleep > 75) spoil_out("に対してあまり注意を払わないが");
+		else if (r_ptr->sleep > 45) spoil_out("を見過ごしがちであるが");
+		else if (r_ptr->sleep > 25) spoil_out("をほんの少しは見ており");
+		else if (r_ptr->sleep > 10) spoil_out("をしばらくは見ており");
+		else if (r_ptr->sleep > 5)  spoil_out("を幾分注意深く見ており");
+		else if (r_ptr->sleep > 3)  spoil_out("を注意深く見ており");
+		else if (r_ptr->sleep > 1)  spoil_out("をかなり注意深く見ており");
+		else if (r_ptr->sleep > 0)  spoil_out("を警戒しており");
+		else spoil_out("をかなり警戒しており");
+		spoil_out("、");
+		sprintf(buf, " %d フィート先から侵入者に気付くことがある。",
+			10 * r_ptr->aaf);
+		spoil_out(buf);
+#else
 		if (r_ptr->sleep > 200)     spoil_out(" prefers to ignore");
 		else if (r_ptr->sleep > 95) spoil_out(" pays very little attention to");
 		else if (r_ptr->sleep > 75) spoil_out(" pays little attention to");
@@ -2108,8 +2933,9 @@ static void spoil_mon_info(cptr fname)
 		else spoil_out(" is ever vigilant for");
 
 		sprintf(buf, " intruders, which %s may notice from %d feet.  ",
-			wd_lhe[msex], 10 * r_ptr->aaf);
+			wd_che[msex], 10 * r_ptr->aaf);
 		spoil_out(buf);
+#endif
 
 		i = 0;
 		if (flags1 & (RF1_DROP_60)) i += 1;
@@ -2122,60 +2948,111 @@ static void spoil_mon_info(cptr fname)
 		/* Drops gold and/or items */
 		if (i)
 		{
+#ifdef JP
+			sprintf(buf, "%sは", wd_che[msex]);
+#else
+			sprintf(buf, "%s will carry", wd_che[msex]);
 			sin = FALSE;
-			spoil_out(wd_che[msex]);
-			spoil_out(" will carry");
+#endif
+			spoil_out(buf);
 
 			if (i == 1)
 			{
-				spoil_out(" a"); sin = TRUE;
+#ifdef JP
+				spoil_out("1個の");
+#else
+				spoil_out(" a");
+				sin = TRUE;
+#endif
 			}
 			else if (i == 2)
 			{
+#ifdef JP
+				spoil_out("1個か2個の");
+#else
 				spoil_out(" one or two");
-				sin = TRUE;
+#endif
 			}
 			else
 			{
+#ifdef JP
+				sprintf(buf, "%u個までの", i);
+#else
 				sprintf(buf, " up to %u", i);
+#endif
 				spoil_out(buf);
 			}
 
 			if (flags1 & (RF1_DROP_GREAT))
 			{
+#ifdef JP
+				spoil_out("特別なアイテム");
+#else
 				if (sin) spoil_out("n");
 				spoil_out(" exceptional object");
+#endif
 			}
 			else if (flags1 & (RF1_DROP_GOOD))
 			{
+#ifdef JP
+				spoil_out("上質のアイテム");
+#else
 				spoil_out(" good object");
+#endif
 			}
 			else if (flags1 & (RF1_DROP_USEFUL))
 			{
+#ifdef JP
+				spoil_out("アイテム");
+#else
 				spoil_out(" useful object");
+#endif
 			}
 			else if (flags1 & (RF1_ONLY_ITEM))
 			{
+#ifdef JP
+				spoil_out("アイテム");
+#else
 				spoil_out(" object");
+#endif
 			}
 			else if (flags1 & (RF1_ONLY_GOLD))
 			{
+#ifdef JP
+				spoil_out("財宝");
+#else
 				spoil_out(" treasure");
+#endif
 			}
 			else
 			{
+#ifdef JP
+				spoil_out("アイテムや財宝");
+#else
 				spoil_out(" object");
 				if (i > 1) spoil_out("s");
 				spoil_out(" or treasure");
+#endif
 			}
+#ifndef JP
 			if (i > 1) spoil_out("s");
+#endif
 
 			if (flags1 & (RF1_DROP_CHOSEN))
 			{
+#ifdef JP
+				if(i > 1) spoil_out("を持っており、なおかつ");
+				spoil_out("特定のアイテム");
+#else
 				spoil_out(", in addition to chosen objects");
+#endif
 			}
 
+#ifdef JP
+			spoil_out("を持っていることがある。");
+#else
 			spoil_out(".  ");
+#endif
 		}
 
 		/* Count the actual attacks */
@@ -2190,11 +3067,37 @@ static void spoil_mon_info(cptr fname)
 			if (!r_ptr->blow[j].method) continue;
 
 			/* No method yet */
-			p = "???";
+			p = NULL;
 
 			/* Acquire the method */
 			switch (r_ptr->blow[j].method)
 			{
+#ifdef JP
+				case RBM_HIT:		p = "殴る"; break;
+				case RBM_TOUCH:		p = "触る"; break;
+				case RBM_PUNCH:		p = "パンチする"; break;
+				case RBM_KICK:		p = "蹴る"; break;
+				case RBM_CLAW:		p = "ひっかく"; break;
+				case RBM_BITE:		p = "噛む"; break;
+				case RBM_STING:		p = "刺す"; break;
+				case RBM_SLASH:		p = "斬る"; break;
+				case RBM_BUTT:		p = "角で突く"; break;
+				case RBM_CRUSH:		p = "体当たりする"; break;
+				case RBM_ENGULF:	p = "飲み込む"; break;
+				case RBM_CHARGE: 	p = "請求書をよこす"; break;
+				case RBM_CRAWL:		p = "体の上を這い回る"; break;
+				case RBM_DROOL:		p = "よだれをたらす"; break;
+				case RBM_SPIT:		p = "つばを吐く"; break;
+				case RBM_EXPLODE:	p = "爆発する"; break;
+				case RBM_GAZE:		p = "にらむ"; break;
+				case RBM_WAIL:		p = "泣き叫ぶ"; break;
+				case RBM_SPORE:		p = "胞子を飛ばす"; break;
+				case RBM_XXX4:   break;
+				case RBM_BEG:		p = "金をせがむ"; break;
+				case RBM_INSULT:	p = "侮辱する"; break;
+				case RBM_MOAN:		p = "うめく"; break;
+				case RBM_SHOW:  	p = "歌う"; break;
+#else
 				case RBM_HIT:    p = "hit"; break;
 				case RBM_TOUCH:  p = "touch"; break;
 				case RBM_PUNCH:  p = "punch"; break;
@@ -2202,7 +3105,7 @@ static void spoil_mon_info(cptr fname)
 				case RBM_CLAW:   p = "claw"; break;
 				case RBM_BITE:   p = "bite"; break;
 				case RBM_STING:  p = "sting"; break;
-				case RBM_XXX1:   break;
+				case RBM_SLASH:	 p = "slash"; break;
 				case RBM_BUTT:   p = "butt"; break;
 				case RBM_CRUSH:  p = "crush"; break;
 				case RBM_ENGULF: p = "engulf"; break;
@@ -2219,15 +3122,50 @@ static void spoil_mon_info(cptr fname)
 				case RBM_INSULT: p = "insult"; break;
 				case RBM_MOAN:   p = "moan"; break;
 				case RBM_SHOW:   p = "sing"; break;
+#endif
 			}
 
 
 			/* Default effect */
-			q = "???";
+			q = NULL;
 
 			/* Acquire the effect */
 			switch (r_ptr->blow[j].effect)
 			{
+#ifdef JP
+				case RBE_HURT:    	q = "攻撃する"; break;
+				case RBE_POISON:  	q = "毒をくらわす"; break;
+				case RBE_UN_BONUS:	q = "劣化させる"; break;
+				case RBE_UN_POWER:	q = "魔力を吸い取る"; break;
+				case RBE_EAT_GOLD:	q = "金を盗む"; break;
+				case RBE_EAT_ITEM:	q = "アイテムを盗む"; break;
+				case RBE_EAT_FOOD:	q = "あなたの食料を食べる"; break;
+				case RBE_EAT_LITE:	q = "明かりを吸収する"; break;
+				case RBE_ACID:    	q = "酸を飛ばす"; break;
+				case RBE_ELEC:      q = "感電させる"; break;
+
+				case RBE_FIRE:    	q = "燃やす"; break;
+				case RBE_COLD:    	q = "凍らせる"; break;
+				case RBE_BLIND:   	q = "盲目にする"; break;
+				case RBE_CONFUSE: 	q = "混乱させる"; break;
+				case RBE_TERRIFY: 	q = "恐怖させる"; break;
+				case RBE_PARALYZE:	q = "麻痺させる"; break;
+				case RBE_LOSE_STR:	q = "腕力を減少させる"; break;
+				case RBE_LOSE_INT:	q = "知能を減少させる"; break;
+				case RBE_LOSE_WIS:	q = "賢さを減少させる"; break;
+				case RBE_LOSE_DEX:	q = "器用さを減少させる"; break;
+				case RBE_LOSE_CON:	q = "耐久力を減少させる"; break;
+				case RBE_LOSE_CHR:	q = "魅力を減少させる"; break;
+				case RBE_LOSE_ALL:	q = "全ステータスを減少させる"; break;
+				case RBE_SHATTER:	q = "粉砕する"; break;
+				case RBE_EXP_10:	q = "経験値を減少(10d6+)させる"; break;
+				case RBE_EXP_20:	q = "経験値を減少(20d6+)させる"; break;
+				case RBE_EXP_40:	q = "経験値を減少(40d6+)させる"; break;
+				case RBE_EXP_80:	q = "経験値を減少(80d6+)させる"; break;
+				case RBE_DISEASE:	q = "病気にする"; break;
+				case RBE_TIME:      q = "時間逆転させる"; break;
+				case RBE_EXP_VAMP:      q = "生命力を吸収する"; break;
+#else
 				case RBE_HURT:          q = "attack"; break;
 				case RBE_POISON:        q = "poison"; break;
 				case RBE_UN_BONUS:      q = "disenchant"; break;
@@ -2238,6 +3176,7 @@ static void spoil_mon_info(cptr fname)
 				case RBE_EAT_LITE:      q = "absorb light"; break;
 				case RBE_ACID:          q = "shoot acid"; break;
 				case RBE_ELEC:          q = "electrocute"; break;
+
 				case RBE_FIRE:          q = "burn"; break;
 				case RBE_COLD:          q = "freeze"; break;
 				case RBE_BLIND:         q = "blind"; break;
@@ -2259,31 +3198,74 @@ static void spoil_mon_info(cptr fname)
 				case RBE_DISEASE:       q = "disease"; break;
 				case RBE_TIME:          q = "time"; break;
 				case RBE_EXP_VAMP:      q = "drain life force"; break;
+#endif
 			}
 
 
 			if (!k)
 			{
-				spoil_out(wd_che[msex]);
-				spoil_out(" can ");
+#ifdef JP
+				sprintf(buf, "%sは", wd_che[msex]);
+#else
+				sprintf(buf, "%s can ", wd_che[msex]);
+#endif
+				spoil_out(buf);
 			}
 			else if (k < i-1)
 			{
+#ifdef JP
+				spoil_out("、");
+#else
 				spoil_out(", ");
+#endif
 			}
 			else
 			{
+#ifdef JP
+				spoil_out("、");
+#else
 				spoil_out(", and ");
+#endif
 			}
 
+#ifdef JP
+			if (p)
+			{
+				if (r_ptr->blow[j].d_dice && r_ptr->blow[j].d_side)
+				{
+					if(!k) spoil_out(" ");
+					if (r_ptr->blow[j].d_side == 1)
+						sprintf(buf, "%d ", r_ptr->blow[j].d_dice);
+					else
+						sprintf(buf, "%dd%d ",
+						r_ptr->blow[j].d_dice, r_ptr->blow[j].d_side);
+					spoil_out(buf);
+					spoil_out("のダメージで");
+				}
+				if(q) jverb( p ,jverb_buf, JVERB_TO);
+				else if(k!=i-1) jverb( p ,jverb_buf, JVERB_AND);
+				else strcpy(jverb_buf, p);
+				spoil_out(jverb_buf);
+				/* Describe the effect (if any) */
+				if (q)
+				{
+					if(k!=i-1) jverb( q,jverb_buf, JVERB_AND);
+					else strcpy(jverb_buf,q); 
+					spoil_out(jverb_buf);
+				}
+			}
+#else
 			/* Describe the method */
-			spoil_out(p);
+			if (p) spoil_out(p);
 
 			/* Describe the effect, if any */
 			if (r_ptr->blow[j].effect)
 			{
-				spoil_out(" to ");
-				spoil_out(q);
+				if (q)
+				{
+					spoil_out(" to ");
+					spoil_out(q);
+				}
 				if (r_ptr->blow[j].d_dice && r_ptr->blow[j].d_side)
 				{
 					spoil_out(" with damage");
@@ -2295,17 +3277,25 @@ static void spoil_mon_info(cptr fname)
 					spoil_out(buf);
 				}
 			}
-
+#endif
 			k++;
 		}
 
 		if (k)
 		{
+#ifdef JP
+			spoil_out("。");
+#else
 			spoil_out(".  ");
+#endif
 		}
 		else if (flags1 & (RF1_NEVER_BLOW))
 		{
+#ifdef JP
+			sprintf(buf, "%sは物理的な攻撃方法を持たない。", wd_che[msex]);
+#else
 			sprintf(buf, "%s has no physical attacks.  ", wd_che[msex]);
+#endif
 			spoil_out(buf);
 		}
 
@@ -2324,10 +3314,6 @@ static void spoil_mon_info(cptr fname)
 
 	msg_print("Successfully created a spoiler file.");
 }
-
-
-
-
 
 
 /*
@@ -2358,16 +3344,32 @@ void do_cmd_spoilers(void)
 		Term_clear();
 
 		/* Info */
+#ifdef JP
+		prt("作りたいスポイラファイルを選んで下さい。", 2, 0);
+#else
 		prt("Create a spoiler file.", 2, 0);
+#endif
 
 		/* Prompt for a file */
+#ifdef JP
+		prt("(1) アイテムリスト          (obj-desc.spo)", 5, 5);
+		prt("(2) アーティファクトリスト  (artifact.spo)", 6, 5);
+		prt("(3) 簡易モンスターリスト    (mon-desc.spo)", 7, 5);
+		prt("(4) 詳細モンスターリスト    (mon-info.spo)", 8, 5);
+#else
 		prt("(1) Brief Object Info (obj-desc.spo)", 5, 5);
 		prt("(2) Brief Artifact Info (artifact.spo)", 6, 5);
 		prt("(3) Brief Monster Info (mon-desc.spo)", 7, 5);
 		prt("(4) Full Monster Info (mon-info.spo)", 8, 5);
+#endif
 
 		/* Prompt */
+#ifdef JP
+		prt("コマンド:", 18, 0);
+#else
 		prt("Command: ", 12, 0);
+#endif
+
 
 		/* Get a choice */
 		i = inkey();
@@ -2400,6 +3402,32 @@ void do_cmd_spoilers(void)
 		else if (i == '4')
 		{
 			spoil_mon_info("mon-info.spo");
+		}
+
+		/* Test codes for snatcher */
+		else if (i == 's')
+		{
+			int i;
+			char buf[1024];
+			FILE *fff;
+
+			path_build(buf, sizeof(buf), ANGBAND_DIR_USER, "monhds.txt");
+			FILE_TYPE(FILE_TYPE_TEXT);
+			fff = my_fopen(buf, "w");
+			if (fff)
+			{
+				for (i = 1; i < max_r_idx; i++)
+				{
+					int hd = monster_hitdie(i);
+					monster_race *r_ptr = &r_info[i];
+
+					fprintf(fff, "%50s Lv:%3d HD:%3d\n", r_name+r_ptr->name, r_ptr->level, hd);
+				}
+				fclose(fff);
+				msg_print("Successful dump monster HD list.");
+				msg_print(NULL);
+			}
+
 		}
 
 		/* Oops */

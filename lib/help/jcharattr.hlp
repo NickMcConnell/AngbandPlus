@@ -1,0 +1,22 @@
+キャラクターの特性
+
+参照したいオンライン・ヘルプの番号を押して下さい:
+
+    (0) キャラクタの特成              (jcharattr.txt)
+    (1) 種族                          (jcharattr.txt#TheRaces)
+    (2) 職業                          (jcharattr.txt#TheClasses)
+    (3) 主要能力値                    (jcharattr.txt#PrimaryStats)
+    (4) 主要技能                      (jcharattr.txt#PrimarySkills)
+    (5) 能力値修正表                  (jcharattr.txt#StatBonusTable)
+    (6) 技能修正表                    (jcharattr.txt#SkillBonusTable)
+
+    (?) ヘルプシステムの使用法        (jhelpinfo.txt)
+
+
+***** [0] jcharattr.txt
+***** [1] jcharattr.txt#TheRaces
+***** [2] jcharattr.txt#TheClasses
+***** [3] jcharattr.txt#PrimaryStats
+***** [4] jcharattr.txt#PrimarySkills
+***** [5] jcharattr.txt#StatBonusTable
+***** [6] jcharattr.txt#SkillBonusTable

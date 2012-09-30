@@ -1,5 +1,4 @@
-/* CVS: Last edit by $Author: ebock $ on $Date: 1999/12/05 06:11:15 $
- *
+/*
  * File: streams.h
  * Purpose: header file for streams.c. This is only used in generate.c.
  */

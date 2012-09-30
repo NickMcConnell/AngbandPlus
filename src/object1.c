@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 2000/05/18 17:29:11 $ */
 /* File: object1.c */
 
 /* Purpose: Object code, part 1 */
@@ -30,7 +29,7 @@
  */
 void reset_visuals(void)
 {
-	int i;
+	int i, j;
 
 	/* Extract some info about terrain features */
 	for (i = 0; i < max_f_idx; i++)
@@ -38,8 +37,11 @@ void reset_visuals(void)
 		feature_type *f_ptr = &f_info[i];
 
 		/* Assume we will use the underlying values */
-		f_ptr->x_attr = f_ptr->d_attr;
-		f_ptr->x_char = f_ptr->d_char;
+		for (j = 0; j < F_LIT_MAX; j++)
+		{
+			f_ptr->x_attr[j] = f_ptr->d_attr[j];
+			f_ptr->x_char[j] = f_ptr->d_char[j];
+		}
 	}
 
 	/* Extract default attr/char code for objects */
@@ -130,68 +132,6 @@ void object_flags(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
 		(*f2) |= o_ptr->art_flags2;
 		(*f3) |= o_ptr->art_flags3;
 	}
-
-	/* Extra powers */
-	if (!(o_ptr->art_name))
-	{
-		switch (o_ptr->xtra1)
-		{
-			case EGO_XTRA_SUSTAIN:
-			{
-				/* Choose a sustain */
-				switch (o_ptr->xtra2 % 6)
-				{
-					case 0: (*f2) |= (TR2_SUST_STR); break;
-					case 1: (*f2) |= (TR2_SUST_INT); break;
-					case 2: (*f2) |= (TR2_SUST_WIS); break;
-					case 3: (*f2) |= (TR2_SUST_DEX); break;
-					case 4: (*f2) |= (TR2_SUST_CON); break;
-					case 5: (*f2) |= (TR2_SUST_CHR); break;
-				}
-
-				break;
-			}
-
-			case EGO_XTRA_POWER:
-			{
-				/* Choose a power */
-				switch (o_ptr->xtra2 % 11)
-				{
-					case  0: (*f2) |= (TR2_RES_BLIND);  break;
-					case  1: (*f2) |= (TR2_RES_CONF);   break;
-					case  2: (*f2) |= (TR2_RES_SOUND);  break;
-					case  3: (*f2) |= (TR2_RES_SHARDS); break;
-					case  4: (*f2) |= (TR2_RES_NETHER); break;
-					case  5: (*f2) |= (TR2_RES_NEXUS);  break;
-					case  6: (*f2) |= (TR2_RES_CHAOS);  break;
-					case  7: (*f2) |= (TR2_RES_DISEN);  break;
-					case  8: (*f2) |= (TR2_RES_POIS);   break;
-					case  9: (*f2) |= (TR2_RES_DARK);   break;
-					case 10: (*f2) |= (TR2_RES_LITE);   break;
-				}
-
-				break;
-			}
-
-			case EGO_XTRA_ABILITY:
-			{
-				/* Choose an ability */
-				switch (o_ptr->xtra2 % 8)
-				{
-					case 0: (*f3) |= (TR3_FEATHER);     break;
-					case 1: (*f3) |= (TR3_LITE);        break;
-					case 2: (*f3) |= (TR3_SEE_INVIS);   break;
-					case 3: (*f3) |= (TR3_TELEPATHY);   break;
-					case 4: (*f3) |= (TR3_SLOW_DIGEST); break;
-					case 5: (*f3) |= (TR3_REGEN);       break;
-					case 6: (*f2) |= (TR2_FREE_ACT);    break;
-					case 7: (*f2) |= (TR2_HOLD_LIFE);   break;
-				}
-
-				break;
-			}
-		}
-	}
 }
 
 
@@ -208,13 +148,19 @@ void object_flags_known(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
 	/* Clear */
 	(*f1) = (*f2) = (*f3) = 0L;
 
-	/* Must be identified */
-	if (!object_known_p(o_ptr)) return;
+	/* Easy know */
+	if(o_ptr->ident & (IDENT_CURSED))
+		(*f3) |= TR3_CURSED;
+
+	if (!object_aware_p(o_ptr)) return;
 
 	/* Base object */
-	(*f1) = k_ptr->flags1;
-	(*f2) = k_ptr->flags2;
-	(*f3) = k_ptr->flags3;
+	(*f1) |= k_ptr->flags1;
+	(*f2) |= k_ptr->flags2;
+	(*f3) |= k_ptr->flags3;
+
+	/* Must be identified */
+	if (!object_known_p(o_ptr)) return;
 
 	/* Ego-item (known basic flags) */
 	if (o_ptr->name2)
@@ -229,7 +175,6 @@ void object_flags_known(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
 	/* Show modifications to stats */
 	(*f1) |= (o_ptr->art_flags1 &
 		(TR1_STR | TR1_INT | TR1_WIS | TR1_DEX | TR1_CON | TR1_CHR ));
-
 
 #ifdef SPOIL_ARTIFACTS
 	/* Full knowledge for some artifacts */
@@ -271,104 +216,8 @@ void object_flags_known(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
 			(*f2) |= o_ptr->art_flags2;
 			(*f3) |= o_ptr->art_flags3;
 		}
-
-		if (!(o_ptr->art_name))
-		{
-			/* Extra powers */
-			switch (o_ptr->xtra1)
-			{
-				case EGO_XTRA_SUSTAIN:
-				{
-					/* Choose a sustain */
-					switch (o_ptr->xtra2 % 6)
-					{
-						case 0: (*f2) |= (TR2_SUST_STR); break;
-						case 1: (*f2) |= (TR2_SUST_INT); break;
-						case 2: (*f2) |= (TR2_SUST_WIS); break;
-						case 3: (*f2) |= (TR2_SUST_DEX); break;
-						case 4: (*f2) |= (TR2_SUST_CON); break;
-						case 5: (*f2) |= (TR2_SUST_CHR); break;
-					}
-
-					break;
-				}
-
-				case EGO_XTRA_POWER:
-				{
-					/* Choose a power */
-					switch (o_ptr->xtra2 % 11)
-					{
-						case  0: (*f2) |= (TR2_RES_BLIND);  break;
-						case  1: (*f2) |= (TR2_RES_CONF);   break;
-						case  2: (*f2) |= (TR2_RES_SOUND);  break;
-						case  3: (*f2) |= (TR2_RES_SHARDS); break;
-						case  4: (*f2) |= (TR2_RES_NETHER); break;
-						case  5: (*f2) |= (TR2_RES_NEXUS);  break;
-						case  6: (*f2) |= (TR2_RES_CHAOS);  break;
-						case  7: (*f2) |= (TR2_RES_DISEN);  break;
-						case  8: (*f2) |= (TR2_RES_POIS);   break;
-						case  9: (*f2) |= (TR2_RES_DARK);   break;
-						case 10: (*f2) |= (TR2_RES_LITE);   break;
-					}
-
-					break;
-				}
-
-				case EGO_XTRA_ABILITY:
-				{
-					/* Choose an ability */
-					switch (o_ptr->xtra2 % 8)
-					{
-						case 0: (*f3) |= (TR3_FEATHER);     break;
-						case 1: (*f3) |= (TR3_LITE);        break;
-						case 2: (*f3) |= (TR3_SEE_INVIS);   break;
-						case 3: (*f3) |= (TR3_TELEPATHY);   break;
-						case 4: (*f3) |= (TR3_SLOW_DIGEST); break;
-						case 5: (*f3) |= (TR3_REGEN);       break;
-						case 6: (*f2) |= (TR2_FREE_ACT);    break;
-						case 7: (*f2) |= (TR2_HOLD_LIFE);   break;
-					}
-
-					break;
-				}
-			}
-		}
 	}
 }
-
-
-/*
- * Hack -- describe an item currently in a store's inventory
- * This allows an item to *look* like the player is "aware" of it
- */
-void object_desc_store(char *buf, object_type *o_ptr, int pref, int mode)
-{
-	/* Save the "aware" flag */
-	bool hack_aware = object_aware_p(o_ptr);
-
-	/* Save the "known" flag */
-	bool hack_known = (o_ptr->ident & (IDENT_KNOWN)) ? TRUE : FALSE;
-
-
-	/* Set the "known" flag */
-	o_ptr->ident |= (IDENT_KNOWN);
-
-	/* Force "aware" for description */
-	k_info[o_ptr->k_idx].aware = TRUE;
-
-
-	/* Describe the object */
-	object_desc(buf, o_ptr, pref, mode);
-
-
-	/* Restore "aware" flag */
-	k_info[o_ptr->k_idx].aware = hack_aware;
-
-	/* Clear the known flag */
-	if (!hack_known) o_ptr->ident &= ~(IDENT_KNOWN);
-}
-
-
 
 
 /*
@@ -383,322 +232,639 @@ cptr item_activation(object_type *o_ptr)
 	object_flags(o_ptr, &f1, &f2, &f3);
 
 	/* Require activation ability */
+#ifdef JP
+	if (!(f3 & (TR3_ACTIVATE))) return ("なし");
+#else
 	if (!(f3 & (TR3_ACTIVATE))) return ("nothing");
+#endif
 
-
-	/*
-	 * We need to deduce somehow that it is a random artifact -- one
-	 * problem: It could be a random artifact which has NOT YET received
-	 * a name. Thus we eliminate other possibilities instead of checking
-	 * for art_name
-	 */
-
-	if (!(o_ptr->name1) &&
-		 !(o_ptr->name2) &&
-		 !(o_ptr->xtra1) &&
-		  (o_ptr->xtra2))
+	if (o_ptr->xtra2)
 	{
 		switch (o_ptr->xtra2)
 		{
 			case ACT_SUNLIGHT:
 			{
+#ifdef JP
+				return "太陽光線 : 10 ターン毎";
+#else
 				return "beam of sunlight every 10 turns";
+#endif
 			}
 			case ACT_BO_MISS_1:
 			{
+#ifdef JP
+				return "マジック・ミサイル(2d6) : 2 ターン毎";
+#else
 				return "magic missile (2d6) every 2 turns";
+#endif
 			}
 			case ACT_BA_POIS_1:
 			{
+#ifdef JP
+				return "悪臭雲 (12), 半径 3 , 4+d4 ターン毎";
+#else
 				return "stinking cloud (12), rad. 3, every 4+d4 turns";
+#endif
 			}
 			case ACT_BO_ELEC_1:
 			{
+#ifdef JP
+				return "サンダー・ボルト(4d8) : 6+d6 ターン毎";
+#else
 				return "lightning bolt (4d8) every 6+d6 turns";
+#endif
 			}
 			case ACT_BO_ACID_1:
 			{
+#ifdef JP
+				return "アシッド・ボルト(5d8) : 5+d5 ターン毎";
+#else
 				return "acid bolt (5d8) every 5+d5 turns";
+#endif
 			}
 			case ACT_BO_COLD_1:
 			{
+#ifdef JP
+				return "アイス・ボルト(6d8) : 7+d7 ターン毎";
+#else
 				return "frost bolt (6d8) every 7+d7 turns";
+#endif
 			}
 			case ACT_BO_FIRE_1:
 			{
+#ifdef JP
+				return "ファイア・ボルト(9d8) : 8+d8 ターン毎";
+#else
 				return "fire bolt (9d8) every 8+d8 turns";
+#endif
 			}
 			case ACT_BA_COLD_1:
 			{
-				return "ball of cold (48) every 400 turns";
+#ifdef JP
+				return "アイス・ボール (48) : 400 ターン毎";
+#else
+				return "frost ball (48) every 400 turns";
+#endif
 			}
 			case ACT_BA_FIRE_1:
 			{
+#ifdef JP
+				return "ファイア・ボール (72) : 400 ターン毎";
+#else
 				return "ball of fire (72) every 400 turns";
+#endif
 			}
 			case ACT_DRAIN_1:
 			{
-				return "drain life (100) every 100+d100 turns";
+#ifdef JP
+				return "生命力吸収 (90) : 70 ターン毎";
+#else
+				return "drain life (90) every 70 turns";
+#endif
 			}
 			case ACT_BA_COLD_2:
 			{
-				return "ball of cold (100) every 300 turns";
+#ifdef JP
+				return "アイス・ボール (100) : 300 ターン毎";
+#else
+				return "frost ball (100) every 300 turns";
+#endif
 			}
 			case ACT_BA_ELEC_2:
 			{
+#ifdef JP
+				return "サンダー・ボール (100) : 500 ターン毎";
+#else
 				return "ball of lightning (100) every 500 turns";
+#endif
 			}
 			case ACT_DRAIN_2:
 			{
+#ifdef JP
+				return "生命力吸収(120) : 400 ターン毎";
+#else
 				return "drain life (120) every 400 turns";
+#endif
 			}
 			case ACT_VAMPIRE_1:
 			{
+#ifdef JP
+				return "吸血ドレイン (3*50) : 400 ターン毎";
+#else
 				return "vampiric drain (3*50) every 400 turns";
+#endif
 			}
 			case ACT_BO_MISS_2:
 			{
+#ifdef JP
+				return "矢 (150) : 90+d90 ターン毎";
+#else
 				return "arrows (150) every 90+d90 turns";
+#endif
 			}
 			case ACT_BA_FIRE_2:
 			{
+#ifdef JP
+				return "ファイア・ボール (120) : 225+d225 ターン毎";
+#else
 				return "fire ball (120) every 225+d225 turns";
+#endif
 			}
 			case ACT_BA_COLD_3:
 			{
+#ifdef JP
+				return "コールド・ボール (200) : 325+d325 ターン毎";
+#else
 				return "ball of cold (200) every 325+d325 turns";
+#endif
 			}
 			case ACT_BA_ELEC_3:
 			{
+#ifdef JP
+				return "サンダー・ボール (250) : 425+d425 ターン毎";
+#else
 				return "ball of lightning (250) every 425+d425 turns";
+#endif
 			}
 			case ACT_WHIRLWIND:
 			{
+#ifdef JP
+				return "カマイタチ : 250 ターン毎";
+#else
 				return "whirlwind attack every 250 turns";
+#endif
 			}
 			case ACT_VAMPIRE_2:
 			{
+#ifdef JP
+				return "吸血ドレイン (3*100) : 400 ターン毎";
+#else
 				return "vampiric drain (3*100) every 400 turns";
+#endif
 			}
 			case ACT_CALL_CHAOS:
 			{
+#ifdef JP
+				return "混沌招来 : 350 ターン毎"; 
+#else
 				return "call chaos every 350 turns";
+#endif
 			}
 			case ACT_ROCKET:
 			{
+#ifdef JP
+				return "ロケット (120+level) : 400 ターン毎";
+#else
 				return "launch rocket (120+level) every 400 turns";
+#endif
 			}
 			case ACT_DISP_EVIL:
 			{
-				return "dispel evil (level*5) every 300+d300 turns";
+#ifdef JP
+				return "邪悪退散 (level*5) : 200+d200 ターン毎";
+#else
+				return "dispel evil (level*5) every 200+d200 turns";
+#endif
 			}
 			case ACT_BA_MISS_3:
 			{
+#ifdef JP
+				return "エレメントのブレス (300) : 500 ターン毎";
+#else
 				return "elemental breath (300) every 500 turns";
+#endif
 			}
 			case ACT_DISP_GOOD:
 			{
-				return "dispel good (level*5) every 300+d300 turns";
+#ifdef JP
+				return "善良退散 (level*5) : 200+d200 ターン毎";
+#else
+				return "dispel good (level*5) every 200+d200 turns";
+#endif
+			}
+			case ACT_PESTICIDE:
+			{
+#ifdef JP
+				return "害虫の駆除 : 55+d55ターン毎";
+#else
+				return "dispel small life every 55+d55 turns";
+#endif
 			}
 			case ACT_CONFUSE:
 			{
+#ifdef JP
+				return "パニック・モンスター : 15 ターン毎";
+#else
 				return "confuse monster every 15 turns";
+#endif
 			}
 			case ACT_SLEEP:
 			{
+#ifdef JP
+				return "周囲のモンスターを眠らせる : 55 ターン毎";
+#else
 				return "sleep nearby monsters every 55 turns";
+#endif
 			}
 			case ACT_QUAKE:
 			{
+#ifdef JP
+				return "地震 (半径 10) : 50 ターン毎";
+#else
 				return "earthquake (rad 10) every 50 turns";
+#endif
+			}
+			case ACT_FEAR:
+			{
+#ifdef JP
+				return "モンスター恐慌 : 40+d40ターン毎";
+#else
+				return "frighten monsters every 40+d40 turns";
+#endif
 			}
 			case ACT_TERROR:
 			{
-				return "terror every 3 * (level+10) turns";
+#ifdef JP
+				return "全方向への恐怖の光線 : 3*(レベル+10) ターン毎";
+#else
+				return "rays of fear in every direction every 3*(level+10) turns";
+#endif
 			}
 			case ACT_TELE_AWAY:
 			{
+#ifdef JP
+				return "テレポート・アウェイ : 150 ターン毎";
+#else
 				return "teleport away every 200 turns";
+#endif
 			}
 			case ACT_BANISH_EVIL:
 			{
+#ifdef JP
+				return "邪悪追放 : 250+d250 ターン毎";
+#else
 				return "banish evil every 250+d250 turns";
+#endif
 			}
 			case ACT_GENOCIDE:
 			{
+#ifdef JP
+				return "抹殺 : 500 ターン毎";
+#else
 				return "genocide every 500 turns";
+#endif
 			}
 			case ACT_MASS_GENO:
 			{
+#ifdef JP
+				return "周辺抹殺 : 1000 ターン毎";
+#else
 				return "mass genocide every 1000 turns";
+#endif
 			}
 			case ACT_CHARM_ANIMAL:
 			{
+#ifdef JP
+				return "動物魅了 : 300 ターン毎";
+#else
 				return "charm animal every 300 turns";
+#endif
 			}
 			case ACT_CHARM_UNDEAD:
 			{
+#ifdef JP
+				return "不死従属 : 333 ターン毎";
+#else
 				return "enslave undead every 333 turns";
+#endif
 			}
 			case ACT_CHARM_OTHER:
 			{
+#ifdef JP
+				return "モンスター魅了 : 400 ターン毎";
+#else
 				return "charm monster every 400 turns";
+#endif
 			}
 			case ACT_CHARM_ANIMALS:
 			{
+#ifdef JP
+				return "動物友和 : 500 ターン毎";
+#else
 				return "animal friendship every 500 turns";
+#endif
 			}
 			case ACT_CHARM_OTHERS:
 			{
+#ifdef JP
+				return "周辺魅了 : 750 ターン毎";
+#else
 				return "mass charm every 750 turns";
+#endif
 			}
 			case ACT_SUMMON_ANIMAL:
 			{
+#ifdef JP
+				return "動物召喚 : 200+d300 ターン毎";
+#else
 				return "summon animal every 200+d300 turns";
+#endif
 			}
 			case ACT_SUMMON_PHANTOM:
 			{
+#ifdef JP
+				return "使い霊召喚 : 200+d200 ターン毎";
+#else
 				return "summon phantasmal servant every 200+d200 turns";
+#endif
 			}
 			case ACT_SUMMON_ELEMENTAL:
 			{
+#ifdef JP
+				return "エレメンタル召喚 : 750 ターン毎";
+#else
 				return "summon elemental every 750 turns";
+#endif
 			}
 			case ACT_SUMMON_DEMON:
 			{
+#ifdef JP
+				return "悪魔召喚 : 666+d333 ターン毎";
+#else
 				return "summon demon every 666+d333 turns";
+#endif
 			}
 			case ACT_SUMMON_UNDEAD:
 			{
+#ifdef JP
+				return "不死召喚 : 666+d333 ターン毎";
+#else
 				return "summon undead every 666+d333 turns";
+#endif
 			}
 			case ACT_CURE_LW:
 			{
+#ifdef JP
+				return "恐怖除去 & 回復 (30) : 10 ターン毎";
+#else
 				return "remove fear & heal 30 hp every 10 turns";
+#endif
 			}
 			case ACT_CURE_MW:
 			{
-				return "heal 4d8 & wounds every 3+d3 turns";
+#ifdef JP
+				return "傷の治癒 (4d8) : 3+d3 ターン毎";
+#else
+				return "cure wounds (4d8) every 3+d3 turns";
+#endif
 			}
 			case ACT_CURE_POISON:
 			{
+#ifdef JP
+				return "恐怖除去/毒消し : 5 ターン毎";
+#else
 				return "remove fear and cure poison every 5 turns";
+#endif
 			}
 			case ACT_REST_LIFE:
 			{
+#ifdef JP
+				return "経験値復活 : 450 ターン毎";
+#else
 				return "restore life levels every 450 turns";
+#endif
 			}
 			case ACT_REST_ALL:
 			{
+#ifdef JP
+				return "全ステータスと経験値回復 : 750 ターン毎";
+#else
 				return "restore stats and life levels every 750 turns";
+#endif
 			}
 			case ACT_CURE_700:
 			{
+#ifdef JP
+				return "700 hp 回復 : 250 ターン毎";
+#else
 				return "heal 700 hit points every 250 turns";
+#endif
 			}
 			case ACT_CURE_1000:
 			{
+#ifdef JP
+				return "1000 hp 回復 : 888 ターン毎";
+#else
 				return "heal 1000 hit points every 888 turns";
+#endif
+			}
+			case ACT_CURING:
+			{
+#ifdef JP
+				return "癒し : 100 ターン毎";
+#else
+				return "curing every 100 turns";
+#endif
 			}
 			case ACT_ESP:
 			{
+#ifdef JP
+				return "一時的な ESP (期間 25+d30) : 200 ターン毎";
+#else
 				return "temporary ESP (dur 25+d30) every 200 turns";
+#endif
 			}
 			case ACT_BERSERK:
 			{
+#ifdef JP
+				return "ヒーロー気分と野獣化 (期間 50+d50) : 100+d100 ターン毎";
+#else
 				return "heroism and berserk (dur 50+d50) every 100+d100 turns";
+#endif
 			}
 			case ACT_PROT_EVIL:
 			{
+#ifdef JP
+				return "対邪悪結界 (期間 level*3 + d25) : 225+d225 ターン毎";
+#else
 				return "protect evil (dur level*3 + d25) every 225+d225 turns";
+#endif
 			}
 			case ACT_RESIST_ALL:
 			{
+#ifdef JP
+				return "炎冷酸電毒への耐性 (期間 40+d40) : 200 ターン毎";
+#else
 				return "resist elements (dur 40+d40) every 200 turns";
+#endif
 			}
 			case ACT_SPEED:
 			{
-				return "speed (dur 20+d20) every 250 turns";
+#ifdef JP
+				return "スピード (期間 20+d20) : 100+d100 ターン毎";
+#else
+				return "speed (dur 20+d20) every 100+d100 turns";
+#endif
 			}
 			case ACT_XTRA_SPEED:
 			{
+#ifdef JP
+				return "スピード (期間 75+d75) : 200+d200 ターン毎";
+#else
 				return "speed (dur 75+d75) every 200+d200 turns";
+#endif
 			}
 			case ACT_WRAITH:
 			{
+#ifdef JP
+				return "レイス化 (level/2 + d(level/2)) : 1000 ターン毎";
+#else
 				return "wraith form (level/2 + d(level/2)) every 1000 turns";
+#endif
 			}
 			case ACT_INVULN:
 			{
+#ifdef JP
+				return "無敵 (期間 8+d8) : 1000 ターン毎";
+#else
 				return "invulnerability (dur 8+d8) every 1000 turns";
+#endif
 			}
 			case ACT_LIGHT:
 			{
+#ifdef JP
+				return "イルミネーション : 10+d10 ターン毎";
+#else
 				return "light area (dam 2d15) every 10+d10 turns";
+#endif
 			}
 			case ACT_MAP_LIGHT:
 			{
-				return "light (dam 2d15) & map area every 50+d50 turns";
+#ifdef JP
+				return "魔法の地図と周辺照明 : 50+d50 ターン毎";
+#else
+				return "magic mapping and light area every 50+d50 turns";
+#endif
 			}
 			case ACT_DETECT_ALL:
 			{
+#ifdef JP
+				return "全感知 : 55+d55 ターン毎";
+#else
 				return "detection every 55+d55 turns";
+#endif
 			}
 			case ACT_DETECT_XTRA:
 			{
+#ifdef JP
+				return "全感知、探索、*鑑定* : 1000 ターン毎";
+#else
 				return "detection, probing and identify true every 1000 turns";
+#endif
 			}
 			case ACT_ID_FULL:
 			{
+#ifdef JP
+				return "*鑑定* : 750 ターン毎";
+#else
 				return "identify true every 750 turns";
+#endif
 			}
 			case ACT_ID_PLAIN:
 			{
+#ifdef JP
+				return "鑑定 : 10 ターン毎";
+#else
 				return "identify spell every 10 turns";
+#endif
 			}
 			case ACT_RUNE_EXPLO:
 			{
+#ifdef JP
+				return "爆発ルーン : 200 ターン毎";
+#else
 				return "explosive rune every 200 turns";
+#endif
 			}
 			case ACT_RUNE_PROT:
 			{
+#ifdef JP
+				return "守りのルーン : 400 ターン毎";
+#else
 				return "rune of protection every 400 turns";
+#endif
 			}
 			case ACT_SATIATE:
 			{
+#ifdef JP
+				return "空腹充足 : 200 ターン毎";
+#else
 				return "satisfy hunger every 200 turns";
+#endif
 			}
 			case ACT_DEST_DOOR:
 			{
+#ifdef JP
+				return "ドア破壊 : 10 ターン毎";
+#else
 				return "destroy doors every 10 turns";
+#endif
 			}
 			case ACT_STONE_MUD:
 			{
+#ifdef JP
+				return "岩石溶解 : 5 ターン毎";
+#else
 				return "stone to mud every 5 turns";
+#endif
 			}
 			case ACT_RECHARGE:
 			{
+#ifdef JP
+				return "再充填 : 70 ターン毎";
+#else
 				return "recharging every 70 turns";
+#endif
 			}
 			case ACT_ALCHEMY:
 			{
+#ifdef JP
+				return "錬金術 : 500 ターン毎";
+#else
 				return "alchemy every 500 turns";
+#endif
 			}
 			case ACT_DIM_DOOR:
 			{
+#ifdef JP
+				return "次元の扉 : 100 ターン毎";
+#else
 				return "dimension door every 100 turns";
+#endif
 			}
 			case ACT_TELEPORT:
 			{
-				return "teleport (range 100) every 45 turns";
+#ifdef JP
+				return "テレポート : 45 ターン毎";
+#else
+				return "teleport every 45 turns";
+#endif
 			}
 			case ACT_RECALL:
 			{
+#ifdef JP
+				return "帰還の詔 : 200 ターン毎";
+#else
 				return "word of recall every 200 turns";
+#endif
 			}
 			default:
 			{
+#ifdef JP
+				return "未定義";
+#else
 				return "something undefined";
+#endif
 			}
 		}
 	}
@@ -706,236 +872,243 @@ cptr item_activation(object_type *o_ptr)
 	/* Some artifacts can be activated */
 	switch (o_ptr->name1)
 	{
-		case ART_NARTHANC:
-		{
-			return "fire bolt (9d8) every 8+d8 turns";
-		}
-		case ART_NIMTHANC:
-		{
-			return "frost bolt (6d8) every 7+d7 turns";
-		}
-		case ART_DETHANC:
-		{
-			return "lightning bolt (4d8) every 6+d6 turns";
-		}
-		case ART_RILIA:
-		{
-			return "stinking cloud (12) every 4+d4 turns";
-		}
-		case ART_BELANGIL:
-		{
-			return "frost ball (48) every 5+d5 turns";
-		}
-		case ART_DAL:
-		{
-			return "remove fear and cure poison every 5 turns";
-		}
-		case ART_RINGIL:
-		{
-			return "frost ball (100) every 300 turns";
-		}
 		case ART_DAWN:
 		{
+#ifdef JP
+			return "暁の師団召喚 : 500+d500 ターン毎";
+#else
 			return "summon the Legion of the Dawn every 500+d500 turns";
-		}
-		case ART_ANDURIL:
-		{
-			return "fire ball (72) every 400 turns";
-		}
-		case ART_FIRESTAR:
-		{
-			return "large fire ball (72) every 100 turns";
-		}
-		case ART_FEANOR:
-		{
-			return "haste self (20+d20 turns) every 200 turns";
-		}
-		case ART_THEODEN:
-		{
-			return "drain life (120) every 400 turns";
-		}
-		case ART_TURMIL:
-		{
-			return "drain life (90) every 70 turns";
+#endif
 		}
 		case ART_CASPANION:
-		{
-			return "door and trap destruction every 10 turns";
-		}
-		case ART_AVAVIR:
-		{
-			return "word of recall every 200 turns";
-		}
-		case ART_TARATOL:
-		{
-			return "haste self (20+d20 turns) every 100+d100 turns";
-		}
-		case ART_ERIRIL:
-		{
-			return "identify every 10 turns";
-		}
-		case ART_OLORIN:
-		{
-			return "probing, detection and full id every 1000 turns";
-		}
-		case ART_EONWE:
-		{
-			return "mass genocide every 1000 turns";
-		}
-		case ART_LOTHARANG:
-		{
-			return "cure wounds (4d7) every 3+d3 turns";
-		}
+			{
+#ifdef JP
+				return "ドア/トラップ粉砕 : 10 ターン毎";
+#else
+				return "door and trap destruction every 10 turns";
+#endif
+			}
 		case ART_BRAND:
-		{
-			return "fire branding of bolts every 999 turns";
-		}
-		case ART_ANGUIREL:
-		{
-			return "a getaway every 35 turns";
-		}
-		case ART_AEGLOS:
-		{
-			return "lightning ball (100) every 500 turns";
-		}
-		case ART_OROME:
-		{
-			return "stone to mud every 5 turns";
-		}
-		case ART_SOULKEEPER:
-		{
-			return "heal (1000) every 888 turns";
-		}
-		case ART_BELEGENNON:
-		{
-			return ("heal (777), curing and heroism every 300 turns");
-		}
-		case ART_CELEBORN:
-		{
-			return "genocide every 500 turns";
-		}
-		case ART_LUTHIEN:
-		{
-			return "restore life levels every 450 turns";
-		}
-		case ART_ULMO:
-		{
-			return "teleport away every 150 turns";
-		}
-		case ART_COLLUIN:
-		{
-			return "resistance (20+d20 turns) every 111 turns";
-		}
+			{
+#ifdef JP
+				return "刃先のファイア・ボルト : 999 ターン毎";
+#else
+				return "fire branding of bolts every 999 turns";
+#endif
+			}
+		case ART_KUSANAGI:
+			{
+#ifdef JP
+				return "逃走 : 35 ターン毎";
+#else
+				return "a getaway every 35 turns";
+#endif
+			}
+		case ART_LOHENGRIN:
+			{
+#ifdef JP
+				return ("回復 (777)、癒し、ヒーロー気分 : 300 ターン毎");
+#else
+				return ("heal (777), curing and heroism every 300 turns");
+#endif
+			}
 		case ART_HOLCOLLETH:
-		{
-			return "Sleep II every 55 turns";
-		}
-		case ART_THINGOL:
-		{
-			return "recharge item I every 70 turns";
-		}
-		case ART_COLANNON:
-		{
-			return "teleport every 45 turns";
-		}
-		case ART_TOTILA:
-		{
-			return "confuse monster every 15 turns";
-		}
-		case ART_CAMMITHRIM:
-		{
-			return "magic missile (2d6) every 2 turns";
-		}
-		case ART_PAURHACH:
-		{
-			return "fire bolt (9d8) every 8+d8 turns";
-		}
-		case ART_CORWIN:
-		{
-			return "frost bolt (6d8) every 7+d7 turns";
-		}
-		case ART_PAURAEGEN:
-		{
-			return "lightning bolt (4d8) every 6+d6 turns";
-		}
-		case ART_PAURNEN:
-		{
-			return "acid bolt (5d8) every 5+d5 turns";
-		}
+			{
+#ifdef JP
+				return "スリープ(II) : 55 ターン毎";
+#else
+				return "Sleep II every 55 turns";
+#endif
+			}
 		case ART_FINGOLFIN:
-		{
-			return "a magical arrow (150) every 90+d90 turns";
-		}
-		case ART_HOLHENNETH:
-		{
-			return "detection every 55+d55 turns";
-		}
-		case ART_GONDOR:
-		{
-			return "heal (700) every 250 turns";
-		}
+			{
+#ifdef JP
+				return "魔法の矢(150) : 90+d90 ターン毎";
+#else
+				return "a magical arrow (150) every 90+d90 turns";
+#endif
+			}
 		case ART_RAZORBACK:
-		{
-			return "star ball (150) every 1000 turns";
-		}
+			{
+#ifdef JP
+				return "スター・ボール(150) : 1000 ターン毎";
+#else
+				return "star ball (150) every 1000 turns";
+#endif
+			}
 		case ART_BLADETURNER:
-		{
-			return "breathe elements (300), berserk rage, bless, and resistance";
-		}
-		case ART_GALADRIEL:
-		{
-			return "illumination every 10+d10 turns";
-		}
-		case ART_ELENDIL:
-		{
-			return "magic mapping and light every 50+d50 turns";
-		}
-		case ART_THRAIN:
-		{
-			return "clairvoyance and recall, draining you";
-		}
-		case ART_INGWE:
-		{
-			return "dispel evil (x5) every 300+d300 turns";
-		}
-		case ART_CARLAMMAS:
-		{
-			return "protection from evil every 225+d225 turns";
-		}
-		case ART_BARAHIR:
-		{
-			return "a strangling attack (100) every 100+d100 turns";
-		}
-		case ART_TULKAS:
-		{
-			return "haste self (75+d75 turns) every 150+d150 turns";
-		}
-		case ART_NARYA:
-		{
-			return "large fire ball (120) every 225+d225 turns";
-		}
-		case ART_NENYA:
-		{
-			return "large frost ball (200) every 325+d325 turns";
-		}
-		case ART_VILYA:
-		{
-			return "large lightning ball (250) every 425+d425 turns";
-		}
+			{
+#ifdef JP
+				return "エレメントのブレス (300), 野獣化、祝福、耐性";
+#else
+				return "breathe elements (300), berserk rage, bless, and resistance";
+#endif
+			}
+		case ART_JUDGE:
+			{
+#ifdef JP
+				return "体力と引き替えに千里眼と帰還 : 20+d20 ターン毎";
+#else
+				return "clairvoyance and recall, draining you every 20+d20 turns";
+#endif
+			}
 		case ART_POWER:
-		{
-			return "bizarre things every 450+d450 turns";
-		}
-		case ART_DOR: case ART_TERROR:
-		{
-			return "rays of fear in every direction";
-		}
+			{
+#ifdef JP
+				return "信じ難いこと : 450+d450 ターン毎";
+#else
+				return "bizarre things every 450+d450 turns";
+#endif
+			}
+		case ART_MURAMASA:
+			{
+#ifdef JP
+				return "腕力上昇(確率 50% で壊れる)";
+#else
+				return "Increase STR (destroyed 50%)";
+#endif
+			}
+		case ART_FLY_STONE:
+			{
+#ifdef JP
+				return "魔力の嵐(400) : 250+d250ターン毎";
+#else
+				return "a mana storm every 250+d250 turns";
+#endif
+			}
+		case ART_PALANTIR:
+			{
+#ifdef JP
+				return "この階にいるユニークモンスターを表示 : 200ターン毎";
+#else
+				return "list of the uniques on the level every 200 turns";
+#endif
+			}
+		case ART_HURIN:
+			{
+#ifdef JP
+				return "士気高揚, スピード(50+d50ターン) : 100+d200 ターン毎";
+#else
+				return "hero and +10 to speed (50) every 100+200d turns";
+#endif
+			}
+		case ART_NUMAHOKO:
+			{
+#ifdef JP
+				return "ウォーター・ボール(200) : 250 ターン毎";
+#else
+				return "water ball (200) every 250 turns";
+#endif
+			}
+		case ART_INCANUS:
+			{
+#ifdef JP
+				return "魔力の矢(120) : 120+d120 ターン毎";
+#else
+				return "a mana bolt (120) every 120+d120 turns";
+#endif
+			}
+		case ART_GIL_GALAD:
+			{
+#ifdef JP
+				return "眩しい光(300) : 250 ターン毎";
+#else
+				return "blinding light (300) every 250 turns";
+#endif
+			}
+		case ART_NAIN:
+			{
+#ifdef JP
+				return "岩石溶解 : 2 ターン毎";
+#else
+				return "stone to mud every 2 turns";
+#endif
+				
+			}
+		case ART_LIGHT_SABRE:
+			{
+#ifdef JP
+				return "スイッチON/OFF : いつでも";
+#else
+				return "Turn ON/OFF everytime";
+#endif
+			}
+		case ART_STONE_LORE:
+			{
+#ifdef JP
+				return "知識を得る : いつでも";
+#else
+				return "get a knowledge : everytime";
+#endif
+			}
+		case ART_PITCH_DARK_NIGHT:
+			{
+#ifdef JP
+				return "暗黒の嵐(250) : 150+d150 ターン毎";
+#else
+				return "a dark storm (250) every 150+d150 turns";
+#endif
+			}
 	}
 
-
-	if (o_ptr->name2 == EGO_TRUMP)
+	/* Some ego item can be activated */
+	if (o_ptr->name2)
 	{
-		return "teleport every 50+d50 turns";
+		switch(o_ptr->name2)
+		{
+			case EGO_SEEING:
+			{
+#ifdef JP
+				return "モンスター感知 : 10+d10 ターン毎";
+#else
+				return "detect monster every 10+d10 turns";
+#endif
+			}
+			case EGO_MAGICAL_SHOT:
+			{
+#ifdef JP
+				return "矢 (50 + level*2) : 7+d7 ターン毎";
+#else
+				return "arrows (50 + level*2) every 7+d7 turns";
+#endif
+			}
+			case EGO_BRAND_FIRE:
+#ifdef JP
+				return "ファイア・ボール (100) と火への耐性 : 50+d50 ターン毎";
+#else
+				return "ball of fire (100) and resist fire every 50+d50 turns";
+#endif
+			case EGO_BRAND_COLD:
+#ifdef JP
+				return "コールド・ボール (100) と冷気への耐性 : 50+d50 ターン毎";
+#else
+				return "ball of cold (100) and resist cold every 50+d50 turns";
+#endif
+			case EGO_BRAND_ACID:
+#ifdef JP
+				return "アシッド・ボール (100) と酸への耐性 : 50+d50 ターン毎";
+#else
+				return "ball of acid (100) and resist acid every 50+d50 turns";
+#endif
+			case EGO_BRAND_ELEC:
+#ifdef JP
+				return "サンダー・ボール (100) と電撃への耐性 : 50+d50 ターン毎";
+#else
+				return "ball of elec (100) and resist elec every 50+d50 turns";
+#endif
+			case EGO_BRAND_POIS:
+#ifdef JP
+				return "ポイズン・ボール (100) と毒への耐性 : 50+d50 ターン毎";
+#else
+				return "ball of pois (100) and resist pois every 50+d50 turns";
+#endif
+			case EGO_WEAP_LITE:
+#ifdef JP
+				return "スターライト : 50+d50 ターン毎";
+#else
+				return "star light every 50+d50 turns";
+#endif
+		}
 	}
 
 	if (o_ptr->tval == TV_RING)
@@ -943,109 +1116,264 @@ cptr item_activation(object_type *o_ptr)
 		switch (o_ptr->sval)
 		{
 			case SV_RING_FLAMES:
-				return "ball of fire and resist fire";
+#ifdef JP
+return "ファイア・ボール (100) と火への耐性 : 50+d50 ターン毎";
+#else
+				return "ball of fire (100) and resist fire every 50+d50 turns";
+#endif
+
 			case SV_RING_ICE:
-				return "ball of cold and resist cold";
+#ifdef JP
+return "コールド・ボール (100) と冷気への耐性 : 50+d50 ターン毎";
+#else
+				return "ball of cold (100) and resist cold every 50+d50 turns";
+#endif
+
 			case SV_RING_ACID:
-				return "ball of acid and resist acid";
+#ifdef JP
+return "アシッド・ボール (100) と酸への耐性 : 50+d50 ターン毎";
+#else
+				return "ball of acid (100) and resist acid every 50+d50 turns";
+#endif
+
+			case SV_RING_ELEC:
+#ifdef JP
+return "サンダー・ボール (100) と電撃への耐性 : 50+d50 ターン毎";
+#else
+				return "ball of elec (100) and resist elec every 50+d50 turns";
+#endif
+
 			default:
 				return NULL;
 		}
 	}
 
 	/* Require dragon scale mail */
+#ifdef JP
+	if (o_ptr->tval != TV_DRAG_ARMOR) return ("奇妙な光");
+#else
 	if (o_ptr->tval != TV_DRAG_ARMOR) return ("a strange glow");
+#endif
 
 	/* Branch on the sub-type */
 	switch (o_ptr->sval)
 	{
 		case SV_DRAGON_BLUE:
 		{
+#ifdef JP
+return "稲妻のブレス(100) : 450+d450 ターン毎";
+#else
 			return "breathe lightning (100) every 450+d450 turns";
+#endif
+
 		}
 		case SV_DRAGON_WHITE:
 		{
+#ifdef JP
+return "冷気のブレス(110) : 450+d450 ターン毎";
+#else
 			return "breathe frost (110) every 450+d450 turns";
+#endif
+
 		}
 		case SV_DRAGON_BLACK:
 		{
+#ifdef JP
+return "酸のブレス(130) : 450+d450 ターン毎";
+#else
 			return "breathe acid (130) every 450+d450 turns";
+#endif
+
 		}
 		case SV_DRAGON_GREEN:
 		{
+#ifdef JP
+return "毒のガスのブレス(150) : 450+d450 ターン毎";
+#else
 			return "breathe poison gas (150) every 450+d450 turns";
+#endif
+
 		}
 		case SV_DRAGON_RED:
 		{
+#ifdef JP
+return "火炎のブレス(200) : 450+d450 ターン毎";
+#else
 			return "breathe fire (200) every 450+d450 turns";
+#endif
+
 		}
 		case SV_DRAGON_MULTIHUED:
 		{
+#ifdef JP
+return "万色のブレス(250) : 225+d225 ターン毎";
+#else
 			return "breathe multi-hued (250) every 225+d225 turns";
+#endif
+
 		}
 		case SV_DRAGON_BRONZE:
 		{
+#ifdef JP
+return "混乱のブレス(120) : 450+d450 ターン毎";
+#else
 			return "breathe confusion (120) every 450+d450 turns";
+#endif
+
 		}
 		case SV_DRAGON_GOLD:
 		{
+#ifdef JP
+return "轟音のブレス(130) : 450+d450 ターン毎";
+#else
 			return "breathe sound (130) every 450+d450 turns";
+#endif
+
 		}
 		case SV_DRAGON_CHAOS:
 		{
+#ifdef JP
+return "カオス/劣化のブレス(220) : 300+d300 ターン毎";
+#else
 			return "breathe chaos/disenchant (220) every 300+d300 turns";
+#endif
+
 		}
 		case SV_DRAGON_LAW:
 		{
+#ifdef JP
+return "轟音/破片のブレス(230) : 300+d300 ターン毎";
+#else
 			return "breathe sound/shards (230) every 300+d300 turns";
+#endif
+
 		}
 		case SV_DRAGON_BALANCE:
 		{
+#ifdef JP
+return "バランスのブレス (250) 300+d300 ターン毎";
+#else
 			return "breathe balance (250) every 300+d300 turns";
+#endif
+
 		}
 		case SV_DRAGON_SHINING:
 		{
+#ifdef JP
+return "閃光/暗黒のブレス(200) : 300+d300 ターン毎";
+#else
 			return "breathe light/darkness (200) every 300+d300 turns";
+#endif
+
 		}
 		case SV_DRAGON_POWER:
 		{
+#ifdef JP
+return "エレメントのブレス(300) : 300+d300 ターン毎";
+#else
 			return "breathe the elements (300) every 300+d300 turns";
+#endif
+
 		}
 	}
 
 	/* Oops */
+#ifdef JP
+	return "空気の息";
+#else
 	return "breathe air";
+#endif
 }
 
 
 /*
  * Describe a "fully identified" item
  */
-bool identify_fully_aux(object_type *o_ptr)
+bool identify_fully_aux(object_type *o_ptr, bool real)
 {
-	int                     i = 0, j, k;
-
+	int i = 0, j, k;
 	u32b f1, f2, f3;
+	cptr info[128];
+	char o_name[MAX_NLEN];
+	int wid, hgt;
 
-	cptr            info[128];
-
+	/* XTRA HACK ARTDESC */
+	u32b flag;
+	char temp[70*20];
 
 	/* Extract the flags */
 	object_flags(o_ptr, &f1, &f2, &f3);
 
 
+	/* XTRA HACK ARTDESC */
+	if( o_ptr->name1)
+		roff_to_buf(a_text + a_info[o_ptr->name1].text, 77-15, temp, sizeof(temp));
+	else
+		roff_to_buf(k_text + k_info[lookup_kind(o_ptr->tval, o_ptr->sval)].text, 77-15, temp, sizeof(temp));
+
+	for(j=0 ; temp[j] ; j+= 1 + strlen(&temp[j]))
+	{
+		info[i]=&temp[j]; 
+		i++;
+	}
+
 	/* Mega-Hack -- describe activation */
 	if (f3 & (TR3_ACTIVATE))
 	{
+#ifdef JP
+		info[i++] = "始動したときの効果...";
+#else
 		info[i++] = "It can be activated for...";
+#endif
 		info[i++] = item_activation(o_ptr);
+#ifdef JP
+		info[i++] = "...ただし装備していなければならない。";
+#else
 		info[i++] = "...if it is being worn.";
+#endif
 	}
 
 	/* Figurines, a hack */
 	if (o_ptr->tval == TV_FIGURINE)
 	{
+#ifdef JP
+		info[i++] = "それは投げた時ペットに変化する。";
+#else
 		info[i++] = "It will transform into a pet when thrown.";
+#endif
+	}
+
+	if (o_ptr->name1 == ART_STONEMASK)
+	{
+#ifdef JP
+		info[i++] = "それを装備した者は吸血鬼になる。";
+#else
+		info[i++] = "It makes you turn into a vampire permanently.";
+#endif
+	}
+
+	/* XTRA HACK STATUE */
+	if (o_ptr->tval == TV_STATUE)
+	{
+		monster_race *r_ptr = &r_info[o_ptr->pval];
+		if (o_ptr->pval == MON_BULLGATES)
+#ifdef JP
+			info[i++] = "それは部屋に飾ると恥ずかしい。";
+#else
+			info[i++] = "It is shameful.";
+#endif
+		else if (r_ptr->flags2 & (RF2_ELDRITCH_HORROR))
+#ifdef JP
+			info[i++] = "それは部屋に飾ると恐い。";
+#else
+			info[i++] = "It is fearful.";
+#endif
+		else
+#ifdef JP
+			info[i++] = "それは部屋に飾ると楽しい。";
+#else
+			info[i++] = "It is cheerful.";
+#endif
 	}
 
 	/* Hack -- describe lite's */
@@ -1053,15 +1381,43 @@ bool identify_fully_aux(object_type *o_ptr)
 	{
 		if (artifact_p(o_ptr))
 		{
+#ifdef JP
+			info[i++] = "それは永遠なる明かり(半径 3)を授ける。";
+#else
 			info[i++] = "It provides light (radius 3) forever.";
+#endif
+		}
+		else if (o_ptr->sval == SV_LITE_FEANOR)
+		{
+#ifdef JP
+			info[i++] = "それは永遠なる明かり(半径 2)を授ける。";
+#else
+			info[i++] = "It provides light (radius 2) forever.";
+#endif
 		}
 		else if (o_ptr->sval == SV_LITE_LANTERN)
 		{
+#ifdef JP
+			info[i++] = "それは燃料補給によって明かり(半径 2)を授ける。";
+#else
 			info[i++] = "It provides light (radius 2) when fueled.";
+#endif
+		}
+		else if (o_ptr->sval == SV_LITE_TORCH)
+		{
+#ifdef JP
+			info[i++] = "それは燃料補給によって明かり(半径 1)を授ける。";
+#else
+			info[i++] = "It provides light (radius 1) when fueled.";
+#endif
 		}
 		else
 		{
-			info[i++] = "It provides light (radius 1) when fueled.";
+#ifdef JP
+			info[i++] = "それは永遠なる明かり(半径 2)を授ける。";
+#else
+			info[i++] = "It provides light (radius 2) forever.";
+#endif
 		}
 	}
 
@@ -1070,369 +1426,749 @@ bool identify_fully_aux(object_type *o_ptr)
 
 	if (f1 & (TR1_STR))
 	{
+#ifdef JP
+		info[i++] = "それは腕力に影響を及ぼす";
+#else
 		info[i++] = "It affects your strength.";
+#endif
 	}
 	if (f1 & (TR1_INT))
 	{
+#ifdef JP
+		info[i++] = "それは知能に影響を及ぼす";
+#else
 		info[i++] = "It affects your intelligence.";
+#endif
 	}
 	if (f1 & (TR1_WIS))
 	{
+#ifdef JP
+		info[i++] = "それは賢さに影響を及ぼす";
+#else
 		info[i++] = "It affects your wisdom.";
+#endif
 	}
 	if (f1 & (TR1_DEX))
 	{
+#ifdef JP
+		info[i++] = "それは器用さに影響を及ぼす";
+#else
 		info[i++] = "It affects your dexterity.";
+#endif
 	}
 	if (f1 & (TR1_CON))
 	{
+#ifdef JP
+		info[i++] = "それは耐久力に影響を及ぼす";
+#else
 		info[i++] = "It affects your constitution.";
+#endif
 	}
 	if (f1 & (TR1_CHR))
 	{
+#ifdef JP
+		info[i++] = "それは魅力に影響を及ぼす";
+#else
 		info[i++] = "It affects your charisma.";
+#endif
 	}
 
+	if (f1 & (TR1_MAGIC_MASTERY))
+	{
+#ifdef JP
+		info[i++] = "それは魔法道具使用能力に影響を及ぼす";
+#else
+		info[i++] = "It affects your magic devices.";
+#endif
+	}
 	if (f1 & (TR1_STEALTH))
 	{
+#ifdef JP
+		info[i++] = "それは隠密行動能力に影響を及ぼす";
+#else
 		info[i++] = "It affects your stealth.";
+#endif
 	}
 	if (f1 & (TR1_SEARCH))
 	{
+#ifdef JP
+		info[i++] = "それは探索能力に影響を及ぼす";
+#else
 		info[i++] = "It affects your searching.";
+#endif
 	}
 	if (f1 & (TR1_INFRA))
 	{
+#ifdef JP
+		info[i++] = "それは赤外線視力に影響を及ぼす";
+#else
 		info[i++] = "It affects your infravision.";
+#endif
 	}
 	if (f1 & (TR1_TUNNEL))
 	{
+#ifdef JP
+		info[i++] = "それは採掘能力に影響を及ぼす";
+#else
 		info[i++] = "It affects your ability to tunnel.";
+#endif
 	}
 	if (f1 & (TR1_SPEED))
 	{
+#ifdef JP
+		info[i++] = "それはスピードに影響を及ぼす";
+#else
 		info[i++] = "It affects your speed.";
+#endif
 	}
 	if (f1 & (TR1_BLOWS))
 	{
+#ifdef JP
+		info[i++] = "それは打撃回数に影響を及ぼす";
+#else
 		info[i++] = "It affects your attack speed.";
+#endif
 	}
 
 	if (f1 & (TR1_BRAND_ACID))
 	{
+#ifdef JP
+		info[i++] = "それは酸によって大きなダメージを与える";
+#else
 		info[i++] = "It does extra damage from acid.";
+#endif
 	}
 	if (f1 & (TR1_BRAND_ELEC))
 	{
+#ifdef JP
+		info[i++] = "それは電撃によって大きなダメージを与える";
+#else
 		info[i++] = "It does extra damage from electricity.";
+#endif
 	}
 	if (f1 & (TR1_BRAND_FIRE))
 	{
+#ifdef JP
+		info[i++] = "それは火炎によって大きなダメージを与える";
+#else
 		info[i++] = "It does extra damage from fire.";
+#endif
 	}
 	if (f1 & (TR1_BRAND_COLD))
 	{
+#ifdef JP
+		info[i++] = "それは冷気によって大きなダメージを与える";
+#else
 		info[i++] = "It does extra damage from frost.";
+#endif
 	}
-
 	if (f1 & (TR1_BRAND_POIS))
 	{
+#ifdef JP
+		info[i++] = "それは敵を毒する。";
+#else
 		info[i++] = "It poisons your foes.";
+#endif
 	}
-
 	if (f1 & (TR1_CHAOTIC))
 	{
+#ifdef JP
+		info[i++] = "それはカオス的な効果を及ぼす。";
+#else
 		info[i++] = "It produces chaotic effects.";
+#endif
 	}
-
 	if (f1 & (TR1_VAMPIRIC))
 	{
+#ifdef JP
+		info[i++] = "それは敵からヒットポイントを吸収する。";
+#else
 		info[i++] = "It drains life from your foes.";
+#endif
 	}
-
 	if (f1 & (TR1_IMPACT))
 	{
+#ifdef JP
+		info[i++] = "それは地震を起こすことができる。";
+#else
 		info[i++] = "It can cause earthquakes.";
+#endif
 	}
-
 	if (f1 & (TR1_VORPAL))
 	{
+#ifdef JP
+		info[i++] = "それは非常に切れ味が鋭く敵を切断することができる。";
+#else
 		info[i++] = "It is very sharp and can cut your foes.";
+#endif
 	}
 
 	if (f1 & (TR1_KILL_DRAGON))
 	{
+#ifdef JP
+		info[i++] = "それはドラゴンにとっての天敵である。";
+#else
 		info[i++] = "It is a great bane of dragons.";
+#endif
 	}
 	else if (f1 & (TR1_SLAY_DRAGON))
 	{
+#ifdef JP
+		info[i++] = "それはドラゴンに対して特に恐るべき力を発揮する。";
+#else
 		info[i++] = "It is especially deadly against dragons.";
+#endif
 	}
 	if (f1 & (TR1_SLAY_ORC))
 	{
+#ifdef JP
+		info[i++] = "それはオークに対して特に恐るべき力を発揮する。";
+#else
 		info[i++] = "It is especially deadly against orcs.";
+#endif
 	}
 	if (f1 & (TR1_SLAY_TROLL))
 	{
+#ifdef JP
+		info[i++] = "それはトロルに対して特に恐るべき力を発揮する。";
+#else
 		info[i++] = "It is especially deadly against trolls.";
+#endif
 	}
 	if (f1 & (TR1_SLAY_GIANT))
 	{
+#ifdef JP
+		info[i++] = "それはジャイアントに対して特に恐るべき力を発揮する。";
+#else
 		info[i++] = "It is especially deadly against giants.";
+#endif
 	}
 	if (f1 & (TR1_SLAY_DEMON))
 	{
+#ifdef JP
+		info[i++] = "それはデーモンに対して聖なる力を発揮する。";
+#else
 		info[i++] = "It strikes at demons with holy wrath.";
+#endif
 	}
 	if (f1 & (TR1_SLAY_UNDEAD))
 	{
+#ifdef JP
+		info[i++] = "それはアンデッドに対して聖なる力を発揮する。";
+#else
 		info[i++] = "It strikes at undead with holy wrath.";
+#endif
 	}
 	if (f1 & (TR1_SLAY_EVIL))
 	{
+#ifdef JP
+		info[i++] = "それは邪悪なる存在に対して聖なる力で攻撃する。";
+#else
 		info[i++] = "It fights against evil with holy fury.";
+#endif
 	}
 	if (f1 & (TR1_SLAY_ANIMAL))
 	{
+#ifdef JP
+		info[i++] = "それは自然界の動物に対して特に恐るべき力を発揮する。";
+#else
 		info[i++] = "It is especially deadly against natural creatures.";
+#endif
+	}
+
+	if (f3 & (TR3_DEC_MANA))
+	{
+#ifdef JP
+		info[i++] = "それは魔力の消費を押さえる。";
+#else
+		info[i++] = "It decreases your mana consumption.";
+#endif
+	}
+	if (f2 & (TR2_THROW))
+	{
+#ifdef JP
+		info[i++] = "それは投げて使うのに適している。";
+#else
+		info[i++] = "It is perfectly balanced for throwing.";
+#endif
 	}
 
 	if (f2 & (TR2_SUST_STR))
 	{
+#ifdef JP
+		info[i++] = "それはあなたの腕力を維持する。";
+#else
 		info[i++] = "It sustains your strength.";
+#endif
 	}
 	if (f2 & (TR2_SUST_INT))
 	{
+#ifdef JP
+		info[i++] = "それはあなたの知能を維持する。";
+#else
 		info[i++] = "It sustains your intelligence.";
+#endif
 	}
 	if (f2 & (TR2_SUST_WIS))
 	{
+#ifdef JP
+		info[i++] = "それはあなたの賢さを維持する。";
+#else
 		info[i++] = "It sustains your wisdom.";
+#endif
 	}
 	if (f2 & (TR2_SUST_DEX))
 	{
+#ifdef JP
+		info[i++] = "それはあなたの器用さを維持する。";
+#else
 		info[i++] = "It sustains your dexterity.";
+#endif
 	}
 	if (f2 & (TR2_SUST_CON))
 	{
+#ifdef JP
+		info[i++] = "それはあなたの耐久力を維持する。";
+#else
 		info[i++] = "It sustains your constitution.";
+#endif
 	}
 	if (f2 & (TR2_SUST_CHR))
 	{
+#ifdef JP
+		info[i++] = "それはあなたの魅力を維持する。";
+#else
 		info[i++] = "It sustains your charisma.";
+#endif
 	}
 
 	if (f2 & (TR2_IM_ACID))
 	{
+#ifdef JP
+		info[i++] = "それは酸に対する完全な免疫を授ける。";
+#else
 		info[i++] = "It provides immunity to acid.";
+#endif
 	}
 	if (f2 & (TR2_IM_ELEC))
 	{
+#ifdef JP
+		info[i++] = "それは電撃に対する完全な免疫を授ける。";
+#else
 		info[i++] = "It provides immunity to electricity.";
+#endif
 	}
 	if (f2 & (TR2_IM_FIRE))
 	{
+#ifdef JP
+		info[i++] = "それは火に対する完全な免疫を授ける。";
+#else
 		info[i++] = "It provides immunity to fire.";
+#endif
 	}
 	if (f2 & (TR2_IM_COLD))
 	{
+#ifdef JP
+		info[i++] = "それは寒さに対する完全な免疫を授ける。";
+#else
 		info[i++] = "It provides immunity to cold.";
-	}
-
-	if (f2 & (TR2_THROW))
-	{
-		info[i++] = "It is perfectly balanced for throwing.";
+#endif
 	}
 
 	if (f2 & (TR2_FREE_ACT))
 	{
+#ifdef JP
+		info[i++] = "それは麻痺に対する完全な免疫を授ける。";
+#else
 		info[i++] = "It provides immunity to paralysis.";
+#endif
 	}
 	if (f2 & (TR2_HOLD_LIFE))
 	{
+#ifdef JP
+		info[i++] = "それは生命力吸収に対する耐性を授ける。";
+#else
 		info[i++] = "It provides resistance to life draining.";
+#endif
 	}
 	if (f2 & (TR2_RES_FEAR))
 	{
+#ifdef JP
+		info[i++] = "それは恐怖への完全な耐性を授ける。";
+#else
 		info[i++] = "It makes you completely fearless.";
+#endif
 	}
 	if (f2 & (TR2_RES_ACID))
 	{
+#ifdef JP
+		info[i++] = "それは酸への耐性を授ける。";
+#else
 		info[i++] = "It provides resistance to acid.";
+#endif
 	}
 	if (f2 & (TR2_RES_ELEC))
 	{
+#ifdef JP
+		info[i++] = "それは電撃への耐性を授ける。";
+#else
 		info[i++] = "It provides resistance to electricity.";
+#endif
 	}
 	if (f2 & (TR2_RES_FIRE))
 	{
+#ifdef JP
+		info[i++] = "それは火への耐性を授ける。";
+#else
 		info[i++] = "It provides resistance to fire.";
+#endif
 	}
 	if (f2 & (TR2_RES_COLD))
 	{
+#ifdef JP
+		info[i++] = "それは寒さへの耐性を授ける。";
+#else
 		info[i++] = "It provides resistance to cold.";
+#endif
 	}
 	if (f2 & (TR2_RES_POIS))
 	{
+#ifdef JP
+		info[i++] = "それは毒への耐性を授ける。";
+#else
 		info[i++] = "It provides resistance to poison.";
+#endif
 	}
 
 	if (f2 & (TR2_RES_LITE))
 	{
+#ifdef JP
+		info[i++] = "それは閃光への耐性を授ける。";
+#else
 		info[i++] = "It provides resistance to light.";
+#endif
 	}
 	if (f2 & (TR2_RES_DARK))
 	{
+#ifdef JP
+		info[i++] = "それは暗黒への耐性を授ける。";
+#else
 		info[i++] = "It provides resistance to dark.";
+#endif
 	}
-
+	
 	if (f2 & (TR2_RES_BLIND))
 	{
+#ifdef JP
+		info[i++] = "それは盲目への耐性を授ける。";
+#else
 		info[i++] = "It provides resistance to blindness.";
+#endif
 	}
 	if (f2 & (TR2_RES_CONF))
 	{
+#ifdef JP
+		info[i++] = "それは混乱への耐性を授ける。";
+#else
 		info[i++] = "It provides resistance to confusion.";
+#endif
 	}
 	if (f2 & (TR2_RES_SOUND))
 	{
+#ifdef JP
+		info[i++] = "それは轟音への耐性を授ける。";
+#else
 		info[i++] = "It provides resistance to sound.";
+#endif
 	}
 	if (f2 & (TR2_RES_SHARDS))
 	{
+#ifdef JP
+		info[i++] = "それは破片への耐性を授ける。";
+#else
 		info[i++] = "It provides resistance to shards.";
+#endif
 	}
-
+	
 	if (f2 & (TR2_RES_NETHER))
 	{
+#ifdef JP
+		info[i++] = "それは地獄への耐性を授ける。";
+#else
 		info[i++] = "It provides resistance to nether.";
+#endif
 	}
 	if (f2 & (TR2_RES_NEXUS))
 	{
+#ifdef JP
+		info[i++] = "それは因果混乱への耐性を授ける。";
+#else
 		info[i++] = "It provides resistance to nexus.";
+#endif
 	}
 	if (f2 & (TR2_RES_CHAOS))
 	{
+#ifdef JP
+		info[i++] = "それはカオスへの耐性を授ける。";
+#else
 		info[i++] = "It provides resistance to chaos.";
+#endif
 	}
 	if (f2 & (TR2_RES_DISEN))
 	{
+#ifdef JP
+		info[i++] = "それは劣化への耐性を授ける。";
+#else
 		info[i++] = "It provides resistance to disenchantment.";
+#endif
 	}
 
 	if (f3 & (TR3_WRAITH))
 	{
+#ifdef JP
+		info[i++] = "それはあなたを非物質化する。";
+#else
 		info[i++] = "It renders you incorporeal.";
+#endif
 	}
 	if (f3 & (TR3_FEATHER))
 	{
+#ifdef JP
+		info[i++] = "それは宙に浮くことを可能にする。";
+#else
 		info[i++] = "It allows you to levitate.";
+#endif
 	}
-	if (f3 & (TR3_LITE))
+	if (f3 & (TR3_LITE) && (o_ptr->tval != TV_LITE))
 	{
+#ifdef JP
+		info[i++] = "それは永遠の明かりを授ける。";
+#else
 		info[i++] = "It provides permanent light.";
+#endif
 	}
 	if (f3 & (TR3_SEE_INVIS))
 	{
+#ifdef JP
+		info[i++] = "それは透明なモンスターを見ることを可能にする。";
+#else
 		info[i++] = "It allows you to see invisible monsters.";
+#endif
 	}
 	if (f3 & (TR3_TELEPATHY))
 	{
+#ifdef JP
+		info[i++] = "それはテレパシー能力を授ける。";
+#else
 		info[i++] = "It gives telepathic powers.";
+#endif
 	}
 	if (f3 & (TR3_SLOW_DIGEST))
 	{
+#ifdef JP
+		info[i++] = "それはあなたの新陳代謝を遅くする。";
+#else
 		info[i++] = "It slows your metabolism.";
+#endif
 	}
 	if (f3 & (TR3_REGEN))
 	{
+#ifdef JP
+		info[i++] = "それは体力回復力を強化する。";
+#else
 		info[i++] = "It speeds your regenerative powers.";
+#endif
+	}
+	if (f3 & (TR3_WARNING))
+	{
+#ifdef JP
+		info[i++] = "それは危険に対して警告を発する。";
+#else
+		info[i++] = "It warns you of danger";
+#endif
 	}
 	if (f2 & (TR2_REFLECT))
 	{
+#ifdef JP
+		info[i++] = "それは矢やボルトを反射する。";
+#else
 		info[i++] = "It reflects bolts and arrows.";
+#endif
 	}
+
 	if (f3 & (TR3_SH_FIRE))
 	{
+#ifdef JP
+		info[i++] = "それは炎のバリアを張る。";
+#else
 		info[i++] = "It produces a fiery sheath.";
+#endif
 	}
 	if (f3 & (TR3_SH_ELEC))
 	{
+#ifdef JP
+		info[i++] = "それは電気のバリアを張る。";
+#else
 		info[i++] = "It produces an electric sheath.";
+#endif
+	}
+	if (f3 & (TR3_SH_COLD))
+	{
+#ifdef JP
+		info[i++] = "それは冷気のバリアを張る。";
+#else
+		info[i++] = "It produces an cold sheath.";
+#endif
 	}
 	if (f3 & (TR3_NO_MAGIC))
 	{
+#ifdef JP
+		info[i++] = "それは反魔法バリアを張る。";
+#else
 		info[i++] = "It produces an anti-magic shell.";
+#endif
 	}
 	if (f3 & (TR3_NO_TELE))
 	{
+#ifdef JP
+		info[i++] = "それはテレポートを邪魔する。";
+#else
 		info[i++] = "It prevents teleportation.";
+#endif
 	}
+
 	if (f3 & (TR3_XTRA_MIGHT))
 	{
+#ifdef JP
+		info[i++] = "それは矢／ボルト／弾をより強力に発射することができる。";
+#else
 		info[i++] = "It fires missiles with extra might.";
+#endif
 	}
 	if (f3 & (TR3_XTRA_SHOTS))
 	{
+#ifdef JP
+		info[i++] = "それは矢／ボルト／弾を非常に早く発射することができる。";
+#else
 		info[i++] = "It fires missiles excessively fast.";
+#endif
 	}
 
 	if (f3 & (TR3_DRAIN_EXP))
 	{
+#ifdef JP
+		info[i++] = "それは経験値を吸い取る。";
+#else
 		info[i++] = "It drains experience.";
+#endif
 	}
 	if (f3 & (TR3_TELEPORT))
 	{
+#ifdef JP
+		info[i++] = "それはランダムなテレポートを引き起こす。";
+#else
 		info[i++] = "It induces random teleportation.";
+#endif
 	}
 	if (f3 & TR3_AGGRAVATE)
 	{
+#ifdef JP
+		info[i++] = "それは付近のモンスターを怒らせる。";
+#else
 		info[i++] = "It aggravates nearby creatures.";
+#endif
 	}
 
 	if (f3 & TR3_BLESSED)
 	{
+#ifdef JP
+		info[i++] = "それは神に祝福されている。";
+#else
 		info[i++] = "It has been blessed by the gods.";
+#endif
 	}
 
 	if (cursed_p(o_ptr))
 	{
 		if (f3 & TR3_PERMA_CURSE)
 		{
+#ifdef JP
+			info[i++] = "それは永遠の呪いがかけられている。";
+#else
 			info[i++] = "It is permanently cursed.";
+#endif
 		}
 		else if (f3 & TR3_HEAVY_CURSE)
 		{
+#ifdef JP
+			info[i++] = "それは強力な呪いがかけられている。";
+#else
 			info[i++] = "It is heavily cursed.";
+#endif
 		}
 		else
 		{
+#ifdef JP
+			info[i++] = "それは呪われている。";
+#else
 			info[i++] = "It is cursed.";
+#endif
 		}
 	}
 
 	if (f3 & TR3_TY_CURSE)
 	{
-		info[i++] = "It carries an ancient foul curse.";
+#ifdef JP
+			info[i++] = "それは太古の禍々しい怨念が宿っている。";
+#else
+			info[i++] = "It carries an ancient foul curse.";
+#endif
 	}
 
-	if (f3 & (TR3_IGNORE_ACID))
+	/* XTRA HACK ARTDESC */
+	flag = TR3_IGNORE_ACID | TR3_IGNORE_ELEC | TR3_IGNORE_FIRE | TR3_IGNORE_COLD;
+	if ((f3 & flag) == flag)
 	{
-		info[i++] = "It cannot be harmed by acid.";
+#ifdef JP
+	  info[i++] = "それは酸・電撃・火炎・冷気では傷つかない。";
+#else
+	  info[i++] = "It cannot be harmed by the elements.";
+#endif
+	} else {
+		if (f3 & (TR3_IGNORE_ACID))
+		{
+#ifdef JP
+			info[i++] = "それは酸では傷つかない。";
+#else
+			info[i++] = "It cannot be harmed by acid.";
+#endif
+		}
+		if (f3 & (TR3_IGNORE_ELEC))
+		{
+#ifdef JP
+			info[i++] = "それは電撃では傷つかない。";
+#else
+			info[i++] = "It cannot be harmed by electricity.";
+#endif
+		}
+		if (f3 & (TR3_IGNORE_FIRE))
+		{
+#ifdef JP
+			info[i++] = "それは火炎では傷つかない。";
+#else
+			info[i++] = "It cannot be harmed by fire.";
+#endif
+		}
+		if (f3 & (TR3_IGNORE_COLD))
+		{
+#ifdef JP
+			info[i++] = "それは冷気では傷つかない。";
+#else
+			info[i++] = "It cannot be harmed by cold.";
+#endif
+		}
+	/* XTRA HACK ARTDESC */
 	}
-	if (f3 & (TR3_IGNORE_ELEC))
-	{
-		info[i++] = "It cannot be harmed by electricity.";
-	}
-	if (f3 & (TR3_IGNORE_FIRE))
-	{
-		info[i++] = "It cannot be harmed by fire.";
-	}
-	if (f3 & (TR3_IGNORE_COLD))
-	{
-		info[i++] = "It cannot be harmed by cold.";
-	}
-
 
 	/* No special effects */
 	if (!i) return (FALSE);
@@ -1441,11 +2177,18 @@ bool identify_fully_aux(object_type *o_ptr)
 	/* Save the screen */
 	screen_save();
 
+	/* Get size */
+	Term_get_size(&wid, &hgt);
+
 	/* Erase the screen */
-	for (k = 1; k < 24; k++) prt("", k, 13);
+	for (k = 1; k < hgt; k++) prt("", k, 13);
 
 	/* Label the information */
-	prt("     Item Attributes:", 1, 15);
+	if (real)
+		object_desc(o_name, o_ptr, 0);
+	else
+		object_desc(o_name, o_ptr, OD_NAME_ONLY | OD_STORE);
+	prt(o_name,1,15);
 
 	/* We will print on top of the map (column 13) */
 	for (k = 2, j = 0; j < i; j++)
@@ -1454,16 +2197,25 @@ bool identify_fully_aux(object_type *o_ptr)
 		prt(info[j], k++, 15);
 
 		/* Every 20 entries (lines 2 to 21), start over */
-		if ((k == 22) && (j+1 < i))
+		if ((k == hgt - 2) && (j+1 < i))
 		{
+#ifdef JP
+			prt("-- 続く --", k, 15);
+#else
 			prt("-- more --", k, 15);
+#endif
 			inkey();
 			for (; k > 2; k--) prt("", k, 15);
 		}
 	}
 
 	/* Wait for it */
+#ifdef JP
+	prt("[何かキーを押すとゲームに戻ります]", k, 15);
+#else
 	prt("[Press any key to continue]", k, 15);
+#endif
+
 	inkey();
 
 	/* Restore the screen */
@@ -1623,19 +2375,80 @@ cptr mention_use(int i)
 	/* Examine the location */
 	switch (i)
 	{
-		case INVEN_WIELD: p = "Wielding"; break;
+#ifdef JP
+		case INVEN_WIELD: p = " 右手"; break;
+		case INVEN_ARM: p = " 左手"; break;
+#else
+		case INVEN_WIELD: p = "On right arm"; break;
+		case INVEN_ARM: p = "On left arm"; break;
+#endif
+
+#ifdef JP
+case INVEN_BOW:   p = "射撃用"; break;
+#else
 		case INVEN_BOW:   p = "Shooting"; break;
+#endif
+
+#ifdef JP
+case INVEN_LEFT:  p = "左手指"; break;
+#else
 		case INVEN_LEFT:  p = "On left hand"; break;
+#endif
+
+#ifdef JP
+case INVEN_RIGHT: p = "右手指"; break;
+#else
 		case INVEN_RIGHT: p = "On right hand"; break;
+#endif
+
+#ifdef JP
+case INVEN_NECK:  p = "  首"; break;
+#else
 		case INVEN_NECK:  p = "Around neck"; break;
+#endif
+
+#ifdef JP
+case INVEN_LITE:  p = " 光源"; break;
+#else
 		case INVEN_LITE:  p = "Light source"; break;
+#endif
+
+#ifdef JP
+case INVEN_BODY:  p = "  体"; break;
+#else
 		case INVEN_BODY:  p = "On body"; break;
+#endif
+
+#ifdef JP
+case INVEN_OUTER: p = "体の上"; break;
+#else
 		case INVEN_OUTER: p = "About body"; break;
-		case INVEN_ARM:   p = "On arm"; break;
+#endif
+
+#ifdef JP
+case INVEN_HEAD:  p = "  頭"; break;
+#else
 		case INVEN_HEAD:  p = "On head"; break;
+#endif
+
+#ifdef JP
+case INVEN_HANDS: p = "  手"; break;
+#else
 		case INVEN_HANDS: p = "On hands"; break;
+#endif
+
+#ifdef JP
+case INVEN_FEET:  p = "  足"; break;
+#else
 		case INVEN_FEET:  p = "On feet"; break;
+#endif
+
+#ifdef JP
+default:          p = "ザック"; break;
+#else
 		default:          p = "In pack"; break;
+#endif
+
 	}
 
 	/* Hack -- Heavy weapon */
@@ -1645,7 +2458,12 @@ cptr mention_use(int i)
 		o_ptr = &inventory[i];
 		if (adj_str_hold[p_ptr->stat_ind[A_STR]] < o_ptr->weight / 10)
 		{
+#ifdef JP
+p = "運搬中";
+#else
 			p = "Just lifting";
+#endif
+
 		}
 	}
 
@@ -1656,7 +2474,12 @@ cptr mention_use(int i)
 		o_ptr = &inventory[i];
 		if (adj_str_hold[p_ptr->stat_ind[A_STR]] < o_ptr->weight / 10)
 		{
+#ifdef JP
+p = "運搬中";
+#else
 			p = "Just holding";
+#endif
+
 		}
 	}
 
@@ -1675,19 +2498,97 @@ cptr describe_use(int i)
 
 	switch (i)
 	{
+#ifdef JP
+case INVEN_WIELD: p = "打撃用に装備している"; break;
+#else
 		case INVEN_WIELD: p = "attacking monsters with"; break;
+#endif
+
+		case INVEN_ARM:
+			if (is_two_handed())
+			{
+#ifdef JP
+				p = "打撃用に装備している";
+#else
+				p = "attacking monsters with";
+#endif
+			}
+			else
+			{
+#ifdef JP
+				p = "腕につけている";
+#else
+				p = "wearing on your arm";
+#endif
+			}
+		break;
+
+#ifdef JP
+case INVEN_BOW:   p = "射撃用に装備している"; break;
+#else
 		case INVEN_BOW:   p = "shooting missiles with"; break;
+#endif
+
+#ifdef JP
+case INVEN_LEFT:  p = "左手の指にはめている"; break;
+#else
 		case INVEN_LEFT:  p = "wearing on your left hand"; break;
+#endif
+
+#ifdef JP
+case INVEN_RIGHT: p = "右手の指にはめている"; break;
+#else
 		case INVEN_RIGHT: p = "wearing on your right hand"; break;
+#endif
+
+#ifdef JP
+case INVEN_NECK:  p = "首にかけている"; break;
+#else
 		case INVEN_NECK:  p = "wearing around your neck"; break;
+#endif
+
+#ifdef JP
+case INVEN_LITE:  p = "光源にしている"; break;
+#else
 		case INVEN_LITE:  p = "using to light the way"; break;
+#endif
+
+#ifdef JP
+case INVEN_BODY:  p = "体に着ている"; break;
+#else
 		case INVEN_BODY:  p = "wearing on your body"; break;
+#endif
+
+#ifdef JP
+case INVEN_OUTER: p = "身にまとっている"; break;
+#else
 		case INVEN_OUTER: p = "wearing on your back"; break;
-		case INVEN_ARM:   p = "wearing on your arm"; break;
+#endif
+
+#ifdef JP
+case INVEN_HEAD:  p = "頭にかぶっている"; break;
+#else
 		case INVEN_HEAD:  p = "wearing on your head"; break;
+#endif
+
+#ifdef JP
+case INVEN_HANDS: p = "手につけている"; break;
+#else
 		case INVEN_HANDS: p = "wearing on your hands"; break;
+#endif
+
+#ifdef JP
+case INVEN_FEET:  p = "足にはいている"; break;
+#else
 		case INVEN_FEET:  p = "wearing on your feet"; break;
+#endif
+
+#ifdef JP
+default:          p = "ザックに入っている"; break;
+#else
 		default:          p = "carrying in your pack"; break;
+#endif
+
 	}
 
 	/* Hack -- Heavy weapon */
@@ -1697,7 +2598,12 @@ cptr describe_use(int i)
 		o_ptr = &inventory[i];
 		if (adj_str_hold[p_ptr->stat_ind[A_STR]] < o_ptr->weight / 10)
 		{
+#ifdef JP
+p = "運搬中の";
+#else
 			p = "just lifting";
+#endif
+
 		}
 	}
 
@@ -1708,7 +2614,12 @@ cptr describe_use(int i)
 		o_ptr = &inventory[i];
 		if (adj_str_hold[p_ptr->stat_ind[A_STR]] < o_ptr->weight / 10)
 		{
+#ifdef JP
+p = "持つだけで精一杯の";
+#else
 			p = "just holding";
+#endif
+
 		}
 	}
 
@@ -1719,9 +2630,16 @@ cptr describe_use(int i)
 
 /* Hack: Check if a spellbook is one of the realms we can use. -- TY */
 
-bool check_book_realm(const byte book_tval)
+bool check_book_realm(const byte book_tval, const byte book_sval)
 {
+	if (book_tval < TV_LIFE_BOOK) return FALSE;
+	if ((p_ptr->pclass == CLASS_RANGER) && (book_sval >= 2)) return FALSE;
+	if ((p_ptr->pclass == CLASS_ARCHAEOLOGIST) && (book_sval >= 2)) return FALSE;
+#if 0
 	return (REALM1_BOOK == book_tval || REALM2_BOOK == book_tval);
+#else
+	return (REALM1_BOOK == book_tval);
+#endif
 }
 
 
@@ -1737,15 +2655,21 @@ bool item_tester_okay(object_type *o_ptr)
 	if (!o_ptr->k_idx) return (FALSE);
 
 	/* Hack -- ignore "gold" */
-	if (o_ptr->tval == TV_GOLD) return (FALSE);
+	if (o_ptr->tval == TV_GOLD)
+	{
+		/* See xtra2.c */
+		extern bool show_gold_on_floor;
+
+		if (!show_gold_on_floor) return (FALSE);
+	}
 
 	/* Check the tval */
 	if (item_tester_tval)
 	{
 		/* Is it a spellbook? If so, we need a hack -- TY */
-		if ((item_tester_tval <= TV_DEATH_BOOK) &&
+		if ((item_tester_tval <= TV_MAGIC_BOOK) &&
 			(item_tester_tval >= TV_LIFE_BOOK))
-			return check_book_realm(o_ptr->tval);
+			return check_book_realm(o_ptr->tval, o_ptr->sval);
 		else
 			if (item_tester_tval != o_ptr->tval) return (FALSE);
 	}
@@ -1772,8 +2696,11 @@ void display_inven(void)
 	object_type     *o_ptr;
 	byte            attr;
 	char            tmp_val[80];
-	char            o_name[80];
+	char            o_name[MAX_NLEN];
+	int             wid, hgt;
 
+	/* Get size */
+	Term_get_size(&wid, &hgt);
 
 	/* Find the "final" slot */
 	for (i = 0; i < INVEN_PACK; i++)
@@ -1810,7 +2737,7 @@ void display_inven(void)
 		Term_putstr(0, i, 3, TERM_WHITE, tmp_val);
 
 		/* Obtain an item description */
-		object_desc(o_name, o_ptr, TRUE, 3);
+		object_desc(o_name, o_ptr, 0);
 
 		/* Obtain the length of the description */
 		n = strlen(o_name);
@@ -1837,13 +2764,18 @@ void display_inven(void)
 		if (show_weights && o_ptr->weight)
 		{
 			int wgt = o_ptr->weight * o_ptr->number;
+#ifdef JP
+			sprintf(tmp_val, "%3d.%1d kg", lbtokg1(wgt), lbtokg2(wgt) );
+#else
 			sprintf(tmp_val, "%3d.%1d lb", wgt / 10, wgt % 10);
-			Term_putstr(71, i, -1, TERM_WHITE, tmp_val);
+#endif
+
+			prt(tmp_val, i, wid - 9);
 		}
 	}
 
 	/* Erase the rest of the window */
-	for (i = z; i < Term->hgt; i++)
+	for (i = z; i < hgt; i++)
 	{
 		/* Erase the line */
 		Term_erase(0, i, 255);
@@ -1861,8 +2793,11 @@ void display_equip(void)
 	object_type     *o_ptr;
 	byte            attr;
 	char            tmp_val[80];
-	char            o_name[80];
+	char            o_name[MAX_NLEN];
+	int             wid, hgt;
 
+	/* Get size */
+	Term_get_size(&wid, &hgt);
 
 	/* Display the equipment */
 	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
@@ -1887,7 +2822,7 @@ void display_equip(void)
 		Term_putstr(0, i - INVEN_WIELD, 3, TERM_WHITE, tmp_val);
 
 		/* Obtain an item description */
-		object_desc(o_name, o_ptr, TRUE, 3);
+		object_desc(o_name, o_ptr, 0);
 
 		/* Obtain the length of the description */
 		n = strlen(o_name);
@@ -1910,25 +2845,29 @@ void display_equip(void)
 		/* Erase the rest of the line */
 		Term_erase(3+n, i - INVEN_WIELD, 255);
 
-		/* Display the slot description (if needed) */
-		if (show_labels)
-		{
-			Term_putstr(61, i - INVEN_WIELD, -1, TERM_WHITE, "<--");
-			Term_putstr(65, i - INVEN_WIELD, -1, TERM_WHITE, mention_use(i));
-		}
-
 		/* Display the weight (if needed) */
 		if (show_weights && o_ptr->weight)
 		{
 			int wgt = o_ptr->weight * o_ptr->number;
-			int col = (show_labels ? 52 : 71);
+#ifdef JP
+			sprintf(tmp_val, "%3d.%1d kg", lbtokg1(wgt), lbtokg2(wgt));
+#else
 			sprintf(tmp_val, "%3d.%1d lb", wgt / 10, wgt % 10);
-			Term_putstr(col, i - INVEN_WIELD, -1, TERM_WHITE, tmp_val);
+#endif
+
+			prt(tmp_val, i - INVEN_WIELD, wid - (show_labels ? 28 : 9));
+		}
+
+		/* Display the slot description (if needed) */
+		if (show_labels)
+		{
+			Term_putstr(wid - 20, i - INVEN_WIELD, -1, TERM_WHITE, " <-- ");
+			prt(mention_use(i), i - INVEN_WIELD, wid - 15);
 		}
 	}
 
 	/* Erase the rest of the window */
-	for (i = INVEN_TOTAL - INVEN_WIELD; i < Term->hgt; i++)
+	for (i = INVEN_TOTAL - INVEN_WIELD; i < hgt; i++)
 	{
 		/* Clear that line */
 		Term_erase(0, i, 255);
@@ -1936,8 +2875,274 @@ void display_equip(void)
 }
 
 
+/*
+ * Find the "first" inventory object with the given "tag".
+ *
+ * A "tag" is a numeral "n" appearing as "@n" anywhere in the
+ * inscription of an object.  Alphabetical characters don't work as a
+ * tag in this form.
+ *
+ * Also, the tag "@xn" will work as well, where "n" is a any tag-char,
+ * and "x" is the "current" command_cmd code.
+ */
+static bool get_tag(int *cp, char tag, int mode)
+{
+	int i, start, end;
+	cptr s;
+
+	/* Extract index from mode */
+	switch (mode)
+	{
+	case USE_EQUIP:
+		start = INVEN_WIELD;
+		end = INVEN_TOTAL - 1;
+		break;
+
+	case USE_INVEN:
+		start = 0;
+		end = INVEN_PACK - 1;
+		break;
+
+	default:
+		return FALSE;
+	}
+
+	/**** Find a tag in the form of {@x#} (allow alphabet tag) ***/
+
+	/* Check every inventory object */
+	for (i = start; i <= end; i++)
+	{
+		object_type *o_ptr = &inventory[i];
+
+		/* Skip non-objects */
+		if (!o_ptr->k_idx) continue;
+
+		/* Skip empty inscriptions */
+		if (!o_ptr->inscription) continue;
+
+		/* Skip non-choice */
+		if (!item_tester_okay(o_ptr)) continue;
+
+		/* Find a '@' */
+		s = my_strchr(quark_str(o_ptr->inscription), '@');
+
+		/* Process all tags */
+		while (s)
+		{
+			/* Check the special tags */
+			if ((s[1] == command_cmd) && (s[2] == tag))
+			{
+				/* Save the actual inventory ID */
+				*cp = i;
+
+				/* Success */
+				return (TRUE);
+			}
+
+			/* Find another '@' */
+			s = my_strchr(s + 1, '@');
+		}
+	}
 
 
+	/**** Find a tag in the form of {@#} (allows only numerals)  ***/
+
+	/* Don't allow {@#} with '#' being alphabet */
+	if (tag < '0' || '9' < tag)
+	{
+		/* No such tag */
+		return FALSE;
+	}
+
+	/* Check every object */
+	for (i = start; i <= end; i++)
+	{
+		object_type *o_ptr = &inventory[i];
+
+		/* Skip non-objects */
+		if (!o_ptr->k_idx) continue;
+
+		/* Skip empty inscriptions */
+		if (!o_ptr->inscription) continue;
+
+		/* Skip non-choice */
+		if (!item_tester_okay(o_ptr)) continue;
+
+		/* Find a '@' */
+		s = my_strchr(quark_str(o_ptr->inscription), '@');
+
+		/* Process all tags */
+		while (s)
+		{
+			/* Check the normal tags */
+			if (s[1] == tag)
+			{
+				/* Save the actual inventory ID */
+				*cp = i;
+
+				/* Success */
+				return (TRUE);
+			}
+
+			/* Find another '@' */
+			s = my_strchr(s + 1, '@');
+		}
+	}
+
+	/* No such tag */
+	return (FALSE);
+}
+
+
+/*
+ * Find the "first" floor object with the given "tag".
+ *
+ * A "tag" is a numeral "n" appearing as "@n" anywhere in the
+ * inscription of an object.  Alphabetical characters don't work as a
+ * tag in this form.
+ *
+ * Also, the tag "@xn" will work as well, where "n" is a any tag-char,
+ * and "x" is the "current" command_cmd code.
+ */
+static bool get_tag_floor(int *cp, char tag, int floor_list[], int floor_num)
+{
+	int i;
+	cptr s;
+
+	/**** Find a tag in the form of {@x#} (allow alphabet tag) ***/
+
+	/* Check every object in the grid */
+	for (i = 0; i < floor_num && i < 23; i++)
+	{
+		object_type *o_ptr = &o_list[floor_list[i]];
+
+		/* Skip empty inscriptions */
+		if (!o_ptr->inscription) continue;
+
+		/* Find a '@' */
+		s = my_strchr(quark_str(o_ptr->inscription), '@');
+
+		/* Process all tags */
+		while (s)
+		{
+			/* Check the special tags */
+			if ((s[1] == command_cmd) && (s[2] == tag))
+			{
+				/* Save the actual floor object ID */
+				*cp = i;
+
+				/* Success */
+				return (TRUE);
+			}
+
+			/* Find another '@' */
+			s = my_strchr(s + 1, '@');
+		}
+	}
+
+
+	/**** Find a tag in the form of {@#} (allows only numerals)  ***/
+
+	/* Don't allow {@#} with '#' being alphabet */
+	if (tag < '0' || '9' < tag)
+	{
+		/* No such tag */
+		return FALSE;
+	}
+
+	/* Check every object in the grid */
+	for (i = 0; i < floor_num && i < 23; i++)
+	{
+		object_type *o_ptr = &o_list[floor_list[i]];
+
+		/* Skip empty inscriptions */
+		if (!o_ptr->inscription) continue;
+
+		/* Find a '@' */
+		s = my_strchr(quark_str(o_ptr->inscription), '@');
+
+		/* Process all tags */
+		while (s)
+		{
+			/* Check the normal tags */
+			if (s[1] == tag)
+			{
+				/* Save the floor object ID */
+				*cp = i;
+
+				/* Success */
+				return (TRUE);
+			}
+
+			/* Find another '@' */
+			s = my_strchr(s + 1, '@');
+		}
+	}
+
+	/* No such tag */
+	return (FALSE);
+}
+
+
+/*
+ * Move around label characters with correspond tags
+ */
+static void prepare_label_string(char *label, int mode)
+{
+	cptr alphabet_chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+	int  offset = (mode == USE_EQUIP) ? INVEN_WIELD : 0;
+	int  i;
+
+	/* Prepare normal labels */
+	strcpy(label, alphabet_chars);
+
+	/* Move each label */
+	for (i = 0; i < 52; i++)
+	{
+		int index;
+		char c = alphabet_chars[i];
+
+		/* Find a tag with this label */
+		if (get_tag(&index, c, mode))
+		{
+			/* Delete the overwritten label */
+			if (label[i] == c) label[i] = ' ';
+
+			/* Move the label to the place of corresponding tag */
+			label[index - offset] = c;
+		}
+	}
+}
+
+
+/*
+ * Move around label characters with correspond tags (floor version)
+ */
+static void prepare_label_string_floor(char *label, int floor_list[], int floor_num)
+{
+	cptr alphabet_chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+	int  i;
+
+	/* Prepare normal labels */
+	strcpy(label, alphabet_chars);
+
+	/* Move each label */
+	for (i = 0; i < 52; i++)
+	{
+		int index;
+		char c = alphabet_chars[i];
+
+		/* Find a tag with this label */
+		if (get_tag_floor(&index, c, floor_list, floor_num))
+		{
+			/* Delete the overwritten label */
+			if (label[i] == c) label[i] = ' ';
+
+			/* Move the label to the place of corresponding tag */
+			label[index] = c;
+		}
+	}
+}
 
 
 /*
@@ -1948,29 +3153,38 @@ void display_equip(void)
 void show_inven(void)
 {
 	int             i, j, k, l, z = 0;
-	int             col, len, lim;
+	int             col, cur_col, len, lim;
 	object_type     *o_ptr;
-	char            o_name[80];
+	char            o_name[MAX_NLEN];
 	char            tmp_val[80];
 	int             out_index[23];
 	byte            out_color[23];
-	char            out_desc[23][80];
+	char            out_desc[23][MAX_NLEN];
+	int             wid, hgt;
+	char            inven_label[52 + 1];
 
 
 	/* Starting column */
 	col = command_gap;
 
+	/* Get size */
+	Term_get_size(&wid, &hgt);
+
 	/* Default "max-length" */
-	len = 79 - col;
+	len = wid - col - 1;
 
 	/* Maximum space allowed for descriptions */
-	lim = 79 - 3;
+	lim = wid - 4;
 
 	/* Require space for weight (if needed) */
 	if (show_weights) lim -= 9;
 
 	/* Require space for icon */
-	if (show_inven_graph) lim -= 2;
+	if (show_inven_graph)
+	{
+		lim -= 2;
+		if (use_bigtile) lim--;
+	}
 
 	/* Find the "final" slot */
 	for (i = 0; i < INVEN_PACK; i++)
@@ -1984,6 +3198,8 @@ void show_inven(void)
 		z = i + 1;
 	}
 
+	prepare_label_string(inven_label, USE_INVEN);
+
 	/* Display the inventory */
 	for (k = 0, i = 0; i < z; i++)
 	{
@@ -1993,7 +3209,7 @@ void show_inven(void)
 		if (!item_tester_okay(o_ptr)) continue;
 
 		/* Describe the object */
-		object_desc(o_name, o_ptr, TRUE, 3);
+		object_desc(o_name, o_ptr, 0);
 
 		/* Hack -- enforce max length */
 		o_name[lim] = '\0';
@@ -2017,7 +3233,11 @@ void show_inven(void)
 		if (show_weights) l += 9;
 
 		/* Account for icon if displayed */
-		if (show_inven_graph) l += 2;
+		if (show_inven_graph)
+		{
+			l += 2;
+			if (use_bigtile) l++;
+		}
 
 		/* Maintain the maximum length */
 		if (l > len) len = l;
@@ -2027,7 +3247,7 @@ void show_inven(void)
 	}
 
 	/* Find the column to start in */
-	col = (len > 76) ? 0 : (79 - len);
+	col = (len > wid - 4) ? 0 : (wid - len - 1);
 
 	/* Output each entry */
 	for (j = 0; j < k; j++)
@@ -2042,10 +3262,12 @@ void show_inven(void)
 		prt("", j + 1, col ? col - 2 : col);
 
 		/* Prepare an index --(-- */
-		sprintf(tmp_val, "%c)", index_to_label(i));
+		sprintf(tmp_val, "%c)", (i <= INVEN_PACK) ? inven_label[i] : index_to_label(i));
 
 		/* Clear the line with the (possibly indented) index */
 		put_str(tmp_val, j + 1, col);
+
+		cur_col = col + 3;
 
 		/* Display graphics for object, if desired */
 		if (show_inven_graph)
@@ -2057,19 +3279,27 @@ void show_inven(void)
 			if (a & 0x80) a |= 0x40;
 #endif
 
-			Term_draw(col + 3, j + 1, a, c);
+			Term_queue_bigchar(cur_col, j + 1, a, c, 0, 0);
+			if (use_bigtile) cur_col++;
+
+			cur_col += 2;
 		}
 
 
 		/* Display the entry itself */
-		c_put_str(out_color[j], out_desc[j], j + 1, show_inven_graph ? (col + 5) : (col + 3));
+		c_put_str(out_color[j], out_desc[j], j + 1, cur_col);
 
 		/* Display the weight if needed */
 		if (show_weights)
 		{
 			int wgt = o_ptr->weight * o_ptr->number;
+#ifdef JP
+			sprintf(tmp_val, "%3d.%1d kg", lbtokg1(wgt), lbtokg2(wgt) );
+#else
 			(void)sprintf(tmp_val, "%3d.%1d lb", wgt / 10, wgt % 10);
-			put_str(tmp_val, j + 1, 71);
+#endif
+
+			prt(tmp_val, j + 1, wid - 9);
 		}
 	}
 
@@ -2088,29 +3318,43 @@ void show_inven(void)
 void show_equip(void)
 {
 	int             i, j, k, l;
-	int             col, len, lim;
+	int             col, cur_col, len, lim;
 	object_type     *o_ptr;
 	char            tmp_val[80];
-	char            o_name[80];
+	char            o_name[MAX_NLEN];
 	int             out_index[23];
 	byte            out_color[23];
-	char            out_desc[23][80];
-
+	char            out_desc[23][MAX_NLEN];
+	int             wid, hgt;
+	char            equip_label[52 + 1];
 
 	/* Starting column */
 	col = command_gap;
 
+	/* Get size */
+	Term_get_size(&wid, &hgt);
+
 	/* Maximal length */
-	len = 79 - col;
+	len = wid - col - 1;
 
 	/* Maximum space allowed for descriptions */
-	lim = 79 - 3;
+	lim = wid - 4;
 
 	/* Require space for labels (if needed) */
+#ifdef JP
+	if (show_labels) lim -= (7 + 2);
+#else
 	if (show_labels) lim -= (14 + 2);
+#endif
+
 
 	/* Require space for weight (if needed) */
+#ifdef JP
+	if (show_weights) lim -= 10;
+#else
 	if (show_weights) lim -= 9;
+#endif
+
 
 	if (show_equip_graph) lim -= 2;
 
@@ -2122,8 +3366,24 @@ void show_equip(void)
 		/* Is this item acceptable? */
 		if (!item_tester_okay(o_ptr)) continue;
 
+		if (p_ptr->pclass == CLASS_SNATCHER)
+		{
+			if (!check_monster_wield(i))
+			{
+				out_index[k] = i;
+				out_color[k] = TERM_L_DARK;
+#ifdef JP
+				(void) strcpy(out_desc[k++], "(装備不可)");
+#else
+				(void) strcpy(out_desc[k++], "(Disable)");
+#endif
+				if (len < wid - col + 2) len = wid - col + 2;
+				continue;
+			}
+		}
+
 		/* Description */
-		object_desc(o_name, o_ptr, TRUE, 3);
+		object_desc(o_name, o_ptr, 0);
 
 		/* Truncate the description */
 		o_name[lim] = 0;
@@ -2141,10 +3401,20 @@ void show_equip(void)
 		(void)strcpy(out_desc[k], o_name);
 
 		/* Extract the maximal length (see below) */
+#ifdef JP
+		l = strlen(out_desc[k]) + (2 + 1);
+#else
 		l = strlen(out_desc[k]) + (2 + 3);
+#endif
+
 
 		/* Increase length for labels (if needed) */
+#ifdef JP
+		if (show_labels) l += (7 + 2);
+#else
 		if (show_labels) l += (14 + 2);
+#endif
+
 
 		/* Increase length for weight (if needed) */
 		if (show_weights) l += 9;
@@ -2159,7 +3429,14 @@ void show_equip(void)
 	}
 
 	/* Hack -- Find a column to start in */
-	col = (len > 76) ? 0 : (79 - len);
+#ifdef JP
+	col = (len > wid - 6) ? 0 : (wid - len - 1);
+#else
+	col = (len > wid - 4) ? 0 : (wid - len - 1);
+#endif
+
+
+	prepare_label_string(equip_label, USE_EQUIP);
 
 	/* Output each entry */
 	for (j = 0; j < k; j++)
@@ -2174,11 +3451,14 @@ void show_equip(void)
 		prt("", j + 1, col ? col - 2 : col);
 
 		/* Prepare an index --(-- */
-		sprintf(tmp_val, "%c)", index_to_label(i));
+		sprintf(tmp_val, "%c)", (i >= INVEN_WIELD) ? equip_label[i - INVEN_WIELD] : index_to_label(i));
 
 		/* Clear the line with the (possibly indented) index */
 		put_str(tmp_val, j+1, col);
 
+		cur_col = col + 3;
+
+		/* Display graphics for object, if desired */
 		if (show_equip_graph)
 		{
 			byte a = object_attr(o_ptr);
@@ -2188,33 +3468,50 @@ void show_equip(void)
 			if (a & 0x80) a |= 0x40;
 #endif
 
-			Term_draw(col + 3, j + 1, a, c);
+			Term_queue_bigchar(cur_col, j + 1, a, c, 0, 0);
+			if (use_bigtile) cur_col++;
+
+			cur_col += 2;
 		}
 
 		/* Use labels */
 		if (show_labels)
 		{
 			/* Mention the use */
+#ifdef JP
+			(void)sprintf(tmp_val, "%-7s: ", mention_use(i));
+#else
 			(void)sprintf(tmp_val, "%-14s: ", mention_use(i));
-			put_str(tmp_val, j+1, show_equip_graph ? col + 5 : col + 3);
+#endif
+
+			put_str(tmp_val, j+1, cur_col);
 
 			/* Display the entry itself */
-			c_put_str(out_color[j], out_desc[j], j+1, show_equip_graph ? col + 21 : col + 19);
+#ifdef JP
+			c_put_str(out_color[j], out_desc[j], j+1, cur_col + 9);
+#else
+			c_put_str(out_color[j], out_desc[j], j+1, cur_col + 16);
+#endif
 		}
 
 		/* No labels */
 		else
 		{
 			/* Display the entry itself */
-			c_put_str(out_color[j], out_desc[j], j+1, show_equip_graph ? col + 5 : col + 3);
+			c_put_str(out_color[j], out_desc[j], j+1, cur_col);
 		}
 
 		/* Display the weight if needed */
 		if (show_weights)
 		{
 			int wgt = o_ptr->weight * o_ptr->number;
+#ifdef JP
+			sprintf(tmp_val, "%3d.%1d kg", lbtokg1(wgt), lbtokg2(wgt) );
+#else
 			(void)sprintf(tmp_val, "%3d.%d lb", wgt / 10, wgt % 10);
-			put_str(tmp_val, j+1, 71);
+#endif
+
+			prt(tmp_val, j + 1, wid - 9);
 		}
 	}
 
@@ -2274,7 +3571,7 @@ void toggle_inven_equip(void)
  */
 static bool verify(cptr prompt, int item)
 {
-	char        o_name[80];
+	char        o_name[MAX_NLEN];
 	char        out_val[160];
 	object_type *o_ptr;
 
@@ -2292,10 +3589,15 @@ static bool verify(cptr prompt, int item)
 	}
 
 	/* Describe */
-	object_desc(o_name, o_ptr, TRUE, 3);
+	object_desc(o_name, o_ptr, 0);
 
 	/* Prompt */
+#ifdef JP
+(void)sprintf(out_val, "%s%sですか? ", prompt, o_name);
+#else
 	(void)sprintf(out_val, "%s %s? ", prompt, o_name);
+#endif
+
 
 	/* Query */
 	return (get_check(out_val));
@@ -2310,8 +3612,10 @@ static bool verify(cptr prompt, int item)
 static bool get_item_allow(int item)
 {
 	cptr s;
-
+	bool flag;
 	object_type *o_ptr;
+
+	if (!command_cmd) return TRUE; /* command_cmd is no longer effective */
 
 	/* Inventory */
 	if (item >= 0)
@@ -2329,20 +3633,35 @@ static bool get_item_allow(int item)
 	if (!o_ptr->inscription) return (TRUE);
 
 	/* Find a '!' */
-	s = strchr(quark_str(o_ptr->inscription), '!');
+	s = my_strchr(quark_str(o_ptr->inscription), '!');
 
 	/* Process preventions */
 	while (s)
 	{
+		flag = FALSE;
+
+		if (use_command)
+		{
+			if ((!rogue_like_commands && command_cmd == 'u') ||
+				(rogue_like_commands && command_cmd == 'z'))
+			{
+				if (my_strchr("afjqruzAE", s[1])) flag = TRUE;
+			}
+		}
+
 		/* Check the "restriction" */
-		if ((s[1] == command_cmd) || (s[1] == '*'))
+		if ((s[1] == command_cmd) || (s[1] == '*') || flag)
 		{
 			/* Verify the choice */
+#ifdef JP
+			if (!verify("本当に", item)) return (FALSE);
+#else
 			if (!verify("Really try", item)) return (FALSE);
+#endif
 		}
 
 		/* Find another '!' */
-		s = strchr(s + 1, '!');
+		s = my_strchr(s + 1, '!');
 	}
 
 	/* Allow it */
@@ -2369,67 +3688,23 @@ static bool get_item_okay(int i)
 
 
 /*
- * Find the "first" inventory object with the given "tag".
- *
- * A "tag" is a char "n" appearing as "@n" anywhere in the
- * inscription of an object.
- *
- * Also, the tag "@xn" will work as well, where "n" is a tag-char,
- * and "x" is the "current" command_cmd code.
+ * Determine whether get_item() can get some item or not
+ * assuming mode = (USE_EQUIP | USE_INVEN | USE_FLOOR).
  */
-static int get_tag(int *cp, char tag)
+bool can_get_item(void)
 {
-	int i;
-	cptr s;
+	int j, floor_list[23], floor_num = 0;
 
+	for (j = 0; j < INVEN_TOTAL; j++)
+		if (item_tester_okay(&inventory[j]))
+			return TRUE;
 
-	/* Check every object */
-	for (i = 0; i < INVEN_TOTAL; ++i)
-	{
-		object_type *o_ptr = &inventory[i];
+	(void)scan_floor(floor_list, &floor_num, py, px, 0x03);
+	if (floor_num)
+		return TRUE;
 
-		/* Skip non-objects */
-		if (!o_ptr->k_idx) continue;
-
-		/* Skip empty inscriptions */
-		if (!o_ptr->inscription) continue;
-
-		/* Find a '@' */
-		s = strchr(quark_str(o_ptr->inscription), '@');
-
-		/* Process all tags */
-		while (s)
-		{
-			/* Check the normal tags */
-			if (s[1] == tag)
-			{
-				/* Save the actual inventory ID */
-				*cp = i;
-
-				/* Success */
-				return (TRUE);
-			}
-
-			/* Check the special tags */
-			if ((s[1] == command_cmd) && (s[2] == tag))
-			{
-				/* Save the actual inventory ID */
-				*cp = i;
-
-				/* Success */
-				return (TRUE);
-			}
-
-			/* Find another '@' */
-			s = strchr(s + 1, '@');
-		}
-	}
-
-	/* No such tag */
-	return (FALSE);
+	return FALSE;
 }
-
-
 
 /*
  * Let the user select an item, save its "index"
@@ -2483,9 +3758,9 @@ static int get_tag(int *cp, char tag)
  */
 bool get_item(int *cp, cptr pmt, cptr str, int mode)
 {
-	s16b this_o_idx, next_o_idx = 0;
+	s16b this_o_idx, next_o_idx;
 
-	char n1, n2, which = ' ';
+	char which;
 
 	int j, k, i1, i2, e1, e2;
 
@@ -2504,6 +3779,12 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	char tmp_val[160];
 	char out_val[160];
 
+#ifdef ALLOW_REPEAT
+
+	static char prev_tag = '\0';
+	char cur_tag = '\0';
+
+#endif /* ALLOW_REPEAT */
 
 #ifdef ALLOW_EASY_FLOOR /* TNB */
 
@@ -2512,9 +3793,80 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 #endif /* ALLOW_EASY_FLOOR -- TNB */
 
 	/* Extract args */
-	if (mode & (USE_EQUIP)) equip = TRUE;
-	if (mode & (USE_INVEN)) inven = TRUE;
-	if (mode & (USE_FLOOR)) floor = TRUE;
+	if (mode & USE_EQUIP) equip = TRUE;
+	if (mode & USE_INVEN) inven = TRUE;
+	if (mode & USE_FLOOR) floor = TRUE;
+
+#ifdef ALLOW_REPEAT
+
+	/* Get the item index */
+	if (repeat_pull(cp))
+	{
+		/* Floor item? */
+		if (floor && (*cp < 0))
+		{
+			object_type *o_ptr;
+
+			/* Special index */
+			k = 0 - (*cp);
+
+			/* Acquire object */
+			o_ptr = &o_list[k];
+
+			/* Validate the item */
+			if (item_tester_okay(o_ptr))
+			{
+				/* Forget restrictions */
+				item_tester_tval = 0;
+				item_tester_hook = NULL;
+				command_cmd = 0; /* Hack -- command_cmd is no longer effective */
+
+				/* Success */
+				return TRUE;
+			}
+		}
+
+		else if ((inven && (*cp >= 0) && (*cp < INVEN_PACK)) ||
+		         (equip && (*cp >= INVEN_WIELD) && (*cp < INVEN_TOTAL)))
+		{
+			if (prev_tag && command_cmd)
+			{
+				/* Look up the tag and validate the item */
+				if (!get_tag(&k, prev_tag, (*cp >= INVEN_WIELD) ? USE_EQUIP : USE_INVEN)) /* Reject */;
+				else if ((k < INVEN_WIELD) ? !inven : !equip) /* Reject */;
+				else if (!get_item_okay(k)) /* Reject */;
+				else
+				{
+					/* Accept that choice */
+					(*cp) = k;
+
+					/* Forget restrictions */
+					item_tester_tval = 0;
+					item_tester_hook = NULL;
+					command_cmd = 0; /* Hack -- command_cmd is no longer effective */
+
+					/* Success */
+					return TRUE;
+				}
+
+				prev_tag = '\0'; /* prev_tag is no longer effective */
+			}
+
+			/* Verify the item */
+			else if (get_item_okay(*cp))
+			{
+				/* Forget restrictions */
+				item_tester_tval = 0;
+				item_tester_hook = NULL;
+				command_cmd = 0; /* Hack -- command_cmd is no longer effective */
+
+				/* Success */
+				return TRUE;
+			}
+		}
+	}
+
+#endif /* ALLOW_REPEAT */
 
 
 	/* Paranoia XXX XXX XXX */
@@ -2567,7 +3919,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 			next_o_idx = o_ptr->next_o_idx;
 
 			/* Accept the item on the floor if legal */
-			if (item_tester_okay(o_ptr)) allow_floor = TRUE;
+			if (item_tester_okay(o_ptr) && (o_ptr->marked & OM_FOUND)) allow_floor = TRUE;
 		}
 	}
 
@@ -2613,6 +3965,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 		}
 	}
 
+	if (always_show_list) command_see = TRUE;
 
 	/* Hack -- start out in "display" mode */
 	if (command_see)
@@ -2665,10 +4018,6 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 		/* Inventory screen */
 		if (!command_wrk)
 		{
-			/* Extract the legal requests */
-			n1 = I2A(i1);
-			n2 = I2A(i2);
-
 			/* Redraw if needed */
 			if (command_see) show_inven();
 		}
@@ -2676,10 +4025,6 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 		/* Equipment screen */
 		else
 		{
-			/* Extract the legal requests */
-			n1 = I2A(e1 - INVEN_WIELD);
-			n2 = I2A(e2 - INVEN_WIELD);
-
 			/* Redraw if needed */
 			if (command_see) show_equip();
 		}
@@ -2688,55 +4033,95 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 		if (!command_wrk)
 		{
 			/* Begin the prompt */
+#ifdef JP
+			sprintf(out_val, "持ち物:");
+#else
 			sprintf(out_val, "Inven:");
+#endif
 
 			/* Some legal items */
 			if (i1 <= i2)
 			{
 				/* Build the prompt */
+#ifdef JP
+				sprintf(tmp_val, "%c-%c,",
+#else
 				sprintf(tmp_val, " %c-%c,",
-				        index_to_label(i1), index_to_label(i2));
+#endif
+					index_to_label(i1), index_to_label(i2));
 
 				/* Append */
 				strcat(out_val, tmp_val);
 			}
 
 			/* Indicate ability to "view" */
+#ifdef JP
+			if (!command_see) strcat(out_val, " '*'一覧,");
+#else
 			if (!command_see) strcat(out_val, " * to see,");
+#endif
 
 			/* Append */
+#ifdef JP
+			if (equip) strcat(out_val, " '/'装備品,");
+#else
 			if (equip) strcat(out_val, " / for Equip,");
+#endif
 		}
 
 		/* Viewing equipment */
 		else
 		{
 			/* Begin the prompt */
+#ifdef JP
+			sprintf(out_val, "装備品:");
+#else
 			sprintf(out_val, "Equip:");
+#endif
 
 			/* Some legal items */
 			if (e1 <= e2)
 			{
 				/* Build the prompt */
+#ifdef JP
+				sprintf(tmp_val, "%c-%c,",
+#else
 				sprintf(tmp_val, " %c-%c,",
-				        index_to_label(e1), index_to_label(e2));
+#endif
+					index_to_label(e1), index_to_label(e2));
 
 				/* Append */
 				strcat(out_val, tmp_val);
 			}
 
 			/* Indicate ability to "view" */
+#ifdef JP
+			if (!command_see) strcat(out_val, " '*'一覧,");
+#else
 			if (!command_see) strcat(out_val, " * to see,");
+#endif
 
 			/* Append */
+#ifdef JP
+			if (inven) strcat(out_val, " '/' 持ち物,");
+#else
 			if (inven) strcat(out_val, " / for Inven,");
+#endif
 		}
 
 		/* Indicate legality of the "floor" item */
+#ifdef JP
+		if (allow_floor) strcat(out_val, " '-'床上,");
+#else
 		if (allow_floor) strcat(out_val, " - for floor,");
+#endif
 
 		/* Finish the prompt */
-		strcat(out_val, " ESC");
+#ifdef JP
+		strcat(out_val, " (, ), ESC");
+#else
+		strcat(out_val, " (, ), ESC");
+#endif
 
 		/* Build the prompt */
 		sprintf(tmp_val, "(%s) %s", out_val, pmt);
@@ -2832,7 +4217,11 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 						k = 0 - this_o_idx;
 
 						/* Verify the item (if required) */
+#ifdef JP
+						if (other_query_flag && !verify("本当に", k)) continue;
+#else
 						if (other_query_flag && !verify("Try", k)) continue;
+#endif
 
 						/* Allow player to "refuse" certain actions */
 						if (!get_item_allow(k)) continue;
@@ -2859,7 +4248,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 			case '7': case '8': case '9':
 			{
 				/* Look up the tag */
-				if (!get_tag(&k, which))
+				if (!get_tag(&k, which, command_wrk ? USE_EQUIP : USE_INVEN))
 				{
 					bell();
 					break;
@@ -2890,6 +4279,9 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 				(*cp) = k;
 				item = TRUE;
 				done = TRUE;
+#ifdef ALLOW_REPEAT
+				cur_tag = which;
+#endif /* ALLOW_REPEAT */
 				break;
 			}
 
@@ -2929,9 +4321,76 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 				break;
 			}
 
+			case '(':
+			case ')':
+			{
+				/* Choose "default" inventory item */
+				if (!command_wrk)
+				{
+					k = ((which == '(') ? i1 : i2);
+				}
+
+				/* Choose "default" equipment item */
+				else
+				{
+					k = ((which == '(') ? e1 : e2);
+				}
+
+				/* Validate the item */
+				if (!get_item_okay(k))
+				{
+					bell();
+					break;
+				}
+
+				/* Allow player to "refuse" certain actions */
+				if (!get_item_allow(k))
+				{
+					done = TRUE;
+					break;
+				}
+
+				/* Accept that choice */
+				(*cp) = k;
+				item = TRUE;
+				done = TRUE;
+				break;
+			}
+
 			default:
 			{
 				int ver;
+				bool not_found = FALSE;
+
+				/* Look up the alphabetical tag */
+				if (!get_tag(&k, which, command_wrk ? USE_EQUIP : USE_INVEN))
+				{
+					not_found = TRUE;
+				}
+
+				/* Hack -- Validate the item */
+				else if ((k < INVEN_WIELD) ? !inven : !equip)
+				{
+					not_found = TRUE;
+				}
+
+				/* Validate the item */
+				else if (!get_item_okay(k))
+				{
+					not_found = TRUE;
+				}
+
+				if (!not_found)
+				{
+					/* Accept that choice */
+					(*cp) = k;
+					item = TRUE;
+					done = TRUE;
+#ifdef ALLOW_REPEAT
+					cur_tag = which;
+#endif /* ALLOW_REPEAT */
+					break;
+				}
 
 				/* Extract "query" setting */
 				ver = isupper(which);
@@ -2957,7 +4416,11 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 				}
 
 				/* Verify the item */
+#ifdef JP
+				if (ver && !verify("本当に", k))
+#else
 				if (ver && !verify("Try", k))
+#endif
 				{
 					done = TRUE;
 					break;
@@ -3018,6 +4481,16 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	/* Warning if needed */
 	if (oops && str) msg_print(str);
 
+	if (item)
+	{
+#ifdef ALLOW_REPEAT
+		repeat_push(*cp);
+		if (command_cmd) prev_tag = cur_tag;
+#endif /* ALLOW_REPEAT */
+
+		command_cmd = 0; /* Hack -- command_cmd is no longer effective */
+	}
+
 	/* Result */
 	return (item);
 }
@@ -3061,7 +4534,7 @@ bool scan_floor(int *items, int *item_num, int y, int x, int mode)
 		if ((mode & 0x01) && !item_tester_okay(o_ptr)) continue;
 
 		/* Marked */
-		if ((mode & 0x02) && !o_ptr->marked) continue;
+		if ((mode & 0x02) && !(o_ptr->marked & OM_FOUND)) continue;
 
 		/* Accept this item */
 		items[num++] = this_o_idx;
@@ -3080,6 +4553,7 @@ bool scan_floor(int *items, int *item_num, int y, int x, int mode)
 	return (num != 0);
 }
 
+
 /*
  * Display a list of the items on the floor at the given location.
  */
@@ -3090,35 +4564,42 @@ void show_floor(int y, int x)
 
 	object_type *o_ptr;
 
-	char o_name[80];
+	char o_name[MAX_NLEN];
 
 	char tmp_val[80];
 
 	int out_index[23];
 	byte out_color[23];
-	char out_desc[23][80];
+	char out_desc[23][MAX_NLEN];
 
 	int floor_list[23], floor_num;
+	int wid, hgt;
+	char floor_label[52 + 1];
+
+	bool dont_need_to_show_weights = TRUE;
+
+	/* Get size */
+	Term_get_size(&wid, &hgt);
 
 	/* Default length */
-	len = 79 - 50;
+	len = 20;
 
 	/* Maximum space allowed for descriptions */
-	lim = 79 - 3;
+	lim = wid - 4;
 
 	/* Require space for weight (if needed) */
 	if (show_weights) lim -= 9;
 
 	/* Scan for objects in the grid, using item_tester_okay() */
-	(void) scan_floor(floor_list, &floor_num, y, x, 0x01);
+	(void)scan_floor(floor_list, &floor_num, y, x, 0x03);
 
-	/* Display the inventory */
+	/* Display the floor objects */
 	for (k = 0, i = 0; i < floor_num; i++)
 	{
 		o_ptr = &o_list[floor_list[i]];
 
 		/* Describe the object */
-		object_desc(o_name, o_ptr, TRUE, 3);
+		object_desc(o_name, o_ptr, 0);
 
 		/* Hack -- enforce max length */
 		o_name[lim] = '\0';
@@ -3138,6 +4619,8 @@ void show_floor(int y, int x)
 		/* Be sure to account for the weight */
 		if (show_weights) l += 9;
 
+		if (o_ptr->tval != TV_GOLD) dont_need_to_show_weights = FALSE;
+
 		/* Maintain the maximum length */
 		if (l > len) len = l;
 
@@ -3145,8 +4628,12 @@ void show_floor(int y, int x)
 		k++;
 	}
 
+	if (show_weights && dont_need_to_show_weights) len -= 9;
+
 	/* Find the column to start in */
-	col = (len > 76) ? 0 : (79 - len);
+	col = (len > wid - 4) ? 0 : (wid - len - 1);
+
+	prepare_label_string_floor(floor_label, floor_list, floor_num);
 
 	/* Output each entry */
 	for (j = 0; j < k; j++)
@@ -3161,7 +4648,7 @@ void show_floor(int y, int x)
 		prt("", j + 1, col ? col - 2 : col);
 
 		/* Prepare an index --(-- */
-		sprintf(tmp_val, "%c)", index_to_label(j));
+		sprintf(tmp_val, "%c)", floor_label[j]);
 
 		/* Clear the line with the (possibly indented) index */
 		put_str(tmp_val, j + 1, col);
@@ -3170,11 +4657,16 @@ void show_floor(int y, int x)
 		c_put_str(out_color[j], out_desc[j], j + 1, col + 3);
 
 		/* Display the weight if needed */
-		if (show_weights)
+		if (show_weights && (o_ptr->tval != TV_GOLD))
 		{
 			int wgt = o_ptr->weight * o_ptr->number;
+#ifdef JP
+			sprintf(tmp_val, "%3d.%1d kg", lbtokg1(wgt), lbtokg2(wgt) );
+#else
 			sprintf(tmp_val, "%3d.%1d lb", wgt / 10, wgt % 10);
-			put_str(tmp_val, j + 1, 71);
+#endif
+
+			prt(tmp_val, j + 1, wid - 9);
 		}
 	}
 
@@ -3188,7 +4680,7 @@ void show_floor(int y, int x)
  */
 bool get_item_floor(int *cp, cptr pmt, cptr str, int mode)
 {
-	char n1 = ' ', n2 = ' ', which = ' ';
+	char n1 = ' ', n2 = ' ', which;
 
 	int j, k, i1, i2, e1, e2;
 
@@ -3196,9 +4688,10 @@ bool get_item_floor(int *cp, cptr pmt, cptr str, int mode)
 
 	bool oops = FALSE;
 
-	bool equip = FALSE;
-	bool inven = FALSE;
-	bool floor = FALSE;
+	/* Extract args */
+	bool equip = (mode & USE_EQUIP) ? TRUE : FALSE;
+	bool inven = (mode & USE_INVEN) ? TRUE : FALSE;
+	bool floor = (mode & USE_FLOOR) ? TRUE : FALSE;
 
 	bool allow_equip = FALSE;
 	bool allow_inven = FALSE;
@@ -3213,54 +4706,92 @@ bool get_item_floor(int *cp, cptr pmt, cptr str, int mode)
 
 #ifdef ALLOW_REPEAT
 
+	static char prev_tag = '\0';
+	char cur_tag = '\0';
+
 	/* Get the item index */
 	if (repeat_pull(cp))
 	{
 		/* Floor item? */
-		if (*cp < 0)
+		if (floor && (*cp < 0))
 		{
-			object_type *o_ptr;
+			if (prev_tag && command_cmd)
+			{
+				/* Scan all objects in the grid */
+				(void)scan_floor(floor_list, &floor_num, py, px, 0x03);
 
-			/* Special index */
-			k = 0 - (*cp);
+				/* Look up the tag */
+				if (get_tag_floor(&k, prev_tag, floor_list, floor_num))
+				{
+					/* Accept that choice */
+					(*cp) = 0 - floor_list[k];
 
-			/* Acquire object */
-			o_ptr = &o_list[k];
+					/* Forget restrictions */
+					item_tester_tval = 0;
+					item_tester_hook = NULL;
+					command_cmd = 0; /* Hack -- command_cmd is no longer effective */
+
+					/* Success */
+					return TRUE;
+				}
+
+				prev_tag = '\0'; /* prev_tag is no longer effective */
+			}
 
 			/* Validate the item */
-			if (item_tester_okay(o_ptr))
+			else if (item_tester_okay(&o_list[0 - (*cp)]))
 			{
-				/* Forget the item_tester_tval restriction */
+				/* Forget restrictions */
 				item_tester_tval = 0;
-
-				/* Forget the item_tester_hook restriction */
 				item_tester_hook = NULL;
+				command_cmd = 0; /* Hack -- command_cmd is no longer effective */
 
 				/* Success */
-				return (TRUE);
+				return TRUE;
 			}
 		}
 
-		/* Verify the item */
-		else if (get_item_okay(*cp))
+		else if ((inven && (*cp >= 0) && (*cp < INVEN_PACK)) ||
+		         (equip && (*cp >= INVEN_WIELD) && (*cp < INVEN_TOTAL)))
 		{
-			/* Forget the item_tester_tval restriction */
-			item_tester_tval = 0;
+			if (prev_tag && command_cmd)
+			{
+				/* Look up the tag and validate the item */
+				if (!get_tag(&k, prev_tag, (*cp >= INVEN_WIELD) ? USE_EQUIP : USE_INVEN)) /* Reject */;
+				else if ((k < INVEN_WIELD) ? !inven : !equip) /* Reject */;
+				else if (!get_item_okay(k)) /* Reject */;
+				else
+				{
+					/* Accept that choice */
+					(*cp) = k;
 
-			/* Forget the item_tester_hook restriction */
-			item_tester_hook = NULL;
+					/* Forget restrictions */
+					item_tester_tval = 0;
+					item_tester_hook = NULL;
+					command_cmd = 0; /* Hack -- command_cmd is no longer effective */
 
-			/* Success */
-			return (TRUE);
+					/* Success */
+					return TRUE;
+				}
+
+				prev_tag = '\0'; /* prev_tag is no longer effective */
+			}
+
+			/* Verify the item */
+			else if (get_item_okay(*cp))
+			{
+				/* Forget restrictions */
+				item_tester_tval = 0;
+				item_tester_hook = NULL;
+				command_cmd = 0; /* Hack -- command_cmd is no longer effective */
+
+				/* Success */
+				return TRUE;
+			}
 		}
 	}
 
 #endif /* ALLOW_REPEAT */
-
-	/* Extract args */
-	if (mode & (USE_EQUIP)) equip = TRUE;
-	if (mode & (USE_INVEN)) inven = TRUE;
-	if (mode & (USE_FLOOR)) floor = TRUE;
 
 
 	/* Paranoia XXX XXX XXX */
@@ -3305,7 +4836,7 @@ bool get_item_floor(int *cp, cptr pmt, cptr str, int mode)
 	if (floor)
 	{
 		/* Scan all objects in the grid */
-		(void) scan_floor(floor_list, &floor_num, py, px, 0x01);
+		(void)scan_floor(floor_list, &floor_num, py, px, 0x03);
 	}
 
 	/* Accept inventory */
@@ -3357,6 +4888,8 @@ bool get_item_floor(int *cp, cptr pmt, cptr str, int mode)
 			command_wrk = (USE_FLOOR);
 		}
 	}
+
+	if (always_show_list) command_see = TRUE;
 
 	/* Hack -- start out in "display" mode */
 	if (command_see)
@@ -3445,76 +4978,150 @@ bool get_item_floor(int *cp, cptr pmt, cptr str, int mode)
 		if (command_wrk == (USE_INVEN))
 		{
 			/* Begin the prompt */
+#ifdef JP
+			sprintf(out_val, "持ち物:");
+#else
 			sprintf(out_val, "Inven:");
+#endif
 
 			/* Build the prompt */
+#ifdef JP
+			sprintf(tmp_val, "%c-%c,",
+#else
 			sprintf(tmp_val, " %c-%c,",
-			        index_to_label(i1), index_to_label(i2));
+#endif
+				index_to_label(i1), index_to_label(i2));
 
 			/* Append */
 			strcat(out_val, tmp_val);
 
 			/* Indicate ability to "view" */
+#ifdef JP
+			if (!command_see) strcat(out_val, " '*'一覧,");
+#else
 			if (!command_see) strcat(out_val, " * to see,");
+#endif
 
 			/* Append */
+#ifdef JP
+			if (allow_equip) strcat(out_val, " '/'装備品,");
+#else
 			if (allow_equip) strcat(out_val, " / for Equip,");
+#endif
 
 			/* Append */
+#ifdef JP
+			if (allow_floor) strcat(out_val, " '-'床上,");
+#else
 			if (allow_floor) strcat(out_val, " - for floor,");
+#endif
 		}
 
 		/* Viewing equipment */
 		else if (command_wrk == (USE_EQUIP))
 		{
 			/* Begin the prompt */
+#ifdef JP
+			sprintf(out_val, "装備品:");
+#else
 			sprintf(out_val, "Equip:");
+#endif
 
 			/* Build the prompt */
+#ifdef JP
+			sprintf(tmp_val, "%c-%c,",
+#else
 			sprintf(tmp_val, " %c-%c,",
-			        index_to_label(e1), index_to_label(e2));
+#endif
+				index_to_label(e1), index_to_label(e2));
 
 			/* Append */
 			strcat(out_val, tmp_val);
 
 			/* Indicate ability to "view" */
+#ifdef JP
+			if (!command_see) strcat(out_val, " '*'一覧,");
+#else
 			if (!command_see) strcat(out_val, " * to see,");
+#endif
 
 			/* Append */
+#ifdef JP
+			if (allow_inven) strcat(out_val, " '/' 持ち物,");
+#else
 			if (allow_inven) strcat(out_val, " / for Inven,");
+#endif
 
 			/* Append */
+#ifdef JP
+			if (allow_floor) strcat(out_val, " '-'床上,");
+#else
 			if (allow_floor) strcat(out_val, " - for floor,");
+#endif
 		}
 
 		/* Viewing floor */
 		else if (command_wrk == (USE_FLOOR))
 		{
 			/* Begin the prompt */
+#ifdef JP
+			sprintf(out_val, "床上:");
+#else
 			sprintf(out_val, "Floor:");
+#endif
 
 			/* Build the prompt */
+#ifdef JP
+			sprintf(tmp_val, "%c-%c,", n1, n2);
+#else
 			sprintf(tmp_val, " %c-%c,", n1, n2);
+#endif
 
 			/* Append */
 			strcat(out_val, tmp_val);
 
 			/* Indicate ability to "view" */
+#ifdef JP
+			if (!command_see) strcat(out_val, " '*'一覧,");
+#else
 			if (!command_see) strcat(out_val, " * to see,");
+#endif
 
 			/* Append */
 			if (allow_inven)
 			{
+#ifdef JP
+				strcat(out_val, " '/' 持ち物,");
+#else
 				strcat(out_val, " / for Inven,");
+#endif
 			}
 			else if (allow_equip)
 			{
+#ifdef JP
+				strcat(out_val, " '/'装備品,");
+#else
 				strcat(out_val, " / for Equip,");
+#endif
+			}
+
+			/* Append */
+			if (command_see)
+			{
+#ifdef JP
+				strcat(out_val, " Enter 次,");
+#else
+				strcat(out_val, " Enter for scroll down,");
+#endif
 			}
 		}
 
 		/* Finish the prompt */
-		strcat(out_val, " ESC");
+#ifdef JP
+		strcat(out_val, " (, ), ESC");
+#else
+		strcat(out_val, " (, ), ESC");
+#endif
 
 		/* Build the prompt */
 		sprintf(tmp_val, "(%s) %s", out_val, pmt);
@@ -3557,6 +5164,48 @@ bool get_item_floor(int *cp, cptr pmt, cptr str, int mode)
 					/* Flip flag */
 					command_see = TRUE;
 				}
+				break;
+			}
+
+			case '\n':
+			case '\r':
+			case '+':
+			{
+				int i, o_idx;
+				cave_type *c_ptr = &cave[py][px];
+
+				if (command_wrk != (USE_FLOOR)) break;
+
+				/* Get the object being moved. */
+				o_idx = c_ptr->o_idx;
+
+				/* Only rotate a pile of two or more objects. */
+				if (!(o_idx && o_list[o_idx].next_o_idx)) break;
+
+				/* Remove the first object from the list. */
+				excise_object_idx(o_idx);
+
+				/* Find end of the list. */
+				i = c_ptr->o_idx;
+				while (o_list[i].next_o_idx)
+					i = o_list[i].next_o_idx;
+
+				/* Add after the last object. */
+				o_list[i].next_o_idx = o_idx;
+
+				/* Re-scan floor list */ 
+				(void)scan_floor(floor_list, &floor_num, py, px, 0x03);
+
+				/* Hack -- Fix screen */
+				if (command_see)
+				{
+					/* Load screen */
+					screen_load();
+
+					/* Save screen */
+					screen_save();
+				}
+
 				break;
 			}
 
@@ -3633,6 +5282,12 @@ bool get_item_floor(int *cp, cptr pmt, cptr str, int mode)
 						/* Special index */
 						k = 0 - floor_list[0];
 
+						/* Verify the item (if required) */
+#ifdef JP
+						if (other_query_flag && !verify("本当に", k)) continue;
+#else
+						if (other_query_flag && !verify("Try", k)) continue;
+#endif
 						/* Allow player to "refuse" certain actions */
 						if (!get_item_allow(k))
 						{
@@ -3669,25 +5324,42 @@ bool get_item_floor(int *cp, cptr pmt, cptr str, int mode)
 			case '4': case '5': case '6':
 			case '7': case '8': case '9':
 			{
-				/* Look up the tag */
-				if (!get_tag(&k, which))
+				if (command_wrk != USE_FLOOR)
 				{
-					bell();
-					break;
-				}
+					/* Look up the tag */
+					if (!get_tag(&k, which, command_wrk))
+					{
+						bell();
+						break;
+					}
 
-				/* Hack -- Validate the item */
-				if ((k < INVEN_WIELD) ? !inven : !equip)
-				{
-					bell();
-					break;
-				}
+					/* Hack -- Validate the item */
+					if ((k < INVEN_WIELD) ? !inven : !equip)
+					{
+						bell();
+						break;
+					}
 
-				/* Validate the item */
-				if (!get_item_okay(k))
+					/* Validate the item */
+					if (!get_item_okay(k))
+					{
+						bell();
+						break;
+					}
+				}
+				else
 				{
-					bell();
-					break;
+					/* Look up the alphabetical tag */
+					if (get_tag_floor(&k, which, floor_list, floor_num))
+					{
+						/* Special index */
+						k = 0 - floor_list[k];
+					}
+					else
+					{
+						bell();
+						break;
+					}
 				}
 
 				/* Allow player to "refuse" certain actions */
@@ -3701,9 +5373,12 @@ bool get_item_floor(int *cp, cptr pmt, cptr str, int mode)
 				(*cp) = k;
 				item = TRUE;
 				done = TRUE;
+#ifdef ALLOW_REPEAT
+				cur_tag = which;
+#endif /* ALLOW_REPEAT */
 				break;
 			}
-
+#if 0
 			case '\n':
 			case '\r':
 			{
@@ -3762,10 +5437,110 @@ bool get_item_floor(int *cp, cptr pmt, cptr str, int mode)
 				done = TRUE;
 				break;
 			}
+#endif
+			case '(':
+			case ')':
+			{
+				/* Choose "default" inventory item */
+				if (command_wrk == (USE_INVEN))
+				{
+					k = ((which == '(') ? i1 : i2);
+				}
+
+				/* Choose "default" equipment item */
+				else if (command_wrk == (USE_EQUIP))
+				{
+					k = ((which == '(') ? e1 : e2);
+				}
+
+				/* Choose "default" floor item */
+				else if (command_wrk == (USE_FLOOR))
+				{
+					if (floor_num == 0) break;
+					k = ((which == '(') ?
+						(0 - floor_list[0]) : (0 - floor_list[floor_num-1]));
+				}
+
+				/* Validate the item */
+				if (command_wrk != (USE_FLOOR))
+				{
+					if (!get_item_okay(k))
+					{
+						bell();
+						break;
+					}
+				}
+
+				/* Allow player to "refuse" certain actions */
+				if (!get_item_allow(k))
+				{
+					done = TRUE;
+					break;
+				}
+
+				/* Accept that choice */
+				(*cp) = k;
+				item = TRUE;
+				done = TRUE;
+				break;
+			}
 
 			default:
 			{
 				int ver;
+
+				if (command_wrk != USE_FLOOR)
+				{
+					bool not_found = FALSE;
+
+					/* Look up the alphabetical tag */
+					if (!get_tag(&k, which, command_wrk))
+					{
+						not_found = TRUE;
+					}
+
+					/* Hack -- Validate the item */
+					else if ((k < INVEN_WIELD) ? !inven : !equip)
+					{
+						not_found = TRUE;
+					}
+
+					/* Validate the item */
+					else if (!get_item_okay(k))
+					{
+						not_found = TRUE;
+					}
+
+					if (!not_found)
+					{
+						/* Accept that choice */
+						(*cp) = k;
+						item = TRUE;
+						done = TRUE;
+#ifdef ALLOW_REPEAT
+						cur_tag = which;
+#endif /* ALLOW_REPEAT */
+						break;
+					}
+				}
+				else
+				{
+					/* Look up the alphabetical tag */
+					if (get_tag_floor(&k, which, floor_list, floor_num))
+					{
+						/* Special index */
+						k = 0 - floor_list[k];
+
+						/* Accept that choice */
+						(*cp) = k;
+						item = TRUE;
+						done = TRUE;
+#ifdef ALLOW_REPEAT
+						cur_tag = which;
+#endif /* ALLOW_REPEAT */
+						break;
+					}
+				}
 
 				/* Extract "query" setting */
 				ver = isupper(which);
@@ -3805,7 +5580,11 @@ bool get_item_floor(int *cp, cptr pmt, cptr str, int mode)
 				}
 
 				/* Verify the item */
+#ifdef JP
+				if (ver && !verify("本当に", k))
+#else
 				if (ver && !verify("Try", k))
+#endif
 				{
 					done = TRUE;
 					break;
@@ -3865,12 +5644,54 @@ bool get_item_floor(int *cp, cptr pmt, cptr str, int mode)
 	/* Warning if needed */
 	if (oops && str) msg_print(str);
 
+	if (item)
+	{
 #ifdef ALLOW_REPEAT
-	if (item) repeat_push(*cp);
+		repeat_push(*cp);
+		if (command_cmd) prev_tag = cur_tag;
 #endif /* ALLOW_REPEAT */
+
+		command_cmd = 0; /* Hack -- command_cmd is no longer effective */
+	}
 
 	/* Result */
 	return (item);
+}
+
+
+static bool py_pickup_floor_aux(void)
+{
+	s16b this_o_idx;
+
+	cptr q, s;
+
+	int item;
+
+	/* Restrict the choices */
+	item_tester_hook = inven_carry_okay;
+
+	/* Get an object */
+#ifdef JP
+	q = "どれを拾いますか？";
+	s = "もうザックには床にあるどのアイテムも入らない。";
+#else
+	q = "Get which item? ";
+	s = "You no longer have any room for the objects on the floor.";
+#endif
+
+	if (get_item(&item, q, s, (USE_FLOOR)))
+	{
+		this_o_idx = 0 - item;
+	}
+	else
+	{
+		return (FALSE);
+	}
+
+	/* Pick up the object */
+	py_pickup_aux(this_o_idx);
+
+	return (TRUE);
 }
 
 
@@ -3885,14 +5706,12 @@ void py_pickup_floor(int pickup)
 {
 	s16b this_o_idx, next_o_idx;
 
-	char o_name[80];
+	char o_name[MAX_NLEN];
 	object_type *o_ptr;
 
 	int floor_num = 0, floor_list[23], floor_o_idx = 0;
 
 	int can_pickup = 0;
-
-	bool do_ask = TRUE;
 
 	/* Scan the pile of objects */
 	for (this_o_idx = cave[py][px].o_idx; this_o_idx; this_o_idx = next_o_idx)
@@ -3903,7 +5722,7 @@ void py_pickup_floor(int pickup)
 		o_ptr = &o_list[this_o_idx];
 
 		/* Describe the object */
-		object_desc(o_name, o_ptr, TRUE, 3);
+		object_desc(o_name, o_ptr, 0);
 
 		/* Access the next object */
 		next_o_idx = o_ptr->next_o_idx;
@@ -3915,8 +5734,14 @@ void py_pickup_floor(int pickup)
 		if (o_ptr->tval == TV_GOLD)
 		{
 			/* Message */
+#ifdef JP
+		msg_format(" $%ld の価値がある%sを見つけた。",
+			   (long)o_ptr->pval, o_name);
+#else
 			msg_format("You have found %ld gold pieces worth of %s.",
 				(long) o_ptr->pval, o_name);
+#endif
+
 
 			/* Collect the gold */
 			p_ptr->au += o_ptr->pval;
@@ -3933,14 +5758,11 @@ void py_pickup_floor(int pickup)
 			/* Check the next object */
 			continue;
 		}
-
-		/* Test for auto-pickup */
-		if (auto_pickup_okay(o_ptr))
+		else if (o_ptr->marked & OM_NOMSG)
 		{
-			/* Pick up the object */
-			py_pickup_aux(this_o_idx);
-
-			/* Check the next object */
+			/* If 0 or 1 non-NOMSG items are in the pile, the NOMSG ones are
+			 * ignored. Otherwise, they are included in the prompt. */
+			o_ptr->marked &= ~(OM_NOMSG);
 			continue;
 		}
 
@@ -3955,6 +5777,7 @@ void py_pickup_floor(int pickup)
 
 		/* Count non-gold objects */
 		floor_num++;
+		if (floor_num == 23) break;
 
 		/* Remember this index */
 		floor_o_idx = this_o_idx;
@@ -3985,17 +5808,27 @@ void py_pickup_floor(int pickup)
 #endif /* ALLOW_EASY_SENSE */
 
 			/* Describe the object */
-			object_desc(o_name, o_ptr, TRUE, 3);
+			object_desc(o_name, o_ptr, 0);
 
 			/* Message */
+#ifdef JP
+				msg_format("%sがある。", o_name);
+#else
 			msg_format("You see %s.", o_name);
+#endif
+
 		}
 
 		/* Multiple objects */
 		else
 		{
 			/* Message */
+#ifdef JP
+			msg_format("%d 個のアイテムの山がある。", floor_num);
+#else
 			msg_format("You see a pile of %d items.", floor_num);
+#endif
+
 		}
 
 		/* Done */
@@ -4023,17 +5856,27 @@ void py_pickup_floor(int pickup)
 #endif /* ALLOW_EASY_SENSE */
 
 			/* Describe the object */
-			object_desc(o_name, o_ptr, TRUE, 3);
+			object_desc(o_name, o_ptr, 0);
 
 			/* Message */
+#ifdef JP
+				msg_format("ザックには%sを入れる隙間がない。", o_name);
+#else
 			msg_format("You have no room for %s.", o_name);
+#endif
+
 		}
 
 		/* Multiple objects */
 		else
 		{
 			/* Message */
+#ifdef JP
+			msg_format("ザックには床にあるどのアイテムも入らない。", o_name);
+#else
 			msg_print("You have no room for any of the objects on the floor.");
+#endif
+
 		}
 
 		/* Done */
@@ -4063,10 +5906,15 @@ void py_pickup_floor(int pickup)
 #endif /* ALLOW_EASY_SENSE */
 
 			/* Describe the object */
-			object_desc(o_name, o_ptr, TRUE, 3);
+			object_desc(o_name, o_ptr, 0);
 
 			/* Build a prompt */
+#ifdef JP
+					(void)sprintf(out_val, "%sを拾いますか? ", o_name);
+#else
 			(void) sprintf(out_val, "Pick up %s? ", o_name);
+#endif
+
 
 			/* Ask the user to confirm */
 			if (!get_check(out_val))
@@ -4076,72 +5924,32 @@ void py_pickup_floor(int pickup)
 			}
 		}
 
-		/* Don't ask */
-		do_ask = FALSE;
-
-		/* Remember the object to pick up */
-		this_o_idx = floor_o_idx;
-	}
-
-	/* Allow the user to choose an object */
-	if (do_ask)
-	{
-		cptr q, s;
-
-		int item;
-
 #ifdef ALLOW_EASY_SENSE
+
+		/* Access the object */
+		o_ptr = &o_list[floor_o_idx];
 
 		/* Option: Make object sensing easy */
 		if (easy_sense)
 		{
-			int i;
-
-			/* Sense each object in the stack */
-			for (i = 0; i < floor_num; i++)
-			{
-				/* Access the object */
-				o_ptr = &o_list[floor_list[i]];
-
-				/* Sense the object */
-				(void) sense_object(o_ptr);
-			}
+			/* Sense the object */
+			(void) sense_object(o_ptr);
 		}
 
 #endif /* ALLOW_EASY_SENSE */
 
-		/* Restrict the choices */
-		item_tester_hook = inven_carry_okay;
-
-		/* Get an object */
-		q = "Get which item? ";
-		s = "You see nothing there.";
-		if (get_item(&item, q, s, (USE_FLOOR)))
-		{
-			this_o_idx = 0 - item;
-		}
-		else
-		{
-			return;
-		}
+		/* Pick up the object */
+		py_pickup_aux(floor_o_idx);
 	}
 
-	/* Access the object */
-	o_ptr = &o_list[this_o_idx];
-
-#ifdef ALLOW_EASY_SENSE
-
-	/* Option: Make object sensing easy */
-	if (easy_sense)
+	/* Allow the user to choose an object */
+	else
 	{
-		/* Sense the object */
-		(void) sense_object(o_ptr);
+		while (can_pickup--)
+		{
+			if (!py_pickup_floor_aux()) break;
+		}
 	}
-
-#endif /* ALLOW_EASY_SENSE */
-
-	/* Pick up the object */
-	py_pickup_aux(this_o_idx);
 }
 
 #endif /* ALLOW_EASY_FLOOR */

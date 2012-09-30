@@ -1,4 +1,3 @@
-# CVS: Last edit by $Author: rr9 $ on $Date: 2000/01/03 22:43:24 $
 # Town Name: Morivant
 # And in case you're wondering, that grand thing in the middle
 # of town is a fountain.
@@ -24,13 +23,10 @@ F:~:1:3
 F:@:1:3
 
 # Default for quest 10 = grass
-F:z:89:3
-
-# Default for quest 11 = grass
 F:y:89:3
 
-# Default for quest 12 = grass
-F:x:89:3
+# Default for quest 11 = grass
+F:z:89:3
 
 # Default for quest 20 = floor
 F:v:1:3
@@ -47,115 +43,45 @@ F:s:63:3
 # Default for Quest 30 = entrance is stone
 F:r:63:3
 
-#################### Quest 10 - Node of Sorcery ####################
+#################### Quest 10 - The Orcish Mine ####################
 
 # Quest 10 not started
 ?:[EQU $QUEST10 0]
-F:i:136:3:0:0:0:0:0:10
+F:b:129:3:0:0:0:0:0:10
 
 # Quest 10 assigned, entrance is quest entrance
 ?:[EQU $QUEST10 1]
-F:z:8:3:0:0:0:0:0:10
-F:i:136:3:0:0:0:0:0:10
+F:y:8:3:0:0:0:0:0:10
+F:b:129:3:0:0:0:0:0:10
 
 # Quest 10 completed
 ?:[EQU $QUEST10 2]
-F:i:136:3:0:0:0:0:0:10
+F:b:129:3:0:0:0:0:0:10
 
-# Quest 10 rewarding, reward is the Grimoire of Power
+# Quest 10 rewarding, reward is the Orclist
 ?:[EQU $QUEST10 3]
-F:i:136:3
-F:!:1:3:0:337
+F:b:129:3:0:0:0:0:0:20
+F:~:1:3:0:0:0:75
 
 # Quest 10 finished, no new quest available
 ?:[EQU $QUEST10 4]
-F:i:136:3
+F:b:129:3:0:0:0:0:0:20
 
 # Quest 10 failed
 ?:[EQU $QUEST10 5]
-F:i:136:3:0:0:0:0:0:10
+F:b:129:3:0:0:0:0:0:10
 
 # Quest 10 failed but done, no new quest available
 ?:[EQU $QUEST10 6]
-F:i:136:3
+F:b:129:3:0:0:0:0:0:20
 
-?:1
-
-
-#################### Quest 11 - Node of Chaos ####################
-
-# Quest 11 not yet assigned
-?:[EQU $QUEST11 0]
-F:o:142:3:0:0:0:0:0:11
-
-# Quest 11 assigned, entrance is quest entrance
-?:[EQU $QUEST11 1]
-F:y:8:3:0:0:0:0:0:11
-F:o:142:3:0:0:0:0:0:11
-
-# Quest 11 completed
-?:[EQU $QUEST11 2]
-F:o:142:3:0:0:0:0:0:11
-
-# Quest 11 rewarding, reward is Armageddon Tome, no new quest available
-?:[EQU $QUEST11 3]
-F:o:142:3
-F:$:89:3:0:386
-
-# Quest 11 finished, no new quest available
-?:[EQU $QUEST11 4]
-F:o:142:3
-
-# Quest 11 failed
-?:[EQU $QUEST11 5]
-F:o:142:3:0:0:0:0:0:11
-
-# Quest 11 failed, no new quest available
-?:[EQU $QUEST11 6]
-F:o:142:3
-
-?:1
-
-
-#################### Quest 12 - Node of Nature ####################
-
-# Quest 12 not yet assigned
-?:[EQU $QUEST12 0]
-F:p:143:3:0:0:0:0:0:12
-
-# Quest 12 assigned, entrance is quest entrance
-?:[EQU $QUEST12 1]
-F:x:8:3:0:0:0:0:0:12
-F:p:143:3:0:0:0:0:0:12
-
-# Quest 12 completed
-?:[EQU $QUEST12 2]
-F:p:143:3:0:0:0:0:0:12
-
-# Quest 12 rewarding, reward is Nature's wrath, no new quest available
-?:[EQU $QUEST12 3]
-F:p:143:3
-F:":89:3:0:382
-
-# Quest 12 finished, no new quest available
-?:[EQU $QUEST12 4]
-F:p:143:3
-
-# Quest 12 failed
-?:[EQU $QUEST12 5]
-F:p:143:3:0:0:0:0:0:12
-
-# Quest 12 failed but done, no new quest available
-?:[EQU $QUEST12 6]
-F:p:143:3
-
-?:1
+#?:1
 
 ############### Quest 20 - Vapor Quest ################
 
 # Quest 20 untaken
-?:[EQU $QUEST20 0]
-F:b:129:3:0:0:0:0:0:20
+#?:[EQU $QUEST20 0]
+#F:b:129:3:0:0:0:0:0:20
 
 # Quest 20 taken, entrance is quest entrance
 ?:[EQU $QUEST20 1]
@@ -205,28 +131,28 @@ F:b:129:3:0:0:0:0:0:24
 #  Artifact Creation scrolls are flaky enough to not be an automatic
 #  huge reward.  Besides, they're cool when they turn up.)
 ?:[EQU $QUEST24 3]
-F:~:1:3:0:432
+F:~:1:3:0:184
 
 # Continue with "Quest 21 - Doom Quest 2
 # "Quest 24 - The Rise and Fall of Micro$oft" and
 # "Quest 19 - Doom Quest 1" have to be finished first
-?:[AND [IOR [EQU $QUEST24 3] [EQU $QUEST24 4] ] [EQU $QUEST19 4] ]
+?:[AND [EQU $QUEST24 3 4] [EQU $QUEST19 4]]
 F:b:129:3:0:0:0:0:0:21
 
 # "Quest 19 - Doom Quest 1" has to be finished first
-?:[AND [IOR [EQU $QUEST24 3] [EQU $QUEST24 4] ] [LEQ $QUEST19 3] ]
+?:[AND [EQU $QUEST24 3 4] [LEQ $QUEST19 3]]
 F:b:129:3
 
 # "Quest 24 - The Rise and Fall of Micro$oft" failed
 # "Quest 19 - Doom Quest 1" already finished
 # Continue with "Quest 21 - Doom Quest 2
-?:[AND [IOR [EQU $QUEST24 5] [EQU $QUEST24 6] ] [EQU $QUEST19 4] ]
+?:[AND [EQU $QUEST24 5 6] [EQU $QUEST19 4]]
 F:b:129:3:0:0:0:0:0:21
 
 # "Quest 24 - The Rise and Fall of Micro$oft" failed
 # "Quest 19 - Doom Quest 1" unfinished
 # No new quest available
-?:[AND [IOR [EQU $QUEST24 5] [EQU $QUEST24 6] ] [LEQ $QUEST19 3] ]
+?:[AND [EQU $QUEST24 5 6] [LEQ $QUEST19 3]]
 F:b:129:3
 
 ?:1
@@ -242,25 +168,56 @@ F:b:129:3:0:0:0:0:0:21
 ?:[EQU $QUEST21 2]
 F:b:129:3:0:0:0:0:0:21
 
-# Quest 21 rewarding, reward is Artifact Creation, no new quest available
+# Quest 21 rewarding, reward is Artifact Creation, continue with quest 11
 # (Adjust reward as needed; I think this quest is tough enough, and
 #  Artifact Creation scrolls are flaky enough to not be an automatic
 #  huge reward.  Besides, they're cool when they turn up.)
 
 ?:[EQU $QUEST21 3]
-F:b:129:3
-F:~:1:3:0:205
+F:b:129:3:0:0:0:0:0:11
+F:~:1:3:0:234
 
-# Quest 21 finished, no new quest available
+# Quest 21 finished, continue with quest 11
 ?:[EQU $QUEST21 4]
-F:b:129:3
+F:b:129:3:0:0:0:0:0:11
 
 # Quest 21 failed
 ?:[EQU $QUEST21 5]
 F:b:129:3:0:0:0:0:0:21
 
-# Quest 21 failed but done, no new quest available
+# Quest 21 failed but done, continue with quest 11
 ?:[EQU $QUEST21 6]
+F:b:129:3:0:0:0:0:0:11
+
+?:1
+
+#################### Quest 11 - Underground ruins ####################
+
+# Quest 11 assigned, entrance is quest entrance
+?:[EQU $QUEST11 1]
+F:z:8:3:0:0:0:0:0:11
+F:b:129:3:0:0:0:0:0:11
+
+# Quest 11 completed
+?:[EQU $QUEST11 2]
+F:b:129:3:0:0:0:0:0:11
+
+# Quest 11 rewarding, no new quest available,
+# Reward is Soulkeeper
+?:[EQU $QUEST11 3]
+F:b:129:3
+F:~:1:3:0:0:0:19
+
+# Quest 11 finished, no new quest available,
+?:[EQU $QUEST11 4]
+F:b:129:3
+
+# Quest 11 failed, wait for the player to enter the castle
+?:[EQU $QUEST11 5]
+F:b:129:3:0:0:0:0:0:11
+
+# Quest 15 failed but done, no new quest available,
+?:[EQU $QUEST11 6]
 F:b:129:3
 
 ?:1
@@ -285,7 +242,7 @@ F:k:138:3:0:0:0:0:0:29
 # continue with quest 30
 ?:[EQU $QUEST29 3]
 F:k:138:3:0:0:0:0:0:30
-F:@:1:3:0:155
+F:@:1:3:0:160
 
 # Quest 29 finished, continue with quest 30
 ?:[EQU $QUEST29 4]
@@ -317,7 +274,7 @@ F:k:138:3:0:0:0:0:0:30
 # no new quest available
 ?:[EQU $QUEST30 3]
 F:k:138:3
-F:@:1:3:0:144
+F:@:1:3:0:161
 
 # Quest 30 finished, no new quest available
 ?:[EQU $QUEST30 4]
@@ -336,81 +293,139 @@ F:k:138:3
 
 #################### Buildings ####################
 
-B:0:N:Library:Mirimbar:High-Elf
-B:0:A:0:Research item:1300:1300:a:1:0
-B:0:A:1:Town history:0:0:h:2:0
+B:$0:N:Library:Mirimbar:High-Elf
+B:0:N:図書館:ミリムバー:ハイ=エルフ
+B:$0:A:0:Research item:1300:1300:a:1:0
+B:0:A:0:アイテム調査:1300:1300:a:1:0
+B:$0:A:1:Town history:0:0:h:2:0
+B:0:A:1:街の概要:0:0:h:2:0
 
-B:1:N:Castle:Bulin:Dwarf
-#B:1:A:0:Look at busts of Barons:0:0:l:5:0
-B:1:A:0:Request quest:0:0:q:6:0
+B:$1:N:Castle:Bulin:Dwarf
+B:1:N:城:ブリン:ドワーフ
+#B:$1:A:0:Look at busts of Barons:0:0:l:5:0
+B:$1:A:0:Request quest:0:0:q:6:0
+B:1:A:0:クエスト:0:0:q:6:0
 
-B:3:N:Casino:Sondar:Human
-B:3:A:0:In-Between:0:0:b:12:0
-B:3:A:1:Play craps:0:0:c:14:0
-B:3:A:2:Spin the wheel:0:0:s:15:0
-B:3:A:3:Play dice slots:0:0:d:16:0
-B:3:A:4:Game rules:0:0:r:13:0
+B:$3:N:Casino:Sondar:Human
+B:3:N:カジノ:ソンダー:人間
+B:$3:A:0:In-Between:0:0:b:12:0
+B:3:A:0:イン・ビトイーン:0:0:b:12:0
+B:$3:A:1:Play craps:0:0:c:14:0
+B:3:A:1:クラップス:0:0:c:14:0
+B:$3:A:2:Spin the wheel:0:0:s:15:0
+B:3:A:2:ルーレット:0:0:s:15:0
+B:$3:A:3:Play dice slots:0:0:d:16:0
+B:3:A:3:ダイス・スロット:0:0:d:16:0
+B:$3:A:4:Game rules:0:0:r:13:0
+B:3:A:4:ゲームのルール:0:0:r:13:0
 
-B:4:N:Inn:Celebor:Half-Elf
-B:4:A:0:Rest for the night:20:20:r:17:0
-B:4:A:1:Buy food and drink:2:2:f:18:1
-B:4:A:2:Listen for rumors:10:10:u:19:0
-B:4:R:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:0:0:0:0:0:1:1
+B:$4:N:Inn:Celebor:Half-Elf
+B:4:N:宿屋:ケレボール:ハーフエルフ
+B:$4:A:0:Rest for the night:20:20:r:17:0
+B:4:A:0:一泊する:20:20:r:17:0
+B:$4:A:1:Buy food and drink:2:2:f:18:1
+B:4:A:1:食事をする:2:2:f:18:1
+B:$4:A:2:Listen for rumors:10:10:u:19:0
+B:4:A:2:噂を聞く:10:10:u:19:0
+B:$4:R:2:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:0:0:0:0:0:0:1
+B:4:R:2:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:0:0:0:0:0:0:1
 
-B:5:N:Beastmaster:Draxle:Draconian
-B:5:A:0:Research monster:1500:1500:r:20:0
+B:$5:N:Beastmaster:Draxle:Draconian
+B:5:N:モンスター仙人:ドラクスル:ドラコニアン
+B:$5:A:0:Research monster:1500:1500:r:20:0
+B:5:A:0:モンスター調査:1500:1500:r:20:0
 
-B:6:N:Weaponmaster:Garad-Dural:Dwarf
-B:6:A:0:Compare weapons:200:200:c:21:0
+B:$6:N:Weaponmaster:Garad-Dural:Dwarf
+B:6:N:武器匠:ガラド=ドゥラル:ドワーフ
+B:$6:A:0:Compare weapons:200:200:c:21:0
+B:6:A:0:武器を比較する:200:200:c:21:0
+B:$6:A:1:Forge arms:0:0:f:37:0
+B:6:A:1:装備品を鍛える:0:0:f:37:0
+B:$6:A:2:Repair broken weapon:0:0:r:38:0
+B:6:A:2:折れた武器を修復する:0:0:r:38:0
 
-B:7:N:Fighters Hall:Hjolgar:Barbarian
-B:7:A:0:Enchant weapon:200:400:w:23:0
-B:7:A:1:Enchant armor:150:300:a:24:0
-B:7:A:2:Request quest:0:0:q:6:0
-B:7:C:2:0:0:0:0:0:0:0:0:0:0
+B:$7:N:Fighters Hall:Hjolgar:Barbarian
+B:7:N:戦士の集会所:ヒョルガー:野蛮人
+B:$7:A:0:Enchant weapon:200:400:w:23:0
+B:7:A:0:武器を強化する:200:400:w:23:0
+B:$7:A:1:Enchant armor:150:300:a:24:0
+B:7:A:1:防具を強化する:150:300:a:24:0
+#B:$7:A:2:Request quest:0:0:q:6:0
+#B:7:A:2:クエスト:0:0:q:6:0
+B:$7:C:2:0:0:0:0:1:0:0:0:0:0:0:0
+B:7:C:2:0:0:0:0:1:0:0:0:0:0:0:0
 
-B:8:N:Tower of Sorcery:Tanistil:Elf
-B:8:A:0:Recharge item:0:0:r:25:0
-B:8:A:1:Identify possessions:100:800:i:26:0
-B:8:A:2:Request quest:0:0:q:6:2
-B:8:M:0:2:0:0:0:0:0
+B:$8:N:Tower of Sorcery:Tanistil:Elf
+B:8:N:仙術の塔:タニスティル:エルフ
+B:$8:A:0:Recharge item:0:0:r:25:0
+B:8:A:0:再充填:0:0:r:25:0
+B:$8:A:1:Recharge All item:0:0:a:36:0
+B:8:A:1:全てのアイテムを再充填:0:0:a:36:0
+B:$8:A:2:Identify possessions:100:800:i:26:0
+B:8:A:2:持ち物全てを鑑定:100:800:i:26:0
+#B:$8:A:2:Request quest:0:0:q:6:2
+#B:8:A:2:クエスト:0:0:q:6:2
+B:$8:M:0:2:0:0
+B:8:M:0:2:0:0
 
-B:9:N:Inner Temple:Eldore:Human
-B:9:A:0:Healing prayer:0:400:h:28:0
-B:9:A:1:Restoration:100:500:r:29:0
-B:9:M:2:0:0:0:0:0:0
+B:$9:N:Inner Temple:Eldore:Human
+B:9:N:寺院:エルドール:人間
+B:$9:A:0:Healing prayer:0:400:h:28:0
+B:9:A:0:治療の祈祷:0:400:h:28:0
+B:$9:A:1:Restoration:100:500:r:29:0
+B:9:A:1:能力回復:100:500:r:29:0
+B:$9:M:2:0:0:0
+B:9:M:2:0:0:0
 
-B:10:N:Thieves Guild:Paliro:Yeek
-B:10:A:0:get Share of stolen gold:0:0:s:7:2
-B:10:A:1:Rest for the night:0:50:r:17:0
-B:10:A:2:Identify possessions:100:600:i:26:0
-B:10:A:3:request Quest:0:0:q:6:0
-B:10:C:0:0:0:2:0:0:0:0:0:0:0
+B:$10:N:Thieves Guild:Paliro:Yeek
+B:10:N:盗賊のギルド:パリロ:イーク
+B:$10:A:0:get Share of stolen gold:0:0:s:7:2
+B:10:A:0:盗んだ金を山分けする:0:0:s:7:2
+B:$10:A:1:Rest for the night:0:50:r:17:0
+B:10:A:1:一泊する:0:50:r:17:0
+B:$10:A:2:Identify possessions:100:600:i:26:0
+B:10:A:2:持ち物全てを鑑定:100:600:i:26:0
+B:$10:A:3:request Quest:0:0:q:6:0
+B:10:A:3:クエスト:0:0:q:6:0
 
-B:11:N:Rangers Guild:Angros:Elf
-B:11:A:0:Enchant missiles:10:20:a:30:0
-B:11:A:1:Enchant bow:200:400:b:31:0
-B:11:C:0:0:0:0:2:0:0:0:0:0:0
+B:$11:N:Rangers Guild:Angros:Elf
+B:11:N:レンジャーのギルド:アングロス:エルフ
+B:$11:A:0:Enchant missiles:10:20:a:30:0
+B:11:A:0:矢や石等を強化する:10:20:a:30:0
+B:$11:A:1:Enchant bow:200:400:b:31:0
+B:11:A:1:弓を強化する:200:400:b:31:0
+B:$11:C:0:0:0:2:0:0:0:2:0:0:0:0:0
+B:11:C:0:0:0:2:0:0:0:2:0:0:0:0:0
 
-B:12:N:Paladins Guild:Vilios:Human
-B:12:A:0:Enchant armor:200:600:a:24:0
-B:12:A:1:See Healers:0:500:h:28:0
-B:12:C:0:0:0:0:0:2:0:0:0:0:0
+B:$12:N:Paladins Guild:Vilios:Human
+B:12:N:パラディンのギルド:ヴィリオス:人間
+B:$12:A:0:Enchant armor:200:600:a:24:0
+B:12:A:0:防具を強化する:200:600:a:24:0
+B:$12:A:1:See Healers:0:500:h:28:0
+B:12:A:1:治療家に会う:0:500:h:28:0
+B:$12:C:0:0:0:0:2:0:0:0:0:0:0:0:0
+B:12:C:0:0:0:0:2:0:0:0:0:0:0:0:0
 
-B:13:N:Trump Tower:Pelloi:Amberite
-B:13:A:0:Recall to dungeon:100:200:r:33:0
-B:13:A:1:Teleport to dungeon-level:1000:10000:t:34:0
-B:13:M:0:0:0:0:0:2:0
+B:$13:N:Trump Tower:Pelloi:Amberite
+B:13:N:トランプ魔術の塔:ペロイ:アンバライト
+B:$13:A:0:Recall to dungeon:100:200:r:33:0
+B:13:A:0:ダンジョンへ帰還:100:200:r:33:0
+B:$13:A:1:Teleport to dungeon-level:1000:10000:t:34:0
+B:13:A:1:階を指定してテレポート:1000:10000:t:34:0
 
-B:14:N:Chaos Tower:Xeno:Beastman
-B:14:A:0:Request quest:0:0:q:6:1
-B:14:A:1:Cure mutation:1000:5000:m:35:0
+B:$14:N:Chaos Tower:Xeno:Beastman
+B:14:N:カオスの塔:ゼノ:獣人
+#B:$14:A:0:Request quest:0:0:q:6:1
+#B:14:A:0:クエスト:0:0:q:6:1
+B:$14:A:1:Cure mutation:1000:5000:m:35:0
+B:14:A:1:突然変異を治療する:1000:5000:m:35:0
+B:$14:R:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:1
 B:14:R:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:1
-B:14:M:0:0:0:2:0:0:0
 
-B:15:N:Nature Tower:Josh:Elf
-B:15:A:0:Request quest:0:0:q:6:2
-B:15:M:0:0:2:0:0:0:0
+B:$15:N:Nature Tower:Josh:Elf
+B:15:N:自然魔術の塔:ジョッシュ:エルフ
+#B:$15:A:0:Request quest:0:0:q:6:2
+#B:15:A:0:クエスト:0:0:q:6:2
 
 
 # Town Layout
@@ -429,7 +444,7 @@ D:#-----------------T--------------TT-----------------#######--------------T####
 D:#T------T---------------T------------------VV-------#######T---T--T---TT--#################################################-------------#####-#####----WWWWWWWWWWWWWW---T----------------------------#
 D:#----T-------T--T-----------T------------VVVVVV-----#######---------T-----####.........................................####----T--------##g##T##f##----W###------###W---------------T-------T--T-----#
 D:#----T----------------T---------T---T---VVWWWWVV-----#####-------T---------##...........................................##--------T-----TT,,,,,,,------W############W----------T------------------T--#
-D:#T--T----------T--------------T--------VVWWWWVVz------#n#------------T-----##...........................................##--------------------,--T-----W############W-----T--------------------T-T-T-#
+D:#T--T----------T--------------T--------VVWWWWVV-------#n#------------T-----##...........................................##--------------------,--T-----W############W-----T--------------------T-T-T-#
 D:#----T--T---------------T--------------VWWWWWWVV-------.----T----T-----T---##...##########.................#########....##----T------T---T----,----T---W-##########-W------T--------T--T-T-----------#
 D:#-----------TT------------------T-----VVWWWWWWVV-------..---------------T--##...##########.................#########....##--------------TT--T-,--------W-##########-W------T---T----T----------------#
 D:#-------T---------T--------------T----VVVWWWWWWVVV-----........------------##...##########.................#########....##---T----T--TT-----...........~.b#########-W--------------------T------T--T-#
@@ -453,7 +468,7 @@ D:#----------------------T------T--------------------------------------------##.
 D:#--------T------T-----------T-----T--------T----------T-T-------------T---###.......#######.......-#####-.....###s##......................##------------------TTT-TTTTT-TTT---T------T---------------#
 D:#-----------T----------------------------------------T--------------------###......................-----..................................##--T-------T---------TTTTTTTTTTTT----------------------T--#
 D:#-------------------------------------T-----w------------------T-----.....................................................................##T-----T------T-----TTTTTT-TTT--TT-----T-----T------T-T---#
-D:#---TT--------T-----------T-----T---------T---T----T------TT------....----###.............................................................##-T--------------------TxTTTTTT------------T--------------#
+D:#---TT--------T-----------T-----T---------T---T----T------TT------....----###.............................................................##-T--------------------T-TTTTTT------------T--------------#
 D:#---------T---------T------------T----------TT-------------T---....-------###......................................................####...##---T-----T------T-T-----T--TTT--------T-----------------T#
 D:#T------------------T----T--T---------T--------------------T....-----------##....###l########...........##a##........######........8###...##---------------T-------T----------T-----T--------T-------#
 D:#------------T-------------------------T---T--------------...--------------##....############...........#####........######........####...##-----------------------T---------------------------------#
@@ -465,7 +480,7 @@ D:#------TTT--TT-TTTTT-T-T----------T--------------------.-------------------##.
 D:#-------T-TT--T-TT----T-TT--T-------------------------#>#---T---TTT---T---####...........................................................####-------T--T--------TTTT#####TT---------------------T----#
 D:#-----TT-----TT-T---T--T-T-T------T------T---T-----T--###--------T--------#########################.#########################################---------------T-----TTT###-T----TT-------T--T--------T-#
 D:#--------TT-T-T--T-T-T-T--TT-TT-----------------------#;;-----------T-----#########################.#########################################-----------------------TTT-T----------------------------#
-D:#-TT----TT----TTT---TTT-T-T-T-----T--------------------------------T------####-------------------##.##-----TT-----T----------------------####----------------------------T---------------------------#
+D:#-TT----TT----TTT-z-TTT-T-T-T-----T--------------------------------T------####-------------------##.##-----TT-----T----------------------####----------------------------T---------------------------#
 D:#---------T-TT---T-T-T-T--T----TTT-T------T-------T---------T-----------T---------T----------------.---T----------TT------TT-----------------------T-----------T------T--------T-------------T-------#
 D:#------T-TT--T-TT--T----TT---TTTTTT------------TTT-----------------------T-------------T-------T---.----T----T----------T---T-----T----------------------------T--T-T--------------T--T--------------#
 D:#--------TTT-T----TTT-T----TT--T-----------------------T----------T---------------------------TT---.--------T------------------T-------TT--------------T----T------------------------T--------T---T-T#
@@ -491,15 +506,11 @@ P:33:95
 
 # Starting position when coming from quest 10
 ?:[EQU $LEAVING_QUEST 10]
-P:15:48
-
-# Starting position when coming from quest 11
-?:[EQU $LEAVING_QUEST 11]
 P:7:176
 
 # Starting position when coming from quest 11
-?:[EQU $LEAVING_QUEST 12]
-P:40:163
+?:[EQU $LEAVING_QUEST 11]
+P:51:18
 
 # Starting position when coming from quest 20
 ?:[EQU $LEAVING_QUEST 20]

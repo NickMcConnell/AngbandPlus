@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: remco $ on $Date: 1999/09/30 10:08:53 $ */
 /* File: h-type.h */
 
 #ifndef INCLUDED_H_TYPE_H
@@ -96,7 +95,7 @@ typedef unsigned char byte;
 
 /* Note that a bool is smaller than a full "int" */
 /* Simple True/False type */
-typedef char bool;
+typedef unsigned char bool;
 
 
 /* A signed, standard integer (at least 2 bytes) */
@@ -146,21 +145,6 @@ typedef s32b *s32b_ptr;
 typedef u32b *u32b_ptr;
 typedef vptr *vptr_ptr;
 typedef cptr *cptr_ptr;
-
-
-
-/*** Pointers to Functions with simple return types and any args ***/
-
-typedef void	(*func_void)();
-typedef errr	(*func_errr)();
-typedef char	(*func_char)();
-typedef byte	(*func_byte)();
-typedef bool	(*func_bool)();
-typedef sint	(*func_sint)();
-typedef uint	(*func_uint)();
-typedef real	(*func_real)();
-typedef vptr	(*func_vptr)();
-typedef cptr	(*func_cptr)();
 
 
 

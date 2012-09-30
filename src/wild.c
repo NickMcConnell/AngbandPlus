@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/07/19 13:51:22 $ */
 /* File: wild.c */
 
 /* Purpose: Wilderness generation */
@@ -26,7 +25,7 @@ static void perturb_point_mid(int x1, int x2, int x3, int x4,
 	 * tmp is a random int +/- rough
 	 */
 	int tmp2 = rough*2 + 1;
-	int tmp = randint(tmp2) - (rough + 1);
+	int tmp = randint1(tmp2) - (rough + 1);
 
 	int avg = ((x1 + x2 + x3 + x4) / 4) + tmp;
 
@@ -51,7 +50,7 @@ static void perturb_point_end(int x1, int x2, int x3,
 	 * tmp is a random int +/- rough
 	 */
 	int tmp2 = rough * 2 + 1;
-	int tmp = rand_int(tmp2) - rough;
+	int tmp = randint0(tmp2) - rough;
 
 	int avg = ((x1 + x2 + x3) / 3) + tmp;
 
@@ -428,11 +427,14 @@ static int terrain_table[MAX_WILDERNESS][18] =
 };
 
 
-void generate_wilderness_area(int terrain, u32b seed, bool border, bool corner)
+static void generate_wilderness_area(int terrain, u32b seed, bool border, bool corner)
 {
 	int x1, y1;
 	int table_size = sizeof(terrain_table[0]) / sizeof(int);
 	int roughness = 1; /* The roughness of the level. */
+
+	/* Unused */
+	(void)border;
 
 	/* The outer wall is easy */
 	if (terrain == TERRAIN_EDGE)
@@ -474,10 +476,10 @@ void generate_wilderness_area(int terrain, u32b seed, bool border, bool corner)
 	 * ToDo: calculate the medium height of the adjacent
 	 * terrains for every corner.
 	 */
-	cave[1][1].feat = (byte)rand_int(table_size);
-	cave[MAX_HGT-2][1].feat = (byte)rand_int(table_size);
-	cave[1][MAX_WID-2].feat = (byte)rand_int(table_size);
-	cave[MAX_HGT-2][MAX_WID-2].feat = (byte)rand_int(table_size);
+	cave[1][1].feat = (byte)randint0(table_size);
+	cave[MAX_HGT-2][1].feat = (byte)randint0(table_size);
+	cave[1][MAX_WID-2].feat = (byte)randint0(table_size);
+	cave[MAX_HGT-2][MAX_WID-2].feat = (byte)randint0(table_size);
 
 	if (!corner)
 	{
@@ -528,11 +530,6 @@ static void generate_area(int y, int x, bool border, bool corner)
 
 	/* Set the object generation level */
 	object_level = base_level;
-
-#ifdef USE_SCRIPT
-	if (generate_wilderness_callback(y, x)) return;
-#endif /* USE_SCRIPT */
-
 
 	/* Create the town */
 	if (p_ptr->town_num)
@@ -641,13 +638,9 @@ void wilderness_gen(void)
 	cur_hgt = MAX_HGT;
 	cur_wid = MAX_WID;
 
-	/* Determine number of panels */
-	max_panel_rows = (cur_hgt / SCREEN_HGT) * 2 - 2;
-	max_panel_cols = (cur_wid / SCREEN_WID) * 2 - 2;
-
 	/* Assume illegal panel */
-	panel_row = max_panel_rows;
-	panel_col = max_panel_cols;
+	panel_row_min = cur_hgt;
+	panel_col_min = cur_wid;
 
 	/* Init the wilderness */
 	process_dungeon_file("w_info.txt", 0, 0, max_wild_y, max_wild_x);
@@ -789,7 +782,9 @@ void wilderness_gen(void)
 				/* Darken "boring" features */
 				if ((c_ptr->feat <= FEAT_INVIS) ||
 				    ((c_ptr->feat >= FEAT_DEEP_WATER) &&
-					(c_ptr->feat <= FEAT_TREES)))
+				    (c_ptr->feat <= FEAT_MOUNTAIN)) ||
+				    (x == 0) || (x == cur_wid - 1) ||
+				    (y == 0) || (y == cur_hgt - 1))
 				{
 					/* Forget the grid */
 					c_ptr->info &= ~(CAVE_GLOW | CAVE_MARK);
@@ -799,7 +794,6 @@ void wilderness_gen(void)
 	}
 
 	player_place(p_ptr->oldpy, p_ptr->oldpx);
-	p_ptr->leftbldg = FALSE;
 	p_ptr->leaving_dungeon = FALSE;
 
 	/* Make some residents */
@@ -840,9 +834,12 @@ static wilderness_grid w_letter[255];
  */
 errr parse_line_wilderness(char *buf, int ymin, int xmin, int ymax, int xmax, int *y, int *x)
 {
-
 	int i, num;
 	char *zz[33];
+
+	/* Unused */
+	(void)ymin;
+	(void)ymax;
 
 	/* Paranoia */
 	if (!(buf[0] == 'W')) return (PARSE_ERROR_GENERIC);
@@ -853,7 +850,7 @@ errr parse_line_wilderness(char *buf, int ymin, int xmin, int ymax, int xmax, in
 		/* Process "W:F:<letter>:<terrain>:<town>:<road>:<name> */
 		case 'F':
 		{
-			if ((num = tokenize(buf+4, 6, zz, 0)) > 1)
+			if ((num = tokenize(buf+4, 7, zz, 0)) > 1)
 			{
 
 				int index = zz[0][0];
@@ -882,6 +879,10 @@ errr parse_line_wilderness(char *buf, int ymin, int xmin, int ymax, int xmax, in
 					strcpy(w_letter[index].name, zz[5]);
 				else
 					w_letter[index].name[0] = 0;
+#ifdef JP
+				if (num > 6)
+					strcpy(w_letter[index].name, zz[6]);
+#endif
 			}
 			else
 			{
@@ -967,17 +968,12 @@ void seed_wilderness(void)
 {
 	int x, y;
 
-#ifdef USE_SCRIPT
-	if (!wilderness_init_callback())
-#endif /* USE_SCRIPT */
+	/* Init wilderness seeds */
+	for (x = 0; x < max_wild_x; x++)
 	{
-		/* Init wilderness seeds */
-		for (x = 0; x < max_wild_x; x++)
+		for (y = 0; y < max_wild_y; y++)
 		{
-			for (y = 0; y < max_wild_y; y++)
-			{
-				wilderness[y][x].seed = rand_int(0x10000000);
-			}
+			wilderness[y][x].seed = randint0(0x10000000);
 		}
 	}
 }

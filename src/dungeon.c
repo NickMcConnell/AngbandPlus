@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/08/04 11:01:58 $ */
 /* File: dungeon.c */
 
 /* Purpose: Angband game engine */
@@ -71,16 +70,16 @@ static byte value_check_aux2(object_type *o_ptr)
 	if (broken_p(o_ptr)) return FEEL_BROKEN;
 
 	/* Artifacts -- except cursed/broken ones */
-	if (artifact_p(o_ptr) || o_ptr->art_name) return FEEL_GOOD;
+	if (artifact_p(o_ptr) || o_ptr->art_name) return FEEL_UNCURSED;
 
 	/* Ego-Items -- except cursed/broken ones */
-	if (ego_item_p(o_ptr)) return FEEL_GOOD;
+	if (ego_item_p(o_ptr)) return FEEL_UNCURSED;
 
 	/* Good armor bonus */
-	if (o_ptr->to_a > 0) return FEEL_GOOD;
+	if (o_ptr->to_a > 0) return FEEL_UNCURSED;
 
 	/* Good weapon bonuses */
-	if (o_ptr->to_h + o_ptr->to_d > 0) return FEEL_GOOD;
+	if (o_ptr->to_h + o_ptr->to_d > 0) return FEEL_UNCURSED;
 
 	/* No feeling */
 	return FEEL_NONE;
@@ -104,141 +103,86 @@ static void sense_inventory(void)
 {
 	int         i;
 	int         plev = p_ptr->lev;
-	bool        heavy = FALSE;
+	bool        heavy = cp_ptr->s_inv_h;
 	byte        feel;
 	object_type *o_ptr;
-	char        o_name[80];
-
-#ifdef USE_SCRIPT
-	int         result;
-#endif /* USE_SCRIPT */
-
+	char        o_name[MAX_NLEN];
 
 	/*** Check for "sensing" ***/
 
 	/* No sensing when confused */
 	if (p_ptr->confused) return;
 
-#ifdef USE_SCRIPT
-
-	result = sense_inventory_callback();
-
-	if (result == -1)
-		heavy = TRUE;
-
-	if (!result)
-
-#endif /* USE_SCRIPT */
-
+	/* Analyze the class */
+	switch (cp_ptr->s_inv)
 	{
-		/* Analyze the class */
-		switch (p_ptr->pclass)
+		case SENSE_CANT:
 		{
-			case CLASS_WARRIOR:
-			{
-				/* Good sensing */
-				if (0 != rand_int(9000L / (plev * plev + 40))) return;
+			/* cannot sense */
+			return;
+		}
 
-				/* Heavy sensing */
-				heavy = TRUE;
+		case SENSE_VFST:
+		{
+			/* Good sensing */
+			if (!one_in_(4000L / (plev * plev + 40))) return;
 
-				/* Done */
-				break;
-			}
+			/* Done */
+			break;
+		}
 
-			case CLASS_MAGE:
-			case CLASS_HIGH_MAGE:
-			{
-				/* Very bad (light) sensing */
-				if (0 != rand_int(240000L / (plev + 5))) return;
+		case SENSE_FAST:
+		{
+			/* Good sensing */
+			if (0 != randint0(9000L / (plev * plev + 40))) return;
 
-				/* Done */
-				break;
-			}
+			/* Done */
+			break;
+		}
 
-			case CLASS_PRIEST:
-			{
-				/* Good (light) sensing */
-				if (0 != rand_int(10000L / (plev * plev + 40))) return;
+		case SENSE_GOOD:
+		{
+			/* Okay sensing */
+			if (!one_in_(20000L / (plev * plev + 40))) return;
 
-				/* Done */
-				break;
-			}
+			/* Done */
+			break;
+		}
 
-			case CLASS_ROGUE:
-			{
-				/* Okay sensing */
-				if (0 != rand_int(20000L / (plev * plev + 40))) return;
+		case SENSE_NORM:
+		{
+			/* Bad sensing */
+			if (!one_in_(55000L / (plev * plev + 40))) return;
 
-				/* Heavy sensing */
-				heavy = TRUE;
+			/* Done */
+			break;
+		}
 
-				/* Done */
-				break;
-			}
+		case SENSE_SLOW:
+		{
+			/* Bad sensing */
+			if (!one_in_(75000L / (plev * plev + 40))) return;
 
-			case CLASS_RANGER:
-			{
-				/* Bad sensing */
-				if (0 != rand_int(95000L / (plev * plev + 40))) return;
+			/* Done */
+			break;
+		}
 
-				/* Changed! */
-				heavy = TRUE;
+		case SENSE_BAD:
+		{
+			/* Bad sensing */
+			if (!one_in_(95000L / (plev * plev + 40))) return;
 
-				/* Done */
-				break;
-			}
+			/* Done */
+			break;
+		}
 
-			case CLASS_PALADIN:
-			{
-				/* Bad sensing */
-				if (0 != rand_int(77777L / (plev * plev + 40))) return;
+		case SENSE_POOR:
+		{
+			/* Very bad (light) sensing */
+			if (0 != randint0(240000L / (plev + 5))) return;
 
-				/* Heavy sensing */
-				heavy = TRUE;
-
-				/* Done */
-				break;
-			}
-
-			case CLASS_WARRIOR_MAGE:
-			{
-				/* Bad sensing */
-				if (0 != rand_int(75000L / (plev * plev + 40))) return;
-
-				/* Done */
-				break;
-			}
-
-			case CLASS_MINDCRAFTER:
-			{
-				/* Bad sensing */
-				if (0 != rand_int(55000L / (plev * plev + 40))) return;
-
-				/* Done */
-				break;
-			}
-
-			case CLASS_CHAOS_WARRIOR:
-			{
-				/* Bad sensing */
-				if (0 != rand_int(80000L / (plev * plev + 40))) return;
-
-				/* Changed! */
-				heavy = TRUE;
-
-				/* Done */
-				break;
-			}
-
-			case CLASS_MONK:
-			{
-				/* Okay sensing */
-				if (0 != rand_int(20000L / (plev * plev + 40))) return;
-
-				/* Done */
-				break;
-			}
+			/* Done */
+			break;
 		}
 	}
 
@@ -279,10 +223,185 @@ static void sense_inventory(void)
 				okay = TRUE;
 				break;
 			}
+		}
+
+		/* Skip non-sense machines */
+		if (!okay) continue;
+
+		/* We know about it already, do not tell us again */
+		if (o_ptr->ident & (IDENT_SENSE)) continue;
+
+		/* It is fully known, no information needed */
+		if (object_known_p(o_ptr)) continue;
+
+		/* Occasional failure on inventory items */
+		if ((i < INVEN_WIELD) && (0 != randint0(5))) continue;
+
+		/* Check for a feeling */
+		feel = (heavy ? value_check_aux1(o_ptr) : value_check_aux2(o_ptr));
+
+		/* Skip non-feelings */
+		if (!feel) continue;
+
+		/* Stop everything */
+		if (disturb_minor) disturb(0, 0);
+
+		/* Get an object description */
+		object_desc(o_name, o_ptr, OD_OMIT_PREFIX | OD_NAME_ONLY);
+
+		/* Message (equipment) */
+		if (i >= INVEN_WIELD)
+		{
+#ifdef JP
+			msg_format("%s%s(%c)は%sという感じがする...",
+					describe_use(i),o_name, index_to_label(i),game_inscriptions[feel]);
+#else
+			msg_format("You feel the %s (%c) you are %s %s %s...",
+					o_name, index_to_label(i), describe_use(i),
+					((o_ptr->number == 1) ? "is" : "are"),
+					game_inscriptions[feel]);
+#endif
+		}
+
+		/* Message (inventory) */
+		else
+		{
+#ifdef JP
+			msg_format("ザックの中の%s(%c)は%sという感じがする...",
+					o_name, index_to_label(i),game_inscriptions[feel]);
+#else
+			msg_format("You feel the %s (%c) in your pack %s %s...",
+				   o_name, index_to_label(i),
+				   ((o_ptr->number == 1) ? "is" : "are"),
+					   game_inscriptions[feel]);
+#endif
+		}
+
+		/* We have "felt" it */
+		o_ptr->ident |= (IDENT_SENSE);
+
+		/* Set the "inscription" */
+		o_ptr->feeling = feel;
+
+		/* Auto-inscription/destroy */
+		autopick_alter_item(i, destroy_feeling);
+
+		/* Combine / Reorder the pack (later) */
+		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+
+		/* Window stuff */
+		p_ptr->window |= (PW_INVEN | PW_EQUIP);
+	}
+}
+
+static void sense_magic(void)
+{
+	int         i;
+	int         plev = p_ptr->lev;
+	bool        heavy = TRUE;
+	byte        feel;
+	object_type *o_ptr;
+	char        o_name[MAX_NLEN];
+
+	/*** Check for "sensing" ***/
+
+	/* No sensing when confused */
+	if (p_ptr->confused) return;
+
+	/* Analyze the class */
+	switch (cp_ptr->s_mag)
+	{
+		case SENSE_CANT:
+		{
+			/* cannot sense */
+			return;
+		}
+
+		case SENSE_VFST:
+		{
+			/* Good sensing */
+			if (!one_in_(4000L / (plev * plev + 40))) return;
+
+			/* Done */
+			break;
+		}
+
+		case SENSE_FAST:
+		{
+			/* Very bad sensing */
+			if (!one_in_(9000L / (plev * plev + 40))) return;
+
+			/* Done */
+			break;
+		}
+
+		case SENSE_GOOD:
+		{
+			/* Good sensing */
+			if (!one_in_(20000L / (plev * plev + 40))) return;
+
+			/* Done */
+			break;
+		}
+
+		case SENSE_NORM:
+		{
+			/* Good sensing */
+			if (!one_in_(55000L / (plev * plev + 40))) return;
+
+			/* Done */
+			break;
+		}
+
+		case SENSE_SLOW:
+		{
+			/* Good sensing */
+			if (!one_in_(75000L / (plev * plev + 40))) return;
+
+			/* Done */
+			break;
+		}
+
+		case SENSE_BAD:
+		{
+			/* Bad sensing */
+			if (!one_in_(95000L / (plev * plev + 40))) return;
+
+			/* Done */
+			break;
+		}
+
+		case SENSE_POOR:
+		{
+			/* Bad sensing */
+			if (!one_in_(240000L / (plev + 5))) return;
+
+			/* Done */
+			break;
+		}
+	}
+
+
+	/*** Sense everything ***/
+
+	/* Check everything */
+	for (i = 0; i < INVEN_TOTAL; i++)
+	{
+		bool okay = FALSE;
+
+		o_ptr = &inventory[i];
+
+		/* Skip empty slots */
+		if (!o_ptr->k_idx) continue;
+
+		/* Valid "tval" codes */
+		switch (o_ptr->tval)
+		{
+			case TV_RING:
+			case TV_AMULET:
 			case TV_FIGURINE:
 			{
-				if (!heavy)
-					okay = TRUE;
+				okay = TRUE;
 				break;
 			}
 		}
@@ -297,13 +416,7 @@ static void sense_inventory(void)
 		if (object_known_p(o_ptr)) continue;
 
 		/* Occasional failure on inventory items */
-		if ((i < INVEN_WIELD) && (0 != rand_int(5))) continue;
-
-		/* Good luck */
-		if ((p_ptr->muta3 & MUT3_GOOD_LUCK) && !rand_int(13))
-		{
-			heavy = TRUE;
-		}
+		if ((i < INVEN_WIELD) && (0 != randint0(5))) continue;
 
 		/* Check for a feeling */
 		feel = (heavy ? value_check_aux1(o_ptr) : value_check_aux2(o_ptr));
@@ -311,71 +424,38 @@ static void sense_inventory(void)
 		/* Skip non-feelings */
 		if (!feel) continue;
 
-		/* Bad luck */
-		if ((p_ptr->muta3 & MUT3_BAD_LUCK) && !rand_int(13))
-		{
-			switch (feel)
-			{
-				case FEEL_TERRIBLE:
-				{
-					feel = FEEL_SPECIAL;
-					break;
-				}
-				case FEEL_WORTHLESS:
-				{
-					feel = FEEL_EXCELLENT;
-					break;
-				}
-				case FEEL_CURSED:
-				{
-					feel = rand_int(3) ? FEEL_GOOD : FEEL_AVERAGE;
-					break;
-				}
-				case FEEL_AVERAGE:
-				{
-					feel = rand_int(2) ? FEEL_CURSED : FEEL_GOOD;
-					break;
-				}
-				case FEEL_GOOD:
-				{
-					feel = rand_int(3) ? FEEL_CURSED : FEEL_AVERAGE;
-					break;
-				}
-				case FEEL_EXCELLENT:
-				{
-					feel = FEEL_WORTHLESS;
-					break;
-				}
-				case FEEL_SPECIAL:
-				{
-					feel = FEEL_TERRIBLE;
-					break;
-				}
-			}
-		}
-
 		/* Stop everything */
 		if (disturb_minor) disturb(0, 0);
 
 		/* Get an object description */
-		object_desc(o_name, o_ptr, FALSE, 0);
+		object_desc(o_name, o_ptr, OD_OMIT_PREFIX | OD_NAME_ONLY);
 
 		/* Message (equipment) */
 		if (i >= INVEN_WIELD)
 		{
+#ifdef JP
+			msg_format("%s%s(%c)は%sという感じがする...",
+					describe_use(i),o_name, index_to_label(i),game_inscriptions[feel]);
+#else
 			msg_format("You feel the %s (%c) you are %s %s %s...",
-						  o_name, index_to_label(i), describe_use(i),
-						  ((o_ptr->number == 1) ? "is" : "are"),
-						game_inscriptions[feel]);
+					o_name, index_to_label(i), describe_use(i),
+					((o_ptr->number == 1) ? "is" : "are"),
+					game_inscriptions[feel]);
+#endif
 		}
 
 		/* Message (inventory) */
 		else
 		{
+#ifdef JP
+			msg_format("ザックの中の%s(%c)は%sという感じがする...",
+					o_name, index_to_label(i),game_inscriptions[feel]);
+#else
 			msg_format("You feel the %s (%c) in your pack %s %s...",
-			           o_name, index_to_label(i),
-			           ((o_ptr->number == 1) ? "is" : "are"),
+				   o_name, index_to_label(i),
+				   ((o_ptr->number == 1) ? "is" : "are"),
 					   game_inscriptions[feel]);
+#endif
 		}
 
 		/* We have "felt" it */
@@ -383,6 +463,9 @@ static void sense_inventory(void)
 
 		/* Set the "inscription" */
 		o_ptr->feeling = feel;
+
+		/* Auto-inscription/destroy */
+		autopick_alter_item(i, destroy_feeling);
 
 		/* Combine / Reorder the pack (later) */
 		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
@@ -402,7 +485,12 @@ static void pattern_teleport(void)
 	int max_level = 99;
 
 	/* Ask for level */
+#ifdef JP
+if (get_check("レベル・テレポートしますか？"))
+#else
 	if (get_check("Teleport level? "))
+#endif
+
 	{
 		char	ppp[80];
 		char	tmp_val[160];
@@ -418,7 +506,12 @@ static void pattern_teleport(void)
 			max_level = 100;
 
 		/* Prompt */
+#ifdef JP
+sprintf(ppp, "テレポート先:(%d-%d)", min_level, max_level);
+#else
 		sprintf(ppp, "Teleport to level (%d-%d): ", min_level, max_level);
+#endif
+
 
 		/* Default */
 		sprintf(tmp_val, "%d", dun_level);
@@ -429,7 +522,12 @@ static void pattern_teleport(void)
 		/* Extract request */
 		command_arg = atoi(tmp_val);
 	}
+#ifdef JP
+else if (get_check("通常テレポート？"))
+#else
 	else if (get_check("Normal teleport? "))
+#endif
+
 	{
 		teleport_player(200);
 		return;
@@ -446,7 +544,12 @@ static void pattern_teleport(void)
 	if (command_arg > max_level) command_arg = max_level;
 
 	/* Accept request */
+#ifdef JP
+msg_format("%d 階にテレポートしました。", command_arg);
+#else
 	msg_format("You teleport to dungeon level %d.", command_arg);
+#endif
+
 
 	if (autosave_l) do_cmd_save_game(TRUE);
 
@@ -458,51 +561,12 @@ static void pattern_teleport(void)
 }
 
 
-static void wreck_the_pattern(void)
-{
-	int to_ruin, r_y, r_x;
-
-	if (cave[py][px].feat == FEAT_PATTERN_XTRA2)
-	{
-		/* Ruined already */
-		return;
-	}
-
-	msg_print("You bleed on the Pattern!");
-	msg_print("Something terrible happens!");
-
-	if (!p_ptr->invuln)
-		take_hit(damroll(10, 8), "corrupting the Pattern");
-
-	to_ruin = randint(45) + 35;
-
-	while (to_ruin--)
-	{
-		scatter(&r_y, &r_x, py, px, 4, 0);
-
-		if ((cave[r_y][r_x].feat >= FEAT_PATTERN_START) &&
-		    (cave[r_y][r_x].feat < FEAT_PATTERN_XTRA2))
-		{
-			cave_set_feat(r_y, r_x, FEAT_PATTERN_XTRA2);
-		}
-	}
-
-	cave_set_feat(py, px, FEAT_PATTERN_XTRA2);
-}
-
-
 /* Returns TRUE if we are on the Pattern... */
 static bool pattern_effect(void)
 {
 	if ((cave[py][px].feat < FEAT_PATTERN_START) ||
 	    (cave[py][px].feat > FEAT_PATTERN_XTRA2))
 		return FALSE;
-
-	if ((p_ptr->prace == RACE_AMBERITE) &&
-	    (p_ptr->cut > 0) && (randint(10) == 1))
-	{
-		wreck_the_pattern();
-	}
 
 	if (cave[py][px].feat == FEAT_PATTERN_END)
 	{
@@ -521,7 +585,11 @@ static bool pattern_effect(void)
 		(void)restore_level();
 		(void)hp_player(1000);
 		cave_set_feat(py, px, FEAT_PATTERN_OLD);
+#ifdef JP
+		msg_print("「パターン」のこの部分は他の部分より強力でないようだ。");
+#else
 		msg_print("This section of the Pattern looks less powerful.");
+#endif
 	}
 
 
@@ -543,14 +611,20 @@ static bool pattern_effect(void)
 	else if (cave[py][px].feat == FEAT_PATTERN_XTRA2)
 	{
 		if (!p_ptr->invuln)
+#ifdef JP
+		take_hit(200, "壊れた「パターン」を歩いたダメージ");
+#else
 		take_hit(200, "walking the corrupted Pattern");
+#endif
 	}
 	else
 	{
-		if ((p_ptr->prace == RACE_AMBERITE) && (randint(2) != 1))
-			return TRUE;
-		else if (!p_ptr->invuln)
+		if (!p_ptr->invuln)
+#ifdef JP
+			take_hit(damroll(1,3), "「パターン」を歩いたダメージ");
+#else
 			take_hit(damroll(1, 3), "walking the Pattern");
+#endif
 	}
 
 	return TRUE;
@@ -612,34 +686,56 @@ static void regenhp(int percent)
  */
 static void regenmana(int percent)
 {
-	s32b        new_mana, new_mana_frac;
-	int                   old_csp;
+	s32b new_mana, new_mana_frac;
+	int old_csp = p_ptr->csp;
 
-	old_csp = p_ptr->csp;
-	new_mana = ((long)p_ptr->msp) * percent + PY_REGEN_MNBASE;
-	p_ptr->csp += (s16b)(new_mana >> 16);	/* div 65536 */
+	if (percent > 0)
+	{
+		s32b add_mana  = ((long)p_ptr->msp) * percent + PY_REGEN_MNBASE + p_ptr->csp_frac;
 
-	/* check for overflow */
-	if ((p_ptr->csp < 0) && (old_csp > 0))
-	{
-		p_ptr->csp = MAX_SHORT;
-	}
-	new_mana_frac = (new_mana & 0xFFFF) + p_ptr->csp_frac;	/* mod 65536 */
-	if (new_mana_frac >= 0x10000L)
-	{
-		p_ptr->csp_frac = (u16b)(new_mana_frac - 0x10000L);
-		p_ptr->csp++;
-	}
-	else
-	{
+		new_mana = (add_mana >> 16);	/* div 65536 */
+		new_mana_frac = (add_mana & 0xFFFF);	/* mod 65536 */
+
+		p_ptr->csp += (s16b)(new_mana);
 		p_ptr->csp_frac = (u16b)(new_mana_frac);
-	}
 
-	/* Must set frac to zero even if equal */
-	if (p_ptr->csp >= p_ptr->msp)
+		/* check for overflow */
+		if ((p_ptr->csp < 0) && (old_csp > 0))
+		{
+			p_ptr->csp = MAX_SHORT;
+		}
+
+		/* Must set frac to zero even if equal */
+		if (p_ptr->csp >= p_ptr->msp)
+		{
+			p_ptr->csp = p_ptr->msp;
+			p_ptr->csp_frac = 0;
+		}
+	}
+	else if (percent < 0)
 	{
-		p_ptr->csp = p_ptr->msp;
-		p_ptr->csp_frac = 0;
+		s32b dec_mana = ((long)p_ptr->msp) * (0 - percent) + PY_REGEN_MNBASE;
+
+		new_mana = (dec_mana >> 16);	/* div 65536 */
+		new_mana_frac = (dec_mana & 0xFFFF);	/* mod 65536 */
+
+		/* Check underflow */
+		if (new_mana_frac > p_ptr->csp_frac)
+		{
+			new_mana++;
+			p_ptr->csp_frac = 0;
+		}
+		else
+			p_ptr->csp_frac -= (u16b)(new_mana_frac);
+
+		p_ptr->csp -= (s16b)(new_mana);
+
+		/* Check underflow */
+		if (p_ptr->csp < 0)
+		{
+			p_ptr->csp = 0;
+			p_ptr->csp_frac = 0;
+		}
 	}
 
 	/* Redraw mana */
@@ -708,7 +804,7 @@ static void regen_monsters(void)
 static void notice_lite_change(object_type *o_ptr)
 {
 	/* Hack -- notice interesting fuel steps */
-	if ((o_ptr->pval < 100) || (!(o_ptr->pval % 100)))
+	if ((o_ptr->xtra3 < 100) || (!(o_ptr->xtra3 % 100)))
 	{
 		/* Window stuff */
 		p_ptr->window |= (PW_EQUIP);
@@ -718,24 +814,58 @@ static void notice_lite_change(object_type *o_ptr)
 	if (p_ptr->blind)
 	{
 		/* Hack -- save some light for later */
-		if (o_ptr->pval == 0) o_ptr->pval++;
+		if (o_ptr->xtra3 == 0) o_ptr->xtra3++;
 	}
 
 	/* The light is now out */
-	else if (o_ptr->pval == 0)
+	else if (o_ptr->xtra3 == 0)
 	{
 		disturb(0, 0);
+#ifdef JP
+msg_print("明かりが消えてしまった！");
+#else
 		msg_print("Your light has gone out!");
+#endif
+
 	}
 
 	/* The light is getting dim */
-	else if ((o_ptr->pval < 100) && (!(o_ptr->pval % 10)))
+	else if ((o_ptr->xtra3 < 100) && (!(o_ptr->xtra3 % 10)))
 	{
 		if (disturb_minor) disturb(0, 0);
+#ifdef JP
+msg_print("明かりが微かになってきている。");
+#else
 		msg_print("Your light is growing faint.");
+#endif
+
 	}
 }
 
+
+void leave_quest_check(void)
+{
+	/* Save quset number for dungeon pref file ($LEAVING_QUEST) */
+	leaving_quest = p_ptr->inside_quest;
+
+	/* Leaving an 'only once' quest marks it as failed */
+	if (leaving_quest &&
+	    ((quest[leaving_quest].flags & QUEST_FLAG_ONCE)  || (quest[leaving_quest].type == QUEST_TYPE_RANDOM)) &&
+	    (quest[leaving_quest].status == QUEST_STATUS_TAKEN))
+	{
+		quest[leaving_quest].status = QUEST_STATUS_FAILED;
+		quest[leaving_quest].complev = (byte)p_ptr->lev;
+		if (quest[leaving_quest].type == QUEST_TYPE_RANDOM)
+			r_info[quest[leaving_quest].r_idx].flags1 &= ~(RF1_QUESTOR);
+	}
+}
+
+
+static bool item_tester_hook_psychometry(object_type *o_ptr)
+{
+	return (!object_known_p(o_ptr) && 
+		((o_ptr->feeling == FEEL_NONE) || (o_ptr->feeling == FEEL_UNCURSED)));
+}
 
 /*
  * Forcibly pseudo-identify an object in the inventory
@@ -753,14 +883,22 @@ bool psychometry(void)
 {
 	int             item;
 	object_type     *o_ptr;
-	char            o_name[80];
+	char            o_name[MAX_NLEN];
 	byte            feel;
 	cptr            q, s;
+	bool            okay = FALSE;
 
+	item_tester_hook = item_tester_hook_psychometry;
 
 	/* Get an item */
+#ifdef JP
+	q = "どのアイテムを霊視しますか？";
+	s = "調べるアイテムがありません。";
+#else
 	q = "Meditate on which item? ";
 	s = "You have nothing appropriate.";
+#endif
+
 	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return (FALSE);
 
 	/* Get the item (in the pack) */
@@ -778,7 +916,11 @@ bool psychometry(void)
 	/* It is fully known, no information needed */
 	if (object_known_p(o_ptr))
 	{
+#ifdef JP
+		msg_print("何も新しいことは判らなかった。");
+#else
 		msg_print("You cannot find out anything more about that.");
+#endif
 		return TRUE;
 	}
 
@@ -786,18 +928,27 @@ bool psychometry(void)
 	feel = value_check_aux1(o_ptr);
 
 	/* Get an object description */
-	object_desc(o_name, o_ptr, FALSE, 0);
+	object_desc(o_name, o_ptr, OD_OMIT_PREFIX | OD_NAME_ONLY);
 
 	/* Skip non-feelings */
 	if (!feel)
 	{
+#ifdef JP
+		msg_format("%sからは特に変わった事は感じとれなかった。", o_name);
+#else
 		msg_format("You do not perceive anything unusual about the %s.", o_name);
+#endif
 		return TRUE;
 	}
 
+#ifdef JP
+	msg_format("%sは%sという感じがする...",
+			o_name,  game_inscriptions[feel]);
+#else
 	msg_format("You feel that the %s %s %s...",
-			   o_name, ((o_ptr->number == 1) ? "is" : "are"),
-			   game_inscriptions[feel]);
+			o_name, ((o_ptr->number == 1) ? "is" : "are"),
+			game_inscriptions[feel]);
+#endif
 
 	/* We have "felt" it */
 	o_ptr->ident |= (IDENT_SENSE);
@@ -805,11 +956,45 @@ bool psychometry(void)
 	/* "Inscribe" it */
 	o_ptr->feeling = feel;
 
+	/* Player touches it */
+	o_ptr->marked |= OM_TOUCHED;
+
 	/* Combine / Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
 	/* Window stuff */
 	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
+
+	/* Valid "tval" codes */
+	switch (o_ptr->tval)
+	{
+		case TV_SHOT:
+		case TV_ARROW:
+		case TV_BOLT:
+		case TV_BOW:
+		case TV_DIGGING:
+		case TV_HAFTED:
+		case TV_POLEARM:
+		case TV_SWORD:
+		case TV_BOOTS:
+		case TV_GLOVES:
+		case TV_HELM:
+		case TV_CROWN:
+		case TV_SHIELD:
+		case TV_CLOAK:
+		case TV_SOFT_ARMOR:
+		case TV_HARD_ARMOR:
+		case TV_DRAG_ARMOR:
+		case TV_RING:
+		case TV_AMULET:
+		case TV_LITE:
+		case TV_FIGURINE:
+			okay = TRUE;
+			break;
+	}
+
+	/* Auto-inscription/destroy */
+	autopick_alter_item(item, (bool)(okay && destroy_feeling));
 
 	/* Something happened */
 	return (TRUE);
@@ -820,17 +1005,48 @@ bool psychometry(void)
  * If player has inscribed the object with "!!", let him know when it's
  * recharged. -LM-
  */
+static void recharged_notice_aux(object_type *o_ptr)
+{
+	char o_name[MAX_NLEN];
+
+	/* Describe (briefly) */
+	object_desc(o_name, o_ptr, OD_OMIT_PREFIX | OD_NAME_ONLY);
+
+	/* Notify the player */
+#ifdef JP
+	msg_format("%sは再充填された。", o_name);
+#else
+	if (o_ptr->number > 1)
+		msg_format("Your %s are recharged.", o_name);
+	else msg_format("Your %s is recharged.", o_name);
+#endif
+
+	/* Disturb */
+	disturb(0, 0);
+}
+
+
 static void recharged_notice(object_type *o_ptr)
 {
-	char o_name[80];
-
 	cptr s;
 
 	/* No inscription */
 	if (!o_ptr->inscription) return;
 
+	/* Find a '%' */
+	s = my_strchr(quark_str(o_ptr->inscription), '%');
+
+	if (s)
+	{
+		/* Notify the player */
+		recharged_notice_aux(o_ptr);
+
+		/* Done. */
+		return;
+	}
+
 	/* Find a '!' */
-	s = strchr(quark_str(o_ptr->inscription), '!');
+	s = my_strchr(quark_str(o_ptr->inscription), '!');
 
 	/* Process notification request. */
 	while (s)
@@ -838,21 +1054,250 @@ static void recharged_notice(object_type *o_ptr)
 		/* Find another '!' */
 		if (s[1] == '!')
 		{
-			/* Describe (briefly) */
-			object_desc(o_name, o_ptr, FALSE, 0);
-
 			/* Notify the player */
-			if (o_ptr->number > 1)
-				msg_format("Your %s are recharged.", o_name);
-			else msg_format("Your %s is recharged.", o_name);
+			recharged_notice_aux(o_ptr);
 
 			/* Done. */
 			return;
 		}
 
 		/* Keep looking for '!'s */
-		s = strchr(s + 1, '!');
+		s = my_strchr(s + 1, '!');
 	}
+}
+
+
+/*
+ * Count number of adjacent monsters
+ */
+static int get_monster_crowd_number(int m_idx)
+{
+	monster_type *m_ptr = &m_list[m_idx];
+	int my = m_ptr->fy;
+	int mx = m_ptr->fx;
+	int i;
+	int count = 0;
+
+	for (i = 0; i < 7; i++)
+	{
+		int ay = my + ddy_ddd[i];
+		int ax = mx + ddx_ddd[i];
+
+		if (!in_bounds(ay, ax)) continue;
+
+		/* Count number of monsters */
+		if (cave[ay][ax].m_idx > 0) count++;
+ 	}
+
+	return count;
+}
+
+
+
+/*
+ * Dungeon rating is no longer linear
+ */
+#define RATING_BOOST(delta) (delta * delta + 50 * delta)
+
+/*
+ * Examine all monsters and unidentified objects,
+ * and get the feeling of current dungeon floor
+ */
+byte get_dungeon_feeling(void)
+{
+	const int base = 10;
+	int rating = 0;
+	int i;
+
+	/* Hack -- no feeling in the town */
+	if (!dun_level) return 0;
+
+	/* Examine each monster */
+	for (i = 1; i < m_max; i++)
+	{
+		monster_type *m_ptr = &m_list[i];
+		monster_race *r_ptr;
+		int delta = 0;
+
+		/* Skip dead monsters */
+		if (!m_ptr->r_idx) continue;
+
+		/* Ignore pet */
+		if (is_pet(m_ptr)) continue;
+
+		r_ptr = &r_info[m_ptr->r_idx];
+
+		/* Unique monsters */
+		if (r_ptr->flags1 & (RF1_UNIQUE))
+		{
+			/* Nearly out-of-depth unique monsters */
+			if (r_ptr->level + 10 > dun_level)
+			{
+				/* Boost rating by twice delta-depth */
+				delta += (r_ptr->level + 10 - dun_level) * 2 * base;
+			}
+		}
+		else
+		{
+			/* Out-of-depth monsters */
+			if (r_ptr->level > dun_level)
+			{
+				/* Boost rating by delta-depth */
+				delta += (r_ptr->level - dun_level) * base;
+			}
+		}
+
+		/* Unusually crowded monsters get a little bit of rating boost */
+		if (r_ptr->flags1 & RF1_FRIENDS)
+		{
+			if (5 <= get_monster_crowd_number(i)) delta += 1;
+		}
+		else
+		{
+			if (2 <= get_monster_crowd_number(i)) delta += 1;
+		}
+
+
+		rating += RATING_BOOST(delta);
+	}
+
+	/* Examine each unidentified object */
+	for (i = 1; i < o_max; i++)
+	{
+		object_type *o_ptr = &o_list[i];
+		object_kind *k_ptr = &k_info[o_ptr->k_idx];
+		int delta = 0;
+
+		/* Skip dead objects */
+		if (!o_ptr->k_idx) continue;
+
+		/* Skip known objects */
+		if (object_known_p(o_ptr))
+		{
+			/* Touched? */
+			if (o_ptr->marked & OM_TOUCHED) continue;
+		}
+
+		/* Skip pseudo-known objects */
+		if (o_ptr->ident & IDENT_SENSE) continue;
+
+		/* Ego objects */
+		if (ego_item_p(o_ptr))
+		{
+			ego_item_type *e_ptr = &e_info[o_ptr->name2];
+
+			delta += e_ptr->rating * base;
+		}
+
+		/* Fixed artifacts */
+		if (artifact_p(o_ptr))
+		{
+			s32b cost;
+
+			/* Special feeling */
+			if (!preserve_mode) return 1;
+
+			cost = object_value_real(o_ptr);
+
+			delta += 10 * base;
+			if (cost > 50000L) delta += 10 * base;
+		}
+
+		/* Random artifacts */
+		if (o_ptr->art_name) delta += 40 * base;
+
+		if (o_ptr->tval == TV_DRAG_ARMOR) delta += 30 * base;
+		if (o_ptr->tval == TV_SHIELD &&
+		    o_ptr->sval == SV_DRAGON_SHIELD) delta += 5 * base;
+		if (o_ptr->tval == TV_GLOVES &&
+		    o_ptr->sval == SV_SET_OF_DRAGON_GLOVES) delta += 5 * base;
+		if (o_ptr->tval == TV_BOOTS &&
+		    o_ptr->sval == SV_PAIR_OF_DRAGON_BOOTS) delta += 5 * base;
+		if (o_ptr->tval == TV_HELM &&
+		    o_ptr->sval == SV_DRAGON_HELM) delta += 5 * base;
+		if (o_ptr->tval == TV_RING &&
+		    o_ptr->sval == SV_RING_SPEED &&
+		    !cursed_p(o_ptr)) delta += 25 * base;
+		if (o_ptr->tval == TV_RING &&
+		    o_ptr->sval == SV_RING_LORDLY) delta += 5 * base;
+		if (o_ptr->tval == TV_AMULET &&
+		    o_ptr->sval == SV_AMULET_THE_MAGI) delta += 25 * base;
+		if (o_ptr->tval == TV_AMULET &&
+		    o_ptr->sval == SV_AMULET_THE_HERO) delta += 25 * base;
+
+		/* Out-of-depth objects */
+		if (!cursed_p(o_ptr) && !broken_p(o_ptr) &&
+		    k_ptr->level > dun_level)
+		{
+			/* Rating increase */
+			delta += (k_ptr->level - dun_level) * base;
+		}
+
+		rating += RATING_BOOST(delta);
+	}
+
+
+	if (rating > RATING_BOOST(1000)) return 2;
+	if (rating > RATING_BOOST(800)) return 3;
+	if (rating > RATING_BOOST(600)) return 4;
+	if (rating > RATING_BOOST(400)) return 5;
+	if (rating > RATING_BOOST(300)) return 6;
+	if (rating > RATING_BOOST(200)) return 7;
+	if (rating > RATING_BOOST(100)) return 8;
+	if (rating > RATING_BOOST(0)) return 9;
+
+	return 10;
+}
+
+
+/*
+ * Update dungeon feeling, and announce it if changed
+ */
+static void update_dungeon_feeling(void)
+{
+	byte new_feeling;
+	int quest_num;
+	int delay;
+
+	/* No feeling on the surface */
+	if (!dun_level) return;
+
+	/* Extract delay time */
+	delay = MAX(10, 150 - p_ptr->skill_fos) * (150 - dun_level) * 10 / 100;
+
+ 	/* Not yet felt anything */
+	if (turn < p_ptr->feeling_turn + delay && !cheat_xtra) return;
+
+	/* Extract quest number (if any) */
+	quest_num = quest_number(dun_level);
+
+	/* No feeling in a quest */
+	if (quest_num &&
+	    (((quest_num < MIN_RANDOM_QUEST) || (quest_num > MAX_RANDOM_QUEST)) &&
+	     !((quest_num == QUEST_OBERON) || (quest_num == QUEST_SERPENT) ||
+	       !(quest[quest_num].flags & QUEST_FLAG_PRESET)))) return;
+
+
+	/* Get new dungeon feeling */
+	new_feeling = get_dungeon_feeling();
+
+	/* Remember last time updated */
+	p_ptr->feeling_turn = turn;
+
+	/* No change */
+	if (p_ptr->feeling == new_feeling) return;
+
+	/* Dungeon feeling is changed */
+	p_ptr->feeling = new_feeling;
+
+	/* Announce feeling */
+	do_cmd_feeling();
+
+	/* Update the level indicator */
+	p_ptr->redraw |= (PR_DEPTH);
+
+	/* Disturb */
+	if (disturb_minor) disturb(0, 0);
 }
 
 
@@ -871,9 +1316,16 @@ static void process_world(void)
 	int temp;
 	object_kind *k_ptr;
 
-	/* Announce the level feeling */
-	if ((turn - old_turn == 1000) && (dun_level)) do_cmd_feeling();
+	int day, hour, min, prev_min;
 
+#define __LEN (10L * TOWN_DAWN)
+	s32b tick = (turn % __LEN) + (__LEN / 4);
+
+	extract_day_hour_min(&day, &hour, &min);
+	prev_min = (1440 * (tick - 10L) / __LEN) % 60;
+
+	/* Update dungeon feeling, and announce it if changed */
+	update_dungeon_feeling();
 
 	/* Every 10 game turns */
 	if (turn % 10) return;
@@ -896,15 +1348,26 @@ static void process_world(void)
 				closing_flag++;
 
 				/* Message */
+#ifdef JP
+msg_print("アングバンドへの門が閉じかかっています...");
+msg_print("ゲームを終了するかセーブするかして下さい。");
+#else
 				msg_print("The gates to ANGBAND are closing...");
 				msg_print("Please finish up and/or save your game.");
+#endif
+
 			}
 
 			/* Slam the gate */
 			else
 			{
 				/* Message */
+#ifdef JP
+msg_print("今、アングバンドへの門が閉ざされました。");
+#else
 				msg_print("The gates to ANGBAND are now closed.");
+#endif
+
 
 				/* Stop playing */
 				alive = FALSE;
@@ -924,7 +1387,12 @@ static void process_world(void)
 
 	if (mon_fight)
 	{
+#ifdef JP
+		msg_print("何かが聞こえた。");
+#else
 		msg_print("You hear noise.");
+#endif
+
 	}
 
 	/*** Handle the wilderness/town (sunshine) ***/
@@ -944,7 +1412,12 @@ static void process_world(void)
 			if (dawn)
 			{
 				/* Message */
+#ifdef JP
+msg_print("夜が明けた。");
+#else
 				msg_print("The sun has risen.");
+#endif
+
 
 				/* Hack -- Scan the town */
 				for (y = 0; y < cur_hgt; y++)
@@ -970,7 +1443,12 @@ static void process_world(void)
 			else
 			{
 				/* Message */
+#ifdef JP
+msg_print("日が沈んだ。");
+#else
 				msg_print("The sun has fallen.");
+#endif
+
 
 				/* Hack -- Scan the town */
 				for (y = 0; y < cur_hgt; y++)
@@ -983,7 +1461,9 @@ static void process_world(void)
 						/* Darken "boring" features */
 						if ((c_ptr->feat <= FEAT_INVIS) ||
 						    ((c_ptr->feat >= FEAT_DEEP_WATER) &&
-							(c_ptr->feat <= FEAT_TREES)))
+						    (c_ptr->feat <= FEAT_MOUNTAIN)) ||
+						    (x == 0) || (x == cur_wid - 1) ||
+						    (y == 0) || (y == cur_hgt - 1))
 						{
 							/* Forget the grid */
 							c_ptr->info &= ~(CAVE_GLOW | CAVE_MARK);
@@ -993,10 +1473,13 @@ static void process_world(void)
 						}
 					}
 				}
+
+				/* Glow lava in floor */
+				glow_lava_floor();
 			}
 
 			/* Update the monsters */
-			p_ptr->update |= (PU_MONSTERS);
+			p_ptr->update |= (PU_MONSTERS | PU_MON_LITE);
 
 			/* Redraw map */
 			p_ptr->redraw |= (PR_MAP);
@@ -1018,14 +1501,19 @@ static void process_world(void)
 		}
 
 		/* Message */
+#ifdef JP
+if (cheat_xtra) msg_print("報酬をリセット");
+#else
 		if (cheat_xtra) msg_print("Rewards reset.");
+#endif
+
 	}
 
 
 	/*** Process the monsters ***/
 
 	/* Check for creature generation. */
-	if ((rand_int(MAX_M_ALLOC_CHANCE) == 0) &&
+	if ((randint0(MAX_M_ALLOC_CHANCE) == 0) &&
 	    !p_ptr->inside_arena && !p_ptr->inside_quest)
 	{
 		/* Make a new monster */
@@ -1042,7 +1530,12 @@ static void process_world(void)
 	if (p_ptr->poisoned && !p_ptr->invuln)
 	{
 		/* Take damage */
+#ifdef JP
+take_hit(1, "毒");
+#else
 		take_hit(1, "poison");
+#endif
+
 	}
 
 
@@ -1055,8 +1548,14 @@ static void process_world(void)
 			if (cave[py][px].info & CAVE_GLOW)
 			{
 				/* Take damage */
+#ifdef JP
+msg_print("日光があなたのアンデッドの肉体を焼き焦がした！");
+take_hit(1, "日光");
+#else
 				msg_print("The sun's rays scorch your undead flesh!");
 				take_hit(1, "sunlight");
+#endif
+
 				cave_no_regen = TRUE;
 			}
 		}
@@ -1067,20 +1566,30 @@ static void process_world(void)
 		    !p_ptr->resist_lite)
 		{
 			object_type * o_ptr = &inventory[INVEN_LITE];
-			char o_name[80];
+			char o_name[MAX_NLEN];
 			char ouch[80];
 
 			/* Get an object description */
-			object_desc(o_name, o_ptr, FALSE, 0);
+			object_desc(o_name, o_ptr, OD_OMIT_PREFIX | OD_NAME_ONLY);
 
+#ifdef JP
+msg_format("%sがあなたのアンデッドの肉体を焼き焦がした！", o_name);
+#else
 			msg_format("The %s scorches your undead flesh!", o_name);
+#endif
+
 
 			cave_no_regen = TRUE;
 
 			/* Get an object description */
-			object_desc(o_name, o_ptr, TRUE, 0);
+			object_desc(o_name, o_ptr, OD_NAME_ONLY);
 
+#ifdef JP
+sprintf(ouch, "%sを装備したダメージ", o_name);
+#else
 			sprintf(ouch, "wielding %s", o_name);
+#endif
+
 			if (!p_ptr->invuln) take_hit(1, ouch);
 		}
 	}
@@ -1096,8 +1605,14 @@ static void process_world(void)
 		if (damage)
 		{
 			/* Take damage */
+#ifdef JP
+msg_print("溶岩で火傷した！");
+take_hit(damage, "浅い溶岩流");
+#else
 			msg_print("The lava burns you!");
 			take_hit(damage, "shallow lava");
+#endif
+
 			cave_no_regen = TRUE;
 		}
 	}
@@ -1116,13 +1631,25 @@ static void process_world(void)
 		{
 			damage = damage / 5;
 
+#ifdef JP
+message = "熱で火傷した！";
+hit_from = "深い溶岩流の上に浮遊したダメージ";
+#else
 			message = "The heat burns you!";
 			hit_from = "flying over deep lava";
+#endif
+
 		}
 		else
 		{
+#ifdef JP
+message = "溶岩で火傷した！";
+hit_from = "深い溶岩流";
+#else
 			message = "The lava burns you!";
 			hit_from = "deep lava";
+#endif
+
 		}
 
 		if (damage)
@@ -1137,11 +1664,16 @@ static void process_world(void)
 
 	else if ((cave[py][px].feat == FEAT_DEEP_WATER) && !p_ptr->ffall)
 	{
-		if (p_ptr->total_weight > ((adj_str_wgt[p_ptr->stat_ind[A_STR]] * 100) / 2))
+		if (p_ptr->total_weight > (u32b)((adj_str_wgt[p_ptr->stat_ind[A_STR]] * 100) / 2))
 		{
 			/* Take damage */
+#ifdef JP
+			msg_print("溺れている！");
+			take_hit(randint1(p_ptr->lev), "溺れ");
+#else
 			msg_print("You are drowning!");
-			take_hit(randint(p_ptr->lev), "drowning");
+			take_hit(randint1(p_ptr->lev), "drowning");
+#endif
 			cave_no_regen = TRUE;
 		}
 	}
@@ -1156,7 +1688,7 @@ static void process_world(void)
 	if (!cave_floor_bold(py, px))
 	{
 		/* Player can walk through trees */
-		if (cave[py][px].feat == FEAT_TREES)
+		if ((cave[py][px].feat == FEAT_TREES) || ((cave[py][px].feat == FEAT_MOUNTAIN) && !dun_level && p_ptr->ffall))
 		{
 			/* Do nothing */
 		}
@@ -1169,29 +1701,40 @@ static void process_world(void)
 
 			if (p_ptr->pass_wall)
 			{
+#ifdef JP
+msg_print("体の分子が分解した気がする！");
+dam_desc = "密度";
+#else
 				msg_print("Your molecules feel disrupted!");
 				dam_desc = "density";
+#endif
+
 			}
 			else
 			{
+#ifdef JP
+msg_print("崩れた岩に押し潰された！");
+dam_desc = "硬い岩";
+#else
 				msg_print("You are being crushed!");
 				dam_desc = "solid rock";
+#endif
+
 			}
 
 			take_hit(1 + (p_ptr->lev / 5), dam_desc);
 		}
 	}
 
+	if (take_notes)
+	{
+		if (!hour && !min && (min != prev_min))
+			add_note(" ",'D');
+	}
+
 	/* Nightmare mode activates the TY_CURSE at midnight */
 	if (ironman_nightmare)
 	{
-		s32b len = 10L * TOWN_DAWN;
-		s32b tick = turn % len + len / 4;
-
-		int hour = (24 * tick / len) % 24;
-		int min = (1440 * tick / len) % 60;
-		int prev_min = (1440 * (tick - 10) / len) % 60;
-
 		/* Require exact minute */
 		if (min != prev_min)
 		{
@@ -1205,22 +1748,42 @@ static void process_world(void)
 				{
 					case 0:
 					{
+#ifdef JP
+msg_print("遠くで不気味な鐘の音が鳴った。");
+#else
 						msg_print("You hear a distant bell toll ominously.");
+#endif
+
 						break;
 					}
 					case 1:
 					{
+#ifdef JP
+msg_print("遠くで鐘が二回鳴った。");
+#else
 						msg_print("A distant bell sounds twice.");
+#endif
+
 						break;
 					}
 					case 2:
 	{
+#ifdef JP
+msg_print("遠くで鐘が三回鳴った。");
+#else
 						msg_print("A distant bell sounds three times.");
+#endif
+
 						break;
 					}
 					case 3:
 					{
+#ifdef JP
+msg_print("遠くで鐘が四回鳴った。");
+#else
 						msg_print("A distant bell tolls four times.");
+#endif
+
 						break;
 					}
 				}
@@ -1232,7 +1795,12 @@ static void process_world(void)
 				int count = 0;
 
 				disturb(1, 0);
+#ifdef JP
+msg_print("遠くで鐘が何回も鳴り、死んだような静けさの中へ消えていった。");
+#else
 				msg_print("A distant bell tolls many times, fading into an deathly silence.");
+#endif
+
 				activate_ty_curse(FALSE, &count);
 			}
 		}
@@ -1260,7 +1828,12 @@ static void process_world(void)
 		}
 
 		/* Take damage */
+#ifdef JP
+take_hit(i, "致命傷");
+#else
 		take_hit(i, "a fatal wound");
+#endif
+
 	}
 
 
@@ -1307,7 +1880,12 @@ static void process_world(void)
 		i = (PY_FOOD_STARVE - p_ptr->food) / 10;
 
 		/* Take damage */
+#ifdef JP
+if (!p_ptr->invuln) take_hit(i, "空腹");
+#else
 		if (!p_ptr->invuln) take_hit(i, "starvation");
+#endif
+
 	}
 
 	/* Default regeneration */
@@ -1334,14 +1912,19 @@ static void process_world(void)
 		if (p_ptr->food < PY_FOOD_FAINT)
 		{
 			/* Faint occasionally */
-			if (!p_ptr->paralyzed && (rand_int(100) < 10))
+			if (!p_ptr->paralyzed && (randint0(100) < 10))
 			{
 				/* Message */
+#ifdef JP
+msg_print("あまりにも空腹で気絶してしまった。");
+#else
 				msg_print("You faint from the lack of food.");
+#endif
+
 				disturb(1, 0);
 
 				/* Hack -- faint (bypass free action) */
-				(void)set_paralyzed(p_ptr->paralyzed + 1 + rand_int(5));
+				(void)set_paralyzed(p_ptr->paralyzed + 1 + randint0(5));
 			}
 		}
 	}
@@ -1368,47 +1951,47 @@ static void process_world(void)
 		regen_amount = regen_amount * 2;
 	}
 
-	if (total_friends)
-	{
-#ifdef TRACK_FRIENDS
-		if (wizard)
-			msg_format("Total friends: %d.", total_friends);
-#endif /* TRACK_FRIENDS */
-
-		if (total_friends > 1 + (p_ptr->lev / cp_ptr->pet_upkeep_div))
-		{
-			upkeep_factor = total_friend_levels;
-
-			if (upkeep_factor > 95) upkeep_factor = 95;
-			else if (upkeep_factor < 5) upkeep_factor = 5;
-
-#ifdef TRACK_FRIENDS
-			if (wizard)
-			msg_format("Levels %d, upkeep %d", total_friend_levels, upkeep_factor);
-#endif /* TRACK_FRIENDS */
-
-		}
-	}
+	upkeep_factor = calculate_upkeep();
 
 	/* Regenerate the mana */
-	if (p_ptr->csp < p_ptr->msp)
+	if ((p_ptr->csp < p_ptr->msp) || (upkeep_factor != 0))
 	{
-		if (upkeep_factor)
-		{
-			s16b upkeep_regen = (((100 - upkeep_factor) * regen_amount) / 100);
-			regenmana(upkeep_regen);
+		s32b upkeep_regen = (((100 - upkeep_factor) * regen_amount) / 100);
+		regenmana(upkeep_regen);
 
 #ifdef TRACK_FRIENDS
-			if (wizard)
-			{
-				msg_format("Regen: %d/%d", upkeep_regen, regen_amount);
-			}
-#endif /* TRACK_FRIENDS */
-
-		}
-		else
+		if (wizard)
 		{
-			regenmana(regen_amount);
+#ifdef JP
+			msg_format("ＭＰ回復: %d/%d", upkeep_regen, regen_amount);
+#else
+			msg_format("Regen: %d/%d", upkeep_regen, regen_amount);
+#endif
+		}
+#endif /* TRACK_FRIENDS */
+	}
+
+	/* Empty mana becaused of controling too many pets */
+	if ((p_ptr->csp == 0) && (p_ptr->csp_frac == 0))
+	{
+		while (upkeep_factor > 100)
+		{
+#ifdef JP
+			msg_print("こんなに多くのペットを制御できない！");
+#else
+			msg_print("Too many pets to control at once!");
+#endif
+			msg_print(NULL);
+			do_cmd_pet_dismiss();
+
+			upkeep_factor = calculate_upkeep();
+
+#ifdef JP
+			msg_format("維持ＭＰは %d%%", upkeep_factor);
+#else
+			msg_format("Upkeep: %d%% mana.", upkeep_factor);
+#endif
+			msg_print(NULL);
 		}
 	}
 
@@ -1465,6 +2048,30 @@ static void process_world(void)
 		(void)set_tim_infra(p_ptr->tim_infra - 1);
 	}
 
+	/* Timed Regeneration */
+	if (p_ptr->tim_regen)
+	{
+		(void)set_tim_regen(p_ptr->tim_regen - 1);
+	}
+
+	/* Timed fire aura */
+	if (p_ptr->tim_sh_fire)
+	{
+		(void)set_tim_sh_fire(p_ptr->tim_sh_fire - 1);
+	}
+
+	/* Timed elec aura */
+	if (p_ptr->tim_sh_elec)
+	{
+		(void)set_tim_sh_elec(p_ptr->tim_sh_elec - 1);
+	}
+
+	/* Timed cold aura */
+	if (p_ptr->tim_sh_cold)
+	{
+		(void)set_tim_sh_cold(p_ptr->tim_sh_cold - 1);
+	}
+
 	/* Paralysis */
 	if (p_ptr->paralyzed)
 	{
@@ -1508,9 +2115,9 @@ static void process_world(void)
 	}
 
 	/* Wraith form */
-	if (p_ptr->wraith_form)
+	if (p_ptr->tim_wraith)
 	{
-		(void)set_wraith_form(p_ptr->wraith_form - 1);
+		(void)set_wraith_form(p_ptr->tim_wraith - 1);
 	}
 
 	/* Heroism */
@@ -1535,6 +2142,18 @@ static void process_world(void)
 	if (p_ptr->shield)
 	{
 		(void)set_shield(p_ptr->shield - 1);
+	}
+
+	/* Magicdef */
+	if (p_ptr->magicdef)
+	{
+		(void)set_magicdef(p_ptr->magicdef - 1);
+	}
+
+	/* Musou */
+	if (p_ptr->musou)
+	{
+		(void)set_musou(p_ptr->musou - 1);
 	}
 
 	/* Oppose Acid */
@@ -1568,6 +2187,31 @@ static void process_world(void)
 		(void)set_oppose_pois(p_ptr->oppose_pois - 1);
 	}
 
+
+	/* Radar Eye */
+	if (p_ptr->tim_radar)
+	{
+		(void)set_tim_radar(p_ptr->tim_radar - 1);
+	}
+
+	/* Magic: Revenge Sentence */
+	if (p_ptr->tim_sentence)
+	{
+		u16b flg = (PROJECT_GRID | PROJECT_ITEM | PROJECT_JUMP | PROJECT_KILL);
+		p_ptr->tim_sentence--;
+
+		if (!p_ptr->tim_sentence)
+		{
+#ifdef JP
+			msg_print("復讐だ！復讐だ！");
+#else
+			msg_print("Revenge, revenge！");
+#endif
+			(void)project(0, 2, p_ptr->rvs_y, p_ptr->rvs_x, p_ptr->rvs_d, GF_MISSILE, flg);
+
+			p_ptr->redraw |= (PR_EXTRA);
+		}
+	}
 
 	/*** Poison and Stun and Cut ***/
 
@@ -1611,10 +2255,10 @@ static void process_world(void)
 	if (o_ptr->tval == TV_LITE)
 	{
 		/* Hack -- Use some fuel (except on artifacts) */
-		if (!artifact_p(o_ptr) && (o_ptr->pval > 0))
+		if (!artifact_p(o_ptr) && (o_ptr->xtra3 > 0))
 		{
 			/* Decrease life-span */
-			o_ptr->pval--;
+			o_ptr->xtra3--;
 
 			/* Notice interesting fuel steps */
 			notice_lite_change(o_ptr);
@@ -1626,244 +2270,58 @@ static void process_world(void)
 
 
 	/*** Process mutation effects ***/
-	if (p_ptr->muta2)
+	if (p_ptr->muta)
 	{
-		if ((p_ptr->muta2 & MUT2_BERS_RAGE) && (randint(3000) == 1))
+		if ((p_ptr->muta & MUT_BERS_RAGE) && one_in_(3000))
 		{
 			disturb(0, 0);
+#ifdef JP
+			msg_print("ウガァァア！");
+			msg_print("激怒の発作に襲われた！");
+#else
 			msg_print("RAAAAGHH!");
 			msg_print("You feel a fit of rage coming over you!");
-			(void)set_shero(p_ptr->shero + 10 + randint(p_ptr->lev));
+#endif
+			(void)set_shero(p_ptr->shero + 10 + randint1(p_ptr->lev));
 		}
 
-		if ((p_ptr->muta2 & MUT2_COWARDICE) && (randint(3000) == 13))
+		if ((p_ptr->muta & MUT_COWARDICE) && one_in_(3000))
 		{
 			if (!(p_ptr->resist_fear || p_ptr->hero || p_ptr->shero))
 			{
 				disturb(0, 0);
+#ifdef JP
+				msg_print("とても暗い... とても恐い！");
+#else
 				msg_print("It's so dark... so scary!");
-				set_afraid(p_ptr->afraid + 13 + randint(26));
+#endif
+				set_afraid(p_ptr->afraid + 13 + randint1(26));
 			}
 		}
 
-		if ((p_ptr->muta2 & MUT2_RTELEPORT) && (randint(5000) == 88))
-		{
-			if (!p_ptr->resist_nexus && !p_ptr->muta1 & MUT1_VTELEPORT &&
-			    !p_ptr->anti_tele)
-			{
-				disturb(0, 0);
-
-				/* Teleport player */
-				msg_print("Your position suddenly seems very uncertain...");
-				msg_print(NULL);
-				teleport_player(40);
-			}
-		}
-
-		if ((p_ptr->muta2 & MUT2_ALCOHOL) && (randint(6400) == 321))
-		{
-			if (!p_ptr->resist_conf && !p_ptr->resist_chaos)
-			{
-				disturb(0, 0);
-				p_ptr->redraw |= PR_EXTRA;
-				msg_print("You feel a SSSCHtupor cOmINg over yOu... *HIC*!");
-			}
-
-			if (!p_ptr->resist_conf)
-			{
-				(void)set_confused(p_ptr->confused + rand_int(20) + 15);
-			}
-
-			if (!p_ptr->resist_chaos)
-			{
-				if (one_in_(20))
-				{
-					msg_print(NULL);
-					if (one_in_(3)) lose_all_info();
-					else wiz_dark();
-					teleport_player(100);
-					wiz_dark();
-					msg_print("You wake up somewhere with a sore head...");
-					msg_print("You can't remember a thing, or how you got here!");
-				}
-				else
-				{
-					if (one_in_(3))
-					{
-						msg_print("Thishcischs GooDSChtuff!");
-						(void)set_image(p_ptr->image + rand_int(150) + 150);
-					}
-				}
-			}
-		}
-
-		if ((p_ptr->muta2 & MUT2_HALLU) && (randint(6400) == 42))
+		if ((p_ptr->muta & MUT_HALLU) && one_in_(6400))
 		{
 			if (!p_ptr->resist_chaos)
 			{
 				disturb(0, 0);
 				p_ptr->redraw |= PR_EXTRA;
-				(void)set_image(p_ptr->image + rand_int(50) + 20);
+				(void)set_image(p_ptr->image + randint0(50) + 20);
 			}
 		}
 
-		if ((p_ptr->muta2 & MUT2_FLATULENT) && (randint(3000) == 13))
-		{
-			disturb(0, 0);
-
-			msg_print("BRRAAAP! Oops.");
-			msg_print(NULL);
-			fire_ball(GF_POIS, 0, p_ptr->lev, 3);
-		}
-
-		if ((p_ptr->muta2 & MUT2_PROD_MANA) &&
-		    !p_ptr->anti_magic && (randint(9000) == 1))
-		{
-			int dire = 0;
-			disturb(0, 0);
-			msg_print("Magical energy flows through you! You must release it!");
-			flush();
-			msg_print(NULL);
-			(void)get_hack_dir(&dire);
-			fire_ball(GF_MANA, dire, p_ptr->lev * 2, 3);
-		}
-
-		if ((p_ptr->muta2 & MUT2_ATT_DEMON) &&
-		    !p_ptr->anti_magic && (randint(6666) == 666))
-		{
-			bool pet = (randint(6) == 1);
-
-			if (summon_specific((pet ? -1 : 0), py, px,
-					 dun_level, SUMMON_DEMON, TRUE, FALSE, pet))
-			{
-				msg_print("You have attracted a demon!");
-				disturb(0, 0);
-			}
-		}
-
-		if ((p_ptr->muta2 & MUT2_SPEED_FLUX) && (randint(6000) == 1))
-		{
-			disturb(0, 0);
-			if (randint(2) == 1)
-			{
-				msg_print("You feel less energetic.");
-				if (p_ptr->fast > 0)
-				{
-					set_fast(0);
-				}
-				else
-				{
-					set_slow(p_ptr->slow + randint(30) + 10);
-				}
-			}
-			else
-			{
-				msg_print("You feel more energetic.");
-				if (p_ptr->slow > 0)
-				{
-					set_slow(0);
-				}
-				else
-				{
-					set_fast(p_ptr->fast + randint(30) + 10);
-				}
-			}
-			msg_print(NULL);
-		}
-		if ((p_ptr->muta2 & MUT2_BANISH_ALL) && (randint(9000) == 1))
-		{
-			disturb(0, 0);
-			msg_print("You suddenly feel almost lonely.");
-			banish_monsters(100);
-			if (!dun_level && p_ptr->town_num)
-			{
-				msg_print("You see one of the shopkeepers running for the hills!");
-				store_shuffle(rand_int(MAX_STORES));
-			}
-			msg_print(NULL);
-		}
-
-		if ((p_ptr->muta2 & MUT2_EAT_LIGHT) && one_in_(3000))
-		{
-			object_type *o_ptr;
-
-			msg_print("A shadow passes over you.");
-			msg_print(NULL);
-
-			/* Absorb light from the current possition */
-			if (cave[py][px].info & CAVE_GLOW)
-			{
-				hp_player(10);
-			}
-
-			o_ptr = &inventory[INVEN_LITE];
-
-			/* Absorb some fuel in the current lite */
-			if (o_ptr->tval == TV_LITE)
-			{
-				/* Use some fuel (except on artifacts) */
-				if (!artifact_p(o_ptr) && (o_ptr->pval > 0))
-				{
-					/* Heal the player a bit */
-					hp_player(o_ptr->pval / 20);
-
-					/* Decrease life-span of lite */
-					o_ptr->pval /= 2;
-
-					msg_print("You absorb energy from your light!");
-
-					/* Notice interesting fuel steps */
-					notice_lite_change(o_ptr);
-				}
-			}
-
-			/*
-			 * Unlite the area (radius 10) around player and
-			 * do 50 points damage to every affected monster
-			 */
-			unlite_area(50, 10);
-		}
-
-		if ((p_ptr->muta2 & MUT2_ATT_ANIMAL) &&
-		   !p_ptr->anti_magic && one_in_(7000))
-		{
-			bool pet = (randint(3) == 1);
-
-			if (summon_specific((pet ? -1 : 0), py, px, dun_level, SUMMON_ANIMAL,
-				 TRUE, FALSE, pet))
-			{
-				msg_print("You have attracted an animal!");
-				disturb(0, 0);
-			}
-		}
-
-		if ((p_ptr->muta2 & MUT2_RAW_CHAOS) &&
-		    !p_ptr->anti_magic && one_in_(8000))
-		{
-			disturb(0, 0);
-			msg_print("You feel the world warping around you!");
-			msg_print(NULL);
-			fire_ball(GF_CHAOS, 0, p_ptr->lev, 8);
-		}
-		if ((p_ptr->muta2 & MUT2_NORMALITY) && one_in_(5000))
+		if ((p_ptr->muta & MUT_NORMALITY) && one_in_(5000))
 		{
 			if (!lose_mutation(0))
+#ifdef JP
+				msg_print("奇妙なくらい普通になった気がする。");
+#else
 				msg_print("You feel oddly normal.");
+#endif
 		}
-		if ((p_ptr->muta2 & MUT2_WRAITH) && !p_ptr->anti_magic && one_in_(3000))
+
+		if ((p_ptr->muta & MUT_WASTING) && one_in_(3000))
 		{
-			disturb(0, 0);
-			msg_print("You feel insubstantial!");
-			msg_print(NULL);
-			set_wraith_form(p_ptr->wraith_form + randint(p_ptr->lev / 2) + (p_ptr->lev / 2));
-		}
-		if ((p_ptr->muta2 & MUT2_POLY_WOUND) && one_in_(3000))
-		{
-			do_poly_wounds();
-		}
-		if ((p_ptr->muta2 & MUT2_WASTING) && one_in_(3000))
-		{
-			int which_stat = rand_int(6);
+			int which_stat = randint0(6);
 			int sustained = FALSE;
 
 			switch (which_stat)
@@ -1887,60 +2345,28 @@ static void process_world(void)
 				if (p_ptr->sustain_chr) sustained = TRUE;
 				break;
 			default:
+#ifdef JP
+				msg_print("不正な状態！");
+#else
 				msg_print("Invalid stat chosen!");
+#endif
 				sustained = TRUE;
 			}
 
 			if (!sustained)
 			{
 				disturb(0, 0);
+#ifdef JP
+				msg_print("自分が衰弱していくのが分かる！");
+#else
 				msg_print("You can feel yourself wasting away!");
+#endif
 				msg_print(NULL);
-				(void)dec_stat(which_stat, randint(6) + 6, randint(3) == 1);
+				(void)dec_stat(which_stat, randint1(6) + 6, randint1(3) == 1);
 			}
-		}
-		if ((p_ptr->muta2 & MUT2_ATT_DRAGON) &&
-		   !p_ptr->anti_magic && one_in_(3000))
-		{
-			bool pet = (randint(5) == 1);
-
-			if (summon_specific((pet ? -1 : 0), py, px, dun_level, SUMMON_DRAGON,
-				 TRUE, FALSE, pet))
-			{
-				msg_print("You have attracted a dragon!");
-				disturb(0, 0);
-			}
-		}
-		if ((p_ptr->muta2 & MUT2_WEIRD_MIND) && !p_ptr->anti_magic &&
-			one_in_(3000))
-		{
-			if (p_ptr->tim_esp > 0)
-			{
-				msg_print("Your mind feels cloudy!");
-				set_tim_esp(0);
-			}
-			else
-			{
-				msg_print("Your mind expands!");
-				set_tim_esp(p_ptr->lev);
-			}
-		}
-		if ((p_ptr->muta2 & MUT2_NAUSEA) && !p_ptr->slow_digest &&
-			one_in_(9000))
-		{
-			disturb(0, 0);
-			msg_print("Your stomach roils, and you lose your lunch!");
-			msg_print(NULL);
-			set_food(PY_FOOD_WEAK);
 		}
 
-		if ((p_ptr->muta2 & MUT2_WALK_SHAD) &&
-		   !p_ptr->anti_magic && one_in_(12000))
-		{
-			alter_reality();
-		}
-
-		if ((p_ptr->muta2 & MUT2_WARNING) && one_in_(1000))
+		if ((p_ptr->muta & MUT_WARNING) && one_in_(1000))
 		{
 			int danger_amount = 0;
 			int monster;
@@ -1960,76 +2386,41 @@ static void process_world(void)
 			}
 
 			if (danger_amount > 100)
+#ifdef JP
+				msg_print("非常に恐ろしい気がする！");
+#else
 				msg_print("You feel utterly terrified!");
+#endif
 			else if (danger_amount > 50)
+#ifdef JP
+				msg_print("恐ろしい気がする！");
+#else
 				msg_print("You feel terrified!");
+#endif
 			else if (danger_amount > 20)
+#ifdef JP
+				msg_print("非常に心配な気がする！");
+#else
 				msg_print("You feel very worried!");
+#endif
 			else if (danger_amount > 10)
+#ifdef JP
+				msg_print("心配な気がする！");
+#else
 				msg_print("You feel paranoid!");
+#endif
 			else if (danger_amount > 5)
+#ifdef JP
+				msg_print("ほとんど安全な気がする。");
+#else
 				msg_print("You feel almost safe.");
+#endif
 			else
+#ifdef JP
+				msg_print("寂しい気がする。");
+#else
 				msg_print("You feel lonely.");
-		}
-		if ((p_ptr->muta2 & MUT2_INVULN) && !p_ptr->anti_magic &&
-			one_in_(5000))
-		{
-			disturb(0, 0);
-			msg_print("You feel invincible!");
-			msg_print(NULL);
-			(void)set_invuln(p_ptr->invuln + randint(8) + 8);
-		}
-		if ((p_ptr->muta2 & MUT2_SP_TO_HP) && one_in_(2000))
-		{
-			int wounds = p_ptr->mhp - p_ptr->chp;
-
-			if (wounds > 0)
-			{
-				int healing = p_ptr->csp;
-
-				if (healing > wounds)
-				{
-					healing = wounds;
-				}
-
-				hp_player(healing);
-				p_ptr->csp -= healing;
-			}
-		}
-		if ((p_ptr->muta2 & MUT2_HP_TO_SP) && !p_ptr->anti_magic &&
-			one_in_(4000))
-		{
-			int wounds = p_ptr->msp - p_ptr->csp;
-
-			if (wounds > 0)
-			{
-				int healing = p_ptr->chp;
-
-				if (healing > wounds)
-				{
-					healing = wounds;
-				}
-
-				p_ptr->csp += healing;
-				take_hit(healing, "blood rushing to the head");
-			}
-		}
-		if ((p_ptr->muta2 & MUT2_DISARM) && one_in_(10000))
-		{
-			object_type *o_ptr;
-
-			disturb(0, 0);
-			msg_print("You trip over your own feet!");
-			take_hit(randint(p_ptr->wt / 6), "tripping");
-
-			msg_print(NULL);
-			o_ptr = &inventory[INVEN_WIELD];
-			if (o_ptr->k_idx)
-			{
-				msg_print("You drop your weapon!");
-				inven_drop(INVEN_WIELD, 1);
-			}
+#endif
 		}
 	}
 
@@ -2039,25 +2430,13 @@ static void process_world(void)
 	/* Handle experience draining */
 	if (p_ptr->exp_drain)
 	{
-		if ((rand_int(100) < 10) && (p_ptr->exp > 0))
+		if ((randint0(100) < 10) && (p_ptr->exp > 0))
 		{
 			p_ptr->exp--;
 			p_ptr->max_exp--;
 			check_experience();
 		}
 	}
-
-	/* Rarely, take damage from the Jewel of Judgement */
-	if ((randint(999) == 1) && !p_ptr->anti_magic)
-	{
-		if ((inventory[INVEN_LITE].tval) && !p_ptr->invuln &&
-		    (inventory[INVEN_LITE].sval == SV_LITE_THRAIN))
-		{
-			msg_print("The Jewel of Judgement drains life from you!");
-			take_hit(MIN(p_ptr->lev, 50), "the Jewel of Judgement");
-		}
-	}
-
 
 	/* Process equipment */
 	for (j = 0, i = INVEN_WIELD; i < INVEN_TOTAL; i++)
@@ -2071,18 +2450,23 @@ static void process_world(void)
 		object_flags(o_ptr, &f1, &f2, &f3);
 
 		/* TY Curse */
-		if ((f3 & TR3_TY_CURSE) && (randint(TY_CURSE_CHANCE) == 1))
+		if ((f3 & TR3_TY_CURSE) && one_in_(TY_CURSE_CHANCE))
 		{
 			int count = 0;
 
-			(void)activate_ty_curse(FALSE, &count);
+			if ((p_ptr->pclass != CLASS_ARCHAEOLOGIST) || one_in_(666))
+				(void)activate_ty_curse(FALSE, &count);
 		}
 
 		/* Make a chainsword noise */
-		if ((o_ptr->name1 == ART_CHAINSWORD) && randint(CHAINSWORD_NOISE) == 1)
+		if ((o_ptr->name1 == ART_CHAINSWORD) && randint1(CHAINSWORD_NOISE) == 1)
 		{
 			char noise[1024];
+#ifdef JP
+			if (!get_rnd_line("chainswd_j.txt", 0, noise))
+#else
 			if (!get_rnd_line("chainswd.txt", 0, noise))
+#endif
 				msg_print(noise);
 			disturb(FALSE, FALSE);
 		}
@@ -2091,7 +2475,7 @@ static void process_world(void)
 		 * Hack: Uncursed teleporting items (e.g. Trump Weapons)
 		 * can actually be useful!
 		 */
-		if ((f3 & TR3_TELEPORT) && (rand_int(100) < 1))
+		if ((f3 & TR3_TELEPORT) && (randint0(100) < 1))
 		{
 			if ((o_ptr->ident & IDENT_CURSED) && !p_ptr->anti_tele)
 			{
@@ -2103,12 +2487,18 @@ static void process_world(void)
 			else
 			{
 				if (!disturb_other || (o_ptr->inscription &&
-				    (strchr(quark_str(o_ptr->inscription),'.'))))
+				    (my_strchr(quark_str(o_ptr->inscription), '.') ||
+					 my_strchr(quark_str(o_ptr->inscription), '%'))))
 				{
 					/* Do nothing */
 					/* msg_print("Teleport aborted.") */ ;
 				}
+#ifdef JP
+else if (get_check("テレポートしますか？"))
+#else
 				else if (get_check("Teleport? "))
+#endif
+
 				{
 					disturb(0, 0);
 					teleport_player(50);
@@ -2121,6 +2511,12 @@ static void process_world(void)
 		{
 			/* Recharge */
 			o_ptr->timeout--;
+
+			/* Device-users can activate objects again quickly */
+			if (p_ptr->pclass == CLASS_DEVICE_USER)
+			{
+				if (o_ptr->timeout > 0) o_ptr->timeout--;
+			}
 
 			/* Notice changes */
 			if (!o_ptr->timeout)
@@ -2185,6 +2581,7 @@ static void process_world(void)
 
 	/* Feel the inventory */
 	sense_inventory();
+	sense_magic();
 
 
 	/*** Process Objects ***/
@@ -2244,26 +2641,27 @@ static void process_world(void)
 			/* Determine the level */
 			if (dun_level || p_ptr->inside_quest)
 			{
+#ifdef JP
+msg_print("上に引っ張りあげられる感じがする！");
+#else
 				msg_print("You feel yourself yanked upwards!");
+#endif
 
 				dun_level = 0;
 
-				leaving_quest = p_ptr->inside_quest;
-
-				/* Leaving an 'only once' quest marks it as failed */
-				if (leaving_quest &&
-					(quest[leaving_quest].flags & QUEST_FLAG_ONCE) &&
-					(quest[leaving_quest].status == QUEST_STATUS_TAKEN))
-				{
-					quest[leaving_quest].status = QUEST_STATUS_FAILED;
-				}
+				leave_quest_check();
 
 				p_ptr->inside_quest = 0;
 				p_ptr->leaving = TRUE;
 			}
 			else
 			{
+#ifdef JP
+msg_print("下に引きずり降ろされる感じがする！");
+#else
 				msg_print("You feel yourself yanked downwards!");
+#endif
+
 
 				/* New depth */
 				dun_level = p_ptr->max_dlv;
@@ -2271,7 +2669,7 @@ static void process_world(void)
 				if (dun_level < 1) dun_level = 1;
 
 				/* Nightmare mode makes recall more dangerous */
-				if (ironman_nightmare && !rand_int(666))
+				if (ironman_nightmare && !randint0(666))
 				{
 					if (dun_level < 50)
 					{
@@ -2309,25 +2707,50 @@ static void process_world(void)
 static bool enter_wizard_mode(void)
 {
 	/* Ask first time */
-#if 0
-	if (!(noscore & 0x0002))
-#else
 	if (!noscore)
-#endif
 	{
+		/* Wizard mode is not permitted */
+		if (!allow_debug_opts)
+		{
+#ifdef JP
+			msg_print("ウィザードモードは許可されていません。 ");
+#else
+			msg_print("Wizard mode is not permitted.");
+#endif
+			return FALSE;
+		}
+
 		/* Mention effects */
+#ifdef JP
+		msg_print("ウィザードモードはデバッグと実験のためのモードです。 ");
+		msg_print("一度ウィザードモードに入るとスコアは記録されません。");
+#else
 		msg_print("Wizard mode is for debugging and experimenting.");
 		msg_print("The game will not be scored if you enter wizard mode.");
+#endif
 		msg_print(NULL);
 
 		/* Verify request */
+#ifdef JP
+		if (!get_check("本当にウィザードモードに入りたいのですか? "))
+#else
 		if (!get_check("Are you sure you want to enter wizard mode? "))
+#endif
 		{
 			return (FALSE);
 		}
 
 		/* Mark savefile */
 		noscore |= 0x0002;
+
+		if (take_notes)
+		{
+#ifdef JP
+			add_note("ウィザードモード", 'W');
+#else
+			add_note("Wizard mode", 'W');
+#endif
+		}
 	}
 
 	/* Success */
@@ -2343,25 +2766,50 @@ static bool enter_wizard_mode(void)
 static bool enter_debug_mode(void)
 {
 	/* Ask first time */
-#if 0
-	if (!(noscore & 0x0008))
-#else
 	if (!noscore)
-#endif
 	{
+		/* Debug mode is not permitted */
+		if (!allow_debug_opts)
+		{
+#ifdef JP
+			msg_print("デバッグコマンドは許可されていません。 ");
+#else
+			msg_print("Use of debug command is not permitted.");
+#endif
+			return FALSE;
+		}
+
 		/* Mention effects */
+#ifdef JP
+		msg_print("デバッグ・コマンドはデバッグと実験のためのコマンドです。 ");
+		msg_print("デバッグ・コマンドを使うとスコアは記録されません。");
+#else
 		msg_print("The debug commands are for debugging and experimenting.");
 		msg_print("The game will not be scored if you use debug commands.");
+#endif
 		msg_print(NULL);
 
 		/* Verify request */
+#ifdef JP
+		if (!get_check("本当にデバッグ・コマンドを使いますか? "))
+#else
 		if (!get_check("Are you sure you want to use debug commands? "))
+#endif
 		{
 			return (FALSE);
 		}
 
 		/* Mark savefile */
 		noscore |= 0x0008;
+
+		if (take_notes)
+		{
+#ifdef JP
+			add_note("デバッグモード", 'W');
+#else
+			add_note("Debug mode", 'W');
+#endif
+		}
 	}
 
 	/* Success */
@@ -2387,12 +2835,22 @@ static bool enter_borg_mode(void)
 	if (!(noscore & 0x0010))
 	{
 		/* Mention effects */
+#ifdef JP
+		msg_print("ボーグ・コマンドはデバッグと実験のためのコマンドです。 ");
+		msg_print("ボーグ・コマンドを使うとスコアは記録されません。");
+#else
 		msg_print("The borg commands are for debugging and experimenting.");
 		msg_print("The game will not be scored if you use borg commands.");
+#endif
+
 		msg_print(NULL);
 
 		/* Verify request */
+#ifdef JP
+		if (!get_check("本当にボーグ・コマンドを使いますか? "))
+#else
 		if (!get_check("Are you sure you want to use borg commands? "))
+#endif
 		{
 			return (FALSE);
 		}
@@ -2422,12 +2880,21 @@ extern void do_cmd_borg(void);
  */
 static void process_command(void)
 {
+	int old_now_message = p_ptr->now_message;
+
 #ifdef ALLOW_REPEAT /* TNB */
 
 	/* Handle repeating the last command */
 	repeat_check();
 
 #endif /* ALLOW_REPEAT -- TNB */
+
+	/* Reset current message line */
+	p_ptr->now_message = 0;
+
+	/* Sniper */
+	if ((p_ptr->pclass == CLASS_SNIPER) && (p_ptr->concent))
+		reset_concent = TRUE;
 
 	/* Parse the command */
 	switch (command_cmd)
@@ -2441,6 +2908,7 @@ static void process_command(void)
 
 		/* Ignore return */
 		case '\r':
+		case '\n':
 		{
 			break;
 		}
@@ -2453,12 +2921,22 @@ static void process_command(void)
 			if (wizard)
 			{
 				wizard = FALSE;
+#ifdef JP
+msg_print("ウィザードモード解除。");
+#else
 				msg_print("Wizard mode off.");
+#endif
+
 			}
 			else if (enter_wizard_mode())
 			{
 				wizard = TRUE;
+#ifdef JP
+msg_print("ウィザードモード突入。");
+#else
 				msg_print("Wizard mode on.");
+#endif
+
 			}
 
 			/* Update monsters */
@@ -2664,21 +3142,21 @@ static void process_command(void)
 		/*** Stairs and Doors and Chests and Traps ***/
 
 		/* Enter store */
-		case '_':
+		case SPECIAL_KEY_STORE:
 		{
 			do_cmd_store();
 			break;
 		}
 
 		/* Enter building -KMW- */
-		case ']':
+		case SPECIAL_KEY_BUILDING:
 		{
 			do_cmd_bldg();
 			break;
 		}
 
 		/* Enter quest level -KMW- */
-		case '[':
+		case SPECIAL_KEY_QUEST:
 		{
 			do_cmd_quest();
 			break;
@@ -2746,7 +3224,13 @@ static void process_command(void)
 		/* Browse a book */
 		case 'b':
 		{
-			do_cmd_browse();
+			if (p_ptr->pclass == CLASS_MINDCRAFTER)
+				do_cmd_mind_browse();
+			else if (p_ptr->pclass == CLASS_ELEMENTALIST)
+				do_cmd_elem_browse();
+			else if (p_ptr->pclass == CLASS_SNIPER)
+				do_cmd_snipe_browse();
+			else do_cmd_browse();
 			break;
 		}
 
@@ -2755,30 +3239,60 @@ static void process_command(void)
 		{
 			if (!p_ptr->inside_arena)
 			{
-				/* -KMW- */
-				if (p_ptr->anti_magic)
+				if (p_ptr->pclass == CLASS_DEVICE_USER)
 				{
+					do_cmd_use_device();
+				}
+
+				/* -KMW- */
+				else if (p_ptr->anti_magic)
+				{
+#ifdef JP
+					cptr which_power = "魔法";
+#else
 					cptr which_power = "magic";
+#endif
 					if (p_ptr->pclass == CLASS_MINDCRAFTER)
+#ifdef JP
+						which_power = "超能力";
+#else
 						which_power = "psionic powers";
-					else if (mp_ptr->spell_book == TV_LIFE_BOOK)
+#endif
+					else if (mp_ptr->spell_type == ST_PRAYER)
+#ifdef JP
+						which_power = "祈り";
+#else
 						which_power = "prayer";
+#endif
 
+#ifdef JP
+					msg_format("反魔法バリアが%sを邪魔した！", which_power);
+#else
 					msg_format("An anti-magic shell disrupts your %s!", which_power);
-
+#endif
 					energy_use = 0;
 				}
 				else
 				{
 					if (p_ptr->pclass == CLASS_MINDCRAFTER)
 						do_cmd_mindcraft();
+					else if (p_ptr->pclass == CLASS_ELEMENTALIST)
+						do_cmd_element();
+					else if (p_ptr->pclass == CLASS_SNIPER)
+						do_cmd_snipe();
+					else if (p_ptr->pclass == CLASS_SNATCHER)
+						do_cmd_monster_spell();
 					else
 						do_cmd_cast();
 				}
 			}
 			else
 			{
+#ifdef JP
+				msg_print("アリーナが魔法を吸収した！");
+#else
 				msg_print("The arena absorbs all attempted magic!");
+#endif
 				msg_print(NULL);
 			}
 			break;
@@ -2814,7 +3328,12 @@ static void process_command(void)
 				do_cmd_activate();
 			else
 			{
+#ifdef JP
+msg_print("アリーナが魔法を吸収した！");
+#else
 				msg_print("The arena absorbs all attempted magic!");
+#endif
+
 				msg_print(NULL);
 			}
 			break;
@@ -2838,10 +3357,15 @@ static void process_command(void)
 		case 'f':
 		{
 			if (!p_ptr->inside_arena)
-				do_cmd_fire();
+				(void)do_cmd_fire();
 			else
 			{
+#ifdef JP
+msg_print("アリーナでは真っ向勝負だ！");
+#else
 				msg_print("You're in the arena now. This is hand-to-hand!");
+#endif
+
 				msg_print(NULL);
 			}
 			break;
@@ -2851,10 +3375,15 @@ static void process_command(void)
 		case 'v':
 		{
 			if (!p_ptr->inside_arena)
-				do_cmd_throw();
+				do_cmd_throw(1);
 			else
 			{
+#ifdef JP
+msg_print("アリーナでは真っ向勝負だ！");
+#else
 				msg_print("You're in the arena now. This is hand-to-hand!");
+#endif
+
 				msg_print(NULL);
 			}
 			break;
@@ -2867,7 +3396,12 @@ static void process_command(void)
 				do_cmd_aim_wand();
 			else
 			{
+#ifdef JP
+msg_print("アリーナが魔法を吸収した！");
+#else
 				msg_print("The arena absorbs all attempted magic!");
+#endif
+
 				msg_print(NULL);
 			}
 			break;
@@ -2886,7 +3420,12 @@ static void process_command(void)
 			}
 			else
 			{
+#ifdef JP
+msg_print("アリーナが魔法を吸収した！");
+#else
 				msg_print("The arena absorbs all attempted magic!");
+#endif
+
 				msg_print(NULL);
 			}
 			break;
@@ -2899,7 +3438,12 @@ static void process_command(void)
 				do_cmd_quaff_potion();
 			else
 			{
+#ifdef JP
+msg_print("アリーナが魔法を吸収した！");
+#else
 				msg_print("The arena absorbs all attempted magic!");
+#endif
+
 				msg_print(NULL);
 			}
 			break;
@@ -2912,7 +3456,12 @@ static void process_command(void)
 				do_cmd_read_scroll();
 			else
 			{
+#ifdef JP
+msg_print("アリーナが魔法を吸収した！");
+#else
 				msg_print("The arena absorbs all attempted magic!");
+#endif
+
 				msg_print(NULL);
 			}
 			break;
@@ -2929,7 +3478,12 @@ static void process_command(void)
 				do_cmd_use_staff();
 			else
 			{
+#ifdef JP
+msg_print("アリーナが魔法を吸収した！");
+#else
 				msg_print("The arena absorbs all attempted magic!");
+#endif
+
 				msg_print(NULL);
 			}
 			break;
@@ -2942,7 +3496,12 @@ static void process_command(void)
 				do_cmd_racial_power();
 			else
 			{
+#ifdef JP
+msg_print("アリーナが魔法を吸収した！");
+#else
 				msg_print("The arena absorbs all attempted magic!");
+#endif
+
 				msg_print(NULL);
 			}
 			break;
@@ -3021,6 +3580,19 @@ static void process_command(void)
 			break;
 		}
 
+		/* XTRA HACK AUTOPICK*/
+		case '$':
+		{
+			do_cmd_reload_autopick();
+			break;
+		}
+
+		case '_':
+		{
+			do_cmd_edit_autopick();
+			break;
+		}
+
 		/* Interact with macros */
 		case '@':
 		{
@@ -3046,6 +3618,7 @@ static void process_command(void)
 		case '=':
 		{
 			do_cmd_options();
+			(void)combine_and_reorder_home();
 			do_cmd_redraw();
 			break;
 		}
@@ -3077,14 +3650,18 @@ static void process_command(void)
 		/* Show previous message */
 		case KTRL('O'):
 		{
+#ifdef TRAVEL
+			do_cmd_travel();
+#else
 			do_cmd_message_one();
+#endif
 			break;
 		}
 
 		/* Show previous messages */
 		case KTRL('P'):
 		{
-			do_cmd_messages();
+			do_cmd_messages(old_now_message);
 			break;
 		}
 
@@ -3098,6 +3675,7 @@ static void process_command(void)
 		/* Redraw the screen */
 		case KTRL('R'):
 		{
+			p_ptr->now_message = old_now_message;
 			do_cmd_redraw();
 			break;
 		}
@@ -3121,6 +3699,7 @@ static void process_command(void)
 
 		/* Save and quit */
 		case KTRL('X'):
+		case SPECIAL_KEY_QUIT:
 		{
 			do_cmd_save_and_exit();
 			break;
@@ -3132,7 +3711,7 @@ static void process_command(void)
 			do_cmd_suicide();
 			break;
 		}
-
+		
 		/* Check artifacts, uniques, objects */
 		case '~':
 		case '|':
@@ -3155,24 +3734,97 @@ static void process_command(void)
 			break;
 		}
 
+		case ']':
+		{
+			prepare_movie_hooks();
+			break;
+		}
+
 		/* Hack -- Unknown command */
 		default:
 		{
-			if (randint(2) == 1)
+			if (randint1(2) == 1)
 			{
 				char error_m[1024];
 				sound(SOUND_ILLEGAL);
+#ifdef JP
+				if (!get_rnd_line("error_j.txt", 0, error_m))
+#else
 				if (!get_rnd_line("error.txt", 0, error_m))
+#endif
+
 					msg_print(error_m);
 			}
 			else
+#ifdef JP
+prt(" '?' でヘルプが表示されます。", 0, 0);
+#else
 				prt("Type '?' for help.", 0, 0);
+#endif
+
 			break;
 		}
 	}
+
+	/* Restore current message line */
+	if (!energy_use && !p_ptr->now_message)
+		p_ptr->now_message = old_now_message;
 }
 
 
+
+
+/* Hack -- Pack Overflow */
+static void pack_overflow(void)
+{
+	/* Hack -- Pack Overflow */
+	if (inventory[INVEN_PACK].k_idx)
+	{
+		char o_name[MAX_NLEN];
+		object_type *o_ptr;
+
+		/* Is auto-destroy done? */
+		notice_stuff();
+		if (!inventory[INVEN_PACK].k_idx) return;
+
+		/* Access the slot to be dropped */
+		o_ptr = &inventory[INVEN_PACK];
+
+		/* Disturbing */
+		disturb(0, 0);
+
+		/* Warning */
+#ifdef JP
+		msg_print("ザックからアイテムがあふれた！");
+#else
+		msg_print("Your pack overflows!");
+#endif
+
+		/* Describe */
+		object_desc(o_name, o_ptr, 0);
+
+		/* Message */
+#ifdef JP
+		msg_format("%s(%c)を落とした。", o_name, index_to_label(INVEN_PACK));
+#else
+		msg_format("You drop %s (%c).", o_name, index_to_label(INVEN_PACK));
+#endif
+
+		/* Drop it (carefully) near the player */
+		(void)drop_near(o_ptr, 0, py, px);
+
+		/* Modify, Describe, Optimize */
+		inven_item_increase(INVEN_PACK, -255);
+		inven_item_describe(INVEN_PACK);
+		inven_item_optimize(INVEN_PACK);
+
+		/* Notice stuff */
+		notice_stuff();
+
+		/* Handle stuff */
+		handle_stuff();
+	}
+}
 
 
 /*
@@ -3188,10 +3840,16 @@ static void process_player(void)
 
 	if (hack_mutation)
 	{
+#ifdef JP
+		msg_print("何か変わった気がする！");
+#else
 		msg_print("You feel different!");
+#endif
 		(void)gain_random_mutation(0);
 		hack_mutation = FALSE;
 	}
+
+	if (!command_rep) prt_time();
 
 	/*** Check for interupts ***/
 
@@ -3245,7 +3903,11 @@ static void process_player(void)
 				disturb(0, 0);
 
 				/* Hack -- Show a Message */
+#ifdef JP
+				msg_print("中断しました。");
+#else
 				msg_print("Cancelled.");
+#endif
 			}
 		}
 	}
@@ -3256,17 +3918,11 @@ static void process_player(void)
 	/* Repeat until energy is reduced */
 	while (TRUE)
 	{
-		/* Notice stuff (if needed) */
-		if (p_ptr->notice) notice_stuff();
+		/* Notice stuff */
+		notice_stuff();
 
-		/* Update stuff (if needed) */
-		if (p_ptr->update) update_stuff();
-
-		/* Redraw stuff (if needed) */
-		if (p_ptr->redraw) redraw_stuff();
-
-		/* Redraw stuff (if needed) */
-		if (p_ptr->window) window_stuff();
+		/* Handle stuff */
+		handle_stuff();
 
 
 		/* Place the cursor on the player */
@@ -3275,51 +3931,8 @@ static void process_player(void)
 		/* Refresh (optional) */
 		if (fresh_before) Term_fresh();
 
-
 		/* Hack -- Pack Overflow */
-		if (inventory[INVEN_PACK].k_idx)
-		{
-			int item = INVEN_PACK;
-
-			char o_name[80];
-
-			object_type *o_ptr;
-
-			/* Access the slot to be dropped */
-			o_ptr = &inventory[item];
-
-			/* Disturbing */
-			disturb(0, 0);
-
-			/* Warning */
-			msg_print("Your pack overflows!");
-
-			/* Describe */
-			object_desc(o_name, o_ptr, TRUE, 3);
-
-			/* Message */
-			msg_format("You drop %s (%c).", o_name, index_to_label(item));
-
-			/* Drop it (carefully) near the player */
-			(void)drop_near(o_ptr, 0, py, px);
-
-			/* Modify, Describe, Optimize */
-			inven_item_increase(item, -255);
-			inven_item_describe(item);
-			inven_item_optimize(item);
-
-			/* Notice stuff (if needed) */
-			if (p_ptr->notice) notice_stuff();
-
-			/* Update stuff (if needed) */
-			if (p_ptr->update) update_stuff();
-
-			/* Redraw stuff (if needed) */
-			if (p_ptr->redraw) redraw_stuff();
-
-			/* Redraw stuff (if needed) */
-			if (p_ptr->window) window_stuff();
-		}
+		pack_overflow();
 
 
 		/* Hack -- cancel "lurking browse mode" */
@@ -3361,6 +3974,15 @@ static void process_player(void)
 			run_step(0);
 		}
 
+#ifdef TRAVEL
+		/* Traveling */
+		else if (travel.run)
+		{
+			/* Take a step */
+			travel_step();
+		}
+#endif
+
 		/* Repeated command */
 		else if (command_rep)
 		{
@@ -3389,12 +4011,18 @@ static void process_player(void)
 			/* Place the cursor on the player */
 			move_cursor_relative(py, px);
 
+			can_save = TRUE;
 			/* Get a command (normal) */
 			request_command(FALSE);
+			can_save = FALSE;
 
 			/* Process the command */
 			process_command();
 		}
+
+
+		/* Hack -- Pack Overflow */
+		pack_overflow();
 
 
 		/*** Clean up ***/
@@ -3403,8 +4031,10 @@ static void process_player(void)
 		if (energy_use)
 		{
 			/* Use some energy */
-			p_ptr->energy -= energy_use;
-
+			if (ironman_hengband)
+				p_ptr->energy_need += (s16b)((s32b)energy_use * ENERGY_NEED() / 100L);
+			else
+				p_ptr->energy_need += energy_use;
 
 			/* Hack -- constant hallucination */
 			if (p_ptr->image) p_ptr->redraw |= (PR_MAP);
@@ -3510,7 +4140,12 @@ static void process_player(void)
 		if (p_ptr->leaving) break;
 		
 		/* Used up energy for this turn */
-		if (energy_use) break;
+		if (energy_use) 
+		{
+			if (reset_concent) reset_concentration(TRUE);
+			if (p_ptr->keep_magic) upkeep_magic_spell();
+			break;
+		}
 	}
 }
 
@@ -3525,47 +4160,51 @@ static void process_energy(void)
 	int i, speed, e;
 	monster_type *m_ptr;
 
-	/*** Apply energy to player ***/
-	if (p_ptr->pspeed > 199) i = 49;
-	else if (p_ptr->pspeed < 0) i = 1;
-	else i = extract_energy[p_ptr->pspeed];
-
-	p_ptr->energy += i;
-
-	/* Give energy to all monsters */
-	for (i = m_max - 1; i >= 1; i--)
+	if (not_gain_energy) not_gain_energy = FALSE;
+	else
 	{
-		/* Access the monster */
-		m_ptr = &m_list[i];
+		/*** Apply energy to player ***/
+		if (p_ptr->pspeed > 199) i = 49;
+		else if (p_ptr->pspeed < 0) i = 1;
+		else i = extract_energy[p_ptr->pspeed];
 
-		/* Ignore "dead" monsters */
-		if (!m_ptr->r_idx) continue;
+		p_ptr->energy_need -= i;
 
-		speed = m_ptr->mspeed;
-
-		/* Monsters move quickly in Nightmare mode */
-		if (ironman_nightmare)
+		/* Give energy to all monsters */
+		for (i = m_max - 1; i >= 1; i--)
 		{
-			speed = MIN(199, m_ptr->mspeed + 5);
+			/* Access the monster */
+			m_ptr = &m_list[i];
+
+			/* Ignore "dead" monsters */
+			if (!m_ptr->r_idx) continue;
+
+			speed = m_ptr->mspeed;
+
+			/* Monsters move quickly in Nightmare mode */
+			if (ironman_nightmare)
+			{
+				speed = MIN(199, m_ptr->mspeed + 5);
+			}
+
+			if (m_ptr->hasted) speed = MIN(199, speed + 10);
+			if (m_ptr->slowed) speed = MAX(0, speed - 10);
+
+			e = extract_energy[speed];
+
+			/* Give this monster some energy */
+			m_ptr->energy_need -= e;
 		}
-
-		e = extract_energy[speed];
-
-		/* Give this monster some energy */
-		m_ptr->energy += e;
 	}
 
 	/* Can the player move? */
-	while (p_ptr->energy >= 100 && !p_ptr->leaving)
+	while (p_ptr->energy_need <= 0 && !p_ptr->leaving)
 	{
 		/* process monster with even more energy first */
-		process_monsters(p_ptr->energy + 1);
+		process_monsters(p_ptr->energy_need - 1);
 
 		/* Process the player while still alive */
-		if (!p_ptr->leaving)
-		{
-			process_player();
-		}
+		if (!p_ptr->leaving) process_player();
 	}
 }
 
@@ -3613,6 +4252,9 @@ static void dungeon(void)
 
 	/* Disturb */
 	disturb(1, 0);
+
+	/* Hack -- Handle Failed Random Quest */
+	check_failed_random_quest();
 
 	/* Get index of current quest (if any) */
 	quest_num = quest_number(dun_level);
@@ -3664,11 +4306,13 @@ static void dungeon(void)
 			/* Make stairs */
 			if (create_down_stair)
 			{
-				cave_set_feat(py, px, FEAT_MORE);
+				if (create_down_stair == 2) cave_set_feat(py, px, FEAT_MORE_MORE);
+				else cave_set_feat(py, px, FEAT_MORE);
 			}
 			else
 			{
-				cave_set_feat(py, px, FEAT_LESS);
+				if (create_up_stair == 2) cave_set_feat(py, px, FEAT_LESS_LESS);
+				else cave_set_feat(py, px, FEAT_LESS);
 			}
 		}
 
@@ -3676,20 +4320,11 @@ static void dungeon(void)
 		create_down_stair = create_up_stair = FALSE;
 	}
 
+	/* Validate the panel */
+	panel_bounds_center();
 
 	/* Verify the panel */
 	verify_panel();
-
-	/* Validate the panel */
-	if (center_player)
-	{
-		panel_bounds_center();
-	}
-	else
-	{
-	panel_bounds();
-	}
-
 
 	/* Flush messages */
 	msg_print(NULL);
@@ -3698,11 +4333,11 @@ static void dungeon(void)
 	/* Enter "xtra" mode */
 	character_xtra = TRUE;
 
-	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER);
+	/* Update stuff */
+	p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
 
-	/* Window stuff */
-	p_ptr->window |= (PW_MONSTER | PW_MESSAGE);
+	/* Calculate torch radius */
+	p_ptr->update |= (PU_TORCH);
 
 	/* Redraw dungeon */
 	p_ptr->redraw |= (PR_WIPE | PR_BASIC | PR_EXTRA | PR_EQUIPPY);
@@ -3711,31 +4346,22 @@ static void dungeon(void)
 	p_ptr->redraw |= (PR_MAP);
 
 	/* Window stuff */
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_MONSTER | PW_MESSAGE);
+
+	/* Window stuff */
 	p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
 
-	/* Update stuff */
-	p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
-
-	/* Calculate torch radius */
-	p_ptr->update |= (PU_TORCH);
+	/* Handle stuff */
+	handle_stuff();
 
 	/* Update stuff */
-	update_stuff();
+	p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_DISTANCE | PU_MONSTERS | PU_MON_LITE);
 
-	/* Redraw stuff */
-	redraw_stuff();
-
-	/* Redraw stuff */
-	window_stuff();
-
-	/* Update stuff */
-	p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_DISTANCE);
-
-	/* Update stuff */
-	update_stuff();
-
-	/* Redraw stuff */
-	redraw_stuff();
+	/* Handle stuff */
+	handle_stuff();
 
 	/* Leave "xtra" mode */
 	character_xtra = FALSE;
@@ -3749,14 +4375,8 @@ static void dungeon(void)
 	/* Notice stuff */
 	notice_stuff();
 
-	/* Update stuff */
-	update_stuff();
-
-	/* Redraw stuff */
-	redraw_stuff();
-
-	/* Window stuff */
-	window_stuff();
+	/* Handle stuff */
+	handle_stuff();
 
 	/* Refresh */
 	Term_fresh();
@@ -3766,7 +4386,10 @@ static void dungeon(void)
 
 	/* Print quest message if appropriate */
 	if (!p_ptr->inside_quest)
+	{
 		quest_discovery(random_quest_number(dun_level));
+		p_ptr->inside_quest = random_quest_number(dun_level);
+	}
 
 	/*** Process this dungeon level ***/
 
@@ -3777,6 +4400,9 @@ static void dungeon(void)
 	object_level = base_level;
 
 	hack_mind = TRUE;
+
+	/* Prevent insta-death */
+	if (p_ptr->energy_need > 0 && dun_level) p_ptr->energy_need = 0;
 
 	/* Main loop */
 	while (TRUE)
@@ -3804,7 +4430,7 @@ static void dungeon(void)
 		process_energy();
 
 		/* Notice stuff */
-		if (p_ptr->notice) notice_stuff();
+		notice_stuff();
 
 		/* Similar slot? */
 		for (i = 0; i < INVEN_PACK; i++)
@@ -3815,14 +4441,8 @@ static void dungeon(void)
 			if (!j_ptr->k_idx) continue;
 		}
 
-		/* Update stuff */
-		if (p_ptr->update) update_stuff();
-
-		/* Redraw stuff */
-		if (p_ptr->redraw) redraw_stuff();
-
-		/* Redraw stuff */
-		if (p_ptr->window) window_stuff();
+		/* Handle stuff */
+		handle_stuff();
 
 		/* Hack -- Hilite the player */
 		move_cursor_relative(py, px);
@@ -3834,19 +4454,13 @@ static void dungeon(void)
 		if (!alive || death) break;
 
 		/* Process all of the monsters */
-		process_monsters(100);
+		process_monsters(0);
 
 		/* Notice stuff */
-		if (p_ptr->notice) notice_stuff();
+		notice_stuff();
 
-		/* Update stuff */
-		if (p_ptr->update) update_stuff();
-
-		/* Redraw stuff */
-		if (p_ptr->redraw) redraw_stuff();
-
-		/* Redraw stuff */
-		if (p_ptr->window) window_stuff();
+		/* Handle stuff */
+		handle_stuff();
 
 		/* Hack -- Hilite the player */
 		move_cursor_relative(py, px);
@@ -3864,16 +4478,10 @@ static void dungeon(void)
 		process_world();
 
 		/* Notice stuff */
-		if (p_ptr->notice) notice_stuff();
+		notice_stuff();
 
-		/* Update stuff */
-		if (p_ptr->update) update_stuff();
-
-		/* Redraw stuff */
-		if (p_ptr->redraw) redraw_stuff();
-
-		/* Window stuff */
-		if (p_ptr->window) window_stuff();
+		/* Handle stuff */
+		handle_stuff();
 
 		/* Hack -- Hilite the player */
 		move_cursor_relative(py, px);
@@ -3897,6 +4505,20 @@ static void dungeon(void)
 	{
 		/* Un-mark the quest monster */
 		r_info[quest[quest_num].r_idx].flags1 &= ~RF1_QUESTOR;
+	}
+
+	/* Magic: Give up your revenge */
+	if (p_ptr->tim_sentence)
+	{
+		p_ptr->tim_sentence = 0;
+		p_ptr->rvs_x = 0;
+		p_ptr->rvs_y = 0;
+		p_ptr->rvs_d = 0;
+#ifdef JP
+		msg_print("復讐をあきらめた。");
+#else
+		msg_print("Give up your revenge.");
+#endif
 	}
 }
 
@@ -3930,7 +4552,7 @@ static void load_all_pref_files(void)
 	process_pref_file(buf);
 
 	/* Access the "realm 1" pref file */
-	if (p_ptr->realm1 != REALM_NONE)
+	if ((realm_choices1[p_ptr->pclass]) && (p_ptr->realm1 != REALM_NONE))
 	{
 		sprintf(buf, "%s.prf", realm_names[p_ptr->realm1]);
 
@@ -3946,6 +4568,10 @@ static void load_all_pref_files(void)
 		/* Process that file */
 		process_pref_file(buf);
 	}
+
+
+	/* Load an autopick preference file */
+	autopick_load_pref(FALSE);
 }
 
 
@@ -3969,7 +4595,11 @@ void play_game(bool new_game)
 	/* Verify main term */
 	if (!angband_term[0])
 	{
+#ifdef JP
+		quit("メイン・ウィンドウが存在しません");
+#else
 		quit("main window does not exist");
+#endif
 	}
 
 	/* Make sure main term is active */
@@ -3978,22 +4608,60 @@ void play_game(bool new_game)
 	/* Verify minimum size */
 	if ((Term->hgt < 24) || (Term->wid < 80))
 	{
+#ifdef JP
+		quit("メイン・ウィンドウが小さすぎます");
+#else
 		quit("main window is too small");
+#endif
 	}
-
-	/* Forbid resizing */
-	Term->fixed_shape = TRUE;
-
 
 	/* Hack -- Turn off the cursor */
 	(void)Term_set_cursor(0);
 
+	/* for chuukei */
+	if (chuukei_client)
+	{
+		reset_visuals();
+		browse_chuukei();
+		return;
+	}
+	else if (chuukei_server)
+	{
+		prepare_chuukei_hooks();
+	}
+
+	if (browsing_movie)
+	{
+		reset_visuals();
+		browse_movie();
+		return;
+	}
+
+	/* Make sure main term is active */
+	Term_activate(angband_term[0]);
+
+	/* Initialise the resize hooks */
+	angband_term[0]->resize_hook = resize_map;
+	
+	for (i = 1; i < 8; i++)
+	{
+		/* Does the term exist? */
+		if (angband_term[i])
+		{
+			/* Add the redraw on resize hook */
+			angband_term[i]->resize_hook = redraw_window;
+		}
+	}
 
 	/* Attempt to load */
 	if (!load_player())
 	{
 		/* Oops */
+#ifdef JP
+		quit("セーブファイルが壊れています");
+#else
 		quit("broken savefile");
+#endif
 	}
 
 	/* Nothing loaded */
@@ -4004,12 +4672,18 @@ void play_game(bool new_game)
 
 		/* The dungeon is not ready */
 		character_dungeon = FALSE;
-	}
 
-	/* Hack -- Default base_name */
-	if (!player_base[0])
+		/* Prepare to init the RNG */
+		Rand_quick = TRUE;
+	}
+	/* Prevent gain energy */
+	else not_gain_energy = TRUE;
+
+	/* Process old character */
+	if (!new_game)
 	{
-		strcpy(player_base, "PLAYER");
+		/* Process the player name */
+		process_player_name(FALSE);
 	}
 
 	/* Init the RNG */
@@ -4071,40 +4745,13 @@ void play_game(bool new_game)
 		p_ptr->inside_arena = 0;
 
 		/* Hack -- seed for flavors */
-		seed_flavor = rand_int(0x10000000);
+		seed_flavor = randint0(0x10000000);
 
 		/* Hack -- seed for town layout */
-		seed_town = rand_int(0x10000000);
+		seed_town = randint0(0x10000000);
 
 		/* Roll up a new character */
 		player_birth();
-
-		/* Hack -- enter the world */
-		if ((p_ptr->prace == RACE_VAMPIRE) ||
-		    (p_ptr->prace == RACE_SKELETON) ||
-		    (p_ptr->prace == RACE_ZOMBIE) ||
-		    (p_ptr->prace == RACE_SPECTRE))
-		{
-			/* Undead start just after midnight */
-			turn = (30L * TOWN_DAWN) / 4 + 1;
-		}
-		else
-		{
-			turn = 1;
-		}
-	}
-
-
-	/* Normal machine (process player name) */
-	if (savefile[0])
-	{
-		process_player_name(FALSE);
-	}
-
-	/* Weird machine (process player name, pick savefile name) */
-	else
-	{
-		process_player_name(TRUE);
 	}
 
 	/* Hack - if note file exists, load it */
@@ -4114,7 +4761,11 @@ void play_game(bool new_game)
 	}
 
 	/* Flash a message */
+#ifdef JP
+	prt("お待ち下さい...", 0, 0);
+#else
 	prt("Please wait...", 0, 0);
+#endif
 
 	/* Flush the message */
 	Term_fresh();
@@ -4125,6 +4776,13 @@ void play_game(bool new_game)
 
 	/* Flavor the objects */
 	flavor_init();
+
+	/* Set start time */
+	start_time = time(NULL);
+
+	/* Reset map panel */
+	panel_row_min = cur_hgt;
+	panel_col_min = cur_wid;
 
 	/* Initialize the town-buildings if necessary */
 	if (!dun_level && !p_ptr->inside_quest)
@@ -4137,33 +4795,12 @@ void play_game(bool new_game)
 		process_dungeon_file("t_info.txt", 0, 0, MAX_HGT, MAX_WID);
 	}
 
-	/* Reset the visual mappings */
-	reset_visuals();
-
-
-	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER);
-
-	/* Window stuff */
-	p_ptr->window |= (PW_MONSTER);
-
-	/* Window stuff */
-	window_stuff();
-
-
-	/* Load the "pref" files */
-	load_all_pref_files();
-
-	/* Set or clear "rogue_like_commands" if requested */
-	if (arg_force_original) rogue_like_commands = FALSE;
-	if (arg_force_roguelike) rogue_like_commands = TRUE;
-
 	/* Initialize vault info */
+#ifdef JP
+	if (init_v_info()) quit("建築物初期化不能");
+#else
 	if (init_v_info()) quit("Cannot initialize vaults");
-
-	/* React to changes */
-	Term_xtra(TERM_XTRA_REACT, 0);
-
+#endif
 
 	/* Generate a dungeon level if needed */
 	if (!character_dungeon) generate_cave();
@@ -4180,38 +4817,48 @@ void play_game(bool new_game)
 	/* Start game */
 	alive = TRUE;
 
+	/* Reset the visual mappings */
+	reset_visuals();
+
+	/* Load the "pref" files */
+	load_all_pref_files();
+
+	/* Give startup outfit (after loading pref files) */
+	if (new_game) player_outfit();
+
+	/* React to changes */
+	Term_xtra(TERM_XTRA_REACT, 0);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_MESSAGE | PW_OVERHEAD | PW_DUNGEON | PW_MONSTER | PW_OBJECT);
+
+	/* Window stuff */
+	window_stuff();
+
+
+	/* Set or clear "rogue_like_commands" if requested */
+	if (arg_force_original) rogue_like_commands = FALSE;
+	if (arg_force_roguelike) rogue_like_commands = TRUE;
+
 	/* Hack -- Enforce "delayed death" */
 	if (p_ptr->chp < 0) death = TRUE;
+
+	(void)combine_and_reorder_home();
 
 	/* Process */
 	while (TRUE)
 	{
-#ifdef USE_SCRIPT
-		/* Save the current coordinates */
-		s32b wild_y = p_ptr->wilderness_y;
-		s32b wild_x = p_ptr->wilderness_x;
-		s16b level = dun_level;
-
-		if (level == 0)
-			enter_wilderness_callback(wild_y, wild_x);
-		else
-			enter_level_callback(level);
-#endif /* USE_SCRIPT */
-
 		/* Process the level */
 		dungeon();
 
 		/* Notice stuff */
-		if (p_ptr->notice) notice_stuff();
+		notice_stuff();
 
-		/* Update stuff */
-		if (p_ptr->update) update_stuff();
-
-		/* Redraw stuff */
-		if (p_ptr->redraw) redraw_stuff();
-
-		/* Window stuff */
-		if (p_ptr->window) window_stuff();
+		/* Handle stuff */
+		handle_stuff();
 
 
 		/* Cancel the target */
@@ -4227,6 +4874,8 @@ void play_game(bool new_game)
 		/* Forget the view */
 		forget_view();
 
+		/* Forget the view */
+		clear_mon_lite();
 
 		/* Handle "quit and save" */
 		if (!alive && !death) break;
@@ -4239,18 +4888,15 @@ void play_game(bool new_game)
 		/* XXX XXX XXX */
 		msg_print(NULL);
 
-#ifdef USE_SCRIPT
-		if (level == 0)
-			leave_wilderness_callback(wild_y, wild_x);
-		else
-			leave_level_callback(level);
-#endif /* USE_SCRIPT */
-
 		/* Accidental Death */
 		if (alive && death)
 		{
 			/* Mega-Hack -- Allow player to cheat death */
+#ifdef JP
+			if ((wizard || cheat_live) && !get_check("死にますか? "))
+#else
 			if ((wizard || cheat_live) && !get_check("Die? "))
+#endif
 			{
 				/* Mark social class, reset age, if needed */
 				if (p_ptr->sc) p_ptr->sc = p_ptr->age = 0;
@@ -4262,7 +4908,11 @@ void play_game(bool new_game)
 				noscore |= 0x0001;
 
 				/* Message */
+#ifdef JP
+				msg_print("ウィザードモードを発動し、死をごまかした。");
+#else
 				msg_print("You invoke wizard mode and cheat death.");
+#endif
 				msg_print(NULL);
 
 				/* Restore hit points */
@@ -4290,7 +4940,11 @@ void play_game(bool new_game)
 				if (p_ptr->word_recall)
 				{
 					/* Message */
+#ifdef JP
+					msg_print("張りつめた大気が流れ去った...");
+#else
 					msg_print("A tension leaves the air around you...");
+#endif
 					msg_print(NULL);
 
 					/* Hack -- Prevent recall */
@@ -4299,7 +4953,11 @@ void play_game(bool new_game)
 				}
 
 				/* Note cause of death XXX XXX XXX */
+#ifdef JP
+				(void)strcpy(died_from, "死の欺き");
+#else
 				(void)strcpy(died_from, "Cheating death");
+#endif
 
 				/* Do not die */
 				death = FALSE;

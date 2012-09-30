@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/07/19 13:49:40 $ */
 /* File: h-config.h */
 
 #ifndef INCLUDED_H_CONFIG_H
@@ -31,6 +30,18 @@
  */
 #ifndef WINDOWS
 /* #define WINDOWS */
+#endif
+
+/*
+ * Extract the "MAC_MPW" flag from the compiler
+ */
+#if defined(__SC__) || defined(__MRC__)
+# ifndef MACINTOSH
+#  define MACINTOSH
+# endif
+# ifndef MAC_MPW
+#  define MAC_MPW
+# endif
 #endif
 
 
@@ -261,17 +272,6 @@
 
 
 /*
- * OPTION: Hack -- Make sure "strchr()" and "strrchr()" will work
- */
-#if defined(SYS_III) || defined(SYS_V) || defined(MSDOS)
-# if !defined(__TURBOC__) && !defined(__WATCOMC__) && !defined(__DJGPP__)
-#  define strchr index
-#  define strrchr rindex
-# endif
-#endif
-
-
-/*
  * OPTION: Define "HAS_STRICMP" only if "stricmp()" exists.
  * Note that "stricmp()" is not actually used by Angband.
  */
@@ -314,3 +314,16 @@
 #endif
 
 
+#ifdef JP
+# if defined(EUC)
+#  define iskanji(x) (((unsigned char)(x) >= 0xa1 && (unsigned char)(x) <= 0xfe) || (unsigned char)(x) == 0x8e)
+#  define iskana(x)  (0)
+# elif defined(SJIS)
+#  define iskanji(x) ((0x81 <= (unsigned char)(x) && (unsigned char)(x) <= 0x9f) || (0xe0 <= (unsigned char)(x) && (unsigned char)(x) <= 0xfc))
+#  define iskana(x)  (((unsigned char)(x) >= 0xA0) && ((unsigned char)(x) <= 0xDF))
+# elif defined(MSDOS)
+#  include <jctype.h>
+# else
+#  error Oops! Please define "EUC" or "SJIS" for kanji-code of your system.
+# endif /* MSDOS */
+#endif

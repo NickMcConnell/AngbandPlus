@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: remco $ on $Date: 1999/09/30 10:09:01 $ */
 /* File: h-basic.h */
 
 #ifndef INCLUDED_H_BASIC_H
@@ -9,6 +8,10 @@
  *
  * This file simply includes other low level header files.
  */
+
+#ifdef HAVE_CONFIG_H
+#include "autoconf.h"
+#endif /* HAVE_CONFIG_H */
 
 /* System Configuration */
 #include "h-config.h"

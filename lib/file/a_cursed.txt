@@ -1,22 +1,28 @@
 N:*:Default
-50
+'Chastity Belt'
+'Leech'
+'Camlost'
+'Wooden Box'
+'Freefall'
+'Man-Trap'
+'Moonmaster'
+'Avatar of Woe'
+of Jackoff Shadows
+of Hentai
+of 'Winblows X-p'
 of Misery
 of Horror
 of Agony
 of Severe Pain
-'Leech'
 of Macbeth
 of Microsloth
 of Troubleseeking
 of the Kender
-'Camlost'
-'Wooden Box'
 of Glass
 of Freezing
 of Petrifying
 of Sinbad
 of Tristan
-'Freefall'
 of Disappointment
 of Shocking
 of Leper
@@ -40,13 +46,9 @@ of Falsehood
 of Cowardice
 of Hatred
 of Sadness
-of Glass
 of Weakness
 of Humiliation
 of Teleporno
-'Camlost'
 of Gorlim
-'Man-Trap'
-'Moonmaster'
 of Insecurity
 of Mooning

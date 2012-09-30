@@ -1,4 +1,3 @@
-# CVS: Last edit by $Author: sfuerst $ on $Date: 2000/07/20 09:37:13 $
 # File: Makefile
 
 # This is not a very "nice" Makefile, but it usually works.
@@ -45,35 +44,41 @@
 #
 
 SRCS = \
-	z-util.c z-virt.c z-form.c z-rand.c z-term.c \
-	variable.c tables.c util.c cave.c \
-	object1.c object2.c monster1.c monster2.c \
-	xtra1.c xtra2.c spells1.c spells2.c \
-	melee1.c melee2.c save.c files.c \
-	cmd1.c cmd2.c cmd3.c cmd4.c cmd5.c cmd6.c \
-	store.c birth.c load.c \
-	wizard1.c wizard2.c grid.c streams.c rooms.c \
-	generate.c dungeon.c init1.c init2.c \
-	effects.c racial.c \
-	artifact.c mutation.c flavor.c spells3.c \
-	mspells1.c mspells2.c scores.c mind.c \
-	bldg.c obj_kind.c wild.c avatar.c notes.c\
+	autopick.c \
+	artifact.c birth.c bldg.c chuukei.c \
+	cave.c cmd1.c cmd2.c cmd3.c \
+	cmd4.c cmd5.c cmd6.c dungeon.c \
+	effects.c files.c flavor.c generate.c \
+	grid.c init1.c init2.c japanese.c load.c \
+	streams.c rooms.c melee1.c melee2.c \
+	mind.c monster1.c monster2.c mspells1.c \
+	mspells2.c mutation.c notes.c obj_kind.c \
+	object1.c object2.c racial.c save.c \
+	scores.c spells1.c spells2.c spells3.c \
+	snipe.c store.c tables.c util.c \
+	variable.c wild.c wizard1.c wizard2.c \
+	xtra1.c xtra2.c z-form.c z-rand.c \
+	z-term.c z-util.c z-virt.c element.c \
+	snatch.c mspells3.c magic.c \
 	main-cap.c main-gcu.c main-x11.c main-xaw.c main.c
 
 OBJS = \
-	z-util.o z-virt.o z-form.o z-rand.o z-term.o \
-	variable.o tables.o util.o cave.o \
-	object1.o object2.o monster1.o monster2.o \
-	xtra1.o xtra2.o spells1.o spells2.o \
-	melee1.o melee2.o save.o files.o \
-	cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o \
-	store.o birth.o load.o \
-	wizard1.o wizard2.o grid.o streams.o rooms.o \
-	generate.o dungeon.o init1.o init2.o \
-	effects.o racial.o \
-	artifact.o mutation.o flavor.o spells3.o \
-	mspells1.o mspells2.o scores.o mind.o \
-	bldg.o obj_kind.o wild.o avatar.o notes.o\
+	autopick.o \
+	artifact.o birth.o bldg.o chuukei.o \
+	cave.o cmd1.o cmd2.o cmd3.o \
+	cmd4.o cmd5.o cmd6.o dungeon.o \
+	effects.o files.o flavor.o generate.o \
+	grid.o init1.o init2.o japanese.o load.o \
+	streams.o rooms.o melee1.o melee2.o \
+	mind.o monster1.o monster2.o mspells1.o \
+	mspells2.o mutation.o notes.o obj_kind.o \
+	object1.o object2.o racial.o save.o \
+	scores.o spells1.o spells2.o spells3.o \
+	snipe.o store.o tables.o util.o \
+	variable.o wild.o wizard1.o wizard2.o \
+	xtra1.o xtra2.o z-form.o z-rand.o \
+	z-term.o z-util.o z-virt.o element.o \
+	snatch.o mspells3.o magic.o \
 	main-cap.o main-gcu.o main-x11.o main-xaw.o main.o
 
 
@@ -131,7 +136,8 @@ CC = gcc
 ##       to get 256 colours.
 ##
 CFLAGS = -Wall -O2 -fno-strength-reduce -m486 -pipe -g \
-         -D"USE_X11" -D"USE_GCU" -D"USE_TRANSPARENCY"
+         -D"USE_X11" -D"USE_GCU" -D"USE_TRANSPARENCY" \
+         -D"JP" -D"EUC"
 LIBS = -lX11 -lcurses -ltermcap -L/usr/X11R6/lib
 
 #CFLAGS = -Wall -O2 -fno-strength-reduce -m486 -pipe -g \
@@ -284,11 +290,11 @@ INCS = \
 	z-config.h defines.h types.h externs.h \
 	z-term.h z-rand.h z-util.h z-virt.h z-form.h $(HDRS)
 
-
+autopick.o: autopick.c $(INCS)
 artifact.o: artifact.c $(INCS)
-avatar.o: avatar.c $(INCS)
-bldg.o: bldg.c $(INCS)
 birth.o: birth.c $(INCS)
+bldg.o: bldg.c $(INCS)
+chuukei.o: chuukei.c $(INCS)
 cave.o: cave.c $(INCS)
 cmd1.o: cmd1.c $(INCS)
 cmd2.o: cmd2.c $(INCS)
@@ -298,6 +304,7 @@ cmd5.o: cmd5.c $(INCS)
 cmd6.o: cmd6.c $(INCS)
 dungeon.o: dungeon.c $(INCS)
 effects.o: effects.c $(INCS)
+element.o: element.c $(INCS)
 files.o: files.c $(INCS)
 flavor.o: flavor.c $(INCS)
 generate.o: generate.c $(INCS) generate.h grid.h rooms.h streams.h
@@ -306,12 +313,14 @@ rooms.o: rooms.c $(INCS) grid.h rooms.h generate.h
 streams.o: streams.c $(INCS) grid.h generate.h
 init1.o: init1.c $(INCS)
 init2.o: init2.c $(INCS)
+japanese.o: japanese.c $(INCS)
 load.o: load.c $(INCS)
 main-cap.o: main-cap.c $(INCS)
 main-gcu.o: main-gcu.c $(INCS)
 main-x11.o: main-x11.c $(INCS)
 main-xaw.o: main-xaw.c $(INCS)
 main.o: main.c $(INCS)
+magic.o: magic.c $(INCS)
 melee1.o: melee1.c $(INCS)
 melee2.o: melee2.c $(INCS)
 mind.o: mind.c $(INCS)
@@ -319,6 +328,7 @@ monster1.o: monster1.c $(INCS)
 monster2.o: monster2.c $(INCS)
 mspells1.o: mspells1.c $(INCS)
 mspells2.o: mspells2.c $(INCS)
+mspells3.o: mspells3.c $(INCS)
 mutation.o: mutation.c $(INCS)
 notes.o: notes.c $(INCS)
 object1.o: object1.c $(INCS)
@@ -330,6 +340,8 @@ save.o: save.c $(INCS)
 spells1.o: spells1.c $(INCS)
 spells2.o: spells2.c $(INCS)
 spells3.o: spells3.c $(INCS)
+snatch.o: snatch.c $(INCS)
+snipe.o: snipe.c $(INCS)
 store.o: store.c $(INCS)
 tables.o: tables.c $(INCS)
 util.o: util.c $(INCS)

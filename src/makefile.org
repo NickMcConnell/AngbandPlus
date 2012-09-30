@@ -1,4 +1,3 @@
-# CVS: Last edit by $Author: sfuerst $ on $Date: 2000/01/15 07:20:24 $ 
 # File: Makefile
 
 # This is not a very "nice" Makefile, but it usually works.
@@ -54,10 +53,10 @@ SRCS = \
   store.c birth.c load.c \
   wizard1.c wizard2.c grid.c streams.c rooms.c \
   generate.c dungeon.c init1.c init2.c \
-  effects.c racial.c \
+  effects.c racial.c element.c \
   artifact.c mutation.c flavor.c spells3.c \
   mspells1.c mspells2.c scores.c mind.c \
-  bldg.c obj_kind.c wild.c avatar.c\
+  bldg.c obj_kind.c wild.c notes.c\
   main-cap.c main-gcu.c main-x11.c main-xaw.c main.c
 
 OBJS = \
@@ -70,10 +69,10 @@ OBJS = \
   store.o birth.o load.o \
   wizard1.o wizard2.o grid.o streams.o rooms.o \
   generate.o dungeon.o init1.o init2.o \
-  effects.o racial.o \
+  effects.o racial.o element.o \
   artifact.o mutation.o flavor.o spells3.o \
   mspells1.o mspells2.o scores.o mind.o \
-  bldg.o obj_kind.o wild.o avatar.o\
+  bldg.o obj_kind.o wild.o notes.o\
   main-cap.o main-gcu.o main-x11.o main-xaw.o main.o
 
 
@@ -268,7 +267,6 @@ INCS = \
   z-term.h z-rand.h z-util.h z-virt.h z-form.h $(HDRS)
 
 artifact.o: artifact.c $(INCS)
-avatar.o: avatar.c $(INCS)
 bldg.o: bldg.c $(INCS)
 birth.o: birth.c $(INCS)
 cave.o: cave.c $(INCS)
@@ -313,6 +311,8 @@ mind.o: mind.c $(INCS)
 save.o: save.c $(INCS)
 spells1.o: spells1.c $(INCS)
 spells2.o: spells2.c $(INCS)
+notes.o: notes.c $(INCS)
+element.o: element.c $(INCS)
 store.o: store.c $(INCS)
 tables.o: tables.c $(INCS)
 util.o: util.c $(INCS)

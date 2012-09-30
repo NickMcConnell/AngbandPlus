@@ -1623,7 +1623,7 @@ static errr Term_xtra_mac(int n, int v)
 						*/
 					}
 				}
-	            
+		    
 				/* Unlock and release */
 				HUnlock(handle);
 				ReleaseResource(handle);
@@ -1771,6 +1771,34 @@ static errr Term_curs_mac(int x, int y)
 
 
 /*
+ * Low level graphics (Assumes valid input).
+ * Draw a "big cursor" at (x,y), using a "yellow box".
+ * We are allowed to use "Term_grab()" to determine
+ * the current screen contents (for inverting, etc).
+ */
+static errr Term_bigcurs_mac(int x, int y)
+{
+	Rect r;
+
+	term_data *td = (term_data*)(Term->data);
+
+	/* Set the color */
+	term_data_color(td, TERM_YELLOW);
+
+	/* Frame the grid */
+	r.left = x * td->tile_wid + td->size_ow1;
+	r.right = r.left + 2 * td->tile_wid;
+	r.top = y * td->tile_hgt + td->size_oh1;
+	r.bottom = r.top + td->tile_hgt;
+
+	FrameRect(&r);
+
+	/* Success */
+	return (0);
+}
+
+
+/*
  * Low level graphics (Assumes valid input)
  *
  * Erase "n" characters starting at (x,y)
@@ -1830,11 +1858,7 @@ static errr Term_text_mac(int x, int y, int n, byte a, const char *cp)
  *
  * Erase "n" characters starting at (x,y)
  */
-#ifdef USE_TRANSPARENCY
 static errr Term_pict_mac(int x, int y, int n, const byte *ap, const char *cp, const byte *tap, const char *tcp)
-#else
-static errr Term_pict_mac(int x, int y, int n, const byte *ap, const char *cp)
-#endif
 {
 	int i;
 	Rect r2;
@@ -1899,11 +1923,9 @@ static errr Term_pict_mac(int x, int y, int n, const byte *ap, const char *cp)
 
 		byte a = ap[i];
 		char c = cp[i];
-		
-#ifdef USE_TRANSPARENCY
+
 		byte ta = tap[i];
 		char tc = tcp[i];
-#endif
 
 #ifdef ANGBAND_LITE_MAC
 
@@ -1917,21 +1939,17 @@ static errr Term_pict_mac(int x, int y, int n, const byte *ap, const char *cp)
 		{
 			int col, row;
 			Rect r1;
-			
-#ifdef USE_TRANSPARENCY
+
 			int terrain_col, terrain_row;
 			Rect terrain_rect;
-#endif
 
 			/* Row and Col */
 			row = ((byte)a & 0x7F) % kPictRows;
 			col = ((byte)c & 0x7F) % kPictCols;
 
-#ifdef USE_TRANSPARENCY
 			terrain_row = ((byte)ta & 0x7F) % kPictRows;
 			terrain_col = ((byte)tc & 0x7F) % kPictCols;
-#endif
-			
+
 			/* Source rectangle */
 			r1.left = col * kGrafWidth;
 			r1.top = row * kGrafHeight;
@@ -1943,11 +1961,10 @@ static errr Term_pict_mac(int x, int y, int n, const byte *ap, const char *cp)
 			ForeColor(blackColor);
 
 			/* Draw the picture */
-#ifdef USE_TRANSPARENCY
 			{
 				BitMapPtr	srcBitMap = (BitMapPtr)(frameP->framePix);
 				BitMapPtr	destBitMap;
-				
+
 #ifdef TARGET_CARBON
 				if( use_buffer )
 				{
@@ -1973,48 +1990,14 @@ static errr Term_pict_mac(int x, int y, int n, const byte *ap, const char *cp)
 				terrain_rect.top = terrain_row * kGrafHeight;
 				terrain_rect.right = terrain_rect.left + kGrafWidth;
 				terrain_rect.bottom = terrain_rect.top + kGrafHeight;
-				
+
 				/* draw terrain */
 				CopyBits( srcBitMap, destBitMap, &terrain_rect, &r2, srcCopy, NULL );
-				
+
 				/* draw transparent tile */
 				BackColor(blackColor);
 				CopyBits( srcBitMap, destBitMap, &r1, &r2, transparent, NULL );
 			}
-			
-#else /* Do not allow terrain */
-			
-			{
-				BitMapPtr	srcBitMap = (BitMapPtr)(frameP->framePix);
-				BitMapPtr	destBitMap;
-				
-#ifdef TARGET_CARBON
-				if( use_buffer )
-				{
-					destBitMap = (BitMapPtr)(frameP->bufferPix);
-				}
-				else
-				{
-					destBitMap = (BitMapPtr)(*((PixMapHandle)(GetPortPixMap((CGrafPtr)td->w))));
-				}
-#else
-				if( use_buffer )
-				{
-					destBitMap = (BitMapPtr)(frameP->bufferPix);
-				}
-				else
-				{
-					destBitMap = (BitMapPtr)&(td->w->portBits);
-				}
-#endif
-
-				/* draw transparent tile */
-				/* BackColor is ignored and the destination is left untouched */
-				BackColor(blackColor);
-				CopyBits( srcBitMap, destBitMap, &r1, &r2, transparent, NULL );
-			}
-
-#endif /* USE_TRANSPARENCY */
 
 			/* Restore colors */
 			BackColor(blackColor);
@@ -2138,6 +2121,7 @@ static void term_data_link(int i)
 	td->t->xtra_hook = Term_xtra_mac;
 	td->t->wipe_hook = Term_wipe_mac;
 	td->t->curs_hook = Term_curs_mac;
+	td->t->bigcurs_hook = Term_bigcurs_mac;
 	td->t->text_hook = Term_text_mac;
 	td->t->pict_hook = Term_pict_mac;
 
@@ -2214,7 +2198,7 @@ static int getshort(void)
 {
 	int x = 0;
 	char buf[256];
-	if (0 == my_fgets(fff, buf, 256)) x = atoi(buf);
+	if (0 == my_fgets(fff, buf, sizeof(buf))) x = atoi(buf);
 	return (x);
 }
 
@@ -2455,7 +2439,7 @@ static void init_windows(void)
 
 		/* Find the folder */
 		err = FindFolder(kOnSystemDisk, kPreferencesFolderType, kCreateFolder,
-		                 &vref, &dirID);
+				 &vref, &dirID);
 
 		/* Success */
 		if (err == noErr)
@@ -2556,7 +2540,7 @@ static void save_pref_file(void)
 
 		/* Find the folder */
 		err = FindFolder(kOnSystemDisk, kPreferencesFolderType, kCreateFolder,
-		                 &vref, &dirID);
+				 &vref, &dirID);
 
 		/* Success */
 		if (!err)
@@ -3484,7 +3468,7 @@ static void menu(long mc)
 						/* Center the "alert" rectangle */
 						
 						center_rect(&(*alert)->boundsRect,
-						            &screen.bounds);
+							    &screen.bounds);
 
 						/* Display the Alert, get "No" or "Yes" */
 						item_hit = Alert(130, ynfilterUPP);
@@ -3504,11 +3488,22 @@ static void menu(long mc)
 					/* Save the game (if necessary) */
 					if (game_in_progress && character_generated)
 					{
+						if (!can_save){
+#ifdef JP
+							plog("今はセーブすることは出来ません。");
+#else
+							plog("You may not do that right now.");
+#endif
+							break;
+						}
 						/* Hack -- Forget messages */
 						msg_flag = FALSE;
 
 						/* Save the game */
+#if 0
 						do_cmd_save_game(FALSE);
+#endif
+						Term_key_push(SPECIAL_KEY_QUIT);
 					}
 
 					/* Quit */
@@ -3817,7 +3812,7 @@ static OSErr CheckRequiredAEParams(const AppleEvent *theAppleEvent)
 	Size	actualSize;
 
 	aeError = AEGetAttributePtr(theAppleEvent, keyMissedKeywordAttr, typeWildCard,
-	                            &returnedType, NULL, 0, &actualSize);
+				    &returnedType, NULL, 0, &actualSize);
 
 	if (aeError == errAEDescNotFound) return (noErr);
 
@@ -3831,7 +3826,7 @@ static OSErr CheckRequiredAEParams(const AppleEvent *theAppleEvent)
  * Apple Event Handler -- Open Application
  */
 static pascal OSErr AEH_Start(const AppleEvent *theAppleEvent,
-                              const AppleEvent *reply, long handlerRefCon)
+			      const AppleEvent *reply, long handlerRefCon)
 {
 #pragma unused(reply, handlerRefCon)
 
@@ -3843,7 +3838,7 @@ static pascal OSErr AEH_Start(const AppleEvent *theAppleEvent,
  * Apple Event Handler -- Quit Application
  */
 static pascal OSErr AEH_Quit(const AppleEvent *theAppleEvent,
-                             const AppleEvent *reply, long handlerRefCon)
+			     const AppleEvent *reply, long handlerRefCon)
 {
 #pragma unused(reply, handlerRefCon)
 
@@ -3859,7 +3854,7 @@ static pascal OSErr AEH_Quit(const AppleEvent *theAppleEvent,
  * Apple Event Handler -- Print Documents
  */
 static pascal OSErr AEH_Print(const AppleEvent *theAppleEvent,
-                              const AppleEvent *reply, long handlerRefCon)
+			      const AppleEvent *reply, long handlerRefCon)
 {
 #pragma unused(theAppleEvent, reply, handlerRefCon)
 
@@ -3882,7 +3877,7 @@ static pascal OSErr AEH_Print(const AppleEvent *theAppleEvent,
  * "shamelessly swiped & hacked")
  */
 static pascal OSErr AEH_Open(AppleEvent *theAppleEvent,
-                             AppleEvent* reply, long handlerRefCon)
+			     AppleEvent* reply, long handlerRefCon)
 {
 #pragma unused(reply, handlerRefCon)
 
@@ -3905,7 +3900,7 @@ static pascal OSErr AEH_Open(AppleEvent *theAppleEvent,
 	 */
 
 	err = AEGetNthPtr(&docList, 1L, typeFSS, &keywd,
-	                  &returnedType, (Ptr) &myFSS, sizeof(myFSS), &actualSize);
+			  &returnedType, (Ptr) &myFSS, sizeof(myFSS), &actualSize);
 	if (err) return err;
 
 	/* Only needed to check savefile type below */
@@ -4643,7 +4638,7 @@ static void init_stuff(void)
 		init_file_paths(path);
 
 		/* Build the filename */
-		path_build(path, 1024, ANGBAND_DIR_FILE, "news.txt");
+		path_build(path, sizeof(path), ANGBAND_DIR_FILE, "news.txt");
 
 		/* Attempt to open and close that file */
 		if (0 == fd_close(fd_open(path, O_RDONLY))) break;
@@ -4802,28 +4797,28 @@ int main(void)
 
 	/* Install the hook (ignore error codes) */
 	AEInstallEventHandler(kCoreEventClass, kAEOpenApplication, AEH_Start_UPP,
-	                      0L, FALSE);
+			      0L, FALSE);
 
 	/* Obtain a "Universal Procedure Pointer" */
 	AEH_Quit_UPP = NewAEEventHandlerProc(AEH_Quit);
 
 	/* Install the hook (ignore error codes) */
 	AEInstallEventHandler(kCoreEventClass, kAEQuitApplication, AEH_Quit_UPP,
-	                      0L, FALSE);
+			      0L, FALSE);
 
 	/* Obtain a "Universal Procedure Pointer" */
 	AEH_Print_UPP = NewAEEventHandlerProc(AEH_Print);
 
 	/* Install the hook (ignore error codes) */
 	AEInstallEventHandler(kCoreEventClass, kAEPrintDocuments, AEH_Print_UPP,
-	                      0L, FALSE);
+			      0L, FALSE);
 
 	/* Obtain a "Universal Procedure Pointer" */
 	AEH_Open_UPP = NewAEEventHandlerProc(AEH_Open);
 
 	/* Install the hook (ignore error codes) */
 	AEInstallEventHandler(kCoreEventClass, kAEOpenDocuments, AEH_Open_UPP,
-	                      0L, FALSE);
+			      0L, FALSE);
 
 #endif
 

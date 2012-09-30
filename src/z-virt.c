@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: remco $ on $Date: 1999/09/30 10:08:54 $ */
 /* File: z-virt.c */
 
 /*
@@ -49,7 +48,7 @@ vptr rnfree(vptr p, huge len)
 	{
 		char buf[80];
 		sprintf(buf, "Kill (%ld): %ld - %ld = %ld.",
-		        len, virt_make, virt_kill, virt_make - virt_kill);
+			len, virt_make, virt_kill, virt_make - virt_kill);
 		plog(buf);
 	}
 
@@ -116,7 +115,7 @@ vptr ralloc(huge len)
 	{
 		char buf[80];
 		sprintf(buf, "Make (%ld): %ld - %ld = %ld.",
-		        len, virt_make, virt_kill, virt_make - virt_kill);
+			len, virt_make, virt_kill, virt_make - virt_kill);
 		plog(buf);
 	}
 
@@ -130,6 +129,54 @@ vptr ralloc(huge len)
 
 	/* We were able to acquire memory */
 	if (!mem) mem = rpanic(len);
+
+	/* Return the memory, if any */
+	return (mem);
+}
+
+/*
+ * Optional auxiliary "rnralloc" function
+ */
+vptr (*rnrealloc_aux)(vptr,huge) = NULL;
+
+/*
+ * Reallocate some memory
+ */
+vptr rnrealloc(vptr p, huge newlen, int addlen)
+{
+	vptr mem;
+
+	/* Allow allocation of "zero bytes" */
+	if (newlen == 0)
+	{
+		rnfree(p, (huge)((int)newlen - addlen));
+		return ((vptr)(NULL));
+	}
+
+#ifdef VERBOSE_RALLOC
+
+	/* Count allocated memory */
+	virt_make += addlen;
+
+	/* Log important allocations */
+	if (addlen > virt_size)
+	{
+		char buf[80];
+		sprintf(buf, "Make (%ld): %ld - %ld = %ld.",
+			len, virt_make, virt_kill, virt_make - virt_kill);
+		plog(buf);
+	}
+
+#endif
+
+	/* Use the aux function if set */
+	if (ralloc_aux) mem = (*rnrealloc_aux)(p,(huge)newlen);
+
+	/* Use malloc() to allocate some memory */
+	else mem = ((vptr)(realloc(p,(size_t)(newlen))));
+
+	/* We were able to acquire memory */
+	if (!mem) mem = rpanic(newlen);
 
 	/* Return the memory, if any */
 	return (mem);

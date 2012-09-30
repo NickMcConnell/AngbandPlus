@@ -1,4 +1,3 @@
-# CVS: Last edit by $Author: rr9 $ on $Date: 1999/11/17 18:06:58 $
 # File: q_info.txt
 
 # Includes all the quest files
@@ -42,17 +41,17 @@
 ?:[EQU $QUEST_NUMBER 9]
 %:q_serpen.txt
 
-# Node of Sorcery
+# Orcish Mine
 ?:[EQU $QUEST_NUMBER 10]
-%:q000sorc.txt
+%:q0000010.txt
 
-# Node of Chaos
+# Underground ruins
 ?:[EQU $QUEST_NUMBER 11]
-%:q000chao.txt
+%:q0000011.txt
 
-# Node of Nature
+# Mistic City
 ?:[EQU $QUEST_NUMBER 12]
-%:q000natu.txt
+%:q0000012.txt
 
 # Quest #13 is still unfinished
 
@@ -60,13 +59,9 @@
 ?:[EQU $QUEST_NUMBER 14]
 %:q_warg.txt
 
-# Eric's Stronghold
-?:[EQU $QUEST_NUMBER 15]
-%:q000eric.txt
+# Quest #15 is still unfinished
 
-# Assault on Montsalvat
-?:[EQU $QUEST_NUMBER 16]
-%:q000dekn.txt
+# Quest #16 is still unfinished
 
 # The City beneath the Sea
 ?:[EQU $QUEST_NUMBER 17]
@@ -139,4 +134,8 @@
 # Random quests (always adressed with number 40)
 ?:[EQU $QUEST_NUMBER 40]
 %:q_random.txt
+
+# The Avenge
+?:[EQU $QUEST_NUMBER 89]
+%:q_avenge.txt
 

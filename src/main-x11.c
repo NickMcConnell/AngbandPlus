@@ -9,6 +9,19 @@
  */
 
 
+#ifdef _JP
+/*
+ * 日本語(EUC-JAPAN)対応 (-DJP)
+ *    ・漢字フォントの扱いを追加
+ *    ・日本語を含む文字列の表示ルーチン XDrawMultiString() の追加
+ *    ・日本語の表示幅は，フォントの情報によらすASCIIフォントの2倍に固定
+ *
+ * 未対応
+ *      EUC半角の扱い
+ *
+ * 1996/6/7  李 晃伸 (ri@kuis.kyoto-u.ac.jp)
+ */
+#endif
 /*
  * This file helps Angband work with UNIX/X11 computers.
  *
@@ -93,8 +106,11 @@
  */
 
 
-
 #include "angband.h"
+
+#ifdef HAVE_LIBSDL_MIXER
+#include "sdl_sound.h"
+#endif /* HAVE_LIBSDL_MIXER */
 
 
 #ifdef USE_X11
@@ -105,6 +121,12 @@
 #include <X11/Xutil.h>
 #include <X11/keysym.h>
 #include <X11/keysymdef.h>
+#ifdef USE_LOCALE
+#include <X11/Xlocale.h>
+#endif
+#ifndef XSetIMValues
+char *XSetIMValues(XIM, ...); /* Hack for XFree86 4.0 */
+#endif
 #endif /* __MAKEDEPEND__ */
 
 
@@ -119,6 +141,9 @@
  */
 #define IGNORE_UNUSED_FUNCTIONS
 
+#ifdef HAVE_LIBSDL_MIXER
+static	bool no_cache_audio = FALSE;
+#endif /* HAVE_LIBSDL_MIXER */
 
 /*
  * Notes on Colors:
@@ -190,6 +215,9 @@ struct metadpy
 	Screen *screen;
 	Window root;
 	Colormap cmap;
+#ifdef USE_XIM
+	XIM xim;
+#endif
 
 	char *name;
 
@@ -242,6 +270,11 @@ struct metadpy
 struct infowin
 {
 	Window win;
+#ifdef USE_XIM
+	XIC xic;
+	long xic_mask;
+#endif
+
 	long mask;
 
 	s16b ox, oy;
@@ -313,11 +346,16 @@ struct infoclr
  */
 struct infofnt
 {
+#ifdef USE_FONTSET
+	XFontSet info;
+#else
 	XFontStruct *info;
+#endif
 
 	cptr name;
 
 	s16b wid;
+	s16b twid;
 	s16b hgt;
 	s16b asc;
 
@@ -355,7 +393,7 @@ struct infofnt
 /* Init an infowin by giving father as an (info_win*) (or NULL), and data */
 #define Infowin_init_dad(D,X,Y,W,H,B,FG,BG) \
 	Infowin_init_data(((D) ? ((D)->win) : (Window)(None)), \
-	                  X,Y,W,H,B,FG,BG)
+			  X,Y,W,H,B,FG,BG)
 
 
 /* Init a top level infowin by pos,size,bord,Colors */
@@ -420,14 +458,27 @@ static metadpy metadpy_default;
  */
 static metadpy *Metadpy = &metadpy_default;
 static infowin *Infowin = (infowin*)(NULL);
+#ifdef USE_XIM
+static infowin *Focuswin = (infowin*)(NULL);
+#endif
 static infoclr *Infoclr = (infoclr*)(NULL);
+#ifdef _JP
 static infofnt *Infofnt = (infofnt*)(NULL);
+static infofnt *Infokfnt = (infofnt*)(NULL);
+#else
+static infofnt *Infofnt = (infofnt*)(NULL);
+#endif
+
 
 
 
 /**** Generic code ****/
 
 
+#ifdef _JP
+#define Infokfnt_set(I) \
+	(Infokfnt = (I))
+#endif
 /*
  * Init the current metadpy, with various initialization stuff.
  *
@@ -701,7 +752,7 @@ static errr Infowin_init_real(Window xid)
  *	If 'dad == None' assume 'dad == root'
  */
 static errr Infowin_init_data(Window dad, int x, int y, int w, int h,
-                              int b, Pixell fg, Pixell bg)
+			      int b, Pixell fg, Pixell bg)
 {
 	Window xid;
 
@@ -891,7 +942,7 @@ static errr Infowin_fill(void)
 {
 	/* Execute the request */
 	XFillRectangle(Metadpy->dpy, Infowin->win, Infoclr->gc,
-	               0, 0, Infowin->w, Infowin->h);
+		       0, 0, Infowin->w, Infowin->h);
 
 	/* Success */
 	return (0);
@@ -1117,7 +1168,7 @@ static errr Infoclr_init_data(Pixell fg, Pixell bg, int op, int stip)
 
 	/* Set up the GC mask */
 	gc_mask = (GCFunction | GCBackground | GCForeground |
-	           GCFillStyle | GCGraphicsExposures);
+		   GCFillStyle | GCGraphicsExposures);
 
 	/* Create the GC detailed above */
 	gc = XCreateGC(Metadpy->dpy, Metadpy->root, gc_mask, &gcv);
@@ -1183,6 +1234,9 @@ static errr Infofnt_nuke(void)
 {
 	infofnt *ifnt = Infofnt;
 
+#ifdef _JP
+	infofnt *ikfnt = Infokfnt;
+#endif
 	/* Deal with 'name' */
 	if (ifnt->name)
 	{
@@ -1190,6 +1244,13 @@ static errr Infofnt_nuke(void)
 		string_free(ifnt->name);
 	}
 
+#ifdef _JP
+	if (ikfnt->name)
+	{
+		/* Free the name */
+		string_free(ikfnt->name);
+	}
+#endif
 	/* Nuke info if needed */
 	if (ifnt->nuke)
 	{
@@ -1197,6 +1258,13 @@ static errr Infofnt_nuke(void)
 		XFreeFont(Metadpy->dpy, ifnt->info);
 	}
 
+#ifdef _JP
+	if (ikfnt->nuke)
+	{
+		/* Free the font */
+		XFreeFont(Metadpy->dpy, ikfnt->info);
+	}
+#endif
 	/* Success */
 	return (0);
 }
@@ -1207,15 +1275,54 @@ static errr Infofnt_nuke(void)
 /*
  * Prepare a new 'infofnt'
  */
+#ifdef _JP
+static errr Infofnt_prepare(XFontStruct *info, XFontStruct *kinfo)
+#else
+#ifdef USE_FONTSET
+static errr Infofnt_prepare(XFontSet info)
+#else
 static errr Infofnt_prepare(XFontStruct *info)
+#endif
+#endif
+
 {
 	infofnt *ifnt = Infofnt;
 
+#ifdef _JP
+	infofnt *ikfnt = Infokfnt;
+#endif
 	XCharStruct *cs;
+#ifdef USE_FONTSET
+	XFontStruct **fontinfo;
+	char **fontname;
+	int n_fonts;
+	int ascent, descent, width;
+#endif
 
 	/* Assign the struct */
 	ifnt->info = info;
 
+#ifdef USE_FONTSET
+	n_fonts = XFontsOfFontSet(info, &fontinfo, &fontname);
+
+	ascent = descent = width = 0;
+	while(n_fonts-- > 0){
+		cs = &((*fontinfo)->max_bounds);
+		if(ascent < (*fontinfo)->ascent) ascent = (*fontinfo)->ascent;
+		if(descent < (*fontinfo)->descent) descent = (*fontinfo)->descent;
+		if(((*fontinfo)->max_byte1) > 0){
+			/* 多バイト文字の場合は幅半分(端数切り上げ)で評価する */
+			if(width < (cs->width+1)/2) width = (cs->width+1)/2;
+		}else{
+			if(width < cs->width) width = cs->width;
+		}
+		fontinfo++;
+		fontname++;
+	}
+	ifnt->asc = ascent;
+	ifnt->hgt = ascent + descent;
+	ifnt->wid = width;
+#else
 	/* Jump into the max bouonds thing */
 	cs = &(info->max_bounds);
 
@@ -1223,12 +1330,32 @@ static errr Infofnt_prepare(XFontStruct *info)
 	ifnt->asc = info->ascent;
 	ifnt->hgt = info->ascent + info->descent;
 	ifnt->wid = cs->width;
+#endif
 
+	if (use_bigtile)
+		ifnt->twid = 2 * ifnt->wid;
+	else
+		ifnt->twid = ifnt->wid;
+
+#ifdef _JP
+    /* Assign the struct */
+    ikfnt->info = kinfo;
+ 
+    /* Jump into the max bouonds thing */
+    cs = &(kinfo->max_bounds);
+ 
+    /* Extract default sizing info */
+    ikfnt->asc = kinfo->ascent;
+    ikfnt->hgt = kinfo->ascent + kinfo->descent;
+    ikfnt->wid = cs->width;
+#endif
+#ifndef JP
 #ifdef OBSOLETE_SIZING_METHOD
 	/* Extract default sizing info */
 	ifnt->asc = cs->ascent;
 	ifnt->hgt = (cs->ascent + cs->descent);
 	ifnt->wid = cs->width;
+#endif
 #endif
 
 	/* Success */
@@ -1241,16 +1368,36 @@ static errr Infofnt_prepare(XFontStruct *info)
 /*
  * Initialize a new 'infofnt'.
  */
+#ifdef _JP
+static errr Infofnt_init_real(XFontStruct *info, XFontStruct *kinfo)
+#else
+#ifdef USE_FONTSET
+static errr Infofnt_init_real(XFontSet info)
+#else
 static errr Infofnt_init_real(XFontStruct *info)
+#endif
+#endif
+
 {
 	/* Wipe the thing */
 	(void)WIPE(Infofnt, infofnt);
 
+#ifdef _JP
+	WIPE(Infokfnt, infofnt);
+#endif
 	/* No nuking */
 	Infofnt->nuke = 0;
 
+#ifdef _JP
+	Infokfnt->nuke = 0;
+#endif
 	/* Attempt to prepare it */
+#ifdef _JP
+	return (Infofnt_prepare (info, kinfo));
+#else
 	return (Infofnt_prepare(info));
+#endif
+
 }
 
 #endif /* IGNORE_UNUSED_FUNCTIONS */
@@ -1262,21 +1409,58 @@ static errr Infofnt_init_real(XFontStruct *info)
  * Inputs:
  *	name: The name of the requested Font
  */
+#ifdef _JP
+static errr Infofnt_init_data(cptr name, cptr kname)
+#else
 static errr Infofnt_init_data(cptr name)
+#endif
+
 {
+#ifdef USE_FONTSET
+	XFontSet info;
+	char **missing_list;
+	int missing_count;
+	char *default_font;
+#else
 	XFontStruct *info;
+#endif
 
 
+#ifdef _JP
+	XFontStruct *kinfo;
+#endif
 	/*** Load the info Fresh, using the name ***/
 
 	/* If the name is not given, report an error */
 	if (!name) return (-1);
 
+#ifdef _JP
+	if (!kname) return (-1);
+#endif
 	/* Attempt to load the font */
+#ifdef USE_FONTSET
+	info = XCreateFontSet(Metadpy->dpy, name, &missing_list, &missing_count, &default_font);
+	if(missing_count > 0){
+		printf("missing font(s): \n");
+		while(missing_count-- > 0){
+			printf("\t%s\n", missing_list[missing_count]);
+		}
+		XFreeStringList(missing_list);
+	}
+#else
 	info = XLoadQueryFont(Metadpy->dpy, name);
+#ifdef _JP
+	kinfo = XLoadQueryFont(Metadpy->dpy, kname);
+#endif
+#endif
+
 
 	/* The load failed, try to recover */
 	if (!info) return (-1);
+#ifdef _JP
+	if (!kinfo) return (-1);
+#endif
+
 
 
 	/*** Init the font ***/
@@ -1284,26 +1468,140 @@ static errr Infofnt_init_data(cptr name)
 	/* Wipe the thing */
 	(void)WIPE(Infofnt, infofnt);
 
+#ifdef _JP
+	(void)WIPE(Infokfnt, infofnt);
+#endif
 	/* Attempt to prepare it */
+#ifdef _JP
+	if (Infofnt_prepare(info, kinfo))
+#else
 	if (Infofnt_prepare(info))
+#endif
+
 	{
 		/* Free the font */
+#ifdef USE_FONTSET
+		XFreeFontSet(Metadpy->dpy, info);
+#else
 		XFreeFont(Metadpy->dpy, info);
-
+#ifdef _JP
+		XFreeFont(Metadpy->dpy, kinfo);
+#endif
+#endif
 		/* Fail */
 		return (-1);
 	}
 
 	/* Save a copy of the font name */
 	Infofnt->name = string_make(name);
+#ifdef _JP
+	Infokfnt->name = string_make(kname);
+#endif
 
 	/* Mark it as nukable */
 	Infofnt->nuke = 1;
+#ifdef _JP
+	Infokfnt->nuke = 1;
+#endif
 
 	/* Success */
 	return (0);
 }
 
+
+#ifdef _JP
+/*
+ * EUC日本語コードを含む文字列を表示する (Xlib)
+ */
+static void
+XDrawMultiString(display,d,gc, x, y, string, len, afont, 
+      afont_width, afont_height, afont_ascent, kfont, kfont_width)
+    Display *display;
+    Drawable d;
+    GC gc;
+    int       x, y;
+    char      *string;
+    int len;
+    XFontStruct *afont;
+    int afont_width, afont_height, afont_ascent;
+    XFontStruct *kfont;
+    int kfont_width;
+{
+    XChar2b       kanji[500];
+    char *p;
+    unsigned char *str;
+    unsigned char *endp;
+    int slen;
+    str = string;
+    endp = string + len;
+
+    while ( str < endp && *str ) {
+
+#ifdef TOFU      
+      if ( (*str) == 0x7f ) {
+	  
+	  /* 0x7Fは■で決め打ち */
+	  
+	  /* 連続する0x7Fの長さを検出 */
+	  slen = 0;
+	  while ( str < endp && (*str) == 0x7f ) {
+	      slen++; 
+	      str++;
+	  }
+	  
+	  /* 描画 */
+	  XFillRectangle( display, d, gc, x, y-afont_ascent, 
+			  slen * afont_width, afont_height);
+ 
+	  /* ポインタを進める */
+	  x += afont_width * slen;
+      } 
+      else  
+#endif
+      if ( iskanji(*str) ) {
+	  
+	  /* UJISの始まり */
+	  
+	  /* 連続するUJIS文字の長さを検出 */
+	  slen = 0;
+	  while ( str < endp && *str && iskanji(*str) ) {
+	      kanji[slen].byte1 = *str++ & 0x7f;
+	      kanji[slen++].byte2 = *str++ & 0x7f;
+	  }
+	  
+	  /* 描画 */
+	  XSetFont( display, gc, kfont->fid );
+	  XDrawImageString16( display, d, gc, x, y, kanji, slen );
+
+ 
+	  /* ポインタを進める */
+	  x += kfont_width * slen;
+	  
+      } else {
+	  
+	  /* 非漢字(=ASCIIと仮定)の始まり */
+	  
+	  /* 連続するASCII文字を検出 */
+	  p = str;
+	  slen = 0;
+	  while ( str < endp && *str && !iskanji(*str) ) {
+#ifdef TOFU
+	      if (*str == 0x7f)break;
+#endif
+	      str++;
+	      slen++;
+	  }
+	  
+	  /* 描画 */
+	  XSetFont( display, gc, afont->fid );
+	  XDrawImageString( display, d, gc, x, y, p, slen );
+	  
+	  /* ポインタを進める */
+	  x += afont_width * slen;
+      }
+    }
+}
+#endif
 
 /*
  * Standard Text
@@ -1336,8 +1634,10 @@ static errr Infofnt_text_std(int x, int y, cptr str, int len)
 
 	/*** Actually draw 'str' onto the infowin ***/
 
+#ifndef JP
 	/* Be sure the correct font is ready */
 	XSetFont(Metadpy->dpy, Infoclr->gc, Infofnt->info->fid);
+#endif
 
 
 	/*** Handle the fake mono we can enforce on fonts ***/
@@ -1345,12 +1645,16 @@ static errr Infofnt_text_std(int x, int y, cptr str, int len)
 	/* Monotize the font */
 	if (Infofnt->mono)
 	{
+#ifdef _JP
+		/* Be sure the correct font is ready */
+		XSetFont(Metadpy->dpy, Infoclr->gc, Infofnt->info->fid);
+#endif
 		/* Do each character */
 		for (i = 0; i < len; ++i)
 		{
 			/* Note that the Infoclr is set up to contain the Infofnt */
 			XDrawImageString(Metadpy->dpy, Infowin->win, Infoclr->gc,
-			                 x + i * Infofnt->wid + Infofnt->off, y, str + i, 1);
+					 x + i * Infofnt->wid + Infofnt->off, y, str + i, 1);
 		}
 	}
 
@@ -1358,8 +1662,23 @@ static errr Infofnt_text_std(int x, int y, cptr str, int len)
 	else
 	{
 		/* Note that the Infoclr is set up to contain the Infofnt */
+#ifdef _JP
+		/* 漢字フォントの表示幅は ASCIIフォントの2倍に固定 */
+		XDrawMultiString(Metadpy->dpy, Infowin->win, Infoclr->gc,
+				 x, y, str, len,
+				 Infofnt->info, Infofnt->wid, Infofnt->hgt,
+				 Infofnt->asc, 
+				 Infokfnt->info, Infofnt->wid * 2);
+#else
+#ifdef USE_FONTSET
+		XmbDrawImageString(Metadpy->dpy, Infowin->win, Infofnt->info,
+				   Infoclr->gc, x, y, str, len);
+#else
 		XDrawImageString(Metadpy->dpy, Infowin->win, Infoclr->gc,
-		                 x, y, str, len);
+				 x, y, str, len);
+#endif
+#endif
+
 	}
 
 
@@ -1447,6 +1766,10 @@ struct term_data
 	term t;
 
 	infofnt *fnt;
+#ifdef _JP
+	infofnt *kfnt;
+#endif
+
 
 	infowin *win;
 
@@ -1454,12 +1777,8 @@ struct term_data
 
 	XImage *tiles;
 
-#ifdef USE_TRANSPARENCY
-
 	/* Tempory storage for overlaying tiles. */
 	XImage *TmpImage;
-
-#endif
 
 #endif
 
@@ -1496,13 +1815,41 @@ static void react_keypress(XKeyEvent *xev)
 	char buf[128];
 	char msg[128];
 
+#ifdef USE_XIM
+	int valid_keysym = TRUE;
+#endif
 
 	/* Check for "normal" keypresses */
+#ifdef USE_XIM
+	if(Focuswin && Focuswin->xic){
+		Status status;
+		n = XmbLookupString(Focuswin->xic, ev, buf, 125, &ks, &status);
+		if(status == XBufferOverflow){
+			printf("Input is too long, and dropped\n");
+			return;
+		}
+		if(status != XLookupKeySym && status != XLookupBoth){
+			valid_keysym = FALSE;
+		}
+	}else{
+		n = XLookupString(ev, buf, 125, &ks, NULL);
+	}
+#else
 	n = XLookupString(ev, buf, 125, &ks, NULL);
+#endif
 
 	/* Terminate */
 	buf[n] = '\0';
 
+#ifdef USE_XIM
+	if(!valid_keysym){
+		/* Enqueue the normal key(s) */
+		for (i = 0; buf[i]; i++) Term_keypress(buf[i]);
+
+		/* All done */
+		return;
+	}
+#endif
 
 	/* Hack -- Ignore "modifier keys" */
 	if (IsModifierKey(ks)) return;
@@ -1563,18 +1910,18 @@ static void react_keypress(XKeyEvent *xev)
 	if (ks)
 	{
 		sprintf(msg, "%c%s%s%s%s_%lX%c", 31,
-		        mc ? "N" : "", ms ? "S" : "",
-		        mo ? "O" : "", mx ? "M" : "",
-		        (unsigned long)(ks), 13);
+			mc ? "N" : "", ms ? "S" : "",
+			mo ? "O" : "", mx ? "M" : "",
+			(unsigned long)(ks), 13);
 	}
 
 	/* Hack -- Use the Keycode */
 	else
 	{
 		sprintf(msg, "%c%s%s%s%sK_%X%c", 31,
-		        mc ? "N" : "", ms ? "S" : "",
-		        mo ? "O" : "", mx ? "M" : "",
-		        ev->keycode, 13);
+			mc ? "N" : "", ms ? "S" : "",
+			mo ? "O" : "", mx ? "M" : "",
+			ev->keycode, 13);
 	}
 
 	/* Enqueue the "macro trigger" string */
@@ -1606,6 +1953,9 @@ static errr CheckEvent(bool wait)
 
 	int i, x, y;
 
+#ifdef USE_XIM
+ redo_checkevent:
+#endif
 
 	/* Do not wait unless requested */
 	if (!wait && !XPending(Metadpy->dpy)) return (1);
@@ -1613,6 +1963,51 @@ static errr CheckEvent(bool wait)
 	/* Load the Event */
 	XNextEvent(Metadpy->dpy, xev);
 
+#ifdef USE_XIM
+/* #define DEBUG_EVENT */
+#ifdef DEBUG_EVENT
+	{
+		printf("event: type=%d", xev->type);
+		switch(xev->type){
+		case KeyPress:
+			printf("(KeyPress), keycode=%X", xev->xkey.keycode);
+			break;
+		case FocusIn:
+			printf("(FocusIn)");
+			break;
+		case FocusOut:
+			printf("(FocusOut)");
+			break;
+		case ReparentNotify:
+			printf("(ReparentNotify)");
+			break;
+		case ConfigureNotify:
+			printf("(ConfigureNotify)");
+			break;
+		case MapNotify:
+			printf("(MapNotify)");
+			break;
+		case Expose:
+			printf("(Expose)");
+			break;
+		case ClientMessage:
+			printf("(ClientMessage)");
+			break;
+		}
+			
+	}
+#endif
+	if (XFilterEvent(xev, xev->xany.window)
+		/*XFilterEvent(xev, (data[0].win)->win)*/){
+#ifdef DEBUG_EVENT
+		printf(", [filtered by IM]\n");
+#endif
+		goto redo_checkevent;
+	}
+#ifdef DEBUG_EVENT
+	printf("\n");
+#endif
+#endif
 
 	/* Notice new keymaps */
 	if (xev->type == MappingNotify)
@@ -1625,6 +2020,7 @@ static errr CheckEvent(bool wait)
 	/* Scan the windows */
 	for (i = 0; i < MAX_TERM_DATA; i++)
 	{
+		if (!data[i].win) continue;
 		if (xev->xany.window == data[i].win->win)
 		{
 			td = &data[i];
@@ -1775,13 +2171,16 @@ static errr CheckEvent(bool wait)
 			cols = ((Infowin->w - (ox + ox)) / td->fnt->wid);
 			rows = ((Infowin->h - (oy + oy)) / td->fnt->hgt);
 
-			/* Paranoia */
-			if (td == &data[0]) cols = 80;
-			if (td == &data[0]) rows = 24;
-
 			/* Hack -- minimal size */
 			if (cols < 1) cols = 1;
 			if (rows < 1) rows = 1;
+
+			if (td == &data[0])
+			{
+				/* Hack the main window must be at least 80x24 */
+				if (cols < 80) cols = 80;
+				if (rows < 24) rows = 24;
+			}
 
 			/* Desired size of window */
 			wid = cols * td->fnt->wid + (ox + ox);
@@ -1800,6 +2199,24 @@ static errr CheckEvent(bool wait)
 
 			break;
 		}
+#ifdef USE_XIM
+		case FocusIn:
+		{
+			if(iwin->xic){
+				XSetICFocus(iwin->xic);
+			}
+			Focuswin = iwin;
+			break;
+		}
+		case FocusOut:
+		{
+			if(iwin->xic){
+				XUnsetICFocus(iwin->xic);
+			}
+			/* Focuswin = NULL; */
+			break;
+		}
+#endif
 	}
 
 
@@ -1830,6 +2247,9 @@ static errr Term_xtra_x11_level(int v)
 
 		/* Activate the font */
 		Infofnt_set(td->fnt);
+#ifdef _JP
+		Infokfnt_set(td->kfnt);
+#endif
 	}
 
 	/* Success */
@@ -1864,9 +2284,9 @@ static errr Term_xtra_x11_react(void)
 
 				/* Create pixel */
 				pixel = create_pixel(Metadpy->dpy,
-				                     color_table[i][1],
-				                     color_table[i][2],
-				                     color_table[i][3]);
+						     color_table[i][1],
+						     color_table[i][2],
+						     color_table[i][3]);
 
 				/* Change the foreground */
 				Infoclr_set(clr[i]);
@@ -1914,6 +2334,12 @@ static errr Term_xtra_x11(int n, int v)
 
 		/* React to changes */
 		case TERM_XTRA_REACT: return (Term_xtra_x11_react());
+#ifdef HAVE_LIBSDL_MIXER
+		/* Play a sound */
+		case TERM_XTRA_SOUND :
+			if ( enable_sound ) { play_sound( v, no_cache_audio ); } 
+			return 0;
+#endif /* HAVE_LIBSDL_MIXER */
 	}
 
 	/* Unknown */
@@ -1928,12 +2354,55 @@ static errr Term_xtra_x11(int n, int v)
  */
 static errr Term_curs_x11(int x, int y)
 {
-	/* Draw the cursor */
-	Infoclr_set(xor);
+	if (use_graphics)
+	{
+		XDrawRectangle(Metadpy->dpy, Infowin->win, xor->gc,
+			       x * Infofnt->wid + Infowin->ox,
+			       y * Infofnt->hgt + Infowin->oy,
+			       Infofnt->wid - 1, Infofnt->hgt - 1);
+		XDrawRectangle(Metadpy->dpy, Infowin->win, xor->gc,
+			       x * Infofnt->wid + Infowin->ox + 1,
+			       y * Infofnt->hgt + Infowin->oy + 1,
+			       Infofnt->wid - 3, Infofnt->hgt - 3);
+	}
+	else
+	{
+		/* Draw the cursor */
+		Infoclr_set(xor);
 
-	/* Hilite the cursor character */
-	Infofnt_text_non(x, y, " ", 1);
+		/* Hilite the cursor character */
+		Infofnt_text_non(x, y, " ", 1);
+	}
 
+	/* Success */
+	return (0);
+}
+
+
+/*
+ * Draw the double width cursor
+ */
+static errr Term_bigcurs_x11(int x, int y)
+{
+	if (use_graphics)
+	{
+		XDrawRectangle(Metadpy->dpy, Infowin->win, xor->gc,
+			       x * Infofnt->wid + Infowin->ox,
+			       y * Infofnt->hgt + Infowin->oy,
+			       Infofnt->twid - 1, Infofnt->hgt - 1);
+		XDrawRectangle(Metadpy->dpy, Infowin->win, xor->gc,
+			       x * Infofnt->wid + Infowin->ox + 1,
+			       y * Infofnt->hgt + Infowin->oy + 1,
+			       Infofnt->twid - 3, Infofnt->hgt - 3);
+	}
+	else
+	{
+		/* Draw the cursor */
+		Infoclr_set(xor);
+
+		/* Hilite the cursor character */
+		Infofnt_text_non(x, y, "  ", 2);
+	}
 	/* Success */
 	return (0);
 }
@@ -1976,19 +2445,13 @@ static errr Term_text_x11(int x, int y, int n, byte a, cptr s)
 /*
  * Draw some graphical characters.
  */
-# ifdef USE_TRANSPARENCY
 static errr Term_pict_x11(int x, int y, int n, const byte *ap, const char *cp, const byte *tap, const char *tcp)
-# else /* USE_TRANSPARENCY */
-static errr Term_pict_x11(int x, int y, int n, const byte *ap, const char *cp)
-# endif /* USE_TRANSPARENCY */
 {
 	int i, x1, y1;
 
 	byte a;
 	char c;
 
-
-#ifdef USE_TRANSPARENCY
 	byte ta;
 	char tc;
 
@@ -1996,7 +2459,6 @@ static errr Term_pict_x11(int x, int y, int n, const byte *ap, const char *cp)
 	int k,l;
 
 	unsigned long pixel, blank;
-#endif /* USE_TRANSPARENCY */
 
 	term_data *td = (term_data*)(Term->data);
 
@@ -2007,34 +2469,32 @@ static errr Term_pict_x11(int x, int y, int n, const byte *ap, const char *cp)
 	y += Infowin->oy;
 	x += Infowin->ox;
 
-	for (i = 0; i < n; ++i)
+	for (i = 0; i < n; ++i, x += td->fnt->wid)
 	{
 		a = *ap++;
 		c = *cp++;
 
 		/* For extra speed - cache these values */
-		x1 = (c&0x7F) * td->fnt->wid;
+		x1 = (c&0x7F) * td->fnt->twid;
 		y1 = (a&0x7F) * td->fnt->hgt;
-
-#ifdef USE_TRANSPARENCY
 
 		ta = *tap++;
 		tc = *tcp++;
 
 		/* For extra speed - cache these values */
-		x2 = (tc&0x7F) * td->fnt->wid;
+		x2 = (tc&0x7F) * td->fnt->twid;
 		y2 = (ta&0x7F) * td->fnt->hgt;
-		
+
 		/* Optimise the common case */
 		if ((x1 == x2) && (y1 == y2))
 		{
 			/* Draw object / terrain */
 			XPutImage(Metadpy->dpy, td->win->win,
-		  	        clr[0]->gc,
-		  	        td->tiles,
-		  	        x1, y1,
-		  	        x, y,
-		  	        td->fnt->wid, td->fnt->hgt);	
+				clr[0]->gc,
+				td->tiles,
+				x1, y1,
+				x, y,
+				td->fnt->twid, td->fnt->hgt);
 		}
 		else
 		{
@@ -2042,7 +2502,7 @@ static errr Term_pict_x11(int x, int y, int n, const byte *ap, const char *cp)
 			/* Mega Hack^2 - assume the top left corner is "black" */
 			blank = XGetPixel(td->tiles, 0, td->fnt->hgt * 6);
 
-			for (k = 0; k < td->fnt->wid; k++)
+			for (k = 0; k < td->fnt->twid; k++)
 			{
 				for (l = 0; l < td->fnt->hgt; l++)
 				{
@@ -2062,24 +2522,11 @@ static errr Term_pict_x11(int x, int y, int n, const byte *ap, const char *cp)
 			/* Draw to screen */
 
 			XPutImage(Metadpy->dpy, td->win->win,
-		    	      clr[0]->gc,
-		     	     td->TmpImage,
-		     	     0, 0, x, y,
-		     	     td->fnt->wid, td->fnt->hgt);
+			      clr[0]->gc,
+			     td->TmpImage,
+			     0, 0, x, y,
+			     td->fnt->twid, td->fnt->hgt);
 		}
-
-#else /* USE_TRANSPARENCY */
-
-		/* Draw object / terrain */
-		XPutImage(Metadpy->dpy, td->win->win,
-		          clr[0]->gc,
-		          td->tiles,
-		          x1, y1,
-		          x, y,
-		          td->fnt->wid, td->fnt->hgt);
-
-#endif /* USE_TRANSPARENCY */
-		x += td->fnt->wid;
 	}
 
 	/* Success */
@@ -2088,7 +2535,83 @@ static errr Term_pict_x11(int x, int y, int n, const byte *ap, const char *cp)
 
 #endif /* USE_GRAPHICS */
 
+#ifdef USE_XIM
+static void IMDestroyCallback(XIM, XPointer, XPointer);
 
+static void
+IMInstantiateCallback(Display *display, XPointer unused1, XPointer unused2)
+{
+	XIM xim;
+	XIMCallback ximcallback;
+	XIMStyles *xim_styles = NULL;
+	int i;
+
+	xim = XOpenIM(display, NULL, NULL, NULL);
+	if(!xim){
+		printf("can't open IM\n");
+		return;
+	}
+
+	/* initialize destroy callback */
+	ximcallback.callback = IMDestroyCallback;
+	ximcallback.client_data = NULL;
+	XSetIMValues(xim, XNDestroyCallback, &ximcallback, NULL);
+
+	/* set style (only "Root" is supported yet...) */
+	XGetIMValues(xim, XNQueryInputStyle, &xim_styles, NULL);
+	for (i = 0; i < xim_styles->count_styles; i++){
+		if(xim_styles->supported_styles[i] == (XIMPreeditNothing | XIMStatusNothing)) break;
+	}
+	if(i >= xim_styles->count_styles){
+		printf("Sorry, your IM does not support 'Root' preedit style...\n");
+		XCloseIM(xim);
+		return;
+	}
+	XFree(xim_styles);
+
+	Metadpy->xim = xim;
+
+	for (i = 0; i < MAX_TERM_DATA; i++)
+	{
+		infowin *iwin = data[i].win;
+		if (!iwin) continue;
+		iwin->xic = XCreateIC(xim, XNInputStyle, (XIMPreeditNothing | XIMStatusNothing), XNClientWindow, iwin->win, XNFocusWindow, iwin->win, NULL);
+		if(!iwin->xic){
+			printf("Can't create input context for Term%d\n", i);
+			continue;
+		}
+		if(XGetICValues(iwin->xic, XNFilterEvents, &iwin->xic_mask, NULL) != NULL){
+/*			printf("Can't get XNFilterEvents\n"); */
+			iwin->xic_mask = 0L;
+		}
+		XSelectInput(Metadpy->dpy, iwin->win, iwin->mask | iwin->xic_mask);
+	}
+
+	return;
+}
+
+static void IMDestroyCallback(XIM xim, XPointer client_data, XPointer call_data)
+{
+	int i;
+
+    if (call_data == NULL){
+		XRegisterIMInstantiateCallback(Metadpy->dpy, NULL, NULL, NULL, IMInstantiateCallback, NULL);
+	}
+
+	for(i = 0; i < MAX_TERM_DATA; i++)
+	{
+		infowin *iwin = data[i].win;
+		if(!iwin) continue;
+		if(iwin->xic_mask){
+			XSelectInput(Metadpy->dpy, iwin->win, iwin->mask);
+			iwin->xic_mask = 0L;
+		}
+		iwin->xic = NULL;
+	}
+
+	Metadpy->xim = NULL;
+}
+#endif
 
 /*
  * Initialize a term_data
@@ -2097,11 +2620,13 @@ static errr term_data_init(term_data *td, int i)
 {
 	term *t = &td->t;
 
-	bool fixed = (i == 0);
-
 	cptr name = angband_term_name[i];
 
 	cptr font;
+#ifdef _JP
+	cptr kfont;
+#endif
+
 
 	int x = 0;
 	int y = 0;
@@ -2126,7 +2651,9 @@ static errr term_data_init(term_data *td, int i)
 	char res_class[20];
 
 	XSizeHints *sh;
-
+#ifdef USE_XIM
+	XWMHints *wh;
+#endif
 
 	/* Window specific font name */
 	sprintf(buf, "ANGBAND_X11_FONT_%d", i);
@@ -2189,6 +2716,68 @@ static errr term_data_init(term_data *td, int i)
 		}
 	}
 
+#ifdef _JP
+	/* Window specific font name */
+	sprintf(buf, "ANGBAND_X11_KFONT_%d", i);
+
+	/* Check environment for that font */
+	kfont = getenv(buf);
+
+	/* Check environment for "base" font */
+	if (!kfont) kfont = getenv("ANGBAND_X11_KFONT");
+
+	/* No environment variables, use default font */
+	if (!kfont)
+	{
+		switch (i)
+		{
+			case 0:
+			{
+				kfont = DEFAULT_X11_KFONT_0;
+			}
+			break;
+			case 1:
+			{
+				kfont = DEFAULT_X11_KFONT_1;
+			}
+			break;
+			case 2:
+			{
+				kfont = DEFAULT_X11_KFONT_2;
+			}
+			break;
+			case 3:
+			{
+				kfont = DEFAULT_X11_KFONT_3;
+			}
+			break;
+			case 4:
+			{
+				kfont = DEFAULT_X11_KFONT_4;
+			}
+			break;
+			case 5:
+			{
+				kfont = DEFAULT_X11_KFONT_5;
+			}
+			break;
+			case 6:
+			{
+				kfont = DEFAULT_X11_KFONT_6;
+			}
+			break;
+			case 7:
+			{
+				kfont = DEFAULT_X11_KFONT_7;
+			}
+			break;
+			default:
+			{
+				kfont = DEFAULT_X11_KFONT;
+			}
+		}
+	}
+#endif
 	/* Window specific location (x) */
 	sprintf(buf, "ANGBAND_X11_AT_X_%d", i);
 	str = getenv(buf);
@@ -2200,21 +2789,24 @@ static errr term_data_init(term_data *td, int i)
 	y = (str != NULL) ? atoi(str) : -1;
 
 
-	if (!fixed)
+	/* Window specific cols */
+	sprintf(buf, "ANGBAND_X11_COLS_%d", i);
+	str = getenv(buf);
+	val = (str != NULL) ? atoi(str) : -1;
+	if (val > 0) cols = val;
+
+	/* Window specific rows */
+	sprintf(buf, "ANGBAND_X11_ROWS_%d", i);
+	str = getenv(buf);
+	val = (str != NULL) ? atoi(str) : -1;
+	if (val > 0) rows = val;
+
+	/* Hack the main window must be at least 80x24 */
+	if (!i)
 	{
-		/* Window specific cols */
-		sprintf(buf, "ANGBAND_X11_COLS_%d", i);
-		str = getenv(buf);
-		val = (str != NULL) ? atoi(str) : -1;
-		if (val > 0) cols = val;
-
-		/* Window specific rows */
-		sprintf(buf, "ANGBAND_X11_ROWS_%d", i);
-		str = getenv(buf);
-		val = (str != NULL) ? atoi(str) : -1;
-		if (val > 0) rows = val;
+		if (cols < 80) cols = 80;
+		if (rows < 24) rows = 24;
 	}
-
 
 	/* Window specific inner border offset (ox) */
 	sprintf(buf, "ANGBAND_X11_IBOX_%d", i);
@@ -2230,12 +2822,21 @@ static errr term_data_init(term_data *td, int i)
 
 
 	/* Prepare the standard font */
+#ifdef _JP
+	MAKE(td->fnt, infofnt);
+	Infofnt_set(td->fnt);
+	MAKE(td->kfnt, infofnt);
+	Infokfnt_set(td->kfnt);
+	Infofnt_init_data(font, kfont);
+#else
 	MAKE(td->fnt, infofnt);
 	Infofnt_set(td->fnt);
 	Infofnt_init_data(font);
+#endif
+
 
 	/* Hack -- key buffer size */
-	num = (fixed ? 1024 : 16);
+	num = ((i == 0) ? 1024 : 16);
 
 	/* Assume full size windows */
 	wid = cols * td->fnt->wid + (ox + ox);
@@ -2245,10 +2846,14 @@ static errr term_data_init(term_data *td, int i)
 	MAKE(td->win, infowin);
 	Infowin_set(td->win);
 	Infowin_init_top(x, y, wid, hgt, 0,
-	                 Metadpy->fg, Metadpy->bg);
+			 Metadpy->fg, Metadpy->bg);
 
 	/* Ask for certain events */
+#if defined(USE_XIM)
+	Infowin_set_mask(ExposureMask | StructureNotifyMask | KeyPressMask | FocusChangeMask);
+#else
 	Infowin_set_mask(ExposureMask | StructureNotifyMask | KeyPressMask);
+#endif
 
 	/* Set the window name */
 	Infowin_set_name(name);
@@ -2277,19 +2882,21 @@ static errr term_data_init(term_data *td, int i)
 	/* Oops */
 	if (sh == NULL) quit("XAllocSizeHints failed");
 
-	/* Fixed window size */
-	if (fixed)
+	/* Main window has a differing minimum size */
+	if (i == 0)
 	{
-		/* Fixed size */
+		/* Main window min size is 80x24 */
 		sh->flags = PMinSize | PMaxSize;
-		sh->min_width = sh->max_width = wid;
-		sh->min_height = sh->max_height = hgt;
+		sh->min_width = 80 * td->fnt->wid + (ox + ox);
+		sh->min_height = 24 * td->fnt->hgt + (oy + oy);
+		sh->max_width = 255 * td->fnt->wid + (ox + ox);
+		sh->max_height = 255 * td->fnt->hgt + (oy + oy);
 	}
 
-	/* Variable window size */
+	/* Other windows can be shrunk to 1x1 */
 	else
 	{
-		/* Variable size */
+		/* Other windows */
 		sh->flags = PMinSize | PMaxSize;
 		sh->min_width = td->fnt->wid + (ox + ox);
 		sh->min_height = td->fnt->hgt + (oy + oy);
@@ -2313,6 +2920,14 @@ static errr term_data_init(term_data *td, int i)
 	/* Map the window */
 	Infowin_map();
 
+#ifdef USE_XIM
+	/* Make WM Hints */
+	wh = XAllocWMHints();
+	if(wh == NULL) quit("XAllocWMHints failed");
+	wh->flags = InputHint;
+	wh->input = True;
+	XSetWMHints(Metadpy->dpy, Infowin->win, wh);
+#endif
 
 	/* Move the window to requested location */
 	if ((x >= 0) && (y >= 0)) Infowin_impell(x, y);
@@ -2331,6 +2946,7 @@ static errr term_data_init(term_data *td, int i)
 	/* Hooks */
 	t->xtra_hook = Term_xtra_x11;
 	t->curs_hook = Term_curs_x11;
+	t->bigcurs_hook = Term_bigcurs_x11;
 	t->wipe_hook = Term_wipe_x11;
 	t->text_hook = Term_text_x11;
 
@@ -2348,13 +2964,14 @@ static errr term_data_init(term_data *td, int i)
 /*
  * Initialization function for an "X11" module to Angband
  */
+extern errr init_x11(int argc, char *argv[]);
 errr init_x11(int argc, char *argv[])
 {
 	int i;
 
 	cptr dpy_name = "";
 
-	int num_term = MAX_TERM_DATA;
+	int num_term = 3;
 
 #ifdef USE_GRAPHICS
 
@@ -2363,10 +2980,7 @@ errr init_x11(int argc, char *argv[])
 	int pict_wid = 0;
 	int pict_hgt = 0;
 
-#ifdef USE_TRANSPARENCY
-
 	char *TmpData;
-#endif /* USE_TRANSPARENCY */
 
 #endif /* USE_GRAPHICS */
 
@@ -2386,6 +3000,12 @@ errr init_x11(int argc, char *argv[])
 			smoothRescaling = FALSE;
 			continue;
 		}
+
+		if (prefix(argv[i], "-b"))
+		{
+			arg_bigtile = use_bigtile = TRUE;
+			continue;
+		}
 #endif /* USE_GRAPHICS */
 
 		if (prefix(argv[i], "-n"))
@@ -2396,8 +3016,39 @@ errr init_x11(int argc, char *argv[])
 			continue;
 		}
 
+#ifdef HAVE_LIBSDL_MIXER
+		if (prefix(argv[i], "-c"))
+		{
+			no_cache_audio = TRUE;
+			plog("Audio cache disabled");			
+			continue;		
+		}
+#endif /* HAVE_LIBSDL_MIXER */
+
 		plog_fmt("Ignoring option: %s", argv[i]);
 	}
+
+#ifdef USE_LOCALE
+	setlocale(LC_ALL, "");
+#ifdef DEFAULT_LOCALE
+	if(!strcmp(setlocale(LC_ALL, NULL), "C")){
+		printf("try default locale \"%s\"\n", DEFAULT_LOCALE);
+		setlocale(LC_ALL, DEFAULT_LOCALE);
+	}
+#endif
+	{
+		char *current_locale = setlocale(LC_ALL, NULL);
+/*		printf("set locale to \"%s\"\n", current_locale); */
+		if(!strcmp(current_locale, "C")){
+			printf("WARNING: Locale is not supported. Non-english font may be displayed incorrectly.\n");
+		}
+	}
+
+	if(!XSupportsLocale()){
+		printf("can't support locale in X\n");
+		setlocale(LC_ALL, "C");
+	}
+#endif /* USE_LOCALE */
 
 
 	/* Init the Metadpy if possible */
@@ -2433,9 +3084,9 @@ errr init_x11(int argc, char *argv[])
 		{
 			/* Create pixel */
 			pixel = create_pixel(Metadpy->dpy,
-			                     color_table[i][1],
-			                     color_table[i][2],
-			                     color_table[i][3]);
+					     color_table[i][1],
+					     color_table[i][2],
+					     color_table[i][3]);
 		}
 
 		/* Initialize the color */
@@ -2462,6 +3113,17 @@ errr init_x11(int argc, char *argv[])
 	/* Activate the "Angband" window screen */
 	Term_activate(&data[0].t);
 
+#ifdef USE_XIM
+	{
+		char *p;
+		p = XSetLocaleModifiers("");
+		if(!p || !*p){
+			p = XSetLocaleModifiers("@im=");
+		}
+/*		printf("XMODIFIERS=\"%s\"\n", p); */
+	}
+	XRegisterIMInstantiateCallback(Metadpy->dpy, NULL, NULL, NULL, IMInstantiateCallback, NULL);
+#endif
 
 #ifdef USE_GRAPHICS
 
@@ -2469,7 +3131,7 @@ errr init_x11(int argc, char *argv[])
 	if (arg_graphics)
 	{
 		/* Try the "16x16.bmp" file */
-		path_build(filename, 1024, ANGBAND_DIR_XTRA, "graf/16x16.bmp");
+		path_build(filename, sizeof(filename), ANGBAND_DIR_XTRA, "graf/16x16.bmp");
 
 		/* Use the "16x16.bmp" file if it exists */
 		if (0 == fd_close(fd_open(filename, O_RDONLY)))
@@ -2486,7 +3148,7 @@ errr init_x11(int argc, char *argv[])
 		else
 		{
 			/* Try the "8x8.bmp" file */
-			path_build(filename, 1024, ANGBAND_DIR_XTRA, "graf/8x8.bmp");
+			path_build(filename, sizeof(filename), ANGBAND_DIR_XTRA, "graf/8x8.bmp");
 
 			/* Use the "8x8.bmp" file if it exists */
 			if (0 == fd_close(fd_open(filename, O_RDONLY)))
@@ -2527,11 +3189,10 @@ errr init_x11(int argc, char *argv[])
 			/* Resize tiles */
 			td->tiles =
 			ResizeImage(dpy, tiles_raw,
-			            pict_wid, pict_hgt,
-			            td->fnt->wid, td->fnt->hgt);
+				    pict_wid, pict_hgt,
+				    td->fnt->twid, td->fnt->hgt);
 		}
 
-#ifdef USE_TRANSPARENCY
 		/* Initialize the transparency masks */
 		for (i = 0; i < num_term; i++)
 		{
@@ -2546,24 +3207,37 @@ errr init_x11(int argc, char *argv[])
 			ii = 1;
 			jj = (depth - 1) >> 2;
 			while (jj >>= 1) ii <<= 1;
-			total = td->fnt->wid * td->fnt->hgt * ii;
+			total = td->fnt->twid * td->fnt->hgt * ii;
 			
 			
 			TmpData = (char *)malloc(total);
 
 			td->TmpImage = XCreateImage(dpy,visual,depth,
 				ZPixmap, 0, TmpData,
-				td->fnt->wid, td->fnt->hgt, 8, 0);
+				td->fnt->twid, td->fnt->hgt, 8, 0);
 
 		}
-#endif /* USE_TRANSPARENCY */
-
 
 		/* Free tiles_raw? XXX XXX */
 	}
 
 #endif /* USE_GRAPHICS */
 
+#ifdef HAVE_LIBSDL_MIXER
+	/* Load sound preferences if requested */
+	if (arg_sound)
+	{
+		if ( load_sound_prefs(no_cache_audio) != 0 ) 
+		{
+			enable_sound = 1;
+			/* plog("Loaded sound prefs OK!"); */
+		}
+		else
+		{
+			plog("Failed to load sound config");
+		}
+	}
+#endif  /* HAVE_LIBSDL_MIXER */
 
 	/* Success */
 	return (0);

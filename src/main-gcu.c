@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/07/19 13:50:07 $ */
 /* File: main-gcu.c */
 
 /*
@@ -51,6 +50,10 @@
 
 
 #ifdef USE_GCU
+
+#ifdef HAVE_LIBSDL_MIXER
+#include "sdl_sound.h"
+#endif /* HAVE_LIBSDL_MIXER */
 
 /*
  * Hack -- play games with "bool"
@@ -130,6 +133,10 @@
 # include <sys/file.h>
 # include <sys/types.h>
 #endif
+
+#ifdef HAVE_LIBSDL_MIXER
+static	bool no_cache_audio = FALSE;
+#endif /* HAVE_LIBSDL_MIXER */
 
 
 /*
@@ -701,8 +708,8 @@ static errr Term_xtra_gcu_react(void)
 	{
 		/* Set one color (note scaling) */
 		init_color(i, angband_color_table[i][1] * 1000 / 255,
-		              angband_color_table[i][2] * 1000 / 255,
-		              angband_color_table[i][3] * 1000 / 255);
+			      angband_color_table[i][2] * 1000 / 255,
+			      angband_color_table[i][3] * 1000 / 255);
 	}
 
 #endif
@@ -769,6 +776,12 @@ static errr Term_xtra_gcu(int n, int v)
 		case TERM_XTRA_REACT:
 		Term_xtra_gcu_react();
 		return (0);
+#ifdef HAVE_LIBSDL_MIXER
+		/* Play a sound */
+		case TERM_XTRA_SOUND :
+			if ( enable_sound ) { play_sound( v, no_cache_audio ); } 
+			return 0;
+#endif /* HAVE_LIBSDL_MIXER */
 	}
 
 	/* Unknown */
@@ -861,7 +874,7 @@ static errr Term_text_gcu(int x, int y, int n, byte a, cptr s)
 
 				/* XXX */
 				default:
-					pic = s[i];
+					pic = (unsigned char)s[i];
 					break;
 			}
 
@@ -874,7 +887,7 @@ static errr Term_text_gcu(int x, int y, int n, byte a, cptr s)
 #endif
 
 		/* Draw a normal character */
-		waddch(td->win, s[i]);
+		waddch(td->win, (unsigned char)s[i]);
 	}
 
 	/* Success */
@@ -940,11 +953,29 @@ static errr term_data_init_gcu(term_data *td, int rows, int cols, int y, int x)
  *
  * Someone should really check the semantics of "initscr()"
  */
+extern errr init_gcu(int argc, char *argv[]);
 errr init_gcu(int argc, char *argv[])
 {
 	int i;
 
 	int num_term = MAX_TERM_DATA, next_win = 0;
+
+
+	/* Parse args */
+	for (i = 1; i < argc; i++)
+	{
+#ifdef HAVE_LIBSDL_MIXER
+		if (prefix(argv[i], "-c"))
+		{
+			no_cache_audio = TRUE;
+			plog("Audio cache disabled");			
+			continue;		
+		}
+#endif /* HAVE_LIBSDL_MIXER */
+
+		plog_fmt("Ignoring option: %s", argv[i]);
+	}
+
 
 	/* Extract the normal keymap */
 	keymap_norm_prepare();
@@ -977,12 +1008,12 @@ errr init_gcu(int argc, char *argv[])
 
 	/* Do we have color, and enough color, available? */
 	can_use_color = ((start_color() != ERR) && has_colors() &&
-	                 (COLORS >= 8) && (COLOR_PAIRS >= 8));
+			 (COLORS >= 8) && (COLOR_PAIRS >= 8));
 
 #ifdef REDEFINE_COLORS
 	/* Can we change colors? */
 	can_fix_color = (can_use_color && can_change_color() &&
-	                 (COLORS >= 16) && (COLOR_PAIRS > 8));
+			 (COLORS >= 16) && (COLOR_PAIRS > 8));
 #endif
 
 	/* Attempt to use customized colors */
@@ -1127,6 +1158,23 @@ errr init_gcu(int argc, char *argv[])
 
 	/* Remember the active screen */
 	term_screen = &data[0].t;
+
+#ifdef HAVE_LIBSDL_MIXER
+	/* Load sound preferences if requested */
+	if (arg_sound)
+	{
+		if ( load_sound_prefs(no_cache_audio) != 0 ) 
+		{
+			enable_sound = 1;
+			/* plog("Loaded sound prefs OK!"); */
+		}
+		else
+		{
+			plog("Failed to load sound config");
+		}
+	}
+#endif  /* HAVE_LIBSDL_MIXER */
+
 
 	/* Success */
 	return (0);

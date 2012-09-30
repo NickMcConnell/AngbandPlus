@@ -1,4 +1,3 @@
-# CVS: Last edit by $Author: rr9 $ on $Date: 2000/01/03 22:43:24 $
 # File: t0000002.txt
 
 # Telmora
@@ -19,12 +18,6 @@ F:x:63:3
 
 # Default for Quest 5 = entrance is stone
 F:w:63:3
-
-# Default for Quest 15 = entrance is stone
-F:v:63:3
-
-# Default for Quest 16 = entrance is stone
-F:u:63:3
 
 # Default for Quest 26 = entrance is tree
 F:t:96:3
@@ -48,7 +41,7 @@ F:b:129:3:0:0:0:0:0:2
 # Quest 2 rewarding, reward is ring of light and darkness resistance
 ?:[EQU $QUEST2 3]
 F:b:129:3:0:0:0:0:0:3
-F:!:1:3:0:426
+F:!:1:3:0:177
 
 # Quest 2 finished
 ?:[EQU $QUEST2 4]
@@ -64,7 +57,7 @@ F:b:129:3:0:0:0:0:0:3
 
 ?:1
 
-############### Quest 3 - Logrus Master ###############
+############### Quest 3 - Arch Druid ###############
 
 # Quest 3 assigned, entrance is quest entrance
 ?:[EQU $QUEST3 1]
@@ -75,10 +68,10 @@ F:b:129:3:0:0:0:0:0:3
 ?:[EQU $QUEST3 2]
 F:b:129:3:0:0:0:0:0:3
 
-# Quest 3 rewarding, reward is Staff of Teleportation
+# Quest 3 rewarding, reward is Rod of Recall
 ?:[EQU $QUEST3 3]
 F:b:129:3:0:0:0:0:0:4
-F:!:1:3:0:303
+F:!:1:3:0:354
 
 # Quest 3 finished
 ?:[EQU $QUEST3 4]
@@ -143,45 +136,6 @@ F:b:129:3:0:0:0:0:0:26
 ?:[EQU $QUEST5 4]
 F:b:129:3:0:0:0:0:0:26
 
-# Death Paladins continue with quest 16
-?:[AND [EQU $QUEST5 3] [AND [EQU $CLASS Paladin] [EQU $REALM1 Death] ] ]
-F:b:129:3:0:0:0:0:0:16
-
-# Death Paladins continue with quest 16
-?:[AND [EQU $QUEST5 4] [AND [EQU $CLASS Paladin] [EQU $REALM1 Death] ] ]
-F:b:129:3:0:0:0:0:0:16
-
-?:1
-
-#################### Quest 16 - Assault on Montsalvat ####################
-
-# Quest 16 assigned, entrance is quest entrance
-?:[EQU $QUEST16 1]
-F:u:8:3:0:0:0:0:0:16
-F:b:129:3:0:0:0:0:0:16
-
-# Quest 16 completed
-?:[EQU $QUEST16 2]
-F:b:129:3:0:0:0:0:0:16
-
-# Quest 16 rewarding, continue with quest 26,
-# reward is amulet of reflection
-?:[EQU $QUEST16 3]
-F:b:129:3:0:0:0:0:0:26
-F:!:1:3:0:520
-
-# Quest 16 finished, continue with quest 26
-?:[EQU $QUEST16 4]
-F:b:129:3:0:0:0:0:0:26
-
-# Quest 16 failed, wait for the player to enter the castle
-?:[EQU $QUEST16 5]
-F:b:129:3:0:0:0:0:0:16
-
-# Quest 16 failed but done, continue with quest 26
-?:[EQU $QUEST16 6]
-F:b:129:3:0:0:0:0:0:26
-
 ?:1
 
 #################### Quest 26 - Killing Fields ####################
@@ -195,116 +149,133 @@ F:b:129:3:0:0:0:0:0:26
 ?:[EQU $QUEST26 2]
 F:b:129:3:0:0:0:0:0:26
 
-# Quest 26 rewarding, continue with quest 15,
+# Quest 26 rewarding, no new quest available,
 # Reward is a Potion of Life
 ?:[EQU $QUEST26 3]
-F:b:129:3:0:0:0:0:0:15
-F:!:1:3:0:420
+F:b:129:3
+F:!:1:3:0:274
 
-# Quest 26 finished, continue with quest 15
+# Quest 26 finished, no new quest available
 ?:[EQU $QUEST26 4]
-F:b:129:3:0:0:0:0:0:15
+F:b:129:3
 
 # Quest 26 failed, wait for the player to enter the castle
 ?:[EQU $QUEST26 5]
 F:b:129:3:0:0:0:0:0:26
 
-# Quest 26 failed but done, continue with quest 15
+# Quest 26 failed but done, no new quest available
 ?:[EQU $QUEST26 6]
-F:b:129:3:0:0:0:0:0:15
-
-?:1
-
-#################### Quest 15 - Eric's Stronghold ####################
-
-# Quest 15 assigned, entrance is quest entrance
-?:[EQU $QUEST15 1]
-F:v:8:3:0:0:0:0:0:15
-F:b:129:3:0:0:0:0:0:15
-
-# Quest 15 completed
-?:[EQU $QUEST15 2]
-F:b:129:3:0:0:0:0:0:15
-
-# Quest 15 rewarding, no new quest available,
-# Reward is potion of Life
-?:[EQU $QUEST15 3]
-F:b:129:3
-F:!:1:3:0:420
-
-# Quest 15 finished, no new quest available,
-?:[EQU $QUEST15 4]
-F:b:129:3
-
-# Quest 15 failed, wait for the player to enter the castle
-?:[EQU $QUEST15 5]
-F:b:129:3:0:0:0:0:0:15
-
-# Quest 15 failed but done, no new quest available,
-?:[EQU $QUEST15 6]
 F:b:129:3
 
 ?:1
-
-
 
 #################### Buildings ####################
 
-B:0:N:Library:Astinus:Human?
-B:0:A:0:Research item:2000:2000:a:1:0
+B:$0:N:Library:Astinus:Human?
+B:0:N:図書館:アスティヌス:人間?
+B:$0:A:0:Research item:2000:2000:a:1:0
+B:0:A:0:アイテム調査:2000:2000:a:1:0
 # After clearing the tower the research gets cheaper
-?:[EQU $QUEST5 4]
-B:0:A:0:Research item:1000:1000:a:1:0
+?:[EQU $QUEST5 3 4]
+B:$0:A:0:Research item:1000:1000:a:1:0
+B:0:A:0:アイテム調査:1000:1000:a:1:0
 ?:1
-B:0:A:1:Town history:0:0:h:2:0
+B:$0:A:1:Town history:0:0:h:2:0
+B:0:A:1:街の概要:0:0:h:2:0
 
-B:1:N:Castle:Denegor:Human
-B:1:A:0:Request quest:0:0:q:6:0
+B:$1:N:Castle:Denegor:Human
+B:1:N:城:デネゴール:人間
+B:$1:A:0:Request quest:0:0:q:6:0
+B:1:A:0:クエスト:0:0:q:6:0
 
-B:3:N:Casino:Materim:Human
-B:3:A:0:In-Between:0:0:b:12:0
-B:3:A:1:Game rules:0:0:r:13:0
-B:3:A:2:Play craps:0:0:c:14:0
-B:3:A:3:Spin the wheel:0:0:s:15:0
-B:3:A:4:Play dice slots:0:0:d:16:0
+B:$3:N:Casino:Materim:Human
+B:3:N:カジノ:マテリム:人間
+B:$3:A:0:In-Between:0:0:b:12:0
+B:3:A:0:イン・ビトイーン:0:0:b:12:0
+B:$3:A:1:Game rules:0:0:r:13:0
+B:3:A:1:ゲームのルール:0:0:r:13:0
+B:$3:A:2:Play craps:0:0:c:14:0
+B:3:A:2:クラップス:0:0:c:14:0
+B:$3:A:3:Spin the wheel:0:0:s:15:0
+B:3:A:3:ルーレット:0:0:s:15:0
+B:$3:A:4:Play dice slots:0:0:d:16:0
+B:3:A:4:ダイス・スロット:0:0:d:16:0
 
-B:4:N:Inn:Owen:Human
-B:4:A:0:Rest for the night:20:20:r:17:0
-B:4:A:1:Buy food and drink:1:1:f:18:1
-B:4:A:2:Listen for rumors:10:10:u:19:0
-B:4:R:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:0:0:0:0:0:1:1
+B:$4:N:Inn:Owen:Human
+B:4:N:宿屋:オウェン:人間
+B:$4:A:0:Rest for the night:20:20:r:17:0
+B:4:A:0:一泊する:20:20:r:17:0
+B:$4:A:1:Buy food and drink:1:1:f:18:1
+B:4:A:1:食事をする:1:1:f:18:1
+B:$4:A:2:Listen for rumors:10:10:u:19:0
+B:4:A:2:噂を聞く:10:10:u:19:0
+B:$4:R:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:0:0:0:0:0:0:1
+B:4:R:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:1:0:0:0:0:0:0:1
 
-B:5:N:Beastmaster:Lorien:Elf
-B:5:A:0:Research monster:10000:10000:r:20:0
+B:$5:N:Beastmaster:Lorien:Elf
+B:5:N:モンスター仙人:ロリエン:エルフ
+B:$5:A:0:Research monster:10000:10000:r:20:0
+B:5:A:0:モンスター調査:10000:10000:r:20:0
+# After clearing the tower the research gets cheaper
+?:[EQU $QUEST5 3 4]
+B:$5:A:0:Research monster:1200:1200:r:20:0
+B:5:A:0:モンスター調査:1200:1200:r:20:0
+?:1
 
-B:6:N:Weaponmaster:Suiyan:Human
-B:6:A:0:Compare weapons:1000:1000:c:21:0
+B:$6:N:Weaponmaster:Suiyan:Human
+B:6:N:武器匠:水庵:人間
+B:$6:A:0:Compare weapons:1000:1000:c:21:0
+B:6:A:0:武器を比較する:1000:1000:c:21:0
+# After clearing the tower the research gets cheaper
+?:[EQU $QUEST5 3 4]
+B:$6:A:0:Compare weapons:150:150:c:21:0
+B:6:A:0:武器を比較する:150:150:c:21:0
+?:1
 
-B:7:N:Fighters Hall:Barak:Human
-B:7:A:0:Enchant weapon:200:400:w:23:0
-B:7:A:1:Enchant armor:150:300:a:24:0
-B:7:C:2:0:0:0:0:0:0:0:0:0:0
+B:$7:N:Fighters Hall:Barak:Human
+B:7:N:戦士の集会所:バラク:人間
+B:$7:A:0:Enchant weapon:200:400:w:23:0
+B:7:A:0:武器を強化する:200:400:w:23:0
+B:$7:A:1:Enchant armor:150:300:a:24:0
+B:7:A:1:防具を強化する:150:300:a:24:0
+B:$7:C:2:0:0:0:0:1:0:0:0:0:0:0:0
+B:7:C:2:0:0:0:0:1:0:0:0:0:0:0:0
 
-B:9:N:Temple of Life:Crysania:Human
-B:9:A:0:Healing prayer:0:1000:h:28:0
-B:9:A:1:Restoration:200:1000:r:29:0
+B:$9:N:Temple of Life:Crysania:Human
+B:9:N:生命魔術の塔:クリサニア:人間
+B:$9:A:0:Healing prayer:0:1000:h:28:0
+B:9:A:0:治療の祈祷:0:1000:h:28:0
+B:$9:A:1:Restoration:200:1000:r:29:0
+B:9:A:1:能力回復:200:1000:r:29:0
+B:$9:M:2:0:0:0:0:0:0
 B:9:M:2:0:0:0:0:0:0
 
-B:10:N:Thieves Guild:Lardbottom:Hobbit
-B:10:A:0:Get share of stolen gold:0:0:s:7:2
-B:10:A:1:Rest for the night:0:100:r:17:0
-B:10:A:2:Identify possessions:100:2000:i:26:0
-B:10:C:0:0:0:2:0:0:0:0:0:0:0
+B:$10:N:Thieves Guild:Lardbottom:Hobbit
+B:10:N:盗賊のギルド:ラードボトム:ホビット
+B:$10:A:0:Get share of stolen gold:0:0:s:7:2
+B:10:A:0:盗んだ金を山分けする:0:0:s:7:2
+B:$10:A:1:Rest for the night:0:100:r:17:0
+B:10:A:1:一泊する:0:100:r:17:0
+B:$10:A:2:Identify possessions:100:2000:i:26:0
+B:10:A:2:持ち物全てを鑑定:100:2000:i:26:0
 
-B:11:N:Rangers Guild:Trallin:Half-elf
-B:11:A:0:Enchant missiles:10:20:a:30:0
-B:11:A:1:Enchant bow:200:400:b:31:0
-B:11:C:0:0:0:0:2:0:0:0:0:0:0
+B:$11:N:Rangers Guild:Trallin:Half-elf
+B:11:N:レンジャーのギルド:トゥラリン:ハーフエルフ
+B:$11:A:0:Enchant missiles:10:20:a:30:0
+B:11:A:0:矢や石等を強化する:10:20:a:30:0
+B:$11:A:1:Enchant bow:200:400:b:31:0
+B:11:A:1:弓を強化する:200:400:b:31:0
+B:$11:C:0:0:0:2:0:0:0:2:0:0:0:0:0
+B:11:C:0:0:0:2:0:0:0:2:0:0:0:0:0
 
-B:12:N:Paladins Guild:Langordathur:Human
-B:12:A:0:Enchant armor:150:300:a:24:0
-B:12:A:1:See Healers:0:1000:h:28:0
-B:12:C:0:0:0:0:0:2:0:0:0:0:0
+B:$12:N:Paladins Guild:Langordathur:Human
+B:12:N:パラディンのギルド:ランゴルダスール:人間
+B:$12:A:0:Enchant armor:150:300:a:24:0
+B:12:A:0:防具を強化する:150:300:a:24:0
+B:$12:A:1:See Healers:0:1000:h:28:0
+B:12:A:1:治療家に会う:0:1000:h:28:0
+B:$12:C:0:0:0:0:2:0:0:0:0:0:0:0:0
+B:12:C:0:0:0:0:2:0:0:0:0:0:0:0:0
 
 
 D:######################################################################################################################################################################################################
@@ -315,7 +286,7 @@ D:#-----------------------------------------------------------------------------
 D:#,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-------,,..............----------------TTTTTTTTTTTTTTT-----TTTT------------TT--------.------TTTTTTTTT---TTTTTTTTTTTTTTTTTT#
 D:#.........................................................................,---,,,,,.-------------..--------------------TTTTTTT---------------------------------.----------TTTT----------TTTTTTTTTTTTT#
 D:#,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,.,,,,,....---------------..-----------------------------------------------------------.,----------------------------TTTTTTTT#
-D:#WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW-,......-------------------#v#########--------------------------------------------------.,,,------,,,,,,,,,--------,,,,,,,TTTT#
+D:#WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW-,......-------------------###########--------------------------------------------------.,,,------,,,,,,,,,--------,,,,,,,TTTT#
 D:#WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW,.,-----------------------###########-----------------------------------------------,,,.,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,#
 D:######################################################################WW,.,-----------------------###########---------------------------------------------,,,,,.,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,#
 D:######################################################################WW,.,-----------------------###########-----------------------------------------------,,.,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,#
@@ -365,7 +336,7 @@ D:######################################################################WW,.,---
 D:######################################################################WW,.,--------------.--------------------------------------------------------------..-------------------------------------------#
 D:#WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW,.,--------------.----------------------------------------------------------------.....................----------------^^----#
 D:#WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW-,.,---------------.------------------------------WWWW--------------------------------------------------.....--------^^^^^^---#
-D:#,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,.,---------------.---------------------------WWWWWWWWWW----------------------------#u#####-----------------......^^^^^^^^^^-#
+D:#,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,.,---------------.---------------------------WWWWWWWWWW----------------------------#######-----------------......^^^^^^^^^^-#
 D:#.........................................................................,----------------.---------------------------WWWWWWW------------------------------#######-------------------^^^^^^^^^^^^^--#
 D:#,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-----------------.----------------------------WW---------------------------------#######----------------^^^^^^^^^^^^^^^^^-#
 D:#--------------------------------------------------------------------------------------------.....-------------------------------------------------------------------------------^^^^^^^^^^^^^^^^^^^-#
@@ -405,14 +376,6 @@ P:34:100
 # Starting position when coming from quest 7
 ?:[EQU $LEAVING_QUEST 7]
 P:34:100
-
-# Starting position when coming from quest 15
-?:[EQU $LEAVING_QUEST 15]
-P:7:99
-
-# Starting position when coming from quest 16
-?:[EQU $LEAVING_QUEST 16]
-P:58:157
 
 # Starting position when coming from quest 26
 ?:[EQU $LEAVING_QUEST 26]

@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 2000/08/08 11:07:30 $ */
 /* File: z-term.h */
 
 /*
@@ -44,14 +43,11 @@ struct term_win
 	byte *va;
 	char *vc;
 
-#ifdef USE_TRANSPARENCY
 	byte **ta;
 	char **tc;
 
 	byte *vta;
 	char *vtc;
-#endif /* USE_TRANSPARENCY */
-
 };
 
 
@@ -215,16 +211,15 @@ struct term
 
 	errr (*curs_hook)(int x, int y);
 
+	errr (*bigcurs_hook)(int x, int y);
+
 	errr (*wipe_hook)(int x, int y, int n);
 
 	errr (*text_hook)(int x, int y, int n, byte a, cptr s);
 
-#ifdef USE_TRANSPARENCY
-	errr (*pict_hook)(int x, int y, int n, const byte *ap, const char *cp, const byte *tap, const char *tcp);
-#else /* USE_TRANSPARENCY */
-	errr (*pict_hook)(int x, int y, int n, const byte *ap, const char *cp);
-#endif /* USE_TRANSPARENCY */
+	void (*resize_hook)(void);
 
+	errr (*pict_hook)(int x, int y, int n, const byte *ap, const char *cp, const byte *tap, const char *tcp);
 };
 
 
@@ -278,15 +273,10 @@ extern term *Term;
 extern errr Term_user(int n);
 extern errr Term_xtra(int n, int v);
 
-#ifdef USE_TRANSPARENCY
 extern void Term_queue_char(int x, int y, byte a, char c, byte ta, char tc);
+extern void Term_queue_bigchar(int x, int y, byte a, char c, byte ta, char tc);
 
 extern void Term_queue_line(int x, int y, int n, byte *a, char *c, byte *ta, char *tc);
-#else /* USE_TRANSPARENCY */
-extern void Term_queue_char(int x, int y, byte a, char c);
-
-extern void Term_queue_line(int x, int y, int n, byte *a, char *c);
-#endif /* USE_TRANSPARENCY */
 
 extern void Term_queue_chars(int x, int y, int n, byte a, cptr s);
 
@@ -295,6 +285,7 @@ extern errr Term_set_cursor(int v);
 extern errr Term_gotoxy(int x, int y);
 extern errr Term_draw(int x, int y, byte a, char c);
 extern errr Term_addch(byte a, char c);
+extern errr Term_add_bigch(byte a, char c);
 extern errr Term_addstr(int n, byte a, cptr s);
 extern errr Term_putch(int x, int y, byte a, char c);
 extern errr Term_putstr(int x, int y, int n, byte a, cptr s);

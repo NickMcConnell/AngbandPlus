@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/07/19 13:51:17 $ */
 /* File: types.h */
 
 /* Purpose: global type declarations */
@@ -15,12 +14,6 @@
 /*
  * This file should ONLY be included by "angband.h"
  */
-
-#ifdef USE_SCRIPT
-
-#include "Python.h"
-
-#endif /* USE_SCRIPT */
 
 /*
  * Note that "char" may or may not be signed, and that "signed char"
@@ -55,59 +48,6 @@
 
 
 
-/*
- * Template file header information (see "init.c").  16 bytes.
- *
- * Note that the sizes of many of the "arrays" are between 32768 and
- * 65535, and so we must use "unsigned" values to hold the "sizes" of
- * these arrays below.  Normally, I try to avoid using unsigned values,
- * since they can cause all sorts of bizarre problems, but I have no
- * choice here, at least, until the "race" array is split into "normal"
- * and "unique" monsters, which may or may not actually help.
- *
- * Note that, on some machines, for example, the Macintosh, the standard
- * "read()" and "write()" functions cannot handle more than 32767 bytes
- * at one time, so we need replacement functions, see "util.c" for details.
- *
- * Note that, on some machines, for example, the Macintosh, the standard
- * "malloc()" function cannot handle more than 32767 bytes at one time,
- * but we may assume that the "ralloc()" function can handle up to 65535
- * butes at one time.  We should not, however, assume that the "ralloc()"
- * function can handle more than 65536 bytes at a time, since this might
- * result in segmentation problems on certain older machines, and in fact,
- * we should not assume that it can handle exactly 65536 bytes at a time,
- * since the internal functions may use an unsigned short to specify size.
- *
- * In general, these problems occur only on machines (such as most personal
- * computers) which use 2 byte "int" values, and which use "int" for the
- * arguments to the relevent functions.
- */
-
-typedef struct header header;
-
-struct header
-{
-	byte	v_major;		/* Version -- major */
-	byte	v_minor;		/* Version -- minor */
-	byte	v_patch;		/* Version -- patch */
-	byte	v_extra;		/* Version -- extra */
-
-
-	u16b	info_num;		/* Number of "info" records */
-
-	u16b	info_len;		/* Size of each "info" record */
-
-
-	u32b	head_size;		/* Size of the "header" in bytes */
-
-	u32b	info_size;		/* Size of the "info" array in bytes */
-
-	u32b	name_size;		/* Size of the "name" array in bytes */
-
-	u32b	text_size;		/* Size of the "text" array in bytes */
-};
-
-
 
 /*
  * Information about terrain "features"
@@ -122,16 +62,13 @@ struct feature_type
 
 	byte mimic;			/* Feature to mimic */
 
-	byte extra;			/* Extra byte (unused) */
+	u16b priority;            /* Map priority */
 
-	s16b unused;		/* Extra bytes (unused) */
+	byte d_attr[F_LIT_MAX];   /* Default feature attribute */
+	char d_char[F_LIT_MAX];   /* Default feature character */
 
-	byte d_attr;		/* Default feature attribute */
-	char d_char;		/* Default feature character */
-
-
-	byte x_attr;		/* Desired feature attribute */
-	char x_char;		/* Desired feature character */
+	byte x_attr[F_LIT_MAX];   /* Desired feature attribute */
+	char x_char[F_LIT_MAX];   /* Desired feature character */
 };
 
 
@@ -147,6 +84,7 @@ struct object_kind
 {
 	u32b name;			/* Name (offset) */
 	u32b text;			/* Text (offset) */
+	u32b flavor_name;	/* Flavor name (offset) */
 
 	byte tval;			/* Object type */
 	byte sval;			/* Object sub type */
@@ -169,6 +107,8 @@ struct object_kind
 	u32b flags2;		/* Flags, set 2 */
 	u32b flags3;		/* Flags, set 3 */
 
+	u32b gen_flags;		/* flags for generate */
+
 	byte locale[4];		/* Allocation level(s) */
 	byte chance[4];		/* Allocation chance(s) */
 
@@ -184,7 +124,7 @@ struct object_kind
 	char x_char;		/* Desired object character */
 
 
-	byte flavor;			/* Special object flavor (or zero) */
+	s16b flavor;		/* Special object flavor (or zero) */
 
 	bool easy_know;		/* This object is always known (if aware) */
 
@@ -232,11 +172,15 @@ struct artifact_type
 	u32b flags2;		/* Artifact Flags, set 2 */
 	u32b flags3;		/* Artifact Flags, set 3 */
 
+	u32b gen_flags;		/* flags for generate */
+
 	byte level;			/* Artifact level */
 	byte rarity;		/* Artifact rarity */
 
 	byte cur_num;		/* Number created (0 or 1) */
 	byte max_num;		/* Unused (should be "1") */
+
+	int activate;		/* Activation */
 };
 
 
@@ -268,6 +212,10 @@ struct ego_item_type
 	u32b flags1;		/* Ego-Item Flags, set 1 */
 	u32b flags2;		/* Ego-Item Flags, set 2 */
 	u32b flags3;		/* Ego-Item Flags, set 3 */
+
+	u32b gen_flags;		/* flags for generate */
+
+	int activate;		/* Activation */
 };
 
 
@@ -292,6 +240,14 @@ struct monster_blow
 	byte d_side;
 };
 
+
+typedef struct mbe_info_type mbe_info_type;
+
+struct mbe_info_type
+{
+	int power;        /* The attack "power" */
+	int explode_type; /* Explosion effect */
+};
 
 
 /*
@@ -320,6 +276,9 @@ typedef struct monster_race monster_race;
 struct monster_race
 {
 	u32b name;				/* Name (offset) */
+#ifdef JP
+	u32b E_name;			/* ±Ñ¸ìÌ¾ (offset) */
+#endif
 	u32b text;				/* Text (offset) */
 
 	byte hdice;				/* Creatures hit dice count */
@@ -452,17 +411,17 @@ typedef struct cave_type cave_type;
 
 struct cave_type
 {
-	byte info;		/* Hack -- cave flags */
+	u16b info;		/* Hack -- cave flags */
 
 	byte feat;		/* Hack -- feature type */
+
+	byte mimic;		/* Feature to mimic */
 
 	s16b o_idx;		/* Object in this grid */
 
 	s16b m_idx;		/* Monster in this grid */
 
 	s16b special;	/* Special cave info */
-
-	byte mimic;		/* Feature to mimic */
 
 #ifdef MONSTER_FLOW
 
@@ -524,7 +483,7 @@ struct object_type
 	byte tval;			/* Item type (from kind) */
 	byte sval;			/* Item sub-type (from kind) */
 
-	s16b pval;			/* Item extra-parameter */
+	s32b pval;			/* Item extra-parameter (s32b for Rods -- iks) */
 
 	byte discount;		/* Discount (if any) */
 
@@ -537,6 +496,7 @@ struct object_type
 
 	byte xtra1;			/* Extra info type */
 	byte xtra2;			/* Extra info index */
+	s16b xtra3;			/* Extra parameter */
 
 	s16b to_h;			/* Plusses to hit */
 	s16b to_d;			/* Plusses to damage */
@@ -546,7 +506,7 @@ struct object_type
 
 	byte dd, ds;		/* Damage dice/sides */
 
-	s16b timeout;		/* Timeout Counter */
+	s32b timeout;		/* Timeout Counter (s32b for Rods -- iks) */
 
 	byte ident;			/* Special flags  */
 
@@ -554,6 +514,7 @@ struct object_type
 
 	u16b inscription;	/* Inscription index */
 	u16b art_name;      /* Artifact name (random artifacts) */
+	u16b ego_name;      /* Named ego name */
 
 	byte feeling;          /* Game generated inscription number (eg, pseudo-id) */
 
@@ -564,31 +525,6 @@ struct object_type
 	s16b next_o_idx;	/* Next object in stack (if any) */
 
 	s16b held_m_idx;	/* Monster holding us (if any) */
-
-#ifdef USE_SCRIPT
-	PyObject *python;
-#endif /* USE_SCRIPT */
-
-#ifdef SCRIPT_OBJ_KIND
-	char *name;
-
-	byte d_attr;		/* Default object attribute */
-	char d_char;		/* Default object character */
-
-
-	byte x_attr;		/* Desired object attribute */
-	char x_char;		/* Desired object character */
-
-
-	byte flavor;			/* Special object flavor (or zero) */
-
-	bool easy_know;		/* This object is always known (if aware) */
-
-
-	bool aware;			/* The player is "aware" of the item's effects */
-
-	bool tried;			/* The player has "tried" one of the items */
-#endif /* SCRIPT_OBJ_KIND */
 };
 
 
@@ -617,7 +553,10 @@ struct monster_type
 	s16b csleep;		/* Inactive counter */
 
 	byte mspeed;		/* Monster "speed" */
-	byte energy;		/* Monster "energy" */
+	s16b energy_need;		/* Monster "energy" */
+
+	byte hasted;		/* Monster is hasted */
+	byte slowed;		/* Monster is slowed */
 
 	byte stunned;		/* Monster is stunned */
 	byte confused;		/* Monster is confused */
@@ -627,10 +566,14 @@ struct monster_type
 	byte cdis;			/* Current dis from player */
 
 	byte mflag;			/* Extra monster flags */
+	u32b flags;                    /* Extra monster flass2 (these are saved) */
 
 	bool ml;			/* Monster is "visible" */
 
 	s16b hold_o_idx;	/* Object being held (if any) */
+
+	s16b target_y;		/* Can attack !los player */
+	s16b target_x;		/* Can attack !los player */
 
 #ifdef WDT_TRACK_OPTIONS
 
@@ -666,10 +609,6 @@ typedef struct alloc_entry alloc_entry;
 
 struct alloc_entry
 {
-#ifdef USE_SCRIPT
-	PyObject *python;
-#endif /* USE_SCRIPT */
-
 	s16b index;		/* The actual index */
 
 	byte level;		/* Base dungeon level */
@@ -738,6 +677,8 @@ struct quest_type
 	s16b num_mon;           /* number of monsters on level */
 
 	byte flags;             /* quest flags */
+
+	byte complev;           /* Player level (complete) */
 };
 
 
@@ -814,19 +755,15 @@ struct magic_type
 
 /*
  * Information about the player's "magic"
- *
- * Note that a player with a "spell_book" of "zero" is illiterate.
  */
 
 typedef struct player_magic player_magic;
 
 struct player_magic
 {
-	int spell_book;		/* Tval of spell books (if any) */
-	int spell_xtra;		/* Something for later */
-
+	int spell_type;		/* Spell type (none/spell/prayer/other) */
 	int spell_stat;		/* Stat for spells (if any)  */
-	int spell_type;		/* Spell type (mage/priest) */
+	int spell_xtra;		/* Something for later */
 
 	int spell_first;		/* Level of first spell */
 	int spell_weight;		/* Weight that hurts spells */
@@ -846,6 +783,10 @@ struct player_sex
 {
 	cptr title;			/* Type of sex */
 
+#ifdef JP
+	cptr E_title;		/* ±Ñ¸ìÀ­ÊÌ */
+#define X_title (english_others ? E_title : title)
+#endif
 	cptr winner;		/* Name of winner */
 };
 
@@ -860,6 +801,9 @@ struct player_race
 {
 	cptr title;			/* Type of race */
 
+#ifdef JP
+	cptr E_title;		/* ±Ñ¸ì¼ïÂ² */
+#endif
 	s16b r_adj[6];		/* Racial stat bonuses */
 
 	s16b r_dis;			/* disarming */
@@ -890,6 +834,7 @@ struct player_race
 	byte infra;			/* Infra-vision	range */
 
 	u16b choice;        /* Legal class choices */
+	bool can_birth;		/* Allow this race as charactor race */
 /*    byte choice_xtra;   */
 };
 
@@ -904,6 +849,9 @@ struct player_class
 {
 	cptr title;			/* Type of class */
 
+#ifdef JP
+	cptr E_title;		/* ±Ñ¸ì¿¦¶È */
+#endif
 	s16b c_adj[6];		/* Class stat modifier */
 
 	s16b c_dis;			/* class disarming */
@@ -928,6 +876,14 @@ struct player_class
 	s16b c_exp;			/* Class experience factor */
 
 	byte pet_upkeep_div; /* Pet upkeep divider */
+
+	int num;			/* Maximum blows */
+	int wgt;			/* Minimum weapon weight */
+	int mul;			/* for blows */
+
+	s16b s_inv;			/* Sense inventory speed */
+	bool s_inv_h;		/* Sense inventory weight */
+	s16b s_mag;			/* Sense magic speed */
 };
 
 
@@ -1022,9 +978,15 @@ struct player_type
 	s16b hero;			/* Timed -- Heroism */
 	s16b shero;			/* Timed -- Super Heroism */
 	s16b shield;		/* Timed -- Shield Spell */
+	s16b magicdef;		/* Timed -- Magic defence */
+	s16b musou;		/* Timed -- Musou */
 	s16b blessed;		/* Timed -- Blessed */
 	s16b tim_invis;		/* Timed -- See Invisible */
 	s16b tim_infra;		/* Timed -- Infra Vision */
+	s16b tim_regen;		/* Timed -- Regeneration */
+	s16b tim_sh_fire;		/* Timed -- Fire Aura */
+	s16b tim_sh_elec;		/* Timed -- Elec Aura */
+	s16b tim_sh_cold;		/* Timed -- Cold Aura */
 
 	s16b oppose_acid;	/* Timed -- oppose acid */
 	s16b oppose_elec;	/* Timed -- oppose lightning */
@@ -1034,33 +996,33 @@ struct player_type
 
 
 	s16b tim_esp;       /* Timed ESP */
-	s16b wraith_form;   /* Timed wraithform */
+	s16b tim_wraith;    /* Timed wraithform */
 
 	s16b resist_magic;  /* Timed Resist Magic (later) */
+	s16b tim_radar;     /* Timed Radar Eye */
+	s16b tim_sentence;  /* Magic: Revenge Sentence */
+
 	s16b tim_xtra1;     /* Later */
 	s16b tim_xtra2;     /* Later */
 	s16b tim_xtra3;     /* Later */
 	s16b tim_xtra4;     /* Later */
 	s16b tim_xtra5;     /* Later */
 	s16b tim_xtra6;     /* Later */
-	s16b tim_xtra7;     /* Later */
-	s16b tim_xtra8;     /* Later */
 
-	s16b chaos_patron;
-	u32b muta1;
-	u32b muta2;
-	u32b muta3;
+	s16b chaos_patron;  /* Old one */
 
-	s16b virtues[MAX_PLAYER_VIRTUES];
-	s16b vir_types[MAX_PLAYER_VIRTUES];
+	u32b muta;         /* for Chaos mutation */
+
+	u32b concent;      /* for sniper */
+	u32b r_idx;        /* for snatcher */
 
 	s16b word_recall;	/* Word of recall counter */
 
-	s16b energy;		/* Current energy */
+	s16b energy_need;		/* Current energy */
 
 	s16b food;			/* Current nutrition */
 
-	s16b total_weight;		/* Total weight being carried */
+	u32b total_weight;		/* Total weight being carried */
 
 	byte confusing;		/* Glowing hands */
 	byte searching;		/* Currently searching */
@@ -1133,6 +1095,7 @@ struct player_type
 	bool reflect;       /* Reflect 'bolt' attacks */
 	bool sh_fire;       /* Fiery 'immolation' effect */
 	bool sh_elec;       /* Electric 'immolation' effect */
+	bool sh_cold;       /* Cold 'immolation' effect */
 
 	bool anti_magic;    /* Anti-magic */
 	bool anti_tele;     /* Prevent teleportation */
@@ -1155,20 +1118,26 @@ struct player_type
 	bool see_inv;		/* Can see invisible */
 	bool regenerate;	/* Regenerate hit pts */
 	bool hold_life;		/* Resist life draining */
+	bool wraith_form;   /* Wraithform */
 	bool telepathy;		/* Telepathy */
 	bool slow_digest;	/* Slower digestion */
 	bool bless_blade;	/* Blessed blade */
 	bool xtra_might;	/* Extra might bow */
 	bool impact;		/* Earthquake blows */
 	bool pass_wall;     /* Permanent wraithform */
+	bool kill_wall;     /* Always digging */
+	bool dec_mana;
+	bool warning;
 
-	s16b dis_to_h;		/* Known bonus to hit */
+	s16b dis_to_h;		/* Known bonus to hit (melee) */
+	s16b dis_to_b;		/* Known bonus to hit (shot) */
 	s16b dis_to_d;		/* Known bonus to dam */
 	s16b dis_to_a;		/* Known bonus to ac */
 
 	s16b dis_ac;		/* Known base ac */
 
-	s16b to_h;			/* Bonus to hit */
+	s16b to_h;			/* Bonus to hit (melee) */
+	s16b to_b;			/* Bonus to hit (shot) */
 	s16b to_d;			/* Bonus to dam */
 	s16b to_a;			/* Bonus to ac */
 
@@ -1187,7 +1156,7 @@ struct player_type
 	s16b skill_tht;		/* Skill: To hit (throwing) */
 	s16b skill_dig;		/* Skill: Digging */
 
-	s16b num_blow;		/* Number of blows */
+	s16b num_blow[2];	/* Number of blows */
 	s16b num_fire;		/* Number of shots */
 
 	byte tval_xtra;		/* Correct xtra tval */
@@ -1196,6 +1165,18 @@ struct player_type
 
 	s16b pspeed;		/* Current speed */
 
+	s16b keep_magic;	/* Magic: number of keeping spells */
+	u32b keep_spells;	/* Magic: keep spells */
+	s16b rvs_x;			/* Magic: Revenge Sentence - x */
+	s16b rvs_y;			/* Magic: Revenge Sentence - y */
+	s32b rvs_d;			/* Magic: Revenge Sentence - damage */
+
+	bool dtrap;
+	bool autopick_autoregister; /* auto register is in-use or not */
+
+	byte feeling;		/* Most recent dungeon feeling */
+	s32b feeling_turn;	/* The turn of the last dungeon feeling */
+
 	/*** Pet commands ***/
 	s16b pet_follow_distance; /* Length of the imaginary "leash" for pets */
 	byte pet_open_doors;      /* flag - allow pets to open doors */
@@ -1203,12 +1184,46 @@ struct player_type
 
 	/*** Temporary fields ***/
 	byte exit_bldg;			/* Goal obtained in arena? -KMW- */
-	byte leftbldg;			/* did we just leave a special area? -KMW- */
 	bool leaving;			/* True if player is leaving */
 
 	bool leaving_dungeon;	/* True if player is leaving the dungeon */
 
 	s32b align;				/* Good/evil/neutral */
+
+	bool skip_more;			/* Skip the --more-- prompt */
+	s16b now_message;
+};
+
+
+/*
+ * A structure to hold "rolled" information
+ */
+typedef struct birther birther;
+
+struct birther
+{
+	byte psex;         /* Sex index */
+	byte prace;        /* Race index */
+	byte pclass;       /* Class index */
+	byte realm1;       /* First magic realm */
+	byte realm2;       /* Second magic realm */
+
+	s16b age;
+	s16b ht;
+	s16b wt;
+	s16b sc;
+
+	s32b au;
+
+	s16b stat_max[6];	/* Current "maximal" stat values */
+	s16b player_hp[PY_MAX_LEVEL];
+
+	s16b chaos_patron;  /* Old one */
+
+	char history[4][60];
+
+	byte quests;
+	bool quick_ok;
 };
 
 
@@ -1258,10 +1273,6 @@ struct building_type
 	char letters[6];                /* action letters */
 	s16b actions[6];                /* action codes */
 	s16b action_restr[6];           /* action restrictions */
-
-#ifdef USE_SCRIPT
-	char act_script[6][128];        /* Scripts for the building */
-#endif /* USE_SCRIPT */
 
 	s16b member_class[MAX_CLASS];   /* which classes are part of guild */
 	s16b member_race[MAX_RACES];    /* which classes are part of guild */
@@ -1382,3 +1393,28 @@ struct high_score
 
 	char how[32];		/* Method of death (string) */
 };
+
+/*
+ *  A structure type for entry of auto-picker/destroyer
+ */
+typedef struct {
+	cptr name;          /* Items which have 'name' as part of its name match */
+	cptr insc;          /* Items will be auto-inscribed as 'insc' */
+	u32b flag[2];       /* Misc. keyword to be matched */
+	byte action;        /* Auto-pickup or Destroy or Leave items */
+	byte dice;          /* Weapons which have more than 'dice' dice match */
+	byte bonus;         /* Items which have more than 'bonus' magical bonus match */
+} autopick_type;
+
+#ifdef TRAVEL
+/*
+ *  A structure type for travel command
+ */
+typedef struct {
+	int run;
+	int cost[MAX_HGT][MAX_WID];
+	int x;
+	int y;
+	int dir;
+} travel_type;
+#endif

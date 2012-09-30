@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/07/19 13:50:53 $ */
 /* File: scores.c */
 
 /* Purpose: Highscores handling */
@@ -134,6 +133,10 @@ void display_scores_aux(int from, int to, int note, high_score *score)
 	char	out_val[256];
 	char	tmp_val[160];
 
+	int wid, hgt, per_screen;
+
+	Term_get_size(&wid, &hgt);
+	per_screen = (hgt - 4) / 4;
 
 	/* Paranoia -- it may not have opened */
 	if (highscore_fd < 0) return;
@@ -161,24 +164,32 @@ void display_scores_aux(int from, int to, int note, high_score *score)
 	if (i > to) i = to;
 
 
-	/* Show 5 per page, until "done" */
-	for (k = from, place = k+1; k < i; k += 5)
+	/* Show per_screen per page, until "done" */
+	for (k = from, place = k+1; k < i; k += per_screen)
 	{
 		/* Clear screen */
 		Term_clear();
 
 		/* Title */
-		put_str("                Zangband Hall of Fame", 0, 0);
+#ifdef JP
+		put_str(format("                %s: 勇者の殿堂", VERSION_NAME), 0, 0);
+#else
+		put_str(format("                %s Hall of Fame", VERSION_NAME), 0, 0);
+#endif
 
 		/* Indicate non-top scores */
 		if (k > 0)
 		{
+#ifdef JP
+			sprintf(tmp_val, "( %d 位以下 )", k + 1);
+#else
 			sprintf(tmp_val, "(from position %d)", k + 1);
+#endif
 			put_str(tmp_val, 0, 40);
 		}
 
-		/* Dump 5 entries */
-		for (j = k, n = 0; j < i && n < 5; place++, j++, n++)
+		/* Dump per_screen entries */
+		for (j = k, n = 0; j < i && n < per_screen; place++, j++, n++)
 		{
 			int pr, pc, clev, mlev, cdun, mdun;
 
@@ -227,25 +238,65 @@ void display_scores_aux(int from, int to, int note, high_score *score)
 			if ((*when == '@') && strlen(when) == 9)
 			{
 				sprintf(tmp_val, "%.4s-%.2s-%.2s",
-				        when + 1, when + 5, when + 7);
+					when + 1, when + 5, when + 7);
 				when = tmp_val;
 			}
 
 			/* Dump some info */
+#ifdef JP
+sprintf(out_val, "%3d.%9s  %sという名の%sの%s (レベル %d)",
+#else
 			sprintf(out_val, "%3d.%9s  %s the %s %s, Level %d",
-			        place, the_score.pts, the_score.who,
-			        race_info[pr].title, class_info[pc].title,
-			        clev);
+#endif
+
+				place, the_score.pts, the_score.who,
+				race_info[pr].title, class_info[pc].title,
+				clev);
 
 			/* Append a "maximum level" */
+#ifdef JP
+if (mlev > clev) strcat(out_val, format(" (最高%d)", mlev));
+#else
 			if (mlev > clev) strcat(out_val, format(" (Max %d)", mlev));
+#endif
+
 
 			/* Dump the first line */
 			c_put_str(attr, out_val, n*4 + 2, 0);
 
 			/* Another line of info */
+#ifdef JP
+			/* 死亡原因をオリジナルより細かく表示 */
+			if (streq(the_score.how, "yet"))
+			{
+				sprintf(out_val, "               まだ生きている (%d%s)",
+				       cdun, "階");
+			}
+			else
+			if (streq(the_score.how, "ripe"))
+			{
+			  sprintf(out_val, "               勝利の後に引退 (%d%s)",
+				  cdun, "階");
+			}
+			else
+			{
+			  /* Some people die outside of the dungeon */
+			  if (!cdun)
+			    {
+			      /* Died in town */
+			      if (p_ptr->town_num)
+				sprintf(out_val, "               %sに町で殺された", the_score.how);
+			      /* Died in the wilderness */
+			      else
+				sprintf(out_val, "               %sに荒野で殺された", the_score.how);
+			    }
+			  else
+			      sprintf(out_val, "               %sに殺された (%d%s)",
+				      the_score.how, cdun, "階");
+			}
+#else
 			sprintf(out_val, "               Killed by %s on %s %d",
-			        the_score.how, "Dungeon Level", cdun);
+				the_score.how, "Dungeon Level", cdun);
 
 
 			/* Some people die outside of the dungeon */
@@ -254,31 +305,60 @@ void display_scores_aux(int from, int to, int note, high_score *score)
 				/* Died in town */
 				if (p_ptr->town_num)
 					sprintf(out_val, "               Killed by %s in the Town",
-					        the_score.how);
+						the_score.how);
 				/* Died in the wilderness */
 				else
 					sprintf(out_val, "               Killed by %s in the Wilderness",
-					        the_score.how);
+						the_score.how);
 			}
+#endif
+
 
 			/* Append a "maximum level" */
+#ifdef JP
+if (mdun > cdun) strcat(out_val, format(" (最高%d階)", mdun));
+#else
 			if (mdun > cdun) strcat(out_val, format(" (Max %d)", mdun));
+#endif
+
 
 			/* Dump the info */
 			c_put_str(attr, out_val, n*4 + 3, 0);
 
 			/* And still another line of info */
+#ifdef JP
+			{
+				char buf[11];
+
+				/* 日付を 19yy/mm/dd の形式に変更する */
+				if (strlen(when) == 8 && when[2] == '/' && when[5] == '/') {
+					sprintf(buf, "%d%s/%.5s", 19 + (when[6] < '8'), when + 6, when);
+					when = buf;
+				}
+				sprintf(out_val,
+						"        (ユーザー:%s, 日付:%s, 所持金:%s, ターン:%s)",
+						user, when, gold, aged);
+			}
+
+#else
 			sprintf(out_val,
-			        "               (User %s, Date %s, Gold %s, Turn %s).",
-			        user, when, gold, aged);
+				"               (User %s, Date %s, Gold %s, Turn %s).",
+				user, when, gold, aged);
+#endif
+
 			c_put_str(attr, out_val, n*4 + 4, 0);
 		}
 
 
 		/* Wait for response */
-		prt("[Press ESC to quit, any other key to continue.]", 23, 17);
+#ifdef JP
+prt("[ ESCで中断, その他のキーで続けます ]", hgt - 1, 21);
+#else
+		prt("[Press ESC to quit, any other key to continue.]", hgt - 1, 17);
+#endif
+
 		j = inkey();
-		prt("", 23, 0);
+		prt("", hgt - 1, 0);
 
 		/* Hack -- notice Escape */
 		if (j == ESCAPE) break;
@@ -297,13 +377,18 @@ void display_scores(int from, int to)
 	char buf[1024];
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_APEX, "scores.raw");
+	path_build(buf, sizeof(buf), ANGBAND_DIR_APEX, "scores.raw");
 
 	/* Open the binary high score file, for reading */
 	highscore_fd = fd_open(buf, O_RDONLY);
 
 	/* Paranoia -- No score file */
+#ifdef JP
+if (highscore_fd < 0) quit("スコア・ファイルが使用できません。");
+#else
 	if (highscore_fd < 0) quit("Score file unavailable.");
+#endif
+
 
 	/* Clear screen */
 	Term_clear();
@@ -348,7 +433,12 @@ errr top_twenty(void)
 	/* No score file */
 	if (highscore_fd < 0)
 	{
+#ifdef JP
+msg_print("スコア・ファイルが使用できません。");
+#else
 		msg_print("Score file unavailable.");
+#endif
+
 		msg_print(NULL);
 		return (0);
 	}
@@ -357,7 +447,12 @@ errr top_twenty(void)
 	/* Wizard-mode pre-empts scoring */
 	if (noscore & 0x000F)
 	{
+#ifdef JP
+msg_print("ウィザード・モードではスコアが記録されません。");
+#else
 		msg_print("Score not registered for wizards.");
+#endif
+
 		msg_print(NULL);
 		display_scores_aux(0, 10, -1, NULL);
 		return (0);
@@ -368,7 +463,12 @@ errr top_twenty(void)
 	/* Borg-mode pre-empts scoring */
 	if (noscore & 0x00F0)
 	{
+#ifdef JP
+msg_print("ボーグ・モードではスコアが記録されません。");
+#else
 		msg_print("Score not registered for borgs.");
+#endif
+
 		msg_print(NULL);
 		display_scores_aux(0, 10, -1, NULL);
 		return (0);
@@ -379,7 +479,12 @@ errr top_twenty(void)
 	/* Cheaters are not scored */
 	if (noscore & 0xFF00)
 	{
+#ifdef JP
+msg_print("詐欺をやった人はスコアが記録されません。");
+#else
 		msg_print("Score not registered for cheaters.");
+#endif
+
 		msg_print(NULL);
 		display_scores_aux(0, 10, -1, NULL);
 		return (0);
@@ -387,18 +492,38 @@ errr top_twenty(void)
 #endif
 
 	/* Interupted */
+#ifdef JP
+if (!total_winner && streq(died_from, "強制終了"))
+#else
 	if (!total_winner && streq(died_from, "Interrupting"))
+#endif
+
 	{
+#ifdef JP
+msg_print("強制終了のためスコアが記録されません。");
+#else
 		msg_print("Score not registered due to interruption.");
+#endif
+
 		msg_print(NULL);
 		display_scores_aux(0, 10, -1, NULL);
 		return (0);
 	}
 
 	/* Quitter */
+#ifdef JP
+if (!total_winner && streq(died_from, "途中終了"))
+#else
 	if (!total_winner && streq(died_from, "Quitting"))
+#endif
+
 	{
+#ifdef JP
+msg_print("途中終了のためスコアが記録されません。");
+#else
 		msg_print("Score not registered due to quitting.");
+#endif
+
 		msg_print(NULL);
 		display_scores_aux(0, 10, -1, NULL);
 		return (0);
@@ -410,7 +535,7 @@ errr top_twenty(void)
 
 	/* Save the version */
 	sprintf(the_score.what, "%u.%u.%u",
-	        VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
+		VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
 
 	/* Calculate and save the points */
 	sprintf(the_score.pts, "%9lu", (long)total_points());
@@ -439,13 +564,12 @@ errr top_twenty(void)
 		long_day[j-2] = long_day[j];
 
 		/* Exit if get a zero */
-		if (long_day[j]) break;
+		if (long_day[j]==0) break;
 	}
 
 	/* Save the date in standard form (8 chars) */
 	(void)strnfmt(the_score.day, 9, "%s", long_day);
 #endif /* HIGHSCORE_DATE_HACK */
-
 	/* Save the player name (15 chars) */
 	sprintf(the_score.who, "%-.15s", player_name);
 
@@ -507,7 +631,12 @@ errr predict_score(void)
 	/* No score file */
 	if (highscore_fd < 0)
 	{
+#ifdef JP
+msg_print("スコア・ファイルが使用できません。");
+#else
 		msg_print("Score file unavailable.");
+#endif
+
 		msg_print(NULL);
 		return (0);
 	}
@@ -515,7 +644,7 @@ errr predict_score(void)
 
 	/* Save the version */
 	sprintf(the_score.what, "%u.%u.%u",
-	        VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
+		VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
 
 	/* Calculate and save the points */
 	sprintf(the_score.pts, "%9lu", (long)total_points());
@@ -527,7 +656,12 @@ errr predict_score(void)
 	sprintf(the_score.turns, "%9lu", (long)turn);
 
 	/* Hack -- no time needed */
+#ifdef JP
+strcpy(the_score.day, "今日");
+#else
 	strcpy(the_score.day, "TODAY");
+#endif
+
 
 	/* Save the player name (15 chars) */
 	sprintf(the_score.who, "%-.15s", player_name);
@@ -545,7 +679,13 @@ errr predict_score(void)
 	sprintf(the_score.max_dun, "%3d", p_ptr->max_dlv);
 
 	/* Hack -- no cause of death */
+#ifdef JP
+	/* まだ死んでいないときの識別文字 */
+	strcpy(the_score.how, "yet");
+#else
 	strcpy(the_score.how, "nobody (yet!)");
+#endif
+
 
 
 	/* See where the entry would be placed */
@@ -576,58 +716,26 @@ errr predict_score(void)
  * show_highclass - selectively list highscores based on class
  * -KMW-
  */
-void show_highclass(int building)
+void show_highclass(void)
 {
-
-	register int i = 0, j, m = 0;
-	int pr, pc, clev/*, al*/;
+	register int i, j, m;
+	int pr, clev/*, al*/;
 	high_score the_score;
 	char buf[1024], out_val[256];
 
-#if 0
-	switch (building)
-	{
-		case 1:
-			prt("               Busts of Greatest Kings", 5, 0);
-			break;
-		case 2:
-			prt("               Plaque - Greatest Arena Champions", 5, 0);
-			break;
-		case 10:
-			prt("               Plaque - Greatest Fighters", 5, 0);
-			break;
-		case 11:
-			prt("               Spires of the Greatest Magic-Users", 5, 0);
-			break;
-		case 12:
-			prt("               Busts of Greatest Priests", 5, 0);
-			break;
-		case 13:
-			prt("               Wall Inscriptions - Greatest Thieves", 5, 0);
-			break;
-		case 14:
-			prt("               Plaque - Greatest Rangers", 5, 0);
-			break;
-		case 15:
-			prt("               Plaque - Greatest Paladins", 5, 0);
-			break;
-		case 16:
-			prt("               Spires of the Greatest Illusionists", 5, 0);
-			break;
-		default:
-			bell();
-			break;
-	}
-#endif
-
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_APEX, "scores.raw");
+	path_build(buf, sizeof(buf), ANGBAND_DIR_APEX, "scores.raw");
 
 	highscore_fd = fd_open(buf, O_RDONLY);
 
 	if (highscore_fd < 0)
 	{
+#ifdef JP
+msg_print("スコア・ファイルが使用できません。");
+#else
 		msg_print("Score file unavailable.");
+#endif
+
 		msg_print(NULL);
 		return;
 	}
@@ -639,30 +747,45 @@ void show_highclass(int building)
 
 	m = 0;
 	j = 0;
-	clev = 0;
 
 	while ((m < 9) || (j < MAX_HISCORES))
 	{
 		if (highscore_seek(j)) break;
 		if (highscore_read(&the_score)) break;
 		pr = atoi(the_score.p_r);
-		pc = atoi(the_score.p_c);
 		clev = atoi(the_score.cur_lev);
 
+#ifdef JP
+		sprintf(out_val, "   %3d) %sの%s (レベル %2d)",
+		    (m + 1), race_info[pr].title,the_score.who, clev);
+#else
 		sprintf(out_val, "%3d) %s the %s (Level %2d)",
 		    (m + 1), the_score.who, race_info[pr].title, clev);
+#endif
+
 		prt(out_val, (m + 7), 0);
 		m++;
 		j++;
 	}
 
+#ifdef JP
+	sprintf(out_val, "あなた) %sの%s (レベル %2d)",
+	    race_info[p_ptr->prace].title,player_name, p_ptr->lev);
+#else
 	sprintf(out_val, "You) %s the %s (Level %2d)",
 	    player_name, race_info[p_ptr->prace].title, p_ptr->lev);
+#endif
+
 	prt(out_val, (m + 8), 0);
 
 	(void)fd_close(highscore_fd);
 	highscore_fd = -1;
+#ifdef JP
+msg_print("何かキーを押すとゲームに戻ります");
+#else
 	msg_print("Hit any key to continue");
+#endif
+
 	msg_print(NULL);
 
 	for (j = 5; j < 18; j++) prt("", j, 0);
@@ -675,25 +798,33 @@ void show_highclass(int building)
  */
 void race_score(int race_num)
 {
-	register int i = 0, j, m = 0;
-	int pr, pc, clev, lastlev;
+	register int i, j, m;
+	int pr, clev, lastlev;
 	high_score the_score;
-	char buf[1024], out_val[256], tmp_str[80];
+	char buf[1024], out_val[256], tmp_str[MAX_NLEN];
 
 	lastlev = 0;
 
 	/* rr9: TODO - pluralize the race */
+#ifdef JP
+	sprintf(tmp_str,"最高の%s", race_info[race_num].title);
+#else
 	sprintf(tmp_str,"The Greatest of all the %s", race_info[race_num].title);
+#endif
 	prt(tmp_str, 5, 15);
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_APEX, "scores.raw");
+	path_build(buf, sizeof(buf), ANGBAND_DIR_APEX, "scores.raw");
 
 	highscore_fd = fd_open(buf, O_RDONLY);
 
 	if (highscore_fd < 0)
 	{
+#ifdef JP
+		msg_print("スコア・ファイルが使用できません。");
+#else
 		msg_print("Score file unavailable.");
+#endif
 		msg_print(NULL);
 		return;
 	}
@@ -713,14 +844,19 @@ void race_score(int race_num)
 		if (highscore_seek(j)) break;
 		if (highscore_read(&the_score)) break;
 		pr = atoi(the_score.p_r);
-		pc = atoi(the_score.p_c);
 		clev = atoi(the_score.cur_lev);
 
 		if (pr == race_num)
 		{
+#ifdef JP
+			sprintf(out_val, "   %3d) %sの%s (レベル %2d)",
+			    (m + 1), race_info[pr].title, 
+				the_score.who,clev);
+#else
 			sprintf(out_val, "%3d) %s the %s (Level %3d)",
 			    (m + 1), the_score.who,
-			race_info[pr].title, clev);
+				race_info[pr].title, clev);
+#endif
 			prt(out_val, (m + 7), 0);
 			m++;
 			lastlev = clev;
@@ -731,8 +867,14 @@ void race_score(int race_num)
 	/* add player if qualified */
 	if ((p_ptr->prace == race_num) && (p_ptr->lev >= lastlev))
 	{
+#ifdef JP
+		sprintf(out_val, "あなた) %sの%s (レベル %2d)",
+		     race_info[p_ptr->prace].title,player_name, p_ptr->lev);
+#else
 		sprintf(out_val, "You) %s the %s (Level %3d)",
 		    player_name, race_info[p_ptr->prace].title, p_ptr->lev);
+#endif
+
 		prt(out_val, (m + 8), 0);
 	}
 
@@ -752,7 +894,12 @@ void race_legends(void)
 	for (i = 0; i < MAX_RACES; i++)
 	{
 		race_score(i);
+#ifdef JP
+msg_print("何かキーを押すとゲームに戻ります");
+#else
 		msg_print("Hit any key to continue");
+#endif
+
 		msg_print(NULL);
 		for (j = 5; j < 19; j++)
 			prt("", j, 0);
@@ -769,7 +916,13 @@ void kingly(void)
 	dun_level = 0;
 
 	/* Fake death */
+#ifdef JP
+	/* 引退したときの識別文字 */
+	(void)strcpy(died_from, "ripe");
+#else
 	(void)strcpy(died_from, "Ripe Old Age");
+#endif
+
 
 	/* Restore the experience */
 	p_ptr->exp = p_ptr->max_exp;
@@ -798,9 +951,16 @@ void kingly(void)
 	put_str("*#########*#########*", 12, 24);
 
 	/* Display a message */
+#ifdef JP
+put_str("Veni, Vidi, Vici!", 15, 26);
+put_str("来た、見た、勝った！", 16, 25);
+put_str(format("偉大なる%s万歳！", sp_ptr->winner), 17, 22);
+#else
 	put_str("Veni, Vidi, Vici!", 15, 26);
 	put_str("I came, I saw, I conquered!", 16, 21);
 	put_str(format("All Hail the Mighty %s!", sp_ptr->winner), 17, 22);
+#endif
+
 
 	/* Flush input */
 	flush();

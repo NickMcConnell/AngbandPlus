@@ -1,10 +1,11 @@
-# CVS: Last edit by $Author: remco $ on $Date: 1999/09/30 10:08:51 $
 # q0000006.txt
 
 # Name
-Q:6:N:The Tower 2
+Q:$6:N:The Tower 2
+Q:6:N:Εγ£²
 
 # Definition
+Q:$6:Q:6:0:0:0:30:0:0:3
 Q:6:Q:6:0:0:0:30:0:0:3
 
 # Floor with monster 9 levels out of deep as long as the quest is uncompleted

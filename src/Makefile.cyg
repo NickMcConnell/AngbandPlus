@@ -30,7 +30,6 @@ CFLAGS	=	-Wall -O2 -fno-strength-reduce -DUSE_TRANSPARENCY
 SRCS		= \
 	angband.rc \
 	artifact.c \
-	avatar.c \
 	birth.c \
 	bldg.c \
 	cave.c \
@@ -42,6 +41,7 @@ SRCS		= \
 	cmd6.c \
 	dungeon.c \
 	effects.c \
+	element.c \
 	files.c \
 	flavor.c \
 	generate.c \
@@ -51,6 +51,7 @@ SRCS		= \
 	load.c \
 	main.c \
 	main-win.c \
+	magic.c \
 	melee1.c \
 	melee2.c \
 	mind.c \
@@ -58,6 +59,7 @@ SRCS		= \
 	monster2.c \
 	mspells1.c \
 	mspells2.c \
+	mspells3.c \
 	mutation.c \
 	notes.c \
 	obj_kind.c \
@@ -68,6 +70,8 @@ SRCS		= \
 	rooms.c \
 	save.c \
 	scores.c \
+	snatch.c \
+	snipe.c \
 	spells1.c \
 	spells2.c \
 	spells3.c \
@@ -91,7 +95,6 @@ SRCS		= \
 EXOBJS	= \
 	angband.res \
 	artifact.o \
-	avatar.o \
 	birth.o \
 	bldg.o \
 	cave.o \
@@ -103,6 +106,7 @@ EXOBJS	= \
 	cmd6.o \
 	dungeon.o \
 	effects.o \
+	element.o \
 	files.o \
 	flavor.o \
 	generate.o \
@@ -112,6 +116,7 @@ EXOBJS	= \
 	load.o \
 	main.o \
 	main-win.o \
+	magic.o \
 	melee1.o \
 	melee2.o \
 	mind.o \
@@ -119,6 +124,7 @@ EXOBJS	= \
 	monster2.o \
 	mspells1.o \
 	mspells2.o \
+	mspells3.o \
 	mutation.o \
 	notes.o \
 	obj_kind.o \
@@ -129,6 +135,8 @@ EXOBJS	= \
 	rooms.o \
 	save.o \
 	scores.o \
+	snatch.o \
+	snipe.o \
 	spells1.o \
 	spells2.o \
 	spells3.o \
@@ -218,9 +226,6 @@ angband.res : angband.rc
 artifact.o: artifact.c $(INCS)
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
-avatar.o: avatar.c $(INCS)
-	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
-
 bldg.o: bldg.c $(INCS)
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
@@ -254,6 +259,9 @@ dungeon.o: dungeon.c $(INCS)
 effects.o: effects.c $(INCS)
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
+element.o: element.c $(INCS)
+	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
+
 files.o: files.c $(INCS)
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
@@ -278,10 +286,13 @@ load.o: load.c $(INCS)
 main.o: main.c $(INCS)
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
-melee1.o: melee1.c $(INCS)
+main-win.o: main-win.c $(INCS)
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
-main-win.o: main-win.c $(INCS)
+magic.o: magic.c $(INCS)
+	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
+
+melee1.o: melee1.c $(INCS)
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
 melee2.o: melee2.c $(INCS)
@@ -300,6 +311,9 @@ mspells1.o: mspells1.c $(INCS)
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
 mspells2.o: mspells2.c $(INCS)
+	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
+
+mspells3.o: mspells3.c $(INCS)
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
 mutation.o: mutation.c $(INCS)
@@ -335,6 +349,12 @@ save.o: save.c $(INCS)
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
 scores.o: scores.c $(INCS)
+	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
+
+snatch.o: snatch.c $(INCS)
+	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
+
+snipe.o: snipe.c $(INCS)
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
 spells1.o: spells1.c $(INCS)

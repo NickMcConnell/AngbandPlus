@@ -1,5 +1,4 @@
-/* CVS: Last edit by $Author: ebock $ on $Date: 2000/01/31 04:18:05 $
- *
+/*
  * File: grid.c
  * Purpose: low-level dungeon creation primitives
  */
@@ -85,7 +84,7 @@ void place_random_stairs(int y, int x)
 	if (down_stairs && up_stairs)
 	{
 		/* Choose a staircase randomly */
-		if (rand_int(100) < 50)
+		if (randint0(100) < 50)
 			up_stairs = FALSE;
 		else
 			down_stairs = FALSE;
@@ -107,7 +106,7 @@ void place_random_door(int y, int x)
 	int tmp;
 
 	/* Invisible wall */
-	if (ironman_nightmare && !rand_int(666))
+	if (ironman_nightmare && !randint0(666))
 	{
 		/* Create invisible wall */
 		cave_set_feat(y, x, FEAT_WALL_INVIS);
@@ -115,7 +114,7 @@ void place_random_door(int y, int x)
 	}
 
 	/* Choose an object */
-	tmp = rand_int(1000);
+	tmp = randint0(1000);
 
 	/* Open doors (300/1000) */
 	if (tmp < 300)
@@ -151,7 +150,7 @@ void place_closed_door(int y, int x)
 	int tmp;
 
 	/* Invisible wall */
-	if (ironman_nightmare && !rand_int(666))
+	if (ironman_nightmare && !randint0(666))
 	{
 		/* Create invisible wall */
 		cave_set_feat(y, x, FEAT_WALL_INVIS);
@@ -159,7 +158,7 @@ void place_closed_door(int y, int x)
 	}
 
 	/* Choose an object */
-	tmp = rand_int(400);
+	tmp = randint0(400);
 
 	/* Closed doors (300/400) */
 	if (tmp < 300)
@@ -172,57 +171,14 @@ void place_closed_door(int y, int x)
 	else if (tmp < 399)
 	{
 		/* Create locked door */
-		cave_set_feat(y, x, FEAT_DOOR_HEAD + randint(7));
+		cave_set_feat(y, x, FEAT_DOOR_HEAD + randint1(7));
 	}
 
 	/* Stuck doors (1/400) */
 	else
 	{
 		/* Create jammed door */
-		cave_set_feat(y, x, FEAT_DOOR_HEAD + 0x08 + rand_int(8));
-	}
-}
-
-
-/*
- * Make an empty square floor, for the middle of rooms
- */
-void place_floor(int x1, int x2, int y1, int y2, bool light)
-{
-	int x, y;
-
-	/* Place a full floor under the room */
-	for (y = y1 - 1; y <= y2 + 1; y++)
-	{
-		for (x = x1 - 1; x <= x2 + 1; x++)
-		{
-			set_cave_feat(y, x, FEAT_FLOOR);
-			add_cave_info(y, x, CAVE_ROOM);
-			if (light) add_cave_info(y, x, CAVE_GLOW);
-		}
-	}
-}
-
-
-/*
- * Make an empty square room, only floor and wall grids
- */
-void place_room(int x1, int x2, int y1, int y2, bool light)
-{
-	int y, x;
-
-	place_floor(x1, x2, y1, y2, light);
-
-	/* Walls around the room */
-	for (y = y1 - 1; y <= y2 + 1; y++)
-	{
-		place_outer_wall(y, x1 - 1);
-		place_outer_wall(y, x2 + 1);
-	}
-	for (x = x1 - 1; x <= x2 + 1; x++)
-	{
-		place_outer_wall(y1 - 1, x);
-		place_outer_wall(y2 + 1, x);
+		cave_set_feat(y, x, FEAT_DOOR_HEAD + 0x08 + randint0(8));
 	}
 }
 
@@ -234,8 +190,7 @@ void place_room(int x1, int x2, int y1, int y2, bool light)
 void vault_objects(int y, int x, int num)
 {
 	int dummy = 0;
-	int i = 0, j = y, k = x;
-
+	int i, j = y, k = x;
 
 	/* Attempt to place 'num' objects */
 	for (; num > 0; --num)
@@ -258,7 +213,12 @@ void vault_objects(int y, int x, int num)
 			{
 				if (cheat_room)
 				{
+#ifdef JP
+msg_print("警告！宝庫にアイテムを置けません！");
+#else
 					msg_print("Warning! Could not place vault object!");
+#endif
+
 				}
 			}
 
@@ -267,7 +227,7 @@ void vault_objects(int y, int x, int num)
 			if (!cave_clean_bold(j, k)) continue;
 
 			/* Place an item */
-			if (rand_int(100) < 75)
+			if (randint0(100) < 75)
 			{
 				place_object(j, k, FALSE, FALSE);
 			}
@@ -290,7 +250,7 @@ void vault_objects(int y, int x, int num)
  */
 void vault_trap_aux(int y, int x, int yd, int xd)
 {
-	int count = 0, y1 = y, x1 = x;
+	int count, y1 = y, x1 = x;
 	int dummy = 0;
 
 	/* Place traps */
@@ -310,7 +270,12 @@ void vault_trap_aux(int y, int x, int yd, int xd)
 		{
 			if (cheat_room)
 			{
+#ifdef JP
+msg_print("警告！宝庫に罠を置けません！");
+#else
 				msg_print("Warning! Could not place vault trap!");
+#endif
+
 			}
 		}
 
@@ -391,6 +356,231 @@ int next_to_walls(int y, int x)
 
 
 /*
+ * Generate helper -- create a new room with optional light
+ */
+void generate_room(int y1, int x1, int y2, int x2, int light)
+{
+	int y, x;
+	
+	cave_type *c_ptr;
+
+	for (y = y1; y <= y2; y++)
+	{
+		for (x = x1; x <= x2; x++)
+		{
+			/* Point to grid */
+			c_ptr = &cave[y][x];
+			
+			c_ptr->info |= (CAVE_ROOM);
+			if (light) c_ptr->info |= (CAVE_GLOW);
+		}
+	}
+}
+
+
+/*
+ * Generate helper -- set flags for random vault.
+ */
+void generate_vault(int y1, int x1, int y2, int x2)
+{
+	int y, x;
+
+	for (y = y1; y <= y2; y++)
+	{
+		for (x = x1; x <= x2; x++)
+		{
+			cave[y][x].info |= (CAVE_ROOM | CAVE_ICKY);
+		}
+	}
+}
+
+
+/*
+ * Generate helper -- unset the CAVE_ICKY flag in a region.
+ */
+void clear_vault(int y1, int x1, int y2, int x2)
+{
+	int y, x;
+
+	for (y = y1; y <= y2; y++)
+	{
+		for (x = x1; x <= x2; x++)
+		{
+			cave[y][x].info &= ~(CAVE_ICKY);
+		}
+	}
+}
+
+
+/*
+ * Generate helper -- fill a rectangle with a feature
+ */
+void generate_fill(int y1, int x1, int y2, int x2, int feat)
+{
+	int y, x;
+
+	for (y = y1; y <= y2; y++)
+	{
+		for (x = x1; x <= x2; x++)
+		{
+			/* Hack - only draw on cave[][] */
+			cave[y][x].feat = feat;
+		}
+	}
+}
+
+
+/*
+ * Generate helper -- draw a rectangle with a feature
+ */
+void generate_draw(int y1, int x1, int y2, int x2, int feat)
+{
+	int y, x;
+
+	for (y = y1; y <= y2; y++)
+	{
+		cave_set_feat(y, x1, feat);
+		cave_set_feat(y, x2, feat);
+	}
+
+	for (x = x1; x <= x2; x++)
+	{
+		cave_set_feat(y1, x, feat);
+		cave_set_feat(y2, x, feat);
+	}
+}
+
+
+/*
+ * Generate helper -- split a rectangle with a feature
+ */
+void generate_plus(int y1, int x1, int y2, int x2, int feat)
+{
+	int y, x;
+	int y0, x0;
+
+	/* Center */
+	y0 = (y1 + y2) / 2;
+	x0 = (x1 + x2) / 2;
+
+	for (y = y1; y <= y2; y++)
+	{
+		cave_set_feat(y, x0, feat);
+	}
+
+	for (x = x1; x <= x2; x++)
+	{
+		cave_set_feat(y0, x, feat);
+	}
+}
+
+
+/*
+ * Generate helper -- open all sides of a rectangle with a feature
+ */
+void generate_open(int y1, int x1, int y2, int x2, int feat)
+{
+	int y0, x0;
+
+	/* Center */
+	y0 = (y1 + y2) / 2;
+	x0 = (x1 + x2) / 2;
+
+	/* Open all sides */
+	cave_set_feat(y1, x0, feat);
+	cave_set_feat(y0, x1, feat);
+	cave_set_feat(y2, x0, feat);
+	cave_set_feat(y0, x2, feat);
+}
+
+
+/*
+ * Generate helper -- open one side of a rectangle with a feature
+ */
+void generate_hole(int y1, int x1, int y2, int x2, int feat)
+{
+	int y0, x0;
+
+	/* Center */
+	y0 = (y1 + y2) / 2;
+	x0 = (x1 + x2) / 2;
+
+	/* Open random side */
+	switch (randint0(4))
+	{
+		case 0:
+		{
+			cave_set_feat(y1, x0, feat);
+			break;
+		}
+		case 1:
+		{
+			cave_set_feat(y0, x1, feat);
+			break;
+		}
+		case 2:
+		{
+			cave_set_feat(y2, x0, feat);
+			break;
+		}
+		case 3:
+		{
+			cave_set_feat(y0, x2, feat);
+			break;
+		}
+	}
+}
+
+
+/*
+ * Generate helper -- open one side of a rectangle with a door
+ */
+void generate_door(int y1, int x1, int y2, int x2, bool secret)
+{
+	int y0, x0;
+
+	/* Center */
+	y0 = (y1 + y2) / 2;
+	x0 = (x1 + x2) / 2;
+
+	/* Open random side */
+	switch (randint0(4))
+	{
+		case 0:
+		{
+			y0 = y1;
+			break;
+		}
+		case 1:
+		{
+			x0 = x1;
+			break;
+		}
+		case 2:
+		{
+			y0 = y2;
+			break;
+		}
+		case 3:
+		{
+			x0 = x2;
+			break;
+		}
+	}
+	
+	/* Add the door */
+	if (secret)
+	{
+		place_secret_door(y0, x0);
+	}
+	else
+	{
+		place_closed_door(y0, x0);
+	}
+}
+
+
+/*
  * Always picks a correct direction
  */
 void correct_dir(int *rdir, int *cdir, int y1, int x1, int y2, int x2)
@@ -402,7 +592,7 @@ void correct_dir(int *rdir, int *cdir, int y1, int x1, int y2, int x2)
 	/* Never move diagonally */
 	if (*rdir && *cdir)
 	{
-		if (rand_int(100) < 50)
+		if (randint0(100) < 50)
 			*rdir = 0;
 		else
 			*cdir = 0;
@@ -417,7 +607,7 @@ void correct_dir(int *rdir, int *cdir, int y1, int x1, int y2, int x2)
 void rand_dir(int *rdir, int *cdir)
 {
 	/* Pick a random direction */
-	int i = rand_int(4);
+	int i = randint0(4);
 
 	/* Extract the dy/dx components */
 	*rdir = ddy_ddd[i];
@@ -523,13 +713,13 @@ void build_tunnel(int row1, int col1, int row2, int col2)
 		if (main_loop_count++ > 2000) break;
 
 		/* Allow bends in the tunnel */
-		if (rand_int(100) < dun_tun_chg)
+		if (randint0(100) < dun_tun_chg)
 		{
 			/* Acquire the correct direction */
 			correct_dir(&row_dir, &col_dir, row1, col1, row2, col2);
 
 			/* Random direction */
-			if (rand_int(100) < dun_tun_rnd)
+			if (randint0(100) < dun_tun_rnd)
 			{
 				rand_dir(&row_dir, &col_dir);
 			}
@@ -547,7 +737,7 @@ void build_tunnel(int row1, int col1, int row2, int col2)
 			correct_dir(&row_dir, &col_dir, row1, col1, row2, col2);
 
 			/* Random direction */
-			if (rand_int(100) < dun_tun_rnd)
+			if (randint0(100) < dun_tun_rnd)
 			{
 				rand_dir(&row_dir, &col_dir);
 			}
@@ -663,7 +853,7 @@ void build_tunnel(int row1, int col1, int row2, int col2)
 			}
 
 			/* Hack -- allow pre-emptive tunnel termination */
-			if (rand_int(100) >= dun_tun_con)
+			if (randint0(100) >= dun_tun_con)
 			{
 				/* Distance between row1 and start_row */
 				tmp_row = row1 - start_row;
@@ -771,8 +961,8 @@ static bool set_tunnel(int *x, int *y, bool affectwall)
 		dx = 0;
 		while ((i > 0) && (cave[*y + dy][*x + dx].feat == FEAT_WALL_SOLID))
 		{
-			dy = rand_int(3) - 1;
-			dx = rand_int(3) - 1;
+			dy = randint0(3) - 1;
+			dx = randint0(3) - 1;
 
 			if (!in_bounds(*y + dy, *x + dx))
 			{
@@ -993,10 +1183,10 @@ bool build_tunnel2(int x1, int y1, int x2, int y2, int type, int cutoff)
 		dy = (y2 - y1) / 2;
 
 		/* perturbation perpendicular to path */
-		changex = (rand_int(abs(dy) + 2) * 2 - abs(dy) - 1) / 2;
+		changex = (randint0(abs(dy) + 2) * 2 - abs(dy) - 1) / 2;
 
 		/* perturbation perpendicular to path */
-		changey = (rand_int(abs(dx) + 2) * 2 - abs(dx) - 1) / 2;
+		changey = (randint0(abs(dx) + 2) * 2 - abs(dx) - 1) / 2;
 
 		/* Work out "mid" ponit */
 		x3 = x1 + dx + changex;
@@ -1020,8 +1210,8 @@ bool build_tunnel2(int x1, int y1, int x2, int y2, int type, int cutoff)
 			dx = 0;
 			while ((i > 0) && (cave[y3 + dy][x3 + dx].feat == FEAT_WALL_SOLID))
 			{
-				dy = rand_int(3) - 1;
-				dx = rand_int(3) - 1;
+				dy = randint0(3) - 1;
+				dx = randint0(3) - 1;
 				if (!in_bounds(y3 + dy, x3 + dx))
 				{
 					dx = 0;
@@ -1046,7 +1236,7 @@ bool build_tunnel2(int x1, int y1, int x2, int y2, int type, int cutoff)
 		{
 			if (build_tunnel2(x1, y1, x3, y3, type, cutoff))
 			{
-				if ((cave[y3][x3].info & CAVE_ROOM) || (randint(100) > 95))
+				if ((cave[y3][x3].info & CAVE_ROOM) || (randint1(100) > 95))
 				{
 					/* do second half only if works + if have hit a room */
 					retval = build_tunnel2(x3, y3, x2, y2, type, cutoff);

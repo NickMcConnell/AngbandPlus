@@ -1,4 +1,3 @@
-# CVS: Last edit by $Author: rr9 $ on $Date: 2000/05/28 15:07:46 $
 # File: Makefile.dos
 
 # Purpose: Makefile support for "main-dos.c"
@@ -25,14 +24,15 @@
 # Objects
 OBJS = \
 	main.o main-dos.o main-ibm.o \
-	artifact.o avatar.o birth.o bldg.o \
+	artifact.o  birth.o bldg.o \
 	cave.o cmd1.o cmd2.o cmd3.o \
 	cmd4.o cmd5.o cmd6.o dungeon.o \
 	effects.o files.o flavor.o generate.o \
 	grid.o init1.o init2.o load.o \
 	melee1.o melee2.o mind.o monster1.o \
 	monster2.o mspells1.o mspells2.o mutation.o \
-	notes.o \
+	notes.o element.o snipe.o snatch.o \
+	mspells3.o magic.o
 	obj_kind.o object1.o object2.o racial.o \
 	rooms.o save.o scores.o script.o \
 	spells1.o spells2.o spells3.o store.o \
@@ -98,7 +98,6 @@ cleanall: clean
 
 
 artifact.o: artifact.c $(INCS)
-avatar.o: avatar.c $(INCS)
 birth.o: birth.c $(INCS)
 bldg.o: bldg.c $(INCS)
 cave.o: cave.c $(INCS)
@@ -110,6 +109,7 @@ cmd5.o: cmd5.c $(INCS)
 cmd6.o: cmd6.c $(INCS)
 dungeon.o: dungeon.c $(INCS)
 effects.o: effects.c $(INCS)
+element.o: element.c $(INCS)
 files.o: files.c $(INCS)
 flavor.o: flavor.c $(INCS)
 generate.o: generate.c $(INCS) generate.h grid.h rooms.h streams.h
@@ -121,6 +121,7 @@ init2.o: init2.c $(INCS)
 load.o: load.c $(INCS)
 main-dos.o: main-dos.c $(INCS)
 main.o: main.c $(INCS)
+magic.o: magic.c $(INCS)
 melee1.o: melee1.c $(INCS)
 melee2.o: melee2.c $(INCS)
 mind.o: mind.c $(INCS)
@@ -128,6 +129,7 @@ monster1.o: monster1.c $(INCS)
 monster2.o: monster2.c $(INCS)
 mspells1.o: mspells1.c $(INCS)
 mspells2.o: mspells2.c $(INCS)
+mspells3.o: mspells3.c $(INCS)
 mutation.o: mutation.c $(INCS)
 notes.o: notes.c $(INCS)
 object1.o: object1.c $(INCS)
@@ -137,6 +139,8 @@ racial.o: racial.c $(INCS)
 save.o: save.c $(INCS)
 scores.o: scores.c $(INCS)
 script.o: script.c $(INCS)
+snatch.o: snatch.c $(INCS)
+snipe.o: snipe.c $(INCS)
 spells1.o: spells1.c $(INCS)
 spells2.o: spells2.c $(INCS)
 spells3.o: spells3.c $(INCS)

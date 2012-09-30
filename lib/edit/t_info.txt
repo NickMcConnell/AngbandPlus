@@ -1,5 +1,4 @@
-# CVS: Last edit by $Author: remco $ on $Date: 1999/09/30 10:08:50 $
-# File: t_info.txt
+# File: t_info_j.txt
 
 # Includes the town definitions
 

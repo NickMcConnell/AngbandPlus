@@ -1,100 +1,194 @@
-N:*:Default
-98
-'Idspispopd'
-'Purple Rain'
-'Uhl Khakhaas'
-'Telecaster'
-'Stratocaster'
-of Severe Pain
-'Arkanna'
-'Uhl Dover'
-'Mallana'
-'Pummeler'
-'Morphain's Friend'
-'Regulator'
-'Mangler'
-'Laik Kenegul'
-'Mae Govannon'
-of the Uncaring
-'Executioner's Friend'
-'Knight Chopper'
-of Eddie
-'Cannae'
-'Revenge of Orculs'
-'Whirlwind'
-'Ogresmasher'
-'Pod'
-'Elfrist'
-'Quick Kill'
-'Quick Kick'
-'Quick Maim'
-'Luckbane'
-'Wormbiter'
-'Mumakbane'
-'Cat's Claw'
-'Shrieker'
-'Baton'
-'Rotten Egg'
-of Horror
-'Necrophiliac'
-'Metal-up-Your-Ass'
-'Sands of Time'
-'Vibrator'
-of Agony
+N: 1:BIAS_ELEC
+'Stungun'
+'Grid Bug'
+'Spark'
+'Electric Eel'
+'Electronics'
+'Shockbringer'
+'Thunder Mountain'
+'Lightning Conductor'
+'Static Eletricity'
+'Blue Blink'
+of Shockness
+
+N: 2:BIAS_POIS
+'Dioxin'
+'Poisonous Maggot'
+'Insect's Poison'
+'Wormwood'
+'Tsuchinoko'
+'Snake Master'
+of mold
+of Depleted Uranium
+
+N: 3:BIAS_FIRE
+'Salamander'
+'Cracker'
+'Red Hot Chili Pepper'
+'Tabasco'
+'Molotov Cocktail'
+'Fire Ant'
+'Hot Blood'
+'Fervent Soul'
+of the Damn
+
+N: 4:BIAS_COLD
+'Freezing'
+'Polar Bear'
+'Snow Avalanche'
+'Freeze!'
+'Freezing Blade'
+'Icy Clow'
+'Nimloth'
+'Bigfoot'
+of Liquid Helium
+
+N: 5:BIAS_ACID
+'Adenine'
+'Guanine'
+'Thymine'
+'Cytosine'
+'Uracil'
+'Leucine'
+'Melt Down'
+'Acidic detergent'
+'Termite'
+'Blade of Pepsi'
+'Acid Rain'
+
+N:12:BIAS_CHAOS
+'Koch'
+'Julia'
+'Cotortion Blade'
+'Protean Edge'
+'cHaOs rEgIoN'
+'Schrodinger'
+'Mandelbrot'
+'Kaleidoscope'
+'Randamizer'
+'Shapechanger'
+of Change
+of Logrus
+
+N:14:BIAS_NECROMANTIC
+'Blood'
+'Tombstone'
+'Evil Soldlier'
 'Satan's Claw'
-'Flame Dart'
-'Trigger-Happy'
+'Rotten Child'
+'Necrophiliac'
+'Dread of Night'
+'Dungeon Shade'
+'Elfrist'
+of Misery
+of Boodoo
+
+N:15:BIAS_LAW
+N:13:BIAS_PRIESTLY
+N: 8:BIAS_WIS
+'Indulgence'
+'Angel's Love Song'
+'Monastery'
+'Pure Mischief'
+'Self-Enlightenment'
+'Angelic Blessing'
+'Path of Peace'
+'Starlit Angel'
+'Angelic Page'
+'Disciple of Law'
+'Worship'
+of blessing
+of Holy Smoke
+
+N: 9:BIAS_DEX
+N:16:BIAS_ROGUE
+'Whirlwind'
+'Cat's Clow'
+'Sands of Time'
+'Raid'
+'Elusiveness'
+'Seven Tools'
+'Chameleon's Tongue'
+of Trickery
+of Jack
+of Tachyon
+of Cowardice
+
+N:17:BIAS_MAGE
+N: 7:BIAS_INT
+'Instant Mage Maker'
+'Force of Hand'
+'Kumon'
+'Math Magic'
+'Cheating'
+of Novice Mage
+of Jongnamk, Son of Jongil
+of Tips
+
+N:18:BIAS_WARRIOR
+N: 6:BIAS_STR
+N:10:BIAS_CON
+'Basher'
+'Body Power'
+'Muscle'
+'Abslicer'
+'Peace Maker'
+'Protein'
+'Grizzly Bear'
+'Warrior's Charge'
+'Valorous Charge'
+'Warrior's Stand'
+'Spoils of Victory'
+'Ogresmacher'
+'Weekend Warrior'
+of Slay Munchkin
+
+N:19:BIAS_RANGER
+'Animalbane'
+'Sniper'
+'Naturebane'
+'Catapult'
+'Mumakbane'
+'Mosquito'
+'Laserscope'
+of Centaurs
+of *Slay Bear*
+of *Slay Cat*
+
+N:11:BIAS_CHR
+'Lolita'
+'Laughcaller'
+'S&M'
+'friendly'
+'Oneiric Girl'
+of Sadists
+of Cuties
+of Alice
+
+N:*:Default
+'Grayswandie'
+'Plutonium'
+'X-Winblow'
+'Wormbiter'
+'Shrieker'
+'Rotten Egg'
 'Phaser'
-'Flamitt'
 'Black Hawk'
 'Invader'
-'Tailgunner'
-'Prowler'
 'Photon Torpedo'
-'Heavy Metal'
-'Bad Company'
-'Bad Blood'
 'Crackdown'
 'Budokan'
-'Kick-Off'
-'Kryptonite'
 'Breakout'
-of Morgue
-of Low Blow
-'Stunner'
-'Waffen-SS'
-of Misery
+'Kryptonite'
 'Virus'
-'Whiplash'
-'Wrath of Khan'
-of the Mad Butcher
-'Fossilizer'
-'Bananoid'
-'Sopwith Camel'
 'Patriot'
-of the Paranoid
-of the Paranoid Patriot
-of S&M
-of the Sadist
-of the Dominatrix
-'Wrangler'
-'Weekend Warrior'
-of Holy Smoke
-'Firefighter'
-of Close Combat
 'Bungee'
-of Worst Fear
 'Pig's Eye'
-'Pop'
 'Peashooter'
-of Fender
-of Fal
 'Bugslayer'
-'Raid'
-of Vandalism
-of Lesser Might
-of the Mind
 'Gilettar'
-'Anguirel'
 'Angrist'
 'Belangil'
+of Severe Pain
+of Horror
+of Agony

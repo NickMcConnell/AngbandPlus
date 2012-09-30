@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: remco $ on $Date: 1999/09/30 10:09:01 $ */
 /* File: h-define.h */
 
 #ifndef INCLUDED_H_DEFINE_H

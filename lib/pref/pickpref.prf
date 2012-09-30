@@ -1,0 +1,85 @@
+#=================================================#
+#   Object Auto-picker/Destroyer Sample Setting   #
+#=================================================#
+
+#
+# Pick up all magical items with unknown effects.
+#
+unaware items
+
+#
+# Pick up an object if you have same objects in your inventory,
+# and if it will be stacked in a single slot.
+# (Useful to collect many supplies.)
+#
+collecting rod
+collecting potion
+collecting scroll
+(collecting items
+
+#
+# Auto-inscribe resistances ({%all} has special meaning.)
+#
+~*identified* artifact items#%all
+~*identified* ego items#%all
+
+#
+# Simple version of Auto-inscribe ({%} has special meaning.)
+#
+#~*identified* artifact items#%
+#~*identified* ego items#%
+
+#
+# Pick up important magical potions.
+# And inscribe {!k} on it to protect from accidental destruction.
+#
+potion of strength#!k
+potion of wisdom#!k
+potion of dexterity#!k
+potion of constitution#!k
+potion of intelligence#!k
+potion of Charisma#!k
+potion of life#!k!q
+potion of *healing*#!k
+potion of healing#!k
+potion of resistance#!k
+potion of speed#!k
+
+#
+# Pick up important magical scrolls,
+#
+scroll of artifact creation
+scroll of *destruction*
+scroll of mass genocide
+scroll of genocide
+
+#
+# Pick up magical weapons with bigger dice.
+#
+unidentified dice boosted weapons
+
+#
+# Auto-destroy non-magical common equipments for high level character,
+# except Dragon armors, Blades of Chaos, etc. which are NOT common.
+#
+?:[GEQ $LEVEL 30]
+# Destroy both average and good equipments.
+!nameless common weapons
+!nameless common armors
+
+?:[GEQ $LEVEL 20]
+# Destroy known average equipments.
+!average common weapons
+!average common armors
+?:1
+
+#
+# Pick up high level spellbooks, and inscribe on it.
+#
+first realm's third spellbooks#@mc!k
+
+#
+# Inscribe on low level spellbooks.
+#
+~first realm's second spellbooks#@mb!k
+~first realm's first spellbooks#@ma!k

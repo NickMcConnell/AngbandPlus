@@ -1,4 +1,3 @@
-# CVS: Last edit by $Author: remco $ on $Date: 1999/09/30 10:08:51 $
 # File: w_info.txt
 
 # Defines the layout of the wilderness
@@ -34,19 +33,19 @@ W:F:M:11:50
 W:F:V:10:60
 
 # Town 1
-W:F:1:1:0:1:0:Outpost
+W:F:1:1:0:1:0:Outpost:辺境の地
 
 # Town 2
-W:F:2:1:0:2:0:Telmora
+W:F:2:1:0:2:0:Telmora:テルモラ
 
 # Town 3
-W:F:3:1:0:3:0:Morivant
+W:F:3:1:0:3:0:Morivant:モリバント
 
 # Town 4
-W:F:4:7:4:4:0:Angwil
+W:F:4:7:4:4:0:Angwil:アングウィル
 
 # Town 5
-W:F:5:2:90:5:0:Wilderness
+W:F:5:2:90:5:0:Wilderness:荒野
 
 # Grassland with road east-west-south
 W:F:-:6:3:0:14
@@ -69,7 +68,7 @@ W:D:##########
 # Starting position
 W:P:4:4
 
-?:[IOR [EQU $WILDERNESS NONE] [EQU $WILDERNESS LITE] ]
+?:[EQU $WILDERNESS NONE LITE]
 
 # Edge of the world
 W:F:#:0

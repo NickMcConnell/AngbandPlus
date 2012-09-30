@@ -39,6 +39,11 @@
 #ifdef USE_XAW
 
 
+#ifdef HAVE_LIBSDL_MIXER
+#include "sdl_sound.h"
+#endif /* HAVE_LIBSDL_MIXER */
+
+
 #ifndef __MAKEDEPEND__
 #include <X11/Xlib.h>
 #include <X11/StringDefs.h>
@@ -62,7 +67,9 @@
  */
 #include "maid-x11.c"
 
-
+#ifdef HAVE_LIBSDL_MIXER
+static	bool no_cache_audio = FALSE;
+#endif /* HAVE_LIBSDL_MIXER */
 
 /**** Resources ****/
 
@@ -186,12 +193,8 @@ struct AngbandPart
 	/* Tiles */
 	XImage *tiles;
 
-#ifdef USE_TRANSPARENCY
-
 	/* Tempory storage for overlaying tiles. */
 	XImage *TmpImage;
-
-#endif
 
 #endif /* USE_GRAPHICS */
 
@@ -285,7 +288,7 @@ static XtResource resources[] =
 static void Initialize(AngbandWidget request, AngbandWidget wnew);
 static void Redisplay(AngbandWidget w, XEvent *event, Region region);
 static Boolean SetValues(AngbandWidget current, AngbandWidget request,
-                         AngbandWidget wnew, ArgList args, Cardinal *num_args);
+			 AngbandWidget wnew, ArgList args, Cardinal *num_args);
 static void Destroy(AngbandWidget widget);
 
 /*
@@ -293,7 +296,7 @@ static void Destroy(AngbandWidget widget);
  */
 static void calculateSizeHints(AngbandWidget wnew);
 static XFontStruct *getFont(AngbandWidget widget,
-                            String font, Boolean fallback);
+			    String font, Boolean fallback);
 
 
 /*
@@ -373,7 +376,7 @@ WidgetClass angbandWidgetClass = (WidgetClass) &angbandClassRec;
  * Clear an area
  */
 static void AngbandClearArea(AngbandWidget widget,
-                             int x, int y, int w, int h, int a)
+			     int x, int y, int w, int h, int a)
 {
 	/* Figure out which area to clear */
 	y = y * widget->angband.fontheight + widget->angband.internal_border;
@@ -381,10 +384,10 @@ static void AngbandClearArea(AngbandWidget widget,
 
 	/* Clear the area */
 	XFillRectangle(XtDisplay(widget), XtWindow(widget),
-	               widget->angband.gc[a],
-	               x, y,
-	               widget->angband.fontwidth * w,
-	               widget->angband.fontheight * h);
+		       widget->angband.gc[a],
+		       x, y,
+		       widget->angband.fontwidth * w,
+		       widget->angband.fontheight * h);
 }
 
 
@@ -393,7 +396,7 @@ static void AngbandClearArea(AngbandWidget widget,
  * Output some text
  */
 static void AngbandOutputText(AngbandWidget widget, int x, int y,
-                              String txt, int len, int a)
+			      String txt, int len, int a)
 {
 	/* Do nothing if the string is null */
 	if (!txt || !*txt) return;
@@ -408,7 +411,7 @@ static void AngbandOutputText(AngbandWidget widget, int x, int y,
 
 	/* Place the string */
 	XDrawImageString(XtDisplay(widget), XtWindow(widget),
-	                 widget->angband.gc[a], x, y, txt, len);
+			 widget->angband.gc[a], x, y, txt, len);
 }
 
 
@@ -417,22 +420,14 @@ static void AngbandOutputText(AngbandWidget widget, int x, int y,
 /*
  * Draw some graphical characters.
  */
-# ifdef USE_TRANSPARENCY
 static void AngbandOutputPict(AngbandWidget widget, int x, int y, int n,
  const byte *ap, const char *cp, const byte *tap, const char *tcp)
-# else /* USE_TRANSPARENCY */
-static void AngbandOutputPict(AngbandWidget widget, int x, int y, int n,
- const byte *ap, const char *cp)
-# endif /* USE_TRANSPARENCY */
-
-
 {
 	int i, x1, y1;
 
 	byte a;
 	char c;
 
-#ifdef USE_TRANSPARENCY
 	byte ta;
 	char tc;
 
@@ -440,7 +435,6 @@ static void AngbandOutputPict(AngbandWidget widget, int x, int y, int n,
 	int k,l;
 
 	unsigned long pixel, blank;
-#endif /* USE_TRANSPARENCY */
 
 	/* Figure out where to place the text */
 	y = (y * widget->angband.fontheight + widget->angband.internal_border);
@@ -455,8 +449,6 @@ static void AngbandOutputPict(AngbandWidget widget, int x, int y, int n,
 		x1 = (c&0x7F) * widget->angband.fontwidth;
 		y1 = (a&0x7F) * widget->angband.fontheight;
 
-#ifdef USE_TRANSPARENCY
-
 		ta = *tap++;
 		tc = *tcp++;
 
@@ -469,12 +461,12 @@ static void AngbandOutputPict(AngbandWidget widget, int x, int y, int n,
 		{
 			/* Draw object / terrain */
 			XPutImage(XtDisplay(widget), XtWindow(widget),
-		  	        widget->angband.gc[0],
-		    	      widget->angband.tiles,
-		    	      x1, y1,
-		    	      x, y,
-		    	      widget->angband.fontwidth,
-		 	      widget->angband.fontheight);
+				widget->angband.gc[0],
+			      widget->angband.tiles,
+			      x1, y1,
+			      x, y,
+			      widget->angband.fontwidth,
+			      widget->angband.fontheight);
 		}
 		else
 		{		
@@ -507,26 +499,13 @@ static void AngbandOutputPict(AngbandWidget widget, int x, int y, int n,
 
 			/* Draw object / terrain */
 			XPutImage(XtDisplay(widget), XtWindow(widget),
-			          widget->angband.gc[0],
-			          widget->angband.TmpImage,
-			          0, 0,
-			          x, y,
-			          widget->angband.fontwidth,
-			          widget->angband.fontheight);
+				  widget->angband.gc[0],
+				  widget->angband.TmpImage,
+				  0, 0,
+				  x, y,
+				  widget->angband.fontwidth,
+				  widget->angband.fontheight);
 		}
-
-#else /* USE_TRANSPARENCY */
-
-		/* Draw object / terrain */
-		XPutImage(XtDisplay(widget), XtWindow(widget),
-		          widget->angband.gc[0],
-		          widget->angband.tiles,
-		          x1, y1,
-		          x, y,
-		          widget->angband.fontwidth,
-		          widget->angband.fontheight);
-
-#endif /* USE_TRANSPARENCY */
 
 		x += widget->angband.fontwidth;
 	}
@@ -559,15 +538,15 @@ static void Initialize(AngbandWidget request, AngbandWidget wnew)
 
 	/* Default background pixel */
 	unsigned long bg = create_pixel(dpy,
-	                                angband_color_table[0][1],
-	                                angband_color_table[0][2],
-	                                angband_color_table[0][3]);
+					angband_color_table[0][1],
+					angband_color_table[0][2],
+					angband_color_table[0][3]);
 	
 	/* Default foreground pixel */
 	unsigned long fg = create_pixel(dpy,
-	                                angband_color_table[1][1],
-	                                angband_color_table[1][2],
-	                                angband_color_table[1][3]);
+					angband_color_table[1][1],
+					angband_color_table[1][2],
+					angband_color_table[1][3]);
 	
 	/* Fix the background color */
 	wnew->core.background_pixel = bg;
@@ -598,9 +577,9 @@ static void Initialize(AngbandWidget request, AngbandWidget wnew)
 		{
 			/* Create pixel */
 			pixel = create_pixel(dpy,
-			                     wnew->angband.color[i][1],
-			                     wnew->angband.color[i][2],
-			                     wnew->angband.color[i][3]);
+					     wnew->angband.color[i][1],
+					     wnew->angband.color[i][2],
+					     wnew->angband.color[i][3]);
 		}
 		else
 		{
@@ -614,27 +593,27 @@ static void Initialize(AngbandWidget request, AngbandWidget wnew)
 		gcv.function = 3;
 
 		wnew->angband.gc[i] = XtGetGC((Widget)wnew,
-		                              (GCFont | GCForeground | GCFunction |
-		                               GCBackground | GCGraphicsExposures),
-		                              &gcv);
+					      (GCFont | GCForeground | GCFunction |
+					       GCBackground | GCGraphicsExposures),
+					      &gcv);
 	}
 
 	/* Create a special GC for highlighting */	
 	gcv.foreground = (BlackPixelOfScreen(XtScreen((Widget)wnew)) ^
-	                  WhitePixelOfScreen(XtScreen((Widget)wnew)));
+			  WhitePixelOfScreen(XtScreen((Widget)wnew)));
 	gcv.background = 0;
 	
 	gcv.function = GXxor;
 	wnew->angband.gc[COLOR_XOR] = XtGetGC((Widget)wnew,
-	                                      (GCFunction | GCForeground | GCBackground |
-	                                       GCGraphicsExposures),
-	                                      &gcv);
+					      (GCFunction | GCForeground | GCBackground |
+					       GCGraphicsExposures),
+					      &gcv);
 
 	/* Calculate window geometry */
 	wnew->core.height = (wnew->angband.start_rows * wnew->angband.fontheight +
-	                     2 * wnew->angband.internal_border);
+			     2 * wnew->angband.internal_border);
 	wnew->core.width = (wnew->angband.start_columns * wnew->angband.fontwidth +
-	                    2 * wnew->angband.internal_border);
+			    2 * wnew->angband.internal_border);
 
 	/* We need to be able to resize the Widget if the user wants to */
 	/* change font on the fly! */
@@ -737,8 +716,8 @@ static void Redisplay(AngbandWidget widget, XEvent *xev, Region region)
  * is very likely that this code no longer works.
  */
 static Boolean SetValues(AngbandWidget current, AngbandWidget request,
-                         AngbandWidget wnew, ArgList args,
-                         Cardinal *num_args)
+			 AngbandWidget wnew, ArgList args,
+			 Cardinal *num_args)
 {
 	Display *dpy = XtDisplay(wnew);
 
@@ -808,11 +787,11 @@ static Boolean SetValues(AngbandWidget current, AngbandWidget request,
 	{
 		/* Change window size */
 		height = ((current->core.height - 2 * current->angband.internal_border) /
-		          current->angband.fontheight * wnew->angband.fontheight +
-		          2 * current->angband.internal_border);
+			  current->angband.fontheight * wnew->angband.fontheight +
+			  2 * current->angband.internal_border);
 		width = ((current->core.width -  2 * current->angband.internal_border) /
-		         current->angband.fontwidth * wnew->angband.fontwidth +
-		         2 * wnew->angband.internal_border);
+			 current->angband.fontwidth * wnew->angband.fontwidth +
+			 2 * wnew->angband.internal_border);
 
 		/* Get the new width */
 		if (XtMakeResizeRequest((Widget)wnew, width, height, NULL, NULL) ==
@@ -883,7 +862,7 @@ static void calculateSizeHints(AngbandWidget wnew)
  * Load a font
  */
 static XFontStruct *getFont(AngbandWidget widget,
-                            String font, Boolean fallback)
+			    String font, Boolean fallback)
 {
 	Display *dpy = XtDisplay((Widget) widget);
 	char buf[256];
@@ -997,7 +976,7 @@ static String fallback[] =
  * Do a redraw
  */
 static void react_redraw(Widget widget,
-                         XtPointer client_data, XtPointer call_data)
+			 XtPointer client_data, XtPointer call_data)
 {
 	term_data *old_td = (term_data*)(Term->data);
 	term_data *td = (term_data*)client_data;
@@ -1099,18 +1078,18 @@ static void react_keypress(XKeyEvent *xev)
 	if (ks)
 	{
 		sprintf(msg, "%c%s%s%s%s_%lX%c", 31,
-		        mc ? "N" : "", ms ? "S" : "",
-		        mo ? "O" : "", mx ? "M" : "",
-		        (unsigned long)(ks), 13);
+			mc ? "N" : "", ms ? "S" : "",
+			mo ? "O" : "", mx ? "M" : "",
+			(unsigned long)(ks), 13);
 	}
 
 	/* Hack -- Use the Keycode */
 	else
 	{
 		sprintf(msg, "%c%s%s%s%sK_%X%c", 31,
-		        mc ? "N" : "", ms ? "S" : "",
-		        mo ? "O" : "", mx ? "M" : "",
-		        ev->keycode, 13);
+			mc ? "N" : "", ms ? "S" : "",
+			mo ? "O" : "", mx ? "M" : "",
+			ev->keycode, 13);
 	}
 
 	/* Enqueue the "macro trigger" string */
@@ -1130,7 +1109,7 @@ static void react_keypress(XKeyEvent *xev)
  * Handle an event
  */
 static void handle_event(Widget widget, XtPointer client_data, XEvent *event,
-                         Boolean *continue_to_dispatch)
+			 Boolean *continue_to_dispatch)
 {
 	term_data *old_td = (term_data*)(Term->data);
 	term_data *td = (term_data *)client_data;
@@ -1226,9 +1205,9 @@ static void Term_xtra_xaw_react_aux(term_data *td)
 
 				/* Create pixel */
 				pixel = create_pixel(dpy,
-				                     wnew->angband.color[i][1],
-				                     wnew->angband.color[i][2],
-				                     wnew->angband.color[i][3]);
+						     wnew->angband.color[i][1],
+						     wnew->angband.color[i][2],
+						     wnew->angband.color[i][3]);
 
 				
 				/* Change */
@@ -1311,6 +1290,12 @@ static errr Term_xtra_xaw(int n, int v)
 
 		case TERM_XTRA_REACT:
 		return (Term_xtra_xaw_react());
+#ifdef HAVE_LIBSDL_MIXER
+		/* Play a sound */
+		case TERM_XTRA_SOUND :
+			if ( enable_sound ) { play_sound( v, no_cache_audio ); } 
+			return 0;
+#endif /* HAVE_LIBSDL_MIXER */
 	}
 
 	/* Unknown */
@@ -1372,21 +1357,13 @@ static errr Term_text_xaw(int x, int y, int n, byte a, cptr s)
 /*
  * Draw some graphical characters.
  */
-# ifdef USE_TRANSPARENCY
 static errr Term_pict_xaw(int x, int y, int n, const byte *ap, const char *cp,
 	const byte *tap, const char *tcp)
-# else /* USE_TRANSPARENCY */
-static errr Term_pict_xaw(int x, int y, int n, const byte *ap, const char *cp)
-# endif /* USE_TRANSPARENCY */
 {
 	term_data *td = (term_data*)(Term->data);
 
 	/* Draw the pictures */
-# ifdef USE_TRANSPARENCY
 	AngbandOutputPict(td->widget, x, y, n, ap, cp, tap, tcp);
-# else /* USE_TRANSPARENCY */
-	AngbandOutputPict(td->widget, x, y, n, ap, cp);
-# endif /* USE_TRANSPARENCY */
 
 	/* Success */
 	return (0);
@@ -1410,20 +1387,20 @@ static void term_raise(term_data *td)
  * Initialize a term_data
  */
 static errr term_data_init(term_data *td, Widget topLevel,
-                           int key_buf, String name,
-                           ArgList widget_arg, Cardinal widget_arg_no)
+			   int key_buf, String name,
+			   ArgList widget_arg, Cardinal widget_arg_no)
 {
 	Widget parent;
 	term *t = &td->t;
 
 	/* Create the shell widget */
 	parent = XtCreatePopupShell(name, topLevelShellWidgetClass, topLevel,
-	                            NULL, 0);
+				    NULL, 0);
 
 	/* Create the interior widget */
 	td->widget = (AngbandWidget)
 	XtCreateManagedWidget(name, angbandWidgetClass,
-	                      parent, widget_arg, widget_arg_no);
+			      parent, widget_arg, widget_arg_no);
 
 	/* Initialize the term (full size) */
 	term_init(t, 80, 24, key_buf);
@@ -1446,11 +1423,11 @@ static errr term_data_init(term_data *td, Widget topLevel,
 
 	/* Register the keypress event handler */
 	XtAddEventHandler((Widget)td->widget, KeyPressMask,
-	                  False, (XtEventHandler) handle_event, td);
+			  False, (XtEventHandler) handle_event, td);
 
 	/* Redraw callback */
 	XtAddCallback((Widget)td->widget, XtNredrawCallback,
-	              react_redraw, td);
+		      react_redraw, td);
 
 	/* Realize the widget */
 	XtRealizeWidget(parent);
@@ -1486,10 +1463,7 @@ errr init_xaw(int argc, char *argv[])
 	int pict_wid = 0;
 	int pict_hgt = 0;
 
-#ifdef USE_TRANSPARENCY
-
 	char *TmpData;
-#endif /* USE_TRANSPARENCY */
 
 #endif /* USE_GRAPHICS */
 
@@ -1518,6 +1492,15 @@ errr init_xaw(int argc, char *argv[])
 			continue;
 		}
 
+#ifdef HAVE_LIBSDL_MIXER
+		if (prefix(argv[i], "-c"))
+		{
+			no_cache_audio = TRUE;
+			plog("Audio cache disabled");			
+			continue;		
+		}
+#endif /* HAVE_LIBSDL_MIXER */
+
 		plog_fmt("Ignoring option: %s", argv[i]);
 	}
 
@@ -1542,7 +1525,7 @@ errr init_xaw(int argc, char *argv[])
 
 	/* Initialize the toolkit */
 	topLevel = XtAppInitialize(&appcon, "Angband", NULL, 0, &argc, argv,
-	                           fallback, NULL, 0);
+				   fallback, NULL, 0);
 
 
 	/* Initialize the windows */
@@ -1551,8 +1534,8 @@ errr init_xaw(int argc, char *argv[])
 		term_data *td = &data[i];
 
 		term_data_init(td, topLevel, 1024, termNames[i],
-		               (i == 0) ? specialArgs : defaultArgs,
-		               TERM_FALLBACKS);
+			       (i == 0) ? specialArgs : defaultArgs,
+			       TERM_FALLBACKS);
 
 		angband_term[i] = Term;
 	}
@@ -1570,7 +1553,7 @@ errr init_xaw(int argc, char *argv[])
 	if (arg_graphics)
 	{
 		/* Try the "16x16.bmp" file */
-		path_build(filename, 1024, ANGBAND_DIR_XTRA, "graf/16x16.bmp");
+		path_build(filename, sizeof(filename), ANGBAND_DIR_XTRA, "graf/16x16.bmp");
 
 		/* Use the "16x16.bmp" file if it exists */
 		if (0 == fd_close(fd_open(filename, O_RDONLY)))
@@ -1587,7 +1570,7 @@ errr init_xaw(int argc, char *argv[])
 		else
 		{
 			/* Try the "8x8.bmp" file */
-			path_build(filename, 1024, ANGBAND_DIR_XTRA, "graf/8x8.bmp");
+			path_build(filename, sizeof(filename), ANGBAND_DIR_XTRA, "graf/8x8.bmp");
 
 			/* Use the "8x8.bmp" file if it exists */
 			if (0 == fd_close(fd_open(filename, O_RDONLY)))
@@ -1629,12 +1612,11 @@ errr init_xaw(int argc, char *argv[])
 			/* Resize tiles */
 			td->widget->angband.tiles =
 			ResizeImage(dpy, tiles_raw,
-			            pict_wid, pict_hgt,
-			            td->widget->angband.fontwidth,
-			            td->widget->angband.fontheight);
+				    pict_wid, pict_hgt,
+				    td->widget->angband.fontwidth,
+				    td->widget->angband.fontheight);
 		}
 
-#ifdef USE_TRANSPARENCY
 		/* Initialize the transparency temp storage*/
 		for (i = 0; i < num_term; i++)
 		{
@@ -1659,16 +1641,30 @@ errr init_xaw(int argc, char *argv[])
 				visual,depth,
 				ZPixmap, 0, TmpData,
 				td->widget->angband.fontwidth,
-			        td->widget->angband.fontheight, 8, 0);
+				td->widget->angband.fontheight, 8, 0);
 
 		}
-#endif /* USE_TRANSPARENCY */
-
 
 		/* Free tiles_raw? XXX XXX */
 	}
 
 #endif /* USE_GRAPHICS */
+
+#ifdef HAVE_LIBSDL_MIXER
+	/* Load sound preferences if requested */
+	if (arg_sound)
+	{
+		if ( load_sound_prefs(no_cache_audio) != 0 ) 
+		{
+			enable_sound = 1;
+			/* plog("Loaded sound prefs OK!"); */
+		}
+		else
+		{
+			plog("Failed to load sound config");
+		}
+	}
+#endif  /* HAVE_LIBSDL_MIXER */
 
 	/* Success */
 	return (0);

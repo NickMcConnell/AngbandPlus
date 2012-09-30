@@ -1,5 +1,4 @@
-/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/07/19 13:51:09 $
- *
+/*
  * File: streams.c
  * Purpose: Used by dungeon generation. This file holds all the
  * functions that are applied to a level after the rest has been
@@ -45,7 +44,7 @@ static void recursive_river(int x1, int y1, int x2, int y2, int feat1, int feat2
 		if (dy != 0)
 		{
 			/* perturbation perpendicular to path */
-			changex = randint(abs(dy)) * 2 - abs(dy);
+			changex = randint1(abs(dy)) * 2 - abs(dy);
 		}
 		else
 		{
@@ -55,7 +54,7 @@ static void recursive_river(int x1, int y1, int x2, int y2, int feat1, int feat2
 		if (dx != 0)
 		{
 			/* perturbation perpendicular to path */
-			changey = randint(abs(dx)) * 2 - abs(dx);
+			changey = randint1(abs(dx)) * 2 - abs(dx);
 		}
 		else
 		{
@@ -73,11 +72,11 @@ static void recursive_river(int x1, int y1, int x2, int y2, int feat1, int feat2
 		recursive_river(x1 + dx + changex, y1 + dy + changey, x2, y2, feat1, feat2, width);
 
 		/* Split the river some of the time - junctions look cool */
-		if ((randint(DUN_WAT_CHG) == 1) && (width > 0))
+		if ((randint1(DUN_WAT_CHG) == 1) && (width > 0))
 		{
 			recursive_river(x1 + dx + changex, y1 + dy + changey,
-			                x1 + 8 * (dx + changex), y1 + 8 * (dy + changey),
-			                feat1, feat2, width - 1);
+					x1 + 8 * (dx + changex), y1 + 8 * (dy + changey),
+					feat1, feat2, width - 1);
 		}
 	}
 	else
@@ -144,16 +143,16 @@ void add_river(int feat1, int feat2)
 
 
 	/* Hack -- Choose starting point */
-	y2 = randint(cur_hgt / 2 - 2) + cur_hgt / 2;
-	x2 = randint(cur_wid / 2 - 2) + cur_wid / 2;
+	y2 = randint1(cur_hgt / 2 - 2) + cur_hgt / 2;
+	x2 = randint1(cur_wid / 2 - 2) + cur_wid / 2;
 
 	/* Hack -- Choose ending point somewhere on boundary */
-	switch(randint(4))
+	switch(randint1(4))
 	{
 		case 1:
 		{
 			/* top boundary */
-			x1 = randint(cur_wid-2)+1;
+			x1 = randint1(cur_wid-2)+1;
 			y1 = 1;
 			break;
 		}
@@ -161,26 +160,26 @@ void add_river(int feat1, int feat2)
 		{
 			/* left boundary */
 			x1 = 1;
-			y1 = randint(cur_hgt-2)+1;
+			y1 = randint1(cur_hgt-2)+1;
 			break;
 		}
 		case 3:
 		{
 			/* right boundary */
 			x1 = cur_wid-1;
-			y1 = randint(cur_hgt-2)+1;
+			y1 = randint1(cur_hgt-2)+1;
 			break;
 		}
 		case 4:
 		{
 			/* bottom boundary */
-			x1 = randint(cur_wid-2)+1;
+			x1 = randint1(cur_wid-2)+1;
 			y1 = cur_hgt-1;
 			break;
 		}
 	}
 
-	wid = randint(DUN_WAT_RNG);
+	wid = randint1(DUN_WAT_RNG);
 	recursive_river(x1, y1, x2, y2, feat1, feat2, wid);
 
 	/* Hack - Save the location as a "room" */
@@ -214,7 +213,7 @@ void build_streamer(int feat, int chance)
 	x = rand_spread(cur_wid / 2, 15);
 
 	/* Choose a random compass direction */
-	dir = ddd[rand_int(8)];
+	dir = ddd[randint0(8)];
 
 	/* Place streamer into dungeon */
 	while (dummy < SAFE_MAX_ATTEMPTS)
@@ -246,14 +245,19 @@ void build_streamer(int feat, int chance)
 			c_ptr->feat = feat;
 
 			/* Hack -- Add some (known) treasure */
-			if (rand_int(chance) == 0) c_ptr->feat += 0x04;
+			if (randint0(chance) == 0) c_ptr->feat += 0x04;
 		}
 
 		if (dummy >= SAFE_MAX_ATTEMPTS)
 		{
 			if (cheat_room)
 			{
+#ifdef JP
+msg_print("警告！ストリーマーを配置できません！");
+#else
 				msg_print("Warning! Could not place streamer!");
+#endif
+
 			}
 			return;
 		}
@@ -288,9 +292,9 @@ void place_trees(int x, int y)
 				/*
 				 * Clear previous contents, add feature
 				 * The border mainly gets trees, while the center gets rubble */
-				if ((distance(j, i, y, x) > 1) || (randint(100) < 25))
+				if ((distance(j, i, y, x) > 1) || (randint1(100) < 25))
 				{
-					if (randint(100) < 75)
+					if (randint1(100) < 75)
 						cave[j][i].feat = FEAT_TREES;
 				}
 				else
@@ -305,7 +309,7 @@ void place_trees(int x, int y)
 	}
 
 	/* No up stairs in ironman mode */
-	if (!ironman_downward && (randint(3) == 1))
+	if (!ironman_downward && (randint1(3) == 1))
 	{
 		/* up stair */
 		cave[y][x].feat = FEAT_LESS;
@@ -323,10 +327,15 @@ void destroy_level(void)
 	cave_type *c_ptr;
 
 	/* Note destroyed levels */
+#ifdef JP
+if (cheat_room) msg_print("破壊された階");
+#else
 	if (cheat_room) msg_print("Destroyed Level");
+#endif
+
 
 	/* Drop a few epi-centers (usually about two) */
-	for (n = 0; n < randint(5); n++)
+	for (n = 0; n < randint1(5); n++)
 	{
 		/* Pick an epi-center */
 		x1 = rand_range(5, cur_wid - 1 - 5);
@@ -359,7 +368,7 @@ void destroy_level(void)
 					c_ptr = &cave[y][x];
 
 					/* Wall (or floor) type */
-					t = rand_int(200);
+					t = randint0(200);
 
 					/* Granite */
 					if (t < 20)

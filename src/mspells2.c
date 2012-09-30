@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/08/21 11:27:16 $ */
 /* File: mspells2.c */
 
 /* Purpose: Monster spells (attack monster) */
@@ -43,7 +42,7 @@ static void monst_breath_monst(int m_idx, int y, int x, int typ, int dam_hp, int
  */
 static void monst_bolt_monst(int m_idx, int y, int x, int typ, int dam_hp)
 {
-	u16b flg = PROJECT_STOP | PROJECT_KILL;
+	u16b flg = PROJECT_STOP | PROJECT_KILL | PROJECT_REFLECTABLE;
 
 	(void)project(m_idx, 0, y, x, dam_hp, typ, flg);
 }
@@ -57,10 +56,10 @@ static void monst_bolt_monst(int m_idx, int y, int x, int typ, int dam_hp)
  */
 bool monst_spell_monst(int m_idx)
 {
-	int y = 0, x = 0;
+	int y, x;
 	int i, k, t_idx;
 	int chance, thrown_spell, count = 0;
-	int rlev;
+	int rlev, dam;
 
 	byte spell[96], num = 0;
 
@@ -85,7 +84,7 @@ bool monst_spell_monst(int m_idx)
 
 	bool blind = (p_ptr->blind ? TRUE : FALSE);
 
-	bool see_m = m_ptr->ml;
+	bool see_m = is_seen(m_ptr);
 	bool see_t;
 	bool see_either;
 	bool see_both;
@@ -103,7 +102,7 @@ bool monst_spell_monst(int m_idx)
 	/* Not allowed to cast spells */
 	if (!chance) return (FALSE);
 
-	if (rand_int(100) >= chance) return (FALSE);
+	if (randint0(100) >= chance) return (FALSE);
 
 
 	/* Scan thru all monsters */
@@ -122,8 +121,31 @@ bool monst_spell_monst(int m_idx)
 		/* Monster must be 'an enemy' */
 		if (!are_enemies(m_ptr, t_ptr)) continue;
 
+		/* Extract the racial spell flags */
+		f4 = r_ptr->flags4;
+		f5 = r_ptr->flags5;
+		f6 = r_ptr->flags6;
+
 		/* Monster must be projectable */
-		if (!projectable(t_ptr->fy, t_ptr->fx, m_ptr->fy, m_ptr->fx)) continue;
+		if (!projectable(t_ptr->fy, t_ptr->fx, m_ptr->fy, m_ptr->fx))
+		{
+			if (m_ptr->target_y && 
+			    (m_ptr->target_y == t_ptr->fy) && (m_ptr->target_x == t_ptr->fx))
+				{
+					/*
+					y = m_ptr->target_y;
+					x = m_ptr->target_x;
+					*/
+					f4 &= (RF4_INDIRECT_MASK);
+					f5 &= (RF5_INDIRECT_MASK);
+					f6 &= (RF6_INDIRECT_MASK);
+				}
+			else
+				continue;
+		}
+
+		m_ptr->target_y = 0;
+		m_ptr->target_x = 0;
 
 		/* OK -- we've got a target */
 		y = t_ptr->fy;
@@ -132,13 +154,8 @@ bool monst_spell_monst(int m_idx)
 		/* Extract the monster level */
 		rlev = ((r_ptr->level >= 1) ? r_ptr->level : 1);
 
-		/* Extract the racial spell flags */
-		f4 = r_ptr->flags4;
-		f5 = r_ptr->flags5;
-		f6 = r_ptr->flags6;
-
 		/* Disallow blink unless close */
-		if ((distance(m_ptr->fy, m_ptr->fx, y, x) > 1) || !rand_int(3)) f6 &= ~(RF6_BLINK);
+		if ((distance(m_ptr->fy, m_ptr->fx, y, x) > 1) || !randint0(3)) f6 &= ~(RF6_BLINK);
 
 		/* Disallow teleport unless wounded */
 		if (m_ptr->hp > m_ptr->maxhp / 2) f6 &= ~(RF6_TPORT);
@@ -147,7 +164,7 @@ bool monst_spell_monst(int m_idx)
 		if (friendly && (p_ptr->chp > p_ptr->mhp / 4)) f6 &= ~(RF6_TELE_AWAY);
 
 		/* Remove some spells if necessary */
-		if (!stupid_monsters &&
+		if (!X_stupid_monsters &&
 			 ((f4 & RF4_BOLT_MASK) ||
 			  (f5 & RF5_BOLT_MASK) ||
 			  (f6 & RF6_BOLT_MASK)) &&
@@ -168,19 +185,12 @@ bool monst_spell_monst(int m_idx)
 		}
 
 		/* Find another target if no spells available */
-		if (!f4 && !f5 && !f6)
-		{
-			f4 = r_ptr->flags4;
-			f5 = r_ptr->flags5;
-			f6 = r_ptr->flags6;
-
-			continue;
-		}
+		if (!f4 && !f5 && !f6) continue;
 
 		/* Hack -- allow "desperate" spells */
 		if ((r_ptr->flags2 & RF2_SMART) &&
 			(m_ptr->hp < m_ptr->maxhp / 10) &&
-			(rand_int(100) < 50))
+			(randint0(100) < 50))
 		{
 			/* Require intelligent spells */
 			f4 &= (RF4_INT_MASK);
@@ -231,9 +241,9 @@ bool monst_spell_monst(int m_idx)
 		monster_desc(ddesc, m_ptr, 0x88);
 
 		/* Choose a spell to cast */
-		thrown_spell = spell[rand_int(num)];
+		thrown_spell = spell[randint0(num)];
 
-		see_t = t_ptr->ml;
+		see_t = is_seen(t_ptr);
 		see_either = (see_m || see_t);
 		see_both = (see_m && see_t);
 
@@ -247,18 +257,15 @@ bool monst_spell_monst(int m_idx)
 			{
 				if (known)
 				{
-					if (see_m)
-					{
-						msg_format("%^s shrieks at %s.", m_name, t_name);
-					}
-					else
-					{
-						mon_fight = TRUE;
-					}
+#ifdef JP
+					if (see_m) msg_format("%^sが%sに向かって叫んだ。", m_name, t_name);
+#else
+					if (see_m) msg_format("%^s shrieks at %s.", m_name, t_name);
+#endif
+					else mon_fight = TRUE;
 				}
 
 				wake_up = TRUE;
-
 				break;
 			}
 
@@ -268,29 +275,21 @@ bool monst_spell_monst(int m_idx)
 				break;
 			}
 
-			/* RF4_XXX3X4 */
+			/* RF4_BA_LITE */
 			case 96+2:
-			{
-				break;
-			}
-
-			/* RF4_XXX4X4 */
-			case 96+3:
 			{
 				if (known)
 				{
 					if (see_either)
 					{
 						disturb(1, 0);
-
-						if (blind)
-						{
-							msg_format("%^s shoots something.", m_name);
-						}
-						else
-						{
-							msg_format("%^s fires a rocket at %s.", m_name, t_name);
-						}
+#ifdef JP
+						if (blind) msg_format("%^sが何かを力強くつぶやいた。", m_name);
+						else msg_format("%^sが%sに対してスター・バーストの呪文を念じた。", m_name, t_name);
+#else
+						if (blind) msg_format("%^s mumbles powerfully.", m_name);
+						else msg_format("%^s invokes a star burst upon %s.", m_name, t_name);
+#endif
 					}
 					else
 					{
@@ -298,9 +297,36 @@ bool monst_spell_monst(int m_idx)
 					}
 				}
 
-				monst_breath_monst(m_idx, y, x, GF_ROCKET,
-					((m_ptr->hp / 4) > 600 ? 600 : (m_ptr->hp / 4)), 2, FALSE);
+				dam = (rlev * 4) + damroll(10, 10);
+				monst_breath_monst(m_idx, y, x, GF_LITE, dam, 4, FALSE);
+				break;
+			}
 
+			/* RF4_ROCKET */
+			case 96+3:
+			{
+				if (known)
+				{
+					if (see_either)
+					{
+						disturb(1, 0);
+#ifdef JP
+						if (blind) msg_format("%^sが何かを射った。", m_name);
+						else msg_format("%^sが%sにロケットを発射した。", m_name, t_name);
+#else
+						if (blind) msg_format("%^s shoots something.", m_name);
+						else msg_format("%^s fires a rocket at %s.", m_name, t_name);
+#endif
+						sound(SOUND_ROCKET);
+					}
+					else
+					{
+						mon_fight = TRUE;
+					}
+				}
+
+				dam = (m_ptr->hp / 4) > 800 ? 800 : (m_ptr->hp / 4);
+				monst_breath_monst(m_idx, y, x, GF_ROCKET, dam, 2, FALSE);
 				break;
 			}
 
@@ -311,14 +337,13 @@ bool monst_spell_monst(int m_idx)
 				{
 					if (see_either)
 					{
-						if (blind)
-						{
-							msg_format("%^s makes a strange noise.", m_name);
-						}
-						else
-						{
-							msg_format("%^s fires an arrow at %s.", m_name, t_name);
-						}
+#ifdef JP
+						if (blind) msg_format("%^sが奇妙な音を発した。", m_name);
+						else msg_format("%^sが%sに矢を放った。", m_name, t_name);
+#else
+						if (blind) msg_format("%^s makes a strange noise.", m_name);
+						else msg_format("%^s fires an arrow at %s.", m_name, t_name);
+#endif
 					}
 					else
 					{
@@ -328,8 +353,8 @@ bool monst_spell_monst(int m_idx)
 					sound(SOUND_SHOOT);
 				}
 
-				monst_bolt_monst(m_idx, y, x, GF_ARROW, damroll(1, 6));
-
+				dam = damroll(1, 6);
+				monst_bolt_monst(m_idx, y, x, GF_ARROW, dam);
 				break;
 			}
 
@@ -340,14 +365,13 @@ bool monst_spell_monst(int m_idx)
 				{
 					if (see_either)
 					{
-						if (blind)
-						{
-							msg_format("%^s makes a strange noise.", m_name);
-						}
-						else
-						{
-							msg_format("%^s fires an arrow at %s.", m_name, t_name);
-						}
+#ifdef JP
+						if (blind) msg_format("%^sが奇妙な音を発した。", m_name);
+						else msg_format("%^sが%sに矢を放った。", m_name, t_name);
+#else
+						if (blind) msg_format("%^s makes a strange noise.", m_name);
+						else msg_format("%^s fires an arrow at %s.", m_name, t_name);
+#endif
 					}
 					else
 					{
@@ -357,8 +381,8 @@ bool monst_spell_monst(int m_idx)
 					sound(SOUND_SHOOT);
 				}
 
-				monst_bolt_monst(m_idx, y, x, GF_ARROW, damroll(3, 6));
-
+				dam = damroll(3, 6);
+				monst_bolt_monst(m_idx, y, x, GF_ARROW, dam);
 				break;
 			}
 
@@ -369,14 +393,13 @@ bool monst_spell_monst(int m_idx)
 				{
 					if (see_either)
 					{
-						if (blind)
-						{
-							msg_format("%^s makes a strange noise.", m_name);
-						}
-						else
-						{
-							msg_format("%^s fires a bolt at %s.", m_name, t_name);
-						}
+#ifdef JP
+						if (blind) msg_format("%^sが奇妙な音を発した。", m_name);
+						else msg_format("%sが%sにボルトを放った。", m_name, t_name);
+#else
+						if (blind) msg_format("%^s makes a strange noise.", m_name);
+						else msg_format("%^s fires a bolt at %s.", m_name, t_name);
+#endif
 					}
 					else
 					{
@@ -386,8 +409,8 @@ bool monst_spell_monst(int m_idx)
 					sound(SOUND_SHOOT);
 				}
 
-				monst_bolt_monst(m_idx, y, x, GF_ARROW, damroll(5, 6));
-
+				dam = damroll(5, 6);
+				monst_bolt_monst(m_idx, y, x, GF_ARROW, dam);
 				break;
 			}
 
@@ -398,14 +421,13 @@ bool monst_spell_monst(int m_idx)
 				{
 					if (see_either)
 					{
-						if (blind)
-						{
-							msg_format("%^s makes a strange noise.", m_name);
-						}
-						else
-						{
-							msg_format("%^s fires a bolt at %s.", m_name, t_name);
-						}
+#ifdef JP
+						if (blind) msg_format("%^sが奇妙な音を発した。", m_name);
+						else msg_format("%sが%sにボルトを放った。", m_name, t_name);
+#else
+						if (blind) msg_format("%^s makes a strange noise.", m_name);
+						else msg_format("%^s fires a bolt at %s.", m_name, t_name);
+#endif
 					}
 					else
 					{
@@ -415,8 +437,8 @@ bool monst_spell_monst(int m_idx)
 					sound(SOUND_SHOOT);
 				}
 
-				monst_bolt_monst(m_idx, y, x, GF_ARROW, damroll(7, 6));
-
+				dam = damroll(7, 6);
+				monst_bolt_monst(m_idx, y, x, GF_ARROW, dam);
 				break;
 			}
 
@@ -428,15 +450,13 @@ bool monst_spell_monst(int m_idx)
 					if (see_either)
 					{
 						disturb(1, 0);
-
-						if (blind)
-						{
-							msg_format("%^s breathes.", m_name);
-						}
-						else
-						{
-							msg_format("%^s breathes acid at %s.", m_name, t_name);
-						}
+#ifdef JP
+						if (blind) msg_format("%^sが何かのブレスを吐いた。", m_name);
+						else msg_format("%^sが%sに酸のブレスを吐いた。", m_name, t_name);
+#else
+						if (blind) msg_format("%^s breathes.", m_name);
+						else msg_format("%^s breathes acid at %s.", m_name, t_name);
+#endif
 					}
 					else
 					{
@@ -446,9 +466,8 @@ bool monst_spell_monst(int m_idx)
 					sound(SOUND_BREATH);
 				}
 
-				monst_breath_monst(m_idx, y, x, GF_ACID,
-					((m_ptr->hp / 3) > 1200 ? 1200 : (m_ptr->hp / 3)), 0, TRUE);
-
+				dam = (m_ptr->hp / 3) > 1200 ? 1200 : (m_ptr->hp / 3);
+				monst_breath_monst(m_idx, y, x, GF_ACID, dam, 0, TRUE);
 				break;
 			}
 
@@ -460,15 +479,13 @@ bool monst_spell_monst(int m_idx)
 					if (see_either)
 					{
 						disturb(1, 0);
-
-						if (blind)
-						{
-							msg_format("%^s breathes.", m_name);
-						}
-						else
-						{
-							msg_format("%^s breathes lightning at %s.", m_name, t_name);
-						}
+#ifdef JP
+						if (blind) msg_format("%^sが何かのブレスを吐いた。", m_name);
+						else msg_format("%^sが%sに稲妻のブレスを吐いた。", m_name, t_name);
+#else
+						if (blind) msg_format("%^s breathes.", m_name);
+						else msg_format("%^s breathes lightning at %s.", m_name, t_name);
+#endif
 					}
 					else
 					{
@@ -478,9 +495,8 @@ bool monst_spell_monst(int m_idx)
 					sound(SOUND_BREATH);
 				}
 
-				monst_breath_monst(m_idx, y, x, GF_ELEC,
-					((m_ptr->hp / 3) > 1200 ? 1200 : (m_ptr->hp / 3)), 0, TRUE);
-
+				dam = (m_ptr->hp / 3) > 1200 ? 1200 : (m_ptr->hp / 3);
+				monst_breath_monst(m_idx, y, x, GF_ELEC, dam, 0, TRUE);
 				break;
 			}
 
@@ -492,15 +508,13 @@ bool monst_spell_monst(int m_idx)
 					if (see_either)
 					{
 						disturb(1, 0);
-
-						if (blind)
-						{
-							msg_format("%^s breathes.", m_name);
-						}
-						else
-						{
-							msg_format("%^s breathes fire at %s.", m_name, t_name);
-						}
+#ifdef JP
+						if (blind) msg_format("%^sが何かのブレスを吐いた。", m_name);
+						else msg_format("%^sが%sに火炎のブレスを吐いた。", m_name, t_name);
+#else
+						if (blind) msg_format("%^s breathes.", m_name);
+						else msg_format("%^s breathes fire at %s.", m_name, t_name);
+#endif
 					}
 					else
 					{
@@ -510,9 +524,8 @@ bool monst_spell_monst(int m_idx)
 					sound(SOUND_BREATH);
 				}
 
-				monst_breath_monst(m_idx, y, x, GF_FIRE,
-					((m_ptr->hp / 3) > 1200 ? 1200 : (m_ptr->hp / 3)), 0, TRUE);
-
+				dam = (m_ptr->hp / 3) > 1200 ? 1200 : (m_ptr->hp / 3);
+				monst_breath_monst(m_idx, y, x, GF_FIRE, dam, 0, TRUE);
 				break;
 			}
 
@@ -524,15 +537,13 @@ bool monst_spell_monst(int m_idx)
 					if (see_either)
 					{
 						disturb(1, 0);
-
-						if (blind)
-						{
-							msg_format("%^s breathes.", m_name);
-						}
-						else
-						{
-							msg_format("%^s breathes frost at %s.", m_name, t_name);
-						}
+#ifdef JP
+						if (blind) msg_format("%^sが何かのブレスを吐いた。", m_name);
+						else msg_format("%^sが%sに冷気のブレスを吐いた。", m_name, t_name);
+#else
+						if (blind) msg_format("%^s breathes.", m_name);
+						else msg_format("%^s breathes frost at %s.", m_name, t_name);
+#endif
 					}
 					else
 					{
@@ -542,8 +553,8 @@ bool monst_spell_monst(int m_idx)
 					sound(SOUND_BREATH);
 				}
 
-				monst_breath_monst(m_idx, y, x, GF_COLD,
-					((m_ptr->hp / 3) > 1200 ? 1200 : (m_ptr->hp / 3)), 0, TRUE);
+				dam = (m_ptr->hp / 3) > 1200 ? 1200 : (m_ptr->hp / 3);
+				monst_breath_monst(m_idx, y, x, GF_COLD, dam, 0, TRUE);
 				break;
 			}
 
@@ -556,14 +567,13 @@ bool monst_spell_monst(int m_idx)
 					{
 						disturb(1, 0);
 
-						if (blind)
-						{
-							msg_format("%^s breathes.", m_name);
-						}
-						else
-						{
+#ifdef JP
+						if (blind) msg_format("%^sが何かのブレスを吐いた。", m_name);
+						else msg_format("%^sが%sにガスのブレスを吐いた。", m_name, t_name);
+#else
+						if (blind) msg_format("%^s breathes.", m_name);
 							msg_format("%^s breathes gas at %s.", m_name, t_name);
-						}
+#endif
 					}
 					else
 					{
@@ -573,9 +583,8 @@ bool monst_spell_monst(int m_idx)
 					sound(SOUND_BREATH);
 				}
 
-				monst_breath_monst(m_idx, y, x, GF_POIS,
-					((m_ptr->hp / 3) > 600 ? 600 : (m_ptr->hp / 3)), 0, TRUE);
-
+				dam = (m_ptr->hp / 3) > 800 ? 800 : (m_ptr->hp / 3);
+				monst_breath_monst(m_idx, y, x, GF_POIS, dam, 0, TRUE);
 				break;
 			}
 
@@ -587,15 +596,13 @@ bool monst_spell_monst(int m_idx)
 					if (see_either)
 					{
 						disturb(1, 0);
-
-						if (blind)
-						{
-							msg_format("%^s breathes.", m_name);
-						}
-						else
-						{
-							msg_format("%^s breathes nether at %s.", m_name, t_name);
-						}
+#ifdef JP
+						if (blind) msg_format("%^sが何かのブレスを吐いた。", m_name);
+						else msg_format("%^sが%sに地獄のブレスを吐いた。", m_name, t_name);
+#else
+						if (blind) msg_format("%^s breathes.", m_name);
+						else msg_format("%^s breathes nether at %s.", m_name, t_name);
+#endif
 					}
 					else
 					{
@@ -605,9 +612,8 @@ bool monst_spell_monst(int m_idx)
 					sound(SOUND_BREATH);
 				}
 
-				monst_breath_monst(m_idx, y, x, GF_NETHER,
-					((m_ptr->hp / 6) > 450 ? 450 : (m_ptr->hp / 6)), 0, TRUE);
-
+				dam = (m_ptr->hp / 6) > 500 ? 500 : (m_ptr->hp / 6);
+				monst_breath_monst(m_idx, y, x, GF_NETHER, dam, 0, TRUE);
 				break;
 			}
 
@@ -619,15 +625,13 @@ bool monst_spell_monst(int m_idx)
 					if (see_either)
 					{
 						disturb(1, 0);
-
-						if (blind)
-						{
-							msg_format("%^s breathes.", m_name);
-						}
-						else
-						{
-							msg_format("%^s breathes light at %s.", m_name, t_name);
-						}
+#ifdef JP
+						if (blind) msg_format("%^sが何かのブレスを吐いた。", m_name);
+						else msg_format("%^sが%sに閃光のブレスを吐いた。", m_name, t_name);
+#else
+						if (blind) msg_format("%^s breathes.", m_name);
+						else msg_format("%^s breathes light at %s.", m_name, t_name);
+#endif
 					}
 					else
 					{
@@ -637,9 +641,8 @@ bool monst_spell_monst(int m_idx)
 					sound(SOUND_BREATH);
 				}
 
-				monst_breath_monst(m_idx, y, x, GF_LITE,
-					((m_ptr->hp / 4) > 350 ? 350 : (m_ptr->hp / 4)), 0, TRUE);
-
+				dam = (m_ptr->hp / 6) > 400 ? 400 : (m_ptr->hp / 6);
+				monst_breath_monst(m_idx, y, x, GF_LITE, dam, 0, TRUE);
 				break;
 			}
 
@@ -651,15 +654,13 @@ bool monst_spell_monst(int m_idx)
 					if (see_either)
 					{
 						disturb(1, 0);
-
-						if (blind)
-						{
-							msg_format("%^s breathes.", m_name);
-						}
-						else
-						{
-							msg_format("%^s breathes darkness at %s.", m_name, t_name);
-						}
+#ifdef JP
+						if (blind) msg_format("%^sが何かのブレスを吐いた。", m_name);
+						else msg_format("%^sが%sに暗黒のブレスを吐いた。", m_name, t_name);
+#else
+						if (blind) msg_format("%^s breathes.", m_name);
+						else msg_format("%^s breathes darkness at %s.", m_name, t_name);
+#endif
 					}
 					else
 					{
@@ -669,9 +670,8 @@ bool monst_spell_monst(int m_idx)
 					sound(SOUND_BREATH);
 				}
 
-				monst_breath_monst(m_idx, y, x, GF_DARK,
-					((m_ptr->hp / 4) > 350 ? 350 : (m_ptr->hp / 4)), 0, TRUE);
-
+				dam = (m_ptr->hp / 6) > 400 ? 400 : (m_ptr->hp / 6);
+				monst_breath_monst(m_idx, y, x, GF_DARK, dam, 0, TRUE);
 				break;
 			}
 
@@ -683,15 +683,13 @@ bool monst_spell_monst(int m_idx)
 					if (see_either)
 					{
 						disturb(1, 0);
-
-						if (blind)
-						{
-							msg_format("%^s breathes.", m_name);
-						}
-						else
-						{
-							msg_format("%^s breathes confusion at %s.", m_name, t_name);
-						}
+#ifdef JP
+						if (blind) msg_format("%^sが何かのブレスを吐いた。", m_name);
+						else msg_format("%^sが%sに混乱のブレスを吐いた。", m_name, t_name);
+#else
+						if (blind) msg_format("%^s breathes.", m_name);
+						else msg_format("%^s breathes confusion at %s.", m_name, t_name);
+#endif
 					}
 					else
 					{
@@ -701,9 +699,8 @@ bool monst_spell_monst(int m_idx)
 					sound(SOUND_BREATH);
 				}
 
-				monst_breath_monst(m_idx, y, x, GF_CONFUSION,
-					((m_ptr->hp / 4) > 350 ? 350 : (m_ptr->hp / 4)), 0, TRUE);
-
+				dam = (m_ptr->hp / 6) > 400 ? 400 : (m_ptr->hp / 6);
+				monst_breath_monst(m_idx, y, x, GF_CONFUSION, dam, 0, TRUE);
 				break;
 			}
 
@@ -715,15 +712,13 @@ bool monst_spell_monst(int m_idx)
 					if (see_either)
 					{
 						disturb(1, 0);
-
-						if (blind)
-						{
-							msg_format("%^s breathes.", m_name);
-						}
-						else
-						{
-							msg_format("%^s breathes sound at %s.", m_name, t_name);
-						}
+#ifdef JP
+						if (blind) msg_format("%^sが何かのブレスを吐いた。", m_name);
+						else msg_format("%^sが%sに轟音のブレスを吐いた。", m_name, t_name);
+#else
+						if (blind) msg_format("%^s breathes.", m_name);
+						else msg_format("%^s breathes sound at %s.", m_name, t_name);
+#endif
 					}
 					else
 					{
@@ -733,9 +728,8 @@ bool monst_spell_monst(int m_idx)
 					sound(SOUND_BREATH);
 				}
 
-				monst_breath_monst(m_idx, y, x, GF_SOUND,
-					((m_ptr->hp / 4) > 350 ? 350 : (m_ptr->hp / 4)), 0, TRUE);
-
+				dam = (m_ptr->hp / 6) > 400 ? 400 : (m_ptr->hp / 6);
+				monst_breath_monst(m_idx, y, x, GF_SOUND, dam, 0, TRUE);
 				break;
 			}
 
@@ -747,15 +741,13 @@ bool monst_spell_monst(int m_idx)
 					if (see_either)
 					{
 						disturb(1, 0);
-
-						if (blind)
-						{
-							msg_format("%^s breathes.", m_name);
-						}
-						else
-						{
-							msg_format("%^s breathes chaos at %s.", m_name, t_name);
-						}
+#ifdef JP
+						if (blind) msg_format("%^sが何かのブレスを吐いた。", m_name);
+						else msg_format("%^sが%sにカオスのブレスを吐いた。", m_name, t_name);
+#else
+						if (blind) msg_format("%^s breathes.", m_name);
+						else msg_format("%^s breathes chaos at %s.", m_name, t_name);
+#endif
 					}
 					else
 					{
@@ -765,9 +757,8 @@ bool monst_spell_monst(int m_idx)
 					sound(SOUND_BREATH);
 				}
 
-				monst_breath_monst(m_idx, y, x, GF_CHAOS,
-					((m_ptr->hp / 4) > 500 ? 500 : (m_ptr->hp / 4)), 0, TRUE);
-
+				dam = (m_ptr->hp / 6) > 500 ? 500 : (m_ptr->hp / 6);
+				monst_breath_monst(m_idx, y, x, GF_CHAOS, dam, 0, TRUE);
 				break;
 			}
 
@@ -779,15 +770,13 @@ bool monst_spell_monst(int m_idx)
 					if (see_either)
 					{
 						disturb(1, 0);
-
-						if (blind)
-						{
-							msg_format("%^s breathes.", m_name);
-						}
-						else
-						{
-							msg_format("%^s breathes disenchantment at %s.", m_name, t_name);
-						}
+#ifdef JP
+						if (blind) msg_format("%^sが何かのブレスを吐いた。", m_name);
+						else msg_format("%^sが%sに劣化のブレスを吐いた。", m_name, t_name);
+#else
+						if (blind) msg_format("%^s breathes.", m_name);
+						else msg_format("%^s breathes disenchantment at %s.", m_name, t_name);
+#endif
 					}
 					else
 					{
@@ -797,9 +786,8 @@ bool monst_spell_monst(int m_idx)
 					sound(SOUND_BREATH);
 				}
 
-				monst_breath_monst(m_idx, y, x, GF_DISENCHANT,
-					((m_ptr->hp / 4) > 400 ? 400 : (m_ptr->hp / 4)), 0, TRUE);
-
+				dam = (m_ptr->hp / 6) > 500 ? 500 : (m_ptr->hp / 6);
+				monst_breath_monst(m_idx, y, x, GF_DISENCHANT, dam, 0, TRUE);
 				break;
 			}
 
@@ -811,15 +799,13 @@ bool monst_spell_monst(int m_idx)
 					if (see_either)
 					{
 						disturb(1, 0);
-
-						if (blind)
-						{
-							msg_format("%^s breathes.", m_name);
-						}
-						else
-						{
-							msg_format("%^s breathes nexus at %s.", m_name, t_name);
-						}
+#ifdef JP
+						if (blind) msg_format("%^sが何かのブレスを吐いた。", m_name);
+						else msg_format("%^sが%sに因果混乱のブレスを吐いた。", m_name, t_name);
+#else
+						if (blind) msg_format("%^s breathes.", m_name);
+						else msg_format("%^s breathes nexus at %s.", m_name, t_name);
+#endif
 					}
 					else
 					{
@@ -829,9 +815,8 @@ bool monst_spell_monst(int m_idx)
 					sound(SOUND_BREATH);
 				}
 
-				monst_breath_monst(m_idx, y, x, GF_NEXUS,
-					((m_ptr->hp / 3) > 250 ? 250 : (m_ptr->hp / 3)), 0, TRUE);
-
+				dam = (m_ptr->hp / 3) > 250 ? 250 : (m_ptr->hp / 3);
+				monst_breath_monst(m_idx, y, x, GF_NEXUS, dam, 0, TRUE);
 				break;
 			}
 
@@ -843,15 +828,13 @@ bool monst_spell_monst(int m_idx)
 					if (see_either)
 					{
 						disturb(1, 0);
-
-						if (blind)
-						{
-							msg_format("%^s breathes.", m_name);
-						}
-						else
-						{
-							msg_format("%^s breathes time at %s.", m_name, t_name);
-						}
+#ifdef JP
+						if (blind) msg_format("%^sが何かのブレスを吐いた。", m_name);
+						else msg_format("%^sが%sに時間逆転のブレスを吐いた。", m_name, t_name);
+#else
+						if (blind) msg_format("%^s breathes.", m_name);
+						else msg_format("%^s breathes time at %s.", m_name, t_name);
+#endif
 					}
 					else
 					{
@@ -861,9 +844,8 @@ bool monst_spell_monst(int m_idx)
 					sound(SOUND_BREATH);
 				}
 
-				monst_breath_monst(m_idx, y, x, GF_TIME,
-					((m_ptr->hp / 3) > 150 ? 150 : (m_ptr->hp / 3)), 0, TRUE);
-
+				dam = (m_ptr->hp / 3) > 150 ? 150 : (m_ptr->hp / 3);
+				monst_breath_monst(m_idx, y, x, GF_TIME, dam, 0, TRUE);
 				break;
 			}
 
@@ -875,15 +857,13 @@ bool monst_spell_monst(int m_idx)
 					if (see_either)
 					{
 						disturb(1, 0);
-
-						if (blind)
-						{
-							msg_format("%^s breathes.", m_name);
-						}
-						else
-						{
-							msg_format("%^s breathes inertia at %s.", m_name, t_name);
-						}
+#ifdef JP
+						if (blind) msg_format("%^sが何かのブレスを吐いた。", m_name);
+						else msg_format("%^sが%sに遅鈍のブレスを吐いた。", m_name, t_name);
+#else
+						if (blind) msg_format("%^s breathes.", m_name);
+						else msg_format("%^s breathes inertia at %s.", m_name, t_name);
+#endif
 					}
 					else
 					{
@@ -893,8 +873,8 @@ bool monst_spell_monst(int m_idx)
 					sound(SOUND_BREATH);
 				}
 
-				monst_breath_monst(m_idx, y, x, GF_INERTIA,
-					((m_ptr->hp / 4) > 200 ? 200 : (m_ptr->hp / 4)), 0, TRUE);
+				dam = (m_ptr->hp / 6) > 200 ? 200 : (m_ptr->hp / 6);
+				monst_breath_monst(m_idx, y, x, GF_INERTIA, dam, 0, TRUE);
 
 				break;
 			}
@@ -907,15 +887,13 @@ bool monst_spell_monst(int m_idx)
 					if (see_either)
 					{
 						disturb(1, 0);
-
-						if (blind)
-						{
-							msg_format("%^s breathes.", m_name);
-						}
-						else
-						{
-							msg_format("%^s breathes gravity at %s.", m_name, t_name);
-						}
+#ifdef JP
+						if (blind) msg_format("%^sが何かのブレスを吐いた。", m_name);
+						else msg_format("%^sが%sに重力のブレスを吐いた。", m_name, t_name);
+#else
+						if (blind) msg_format("%^s breathes.", m_name);
+						else msg_format("%^s breathes gravity at %s.", m_name, t_name);
+#endif
 					}
 					else
 					{
@@ -925,9 +903,8 @@ bool monst_spell_monst(int m_idx)
 					sound(SOUND_BREATH);
 				}
 
-				monst_breath_monst(m_idx, y, x, GF_GRAVITY,
-					((m_ptr->hp / 3) > 200 ? 200 : (m_ptr->hp / 3)), 0, TRUE);
-
+				dam = (m_ptr->hp / 3) > 200 ? 200 : (m_ptr->hp / 3);
+				monst_breath_monst(m_idx, y, x, GF_GRAVITY, dam, 0, TRUE);
 				break;
 			}
 
@@ -939,15 +916,13 @@ bool monst_spell_monst(int m_idx)
 					if (see_either)
 					{
 						disturb(1, 0);
-
-						if (blind)
-						{
-							msg_format("%^s breathes.", m_name);
-						}
-						else
-						{
-							msg_format("%^s breathes shards at %s.", m_name, t_name);
-						}
+#ifdef JP
+						if (blind) msg_format("%^sが何かのブレスを吐いた。", m_name);
+						else msg_format("%^sが%sに破片のブレスを吐いた。", m_name, t_name);
+#else
+						if (blind) msg_format("%^s breathes.", m_name);
+						else msg_format("%^s breathes shards at %s.", m_name, t_name);
+#endif
 					}
 					else
 					{
@@ -957,9 +932,8 @@ bool monst_spell_monst(int m_idx)
 					sound(SOUND_BREATH);
 				}
 
-				monst_breath_monst(m_idx, y, x, GF_SHARDS,
-					((m_ptr->hp / 4) > 400 ? 400 : (m_ptr->hp / 4)), 0, TRUE);
-
+				dam = (m_ptr->hp / 6) > 400 ? 400 : (m_ptr->hp / 6);
+				monst_breath_monst(m_idx, y, x, GF_SHARDS, dam, 0, TRUE);
 				break;
 			}
 
@@ -971,15 +945,13 @@ bool monst_spell_monst(int m_idx)
 					if (see_either)
 					{
 						disturb(1, 0);
-
-						if (blind)
-						{
-							msg_format("%^s breathes.", m_name);
-						}
-						else
-						{
-							msg_format("%^s breathes plasma at %s.", m_name, t_name);
-						}
+#ifdef JP
+						if (blind) msg_format("%^sが何かのブレスを吐いた。", m_name);
+						else msg_format("%^sが%sにプラズマのブレスを吐いた。", m_name, t_name);
+#else
+						if (blind) msg_format("%^s breathes.", m_name);
+						else msg_format("%^s breathes plasma at %s.", m_name, t_name);
+#endif
 					}
 					else
 					{
@@ -989,9 +961,8 @@ bool monst_spell_monst(int m_idx)
 					sound(SOUND_BREATH);
 				}
 
-				monst_breath_monst(m_idx, y, x, GF_PLASMA,
-					((m_ptr->hp / 4) > 150 ? 150 : (m_ptr->hp / 4)), 0, TRUE);
-
+				dam = (m_ptr->hp / 6) > 150 ? 150 : (m_ptr->hp / 6);
+				monst_breath_monst(m_idx, y, x, GF_PLASMA, dam, 0, TRUE);
 				break;
 			}
 
@@ -1003,15 +974,13 @@ bool monst_spell_monst(int m_idx)
 					if (see_either)
 					{
 						disturb(1, 0);
-
-						if (blind)
-						{
-							msg_format("%^s breathes.", m_name);
-						}
-						else
-						{
-							msg_format("%^s breathes force at %s.", m_name, t_name);
-						}
+#ifdef JP
+						if (blind) msg_format("%^sが何かのブレスを吐いた。", m_name);
+						else msg_format("%^sが%sにフォースのブレスを吐いた。", m_name, t_name);
+#else
+						if (blind) msg_format("%^s breathes.", m_name);
+						else msg_format("%^s breathes force at %s.", m_name, t_name);
+#endif
 					}
 					else
 					{
@@ -1021,9 +990,8 @@ bool monst_spell_monst(int m_idx)
 					sound(SOUND_BREATH);
 				}
 
-				monst_breath_monst(m_idx, y, x, GF_FORCE,
-					((m_ptr->hp / 4) > 200 ? 200 : (m_ptr->hp / 4)), 0, TRUE);
-
+				dam = (m_ptr->hp / 6) > 200 ? 200 : (m_ptr->hp / 6);
+				monst_breath_monst(m_idx, y, x, GF_FORCE, dam, 0, TRUE);
 				break;
 			}
 
@@ -1035,15 +1003,13 @@ bool monst_spell_monst(int m_idx)
 					if (see_either)
 					{
 						disturb(1, 0);
-
-						if (blind)
-						{
-							msg_format("%^s breathes.", m_name);
-						}
-						else
-						{
-							msg_format("%^s breathes mana at %s.", m_name, t_name);
-						}
+#ifdef JP
+						if (blind) msg_format("%^sが何かのブレスを吐いた。", m_name);
+						else msg_format("%^sが%sに魔力のブレスを吐いた。", m_name, t_name);
+#else
+						if (blind) msg_format("%^s breathes.", m_name);
+						else msg_format("%^s breathes mana at %s.", m_name, t_name);
+#endif
 					}
 					else
 					{
@@ -1053,9 +1019,8 @@ bool monst_spell_monst(int m_idx)
 					sound(SOUND_BREATH);
 				}
 
-				monst_breath_monst(m_idx, y, x, GF_MANA,
-					((m_ptr->hp / 3) > 250 ? 250 : (m_ptr->hp / 3)), 0, TRUE);
-
+				dam = (m_ptr->hp / 3) > 250 ? 250 : (m_ptr->hp / 3);
+				monst_breath_monst(m_idx, y, x, GF_MANA, dam, 0, TRUE);
 				break;
 			}
 
@@ -1067,15 +1032,13 @@ bool monst_spell_monst(int m_idx)
 					if (see_either)
 					{
 						disturb(1, 0);
-
-						if (blind)
-						{
-							msg_format("%^s mumbles.", m_name);
-						}
-						else
-						{
-							msg_format("%^s casts a ball of radiation at %s.", m_name, t_name);
-						}
+#ifdef JP
+						if (blind) msg_format("%^sが何かをつぶやいた。", m_name);
+						else msg_format("%^sが%sに放射能球を放った。", m_name, t_name);
+#else
+						if (blind) msg_format("%^s mumbles.", m_name);
+						else msg_format("%^s casts a ball of radiation at %s.", m_name, t_name);
+#endif
 					}
 					else
 					{
@@ -1083,9 +1046,8 @@ bool monst_spell_monst(int m_idx)
 					}
 				}
 
-				monst_breath_monst(m_idx, y, x, GF_NUKE,
-					(rlev + damroll(10, 6)), 2, FALSE);
-
+				dam = rlev + damroll(10, 6);
+				monst_breath_monst(m_idx, y, x, GF_NUKE, dam, 2, FALSE);
 				break;
 			}
 
@@ -1097,15 +1059,13 @@ bool monst_spell_monst(int m_idx)
 					if (see_either)
 					{
 						disturb(1, 0);
-
-						if (blind)
-						{
-							msg_format("%^s breathes.", m_name);
-						}
-						else
-						{
-							msg_format("%^s breathes toxic waste at %s.", m_name, t_name);
-						}
+#ifdef JP
+						if (blind) msg_format("%^sが何かのブレスを吐いた。", m_name);
+						else msg_format("%^sが%sに放射性廃棄物のブレスを吐いた。", m_name, t_name);
+#else
+						if (blind) msg_format("%^s breathes.", m_name);
+						else msg_format("%^s breathes toxic waste at %s.", m_name, t_name);
+#endif
 					}
 					else
 					{
@@ -1115,9 +1075,8 @@ bool monst_spell_monst(int m_idx)
 					sound(SOUND_BREATH);
 				}
 
-				monst_breath_monst(m_idx, y, x, GF_NUKE,
-					((m_ptr->hp / 2) > 600 ? 600 : (m_ptr->hp / 2)), 0, TRUE);
-
+				dam = (m_ptr->hp / 3) > 800 ? 800 : (m_ptr->hp / 3);
+				monst_breath_monst(m_idx, y, x, GF_NUKE, dam, 0, TRUE);
 				break;
 			}
 
@@ -1129,15 +1088,13 @@ bool monst_spell_monst(int m_idx)
 					if (see_either)
 					{
 						disturb(1, 0);
-
-						if (blind)
-						{
-							msg_format("%^s mumbles frighteningly.", m_name);
-						}
-						else
-						{
-							msg_format("%^s invokes raw Logrus upon %s.", m_name, t_name);
-						}
+#ifdef JP
+						if (blind) msg_format("%^sが恐ろしげにつぶやいた。", m_name);
+						else msg_format("%^sが%sにカオス球を放った。", m_name, t_name);
+#else
+						if (blind) msg_format("%^s mumbles frighteningly.", m_name);
+						else msg_format("%^s catss a chaos ball upon %s.", m_name, t_name);
+#endif
 					}
 					else
 					{
@@ -1145,9 +1102,8 @@ bool monst_spell_monst(int m_idx)
 					}
 				}
 
-				monst_breath_monst(m_idx, y, x, GF_CHAOS,
-					(rlev * 2) + damroll(10, 10), 4, FALSE);
-
+				dam = (rlev * 2) + damroll(10, 10);
+				monst_breath_monst(m_idx, y, x, GF_CHAOS, dam, 4, FALSE);
 				break;
 			}
 
@@ -1159,15 +1115,13 @@ bool monst_spell_monst(int m_idx)
 					if (see_either)
 					{
 						disturb(1, 0);
-
-						if (blind)
-						{
-							msg_format("%^s breathes.", m_name);
-						}
-						else
-						{
-							msg_format("%^s breathes disintegration at %s.", m_name, t_name);
-						}
+#ifdef JP
+						if (blind) msg_format("%^sが何かのブレスを吐いた。", m_name);
+						else msg_format("%^sが%sに分解のブレスを吐いた。", m_name, t_name);
+#else
+						if (blind) msg_format("%^s breathes.", m_name);
+						else msg_format("%^s breathes disintegration at %s.", m_name, t_name);
+#endif
 					}
 					else
 					{
@@ -1177,9 +1131,8 @@ bool monst_spell_monst(int m_idx)
 					sound(SOUND_BREATH);
 				}
 
-				monst_breath_monst(m_idx, y, x, GF_DISINTEGRATE,
-					((m_ptr->hp / 3) > 300 ? 300 : (m_ptr->hp / 3)), 0, TRUE);
-
+				dam = (m_ptr->hp / 3) > 150 ? 150 : (m_ptr->hp / 3);
+				monst_breath_monst(m_idx, y, x, GF_DISINTEGRATE, dam, 0, TRUE);
 				break;
 			}
 
@@ -1191,15 +1144,13 @@ bool monst_spell_monst(int m_idx)
 					if (see_either)
 					{
 						disturb(1, 0);
-
-						if (blind)
-						{
-							msg_format("%^s mumbles.", m_name);
-						}
-						else
-						{
-							msg_format("%^s casts an acid ball at %s.", m_name, t_name);
-						}
+#ifdef JP
+						if (blind) msg_format("%^sが何かをつぶやいた。", m_name);
+						else msg_format("%^sが%sに向かってアシッド・ボールの呪文を唱えた。", m_name, t_name);
+#else
+						if (blind) msg_format("%^s mumbles.", m_name);
+						else msg_format("%^s casts an acid ball at %s.", m_name, t_name);
+#endif
 					}
 					else
 					{
@@ -1207,8 +1158,8 @@ bool monst_spell_monst(int m_idx)
 					}
 				}
 
-				monst_breath_monst(m_idx, y, x, GF_ACID, randint(rlev * 3) + 15, 2, FALSE);
-
+				dam = randint1(rlev * 3) + 15;
+				monst_breath_monst(m_idx, y, x, GF_ACID, dam, 2, FALSE);
 				break;
 			}
 
@@ -1220,15 +1171,13 @@ bool monst_spell_monst(int m_idx)
 					if (see_either)
 					{
 						disturb(1, 0);
-
-						if (blind)
-						{
-							msg_format("%^s mumbles.", m_name);
-						}
-						else
-						{
-							msg_format("%^s casts a lightning ball at %s.", m_name, t_name);
-						}
+#ifdef JP
+						if (blind) msg_format("%^sが何かをつぶやいた。", m_name);
+						else msg_format("%^sが%sに向かってサンダー・ボールの呪文を唱えた。", m_name, t_name);
+#else
+						if (blind) msg_format("%^s mumbles.", m_name);
+						else msg_format("%^s casts a lightning ball at %s.", m_name, t_name);
+#endif
 					}
 					else
 					{
@@ -1236,8 +1185,8 @@ bool monst_spell_monst(int m_idx)
 					}
 				}
 
-				monst_breath_monst(m_idx, y, x, GF_ELEC, randint(rlev * 3 / 2) + 8, 2, FALSE);
-
+				dam = randint1(rlev * 3 / 2) + 8;
+				monst_breath_monst(m_idx, y, x, GF_ELEC, dam, 2, FALSE);
 				break;
 			}
 
@@ -1249,15 +1198,13 @@ bool monst_spell_monst(int m_idx)
 					if (see_either)
 					{
 						disturb(1, 0);
-
-						if (blind)
-						{
-							msg_format("%^s mumbles.", m_name);
-						}
-						else
-						{
-							msg_format("%^s casts a fire ball at %s.", m_name, t_name);
-						}
+#ifdef JP
+						if (blind) msg_format("%^sが何かをつぶやいた。", m_name);
+						else msg_format("%^sが%sに向かってファイア・ボールの呪文を唱えた。", m_name, t_name);
+#else
+						if (blind) msg_format("%^s mumbles.", m_name);
+						else msg_format("%^s casts a fire ball at %s.", m_name, t_name);
+#endif
 					}
 					else
 					{
@@ -1265,8 +1212,8 @@ bool monst_spell_monst(int m_idx)
 					}
 				}
 
-				monst_breath_monst(m_idx, y, x, GF_FIRE, randint(rlev * 7 / 2) + 10, 2, FALSE);
-
+				dam = randint1(rlev * 7 / 2) + 10;
+				monst_breath_monst(m_idx, y, x, GF_FIRE, dam, 2, FALSE);
 				break;
 			}
 
@@ -1278,15 +1225,13 @@ bool monst_spell_monst(int m_idx)
 					if (see_either)
 					{
 						disturb(1, 0);
-
-						if (blind)
-						{
-							msg_format("%^s mumbles.", m_name);
-						}
-						else
-						{
-							msg_format("%^s casts a frost ball at %s.", m_name, t_name);
-						}
+#ifdef JP
+						if (blind) msg_format("%^sが何かをつぶやいた。", m_name);
+						else msg_format("%^sが%sに向かってアイス・ボールの呪文を唱えた。", m_name, t_name);
+#else
+						if (blind) msg_format("%^s mumbles.", m_name);
+						else msg_format("%^s casts a frost ball at %s.", m_name, t_name);
+#endif
 					}
 					else
 					{
@@ -1294,8 +1239,8 @@ bool monst_spell_monst(int m_idx)
 					}
 				}
 
-				monst_breath_monst(m_idx, y, x, GF_COLD, randint(rlev * 3 / 2) + 10, 2, FALSE);
-
+				dam = randint1(rlev * 3 / 2) + 10;
+				monst_breath_monst(m_idx, y, x, GF_COLD, dam, 2, FALSE);
 				break;
 			}
 
@@ -1307,15 +1252,13 @@ bool monst_spell_monst(int m_idx)
 					if (see_either)
 					{
 						disturb(1, 0);
-
-						if (blind)
-						{
-							msg_format("%^s mumbles.", m_name);
-						}
-						else
-						{
-							msg_format("%^s casts a stinking cloud at %s.", m_name, t_name);
-						}
+#ifdef JP
+						if (blind) msg_format("%^sが何かをつぶやいた。", m_name);
+						else msg_format("%^sが%sに向かって悪臭雲の呪文を唱えた。", m_name, t_name);
+#else
+						if (blind) msg_format("%^s mumbles.", m_name);
+						else msg_format("%^s casts a stinking cloud at %s.", m_name, t_name);
+#endif
 					}
 					else
 					{
@@ -1323,8 +1266,8 @@ bool monst_spell_monst(int m_idx)
 					}
 				}
 
-				monst_breath_monst(m_idx, y, x, GF_POIS, damroll(12, 2), 2, FALSE);
-
+				dam = damroll(12, 2);
+				monst_breath_monst(m_idx, y, x, GF_POIS, dam, 2, FALSE);
 				break;
 			}
 
@@ -1336,15 +1279,13 @@ bool monst_spell_monst(int m_idx)
 					if (see_either)
 					{
 						disturb(1, 0);
-
-						if (blind)
-						{
-							msg_format("%^s mumbles.", m_name);
-						}
-						else
-						{
-							msg_format("%^s casts a nether ball at %s.", m_name, t_name);
-						}
+#ifdef JP
+						if (blind) msg_format("%^sが何かをつぶやいた。", m_name);
+						else msg_format("%^sが%sに向かって地獄球の呪文を唱えた。", m_name, t_name);
+#else
+						if (blind) msg_format("%^s mumbles.", m_name);
+						else msg_format("%^s casts a nether ball at %s.", m_name, t_name);
+#endif
 					}
 					else
 					{
@@ -1352,8 +1293,8 @@ bool monst_spell_monst(int m_idx)
 					}
 				}
 
-				monst_breath_monst(m_idx, y, x, GF_NETHER, (50 + damroll(10, 10) + rlev), 2, FALSE);
-
+				dam = 50 + damroll(10, 10) + rlev;
+				monst_breath_monst(m_idx, y, x, GF_NETHER, dam, 2, FALSE);
 				break;
 			}
 
@@ -1365,16 +1306,17 @@ bool monst_spell_monst(int m_idx)
 					if (see_either)
 					{
 						disturb(1, 0);
+#ifdef JP
+						if (blind) msg_format("%^sが何かをつぶやいた。", m_name);
+						else msg_format("%^sが%sに対して流れるような身振りをした。", m_name, t_name);
 
-						if (blind)
-						{
-							msg_format("%^s mumbles.", m_name);
-						}
-						else
-						{
-							msg_format("%^s gestures fluidly at %s.", m_name, t_name);
-							msg_format("%^s is engulfed in a whirlpool.", t_name);
-						}
+						msg_format("%^sは渦巻に飲み込まれた。", t_name);
+#else
+						if (blind) msg_format("%^s mumbles.", m_name);
+						else msg_format("%^s gestures fluidly at %s.", m_name, t_name);
+
+						msg_format("%^s is engulfed in a whirlpool.", t_name);
+#endif
 					}
 					else
 					{
@@ -1382,8 +1324,8 @@ bool monst_spell_monst(int m_idx)
 					}
 				}
 
-				monst_breath_monst(m_idx, y, x, GF_WATER, randint(rlev * 5 / 2) + 50, 4, FALSE);
-
+				dam = randint1(rlev * 5 / 2) + 50;
+				monst_breath_monst(m_idx, y, x, GF_WATER, dam, 4, FALSE);
 				break;
 			}
 
@@ -1395,15 +1337,13 @@ bool monst_spell_monst(int m_idx)
 					if (see_either)
 					{
 						disturb(1, 0);
-
-						if (blind)
-						{
-							msg_format("%^s mumbles powerfully.", m_name);
-						}
-						else
-						{
-							msg_format("%^s invokes a mana storm upon %s.", m_name, t_name);
-						}
+#ifdef JP
+						if (blind) msg_format("%^sが何かを力強くつぶやいた。", m_name);
+						else msg_format("%^sが%sに対して魔力の嵐の呪文を念じた。", m_name, t_name);
+#else
+						if (blind) msg_format("%^s mumbles powerfully.", m_name);
+						else msg_format("%^s invokes a mana storm upon %s.", m_name, t_name);
+#endif
 					}
 					else
 					{
@@ -1411,8 +1351,8 @@ bool monst_spell_monst(int m_idx)
 					}
 				}
 
-				monst_breath_monst(m_idx, y, x, GF_MANA, (rlev * 4) + damroll(10, 10), 4, FALSE);
-
+				dam = (rlev * 4) + damroll(10, 10);
+				monst_breath_monst(m_idx, y, x, GF_MANA, dam, 4, FALSE);
 				break;
 			}
 
@@ -1424,15 +1364,13 @@ bool monst_spell_monst(int m_idx)
 					if (see_either)
 					{
 						disturb(1, 0);
-
-						if (blind)
-						{
-							msg_format("%^s mumbles powerfully.", m_name);
-						}
-						else
-						{
-							msg_format("%^s invokes a darkness storm upon %s.", m_name, t_name);
-						}
+#ifdef JP
+						if (blind) msg_format("%^sが何かを力強くつぶやいた。", m_name);
+						else msg_format("%^sが%sに対して暗黒の嵐の呪文を念じた。", m_name, t_name);
+#else
+						if (blind) msg_format("%^s mumbles powerfully.", m_name);
+						else msg_format("%^s invokes a darkness storm upon %s.", m_name, t_name);
+#endif
 					}
 					else
 					{
@@ -1440,8 +1378,8 @@ bool monst_spell_monst(int m_idx)
 					}
 				}
 
-				monst_breath_monst(m_idx, y, x, GF_DARK, (rlev * 4) + damroll(10, 10), 4, FALSE);
-
+				dam = (rlev * 4) + damroll(10, 10);
+				monst_breath_monst(m_idx, y, x, GF_DARK, dam, 4, FALSE);
 				break;
 			}
 
@@ -1449,12 +1387,16 @@ bool monst_spell_monst(int m_idx)
 			case 128+9:
 			{
 				/* Attack power */
-				int power = (randint(rlev) / 2) + 1;
+				int power = (randint1(rlev) / 2) + 1;
 
+				/* Basic message */
 				if (see_m)
 				{
-					/* Basic message */
+#ifdef JP
+					msg_format("%^sは精神エネルギーを%sから吸いとった。", m_name, t_name);
+#else
 					msg_format("%^s draws psychic energy from %s.", m_name, t_name);
+#endif
 				}
 
 				/* Heal the monster */
@@ -1464,7 +1406,11 @@ bool monst_spell_monst(int m_idx)
 					{
 						if (see_both)
 						{
+#ifdef JP
+							msg_format("%^sには効果がなかった。", t_name);
+#else
 							msg_format("%^s is unaffected!", t_name);
+#endif
 						}
 					}
 					else
@@ -1479,13 +1425,16 @@ bool monst_spell_monst(int m_idx)
 						/* Special message */
 						if (see_m)
 						{
+#ifdef JP
+							msg_format("%^sは気分が良さそうだ。", m_name);
+#else
 							msg_format("%^s appears healthier.", m_name);
+#endif
 						}
 					}
 				}
 
 				wake_up = TRUE;
-
 				break;
 			}
 
@@ -1494,13 +1443,17 @@ bool monst_spell_monst(int m_idx)
 			{
 				if (see_m)
 				{
+#ifdef JP
+					msg_format("%^sは%sをじっと睨んだ。", m_name, t_name);
+#else
 					msg_format("%^s gazes intently at %s.", m_name, t_name);
+#endif
 				}
 
 				/* Attempt a saving throw */
 				if ((tr_ptr->flags1 & RF1_UNIQUE) ||
 					 (tr_ptr->flags3 & RF3_NO_CONF) ||
-					 (tr_ptr->level > randint((rlev - 10) < 1 ? 1 : (rlev - 10)) + 10))
+					 (tr_ptr->level > randint1((rlev - 10) < 1 ? 1 : (rlev - 10)) + 10))
 				{
 					/* No obvious effect */
 					if (see_both)
@@ -1511,23 +1464,34 @@ bool monst_spell_monst(int m_idx)
 							tr_ptr->r_flags3 |= (RF3_NO_CONF);
 						}
 
+#ifdef JP
+						msg_format("%^sには効果がなかった。", t_name);
+#else
 						msg_format("%^s is unaffected!", t_name);
+#endif
 					}
 				}
 				else
 				{
 					if (see_t)
 					{
+#ifdef JP
+						msg_format("%^sは精神攻撃を食らった。", t_name);
+#else
 						msg_format("%^s is blasted by psionic energy.", t_name);
+#endif
 					}
 
-					t_ptr->confused += rand_int(4) + 4;
+					t_ptr->confused += randint0(4) + 4;
 
-					mon_take_hit_mon(t_idx, damroll(8, 8), &fear, " collapses, a mindless husk.");
+#ifdef JP
+					mon_take_hit_mon(t_idx, damroll(8, 8), &fear, "の精神は崩壊し、肉体は抜け殻となった。", m_idx);
+#else
+					mon_take_hit_mon(t_idx, damroll(8, 8), &fear, " collapses, a mindless husk.", m_idx);
+#endif
 				}
 
 				wake_up = TRUE;
-
 				break;
 			}
 
@@ -1536,13 +1500,17 @@ bool monst_spell_monst(int m_idx)
 			{
 				if (see_m)
 				{
+#ifdef JP
+					msg_format("%^sは%sをじっと睨んだ。", m_name, t_name);
+#else
 					msg_format("%^s gazes intently at %s.", m_name, t_name);
+#endif
 				}
 
 				/* Attempt a saving throw */
 				if ((tr_ptr->flags1 & RF1_UNIQUE) ||
 					 (tr_ptr->flags3 & RF3_NO_CONF) ||
-					 (tr_ptr->level > randint((rlev - 10) < 1 ? 1 : (rlev - 10)) + 10))
+					 (tr_ptr->level > randint1((rlev - 10) < 1 ? 1 : (rlev - 10)) + 10))
 				{
 					/* No obvious effect */
 					if (see_both)
@@ -1553,25 +1521,36 @@ bool monst_spell_monst(int m_idx)
 							tr_ptr->r_flags3 |= (RF3_NO_CONF);
 						}
 
+#ifdef JP
+						msg_format("%^sには効果がなかった。", t_name);
+#else
 						msg_format("%^s is unaffected!", t_name);
+#endif
 					}
 				}
 				else
 				{
 					if (see_t)
 					{
+#ifdef JP
+						msg_format("%^sは精神攻撃を食らった。", t_name);
+#else
 						msg_format("%^s is blasted by psionic energy.", t_name);
+#endif
 					}
 
-					t_ptr->confused += rand_int(4) + 4;
-					t_ptr->mspeed -= rand_int(4) + 4;
-					t_ptr->stunned += rand_int(4) + 4;
+					t_ptr->confused += randint0(4) + 4;
+					t_ptr->mspeed -= randint0(4) + 4;
+					t_ptr->stunned += randint0(4) + 4;
 
-					mon_take_hit_mon(t_idx, damroll(12, 15), &fear, " collapses, a mindless husk.");
+#ifdef JP
+					mon_take_hit_mon(t_idx, damroll(12, 15), &fear, "の精神は崩壊し、肉体は抜け殻となった。", m_idx);
+#else
+					mon_take_hit_mon(t_idx, damroll(12, 15), &fear, " collapses, a mindless husk.", m_idx);
+#endif
 				}
 
 				wake_up = TRUE;
-
 				break;
 			}
 
@@ -1582,7 +1561,11 @@ bool monst_spell_monst(int m_idx)
 				{
 					if (see_m)
 					{
+#ifdef JP
+						msg_format("%^sは%sを指さして呪いをかけた。", m_name, t_name);
+#else
 						msg_format("%^s points at %s and curses.", m_name, t_name);
+#endif
 					}
 					else
 					{
@@ -1590,17 +1573,24 @@ bool monst_spell_monst(int m_idx)
 					}
 				}
 
-				if (tr_ptr->level > randint((rlev - 10) < 1 ? 1 : (rlev - 10)) + 10)
+				if (tr_ptr->level > randint1((rlev - 10) < 1 ? 1 : (rlev - 10)) + 10)
 				{
+#ifdef JP
+					if (see_both) msg_format("%^sは耐性を持っている！", t_name);
+#else
 					if (see_both) msg_format("%^s resists!", t_name);
+#endif
 				}
 				else
 				{
-					mon_take_hit_mon(t_idx, damroll(3, 8), &fear, " is destroyed.");
+#ifdef JP
+					mon_take_hit_mon(t_idx, damroll(3, 8), &fear, "は死んだ。", m_idx);
+#else
+					mon_take_hit_mon(t_idx, damroll(3, 8), &fear, " is destroyed.", m_idx);
+#endif
 				}
 
 				wake_up = TRUE;
-
 				break;
 			}
 
@@ -1611,7 +1601,11 @@ bool monst_spell_monst(int m_idx)
 				{
 					if (see_m)
 					{
+#ifdef JP
+						msg_format("%^sは%sを指さして恐ろしげに呪いをかけた。", m_name, t_name);
+#else
 						msg_format("%^s points at %s and curses horribly.", m_name, t_name);
+#endif
 					}
 					else
 					{
@@ -1619,17 +1613,24 @@ bool monst_spell_monst(int m_idx)
 					}
 				}
 
-				if (tr_ptr->level > randint((rlev - 10) < 1 ? 1 : (rlev - 10)) + 10)
+				if (tr_ptr->level > randint1((rlev - 10) < 1 ? 1 : (rlev - 10)) + 10)
 				{
+#ifdef JP
+					if (see_both) msg_format("%^sは耐性を持っている！", t_name);
+#else
 					if (see_both) msg_format("%^s resists!", t_name);
+#endif
 				}
 				else
 				{
-					mon_take_hit_mon(t_idx, damroll(8, 8), &fear, " is destroyed.");
+#ifdef JP
+					mon_take_hit_mon(t_idx, damroll(3, 8), &fear, "は死んだ。", m_idx);
+#else
+					mon_take_hit_mon(t_idx, damroll(8, 8), &fear, " is destroyed.", m_idx);
+#endif
 				}
 
 				wake_up = TRUE;
-
 				break;
 			}
 
@@ -1640,7 +1641,11 @@ bool monst_spell_monst(int m_idx)
 				{
 					if (see_m)
 					{
+#ifdef JP
+						msg_format("%^sは%sを指さし、恐ろしげに呪文を唱えた！", m_name, t_name);
+#else
 						msg_format("%^s points at %s, incanting terribly!", m_name, t_name);
+#endif
 					}
 					else
 					{
@@ -1648,17 +1653,24 @@ bool monst_spell_monst(int m_idx)
 					}
 				}
 
-				if (tr_ptr->level > randint((rlev - 10) < 1 ? 1 : (rlev - 10)) + 10)
+				if (tr_ptr->level > randint1((rlev - 10) < 1 ? 1 : (rlev - 10)) + 10)
 				{
+#ifdef JP
+					if (see_both) msg_format("%^sは耐性を持っている！", t_name);
+#else
 					if (see_both) msg_format("%^s resists!", t_name);
+#endif
 				}
 				else
 				{
-					mon_take_hit_mon(t_idx, damroll(10, 15), &fear, " is destroyed.");
+#ifdef JP
+					mon_take_hit_mon(t_idx, damroll(10, 15), &fear, "は死んだ。", m_idx);
+#else
+					mon_take_hit_mon(t_idx, damroll(10, 15), &fear, " is destroyed.", m_idx);
+#endif
 				}
 
 				wake_up = TRUE;
-
 				break;
 			}
 
@@ -1669,7 +1681,11 @@ bool monst_spell_monst(int m_idx)
 				{
 					if (see_m)
 					{
+#ifdef JP
+						msg_format("%^sが%sを指差し、「死ね！」と叫んだ。", m_name, t_name);
+#else
 						msg_format("%^s points at %s, screaming the word, 'DIE!'", m_name, t_name);
+#endif
 					}
 					else
 					{
@@ -1677,17 +1693,24 @@ bool monst_spell_monst(int m_idx)
 					}
 				}
 
-				if (tr_ptr->level > randint((rlev - 10) < 1 ? 1 : (rlev - 10)) + 10)
+				if (tr_ptr->level > randint1((rlev - 10) < 1 ? 1 : (rlev - 10)) + 10)
 				{
+#ifdef JP
+					if (see_both) msg_format("%^sは耐性を持っている！", t_name);
+#else
 					if (see_both) msg_format("%^s resists!", t_name);
+#endif
 				}
 				else
 				{
-					mon_take_hit_mon(t_idx, damroll(15, 15), &fear, " is destroyed.");
+#ifdef JP
+					mon_take_hit_mon(t_idx, damroll(10, 15), &fear, "は死んだ。", m_idx);
+#else
+					mon_take_hit_mon(t_idx, damroll(15, 15), &fear, " is destroyed.", m_idx);
+#endif
 				}
 
 				wake_up = TRUE;
-
 				break;
 			}
 
@@ -1698,7 +1721,11 @@ bool monst_spell_monst(int m_idx)
 				{
 					if (see_either)
 					{
+#ifdef JP
+						msg_format("%sが%sに向かってアシッド・ボルトの呪文を唱えた。", m_name, t_name);
+#else
 						msg_format("%^s casts an acid bolt at %s.", m_name, t_name);
+#endif
 					}
 					else
 					{
@@ -1706,9 +1733,8 @@ bool monst_spell_monst(int m_idx)
 					}
 				}
 
-				monst_bolt_monst(m_idx, y, x, GF_ACID,
-					damroll(7, 8) + (rlev / 3));
-
+				dam = damroll(7, 8) + (rlev / 3);
+				monst_bolt_monst(m_idx, y, x, GF_ACID, dam);
 				break;
 			}
 
@@ -1719,7 +1745,11 @@ bool monst_spell_monst(int m_idx)
 				{
 					if (see_either)
 					{
+#ifdef JP
+						msg_format("%^sが%sに向かってサンダー・ボルトの呪文を唱えた。", m_name, t_name);
+#else
 						msg_format("%^s casts a lightning bolt at %s.", m_name, t_name);
+#endif
 					}
 					else
 					{
@@ -1727,9 +1757,8 @@ bool monst_spell_monst(int m_idx)
 					}
 				}
 
-				monst_bolt_monst(m_idx, y, x, GF_ELEC,
-					damroll(4, 8) + (rlev / 3));
-
+				dam = damroll(4, 8) + (rlev / 3);
+				monst_bolt_monst(m_idx, y, x, GF_ELEC, dam);
 				break;
 			}
 
@@ -1740,7 +1769,11 @@ bool monst_spell_monst(int m_idx)
 				{
 					if (see_either)
 					{
+#ifdef JP
+						msg_format("%^sが%sに向かってファイア・ボルトの呪文を唱えた。", m_name, t_name);
+#else
 						msg_format("%^s casts a fire bolt at %s.", m_name, t_name);
+#endif
 					}
 					else
 					{
@@ -1748,9 +1781,8 @@ bool monst_spell_monst(int m_idx)
 					}
 				}
 
-				monst_bolt_monst(m_idx, y, x, GF_FIRE,
-					damroll(9, 8) + (rlev / 3));
-
+				dam = damroll(9, 8) + (rlev / 3);
+				monst_bolt_monst(m_idx, y, x, GF_FIRE, dam);
 				break;
 			}
 
@@ -1761,7 +1793,11 @@ bool monst_spell_monst(int m_idx)
 				{
 					if (see_either)
 					{
+#ifdef JP
+						msg_format("%^sが%sに向かってアイス・ボルトの呪文を唱えた。", m_name, t_name);
+#else
 						msg_format("%^s casts a frost bolt at %s.", m_name, t_name);
+#endif
 					}
 					else
 					{
@@ -1769,9 +1805,8 @@ bool monst_spell_monst(int m_idx)
 					}
 				}
 
-				monst_bolt_monst(m_idx, y, x, GF_COLD,
-					damroll(6, 8) + (rlev / 3));
-
+				dam = damroll(6, 8) + (rlev / 3);
+				monst_bolt_monst(m_idx, y, x, GF_COLD, dam);
 				break;
 			}
 
@@ -1789,7 +1824,11 @@ bool monst_spell_monst(int m_idx)
 				{
 					if (see_either)
 					{
+#ifdef JP
+						msg_format("%^sが%sに向かって地獄の矢の呪文を唱えた。", m_name, t_name);
+#else
 						msg_format("%^s casts a nether bolt at %s.", m_name, t_name);
+#endif
 					}
 					else
 					{
@@ -1797,9 +1836,8 @@ bool monst_spell_monst(int m_idx)
 					}
 				}
 
-				monst_bolt_monst(m_idx, y, x, GF_NETHER,
-					30 + damroll(5, 5) + (rlev * 3) / 2);
-
+				dam = 30 + damroll(5, 5) + (rlev * 3) / 2;
+				monst_bolt_monst(m_idx, y, x, GF_NETHER, dam);
 				break;
 			}
 
@@ -1810,7 +1848,11 @@ bool monst_spell_monst(int m_idx)
 				{
 					if (see_either)
 					{
+#ifdef JP
+						msg_format("%^sが%sに向かってウォーター・ボルトの呪文を唱えた。", m_name, t_name);
+#else
 						msg_format("%^s casts a water bolt at %s.", m_name, t_name);
+#endif
 					}
 					else
 					{
@@ -1818,9 +1860,8 @@ bool monst_spell_monst(int m_idx)
 					}
 				}
 
-				monst_bolt_monst(m_idx, y, x, GF_WATER,
-					damroll(10, 10) + rlev);
-
+				dam = damroll(10, 10) + rlev;
+				monst_bolt_monst(m_idx, y, x, GF_WATER, dam);
 				break;
 			}
 
@@ -1831,7 +1872,11 @@ bool monst_spell_monst(int m_idx)
 				{
 					if (see_either)
 					{
+#ifdef JP
+						msg_format("%^sが%sに向かって魔力の矢の呪文を唱えた。", m_name, t_name);
+#else
 						msg_format("%^s casts a mana bolt at %s.", m_name, t_name);
+#endif
 					}
 					else
 					{
@@ -1839,9 +1884,8 @@ bool monst_spell_monst(int m_idx)
 					}
 				}
 
-				monst_bolt_monst(m_idx, y, x, GF_MANA,
-					randint(rlev * 7 / 2) + 50);
-
+				dam = randint1(rlev * 7 / 2) + 50;
+				monst_bolt_monst(m_idx, y, x, GF_MANA, dam);
 				break;
 			}
 
@@ -1852,7 +1896,11 @@ bool monst_spell_monst(int m_idx)
 				{
 					if (see_either)
 					{
+#ifdef JP
+						msg_format("%^sが%sに向かってプラズマ・ボルトの呪文を唱えた。", m_name, t_name);
+#else
 						msg_format("%^s casts a plasma bolt at %s.", m_name, t_name);
+#endif
 					}
 					else
 					{
@@ -1860,9 +1908,8 @@ bool monst_spell_monst(int m_idx)
 					}
 				}
 
-				monst_bolt_monst(m_idx, y, x, GF_PLASMA,
-					10 + damroll(8, 7) + rlev);
-
+				dam = 10 + damroll(8, 7) + rlev;
+				monst_bolt_monst(m_idx, y, x, GF_PLASMA, dam);
 				break;
 			}
 
@@ -1873,7 +1920,11 @@ bool monst_spell_monst(int m_idx)
 				{
 					if (see_either)
 					{
+#ifdef JP
+						msg_format("%^sが%sに向かって極寒の矢の呪文を唱えた。", m_name, t_name);
+#else
 						msg_format("%^s casts an ice bolt at %s.", m_name, t_name);
+#endif
 					}
 					else
 					{
@@ -1881,9 +1932,8 @@ bool monst_spell_monst(int m_idx)
 					}
 				}
 
-				monst_bolt_monst(m_idx, y, x, GF_ICE,
-					damroll(6, 6) + rlev);
-
+				dam = damroll(6, 6) + rlev;
+				monst_bolt_monst(m_idx, y, x, GF_ICE, dam);
 				break;
 			}
 
@@ -1894,7 +1944,11 @@ bool monst_spell_monst(int m_idx)
 				{
 					if (see_either)
 					{
+#ifdef JP
+						msg_format("%^sが%sに向かってマジック・ミサイルの呪文を唱えた。", m_name, t_name);
+#else
 						msg_format("%^s casts a magic missile at %s.", m_name, t_name);
+#endif
 					}
 					else
 					{
@@ -1902,9 +1956,8 @@ bool monst_spell_monst(int m_idx)
 					}
 				}
 
-				monst_bolt_monst(m_idx, y, x, GF_MISSILE,
-					damroll(2, 6) + (rlev / 3));
-
+				dam = damroll(2, 6) + (rlev / 3);
+				monst_bolt_monst(m_idx, y, x, GF_MISSILE, dam);
 				break;
 			}
 
@@ -1915,7 +1968,11 @@ bool monst_spell_monst(int m_idx)
 				{
 					if (see_either)
 					{
+#ifdef JP
+						msg_format("%^sが恐ろしげな幻覚を作り出した。", m_name, t_name);
+#else
 						msg_format("%^s casts a fearful illusion in front of %s.", m_name, t_name);
+#endif
 					}
 					else
 					{
@@ -1925,21 +1982,27 @@ bool monst_spell_monst(int m_idx)
 
 				if (tr_ptr->flags3 & RF3_NO_FEAR)
 				{
+#ifdef JP
+					if (see_t) msg_format("%^sは恐怖を感じない。", t_name);
+#else
 					if (see_t) msg_format("%^s refuses to be frightened.", t_name);
+#endif
 				}
-				else if (tr_ptr->level > randint((rlev - 10) < 1 ? 1 : (rlev - 10)) + 10)
+				else if (tr_ptr->level > randint1((rlev - 10) < 1 ? 1 : (rlev - 10)) + 10)
 				{
+#ifdef JP
+					if (see_t) msg_format("%^sは恐怖を感じない。", t_name);
+#else
 					if (see_t) msg_format("%^s refuses to be frightened.", t_name);
+#endif
 				}
 				else
 				{
 					if (!t_ptr->monfear) fear = TRUE;
-
-					t_ptr->monfear += rand_int(4) + 4;
+					t_ptr->monfear += randint0(4) + 4;
 				}
 
 				wake_up = TRUE;
-
 				break;
 			}
 
@@ -1950,8 +2013,12 @@ bool monst_spell_monst(int m_idx)
 				{
 					if (see_either)
 					{
+#ifdef JP
+						msg_format("%sは呪文を唱えて%sの目を焼き付かせた。", m_name, t_name);
+#else
 						msg_format("%^s casts a spell, burning %s%s eyes.", m_name, t_name,
 									  (streq(t_name, "it") ? "s" : "'s"));
+#endif
 					}
 					else
 					{
@@ -1962,21 +2029,31 @@ bool monst_spell_monst(int m_idx)
 				/* Simulate blindness with confusion */
 				if (tr_ptr->flags3 & RF3_NO_CONF)
 				{
+#ifdef JP
+					if (see_t) msg_format("%^sには効果がなかった。", t_name);
+#else
 					if (see_t) msg_format("%^s is unaffected.", t_name);
+#endif
 				}
-				else if (tr_ptr->level > randint((rlev - 10) < 1 ? 1 : (rlev - 10)) + 10)
+				else if (tr_ptr->level > randint1((rlev - 10) < 1 ? 1 : (rlev - 10)) + 10)
 				{
+#ifdef JP
+					if (see_t) msg_format("%^sには効果がなかった。", t_name);
+#else
 					if (see_t) msg_format("%^s is unaffected.", t_name);
+#endif
 				}
 				else
 				{
+#ifdef JP
+					if (see_t)   msg_format("%^sは目が見えなくなった！ ", t_name);
+#else
 					if (see_t) msg_format("%^s is blinded!", t_name);
-
-					t_ptr->confused += 12 + (byte)rand_int(4);
+#endif
+					t_ptr->confused += 12 + (byte)randint0(4);
 				}
 
 				wake_up = TRUE;
-
 				break;
 			}
 
@@ -1987,7 +2064,11 @@ bool monst_spell_monst(int m_idx)
 				{
 					if (see_either)
 					{
+#ifdef JP
+						msg_format("%^sが%sの前に幻惑的な幻をつくり出した。", m_name, t_name);
+#else
 						msg_format("%^s casts a mesmerizing illusion in front of %s.", m_name, t_name);
+#endif
 					}
 					else
 					{
@@ -1997,21 +2078,31 @@ bool monst_spell_monst(int m_idx)
 
 				if (tr_ptr->flags3 & RF3_NO_CONF)
 				{
+#ifdef JP
+					if (see_t) msg_format("%^sは惑わされなかった。", t_name);
+#else
 					if (see_t) msg_format("%^s disbelieves the feeble spell.", t_name);
+#endif
 				}
-				else if (tr_ptr->level > randint((rlev - 10) < 1 ? 1 : (rlev - 10)) + 10)
+				else if (tr_ptr->level > randint1((rlev - 10) < 1 ? 1 : (rlev - 10)) + 10)
 				{
+#ifdef JP
+					if (see_t) msg_format("%^sは惑わされなかった。", t_name);
+#else
 					if (see_t) msg_format("%^s disbelieves the feeble spell.", t_name);
+#endif
 				}
 				else
 				{
+#ifdef JP
+					if (see_t) msg_format("%^sは混乱したようだ。", t_name);
+#else
 					if (see_t) msg_format("%^s seems confused.", t_name);
-
-					t_ptr->confused += 12 + (byte)rand_int(4);
+#endif
+					t_ptr->confused += 12 + (byte)randint0(4);
 				}
 
 				wake_up = TRUE;
-
 				break;
 			}
 
@@ -2022,8 +2113,12 @@ bool monst_spell_monst(int m_idx)
 				{
 					if (see_either)
 					{
+#ifdef JP
+						msg_format("%sが%sの筋肉から力を吸いとった。", m_name, t_name);
+#else
 						msg_format("%^s drains power from %s%s muscles.", m_name, t_name,
 									  (streq(t_name, "it") ? "s" : "'s"));
+#endif
 					}
 					else
 					{
@@ -2033,21 +2128,34 @@ bool monst_spell_monst(int m_idx)
 
 				if (tr_ptr->flags1 & RF1_UNIQUE)
 				{
+#ifdef JP
+					if (see_t) msg_format("%^sには効果がなかった。", t_name);
+#else
 					if (see_t) msg_format("%^s is unaffected.", t_name);
+#endif
 				}
-				else if (tr_ptr->level > randint((rlev - 10) < 1 ? 1 : (rlev - 10)) + 10)
+				else if (tr_ptr->level > randint1((rlev - 10) < 1 ? 1 : (rlev - 10)) + 10)
 				{
+#ifdef JP
+					if (see_t) msg_format("%^sには効果がなかった。", t_name);
+#else
 					if (see_t) msg_format("%^s is unaffected.", t_name);
+#endif
 				}
 				else
 				{
-					if (see_t) msg_format("%^s starts moving slower.", t_name);
-
-					t_ptr->mspeed -= 10;
+					if (!t_ptr->slowed)
+					{
+#ifdef JP
+						if (see_t) msg_format("%sの動きが遅くなった。", t_name);
+#else
+						if (see_t) msg_format("%^s starts moving slower.", t_name);
+#endif
+					}
+					t_ptr->slowed = MIN(200, t_ptr->slowed + 50);
 				}
 
 				wake_up = TRUE;
-
 				break;
 			}
 
@@ -2058,7 +2166,11 @@ bool monst_spell_monst(int m_idx)
 				{
 					if (see_either)
 					{
+#ifdef JP
+						msg_format("%^sは%sをじっと見つめた。", m_name, t_name);
+#else
 						msg_format("%^s stares intently at %s.", m_name, t_name);
+#endif
 					}
 					else
 					{
@@ -2066,24 +2178,33 @@ bool monst_spell_monst(int m_idx)
 					}
 				}
 
-				if ((tr_ptr->flags1 & RF1_UNIQUE) ||
-					 (tr_ptr->flags3 & RF3_NO_STUN))
+				if ((tr_ptr->flags1 & RF1_UNIQUE) || (tr_ptr->flags3 & RF3_NO_STUN))
 				{
+#ifdef JP
+					if (see_t) msg_format("%^sには効果がなかった。", t_name);
+#else
 					if (see_t) msg_format("%^s is unaffected.", t_name);
+#endif
 				}
-				else if (tr_ptr->level > randint((rlev - 10) < 1 ? 1 : (rlev - 10)) + 10)
+				else if (tr_ptr->level > randint1((rlev - 10) < 1 ? 1 : (rlev - 10)) + 10)
 				{
+#ifdef JP
+					if (see_t) msg_format("%^sには効果がなかった。", t_name);
+#else
 					if (see_t) msg_format("%^s is unaffected.", t_name);
+#endif
 				}
 				else
 				{
+#ifdef JP
+					if (see_t) msg_format("%^sは麻痺した！", t_name);
+#else
 					if (see_t) msg_format("%^s is paralyzed!", t_name);
-
-					t_ptr->stunned += randint(4) + 4;
+#endif
+					t_ptr->stunned += randint1(4) + 4;
 				}
 
 				wake_up = TRUE;
-
 				break;
 			}
 
@@ -2091,11 +2212,23 @@ bool monst_spell_monst(int m_idx)
 			/* RF6_HASTE */
 			case 160+0:
 			{
+#ifdef JP
+				/* XTRA HACK THEWORLD */
+				if (m_ptr->r_idx == MON_DIO)
+				{
+					process_the_world(randint1(3)+2);
+					break;
+			    }
+#endif
 				if (known)
 				{
 					if (see_m)
 					{
+#ifdef JP
+						msg_format("%^sが自分の体に念を送った。", m_name, m_poss);
+#else
 						msg_format("%^s concentrates on %s body.", m_name, m_poss);
+#endif
 					}
 					else
 					{
@@ -2104,21 +2237,15 @@ bool monst_spell_monst(int m_idx)
 				}
 
 				/* Allow quick speed increases to base+10 */
-				if (m_ptr->mspeed < r_ptr->speed + 10)
+				if (!m_ptr->hasted)
 				{
+#ifdef JP
+					if (see_m) msg_format("%^sの動きが速くなった。", m_name);
+#else
 					if (see_m) msg_format("%^s starts moving faster.", m_name);
-
-					m_ptr->mspeed += 10;
+#endif
 				}
-
-				/* Allow small speed increases to base+20 */
-				else if (m_ptr->mspeed < r_ptr->speed + 20)
-				{
-					if (see_m) msg_format("%^s starts moving faster.", m_name);
-
-					m_ptr->mspeed += 2;
-				}
-
+				m_ptr->hasted = MIN(200, m_ptr->hasted + 100);
 				break;
 			}
 
@@ -2129,7 +2256,12 @@ bool monst_spell_monst(int m_idx)
 				{
 					if (see_m)
 					{
+#ifdef JP
+						msg_format("%^sが%sに<破滅の手>を放った！", m_name, t_name);
+#else
 						msg_format("%^s invokes the Hand of Doom upon %s!", m_name, t_name);
+#endif
+
 					}
 					else
 					{
@@ -2139,26 +2271,33 @@ bool monst_spell_monst(int m_idx)
 
 				if (tr_ptr->flags1 & RF1_UNIQUE)
 				{
+#ifdef JP
+					if (see_both) msg_format("には効果がなかった！", t_name);
+#else
 					if (see_both) msg_format("^%s is unaffected!", t_name);
+#endif
 				}
 				else
 				{
-					if ((r_ptr->level + randint(20)) >
-						(tr_ptr->level + 10 + randint(20)))
+					if ((r_ptr->level + randint1(20)) >
+						(tr_ptr->level + 10 + randint1(20)))
 					{
 						t_ptr->hp = t_ptr->hp -
-						  (((s32b)((65 + randint(25)) * t_ptr->hp)) / 100);
+						  (((s32b)((65 + randint1(25)) * t_ptr->hp)) / 100);
 
 						if (t_ptr->hp < 1) t_ptr->hp = 1;
 					}
 					else
 					{
+#ifdef JP
+						if (see_both) msg_format("%^sは耐性を持っている！", t_name);
+#else
 						if (see_both) msg_format("%^s resists!", t_name);
+#endif
 					}
 				}
 
 				wake_up = TRUE;
-
 				break;
 			}
 
@@ -2169,7 +2308,11 @@ bool monst_spell_monst(int m_idx)
 				{
 					if (see_m)
 					{
+#ifdef JP
+						msg_format("%^sは自分の傷に念を集中した。", m_name);
+#else
 						msg_format("%^s concentrates on %s wounds.", m_name, m_poss);
+#endif
 					}
 					else
 					{
@@ -2177,8 +2320,8 @@ bool monst_spell_monst(int m_idx)
 					}
 				}
 
-				/* Heal some */
-				m_ptr->hp += (rlev * 6);
+				/* Heal some ( was rlev*6 ) */
+				m_ptr->hp += (rlev * 4);
 
 				/* Fully healed */
 				if (m_ptr->hp >= m_ptr->maxhp)
@@ -2190,7 +2333,11 @@ bool monst_spell_monst(int m_idx)
 					{
 						if (see_m)
 						{
+#ifdef JP
+							msg_format("%^sは完全に治った！", m_name);
+#else
 							msg_format("%^s looks completely healed!", m_name);
+#endif
 						}
 						else
 						{
@@ -2204,7 +2351,11 @@ bool monst_spell_monst(int m_idx)
 				{
 					if (see_m)
 					{
+#ifdef JP
+						msg_format("%^sは体力を回復したようだ。", m_name);
+#else
 						msg_format("%^s looks healthier.", m_name);
+#endif
 					}
 					else
 					{
@@ -2222,7 +2373,11 @@ bool monst_spell_monst(int m_idx)
 					m_ptr->monfear = 0;
 
 					/* Message */
+#ifdef JP
+					if (see_m) msg_format("%^sは勇気を取り戻した。", m_name);
+#else
 					if (see_m) msg_format("%^s recovers %s courage.", m_name, m_poss);
+#endif
 				}
 
 				break;
@@ -2236,7 +2391,11 @@ bool monst_spell_monst(int m_idx)
 					if (see_m)
 					{
 						disturb(1, 0);
+#ifdef JP
+						msg_format("%sは無傷の球の呪文を唱えた。", m_name);
+#else
 						msg_format("%^s casts a Globe of Invulnerability.", m_name);
+#endif
 					}
 					else
 					{
@@ -2244,7 +2403,10 @@ bool monst_spell_monst(int m_idx)
 					}
 				}
 
-				if (!m_ptr->invulner) m_ptr->invulner = randint(4) + 4;
+				if (!m_ptr->invulner) m_ptr->invulner = randint1(4) + 4;
+
+				/* Redraw (later) if needed */
+				if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
 
 				break;
 			}
@@ -2252,12 +2414,29 @@ bool monst_spell_monst(int m_idx)
 			/* RF6_BLINK */
 			case 160+4:
 			{
-				if (see_m)
+				if (teleport_barrier(m_idx))
 				{
-					msg_format("%^s blinks away.", m_name);
+					if (see_m)
+					{
+#ifdef JP
+						msg_format("魔法のバリアが%^sのテレポートを邪魔した。", m_name);
+#else
+						msg_format("Magic barrier obstructs teleporting of %^s.", m_name);
+#endif
+					}
 				}
-
-				teleport_away(m_idx, 10);
+				else
+				{
+					if (see_m)
+					{
+#ifdef JP
+						msg_format("%^sが瞬時に消えた。", m_name);
+#else
+						msg_format("%^s blinks away.", m_name);
+#endif
+					}
+					teleport_away(m_idx, 10);
+				}
 
 				break;
 			}
@@ -2265,13 +2444,30 @@ bool monst_spell_monst(int m_idx)
 			/* RF6_TPORT */
 			case 160+5:
 			{
-				if (see_m)
+				if (teleport_barrier(m_idx))
 				{
-					msg_format("%^s teleports away.", m_name);
+					if (see_m)
+					{
+#ifdef JP
+						msg_format("魔法のバリアが%^sのテレポートを邪魔した。", m_name);
+#else
+						msg_format("Magic barrier obstructs teleporting of %^s.", m_name);
+#endif
+					}
 				}
+				else
+				{
+					if (see_m)
+					{
+#ifdef JP
+						msg_format("%^sがテレポートした。", m_name);
+#else
+						msg_format("%^s teleports away.", m_name);
+#endif
+					}
 
-				teleport_away(m_idx, MAX_SIGHT * 2 + 5);
-
+					teleport_away(m_idx, MAX_SIGHT * 2 + 5);
+				}
 				break;
 			}
 
@@ -2303,7 +2499,11 @@ bool monst_spell_monst(int m_idx)
 				{
 					if (see_either)
 					{
+#ifdef JP
+						msg_format("%^sは%sをテレポートさせた。", m_name, t_name);
+#else
 						msg_format("%^s teleports %s away.", m_name, t_name);
+#endif
 					}
 					else
 					{
@@ -2318,17 +2518,25 @@ bool monst_spell_monst(int m_idx)
 						if (see_t)
 						{
 							tr_ptr->r_flags3 |= RF3_RES_TELE;
+#ifdef JP
+							msg_format("%^sには効果がなかった。", t_name);
+#else
 							msg_format("%^s is unaffected!", t_name);
+#endif
 						}
 
 						resists_tele = TRUE;
 					}
-					else if (tr_ptr->level > randint(100))
+					else if (tr_ptr->level > randint1(100))
 					{
 						if (see_t)
 						{
 							tr_ptr->r_flags3 |= RF3_RES_TELE;
+#ifdef JP
+							msg_format("%^sは耐性を持っている！", t_name);
+#else
 							msg_format("%^s resists!", t_name);
+#endif
 						}
 
 						resists_tele = TRUE;
@@ -2363,11 +2571,19 @@ bool monst_spell_monst(int m_idx)
 				{
 					if (see_m)
 					{
+#ifdef JP
+						msg_format("%^sが暗闇の中で手を振った。", m_name);
+#else
 						msg_format("%^s gestures in shadow.", m_name);
+#endif
 
 						if (see_t)
 						{
+#ifdef JP
+							msg_format("%^sは暗闇に包まれた。", t_name);
+#else
 							msg_format("%^s is surrounded by darkness.", t_name);
+#endif
 						}
 					}
 					else
@@ -2403,7 +2619,7 @@ bool monst_spell_monst(int m_idx)
 				break;
 			}
 
-			/* RF6_SUMMON_KIN */
+			/* RF6_S_KIN */
 			case 160+16:
 			{
 				if (known)
@@ -2411,9 +2627,14 @@ bool monst_spell_monst(int m_idx)
 					if (see_either)
 					{
 						disturb(1, 0);
-
+#ifdef JP
+						msg_format("%sが魔法で%sを召喚した。", m_name,
+							((r_ptr->flags1 & RF1_UNIQUE) ? "手下" : "仲間"));
+#else
 						msg_format("%^s magically summons %s %s.", m_name, m_poss,
 									  ((r_ptr->flags1 & RF1_UNIQUE) ? "minions" : "kin"));
+#endif
+						sound(SOUND_SUMMON);
 					}
 					else
 					{
@@ -2444,8 +2665,12 @@ bool monst_spell_monst(int m_idx)
 					if (see_either)
 					{
 						disturb(1, 0);
-
+#ifdef JP
+						msg_format("%^sがサイバーデーモンを召喚した！", m_name);
+#else
 						msg_format("%^s magically summons Cyberdemons!", m_name);
+#endif
+						sound(SOUND_SUMMON);
 					}
 					else
 					{
@@ -2473,8 +2698,12 @@ bool monst_spell_monst(int m_idx)
 					if (see_either)
 					{
 						disturb(1, 0);
-
+#ifdef JP
+						msg_format("%^sが魔法で仲間を召喚した！", m_name);
+#else
 						msg_format("%^s magically summons help!", m_name);
+#endif
+						sound(SOUND_SUMMON);
 					}
 					else
 					{
@@ -2502,8 +2731,12 @@ bool monst_spell_monst(int m_idx)
 					if (see_either)
 					{
 						disturb(1, 0);
-
+#ifdef JP
+						msg_format("%^sが魔法でモンスターを召喚した！", m_name);
+#else
 						msg_format("%^s magically summons monsters!", m_name);
+#endif
+						sound(SOUND_SUMMON);
 					}
 					else
 					{
@@ -2532,8 +2765,12 @@ bool monst_spell_monst(int m_idx)
 					if (see_either)
 					{
 						disturb(1, 0);
-
+#ifdef JP
+						msg_format("%^sが魔法でアリを召喚した。", m_name);
+#else
 						msg_format("%^s magically summons ants.", m_name);
+#endif
+						sound(SOUND_SUMMON);
 					}
 					else
 					{
@@ -2562,8 +2799,12 @@ bool monst_spell_monst(int m_idx)
 					if (see_either)
 					{
 						disturb(1, 0);
-
+#ifdef JP
+						msg_format("%^sが魔法でクモを召喚した。", m_name);
+#else
 						msg_format("%^s magically summons spiders.", m_name);
+#endif
+						sound(SOUND_SUMMON);
 					}
 					else
 					{
@@ -2592,8 +2833,12 @@ bool monst_spell_monst(int m_idx)
 					if (see_either)
 					{
 						disturb(1, 0);
-
+#ifdef JP
+						msg_format("%^sが魔法でハウンドを召喚した。", m_name);
+#else
 						msg_format("%^s magically summons hounds.", m_name);
+#endif
+						sound(SOUND_SUMMON);
 					}
 					else
 					{
@@ -2622,8 +2867,12 @@ bool monst_spell_monst(int m_idx)
 					if (see_either)
 					{
 						disturb(1, 0);
-
+#ifdef JP
+						msg_format("%^sが魔法でヒドラを召喚した。", m_name);
+#else
 						msg_format("%^s magically summons hydras.", m_name);
+#endif
+						sound(SOUND_SUMMON);
 					}
 					else
 					{
@@ -2652,8 +2901,12 @@ bool monst_spell_monst(int m_idx)
 					if (see_either)
 					{
 						disturb(1, 0);
-
+#ifdef JP
+						msg_format("%^sが魔法で天使を召喚した！", m_name);
+#else
 						msg_format("%^s magically summons an angel!", m_name);
+#endif
+						sound(SOUND_SUMMON);
 					}
 					else
 					{
@@ -2682,8 +2935,12 @@ bool monst_spell_monst(int m_idx)
 					if (see_either)
 					{
 						disturb(1, 0);
-
-						msg_format("%^s magically summons a demon from the Courts of Chaos!", m_name);
+#ifdef JP
+						msg_format("%^sが魔法で地獄の強敵を召喚した！", m_name);
+#else
+						msg_format("%^s magically summons a hellish adversary!", m_name);
+#endif
+						sound(SOUND_SUMMON);
 					}
 					else
 					{
@@ -2712,8 +2969,12 @@ bool monst_spell_monst(int m_idx)
 					if (see_either)
 					{
 						disturb(1, 0);
-
+#ifdef JP
+						msg_format("%sが魔法でアンデッドを召喚した。", m_name);
+#else
 						msg_format("%^s magically summons undead.", m_name);
+#endif
+						sound(SOUND_SUMMON);
 					}
 					else
 					{
@@ -2742,8 +3003,12 @@ bool monst_spell_monst(int m_idx)
 					if (see_either)
 					{
 						disturb(1, 0);
-
+#ifdef JP
+						msg_format("%^sが魔法でドラゴンを召喚した！", m_name);
+#else
 						msg_format("%^s magically summons a dragon!", m_name);
+#endif
+						sound(SOUND_SUMMON);
 					}
 					else
 					{
@@ -2774,8 +3039,12 @@ bool monst_spell_monst(int m_idx)
 					if (see_either)
 					{
 						disturb(1, 0);
-
+#ifdef JP
+						msg_format("%sが魔法でアンデッドを召喚した。", m_name);
+#else
 						msg_format("%^s magically summons undead.", m_name);
+#endif
+						sound(SOUND_SUMMON);
 					}
 					else
 					{
@@ -2806,8 +3075,12 @@ bool monst_spell_monst(int m_idx)
 					if (see_either)
 					{
 						disturb(1, 0);
-
+#ifdef JP
+						msg_format("%^sが魔法で古代ドラゴンを召喚した！", m_name);
+#else
 						msg_format("%^s magically summons ancient dragons!", m_name);
+#endif
+						sound(SOUND_SUMMON);
 					}
 					else
 					{
@@ -2828,7 +3101,7 @@ bool monst_spell_monst(int m_idx)
 				break;
 			}
 
-			/* RF6_S_AMBERITES */
+			/* RF6_S_HI_DEMON */
 			case 160+30:
 			{
 				if (known)
@@ -2836,8 +3109,12 @@ bool monst_spell_monst(int m_idx)
 					if (see_either)
 					{
 						disturb(1, 0);
-
-						msg_format("%^s magically summons Lords of Amber!", m_name);
+#ifdef JP
+						msg_format("%^sが魔法で地獄の強敵を召喚した！", m_name);
+#else
+						msg_format("%^s magically summons a hellish adversary!", m_name);
+#endif
+						sound(SOUND_SUMMON);
 					}
 					else
 					{
@@ -2845,9 +3122,9 @@ bool monst_spell_monst(int m_idx)
 					}
 				}
 
-				for (k = 0; k < 8; k++)
+				for (k = 0; k < 1; k++)
 				{
-					count += summon_specific(m_idx, y, x, rlev, SUMMON_AMBERITES, TRUE, FALSE, FALSE);
+					count += summon_specific(m_idx, y, x, rlev, SUMMON_HI_DEMON, TRUE, friendly, pet);
 				}
 
 				if (known && !see_t && count)
@@ -2866,8 +3143,12 @@ bool monst_spell_monst(int m_idx)
 					if (see_either)
 					{
 						disturb(1, 0);
-
+#ifdef JP
+						msg_format("%^sが魔法で特別な強敵を召喚した！", m_name);
+#else
 						msg_format("%^s magically summons special opponents!", m_name);
+#endif
+						sound(SOUND_SUMMON);
 					}
 					else
 					{
@@ -2892,11 +3173,16 @@ bool monst_spell_monst(int m_idx)
 		if (wake_up)
 		{
 			t_ptr->csleep = 0;
+			if (tr_ptr->flags7 & (RF7_HAS_LITE_1 | RF7_HAS_LITE_2)) p_ptr->update |= (PU_MON_LITE);
 		}
 
 		if (fear && see_t)
 		{
+#ifdef JP
+			msg_format("%^sは恐怖して逃げ出した！", t_name);
+#else
 			msg_format("%^s flees in terror!", t_name);
+#endif
 		}
 
 		/* Remember what the monster did, if we saw it */

@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: remco $ on $Date: 1999/09/30 10:09:01 $ */
 /* File: z-form.c */
 
 /* Purpose: Low level text formatting -BEN- */
@@ -155,8 +154,8 @@ static uint vstrnfmt_aux_dflt(char *buf, uint max, cptr fmt, vptr arg)
 	uint len;
 	char tmp[32];
 
-	/* XXX XXX */
-	fmt = fmt ? fmt : 0;
+	/* Unused */
+	(void)fmt;
 
 	/* Pointer display */
 	sprintf(tmp, "<<%p>>", arg);
@@ -600,6 +599,13 @@ uint vstrnfmt(char *buf, uint max, cptr fmt, va_list vp)
 		}
 
 
+#ifdef JP
+{
+		  char kanji = 0;
+		  for (q = 0; tmp[q]; q++) if ( iskanji(tmp[q]) ) { kanji=1;break;} 
+		  if(kanji==1) do_xtra=FALSE;
+}
+#endif
 		/* Mega-Hack -- handle "capitilization" */
 		if (do_xtra)
 		{
