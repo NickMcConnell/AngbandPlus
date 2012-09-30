@@ -4029,7 +4029,7 @@ msg_print("ウィザードモード突入。");
 		}
 
 		/* Enter building -KMW- */
-		case ']':
+		case 254:
 		{
 			if (!p_ptr->wild_mode) do_cmd_bldg();
 			break;
@@ -5206,7 +5206,7 @@ msg_format("%s(%c)を落とした。", o_name, index_to_label(item));
 			/* Place the cursor on the player */
 			move_cursor_relative(py, px);
 
-			command_cmd = ']';
+			command_cmd = 254;
 
 			/* Process the command */
 			process_command();

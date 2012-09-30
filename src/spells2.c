@@ -119,9 +119,9 @@ sprintf(Dummy, "現在の体力ランク : %d/100", percent);
 #else
 	if (p_ptr->align > 150) disp_align = "lawful";
 	else if (p_ptr->align > 50) disp_align = "good";
-	else if (p_ptr->align > 10) disp_align = "nutral good";
-	else if (p_ptr->align > -11) disp_align = "nutral";
-	else if (p_ptr->align > -51) disp_align = "nutral evil";
+	else if (p_ptr->align > 10) disp_align = "neutral good";
+	else if (p_ptr->align > -11) disp_align = "neutral";
+	else if (p_ptr->align > -51) disp_align = "neutral evil";
 	else if (p_ptr->align > -151) disp_align = "evil";
 	else disp_align = "chaotic";
 	sprintf(Dummy, "Your alighnment : %s(%ld)", disp_align, p_ptr->align);

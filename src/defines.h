@@ -4801,5 +4801,5 @@ extern int PlayerUID;
 #define HTTP_PROXY ""                   /* Default proxy url */
 #define HTTP_PROXY_PORT 0               /* Default proxy port */
 #define HTTP_TIMEOUT    20              /* Timeout length (second) */
-#define SCORE_SERVER "www.kmc.kyoto-u.ac.jp" /* Default score server url */
+#define SCORE_SERVER "www.kmc.gr.jp"    /* Default score server url */
 #define SCORE_PORT 80                   /* Default score server port */

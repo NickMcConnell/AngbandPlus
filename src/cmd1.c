@@ -4655,7 +4655,7 @@ msg_format("%sが恐怖していて制御できない。", m_name);
 
 			energy_use = 0;
 			/* Hack -- Enter building */
-			command_new = ']';
+			command_new = 254;
 		}
 
 		/* Handle quest areas -KMW- */

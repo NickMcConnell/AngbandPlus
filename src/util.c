@@ -3936,7 +3936,7 @@ prt(format("回数: %d", command_arg), 0, 0);
 #ifdef JP
 				if (!get_com("コマンド: ", (char *)&cmd, FALSE))
 #else
-				if (!get_com("Command: ", &cmd, FALSE))
+				if (!get_com("Command: ", (char *)&cmd, FALSE))
 #endif
 
 				{
@@ -3957,7 +3957,7 @@ prt(format("回数: %d", command_arg), 0, 0);
 #ifdef JP
 			(void)get_com("コマンド: ", (char *)&cmd, FALSE);
 #else
-			(void)get_com("Command: ", &cmd, FALSE);
+			(void)get_com("Command: ", (char *)&cmd, FALSE);
 #endif
 
 
@@ -3973,7 +3973,7 @@ prt(format("回数: %d", command_arg), 0, 0);
 #ifdef JP
 			if (get_com("CTRL: ", (char *)&cmd, FALSE)) cmd = KTRL(cmd);
 #else
-			if (get_com("Control: ", &cmd, FALSE)) cmd = KTRL(cmd);
+			if (get_com("Control: ", (char *)&cmd, FALSE)) cmd = KTRL(cmd);
 #endif
 
 		}
