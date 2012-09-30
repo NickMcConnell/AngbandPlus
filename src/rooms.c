@@ -20,7 +20,7 @@
 /*
  * Array of minimum room depths
  */
-static s16b roomdep[] =
+static const s16b roomdep[] =
 {
 	 0, /* 0  = Nothing */
 	 1, /* 1  = Simple (33x11) */
@@ -1265,11 +1265,11 @@ struct vault_aux_type
 };
 
 
-static vault_aux_type *pick_vault_type(vault_aux_type *l_ptr)
+static const vault_aux_type *pick_vault_type(const vault_aux_type *l_ptr)
 {
 	int tmp, total;
 
-	vault_aux_type *n_ptr;
+	const vault_aux_type *n_ptr;
 
 	/* Calculate the total possibilities */
 	for (n_ptr = l_ptr, total = 0; TRUE; n_ptr++)
@@ -1307,7 +1307,7 @@ static vault_aux_type *pick_vault_type(vault_aux_type *l_ptr)
 }
 
 
-static vault_aux_type nest_types[] =
+static const vault_aux_type nest_types[] =
 {
 	{"clone",	vault_aux_clone,	vault_prep_clone,	7,	2},
 	{"jelly",	vault_aux_jelly,	NULL,			7,	6},
@@ -1349,7 +1349,7 @@ static void build_type5(int by0, int bx0)
 
 	int align = 0;
 
-	vault_aux_type *n_ptr = pick_vault_type(nest_types);
+	const vault_aux_type *n_ptr = pick_vault_type(nest_types);
 
 	/* Try to allocate space for room. */
 	if (!room_alloc(25, 11, TRUE, by0, bx0, &xval, &yval)) return;
@@ -1453,7 +1453,7 @@ static void build_type5(int by0, int bx0)
 }
 
 
-static vault_aux_type pit_types[] =
+static const vault_aux_type pit_types[] =
 {
 	{"orc",		vault_aux_orc,		NULL,			7,	1},
 	{"troll",	vault_aux_troll,	NULL,			35,	4},
@@ -1512,7 +1512,7 @@ static void build_type6(int by0, int bx0)
 
 	int align = 0;
 
-	vault_aux_type *n_ptr = pick_vault_type(pit_types);
+	const vault_aux_type *n_ptr = pick_vault_type(pit_types);
 
 	/* Try to allocate space for room. */
 	if (!room_alloc(25, 11, TRUE, by0, bx0, &xval, &yval)) return;
@@ -2025,7 +2025,7 @@ static void build_type7(int by0, int bx0)
 	}
 
 	/* Try to allocate space for room. */
-	if (!room_alloc(abs(x), abs(y), FALSE, by0, bx0, &xval, &yval)) return;
+	if (!room_alloc(ABS(x), ABS(y), FALSE, by0, bx0, &xval, &yval)) return;
 
 	if (dummy >= SAFE_MAX_ATTEMPTS)
 	{
@@ -2122,7 +2122,7 @@ static void build_type8(int by0, int bx0)
 	}
 
 	/* Try to allocate space for room.  If fails, exit */
-	if (!room_alloc(abs(x), abs(y), FALSE, by0, bx0, &xval, &yval)) return;
+	if (!room_alloc(ABS(x), ABS(y), FALSE, by0, bx0, &xval, &yval)) return;
 
 	if (dummy >= SAFE_MAX_ATTEMPTS)
 	{
@@ -2278,7 +2278,7 @@ static void fill_treasure(int x1, int x2, int y1, int y2, int difficulty)
 	cy = (y1 + y2) / 2;
 
 	/* Rough measure of size of vault= sum of lengths of sides */
-	size = abs(x2 - x1) + abs(y2 - y1);
+	size = ABS(x2 - x1) + ABS(y2 - y1);
 
 	for (x = x1; x <= x2; x++)
 	{
@@ -3207,8 +3207,8 @@ static int dist2(int x1, int y1, int x2, int y2,
                  int h1, int h2, int h3, int h4)
 {
 	int dx, dy;
-	dx = abs(x2 - x1);
-	dy = abs(y2 - y1);
+	dx = ABS(x2 - x1);
+	dy = ABS(y2 - y1);
 
 	/* Basically this works by taking the normal pythagorean formula
 	 * and using an expansion to express this in a way without the

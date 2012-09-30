@@ -18,41 +18,41 @@
 /*
  * Global array for looping through the "keypad directions"
  */
-s16b ddd[9] =
+const s16b ddd[9] =
 { 2, 8, 6, 4, 3, 1, 9, 7, 5 };
 
 /*
  * Global arrays for converting "keypad direction" into offsets
  */
-s16b ddx[10] =
+const s16b ddx[10] =
 { 0, -1, 0, 1, -1, 0, 1, -1, 0, 1 };
 
-s16b ddy[10] =
+const s16b ddy[10] =
 { 0, 1, 1, 1, 0, 0, 0, -1, -1, -1 };
 
 /*
  * Global arrays for optimizing "ddx[ddd[i]]" and "ddy[ddd[i]]"
  */
-s16b ddx_ddd[9] =
+const s16b ddx_ddd[9] =
 { 0, 0, 1, -1, 1, -1, 1, -1, 0 };
 
-s16b ddy_ddd[9] =
+const s16b ddy_ddd[9] =
 { 1, -1, 0, 0, 1, 1, -1, -1, 0 };
 
 
 /*
  * Circular keypad direction array
  */
-s16b cdd[8] =
+const s16b cdd[8] =
 { 2, 3, 6, 9, 8, 7, 4, 1 };
 
 /*
  * Global arrays for optimizing "ddx[cdd[i]]" and "ddy[cdd[i]]"
  */
-s16b ddx_cdd[8] =
+const s16b ddx_cdd[8] =
 { 0, 1, 1, 1, 0, -1, -1, -1 };
 
-s16b ddy_cdd[8] =
+const s16b ddy_cdd[8] =
 { 1, 1, 0, -1, -1, -1, 0, 1 };
 
 
@@ -61,7 +61,7 @@ s16b ddy_cdd[8] =
  * Global array for converting numbers to uppercase hecidecimal digit
  * This array can also be used to convert a number to an octal digit
  */
-char hexsym[16] =
+const char hexsym[16] =
 {
 	'0', '1', '2', '3', '4', '5', '6', '7',
 	'8', '9', 'A', 'B', 'C', 'D', 'E', 'F'
@@ -71,7 +71,7 @@ char hexsym[16] =
 /*
  * Global array for converting numbers to a logical list symbol
  */
-char listsym[] =
+const char listsym[] =
 {
 	'0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
 	'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
@@ -91,7 +91,7 @@ cptr color_char = "dwsorgbuDWvyRGBU";
 /*
  * Stat Table (INT/WIS) -- Number of spells at level 50
  */
-byte adj_mag_study[] =
+const byte adj_mag_study[] =
 {
 	0	/* 3 */,
 	5	/* 4 */,
@@ -137,7 +137,7 @@ byte adj_mag_study[] =
 /*
  * Stat Table (INT/WIS) -- extra mana at level 50 divided by 2.
  */
-byte adj_mag_mana[] =
+const byte adj_mag_mana[] =
 {
 	0        /* 3 */,
 	0        /* 4 */,
@@ -183,7 +183,7 @@ byte adj_mag_mana[] =
 /*
  * Stat Table (INT/WIS) -- Minimum failure rate (percentage)
  */
-byte adj_mag_fail[] =
+const byte adj_mag_fail[] =
 {
 	99      /* 3 */,
 	99      /* 4 */,
@@ -229,7 +229,7 @@ byte adj_mag_fail[] =
 /*
  * Stat Table (INT/WIS) -- Various things
  */
-byte adj_mag_stat[] =
+const byte adj_mag_stat[] =
 {
 	0       /* 3 */,
 	0       /* 4 */,
@@ -275,7 +275,7 @@ byte adj_mag_stat[] =
 /*
  * Stat Table (CHR) -- payment percentages
  */
-byte adj_chr_gold[] =
+const byte adj_chr_gold[] =
 {
 	130     /* 3 */,
 	125     /* 4 */,
@@ -321,7 +321,7 @@ byte adj_chr_gold[] =
 /*
  * Stat Table (INT) -- Magic devices
  */
-byte adj_int_dev[] =
+const byte adj_int_dev[] =
 {
 	0       /* 3 */,
 	0       /* 4 */,
@@ -367,7 +367,7 @@ byte adj_int_dev[] =
 /*
  * Stat Table (WIS) -- Saving throw
  */
-byte adj_wis_sav[] =
+const byte adj_wis_sav[] =
 {
 	0       /* 3 */,
 	0       /* 4 */,
@@ -413,7 +413,7 @@ byte adj_wis_sav[] =
 /*
  * Stat Table (DEX) -- disarming
  */
-byte adj_dex_dis[] =
+const byte adj_dex_dis[] =
 {
 	0       /* 3 */,
 	0       /* 4 */,
@@ -459,7 +459,7 @@ byte adj_dex_dis[] =
 /*
  * Stat Table (INT) -- disarming
  */
-byte adj_int_dis[] =
+const byte adj_int_dis[] =
 {
 	0       /* 3 */,
 	0       /* 4 */,
@@ -505,7 +505,7 @@ byte adj_int_dis[] =
 /*
  * Stat Table (DEX) -- bonus to ac (plus 128)
  */
-byte adj_dex_ta[] =
+const byte adj_dex_ta[] =
 {
 	128 + -4    /*  3 */,
 	128 + -3    /*  4 */,
@@ -552,7 +552,7 @@ byte adj_dex_ta[] =
  * Stat Table (STR) -- bonus to Deadliness (plus 128).  To compensate
  * for changes elsewhere, STR now has a larger effect. -LM-
  */
-byte adj_str_td[] =
+const byte adj_str_td[] =
 {
 	128 + -2	/* 3 */,
 	128 + -2	/* 4 */,
@@ -599,7 +599,7 @@ byte adj_str_td[] =
  * Stat Table (DEX) -- bonus to Skill (plus 128.  To compensate for
  * changes elsewhere, DEX now has a larger effect. -LM-
  */
-byte adj_dex_th[] =
+const byte adj_dex_th[] =
 {
 	128 + -4	/* 3 */,
 	128 + -3	/* 4 */,
@@ -646,7 +646,7 @@ byte adj_dex_th[] =
 /*
  * Stat Table (STR) -- weight limit in deca-pounds
  */
-byte adj_str_wgt[] =
+const byte adj_str_wgt[] =
 {
 	5       /* 3 */,
 	6       /* 4 */,
@@ -692,7 +692,7 @@ byte adj_str_wgt[] =
 /*
  * Stat Table (STR) -- weapon weight limit in pounds
  */
-byte adj_str_hold[] =
+const byte adj_str_hold[] =
 {
 	4       /* 3 */,
 	5       /* 4 */,
@@ -738,7 +738,7 @@ byte adj_str_hold[] =
 /*
  * Stat Table (STR) -- digging value
  */
-byte adj_str_dig[] =
+const byte adj_str_dig[] =
 {
 	0       /* 3 */,
 	0       /* 4 */,
@@ -784,7 +784,7 @@ byte adj_str_dig[] =
 /*
  * Stat Table (STR) -- help index into the "blow" table
  */
-byte adj_str_blow[] =
+const byte adj_str_blow[] =
 {
 	3       /* 3 */,
 	4       /* 4 */,
@@ -830,7 +830,7 @@ byte adj_str_blow[] =
 /*
  * Stat Table (DEX) -- index into the "blow" table
  */
-byte adj_dex_blow[] =
+const byte adj_dex_blow[] =
 {
 	0       /* 3 */,
 	0       /* 4 */,
@@ -876,7 +876,7 @@ byte adj_dex_blow[] =
 /*
  * Stat Table (DEX) -- chance of avoiding "theft" and "falling"
  */
-byte adj_dex_safe[] =
+const byte adj_dex_safe[] =
 {
 	0       /* 3 */,
 	1       /* 4 */,
@@ -922,7 +922,7 @@ byte adj_dex_safe[] =
 /*
  * Stat Table (CON) -- base regeneration rate
  */
-byte adj_con_fix[] =
+const byte adj_con_fix[] =
 {
 	0       /* 3 */,
 	0       /* 4 */,
@@ -970,7 +970,7 @@ byte adj_con_fix[] =
  * Because monsters don't breath as powerfully now, I have reduced the
  * effect of this stat. -LM-
  */
-byte adj_con_mhp[] =
+const byte adj_con_mhp[] =
 {
 	128 + -5	/* 3 */,
 	128 + -3	/* 4 */,
@@ -1040,7 +1040,7 @@ byte adj_con_mhp[] =
  * The player gets "blows_table[P][D]" blows/round, as shown below,
  * up to a maximum of "num" blows/round, plus any "bonus" blows/round.
  */
-byte blows_table[12][12] =
+const byte blows_table[12][12] =
 {
 	/* P/D */
 	/* 0,   1,   2,   3,   4,   5,   6,   7,   8,   9,  10,  11+ */
@@ -1093,7 +1093,7 @@ byte blows_table[12][12] =
  *
  * For the weapon and armour shops, several owners have a limit of 5k.
  */
-owner_type owners[MAX_STORES][MAX_OWNERS] =
+const owner_type owners[MAX_STORES][MAX_OWNERS] =
 {
 	{
 		/* General store - 32 unique names */
@@ -1417,7 +1417,7 @@ owner_type owners[MAX_STORES][MAX_OWNERS] =
  * Building owners (exactly MAX_B_OWN owners per building, chosen randomly)
  * { name, greed, race}
  */
-b_own_type b_owners[MAX_BLDG][MAX_B_OWN] =
+const b_own_type b_owners[MAX_BLDG][MAX_B_OWN] =
 {
 	{
 		/* Weaponmaster */
@@ -1481,6 +1481,35 @@ b_own_type b_owners[MAX_BLDG][MAX_B_OWN] =
 		{ "Pagpon",				120,			RACE_AMBERITE},
 		{ "Leiwthen",			100,			RACE_HIGH_ELF},
 	},
+
+	{
+		/* Casino */
+		{ "Key East",			100,			RACE_HUMAN},
+		{ "Point Rip", 			100,			RACE_HALF_ELF},
+		{ "Lean West",		 	100,			RACE_DWARF},
+		{ "Tile Green",			100,			RACE_HUMAN},
+		{ "Gold Red",			100,			RACE_DWARF},
+	},
+	
+	{
+		/* Inn */
+		{ "Pwvnom",				100,			RACE_DARK_ELF},
+		{ "Laign Mawan",		150,			RACE_SPRITE},
+		{ "Palson",			 	200,			RACE_HUMAN},
+		{ "Thwynyhtm",			250,			RACE_HIGH_ELF},
+		{ "Chaillnew",			50,				RACE_HUMAN},
+	},
+	
+	{
+		/* Healer */
+		{ "Nethlew",			150,			RACE_ELF},
+		{ "Alorn Peln",			80,				RACE_GNOME},
+		{ "Ahsilth Peon",	 	100,			RACE_HOBBIT},
+		{ "McPallion",			120,			RACE_HUMAN},
+		{ "Qonwyn",				110,			RACE_DWARF},
+	},
+
+
 };
 
 
@@ -1488,7 +1517,7 @@ b_own_type b_owners[MAX_BLDG][MAX_B_OWN] =
  * Buying and selling adjustments for race combinations.
  * Entry[owner][player] gives the basic "cost inflation".
  */
-byte rgold_adj[MAX_RACES][MAX_RACES] =
+const byte rgold_adj[MAX_RACES][MAX_RACES] =
 {
 	/*
 	 * Hum, HfE, Elf,  Hal, Gno, Dwa, HfO, HfT, Dun, HiE, Barbarian,
@@ -1670,7 +1699,7 @@ byte rgold_adj[MAX_RACES][MAX_RACES] =
  * the (compiled out) small random energy boost code.  It may
  * also tend to cause more "clumping" at high speeds.
  */
-byte extract_energy[200] =
+const byte extract_energy[200] =
 {
 	/* Slow */     1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
 	/* Slow */     1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
@@ -1700,7 +1729,7 @@ byte extract_energy[200] =
 /*
  * Base experience levels, may be adjusted up for race and/or class
  */
-s32b player_exp[PY_MAX_LEVEL] =
+const s32b player_exp[PY_MAX_LEVEL] =
 {
 	10,
 	25,
@@ -5377,7 +5406,7 @@ player_magic magic_info[MAX_CLASS] =
  * Zangband uses this array instead of the spell flags table, as there
  * are 5 realms of magic, each with 4 spellbooks and 8 spells per book -- TY
  */
-u32b fake_spell_flags[4]=
+const u32b fake_spell_flags[4]=
 {
 	0x000000ff,
 	0x0000ff00,
@@ -5386,7 +5415,7 @@ u32b fake_spell_flags[4]=
 };
 
 
-byte realm_choices1[] =
+const byte realm_choices1[] =
 {
 	(CH_NONE),					            /* Warrior */
 	(CH_LIFE | CH_SORCERY | CH_NATURE |
@@ -5407,7 +5436,7 @@ byte realm_choices1[] =
 };
 
 
-byte realm_choices2[] =
+const byte realm_choices2[] =
 {
 	(CH_NONE),                              /* Warrior */
 	(CH_LIFE | CH_SORCERY | CH_NATURE |
@@ -5747,7 +5776,7 @@ cptr spell_names[7][32] =
  * Much of this table is not intended ever to be used, and is included
  * only to handle possible inflation elsewhere. -LM-
  */
-byte deadliness_conversion[151] =
+const byte deadliness_conversion[151] =
 {
 	  0,
 	  5,  10,  14,  18,  22,  26,  30,  33,  36,  39,
@@ -5778,7 +5807,7 @@ byte deadliness_conversion[151] =
  * The "pval" of a chest determines the quality of its treasure
  * Note that disarming a trap on a chest also removes the lock.
  */
-byte chest_traps[64] =
+const byte chest_traps[64] =
 {
 	0,                                      /* 0 == empty */
 	(CHEST_POISON),
@@ -6152,12 +6181,12 @@ option_type option_info[OPT_MAX] =
 	{FALSE, 3, "view_torch_grids",		"Map remembers all torch-lit grids" },
 	{FALSE, 3, "dungeon_align",			"Generate dungeons with aligned rooms" },
 	{TRUE,  3, "dungeon_stair",			"Generate dungeons with connected stairs" },
-	{TRUE,  7, "flow_by_sound",			"Monsters chase current location (slow)" },
-	{TRUE,  7, "flow_by_smell",			"Monsters chase recent locations (slow)" },
+	{TRUE,  0, NULL,					"Number 42" },
+	{TRUE,  0, NULL,					"Number 43" },
 	{TRUE,  0, NULL,					"Number 44" },
 	{TRUE,  0, NULL,					"Number 45" },
-	{TRUE,  7, "smart_learn",			"Monsters learn from their mistakes" },
-	{FALSE, 7, "smart_cheat",			"Monsters exploit players weaknesses" },
+	{TRUE,  7, "smart_packs",			"Pack monsters use new AI" },
+	{FALSE, 0, NULL,					"Number 47" },
 	{FALSE, 4, "view_reduce_lite",		"Reduce lite-radius when running" },
 	{FALSE, 4, "view_reduce_view",		"Reduce view-radius in town" },
 	{FALSE, 4, "avoid_abort",			"Avoid checking for user abort" },
@@ -6339,12 +6368,8 @@ option_type option_info[OPT_MAX] =
 	{TRUE,  0, NULL,					"Number 221" },
 	{TRUE,  0, NULL,					"Number 222" },
 	{TRUE,  0, NULL,					"Number 223" },
-#if 0
-	{FALSE, 8, "destroy_worthless",		"Auto-destroy known worthless items" },
-#else /* 0 */
-	{FALSE, 0, NULL,					"Auto-destroy known worthless items" },
-#endif /* 0 */
-	{FALSE, 8, "monster_light",			"Allow monsters to carry lights" },
+	{FALSE, 0, NULL,					"Number 224" },
+	{FALSE, 5, "monster_light",			"Allow monsters to carry lights" },
 	{TRUE,  0, NULL,					"Turn on muliplayer client - server code" },
 	{TRUE,  0, NULL,					"Number 227" },
 	{TRUE,  0, NULL,					"Number 228" },
@@ -6373,11 +6398,11 @@ option_type option_info[OPT_MAX] =
 	{FALSE, 3, "auto_notes",			"Automatically note important events" },
 	{FALSE, 3, "take_notes",			"Allow notes to be appended to a file" },
 	{TRUE,  0, NULL,					"Number 253" },
-	{TRUE,  3, "testing_stack",			"Allow objects to stack on floor" },
-	{TRUE,  3, "testing_carry",			"Allow monsters to carry objects" },
+	{TRUE,  8, "testing_stack",			"Allow objects to stack on floor" },
+	{TRUE,  0, NULL,					"Number 255" },
 };
 
-int birth_options[OPT_BIRTH + 1] =
+const int birth_options[OPT_BIRTH + 1] =
 {
 	162, 192, 194, 195, 196, 197, 198, 199,
 	200, 201, 202, 203, 204, 205, 206, 207,
@@ -6385,7 +6410,7 @@ int birth_options[OPT_BIRTH + 1] =
 	216, 217, 218, 219, 220, 221, 222, 223, 0
 };
 
-int server_options[OPT_SERVER + 1] =
+const int server_options[OPT_SERVER + 1] =
 {
 	30,  31,  33,  34,  35,  36,  37,  40,
 	41,  42,  43,  44,  45,  46,  47,  224,
@@ -6416,7 +6441,7 @@ cptr chaos_patrons[MAX_PATRON] =
 	"Khaine"
 };
 
-int chaos_stats[MAX_PATRON] =
+const int chaos_stats[MAX_PATRON] =
 {
 	A_CON,  /* Slortar */
 	A_CON,  /* Mabelode */
@@ -6442,7 +6467,7 @@ int chaos_stats[MAX_PATRON] =
 
 
 
-int chaos_rewards[MAX_PATRON][20] =
+const int chaos_rewards[MAX_PATRON][20] =
 {
 	/* Slortar the Old: */
 	{
@@ -6574,7 +6599,7 @@ int chaos_rewards[MAX_PATRON][20] =
 	}
 };
 
-martial_arts ma_blows[MAX_MA] =
+const martial_arts ma_blows[MAX_MA] =
 {
 #ifdef VERBOSE_MARTIAL_ARTS
 	{ "You punch %s.",                          1, 0, 1, 4, 0 },
@@ -6676,7 +6701,7 @@ cptr silly_attacks[MAX_SILLY_ATTACK] =
 };
 
 /* Field function's + names */
-field_action f_action[] =
+const field_action f_action[] =
 {
 	/* Null - Do absolutely nothing */
 	{NULL, "nothing"}, 
@@ -6870,11 +6895,29 @@ field_action f_action[] =
 	/* Map maker part 2 */
 	{field_action_buymap2, "field_action_buymap2"},
 	
-	/* Libarary part 1 */
+	/* Library part 1 */
 	{field_action_library1, "field_action_library1"},
 	
-	/* Library part 2 */
+	/* Librry part 2 */
 	{field_action_library2, "field_action_library2"},
+	
+	/* Casino part 1 */
+	{field_action_casino1, "field_action_casino1"},
+	
+	/* Casino part 2 */
+	{field_action_casino2, "field_action_casino2"},
+	
+	/* Inn part 1 */
+	{field_action_inn1, "field_action_inn1"},
+	
+	/* Inn part 2 */
+	{field_action_inn2, "field_action_inn2"},
+	
+	/* Healer part 1 */
+	{field_action_healer1, "field_action_healer1"},
+	
+	/* Healer part 2 */
+	{field_action_healer2, "field_action_healer2"},
 	
 	/* Bookstore */
 	{field_action_isbook_tester, "field_action_isbook_tester"},
@@ -6957,7 +7000,7 @@ field_action f_action[] =
  * level, cost, stat, difficulty (each for activatable mutations only)
  * chance (random mutations only)
  */
-mutation_type mutations[MUT_SETS_MAX * MUT_PER_SET] =
+const mutation_type mutations[MUT_SETS_MAX * MUT_PER_SET] =
 {
 	/* Activatable mutations */
 	{
@@ -7935,7 +7978,7 @@ mutation_type mutations[MUT_SETS_MAX * MUT_PER_SET] =
  * level, cost, stat, difficulty (each for activatable mutations only)
  * chance (random mutations only)
  */
-mutation_type race_powers[MAX_RACE_POWERS] =
+const mutation_type race_powers[MAX_RACE_POWERS] =
 {
 	{
 	    RACE_DWARF,

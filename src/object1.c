@@ -97,9 +97,9 @@ void reset_visuals(void)
 /*
  * Obtain the "flags" for an item
  */
-void object_flags(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
+void object_flags(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
 {
-	object_kind *k_ptr = &k_info[o_ptr->k_idx];
+	const object_kind *k_ptr = &k_info[o_ptr->k_idx];
 
 	/* Base object */
 	(*f1) = k_ptr->flags1 | o_ptr->flags1;
@@ -119,9 +119,9 @@ void object_flags(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
 /*
  * Obtain the "flags" for an item which are known to the player
  */
-void object_flags_known(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
+void object_flags_known(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
 {
-	object_kind *k_ptr = &k_info[o_ptr->k_idx];
+	const object_kind *k_ptr = &k_info[o_ptr->k_idx];
 
 	/* Clear */
 	(*f1) = (*f2) = (*f3) = 0L;
@@ -166,7 +166,7 @@ void object_flags_known(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
  * Determine the "Activation" (if any) for an artifact
  * Return a string, or NULL for "no activation"
  */
-cptr item_activation(object_type *o_ptr)
+cptr item_activation(const object_type *o_ptr)
 {
 	u32b f1, f2, f3;
 
@@ -802,7 +802,7 @@ cptr item_activation(object_type *o_ptr)
 /*
  * Describe a "fully identified" item
  */
-bool identify_fully_aux(object_type *o_ptr)
+bool identify_fully_aux(const object_type *o_ptr)
 {
 	int                     i = 0, j, k;
 
@@ -1325,7 +1325,7 @@ s16b label_to_equip(int c)
 /*
  * Determine which equipment slot (if any) an item likes
  */
-s16b wield_slot(object_type *o_ptr)
+s16b wield_slot(const object_type *o_ptr)
 {
 	/* Slot for equipment */
 	switch (o_ptr->tval)
@@ -1508,7 +1508,7 @@ cptr describe_use(int i)
 /*
  * Hook to specify "weapon"
  */
-bool item_tester_hook_weapon(object_type *o_ptr)
+bool item_tester_hook_weapon(const object_type *o_ptr)
 {
 	switch (o_ptr->tval)
 	{
@@ -1531,7 +1531,7 @@ bool item_tester_hook_weapon(object_type *o_ptr)
 /*
  * Hook to specify "melee weapon"
  */
-bool item_tester_hook_melee_weapon(object_type *o_ptr)
+bool item_tester_hook_melee_weapon(const object_type *o_ptr)
 {
 	switch (o_ptr->tval)
 	{
@@ -1550,7 +1550,7 @@ bool item_tester_hook_melee_weapon(object_type *o_ptr)
 /*
  * Hook to specify "non-sword melee"
  */
-bool item_tester_hook_nonsword(object_type *o_ptr)
+bool item_tester_hook_nonsword(const object_type *o_ptr)
 {
 	if ((o_ptr->tval == TV_HAFTED) || (o_ptr->tval == TV_POLEARM))
 	{
@@ -1565,7 +1565,7 @@ bool item_tester_hook_nonsword(object_type *o_ptr)
 /*
  * Hook to specify "ammo"
  */
-bool item_tester_hook_ammo(object_type *o_ptr)
+bool item_tester_hook_ammo(const object_type *o_ptr)
 {
 	switch (o_ptr->tval)
 	{
@@ -1583,7 +1583,7 @@ bool item_tester_hook_ammo(object_type *o_ptr)
 /*
  * Hook to specify "Bows+arrows"
  */
-bool item_tester_hook_fletcher(object_type *o_ptr)
+bool item_tester_hook_fletcher(const object_type *o_ptr)
 {
 	switch (o_ptr->tval)
 	{
@@ -1603,7 +1603,7 @@ bool item_tester_hook_fletcher(object_type *o_ptr)
 /*
  * Hook to specify "armour"
  */
-bool item_tester_hook_armour(object_type *o_ptr)
+bool item_tester_hook_armour(const object_type *o_ptr)
 {
 	switch (o_ptr->tval)
 	{
@@ -1627,7 +1627,7 @@ bool item_tester_hook_armour(object_type *o_ptr)
 /*
  * Hook to specify "soft armour"
  */
-bool item_tester_hook_soft_armour(object_type *o_ptr)
+bool item_tester_hook_soft_armour(const object_type *o_ptr)
 {
 	switch (o_ptr->tval)
 	{
@@ -1646,7 +1646,7 @@ bool item_tester_hook_soft_armour(object_type *o_ptr)
 /*
  * Hook to specify "hard armour"
  */
-bool item_tester_hook_hard_armour(object_type *o_ptr)
+bool item_tester_hook_hard_armour(const object_type *o_ptr)
 {
 	switch (o_ptr->tval)
 	{
@@ -1667,7 +1667,7 @@ bool item_tester_hook_hard_armour(object_type *o_ptr)
 /*
  * Hook to specify "helm or crown"
  */
-bool item_tester_hook_helm(object_type *o_ptr)
+bool item_tester_hook_helm(const object_type *o_ptr)
 {
 	switch (o_ptr->tval)
 	{
@@ -1684,7 +1684,7 @@ bool item_tester_hook_helm(object_type *o_ptr)
 /*
  * Hook to specify "pure hard armour"
  */
-bool item_tester_hook_pure_hard_armour(object_type *o_ptr)
+bool item_tester_hook_pure_hard_armour(const object_type *o_ptr)
 {
 	switch (o_ptr->tval)
 	{
@@ -1703,14 +1703,13 @@ bool item_tester_hook_pure_hard_armour(object_type *o_ptr)
 /*
  * Check if an object is weapon or armour (but not arrow, bolt, or shot)
  */
-bool item_tester_hook_weapon_armour(object_type *o_ptr)
+bool item_tester_hook_weapon_armour(const object_type *o_ptr)
 {
 	switch (o_ptr->tval)
 	{
 		case TV_SWORD:
 		case TV_HAFTED:
 		case TV_POLEARM:
-		case TV_DIGGING:
 		case TV_BOW:
 		case TV_DRAG_ARMOR:
 		case TV_HARD_ARMOR:
@@ -1733,7 +1732,7 @@ bool item_tester_hook_weapon_armour(object_type *o_ptr)
 /*
  * The "wearable" tester
  */
-bool item_tester_hook_wear(object_type *o_ptr)
+bool item_tester_hook_wear(const object_type *o_ptr)
 {
 	/* Check for a usable slot */
 	if (wield_slot(o_ptr) >= INVEN_WIELD) return (TRUE);
@@ -1746,7 +1745,7 @@ bool item_tester_hook_wear(object_type *o_ptr)
 /*
  * Determine if something is rechargable.
  */
-bool item_tester_hook_recharge(object_type *o_ptr)
+bool item_tester_hook_recharge(const object_type *o_ptr)
 {
 	/* Staffs */
 	if (o_ptr->tval == TV_STAFF) return (TRUE);
@@ -1764,7 +1763,7 @@ bool item_tester_hook_recharge(object_type *o_ptr)
 /*
  * Determine if something is a 'jewel'
  */
-bool item_tester_hook_jewel(object_type *o_ptr)
+bool item_tester_hook_jewel(const object_type *o_ptr)
 {
 	/* Rings */
 	if (o_ptr->tval == TV_RING) return (TRUE);
@@ -1779,7 +1778,7 @@ bool item_tester_hook_jewel(object_type *o_ptr)
 
 
 /* Hack - match item_tester_tval */
-bool item_tester_hook_tval(object_type *o_ptr)
+bool item_tester_hook_tval(const object_type *o_ptr)
 {
 	/* A match? */
 	if (o_ptr->tval == item_tester_tval) return (TRUE);
@@ -1789,7 +1788,7 @@ bool item_tester_hook_tval(object_type *o_ptr)
 }
 
 
-bool item_tester_hook_is_blessed(object_type *o_ptr)
+bool item_tester_hook_is_blessed(const object_type *o_ptr)
 {
 	u32b f1, f2, f3;
 	object_flags(o_ptr, &f1, &f2, &f3);
@@ -1804,7 +1803,7 @@ bool item_tester_hook_is_blessed(object_type *o_ptr)
 	return (TRUE);
 }
 
-bool item_tester_hook_is_good(object_type *o_ptr)
+bool item_tester_hook_is_good(const object_type *o_ptr)
 {
 	if (cursed_p(o_ptr)) return (FALSE);
 	
@@ -1822,7 +1821,7 @@ bool item_tester_hook_is_good(object_type *o_ptr)
 }
 
 
-bool item_tester_hook_is_great(object_type *o_ptr)
+bool item_tester_hook_is_great(const object_type *o_ptr)
 {
 	if (cursed_p(o_ptr)) return (FALSE);
 	
@@ -1835,7 +1834,7 @@ bool item_tester_hook_is_great(object_type *o_ptr)
 
 
 
-bool item_tester_hook_is_book(object_type *o_ptr)
+bool item_tester_hook_is_book(const object_type *o_ptr)
 {
 	switch (o_ptr->tval)
 	{
@@ -1867,7 +1866,7 @@ static bool check_book_realm(const byte book_tval)
 /*
  * Check an item against the item tester info
  */
-bool item_tester_okay(object_type *o_ptr)
+bool item_tester_okay(const object_type *o_ptr)
 {
 	/* Hack -- allow listing empty slots */
 	if (item_tester_full) return (TRUE);
@@ -1958,7 +1957,7 @@ void display_inven(void)
 		attr = tval_to_attr[o_ptr->tval % 128];
 
 		/* Grey out charging items */
-		if (o_ptr->timeout)
+		if (o_ptr->timeout && (o_ptr->tval != TV_LITE))
 		{
 			attr = TERM_L_DARK;
 		}
@@ -2035,7 +2034,7 @@ void display_equip(void)
 		attr = tval_to_attr[o_ptr->tval % 128];
 
 		/* Grey out charging items */
-		if (o_ptr->timeout)
+		if (o_ptr->timeout && (o_ptr->tval != TV_LITE))
 		{
 			attr = TERM_L_DARK;
 		}
@@ -2141,7 +2140,7 @@ void show_inven(void)
 		out_color[k] = tval_to_attr[o_ptr->tval % 128];
 
 		/* Grey out charging items */
-		if (o_ptr->timeout)
+		if (o_ptr->timeout && (o_ptr->tval != TV_LITE))
 		{
 			out_color[k] = TERM_L_DARK;
 		}
@@ -2276,7 +2275,7 @@ void show_equip(void)
 		out_color[k] = tval_to_attr[o_ptr->tval % 128];
 
 		/* Grey out charging items */
-		if (o_ptr->timeout)
+		if (o_ptr->timeout && (o_ptr->tval != TV_LITE))
 		{
 			out_color[k] = TERM_L_DARK;
 		}

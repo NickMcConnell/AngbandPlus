@@ -1988,7 +1988,7 @@ cptr quark_str(s16b i)
 	/* Compact from time to time */
 	if (quark__tim > QUARK_COMPACT * QUARK_MAX)
 	{
-		(void) compact_quarks();
+		(void)compact_quarks();
 	}
 
 	/* Return the quark */
@@ -3619,7 +3619,7 @@ void repeat_check(void)
 byte gamma_table[256];
 
 /* Table of ln(x/256) * 256 for x going from 0 -> 255 */
-static s16b gamma_helper[256] =
+static const s16b gamma_helper[256] =
 {
 0,-1420,-1242,-1138,-1065,-1007,-961,-921,-887,-857,-830,-806,-783,-762,-744,-726,
 -710,-694,-679,-666,-652,-640,-628,-617,-606,-596,-586,-576,-567,-577,-549,-541,

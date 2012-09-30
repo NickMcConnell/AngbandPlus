@@ -111,7 +111,7 @@
 /*
  * Include some helpful X11 code.
  */
-#include "maid-x11.c"
+#include "maid-x11.h"
 
 
 /*
@@ -1932,11 +1932,10 @@ static errr Term_xtra_x11(int n, int v)
  */
 static errr Term_curs_x11(int x, int y)
 {
-	/* Draw the cursor */
-	Infoclr_set(xor);
-
-	/* Hilite the cursor character */
-	Infofnt_text_non(x, y, " ", 1);
+	XDrawRectangle(Metadpy->dpy, Infowin->win, xor->gc,
+			 x * Infofnt->wid + Infowin->ox,
+			 y * Infofnt->hgt + Infowin->oy,
+			 Infofnt->wid - 1, Infofnt->hgt - 1);
 
 	/* Success */
 	return (0);

@@ -361,7 +361,7 @@ N:32:locked door
 G:+:U
 W:100:2:0
 I:NO_LOOK | MERGE
-D:0:0:0:0:0:0:0:25
+D:0:0:0:0:0:0:255:255
 F:0,field_action_counter_init
 F:10,field_action_door_unlock | 11,field_action_door_gf
 F:15,field_action_delete | 16,field_action_interact_open
@@ -372,7 +372,7 @@ N:33:stuck door
 G:+:U
 W:100:2:0
 I:NO_LOOK | MERGE
-D:15:1:0:0:0:0:0:25
+D:15:1:0:0:0:0:255:255
 F:0,field_action_counter_init
 F:10,field_action_door_bash | 11,field_action_door_gf
 F:15,field_action_delete | 16,field_action_interact_disarm
@@ -400,7 +400,7 @@ N:34:General Store
 G:1:o
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
-D:0:0:10:0:50:0:50:8
+D:0:0:10:0:50:0:50:0
 F:2,field_action_door_store
 F:18,field_action_isweaparmour_tester
 
@@ -409,7 +409,7 @@ N:35:Armoury
 G:2:U
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
-D:1:5:20:0:100:0:0:0
+D:1:5:30:0:100:0:0:0
 F:2,field_action_door_store
 F:19,field_action_isarmour_tester
 
@@ -445,7 +445,7 @@ N:39:Magic Wares
 G:6:r
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
-D:5:5:30:0:0:100:0:8
+D:5:5:30:0:0:100:0:0
 F:2,field_action_door_store
 F:18,field_action_isbook_tester
 
@@ -470,7 +470,7 @@ N:42:Book Store
 G:5:y
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
-D:8:17:35:0:0:100:0:8
+D:8:20:40:0:0:100:0:8
 F:2,field_action_door_store
 F:19,field_action_isbook_tester
 
@@ -830,7 +830,7 @@ N:82:Expert Fletcher
 G:3:G
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
-D:2:50:100:0:100:0:0:36
+D:2:50:100:0:100:0:0:42
 F:2,field_action_door_store
 F:19,field_action_isfletcher_tester
 
@@ -845,7 +845,7 @@ F:19,field_action_isfletcher_tester
 
 # Warrior Hall
 N:84:Warrior Hall
-G:6:s
+G:0:s
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:2:1:20:0:100:0:0:0
@@ -854,7 +854,7 @@ F:19,field_action_isweaparmour_tester
 
 # Warrior Hall
 N:85:Advanced Warrior Hall
-G:6:s
+G:0:s
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:2:20:50:0:100:0:0:0
@@ -863,7 +863,7 @@ F:19,field_action_isweaparmour_tester
 
 # Warrior Hall
 N:86:Expert Warrior Hall
-G:6:W
+G:0:W
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:2:40:75:0:100:0:0:8
@@ -872,7 +872,7 @@ F:19,field_action_isweaparmour_tester
 
 # Warrior Hall
 N:87:Arcane Warrior Hall
-G:6:W
+G:0:W
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:2:75:127:0:100:0:0:24
@@ -881,7 +881,7 @@ F:19,field_action_isweaparmour_tester
 
 # Warrior Hall
 N:88:Obscure Warrior Hall
-G:6:w
+G:0:w
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:2:50:100:5:95:0:0:42
@@ -890,7 +890,7 @@ F:19,field_action_isweaparmour_tester
 
 # Warrior Hall
 N:89:Rare Warrior Hall
-G:6:w
+G:0:w
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:2:50:100:0:100:0:0:62
@@ -899,19 +899,19 @@ F:19,field_action_isweaparmour_tester
 
 # Clothes Store
 N:90:Clothes Store
-G:0:b
+G:2:g
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
-D:0:1:20:0:80:0:20:8
+D:0:1:20:0:100:0:0:8
 F:2,field_action_door_store
 F:19,field_action_isclothes_tester
 
 # Clothes Store
 N:91:Expensive Clothes Store
-G:0:B
+G:2:G
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
-D:0:0:50:0:80:0:20:24
+D:0:0:50:0:100:0:0:24
 F:2,field_action_door_store
 F:19,field_action_isclothes_tester
 
@@ -992,7 +992,7 @@ N:100:Expert Milliner
 G:2:o
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
-D:0:50:100:50:50:0:0:36
+D:0:50:100:50:50:0:0:42
 F:2,field_action_door_store
 F:19,field_action_ishelm_tester
 
@@ -1052,7 +1052,7 @@ F:19,field_action_isjewel_tester
 
 # Statue Store
 N:107:Statue Store
-G:0:s
+G:5:U
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:0:1:50:100:0:0:0:8
@@ -1061,7 +1061,7 @@ F:19,field_action_isstatue_tester
 
 # Statue Store
 N:108:Expensive Statue Store
-G:0:w
+G:5:s
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:0:50:100:100:0:0:0:8
@@ -1262,7 +1262,7 @@ N:130:Supplies Store
 G:1:u
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
-D:0:0:10:0:10:40:50:0
+D:0:0:9:0:5:40:55:0
 F:2,field_action_door_store
 F:18,field_action_issupplies_tester
 
@@ -1311,10 +1311,10 @@ F:18,field_action_isrecharge_tester
 
 # Junk store
 N:136:Junk Store
-G:0:R
+G:1:g
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
-D:0:0:5:0:0:0:50:8
+D:0:0:5:30:10:10:50:8
 F:2,field_action_door_store
 
 # Food store
@@ -1326,6 +1326,7 @@ D:0:0:25:0:0:0:100:8
 F:2,field_action_door_store
 F:19,field_action_isfood_tester
 
+# Library
 N:138:Library
 G:9:b
 W:100:3:0
@@ -1333,3 +1334,30 @@ I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:6:100:0:0:0:0:0:0
 F:2,field_action_door_build
 F:18,field_action_library1 | 19,field_action_library2
+
+# Casino
+N:139:Casino
+G:0:o
+W:100:3:0
+I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
+D:7:0:0:0:0:0:0:0
+F:2,field_action_door_build
+F:18,field_action_casino1 | 19,field_action_casino2
+
+# Inn
+N:140:Inn
+G:0:y
+W:100:3:0
+I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
+D:8:5:0:0:0:0:0:0
+F:2,field_action_door_build
+F:18,field_action_inn1 | 19,field_action_inn2
+
+# Restore stats
+N:141:Healer
+G:9:y
+W:100:3:0
+I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
+D:9:100:0:0:0:0:0:0
+F:2,field_action_door_build
+F:18,field_action_healer1 | 19,field_action_healer2

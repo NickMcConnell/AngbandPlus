@@ -106,6 +106,26 @@ struct header
 	u32b	text_size;		/* Size of the "text" array in bytes */
 };
 
+/*
+ * Structure used to store information required for LOS
+ * calculatations.  The same data can be inverted to
+ * get the squares affected by a projection.  Those squares
+ * can be itterated over to get a 'flight path' for arrows
+ * and thrown items...
+ */
+ 
+typedef struct project_type project_type;
+
+struct project_type
+{
+	/* Offset of square */
+	byte x;
+	byte y;
+	
+	/* Index into array if this square is a wall */
+	byte slope;
+	byte square;
+};
 
 
 /*
@@ -477,12 +497,8 @@ struct cave_type
 
 	s16b fld_idx;		/* Field in this grid */
 
-#ifdef MONSTER_FLOW
-
 	byte cost;		/* Hack -- cost of flowing */
 	byte when;		/* Hack -- when cost was computed */
-
-#endif /* MONSTER_FLOW */
 };
 
 
@@ -505,10 +521,6 @@ struct coord
  */
 
 typedef cave_type **blk_ptr;
-
-/* Hack - to get the C_MAKE to work in init2.c */
-
-typedef cave_type *cave_tp_ptr;
 
 
 /*
@@ -610,7 +622,6 @@ union wild_type
 	wild_done_type	done;
 };
 
-typedef wild_type *wild_tp_ptr;
 
 /*
  * An array of this structure is used to work out what wilderness type
@@ -657,8 +668,6 @@ struct wild_choice_tree_type
  * This type is used to describe a region in parameter space
  * for wilderness generation.
  */
-
-
 typedef struct wild_bound_box_type wild_bound_box_type;
 
 struct wild_bound_box_type
@@ -685,8 +694,7 @@ typedef struct wild_gen_data_type wild_gen_data_type;
 
 struct wild_gen_data_type
 {
-	byte	w_attr;		/* Default attribute for overhead map */
-	char	w_char;		/* Default character for overhead map */
+	byte	feat;		/* The feature to look like on the overhead map */
 
 	byte	gen_routine;	/* Generation routine number */
 
@@ -1641,8 +1649,6 @@ struct store_type
 	u16b x;					/* Location x coord. */
 	u16b y;					/* Location y coord. */
 };
-
-typedef store_type *store_ptr;
 
 
 

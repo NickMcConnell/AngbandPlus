@@ -10,6 +10,24 @@
  * Support for Adam Bolt's tileset, lighting and transparency effects
  * by Robert Ruehlmann (rr9@angband.org)
  */
+ 
+/*
+ * Maximum number of slopes in a single octant
+ */
+#define VINFO_MAX_SLOPES 135
+
+
+/*
+ * Table of data used to calculate projections / los / shots.
+ */
+static project_type *project_data[VINFO_MAX_SLOPES];
+
+/* Number of squares per slope */
+static int slope_count[VINFO_MAX_SLOPES];
+
+/* The min and max slopes for each square in sight */
+static int p_slope_min[MAX_SIGHT+1][MAX_SIGHT+1];
+static int p_slope_max[MAX_SIGHT+1][MAX_SIGHT+1];
 
 
 /*
@@ -68,66 +86,30 @@ bool is_visible_trap(cave_type *c_ptr)
 }
 
 
-
 /*
- * A simple, fast, integer-based line-of-sight algorithm.  By Joseph Hall,
- * 4116 Brewster Drive, Raleigh NC 27606.  Email to jnh@ecemwl.ncsu.edu.
+ * This is a version of the los function that uses a
+ * tester function to determine whether or not to stop.
  *
- * Returns TRUE if a line of sight can be traced from (x1,y1) to (x2,y2).
- *
- * The LOS begins at the center of the tile (x1,y1) and ends at the center of
- * the tile (x2,y2).  If los() is to return TRUE, all of the tiles this line
- * passes through must be floor tiles, except for (x1,y1) and (x2,y2).
- *
- * We assume that the "mathematical corner" of a non-floor tile does not
- * block line of sight.
- *
- * Because this function uses (short) ints for all calculations, overflow may
- * occur if dx and dy exceed 90.
- *
- * Once all the degenerate cases are eliminated, the values "qx", "qy", and
- * "m" are multiplied by a scale factor "f1 = abs(dx * dy * 2)", so that
- * we can use integer arithmetic.
- *
- * We travel from start to finish along the longer axis, starting at the border
- * between the first and second tiles, where the y offset = .5 * slope, taking
- * into account the scale factor.  See below.
- *
- * Also note that this function and the "move towards target" code do NOT
- * share the same properties.  Thus, you can see someone, target them, and
- * then fire a bolt at them, but the bolt may hit a wall, not them.  However,
- * by clever choice of target locations, you can sometimes throw a "curve".
- *
- * Note that "line of sight" is not "reflexive" in all cases.
- *
- * Use the "projectable()" routine to test "spell/missile line of sight".
- *
- * Use the "update_view()" function to determine player line-of-sight.
+ * Use this function instead of cut+pasting los() everywhere
+ * with only tiny changes made to it.
  */
-bool los(int y1, int x1, int y2, int x2)
+static bool los_general(int y1, int x1, int y2, int x2, bool (*f)(cave_type*))
 {
-	/* Delta */
-	int dx, dy;
-
-	/* Absolute */
-	int ax, ay;
-
-	/* Signs */
-	int sx, sy;
-
-	/* Fractions */
-	int qx, qy;
-
-	/* Scanners */
-	int tx, ty;
-
-	/* Scale factors */
-	int f1, f2;
-
-	/* Slope, or 1/Slope, of LOS */
-	int m;
-
+	int i, j, temp, dist;
+	
+	int x, y;
+	
+	int dx, dy, ax, ay, sx, sy;
+	
 	cave_type *c_ptr;
+
+	dist = distance(y1, x1, y2, x2);
+
+	/* If (x1,y1) == (x2, y2) we know we can see ourselves */
+	if (dist == 0) return (TRUE);
+
+	/* We only work for points that are less than MAX_SIGHT appart. */
+	if (dist > MAX_SIGHT) return (FALSE);
 
 	/* Extract the offset */
 	dy = y2 - y1;
@@ -137,200 +119,697 @@ bool los(int y1, int x1, int y2, int x2)
 	ay = ABS(dy);
 	ax = ABS(dx);
 
-
-	/* Handle adjacent (or identical) grids */
-	if ((ax < 2) && (ay < 2)) return (TRUE);
-
-
-	/* Directly South/North */
-	if (!dx)
+	/*
+	 * Start at the first square in the list.
+	 * This is a square adjacent to (x1,y1)
+	 */
+	j = 0;
+	
+	/* Extract some signs */
+	sx = (dx < 0) ? -1 : 1;
+	sy = (dy < 0) ? -1 : 1;
+	
+	/* Hack - we need to stick to one octant */
+	if (ay < ax)
 	{
-		/* South -- check for walls */
-		if (dy > 0)
+		/* Look up the slope to use */
+		i = p_slope_min[ax][ay];
+	
+		while (i <= p_slope_max[ax][ay])
 		{
-			for (ty = y1 + 1; ty < y2; ty++)
+			x = x1 + sx * project_data[i][j].x;
+			y = y1 + sy * project_data[i][j].y;
+		
+			/* Done? */
+			if ((x == x2) && (y == y2)) return (TRUE);
+		
+			/* Stop if out of bounds */
+			if (!in_bounds(y, x)) return (FALSE);
+			
+			c_ptr = area(y, x);
+		
+			if ((*f)(c_ptr))
 			{
-				c_ptr = area(ty, x1);
-				if (!cave_floor_grid(c_ptr)) return (FALSE);
+				/* Blocked: go to the best position we have not looked at yet */
+				temp = project_data[i][j].slope;
+				j = project_data[i][j].square;
+				i = temp;
+			}
+			else
+			{
+				/* Advance along ray */
+				j++;
 			}
 		}
-
-		/* North -- check for walls */
-		else
+	}
+	else
+	{
+		/* Look up the slope to use */
+		i = p_slope_min[ay][ax];
+	
+		while (i <= p_slope_max[ay][ax])
 		{
-			for (ty = y1 - 1; ty > y2; ty--)
+			/* Note that the data offsets have x,y swapped */
+			x = x1 + sx * project_data[i][j].y;
+			y = y1 + sy * project_data[i][j].x;
+		
+			/* Done? */
+			if ((x == x2) && (y == y2)) return (TRUE);
+		
+			/* Stop if out of bounds */
+			if (!in_bounds(y, x)) return (FALSE);
+		
+			c_ptr = area(y, x);
+		
+			if ((*f)(c_ptr))
 			{
-				c_ptr = area(ty, x1);
-				if (!cave_floor_grid(c_ptr)) return (FALSE);
+				/* Blocked: go to the best position we have not looked at yet */
+				temp = project_data[i][j].slope;
+				j = project_data[i][j].square;
+				i = temp;
 			}
-		}
+			else
+			{
+				/* Advance along ray */
+				j++;
+			}
+		}	
+	}
+	
+	/* No path */
+	return (FALSE);
+}
 
-		/* Assume los */
-		return (TRUE);
+/*
+ * Hack - a function to pass to los_general() used
+ * to simulate the old los()
+ */
+static bool cave_stop_wall(cave_type *c_ptr)
+{
+	/* Is it passable? */
+	if (cave_los_grid(c_ptr)) return (FALSE);
+	
+	/* Seems ok */
+	return (TRUE);
+}
+
+/*
+ * Slow, but simple LOS routine.  This works in the same way as
+ * the view code, so that if something is in view, los() behaves
+ * as expected.
+ *
+ * The old routine was fast, but did not behave in the right way.
+ * This new routine does not need to be fast, because it isn't
+ * called in time-critical code.
+ *
+ *
+ * It works by trying all slopes that connect (x1,y1) with (x2,y2)
+ * If a wall is found, then it back-tracks to the 'best' square
+ * to check next.  There may be cases where it checks the same
+ * square multiple times, but a simple algorithm is much cleaner.
+ *
+ * Note that "line of sight" is not "reflexive" in all cases.
+ *
+ * Use the "projectable()" routine to test "spell/missile line of sight".
+ *
+ * Use the "update_view()" function to determine player line-of-sight.
+ */
+bool los(int y1, int x1, int y2, int x2)
+{
+	return (los_general(y1, x1, y2, x2, cave_stop_wall));
+}
+
+
+
+
+/*
+ * Calculate incremental motion
+ *
+ * The current position is updated.
+ *
+ * (x,y) encodes the current location.
+ * slope and sq encodes the current square along the flight path.
+ * Set sq to be zero to initialise the routine.
+ *
+ * This routine is very similar to los() except that we can use it
+ * to return partial results.
+ */
+void mmove2(int *y, int *x, int y1, int x1, int y2, int x2, int *slope, int *sq)
+{
+	int temp;
+	
+	int xx, yy;
+	
+	int dx, dy, ax, ay, sx, sy, dist;
+	
+	cave_type *c_ptr;
+
+	/* Paranoia - degenerate case */
+	if ((x1 == x2) && (y1 == y2))
+	{
+		*x = x1;
+		*y = y2;
+		
+		return;
 	}
 
-	/* Directly East/West */
-	if (!dy)
+	/* Extract the offset */
+	dy = y2 - y1;
+	dx = x2 - x1;
+	
+	/*
+	 * We only work for points that are less than MAX_SIGHT appart.
+	 * Note that MAX_RANGE < MAX_SIGHT
+	 */
+	dist = distance(y1, x1, y2, x2);
+	
+	if (dist > MAX_RANGE)
 	{
-		/* East -- check for walls */
-		if (dx > 0)
-		{
-			for (tx = x1 + 1; tx < x2; tx++)
-			{
-				c_ptr = area(y1, tx);
-				if (!cave_floor_grid(c_ptr)) return (FALSE);
-			}
-		}
-
-		/* West -- check for walls */
-		else
-		{
-			for (tx = x1 - 1; tx > x2; tx--)
-			{
-				c_ptr = area(y1, tx);
-				if (!cave_floor_grid(c_ptr)) return (FALSE);
-			}
-		}
-
-		/* Assume los */
-		return (TRUE);
+		/* Rescale */
+		dx = (dx * MAX_RANGE) / dist;
+		dy = (dy * MAX_RANGE) / dist;
 	}
-
-
+	
+	/* Extract the absolute offset */
+	ay = ABS(dy);
+	ax = ABS(dx);
+	
 	/* Extract some signs */
 	sx = (dx < 0) ? -1 : 1;
 	sy = (dy < 0) ? -1 : 1;
 
 
-	/* Vertical "knights" */
-	if (ax == 1)
+	/* Do we need to initialise? */
+	if (!(*sq))
 	{
-		if (ay == 2)
+		/*
+		 * Start at the first square in the list.
+		 * This is a square adjacent to (x1,y1)
+		 */
+		
+		/* sq is already zero at this point. */
+	
+		/* Hack - we need to stick to one octant */
+		if (ay < ax)
 		{
-			c_ptr = area(y1 + sy, x1);
-			if (cave_floor_grid(c_ptr)) return (TRUE);
-		}
-	}
-
-	/* Horizontal "knights" */
-	else if (ay == 1)
-	{
-		if (ax == 2)
-		{
-			c_ptr = area(y1, x1 + sx);
-			if (cave_floor_grid(c_ptr)) return (TRUE);
-		}
-	}
-
-
-	/* Calculate scale factor div 2 */
-	f2 = (ax * ay);
-
-	/* Calculate scale factor */
-	f1 = f2 << 1;
-
-
-	/* Travel horizontally */
-	if (ax >= ay)
-	{
-		/* Let m = dy / dx * 2 * (dy * dx) = 2 * dy * dy */
-		m = ay * ay << 1;
-
-		tx = x1 + sx;
-
-		/* Consider the special case where slope == 1. */
-		if (ax == ay)
-		{
-			ty = y1 + sy;
-			qy = -f2;
+			/* Look up the slope to use */
+			*slope = p_slope_min[ax][ay];
+	
+			while (*slope <= p_slope_max[ax][ay])
+			{
+				xx = x1 + sx * project_data[*slope][*sq].x;
+				yy = y1 + sy * project_data[*slope][*sq].y;
+		
+				/* Done? */
+				if ((xx == x1 + dx) && (yy == y1 + dy)) break;
+		
+				c_ptr = area(yy, xx);
+			
+				if (cave_los_grid(c_ptr))
+				{
+					/* Advance along ray */
+					(*sq)++;
+				}
+				else
+				{
+					/* Advance to the best position we have not looked at yet */
+					temp = project_data[*slope][*sq].slope;
+					*sq = project_data[*slope][*sq].square;
+					*slope = temp;
+				}
+			}
+			
+			/* No match? */
+			if (*slope > p_slope_max[ax][ay])
+			{
+				*slope = (p_slope_min[ax][ay] + p_slope_max[ax][ay]) / 2;
+			}
 		}
 		else
 		{
-			ty = y1;
-			qy = f2;
+			/* Look up the slope to use */
+			*slope = p_slope_min[ay][ax];
+	
+			while (*slope <= p_slope_max[ay][ax])
+			{
+				/* Note that the data offsets have x,y swapped */
+				xx = x1 + sx * project_data[*slope][*sq].y;
+				yy = y1 + sy * project_data[*slope][*sq].x;
+		
+				/* Done? */
+				if ((xx == x1 + dx) && (yy == y1 + dy)) break;
+		
+				c_ptr = area(yy, xx);
+		
+				if (cave_los_grid(c_ptr))
+				{
+					/* Advance along ray */
+					(*sq)++;
+				}
+				else
+				{
+					/* Advance to the best position we have not looked at yet */
+					temp = project_data[*slope][*sq].slope;
+					*sq = project_data[*slope][*sq].square;
+					*slope = temp;
+				}
+			}
+			
+			/* No match? */
+			if (*slope > p_slope_max[ay][ax])
+			{
+				*slope = (p_slope_min[ay][ax] + p_slope_max[ay][ax]) / 2;
+			}
 		}
-
-		/* Note (below) the case (qy == f2), where */
-		/* the LOS exactly meets the corner of a tile. */
-		while (x2 - tx)
-		{
-			c_ptr = area(ty, tx);
-			if (!cave_floor_grid(c_ptr)) return (FALSE);
-
-			qy += m;
-
-			if (qy < f2)
-			{
-				tx += sx;
-			}
-			else if (qy > f2)
-			{
-				ty += sy;
-				c_ptr = area(ty, tx);
-				if (!cave_floor_grid(c_ptr)) return (FALSE);
-				qy -= f1;
-				tx += sx;
-			}
-			else
-			{
-				ty += sy;
-				qy -= f1;
-				tx += sx;
-			}
-		}
+	
+		/*
+		 * Reset to start.
+		 *
+		 * Square zero is the the first square along the path.
+		 * It is not the starting square
+		 */
+		*sq = 0;
 	}
-
-	/* Travel vertically */
 	else
 	{
-		/* Let m = dx / dy * 2 * (dx * dy) = 2 * dx * dx */
-		m = ax * ax << 1;
-
-		ty = y1 + sy;
-
-		if (ax == ay)
+		/* Paranoia - square number is too large */
+		if (*sq >= slope_count[*slope])
 		{
-			tx = x1 + sx;
-			qx = -f2;
-		}
-		else
-		{
-			tx = x1;
-			qx = f2;
-		}
-
-		/* Note (below) the case (qx == f2), where */
-		/* the LOS exactly meets the corner of a tile. */
-		while (y2 - ty)
-		{
-			c_ptr = area(ty, tx);
-			if (!cave_floor_grid(c_ptr)) return (FALSE);
-
-			qx += m;
-
-			if (qx < f2)
-			{
-				ty += sy;
-			}
-			else if (qx > f2)
-			{
-				tx += sx;
-				c_ptr = area(ty, tx);
-				if (!cave_floor_grid(c_ptr)) return (FALSE);
-				qx -= f1;
-				ty += sy;
-			}
-			else
-			{
-				tx += sx;
-				qx -= f1;
-				ty += sy;
-			}
+			*sq = slope_count[*slope] - 1;
 		}
 	}
 
-	/* Assume los */
+	if (ay < ax)
+	{
+		/* Work out square to return */
+		*x = x1 + sx * project_data[*slope][*sq].x;
+		*y = y1 + sy * project_data[*slope][*sq].y;
+	}
+	else
+	{
+		/* Work out square to return */
+		*x = x1 + sx * project_data[*slope][*sq].y;
+		*y = y1 + sy * project_data[*slope][*sq].x;
+	}
+	
+	/* Next square, next time. */
+	(*sq)++;
+}
+
+/*
+ * Determine if a bolt spell cast from (y1,x1) to (y2,x2) will arrive
+ * at the final destination, assuming no monster gets in the way.
+ *
+ * This needs to be as fast as possible - so do not use the los_general()
+ * function.
+ *
+ * XXX XXX Should we use a version of los(), but choose the average slope?
+ *
+ * XXX XXX Should we use los_general() anyway?
+ *
+ * XXX XXX Should there be two slightly different versions of this function
+ *         a 'smart' one, and a 'dumb' but fast one?
+ */
+bool projectable(int y1, int x1, int y2, int x2)
+{
+	int y, x;
+
+	int grid_n = 0;
+	coord grid_g[512];
+
+	/* Check the projection path */
+	grid_n = project_path(grid_g, y1, x1, y2, x2, 0);
+
+	/* No grid is ever projectable from itself */
+	if (!grid_n) return (FALSE);
+
+	/* Final grid */
+	y = grid_g[grid_n - 1].y;
+	x = grid_g[grid_n - 1].x;
+
+	/* May not end in an unrequested grid */
+	if ((y != y2) || (x != x2)) return (FALSE);
+
+	/* Assume okay */
 	return (TRUE);
+}
+
+
+/* Does this square stop the projection? */
+static bool project_stop(cave_type *c_ptr, u16b flg)
+{
+	if (cave_los_grid(c_ptr))
+	{
+		/* Require fields do not block magic */
+		if (fields_have_flags(c_ptr->fld_idx, FIELD_INFO_NO_MAGIC))
+		{
+			return (TRUE);
+		}
+		
+		/* Is the square occupied by a monster? */
+		if (c_ptr->m_idx != 0)
+		{
+			if (flg & (PROJECT_STOP))
+			{
+				return (TRUE);
+			}
+			
+			if ((flg & (PROJECT_FRND)) && is_pet(&m_list[c_ptr->m_idx]))
+			{
+				return (TRUE);
+			}
+		}
+		
+		/* Seems ok */
+		return (FALSE);
+	}
+	
+	/* Blocked */	
+	return (TRUE);
+}
+
+
+/*
+ * Does this square stop a projection in a 'bad' way?
+ *
+ * We are trying to make the "best" projection for the player.
+ * If we use the other routine, then monsters will not be hit,
+ * even when we want them to be.
+ */
+static bool project_gen(cave_type *c_ptr, u16b flg)
+{
+	if (cave_los_grid(c_ptr))
+	{
+		/* Require fields do not block magic */
+		if (fields_have_flags(c_ptr->fld_idx, FIELD_INFO_NO_MAGIC))
+		{
+			return (TRUE);
+		}
+		
+		/* Is the square occupied by a monster? */
+		if (c_ptr->m_idx != 0)
+		{
+			/* Do _not_ stop with the project stop option */
+			
+			if ((flg & (PROJECT_FRND)) && is_pet(&m_list[c_ptr->m_idx]))
+			{
+				return (TRUE);
+			}
+		}
+		
+		/* Seems ok */
+		return (FALSE);
+	}
+	
+	/* Blocked */	
+	return (TRUE);
+}
+
+
+
+
+/*
+ * Determine the path taken by a projection.
+ *
+ * The path grids are saved into the grid array pointed to by "gp", and
+ * there should be room for at least "range" grids in "gp".  Note that
+ * due to the way in which distance is calculated, this function normally
+ * uses fewer than "range" grids for the projection path, so the result
+ * of this function should never be compared directly to "range".  Note
+ * that the initial grid (y1,x1) is never saved into the grid array, not
+ * even if the initial grid is also the final grid.  XXX XXX XXX
+ *
+ * The "flg" flags can be used to modify the behavior of this function.
+ *
+ * In particular, the "PROJECT_STOP" and "PROJECT_THRU" flags have the same
+ * semantics as they do for the "project" function, namely, that the path
+ * will stop as soon as it hits a monster, or that the path will continue
+ * through the destination grid, respectively.
+ *
+ * This function returns the number of grids (if any) in the path.  This
+ * function will return zero if and only if (y1,x1) and (y2,x2) are equal.
+ *
+ * This algorithm is the same as that used by "los_general()", however
+ * the grids are saved along the path.
+ */
+sint project_path(coord *gp, int y1, int x1, int y2, int x2, u16b flg)
+{
+	int y, x, sx, sy, dx, dy;
+
+	int sq, sl;
+
+	/* Absolute */
+	int ay, ax;
+	
+	int dist, temp;
+
+	cave_type *c_ptr;
+	
+	/* No path necessary (or allowed) */
+	if ((x1 == x2) && (y1 == y2)) return (0);
+
+	/* Extract the offset */
+	dy = y2 - y1;
+	dx = x2 - x1;
+	
+	/*
+	 * We only work for points that are less than MAX_SIGHT appart.
+	 * Note that MAX_RANGE < MAX_SIGHT
+	 */
+	dist = distance(y1, x1, y2, x2);
+	
+	if (dist > MAX_RANGE)
+	{
+		/* Rescale */
+		dx = (dx * MAX_RANGE) / dist;
+		dy = (dy * MAX_RANGE) / dist;
+	}
+	
+	/* Extract the absolute offset */
+	ay = ABS(dy);
+	ax = ABS(dx);
+	
+	/* Extract some signs */
+	sx = (dx < 0) ? -1 : 1;
+	sy = (dy < 0) ? -1 : 1;
+
+
+	/*
+	 * Start at the first square in the list.
+	 * This is a square adjacent to (x1,y1)
+	 */
+	sq = 0;
+	
+	/* Hack - we need to stick to one octant */
+	if (ay < ax)
+	{
+		/* Look up the slope to use */
+		sl = p_slope_min[ax][ay];
+	
+		while (sl <= p_slope_max[ax][ay])
+		{
+			x = x1 + sx * project_data[sl][sq].x;
+			y = y1 + sy * project_data[sl][sq].y;
+		
+			/* Done? */
+			if ((x == x1 + dx) && (y == y1 + dy)) break;
+		
+			/* Stop if out of bounds */
+			if (!in_bounds(y, x)) break;
+			
+			c_ptr = area(y, x);
+			
+			if (project_gen(c_ptr, flg))
+			{
+				/* Advance to the best position we have not looked at yet */
+				temp = project_data[sl][sq].slope;
+				sq = project_data[sl][sq].square;
+				sl = temp;
+			}
+			else
+			{
+				/* Advance along ray */
+				sq++;
+			}			
+		}
+			
+		/* No match? */
+		if (sl > p_slope_max[ax][ay])
+		{
+			sl = (p_slope_min[ax][ay] + p_slope_max[ax][ay]) / 2;
+		}
+	}
+	else
+	{
+		/* Look up the slope to use */
+		sl = p_slope_min[ay][ax];
+	
+		while (sl <= p_slope_max[ay][ax])
+		{
+			/* Note that the data offsets have x,y swapped */
+			x = x1 + sx * project_data[sl][sq].y;
+			y = y1 + sy * project_data[sl][sq].x;
+		
+			/* Done? */
+			if ((x == x1 + dx) && (y == y1 + dy)) break;
+		
+			/* Stop if out of bounds */
+			if (!in_bounds(y, x)) break;
+			
+			c_ptr = area(y, x);
+		
+			if (project_gen(c_ptr, flg))
+			{
+				/* Advance to the best position we have not looked at yet */
+				temp = project_data[sl][sq].slope;
+				sq = project_data[sl][sq].square;
+				sl = temp;
+			}
+			else
+			{
+				/* Advance along ray */
+				sq++;
+			}
+		}
+			
+		/* No match? */
+		if (sl > p_slope_max[ay][ax])
+		{
+			sl = (p_slope_min[ay][ax] + p_slope_max[ay][ax]) / 2;
+		}
+	}
+	
+	/* Scan over squares along path */
+	for (sq = 0; sq < MAX_RANGE; sq++)
+	{
+		if (ay < ax)
+		{
+			/* Work out square to use */
+			x = x1 + sx * project_data[sl][sq].x;
+			y = y1 + sy * project_data[sl][sq].y;
+		}
+		else
+		{
+			/* Work out square to use */
+			x = x1 + sx * project_data[sl][sq].y;
+			y = y1 + sy * project_data[sl][sq].x;
+		}
+	
+		/* Save the square */
+		gp[sq].x = x;
+		gp[sq].y = y;
+		
+		/* Sometimes stop at destination grid */
+		if (!(flg & (PROJECT_THRU)))
+		{
+			if ((x == x2) && (y == y2)) break;
+		}
+
+		/* Stop if out of bounds */
+		if (!in_bounds(y, x)) break;
+
+		c_ptr = area(y, x);
+		
+		/* Does the grid stop projection? */
+		if (project_stop(c_ptr, flg)) break;
+	}
+
+	/* Length (never more than MAX_RANGE) */
+	return (MIN(sq + 1, MAX_RANGE));
+}
+
+
+/* Will this square stop a ball spell? */
+static bool cave_stop_ball(cave_type *c_ptr)
+{
+	/* Walls block spells */
+	if (!cave_los_grid(c_ptr)) return (TRUE);
+				
+	/* Fields can block magic */
+	if (fields_have_flags(c_ptr->fld_idx, FIELD_INFO_NO_MAGIC)) return (TRUE);
+	
+	/* Seems ok */
+	return (FALSE);
+}
+
+/*
+ * Use Modified version of los() for calculation of balls.
+ * Balls are stopped by walls, and by fields.
+ */
+bool in_ball_range(int y1, int x1, int y2, int x2)
+{
+	return (los_general(y1, x1, y2, x2, cave_stop_ball));
+}
+
+
+/*
+ * Does the grid stop disintegration?
+ */
+static bool cave_stop_disintegration(cave_type *c_ptr)
+{
+	/* Some terrain block disintegration */
+	if (((c_ptr->feat >= FEAT_PERM_EXTRA) && 
+	  	(c_ptr->feat <= FEAT_PERM_SOLID)) || 
+	  	(c_ptr->feat == FEAT_MOUNTAIN)) return (TRUE);
+				
+	/* Fields can block disintegration to */
+	if (fields_have_flags(c_ptr->fld_idx, FIELD_INFO_PERM)) return (TRUE);
+
+	/* Seems ok */
+	return (FALSE);
+}
+
+/*
+ * Use modified version of los() for calculation of disintegration balls.
+ * Disintegration effects are stopped by permanent walls and fields.
+ */
+bool in_disintegration_range(int y1, int x1, int y2, int x2)
+{
+	return (los_general(y1, x1, y2, x2, cave_stop_disintegration));
+}
+
+
+/*
+ * Standard "find me a location" function
+ *
+ * Obtains a legal location within the given distance of the initial
+ * location, and with "los()" from the source to destination location.
+ *
+ * This function is often called from inside a loop which searches for
+ * locations while increasing the "d" distance.
+ */
+void scatter(int *yp, int *xp, int y, int x, int d)
+{
+	int nx = 0, ny = 0;
+
+	int c = 0;
+
+	/* Pick a location */
+	while (c++ < 1000)
+	{
+		/* Pick a new location */
+		ny = rand_spread(y, d);
+		nx = rand_spread(x, d);
+
+		/* Ignore annoying locations */
+		if (!in_bounds(ny, nx)) continue;
+
+		/* Ignore excessively distant locations */
+		if ((d > 1) && (distance(y, x, ny, nx) > d)) continue;
+
+		/* Require line of sight */
+		if (los(y, x, ny, nx)) break;
+	}
+
+	if (c > 999)
+	{
+		ny = y;
+		nx = x;
+	}
+
+	/* Save the location */
+	(*yp) = ny;
+	(*xp) = nx;
 }
 
 
@@ -404,10 +883,7 @@ bool player_can_see_bold(int y, int x)
  */
 bool no_lite(void)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
-	return (!player_can_see_bold(py, px));
+	return (!player_can_see_bold(p_ptr->py, p_ptr->px));
 }
 
 
@@ -416,10 +892,9 @@ bool no_lite(void)
  *
  * Used by destruction spells, and for placing stairs, etc.
  */
-bool cave_valid_grid(cave_type *c_ptr)
+bool cave_valid_grid(const cave_type *c_ptr)
 {
 	s16b this_o_idx, next_o_idx = 0;
-
 
 	/* Forbid perma-grids */
 	if (cave_perma_grid(c_ptr)) return (FALSE);
@@ -530,7 +1005,7 @@ static void image_random(byte *ap, char *cp)
 /*
  * The 16x16 tile of the terrain supports lighting
  */
-static bool feat_supports_lighting[256] =
+static const bool feat_supports_lighting[256] =
 {
 	FALSE, TRUE,  TRUE,  TRUE,  FALSE, FALSE, TRUE,  TRUE, /* 0x00 */
 	TRUE,  TRUE,  TRUE,  TRUE,  TRUE,  TRUE,  TRUE,  TRUE, /* 0x08 */
@@ -572,10 +1047,9 @@ static bool feat_supports_lighting[256] =
  * and "darkness" on various "base" colours.
  *
  * This is used to do dynamic lighting effects in ascii :-)
- * At the moment, only the various "floor" tiles are affected.
  */
 
-static byte lighting_colours[16] =
+static const byte lighting_colours[16] =
 {
 	/* TERM_DARK */
 	TERM_L_DARK,
@@ -626,7 +1100,7 @@ static byte lighting_colours[16] =
 	TERM_L_UMBER,
 };
 
-static byte darking_colours[16] =
+static const byte darking_colours[16] =
 {
 	/* TERM_DARK */
 	TERM_DARK,
@@ -886,11 +1360,6 @@ static void variable_player_graph(byte *a, char *c)
  * appear as random "monsters" or "objects", but note that these random
  * "monsters" and "objects" are really just "colored ascii symbols".
  *
- * Note that "floors" and "invisible traps" (and "zero" features) are
- * drawn as "floors" using a special check for optimization purposes,
- * and these are the only features which get drawn using the special
- * lighting effects activated by "view_special_lite".
- *
  * Note the use of the new "terrain feature" information.  Note that the
  * assumption that all interesting "objects" and "terrain features" are
  * memorized allows extremely optimized processing below.  Note the use
@@ -973,12 +1442,19 @@ void map_info(int y, int x, byte *ap, char *cp)
 	s16b halluc = p_ptr->image;
 
 	/* Get the cave */
-	c_ptr = area(y,x);
+	c_ptr = area(y, x);
 
 	/* Info flags */
 	info = c_ptr->info;
 
-	/* Is this feature memorized? */
+	/*
+	 * Is this feature memorized?
+	 * 
+	 * If the player is blind - there are now CAVE_MNLT squares.
+	 * Also there are no CAVE_LITE squares.
+	 *
+	 * This means that blind players only see CAVE_MARK squares.
+	 */
 	if (info & (CAVE_MARK | CAVE_LITE | CAVE_MNLT))
 	{
 		feat = c_ptr->feat;
@@ -1001,12 +1477,11 @@ void map_info(int y, int x, byte *ap, char *cp)
 		 * extremely important routine is good.)
 		 */
 		if (view_bright_lite && !p_ptr->blind
-			 && (!(feat & 0x20) || view_granite_lite))
+			 && (!(feat & 0x20) || (view_granite_lite && !view_torch_grids)))
 		{
-			/* It's not in view? */
+			/* It's not in view or no lighting effects? */
 			if (((!(info & (CAVE_VIEW))) && view_special_lite) ||
-				((!(info & (CAVE_GLOW | CAVE_LITE | CAVE_MNLT)))
-					 &&  view_torch_grids))
+				(!(info & (CAVE_GLOW | CAVE_LITE | CAVE_MNLT))))
 			{
 				/* If is ascii graphics */
 				if (a < 16)
@@ -1037,7 +1512,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 		}
 
 		/* Hack -- rare random hallucination, except on outer dungeon walls */
-		if (halluc && !((feat == FEAT_PERM_SOLID) || randint0(256)))
+		if (halluc && (feat != FEAT_PERM_SOLID) && one_in_(256))
 		{
 			/* Hallucinate */
 			image_random(&a, &c);
@@ -1490,6 +1965,7 @@ void note_spot(int y, int x)
 	lite_spot(y, x);
 }
 
+
 /*
  * This function is nearly identical to the above one - but since it
  * is used in lighting / darkening the wilderness - it doesn't have to
@@ -1500,7 +1976,6 @@ void note_spot(int y, int x)
  * Also note that FEAT_FLOOR is not common in the wilderness - this means
  * that the optimisations in note_spot() probably are not useful.
  */
-
 void note_wild_spot(cave_type *c_ptr)
 {
 	s16b this_o_idx, next_o_idx = 0;
@@ -1824,8 +2299,10 @@ void prt_map(void)
  * Hack -- priority array (see below)
  *
  * Note that all "walls" always look like "secret doors" (see "map_info()").
+ *
+ * This really needs to be done a better way.
  */
-static byte priority_table[][2] =
+static const byte priority_table[][2] =
 {
 	/* Dark */
 	{ FEAT_NONE, 2 },
@@ -1903,32 +2380,10 @@ static byte priority(byte a, char c)
 		if ((f_ptr->x_char == c) && (f_ptr->x_attr == a)) return (p1);
 	}
 
-	/* Default */
+	/* Default  (The player /objects/fields?) */
 	return (20);
 }
 
-/*
- * Tunnels are important.  (While bare floor is not.)
- */
-static int priority_tunnel(int y, int x)
-{
-	int i, count = 0;
-
-	/* Count number of floors around square */
-	for (i = 1; i < 10; i++)
-	{
-		if (!in_bounds2(y + ddy[i], x + ddx[i])) continue;
-
-		if (cave_floor_grid(&cave[y + ddy[i]][x + ddx[i]]))
-			count++;
-	}
-
-	/* Three or less floor squares - Important */
-	if (count < 4) return (19);
-
-	/* Not important. */
-	return (0);
-}
 
 /*
  * Display a "small-scale" map of the dungeon in the active Term
@@ -1955,10 +2410,19 @@ void display_map(int *cy, int *cx)
 
 	int i, j, x, y;
 
+	byte feat;
+	
 	byte ta;
 	char tc;
+	
+#ifdef USE_TRANSPARENCY
+	byte tta;
+	char ttc;
+#endif  /* USE_TRANSPARENCY */
 
 	byte tp;
+
+	bool road;
 
 	u16b w_type, w_info, town;
 
@@ -1966,6 +2430,11 @@ void display_map(int *cy, int *cx)
 	char **mc;
 
 	byte **mp;
+
+#ifdef USE_TRANSPARENCY
+	byte **mta;
+	char **mtc;
+#endif /* USE_TRANSPARENCY */
 
 	bool old_view_special_lite = view_special_lite;
 	bool old_view_granite_lite = view_granite_lite;
@@ -1984,9 +2453,15 @@ void display_map(int *cy, int *cx)
 	view_granite_lite = FALSE;
 
 	/* Allocate the maps */
-	C_MAKE(ma, (hgt + 2), byte_ptr);
-	C_MAKE(mc, (hgt + 2), char_ptr);
-	C_MAKE(mp, (hgt + 2), byte_ptr);
+	C_MAKE(ma, (hgt + 2), byte*);
+	C_MAKE(mc, (hgt + 2), char*);
+	C_MAKE(mp, (hgt + 2), byte*);
+
+#ifdef USE_TRANSPARENCY
+	C_MAKE(mta, (hgt + 2), byte*);
+	C_MAKE(mtc, (hgt + 2), char*);
+#endif /* USE_TRANSPARENCY */
+
 
 	/* Allocate and wipe each line map */
 	for (i = 0; i < (hgt + 2); i++)
@@ -1995,6 +2470,11 @@ void display_map(int *cy, int *cx)
 		C_MAKE(ma[i], (wid + 2), byte);
 		C_MAKE(mc[i], (wid + 2), char);
 		C_MAKE(mp[i], (wid + 2), byte);
+
+#ifdef USE_TRANSPARENCY
+		C_MAKE(mta[i], (wid + 2), byte);
+		C_MAKE(mtc[i], (wid + 2), char);
+#endif /* USE_TRANSPARENCY */
 	}
 
 	/* Clear the chars and attributes */
@@ -2005,6 +2485,11 @@ void display_map(int *cy, int *cx)
 			/* Nothing here */
 			ma[y][x] = TERM_WHITE;
 			mc[y][x] = ' ';
+
+#ifdef USE_TRANSPARENCY
+			mta[y][x] = TERM_WHITE;
+			mtc[y][x] = ' ';
+#endif /* USE_TRANSPARENCY */
 
 			/* No priority */
 			mp[y][x] = 0;
@@ -2044,40 +2529,65 @@ void display_map(int *cy, int *cx)
 				w_type = wild[j + y][i + x].done.wild;
 				w_info = wild[j + y][i + x].done.info;
 
-				/* Get attr / char pair for wilderness block type */
-
-				/* This is a nasty hack */
-
-				/* Add in effects of sea / roads */
-				if ((w_type >= WILD_SEA) || (w_info & (WILD_INFO_WATER)))
+				if (w_type < WILD_SEA)
 				{
-					ma[j + 1][i + 1] = TERM_BLUE;
-					mc[j + 1][i + 1] = '~';
+					/* Normal terrain */
+					feat = wild_gen_data[w_type].feat;
+					
+					/* Allow roads to be drawn */
+					road = TRUE;
+				}
+				else
+				{
+					feat = FEAT_DEEP_WATER;
+					
+					/* No roads please */
+					road = FALSE;
+				}
+				
+				/* Add in effect of other specials */
+				if (w_info & (WILD_INFO_WATER))
+				{
+					feat = FEAT_DEEP_WATER;
 				}
 				else if (w_info & (WILD_INFO_ACID))
 				{
-					ma[j + 1][i + 1] = TERM_GREEN;
-					mc[j + 1][i + 1] = '~';
+					feat = FEAT_DEEP_ACID;
 				}
 				else if (w_info & (WILD_INFO_LAVA))
 				{
-					ma[j + 1][i + 1] = TERM_RED;
-					mc[j + 1][i + 1] = '~';
+					feat = FEAT_DEEP_LAVA;
 				}
-				else if (w_info & (WILD_INFO_ROAD))
+
+				/* Get attr / char pair for wilderness block type */
+				ma[j + 1][i + 1] = f_info[feat].x_attr;
+				mc[j + 1][i + 1] = f_info[feat].x_char;
+
+#ifdef USE_TRANSPARENCY
+				if (f_info[feat].w_attr)
+				{
+					mta[j + 1][i + 1] = f_info[feat].w_attr;
+					mtc[j + 1][i + 1] = f_info[feat].w_char;
+				}
+				else
+				{
+					mta[j + 1][i + 1] = ma[j + 1][i + 1];
+					mtc[j + 1][i + 1] = mc[j + 1][i + 1];
+				}
+#endif /* USE_TRANSPARENCY */
+				
+				/* This is a nasty hack */
+
+				/* Add in effects of roads */
+				if ((w_info & (WILD_INFO_ROAD)) && road)
 				{
 					ma[j + 1][i + 1] = TERM_UMBER;
 					mc[j + 1][i + 1] = '+';
 				}
-				else if (w_info & (WILD_INFO_TRACK))
+				else if ((w_info & (WILD_INFO_TRACK)) && road)
 				{
 					ma[j + 1][i + 1] = TERM_L_UMBER;
 					mc[j + 1][i + 1] = '+';
-				}
-				else
-				{
-					ma[j + 1][i + 1] = wild_gen_data[w_type].w_attr;
-					mc[j + 1][i + 1] = wild_gen_data[w_type].w_char;
 				}
 
 				/* Hack - draw towns/specials */
@@ -2091,7 +2601,6 @@ void display_map(int *cy, int *cx)
 					/* Hack make a char /attr */
 					ma[j + 1][i + 1] = TERM_WHITE;
 					mc[j + 1][i + 1] = '0' + town % 10;
-
 				}
 
 				/* Finally show position of player */
@@ -2128,24 +2637,15 @@ void display_map(int *cy, int *cx)
 				x = i * xfactor / xrat + 1;
 				y = j * yfactor / yrat + 1;
 
-				/* Priority zero */
-				tp = 0;
-
-				if (cave_floor_grid(&cave[j][i]))
-				{
-					/* Corridors are important */
-					tp = priority_tunnel(j, i);
-				}
-
 				/* Extract the current attr/char at that map location */
 #ifdef USE_TRANSPARENCY
-				map_info(j, i, &ta, &tc, &ta, &tc);
+				map_info(j, i, &ta, &tc, &tta, &ttc);
 #else /* USE_TRANSPARENCY */
 				map_info(j, i, &ta, &tc);
 #endif /* USE_TRANSPARENCY */
 
 				/* Extract the priority of that attr/char */
-				tp += priority(ta, tc);
+				tp = priority(ta, tc);
 
 				/* Save "best" */
 				if (mp[y][x] < tp)
@@ -2155,6 +2655,12 @@ void display_map(int *cy, int *cx)
 
 					/* Save the attr */
 					ma[y][x] = ta;
+
+#ifdef USE_TRANSPARENCY
+					/* Save the transparency graphic */
+					mtc[y][x] = ttc;
+					mta[y][x] = tta;
+#endif /* USE_TRANSPARENCY */
 
 					/* Save priority */
 					mp[y][x] = tp;
@@ -2180,20 +2686,24 @@ void display_map(int *cy, int *cx)
 	/* Display each map line in order */
 	for (j = 0; j < hgt + 2; ++j)
 	{
-		/* Start a new line */
-		Term_gotoxy(COL_MAP - 1, j);
-
 		/* Display the line */
 		for (i = 0; i < wid + 2; ++i)
 		{
 			ta = ma[j][i];
 			tc = mc[j][i];
 
-			/* Add the character */
-			Term_addch(ta, tc);
+			#ifdef USE_TRANSPARENCY
+			tta = mta[j][i];
+			ttc = mtc[j][i];
+			
+			/* Hack -- Queue it */
+			Term_queue_char(COL_MAP + i - 1, j, ta, tc, tta, ttc);
+			#else /* USE_TRANSPARENCY */
+			
+			Term_queue_char(COL_MAP + i - 1, j, ta, tc);
+			#endif /* USE_TRANSPARENCY */
 		}
 	}
-
 
 	/* Restore lighting effects */
 	view_special_lite = old_view_special_lite;
@@ -2205,13 +2715,21 @@ void display_map(int *cy, int *cx)
 		/* Free one row each array */
 		C_FREE(ma[i], (wid + 2), byte);
 		C_FREE(mc[i], (wid + 2), char);
+#ifdef USE_TRANSPARENCY
+		C_FREE(mta[i], (wid + 2), byte);
+		C_FREE(mtc[i], (wid + 2), char);
+#endif /* USE_TRANSPARENCY */
 		C_FREE(mp[i], (wid + 2), byte);
 	}
 
 	/* Free the maps */
-	C_FREE(ma, (hgt + 2), byte_ptr);
-	C_FREE(mc, (hgt + 2), char_ptr);
-	C_FREE(mp, (hgt + 2), byte_ptr);
+	C_FREE(ma, (hgt + 2), byte*);
+	C_FREE(mc, (hgt + 2), char*);
+#ifdef USE_TRANSPARENCY
+	C_FREE(mta, (hgt + 2), byte*);
+	C_FREE(mtc, (hgt + 2), char*);
+#endif /* USE_TRANSPARENCY */
+	C_FREE(mp, (hgt + 2), byte*);
 }
 
 
@@ -2425,7 +2943,9 @@ void do_cmd_view_map(void)
  *
  * A grid may be marked as "CAVE_ROOM" which means that it is part of a "room".
  * This is used only in dungeon generation.  Perhaps this flag can be used in
- * other code if required.
+ * other code if required.  This is an alias for "CAVE_MNLT" which is set if
+ * the square is lit by a monsters light source.  Hack: If the player is blind,
+ * no squares have this flag.
  *
  *
  * A grid may be marked as "CAVE_ICKY" which means it is part of a "vault",
@@ -2439,7 +2959,12 @@ void do_cmd_view_map(void)
  * Note that currently the processing of the "view_perma_grids" option is
  * broken.  If it is off, then you can't see floor with the "CAVE_GLOW" flag.
  * Perhaps the "view_perma_grids" flag, and the "view_torch_grids" flags should
- * be combined.
+ * be combined.  The "view_torch_grids" option is also broken.  When on, walls
+ * are not shown properly.  This is due to optimisations elsewhere...
+ *
+ * XXX XXX Perhaps these bugs can be fixed, or these flags removed in some way.
+ * Do we really need all this optional functionality?
+ *
  *
  * Note that the new "update_view()" method allows, among other things, a room
  * to be "partially" seen as the player approaches it, with a growing cone of
@@ -2562,12 +3087,6 @@ void forget_view(void)
 
 
 /*
- * Maximum number of slopes in a single octant
- */
-#define VINFO_MAX_SLOPES 135
-
-
-/*
  * Mask of bits used in a single octant
  */
 #define VINFO_BITS_4 0x0000007FL
@@ -2591,11 +3110,7 @@ struct vinfo_type
 	s16b grid_x[8];
 	s16b grid_y[8];
 
-	u32b bits_4;
-	u32b bits_3;
-	u32b bits_2;
-	u32b bits_1;
-	u32b bits_0;
+	u32b bits[5];
 
 	vinfo_type *next_0;
 	vinfo_type *next_1;
@@ -2631,22 +3146,20 @@ typedef struct vinfo_hack vinfo_hack;
 /*
  * Temporary data used by "vinfo_init()"
  *
- *	- Number of grids
- *
  *	- Number of slopes
  *
  *	- Slope values
  *
- *	- Slope range per grid
+ *  - Slope min and max for each square
  */
-struct vinfo_hack {
-
+struct vinfo_hack
+{
 	int num_slopes;
 
-	long slopes[VINFO_MAX_SLOPES];
+	s32b slopes[VINFO_MAX_SLOPES];
 
-	long slopes_min[MAX_SIGHT+1][MAX_SIGHT+1];
-	long slopes_max[MAX_SIGHT+1][MAX_SIGHT+1];
+	s32b slopes_min[MAX_SIGHT+1][MAX_SIGHT+1];
+	s32b slopes_max[MAX_SIGHT+1][MAX_SIGHT+1];
 };
 
 
@@ -2656,7 +3169,7 @@ struct vinfo_hack {
  *
  * We use "u" to point to an array of long integers.
  */
-static bool ang_sort_comp_hook_longs(vptr u, vptr v, int a, int b)
+static bool ang_sort_comp_hook_longs(const vptr u, const vptr v, int a, int b)
 {
 	long *x = (long*)(u);
 
@@ -2672,7 +3185,7 @@ static bool ang_sort_comp_hook_longs(vptr u, vptr v, int a, int b)
  *
  * We use "u" to point to an array of long integers.
  */
-static void ang_sort_swap_hook_longs(vptr u, vptr v, int a, int b)
+static void ang_sort_swap_hook_longs(const vptr u, const vptr v, int a, int b)
 {
 	long *x = (long*)(u);
 
@@ -2726,7 +3239,7 @@ static void vinfo_init_aux(vinfo_hack *hack, int y, int x, long m)
 
 
 /*
- * Initialize the "vinfo" array
+ * Initialize the "vinfo" and "project_data" arrays
  *
  * Full Octagon (radius 20), Grids=1149
  *
@@ -2741,7 +3254,7 @@ static void vinfo_init_aux(vinfo_hack *hack, int y, int x, long m)
  */
 errr vinfo_init(void)
 {
-	int i;
+	int i, j;
 	int y, x;
 
 	long m;
@@ -2770,6 +3283,12 @@ errr vinfo_init(void)
 			/* Default slope range */
 			hack->slopes_min[y][x] = 999999999;
 			hack->slopes_max[y][x] = 0;
+
+			/* Clear the p_slope_min and max arrays */
+			p_slope_min[x][y] = VINFO_MAX_SLOPES;
+			p_slope_max[x][y] = 0;
+			p_slope_min[y][x] = VINFO_MAX_SLOPES;
+			p_slope_max[y][x] = 0;
 
 			/* Paranoia */
 			if (num_grids >= VINFO_MAX_GRIDS)
@@ -2833,6 +3352,8 @@ errr vinfo_init(void)
 	ang_sort(hack->slopes, NULL, hack->num_slopes);
 
 
+	/* Clear the counters for each slope */
+	(void) C_WIPE(slope_count, VINFO_MAX_SLOPES, int);
 
 	/* Enqueue player grid */
 	queue[queue_tail++] = &vinfo[0];
@@ -2883,16 +3404,19 @@ errr vinfo_init(void)
 
 			/* Memorize intersection slopes (for non-player-grids) */
 			if ((e > 0) &&
-			    (hack->slopes_min[y][x] < m) &&
-			    (m < hack->slopes_max[y][x]))
+			    (hack->slopes_min[y][x] < m) && (m < hack->slopes_max[y][x]))
 			{
+				/* We use this slope */
+				slope_count[i]++;
+				
+				/* Save the bit that stands for this slope */
 				switch (i / 32)
 				{
-					case 4: vinfo[e].bits_4 |= (1L << (i % 32)); break;
-					case 3: vinfo[e].bits_3 |= (1L << (i % 32)); break;
-					case 2: vinfo[e].bits_2 |= (1L << (i % 32)); break;
-					case 1: vinfo[e].bits_1 |= (1L << (i % 32)); break;
-					case 0: vinfo[e].bits_0 |= (1L << (i % 32)); break;
+					case 4: vinfo[e].bits[4] |= (1L << (i % 32)); break;
+					case 3: vinfo[e].bits[3] |= (1L << (i % 32)); break;
+					case 2: vinfo[e].bits[2] |= (1L << (i % 32)); break;
+					case 1: vinfo[e].bits[1] |= (1L << (i % 32)); break;
+					case 0: vinfo[e].bits[0] |= (1L << (i % 32)); break;
 				}
 			}
 		}
@@ -2949,19 +3473,119 @@ errr vinfo_init(void)
 
 
 	/* Verify maximal bits XXX XXX XXX */
-	if (((vinfo[1].bits_4 | vinfo[2].bits_4) != VINFO_BITS_4) ||
-	    ((vinfo[1].bits_3 | vinfo[2].bits_3) != VINFO_BITS_3) ||
-	    ((vinfo[1].bits_2 | vinfo[2].bits_2) != VINFO_BITS_2) ||
-	    ((vinfo[1].bits_1 | vinfo[2].bits_1) != VINFO_BITS_1) ||
-	    ((vinfo[1].bits_0 | vinfo[2].bits_0) != VINFO_BITS_0))
+	if (((vinfo[1].bits[4] | vinfo[2].bits[4]) != VINFO_BITS_4) ||
+	    ((vinfo[1].bits[3] | vinfo[2].bits[3]) != VINFO_BITS_3) ||
+	    ((vinfo[1].bits[2] | vinfo[2].bits[2]) != VINFO_BITS_2) ||
+	    ((vinfo[1].bits[1] | vinfo[2].bits[1]) != VINFO_BITS_1) ||
+	    ((vinfo[1].bits[0] | vinfo[2].bits[0]) != VINFO_BITS_0))
 	{
 		quit("Incorrect bit masks!");
 	}
 
+	/* Create the project_data array */
+	for (i = 0; i < VINFO_MAX_SLOPES; i++)
+	{
+		/* Create the list of squares intersected by this slope */
+		C_MAKE(project_data[i], slope_count[i], project_type);
+		
+		j = 0;
+		
+		for (y = 0; y <= MAX_SIGHT; ++y)
+		{
+			for (x = y; x <= MAX_SIGHT; ++x)
+			{
+				/* Only if in range */
+				if (distance(0, 0, y, x) > MAX_SIGHT) continue;
+				
+				/* Hack - ignore the origin */
+				if (!x && !y) continue;
+			
+				m = hack->slopes[i];
+
+				/* Does this square intersect the line? */
+			    if ((hack->slopes_min[y][x] < m) &&
+					 (m < hack->slopes_max[y][x]))
+				{
+					/* Save the square */
+					project_data[i][j].x = x;
+					project_data[i][j].y = y;
+					
+					/* Add in the slopes information */
+					if (p_slope_min[x][y] > i) p_slope_min[x][y] = i;
+					if (p_slope_max[x][y] < i) p_slope_max[x][y] = i;
+					
+					/* Next square... */			
+					j++;
+				}
+			}
+		}
+	}
+	
+	
+	/* 
+	 * Add in the final information in the projection table.
+	 *
+	 * We need to know where to go to if the current square
+	 * is blocked.  This will be the first slope that does
+	 * not contain this square.  The position along that slope
+	 * will be the first square that is not already scanned
+	 * by the current slope.
+	 *
+	 * This means that we may end up scanning squares twice,
+	 * but the simplification of the algorithm is worth it. 
+	 */
+	for (i = 0; i < VINFO_MAX_SLOPES; i++)
+	{
+		for (j = 0; j < slope_count[i]; j++)
+		{
+			/* Set default case. */
+			project_data[i][j].slope = VINFO_MAX_SLOPES;
+			project_data[i][j].square = 0;
+			
+			/* Find first slope without this square */
+			for (x = i + 1; x < VINFO_MAX_SLOPES; x++)
+			{
+				bool found = FALSE;
+				
+				for (y = 0; y < slope_count[x]; y++)
+				{
+					if ((project_data[x][y].x == project_data[i][j].x) &&
+						(project_data[x][y].y == project_data[i][j].y))
+					{
+						found = TRUE;
+						break;
+					}
+				}
+				
+				/* Did we find the blocking square? */
+				if (found) continue;
+				
+				/* Do we already have an answer? */
+				if (project_data[i][j].slope != VINFO_MAX_SLOPES) break;
+				
+				/* We did not find the square - save the row */
+				project_data[i][j].slope = x;
+				
+				/* Paranoia */
+				project_data[i][j].square = 0;
+				
+				/* Find the first non-matching square */
+				for (y = 0; y < slope_count[x]; y++)
+				{
+					if ((project_data[x][y].x != project_data[i][y].x) ||
+						(project_data[x][y].y != project_data[i][y].y))
+					{
+						/* Not a match */
+						project_data[i][j].square = y;
+						break;
+					} 
+				}
+			}
+		}	
+	}
 
 	/* Kill hack */
 	FREE(hack, vinfo_hack);
-
 
 	/* Success */
 	return (0);
@@ -3032,11 +3656,24 @@ errr vinfo_init(void)
  * which are needed by this function are stored in the large "vinfo" array
  * (above), which is initialised at startup.
  *
+ * This has been changed to allow a more circular view, due to the more
+ * advanced distance() function in Zangband.  There are now 135 lines of sight
+ * and one more 32bit flag to hold the data.
+ *
  * Hack -- The queue must be able to hold more than VINFO_MAX_GRIDS grids
  * because the grids at the edge of the field of view use "grid zero" as
  * their children, and the queue must be able to hold several of these
  * special grids.  Because the actual number of required grids is bizarre,
  * we simply allocate twice as many as we would normally need.  XXX XXX XXX
+ *
+ * This method is somewhat complicated and obscure... perhaps the
+ * 'radar sweep' method used by los() and friends is better.  I need to prove
+ * that the new method does not overscan grids.  If that is true, then it is
+ * probably more efficient than this method. XXX XXX
+ *
+ * If we do end up using the new los code, we may need to convert some of the
+ * ints to bytes to save memory. It might also be nice to scan one quadrant at
+ * a time, instead of by octants. XXX XXX XXX
  */
 void update_view(void)
 {
@@ -3169,11 +3806,11 @@ void update_view(void)
 			p = queue[queue_head++];
 
 			/* Check bits */
-			if ((bits0 & (p->bits_0)) ||
-			    (bits1 & (p->bits_1)) ||
-			    (bits2 & (p->bits_2)) ||
-			    (bits3 & (p->bits_3)) ||
-			    (bits4 & (p->bits_4)))
+			if ((bits0 & (p->bits[0])) ||
+			    (bits1 & (p->bits[1])) ||
+			    (bits2 & (p->bits[2])) ||
+			    (bits3 & (p->bits[3])) ||
+			    (bits4 & (p->bits[4])))
 			{
 				/* Get location */
 				x = p->grid_x[o2] + px;
@@ -3183,11 +3820,11 @@ void update_view(void)
 				if (!in_bounds2(y, x))
 				{
 					/* Clear bits */
-					bits0 &= ~(p->bits_0);
-					bits1 &= ~(p->bits_1);
-					bits2 &= ~(p->bits_2);
-					bits3 &= ~(p->bits_3);
-					bits4 &= ~(p->bits_4);
+					bits0 &= ~(p->bits[0]);
+					bits1 &= ~(p->bits[1]);
+					bits2 &= ~(p->bits[2]);
+					bits3 &= ~(p->bits[3]);
+					bits4 &= ~(p->bits[4]);
 
 					continue;
 				}
@@ -3286,11 +3923,11 @@ void update_view(void)
 				else
 				{
 					/* Clear bits */
-					bits0 &= ~(p->bits_0);
-					bits1 &= ~(p->bits_1);
-					bits2 &= ~(p->bits_2);
-					bits3 &= ~(p->bits_3);
-					bits4 &= ~(p->bits_4);
+					bits0 &= ~(p->bits[0]);
+					bits1 &= ~(p->bits[1]);
+					bits2 &= ~(p->bits[2]);
+					bits3 &= ~(p->bits[3]);
+					bits4 &= ~(p->bits[4]);
 
 					/* All ready seen.  Next... */
 					if (info & CAVE_VIEW) continue;
@@ -3433,6 +4070,7 @@ void update_view(void)
 		/* Was "CAVE_VIEW", is now not "CAVE_VIEW" */
 		if (!(info & (CAVE_VIEW)))
 		{
+			/* Forget memorized floor grids from view_torch_grids */
 			if ((info & (CAVE_GLOW) && !view_perma_grids)
 				 && cave_floor_grid(c_ptr))
 			{
@@ -3501,7 +4139,7 @@ static void mon_lite_hack(int y, int x)
  * denote squares illuminated by monsters.
  *
  * The CAVE_TEMP flag is used to store the state during the
- * updating.  Only squares in view of the player, whos state
+ * updating.  Only squares in view of the player, whose state
  * changes are drawn via lite_spot().
  */
 void update_mon_lite(void)
@@ -3771,6 +4409,13 @@ void update_mon_lite(void)
 			/* The is the square newly lit and visible? */
 			if ((c_ptr->info & (CAVE_VIEW | CAVE_TEMP)) == CAVE_VIEW)
 			{
+				/* Do we have a monster on this square? */
+				if (c_ptr->m_idx)
+				{
+					/* Update the monster */
+					update_mon(c_ptr->m_idx, FALSE);
+				}
+				
 				/* It is now lit */
 				note_spot(fy, fx);
 			}
@@ -3785,6 +4430,7 @@ void update_mon_lite(void)
 	/* Finished with temp_n */
 	temp_n = 0;
 }
+
 
 void clear_mon_lite(void)
 {
@@ -3828,9 +4474,6 @@ static int flow_n = 0;
  */
 void forget_flow(void)
 {
-
-#ifdef MONSTER_FLOW
-
 	int x, y;
 
 	/* Nothing to forget */
@@ -3849,13 +4492,8 @@ void forget_flow(void)
 
 	/* Start over */
 	flow_n = 0;
-
-#endif /* MONSTER_FLOW */
-
 }
 
-
-#ifdef MONSTER_FLOW
 
 /*
  * Hack - speed up the update_flow algorithm by only doing
@@ -3864,9 +4502,6 @@ void forget_flow(void)
  */
 static u16b flow_x = 0;
 static u16b flow_y = 0;
-
-
-#endif /* MONSTER_FLOW */
 
 
 /*
@@ -3884,9 +4519,6 @@ static u16b flow_y = 0;
  */
 void update_flow(void)
 {
-
-#ifdef MONSTER_FLOW
-
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
@@ -3898,9 +4530,6 @@ void update_flow(void)
 
 	cave_type *c_ptr;
 	byte feat;
-
-	/* Hack -- disabled */
-	if (!flow_by_sound) return;
 
 	/* Paranoia -- make sure the array is empty */
 	if (temp_n) return;
@@ -4005,9 +4634,6 @@ void update_flow(void)
 			if (flow_tail == flow_head) flow_tail = old_head;
 		}
 	}
-
-#endif /* MONSTER_FLOW */
-
 }
 
 
@@ -4228,9 +4854,6 @@ void wiz_dark(void)
 }
 
 
-
-
-
 /*
  * Change the "feat" flag for a grid, and notice/redraw the grid
  */
@@ -4242,135 +4865,9 @@ void cave_set_feat(int y, int x, int feat)
 	c_ptr->feat = feat;
 
 	/* Notice + Redraw */
-	note_spot(y, x);
+	if (character_dungeon) note_spot(y, x);
 }
 
-
-/*
- * Calculate incremental motion
- * Assumes that (*x, *y) lies on the path from (x1, y1) to (x2, y2).
- */
-void mmove2(int *y, int *x, int y1, int x1, int y2, int x2)
-{
-	int shift;
-
-	/* Assume horizontal movement */
-	int *max = x, *min = y;
-	int min1 = y1, min2 = y2;
-	int max1 = x1, max2 = x2;
-	int dmin, dmax;
-
-	/* Extract the distance travelled */
-	int dy = ABS(*y - y1);
-	int dx = ABS(*x - x1);
-
-	/* Number of steps */
-	int dist = MAX(dy, dx) + 1;
-
-	/* Calculate the total distance along each axis */
-	dy = ABS(y2 - y1);
-	dx = ABS(x2 - x1);
-
-	/* No motion */
-	if (!dy && !dx) return;
-
-	/* Vertical movement */
-	if (dy > dx)
-	{
-		max = y; min = x;
-		min1 = x1; min2 = x2;
-		max1 = y1; max2 = y2;
-		dmin = dx; dmax = dy;
-	}
-	else
-	{
-		dmin = dy; dmax = dx;
-	}
-
-	/* Extract a shift factor */
-	shift = (dist * dmin + (dmax - 1) / 2) / dmax;
-
-	/* Sometimes move along the minor axis */
-	(*min) = min1 + ((min2 < min1) ? -shift : shift);
-
-	/* Always move along major axis */
-	(*max) = max1 + ((max2 < max1) ? -dist : dist);
-}
-
-
-/*
- * Determine if a bolt spell cast from (y1,x1) to (y2,x2) will arrive
- * at the final destination, assuming no monster gets in the way.
- *
- * This is slightly (but significantly) different from "los(y1,x1,y2,x2)".
- */
-bool projectable(int y1, int x1, int y2, int x2)
-{
-	int y, x;
-
-	int grid_n = 0;
-	coord grid_g[512];
-
-	/* Check the projection path */
-	grid_n = project_path(grid_g, MAX_RANGE, y1, x1, y2, x2, 0);
-
-	/* No grid is ever projectable from itself */
-	if (!grid_n) return (FALSE);
-
-	/* Final grid */
-	y = grid_g[grid_n - 1].y;
-	x = grid_g[grid_n - 1].x;
-
-	/* May not end in an unrequested grid */
-	if ((y != y2) || (x != x2)) return (FALSE);
-
-	/* Assume okay */
-	return (TRUE);
-}
-
-
-/*
- * Standard "find me a location" function
- *
- * Obtains a legal location within the given distance of the initial
- * location, and with "los()" from the source to destination location.
- *
- * This function is often called from inside a loop which searches for
- * locations while increasing the "d" distance.
- */
-void scatter(int *yp, int *xp, int y, int x, int d)
-{
-	int nx = 0, ny = 0;
-
-	int c = 0;
-
-	/* Pick a location */
-	while (c++ < 1000)
-	{
-		/* Pick a new location */
-		ny = rand_spread(y, d);
-		nx = rand_spread(x, d);
-
-		/* Ignore annoying locations */
-		if (!in_bounds(ny, nx)) continue;
-
-		/* Ignore excessively distant locations */
-		if ((d > 1) && (distance(y, x, ny, nx) > d)) continue;
-
-		/* Require line of sight */
-		if (los(y, x, ny, nx)) break;
-	}
-
-	if (c > 999)
-	{
-		ny = y;
-		nx = x;
-	}
-
-	/* Save the location */
-	(*yp) = ny;
-	(*xp) = nx;
-}
 
 
 /*

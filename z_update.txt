@@ -2,6 +2,94 @@ This is a document file listing the changes in Zangband (compared to
 the standard Angband 2.8.1.) No long explanations, just a list. See
 code for details. In reversed chronological order (more or less):
 
+ZAngband 2.5.6:
+- Shifted store names over so that the long ones fit along with the
+  maximum price.
+- Fixed display of the 'curse' line on the info screen so it shows
+  the Permacurse or Evilcurse.
+- Figurines are green instead of blue, to match the stores.
+- Tweaks to the object prices and distribution.
+  Restore stat potions should be buyable at the alchemist.
+  The distribution of Ego items in the dungeon has been tweaked.
+- You can use the '5' key to enter stores while standing on them.
+- Added a user-editable 16x16 font for the projected view.
+- Stores will buy more types of items than they sell.
+- Increased maximum number of spikes you can jam a door with to 2^16 - 1
+  or so.  3 tonnes of spikes should stop a few monsters...
+- Fixed combining of {empty} wands with non-empty wands still keeping
+  the {empty} inscription.
+- Quaffing potions of salt water no longer causes a dangling pointer which
+  can read in garbage values for the change in 'hunger' value.
+- Made the "normal" stores and home, more common.
+- Your inventory updates as rods recharge, not just when all have recharged.
+- Fixed loading of old savefiles.  A possible crash has been prevented,
+  and the starting town is correctly drawn.
+- Fixed bug in number of monk attacks you get depending on encumberance.
+- Torches and lanterns now use the timeout variable, instead of pval.
+  This will allow ego lights in the future.
+- Added the LITE flags to the artifact lights.  They show up as providing
+  light on the info screen.
+- Fixed various bugs in combining ammo with other ammo.  Fixed bugs in
+  combining ego items.
+- Fixed bug that was turning "good" quest rewards half the time into "bad"
+  items.
+- Made the pval of various rings and amulets affected by the values in
+  k_info.txt
+- Added the y/n/k prompt to the easy_floor option, when there is only one
+  object to pick up.
+- Removed several options, and moved others around.  This includes turning
+  the AI on, and adding a smart_packs option.  The monster lighting no longer
+  has 'testing' status.
+- Fixed the case when a menu has zero available options.
+- Added the casino, inn and healer back in.
+- Fixed monsters breathing much less often than normal with the AI on.
+- Lowered overall monster-level of the wilderness.  Made the starting town
+  be placed in the 'easiest' place in the wilderness.
+- Improved the chance that towns have stairs.
+- Major cleanup of the unix ports.  The maid-x11.c file now behaves properly.
+- Added proper ascii support to the projected view, using the 16x16 font.
+  It now works properly, and is fast enough to use except when the center
+  on player option is on.  The tile size is adjustable to multiples of four,
+  and the look of walls is tweakable.  (See comments in header of main-xpj.c)
+- Cursed arrows hit half as often as normal arrows.
+- Reverted the overhead map code to work the old way and made it look better
+  in graphics mode.
+- The 'Yellow light' can now blind you when exploding.
+- Fixed the bug in the weaponmaster when showing minimum damage.
+- Improved the distribution of books in the normal bookstore.
+- Prevented the stack-smash when too many monsters explode at once.
+- Turned off illumination of walls with the view_torch_grids option on.
+  (This option does not work correctly.)
+- Fixed messages received when you look at or discover a mimic.
+- Rewrote los and projection code so that they work the same way as the view
+  code.  You can hit anything you see, and nothing you can not.  'Trick shots'
+  are not possible.  (Every shot is a 'trick shot'.)
+- The amnesia attack is more powerful.  You will forget the tried status, and
+  flavor of objects.
+- The formula used for monster fear ignores attacks that do zero damage.
+- Fixed bug that was preventing the rarity value of stores from having any
+  effect on their distribution in towns.
+- Moved the platform-specific externs to h-system.h, and out of main.c
+- Made the cursor a rectangle instead of a filled box, on xwindows ports.
+- Fixed a crash with some beaming spells.
+- The projected view port now has an ascii mode (controlled by the '-g' 
+  startup option.)
+- Things are no longer always invisible in doorways in the projected view.
+- Reduced bonuses to slaying ego-items in some cases where they were too large.
+- Lights are yellow in your inventory, not grey.
+- Fixed quest message being on two lines instead of one.
+- If a message is displayed while the dungeon was generated, you won't see
+  half the dungeon lit.
+- Cloaks and boots count as armour now.  (Not 'tools')
+- The XAW port is now smart enough to understand the fonts defined in
+  environment variables, and in z-config.h  (As well as in .Xdefaults)
+- Fixed a bug with the monster lighting not lighting other monsters properly.
+- Stopped the projection routine being too smart, and not hitting monsters
+  you are aiming at.
+- Reordered some of the shop attr/feats.  '0' now stands for 'other'.
+  Warrior halls are now '0', and lots of the old '0' stores have changed.
+- Made the vanilla town shops look like the vanilla versions used to.
+
 ZAngband 2.5.5:
 - Items of Curing now heal hp as well as removing bad effects.
 - Disenchantment resist protects against disenchanment traps.

@@ -139,6 +139,7 @@ void resize_map(void)
 	Term_fresh();
 }
 
+
 /*
  * Redraw a term when it is resized
  */
@@ -397,6 +398,7 @@ void do_cmd_messages(void)
 	screen_load();
 }
 
+
 /*
  * Copy the indicated options out from the
  * option_info[] data structure into the
@@ -495,7 +497,7 @@ struct cheat_option_type
 /*
  * Cheating options
  */
-static cheat_option_type cheat_info[CHEAT_MAX] =
+static const cheat_option_type cheat_info[CHEAT_MAX] =
 {
 	{ &cheat_peek,		0x0001,
 	"cheat_peek",		"Peek into object creation" },
@@ -614,7 +616,7 @@ static void do_cmd_options_cheat(cptr info)
 }
 
 
-static cheat_option_type autosave_info[2] =
+static const cheat_option_type autosave_info[2] =
 {
 	{ (bool *)(&autosave_l), 0x0001,
 	  "autosave_l", "Autosave when entering new levels" },
@@ -770,6 +772,17 @@ static void do_cmd_options_aux(int page, cptr info)
 		if (option_info[i].o_page == page) opt[n++] = i;
 	}
 
+
+	/* Paranoia */
+	if (n == 0)
+	{
+		/* There are no options */
+		msg_print("There are no available options there at the moment.");
+		msg_print(NULL);
+		
+		/* Bail out */
+		return;
+	}
 
 	/* Clear screen */
 	Term_clear();
@@ -2907,15 +2920,6 @@ void do_cmd_feeling(void)
 }
 
 
-
-
-
-/*
- * Encode the screen colors
- */
-static char hack[17] = "dwsorgbuDWvyRGBU";
-
-
 /*
  * Hack -- load a screen dump from a file
  */
@@ -2984,7 +2988,7 @@ void do_cmd_load_screen(void)
 			for (i = 0; i < 16; i++)
 			{
 				/* Use attr matches */
-				if (hack[i] == buf[x]) a = i;
+				if (color_char[i] == buf[x]) a = i;
 			}
 
 			/* Hack -- fake monochrome */
@@ -3106,7 +3110,7 @@ void do_cmd_save_screen(void)
 				(void)(Term_what(x, y, &a, &c));
 
 				/* Dump it */
-				buf[x] = hack[a&0x0F];
+				buf[x] = color_char[a&0x0F];
 			}
 
 			/* Terminate */

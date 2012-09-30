@@ -19,7 +19,7 @@
 /*
  * Return a "feeling" (or NULL) about an item.  Method 1 (Heavy).
  */
-static byte value_check_aux1(object_type *o_ptr)
+static byte value_check_aux1(const object_type *o_ptr)
 {
 	/* Artifacts */
 	if (o_ptr->flags3 & TR3_INSTA_ART)
@@ -75,7 +75,7 @@ static byte value_check_aux1(object_type *o_ptr)
 /*
  * Return a "feeling" (or NULL) about an item.  Method 2 (Light).
  */
-static byte value_check_aux2(object_type *o_ptr)
+static byte value_check_aux2(const object_type *o_ptr)
 {
 	/* Cursed items (all of them) */
 	if (cursed_p(o_ptr)) return FEEL_CURSED;
@@ -409,10 +409,10 @@ static void sense_inventory(void)
 	}
 }
 
+
 /*
  * Go to any level (ripped off from wiz_jump)
  */
-
 static void pattern_teleport(void)
 {
 	int min_level = 0;
@@ -511,7 +511,9 @@ static void wreck_the_pattern(void)
 }
 
 
-/* Returns TRUE if we are on the Pattern... */
+/*
+ * Returns TRUE if we are on the Pattern...
+ */
 static bool pattern_effect(void)
 {
 	cave_type *c_ptr = area(p_ptr->py, p_ptr->px);
@@ -730,7 +732,7 @@ static void regen_monsters(void)
 void notice_lite_change(object_type *o_ptr)
 {
 	/* Hack -- notice interesting fuel steps */
-	if ((o_ptr->pval < 100) || (!(o_ptr->pval % 100)))
+	if ((o_ptr->timeout < 100) || (!(o_ptr->timeout % 100)))
 	{
 		/* Window stuff */
 		p_ptr->window |= (PW_EQUIP);
@@ -740,18 +742,18 @@ void notice_lite_change(object_type *o_ptr)
 	if (p_ptr->blind)
 	{
 		/* Hack -- save some light for later */
-		if (o_ptr->pval == 0) o_ptr->pval++;
+		if (o_ptr->timeout == 0) o_ptr->timeout++;
 	}
 
 	/* The light is now out */
-	else if (o_ptr->pval == 0)
+	else if (o_ptr->timeout == 0)
 	{
 		disturb(FALSE);
 		msg_print("Your light has gone out!");
 	}
 
 	/* The light is getting dim */
-	else if ((o_ptr->pval < 100) && (!(o_ptr->pval % 10)))
+	else if ((o_ptr->timeout < 100) && (!(o_ptr->timeout % 10)))
 	{
 		if (disturb_minor) disturb(FALSE);
 		msg_print("Your light is growing faint.");
@@ -842,7 +844,7 @@ bool psychometry(void)
  * If player has inscribed the object with "!!", let him know when it's
  * recharged. -LM-
  */
-static void recharged_notice(object_type *o_ptr)
+static void recharged_notice(const object_type *o_ptr)
 {
 	char o_name[80];
 
@@ -883,7 +885,7 @@ static void recharged_notice(object_type *o_ptr)
  */
 static void process_world(void)
 {
-	int i, j;
+	int i;
 	s32b regen_amount;
 	bool cave_no_regen = FALSE;
 	int upkeep_factor = 0;
@@ -895,7 +897,7 @@ static void process_world(void)
 	int temp;
 	object_kind *k_ptr;
 	cave_type *c_ptr = area(p_ptr->py, p_ptr->px);
-	mutation_type *mut_ptr;
+	const mutation_type *mut_ptr;
 
 	/* Announce the level feeling */
 	if ((turn - old_turn == 1000) && (p_ptr->depth)) do_cmd_feeling();
@@ -1681,30 +1683,6 @@ static void process_world(void)
 		(void)set_cut(p_ptr->cut - adjust);
 	}
 
-
-	/*** Process Light ***/
-
-	/* Check for light being wielded */
-	o_ptr = &inventory[INVEN_LITE];
-
-	/* Burn some fuel in the current lite */
-	if (o_ptr->tval == TV_LITE)
-	{
-		/* Hack -- Use some fuel (except on artifacts) */
-		if (!(o_ptr->flags3 & TR3_INSTA_ART) && (o_ptr->pval > 0))
-		{
-			/* Decrease life-span */
-			o_ptr->pval--;
-
-			/* Notice interesting fuel steps */
-			notice_lite_change(o_ptr);
-		}
-	}
-
-	/* Calculate torch radius */
-	p_ptr->update |= (PU_TORCH);
-
-
 	/*** Process mutation effects ***/
 	for (i = MUT_PER_SET; i < MUT_PER_SET * 2; i++)
 	{
@@ -1747,7 +1725,7 @@ static void process_world(void)
 
 
 	/* Process equipment */
-	for (j = 0, i = INVEN_WIELD; i < INVEN_TOTAL; i++)
+	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
 	{
 		/* Get the object */
 		o_ptr = &inventory[i];
@@ -1809,21 +1787,26 @@ static void process_world(void)
 		{
 			/* Recharge */
 			o_ptr->timeout--;
+			
+			/* Lights are special */
+			if ((o_ptr->tval == TV_LITE) && !(o_ptr->flags3 & TR3_LITE))
+			{
+				/* Notice interesting fuel steps */
+				notice_lite_change(o_ptr);
+
+				/* Calculate torch radius */
+				p_ptr->update |= (PU_TORCH);
+			}
 
 			/* Notice changes */
-			if (!o_ptr->timeout)
+			else if (!o_ptr->timeout)
 			{
 				recharged_notice(o_ptr);
-				j++;
+				
+				/* Window stuff */
+				p_ptr->window |= (PW_EQUIP);
 			}
 		}
-	}
-
-	/* Notice changes */
-	if (j)
-	{
-		/* Window stuff */
-		p_ptr->window |= (PW_EQUIP);
 	}
 
 	/*
@@ -1831,7 +1814,7 @@ static void process_world(void)
 	 * and each charging rod in a stack decreases the stack's timeout by
 	 * one per turn. -LM-
 	 */
-	for (j = 0, i = 0; i < INVEN_PACK; i++)
+	for (i = 0; i < INVEN_PACK; i++)
 	{
 		o_ptr = &inventory[i];
 		k_ptr = &k_info[o_ptr->k_idx];
@@ -1856,22 +1839,17 @@ static void process_world(void)
 			if (o_ptr->timeout < 0) o_ptr->timeout = 0;
 
 			/* Notice changes, provide message if object is inscribed. */
-			if (!(o_ptr->timeout))
+			if (temp > (o_ptr->timeout + (k_ptr->pval - 1)) / k_ptr->pval)
 			{
 				recharged_notice(o_ptr);
-				j++;
+				
+				/* Combine pack */
+				p_ptr->notice |= (PN_COMBINE);
+
+				/* Window stuff */
+				p_ptr->window |= (PW_INVEN);
 			}
 		}
-	}
-
-	/* Notice changes */
-	if (j)
-	{
-		/* Combine pack */
-		p_ptr->notice |= (PN_COMBINE);
-
-		/* Window stuff */
-		p_ptr->window |= (PW_INVEN);
 	}
 
 	/* Feel the inventory */
@@ -3066,11 +3044,7 @@ static void process_player(void)
 					if (!m_ptr->r_idx) continue;
 
 					/* Nice monsters get mean */
-					if (m_ptr->mflag & MFLAG_NICE)
-					{
-						/* Nice monsters get mean */
-						m_ptr->mflag &= ~(MFLAG_NICE);
-					}
+					m_ptr->mflag &= ~(MFLAG_NICE);
 
 					/* Handle memorized monsters */
 					if (m_ptr->mflag & MFLAG_MARK)
@@ -3090,24 +3064,9 @@ static void process_player(void)
 						{
 							/* Forget flag */
 							m_ptr->mflag &= ~(MFLAG_MARK);
-
-							/* Assume invisible */
-							m_ptr->ml = FALSE;
 							
-							/* Paranoia */
-							if (!(m_ptr->smart & SM_MIMIC))
-							{
-								/* Decrement monster visible counter */
-								update_mon_vis(m_ptr->r_idx, -1);
-							}
-
 							/* Update the monster */
 							update_mon(i, FALSE);
-
-							if (p_ptr->health_who == i) p_ptr->redraw |= (PR_HEALTH);
-
-							/* Redraw regardless */
-							lite_spot(m_ptr->fy, m_ptr->fx);
 						}
 					}
 				}
@@ -3125,6 +3084,7 @@ static void process_player(void)
 		if (p_ptr->energy_use) break;
 	}
 }
+
 
 /*
  * Add energy to player and monsters.

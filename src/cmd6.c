@@ -53,7 +53,6 @@
  * but instead use the "sval" (which is also used to sort the objects).
  */
 
-
 static void do_cmd_eat_food_aux(int item)
 {
 	int ident, lev;
@@ -266,7 +265,6 @@ static void do_cmd_eat_food_aux(int item)
 				break;
 			}
 
-
 			case SV_FOOD_RATION:
 			case SV_FOOD_BISCUIT:
 			case SV_FOOD_JERKY:
@@ -412,8 +410,6 @@ static void do_cmd_quaff_potion_aux(int item)
 {
 	int         ident, lev;
 	object_type	*o_ptr;
-	object_type forge;
-	object_type *q_ptr;
 
 
 	/* Get the item (in the pack) */
@@ -428,31 +424,6 @@ static void do_cmd_quaff_potion_aux(int item)
 		o_ptr = &o_list[0 - item];
 	}
 
-	/* Get local object */
-	q_ptr = &forge;
-
-	/* Obtain a local object */
-	object_copy(q_ptr, o_ptr);
-
-	/* Single object */
-	q_ptr->number = 1;
-
-	/* Reduce and describe inventory */
-	if (item >= 0)
-	{
-		inven_item_increase(item, -1);
-		inven_item_describe(item);
-		inven_item_optimize(item);
-	}
-
-	/* Reduce and describe floor item */
-	else
-	{
-		floor_item_increase(0 - item, -1);
-		floor_item_describe(0 - item);
-		floor_item_optimize(0 - item);
-	}
-
 	/* Sound */
 	sound(SOUND_QUAFF);
 
@@ -464,10 +435,10 @@ static void do_cmd_quaff_potion_aux(int item)
 	ident = FALSE;
 
 	/* Object level */
-	lev = get_object_level(q_ptr);
+	lev = get_object_level(o_ptr);
 
 	/* Analyze the potion */
-	switch (q_ptr->sval)
+	switch (o_ptr->sval)
 	{
 		case SV_POTION_WATER:
 		case SV_POTION_APPLE_JUICE:
@@ -487,7 +458,10 @@ static void do_cmd_quaff_potion_aux(int item)
 		case SV_POTION_SALT_WATER:
 		{
 			msg_print("The potion makes you vomit!");
-			(void)set_food(PY_FOOD_STARVE - 1);
+			if (p_ptr->food > PY_FOOD_STARVE - 1)
+			{
+				(void)set_food(PY_FOOD_STARVE - 1);
+			}
 			(void)set_poisoned(0);
 			(void)set_paralyzed(p_ptr->paralyzed + 4);
 			ident = TRUE;
@@ -1029,7 +1003,7 @@ static void do_cmd_quaff_potion_aux(int item)
 	if (p_ptr->prace == RACE_SKELETON)
 	{
 		msg_print("Some of the fluid falls through your jaws!");
-		(void)potion_smash_effect(0, p_ptr->py, p_ptr->px, q_ptr->k_idx);
+		(void)potion_smash_effect(0, p_ptr->py, p_ptr->px, o_ptr->k_idx);
 	}
 
 	/* Combine / Reorder the pack (later) */
@@ -1042,12 +1016,12 @@ static void do_cmd_quaff_potion_aux(int item)
 	}
 
 	/* The item has been tried */
-	object_tried(q_ptr);
+	object_tried(o_ptr);
 
 	/* An identification was made */
-	if (ident && !object_aware_p(q_ptr))
+	if (ident && !object_aware_p(o_ptr))
 	{
-		object_aware(q_ptr);
+		object_aware(o_ptr);
 		gain_exp((lev + (p_ptr->lev >> 1)) / p_ptr->lev);
 	}
 
@@ -1070,6 +1044,22 @@ static void do_cmd_quaff_potion_aux(int item)
 			break;
 		default:
 			(void)set_food(p_ptr->food + o_ptr->pval);
+	}
+	
+	/* Reduce and describe inventory */
+	if (item >= 0)
+	{
+		inven_item_increase(item, -1);
+		inven_item_describe(item);
+		inven_item_optimize(item);
+	}
+
+	/* Reduce and describe floor item */
+	else
+	{
+		floor_item_increase(0 - item, -1);
+		floor_item_describe(0 - item);
+		floor_item_optimize(0 - item);
 	}
 }
 
@@ -2865,7 +2855,7 @@ void do_cmd_zap_rod(void)
 /*
  * Hook to determine if an object is activatable
  */
-static bool item_tester_hook_activate(object_type *o_ptr)
+static bool item_tester_hook_activate(const object_type *o_ptr)
 {
 	u32b f1, f2, f3;
 
@@ -3249,7 +3239,7 @@ void do_cmd_activate(void)
 /*
  * Hook to determine if an object is useable
  */
-static bool item_tester_hook_use(object_type *o_ptr)
+static bool item_tester_hook_use(const object_type *o_ptr)
 {
 	u32b f1, f2, f3;
 

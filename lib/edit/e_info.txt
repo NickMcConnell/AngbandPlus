@@ -1,4 +1,4 @@
-# CVS: Last edit by $Author: sfuerst $ on $Date: 2001/01/04 23:22:59 $
+# CVS: Last edit by $Author: sfuerst $ on $Date: 2001/04/23 11:14:57 $
 # File: e_info.txt
 
 
@@ -353,23 +353,23 @@ F:DEX
 
 N:56:of Levitation
 X:35:7
-W:0:1:0:250
+W:30:4:0:250
 F:FEATHER
 
 N:57:of Stealth
 X:35:16
-W:30:4:0:500
+W:0:1:0:500
 C:0:0:0:8
 F:STEALTH
 
 N:58:of Free Action
 X:35:15
-W:0:8:0:1000
+W:20:1:0:1000
 F:FREE_ACT
 
 N:59:of Speed
 X:35:25
-W:0:16:0:10000
+W:20:4:0:10000
 C:0:0:0:10
 F:SPEED | HIDE_TYPE
 
@@ -382,13 +382,13 @@ F:AGGRAVATE
 
 N:62:of Slowness
 X:35:0
-W:0:1:0:0
+W:20:4:0:0
 C:0:0:0:5
 F:SPEED
 
 N:63:of Annoyance
 X:35:0
-W:0:1:0:0
+W:35:1:0:0
 C:0:0:0:10
 F:SPEED | AGGRAVATE
 
@@ -626,12 +626,12 @@ F:SEE_INVIS | AGGRAVATE | HEAVY_CURSE | CURSED
 
 N:104:of Accuracy
 X:25:10
-W:10:1:0:50
+W:0:1:0:50
 C:15:5:0:0
 
 N:105:of Velocity
 X:25:10
-W:0:1:0:50
+W:20:1:0:50
 C:5:15:0:0
 
 # 106 (unused)
@@ -640,7 +640,7 @@ C:5:15:0:0
 
 N:108:of Extra Might
 X:25:20
-W:80:2:0:1000
+W:50:1:0:1000
 C:5:10:0:0
 F:XTRA_MIGHT
 

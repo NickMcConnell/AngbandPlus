@@ -36,7 +36,7 @@ void self_knowledge(void)
 	u32b f1 = 0L, f2 = 0L, f3 = 0L;
 
 	object_type *o_ptr;
-	mutation_type *mut_ptr;
+	const mutation_type *mut_ptr;
 
 	char Dummy[80], Liferating[80];
 

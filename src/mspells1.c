@@ -37,10 +37,10 @@
  *
  * This has the added advantage that attacks and spells are related.
  * The "smart_learn" option means that the monster "learns" the flags
- * that should be set, and "smart_cheat" means that he "knows" them.
- * So "smart_cheat" means that the "smart" field is always up to date,
- * while "smart_learn" means that the "smart" field is slowly learned.
- * Both of them have the same effect on the "choose spell" routine.
+ * that should be set over time, by trial and error.  This is no longer
+ * optional, and is on all the time.
+ *
+ * The old smart_cheat option was removed.  No one plays with it on.
  */
 
 
@@ -69,62 +69,13 @@ static void remove_bad_spells(int m_idx, u32b *f4p, u32b *f5p, u32b *f6p)
 	/* Too stupid to know anything */
 	if (r_ptr->flags2 & RF2_STUPID) return;
 
-
-	/* Must be cheating or learning */
-	if (!smart_cheat && !smart_learn) return;
-
-
 	/* Update acquired knowledge */
-	if (smart_learn)
-	{
-		/* Hack -- Occasionally forget player status */
-		if (m_ptr->smart && one_in_(100)) m_ptr->smart = 0L;
+	
+	/* Hack -- Occasionally forget player status */
+	if (m_ptr->smart && one_in_(100)) m_ptr->smart = 0L;
 
-		/* Use the memorized flags */
-		smart = m_ptr->smart;
-	}
-
-
-	/* Cheat if requested */
-	if (smart_cheat)
-	{
-		/* Know basic info */
-		if (p_ptr->resist_acid) smart |= (SM_RES_ACID);
-		if (p_ptr->oppose_acid) smart |= (SM_OPP_ACID);
-		if (p_ptr->immune_acid) smart |= (SM_IMM_ACID);
-		if (p_ptr->resist_elec) smart |= (SM_RES_ELEC);
-		if (p_ptr->oppose_elec) smart |= (SM_OPP_ELEC);
-		if (p_ptr->immune_elec) smart |= (SM_IMM_ELEC);
-		if (p_ptr->resist_fire) smart |= (SM_RES_FIRE);
-		if (p_ptr->oppose_fire) smart |= (SM_OPP_FIRE);
-		if (p_ptr->immune_fire) smart |= (SM_IMM_FIRE);
-		if (p_ptr->resist_cold) smart |= (SM_RES_COLD);
-		if (p_ptr->oppose_cold) smart |= (SM_OPP_COLD);
-		if (p_ptr->immune_cold) smart |= (SM_IMM_COLD);
-
-		/* Know poison info */
-		if (p_ptr->resist_pois) smart |= (SM_RES_POIS);
-		if (p_ptr->oppose_pois) smart |= (SM_OPP_POIS);
-
-		/* Know special resistances */
-		if (p_ptr->resist_nethr) smart |= (SM_RES_NETH);
-		if (p_ptr->resist_lite) smart |= (SM_RES_LITE);
-		if (p_ptr->resist_dark) smart |= (SM_RES_DARK);
-		if (p_ptr->resist_fear) smart |= (SM_RES_FEAR);
-		if (p_ptr->resist_confu) smart |= (SM_RES_CONF);
-		if (p_ptr->resist_chaos) smart |= (SM_RES_CHAOS);
-		if (p_ptr->resist_disen) smart |= (SM_RES_DISEN);
-		if (p_ptr->resist_blind) smart |= (SM_RES_BLIND);
-		if (p_ptr->resist_nexus) smart |= (SM_RES_NEXUS);
-		if (p_ptr->resist_sound) smart |= (SM_RES_SOUND);
-		if (p_ptr->resist_shard) smart |= (SM_RES_SHARD);
-		if (p_ptr->reflect) smart |= (SM_IMM_REFLECT);
-
-		/* Know bizarre "resistances" */
-		if (p_ptr->free_act) smart |= (SM_IMM_FREE);
-		if (!p_ptr->msp) smart |= (SM_IMM_MANA);
-	}
-
+	/* Use the memorized flags */
+	smart = m_ptr->smart;
 
 	/* Nothing known */
 	if (!smart) return;
@@ -349,7 +300,7 @@ static bool summon_possible(int y1, int x1)
 		for (dx = -2; dx <= 2; dx++)
 		{
 			/* Only check a circular area */
-			if ((abs(dx) == 2) && (abs(dy) == 2)) continue;
+			if ((ABS(dx) == 2) && (ABS(dy) == 2)) continue;
 
 			/* Get square */
 			x = x1 + dx;
@@ -418,16 +369,21 @@ bool clean_shot(int y1, int x1, int y2, int x2, bool friendly)
 {
 	int grid_n;
 	coord grid_g[512];
+	
+	u16b flg;
 
-	/* Check the projection path */
+	/* Try not to hit friends. */
 	if (friendly)
 	{
-		grid_n = project_path(grid_g, MAX_RANGE, y1, x1, y2, x2, PROJECT_FRND);
+		flg = PROJECT_FRND;
 	}
 	else
 	{
-		grid_n = project_path(grid_g, MAX_RANGE, y1, x1, y2, x2, PROJECT_STOP);
+		flg = PROJECT_STOP;
 	}
+	
+	/* Check the projection path */
+	grid_n = project_path(grid_g, y1, x1, y2, x2, flg);
 
 	/* No grid is ever projectable from itself */
 	if (!grid_n) return (FALSE);
@@ -438,6 +394,7 @@ bool clean_shot(int y1, int x1, int y2, int x2, bool friendly)
 
 	return (TRUE);
 }
+
 
 /*
  * Cast a bolt at the player
@@ -791,7 +748,6 @@ bool make_attack_spell(int m_idx)
 	char            m_name[80];
 	char            m_poss[80];
 	char            ddesc[80];
-	bool            no_inate = FALSE;
 
 	/* Target location */
 	int x = px;
@@ -830,19 +786,9 @@ bool make_attack_spell(int m_idx)
 
 	/* Stop if player is leaving */
 	if (p_ptr->leaving) return (FALSE);
-
-	if (stupid_monsters)
-	{
-		/* Only do spells occasionally */
-		if (randint0(100) >= chance) return (FALSE);
-	}
-	else
-	{
-		if (randint0(100) >= chance) return (FALSE);
-
-		/* Sometimes forbid inate attacks (breaths) */
-		if (randint0(100) >= (chance * 2)) no_inate = TRUE;
-	}
+	
+	/* Only do spells occasionally */
+	if (randint0(100) >= chance) return (FALSE);
 
 	/* XXX XXX XXX Handle "track_target" option (?) */
 
@@ -861,12 +807,6 @@ bool make_attack_spell(int m_idx)
 	f4 = r_ptr->flags4;
 	f5 = r_ptr->flags5;
 	f6 = r_ptr->flags6;
-
-	if (!stupid_monsters)
-	{
-		/* Forbid inate attacks sometimes */
-		if (no_inate) f4 = 0L;
-	}
 
 	/* Hack -- allow "desperate" spells */
 	if ((r_ptr->flags2 & (RF2_SMART)) && (m_ptr->hp < m_ptr->maxhp / 10) &&

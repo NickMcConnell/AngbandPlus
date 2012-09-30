@@ -1679,7 +1679,7 @@ errr init_v_info(void)
 
 	int mode = 0644;
 
-	errr err;
+	errr err = 0;
 
 	FILE *fp;
 
@@ -2054,7 +2054,7 @@ static errr init_other(void)
 	for (i = 0; i < WILD_BLOCKS ; i++)
 	{
 		/* Allocate block */
-		C_MAKE(wild_cache[i], WILD_BLOCK_SIZE, cave_tp_ptr);
+		C_MAKE(wild_cache[i], WILD_BLOCK_SIZE, cave_type*);
 
 		/* Allocate rows of a block */
 		for (j = 0; j < WILD_BLOCK_SIZE ; j++)
@@ -2069,7 +2069,7 @@ static errr init_other(void)
 	 */
 
 	/* Allocate the wilderness itself */
-	C_MAKE(wild, max_wild_size, wild_tp_ptr);
+	C_MAKE(wild, max_wild_size, wild_type*);
 
 	for (i = 0; i < max_wild_size ; i++)
 	{
@@ -2078,7 +2078,7 @@ static errr init_other(void)
 	}
 
 	/*** Make store stock cache ***/
-	C_MAKE(store_cache, STORE_CACHE_AMNT, store_ptr);
+	C_MAKE(store_cache, STORE_CACHE_AMNT, store_type*);
 
 	/* Allocate the towns */
 	C_MAKE(town, max_towns, town_type);
@@ -2113,7 +2113,7 @@ static errr init_other(void)
 	message__tail = MESSAGE_BUF;
 
 	/* Clear the spell colour strings */
-	(void) C_WIPE(gf_color, MAX_GF, cptr);
+	(void)C_WIPE(gf_color, MAX_GF, cptr);
 
 
 	/*** Prepare the Player inventory ***/
@@ -2180,10 +2180,10 @@ static errr init_alloc(void)
 	/*** Analyze monster allocation info ***/
 
 	/* Clear the "aux" array */
-	(void) C_WIPE(&aux, MAX_DEPTH, s16b);
+	(void)C_WIPE(&aux, MAX_DEPTH, s16b);
 
 	/* Clear the "num" array */
-	(void) C_WIPE(&num, MAX_DEPTH, s16b);
+	(void)C_WIPE(&num, MAX_DEPTH, s16b);
 
 	/* Size of "alloc_race_table" */
 	alloc_race_size = 0;

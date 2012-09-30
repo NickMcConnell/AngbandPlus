@@ -32,7 +32,7 @@ static int get_spell(int *sn, cptr prompt, int sval, bool known, bool realm_2)
 	byte        spells[64];
 	bool        flag, redraw, okay;
 	char        choice;
-	magic_type  *s_ptr;
+	const magic_type  *s_ptr;
 	char        out_val[160];
 	int         use_realm = (realm_2 ? p_ptr->realm2 : p_ptr->realm1);
 	cptr        p = ((mp_ptr->spell_book == TV_LIFE_BOOK) ? "prayer" : "spell");
@@ -212,7 +212,7 @@ static int get_spell(int *sn, cptr prompt, int sval, bool known, bool realm_2)
  *
  * Note that *all* spells in the book are listed
  */
-void do_cmd_browse_aux(object_type *o_ptr)
+void do_cmd_browse_aux(const object_type *o_ptr)
 {
 	int sval;
 	int spell;
@@ -273,7 +273,7 @@ void do_cmd_browse_aux(object_type *o_ptr)
  * Note that browsing is allowed while confused or blind,
  * and in the dark, primarily to allow browsing in stores.
  */
-void do_cmd_browse()
+void do_cmd_browse(void)
 {
 	int item;
 	object_type	*o_ptr;
@@ -514,7 +514,7 @@ void do_cmd_study(void)
 #define MAX_BIZARRE		6
 
 
-static int bizarre_num[MAX_BIZARRE] =
+static const int bizarre_num[MAX_BIZARRE] =
 {
 	SUMMON_BIZARRE1,
 	SUMMON_BIZARRE2,
@@ -2675,7 +2675,7 @@ void do_cmd_cast(void)
 
 	object_type	*o_ptr;
 
-	magic_type	*s_ptr;
+	const magic_type *s_ptr;
 
 	cptr q, s;
 

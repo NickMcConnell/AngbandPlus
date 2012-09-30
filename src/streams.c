@@ -44,7 +44,7 @@ static void recursive_river(int x1, int y1, int x2, int y2, int feat1, int feat2
 		if (dy != 0)
 		{
 			/* perturbation perpendicular to path */
-			changex = randint1(abs(dy)) * 2 - abs(dy);
+			changex = randint1(ABS(dy)) * 2 - ABS(dy);
 		}
 		else
 		{
@@ -54,7 +54,7 @@ static void recursive_river(int x1, int y1, int x2, int y2, int feat1, int feat2
 		if (dx != 0)
 		{
 			/* perturbation perpendicular to path */
-			changey = randint1(abs(dx)) * 2 - abs(dx);
+			changey = randint1(ABS(dx)) * 2 - ABS(dx);
 		}
 		else
 		{

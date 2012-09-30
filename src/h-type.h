@@ -54,11 +54,6 @@ typedef const char *cptr;
 typedef double real;
 
 
-/* Error codes for function return values */
-/* Success = 0, Failure = -N, Problem = +N */
-typedef int errr;
-
-
 /*
  * Hack -- prevent problems with non-MACINTOSH
  */

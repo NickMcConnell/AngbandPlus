@@ -881,7 +881,7 @@ void mutate_player(void)
 /*
  * Apply Nexus
  */
-void apply_nexus(monster_type *m_ptr)
+void apply_nexus(const monster_type *m_ptr)
 {
 	switch (randint1(7))
 	{
@@ -954,22 +954,22 @@ void phlogiston(void)
 		return;
 	}
 
-	if (o_ptr->pval >= max_flog)
+	if (o_ptr->timeout >= max_flog)
 	{
 		msg_print("No more phlogiston can be put in this item.");
 		return;
 	}
 
 	/* Refuel */
-	o_ptr->pval += (max_flog / 2);
+	o_ptr->timeout += (max_flog / 2);
 
 	/* Message */
 	msg_print("You add phlogiston to your light item.");
 
 	/* Comment */
-	if (o_ptr->pval >= max_flog)
+	if (o_ptr->timeout >= max_flog)
 	{
-		o_ptr->pval = max_flog;
+		o_ptr->timeout = max_flog;
 		msg_print("Your light item is full.");
 	}
 
@@ -1262,7 +1262,7 @@ bool warding_glyph(void)
 	}
 
 	/* Add the glyph here as a field */
-	(void) place_field(py, px, FT_GLYPH_WARDING);
+	(void)place_field(py, px, FT_GLYPH_WARDING);
 
 	return TRUE;
 }
@@ -1286,7 +1286,7 @@ bool explosive_rune(void)
 	}
 
 	/* Add the glyph here as a field */
-	(void) place_field(py, px, FT_GLYPH_EXPLODE);
+	(void)place_field(py, px, FT_GLYPH_EXPLODE);
 
 	return TRUE;
 }
@@ -2008,7 +2008,7 @@ void identify_item(object_type *o_ptr)
 }
 
 
-static bool item_tester_unknown(object_type *o_ptr)
+static bool item_tester_unknown(const object_type *o_ptr)
 {
 	if (object_known_p(o_ptr))
 		return FALSE;
@@ -2017,7 +2017,7 @@ static bool item_tester_unknown(object_type *o_ptr)
 }
 
 
-static bool item_tester_unknown_star(object_type *o_ptr)
+static bool item_tester_unknown_star(const object_type *o_ptr)
 {
 	if (o_ptr->ident & IDENT_MENTAL)
 		return FALSE;
@@ -2740,7 +2740,7 @@ bool bless_weapon(void)
  *          (Not anymore -- I changed this; TY)
  *    y, x  --- coordinates of the potion (or player if
  *          the potion was in her inventory);
- *    o_ptr --- pointer to the potion object.
+ *    k_idx --- type of object.
  */
 bool potion_smash_effect(int who, int y, int x, int k_idx)
 {
@@ -2807,7 +2807,7 @@ bool potion_smash_effect(int who, int y, int x, int k_idx)
 			break;
 		case SV_POTION_POISON:
 			dt = GF_POIS;
-			dam = 3;
+			dam = damroll(3, 6);
 			ident = TRUE;
 			angry = TRUE;
 			break;
@@ -2891,6 +2891,9 @@ bool potion_smash_effect(int who, int y, int x, int k_idx)
 		k_ptr->aware = TRUE;
 		gain_exp((k_ptr->level + (p_ptr->lev >> 1)) / p_ptr->lev);
 	}
+	
+	/* Window stuff */
+	p_ptr->window |= (PW_INVEN | PW_EQUIP);
 
 	return angry;
 }
@@ -2910,7 +2913,7 @@ void display_spell_list(void)
 	int             use_realm1 = p_ptr->realm1 - 1;
 	int             use_realm2 = p_ptr->realm2 - 1;
 	int             m[9];
-	magic_type      *s_ptr;
+	const magic_type *s_ptr;
 	char            name[80];
 	char            out_val[160];
 
@@ -3075,8 +3078,8 @@ void display_spell_list(void)
  */
 s16b spell_chance(int spell, int realm)
 {
-	int             chance, minfail;
-	magic_type      *s_ptr;
+	int chance, minfail;
+	const magic_type *s_ptr;
 
 
 	/* Paranoia -- must be literate */
@@ -3141,7 +3144,7 @@ s16b spell_chance(int spell, int realm)
  */
 bool spell_okay(int spell, bool known, int realm)
 {
-	magic_type *s_ptr;
+	const magic_type *s_ptr;
 
 	/* Access the spell */
 	s_ptr = &mp_ptr->info[realm][spell];
@@ -3362,7 +3365,7 @@ static void spell_info(char *p, int spell, int realm)
 void print_spells(byte *spells, int num, int y, int x, int realm)
 {
 	int             i, spell;
-	magic_type      *s_ptr;
+	const magic_type *s_ptr;
 	cptr            comment;
 	char            info[80];
 	char            out_val[160];
@@ -3451,7 +3454,7 @@ void print_spells(byte *spells, int num, int y, int x, int realm)
  * Does a given class of objects (usually) hate acid?
  * Note that acid can either melt or corrode something.
  */
-bool hates_acid(object_type *o_ptr)
+bool hates_acid(const object_type *o_ptr)
 {
 	/* Analyze the type */
 	switch (o_ptr->tval)
@@ -3505,7 +3508,7 @@ bool hates_acid(object_type *o_ptr)
 /*
  * Does a given object (usually) hate electricity?
  */
-bool hates_elec(object_type *o_ptr)
+bool hates_elec(const object_type *o_ptr)
 {
 	switch (o_ptr->tval)
 	{
@@ -3525,7 +3528,7 @@ bool hates_elec(object_type *o_ptr)
  * Hafted/Polearm weapons have wooden shafts.
  * Arrows/Bows are mostly wooden.
  */
-bool hates_fire(object_type *o_ptr)
+bool hates_fire(const object_type *o_ptr)
 {
 	/* Analyze the type */
 	switch (o_ptr->tval)
@@ -3577,7 +3580,7 @@ bool hates_fire(object_type *o_ptr)
 /*
  * Does a given object (usually) hate cold?
  */
-bool hates_cold(object_type *o_ptr)
+bool hates_cold(const object_type *o_ptr)
 {
 	switch (o_ptr->tval)
 	{

@@ -2332,7 +2332,7 @@ bool restore_level(void)
  */
 bool lose_all_info(void)
 {
-	int i;
+	int i, k;
 
 	chg_virtue(V_KNOWLEDGE, -5);
 	chg_virtue(V_ENLIGHTEN, -5);
@@ -2359,6 +2359,22 @@ bool lose_all_info(void)
 
 		/* Hack -- Clear the "felt" flag */
 		o_ptr->ident &= ~(IDENT_SENSE);
+	}
+
+	/* Hack - Remove all knowledge about objects */
+	
+	/* Scan the object kinds */
+	for (k = 1; k < max_k_idx; k++)
+	{
+		object_kind *k_ptr = &k_info[k];
+	
+		/* Forget flavored items, with saving throw */
+		if (k_ptr->flavor && one_in_(p_ptr->skill_sav))
+		{
+			/* Forget knowledge */
+			k_ptr->aware = FALSE;
+			k_ptr->tried = FALSE;
+		}
 	}
 
 	/* Recalculate bonuses */

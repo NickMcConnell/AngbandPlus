@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/11/06 08:34:05 $ */
+/* CVS: Last edit by $Author: sfuerst $ on $Date: 2001/05/06 00:24:39 $ */
 /* File: main-mac.c */
 
 /* Purpose: Simple support for MACINTOSH Angband */
@@ -1170,7 +1170,7 @@ static errr globe_init(void)
 										&tempPictBufferGWorldP,
 										newPictH,
 										newMaskH,
-										&data[0]);   //rftb - main term included.
+										&data[0]);   /* rftb - main term included. */
 
 		/* Release resource */
 		ReleaseResource((Handle)newPictH);

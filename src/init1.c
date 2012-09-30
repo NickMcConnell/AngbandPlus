@@ -2549,39 +2549,30 @@ errr init_w_info_txt(FILE *fp, char *buf)
 			continue;
 		}
 
-		/* Process 'G' for "Graphics" (one line only) */
-		if (buf[0] == 'G')
+		/* There better be a current w_ptr */
+		if (!w_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+		
+		/* Process 'M' for "Map" (one line only) */
+		if (buf[0] == 'M')
 		{
 			int tmp;
 
-			/* Paranoia */
-			if (!buf[2]) return (PARSE_ERROR_GENERIC);
-			if (!buf[3]) return (PARSE_ERROR_GENERIC);
-			if (!buf[4]) return (PARSE_ERROR_GENERIC);
-
-			/* Extract the color */
-			tmp = color_char_to_attr(buf[4]);
+			if (1 != sscanf(buf+2, "%d", &tmp)) return (PARSE_ERROR_GENERIC);
 
 			/* Paranoia */
-			if (tmp < 0) return (PARSE_ERROR_GENERIC);
+			if ((tmp >= max_f_idx) || (tmp < 0)) return (PARSE_ERROR_GENERIC);
 
-			/* Save the values */
-			w_ptr->w_attr = tmp;
-			w_ptr->w_char = buf[2];
+			/* Save the value */
+			w_ptr->feat = (byte) tmp;
 
 			/* Next... */
 			continue;
 		}
 
-
-		/* There better be a current w_ptr */
-		if (!w_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
-
 		/* Process 'W' for "Wilderness Info" (one line only) */
 		if (buf[0] == 'W')
 		{
 			int hgtmin, hgtmax, popmin, popmax, lawmin, lawmax;
-
 
 			/* Scan for the values */
 			if (6 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d",

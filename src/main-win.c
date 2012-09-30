@@ -599,7 +599,7 @@ static bool special_key[256];
  * keys which I do not recognize, but which are listed among keys which we
  * do catch, so they should be harmless to catch.
  */
-static byte special_key_list[] =
+static const byte special_key_list[] =
 {
 	VK_CLEAR,		/* 0x0C (KP<5>) */
 
@@ -613,13 +613,13 @@ static byte special_key_list[] =
 	VK_UP,			/* 0x26 (KP<8>) */
 	VK_RIGHT,		/* 0x27 (KP<6>) */
 	VK_DOWN,		/* 0x28 (KP<2>) */
-	VK_SELECT,		/* 0x29 (?????) */
-	VK_PRINT,		/* 0x2A (?????) */
-	VK_EXECUTE,		/* 0x2B (?????) */
-	VK_SNAPSHOT,	/* 0x2C (?????) */
+	VK_SELECT,		/* 0x29 (?) */
+	VK_PRINT,		/* 0x2A (?) */
+	VK_EXECUTE,		/* 0x2B (?) */
+	VK_SNAPSHOT,	/* 0x2C (?) */
 	VK_INSERT,		/* 0x2D (KP<0>) */
 	VK_DELETE,		/* 0x2E (KP<.>) */
-	VK_HELP,		/* 0x2F (?????) */
+	VK_HELP,		/* 0x2F (?) */
 
 #if 0
 	VK_NUMPAD0,		/* 0x60 (KP<0>) */
@@ -634,7 +634,7 @@ static byte special_key_list[] =
 	VK_NUMPAD9,		/* 0x69 (KP<9>) */
 	VK_MULTIPLY,	/* 0x6A (KP<*>) */
 	VK_ADD,			/* 0x6B (KP<+>) */
-	VK_SEPARATOR,	/* 0x6C (?????) */
+	VK_SEPARATOR,	/* 0x6C (?) */
 	VK_SUBTRACT,	/* 0x6D (KP<->) */
 	VK_DECIMAL,		/* 0x6E (KP<.>) */
 	VK_DIVIDE,		/* 0x6F (KP</>) */
@@ -1684,6 +1684,9 @@ static void Term_nuke_win(term *t)
  */
 static errr Term_user_win(int n)
 {
+	/* Unused parameter */
+	(void)n;
+
 	/* Success */
 	return (0);
 }
@@ -2320,6 +2323,10 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp)
 	{
 		hdcMask = CreateCompatibleDC(hdc);
 		SelectObject(hdcMask, infMask.hBitmap);
+	}
+	else
+	{
+		hdcMask = NULL;
 	}
 
 # endif /* USE_TRANSPARENCY */
@@ -4456,6 +4463,9 @@ int FAR PASCAL WinMain(HINSTANCE hInst, HINSTANCE hPrevInst,
 	WNDCLASS wc;
 	HDC hdc;
 	MSG msg;
+
+	/* Unused parameter */
+	(void)nCmdShow;
 
 	/* Save globally */
 	hInstance = hInst;

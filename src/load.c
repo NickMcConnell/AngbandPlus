@@ -135,7 +135,7 @@ static void note(cptr msg)
 /*
  * Hack -- determine if an item is "wearable" (or a missile)
  */
-static bool wearable_p(object_type *o_ptr)
+static bool wearable_p(const object_type *o_ptr)
 {
 	/* Valid "tval" codes */
 	switch (o_ptr->tval)
@@ -173,7 +173,7 @@ static bool wearable_p(object_type *o_ptr)
 /*
  * Hack -- determine if an item is a "weapon" (or a missile)
  */
-static bool is_weapon(object_type *o_ptr)
+static bool is_weapon(const object_type *o_ptr)
 {
 	/* Valid "tval" codes */
 	switch (o_ptr->tval)
@@ -380,6 +380,23 @@ static void rd_item(object_type *o_ptr)
 	rd_u32b(&o_ptr->flags1);
 	rd_u32b(&o_ptr->flags2);
 	rd_u32b(&o_ptr->flags3);
+
+	/* Lites changed in [Z] 2.6.0 */
+	if ((sf_version < 25) && (o_ptr->tval == TV_LITE))
+	{
+		/* Torches and lanterns use timeout now */
+		if ((o_ptr->sval == SV_LITE_TORCH) ||
+			(o_ptr->sval == SV_LITE_LANTERN))
+		{
+			o_ptr->timeout = o_ptr->pval;
+			o_ptr->pval = 0;
+		}
+		else
+		{
+			/* Other lites are everburning. */
+			o_ptr->flags3 |= TR3_LITE;		
+		}
+	}
 
 	/* Monster holding object */
 	rd_s16b(&o_ptr->held_m_idx);
@@ -2005,13 +2022,7 @@ static errr rd_dungeon(void)
 		py_back = py;
 
 		create_wilderness();
-
-		wipe_m_list();
-		wipe_o_list();
-
-		/* Hack - do not load data into wilderness */
-		change_level(1);
-
+		
 		p_ptr->depth = dun_level_backup;
 
 		/* if in the dungeon - restore the player location */
@@ -2020,6 +2031,11 @@ static errr rd_dungeon(void)
 			px = px_back;
 			py = py_back;
 		}
+		
+		wipe_f_list();
+		
+		/* Hack - do not load data into wilderness */
+		change_level(p_ptr->depth);
 
 		/* Load dungeon map */
 		load_map(cur_hgt, 0, cur_wid, 0);
@@ -2040,10 +2056,6 @@ static errr rd_dungeon(void)
 			py_back = py;
 
 			create_wilderness();
-			
-			wipe_o_list();
-			wipe_m_list();
-			wipe_f_list();
 			
 			p_ptr->depth = dun_level_backup;
 			
@@ -2073,10 +2085,6 @@ static errr rd_dungeon(void)
 
 			/* Make a new wilderness */
 			create_wilderness();
-			
-			wipe_m_list();
-			wipe_o_list();
-			wipe_f_list();
 		}
 	}
 	else
@@ -2149,14 +2157,6 @@ static errr rd_dungeon(void)
 		/* Get a new record */
 		o_idx = o_pop();
 
-		/* Oops */
-		if (i != o_idx)
-		{
-			note(format("Object allocation error (%d <> %d)", i, o_idx));
-			return (152);
-		}
-
-
 		/* Acquire place */
 		o_ptr = &o_list[o_idx];
 
@@ -2170,20 +2170,37 @@ static errr rd_dungeon(void)
 		if (o_ptr->held_m_idx)
 		{
 			monster_type *m_ptr;
-
+			
 			/* Monster */
 			m_ptr = &m_list[o_ptr->held_m_idx];
 
-			/* Build a stack */
-			o_ptr->next_o_idx = m_ptr->hold_o_idx;
+			/* Paranoia */
+			if (m_ptr->r_idx)
+			{
+				/* Build a stack */
+				o_ptr->next_o_idx = m_ptr->hold_o_idx;
 
-			/* Place the object */
-			m_ptr->hold_o_idx = o_idx;
+				/* Place the object */
+				m_ptr->hold_o_idx = o_idx;
+			}
+			else
+			{
+				/* The monster does not exist any more! */
+				o_ptr->held_m_idx = 0;
+			}
 		}
 
 		/* Dungeon */
 		else if (!((sf_version < VERSION_CHANGE_WILD) && (p_ptr->depth == 0)))
 		{
+			/* Oops */
+			if (i != o_idx)
+			{
+				note(format("Object allocation error (%d <> %d)", i, o_idx));
+				return (152);
+			}
+
+			
 			/* Access the item location */
 			c_ptr = area(o_ptr->iy,o_ptr->ix);
 
@@ -2221,14 +2238,6 @@ static errr rd_dungeon(void)
 		/* Get a new record */
 		m_idx = m_pop();
 
-		/* Oops */
-		if (i != m_idx)
-		{
-			note(format("Monster allocation error (%d <> %d)", i, m_idx));
-			return (162);
-		}
-
-
 		/* Acquire monster */
 		m_ptr = &m_list[m_idx];
 
@@ -2237,6 +2246,13 @@ static errr rd_dungeon(void)
 
 		if (!((sf_version < VERSION_CHANGE_WILD) && (p_ptr->depth == 0)))
 		{
+			/* Oops */
+			if (i != m_idx)
+			{
+				note(format("Monster allocation error (%d <> %d)", i, m_idx));
+				return (162);
+			}
+			
 			/* Access grid */
 			c_ptr = area(m_ptr->fy,m_ptr->fx);
 
@@ -2319,12 +2335,15 @@ static errr rd_dungeon(void)
 			min_hgt = 0;
 			max_wid = cur_wid;
 			min_wid = 0;
+			
+			/* Delete the fields */
+			
 		}
 		else
 		{
 			character_dungeon = FALSE;
-			wipe_m_list();
 			wipe_o_list();
+			wipe_m_list();
 		}
 		
 		/* enter the level */

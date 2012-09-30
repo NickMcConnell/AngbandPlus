@@ -367,7 +367,7 @@ static s32b price_item(object_type *o_ptr, int greed, bool flip)
 	int 	adjust;
 	s32b	price;
 
-	owner_type *ot_ptr = &owners[f_ptr->data[0]][st_ptr->owner];
+	const owner_type *ot_ptr = &owners[f_ptr->data[0]][st_ptr->owner];
 
 	/* Get the value of one of the items */
 	price = object_value(o_ptr);
@@ -607,8 +607,8 @@ static bool store_object_similar(object_type *o_ptr, object_type *j_ptr)
 		(o_ptr->flags3 != j_ptr->flags3))
 			return (FALSE);
 
-	/* Hack -- Never stack recharging items */
-	if (o_ptr->timeout || j_ptr->timeout) return (FALSE);
+	/* Require identical recharge times / fuel level */
+	if (o_ptr->timeout != j_ptr->timeout) return (FALSE);
 
 	/* Require many identical values */
 	if (o_ptr->ac != j_ptr->ac)   return (FALSE);
@@ -704,40 +704,12 @@ static bool store_check_num(object_type *o_ptr)
 
 /*
  * Determine if the current store will purchase the given item
- *
- * Two field action functions are called for a store.
- * The first checks to see if a store will not buy something.
- * The second checks the opposite.
- * By combining different action functions, lots of different
- * types of store can be made.
+ * (Check restriction flags, and object theme)
  */
-static bool store_will_buy(object_type *o_ptr)
+static bool store_will_buy(const object_type *o_ptr)
 {
 	obj_theme theme;
 	
-	/* Thing to pass to the action functions */
-	field_obj_test f_o_t;
-	
-	/* Save information to pass to the field action function */
-	f_o_t.o_ptr = o_ptr;
-	
-	/* Default is to reject this rejection */
-	f_o_t.result = FALSE;
-	
-	/* Will the store !not! buy this item? */
-	field_hook(&area(p_ptr->py, p_ptr->px)->fld_idx,
-		 FIELD_ACT_STORE_ACT1, (vptr) &f_o_t);
-	
-	/* We don't want this item type? */
-	if (f_o_t.result == TRUE) return (FALSE);
-	
-	/* Change the default to acceptance */
-	f_o_t.result = TRUE;
-	
-	/* Will the store buy this item? */
-	field_hook(&area(p_ptr->py, p_ptr->px)->fld_idx,
-		 FIELD_ACT_STORE_ACT2, (vptr) &f_o_t);
-
 	/* Check restriction flags */
 	
 	/* Blessed items only */
@@ -772,11 +744,54 @@ static bool store_will_buy(object_type *o_ptr)
 	/* Initialise the theme tester */
 	init_match_theme(theme);
 	
-	/* Does the object have zero probability of being made? */
-	if (!kind_is_theme(o_ptr->k_idx)) return (FALSE);
+	/*
+	 * Final check: 
+	 * Does the object have a chance of being made?
+	 */
+	return (kind_is_theme(o_ptr->k_idx));
+}
 
-	/* Assume the field restriction is ok */
-	return (f_o_t.result);
+
+/*
+ * The player wants to sell something to the store.
+ * This is a much more restrictive case than the store_will_buy()
+ * function below.
+ * Only objects that pass the field hooks will be accepted.
+ * (As well as only selecting store_will_buy() objects.
+ *
+ * Two field action functions are called for a store.
+ * The first checks to see if a store will not buy something.
+ * The second checks the opposite.
+ * By combining different action functions, lots of different
+ * types of store can be made.
+ */
+static bool store_will_stock(object_type *o_ptr)
+{
+	/* Thing to pass to the action functions */
+	field_obj_test f_o_t;
+	
+	/* Save information to pass to the field action function */
+	f_o_t.o_ptr = o_ptr;
+	
+	/* Default is to reject this rejection */
+	f_o_t.result = FALSE;
+	
+	/* Will the store !not! buy this item? */
+	field_hook(&area(p_ptr->py, p_ptr->px)->fld_idx,
+		 FIELD_ACT_STORE_ACT1, (vptr) &f_o_t);
+	
+	/* We don't want this item type? */
+	if (f_o_t.result == TRUE) return (FALSE);
+	
+	/* Change the default to acceptance */
+	f_o_t.result = TRUE;
+	
+	/* Will the store buy this item? */
+	field_hook(&area(p_ptr->py, p_ptr->px)->fld_idx,
+		 FIELD_ACT_STORE_ACT2, (vptr) &f_o_t);
+
+	/* Finally check to see if we will buy the item */
+	return (f_o_t.result && store_will_buy(o_ptr));
 }
 
 
@@ -910,6 +925,9 @@ static int store_carry(object_type *o_ptr)
 
 	/* Cursed/Worthless items "disappear" when sold */
 	if (value <= 0) return (-1);
+
+	/* We will buy some items we will not stock */
+	if (!store_will_stock(o_ptr)) return (-1);
 
 	/* All store items are fully *identified* */
 	o_ptr->ident |= IDENT_MENTAL;
@@ -1159,7 +1177,7 @@ static void store_create(void)
 		}
 
 		/* Require valid object */
-		if (!store_will_buy(q_ptr)) continue;
+		if (!store_will_stock(q_ptr)) continue;
 		
 		/* Mega-Hack -- no chests in stores */
 		if (q_ptr->tval == TV_CHEST) continue;
@@ -1167,8 +1185,8 @@ static void store_create(void)
 		/* Hack -- Charge lite's */
 		if (q_ptr->tval == TV_LITE)
 		{
-			if (q_ptr->sval == SV_LITE_TORCH) q_ptr->pval = FUEL_TORCH / 2;
-			if (q_ptr->sval == SV_LITE_LANTERN) q_ptr->pval = FUEL_LAMP / 2;
+			if (q_ptr->sval == SV_LITE_TORCH) q_ptr->timeout = FUEL_TORCH / 2;
+			if (q_ptr->sval == SV_LITE_LANTERN) q_ptr->timeout = FUEL_LAMP / 2;
 		}
 
 		/* The item is "known" */
@@ -1270,7 +1288,7 @@ static void display_entry(int pos)
 
 	int maxwid;
 	
-	owner_type *ot_ptr = &owners[f_ptr->data[0]][st_ptr->owner];
+	const owner_type *ot_ptr = &owners[f_ptr->data[0]][st_ptr->owner];
 
 	/* Get the item */
 	o_ptr = &st_ptr->stock[pos];
@@ -1437,7 +1455,7 @@ static void display_store(int store_top)
 {
 	char buf[80];
 	
-	owner_type *ot_ptr = &owners[f_ptr->data[0]][st_ptr->owner];
+	const owner_type *ot_ptr = &owners[f_ptr->data[0]][st_ptr->owner];
 
 	/* Clear screen */
 	Term_clear();
@@ -1702,7 +1720,7 @@ static int get_stock(int *com_val, cptr pmt, int i, int j)
  */
 static bool increase_insults(void)
 {
-	owner_type *ot_ptr = &owners[f_ptr->data[0]][st_ptr->owner];
+	const owner_type *ot_ptr = &owners[f_ptr->data[0]][st_ptr->owner];
 	
 	/* Increase insults */
 	st_ptr->insult_cur++;
@@ -1932,7 +1950,7 @@ static bool purchase_haggle(object_type *o_ptr, s32b *price)
 
 	char		out_val[160];
 
-	owner_type *ot_ptr = &owners[f_ptr->data[0]][st_ptr->owner];
+	const owner_type *ot_ptr = &owners[f_ptr->data[0]][st_ptr->owner];
 
 	*price = 0;
 
@@ -2109,7 +2127,7 @@ static bool sell_haggle(object_type *o_ptr, s32b *price)
 	cptr    pmt = "Offer";
 	char    out_val[160];
 	
-	owner_type *ot_ptr = &owners[f_ptr->data[0]][st_ptr->owner];
+	const owner_type *ot_ptr = &owners[f_ptr->data[0]][st_ptr->owner];
 
 	*price = 0;	
 
@@ -2304,7 +2322,7 @@ static void store_purchase(int *store_top)
 
 	char out_val[160];
 	
-	owner_type *ot_ptr = &owners[f_ptr->data[0]][st_ptr->owner];
+	const owner_type *ot_ptr = &owners[f_ptr->data[0]][st_ptr->owner];
 
 	/* Empty? */
 	if (st_ptr->stock_num <= 0)
@@ -2815,7 +2833,7 @@ static void store_sell(int *store_top)
 			/* Describe the result (in message buffer) */
 			msg_format("You sold %s for %ld gold.", o_name, (long)price);
 
-			if (!((o_ptr->tval == TV_FIGURINE) && (value > 0)))
+			if (!((q_ptr->tval == TV_FIGURINE) && (value > 0)))
 			{
 				/* 
 				 * Analyze the prices (and comment verbally)
@@ -2824,8 +2842,11 @@ static void store_sell(int *store_top)
 				purchase_analyze(price, value, dummy);
 			}
 
-			/* Reset timeouts of the sold items */
-			q_ptr->timeout = 0;
+			if (q_ptr->tval != TV_LITE)
+			{
+				/* Reset timeouts of the sold items */
+				q_ptr->timeout = 0;
+			}
 			
 			if (q_ptr->tval == TV_WAND)
 			{

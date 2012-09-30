@@ -1,13 +1,19 @@
-/*****************************************************************************
+/*
  * File: main-lsl.c
  * Purpose: Support for Linux-SVGALIB Angband
  * Original Author: Jon Taylor (taylorj@gaia.ecs.csus.edu)
  * Update by: Dennis Payne (dulsi@identicalsoftware.com)
  * Version: 1.4.0, 12/05/99
  *
- * Some of the ideas in this code came from main-win.c by Skirmantas Kligys
- * (kligys@scf.usc.edu).
- ****************************************************************************/
+ * Large amounts of code rewritten by Steven Fuerst. 20/04/2001
+ *
+ * It now uses a hacked-up version of the X11 bmp-loading code.
+ * (Preparing to use 256 colour 16x16 mode)
+ */
+
+#include "angband.h"
+
+#ifdef USE_LSL
 
 /* Standard C header files */
 #include <stdio.h>
@@ -19,645 +25,571 @@
 #include <vgakeyboard.h>
 #include <zlib.h>
 
-/* Angband header files */
-#include "angband.h"
-
 #define COLOR_OFFSET 240
 
-/* Define font/graphics cell width and height */
+/* Hack - Define font/graphics cell width and height */
 #define CHAR_W 8
 #define CHAR_H 13
 
-/*****************************************************************************
- * .BMP file handling stuff.  This needs to get reorganized someday....
- ****************************************************************************/
+/* Global palette */
+static byte *pal = NULL;
 
-/* BITMAPFILEHEADER
- *
- * Bitmap File Information
- *
- * The BITMAPFILEHEADER data structure contains information about the type,
- * size, and layout of a device-independent bitmap (DIB) file.
+#ifdef USE_GRAPHICS
+
+/*
+ * The Win32 "BITMAPFILEHEADER" type.
  */
-typedef struct BITMAPFILEHEADER {
-	short	bfType;
-	int	bfSize;
-	short	bfReserved1;
-	short	bfReserved2;
-	int	bfOffBits;
+typedef struct BITMAPFILEHEADER
+{
+	u16b bfType;
+	u32b bfSize;
+	u16b bfReserved1;
+	u16b bfReserved2;
+	u32b bfOffBits;
 } BITMAPFILEHEADER;
 
-typedef struct BITMAPINFOHEADER{
-       unsigned int  biSize;
-       unsigned int  biWidth;
-       unsigned int  biHeight;
-       unsigned short	biPlanes;
-       unsigned short	biBitCount;
-       unsigned int  biCompression;
-       unsigned int  biSizeImage;
-       unsigned int  biXPelsPerMeter;
-       unsigned int  biYPelsPerMeter;
-       unsigned int  biClrUsed;
-       unsigned int  biClrImportant;
+
+/*
+ * The Win32 "BITMAPINFOHEADER" type.
+ */
+typedef struct BITMAPINFOHEADER
+{
+	u32b biSize;
+	u32b biWidth;
+	u32b biHeight;
+	u16b biPlanes;
+	u16b biBitCount;
+	u32b biCompresion;
+	u32b biSizeImage;
+	u32b biXPelsPerMeter;
+	u32b biYPelsPerMeter;
+	u32b biClrUsed;
+	u32b biClrImportand;
 } BITMAPINFOHEADER;
 
-typedef struct BITMAPCOREHEADER{
-	unsigned int  bcSize;
-	unsigned short  bcWidth;
-	unsigned short  bcHeight;
-	unsigned short   bcPlanes;
-	unsigned short   bcBitCount;
-} BITMAPCOREHEADER;
-
-typedef struct {
-  int width,height,bpp,numcols;
-  char type[4];
-} PICINFO;
-
-static int flip();
-
-/* Image palette, width, and height should be arguments but quickly hacked
-   in  - Dennis */
-static unsigned char *pal;
-static unsigned int bw, bh;
-static cptr ANGBAND_DIR_XTRA_GRAF;
-
-
-void *read_bmp_file ()
+/*
+ * The Win32 "RGBQUAD" type.
+ */
+typedef struct RGBQUAD
 {
-  FILE *infile;
-  int i, j;
-  int iswindows = 0;
-  int dummy, count, done, output_type;
-  unsigned char *buf, *bmap;
-  unsigned char read[2];
-  unsigned char *p, *ptr, *dptr, *hptr;
-  unsigned int w, h, palsize;
-  char path[1024];
-  BITMAPINFOHEADER bih;
-  BITMAPCOREHEADER bch;
-  PICINFO *pp;
-  pp=malloc(sizeof(PICINFO));
+	unsigned char b, g, r;
+	unsigned char filler;
+} RGBQUAD;
 
-  bmap = NULL;
-  pal = NULL;
 
-  /* Build the "graf" path */
-  path_build(path, 1024, ANGBAND_DIR_XTRA, "graf");
+/*** Helper functions for system independent file loading. ***/
 
-  /* Allocate the path */
-  ANGBAND_DIR_XTRA_GRAF = string_make(path);
-
-  sprintf (path, "%s/8x13.bmp", ANGBAND_DIR_XTRA_GRAF);
-  if (!(infile = fopen (path, "r"))) {
-    printf ("Unable to load bitmap data file %s, bailing out....\n",path);
-    exit (-1);
-  }
-
-  buf=(unsigned char *) malloc (54);
-  fread (buf, 1, 26, infile);
-  memcpy (&bch, buf + 14, 12);
-
-  if (bch.bcSize == 40) { /* Truly MS_Windows 3.x ?*/
-    fread (buf + 26, 1, 28, infile);/* Then we need the rest */
-    memcpy (&bih, buf + 14, 40);
-    iswindows = TRUE;
-  } else iswindows = FALSE;
-
-  p = malloc (768);
-  pal = p;
-
-  if (iswindows) { /*  MS_Windows 3.x */
-    pp->width = w = bih.biWidth;
-    pp->height = h = bih.biHeight;
-    pp->bpp = bih.biBitCount;
-
-    /* Here the "offbits" -  we need 'em for the
-     * palette size - e.g. XV uses different sizes
-     */
-    palsize = (*(unsigned *) (buf + 10) - 54) / 4;
-  } else {  /*  OS/2 V1.1	*/
-    pp->width = w = bch.bcWidth;
-    pp->height = h = bch.bcHeight;
-    pp->bpp = bch.bcBitCount;
-    palsize = (*(unsigned *) (buf + 10) - 26) / 3;
-  }
-  bw = pp->width;
-  bh = pp->height;
-
-  if ((pp->bpp >> 3) < 3) output_type = 1;
-
-  /* w is the size of a horizontal line in bytes
-   * bih.biWidth is the number of valid pixels in a line
-   * the latter one is passed to vgadisp.c as pp->width
-   */
-  switch (pp->bpp)
-    {
-     case 1:
-      if (w % 32)
-	w = (w / 32) * 32 + 32;;
-      break;
-    case 4:
-      if (w % 8)
-       w = (w / 8) * 8 + 8;
-      break;
-     case 8:
-      if (w % 4)
-       w = (w / 4) * 4 + 4;
-      break;
-    }
-
-  if ((pp->bpp == 24) && (output_type == 3)) dummy = 3;
-  else dummy = 1;
-
-  bmap = malloc (w * (h + 2) * dummy);
-  memset (bmap, 0, w * (h + 2) * dummy);
-
-  switch (pp->bpp)
-    {
-     case 1:
-      /* 1bit non compressed */
-      ptr = pal;
-      fread (ptr , 1, 3, infile);
-      if (iswindows)
-       fread (&dummy, 1, 1, infile);
-      dummy = ptr[0];
-      ptr[0] = ptr[2] / 4;
-      ptr[1] /= 4;
-      ptr[2] = dummy / 4;
-      fread (ptr + 3, 1, 3, infile);
-      if (iswindows)
-       fread (&dummy, 1, 1, infile);
-      dummy = ptr[3];
-      ptr[3] = ptr[5] / 4;
-      ptr[4] /= 4;
-      ptr[5] = dummy / 4;
-      ptr = bmap;
-      for (j = h - 1; j >= 0; j--)
-       for (i = 0, count=0 ; i < (w >> 3); i++)
-       {
-	 hptr = ptr + j * pp->width;
-	 dummy = fgetc (infile);
-	 if (count < pp->width)
-	   {
-	     hptr[count] = (dummy & 128)?1:0;count++;
-	     hptr[count] = (dummy & 64)?1:0;count++;
-	     hptr[count] = (dummy & 32)?1:0;count++;
-	     hptr[count] = (dummy & 16)?1:0;count++;
-	     hptr[count] = (dummy & 8)?1:0;count++;
-	     hptr[count] = (dummy & 4)?1:0;count++;
-	     hptr[count] = (dummy & 2)?1:0;count++;
-	     hptr[count] = dummy & 1;count++;
-	   }
-       }
-      pp->numcols=2;
-      break;
-     case 4:
-      /* 4bit non compressed */
-      ptr = pal;
-      for (i = 0; i < palsize; i++)
-       {
-	 fread (ptr + 3 * i, 1, 3, infile);
-	 if (iswindows)
-	   fread (&dummy, 1, 1, infile);
-	  dummy = ptr[3 * i];
-	  ptr[3 * i] = ptr[3 * i + 2] / 4;
-	  ptr[3 * i + 1] /= 4;
-	  ptr[3 * i + 2] = dummy / 4;
-       }
-      ptr = bmap;
-      if ((!iswindows) || (bih.biCompression == 0))
-       {
-	 for (j = h - 1; j >= 0; j--)
-	   for (i = 0, count = 0; i < (w / 2); i++)
-	   {
-	     dummy = fgetc (infile);
-	     if (count < pp->width)
-	       {
-		 ptr[count + j * pp->width] = dummy >> 4;
-		 count++;
-	       }
-	     if (count < pp->width)
-	       {
-		 ptr[count + j * pp->width] = dummy & 15;
-		 count++;
-	       }
-	   }
-       }
-      else
-       {
-	 /* 4bit RLE compressed */
-	 done = 0;
-	 count = 0;
-	 while (done == 0)
-	   {
-	     fread (read, 1, 2, infile);
-	     if (*read)
-	       {
-		 i = 0;
-		 do
-		   {
-		     *ptr = read[1] >> 4;
-		     ptr++;
-		     i++;
-		     if (i < (read[0]))
-		       {
-			 *ptr = read[1] & 15;
-			 ptr++;
-			 i++;
-		       }
-		   }
-		 while (i < (*read));
-	       }
-	     else if (read[1] == 0)
-	       {
-		 count++;
-	       }
-	     else if (read[1] == 1)
-	       done = 1;
-	     else if (read[1] == 2)
-	       {
-		 /* This isn't really tested */
-		 ptr += fgetc (infile) + bih.biWidth * fgetc (infile);
-	       }
-	     else
-	       {
-		 dptr = hptr = (unsigned char *) malloc (read[1] >> 1);
-		 fread (dptr, 1, read[1] >> 1, infile);
-		 if (read[1] % 4 > 1)
-		   dummy = fgetc (infile);
-		 i = 0;
-		 do
-		   {
-		     *ptr = (*dptr) >> 4;
-		     i++;
-		     ptr++;
-		     if (i < read[1])
-		       {
-			 *ptr = (*dptr) & 15;
-			 i++;
-			 ptr++;
-		       }
-		     dptr++;
-		   }
-		 while (i < read[1]);
-		 free (hptr);
-	       }
-	   }
-	 flip (*bmap, bih.biWidth, bih.biHeight);
-       }
-      pp->width = w;
-      pp->numcols= 16;
-      break;
-
-     case 8:
-      /* 8bit non compressed */
-      ptr = pal;
-      for (i = 0; i < palsize; i++)
-       {
-	 fread (ptr + 3 * i, 1, 3, infile);
-	 if (iswindows)
-	   dummy = fgetc (infile);
-	  dummy = ptr[3 * i];
-	  ptr[3 * i] = ptr[3 * i + 2] / 4;
-	  ptr[3 * i + 1] /= 4;
-	  ptr[3 * i + 2] = dummy / 4;
-       }
-      ptr = bmap;
-      if ((!iswindows) || (bih.biCompression == 0))
-       for (i = h - 1; i >= 0; i--)
-       {
-	 fread (ptr + pp->width * i, 1, w, infile);
-       }
-      else
-       /* 8bit RLE compressed */
-       {
-	 done = 0;
-	 count = 0;
-	 while (done == 0)
-	   {
-	     fread (read, 1, 2, infile);
-	     if (read[0])
-	       for (i = 0; i < (int) read[0]; i++)
-	       {
-		 *ptr = read[1];
-		 ptr++;
-	       }
-	     else if (read[1] == 0)
-	       {
-		 count++;
-	       }
-	     else if (read[1] == 1)
-	       done = 1;
-	     else if (read[1] == 2)
-	       ptr += fgetc (infile) + bih.biWidth * fgetc (infile);
-	     else
-	       {
-		 fread (ptr, 1, read[1], infile);
-		 if (read[1] % 2)
-		   fgetc (infile);
-		 ptr += read[1];
-	       }
-	   }
-	 flip (*bmap, bih.biWidth, bih.biHeight);
-       }
-      pp->numcols= 256;
-      break;
-
-    }
-
-  free (buf);
-  fclose (infile);
-  return (bmap);
+static byte get_byte(FILE *fff)
+{
+	/* Get a character, and return it */
+	return (getc(fff) & 0xFF);
 }
 
-static int flip (unsigned char * image, unsigned int w, unsigned int h)
+static void rd_byte(FILE *fff, byte *ip)
 {
-  unsigned int i;
-  unsigned char *hptr;
-
-  hptr = (unsigned char *) malloc (w);
-  for (i = 0; i < (h / 2); i++)
-    {
-      memcpy (hptr, image + i * w, w);
-      memcpy (image + i * w, image + (h - i - 1) * w, w);
-      memcpy (image + (h - i - 1) * w, hptr, w);
-    }
-  free (hptr);
-  return (0);
+	*ip = get_byte(fff);
 }
 
-/* ======================================================================= */
+static void rd_u16b(FILE *fff, u16b *ip)
+{
+	(*ip) = get_byte(fff);
+	(*ip) |= ((u16b)(get_byte(fff)) << 8);
+}
+
+static void rd_u32b(FILE *fff, u32b *ip)
+{
+	(*ip) = get_byte(fff);
+	(*ip) |= ((u32b)(get_byte(fff)) << 8);
+	(*ip) |= ((u32b)(get_byte(fff)) << 16);
+	(*ip) |= ((u32b)(get_byte(fff)) << 24);
+}
+
+
+/*
+ * Read a Win32 BMP file.
+ *
+ * Assumes that the bitmap has a size such that no padding is needed in
+ * various places.  Currently only handles bitmaps with 3 to 256 colors.
+ */
+static byte *ReadBMP(char *Name, int *bw, int *bh)
+{
+	FILE *f;
+
+	BITMAPFILEHEADER fileheader;
+	BITMAPINFOHEADER infoheader;
+
+	byte *Data;
+
+	int ncol;
+
+	int total;
+
+	int i;
+
+	u16b x, y;
+
+	/* Open the BMP file */
+	f = fopen(Name, "r");
+
+	/* No such file */
+	if (!f)
+	{
+		quit ("No bitmap to load!");
+	}
+
+	/* Read the "BITMAPFILEHEADER" */
+	rd_u16b(f, &(fileheader.bfType));
+	rd_u32b(f, &(fileheader.bfSize));
+	rd_u16b(f, &(fileheader.bfReserved1));
+	rd_u16b(f, &(fileheader.bfReserved2));
+	rd_u32b(f, &(fileheader.bfOffBits));
+
+	/* Read the "BITMAPINFOHEADER" */
+	rd_u32b(f, &(infoheader.biSize));
+	rd_u32b(f, &(infoheader.biWidth));
+	rd_u32b(f, &(infoheader.biHeight));
+	rd_u16b(f, &(infoheader.biPlanes));
+	rd_u16b(f, &(infoheader.biBitCount));
+	rd_u32b(f, &(infoheader.biCompresion));
+	rd_u32b(f, &(infoheader.biSizeImage));
+	rd_u32b(f, &(infoheader.biXPelsPerMeter));
+	rd_u32b(f, &(infoheader.biYPelsPerMeter));
+	rd_u32b(f, &(infoheader.biClrUsed));
+	rd_u32b(f, &(infoheader.biClrImportand));
+
+	/* Verify the header */
+	if (feof(f) ||
+	    (fileheader.bfType != 19778) ||
+	    (infoheader.biSize != 40))
+	{
+		quit_fmt("Incorrect BMP file format %s", Name);
+	}
+
+	/* The two headers above occupy 54 bytes total */
+	/* The "bfOffBits" field says where the data starts */
+	/* The "biClrUsed" field does not seem to be reliable */
+	/* Compute number of colors recorded */
+	ncol = (fileheader.bfOffBits - 54) / 4;
+
+	for (i = 0; i < ncol; i++)
+	{
+		RGBQUAD clrg;
+
+		/* Read an "RGBQUAD" */
+		rd_byte(f, &(clrg.b));
+		rd_byte(f, &(clrg.g));
+		rd_byte(f, &(clrg.r));
+		rd_byte(f, &(clrg.filler));
+
+		/* Analyze the color */
+		pal[i * 3] = clrg.b;
+		pal[i * 3 + 1] = clrg.g;
+		pal[i * 3 + 2] = clrg.r;
+	}
+	
+	/* Look for illegal bitdepths. */
+	if ((infoheader.biBitCount == 1) || (infoheader.biBitCount == 24))
+	{
+		quit_fmt("Illegal biBitCount %d in %s",
+			 infoheader.biBitCount, Name);
+	}
+
+	/* Determine total bytes needed for image */
+	total = infoheader.biWidth * (infoheader.biHeight + 2);
+
+	/* Allocate image memory */
+	C_MAKE(Data, total, byte);
+
+	for (y = 0; y < infoheader.biHeight; y++)
+	{
+		int y2 = infoheader.biHeight - y - 1;
+
+		for (x = 0; x < infoheader.biWidth; x++)
+		{
+			int ch = getc(f);
+
+			/* Verify not at end of file XXX XXX */
+			if (feof(f)) quit_fmt("Unexpected end of file in %s", Name);
+
+			if (infoheader.biBitCount == 8)
+			{
+				Data[x + y2 * infoheader.biWidth] = ch;
+			}
+			else if (infoheader.biBitCount == 4)
+			{
+				Data[x + y2 * infoheader.biWidth] = ch / 16;
+				x++;
+				Data[x + y2 * infoheader.biWidth] = ch % 16;
+			}
+		}
+	}
+
+	fclose(f);
+	
+	/* Save the size for later */
+	*bw = infoheader.biWidth;
+	*bh = infoheader.biHeight;
+
+	return (Data);
+}
+
+#endif /* USE_GRAPHICS */
+
 
 /* The main "term" structure */
 static term term_screen_body;
 
 /* The visible and virtual screens */
 GraphicsContext *screen;
-GraphicsContext *backscreen;
 GraphicsContext *buffer;
 
 /* The font data */
-void *font;
+static void *font;
 
 /* Initialize the screen font */
-void initfont()
+static void initfont(void)
 {
- gzFile fontfile;
- void *temp;
- long junk;
+	gzFile fontfile;
+	void *temp;
+	long junk;
 
- if (!(fontfile = gzopen("/usr/lib/kbd/consolefonts/lat1-12.psf.gz","r")))
- {
-  /* Try uncompressed */
-  if (!(fontfile = gzopen("/usr/lib/kbd/consolefonts/lat1-12.psf","r")))
-  {
-   printf ("Error: could not open font file.  Aborting....\n");
-   exit(1);
-  }
- }
+	if (!(fontfile = gzopen("/usr/lib/kbd/consolefonts/lat1-12.psf.gz","r")))
+	{
+		/* Try uncompressed */
+		if (!(fontfile = gzopen("/usr/lib/kbd/consolefonts/lat1-12.psf","r")))
+		{
+			printf ("Error: could not open font file.  Aborting....\n");
+			exit(1);
+		}
+	}
 
- /* Junk the 4-byte header */
- gzread(fontfile, &junk, 4);
+	/* Junk the 4-byte header */
+	gzread(fontfile, &junk, 4);
 
- /* Initialize font */
- /* Haven't looked into why it is 3328 - Dennis */
- temp = malloc(/*12*256*/ 3328);
- gzread(fontfile, temp, 3328);
- font = malloc(256 * 8 * 12 * BYTESPERPIXEL);
- gl_expandfont(8, 12, 15, temp, font);
- gl_setfont(8, 12, font);
- free(temp);
- gzclose(fontfile);
+	/* Initialize font */
+	
+	/*
+	 * Read in 13 bytes per character, and there are 256 characters
+	 * in the font.  This means we need to load 13x256 = 3328 bytes.
+	 */
+	C_MAKE(temp, 256 * 13, byte);
+	gzread(fontfile, temp, 256 * 13);
+	
+	/*
+	 * I don't understand this code - SF
+	 * (Is it converting from 8x13 -> 8x12?) 
+	 *
+	 * I assume 15 is a colour...
+	 */
+	font = malloc(256 * 8 * 12 * BYTESPERPIXEL);
+	gl_expandfont(8, 12, 15, temp, font);
+	gl_setfont(8, 12, font);
+	
+	/* Cleanup */
+	C_FREE(temp, 256 * 13, byte);
+	gzclose(fontfile);
 }
 
 /* Initialize palette values for colors 0-15 */
-void setpal()
+static void setpal(void)
 {
- int i;
- gl_setpalette(pal);
- for (i = 0; i < 16; i++)
- {
-  gl_setpalettecolor(COLOR_OFFSET + i, angband_color_table[i][1] >> 2,
-    angband_color_table[i][2] >> 2, angband_color_table[i][3] >> 2);
- }
-#if 0
-  gl_setpalettecolor (0,00,00,00); /* Black */
-  gl_setpalettecolor (3,63,63,63); /* White */
-  gl_setpalettecolor (13,40,40,40); /* Gray */
-  gl_setpalettecolor (11,25,15,05); /* Orange */
-  gl_setpalettecolor (2,32,00,00); /* Red */
-  gl_setpalettecolor (7,00,32,00); /* Green */
-  gl_setpalettecolor (12,00,00,40); /* Blue */
-  gl_setpalettecolor (5,50,25,00); /* Brown */
-  gl_setpalettecolor (1,28,28,28); /* Dark Gray */
-  gl_setpalettecolor (10,52,52,52); /* Light Gray */
-  gl_setpalettecolor (15,41,00,63); /* Purple */
-  gl_setpalettecolor (4,63,63,00); /* Yellow */
-  gl_setpalettecolor (14,63,00,00); /* Light Red */
-  gl_setpalettecolor (6,00,63,00); /* Light Green */
-  gl_setpalettecolor (9,00,50,63); /* Light Blue */
-  gl_setpalettecolor (8,63,52,32); /* Light Brown */
-#endif
+	int i;
+	gl_setpalette(pal);
+	for (i = 0; i < 16; i++)
+	{
+		gl_setpalettecolor(COLOR_OFFSET + i,
+			angband_color_table[i][1] >> 2,
+			angband_color_table[i][2] >> 2,
+			angband_color_table[i][3] >> 2);
+	}
 }
 
-/****************************************************************************
+/*
  * Check for "events"
- * If block, then busy-loop waiting for event, else check once and exit
- ***************************************************************************/
-static errr CheckEvents (int block)
+ * If block, then busy-loop waiting for event, else check once and exit.
+ */
+static errr CheckEvents(int block)
 {
- int k=0;
+	int k = 0;
 
- if (block)
- {
-  k = vga_getkey();
-  if (k<1) return (1);
- }
- else
-  k = vga_getch();
-
- Term_keypress(k);
- return(0);
+	if (block)
+	{
+		k = vga_getkey();
+		if (k < 1) return (1);
+	}
+	else
+	{
+		k = vga_getch();
+	}
+	
+	Term_keypress(k);
+	return(0);
 }
 
 
-/****************************************************************************
+/*
  * Low-level graphics routine (assumes valid input)
  * Do a "special thing"
- ***************************************************************************/
-static errr term_xtra_svgalib (int n, int v)
+ */
+static errr term_xtra_svgalib(int n, int v)
 {
- switch (n)
- {
-  case TERM_XTRA_EVENT:
-  {
-   /* Process some pending events */
-   if (v) return (CheckEvents (FALSE));
-   while (!CheckEvents (TRUE));
-   return 0;
-  }
-  case TERM_XTRA_FLUSH:
-  {
-   /* Flush all pending events */
-   /* Should discard all key presses but unimplemented */
-   return 0;
-  }
-  case TERM_XTRA_CLEAR:
-  {
-   /* Clear the entire window */
-   gl_fillbox (0, 0, 80*CHAR_W, 25*CHAR_H, 0);
-   return 0;
-  }
-  case TERM_XTRA_DELAY:
-  {
-   /* Delay for some milliseconds */
-   usleep(1000 * v);
-   return 0;
-  }
- }
- return 1;
+	switch (n)
+	{
+ 		case TERM_XTRA_EVENT:
+		{
+			/* Process some pending events */
+			if (v) return (CheckEvents (FALSE));
+			while (!CheckEvents (TRUE));
+			return 0;
+		}
+		
+		case TERM_XTRA_FLUSH:
+		{
+			/* Flush all pending events */
+			/* Should discard all key presses but unimplemented */
+			return 0;
+		}
+
+		case TERM_XTRA_CLEAR:
+		{
+			/* Clear the entire window */
+			gl_fillbox (0, 0, 80 * CHAR_W, 25 * CHAR_H, 0);
+			return 0;
+		}
+
+		case TERM_XTRA_DELAY:
+		{
+			/* Delay for some milliseconds */
+			usleep(1000 * v);
+			return 0;
+		}
+	}
+	return 1;
 }
 
-/****************************************************************************
+/*
  * Low-level graphics routine (assumes valid input)
  * Draws a "cursor" at (x,y)
- ***************************************************************************/
-static errr term_curs_svgalib (int x, int y)
+ */
+static errr term_curs_svgalib(int x, int y)
 {
- gl_fillbox (x*CHAR_W,y*CHAR_H,CHAR_W,CHAR_H,15);
- return(0);
+	gl_fillbox(x * CHAR_W, y * CHAR_H, CHAR_W, CHAR_H, 15);
+	return(0);
 }
 
-/****************************************************************************
+/*
  * Low-level graphics routine (assumes valid input)
  * Erases a rectangular block of characters from (x,y) to (x+w,y+h)
- ***************************************************************************/
-static errr term_wipe_svgalib (int x,int y,int n)
+ */
+static errr term_wipe_svgalib(int x, int y, int n)
 {
- gl_fillbox (x*CHAR_W,y*CHAR_H,n*CHAR_W,CHAR_H,0);
- return(0);
+	gl_fillbox(x * CHAR_W, y * CHAR_H, n * CHAR_W, CHAR_H, 0);
+	return(0);
 }
 
-/****************************************************************************
+/*
  * Low-level graphics routine (assumes valid input)
  * Draw n chars at location (x,y) with value s and attribute a
- ***************************************************************************/
-errr term_text_svgalib (int x, int y, int n, unsigned char a, cptr s)
+ */
+static errr term_text_svgalib(int x, int y, int n, byte a, cptr s)
 {
- term_wipe_svgalib (x,y,n);
- gl_colorfont (8,12,COLOR_OFFSET + (a & 0x0F)/*pal_trans[a]*/,font);
- gl_writen (x*CHAR_W,y*CHAR_H,n,(char *)s);
- return(0);
+ 	/* Clear the area */
+	term_wipe_svgalib(x, y, n);
+	
+	/* Draw the coloured text */
+	gl_colorfont(8, 12, COLOR_OFFSET + (a & 0x0F), font);
+	gl_writen(x * CHAR_W, y * CHAR_H, n, (char *) s);
+	return(0);
 }
 
-/****************************************************************************
+/*
  * Low-level graphics routine (assumes valid input)
  * Draw n chars at location (x,y) with value s and attribute a
- ***************************************************************************/
-errr term_pict_svgalib (int x, int y, int n, const byte *ap, const char *cp)
-{
- int i;
- int x2, y2;
+ */
 
- for (i = 0; i < n; i++)
- {
-  x2 = (cp[i] & 0x1F) * CHAR_W;
-  y2 = (ap[i] & 0x1F) * CHAR_H;
-  gl_copyboxfromcontext (buffer, x2, y2, CHAR_W,
-    CHAR_H, (x+i)*CHAR_W, y*CHAR_H);
- }
- return(0);
+#ifdef USE_GRAPHICS
+
+# ifdef USE_TRANSPARENCY
+static errr term_pict_svgalib(int x, int y, int n,
+	 const byte *ap, const char *cp, const byte *tap, const char *tcp)
+# else /* USE_TRANSPARENCY */
+static errr term_pict_svgalib(int x, int y, int n,
+	 const byte *ap, const char *cp)
+# endif /* USE_TRANSPARENCY */
+{
+	int i;
+	int x2, y2;
+
+
+# ifdef USE_TRANSPARENCY
+	/* Hack - Ignore unused transparency data for now */
+	(void) tap;
+	(void) tcp;
+# endif /* USE_TRANSPARENCY */
+
+	for (i = 0; i < n; i++)
+	{
+		x2 = (cp[i] & 0x7F) * CHAR_W;
+		y2 = (ap[i] & 0x7F) * CHAR_H;
+		
+		gl_copyboxfromcontext(buffer, x2, y2, CHAR_W, CHAR_H,
+			 (x + i) * CHAR_W, y * CHAR_H);
+	}
+	return(0);
 }
 
-void term_load_bitmap()
+static void term_load_bitmap(void)
 {
- void *temp;
+	char path[1024];
 
- temp=read_bmp_file();
- gl_putbox(0,0,bw,bh,temp); /* Blit bitmap into buffer */
- free (temp);
+	byte *temp = NULL;
+	
+	int bw, bh;
+	
+	/* Build the "graf" path */
+	path_build(path, 1024, ANGBAND_DIR_XTRA, "graf");
 
- return;
+	sprintf (path, "%s/8x13.bmp", path);
+  
+	/* See if the file exists */
+	if (fd_close(fd_open(path, O_RDONLY)))
+	{
+		printf ("Unable to load bitmap data file %s, bailing out....\n", path);
+		exit (-1);
+	}
+	
+	temp = ReadBMP(path, &bw, &bh);
+	
+	/* Blit bitmap into buffer */
+	gl_putbox(0, 0, bw, bh, temp);
+	
+	FREE(temp, byte);
+
+	return;
 }
 
-/****************************************************************************
+#endif /* USE_GRAPHICS */
+
+/*
  * Term hook
  * Initialize a new term
- ***************************************************************************/
-static void term_init_svgalib (term *t)
+ */
+static void term_init_svgalib(term *t)
 {
-  int VGAMODE, VIRTUAL;
+	int vgamode;
 
-  VGAMODE=G1024x768x256; /* Hardwire this mode in for now */
-  VIRTUAL=1;
+	/* Only one term */
+	(void) t;
+	
+	vga_init();
 
-  vga_init();
+	/* The palette is 256x3 bytes big (RGB). */
+	C_MAKE(pal, 768, byte);
 
-  /* Set up the bitmap buffer context */
-  gl_setcontextvgavirtual(VGAMODE);
-  buffer=gl_allocatecontext();
-  gl_getcontext(buffer);
-  term_load_bitmap(); /* Load bitmap into virtual screen */
-  VGAMODE=G640x480x256; /* Hardwire this mode in for now */
+#ifdef USE_GRAPHICS
 
-  /* Set up the physical screen context */
-  if (vga_setmode(VGAMODE) < 0)
-  {
-   printf("Mode not available\n");
-   exit(0);
-  }
-  gl_setcontextvga(VGAMODE);
-  screen=gl_allocatecontext();
-  gl_getcontext(screen);
-  gl_enablepageflipping (screen);
-  setpal(); /* Set up palette colors */
-  initfont(); /* Load the character font data */
+	/* Hardwire this mode in for now */
+	vgamode = G1024x768x256;
 
-  gl_setwritemode(WRITEMODE_OVERWRITE);  /* Color 0 isn't transparent */
+	/* Set up the bitmap buffer context */
+	gl_setcontextvgavirtual(vgamode);
+	buffer = gl_allocatecontext();
+	gl_getcontext(buffer);
+
+	/* Load bitmap into virtual screen */
+	term_load_bitmap();
+
+#endif /* USE_GRAPHICS */
+
+	/* Hardwire this mode in for now */
+	vgamode = G640x480x256;
+
+	/* Set up the physical screen context */
+	if (vga_setmode(vgamode) < 0)
+	{
+		quit("Graphics mode not available!");
+  	}
+	
+	gl_setcontextvga(vgamode);
+	screen = gl_allocatecontext();
+	gl_getcontext(screen);
+	
+	/* Is this needed? */
+	gl_enablepageflipping(screen);	
+	
+	/* Set up palette colors */
+	setpal();
+	
+	/* Load the character font data */
+	initfont();
+
+	/* Color 0 isn't transparent */
+	gl_setwritemode(WRITEMODE_OVERWRITE);
 }
 
-/****************************************************************************
+/*
  * Term hook
  * Nuke an old term
- ***************************************************************************/
-static void term_nuke_svgalib (term *t)
+ */
+static void term_nuke_svgalib(term *t)
 {
-  vga_setmode (TEXT);
+	/* Only one term */
+	(void) t;
+	
+	vga_setmode(TEXT);
 }
 
-/****************************************************************************
+/*
  * Hook SVGAlib routines into term.c
- ***************************************************************************/
+ */
 errr init_lsl(void)
 {
- term *t=&term_screen_body;
+	term *t = &term_screen_body;
 
- if (arg_graphics)
- {
-  use_graphics = TRUE;
- }
- term_init(t,80,24,1024); /* Initialize the term */
+#ifdef USE_GRAPHICS
 
- t->soft_cursor = TRUE; /* The cursor is done via software and needs erasing */
- t->attr_blank = TERM_DARK;
- t->char_blank = ' ';
+	if (arg_graphics)
+	{
+		use_graphics = TRUE;
+	}
+	
+#endif /* USE_GRAPHICS */
 
- /* Add hooks */
- t->init_hook = term_init_svgalib;
- t->nuke_hook = term_nuke_svgalib;
- t->text_hook = term_text_svgalib;
- if (use_graphics)
- {
-  t->pict_hook = term_pict_svgalib;
-  t->higher_pict = TRUE;
- }
- t->wipe_hook = term_wipe_svgalib;
- t->curs_hook = term_curs_svgalib;
- t->xtra_hook = term_xtra_svgalib;
+	/* Initialize the term */
+	term_init(t, 80, 24, 1024);
+	
+	/* The cursor is done via software and needs erasing */
+	t->soft_cursor = TRUE;
 
- term_screen = t; /* Save the term */
- Term_activate(term_screen);
+	t->attr_blank = TERM_DARK;
+	t->char_blank = ' ';
 
- return(0);
+	/* Add hooks */
+	t->init_hook = term_init_svgalib;
+	t->nuke_hook = term_nuke_svgalib;
+	t->text_hook = term_text_svgalib;
+
+#ifdef USE_GRAPHICS
+
+	if (use_graphics)
+	{
+		t->pict_hook = term_pict_svgalib;
+		t->higher_pict = TRUE;
+	}
+
+#endif /* USE_GRAPHICS */
+	
+	t->wipe_hook = term_wipe_svgalib;
+	t->curs_hook = term_curs_svgalib;
+	t->xtra_hook = term_xtra_svgalib;
+
+	/* Save the term */
+	term_screen = t;
+	
+	/* Activate it */
+	Term_activate(term_screen);
+
+	return(0);
 }
+
+#endif /* USE_LSL */

@@ -1506,7 +1506,7 @@ static void calc_spells(void)
 	int			i, j, k, levels;
 	int			num_allowed, num_known;
 
-	magic_type		*s_ptr;
+	const magic_type *s_ptr;
 	int use_realm1 = p_ptr->realm1 - 1;
 	int use_realm2 = p_ptr->realm2 - 1;
 	int which;
@@ -2026,27 +2026,27 @@ static void calc_torch(void)
 		/* Examine actual lites */
 		if ((i == INVEN_LITE) && (o_ptr->k_idx) && (o_ptr->tval == TV_LITE))
 		{
-			/* Torches (with fuel) provide some lite */
-			if ((o_ptr->sval == SV_LITE_TORCH) && (o_ptr->pval > 0))
-			{
-				p_ptr->cur_lite += 1;
-				continue;
-			}
-
-			/* Lanterns (with fuel) provide more lite */
-			if ((o_ptr->sval == SV_LITE_LANTERN) && (o_ptr->pval > 0))
-			{
-				p_ptr->cur_lite += 2;
-				continue;
-			}
-
 			/* Artifact Lites provide permanent, bright, lite */
-			if (o_ptr->flags3 & TR3_INSTA_ART)
+			if (o_ptr->flags3 & TR3_LITE)
 			{
 				p_ptr->cur_lite += 3;
 				continue;
 			}
-
+			
+			/* Lanterns (with fuel) provide more lite */
+			if ((o_ptr->sval == SV_LITE_LANTERN) && (o_ptr->timeout > 0))
+			{
+				p_ptr->cur_lite += 2;
+				continue;
+			}
+			
+			/* Torches (with fuel) provide some lite */
+			if ((o_ptr->sval == SV_LITE_TORCH) && (o_ptr->timeout > 0))
+			{
+				p_ptr->cur_lite += 1;
+				continue;
+			}
+			
 			/* notreached */
 		}
 		else
@@ -2062,8 +2062,6 @@ static void calc_torch(void)
 		}
 
 	}
-
-	/* The old radius 5 limit is no more... */
 
 	/*
 	 * Check if the player doesn't have a lite source,
@@ -3414,7 +3412,7 @@ static void calc_bonuses(void)
 		if (p_ptr->lev > 44) p_ptr->num_blow++;
 		if (p_ptr->lev > 49) p_ptr->num_blow++;
 
-		if (!p_ptr->monk_armour_stat)
+		if (p_ptr->monk_armour_stat)
 		{
 			p_ptr->num_blow /= 2;
 		}

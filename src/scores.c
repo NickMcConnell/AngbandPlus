@@ -36,7 +36,7 @@ static errr highscore_read(high_score *score)
 /*
  * Write one score to the highscore file
  */
-static int highscore_write(high_score *score)
+static int highscore_write(const high_score *score)
 {
 	/* Write the record, note failure */
 	return (fd_write(highscore_fd, (char*)(score), sizeof(high_score)));
@@ -47,7 +47,7 @@ static int highscore_write(high_score *score)
  * Just determine where a new score *would* be placed
  * Return the location (0 is best) or -1 on failure
  */
-static int highscore_where(high_score *score)
+static int highscore_where(const high_score *score)
 {
 	int			i;
 
@@ -75,7 +75,7 @@ static int highscore_where(high_score *score)
  * Actually place an entry into the high score file
  * Return the location (0 is best) or -1 on "failure"
  */
-static int highscore_add(high_score *score)
+static int highscore_add(const high_score *score)
 {
 	int			i, slot;
 	bool		done = FALSE;
@@ -195,7 +195,7 @@ static long total_points(void)
  *
  * Mega-Hack -- allow "fake" entry at the given position.
  */
-void display_scores_aux(int from, int to, int note, high_score *score)
+void display_scores_aux(int from, int to, int note, const high_score *score)
 {
 	int		i, j, k, n, place;
 	byte attr;

@@ -1,4 +1,4 @@
-# CVS: Last edit by $Author: sfuerst $ on $Date: 2001/03/30 10:30:55 $
+# CVS: Last edit by $Author: sfuerst $ on $Date: 2001/04/17 01:53:23 $
 # File: misc.txt
 
 
@@ -47,5 +47,5 @@ M:M:1024
 M:D:512
 
 # Maximum number of field types in t_info.txt
-M:T:139
+M:T:142
 

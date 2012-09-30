@@ -164,7 +164,7 @@ void check_experience(void)
  *
  * XXX XXX XXX Note the use of actual "monster names"
  */
-static int get_coin_type(monster_race *r_ptr)
+static int get_coin_type(const monster_race *r_ptr)
 {
 	cptr name = (r_name + r_ptr->name);
 
@@ -204,8 +204,10 @@ static int get_coin_type(monster_race *r_ptr)
  *
  * Note that monsters can now carry objects, and when a monster dies,
  * it drops all of its objects, which may disappear in crowded rooms.
+ *
+ * Hack - monsters only explode if explode is TRUE.
  */
-bool monster_death(int m_idx)
+bool monster_death(int m_idx, bool explode)
 {
 	int i, j, y, x, ny, nx, i2, j2;
 
@@ -257,7 +259,7 @@ bool monster_death(int m_idx)
 	/* Let monsters explode! */
 	for (i = 0; i < 4; i++)
 	{
-		if (r_ptr->blow[i].method == RBM_EXPLODE)
+		if ((r_ptr->blow[i].method == RBM_EXPLODE) && explode)
 		{
 			u16b flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL;
 			int typ = GF_MISSILE;
@@ -279,7 +281,7 @@ bool monster_death(int m_idx)
 				case RBE_ELEC:      typ = GF_ELEC; break;
 				case RBE_FIRE:      typ = GF_FIRE; break;
 				case RBE_COLD:      typ = GF_COLD; break;
-				case RBE_BLIND:     typ = GF_MISSILE; break;
+				case RBE_BLIND:     typ = GF_LITE; break; /* HACK - for Yellow light */
 				case RBE_CONFUSE:   typ = GF_CONFUSION; break;
 				case RBE_TERRIFY:   typ = GF_MISSILE; break;
 				case RBE_PARALYZE:  typ = GF_MISSILE; break;
@@ -673,7 +675,7 @@ bool monster_death(int m_idx)
 	}
 
 	/* One more ultra-hack: An Unmaker goes out with a big bang! */
-	else if (strstr((r_name + r_ptr->name), "Unmaker"))
+	else if (strstr((r_name + r_ptr->name), "Unmaker") && explode)
 	{
 		u16b flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL;
 		(void)project(m_idx, 6, y, x, 100, GF_CHAOS, flg);
@@ -965,7 +967,7 @@ bool monster_death(int m_idx)
  *
  * "type" is not yet used and should be 0.
  */
-int mon_damage_mod(monster_type *m_ptr, int dam, int type)
+int mon_damage_mod(const monster_type *m_ptr, int dam, int type)
 {
 	/* Hack - ignore type for now */
 	(void) type;
@@ -979,7 +981,7 @@ int mon_damage_mod(monster_type *m_ptr, int dam, int type)
 /*
  * This function calculates the experience gained for killing a monster.
  */
-void exp_for_kill(monster_race *r_ptr, s32b *new_exp, s32b *new_exp_frac)
+void exp_for_kill(const monster_race *r_ptr, s32b *new_exp, s32b *new_exp_frac)
 {
 	s32b div, exp;
 
@@ -1231,7 +1233,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		gain_exp(new_exp);
 
 		/* Generate treasure */
-		corpse = monster_death(m_idx);
+		corpse = monster_death(m_idx, TRUE);
 
 		/* When the player kills a Unique, it stays dead */
 		if (r_ptr->flags1 & RF1_UNIQUE) r_ptr->max_num = 0;
@@ -1296,9 +1298,6 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		return (TRUE);
 	}
 
-
-#ifdef ALLOW_FEAR
-
 	/* Mega-Hack -- Pain cancels fear */
 	if (m_ptr->monfear && (dam > 0))
 	{
@@ -1323,7 +1322,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 	}
 
 	/* Sometimes a monster gets scared by damage */
-	if (!m_ptr->monfear && !(r_ptr->flags3 & (RF3_NO_FEAR)))
+	if (!m_ptr->monfear && !(r_ptr->flags3 & (RF3_NO_FEAR)) && (dam > 0))
 	{
 		int percentage;
 
@@ -1334,7 +1333,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		 * Run (sometimes) if at 10% or less of max hit points,
 		 * or (usually) when hit for half its current hit points
 		 */
-		if (((percentage <= 10) && (randint0(10) < percentage)) ||
+		if ((randint1(10) >= percentage) ||
 		    ((dam >= m_ptr->hp) && (randint0(100) < 80)))
 		{
 			/* Hack -- note fear */
@@ -1346,9 +1345,6 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 			                   20 : ((11 - percentage) * 5)));
 		}
 	}
-
-#endif
-
 
 	/* Not dead yet */
 	return (FALSE);
@@ -1564,7 +1560,6 @@ void verify_panel(void)
 /*
  * Center the dungeon display around the player
  */
-
 void panel_center(void)
 {
 	int wid, hgt;
@@ -1772,8 +1767,11 @@ bool target_able(int m_idx)
 	return (TRUE);
 }
 
-/* Hack - function to get object name of mimic */
-static bool mimic_desc(char *m_name, monster_race *r_ptr)
+
+/*
+ * Hack - function to get object name of mimic
+ */
+static bool mimic_desc(char *m_name, const monster_race *r_ptr)
 {
 	/* Hack - look at default character */
 	switch (r_ptr->d_char)
@@ -2270,6 +2268,7 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 				if ((m_ptr->smart & SM_MIMIC) && mimic_desc(m_name, r_ptr))
 				{
 					/* Describe the object */
+					s3 = "a ";
 					sprintf(out_val, "%s%s%s%s [%s]", s1, s2, s3, m_name, info);
 					prt(out_val, 0, 0);
 					move_cursor_relative(y, x);

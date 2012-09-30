@@ -31,7 +31,7 @@ extern bool generate_wilderness_callback(int y, int x);
 extern bool enter_wilderness_callback(int y, int x);
 extern bool leave_wilderness_callback(int y, int x);
 
-extern void store_examine_callback(object_type *o_ptr);
+extern void store_examine_callback(const object_type *o_ptr);
 extern bool monster_move_callback(int *mm, int m_idx);
 extern void create_monster_callback(int m_idx);
 extern void delete_monster_callback(int m_idx);
@@ -55,20 +55,20 @@ extern PyObject* object_load_callback(char *code);
 
 /* Object callbacks - object specific */
 extern bool object_eat_callback(object_type *o_ptr);
-extern bool object_browse_callback(object_type *o_ptr);
+extern bool object_browse_callback(const object_type *o_ptr);
 extern bool object_cast_callback(object_type *o_ptr);
-extern cptr object_save_callback(object_type *o_ptr);
+extern cptr object_save_callback(const object_type *o_ptr);
 extern void object_delete_callback(object_type *o_ptr);
-extern PyObject* object_copy_callback(object_type *o_ptr, object_type *j_ptr);
-extern long get_object_level_callback(object_type *o_ptr);
-extern long get_object_cost_callback(object_type *o_ptr);
-extern cptr get_object_name_callback(object_type *o_ptr);
-extern char get_object_d_char_callback(object_type *o_ptr);
-extern char get_object_x_char_callback(object_type *o_ptr);
-extern byte get_object_d_attr_callback(object_type *o_ptr);
-extern byte get_object_x_attr_callback(object_type *o_ptr);
-extern bool get_object_aware_callback(object_type *o_ptr);
-extern bool get_object_tried_callback(object_type *o_ptr);
+extern PyObject* object_copy_callback(object_type *o_ptr, const object_type *j_ptr);
+extern long get_object_level_callback(const object_type *o_ptr);
+extern long get_object_cost_callback(const object_type *o_ptr);
+extern cptr get_object_name_callback(const object_type *o_ptr);
+extern char get_object_d_char_callback(const object_type *o_ptr);
+extern char get_object_x_char_callback(const object_type *o_ptr);
+extern byte get_object_d_attr_callback(const object_type *o_ptr);
+extern byte get_object_x_attr_callback(const object_type *o_ptr);
+extern bool get_object_aware_callback(const object_type *o_ptr);
+extern bool get_object_tried_callback(const object_type *o_ptr);
 
 /* Object_kind callbacks */
 extern bool free_object_kind_list_callback(void);
@@ -77,7 +77,7 @@ extern bool init_object_kind_list_callback(void);
 /* Field callbacks */
 extern void field_delete_callback(field_type *f_ptr);
 extern PyObject* field_copy_callback(field_type *f_ptr, field_type *g_ptr);
-extern cptr field_save_callback(field_type *f_ptr);
+extern cptr field_save_callback(const field_type *f_ptr);
 extern PyObject* field_load_callback(char *code);
 
 extern bool use_skill_callback(void);

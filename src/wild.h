@@ -44,6 +44,19 @@
 #define ROAD_BORDER		(WILD_BLOCK_SIZE * 120)
 #define GROUND_LEVEL	(WILD_BLOCK_SIZE * 100)
 
+/* Decision tree constants */
+
+/* Lower two bits describe cut */ 
+#define DT_HGT		0x01
+#define DT_POP		0x02
+#define DT_LAW		0x03
+
+/* These two bits describe the direction to branch */
+#define DT_LEFT		0x04
+#define DT_RIGHT	0x08
+
+
+
 /* Some useful macros */
 #define build_is_store(X) \
 	(wild_build[X].type == BT_STORE)

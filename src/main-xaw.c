@@ -58,7 +58,7 @@
 /*
  * Include some helpful X11 code.
  */
-#include "maid-x11.c"
+#include "maid-x11.h"
 
 
 
@@ -343,7 +343,8 @@ AngbandClassRec angbandClassRec =
 	},
 	/* Simple class fields initialization */
 	{
-		/* change_sensitive     */      XtInheritChangeSensitive
+		/* change_sensitive     */      XtInheritChangeSensitive,
+		/* extension            */      NULL
 	},
 	/* Angband class fields initialization */
 	{
@@ -568,6 +569,9 @@ static void Initialize(AngbandWidget request, AngbandWidget wnew)
 	                                angband_color_table[1][2],
 	                                angband_color_table[1][3]);
 
+	/* Ignore this parameter */
+	(void) request;
+	
 	/* Fix the background color */
 	wnew->core.background_pixel = bg;
 
@@ -729,6 +733,9 @@ static void Redisplay(AngbandWidget wnew, XEvent *xev, Region region)
 	term_data *old_td = (term_data*)(Term->data);
 	term_data *td = &data[0];
 
+	/* Ignore parameter */
+	(void) region;
+
 	/* Hack - Find the term to activate */
 	for (i = 0; i < num_term; i++)
 	{
@@ -798,7 +805,12 @@ static Boolean SetValues(AngbandWidget current, AngbandWidget request,
 	int height, width;
 	int i;
 
-
+	/* Ignore parameters */
+	(void) request;
+	(void) args;
+	(void) num_args;
+	
+	
 	/* Handle font change */
 	if (wnew->angband.font != current->angband.font)
 	{
@@ -964,7 +976,7 @@ static XFontStruct *getFont(AngbandWidget widget,
 /*
  * Number of fallback resources per window
  */
-#define TERM_FALLBACKS 6
+#define TERM_FALLBACKS 8
 
 
 
@@ -994,7 +1006,9 @@ Arg specialArgs[TERM_FALLBACKS] =
 	{ XtNminRows,      24},
 	{ XtNminColumns,   80},
 	{ XtNmaxRows,      255},
-	{ XtNmaxColumns,   255}
+	{ XtNmaxColumns,   255},
+	{ XtNinternalBorder, 2},
+	{ XtNfont,			 (unsigned long) DEFAULT_X11_FONT}
 };
 
 
@@ -1003,12 +1017,14 @@ Arg specialArgs[TERM_FALLBACKS] =
  */
 Arg defaultArgs[TERM_FALLBACKS] =
 {
-	{ XtNstartRows,    24},
-	{ XtNstartColumns, 80},
-	{ XtNminRows,      1},
-	{ XtNminColumns,   1},
-	{ XtNmaxRows,      255},
-	{ XtNmaxColumns,   255}
+	{ XtNstartRows,      24},
+	{ XtNstartColumns,   80},
+	{ XtNminRows,        1},
+	{ XtNminColumns,     1},
+	{ XtNmaxRows,        255},
+	{ XtNmaxColumns,     255},
+	{ XtNinternalBorder, 2},
+	{ XtNfont,			 (unsigned long) DEFAULT_X11_FONT}
 };
 
 
@@ -1052,6 +1068,10 @@ static void react_redraw(Widget widget,
 {
 	term_data *old_td = (term_data*)(Term->data);
 	term_data *td = (term_data*)client_data;
+
+	/* Ignore parameters */
+	(void) widget;
+	(void) call_data;
 
 	/* Activate the proper Term */
 	Term_activate(&td->t);
@@ -1186,6 +1206,9 @@ static void handle_event(Widget widget, XtPointer client_data, XEvent *event,
 	term_data *old_td = (term_data*)(Term->data);
 	term_data *td = (term_data *)client_data;
 
+	/* Ignore parameter */
+	(void) widget;
+	
 	/* Continue to process the event by default */
 	*continue_to_dispatch = TRUE;
 
@@ -1225,7 +1248,7 @@ static void handle_event(Widget widget, XtPointer client_data, XEvent *event,
 /*
  * Process an event (or just check for one)
  */
-errr CheckEvent(bool wait)
+static errr CheckEvent(bool wait)
 {
 	XEvent event;
 
@@ -1376,7 +1399,7 @@ static errr Term_xtra_xaw(int n, int v)
 static errr Term_wipe_xaw(int x, int y, int n)
 {
 	term_data *td = (term_data*)(Term->data);
-
+	
 	/* Erase using color 0 */
 	AngbandClearArea(td->widget, x, y, n, 1, 0);
 
@@ -1394,9 +1417,15 @@ static errr Term_wipe_xaw(int x, int y, int n)
 static errr Term_curs_xaw(int x, int y)
 {
 	term_data *td = (term_data*)(Term->data);
-
-	/* Hilite the cursor character */
-	AngbandClearArea(td->widget, x, y, 1, 1, COLOR_XOR);
+	
+	/* Hilite the cursor character with a box */
+	XDrawRectangle(XtDisplay(td->widget), XtWindow(td->widget),
+		td->widget->angband.gc[COLOR_XOR],
+		x * td->widget->angband.fontwidth + 
+			td->widget->angband.internal_border,
+		y * td->widget->angband.fontheight +
+			td->widget->angband.internal_border,
+		td->widget->angband.fontwidth - 1, td->widget->angband.fontheight - 1);
 
 	/* Success */
 	return (0);
@@ -1474,7 +1503,8 @@ static errr term_data_init(term_data *td, Widget topLevel,
 	cptr str;
 
 	int val;
-
+	cptr font;
+	
 	/* Create the shell widget */
 	parent = XtCreatePopupShell(name, topLevelShellWidgetClass, topLevel,
 	                            NULL, 0);
@@ -1501,6 +1531,85 @@ static errr term_data_init(term_data *td, Widget topLevel,
 	/* Reset the initial size */
 	widget_arg[0].value = rows;
 	widget_arg[1].value = cols;
+
+	/* Hack  ox==oy in xaw port */ 
+	
+	/* Window specific inner border offset (ox) */
+	sprintf(buf, "ANGBAND_X11_IBOX_%d", i);
+	str = getenv(buf);
+	val = (str != NULL) ? atoi(str) : -1;
+	if (val > 0) widget_arg[6].value = val;
+
+	/* Window specific inner border offset (oy) */
+	sprintf(buf, "ANGBAND_X11_IBOY_%d", i);
+	str = getenv(buf);
+	val = (str != NULL) ? atoi(str) : -1;
+	if (val > 0) widget_arg[6].value = val;
+
+		
+	/* Window specific font name */
+	sprintf(buf, "ANGBAND_X11_FONT_%d", i);
+
+	/* Check environment for that font */
+	font = getenv(buf);
+
+	/* Check environment for "base" font */
+	if (!font) font = getenv("ANGBAND_X11_FONT");
+
+	/* No environment variables, use default font */
+	if (!font)
+	{
+		switch (i)
+		{
+			case 0:
+			{
+				font = DEFAULT_X11_FONT_0;
+			}
+			break;
+			case 1:
+			{
+				font = DEFAULT_X11_FONT_1;
+			}
+			break;
+			case 2:
+			{
+				font = DEFAULT_X11_FONT_2;
+			}
+			break;
+			case 3:
+			{
+				font = DEFAULT_X11_FONT_3;
+			}
+			break;
+			case 4:
+			{
+				font = DEFAULT_X11_FONT_4;
+			}
+			break;
+			case 5:
+			{
+				font = DEFAULT_X11_FONT_5;
+			}
+			break;
+			case 6:
+			{
+				font = DEFAULT_X11_FONT_6;
+			}
+			break;
+			case 7:
+			{
+				font = DEFAULT_X11_FONT_7;
+			}
+			break;
+			default:
+			{
+				font = DEFAULT_X11_FONT;
+			}
+		}
+	}
+
+	widget_arg[7].value = (unsigned long) font;
+
 
 	/* Create the interior widget */
 	td->widget = (AngbandWidget)

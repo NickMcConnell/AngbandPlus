@@ -87,11 +87,11 @@ void do_cmd_go_up(void)
 
 		if (go_up)
 		{
-	/*
-	 * I'm experimenting without this... otherwise the monsters get to
-	 * act first when we go up stairs, theoretically resulting in a possible
-	 * insta-death.
-	 */
+			/*
+			 * I'm experimenting without this... otherwise the monsters get to
+			 * act first when we go up stairs, theoretically resulting in a possible
+			 * insta-death.
+			 */
 			p_ptr->energy_use = 0;
 
 			/* Success */
@@ -667,6 +667,7 @@ static bool is_open(int feat)
 	return (feat == FEAT_OPEN);
 }
 
+
 /*
  * Return TRUE if the given feature is a closed door
  */
@@ -674,6 +675,7 @@ static bool is_closed(int feat)
 {
 	return (feat == FEAT_CLOSED);
 }
+
 
 /*
  * Return the number of traps around (or under) the character.
@@ -711,6 +713,7 @@ int count_traps(int *y, int *x, bool under)
 	/* All done */
 	return count;
 }
+
 
 /*
  * Return the number of doors around (or under) the character.
@@ -815,6 +818,7 @@ static int coords_to_dir(int y, int x)
 
 	return d[dx + 1][dy + 1];
 }
+
 
 /*
  * Perform the basic "open" command on doors
@@ -1147,10 +1151,6 @@ void do_cmd_close(void)
 }
 
 
-
-
-
-
 /*
  * Tunnel through wall.  Assumes valid location.
  */
@@ -1173,7 +1173,6 @@ static bool twall(int y, int x, byte feat)
 	/* Result */
 	return (TRUE);
 }
-
 
 
 /*
@@ -2220,7 +2219,7 @@ void do_cmd_stay(int pickup)
 	/* 
 	 * Fields you are standing on may do something.
 	 */
-	field_hook(&area(p_ptr->py, p_ptr->px)->fld_idx, FIELD_ACT_PLAYER_ON, NULL);
+	field_hook(&area(p_ptr->py, p_ptr->px)->fld_idx, FIELD_ACT_PLAYER_ENTER, NULL);
 
 #if 0
 
@@ -2377,7 +2376,7 @@ static int breakage_chance(object_type *o_ptr)
  * Calculation of critical hits for objects fired or thrown by the player. -LM-
  */
 static sint critical_shot(int chance, int sleeping_bonus,
-	char o_name[], char m_name[], int visible)
+	cptr o_name, cptr m_name, int visible)
 {
 	int i, k;
 	int mult_a_crit;
@@ -2498,6 +2497,8 @@ void do_cmd_fire_aux(int item, object_type *j_ptr)
 	int dir;
 	int j, y, x, ny, nx, ty, tx;
 
+	int sl = 0, sq = 0;
+
 	int armour, bonus, chance, total_deadliness;
 
 	int sleeping_bonus = 0;
@@ -2604,6 +2605,9 @@ void do_cmd_fire_aux(int item, object_type *j_ptr)
 	bonus = (p_ptr->to_h + i_ptr->to_h + j_ptr->to_h);
 	chance = (p_ptr->skill_thb + (bonus * BTH_PLUS_ADJ));
 
+	/* Cursed arrows tend not to hit anything */
+	if (cursed_p(i_ptr)) chance = chance / 2;
+	
 	/* Shooter properties */
 	p_ptr->energy_use = p_ptr->bow_energy;
 	tmul = p_ptr->ammo_mult;
@@ -2613,6 +2617,9 @@ void do_cmd_fire_aux(int item, object_type *j_ptr)
 
 	/* Base range */
 	tdis = 5 + 5 * tmul;
+
+	/* Paranoia */
+	if (tdis > MAX_RANGE) tdis = MAX_RANGE;
 
 	/* Take a (partial) turn - note strange formula. */
 	
@@ -2669,7 +2676,7 @@ void do_cmd_fire_aux(int item, object_type *j_ptr)
 		/* Calculate the new location (see "project()") */
 		ny = y;
 		nx = x;
-		mmove2(&ny, &nx, py, px, ty, tx);
+		mmove2(&ny, &nx, py, px, ty, tx, &sl, &sq);
 
 		/* Stopped by wilderness boundary */
 		if (!in_bounds2(ny, nx)) break;
@@ -2948,6 +2955,7 @@ void do_cmd_throw_aux(int mult)
 
 	int dir, item;
 	int y, x, ny, nx, ty, tx;
+	int sl = 0, sq = 0;
 	int chance, chance2, tdis;
 	int breakage;
 	int mul, div;
@@ -3055,6 +3063,9 @@ void do_cmd_throw_aux(int mult)
 	/* Max distance of 10-18 */
 	if (tdis > mul) tdis = mul;
 
+	/* Paranoia */
+	if (tdis > MAX_RANGE) tdis = MAX_RANGE;
+
 	/* Chance of hitting.  Other thrown objects are easier to use, but
 	 * only throwing weapons take advantage of bonuses to Skill from
 	 * other items. -LM-
@@ -3098,7 +3109,7 @@ void do_cmd_throw_aux(int mult)
 		/* Calculate the new location (see "project()") */
 		ny = y;
 		nx = x;
-		mmove2(&ny, &nx, py, px, ty, tx);
+		mmove2(&ny, &nx, py, px, ty, tx, &sl, &sq);
 
 		/* Stopped by wilderness boundary */
 		if (!in_bounds2(ny, nx))

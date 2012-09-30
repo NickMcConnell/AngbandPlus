@@ -523,7 +523,7 @@ static void wr_string(cptr str)
 /*
  * Write an "item" record
  */
-static void wr_item(object_type *o_ptr)
+static void wr_item(const object_type *o_ptr)
 {
 	wr_s16b(o_ptr->k_idx);
 
@@ -618,7 +618,7 @@ static void wr_item(object_type *o_ptr)
 /*
  * Write a "monster" record
  */
-static void wr_monster(monster_type *m_ptr)
+static void wr_monster(const monster_type *m_ptr)
 {
 	wr_s16b(m_ptr->r_idx);
 	wr_s16b(m_ptr->fy);
@@ -639,7 +639,7 @@ static void wr_monster(monster_type *m_ptr)
 /*
  * Write a "field" record
  */
-static void wr_field(field_type *f_ptr)
+static void wr_field(const field_type *f_ptr)
 {
 	int i;
 
@@ -761,7 +761,7 @@ static void wr_xtra(int k_idx)
 /*
  * Write a "store" record
  */
-static void wr_store(store_type *st_ptr)
+static void wr_store(const store_type *st_ptr)
 {
 	int j;
 

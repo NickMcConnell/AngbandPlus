@@ -270,7 +270,7 @@ void delete_field(int y, int x)
 	delete_field_aux(&(c_ptr->fld_idx));
 
 	/* Note + Lite the spot */
-	note_spot(y, x);
+	if (character_dungeon) note_spot(y, x);
 }
 
 
@@ -1568,7 +1568,7 @@ void field_action_corpse_raise(s16b *field_ptr, vptr input)
 {
 	field_type *f_ptr = &fld_list[*field_ptr];
 	
-	bool *want_pet = (bool *) input; 
+	bool want_pet = *((bool *) input); 
 	
 	/*
 	 * Data[1] * 256 + Data[2] = r_idx of monster.
@@ -1579,7 +1579,7 @@ void field_action_corpse_raise(s16b *field_ptr, vptr input)
 
 	/* Make a monster nearby if possible */
 	if (summon_named_creature(f_ptr->fy, f_ptr->fx,
-	                          r_idx, FALSE, FALSE, *want_pet))
+	                          r_idx, FALSE, FALSE, want_pet))
 	{
 		/* Set the cloned flag, so no treasure is dropped */
 		m_list[hack_m_idx_ii].smart |= SM_CLONED;
@@ -1755,9 +1755,9 @@ void field_action_corpse_look(s16b *field_ptr, vptr output)
  */
 void field_action_wall_tunnel(s16b *field_ptr, vptr input)
 {	
-	int *dig = (int *) input;
+	int dig = *((int *) input);
 	
-	if (*dig > 40 + randint0(1600))
+	if (dig > 40 + randint0(1600))
 	{
 		/* Success */
 		
@@ -2068,13 +2068,13 @@ void field_action_trap_disarm(s16b *field_ptr, vptr input)
 {
 	field_type *f_ptr = &fld_list[*field_ptr];
 	
-	int *disarm = (int *) input;
+	int disarm = *((int *) input);
 	
 	/* Extract trap "power" */
 	int	power = f_ptr->data[0] / 2;	
 	
 	/* Extract the difficulty */
-	int j = *disarm - power;
+	int j = disarm - power;
 
 	/* Always have a small chance of success */
 	if (j < 2) j = 2;
@@ -2363,13 +2363,13 @@ void field_action_hit_trap_curse(s16b *field_ptr, vptr nothing)
 	/* Blast weapon */
 	else if (p_ptr->depth > randint1(500)) /* No nasty effect for low levels */
 	{
-		(void) curse_weapon();
+		(void)curse_weapon();
 	}
 	
 	/* Blast armour */
 	else if (p_ptr->depth > randint1(500)) /* No nasty effect for low levels */
 	{
-		(void) curse_armor();
+		(void)curse_armor();
 	}
 	
 	/* Delete the field */
@@ -2861,7 +2861,7 @@ void field_action_hit_trap_no_lite(s16b *field_ptr, vptr nothing)
 		((o_ptr->sval == SV_LITE_LANTERN) || (o_ptr->sval == SV_LITE_TORCH)))
 	{
 		/* Drain all light. */
-		o_ptr->pval = 0;
+		o_ptr->timeout = 0;
 	}
 	
 	/* Darkeness */
@@ -3171,7 +3171,7 @@ void field_action_counter_init(s16b *field_ptr, vptr input)
 {
 	field_type *f_ptr = &fld_list[*field_ptr];
 	
-	int *value = (int *) input;
+	int value = *((int *) input);
 	int max;
 	int new_value;
 	
@@ -3182,7 +3182,7 @@ void field_action_counter_init(s16b *field_ptr, vptr input)
 	 */
 	max = f_ptr->data[6] * 256 + f_ptr->data[7];
 	
-	new_value = f_ptr->counter + *value;
+	new_value = f_ptr->counter + value;
 	
 	/* Bounds checking */
 	if (new_value > max)
@@ -3212,10 +3212,10 @@ void field_action_door_unlock(s16b *field_ptr, vptr input)
 {	
 	field_type *f_ptr = &fld_list[*field_ptr];
 	
-	int *lock = (int *) input;
+	int lock = *((int *) input);
 	
 	/* Extract door "power" */
-	int power = *lock - f_ptr->counter;	
+	int power = lock - f_ptr->counter;	
 	
 	/* Always have a small chance of success */
 	if (power < 2) power = 2;
@@ -3251,10 +3251,10 @@ void field_action_door_bash(s16b *field_ptr, vptr input)
 {	
 	field_type *f_ptr = &fld_list[*field_ptr];
 	
-	int *jam = (int *) input;
+	int jam = *((int *) input);
 	
 	/* Extract unjamming "power" */
-	int power = *jam / 10 + adj_str_wgt[p_ptr->stat_ind[A_STR]] / 2;
+	int power = jam / 10 + adj_str_wgt[p_ptr->stat_ind[A_STR]] / 2;
 		
 	if (randint0(power) > f_ptr->counter)
 	{
@@ -3560,7 +3560,7 @@ void field_action_weaponmaster1(s16b *field_ptr, vptr input)
 {	
 	field_type *f_ptr = &fld_list[*field_ptr];
 
-	int factor = *((int*) input);
+	int factor = *((int *) input);
 	char tmp_str[80];
 
 	sprintf(tmp_str, " E) Examine Weapons (%dgp)", f_ptr->data[1] * factor);
@@ -3774,7 +3774,7 @@ void field_action_mutate2(s16b *field_ptr, vptr input)
 			}
 			else
 			{
-				(void) gain_mutation(0);
+				(void)gain_mutation(0);
 			}
 			
 			/* Subtract off cost */
@@ -3891,6 +3891,212 @@ void field_action_library2(s16b *field_ptr, vptr input)
 		*factor = FALSE;
 	}
 }
+
+/*
+ * Casino1
+ */
+void field_action_casino1(s16b *field_ptr, vptr nothing)
+{	
+	char tmp_str[80];
+	
+	/* Ignore field_ptr */
+	(void) field_ptr;
+	
+	/* Ignore nothing */
+	(void) nothing;
+
+	sprintf(tmp_str, " H) Help");
+	c_put_str(TERM_YELLOW, tmp_str, 16, 35);
+	
+	sprintf(tmp_str, " I) In Between");
+	c_put_str(TERM_YELLOW, tmp_str, 17, 35);
+	
+	sprintf(tmp_str, " C) Craps");
+	c_put_str(TERM_YELLOW, tmp_str, 18, 35);
+	
+	sprintf(tmp_str, " S) Spin the wheel");
+	c_put_str(TERM_YELLOW, tmp_str, 19, 35);
+	
+	sprintf(tmp_str, " D) Dice slots");
+	c_put_str(TERM_YELLOW, tmp_str, 20, 35);
+}
+
+/*
+ * Casino2
+ */
+void field_action_casino2(s16b *field_ptr, vptr input)
+{	
+	int *factor = ((int*) input);
+	
+	/* Ignore field_ptr */
+	(void) field_ptr;
+	
+	switch (p_ptr->command_cmd)
+	{
+		case 'H':
+		{
+			gamble_help();
+		
+			/* Hack, use factor as a return value */	
+			*factor = TRUE;
+			break;
+		}
+		
+		case 'I':
+		{
+			gamble_in_between();
+		
+			/* Hack, use factor as a return value */	
+			*factor = TRUE;
+			break;
+		}
+		
+		case 'C':
+		{
+			gamble_craps();
+		
+			/* Hack, use factor as a return value */	
+			*factor = TRUE;
+			break;
+		}
+		
+		case 'S':
+		{
+			gamble_spin_wheel();
+		
+			/* Hack, use factor as a return value */	
+			*factor = TRUE;
+			break;
+		}
+		
+		case 'D':
+		{
+			gamble_dice_slots();
+		
+			/* Hack, use factor as a return value */	
+			*factor = TRUE;
+			break;
+		}
+	
+		default:
+		{
+			*factor = FALSE;
+			break;
+		}
+	}
+}
+
+/*
+ * Inn1
+ */
+void field_action_inn1(s16b *field_ptr, vptr input)
+{	
+	field_type *f_ptr = &fld_list[*field_ptr];
+	
+	char tmp_str[80];
+	
+	int factor = *((int*) input);
+
+	sprintf(tmp_str, " E) Eat (%dgp)", f_ptr->data[1] * factor / 100);
+	c_put_str(TERM_YELLOW, tmp_str, 18, 35);
+	
+	sprintf(tmp_str, " R) Rest (%dgp)", f_ptr->data[1] * factor / 20);
+	c_put_str(TERM_YELLOW, tmp_str, 19, 35);
+}
+
+/*
+ * Inn2
+ */
+void field_action_inn2(s16b *field_ptr, vptr input)
+{	
+	field_type *f_ptr = &fld_list[*field_ptr];
+	
+	int *factor = ((int*) input);
+	
+	s32b cost;
+		
+	if (p_ptr->command_cmd == 'E')
+	{
+		cost = f_ptr->data[1] * *factor / 100;
+				
+		if (test_gold(&cost))
+		{
+			msg_print("The barkeeper gives you some gruel and a beer.");
+			msg_print(NULL);
+			(void)set_food(PY_FOOD_MAX - 1);
+			
+			/* Subtract off cost */
+			p_ptr->au -= cost;
+		}
+	
+		/* Hack, use factor as a return value */	
+		*factor = TRUE;
+	}
+	else if (p_ptr->command_cmd == 'R')
+	{
+		cost = f_ptr->data[1] * *factor / 20;
+				
+		if (test_gold(&cost) && inn_rest())
+		{
+			/* Subtract off cost */
+			p_ptr->au -= cost;
+		}
+	
+		/* Hack, use factor as a return value */	
+		*factor = TRUE;
+	}
+	else
+	{
+		*factor = FALSE;
+	}
+}
+
+
+/*
+ * Healer1
+ */
+void field_action_healer1(s16b *field_ptr, vptr input)
+{	
+	field_type *f_ptr = &fld_list[*field_ptr];
+	
+	char tmp_str[80];
+	
+	int factor = *((int*) input);
+
+	sprintf(tmp_str, " R) Restore Stats (%dgp)", f_ptr->data[1] * factor);
+	c_put_str(TERM_YELLOW, tmp_str, 18, 35);
+}
+
+/*
+ * Healer2
+ */
+void field_action_healer2(s16b *field_ptr, vptr input)
+{	
+	field_type *f_ptr = &fld_list[*field_ptr];
+	
+	int *factor = ((int*) input);
+	
+	s32b cost;
+		
+	if (p_ptr->command_cmd == 'R')
+	{
+		cost = f_ptr->data[1] * *factor;
+				
+		if (test_gold(&cost) && building_healer())
+		{
+			/* Subtract off cost */
+			p_ptr->au -= cost;
+		}
+	
+		/* Hack, use factor as a return value */	
+		*factor = TRUE;
+	}
+	else
+	{
+		*factor = FALSE;
+	}
+}
+
 
 
 

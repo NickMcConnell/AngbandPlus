@@ -95,7 +95,7 @@ struct hist_type
  *
  * XXX XXX XXX This table *must* be correct or drastic errors may occur!
  */
-static hist_type bg[] =
+static const hist_type bg[] =
 {
 	{"You are the illegitimate and unacknowledged child ",   10, 1, 2, 25},
 	{"You are the illegitimate but acknowledged child ",     20, 1, 2, 35},
@@ -727,20 +727,26 @@ static byte choose_realm(byte choices)
 		sprintf(buf, "Choose a realm (%c-%c), * for random, or = for options: ", I2A(0), I2A(n-1));
 		put_str(buf, 20, 2);
 		c = inkey();
+
 		if (c == 'Q')
 		{
 			remove_loc();
 			quit(NULL);
 		}
+
 		/*Hack - allow 'S' to restart the birth process */
 		if (c == 'S') return (MAX_REALM + 1);
+
 		if (c == '*')
 		{
 			k = randint0(n);
 			break;
 		}
+
 		k = (islower(c) ? A2I(c) : -1);
+
 		if ((k >= 0) && (k < n)) break;
+
 		if (c == '?')
 		{
 			screen_save();
@@ -901,10 +907,10 @@ static void load_prev_data(void)
 		strcpy(p_ptr->history[i], prev.history[i]);
 	}
 
-	/* Save the patron */
+	/* Load the patron */
 	p_ptr->chaos_patron = prev.patron;
 
-	/* Save the hitpoints */
+	/* Load the hitpoints */
 	for (i = 0; i < PY_MAX_LEVEL; i++)
 	{
 		p_ptr->player_hp[i] = prev.hp[i];
@@ -949,7 +955,7 @@ static void load_prev_data(void)
  * Returns adjusted stat -JK-  Algorithm by -JWT-
  *
  * auto_roll is boolean and states maximum changes should be used rather
- * than random ones to allow specification of higher values to wait for
+ * than random ones to allow specification of higher values to wait for.
  *
  * The "maximize" code is important	-BEN-
  */
@@ -994,11 +1000,11 @@ static int adjust_stat(int value, int amount, int auto_roll)
 			}
 			else if (value < 18+70)
 			{
-				value += (auto_roll ? 15 : rand_range(5, 20));
+				value += (auto_roll ? 20 : rand_range(5, 20));
 			}
 			else if (value < 18+90)
 			{
-				value += (auto_roll ? 6 : rand_range(2, 8));
+				value += (auto_roll ? 8 : rand_range(2, 8));
 			}
 			else if (value < 18+100)
 			{
@@ -1511,13 +1517,6 @@ static void player_wipe(void)
 		quest[i].r_idx = 0;
 	}
 
-	/* No weight */
-	p_ptr->total_weight = 0;
-
-	/* No items */
-	p_ptr->inven_cnt = 0;
-	p_ptr->equip_cnt = 0;
-
 	/* Clear the inventory */
 	for (i = 0; i < INVEN_TOTAL; i++)
 	{
@@ -1560,9 +1559,6 @@ static void player_wipe(void)
 
 
 	/* Wipe the spells */
-	p_ptr->spell_learned1 = p_ptr->spell_learned2 = 0L;
-	p_ptr->spell_worked1 = p_ptr->spell_worked2 = 0L;
-	p_ptr->spell_forgotten1 = p_ptr->spell_forgotten2 = 0L;
 	for (i = 0; i < 64; i++) p_ptr->spell_order[i] = 99;
 
 	/* Clean the mutation count */
@@ -1576,19 +1572,8 @@ static void player_wipe(void)
 	cheat_know = FALSE;
 	cheat_live = FALSE;
 
-	/* Assume no winning game */
-	p_ptr->total_winner = FALSE;
-
-	/* Assume no panic save */
-	p_ptr->panic_save = 0;
-
-	/* Assume no cheating */
-	p_ptr->noscore = 0;
-
 	/* Default pet command settings */
 	p_ptr->pet_follow_distance = PET_FOLLOW_DIST;
-	p_ptr->pet_open_doors = FALSE;
-	p_ptr->pet_pickup_items = FALSE;
 }
 
 
@@ -1596,7 +1581,7 @@ static void player_wipe(void)
  * Each player starts out with a few items, given as tval/sval pairs.
  * In addition, he always has some food and a few torches.
  */
-static byte player_init[MAX_CLASS][3][2] =
+static const byte player_init[MAX_CLASS][3][2] =
 {
 	{
 		/* Warrior */
@@ -1707,7 +1692,8 @@ static void player_outfit(void)
 		case RACE_SPECTRE:
 		{
 			/* Scrolls of satisfy hunger */
-			object_prep(q_ptr, lookup_kind(TV_SCROLL, SV_SCROLL_SATISFY_HUNGER));
+			object_prep(q_ptr, lookup_kind(TV_SCROLL,
+				 SV_SCROLL_SATISFY_HUNGER));
 			q_ptr->number = (byte)rand_range(2, 5);
 			object_aware(q_ptr);
 			object_known(q_ptr);
@@ -1766,12 +1752,12 @@ static void player_outfit(void)
 		/* Hack -- Give the player some torches */
 		object_prep(q_ptr, lookup_kind(TV_LITE, SV_LITE_TORCH));
 		q_ptr->number = (byte)rand_range(3, 7);
-		q_ptr->pval = rand_range(3, 7) * 500;
+		q_ptr->timeout = rand_range(3, 7) * 500;
 		object_aware(q_ptr);
 		object_known(q_ptr);
 
 #ifdef USE_SCRIPT
-	q_ptr->python = object_create_callback(q_ptr);
+		q_ptr->python = object_create_callback(q_ptr);
 #endif /* USE_SCRIPT */
 
 		(void)inven_carry(q_ptr);
@@ -1846,9 +1832,11 @@ static void player_outfit(void)
 
 		else if (tv == TV_RING && sv == SV_RING_RES_FEAR &&
 		    p_ptr->prace == RACE_BARBARIAN)
+		{
 			/* Barbarians do not need a ring of resist fear */
 			sv = SV_RING_SUSTAIN_STR;
-
+		}
+		
 		/* Get local object */
 		q_ptr = &forge;
 
@@ -1857,7 +1845,7 @@ static void player_outfit(void)
 
 		/* Assassins begin the game with a poisoned dagger */
 		if (tv == TV_SWORD && p_ptr->pclass == CLASS_ROGUE &&
-			p_ptr->realm1 == REALM_DEATH) /* Only assassins get a poisoned weapon */
+			p_ptr->realm1 == REALM_DEATH)
 		{
 			add_ego_flags(q_ptr, EGO_BRAND_POIS);
 		}
@@ -1907,7 +1895,10 @@ static bool get_player_race(void)
 		if (n < RACE_VAMPIRE)
 			sprintf(buf, "%c%c %s", I2A(n), p2, str);
 		else
+		{
+			/* HACK - there are only so many letters */
 			sprintf(buf, "%d%c %s", (n - RACE_ZOMBIE), p2, str); /* HACK */
+		}
 		put_str(buf, 18 + (n/5), 2 + 15 * (n%5));
 	}
 
@@ -2360,7 +2351,7 @@ static bool player_birth_aux_1(void)
 /*
  * Initial stat costs (initial stats always range from 10 to 18 inclusive).
  */
-static int birth_stat_costs[(18-10)+1] = { 0, 1, 2, 4, 7, 11, 16, 22, 30 };
+static const int birth_stat_costs[(18-10)+1] = { 0, 1, 2, 4, 7, 11, 16, 22, 30 };
 
 
 /*

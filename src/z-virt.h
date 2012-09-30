@@ -32,11 +32,6 @@
  * The macros MAKE/C_MAKE and KILL/C_KILL have a "procedural" metaphor,
  * and they actually modify their arguments.
  *
- * Note that, for some reason, some allocation macros may disallow
- * "stars" in type names, but you can use typedefs to circumvent
- * this.  For example, instead of "type **p; MAKE(p,type*);" you
- * can use "typedef type *type_ptr; type_ptr *p; MAKE(p,type_ptr)".
- *
  * Note that it is assumed that "memset()" will function correctly,
  * in particular, that it returns its first argument.
  */
@@ -66,56 +61,56 @@
 
 /* Set every byte in an array of type T[N], at location P, to V, and return P */
 #define C_BSET(P,V,N,T) \
-	(T*)(memset((char*)(P),(V),C_SIZE(N,T)))
+	(T *)(memset((char*)(P),(V),C_SIZE(N,T)))
 
 /* Set every byte in a thing of type T, at location P, to V, and return P */
 #define BSET(P,V,T) \
-	(T*)(memset((char*)(P),(V),SIZE(T)))
+	(T *)(memset((char*)(P),(V),SIZE(T)))
 
 
 /* Wipe an array of type T[N], at location P, and return P */
 #define C_WIPE(P,N,T) \
-	(T*)(memset((char*)(P),0,C_SIZE(N,T)))
+	(T *)(memset((char*)(P),0,C_SIZE(N,T)))
 
 /* Wipe a thing of type T, at location P, and return P */
 #define WIPE(P,T) \
-	(T*)(memset((char*)(P),0,SIZE(T)))
+	(T *)(memset((char*)(P),0,SIZE(T)))
 
 
 /* Load an array of type T[N], at location P1, from another, at location P2 */
 #define C_COPY(P1,P2,N,T) \
-	(T*)(memcpy((char*)(P1),(char*)(P2),C_SIZE(N,T)))
+	(T *)(memcpy((char*)(P1),(char*)(P2),C_SIZE(N,T)))
 
 /* Load a thing of type T, at location P1, from another, at location P2 */
 #define COPY(P1,P2,T) \
-	(T*)(memcpy((char*)(P1),(char*)(P2),SIZE(T)))
+	(T *)(memcpy((char*)(P1),(char*)(P2),SIZE(T)))
 
 
 /* Free an array of N things of type T at P, return NULL */
 #define C_FREE(P,N,T) \
-	(T*)(rnfree(P,C_SIZE(N,T)))
+	(T *)(rnfree(P,C_SIZE(N,T)))
 
 /* Free one thing of type T at P, return NULL */
 #define FREE(P,T) \
-	(T*)(rnfree(P,SIZE(T)))
+	(T *)(rnfree(P,SIZE(T)))
 
 
 /* Allocate, and return, an array of type T[N] */
 #define C_RNEW(N,T) \
-	((T*)(ralloc(C_SIZE(N,T))))
+	((T *)(ralloc(C_SIZE(N,T))))
 
 /* Allocate, and return, a thing of type T */
 #define RNEW(T) \
-	((T*)(ralloc(SIZE(T))))
+	((T *)(ralloc(SIZE(T))))
 
 
 /* Allocate, wipe, and return an array of type T[N] */
 #define C_ZNEW(N,T) \
-	((T*)(C_WIPE(C_RNEW(N,T),N,T)))
+	((T *)(C_WIPE(C_RNEW(N,T),N,T)))
 
 /* Allocate, wipe, and return a thing of type T */
 #define ZNEW(T) \
-	((T*)(WIPE(RNEW(T),T)))
+	((T *)(WIPE(RNEW(T),T)))
 
 
 /* Allocate a wiped array of type T[N], assign to pointer P */

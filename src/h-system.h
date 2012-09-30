@@ -133,4 +133,68 @@ extern long atol();
 
 #include <stdarg.h>
 
+/* Include maid-x11.c */
+#if defined(USE_X11) || defined(USE_XAW) || defined(US_XPJ)
+	#define USE_XMAID
+#endif 
+
+
+/* Hack - this should be in h-types.h, but we need errr here */
+
+/* Error codes for function return values */
+/* Success = 0, Failure = -N, Problem = +N */
+typedef int errr;
+
+
+/* The init functions for each port called from main.c */
+
+#ifdef USE_XAW
+extern errr init_xaw(int, char**);
+#endif
+
+#ifdef USE_X11
+extern errr init_x11(int, char**);
+#endif
+
+#ifdef USE_XPJ
+extern errr init_xpj(int, char**);
+#endif
+
+#ifdef USE_GCU
+extern errr init_gcu(void);
+#endif
+
+#ifdef USE_CAP
+extern errr init_cap(int, char**);
+#endif
+
+#ifdef USE_DOS
+extern errr init_dos(void);
+#endif
+
+#ifdef USE_IBM
+extern errr init_ibm(void);
+#endif
+
+#ifdef USE_EMX
+extern errr init_emx(void);
+#endif
+
+#ifdef USE_SLA
+extern errr init_sla(void);
+#endif
+
+#ifdef USE_AMI
+extern errr init_ami(void);
+#endif
+
+#ifdef USE_VME
+extern errr init_vme(void);
+#endif
+
+#ifdef USE_LSL
+extern errr init_lsl(void);
+#endif
+
+
 #endif /* INCLUDED_H_SYSTEM_H */

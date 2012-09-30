@@ -497,7 +497,7 @@ static bool select_mutation(int choose_mut, bool gain, int *mutation)
  */
 bool gain_mutation(int choose_mut)
 {
-	mutation_type *mut_ptr;
+	const mutation_type *mut_ptr;
 	
 	u32b muta_which;
 
@@ -718,7 +718,7 @@ bool lose_mutation(int choose_mut)
 	int num;
 	
 	u32b muta_which;
-	mutation_type *mut_ptr;
+	const mutation_type *mut_ptr;
 
 	
 	if (!select_mutation(choose_mut, FALSE, &num))
@@ -760,7 +760,7 @@ bool lose_mutation(int choose_mut)
  */
 void dump_mutations(FILE *OutFile)
 {
-	mutation_type *mut_ptr;
+	const mutation_type *mut_ptr;
 	
 	int i;
 
@@ -865,7 +865,7 @@ int calc_mutant_regenerate_mod(void)
 /*
  * Use an activatable mutation power
  */
-void mutation_power_aux(mutation_type *mut_ptr)
+void mutation_power_aux(const mutation_type *mut_ptr)
 {
 	int px = p_ptr->px;
 	int py = p_ptr->py;
@@ -1379,7 +1379,7 @@ void mutation_power_aux(mutation_type *mut_ptr)
 /*
  * Proces the random mutations
  */
-void mutation_random_aux(mutation_type *mut_ptr)
+void mutation_random_aux(const mutation_type *mut_ptr)
 {
 	if (!one_in_(mut_ptr->chance * 100)) return;
 	

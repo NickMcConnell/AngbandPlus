@@ -61,8 +61,9 @@ static int racial_chance(s16b min_level, int use_stat, int difficulty)
 }
 
 
-/* Note: return value indicates that we have succesfully used the power */
-
+/*
+ * Note: return value indicates that we have succesfully used the power
+ */
 bool racial_aux(s16b min_level, int cost, int use_stat, int difficulty)
 {
 	bool use_hp = FALSE;
@@ -143,7 +144,7 @@ bool racial_aux(s16b min_level, int cost, int use_stat, int difficulty)
 }
 
 
-static void cmd_racial_power_aux(mutation_type *mut_ptr)
+static void cmd_racial_power_aux(const mutation_type *mut_ptr)
 {
 	s16b        plev = p_ptr->lev;
 	int         dir = 0;
@@ -567,7 +568,7 @@ struct power_desc_type
 	int  cost;
 	int  fail;
 	int  number;
-	mutation_type *power;
+	const mutation_type *power;
 };
 
 
@@ -582,7 +583,7 @@ void do_cmd_racial_power(void)
 	char            choice;
 	char            out_val[160];
 	
-	mutation_type	*mut_ptr;
+	const mutation_type	*mut_ptr;
 
 	/* Wipe desc */
 	for (num = 0; num < 36; num++)

@@ -244,6 +244,85 @@ static void change_path(cptr info)
 	}
 }
 
+/*
+ * The default message to print when we get bad input.
+ */
+static void game_usage(void)
+{
+	/* Dump usage information */
+	puts("Usage: angband [options] [-- subopts]");
+	puts("  -n       Start a new character");
+	puts("  -f       Request fiddle mode");
+	puts("  -w       Request wizard mode");
+	puts("  -v       Request sound mode");
+	puts("  -g       Request graphics mode");
+	puts("  -o       Request original keyset");
+	puts("  -r       Request rogue-like keyset");
+	puts("  -M       Request monochrome mode");
+	puts("  -s<num>  Show <num> high scores");
+	puts("  -u<who>  Use your <who> savefile");
+	puts("  -d<def>  Define a 'lib' dir sub-path");
+	
+#ifdef USE_XAW
+	puts("  -mxaw    To use XAW");
+	puts("  --       Sub options");
+	puts("  -- -d    Set display name");
+	puts("  -- -s    Turn off smoothscaling graphics");
+	puts("  -- -n#   Number of terms to use");
+#endif /* USE_XAW */
+	
+#ifdef USE_X11
+	puts("  -mx11    To use X11");
+	puts("  --       Sub options");
+	puts("  -- -d    Set display name");
+	puts("  -- -s    Turn off smoothscaling graphics");
+	puts("  -- -n#   Number of terms to use");
+#endif /* USE_X11 */
+	
+#ifdef USE_XPJ
+	puts("  -mxpj    To use XPJ");
+	puts("  --       Sub options");
+	puts("  -- -d    Set display name");
+	puts("  -- -s    Turn off smoothscaling graphics");
+	puts("  -- -n#   Number of terms to use");
+#endif /* USE_XPJ */
+	
+#ifdef USE_GCU
+	puts("  -mgcu    To use GCU (GNU Curses)");
+#endif /* USE_GCU */
+
+#ifdef USE_CAP
+	puts("  -mcap    To use CAP (\"Termcap\" calls)");
+#endif /* USE_CAP */
+
+#ifdef USE_DOS
+	puts("  -mdos    To use DOS (Graphics)");
+#endif /* USE_DOS */
+
+#ifdef USE_IBM
+	puts("  -mibm    To use IBM (BIOS text mode)");
+#endif /* USE_IBM */
+
+#ifdef USE_SLA
+	puts("  -msla    To use SLA (SLANG)");
+#endif /* USE_SLA */
+
+#ifdef USE_LSL
+	puts("  -mlsl    To use LSL (Linux-SVGALIB)");
+#endif /* USE_LSL */
+
+#ifdef USE_AMI
+	puts("  -mami    To use AMI (Amiga)");
+#endif /* USE_AMI */
+
+#ifdef USE_VME
+	puts("  -mvme    To use VME (VAX/ESA)");
+#endif /* USE_VME */
+				
+	/* Actually abort the process */
+	quit(NULL);
+}
+
 
 /*
  * Simple "main" function for multiple platforms.
@@ -366,7 +445,7 @@ int main(int argc, char *argv[])
 	for (i = 1; args && (i < argc); i++)
 	{
 		/* Require proper options */
-		if (argv[i][0] != '-') goto usage;
+		if (argv[i][0] != '-') game_usage();
 
 		/* Analyze option */
 		switch (argv[i][1])
@@ -432,7 +511,7 @@ int main(int argc, char *argv[])
 			case 'u':
 			case 'U':
 			{
-				if (!argv[i][2]) goto usage;
+				if (!argv[i][2]) game_usage();
 #ifdef ANGBAND_2_8_1
 				strncpy(player_name, &argv[i][2], 32);
 				player_name[31] = '\0';
@@ -445,7 +524,7 @@ int main(int argc, char *argv[])
 
 			case 'm':
 			{
-				if (!argv[i][2]) goto usage;
+				if (!argv[i][2]) game_usage();
 				mstr = &argv[i][2];
 				break;
 			}
@@ -473,80 +552,9 @@ int main(int argc, char *argv[])
 			}
 
 			default:
-			usage:
 			{
-				/* Dump usage information */
-				puts("Usage: angband [options] [-- subopts]");
-				puts("  -n       Start a new character");
-				puts("  -f       Request fiddle mode");
-				puts("  -w       Request wizard mode");
-				puts("  -v       Request sound mode");
-				puts("  -g       Request graphics mode");
-				puts("  -o       Request original keyset");
-				puts("  -r       Request rogue-like keyset");
-				puts("  -M       Request monochrome mode");
-				puts("  -s<num>  Show <num> high scores");
-				puts("  -u<who>  Use your <who> savefile");
-				puts("  -d<def>  Define a 'lib' dir sub-path");
-				
-#ifdef USE_XAW
-				puts("  -mxaw    To use XAW");
-				puts("  --       Sub options");
-				puts("  -- -d    Set display name");
-				puts("  -- -s    Turn off smoothscaling graphics");
-				puts("  -- -n#   Number of terms to use");
-#endif /* USE_XAW */
-				
-#ifdef USE_X11
-				puts("  -mx11    To use X11");
-				puts("  --       Sub options");
-				puts("  -- -d    Set display name");
-				puts("  -- -s    Turn off smoothscaling graphics");
-				puts("  -- -n#   Number of terms to use");
-#endif /* USE_X11 */
-
-#ifdef USE_XPJ
-				puts("  -mxpj    To use XPJ");
-				puts("  --       Sub options");
-				puts("  -- -d    Set display name");
-				puts("  -- -s    Turn off smoothscaling graphics");
-				puts("  -- -n#   Number of terms to use");
-#endif /* USE_XPJ */
-
-#ifdef USE_GCU
-				puts("  -mgcu    To use GCU (GNU Curses)");
-#endif /* USE_GCU */
-
-#ifdef USE_CAP
-				puts("  -mcap    To use CAP (\"Termcap\" calls)");
-#endif /* USE_CAP */
-
-#ifdef USE_DOS
-				puts("  -mdos    To use DOS (Graphics)");
-#endif /* USE_DOS */
-
-#ifdef USE_IBM
-				puts("  -mibm    To use IBM (BIOS text mode)");
-#endif /* USE_IBM */
-
-#ifdef USE_SLA
-				puts("  -msla    To use SLA (SLANG)");
-#endif /* USE_SLA */
-
-#ifdef USE_LSL
-				puts("  -mlsl    To use LSL (Linux-SVGALIB)");
-#endif /* USE_LSL */
-
-#ifdef USE_AMI
-				puts("  -mami    To use AMI (Amiga)");
-#endif /* USE_AMI */
-
-#ifdef USE_VME
-				puts("  -mvme    To use VME (VAX/ESA)");
-#endif /* USE_VME */
-				
-				/* Actually abort the process */
-				quit(NULL);
+				 /* Default usage-help */
+				 game_usage();
 			}
 		}
 	}
@@ -568,18 +576,20 @@ int main(int argc, char *argv[])
 	quit_aux = quit_hook;
 
 
-	/* Drop privs (so X11 will work correctly), unless we are running */
-	/* the Linux-SVGALib version. */
-#ifndef USE_LSL
+	/* 
+	 * Drop privs (so X11 will work correctly)
+	 * unless we are running the Linux-SVGALib version.
+	 *
+	 * (In which case we initialize after safe_setuid_grab()
+	 * is called.)
+	 */
+ 
  	safe_setuid_drop();
-#endif
-
 
 #ifdef USE_XAW
 	/* Attempt to use the "main-xaw.c" support */
 	if (!done && (!mstr || (streq(mstr, "xaw"))))
 	{
-		extern errr init_xaw(int, char**);
 		if (0 == init_xaw(argc, argv))
 		{
 			ANGBAND_SYS = "xaw";
@@ -593,7 +603,6 @@ int main(int argc, char *argv[])
 	/* Attempt to use the "main-x11.c" support */
 	if (!done && (!mstr || (streq(mstr, "x11"))))
 	{
-		extern errr init_x11(int, char**);
 		if (0 == init_x11(argc, argv))
 		{
 			ANGBAND_SYS = "x11";
@@ -607,7 +616,6 @@ int main(int argc, char *argv[])
 	/* Attempt to use the "main-xpj.c" support */
 	if (!done && (!mstr || (streq(mstr, "xpj"))))
 	{
-		extern errr init_xpj(int, char**);
 		if (0 == init_xpj(argc, argv))
 		{
 			ANGBAND_SYS = "xpj";
@@ -621,7 +629,6 @@ int main(int argc, char *argv[])
 	/* Attempt to use the "main-gcu.c" support */
 	if (!done && (!mstr || (streq(mstr, "gcu"))))
 	{
-		extern errr init_gcu(void);
 		if (0 == init_gcu())
 		{
 			ANGBAND_SYS = "gcu";
@@ -634,7 +641,6 @@ int main(int argc, char *argv[])
 	/* Attempt to use the "main-cap.c" support */
 	if (!done && (!mstr || (streq(mstr, "cap"))))
 	{
-		extern errr init_cap(int, char**);
 		if (0 == init_cap(argc, argv))
 		{
 			ANGBAND_SYS = "cap";
@@ -648,7 +654,6 @@ int main(int argc, char *argv[])
 	/* Attempt to use the "main-dos.c" support */
 	if (!done && (!mstr || (streq(mstr, "dos"))))
 	{
-		extern errr init_dos(void);
 		if (0 == init_dos())
 		{
 			ANGBAND_SYS = "dos";
@@ -661,7 +666,6 @@ int main(int argc, char *argv[])
 	/* Attempt to use the "main-ibm.c" support */
 	if (!done && (!mstr || (streq(mstr, "ibm"))))
 	{
-		extern errr init_ibm(void);
 		if (0 == init_ibm())
 		{
 			ANGBAND_SYS = "ibm";
@@ -675,7 +679,6 @@ int main(int argc, char *argv[])
 	/* Attempt to use the "main-emx.c" support */
 	if (!done && (!mstr || (streq(mstr, "emx"))))
 	{
-		extern errr init_emx(void);
 		if (0 == init_emx())
 		{
 			ANGBAND_SYS = "emx";
@@ -689,24 +692,9 @@ int main(int argc, char *argv[])
 	/* Attempt to use the "main-sla.c" support */
 	if (!done && (!mstr || (streq(mstr, "sla"))))
 	{
-		extern errr init_sla(void);
 		if (0 == init_sla())
 		{
 			ANGBAND_SYS = "sla";
-			done = TRUE;
-		}
-	}
-#endif
-
-
-#ifdef USE_LSL
-	/* Attempt to use the "main-lsl.c" support */
-	if (!done && (!mstr || (streq(mstr, "lsl"))))
-	{
-		extern errr init_lsl(void);
-		if (0 == init_lsl())
-		{
-			ANGBAND_SYS = "lsl";
 			done = TRUE;
 		}
 	}
@@ -717,7 +705,6 @@ int main(int argc, char *argv[])
 	/* Attempt to use the "main-ami.c" support */
 	if (!done && (!mstr || (streq(mstr, "ami"))))
 	{
-		extern errr init_ami(void);
 		if (0 == init_ami())
 		{
 			ANGBAND_SYS = "ami";
@@ -731,7 +718,6 @@ int main(int argc, char *argv[])
 	/* Attempt to use the "main-vme.c" support */
 	if (!done && (!mstr || (streq(mstr, "vme"))))
 	{
-		extern errr init_vme(void);
 		if (0 == init_vme())
 		{
 			ANGBAND_SYS = "vme";
@@ -740,11 +726,22 @@ int main(int argc, char *argv[])
 	}
 #endif
 
-
 	/* Grab privs (dropped above for X11) */
-#ifndef USE_LSL
  	safe_setuid_grab();
+
+#ifdef USE_LSL
+	/* Attempt to use the "main-lsl.c" support */
+	if (!done && (!mstr || (streq(mstr, "lsl"))))
+	{
+		if (0 == init_lsl())
+		{
+			ANGBAND_SYS = "lsl";
+			done = TRUE;
+		}
+	}
 #endif
+
+
 
 
 	/* Make sure we have a display! */

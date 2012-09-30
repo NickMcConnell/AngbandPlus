@@ -266,7 +266,7 @@ static s16b critical_norm(int weight, int plus, int dam)
  * Note that most brands and slays are x2, except Slay Animal (x1.7),
  * Slay Evil (x1.5), and Kill dragon (x3). -SF-
  */
-s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
+s16b tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 {
 	/*
 	 * mult is scaled to be *10 so that the fractional slays can be stored
@@ -699,60 +699,6 @@ void py_pickup_aux(int o_idx)
 }
 
 
-#if 0
-
-/*
- * Automatically destroy items in this grid.
- */
-static void auto_destroy_items(cave_type *c_ptr)
-{
-	s16b this_o_idx, next_o_idx = 0;
-
-	char o_name[80];
-
-
-	/* Scan the pile of objects */
-	for (this_o_idx = c_ptr->o_idx; this_o_idx; this_o_idx = next_o_idx)
-	{
-		/* Acquire object */
-		object_type *o_ptr = &o_list[this_o_idx];
-
-		/* Acquire next object */
-		next_o_idx = o_ptr->next_o_idx;
-
-		/* Known to be worthless? */
-		if (destroy_worthless && (object_value(o_ptr) < 1))
-		{
-			/* Artifact? */
-			if (!can_player_destroy_object(o_ptr))
-			{
-				/* Describe the object (with {terrible/special}) */
-				object_desc(o_name, o_ptr, TRUE, 3);
-
-				/* Message */
-				msg_format("You cannot auto-destroy %s.", o_name);
-
-				/* Done */
-				return;
-			}
-
-			/* Describe the object */
-			object_desc(o_name, o_ptr, TRUE, 3);
-
-			/* Print a message */
-			msg_format("Auto-destroying %s.", o_name);
-
-			/* Destroy the item */
-			delete_object_idx(this_o_idx);
-
-			continue;
-		}
-	}
-}
-
-#endif /* 0 */
-
-
 /*
  * Player "wants" to pick up an object or gold.
  * Note that we ONLY handle things that can be picked up.
@@ -776,8 +722,6 @@ void carry(int pickup)
 	int floor_num = 0, floor_list[23], floor_o_idx = 0;
 
 	int can_pickup = 0;
-
-	bool do_ask = TRUE;
 	
 	/* Recenter the map around the player */
 	verify_panel();
@@ -793,17 +737,6 @@ void carry(int pickup)
 	
 	/* Handle stuff */
 	handle_stuff();
-
-#if 0	
-	/*
-	 * This has been disabled - the object distribution has
-	 * changed to remove the large amount of junk.
-	 */
-	
-	/* Destroy worthless items below the player */
-	auto_destroy_items(area(py, px));
-
-#endif /* 0 */
 
 	/* Scan the pile of objects */
 	for (this_o_idx = area(py, px)->o_idx; this_o_idx; this_o_idx = next_o_idx)
@@ -1007,37 +940,61 @@ void carry(int pickup)
 	/* One object */
 	if (floor_num == 1)
 	{
+		/* Remember the object to pick up */
+		this_o_idx = floor_o_idx;
+		
+		/* Access the object */
+		o_ptr = &o_list[this_o_idx];
+		
 		/* Hack -- query every object */
 		if (carry_query_flag)
 		{
+			int i;
 			char out_val[160];
+					
+			/* Paranoia XXX XXX XXX */
+			msg_print(NULL);
+					
+			sprintf(out_val, "Pick up %s? [y/n/k] ", o_name);
+					
+			/* Prompt for it */
+			prt(out_val, 0, 0);
 
-			/* Access the object */
-			o_ptr = &o_list[floor_o_idx];
-
-			/* Describe the object */
-			object_desc(o_name, o_ptr, TRUE, 3);
-
-			/* Build a prompt */
-			(void)sprintf(out_val, "Pick up %s? ", o_name);
-
-			/* Ask the user to confirm */
-			if (!get_check(out_val))
+			/* Get an acceptable answer */
+			while (TRUE)
 			{
-				/* Done */
-				return;
+				i = inkey();
+				if (quick_messages) break;
+				if (i == ESCAPE) break;
+				if (strchr("YyNnKk", i)) break;
+				bell();
 			}
+
+			/* Erase the prompt */
+			prt("", 0, 0);
+					
+			if ((i == 'Y') || (i == 'y'))
+			{
+				/* Pick up the object */
+				py_pickup_aux(this_o_idx);
+			}
+					
+			if ((i == 'K') || (i == 'k'))
+			{
+				/* Physically try to destroy the item */
+				if	(destroy_item_aux(o_ptr, o_ptr->number))
+				{
+					delete_object_idx(this_o_idx);
+				}
+			}
+
+			/* Done */					
+			return;
 		}
-
-		/* Don't ask */
-		do_ask = FALSE;
-
-		/* Remember the object to pick up */
-		this_o_idx = floor_o_idx;
 	}
 
 	/* Allow the user to choose an object */
-	if (do_ask)
+	else
 	{
 		cptr q, s;
 
@@ -1375,7 +1332,7 @@ static bool monster_bash(int *blows, int sleeping_bonus, cave_type *c_ptr,
 static void monk_attack(monster_type *m_ptr, long *k, char *m_name)
 {
 	int special_effect = 0, stun_effect = 0, times = 0;
-	martial_arts *ma_ptr = &ma_blows[0], *old_ptr = &ma_blows[0];
+	const martial_arts *ma_ptr = &ma_blows[0], *old_ptr = &ma_blows[0];
 	int resist_stun = 0;
 
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
@@ -1521,13 +1478,12 @@ void py_attack(int y, int x)
 	bool            fear = FALSE;
 	bool            mdeath = FALSE;
 
-	bool            vorpal_cut = FALSE;
 	int             chaos_effect = 0;
 	bool            do_quake = FALSE;
 	bool            drain_msg = TRUE;
 	int             drain_result = 0, drain_heal = 0;
 	int             drain_left = MAX_VAMPIRIC_DRAIN;
-	u32b            f1, f2, f3; /* A massive hack -- life-draining weapons */
+	u32b            f1, f2, f3;
 	bool            no_extra = FALSE;
 
 
@@ -1587,11 +1543,10 @@ void py_attack(int y, int x)
 		msg_format("You've found %s!", m_name2);
 	}
 
-	/* Stop if friendly */
-	if (!is_hostile(m_ptr) &&
-	    !(p_ptr->stun || p_ptr->confused || p_ptr->image ||
-	    ((p_ptr->muta2 & MUT2_BERS_RAGE) && p_ptr->shero) ||
-	    !m_ptr->ml))
+	/* Stop if friendly and visible */
+	if (!is_hostile(m_ptr) && !p_ptr->stun && !p_ptr->confused
+		 && !p_ptr->image && !((p_ptr->muta2 & MUT2_BERS_RAGE) && p_ptr->shero)
+		  && m_ptr->ml)
 	{
 		if (!inventory[INVEN_WIELD].xtra_name)
 		{
@@ -1721,10 +1676,6 @@ void py_attack(int y, int x)
 					drain_result = 0;
 			}
 
-			if ((f1 & TR1_VORPAL) && (one_in_((o_ptr->activate + 128 == ART_VORPAL_BLADE) ? 3 : 6)))
-				vorpal_cut = TRUE;
-			else vorpal_cut = FALSE;
-
 			/* Monk attack? */
 			if ((p_ptr->pclass == CLASS_MONK) &&
 				 (!(inventory[INVEN_WIELD].k_idx)))
@@ -1780,7 +1731,9 @@ void py_attack(int y, int x)
 				 * All of these artifact-specific effects
 				 * should be pythonized.
 				 */
-				if (vorpal_cut)
+				 if ((f1 & TR1_VORPAL) &&
+				  (one_in_((o_ptr->activate + 128 == ART_VORPAL_BLADE)
+				  	 ? 3 : 6)))
 				{
 					/*
 					 * The vorpal blade does average:
@@ -2464,7 +2417,7 @@ void move_player(int dir, int do_pickup)
 				/* Try to open a door if is there */
 				if (easy_open)
 				{
-					(void) do_cmd_open_aux(y, x);
+					(void)do_cmd_open_aux(y, x);
 					return;
 				} 
 
@@ -2836,9 +2789,9 @@ static int see_nothing(int dir, int y, int x)
  * stop at 1. Another run right and down will enter the corridor
  * and make the corner, stopping at the 2.
  *
- * #@x    1
+ * #@x       1
  * ########### ######
- * 2        #
+ * 2           #
  * #############
  * #
  *
@@ -3176,18 +3129,7 @@ static bool run_test(void)
 					/* Done */
 					break;
 				}
-#if 0
-				/* quest features */
-				case FEAT_QUEST_ENTER:
-				case FEAT_QUEST_EXIT:
-				{
-					/* Notice */
-					notice = TRUE;
 
-					/* Done */
-					break;
-				}
-#endif
 				case FEAT_DEEP_LAVA:
 				case FEAT_SHAL_LAVA:
 				{

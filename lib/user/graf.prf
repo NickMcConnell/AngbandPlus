@@ -1,4 +1,4 @@
-# CVS: Last edit by $Author: sfuerst $ on $Date: 2001/02/11 11:00:34 $
+# CVS: Last edit by $Author: sfuerst $ on $Date: 2001/05/05 01:57:12 $
 # File: graf.prf
 
 #
@@ -20,8 +20,11 @@
 ?:[EQU $SYS xaw]
 %:graf-xaw.prf
 
-?:[IOR [EQU $SYS x11] [EQU $SYS xpj]]
+?:[EQU $SYS x11]
 %:graf-x11.prf
+
+?:[EQU $SYS xpj]
+%:graf-xpj.prf
 
 ?:[EQU $SYS lsl]
 %:graf-lsl.prf

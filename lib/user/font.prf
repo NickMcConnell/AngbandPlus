@@ -1,4 +1,4 @@
-# CVS: Last edit by $Author: sfuerst $ on $Date: 2001/02/11 11:00:34 $
+# CVS: Last edit by $Author: sfuerst $ on $Date: 2001/05/07 10:51:40 $
 # File: font.prf
 
 #
@@ -23,6 +23,39 @@
 
 %:font-xxx.prf
 
+##### We want to make vanilla town look vanilla-like as possible #####
+
+# Vanilla town mode? */
+?:[EQU $TOWN VANILLA]
+
+# General Store
+T:34:0x0F:0x31
+
+# Armoury
+T:35:0x02/0x32
+
+# Weapon Smiths
+T:36:0x01:0x33
+
+# Temple
+T:37:0x05:0x34
+
+# Alchemy Shop
+T:38:0x06:0x35
+
+# Magic Shop
+T:39:0x04:0x36
+
+# Black Market
+T:40:0x08:0x37
+
+# Home
+T:41:0x0B:0x38
+
+# Bookstore
+T:42:0x03:0x39
+
+?:1
 
 ##### System Specific Subfiles #####
 

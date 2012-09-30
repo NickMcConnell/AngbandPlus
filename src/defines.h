@@ -35,7 +35,7 @@
 /*
  * Current version string
  */
-#define VERSION_STRING	"2.5.5"
+#define VERSION_STRING	"2.5.6"
 
 
 /*
@@ -45,7 +45,7 @@
 #define VERSION_MINOR   8
 #define VERSION_PATCH   1
 
-#define SAVEFILE_VERSION 24
+#define SAVEFILE_VERSION 25
 
 /* Added for ZAngband */
 #ifdef USE_SCRIPT
@@ -57,7 +57,7 @@
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 2
 #define FAKE_VER_MINOR 5
-#define FAKE_VER_PATCH 5
+#define FAKE_VER_PATCH 6
 #endif /* USE_SCRIPT */
 
 #define ANGBAND_2_8_1
@@ -153,7 +153,7 @@
 /*
  * Total number of buildings (see "bldg.c", etc)
  */
-#define MAX_BLDG			7
+#define MAX_BLDG			10
 
 /* List of building types */
 #define	BUILD_STORE_GENERAL		0
@@ -264,9 +264,12 @@
 #define BUILD_JUNK				105
 #define BUILD_FOOD				106
 #define BUILD_LIBRARY			107
+#define BUILD_CASINO			108
+#define BUILD_INN				109
+#define BUILD_HEALER			110
 
 /* Maximum number of "building" types in a city */
-#define MAX_CITY_BUILD			108
+#define MAX_CITY_BUILD			111
 
 
 /*
@@ -524,7 +527,7 @@
  * Note that the "view radius" will NEVER exceed 20, and even if the "view"
  * was octagonal, we would never require more than 1520 entries in the array.
  */
-#define VIEW_MAX 1536
+#define VIEW_MAX		1536
 
 /*
  * Maximum size of the "temp" array (see "cave.c")
@@ -535,13 +538,19 @@
  * to calculate monster flow.  The larger size is due to use as a circular
  * queue for the fractal caves patch fill routine.
  */
-#define TEMP_MAX 2000
+#define TEMP_MAX		2000
 
 /*
  * Maximum number of squares lit by monsters.
  * (Note that squares far away from the player do not need to be stored.)
  */
-#define LITE_MAX 2500
+#define LITE_MAX		2500
+
+
+/*
+ * Maximum number of monsters that can be exploding at once.
+ */
+#define DEATH_MAX 100
 
 /*
  * Number of keymap modes
@@ -704,8 +713,13 @@
  */
 #define MAX_DETECT		30		/* Maximum detection range */
 #define MAX_SIGHT       20      /* Maximum view distance */
-#define MAX_RANGE       18      /* Maximum range (spells, etc) */
+#define MAX_RANGE       18      /* Maximum range (spells, etc) < MAX_SIGHT */
 
+
+/*
+ * Maximum flow depth when using "MONSTER_FLOW"
+ */
+#define MONSTER_FLOW_DEPTH 32
 
 
 /*
@@ -1263,6 +1277,9 @@
 #define FT_STORE_JUNK			0x0088
 #define FT_STORE_FOOD			0x0089
 #define FT_BUILD_LIBRARY		0x008A
+#define FT_BUILD_CASINO			0x008B
+#define FT_BUILD_INN			0x008C
+#define FT_BUILD_HEALER			0x008D
 
 
 /*** Artifact indexes (see "lib/edit/a_info.txt") ***/
@@ -1524,10 +1541,10 @@
 #define EGO_KILL_ANIMAL         88
 #define EGO_KILL_EVIL           89
 #define EGO_KILL_UNDEAD         90
-#define EGO_KILL_DEMON          83
-#define EGO_KILL_ORC            84
-#define EGO_KILL_TROLL          85
-#define EGO_KILL_GIANT          86
+#define EGO_KILL_DEMON          91
+#define EGO_KILL_ORC            92
+#define EGO_KILL_TROLL          93
+#define EGO_KILL_GIANT          94
 #define EGO_KILL_DRAGON         95
 #define EGO_VAMPIRIC            96
 /* xxx */
@@ -3458,12 +3475,12 @@
 #define view_torch_grids		p_ptr->options[32]
 #define dungeon_align			svr_ptr->options[7]
 #define dungeon_stair			svr_ptr->options[8]
-#define	flow_by_sound			svr_ptr->options[9]
-#define flow_by_smell			svr_ptr->options[10]
+/* {TRUE,  0, NULL,					"Number 42" }, svr_ptr->options[9] */
+/* {TRUE,  0, NULL,					"Number 43" }, svr_ptr->options[10] */
 /* {TRUE,  0, NULL,					"Number 44" }, svr_ptr->options[11] */
 /* {TRUE,  0, NULL,					"Number 45" }, svr_ptr->options[12] */
-#define smart_learn				svr_ptr->options[13]
-#define smart_cheat				svr_ptr->options[14]
+#define smart_packs				svr_ptr->options[13]
+/* {TRUE,  0, NULL,					"Number 47" }, svr_ptr->options[14] */
 #define	view_reduce_lite		p_ptr->options[33]
 #define view_reduce_view		p_ptr->options[34]
 #define avoid_abort				p_ptr->options[35]
@@ -3658,7 +3675,7 @@
 
 /* Option Set 7 */
 
-#define destroy_worthless		svr_ptr->options[15]
+/* {TRUE,  0, NULL,					"Number 224" },svr_ptr->options[15] */
 #define monster_light			svr_ptr->options[16]
 /* "Turn on muliplayer client - server code" , svr_ptr->options[17] */
 /* {TRUE,  0, NULL,					"Number 227" },svr_ptr->options[18] */
@@ -3689,7 +3706,7 @@
 #define take_notes				p_ptr->options[190]
 /* {TRUE,  0, NULL,					"Number 253" }, p_ptr->options[191] */
 #define testing_stack			svr_ptr->options[30]
-#define testing_carry			svr_ptr->options[31]
+/* {TRUE,  0, NULL,					"Number 255" }, svr_ptr->options[31] */
 
 
 
@@ -3815,25 +3832,6 @@
  */
 #define cursed_p(T) \
 	((T)->ident & (IDENT_CURSED))
-
-
-/*
- * Convert an "attr"/"char" pair into a "pict" (P)
- */
-#define PICT(A,C) \
-	((((u16b)(A)) << 8) | ((byte)(C)))
-
-/*
- * Convert a "pict" (P) into an "attr" (A)
- */
-#define PICT_A(P) \
-	((byte)((P) >> 8))
-
-/*
- * Convert a "pict" (P) into an "char" (C)
- */
-#define PICT_C(P) \
-	((char)((byte)(P)))
 
 
 /*

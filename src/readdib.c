@@ -1,10 +1,10 @@
-/* File: readbits.c */
+/* File: readdib.c */
 
 /*
  * This package provides a routine to read a DIB file and set up the
  * device dependent version of the image.
  *
- * This file has been modified for use with "Angband 2.8.2"
+ * This file has been modified for use with "Angband 2.9.2"
  *
  * COPYRIGHT:
  *
@@ -60,7 +60,7 @@
  *
  * Returns number of bytes requested, or zero if something went wrong.
  */
-static DWORD PASCAL lread(int fh, VOID FAR *pv, DWORD ul)
+static DWORD PASCAL lread(HFILE fh, VOID FAR *pv, DWORD ul)
 {
 	DWORD ulT = ul;
 	BYTE huge *hp = pv;
@@ -72,10 +72,8 @@ static DWORD PASCAL lread(int fh, VOID FAR *pv, DWORD ul)
 		ul -= MAXREAD;
 		hp += MAXREAD;
 	}
-
 	if (_lread(fh, (LPSTR)hp, (WORD)ul) != (WORD)ul)
 		return 0;
-
 	return ulT;
 }
 
@@ -90,7 +88,7 @@ static HPALETTE PASCAL NEAR MakeDIBPalette(LPBITMAPINFOHEADER lpInfo)
 	PLOGPALETTE npPal;
 	RGBQUAD FAR *lpRGB;
 	HPALETTE hLogPal;
-	WORD i;
+	DWORD i;
 
 	/*
 	 * since biClrUsed field was filled during the loading of the DIB,
@@ -130,7 +128,7 @@ static HPALETTE PASCAL NEAR MakeDIBPalette(LPBITMAPINFOHEADER lpInfo)
 	 */
 	else
 	{
-		return ((HPALETTE)GetStockObject(DEFAULT_PALETTE));
+		return (GetStockObject(DEFAULT_PALETTE));
 	}
 }
 
@@ -194,13 +192,13 @@ static BOOL NEAR PASCAL MakeBitmapAndPalette(HDC hDC, HANDLE hDIB,
  */
 BOOL ReadDIB(HWND hWnd, LPSTR lpFileName, DIBINIT *pInfo)
 {
-	unsigned fh;
+	HFILE fh;
 	LPBITMAPINFOHEADER lpbi;
 	OFSTRUCT of;
 	BITMAPFILEHEADER bf;
 	WORD nNumColors;
 	BOOL result = FALSE;
-	WORD offBits;
+	DWORD offBits;
 	HDC hDC;
 	BOOL bCoreHead = FALSE;
 
@@ -305,7 +303,7 @@ BOOL ReadDIB(HWND hWnd, LPSTR lpFileName, DIBINIT *pInfo)
 	}
 
 	/* offset to the bits from start of DIB header */
-	offBits = (WORD)lpbi->biSize + nNumColors * sizeof(RGBQUAD);
+	offBits = lpbi->biSize + nNumColors * sizeof(RGBQUAD);
 
 	if (bf.bfOffBits != 0L)
 	{
@@ -341,4 +339,3 @@ ErrExit2:
 	_lclose(fh);
 	return (result);
 }
-

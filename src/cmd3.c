@@ -403,7 +403,7 @@ void do_cmd_drop(void)
 }
 
 
-static bool high_level_book(object_type *o_ptr)
+static bool high_level_book(const object_type *o_ptr)
 {
 	if ((o_ptr->tval == TV_LIFE_BOOK) ||
 	    (o_ptr->tval == TV_SORCERY_BOOK) ||
@@ -428,6 +428,7 @@ bool destroy_item_aux(object_type *o_ptr, int amt)
 	
 	bool gain_expr = FALSE;
 	
+	object_desc(o_name, o_ptr, TRUE, 3);
 	
 #ifdef USE_SCRIPT
 
@@ -586,7 +587,7 @@ void do_cmd_destroy(void)
 	p_ptr->energy_use = 0;
 
 	/* Physically try to destroy the item(s) */
-	if	(!destroy_item_aux(o_ptr, amt)) return;
+	if (!destroy_item_aux(o_ptr, amt)) return;
 
 	/* Reduce the charges of rods/wands */
 	reduce_charges(o_ptr, amt);
@@ -778,7 +779,7 @@ void do_cmd_inscribe(void)
 /*
  * An "item_tester_hook" for refilling lanterns
  */
-static bool item_tester_refill_lantern(object_type *o_ptr)
+static bool item_tester_refill_lantern(const object_type *o_ptr)
 {
 	/* Flasks of oil are okay */
 	if (o_ptr->tval == TV_FLASK) return (TRUE);
@@ -786,7 +787,7 @@ static bool item_tester_refill_lantern(object_type *o_ptr)
 	/* Laterns are okay */
 	if ((o_ptr->tval == TV_LITE) &&
 	    (o_ptr->sval == SV_LITE_LANTERN) &&
-	    (o_ptr->pval > 0)) return (TRUE);
+	    (o_ptr->timeout > 0)) return (TRUE);
 
 	/* Assume not okay */
 	return (FALSE);
@@ -834,32 +835,49 @@ static void do_cmd_refill_lamp(void)
 	j_ptr = &inventory[INVEN_LITE];
 
 	/* Refuel */
-	j_ptr->pval += o_ptr->pval;
-
+	if (o_ptr->tval == TV_FLASK)
+	{
+		/* Flasks use the pval to store the fuel */
+		j_ptr->timeout += o_ptr->pval;
+	}
+	else
+	{
+		/* Lanterns use the timeout to store the fuel */ 
+		j_ptr->timeout += o_ptr->timeout;
+	}
+	
 	/* Message */
 	msg_print("You fuel your lamp.");
 
 	/* Comment */
-	if (j_ptr->pval >= FUEL_LAMP)
+	if (j_ptr->timeout >= FUEL_LAMP)
 	{
-		j_ptr->pval = FUEL_LAMP;
+		j_ptr->timeout = FUEL_LAMP;
 		msg_print("Your lamp is full.");
 	}
 
 	/* Decrease the item (from the pack) */
-	if (item >= 0)
+	if (o_ptr->tval == TV_FLASK)
 	{
-		inven_item_increase(item, -1);
-		inven_item_describe(item);
-		inven_item_optimize(item);
-	}
+		if (item >= 0)
+		{
+			inven_item_increase(item, -1);
+			inven_item_describe(item);
+			inven_item_optimize(item);
+		}
 
-	/* Decrease the item (from the floor) */
+		/* Decrease the item (from the floor) */
+		else
+		{
+			floor_item_increase(0 - item, -1);
+			floor_item_describe(0 - item);
+			floor_item_optimize(0 - item);
+		}
+	}
 	else
 	{
-		floor_item_increase(0 - item, -1);
-		floor_item_describe(0 - item);
-		floor_item_optimize(0 - item);
+		/* The lantern is empty */
+		o_ptr->timeout = 0;
 	}
 
 	/* Recalculate torch */
@@ -870,7 +888,7 @@ static void do_cmd_refill_lamp(void)
 /*
  * An "item_tester_hook" for refilling torches
  */
-static bool item_tester_refill_torch(object_type *o_ptr)
+static bool item_tester_refill_torch(const object_type *o_ptr)
 {
 	/* Torches are okay */
 	if ((o_ptr->tval == TV_LITE) &&
@@ -922,15 +940,15 @@ static void do_cmd_refill_torch(void)
 	j_ptr = &inventory[INVEN_LITE];
 
 	/* Refuel */
-	j_ptr->pval += o_ptr->pval + 5;
+	j_ptr->timeout += o_ptr->timeout + 5;
 
 	/* Message */
 	msg_print("You combine the torches.");
 
 	/* Over-fuel message */
-	if (j_ptr->pval >= FUEL_TORCH)
+	if (j_ptr->timeout >= FUEL_TORCH)
 	{
-		j_ptr->pval = FUEL_TORCH;
+		j_ptr->timeout = FUEL_TORCH;
 		msg_print("Your torch is fully fueled.");
 	}
 
@@ -1234,7 +1252,7 @@ static cptr ident_info[] =
  * We use "u" to point to array of monster indexes,
  * and "v" to select the type of sorting to perform on "u".
  */
-bool ang_sort_comp_hook(vptr u, vptr v, int a, int b)
+bool ang_sort_comp_hook(const vptr u, const vptr v, int a, int b)
 {
 	u16b *who = (u16b*)(u);
 
@@ -1309,7 +1327,7 @@ bool ang_sort_comp_hook(vptr u, vptr v, int a, int b)
  * We use "u" to point to array of monster indexes,
  * and "v" to select the type of sorting to perform.
  */
-void ang_sort_swap_hook(vptr u, vptr v, int a, int b)
+void ang_sort_swap_hook(const vptr u, const vptr v, int a, int b)
 {
 	u16b *who = (u16b*)(u);
 

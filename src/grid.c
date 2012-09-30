@@ -126,7 +126,7 @@ void place_random_door(int y, int x)
 	{
 		/* Create invisible wall */
 		cave_set_feat(y, x, FEAT_FLOOR);
-		(void) place_field(y, x, FT_WALL_INVIS);
+		(void)place_field(y, x, FT_WALL_INVIS);
 		return;
 	}
 
@@ -171,7 +171,7 @@ void place_closed_door(int y, int x)
 	{
 		/* Create invisible wall */
 		cave_set_feat(y, x, FEAT_FLOOR);
-		(void) place_field(y, x, FT_WALL_INVIS);
+		(void)place_field(y, x, FT_WALL_INVIS);
 		return;
 	}
 
@@ -394,6 +394,7 @@ void generate_room(int y1, int x1, int y2, int x2, int light)
 	}
 }
 
+
 /*
  * Generate helper -- set flags for random vault.
  */
@@ -409,6 +410,7 @@ void generate_vault(int y1, int x1, int y2, int x2)
 		}
 	}
 }
+
 
 /*
  * Generate helper -- unset the CAVE_ICKY flag in a region.
@@ -426,6 +428,7 @@ void clear_vault(int y1, int x1, int y2, int x2)
 	}
 }
 
+
 /*
  * Generate helper -- fill a rectangle with a feature
  */
@@ -442,6 +445,7 @@ void generate_fill(int y1, int x1, int y2, int x2, int feat)
 		}
 	}
 }
+
 
 /*
  * Generate helper -- draw a rectangle with a feature
@@ -543,6 +547,7 @@ void generate_hole(int y1, int x1, int y2, int x2, int feat)
 		}
 	}
 }
+
 
 /*
  * Generate helper -- open one side of a rectangle with a door
@@ -1204,10 +1209,10 @@ bool build_tunnel2(int x1, int y1, int x2, int y2, int type, int cutoff)
 		dy = (y2 - y1) / 2;
 
 		/* perturbation perpendicular to path */
-		changex = (randint0(abs(dy) + 2) * 2 - abs(dy) - 1) / 2;
+		changex = (randint0(ABS(dy) + 2) * 2 - ABS(dy) - 1) / 2;
 
 		/* perturbation perpendicular to path */
-		changey = (randint0(abs(dx) + 2) * 2 - abs(dx) - 1) / 2;
+		changey = (randint0(ABS(dx) + 2) * 2 - ABS(dx) - 1) / 2;
 
 		/* Work out "mid" ponit */
 		x3 = x1 + dx + changex;
@@ -1299,11 +1304,13 @@ bool build_tunnel2(int x1, int y1, int x2, int y2, int type, int cutoff)
 				firstsuccede = FALSE;
 			}
 		}
+
 		if (firstsuccede)
 		{
 			/* only do this if the first half has worked */
 			set_tunnel(&x3, &y3, TRUE);
 		}
+
 		/* return value calculated above */
 		return retval;
 	}
@@ -1927,6 +1934,7 @@ bool generate_fracave(int y0, int x0, int xsize, int ysize, int cutoff,
 
 	return TRUE;
 }
+
 
 bool generate_lake(int y0, int x0, int xsize, int ysize,
 	 int c1, int c2, int c3, int type)

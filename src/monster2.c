@@ -720,7 +720,7 @@ s16b get_mon_num(int level)
  *   0x22 --> Possessive, genderized if visable ("his") or "its"
  *   0x23 --> Reflexive, genderized if visable ("himself") or "itself"
  */
-void monster_desc(char *desc, monster_type *m_ptr, int mode)
+void monster_desc(char *desc, const monster_type *m_ptr, int mode)
 {
 	cptr            res;
 	monster_race    *r_ptr = &r_info[m_ptr->r_idx];
@@ -934,7 +934,7 @@ void lore_treasure(int m_idx, int num_item, int num_gold)
 
 
 
-void sanity_blast(monster_type *m_ptr, bool necro)
+void sanity_blast(const monster_type *m_ptr, bool necro)
 {
 #if 0
 	/* This variable is only needed for the (disabled)
@@ -3009,10 +3009,6 @@ void update_smart_learn(int m_idx, int what)
 	monster_type *m_ptr = &m_list[m_idx];
 
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
-
-
-	/* Not allowed to learn */
-	if (!smart_learn) return;
 
 	/* Too stupid to learn anything */
 	if (r_ptr->flags2 & (RF2_STUPID)) return;

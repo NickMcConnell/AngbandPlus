@@ -65,7 +65,7 @@ typedef struct
 /*
  * The basic items categorized by type
  */
-static grouper group_item[] =
+static const grouper group_item[] =
 {
 	{ TV_SHOT,          "Ammo" },
 	{ TV_ARROW,         NULL },
@@ -377,7 +377,7 @@ static void spoil_obj_desc(cptr fname)
 /*
  * The artifacts categorized by type
  */
-static grouper group_artifact[] =
+static const grouper group_artifact[] =
 {
 	{ TV_SWORD,             "Edged Weapons" },
 	{ TV_POLEARM,           "Polearms" },
@@ -431,7 +431,7 @@ struct flag_desc
  * listing each stat individually.
  */
 
-static flag_desc stat_flags_desc[] =
+static const flag_desc stat_flags_desc[] =
 {
 	{ TR1_STR,        "STR" },
 	{ TR1_INT,        "INT" },
@@ -446,7 +446,7 @@ static flag_desc stat_flags_desc[] =
  * which may be affected by an object's pval
  */
 
-static flag_desc pval_flags1_desc[] =
+static const flag_desc pval_flags1_desc[] =
 {
 	{ TR1_STEALTH,    "Stealth" },
 	{ TR1_SEARCH,     "Searching" },
@@ -460,7 +460,7 @@ static flag_desc pval_flags1_desc[] =
  * Slaying preferences for weapons
  */
 
-static flag_desc slay_flags_desc[] =
+static const flag_desc slay_flags_desc[] =
 {
 	{ TR1_SLAY_ANIMAL,        "Animal" },
 	{ TR1_SLAY_EVIL,          "Evil" },
@@ -481,7 +481,7 @@ static flag_desc slay_flags_desc[] =
  * brands. It does seem to fit in with the brands and slaying
  * more than the miscellaneous section.
  */
-static flag_desc brand_flags_desc[] =
+static const flag_desc brand_flags_desc[] =
 {
 	{ TR1_BRAND_ACID,         "Acid Brand" },
 	{ TR1_BRAND_ELEC,         "Lightning Brand" },
@@ -716,7 +716,7 @@ static cptr *spoiler_flag_aux(const u32b flags, const flag_desc *flag_ptr,
 /*
  * Acquire a "basic" description "The Cloak of Death [1,+10]"
  */
-static void analyze_general (object_type *o_ptr, char *desc_ptr)
+static void analyze_general(const object_type *o_ptr, char *desc_ptr)
 {
 	/* Get a "useful" description of the object */
 	object_desc_store(desc_ptr, o_ptr, TRUE, 1);
@@ -727,7 +727,7 @@ static void analyze_general (object_type *o_ptr, char *desc_ptr)
  * List "player traits" altered by an artifact's pval. These include stats,
  * speed, infravision, tunneling, stealth, searching, and extra attacks.
  */
-static void analyze_pval (object_type *o_ptr, pval_info_type *p_ptr)
+static void analyze_pval(const object_type *o_ptr, pval_info_type *p_ptr)
 {
 	const u32b all_stats = (TR1_STR | TR1_INT | TR1_WIS |
 				TR1_DEX | TR1_CON | TR1_CHR);
@@ -777,7 +777,7 @@ static void analyze_pval (object_type *o_ptr, pval_info_type *p_ptr)
 
 
 /* Note the slaying specialties of a weapon */
-static void analyze_slay (object_type *o_ptr, cptr *slay_list)
+static void analyze_slay(const object_type *o_ptr, cptr *slay_list)
 {
 	u32b f1, f2, f3;
 
@@ -791,7 +791,7 @@ static void analyze_slay (object_type *o_ptr, cptr *slay_list)
 }
 
 /* Note an object's elemental brands */
-static void analyze_brand (object_type *o_ptr, cptr *brand_list)
+static void analyze_brand(const object_type *o_ptr, cptr *brand_list)
 {
 	u32b f1, f2, f3;
 
@@ -806,7 +806,7 @@ static void analyze_brand (object_type *o_ptr, cptr *brand_list)
 
 
 /* Note the resistances granted by an object */
-static void analyze_resist (object_type *o_ptr, cptr *resist_list)
+static void analyze_resist(const object_type *o_ptr, cptr *resist_list)
 {
 	u32b f1, f2, f3;
 
@@ -821,7 +821,7 @@ static void analyze_resist (object_type *o_ptr, cptr *resist_list)
 
 
 /* Note the immunities granted by an object */
-static void analyze_immune (object_type *o_ptr, cptr *immune_list)
+static void analyze_immune(const object_type *o_ptr, cptr *immune_list)
 {
 	u32b f1, f2, f3;
 
@@ -836,7 +836,7 @@ static void analyze_immune (object_type *o_ptr, cptr *immune_list)
 
 /* Note which stats an object sustains */
 
-static void analyze_sustains (object_type *o_ptr, cptr *sustain_list)
+static void analyze_sustains(const object_type *o_ptr, cptr *sustain_list)
 {
 	const u32b all_sustains = (TR2_SUST_STR | TR2_SUST_INT | TR2_SUST_WIS |
 				   TR2_SUST_DEX | TR2_SUST_CON | TR2_SUST_CHR);
@@ -868,7 +868,7 @@ static void analyze_sustains (object_type *o_ptr, cptr *sustain_list)
  * Note miscellaneous powers bestowed by an artifact such as see invisible,
  * free action, permanent light, etc.
  */
-static void analyze_misc_magic (object_type *o_ptr, cptr *misc_list)
+static void analyze_misc_magic(const object_type *o_ptr, cptr *misc_list)
 {
 	u32b f1, f2, f3;
 
@@ -883,7 +883,7 @@ static void analyze_misc_magic (object_type *o_ptr, cptr *misc_list)
 	/*
 	 * Artifact lights -- large radius light.
 	 */
-	if ((o_ptr->tval == TV_LITE) && (o_ptr->flags3 & TR3_INSTA_ART))
+	if ((o_ptr->tval == TV_LITE) && (o_ptr->flags3 & TR3_LITE))
 	{
 		*misc_list++ = "Permanent Light(3)";
 	}
@@ -891,7 +891,7 @@ static void analyze_misc_magic (object_type *o_ptr, cptr *misc_list)
 	/*
 	 * Glowing artifacts -- small radius light.
 	 */
-	if (f3 & (TR3_LITE))
+	else if (f3 & (TR3_LITE))
 	{
 		*misc_list++ = "Permanent Light(1)";
 	}
@@ -933,7 +933,7 @@ static void analyze_misc_magic (object_type *o_ptr, cptr *misc_list)
  * Determine the minimum depth an artifact can appear, its rarity, its weight,
  * and its value in gold pieces
  */
-static void analyze_misc (object_type *o_ptr, char *misc_desc)
+static void analyze_misc(const object_type *o_ptr, char *misc_desc)
 {
 	artifact_type *a_ptr;
 
@@ -951,7 +951,7 @@ static void analyze_misc (object_type *o_ptr, char *misc_desc)
 /*
  * Fill in an object description structure for a given object
  */
-static void object_analyze(object_type *o_ptr, obj_desc_list *desc_ptr)
+static void object_analyze(const object_type *o_ptr, obj_desc_list *desc_ptr)
 {
 	analyze_general(o_ptr, desc_ptr->description);
 
@@ -1128,8 +1128,9 @@ static void spoiler_outlist(cptr header, cptr *list, char separator)
 }
 
 
-/* Create a spoiler file entry for an artifact */
-
+/*
+ * Create a spoiler file entry for an artifact
+ */
 static void spoiler_print_art(obj_desc_list *art_ptr)
 {
 	pval_info_type *pval_ptr = &art_ptr->pval_info;
@@ -1482,8 +1483,10 @@ static void spoil_mon_desc(cptr fname)
  */
 static cptr wd_che[3] =
 { "It", "He", "She" };
+
 static cptr wd_lhe[3] =
 { "it", "he", "she" };
+
 
 /*
  * Buffer text to the given file. (-SHAWN-)
@@ -2358,7 +2361,7 @@ static void spoil_mutation(cptr fname)
 	int i;
 	char buf[1024];
 
-	mutation_type *mut_ptr;
+	const mutation_type *mut_ptr;
 
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_USER, fname);
@@ -2466,7 +2469,7 @@ static void spoil_rac_pow(cptr fname)
 	int i;
 	char buf[1024];
 
-	mutation_type *mut_ptr;
+	const mutation_type *mut_ptr;
 
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_USER, fname);
@@ -2498,8 +2501,6 @@ static void spoil_rac_pow(cptr fname)
 	for (i = 0; i < MAX_RACE_POWERS; i++)
 	{
 		mut_ptr = &race_powers[i];
-
-
 
 		/* Describe power */
 		rp_ptr = &race_info[mut_ptr->which];

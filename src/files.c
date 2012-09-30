@@ -836,6 +836,12 @@ static cptr process_pref_file_expr(char **sp, char *fp)
 			{
 				v = player_base;
 			}
+			
+			/* Town */
+			else if (streq(b+1, "TOWN"))
+			{
+				v = vanilla_town ? "VANILLA" : "WILDERNESS";
+			}
 		}
 
 		/* Constant */

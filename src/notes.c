@@ -40,7 +40,7 @@ cptr notes_file(void)
  * Output a string to the notes file.
  * This is the only function that references that file.
  */
-void output_note(char *final_note)
+void output_note(cptr final_note)
 {
 	FILE *fff;
 
@@ -68,7 +68,7 @@ void output_note(char *final_note)
  * to specify its type so that the notes file can be
  * searched easily by external utilities.
  */
-void add_note(char *note, char code)
+void add_note(cptr note, char code)
 {
 	char buf[255];
 	char long_day[25];

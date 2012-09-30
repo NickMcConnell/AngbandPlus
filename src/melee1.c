@@ -685,6 +685,8 @@ bool make_attack_normal(int m_idx)
 						/* Find an item */
 						for (k = 0; k < 10; k++)
 						{
+							s16b o_idx;
+							
 							/* Pick an item */
 							i = randint0(INVEN_PACK);
 
@@ -707,43 +709,38 @@ bool make_attack_normal(int m_idx)
 
 							chg_virtue(V_SACRIFICE, 1);
 
-							/* Option */
-							if (testing_carry)
+							/* Make an object */
+							o_idx = o_pop();
+
+							/* Success */
+							if (o_idx)
 							{
-								s16b o_idx;
+								object_type *j_ptr;
 
-								/* Make an object */
-								o_idx = o_pop();
+								/* Get new object */
+								j_ptr = &o_list[o_idx];
+								
+								/* Copy object */
+								object_copy(j_ptr, o_ptr);
 
-								/* Success */
-								if (o_idx)
-								{
-									object_type *j_ptr;
-
-									/* Get new object */
-									j_ptr = &o_list[o_idx];
-
-									/* Copy object */
-									object_copy(j_ptr, o_ptr);
-
-									/* Modify number */
-									j_ptr->number = 1;
+								/* Modify number */
+								j_ptr->number = 1;
 									
-									/* Wand / rod stacking */
-									distribute_charges(o_ptr, j_ptr, --o_ptr->number);
+								/* Wand / rod stacking */
+								distribute_charges(o_ptr, j_ptr,
+									 --o_ptr->number);
 
-									/* Forget mark */
-									j_ptr->marked = FALSE;
+								/* Forget mark */
+								j_ptr->marked = FALSE;
 
-									/* Memorize monster */
-									j_ptr->held_m_idx = m_idx;
+								/* Memorize monster */
+								j_ptr->held_m_idx = m_idx;
 
-									/* Build stack */
-									j_ptr->next_o_idx = m_ptr->hold_o_idx;
+								/* Build stack */
+								j_ptr->next_o_idx = m_ptr->hold_o_idx;
 
-									/* Build stack */
-									m_ptr->hold_o_idx = o_idx;
-								}
+								/* Build stack */
+								m_ptr->hold_o_idx = o_idx;
 							}
 
 							/* Steal the items */

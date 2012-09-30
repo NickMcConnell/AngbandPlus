@@ -22,46 +22,19 @@
  * which will have already "included" several relevant header files.
  */
 
+#include "angband.h"
 
+#ifdef USE_XMAID
 
-#ifndef IsModifierKey
+#ifndef __MAKEDEPEND__
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
+#include <X11/keysym.h>
+#include <X11/keysymdef.h>
+#endif /* __MAKEDEPEND__ */
 
-/*
- * Keysym macros, used on Keysyms to test for classes of symbols
- * These were stolen from one of the X11 header files
- *
- * Also appears in "main-x11.c".
- */
-
-#define IsKeypadKey(keysym) \
-  (((unsigned)(keysym) >= XK_KP_Space) && ((unsigned)(keysym) <= XK_KP_Equal))
-
-#define IsCursorKey(keysym) \
-  (((unsigned)(keysym) >= XK_Home)     && ((unsigned)(keysym) <  XK_Select))
-
-#define IsPFKey(keysym) \
-  (((unsigned)(keysym) >= XK_KP_F1)     && ((unsigned)(keysym) <= XK_KP_F4))
-
-#define IsFunctionKey(keysym) \
-  (((unsigned)(keysym) >= XK_F1)       && ((unsigned)(keysym) <= XK_F35))
-
-#define IsMiscFunctionKey(keysym) \
-  (((unsigned)(keysym) >= XK_Select)   && ((unsigned)(keysym) <  XK_KP_Space))
-
-#define IsModifierKey(keysym) \
-  (((unsigned)(keysym) >= XK_Shift_L)  && ((unsigned)(keysym) <= XK_Hyper_R))
-
-#endif /* IsModifierKey */
-
-
-/*
- * Checks if the keysym is a special key or a normal key
- * Assume that XK_MISCELLANY keysyms are special
- *
- * Also appears in "main-x11.c".
- */
-#define IsSpecialKey(keysym) \
-  ((unsigned)(keysym) >= 0xFF00)
+/* Include our headers */
+#include "maid-x11.h"
 
 
 #ifdef SUPPORT_GAMMA
@@ -73,7 +46,7 @@ static int gamma_val = 0;
 /*
  * Hack -- Convert an RGB value to an X11 Pixel, or die.
  */
-static unsigned long create_pixel(Display *dpy, byte red, byte green, byte blue)
+u32b create_pixel(Display *dpy, byte red, byte green, byte blue)
 {
 	Colormap cmap = DefaultColormapOfScreen(DefaultScreenOfDisplay(dpy));
 
@@ -203,7 +176,7 @@ static void rd_u32b(FILE *fff, u32b *ip)
  * Assumes that the bitmap has a size such that no padding is needed in
  * various places.  Currently only handles bitmaps with 3 to 256 colors.
  */
-static XImage *ReadBMP(Display *dpy, char *Name)
+XImage *ReadBMP(Display *dpy, char *Name)
 {
 	Visual *visual = DefaultVisual(dpy, DefaultScreen(dpy));
 
@@ -373,7 +346,7 @@ static int redShift, greenShift, blueShift;
 /*
  * Use smooth rescaling?
  */
-static bool smoothRescaling = TRUE;
+bool smoothRescaling = TRUE;
 
 
 /*
@@ -783,7 +756,7 @@ static XImage *ResizeImageSmooth(Display *dpy, XImage *Im,
 /*
  * Resize an image.
  */
-static XImage *ResizeImage(Display *dpy, XImage *Im,
+XImage *ResizeImage(Display *dpy, XImage *Im,
                            int ix, int iy, int ox, int oy)
 {
 	Visual *visual = DefaultVisual(dpy, DefaultScreen(dpy));
@@ -881,3 +854,4 @@ static XImage *ResizeImage(Display *dpy, XImage *Im,
 #endif /* USE_GRAPHICS */
 
 
+#endif /* USE_XMAID */
