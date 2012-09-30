@@ -91,6 +91,7 @@ something you are more comfortable with.
             x   (unused)            X   Xorn/Xaren
             y   Yeek                Y   Yeti
             z   Zombie/Mummy        Z   Zephyr Hound
+            ~   Aquatic monsters
 
 
 

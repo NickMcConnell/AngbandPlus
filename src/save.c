@@ -239,19 +239,12 @@ static errr wr_savefile(void)
 	/* Open the file XXX XXX XXX */
 	data_fd = -1;
 
-#if 0
-	/* Dump the version */
-	fake[0] = (byte)(VERSION_MAJOR);
-	fake[1] = (byte)(VERSION_MINOR);
-	fake[2] = (byte)(VERSION_PATCH);
-	fake[3] = (byte)(VERSION_EXTRA);
-#else
 	/* Dump the version */
     fake[0] = (byte)(FAKE_VER_MAJOR);
     fake[1] = (byte)(FAKE_VER_MINOR);
     fake[2] = (byte)(FAKE_VER_PATCH);
 	fake[3] = (byte)(VERSION_EXTRA);
-#endif
+
 
 	/* Dump the data */
 	err = fd_write(data_fd, (char*)&fake, 4);
@@ -262,33 +255,6 @@ static errr wr_savefile(void)
 
 	/* Hack -- reset */
 	data_next = data_head;
-
-
-#if 0
-	/* Operating system */
-	wr_u32b(sf_xtra);
-
-	/* Time file last saved */
-	wr_u32b(sf_when);
-
-	/* Number of past lives */
-	wr_u16b(sf_lives);
-
-	/* Number of times saved */
-	wr_u16b(sf_saves);
-
-	/* XXX XXX XXX */
-
-	/* Set the type */
-	data_type = TYPE_BASIC;
-
-	/* Set the "options" size */
-	data_size = (data_next - data_head);
-
-	/* Write the block */
-	wr_block();
-#endif
-
 
 	/* Dump the "options" */
     put_options();
@@ -303,126 +269,6 @@ static errr wr_savefile(void)
 	wr_block();
 
 	/* XXX XXX XXX */
-
-#if 0
-
-	/* Dump the "messages" */
-
-	/* Dump the number of "messages" */
-	tmp16u = message_num();
-	if (compress_savefile && (tmp16u > 40)) tmp16u = 40;
-	wr_u16b(tmp16u);
-
-	/* Dump the messages (oldest first!) */
-	for (i = tmp16u - 1; i >= 0; i--)
-	{
-		wr_string(message_str(i));
-	}
-
-
-	/* Dump the monster lore */
-	tmp16u = MAX_R_IDX;
-	wr_u16b(tmp16u);
-	for (i = 0; i < tmp16u; i++) wr_lore(i);
-
-
-	/* Dump the object memory */
-	tmp16u = MAX_K_IDX;
-	wr_u16b(tmp16u);
-	for (i = 0; i < tmp16u; i++) wr_xtra(i);
-
-
-	/* Hack -- Dump the quests */
-	tmp16u = MAX_Q_IDX;
-	wr_u16b(tmp16u);
-	for (i = 0; i < tmp16u; i++)
-	{
-		wr_byte(q_list[i].level);
-		wr_s16b(q_list[i].r_idx);
-		wr_byte(q_list[i].cur_num);
-		wr_byte(q_list[i].max_num);
-	}
-
-	/* Hack -- Dump the artifacts */
-	tmp16u = MAX_A_IDX;
-	wr_u16b(tmp16u);
-	for (i = 0; i < tmp16u; i++)
-	{
-		artifact_type *a_ptr = &a_info[i];
-		wr_byte(a_ptr->cur_num);
-		wr_byte(0);
-		wr_byte(0);
-		wr_byte(0);
-	}
-
-
-
-	/* Write the "extra" information */
-	wr_extra();
-
-
-	/* Dump the "player hp" entries */
-	tmp16u = PY_MAX_LEVEL;
-	wr_u16b(tmp16u);
-	for (i = 0; i < tmp16u; i++)
-	{
-		wr_s16b(player_hp[i]);
-	}
-
-
-	/* Write spell data */
-	wr_u32b(spell_learned1);
-	wr_u32b(spell_learned2);
-	wr_u32b(spell_worked1);
-	wr_u32b(spell_worked2);
-	wr_u32b(spell_forgotten1);
-	wr_u32b(spell_forgotten2);
-
-	/* Dump the ordered spells */
-	for (i = 0; i < 64; i++)
-	{
-		wr_byte(spell_order[i]);
-	}
-
-
-	/* Write the inventory */
-	for (i = 0; i < INVEN_TOTAL; i++)
-	{
-		object_type *o_ptr = &inventory[i];
-
-		/* Skip non-objects */
-		if (!o_ptr->k_idx) continue;
-
-		/* Dump index */
-		wr_u16b(i);
-
-		/* Dump object */
-		wr_item(o_ptr);
-	}
-
-	/* Add a sentinel */
-	wr_u16b(0xFFFF);
-
-
-	/* Note the stores */
-	tmp16u = MAX_STORES;
-	wr_u16b(tmp16u);
-
-	/* Dump the stores */
-	for (i = 0; i < tmp16u; i++) wr_store(&store[i]);
-
-
-	/* Player is not dead, write the dungeon */
-	if (!death)
-	{
-		/* Dump the dungeon */
-		wr_dungeon();
-
-		/* Dump the ghost */
-		wr_ghost();
-	}
-
-#endif
 
 	/* Dump the "final" marker XXX XXX XXX */
 	/* Type zero, Size zero, Contents zero, etc */
@@ -646,8 +492,8 @@ static void wr_byte(byte v)
 
 static void wr_u16b(u16b v)
 {
-	sf_put(v & 0xFF);
-	sf_put((v >> 8) & 0xFF);
+	sf_put((byte)(v & 0xFF));
+	sf_put((byte)((v >> 8) & 0xFF));
 }
 
 static void wr_s16b(s16b v)
@@ -657,10 +503,10 @@ static void wr_s16b(s16b v)
 
 static void wr_u32b(u32b v)
 {
-	sf_put(v & 0xFF);
-	sf_put((v >> 8) & 0xFF);
-	sf_put((v >> 16) & 0xFF);
-	sf_put((v >> 24) & 0xFF);
+	sf_put((byte)(v & 0xFF));
+	sf_put((byte)((v >> 8) & 0xFF));
+	sf_put((byte)((v >> 16) & 0xFF));
+	sf_put((byte)((v >> 24) & 0xFF));
 }
 
 static void wr_s32b(s32b v)
@@ -881,6 +727,8 @@ static void wr_store(store_type *st_ptr)
 	wr_s16b(st_ptr->good_buy);
 	wr_s16b(st_ptr->bad_buy);
 
+	wr_s32b(st_ptr->last_visit);
+
 	/* Save the stock */
 	for (j = 0; j < st_ptr->stock_num; j++)
 	{
@@ -1066,6 +914,23 @@ static void wr_extra(void)
 	wr_u16b(p_ptr->exp_frac);
 	wr_s16b(p_ptr->lev);
 
+	wr_s16b(p_ptr->town_num); /* -KMW- */
+
+	/* Write arena and rewards information -KMW- */
+	wr_s16b(p_ptr->arena_number);
+	wr_s16b(p_ptr->inside_arena);
+	wr_s16b(p_ptr->inside_quest);
+	wr_byte(p_ptr->exit_bldg);
+	wr_byte(p_ptr->leftbldg); /* save building leave status -KMW- */
+
+	wr_s16b(p_ptr->oldpx);
+	wr_s16b(p_ptr->oldpy);
+
+	/* Save builing rewards */
+	wr_s16b(MAX_BACT);
+
+	for (i = 0; i < MAX_BACT; i++) wr_s16b(p_ptr->rewards[i]);
+
 	wr_s16b(p_ptr->mhp);
 	wr_s16b(p_ptr->chp);
 	wr_u16b(p_ptr->chp_frac);
@@ -1185,9 +1050,11 @@ static void wr_dungeon(void)
 	int i, y, x;
 
 	byte tmp8u;
+	u16b tmp16s;
 
 	byte count;
 	byte prev_char;
+	s16b prev_s16b;
 
 	cave_type *c_ptr;
 
@@ -1289,6 +1156,88 @@ static void wr_dungeon(void)
 	}
 
 
+	/*** Simple "Run-Length-Encoding" of cave ***/
+
+	/* Note that this will induce two wasted bytes */
+	count = 0;
+	prev_char = 0;
+
+	/* Dump the cave */
+	for (y = 0; y < cur_hgt; y++)
+	{
+		for (x = 0; x < cur_wid; x++)
+		{
+			/* Get the cave */
+			c_ptr = &cave[y][x];
+
+			/* Extract a byte */
+			tmp8u = c_ptr->mimic;
+			
+			/* If the run is broken, or too full, flush it */
+			if ((tmp8u != prev_char) || (count == MAX_UCHAR))
+			{
+				wr_byte((byte)count);
+				wr_byte((byte)prev_char);
+				prev_char = tmp8u;
+				count = 1;
+			}
+
+			/* Continue the run */
+			else
+			{
+				count++;
+			}
+		}
+	}
+
+	/* Flush the data (if any) */
+	if (count)
+	{
+		wr_byte((byte)count);
+		wr_byte((byte)prev_char);
+	}
+
+
+	/*** Simple "Run-Length-Encoding" of cave ***/
+
+	/* Note that this will induce two wasted bytes */
+	count = 0;
+	prev_s16b = 0;
+
+	/* Dump the cave */
+	for (y = 0; y < cur_hgt; y++)
+	{
+		for (x = 0; x < cur_wid; x++)
+		{
+			/* Get the cave */
+			c_ptr = &cave[y][x];
+
+			/* Extract a byte */
+			tmp16s = c_ptr->special;
+			
+			/* If the run is broken, or too full, flush it */
+			if ((tmp16s != prev_s16b) || (count == MAX_UCHAR))
+			{
+				wr_byte((byte)count);
+				wr_u16b(prev_s16b);
+				prev_s16b = tmp16s;
+				count = 1;
+			}
+
+			/* Continue the run */
+			else
+			{
+				count++;
+			}
+		}
+	}
+
+	/* Flush the data (if any) */
+	if (count)
+	{
+		wr_byte((byte)count);
+		wr_u16b(prev_s16b);
+	}
 
 
 	/* Compact the objects */
@@ -1334,7 +1283,7 @@ static void wr_dungeon(void)
  */
 static bool wr_savefile_new(void)
 {
-	int        i;
+	int        i, j;
 
 	u32b              now;
 
@@ -1358,16 +1307,6 @@ static bool wr_savefile_new(void)
 
 	/*** Actually write the file ***/
 
-#if 0
-	/* Dump the file header */
-	xor_byte = 0;
-	wr_byte(VERSION_MAJOR);
-	xor_byte = 0;
-	wr_byte(VERSION_MINOR);
-	xor_byte = 0;
-	wr_byte(VERSION_PATCH);
-	xor_byte = 0;
-#else
     /* Dump the file header */
 	xor_byte = 0;
     wr_byte(FAKE_VER_MAJOR);
@@ -1376,9 +1315,8 @@ static bool wr_savefile_new(void)
 	xor_byte = 0;
     wr_byte(FAKE_VER_PATCH);
 	xor_byte = 0;
-#endif
 
-	tmp8u = rand_int(256);
+	tmp8u = (byte)rand_int(256);
 	wr_byte(tmp8u);
 
 
@@ -1422,35 +1360,73 @@ static bool wr_savefile_new(void)
 	/* Dump the messages (oldest first!) */
 	for (i = tmp16u - 1; i >= 0; i--)
 	{
-		wr_string(message_str(i));
+		wr_string(message_str((s16b)i));
 	}
 
 
 	/* Dump the monster lore */
-	tmp16u = MAX_R_IDX;
+	tmp16u = max_r_idx;
 	wr_u16b(tmp16u);
 	for (i = 0; i < tmp16u; i++) wr_lore(i);
 
 
 	/* Dump the object memory */
-	tmp16u = MAX_K_IDX;
+	tmp16u = max_k_idx;
 	wr_u16b(tmp16u);
 	for (i = 0; i < tmp16u; i++) wr_xtra(i);
 
-
-	/* Hack -- Dump the quests */
-	tmp16u = MAX_Q_IDX;
+	/* Dump the towns */
+	tmp16u = max_towns;
 	wr_u16b(tmp16u);
-	for (i = 0; i < tmp16u; i++)
+
+	/* Dump the quests */
+	tmp16u = max_quests;
+	wr_u16b(tmp16u);
+
+	for (i = 0; i < max_quests; i++)
 	{
-		wr_byte(q_list[i].level);
-		wr_s16b(q_list[i].r_idx);
-		wr_byte(q_list[i].cur_num);
-		wr_byte(q_list[i].max_num);
+		/* Save status for every quest */
+		wr_s16b(quest[i].status);
+
+		/* And the dungeon level too */
+		/* (prevents problems with multi-level quests) */
+		wr_s16b(quest[i].level);
+
+		/* Save quest status if quest is running */
+		if (quest[i].status == 1)
+		{
+			wr_s16b(quest[i].cur_num);
+			wr_s16b(quest[i].max_num);
+			wr_s16b(quest[i].type);
+			wr_s16b(quest[i].r_idx);
+			wr_s16b(quest[i].k_idx);
+		}
+	}
+
+	/* Dump the "hard quests" flag */
+	wr_byte(p_ptr->hard_quests);
+
+	/* Dump the wilderness flag */
+	wr_byte(p_ptr->wilderness);
+
+	/* Dump the position in the wilderness */
+	wr_s32b(p_ptr->wilderness_x);
+	wr_s32b(p_ptr->wilderness_y);
+
+	wr_s32b(max_wild_x);
+	wr_s32b(max_wild_y);
+
+	/* Dump the wilderness seeds */
+	for (i = 0; i < max_wild_x; i++)
+	{
+		for (j = 0; j < max_wild_y; j++)
+		{
+			wr_u32b(wilderness[j][i].seed);
+		}
 	}
 
 	/* Hack -- Dump the artifacts */
-	tmp16u = MAX_A_IDX;
+	tmp16u = max_a_idx;
 	wr_u16b(tmp16u);
 	for (i = 0; i < tmp16u; i++)
 	{
@@ -1500,7 +1476,7 @@ static bool wr_savefile_new(void)
 		if (!o_ptr->k_idx) continue;
 
 		/* Dump index */
-		wr_u16b(i);
+		wr_u16b((u16b)i);
 
 		/* Dump object */
 		wr_item(o_ptr);
@@ -1509,13 +1485,22 @@ static bool wr_savefile_new(void)
 	/* Add a sentinel */
 	wr_u16b(0xFFFF);
 
+	/* Note the towns */
+	tmp16u = max_towns;
+	wr_u16b(tmp16u);
 
 	/* Note the stores */
 	tmp16u = MAX_STORES;
 	wr_u16b(tmp16u);
 
-	/* Dump the stores */
-	for (i = 0; i < tmp16u; i++) wr_store(&store[i]);
+	/* Dump the stores of all towns */
+	for (i = 1; i < max_towns; i++)
+	{
+		for (j = 0; j < MAX_STORES; j++)
+		{
+			wr_store(&town[i].store[j]);
+		}
+	}
 
 
 	/* Player is not dead, write the dungeon */
@@ -1850,13 +1835,6 @@ bool load_player(void)
 	if (!err)
 	{
 
-#if 0
-		/* Extract version */
-		sf_major = vvv[0];
-		sf_minor = vvv[1];
-		sf_patch = vvv[2];
-		sf_extra = vvv[3];
-#else
 		/* Extract version */
 		z_major = vvv[0];
 		z_minor = vvv[1];
@@ -1876,7 +1854,6 @@ bool load_player(void)
 			z_minor = 0;
 			z_patch = 6;
 		}
-#endif
 
 		/* Very old savefiles */
 		if ((sf_major == 5) && (sf_minor == 2))

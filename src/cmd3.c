@@ -14,15 +14,11 @@
 
 
 
-
-
-
 /*
  * Display inventory
  */
 void do_cmd_inven(void)
 {
-
 /* Broken */
 #if 0
     int capacity_tester = 0;
@@ -168,7 +164,7 @@ static bool item_tester_hook_wear(object_type *o_ptr)
  */
 void do_cmd_wield(void)
 {
-	int item, slot;
+	int i, item, slot;
 
 	object_type forge;
 	object_type *q_ptr;
@@ -179,16 +175,15 @@ void do_cmd_wield(void)
 
 	char o_name[80];
 
+	cptr q, s;
 
 	/* Restrict the choices */
 	item_tester_hook = item_tester_hook_wear;
 
-	/* Get an item (from inven or floor) */
-	if (!get_item(&item, "Wear/Wield which item? ", FALSE, TRUE, TRUE))
-	{
-		if (item == -2) msg_print("You have nothing you can wear or wield.");
-		return;
-	}
+	/* Get an item */
+	q = "Wear/Wield which item? ";
+	s = "You have nothing you can wear or wield.";
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -233,6 +228,17 @@ void do_cmd_wield(void)
             return;
     }
 
+	/* Check if completed a quest */
+	for (i = 0; i < max_quests; i++)
+	{
+		if ((quest[i].type == 3) && (quest[i].status == 1) &&
+			(quest[i].k_idx == o_ptr->name1))
+		{
+			quest[i].status = QUEST_STATUS_COMPLETED;
+			msg_print("You completed your quest!");
+			msg_print(NULL);
+		}
+	}
 
 	/* Take a turn */
 	energy_use = 100;
@@ -339,13 +345,12 @@ void do_cmd_takeoff(void)
 
 	object_type *o_ptr;
 
+	cptr q, s;
 
-	/* Get an item (from equip) */
-	if (!get_item(&item, "Take off which item? ", TRUE, FALSE, FALSE))
-	{
-		if (item == -2) msg_print("You are not wearing anything to take off.");
-		return;
-	}
+	/* Get an item */
+	q = "Take off which item? ";
+	s = "You are not wearing anything to take off.";
+	if (!get_item(&item, q, s, (USE_EQUIP))) return;
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -390,17 +395,12 @@ void do_cmd_drop(void)
 
 	object_type *o_ptr;
 
-	/* Unused (rr9) */
-#if 0
-	cave_type *c_ptr = &cave[py][px];
-#endif
+	cptr q, s;
 
-	/* Get an item (from equip or inven) */
-	if (!get_item(&item, "Drop which item? ", TRUE, TRUE, FALSE))
-	{
-		if (item == -2) msg_print("You have nothing to drop.");
-		return;
-	}
+	/* Get an item */
+	q = "Drop which item? ";
+	s = "You have nothing to drop.";
+	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN))) return;
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -476,17 +476,16 @@ void do_cmd_destroy(void)
 
 	char		out_val[160];
 
+	cptr q, s;
 
 	/* Hack -- force destruction */
 	if (command_arg > 0) force = TRUE;
 
 
-	/* Get an item (from inven or floor) */
-	if (!get_item(&item, "Destroy which item? ", FALSE, TRUE, TRUE))
-	{
-		if (item == -2) msg_print("You have nothing to destroy.");
-		return;
-	}
+	/* Get an item */
+	q = "Destroy which item? ";
+	s = "You have nothing to destroy.";
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -565,14 +564,19 @@ void do_cmd_destroy(void)
 
 	/* Message */
 	msg_format("You destroy %s.", o_name);
+	sound(SOUND_DESTITEM);
 
     if (high_level_book(o_ptr))
     {
         bool gain_expr = FALSE;
-        if (p_ptr->pclass == CLASS_WARRIOR) gain_expr = TRUE;
+
+        if (p_ptr->pclass == CLASS_WARRIOR)
+		{
+			gain_expr = TRUE;
+		}
         else if (p_ptr->pclass == CLASS_PALADIN)
         {
-            if (p_ptr->realm1 == 1)
+            if (p_ptr->realm1 == REALM_LIFE)
             {
                 if (o_ptr->tval != TV_LIFE_BOOK) gain_expr = TRUE;
             }
@@ -592,9 +596,8 @@ void do_cmd_destroy(void)
 
             msg_print("You feel more experienced.");
             gain_exp(tester_exp * amt);
-
-        }
-    }
+		}
+	}
 
 	/* Eliminate the item (from the pack) */
 	if (item >= 0)
@@ -625,13 +628,12 @@ void do_cmd_observe(void)
 
 	char		o_name[80];
 
+	cptr q, s;
 
-	/* Get an item (from equip or inven or floor) */
-	if (!get_item(&item, "Examine which item? ", TRUE, TRUE, TRUE))
-	{
-		if (item == -2) msg_print("You have nothing to examine.");
-		return;
-	}
+	/* Get an item */
+	q = "Examine which item? ";
+	s = "You have nothing to examine.";
+	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return;
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -676,13 +678,12 @@ void do_cmd_uninscribe(void)
 
 	object_type *o_ptr;
 
+	cptr q, s;
 
-	/* Get an item (from equip or inven or floor) */
-	if (!get_item(&item, "Un-inscribe which item? ", TRUE, TRUE, TRUE))
-	{
-		if (item == -2) msg_print("You have nothing to un-inscribe.");
-		return;
-	}
+	/* Get an item */
+	q = "Un-inscribe which item? ";
+	s = "You have nothing to un-inscribe.";
+	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return;
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -730,13 +731,12 @@ void do_cmd_inscribe(void)
 
 	char		out_val[80];
 
+	cptr q, s;
 
-	/* Get an item (from equip or inven or floor) */
-	if (!get_item(&item, "Inscribe which item? ", TRUE, TRUE, TRUE))
-	{
-		if (item == -2) msg_print("You have nothing to inscribe.");
-		return;
-	}
+	/* Get an item */
+	q = "Inscribe which item? ";
+	s = "You have nothing to inscribe.";
+	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return;
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -810,16 +810,16 @@ static void do_cmd_refill_lamp(void)
 	object_type *o_ptr;
 	object_type *j_ptr;
 
+	cptr q, s;
+
 
 	/* Restrict the choices */
 	item_tester_hook = item_tester_refill_lantern;
 
-	/* Get an item (from inven or floor) */
-	if (!get_item(&item, "Refill with which flask? ", FALSE, TRUE, TRUE))
-	{
-		if (item == -2) msg_print("You have no flasks of oil.");
-		return;
-	}
+	/* Get an item */
+	q = "Refill with which flask? ";
+	s = "You have no flasks of oil.";
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -874,7 +874,6 @@ static void do_cmd_refill_lamp(void)
 }
 
 
-
 /*
  * An "item_tester_hook" for refilling torches
  */
@@ -899,16 +898,16 @@ static void do_cmd_refill_torch(void)
 	object_type *o_ptr;
 	object_type *j_ptr;
 
+	cptr q, s;
+
 
 	/* Restrict the choices */
 	item_tester_hook = item_tester_refill_torch;
 
-	/* Get an item (from inven or floor) */
-	if (!get_item(&item, "Refuel with which torch? ", FALSE, TRUE, TRUE))
-	{
-		if (item == -2) msg_print("You have no extra torches.");
-		return;
-	}
+	/* Get an item */
+	q = "Refuel with which torch? ";
+	s = "You have no extra torches.";
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -969,8 +968,6 @@ static void do_cmd_refill_torch(void)
 }
 
 
-
-
 /*
  * Refill the players lamp, or restock his torches
  */
@@ -1005,10 +1002,6 @@ void do_cmd_refill(void)
 		msg_print("Your light cannot be refilled.");
 	}
 }
-
-
-
-
 
 
 /*
@@ -1257,7 +1250,7 @@ static cptr ident_info[] =
 	"{:A missile (arrow/bolt/shot)",
 	"|:An edged weapon (sword/dagger/etc)",
 	"}:A launcher (bow/crossbow/sling)",
-	"~:A tool (or miscellaneous item)",
+	"~:Aquatic monster, tool (or miscellaneous item)",
 	NULL
 };
 
@@ -1415,7 +1408,7 @@ static void roff_top(int r_idx)
 /*
  * Identify a character, allow recall of monsters
  *
- * Several "special" responses recall "mulitple" monsters:
+ * Several "special" responses recall "multiple" monsters:
  *   ^A (all monsters)
  *   ^U (all unique monsters)
  *   ^N (all non-unique monsters)
@@ -1437,8 +1430,10 @@ void do_cmd_query_symbol(void)
 	bool	recall = FALSE;
 
 	u16b	why = 0;
-	u16b	who[MAX_R_IDX];
+	u16b	*who;
 
+	/* Allocate the "who" array */
+	C_MAKE(who, max_r_idx, u16b);
 
 	/* Get a character, or abort */
 	if (!get_com("Enter character to be identified: ", &sym)) return;
@@ -1479,7 +1474,7 @@ void do_cmd_query_symbol(void)
 
 
 	/* Collect matching monsters */
-	for (n = 0, i = 1; i < MAX_R_IDX-1; i++)
+	for (n = 0, i = 1; i < max_r_idx; i++)
 	{
 		monster_race *r_ptr = &r_info[i];
 
@@ -1571,7 +1566,7 @@ void do_cmd_query_symbol(void)
 				Term_save();
 
 				/* Recall on screen */
-				screen_roff(who[i]);
+				screen_roff(who[i], 0);
 
 				/* Hack -- Complete the prompt (again) */
 				Term_addstr(-1, TERM_WHITE, " [(r)ecall, ESC]");
@@ -1618,9 +1613,196 @@ void do_cmd_query_symbol(void)
 		}
 	}
 
-
 	/* Re-display the identity */
 	prt(buf, 0, 0);
 }
 
 
+/*
+ *  research_mon
+ *  -KMW-
+ */
+bool research_mon()
+{
+	int i, n, r_idx;
+	char sym, query;
+	char buf[128];
+
+	s16b oldkills;
+	byte oldwake;
+	bool oldcheat;
+
+	bool all = FALSE;
+	bool uniq = FALSE;
+	bool norm = FALSE;
+	bool notpicked;
+
+	bool recall = FALSE;
+
+	u16b why = 0;
+
+	monster_race *r2_ptr;
+
+	u16b	*who;
+
+	oldcheat = cheat_know;
+
+	/* Allocate the "who" array */
+	C_MAKE(who, max_r_idx, u16b);
+
+	/* Get a character, or abort */
+	if (!get_com("Enter character of monster: ", &sym)) return (TRUE);
+
+	/* Find that character info, and describe it */
+	for (i = 0; ident_info[i]; ++i)
+	{
+		if (sym == ident_info[i][0]) break;
+	}
+
+	if (ident_info[i])
+	{
+		sprintf(buf, "%c - %s.", sym, ident_info[i] + 2);
+	}
+	else
+	{
+		sprintf(buf, "%c - %s.", sym, "Unknown Symbol");
+	}
+
+	/* Display the result */
+	prt(buf, 16, 10);
+
+
+	/* Collect matching monsters */
+	for (n = 0, i = 1; i < max_r_idx; i++)
+	{
+		monster_race *r_ptr = &r_info[i];
+
+		cheat_know = TRUE;
+		/* Nothing to recall */
+		if (!cheat_know && !r_ptr->r_sights) continue;
+
+		/* Require non-unique monsters if needed */
+		if (norm && (r_ptr->flags1 & (RF1_UNIQUE))) continue;
+
+		/* Require unique monsters if needed */
+		if (uniq && !(r_ptr->flags1 & (RF1_UNIQUE))) continue;
+
+		/* Collect "appropriate" monsters */
+		if (all || (r_ptr->d_char == sym)) who[n++] = i;
+	}
+
+	/* Nothing to recall */
+	if (!n) return (TRUE);
+
+
+	/* Sort by level */
+	why = 2;
+	query = 'y';
+
+	/* Sort if needed */
+	if (why)
+	{
+		/* Select the sort method */
+		ang_sort_comp = ang_sort_comp_hook;
+		ang_sort_swap = ang_sort_swap_hook;
+
+		/* Sort the array */
+		ang_sort(who, &why, n);
+	}
+
+
+	/* Start at the end */
+	i = n - 1;
+
+	notpicked = TRUE;
+
+	/* Scan the monster memory */
+	while (notpicked)
+	{
+		/* Extract a race */
+		r_idx = who[i];
+
+		/* Hack -- Auto-recall */
+		monster_race_track(r_idx);
+
+		/* Hack -- Handle stuff */
+		handle_stuff();
+
+		/* Hack -- Begin the prompt */
+		roff_top(r_idx);
+
+		/* Hack -- Complete the prompt */
+		Term_addstr(-1, TERM_WHITE, " [(r)ecall, ESC, space to continue]");
+
+		/* Interact */
+		while (1)
+		{
+			/* Recall */
+			if (recall)
+			{
+				/* Save the screen */
+				Term_save();
+
+				/* Recall on screen */
+				r2_ptr = &r_info[r_idx];
+
+				oldkills = r2_ptr->r_tkills;
+				oldwake = r2_ptr->r_wake;
+				screen_roff(who[i], 1);
+				r2_ptr->r_tkills = oldkills;
+				r2_ptr->r_wake = oldwake;
+				r2_ptr->r_sights = 1;
+				cheat_know = oldcheat;
+				notpicked = FALSE;
+				break;
+
+			}
+
+			/* Command */
+			query = inkey();
+
+			/* Unrecall */
+			if (recall)
+			{
+				/* Restore */
+				Term_load();
+			}
+
+			/* Normal commands */
+			if (query != 'r') break;
+
+			/* Toggle recall */
+			recall = !recall;
+		}
+
+		/* Stop scanning */
+		if (query == ESCAPE) break;
+
+		/* Move to "prev" monster */
+		if (query == '-')
+		{
+			if (++i == n)
+			{
+				i = 0;
+				if (!expand_list) break;
+			}
+		}
+
+		/* Move to "next" monster */
+		else
+		{
+			if (i-- == 0)
+			{
+				i = n - 1;
+				if (!expand_list) break;
+			}
+		}
+	}
+
+
+	/* Re-display the identity */
+	/* prt(buf, 5, 5);*/
+
+	cheat_know = oldcheat;
+	return(notpicked);
+}

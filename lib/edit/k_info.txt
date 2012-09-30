@@ -200,13 +200,25 @@ G:,:r
 I:80:39:1000
 W:0:0:10:2
 
+##### Extra digger #####
 
-## XXX 28 XXX ##
-
-## XXX 29 XXX ##
-
+N:28:& Mattock~
+G:\:D
+I:20:7:2
+W:50:0:250:700
+A:50/1
+P:0:1d8:0:0:0
+F:SHOW_MODS | TUNNEL
 
 ##### Edged Weapons #####
+
+N:29:& No-dachi~
+G:|:W
+I:23:27:0
+W:35:0:190:579
+A:35/3
+P:0:5d4:0:0:0
+F:SHOW_MODS
 
 N:30:& Broken Dagger~
 G:|:D
@@ -1283,7 +1295,16 @@ W:15:0:3:20
 A:15/1
 F:EASY_KNOW
 
-## XXX 170 XXX ##
+##### Extra armor #####
+
+N:170:Double Ring Mail~
+G:[:s
+I:37:5:0
+W:25:0:230:700
+A:25/1
+P:15:1d4:-2:0:0
+
+##### Additional amulets #####
 
 N:171:the Magi
 G:":d
@@ -1439,9 +1460,25 @@ I:70:28:0
 W:5:0:5:35
 A:5/1:10/1
 
-## XXX 195 XXX ##
+##### Extra ammunition #####
 
-## XXX 196 XXX ##
+N:195:& Sheaf Arrow~
+G:{:o
+I:17:1:0
+W:10:0:4:3
+A:10/4:20/2:30/1
+P:0:1d5:0:0:0
+F:SHOW_MODS
+
+N:196:& Mithril Shot~
+G:{:B
+I:16:2:0
+W:25:0:5:15
+A:25/3
+P:0:4d3:0:0:0
+F:SHOW_MODS
+
+##### Additional scrolls #####
 
 N:197:Door/Stair Location
 G:?:d
@@ -1704,7 +1741,7 @@ N:237:Curing
 G:!:d
 I:75:61:100
 W:18:0:4:250
-A:18/1,40/1
+A:18/1:40/1
 P:0:1d1:0:0:0
 
 # Note! Invulnerability decreases your food...
@@ -2106,7 +2143,17 @@ A:3/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-# XXX 293 XXX
+##### Extra ammunition #####
+
+N:293:& Flight Arrow~
+G:{:y
+I:17:1:0
+W:3:0:1:1
+A:3/2
+P:0:1d3:0:0:0
+F:SHOW_MODS
+
+##### Additional wands #####
 
 N:294:Acid Bolts
 G:-:d
@@ -2685,7 +2732,7 @@ N:372:Perception
 G:-:d
 I:66:2:0
 W:50:0:15:13000
-A:50/8,100/8
+A:50/8:100/8
 P:0:1d1:0:0:0
 
 N:373:Curing
@@ -2876,8 +2923,15 @@ W:5:0:30:0
 A:5/1
 P:0:1d2:0:0:0
 
-## XXX 399 XXX ##
+##### Additional weapon #####
 
+N:399:& Great Hammer~
+G:\:D
+I:21:19:0
+W:45:0:300:350
+A:45/3
+P:0:4d6:0:0:0
+F:SHOW_MODS
 
 ##### Dragon Scale Mail #####
 
@@ -3555,3 +3609,308 @@ W:50:0:3:25000
 A:50/4
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+##### New arms #####
+
+N:524:& Zweihander~
+G:|:w
+I:23:29:0
+W:40:0:280:580
+A:40/3
+P:0:4d6:0:0:0
+F:SHOW_MODS
+
+N:525:& Tanto~
+G:|:W
+I:23:6:0
+W:3:0:20:30
+A:3/2
+P:0:1d5:0:0:0
+F:SHOW_MODS
+
+N:526:Splint Mail~
+G:[:D
+I:37:10:0
+W:35:0:250:950
+A:35/1
+P:19:1d4:-2:0:0
+
+N:527:Do-maru~
+G:[:s
+I:37:11:0
+W:40:0:290:1020
+A:40/2
+P:20:1d4:-2:0:0
+
+N:528:& Trifurcate Spear~
+G:/:o
+I:22:26:0
+W:35:0:140:400
+A:35/3
+P:0:2d9:0:0:0
+F:SHOW_MODS
+
+N:529:& Three Piece Rod~
+G:\:u
+I:21:11:0
+W:20:0:120:350
+A:20/3
+P:0:3d3:0:0:0
+F:SHOW_MODS
+
+N:530:O-yoroi~
+G:[:D
+I:37:16:0
+W:45:0:320:1150
+A:45/2
+P:24:1d4:-2:0:0
+
+N:531:& Fur Cloak~
+G:(:W
+I:35:3:0
+W:20:0:30:300
+A:20/2:30/2
+P:3:0d0:0:0:0
+
+N:532:& Lajatang~
+G:/:s
+I:22:14:0
+W:25:0:175:330
+A:25/2
+P:0:2d7:0:0:0
+F:SHOW_MODS
+
+N:533:& Hatchet~
+G:/:s
+I:22:1:0
+W:10:0:60:120
+A:10/2
+P:0:1d5:0:0:0
+F:SHOW_MODS
+
+##### New armor #####
+
+N:535:Rhino Hide Armour~
+G:(:s
+I:36:8:0
+W:15:0:110:400
+A:15/1
+P:8:1d1:-1:0:0
+
+N:536:Leather Jacket~
+G:(:U
+I:36:12:0
+W:20:0:130:550
+A:20/3
+P:12:1d2:-1:0:0
+
+##### New weapons #####
+
+N:537:& Sickle~
+G:/:s
+I:22:3:0
+W:10:0:70:110
+A:10/3
+P:0:2d3:0:0:0
+F:SHOW_MODS
+
+N:538:& Tetsubo~
+G:\:u
+I:21:16:0
+W:25:0:190:570
+A:25/2
+P:0:2d7:0:0:0
+F:SHOW_MODS
+
+N:539:& Nunchaku~
+G:\:u
+I:21:4:0
+W:16:0:60:120
+A:16/2
+P:0:2d3:0:0:0
+F:SHOW_MODS
+
+N:540:& Bo Staff~
+G:\:U
+I:21:14:0
+W:20:0:160:310
+A:20/1
+P:0:1d11:0:0:0
+F:SHOW_MODS
+
+N:541:& Jo Staff~
+G:\:U
+I:21:7:0
+W:11:0:70:200
+A:11/2
+P:0:1d7:0:0:0
+F:SHOW_MODS
+
+N:542:& Club~
+G:\:u
+I:21:1:0
+W:0:0:100:3
+A:0/1
+P:0:1d4:0:0:0
+F:SHOW_MODS
+
+N:543:& Broad Spear~
+G:/:w
+I:22:7:0
+W:14:0:100:240
+A:14/3
+P:0:1d9:0:0:0
+F:SHOW_MODS
+
+N:544:& Khopesh~
+G:|:W
+I:23:14:0
+W:10:0:130:190
+A:10/2
+P:0:2d4:0:0:0
+F:SHOW_MODS
+
+N:545:& Flamberge~
+G:|:W
+I:23:26:0
+W:40:0:230:600
+A:40/2
+P:0:3d7:0:0:0
+F:SHOW_MODS
+
+N:546:& Claymore~
+G:|:W
+I:23:23:0
+W:40:0:200:600
+A:40/2
+P:0:2d8:0:0:0
+F:SHOW_MODS
+
+N:547:& Espadon~
+G:|:W
+I:23:24:0
+W:40:0:200:600
+A:40/3
+P:0:2d9:0:0:0
+F:SHOW_MODS
+
+N:548:& Great Scimitar~
+G:|:W
+I:23:22:0
+W:40:0:240:500
+A:40/3
+P:0:4d5:0:0:0
+F:SHOW_MODS
+
+N:549:& Wakizashi~
+G:|:W
+I:23:13:0
+W:15:0:90:210
+A:15/3
+P:0:2d4:0:0:0
+F:SHOW_MODS
+
+N:550:& Naginata~
+G:/:s
+I:22:9:0
+W:25:0:150:408
+A:25/2
+P:0:2d6:0:0:0
+F:SHOW_MODS
+
+N:551:& Fauchard~
+G:/:s
+I:22:6:0
+W:18:0:155:301
+A:18/2
+P:0:1d10:0:0:0
+F:SHOW_MODS
+
+N:552:& Guisarme~
+G:/:s
+I:22:16:0
+W:21:0:165:320
+A:21/1
+P:0:2d5:0:0:0
+F:SHOW_MODS
+
+N:553:& Heavy Lance~
+G:/:s
+I:22:29:0
+W:43:0:400:700
+A:43/2
+P:0:4d8:0:0:0
+F:SHOW_MODS
+
+N:554:& Basillard~
+G:|:w
+I:23:9:0
+W:15:0:80:220
+A:15/3
+P:0:1d8:0:0:0
+F:SHOW_MODS
+
+N:555:& Ninjato~
+G:|:s
+I:23:19:0
+W:15:0:100:265
+A:15/2
+P:0:1d9:0:0:0
+F:SHOW_MODS
+
+N:556:Ring Mail~
+G:[:s
+I:37:2:0
+W:20:0:200:500
+A:20/1
+P:12:1d4:-2:0:0
+
+N:557:Cord Armour~
+G:(:y
+I:36:9:0
+W:5:0:80:40
+A:5/1
+P:6:1d1:0:0:0
+
+N:558:Paper Armour~
+G:(:w
+I:36:3:0
+W:5:0:30:40
+A:5/2
+P:4:1d1:0:0:0
+
+N:559:Padded Armour~
+G:(:y
+I:36:10:0
+W:2:0:60:40
+A:2/1
+P:4:1d1:0:0:0
+
+N:560:& Kabuto~
+G:]:D
+I:32:8:0
+W:50:0:80:300
+A:50/3
+P:7:1d2:0:0:0
+
+N:561:Stone and Hide Armour~
+G:(:U
+I:36:15:0
+W:35:0:200:500
+A:35/7
+P:15:1d1:-1:0:0
+
+N:562:& Jingasa~
+G:]:s
+I:32:4:0
+W:16:0:30:60
+A:16/2
+P:4:1d2:0:0:0
+
+N:563:Haramakido~
+G:[:D
+I:37:14:0
+W:32:0:280:920
+A:32/2
+P:17:1d4:-2:0:0
+

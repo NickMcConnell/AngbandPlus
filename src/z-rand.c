@@ -299,7 +299,7 @@ s16b randnor(int mean, int stand)
 	if (stand < 1) return (mean);
 
 	/* Roll for probability */
-	tmp = rand_int(32768);
+	tmp = (s16b)rand_int(32768);
 
 	/* Binary Search */
 	while (low < high)

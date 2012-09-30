@@ -23,7 +23,7 @@ void do_cmd_rerate(void)
 #ifdef TEST
 	int fubar, mlk = 0;
 
-	for (fubar = 0; fubar < MAX_K_IDX; fubar++)
+	for (fubar = 0; fubar < max_k_idx; fubar++)
 	{
 		if ((k_info[fubar].tval == TV_POTION))
 		{
@@ -193,11 +193,12 @@ static void do_cmd_wiz_hack_ben(void)
 		}
 	}
 
-#endif
-
 	/* Oops */
 	msg_print("Oops.");
 	(void) probing();
+
+#endif
+
 }
 
 
@@ -327,6 +328,7 @@ static void do_cmd_wiz_change_aux(void)
 
 	/* Save */
 	p_ptr->max_exp = tmp_long;
+	p_ptr->exp = tmp_long;
 
 	/* Update */
 	check_experience();
@@ -619,7 +621,7 @@ static int wiz_create_itemtype(void)
 	Term_clear();
 
 	/* We have to search the whole itemlist. */
-	for (num = 0, i = 1; (num < 60) && (i < MAX_K_IDX); i++)
+	for (num = 0, i = 1; (num < 60) && (i < max_k_idx); i++)
 	{
 		object_kind *k_ptr = &k_info[i];
 
@@ -1009,13 +1011,12 @@ static void do_cmd_wiz_play(void)
 
 	bool changed;
 
+	cptr q, s;
 
-	/* Get an item (from equip or inven) */
-	if (!get_item(&item, "Play with which object? ", TRUE, TRUE, TRUE))
-	{
-		if (item == -2) msg_print("You have nothing to play with.");
-		return;
-	}
+	/* Get an item */
+	q = "Play with which object? ";
+	s = "You have nothing to play with.";
+	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return;
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -1266,7 +1267,14 @@ static void do_cmd_wiz_jump(void)
 
 	/* Change level */
 	dun_level = command_arg;
-	new_level_flag = TRUE;
+
+	p_ptr->inside_arena = 0;
+	leaving_quest = p_ptr->inside_quest;
+	p_ptr->inside_quest = 0;
+	p_ptr->leftbldg = FALSE;
+
+	/* Leaving */
+	p_ptr->leaving = TRUE;
 }
 
 
@@ -1281,7 +1289,7 @@ static void do_cmd_wiz_learn(void)
 	object_type *q_ptr;
 
 	/* Scan every object */
-	for (i = 1; i < MAX_K_IDX; i++)
+	for (i = 1; i < max_k_idx; i++)
 	{
 		object_kind *k_ptr = &k_info[i];
 
@@ -1310,7 +1318,7 @@ static void do_cmd_wiz_summon(int num)
 
 	for (i = 0; i < num; i++)
 	{
-        (void)summon_specific(py, px, dun_level, 0);
+        (void)summon_specific(py, px, dun_level, 0, TRUE, FALSE, FALSE);
 	}
 }
 
@@ -1320,7 +1328,7 @@ static void do_cmd_wiz_summon(int num)
  *
  * XXX XXX XXX This function is rather dangerous
  */
-static void do_cmd_wiz_named(int r_idx, int slp)
+static void do_cmd_wiz_named(int r_idx, bool slp)
 {
 	int i, x, y;
 
@@ -1328,7 +1336,7 @@ static void do_cmd_wiz_named(int r_idx, int slp)
 	/* if (!r_idx) return; */
 
 	/* Prevent illegal monsters */
-	if (r_idx >= MAX_R_IDX-1) return;
+	if (r_idx >= max_r_idx) return;
 
 	/* Try 10 times */
 	for (i = 0; i < 10; i++)
@@ -1342,7 +1350,7 @@ static void do_cmd_wiz_named(int r_idx, int slp)
 		if (!cave_empty_bold(y, x)) continue;
 
 		/* Place it (allow groups) */
-        if (place_monster_aux(y, x, r_idx, slp, TRUE, FALSE)) break;
+        if (place_monster_aux(y, x, r_idx, slp, TRUE, FALSE, FALSE)) break;
 	}
 }
 
@@ -1352,7 +1360,7 @@ static void do_cmd_wiz_named(int r_idx, int slp)
  *
  * XXX XXX XXX This function is rather dangerous
  */
-static void do_cmd_wiz_named_friendly(int r_idx, int slp)
+static void do_cmd_wiz_named_friendly(int r_idx, bool slp)
 {
 	int i, x, y;
 
@@ -1360,7 +1368,7 @@ static void do_cmd_wiz_named_friendly(int r_idx, int slp)
 	/* if (!r_idx) return; */
 
 	/* Prevent illegal monsters */
-	if (r_idx >= MAX_R_IDX-1) return;
+	if (r_idx >= max_r_idx) return;
 
 	/* Try 10 times */
 	for (i = 0; i < 10; i++)
@@ -1374,7 +1382,7 @@ static void do_cmd_wiz_named_friendly(int r_idx, int slp)
 		if (!cave_empty_bold(y, x)) continue;
 
 		/* Place it (allow groups) */
-        if (place_monster_aux(y, x, r_idx, slp, TRUE, TRUE)) break;
+        if (place_monster_aux(y, x, r_idx, slp, TRUE, FALSE, TRUE)) break;
 	}
 }
 
@@ -1399,6 +1407,46 @@ static void do_cmd_wiz_zap(void)
 		if (m_ptr->cdis <= MAX_SIGHT) delete_monster_idx(i);
 	}
 }
+
+
+#ifdef USE_SLANG
+
+/*
+ * Hack -- Execute a script function
+ */
+static void do_cmd_wiz_script(void)
+{
+	int retval, err;
+	char name[80];
+
+	/* Get name of script to execute */
+	name[0] = '\0';
+
+	if (!get_string("Function name: ", name, 80)) return;
+
+	/* No name, no execute */
+	if (name[0] == '\0')
+	{
+		msg_print("Cancelled.");
+		return;
+	}
+
+	/* Execute script */
+	err = execute_function(name, &retval);
+
+	/* Error */
+	if (err)
+	{
+		msg_print("Failed.");
+	}
+	/* Success */
+	else
+	{
+		msg_format("Function returned %d", retval);
+	}
+}
+
+#endif /* USE_SLANG */
 
 
 
@@ -1426,11 +1474,12 @@ extern void do_cmd_debug(void);
  */
 void do_cmd_debug(void)
 {
-	char		cmd;
+	int     x,y;
+	char    cmd;
 
 
 	/* Get a "debug command" */
-	(void)(get_com("Debug Command: ", &cmd));
+	get_com("Debug Command: ", &cmd);
 
 	/* Analyze the command */
 	switch (cmd)
@@ -1455,7 +1504,7 @@ void do_cmd_debug(void)
 
 		/* Hack -- Help */
 		case '?':
-		do_cmd_help("help.hlp");
+		do_cmd_help();
 		break;
 
 
@@ -1491,13 +1540,13 @@ void do_cmd_debug(void)
 
 		/* View item info */
 		case 'f':
-		(void)identify_fully();
+		identify_fully();
 		break;
 
 		/* Good Objects */
 		case 'g':
 		if (command_arg <= 0) command_arg = 1;
-		acquirement(py, px, command_arg, FALSE);
+		acquirement(py, px, command_arg, FALSE, TRUE);
 		break;
 
 		/* Hitpoint rerating */
@@ -1521,13 +1570,13 @@ void do_cmd_debug(void)
 
 		/* Self-Knowledge */
 		case 'k':
-		self_knowledge();
-		break;
+			self_knowledge();
+			break;
 
 		/* Learn about objects */
 		case 'l':
-		do_cmd_wiz_learn();
-		break;
+			do_cmd_wiz_learn();
+			break;
 
 		/* Magic Mapping */
 		case 'm':
@@ -1564,6 +1613,44 @@ void do_cmd_debug(void)
 			teleport_player(10);
 			break;
 
+#if 0
+		/* Complete a Quest -KMW- */
+		case 'q':
+		{
+			for (i = 0; i < MAX_QUESTS; i++)
+			{
+				if (p_ptr->quest[i].status == 1)
+				{
+					p_ptr->quest[i].status++;
+					msg_print("Completed Quest");
+					msg_print(NULL);
+					wilderness_gen(1);
+					break;
+				}
+			}
+			if (i == MAX_QUESTS)
+			{
+				msg_print("No current quest");
+				msg_print(NULL);
+			}
+			break;
+		}
+#endif
+
+		/* Make every dungeon square "known" to test streamers -KMW- */
+		case 'u':
+		{
+			for(y=0;y < cur_hgt;y++)
+			{
+				for(x=0;x < cur_wid;x++)
+				{
+					cave[y][x].info |= (CAVE_GLOW | CAVE_MARK);
+				}
+			}
+			wiz_lite();
+			break;
+		}
+
 		/* Summon Random Monster(s) */
 		case 's':
 			if (command_arg <= 0) command_arg = 1;
@@ -1578,7 +1665,7 @@ void do_cmd_debug(void)
 		/* Very Good Objects */
 		case 'v':
 			if (command_arg <= 0) command_arg = 1;
-			acquirement(py, px, command_arg, TRUE);
+			acquirement(py, px, command_arg, TRUE, TRUE);
 			break;
 
 		/* Wizard Light the Level */
@@ -1607,6 +1694,13 @@ void do_cmd_debug(void)
 		case '_':
 		do_cmd_wiz_hack_ben();
 		break;
+
+#ifdef USE_SLANG
+		/* Hack -- activate a script */
+		case '@':
+		do_cmd_wiz_script();
+		break;
+#endif /* USE_SLANG */
 
 		/* Not a Wizard Command */
 		default:

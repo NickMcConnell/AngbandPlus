@@ -136,14 +136,14 @@ bool make_attack_normal(int m_idx)
 	char ddesc[80];
 
 	bool blinked;
-
 	bool touched = FALSE, fear = FALSE, alive = TRUE;
+	bool explode = FALSE;
 
 	/* Not allowed to attack */
 	if (r_ptr->flags1 & (RF1_NEVER_BLOW)) return (FALSE);
 
 	/* ...nor if friendly */
-	if (m_ptr->smart & SM_FRIEND)  return FALSE;
+	if (!is_hostile(m_ptr)) return FALSE;
 
 	/* Total armor */
 	ac = p_ptr->ac + p_ptr->to_a;
@@ -185,45 +185,47 @@ bool make_attack_normal(int m_idx)
 
 
 		/* Stop if player is dead or gone */
-		if (!alive || death || new_level_flag) break;
+		if (!alive || death) break;
 
+		/* Handle "leaving" */
+		if (p_ptr->leaving) break;
 
 		/* Extract visibility (before blink) */
 		if (m_ptr->ml) visible = TRUE;
 
-
-
 		/* Extract the attack "power" */
 		switch (effect)
 		{
-			case RBE_HURT:	power = 60; break;
-			case RBE_POISON:	power =  5; break;
-			case RBE_UN_BONUS:	power = 20; break;
-			case RBE_UN_POWER:	power = 15; break;
-			case RBE_EAT_GOLD:	power =  5; break;
-			case RBE_EAT_ITEM:	power =  5; break;
-			case RBE_EAT_FOOD:	power =  5; break;
-			case RBE_EAT_LITE:	power =  5; break;
-			case RBE_ACID:	power =  0; break;
-			case RBE_ELEC:	power = 10; break;
-			case RBE_FIRE:	power = 10; break;
-			case RBE_COLD:	power = 10; break;
-			case RBE_BLIND:	power =  2; break;
-			case RBE_CONFUSE:	power = 10; break;
-			case RBE_TERRIFY:	power = 10; break;
-			case RBE_PARALYZE:	power =  2; break;
-			case RBE_LOSE_STR:	power =  0; break;
-			case RBE_LOSE_DEX:	power =  0; break;
-			case RBE_LOSE_CON:	power =  0; break;
-			case RBE_LOSE_INT:	power =  0; break;
-			case RBE_LOSE_WIS:	power =  0; break;
-			case RBE_LOSE_CHR:	power =  0; break;
-			case RBE_LOSE_ALL:	power =  2; break;
-			case RBE_SHATTER:	power = 60; break;
-			case RBE_EXP_10:	power =  5; break;
-			case RBE_EXP_20:	power =  5; break;
-			case RBE_EXP_40:	power =  5; break;
-			case RBE_EXP_80:	power =  5; break;
+			case RBE_HURT:      power = 60; break;
+			case RBE_POISON:    power =  5; break;
+			case RBE_UN_BONUS:  power = 20; break;
+			case RBE_UN_POWER:  power = 15; break;
+			case RBE_EAT_GOLD:  power =  5; break;
+			case RBE_EAT_ITEM:  power =  5; break;
+			case RBE_EAT_FOOD:  power =  5; break;
+			case RBE_EAT_LITE:  power =  5; break;
+			case RBE_ACID:      power =  0; break;
+			case RBE_ELEC:      power = 10; break;
+			case RBE_FIRE:      power = 10; break;
+			case RBE_COLD:      power = 10; break;
+			case RBE_BLIND:     power =  2; break;
+			case RBE_CONFUSE:   power = 10; break;
+			case RBE_TERRIFY:   power = 10; break;
+			case RBE_PARALYZE:  power =  2; break;
+			case RBE_LOSE_STR:  power =  0; break;
+			case RBE_LOSE_DEX:  power =  0; break;
+			case RBE_LOSE_CON:  power =  0; break;
+			case RBE_LOSE_INT:  power =  0; break;
+			case RBE_LOSE_WIS:  power =  0; break;
+			case RBE_LOSE_CHR:  power =  0; break;
+			case RBE_LOSE_ALL:  power =  2; break;
+			case RBE_SHATTER:   power = 60; break;
+			case RBE_EXP_10:    power =  5; break;
+			case RBE_EXP_20:    power =  5; break;
+			case RBE_EXP_40:    power =  5; break;
+			case RBE_EXP_80:    power =  5; break;
+			case RBE_DISEASE:   power =  5; break;
+			case RBE_TIME:      power =  5; break;
 		}
 
 
@@ -265,6 +267,7 @@ bool make_attack_normal(int m_idx)
 					act = "hits you.";
 					do_cut = do_stun = 1;
 					touched = TRUE;
+					sound(SOUND_HIT);
 					break;
 				}
 
@@ -272,6 +275,7 @@ bool make_attack_normal(int m_idx)
 				{
 					act = "touches you.";
 					touched = TRUE;
+					sound(SOUND_TOUCH);
 					break;
 				}
 
@@ -280,6 +284,7 @@ bool make_attack_normal(int m_idx)
 					act = "punches you.";
 					touched = TRUE;
 					do_stun = 1;
+					sound(SOUND_HIT);
 					break;
 				}
 
@@ -288,6 +293,7 @@ bool make_attack_normal(int m_idx)
 					act = "kicks you.";
 					touched = TRUE;
 					do_stun = 1;
+					sound(SOUND_HIT);
 					break;
 				}
 
@@ -296,6 +302,7 @@ bool make_attack_normal(int m_idx)
 					act = "claws you.";
 					touched = TRUE;
 					do_cut = 1;
+					sound(SOUND_CLAW);
 					break;
 				}
 
@@ -304,6 +311,7 @@ bool make_attack_normal(int m_idx)
 					act = "bites you.";
 					do_cut = 1;
 					touched = TRUE;
+					sound(SOUND_BITE);
 					break;
 				}
 
@@ -311,6 +319,7 @@ bool make_attack_normal(int m_idx)
 				{
 					act = "stings you.";
 					touched = TRUE;
+					sound(SOUND_STING);
 					break;
 				}
 
@@ -325,6 +334,7 @@ bool make_attack_normal(int m_idx)
 					act = "butts you.";
 					do_stun = 1;
 					touched = TRUE;
+					sound(SOUND_HIT);
 					break;
 				}
 
@@ -333,6 +343,7 @@ bool make_attack_normal(int m_idx)
 					act = "crushes you.";
 					do_stun = 1;
 					touched = TRUE;
+					sound(SOUND_CRUSH);
 					break;
 				}
 
@@ -340,6 +351,7 @@ bool make_attack_normal(int m_idx)
 				{
 					act = "engulfs you.";
 					touched = TRUE;
+					sound(SOUND_CRUSH);
 					break;
 				}
 
@@ -347,6 +359,7 @@ bool make_attack_normal(int m_idx)
 				{
 					act = "charges you.";
 					touched = TRUE;
+					sound(SOUND_BUY); /* Note! This is "charges", not "charges at". */
 					break;
 				}
 
@@ -354,24 +367,28 @@ bool make_attack_normal(int m_idx)
 				{
 					act = "crawls on you.";
 					touched = TRUE;
+					sound(SOUND_SLIME);
 					break;
 				}
 
 				case RBM_DROOL:
 				{
 					act = "drools on you.";
+					sound(SOUND_SLIME);
 					break;
 				}
 
 				case RBM_SPIT:
 				{
 					act = "spits on you.";
+					sound(SOUND_SLIME);
 					break;
 				}
 
-				case RBM_XXX3:
+				case RBM_EXPLODE:
 				{
-					act = "XXX3's on you.";
+					act = "explodes.";
+					explode = TRUE;
 					break;
 				}
 
@@ -384,12 +401,14 @@ bool make_attack_normal(int m_idx)
 				case RBM_WAIL:
 				{
 					act = "wails at you.";
+					sound(SOUND_WAIL);
 					break;
 				}
 
 				case RBM_SPORE:
 				{
 					act = "releases spores at you.";
+					sound(SOUND_SLIME);
 					break;
 				}
 
@@ -402,18 +421,21 @@ bool make_attack_normal(int m_idx)
 				case RBM_BEG:
 				{
 					act = "begs you for money.";
+					sound(SOUND_MOAN);
 					break;
 				}
 
 				case RBM_INSULT:
 				{
 					act = desc_insult[rand_int(8)];
+					sound(SOUND_MOAN);
 					break;
 				}
 
 				case RBM_MOAN:
 				{
 					act = desc_moan[rand_int(4)];
+					sound(SOUND_MOAN);
 					break;
 				}
 
@@ -423,6 +445,7 @@ bool make_attack_normal(int m_idx)
 						act = "sings 'We are a happy family.'";
 					else
 						act = "sings 'I love you, you love me.'";
+					sound(SOUND_SHOW);
 					break;
 				}
 			}
@@ -1080,7 +1103,12 @@ bool make_attack_normal(int m_idx)
 					take_hit(damage, ddesc);
 
 					/* Radius 8 earthquake centered at the monster */
-					if (damage > 23) earthquake(m_ptr->fy, m_ptr->fx, 8);
+					if (damage > 23)
+					{
+						/* Prevent destruction of quest levels and town */
+						if (!is_quest(dun_level) && dun_level)
+							earthquake(m_ptr->fy, m_ptr->fx, 8);
+					}
 
 					break;
 				}
@@ -1200,6 +1228,79 @@ bool make_attack_normal(int m_idx)
 					}
 					break;
 				}
+
+				case RBE_DISEASE:
+				{
+					/* Take some damage */
+					take_hit(damage, ddesc);
+
+					/* Take "poison" effect */
+					if (!(p_ptr->resist_pois || p_ptr->oppose_pois))
+					{
+						if (set_poisoned(p_ptr->poisoned + randint(rlev) + 5))
+						{
+							obvious = TRUE;
+						}
+					}
+
+					/* Damage CON (10% chance)*/
+					if (randint(100) < 11)
+					{
+						/* 1% chance for perm. damage */
+						bool perm = (randint(10) == 1);
+						if (dec_stat(A_CON, randint(10), perm)) obvious = TRUE;
+					}
+
+					break;
+				}
+				case RBE_TIME:
+				{
+					switch (randint(10))
+					{
+						case 1: case 2: case 3: case 4: case 5:
+						{
+							msg_print("You feel life has clocked back.");
+							lose_exp(100 + (p_ptr->exp / 100) * MON_DRAIN_LIFE);
+							break;
+						}
+
+						case 6: case 7: case 8: case 9:
+						{
+							int stat = rand_int(6);
+
+							switch (stat)
+							{
+								case A_STR: act = "strong"; break;
+								case A_INT: act = "bright"; break;
+								case A_WIS: act = "wise"; break;
+								case A_DEX: act = "agile"; break;
+								case A_CON: act = "hale"; break;
+								case A_CHR: act = "beautiful"; break;
+							}
+
+							msg_format("You're not as %s as you used to be...", act);
+
+							p_ptr->stat_cur[stat] = (p_ptr->stat_cur[stat] * 3) / 4;
+							if (p_ptr->stat_cur[stat] < 3) p_ptr->stat_cur[stat] = 3;
+							p_ptr->update |= (PU_BONUS);
+							break;
+						}
+
+						case 10:
+						{
+							msg_print("You're not as powerful as you used to be...");
+
+							for (k = 0; k < 6; k++)
+							{
+								p_ptr->stat_cur[k] = (p_ptr->stat_cur[k] * 3) / 4;
+								if (p_ptr->stat_cur[k] < 3) p_ptr->stat_cur[k] = 3;
+							}
+							p_ptr->update |= (PU_BONUS);
+							break;
+						}
+					}
+					take_hit(damage, ddesc);
+				}
 			}
 
 
@@ -1267,6 +1368,16 @@ bool make_attack_normal(int m_idx)
 
 				/* Apply the stun */
 				if (k) (void)set_stun(p_ptr->stun + k);
+			}
+
+			if (explode)
+			{
+				sound(SOUND_EXPLODE);
+				if (mon_take_hit(m_idx, m_ptr->hp + 1, &fear, NULL))
+				{
+					blinked = FALSE;
+					alive = FALSE;
+				}
 			}
 
 			if (touched)

@@ -2150,10 +2150,10 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp)
 			}
 		}
 		else
-		{
 
 # endif /* USE_TRANSPARENCY */
-
+		
+		{
 			/* Perfect size */
 			if ((w1 == w2) && (h1 == h2))
 			{
@@ -2179,7 +2179,7 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp)
 
 # ifdef USE_TRANSPARENCY
 
-	if (arg_graphics  == 2)
+	if (arg_graphics == 2)
 	{
 		/* Release */
 		SelectObject(hdcMask, hbmSrcOld);
@@ -3129,7 +3129,7 @@ LRESULT FAR PASCAL AngbandWndProc(HWND hWnd, UINT uMsg,
 LRESULT FAR PASCAL AngbandWndProc(HWND hWnd, UINT uMsg,
                                   WPARAM wParam, LPARAM lParam)
 #else /* __MWERKS__ */
-LRESULT FAR PASCAL _export AngbandWndProc(HWND hWnd, UINT uMsg,
+LRESULT FAR PASCAL AngbandWndProc(HWND hWnd, UINT uMsg,
                                           WPARAM wParam, LPARAM lParam)
 #endif /* __MWERKS__ */
 {
@@ -3403,7 +3403,7 @@ LRESULT FAR PASCAL AngbandListProc(HWND hWnd, UINT uMsg,
 LRESULT FAR PASCAL AngbandListProc(HWND hWnd, UINT uMsg,
                                            WPARAM wParam, LPARAM lParam)
 #else /* __MWERKS__ */
-LRESULT FAR PASCAL _export AngbandListProc(HWND hWnd, UINT uMsg,
+LRESULT FAR PASCAL AngbandListProc(HWND hWnd, UINT uMsg,
                                            WPARAM wParam, LPARAM lParam)
 #endif /* __MWERKS__ */
 {
@@ -3614,7 +3614,7 @@ LRESULT FAR PASCAL AngbandSaverProc(HWND hWnd, UINT uMsg,
 LRESULT FAR PASCAL AngbandSaverProc(HWND hWnd, UINT uMsg,
                                     WPARAM wParam, LPARAM lParam)
 #else /* __MWERKS__ */
-LRESULT FAR PASCAL _export AngbandSaverProc(HWND hWnd, UINT uMsg,
+LRESULT FAR PASCAL AngbandSaverProc(HWND hWnd, UINT uMsg,
                                             WPARAM wParam, LPARAM lParam)
 #endif /* __MWERKS__ */
 {
@@ -3818,48 +3818,39 @@ static void init_stuff(void)
 	char path[1024];
 
 
-	/* Hack -- access "ANGBAND.INI" */
+	/* Get program name with full path */
 	GetModuleFileName(hInstance, path, 512);
+
+	/* Get the name of the "*.ini" file */
 	strcpy(path + strlen(path) - 4, ".INI");
 
-	/* Save "ANGBAND.INI" */
+	/* Save the the name of the ini-file */
 	ini_file = string_make(path);
 
-	/* Validate "ANGBAND.INI" */
+	/* Validate the ini-file */
 	validate_file(ini_file);
-
-
-	/* Obtain the "LibPath" (with a simple default) */
-	GetPrivateProfileString("Angband", "LibPath", "c:\\angband\\lib",
-	                        path, 1000, ini_file);
 
 	/* Analyze the path */
 	i = strlen(path);
 
-	/* Require a path */
-	if (!i) quit("LibPath shouldn't be empty in ANGBAND.INI");
-
-	/* Nuke terminal backslash */
-	if (i && (path[i-1] != '\\'))
+	/* Get the path */
+	for (; i > 0; i--)
 	{
-		path[i++] = '\\';
-		path[i] = '\0';
+		if (path[i] == '\\')
+		{
+			/* End of path */
+			break;
+		}
 	}
+
+	/* Add "lib" to the path */
+	strcpy(path + i + 1, "lib\\");
 
 	/* Validate the path */
 	validate_dir(path);
 
-
 	/* Init the file paths */
 	init_file_paths(path);
-
-#if 0
-	/* Mega-Hack XXX XXX XXX */
-	if (!check_dir(ANGBAND_DIR_APEX))
-	{
-		mkdir(ANGBAND_DIR_APEX);
-	}
-#endif
 
 	/* Hack -- Validate the paths */
 	validate_dir(ANGBAND_DIR_APEX);

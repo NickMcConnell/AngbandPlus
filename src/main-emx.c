@@ -74,6 +74,11 @@
  *
  *   9.03.96   EK      2.7.9    Adjustable background color (PM)
  *                      v5      Added map window
+ *
+ *   16.08.98 Graham Muray      Changed terminal window names to use the
+ *                              angband_term array. So that will compile
+ *                              for zangband 2.1.x
+ 
  */
 
 #include <signal.h>
@@ -311,18 +316,123 @@ static errr CheckEvents(int returnImmediately)
 	/* Nothing ready */
 	if (k < 0) return (1);
 
+	if(k == 0xe0)
+	  {
+	    k = 0;
+	  }
 	/* Get an extended scan code */
-	if (!k) ke = _read_kbd(0, 1, 0);
+	if (!k)
+	  {
+	    ke = _read_kbd(0, 1, 0);
+#if 0	    
+	    switch(ke)
+	      {
+	      case 0x4b:
+		/* Left */
+		k = '4';
+		break;
+		
+	      case 0x50:
+		/* Down */
+		k = '2';
+		break;
+		
+	      case 0x4d:
+		/* Right */
+		k = '6';
+		break;
+		
+	      case 0x48:
+		/* Up */
+		k = '8';
+		break;
 
-	/* Normal keypresses */
-	if (k)
-	{
-		/* Enqueue the key */
-		Term_keypress(k);
+	      case 0x47:
+		/* Home */
+		k = '7';
+		break;
+		
+	      case 0x4f:
+		/* End */
+		k = '1';
+		break;
+		
+	      case 0x51:
+		/* PgDn */
+		k = '3';
+		break;
+		
+	      case 0x49:
+		/* PgUp */
+		k = '9';
+		break;
+	      case 0x4c:
+		/* 5 */
+		k = '5';
+		break;
+		
+/*  Control + Direction starts running in that direction */
 
-		/* Success */
-		return (0);
-	}
+	      case 0x91:
+		/* C-Down */
+		Term_keypress('.');
+		k = '2';
+		break;
+		
+	      case 0x73:
+		/* C-Left */
+		Term_keypress('.');
+		k = '4';
+		break;
+		
+	      case 0x74:
+		/* C-Right */
+		Term_keypress('.');
+		k = '6';
+		break;
+		
+	      case 0x8D:
+		/* C-Up */
+		Term_keypress('.');
+		k = '8';
+		break;
+		
+	      case 0x77:
+		/* C-Home */
+		Term_keypress('.');
+		k = '7';
+		break;
+		
+	      case 0x75:
+		/* C-End */
+		Term_keypress('.');
+		k = '1';
+		break;
+		
+	      case 0x76:
+		/* C-PgDn */
+		Term_keypress('.');
+		k = '3';
+		break;
+		
+	      case 0x84:
+		/* C-PgUp */
+		k = '9';
+		break;
+		
+	      default:
+		k = 0;
+		break;
+	      }
+#endif
+	   
+	  }
+
+	if(k)
+	  {
+	    Term_keypress(k);
+	    return (0);
+	  }
 
 	/* Hack -- introduce a macro sequence */
 	Term_keypress(31);
@@ -525,10 +635,10 @@ errr init_emx(void)
 	term *t;
 
 	/* Initialize the pipe windows */
-	initPipeTerm(&term_screen_recall, "recall", &term_recall);
-	initPipeTerm(&term_screen_choice, "choice", &term_choice);
-	initPipeTerm(&term_screen_mirror, "mirror", &term_mirror);
-	initPipeTerm(&term_screen_map,   "map",   &term_map);
+	initPipeTerm(&term_screen_recall, "recall", &(angband_term[1]));
+	initPipeTerm(&term_screen_choice, "choice", &(angband_term[2]));
+	initPipeTerm(&term_screen_mirror, "mirror", &(angband_term[3]));
+	initPipeTerm(&term_screen_map,   "map",   &(angband_term[4]));
 
 	/* Initialize main window */
 	t = (term*)(&term_screen_main);
@@ -894,10 +1004,10 @@ errr init_emx(void)
 {
 	/* Initialize the windows */
 	emx_init_term(&term_screen_main,  NULL,                      &term_screen, 0);
-	emx_init_term(&term_screen_recall, term_screen_main.instance, &term_recall, 1);
-	emx_init_term(&term_screen_choice, term_screen_main.instance, &term_choice, 2);
-	emx_init_term(&term_screen_mirror, term_screen_main.instance, &term_mirror, 3);
-	emx_init_term(&term_screen_map, term_screen_main.instance, &term_map, 4);
+	emx_init_term(&term_screen_recall, term_screen_main.instance, &(angband_term[1]), 1);
+	emx_init_term(&term_screen_choice, term_screen_main.instance, &(angband_term[2]), 2);
+	emx_init_term(&term_screen_mirror, term_screen_main.instance, &(angband_term[3]), 3);
+	emx_init_term(&term_screen_map, term_screen_main.instance,    &(angband_term[4]), 4);
 
 	/* Activate main window */
 	Term_activate(term_screen);

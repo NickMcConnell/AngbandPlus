@@ -336,9 +336,20 @@ static void prt_depth(void)
 {
 	char depths[32];
 
-	if (!dun_level)
+	if (p_ptr->inside_arena)
 	{
-		(void)strcpy(depths, "Town");
+		strcpy(depths, "Arena");
+	}
+	else if (p_ptr->inside_quest)
+	{
+		strcpy(depths, "Quest");
+	}
+	else if (!dun_level)
+	{
+		if (wilderness[p_ptr->wilderness_y][p_ptr->wilderness_x].name[0])
+			strcpy(depths, wilderness[p_ptr->wilderness_y][p_ptr->wilderness_x].name);
+		else
+			strcpy(depths, "Town/Wild");
 	}
 	else if (depth_in_feet)
 	{
@@ -584,7 +595,7 @@ static void prt_speed(void)
 {
 	int i = p_ptr->pspeed;
 
-	int attr = TERM_WHITE;
+	byte attr = TERM_WHITE;
 	char buf[32] = "";
 
 	/* Hack -- Visually "undo" the Search Mode Slowdown */
@@ -1016,7 +1027,7 @@ static void fix_message(void)
 		for (i = 0; i < h; i++)
 		{
 			/* Dump the message on the appropriate line */
-			Term_putstr(0, (h - 1) - i, -1, TERM_WHITE, message_str(i));
+			Term_putstr(0, (h - 1) - i, -1, TERM_WHITE, message_str((s16b)i));
 
 			/* Cursor */
 			Term_locate(&x, &y);
@@ -1197,16 +1208,16 @@ static void calc_spells(void)
 	p_ptr->new_spells = num_allowed - num_known;
 
 #if 0
-/* test hack ! */
-        msg_format("%d / %d",num_known,num_allowed);
-        msg_print(NULL);
-        msg_format("%d %d %d %d %d %d",adj_mag_study[p_ptr->stat_ind[mp_ptr->spell_stat]],
-        p_ptr->stat_ind,mp_ptr->spell_stat,levels,mp_ptr->spell_book,TV_SORCERY_BOOK);
-        msg_print(NULL);
-        msg_format("%d %d %d %d %d %d", mp_ptr->spell_book, mp_ptr->spell_xtra,
-        mp_ptr->spell_stat, mp_ptr->spell_type, mp_ptr->spell_first,
-        mp_ptr->spell_weight);
-          msg_print(NULL);
+	/* test hack ! */
+	msg_format("%d / %d",num_known,num_allowed);
+	msg_print(NULL);
+	msg_format("%d %d %d %d %d %d",adj_mag_study[p_ptr->stat_ind[mp_ptr->spell_stat]],
+	p_ptr->stat_ind,mp_ptr->spell_stat,levels,mp_ptr->spell_book,TV_SORCERY_BOOK);
+	msg_print(NULL);
+	msg_format("%d %d %d %d %d %d", mp_ptr->spell_book, mp_ptr->spell_xtra,
+	mp_ptr->spell_stat, mp_ptr->spell_type, mp_ptr->spell_first,
+	mp_ptr->spell_weight);
+	msg_print(NULL);
 #endif
 
 
@@ -1295,24 +1306,24 @@ static void calc_spells(void)
 			if (j < 32)
 			{
 				spell_forgotten1 |= (1L << j);
-                which = use_realm1;
+				which = use_realm1;
 			}
 			else
 			{
 				spell_forgotten2 |= (1L << (j - 32));
-                which = use_realm2;
+				which = use_realm2;
 			}
 
 			/* No longer known */
 			if (j < 32)
 			{
 				spell_learned1 &= ~(1L << j);
-                which = use_realm1;
+				which = use_realm1;
 			}
 			else
 			{
 				spell_learned2 &= ~(1L << (j - 32));
-                which = use_realm2;
+				which = use_realm2;
 			}
 
 			/* Message */
@@ -1341,10 +1352,10 @@ static void calc_spells(void)
 		if (j >= 99) break;
 
 		/* Access the spell */
-        if (j<32)
-            s_ptr = &mp_ptr->info[use_realm1][j];
-        else
-            s_ptr = &mp_ptr->info[use_realm2][j%32];
+		if (j<32)
+			s_ptr = &mp_ptr->info[use_realm1][j];
+		else
+			s_ptr = &mp_ptr->info[use_realm2][j%32];
 
 		/* Skip spells we cannot remember */
 		if (s_ptr->slevel > p_ptr->lev) continue;
@@ -1358,24 +1369,24 @@ static void calc_spells(void)
 			if (j < 32)
 			{
 				spell_forgotten1 &= ~(1L << j);
-                which = use_realm1;
+				which = use_realm1;
 			}
 			else
 			{
 				spell_forgotten2 &= ~(1L << (j - 32));
-                which = use_realm2;
+				which = use_realm2;
 			}
 
 			/* Known once more */
 			if (j < 32)
 			{
 				spell_learned1 |= (1L << j);
-                which = use_realm1;
+				which = use_realm1;
 			}
 			else
 			{
 				spell_learned2 |= (1L << (j - 32));
-                which = use_realm2;
+				which = use_realm2;
 			}
 
 			/* Message */
@@ -1395,10 +1406,10 @@ static void calc_spells(void)
 	for (j = 0; j < 64; j++)
 	{
 		/* Access the spell */
-        if (j<32)
-            s_ptr = &mp_ptr->info[use_realm1][j];
-        else
-            s_ptr = &mp_ptr->info[use_realm2][j%32];
+		if (j<32)
+			s_ptr = &mp_ptr->info[use_realm1][j];
+		else
+			s_ptr = &mp_ptr->info[use_realm2][j%32];
 
 		/* Skip spells we cannot remember */
 		if (s_ptr->slevel > p_ptr->lev) continue;
@@ -1415,20 +1426,17 @@ static void calc_spells(void)
 		k++;
 	}
 
-
-    if (p_ptr->realm2 == 0)
-    {
-        if (k>32) k = 32;
-    }
-    else
-    {
-        if (k>64) k = 64;
-    }
+	if (p_ptr->realm2 == REALM_NONE)
+	{
+		if (k>32) k = 32;
+	}
+	else
+	{
+		if (k>64) k = 64;
+	}
 
 	/* Cannot learn more spells than exist */
 	if (p_ptr->new_spells > k) p_ptr->new_spells = k;
-
-    
 
 	/* Spell count changed */
 	if (p_ptr->old_spells != p_ptr->new_spells)
@@ -1842,7 +1850,7 @@ static int weight_limit(void)
  *
  * This function induces various "status" messages.
  */
-static void calc_bonuses(void)
+void calc_bonuses(void)
 {
 	int             i, j, hold;
 	int             old_speed;
@@ -2185,147 +2193,183 @@ static void calc_bonuses(void)
 
 
 	/* I'm adding the mutations here for the lack of a better place... */
-        if (p_ptr->muta3)
-        {
-                if (p_ptr->muta3 & MUT3_HYPER_STR)
-                {
-                    p_ptr->stat_add[A_STR] += 4;
-                }
+	if (p_ptr->muta3)
+	{
+		if (p_ptr->muta3 & MUT3_HYPER_STR)
+		{
+			p_ptr->stat_add[A_STR] += 4;
+		}
+		
+		if (p_ptr->muta3 & MUT3_PUNY)
+		{
+			p_ptr->stat_add[A_STR] -= 4;
+		}
+		
+		if (p_ptr->muta3 & MUT3_HYPER_INT)
+		{
+			p_ptr->stat_add[A_INT] += 4;
+			p_ptr->stat_add[A_WIS] += 4;
+		}
+		
+		if (p_ptr->muta3 & MUT3_MORONIC)
+		{
+			p_ptr->stat_add[A_INT] -= 4;
+			p_ptr->stat_add[A_WIS] -= 4;
+		}
+		
+		if (p_ptr->muta3 & MUT3_RESILIENT)
+		{
+			p_ptr->stat_add[A_CON] += 4;
+		}
+		
+		if (p_ptr->muta3 & MUT3_XTRA_FAT)
+		{
+			p_ptr->stat_add[A_CON] += 2;
+			p_ptr->pspeed -= 2;
+		}
+		
+		if (p_ptr->muta3 & MUT3_ALBINO)
+		{
+			p_ptr->stat_add[A_CON] -= 4;
+		}
+		
+		if (p_ptr->muta3 & MUT3_FLESH_ROT)
+		{
+			p_ptr->stat_add[A_CON] -= 2;
+			p_ptr->stat_add[A_CHR] -= 1;
+			p_ptr->regenerate = FALSE;
+			/* Cancel innate regeneration */
+		}
+		
+		if (p_ptr->muta3 & MUT3_SILLY_VOI)
+		{
+			p_ptr->stat_add[A_CHR] -= 4;
+		}
+		
+		if (p_ptr->muta3 & MUT3_BLANK_FAC)
+		{
+			p_ptr->stat_add[A_CHR] -= 1;
+		}
+		
+		if (p_ptr->muta3 & MUT3_XTRA_EYES)
+		{
+			p_ptr->skill_fos += 15;
+			p_ptr->skill_srh += 15;
+		}
+		
+		if (p_ptr->muta3 & MUT3_MAGIC_RES)
+		{
+			p_ptr->skill_sav += (15 + (p_ptr->lev / 5));
+		}
+		
+		if (p_ptr->muta3 & MUT3_XTRA_NOIS)
+		{
+			p_ptr->skill_stl -= 3;
+		}
+		
+		if (p_ptr->muta3 & MUT3_INFRAVIS)
+		{
+			p_ptr->see_infra += 3;
+		}
+		
+		if (p_ptr->muta3 & MUT3_XTRA_LEGS)
+		{
+			p_ptr->pspeed += 3;
+		}
+		
+		if (p_ptr->muta3 & MUT3_SHORT_LEG)
+		{
+			p_ptr->pspeed -= 3;
+		}
+		
+		if (p_ptr->muta3 & MUT3_ELEC_TOUC)
+		{
+			p_ptr->sh_elec = TRUE;
+		}
+		
+		if (p_ptr->muta3 & MUT3_FIRE_BODY)
+		{
+			p_ptr->sh_fire = TRUE;
+			p_ptr->lite = TRUE;
+		}
+		
+		if (p_ptr->muta3 & MUT3_WART_SKIN)
+		{
+			p_ptr->stat_add[A_CHR] -= 2;
+			p_ptr->to_a += 5;
+			p_ptr->dis_to_a += 5;
+		}
+		
+		if (p_ptr->muta3 & MUT3_SCALES)
+		{
+			p_ptr->stat_add[A_CHR] -= 1;
+			p_ptr->to_a += 10;
+			p_ptr->dis_to_a += 10;
+		}
+		
+		if (p_ptr->muta3 & MUT3_IRON_SKIN)
+		{
+			p_ptr->stat_add[A_DEX] -= 1;
+			p_ptr->to_a += 25;
+			p_ptr->dis_to_a += 25;
+		}
+		
+		if (p_ptr->muta3 & MUT3_WINGS)
+		{
+			p_ptr->ffall = TRUE;
+		}
+		
+		if (p_ptr->muta3 & MUT3_FEARLESS)
+		{
+			p_ptr->resist_fear = TRUE;
+		}
+		
+		if (p_ptr->muta3 & MUT3_REGEN)
+		{
+			p_ptr->regenerate = TRUE;
+		}
+		
+		if (p_ptr->muta3 & MUT3_ESP)
+		{
+			p_ptr->telepathy =TRUE;
+		}
 
-                if (p_ptr->muta3 & MUT3_PUNY)
-                {
-                    p_ptr->stat_add[A_STR] -= 4;
-                }
-
-                if (p_ptr->muta3 & MUT3_HYPER_INT)
-                {
-                    p_ptr->stat_add[A_INT] += 4;
-                    p_ptr->stat_add[A_WIS] += 4;
-                }
-
-                if (p_ptr->muta3 & MUT3_MORONIC)
-                {
-                    p_ptr->stat_add[A_INT] -= 4;
-                    p_ptr->stat_add[A_WIS] -= 4;
-                }
-
-                if (p_ptr->muta3 & MUT3_RESILIENT)
-                {
-                    p_ptr->stat_add[A_CON] += 4;
-                }
-
-                if (p_ptr->muta3 & MUT3_XTRA_FAT)
-                {
-                    p_ptr->stat_add[A_CON] += 2;
-                    p_ptr->pspeed -= 2;
-                }
-
-                if (p_ptr->muta3 & MUT3_ALBINO)
-                {
-                    p_ptr->stat_add[A_CON] -= 4;
-                }
-
-                if (p_ptr->muta3 & MUT3_FLESH_ROT)
-                {
-                    p_ptr->stat_add[A_CON] -= 2;
-                    p_ptr->stat_add[A_CHR] -= 1;
-                    p_ptr->regenerate = FALSE;
-                    /* Cancel innate regeneration */
-                }
-
-                if (p_ptr->muta3 & MUT3_SILLY_VOI)
-                {
-                    p_ptr->stat_add[A_CHR] -= 4;
-                }
-
-                if (p_ptr->muta3 & MUT3_BLANK_FAC)
-                {
-                    p_ptr->stat_add[A_CHR] -= 1;
-                }
-
-                if (p_ptr->muta3 & MUT3_XTRA_EYES)
-                {
-                    p_ptr->skill_fos += 15;
-                    p_ptr->skill_srh += 15;
-                }
-
-                if (p_ptr->muta3 & MUT3_MAGIC_RES)
-                {
-                    p_ptr->skill_sav += (15 + (p_ptr->lev / 5));
-                }
-
-                if (p_ptr->muta3 & MUT3_XTRA_NOIS)
-                {
-                    p_ptr->skill_stl -= 3;
-                }
-
-                if (p_ptr->muta3 & MUT3_INFRAVIS)
-                {
-                    p_ptr->see_infra += 3;
-                }
-
-                if (p_ptr->muta3 & MUT3_XTRA_LEGS)
-                {
-                    p_ptr->pspeed += 3;
-                }
-
-                if (p_ptr->muta3 & MUT3_SHORT_LEG)
-                {
-                    p_ptr->pspeed -= 3;
-                }
-
-                if (p_ptr->muta3 & MUT3_ELEC_TOUC)
-                {
-                    p_ptr->sh_elec = TRUE;
-                }
-
-                if (p_ptr->muta3 & MUT3_FIRE_BODY)
-                {
-                    p_ptr->sh_fire = TRUE;
-                    p_ptr->lite = TRUE;
-                }
-
-                if (p_ptr->muta3 & MUT3_WART_SKIN)
-                {
-                    p_ptr->stat_add[A_CHR] -= 2;
-                    p_ptr->to_a += 5;
-                    p_ptr->dis_to_a += 5;
-                }
-
-                if (p_ptr->muta3 & MUT3_SCALES)
-                {
-                    p_ptr->stat_add[A_CHR] -= 1;
-                    p_ptr->to_a += 10;
-                    p_ptr->dis_to_a += 10;
-                }
-
-                if (p_ptr->muta3 & MUT3_IRON_SKIN)
-                {
-                    p_ptr->stat_add[A_DEX] -= 1;
-                    p_ptr->to_a += 25;
-                    p_ptr->dis_to_a += 25;
-                }
-
-                if (p_ptr->muta3 & MUT3_WINGS)
-                {
-                    p_ptr->ffall = TRUE;
-                }
-
-                if (p_ptr->muta3 & MUT3_FEARLESS)
-                {
-                    p_ptr->resist_fear = TRUE;
-                }
-
-                if (p_ptr->muta3 & MUT3_REGEN)
-                {
-                    p_ptr->regenerate = TRUE;
-                }
-
-                if (p_ptr->muta3 & MUT3_ESP)
-                {
-                    p_ptr->telepathy =TRUE;
-                }
-        }
+		if (p_ptr->muta3 & MUT3_LIMBER)
+		{
+			p_ptr->stat_add[A_DEX] += 3;
+		}
+		
+		if (p_ptr->muta3 & MUT3_ARTHRITIS)
+		{
+			p_ptr->stat_add[A_DEX] -= 3;
+		}
+		
+		if (p_ptr->muta3 & MUT3_MOTION)
+		{
+			p_ptr->free_act =TRUE;
+			p_ptr->skill_stl += 1;
+		}
+		
+		if (p_ptr->muta3 & MUT3_SUS_STATS)
+		{
+			p_ptr->sustain_con =TRUE;
+			if (p_ptr->lev > 9)
+				p_ptr->sustain_str = TRUE;
+			if (p_ptr->lev > 19)
+				p_ptr->sustain_dex = TRUE;
+			if (p_ptr->lev > 29)
+				p_ptr->sustain_wis = TRUE;
+			if (p_ptr->lev > 39)
+				p_ptr->sustain_int = TRUE;
+			if (p_ptr->lev > 49)
+				p_ptr->sustain_chr = TRUE;
+		}
+		
+		if (p_ptr->muta3 & MUT3_ILL_NORM)
+		{
+			p_ptr->stat_add[A_CHR] = 0;
+		}
+	}
     
 
 	/* Scan the usable inventory */
@@ -2455,40 +2499,40 @@ static void calc_bonuses(void)
 		if (object_known_p(o_ptr)) p_ptr->dis_to_d += o_ptr->to_d;
 	}
 
-    /* Monks get extra ac for armour _not worn_ */
-    if ((p_ptr->pclass == CLASS_MONK) && !(monk_heavy_armor()))
-    {
-        if (!(inventory[INVEN_BODY].k_idx))
-        {
-            p_ptr->to_a += (p_ptr->lev * 3) / 2;
-            p_ptr->dis_to_a += (p_ptr->lev * 3) / 2;
-        }
-        if (!(inventory[INVEN_OUTER].k_idx) && (p_ptr->lev > 15))
-        {
-            p_ptr->to_a += ((p_ptr->lev - 13) / 3);
-            p_ptr->dis_to_a += ((p_ptr->lev - 13) / 3);
-        }
-        if (!(inventory[INVEN_ARM].k_idx) && (p_ptr->lev > 10))
-        {
-            p_ptr->to_a += ((p_ptr->lev - 8) / 3);
-            p_ptr->dis_to_a += ((p_ptr->lev - 8) / 3);
-        }
-        if (!(inventory[INVEN_HEAD].k_idx)&& (p_ptr->lev > 4))
-        {
-            p_ptr->to_a += (p_ptr->lev - 2) / 3;
-            p_ptr->dis_to_a += (p_ptr->lev -2) / 3;
-        }
-        if (!(inventory[INVEN_HANDS].k_idx))
-        {
-            p_ptr->to_a += (p_ptr->lev / 2);
-            p_ptr->dis_to_a += (p_ptr->lev / 2);
-        }
-        if (!(inventory[INVEN_FEET].k_idx))
-        {
-            p_ptr->to_a += (p_ptr->lev / 3);
-            p_ptr->dis_to_a += (p_ptr->lev / 3);
-        }
-    }
+	/* Monks get extra ac for armour _not worn_ */
+	if ((p_ptr->pclass == CLASS_MONK) && !(monk_heavy_armor()))
+	{
+		if (!(inventory[INVEN_BODY].k_idx))
+		{
+			p_ptr->to_a += (p_ptr->lev * 3) / 2;
+			p_ptr->dis_to_a += (p_ptr->lev * 3) / 2;
+		}
+		if (!(inventory[INVEN_OUTER].k_idx) && (p_ptr->lev > 15))
+		{
+			p_ptr->to_a += ((p_ptr->lev - 13) / 3);
+			p_ptr->dis_to_a += ((p_ptr->lev - 13) / 3);
+		}
+		if (!(inventory[INVEN_ARM].k_idx) && (p_ptr->lev > 10))
+		{
+			p_ptr->to_a += ((p_ptr->lev - 8) / 3);
+			p_ptr->dis_to_a += ((p_ptr->lev - 8) / 3);
+		}
+		if (!(inventory[INVEN_HEAD].k_idx)&& (p_ptr->lev > 4))
+		{
+			p_ptr->to_a += (p_ptr->lev - 2) / 3;
+			p_ptr->dis_to_a += (p_ptr->lev -2) / 3;
+		}
+		if (!(inventory[INVEN_HANDS].k_idx))
+		{
+			p_ptr->to_a += (p_ptr->lev / 2);
+			p_ptr->dis_to_a += (p_ptr->lev / 2);
+		}
+		if (!(inventory[INVEN_FEET].k_idx))
+		{
+			p_ptr->to_a += (p_ptr->lev / 3);
+			p_ptr->dis_to_a += (p_ptr->lev / 3);
+		}
+	}
 
 	/* Hack -- aura of fire also provides light */
 	if (p_ptr->sh_fire) p_ptr->lite = TRUE;
@@ -2503,7 +2547,6 @@ static void calc_bonuses(void)
 	for (i = 0; i < 6; i++)
 	{
 		int top, use, ind;
-
 
 		/* Extract the new "stat_use" value for the stat */
 		top = modify_stat_value(p_ptr->stat_max[i], p_ptr->stat_add[i]);
@@ -2525,6 +2568,15 @@ static void calc_bonuses(void)
 		/* Extract the new "stat_use" value for the stat */
 		use = modify_stat_value(p_ptr->stat_cur[i], p_ptr->stat_add[i]);
 
+		if ((i == A_CHR) && (p_ptr->muta3 & MUT3_ILL_NORM))
+		{
+			/* 10 to 18/90 charisma, guaranteed, based on level */
+			if (use < 8 + 2 * p_ptr->lev)
+			{
+				use = 8 + 2 * p_ptr->lev;
+			}
+		}
+
 		/* Notice changes */
 		if (p_ptr->stat_use[i] != use)
 		{
@@ -2537,7 +2589,7 @@ static void calc_bonuses(void)
 			/* Window stuff */
 			p_ptr->window |= (PW_PLAYER);
 		}
-
+		
 
 		/* Values: 3, 4, ..., 17 */
 		if (use <= 18) ind = (use - 3);
@@ -2625,7 +2677,7 @@ static void calc_bonuses(void)
 		p_ptr->dis_to_h += 10;
 	}
 
-	/* Temprory shield */
+	/* Temporary shield */
 	if (p_ptr->shield)
 	{
 		p_ptr->to_a += 50;
@@ -2812,8 +2864,8 @@ static void calc_bonuses(void)
 		 * with _any_ missile weapon -- TY
 		 */
 		if (p_ptr->pclass == CLASS_WARRIOR &&
-		    (p_ptr->tval_ammo <= TV_BOLT) &&
-		    (p_ptr->tval_ammo >= TV_SHOT))
+		   (p_ptr->tval_ammo <= TV_BOLT) &&
+		   (p_ptr->tval_ammo >= TV_SHOT))
 		{
 			/* Extra shot at level 25 */
 			if (p_ptr->lev >= 25) p_ptr->num_fire++;
@@ -3125,7 +3177,6 @@ static void calc_bonuses(void)
 			msg_print("You regain your balance.");
 		monk_notify_aux = monk_armour_aux;
 	}
-    
 }
 
 
@@ -3548,14 +3599,14 @@ void handle_stuff(void)
 }
 
 
-bool monk_empty_hands()
+bool monk_empty_hands(void)
 {
 	if (!(p_ptr->pclass == CLASS_MONK)) return FALSE;
 
 	return !(inventory[INVEN_WIELD].k_idx);
 }
 
-bool monk_heavy_armor()
+bool monk_heavy_armor(void)
 {
 	u16b monk_arm_wgt = 0;
 

@@ -1,8 +1,7 @@
 
-
-                        ***********************
-                        **  Zangband 2.1.1c  **
-                        ***********************
+                       **************************
+                       **    Zangband 2.2.1    **
+                       **************************
 
          Based on Moria:    Copyright (c) 1985 Robert Alan Koeneke
              and Umoria:    Copyright (c) 1989 James E. Wilson
@@ -11,9 +10,11 @@
 
        Curses/X11 Module: Ben Harrison, Torbj|rn Lindgren
 
-        Zangband code:    (Mr) Topi Ylinen (f1toyl@uta.fi)
+       Old Zangband code: (Mr) Topi Ylinen (f1toyl@uta.fi)
 
      Current maintainer : Robert Ruehlmann < rr9@angband.org >
 
  Visit "Thangorodrim - The Angband Page" at "http://thangorodrim.angband.org/"
     Send all comments, bug reports, patches, etc, to "rr9@angband.org".
+
+    Press ? for help and = for the options screen while playing

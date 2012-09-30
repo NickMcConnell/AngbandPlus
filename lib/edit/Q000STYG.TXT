@@ -1,0 +1,121 @@
+# q000styg.txt
+
+# Name
+Q:13:N:The Great Stygian Abyss
+
+# type:num_mon:cur_num:max_num:level:r_idx:k_idx
+Q:13:Q:6:0:0:0:65:0:0
+
+# Description
+Q:13:T:Once you have become a full avatar in all eight 
+Q:13:T:virtues, you must seek the Great Stygian Abyss, 
+Q:13:T:where the ultimate challenge awaits you. Only 
+Q:13:T:a full avatar can survive the perils of the 
+Q:13:T:Great Stygian Abyss and pass the final test 
+Q:13:T:of avatarhood in the Chamber of the Codex 
+Q:13:T:of Ultimate Wisdom.
+
+# The Great Stygian Abyss, Level 1
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X<..............X.X...X.XX......XXXXXXXXXXX.D.................D.X
+D:XXXXXXXXX.......XXX...XXXX.XX...XXXXXXXXXXX.X..XXXXXXXXXXXXX..X.X
+D:XXXXXXXXX.......X.......X..X....XXXXXXXXXXX.X..X...........X..X.X
+D:XXXXXXXXX.......XXX...XXXX.XX...XXXXXXXXXXX.X..X...........X..X.X
+D:XXXXXXXXX.......X.X...X.XX......XXXXXXXXXXX.X..XXXXXXXXXXXXX..X.X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.XXXXXXXXXXX.X.................X.X
+D:XXXXXXXXXXXXXXXXXXXXX..............XXXXXXXX.XXXXXXXXXXXXXXXXXXX.X
+D:XXXXXXXXXXXXXXXXXXX...X.X.X.X.X.X...XXXXXXX.....................X
+D:XXXXXXXXXXXXXXXXXXX.................XXXXXXX.....................X
+D:XXXXXXXXXXXXXXXXXXX...X.X.X.X.X.X...XXXXXXX.....................X
+D:XXXXXXXXXXXXXXXXXXXX...............XXXXXXXXXXXXXXXXXXXXXXXXXXXXDX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXX.XXXXXXXXXXXXX.....................X
+D:XXXXXXXXXXXXXXXXXXXX........X.X........XXXX.XXXXXXXXXXXXXXXXXXX.X
+D:XXXXXXXXXXXXXXXXXXXX.XXXXXXXX.XXXXXXXX.XXXX.X......D..........X.X
+D:XXXXXXXXXXXXXXXXXXXX.X...............X.XXXX.X......X..........X.X
+D:XXXXXXXXXXXXXXXXXXXX.X...............X.XXXX.X......X..........X.X
+D:XXXXXXXXXXXXXXXXXXXX.X...............X.XXXX.X......X..........X.X
+D:XXXXXXXXXXXXXXXXXXXX.XXXXXXXX.XXXXXXXX.XXXX.X......X..........X.X
+D:XXXXXXXXXXXXXXXXXXXX........X.X........XXXX.X......X..........X.X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXX.XXXXXXXXXXXXX.X......X..........X.X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXX.....XXXXXXXXXXX.X..XXXXXXXXXXXXXXDX.X
+D:XXXXXXXXXXXXXXXXXXXXXXXXX...WWW...XXXXXXXXX.X..X..............X.X
+D:XXXXXXXXXXXXXXXXXXXXXXX....WWWWW....XXXXXXX.X..X..............X.X
+D:XXXXXXXXXXXXXXXXXXXXXX....WWWWWWW....XXXXXX.X..X..XXXXXXXXX...X.X
+D:XXXXXXXXXXXXXXXXXXXXXX....WWWWWWW....XXXXXX.X..X..X.......X...X.X
+D:XXXXXXXXXXXXXXXXXXXXXXX....WWWWW....XXXXXXX.D..X..D.......X...X.X
+D:XXXXXXXXXXXXXXXXXXXXXXXXX...WWW...XXXXXXXXXXXXXXXXXXXXXDXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXX......XXXXXXXXXXXXXXXXXXXXXX.XXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.XXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXX...................X.......XXXXXXXXX.XXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXX...................X.......XXXXXXXXX.XXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXX....XXXXXXXXXXXX...X.......X.........XXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXX....X..........X...X.......XXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXX....XXXXXXXXXXXX...XDXDXDXDXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXX...................X.X.X.X.XXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+
+# Starting position
+P:1:1
+
+
+
+
+# The Great Stygian Abyss, Cyberdemon Level
+
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXX.XXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXX...XXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXX.........XXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXX.............XXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXX.................XXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXX.......................XXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXX...........................XXXXXXXXXXXXX
+D:XXXXXXXXXXX...............................XXXXXXXXXXX
+D:XXXXXXXXX...................................XXXXXXXXX
+D:XXXXXX.........................................XXXXXX
+D:XXXX...............XXX..........XXX..............XXXX
+D:XX.................X.X..........X.X................XX
+D:X..................XXX..........XXX.................X
+D:X.........XXXXXX.........XXXX........XXXX...........X
+D:X.........X....X.........X..X........X..X...........X
+D:X.........X....X.........XXXX........X..X...........X
+D:X.........XXXXXX.....................XXXX...........X
+D:X...............X...................X...............X
+D:X................X.................X................X
+D:X.................X..XXXXX.XXXXX..X.................X
+D:X......XXX.........XXXX.......XXXX.......XXX........X
+D:X......X.X.........XXXX.......XXXX.......X.X........X
+D:X......XXX........XXXXX.......XXXXX......XXX........X
+D:X.................XXXXXXXX.XXXXXXXX.................X
+D:X.................XX...XXX.XXX...XX.................X
+D:X.........XXX.....XX...XX...XX...XX...XXX...........X
+D:X.........X.X.............<.......X...X.X...........X
+D:X.........XXX.....XX...XXX.XXX...XX...XXX...........X
+D:X.................XX...XX...XX...XX.................X
+D:X.................XXXXXXXX.XXXXXXXX.................X
+D:X.................XXXXXXXX.XXXXXXXX.................X
+D:X......XXX........XXXXX.......XXXXX......XXX........X
+D:X......X.X.........XXXX.......XXXX.......X.X........X
+D:X......XXX.........XXXX.......XXXX.......XXX........X
+D:X.................XX..XXXX.XXXXX..X.................X
+D:X................X.................X................X
+D:X...............X...................X...............X
+D:X...........XXXX.....................XXXX...........X
+D:X...........X..X.....................X..X...........X
+D:X...........XXXX.....................XXXX...........X
+D:X...................................................X
+D:X..................XXX..........XXX.................X
+D:XX.................X.X..........X.X................XX
+D:XXXX...............XXX..........XXX..............XXXX
+D:XXXXXX.........................................XXXXXX
+D:XXXXXXXXX...................................XXXXXXXXX
+D:XXXXXXXXXXX...............................XXXXXXXXXXX
+D:XXXXXXXXXXXXX...........................XXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXX.......................XXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXX.................XXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXX.............XXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXX.........XXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXX...XXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXX.XXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX

@@ -471,44 +471,44 @@ byte adj_int_dis[] =
  */
 byte adj_dex_ta[] =
 {
-	128 + -4        /* 3 */,
-	128 + -3        /* 4 */,
-	128 + -2        /* 5 */,
-	128 + -1        /* 6 */,
-	128 + 0 /* 7 */,
-	128 + 0 /* 8 */,
-	128 + 0 /* 9 */,
-	128 + 0 /* 10 */,
-	128 + 0 /* 11 */,
-	128 + 0 /* 12 */,
-	128 + 0 /* 13 */,
-	128 + 0 /* 14 */,
-	128 + 1 /* 15 */,
-	128 + 1 /* 16 */,
-	128 + 1 /* 17 */,
-	128 + 2 /* 18/00-18/09 */,
-	128 + 2 /* 18/10-18/19 */,
-	128 + 2 /* 18/20-18/29 */,
-	128 + 2 /* 18/30-18/39 */,
-	128 + 2 /* 18/40-18/49 */,
-	128 + 3 /* 18/50-18/59 */,
-	128 + 3 /* 18/60-18/69 */,
-	128 + 3 /* 18/70-18/79 */,
-	128 + 4 /* 18/80-18/89 */,
-	128 + 5 /* 18/90-18/99 */,
-	128 + 6 /* 18/100-18/109 */,
-	128 + 7 /* 18/110-18/119 */,
-	128 + 8 /* 18/120-18/129 */,
-	128 + 9 /* 18/130-18/139 */,
-	128 + 9 /* 18/140-18/149 */,
-	128 + 10        /* 18/150-18/159 */,
-	128 + 11        /* 18/160-18/169 */,
-	128 + 12        /* 18/170-18/179 */,
-	128 + 13        /* 18/180-18/189 */,
-	128 + 14        /* 18/190-18/199 */,
-	128 + 15        /* 18/200-18/209 */,
-	128 + 15        /* 18/210-18/219 */,
-	128 + 16        /* 18/220+ */
+	128 + -4    /*  3 */,
+	128 + -3    /*  4 */,
+	128 + -2    /*  5 */,
+	128 + -1    /*  6 */,
+	128 + 0     /*  7 */,
+	128 + 0     /*  8 */,
+	128 + 0     /*  9 */,
+	128 + 0     /* 10 */,
+	128 + 0     /* 11 */,
+	128 + 0     /* 12 */,
+	128 + 0     /* 13 */,
+	128 + 0     /* 14 */,
+	128 + 1     /* 15 */,
+	128 + 1     /* 16 */,
+	128 + 1     /* 17 */,
+	128 + 2     /* 18/00-18/09 */,
+	128 + 2     /* 18/10-18/19 */,
+	128 + 2     /* 18/20-18/29 */,
+	128 + 2     /* 18/30-18/39 */,
+	128 + 2     /* 18/40-18/49 */,
+	128 + 3     /* 18/50-18/59 */,
+	128 + 3     /* 18/60-18/69 */,
+	128 + 3     /* 18/70-18/79 */,
+	128 + 4     /* 18/80-18/89 */,
+	128 + 5     /* 18/90-18/99 */,
+	128 + 6     /* 18/100-18/109 */,
+	128 + 7     /* 18/110-18/119 */,
+	128 + 8     /* 18/120-18/129 */,
+	128 + 9     /* 18/130-18/139 */,
+	128 + 9     /* 18/140-18/149 */,
+	128 + 10    /* 18/150-18/159 */,
+	128 + 11    /* 18/160-18/169 */,
+	128 + 12    /* 18/170-18/179 */,
+	128 + 13    /* 18/180-18/189 */,
+	128 + 14    /* 18/190-18/199 */,
+	128 + 15    /* 18/200-18/209 */,
+	128 + 15    /* 18/210-18/219 */,
+	128 + 16    /* 18/220+ */
 };
 
 
@@ -517,44 +517,44 @@ byte adj_dex_ta[] =
  */
 byte adj_str_td[] =
 {
-	128 + -2        /* 3 */,
-	128 + -2        /* 4 */,
-	128 + -1        /* 5 */,
-	128 + -1        /* 6 */,
-	128 + 0 /* 7 */,
-	128 + 0 /* 8 */,
-	128 + 0 /* 9 */,
-	128 + 0 /* 10 */,
-	128 + 0 /* 11 */,
-	128 + 0 /* 12 */,
-	128 + 0 /* 13 */,
-	128 + 0 /* 14 */,
-	128 + 0 /* 15 */,
-	128 + 1 /* 16 */,
-	128 + 2 /* 17 */,
-	128 + 2 /* 18/00-18/09 */,
-	128 + 2 /* 18/10-18/19 */,
-	128 + 3 /* 18/20-18/29 */,
-	128 + 3 /* 18/30-18/39 */,
-	128 + 3 /* 18/40-18/49 */,
-	128 + 3 /* 18/50-18/59 */,
-	128 + 3 /* 18/60-18/69 */,
-	128 + 4 /* 18/70-18/79 */,
-	128 + 5 /* 18/80-18/89 */,
-	128 + 5 /* 18/90-18/99 */,
-	128 + 6 /* 18/100-18/109 */,
-	128 + 7 /* 18/110-18/119 */,
-	128 + 8 /* 18/120-18/129 */,
-	128 + 9 /* 18/130-18/139 */,
-	128 + 10        /* 18/140-18/149 */,
-	128 + 11        /* 18/150-18/159 */,
-	128 + 12        /* 18/160-18/169 */,
-	128 + 13        /* 18/170-18/179 */,
-	128 + 14        /* 18/180-18/189 */,
-	128 + 15        /* 18/190-18/199 */,
-	128 + 16        /* 18/200-18/209 */,
-	128 + 18        /* 18/210-18/219 */,
-	128 + 20        /* 18/220+ */
+	128 + -2    /*  3 */,
+	128 + -2    /*  4 */,
+	128 + -1    /*  5 */,
+	128 + -1    /*  6 */,
+	128 + 0     /*  7 */,
+	128 + 0     /*  8 */,
+	128 + 0     /*  9 */,
+	128 + 0     /* 10 */,
+	128 + 0     /* 11 */,
+	128 + 0     /* 12 */,
+	128 + 0     /* 13 */,
+	128 + 0     /* 14 */,
+	128 + 0     /* 15 */,
+	128 + 1     /* 16 */,
+	128 + 2     /* 17 */,
+	128 + 2     /* 18/00-18/09 */,
+	128 + 2     /* 18/10-18/19 */,
+	128 + 3     /* 18/20-18/29 */,
+	128 + 3     /* 18/30-18/39 */,
+	128 + 3     /* 18/40-18/49 */,
+	128 + 3     /* 18/50-18/59 */,
+	128 + 3     /* 18/60-18/69 */,
+	128 + 4     /* 18/70-18/79 */,
+	128 + 5     /* 18/80-18/89 */,
+	128 + 5     /* 18/90-18/99 */,
+	128 + 6     /* 18/100-18/109 */,
+	128 + 7     /* 18/110-18/119 */,
+	128 + 8     /* 18/120-18/129 */,
+	128 + 9     /* 18/130-18/139 */,
+	128 + 10    /* 18/140-18/149 */,
+	128 + 11    /* 18/150-18/159 */,
+	128 + 12    /* 18/160-18/169 */,
+	128 + 13    /* 18/170-18/179 */,
+	128 + 14    /* 18/180-18/189 */,
+	128 + 15    /* 18/190-18/199 */,
+	128 + 16    /* 18/200-18/209 */,
+	128 + 18    /* 18/210-18/219 */,
+	128 + 20    /* 18/220+ */
 };
 
 
@@ -1088,54 +1088,14 @@ byte blows_table[12][12] =
 };
 
 
-#if 0
-
-/*
- * This is the "old" table used to calculate multiple blows.
- *
- * Note that this table used a different indexing scheme to determine "P"
- */
-
-byte old_blows_table[11][12] =
+s16b arena_monsters[MAX_ARENA_MONS] =
 {
-	/* P/D */
-	/* 3,  10, /01, /50, /90,/100,/101,/110,/120,/130,/140,/150 */
-
-	/* 0+ */
-	{  1,   1,   1,   1,   1,   1,   2,   2,   2,   2,   2,   3},
-
-	/* 2+ */
-	{  1,   1,   1,   1,   2,   2,   3,   3,   3,   3,   3,   4},
-
-	/* 3+ */
-	{  1,   1,   1,   2,   2,   3,   4,   4,   4,   4,   4,   5},
-
-	/* 4+ */
-	{  1,   1,   2,   2,   3,   3,   4,   4,   4,   5,   5,   5},
-
-	/* 6+ */
-	{  1,   2,   2,   3,   3,   4,   4,   4,   5,   5,   5,   5},
-
-	/* 8+ */
-	{  1,   2,   2,   3,   4,   4,   4,   5,   5,   5,   5,   5},
-
-	/* 10+ */
-	{  2,   2,   3,   3,   4,   4,   5,   5,   5,   5,   5,   6},
-
-	/* 13+ */
-	{  2,   3,   3,   3,   4,   4,   5,   5,   5,   5,   5,   6},
-
-	/* 15+ */
-	{  3,   3,   3,   4,   4,   4,   5,   5,   5,   5,   6,   6},
-
-	/* 18+ */
-	{  3,   3,   3,   4,   4,   4,   5,   5,   5,   5,   6,   6},
-
-	/* 20+ */
-	{  3,   3,   4,   4,   4,   4,   5,   5,   5,   6,   6,   6}
+	 30,	 43,	102,	118,	126,	149,	173,
+	183,	188,	191,	216,	230,	238,	244,
+	255,	262,	293,	297,	321,	349,	372,
+	401,	415,	454,	464,	485,	538,	631,
+	641
 };
-
-#endif
 
 
 
@@ -1568,7 +1528,7 @@ player_race race_info[MAX_RACES] =
 		0x40F,
 	},
 	{
-		"Dark Elf",
+		"Dark-Elf",
 		{ -1, 3, 2, 2, -2, 1 },
 		5, 15, 20, 3, 8, 12, -5, 10,
 		9, 150,
@@ -1706,7 +1666,7 @@ player_class class_info[MAX_CLASS] =
 		"Warrior",
 		{ 5, -2, -2, 2, 2, -1},
 		25, 18, 18, 1,  14, 2, 70, 55,
-        12, 7,  10, 0,  0,  0,  45, 45,
+		12, 7,  10, 0,  0,  0,  45, 45,
 		9,  0
 	},
 
@@ -1774,22 +1734,21 @@ player_class class_info[MAX_CLASS] =
 		6, 40
 	},
 
-        {
-                "Mindcrafter",
-                {-1, 0, 3, -1, -1, 2},   /* note: spell stat is Wis */
-                30, 30, 30, 3,  22, 16, 50, 40,
-                10, 10, 10, 0,   0,  0, 20, 30,
-                2, 25
-        },
+	{
+		"Mindcrafter",
+		{-1, 0, 3, -1, -1, 2},   /* note: spell stat is Wis */
+		30, 30, 30, 3,  22, 16, 50, 40,
+		10, 10, 10, 0,   0,  0, 20, 30,
+		2, 25
+	},
 
 	{
-	        "High-Mage",
-        	{-5, 4, 0, 0, -2, 1},
+		"High-Mage",
+		{-5, 4, 0, 0, -2, 1},
 		30, 36, 30, 2,  16, 20, 34, 20,
 		7,  13, 9,  0,  0,  0,  15, 15,
 		0, 30
 	},
-
 };
 
 
@@ -5076,7 +5035,7 @@ byte realm_choices[MAX_CLASS]=
 /* Ranger */        (CH_SORCERY | CH_CHAOS | CH_DEATH | CH_TRUMP | CH_ARCANE),
 /* Paladin */       (CH_LIFE | CH_DEATH),
 /* Warrior-Mage */  (CH_LIFE | CH_NATURE | CH_CHAOS | CH_DEATH | CH_TRUMP |
-                     CH_ARCANE),
+                     CH_ARCANE | CH_SORCERY),
 /* Chaos Warrior */ (CH_CHAOS),
 /* Monk */          (CH_LIFE | CH_NATURE | CH_DEATH ),
 /* Mindcrafter */   (CH_NONE),
@@ -5098,49 +5057,12 @@ cptr realm_names [] =
 };
 
 
-#if 0
-/* Old, obsolete code */
-/*
- * Spells in each book (mage spells then priest spells)
- */
-u32b spell_flags[2][9][2] =
-{
-	{
-		/*** Mage spell books ***/
-		{ 0x000001ff, 0x00000000 },
-		{ 0x0003fe00, 0x00000000 },
-		{ 0x03fc0000, 0x00000000 },
-		{ 0xfc000000, 0x00000001 },
-		{ 0x00000000, 0x003e0000 },
-		{ 0x00000000, 0x0000003e },
-		{ 0x00000000, 0x0001f000 },
-		{ 0x00000000, 0x07c00000 },
-		{ 0x00000000, 0x00000fc0 }
-	},
-
-	{
-		/*** Priest spell books ***/
-		{ 0x000000ff, 0x00000000 },
-		{ 0x0000ff00, 0x00000000 },
-		{ 0x01ff0000, 0x00000000 },
-		{ 0x7e000000, 0x00000000 },
-		{ 0x00000000, 0x03f00000 },
-		{ 0x80000000, 0x0000000f },
-		{ 0x00000000, 0x000001f0 },
-		{ 0x00000000, 0x000fc000 },
-		{ 0x00000000, 0x00003e00 }
-	}
-};
-
-#endif
-
 /*
  * Names of the spells (mage spells then priest spells)
  */
 cptr spell_names[7][32] =
 {
 	/*** Life Spells ***/
-
 	{
 		/* Common Life Spellbooks */
 		"Detect Evil",
@@ -5162,10 +5084,10 @@ cptr spell_names[7][32] =
 		"Glyph of Warding",
 
 		/* Rare Life Spellbooks */
-	        "Exorcism",
+		"Exorcism",
 		"Dispel Curse",
-	        "Dispel Undead & Demons",
-	        "Day of the Dove",
+		"Dispel Undead & Demons",
+		"Day of the Dove",
 		"Dispel Evil",
 		"Banish",      
 		"Holy Word",
@@ -5173,11 +5095,11 @@ cptr spell_names[7][32] =
 
 		"Heroism",
 		"Prayer",
-	        "Bless Weapon",
+		"Bless Weapon",
 		"Restoration",
 		"Healing True",
 		"Holy Vision",
-	        "Divine Intervention",
+		"Divine Intervention",
 		"Holy Invulnerability"
 	},
 
@@ -5188,7 +5110,7 @@ cptr spell_names[7][32] =
 		"Detect Monsters",
 		"Phase Door",
 		"Detect Doors and Traps",
-	        "Light Area",
+		"Light Area",
 		"Confuse Monster",
 		"Teleport",
 		"Sleep Monster",
@@ -5204,18 +5126,18 @@ cptr spell_names[7][32] =
 		"Identify True",
 
 		/* Rare Sorcery Spellbooks */
-	        "Detect Objects and Treasure",
+		"Detect Objects and Treasure",
 		"Detect Enchantment",
-	        "Charm Monster",
-	        "Dimension Door",
-	        "Sense Minds",
-	        "Self Knowledge",
+		"Charm Monster",
+		"Dimension Door",
+		"Sense Minds",
+		"Self Knowledge",
 		"Teleport Level",
 		"Word of Recall",
 
 		"Stasis",
-	        "Telekinesis",
-	        "Explosive Rune",
+		"Telekinesis",
+		"Explosive Rune",
 		"Clairvoyance",
 		"Enchant Weapon",
 		"Enchant Armour",
@@ -5826,6 +5748,15 @@ option_type option_info[] =
 	{ &show_weights,                TRUE,  1,      0, 11,
 	"show_weights",                 "Show weights in object listings" },
 
+	{ &show_inven_graph,            FALSE,  1,      2, 0,
+	"show_inven_graph",             "Show graphics in inventory list" },
+
+	{ &show_equip_graph,            FALSE,  1,      2, 1,
+	"show_equip_graph",             "Show graphics in equipment list" },
+
+	{ &show_store_graph,            FALSE,  1,      2, 2,
+	"show_store_graph",             "Show graphics in stores" },
+
 	{ &show_choices,                TRUE,  1,      0, 12,
 	"show_choices",                 "Show choices in certain sub-windows" },
 
@@ -5834,7 +5765,6 @@ option_type option_info[] =
 
 	{ &ring_bell,                   FALSE,   1,      0, 14,
 	"ring_bell",                    "Audible bell (on errors, etc)" },
-	/* Changed to default to FALSE -- it's so extremely annoying!!! -TY */
 
 	{ &use_color,                   TRUE,   1,      0, 15,
 	"use_color",                    "Use color if possible (slow)" },
@@ -5869,26 +5799,12 @@ option_type option_info[] =
 	{ &disturb_minor,               TRUE,   2,      0, 24,
 	"disturb_minor",                "Disturb whenever boring things happen" },
 
-	{ &disturb_other,               TRUE,   5,      0, 25,
-	"disturb_other",                "Disturb whenever random things happen" },
-
 	{ &alert_hitpoint,              FALSE,  2,      0, 26,
 	"alert_hitpoint",               "Alert user to critical hitpoints" },
 
 	{ &alert_failure,               FALSE,  2,      0, 27,
 	"alert_failure",                "Alert user to various failures" },
 
-	{ &last_words,                  TRUE,   5,      0, 28,
-	"last_words",                   "Get last words when the character dies" },
-
-	{ &speak_unique,                TRUE,   5,      0, 29,
-	"speak_unique",                 "Allow shopkeepers and uniques to speak" },
-
-	{ &small_levels,                TRUE,   5,      0, 30,
-	"small_levels",                 "Allow unusually small dungeon levels" },
-
-	{ &empty_levels,                TRUE,   5,      0, 31,
-        "empty_levels",                 "Allow empty 'arena' levels" },
 
 	/*** Game-Play ***/
 
@@ -5927,25 +5843,6 @@ option_type option_info[] =
 
 	{ &flow_by_smell,               FALSE,  3,      1, 11,
 	"flow_by_smell",                "Monsters chase recent locations (v.slow)" },
-
-
-
-#if 0
-
-	/* Removed (since it is unimplemented) to make room for a new option */
-	{ &track_follow,                FALSE,  3,      1, 12,
-	"track_follow",                 "Monsters follow the player (broken)" },
-
-    
-	{ &track_target,                FALSE,  3,      1, 13,
-	"track_target",                 "Monsters target the player (broken)" },
-#else
-	{ &player_symbols,              FALSE,   5,      1, 13,
-	"player_symbols",               "Use special symbols for the player char"},
-
-	{ &equippy_chars,               TRUE,  5,      1, 12,
-	"equippy_chars",                "Display 'equippy' chars" },
-#endif
 
 	{ &smart_learn,                 FALSE,  3,      1, 14,
 	"smart_learn",                  "Monsters learn from their mistakes" },
@@ -6004,6 +5901,33 @@ option_type option_info[] =
 	{ &view_special_lite,           FALSE,  4,      1, 31,
 	"view_special_lite",            "Use special colors for floor grids (slow)" },
 
+
+	/*** ZAngband options ***/
+
+	{ &disturb_other,               TRUE,   5,      0, 25,
+	"disturb_other",                "Disturb whenever random things happen" },
+
+	{ &last_words,                  TRUE,   5,      0, 28,
+	"last_words",                   "Get last words when the character dies" },
+
+	{ &speak_unique,                TRUE,   5,      0, 29,
+	"speak_unique",                 "Allow shopkeepers and uniques to speak" },
+
+	{ &small_levels,                TRUE,   5,      0, 30,
+	"small_levels",                 "Allow unusually small dungeon levels" },
+
+	{ &always_small_levels,         FALSE,   5,      2, 3,
+	"always_small_levels",          "Always create unusually small dungeon levels" },
+
+	{ &empty_levels,                TRUE,   5,      0, 31,
+    "empty_levels",                 "Allow empty 'arena' levels" },
+
+	{ &player_symbols,              FALSE,   5,      1, 13,
+	"player_symbols",               "Use special symbols for the player char"},
+
+	{ &equippy_chars,               TRUE,  5,      1, 12,
+	"equippy_chars",                "Display 'equippy' chars" },
+
 	{ &skip_mutations,              FALSE, 5, 5, 0,
 	"skip_mutations",               "Skip mutations in 'C'haracter Display" },
 
@@ -6025,16 +5949,15 @@ option_type option_info[] =
 	{ &disturb_pets,                FALSE, 5, 5, 6,
 	"disturb_pets",                 "Disturb when visible pets move" },
 
-#ifdef USE_SOUND
-	{ &shuffle_songs,               FALSE, 5,5,7,
-	"shuffle_songs",                "Randomize midi songs" },
+#ifdef ALLOW_EASY_OPEN
+	{ &easy_open,               FALSE, 5,5,7,
+	"easy_open",                "Automatically open doors" },
+#endif /* ALLOW_EASY_OPEN */
 
-	{ &mute_songs,                  FALSE, 5,5,8,
-	"mute_songs",                   "No music" },
-
-	{ &mute_sounds,                 FALSE, 5,5,9,
-	"mute_sounds",                  "No sound effects" },
-#endif /* USE_SOUND */
+#ifdef ALLOW_EASY_DISARM
+	{ &easy_disarm,                  FALSE, 5,5,8,
+	"easy_disarm",                   "Automatically disarm traps" },
+#endif /* ALLOW_EASY_DISARM */
 
 	/*** Stacking ***/
 
@@ -6275,20 +6198,19 @@ martial_arts ma_blows[MAX_MA] =
 };
 
 
-mindcraft_power mindcraft_powers[MAX_MINDCRAFT_POWERS] = {
+mindcraft_power mindcraft_powers[MAX_MINDCRAFT_POWERS] =
+{
 	/* Level gained,  cost,  %fail,  name */
-        { 1,   1,  15, "Precognition" },          /* Det. monsters/traps */
-        { 2,   1,  20, "Neural Blast" },          /* ~MM */
-        { 3,   2,  25, "Minor Displacement" },    /* Phase/dimension door */
-        { 7,   6,  35, "Major Displacement" },    /* Tele. Self / All */
-        { 9,   7,  50, "Domination" },
-        { 11,  7,  30, "Pulverise" },             /* Telekinetic "bolt" */
-        { 13, 12,  50, "Character Armour" },      /* Psychic/physical defenses */
-        { 15, 12,  60, "Psychometry" },
-        { 18, 10,  45, "Mind Wave" },             /* Ball -> LOS */
-        { 23, 15,  50, "Adrenaline Channeling" },
-        { 25, 10,  40, "Psychic Drain" },         /* Convert enemy HP to mana */
-        { 28, 20,  45, "Telekinetic Wave" },      /* Ball -> LOS */
+	{ 1,   1,  15, "Precognition" },          /* Det. monsters/traps */
+	{ 2,   1,  20, "Neural Blast" },          /* ~MM */
+	{ 3,   2,  25, "Minor Displacement" },    /* Phase/dimension door */
+	{ 7,   6,  35, "Major Displacement" },    /* Tele. Self / All */
+	{ 9,   7,  50, "Domination" },
+	{ 11,  7,  30, "Pulverise" },             /* Telekinetic "bolt" */
+	{ 13, 12,  50, "Character Armour" },      /* Psychic/physical defenses */
+	{ 15, 12,  60, "Psychometry" },
+	{ 18, 10,  45, "Mind Wave" },             /* Ball -> LOS */
+	{ 23, 15,  50, "Adrenaline Channeling" },
+	{ 25, 10,  40, "Psychic Drain" },         /* Convert enemy HP to mana */
+	{ 28, 20,  45, "Telekinetic Wave" },      /* Ball -> LOS */
 };
-
-

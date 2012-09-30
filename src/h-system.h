@@ -21,11 +21,12 @@
 #include <ctype.h>
 #include <errno.h>
 
+
 #if defined(NeXT)
 # include <libc.h>
 #else
 # include <stdlib.h>
-#endif
+#endif /* NeXT */
 
 
 #ifdef SET_UID
@@ -43,16 +44,16 @@
 #  include <sys/timeb.h>
 # endif
 
-#endif
+#endif /* SET_UID */
 
 
 #include <time.h>
 
 
-
 #ifdef MACINTOSH
 # include <unix.h>
-#endif
+#endif /* MACINTOSH */
+
 
 #if defined(WINDOWS) || defined(MSDOS) || defined(USE_EMX)
 # include <io.h>
@@ -94,25 +95,25 @@
 #  include <netdb.h>
 # endif
 
-#endif
+#endif /* SET_UID */
 
 
 #ifdef SET_UID
 
 # ifdef USG
 #  include <string.h>
-# else
+# else /* USG */
 #  include <strings.h>
 extern char *strstr();
 extern char *strchr();
 extern char *strrchr();
-# endif
+# endif /* USG */
 
-#else
+#else /* SET_UID */
 
 # include <string.h>
 
-#endif
+#endif /* SET_UID */
 
 
 
@@ -124,5 +125,4 @@ extern long atol();
 #include <stdarg.h>
 
 
-#endif
-
+#endif /* INCLUDED_H_SYSTEM_H */

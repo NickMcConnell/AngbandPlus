@@ -2,6 +2,85 @@ This is a document file listing the changes in Zangband (compared to the
 standard Angband 2.8.1.) No long explanations, just a list. See code for
 details. In reversed chronological order (more or less):
 
+ZAngband 2.2.1
+-Changed the scores file back to the old pre-2.2.0 file-format,
+ Score-files from version 2.2.0 won't work!
+ The installation will overwrite the 'lib/apex/scores.raw' file
+ by default, so if you want to keep your old scores file then
+ make a backup before installing.
+-Added friendly monsters.
+-Added a 'no wilderness' mode for slower systems. The mode can
+ be selected when starting a new character and when importing
+ a 2.1.1c or older savefile. A special town with quests and
+ buildings has been added for this mode.
+-Bloodletters of Khorne drop now a Blade of Chaos when killed.
+-Pink horrors split into two Blue Horrors when killed.
+-Allowed easy addition of new monsters to r_info.txt.
+-Various optimizations to improve game speed.
+-Added a cold aura to some monsters.
+-Added an option to switch on 'hard quests' on character birth
+ and when importing old savefiles.
+-Fixed a bug in the 'Reset Recall' spell.
+-Fixed problems with the 'Vault' quest.
+-Added a home to the town Telmora.
+-Changed the 'look' command to ignore boring terrains.
+-Changed the damage when walking over shallow lava.
+-Fixed a bug that allowed creation of townspeople in the dungeon.
+-Changed the behaviour of the 'magic mapping' spell.
+-Fixed a bug that allowed monsters to ignore 'glyphs of warding'
+ and 'exploding runes'.
+-Golems, Zombies, Vampires, ... no longer can get food in the inns.
+-Fixed bugs in the 'absorb light' mutation.
+-Fixed a bug that sometimes prevented the creation of 'conneced stairs'
+ and caused lookups when killing the last quest-monster.
+-Fixed a bug that hangs the game when displaying the contents of your
+ houses after quitting or dying.
+-Various changes in the monster definitions.
+-Fixed the k_info.txt entry of the Trifurcate Spear.
+-Removed some disturbing messages.
+-The quests from the magic towers are now only available for members
+ of the towers realm.
+-'Detect treasure' no longer detects monsters represented with an '*'.
+-Prevented the use of 'Alter Reality' in quests.
+-Changed the description of ~ in the 'identify symbol' command.
+-Changed some of the 8x8 tiles.
+-Hagen has now a high chance to drop his spear.
+-Fixed the 'cursed items as quest rewards' bug.
+
+ZAngband 2.2.0
+-Added 279 new monsters and the corresponding 8x8 sized tiles designed and
+ drawed by Topi Ylinen.
+-Added 46 new items (weapons, armor, and ammo) designed by John Duffin and
+ Leigh Silas Hanrihan.
+-Added exploding, aquatic, swimming, and flying monsters.
+-Added new monster melee attacks (time, explode, and disease).
+-Added Ken Wigles KAngband style town, quests and terrains.
+-Changed quest system to allow more flexibility and multi-level quests.
+-Added big wilderness outside the towns with a modified fractal terrain
+ generator from KAmband.
+-New initialization code for quests, towns, buildings and wilderness.
+-Removed the 64 kByte limits for monsters, items, artifacts, and vaults.
+-Moved the definition of the limits for the number of monsters, items,
+ vaults, ... to an external data-file.
+-Added Keldon Jones patch to allow automatic recreation of the raw-files.
+-Added "equippy chars" in the inventory, equipment list and in shops.
+-Fixed the definitions of the new tiles for the Half-Ogres and Dark-Elfes.
+-Added support for the S-Lang scripting language, based on Scott Bigham's
+ S-Lang patch.
+-Added Greg Wooledge's patch that adds the "flag grid" to Zangband
+ char dumps and shows immunities in the "flag grid".
+-The Windows version no longer requires "LibPath" to be set correctly.
+ This allows installation in any directory without changes to the ini-file.
+-Allowed random selection of race, class, realms, ... at character birth
+ with the * key.
+-Added the Easy-Patch by Tim Baker and changed it to be an option.
+-Added 52 new mutations created by Jeff Duprey.
+-Changed the pet AI to make the pets more useful.
+-Added new sound-events.
+-Only uniques will now resist disintegration effects.
+-Warrior-Mages can now choose Sorcery.
+-Many other changes and bugfixes.
+
 ZAngband 2.1.1c
 -Fixed the 16x16 tile for hobbit characters. A beer mug is fitting for
  a hobbit, but it was still a bug. ;-)
@@ -18,11 +97,9 @@ ZAngband 2.1.1c
 ZAngband 2.1.1b
 -Quest message pluralization fixed (again).
 -No more extremely out of depth quests for new characters.
--Desintegration spells like "Fist of force" can destroy walls.
+-Disintegration spells like "Fist of force" can destroy walls.
 -Reflection works now.
 -Corrected the new tiles for spirit naga, angel, and blue jellies.
--Creation of artifact arrows/bolts/shots with scrolls of artifact creation
- is allowed again.
 
 ZAngband 2.1.1
 -Paralysis attacks on a paralyzed player always do at least one hp of damage.

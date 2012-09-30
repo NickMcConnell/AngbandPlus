@@ -67,55 +67,55 @@ typedef struct
  */
 static grouper group_item[] =
 {
-	{ TV_SHOT,              "Ammo" },
-	{ TV_ARROW,               NULL },
-	{ TV_BOLT,                NULL },
+	{ TV_SHOT,          "Ammo" },
+	{ TV_ARROW,         NULL },
+	{ TV_BOLT,          NULL },
 
-	{ TV_BOW,               "Bows" },
+	{ TV_BOW,           "Bows" },
 
-	{ TV_SWORD,             "Weapons" },
-	{ TV_POLEARM,     NULL },
-	{ TV_HAFTED,      NULL },
-	{ TV_DIGGING,     NULL },
+	{ TV_SWORD,         "Weapons" },
+	{ TV_POLEARM,       NULL },
+	{ TV_HAFTED,        NULL },
+	{ TV_DIGGING,       NULL },
 
-	{ TV_SOFT_ARMOR,        "Armour (Body)" },
-	{ TV_HARD_ARMOR,          NULL },
-	{ TV_DRAG_ARMOR,          NULL },
+	{ TV_SOFT_ARMOR,    "Armour (Body)" },
+	{ TV_HARD_ARMOR,    NULL },
+	{ TV_DRAG_ARMOR,    NULL },
 
-	{ TV_CLOAK,             "Armour (Misc)" },
-	{ TV_SHIELD,      NULL },
-	{ TV_HELM,                NULL },
-	{ TV_CROWN,               NULL },
-	{ TV_GLOVES,      NULL },
-	{ TV_BOOTS,               NULL },
+	{ TV_CLOAK,         "Armour (Misc)" },
+	{ TV_SHIELD,        NULL },
+	{ TV_HELM,          NULL },
+	{ TV_CROWN,         NULL },
+	{ TV_GLOVES,        NULL },
+	{ TV_BOOTS,         NULL },
 
-	{ TV_AMULET,    "Amulets" },
-	{ TV_RING,              "Rings" },
+	{ TV_AMULET,        "Amulets" },
+	{ TV_RING,          "Rings" },
 
-	{ TV_SCROLL,    "Scrolls" },
-	{ TV_POTION,    "Potions" },
-	{ TV_FOOD,              "Food" },
+	{ TV_SCROLL,        "Scrolls" },
+	{ TV_POTION,        "Potions" },
+	{ TV_FOOD,          "Food" },
 
-	{ TV_ROD,               "Rods" },
-	{ TV_WAND,              "Wands" },
-	{ TV_STAFF,             "Staffs" },
+	{ TV_ROD,           "Rods" },
+	{ TV_WAND,          "Wands" },
+	{ TV_STAFF,         "Staffs" },
 
-	{ TV_LIFE_BOOK,       "Books (Life)" },
-	{ TV_SORCERY_BOOK,    "Books (Sorcery)" },
-	{ TV_NATURE_BOOK,     "Books (Nature)" },
-	{ TV_CHAOS_BOOK,      "Books (Chaos)" },
-	{ TV_DEATH_BOOK,      "Books (Death)" },
-	{ TV_TRUMP_BOOK,      "Books (Trump)" },
-	{ TV_ARCANE_BOOK,     "Books (Arcane)" },
+	{ TV_LIFE_BOOK,     "Books (Life)" },
+	{ TV_SORCERY_BOOK,  "Books (Sorcery)" },
+	{ TV_NATURE_BOOK,   "Books (Nature)" },
+	{ TV_CHAOS_BOOK,    "Books (Chaos)" },
+	{ TV_DEATH_BOOK,    "Books (Death)" },
+	{ TV_TRUMP_BOOK,    "Books (Trump)" },
+	{ TV_ARCANE_BOOK,   "Books (Arcane)" },
 
-	{ TV_CHEST,             "Chests" },
+	{ TV_CHEST,         "Chests" },
 
-	{ TV_SPIKE,             "Various" },
-	{ TV_LITE,                NULL },
-	{ TV_FLASK,               NULL },
-	{ TV_JUNK,                NULL },
-	{ TV_BOTTLE,      NULL },
-	{ TV_SKELETON,    NULL },
+	{ TV_SPIKE,         "Various" },
+	{ TV_LITE,          NULL },
+	{ TV_FLASK,         NULL },
+	{ TV_JUNK,          NULL },
+	{ TV_BOTTLE,        NULL },
+	{ TV_SKELETON,      NULL },
 
 	{ 0, "" }
 };
@@ -318,7 +318,7 @@ static void spoil_obj_desc(cptr fname)
 		}
 
 		/* Acquire legal item types */
-		for (k = 1; k < MAX_K_IDX; k++)
+		for (k = 1; k < max_k_idx; k++)
 		{
 			object_kind *k_ptr = &k_info[k];
 
@@ -1251,7 +1251,7 @@ static void spoil_artifact(cptr fname)
 		}
 
 		/* Now search through all of the artifacts */
-		for (j = 1; j < MAX_A_IDX; ++j)
+		for (j = 1; j < max_a_idx; ++j)
 		{
 			artifact_type *a_ptr = &a_info[j];
 
@@ -1297,7 +1297,7 @@ static void spoil_mon_desc(cptr fname)
 {
 	int i, n = 0;
 
-	s16b who[MAX_R_IDX];
+	s16b *who;
 
 	char buf[1024];
 
@@ -1309,6 +1309,8 @@ static void spoil_mon_desc(cptr fname)
 	char hp[80];
 	char exp[80];
 
+	/* Allocate the "who" array */
+	C_MAKE(who, max_r_idx, s16b);
 
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_USER, fname);
@@ -1345,8 +1347,8 @@ static void spoil_mon_desc(cptr fname)
 		"----", "---", "---", "---", "--", "--", "-----------");
 
 
-	/* Scan the monsters (except the ghost) */
-	for (i = 1; i < MAX_R_IDX - 1; i++)
+	/* Scan the monsters */
+	for (i = 1; i < max_r_idx; i++)
 	{
 		monster_race *r_ptr = &r_info[i];
 
@@ -1563,9 +1565,9 @@ static void spoil_mon_info(cptr fname)
 	spoil_out("------------------------------------------\n\n");
 
 	/*
-	 * List all monsters in order (except the ghost).
+	 * List all monsters in order
 	 */
-	for (n = 1; n < MAX_R_IDX - 1; n++)
+	for (n = 1; n < max_r_idx; n++)
 	{
 		monster_race *r_ptr = &r_info[n];
 
@@ -1719,13 +1721,19 @@ static void spoil_mon_info(cptr fname)
 
 		if (flags2 & (RF2_AURA_FIRE))
 		{
-			sprintf(buf, "%s is surrounded in flames.  ", wd_che[msex]);
+			sprintf(buf, "%s is surrounded by flames.  ", wd_che[msex]);
+			spoil_out(buf);
+		}
+
+		if (flags3 & (RF3_AURA_COLD))
+		{
+			sprintf(buf, "%s is surrounded by ice.  ", wd_che[msex]);
 			spoil_out(buf);
 		}
 
 		if (flags2 & (RF2_AURA_ELEC))
 		{
-			sprintf(buf, "%s is surrounded in electricity.  ", wd_che[msex]);
+			sprintf(buf, "%s is surrounded by electricity.  ", wd_che[msex]);
 			spoil_out(buf);
 		}
 
@@ -1752,7 +1760,6 @@ static void spoil_mon_info(cptr fname)
 		/* Collect inate attacks */
 		vn = 0;
 		if (flags4 & (RF4_SHRIEK)) vp[vn++] = "shriek for help";
-		if (flags4 & (RF4_XXX2)) vp[vn++] = "do something";
 		if (flags4 & (RF4_XXX3)) vp[vn++] = "do something";
 		if (flags4 & (RF4_ROCKET)) vp[vn++] = "shoot a rocket";
 		if (flags4 & (RF4_ARROW_1)) vp[vn++] = "fire arrows";
@@ -1863,7 +1870,7 @@ static void spoil_mon_info(cptr fname)
 		if (flags6 & (RF6_DARKNESS))          vp[vn++] = "create darkness";
 		if (flags6 & (RF6_TRAPS))             vp[vn++] = "create traps";
 		if (flags6 & (RF6_FORGET))            vp[vn++] = "cause amnesia";
-		if (flags6 & (RF6_XXX6))              vp[vn++] = "do something";
+		if (flags6 & (RF6_RAISE_DEAD))        vp[vn++] = "raise dead";
 		if (flags6 & (RF6_S_MONSTER))         vp[vn++] = "summon a monster";
 		if (flags6 & (RF6_S_MONSTERS))        vp[vn++] = "summon monsters";
 		if (flags6 & (RF6_S_KIN))             vp[vn++] = "summon aid";
@@ -1878,7 +1885,7 @@ static void spoil_mon_info(cptr fname)
 		if (flags6 & (RF6_S_HI_UNDEAD))       vp[vn++] = "summon greater undead";
 		if (flags6 & (RF6_S_HI_DRAGON))       vp[vn++] = "summon ancient dragons";
 		if (flags6 & (RF6_S_CYBER))           vp[vn++] = "summon Cyberdemons";
-		if (flags6 & (RF6_S_WRAITH))          vp[vn++] = "summon Lords of Amber";
+		if (flags6 & (RF6_S_AMBERITES))       vp[vn++] = "summon Lords of Amber";
 		if (flags6 & (RF6_S_UNIQUE))          vp[vn++] = "summon unique monsters";
 
 		if (vn)
@@ -2168,7 +2175,7 @@ static void spoil_mon_info(cptr fname)
 				case RBM_CRAWL:  p = "crawl on you"; break;
 				case RBM_DROOL:  p = "drool on you"; break;
 				case RBM_SPIT:   p = "spit"; break;
-				case RBM_XXX3:   break;
+				case RBM_EXPLODE: p = "explode";  break;
 				case RBM_GAZE:   p = "gaze"; break;
 				case RBM_WAIL:   p = "wail"; break;
 				case RBM_SPORE:  p = "release spores"; break;
@@ -2214,6 +2221,8 @@ static void spoil_mon_info(cptr fname)
 				case RBE_EXP_20:        q = "lower experience (by 20d6+)"; break;
 				case RBE_EXP_40:        q = "lower experience (by 40d6+)"; break;
 				case RBE_EXP_80:        q = "lower experience (by 80d6+)"; break;
+				case RBE_DISEASE:       q = "disease"; break;
+				case RBE_TIME:          q = "time"; break;
 			}
 
 
@@ -2387,5 +2396,3 @@ static int i = 0;
 #endif /* MACINTOSH */
 
 #endif
-
-

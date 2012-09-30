@@ -28,7 +28,7 @@ SRCS = \
   wizard1.c wizard2.c \
   generate.c dungeon.c init1.c init2.c \
   main-win.c readdib.c \
-  quest.c
+  bldg.c
 
 OBJS = \
   z-util.obj z-virt.obj z-form.obj z-rand.obj z-term.obj \
@@ -41,7 +41,7 @@ OBJS = \
   wizard1.obj wizard2.obj \
   generate.obj dungeon.obj init1.obj init2.obj \
   main-win.obj readdib.obj \
-  quest.obj
+  bldg.obj
 
 OBJS32 = \
   z-util.o32 z-virt.o32 z-form.o32 z-rand.o32 z-term.o32 \
@@ -54,7 +54,7 @@ OBJS32 = \
   wizard1.o32 wizard2.o32 \
   generate.o32 dungeon.o32 init1.o32 init2.o32 \
   main-win.o32 readdib.o32 \
-  quest.o32
+  bldg.o32
 
 default: bccw16.cfg angband cleanobj bccw32.cfg angband32 cleanobj32
 
@@ -167,7 +167,7 @@ cmd1 cmd2 cmd3 cmd4 cmd5 cmd6 +
 store birth load1 load2 +
 wizard1 wizard2 +
 generate dungeon init1 init2 +
-main-win readdib quest,+
+main-win readdib bldg,+
 ..\angband.exe,..\angband.map,import cwl,..\ext-win\src\angband.def
 |
 	$(RC) -31 ..\ext-win\src\angband.rc ..\angband.exe
@@ -195,7 +195,7 @@ cmd1.o32 cmd2.o32 cmd3.o32 cmd4.o32 cmd5.o32 cmd6.o32 +
 store.o32 birth.o32 load1.o32 load2.o32 +
 wizard1.o32 wizard2.o32 +
 generate.o32 dungeon.o32 init1.o32 init2.o32 +
-main-win.o32 readdib.o32 quest.o32,+
+main-win.o32 readdib.o32 bldg.o32,+
 ..\angband32.exe,..\angband.map,import32 cw32,..\ext-win\src\angband.def
 |
 	$(RC32) -w32 ..\ext-win\src\angband.rc ..\angband32.exe

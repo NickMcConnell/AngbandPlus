@@ -103,7 +103,7 @@ static bool know_damage(int r_idx, int i)
  * left edge of the screen, on a cleared line, in which the recall is
  * to take place.  One extra blank line is left after the recall.
  */
-static void roff_aux(int r_idx)
+static void roff_aux(int r_idx, int remem)
 {
 	monster_race    *r_ptr;
 
@@ -382,7 +382,7 @@ static void roff_aux(int r_idx)
 			len = r_head->text_size - r_ptr->text;
 
 			/* Actual length */
-			for (i = r_idx+1; i < MAX_R_IDX; i++)
+			for (i = r_idx+1; i < max_r_idx; i++)
 			{
 				/* Actual length */
 				if (r_info[i].text > r_ptr->text)
@@ -602,9 +602,17 @@ static void roff_aux(int r_idx)
 	{
 		roff(format("%^s is surrounded by flames and electricity.  ", wd_he[msex]));
 	}
+	else if ((flags3 & (RF3_AURA_COLD)) && (flags2 & (RF2_AURA_ELEC)))
+	{
+		roff(format("%^s is surrounded by ice and electricity.  ", wd_he[msex]));
+	}
 	else if (flags2 & (RF2_AURA_FIRE))
 	{
 		roff(format("%^s is surrounded by flames.  ", wd_he[msex]));
+	}
+	else if (flags3 & (RF3_AURA_COLD))
+	{
+		roff(format("%^s is surrounded by ice.  ", wd_he[msex]));
 	}
 	else if (flags2 & (RF2_AURA_ELEC))
 	{
@@ -635,7 +643,6 @@ static void roff_aux(int r_idx)
 	/* Collect inate attacks */
 	vn = 0;
 	if (flags4 & (RF4_SHRIEK))		vp[vn++] = "shriek for help";
-	if (flags4 & (RF4_XXX2))		vp[vn++] = "do something";
 	if (flags4 & (RF4_XXX3))		vp[vn++] = "do something";
 	if (flags4 & (RF4_ROCKET))		vp[vn++] = "shoot a rocket";
 	if (flags4 & (RF4_ARROW_1))		vp[vn++] = "fire an arrow";
@@ -716,72 +723,72 @@ static void roff_aux(int r_idx)
 
 	/* Collect spells */
 	vn = 0;
-	if (flags5 & (RF5_BA_ACID))		vp[vn++] = "produce acid balls";
-	if (flags5 & (RF5_BA_ELEC))		vp[vn++] = "produce lightning balls";
-	if (flags5 & (RF5_BA_FIRE))		vp[vn++] = "produce fire balls";
-	if (flags5 & (RF5_BA_COLD))		vp[vn++] = "produce frost balls";
-	if (flags5 & (RF5_BA_POIS))		vp[vn++] = "produce poison balls";
-	if (flags5 & (RF5_BA_NETH))		vp[vn++] = "produce nether balls";
-	if (flags5 & (RF5_BA_WATE))		vp[vn++] = "produce water balls";
-	if (flags4 & (RF4_BA_NUKE))		vp[vn++] = "produce balls of radiation";
-	if (flags5 & (RF5_BA_MANA))		vp[vn++] = "invoke mana storms";
-	if (flags5 & (RF5_BA_DARK))		vp[vn++] = "invoke darkness storms";
-	if (flags4 & (RF4_BA_CHAO))		vp[vn++] = "invoke raw Logrus";
-	if (flags6 & (RF6_HAND_DOOM))		vp[vn++] = "invoke the Hand of Doom";
-	if (flags5 & (RF5_DRAIN_MANA))		vp[vn++] = "drain mana";
-	if (flags5 & (RF5_MIND_BLAST))		vp[vn++] = "cause mind blasting";
-	if (flags5 & (RF5_BRAIN_SMASH))		vp[vn++] = "cause brain smashing";
-	if (flags5 & (RF5_CAUSE_1))		vp[vn++] = "cause light wounds and cursing";
-	if (flags5 & (RF5_CAUSE_2))		vp[vn++] = "cause serious wounds and cursing";
-	if (flags5 & (RF5_CAUSE_3))		vp[vn++] = "cause critical wounds and cursing";
-	if (flags5 & (RF5_CAUSE_4))		vp[vn++] = "cause mortal wounds";
-	if (flags5 & (RF5_BO_ACID))		vp[vn++] = "produce acid bolts";
-	if (flags5 & (RF5_BO_ELEC))		vp[vn++] = "produce lightning bolts";
-	if (flags5 & (RF5_BO_FIRE))		vp[vn++] = "produce fire bolts";
-	if (flags5 & (RF5_BO_COLD))		vp[vn++] = "produce frost bolts";
-	if (flags5 & (RF5_BO_POIS))		vp[vn++] = "produce poison bolts";
-	if (flags5 & (RF5_BO_NETH))		vp[vn++] = "produce nether bolts";
-	if (flags5 & (RF5_BO_WATE))		vp[vn++] = "produce water bolts";
-	if (flags5 & (RF5_BO_MANA))		vp[vn++] = "produce mana bolts";
-	if (flags5 & (RF5_BO_PLAS))		vp[vn++] = "produce plasma bolts";
-	if (flags5 & (RF5_BO_ICEE))		vp[vn++] = "produce ice bolts";
-	if (flags5 & (RF5_MISSILE))		vp[vn++] = "produce magic missiles";
-	if (flags5 & (RF5_SCARE))		vp[vn++] = "terrify";
-	if (flags5 & (RF5_BLIND))		vp[vn++] = "blind";
-	if (flags5 & (RF5_CONF))		vp[vn++] = "confuse";
-	if (flags5 & (RF5_SLOW))		vp[vn++] = "slow";
-	if (flags5 & (RF5_HOLD))		vp[vn++] = "paralyze";
-	if (flags6 & (RF6_HASTE))		vp[vn++] = "haste-self";
-	if (flags6 & (RF6_HEAL))		vp[vn++] = "heal-self";
-	if (flags6 & (RF6_XXX2))		vp[vn++] = "do something";
-	if (flags6 & (RF6_BLINK))		vp[vn++] = "blink-self";
-	if (flags6 & (RF6_TPORT))		vp[vn++] = "teleport-self";
-	if (flags6 & (RF6_XXX3))		vp[vn++] = "do something";
-	if (flags6 & (RF6_XXX4))		vp[vn++] = "do something";
-	if (flags6 & (RF6_TELE_TO))		vp[vn++] = "teleport to";
-	if (flags6 & (RF6_TELE_AWAY))		vp[vn++] = "teleport away";
-	if (flags6 & (RF6_TELE_LEVEL))		vp[vn++] = "teleport level";
-	if (flags6 & (RF6_XXX5))		vp[vn++] = "do something";
-	if (flags6 & (RF6_DARKNESS))		vp[vn++] = "create darkness";
-	if (flags6 & (RF6_TRAPS))		vp[vn++] = "create traps";
-	if (flags6 & (RF6_FORGET))		vp[vn++] = "cause amnesia";
-	if (flags6 & (RF6_XXX6))		vp[vn++] = "do something";
-	if (flags6 & (RF6_S_MONSTER))		vp[vn++] = "summon a monster";
-	if (flags6 & (RF6_S_MONSTERS))		vp[vn++] = "summon monsters";
-	if (flags6 & (RF6_S_KIN))		vp[vn++] = "summon aid";
-	if (flags6 & (RF6_S_ANT))		vp[vn++] = "summon ants";
-	if (flags6 & (RF6_S_SPIDER))		vp[vn++] = "summon spiders";
-	if (flags6 & (RF6_S_HOUND))		vp[vn++] = "summon hounds";
-	if (flags6 & (RF6_S_HYDRA))		vp[vn++] = "summon hydras";
-	if (flags6 & (RF6_S_ANGEL))		vp[vn++] = "summon an angel";
-	if (flags6 & (RF6_S_DEMON))		vp[vn++] = "summon a demon";
-	if (flags6 & (RF6_S_UNDEAD))		vp[vn++] = "summon an undead";
-	if (flags6 & (RF6_S_DRAGON))		vp[vn++] = "summon a dragon";
-	if (flags6 & (RF6_S_HI_UNDEAD))		vp[vn++] = "summon Greater Undead";
-	if (flags6 & (RF6_S_HI_DRAGON))		vp[vn++] = "summon Ancient Dragons";
-	if (flags6 & (RF6_S_CYBER))		vp[vn++] = "summon Cyberdemons";
-	if (flags6 & (RF6_S_WRAITH))		vp[vn++] = "summon Lords of Amber";
-	if (flags6 & (RF6_S_UNIQUE))		vp[vn++] = "summon Unique Monsters";
+	if (flags5 & (RF5_BA_ACID))         vp[vn++] = "produce acid balls";
+	if (flags5 & (RF5_BA_ELEC))         vp[vn++] = "produce lightning balls";
+	if (flags5 & (RF5_BA_FIRE))         vp[vn++] = "produce fire balls";
+	if (flags5 & (RF5_BA_COLD))         vp[vn++] = "produce frost balls";
+	if (flags5 & (RF5_BA_POIS))         vp[vn++] = "produce poison balls";
+	if (flags5 & (RF5_BA_NETH))         vp[vn++] = "produce nether balls";
+	if (flags5 & (RF5_BA_WATE))         vp[vn++] = "produce water balls";
+	if (flags4 & (RF4_BA_NUKE))         vp[vn++] = "produce balls of radiation";
+	if (flags5 & (RF5_BA_MANA))         vp[vn++] = "invoke mana storms";
+	if (flags5 & (RF5_BA_DARK))         vp[vn++] = "invoke darkness storms";
+	if (flags4 & (RF4_BA_CHAO))         vp[vn++] = "invoke raw Logrus";
+	if (flags6 & (RF6_HAND_DOOM))       vp[vn++] = "invoke the Hand of Doom";
+	if (flags5 & (RF5_DRAIN_MANA))      vp[vn++] = "drain mana";
+	if (flags5 & (RF5_MIND_BLAST))      vp[vn++] = "cause mind blasting";
+	if (flags5 & (RF5_BRAIN_SMASH))     vp[vn++] = "cause brain smashing";
+	if (flags5 & (RF5_CAUSE_1))         vp[vn++] = "cause light wounds and cursing";
+	if (flags5 & (RF5_CAUSE_2))         vp[vn++] = "cause serious wounds and cursing";
+	if (flags5 & (RF5_CAUSE_3))         vp[vn++] = "cause critical wounds and cursing";
+	if (flags5 & (RF5_CAUSE_4))         vp[vn++] = "cause mortal wounds";
+	if (flags5 & (RF5_BO_ACID))         vp[vn++] = "produce acid bolts";
+	if (flags5 & (RF5_BO_ELEC))         vp[vn++] = "produce lightning bolts";
+	if (flags5 & (RF5_BO_FIRE))         vp[vn++] = "produce fire bolts";
+	if (flags5 & (RF5_BO_COLD))         vp[vn++] = "produce frost bolts";
+	if (flags5 & (RF5_BO_POIS))         vp[vn++] = "produce poison bolts";
+	if (flags5 & (RF5_BO_NETH))         vp[vn++] = "produce nether bolts";
+	if (flags5 & (RF5_BO_WATE))         vp[vn++] = "produce water bolts";
+	if (flags5 & (RF5_BO_MANA))         vp[vn++] = "produce mana bolts";
+	if (flags5 & (RF5_BO_PLAS))         vp[vn++] = "produce plasma bolts";
+	if (flags5 & (RF5_BO_ICEE))         vp[vn++] = "produce ice bolts";
+	if (flags5 & (RF5_MISSILE))         vp[vn++] = "produce magic missiles";
+	if (flags5 & (RF5_SCARE))           vp[vn++] = "terrify";
+	if (flags5 & (RF5_BLIND))           vp[vn++] = "blind";
+	if (flags5 & (RF5_CONF))            vp[vn++] = "confuse";
+	if (flags5 & (RF5_SLOW))            vp[vn++] = "slow";
+	if (flags5 & (RF5_HOLD))            vp[vn++] = "paralyze";
+	if (flags6 & (RF6_HASTE))           vp[vn++] = "haste-self";
+	if (flags6 & (RF6_HEAL))            vp[vn++] = "heal-self";
+	if (flags6 & (RF6_XXX2))            vp[vn++] = "do something";
+	if (flags6 & (RF6_BLINK))           vp[vn++] = "blink-self";
+	if (flags6 & (RF6_TPORT))           vp[vn++] = "teleport-self";
+	if (flags6 & (RF6_XXX3))            vp[vn++] = "do something";
+	if (flags6 & (RF6_XXX4))            vp[vn++] = "do something";
+	if (flags6 & (RF6_TELE_TO))         vp[vn++] = "teleport to";
+	if (flags6 & (RF6_TELE_AWAY))       vp[vn++] = "teleport away";
+	if (flags6 & (RF6_TELE_LEVEL))      vp[vn++] = "teleport level";
+	if (flags6 & (RF6_XXX5))            vp[vn++] = "do something";
+	if (flags6 & (RF6_DARKNESS))        vp[vn++] = "create darkness";
+	if (flags6 & (RF6_TRAPS))           vp[vn++] = "create traps";
+	if (flags6 & (RF6_FORGET))          vp[vn++] = "cause amnesia";
+	if (flags6 & (RF6_RAISE_DEAD))      vp[vn++] = "raise dead";
+	if (flags6 & (RF6_S_MONSTER))       vp[vn++] = "summon a monster";
+	if (flags6 & (RF6_S_MONSTERS))      vp[vn++] = "summon monsters";
+	if (flags6 & (RF6_S_KIN))           vp[vn++] = "summon aid";
+	if (flags6 & (RF6_S_ANT))           vp[vn++] = "summon ants";
+	if (flags6 & (RF6_S_SPIDER))        vp[vn++] = "summon spiders";
+	if (flags6 & (RF6_S_HOUND))         vp[vn++] = "summon hounds";
+	if (flags6 & (RF6_S_HYDRA))         vp[vn++] = "summon hydras";
+	if (flags6 & (RF6_S_ANGEL))         vp[vn++] = "summon an angel";
+	if (flags6 & (RF6_S_DEMON))         vp[vn++] = "summon a demon";
+	if (flags6 & (RF6_S_UNDEAD))        vp[vn++] = "summon an undead";
+	if (flags6 & (RF6_S_DRAGON))        vp[vn++] = "summon a dragon";
+	if (flags6 & (RF6_S_HI_UNDEAD))     vp[vn++] = "summon Greater Undead";
+	if (flags6 & (RF6_S_HI_DRAGON))     vp[vn++] = "summon Ancient Dragons";
+	if (flags6 & (RF6_S_CYBER))         vp[vn++] = "summon Cyberdemons";
+	if (flags6 & (RF6_S_AMBERITES))     vp[vn++] = "summon Lords of Amber";
+	if (flags6 & (RF6_S_UNIQUE))        vp[vn++] = "summon Unique Monsters";
 
 	/* Describe spells */
 	if (vn)
@@ -1250,7 +1257,7 @@ static void roff_aux(int r_idx)
 			case RBM_CRAWL:		p = "crawl on you"; break;
 			case RBM_DROOL:		p = "drool on you"; break;
 			case RBM_SPIT:		p = "spit"; break;
-			case RBM_XXX3:		break;
+			case RBM_EXPLODE:	p = "explode"; break;
 			case RBM_GAZE:		p = "gaze"; break;
 			case RBM_WAIL:		p = "wail"; break;
 			case RBM_SPORE:		p = "release spores"; break;
@@ -1296,6 +1303,8 @@ static void roff_aux(int r_idx)
 			case RBE_EXP_20:	q = "lower experience (by 20d6+)"; break;
 			case RBE_EXP_40:	q = "lower experience (by 40d6+)"; break;
 			case RBE_EXP_80:	q = "lower experience (by 80d6+)"; break;
+			case RBE_DISEASE:	q = "disease"; break;
+			case RBE_TIME:      q = "time"; break;
 		}
 
 
@@ -1362,7 +1371,7 @@ static void roff_aux(int r_idx)
 
 
 	/* Notice "Quest" monsters */
-	if (flags1 & (RF1_QUESTOR))
+	if (flags1 & RF1_QUESTOR)
 	{
 		roff("You feel an intense desire to kill this monster...  ");
 	}
@@ -1371,12 +1380,11 @@ static void roff_aux(int r_idx)
 	/* All done */
 	roff("\n");
 
-
-	/* Hack -- Restore monster memory */
-	if (cheat_know)
+	/* Cheat -- know everything */
+	if ((cheat_know) && (remem == 0))
 	{
-		/* Restore memory */
-		*r_ptr = save_mem;
+		/* Hack -- restore memory */
+		COPY(r_ptr, &save_mem, monster_race);
 	}
 }
 
@@ -1439,7 +1447,7 @@ static void roff_top(int r_idx)
 /*
  * Hack -- describe the given monster race at the top of the screen
  */
-void screen_roff(int r_idx)
+void screen_roff(int r_idx, int remember)
 {
 	/* Flush messages */
 	msg_print(NULL);
@@ -1448,7 +1456,7 @@ void screen_roff(int r_idx)
 	Term_erase(0, 1, 255);
 
 	/* Recall monster */
-	roff_aux(r_idx);
+	roff_aux(r_idx, remember);
 
 	/* Describe monster */
 	roff_top(r_idx);
@@ -1475,11 +1483,350 @@ void display_roff(int r_idx)
 	Term_gotoxy(0, 1);
 
 	/* Recall monster */
-	roff_aux(r_idx);
+	roff_aux(r_idx, 0);
 
 	/* Describe monster */
 	roff_top(r_idx);
 }
 
 
+bool monster_quest(int r_idx)
+{
+	monster_race *r_ptr = &r_info[r_idx];
 
+	/* Random quests are in the dungeon */
+	if (!(r_ptr->flags8 & RF8_DUNGEON)) return FALSE;
+
+	/* No random quests for aquatic monsters */
+	if (r_ptr->flags7 & RF7_AQUATIC) return FALSE;
+
+	/* No random quests for multiplying monsters */
+	if (r_ptr->flags2 & RF2_MULTIPLY) return FALSE;
+
+	/* No quests to kill friendly monsters */
+	if (r_ptr->flags7 & RF7_FRIENDLY) return FALSE;
+
+	return TRUE;
+}
+
+
+bool monster_dungeon(int r_idx)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+
+	if (r_ptr->flags8 & RF8_DUNGEON)
+		return TRUE;
+	else
+		return FALSE;
+}
+
+
+bool monster_ocean(int r_idx)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+
+	if (r_ptr->flags8 & RF8_WILD_OCEAN)
+		return TRUE;
+	else
+		return FALSE;
+}
+
+
+bool monster_shore(int r_idx)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+
+	if (r_ptr->flags8 & RF8_WILD_SHORE)
+		return TRUE;
+	else
+		return FALSE;
+}
+
+
+bool monster_waste(int r_idx)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+
+	if (r_ptr->flags8 & RF8_WILD_WASTE)
+		return TRUE;
+	else
+		return FALSE;
+}
+
+
+bool monster_town(int r_idx)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+
+	if (r_ptr->flags8 & RF8_WILD_TOWN)
+		return TRUE;
+	else
+		return FALSE;
+}
+
+
+bool monster_wood(int r_idx)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+
+	if (r_ptr->flags8 & RF8_WILD_WOOD)
+		return TRUE;
+	else
+		return FALSE;
+}
+
+
+bool monster_volcano(int r_idx)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+
+	if (r_ptr->flags8 & RF8_WILD_VOLCANO)
+		return TRUE;
+	else
+		return FALSE;
+}
+
+
+bool monster_mountain(int r_idx)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+
+	if (r_ptr->flags8 & RF8_WILD_MOUNTAIN)
+		return TRUE;
+	else
+		return FALSE;
+}
+
+
+bool monster_grass(int r_idx)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+
+	if (r_ptr->flags8 & RF8_WILD_GRASS)
+		return TRUE;
+	else
+		return FALSE;
+}
+
+
+bool monster_deep_water(int r_idx)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+
+	if (!monster_dungeon(r_idx)) return FALSE;
+
+	if (r_ptr->flags7 & RF7_AQUATIC)
+		return TRUE;
+	else
+		return FALSE;
+}
+
+
+bool monster_shallow_water(int r_idx)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+
+	if (!monster_dungeon(r_idx)) return FALSE;
+
+	if (r_ptr->flags2 & RF2_AURA_FIRE)
+		return FALSE;
+	else
+		return TRUE;
+}
+
+
+bool monster_lava(int r_idx)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+
+	if (!monster_dungeon(r_idx)) return FALSE;
+
+	if (((r_ptr->flags3 & RF3_IM_FIRE) ||
+	     (r_ptr->flags7 & RF7_CAN_FLY)) &&
+	    !(r_ptr->flags3 & RF3_AURA_COLD))
+		return TRUE;
+	else
+		return FALSE;
+}
+
+
+monster_hook_type get_monster_hook(void)
+{
+	if (!dun_level)
+	{
+		switch(wilderness[p_ptr->wilderness_y][p_ptr->wilderness_x].terrain)
+		{
+		case TERRAIN_TOWN:
+			return monster_town;
+		case TERRAIN_DEEP_WATER:
+			return monster_ocean;
+		case TERRAIN_SHALLOW_WATER:
+			return monster_shore;
+		case TERRAIN_DIRT:
+			return monster_waste;
+		case TERRAIN_GRASS:
+			return monster_grass;
+		case TERRAIN_TREES:
+			return monster_wood;
+		case TERRAIN_SHALLOW_LAVA:
+		case TERRAIN_DEEP_LAVA:
+			return monster_volcano;
+		case TERRAIN_MOUNTAIN:
+			return monster_mountain;
+		default:
+			return monster_dungeon;
+		}
+	}
+	else
+	{
+		return monster_dungeon;
+	}
+}
+
+
+monster_hook_type get_monster_hook2(int y, int x)
+{
+	/* Set the monster list */
+	switch (cave[y][x].feat)
+	{
+	case FEAT_SHAL_WATER:
+		return monster_shallow_water;
+	case FEAT_DEEP_WATER:
+		return monster_deep_water;
+	case FEAT_DEEP_LAVA:
+	case FEAT_SHAL_LAVA:
+		return monster_lava;
+	default:
+		return NULL;
+	}
+}
+
+
+bool is_friendly(monster_type *m_ptr)
+{
+	if (m_ptr->smart & SM_FRIENDLY)
+		return (TRUE);
+	else
+		return (FALSE);
+}
+
+void set_friendly(monster_type *m_ptr)
+{
+	m_ptr->smart |= SM_FRIENDLY;
+}
+
+bool is_pet(monster_type *m_ptr)
+{
+	if (m_ptr->smart & SM_PET)
+		return (TRUE);
+	else
+		return (FALSE);
+}
+
+
+void set_pet(monster_type *m_ptr)
+{
+	m_ptr->smart |= SM_PET;
+}
+
+/*
+ * Is the monster friendly or a pet?
+ */
+bool is_hostile(monster_type *m_ptr)
+{
+	if (is_friendly(m_ptr) || is_pet(m_ptr))
+		return (FALSE);
+	else
+		return (TRUE);
+}
+
+
+/*
+ * Makes the monster hostile towards the player
+ */
+void set_hostile(monster_type *m_ptr)
+{
+	m_ptr->smart &= ~SM_PET;
+	m_ptr->smart &= ~SM_FRIENDLY;
+}
+
+
+
+/*
+ * Check if monster can cross terrain
+ */
+bool monster_can_cross_terrain(byte feat, monster_race *r_ptr)
+{
+	/* Deep water */
+	if (feat == FEAT_DEEP_WATER)
+	{
+		if ((r_ptr->flags7 & RF7_AQUATIC) ||
+		    (r_ptr->flags7 & RF7_CAN_FLY) ||
+		    (r_ptr->flags7 & RF7_CAN_SWIM))
+			return TRUE;
+		else
+			return FALSE;
+	}
+	/* Shallow water */
+	else if (feat == FEAT_SHAL_WATER)
+	{
+		if (r_ptr->flags2 & RF2_AURA_FIRE)
+			return FALSE;
+		else
+			return TRUE;
+	}
+	/* Aquatic monster */
+	else if ((r_ptr->flags7 & RF7_AQUATIC) &&
+		    !(r_ptr->flags7 & RF7_CAN_FLY))
+	{
+		return FALSE;
+	}
+	/* Lava */
+	else if ((feat == FEAT_SHAL_LAVA) ||
+	    (feat == FEAT_DEEP_LAVA))
+	{
+		if ((r_ptr->flags3 & RF3_IM_FIRE) ||
+		    (r_ptr->flags7 & RF7_CAN_FLY))
+			return TRUE;
+		else
+			return FALSE;
+	}
+	
+	return TRUE;
+}
+
+
+/*
+ * Check if two monsters are enemies
+ */
+bool are_enemies(monster_type *m_ptr1, monster_type *m_ptr2)
+{
+	monster_race *r_ptr1 = &r_info[m_ptr1->r_idx];
+	monster_race *r_ptr2 = &r_info[m_ptr2->r_idx];
+
+	/* Never pet vs. pet, friendly vs. friendly, normal vs. normal */
+	if ((is_friendly(m_ptr1) == is_friendly(m_ptr2)) &&
+		(is_pet(m_ptr1) == is_pet(m_ptr2)))
+	{
+		return FALSE;
+	}
+
+	/* Pet vs. normal */
+	if ((is_pet(m_ptr1) && !is_friendly(m_ptr2)) ||
+	    (is_pet(m_ptr2) && !is_friendly(m_ptr1)))
+	{
+		return TRUE;
+	}
+
+	/* Friendly vs. opposite aligned normal or pet */
+	if (((r_ptr1->flags3 & RF3_EVIL) &&
+	     (r_ptr2->flags3 & RF3_GOOD)) ||
+	    ((r_ptr1->flags3 & RF3_GOOD) &&
+	     (r_ptr2->flags3 & RF3_EVIL)))
+	{
+			return TRUE;
+	}
+
+	/* Default */
+	return FALSE;
+}

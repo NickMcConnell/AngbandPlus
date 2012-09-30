@@ -508,7 +508,7 @@ s16b o_pop(void)
 
 
 	/* Initial allocation */
-	if (o_max < MAX_O_IDX)
+	if (o_max < max_o_idx)
 	{
 		/* Get next space */
 		i = o_max;
@@ -922,7 +922,7 @@ s32b flag_cost(object_type * o_ptr, int plusses)
 	if (f2 & TR2_RES_DISEN) total += 10000;
 	if (f3 & TR3_SH_FIRE) total += 5000;
 	if (f3 & TR3_SH_ELEC) total += 5000;
-	if (f3 & TR3_XXX3) total += 0;
+	if (f3 & TR3_QUESTITEM) total += 0;
 	if (f3 & TR3_XXX4) total += 0;
 	if (f3 & TR3_NO_TELE) total += 2500;
 	if (f3 & TR3_NO_MAGIC) total += 2500;
@@ -1555,7 +1555,7 @@ s16b lookup_kind(int tval, int sval)
 	int k;
 
 	/* Look for it */
-	for (k = 1; k < MAX_K_IDX; k++)
+	for (k = 1; k < max_k_idx; k++)
 	{
 		object_kind *k_ptr = &k_info[k];
 
@@ -1863,6 +1863,8 @@ static bool make_artifact_special(object_type *o_ptr)
 		/* Cannot make an artifact twice */
 		if (a_ptr->cur_num) continue;
 
+		if (a_ptr->flags3 & TR3_QUESTITEM) continue;
+
 		/* XXX XXX Enforce minimum "depth" (loosely) */
 		if (a_ptr->level > dun_level)
 		{
@@ -1925,7 +1927,7 @@ static bool make_artifact(object_type *o_ptr)
 	if (o_ptr->number != 1) return (FALSE);
 
 	/* Check the artifact list (skip the "specials") */
-	for (i = ART_MIN_NORMAL; i < MAX_A_IDX; i++)
+	for (i = ART_MIN_NORMAL; i < max_a_idx; i++)
 	{
 		artifact_type *a_ptr = &a_info[i];
 
@@ -1934,6 +1936,8 @@ static bool make_artifact(object_type *o_ptr)
 
 		/* Cannot make an artifact twice */
 		if (a_ptr->cur_num) continue;
+
+		if (a_ptr->flags3 & TR3_QUESTITEM) continue;
 
 		/* Must have the correct fields */
 		if (a_ptr->tval != o_ptr->tval) continue;
@@ -3559,7 +3563,7 @@ static void a_m_aux_4(object_type *o_ptr, int level, int power)
 			o_ptr->pval = randint(k_info[o_ptr->k_idx].level);
 
 			/* Never exceed "difficulty" of 55 to 59 */
-			if (o_ptr->pval > 55) o_ptr->pval = 55 + rand_int(5);
+			if (o_ptr->pval > 55) o_ptr->pval = 55 + (byte)rand_int(5);
 
 			break;
 		}
@@ -4031,7 +4035,7 @@ bool make_object(object_type *j_ptr, bool good, bool great)
 		case TV_ARROW:
 		case TV_BOLT:
 		{
-			j_ptr->number = damroll(6, 7);
+			j_ptr->number = (byte)damroll(6, 7);
 		}
 	}
 
@@ -4345,8 +4349,13 @@ s16b drop_near(object_type *j_ptr, int chance, int y, int x)
 			/* Obtain grid */
 			c_ptr = &cave[ty][tx];
 
-			/* Require floor space */
-			if (c_ptr->feat != FEAT_FLOOR) continue;
+			/* Require floor space (or shallow terrain) -KMW- */
+			if ((c_ptr->feat != FEAT_FLOOR)&&
+			    (c_ptr->feat != FEAT_SHAL_WATER) &&
+			    (c_ptr->feat != FEAT_GRASS) &&
+			    (c_ptr->feat != FEAT_DIRT) &&
+			    (c_ptr->feat != FEAT_SHAL_LAVA)) continue;
+
 
 			/* No objects */
 			k = 0;
@@ -4438,8 +4447,12 @@ s16b drop_near(object_type *j_ptr, int chance, int y, int x)
 		/* Grid */
 		c_ptr = &cave[ty][tx];
 
-		/* Require floor space */
-		if (c_ptr->feat != FEAT_FLOOR) continue;
+		/* Require floor space (or shallow terrain) -KMW- */
+		if ((c_ptr->feat != FEAT_FLOOR)&&
+		    (c_ptr->feat != FEAT_SHAL_WATER) &&
+		    (c_ptr->feat != FEAT_GRASS) &&
+		    (c_ptr->feat != FEAT_DIRT) &&
+		    (c_ptr->feat != FEAT_SHAL_LAVA)) continue;
 
 		/* Bounce to that location */
 		by = ty;
@@ -4558,25 +4571,31 @@ s16b drop_near(object_type *j_ptr, int chance, int y, int x)
 /*
  * Scatter some "great" objects near the player
  */
-void acquirement(int y1, int x1, int num, bool great)
+void acquirement(int y1, int x1, int num, bool great, bool known)
 {
-	object_type forge;
-	object_type *q_ptr;
+	object_type *i_ptr;
+	object_type object_type_body;
 
 	/* Acquirement */
 	while (num--)
 	{
 		/* Get local object */
-		q_ptr = &forge;
+		i_ptr = &object_type_body;
 
 		/* Wipe the object */
-		object_wipe(q_ptr);
+		object_wipe(i_ptr);
 
 		/* Make a good (or great) object (if possible) */
-		if (!make_object(q_ptr, TRUE, great)) continue;
+		if (!make_object(i_ptr, TRUE, great)) continue;
+
+		if (known)
+		{
+			object_aware(i_ptr);
+			object_known(i_ptr);
+		}
 
 		/* Drop the object */
-		drop_near(q_ptr, -1, y1, x1);
+		drop_near(i_ptr, -1, y1, x1);
 	}
 }
 
@@ -4605,11 +4624,13 @@ void pick_trap(int y, int x)
 		/* Hack -- pick a trap */
 		feat = FEAT_TRAP_HEAD + rand_int(16);
 
-		/* Hack -- no trap doors on quest levels */
-		if ((feat == FEAT_TRAP_HEAD + 0x00) && is_quest(dun_level, FALSE)) continue;
+		/* Hack -- no trap doors on special levels */
+		if ((feat == FEAT_TRAP_HEAD + 0x00) && (p_ptr->inside_arena || is_quest(dun_level)))
+			continue;
 
 		/* Hack -- no trap doors on the deepest level */
-		if ((feat == FEAT_TRAP_HEAD + 0x00) && (dun_level >= MAX_DEPTH-1)) continue;
+		if ((feat == FEAT_TRAP_HEAD + 0x00) && (dun_level >= MAX_DEPTH-1))
+			continue;
 
 		/* Done */
 		break;
@@ -5903,7 +5924,7 @@ void print_spells(byte *spells, int num, int y, int x, int realm)
 	char            out_val[160];
 
 
-	if ((realm<0 || realm>MAX_REALM - 1) && wizard)
+	if (((realm < 0) || (realm > MAX_REALM - 1)) && wizard)
 		msg_print ("Warning! print_spells called with null realm");
 
 	/* Title the list */

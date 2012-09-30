@@ -1014,7 +1014,7 @@ static s16b convert_old_kinds_normal[501] =
 /*
  * Convert old kinds (501-512) into special artifacts
  */
-static s16b convert_old_kinds_special[12] =
+static byte convert_old_kinds_special[12] =
 {
 	ART_NARYA,		/* Old 501 */
 	ART_NENYA,		/* Old 502 */
@@ -1153,7 +1153,7 @@ static errr rd_item_old(object_type *o_ptr)
 	if (old_names >= 128)
 	{
 		/* Extract the artifact index */
-		o_ptr->name1 = (old_names - MAX_E_IDX);
+		o_ptr->name1 = (old_names - max_e_idx);
 	}
 
 	/* It is an ego-item (or a normal item) */
@@ -1463,7 +1463,8 @@ static void rd_lore_old(int r_idx)
  */
 static errr rd_store_old(int n)
 {
-	store_type *st_ptr = &store[n];
+	/* Always init the store in the first town */
+	store_type *st_ptr = &town[1].store[n];
 
 	int j;
 
@@ -1486,6 +1487,9 @@ static errr rd_store_old(int n)
 
 	/* Extract the owner */
 	st_ptr->owner = convert_owner[own];
+
+	/* Reset last visit to current turn */
+	st_ptr->last_visit = turn;
 
 	/* Read the items */
 	for (j = 0; j < num; j++)
@@ -2453,8 +2457,8 @@ static errr rd_dungeon_old(void)
 		/* Hack -- ignore "broken" monsters */
 		if (q_ptr->r_idx <= 0) continue;
 
-		/* Hack -- ignore "player ghosts" */
-		if (q_ptr->r_idx >= MAX_R_IDX-1) continue;
+		/* Hack -- ignore "broken" monsters */
+		if (q_ptr->r_idx >= max_r_idx) continue;
 
 
 		/* Access the race */
@@ -2741,7 +2745,7 @@ static errr rd_savefile_old_aux(void)
 
 
 	/* Load the old "Uniques" flags */
-	for (i = 0; i < MAX_R_IDX; i++)
+	for (i = 0; i < max_r_idx; i++)
 	{
 		monster_race *r_ptr = &r_info[i];
 
@@ -2768,9 +2772,6 @@ static errr rd_savefile_old_aux(void)
 		/* Only one unique monster */
 		if (r_ptr->flags1 & (RF1_UNIQUE)) r_ptr->max_num = 1;
 
-		/* Hack -- No ghosts */
-		if (i == MAX_R_IDX-1) r_ptr->max_num = 0;
-
 		/* Note death */
 		if (tmp32u) r_ptr->max_num = 0;
 	}
@@ -2790,7 +2791,7 @@ static errr rd_savefile_old_aux(void)
 		if (tmp16u == 0xFFFF) break;
 
 		/* Incompatible save files */
-		if (tmp16u >= MAX_R_IDX)
+		if (tmp16u >= max_r_idx)
 		{
 			note(format("Too many (%u) monster races!", tmp16u));
 			return (21);
@@ -2835,7 +2836,7 @@ static errr rd_savefile_old_aux(void)
 
 
 	/* Fake some "item awareness" */
-	for (i = 1; i < MAX_K_IDX; i++)
+	for (i = 1; i < max_k_idx; i++)
 	{
 		object_kind *k_ptr = &k_info[i];
 
@@ -2920,37 +2921,6 @@ static errr rd_savefile_old_aux(void)
 		}
 		note("Loaded dungeon");
 	}
-
-
-	/* Hack -- no ghosts */
-	r_info[MAX_R_IDX-1].max_num = 0;
-
-
-	/* Hack -- reset morgoth XXX XXX XXX */
-	r_info[MAX_R_IDX-2].max_num = 1;
-
-	/* Hack -- reset sauron XXX XXX XXX */
-	r_info[MAX_R_IDX-3].max_num = 1;
-
-
-	/* Hack -- reset morgoth XXX XXX XXX */
-	r_info[MAX_R_IDX-2].r_pkills = 0;
-
-	/* Hack -- reset sauron XXX XXX XXX */
-	r_info[MAX_R_IDX-3].r_pkills = 0;
-
-
-	/* Add first quest XXX XXX XXX */
-	q_list[0].level = 99;
-
-	/* Add second quest XXX XXX XXX */
-	q_list[1].level = 100;
-
-	/* Reset third quest XXX XXX XXX */
-	q_list[2].level = 0;
-
-	/* Reset fourth quest XXX XXX XXX */
-	q_list[3].level = 0;
 
 
 	/* Hack -- maximize mode */

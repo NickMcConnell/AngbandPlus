@@ -39,6 +39,10 @@
 
 
 
+/*
+ * Maximum number of tries for selection of a proper quest monster
+ */
+#define MAX_TRIES 100
 
 
 /*
@@ -827,15 +831,6 @@ static void rd_item(object_type *o_ptr)
 		e_ptr = &e_info[o_ptr->name2];
 
 
-#if 0
-		/* Hack -- keep some old fields */
-		if ((o_ptr->dd < old_dd) && (o_ptr->ds == old_ds))
-		{
-			/* Keep old boosted damage dice */
-			o_ptr->dd = old_dd;
-		}
-#endif
-
 		o_ptr->dd = old_dd;
 		o_ptr->ds = old_ds;
 
@@ -916,41 +911,14 @@ static void rd_lore(int r_idx)
 	if (older_than(2, 7, 7))
 	{
 		/* Strip old flags */
-		strip_bytes(20);
+		strip_bytes(38);
+	}
 
-		/* Kills during this life */
-		rd_s16b(&r_ptr->r_pkills);
-
-		/* Strip something */
-		strip_bytes(2);
-
-		/* Count observations of attacks */
-		rd_byte(&r_ptr->r_blows[0]);
-		rd_byte(&r_ptr->r_blows[1]);
-		rd_byte(&r_ptr->r_blows[2]);
-		rd_byte(&r_ptr->r_blows[3]);
-
-		/* Count some other stuff */
-		rd_byte(&r_ptr->r_wake);
-		rd_byte(&r_ptr->r_ignore);
-
-		/* Strip something */
-		strip_bytes(2);
-
-		/* Count kills by player */
-		rd_s16b(&r_ptr->r_tkills);
-
-		/* Count deaths of player */
-		rd_s16b(&r_ptr->r_deaths);
-
-		/* Read the "Racial" monster limit per level */
-		rd_byte(&r_ptr->max_num);
-
-		/* Strip something */
-		strip_bytes(1);
-
-		/* Hack -- guess at "sights" */
-		r_ptr->r_sights = MAX(r_ptr->r_tkills, r_ptr->r_deaths);
+	/* Pre-2.2.0 (old r_info.txt) */
+	else if (z_older_than(2, 2, 0))
+	{
+		/* Throw away old info */
+		strip_bytes(48);
 	}
 
 	/* Current */
@@ -1017,9 +985,9 @@ static void rd_lore(int r_idx)
 /*
  * Read a store
  */
-static errr rd_store(int n)
+static errr rd_store(int town_number, int store_number)
 {
-	store_type *st_ptr = &store[n];
+	store_type *st_ptr = &town[town_number].store[store_number];
 
 	int j;
 
@@ -1032,6 +1000,17 @@ static errr rd_store(int n)
 	rd_byte(&num);
 	rd_s16b(&st_ptr->good_buy);
 	rd_s16b(&st_ptr->bad_buy);
+
+	if (!z_older_than(2, 1, 3))
+	{
+		/* Read last visit */
+		rd_s32b(&st_ptr->last_visit);
+	}
+	else
+	{
+		/* Reset last visit to the current turn */
+		st_ptr->last_visit = turn;
+	}
 
 	/* Extract the owner (see above) */
 	st_ptr->owner = (older_than(2, 7, 8) ? convert_owner[own] : own);
@@ -1287,6 +1266,7 @@ static void rd_extra(void)
 	int i;
 
 	byte tmp8u;
+	s16b tmp16s;
 
 	rd_string(player_name, 32);
 
@@ -1327,6 +1307,70 @@ static void rd_extra(void)
 	rd_u16b(&p_ptr->exp_frac);
 
 	rd_s16b(&p_ptr->lev);
+
+	/* Current version */
+	if (!z_older_than(2,1,3))
+	{
+		rd_s16b(&p_ptr->town_num);
+
+		/* Read arena and rewards information */
+		rd_s16b(&p_ptr->arena_number);
+		rd_s16b(&p_ptr->inside_arena);
+		rd_s16b(&p_ptr->inside_quest);
+		rd_byte(&p_ptr->exit_bldg);
+		rd_byte(&p_ptr->leftbldg);
+
+		rd_s16b(&p_ptr->oldpx);
+		rd_s16b(&p_ptr->oldpy);
+
+		rd_s16b(&tmp16s);
+
+		if (tmp16s > MAX_BACT)
+		{
+			note(format("Too many (%d) building rewards!", tmp16s));
+		}
+
+		for (i = 0; i < tmp16s; i++) rd_s16b(&p_ptr->rewards[i]);
+	}
+	/* 2.1.2 beta version */
+	else if (z_major == 2 && z_minor == 1 && z_patch == 2)
+	{
+		/* Town index */
+		rd_s16b(&tmp16s);
+		p_ptr->town_num = 1;
+		p_ptr->oldpx = 0;
+		p_ptr->oldpy = 0;
+
+		/* read arena information and rewards -KMW- */
+		rd_s16b(&p_ptr->arena_number);
+
+		rd_s16b(&p_ptr->inside_arena);
+		rd_s16b(&p_ptr->inside_quest);
+		rd_byte(&p_ptr->exit_bldg);
+		rd_byte(&p_ptr->leftbldg);
+
+		/* Throw away old quest informations */
+		for (i = 0; i < 100; i++) rd_s16b(&tmp16s);
+		for (i = 0; i < 10; i++) rd_s16b(&tmp16s);
+		for (i = 0; i < 10; i++) rd_s16b(&tmp16s);
+		for (i = 0; i < 5; i++) rd_s16b(&tmp16s);
+		for (i = 0; i < 5; i++) rd_s16b(&tmp16s);
+	}
+	else /* 2.1.0 or older */
+	{
+		p_ptr->town_num = 1;
+		p_ptr->oldpx = 0;
+		p_ptr->oldpy = 0;
+
+		/* Initialize arena information -KMW- */
+		p_ptr->arena_number = 0;
+		p_ptr->inside_arena = 0;
+		p_ptr->inside_quest = 0;
+		p_ptr->leftbldg = TRUE;
+		p_ptr->exit_bldg = TRUE;
+
+		for (i = 0; i < MAX_BACT; ++i) p_ptr->rewards[i] = 0;
+	}
 
 	rd_s16b(&p_ptr->mhp);
 	rd_s16b(&p_ptr->chp);
@@ -1675,6 +1719,9 @@ static errr rd_dungeon_aux(void)
 
 			/* Hack -- Clear feature */
 			c_ptr->feat = FEAT_NONE;
+
+			/* Special */
+			c_ptr->feat = 0;
 
 			/* Old method */
 			if (older_than(2, 7, 5))
@@ -2229,8 +2276,8 @@ static errr rd_dungeon_aux(void)
 		/* Hack -- ignore "broken" monsters */
 		if (q_ptr->r_idx <= 0) continue;
 
-		/* Hack -- ignore "player ghosts" */
-		if (q_ptr->r_idx >= MAX_R_IDX-1) continue;
+		/* Hack -- ignore "broken" monsters */
+		if (q_ptr->r_idx >= max_r_idx) continue;
 
 
 		/* Get a new record */
@@ -2291,8 +2338,12 @@ static errr rd_dungeon(void)
 
 	int ymax, xmax;
 
+	int xstart = 0;
+	int ystart = 0;
+
 	byte count;
 	byte tmp8u;
+	s16b tmp16s;
 
 	u16b limit;
 
@@ -2311,6 +2362,17 @@ static errr rd_dungeon(void)
 	rd_s16b(&max_panel_rows);
 	rd_s16b(&max_panel_cols);
 
+	if (!dun_level && !p_ptr->inside_quest)
+	{
+		/* Init the wilderness */
+		process_dungeon_file("w_info.txt", &ystart, &xstart, cur_hgt, cur_wid);
+
+		/* Init the town */
+		xstart = 0;
+		ystart = 0;
+		init_flags = 0;
+		process_dungeon_file("t_info.txt", &ystart, &xstart, cur_hgt, cur_wid);
+	}
 
 	/* Old method */
 	if (older_than(2,8,0))
@@ -2386,13 +2448,76 @@ static errr rd_dungeon(void)
 	}
 
 
+	if (!z_older_than(2,1,3))
+	{
+		/*** Run length decoding ***/
+
+		/* Load the dungeon data */
+		for (x = y = 0; y < ymax; )
+		{
+			/* Grab RLE info */
+			rd_byte(&count);
+			rd_byte(&tmp8u);
+
+			/* Apply the RLE info */
+			for (i = count; i > 0; i--)
+			{
+				/* Access the cave */
+				c_ptr = &cave[y][x];
+
+				/* Extract "feat" */
+				c_ptr->mimic = tmp8u;
+
+				/* Advance/Wrap */
+				if (++x >= xmax)
+				{
+					/* Wrap */
+					x = 0;
+
+					/* Advance/Wrap */
+					if (++y >= ymax) break;
+				}
+			}
+		}
+
+		/*** Run length decoding ***/
+
+		/* Load the dungeon data */
+		for (x = y = 0; y < ymax; )
+		{
+			/* Grab RLE info */
+			rd_byte(&count);
+			rd_s16b(&tmp16s);
+
+			/* Apply the RLE info */
+			for (i = count; i > 0; i--)
+			{
+				/* Access the cave */
+				c_ptr = &cave[y][x];
+
+				/* Extract "feat" */
+				c_ptr->special = tmp16s;
+
+				/* Advance/Wrap */
+				if (++x >= xmax)
+				{
+					/* Wrap */
+					x = 0;
+
+					/* Advance/Wrap */
+					if (++y >= ymax) break;
+				}
+			}
+		}
+	}
+
 	/*** Objects ***/
 
 	/* Read the item count */
 	rd_u16b(&limit);
 
 	/* Verify maximum */
-	if (limit >= MAX_O_IDX)
+	if (limit >= max_o_idx)
 	{
 		note(format("Too many (%d) object entries!", limit));
 		return (151);
@@ -2462,7 +2587,7 @@ static errr rd_dungeon(void)
 	rd_u16b(&limit);
 
 	/* Hack -- verify */
-	if (limit >= MAX_M_IDX)
+	if (limit >= max_m_idx)
 	{
 		note(format("Too many (%d) monster entries!", limit));
 		return (161);
@@ -2510,21 +2635,13 @@ static errr rd_dungeon(void)
 		r_ptr->cur_num++;
 	}
 
-	/*
-	 * Reenable quest
-	 * Heino Vander Sanden
-	 */
-	if (is_quest(dun_level, FALSE))
-	{
-		int r_idx = get_quest_monster();
-
-		r_info[r_idx].flags1 |= (RF1_QUESTOR);
-	}
-
 	/*** Success ***/
 
 	/* The dungeon is ready */
-	character_dungeon = TRUE;
+	if (z_older_than(2, 1, 3))
+		character_dungeon = FALSE;
+	else
+		character_dungeon = TRUE;
 
 	/* Success */
 	return (0);
@@ -2537,13 +2654,15 @@ static errr rd_dungeon(void)
  */
 static errr rd_savefile_new_aux(void)
 {
-	int i;
+	int i, j;
+	int town_count;
 
+	s32b wild_x_size;
+	s32b wild_y_size;
+	
 	byte tmp8u;
 	u16b tmp16u;
 	u32b tmp32u;
-
-	char inp[80];
 
 #ifdef VERIFY_CHECKSUMS
 	u32b n_x_check, n_v_check;
@@ -2614,7 +2733,7 @@ static errr rd_savefile_new_aux(void)
 	rd_u16b(&tmp16u);
 
 	/* Incompatible save files */
-	if (tmp16u > MAX_R_IDX)
+	if (tmp16u > max_r_idx)
 	{
 		note(format("Too many (%u) monster races!", tmp16u));
 		return (21);
@@ -2655,6 +2774,24 @@ static errr rd_savefile_new_aux(void)
 			}
 		}
 	}
+
+	/* Pre 2.2.0 version (old r_info.txt) */
+	if (z_older_than(2, 2, 0))
+	{
+		monster_race *r_ptr;
+
+		for (i = 0; i < max_r_idx; i++)
+		{
+			/* Access that monster */
+			r_ptr = &r_info[i];
+
+			/* Hack -- Reset the death counter */
+			r_ptr->max_num = 100;
+			if (r_ptr->flags1 & RF1_UNIQUE) r_ptr->max_num = 1;
+			if (r_ptr->flags3 & RF3_UNIQUE_7) r_ptr->max_num = 7;
+		}
+	}
+
 	if (arg_fiddle) note("Loaded Monster Memory");
 
 
@@ -2662,7 +2799,7 @@ static errr rd_savefile_new_aux(void)
 	rd_u16b(&tmp16u);
 
 	/* Incompatible save files */
-	if (tmp16u > MAX_K_IDX)
+	if (tmp16u > max_k_idx)
 	{
 		note(format("Too many (%u) object kinds!", tmp16u));
 		return (22);
@@ -2682,77 +2819,227 @@ static errr rd_savefile_new_aux(void)
 	}
 	if (arg_fiddle) note("Loaded Object Memory");
 
+#if 0
+	/*
+	 * Initialize arena and rewards information
+	 */
+	p_ptr->arena_number = 0;
+	p_ptr->inside_arena = 0;
+	p_ptr->inside_quest = 0;
+	p_ptr->leftbldg = FALSE;
+	p_ptr->exit_bldg = TRUE;
 
-	/* rr9: Load old 2.1.0 savegame without the quest infos */
-	if (z_older_than(2,1,1))
+	/* Start in town 1 */
+	p_ptr->town_num = 1;
+
+	p_ptr->wilderness_x = 4;
+	p_ptr->wilderness_y = 4;
+
+#endif
+
+	/* Init the wilderness seeds */
+	for (i = 0; i < max_wild_x; i++)
 	{
-		/* Load the Quests */
-		rd_u16b(&tmp16u);
+		for (j = 0; j < max_wild_y; j++)
+		{
+			wilderness[j][i].seed = rand_int(0x10000000);
+		}
+	}
 
-		/* save the number of quests */
-		MAX_Q_IDX = tmp16u;
+	p_ptr->wilderness = 1;
+
+	/* 2.1.3 or newer version */
+	if (!z_older_than(2, 1, 3))
+	{
+		u16b max_towns_load;
+		u16b max_quests_load;
+
+		/* Number of towns */
+		rd_u16b(&max_towns_load);
 
 		/* Incompatible save files */
-		if (tmp16u > 4)
+		if (max_towns_load > max_towns)
 		{
-			note(format("Too many (%u) quests!", tmp16u));
+			note(format("Too many (%u) towns!", max_towns_load));
 			return (23);
 		}
 
-		/* Load the Quests */
+		/* Number of quests */
+		rd_u16b(&max_quests_load);
+
+		/* Incompatible save files */
+		if (max_quests_load > max_quests)
+		{
+			note(format("Too many (%u) quests!", max_quests_load));
+			return (23);
+		}
+
+		for (i = 0; i < max_quests_load; i++)
+		{
+			rd_s16b(&quest[i].status);
+
+			if (!z_older_than(2, 2, 0))
+			{
+				rd_s16b(&quest[i].level);
+			}
+
+			/* Load quest status if quest is running */
+			if (quest[i].status == 1)
+			{
+				rd_s16b(&quest[i].cur_num);
+				rd_s16b(&quest[i].max_num);
+				rd_s16b(&quest[i].type);
+
+				if (z_older_than(2, 2, 0))
+				{
+					strip_bytes(2);
+				}
+
+				rd_s16b(&quest[i].r_idx);
+
+				/* Load quest item index */
+				if (!z_older_than(2, 2, 1))
+				{
+					rd_s16b(&quest[i].k_idx);
+
+					if (quest[i].k_idx)
+						a_info[quest[i].k_idx].flags3 |= TR3_QUESTITEM;
+				}
+
+				if (z_older_than(2, 2, 0))
+				{
+					strip_bytes(40);
+				}
+
+				/* Mark uniques */
+				if (r_info[quest[i].r_idx].flags1 & RF1_UNIQUE)
+						r_info[quest[i].r_idx].flags1 |= RF1_QUESTOR;
+			}
+		}
+
+		if (!z_older_than(2, 2, 1))
+		{
+			/* "Hard quests" flag */
+			rd_byte(&p_ptr->hard_quests);
+
+			/* "Wilderness" flag */
+			rd_byte(&p_ptr->wilderness);
+		}
+
+		/* Position in the wilderness */
+		rd_s32b(&p_ptr->wilderness_x);
+		rd_s32b(&p_ptr->wilderness_y);
+
+		/* Size of the wilderness */
+		rd_s32b(&wild_x_size);
+		rd_s32b(&wild_y_size);
+
+		/* Incompatible save files */
+		if ((wild_x_size > max_wild_x) || (wild_y_size > max_wild_y))
+		{
+			note(format("Wilderness is too big (%u/%u)!", wild_x_size, wild_y_size));
+			return (23);
+		}
+
+		/* Load the wilderness seeds */
+		for (i = 0; i < wild_x_size; i++)
+		{
+			for (j = 0; j < wild_y_size; j++)
+			{
+				rd_u32b(&wilderness[j][i].seed);
+			}
+		}
+	}
+	/* rr9: Load old savegame without the quest infos */
+	else if (z_older_than(2, 1, 1))
+	{
+		/* Load the number of quests */
+		rd_u16b(&tmp16u);
+
+		/* Ignore all infos */
 		for (i = 0; i < tmp16u; i++)
 		{
-			rd_byte(&tmp8u);
-			q_list[i].level = tmp8u;
-			rd_byte(&tmp8u);
-			rd_byte(&tmp8u);
-			rd_byte(&tmp8u);
+			strip_bytes(4);
 		}
 	}
-	else
-	/* rr9: Load 2.1.1 savegame with the new quest infos */
+	/* rr9: Load 2.1.1 savegame quest infos */
+	else if (z_older_than(2, 1, 2))
 	{
-		/* Load the Quests */
+		/* Load the number of quests */
+		rd_u16b(&tmp16u);
+
+		j = tmp16u;
+
+		/* Ignore the quests */
+		for (i = 0; i < j; i++)
+		{
+			strip_bytes(5);
+		}
+	}
+	/* 2.1.2 beta version */
+	else if (z_older_than(2, 1, 3))
+	{
+		/* Load the number of quests */
 		rd_u16b(&tmp16u);
 
 		/* Incompatible save files */
-		if (tmp16u > MAX_QUESTS + DEFAULT_QUESTS)
+		if (tmp16u > 20)
 		{
 			note(format("Too many (%u) quests!", tmp16u));
 			return (23);
 		}
-		else
-		{
-			MAX_Q_IDX = tmp16u;
-		}
 
-		/* Load the Quests */
-		for (i = 0; i < MAX_Q_IDX; i++)
+		/* Load the quest information */
+		for (i = 0; i < tmp16u; i++)
 		{
-			rd_byte(&tmp8u);
-			q_list[i].level = tmp8u;
-			rd_s16b(&tmp16u);
-			q_list[i].r_idx = tmp16u;
-			rd_byte(&tmp8u);
-			q_list[i].cur_num = tmp8u;
-			rd_byte(&tmp8u);
-			q_list[i].max_num = tmp8u;
+			/* Throw it away */
+			strip_bytes(14);
 		}
 	}
 
-	/* Quests from a pre 2.1.1 version  */
-	if (q_list[1].r_idx == 0)
+	/*
+	 * Select the number of random quests
+	 * when importing old savefiles.
+	 */
+	if (z_older_than(2, 2, 0))
 	{
-		/* For the quest initialization */
-		MAX_Q_IDX = 40;
-		
-		/* Initialize quest array */
-		initialise_quests();
+		char inp[80];
+
+		int i, v;
+
+		int xstart = 0;
+		int ystart = 0;
+
+		/* Wipe the quests */
+		for (i = 0; i < max_quests; i++)
+		{
+			quest[i].status = QUEST_STATUS_UNTAKEN;
+
+			quest[i].cur_num = 0;
+			quest[i].max_num = 0;
+			quest[i].type = 0;
+			quest[i].level = 0;
+			quest[i].r_idx = 0;
+		}
+
+		/* Clean up */
+		clear_from(10);
+
+		/*** User enters number of quests ***/
+		/* Heino Vander Sanden and Jimmy De Laet */
+
+		/* Extra info */
+		Term_putstr(5, 15, -1, TERM_WHITE,
+			"You can input yourself the number of quest you'd like to");
+		Term_putstr(5, 16, -1, TERM_WHITE,
+			"perform next to two obligatory ones ( Oberon and the Serpent of Chaos )");
+		Term_putstr(5, 17, -1, TERM_WHITE,
+			"In case you do not want any additional quest, just enter 0");
 
 		/* Ask the number of additional quests */
-		while (1)
+		while (TRUE)
 		{
-			put_str(format("Number of additional quest? (<%u) ", MAX_QUESTS + 1), 20, 2);
+			put_str(format("Number of additional quest? (<%u) ", MAX_RANDOM_QUEST - MIN_RANDOM_QUEST + 2), 20, 2);
 
 			/* Get a the number of additional quest */
 			while (TRUE)
@@ -2765,32 +3052,179 @@ static errr rd_savefile_new_aux(void)
 
 				/* Get a response (or escape) */
 				if (!askfor_aux(inp, 2)) inp[0] = '\0';
-				i = atoi(inp);
+				v = atoi(inp);
 
 				/* Break on valid input */
-				if ( (i <= MAX_QUESTS) && ( i >= 0 )) break;
+				if ((v <= MAX_RANDOM_QUEST - MIN_RANDOM_QUEST + 1) && ( v >= 0 )) break;
 			}
 			break;
 		}
 
-		/* Set maxnumber of quest */
-		MAX_Q_IDX = i + DEFAULT_QUESTS;
+		/* Clear */
+		clear_from(15);
+
+		/* Init the random quests */
+		init_flags = INIT_ASSIGN;
+		p_ptr->inside_quest = MIN_RANDOM_QUEST;
+		process_dungeon_file("q_info.txt", &ystart, &xstart, 0, 0);
+		p_ptr->inside_quest = 0;
+
+		/* Prepare allocation table */
+		get_mon_num_prep(monster_quest, NULL);
+
+		/* Generate quests */
+		for (i = MIN_RANDOM_QUEST + v - 1; i >= MIN_RANDOM_QUEST; i--)
+		{
+			quest_type *q_ptr = &quest[i];
+
+			monster_race *r_ptr;		
+
+			q_ptr->status = QUEST_STATUS_TAKEN;
+
+			for (j = 0; j < MAX_TRIES; j++)
+			{
+				/* Random monster 5 - 10 levels out of depth */
+				q_ptr->r_idx = get_mon_num(q_ptr->level + 4 + randint(6));
+
+				r_ptr = &r_info[q_ptr->r_idx];
+
+				/* Accept only monsters that are out of depth */
+				if (r_ptr->level > q_ptr->level) break;
+			}
+
+			/* Get the number of monsters */
+			if (r_ptr->flags1 & RF1_UNIQUE)
+			{
+				/* Mark uniques */
+				r_ptr->flags1 |= RF1_QUESTOR;
+
+				q_ptr->max_num = 1;
+			}
+			else
+			{
+				q_ptr->max_num = 5 + (s16b)rand_int(q_ptr->level/3 + 5);
+			}
+		}
+
+		/* Init the two main quests (Oberon + Serpent) */
+		init_flags = INIT_ASSIGN;
+		p_ptr->inside_quest = QUEST_OBERON;
+		process_dungeon_file("q_info.txt", &ystart, &xstart, 0, 0);
+		quest[QUEST_OBERON].status = QUEST_STATUS_TAKEN;
+
+		p_ptr->inside_quest = QUEST_SERPENT;
+		process_dungeon_file("q_info.txt", &ystart, &xstart, 0, 0);
+		quest[QUEST_SERPENT].status = QUEST_STATUS_TAKEN;
+		p_ptr->inside_quest = 0;
+	}
+
+	/*
+	 * Select 'hard random quests mode'
+	 * when importing old savefiles.
+	 */
+	if (z_older_than(2, 2, 1))
+	{
+		char c;
+		
+		/* Clear */
+		clear_from(15);
+
+		/*** Hard quests mode ***/
+
+		/* Extra info */
+		Term_putstr(5, 14, -1, TERM_WHITE,
+			"Using 'hard quests' mode makes the random quests harder, because");
+		Term_putstr(5, 15, -1, TERM_WHITE,
+			"you have to kill all monsters at the same visit to the quest level.");
+		Term_putstr(5, 16, -1, TERM_WHITE,
+			"If you leave the level while some quest monsters are still alive,");
+		Term_putstr(5, 17, -1, TERM_WHITE,
+			"then all killed quest monsters are revived on your next visit");
+		Term_putstr(5, 18, -1, TERM_WHITE,
+			"to this level.");
+
+		/* Ask about "hard quests" mode */
+		while (1)
+		{
+			put_str("Use 'Hard quests'? (y/n/*) ", 20, 2);
+			c = inkey();
+			if (c == 'Q') quit(NULL);
+			if (c == 'S') return (FALSE);
+			if (c == '*')
+			{
+				c = 'y';
+				if (randint(2) == 1)
+					c = 'n';
+				break;
+			}
+			if (c == ESCAPE) break;
+			if ((c == 'y') || (c == 'n')) break;
+			if (c == '?') do_cmd_help();
+			else bell();
+		}
+
+		/* Set "maximize" mode */
+		p_ptr->hard_quests = (c == 'y');
 
 		/* Clear */
 		clear_from(15);
-	
-		/* Generate quests */
-		player_birth_quests();
 	}
 
 	if (arg_fiddle) note("Loaded Quests");
+
+	/* A version without the wilderness */
+	if (z_older_than(2, 1, 2))
+	{
+		char c;
+
+		/* Clear */
+		clear_from(15);
+
+		/*** Wilderness mode ***/
+
+		/* Extra info */
+		Term_putstr(5, 14, -1, TERM_WHITE,
+			"'Wilderness' mode enables the extended wilderness of ZAngband");
+		Term_putstr(5, 15, -1, TERM_WHITE,
+			"giving you a wilderness and several new towns to explore.");
+		Term_putstr(5, 16, -1, TERM_WHITE,
+			"Switching off 'wilderness' mode is recommended for slower computers,");
+		Term_putstr(5, 16, -1, TERM_WHITE,
+			"because the wilderness slows down the system a bit.");
+
+		/* Ask about "wilderness" mode */
+		while (1)
+		{
+			put_str("Use 'wilderness'? (y/n/*) ", 20, 2);
+			c = inkey();
+			if (c == 'Q') quit(NULL);
+			if (c == 'S') return (FALSE);
+			if (c == '*')
+			{
+				c = 'y';
+				if (randint(2) == 1)
+					c = 'n';
+				break;
+			}
+			if (c == ESCAPE) break;
+			if ((c == 'y') || (c == 'n')) break;
+			if (c == '?') do_cmd_help();
+			else bell();
+		}
+
+		/* Set "wilderness" mode */
+		p_ptr->wilderness = !(c == 'n');
+
+		/* Clear */
+		clear_from(15);
+	}
 
 
 	/* Load the Artifacts */
 	rd_u16b(&tmp16u);
 
 	/* Incompatible save files */
-	if (tmp16u > MAX_A_IDX)
+	if (tmp16u > max_a_idx)
 	{
 		note(format("Too many (%u) artifacts!", tmp16u));
 		return (24);
@@ -2862,12 +3296,26 @@ static errr rd_savefile_new_aux(void)
 		return (21);
 	}
 
+	/* Read number of towns */
+	if (!z_older_than(2,1,3))
+	{
+		rd_u16b(&tmp16u);
+		town_count = tmp16u;
+	}
+	else
+	{
+		/* Only one town */
+		town_count = 2;
+	}
 
 	/* Read the stores */
 	rd_u16b(&tmp16u);
-	for (i = 0; i < tmp16u; i++)
+	for (i = 1; i < town_count; i++)
 	{
-		if (rd_store(i)) return (22);
+		for (j = 0; j < tmp16u; j++)
+		{
+			if (rd_store(i, j)) return (22);
+		}
 	}
 
 #if 0
@@ -2925,11 +3373,6 @@ static errr rd_savefile_new_aux(void)
 	}
 
 #endif
-
-
-	/* Hack -- no ghosts */
-	r_info[MAX_R_IDX-1].max_num = 0;
-
 
 	/* Success */
 	return (0);

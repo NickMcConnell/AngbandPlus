@@ -25,12 +25,12 @@
 #		  Needs 4OS2.
 #
 
-VERSION         = 279v5
+VERSION         = 283
 EXPORT          = angband-$(VERSION).os2.zip
 
 CC 		= gcc
 AR		= ar
-CFLAGS 		= -MMD -O3 -DUSE_EMX -Zmt 
+CFLAGS 		= -MMD -O3 -DUSE_EMX -Zmt
 LFLAGS 		= -lvideo 
 
 # Uncomment this if you have nice installed
@@ -71,7 +71,7 @@ OBJS = \
   store.o birth.o load1.o load2.o \
   wizard1.o wizard2.o \
   generate.o dungeon.o init1.o init2.o \
-  quest.o
+  bldg.o
 
 .c.o:
     $(NICE) $(CC) $(CFLAGS) -c $*.c
@@ -180,7 +180,7 @@ ECF=>> ..\startwnd.cmd
  $(EC) delay                                                            $(ECF)
  $(EC) angband %1 %2 %3 %4 %5 %6 %7 %8 %9                               $(ECF)
 
-angband.exe: angband.a main.o main-emx.o main-epm.o
+angband.exe: angband.a main.o main-emx.o
     $(CC) -o angband.exe main.o main-emx.o angband.a $(LFLAGS) 
 
 angband.a: $(OBJS)
@@ -192,8 +192,8 @@ aclient.exe: main-emx.c
 main-emx.o: main-emx.c
     $(NICE) $(CC) $(CFLAGS) -Wall -c main-emx.c -o main-emx.o
 
-main-epm.o: main-emx.c
-    $(NICE) $(CC) $(CFLAGS) -Wall -DEMXPM -c main-emx.c -o main-epm.o
+#main-epm.o: main-emx.c
+#    $(NICE) $(CC) $(CFLAGS) -Wall -DEMXPM -c main-emx.c -o main-epm.o
 
 # Forgive me :)
 ":-)":

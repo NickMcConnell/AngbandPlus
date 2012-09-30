@@ -1,0 +1,28 @@
+=== Historical Town View ===
+The town is composed of both stores and buildings. Stores:
+
+Magic Shop: get your wands and spellbooks here.
+Alchemist: for all sorts of bubbling potions and scrolls.
+Weaponsmith: they carry anything sharp and to the point.
+Armorer: to protect from the ravages of the dungeon.
+General Store: food, torches, the necessities.
+Temple Shop: prayerbooks and those items holy.
+Black Market: the prices are high, but item unique.
+Home: To store your precious treasures.
+Make sure you go into the correct door on some buildings.
+
+The Fighter's Hall, Order of Paladins, Ranger's Tavern, House of Thieves, and
+Tower of Illusion are restricted to those involved. The Tower of Sorcery is open
+for rogues and rangers to learn spells. The Temple is open for paladins.
+
+Unique buildings that anyone can enter, if they dare:
+Gambling House: Read the rules before paying. And, the games are not rigged,
+just naturally difficult.
+Library: For information of all kinds.
+Inn: Resting will refresh, and those ghosts prowl at night...
+Rumors can be helpful or just plain silly.
+All buildings are made of stone and unlikely to move around.
+
+This file is no longer 100% acurate for ZAngband 2.2.0.
+
+

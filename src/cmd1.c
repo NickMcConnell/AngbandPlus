@@ -541,6 +541,8 @@ void carry(int pickup)
 			msg_format("You collect %ld gold pieces worth of %s.",
 				   (long)o_ptr->pval, o_name);
 
+			sound(SOUND_SELL);
+
 			/* Collect the gold */
 			p_ptr->au += o_ptr->pval;
 
@@ -586,6 +588,7 @@ void carry(int pickup)
 				if (okay)
 				{
 					int slot;
+					int i;
 
 					/* Carry the item */
 					slot = inven_carry(o_ptr, FALSE);
@@ -598,6 +601,18 @@ void carry(int pickup)
 
 					/* Message */
 					msg_format("You have %s (%c).", o_name, index_to_label(slot));
+
+					/* Check if completed a quest */
+					for (i = 0; i < max_quests; i++)
+					{
+						if ((quest[i].type == 3) && (quest[i].status == 1) &&
+						    (quest[i].k_idx == o_ptr->name1))
+						{
+							quest[i].status = QUEST_STATUS_COMPLETED;
+							msg_print("You completed your quest!");
+							msg_print(NULL);
+						}
+					}
 
 					/* Delete the object */
 					delete_object_idx(this_o_idx);
@@ -671,7 +686,8 @@ static void hit_trap(void)
 			}
 			else
 			{
-				msg_print("You fell through a trap door!");
+				msg_print("You have fallen through a trap door!");
+				sound(SOUND_FALL);
 				dam = damroll(2, 8);
 				name = "a trap door";
 				take_hit(dam, name);
@@ -685,8 +701,10 @@ static void hit_trap(void)
 					is_autosave = FALSE;
 				}
 
-				new_level_flag = TRUE;
 				dun_level++;
+
+				/* Leaving */
+				p_ptr->leaving = TRUE;
 			}
 			break;
 		}
@@ -699,7 +717,7 @@ static void hit_trap(void)
 			}
 			else
 			{
-				msg_print("You fell into a pit!");
+				msg_print("You have fallen into a pit!");
 				dam = damroll(2, 6);
 				name = "a pit trap";
 				take_hit(dam, name);
@@ -793,7 +811,7 @@ static void hit_trap(void)
 			num = 2 + randint(3);
 			for (i = 0; i < num; i++)
 			{
-				(void)summon_specific(py, px, dun_level, 0);
+				(void)summon_specific(py, px, dun_level, 0, TRUE, FALSE, FALSE);
 			}
 
 			if (dun_level>randint(100)) /* No nasty effect for low levels */
@@ -964,6 +982,27 @@ void touch_zap_player(monster_type *m_ptr)
 		}
 	}
 
+	if (r_ptr->flags3 & (RF3_AURA_COLD))
+	{
+		if (!(p_ptr->immune_cold))
+		{
+			char aura_dam[80];
+
+			aura_damage = damroll(1 + (r_ptr->level / 26), 1 + (r_ptr->level / 17));
+
+			/* Hack -- Get the "died from" name */
+			monster_desc(aura_dam, m_ptr, 0x88);
+
+			msg_print("You are suddenly very cold!");
+
+			if (p_ptr->oppose_cold) aura_damage = (aura_damage+2) / 3;
+			if (p_ptr->resist_cold) aura_damage = (aura_damage+2) / 3;
+
+			take_hit(aura_damage, aura_dam);
+			r_ptr->r_flags3 |= RF3_AURA_COLD;
+			handle_stuff();
+		}
+	}
 
 	if (r_ptr->flags2 & (RF2_AURA_ELEC))
 	{
@@ -1002,27 +1041,39 @@ static void natural_attack(s16b m_idx, int attack, bool *fear, bool *mdeath)
 
 	switch (attack)
 	{
-		case MUT2_SCOR_TAIL:
-			dss = 3;
-			ddd = 7;
-			n_weight = 5;
-			atk_desc = "tail";
-			break;
-		case MUT2_HORNS:
-			dss = 2;
-			ddd = 6;
-			n_weight = 15;
-			atk_desc = "horns";
-			break;
-		case MUT2_BEAK:
-			dss = 2;
-			ddd = 4;
-			n_weight = 5;
-			atk_desc = "beak";
-			break;
-		default:
-			dss = ddd = n_weight = 1;
-			atk_desc = "undefined body part";
+	case MUT2_SCOR_TAIL:
+		dss = 3;
+		ddd = 7;
+		n_weight = 5;
+		atk_desc = "tail";
+		break;
+	case MUT2_HORNS:
+		dss = 2;
+		ddd = 6;
+		n_weight = 15;
+		atk_desc = "horns";
+		break;
+	case MUT2_BEAK:
+		dss = 2;
+		ddd = 4;
+		n_weight = 5;
+		atk_desc = "beak";
+		break;
+	case MUT2_TRUNK:
+		dss = 1;
+		ddd = 4;
+		n_weight = 35;
+		atk_desc = "trunk";
+		break;
+	case MUT2_TENTACLES:
+		dss = 2;
+		ddd = 5;
+		n_weight = 5;
+		atk_desc = "tentacles";
+		break;
+	default:
+		dss = ddd = n_weight = 1;
+		atk_desc = "undefined body part";
 	}
 
 	/* Extract monster name (or "it") */
@@ -1056,17 +1107,33 @@ static void natural_attack(s16b m_idx, int attack, bool *fear, bool *mdeath)
 			msg_format("You do %d (out of %d) damage.", k, m_ptr->hp);
 		}
 
-		if (m_ptr->smart & SM_FRIEND)
+		if (!is_hostile(m_ptr))
 		{
 			msg_format("%^s gets angry!", m_name);
-			m_ptr->smart &= ~SM_FRIEND;
+			set_hostile(m_ptr);
 		}
 
 		/* Damage, check for fear and mdeath */
-		if (!(attack == MUT2_SCOR_TAIL))
-			*mdeath = mon_take_hit(m_idx, k, fear, NULL);
-		else
+		switch (attack)
+		{
+		case MUT2_SCOR_TAIL:
 			project(0, 0, m_ptr->fy, m_ptr->fx, k, GF_POIS, PROJECT_KILL);
+			break;
+		case MUT2_HORNS:
+			*mdeath = mon_take_hit(m_idx, k, fear, NULL);
+			break;
+		case MUT2_BEAK:
+			*mdeath = mon_take_hit(m_idx, k, fear, NULL);
+			break;
+		case MUT2_TRUNK:
+			*mdeath = mon_take_hit(m_idx, k, fear, NULL);
+			break;
+		case MUT2_TENTACLES:
+			project(0, 0, m_ptr->fy, m_ptr->fx, k, GF_HELL_FIRE, PROJECT_KILL);
+			break;
+		default:
+			*mdeath = mon_take_hit(m_idx, k, fear, NULL);
+		}
 
 		touch_zap_player(m_ptr);
 	}
@@ -1105,7 +1172,9 @@ void py_attack(int y, int x)
 	bool            fear = FALSE;
 	bool            mdeath = FALSE;
 
-	bool            backstab = FALSE, vorpal_cut = FALSE, chaos_effect = FALSE;
+	bool            backstab = FALSE;
+	bool            vorpal_cut = FALSE;
+	int             chaos_effect = 0;
 	bool            stab_fleeing = FALSE;
 	bool            do_quake = FALSE;
 	bool            drain_msg = TRUE;
@@ -1146,7 +1215,7 @@ void py_attack(int y, int x)
 	if (m_ptr->ml) health_track(c_ptr->m_idx);
 
 	/* Stop if friendly */
-	if (m_ptr->smart & SM_FRIEND &&
+	if (!is_hostile(m_ptr) &&
 	    ! (p_ptr->stun || p_ptr->confused || p_ptr->image ||
 	    ((p_ptr->muta2 & MUT2_BERS_RAGE) && p_ptr->shero) ||
 	    !(m_ptr->ml)))
@@ -1216,15 +1285,39 @@ void py_attack(int y, int x)
 
 			object_flags(o_ptr, &f1, &f2, &f3);
 
+			/* Select a chaotic effect (50% chance) */
 			if ((f1 & TR1_CHAOTIC) && (randint(2)==1))
-				chaos_effect = TRUE;
-			else
-				chaos_effect = FALSE;
-
-			if ((f1 & TR1_VAMPIRIC) || (chaos_effect && (randint(5)<3)))
-			/* Prepare for drain... */
 			{
-				chaos_effect = FALSE;
+				if (randint(5) < 3)
+				{
+					/* Vampiric (20%) */
+					chaos_effect = 1;
+				}
+			    else if (randint(250) == 1)
+				{
+					/* Quake (0.12%) */
+					chaos_effect = 2;
+				}
+				else if (randint(10) != 1)
+				{
+					/* Confusion (26.892%) */
+					chaos_effect = 3;
+				}
+				else if (randint(2) == 1)
+				{
+					/* Teleport away (1.494%) */
+					chaos_effect = 4;
+				}
+				else
+				{
+					/* Polymorph (1.494%) */
+					chaos_effect = 5;
+				}
+			}
+
+			/* Vampiric drain */
+			if ((f1 & TR1_VAMPIRIC) || (chaos_effect == 1))
+			{
 				if (!((r_ptr->flags3 & RF3_UNDEAD) || (r_ptr->flags3 & RF3_NONLIVING)))
 					drain_result = m_ptr->hp;
 				else
@@ -1280,6 +1373,7 @@ void py_attack(int y, int x)
 					if (r_ptr->flags1 & RF1_MALE)
 					{
 						msg_format("You hit %s in the groin with your knee!", m_name);
+						sound(SOUND_PAIN);
 						special_effect = MA_KNEE;
 					}
 					else
@@ -1357,10 +1451,9 @@ void py_attack(int y, int x)
 				}
 
 				if ((p_ptr->impact && ((k > 50) || randint(7)==1)) ||
-				    (chaos_effect && (randint(250)==1)))
+				    (chaos_effect == 2))
 				{
 					do_quake = TRUE;
-					chaos_effect = FALSE;
 				}
 
 				k = critical_norm(o_ptr->weight, o_ptr->to_h, k);
@@ -1409,10 +1502,10 @@ void py_attack(int y, int x)
 				break;
 			}
 
-			if (m_ptr->smart & SM_FRIEND)
+			if (!is_hostile(m_ptr))
 			{
 				msg_format("%^s gets angry!", m_name);
-				m_ptr->smart &= ~SM_FRIEND;
+				set_hostile(m_ptr);
 			}
 
 			touch_zap_player(m_ptr);
@@ -1458,15 +1551,14 @@ void py_attack(int y, int x)
 			}
 
 			/* Confusion attack */
-			if ((p_ptr->confusing) || (chaos_effect && (randint(10)!=1)))
+			if ((p_ptr->confusing) || (chaos_effect == 3))
 			{
 				/* Cancel glowing hands */
-				p_ptr->confusing = FALSE;
-
-				/* Message */
-				if (!chaos_effect)
+				if (p_ptr->confusing)
+				{
+					p_ptr->confusing = FALSE;
 					msg_print("Your hands stop glowing.");
-				else chaos_effect = FALSE;
+				}
 
 				/* Confuse the monster */
 				if (r_ptr->flags3 & (RF3_NO_CONF))
@@ -1489,16 +1581,15 @@ void py_attack(int y, int x)
 				}
 			}
 
-			else if (chaos_effect && (randint(2)==1))
+			else if (chaos_effect == 4)
 			{
-				chaos_effect = FALSE;
 				msg_format("%^s disappears!", m_name);
 				teleport_away(c_ptr->m_idx, 50);
 				num = p_ptr->num_blow + 1; /* Can't hit it anymore! */
 				no_extra = TRUE;
 			}
 
-			else if (chaos_effect && cave_floor_bold(y,x)
+			else if ((chaos_effect == 5) && cave_floor_bold(y,x)
 			    && (randint(90) > r_ptr->level))
 			{
 				if (!((r_ptr->flags1 & RF1_UNIQUE) ||
@@ -1506,7 +1597,6 @@ void py_attack(int y, int x)
 				      (r_ptr->flags1 & RF1_QUESTOR)))
 				{
 					int tmp = poly_r_idx(m_ptr->r_idx);
-					chaos_effect = FALSE;
 
 					/* Pick a "new" monster race */
 
@@ -1519,7 +1609,7 @@ void py_attack(int y, int x)
 						delete_monster_idx(c_ptr->m_idx);
 
 						/* Create a new monster (no groups) */
-						(void)place_monster_aux(y, x, tmp, FALSE, FALSE, FALSE);
+						(void)place_monster_aux(y, x, tmp, FALSE, FALSE, FALSE, FALSE);
 
 						/* XXX XXX XXX Hack -- Assume success */
 
@@ -1556,7 +1646,6 @@ void py_attack(int y, int x)
 
 
 	/* Mutations which yield extra 'natural' attacks */
-
 	if (!no_extra)
 	{
 		if (p_ptr->muta2 & MUT2_HORNS && !mdeath)
@@ -1565,6 +1654,10 @@ void py_attack(int y, int x)
 			natural_attack(c_ptr->m_idx, MUT2_BEAK, &fear, &mdeath);
 		if (p_ptr->muta2 & MUT2_SCOR_TAIL && !mdeath)
 			natural_attack(c_ptr->m_idx, MUT2_SCOR_TAIL, &fear, &mdeath);
+		if (p_ptr->muta2 & MUT2_TRUNK && !mdeath)
+			natural_attack(c_ptr->m_idx, MUT2_TRUNK, &fear, &mdeath);
+		if (p_ptr->muta2 & MUT2_TENTACLES && !mdeath)
+			natural_attack(c_ptr->m_idx, MUT2_TENTACLES, &fear, &mdeath);
 	}
 
 	/* Hack -- delay fear messages */
@@ -1578,18 +1671,24 @@ void py_attack(int y, int x)
 	}
 
 	/* Mega-Hack -- apply earthquake brand */
-	if (do_quake) earthquake(py, px, 10);
+	if (do_quake)
+	{
+		/* Prevent destruction of quest levels and town */
+		if (!is_quest(dun_level) && dun_level)
+			earthquake(py, px, 10);
+	}
 }
 
 
 
-static bool pattern_tile(byte y, byte x)
+static bool pattern_tile(int y, int x)
 {
 	return ((cave[y][x].feat <= FEAT_PATTERN_XTRA2) &&
 	    (cave[y][x].feat >= FEAT_PATTERN_START));
 }
 
-static bool pattern_seq(c_y, c_x, n_y, n_x)
+
+static bool pattern_seq(int c_y, int c_x, int n_y, int n_x)
 {
 	if (!(pattern_tile(c_y, c_x)) && !(pattern_tile(n_y, n_x)))
 		return TRUE;
@@ -1698,6 +1797,93 @@ static bool pattern_seq(c_y, c_x, n_y, n_x)
 
 
 
+bool player_can_enter(byte feature)
+{
+	bool pass_wall;
+
+	/* Player can not walk through "walls" unless in Shadow Form */
+	if ((p_ptr->wraith_form) || (p_ptr->prace == RACE_SPECTRE))
+		pass_wall = TRUE;
+	else
+		pass_wall = FALSE;
+
+	
+	switch (feature)
+	{
+		case FEAT_DEEP_WATER:
+			{
+				int wt = (adj_str_wgt[p_ptr->stat_ind[A_STR]] * 100) / 2;
+				if ((total_weight < wt) || (p_ptr->ffall))
+					return (TRUE);
+				else
+					return (FALSE);
+			}
+
+		case FEAT_SHAL_LAVA:
+			{
+				if ((p_ptr->resist_fire) ||
+					(p_ptr->immune_fire) || 
+					(p_ptr->oppose_fire) ||
+					(p_ptr->ffall))
+					return (TRUE);
+				else
+					return (FALSE);
+			}
+
+		case FEAT_DEEP_LAVA:
+			{
+				if (p_ptr->ffall &&
+				  ((p_ptr->resist_fire) ||
+				   (p_ptr->oppose_fire) ||
+				   (p_ptr->immune_fire)))
+					return (TRUE);
+				else
+					return (FALSE);
+			}
+
+		case FEAT_DARK_PIT:
+			{
+				if (p_ptr->ffall)
+					return (TRUE);
+				else
+					return (FALSE);
+			}
+
+		case FEAT_TREES:
+			{
+				return (TRUE);
+			}
+
+		case FEAT_RUBBLE:
+		case FEAT_MAGMA:
+		case FEAT_QUARTZ:
+		case FEAT_MAGMA_H:
+		case FEAT_QUARTZ_H:
+		case FEAT_MAGMA_K:
+		case FEAT_QUARTZ_K:
+		case FEAT_WALL_EXTRA:
+		case FEAT_WALL_INNER:
+		case FEAT_WALL_OUTER:
+		case FEAT_WALL_SOLID:
+			{
+				return (pass_wall);
+			}
+
+		case FEAT_MOUNTAIN:
+		case FEAT_PERM_EXTRA:
+		case FEAT_PERM_INNER:
+		case FEAT_PERM_OUTER:
+		case FEAT_PERM_SOLID:
+			{
+				return (FALSE);
+			}
+
+	}
+
+	return (TRUE);
+}
+
+
 /*
  * Move player in the given direction, with the given "pickup" flag.
  *
@@ -1717,8 +1903,9 @@ void move_player(int dir, int do_pickup)
 	char m_name[80];
 
 	bool p_can_pass_walls = FALSE;
-	bool wall_is_perma = FALSE;
 	bool stormbringer = FALSE;
+
+	bool oktomove = TRUE;
 
 	/* Find the result of moving */
 	y = py + ddy[dir];
@@ -1726,6 +1913,82 @@ void move_player(int dir, int do_pickup)
 
 	/* Examine the destination */
 	c_ptr = &cave[y][x];
+
+	/* Exit the area */
+	if ((!dun_level) &&
+		((x == 0) || (x == cur_wid-1) ||
+		 (y == 0) || (y == cur_hgt-1)))
+	{
+		/* Can the player enter the grid? */
+		if (player_can_enter(c_ptr->mimic))
+		{
+			/* Hack: move to new area */
+			if ((y == 0) && (x == 0))
+			{
+				p_ptr->wilderness_y--;
+				p_ptr->wilderness_x--;
+				p_ptr->oldpy = cur_hgt - 2;
+				p_ptr->oldpx = cur_wid - 2;
+			}
+
+			else if ((y == 0) && (x == MAX_WID-1))
+			{
+				p_ptr->wilderness_y--;
+				p_ptr->wilderness_x++;
+				p_ptr->oldpy = cur_hgt - 2;
+				p_ptr->oldpx = 1;
+			}
+
+			else if ((y == MAX_HGT-1) && (x == 0))
+			{
+				p_ptr->wilderness_y++;
+				p_ptr->wilderness_x--;
+				p_ptr->oldpy = 1;
+				p_ptr->oldpx = cur_wid - 2;
+			}
+
+			else if ((y == MAX_HGT-1) && (x == MAX_WID-1))
+			{
+				p_ptr->wilderness_y++;
+				p_ptr->wilderness_x++;
+				p_ptr->oldpy = 1;
+				p_ptr->oldpx = 1;
+			}
+
+			else if (y == 0)
+			{
+				p_ptr->wilderness_y--;
+				p_ptr->oldpy = cur_hgt - 2;
+				p_ptr->oldpx = x;
+			}
+
+			else if (y == cur_hgt-1) 
+			{
+				p_ptr->wilderness_y++;
+				p_ptr->oldpy = 1;
+				p_ptr->oldpx = x;
+			}
+
+			else if (x == 0) 
+			{
+				p_ptr->wilderness_x--;
+				p_ptr->oldpx = cur_wid - 2;
+				p_ptr->oldpy = y;
+			}
+
+			else if (x == cur_wid-1) 
+			{
+				p_ptr->wilderness_x++;
+				p_ptr->oldpx = 1;
+				p_ptr->oldpy = y;
+			}
+
+			p_ptr->leftbldg = TRUE;
+			p_ptr->leaving = TRUE;
+
+			return;
+		}
+	}
 
 	/* Get the monster */
 	m_ptr = &m_list[c_ptr->m_idx];
@@ -1744,7 +2007,6 @@ void move_player(int dir, int do_pickup)
 	if ((cave[y][x].feat >= FEAT_PERM_EXTRA) &&
 	    (cave[y][x].feat <= FEAT_PERM_SOLID))
 	{
-		wall_is_perma = TRUE;
 		p_can_pass_walls = FALSE;
 	}
 
@@ -1753,7 +2015,7 @@ void move_player(int dir, int do_pickup)
 	{
 
 		/* Attack -- only if we can see it OR it is not in a wall */
-		if ((m_ptr->smart & SM_FRIEND) &&
+		if (!is_hostile(m_ptr) &&
 		    !(p_ptr->confused || p_ptr->image || !(m_ptr->ml) || p_ptr->stun ||
 		    ((p_ptr->muta2 & MUT2_BERS_RAGE) && p_ptr->shero)) &&
 		    (pattern_seq(py, px, y, x)) &&
@@ -1771,7 +2033,7 @@ void move_player(int dir, int do_pickup)
 			if (m_ptr->ml) health_track(c_ptr->m_idx);
 
 			/* displace? */
-			if ( stormbringer && (randint(1000)>666))
+			if (stormbringer && (randint(1000) > 666))
 			{
 				py_attack(y,x);
 			}
@@ -1789,7 +2051,7 @@ void move_player(int dir, int do_pickup)
 			{
 				msg_format("%^s is in your way!", m_name);
 				energy_use = 0;
-				return;
+				oktomove = FALSE;
 			}
 
 			/* now continue on to 'movement' */
@@ -1797,18 +2059,108 @@ void move_player(int dir, int do_pickup)
 		else
 		{
 			py_attack(y, x);
-			return;
+			oktomove = FALSE;
 		}
 	}
 
-	/* Player can not walk through "walls" unless in wraith form...*/
-	if ((!cave_floor_bold(y, x)) && (!p_can_pass_walls))
+#if 0
+	else if (c_ptr->feat == FEAT_DEEP_WATER)
 	{
+		wt = (adj_str_wgt[p_ptr->stat_ind[A_STR]] * 100) / 2;
+		if ((total_weight < wt) || (p_ptr->ffall))
+			oktomove = TRUE;
+		else
+		{
+			msg_print("You can't swim with that much weight!");
+			running = 0;
+			oktomove = FALSE;
+		}
+	}
+
+	else if (c_ptr->feat == FEAT_SHAL_LAVA)
+	{
+		if ((p_ptr->resist_fire) || (p_ptr->immune_fire) || 
+		    (p_ptr->oppose_fire) || (p_ptr->ffall))
+			oktomove = TRUE;
+		else
+		{
+			msg_print("The lava is too hot!");
+			running = 0;
+			oktomove = FALSE;
+		}
+	}
+
+	else if ((c_ptr->feat == FEAT_DEEP_LAVA) && !p_ptr->ffall)
+	{
+		msg_print("The lava is too hot!");
+		running = 0;
+		oktomove = FALSE;
+	}
+
+	else if ((c_ptr->feat == FEAT_DEEP_LAVA) && p_ptr->ffall && 
+	    !((p_ptr->resist_fire) || (p_ptr->oppose_fire) || 
+	    (p_ptr->immune_fire)))
+	{
+		msg_print("The heat is too intense to move over it.");
+		running = 0;
+		oktomove = FALSE;
+	}
+#endif
+
+	else if ((c_ptr->feat == FEAT_DARK_PIT) && !p_ptr->ffall)
+	{
+		msg_print("You can't cross the chasm.");
+		running = 0;
+		oktomove = FALSE;
+	}
+
+	else if (c_ptr->feat == FEAT_MOUNTAIN)
+	{
+		msg_print("You can't climb the mountains!");
+		running = 0;
+		oktomove = FALSE;
+	}
+	/*
+	 * Player can move through trees and
+	 * has effective -10 speed
+	 * Rangers can move without penality
+	 */
+	else if (c_ptr->feat == FEAT_TREES)
+	{
+		oktomove = TRUE;
+		if (p_ptr->pclass != CLASS_RANGER) energy_use += 10;
+	}
+
+	else if ((c_ptr->feat >= FEAT_QUEST_ENTER) &&
+		(c_ptr->feat <= FEAT_QUEST_EXIT))
+	{
+		oktomove = TRUE;
+	}
+
+#ifdef ALLOW_EASY_DISARM /* TNB */
+
+	/* Disarm a visible trap */
+	else if ((do_pickup != easy_disarm) &&
+		(c_ptr->feat >= FEAT_TRAP_HEAD) &&
+		(c_ptr->feat <= FEAT_TRAP_TAIL))
+	{
+		(void) do_cmd_disarm_aux(y, x, dir);
+		return;
+	}
+
+#endif /* ALLOW_EASY_DISARM -- TNB */
+
+	/* Player can not walk through "walls" unless in wraith form...*/
+	else if ((!cave_floor_bold(y, x)) &&
+		(!p_can_pass_walls))
+	{
+		oktomove = FALSE;
+
 		/* Disturb the player */
 		disturb(0, 0);
 
 		/* Notice things in the dark */
-		if (!(c_ptr->info & (CAVE_MARK)) &&
+		if ((!(c_ptr->info & (CAVE_MARK))) &&
 		    (p_ptr->blind || !(c_ptr->info & (CAVE_LITE))))
 		{
 			/* Rubble */
@@ -1853,14 +2205,25 @@ void move_player(int dir, int do_pickup)
 				 * typing mistakes should not cost you a turn...
 				 */
 			}
-
 			/* Closed doors */
 			else if (c_ptr->feat < FEAT_SECRET)
 			{
-				msg_print("There is a closed door blocking your way.");
+#ifdef ALLOW_EASY_OPEN
 
-				if (!(p_ptr->confused || p_ptr->stun || p_ptr->image))
-					energy_use = 0;
+				if (easy_open)
+				{
+					if (easy_open_door(y, x)) return;
+				}
+				else
+
+#endif /* ALLOW_EASY_OPEN */
+
+				{
+					msg_print("There is a closed door blocking your way.");
+
+					if (!(p_ptr->confused || p_ptr->stun || p_ptr->image))
+						energy_use = 0;
+				}
 			}
 
 			/* Wall (or secret door) */
@@ -1875,7 +2238,6 @@ void move_player(int dir, int do_pickup)
 
 		/* Sound */
 		sound(SOUND_HITWALL);
-		return;
 	}
 
 	/* Normal movement */
@@ -1887,9 +2249,12 @@ void move_player(int dir, int do_pickup)
 		}
 
 		disturb(0,0); /* To avoid a loop with running */
-		return;
+
+		oktomove = FALSE;
 	}
-	/*    else */
+
+	/* Normal movement */
+	if (oktomove)
 	{
 		int oy, ox;
 
@@ -1937,7 +2302,15 @@ void move_player(int dir, int do_pickup)
 		}
 
 		/* Handle "objects" */
+#ifdef ALLOW_EASY_DISARM /* TNB */
+
+		carry(do_pickup != always_pickup);
+
+#else /* ALLOW_EASY_DISARM -- TNB */
+
 		carry(do_pickup);
+
+#endif /* ALLOW_EASY_DISARM -- TNB */
 
 		/* Handle "store doors" */
 		if ((c_ptr->feat >= FEAT_SHOP_HEAD) &&
@@ -1948,6 +2321,44 @@ void move_player(int dir, int do_pickup)
 
 			/* Hack -- Enter store */
 			command_new = '_';
+		}
+
+		/* Handle "building doors" -KMW- */
+		else if ((c_ptr->feat >= FEAT_BLDG_HEAD) &&
+		    (c_ptr->feat <= FEAT_BLDG_TAIL))
+		{
+			/* Disturb */
+			disturb(0, 0);
+
+			/* Hack -- Enter building */
+			command_new = ']';
+		}
+
+		/* Handle quest areas -KMW- */
+		else if (cave[y][x].feat == FEAT_QUEST_ENTER) 
+		{
+			/* Disturb */
+			disturb(0, 0);
+
+			/* Hack -- Enter quest level */
+			command_new = '[';
+		}
+
+		else if (cave[y][x].feat == FEAT_QUEST_EXIT)
+		{
+			if (quest[p_ptr->inside_quest].type == 4)
+			{
+				quest[p_ptr->inside_quest].status = QUEST_STATUS_COMPLETED;
+				msg_print("You accomplished your quest!");
+				msg_print(NULL);
+			}
+
+			leaving_quest = p_ptr->inside_quest;
+			p_ptr->inside_quest = cave[y][x].special;
+			dun_level = 0;
+			p_ptr->oldpx = 0;
+			p_ptr->oldpy = 0;
+			p_ptr->leaving = TRUE;
 		}
 
 		/* Discover invisible traps */
@@ -1981,7 +2392,7 @@ void move_player(int dir, int do_pickup)
 
 
 /*
- * Hack -- Check for a "motion blocker" (see below)
+ * Hack -- Check for a "known wall" (see below)
  */
 static int see_wall(int dir, int y, int x)
 {
@@ -1989,11 +2400,20 @@ static int see_wall(int dir, int y, int x)
 	y += ddy[dir];
 	x += ddx[dir];
 
-	/* Illegal grids are blank */
+	/* Illegal grids are not known walls */
 	if (!in_bounds2(y, x)) return (FALSE);
 
-	/* Must be a motion blocker */
-	if (cave_floor_bold(y, x)) return (FALSE);
+	/* Non-wall grids are not known walls */
+	if (cave[y][x].feat < FEAT_SECRET) return (FALSE);
+
+	if ((cave[y][x].feat >= FEAT_DEEP_WATER) &&
+	    (cave[y][x].feat <= FEAT_GRASS)) return (FALSE);
+
+	if ((cave[y][x].feat >= FEAT_SHOP_HEAD) &&
+	    (cave[y][x].feat <= FEAT_SHOP_TAIL)) return (FALSE);
+
+	if ((cave[y][x].feat >= FEAT_BLDG_HEAD) &&
+	    (cave[y][x].feat <= FEAT_BLDG_TAIL)) return (FALSE);
 
 	/* Must be known to the player */
 	if (!(cave[y][x].info & (CAVE_MARK))) return (FALSE);
@@ -2307,18 +2727,11 @@ static void run_init(int dir)
  */
 static bool run_test(void)
 {
-	int                     prev_dir, new_dir, check_dir = 0;
-
-	int                     row, col;
-	int                     i, max, inv;
-	int                     option, option2;
-
-	cave_type               *c_ptr;
-
-
-	/* No options yet */
-	option = 0;
-	option2 = 0;
+	int         prev_dir, new_dir, check_dir = 0;
+	int         row, col;
+	int         i, max, inv;
+	int         option = 0, option2 = 0;
+	cave_type   *c_ptr;
 
 	/* Where we came from */
 	prev_dir = find_prevdir;
@@ -2407,9 +2820,46 @@ static bool run_test(void)
 				case FEAT_PERM_INNER:
 				case FEAT_PERM_OUTER:
 				case FEAT_PERM_SOLID:
+				/* dirt, grass, trees, ... */
+				case FEAT_SHAL_WATER:
+				case FEAT_DIRT:
+				case FEAT_GRASS:
+				case FEAT_DARK_PIT:
+				case FEAT_TREES:
+				case FEAT_MOUNTAIN:
 				{
 					/* Ignore */
 					notice = FALSE;
+
+					/* Done */
+					break;
+				}
+
+				/* quest features */
+				case FEAT_QUEST_ENTER:
+				case FEAT_QUEST_EXIT:
+				{
+					/* Notice */
+					notice = TRUE;
+
+					/* Done */
+					break;
+				}
+
+				case FEAT_DEEP_LAVA:
+				case FEAT_SHAL_LAVA:
+				{
+					/* Ignore */
+					if (p_ptr->invuln || p_ptr->immune_fire) notice = FALSE;
+
+					/* Done */
+					break;
+				}
+
+				case FEAT_DEEP_WATER:
+				{
+					/* Ignore */
+					if (p_ptr->ffall) notice = FALSE;
 
 					/* Done */
 					break;
@@ -2524,7 +2974,11 @@ static bool run_test(void)
 			c_ptr = &cave[row][col];
 
 			/* Unknown grid or non-wall XXX XXX XXX cave_floor_grid(c_ptr)) */
-			if (!(c_ptr->info & (CAVE_MARK)) || (c_ptr->feat < FEAT_SECRET))
+			if (!(c_ptr->info & (CAVE_MARK)) ||
+			    ((c_ptr->feat < FEAT_SECRET) ||
+			    ((c_ptr->feat >= FEAT_DEEP_WATER) &&
+				 (c_ptr->feat <= FEAT_GRASS))))
+
 			{
 				/* Looking to break right */
 				if (find_breakright)
@@ -2556,7 +3010,11 @@ static bool run_test(void)
 			c_ptr = &cave[row][col];
 
 			/* Unknown grid or non-wall XXX XXX XXX cave_floor_grid(c_ptr)) */
-			if (!(c_ptr->info & (CAVE_MARK)) || (c_ptr->feat < FEAT_SECRET))
+			if (!(c_ptr->info & (CAVE_MARK)) ||
+			    ((c_ptr->feat < FEAT_SECRET) ||
+			    ((c_ptr->feat >= FEAT_DEEP_WATER) &&
+				 (c_ptr->feat <= FEAT_GRASS))))
+
 			{
 				/* Looking to break left */
 				if (find_breakleft)
@@ -2676,7 +3134,8 @@ void run_step(int dir)
 	if (dir)
 	{
 		/* Hack -- do not start silly run */
-		if (see_wall(dir, py, px))
+		if (see_wall(dir, py, px) &&
+		   (cave[py+ddy[dir]][px+ddx[dir]].feat != FEAT_TREES))
 		{
 			/* Message */
 			msg_print("You cannot run in that direction.");
@@ -2716,7 +3175,13 @@ void run_step(int dir)
 	energy_use = 100;
 
 	/* Move the player, using the "pickup" flag */
+#ifdef ALLOW_EASY_DISARM /* TNB */
+
+	move_player(find_current, FALSE);
+
+#else /* ALLOW_EASY_DISARM -- TNB */
+
 	move_player(find_current, always_pickup);
+
+#endif /* ALLOW_EASY_DISARM -- TNB */
 }
-
-

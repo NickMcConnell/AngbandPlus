@@ -34,7 +34,7 @@ programmers:
 
         Greg Wooledge, who pointed out a bug in the dos compiler,
         which was preventing my progress with the first 2.* version
-        of Zangband.
+        of Zangband and for various patches.
 
         Julian Lighton, who must have sent me more ideas, patches, and
         bug reports, than all the others toghether.
@@ -51,8 +51,20 @@ programmers:
 
 	Adam Bolt, who created the new ZAngband tiles.
 
-	Benny S. Hoffman, Aram Harrow, Greg Harvey, and many others
-	for bugreports, patches, bugfixes, and ideas.
+	Scott Bigham, for the S-Lang patch.
+
+	Jeff Duprey for the new mutations.	
+
+	John Duffin and Leigh Silas Hanrihan for the new items.
+
+	Marten Woxberg for many new ideas.
+
+	Benny S. Hofmann, Aram Harrow, Greg Harvey, Keldon Jones,
+	Graham Murray, Remco Gerlich, Tim Baker, Oscar Nelson,
+	Adam Horowitz, David A. Henry, "Strikes", Chris Hadgis,
+	David Howdon, Jenni Henzel, Stephen Lee, "John",
+	Gwidon S. Naskrent, Eric Wright, Bob Martin, and many
+	others for bugreports, patches, bugfixes, and ideas.
 
 
 ZAngband 2.1.0c was Topi's last version, he has got a job and and

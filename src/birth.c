@@ -22,6 +22,11 @@
 #define AUTOROLLER_STEP 25L
 
 /*
+ * Maximum number of tries for selection of a proper quest monster
+ */
+#define MAX_TRIES 100
+
+/*
  * Forward declare
  */
 typedef struct birther birther;
@@ -608,7 +613,7 @@ byte choose_realm(byte choices)
 
 /* Hack: Allow priests to specialize in Life or Death magic */
 
-	if ((choices & CH_LIFE) && p_ptr->realm1 != 1)
+	if ((choices & CH_LIFE) && (p_ptr->realm1 != REALM_LIFE))
 	{
 		sprintf(buf, "%c%c %s", I2A(n), p2, "Life");
 		put_str(buf, 21 + (n/5), 2 + 15 * (n%5));
@@ -618,7 +623,7 @@ byte choose_realm(byte choices)
 
 
 
-	if ((choices & CH_SORCERY) && p_ptr->realm1 != 2)
+	if ((choices & CH_SORCERY) && (p_ptr->realm1 != REALM_SORCERY))
 	{
 		sprintf(buf, "%c%c %s", I2A(n), p2, "Sorcery");
 		put_str(buf, 21 + (n/5), 2 + 15 * (n%5));
@@ -626,7 +631,7 @@ byte choose_realm(byte choices)
 		n++;
 	}
 
-	if ((choices & CH_ARCANE) && p_ptr->realm1 != 7)
+	if ((choices & CH_ARCANE) && (p_ptr->realm1 != REALM_ARCANE))
 	{
 		sprintf(buf, "%c%c %s", I2A(n), p2, "Arcane");
 		put_str(buf, 21 + (n/5), 2 + 15 * (n%5));
@@ -635,7 +640,7 @@ byte choose_realm(byte choices)
 	}
 
 
-	if ((choices & CH_TRUMP) && p_ptr->realm1 != 6)
+	if ((choices & CH_TRUMP) && (p_ptr->realm1 != REALM_TRUMP))
 	{
 		sprintf(buf, "%c%c %s", I2A(n), p2, "Trump");
 		put_str(buf, 21 + (n/5), 2 + 15 * (n%5));
@@ -643,7 +648,7 @@ byte choose_realm(byte choices)
 		n++;
 	}
 
-	if ((choices & CH_NATURE) && p_ptr->realm1 != 3)
+	if ((choices & CH_NATURE) && (p_ptr->realm1 != REALM_NATURE))
 	{
 		sprintf(buf, "%c%c %s", I2A(n), p2, "Nature");
 		put_str(buf, 21 + (n/5), 2 + 15 * (n%5));
@@ -651,7 +656,7 @@ byte choose_realm(byte choices)
 		n++;
 	}
 
-	if ((choices & CH_CHAOS) && p_ptr->realm1 != 4)
+	if ((choices & CH_CHAOS) && (p_ptr->realm1 != REALM_CHAOS))
 	{
 		sprintf(buf, "%c%c %s", I2A(n), p2, "Chaos");
 		put_str(buf, 21 + (n/5), 2 + 15 * (n%5));
@@ -659,7 +664,7 @@ byte choose_realm(byte choices)
 		n++;
 	}
 
-	if ((choices & CH_DEATH) && p_ptr->realm1 != 5)
+	if ((choices & CH_DEATH) && (p_ptr->realm1 != REALM_DEATH))
 	{
 		sprintf(buf, "%c%c %s", I2A(n), p2, "Death");
 		put_str(buf, 21 + (n/5), 2 + 15 * (n%5));
@@ -670,30 +675,34 @@ byte choose_realm(byte choices)
 	/* Get a class */
 	while (1)
 	{
-		sprintf(buf, "Choose a realm (%c-%c): ", I2A(0), I2A(n-1));
+		sprintf(buf, "Choose a realm (%c-%c), or * for random: ", I2A(0), I2A(n-1));
 		put_str(buf, 20, 2);
 		c = inkey();
 		if (c == 'Q') quit(NULL);
+		if (c == '*')
+		{
+			k = randint(n) - 1;
+			break;
+		}
 		k = (islower(c) ? A2I(c) : -1);
 		if ((k >= 0) && (k < n)) break;
-		if (c == '?') do_cmd_help("help.hlp");
+		if (c == '?') do_cmd_help();
 		else bell();
 	}
 
 
 	/* Clean up */
-
 	clear_from(15);
 
 	return (picks[k]);
 }
 
-void get_realms()
+static void get_realms()
 {
-	int pclas=p_ptr->pclass;
+	int pclas = p_ptr->pclass;
 
 	/* First we have null realms */
-	p_ptr->realm1=p_ptr->realm2=0;
+	p_ptr->realm1 = p_ptr->realm2 = REALM_NONE;
 
 	/* Warriors and certain others get no realms */
 
@@ -704,27 +713,27 @@ void get_realms()
 	switch (pclas)
 	{
 	case CLASS_WARRIOR_MAGE:
-		p_ptr->realm1 = 7;
+		p_ptr->realm1 = REALM_ARCANE;
 		break;
 	case CLASS_CHAOS_WARRIOR:
-		p_ptr->realm1 = 4;
+		p_ptr->realm1 = REALM_CHAOS;
 		break;
-	case 2:
+	case CLASS_PRIEST:
 		p_ptr->realm1 = choose_realm( CH_LIFE | CH_DEATH);
 		/*
 		 * Hack... priests can be 'dark' priests and choose death instead
 		 * of life, but not both
 		 */
 		break;
-	case 4:
-		p_ptr->realm1 = 3;
+	case CLASS_RANGER:
+		p_ptr->realm1 = REALM_NATURE;
 		break;
 	default:
 		p_ptr->realm1 = choose_realm(realm_choices[pclas]);
 	}
 
 	/* Paladins, Chaos warrriors and rogues get no second realm */
-	if (pclas == 5 || pclas == 3 || pclas == CLASS_CHAOS_WARRIOR
+	if (pclas == CLASS_PALADIN || pclas == CLASS_ROGUE || pclas == CLASS_CHAOS_WARRIOR
 		|| pclas == CLASS_MONK || pclas == CLASS_HIGH_MAGE) return;
 	else
 		p_ptr->realm2 = choose_realm(realm_choices[pclas]);
@@ -849,7 +858,7 @@ static void load_prev_data(void)
  *
  * The "p_ptr->maximize" code is important	-BEN-
  */
-static int adjust_stat(int value, s16b amount, int auto_roll)
+static int adjust_stat(int value, int amount, int auto_roll)
 {
 	int i;
 
@@ -993,6 +1002,19 @@ static void get_extra(void)
 
 	/* Experience factor */
 	p_ptr->expfact = rp_ptr->r_exp + cp_ptr->c_exp;
+
+	/* Initialize arena and rewards information -KMW- */
+	p_ptr->arena_number = 0;
+	p_ptr->inside_arena = 0;
+	p_ptr->inside_quest = 0;
+	p_ptr->leftbldg = FALSE;
+	p_ptr->exit_bldg = TRUE; /* only used for arena now -KMW- */
+
+	/* Reset rewards */
+	for (i = 0; i < MAX_BACT; i++)
+	{
+		p_ptr->rewards[i] = 0;
+	}
 
 	/* Hitdice */
 	p_ptr->hitdie = rp_ptr->r_mhp + cp_ptr->c_mhp;
@@ -1417,6 +1439,17 @@ static void player_wipe(void)
 		strcpy(history[i], "");
 	}
 
+	/* Wipe the quests */
+	for (i = 0; i < max_quests; i++)
+	{
+		quest[i].status = QUEST_STATUS_UNTAKEN;
+
+		quest[i].cur_num = 0;
+		quest[i].max_num = 0;
+		quest[i].type = 0;
+		quest[i].level = 0;
+		quest[i].r_idx = 0;
+	}
 
 	/* No weight */
 	total_weight = 0;
@@ -1433,17 +1466,14 @@ static void player_wipe(void)
 
 
 	/* Start with no artifacts made yet */
-	for (i = 0; i < MAX_A_IDX; i++)
+	for (i = 0; i < max_a_idx; i++)
 	{
 		artifact_type *a_ptr = &a_info[i];
 		a_ptr->cur_num = 0;
 	}
 
-	/* Initialize quests (Heino Vander Sanden and Jimmy De Laet) */
-	initialise_quests();
-
 	/* Reset the "objects" */
-	for (i = 1; i < MAX_K_IDX; i++)
+	for (i = 1; i < max_k_idx; i++)
 	{
 		object_kind *k_ptr = &k_info[i];
 
@@ -1456,7 +1486,7 @@ static void player_wipe(void)
 
 
 	/* Reset the "monsters" */
-	for (i = 1; i < MAX_R_IDX; i++)
+	for (i = 1; i < max_r_idx; i++)
 	{
 		monster_race *r_ptr = &r_info[i];
 
@@ -1467,15 +1497,12 @@ static void player_wipe(void)
 		r_ptr->max_num = 100;
 
 		/* Hack -- Reset the max counter */
-		if (r_ptr->flags1 & (RF1_UNIQUE)) r_ptr->max_num = 1;
+		if (r_ptr->flags1 & RF1_UNIQUE) r_ptr->max_num = 1;
+		if (r_ptr->flags3 & RF3_UNIQUE_7) r_ptr->max_num = 7;
 
 		/* Clear player kills */
 		r_ptr->r_pkills = 0;
 	}
-
-
-	/* Hack -- no ghosts */
-	r_info[MAX_R_IDX-1].max_num = 0;
 
 
 	/* Hack -- Well fed player */
@@ -1618,7 +1645,7 @@ static void player_outfit(void)
 	{
 		/* Hack -- Give the player scrolls of satisfy hunger */
 		object_prep(q_ptr, lookup_kind(TV_SCROLL, SV_SCROLL_SATISFY_HUNGER));
-		q_ptr->number = rand_range(2,5);
+		q_ptr->number = (byte)rand_range(2,5);
 		object_aware(q_ptr);
 		object_known(q_ptr);
 
@@ -1631,7 +1658,7 @@ static void player_outfit(void)
 	{
 		/* Hack -- Give the player some food */
 		object_prep(q_ptr, lookup_kind(TV_FOOD, SV_FOOD_RATION));
-		q_ptr->number = rand_range(3, 7);
+		q_ptr->number = (byte)rand_range(3, 7);
 		object_aware(q_ptr);
 		object_known(q_ptr);
 		(void)inven_carry(q_ptr, FALSE);
@@ -1644,7 +1671,7 @@ static void player_outfit(void)
 	{
 		/* Hack -- Give the player scrolls of light */
 		object_prep(q_ptr, lookup_kind(TV_SCROLL, SV_SCROLL_LIGHT));
-		q_ptr->number = rand_range(3,7);
+		q_ptr->number = (byte)rand_range(3,7);
 		object_aware(q_ptr);
 		object_known(q_ptr);
 
@@ -1658,7 +1685,13 @@ static void player_outfit(void)
 
 		/* Hack -- Give the player scrolls of DARKNESS! */
 		object_prep(q_ptr, lookup_kind(TV_SCROLL, SV_SCROLL_DARKNESS));
-		q_ptr->number = rand_range(2,5);
+
+		/*
+		 * HACK: Give vampires the chance to reach the dungeon
+		 * or the tavern without a SERIOUS sunburn (rr9)
+		 */
+		q_ptr->number = (byte)rand_range(10,15); /* was (2,5) */
+
 		object_aware(q_ptr);
 		object_known(q_ptr);
 
@@ -1671,7 +1704,7 @@ static void player_outfit(void)
 	{
 		/* Hack -- Give the player some torches */
 		object_prep(q_ptr, lookup_kind(TV_LITE, SV_LITE_TORCH));
-		q_ptr->number = rand_range(3, 7);
+		q_ptr->number = (byte)rand_range(3, 7);
 		q_ptr->pval = rand_range(3, 7) * 500;
 		object_aware(q_ptr);
 		object_known(q_ptr);
@@ -1702,7 +1735,7 @@ static void player_outfit(void)
 
 		/* Assassins begin the game with a poisoned dagger */
 		if (tv == TV_SWORD && p_ptr->pclass == CLASS_ROGUE &&
-			p_ptr->realm1 == 5) /* Only assassins get a poisoned weapon */
+			p_ptr->realm1 == REALM_DEATH) /* Only assassins get a poisoned weapon */
 		{
 			q_ptr->name2 = EGO_BRAND_POIS;
 		}
@@ -1750,7 +1783,8 @@ static bool player_birth_aux()
 
 	bool autoroll = FALSE;
 
-
+	int xstart = 0;
+	int ystart = 0;
 
 	/*** Intro ***/
 
@@ -1802,14 +1836,19 @@ static bool player_birth_aux()
 	/* Choose */
 	while (1)
 	{
-		sprintf(buf, "Choose a sex (%c-%c): ", I2A(0), I2A(n-1));
+		sprintf(buf, "Choose a sex (%c-%c), or * for random: ", I2A(0), I2A(n-1));
 		put_str(buf, 20, 2);
 		c = inkey();
 		if (c == 'Q') quit(NULL);
 		if (c == 'S') return (FALSE);
+		if (c == '*')
+		{
+			k = randint(2) - 1;
+			break;
+		}
 		k = (islower(c) ? A2I(c) : -1);
 		if ((k >= 0) && (k < n)) break;
-		if (c == '?') do_cmd_help("help.hlp");
+		if (c == '?') do_cmd_help();
 		else bell();
 	}
 
@@ -1852,11 +1891,18 @@ static bool player_birth_aux()
 	/* Choose */
 	while (1)
 	{
-        sprintf(buf, "Choose a race (%c-4): ", I2A(0));
+        sprintf(buf, "Choose a race (%c-4), or * for a random choice: ", I2A(0));
         put_str(buf, 17, 2);
 		c = inkey();
 		if (c == 'Q') quit(NULL);
 		if (c == 'S') return (FALSE);
+		if (c == '*')
+		{
+			k = randint(RACE_BEASTMAN + 1) - 1;
+			if (k == RACE_BEASTMAN)
+				hack_mutation = TRUE;
+			break;
+		}
         if (c == '1')
         {
             k = RACE_VAMPIRE;
@@ -1882,7 +1928,7 @@ static bool player_birth_aux()
         {
             k = (islower(c) ? A2I(c) : -1);
             if ((k >= 0) && (k < n)) break;
-            if (c == '?') do_cmd_help("help.hlp");
+            if (c == '?') do_cmd_help();
             else bell();
         }
 	}
@@ -1935,14 +1981,19 @@ static bool player_birth_aux()
 	/* Get a class */
 	while (1)
 	{
-		sprintf(buf, "Choose a class (%c-%c): ", I2A(0), I2A(n-1));
+		sprintf(buf, "Choose a class (%c-%c), or * for random: ", I2A(0), I2A(n-1));
         put_str(buf, 18, 2);
 		c = inkey();
 		if (c == 'Q') quit(NULL);
 		if (c == 'S') return (FALSE);
+		if (c == '*')
+		{
+			k = randint(n) - 1;
+			break;
+		}
 		k = (islower(c) ? A2I(c) : -1);
 		if ((k >= 0) && (k < n)) break;
-		if (c == '?') do_cmd_help("help.hlp");
+		if (c == '?') do_cmd_help();
 		else bell();
 	}
 
@@ -1961,12 +2012,17 @@ static bool player_birth_aux()
 
     get_realms();
 
-        if (p_ptr->realm1 || p_ptr->realm2)
-          put_str("Magic       :", 6, 1);
-        if (p_ptr->realm1)
-          c_put_str(TERM_L_BLUE, realm_names[p_ptr->realm1],6,15);
-        if (p_ptr->realm2)
-          c_put_str(TERM_L_BLUE, realm_names[p_ptr->realm2],7,15);
+	if (p_ptr->realm1 || p_ptr->realm2)
+		put_str("Magic       :", 6, 1);
+	if (p_ptr->realm1)
+		c_put_str(TERM_L_BLUE, realm_names[p_ptr->realm1],6,15);
+	if (p_ptr->realm2)
+		c_put_str(TERM_L_BLUE, realm_names[p_ptr->realm2],7,15);
+
+
+	/* Clear */
+	clear_from(15);
+
 
 	/*** Maximize mode ***/
 
@@ -1981,13 +2037,20 @@ static bool player_birth_aux()
 	/* Ask about "maximize" mode */
 	while (1)
 	{
-		put_str("Use 'maximize' mode? (y/n) ", 20, 2);
+		put_str("Use 'maximize' mode? (y/n/*) ", 20, 2);
 		c = inkey();
 		if (c == 'Q') quit(NULL);
 		if (c == 'S') return (FALSE);
+		if (c == '*')
+		{
+			c = 'y';
+			if (randint(2) == 1)
+				c = 'n';
+			break;
+		}
 		if (c == ESCAPE) break;
 		if ((c == 'y') || (c == 'n')) break;
-		if (c == '?') do_cmd_help("help.hlp");
+		if (c == '?') do_cmd_help();
 		else bell();
 	}
 
@@ -2009,13 +2072,20 @@ static bool player_birth_aux()
 	/* Ask about "preserve" mode */
 	while (1)
 	{
-		put_str("Use 'preserve' mode? (y/n) ", 20, 2);
+		put_str("Use 'preserve' mode? (y/n/*) ", 20, 2);
 		c = inkey();
 		if (c == 'Q') quit(NULL);
 		if (c == 'S') return (FALSE);
+		if (c == '*')
+		{
+			c = 'y';
+			if (randint(2) == 1)
+				c = 'n';
+			break;
+		}
 		if (c == ESCAPE) break;
 		if ((c == 'y') || (c == 'n')) break;
-		if (c == '?') do_cmd_help("help.hlp");
+		if (c == '?') do_cmd_help();
 		else bell();
 	}
 
@@ -2045,7 +2115,7 @@ static bool player_birth_aux()
 		if (c == 'S') return (FALSE);
 		if (c == ESCAPE) break;
 		if ((c == 'y') || (c == 'n')) break;
-		if (c == '?') do_cmd_help("help.hlp");
+		if (c == '?') do_cmd_help();
 		else bell();
 	}
 
@@ -2164,9 +2234,9 @@ static bool player_birth_aux()
 		"In case you do not want any additional quest, just enter 0");
 
 	/* Ask the number of additional quests */
-	while (1)
+	while (TRUE)
 	{
-		put_str(format("Number of additional quest? (<%u) ", MAX_QUESTS + 1), 20, 2);
+		put_str(format("Number of additional quest? (<%u) ", MAX_RANDOM_QUEST - MIN_RANDOM_QUEST + 2), 20, 2);
 
 		/* Get a the number of additional quest */
 		while (TRUE)
@@ -2182,19 +2252,155 @@ static bool player_birth_aux()
 			v = atoi(inp);
 
 			/* Break on valid input */
-			if ( (v <= MAX_QUESTS) && ( v >= 0 )) break;
+			if ((v <= MAX_RANDOM_QUEST - MIN_RANDOM_QUEST + 1) && ( v >= 0 )) break;
 		}
 		break;
 	}
 
-	/* Set maxnumber of quest */
-	MAX_Q_IDX = v + DEFAULT_QUESTS;
+	/* Clear */
+	clear_from(15);
+
+	/* Init the random quests */
+	init_flags = INIT_ASSIGN;
+	p_ptr->inside_quest = MIN_RANDOM_QUEST;
+	process_dungeon_file("q_info.txt", &ystart, &xstart, 0, 0);
+	p_ptr->inside_quest = 0;
+
+	/* Prepare allocation table */
+	get_mon_num_prep(monster_quest, NULL);
+
+	/* Generate quests */
+	for (i = MIN_RANDOM_QUEST + v - 1; i >= MIN_RANDOM_QUEST; i--)
+	{
+		quest_type *q_ptr = &quest[i];
+
+		monster_race *r_ptr;		
+
+		q_ptr->status = QUEST_STATUS_TAKEN;
+
+		for (j = 0; j < MAX_TRIES; j++)
+		{
+			/* Random monster 5 - 10 levels out of depth */
+			q_ptr->r_idx = get_mon_num(q_ptr->level + 4 + randint(6));
+
+			r_ptr = &r_info[q_ptr->r_idx];
+
+			/* Accept only monsters that are out of depth */
+			if (r_ptr->level > q_ptr->level) break;
+		}
+
+		/* Get the number of monsters */
+		if (r_ptr->flags1 & RF1_UNIQUE)
+		{
+			/* Mark uniques */
+			r_ptr->flags1 |= RF1_QUESTOR;
+
+			q_ptr->max_num = 1;
+		}
+		else
+		{
+			q_ptr->max_num = 5 + (s16b)rand_int(q_ptr->level/3 + 5);
+		}
+	}
+
+	/* Init the two main quests (Oberon + Serpent) */
+	init_flags = INIT_ASSIGN;
+	p_ptr->inside_quest = QUEST_OBERON;
+	process_dungeon_file("q_info.txt", &ystart, &xstart, 0, 0);
+	quest[QUEST_OBERON].status = QUEST_STATUS_TAKEN;
+
+	p_ptr->inside_quest = QUEST_SERPENT;
+	process_dungeon_file("q_info.txt", &ystart, &xstart, 0, 0);
+	quest[QUEST_SERPENT].status = QUEST_STATUS_TAKEN;
+	p_ptr->inside_quest = 0;
+
+	/* Only if random quests are selected */
+	if (v)
+	{
+		/* Clear */
+		clear_from(15);
+
+
+		/*** Hard quests mode ***/
+
+		/* Extra info */
+		Term_putstr(5, 14, -1, TERM_WHITE,
+			"Using 'hard quests' mode makes the random quests harder, because");
+		Term_putstr(5, 15, -1, TERM_WHITE,
+			"you have to kill all monsters at the same visit to the quest level.");
+		Term_putstr(5, 16, -1, TERM_WHITE,
+			"If you leave the level while some quest monsters are still alive,");
+		Term_putstr(5, 17, -1, TERM_WHITE,
+			"then all killed quest monsters are revived on your next visit");
+		Term_putstr(5, 18, -1, TERM_WHITE,
+			"to this level.");
+
+		/* Ask about "hard quests" mode */
+		while (1)
+		{
+			put_str("Use 'Hard quests'? (y/n/*) ", 20, 2);
+			c = inkey();
+			if (c == 'Q') quit(NULL);
+			if (c == 'S') return (FALSE);
+			if (c == '*')
+			{
+				c = 'y';
+				if (randint(2) == 1)
+					c = 'n';
+				break;
+			}
+			if (c == ESCAPE) break;
+			if ((c == 'y') || (c == 'n')) break;
+			if (c == '?') do_cmd_help();
+			else bell();
+		}
+
+		/* Set "hard quests" mode */
+		p_ptr->hard_quests = (c == 'y');
+	}
+
+	/*** ZAngband Lite :-) ***/
 
 	/* Clear */
 	clear_from(15);
 
-	/* Generate quests */
-	player_birth_quests();
+	/*** Wilderness mode ***/
+
+	/* Extra info */
+	Term_putstr(5, 14, -1, TERM_WHITE,
+		"'Wilderness' mode enables the extended wilderness of ZAngband");
+	Term_putstr(5, 15, -1, TERM_WHITE,
+		"giving you a wilderness and several new towns to explore.");
+	Term_putstr(5, 16, -1, TERM_WHITE,
+		"Switching off 'wilderness' mode is recommended for slower computers,");
+	Term_putstr(5, 16, -1, TERM_WHITE,
+		"because the wilderness slows down the system a bit.");
+
+	/* Ask about "wilderness" mode */
+	while (1)
+	{
+		put_str("Use 'wilderness'? (y/n/*) ", 20, 2);
+		c = inkey();
+		if (c == 'Q') quit(NULL);
+		if (c == 'S') return (FALSE);
+		if (c == '*')
+		{
+			c = 'y';
+			if (randint(2) == 1)
+				c = 'n';
+			break;
+		}
+		if (c == ESCAPE) break;
+		if ((c == 'y') || (c == 'n')) break;
+		if (c == '?') do_cmd_help();
+		else bell();
+	}
+
+	/* Set "wilderness" mode */
+	p_ptr->wilderness = !(c == 'n');
+
+	/* Clear */
+	clear_from(15);
 
 
 	/*** Generate ***/
@@ -2403,7 +2609,7 @@ static bool player_birth_aux()
 			/* Help */
 			if (c == '?')
 			{
-				do_cmd_help("help.hlp");
+				do_cmd_help();
 				continue;
 			}
 
@@ -2457,7 +2663,7 @@ static bool player_birth_aux()
  */
 void player_birth(void)
 {
-	int i, n;
+	int i,j;
 
 	/* Create a new character */
 	while (1)
@@ -2481,17 +2687,23 @@ void player_birth(void)
 	/* Hack -- outfit the player */
 	player_outfit();
 
-	/* Shops */
-	for (n = 0; n < MAX_STORES; n++)
+	/* Init the shops */
+	for (i = 1; i < max_towns; i++)
 	{
-		/* Initialize */
-		store_init(n);
+		for (j = 0; j < MAX_STORES; j++)
+		{
+			/* Initialize */
+			store_init(i, j);
+		}
+	}
 
-		/* Ignore home */
-		if (n == 7) continue;
-
-		/* Maintain the shop (ten times) */
-		for (i = 0; i < 10; i++) store_maint(n);
+	/* Init wilderness seeds */
+	for (i = 0; i < max_wild_x; i++)
+	{
+		for (j = 0; j < max_wild_y; j++)
+		{
+			wilderness[j][i].seed = rand_int(0x10000000);
+		}
 	}
 }
 

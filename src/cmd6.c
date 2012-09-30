@@ -70,16 +70,15 @@ void do_cmd_eat_food(void)
 
 	object_type     *o_ptr;
 
+	cptr q, s;
 
 	/* Restrict choices to food */
 	item_tester_tval = TV_FOOD;
 
-	/* Get an item (from inven or floor) */
-	if (!get_item(&item, "Eat which item? ", FALSE, TRUE, TRUE))
-	{
-		if (item == -2) msg_print("You have nothing to eat.");
-		return;
-	}
+	/* Get an item */
+	q = "Eat which item? ";
+	s = "You have nothing to eat.";
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -402,16 +401,15 @@ void do_cmd_quaff_potion(void)
 
 	object_type	*o_ptr;
 
+	cptr q, s;
 
 	/* Restrict choices to potions */
 	item_tester_tval = TV_POTION;
 
-	/* Get an item (from inven or floor) */
-	if (!get_item(&item, "Quaff which potion? ", FALSE, TRUE, TRUE))
-	{
-		if (item == -2) msg_print("You have no potions to quaff.");
-		return;
-	}
+	/* Get an item */
+	q = "Quaff which potion? ";
+	s = "You have no potions to quaff.";
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -1159,6 +1157,8 @@ void do_cmd_read_scroll(void)
 
 	char  Rumor[80] ;
 
+	cptr q, s;
+
 	/* Check some conditions */
 	if (p_ptr->blind)
 	{
@@ -1180,12 +1180,10 @@ void do_cmd_read_scroll(void)
 	/* Restrict choices to scrolls */
 	item_tester_tval = TV_SCROLL;
 
-	/* Get an item (from inven or floor) */
-	if (!get_item(&item, "Read which scroll? ", FALSE, TRUE, TRUE))
-	{
-		if (item == -2) msg_print("You have no scrolls to read.");
-		return;
-	}
+	/* Get an item */
+	q = "Read which scroll? ";
+	s = "You have no scrolls to read.";
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -1249,7 +1247,7 @@ void do_cmd_read_scroll(void)
 		{
 			for (k = 0; k < randint(3); k++)
 			{
-				if (summon_specific(py, px, dun_level, 0))
+				if (summon_specific(py, px, dun_level, 0, TRUE, FALSE, FALSE))
 				{
 					ident = TRUE;
 				}
@@ -1261,7 +1259,7 @@ void do_cmd_read_scroll(void)
 		{
 			for (k = 0; k < randint(3); k++)
 			{
-				if (summon_specific(py, px, dun_level, SUMMON_UNDEAD))
+				if (summon_specific(py, px, dun_level, SUMMON_UNDEAD, TRUE, FALSE, FALSE))
 				{
 					ident = TRUE;
 				}
@@ -1298,22 +1296,7 @@ void do_cmd_read_scroll(void)
 
 		case SV_SCROLL_WORD_OF_RECALL:
 		{
-			if (dun_level && (p_ptr->max_dlv > dun_level))
-			{
-				if (get_check("Reset recall depth? "))
-					p_ptr->max_dlv = dun_level;
-			}
-
-			if (p_ptr->word_recall == 0)
-			{
-				p_ptr->word_recall = randint(20) + 15;
-				msg_print("The air about you becomes charged...");
-			}
-			else
-			{
-				p_ptr->word_recall = 0;
-				msg_print("A tension leaves the air around you...");
-			}
+			recall_player();
 			ident = TRUE;
 			break;
 		}
@@ -1493,7 +1476,11 @@ void do_cmd_read_scroll(void)
 
 		case SV_SCROLL_STAR_DESTRUCTION:
 		{
-			destroy_area(py, px, 15, TRUE);
+			/* Prevent destruction of quest levels and town */
+			if (!is_quest(dun_level) && dun_level)
+				destroy_area(py, px, 15, TRUE);
+			else
+				msg_print("The dungeon trembles...");
 			ident = TRUE;
 			break;
 		}
@@ -1520,14 +1507,14 @@ void do_cmd_read_scroll(void)
 
 		case SV_SCROLL_ACQUIREMENT:
 		{
-			acquirement(py, px, 1, TRUE);
+			acquirement(py, px, 1, TRUE, FALSE);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_SCROLL_STAR_ACQUIREMENT:
 		{
-			acquirement(py, px, randint(2) + 1, TRUE);
+			acquirement(py, px, randint(2) + 1, TRUE, FALSE);
 			ident = TRUE;
 			break;
 		}
@@ -1618,6 +1605,7 @@ void do_cmd_read_scroll(void)
 	/* Hack -- allow certain scrolls to be "preserved" */
 	if (!used_up) return;
 
+	sound(SOUND_SCROLL);
 
 	/* Destroy a scroll in the pack */
 	if (item >= 0)
@@ -1655,6 +1643,8 @@ void do_cmd_use_staff(void)
 
 	object_type		*o_ptr;
 
+	cptr q, s;
+
 	/* Hack -- let staffs of identify get aborted */
 	bool use_charge = TRUE;
 
@@ -1662,12 +1652,10 @@ void do_cmd_use_staff(void)
 	/* Restrict choices to wands */
 	item_tester_tval = TV_STAFF;
 
-	/* Get an item (from inven or floor) */
-	if (!get_item(&item, "Use which staff? ", FALSE, TRUE, TRUE))
-	{
-		if (item == -2) msg_print("You have no staff to use.");
-		return;
-	}
+	/* Get an item */
+	q = "Use which staff? ";
+	s = "You have no staff to use.";
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -1719,6 +1707,7 @@ void do_cmd_use_staff(void)
 	{
 		if (flush_failure) flush();
 		msg_print("You failed to use the staff properly.");
+		sound(SOUND_FAIL);
 		return;
 	}
 
@@ -1765,7 +1754,7 @@ void do_cmd_use_staff(void)
 		{
 			for (k = 0; k < randint(4); k++)
 			{
-				if (summon_specific(py, px, dun_level, 0))
+				if (summon_specific(py, px, dun_level, 0, TRUE, FALSE, FALSE))
 				{
 					ident = TRUE;
 				}
@@ -1969,15 +1958,23 @@ void do_cmd_use_staff(void)
 
 		case SV_STAFF_EARTHQUAKES:
 		{
-			earthquake(py, px, 10);
+			/* Prevent destruction of quest levels and town */
+			if (!is_quest(dun_level) && dun_level)
+				earthquake(py, px, 10);
+			else
+				msg_print("The dungeon trembles...");
 			ident = TRUE;
 			break;
 		}
 
 		case SV_STAFF_DESTRUCTION:
 		{
-			destroy_area(py, px, 15, TRUE);
-			ident = TRUE;
+			/* Prevent destruction of quest levels and town */
+			if (!is_quest(dun_level) && dun_level)
+			{
+				destroy_area(py, px, 15, TRUE);
+				ident = TRUE;
+			}
 			break;
 		}
 	}
@@ -2074,16 +2071,15 @@ void do_cmd_aim_wand(void)
 
 	object_type		*o_ptr;
 
+	cptr q, s;
 
 	/* Restrict choices to wands */
 	item_tester_tval = TV_WAND;
 
-	/* Get an item (from inven or floor) */
-	if (!get_item(&item, "Aim which wand? ", FALSE, TRUE, TRUE))
-	{
-		if (item == -2) msg_print("You have no wand to aim.");
-		return;
-	}
+	/* Get an item */
+	q = "Aim which wand? ";
+	s = "You have no wand to aim.";
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -2139,6 +2135,7 @@ void do_cmd_aim_wand(void)
 	{
 		if (flush_failure) flush();
 		msg_print("You failed to use the wand properly.");
+		sound(SOUND_FAIL);
 		return;
 	}
 
@@ -2474,6 +2471,8 @@ void do_cmd_zap_rod(void)
 
 	object_type		*o_ptr;
 
+	cptr q, s;
+
 	/* Hack -- let perception get aborted */
 	bool use_charge = TRUE;
 
@@ -2481,12 +2480,10 @@ void do_cmd_zap_rod(void)
 	/* Restrict choices to rods */
 	item_tester_tval = TV_ROD;
 
-	/* Get an item (from inven or floor) */
-	if (!get_item(&item, "Zap which rod? ", FALSE, TRUE, TRUE))
-	{
-		if (item == -2) msg_print("You have no rod to zap.");
-		return;
-	}
+	/* Get an item */
+	q = "Zap which rod? ";
+	s = "You have no rod to zap.";
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -2547,6 +2544,7 @@ void do_cmd_zap_rod(void)
 	{
 		if (flush_failure) flush();
 		msg_print("You failed to use the rod properly.");
+		sound(SOUND_FAIL);
 		return;
 	}
 
@@ -2591,22 +2589,7 @@ void do_cmd_zap_rod(void)
 
 		case SV_ROD_RECALL:
 		{
-			if (dun_level && (p_ptr->max_dlv > dun_level))
-			{
-				if (get_check("Reset recall depth? "))
-					p_ptr->max_dlv = dun_level;
-			}
-            
-			if (p_ptr->word_recall == 0)
-			{
-				msg_print("The air about you becomes charged...");
-				p_ptr->word_recall = 15 + randint(20);
-			}
-			else
-			{
-				msg_print("A tension leaves the air around you...");
-				p_ptr->word_recall = 0;
-			}
+			recall_player();
 			ident = TRUE;
 			o_ptr->pval = 60;
 			break;
@@ -2896,7 +2879,7 @@ static bool item_tester_hook_activate(object_type *o_ptr)
 /*
  * Hack -- activate the ring of power
  */
-static void ring_of_power(int dir)
+void ring_of_power(int dir)
 {
 	/* Pick a random effect */
 	switch (randint(10))
@@ -2906,6 +2889,7 @@ static void ring_of_power(int dir)
 		{
 			/* Message */
 			msg_print("You are surrounded by a malignant aura.");
+			sound(SOUND_EVIL);
 
 			/* Decrease all stats (permanently) */
 			(void)dec_stat(A_STR, 50, TRUE);
@@ -2963,7 +2947,7 @@ static void ring_of_power(int dir)
 /*
  * Enchant some bolts
  */
-static bool brand_bolts(void)
+bool brand_bolts(void)
 {
 	int i;
 
@@ -3025,16 +3009,15 @@ void do_cmd_activate(void)
 
 	object_type     *o_ptr;
 
+	cptr q, s;
 
 	/* Prepare the hook */
 	item_tester_hook = item_tester_hook_activate;
 
-	/* Get an item (from equip) */
-	if (!get_item(&item, "Activate which item? ", TRUE, FALSE, FALSE))
-	{
-		if (item == -2) msg_print("You have nothing to activate.");
-		return;
-	}
+	/* Get an item */
+	q = "Activate which item? ";
+	s = "You have nothing to activate.";
+	if (!get_item(&item, q, s, (USE_EQUIP))) return;
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -3078,6 +3061,7 @@ void do_cmd_activate(void)
 	{
 		if (flush_failure) flush();
 		msg_print("You failed to activate it properly.");
+		sound(SOUND_FAIL);
 		return;
 	}
 
@@ -3143,22 +3127,7 @@ void do_cmd_activate(void)
 
 				if (get_check("Activate recall? "))
 				{
-					if (dun_level && (p_ptr->max_dlv > dun_level))
-					{
-						if (get_check("Reset recall depth? "))
-							p_ptr->max_dlv = dun_level;
-					}
-
-					if (p_ptr->word_recall == 0)
-					{
-						p_ptr->word_recall = randint(20) + 15;
-						msg_print("The air about you becomes charged...");
-					}
-					else
-					{
-						p_ptr->word_recall = 0;
-						msg_print("A tension leaves the air around you...");
-					}
+					recall_player();
 				}
 
 				o_ptr->timeout = rand_int(20) + 20;
@@ -3537,7 +3506,8 @@ void do_cmd_activate(void)
 							is_autosave = FALSE;
 						}
 
-					new_level_flag = TRUE;
+						/* Leaving */
+						p_ptr->leaving = TRUE;
 					}
 				}
 				o_ptr->timeout = 35;
@@ -3556,7 +3526,7 @@ void do_cmd_activate(void)
 			case ART_DAWN:
 			{
 				msg_print("You summon the Legion of the Dawn.");
-				(void)summon_specific_friendly(py, px, dun_level, SUMMON_DAWN, TRUE);
+				(void)summon_specific(py, px, dun_level, SUMMON_DAWN, TRUE, TRUE, TRUE);
 				o_ptr->timeout = 500 + randint(500);
 				break;
 			}
@@ -3633,7 +3603,7 @@ void do_cmd_activate(void)
 				}
                 
 				msg_print("Your scythe glows soft white...");
-				if (p_ptr->word_recall == 0)
+				if (!p_ptr->word_recall)
 				{
 					p_ptr->word_recall = randint(20) + 15;
 					msg_print("The air about you becomes charged...");
@@ -4044,7 +4014,7 @@ static bool activate_random_artifact(object_type * o_ptr)
 
 		case ACT_BA_ELEC_2:
 		{
-		msg_print("It crackles with electricity...");
+			msg_print("It crackles with electricity...");
 			if (!get_aim_dir(&dir)) return FALSE;
 			fire_ball(GF_ELEC, dir, 100, 3);
 			o_ptr->timeout = 500;
@@ -4210,8 +4180,12 @@ static bool activate_random_artifact(object_type * o_ptr)
 
 		case ACT_QUAKE:
 		{
-			earthquake(py, px, 10);
-			o_ptr->timeout = 50;
+			/* Prevent destruction of quest levels and town */
+			if (!is_quest(dun_level) && dun_level)
+			{
+				earthquake(py, px, 10);
+				o_ptr->timeout = 50;
+			}
 			break;
 		}
 
@@ -4303,7 +4277,7 @@ static bool activate_random_artifact(object_type * o_ptr)
 
 		case ACT_SUMMON_ANIMAL:
 		{
-			(void)summon_specific_friendly(py, px, plev, SUMMON_ANIMAL_RANGER, TRUE);
+			(void)summon_specific(py, px, plev, SUMMON_ANIMAL_RANGER, TRUE, TRUE, TRUE);
 			o_ptr->timeout = 200 + randint(300);
 			break;
 		}
@@ -4311,78 +4285,75 @@ static bool activate_random_artifact(object_type * o_ptr)
 		case ACT_SUMMON_PHANTOM:
 		{
 			msg_print("You summon a phantasmal servant.");
-			(void)summon_specific_friendly(py, px, dun_level, SUMMON_PHANTOM, TRUE);
+			(void)summon_specific(py, px, dun_level, SUMMON_PHANTOM, TRUE, TRUE, TRUE);
 			o_ptr->timeout = 200 + randint(200);
 			break;
 		}
 
 		case ACT_SUMMON_ELEMENTAL:
 		{
-			if (randint(3) == 1)
+			bool pet = (randint(3) == 1);
+			bool group = !(pet && (plev < 50));
+
+			if (summon_specific(py, px, ((plev * 3) / 2), SUMMON_ELEMENTAL, group, FALSE, pet))
 			{
-				if (summon_specific(py, px, plev * 1.5, SUMMON_ELEMENTAL))
-				{
-					msg_print("An elemental materializes...");
-					msg_print("You fail to control it!");
-				}
-			}
-			else
-			{
-				if (summon_specific_friendly(py, px, plev * 1.5,
-				    SUMMON_ELEMENTAL, (plev == 50 ? TRUE : FALSE)))
-				{
-					msg_print("An elemental materializes...");
+				msg_print("An elemental materializes...");
+
+				if (pet)
 					msg_print("It seems obedient to you.");
-				}
+				else
+					msg_print("You fail to control it!");
 			}
+
 			o_ptr->timeout = 750;
 			break;
 		}
 
 		case ACT_SUMMON_DEMON:
 		{
-			if (randint(3) == 1)
+			bool pet = (randint(3) == 1);
+			bool group = !(pet && (plev < 50));
+
+			if (summon_specific(py, px, ((plev * 3) / 2), SUMMON_DEMON, group, FALSE, pet))
 			{
-				if (summon_specific(py, px, plev * 1.5, SUMMON_DEMON))
-				{
-					msg_print("The area fills with a stench of sulphur and brimstone.");
-					msg_print("'NON SERVIAM! Wretch! I shall feast on thy mortal soul!'");
-				}
-			}
-			else
-			{
-				if (summon_specific_friendly(py, px, plev * 1.5,
-				    SUMMON_DEMON, (plev == 50 ? TRUE : FALSE)))
-				{
-					msg_print("The area fills with a stench of sulphur and brimstone.");
+				msg_print("The area fills with a stench of sulphur and brimstone.");
+				if (pet)
 					msg_print("'What is thy bidding... Master?'");
-				}
+				else
+					msg_print("'NON SERVIAM! Wretch! I shall feast on thy mortal soul!'");
 			}
+
 			o_ptr->timeout = 666 + randint(333);
 			break;
 		}
 
 		case ACT_SUMMON_UNDEAD:
 		{
-			if (randint(3) == 1)
+			bool pet = (randint(3) == 1);
+			bool group;
+			int type;
+
+			if (pet)
 			{
-				if (summon_specific(py, px, plev * 1.5,
-				    (plev > 47 ? SUMMON_HI_UNDEAD : SUMMON_UNDEAD)))
-				{
-					msg_print("Cold winds begin to blow around you, carrying with them the stench of decay...");
-					msg_print("'The dead arise... to punish you for disturbing them!'");
-				}
+				type = (plev > 47 ? SUMMON_HI_UNDEAD : SUMMON_UNDEAD);
+				group = (((plev > 24) && (randint(3) == 1)) ? TRUE : FALSE);
 			}
 			else
 			{
-				if (summon_specific_friendly(py, px, plev * 1.5,
-				    (plev > 47 ? SUMMON_HI_UNDEAD_NO_UNIQUES : SUMMON_UNDEAD),
-				    (((plev > 24) && (randint(3) == 1)) ? TRUE : FALSE)))
-				{
-					msg_print("Cold winds begin to blow around you, carrying with them the stench of decay...");
-					msg_print("Ancient, long-dead forms arise from the ground to serve you!");
-				}
+				type = (plev > 47 ? SUMMON_HI_UNDEAD_NO_UNIQUES : SUMMON_UNDEAD);
+				group = TRUE;
 			}
+
+			if (summon_specific(py, px, ((plev * 3) / 2), type,
+				                group, FALSE, pet))
+			{
+				msg_print("Cold winds begin to blow around you, carrying with them the stench of decay...");
+				if (pet)
+					msg_print("Ancient, long-dead forms arise from the ground to serve you!");
+				else
+					msg_print("'The dead arise... to punish you for disturbing them!'");
+			}
+
 			o_ptr->timeout = 666 + randint(333);
 			break;
 		}
@@ -4683,7 +4654,7 @@ static bool activate_random_artifact(object_type * o_ptr)
 			}
 
 			msg_print("It glows soft white...");
-			if (p_ptr->word_recall == 0)
+			if (!p_ptr->word_recall)
 			{
 				p_ptr->word_recall = randint(20) + 15;
 				msg_print("The air about you becomes charged...");

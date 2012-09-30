@@ -78,9 +78,8 @@
 #include <jgmod.h>
 #endif /* USE_MOD_FILES */
 
-#if 0
-# include "load_gif.c"
-#endif
+#include "load_gif.c"
+
 
 #include <bios.h>
 #include <dos.h>
@@ -2130,10 +2129,8 @@ errr init_dos(void)
 	/* Install timer support for music and sound */
 	install_timer();
 
-#if 0
 	/* Enable the gif-loading function */
 	register_bitmap_file_type("GIF", load_gif, NULL);
-#endif
 
 	/* Read config info from filename */
 	set_config_file("angdos.cfg");

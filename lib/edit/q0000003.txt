@@ -1,0 +1,41 @@
+# q0000003.txt
+
+# Name
+Q:3:N:Druid Shop
+
+# Definition
+Q:3:Q:1:0:0:1:20:241:0
+
+# Description for quest
+?:[LEQ $QUEST3 2]
+Q:3:T:There is a new shop that has opened up in town. But,
+Q:3:T:due to political reasons, we cannot have a druid setting
+Q:3:T:up shop in town.  We also cannot act directly against him
+Q:3:T:without alarming the other shopkeepers.
+Q:3:T:I need you to take him out.
+?:1
+
+# Description for quest rewarding
+?:[EQU $QUEST3 3]
+Q:3:T:You saved us from deep trouble again, please accept the
+Q:3:T:gift that awaits you outside.
+?:1
+
+# Floor with druid
+F:a:1:8:241
+
+# Dungeon
+D:XXXXXXXXXXXXXXX
+D:X.............X
+D:X.........a...X
+D:X.............X
+D:X....XXXXXXXXXX
+D:X.............X
+D:X.............X
+D:X.............X
+D:X<............X
+D:XXXXXXXXXXXXXXX
+
+# Starting position
+P:8:2
+

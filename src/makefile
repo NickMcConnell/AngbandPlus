@@ -30,7 +30,7 @@ OBJS = \
   object1.o object2.o monster1.o monster2.o \
   variable.o tables.o util.o cave.o \
   z-term.o z-rand.o z-form.o z-virt.o z-util.o \
-  quest.o
+  bldg.o script.o
 
 # Compiler
 CC = gcc
@@ -41,7 +41,7 @@ CFLAGS = -Wall -O2 -s -DUSE_DOS -DUSE_IBM -DUSE_BACKGROUND \
 
 
 # Libraries
-LIBS = -lpc -lalleg
+LIBS = -lpc -lalleg -lslang
 
 
 #

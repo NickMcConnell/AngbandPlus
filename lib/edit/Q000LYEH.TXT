@@ -1,0 +1,112 @@
+# q000lyeh.txt
+
+# Name
+Q:17:N:The City beneath the Sea
+
+# type:num_mon:cur_num:max_num:level:r_idx:k_idx
+Q:17:Q:6:0:0:0:90:0:0
+
+# Description for quest
+?:[LEQ $QUEST17 2]
+Q:17:T:Bizarred things have started happening! An island has risen
+Q:17:T:as a result of a tremor in the middle of the sea. At the same 
+Q:17:T:time, dark cults have celebrated and mystics have started seeing 
+Q:17:T:visions of "living death, whose sleep has been upset". Clearly, 
+Q:17:T:something unpleasant is going on -- and it is up to you to stop 
+Q:17:T:this evil!
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST17 3]
+Q:17:T:Thank you, you saved us all from the Old Ones!
+?:1
+
+# Deep water
+F:e:83:8
+
+# Shallow water
+F:f:84:8
+
+# Normal wall
+F:#:56
+
+# No-tele
+F:-:1:8
+
+# Floor + Necronomicon
+F:x:1:12:0:424
+
+# Floor + Star-Spawn
+F:c:1:8:836
+
+# Floor + Cthulhu + trap
+F:C:1:8:857:0:0:0:*
+
+# Trap
+F:^:1:8:0:0:0:0:*
+
+# Trap or an OOD item
+F:$:1:8:0:*10:0:0:*
+
+# Trap or a very OOD item
+F:!:1:8:0:*25:0:0:*
+
+# R'lyeh layout
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeffeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeX
+D:XeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeefffeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeX
+D:Xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeff.ffeeeeeeeeeeeeefeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeX
+D:Xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeefffeeeeeeefff..ffeeeeeeeeeeefffeffeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeX
+D:Xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeef.ffeffffff...ffeffffffeeefff.fffffeeeeeeeeeefeeeeeeeeeeeeeeeeeeeeeeeeeeeeX
+D:Xeeeeeeeeeeeeeeeeeeeeeeeeeeeefff..fff..ff..fffeef...fffeeff...f..fffeeeeeeffffeeeeeeeeeeeeeeeeeeeeeeeeeeeX
+D:Xeeeeeeeeeeeeeeeeeeeeeeeeeeffff............ffffff.....fffff........ffffffff..ffeeeeeeeeeeeeeeeeeeeeeeeeeeX
+D:Xeeeeeeeeeeeeeeeeeeeeeeeeeff.....XXXXX.......fffff..,..ff.............fff.....ffeeeeeeeeeeeeeeeeeeeeeeeeeX
+D:Xeeeeeeeeeeeeeeefeffffeeeffffff..X---X..........ff.........................ff..ffeeeeeeeeeeeeeeeeeeeeeeeeX
+D:Xeeeeeeeeeeeeeeefffffffffffff....X-X-X....................................ffff.feeeeeeeeeeeeeeeeeeeeeeeeeX
+D:Xeeeeeeeeeeeeeeff..f.....ff......X-XxXXXX....................XXXX........fffffffeeeeeeeeeeeeeeeeeeeeeeeeeX
+D:Xeeeeeeeeeeeeefff....f......XXXXXX-XXX$$XXX...XXXXXXXXXXXXXXXX**XXX.......ffffffffeeeeeeeeeeeeeeeeeeeeeeeX
+D:Xeeeeeeeeeeeeeef....ff.....XX------X******XXX.X*************^X^^^^XX............fffeeeeeeeeeeeeeeeeeeeeeeX
+D:Xeeeeeeeeeeeeefff..ff...XXXX--XXXXXX..c.....XXX^^^....c.....^X^..^^XX........ff..fffeeeeeeeeeeeeeeeeeeeeeX
+D:Xeeeeeeeeeeeeeeeffffff..X----XX***************DXX***********^D^..c^^XX.....ffffffffeeeeeeeeeeeeeeeeeeeeeeX
+D:Xeeeeeeeeeeeeeeeeff.....X-XXXXDXXXXXXXXXXXXXXXXDXXXXXXXXXXXXXXXX*****XX.......ffffeeeeeeeeeeeeeeeeeeeeeeeX
+D:Xeeeeeeeeeeeeeefff......X-X****X^^^^^^^^^^^^^^^^XXX************X******X......fffeeeeeeeeeeeeeeeeeeeeeeeeeX
+D:Xeeeeeeeeeeeeefff.......X-X*..*X^^^^^^^^^^^^...^^^XXX^^^^^^^^^^XXXXX**XDX.f...ffeeeeeeeeeeeeeeeeeeeeeeeeeX
+D:Xeeeeeeeeeeeeeffff......X-X*..*X****XXXXXXX^..c..^**X^^^^^^^^^^***$X$XX^X.ff..feeeeeeeeeeeeeeeeeeeeeeeeeeX
+D:Xeeeeeeeeeeeeeefff......X-X*C.*X***XX***^^D^^^^^^^**X^^XXXXXXXXXXXDXXX^^X.ff.fffeeeeeeeeeeeeeeeeeeeeeeeeeX
+D:Xeeeeeeeeeeeefff........X-X*..*X**XX**...^XXXXXXXXXXX^^X^*^*^*^*^*^X^^^^X..fff.feeeeeeeeeeeeeeeeeeeeeeeeeX
+D:Xeeeeeeeeeeeeefff.......X-X*..*X$XX**....^X*******XXXDDXDXXXXXXXXXXX^^^^X.....ffeeeeeeeeeeeeeeeeeeeeeeeeeX
+D:Xeeeeeeeeeeeeeefff......X-X*..*XXX**..^^^^X*.....*X....X.....X^^^^^^^^XXX.,,,,feeeeeeeeeeeeeeeeeeeeeeeeeeX
+D:Xeeeeeeeeeeeeeffff......X-X****XX**..c^XXXX*..****X....X.....X^^^^^^^^X......ffeeeeeeeeeeeeeeeeeeeeeeeeeeX
+D:Xeeeeeeeeeeeeeeff......XX-X***XXXX....^X****..*XXXX.c..X..XXXX^XXX^^^^X....fffeeeeeeeeeeeeeeeeeeeeeeeeeeeX
+D:Xeeeeeeeeeeeeeffff.....X!-%$XXX..XX...^X*.c..**X^^^^^^^X^^X^^^^X******X...ffffeeeeeeeeeeeeeeeeeeeeeeeeeeeX
+D:Xeeeeeeeeeeeeeeefff....XXXXXX....^X...^X*....*XXXXDDXXXXXXD^^^^X***XXXX......ffeeeeeeeeeeeeeeeeeeeeeeeeeeX
+D:Xeeeeeeeeeeeefffff.....X*****....^D^^^^X^^^^^XX^^^^^^^X..X*********X..........fffeeeeeeeeeeeeeeeeeeeeeeeeX
+D:Xeeeeeeeeeeeeeff.......X*****c...^XXXXXX^^^^^D^^.c..^XX..X*********XX...........ffffeeeeeeeeeeeeeeeeeeeeeX
+D:Xeeeeeeeeeeeeff...ff...X****^....^D^^^^^^^^^^XXXXXXXXX..XX***XXXX***XX...........ffeeeeeeeeeeeeeeeeeeeeeeX
+D:Xeeeeeeeeeeeeef..ffff..XXXXXXXXXXXX^^^^^^^^^^X.........XX***XX..XX***XX........fffeeeeeeeeeeeeeeeeeeeeeeeX
+D:Xeeeeeeeeeeeeeff..feff............XXXXXXXXXXXX........XX***XX....XX***XX.....fffeeeeeeeeeeeeeeeeeeeeeeeeeX
+D:Xeeeeeeeeeeeeeefffeeffff...............................XXXXX......XXXXX..ffffffeeeeeeeeeeeeeeeeeeeeeeeeeeX
+D:Xeeeeeeeeeeeeeeeeeeefffff.........f...f.................................ffffeeeeeeeeeeeeeeeeeeeeeeeeeeeeeX
+D:Xeeeeeeeeeeeeeeeeeeeeefffff.....ffff,fff.................................ffffeeeeeeeeeeeeeeeeeeeeeeeeeeeeX
+D:Xeeeeeeeeeeeeeeeeeeeeeffffff...ffffffff..fff......ff..fff...ff..fff.f.....ffeeeeeeeeeeeeeeeeeeeeeeeeeeeeeX
+D:Xeeeeeeeeeeeeeeeeeeeeeeeffffffffeeeffffffffff..f..ffffff...fffffffffff...ffeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeX
+D:Xeeeeeeeeeeeeeeeeeeeeeeeefffeeeeeeeeeeffffffffff..fffeffffffeeeffffffff.feeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeX
+D:Xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeefffff...ffffeeffeeeeeeefffeffffffeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeX
+D:Xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeefff...fffeeeeeeeeeeeeeefeeeefffeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeX
+D:XeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeefffffffeeeeeeeeeeeeeeeeeeeeeffeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeX
+D:XeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeffffeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeX
+D:XeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeffeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeX
+D:XeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeX
+D:XeeeeeeeeeeeffeeeeeeeeeeeeeeeefeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeX
+D:XeeeeeeeeeefffffeeeeeeeeeeeeefffeeeeeeeeeeeffeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeX
+D:Xeeeeeeeeeff...ffeeeeeeeeeeeff.ffeeeeeeeefffffeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeX
+D:Xeeeeeeeefffff..ffeeffffffeff...ffeeeeefffffffeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeX
+D:Xeeeeeeeeefff....ffff...feeff....ffeeefff.fffeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeX
+D:Xeeeeeeeeff......ff....fffff....fffffff...ffeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeX
+D:Xeeeeeeefff........................f...ffffeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeX
+D:Xeeeeefff.....<........................fffeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# Starting position
+P:52:15
+

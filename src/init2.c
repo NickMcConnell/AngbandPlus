@@ -5,6 +5,12 @@
 #include "angband.h"
 
 
+#ifdef CHECK_MODIFICATION_TIME
+#include <sys/types.h>
+#include <sys/stat.h>
+#endif /* CHECK_MODIFICATION_TIME */
+
+
 /*
  * This file is used to initialize various variables and arrays for the
  * Angband game.  Note the use of "fd_read()" and "fd_write()" to bypass
@@ -96,7 +102,6 @@ void init_file_paths(char *path)
 
 
 #ifdef VM
-
 
 	/*** Use "flat" paths with VM/ESA ***/
 
@@ -216,8 +221,8 @@ s16b error_line;
  * Hack -- help initialize the fake "name" and "text" arrays when
  * parsing an "ascii" template file.
  */
-u16b fake_name_size;
-u16b fake_text_size;
+u32b fake_name_size;
+u32b fake_text_size;
 
 
 /*
@@ -236,7 +241,45 @@ static cptr err_str[8] =
 };
 
 
-#endif
+#endif /* ALLOW_TEMPLATES */
+
+
+#ifdef CHECK_MODIFICATION_TIME
+
+static errr check_modification_date(int fd, cptr template_file)
+{
+	char buf[1024];
+
+	struct stat txt_stat, raw_stat;
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_EDIT, template_file);
+
+	/* Access stats on text file */
+	if (stat(buf, &txt_stat))
+	{
+		/* Error */
+		return (-1);
+	}
+
+	/* Access stats on raw file */
+	if (fstat(fd, &raw_stat))
+	{
+		/* Error */
+		return (-1);
+	}
+
+	/* Ensure text file is not newer than raw file */
+	if (txt_stat.st_mtime > raw_stat.st_mtime)
+	{
+		/* Reprocess text file */
+		return (-1);
+	}
+
+	return (0);
+}
+
+#endif /* CHECK_MODIFICATION_TIME */
 
 
 
@@ -249,7 +292,6 @@ static cptr err_str[8] =
 static errr init_f_info_raw(int fd)
 {
 	header test;
-
 
 	/* Read and Verify the header */
 	if (fd_read(fd, (char*)(&test), sizeof(header)) ||
@@ -293,7 +335,7 @@ static errr init_f_info_raw(int fd)
 	/* Read the "f_text" array */
 	fd_read(fd, (char*)(f_text), f_head->text_size);
 
-#endif
+#endif /* DELAY_LOAD_F_TEXT */
 
 
 	/* Success */
@@ -314,7 +356,7 @@ static errr init_f_info(void)
 
 	int mode = 0644;
 
-	errr err;
+	errr err = 0;
 
 	FILE *fp;
 
@@ -334,7 +376,7 @@ static errr init_f_info(void)
 	f_head->v_extra = 0;
 
 	/* Save the "record" information */
-	f_head->info_num = MAX_F_IDX;
+	f_head->info_num = max_f_idx;
 	f_head->info_len = sizeof(feature_type);
 
 	/* Save the size of "f_head" and "f_info" */
@@ -355,8 +397,15 @@ static errr init_f_info(void)
 	/* Process existing "raw" file */
 	if (fd >= 0)
 	{
+#ifdef CHECK_MODIFICATION_TIME
+
+		err = check_modification_date(fd, "f_info.txt");
+
+#endif /* CHECK_MODIFICATION_TIME */
+
 		/* Attempt to parse the "raw" file */
-		err = init_f_info_raw(fd);
+		if (!err)
+			err = init_f_info_raw(fd);
 
 		/* Close it */
 		(void)fd_close(fd);
@@ -364,17 +413,19 @@ static errr init_f_info(void)
 		/* Success */
 		if (!err) return (0);
 
+#if 0
 		/* Information */
 		msg_print("Ignoring obsolete/defective 'f_info.raw' file.");
 		msg_print(NULL);
+#endif
 	}
 
 
 	/*** Make the fake arrays ***/
 
 	/* Fake the size of "f_name" and "f_text" */
-	fake_name_size = 20 * 1024L;
-	fake_text_size = 60 * 1024L;
+	fake_name_size = FAKE_NAME_SIZE;
+	fake_text_size = FAKE_TEXT_SIZE;
 
 	/* Allocate the "f_info" array */
 	C_MAKE(f_info, f_head->info_num, feature_type);
@@ -503,7 +554,6 @@ static errr init_k_info_raw(int fd)
 {
 	header test;
 
-
 	/* Read and Verify the header */
 	if (fd_read(fd, (char*)(&test), sizeof(header)) ||
 	    (test.v_major != k_head->v_major) ||
@@ -546,7 +596,7 @@ static errr init_k_info_raw(int fd)
 	/* Read the "k_text" array */
 	fd_read(fd, (char*)(k_text), k_head->text_size);
 
-#endif
+#endif /* DELAY_LOAD_K_TEXT */
 
 
 	/* Success */
@@ -567,7 +617,7 @@ static errr init_k_info(void)
 
 	int mode = 0644;
 
-	errr err;
+	errr err = 0;
 
 	FILE *fp;
 
@@ -587,7 +637,7 @@ static errr init_k_info(void)
 	k_head->v_extra = 0;
 
 	/* Save the "record" information */
-	k_head->info_num = MAX_K_IDX;
+	k_head->info_num = max_k_idx;
 	k_head->info_len = sizeof(object_kind);
 
 	/* Save the size of "k_head" and "k_info" */
@@ -608,8 +658,15 @@ static errr init_k_info(void)
 	/* Process existing "raw" file */
 	if (fd >= 0)
 	{
+#ifdef CHECK_MODIFICATION_TIME
+
+		err = check_modification_date(fd, "k_info.txt");
+
+#endif /* CHECK_MODIFICATION_TIME */
+
 		/* Attempt to parse the "raw" file */
-		err = init_k_info_raw(fd);
+		if (!err)
+			err = init_k_info_raw(fd);
 
 		/* Close it */
 		(void)fd_close(fd);
@@ -617,17 +674,19 @@ static errr init_k_info(void)
 		/* Success */
 		if (!err) return (0);
 
+#if 0
 		/* Information */
 		msg_print("Ignoring obsolete/defective 'k_info.raw' file.");
 		msg_print(NULL);
+#endif
 	}
 
 
 	/*** Make the fake arrays ***/
 
 	/* Fake the size of "k_name" and "k_text" */
-	fake_name_size = 20 * 1024L;
-	fake_text_size = 60 * 1024L;
+	fake_name_size = FAKE_NAME_SIZE;
+	fake_text_size = FAKE_TEXT_SIZE;
 
 	/* Allocate the "k_info" array */
 	C_MAKE(k_info, k_head->info_num, object_kind);
@@ -756,7 +815,6 @@ static errr init_a_info_raw(int fd)
 {
 	header test;
 
-
 	/* Read and Verify the header */
 	if (fd_read(fd, (char*)(&test), sizeof(header)) ||
 	    (test.v_major != a_head->v_major) ||
@@ -799,7 +857,7 @@ static errr init_a_info_raw(int fd)
 	/* Read the "a_text" array */
 	fd_read(fd, (char*)(a_text), a_head->text_size);
 
-#endif
+#endif /* DELAY_LOAD_A_TEXT */
 
 
 	/* Success */
@@ -820,7 +878,7 @@ static errr init_a_info(void)
 
 	int mode = 0644;
 
-	errr err;
+	errr err = 0;
 
 	FILE *fp;
 
@@ -840,7 +898,7 @@ static errr init_a_info(void)
 	a_head->v_extra = 0;
 
 	/* Save the "record" information */
-	a_head->info_num = MAX_A_IDX;
+	a_head->info_num = max_a_idx;
 	a_head->info_len = sizeof(artifact_type);
 
 	/* Save the size of "a_head" and "a_info" */
@@ -861,8 +919,15 @@ static errr init_a_info(void)
 	/* Process existing "raw" file */
 	if (fd >= 0)
 	{
+#ifdef CHECK_MODIFICATION_TIME
+
+		err = check_modification_date(fd, "a_info.txt");
+
+#endif /* CHECK_MODIFICATION_TIME */
+
 		/* Attempt to parse the "raw" file */
-		err = init_a_info_raw(fd);
+		if (!err)
+			err = init_a_info_raw(fd);
 
 		/* Close it */
 		(void)fd_close(fd);
@@ -870,17 +935,19 @@ static errr init_a_info(void)
 		/* Success */
 		if (!err) return (0);
 
+#if 0
 		/* Information */
 		msg_print("Ignoring obsolete/defective 'a_info.raw' file.");
 		msg_print(NULL);
+#endif
 	}
 
 
 	/*** Make the fake arrays ***/
 
 	/* Fake the size of "a_name" and "a_text" */
-	fake_name_size = 20 * 1024L;
-	fake_text_size = 60 * 1024L;
+	fake_name_size = FAKE_NAME_SIZE;
+	fake_text_size = FAKE_TEXT_SIZE;
 
 	/* Allocate the "a_info" array */
 	C_MAKE(a_info, a_head->info_num, artifact_type);
@@ -1009,7 +1076,6 @@ static errr init_e_info_raw(int fd)
 {
 	header test;
 
-
 	/* Read and Verify the header */
 	if (fd_read(fd, (char*)(&test), sizeof(header)) ||
 	    (test.v_major != e_head->v_major) ||
@@ -1052,7 +1118,7 @@ static errr init_e_info_raw(int fd)
 	/* Read the "e_text" array */
 	fd_read(fd, (char*)(e_text), e_head->text_size);
 
-#endif
+#endif /* DELAY_LOAD_E_TEXT */
 
 
 	/* Success */
@@ -1073,7 +1139,7 @@ static errr init_e_info(void)
 
 	int mode = 0644;
 
-	errr err;
+	errr err = 0;
 
 	FILE *fp;
 
@@ -1093,7 +1159,7 @@ static errr init_e_info(void)
 	e_head->v_extra = 0;
 
 	/* Save the "record" information */
-	e_head->info_num = MAX_E_IDX;
+	e_head->info_num = max_e_idx;
 	e_head->info_len = sizeof(ego_item_type);
 
 	/* Save the size of "e_head" and "e_info" */
@@ -1114,8 +1180,17 @@ static errr init_e_info(void)
 	/* Process existing "raw" file */
 	if (fd >= 0)
 	{
+
+#ifdef CHECK_MODIFICATION_TIME
+
+		err = check_modification_date(fd, "e_info.txt");
+
+#endif /* CHECK_MODIFICATION_TIME */
+
+		
 		/* Attempt to parse the "raw" file */
-		err = init_e_info_raw(fd);
+		if (!err)
+			err = init_e_info_raw(fd);
 
 		/* Close it */
 		(void)fd_close(fd);
@@ -1123,17 +1198,19 @@ static errr init_e_info(void)
 		/* Success */
 		if (!err) return (0);
 
+#if 0
 		/* Information */
 		msg_print("Ignoring obsolete/defective 'e_info.raw' file.");
 		msg_print(NULL);
+#endif
 	}
 
 
 	/*** Make the fake arrays ***/
 
 	/* Fake the size of "e_name" and "e_text" */
-	fake_name_size = 20 * 1024L;
-	fake_text_size = 60 * 1024L;
+	fake_name_size = FAKE_NAME_SIZE;
+	fake_text_size = FAKE_TEXT_SIZE;
 
 	/* Allocate the "e_info" array */
 	C_MAKE(e_info, e_head->info_num, ego_item_type);
@@ -1262,7 +1339,6 @@ static errr init_r_info_raw(int fd)
 {
 	header test;
 
-
 	/* Read and Verify the header */
 	if (fd_read(fd, (char*)(&test), sizeof(header)) ||
 	    (test.v_major != r_head->v_major) ||
@@ -1305,7 +1381,7 @@ static errr init_r_info_raw(int fd)
 	/* Read the "r_text" array */
 	fd_read(fd, (char*)(r_text), r_head->text_size);
 
-#endif
+#endif /* DELAY_LOAD_R_TEXT */
 
 
 	/* Success */
@@ -1326,7 +1402,7 @@ static errr init_r_info(void)
 
 	int mode = 0644;
 
-	errr err;
+	errr err = 0;
 
 	FILE *fp;
 
@@ -1346,7 +1422,7 @@ static errr init_r_info(void)
 	r_head->v_extra = 0;
 
 	/* Save the "record" information */
-	r_head->info_num = MAX_R_IDX;
+	r_head->info_num = max_r_idx;
 	r_head->info_len = sizeof(monster_race);
 
 	/* Save the size of "r_head" and "r_info" */
@@ -1367,8 +1443,15 @@ static errr init_r_info(void)
 	/* Process existing "raw" file */
 	if (fd >= 0)
 	{
+#ifdef CHECK_MODIFICATION_TIME
+
+		err = check_modification_date(fd, "r_info.txt");
+
+#endif /* CHECK_MODIFICATION_TIME */
+
 		/* Attempt to parse the "raw" file */
-		err = init_r_info_raw(fd);
+		if (!err)
+			err = init_r_info_raw(fd);
 
 		/* Close it */
 		(void)fd_close(fd);
@@ -1376,17 +1459,19 @@ static errr init_r_info(void)
 		/* Success */
 		if (!err) return (0);
 
+#if 0
 		/* Information */
 		msg_print("Ignoring obsolete/defective 'r_info.raw' file.");
 		msg_print(NULL);
+#endif
 	}
 
 
 	/*** Make the fake arrays ***/
 
 	/* Assume the size of "r_name" and "r_text" */
-	fake_name_size = 20 * 1024L;
-	fake_text_size = 60 * 1024L;
+	fake_name_size = FAKE_NAME_SIZE;
+	fake_text_size = FAKE_TEXT_SIZE;
 
 	/* Allocate the "r_info" array */
 	C_MAKE(r_info, r_head->info_num, monster_race);
@@ -1515,7 +1600,6 @@ static errr init_v_info_raw(int fd)
 {
 	header test;
 
-
 	/* Read and Verify the header */
 	if (fd_read(fd, (char*)(&test), sizeof(header)) ||
 	    (test.v_major != v_head->v_major) ||
@@ -1558,12 +1642,11 @@ static errr init_v_info_raw(int fd)
 	/* Read the "v_text" array */
 	fd_read(fd, (char*)(v_text), v_head->text_size);
 
-#endif
+#endif /* DELAY_LOAD_V_TEXT */
 
 	/* Success */
 	return (0);
 }
-
 
 
 /*
@@ -1572,7 +1655,7 @@ static errr init_v_info_raw(int fd)
  * Note that we let each entry have a unique "name" and "text" string,
  * even if the string happens to be empty (everyone has a unique '\0').
  */
-static errr init_v_info(void)
+errr init_v_info(void)
 {
 	int fd;
 
@@ -1598,7 +1681,7 @@ static errr init_v_info(void)
 	v_head->v_extra = 0;
 
 	/* Save the "record" information */
-	v_head->info_num = MAX_V_IDX;
+	v_head->info_num = max_v_idx;
 	v_head->info_len = sizeof(vault_type);
 
 	/* Save the size of "v_head" and "v_info" */
@@ -1613,14 +1696,25 @@ static errr init_v_info(void)
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_DATA, "v_info.raw");
 
+#if 0
 	/* Attempt to open the "raw" file */
 	fd = fd_open(buf, O_RDONLY);
+#else
+	fd = -1;
+#endif
 
 	/* Process existing "raw" file */
 	if (fd >= 0)
 	{
+#ifdef CHECK_MODIFICATION_TIME
+
+		err = check_modification_date(fd, "v_info.txt");
+
+#endif /* CHECK_MODIFICATION_TIME */
+
 		/* Attempt to parse the "raw" file */
-		err = init_v_info_raw(fd);
+		if (!err)
+			err = init_v_info_raw(fd);
 
 		/* Close it */
 		(void)fd_close(fd);
@@ -1628,17 +1722,19 @@ static errr init_v_info(void)
 		/* Success */
 		if (!err) return (0);
 
+#if 0
 		/* Information */
 		msg_print("Ignoring obsolete/defective 'v_info.raw' file.");
 		msg_print(NULL);
+#endif
 	}
 
 
 	/*** Make the fake arrays ***/
 
 	/* Fake the size of "v_name" and "v_text" */
-	fake_name_size = 20 * 1024L;
-	fake_text_size = 60 * 1024L;
+	fake_name_size = FAKE_NAME_SIZE;
+	fake_text_size = FAKE_TEXT_SIZE;
 
 	/* Allocate the "k_info" array */
 	C_MAKE(v_info, v_head->info_num, vault_type);
@@ -1660,7 +1756,7 @@ static errr init_v_info(void)
 	if (!fp) quit("Cannot open 'v_info.txt' file.");
 
 	/* Parse the file */
-	err = init_v_info_txt(fp, buf);
+	err = init_v_info_txt(fp, buf, TRUE);
 
 	/* Close it */
 	my_fclose(fp);
@@ -1731,7 +1827,7 @@ static errr init_v_info(void)
 	fake_name_size = 0;
 	fake_text_size = 0;
 
-#endif	/* ALLOW_TEMPLATES */
+#endif /* ALLOW_TEMPLATES */
 
 
 	/*** Load the binary image file ***/
@@ -1760,10 +1856,7 @@ static errr init_v_info(void)
 
 
 
-
 /*** Initialize others ***/
-
-
 
 /*
  * Hack -- Objects sold in the stores -- by tval/sval pair.
@@ -1811,9 +1904,9 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 		{ TV_DIGGING, SV_PICK },
 		{ TV_CLOAK, SV_CLOAK },
 		{ TV_CLOAK, SV_CLOAK },
-		{ TV_CLOAK, SV_CLOAK },
+		{ TV_CLOAK, SV_FUR_CLOAK },
 
-		{ TV_FOOD, SV_FOOD_RATION },	/* Added +16 objects (Z-2.1.0) */
+		{ TV_FOOD, SV_FOOD_RATION },
 		{ TV_FOOD, SV_FOOD_RATION },
 		{ TV_FOOD, SV_FOOD_RATION },
 		{ TV_FOOD, SV_FOOD_RATION },
@@ -1857,27 +1950,27 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 		{ TV_SOFT_ARMOR, SV_HARD_STUDDED_LEATHER },
 		{ TV_SOFT_ARMOR, SV_HARD_STUDDED_LEATHER },
 
-		{ TV_SOFT_ARMOR, SV_LEATHER_SCALE_MAIL },
+		{ TV_SOFT_ARMOR, SV_RHINO_HIDE_ARMOR },
 		{ TV_SOFT_ARMOR, SV_LEATHER_SCALE_MAIL },
 		{ TV_HARD_ARMOR, SV_METAL_SCALE_MAIL },
 		{ TV_HARD_ARMOR, SV_CHAIN_MAIL },
 
-		{ TV_HARD_ARMOR, SV_CHAIN_MAIL },
+		{ TV_HARD_ARMOR, SV_DOUBLE_RING_MAIL },
 		{ TV_HARD_ARMOR, SV_AUGMENTED_CHAIN_MAIL },
 		{ TV_HARD_ARMOR, SV_BAR_CHAIN_MAIL },
 		{ TV_HARD_ARMOR, SV_DOUBLE_CHAIN_MAIL },
 
 		{ TV_HARD_ARMOR, SV_METAL_BRIGANDINE_ARMOUR },
+		{ TV_HARD_ARMOR, SV_SPLINT_MAIL },
 		{ TV_GLOVES, SV_SET_OF_LEATHER_GLOVES },
 		{ TV_GLOVES, SV_SET_OF_LEATHER_GLOVES },
-		{ TV_GLOVES, SV_SET_OF_GAUNTLETS },
 
-		{ TV_SHIELD, SV_SMALL_LEATHER_SHIELD },
+		{ TV_GLOVES, SV_SET_OF_GAUNTLETS },
 		{ TV_SHIELD, SV_SMALL_LEATHER_SHIELD },
 		{ TV_SHIELD, SV_LARGE_LEATHER_SHIELD },
 		{ TV_SHIELD, SV_SMALL_METAL_SHIELD },
 
-		{ TV_BOOTS, SV_PAIR_OF_HARD_LEATHER_BOOTS },	/* +16 */
+		{ TV_BOOTS, SV_PAIR_OF_HARD_LEATHER_BOOTS },
 		{ TV_BOOTS, SV_PAIR_OF_HARD_LEATHER_BOOTS },
 		{ TV_HELM, SV_HARD_LEATHER_CAP },
 		{ TV_HELM, SV_HARD_LEATHER_CAP },
@@ -1887,7 +1980,7 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR },
 		{ TV_SOFT_ARMOR, SV_HARD_LEATHER_ARMOR },
 
-		{ TV_SOFT_ARMOR, SV_LEATHER_SCALE_MAIL },
+		{ TV_SOFT_ARMOR, SV_LEATHER_JACK },
 		{ TV_HARD_ARMOR, SV_METAL_SCALE_MAIL },
 		{ TV_HARD_ARMOR, SV_CHAIN_MAIL },
 		{ TV_HARD_ARMOR, SV_CHAIN_MAIL },
@@ -1927,7 +2020,7 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 		{ TV_POLEARM, SV_LANCE },
 
 		{ TV_POLEARM, SV_BATTLE_AXE },
-		{ TV_HAFTED, SV_WHIP },
+		{ TV_POLEARM, SV_HATCHET },
 		{ TV_BOW, SV_SLING },
 		{ TV_BOW, SV_SHORT_BOW },
 
@@ -1941,7 +2034,7 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 		{ TV_BOLT, SV_AMMO_NORMAL },
 		{ TV_BOLT, SV_AMMO_NORMAL },
 
-		{ TV_BOW, SV_LONG_BOW },	/* +16 */
+		{ TV_BOW, SV_LONG_BOW },
 		{ TV_BOW, SV_LIGHT_XBOW },
 		{ TV_ARROW, SV_AMMO_NORMAL },
 		{ TV_ARROW, SV_AMMO_NORMAL },
@@ -1951,7 +2044,7 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 		{ TV_BOW, SV_SHORT_BOW },
 		{ TV_SWORD, SV_DAGGER },
 
-		{ TV_SWORD, SV_MAIN_GAUCHE },
+		{ TV_SWORD, SV_TANTO },
 		{ TV_SWORD, SV_RAPIER },
 		{ TV_SWORD, SV_SMALL_SWORD },
 		{ TV_SWORD, SV_SHORT_SWORD },
@@ -1965,10 +2058,10 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 	{
 		/* Temple */
 
-		{ TV_HAFTED, SV_WHIP },
+		{ TV_HAFTED, SV_NUNCHAKU },
 		{ TV_HAFTED, SV_QUARTERSTAFF },
 		{ TV_HAFTED, SV_MACE },
-		{ TV_HAFTED, SV_BALL_AND_CHAIN },
+		{ TV_HAFTED, SV_BO_STAFF },
 
 		{ TV_HAFTED, SV_WAR_HAMMER },
 		{ TV_HAFTED, SV_LUCERN_HAMMER },
@@ -2005,7 +2098,7 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 		{ TV_LIFE_BOOK, 1 },
 		{ TV_LIFE_BOOK, 1 },
 
-		{ TV_HAFTED, SV_WHIP },		/* +16 */
+		{ TV_HAFTED, SV_WHIP },
 		{ TV_HAFTED, SV_MACE },
 		{ TV_HAFTED, SV_BALL_AND_CHAIN },
 		{ TV_HAFTED, SV_WAR_HAMMER },
@@ -2067,7 +2160,7 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 		{ TV_POTION, SV_POTION_RES_DEX },
 		{ TV_POTION, SV_POTION_RES_CON },
 		{ TV_POTION, SV_POTION_RES_CHR },
-		{ TV_SCROLL, SV_SCROLL_IDENTIFY },  /* +16 */
+		{ TV_SCROLL, SV_SCROLL_IDENTIFY },
 
 		{ TV_SCROLL, SV_SCROLL_IDENTIFY },
 		{ TV_SCROLL, SV_SCROLL_STAR_IDENTIFY },  /* Yep, occasionally! */
@@ -2278,6 +2371,177 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 };
 
 
+/*
+ * Initialize misc. values
+ */
+static errr init_misc(void)
+{
+	int xstart = 0;
+	int ystart = 0;
+
+	/* Initialize the values */
+	process_dungeon_file("misc.txt", &ystart, &xstart, 0, 0);
+
+	return 0;
+}
+
+
+/*
+ * Initialize town array
+ */
+static errr init_towns(void)
+{
+	int i, j, k;
+	
+	/*** Prepare the Towns ***/
+
+	/* Allocate the towns */
+	C_MAKE(town, max_towns, town_type);
+
+	for (i = 1; i < max_towns; i++)
+	{
+		/*** Prepare the Stores ***/
+
+		/* Allocate the stores */
+		C_MAKE(town[i].store, MAX_STORES, store_type);
+
+		/* Fill in each store */
+		for (j = 0; j < MAX_STORES; j++)
+		{
+			/* Access the store */
+			store_type *st_ptr = &town[i].store[j];
+
+			/* Assume full stock */
+			st_ptr->stock_size = STORE_INVEN_MAX;
+
+			/* Allocate the stock */
+			C_MAKE(st_ptr->stock, st_ptr->stock_size, object_type);
+
+			/* No table for the black market or home */
+			if ((j == STORE_BLACK) || (j == STORE_HOME)) continue;
+
+			/* Assume full table */
+			st_ptr->table_size = STORE_CHOICES;
+
+			/* Allocate the stock */
+			C_MAKE(st_ptr->table, st_ptr->table_size, s16b);
+
+			/* Scan the choices */
+			for (k = 0; k < STORE_CHOICES; k++)
+			{
+				int k_idx;
+
+				/* Extract the tval/sval codes */
+				int tv = store_table[j][k][0];
+				int sv = store_table[j][k][1];
+
+				/* Look for it */
+				for (k_idx = 1; k_idx < max_k_idx; k_idx++)
+				{
+					object_kind *k_ptr = &k_info[k_idx];
+
+					/* Found a match */
+					if ((k_ptr->tval == tv) && (k_ptr->sval == sv)) break;
+				}
+
+				/* Catch errors */
+				if (k_idx == max_k_idx) continue;
+
+				/* Add that item index to the table */
+				st_ptr->table[st_ptr->table_num++] = k_idx;
+			}
+		}
+	}
+
+	return 0;
+}
+
+/*
+ * Initialize buildings
+ */
+errr init_buildings(void)
+{
+	int i, j;
+
+	for (i = 0; i < MAX_BLDG; i++)
+	{
+		building[i].name[0] = '\0';
+		building[i].owner_name[0] = '\0';
+		building[i].owner_race[0] = '\0';
+		
+		for (j = 0; j < 6; j++)
+		{
+			building[i].act_names[j][0] = '\0';
+			building[i].member_costs[j] = 0;
+			building[i].other_costs[j] = 0;
+			building[i].letters[j] = 0;
+			building[i].actions[j] = 0;
+			building[i].action_restr[j] = 0;
+		}
+
+		for (j = 0; j < MAX_CLASS; j++)
+		{
+			building[i].member_class[j] = 0;
+		}
+
+		for (j = 0; j < MAX_RACES; j++)
+		{
+			building[i].member_race[j] = 0;
+		}
+
+		for (j = 0; j < MAX_REALM+1; j++)
+		{
+			building[i].member_realm[j] = 0;
+		}
+	}
+
+	return (0);
+}
+
+
+/*
+ * Initialize quest array
+ */
+static errr init_quests(void)
+{
+	int i;
+	
+	/*** Prepare the quests ***/
+
+	/* Allocate the quests */
+	C_MAKE(quest, max_quests, quest_type);
+
+	/* Set all quest to "untaken" */
+	for (i = 0; i < max_quests; i++)
+	{
+		quest[i].status = 0;
+	}
+
+	return 0;
+}
+
+/*
+ * Pointer to wilderness_type
+ */
+typedef wilderness_type *wilderness_type_ptr;
+
+/*
+ * Initialize wilderness array
+ */
+static errr init_wilderness(void)
+{
+	int i;
+
+	/* Allocate the wilderness (two-dimension array) */
+	C_MAKE(wilderness, max_wild_y, wilderness_type_ptr);
+	C_MAKE(wilderness[0], max_wild_x * max_wild_y, wilderness_type);
+
+	/* Init the other pointers */
+	for (i = 1; i < max_wild_y; i++)
+		wilderness[i] = wilderness[0] + i * max_wild_x;
+
+	return 0;
+}
 
 
 /*
@@ -2285,16 +2549,16 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
  */
 static errr init_other(void)
 {
-	int i, k, n;
+	int i, n;
 
 
 	/*** Prepare the "dungeon" information ***/
 
 	/* Allocate and Wipe the object list */
-	C_MAKE(o_list, MAX_O_IDX, object_type);
+	C_MAKE(o_list, max_o_idx, object_type);
 
 	/* Allocate and Wipe the monster list */
-	C_MAKE(m_list, MAX_M_IDX, monster_type);
+	C_MAKE(m_list, max_m_idx, monster_type);
 
 
 	/* Allocate and wipe each line of the cave */
@@ -2330,59 +2594,6 @@ static errr init_other(void)
 
 	/* Allocate it */
 	C_MAKE(inventory, INVEN_TOTAL, object_type);
-
-
-	/*** Prepare the Stores ***/
-
-	/* Allocate the stores */
-	C_MAKE(store, MAX_STORES, store_type);
-
-	/* Fill in each store */
-	for (i = 0; i < MAX_STORES; i++)
-	{
-		/* Access the store */
-		store_type *st_ptr = &store[i];
-
-		/* Assume full stock */
-		st_ptr->stock_size = STORE_INVEN_MAX;
-
-		/* Allocate the stock */
-		C_MAKE(st_ptr->stock, st_ptr->stock_size, object_type);
-
-		/* No table for the black market or home */
-		if ((i == 6) || (i == 7)) continue;
-
-		/* Assume full table */
-		st_ptr->table_size = STORE_CHOICES;
-
-		/* Allocate the stock */
-		C_MAKE(st_ptr->table, st_ptr->table_size, s16b);
-
-		/* Scan the choices */
-		for (k = 0; k < STORE_CHOICES; k++)
-		{
-			int k_idx;
-
-			/* Extract the tval/sval codes */
-			int tv = store_table[i][k][0];
-			int sv = store_table[i][k][1];
-
-			/* Look for it */
-			for (k_idx = 1; k_idx < MAX_K_IDX; k_idx++)
-			{
-				object_kind *k_ptr = &k_info[k_idx];
-
-				/* Found a match */
-				if ((k_ptr->tval == tv) && (k_ptr->sval == sv)) break;
-			}
-
-			/* Catch errors */
-			if (k_idx == MAX_K_IDX) continue;
-
-			/* Add that item index to the table */
-			st_ptr->table[st_ptr->table_num++] = k_idx;
-		}
-	}
 
 
 	/*** Pre-allocate the basic "auto-inscriptions" ***/
@@ -2492,7 +2703,7 @@ static errr init_alloc(void)
 	alloc_kind_size = 0;
 
 	/* Scan the objects */
-	for (i = 1; i < MAX_K_IDX; i++)
+	for (i = 1; i < max_k_idx; i++)
 	{
 		k_ptr = &k_info[i];
 
@@ -2531,7 +2742,7 @@ static errr init_alloc(void)
 	table = alloc_kind_table;
 
 	/* Scan the objects */
-	for (i = 1; i < MAX_K_IDX; i++)
+	for (i = 1; i < max_k_idx; i++)
 	{
 		k_ptr = &k_info[i];
 
@@ -2568,6 +2779,59 @@ static errr init_alloc(void)
 		}
 	}
 
+#ifdef SORT_R_INFO
+
+	{
+		tag_type *elements;
+
+		/* Allocate the "r_info" array */
+		C_MAKE(elements, max_r_idx, tag_type);
+
+		/* Scan the monsters */
+		for (i = 1; i < max_r_idx; i++)
+		{
+			elements[i].tag = r_info[i].level;
+			elements[i].pointer = (void*)i;
+		}
+
+		tag_sort(elements, max_r_idx);
+
+		/*** Initialize monster allocation info ***/
+
+		/* Size of "alloc_race_table" */
+		alloc_race_size = max_r_idx;
+
+		/* Allocate the alloc_race_table */
+		C_MAKE(alloc_race_table, alloc_race_size, alloc_entry);
+
+		/* Scan the monsters */
+		for (i = 1; i < max_r_idx; i++)
+		{
+			/* Get the i'th race */
+			r_ptr = &r_info[(int)elements[i].pointer];
+
+			/* Count valid pairs */
+			if (r_ptr->rarity)
+			{
+				int p, x;
+
+				/* Extract the base level */
+				x = r_ptr->level;
+
+				/* Extract the base probability */
+				p = (100 / r_ptr->rarity);
+
+				/* Load the entry */
+				alloc_race_table[i].index = (int)elements[i].pointer;
+				alloc_race_table[i].level = x;
+				alloc_race_table[i].prob1 = p;
+				alloc_race_table[i].prob2 = p;
+				alloc_race_table[i].prob3 = p;
+			}
+		}
+	}
+
+#else /* SORT_R_INFO */
 
 	/*** Analyze monster allocation info ***/
 
@@ -2580,8 +2844,8 @@ static errr init_alloc(void)
 	/* Size of "alloc_race_table" */
 	alloc_race_size = 0;
 
-	/* Scan the monsters (not the ghost) */
-	for (i = 1; i < MAX_R_IDX - 1; i++)
+	/* Scan the monsters */
+	for (i = 1; i < max_r_idx; i++)
 	{
 		/* Get the i'th race */
 		r_ptr = &r_info[i];
@@ -2616,8 +2880,8 @@ static errr init_alloc(void)
 	/* Access the table entry */
 	table = alloc_race_table;
 
-	/* Scan the monsters (not the ghost) */
-	for (i = 1; i < MAX_R_IDX - 1; i++)
+	/* Scan the monsters */
+	for (i = 1; i < max_r_idx; i++)
 	{
 		/* Get the i'th race */
 		r_ptr = &r_info[i];
@@ -2651,6 +2915,7 @@ static errr init_alloc(void)
 		}
 	}
 
+#endif /* SORT_R_INFO */
 
 	/* Success */
 	return (0);
@@ -2845,6 +3110,17 @@ void init_angband(void)
 
 	/*** Initialize some arrays ***/
 
+	/* Initialize misc. values */
+	note("[Initializing values... (misc)]");
+	if (init_misc()) quit("Cannot initialize misc. values");
+
+#ifdef USE_SLANG
+
+	note("[Initializing scripts... ]");
+	if (init_script()) quit("Cannot initialize SLang");
+
+#endif /* USE_SLANG */
+
 	/* Initialize feature info */
 	note("[Initializing arrays... (features)]");
 	if (init_f_info()) quit("Cannot initialize features");
@@ -2865,9 +3141,21 @@ void init_angband(void)
 	note("[Initializing arrays... (monsters)]");
 	if (init_r_info()) quit("Cannot initialize monsters");
 
-	/* Initialize feature info */
-	note("[Initializing arrays... (vaults)]");
-	if (init_v_info()) quit("Cannot initialize vaults");
+	/* Initialize wilderness array */
+	note("[Initializing arrays... (wilderness)]");
+	if (init_wilderness()) quit("Cannot initialize wilderness");
+
+	/* Initialize town array */
+	note("[Initializing arrays... (towns)]");
+	if (init_towns()) quit("Cannot initialize towns");
+
+	/* Initialize building array */
+	note("[Initializing arrays... (buildings)]");
+	if (init_buildings()) quit("Cannot initialize buildings");
+
+	/* Initialize quest array */
+	note("[Initializing arrays... (quests)]");
+	if (init_quests()) quit("Cannot initialize quests");
 
 	/* Initialize some other arrays */
 	note("[Initializing arrays... (other)]");
@@ -2910,6 +3198,3 @@ void init_angband(void)
 	/* Done */
 	note("[Initialization complete]");
 }
-
-
-

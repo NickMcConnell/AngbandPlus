@@ -168,6 +168,8 @@ char summon_kin_type;   /* Hack, by Julian Lighton: summon 'relatives' */
 int total_friends = 0;
 s32b total_friend_levels = 0;
 
+int leaving_quest = 0;
+
 
 /*
  * Software options (set via the '=' command).  See "tables.c"
@@ -196,6 +198,11 @@ bool show_details;			/* Show details in certain sub-windows */
 bool ring_bell;				/* Ring the bell (on errors, etc) */
 bool use_color;				/* Use color if possible (slow) */
 
+bool show_inven_graph;		/* Show graphics in inventory */
+bool show_equip_graph;		/* Show graphics in equip list */
+bool show_store_graph;		/* Show graphics in store */
+
+
 
 /* Option Set 2 -- Disturbance */
 
@@ -216,6 +223,7 @@ bool alert_failure;		/* Alert user to various failures */
 bool last_words;		/* Get last words upon dying */
 bool speak_unique;		/* Speaking uniques + shopkeepers */
 bool small_levels;		/* Allow unusually small dungeon levels */
+bool always_small_levels;		/* Use always unusually small dungeon levels */
 bool empty_levels;		/* Allow empty 'arena' levels */
 bool player_symbols;		/* Use varying symbols for the player char */
 bool equippy_chars;		/* Back by popular demand... */
@@ -226,9 +234,6 @@ bool auto_destroy;		/* Known worthless items are destroyed without confirmation 
 bool confirm_stairs;		/* Prompt before staircases... */
 bool wear_confirm;		/* Confirm before putting on known cursed items */
 bool disturb_pets;		/* Pets moving nearby disturb us */
-bool shuffle_songs;		/* Randomize midi songs */
-bool mute_songs;		/* No music */
-bool mute_sounds;		/* No sound effects */
 
 
 
@@ -305,9 +310,9 @@ bool cheat_live;		/* Allow player to avoid death */
 
 /* Special options */
 
-s16b hitpoint_warn;		/* Hitpoint warning (0 to 9) */
+byte hitpoint_warn;		/* Hitpoint warning (0 to 9) */
 
-s16b delay_factor;		/* Delay factor (0 to 9) */
+byte delay_factor;		/* Delay factor (0 to 9) */
 
 bool autosave_l;        /* Autosave before entering new levels */
 bool autosave_t;        /* Timed autosave */
@@ -322,8 +327,6 @@ s16b feeling;			/* Most recent feeling */
 s16b rating;			/* Level's current rating */
 
 bool good_item_flag;		/* True if "Artifact" on this level */
-
-bool new_level_flag;		/* Start a new level */
 
 bool closing_flag;		/* Dungeon is closing */
 
@@ -405,8 +408,8 @@ char savefile[1024];
  * Array of grids lit by player lite (see "cave.c")
  */
 s16b lite_n;
-byte lite_y[LITE_MAX];
-byte lite_x[LITE_MAX];
+s16b lite_y[LITE_MAX];
+s16b lite_x[LITE_MAX];
 
 /*
  * Array of grids viewable to the player (see "cave.c")
@@ -584,7 +587,43 @@ char angband_sound_name[SOUND_MAX][16] =
 	"scroll",
 	"buy",
 	"sell",
-	"warn"
+	"warn",
+	"rocket",
+	"n_kill",
+	"u_kill",
+	"quest",
+	"heal",
+	"x_heal",
+	"bite",
+	"claw",
+	"m_spell",
+	"summon",
+	"breath",
+	"ball",
+	"m_heal",
+	"atkspell",
+	"evil",
+	"touch",
+	"sting",
+	"crush",
+	"slime",
+	"wail",
+	"winner",
+	"fire",
+	"acid",
+	"elec",
+	"cold",
+	"illegal",
+	"fail",
+	"wakeup",
+	"invuln",
+	"fall",
+	"pain",
+	"destitem",
+	"moan",
+	"show",
+	"unused",
+	"explode",
 };
 
 
@@ -596,26 +635,26 @@ char angband_sound_name[SOUND_MAX][16] =
 cave_type *cave[MAX_HGT];
 
 /*
- * The array of dungeon items [MAX_O_IDX]
+ * The array of dungeon items [max_o_idx]
  */
 object_type *o_list;
 
 /*
- * The array of dungeon monsters [MAX_M_IDX]
+ * The array of dungeon monsters [max_m_idx]
  */
 monster_type *m_list;
 
-/*
- * Hack -- Quest array (Heino Vander Sanden)
- */
-quest q_list[MAX_QUESTS + DEFAULT_QUESTS];
-int MAX_Q_IDX;
-
 
 /*
- * The stores [MAX_STORES]
+ * Maximum number of towns
  */
-store_type *store;
+u16b max_towns;
+
+/*
+ * The towns [max_towns]
+ */
+town_type *town;
+
 
 /*
  * The player's inventory [INVEN_TOTAL]
@@ -624,7 +663,7 @@ object_type *inventory;
 
 
 /*
- * The size of "alloc_kind_table" (at most MAX_K_IDX * 4)
+ * The size of "alloc_kind_table" (at most max_k_idx * 4)
  */
 s16b alloc_kind_size;
 
@@ -635,7 +674,7 @@ alloc_entry *alloc_kind_table;
 
 
 /*
- * The size of "alloc_race_table" (at most MAX_R_IDX)
+ * The size of "alloc_race_table" (at most max_r_idx)
  */
 s16b alloc_race_size;
 
@@ -673,7 +712,7 @@ cptr keymap_act[KEYMAP_MODES][256];
 /*
  * Static player info record
  */
-static player_type p_body;
+player_type p_body;
 
 /*
  * Pointer to the player info
@@ -876,10 +915,10 @@ void (*ang_sort_swap)(vptr u, vptr v, int a, int b);
 
 
 /*
- * Hack -- function hook to restrict "get_mon_num_prep()" function
+ * Hack -- function hooks to restrict "get_mon_num_prep()" function
  */
-bool (*get_mon_num_hook)(int r_idx);
-
+monster_hook_type get_mon_num_hook;
+monster_hook_type get_mon_num2_hook;
 
 
 /*
@@ -891,3 +930,95 @@ bool (*get_obj_num_hook)(int k_idx);
 /* Hack, monk armour */
 bool monk_armour_aux;
 bool monk_notify_aux;
+
+#ifdef ALLOW_EASY_OPEN /* TNB */
+bool easy_open = TRUE;
+#endif /* ALLOW_EASY_OPEN -- TNB */
+
+#ifdef ALLOW_EASY_DISARM /* TNB */
+bool easy_disarm = TRUE;
+#endif /* ALLOW_EASY_DISARM -- TNB */
+
+
+/*
+ * Wilderness
+ */
+wilderness_type **wilderness;
+
+
+/*
+ * Buildings
+ */
+building_type building[MAX_BLDG];
+
+
+/*
+ * Maximum number of quests
+ */
+u16b max_quests;
+
+/*
+ * Maximum number of monsters in r_info.txt
+ */
+u16b max_r_idx;
+
+/*
+ * Maximum number of items in k_info.txt
+ */
+u16b max_k_idx;
+
+/*
+ * Maximum number of vaults in v_info.txt
+ */
+u16b max_v_idx;
+
+/*
+ * Maximum number of terrain features in f_info.txt
+ */
+u16b max_f_idx;
+
+/*
+ * Maximum number of artifacts in a_info.txt
+ */
+u16b max_a_idx;
+
+/*
+ * Maximum number of ego-items in e_info.txt
+ */
+u16b max_e_idx;
+
+/*
+ * Maximum number of objects in the level
+ */
+u16b max_o_idx;
+
+/*
+ * Maximum number of monsters in the level
+ */
+u16b max_m_idx;
+
+/*
+ * Maximum size of the wilderness
+ */
+s32b max_wild_x;
+s32b max_wild_y;
+
+/*
+ * Quest info
+ */
+quest_type *quest;
+
+/*
+ * Quest text
+ */
+char quest_text[10][80];
+
+/*
+ * Current line of the quest text
+ */
+int quest_text_line;
+
+/*
+ * Flags for initialization
+ */
+int init_flags;

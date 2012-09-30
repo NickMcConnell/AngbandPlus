@@ -446,8 +446,8 @@ static void image_monster(byte *ap, char *cp)
 		/* Normal graphics */
 		if (!(streq(ANGBAND_SYS, "ibm")))
 		{
-			(*cp) = r_info[randint(MAX_R_IDX-2)].x_char;
-			(*ap) = r_info[randint(MAX_R_IDX-2)].x_attr;
+			(*cp) = r_info[randint(max_r_idx-1)].x_char;
+			(*ap) = r_info[randint(max_r_idx-1)].x_attr;
 		}
 		else
 		/* IBM-pseudo graphics */
@@ -492,8 +492,8 @@ static void image_object(byte *ap, char *cp)
 	{
 		if (!(streq(ANGBAND_SYS, "ibm")))
 		{
-			(*cp) = k_info[randint(MAX_K_IDX-1)].x_char;
-			(*ap) = k_info[randint(MAX_K_IDX-1)].x_attr;
+			(*cp) = k_info[randint(max_k_idx-1)].x_char;
+			(*ap) = k_info[randint(max_k_idx-1)].x_attr;
 		}
 		else
 		{
@@ -532,6 +532,52 @@ static void image_random(byte *ap, char *cp)
 	}
 }
 
+
+/*
+ * The 16x16 tile of the terrain supports lighting
+ */
+static bool feat_supports_lighting(byte feat)
+{
+	if ((feat >= FEAT_TRAP_HEAD) && (feat <= FEAT_TRAP_TAIL)) return TRUE;
+	
+	switch (feat)
+	{
+		case FEAT_FLOOR:
+		case FEAT_INVIS:
+		case FEAT_GLYPH:
+		case FEAT_LESS:
+		case FEAT_MORE:
+		case FEAT_SECRET:
+		case FEAT_RUBBLE:
+		case FEAT_MAGMA:
+		case FEAT_QUARTZ:
+		case FEAT_MAGMA_H:
+		case FEAT_QUARTZ_H:
+		case FEAT_MAGMA_K:
+		case FEAT_QUARTZ_K:
+		case FEAT_WALL_EXTRA:
+		case FEAT_WALL_INNER:
+		case FEAT_WALL_OUTER:
+		case FEAT_WALL_SOLID:
+		case FEAT_PERM_EXTRA:
+		case FEAT_PERM_INNER:
+		case FEAT_PERM_OUTER:
+		case FEAT_PERM_SOLID:
+		case FEAT_MINOR_GLYPH:
+		case FEAT_DEEP_WATER:
+		case FEAT_SHAL_WATER:
+		case FEAT_DEEP_LAVA:
+		case FEAT_SHAL_LAVA:
+		case FEAT_DARK_PIT:
+		case FEAT_DIRT:
+		case FEAT_GRASS:
+		case FEAT_TREES:
+		case FEAT_MOUNTAIN:
+			return TRUE;
+		default:
+			return FALSE;
+	}
+}
 
 
 /*
@@ -669,7 +715,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 	int feat;
 
 	byte a;
-	char c;
+	byte c;
 
 	bool graf_new = (use_graphics && (strcmp(ANGBAND_GRAF, "new") == 0));
 
@@ -793,7 +839,10 @@ void map_info(int y, int x, byte *ap, char *cp)
 		if (c_ptr->info & (CAVE_MARK))
 		{
 			/* Apply "mimic" field */
-			feat = f_info[feat].mimic;
+			if (c_ptr->mimic)
+				feat = c_ptr->mimic;
+			else
+				feat = f_info[feat].mimic;
 
 			/* Access feature */
 			f_ptr = &f_info[feat];
@@ -805,10 +854,9 @@ void map_info(int y, int x, byte *ap, char *cp)
 			a = f_ptr->x_attr;
 
 			/* Special lighting effects */
-			if (view_granite_lite && ((a == TERM_WHITE) || (graf_new)) &&
-				(((feat >= FEAT_SECRET) && (feat <= FEAT_PERM_SOLID)) ||
-				(feat == FEAT_MORE) || (feat == FEAT_GLYPH) || (feat == FEAT_LESS) ||
-				((feat >= FEAT_TRAP_HEAD) && (feat <= FEAT_TRAP_TAIL))))
+			if (view_granite_lite &&
+			   (((a == TERM_WHITE) && !graf_new) ||
+			   (graf_new && feat_supports_lighting(c_ptr->feat))))
 			{
 				/* Handle "blind" */
 				if (p_ptr->blind)
@@ -1009,8 +1057,8 @@ void map_info(int y, int x, byte *ap, char *cp)
 					{
 						if (!(streq(ANGBAND_SYS, "ibm")))
 						{
-							(*cp) = r_info[randint(MAX_R_IDX-2)].x_char;
-							(*ap) = r_info[randint(MAX_R_IDX-2)].x_attr;
+							(*cp) = r_info[randint(max_r_idx-1)].x_char;
+							(*ap) = r_info[randint(max_r_idx-1)].x_attr;
 						}
 						else
 						{
@@ -1136,7 +1184,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 			{
 				if (use_graphics && player_symbols)
 				{
-					if (p_ptr->psex == SEX_FEMALE) c = 242;
+					if (p_ptr->psex == SEX_FEMALE) c = (char)242;
 	                		switch(p_ptr->pclass)
 					{
 						case CLASS_PALADIN:
@@ -1635,6 +1683,17 @@ static byte priority_table[][2] =
 	/* Hidden gold */
 	{ FEAT_QUARTZ_K, 19 },
 	{ FEAT_MAGMA_K, 19 },
+
+	/* water, lava, & trees */
+	{ FEAT_DEEP_WATER, 20 },
+	{ FEAT_SHAL_WATER, 20 },
+	{ FEAT_DEEP_LAVA, 20 },
+	{ FEAT_SHAL_LAVA, 20 },
+	{ FEAT_DIRT, 20 },
+	{ FEAT_GRASS, 20 },
+	{ FEAT_DARK_PIT, 20 },
+	{ FEAT_TREES, 20 },
+	{ FEAT_MOUNTAIN, 20 },
 
 	/* Stairs */
 	{ FEAT_LESS, 25 },
@@ -3303,7 +3362,10 @@ void map_area(void)
 			c_ptr = &cave[y][x];
 
 			/* All non-walls are "checked" */
-			if (c_ptr->feat < FEAT_SECRET)
+			if ((c_ptr->feat < FEAT_SECRET) ||
+			    (c_ptr->feat == FEAT_RUBBLE) ||
+			   ((c_ptr->feat >= FEAT_MINOR_GLYPH) &&
+			    (c_ptr->feat <= FEAT_TREES)))
 			{
 				/* Memorize normal features */
 				if (c_ptr->feat > FEAT_INVIS)
@@ -3382,7 +3444,8 @@ void wiz_lite(void)
 			cave_type *c_ptr = &cave[y][x];
 
 			/* Process all non-walls */
-			if (c_ptr->feat < FEAT_SECRET)
+			/* if (c_ptr->feat < FEAT_SECRET) */
+			if (cave_floor_bold(y,x))
 			{
 				/* Scan all neighbors */
 				for (i = 0; i < 9; i++)
@@ -3827,3 +3890,52 @@ void disturb(int stop_search, int unused_flag)
 	if (flush_disturb) flush();
 }
 
+
+/*
+ * Hack -- Check if a level is a "quest" level
+ */
+bool is_quest(int level)
+{
+	int i;
+
+	/* Check quests */
+	if (p_ptr->inside_quest)
+		return (TRUE);
+
+	for (i = 0; i < max_quests; i++)
+	{
+		if ((quest[i].type == QUEST_TYPE_KILL_LEVEL) &&
+			(quest[i].status == QUEST_STATUS_TAKEN) &&
+		    (quest[i].level == level))
+			return (TRUE);
+	}
+
+	/* Check for random quest */
+	if (random_quest_number(level)) return (TRUE);
+
+	/* Nope */
+	return (FALSE);
+}
+
+
+/*
+ * Return the index of the random quest on this level
+ * (or zero)
+ */
+int random_quest_number(int level)
+{
+	int i;
+
+	for (i = MIN_RANDOM_QUEST; i < MAX_RANDOM_QUEST + 1; i++)
+	{
+		if ((quest[i].type == QUEST_TYPE_RANDOM) &&
+			(quest[i].status == QUEST_STATUS_TAKEN) &&
+		    (quest[i].level == level))
+		{
+			return i;
+		}
+	}
+
+	/* Nope */
+	return 0;
+}

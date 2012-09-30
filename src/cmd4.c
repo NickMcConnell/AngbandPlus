@@ -142,7 +142,7 @@ void do_cmd_change_name(void)
 			{
 				if (tmp[0] && (tmp[0] != ' '))
 				{
-					file_character(tmp, FALSE);
+					file_character(tmp, TRUE);
 				}
 			}
 		}
@@ -1919,7 +1919,7 @@ void do_cmd_visuals(void)
 			fprintf(fff, "# Monster attr/char definitions\n\n");
 
 			/* Dump monsters */
-			for (i = 0; i < MAX_R_IDX; i++)
+			for (i = 0; i < max_r_idx; i++)
 			{
 				monster_race *r_ptr = &r_info[i];
 
@@ -1979,7 +1979,7 @@ void do_cmd_visuals(void)
 			fprintf(fff, "# Object attr/char definitions\n\n");
 
 			/* Dump objects */
-			for (i = 0; i < MAX_K_IDX; i++)
+			for (i = 0; i < max_k_idx; i++)
 			{
 				object_kind *k_ptr = &k_info[i];
 
@@ -2039,7 +2039,7 @@ void do_cmd_visuals(void)
 			fprintf(fff, "# Feature attr/char definitions\n\n");
 
 			/* Dump features */
-			for (i = 0; i < MAX_F_IDX; i++)
+			for (i = 0; i < max_f_idx; i++)
 			{
 				feature_type *f_ptr = &f_info[i];
 
@@ -2077,10 +2077,10 @@ void do_cmd_visuals(void)
 			{
 				monster_race *r_ptr = &r_info[r];
 
-				int da = (byte)(r_ptr->d_attr);
-				int dc = (byte)(r_ptr->d_char);
-				int ca = (byte)(r_ptr->x_attr);
-				int cc = (byte)(r_ptr->x_char);
+				byte da = (r_ptr->d_attr);
+				char dc = (r_ptr->d_char);
+				byte ca = (r_ptr->x_attr);
+				char cc = (r_ptr->x_char);
 
 				/* Label the object */
 				Term_putstr(5, 17, -1, TERM_WHITE,
@@ -2110,8 +2110,8 @@ void do_cmd_visuals(void)
 				if (i == ESCAPE) break;
 
 				/* Analyze */
-				if (i == 'n') r = (r + MAX_R_IDX + 1) % MAX_R_IDX;
-				if (i == 'N') r = (r + MAX_R_IDX - 1) % MAX_R_IDX;
+				if (i == 'n') r = (r + max_r_idx + 1) % max_r_idx;
+				if (i == 'N') r = (r + max_r_idx - 1) % max_r_idx;
 				if (i == 'a') r_ptr->x_attr = (byte)(ca + 1);
 				if (i == 'A') r_ptr->x_attr = (byte)(ca - 1);
 				if (i == 'c') r_ptr->x_char = (byte)(cc + 1);
@@ -2132,10 +2132,10 @@ void do_cmd_visuals(void)
 			{
 				object_kind *k_ptr = &k_info[k];
 
-				int da = (byte)k_ptr->d_attr;
-				int dc = (byte)k_ptr->d_char;
-				int ca = (byte)k_ptr->x_attr;
-				int cc = (byte)k_ptr->x_char;
+				byte da = (byte)k_ptr->d_attr;
+				char dc = (byte)k_ptr->d_char;
+				byte ca = (byte)k_ptr->x_attr;
+				char cc = (byte)k_ptr->x_char;
 
 				/* Label the object */
 				Term_putstr(5, 17, -1, TERM_WHITE,
@@ -2165,8 +2165,8 @@ void do_cmd_visuals(void)
 				if (i == ESCAPE) break;
 
 				/* Analyze */
-				if (i == 'n') k = (k + MAX_K_IDX + 1) % MAX_K_IDX;
-				if (i == 'N') k = (k + MAX_K_IDX - 1) % MAX_K_IDX;
+				if (i == 'n') k = (k + max_k_idx + 1) % max_k_idx;
+				if (i == 'N') k = (k + max_k_idx - 1) % max_k_idx;
 				if (i == 'a') k_info[k].x_attr = (byte)(ca + 1);
 				if (i == 'A') k_info[k].x_attr = (byte)(ca - 1);
 				if (i == 'c') k_info[k].x_char = (byte)(cc + 1);
@@ -2187,10 +2187,10 @@ void do_cmd_visuals(void)
 			{
 				feature_type *f_ptr = &f_info[f];
 
-				int da = (byte)f_ptr->d_attr;
-				int dc = (byte)f_ptr->d_char;
-				int ca = (byte)f_ptr->x_attr;
-				int cc = (byte)f_ptr->x_char;
+				byte da = (byte)f_ptr->d_attr;
+				char dc = (byte)f_ptr->d_char;
+				byte ca = (byte)f_ptr->x_attr;
+				char cc = (byte)f_ptr->x_char;
 
 				/* Label the object */
 				Term_putstr(5, 17, -1, TERM_WHITE,
@@ -2220,8 +2220,8 @@ void do_cmd_visuals(void)
 				if (i == ESCAPE) break;
 
 				/* Analyze */
-				if (i == 'n') f = (f + MAX_F_IDX + 1) % MAX_F_IDX;
-				if (i == 'N') f = (f + MAX_F_IDX - 1) % MAX_F_IDX;
+				if (i == 'n') f = (f + max_f_idx + 1) % max_f_idx;
+				if (i == 'N') f = (f + max_f_idx - 1) % max_f_idx;
 				if (i == 'a') f_info[f].x_attr = (byte)(ca + 1);
 				if (i == 'A') f_info[f].x_attr = (byte)(ca - 1);
 				if (i == 'c') f_info[f].x_char = (byte)(cc + 1);
@@ -2408,7 +2408,7 @@ void do_cmd_colors(void)
 		/* Edit colors */
 		else if (i == '3')
 		{
-			static int a = 0;
+			static byte a = 0;
 
 			/* Prompt */
 			prt("Command: Modify colors", 8, 0);
@@ -2566,10 +2566,24 @@ void do_cmd_feeling(void)
 	if (feeling < 0) feeling = 0;
 	if (feeling > 10) feeling = 10;
 
+	/* No useful feeling in quests */
+	if (p_ptr->inside_quest)
+	{
+		msg_print("Looks like a typical quest level.");
+		return;
+	}
+
 	/* No useful feeling in town */
-	if (!dun_level)
+	else if (p_ptr->town_num && !dun_level)
 	{
 		msg_print("Looks like a typical town.");
+		return;
+	}
+
+	/* No useful feeling in the wilderness */
+	else if (!dun_level)
+	{
+		msg_print("Looks like a typical wilderness.");
 		return;
 	}
 
@@ -2833,8 +2847,10 @@ void do_cmd_knowledge_artifacts(void)
 
 	char base_name[80];
 
-	bool okay[MAX_A_IDX];
+	bool *okay;
 
+	/* Allocate the "okay" array */
+	C_MAKE(okay, max_a_idx, bool);
 
 	/* Temporary file */
 	if (path_temp(file_name, 1024)) return;
@@ -2843,7 +2859,7 @@ void do_cmd_knowledge_artifacts(void)
 	fff = my_fopen(file_name, "w");
 
 	/* Scan the artifacts */
-	for (k = 0; k < MAX_A_IDX; k++)
+	for (k = 0; k < max_a_idx; k++)
 	{
 		artifact_type *a_ptr = &a_info[k];
 
@@ -2911,7 +2927,7 @@ void do_cmd_knowledge_artifacts(void)
 	}
 
 	/* Scan the artifacts */
-	for (k = 0; k < MAX_A_IDX; k++)
+	for (k = 0; k < max_a_idx; k++)
 	{
 		artifact_type *a_ptr = &a_info[k];
 
@@ -2951,7 +2967,7 @@ void do_cmd_knowledge_artifacts(void)
 	my_fclose(fff);
 
 	/* Display the file contents */
-	show_file(file_name, "Artifacts Seen");
+	show_file(file_name, "Artifacts Seen", 0, 0);
 
 	/* Remove the file */
 	fd_kill(file_name);
@@ -2979,7 +2995,7 @@ static void do_cmd_knowledge_uniques(void)
 	fff = my_fopen(file_name, "w");
 
 	/* Scan the monster races */
-	for (k = 1; k < MAX_R_IDX-1; k++)
+	for (k = 1; k < max_r_idx; k++)
 	{
 		monster_race *r_ptr = &r_info[k];
 
@@ -3003,7 +3019,7 @@ static void do_cmd_knowledge_uniques(void)
 	my_fclose(fff);
 
 	/* Display the file contents */
-	show_file(file_name, "Known Uniques");
+	show_file(file_name, "Known Uniques", 0, 0);
 
 	/* Remove the file */
 	fd_kill(file_name);
@@ -3123,8 +3139,8 @@ static void do_cmd_knowledge_pets(void)
 		/* Ignore "dead" monsters */
 		if (!m_ptr->r_idx) continue;
 
-		/* Calculate "upkeep" for friendly monsters */
-		if (m_ptr->smart & (SM_FRIEND))
+		/* Calculate "upkeep" for pets */
+		if (is_pet(m_ptr))
 		{
 			char pet_name[80];
 			t_friends++;
@@ -3153,7 +3169,7 @@ static void do_cmd_knowledge_pets(void)
 	my_fclose(fff);
 
 	/* Display the file contents */
-	show_file(file_name, "Current Pets");
+	show_file(file_name, "Current Pets", 0, 0);
 
 	/* Remove the file */
 	fd_kill(file_name);
@@ -3187,7 +3203,7 @@ static void do_cmd_knowledge_kill_count(void)
 		/* Monsters slain */
 		int kk;
 
-		for (kk = 1; kk < MAX_R_IDX-1; kk++)
+		for (kk = 1; kk < max_r_idx; kk++)
 		{
 			monster_race *r_ptr = &r_info[kk];
 
@@ -3222,7 +3238,7 @@ static void do_cmd_knowledge_kill_count(void)
 	Total = 0;
 
 	/* Scan the monster races */
-	for (k = 1; k < MAX_R_IDX-1; k++)
+	for (k = 1; k < max_r_idx; k++)
 	{
 		monster_race *r_ptr = &r_info[k];
 
@@ -3275,7 +3291,7 @@ static void do_cmd_knowledge_kill_count(void)
 	my_fclose(fff);
 
 	/* Display the file contents */
-	show_file(file_name, "Kill Count");
+	show_file(file_name, "Kill Count", 0, 0);
 
 	/* Remove the file */
 	fd_kill(file_name);
@@ -3303,7 +3319,7 @@ static void do_cmd_knowledge_objects(void)
 	fff = my_fopen(file_name, "w");
 
 	/* Scan the object kinds */
-	for (k = 1; k < MAX_K_IDX; k++)
+	for (k = 1; k < max_k_idx; k++)
 	{
 		object_kind *k_ptr = &k_info[k];
 
@@ -3334,7 +3350,7 @@ static void do_cmd_knowledge_objects(void)
 	my_fclose(fff);
 
 	/* Display the file contents */
-    show_file(file_name, "Known Objects");
+    show_file(file_name, "Known Objects", 0, 0);
 
 	/* Remove the file */
 	fd_kill(file_name);
@@ -3346,11 +3362,8 @@ static void do_cmd_knowledge_objects(void)
  */
 void do_cmd_knowledge_mutations(void)
 {
-
 	FILE *fff;
-
 	char file_name[1024];
-
 
 	/* Temporary file */
 	if (path_temp(file_name, 1024)) return;
@@ -3358,13 +3371,128 @@ void do_cmd_knowledge_mutations(void)
 	/* Open a new file */
 	fff = my_fopen(file_name, "w");
 
+	/* Dump the mutations to file */
 	if (fff) dump_mutations(fff);
 
 	/* Close the file */
 	my_fclose(fff);
 
 	/* Display the file contents */
-	show_file(file_name, "Mutations");
+	show_file(file_name, "Mutations", 0, 0);
+
+	/* Remove the file */
+	fd_kill(file_name);
+}
+
+
+/*
+ * Print quest status of all active quests
+ */
+static void do_cmd_knowledge_quests(void)
+{
+	FILE *fff;
+	char file_name[1024];
+	char tmp_str[80];
+	char rand_tmp_str[80] = "\0";
+	char name[80];
+	monster_race *r_ptr;
+	int i;
+	int rand_level = 100;
+
+	/* Temporary file */
+	if (path_temp(file_name, 1024)) return;
+
+	/* Open a new file */
+	fff = my_fopen(file_name, "w");
+
+	for (i = 1; i < max_quests; i++)
+	{
+		/* No info from "silent" quests */
+		if (quest[i].silent) continue;
+
+		if (quest[i].status == QUEST_STATUS_TAKEN)
+		{
+			int ystart = 0;
+			int xstart = 0;
+			int old_quest;
+			int j;
+
+			/* Clear the text */
+			for (j = 0; j < 10; j++)
+			{
+				quest_text[j][0] = '\0';
+			}
+
+			quest_text_line = 0;
+
+			/* Set the quest number temporary */
+			old_quest = p_ptr->inside_quest;
+			p_ptr->inside_quest = i;
+
+			/* Get the quest text */
+			init_flags = INIT_SHOW_TEXT;
+			process_dungeon_file("q_info.txt", &ystart, &xstart, 0, 0);
+
+			/* Reset the old quest number */
+			p_ptr->inside_quest = old_quest;
+
+			if (quest[i].type != QUEST_TYPE_RANDOM)
+			{
+				/* Print the quest info */
+				sprintf(tmp_str, "%s (Danger level: %d)\n", quest[i].name, quest[i].level);
+
+				fprintf(fff, tmp_str);
+
+				j = 0;
+
+				while (quest_text[j][0])
+				{
+					fprintf(fff, "  %s\n", quest_text[j]);
+					j++;
+				}
+			}
+			else if ((quest[i].type == QUEST_TYPE_RANDOM) &&
+			         (quest[i].level < rand_level))
+			{
+				/* New random */
+				rand_level = quest[i].level;
+
+				if (p_ptr->max_dlv >= rand_level)
+				{
+					/* Print the quest info */
+					r_ptr = &r_info[quest[i].r_idx];
+					strcpy(name, r_name + r_ptr->name);
+
+					if (quest[i].max_num > 1)
+					{
+						plural_aux(name);
+
+						sprintf(rand_tmp_str,"%s (Dungeon level: %d)\n  Kill %d %s, have killed %d.\n",
+							quest[i].name, quest[i].level, quest[i].max_num, name, quest[i].cur_num);
+					}
+					else
+					{
+						sprintf(rand_tmp_str,"%s (Dungeon level: %d)\n  Kill %s.\n", quest[i].name, quest[i].level, name);
+					}
+				}
+			}
+		}
+		else if (quest[i].status == 2)
+		{
+			sprintf(tmp_str,"Quest Completed - Unrewarded\n");
+
+			fprintf(fff, tmp_str);
+		}
+	}
+
+	/* Print the current random quest  */
+	fprintf(fff, rand_tmp_str);
+
+	/* Close the file */
+	my_fclose(fff);
+
+	/* Display the file contents */
+	show_file(file_name, "Quest status", 0, 0);
 
 	/* Remove the file */
 	fd_kill(file_name);
@@ -3379,17 +3507,14 @@ void do_cmd_knowledge(void)
 {
 	int i;
 
-
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
-
 
 	/* Enter "icky" mode */
 	character_icky = TRUE;
 
 	/* Save the screen */
 	Term_save();
-
 
 	/* Interact until done */
 	while (1)
@@ -3407,9 +3532,10 @@ void do_cmd_knowledge(void)
 		prt("(4) Display kill count", 7, 5);
 		prt("(5) Display mutations", 8, 5);
 		prt("(6) Display current pets", 9, 5);
+		prt("(7) Display current quests", 10, 5);
 
 		/* Prompt */
-		prt("Command: ", 11, 0);
+		prt("Command: ", 12, 0);
 
 		/* Prompt */
 		i = inkey();
@@ -3417,51 +3543,30 @@ void do_cmd_knowledge(void)
 		/* Done */
 		if (i == ESCAPE) break;
 
-		/* Artifacts */
-		if (i == '1')
+		switch (i)
 		{
-			/* Spawn */
+		case '1': /* Artifacts */
 			do_cmd_knowledge_artifacts();
-		}
-
-		/* Uniques */
-		else if (i == '2')
-		{
-			/* Spawn */
+			break;
+		case '2': /* Uniques */
 			do_cmd_knowledge_uniques();
-		}
-
-        
-		/* Objects */
-		else if (i == '3')
-		{
-			/* Spawn */
+			break;
+		case '3': /* Objects */
 			do_cmd_knowledge_objects();
-		}
-
-		/* Kill count  */
-		else if (i == '4')
-		{
-			/* Spawn */
+			break;
+		case '4': /* Kill count  */
 			do_cmd_knowledge_kill_count();
-		}
-
-		/* Mutations */
-		else if (i == '5')
-		{
-			/* Spawn */
+			break;
+		case '5': /* Mutations */
 			do_cmd_knowledge_mutations();
-		}
-
-		/* Pets */
-		else if (i == '6')
-		{
+			break;
+		case '6': /* Pets */
 			do_cmd_knowledge_pets();
-		}
-
-		/* Unknown option */
-		else
-		{
+			break;
+		case '7': /* Quests */
+			do_cmd_knowledge_quests();
+			break;
+		default: /* Unknown option */
 			bell();
 		}
 
@@ -3469,17 +3574,34 @@ void do_cmd_knowledge(void)
 		msg_print(NULL);
 	}
 
-
 	/* Restore the screen */
 	Term_load();
-
-	/*
-	 * For some reason (probably incompatability with 2.8.1) the above
-	 * does not seem to work here... hence the following line
-	 */
-	do_cmd_redraw();
 
 	/* Leave "icky" mode */
 	character_icky = FALSE;
 }
 
+
+/*
+ * Check on the status of an active quest
+ */
+void do_cmd_checkquest(void)
+{
+	/* File type is "TEXT" */
+	FILE_TYPE(FILE_TYPE_TEXT);
+
+	/* Enter "icky" mode */
+	character_icky = TRUE;
+
+	/* Save the screen */
+	Term_save();
+
+	/* Quest info */
+	do_cmd_knowledge_quests();
+
+	/* Restore the screen */
+	Term_load();
+
+	/* Leave "icky" mode */
+	character_icky = FALSE;
+}

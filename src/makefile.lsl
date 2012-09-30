@@ -12,7 +12,7 @@ SRCS = \
   store.c birth.c load1.c load2.c \
   wizard1.c wizard2.c \
   generate.c dungeon.c init1.c init2.c \
-  quest.c \
+  bldg.c \
   main-ami.c main.c
 
 OBJS = \
@@ -25,7 +25,7 @@ OBJS = \
   store.o birth.o load1.o load2.o \
   wizard1.o wizard2.o \
   generate.o dungeon.o init1.o init2.o \
-  quest.o \
+  bldg.o \
   main-lsl.o main.o
 
 CC = gcc
