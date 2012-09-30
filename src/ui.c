@@ -223,12 +223,10 @@ int get_player_choice(cptr *choices, int num, int col, int wid,
 			}
 			else
 			{
+				/* Invalid input */
 				bell("Illegal birth choice!");
 			}
 		}
-
-		/* Invalid input */
-		bell("Illegal birth choice!");
 	}
 
 	return (INVALID_CHOICE);
@@ -373,7 +371,7 @@ static const char listsym[] =
  * We return the number of active options.
  */
 static int show_menu(int num, menu_type *options, int select, bool scroll,
-					 int (* disp)(int), cptr prompt)
+					 int disp(int), cptr prompt)
 {
 	int cnt = 0;
 	int i;
@@ -545,7 +543,7 @@ static int get_choice(char *c, int num, bool *ask)
  *       information when constucting the menu.
  * 'prompt' is an optional prompt.
  */
-bool display_menu(menu_type *options, int select, bool scroll, int (* disp)(int),
+bool display_menu(menu_type *options, int select, bool scroll, int disp(int),
 					cptr prompt)
 {
 	int i = -1, j, cnt;
@@ -875,6 +873,42 @@ void screen_load(void)
 	character_icky--;
 }
 
+/*
+ * Find offset of str2 in str1, including the
+ * effects of formatting characters.
+ *
+ * This is not equal to str2 - str1 in general.
+ */
+int fmt_offset(cptr str1, cptr str2)
+{
+	cptr c = str1;
+	int i = 0;
+
+	while (*c && (c != str2))
+	{
+		/* Does this character match the escape code? */
+		if (*c == '$')
+		{
+			/* Scan the next character */
+			c++;
+			
+			/* Is it a colour specifier? */
+			if (((*c >= 'A') && (*c <= 'R')) ||
+				((*c >= 'a') && (*c <= 'r')))
+			{
+				c++;
+				
+				continue;
+			}
+		}
+		
+		/* Next position */
+		i++;
+		c++;
+	}
+	
+	return (i);
+}
 
 /*
  * Put a string with control characters at a given location
@@ -1191,7 +1225,6 @@ void roff(cptr str, ...)
  * However, print them to a file like fprintf().
  *
  * froff() is smarter than fprintf() though.
- * It will prune out the '$' colour escape codes.
  * It will also understand the '%v' format control sequence.
  */
 void froff(FILE *fff, cptr str, ...)
@@ -1199,7 +1232,6 @@ void froff(FILE *fff, cptr str, ...)
 	va_list vp;
 
 	char buf[1024];
-	char *p1 = buf, *p2 = buf;
 
 	/* Begin the Varargs Stuff */
 	va_start(vp, str);
@@ -1209,41 +1241,7 @@ void froff(FILE *fff, cptr str, ...)
 
 	/* End the Varargs Stuff */
 	va_end(vp);
-	
-	/* Scan list, deleting '$' colour escape sequences */
-	while(*p1)
-	{
-		if (*p1 == '$')
-		{
-			/* Scan the next character */
-			p1++;
-			
-			/* Is it a colour specifier? */
-			if ((*p1 >= 'A') && (*p1 <= 'R'))
-			{
-				/* Skip it - and overwrite it later */
-				p1++;
-				
-				continue;
-			}
-			
-			/* Stop if now reach null */
-			else if (*p1 == 0) break;
-			
-			/*
-			 * Hack XXX XXX - otherwise, ignore the dollar sign
-			 *
-			 * This makes "$$" turn into just "$".
-			 */
-		}
 		
-		/* Copy a character */
-		*p2++ = *p1++;
-	}
-	
-	/* Terminate the array */
-	*p2 = 0;
-	
 	/* Output it to the file */
 	fprintf(fff, "%s", buf);
 }
@@ -1464,7 +1462,7 @@ bool get_check(cptr prompt, ...)
 	va_end(vp);
 
 	/* Do not skip */
-	p_ptr->skip_more = FALSE;
+	p_ptr->state.skip_more = FALSE;
 
 	/* Paranoia XXX XXX XXX */
 	message_flush();
@@ -1488,8 +1486,9 @@ bool get_check(cptr prompt, ...)
 	/* Success? */
 	switch (i)
 	{
-		case 'y': case 'Y': case '\n': case '\r':
+		case 'y': case 'Y':
 			return (TRUE);
+		
 		default:
 			return (FALSE);
 	}

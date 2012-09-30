@@ -25,7 +25,7 @@ ANGOBJS := $(addprefix src/,\
 	effects.o quest.o racial.o script.o \
 	artifact.o mutation.o flavor.o spells3.o \
 	mspells1.o mspells2.o scores.o mind.o maid-x11.o\
-	bldg.o obj_kind.o wild1.o wild2.o avatar.o notes.o\
+	bldg.o obj_kind.o wild1.o wild2.o wild3.o avatar.o notes.o\
 	main-cap.o main-gcu.o main-x11.o main-xaw.o main-xpj.o\
 	main-lsl.o main-vcs.o main-gtk.o main-win.o main.o \
 	maid-grf.o main-dos.o main-ibm.o main-emx.o \
@@ -101,10 +101,16 @@ src/zangband.a: $(OBJS)
 endif
 
 ##
+## Autoconf header
+##
+src/autoconf.h:
+	$(CONFIGURE)
+
+##
 ## Low-level Headers
 ##
 
-HDRS := makefile $(addprefix src/,\
+HDRS := $(addprefix src/,\
 	autoconf.h h-basic.h h-define.h h-type.h h-system.h h-config.h)
 
 ##
@@ -120,7 +126,7 @@ INCS := $(addprefix src/,\
 ## Generic dependancy information
 ##
 
-$(ANGOBJS): $(INCS)
+$(ANGOBJS): $(INCS) .default_path
 $(ZUTILOBJS): $(HDRS)
 $(BORGOBJS): $(INCS)
 $(LUAWOBJS): $(INCS)
@@ -142,6 +148,7 @@ src/generate.o: src/grid.h src/generate.h src/rooms.h src/streams.h
 src/grid.o: src/grid.h src/generate.h
 src/rooms.o: src/grid.h src/generate.h src/rooms.h
 src/streams.o: src/grid.h src/generate.h
+src/fields.o: src/grid.h
 $(GRAFPORTS): src/maid-grf.h
 src/main-x11.o: src/maid-x11.h
 src/main-xaw.o: src/maid-x11.h
@@ -151,6 +158,7 @@ src/quest.o: src/wild.h src/grid.h
 src/readdib.o: src/readdib.h
 src/wild1.o: src/wild.h src/grid.h
 src/wild2.o: src/wild.h src/grid.h
+src/wild3.o: src/wild.h src/grid.h
 src/wizard2.o: src/script.h
 src/z-form.o: src/z-form.h src/z-util.h src/z-virt.h
 src/z-rand.o: src/z-rand.h
@@ -162,14 +170,22 @@ src/z-virt.o: src/z-virt.h src/z-util.h
 ## Hack - the dependance on the .o files encodes this.
 
 src/zborg1.o: src/zborg1.h src/maid-grf.h
-src/zborg2.o: src/zborg2.h src/zborg1.o
-src/zborg3.o: src/zborg3.h src/zborg2.o
-src/zborg4.o: src/zborg4.h src/zborg3.o
-src/zborg5.o: src/zborg5.h src/zborg4.o
-src/zborg6.o: src/zborg6.h src/zborg5.o
-src/zborg7.o: src/zborg7.h src/zborg6.o
-src/zborg8.o: src/zborg8.h src/zborg7.o
-src/zborg9.o: src/zborg9.h src/zborg8.o
+src/zborg2.o: src/zborg1.h src/zborg2.h src/maid-grf.h
+src/zborg3.o: src/zborg1.h src/zborg3.h src/maid-grf.h
+src/zborg4.o: src/zborg1.h src/zborg2.h src/zborg3.h src/zborg4.h \
+				src/maid-grf.h
+src/zborg5.o: src/zborg1.h src/zborg2.h src/zborg3.h src/zborg4.h \
+				src/zborg5.h src/maid-grf.h
+src/zborg6.o: src/zborg1.h src/zborg2.h src/zborg3.h src/zborg4.h \
+				src/zborg5.h src/zborg6.h src/maid-grf.h
+src/zborg7.o: src/zborg1.h src/zborg2.h src/zborg3.h src/zborg4.h \
+				src/zborg5.h src/zborg6.h src/zborg7.h src/maid-grf.h
+src/zborg8.o: src/zborg1.h src/zborg2.h src/zborg3.h src/zborg4.h \
+				src/zborg5.h src/zborg6.h src/zborg7.h src/zborg8.h \
+				src/maid-grf.h
+src/zborg9.o: src/zborg1.h src/zborg2.h src/zborg3.h src/zborg4.h \
+				src/zborg5.h src/zborg6.h src/zborg7.h src/zborg8.h \
+				src/zborg9.h src/maid-grf.h
 
 ##
 ## Build wrappers
@@ -181,17 +197,31 @@ src/zborg9.o: src/zborg9.h src/zborg8.o
 
 LUAWSRCS := $(LUAWOBJS:.o=.c)
 
-$(LUAWSRCS): %.c: %.pkg src/lua/tolua
-	src/lua/tolua -n $(subst l-,,$(notdir $*)) -o $@ $<
+ifeq ($(VERBOSE), 0)
+define TOLUA
+	@ echo TOLUA $@
+	@ src/lua/tolua
+endef
+else
+TOLUA = src/lua/tolua
+endif
 
 clean-files += src/*.bak src/*.o src/l-*.c
+distclean-files += autoconf.h
 
 srcdirlist += src
+notsrcfiles += src/compress.c src/autoconf.h
+
 srcfiles += src/*.c src/*.h src/angband.rc src/angband.ico \
-		 src/angband.xpm src/zangband.icns src/makefile* src/l-*.pkg
+		 src/angband.xpm src/zangband.icns src/makefile* src/l-*.pkg \
+		 src/autoconf.h.in
 
 # scan other source directories
 dirs := lua tk
 include $(scandir)
+
+$(LUAWSRCS): %.c: %.pkg src/lua/tolua $(TOLUALUAOBJS)
+	$(TOLUA) -n $(subst l-,,$(notdir $*)) -o $@ $<
+
 
 

@@ -278,6 +278,26 @@ static void strip_bytes(int n)
 	while (n--) rd_byte(&tmp8u);
 }
 
+#ifdef UNUSED_FUNC
+
+/*
+ * Hack -- strip a string
+ */
+static void strip_string(void)
+{
+	byte tmp8u;
+	
+	/* Read the string */
+	do
+	{
+		/* Read a byte */
+		rd_byte(&tmp8u);
+	}
+	/* End of string */
+	while (tmp8u);
+}
+
+#endif /* UNUSED_FUNC */
 
 /*
  * Read an object
@@ -312,8 +332,8 @@ static void rd_item(object_type *o_ptr)
 
 	object_kind *k_ptr;
 
-	char buf[128];
-
+	char buf[1024];
+	
 	/* Old flags from pre [Z] 2.5.3 */
 	byte name1, name2, xtra1, xtra2;
 
@@ -377,13 +397,13 @@ static void rd_item(object_type *o_ptr)
 	}
 
 	/* Old flags */
-	rd_u32b(&o_ptr->flags1);
-	rd_u32b(&o_ptr->flags2);
-	rd_u32b(&o_ptr->flags3);
+	rd_u32b(&o_ptr->flags[0]);
+	rd_u32b(&o_ptr->flags[1]);
+	rd_u32b(&o_ptr->flags[2]);
 	if (sf_version < 41)
-		o_ptr->flags4 = 0;
+		o_ptr->flags[3] = 0;
 	else
-		rd_u32b(&o_ptr->flags4);
+		rd_u32b(&o_ptr->flags[3]);
 
 	/* Lites changed in [Z] 2.6.0 */
 	if ((sf_version < 25) && (o_ptr->tval == TV_LITE))
@@ -397,7 +417,7 @@ static void rd_item(object_type *o_ptr)
 		else
 		{
 			/* Other lites are everburning. */
-			o_ptr->flags3 |= TR3_LITE;
+			SET_FLAG(o_ptr, TR_LITE);
 		}
 	}
 
@@ -440,7 +460,7 @@ static void rd_item(object_type *o_ptr)
 	}
 
 	/* Inscription */
-	rd_string(buf, 128);
+	rd_string(buf, 1024);
 
 	/* If this savefile is old, maybe we need to translate the feeling */
 	if (sf_version < 1)
@@ -466,8 +486,30 @@ static void rd_item(object_type *o_ptr)
 	/* Save the inscription */
 	if (buf[0]) o_ptr->inscription = quark_add(buf);
 
-	rd_string(buf, 128);
+	rd_string(buf, 1024);
 	if (buf[0]) o_ptr->xtra_name = quark_add(buf);
+
+	/* Attached scripts */
+	if (sf_version >= 45)
+	{
+		rd_byte(&tmpbyte);
+		
+		while (tmpbyte != 255)
+		{
+			rd_string(buf, 1024);
+
+			if (tmpbyte < MAX_TRIGGER)
+			{
+				o_ptr->trigger[tmpbyte] = quark_add(buf);
+			}
+			else
+			{
+				/* XXX Error */
+			}
+
+			rd_byte(&tmpbyte);
+		}
+	}
 
 	/* The Python object */
 	if (!z_older_than(2, 2, 4))
@@ -502,22 +544,56 @@ static void rd_item(object_type *o_ptr)
 		/* The new flags */
 		rd_s32b(&o_ptr->cost);
 
-		rd_byte(&o_ptr->activate);
+		rd_byte(&o_ptr->a_idx);
 
-		rd_u32b(&o_ptr->kn_flags1);
-		rd_u32b(&o_ptr->kn_flags2);
-		rd_u32b(&o_ptr->kn_flags3);
+		rd_u32b(&o_ptr->kn_flags[0]);
+		rd_u32b(&o_ptr->kn_flags[1]);
+		rd_u32b(&o_ptr->kn_flags[2]);
 		if (sf_version < 41)
-			o_ptr->kn_flags4 = 0;
+			o_ptr->kn_flags[3] = 0;
 		else
-			rd_u32b(&o_ptr->kn_flags4);
+			rd_u32b(&o_ptr->kn_flags[3]);
+
+		if (o_ptr->a_idx && sf_version < 46)
+		{
+			if (o_ptr->a_idx < 128)
+			{
+				/* Remove old randart activations */
+				o_ptr->a_idx = 0;
+				o_ptr->flags[2] &= ~TR2_ACTIVATE;
+			}
+			else
+			{
+				/* Now just use a_idx */
+				o_ptr->a_idx -= 128;
+			}
+		}
+
+		/*
+		 * Add appropriate scripts to artifacts that are missing them,
+		 * for older savefiles
+		 */
+		if (o_ptr->a_idx)
+		{
+			int i;
+
+			for (i = 0; i < MAX_TRIGGER; i++)
+			{
+				if (a_info[o_ptr->a_idx].trigger[i] &&
+						!o_ptr->trigger[i])
+				{
+					o_ptr->trigger[i] = quark_add(
+						a_text + a_info[o_ptr->a_idx].trigger[i]);
+				}
+			}
+		}
 
 		/* 
-		 * XXX Some older buggy versions set TR3_PERMA_CURSE
+		 * XXX Some older buggy versions set TR2_PERMA_CURSE
 		 * on items where it shouldn't have been set.
 		 */
-		o_ptr->kn_flags3 &= o_ptr->flags3 |
-			~(TR3_HEAVY_CURSE | TR3_PERMA_CURSE);
+		o_ptr->kn_flags[2] &= o_ptr->flags[2] |
+			~(TR2_HEAVY_CURSE | TR2_PERMA_CURSE);
 	}
 	else
 	{
@@ -546,13 +622,13 @@ static void rd_item(object_type *o_ptr)
 		o_ptr->weight = k_ptr->weight;
 
 		/* Paranoia */
-		o_ptr->activate = 0;
+		o_ptr->a_idx = 0;
 
 		/* Reset flags */
-		o_ptr->flags1 = k_ptr->flags1;
-		o_ptr->flags2 = k_ptr->flags2;
-		o_ptr->flags3 = k_ptr->flags3;
-		o_ptr->flags4 = k_ptr->flags4;
+		o_ptr->flags[0] = k_ptr->flags[0];
+		o_ptr->flags[1] = k_ptr->flags[1];
+		o_ptr->flags[2] = k_ptr->flags[2];
+		o_ptr->flags[3] = k_ptr->flags[3];
 
 		/* All done */
 		return;
@@ -578,12 +654,6 @@ static void rd_item(object_type *o_ptr)
 				/* Keep the damage dice */
 				o_ptr->dd = old_dd;
 				o_ptr->ds = old_ds;
-
-				if (name2 == EGO_TRUMP)
-				{
-					/* Mega-Hack -- set activation */
-					o_ptr->activate = ACT_TELEPORT_1;
-				}
 
 				/* Change the price */
 				if (!e_ptr->cost)
@@ -619,13 +689,13 @@ static void rd_item(object_type *o_ptr)
 			o_ptr->weight = a_ptr->weight;
 
 			/* Save the artifact flags */
-			o_ptr->flags1 |= a_ptr->flags1;
-			o_ptr->flags2 |= a_ptr->flags2;
-			o_ptr->flags3 |= a_ptr->flags3;
-			o_ptr->flags4 |= a_ptr->flags4;
+			o_ptr->flags[0] |= a_ptr->flags[0];
+			o_ptr->flags[1] |= a_ptr->flags[1];
+			o_ptr->flags[2] |= a_ptr->flags[2];
+			o_ptr->flags[3] |= a_ptr->flags[3];
 
 			/* Mega-Hack -- set activation */
-			o_ptr->activate = name1 + 128;
+			o_ptr->a_idx = name1;
 
 			/* Save the inscription */
 			o_ptr->xtra_name = quark_add(a_name + a_ptr->name);
@@ -645,10 +715,14 @@ static void rd_item(object_type *o_ptr)
 		/* Convert Random artifacts */
 		else if (o_ptr->xtra_name)
 		{
-			o_ptr->activate = xtra2;
+			/* Strip activation */
+			if (xtra2)
+			{
+				o_ptr->flags[2] &= ~TR2_ACTIVATE;
+			}
 
 			/* Make the object an artifact */
-			o_ptr->flags3 |= TR3_INSTA_ART;
+			SET_FLAG(o_ptr, TR_INSTA_ART);
 
 			/* Set the cost */
 			o_ptr->cost = k_info[o_ptr->k_idx].cost +
@@ -664,10 +738,10 @@ static void rd_item(object_type *o_ptr)
 		/* Identification status */
 		if (o_ptr->info & (OB_MENTAL))
 		{
-			o_ptr->kn_flags1 = o_ptr->flags1;
-			o_ptr->kn_flags2 = o_ptr->flags2;
-			o_ptr->kn_flags3 = o_ptr->flags3;
-			o_ptr->kn_flags4 = o_ptr->flags4;
+			o_ptr->kn_flags[0] = o_ptr->flags[0];
+			o_ptr->kn_flags[1] = o_ptr->flags[1];
+			o_ptr->kn_flags[2] = o_ptr->flags[2];
+			o_ptr->kn_flags[3] = o_ptr->flags[3];
 		}
 	}
 
@@ -843,12 +917,12 @@ static void rd_lore(int r_idx)
 		rd_byte(&r_ptr->r_blows[3]);
 
 		/* Memorize flags */
-		rd_u32b(&r_ptr->r_flags1);
-		rd_u32b(&r_ptr->r_flags2);
-		rd_u32b(&r_ptr->r_flags3);
-		rd_u32b(&r_ptr->r_flags4);
-		rd_u32b(&r_ptr->r_flags5);
-		rd_u32b(&r_ptr->r_flags6);
+		rd_u32b(&r_ptr->r_flags[0]);
+		rd_u32b(&r_ptr->r_flags[1]);
+		rd_u32b(&r_ptr->r_flags[2]);
+		rd_u32b(&r_ptr->r_flags[3]);
+		rd_u32b(&r_ptr->r_flags[4]);
+		rd_u32b(&r_ptr->r_flags[5]);
 
 
 		/* Read the "Racial" monster limit per level */
@@ -861,12 +935,12 @@ static void rd_lore(int r_idx)
 	}
 
 	/* Repair the lore flags */
-	r_ptr->r_flags1 &= r_ptr->flags1;
-	r_ptr->r_flags2 &= r_ptr->flags2;
-	r_ptr->r_flags3 &= r_ptr->flags3;
-	r_ptr->r_flags4 &= r_ptr->flags4;
-	r_ptr->r_flags5 &= r_ptr->flags5;
-	r_ptr->r_flags6 &= r_ptr->flags6;
+	r_ptr->r_flags[0] &= r_ptr->flags[0];
+	r_ptr->r_flags[1] &= r_ptr->flags[1];
+	r_ptr->r_flags[2] &= r_ptr->flags[2];
+	r_ptr->r_flags[3] &= r_ptr->flags[3];
+	r_ptr->r_flags[4] &= r_ptr->flags[4];
+	r_ptr->r_flags[5] &= r_ptr->flags[5];
 }
 
 
@@ -1160,7 +1234,7 @@ static void rd_extra(void)
 	byte tmp8u;
 	s16b tmp16s;
 	s16b dummy;
-	
+
 	char old_history[60];
 
 	rd_string(player_name, 32);
@@ -1253,13 +1327,10 @@ static void rd_extra(void)
 	rd_u16b(&p_ptr->csp_frac);
 
 	rd_s16b(&p_ptr->max_lev);
-	rd_s16b(&p_ptr->max_depth);
+	strip_bytes(2);				/* Old "max_depth" */
 
 	/* Repair maximum player level XXX XXX XXX */
 	if (p_ptr->max_lev < p_ptr->lev) p_ptr->max_lev = p_ptr->lev;
-
-	/* Repair maximum dungeon level */
-	if (p_ptr->max_depth < 0) p_ptr->max_depth = 1;
 
 	/* More info */
 	strip_bytes(8);
@@ -1414,12 +1485,6 @@ static object_type old_inventory[24];
 /*
  * Read the player inventory
  *
- * Note that the inventory changed in Angband 2.7.4.  Two extra
- * pack slots were added and the equipment was rearranged.  Note
- * that these two features combine when parsing old save-files, in
- * which items from the old "aux" slot are "carried", perhaps into
- * one of the two new "inventory" slots.
- *
  * Note that the inventory is "re-sorted" later by "dungeon()".
  */
 static errr rd_inventory(void)
@@ -1495,7 +1560,7 @@ static errr rd_inventory(void)
 static void rd_messages(void)
 {
 	int i;
-	char buf[128];
+	char buf[1024];
 	byte tmp8u;
 
 	s16b num;
@@ -1507,7 +1572,7 @@ static void rd_messages(void)
 	for (i = 0; i < num; i++)
 	{
 		/* Read the message */
-		rd_string(buf, 128);
+		rd_string(buf, 1024);
 
 		/* Read the color */
 		if (sf_version > 10)
@@ -2049,7 +2114,7 @@ static void load_wild_data(void)
 }
 
 /* The version when the format of the wilderness last changed */
-#define VERSION_CHANGE_WILD		43
+#define VERSION_CHANGE_WILD		48
 
 
 /*
@@ -2139,7 +2204,7 @@ static errr rd_dungeon(void)
 		change_level(1);
 
 		/* Get the new region */
-		dundata->region = (s16b)create_region(cur_wid, cur_hgt, REGION_CAVE);
+		create_region(dundata, cur_wid, cur_hgt, REGION_CAVE);
 		incref_region(cur_region);
 
 		/* Load dungeon map */
@@ -2174,7 +2239,7 @@ static errr rd_dungeon(void)
 			change_level(p_ptr->depth);
 
 			/* Get the new region */
-			dundata->region = (s16b)create_region(cur_wid, cur_hgt, REGION_CAVE);
+			create_region(dundata, cur_wid, cur_hgt, REGION_CAVE);
 			incref_region(cur_region);
 
 			/* Load dungeon map */
@@ -2232,7 +2297,7 @@ static errr rd_dungeon(void)
 			change_level(p_ptr->depth);
 
 			/* Get the new region */
-			dundata->region = (s16b)create_region(cur_wid, cur_hgt, REGION_CAVE);
+			create_region(dundata, cur_wid, cur_hgt, REGION_CAVE);
 			incref_region(cur_region);
 
 			/* Load dungeon map */
@@ -2273,7 +2338,7 @@ static errr rd_dungeon(void)
 		if (p_ptr->depth)
 		{
 			/* Get the new region */
-			dundata->region = (s16b)create_region(cur_wid, cur_hgt, REGION_CAVE);
+			create_region(dundata, cur_wid, cur_hgt, REGION_CAVE);
 			incref_region(cur_region);
 
 			/* Load dungeon map */
@@ -2520,7 +2585,7 @@ static errr rd_dungeon(void)
 				c_ptr = area(f_ptr->fx, f_ptr->fy);
 
 				/* Build a stack */
-				fld_idx = field_add(f_ptr, &c_ptr->fld_idx);
+				fld_idx = field_add(f_ptr, c_ptr);
 
 				/* Oops */
 				if (i != fld_idx)
@@ -2572,7 +2637,7 @@ static errr rd_dungeon(void)
 	 * This is done here because it needs to be below all calls
 	 * to "change_level()"
 	 */
-	p_ptr->detected = player_detected;
+	p_ptr->state.detected = player_detected;
 
 	/* Success */
 	return (0);
@@ -2679,28 +2744,29 @@ static void rd_quests(int max_quests)
 		rd_byte(&q_ptr->x_type);
 
 		rd_u32b(&q_ptr->timeout);
-		rd_string(q_ptr->name, 60);
+		rd_string(q_ptr->name, 128);
 
 		/* Data - quest-type specific */
 		switch (q_ptr->type)
 		{
-				/* Un-initialised quests */
-			case QUEST_TYPE_UNKNOWN: break;
-
-				/* General quests */
-			case QUEST_TYPE_GENERAL:
+			case QUEST_TYPE_NONE:
 			{
-				rd_u16b(&q_ptr->data.gen.place);
-				rd_u16b(&q_ptr->data.gen.shop);
-				rd_u16b(&q_ptr->data.gen.r_idx);
-				rd_u16b(&q_ptr->data.gen.cur_num);
-				rd_u16b(&q_ptr->data.gen.max_num);
+				/* Un-initialised quests */
 				break;
 			}
 
-				/* Dungeon quests */
+			case QUEST_TYPE_BOUNTY:
+			{
+				/* Bounty quests */
+				rd_u16b(&q_ptr->data.bnt.r_idx);
+				rd_u16b(&q_ptr->data.bnt.cur_num);
+				rd_u16b(&q_ptr->data.bnt.max_num);
+				break;
+			}
+
 			case QUEST_TYPE_DUNGEON:
 			{
+				/* Dungeon quests */
 				rd_u16b(&q_ptr->data.dun.r_idx);
 				rd_u16b(&q_ptr->data.dun.level);
 
@@ -2710,12 +2776,38 @@ static void rd_quests(int max_quests)
 				break;
 			}
 
-				/* Wilderness quests */
 			case QUEST_TYPE_WILD:
 			{
+				/* Wilderness quests */
 				rd_u16b(&q_ptr->data.wld.place);
 				rd_u16b(&q_ptr->data.wld.data);
 				rd_byte(&q_ptr->data.wld.depth);
+				break;
+			}
+			
+			case QUEST_TYPE_MESSAGE:
+			{
+				/* Message quests */
+				rd_u16b(&q_ptr->data.msg.place);
+				rd_u16b(&q_ptr->data.msg.shop);
+				break;
+			}
+			
+			case QUEST_TYPE_FIND_ITEM:
+			{
+				/* Find item quests */
+				rd_u16b(&q_ptr->data.fit.a_idx);
+				rd_u16b(&q_ptr->data.fit.place);
+				
+				/* The artifact is a quest item */
+				SET_FLAG(&a_info[q_ptr->data.fit.a_idx], TR_QUESTITEM);
+				break;
+			}
+			
+			case QUEST_TYPE_FIND_PLACE:
+			{
+				/* Find place quests */
+				rd_u16b(&q_ptr->data.fpl.place);
 				break;
 			}
 
@@ -2851,8 +2943,8 @@ static errr rd_savefile_new_aux(void)
 
 			/* Hack -- Reset the death counter */
 			r_ptr->max_num = 100;
-			if (r_ptr->flags1 & RF1_UNIQUE) r_ptr->max_num = 1;
-			if (r_ptr->flags3 & RF3_UNIQUE_7) r_ptr->max_num = 7;
+			if (FLAG(r_ptr, RF_UNIQUE)) r_ptr->max_num = 1;
+			if (FLAG(r_ptr, RF_UNIQUE_7)) r_ptr->max_num = 7;
 		}
 	}
 
@@ -2908,6 +3000,9 @@ static errr rd_savefile_new_aux(void)
 	if (sf_version < 30)
 	{
 		strip_quests(max_quests_load);
+		
+		/* Reinitialise the quests when loading an old version */
+		init_player_quests();
 	}
 
 	/* Newer versions */
@@ -2922,12 +3017,14 @@ static errr rd_savefile_new_aux(void)
 
 		rd_quests(max_quests_load);
 	}
+	
+	if (arg_fiddle) note("Loaded Quests");
 
 	/* Only in 2.2.1 and 2.2.2 */
 	if (!z_older_than(2, 2, 1) && z_older_than(2, 2, 3))
 	{
 		/* "Hard quests" flag */
-		rd_byte((byte *)&ironman_hard_quests);
+		rd_byte((byte *)&tmp8u);
 
 		/* Inverted "Wilderness" flag */
 		rd_byte((byte *)&vanilla_town);
@@ -2982,16 +3079,6 @@ static errr rd_savefile_new_aux(void)
 			}
 		}
 	}
-
-	/*
-	 * Reinitialise the quests when loading an old version
-	 */
-	if (sf_version < 30)
-	{
-		get_player_quests(-1);
-	}
-
-	if (arg_fiddle) note("Loaded Quests");
 
 	/* Load the Artifacts */
 	rd_u16b(&tmp16u);
@@ -3228,6 +3315,13 @@ static errr rd_savefile_new_aux(void)
 					rd_byte(&dun_ptr->min_level);
 					rd_byte(&dun_ptr->max_level);
 					
+					if (vanilla_town)
+					{
+						dun_ptr->min_level = 1;
+						dun_ptr->max_level = MAX_DEPTH - 1;
+					}
+					
+					
 					/* Rating */
 					rd_s16b(&dun_ptr->rating);
 					
@@ -3239,6 +3333,28 @@ static errr rd_savefile_new_aux(void)
 						rd_byte(&dun_ptr->floor);
 						rd_byte(&dun_ptr->liquid);
 						rd_byte(&dun_ptr->flags);
+						
+						/* Recall depth */
+						if (sf_version > 46)
+						{
+							rd_byte(&dun_ptr->recall_depth);
+						}
+						else
+						{
+							/* Hack - use old one-dungeon depth */
+							dun_ptr->recall_depth = p_ptr->depth;
+							
+							/* Make sure the value is in bounds */
+							if (dun_ptr->recall_depth < dun_ptr->min_level)
+							{
+								dun_ptr->recall_depth = dun_ptr->min_level;
+							}
+							
+							if (dun_ptr->recall_depth > dun_ptr->max_level)
+							{
+								dun_ptr->recall_depth = dun_ptr->max_level;
+							}
+						}
 					}
 				}
 			}

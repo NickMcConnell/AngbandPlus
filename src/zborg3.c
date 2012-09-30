@@ -133,7 +133,7 @@ static byte borg_magic_method[8][4][8] =
 	  BORG_MAGIC_NOP /*   "Sleep Monster" */ ,
 	  BORG_MAGIC_OBJ /*   "Recharging" */ },
 
-	 {							/* Master Sorc (sval 1) */
+	 {							/* Master Sorcery (sval 1) */
 	  BORG_MAGIC_NOP /*   "Magic Map" */ ,
 	  BORG_MAGIC_OBJ /*   "Ident" */ ,
 	  BORG_MAGIC_AIM /*   "Slow Monster" */ ,
@@ -143,7 +143,7 @@ static byte borg_magic_method[8][4][8] =
 	  BORG_MAGIC_NOP /*   "Detection True" */ ,
 	  BORG_MAGIC_OBJ /*   "*ID*" */ },
 
-	 {							/* Pattern Sorc (sval 2) */
+	 {							/* Pattern Sorcery (sval 2) */
 	  BORG_MAGIC_NOP /*   "Detect Obj" */ ,
 	  BORG_MAGIC_NOP /*   "Detect Enchant" */ ,
 	  BORG_MAGIC_ICK /*   "Charm Mon" */ ,
@@ -245,7 +245,7 @@ static byte borg_magic_method[8][4][8] =
 	{							/* 5. Death Realm */
 	 {							/* Black Prayers (sval 0) */
 	  BORG_MAGIC_NOP /* ! "Detect Unlife" */ ,
-	  BORG_MAGIC_AIM /*   "Maledition" */ ,
+	  BORG_MAGIC_AIM /*   "Malediction" */ ,
 	  BORG_MAGIC_NOP /* ! "Detect Evil" */ ,
 	  BORG_MAGIC_AIM /*   "Stinking Cloud" */ ,
 	  BORG_MAGIC_AIM /*   "Black Sleep" */ ,
@@ -428,7 +428,7 @@ static byte borg_magic_rating[8][4][8] =
 	 },							/* end of Null Realm */
 
 	{							/* Life Realm */
-	 {							/* Beginners Handbook (sval 0) */
+	 {							/* Common Prayers (sval 0) */
 	  85 /*   "Detect Evil" */ ,
 	  55 /*   "Cure Light Wounds" */ ,
 	  85 /*   "Bless" */ ,
@@ -437,7 +437,7 @@ static byte borg_magic_rating[8][4][8] =
 	  75 /*   "Find Traps & Doors" */ ,
 	  65 /*   "Cure Medium Wounds" */ ,
 	  85 /*   "Satisfy Hunger" */ },
-	 {							/* Words of Wisdom (sval 1) */
+	 {							/* High Mass (sval 1) */
 	  65 /*   "Remove Curse" */ ,
 	  65 /*   "Cure Poison" */ ,
 	  85 /*   "Cure Crit Wounds" */ ,
@@ -446,7 +446,7 @@ static byte borg_magic_rating[8][4][8] =
 	  85 /*   "Prot/Evil" */ ,
 	  65 /*   "Heal 300" */ ,
 	  55 /*   "Glyph" */ },
-	 {							/* Chants and Blessings (sval 2) */
+	 {							/* Book of the Unicorn (sval 2) */
 	  65 /*   "Exorcism" */ ,
 	  65 /*   "Dispel Curse" */ ,
 	  55 /*   "Dispel Demon" */ ,
@@ -455,7 +455,7 @@ static byte borg_magic_rating[8][4][8] =
 	  55 /*   "Banishment" */ ,
 	  65 /*   "Holy Word" */ ,
 	  55 /*   "Warding True" */ },
-	 {							/* Exorcism and Dispelling (sval 3) */
+	 {							/* Blessings of the Grail (sval 3) */
 	  55 /*   "Heroism" */ ,
 	  65 /*   "Prayer" */ ,
 	  45 /*   "Bless Weapon" */ ,
@@ -467,7 +467,7 @@ static byte borg_magic_rating[8][4][8] =
 	 },							/* end of Life Magic */
 
 	{							/* Sorcery Realm */
-	 {							/* Magic for Beginners (sval 0) */
+	 {							/* Beginners Handbook (sval 0) */
 	  95 /*   "Detect Monsters" */ ,
 	  85 /*   "Phase Door" */ ,
 	  65 /*   "Detect Door" */ ,
@@ -476,7 +476,7 @@ static byte borg_magic_rating[8][4][8] =
 	  75 /*   "Teleport Selft" */ ,
 	  65 /*   "Sleep Monster" */ ,
 	  65 /*   "Recharging" */ },
-	 {							/* Conjurings and Tricks (sval 1) */
+	 {							/* Master Sorcery (sval 1) */
 	  55 /*   "Magic Map" */ ,
 	  85 /*   "Identify" */ ,
 	  55 /*   "Slow Monster" */ ,
@@ -485,7 +485,7 @@ static byte borg_magic_rating[8][4][8] =
 	  55 /*   "Haste Self" */ ,
 	  85 /*   "Detection True" */ ,
 	  75 /*   "*Identify*" */ },
-	 {							/* Incantations and Illusions (sval 2) */
+	 {							/* Pattern Sorcery (sval 2) */
 	  55 /*   "Detect Obj/Treasure" */ ,
 	  55 /*   "Detect Enchantment" */ ,
 	  75 /*   "Charm Monster" */ ,
@@ -494,14 +494,14 @@ static byte borg_magic_rating[8][4][8] =
 	  0 /*   "Self Knowledge" */ ,
 	  65 /*   "Teleport Level" */ ,
 	  65 /*   "Word of Recall" */ },
-	 {							/* Sorcery and Evocations (sval 3) */
+	 {							/* Grimoir of Power (sval 3) */
 	  55 /*   "Stasis" */ ,
 	  0 /*   "Telekinesis" */ ,
 	  0 /*   "Explosive Rune" */ ,
 	  65 /*   "Clairvoyance" */ ,
 	  55 /*   "Enchant Weap" */ ,
 	  55 /*   "Enchant Armour" */ ,
-	  0 /*   "Alchemy" */ ,
+	  1 /*   "Alchemy" */ ,
 	  95 /*   "GOI" */ }
 	 },							/* end of Sorcery Realm */
 
@@ -821,6 +821,37 @@ list_item *borg_slot(int tval, int sval)
 }
 
 /*
+ * Return the slot of an item with the given tval/sval, if available.
+ * The first available is returned.  The search is started from <from>
+ * This way with repeated calls the second pile of an item can be found.
+ */
+int borg_slot_from(int tval, int sval, int from)
+{
+	int i;
+
+	/* Scan the pack */
+	for (i = from; i < inven_num; i++)
+	{
+		list_item *l_ptr = &inventory[i];
+
+		/* Skip un-aware items */
+		if (!l_ptr->k_idx) continue;
+
+		/* Continue looking for the right tval */
+		if (l_ptr->tval != tval) continue;
+
+		/* Require correct sval */
+		if (k_info[l_ptr->k_idx].sval != sval) continue;
+
+		/* This is what was looked for */
+		return (i);
+	}
+
+	/* Object not found */
+	return (-1);
+}
+
+/*
  * Get the index of an item so we can send commands to the game
  */
 int look_up_index(list_item *l_ptr)
@@ -845,44 +876,43 @@ int look_up_index(list_item *l_ptr)
  */
 bool borg_refuel_torch(void)
 {
+	int slot, b_slot = -1, fuel = 9999;
 	list_item *l_ptr;
 
-	/* Look for a torch */
-	l_ptr = borg_slot(TV_LITE, SV_LITE_TORCH);
-
-	/* None available */
-	if (!l_ptr) return (FALSE);
-
 	/* Must first wield before one can refuel */
-	if (!equipment[EQUIP_LITE].k_idx)
-	{
-		return (FALSE);
-	}
+	if (!equipment[EQUIP_LITE].k_idx) return (FALSE);
 
 	/* Must wield torch */
-	if (k_info[equipment[EQUIP_LITE].k_idx].sval != SV_LITE_TORCH)
+	if (k_info[equipment[EQUIP_LITE].k_idx].sval != SV_LITE_TORCH) return (FALSE);
+
+	/* Look for the minimal torch */
+	for (slot = 0; slot < inven_num; slot++)
 	{
-		return (FALSE);
+		l_ptr = &inventory[slot];
+
+		/* Must be a light */
+		if (l_ptr->tval != TV_LITE) continue;
+
+		/* Must be a torch */
+		if (k_info[l_ptr->k_idx].sval != SV_LITE_TORCH) continue;
+
+		/* Ignore torches with the most fuel */
+		if (l_ptr->timeout >= fuel) continue;
+		
+		/* My favorite torch */
+		b_slot = slot;
+		fuel = l_ptr->timeout;
 	}
 
-	/* Dont bother with empty */
-	if (l_ptr->timeout == 0)
-	{
-		return (FALSE);
-	}
-
-	/* Cant refuel nothing */
-	if (l_ptr->number == 0)
-	{
-		return (FALSE);
-	}
+	/* None available */
+	if (b_slot == -1) return (FALSE);
 
 	/* Log the message */
-	borg_note_fmt("# Refueling with %s.", l_ptr->o_name);
+	borg_note_fmt("# Refueling with %s.", inventory[b_slot].o_name);
 
 	/* Perform the action */
 	borg_keypress('F');
-	borg_keypress(I2A(look_up_index(l_ptr)));
+	borg_keypress(I2A(b_slot));
 
 	/* Success */
 	return (TRUE);
@@ -1199,93 +1229,140 @@ bool borg_read_scroll(int sval)
 	return (TRUE);
 }
 
-/*
- * Hack -- checks rod (by sval) and
- * make a fail check on it.
- */
-bool borg_equips_rod(int sval)
-{
-	list_item *l_ptr;
-	object_kind *k_ptr;
 
+/* Take an item and makes a fail check on it */
+bool borg_use_item_fail(list_item *l_ptr, bool risky)
+{
 	int chance, lev;
 
-	/* Look for that staff */
-	l_ptr = borg_slot(TV_ROD, sval);
-
-	/* None available */
-	if (!l_ptr) return (FALSE);
-
-	/* No charges */
-	if (!l_ptr->pval) return (FALSE);
-
-	/* Get item type */
-	k_ptr = &k_info[l_ptr->k_idx];
-
 	/* Extract the item level */
-	lev = (k_ptr->level);
+	lev = k_info[l_ptr->k_idx].level;
 
 	/* Base chance of success */
 	chance = bp_ptr->skill_dev;
 
 	/* Confusion hurts skill */
 	if (bp_ptr->status.confused) chance = chance / 2;
+	
+	/* Do you feel lucky, punk? */
+	if (risky)
+	{
+		/* Calculate the chance for this item */
+		chance = chance - lev / 3;
+	}
+	else
+	{
+		/* Calculate the chance for this item */
+		chance = chance - lev / 2;
+	}
 
-	/* High level objects are harder */
-	chance = chance - ((lev > 50) ? 50 : lev);
+	/* Is this item usable? */
+	if (chance < USE_DEVICE) return (FALSE);
 
-	/* Roll for usage */
-	if (chance < USE_DEVICE * 2) return (FALSE);
-
-	/* Yep we got one */
+	/* Success */
 	return (TRUE);
 }
 
 
-
-/*
- * Hack -- attempt to zap the given (charged) rod (by sval)
- */
-bool borg_zap_rod(int sval)
+/* To zap a rod or not */
+static bool borg_rod_aux(int sval, bool zap)
 {
+	int slot;
 	list_item *l_ptr;
-	object_kind *k_ptr;
-
-	int lev, chance;
 
 	/* Look for that rod */
-	l_ptr = borg_slot(TV_ROD, sval);
+	slot = borg_slot_from(TV_ROD, sval, 0);
 
 	/* None available */
-	if (!l_ptr) return (FALSE);
+	if (slot == -1) return (FALSE);
 
-	/* Hack -- Still charging */
-	if (!l_ptr->pval) return (FALSE);
+	l_ptr = &inventory[slot];
 
-	/* Get item type */
-	k_ptr = &k_info[l_ptr->k_idx];
+	/* Still charging */
+	if (l_ptr->timeout == l_ptr->number) return (FALSE);
 
-	/* Extract the item level */
-	lev = (k_ptr->level);
+	/* Can we zap this rod */
+	if (!borg_use_item_fail(l_ptr, FALSE)) return (FALSE);
 
-	/* Base chance of success */
-	chance = bp_ptr->skill_dev;
+	/* Do we want to zap it? */
+	if (zap)
+	{
+		/* Log the message */
+		borg_note_fmt("# Zapping %s.", l_ptr->o_name);
 
-	/* Confusion hurts skill */
-	if (bp_ptr->status.confused) chance = chance / 2;
+		/* Perform the action */
+		borg_keypress('z');
+		borg_keypress(I2A(slot));
+	}
 
-	/* High level objects are harder */
-	chance = chance - ((lev > 50) ? 50 : lev);
+	/* Success */
+	return (TRUE);
+}
 
-	/* Roll for usage */
-	if (chance < USE_DEVICE + 2) return (FALSE);
+/* Can we zap this rod? */
+bool borg_equips_rod(int sval)
+{
+	return (borg_rod_aux(sval, FALSE));
+}
 
-	/* Log the message */
-	borg_note_fmt("# Zapping %s.", l_ptr->o_name);
+/* Let's zap this rod if possible  */
+bool borg_zap_rod(int sval)
+{
+	return (borg_rod_aux(sval, TRUE));
+}
 
-	/* Perform the action */
-	borg_keypress('z');
-	borg_keypress(I2A(look_up_index(l_ptr)));
+
+/*
+ * Hack -- attempt to use the requested wand (by sval).
+ * Wands with unknown charges can also be tried if they are not {empty}
+ * If (fail) is set then do a fail check.
+ * If (aim) is set then aim the wand.
+ */
+static bool borg_wand_aux(int sval, bool aim, bool fail)
+{
+	list_item *l_ptr;
+	int slot = 0;
+
+	/* Look for that wand */
+	slot = borg_slot_from(TV_WAND, sval, slot);
+
+	/* Search the inventory until the right wand with charges is found */
+	while (slot != -1)
+	{
+		l_ptr = &inventory[slot];
+
+		/* Accept this wand if it may have charges */
+		if (borg_obj_known_p(l_ptr))
+		{
+			/* Identified with charges */
+			if (l_ptr->pval) break;
+		}
+		else
+		{
+			/* unidentified and not inscribed as empty */
+			if (!strstr(l_ptr->o_name, "{empty}")) break;
+		}
+
+		/* Look for the next wand */
+		slot = borg_slot_from(TV_WAND, sval, slot + 1);
+	}
+
+	/* No wand found */
+	if (slot == -1) return (FALSE);
+
+	/* Can we aim this wand */
+	if (fail && !borg_use_item_fail(l_ptr, FALSE)) return (FALSE);
+
+	/* Aim the wand */
+	if (aim)
+	{
+		/* Log the message */
+		borg_note_fmt("# Aiming %s.", l_ptr->o_name);
+
+		/* Perform the action */
+		borg_keypress('a');
+		borg_keypress(I2A(slot));
+	}
 
 	/* Success */
 	return (TRUE);
@@ -1297,117 +1374,108 @@ bool borg_zap_rod(int sval)
  */
 bool borg_aim_wand(int sval)
 {
+	/* aim that wand without a fail check */
+	return (borg_wand_aux(sval, TRUE, FALSE));
+}
+
+
+/*
+ * Hack -- attempt to aim the given (charged) wand (by sval)
+ */
+bool borg_equips_wand_fail(int sval)
+{
+	/* Search for that wand with a fail check */
+	return (borg_wand_aux(sval, FALSE, TRUE));
+}
+
+
+/*
+ * Hack -- attempt to use the requested staff (by sval).
+ * Staffs with unknown charges can also be tried if they are not {empty}
+ * This is ok to do because if the staff is empty the effect (a wasted turn)
+ * is the same as a failure to use the staff.
+ * If (fail) is set then do a fail check.
+ * If (use) is set then use the staff.
+ */
+static bool borg_staff_aux(int sval, bool use, bool fail)
+{
 	list_item *l_ptr;
+	int slot = 0;
 
-	/* Look for that wand */
-	l_ptr = borg_slot(TV_WAND, sval);
+	/* Look for that staff */
+	slot = borg_slot_from(TV_STAFF, sval, slot);
 
-	/* None available */
-	if (!l_ptr) return (FALSE);
+	/* Search the inventory until the right staff with charges is found */
+	while (slot != -1)
+	{
+		l_ptr = &inventory[slot];
 
-	/* No charges */
-	if (!l_ptr->pval) return (FALSE);
+		/* Accept this staff if it may have charges */
+		if (borg_obj_known_p(l_ptr))
+		{
+			/* Identified with charges */
+			if (l_ptr->pval) break;
+		}
+		else
+		{
+			/* unidentified and not inscribed as empty */
+			if (!strstr(l_ptr->o_name, "{empty}")) break;
+		}
 
-	/* Log the message */
-	borg_note_fmt("# Aiming %s.", l_ptr->o_name);
+		/* Look for the next staff */
+		slot = borg_slot_from(TV_STAFF, sval, slot + 1);
+	}
 
-	/* Perform the action */
-	borg_keypress('a');
-	borg_keypress(I2A(look_up_index(l_ptr)));
+	/* No staff found */
+	if (slot == -1) return (FALSE);
+
+	/* Do the fail check */
+	if (fail)
+	{
+		if (sval == SV_STAFF_TELEPORTATION)
+		{
+			/* Take more risk if you want to teleport */
+			if (!borg_use_item_fail(l_ptr, TRUE)) return (FALSE);
+		}
+		else
+		{
+			/* Do not take more risks for other staffs */
+			if (!borg_use_item_fail(l_ptr, FALSE)) return (FALSE);
+		}
+	}
+
+	/* Use the staff */
+	if (use)
+	{
+		/* Log the message */
+		borg_note_fmt("# Using %s.", l_ptr->o_name);
+
+		/* Perform the action */
+		borg_keypress('u');
+		borg_keypress(I2A(slot));
+	}
 
 	/* Success */
 	return (TRUE);
 }
 
-
 /*
- * Hack -- attempt to use the given (charged) staff (by sval)
+ * Hack -- attempt to use the requested staff (by sval)
  */
 bool borg_use_staff(int sval)
 {
-	list_item *l_ptr;
-
-	/* Look for that staff */
-	l_ptr = borg_slot(TV_STAFF, sval);
-
-	/* None available */
-	if (!l_ptr) return (FALSE);
-
-	/* No charges */
-	if (!l_ptr->pval) return (FALSE);
-
-	/* Log the message */
-	borg_note_fmt("# Using %s.", l_ptr->o_name);
-
-	/* Perform the action */
-	borg_keypress('u');
-	borg_keypress(I2A(look_up_index(l_ptr)));
-
-	/* Success */
-	return (TRUE);
+	/* Use the staff (if available) without fail check */
+	return borg_staff_aux(sval, TRUE, FALSE);
 }
 
 /*
- * Hack -- attempt to use the given (charged) staff (by sval) and
+ * Hack -- attempt to use the requested staff (by sval) and
  * make a fail check on it.
  */
 bool borg_use_staff_fail(int sval)
 {
-	list_item *l_ptr;
-	object_kind *k_ptr;
-
-	int chance, lev;
-
-	/* Look for that staff */
-	l_ptr = borg_slot(TV_STAFF, sval);
-
-	/* None available */
-	if (!l_ptr) return (FALSE);
-
-	/* No charges */
-	if (!l_ptr->pval) return (FALSE);
-
-	/* Get item type */
-	k_ptr = &k_info[l_ptr->k_idx];
-
-	/* Extract the item level */
-	lev = k_ptr->level;
-
-	/* Base chance of success */
-	chance = bp_ptr->skill_dev;
-
-	/* Confusion hurts skill */
-	if (bp_ptr->status.confused) chance = chance / 2;
-
-	/* High level objects are harder */
-	chance = chance - ((lev > 50) ? 50 : lev);
-
-	/* Roll for usage, but if its a Teleport be generous. */
-	if (chance < USE_DEVICE * 2)
-	{
-		if (sval != SV_STAFF_TELEPORTATION)
-		{
-			return (FALSE);
-		}
-
-		/* We need to give some "desparation attempt to teleport staff" */
-		if (!bp_ptr->status.confused && !bp_ptr->status.blind)
-		{
-			/* We really have no chance, return false, attempt the scroll */
-			if (chance < USE_DEVICE) return (FALSE);
-		}
-		/* We might have a slight chance, or we cannot not read */
-	}
-
-	/* Log the message */
-	borg_note_fmt("# Using %s.", l_ptr->o_name);
-
-	/* Perform the action */
-	borg_keypress('u');
-	borg_keypress(I2A(look_up_index(l_ptr)));
-
-	/* Success */
-	return (TRUE);
+	/* Use the staff with fail check */
+	return borg_staff_aux(sval, TRUE, TRUE);
 }
 
 /*
@@ -1416,109 +1484,81 @@ bool borg_use_staff_fail(int sval)
  */
 bool borg_equips_staff_fail(int sval)
 {
-	list_item *l_ptr;
-	object_kind *k_ptr;
+	/* Do not use the staff, just do the fail check */
+	return borg_staff_aux(sval, FALSE, TRUE);
+}
 
-	int chance, lev;
-
-	/* Look for that staff */
-	l_ptr = borg_slot(TV_STAFF, sval);
-
-	/* None available */
+/*
+ * This function checks if the item is an artifact
+ * that can be activated according to your skill.
+ * if real_use is TRUE then there is also a check if the
+ * borg can use the artifact right now.
+ */
+bool borg_check_artifact(list_item *l_ptr, bool real_use)
+{
+	/* Skip empty items */
 	if (!l_ptr) return (FALSE);
 
-	/* No charges */
-	if (!l_ptr->pval) return (FALSE);
+	/* Skip non-artifacts */
+	if (!(KN_FLAG(l_ptr, TR_INSTA_ART))) return (FALSE);
 
-	/* Get item type */
-	k_ptr = &k_info[l_ptr->k_idx];
+	/* Is this an activatable item? */
+	if (!(KN_FLAG(l_ptr, TR_ACTIVATE))) return (FALSE);
 
-	/* Extract the item level */
-	lev = k_ptr->level;
+	/* Can we activate this artifact */
+	if (!borg_use_item_fail(l_ptr, FALSE)) return (FALSE);
 
-	/* Base chance of success */
-	chance = bp_ptr->skill_dev;
+	if (!real_use) return (TRUE);
 
-	/* Confusion hurts skill */
-	if (bp_ptr->status.confused) chance = chance / 2;
-
-	/* High level objects are harder */
-	chance = chance - ((lev > 50) ? 50 : lev);
-
-	/* Roll for usage, but if its a Teleport be generous. */
-	if (chance < USE_DEVICE * 2)
-	{
-		if (sval != SV_STAFF_TELEPORTATION && sval != SV_STAFF_DESTRUCTION)
-		{
-			return (FALSE);
-		}
-
-		/* We need to give some "desparation attempt to teleport staff" */
-		if (!bp_ptr->status.confused)
-		{
-			/* We really have no chance, return false, attempt the scroll */
-			if (chance < USE_DEVICE) return (FALSE);
-		}
-
-		/* We might have a slight chance, continue on */
-	}
-
-	/* Yep we got one */
+	/* Check charge */
+	if (l_ptr->timeout) return (FALSE);
+	
+	/* We got what we need */
 	return (TRUE);
 }
 
-
 /*
- * Hack -- attempt to use the given artifact (by index)
+ * Hack -- attempt to use the given artifact
+ * Doesn't work because I don't know how to find out the activation.
+ * It is possible to do this by name (Galadriel, etc) but that leaves
+ * out the randarts.
  */
 bool borg_activate_artifact(int name1, bool secondary)
 {
-	/* int i; */
+	int slot,
+		act;
 
-	/* Hack - ignore unused parameter */
-	(void)name1;
-	(void)secondary;
-
-#if 0
 	/* Check the equipment */
-	for (i = 0; i < equip_num; i++)
+	for (slot = 0; slot < equip_num; slot++)
 	{
-		list_item *l_ptr = &equipment[i];
+		list_item *l_ptr = &equipment[slot];
 
-		/* Skip non-artifacts */
-		if (!(l_ptr->kn_flags3 & TR3_INSTA_ART)) continue;
+		/* Is this item an artifact that can be activated now? */
+		if (!borg_check_artifact(l_ptr, TRUE)) continue;
 
-		/* Check charge */
-		if (l_ptr->timeout) return (FALSE);
-
-		/*
-		 * Random Artifact must be *ID* to know the activation power.
-		 * The borg will cheat with random artifacts to know if the
-		 * artifact number is activatable, but artifact names and
-		 * types will be scrambled.  So he must first *ID* the artifact
-		 * he must play with the artifact to learn its power, just as
-		 * he plays with magic to gain experience.  But I am not about
-		 * to undertake that coding.  He needs to *ID* it anyway to learn
-		 * of the resists that go with the artifact.
-		 * Lights dont need *id* just regular id.
+		/* 
+		 * Find out what activation is, but not like this
+		 * act = p_ptr->equipment[slot].activate;
+		 * With act = 0 no activation will be found
 		 */
-		if ((i != EQUIP_LITE) && !borg_obj_known_full(l_ptr))
-		{
-			borg_note_fmt("# %s must be *ID*'d before activation.",
-						  l_ptr->o_name);
-			return (FALSE);
-		}
+		act = 0;
+
+		/* Is this a predefined artifact with the right activation? */
+		if (act < 128 || act - 128 != name1) continue;
 
 		/* Log the message */
 		borg_note_fmt("# Activating artifact %s.", l_ptr->o_name);
 
 		/* Perform the action */
 		borg_keypress('A');
-		borg_keypress(I2A(i));
-#if 0
+		borg_keypress(I2A(slot));
+
 		/* Jewel also gives Recall */
-		if (item->name1 == ART_THRAIN)
+		if (act - 128 == ART_THRAIN)
 		{
+			/* probably some spaces missing */
+			borg_keypress(' ');
+
 			if (secondary == FALSE)
 			{
 				borg_keypress('n');
@@ -1528,103 +1568,288 @@ bool borg_activate_artifact(int name1, bool secondary)
 				borg_keypress('y');
 			}
 		}
-#endif /* 0 */
+
 		/* Success */
 		return (TRUE);
 	}
-#endif /* 0 */
 
-	/* Oops */
+	/* The artifact is not in the equipment */
 	return (FALSE);
 }
 
-/*
- * Hack -- check and see if borg is wielding a dragon armor and if
- * he will pass a fail check.
- */
-bool borg_equips_dragon(int drag_sval)
+
+static void borg_dimension_door(void)
 {
-	int lev, chance;
+	int x1, y1, x2, y2;
 
-	object_kind *k_ptr;
+	/* Follow Dim Door syntax */
+	borg_keypress(' ');
 
-	/* Check the equipment */
-	list_item *l_ptr = &equipment[EQUIP_BODY];
+	/* Report a little bit */
+	borg_note_fmt
+		("# Targetting Landing Zone (%d,%d)", dim_door_x, dim_door_y);
 
-	/* Get object type */
-	k_ptr = &k_info[l_ptr->k_idx];
+	/* Determine "path" */
+	x1 = c_x;
+	y1 = c_y;
+	x2 = dim_door_x;
+	y2 = dim_door_y;
 
-	/* Skip incorrect armours */
-	if (k_ptr->tval != TV_DRAG_ARMOR) return (FALSE);
-	if (k_ptr->sval != drag_sval) return (FALSE);
+	/* Move to the location (diagonals) */
+	for (; (y1 < y2) && (x1 < x2); y1++, x1++) borg_keypress('3');
+	for (; (y1 < y2) && (x1 > x2); y1++, x1--) borg_keypress('1');
+	for (; (y1 > y2) && (x1 < x2); y1--, x1++) borg_keypress('9');
+	for (; (y1 > y2) && (x1 > x2); y1--, x1--) borg_keypress('7');
 
-	/* Check charge */
-	if (l_ptr->timeout) return (FALSE);
+	/* Move to the location */
+	for (; y1 < y2; y1++) borg_keypress('2');
+	for (; y1 > y2; y1--) borg_keypress('8');
+	for (; x1 < x2; x1++) borg_keypress('6');
+	for (; x1 > x2; x1--) borg_keypress('4');
 
-	/* Make Sure Mail is IDed */
-	if (!borg_obj_known_p(l_ptr)) return (FALSE);
-
-	/* check on fail rate
-	 * The fail check is automatic for dragon armor.  It is an attack
-	 * item.  He should not sit around failing 5 or 6 times in a row.
-	 * he should attempt to activate it, and if he is likely to fail, then
-	 * eh should look at a different attack option.  We are assuming
-	 * that the fail rate is about 50%.  So He may still try to activate it
-	 * and fail.  But he will not even try if he has negative chance or
-	 * less than twice the USE_DEVICE variable
-	 */
-	/* Extract the item level */
-	lev = k_ptr->level;
-
-	/* Base chance of success */
-	chance = bp_ptr->skill_dev;
-
-	/* Confusion hurts skill */
-	if (bp_ptr->status.confused) chance = chance / 2;
-
-	/* High level objects are harder */
-	chance = chance - ((lev > 50) ? 50 : lev);
-
-	/* Roll for usage */
-	if (chance < (USE_DEVICE * 2)) return (FALSE);
-
-	/* Success */
-	return (TRUE);
-
+	/* Select the target */
+	borg_keypress(' ');
 }
 
-/*
- * apw Hack -- attempt to use the given dragon armour
- */
-bool borg_activate_dragon(int drag_sval)
+/* Returns the mana cost of a spell, assuming that the borg can cast it */
+byte borg_spell_mana(int realm, int book, int spell)
 {
-	object_kind *k_ptr;
+	byte power;
 
-	/* Check the equipment */
-	list_item *l_ptr = &equipment[EQUIP_BODY];
+	/* basic cost of the spell */
+	power = borg_magics[realm][book][spell].power;
 
-	/* Get object type */
-	k_ptr = &k_info[l_ptr->k_idx];
+	/* If this is a chaos spell and the borg has a chaos patron */
+	if (realm == REALM_CHAOS && FLAG(p_ptr, TR_PATRON))
+	{
+		/* Reduce the spell cost */
+		power = (2 * power + 2) / 3;
+	}
 
-	/* Skip incorrect mails */
-	if (k_ptr->tval != TV_DRAG_ARMOR) return (FALSE);
-	if (k_ptr->sval != drag_sval) return (FALSE);
+	/* Tell the world */
+	return (power);
+}
 
-	/* Check charge */
-	if (l_ptr->timeout) return (FALSE);
+/* Combines the legality check with the cost */
+static bool borg_mana_legal_fail(int realm, int book, int spell, int fail, byte *cost)
+{
+	/* Is this spell castable with the fail_check? */
+	if (!borg_spell_legal_fail(realm, book, spell, fail)) return (FALSE);
 
-	/* apw Make Sure Mail is IDed */
-	if (!borg_obj_known_p(l_ptr)) return (FALSE);
-
-	/* Log the message */
-	borg_note_fmt("# Activating dragon scale %s.", l_ptr->o_name);
-
-	/* Perform the action */
-	borg_keypress('A');
-	borg_keypress(I2A(EQUIP_BODY));
+	/* Find out the cost */
+	*cost = borg_spell_mana(realm, book, spell);
 
 	/* Success */
 	return (TRUE);
+}
+	
+
+/* This function returns the amount of reserve mana */
+int borg_reserve_mana(void)
+{
+	byte cost;
+
+	/* Don't bother with reserve mana if you can't have spells */
+	if (borg_class == CLASS_WARRIOR) return (0);
+
+	/* Low level spell casters should not worry about this */
+	if (bp_ptr->lev < 20) return (0);
+
+	/* Special case for Mindcrafters */
+	if (borg_class == CLASS_MINDCRAFTER)
+	{
+		/* This borg has dimension door */
+		if (bp_ptr->lev >= 40) return (3 * borg_minds[MIND_MINOR_DISP].power);
+
+		/* Telekinetic Wave */
+		if (bp_ptr->msp > 100) return (borg_minds[MIND_TELE_WAVE].power);
+
+		/* Two teleports */
+		if (bp_ptr->msp > 50) return (2 * borg_minds[MIND_MAJOR_DISP].power);
+
+		/* One teleport */
+		if (bp_ptr->msp > 12) return (borg_minds[MIND_MAJOR_DISP].power);
+
+		/* One phase door */
+		if (bp_ptr->msp > 4) return (borg_minds[MIND_MINOR_DISP].power);
+
+		/* Puny! */
+		return (0);
+	}
+
+	/*
+	 * I created these values spell by spell.  If there are multiple realms
+	 * carrying a spell then Trump goes first and Arcane goes last as Trump
+	 * has low values and Arcane high
+	 * Teleport away is not listed because it is covered by the reserve for
+	 * teleport spells.
+	 */
+
+
+	/* Multiple Dimension Doors */
+	if (borg_mana_legal_fail(REALM_TRUMP, 0, 5, 5, &cost)) return (3 * cost);
+	if (borg_mana_legal_fail(REALM_SORCERY, 2, 3, 5, &cost)) return (3 * cost);
+
+	/* Dimension Door */
+	if (borg_mana_legal_fail(REALM_TRUMP, 0, 5, 15, &cost)) return (cost);
+	if (borg_mana_legal_fail(REALM_SORCERY, 2, 3, 15, &cost)) return (cost);
+
+	/* Teleport Level */
+	if (borg_mana_legal_fail(REALM_TRUMP, 1, 5, 15, &cost)) return (cost);
+	if (borg_mana_legal_fail(REALM_ARCANE, 3, 1, 15, &cost)) return (cost);
+	
+	/* Mass teleport away */
+	if (borg_mana_legal_fail(REALM_DEATH, 3, 4, 15, &cost)) return (cost);
+	if (borg_mana_legal_fail(REALM_LIFE, 2, 5, 15, &cost)) return (cost);
+	if (borg_mana_legal_fail(REALM_TRUMP, 1, 7, 15, &cost)) return (cost);
+
+	/* Multiple Teleports */
+	if (borg_mana_legal_fail(REALM_TRUMP, 0, 4, 5, &cost)) return (2 * cost);
+	if (borg_mana_legal_fail(REALM_SORCERY, 0, 5, 5, &cost)) return (2 * cost);
+	if (borg_mana_legal_fail(REALM_CHAOS, 1, 7, 5, &cost)) return (2 * cost);
+	if (borg_mana_legal_fail(REALM_ARCANE, 2, 3, 5, &cost)) return (2 * cost);
+
+	/* Teleport */
+	if (borg_mana_legal_fail(REALM_TRUMP, 0, 4, 15, &cost)) return (cost);
+	if (borg_mana_legal_fail(REALM_SORCERY, 0, 5, 15, &cost)) return (cost);
+	if (borg_mana_legal_fail(REALM_CHAOS, 1, 7, 15, &cost)) return (cost);
+	if (borg_mana_legal_fail(REALM_ARCANE, 2, 3, 15, &cost)) return (cost);
+
+	/* Stair Building */
+	if (borg_mana_legal_fail(REALM_NATURE, 2, 1, 15, &cost)) return (cost);
+
+	/* Phase Door? */
+	if (borg_mana_legal_fail(REALM_TRUMP, 0, 0, 15, &cost)) return (cost);
+	if (borg_mana_legal_fail(REALM_SORCERY, 0, 1, 15, &cost)) return (cost);
+	if (borg_mana_legal_fail(REALM_ARCANE, 0, 4, 15, &cost)) return (cost);
+
+	/* No spell available */
+	return (0);
+}
+
+
+/*
+ * This function determines if a given spell is allowed to be cast
+ * with regards to reserve_mana
+ */
+static bool borg_reserve_allow(int realm, int book, int what)
+{
+	/* Are you dipping into reserve mana? */
+	if (bp_ptr->csp - borg_spell_mana(realm, book, what) >= borg_reserve_mana())
+	{
+		/* Plenty of mana so it is OK */
+		return (TRUE);
+	}
+
+	switch (realm)
+	{
+		case REALM_LIFE:
+		{
+			/* Banishment spells ok */
+			if (book == 2 && what == 5) return (TRUE);
+
+			/* others are rejected */
+			return (FALSE);
+		}
+		case REALM_SORCERY:
+		{
+			/* Phase spells ok */
+			if (book == 0 && what == 1) return (TRUE);
+
+			/* Teleport spells ok */
+			if (book == 0 && what == 5) return (TRUE);
+
+			/* Teleport Away ok */
+			if (book == 1 && what == 4) return (TRUE);
+
+			/* Dimension Door spells ok */
+			if (book == 2 && what == 3) return (TRUE);
+
+			/* Teleport Level spells ok */
+			if (book == 2 && what == 6) return (TRUE);
+
+			/* others are rejected */
+			return (FALSE);
+		}
+		case REALM_NATURE:
+		{
+			/* Stair Building spells ok */
+			if (book == 2 && what == 1) return (TRUE);
+
+			/* others are rejected */
+			return (FALSE);
+		}
+		case REALM_CHAOS:
+		{
+			/* Teleport spells ok */
+			if (book == 0 && what == 7) return (TRUE);
+
+			/* Teleport Away ok */
+			if (book == 1 && what == 5) return (TRUE);
+
+			/* Alter Reality ok */
+			if (book == 2 && what == 4) return (TRUE);
+
+			/* others are rejected */
+			return (FALSE);
+		}
+		case REALM_DEATH:
+		{
+			/* Evocation spells ok */
+			if (book == 3 && what == 4) return (TRUE);
+
+			/* others are rejected */
+			return (FALSE);
+		}
+		case REALM_TRUMP:
+		{
+			/* Phase spells ok */
+			if (book == 0 && what == 0) return (TRUE);
+
+			/* Teleport spells ok */
+			if (book == 0 && what == 4) return (TRUE);
+
+			/* Dimension Door spells ok */
+			if (book == 0 && what == 5) return (TRUE);
+
+			/* Teleport Away ok */
+			if (book == 0 && what == 7) return (TRUE);
+
+			/* Teleport Level spells ok */
+			if (book == 1 && what == 5) return (TRUE);
+
+			/* Teleport Level spells ok */
+			if (book == 1 && what == 7) return (TRUE);
+
+			/* others are rejected */
+			return (FALSE);
+		}
+		case REALM_ARCANE:
+		{
+			/* Phase spells ok */
+			if (book == 0 && what == 4) return (TRUE);
+
+			/* Teleport spells ok */
+			if (book == 2 && what == 3) return (TRUE);
+
+			/* Satisfy Hunger OK */
+			if (book == 2 && what == 6) return (TRUE);
+
+			/* Teleport Level spells ok */
+			if (book == 3 && what == 1) return (TRUE);
+
+			/* Teleport Away ok */
+			if (book == 3 && what == 3) return (TRUE);
+
+			/* others are rejected */
+			return (FALSE);
+		}
+		default:
+		{
+			borg_oops("Unknown Realm used in borg_reserve_allow");
+			return(0);
+		}
+	}
 }
 
 
@@ -1636,7 +1861,7 @@ bool borg_spell_legal(int realm, int book, int what)
 	borg_magic *as = &borg_magics[realm][book][what];
 
 	/* The borg must be able to "cast" spells this realm */
-	if (bp_ptr->realm1 != realm && bp_ptr->realm2 != realm) return (FALSE);
+	if (!borg_has_realm(realm)) return (FALSE);
 
 	/* Make sure we have this realm book */
 	if (amt_book[realm][book] <= 0) return (FALSE);
@@ -1645,60 +1870,38 @@ bool borg_spell_legal(int realm, int book, int what)
 	if (as->status < BORG_MAGIC_TEST) return (FALSE);
 
 	/* The spell must be affordable (when rested) */
-	if (as->power > bp_ptr->msp) return (FALSE);
+	if (borg_spell_mana(realm, book, what) > bp_ptr->msp) return (FALSE);
+
+	/* Not if locked down */
+	if (FLAG(bp_ptr, TR_NO_MAGIC)) return (FALSE);
 
 	/* Success */
 	return (TRUE);
 }
+
 
 /*
  * Determine if borg can cast a given spell (right now)
  */
 bool borg_spell_okay(int realm, int book, int what)
 {
-	int reserve_mana = 0;
-
-	borg_magic *as = &borg_magics[realm][book][what];
-
 	map_block *mb_ptr = map_loc(c_x, c_y);
 
 	/* Dark */
 	if (!(mb_ptr->flags & MAP_GLOW) && !bp_ptr->cur_lite) return (FALSE);
 
-	/* Define reserve_mana for each class */
-	if (bp_ptr->realm1 == REALM_SORCERY) reserve_mana = 6;
-	if (bp_ptr->realm1 == REALM_TRUMP) reserve_mana = 6;
-	if (bp_ptr->realm1 == REALM_ARCANE) reserve_mana = 15;
-	if (bp_ptr->realm1 == REALM_CHAOS) reserve_mana = 15;
-
-	/* Low level spell casters should not worry about this */
-	if (bp_ptr->lev < 35) reserve_mana = 0;
-
 	/* Require ability (when rested) */
 	if (!borg_spell_legal(realm, book, what)) return (FALSE);
 
 	/* Hack -- blind/confused */
-	if (bp_ptr->status.blind || bp_ptr->status.confused) return (FALSE);
-
+	if (bp_ptr->status.blind ||
+		bp_ptr->status.confused) return (FALSE);
 
 	/* The spell must be affordable (now) */
-	if (as->power > bp_ptr->csp) return (FALSE);
+	if (borg_spell_mana(realm, book, what) > bp_ptr->csp) return (FALSE);
 
-	/* Do not cut into reserve mana (for final teleport) */
-	if (bp_ptr->csp - as->power < reserve_mana && realm == REALM_SORCERY)
-	{
-		/* Phase spells ok */
-		if (book == 0 && what == 2) return (TRUE);
-
-		/* Teleport spells ok */
-		if (book == 1 && what == 5) return (TRUE);
-
-		/* Satisfy Hunger OK */
-		if (book == 2 && what == 0) return (TRUE);
-
-		/* others are rejected */
-		return (FALSE);
-	}
+	/* Check if this spell uses reserve mana */
+	if (!borg_reserve_allow(realm, book, what)) return (FALSE);
 
 	/* Success */
 	return (TRUE);
@@ -1707,10 +1910,15 @@ bool borg_spell_okay(int realm, int book, int what)
 /*
  * fail rate on a spell
  */
-static int borg_spell_fail_rate(int realm, int book, int what)
+int borg_spell_fail_rate(int realm, int book, int what)
 {
-	int chance, minfail;
+	int chance, minfail, stat, power;
+
+	list_item *l_ptr;
 	borg_magic *as = &borg_magics[realm][book][what];
+
+	/* Warriors can't cast spells */
+	if (borg_class == CLASS_WARRIOR) return (100);
 
 	/* Access the spell  */
 	chance = as->sfail;
@@ -1718,32 +1926,92 @@ static int borg_spell_fail_rate(int realm, int book, int what)
 	/* Reduce failure rate by "effective" level adjustment */
 	chance -= 3 * (bp_ptr->lev - as->level);
 
+	/* Is the borg an INT user? */
+	if (bp_ptr->intmana)
+	{
+		/* Get the value of INT */
+		stat = my_stat_ind[A_INT];
+	}
+	/* Is the borg a WIS user? */
+	else if (bp_ptr->wismana)
+	{
+		/* Get the value of WIS */
+		stat = my_stat_ind[A_WIS];
+	}
+	else
+	{
+		/* Inconcievable! */
+		borg_oops("A spellcaster that doesn't need INT or WIS!");
+
+		/* fail the spell */
+		return (100);
+	}
+
 	/* Reduce failure rate by INT/WIS adjustment */
-	chance -= 3 * (adj_mag_stat[my_stat_ind[A_INT]] - 1);
+	chance -= 3 * (adj_mag_stat[stat] - 1);
+
+	/* Collect the spell cost */
+	power = borg_spell_mana(realm, book, what);
+
+	/* Failure rate goes up if there is not enough mana */
+	if (power > bp_ptr->csp) chance += 5 * (power - bp_ptr->csp);
+	
+	/* Some mutations increase spell failure */
+	if (bp_ptr->muta3 & MUT3_MAGIC_RES ||
+		bp_ptr->muta1 & MUT1_EAT_MAGIC) chance += 5;
+
+	/*
+	 * What realm is that????
+	 * spell_chance in spells3.c has the -1 here, but I got confused with
+	 * the -1 that are in the calls to spell_chance too.  I am guessing it
+	 * refers here to REALM_DEATH that already has a banish.
+	 */
+/*	if (realm == REALM_DEATH - 1 &&*/
+	if (realm == REALM_DEATH &&
+		bp_ptr->muta1 & MUT1_BANISH) chance += 10;
+
+	/* Squeeeeeek */
+	if (bp_ptr->muta3 & MUT3_SILLY_VOI) chance += as->level;
 
 	/* Extract the minimum failure rate */
-	minfail = adj_mag_fail[my_stat_ind[A_INT]];
+	minfail = adj_mag_fail[stat];
 
 	/* Non mage characters never get too good */
-	if (borg_class != CLASS_MAGE)
+	if (borg_class != CLASS_MAGE &&
+		borg_class != CLASS_PRIEST &&
+		borg_class != CLASS_HIGH_MAGE &&
+		borg_class != CLASS_MINDCRAFTER)
 	{
-		if (minfail < 5) minfail = 5;
+		/* For these the minfail is at least 5% */
+		minfail = MAX(5, minfail);
+	}
+
+	/* If the borg is a priest with an non-blessed edged weapon */
+	if (borg_class == CLASS_PRIEST)
+	{
+		l_ptr = &equipment[EQUIP_WIELD];
+
+		if (l_ptr &&
+			(l_ptr->tval == TV_SWORD || l_ptr->tval == TV_POLEARM) &&
+			!KN_FLAG(l_ptr, TR_BLESSED))
+		{
+			/* Penalize this edgy priest */
+			chance += 25;
+		}
 	}
 
 	/* Minimum failure rate */
-	if (chance < minfail) chance = minfail;
+	chance = MAX(chance, minfail);
 
 	/* Stunning makes spells harder */
 	if (bp_ptr->status.heavy_stun) chance += 25;
 	if (bp_ptr->status.stun) chance += 15;
 
 	/* Always a 5 percent chance of working */
-	if (chance > 95) chance = 95;
+	chance = MIN(chance, 95);
 
 	/* Return the chance */
 	return (chance);
-
-
 }
 
 /*
@@ -1789,7 +2057,7 @@ bool borg_spell(int realm, int book, int what)
 	if (!borg_spell_okay(realm, book, what)) return (FALSE);
 
 	/* Not if locked down */
-	if (bp_ptr->flags3 & TR3_NO_MAGIC) return (FALSE);
+	if (FLAG(bp_ptr, TR_NO_MAGIC)) return (FALSE);
 
 	/* Look for the book */
 	i = borg_book[realm][book];
@@ -1812,39 +2080,71 @@ bool borg_spell(int realm, int book, int what)
 	if ((realm == REALM_SORCERY && book == 2 && what == 3) ||
 		(realm == REALM_TRUMP && book == 0 && what == 5))
 	{
-		int x1, y1, x2, y2;
-
-		/* Report a little bit */
-		borg_note_fmt
-			("# Targetting Landing Zone (%d,%d)", dim_door_x, dim_door_y);
-
-		/* Determine "path" */
-		x1 = c_x;
-		y1 = c_y;
-		x2 = dim_door_x;
-		y2 = dim_door_y;
-
-		/* Move to the location (diagonals) */
-		for (; (y1 < y2) && (x1 < x2); y1++, x1++) borg_keypress('3');
-		for (; (y1 < y2) && (x1 > x2); y1++, x1--) borg_keypress('1');
-		for (; (y1 > y2) && (x1 < x2); y1--, x1++) borg_keypress('9');
-		for (; (y1 > y2) && (x1 > x2); y1--, x1--) borg_keypress('7');
-
-		/* Move to the location */
-		for (; y1 < y2; y1++) borg_keypress('2');
-		for (; y1 > y2; y1--) borg_keypress('8');
-		for (; x1 < x2; x1++) borg_keypress('6');
-		for (; x1 > x2; x1--) borg_keypress('4');
-
-		/* Select the target */
-		borg_keypress(' ');
+		borg_dimension_door();
 	}
 
 	/* Success */
 	return (TRUE);
 }
 
+/* Determines if a book contains spells that can be reliably cast */
+bool borg_uses_book(int realm, int book)
+{
+	int spell, fail, b_fail = 100;
+	int real_mana;
+
+	/* Remember how much mana there was */
+	real_mana = bp_ptr->csp;
+
+	/* Use the max_mana to get the optimal fail_rate */
+	bp_ptr->csp = bp_ptr->msp;
+
+	/* Loop through the spells */
+	for (spell = 0; spell < 8; spell++)
+	{
+		/* get the fail_rate for this spell */
+		fail = borg_spell_fail_rate(realm, book, spell);
+
+		/* Collect the minimum fail_rate */
+		b_fail = MIN(b_fail, fail);
+	}
+
+	/* Restore the real amount of mana */
+	bp_ptr->csp = real_mana;
+
+	/* Does this book have easy spells? */
+	if (b_fail <= 40)
+	{
+		/* it is a usable book */
+		return (TRUE);
+	}
+
+	/* Only hard spells */
+	return (FALSE);
+}
+
+
 /*** Mindcrafter spells are much like realm spells ***/
+
+/* Determine if the borg can cast a given spell with regard to reserve_mana */
+static bool borg_reserve_allow_mindcrafter(int spell)
+{
+	borg_mind *as = &borg_minds[spell];
+
+	if (bp_ptr->csp - as->power >= borg_reserve_mana()) return (TRUE);
+
+	/* Minor Displacement spells ok */
+	if (spell == MIND_MINOR_DISP) return (TRUE);
+
+	/* Major Displacement ok */
+	if (spell == MIND_MAJOR_DISP) return (TRUE);
+
+	/* Telekinetic Wave ok */
+	if (spell == MIND_TELE_WAVE) return (TRUE);
+
+	/* others are rejected */
+	return (FALSE);
+}
 
 /*
  * Determine if borg can cast a given Mindcraft spell (when fully rested)
@@ -1871,44 +2171,23 @@ bool borg_mindcr_legal(int spell, int level)
  */
 bool borg_mindcr_okay(int spell, int level)
 {
-	int reserve_mana = 0;
-
 	borg_mind *as = &borg_minds[spell];
-
-	map_block *mb_ptr = map_loc(c_x, c_y);
-
-	/* Dark */
-	if (!(mb_ptr->flags & MAP_GLOW) && !bp_ptr->cur_lite) return (FALSE);
-
-	/* Define reserve_mana for Displacement */
-	if (bp_ptr->lev >= 3) reserve_mana = 2;
-	if (bp_ptr->lev >= 7) reserve_mana = 6;
-
-	/* Low level spell casters should not worry about this */
-	if (bp_ptr->lev < 35) reserve_mana = 0;
 
 	/* Require ability (when rested) */
 	if (!borg_mindcr_legal(spell, level)) return (FALSE);
 
-	/* Hack -- blind/confused */
-	if (bp_ptr->status.blind || bp_ptr->status.confused) return (FALSE);
-
+	/* No spellcasting when confused */
+	if (bp_ptr->status.confused) return (FALSE);
 
 	/* The spell must be affordable (now) */
 	if (as->power > bp_ptr->csp) return (FALSE);
 
 	/* Do not cut into reserve mana (for final teleport) */
-	if (bp_ptr->csp - as->power < reserve_mana)
-	{
-		/* Minor Displacement spells ok */
-		if (spell == 2) return (TRUE);
+	if (!borg_reserve_allow_mindcrafter(spell)) return (FALSE);
 
-		/* Major Displacement ok */
-		if (spell == 3) return (TRUE);
+	/* No go if there is an item with the NO_MAGIC flag */
+	if (FLAG(bp_ptr, TR_NO_MAGIC)) return (FALSE);
 
-		/* others are rejected */
-		return (FALSE);
-	}
 	/* Success */
 	return (TRUE);
 }
@@ -1916,7 +2195,7 @@ bool borg_mindcr_okay(int spell, int level)
 /*
  * fail rate on a mindcrafter spell
  */
-static int borg_mindcr_fail_rate(int spell, int level)
+int borg_mindcr_fail_rate(int spell, int level)
 {
 	int chance, minfail;
 	borg_mind *as = &borg_minds[spell];
@@ -1930,22 +2209,24 @@ static int borg_mindcr_fail_rate(int spell, int level)
 	/* Reduce failure rate by "effective" level adjustment */
 	chance -= 3 * (bp_ptr->lev - as->level);
 
-	/* Reduce failure rate by INT/WIS adjustment */
+	/* Reduce failure rate by WIS adjustment */
 	chance -= 3 * (adj_mag_stat[my_stat_ind[A_WIS]] - 1);
 
+	/* If there is not enough mana the fail rate plummets */
+	if (as->power > bp_ptr->csp) chance += 5 * (as->power - bp_ptr->csp);
+	
 	/* Extract the minimum failure rate */
 	minfail = adj_mag_fail[my_stat_ind[A_WIS]];
 
-
 	/* Minimum failure rate */
-	if (chance < minfail) chance = minfail;
+	chance = MAX(chance, minfail);
 
 	/* Stunning makes spells harder */
 	if (bp_ptr->status.heavy_stun) chance += 25;
 	if (bp_ptr->status.stun) chance += 15;
 
 	/* Always a 5 percent chance of working */
-	if (chance > 95) chance = 95;
+	chance = MIN(chance, 95);
 
 	/* Return the chance */
 	return (chance);
@@ -1992,7 +2273,7 @@ bool borg_mindcr(int spell, int level)
 	if (!borg_mindcr_okay(spell, level)) return (FALSE);
 
 	/* Not if locked down */
-	if (bp_ptr->flags3 & TR3_NO_MAGIC) return (FALSE);
+	if (FLAG(bp_ptr, TR_NO_MAGIC)) return (FALSE);
 
 	/* Debugging Info */
 	borg_note_fmt
@@ -2006,308 +2287,74 @@ bool borg_mindcr(int spell, int level)
 	as->times++;
 
 	/* Dimension Door -- need a landing Zone */
-	if (spell == MIND_MINOR_DISP && level >= 40)
-	{
-		int x1, y1, x2, y2;
-
-		/* Report a little bit */
-		borg_note_fmt
-			("# Targetting Landing Zone (%d,%d)", dim_door_x, dim_door_y);
-
-		/* Determine "path" */
-		x1 = c_x;
-		y1 = c_y;
-		x2 = dim_door_x;
-		y2 = dim_door_y;
-
-		/* Move to the location (diagonals) */
-		for (; (y1 < y2) && (x1 < x2); y1++, x1++) borg_keypress('3');
-		for (; (y1 < y2) && (x1 > x2); y1++, x1--) borg_keypress('1');
-		for (; (y1 > y2) && (x1 < x2); y1--, x1++) borg_keypress('9');
-		for (; (y1 > y2) && (x1 > x2); y1--, x1--) borg_keypress('7');
-
-		/* Move to the location */
-		for (; y1 < y2; y1++) borg_keypress('2');
-		for (; y1 > y2; y1--) borg_keypress('8');
-		for (; x1 < x2; x1++) borg_keypress('6');
-		for (; x1 > x2; x1--) borg_keypress('4');
-
-		/* Select the target */
-		borg_keypress(' ');
-	}
+	if (spell == MIND_MINOR_DISP && level >= 40) borg_dimension_door();
 
 	/* Success */
 	return (TRUE);
 }
 
-
-/*** Racial abilities are much like magic spells ***/
-
-/*
- * Determine if borg can cast a given Racial spell
- * (when fully rested).
- * -or-
- * with a reasonable degree of difficulty with Check_fail
- */
-bool borg_racial_check(int race, bool check_fail)
+static bool borg_power_check(bool race, u32b which, bool check_fail,
+						int lev_req, int cost, int use_stat, int difficulty)
 {
-
 	int i;
 	int val;
 	int sum = 0;
-
-	int lev_req = 99;
-	int cost = 0;
-	int stat = 0;
-	int diff = 0;
-	int use_stat = 0;
-	int difficulty = 0;
-
-	bool use_hp = FALSE;
-
-	/* The borg must be able to "cast" spells this race */
-	if (borg_race != race) return (FALSE);
-
-	/* The spell must be "known" */
-	switch (borg_race)
-	{
-		case RACE_HUMAN:
-		case RACE_HALF_ELF:
-		case RACE_ELF:
-		{
-			lev_req = 99;
-			break;
-		}
-		case RACE_HOBBIT:
-		{
-			lev_req = 15;
-			cost = 10;
-			use_stat = A_INT;
-			diff = 10;
-			break;
-		}
-		case RACE_GNOME:
-		{
-			lev_req = 5;
-			cost = 5 + (bp_ptr->lev / 5);
-			use_stat = A_INT;
-			diff = 12;
-			break;
-		}
-		case RACE_DWARF:
-		{
-			lev_req = 5;
-			cost = 5;
-			use_stat = A_WIS;
-			diff = 12;
-			break;
-		}
-		case RACE_HALF_ORC:
-		{
-			lev_req = 3;
-			cost = 5;
-			use_stat = A_WIS;
-			diff = ((borg_class == CLASS_WARRIOR) ? 5 : 10);
-			break;
-		}
-		case RACE_HALF_TROLL:
-		{
-			lev_req = 10;
-			cost = 12;
-			use_stat = A_WIS;
-			diff = ((borg_class == CLASS_WARRIOR) ? 6 : 12);
-			break;
-		}
-		case RACE_AMBERITE:	/* not coded yet */
-		{
-			lev_req = 99;
-			cost = 5;
-			use_stat = A_WIS;
-			diff = 50;
-			break;
-		}
-		case RACE_HIGH_ELF:
-		{
-			lev_req = 99;
-			cost = 0;
-			use_stat = A_WIS;
-			diff = 0;
-			break;
-		}
-		case RACE_BARBARIAN:
-		{
-			lev_req = 8;
-			cost = 10;
-			use_stat = A_WIS;
-			diff = ((borg_class == CLASS_WARRIOR) ? 6 : 12);
-			break;
-		}
-		case RACE_HALF_OGRE:
-		{
-			lev_req = 25;
-			cost = 35;
-			use_stat = A_STR;
-			diff = 12;
-			break;
-		}
-		case RACE_HALF_GIANT:
-		{
-			lev_req = 99;		/* no support */
-			cost = 35;
-			use_stat = A_INT;
-			diff = 15;
-			break;
-		}
-		case RACE_HALF_TITAN:
-		{
-			lev_req = 99;		/* no support */
-			cost = 20;
-			use_stat = A_INT;
-			diff = 12;
-			break;
-		}
-		case RACE_CYCLOPS:
-		{
-			lev_req = 20;
-			cost = 15;
-			use_stat = A_STR;
-			diff = 12;
-			break;
-		}
-		case RACE_YEEK:
-		{
-			lev_req = 15;
-			cost = 15;
-			use_stat = A_WIS;
-			diff = 10;
-			break;
-		}
-		case RACE_KLACKON:
-		{
-			lev_req = 9;
-			cost = 9;
-			use_stat = A_DEX;
-			diff = 14;
-			break;
-		}
-		case RACE_KOBOLD:
-		{
-			lev_req = 12;
-			cost = 8;
-			use_stat = A_DEX;
-			diff = 14;
-			break;
-		}
-		case RACE_NIBELUNG:
-		{
-			lev_req = 10;
-			cost = 5;
-			use_stat = A_WIS;
-			diff = 10;
-			break;
-		}
-		case RACE_DARK_ELF:
-		{
-			lev_req = 2;
-			cost = 2;
-			use_stat = A_INT;
-			diff = 9;
-			break;
-		}
-		case RACE_DRACONIAN:
-		{
-			lev_req = 1;
-			cost = bp_ptr->lev;
-			use_stat = A_CON;
-			diff = 12;
-			break;
-		}
-		case RACE_MIND_FLAYER:
-		{
-			lev_req = 15;
-			cost = 12;
-			use_stat = A_STR;
-			diff = 15;
-			break;
-		}
-		case RACE_IMP:
-		{
-			lev_req = 9;
-			cost = 15;
-			use_stat = A_WIS;
-			diff = 15;
-			break;
-		}
-		case RACE_GOLEM:
-		{
-			lev_req = 20;
-			cost = 15;
-			use_stat = A_CON;
-			diff = 8;
-			break;
-		}
-		case RACE_SKELETON:
-		case RACE_ZOMBIE:
-		{
-			lev_req = 30;
-			cost = 30;
-			use_stat = A_WIS;
-			diff = 18;
-			break;
-		}
-		case RACE_VAMPIRE:
-		{
-			lev_req = 2;
-			cost = 1 + (bp_ptr->lev / 3);
-			use_stat = A_WIS;
-			diff = 18;
-			break;
-		}
-		case RACE_SPECTRE:
-		{
-			lev_req = 4;
-			cost = 6;
-			use_stat = A_INT;
-			diff = 3;
-			break;
-		}
-		case RACE_SPRITE:
-		{
-			lev_req = 12;
-			cost = 12;
-			use_stat = A_INT;
-			diff = 15;
-			break;
-		}
-		case RACE_BEASTMAN:
-		{
-			lev_req = 99;		/* No ability */
-			cost = 30;
-			use_stat = A_WIS;
-			diff = 18;
-			break;
-		}
-	}
+	int stat;
 
 	/* Power is not available yet */
 	if (bp_ptr->lev < lev_req) return (FALSE);
 
-	/* Not enough mana - use hp */
-	if (bp_ptr->msp < cost) use_hp = TRUE;
-
 	/* Too confused */
 	if (bp_ptr->status.confused) return FALSE;
 
-	/* Cost -- dont go into debt */
-	if (use_hp && (cost > bp_ptr->chp * 7 / 10)) return (FALSE);
+	/* Don't use too much HP */
+	if (bp_ptr->csp < cost)
+	{
+		/* Don't use the racial if it takes more then 70% of current HP */
+		if (cost > bp_ptr->chp * 7 / 10) return (FALSE);
+
+		/* How much can we spend? */
+		if ((race && (which == RACE_GNOME || which == RACE_AMBERITE)) ||
+			(!race && which == MUT1_VTELEPORT))
+		{
+			/* These are emergency powers, so take more risk */
+			if (bp_ptr->chp < bp_ptr->mhp * 3 / 10)	return (FALSE);
+		}
+		else
+		{
+			/* Allow up to 50% of HP to be used */
+			if (bp_ptr->chp < bp_ptr->mhp * 5 / 10) return (FALSE);
+		}
+	}
+	/* Don't use too much SP */
+	else
+	{
+		/* How much can we spend? */
+		if ((race && (which == RACE_GNOME || which == RACE_AMBERITE)) ||
+			(!race && which == MUT1_VTELEPORT))
+		{
+			/* These are emergency powers, so any mana usage is allowable */
+		}
+		else
+		{
+			/* Disallow if using the power spends reserve mana */
+			if (bp_ptr->csp - cost < borg_reserve_mana()) return (FALSE);
+		}
+	}
 
 	/* Legal check ends here */
 	if (!check_fail) return (TRUE);
 
 	/* Otherwise continue on to a fail check */
 
-	/* Reasonable chance of success */
+	/* Collect the correct stat */
 	stat = my_stat_cur[use_stat];
+
+	/* Convert the needed stat to the correct form */
+    if (stat <= 180)
+        stat /= 10;
+    else
+        stat += 18-180;
 
 	/* Stun makes it more difficult */
 	if (bp_ptr->status.stun)
@@ -2333,11 +2380,119 @@ bool borg_racial_check(int race, bool check_fail)
 			sum += (val <= difficulty) ? val : difficulty;
 	}
 
+	/* Finally get the fail % */
+	difficulty =  100 - 100 * sum / difficulty / stat;
+
+	/* Don't try if the fail rate is higher then 40% */
 	if (difficulty >= 40)
 		return (FALSE);
-	else
-		/* Success */
-		return (TRUE);
+
+	/* Success */
+	return (TRUE);
+}
+
+
+/*** Racial abilities are much like magic spells ***/
+
+/*
+ * Determine if borg can cast a given Racial spell (when fully rested).
+ * -or-
+ * with a reasonable degree of difficulty with Check_fail
+ *
+ * Ghoul and Amberite have a second power but that is ignored
+ * The values for borg_power_check come from tables.c
+ */
+bool borg_racial_check(int race, bool check_fail)
+{
+	/* Who are you?  Who, who.  Who, who. */
+	if (borg_race != race) return (FALSE);
+
+	/* Tell me who are you */
+	switch (race)
+	{
+		case RACE_HOBBIT:
+			return borg_power_check(TRUE, race, check_fail, 15, 10, A_INT, 10);
+
+		case RACE_GNOME:
+			return borg_power_check(TRUE, race, check_fail, 5, 10, A_INT, 12);
+
+		case RACE_DWARF:
+			return borg_power_check(TRUE, race, check_fail, 5, 5, A_WIS, 12);
+
+		case RACE_HALF_ORC:
+			return borg_power_check(TRUE, race, check_fail, 3, 5, A_WIS, 8);
+
+		case RACE_HALF_TROLL:
+			return borg_power_check(TRUE, race, check_fail, 10, 12, A_WIS, 9);
+
+		case RACE_AMBERITE:	/* not coded yet */
+			return borg_power_check(TRUE, race, check_fail, 30, 50, A_INT, 50);
+
+		case RACE_BARBARIAN:
+			return borg_power_check(TRUE, race, check_fail, 8, 10, A_WIS, 9);
+
+		case RACE_HALF_OGRE:
+			return borg_power_check(TRUE, race, check_fail, 25, 35, A_INT, 15);
+
+		case RACE_HALF_GIANT:
+			return borg_power_check(TRUE, race, check_fail, 20, 10, A_STR, 12);
+
+		case RACE_HALF_TITAN:
+			return borg_power_check(TRUE, race, check_fail, 35, 20, A_STR, 12);
+
+		case RACE_CYCLOPS:
+			return borg_power_check(TRUE, race, check_fail, 20, 15, A_STR, 12);
+
+		case RACE_YEEK:
+			return borg_power_check(TRUE, race, check_fail, 15, 15, A_WIS, 10);
+
+		case RACE_KLACKON:
+			return borg_power_check(TRUE, race, check_fail, 9, 9, A_DEX, 14);
+
+		case RACE_KOBOLD:
+			return borg_power_check(TRUE, race, check_fail, 12, 8, A_DEX, 14);
+
+		case RACE_NIBELUNG:
+			return borg_power_check(TRUE, race, check_fail, 10, 5, A_WIS, 10);
+
+		case RACE_DARK_ELF:
+			return borg_power_check(TRUE, race, check_fail, 2, 2, A_INT, 9);
+
+		case RACE_DRACONIAN:
+			return borg_power_check(TRUE, race, check_fail, 15, 25, A_CON, 12);
+
+		case RACE_MIND_FLAYER:
+			return borg_power_check(TRUE, race, check_fail, 15, 12, A_INT, 14);
+
+		case RACE_IMP:
+			return borg_power_check(TRUE, race, check_fail, 9, 15, A_WIS, 15);
+
+		case RACE_GOLEM:
+			return borg_power_check(TRUE, race, check_fail, 20, 15, A_CON, 8);
+
+		case RACE_SKELETON:
+		case RACE_ZOMBIE:
+			return borg_power_check(TRUE, race, check_fail, 30, 30, A_WIS, 18);
+
+		case RACE_VAMPIRE:
+			return borg_power_check(TRUE, race, check_fail, 5, 10, A_CON, 9);
+
+		case RACE_SPECTRE:
+			return borg_power_check(TRUE, race, check_fail, 4, 6, A_INT, 3);
+
+		case RACE_SPRITE:
+			return borg_power_check(TRUE, race, check_fail, 12, 12, A_INT, 15);
+
+		case RACE_GHOUL:
+			return borg_power_check(TRUE, race, check_fail, 1, 0, A_CON, 0);
+
+		case RACE_HUMAN:
+		case RACE_HALF_ELF:
+		case RACE_ELF:
+		case RACE_BEASTMAN:
+		case RACE_HIGH_ELF:
+		default: return (FALSE);
+	}
 }
 
 
@@ -2349,14 +2504,6 @@ bool borg_racial(int race)
 	/* Require ability (right now) */
 	if (!borg_racial_check(race, TRUE)) return (FALSE);
 
-	/* Cost -- dont go into debt */
-	if (bp_ptr->chp < bp_ptr->mhp * 5 / 10 &&
-		borg_race != RACE_GNOME) return (FALSE);
-
-	/* Gnomes can go into emergency zone (mostly) */
-	if (bp_ptr->chp < bp_ptr->mhp * 3 / 10 &&
-		borg_race == RACE_GNOME) return (FALSE);
-
 	/* Debugging Info */
 	borg_note("# Racial Power.");
 
@@ -2367,6 +2514,208 @@ bool borg_racial(int race)
 	/* Success */
 	return (TRUE);
 }
+
+
+/*
+ * Mutations and racial both use U and the racial comes first.
+ * This procedure returns the number of racial powers for a race
+ */
+int borg_count_racial(int race)
+{
+	/* Which race is that? */
+	switch (race)
+	{
+		/* Amberite & Ghoul have two racial powers */
+		case RACE_GHOUL:
+		case RACE_AMBERITE: return (2);
+
+		/* These have one racial power */
+		case RACE_HOBBIT:
+		case RACE_GNOME:
+		case RACE_DWARF:
+		case RACE_HALF_ORC:
+		case RACE_HALF_TROLL:
+		case RACE_BARBARIAN:
+		case RACE_HALF_OGRE:
+		case RACE_HALF_GIANT:
+		case RACE_HALF_TITAN:
+		case RACE_CYCLOPS:
+		case RACE_YEEK:
+		case RACE_KLACKON:
+		case RACE_KOBOLD:
+		case RACE_NIBELUNG:
+		case RACE_DARK_ELF:
+		case RACE_DRACONIAN:
+		case RACE_MIND_FLAYER:
+		case RACE_IMP:
+		case RACE_GOLEM:
+		case RACE_SKELETON:
+		case RACE_ZOMBIE:
+		case RACE_VAMPIRE:
+		case RACE_SPECTRE:
+		case RACE_SPRITE: return (1);
+
+		/* No such luck for these guys */
+		case RACE_HUMAN:
+		case RACE_HALF_ELF:
+		case RACE_ELF:
+		case RACE_BEASTMAN:
+		case RACE_HIGH_ELF:
+		default: return (0);
+	}
+}
+
+
+/* Give every mutation its stats.  These numbers come from tables.c */
+bool borg_mutation_check(u32b mutation, bool check)
+{
+	/* Is this mutation available? */
+	if (!(bp_ptr->muta1 & mutation)) return (FALSE);
+
+	switch (mutation)
+	{
+		case MUT1_SPIT_ACID:
+			return borg_power_check(FALSE, mutation, check, 9, 9, A_DEX, 15);
+
+		case MUT1_BR_FIRE:
+			return borg_power_check(FALSE, mutation, check, 20, 20, A_CON, 18);
+
+		case MUT1_HYPN_GAZE:
+			return borg_power_check(FALSE, mutation, check, 12, 12, A_CHR, 18);
+
+		case MUT1_TELEKINES:
+			return borg_power_check(FALSE, mutation, check, 9, 9, A_WIS, 14);
+
+		case MUT1_VTELEPORT:
+			return borg_power_check(FALSE, mutation, check, 7, 7, A_WIS, 15);
+
+		case MUT1_MIND_BLST:
+			return borg_power_check(FALSE, mutation, check, 5, 3, A_WIS, 15);
+
+		case MUT1_RADIATION:
+			return borg_power_check(FALSE, mutation, check, 15, 15, A_CON, 14);
+
+		case MUT1_VAMPIRISM:
+			return borg_power_check(FALSE, mutation, check, 10, 10, A_CON, 9);
+
+		case MUT1_SMELL_MET:
+			return borg_power_check(FALSE, mutation, check, 3, 2, A_INT, 12);
+
+		case MUT1_SMELL_MON:
+			return borg_power_check(FALSE, mutation, check, 5, 4, A_INT, 15);
+
+		case MUT1_BLINK:
+			return borg_power_check(FALSE, mutation, check, 3, 3, A_WIS, 12);
+
+		case MUT1_EAT_ROCK:
+			return borg_power_check(FALSE, mutation, check, 8, 12, A_CON, 18);
+
+		case MUT1_SWAP_POS:
+			return borg_power_check(FALSE, mutation, check, 15, 12, A_DEX, 16);
+
+		case MUT1_SHRIEK:
+			return borg_power_check(FALSE, mutation, check, 20, 14, A_CON, 16);
+
+		case MUT1_ILLUMINE:
+			return borg_power_check(FALSE, mutation, check, 3, 2, A_INT, 10);
+
+		case MUT1_DET_CURSE:
+			return borg_power_check(FALSE, mutation, check, 7, 14, A_WIS, 14);
+
+		case MUT1_BERSERK:
+			return borg_power_check(FALSE, mutation, check, 8, 8, A_STR, 14);
+
+		case MUT1_POLYMORPH:
+			return borg_power_check(FALSE, mutation, check, 18, 20, A_CON, 18);
+
+		case MUT1_MIDAS_TCH:
+			return borg_power_check(FALSE, mutation, check, 10, 5, A_INT, 12);
+
+		case MUT1_GROW_MOLD:
+			return borg_power_check(FALSE, mutation, check, 1, 6, A_CON, 14);
+
+		case MUT1_RESIST:
+			return borg_power_check(FALSE, mutation, check, 10, 12, A_CON, 12);
+
+		case MUT1_EARTHQUAKE:
+			return borg_power_check(FALSE, mutation, check, 12, 12, A_STR, 16);
+
+		case MUT1_EAT_MAGIC:
+			return borg_power_check(FALSE, mutation, check, 17, 1, A_WIS, 15);
+
+		case MUT1_WEIGH_MAG:
+			return borg_power_check(FALSE, mutation, check, 6, 6, A_INT, 10);
+
+		case MUT1_STERILITY:
+			return borg_power_check(FALSE, mutation, check, 12, 23, A_CHR, 15);
+
+		case MUT1_PANIC_HIT:
+			return borg_power_check(FALSE, mutation, check, 10, 12, A_DEX, 14);
+
+		case MUT1_DAZZLE:
+			return borg_power_check(FALSE, mutation, check, 7, 15, A_CHR, 8);
+
+		case MUT1_LASER_EYE:
+			return borg_power_check(FALSE, mutation, check, 7, 10, A_WIS, 9);
+
+		case MUT1_RECALL:
+			return borg_power_check(FALSE, mutation, check, 17, 50, A_INT, 16);
+
+		case MUT1_BANISH:
+			return borg_power_check(FALSE, mutation, check, 25, 25, A_WIS, 18);
+
+		case MUT1_COLD_TOUCH:
+			return borg_power_check(FALSE, mutation, check, 2, 2, A_CON, 11);
+
+		case MUT1_LAUNCHER:
+			return borg_power_check(FALSE, mutation, check, 10, 15, A_STR, 6);
+
+		default: return (FALSE);
+	}
+}
+
+
+/*
+ * Attempt to cast a mutational spell
+ */
+bool borg_mutation(u32b mutation)
+{
+	int i, spell;
+	u32b mut_nr = 0;
+
+	/* Require ability (right now) */
+	if (!borg_mutation_check(mutation, TRUE)) return (FALSE);
+
+	/* Find out if the there isn't a racial in the way */
+	spell = borg_count_racial(borg_race) - 1;
+
+	/* Loop through all the bits in bp_ptr->muta1 */
+	for (i = 1; i < 32; i++)
+	{
+		/* get the current mutation */
+		mut_nr = (mut_nr) ? mut_nr * 2 : 1;
+
+		/* Does the borg have this mutation? */
+		if (!(bp_ptr->muta1 & mut_nr)) continue;
+
+		/* Advance the letter index */
+		spell += 1;
+
+		/* Is this the mutation? (Must have it at some point) */
+		if (mut_nr == mutation) break;
+	}
+
+	/* Debugging Info */
+	borg_note("# Mutated Power.");
+
+	/* Cast a spell */
+	borg_keypress('U');
+	borg_keypress(I2A(spell));
+
+	/* Success */
+	return (TRUE);
+}
+
 
 /*
  * Hack -- Cheat the "spell" info
@@ -2481,7 +2830,7 @@ static void prepare_book_info(int realm, int book)
 
 
 	/* Can we use spells/prayers? */
-	if (!bp_ptr->realm1) return;
+	if (borg_class == CLASS_WARRIOR) return;
 
 
 	/* Extract spells */
@@ -2500,13 +2849,13 @@ static void prepare_book_info(int realm, int book)
 	{
 		borg_magic *as = &borg_magics[realm][book][what];
 
-		magic_type *s_ptr = &pmb_ptr->info[realm][spell[what]];
+		magic_type *s_ptr = &pmb_ptr->info[realm - 1][spell[what]];
 
 		/* Skip "illegible" spells */
 		if (s_ptr->slevel == 99) continue;
 
 		/* Save the spell name */
-		as->name = spell_names[realm][spell[what]];
+		as->name = spell_names[realm - 1][spell[what]];
 
 		/* Realm Name */
 		if (realm == 1) as->realm_name = "Life";
@@ -2586,10 +2935,6 @@ void prepare_race_class_info(void)
 	for (book = 0; book < 4; book++)
 	{
 		prepare_book_info(bp_ptr->realm1, book);
-	}
-
-	for (book = 0; book < 4; book++)
-	{
 		prepare_book_info(bp_ptr->realm2, book);
 	}
 

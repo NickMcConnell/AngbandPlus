@@ -792,9 +792,9 @@ static void build_type4(int bx0, int by0)
  * Line 3 -- forbid aquatic monsters
  */
 #define vault_monster_okay(I) \
-	(!(r_info[I].flags8 & RF8_WILD_TOWN) && \
-	 !(r_info[I].flags1 & RF1_UNIQUE) && \
-	 !(r_info[I].flags7 & RF7_AQUATIC))
+	(!FLAG(&r_info[I], RF_WILD_TOWN) && \
+	 !FLAG(&r_info[I], RF_UNIQUE) && \
+	 !FLAG(&r_info[I], RF_AQUATIC))
 
 
 /* Race index for "monster pit (clone)" */
@@ -834,7 +834,7 @@ static bool vault_aux_jelly(int r_idx)
 	if (!vault_monster_okay(r_idx)) return (FALSE);
 
 	/* Also decline evil jellies (like death molds and shoggoths) */
-	if (r_ptr->flags3 & (RF3_EVIL)) return (FALSE);
+	if (FLAG(r_ptr, RF_EVIL)) return (FALSE);
 
 	/* Require icky thing, jelly, mold, or mushroom */
 	if (!strchr("ijm,", r_ptr->d_char)) return (FALSE);
@@ -855,10 +855,10 @@ static bool vault_aux_animal(int r_idx)
 	if (!vault_monster_okay(r_idx)) return (FALSE);
 
 	/* Decline unique monsters */
-	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
+	if (FLAG(r_ptr, RF_UNIQUE)) return (FALSE);
 
 	/* Require "animal" flag */
-	if (!(r_ptr->flags3 & (RF3_ANIMAL))) return (FALSE);
+	if (!FLAG(r_ptr, RF_ANIMAL)) return (FALSE);
 
 	/* Okay */
 	return (TRUE);
@@ -876,7 +876,7 @@ static bool vault_aux_undead(int r_idx)
 	if (!vault_monster_okay(r_idx)) return (FALSE);
 
 	/* Require Undead */
-	if (!(r_ptr->flags3 & (RF3_UNDEAD))) return (FALSE);
+	if (!FLAG(r_ptr, RF_UNDEAD)) return (FALSE);
 
 	/* Okay */
 	return (TRUE);
@@ -978,10 +978,10 @@ static bool vault_aux_orc(int r_idx)
 	if (!vault_monster_okay(r_idx)) return (FALSE);
 
 	/* Require orc */
-	if (!(r_ptr->flags3 & RF3_ORC)) return (FALSE);
+	if (!FLAG(r_ptr, RF_ORC)) return (FALSE);
 
 	/* Decline undead */
-	if (r_ptr->flags3 & RF3_UNDEAD) return (FALSE);
+	if (FLAG(r_ptr, RF_UNDEAD)) return (FALSE);
 
 	/* Okay */
 	return (TRUE);
@@ -999,10 +999,10 @@ static bool vault_aux_troll(int r_idx)
 	if (!vault_monster_okay(r_idx)) return (FALSE);
 
 	/* Require troll */
-	if (!(r_ptr->flags3 & RF3_TROLL)) return (FALSE);
+	if (!FLAG(r_ptr, RF_TROLL)) return (FALSE);
 
 	/* Decline undead */
-	if (r_ptr->flags3 & RF3_UNDEAD) return (FALSE);
+	if (FLAG(r_ptr, RF_UNDEAD)) return (FALSE);
 
 	/* Okay */
 	return (TRUE);
@@ -1020,10 +1020,10 @@ static bool vault_aux_giant(int r_idx)
 	if (!vault_monster_okay(r_idx)) return (FALSE);
 
 	/* Require giant */
-	if (!(r_ptr->flags3 & RF3_GIANT)) return (FALSE);
+	if (!FLAG(r_ptr, RF_GIANT)) return (FALSE);
 
 	/* Decline undead */
-	if (r_ptr->flags3 & RF3_UNDEAD) return (FALSE);
+	if (FLAG(r_ptr, RF_UNDEAD)) return (FALSE);
 
 	/* Okay */
 	return (TRUE);
@@ -1041,13 +1041,13 @@ static bool vault_aux_dragon(int r_idx)
 	if (!vault_monster_okay(r_idx)) return (FALSE);
 
 	/* Require dragon */
-	if (!(r_ptr->flags3 & RF3_DRAGON)) return (FALSE);
+	if (!FLAG(r_ptr, RF_DRAGON)) return (FALSE);
 
 	/* Hack -- Require correct "breath attack" */
-	if (r_ptr->flags4 != vault_aux_dragon_mask4) return (FALSE);
+	if (r_ptr->flags[3] != vault_aux_dragon_mask4) return (FALSE);
 
 	/* Decline undead */
-	if (r_ptr->flags3 & RF3_UNDEAD) return (FALSE);
+	if (FLAG(r_ptr, RF_UNDEAD)) return (FALSE);
 
 	/* Okay */
 	return (TRUE);
@@ -1065,7 +1065,7 @@ static bool vault_aux_demon(int r_idx)
 	if (!vault_monster_okay(r_idx)) return (FALSE);
 
 	/* Require demon */
-	if (!(r_ptr->flags3 & RF3_DEMON)) return (FALSE);
+	if (!FLAG(r_ptr, RF_DEMON)) return (FALSE);
 
 	/* Okay */
 	return (TRUE);
@@ -1083,7 +1083,7 @@ static bool vault_aux_cthulhu(int r_idx)
 	if (!vault_monster_okay(r_idx)) return (FALSE);
 
 	/* Require eldritch horror */
-	if (!(r_ptr->flags4 & RF4_ELDRITCH_HORROR)) return (FALSE);
+	if (!FLAG(r_ptr, RF_ELDRITCH_HORROR)) return (FALSE);
 
 	/* Okay */
 	return (TRUE);
@@ -1102,7 +1102,7 @@ static bool vault_aux_elemental(int r_idx)
 	if (!vault_monster_okay(r_idx)) return (FALSE);
 
 	/* Hack -- Accept correct "breath attack" */
-    if (r_ptr->flags4 == vault_aux_elemental_mask4) return (TRUE);
+    if (r_ptr->flags[3] == vault_aux_elemental_mask4) return (TRUE);
 
     /* Accept correct "melee attack" */
     for (i = 0; i < 4; i++)
@@ -1154,7 +1154,7 @@ static void vault_prep_dragon(void)
 			/* Black */
 
 			/* Restrict dragon breath type */
-			vault_aux_dragon_mask4 = RF4_BR_ACID;
+			vault_aux_dragon_mask4 = RF3_BR_ACID;
 
 			/* Done */
 			break;
@@ -1165,7 +1165,7 @@ static void vault_prep_dragon(void)
 			/* Blue */
 
 			/* Restrict dragon breath type */
-			vault_aux_dragon_mask4 = RF4_BR_ELEC;
+			vault_aux_dragon_mask4 = RF3_BR_ELEC;
 
 			/* Done */
 			break;
@@ -1176,7 +1176,7 @@ static void vault_prep_dragon(void)
 			/* Red */
 
 			/* Restrict dragon breath type */
-			vault_aux_dragon_mask4 = RF4_BR_FIRE;
+			vault_aux_dragon_mask4 = RF3_BR_FIRE;
 
 			/* Done */
 			break;
@@ -1187,7 +1187,7 @@ static void vault_prep_dragon(void)
 			/* White */
 
 			/* Restrict dragon breath type */
-			vault_aux_dragon_mask4 = RF4_BR_COLD;
+			vault_aux_dragon_mask4 = RF3_BR_COLD;
 
 			/* Done */
 			break;
@@ -1198,7 +1198,7 @@ static void vault_prep_dragon(void)
 			/* Green */
 
 			/* Restrict dragon breath type */
-			vault_aux_dragon_mask4 = RF4_BR_POIS;
+			vault_aux_dragon_mask4 = RF3_BR_POIS;
 
 			/* Done */
 			break;
@@ -1209,8 +1209,8 @@ static void vault_prep_dragon(void)
 			/* Multi-hued */
 
 			/* Restrict dragon breath type */
-			vault_aux_dragon_mask4 = (RF4_BR_ACID | RF4_BR_ELEC |
-									  RF4_BR_FIRE | RF4_BR_COLD | RF4_BR_POIS);
+			vault_aux_dragon_mask4 = (RF3_BR_ACID | RF3_BR_ELEC |
+									  RF3_BR_FIRE | RF3_BR_COLD | RF3_BR_POIS);
 
 			/* Done */
 			break;
@@ -1231,7 +1231,7 @@ static void vault_prep_elemental(void)
 			/* Fire */
 
 			/* Restrict elemental breath type */
-            vault_aux_elemental_mask4 = RF4_BR_FIRE;
+            vault_aux_elemental_mask4 = RF3_BR_FIRE;
 
             /* Restrict melee attack type */
             vault_aux_elemental_attack = RBE_FIRE;
@@ -1245,7 +1245,7 @@ static void vault_prep_elemental(void)
 			/* Cold */
 
 			/* Restrict elemental breath type */
-            vault_aux_elemental_mask4 = RF4_BR_COLD;
+            vault_aux_elemental_mask4 = RF3_BR_COLD;
 
             /* Restrict melee attack type */
             vault_aux_elemental_attack = RBE_COLD;
@@ -1259,7 +1259,7 @@ static void vault_prep_elemental(void)
 			/* Elec */
 
 			/* Restrict elemental breath type */
-            vault_aux_elemental_mask4 = RF4_BR_ELEC;
+            vault_aux_elemental_mask4 = RF3_BR_ELEC;
 
             /* Restrict melee attack type */
             vault_aux_elemental_attack = RBE_ELEC;
@@ -1543,8 +1543,8 @@ static void build_type5(int bx0, int by0)
 			r_idx = get_mon_num(p_ptr->depth + 10);
 
 			/* Decline incorrect alignment */
-			if (((align < 0) && (r_info[r_idx].flags3 & RF3_GOOD)) ||
-				((align > 0) && (r_info[r_idx].flags3 & RF3_EVIL)))
+			if (((align < 0) && FLAG(&r_info[r_idx], RF_GOOD)) ||
+				((align > 0) && FLAG(&r_info[r_idx], RF_EVIL)))
 			{
 				continue;
 			}
@@ -1557,8 +1557,8 @@ static void build_type5(int bx0, int by0)
 		if (!r_idx || !attempts) return;
 
 		/* Note the alignment */
-		if (r_info[r_idx].flags3 & RF3_GOOD) align++;
-		else if (r_info[r_idx].flags3 & RF3_EVIL) align--;
+		if (FLAG(&r_info[r_idx], RF_GOOD)) align++;
+		else if (FLAG(&r_info[r_idx], RF_EVIL)) align--;
 
 		what[i] = r_idx;
 	}
@@ -1751,8 +1751,8 @@ static void build_type6(int bx0, int by0)
 			r_idx = get_mon_num(p_ptr->depth + 10);
 
 			/* Decline incorrect alignment */
-			if (((align < 0) && (r_info[r_idx].flags3 & RF3_GOOD)) ||
-				((align > 0) && (r_info[r_idx].flags3 & RF3_EVIL)))
+			if (((align < 0) && FLAG(&r_info[r_idx], RF_GOOD)) ||
+				((align > 0) && FLAG(&r_info[r_idx], RF_EVIL)))
 			{
 				continue;
 			}
@@ -1765,8 +1765,8 @@ static void build_type6(int bx0, int by0)
 		if (!r_idx || !attempts) return;
 
 		/* Note the alignment */
-		if (r_info[r_idx].flags3 & RF3_GOOD) align++;
-		else if (r_info[r_idx].flags3 & RF3_EVIL) align--;
+		if (FLAG(&r_info[r_idx], RF_GOOD)) align++;
+		else if (FLAG(&r_info[r_idx], RF_EVIL)) align--;
 
 		what[i] = r_idx;
 	}
@@ -4507,7 +4507,7 @@ static void build_type18(int bx0, int by0)
  */
 static void build_type19(int bx0, int by0)
 {
-	int y1, x1;
+	int y, x, y1, x1;
 	int y2, x2, yval, xval;
 	bool light;
 	
@@ -4537,7 +4537,17 @@ static void build_type19(int bx0, int by0)
 		
 		/* Generate liquid */
 		generate_draw(x1, y1 + 1, x2, y2 - 1, dun->feat_shal_liquid);
-		generate_fill(x1, y1 + 2, x2, y2 - 2, dun->feat_deep_liquid);
+
+		for (x = x1; x <= x2; x++)
+		{
+			for (y = y1 + 2; y <= y2 - 2; y++)
+			{
+				if (randint1(p_ptr->depth + 10) > 10)
+					set_feat_bold(x, y, dun->feat_deep_liquid);
+				else
+					set_feat_bold(x, y, dun->feat_shal_liquid);
+			}
+		}
 	}
 	else
 	{
@@ -4561,7 +4571,17 @@ static void build_type19(int bx0, int by0)
 		
 		/* Generate liquid */
 		generate_draw(x1 + 1, y1, x2 - 1, y2, dun->feat_shal_liquid);
-		generate_fill(x1 + 2, y1, x2 - 2, y2, dun->feat_deep_liquid);
+
+		for (x = x1 + 2; x <= x2 - 2; x++)
+		{
+			for (y = y1; y <= y2; y++)
+			{
+				if (randint1(p_ptr->depth + 10) > 10)
+					set_feat_bold(x, y, dun->feat_deep_liquid);
+				else
+					set_feat_bold(x, y, dun->feat_shal_liquid);
+			}
+		}
 	}
 }
 

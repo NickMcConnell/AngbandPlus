@@ -90,6 +90,26 @@ static int xxx_get_rumor(lua_State *L)
 	return (1);
 }
 
+static int xxx_get_rnd_line(lua_State *L)
+{
+	cptr filename;
+	char buf[1024];
+	int err;
+
+	filename = lua_tostring(L, 1);
+
+	/* Pop off the filename */
+	lua_pop(L, 1);
+
+	err = get_rnd_line(filename, 0, buf);
+
+	/* Check for error */
+	if (err)
+		return 0;
+
+	tolua_pushstring(L, buf);
+	return (1);
+}
 
 static int xxx_get_aim_dir(lua_State *L)
 {
@@ -119,6 +139,26 @@ static int xxx_fire_beam(lua_State *L)
 }
 
 
+#ifdef RISCOS
+extern char *riscosify_name(const char *);
+
+static int xxx_dofile(lua_State *L)
+{			
+	cptr filename = lua_tostring(L, 1);
+	
+	/* Pop off the filename */
+	lua_pop(L, 1);
+
+	if (filename)
+	{
+	 	return lua_dofile(L, riscosify_name(filename));
+	}
+
+	return 0;
+}
+#endif /* RISCOS */
+
+
 static const struct luaL_reg anglib[] =
 {
 	{"msg_print", xxx_msgf},
@@ -127,6 +167,10 @@ static const struct luaL_reg anglib[] =
 	{"fire_beam", xxx_fire_beam},
 	{"build_script_path", xxx_build_script_path},
 	{"get_rumor", xxx_get_rumor},
+	{"get_rnd_line", xxx_get_rnd_line},
+#ifdef RISCOS
+	{"dofile", xxx_dofile},
+#endif /* RISCOS */
 };
 
 
@@ -207,37 +251,311 @@ static const struct luaL_reg intMathLib[] =
 	{"max",    math_max },
 };
 
+/*
+ * Execute a piece of lua code, passing global variables and returning values.
+ *
+ * The "format" string should consist of zero or more format codes for
+ * values to pass to the script, optionally followed by a ':' and zero or more
+ * format codes for values to pass and return. Format codes are:
+ *
+ * i - an integer
+ * b - a boolean
+ * s - a string [cptr]
+ * p - a pointer to a user-defined type
+ *
+ * For 'i', 'b', and 's', the vararg list should include a cptr giving the name
+ * of the variable to pass it in, followed by a value of the correct type (if
+ * before the ':') or a pointer to a variable of the correct type (if after).
+ * The macros LUA_VAR(x) and LUA_RETURN(x) pass a variable in the appropriate
+ * form for before or after the ':' respectively.
+ *
+ * For 'p', it should include a cptr with the variable name, a cptr with the
+ * name of the type, and the pointer itself, in order.
+ *
+ * If the script returns values, they are returned in the return variables,
+ * in the order they are declared in the format. If fewer values are returned
+ * than there are returned variables, the remaining variables recieve the
+ * values they have at the end of the lua code - generally the same as was
+ * passed in, unless the lua code changed it. Any excess return values are
+ * ignored.
+ *
+ * The value returned for string arguments is always made with string_make() 
+ * and should be freed with string_free() when no longer needed. 
+ */
+static bool call_lua_hook(cptr script, cptr format, va_list vp)
+{
+	int i, status;
+	cptr vars[20];
+	void *out[20];
+	int first_return = 0;
+
+	int oldtop = lua_gettop(L);
+
+	bool success;
+
+	for (i = 0; format[i] && i < 20; i++)
+	{
+		cptr type, var;
+		
+		switch (format[i])
+		{
+		case 'i':
+			/* Get the next argument */
+			var = va_arg(vp, cptr);
+			vars[i] = var;
+	
+			lua_pushnumber(L, va_arg(vp, int));
+			lua_setglobal(L, var);
+			break;
+
+		case 'b':
+			/* Get the next argument */
+			var = va_arg(vp, cptr);
+			vars[i] = var;
+	
+			tolua_pushbool(L, va_arg(vp, int));
+			lua_setglobal(L, var);
+			break;
+
+		case 's':
+			/* Get the next argument */
+			var = va_arg(vp, cptr);
+			vars[i] = var;
+	
+			tolua_pushstring(L, va_arg(vp, char *));
+			lua_setglobal(L, var);
+			break;
+
+		case 'p':
+			/* Get the next argument */
+			var = va_arg(vp, cptr);
+			vars[i] = var;
+
+			/* Get the type */
+			type = va_arg(vp, cptr);
+
+			tolua_pushusertype(L, va_arg(vp, void *), tolua_tag(L, type));
+			lua_setglobal(L, var);
+			break;
+			
+		case ':':
+			/* Start of return arguments */
+			break;
+		}
+
+		if (format[i] == ':')
+		{
+			i++;
+			break;
+		}
+	}
+
+	/* Save the first return argument (or the '\0' if none) */
+	first_return = i;
+
+	for (i = first_return; format[i] && i < 20; i++)
+	{
+		cptr var;
+		int *ival;
+		bool *bval;
+		cptr *sval;
+		
+		switch (format[i])
+		{
+		case 'i':
+			/* Get the next argument */
+			var = va_arg(vp, cptr);
+			vars[i] = var;
+
+			ival = va_arg(vp, int *);
+			out[i] = (void *)ival;
+	
+			lua_pushnumber(L, *ival);
+			lua_setglobal(L, var);
+			break;
+
+		case 'b':
+			/* Get the next argument */
+			var = va_arg(vp, cptr);
+			vars[i] = var;
+
+			bval = va_arg(vp, bool *);
+			out[i] = (void *)bval;
+	
+			tolua_pushbool(L, *bval);
+			lua_setglobal(L, var);
+			break;
+
+		case 's':
+			/* Get the next argument */
+			var = va_arg(vp, cptr);
+			vars[i] = var;
+
+			sval = va_arg(vp, cptr *);
+			out[i] = (void *)sval;
+	
+			lua_pushstring(L, *sval);
+			lua_setglobal(L, var);
+			break;
+
+		default:
+			vars[i] = NULL;
+			out[i] = NULL;
+			break;
+		}
+	}
+			
+	status = lua_dostring(L, script);
+
+	if (status == 0)
+	{
+		int *ival;
+		bool *bval;
+		cptr *sval;
+
+		int n = 1;
+		int top = lua_gettop(L);
+		
+		for (i = first_return; format[i] && i < 20; i++)
+		{
+			int where;
+			
+			if (top < oldtop + n)
+			{
+				lua_getglobal(L, vars[i]);
+				where = -1;
+			}
+			else
+				where = oldtop + n;
+			
+			switch (format[i])
+			{
+			case 'i':
+				ival = (int *)out[i];
+				*ival = tolua_getnumber(L, where, 0);
+				n++;
+				break;
+
+			case 'b':
+				bval = (bool *)out[i];
+				*bval = tolua_getbool(L, where, FALSE);
+				n++;
+				break;
+
+			case 's':
+				sval = (cptr *)out[i];
+				*sval = string_make(tolua_getstring(L, where, ""));
+				n++;
+				break;
+			}
+		}
+
+		lua_settop(L, oldtop);
+
+		/* Worked */
+		success = TRUE;
+	}
+	else
+	{
+		/* We failed */
+		success = FALSE;
+	}
+	
+	/* Clear variables */
+	for (i = 0; format[i] && i < 20; i++)
+	{
+		switch (format[i])
+		{
+		case 'i':
+		case 'b':
+		case 's':
+		case 'p':
+			lua_pushnil(L);
+			lua_setglobal(L, vars[i]);
+			break;
+		}
+	}
+	
+	/* Done */
+	return (success);
+}
+
+/*
+ * Apply an object trigger, a small lua script which can be attached to an
+ * object type or a specific item (usually an ego-item or artifact).
+ *
+ * Currently defined triggers, and their normal arguments, include:
+ *
+ * TRIGGER_USE - for activating a wearable item or using any other item.
+ * Wearable items neither take nor return values. Other items may or may not
+ * have a 'dir' value, depending on type, and may return 'result' and 'ident' 
+ * which indicate if the action used a charge and if it should identify the
+ * object, respectively.
+ *
+ * TRIGGER_MAKE - called once near the end of object generation. Takes one
+ * argument, 'lev', which is the level the object is being generated at for
+ * non-artifacts and the level of the artifact for artifacts.
+ *
+ * TRIGGER_BONUS - called on worn items during calc_bonuses(). No arguments.
+ *
+ * TRIGGER_SMASH - called for potions when they break.
+ *
+ * TRIGGER_DESC - called to get an activation/use description for an item.
+ * Returns a string describing the activation or use.
+ */
+void apply_object_trigger(int trigger_id, object_type *o_ptr, cptr format, ...)
+{
+	va_list vp;
+	
+	object_kind *k_ptr = &k_info[o_ptr->k_idx];
+
+	cptr script = NULL;
+	
+	bool success;
+
+	if (o_ptr->trigger[trigger_id])
+		script = quark_str(o_ptr->trigger[trigger_id]);
+	else if (k_ptr->trigger[trigger_id])
+		script = k_text + k_ptr->trigger[trigger_id];
+	else
+		return;
+
+	/* Set parameters (really globals) */
+	tolua_pushusertype(L, (void*)o_ptr, tolua_tag(L, "object_type"));
+	lua_setglobal(L, "object");
+	lua_pushnumber(L, trigger_id); lua_setglobal(L, "trigger_id");
+	
+	/* Begin the Varargs Stuff */
+	va_start(vp, format);
+	
+	success = call_lua_hook(script, format, vp);
+
+	/* End the Varargs Stuff */
+	va_end(vp);
+
+	/* Clear globals */
+	lua_pushnil(L); lua_setglobal(L, "trigger_id");
+	lua_pushnil(L); lua_setglobal(L, "object");
+	
+	/* Paranoia */
+	if (!success)
+	{
+		msgf("Script for object: %v failed.", OBJECT_STORE_FMT(o_ptr, FALSE, 3));
+	}
+}
 
 /*
  * Callback for using an object
  */
-bool use_object(object_type *o_ptr, bool *ident)
+bool use_object(object_type *o_ptr, bool *id_return)
 {
-	bool used_up;
-	int status;
+	bool result = TRUE, ident = TRUE;
 
-	lua_getglobal(L, "use_object_hook");
-	tolua_pushusertype(L, (void*)o_ptr, tolua_tag(L, "object_type"));
+	apply_object_trigger(TRIGGER_USE, o_ptr, ":bb",
+			LUA_RETURN(result), LUA_RETURN(ident));
 
-	/* Call the function with 1 argument and 2 results */
-	status = lua_call(L, 1, 2);
-
-	if (status == 0)
-	{
-		*ident = tolua_getbool(L, 1, FALSE);
-		used_up = tolua_getbool(L, 2, FALSE);
-
-		/* Remove the results */
-		lua_pop(L, 2);
-	}
-	else
-	{
-		/* Error */
-		*ident = FALSE;
-		used_up = FALSE;
-	}
-
-	return (used_up);
+	if (id_return) *id_return = ident;
+	return result;
 }
 
 
@@ -490,8 +808,14 @@ bool script_do_string(cptr script)
 bool script_do_file(cptr filename)
 {
 	if (!L) return FALSE;
-
+#ifdef RISCOS
+	{
+		char *realname = riscosify_name(filename);
+		if (!lua_dofile(L, realname)) return TRUE;
+	}
+#else /* RISCOS */
 	if (!lua_dofile(L, filename)) return TRUE;
+#endif /* RISCOS */
 
 	return FALSE;
 }
@@ -501,5 +825,5 @@ bool script_do_file(cptr filename)
  */
 bool player_res(u32b flag)
 {
-	return ((p_ptr->flags2 & flag) ? TRUE : FALSE);
+	return ((p_ptr->flags[1] & flag) ? TRUE : FALSE);
 }

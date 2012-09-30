@@ -2,7 +2,7 @@
 -- Written by Waldemar Celes
 -- TeCGraf/PUC-Rio
 -- Jul 1999
--- $Id: array.lua,v 1.1 2001/10/29 17:49:53 rr9 Exp $
+-- $Id: array.lua,v 1.3 2003/10/23 21:28:01 sfuerst Exp $
 
 -- This code is free software; you can redistribute it and/or modify it.
 -- The software provided hereunder is on an "as is" basis, and
@@ -76,10 +76,15 @@ function classArray:supcode ()
  -- check index
  output(' if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))')
  output('  tolua_error(tolua_S,"invalid type in array indexing.");')
- output(' toluaI_index = (int)tolua_getnumber(tolua_S,2,0)-1;')
+ output(' toluaI_index = (int)tolua_getnumber(tolua_S,2,0);')
  output(' if (toluaI_index<0 || toluaI_index>='..self.dim..')')
- output('  tolua_error(tolua_S,"array indexing out of range.");')
 
+ if class then
+  output('  tolua_error(tolua_S,"array',class,':',self.name,' indexing out of range.");')
+ else
+  output('  tolua_error(tolua_S,"array:',self.name,' indexing out of range.");')
+ end
+ 
  -- return value
  local t,ct = isbasic(self.type)
  if t then
@@ -125,9 +130,14 @@ function classArray:supcode ()
   -- check index
   output(' if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))')
   output('  tolua_error(tolua_S,"invalid type in array indexing.");')
-  output(' toluaI_index = (int)tolua_getnumber(tolua_S,2,0)-1;')
+  output(' toluaI_index = (int)tolua_getnumber(tolua_S,2,0);')
   output(' if (toluaI_index<0 || toluaI_index>='..self.dim..')')
-  output('  tolua_error(tolua_S,"array indexing out of range.");')
+  if class then
+   output('  tolua_error(tolua_S,"array',class,':',self.name,' indexing out of range.");')
+  else
+   output('  tolua_error(tolua_S,"array:',self.name,' indexing out of range.");')
+  end
+
 
   -- assign value
   local ptr = ''

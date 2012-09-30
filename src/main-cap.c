@@ -111,8 +111,8 @@ cptr help_cap[] =
  */
 
 static char blob[1024];		/* The "termcap" entry */
-static char area[1024];		/* The string extraction buffer */
-static char *next = area;	/* The current "index" into "area" */
+static char termcap_area[1024];		/* The string extraction buffer */
+static char *next = termcap_area;	/* The current "index" into "area" */
 static char *desc;		/* The terminal name */
 
 #endif

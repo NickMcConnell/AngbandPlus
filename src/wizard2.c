@@ -221,13 +221,18 @@ static void get_obj_dist(int min_level, int obj_num, u32b rarity[MAX_DEPTH])
 		rarity[i] /= 0x100;
 }
 
+#endif /* USE_64B */
 
 /*
  * Output a rarity graph for a type of object.
  *
  * Use a monte-carlo method to calculate the probabilities.
  */
+#ifndef USE_64B
 static void prt_alloc(const object_type *o_ptr, int col, int row, u32b monte)
+#else /* !USE_64B */
+static void prt_alloc(const object_type *o_ptr, int col, int row)
+#endif /* USE_64B */
 {
 	u32b i, j;
 	u32b maxd = 1, maxr = 1, maxt = 1;
@@ -250,27 +255,27 @@ static void prt_alloc(const object_type *o_ptr, int col, int row, u32b monte)
 	/* Refresh */
 	Term_fresh();
 
-	if (monte > 0)
+#ifndef USE_64B
+
+	/* Scan all entries */
+	for (i = 0; i < MAX_DEPTH; i++)
 	{
-		/* Scan all entries */
-		for (i = 0; i < MAX_DEPTH; i++)
+		for (j = 0; j < monte; j++)
 		{
-			for (j = 0; j < monte; j++)
-			{
-				if (get_obj_num(i, 0) == kind) rarity[i]++;
-			}
-
-			total[i] = monte;
+			if (get_obj_num(i, 0) == kind) rarity[i]++;
 		}
+		total[i] = monte;
 	}
-	else
-	{
-		/* Calculate */
-		get_obj_dist(0, kind, rarity);
 
-		for (i = 0; i < MAX_DEPTH; i++)
-			total[i] = 0x10000;
-	}
+#else /* !USE_64B */
+
+	/* Calculate */
+	get_obj_dist(0, kind, rarity);
+
+	for (i = 0; i < MAX_DEPTH; i++)
+		total[i] = 0x10000;
+
+#endif /* USE_64B */
 
 	/* Find maxima */
 	for (i = 0; i < MAX_DEPTH; i++)
@@ -348,7 +353,6 @@ static void prt_alloc(const object_type *o_ptr, int col, int row, u32b monte)
 	prtf(col, row + 21, "+");
 }
 
-#endif /* USE_64B */
 
 /*
  * Hack -- Teleport to the target
@@ -599,27 +603,29 @@ static void wiz_display_item(const object_type *o_ptr)
 	prtf(j, 6, "pval = %-5d  toac = %-5d  tohit = %-4d  todam = %-4d",
 			   o_ptr->pval, o_ptr->to_a, o_ptr->to_h, o_ptr->to_d);
 
-	prtf(j, 7, "activate = %-4d  cost = %ld",
-			   o_ptr->activate, (long)object_value_real(o_ptr));
+	prtf(j, 7, "a_idx = %-4d  cost = %ld",
+			   o_ptr->a_idx, (long)object_value_real(o_ptr));
 
 	prtf(j, 8, "info = %04x  timeout = %-d",
 			   o_ptr->info, o_ptr->timeout);
+
+	prtf(j, 9, "desc = %s", item_activation(o_ptr));
 
 	prtf(j, 10, "+------------FLAGS1------------+\n"
 	    		"AFFECT........SLAY........BRAND.\n"
 	    		"              cvae      xsqpaefc\n"
 	    		"siwdcc  ssidsahanvudotgddhuoclio\n"
-	    		"tnieoh  trnipttmiinmrrnrrraiierl\n"
-	    		"rtsxna..lcfgdkcpmldncltggpksdced\n"
-                "%v", binary_fmt, o_ptr->flags1);
+	    		"tnieoh strnipttmiinmrrnrrraiierl\n"
+	    		"rtsxna.plcfgdkcpmldncltggpksdced\n"
+                "%v", binary_fmt, o_ptr->flags[0]);
 
 	prtf(j, 17, "+------------FLAGS2------------+\n"
 	    		"SUST...IMMUN..RESIST............\n"
-	    		"        aefctrpsaefcpfldbc sn   \n"
-	    		"siwdcc  clioheatcliooeialoshtncd\n"
-	    		"tnieoh  ierlrfraierliatrnnnrhehi\n"
-	    		"rtsxna..dcedwlatdcedsrekdfddrxss\n"
-                "%v", binary_fmt, o_ptr->flags2);
+	    		"       paefctrpsaefcpfldbc sn   \n"
+	    		"siwdcc oclioheatcliooeialoshtncd\n"
+	    		"tnieoh iierlrfraierliatrnnnrhehi\n"
+	    		"rtsxna.sdcedwlatdcedsrekdfddrxss\n"
+                "%v", binary_fmt, o_ptr->flags[1]);
 
 	prtf(j + 32, 10,"+------------FLAGS3------------+\n"
 			"SH  NO tehsif itdrmsIGNRadtabchp\n"
@@ -627,7 +633,7 @@ static void wiz_display_item(const object_type *o_ptr)
 			"il  ea cktmativlgggocliotnorercm\n"
 			"re  lg rnyorhtiesehtierlvxrvssuc\n"
 			"ec  ec swpdtresptntsdcedtpttsers\n"
-                    "%v", binary_fmt, o_ptr->flags3);
+                    "%v", binary_fmt, o_ptr->flags[2]);
 
 	prtf(j + 32, 17,"+------------FLAGS4-------------\n"
 			"        IMSH p pt reHURT..  CURS\n"
@@ -635,7 +641,7 @@ static void wiz_display_item(const object_type *o_ptr)
 			"        iacomtusuptpclioia  utee\n"
 			"        trilurcscsrlierltr  taaa\n"
 			"        ekddtnkwhinodcedek  ottl\n"
-		    "%v", binary_fmt, o_ptr->flags4);
+		    "%v", binary_fmt, o_ptr->flags[3]);
 
 }
 
@@ -899,9 +905,10 @@ static void wiz_tweak_item(object_type *o_ptr)
 	o_ptr->to_d = atoi(tmp_val);
 	wiz_display_item(o_ptr);
 
-	strnfmt(tmp_val, 80, "%d", (int)o_ptr->activate);
-	if (!get_string(tmp_val, 6, "Enter new 'activate' setting: ")) return;
-	o_ptr->activate = atoi(tmp_val);
+	/* XXX XXX XXX Very dangerous... */
+	strnfmt(tmp_val, 80, "%d", (int)o_ptr->a_idx);
+	if (!get_string(tmp_val, 6, "Enter new 'a_idx' setting: ")) return;
+	o_ptr->a_idx = atoi(tmp_val);
 	wiz_display_item(o_ptr);
 }
 
@@ -914,8 +921,7 @@ static object_type *wiz_reroll_item(object_type *o_ptr)
 	char ch;
 
 	/* Hack -- leave normal artifacts alone */
-	if ((o_ptr->flags3 & TR3_INSTA_ART) &&
-		(o_ptr->activate > 128)) return (o_ptr);
+	if (FLAG(o_ptr, TR_INSTA_ART) && o_ptr->a_idx) return (o_ptr);
 
 	/* Main loop. Ask for magification and artifactification */
 	while (TRUE)
@@ -928,10 +934,10 @@ static object_type *wiz_reroll_item(object_type *o_ptr)
 			("[a]ccept, [w]orthless, [n]ormal, [e]xcellent, [s]pecial? ", &ch))
 		{
 			/* Preserve wizard-generated artifacts */
-			if ((o_ptr->flags3 & TR3_INSTA_ART) && (o_ptr->activate > 128))
+			if (FLAG(o_ptr, TR_INSTA_ART) && o_ptr->a_idx)
 			{
-				a_info[o_ptr->activate - 128].cur_num = 0;
-				o_ptr->activate = 0;
+				a_info[o_ptr->a_idx].cur_num = 0;
+				o_ptr->a_idx = 0;
 			}
 
 			/* Done */
@@ -942,13 +948,13 @@ static object_type *wiz_reroll_item(object_type *o_ptr)
 		if (ch == 'A' || ch == 'a') break;
 
 		/* Preserve wizard-generated artifacts */
-		if ((o_ptr->flags3 & TR3_INSTA_ART) && (o_ptr->activate > 128))
+		if (FLAG(o_ptr, TR_INSTA_ART) && o_ptr->a_idx)
 		{
-			a_info[o_ptr->activate - 128].cur_num = 0;
-			o_ptr->activate = 0;
+			a_info[o_ptr->a_idx].cur_num = 0;
+			o_ptr->a_idx = 0;
 
 			/* Remove the artifact flag */
-			o_ptr->flags3 &= ~(TR3_INSTA_ART);
+			o_ptr->flags[2] &= ~(TR2_INSTA_ART);
 		}
 
 		switch (ch)
@@ -1000,8 +1006,6 @@ static object_type *wiz_reroll_item(object_type *o_ptr)
 }
 
 
-#ifdef USE_64B
-
 /*
  * Redraw the rarity graph with a different number of rolls
  * per level.  This changes the sqrt(n) poisson error.
@@ -1009,6 +1013,8 @@ static object_type *wiz_reroll_item(object_type *o_ptr)
  */
 static void wiz_statistics(object_type *o_ptr)
 {
+#ifndef USE_64B
+
 	u32b test_roll = 100000;
 
 	char tmp_val[80];
@@ -1022,9 +1028,15 @@ static void wiz_statistics(object_type *o_ptr)
 
 	/* Display the rarity graph */
 	prt_alloc(o_ptr, 0, 2, test_roll);
-}
+
+#else /* !USE_64B */
+
+	/* Display the rarity graph */
+	prt_alloc(o_ptr, 0, 2);
 
 #endif /* USE_64B */
+
+}
 
 
 /*
@@ -1038,7 +1050,7 @@ static void wiz_quantity_item(object_type *o_ptr)
 
 
 	/* Never duplicate artifacts */
-	if (o_ptr->flags3 & TR3_INSTA_ART) return;
+	if (FLAG(o_ptr, TR_INSTA_ART)) return;
 
 	/* Store old quantity. -LM- */
 	tmp_qnt = o_ptr->number;
@@ -1112,7 +1124,7 @@ static void do_cmd_wiz_play(void)
 		wiz_display_item(o_ptr);
 
 		/* Get choice */
-		if (!get_com("[a]ccept [r]eroll [t]weak [q]uantity? ", &ch))
+		if (!get_com("[a]ccept [r]eroll [t]weak [q]uantity [s]tatistics? ", &ch))
 		{
 			/* Ignore changes */
 			msgf("Changes ignored.");
@@ -1142,12 +1154,10 @@ static void do_cmd_wiz_play(void)
 			break;
 		}
 
-#ifdef USE_64B
 		if (ch == 's' || ch == 'S')
 		{
 			wiz_statistics(o_ptr);
 		}
-#endif /* USE_64B */
 
 		if (ch == 'r' || ch == 'r')
 		{
@@ -1169,6 +1179,17 @@ static void do_cmd_wiz_play(void)
 		if (ch == 'q' || ch == 'Q')
 		{
 			wiz_quantity_item(o_ptr);
+		}
+		
+		if (ch == 'l' || ch == 'L')
+		{
+			int i;
+			for (i = 0; i < MAX_TRIGGER; i++)
+			{
+				if (o_ptr->trigger[i])
+					msgf("%i - '%s'. ", i, quark_str(
+							o_ptr->trigger[i]));
+			}
 		}
 	}
 
@@ -1260,8 +1281,12 @@ static void do_cmd_wiz_cure_all(void)
  */
 static void do_cmd_wiz_jump(void)
 {
+	int max_depth;
+	
 	/* In the wilderness and no dungeon? */
 	if (!check_down_wild()) return;
+
+	max_depth = dungeon()->max_level;
 
 	/* Ask for level */
 	if (p_ptr->cmd.arg <= 0)
@@ -1273,7 +1298,7 @@ static void do_cmd_wiz_jump(void)
 
 		/* Ask for a level */
 		if (!get_string(tmp_val, 11, "Jump to level (0-%d): ",
-						max_dun_level())) return;
+						max_depth)) return;
 
 		/* Extract request */
 		p_ptr->cmd.arg = atoi(tmp_val);
@@ -1283,7 +1308,7 @@ static void do_cmd_wiz_jump(void)
 	if (p_ptr->cmd.arg < 0) p_ptr->cmd.arg = 0;
 
 	/* Paranoia */
-	if (p_ptr->cmd.arg > max_dun_level()) p_ptr->cmd.arg = max_dun_level();
+	if (p_ptr->cmd.arg > max_depth) p_ptr->cmd.arg = max_depth;
 
 	/* Accept request */
 	msgf("You jump to dungeon level %d.", p_ptr->cmd.arg);
@@ -1816,13 +1841,15 @@ void do_cmd_debug(void)
 			do_cmd_wiz_hack_ben();
 			break;
 		}
-
+		
+#ifdef DEBUG_SCRIPTS
 		case '@':
 		{
 			/* Execute script */
 			do_cmd_script();
 			break;
 		}
+#endif /* DEBUG_SCRIPTS */
 
 		default:
 		{

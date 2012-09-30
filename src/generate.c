@@ -172,10 +172,10 @@ static bool alloc_stairs(int feat, int num, int walls)
 	else if (feat == FEAT_MORE)
 	{
 		/* No downstairs on quest levels */
-		if (p_ptr->depth && is_quest_level(p_ptr->depth)) return TRUE;
+		if (is_special_level(p_ptr->depth)) return TRUE;
 
 		/* No downstairs at the bottom */
-		if (p_ptr->depth >= max_dun_level()) return TRUE;
+		if (p_ptr->depth >= dungeon()->max_level) return TRUE;
 	}
 
 	/* Place "num" stairs */
@@ -426,6 +426,136 @@ static const byte liquid_types[LQ_MAX][2] =
 };
 
 
+static void add_monsters(int count)
+{
+	int i, j;
+	int delta_level, level, best_level;
+	
+	u16b best_r_idx;
+	
+	int min_depth;
+	
+	u16b r_idx;
+	monster_race *r_ptr;
+	
+	int num;
+
+	bool group;
+
+	int x = 0, y = 0;
+	
+	cave_type *c_ptr;
+
+	int target_rating = randint1(10) + p_ptr->depth * 2 / 3;
+
+	/* Put some monsters in the dungeon */
+	for (i = 0; i < count; i++)
+	{
+		/*
+		 * Calculate the total levels of monster ood'ness to get
+                 * an appropriate level feeling.
+		 *
+		 * The more boring the dungeon is right now,
+		 * the more out of depth to pick monsters.
+		 *
+		 * Each monster gets a fraction of the total levels we want
+		 * that depends on the number of monsters left to generate.
+		 */
+		delta_level = (target_rating - dun_rating) / (count - i);
+		if (delta_level < 0) delta_level = 0;
+		if (delta_level > 10) delta_level = 10;
+		
+		(void)alloc_monster(0, TRUE, delta_level);
+	}
+	
+	/* Sometimes have lots of monster of a given type */
+	if (one_in_(10))
+	{
+		level = p_ptr->depth + 6;
+
+		best_r_idx = 1;
+		best_level = 1;
+	
+		/* Get monster */
+		for (j = 0; j < 100; j++)
+		{
+			min_depth = level + (level / 20) + 1;
+
+			/*
+			 * Random monster out of depth
+			 */
+			r_idx = get_mon_num(level);
+
+			r_ptr = &r_info[r_idx];
+
+			/* Save the index if the monster is deeper than current monster */
+			if (!best_r_idx || (r_info[r_idx].level > best_level))
+			{
+				best_r_idx = r_idx;
+				best_level = r_info[r_idx].level;
+			}
+
+			/* Accept monsters that are a few levels out of depth */
+			if (best_level > min_depth) break;
+		}
+
+		r_ptr = &r_info[best_r_idx];
+
+		/* Get the number of monsters */
+		if (FLAG(r_ptr, RF_UNIQUE))
+		{
+			num = 1;
+		}
+		else if (FLAG(r_ptr, RF_UNIQUE_7))
+		{
+			num = randint1(r_ptr->max_num);
+		}
+		else
+		{
+			num = 5 + (s16b)randint0(level / 3 + 5) / r_ptr->rarity;
+		}
+		
+		for (i = 0; i < num; i++)
+		{
+			/* Find an empty grid */
+			while (TRUE)
+			{
+				y = rand_range(p_ptr->min_hgt + 1,
+								p_ptr->max_hgt - 2);
+				x = rand_range(p_ptr->min_wid + 1,
+								p_ptr->max_wid - 2);
+
+				/* Access the grid */
+				c_ptr = area(x, y);
+
+				if (!cave_naked_grid(c_ptr)) continue;
+				
+				if (distance(x, y, p_ptr->px, p_ptr->py) < 10)
+					continue;
+				else
+					break;
+			}
+
+			if (FLAG(r_ptr, RF_FRIENDS))
+				group = FALSE;
+			else
+				group = TRUE;
+
+			/* Try to place the monster */
+			place_monster_aux(x, y, best_r_idx, FALSE, group,
+								  FALSE, FALSE, TRUE);
+		}
+		
+		/*
+		 * Make a great object somewhere in the dungeon to compensate
+		 * (Hack - use location of last monster as target)
+		 */
+		place_object(x, y, TRUE, TRUE, best_level - p_ptr->depth);
+	}
+}
+
+
+
 
 /*
  * Generate a new dungeon level
@@ -443,8 +573,6 @@ static bool cave_gen(dun_type *d_ptr)
 	bool destroyed = FALSE;
 	bool empty_level = FALSE;
 	bool cavern = FALSE;
-
-	int delta_level;
 
 	int lq_count;
 
@@ -503,16 +631,12 @@ static bool cave_gen(dun_type *d_ptr)
 		}
 	}
 	
-	/* Empty arena levels */
-	if (ironman_empty_levels || (empty_levels && one_in_(EMPTY_LEVEL)))
+	/* Empty arena levels only ever in "city" dungeons */
+	if ((d_ptr->habitat & RF7_DUN_CITY) && one_in_(EMPTY_LEVEL))
 	{
-		/* Only ever in "city" dungeons */
-		if (d_ptr->habitat & RF8_DUN_CITY)
-		{
-			empty_level = TRUE;
+		empty_level = TRUE;
 
-			if (cheat_room) msgf("Arena level.");
-		}
+		if (cheat_room) msgf("City level.");
 	}
 
 	/* Hack -- Start with basic granite */
@@ -560,9 +684,6 @@ static bool cave_gen(dun_type *d_ptr)
 
 		build_cavern();
 	}
-
-	/* Hack -- No destroyed "quest" levels */
-	if (is_quest_level(p_ptr->depth)) destroyed = FALSE;
 
 	/* Actual maximum number of rooms on this level */
 	dun->row_rooms = (p_ptr->max_hgt - p_ptr->min_hgt) / BLOCK_HGT;
@@ -772,8 +893,9 @@ static bool cave_gen(dun_type *d_ptr)
 
 	/* Place quest monsters in the dungeon */
 	trigger_quest_create(QC_DUN_MONST, NULL);
-
 	
+	/* Place quest artifacts in the dungeon */
+	trigger_quest_create(QC_DUN_ARTIFACT, NULL);
 
 	/* Pick a base number of monsters */
 	i = MIN_M_ALLOC_LEVEL;
@@ -800,22 +922,9 @@ static bool cave_gen(dun_type *d_ptr)
 	k = (p_ptr->depth / 3);
 	if (k > 10) k = 10;
 	if (k < 2) k = 2;
-
-	/* Put some monsters in the dungeon */
-	for (i = i + k; i > 0; i--)
-	{
-		/*
-		 * The more boring the dungeon is right now,
-		 * the more out of depth to pick monsters.
-		 */
-		delta_level = (100 - dun_rating) / 10;
-		if (delta_level < 0) delta_level = 0;
-		
-		/* Not too far out of depth for the early levels */
-		if (delta_level > p_ptr->depth * 2) delta_level = 0;
-		
-		(void)alloc_monster(0, TRUE, delta_level);
-	}
+	
+	/* Add some monsters to the dungeon */
+	add_monsters(i + k);
 
 	/* Place some traps in the dungeon */
 	alloc_object(ALLOC_SET_BOTH, ALLOC_TYP_TRAP, randint1(k));
@@ -958,8 +1067,7 @@ static bool level_gen(cptr *why, dun_type *d_ptr)
 	}
 
 	/* Get the new region */
-	d_ptr->region = (s16b)create_region(p_ptr->max_wid, p_ptr->max_hgt,
-										  REGION_CAVE);
+	create_region(d_ptr, p_ptr->max_wid, p_ptr->max_hgt, REGION_CAVE);
 
 	/* Grab the reference to it */
 	incref_region(cur_region);
@@ -983,7 +1091,9 @@ static bool level_gen(cptr *why, dun_type *d_ptr)
  */
 void del_region(int rg_idx)
 {
-	int i;
+	int i, j;
+	
+	pcave_type *pc_ptr;
 
 	/* Acquire region info */
 	region_info *ri_ptr = &ri_list[rg_idx];
@@ -1010,6 +1120,21 @@ void del_region(int rg_idx)
 		 */
 		wipe_objects(rg_idx);
 		wipe_fields(rg_idx);
+		
+		/* Hack - delete player knowledge */
+		for (i = 0; i < MAX_WID; i++)
+		{
+			for (j = 0; j < MAX_HGT; j++)
+			{
+				pc_ptr = &p_ptr->pcave[j][i];
+				
+				/* Clear the player dungeon flags */
+				pc_ptr->player = 0x00;
+				
+				/* Clear the player dungeon memory */
+				forget_grid(pc_ptr);
+			}
+		}
 	}
 
 	/* Deallocate the cave information */
@@ -1017,7 +1142,7 @@ void del_region(int rg_idx)
 	/* Free the cave */
 	for (i = 0; i < ri_ptr->ysize; i++)
 	{
-		/* Allocate one row of the cave */
+		/* Deallocate one row of the cave */
 		FREE(rg_list[rg_idx][i]);
 	}
 
@@ -1161,7 +1286,7 @@ static void allocate_region(int rg_idx, int x, int y)
  * This rountine should never fail - but be prepared
  * for when it does.
  */
-int create_region(int x, int y, byte flags)
+void create_region_aux(s16b *region, int x, int y, byte flags)
 {
 	int rg_idx;
 	int i;
@@ -1183,8 +1308,11 @@ int create_region(int x, int y, byte flags)
 		/* Save the flags */
 		ri_list[rg_idx].flags = flags;
 
+		/* Save the region number */
+		*region = rg_idx;
+
 		/* Done */
-		return (rg_idx);
+		return;
 	}
 
 	/* Recycle dead regions */
@@ -1201,16 +1329,21 @@ int create_region(int x, int y, byte flags)
 
 		/* Save the flags */
 		ri_list[i].flags = flags;
-
+		
 		/* Use this region */
-		return (i);
+		*region = i;
+
+		return;
 	}
 
 	/* Warn the player */
 	msgf("Too many regions!");
 
+	/* Paranoia */
+	*region = 0;
+
 	/* Oops */
-	return (0);
+	return;
 }
 
 
@@ -1284,7 +1417,7 @@ void generate_cave(void)
 		p_ptr->state.feeling = extract_feeling();
 
 		/* Prevent object over-flow */
-		if (o_max >= z_info->o_max)
+		if (o_cnt + 1 >= z_info->o_max)
 		{
 			/* Message */
 			why = "too many objects";
@@ -1293,7 +1426,7 @@ void generate_cave(void)
 			okay = FALSE;
 		}
 		/* Prevent monster over-flow */
-		else if (m_max >= z_info->m_max)
+		else if (m_cnt + 1 >= z_info->m_max)
 		{
 			/* Message */
 			why = "too many monsters";

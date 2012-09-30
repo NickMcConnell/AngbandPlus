@@ -19,6 +19,7 @@ int num_food;
 int num_mold;
 int num_ident;
 int num_star_ident;
+int num_star_remove_curse;
 int num_recall;
 int num_phase;
 int num_escape;
@@ -41,9 +42,7 @@ int num_fix_stat[7];	/* #7 is to fix all stats */
 int num_fix_exp;
 int num_mana;
 int num_heal;
-int num_heal_true;
 int num_ez_heal;
-int num_ez_heal_true;
 int num_pfe;
 int num_glyph;
 int num_mass_genocide;
@@ -289,7 +288,8 @@ void borg_list_info(byte list_type, vptr dummy)
  */
 static void borg_notice_player(void)
 {
-	u32b f1, f2, f3, f4;
+	object_flags oflags;
+	object_flags *of_ptr = &oflags;
 
 	/* Recalc some Variables */
 	bp_ptr->ac = 0;
@@ -331,20 +331,25 @@ static void borg_notice_player(void)
 	/* Racial Skills */
 
 	/* Extract the player flags */
-	player_flags(&f1, &f2, &f3, &f4);
+	player_flags(of_ptr);
 
-	bp_ptr->flags1 |= f1;
-	bp_ptr->flags2 |= f2;
-	bp_ptr->flags3 |= f3;
-	/* XXX XXX XXX Don't handle flags4 yet */
+	bp_ptr->flags[0] |= oflags.flags[0];
+	bp_ptr->flags[1] |= oflags.flags[1];
+	bp_ptr->flags[2] |= oflags.flags[2];
+	bp_ptr->flags[3] |= oflags.flags[3];
+
+	/* Mutation flags */
+	bp_ptr->muta1 = p_ptr->muta1;
+	bp_ptr->muta2 = p_ptr->muta2;
+	bp_ptr->muta3 = p_ptr->muta3;
 
 	/* Sustain flags */
-	if (f2 & (TR2_SUST_STR)) bp_ptr->sust[A_STR] = TRUE;
-	if (f2 & (TR2_SUST_INT)) bp_ptr->sust[A_INT] = TRUE;
-	if (f2 & (TR2_SUST_WIS)) bp_ptr->sust[A_WIS] = TRUE;
-	if (f2 & (TR2_SUST_DEX)) bp_ptr->sust[A_DEX] = TRUE;
-	if (f2 & (TR2_SUST_CON)) bp_ptr->sust[A_CON] = TRUE;
-	if (f2 & (TR2_SUST_CHR)) bp_ptr->sust[A_CHR] = TRUE;
+	if (FLAG(of_ptr, TR_SUST_STR)) bp_ptr->sust[A_STR] = TRUE;
+	if (FLAG(of_ptr, TR_SUST_INT)) bp_ptr->sust[A_INT] = TRUE;
+	if (FLAG(of_ptr, TR_SUST_WIS)) bp_ptr->sust[A_WIS] = TRUE;
+	if (FLAG(of_ptr, TR_SUST_DEX)) bp_ptr->sust[A_DEX] = TRUE;
+	if (FLAG(of_ptr, TR_SUST_CON)) bp_ptr->sust[A_CON] = TRUE;
+	if (FLAG(of_ptr, TR_SUST_CHR)) bp_ptr->sust[A_CHR] = TRUE;
 
 	/* Bloating slows the player down (a little) */
 	if (bp_ptr->status.gorged) bp_ptr->speed -= 10;
@@ -366,6 +371,9 @@ list_item *look_up_equip_slot(int slot)
 
 	int i;
 
+	/* check for valid slots */
+	if (slot < 0 || slot > equip_num) return (NULL);
+
 	/* Look in equipment */
 	l_ptr = &equipment[slot];
 
@@ -382,6 +390,9 @@ list_item *look_up_equip_slot(int slot)
 	}
 	else
 	{
+		/* Is it an empty slot or an unknown ring or amulet */
+		if (l_ptr->tval == TV_RING || l_ptr->tval == TV_AMULET) return (l_ptr);
+
 		/* Optimise common case of empty slot */
 		if (l_ptr->treat_as != TREAT_AS_SWAP) return (NULL);
 	}
@@ -440,63 +451,63 @@ static void borg_notice_equip(int *extra_blows, int *extra_shots,
 		if (!l_ptr) continue;
 
 		/* Check for cursed items */
-		if (l_ptr->kn_flags3 & TR3_CURSED) borg_wearing_cursed = TRUE;
+		if (KN_FLAG(l_ptr, TR_CURSED)) borg_wearing_cursed = TRUE;
+		if (KN_FLAG(l_ptr, TR_HEAVY_CURSE)) borg_heavy_curse = TRUE;
 
 		/* Affect stats */
-		if (l_ptr->kn_flags1 & TR1_STR) my_stat_add[A_STR] += l_ptr->pval;
-		if (l_ptr->kn_flags1 & TR1_INT) my_stat_add[A_INT] += l_ptr->pval;
-		if (l_ptr->kn_flags1 & TR1_WIS) my_stat_add[A_WIS] += l_ptr->pval;
-		if (l_ptr->kn_flags1 & TR1_DEX) my_stat_add[A_DEX] += l_ptr->pval;
-		if (l_ptr->kn_flags1 & TR1_CON) my_stat_add[A_CON] += l_ptr->pval;
-		if (l_ptr->kn_flags1 & TR1_CHR) my_stat_add[A_CHR] += l_ptr->pval;
+		if (KN_FLAG(l_ptr, TR_STR)) my_stat_add[A_STR] += l_ptr->pval;
+		if (KN_FLAG(l_ptr, TR_INT)) my_stat_add[A_INT] += l_ptr->pval;
+		if (KN_FLAG(l_ptr, TR_WIS)) my_stat_add[A_WIS] += l_ptr->pval;
+		if (KN_FLAG(l_ptr, TR_DEX)) my_stat_add[A_DEX] += l_ptr->pval;
+		if (KN_FLAG(l_ptr, TR_CON)) my_stat_add[A_CON] += l_ptr->pval;
+		if (KN_FLAG(l_ptr, TR_CHR)) my_stat_add[A_CHR] += l_ptr->pval;
 
 		/* Affect flags */
-		bp_ptr->flags1 |= l_ptr->kn_flags1;
-		bp_ptr->flags2 |= l_ptr->kn_flags2;
-		bp_ptr->flags3 |= l_ptr->kn_flags3;
+		bp_ptr->flags[0] |= l_ptr->kn_flags[0];
+		bp_ptr->flags[1] |= l_ptr->kn_flags[1];
+		bp_ptr->flags[2] |= l_ptr->kn_flags[2];
+		bp_ptr->flags[3] |= l_ptr->kn_flags[3];
 
 		/* Affect infravision */
-		if (l_ptr->kn_flags1 & TR1_INFRA) bp_ptr->see_infra += l_ptr->pval;
+		if (KN_FLAG(l_ptr, TR_INFRA)) bp_ptr->see_infra += l_ptr->pval;
 
 		/* Affect stealth */
-		if (l_ptr->kn_flags1 & TR1_STEALTH) bp_ptr->skill_stl += l_ptr->pval;
+		if (KN_FLAG(l_ptr, TR_STEALTH)) bp_ptr->skill_stl += l_ptr->pval;
 
 		/* Affect searching ability (factor of five) */
-		if (l_ptr->kn_flags1 & TR1_SEARCH) bp_ptr->skill_sns += l_ptr->pval * 5;
+		if (KN_FLAG(l_ptr, TR_SEARCH)) bp_ptr->skill_sns += l_ptr->pval * 5;
 
 		/* Affect searching frequency (factor of five) */
-		if (l_ptr->kn_flags1 & TR1_SEARCH) bp_ptr->skill_fos +=
-				(l_ptr->pval * 5);
+		if (KN_FLAG(l_ptr, TR_SEARCH)) bp_ptr->skill_fos += l_ptr->pval * 5;
 
 		/* Affect digging (factor of 20) */
-		if (l_ptr->kn_flags1 & TR1_TUNNEL) bp_ptr->skill_dig +=
-				l_ptr->pval * 20;
+		if (KN_FLAG(l_ptr, TR_TUNNEL)) bp_ptr->skill_dig += l_ptr->pval * 20;
 
 		/* Affect speed */
-		if (l_ptr->kn_flags1 & TR1_SPEED) bp_ptr->speed += l_ptr->pval;
+		if (KN_FLAG(l_ptr, TR_SPEED)) bp_ptr->speed += l_ptr->pval;
 
 		/* Affect blows */
-		if (l_ptr->kn_flags1 & TR1_BLOWS) *extra_blows += l_ptr->pval;
+		if (KN_FLAG(l_ptr, TR_BLOWS)) *extra_blows += l_ptr->pval;
 
 		/* Boost shots */
-		if (l_ptr->kn_flags3 & TR3_XTRA_SHOTS) (*extra_shots)++;
+		if (KN_FLAG(l_ptr, TR_XTRA_SHOTS)) (*extra_shots)++;
 
 		/* Boost might */
-		if (l_ptr->kn_flags3 & TR3_XTRA_MIGHT) (*extra_might)++;
+		if (KN_FLAG(l_ptr, TR_XTRA_MIGHT)) (*extra_might)++;
 
 		/* Immunity flags */
-		if (l_ptr->kn_flags2 & TR2_IM_FIRE) my_oppose_fire = TRUE;
-		if (l_ptr->kn_flags2 & TR2_IM_ACID) my_oppose_elec = TRUE;
-		if (l_ptr->kn_flags2 & TR2_IM_COLD) my_oppose_elec = TRUE;
-		if (l_ptr->kn_flags2 & TR2_IM_ELEC) my_oppose_elec = TRUE;
+		if (KN_FLAG(l_ptr, TR_IM_FIRE)) my_oppose_fire = TRUE;
+		if (KN_FLAG(l_ptr, TR_IM_ACID)) my_oppose_elec = TRUE;
+		if (KN_FLAG(l_ptr, TR_IM_COLD)) my_oppose_elec = TRUE;
+		if (KN_FLAG(l_ptr, TR_IM_ELEC)) my_oppose_elec = TRUE;
 
 		/* Sustain flags */
-		if (l_ptr->kn_flags2 & TR2_SUST_STR) bp_ptr->sust[A_STR] = TRUE;
-		if (l_ptr->kn_flags2 & TR2_SUST_INT) bp_ptr->sust[A_INT] = TRUE;
-		if (l_ptr->kn_flags2 & TR2_SUST_WIS) bp_ptr->sust[A_WIS] = TRUE;
-		if (l_ptr->kn_flags2 & TR2_SUST_DEX) bp_ptr->sust[A_DEX] = TRUE;
-		if (l_ptr->kn_flags2 & TR2_SUST_CON) bp_ptr->sust[A_CON] = TRUE;
-		if (l_ptr->kn_flags2 & TR2_SUST_CHR) bp_ptr->sust[A_CHR] = TRUE;
+		if (KN_FLAG(l_ptr, TR_SUST_STR)) bp_ptr->sust[A_STR] = TRUE;
+		if (KN_FLAG(l_ptr, TR_SUST_INT)) bp_ptr->sust[A_INT] = TRUE;
+		if (KN_FLAG(l_ptr, TR_SUST_WIS)) bp_ptr->sust[A_WIS] = TRUE;
+		if (KN_FLAG(l_ptr, TR_SUST_DEX)) bp_ptr->sust[A_DEX] = TRUE;
+		if (KN_FLAG(l_ptr, TR_SUST_CON)) bp_ptr->sust[A_CON] = TRUE;
+		if (KN_FLAG(l_ptr, TR_SUST_CHR)) bp_ptr->sust[A_CHR] = TRUE;
 
 		/* Modify the base armor class */
 		bp_ptr->ac += l_ptr->ac;
@@ -907,7 +918,7 @@ static void borg_notice_weapon(int hold, int extra_blows)
 	/* priest weapon penalty for non-blessed edged weapons */
 	if ((borg_class == CLASS_PRIEST) &&
 		((l_ptr->tval == TV_SWORD) || (l_ptr->tval == TV_POLEARM)) &&
-		(!(l_ptr->kn_flags3 & TR3_BLESSED)))
+		!KN_FLAG(l_ptr, TR_BLESSED))
 	{
 		/* Reduce the real bonuses */
 		bp_ptr->to_h -= 5;
@@ -1079,9 +1090,9 @@ static void borg_notice_enchant(void)
 	int i;
 
 	/* Assume no enchantment needed */
-	my_need_enchant_to_a = 0;
-	my_need_enchant_to_h = 0;
-	my_need_enchant_to_d = 0;
+	my_need_enchant_to_a = FALSE;
+	my_need_enchant_to_h = FALSE;
+	my_need_enchant_to_d = FALSE;
 
 	/* Hack -- enchant all the equipment (weapons) */
 	for (i = 0; i <= EQUIP_BOW; i++)
@@ -1094,34 +1105,11 @@ static void borg_notice_enchant(void)
 		/* Skip "unknown" items */
 		if (!borg_obj_known_p(l_ptr)) continue;
 
-		/* Enchant all weapons (to hit) */
-		if ((borg_spell_okay_fail(REALM_SORCERY, 3, 4, 40) ||
-			 amt_enchant_weapon >= 1))
-		{
-			if (l_ptr->to_h < 15)
-			{
-				my_need_enchant_to_h += (15 - l_ptr->to_h);
-			}
+		/* Can we use a to_hit */
+		if (l_ptr->to_h < 15) my_need_enchant_to_h = TRUE;
 
-			/* Enchant all weapons (to damage) */
-			if (l_ptr->to_d < 15)
-			{
-				my_need_enchant_to_d += (15 - l_ptr->to_d);
-			}
-		}
-		else
-		{
-			if (l_ptr->to_h < 8)
-			{
-				my_need_enchant_to_h += (8 - l_ptr->to_h);
-			}
-
-			/* Enchant all weapons (to damage) */
-			if (l_ptr->to_d < 8)
-			{
-				my_need_enchant_to_d += (8 - l_ptr->to_d);
-			}
-		}
+		/* Can we use a to_dam */
+		if (l_ptr->to_h < 25) my_need_enchant_to_d = TRUE;
 	}
 
 	/* Hack -- enchant all the equipment (armor) */
@@ -1135,21 +1123,13 @@ static void borg_notice_enchant(void)
 		/* Skip "unknown" items */
 		if (!borg_obj_known_p(l_ptr)) continue;
 
-		/* Note need for enchantment */
-		if ((borg_spell_okay_fail(REALM_SORCERY, 3, 5, 40) ||
-			 amt_enchant_armor >= 1))
+		/* Can we use a to_ac */
+		if (l_ptr->to_a < 15)
 		{
-			if (l_ptr->to_a < 15)
-			{
-				my_need_enchant_to_a += (15 - l_ptr->to_a);
-			}
-		}
-		else
-		{
-			if (l_ptr->to_a < 10)
-			{
-				my_need_enchant_to_a += (10 - l_ptr->to_a);
-			}
+			my_need_enchant_to_a = TRUE;
+
+			/* After one candidate is found skip the rest */
+			break;
 		}
 	}
 }
@@ -1179,27 +1159,49 @@ static void borg_notice_lite(void)
 	{
 		object_kind *k_ptr = &k_info[l_ptr->k_idx];
 
-		/* No fuel means no radius */
-		if (l_ptr->timeout || (l_ptr->kn_flags3 & TR3_LITE))
+		/* If it is a torch with fuel or everburning */
+		if ((k_ptr->sval == SV_LITE_TORCH) &&
+			(l_ptr->timeout ||
+			KN_FLAG(l_ptr, TR_LITE)))
+
 		{
 			/* Torches -- radius one */
-			if (k_ptr->sval == SV_LITE_TORCH) bp_ptr->cur_lite += 1;
-
-			/* Lanterns -- radius two */
-			if (k_ptr->sval == SV_LITE_LANTERN) bp_ptr->cur_lite += 2;
+			bp_ptr->cur_lite += 1;
 		}
 		
-		if (l_ptr->kn_flags3 & TR3_LITE)
+		/* If it is a Lantern */
+		if (k_ptr->sval == SV_LITE_LANTERN)
+		{
+			/* And it has fuel */
+			if (l_ptr->timeout)
+			{
+				/* Lanterns -- radius two */
+				bp_ptr->cur_lite += 2;
+			}
+			else
+			{
+				if (KN_FLAG(l_ptr, TR_LITE))
+				{
+					/* Unfueled Lantern of Everburning still has radius 1 */
+					bp_ptr->cur_lite += 1;
+				}
+			}
+		}
+		
+		if (KN_FLAG(l_ptr, TR_LITE))
 		{
 			/* Permanently glowing */
 			bp_ptr->britelite = TRUE;
 			
-			/* No need for fuel */
-			bp_ptr->able.fuel += 1000;
+			/*
+			 * Lantern of Everburning still needs fuel.
+			 * Any other perm light does not.
+			 */
+			if (k_ptr->sval != SV_LITE_LANTERN) bp_ptr->able.fuel += 1000;
 		}
 		
 		/* Artifact lites -- radius three */
-		if (l_ptr->kn_flags3 & TR3_INSTA_ART)
+		if (KN_FLAG(l_ptr, TR_INSTA_ART))
 		{
 			bp_ptr->cur_lite += 3;
 			
@@ -1210,7 +1212,7 @@ static void borg_notice_lite(void)
 			bp_ptr->able.fuel += 1000;
 
 			/* Vampires need to be concerned with Artifacts Lites */
-			if ((borg_race == RACE_VAMPIRE) && !(bp_ptr->flags2 & TR2_RES_LITE))
+			if (FLAG(bp_ptr, TR_HURT_LITE) && !FLAG(bp_ptr, TR_RES_LITE))
 			{
 				bp_ptr->cur_lite = 1;
 			}
@@ -1282,6 +1284,7 @@ static void borg_notice_food(list_item *l_ptr, int number)
 		case SV_FOOD_WAYBREAD:
 		{
 			amt_food_hical += number;
+			bp_ptr->able.curepois += number;
 			break;
 		}
 		case SV_FOOD_RATION:
@@ -1364,9 +1367,13 @@ static void borg_notice_potions(list_item *l_ptr, int number)
 			break;
 		}
 		case SV_POTION_STAR_HEALING:
+		{
+			amt_star_heal += number;
+			break;
+		}
 		case SV_POTION_LIFE:
 		{
-			bp_ptr->able.easy_heal += number;
+			amt_life += number;
 			break;
 		}
 		case SV_POTION_CURE_CRITICAL:
@@ -1474,6 +1481,37 @@ static void borg_notice_potions(list_item *l_ptr, int number)
 			bp_ptr->able.speed += number;
 			break;
 		}
+		case SV_POTION_BERSERK_STRENGTH:
+		{
+			bp_ptr->able.berserk += number;
+			break;
+		}
+		case SV_POTION_POISON:
+		{
+			bp_ptr->able.poison += number;
+			break;
+		}
+		case SV_POTION_RESTORE_MANA:
+		{
+			if (borg_class == CLASS_WARRIOR)
+				bp_ptr->able.death += number;
+			else
+				bp_ptr->able.mana += number;
+
+			break;
+		}
+		case SV_POTION_DETONATIONS:
+		case SV_POTION_DEATH:
+		case SV_POTION_RUINATION:
+		{
+			bp_ptr->able.death += number;
+			break;
+		}
+		case SV_POTION_INVULNERABILITY:
+		{
+			bp_ptr->able.invulnerability += number;
+			break;
+		}
 	}
 }
 
@@ -1493,6 +1531,21 @@ static void borg_notice_scrolls(list_item *l_ptr, int number)
 			bp_ptr->able.id += number;
 			break;
 		}
+		case SV_SCROLL_STAR_IDENTIFY:
+		{
+			bp_ptr->able.star_id += number;
+			break;
+		}
+		case SV_SCROLL_REMOVE_CURSE:
+		{
+			bp_ptr->able.remove_curse += number;
+			break;
+		}
+		case SV_SCROLL_STAR_REMOVE_CURSE:
+		{
+			bp_ptr->able.star_remove_curse += number;
+			break;
+		}
 		case SV_SCROLL_RECHARGING:
 		{
 			bp_ptr->able.recharge += number;
@@ -1500,7 +1553,7 @@ static void borg_notice_scrolls(list_item *l_ptr, int number)
 		}
 		case SV_SCROLL_PHASE_DOOR:
 		{
-			amt_phase += number;
+			bp_ptr->able.phase += number;
 			break;
 		}
 		case SV_SCROLL_TELEPORT:
@@ -1531,7 +1584,8 @@ static void borg_notice_scrolls(list_item *l_ptr, int number)
 		}
 		case SV_SCROLL_STAR_ENCHANT_WEAPON:
 		{
-			amt_enchant_weapon += number;
+			amt_enchant_to_h += number * 2;
+			amt_enchant_to_d += number * 2;
 			break;
 		}
 		case SV_SCROLL_PROTECTION_FROM_EVIL:
@@ -1541,7 +1595,7 @@ static void borg_notice_scrolls(list_item *l_ptr, int number)
 		}
 		case SV_SCROLL_STAR_ENCHANT_ARMOR:
 		{
-			amt_enchant_armor += number;
+			amt_enchant_to_a += number * 2;
 			break;
 		}
 		case SV_SCROLL_RUNE_OF_PROTECTION:
@@ -1556,8 +1610,43 @@ static void borg_notice_scrolls(list_item *l_ptr, int number)
 		}
 		case SV_SCROLL_SATISFY_HUNGER:
 		{
+			amt_food_scroll += number;
 			bp_ptr->food += number * 5;
-			
+			break;
+		}
+		case SV_SCROLL_ICE:
+		{
+			if (FLAG(bp_ptr, TR_RES_COLD)) bp_ptr->able.logrus += number;
+			break;
+		}
+		case SV_SCROLL_FIRE:
+		{
+			if (FLAG(bp_ptr, TR_RES_FIRE)) bp_ptr->able.logrus += number;
+			break;
+		}
+		case SV_SCROLL_CHAOS:
+		{
+			if (FLAG(bp_ptr, TR_RES_CHAOS)) bp_ptr->able.logrus += number;
+			break;
+		}
+		case SV_SCROLL_DISPEL_UNDEAD:
+		{
+			bp_ptr->able.logrus += number;
+			break;
+		}
+		case SV_SCROLL_LIGHT:
+		{
+			bp_ptr->able.lite += number;
+			break;
+		}
+		case SV_SCROLL_GENOCIDE:
+		{
+			bp_ptr->able.genocide += number;
+			break;
+		}
+		case SV_SCROLL_MASS_GENOCIDE:
+		{
+			bp_ptr->able.mass_genocide += number;
 			break;
 		}
 	}
@@ -1591,13 +1680,9 @@ static void borg_notice_rods(list_item *l_ptr, int number)
 		case SV_ROD_RECALL:
 		{
 			/* Don't count on it if I suck at activations */
-			if (bp_ptr->skill_dev - k_ptr->level > 7)
+			if (bp_ptr->skill_dev - k_ptr->level > 1)
 			{
 				bp_ptr->recall += number * 100;
-			}
-			else
-			{
-				bp_ptr->recall += number;
 			}
 			break;
 		}
@@ -1642,18 +1727,132 @@ static void borg_notice_rods(list_item *l_ptr, int number)
 			break;
 		}
 
+		case SV_ROD_ILLUMINATION:
+		{
+			bp_ptr->able.lite += number * 100;
+			break;
+		}
+
 		case SV_ROD_HEALING:
 		{
-			/* only +2 per rod because of long charge time. */
 			/* Don't count on it if I suck at activations */
 			if (bp_ptr->skill_dev - k_ptr->level > 7)
 			{
-				bp_ptr->able.heal += number * 2;
-			}
-			else
-			{
 				bp_ptr->able.heal += number;
+				amt_rod_heal += number;
 			}
+			break;
+		}
+
+		case SV_ROD_PESTICIDE:
+		case SV_ROD_FIRE_BALL:
+		case SV_ROD_ACID_BALL:
+		case SV_ROD_ELEC_BALL:
+		case SV_ROD_COLD_BALL:
+		case SV_ROD_HAVOC:
+		{
+			bp_ptr->able.ball += 5 * number;
+			break;
+		}
+
+		case SV_ROD_FIRE_BOLT:
+		case SV_ROD_ACID_BOLT:
+		case SV_ROD_ELEC_BOLT:
+		case SV_ROD_COLD_BOLT:
+		case SV_ROD_DRAIN_LIFE:
+		case SV_ROD_TELEPORT_AWAY:
+		case SV_ROD_LITE:
+		{
+			bp_ptr->able.bolt += 5 * number;
+			break;
+		}
+	}
+}
+
+
+/*
+ * Notice wands.  Separates the wands in ball or bolt wands.
+ * There is a wand feature that makes it hard to count charges:
+ * If you have a Wand of Foo (4 charges) and a Wand of Foo (8 charges)
+ * this is shown as 2 Wands of Foo (12 charges).  If you sell 1 in a shop
+ * you sell the Wand of Foo (4 charges).  But the borg can only guess that
+ * it is selling 6 charges.  I don't think this will cause a loop.
+ */
+static void borg_notice_wands(list_item *l_ptr, int number)
+{
+	int sval = k_info[l_ptr->k_idx].sval;
+	int tval = 0, non_empty = 0;
+
+
+	/* Is this is a pile a wands with unknown charges? */
+	if (!borg_obj_known_p(l_ptr) && !strstr(l_ptr->o_name, "{empty}"))
+	{
+		/* Set the number of wands, later we guess how many charges there are */
+		non_empty = number;
+	}
+	/* This pile of wands has known tval or is empty */
+	else
+	{
+		/* Counting this wand while getting it from a shop or home */
+		if (l_ptr->treat_as == TREAT_AS_SHOP)
+		{
+			/* We get 1 wand and not all the charges */
+			tval = l_ptr->tval / l_ptr->number;
+		}
+		/* Counting this pile while selling one */
+		else if (l_ptr->treat_as == TREAT_AS_LESS)
+		{
+			/* We get all the charges except for the charges of one wand */
+			tval = l_ptr->tval - l_ptr->tval / l_ptr->number;
+		}
+		/* Just count the stack will you */
+		else
+		{
+			/* All the charges */
+			tval = l_ptr->tval;
+		}
+	}
+
+	/* What sort of wand is this? */
+	switch (sval)
+	{
+		/* Ball Wands */
+		case SV_WAND_ACID_BALL:
+		case SV_WAND_ELEC_BALL:
+		case SV_WAND_FIRE_BALL:
+		case SV_WAND_COLD_BALL:
+		case SV_WAND_ANNIHILATION:
+		case SV_WAND_DRAGON_FIRE:
+		case SV_WAND_DRAGON_COLD:
+		case SV_WAND_DRAGON_BREATH:
+		case SV_WAND_ROCKETS:
+		{
+			/* count the charges */
+			bp_ptr->able.ball += tval + 5 * non_empty;
+
+			break;
+		}
+
+		/* Bolt wands */
+		case SV_WAND_TELEPORT_AWAY:
+		case SV_WAND_LITE:
+		case SV_WAND_DRAIN_LIFE:
+		case SV_WAND_STINKING_CLOUD:
+		case SV_WAND_MAGIC_MISSILE:
+		case SV_WAND_ACID_BOLT:
+		case SV_WAND_FIRE_BOLT:
+		case SV_WAND_COLD_BOLT:
+		{
+			/* count the charges */
+			bp_ptr->able.bolt += tval + 2 * non_empty;
+
+			break;
+		}
+
+		/* Don't bother with keeping the rest of the wands */
+		default:
+		{
+			/* Nothing */
 			break;
 		}
 	}
@@ -1700,6 +1899,20 @@ static void borg_notice_staves(list_item *l_ptr, int number)
 			bp_ptr->able.heal += number * l_ptr->pval;
 			break;
 		}
+		case SV_STAFF_REMOVE_CURSE:
+		{
+			bp_ptr->able.remove_curse += number * l_ptr->pval;
+			break;
+		}
+		case SV_STAFF_DESTRUCTION:
+		{
+			bp_ptr->able.staff_dest += number * l_ptr->pval;
+
+			/* Add a token charge to keep the staff */
+			if (!bp_ptr->able.staff_dest) bp_ptr->able.staff_dest = 1;
+
+			break;
+		}
 		case SV_STAFF_THE_MAGI:
 		{
 			bp_ptr->able.staff_magi += number * l_ptr->pval;
@@ -1707,13 +1920,26 @@ static void borg_notice_staves(list_item *l_ptr, int number)
 		}
 		case SV_STAFF_POWER:
 		{
-			amt_cool_staff += number;
+			bp_ptr->able.staff_cool += number * l_ptr->pval;
+
+			/* Add a token charge to keep the staff */
+			if (!bp_ptr->able.staff_cool) bp_ptr->able.staff_cool = 1;
+
 			break;
 		}
 		case SV_STAFF_HOLINESS:
 		{
-			amt_cool_staff += number;
+			bp_ptr->able.staff_cool += number * l_ptr->pval;
 			bp_ptr->able.heal += number * l_ptr->pval;
+
+			/* Add a token charge to keep the staff */
+			if (!bp_ptr->able.staff_cool) bp_ptr->able.staff_cool = 1;
+
+			break;
+		}
+		case SV_STAFF_LITE:
+		{
+			bp_ptr->able.lite += number * l_ptr->pval;
 			break;
 		}
 	}
@@ -1736,12 +1962,19 @@ static void borg_notice_inven_item(list_item *l_ptr)
 	}
 	else
 	{
-		number = l_ptr->number;
+		/* Is this a home or shop item? */
+		if (l_ptr->treat_as == TREAT_AS_SHOP)
+		{
+			/* You can buy only one item from a shop */
+			number = 1;
+		}
+		else
+		{
+			/* Count the whole pile */
+			number = l_ptr->number;
+		}
 	}
 	
-	/* count up the items on the borg */
-	borg_has[l_ptr->k_idx] += number;
-
 	/* Keep track of weight */
 	bp_ptr->weight += l_ptr->weight * number;
 
@@ -1757,52 +1990,49 @@ static void borg_notice_inven_item(list_item *l_ptr)
 		case TV_LIFE_BOOK:
 		{
 			/* Count good books */
-			if (bp_ptr->realm1 == REALM_LIFE || bp_ptr->realm2 == REALM_LIFE)
+			if (borg_has_realm(REALM_LIFE))
 				amt_book[REALM_LIFE][k_ptr->sval] += number;
 			break;
 		}
 		case TV_SORCERY_BOOK:
 		{
 			/* Count good books */
-			if (bp_ptr->realm1 == REALM_SORCERY ||
-				bp_ptr->realm2 == REALM_SORCERY)
+			if (borg_has_realm(REALM_SORCERY))
 				amt_book[REALM_SORCERY][k_ptr->sval] += number;
 			break;
 		}
 		case TV_NATURE_BOOK:
 		{
 			/* Count good books */
-			if (bp_ptr->realm1 == REALM_NATURE ||
-				bp_ptr->realm2 == REALM_NATURE)
+			if (borg_has_realm(REALM_NATURE))
 				amt_book[REALM_NATURE][k_ptr->sval] += number;
 			break;
 		}
 		case TV_CHAOS_BOOK:
 		{
 			/* Count good books */
-			if (bp_ptr->realm1 == REALM_CHAOS || bp_ptr->realm2 == REALM_CHAOS)
+			if (borg_has_realm(REALM_CHAOS))
 				amt_book[REALM_CHAOS][k_ptr->sval] += number;
 			break;
 		}
 		case TV_DEATH_BOOK:
 		{
 			/* Count good books */
-			if (bp_ptr->realm1 == REALM_DEATH || bp_ptr->realm2 == REALM_DEATH)
+			if (borg_has_realm(REALM_DEATH))
 				amt_book[REALM_DEATH][k_ptr->sval] += number;
 			break;
 		}
 		case TV_TRUMP_BOOK:
 		{
 			/* Count good books */
-			if (bp_ptr->realm1 == REALM_TRUMP || bp_ptr->realm2 == REALM_TRUMP)
+			if (borg_has_realm(REALM_TRUMP))
 				amt_book[REALM_TRUMP][k_ptr->sval] += number;
 			break;
 		}
 		case TV_ARCANE_BOOK:
 		{
 			/* Count good books */
-			if (bp_ptr->realm1 == REALM_ARCANE ||
-				bp_ptr->realm2 == REALM_ARCANE)
+			if (borg_has_realm(REALM_ARCANE))
 				amt_book[REALM_ARCANE][k_ptr->sval] += number;
 			break;
 		}
@@ -1836,6 +2066,13 @@ static void borg_notice_inven_item(list_item *l_ptr)
 			break;
 		}
 
+		case TV_WAND:
+		{
+			/* Wands */
+			borg_notice_wands(l_ptr, number);
+			break;
+		}
+
 		case TV_STAFF:
 		{
 			/* Staffs */
@@ -1847,9 +2084,18 @@ static void borg_notice_inven_item(list_item *l_ptr)
 		case TV_FLASK:
 		{
 			/* Flasks */
+			list_item* l_ptr = look_up_equip_slot(EQUIP_LITE);
 
-			/* Use as fuel if we equip a lantern */
-			if (bp_ptr->cur_lite == 2) bp_ptr->able.fuel += number;
+			/* Does the borg wield a light item? */
+			if (l_ptr)
+			{
+				/* Is that a lantern */
+				if (k_info[l_ptr->k_idx].sval == SV_LITE_LANTERN)
+				{
+					/* Count the flask as fuel */
+					bp_ptr->able.fuel += number;
+				}
+			}
 
 			/* Count as (crappy) Missiles */
 			if (bp_ptr->lev < 15)
@@ -1860,19 +2106,26 @@ static void borg_notice_inven_item(list_item *l_ptr)
 		}
 
 		case TV_LITE:
-
 		{
-			/* Torches */
+			/* Torches or Lanterns */
+			l_ptr = look_up_equip_slot(EQUIP_LITE);
 
-			/* Use as fuel if it is a torch and we carry a torch */
-			if ((k_ptr->sval == SV_LITE_TORCH) && (bp_ptr->cur_lite <= 1))
+			/* Does the borg wield a light item? */
+			if (l_ptr)
 			{
-				bp_ptr->able.fuel += number;
-			}
-			
-			if (k_ptr->sval == SV_LITE_LANTERN)
-			{
-				bp_ptr->able.fuel += 2;
+				/* Is that a lantern */
+				if (k_info[l_ptr->k_idx].sval == SV_LITE_LANTERN)
+				{
+					/* Count the lantern as 1 fuel */
+					if (k_ptr->sval == SV_LITE_LANTERN) bp_ptr->able.fuel += 1;
+				}
+				
+				/* Is that a torch */
+				if (k_info[l_ptr->k_idx].sval == SV_LITE_TORCH)
+				{
+					/* Count the torches as fuel */
+					if (k_ptr->sval == SV_LITE_TORCH) bp_ptr->able.fuel += number;
+				}
 			}
 			
 			break;
@@ -1895,7 +2148,7 @@ static void borg_notice_inven_item(list_item *l_ptr)
 			/* Shovels and such */
 
 			/* Hack -- ignore worthless ones (including cursed) */
-			if (l_ptr->kn_flags3 & TR3_CURSED) break;
+			if (KN_FLAG(l_ptr, TR_CURSED)) break;
 
 			/* Do not carry if weak, won't be able to dig anyway */
 			if (bp_ptr->skill_dig < 30) break;
@@ -1967,6 +2220,7 @@ static void borg_notice_inven(void)
 
 		/* Pretend item isn't there */
 		if (l_ptr->treat_as == TREAT_AS_GONE) continue;
+		if (l_ptr->treat_as == TREAT_AS_SWAP) continue;
 		if ((l_ptr->treat_as == TREAT_AS_LESS) && (l_ptr->number == 1))
 		{
 			continue;
@@ -2007,19 +2261,11 @@ static void borg_notice_inven(void)
 		/* Hack - only 'LESS' items are treated as going into inven */
 		if (l_ptr->treat_as == TREAT_AS_LESS)
 		{
-			int num = l_ptr->number;
-
-			/* Hack - assume we get one item */
-			l_ptr->number = 1;
-
 			/* Hack - fix the treat_as value */
-			l_ptr->treat_as = TREAT_AS_NORM;
+			l_ptr->treat_as = TREAT_AS_SHOP;
 
 			/* Examine the item */
 			borg_notice_inven_item(l_ptr);
-
-			/* Restore number */
-			l_ptr->number = num;
 
 			/* Restore treat_as value */
 			l_ptr->treat_as = TREAT_AS_LESS;
@@ -2052,19 +2298,11 @@ static void borg_notice_inven(void)
 				/* Hack - only 'LESS' items are treated as going into inven */
 				if (l_ptr->treat_as == TREAT_AS_LESS)
 				{
-					int num = l_ptr->number;
-
-					/* Hack - assume we get one item */
-					l_ptr->number = 1;
-
 					/* Hack - fix the treat_as value */
-					l_ptr->treat_as = TREAT_AS_NORM;
+					l_ptr->treat_as = TREAT_AS_SHOP;
 
 					/* Examine the item */
 					borg_notice_inven_item(l_ptr);
-
-					/* Restore number */
-					l_ptr->number = num;
 
 					/* Restore treat_as value */
 					l_ptr->treat_as = TREAT_AS_LESS;
@@ -2090,14 +2328,17 @@ static void borg_notice_aux2(void)
 
 
 	/* Reset basic */
-	amt_phase = 0;
-	amt_food_lowcal = 0;
+	amt_food_scroll = 0;
 	amt_food_hical = 0;
+	amt_food_lowcal = 0;
 
 	/* Reset healing */
 	amt_slow_poison = 0;
 	amt_cure_confusion = 0;
 	amt_cure_blind = 0;
+	amt_star_heal = 0;
+	amt_life = 0;
+	amt_rod_heal = 0;
 
 	/* Reset books */
 	for (i = 0; i < MAX_REALM; i++)
@@ -2124,7 +2365,6 @@ static void borg_notice_aux2(void)
 	amt_fix_stat[6] = 0;
 
 	amt_fix_exp = 0;
-	amt_cool_staff = 0;
 	amt_digger = 0;
 
 	/* Reset enchantment */
@@ -2133,8 +2373,6 @@ static void borg_notice_aux2(void)
 	amt_enchant_to_h = 0;
 
 	amt_brand_weapon = 0;
-	amt_enchant_weapon = 0;
-	amt_enchant_armor = 0;
 
 	/*** Process the inventory ***/
 	borg_notice_inven();
@@ -2160,8 +2398,7 @@ static void borg_notice_aux2(void)
 	 */
 
 	/* Handle "satisfy hunger" -> infinite food */
-	if (borg_spell_legal_fail(REALM_SORCERY, 2, 0, 10) ||
-		borg_spell_legal_fail(REALM_LIFE, 0, 7, 10) ||
+	if (borg_spell_legal_fail(REALM_LIFE, 0, 7, 10) ||
 		borg_spell_legal_fail(REALM_ARCANE, 2, 7, 10) ||
 		borg_spell_legal_fail(REALM_NATURE, 0, 3, 10) ||
 		borg_racial_check(RACE_HOBBIT, TRUE))
@@ -2172,9 +2409,33 @@ static void borg_notice_aux2(void)
 	/* Handle "identify" -> infinite identifies */
 	if (borg_spell_legal(REALM_SORCERY, 1, 1) ||
 		borg_spell_legal(REALM_ARCANE, 3, 2) ||
-		borg_mindcr_legal(MIND_PSYCHOMETRY, 40))
+		borg_mindcr_legal(MIND_PSYCHOMETRY, 25))
 	{
 		bp_ptr->able.id += 1000;
+	}
+
+	/* Handle "*identify*" -> infinite *identifies* */
+	if (borg_spell_legal(REALM_SORCERY, 1, 7) ||
+		borg_spell_legal(REALM_NATURE, 2, 5) ||
+		borg_spell_legal(REALM_DEATH, 3, 2) ||
+		borg_spell_legal(REALM_TRUMP, 3, 1) ||
+		borg_spell_legal(REALM_LIFE, 3, 5))
+	{
+		bp_ptr->able.id += 1000;
+		bp_ptr->able.star_id += 1000;
+	}
+
+	/* Handle "remove_curse" -> infinite remove curses */
+	if (borg_spell_legal(REALM_LIFE, 1, 0))
+	{
+		bp_ptr->able.remove_curse += 1000;
+	}
+
+	/* Handle "*remove_curse*" -> infinite *remove curses* */
+	if (borg_spell_legal(REALM_LIFE, 2, 1))
+	{
+		bp_ptr->able.remove_curse += 1000;
+		bp_ptr->able.star_remove_curse += 1000;
 	}
 
 	/* Handle "detect traps, doors, stairs" */
@@ -2218,6 +2479,17 @@ static void borg_notice_aux2(void)
 		bp_ptr->able.magic_map += 1000;
 	}
 
+	/* Handle "light" */
+	if (borg_spell_legal(REALM_LIFE, 0, 4) ||
+		borg_spell_legal(REALM_SORCERY, 0, 3) ||
+		borg_spell_legal(REALM_NATURE, 0, 4) ||
+		borg_spell_legal(REALM_CHAOS, 0, 2) ||
+		borg_spell_legal(REALM_ARCANE, 0, 5) ||
+		borg_mutation_check(MUT1_ILLUMINE, TRUE))
+	{
+		bp_ptr->able.lite += 1000;
+	}
+
 	/* Handle "protection from evil" */
 	if (borg_spell_legal(REALM_LIFE, 1, 5))
 	{
@@ -2236,20 +2508,18 @@ static void borg_notice_aux2(void)
 	{
 		amt_enchant_to_h += 1000;
 		amt_enchant_to_d += 1000;
-		amt_enchant_weapon += 1000;
 	}
 
 	/* Handle "enchant armor" */
 	if (borg_spell_legal_fail(REALM_SORCERY, 3, 5, 40))
 	{
 		amt_enchant_to_a += 1000;
-		amt_enchant_armor += 1000;
 	}
 
 	/* Handle Diggers */
-	if (borg_spell_legal_fail(REALM_SORCERY, 1, 8, 40) ||
-		borg_spell_legal_fail(REALM_NATURE, 1, 0, 40) ||
+	if (borg_spell_legal_fail(REALM_NATURE, 1, 0, 40) ||
 		borg_spell_legal_fail(REALM_CHAOS, 0, 6, 40) ||
+		borg_mutation_check(MUT1_EAT_ROCK, TRUE) ||
 		borg_racial_check(RACE_HALF_GIANT, TRUE))
 	{
 		amt_digger += 1;
@@ -2259,10 +2529,7 @@ static void borg_notice_aux2(void)
 	if (borg_spell_legal_fail(REALM_ARCANE, 3, 6, 40) ||
 		borg_spell_legal_fail(REALM_SORCERY, 2, 7, 40) ||
 		borg_spell_legal_fail(REALM_TRUMP, 1, 6, 40) ||
-		((bp_ptr->depth == 100) &&
-		 (borg_spell_legal(REALM_LIFE, 3, 6) ||
-		  borg_spell_legal(REALM_SORCERY, 2, 7) ||
-		  borg_spell_legal(REALM_TRUMP, 1, 6))))
+		borg_mutation_check(MUT1_RECALL, TRUE))
 	{
 		bp_ptr->recall += 1000;
 	}
@@ -2275,13 +2542,23 @@ static void borg_notice_aux2(void)
 		bp_ptr->able.teleport_level += 1000;
 	}
 
+	/* Handle phase door */
+	if (borg_spell_legal_fail(REALM_SORCERY, 0, 1, 40) ||
+		borg_spell_legal_fail(REALM_ARCANE, 0, 4, 40) ||
+		borg_spell_legal_fail(REALM_TRUMP, 0, 0, 40) ||
+		borg_mutation_check(MUT1_BLINK, TRUE))
+	{
+		bp_ptr->able.phase += 1000;
+	}
+
 	/* Handle teleport spell carefully */
-	if ((borg_spell_okay_fail(REALM_ARCANE, 2, 3, 5) ||
+	if (((borg_spell_okay_fail(REALM_ARCANE, 2, 3, 5) ||
 		 borg_spell_okay_fail(REALM_LIFE, 4, 1, 5) ||
 		 borg_spell_okay_fail(REALM_TRUMP, 0, 4, 5) ||
 		 borg_spell_okay_fail(REALM_CHAOS, 0, 7, 5) ||
 		 borg_mindcr_okay_fail(MIND_MAJOR_DISP, 7, 5)) &&
-		(bp_ptr->flags2 & TR2_RES_BLIND) && (bp_ptr->flags2 & TR2_RES_CONF))
+		 FLAG(bp_ptr, TR_RES_BLIND) && FLAG(bp_ptr, TR_RES_CONF)) ||
+		borg_mutation_check(MUT1_VTELEPORT, TRUE))
 	{
 		bp_ptr->able.teleport += 1000;
 	}
@@ -2294,11 +2571,24 @@ static void borg_notice_aux2(void)
 		bp_ptr->able.speed += 1000;
 	}
 
+	/* berserk spells */
+	if (borg_spell_legal(REALM_DEATH, 2, 0) ||
+		borg_mindcr_legal(MIND_ADRENALINE, 35))
+	{
+		bp_ptr->able.berserk += 1000;
+	}
+
 	/* Handle "heal" */
 	if (borg_spell_legal(REALM_LIFE, 1, 6) ||
 		borg_spell_legal(REALM_NATURE, 1, 7))
 	{
 		bp_ptr->able.heal += 1000;
+	}
+
+	/* Handle big healing spell */
+	if (borg_spell_legal_fail(REALM_LIFE, 3, 4, 5))
+	{
+		bp_ptr->able.easy_heal += 1000;
 	}
 
 	/* Handle "fix exp" */
@@ -2357,7 +2647,11 @@ static void borg_notice_aux2(void)
 	 * Correct the high and low calorie foods for the correct
 	 * races.
 	 */
-	if ((borg_race <= RACE_IMP) || (borg_race >= RACE_SPRITE))
+
+	/* Add star_healing and life potions into easy_heal */
+	bp_ptr->able.easy_heal = amt_star_heal + amt_life;
+
+	if (!FLAG(bp_ptr, TR_CANT_EAT))
 	{
 		bp_ptr->food += amt_food_hical * 5;
 		if (bp_ptr->food <= 30)
@@ -2418,7 +2712,7 @@ void borg_update_frame(void)
 	bp_ptr->max_lev = p_ptr->max_lev;
 
 	/* Note "Winner" */
-	bp_ptr->winner = p_ptr->state.total_winner;
+	bp_ptr->winner = (char) p_ptr->state.total_winner;
 
 	/* Assume experience is fine */
 	bp_ptr->status.fixexp = FALSE;
@@ -2530,8 +2824,20 @@ void borg_update_frame(void)
 	/* Hack -- Access depth */
 	bp_ptr->depth = p_ptr->depth;
 
-	/* Hack -- Access max depth */
-	bp_ptr->max_depth = p_ptr->max_depth;
+	/* If this is the first borg run then avoid reinitialization */
+	if (old_depth == 128) old_depth = bp_ptr->depth;
+
+	/* Guess max depth */
+	if (bp_ptr->depth)
+	{
+		/* If the borg is in the dungeon then that is the depth */
+		bp_ptr->max_depth = bp_ptr->depth;
+	}
+	else
+	{
+		/* Otherwise make up something so the borg uses recall scrolls */
+		bp_ptr->max_depth = bp_ptr->lev / 2;
+	}
 
 	/* Hack -- Realms */
 	bp_ptr->realm1 = p_ptr->spell.r[0].realm;
@@ -2574,9 +2880,6 @@ void borg_update_frame(void)
  */
 void borg_notice(void)
 {
-	/* Clear out 'has' array */
-	(void) C_WIPE(borg_has, z_info->k_max, int);
-	
 	/* Clear out the player information */
 	(void) WIPE(bp_ptr, borg_player);
 
@@ -2689,8 +2992,6 @@ static void borg_notice_home_clear(void)
 	num_mana = 0;
 	num_heal = 0;
 	num_ez_heal = 0;
-	num_ez_heal_true = 0;
-	num_heal_true = 0;
 
 
 	/* Reset missiles */
@@ -2731,95 +3032,95 @@ static void borg_notice_home_clear(void)
  */
 static void borg_notice_home_flags(list_item *l_ptr)
 {
-	if (l_ptr->kn_flags3 & TR3_SLOW_DIGEST) num_slow_digest += l_ptr->number;
-	if (l_ptr->kn_flags3 & TR3_REGEN) num_regenerate += l_ptr->number;
-	if (l_ptr->kn_flags3 & TR3_TELEPATHY) num_telepathy += l_ptr->number;
-	if (l_ptr->kn_flags3 & TR3_SEE_INVIS) num_see_inv += l_ptr->number;
-	if (l_ptr->kn_flags3 & TR3_FEATHER) num_ffall += l_ptr->number;
-	if (l_ptr->kn_flags2 & TR2_FREE_ACT) num_free_act += l_ptr->number;
-	if (l_ptr->kn_flags2 & TR2_HOLD_LIFE) num_hold_life += l_ptr->number;
-	if (l_ptr->kn_flags2 & TR2_IM_FIRE)
+	if (KN_FLAG(l_ptr, TR_SLOW_DIGEST)) num_slow_digest += l_ptr->number;
+	if (KN_FLAG(l_ptr, TR_REGEN)) num_regenerate += l_ptr->number;
+	if (KN_FLAG(l_ptr, TR_TELEPATHY)) num_telepathy += l_ptr->number;
+	if (KN_FLAG(l_ptr, TR_SEE_INVIS)) num_see_inv += l_ptr->number;
+	if (KN_FLAG(l_ptr, TR_FEATHER)) num_ffall += l_ptr->number;
+	if (KN_FLAG(l_ptr, TR_FREE_ACT)) num_free_act += l_ptr->number;
+	if (KN_FLAG(l_ptr, TR_HOLD_LIFE)) num_hold_life += l_ptr->number;
+	if (KN_FLAG(l_ptr, TR_IM_FIRE))
 	{
 		num_immune_fire += l_ptr->number;
 		num_resist_fire += l_ptr->number;
 	}
-	if (l_ptr->kn_flags2 & TR2_IM_ACID)
+	if (KN_FLAG(l_ptr, TR_IM_ACID))
 	{
 		num_immune_acid += l_ptr->number;
 		num_resist_acid += l_ptr->number;
 	}
-	if (l_ptr->kn_flags2 & TR2_IM_COLD)
+	if (KN_FLAG(l_ptr, TR_IM_COLD))
 	{
 		num_immune_cold += l_ptr->number;
 		num_resist_cold += l_ptr->number;
 	}
-	if (l_ptr->kn_flags2 & TR2_IM_ELEC)
+	if (KN_FLAG(l_ptr, TR_IM_ELEC))
 	{
 		num_immune_elec += l_ptr->number;
 		num_resist_elec += l_ptr->number;
 	}
-	if (l_ptr->kn_flags2 & TR2_RES_ACID) num_resist_acid += l_ptr->number;
-	if (l_ptr->kn_flags2 & TR2_RES_ELEC) num_resist_elec += l_ptr->number;
-	if (l_ptr->kn_flags2 & TR2_RES_FIRE) num_resist_fire += l_ptr->number;
-	if (l_ptr->kn_flags2 & TR2_RES_COLD) num_resist_cold += l_ptr->number;
-	if (l_ptr->kn_flags2 & TR2_RES_POIS) num_resist_pois += l_ptr->number;
-	if (l_ptr->kn_flags2 & TR2_RES_SOUND) num_resist_sound += l_ptr->number;
-	if (l_ptr->kn_flags2 & TR2_RES_LITE) num_resist_lite += l_ptr->number;
-	if (l_ptr->kn_flags2 & TR2_RES_DARK) num_resist_dark += l_ptr->number;
-	if (l_ptr->kn_flags2 & TR2_RES_CHAOS) num_resist_chaos += l_ptr->number;
-	if (l_ptr->kn_flags2 & TR2_RES_CONF) num_resist_conf += l_ptr->number;
-	if (l_ptr->kn_flags2 & TR2_RES_DISEN) num_resist_disen += l_ptr->number;
-	if (l_ptr->kn_flags2 & TR2_RES_SHARDS) num_resist_shard += l_ptr->number;
-	if (l_ptr->kn_flags2 & TR2_RES_NEXUS) num_resist_nexus += l_ptr->number;
-	if (l_ptr->kn_flags2 & TR2_RES_BLIND) num_resist_blind += l_ptr->number;
-	if (l_ptr->kn_flags2 & TR2_RES_NETHER) num_resist_neth += l_ptr->number;
+	if (KN_FLAG(l_ptr, TR_RES_ACID)) num_resist_acid += l_ptr->number;
+	if (KN_FLAG(l_ptr, TR_RES_ELEC)) num_resist_elec += l_ptr->number;
+	if (KN_FLAG(l_ptr, TR_RES_FIRE)) num_resist_fire += l_ptr->number;
+	if (KN_FLAG(l_ptr, TR_RES_COLD)) num_resist_cold += l_ptr->number;
+	if (KN_FLAG(l_ptr, TR_RES_POIS)) num_resist_pois += l_ptr->number;
+	if (KN_FLAG(l_ptr, TR_RES_SOUND)) num_resist_sound += l_ptr->number;
+	if (KN_FLAG(l_ptr, TR_RES_LITE)) num_resist_lite += l_ptr->number;
+	if (KN_FLAG(l_ptr, TR_RES_DARK)) num_resist_dark += l_ptr->number;
+	if (KN_FLAG(l_ptr, TR_RES_CHAOS)) num_resist_chaos += l_ptr->number;
+	if (KN_FLAG(l_ptr, TR_RES_CONF)) num_resist_conf += l_ptr->number;
+	if (KN_FLAG(l_ptr, TR_RES_DISEN)) num_resist_disen += l_ptr->number;
+	if (KN_FLAG(l_ptr, TR_RES_SHARDS)) num_resist_shard += l_ptr->number;
+	if (KN_FLAG(l_ptr, TR_RES_NEXUS)) num_resist_nexus += l_ptr->number;
+	if (KN_FLAG(l_ptr, TR_RES_BLIND)) num_resist_blind += l_ptr->number;
+	if (KN_FLAG(l_ptr, TR_RES_NETHER)) num_resist_neth += l_ptr->number;
 
 	/* Count Sustains */
-	if (l_ptr->kn_flags2 & TR2_SUST_STR) num_sustain_str += l_ptr->number;
-	if (l_ptr->kn_flags2 & TR2_SUST_INT) num_sustain_str += l_ptr->number;
-	if (l_ptr->kn_flags2 & TR2_SUST_WIS) num_sustain_str += l_ptr->number;
-	if (l_ptr->kn_flags2 & TR2_SUST_DEX) num_sustain_str += l_ptr->number;
-	if (l_ptr->kn_flags2 & TR2_SUST_CON) num_sustain_str += l_ptr->number;
-	if (l_ptr->kn_flags2 & TR2_SUST_STR &&
-		l_ptr->kn_flags2 & TR2_SUST_INT &&
-		l_ptr->kn_flags2 & TR2_SUST_WIS &&
-		l_ptr->kn_flags2 & TR2_SUST_DEX &&
-		l_ptr->kn_flags2 & TR2_SUST_CON) num_sustain_all += l_ptr->number;
+	if (KN_FLAG(l_ptr, TR_SUST_STR)) num_sustain_str += l_ptr->number;
+	if (KN_FLAG(l_ptr, TR_SUST_INT)) num_sustain_int += l_ptr->number;
+	if (KN_FLAG(l_ptr, TR_SUST_WIS)) num_sustain_wis += l_ptr->number;
+	if (KN_FLAG(l_ptr, TR_SUST_DEX)) num_sustain_dex += l_ptr->number;
+	if (KN_FLAG(l_ptr, TR_SUST_CON)) num_sustain_con += l_ptr->number;
+	if (KN_FLAG(l_ptr, TR_SUST_STR) &&
+		KN_FLAG(l_ptr, TR_SUST_INT) &&
+		KN_FLAG(l_ptr, TR_SUST_WIS) &&
+		KN_FLAG(l_ptr, TR_SUST_DEX) &&
+		KN_FLAG(l_ptr, TR_SUST_CON)) num_sustain_all += l_ptr->number;
 
 	/* count up bonus to stats */
-	if (l_ptr->kn_flags1 & TR1_STR)
+	if (KN_FLAG(l_ptr, TR_STR))
 	{
 		if (l_ptr->tval != TV_RING)
 			home_stat_add[A_STR] += l_ptr->pval * l_ptr->number;
 	}
-	if (l_ptr->kn_flags1 & TR1_INT)
+	if (KN_FLAG(l_ptr, TR_INT))
 	{
 		if (l_ptr->tval != TV_RING)
 			home_stat_add[A_INT] += l_ptr->pval * l_ptr->number;
 	}
-	if (l_ptr->kn_flags1 & TR1_WIS)
+	if (KN_FLAG(l_ptr, TR_WIS))
 	{
 		if (l_ptr->tval != TV_RING)
 			home_stat_add[A_WIS] += l_ptr->pval * l_ptr->number;
 	}
-	if (l_ptr->kn_flags1 & TR1_DEX)
+	if (KN_FLAG(l_ptr, TR_DEX))
 	{
 		if (l_ptr->tval != TV_RING)
 			home_stat_add[A_DEX] += l_ptr->pval * l_ptr->number;
 	}
-	if (l_ptr->kn_flags1 & TR1_CON)
+	if (KN_FLAG(l_ptr, TR_CON))
 	{
 		if (l_ptr->tval != TV_RING)
 			home_stat_add[A_CON] += l_ptr->pval * l_ptr->number;
 	}
-	if (l_ptr->kn_flags1 & TR1_CHR)
+	if (KN_FLAG(l_ptr, TR_CHR))
 	{
 		if (l_ptr->tval != TV_RING)
 			home_stat_add[A_CHR] += l_ptr->pval * l_ptr->number;
 	}
 
 	/* count up bonus to speed */
-	if (l_ptr->kn_flags1 & TR1_SPEED) num_speed += l_ptr->pval * l_ptr->number;
+	if (KN_FLAG(l_ptr, TR_SPEED)) num_speed += l_ptr->pval * l_ptr->number;
 }
 
 
@@ -2833,6 +3134,9 @@ static void borg_notice_home_dupe(list_item *l_ptr, bool check_sval, int i)
 
 	dupe_count = l_ptr->number - 1;
 
+	/* Avoid trouble */
+	if (dupe_count <= 0) return;
+
 	/* Look for other items before this one that are the same */
 	for (x = 0; x < i; x++)
 	{
@@ -2841,6 +3145,8 @@ static void borg_notice_home_dupe(list_item *l_ptr, bool check_sval, int i)
 		else
 			/* Check what the borg has on as well. */
 			w_ptr = look_up_equip_slot(x - home_num);
+
+		if (!w_ptr) continue;
 
 		/* Don't count items we are swapping */
 		if (w_ptr->treat_as == TREAT_AS_SWAP) continue;
@@ -2879,7 +3185,7 @@ static void borg_notice_home_dupe(list_item *l_ptr, bool check_sval, int i)
 	}
 
 	/* There can be one dupe of rings because there are two ring slots. */
-	if (l_ptr->tval == TV_RING && dupe_count) dupe_count--;
+	if (l_ptr->tval == TV_RING) dupe_count--;
 
 	/* Add this items count to the total duplicate count */
 	num_duplicate_items += dupe_count;
@@ -2902,7 +3208,7 @@ static void borg_notice_home_weapon(list_item *l_ptr)
 	{
 		/* Penalize non-blessed edged weapons */
 		if (((l_ptr->tval == TV_SWORD) || (l_ptr->tval == TV_POLEARM))
-			&& (!(l_ptr->kn_flags3 & TR3_BLESSED)))
+			&& !KN_FLAG(l_ptr, TR_BLESSED))
 		{
 			num_edged_weapon += l_ptr->number;
 		}
@@ -3032,7 +3338,7 @@ static void borg_notice_home_weapon(list_item *l_ptr)
 	/* Require at least one blow */
 	if (num_blow < 1) num_blow = 1;
 
-	if (l_ptr->kn_flags1 & TR1_BLOWS) num_blow += l_ptr->pval;
+	if (KN_FLAG(l_ptr, TR_BLOWS)) num_blow += l_ptr->pval;
 
 	num_blow *= l_ptr->number;
 
@@ -3131,21 +3437,18 @@ static void borg_notice_home_potion(list_item *l_ptr)
 		case SV_POTION_HEALING:
 		{
 			num_heal += l_ptr->number;
-			num_heal_true += l_ptr->number;
 			break;
 		}
 
 		case SV_POTION_STAR_HEALING:
 		{
 			num_ez_heal += l_ptr->number;
-			num_ez_heal_true += l_ptr->number;
 			break;
 		}
 
 		case SV_POTION_LIFE:
 		{
 			num_ez_heal += l_ptr->number;
-			num_ez_heal_true += l_ptr->number;
 			break;
 		}
 
@@ -3192,6 +3495,12 @@ static void borg_notice_home_scroll(list_item *l_ptr)
 		case SV_SCROLL_STAR_IDENTIFY:
 		{
 			num_star_ident += l_ptr->number;
+			break;
+		}
+
+		case SV_SCROLL_STAR_REMOVE_CURSE:
+		{
+			num_star_remove_curse += l_ptr->number;
 			break;
 		}
 
@@ -3273,9 +3582,25 @@ static void borg_notice_home_spells(void)
 
 	/* Handle "identify" -> infinite identifies */
 	if (borg_spell_legal(REALM_SORCERY, 1, 1) ||
-		borg_spell_legal(REALM_ARCANE, 3, 2))
+		borg_spell_legal(REALM_ARCANE, 3, 2) ||
+		borg_mindcr_legal(MIND_PSYCHOMETRY, 25))
 	{
 		num_ident += 1000;
+	}
+	/* Handle "*identify*" -> infinite *identifies* */
+	if (borg_spell_legal(REALM_NATURE, 2, 5) ||
+		borg_spell_legal(REALM_SORCERY, 1, 7) ||
+		borg_spell_legal(REALM_DEATH, 3, 2) ||
+		borg_spell_legal(REALM_TRUMP, 3, 1) ||
+		borg_spell_legal(REALM_LIFE, 3, 5))
+	{
+		num_ident += 1000;
+		num_star_ident += 1000;
+	}
+	/* Handle "*remove curse*" -> infinite *remove curses* */
+	if (borg_spell_legal(REALM_LIFE, 2, 1))
+	{
+		num_star_remove_curse += 1000;
 	}
 	/* Handle "enchant weapon" */
 	if (borg_spell_legal_fail(REALM_SORCERY, 3, 4, 40))
@@ -3303,10 +3628,7 @@ static void borg_notice_home_spells(void)
 	if (borg_spell_legal_fail(REALM_ARCANE, 3, 6, 40) ||
 		borg_spell_legal_fail(REALM_SORCERY, 2, 7, 40) ||
 		borg_spell_legal_fail(REALM_TRUMP, 1, 6, 40) ||
-		((bp_ptr->depth == 100) &&
-		 (borg_spell_legal(REALM_LIFE, 3, 6) ||
-		  borg_spell_legal(REALM_SORCERY, 2, 7) ||
-		  borg_spell_legal(REALM_TRUMP, 1, 6))))
+		borg_mutation_check(MUT1_RECALL, TRUE))
 	{
 		num_recall += 1000;
 	}
@@ -3325,7 +3647,8 @@ static void borg_notice_home_spells(void)
  */
 static void borg_notice_home_player(void)
 {
-	u32b f1, f2, f3, f4;
+	object_flags oflags;
+	object_flags *of_ptr = &oflags;
 
 	int i;
 
@@ -3336,51 +3659,51 @@ static void borg_notice_home_player(void)
 	}
 
 	/* Extract the player flags */
-	player_flags(&f1, &f2, &f3, &f4);
+	player_flags(of_ptr);
 
 	/* Good flags */
-	if (f3 & (TR3_SLOW_DIGEST)) num_slow_digest = TRUE;
-	if (f3 & (TR3_FEATHER)) num_ffall = TRUE;
-	if (f3 & (TR3_LITE)) num_lite = TRUE;
-	if (f3 & (TR3_REGEN)) num_regenerate = TRUE;
-	if (f3 & (TR3_TELEPATHY)) num_telepathy = TRUE;
-	if (f3 & (TR3_SEE_INVIS)) num_see_inv = TRUE;
-	if (f2 & (TR2_FREE_ACT)) num_free_act = TRUE;
-	if (f2 & (TR2_HOLD_LIFE)) num_hold_life = TRUE;
+	if (FLAG(of_ptr, TR_SLOW_DIGEST)) num_slow_digest = TRUE;
+	if (FLAG(of_ptr, TR_FEATHER)) num_ffall = TRUE;
+	if (FLAG(of_ptr, TR_LITE)) num_lite = TRUE;
+	if (FLAG(of_ptr, TR_REGEN)) num_regenerate = TRUE;
+	if (FLAG(of_ptr, TR_TELEPATHY)) num_telepathy = TRUE;
+	if (FLAG(of_ptr, TR_SEE_INVIS)) num_see_inv = TRUE;
+	if (FLAG(of_ptr, TR_FREE_ACT)) num_free_act = TRUE;
+	if (FLAG(of_ptr, TR_HOLD_LIFE)) num_hold_life = TRUE;
 
 	/* Weird flags */
 
 	/* Bad flags */
 
 	/* Immunity flags */
-	if (f2 & (TR2_IM_FIRE)) num_immune_fire = TRUE;
-	if (f2 & (TR2_IM_ACID)) num_immune_acid = TRUE;
-	if (f2 & (TR2_IM_COLD)) num_immune_cold = TRUE;
-	if (f2 & (TR2_IM_ELEC)) num_immune_elec = TRUE;
+	if (FLAG(of_ptr, TR_IM_FIRE)) num_immune_fire = TRUE;
+	if (FLAG(of_ptr, TR_IM_ACID)) num_immune_acid = TRUE;
+	if (FLAG(of_ptr, TR_IM_COLD)) num_immune_cold = TRUE;
+	if (FLAG(of_ptr, TR_IM_ELEC)) num_immune_elec = TRUE;
 
 	/* Resistance flags */
-	if (f2 & (TR2_RES_ACID)) num_resist_acid = TRUE;
-	if (f2 & (TR2_RES_ELEC)) num_resist_elec = TRUE;
-	if (f2 & (TR2_RES_FIRE)) num_resist_fire = TRUE;
-	if (f2 & (TR2_RES_COLD)) num_resist_cold = TRUE;
-	if (f2 & (TR2_RES_POIS)) num_resist_pois = TRUE;
-	if (f2 & (TR2_RES_LITE)) num_resist_lite = TRUE;
-	if (f2 & (TR2_RES_DARK)) num_resist_dark = TRUE;
-	if (f2 & (TR2_RES_BLIND)) num_resist_blind = TRUE;
-	if (f2 & (TR2_RES_CONF)) num_resist_conf = TRUE;
-	if (f2 & (TR2_RES_SOUND)) num_resist_sound = TRUE;
-	if (f2 & (TR2_RES_SHARDS)) num_resist_shard = TRUE;
-	if (f2 & (TR2_RES_NEXUS)) num_resist_nexus = TRUE;
-	if (f2 & (TR2_RES_NETHER)) num_resist_neth = TRUE;
-	if (f2 & (TR2_RES_CHAOS)) num_resist_chaos = TRUE;
-	if (f2 & (TR2_RES_DISEN)) num_resist_disen = TRUE;
+	if (FLAG(of_ptr, TR_RES_ACID)) num_resist_acid = TRUE;
+	if (FLAG(of_ptr, TR_RES_ELEC)) num_resist_elec = TRUE;
+	if (FLAG(of_ptr, TR_RES_FIRE)) num_resist_fire = TRUE;
+	if (FLAG(of_ptr, TR_RES_COLD)) num_resist_cold = TRUE;
+	if (FLAG(of_ptr, TR_RES_POIS)) num_resist_pois = TRUE;
+	if (FLAG(of_ptr, TR_RES_LITE)) num_resist_lite = TRUE;
+	if (FLAG(of_ptr, TR_RES_DARK)) num_resist_dark = TRUE;
+	if (FLAG(of_ptr, TR_RES_BLIND)) num_resist_blind = TRUE;
+	if (FLAG(of_ptr, TR_RES_CONF)) num_resist_conf = TRUE;
+	if (FLAG(of_ptr, TR_RES_SOUND)) num_resist_sound = TRUE;
+	if (FLAG(of_ptr, TR_RES_SHARDS)) num_resist_shard = TRUE;
+	if (FLAG(of_ptr, TR_RES_NEXUS)) num_resist_nexus = TRUE;
+	if (FLAG(of_ptr, TR_RES_NETHER)) num_resist_neth = TRUE;
+	if (FLAG(of_ptr, TR_RES_CHAOS)) num_resist_chaos = TRUE;
+	if (FLAG(of_ptr, TR_RES_DISEN)) num_resist_disen = TRUE;
 
 	/* Sustain flags */
-	if (f2 & (TR2_SUST_STR)) num_sustain_str = TRUE;
-	if (f2 & (TR2_SUST_INT)) num_sustain_int = TRUE;
-	if (f2 & (TR2_SUST_WIS)) num_sustain_wis = TRUE;
-	if (f2 & (TR2_SUST_DEX)) num_sustain_dex = TRUE;
-	if (f2 & (TR2_SUST_CON)) num_sustain_con = TRUE;
+	if (FLAG(of_ptr, TR_SUST_STR)) num_sustain_str = TRUE;
+	if (FLAG(of_ptr, TR_SUST_INT)) num_sustain_int = TRUE;
+	if (FLAG(of_ptr, TR_SUST_WIS)) num_sustain_wis = TRUE;
+	if (FLAG(of_ptr, TR_SUST_DEX)) num_sustain_dex = TRUE;
+	if (FLAG(of_ptr, TR_SUST_CON)) num_sustain_con = TRUE;
 }
 
 
@@ -3450,8 +3773,8 @@ static void borg_notice_home_item(list_item *l_ptr, int i)
 			{
 				/* Penalize non-usable gloves */
 				if (l_ptr->number &&
-					(!(l_ptr->kn_flags2 & TR2_FREE_ACT)) &&
-					(!((l_ptr->kn_flags1 & TR1_DEX) && (l_ptr->pval > 0))))
+					!KN_FLAG(l_ptr, TR_FREE_ACT) &&
+					!(KN_FLAG(l_ptr, TR_DEX) && (l_ptr->pval > 0)))
 				{
 					num_bad_gloves += l_ptr->number;
 				}
@@ -3468,7 +3791,7 @@ static void borg_notice_home_item(list_item *l_ptr, int i)
 
 		case TV_LITE:
 		{
-			if (l_ptr->kn_flags3 & TR3_INSTA_ART)
+			if (KN_FLAG(l_ptr, TR_INSTA_ART))
 			{
 				num_lite += l_ptr->number;
 			}
@@ -3528,7 +3851,7 @@ static void borg_notice_home_item(list_item *l_ptr, int i)
 		case TV_LIFE_BOOK:
 		{
 			/* Count good books */
-			if (bp_ptr->realm1 == REALM_LIFE || bp_ptr->realm2 == REALM_LIFE)
+			if (borg_has_realm(REALM_LIFE))
 				num_book[REALM_LIFE][k_info[l_ptr->k_idx].sval] +=
 					l_ptr->number;
 			break;
@@ -3537,8 +3860,7 @@ static void borg_notice_home_item(list_item *l_ptr, int i)
 		case TV_SORCERY_BOOK:
 		{
 			/* Count good books */
-			if (bp_ptr->realm1 == REALM_SORCERY ||
-				bp_ptr->realm2 == REALM_SORCERY)
+			if (borg_has_realm(REALM_SORCERY))
 				num_book[REALM_SORCERY][k_info[l_ptr->k_idx].sval] +=
 					l_ptr->number;
 			break;
@@ -3547,8 +3869,7 @@ static void borg_notice_home_item(list_item *l_ptr, int i)
 		case TV_NATURE_BOOK:
 		{
 			/* Count good books */
-			if (bp_ptr->realm1 == REALM_NATURE ||
-				bp_ptr->realm2 == REALM_NATURE)
+			if (borg_has_realm(REALM_NATURE))
 				num_book[REALM_NATURE][k_info[l_ptr->k_idx].sval] +=
 					l_ptr->number;
 			break;
@@ -3556,7 +3877,7 @@ static void borg_notice_home_item(list_item *l_ptr, int i)
 		case TV_CHAOS_BOOK:
 		{
 			/* Count good books */
-			if (bp_ptr->realm1 == REALM_CHAOS || bp_ptr->realm2 == REALM_CHAOS)
+			if (borg_has_realm(REALM_CHAOS))
 				num_book[REALM_CHAOS][k_info[l_ptr->k_idx].sval] +=
 					l_ptr->number;
 			break;
@@ -3564,7 +3885,7 @@ static void borg_notice_home_item(list_item *l_ptr, int i)
 		case TV_DEATH_BOOK:
 		{
 			/* Count good books */
-			if (bp_ptr->realm1 == REALM_DEATH || bp_ptr->realm2 == REALM_DEATH)
+			if (borg_has_realm(REALM_DEATH))
 				num_book[REALM_DEATH][k_info[l_ptr->k_idx].sval] +=
 					l_ptr->number;
 			break;
@@ -3572,7 +3893,7 @@ static void borg_notice_home_item(list_item *l_ptr, int i)
 		case TV_TRUMP_BOOK:
 		{
 			/* Count good books */
-			if (bp_ptr->realm1 == REALM_TRUMP || bp_ptr->realm2 == REALM_TRUMP)
+			if (borg_has_realm(REALM_TRUMP))
 				num_book[REALM_TRUMP][k_info[l_ptr->k_idx].sval] +=
 					l_ptr->number;
 			break;
@@ -3580,8 +3901,7 @@ static void borg_notice_home_item(list_item *l_ptr, int i)
 		case TV_ARCANE_BOOK:
 		{
 			/* Count good books */
-			if (bp_ptr->realm1 == REALM_ARCANE ||
-				bp_ptr->realm2 == REALM_ARCANE)
+			if (borg_has_realm(REALM_ARCANE))
 				num_book[REALM_ARCANE][k_info[l_ptr->k_idx].sval] +=
 					l_ptr->number;
 			break;
@@ -3597,7 +3917,7 @@ static void borg_notice_home_item(list_item *l_ptr, int i)
 				case SV_FOOD_WAYBREAD:
 				case SV_FOOD_RATION:
 				{
-					if (borg_race >= RACE_SPRITE && borg_race <= RACE_IMP)
+					if (!FLAG(bp_ptr, TR_CANT_EAT))
 					{
 						num_food += l_ptr->number;
 					}
@@ -3666,7 +3986,7 @@ static void borg_notice_home_item(list_item *l_ptr, int i)
 
 				case SV_ROD_RECALL:
 				{
-					num_recall += l_ptr->number * 100;
+					num_recall += l_ptr->number * 50;
 					break;
 				}
 			}
@@ -3742,13 +4062,13 @@ static void borg_notice_home_aux(void)
 	/* Scan the home */
 	for (i = 0; i < (home_num + EQUIP_MAX); i++)
 	{
-		if (i < STORE_INVEN_MAX)
+		if (i < home_num)
 			l_ptr = &borg_home[i];
 		else
 			l_ptr = look_up_equip_slot(i - home_num);
 
 		/* Skip empty / unaware items */
-		if (!l_ptr->k_idx) continue;
+		if (!l_ptr || !l_ptr->k_idx) continue;
 
 		/* Don't count items we are swapping */
 		if (l_ptr->treat_as == TREAT_AS_SWAP) continue;
@@ -3783,6 +4103,7 @@ static void borg_notice_home_aux(void)
 
 		/* Hack - simulate change in number of items */
 		if (l_ptr->treat_as == TREAT_AS_LESS) l_ptr->number = 1;
+		if (l_ptr->treat_as == TREAT_AS_SWAP) l_ptr->number = 1;
 		if (l_ptr->treat_as == TREAT_AS_MORE) l_ptr->number++;
 
 		/* Notice item flags */
@@ -4194,12 +4515,10 @@ static s32b borg_power_home_aux1(void)
 
 /*
  * Helper function -- calculate power of items in the home
- *
- * The wierd calculations help spread out the purchase order
  */
 static s32b borg_power_home_aux2(void)
 {
-	int k, book = 0, realm = 0;
+	int book = 0, realm = 0;
 
 	s32b value = 0L;
 
@@ -4207,79 +4526,111 @@ static s32b borg_power_home_aux2(void)
 	/*** Basic abilities ***/
 
 	/* Collect food */
-	for (k = 0; k < 50 && k < num_food; k++) value += 8000L - k * 10L;
+	value += 8000 * MIN(num_food, 20);
+	value += 800 * MIN_FLOOR(num_food, 20, 50);
+	value += 80 * MIN_FLOOR(num_food, 50, 99);
 
 	/* Collect ident */
-	for (k = 0; k < 50 && k < num_ident; k++) value += 2000L - k * 10L;
+	value += 2000 * MIN(num_ident, 20);
+	value += 200 * MIN_FLOOR(num_ident, 20, 50);
+	value += 20 * MIN_FLOOR(num_ident, 50, 99);
 
 	/* Collect *id*ent */
-	for (k = 0; k < 50 && k < num_star_ident; k++) value += 5000L - k * 10L;
+	value += 5000 * MIN(num_star_ident, 10);
+	value += 500 * MIN_FLOOR(num_ident, 10, 50);
+	value += 50 * MIN_FLOOR(num_ident, 50, 99);
+
+	/* Collect *remove curse* */
+	value += 5000 * MIN(num_star_remove_curse, 5);
+	value += 50 * MIN_FLOOR(num_star_remove_curse, 5, 99);
 
 	/* apw Collect pfe */
-	for (k = 0; k < 100 && k < num_pfe; k++) value += 5000L - k * 10L;
+	value += 2000 * MIN(num_pfe, 5);
+	value += 200 * MIN_FLOOR(num_pfe, 5, 99);
 
 	/* apw Collect glyphs */
-	for (k = 0; k < 100 && k < num_glyph; k++) value += 5000L - k * 10L;
+	value += 5000 * MIN(num_glyph, 20);
+	value += 500 * MIN_FLOOR(num_glyph, 20, 99);
 
-	/* Reward Genocide scrolls. Just scrolls, mainly used for Morgoth */
-	for (k = 0; k < 100 && k < num_genocide; k++) value += 5000L - k * 10L;
+	/* Reward Genocide scrolls. Just scrolls, mainly used for the Serpent */
+	value += 5000 * MIN(num_genocide, 20);
+	value += 500 * MIN_FLOOR(num_genocide, 20, 99);
 
 	/* Reward Mass Genocide scrolls. Just scrolls, mainly used for Morgoth */
-	for (k = 0; k < 100 && k < num_mass_genocide; k++) value += 5000L - k * 10L;
+	value += 5000 * MIN(num_mass_genocide, 20);
+	value += 500 * MIN_FLOOR(num_mass_genocide, 20, 99);
 
 	/* Reward Resistance Potions for Warriors */
 	if (borg_class == CLASS_WARRIOR)
 	{
-		k = 0;
-		for (; k < 99 && k < num_pot_rheat; k++) value += 1000L - k * 10L;
-		for (; k < 99 && k < num_pot_rcold; k++) value += 1000L - k * 10L;
+		value += 1000 * MIN(num_pot_rheat, 20);
+		value += 100 * MIN_FLOOR(num_pot_rheat, 20, 99);
+		value += 1000 * MIN(num_pot_rcold, 20);
+		value += 100 * MIN_FLOOR(num_pot_rcold, 20, 99);
 	}
 
 	/* Collect recall */
-	for (k = 0; k < 50 && k < num_recall; k++) value += 3000L - k * 10L;
+	value += 3000 * MIN(num_recall, 20);
+	value += 300 * MIN_FLOOR(num_recall, 20, 99);
 
 	/* Collect escape */
-	for (k = 0; k < 50 && k < num_escape; k++) value += 2000L - k * 10L;
+	value += 3000 * MIN(num_escape, 20);
+	value += 300 * MIN_FLOOR(num_escape, 20, 99);
 
 	/* Collect teleport */
-	for (k = 0; k < 50 && k < num_teleport; k++) value += 400L - k * 8L;
+	value += 1000 * MIN(num_teleport, 20);
+	value += 100 * MIN_FLOOR(num_teleport, 20, 99);
 
 	/* Collect teleport level scrolls */
-	for (k = 0; k < 99 && k < num_teleport_level; k++) value += 1000L - k * 8L;
+	value += 1000 * MIN(num_teleport_level, 20);
+	value += 100 * MIN_FLOOR(num_teleport_level, 20, 99);
 
 	/* Collect Speed */
-	for (k = 0; k < 99 && k < num_speed; k++) value += 5000L - k * 10L;
+	value += 4000 * MIN(num_speed, 20);
+	value += 400 * MIN_FLOOR(num_speed, 20, 99);
 
-	/* Collect Invuln Potions */
-	for (k = 0; k < 99 && k < num_goi_pot; k++) value += 5000L - k * 10L;
+	/* Collect Berserk */
+	value += 400 * MIN(num_berserk, 20);
+	value += 40 * MIN_FLOOR(num_berserk, 20, 99);
 
-	/* Collect heal/mana/ */
-	for (k = 0; k < 99 && k < num_heal; k++) value += 3000L - k * 8L;
-	for (k = 0; k < 99 && k < num_ez_heal; k++) value += 8000L - k * 8L;
-	if (bp_ptr->msp > 1)
+	/* Collect Invuln Potions (As if you'd ever find 99 potions) */
+	value += 5000 * MIN(num_goi_pot, 99);
+
+	/* Collect heal */
+	value += 3000 * MIN(num_heal, 20);
+	value += 300 * MIN_FLOOR(num_heal, 20, 99);
+	value += 8000 * MIN(num_ez_heal, 20);
+	value += 800 * MIN_FLOOR(num_ez_heal, 20, 99);
+
+	/* Potion of Mana */
+	if (borg_class != CLASS_WARRIOR)
 	{
-		for (k = 0; k < 99 && k < num_mana; k++) value += 6000L - k * 8L;
+		value += 2000 * MIN(num_mana, 20);
+		value += 200 * MIN_FLOOR(num_mana, 20, 99);
 	}
 
-	/*** Healing ***/
-
 	/* Collect cure critical */
-	for (k = 0; k < 99 && k < num_cure_critical; k++) value += 1500L - k * 10L;
+	value += 3500 * MIN(num_cure_critical, 50);
+	value += 350 * MIN_FLOOR(num_cure_critical, 50, 99);
 
 	/* Collect cure serious - but they aren't as good */
-	for (k = 0; k < 99 && k < num_cure_serious; k++) value += 750L - k * 100L;
+	value += 750 * MIN(num_cure_serious, 20);
+	value += 75 * MIN_FLOOR(num_cure_serious, 20, 99);
 
 	/*** Various ***/
 
 	/* Fixing Stats */
 	if (bp_ptr->lev == 50) value += 500L * num_fix_exp;
 	if (bp_ptr->lev > 35)
-		for (k = 0; k < 70 && k < num_fix_exp; k++) value += 5000L - k * 10L;
+	{
+		value += 5000 * MIN(num_fix_exp, 20);
+		value += 500 * MIN_FLOOR(num_fix_exp, 20, 99);
+	}
 	else
-		for (k = 0; k < 5 && k < num_fix_exp; k++) value += 5000L - k * 10L;
+		value += 5000 * MIN(num_fix_exp, 5);
 
 	/* Keep shrooms in the house */
-	for (k = 0; k < 99 && k < num_fix_stat[6]; k++) value += 5000L;
+	value += 5000 * MIN(num_fix_stat[6], 99);
 
 	/*** Hack -- books ***/
 
@@ -4287,28 +4638,33 @@ static s32b borg_power_home_aux2(void)
 	for (realm = 0; realm < MAX_REALM; realm++)
 	{
 		/* Only my realms */
-		if ((realm != bp_ptr->realm1) && (realm != bp_ptr->realm2)) continue;
+		if (!borg_has_realm(realm)) continue;
 
-		/* Scan Books */
+		/* Scan town books */
 		for (book = 0; book < 4; book++)
 		{
-			if (bp_ptr->lev > 35)
+			int min_book = 0;
+
+			/* Does the borg have this book yet? */
+			if (!num_book[realm][book]) continue;
+
+			/* Does the borg use this book yet? */
+			if (!borg_uses_book(realm, book))
 			{
-				/* Collect up to 20 copies of each normal book */
-				for (k = 0; k < 20 && k < num_book[realm][book]; k++)
-				{
-					/* Hack -- only stockpile useful books */
-					if (num_book[realm][book]) value += 5000L - k * 10L;
-				}
+				/* Reward keeping the first unused book in the house */
+				value += 50000 * MIN(num_book[realm][book], 1);
+
+				/* Remember that you've valued 1 book */
+				min_book = 1;
 			}
-			else
+
+			/* Is this a town book? */
+			if (book < 2 || realm == REALM_ARCANE)
 			{
-				/* Collect up to 5 copies of each normal book */
-				for (k = 0; k < 5 && k < num_book[realm][book]; k++)
-				{
-					/* Hack -- only stockpile useful books */
-					if (num_book[realm][book]) value += 5000L - k * 10L;
-				}
+				/* Assign value to the extra books */
+				value += 4000 * MIN_FLOOR(num_book[realm][book],
+										  min_book,
+										  (bp_ptr->lev + 1) / 2);
 			}
 		}
 	}

@@ -3,6 +3,177 @@ the standard Angband 2.8.1.) No long explanations, just a list. See
 code for details. In reversed chronological order (more or less):
 
 
+Zangband 2.7.4
+- Moved the lua scripts for objects into k_info.txt instead of
+  having them in object.lua  Object scripts are saved in the
+  savefile so add-ons will continue to work in new versions of
+  the original game.
+- Changed object activations to use lua instead of C.
+- Artifact and Ego item activations are now handled inline as
+  lua scripts in a_info.txt and e_info.txt
+- Fix the large scale wilderness map so that the monster camps
+  are not examinable like towns are.
+- The "frost bolt" randart activation was doing acid bolt
+  by mistake.
+- Display "Bottom" when the player is on the last level in a
+  dungeon.
+- Display some information to show when lights of everburning
+  are "empty".
+- Fix the booze potion effect in the wilderness.
+- Huge number of borg fixes from Willem Siemelink.  The borg is
+  now much smarter with spells and objects.  The borg no
+  longer gets confused in stores, and many borg 'loops' have
+  been fixed.
+  The borg now uses id / *id* again. 
+  The borg can now activate rings, rods, wands etc.
+  The borg enchants items better.
+  Improve the borg ^z commands displays.
+  The borg uses emergency spell casting more intelligently.
+  The borg understands more object flags.
+  The borg stores spell books it can't use yet in its home.
+- The game now makes wooden bridges over the rivers in the
+  wilderness.
+- Changed the effects of the 'strange luck' flag to make them
+  more interesting.
+- Give monsters a fighting chance to resist protection at low
+  levels.
+- Make having a chaos patron reduce spell mana costs for chaos
+  spells.  Increase chaos-warriors' mana costs to compensate.
+- Chaos-warriors can draw extra power from a chaotic weapon.
+- A Holy Avenger weapon gives a paladin a saving throw boost.
+- Change how saving throws are calculated. Wisdom has a larger
+  effect, all classes have a higher maximum saving throw (at
+  least 88%), and saving throw difficulty is modified by monster
+  level in most cases.
+- Change the mana/int progression to advance slightly faster but
+  top out at a lower value. Add a new flag, TR1_SP, and an item
+  to provide it.  Added this flag to the crown of the magi.
+- Added a new item: amulet of luck.
+- Added castles in the towns that can give you quests to do.
+  Large castles give more difficult and rewarding quests
+  than small castles.
+- Removed the old dungeon quests to kill n monsters of a given
+  type.  Replacing them are a group of out of depth monsters
+  on the level plus a good item to find.  You may also take
+  bounty quests from a castle if you want. 
+- Fixed font selection in the gtk port.
+- Fix arrows of explosion to only explode if they hit.
+- Fix various crashes in the monster AI.
+- Fixed stacking of torches bought from the store.
+- Correctly set BASE_TK_DIR to the value specified by
+  --with-tkdir=foo.
+- Updated the tk port so it compiles with version 8.3 again. 
+- Fix the tk port so that if it fails to start up
+  due to X11 not existing, then the game will try some other port.
+- Added RISC-OS port from Antony Sidwell.
+- Make gtk the default port, not the tk port, which doesn't
+  work very well yet.  (This fixes the screen offset problem.)
+- Fixed overflow handling of object and monster lists in
+  dungeon building.  This stops the game from crashing when it
+  tries to make a new dungeon when the old dungeon has a huge
+  number of objects / monsters in it.
+- Fix a bug in the store cache that was converting empty stores
+  into general shops.
+- Changed to a new configure.in build system.  This one should
+  be more robust.
+- Make the build system default to a less verbose method so that
+  warning messages are easier to spot. 
+  Use "make V=1" to turn on verbose compilation messages.
+- New flag disturb_view to disturb when a new monster becomes
+  visible (or nonvisible). This	should stop people from running
+  into floating eyes while carrying lanterns.
+- Change how monster generation depth is calculated. Now we have
+  a target 'rating' and try to generate monsters to match it.
+- Add a new build target in makefile.std which allows you to
+  cross-compile from linux to windows using mingw. You need
+  wine installed, along with the bin-fmt extensions so tolua.exe
+  can be executed.
+- Turn on the broken ASCII handling workaround on in windows XP.
+- Move stormbringer to a_info.txt where it belongs.
+- Fixed the annoying beeping in the birth menus.
+- Remove obsolete arena level options.  These only appear in
+  "city" dungeon types now.
+- Fix display of items in store when you learn about one by
+  buying it.
+- Make sure the quest staircases are not created covered in
+  a corpse.
+- Fix the character dump due to changes in the 'C' info screens.
+- Fix display of deadliness values to use the correct numbers in
+  object descriptions.
+- After detection, overhead maps need to be redrawn.
+- Fix problems with some dungeons that start at level 2.
+- Fix monster summoning.  Monsters can be summoned to dungeons
+  where they might not normally live.
+- Changed a few unpopular monsters.
+- Rewrite of the random artifact making code.
+- Fix crash when creating random artifacts in town.
+- Allow descriptions for artifacts.
+- Change the way slays/brands and critical hits work: they add
+  to deadliness rather than being a seperate multiplier. This
+  makes figuring out how much damage you're doing easier.
+- Add more object flavors. Add comments to make it easier to
+  tell just how many flavors of each type there are.
+- Use mmap() to load *_info.raw, if it's available. This makes
+  startup much faster.
+- Don't use monte carlo for object depth chart if the exact
+  routine is available (in debug mode).
+- Make some artifacts more flavorful with new good and bad points.
+- Add per-dungeon recall depths.
+- Updated the FAQ
+- Added some magical macros that allow easy access to the object
+  and monster flags.
+- Change the sense of the dangerous (y/n) questions so that yes
+  is always the safest option.
+- Use a smarter method of selecting which buildings to use.
+  Rarity now works properly.
+- Fix some silly messages given when blind. 
+- Fix broken knowledge of doors when you open/close them when blind.
+- Fix 'icky' status of the pattern so that it isn't broken by
+  stairs.
+- Fix out of bounds problems with the light area spell.
+- Fix the message you get when taking off equipment
+  when you have items the object will stack with in your inventory.
+- Fix creation of unremovable enscription created when destroying
+  *id'ed* artifacts.
+- Fix placement of "price" and "weight" column headers in stores
+  and make stores work with bigscreen.
+- Turn off the execute script debug command by default.
+- Fix poison damage so it works like the other basic resists.
+  Swamps (but not thick swamps) will not poison you if you have
+  resist poison.
+- Changed a few races so that they have immunity to poison, instead
+  of just poison resistance.  Gave those races vulnerabilities
+  to some elements to counteract the advantage.
+- Fix broken interaction between fields and targetting commands.
+  Corpses won't interfere with shooting now.
+- Make 'channel' rooms less annoying.
+- Rubble in the wilderness doesn't yield objects when dug out.
+- Add 'entrances' to the wilderness dungeons.  Now you'll have to
+  fight your way in.
+- Add the auto-more option from angband.
+- Make starting in wizard mode be able to prevent death again.
+  (Instead of crashing on an assert.)
+- Improved the error messages given when lua scripts fail.
+- Fix bug in message display when printing strings with embedded
+  carriage returns.
+- Fix magic mapping to work like it used to.
+- Fix bug causing dropped wands to not remember used charges
+  properly when recombined.
+- Fix out of bounds problem with monster lights when teleporting
+  in the wilderness.
+- Prevent crash when displaying large piles of items.
+- Made scrolls of *remove curse* give a message when successfully used.
+- Change monsters killed list under '~' menu to display monsters
+  in colour.
+- Added a new command in the 'show_file()' screens to 'search again'.
+  The highlighted strings now work with the colour escape sequences.
+- Prevent monster lights leaking through walls.  Make the lights update
+  the map when monsters move.
+- Fix crash when using cheat death in the dungeon whilst you are
+  poisoned, afraid, blind etc.
+- Make wiz_lite() only light the dungeon for one turn.
+
+
 Zangband 2.7.3:
 - Added many new object flags to describe new behaviour.
 - Changed the build system to not use automake.  The makefiles

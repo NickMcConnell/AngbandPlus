@@ -40,7 +40,7 @@
 PORTS := default_port linux linux-svga linux-no-gtk openbsd freebsd main-cap \
 		 vt100 solaris sgi dec isc next aix dos ibm borland gcu
 
-OTHER_PORTS := amiga cygwin emx lcc linux-tk freebsd-tk
+OTHER_PORTS := amiga cygwin emx lcc linux-tk freebsd-tk mingw
 
 ##
 ## This is the default port to compile.
@@ -97,7 +97,7 @@ ANGOBJS := $(LUAWOBJS) \
 	effects.o quest.o racial.o script.o \
 	artifact.o mutation.o flavor.o spells3.o \
 	mspells1.o mspells2.o scores.o mind.o maid-x11.o\
-	bldg.o obj_kind.o wild1.o wild2.o avatar.o notes.o\
+	bldg.o obj_kind.o wild1.o wild2.o wild3.o avatar.o notes.o\
 	main-cap.o main-gcu.o main-x11.o main-xaw.o main-xpj.o\
 	main-lsl.o main-vcs.o main-gtk.o main-win.o main.o \
 	maid-grf.o main-dos.o main-ibm.o main-emx.o \
@@ -307,6 +307,24 @@ cygwin-objs: $(OBJS) angband.res readdib.o
 	$(MAKE-ZANGBAND)
 cygwin: cygwin-objs
 	cp $^ ../zangband
+
+##
+## Variation -- Cross compile with mingw
+##
+mingw: MINGPREFIX := i586-mingw32msvc-
+mingw: CC := $(MINGPREFIX)cc
+mingw: LD := $(MINGPREFIX)ld
+mingw: CFLAGS += -W -pedantic -mno-cygwin -DWINDOWS
+mingw: LIBS := -s -mno-cygwin -mwindows -e _mainCRTStartup -lwinmm
+mingw: INSTALL := mv -f zangband.exe ../zangband.exe
+mingw: RES := $(MINGPREFIX)windres
+mingw: RESCMD = $< -O coff -o $@
+mingw-objs: $(OBJS) angband.res readdib.o
+	$(MAKE-ZANGBAND)
+mingw: mingw-objs
+	cp $^ ../zangband
+
+
 
 ##
 ## Variation -- OpenBSD 
@@ -587,6 +605,7 @@ generate.o: grid.h generate.h rooms.h streams.h
 grid.o: grid.h generate.h
 rooms.o: grid.h generate.h rooms.h
 streams.o: grid.h generate.h
+fields.o: grid.h
 main-ami.o: maid-grf.h
 maid-grf.o: maid-grf.h
 maid-x11.o: maid-grf.h
@@ -601,6 +620,7 @@ quest.o: wild.h grid.h
 readdib.o: readdib.h
 wild1.o: wild.h grid.h
 wild2.o: wild.h grid.h
+wild3.o: wild.h grid.h
 wizard2.o: script.h
 z-form.o: z-form.h z-util.h z-virt.h
 z-rand.o: z-rand.h
@@ -612,14 +632,17 @@ z-virt.o: z-virt.h z-util.h
 ## Hack - the dependance on the .o files encodes this.
 
 zborg1.o: zborg1.h maid-grf.h
-zborg2.o: zborg2.h zborg1.o
-zborg3.o: zborg3.h zborg2.o
-zborg4.o: zborg4.h zborg3.o
-zborg5.o: zborg5.h zborg4.o
-zborg6.o: zborg6.h zborg5.o
-zborg7.o: zborg7.h zborg6.o
-zborg8.o: zborg8.h zborg7.o
-zborg9.o: zborg9.h zborg8.o
+zborg2.o: zborg1.h zborg2.h maid-grf.h
+zborg3.o: zborg1.h zborg3.h maid-grf.h
+zborg4.o: zborg1.h zborg2.h zborg3.h zborg4.h maid-grf.h
+zborg5.o: zborg1.h zborg2.h zborg3.h zborg4.h zborg5.h maid-grf.h
+zborg6.o: zborg1.h zborg2.h zborg3.h zborg4.h zborg5.h zborg6.h maid-grf.h
+zborg7.o: zborg1.h zborg2.h zborg3.h zborg4.h zborg5.h zborg6.h zborg7.h \
+			maid-grf.h
+zborg8.o: zborg1.h zborg2.h zborg3.h zborg4.h zborg5.h zborg6.h zborg7.h \
+			zborg8.h maid-grf.h
+zborg9.o: zborg1.h zborg2.h zborg3.h zborg4.h zborg5.h zborg6.h zborg7.h \
+			zborg8.h zborg9.h maid-grf.h
 
 ##
 ## Compiling angband.rc

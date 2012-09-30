@@ -1675,11 +1675,11 @@ static void road_link(u16b x1, u16b y1, u16b x2, u16b y2)
 
 		w_ptr = &wild[yn][xn].trans;
 
-		/* No bridges yet */
-		if (w_ptr->info & (WILD_INFO_WATER | WILD_INFO_LAVA | WILD_INFO_ACID))
-		{
-			continue;
-		}
+		/* No bridges over acid or lava */
+		if (w_ptr->info & (WILD_INFO_LAVA | WILD_INFO_ACID)) continue;
+		
+		/* Not over ocean */
+		if (w_ptr->hgt_map < 256 / SEA_FRACTION) continue;
 
 		/* Add the road to the wilderness */
 		if (w_ptr->law_map + w_ptr->pop_map < 256)
@@ -2225,7 +2225,7 @@ static void create_rivers(void)
 
 		temp_y[i] = (s16b)rand_range(r1, r2);
 
-		r1 = ((i / RIVER_NUM) * max_wild) / RIVER_NUM;;
+		r1 = ((i / RIVER_NUM) * max_wild) / RIVER_NUM;
 		r2 = r1 + (max_wild / RIVER_NUM);
 
 		temp_x[i] = (s16b)rand_range(r1, r2);

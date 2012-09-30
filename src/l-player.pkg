@@ -208,21 +208,39 @@ struct player_state
 
 	bool create_up_stair;	/* Create up stair on next level */
 	bool create_down_stair;	/* Create down stair on next level */
+	
+	s16b energy_use;	/* Energy use this turn */
+	
+	bool cumber_armor;	/* Mana draining armor */
+	bool cumber_glove;	/* Mana draining gloves */
+	bool heavy_wield;	/* Heavy weapon */
+	bool heavy_shoot;	/* Heavy shooter */
+	bool icky_wield;	/* Icky weapon */
+	bool detected;	/* Detected for traps? */
+	
+	bool skip_more;	/* Skip the --more-- prompt */
+	bool mon_fight;	/* Monster fighting indicator */
+
+	bool monk_armour_stat;	/* Status of monk armour */
+	
+	byte noise_level;	/* Amount of noise since last update */
+	
+	u16b store_top;		/* Top of store inventory list */
 };
 
-struct player_skill
-{
-	s16b dis; /* Skill: Disarming */
-	s16b dev; /* Skill: Magic Devices */
-	s16b sav; /* Skill: Saving throw */
-	s16b stl; /* Skill: Stealth factor */
-	s16b sns; /* Skill: Sensing ability */
-	s16b fos; /* Skill: Searching frequency */
-	s16b thn; /* Skill: To hit (normal) */
-	s16b thb; /* Skill: To hit (shooting) */
-	s16b tht; /* Skill: To hit (throwing) */
-	s16b dig; /* Skill: Digging */
-};
+/* Skills */
+#define MAX_SKILL	10
+
+#define SKILL_DIS	0 /* Skill: Disarming */
+#define SKILL_DEV	1 /* Skill: Magic Devices */
+#define SKILL_SAV	2 /* Skill: Saving throw */
+#define SKILL_STL	3 /* Skill: Stealth factor */
+#define SKILL_SNS	4 /* Skill: Sensing ability */
+#define SKILL_FOS	5 /* Skill: Searching frequency */
+#define SKILL_THN	6 /* Skill: To hit (normal) */
+#define SKILL_THB	7 /* Skill: To hit (shooting) */
+#define SKILL_THT	8 /* Skill: To hit (throwing) */
+#define SKILL_DIG	9 /* Skill: Digging */
 
 struct player_stat
 {
@@ -243,7 +261,6 @@ struct player_type
 	
 	player_data rp;	/* Role-play information */
 
-	s16b max_depth;		/* Max depth */
 	s16b depth;			/* Cur depth */
 	s16b max_lev;		/* Max level */
 	s16b lev;			/* Cur level */
@@ -292,9 +309,11 @@ struct player_type
 	
 	player_state state;	/* Internal state of the player */
 	
-	player_skill skill;	/* Player skills */
+	s16b skills[MAX_SKILL];	/* Player skills */
 	
 	player_stat stat[A_MAX];	/* The player's stats */
+
+	int sp_bonus;           /* Bonus MP */
 
 	/*** Temporary fields ***/
 
@@ -310,19 +329,10 @@ struct player_type
 	s16b health_who;		/* Health bar trackee */
 
 	s16b monster_race_idx;	/* Monster race trackee */
-
+	u16b max_seen_r_idx;	/* Most powerful monster visible */
 	s16b object_kind_idx;	/* Object kind trackee */
 
-	s16b energy_use;		/* Energy use this turn */
-
 	s16b new_spells;		/* Number of spells available */
-
-	bool cumber_armor;	/* Mana draining armor */
-	bool cumber_glove;	/* Mana draining gloves */
-	bool heavy_wield;		/* Heavy weapon */
-	bool heavy_shoot;		/* Heavy shooter */
-	bool icky_wield;		/* Icky weapon */
-	bool detected;		/* Detection on level */
 
 	s16b cur_lite;		/* Radius of lite (if any) */
 
@@ -335,10 +345,7 @@ struct player_type
 	 * Flags on equipment items and the racial/class
 	 * effects logical-ored together.
 	 */
-	u32b flags1;
-	u32b flags2;
-	u32b flags3;
-	u32b flags4;
+	u32b flags[4];
 
 
 	/*** Extracted fields ***/
@@ -376,13 +383,6 @@ struct player_type
 	/* Options */
 	bool options[OPT_PLAYER];
 	bool birth[OPT_BIRTH];
-	
-	/* Extra player-specific flags */
-	bool skip_more;			/* Skip the --more-- prompt */
-	bool mon_fight;			/* Monster fighting indicator */
-	
-	u16b max_seen_r_idx;	/* Most powerful monster visible */
-	bool monk_armour_stat;	/* Status of monk armour */
 };
 
 

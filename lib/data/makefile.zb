@@ -12,5 +12,7 @@ INSTALL += \
 		touch "$(DESTDIR)/lib/data/r_info.raw";\
 		touch "$(DESTDIR)/lib/data/v_info.raw";\
 		touch "$(DESTDIR)/lib/data/misc.raw";\
-		chown -R root.$(GAMEGROUP) "$(DESTDIR)/lib/data";\
-		chmod -R g+w "$(DESTDIR)/lib/data";
+		if [ -n "$(GAMEGROUP)" ]; then \
+			chown -R root.$(GAMEGROUP) "$(DESTDIR)/lib/data";\
+			chmod -R g+w "$(DESTDIR)/lib/data";\
+		fi;

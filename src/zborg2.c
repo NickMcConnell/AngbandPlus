@@ -956,8 +956,9 @@ static bool los_general(int x1, int y1, int x2, int y2, map_hook_type mb_hook)
 
 
 /*
- * Hack - a function to pass to los_general() used
- * to simulate the old los()
+ * A function to pass to los_general()
+ * to do borg_los().
+ * we stop at walls
  */
 static bool map_stop_wall(map_block *mb_ptr)
 {
@@ -966,6 +967,59 @@ static bool map_stop_wall(map_block *mb_ptr)
 
 	/* Seems ok */
 	return (TRUE);
+}
+
+/*
+ * a function to pass to los_general().
+ * to do borg_bolt_los().
+ * we stop at unknown grids and walls
+ */
+static bool map_stop_wall_pure(map_block *mb_ptr)
+{
+	/* Do not allow unknown grids */
+	if (!mb_ptr->feat) return (FALSE);
+
+	/* Is it passable? */
+	if (borg_cave_los_grid(mb_ptr)) return (FALSE);
+
+	/* Seems ok */
+	return (TRUE);
+}
+/*
+ * Hack - a function to pass to los_general() used
+ * to do borg_bolt_los().
+ * we stop at known monsters and walls
+ */
+static bool map_stop_bolt(map_block *mb_ptr)
+{
+	/* Walls block projections */
+	if (borg_cave_wall_grid(mb_ptr)) return (TRUE);
+
+	/* Stop at monsters */
+	if (mb_ptr->monster) return (TRUE);
+
+	/* Seems ok */
+	return (FALSE);
+}
+
+/*
+ * Hack - a function to pass to los_general() used
+ * to do borg_bolt_los_pure().
+ * we stop at known monsters, walls and unknown grids
+ */
+static bool map_stop_bolt_pure(map_block *mb_ptr)
+{
+	/* Unknown area is probably a wall */
+	if (!mb_ptr->feat) return (TRUE);
+
+	/* Walls block projections */
+	if (borg_cave_wall_grid(mb_ptr)) return (TRUE);
+
+	/* Stop at monsters */
+	if (mb_ptr->monster) return (TRUE);
+
+	/* Seems ok */
+	return (FALSE);
 }
 
 /*
@@ -992,6 +1046,24 @@ static bool map_stop_wall(map_block *mb_ptr)
 bool borg_los(int x1, int y1, int x2, int y2)
 {
 	return (los_general(x1, y1, x2, y2, map_stop_wall));
+}
+
+
+bool borg_los_pure(int x1, int y1, int x2, int y2)
+{
+	return (los_general(x1, y1, x2, y2, map_stop_wall_pure));
+}
+
+
+bool borg_bolt_los(int x1, int y1, int x2, int y2)
+{
+	return (los_general(x1, y1, x2, y2, map_stop_bolt));
+}
+
+
+bool borg_bolt_los_pure(int x1, int y1, int x2, int y2)
+{
+	return (los_general(x1, y1, x2, y2, map_stop_bolt_pure));
 }
 
 
@@ -1231,52 +1303,18 @@ static bool map_stop_project(map_block *mb_ptr)
 }
 
 
-/*
- * Hack - a function to pass to los_general() used
- * to do borg_projectable().
- * Hack -- we stop at known monsters
- */
-static bool map_pure_stop_project(map_block *mb_ptr)
-{
-	/* Unknown area is probably a wall */
-	if (!mb_ptr->feat) return (TRUE);
-
-	/* Walls block projections */
-	if (borg_cave_wall_grid(mb_ptr)) return (TRUE);
-
-	/* Stop at monsters */
-	if (mb_ptr->monster) return (TRUE);
-
-	/* Seems ok */
-	return (FALSE);
-}
-
-
 
 
 /*
  * Check the projection from (x1,y1) to (x2,y2).
  * Assume that there is no monster in the way.
- * Hack -- we refuse to assume that unknown grids are floors
+ * Hack -- we assume that unknown grids are floors
  * Adapted from "projectable()" in "spells1.c".
  */
 bool borg_projectable(int x1, int y1, int x2, int y2)
 {
 	/* Are we projectable? */
 	return (los_general(x1, y1, x2, y2, map_stop_project));
-}
-
-
-/*
- * Check the projection from (x1,y1) to (x2,y2).
- * Assume that monsters in the way will stop the projection
- * Hack -- we refuse to assume that unknown grids are floors
- * Adapted from "projectable()" in "spells1.c".
- */
-bool borg_projectable_pure(int x1, int y1, int x2, int y2)
-{
-	/* Are we projectable? */
-	return (los_general(x1, y1, x2, y2, map_pure_stop_project));
 }
 
 
@@ -1421,7 +1459,14 @@ static int borg_guess_race_name(cptr who)
 	if (!prefix(who, "The "))
 	{
 		/* Message */
-		borg_oops_fmt("# Assuming unknown (%s)", who);
+		if (bp_ptr->status.image)
+		{
+			borg_note_fmt("# Seeing a monster while hallucinating (%s)", who);
+		}
+		else
+		{
+			borg_note_fmt("# Assuming unknown (%s)", who);
+		}
 
 		/* Oops */
 		return (0);
@@ -1498,8 +1543,15 @@ static int borg_guess_race_name(cptr who)
 
 
 	/* Message */
-	borg_oops_fmt("# Assuming unknown (%s)", who);
-
+	if (bp_ptr->status.image)
+	{
+		borg_note_fmt("# Seeing a monster while hallucinating (%s)", who);
+	}
+	else
+	{
+		borg_note_fmt("# Assuming unknown (%s)", who);
+	}
+ 
 	/* Oops */
 	return (0);
 }
@@ -1589,7 +1641,7 @@ static int borg_guess_kidx(char unknown)
 		s = s - ABS(k_ptr->level - bp_ptr->depth);
 
 		/* Hack -- Penalize INSTA_ART items */
-		if (k_ptr->flags3 & TR3_INSTA_ART) s = s - 1000;
+		if (FLAG(k_ptr, TR_INSTA_ART)) s = s - 1000;
 
 		/* Desire "best" possible score */
 		if (b_i && (s < b_s)) continue;
@@ -1880,7 +1932,7 @@ static void borg_update_kill(int i)
 	kill->ranged_attack = FALSE;
 
 	/* Can it attack from a distance? */
-	if (r_ptr->flags4 || r_ptr->flags5 || r_ptr->flags6)
+	if (r_ptr->flags[3] || r_ptr->flags[4] || r_ptr->flags[5])
 	{
 		kill->ranged_attack = TRUE;
 	}
@@ -1982,27 +2034,27 @@ static bool borg_follow_kill_aux(int i, int x, int y)
 		if (mb_ptr->flags & MAP_SEEN)
 		{
 			/* We can see invisible */
-			if ((bp_ptr->flags3 & TR3_SEE_INVIS) || borg_see_inv) return (TRUE);
+			if ((FLAG(bp_ptr, TR_SEE_INVIS)) || borg_see_inv) return (TRUE);
 
 			/* Monster is not invisible */
-			if (!(r_ptr->flags2 & RF2_INVISIBLE)) return (TRUE);
+			if (!(FLAG(r_ptr, RF_INVISIBLE))) return (TRUE);
 		}
 
 		/* Use "infravision" */
 		if (d <= bp_ptr->see_infra)
 		{
 			/* Infravision works on "warm" creatures */
-			if (!(r_ptr->flags2 & RF2_COLD_BLOOD)) return (TRUE);
+			if (!(FLAG(r_ptr, RF_COLD_BLOOD))) return (TRUE);
 		}
 	}
 
 
 	/* Telepathy requires "telepathy" */
-	if (bp_ptr->flags3 & TR3_TELEPATHY)
+	if (FLAG(bp_ptr, TR_TELEPATHY))
 	{
 		/* Telepathy fails on "strange" monsters */
-		if (r_ptr->flags2 & RF2_EMPTY_MIND) return (FALSE);
-		if (r_ptr->flags2 & RF2_WEIRD_MIND) return (FALSE);
+		if (FLAG(r_ptr, RF_EMPTY_MIND)) return (FALSE);
+		if (FLAG(r_ptr, RF_WEIRD_MIND)) return (FALSE);
 
 		/* Success */
 		return (TRUE);
@@ -2024,6 +2076,7 @@ static void observe_kill_move(int new_type, int old_type, int dist)
 {
 	int i, j;
 	borg_kill *kill1, *kill2;
+	map_block *mb_ptr1, *mb_ptr2;
 
 	int x, y, d;
 
@@ -2040,9 +2093,17 @@ static void observe_kill_move(int new_type, int old_type, int dist)
 		x = kill1->x;
 		y = kill1->y;
 
+		/* Check the bounds */
+		if (!map_in_bounds(x, y)) continue;
+
+		mb_ptr1 = map_loc(x, y);
+
 		for (j = 1; j < borg_kills_nxt; j++)
 		{
 			kill2 = &borg_kills[j];
+
+			/* Don't use self */
+			if (i == j) continue;
 
 			/* Paranoia - ignore dead monsters */
 			if (!kill2->r_idx) continue;
@@ -2059,6 +2120,11 @@ static void observe_kill_move(int new_type, int old_type, int dist)
 			/* Too far away */
 			if (d > dist) continue;
 
+			/* Check the bounds */
+			if (!map_in_bounds(kill2->x, kill2->y)) continue;
+
+			mb_ptr2 = map_loc(kill2->x, kill2->y);
+
 			/* Note */
 			borg_note_fmt
 				("# Tracking monster (%d) from (%d,%d) to (%d) (%d,%d)", i, x,
@@ -2071,8 +2137,11 @@ static void observe_kill_move(int new_type, int old_type, int dist)
 			/* Remove the new monster */
 			borg_merge_kill(j);
 
-			x = kill1->x;
-			y = kill1->y;
+			/* remove overwritten index from the old map position */
+			if (mb_ptr1->kill == i)	mb_ptr1->kill = 0;
+
+			/* Put the index on the new map position */
+			mb_ptr2->kill = i;
 
 			/* Save timestamp */
 			kill1->when = borg_t;
@@ -2084,7 +2153,7 @@ static void observe_kill_move(int new_type, int old_type, int dist)
 			borg_danger_wipe = TRUE;
 
 			/* Clear goals */
-			if (!(bp_ptr->flags3 & TR3_TELEPATHY) && (goal == GOAL_TAKE))
+			if (!(FLAG(bp_ptr, TR_TELEPATHY)) && (goal == GOAL_TAKE))
 			{
 				goal = 0;
 			}
@@ -2144,7 +2213,7 @@ static bool remove_bad_kills(u16b who)
  */
 static void handle_old_mons(byte type)
 {
-	int i;
+	u16b i;
 
 	borg_kill *kill;
 
@@ -2242,7 +2311,7 @@ static int borg_locate_kill(cptr who, int x, int y, int r)
 
 
 	/* Handle trappers and lurkers and mimics */
-	if (r_ptr->flags1 & (RF1_CHAR_CLEAR | RF1_CHAR_MIMIC))
+	if (FLAG(r_ptr, RF_CHAR_CLEAR) || FLAG(r_ptr, RF_CHAR_MIMIC))
 	{
 		/* Note */
 		borg_note("# Bizarre monster nearby");
@@ -2331,7 +2400,7 @@ static void borg_count_death(cptr what)
 	/* Paranoia */
 	if (!r_idx) return;
 
-	if (r_info[r_idx].flags1 & RF1_UNIQUE)
+	if (FLAG(&r_info[r_idx], RF_UNIQUE))
 	{
 		/* Reset unique on level flag */
 		unique_on_level = FALSE;
@@ -2901,14 +2970,14 @@ static int borg_fear_spell(int i)
 	{
 		case 0:
 		{
-			/* RF4_SHRIEK */
+			/* RF3_SHRIEK */
 			p += 10;
 			break;
 		}
 
 		case 1:
 		{
-			/* RF4_FAILED spell by monster.  Fear it! */
+			/* RF3_FAILED spell by monster.  Fear it! */
 			/* It could be a unique like Azriel */
 			p += bp_ptr->depth;
 			break;
@@ -2916,48 +2985,48 @@ static int borg_fear_spell(int i)
 
 		case 2:
 		{
-			/* RF4_XXX3X4 */
+			/* RF3_XXX3X4 */
 			break;
 		}
 
 		case 3:
 		{
-			/* RF4_XXX4X4 */
+			/* RF3_XXX4X4 */
 			break;
 		}
 
 		case 4:
 		{
-			/* RF4_ARROW_1 */
+			/* RF3_ARROW_1 */
 			z = (1 * 6);
 			break;
 		}
 
 		case 5:
 		{
-			/* RF4_ARROW_2 */
+			/* RF3_ARROW_2 */
 			z = (3 * 6);
 			break;
 		}
 
 		case 6:
 		{
-			/* RF4_ARROW_3 */
+			/* RF3_ARROW_3 */
 			z = (5 * 6);
 			break;
 		}
 
 		case 7:
 		{
-			/* RF4_ARROW_4 */
+			/* RF3_ARROW_4 */
 			z = (7 * 6);
 			break;
 		}
 
 		case 8:
 		{
-			/* RF4_BR_ACID */
-			if (bp_ptr->flags2 & TR2_IM_ACID) break;
+			/* RF3_BR_ACID */
+			if (FLAG(bp_ptr, TR_IM_ACID)) break;
 			z = ouch;
 			p += 40;
 			break;
@@ -2965,8 +3034,8 @@ static int borg_fear_spell(int i)
 
 		case 9:
 		{
-			/* RF4_BR_ELEC */
-			if (bp_ptr->flags2 & TR2_IM_ELEC) break;
+			/* RF3_BR_ELEC */
+			if (FLAG(bp_ptr, TR_IM_ELEC)) break;
 			z = ouch;
 			p += 20;
 			break;
@@ -2974,8 +3043,8 @@ static int borg_fear_spell(int i)
 
 		case 10:
 		{
-			/* RF4_BR_FIRE */
-			if (bp_ptr->flags2 & TR2_IM_FIRE) break;
+			/* RF3_BR_FIRE */
+			if (FLAG(bp_ptr, TR_IM_FIRE)) break;
 			z = ouch;
 			p += 40;
 			break;
@@ -2983,8 +3052,8 @@ static int borg_fear_spell(int i)
 
 		case 11:
 		{
-			/* RF4_BR_COLD */
-			if (bp_ptr->flags2 & TR2_IM_COLD) break;
+			/* RF3_BR_COLD */
+			if (FLAG(bp_ptr, TR_IM_COLD)) break;
 			z = ouch;
 			p += 20;
 			break;
@@ -2992,9 +3061,9 @@ static int borg_fear_spell(int i)
 
 		case 12:
 		{
-			/* RF4_BR_POIS */
+			/* RF3_BR_POIS */
 			z = ouch;
-			if (bp_ptr->flags2 & TR2_RES_POIS) break;
+			if (FLAG(bp_ptr, TR_RES_POIS)) break;
 			if (my_oppose_pois) break;
 			p += 20;
 			break;
@@ -3002,11 +3071,11 @@ static int borg_fear_spell(int i)
 
 		case 13:
 		{
-			/* RF4_BR_NETH */
+			/* RF3_BR_NETH */
 			z = ouch + 100;
-			if (bp_ptr->flags2 & TR2_RES_NETHER) break;
+			if (FLAG(bp_ptr, TR_RES_NETHER)) break;
 			p += 50;
-			if (bp_ptr->flags2 & TR2_HOLD_LIFE) break;
+			if (FLAG(bp_ptr, TR_HOLD_LIFE)) break;
 			/* do not worry about drain exp after level 50 */
 			if (bp_ptr->lev >= 50) break;
 			p += 150;
@@ -3015,51 +3084,51 @@ static int borg_fear_spell(int i)
 
 		case 14:
 		{
-			/* RF4_BR_LITE */
+			/* RF3_BR_LITE */
 			z = ouch;
-			if (bp_ptr->flags2 & TR2_RES_LITE) break;
-			if (bp_ptr->flags2 & TR2_RES_BLIND) break;
+			if (FLAG(bp_ptr, TR_RES_LITE)) break;
+			if (FLAG(bp_ptr, TR_RES_BLIND)) break;
 			p += 20;
 			break;
 		}
 
 		case 15:
 		{
-			/* RF4_BR_DARK */
+			/* RF3_BR_DARK */
 			z = ouch;
-			if (bp_ptr->flags2 & TR2_RES_DARK) break;
-			if (bp_ptr->flags2 & TR2_RES_BLIND) break;
+			if (FLAG(bp_ptr, TR_RES_DARK)) break;
+			if (FLAG(bp_ptr, TR_RES_BLIND)) break;
 			p += 20;
 			break;
 		}
 
 		case 16:
 		{
-			/* RF4_BR_CONF */
+			/* RF3_BR_CONF */
 			z = ouch;
-			if (bp_ptr->flags2 & TR2_RES_CONF) break;
+			if (FLAG(bp_ptr, TR_RES_CONF)) break;
 			p += 100;
 			break;
 		}
 
 		case 17:
 		{
-			/* RF4_BR_SOUN */
+			/* RF3_BR_SOUN */
 			z = ouch;
-			if (bp_ptr->flags2 & TR2_RES_SOUND) break;
+			if (FLAG(bp_ptr, TR_RES_SOUND)) break;
 			p += 50;
 			break;
 		}
 
 		case 18:
 		{
-			/* RF4_BR_CHAO */
+			/* RF3_BR_CHAO */
 			z = ouch;
-			if (bp_ptr->flags2 & TR2_RES_CHAOS) break;
+			if (FLAG(bp_ptr, TR_RES_CHAOS)) break;
 			p += 200;
-			if (!(bp_ptr->flags2 & TR2_RES_NETHER)) p += 50;
-			if (!(bp_ptr->flags2 & TR2_HOLD_LIFE)) p += 50;
-			if (!(bp_ptr->flags2 & TR2_RES_CONF)) p += 50;
+			if (!(FLAG(bp_ptr, TR_RES_NETHER))) p += 50;
+			if (!(FLAG(bp_ptr, TR_HOLD_LIFE))) p += 50;
+			if (!(FLAG(bp_ptr, TR_RES_CONF))) p += 50;
 			if (bp_ptr->lev == 50) break;
 			p += 100;
 			break;
@@ -3067,25 +3136,25 @@ static int borg_fear_spell(int i)
 
 		case 19:
 		{
-			/* RF4_BR_DISE */
+			/* RF3_BR_DISE */
 			z = ouch;
-			if (bp_ptr->flags2 & TR2_RES_DISEN) break;
+			if (FLAG(bp_ptr, TR_RES_DISEN)) break;
 			p += 500;
 			break;
 		}
 
 		case 20:
 		{
-			/* RF4_BR_NEXU */
+			/* RF3_BR_NEXU */
 			z = ouch;
-			if (bp_ptr->flags2 & TR2_RES_NEXUS) break;
+			if (FLAG(bp_ptr, TR_RES_NEXUS)) break;
 			p += 100;
 			break;
 		}
 
 		case 21:
 		{
-			/* RF4_BR_TIME */
+			/* RF3_BR_TIME */
 			z = ouch;
 			p += 200;
 			break;
@@ -3093,7 +3162,7 @@ static int borg_fear_spell(int i)
 
 		case 22:
 		{
-			/* RF4_BR_INER */
+			/* RF3_BR_INER */
 			z = ouch;
 			p += 50;
 			break;
@@ -3101,76 +3170,76 @@ static int borg_fear_spell(int i)
 
 		case 23:
 		{
-			/* RF4_BR_GRAV */
+			/* RF3_BR_GRAV */
 			z = ouch;
 			p += 50;
-			if (bp_ptr->flags2 & TR2_RES_SOUND) break;
+			if (FLAG(bp_ptr, TR_RES_SOUND)) break;
 			p += 50;
 			break;
 		}
 
 		case 24:
 		{
-			/* RF4_BR_SHAR */
+			/* RF3_BR_SHAR */
 			z = ouch;
-			if (bp_ptr->flags2 & TR2_RES_SHARDS) break;
+			if (FLAG(bp_ptr, TR_RES_SHARDS)) break;
 			p += 50;
 			break;
 		}
 
 		case 25:
 		{
-			/* RF4_BR_PLAS */
+			/* RF3_BR_PLAS */
 			z = ouch;
-			if (bp_ptr->flags2 & TR2_RES_SOUND) break;
+			if (FLAG(bp_ptr, TR_RES_SOUND)) break;
 			p += 50;
 			break;
 		}
 
 		case 26:
 		{
-			/* RF4_BR_WALL */
+			/* RF3_BR_WALL */
 			z = ouch;
-			if (bp_ptr->flags2 & TR2_RES_SOUND) break;
+			if (FLAG(bp_ptr, TR_RES_SOUND)) break;
 			p += 50;
 			break;
 		}
 
 		case 27:
 		{
-			/* RF4_BR_MANA */
+			/* RF3_BR_MANA */
 			/* XXX XXX XXX */
 			break;
 		}
 
 		case 28:
 		{
-			/* RF4_XXX5X4 */
+			/* RF3_XXX5X4 */
 			break;
 		}
 
 		case 29:
 		{
-			/* RF4_XXX6X4 */
+			/* RF3_XXX6X4 */
 			break;
 		}
 
 		case 30:
 		{
-			/* RF4_XXX7X4 */
+			/* RF3_XXX7X4 */
 			break;
 		}
 
 		case 31:
 		{
-			/* RF4_XXX8X4 */
+			/* RF3_XXX8X4 */
 			break;
 		}
 
 		case 32:
 		{
-			/* RF5_BA_ACID */
-			if (bp_ptr->flags2 & TR2_IM_ACID) break;
+			/* RF4_BA_ACID */
+			if (FLAG(bp_ptr, TR_IM_ACID)) break;
 			z = ouch;
 			p += 40;
 			break;
@@ -3178,8 +3247,8 @@ static int borg_fear_spell(int i)
 
 		case 33:
 		{
-			/* RF5_BA_ELEC */
-			if (bp_ptr->flags2 & TR2_IM_ELEC) break;
+			/* RF4_BA_ELEC */
+			if (FLAG(bp_ptr, TR_IM_ELEC)) break;
 			z = ouch;
 			p += 20;
 			break;
@@ -3187,8 +3256,8 @@ static int borg_fear_spell(int i)
 
 		case 34:
 		{
-			/* RF5_BA_FIRE */
-			if (bp_ptr->flags2 & TR2_IM_FIRE) break;
+			/* RF4_BA_FIRE */
+			if (FLAG(bp_ptr, TR_IM_FIRE)) break;
 			z = ouch;
 			p += 40;
 			break;
@@ -3196,8 +3265,8 @@ static int borg_fear_spell(int i)
 
 		case 35:
 		{
-			/* RF5_BA_COLD */
-			if (bp_ptr->flags2 & TR2_IM_COLD) break;
+			/* RF4_BA_COLD */
+			if (FLAG(bp_ptr, TR_IM_COLD)) break;
 			z = ouch;
 			p += 20;
 			break;
@@ -3205,25 +3274,25 @@ static int borg_fear_spell(int i)
 
 		case 36:
 		{
-			/* RF5_BA_POIS */
+			/* RF4_BA_POIS */
 			z = ouch;
-			if (bp_ptr->flags2 & TR2_RES_POIS) break;
+			if (FLAG(bp_ptr, TR_RES_POIS)) break;
 			p += 20;
 			break;
 		}
 
 		case 37:
 		{
-			/* RF5_BA_NETH */
+			/* RF4_BA_NETH */
 			z = ouch + 100;
-			if (bp_ptr->flags2 & TR2_RES_NETHER) break;
+			if (FLAG(bp_ptr, TR_RES_NETHER)) break;
 			p += 300;
 			break;
 		}
 
 		case 38:
 		{
-			/* RF5_BA_WATE */
+			/* RF4_BA_WATE */
 			z = ouch;
 			p += 50;
 			break;
@@ -3231,38 +3300,38 @@ static int borg_fear_spell(int i)
 
 		case 39:
 		{
-			/* RF5_BA_MANA */
+			/* RF4_BA_MANA */
 			z = ouch;
 			break;
 		}
 
 		case 40:
 		{
-			/* RF5_BA_DARK */
+			/* RF4_BA_DARK */
 			z = ouch;
-			if (bp_ptr->flags2 & TR2_RES_DARK) break;
-			if (bp_ptr->flags2 & TR2_RES_BLIND) break;
+			if (FLAG(bp_ptr, TR_RES_DARK)) break;
+			if (FLAG(bp_ptr, TR_RES_BLIND)) break;
 			p += 20;
 			break;
 		}
 
 		case 41:
 		{
-			/* RF5_DRAIN_MANA */
+			/* RF4_DRAIN_MANA */
 			if (bp_ptr->msp) p += 10;
 			break;
 		}
 
 		case 42:
 		{
-			/* RF5_MIND_BLAST */
+			/* RF4_MIND_BLAST */
 			z = 20;
 			break;
 		}
 
 		case 43:
 		{
-			/* RF5_BRAIN_SMASH */
+			/* RF4_BRAIN_SMASH */
 			z = (12 * 15);
 			p += 100;
 			break;
@@ -3270,28 +3339,28 @@ static int borg_fear_spell(int i)
 
 		case 44:
 		{
-			/* RF5_CAUSE_1 */
+			/* RF4_CAUSE_1 */
 			z = (3 * 8);
 			break;
 		}
 
 		case 45:
 		{
-			/* RF5_CAUSE_2 */
+			/* RF4_CAUSE_2 */
 			z = (8 * 8);
 			break;
 		}
 
 		case 46:
 		{
-			/* RF5_CAUSE_3 */
+			/* RF4_CAUSE_3 */
 			z = (10 * 15);
 			break;
 		}
 
 		case 47:
 		{
-			/* RF5_CAUSE_4 */
+			/* RF4_CAUSE_4 */
 			z = (15 * 15);
 			p += 50;
 			break;
@@ -3299,8 +3368,8 @@ static int borg_fear_spell(int i)
 
 		case 48:
 		{
-			/* RF5_BO_ACID */
-			if (bp_ptr->flags2 & TR2_IM_ACID) break;
+			/* RF4_BO_ACID */
+			if (FLAG(bp_ptr, TR_IM_ACID)) break;
 			z = ouch;
 			p += 40;
 			break;
@@ -3308,8 +3377,8 @@ static int borg_fear_spell(int i)
 
 		case 49:
 		{
-			/* RF5_BO_ELEC */
-			if (bp_ptr->flags2 & TR2_IM_ELEC) break;
+			/* RF4_BO_ELEC */
+			if (FLAG(bp_ptr, TR_IM_ELEC)) break;
 			z = ouch;
 			p += 20;
 			break;
@@ -3317,8 +3386,8 @@ static int borg_fear_spell(int i)
 
 		case 50:
 		{
-			/* RF5_BO_FIRE */
-			if (bp_ptr->flags2 & TR2_IM_FIRE) break;
+			/* RF4_BO_FIRE */
+			if (FLAG(bp_ptr, TR_IM_FIRE)) break;
 			z = ouch;
 			p += 40;
 			break;
@@ -3326,8 +3395,8 @@ static int borg_fear_spell(int i)
 
 		case 51:
 		{
-			/* RF5_BO_COLD */
-			if (bp_ptr->flags2 & TR2_IM_COLD) break;
+			/* RF4_BO_COLD */
+			if (FLAG(bp_ptr, TR_IM_COLD)) break;
 			z = ouch;
 			p += 20;
 			break;
@@ -3335,23 +3404,23 @@ static int borg_fear_spell(int i)
 
 		case 52:
 		{
-			/* RF5_BO_POIS */
+			/* RF4_BO_POIS */
 			/* XXX XXX XXX */
 			break;
 		}
 
 		case 53:
 		{
-			/* RF5_BO_NETH */
+			/* RF4_BO_NETH */
 			z = ouch + 100;
-			if (bp_ptr->flags2 & TR2_RES_NETHER) break;
+			if (FLAG(bp_ptr, TR_RES_NETHER)) break;
 			p += 200;
 			break;
 		}
 
 		case 54:
 		{
-			/* RF5_BO_WATE */
+			/* RF4_BO_WATE */
 			z = ouch;
 			p += 20;
 			break;
@@ -3359,14 +3428,14 @@ static int borg_fear_spell(int i)
 
 		case 55:
 		{
-			/* RF5_BO_MANA */
+			/* RF4_BO_MANA */
 			z = ouch;
 			break;
 		}
 
 		case 56:
 		{
-			/* RF5_BO_PLAS */
+			/* RF4_BO_PLAS */
 			z = ouch;
 			p += 20;
 			break;
@@ -3374,7 +3443,7 @@ static int borg_fear_spell(int i)
 
 		case 57:
 		{
-			/* RF5_BO_ICEE */
+			/* RF4_BO_ICEE */
 			z = ouch;
 			p += 20;
 			break;
@@ -3382,127 +3451,127 @@ static int borg_fear_spell(int i)
 
 		case 58:
 		{
-			/* RF5_MISSILE */
+			/* RF4_MISSILE */
 			z = ouch;
 			break;
 		}
 
 		case 59:
 		{
-			/* RF5_SCARE */
+			/* RF4_SCARE */
 			p += 10;
 			break;
 		}
 
 		case 60:
 		{
-			/* RF5_BLIND */
+			/* RF4_BLIND */
 			p += 10;
 			break;
 		}
 
 		case 61:
 		{
-			/* RF5_CONF */
+			/* RF4_CONF */
 			p += 10;
 			break;
 		}
 
 		case 62:
 		{
-			/* RF5_SLOW */
+			/* RF4_SLOW */
 			p += 5;
 			break;
 		}
 
 		case 63:
 		{
-			/* RF5_HOLD */
+			/* RF4_HOLD */
 			p += 20;
 			break;
 		}
 
 		case 64:
 		{
-			/* RF6_HASTE */
+			/* RF5_HASTE */
 			p += 10 + bp_ptr->depth;
 			break;
 		}
 
 		case 65:
 		{
-			/* RF6_XXX1X6 */
+			/* RF5_XXX1X6 */
 			break;
 		}
 
 		case 66:
 		{
-			/* RF6_HEAL */
+			/* RF5_HEAL */
 			p += 10;
 			break;
 		}
 
 		case 67:
 		{
-			/* RF6_XXX2X6 */
+			/* RF5_XXX2X6 */
 			break;
 		}
 
 		case 68:
 		{
-			/* RF6_XXX3X6 */
+			/* RF5_XXX3X6 */
 			break;
 		}
 
 		case 69:
 		{
-			/* RF6_XXX4X6 */
+			/* RF5_XXX4X6 */
 			break;
 		}
 
 		case 70:
 		{
-			/* RF6_TELE_TO */
+			/* RF5_TELE_TO */
 			p += 20 + bp_ptr->depth;
 			break;
 		}
 
 		case 71:
 		{
-			/* RF6_TELE_AWAY */
+			/* RF5_TELE_AWAY */
 			p += 10;
 			break;
 		}
 
 		case 72:
 		{
-			/* RF6_TELE_LEVEL */
+			/* RF5_TELE_LEVEL */
 			p += 50;
 			break;
 		}
 
 		case 73:
 		{
-			/* RF6_XXX5 */
+			/* RF5_XXX5 */
 			break;
 		}
 
 		case 74:
 		{
-			/* RF6_DARKNESS */
+			/* RF5_DARKNESS */
 			break;
 		}
 
 		case 75:
 		{
-			/* RF6_TRAPS */
+			/* RF5_TRAPS */
 			p += 50;
 			break;
 		}
 
 		case 76:
 		{
-			/* RF6_FORGET */
+			/* RF5_FORGET */
 			/* if you have lots of cash this is not very scary... just re-ID. */
 			if (bp_ptr->lev < 35)
 				p += 500;
@@ -3513,116 +3582,116 @@ static int borg_fear_spell(int i)
 
 		case 77:
 		{
-			/* RF6_XXX6X6 */
+			/* RF5_XXX6X6 */
 			break;
 		}
 
 		case 78:
 		{
-			/* RF6_XXX7X6 */
+			/* RF5_XXX7X6 */
 			break;
 		}
 
 		case 79:
 		{
-			/* RF6_XXX8X6 */
+			/* RF5_XXX8X6 */
 			break;
 		}
 
 		case 80:
 		{
-			/* RF6_S_MONSTER */
+			/* RF5_S_MONSTER */
 			p += 55;
 			break;
 		}
 
 		case 81:
 		{
-			/* RF6_S_MONSTERS */
+			/* RF5_S_MONSTERS */
 			p += 30;
 			break;
 		}
 
 		case 82:
 		{
-			/* RF6_S_ANT */
+			/* RF5_S_ANT */
 			p += 15;
 			break;
 		}
 
 		case 83:
 		{
-			/* RF6_S_SPIDER */
+			/* RF5_S_SPIDER */
 			p += 25;
 			break;
 		}
 
 		case 84:
 		{
-			/* RF6_S_HOUND */
+			/* RF5_S_HOUND */
 			p += 45;
 			break;
 		}
 
 		case 85:
 		{
-			/* RF6_S_HYDRA */
+			/* RF5_S_HYDRA */
 			p += 70;
 			break;
 		}
 
 		case 86:
 		{
-			/* RF6_S_ANGEL */
+			/* RF5_S_ANGEL */
 			p += 80;
 			break;
 		}
 
 		case 87:
 		{
-			/* RF6_S_DEMON */
+			/* RF5_S_DEMON */
 			p += 80;
 			break;
 		}
 
 		case 88:
 		{
-			/* RF6_S_UNDEAD */
+			/* RF5_S_UNDEAD */
 			p += 80;
 			break;
 		}
 
 		case 89:
 		{
-			/* RF6_S_DRAGON */
+			/* RF5_S_DRAGON */
 			p += 80;
 			break;
 		}
 
 		case 90:
 		{
-			/* RF6_S_HI_UNDEAD */
+			/* RF5_S_HI_UNDEAD */
 			p += 95;
 			break;
 		}
 
 		case 91:
 		{
-			/* RF6_S_HI_DRAGON */
+			/* RF5_S_HI_DRAGON */
 			p += 95;
 			break;
 		}
 
 		case 92:
 		{
-			/* RF6_S_WRAITH */
+			/* RF5_S_WRAITH */
 			p += 95;
 			break;
 		}
 
 		case 93:
 		{
-			/* RF6_S_UNIQUE */
+			/* RF5_S_UNIQUE */
 			p += 50;
 			break;
 		}
@@ -3702,7 +3771,7 @@ void borg_update(void)
 	delete_dead_objects();
 
 	/* Assume I can shoot here */
-	successful_target = 0;
+	successful_target = BORG_TARGET;
 
 	/* Update the view */
 	borg_update_view();
@@ -3811,8 +3880,8 @@ void borg_update(void)
 
 			borg_msg_use[i] = 2;
 
-			/* Shooting through darkness worked */
-			if (successful_target < 0) successful_target = 2;
+			/* Shooting (through darkness maybe) worked */
+			successful_target = BORG_TARGET;
 		}
 
 		/* Handle "The xxx disappears!"  via teleport other, and blinks away */
@@ -3824,8 +3893,8 @@ void borg_update(void)
 				borg_delete_kill(k, "blinked");
 				borg_msg_use[i] = 2;
 			}
-			/* Shooting through darkness worked */
-			if (successful_target < 0) successful_target = 2;
+			/* Shooting (through darkness maybe) worked */
+			successful_target = BORG_TARGET;
 		}
 
 		/* Handle "xxx dies." */
@@ -3835,8 +3904,8 @@ void borg_update(void)
 
 			borg_msg_use[i] = 2;
 
-			/* Shooting through darkness worked */
-			if (successful_target < 0) successful_target = 2;
+			/* Shooting (through darkness maybe) worked */
+			successful_target = BORG_TARGET;
 		}
 
 		/* Handle "xxx screams in pain." */
@@ -3847,8 +3916,8 @@ void borg_update(void)
 			{
 				borg_msg_use[i] = 2;
 			}
-			/* Shooting through darkness worked */
-			if (successful_target < 0) successful_target = 2;
+			/* Shooting (through darkness maybe) worked */
+			successful_target = BORG_TARGET;
 		}
 
 		/* Handle "sleep" */
@@ -3872,18 +3941,18 @@ void borg_update(void)
 		}
 		else if (prefix(msg, "STATE_SLEEP:"))
 		{
-			/* Shooting through darkness worked */
-			if (successful_target < 0) successful_target = 2;
+			/* Shooting (through darkness maybe) worked */
+			successful_target = BORG_TARGET;
 		}
 		else if (prefix(msg, "STATE__FEAR:"))
 		{
-			/* Shooting through darkness worked */
-			if (successful_target < 0) successful_target = 2;
+			/* Shooting (through darkness maybe) worked */
+			successful_target = BORG_TARGET;
 		}
 		else if (prefix(msg, "STATE_CONFUSED:"))
 		{
-			/* Shooting through darkness worked */
-			if (successful_target < 0) successful_target = 2;
+			/* Shooting (through darkness maybe) worked */
+			successful_target = BORG_TARGET;
 		}
 
 
@@ -3955,8 +4024,8 @@ void borg_update(void)
 
 			borg_msg_use[i] = 3;
 
-			/* Shooting through darkness worked */
-			if (successful_target == -1) successful_target = 2;
+			/* Shooting (through darkness maybe) worked */
+			successful_target = BORG_TARGET;
 		}
 
 		/* Handle "The xxx disappears!"  via teleport other, and blinks away */
@@ -3968,8 +4037,8 @@ void borg_update(void)
 				borg_delete_kill(k, "blinked");
 				borg_msg_use[i] = 3;
 			}
-			/* Shooting through darkness worked */
-			if (successful_target == -1) successful_target = 2;
+			/* Shooting (through darkness maybe) worked */
+			successful_target = BORG_TARGET;
 		}
 
 
@@ -3980,8 +4049,8 @@ void borg_update(void)
 
 			borg_msg_use[i] = 3;
 
-			/* Shooting through darkness worked */
-			if (successful_target == -1) successful_target = 2;
+			/* Shooting (through darkness maybe) worked */
+			successful_target = BORG_TARGET;
 		}
 
 		/* Handle "xxx screams in pain." */
@@ -3992,8 +4061,8 @@ void borg_update(void)
 			{
 				borg_msg_use[i] = 3;
 			}
-			/* Shooting through darkness worked */
-			if (successful_target == -1) successful_target = 2;
+			/* Shooting (through darkness maybe) worked */
+			successful_target = BORG_TARGET;
 		}
 
 		/* Handle "xxx hits you." */
@@ -4091,7 +4160,7 @@ void borg_update(void)
 		need_see_inviso = 1;
 
 		/* reset our 'shoot in the dark' flag */
-		successful_target = 0;
+		successful_target = BORG_TARGET;
 
 		/* When level was begun */
 		borg_began = borg_t;
@@ -4582,7 +4651,7 @@ void borg_init_2(void)
 		if (!r_ptr->name) continue;
 
 		/* Skip non-unique monsters */
-		if (!(r_ptr->flags1 & RF1_UNIQUE)) continue;
+		if (!FLAG(r_ptr, RF_UNIQUE)) continue;
 
 		/* Use it */
 		text[size] = r_name + r_ptr->name;
@@ -4595,7 +4664,7 @@ void borg_init_2(void)
 	ang_sort_swap = ang_sort_swap_hook_strings;
 
 	/* Sort */
-	ang_sort(text, what, size);
+	ang_sort((void *) text, what, size);
 
 	/* Save the size */
 	borg_unique_size = size;
@@ -4623,7 +4692,7 @@ void borg_init_2(void)
 		if (!r_ptr->name) continue;
 
 		/* Skip unique monsters */
-		if (r_ptr->flags1 & RF1_UNIQUE) continue;
+		if (FLAG(r_ptr, RF_UNIQUE)) continue;
 
 		/* Use it */
 		text[size] = r_name + r_ptr->name;
@@ -4636,7 +4705,7 @@ void borg_init_2(void)
 	ang_sort_swap = ang_sort_swap_hook_strings;
 
 	/* Sort */
-	ang_sort(text, what, size);
+	ang_sort((void *) text, what, size);
 
 	/* Save the size */
 	borg_normal_size = size;
@@ -4651,7 +4720,7 @@ void borg_init_2(void)
 
 	/* Free the arrays */
 	FREE(what);
-	FREE(text);
+	FREE((void *)text);
 }
 
 

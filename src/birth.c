@@ -400,7 +400,7 @@ static void player_wipe(void)
 
 	/* Hack -- Restore the cave and wilderness arrays */
 	C_COPY(p_ptr->pcave, pcave, MAX_HGT, pcave_type *);
-	p_ptr->pwild = pwild;;
+	p_ptr->pwild = pwild;
 
 	/* Hack -- Restore the option arrays */
 	C_COPY(p_ptr->options, options, OPT_PLAYER, bool);
@@ -428,8 +428,8 @@ static void player_wipe(void)
 		r_ptr->max_num = 100;
 
 		/* Hack -- Reset the max counter */
-		if (r_ptr->flags1 & RF1_UNIQUE) r_ptr->max_num = 1;
-		if (r_ptr->flags3 & RF3_UNIQUE_7) r_ptr->max_num = 7;
+		if (FLAG(r_ptr, RF_UNIQUE)) r_ptr->max_num = 1;
+		if (FLAG(r_ptr, RF_UNIQUE_7)) r_ptr->max_num = 7;
 
 		/* Clear player kills */
 		r_ptr->r_pkills = 0;
@@ -811,11 +811,7 @@ static bool get_player_race(void)
 	/* Give beastman a mutation at character birth */
 	if (p_ptr->rp.prace == RACE_BEASTMAN)
 	{
-		hack_mutation = TRUE;
-	}
-	else
-	{
-		hack_mutation = FALSE;
+		p_ptr->change |= (PC_MUTATE);
 	}
 
 	/* Save the race pointer */
@@ -1080,8 +1076,8 @@ static bool player_birth_aux_1(void)
 		put_fstr(11, 7, CLR_L_BLUE "%s", realm_names[p_ptr->spell.r[1].realm]);
 	}
 
-	/* And finally, get the number of random quests */
-	get_player_quests(-1);
+	/* And finally, initialize the starting quests */
+	init_player_quests();
 
 	/* Clear */
 	clear_from(15);

@@ -66,6 +66,23 @@ static cptr f_info_flags[] =
 
 
 /*
+ * Object script triggers
+ */
+static cptr k_info_triggers[] =
+{
+	"USE",
+	"MAKE",
+	"BONUS",
+	"SMASH",
+	"DESC",
+	"TIMED",
+	"HIT",
+	"ATTACK",
+	NULL
+};
+
+
+/*
  * Monster Blow Methods
  */
 static cptr r_info_blow_method[] =
@@ -506,7 +523,7 @@ static cptr k_info_flags1[] =
 	"CON",
 	"CHR",
 	"XXX1",
-	"XXX2",
+	"SP",
 	"STEALTH",
 	"SENSE",
 	"INFRA",
@@ -545,7 +562,7 @@ static cptr k_info_flags2[] =
 	"SUST_CON",
 	"SUST_CHR",
 	"XXX1",
-	"XXX2",
+	"IM_POIS",
 	"IM_ACID",
 	"IM_ELEC",
 	"IM_FIRE",
@@ -613,7 +630,7 @@ static cptr k_info_flags3[] =
 
 static cptr k_info_flags4[] =
 {
-	"XXX1",
+	"LUCK_10",
 	"XXX2",
 	"XXX3",
 	"XXX4",
@@ -1312,16 +1329,16 @@ static errr grab_one_flag(u32b *flags, cptr names[], cptr what)
  */
 static errr grab_one_kind_flag(object_kind *k_ptr, cptr what)
 {
-	if (grab_one_flag(&k_ptr->flags1, k_info_flags1, what) == 0)
+	if (grab_one_flag(&k_ptr->flags[0], k_info_flags1, what) == 0)
 		return (0);
 
-	if (grab_one_flag(&k_ptr->flags2, k_info_flags2, what) == 0)
+	if (grab_one_flag(&k_ptr->flags[1], k_info_flags2, what) == 0)
 		return (0);
 
-	if (grab_one_flag(&k_ptr->flags3, k_info_flags3, what) == 0)
+	if (grab_one_flag(&k_ptr->flags[2], k_info_flags3, what) == 0)
 		return (0);
 
-	if (grab_one_flag(&k_ptr->flags4, k_info_flags4, what) == 0)
+	if (grab_one_flag(&k_ptr->flags[3], k_info_flags4, what) == 0)
 		return (0);
 
 	/* Oops */
@@ -1552,6 +1569,41 @@ errr parse_k_info(char *buf, header *head)
 		}
 	}
 
+	/* Process 'L' for "Lua script" */
+	else if (buf[0] == 'L')
+	{
+		int n;
+		
+		/* There better be a current k_ptr */
+		if (!k_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+
+		/* Analyze the first field */
+		for (s = t = buf + 2; *t && (*t != ':'); t++) /* loop */ ;
+
+		/* Terminate the field (if necessary) */
+		if (*t == ':') *t++ = '\0';
+
+		/* Analyze the trigger */
+		for (n = 0; k_info_triggers[n]; n++)
+		{
+			if (streq(s, k_info_triggers[n])) break;
+		}
+
+		/* Invalid trigger */
+		if (!k_info_triggers[n]) return (PARSE_ERROR_GENERIC);
+
+		/* Get the text */
+		s = t;
+
+		/* Store the text */
+		if (!add_text(&(k_ptr->trigger[n]), head, s))
+		{
+			msgf("Icky Trigger!!");
+			message_flush();
+			return (PARSE_ERROR_OUT_OF_MEMORY);
+		}
+	}
+
 	else
 	{
 		/* Oops */
@@ -1568,16 +1620,16 @@ errr parse_k_info(char *buf, header *head)
  */
 static errr grab_one_artifact_flag(artifact_type *a_ptr, cptr what)
 {
-	if (grab_one_flag(&a_ptr->flags1, k_info_flags1, what) == 0)
+	if (grab_one_flag(&a_ptr->flags[0], k_info_flags1, what) == 0)
 		return (0);
 
-	if (grab_one_flag(&a_ptr->flags2, k_info_flags2, what) == 0)
+	if (grab_one_flag(&a_ptr->flags[1], k_info_flags2, what) == 0)
 		return (0);
 
-	if (grab_one_flag(&a_ptr->flags3, k_info_flags3, what) == 0)
+	if (grab_one_flag(&a_ptr->flags[2], k_info_flags3, what) == 0)
 		return (0);
 
-	if (grab_one_flag(&a_ptr->flags4, k_info_flags4, what) == 0)
+	if (grab_one_flag(&a_ptr->flags[3], k_info_flags4, what) == 0)
 		return (0);
 
 	/* Oops */
@@ -1636,7 +1688,7 @@ errr parse_a_info(char *buf, header *head)
 			return (PARSE_ERROR_OUT_OF_MEMORY);
 
 		/* Ignore everything */
-		a_ptr->flags3 |= (TR3_IGNORE_MASK);
+		SET_FLAG(a_ptr, TR_IGNORE_MASK);
 	}
 
 	/* Process 'I' for "Info" (one line only) */
@@ -1728,6 +1780,59 @@ errr parse_a_info(char *buf, header *head)
 		}
 	}
 
+	/* Process 'D' for "Description" */
+	else if (buf[0] == 'D')
+	{
+		/* There better be a current k_ptr */
+		if (!a_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+
+		/* Get the text */
+		s = buf + 2;
+
+		/* Store the text */
+		if (!add_text(&(a_ptr->text), head, s))
+		{
+			msgf("Icky Description!!");
+			message_flush();
+			return (PARSE_ERROR_OUT_OF_MEMORY);
+		}
+	}
+
+	/* Process 'L' for "Lua script" */
+	else if (buf[0] == 'L')
+	{
+		int n;
+		
+		/* There better be a current a_ptr */
+		if (!a_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+
+		/* Analyze the first field */
+		for (s = t = buf + 2; *t && (*t != ':'); t++) /* loop */ ;
+
+		/* Terminate the field (if necessary) */
+		if (*t == ':') *t++ = '\0';
+
+		/* Analyze the trigger */
+		for (n = 0; k_info_triggers[n]; n++)
+		{
+			if (streq(s, k_info_triggers[n])) break;
+		}
+
+		/* Invalid trigger */
+		if (!k_info_triggers[n]) return (PARSE_ERROR_GENERIC);
+
+		/* Get the text */
+		s = t;
+
+		/* Store the text */
+		if (!add_text(&(a_ptr->trigger[n]), head, s))
+		{
+			msgf("Icky Trigger!!");
+			message_flush();
+			return (PARSE_ERROR_OUT_OF_MEMORY);
+		}
+	}
+
 	else
 	{
 		/* Oops */
@@ -1744,16 +1849,16 @@ errr parse_a_info(char *buf, header *head)
  */
 static bool grab_one_ego_item_flag(ego_item_type *e_ptr, cptr what)
 {
-	if (grab_one_flag(&e_ptr->flags1, k_info_flags1, what) == 0)
+	if (grab_one_flag(&e_ptr->flags[0], k_info_flags1, what) == 0)
 		return (0);
 
-	if (grab_one_flag(&e_ptr->flags2, k_info_flags2, what) == 0)
+	if (grab_one_flag(&e_ptr->flags[1], k_info_flags2, what) == 0)
 		return (0);
 
-	if (grab_one_flag(&e_ptr->flags3, k_info_flags3, what) == 0)
+	if (grab_one_flag(&e_ptr->flags[2], k_info_flags3, what) == 0)
 		return (0);
 
-	if (grab_one_flag(&e_ptr->flags4, k_info_flags4, what) == 0)
+	if (grab_one_flag(&e_ptr->flags[3], k_info_flags4, what) == 0)
 		return (0);
 
 	/* Oops */
@@ -1903,6 +2008,42 @@ errr parse_e_info(char *buf, header *head)
 			s = t;
 		}
 	}
+
+	/* Process 'L' for "Lua script" */
+	else if (buf[0] == 'L')
+	{
+		int n;
+		
+		/* There better be a current e_ptr */
+		if (!e_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+
+		/* Analyze the first field */
+		for (s = t = buf + 2; *t && (*t != ':'); t++) /* loop */ ;
+
+		/* Terminate the field (if necessary) */
+		if (*t == ':') *t++ = '\0';
+
+		/* Analyze the trigger */
+		for (n = 0; k_info_triggers[n]; n++)
+		{
+			if (streq(s, k_info_triggers[n])) break;
+		}
+
+		/* Invalid trigger */
+		if (!k_info_triggers[n]) return (PARSE_ERROR_GENERIC);
+
+		/* Get the text */
+		s = t;
+
+		/* Store the text */
+		if (!add_text(&(e_ptr->trigger[n]), head, s))
+		{
+			msgf("Icky Trigger!!");
+			message_flush();
+			return (PARSE_ERROR_OUT_OF_MEMORY);
+		}
+	}
+
 	else
 	{
 		/* Oops */
@@ -1919,22 +2060,22 @@ errr parse_e_info(char *buf, header *head)
  */
 static errr grab_one_basic_flag(monster_race *r_ptr, cptr what)
 {
-	if (grab_one_flag(&r_ptr->flags1, r_info_flags1, what) == 0)
+	if (grab_one_flag(&r_ptr->flags[0], r_info_flags1, what) == 0)
 		return (0);
 
-	if (grab_one_flag(&r_ptr->flags2, r_info_flags2, what) == 0)
+	if (grab_one_flag(&r_ptr->flags[1], r_info_flags2, what) == 0)
 		return (0);
 
-	if (grab_one_flag(&r_ptr->flags3, r_info_flags3, what) == 0)
+	if (grab_one_flag(&r_ptr->flags[2], r_info_flags3, what) == 0)
 		return (0);
 
-	if (grab_one_flag(&r_ptr->flags7, r_info_flags7, what) == 0)
+	if (grab_one_flag(&r_ptr->flags[6], r_info_flags7, what) == 0)
 		return (0);
 
-	if (grab_one_flag(&r_ptr->flags8, r_info_flags8, what) == 0)
+	if (grab_one_flag(&r_ptr->flags[7], r_info_flags8, what) == 0)
 		return (0);
 
-	if (grab_one_flag(&r_ptr->flags9, r_info_flags9, what) == 0)
+	if (grab_one_flag(&r_ptr->flags[8], r_info_flags9, what) == 0)
 		return (0);
 
 	/* Oops */
@@ -1950,13 +2091,13 @@ static errr grab_one_basic_flag(monster_race *r_ptr, cptr what)
  */
 static errr grab_one_spell_flag(monster_race *r_ptr, cptr what)
 {
-	if (grab_one_flag(&r_ptr->flags4, r_info_flags4, what) == 0)
+	if (grab_one_flag(&r_ptr->flags[3], r_info_flags4, what) == 0)
 		return (0);
 
-	if (grab_one_flag(&r_ptr->flags5, r_info_flags5, what) == 0)
+	if (grab_one_flag(&r_ptr->flags[4], r_info_flags5, what) == 0)
 		return (0);
 
-	if (grab_one_flag(&r_ptr->flags6, r_info_flags6, what) == 0)
+	if (grab_one_flag(&r_ptr->flags[5], r_info_flags6, what) == 0)
 		return (0);
 
 	/* Oops */

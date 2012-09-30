@@ -11,6 +11,7 @@
  */
 
 #include "angband.h"
+#include "script.h"
 
 /* Maximum number of tries for teleporting */
 #define MAX_TRIES 100
@@ -94,7 +95,7 @@ bool teleport_away(int m_idx, int dis)
 			flags = MEG_DO_MOVE;
 
 			/* Call the hook */
-			field_hook(&c_ptr->fld_idx, FIELD_ACT_MON_ENTER_TEST,
+			field_hook(c_ptr, FIELD_ACT_MON_ENTER_TEST,
 					   (monster_type *) NULL, &flags);
 
 			/* Get result */
@@ -124,7 +125,7 @@ bool teleport_away(int m_idx, int dis)
 	sound(SOUND_TPOTHER);
 
 	/* Process fields under the monster. */
-	field_hook(&c_ptr->fld_idx, FIELD_ACT_MONSTER_LEAVE, m_ptr);
+	field_hook(c_ptr, FIELD_ACT_MONSTER_LEAVE, m_ptr);
 
 	/* Update the new location */
 	area(nx, ny)->m_idx = m_idx;
@@ -140,7 +141,7 @@ bool teleport_away(int m_idx, int dis)
 	update_mon(m_idx, TRUE);
 
 	/* Process fields under the monster. */
-	field_hook(&c_ptr->fld_idx, FIELD_ACT_MONSTER_ENTER, m_ptr);
+	field_hook(c_ptr, FIELD_ACT_MONSTER_ENTER, m_ptr);
 
 	/* Redraw the old grid */
 	lite_spot(ox, oy);
@@ -149,7 +150,7 @@ bool teleport_away(int m_idx, int dis)
 	lite_spot(nx, ny);
 
 	/* Notice changes in view */
-	if (r_ptr->flags7 & (RF7_LITE_1 | RF7_LITE_2))
+	if (FLAG(r_ptr, RF_LITE_1) ||  FLAG(r_ptr, RF_LITE_2))
 	{
 		/* Update some things */
 		p_ptr->update |= (PU_MON_LITE);
@@ -219,7 +220,7 @@ void teleport_to_player(int m_idx)
 			c_ptr = area(nx, ny);
 
 			/* Check for a field that blocks movement */
-			if (fields_have_flags(c_ptr->fld_idx, FIELD_INFO_NO_ENTER))
+			if (fields_have_flags(c_ptr, FIELD_INFO_NO_ENTER))
 			{
 				continue;
 			}
@@ -233,7 +234,7 @@ void teleport_to_player(int m_idx)
 			flags = MEG_DO_MOVE;
 
 			/* Call the hook */
-			field_hook(&c_ptr->fld_idx, FIELD_ACT_MON_ENTER_TEST,
+			field_hook(c_ptr, FIELD_ACT_MON_ENTER_TEST,
 					   (monster_type *) NULL, &flags);
 
 			/* Get result */
@@ -271,7 +272,7 @@ void teleport_to_player(int m_idx)
 	sound(SOUND_TPOTHER);
 
 	/* Process fields under the monster. */
-	field_hook(&c_ptr->fld_idx, FIELD_ACT_MONSTER_LEAVE, m_ptr);
+	field_hook(c_ptr, FIELD_ACT_MONSTER_LEAVE, m_ptr);
 
 	/* Update the new location */
 	area(nx, ny)->m_idx = m_idx;
@@ -287,7 +288,7 @@ void teleport_to_player(int m_idx)
 	update_mon(m_idx, TRUE);
 
 	/* Process fields under the monster. */
-	field_hook(&c_ptr->fld_idx, FIELD_ACT_MONSTER_ENTER, m_ptr);
+	field_hook(c_ptr, FIELD_ACT_MONSTER_ENTER, m_ptr);
 
 	/* Redraw the old grid */
 	lite_spot(ox, oy);
@@ -296,7 +297,7 @@ void teleport_to_player(int m_idx)
 	lite_spot(nx, ny);
 
 	/* Notice changes in view */
-	if (r_ptr->flags7 & (RF7_LITE_1 | RF7_LITE_2))
+	if (FLAG(r_ptr, RF_LITE_1) || FLAG(r_ptr, RF_LITE_2))
 	{
 		/* Update some things */
 		p_ptr->update |= (PU_MON_LITE);
@@ -337,7 +338,7 @@ void teleport_player(int dis)
 	bool look = TRUE;
 	cave_type *c_ptr;
 
-	if (p_ptr->flags3 & (TR3_NO_TELE))
+	if (FLAG(p_ptr, TR_NO_TELE))
 	{
 		msgf("A mysterious force prevents you from teleporting!");
 		return;
@@ -380,7 +381,7 @@ void teleport_player(int dis)
 			if ((y == py) && (x == px)) continue;
 
 			/* Check for a field that blocks movement */
-			if (fields_have_flags(c_ptr->fld_idx, FIELD_INFO_NO_ENTER))
+			if (fields_have_flags(c_ptr, FIELD_INFO_NO_ENTER))
 			{
 				continue;
 			}
@@ -413,7 +414,7 @@ void teleport_player(int dis)
 	ox = px;
 
 	/* Process fields under the player. */
-	field_hook(&area(px, py)->fld_idx, FIELD_ACT_PLAYER_LEAVE);
+	field_hook(area(px, py), FIELD_ACT_PLAYER_LEAVE);
 
 	/* Move the player */
 	py = y;
@@ -441,7 +442,7 @@ void teleport_player(int dis)
 	lite_spot(px, py);
 
 	/* Process fields under the player. */
-	field_hook(&area(px, py)->fld_idx, FIELD_ACT_PLAYER_ENTER);
+	field_hook(area(px, py), FIELD_ACT_PLAYER_ENTER);
 
 	/* Monsters with teleport ability may follow the player */
 	for (xx = -1; xx <= 1; xx++)
@@ -462,8 +463,8 @@ void teleport_player(int dis)
 					m_idx = area(x, y)->m_idx;
 					m_ptr = &m_list[m_idx];
 
-					if ((r_info[m_ptr->r_idx].flags6 & RF6_TPORT) &&
-						!(r_info[m_ptr->r_idx].flags3 & RF3_RES_TELE) &&
+					if ((FLAG(&r_info[m_ptr->r_idx], RF_TPORT)) &&
+						!(FLAG(&r_info[m_ptr->r_idx], RF_RES_TELE)) &&
 						!(m_ptr->csleep))
 						/*
 						 * The RES_TELE limitation is to avoid
@@ -513,7 +514,7 @@ void teleport_player_to(int nx, int ny)
 	/* No movement at all */
 	if ((ny == py) && (nx == px)) return;
 
-	if (p_ptr->flags3 & (TR3_NO_TELE))
+	if (FLAG(p_ptr, TR_NO_TELE))
 	{
 		msgf("A mysterious force prevents you from teleporting!");
 		return;
@@ -538,8 +539,7 @@ void teleport_player_to(int nx, int ny)
 
 		/* Can enter grid? */
 		if (cave_empty_grid(c_ptr) && !(c_ptr->info & CAVE_ICKY) && 
-				!(fields_have_flags(c_ptr->fld_idx,
-														  FIELD_INFO_NO_ENTER)))
+				!(fields_have_flags(c_ptr, FIELD_INFO_NO_ENTER)))
 			break;
 
 		/* Occasionally advance the distance */
@@ -558,7 +558,7 @@ void teleport_player_to(int nx, int ny)
 	ox = px;
 
 	/* Process fields under the player. */
-	field_hook(&area(px, py)->fld_idx, FIELD_ACT_PLAYER_LEAVE);
+	field_hook(area(px, py), FIELD_ACT_PLAYER_LEAVE);
 
 	/* Move the player */
 	py = y;
@@ -586,7 +586,7 @@ void teleport_player_to(int nx, int ny)
 	lite_spot(px, py);
 
 	/* Process fields under the player. */
-	field_hook(&area(px, py)->fld_idx, FIELD_ACT_PLAYER_ENTER);
+	field_hook(area(px, py), FIELD_ACT_PLAYER_ENTER);
 
 	/* Check for new panel (redraw map) */
 	verify_panel();
@@ -606,55 +606,12 @@ void teleport_player_to(int nx, int ny)
 
 
 /*
- * What is the maximum dungeon level for this dungeon?
- */
-int max_dun_level(void)
-{
-	place_type *pl_ptr = &place[p_ptr->place_num];
-	dun_type *d_ptr = pl_ptr->dungeon;
-
-	/* Vanilla town is special */
-	if (vanilla_town) return (MAX_DEPTH - 1);
-	
-	/* Otherwise, use max depth of dungeon */
-	return (d_ptr->max_level);
-}
-
-/*
- * Fix problems due to dungeons not starting at level 1.
- */
-void fixup_dun_level(void)
-{
-	place_type *pl_ptr = &place[p_ptr->place_num];
-	dun_type *d_ptr = pl_ptr->dungeon;
-	
-	/* Don't need to do anything with the old dungeon */
-	if (vanilla_town) return;
-	
-	/* Out of bounds */
-	if (p_ptr->depth < d_ptr->min_level)
-	{
-		/* We have just decended - and have to decend more? */
-		if (p_ptr->depth == 1)
-		{
-			p_ptr->depth = d_ptr->min_level;
-		}
-		else
-		{
-			/* Assume we are rising from d_ptr->min_level upwards. */
-			p_ptr->depth = 0;
-		}
-	}
-}
-
-
-/*
  * Teleport the player one level up or down (random when legal)
  */
 void teleport_player_level(void)
 {
-	/* No effect in quest */
-	if (is_quest_level(p_ptr->depth) && ironman_downward)
+	/* No effect in final quest */
+	if (is_special_level(p_ptr->depth) && ironman_downward)
 	{
 		msgf("There is no effect.");
 		return;
@@ -666,7 +623,7 @@ void teleport_player_level(void)
 		return;
 	}
 	
-	if (p_ptr->flags3 & (TR3_NO_TELE))
+	if (FLAG(p_ptr, TR_NO_TELE))
 	{
 		msgf("A mysterious force prevents you from teleporting!");
 		return;
@@ -683,7 +640,7 @@ void teleport_player_level(void)
 		/* Leaving */
 		p_ptr->state.leaving = TRUE;
 	}
-	else if (is_quest_level(p_ptr->depth))
+	else if (is_special_level(p_ptr->depth))
 	{
 		msgf(MSGT_TPLEVEL, "You rise up through the ceiling.");
 
@@ -694,16 +651,14 @@ void teleport_player_level(void)
 		/* Leaving */
 		p_ptr->state.leaving = TRUE;
 	}
-	else if (one_in_(2) || (p_ptr->depth >= max_dun_level()))
+	else if (one_in_(2) || (p_ptr->depth >= dungeon()->max_level))
 	{
 		msgf(MSGT_TPLEVEL, "You rise up through the ceiling.");
 
 		if (autosave_l) do_cmd_save_game(TRUE);
 
-		p_ptr->depth--;
-
-		/* Leaving */
-		p_ptr->state.leaving = TRUE;
+		/* Go down */
+		move_dun_level(-1);
 	}
 	else
 	{
@@ -711,14 +666,9 @@ void teleport_player_level(void)
 
 		if (autosave_l) do_cmd_save_game(TRUE);
 
-		p_ptr->depth++;
-
-		/* Leaving */
-		p_ptr->state.leaving = TRUE;
+		/* Go up */
+	    move_dun_level(1);
 	}
-
-	/* Fix dungeon level due to new themed dungeons */
-	fixup_dun_level();
 
 	/* Sound */
 	sound(SOUND_TPLEVEL);
@@ -727,6 +677,8 @@ void teleport_player_level(void)
 
 bool check_down_wild(void)
 {
+	place_type *pl_ptr;
+
 	/* Can always recall from dungeon */
 	if (p_ptr->depth) return (TRUE);
 
@@ -740,10 +692,19 @@ bool check_down_wild(void)
 	/* Cannot recall in towns with no dungeon */
 	if (!vanilla_town)
 	{
+		pl_ptr = &place[p_ptr->place_num];
+	
 		/* Look for dungeon */
-		if (!place[p_ptr->place_num].dungeon)
+		if (!pl_ptr->dungeon)
 		{
 			msgf("Nothing happens.");
+			return (FALSE);
+		}
+		
+		/* Else we must have been down before */
+		if (!pl_ptr->dungeon->recall_depth)
+		{
+			msgf("You need to visit the dungeon first.");
 			return (FALSE);
 		}
 	}
@@ -757,6 +718,8 @@ bool check_down_wild(void)
  */
 void recall_player(int turns)
 {
+	dun_type *d_ptr = dungeon();
+
 	/*
 	 * TODO: Recall the player to the last
 	 * visited town when in the wilderness
@@ -771,12 +734,17 @@ void recall_player(int turns)
 
 	if (!check_down_wild()) return;
 
-	if (p_ptr->depth && (p_ptr->max_depth > p_ptr->depth))
+	if (p_ptr->depth && (d_ptr->recall_depth > p_ptr->depth))
 	{
 		if (get_check("Reset recall depth? "))
-			p_ptr->max_depth = p_ptr->depth;
+			d_ptr->recall_depth = p_ptr->depth;
 
 	}
+	else if (p_ptr->depth > d_ptr->recall_depth)
+	{
+		d_ptr->recall_depth = p_ptr->depth;
+	}
+
 	if (!p_ptr->tim.word_recall)
 	{
 		p_ptr->tim.word_recall = turns;
@@ -809,8 +777,6 @@ bool apply_disenchant(void)
 {
 	int t = 0;
 	object_type *o_ptr;
-	char o_name[256];
-
 
 	/* Pick a random slot */
 	switch (randint1(8))
@@ -872,21 +838,22 @@ bool apply_disenchant(void)
 	}
 
 
-	/* Describe the object */
-	object_desc(o_name, o_ptr, FALSE, 0, 256);
-
-
 	/* Artifacts have 71% chance to resist */
-	if ((o_ptr->flags3 & TR3_INSTA_ART) && (randint0(100) < 71))
+	if ((FLAG(o_ptr, TR_INSTA_ART)) && (randint0(100) < 71))
 	{
 		/* Message */
-		msgf("Your %s (%c) resist%s disenchantment!",
-				   o_name, I2A(t), ((o_ptr->number != 1) ? "" : "s"));
+		msgf("Your %v (%c) resist%s disenchantment!",
+				OBJECT_FMT(o_ptr, FALSE, 0), I2A(t),
+				((o_ptr->number != 1) ? "" : "s"));
 
 		/* Notice */
 		return (TRUE);
 	}
-
+	
+	/* Message */
+	msgf("Your %v (%c) %s disenchanted!",
+			OBJECT_FMT(o_ptr, FALSE, 0), I2A(t),
+			((o_ptr->number != 1) ? "were" : "was"));
 
 	/* Disenchant tohit */
 	if (o_ptr->to_h > 0) o_ptr->to_h--;
@@ -900,9 +867,6 @@ bool apply_disenchant(void)
 	if (o_ptr->to_a > 0) o_ptr->to_a--;
 	if ((o_ptr->to_a > 10) && (randint0(100) < 20)) o_ptr->to_a--;
 
-	/* Message */
-	msgf("Your %s (%c) %s disenchanted!",
-			   o_name, I2A(t), ((o_ptr->number != 1) ? "were" : "was"));
 
 	chg_virtue(V_HARMONY, 1);
 	chg_virtue(V_ENCHANT, -2);
@@ -973,7 +937,7 @@ void apply_nexus(const monster_type *m_ptr)
 
 		case 6:
 		{
-			if (randint0(100) < p_ptr->skill.sav)
+			if (randint0(100) < p_ptr->skills[SKILL_SAV])
 			{
 				msgf("You resist the effects!");
 				break;
@@ -986,7 +950,7 @@ void apply_nexus(const monster_type *m_ptr)
 
 		case 7:
 		{
-			if (randint0(100) < p_ptr->skill.sav)
+			if (randint0(100) < p_ptr->skills[SKILL_SAV])
 			{
 				msgf("You resist the effects!");
 				break;
@@ -1068,10 +1032,6 @@ void brand_weapon(int brand_type)
 	{
 		cptr act;
 
-		/* Let's get the name before it is changed... */
-		char o_name[256];
-		object_desc(o_name, o_ptr, FALSE, 0, 256);
-
 		switch (brand_type)
 		{
 			case 1:
@@ -1097,7 +1057,6 @@ void brand_weapon(int brand_type)
 				act = "seems very unstable now.";
 				ego = EGO_TRUMP;
 				o_ptr->pval = randint1(2);
-				o_ptr->activate = ACT_TELEPORT_1;
 				break;
 			}
 
@@ -1116,7 +1075,7 @@ void brand_weapon(int brand_type)
 			}
 		}
 
-		msgf("Your %s %s", o_name, act);
+		msgf("Your %v %s", OBJECT_FMT(o_ptr, FALSE, 0), act);
 
 		(void)enchant(o_ptr, rand_range(4, 6), ENCH_TOHIT | ENCH_TODAM);
 	}
@@ -1296,7 +1255,7 @@ void fetch(int dir, int wgt, bool require_los)
 	 * Hack - do not get artifacts.
 	 * This interacts badly with preserve mode.
 	 */
-	if (o_ptr->flags3 & TR3_INSTA_ART)
+	if (FLAG(o_ptr, TR_INSTA_ART))
 	{
 		msgf("The object seems to have a will of its own!");
 		return;
@@ -1321,7 +1280,7 @@ void fetch(int dir, int wgt, bool require_los)
 
 void alter_reality(void)
 {
-	if (!is_quest_level(p_ptr->depth) && p_ptr->depth)
+	if (p_ptr->depth)
 	{
 		msgf("The world changes!");
 
@@ -1459,28 +1418,28 @@ static bool uncurse_item(object_type *o_ptr, bool all)
 	if (!cursed_p(o_ptr)) return (FALSE);
 
 	/* Heavily Cursed Items need a special spell */
-	if (!all && (o_ptr->flags3 & TR3_HEAVY_CURSE))
+	if (!all && (FLAG(o_ptr, TR_HEAVY_CURSE)))
 	{
 		/* Let the player know */
-		o_ptr->kn_flags3 |= TR3_HEAVY_CURSE;
+		o_ptr->kn_flags[2] |= TR2_HEAVY_CURSE;
 
 		/* Done */
 		return (FALSE);
 	}
 
 	/* Perma-Cursed Items can NEVER be uncursed */
-	if (o_ptr->flags3 & TR3_PERMA_CURSE) 
+	if (FLAG(o_ptr, TR_PERMA_CURSE)) 
 	{
 		/* Let the player know */
-		o_ptr->kn_flags3 |= TR3_PERMA_CURSE;
+		o_ptr->kn_flags[2] |= TR2_PERMA_CURSE;
 		
 		/* Done */
 		return (FALSE);
 	}
 	
 	/* Uncurse the item */
-	o_ptr->flags3 &= ~(TR3_CURSED | TR3_HEAVY_CURSE);
-	o_ptr->kn_flags3 &= ~(TR3_CURSED | TR3_HEAVY_CURSE);
+	o_ptr->flags[2] &= ~(TR2_CURSED | TR2_HEAVY_CURSE);
+	o_ptr->kn_flags[2] &= ~(TR2_CURSED | TR2_HEAVY_CURSE);
 	
 	/* Heavy sensing? */
 	heavy = class_info[p_ptr->rp.pclass].heavy_sense;
@@ -1506,7 +1465,7 @@ static bool uncurse_item(object_type *o_ptr, bool all)
 /*
  * Removes curses from items in inventory
  */
-static int remove_curse_aux(int all)
+static int remove_curse_aux(bool all)
 {
 	int i, cnt = 0;
 	object_type *o_ptr;
@@ -1675,12 +1634,12 @@ void stair_creation(void)
 		/* Town/wilderness or Ironman */
 		cave_set_feat(px, py, FEAT_MORE);
 	}
-	else if (is_quest_level(p_ptr->depth))
+	else if (is_special_level(p_ptr->depth))
 	{
 		/* Quest level */
 		cave_set_feat(px, py, FEAT_LESS);
 	}
-	else if (one_in_(2) || (p_ptr->depth >= max_dun_level()))
+	else if (one_in_(2) || (p_ptr->depth >= dungeon()->max_level))
 	{
 		cave_set_feat(px, py, FEAT_LESS);
 	}
@@ -1698,7 +1657,7 @@ void stair_creation(void)
  */
 static void break_curse(object_type *o_ptr)
 {
-	if (cursed_p(o_ptr) && !(o_ptr->flags3 & TR3_PERMA_CURSE)
+	if (cursed_p(o_ptr) && !(FLAG(o_ptr, TR_PERMA_CURSE))
 		 && (randint0(100) < 25))
 	{
 		msgf("The curse is broken!");
@@ -1758,7 +1717,7 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 {
 	int i, chance, prob, change;
 	bool res = FALSE;
-	bool a = ((o_ptr->flags3 & TR3_INSTA_ART) ? TRUE : FALSE);
+	bool a = ((FLAG(o_ptr, TR_INSTA_ART)) ? TRUE : FALSE);
 	bool force = (eflag & ENCH_FORCE);
 
 
@@ -2015,7 +1974,7 @@ bool artifact_scroll(void)
  */
 static void bad_luck(object_type *o_ptr)
 {
-	bool is_art = ((o_ptr->flags3 & TR3_INSTA_ART) ? TRUE : FALSE);
+	bool is_art = ((FLAG(o_ptr, TR_INSTA_ART)) ? TRUE : FALSE);
 
 	object_type *q_ptr;
 
@@ -2030,7 +1989,7 @@ static void bad_luck(object_type *o_ptr)
 		/* Non-artifacts get rerolled */
 		if (!is_art)
 		{
-			o_ptr->flags3 |= TR3_CURSED;
+			SET_FLAG(o_ptr, TR_CURSED);
 
 			/* Prepare it */
 			q_ptr = object_prep(o_ptr->k_idx);
@@ -2046,7 +2005,7 @@ static void bad_luck(object_type *o_ptr)
 		}
 
 		/* Now curse it */
-		o_ptr->flags3 |= TR3_CURSED;
+		SET_FLAG(o_ptr, TR_CURSED);
 	}
 
 	/* Objects are blasted sometimes */
@@ -2059,10 +2018,10 @@ static void bad_luck(object_type *o_ptr)
 		o_ptr->ac = 0;
 		o_ptr->dd = 1;
 		o_ptr->ds = 1;
-		o_ptr->flags1 = 0;
-		o_ptr->flags2 = 0;
-		o_ptr->flags3 = 0;
-		o_ptr->flags4 = 0;
+		o_ptr->flags[0] = 0;
+		o_ptr->flags[1] = 0;
+		o_ptr->flags[2] = 0;
+		o_ptr->flags[3] = 0;
 
 		add_ego_flags(o_ptr, EGO_BLASTED);
 
@@ -2093,7 +2052,7 @@ void identify_item(object_type *o_ptr)
 
 	if (!object_known_full(o_ptr))
 	{
-		if (o_ptr->flags3 & TR3_INSTA_ART)
+		if (FLAG(o_ptr, TR_INSTA_ART))
 			chg_virtue(V_KNOWLEDGE, 3);
 		else
 			chg_virtue(V_KNOWLEDGE, 1);
@@ -2104,11 +2063,16 @@ void identify_item(object_type *o_ptr)
 	object_known(o_ptr);
 
 	/* Save knowledge of artifact */
-	if (o_ptr->activate > 127)
+	if (o_ptr->a_idx)
 	{
 		/* Have we seen it before? */
-		if (a_info[o_ptr->activate - 128].cur_num != 2)
+		if (a_info[o_ptr->a_idx].cur_num != 2)
 		{
+			int artifact = o_ptr->a_idx;
+			
+			/* Notice a quest for this artifact */
+			trigger_quest_complete(QX_KNOW_ARTIFACT, &artifact);
+		
 			/*
 			 * If the item was an artifact, and if the
 			 * auto-note is selected, write a message.
@@ -2120,7 +2084,7 @@ void identify_item(object_type *o_ptr)
 			}
 		}
 
-		a_info[o_ptr->activate - 128].cur_num = 2;
+		a_info[o_ptr->a_idx].cur_num = 2;
 	}
 
 	/* Recalculate bonuses */
@@ -2230,8 +2194,8 @@ bool mundane_spell(void)
     /* Erase the inscription */
     quark_remove(&o_ptr->inscription);
 
-	/* Erase the activation */
-	o_ptr->activate = 0;
+	/* No longer a numbered artifact */
+	o_ptr->a_idx = 0;
 
 	/* Erase the "feeling" */
 	o_ptr->feeling = FEEL_NONE;
@@ -2256,10 +2220,10 @@ bool mundane_spell(void)
 	o_ptr->ds = k_ptr->ds;
 
 	/* No artifact powers */
-	o_ptr->flags1 = k_ptr->flags1;
-	o_ptr->flags2 = k_ptr->flags2;
-	o_ptr->flags3 = k_ptr->flags3;
-	o_ptr->flags4 = k_ptr->flags4;
+	o_ptr->flags[0] = k_ptr->flags[0];
+	o_ptr->flags[1] = k_ptr->flags[1];
+	o_ptr->flags[2] = k_ptr->flags[2];
+	o_ptr->flags[3] = k_ptr->flags[3];
 
 	/* For rod-stacking */
 	if (o_ptr->tval == TV_ROD)
@@ -2303,10 +2267,10 @@ bool identify_fully(void)
 	object_mental(o_ptr);
 
 	/* Save all the known flags */
-	o_ptr->kn_flags1 = o_ptr->flags1;
-	o_ptr->kn_flags2 = o_ptr->flags2;
-	o_ptr->kn_flags3 = o_ptr->flags3;
-	o_ptr->kn_flags4 = o_ptr->flags4;
+	o_ptr->kn_flags[0] = o_ptr->flags[0];
+	o_ptr->kn_flags[1] = o_ptr->flags[1];
+	o_ptr->kn_flags[2] = o_ptr->flags[2];
+	o_ptr->kn_flags[3] = o_ptr->flags[3];
 
 	/* Handle stuff */
 	handle_stuff();
@@ -2474,7 +2438,7 @@ bool recharge(int power)
 	if (fail)
 	{
 		/* Artifacts are never destroyed. */
-		if (o_ptr->flags3 & TR3_INSTA_ART)
+		if (FLAG(o_ptr, TR_INSTA_ART))
 		{
 			msgf("The recharging backfires - %v is completely drained!",
 					   OBJECT_FMT(o_ptr, TRUE, 0));
@@ -2647,8 +2611,8 @@ bool bless_weapon(void)
 
 	if (cursed_p(o_ptr))
 	{
-		if (((o_ptr->flags3 & TR3_HEAVY_CURSE) && (randint1(100) < 33)) ||
-			(o_ptr->flags3 & TR3_PERMA_CURSE))
+		if (((FLAG(o_ptr, TR_HEAVY_CURSE)) && (randint1(100) < 33)) ||
+			(FLAG(o_ptr, TR_PERMA_CURSE)))
 		{
 			msgf("The black aura on the %s disrupts the blessing!",
 					   o_name);
@@ -2669,7 +2633,7 @@ bool bless_weapon(void)
 	 * artifact weapon they find. Ego weapons and normal weapons
 	 * can be blessed automatically.
 	 */
-	if (o_ptr->flags3 & TR3_BLESSED)
+	if (FLAG(o_ptr, TR_BLESSED))
 	{
 		msgf("The %s %s blessed already.", o_name,
 				   ((o_ptr->number > 1) ? "were" : "was"));
@@ -2680,8 +2644,8 @@ bool bless_weapon(void)
 	{
 		/* Describe */
 		msgf("The %s shine%s!", o_name, ((o_ptr->number > 1) ? "" : "s"));
-		o_ptr->flags3 |= TR3_BLESSED;
-		o_ptr->kn_flags3 |= TR3_BLESSED;
+		SET_FLAG(o_ptr, TR_BLESSED);
+		o_ptr->kn_flags[2] |= TR2_BLESSED;
 	}
 	else
 	{
@@ -2752,186 +2716,21 @@ bool bless_weapon(void)
  *          the potion was in her inventory);
  *    k_idx --- type of object.
  */
-bool potion_smash_effect(int who, int x, int y, int k_idx)
+bool potion_smash_effect(int who, int x, int y, object_type *o_ptr)
 {
-	int radius = 2;
-	int dt = 0;
-	int dam = 0;
+	int k_idx = o_ptr->k_idx;
+
 	bool ident = FALSE;
 	bool angry = FALSE;
 
 	object_kind *k_ptr = &k_info[k_idx];
 
-	switch (k_ptr->sval)
-	{
-		case SV_POTION_SALT_WATER:
-		case SV_POTION_SLIME_MOLD:
-		case SV_POTION_LOSE_MEMORIES:
-		case SV_POTION_DEC_STR:
-		case SV_POTION_DEC_INT:
-		case SV_POTION_DEC_WIS:
-		case SV_POTION_DEC_DEX:
-		case SV_POTION_DEC_CON:
-		case SV_POTION_DEC_CHR:
-		case SV_POTION_WATER:
-		case SV_POTION_APPLE_JUICE:
-		{
-			return TRUE;
-		}
-
-		case SV_POTION_INFRAVISION:
-		case SV_POTION_DETECT_INVIS:
-		case SV_POTION_SLOW_POISON:
-		case SV_POTION_CURE_POISON:
-		case SV_POTION_BOLDNESS:
-		case SV_POTION_RESIST_HEAT:
-		case SV_POTION_RESIST_COLD:
-		case SV_POTION_HEROISM:
-		case SV_POTION_BERSERK_STRENGTH:
-		case SV_POTION_RESTORE_EXP:
-		case SV_POTION_RES_STR:
-		case SV_POTION_RES_INT:
-		case SV_POTION_RES_WIS:
-		case SV_POTION_RES_DEX:
-		case SV_POTION_RES_CON:
-		case SV_POTION_RES_CHR:
-		case SV_POTION_INC_STR:
-		case SV_POTION_INC_INT:
-		case SV_POTION_INC_WIS:
-		case SV_POTION_INC_DEX:
-		case SV_POTION_INC_CON:
-		case SV_POTION_INC_CHR:
-		case SV_POTION_AUGMENTATION:
-		case SV_POTION_ENLIGHTENMENT:
-		case SV_POTION_STAR_ENLIGHTENMENT:
-		case SV_POTION_SELF_KNOWLEDGE:
-		case SV_POTION_EXPERIENCE:
-		case SV_POTION_RESISTANCE:
-		case SV_POTION_INVULNERABILITY:
-		case SV_POTION_NEW_LIFE:
-		{
-			/* All of the above potions have no effect when shattered */
-			return FALSE;
-		}
-		case SV_POTION_SLOWNESS:
-		{
-			dt = GF_OLD_SLOW;
-			dam = 5;
-			ident = TRUE;
-			angry = TRUE;
-			break;
-		}
-		case SV_POTION_POISON:
-		{
-			dt = GF_POIS;
-			dam = damroll(3, 6);
-			ident = TRUE;
-			angry = TRUE;
-			break;
-		}
-		case SV_POTION_BLINDNESS:
-		{
-			dt = GF_DARK;
-			ident = TRUE;
-			angry = TRUE;
-			break;
-		}
-		case SV_POTION_CONFUSION:
-		{
-			/* Booze */
-			dt = GF_OLD_CONF;
-			ident = TRUE;
-			angry = TRUE;
-			break;
-		}
-		case SV_POTION_SLEEP:
-		{
-			dt = GF_OLD_SLEEP;
-			angry = TRUE;
-			ident = TRUE;
-			break;
-		}
-		case SV_POTION_RUINATION:
-		case SV_POTION_DETONATIONS:
-		{
-			dt = GF_SHARDS;
-			dam = damroll(25, 25);
-			angry = TRUE;
-			ident = TRUE;
-			break;
-		}
-		case SV_POTION_DEATH:
-		{
-			/* !! */
-			dt = GF_DEATH_RAY;
-			dam = damroll(25, 25);
-			angry = TRUE;
-			radius = 1;
-			ident = TRUE;
-			break;
-		}
-		case SV_POTION_SPEED:
-		{
-			dt = GF_OLD_SPEED;
-			ident = TRUE;
-			break;
-		}
-		case SV_POTION_CURE_LIGHT:
-		{
-			dt = GF_OLD_HEAL;
-			dam = damroll(2, 3);
-			ident = TRUE;
-			break;
-		}
-		case SV_POTION_CURE_SERIOUS:
-		{
-			dt = GF_OLD_HEAL;
-			dam = damroll(4, 3);
-			ident = TRUE;
-			break;
-		}
-		case SV_POTION_CURE_CRITICAL:
-		case SV_POTION_CURING:
-		{
-			dt = GF_OLD_HEAL;
-			dam = damroll(6, 3);
-			ident = TRUE;
-			break;
-		}
-		case SV_POTION_HEALING:
-		{
-			dt = GF_OLD_HEAL;
-			dam = damroll(10, 10);
-			ident = TRUE;
-			break;
-		}
-		case SV_POTION_STAR_HEALING:
-		case SV_POTION_LIFE:
-		{
-			dt = GF_OLD_HEAL;
-			dam = damroll(50, 50);
-			radius = 1;
-			ident = TRUE;
-			break;
-		}
-		case SV_POTION_RESTORE_MANA:
-		{
-			/* MANA */
-			dt = GF_MANA;
-			dam = damroll(10, 10);
-			radius = 1;
-			ident = TRUE;
-			break;
-		}
-		default:
-		{
-			/* Do nothing */
-		}
-	}
-
-	(void)project(who, radius, x, y, dam, dt,
-				  (PROJECT_JUMP | PROJECT_ITEM | PROJECT_KILL));
-
+	bool result = FALSE;
+	apply_object_trigger(TRIGGER_SMASH, o_ptr, "iii:bb",
+			LUA_VAR(who), LUA_VAR(x), LUA_VAR(y),
+			LUA_RETURN(result), LUA_RETURN(ident));
+	angry = result;
+		
 	/* An identification was made */
 	if (ident && !(k_ptr->aware))
 	{
@@ -3117,6 +2916,7 @@ s16b spell_chance(int spell, int realm)
 {
 	int chance, minfail;
 	const magic_type *s_ptr;
+	int smana;
 
 
 	/* Paranoia -- must be literate */
@@ -3134,10 +2934,13 @@ s16b spell_chance(int spell, int realm)
 	/* Reduce failure rate by INT/WIS adjustment */
 	chance -= 3 * (adj_mag_stat[p_ptr->stat[mp_ptr->spell_stat].ind] - 1);
 
+	/* Get mana cost */
+	smana = spell_mana(spell, realm);
+
 	/* Not enough mana to cast */
-	if (s_ptr->smana > p_ptr->csp)
+	if (smana > p_ptr->csp)
 	{
-		chance += 5 * (s_ptr->smana - p_ptr->csp);
+		chance += 5 * (smana - p_ptr->csp);
 	}
 
 	/* Some mutations increase spell failure */
@@ -3172,7 +2975,7 @@ s16b spell_chance(int spell, int realm)
 	}
 
 	/* Hack -- Priest prayer penalty for "edged" weapons  -DGK */
-	if ((p_ptr->rp.pclass == CLASS_PRIEST) && p_ptr->icky_wield) chance += 25;
+	if ((p_ptr->rp.pclass == CLASS_PRIEST) && p_ptr->state.icky_wield) chance += 25;
 
 	/* Minimum failure rate */
 	if (chance < minfail) chance = minfail;
@@ -3186,6 +2989,32 @@ s16b spell_chance(int spell, int realm)
 
 	/* Return the chance */
 	return (chance);
+}
+
+/*
+ * Returns spell mana cost for spell
+ */
+int spell_mana(int spell, int realm)
+{
+	const magic_type *s_ptr;
+	int smana;
+
+
+	/* Paranoia -- must be literate */
+	if (!mp_ptr->spell_book) return (100);
+
+	/* Access the spell */
+	s_ptr = &mp_ptr->info[realm][spell];
+
+	smana = s_ptr->smana;
+
+	/* Chaos patrons improve chaos magic */
+	if ((realm == REALM_CHAOS - 1) && (FLAG(p_ptr, TR_PATRON)))
+	{
+		smana = (smana * 2 + 2) / 3;
+	}
+
+	return (smana);
 }
 
 
@@ -3947,7 +3776,7 @@ void print_spells(byte *spells, int num, int x, int y, int realm)
 		/* Dump the spell --(-- */
 		prtf(x, y + i + 1, "  %c) %-30s%2d %4d %3d%%%s",
 				I2A(i), spell_names[realm][spell],
-				(int)s_ptr->slevel, (int)s_ptr->smana,
+				(int)s_ptr->slevel, spell_mana(spell, realm),
 				spell_chance(spell, realm), comment);
 	}
 
@@ -4114,7 +3943,7 @@ bool hates_cold(const object_type *o_ptr)
 int set_acid_destroy(object_type *o_ptr)
 {
 	if (!hates_acid(o_ptr)) return (FALSE);
-	if (o_ptr->flags3 & TR3_IGNORE_ACID) return (FALSE);
+	if (FLAG(o_ptr, TR_IGNORE_ACID)) return (FALSE);
 	return (TRUE);
 }
 
@@ -4125,7 +3954,7 @@ int set_acid_destroy(object_type *o_ptr)
 int set_elec_destroy(object_type *o_ptr)
 {
 	if (!hates_elec(o_ptr)) return (FALSE);
-	if (o_ptr->flags3 & TR3_IGNORE_ELEC) return (FALSE);
+	if (FLAG(o_ptr, TR_IGNORE_ELEC)) return (FALSE);
 	return (TRUE);
 }
 
@@ -4136,7 +3965,7 @@ int set_elec_destroy(object_type *o_ptr)
 int set_fire_destroy(object_type *o_ptr)
 {
 	if (!hates_fire(o_ptr)) return (FALSE);
-	if (o_ptr->flags3 & TR3_IGNORE_FIRE) return (FALSE);
+	if (FLAG(o_ptr, TR_IGNORE_FIRE)) return (FALSE);
 	return (TRUE);
 }
 
@@ -4147,7 +3976,7 @@ int set_fire_destroy(object_type *o_ptr)
 int set_cold_destroy(object_type *o_ptr)
 {
 	if (!hates_cold(o_ptr)) return (FALSE);
-	if (o_ptr->flags3 & TR3_IGNORE_COLD) return (FALSE);
+	if (FLAG(o_ptr, TR_IGNORE_COLD)) return (FALSE);
 	return (TRUE);
 }
 
@@ -4163,7 +3992,6 @@ int inven_damage(inven_func typ, int perc)
 {
 	int j, k, amt;
 	object_type *o_ptr;
-	char o_name[256];
 
 	int slot;
 
@@ -4175,7 +4003,7 @@ int inven_damage(inven_func typ, int perc)
 	OBJ_ITT_START (p_ptr->inventory, o_ptr)
 	{
 		/* Hack -- for now, skip artifacts */
-		if (o_ptr->flags3 & TR3_INSTA_ART) continue;
+		if (FLAG(o_ptr, TR_INSTA_ART)) continue;
 
 		/* Give this item slot a shot at death */
 		if ((*typ) (o_ptr))
@@ -4189,18 +4017,16 @@ int inven_damage(inven_func typ, int perc)
 			/* Some casualities */
 			if (amt)
 			{
-				/* Get a description */
-				object_desc(o_name, o_ptr, FALSE, 3, 256);
-
 				/* Get slot */
 				slot = get_item_position(p_ptr->inventory, o_ptr);
 
 				/* Message */
-				msgf("%sour %s (%c) %s destroyed!",
+				msgf("%sour %v (%c) %s destroyed!",
 						   ((o_ptr->number > 1) ?
 							((amt == o_ptr->number) ? "All of y" :
 							 (amt > 1 ? "Some of y" : "One of y")) : "Y"),
-						   o_name, I2A(slot), ((amt > 1) ? "were" : "was"));
+						   OBJECT_FMT(o_ptr, FALSE, 3), I2A(slot),
+						    ((amt > 1) ? "were" : "was"));
 
 				/* Potions smash open */
 				if (object_is_potion(o_ptr))
@@ -4208,7 +4034,7 @@ int inven_damage(inven_func typ, int perc)
 					int px = p_ptr->px;
 					int py = p_ptr->py;
 
-					(void)potion_smash_effect(0, px, py, o_ptr->k_idx);
+					(void)potion_smash_effect(0, px, py, o_ptr);
 				}
 
 				/* Reduce the charges of rods/wands */
@@ -4232,7 +4058,6 @@ int inven_damage(inven_func typ, int perc)
 bool rustproof(void)
 {
 	object_type *o_ptr;
-	char o_name[256];
 	cptr q, s;
 
 	/* Select a piece of armour */
@@ -4247,19 +4072,16 @@ bool rustproof(void)
 	/* Not a valid item */
 	if (!o_ptr) return (FALSE);
 
-	/* Description */
-	object_desc(o_name, o_ptr, FALSE, 0, 256);
-
-	o_ptr->flags3 |= TR3_IGNORE_ACID;
+	SET_FLAG(o_ptr, TR_IGNORE_ACID);
 
 	if ((o_ptr->to_a < 0) && !(cursed_p(o_ptr)))
 	{
-		msgf("The %s look%s as good as new!", o_name,
+		msgf("The %v look%s as good as new!", OBJECT_FMT(o_ptr, FALSE, 0),
 				   ((o_ptr->number > 1) ? "" : "s"));
 		o_ptr->to_a = 0;
 	}
 
-	msgf("The %s %s now protected against corrosion.", o_name,
+	msgf("The %v %s now protected against corrosion.", OBJECT_FMT(o_ptr, FALSE, 0),
 			   ((o_ptr->number > 1) ? "are" : "is"));
 
 	return TRUE;
@@ -4273,8 +4095,6 @@ bool curse_armor(void)
 {
 	object_type *o_ptr;
 
-	char o_name[256];
-
 
 	/* Curse the body armor */
 	o_ptr = &p_ptr->equipment[EQUIP_BODY];
@@ -4283,22 +4103,19 @@ bool curse_armor(void)
 	if (!o_ptr->k_idx) return (FALSE);
 
 
-	/* Describe */
-	object_desc(o_name, o_ptr, FALSE, 3, 256);
-
 	/* Attempt a saving throw for artifacts */
-	if ((o_ptr->flags3 & TR3_INSTA_ART) && !one_in_(3))
+	if ((FLAG(o_ptr, TR_INSTA_ART)) && !one_in_(3))
 	{
 		/* Cool */
-		msgf("A %s tries to %s, but your %s resists the effects!",
-				   "terrible black aura", "surround your armor", o_name);
+		msgf("A terrible black aura tries to surround your armor, but your %v resists the effects!",
+			OBJECT_FMT(o_ptr, FALSE, 3));
 	}
 
 	/* not artifact or failed save... */
 	else
 	{
 		/* Oops */
-		msgf("A terrible black aura blasts your %s!", o_name);
+		msgf("A terrible black aura blasts your %v!", OBJECT_FMT(o_ptr, FALSE, 3));
 
 		chg_virtue(V_ENCHANT, -5);
 
@@ -4309,10 +4126,10 @@ bool curse_armor(void)
 		o_ptr->ac = 0;
 		o_ptr->dd = 1;
 		o_ptr->ds = 1;
-		o_ptr->flags1 = 0;
-		o_ptr->flags2 = 0;
-		o_ptr->flags3 = 0;
-		o_ptr->flags4 = 0;
+		o_ptr->flags[0] = 0;
+		o_ptr->flags[1] = 0;
+		o_ptr->flags[2] = 0;
+		o_ptr->flags[3] = 0;
 
 		/* Lose your feeling */
 		o_ptr->feeling = FEEL_NONE;
@@ -4343,32 +4160,25 @@ bool curse_weapon(void)
 {
 	object_type *o_ptr;
 
-	char o_name[256];
-
-
 	/* Curse the weapon */
 	o_ptr = &p_ptr->equipment[EQUIP_WIELD];
 
 	/* Nothing to curse */
 	if (!o_ptr->k_idx) return (FALSE);
 
-
-	/* Describe */
-	object_desc(o_name, o_ptr, FALSE, 3, 256);
-
 	/* Attempt a saving throw */
-	if ((o_ptr->flags3 & TR3_INSTA_ART) && !one_in_(3))
+	if ((FLAG(o_ptr, TR_INSTA_ART)) && !one_in_(3))
 	{
 		/* Cool */
-		msgf("A %s tries to %s, but your %s resists the effects!",
-				   "terrible black aura", "surround your weapon", o_name);
+		msgf("A terrible black aura tries to surround your weapon, but your %v resists the effects!",
+				OBJECT_FMT(o_ptr, FALSE, 3));
 	}
 
 	/* not artifact or failed save... */
 	else
 	{
 		/* Oops */
-		msgf("A terrible black aura blasts your %s!", o_name);
+		msgf("A terrible black aura blasts your %v!", OBJECT_FMT(o_ptr, FALSE, 3));
 
 		chg_virtue(V_ENCHANT, -5);
 
@@ -4379,10 +4189,10 @@ bool curse_weapon(void)
 		o_ptr->ac = 0;
 		o_ptr->dd = 1;
 		o_ptr->ds = 1;
-		o_ptr->flags1 = 0;
-		o_ptr->flags2 = 0;
-		o_ptr->flags3 = 0;
-		o_ptr->flags4 = 0;
+		o_ptr->flags[0] = 0;
+		o_ptr->flags[1] = 0;
+		o_ptr->flags[2] = 0;
+		o_ptr->flags[3] = 0;
 		
 		/* Lose your feeling */
 		o_ptr->feeling = FEEL_NONE;
@@ -4469,7 +4279,7 @@ static s16b poly_r_idx(int r_idx)
 	int i, r, lev1, lev2;
 
 	/* Hack -- Uniques/Questors never polymorph */
-	if ((r_ptr->flags1 & RF1_UNIQUE) || (r_ptr->flags1 & RF1_QUESTOR))
+	if (FLAG(r_ptr, RF_UNIQUE) || FLAG(r_ptr, RF_QUESTOR))
 		return (r_idx);
 
 	/* Allowable range of "levels" for resulting monster */
@@ -4489,7 +4299,7 @@ static s16b poly_r_idx(int r_idx)
 		r_ptr = &r_info[r];
 
 		/* Ignore unique monsters */
-		if (r_ptr->flags1 & RF1_UNIQUE) continue;
+		if (FLAG(r_ptr, RF_UNIQUE)) continue;
 
 		/* Ignore monsters with incompatible levels */
 		if ((r_ptr->level < lev1) || (r_ptr->level > lev2)) continue;
@@ -4622,9 +4432,9 @@ void sanity_blast(const monster_type *m_ptr)
 
 	power = r_ptr->level + 10;
 
-	if (!(r_ptr->flags1 & RF1_UNIQUE))
+	if (!FLAG(r_ptr, RF_UNIQUE))
 	{
-		if (r_ptr->flags1 & RF1_FRIENDS)
+		if (FLAG(r_ptr, RF_FRIENDS))
 			power /= 2;
 	}
 	else
@@ -4634,13 +4444,13 @@ void sanity_blast(const monster_type *m_ptr)
 	if (!m_ptr->ml) return;
 
 	/* Paranoia */
-	if (!(r_ptr->flags4 & RF4_ELDRITCH_HORROR)) return;
+	if (!FLAG(r_ptr, RF_ELDRITCH_HORROR)) return;
 
 	/* Pet eldritch horrors are safe most of the time */
 	if (is_pet(m_ptr) && !one_in_(8)) return;
 
 	/* Do we pass the saving throw? */
-	if (saving_throw(p_ptr->skill.sav * 100 / power)) return;
+	if (saving_throw(p_ptr->skills[SKILL_SAV] * 100 / power)) return;
 
 	if (p_ptr->tim.image)
 	{
@@ -4663,7 +4473,7 @@ void sanity_blast(const monster_type *m_ptr)
 			   horror_desc[randint0(MAX_SAN_HORROR)], MONSTER_FMT(m_ptr, 0));
 
 	/* Monster memory */
-	r_ptr->r_flags4 |= RF4_ELDRITCH_HORROR;
+	r_ptr->r_flags[3] |= RF3_ELDRITCH_HORROR;
 
 	/* Demon characters are unaffected */
 	if (p_ptr->rp.prace == RACE_IMP) return;
@@ -4676,14 +4486,14 @@ void sanity_blast(const monster_type *m_ptr)
 		 (p_ptr->rp.prace == RACE_GHOUL)) && saving_throw(25 + p_ptr->lev)) return;
 
 	/* Mind blast */
-	if (!saving_throw(p_ptr->skill.sav * 100 / power))
+	if (!saving_throw(p_ptr->skills[SKILL_SAV] * 100 / power))
 	{
-		if ((!(p_ptr->flags2 & (TR2_RES_FEAR))) || one_in_(5))
+		if ((!(FLAG(p_ptr, TR_RES_FEAR))) || one_in_(5))
 		{
 			/* Get afraid, even if have resist fear! */
 			(void)inc_afraid(rand_range(10, 20));
 		}
-		if (!(p_ptr->flags2 & (TR2_RES_CHAOS)))
+		if (!(FLAG(p_ptr, TR_RES_CHAOS)))
 		{
 			(void)inc_image(rand_range(150, 400));
 		}

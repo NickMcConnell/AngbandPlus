@@ -27,7 +27,7 @@ static void monst_breath_monst(int m_idx, int x, int y, int typ, int dam_hp,
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
 	/* Determine the radius of the blast */
-	if (rad < 1) rad = (r_ptr->flags2 & RF2_POWERFUL) ? 3 : 2;
+	if (rad < 1) rad = FLAG(r_ptr, RF_POWERFUL) ? 3 : 2;
 
 	/* Handle breath attacks */
 	if (breath) rad = 0 - rad;
@@ -78,7 +78,7 @@ bool monst_spell_monst(int m_idx)
 	u32b f4, f5, f6;
 
 	/* Expected ball spell radius */
-	int rad = (r_ptr->flags2 & RF2_POWERFUL) ? 3 : 2;
+	int rad = FLAG(r_ptr, RF_POWERFUL) ? 3 : 2;
 
 	bool wake_up = FALSE;
 	bool fear = FALSE;
@@ -138,60 +138,60 @@ bool monst_spell_monst(int m_idx)
 		rlev = ((r_ptr->level >= 1) ? r_ptr->level : 1);
 
 		/* Extract the racial spell flags */
-		f4 = r_ptr->flags4;
-		f5 = r_ptr->flags5;
-		f6 = r_ptr->flags6;
+		f4 = r_ptr->flags[3];
+		f5 = r_ptr->flags[4];
+		f6 = r_ptr->flags[5];
 
 		/* Disallow blink unless close */
 		if ((distance(m_ptr->fx, m_ptr->fy, x, y) > 1)
-			|| one_in_(3)) f6 &= ~(RF6_BLINK);
+			|| one_in_(3)) f6 &= ~(RF5_BLINK);
 
 		/* Disallow teleport unless wounded */
-		if (m_ptr->hp > m_ptr->maxhp / 2) f6 &= ~(RF6_TPORT);
+		if (m_ptr->hp > m_ptr->maxhp / 2) f6 &= ~(RF5_TPORT);
 
 		/* Disallow teleport away unless a friend is wounded */
-		if (friendly && (p_ptr->chp > p_ptr->mhp / 4)) f6 &= ~(RF6_TELE_AWAY);
+		if (friendly && (p_ptr->chp > p_ptr->mhp / 4)) f6 &= ~(RF5_TELE_AWAY);
 
 		/* Remove some spells if necessary */
 		if (!stupid_monsters &&
-			((f4 & RF4_BOLT_MASK) ||
-			 (f5 & RF5_BOLT_MASK) ||
-			 (f6 & RF6_BOLT_MASK)) &&
-			!(r_ptr->flags2 & RF2_STUPID) &&
+			((f4 & RF3_BOLT_MASK) ||
+			 (f5 & RF4_BOLT_MASK) ||
+			 (f6 & RF5_BOLT_MASK)) &&
+			!FLAG(r_ptr, RF_STUPID) &&
 			!clean_shot(m_ptr->fx, m_ptr->fy, t_ptr->fx, t_ptr->fy,
 						is_pet(m_ptr)))
 		{
-			f4 &= ~(RF4_BOLT_MASK);
-			f5 &= ~(RF5_BOLT_MASK);
-			f6 &= ~(RF6_BOLT_MASK);
+			f4 &= ~(RF3_BOLT_MASK);
+			f5 &= ~(RF4_BOLT_MASK);
+			f6 &= ~(RF5_BOLT_MASK);
 		}
 
 		/* Prevent collateral damage */
 		if (friendly && (distance(p_ptr->px, p_ptr->py, x, y) <= rad))
 		{
-			f4 &= ~(RF4_BALL_MASK);
-			f5 &= ~(RF5_BALL_MASK);
-			f6 &= ~(RF6_BALL_MASK);
+			f4 &= ~(RF3_BALL_MASK);
+			f5 &= ~(RF4_BALL_MASK);
+			f6 &= ~(RF5_BALL_MASK);
 		}
 
 		/* Find another target if no spells available */
 		if (!f4 && !f5 && !f6)
 		{
-			f4 = r_ptr->flags4;
-			f5 = r_ptr->flags5;
-			f6 = r_ptr->flags6;
+			f4 = r_ptr->flags[3];
+			f5 = r_ptr->flags[4];
+			f6 = r_ptr->flags[5];
 
 			continue;
 		}
 
 		/* Hack -- allow "desperate" spells */
-		if ((r_ptr->flags2 & RF2_SMART) &&
+		if (FLAG(r_ptr, RF_SMART) &&
 			(m_ptr->hp < m_ptr->maxhp / 10) && one_in_(2))
 		{
 			/* Require intelligent spells */
-			f4 &= (RF4_INT_MASK);
-			f5 &= (RF5_INT_MASK);
-			f6 &= (RF6_INT_MASK);
+			f4 &= (RF3_INT_MASK);
+			f5 &= (RF4_INT_MASK);
+			f6 &= (RF5_INT_MASK);
 
 			/* No spells left */
 			if (!f4 && !f5 && !f6) return (FALSE);
@@ -244,7 +244,7 @@ bool monst_spell_monst(int m_idx)
 		{
 			case 96 + 0:
 			{
-				/* RF4_SHRIEK */
+				/* RF3_SHRIEK */
 				if (known)
 				{
 					if (see_m)
@@ -253,7 +253,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						p_ptr->mon_fight = TRUE;
+						p_ptr->state.mon_fight = TRUE;
 					}
 				}
 
@@ -264,7 +264,7 @@ bool monst_spell_monst(int m_idx)
 
 			case 96 + 1:
 			{
-				/* RF4_ELDRITCH_HORROR */
+				/* RF3_ELDRITCH_HORROR */
 				if (known)
 				{
 					if (see_m)
@@ -273,7 +273,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						p_ptr->mon_fight = TRUE;
+						p_ptr->state.mon_fight = TRUE;
 					}
 				}
 
@@ -284,13 +284,13 @@ bool monst_spell_monst(int m_idx)
 
 			case 96 + 2:
 			{
-				/* RF4_XXX3X4 */
+				/* RF3_XXX3X4 */
 				break;
 			}
 
 			case 96 + 3:
 			{
-				/* RF4_ROCKET */
+				/* RF3_ROCKET */
 				if (known)
 				{
 					if (see_either)
@@ -309,7 +309,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						p_ptr->mon_fight = TRUE;
+						p_ptr->state.mon_fight = TRUE;
 					}
 				}
 
@@ -322,7 +322,7 @@ bool monst_spell_monst(int m_idx)
 
 			case 96 + 4:
 			{
-				/* RF4_ARROW_1 */
+				/* RF3_ARROW_1 */
 				if (known)
 				{
 					if (see_either)
@@ -339,7 +339,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						p_ptr->mon_fight = TRUE;
+						p_ptr->state.mon_fight = TRUE;
 					}
 
 					sound(SOUND_SHOOT);
@@ -352,7 +352,7 @@ bool monst_spell_monst(int m_idx)
 
 			case 96 + 5:
 			{
-				/* RF4_ARROW_2 */
+				/* RF3_ARROW_2 */
 				if (known)
 				{
 					if (see_either)
@@ -369,7 +369,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						p_ptr->mon_fight = TRUE;
+						p_ptr->state.mon_fight = TRUE;
 					}
 
 					sound(SOUND_SHOOT);
@@ -382,7 +382,7 @@ bool monst_spell_monst(int m_idx)
 
 			case 96 + 6:
 			{
-				/* RF4_ARROW_3 */
+				/* RF3_ARROW_3 */
 				if (known)
 				{
 					if (see_either)
@@ -399,7 +399,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						p_ptr->mon_fight = TRUE;
+						p_ptr->state.mon_fight = TRUE;
 					}
 
 					sound(SOUND_SHOOT);
@@ -412,7 +412,7 @@ bool monst_spell_monst(int m_idx)
 
 			case 96 + 7:
 			{
-				/* RF4_ARROW_4 */
+				/* RF3_ARROW_4 */
 				if (known)
 				{
 					if (see_either)
@@ -429,7 +429,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						p_ptr->mon_fight = TRUE;
+						p_ptr->state.mon_fight = TRUE;
 					}
 
 					sound(SOUND_SHOOT);
@@ -442,7 +442,7 @@ bool monst_spell_monst(int m_idx)
 
 			case 96 + 8:
 			{
-				/* RF4_BR_ACID */
+				/* RF3_BR_ACID */
 				if (known)
 				{
 					if (see_either)
@@ -461,7 +461,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						p_ptr->mon_fight = TRUE;
+						p_ptr->state.mon_fight = TRUE;
 					}
 
 					sound(SOUND_BREATH);
@@ -476,7 +476,7 @@ bool monst_spell_monst(int m_idx)
 
 			case 96 + 9:
 			{
-				/* RF4_BR_ELEC */
+				/* RF3_BR_ELEC */
 				if (known)
 				{
 					if (see_either)
@@ -495,7 +495,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						p_ptr->mon_fight = TRUE;
+						p_ptr->state.mon_fight = TRUE;
 					}
 
 					sound(SOUND_BREATH);
@@ -510,7 +510,7 @@ bool monst_spell_monst(int m_idx)
 
 			case 96 + 10:
 			{
-				/* RF4_BR_FIRE */
+				/* RF3_BR_FIRE */
 				if (known)
 				{
 					if (see_either)
@@ -529,7 +529,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						p_ptr->mon_fight = TRUE;
+						p_ptr->state.mon_fight = TRUE;
 					}
 
 					sound(SOUND_BREATH);
@@ -544,7 +544,7 @@ bool monst_spell_monst(int m_idx)
 
 			case 96 + 11:
 			{
-				/* RF4_BR_COLD */
+				/* RF3_BR_COLD */
 				if (known)
 				{
 					if (see_either)
@@ -563,7 +563,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						p_ptr->mon_fight = TRUE;
+						p_ptr->state.mon_fight = TRUE;
 					}
 
 					sound(SOUND_BREATH);
@@ -577,7 +577,7 @@ bool monst_spell_monst(int m_idx)
 
 			case 96 + 12:
 			{
-				/* RF4_BR_POIS */
+				/* RF3_BR_POIS */
 				if (known)
 				{
 					if (see_either)
@@ -596,7 +596,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						p_ptr->mon_fight = TRUE;
+						p_ptr->state.mon_fight = TRUE;
 					}
 
 					sound(SOUND_BREATH);
@@ -611,7 +611,7 @@ bool monst_spell_monst(int m_idx)
 
 			case 96 + 13:
 			{
-				/* RF4_BR_NETH */
+				/* RF3_BR_NETH */
 				if (known)
 				{
 					if (see_either)
@@ -630,7 +630,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						p_ptr->mon_fight = TRUE;
+						p_ptr->state.mon_fight = TRUE;
 					}
 
 					sound(SOUND_BREATH);
@@ -645,7 +645,7 @@ bool monst_spell_monst(int m_idx)
 
 			case 96 + 14:
 			{
-				/* RF4_BR_LITE */
+				/* RF3_BR_LITE */
 				if (known)
 				{
 					if (see_either)
@@ -664,7 +664,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						p_ptr->mon_fight = TRUE;
+						p_ptr->state.mon_fight = TRUE;
 					}
 
 					sound(SOUND_BREATH);
@@ -679,7 +679,7 @@ bool monst_spell_monst(int m_idx)
 
 			case 96 + 15:
 			{
-				/* RF4_BR_DARK */
+				/* RF3_BR_DARK */
 				if (known)
 				{
 					if (see_either)
@@ -698,7 +698,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						p_ptr->mon_fight = TRUE;
+						p_ptr->state.mon_fight = TRUE;
 					}
 
 					sound(SOUND_BREATH);
@@ -713,7 +713,7 @@ bool monst_spell_monst(int m_idx)
 
 			case 96 + 16:
 			{
-				/* RF4_BR_CONF */
+				/* RF3_BR_CONF */
 				if (known)
 				{
 					if (see_either)
@@ -732,7 +732,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						p_ptr->mon_fight = TRUE;
+						p_ptr->state.mon_fight = TRUE;
 					}
 
 					sound(SOUND_BREATH);
@@ -747,7 +747,7 @@ bool monst_spell_monst(int m_idx)
 
 			case 96 + 17:
 			{
-				/* RF4_BR_SOUN */
+				/* RF3_BR_SOUN */
 				if (known)
 				{
 					if (see_either)
@@ -766,7 +766,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						p_ptr->mon_fight = TRUE;
+						p_ptr->state.mon_fight = TRUE;
 					}
 
 					sound(SOUND_BREATH);
@@ -781,7 +781,7 @@ bool monst_spell_monst(int m_idx)
 
 			case 96 + 18:
 			{
-				/* RF4_BR_CHAO */
+				/* RF3_BR_CHAO */
 				if (known)
 				{
 					if (see_either)
@@ -800,7 +800,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						p_ptr->mon_fight = TRUE;
+						p_ptr->state.mon_fight = TRUE;
 					}
 
 					sound(SOUND_BREATH);
@@ -815,7 +815,7 @@ bool monst_spell_monst(int m_idx)
 
 			case 96 + 19:
 			{
-				/* RF4_BR_DISE */
+				/* RF3_BR_DISE */
 				if (known)
 				{
 					if (see_either)
@@ -834,7 +834,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						p_ptr->mon_fight = TRUE;
+						p_ptr->state.mon_fight = TRUE;
 					}
 
 					sound(SOUND_BREATH);
@@ -849,7 +849,7 @@ bool monst_spell_monst(int m_idx)
 
 			case 96 + 20:
 			{
-				/* RF4_BR_NEXU */
+				/* RF3_BR_NEXU */
 				if (known)
 				{
 					if (see_either)
@@ -868,7 +868,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						p_ptr->mon_fight = TRUE;
+						p_ptr->state.mon_fight = TRUE;
 					}
 
 					sound(SOUND_BREATH);
@@ -883,7 +883,7 @@ bool monst_spell_monst(int m_idx)
 
 			case 96 + 21:
 			{
-				/* RF4_BR_TIME */
+				/* RF3_BR_TIME */
 				if (known)
 				{
 					if (see_either)
@@ -902,7 +902,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						p_ptr->mon_fight = TRUE;
+						p_ptr->state.mon_fight = TRUE;
 					}
 
 					sound(SOUND_BREATH);
@@ -917,7 +917,7 @@ bool monst_spell_monst(int m_idx)
 
 			case 96 + 22:
 			{
-				/* RF4_BR_INER */
+				/* RF3_BR_INER */
 				if (known)
 				{
 					if (see_either)
@@ -936,7 +936,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						p_ptr->mon_fight = TRUE;
+						p_ptr->state.mon_fight = TRUE;
 					}
 
 					sound(SOUND_BREATH);
@@ -951,7 +951,7 @@ bool monst_spell_monst(int m_idx)
 
 			case 96 + 23:
 			{
-				/* RF4_BR_GRAV */
+				/* RF3_BR_GRAV */
 				if (known)
 				{
 					if (see_either)
@@ -970,7 +970,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						p_ptr->mon_fight = TRUE;
+						p_ptr->state.mon_fight = TRUE;
 					}
 
 					sound(SOUND_BREATH);
@@ -985,7 +985,7 @@ bool monst_spell_monst(int m_idx)
 
 			case 96 + 24:
 			{
-				/* RF4_BR_SHAR */
+				/* RF3_BR_SHAR */
 				if (known)
 				{
 					if (see_either)
@@ -1004,7 +1004,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						p_ptr->mon_fight = TRUE;
+						p_ptr->state.mon_fight = TRUE;
 					}
 
 					sound(SOUND_BREATH);
@@ -1019,7 +1019,7 @@ bool monst_spell_monst(int m_idx)
 
 			case 96 + 25:
 			{
-				/* RF4_BR_PLAS */
+				/* RF3_BR_PLAS */
 				if (known)
 				{
 					if (see_either)
@@ -1038,7 +1038,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						p_ptr->mon_fight = TRUE;
+						p_ptr->state.mon_fight = TRUE;
 					}
 
 					sound(SOUND_BREATH);
@@ -1053,7 +1053,7 @@ bool monst_spell_monst(int m_idx)
 
 			case 96 + 26:
 			{
-				/* RF4_BR_WALL */
+				/* RF3_BR_WALL */
 				if (known)
 				{
 					if (see_either)
@@ -1072,7 +1072,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						p_ptr->mon_fight = TRUE;
+						p_ptr->state.mon_fight = TRUE;
 					}
 
 					sound(SOUND_BREATH);
@@ -1087,7 +1087,7 @@ bool monst_spell_monst(int m_idx)
 
 			case 96 + 27:
 			{
-				/* RF4_BR_MANA */
+				/* RF3_BR_MANA */
 				if (known)
 				{
 					if (see_either)
@@ -1106,7 +1106,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						p_ptr->mon_fight = TRUE;
+						p_ptr->state.mon_fight = TRUE;
 					}
 
 					sound(SOUND_BREATH);
@@ -1121,7 +1121,7 @@ bool monst_spell_monst(int m_idx)
 
 			case 96 + 28:
 			{
-				/* RF4_BA_NUKE */
+				/* RF3_BA_NUKE */
 				if (known)
 				{
 					if (see_either)
@@ -1140,7 +1140,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						p_ptr->mon_fight = TRUE;
+						p_ptr->state.mon_fight = TRUE;
 					}
 				}
 
@@ -1152,7 +1152,7 @@ bool monst_spell_monst(int m_idx)
 
 			case 96 + 29:
 			{
-				/* RF4_BR_NUKE */
+				/* RF3_BR_NUKE */
 				if (known)
 				{
 					if (see_either)
@@ -1171,7 +1171,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						p_ptr->mon_fight = TRUE;
+						p_ptr->state.mon_fight = TRUE;
 					}
 
 					sound(SOUND_BREATH);
@@ -1186,7 +1186,7 @@ bool monst_spell_monst(int m_idx)
 
 			case 96 + 30:
 			{
-				/* RF4_BA_CHAO */
+				/* RF3_BA_CHAO */
 				if (known)
 				{
 					if (see_either)
@@ -1205,7 +1205,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						p_ptr->mon_fight = TRUE;
+						p_ptr->state.mon_fight = TRUE;
 					}
 				}
 
@@ -1217,7 +1217,7 @@ bool monst_spell_monst(int m_idx)
 
 			case 96 + 31:
 			{
-				/* RF4_BR_DISI */
+				/* RF3_BR_DISI */
 				if (known)
 				{
 					if (see_either)
@@ -1236,7 +1236,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						p_ptr->mon_fight = TRUE;
+						p_ptr->state.mon_fight = TRUE;
 					}
 
 					sound(SOUND_BREATH);
@@ -1251,7 +1251,7 @@ bool monst_spell_monst(int m_idx)
 
 			case 128 + 0:
 			{
-				/* RF5_BA_ACID */
+				/* RF4_BA_ACID */
 				if (known)
 				{
 					if (see_either)
@@ -1270,7 +1270,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						p_ptr->mon_fight = TRUE;
+						p_ptr->state.mon_fight = TRUE;
 					}
 				}
 
@@ -1282,7 +1282,7 @@ bool monst_spell_monst(int m_idx)
 
 			case 128 + 1:
 			{
-				/* RF5_BA_ELEC */
+				/* RF4_BA_ELEC */
 				if (known)
 				{
 					if (see_either)
@@ -1301,7 +1301,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						p_ptr->mon_fight = TRUE;
+						p_ptr->state.mon_fight = TRUE;
 					}
 				}
 
@@ -1313,7 +1313,7 @@ bool monst_spell_monst(int m_idx)
 
 			case 128 + 2:
 			{
-				/* RF5_BA_FIRE */
+				/* RF4_BA_FIRE */
 				if (known)
 				{
 					if (see_either)
@@ -1332,7 +1332,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						p_ptr->mon_fight = TRUE;
+						p_ptr->state.mon_fight = TRUE;
 					}
 				}
 
@@ -1344,7 +1344,7 @@ bool monst_spell_monst(int m_idx)
 
 			case 128 + 3:
 			{
-				/* RF5_BA_COLD */
+				/* RF4_BA_COLD */
 				if (known)
 				{
 					if (see_either)
@@ -1363,7 +1363,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						p_ptr->mon_fight = TRUE;
+						p_ptr->state.mon_fight = TRUE;
 					}
 				}
 
@@ -1375,7 +1375,7 @@ bool monst_spell_monst(int m_idx)
 
 			case 128 + 4:
 			{
-				/* RF5_BA_POIS */
+				/* RF4_BA_POIS */
 				if (known)
 				{
 					if (see_either)
@@ -1394,7 +1394,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						p_ptr->mon_fight = TRUE;
+						p_ptr->state.mon_fight = TRUE;
 					}
 				}
 
@@ -1406,7 +1406,7 @@ bool monst_spell_monst(int m_idx)
 
 			case 128 + 5:
 			{
-				/* RF5_BA_NETH */
+				/* RF4_BA_NETH */
 				if (known)
 				{
 					if (see_either)
@@ -1425,7 +1425,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						p_ptr->mon_fight = TRUE;
+						p_ptr->state.mon_fight = TRUE;
 					}
 				}
 
@@ -1437,7 +1437,7 @@ bool monst_spell_monst(int m_idx)
 
 			case 128 + 6:
 			{
-				/* RF5_BA_WATE */
+				/* RF4_BA_WATE */
 				if (known)
 				{
 					if (see_either)
@@ -1458,7 +1458,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						p_ptr->mon_fight = TRUE;
+						p_ptr->state.mon_fight = TRUE;
 					}
 				}
 
@@ -1470,7 +1470,7 @@ bool monst_spell_monst(int m_idx)
 
 			case 128 + 7:
 			{
-				/* RF5_BA_MANA */
+				/* RF4_BA_MANA */
 				if (known)
 				{
 					if (see_either)
@@ -1489,7 +1489,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						p_ptr->mon_fight = TRUE;
+						p_ptr->state.mon_fight = TRUE;
 					}
 				}
 
@@ -1501,7 +1501,7 @@ bool monst_spell_monst(int m_idx)
 
 			case 128 + 8:
 			{
-				/* RF5_BA_DARK */
+				/* RF4_BA_DARK */
 				if (known)
 				{
 					if (see_either)
@@ -1520,7 +1520,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						p_ptr->mon_fight = TRUE;
+						p_ptr->state.mon_fight = TRUE;
 					}
 				}
 
@@ -1532,7 +1532,7 @@ bool monst_spell_monst(int m_idx)
 
 			case 128 + 9:
 			{
-				/* RF5_DRAIN_MANA */
+				/* RF4_DRAIN_MANA */
 
 				/* Attack power */
 				int power = (randint1(rlev) / 2) + 1;
@@ -1547,7 +1547,7 @@ bool monst_spell_monst(int m_idx)
 				/* Heal the monster */
 				if (m_ptr->hp < m_ptr->maxhp)
 				{
-					if (!tr_ptr->flags4 && !tr_ptr->flags5 && !tr_ptr->flags6)
+					if (!tr_ptr->flags[3] && !tr_ptr->flags[4] && !tr_ptr->flags[5])
 					{
 						if (see_both)
 						{
@@ -1579,24 +1579,24 @@ bool monst_spell_monst(int m_idx)
 
 			case 128 + 10:
 			{
-				/* RF5_MIND_BLAST */
+				/* RF4_MIND_BLAST */
 				if (see_m)
 				{
 					msgf("%^s gazes intently at %s.", m_name, t_name);
 				}
 
 				/* Attempt a saving throw */
-				if ((tr_ptr->flags1 & RF1_UNIQUE) ||
-					(tr_ptr->flags3 & RF3_NO_CONF) ||
+				if (FLAG(tr_ptr, RF_UNIQUE) ||
+					FLAG(tr_ptr, RF_NO_CONF) ||
 					(tr_ptr->level > randint1(rlev * 3) / 2))
 				{
 					/* No obvious effect */
 					if (see_both)
 					{
 						/* Memorize a flag */
-						if (tr_ptr->flags3 & (RF3_NO_CONF))
+						if (FLAG(tr_ptr, RF_NO_CONF))
 						{
-							tr_ptr->r_flags3 |= (RF3_NO_CONF);
+							tr_ptr->r_flags[2] |= (RF2_NO_CONF);
 						}
 
 						msgf("%^s is unaffected!", t_name);
@@ -1622,24 +1622,24 @@ bool monst_spell_monst(int m_idx)
 
 			case 128 + 11:
 			{
-				/* RF5_BRAIN_SMASH */
+				/* RF4_BRAIN_SMASH */
 				if (see_m)
 				{
 					msgf("%^s gazes intently at %s.", m_name, t_name);
 				}
 
 				/* Attempt a saving throw */
-				if ((tr_ptr->flags1 & RF1_UNIQUE) ||
-					(tr_ptr->flags3 & RF3_NO_CONF) ||
+				if (FLAG(tr_ptr, RF_UNIQUE) ||
+					FLAG(tr_ptr, RF_NO_CONF) ||
 					(tr_ptr->level > randint1(rlev * 3) / 2))
 				{
 					/* No obvious effect */
 					if (see_both)
 					{
 						/* Memorize a flag */
-						if (tr_ptr->flags3 & (RF3_NO_CONF))
+						if (FLAG(tr_ptr, RF_NO_CONF))
 						{
-							tr_ptr->r_flags3 |= (RF3_NO_CONF);
+							tr_ptr->r_flags[2] |= (RF2_NO_CONF);
 						}
 
 						msgf("%^s is unaffected!", t_name);
@@ -1667,7 +1667,7 @@ bool monst_spell_monst(int m_idx)
 
 			case 128 + 12:
 			{
-				/* RF5_CAUSE_1 */
+				/* RF4_CAUSE_1 */
 				if (known)
 				{
 					if (see_m)
@@ -1677,7 +1677,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						p_ptr->mon_fight = TRUE;
+						p_ptr->state.mon_fight = TRUE;
 					}
 				}
 
@@ -1698,7 +1698,7 @@ bool monst_spell_monst(int m_idx)
 
 			case 128 + 13:
 			{
-				/* RF5_CAUSE_2 */
+				/* RF4_CAUSE_2 */
 				if (known)
 				{
 					if (see_m)
@@ -1708,7 +1708,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						p_ptr->mon_fight = TRUE;
+						p_ptr->state.mon_fight = TRUE;
 					}
 				}
 
@@ -1729,7 +1729,7 @@ bool monst_spell_monst(int m_idx)
 
 			case 128 + 14:
 			{
-				/* RF5_CAUSE_3 */
+				/* RF4_CAUSE_3 */
 				if (known)
 				{
 					if (see_m)
@@ -1739,7 +1739,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						p_ptr->mon_fight = TRUE;
+						p_ptr->state.mon_fight = TRUE;
 					}
 				}
 
@@ -1760,7 +1760,7 @@ bool monst_spell_monst(int m_idx)
 
 			case 128 + 15:
 			{
-				/* RF5_CAUSE_4 */
+				/* RF4_CAUSE_4 */
 				if (known)
 				{
 					if (see_m)
@@ -1771,7 +1771,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						p_ptr->mon_fight = TRUE;
+						p_ptr->state.mon_fight = TRUE;
 					}
 				}
 
@@ -1792,7 +1792,7 @@ bool monst_spell_monst(int m_idx)
 
 			case 128 + 16:
 			{
-				/* RF5_BO_ACID */
+				/* RF4_BO_ACID */
 				if (known)
 				{
 					if (see_either)
@@ -1802,7 +1802,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						p_ptr->mon_fight = TRUE;
+						p_ptr->state.mon_fight = TRUE;
 					}
 				}
 
@@ -1814,7 +1814,7 @@ bool monst_spell_monst(int m_idx)
 
 			case 128 + 17:
 			{
-				/* RF5_BO_ELEC */
+				/* RF4_BO_ELEC */
 				if (known)
 				{
 					if (see_either)
@@ -1824,7 +1824,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						p_ptr->mon_fight = TRUE;
+						p_ptr->state.mon_fight = TRUE;
 					}
 				}
 
@@ -1836,7 +1836,7 @@ bool monst_spell_monst(int m_idx)
 
 			case 128 + 18:
 			{
-				/* RF5_BO_FIRE */
+				/* RF4_BO_FIRE */
 				if (known)
 				{
 					if (see_either)
@@ -1846,7 +1846,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						p_ptr->mon_fight = TRUE;
+						p_ptr->state.mon_fight = TRUE;
 					}
 				}
 
@@ -1858,7 +1858,7 @@ bool monst_spell_monst(int m_idx)
 
 			case 128 + 19:
 			{
-				/* RF5_BO_COLD */
+				/* RF4_BO_COLD */
 				if (known)
 				{
 					if (see_either)
@@ -1868,7 +1868,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						p_ptr->mon_fight = TRUE;
+						p_ptr->state.mon_fight = TRUE;
 					}
 				}
 
@@ -1880,7 +1880,7 @@ bool monst_spell_monst(int m_idx)
 
 			case 128 + 20:
 			{
-				/* RF5_BO_POIS */
+				/* RF4_BO_POIS */
 
 				/* XXX XXX XXX */
 				break;
@@ -1888,7 +1888,7 @@ bool monst_spell_monst(int m_idx)
 
 			case 128 + 21:
 			{
-				/* RF5_BO_NETH */
+				/* RF4_BO_NETH */
 				if (known)
 				{
 					if (see_either)
@@ -1898,7 +1898,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						p_ptr->mon_fight = TRUE;
+						p_ptr->state.mon_fight = TRUE;
 					}
 				}
 
@@ -1910,7 +1910,7 @@ bool monst_spell_monst(int m_idx)
 
 			case 128 + 22:
 			{
-				/* RF5_BO_WATE */
+				/* RF4_BO_WATE */
 				if (known)
 				{
 					if (see_either)
@@ -1920,7 +1920,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						p_ptr->mon_fight = TRUE;
+						p_ptr->state.mon_fight = TRUE;
 					}
 				}
 
@@ -1931,7 +1931,7 @@ bool monst_spell_monst(int m_idx)
 
 			case 128 + 23:
 			{
-				/* RF5_BO_MANA */
+				/* RF4_BO_MANA */
 				if (known)
 				{
 					if (see_either)
@@ -1941,7 +1941,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						p_ptr->mon_fight = TRUE;
+						p_ptr->state.mon_fight = TRUE;
 					}
 				}
 
@@ -1953,7 +1953,7 @@ bool monst_spell_monst(int m_idx)
 
 			case 128 + 24:
 			{
-				/* RF5_BO_PLAS */
+				/* RF4_BO_PLAS */
 				if (known)
 				{
 					if (see_either)
@@ -1963,7 +1963,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						p_ptr->mon_fight = TRUE;
+						p_ptr->state.mon_fight = TRUE;
 					}
 				}
 
@@ -1975,7 +1975,7 @@ bool monst_spell_monst(int m_idx)
 
 			case 128 + 25:
 			{
-				/* RF5_BO_ICEE */
+				/* RF4_BO_ICEE */
 				if (known)
 				{
 					if (see_either)
@@ -1985,7 +1985,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						p_ptr->mon_fight = TRUE;
+						p_ptr->state.mon_fight = TRUE;
 					}
 				}
 
@@ -1996,7 +1996,7 @@ bool monst_spell_monst(int m_idx)
 
 			case 128 + 26:
 			{
-				/* RF5_MISSILE */
+				/* RF4_MISSILE */
 				if (known)
 				{
 					if (see_either)
@@ -2006,7 +2006,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						p_ptr->mon_fight = TRUE;
+						p_ptr->state.mon_fight = TRUE;
 					}
 				}
 
@@ -2018,7 +2018,7 @@ bool monst_spell_monst(int m_idx)
 
 			case 128 + 27:
 			{
-				/* RF5_SCARE */
+				/* RF4_SCARE */
 				if (known)
 				{
 					if (see_either)
@@ -2029,11 +2029,11 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						p_ptr->mon_fight = TRUE;
+						p_ptr->state.mon_fight = TRUE;
 					}
 				}
 
-				if (tr_ptr->flags3 & RF3_NO_FEAR)
+				if (FLAG(tr_ptr, RF_NO_FEAR))
 				{
 					if (see_t) msgf("%^s refuses to be frightened.",
 										  t_name);
@@ -2057,7 +2057,7 @@ bool monst_spell_monst(int m_idx)
 
 			case 128 + 28:
 			{
-				/* RF5_BLIND */
+				/* RF4_BLIND */
 				if (known)
 				{
 					if (see_either)
@@ -2068,12 +2068,12 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						p_ptr->mon_fight = TRUE;
+						p_ptr->state.mon_fight = TRUE;
 					}
 				}
 
 				/* Simulate blindness with confusion */
-				if (tr_ptr->flags3 & RF3_NO_CONF)
+				if (FLAG(tr_ptr, RF_NO_CONF))
 				{
 					if (see_t) msgf("%^s is unaffected.", t_name);
 				}
@@ -2095,7 +2095,7 @@ bool monst_spell_monst(int m_idx)
 
 			case 128 + 29:
 			{
-				/* RF5_CONF */
+				/* RF4_CONF */
 				if (known)
 				{
 					if (see_either)
@@ -2106,11 +2106,11 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						p_ptr->mon_fight = TRUE;
+						p_ptr->state.mon_fight = TRUE;
 					}
 				}
 
-				if (tr_ptr->flags3 & RF3_NO_CONF)
+				if (FLAG(tr_ptr, RF_NO_CONF))
 				{
 					if (see_t) msgf("%^s disbelieves the feeble spell.",
 										  t_name);
@@ -2134,7 +2134,7 @@ bool monst_spell_monst(int m_idx)
 
 			case 128 + 30:
 			{
-				/* RF5_SLOW */
+				/* RF4_SLOW */
 				if (known)
 				{
 					if (see_either)
@@ -2145,11 +2145,11 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						p_ptr->mon_fight = TRUE;
+						p_ptr->state.mon_fight = TRUE;
 					}
 				}
 
-				if (tr_ptr->flags1 & RF1_UNIQUE)
+				if (FLAG(tr_ptr, RF_UNIQUE))
 				{
 					if (see_t) msgf("%^s is unaffected.", t_name);
 				}
@@ -2171,7 +2171,7 @@ bool monst_spell_monst(int m_idx)
 
 			case 128 + 31:
 			{
-				/* RF5_HOLD */
+				/* RF4_HOLD */
 				if (known)
 				{
 					if (see_either)
@@ -2181,12 +2181,12 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						p_ptr->mon_fight = TRUE;
+						p_ptr->state.mon_fight = TRUE;
 					}
 				}
 
-				if ((tr_ptr->flags1 & RF1_UNIQUE) ||
-					(tr_ptr->flags3 & RF3_NO_STUN))
+				if (FLAG(tr_ptr, RF_UNIQUE) ||
+					FLAG(tr_ptr, RF_NO_STUN))
 				{
 					if (see_t) msgf("%^s is unaffected.", t_name);
 				}
@@ -2208,7 +2208,7 @@ bool monst_spell_monst(int m_idx)
 
 			case 160 + 0:
 			{
-				/* RF6_HASTE */
+				/* RF5_HASTE */
 				if (known)
 				{
 					if (see_m)
@@ -2218,7 +2218,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						p_ptr->mon_fight = TRUE;
+						p_ptr->state.mon_fight = TRUE;
 					}
 				}
 
@@ -2243,7 +2243,7 @@ bool monst_spell_monst(int m_idx)
 
 			case 160 + 1:
 			{
-				/* RF6_HAND_DOOM */
+				/* RF5_HAND_DOOM */
 				if (known)
 				{
 					if (see_m)
@@ -2253,11 +2253,11 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						p_ptr->mon_fight = TRUE;
+						p_ptr->state.mon_fight = TRUE;
 					}
 				}
 
-				if (tr_ptr->flags1 & RF1_UNIQUE)
+				if (FLAG(tr_ptr, RF_UNIQUE))
 				{
 					if (see_both) msgf("^%s is unaffected!", t_name);
 				}
@@ -2284,7 +2284,7 @@ bool monst_spell_monst(int m_idx)
 
 			case 160 + 2:
 			{
-				/* RF6_HEAL */
+				/* RF5_HEAL */
 				if (known)
 				{
 					if (see_m)
@@ -2294,7 +2294,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						p_ptr->mon_fight = TRUE;
+						p_ptr->state.mon_fight = TRUE;
 					}
 				}
 
@@ -2315,7 +2315,7 @@ bool monst_spell_monst(int m_idx)
 						}
 						else
 						{
-							p_ptr->mon_fight = TRUE;
+							p_ptr->state.mon_fight = TRUE;
 						}
 					}
 				}
@@ -2329,7 +2329,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						p_ptr->mon_fight = TRUE;
+						p_ptr->state.mon_fight = TRUE;
 					}
 				}
 
@@ -2352,7 +2352,7 @@ bool monst_spell_monst(int m_idx)
 
 			case 160 + 3:
 			{
-				/* RF6_INVULNER */
+				/* RF5_INVULNER */
 				if (known)
 				{
 					if (see_m)
@@ -2363,7 +2363,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						p_ptr->mon_fight = TRUE;
+						p_ptr->state.mon_fight = TRUE;
 					}
 				}
 
@@ -2374,7 +2374,7 @@ bool monst_spell_monst(int m_idx)
 
 			case 160 + 4:
 			{
-				/* RF6_BLINK */
+				/* RF5_BLINK */
 				if (see_m)
 				{
 					msgf("%^s blinks away.", m_name);
@@ -2387,7 +2387,7 @@ bool monst_spell_monst(int m_idx)
 
 			case 160 + 5:
 			{
-				/* RF6_TPORT */
+				/* RF5_TPORT */
 				if (see_m)
 				{
 					msgf("%^s teleports away.", m_name);
@@ -2400,19 +2400,19 @@ bool monst_spell_monst(int m_idx)
 
 			case 160 + 6:
 			{
-				/* RF6_XXX3X6 */
+				/* RF5_XXX3X6 */
 				break;
 			}
 
 			case 160 + 7:
 			{
-				/* RF6_XXX4X6 */
+				/* RF5_XXX4X6 */
 				break;
 			}
 
 			case 160 + 8:
 			{
-				/* RF6_TELE_TO */
+				/* RF5_TELE_TO */
 
 				/* Not implemented */
 				break;
@@ -2420,7 +2420,7 @@ bool monst_spell_monst(int m_idx)
 
 			case 160 + 9:
 			{
-				/* RF6_TELE_AWAY */
+				/* RF5_TELE_AWAY */
 				bool resists_tele = FALSE;
 
 				if (known)
@@ -2431,17 +2431,17 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						p_ptr->mon_fight = TRUE;
+						p_ptr->state.mon_fight = TRUE;
 					}
 				}
 
-				if (tr_ptr->flags3 & RF3_RES_TELE)
+				if (FLAG(tr_ptr, RF_RES_TELE))
 				{
-					if (tr_ptr->flags1 & RF1_UNIQUE)
+					if (FLAG(tr_ptr, RF_UNIQUE))
 					{
 						if (see_t)
 						{
-							tr_ptr->r_flags3 |= RF3_RES_TELE;
+							tr_ptr->r_flags[2] |= RF2_RES_TELE;
 							msgf("%^s is unaffected!", t_name);
 						}
 
@@ -2451,7 +2451,7 @@ bool monst_spell_monst(int m_idx)
 					{
 						if (see_t)
 						{
-							tr_ptr->r_flags3 |= RF3_RES_TELE;
+							tr_ptr->r_flags[2] |= RF2_RES_TELE;
 							msgf("%^s resists!", t_name);
 						}
 
@@ -2469,7 +2469,7 @@ bool monst_spell_monst(int m_idx)
 
 			case 160 + 10:
 			{
-				/* RF6_TELE_LEVEL */
+				/* RF5_TELE_LEVEL */
 
 				/* Not implemented */
 				break;
@@ -2477,13 +2477,13 @@ bool monst_spell_monst(int m_idx)
 
 			case 160 + 11:
 			{
-				/* RF6_XXX5 */
+				/* RF5_XXX5 */
 				break;
 			}
 
 			case 160 + 12:
 			{
-				/* RF6_DARKNESS */
+				/* RF5_DARKNESS */
 				if (known)
 				{
 					if (see_m)
@@ -2498,7 +2498,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						p_ptr->mon_fight = TRUE;
+						p_ptr->state.mon_fight = TRUE;
 					}
 				}
 
@@ -2512,7 +2512,7 @@ bool monst_spell_monst(int m_idx)
 
 			case 160 + 13:
 			{
-				/* RF6_TRAPS */
+				/* RF5_TRAPS */
 
 				/* Not implemented */
 				break;
@@ -2520,7 +2520,7 @@ bool monst_spell_monst(int m_idx)
 
 			case 160 + 14:
 			{
-				/* RF6_FORGET */
+				/* RF5_FORGET */
 
 				/* Not implemented */
 				break;
@@ -2528,7 +2528,7 @@ bool monst_spell_monst(int m_idx)
 
 			case 160 + 15:
 			{
-				/* RF6_RAISE_DEAD */
+				/* RF5_RAISE_DEAD */
 				if (raise_dead
 					(m_ptr->fx, m_ptr->fy, (bool)(!is_hostile(m_ptr))) && known
 					&& see_m)
@@ -2540,7 +2540,7 @@ bool monst_spell_monst(int m_idx)
 
 			case 160 + 16:
 			{
-				/* RF6_SUMMON_KIN */
+				/* RF5_SUMMON_KIN */
 				if (known)
 				{
 					if (see_either)
@@ -2549,12 +2549,12 @@ bool monst_spell_monst(int m_idx)
 
 						msgf("%^s magically summons %s %s.", m_name,
 								   m_poss,
-								   ((r_ptr->
-									 flags1 & RF1_UNIQUE) ? "minions" : "kin"));
+								   (FLAG(r_ptr, RF_UNIQUE)
+									 ? "minions" : "kin"));
 					}
 					else
 					{
-						p_ptr->mon_fight = TRUE;
+						p_ptr->state.mon_fight = TRUE;
 					}
 				}
 
@@ -2569,7 +2569,7 @@ bool monst_spell_monst(int m_idx)
 
 				if (known && !see_t && count)
 				{
-					p_ptr->mon_fight = TRUE;
+					p_ptr->state.mon_fight = TRUE;
 				}
 
 				break;
@@ -2577,7 +2577,7 @@ bool monst_spell_monst(int m_idx)
 
 			case 160 + 17:
 			{
-				/* RF6_S_CYBER */
+				/* RF5_S_CYBER */
 				if (known)
 				{
 					if (see_either)
@@ -2589,7 +2589,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						p_ptr->mon_fight = TRUE;
+						p_ptr->state.mon_fight = TRUE;
 					}
 				}
 
@@ -2597,7 +2597,7 @@ bool monst_spell_monst(int m_idx)
 
 				if (known && !see_t && count)
 				{
-					p_ptr->mon_fight = TRUE;
+					p_ptr->state.mon_fight = TRUE;
 				}
 
 				break;
@@ -2605,7 +2605,7 @@ bool monst_spell_monst(int m_idx)
 
 			case 160 + 18:
 			{
-				/* RF6_S_MONSTER */
+				/* RF5_S_MONSTER */
 				int type = (friendly ? SUMMON_NO_UNIQUES : 0);
 
 				if (known)
@@ -2618,7 +2618,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						p_ptr->mon_fight = TRUE;
+						p_ptr->state.mon_fight = TRUE;
 					}
 				}
 
@@ -2628,7 +2628,7 @@ bool monst_spell_monst(int m_idx)
 
 				if (known && !see_t && count)
 				{
-					p_ptr->mon_fight = TRUE;
+					p_ptr->state.mon_fight = TRUE;
 				}
 
 				break;
@@ -2636,7 +2636,7 @@ bool monst_spell_monst(int m_idx)
 
 			case 160 + 19:
 			{
-				/* RF6_S_MONSTERS */
+				/* RF5_S_MONSTERS */
 				int type = (friendly ? SUMMON_NO_UNIQUES : 0);
 
 				if (known)
@@ -2649,7 +2649,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						p_ptr->mon_fight = TRUE;
+						p_ptr->state.mon_fight = TRUE;
 					}
 				}
 
@@ -2662,7 +2662,7 @@ bool monst_spell_monst(int m_idx)
 
 				if (known && !see_t && count)
 				{
-					p_ptr->mon_fight = TRUE;
+					p_ptr->state.mon_fight = TRUE;
 				}
 
 				break;
@@ -2670,7 +2670,7 @@ bool monst_spell_monst(int m_idx)
 
 			case 160 + 20:
 			{
-				/* RF6_S_ANT */
+				/* RF5_S_ANT */
 				if (known)
 				{
 					if (see_either)
@@ -2681,7 +2681,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						p_ptr->mon_fight = TRUE;
+						p_ptr->state.mon_fight = TRUE;
 					}
 				}
 
@@ -2694,7 +2694,7 @@ bool monst_spell_monst(int m_idx)
 
 				if (known && !see_t && count)
 				{
-					p_ptr->mon_fight = TRUE;
+					p_ptr->state.mon_fight = TRUE;
 				}
 
 				break;
@@ -2702,7 +2702,7 @@ bool monst_spell_monst(int m_idx)
 
 			case 160 + 21:
 			{
-				/* RF6_S_SPIDER */
+				/* RF5_S_SPIDER */
 				if (known)
 				{
 					if (see_either)
@@ -2713,7 +2713,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						p_ptr->mon_fight = TRUE;
+						p_ptr->state.mon_fight = TRUE;
 					}
 				}
 
@@ -2726,7 +2726,7 @@ bool monst_spell_monst(int m_idx)
 
 				if (known && !see_t && count)
 				{
-					p_ptr->mon_fight = TRUE;
+					p_ptr->state.mon_fight = TRUE;
 				}
 
 				break;
@@ -2734,7 +2734,7 @@ bool monst_spell_monst(int m_idx)
 
 			case 160 + 22:
 			{
-				/* RF6_S_HOUND */
+				/* RF5_S_HOUND */
 				if (known)
 				{
 					if (see_either)
@@ -2745,7 +2745,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						p_ptr->mon_fight = TRUE;
+						p_ptr->state.mon_fight = TRUE;
 					}
 				}
 
@@ -2758,7 +2758,7 @@ bool monst_spell_monst(int m_idx)
 
 				if (known && !see_t && count)
 				{
-					p_ptr->mon_fight = TRUE;
+					p_ptr->state.mon_fight = TRUE;
 				}
 
 				break;
@@ -2766,7 +2766,7 @@ bool monst_spell_monst(int m_idx)
 
 			case 160 + 23:
 			{
-				/* RF6_S_HYDRA */
+				/* RF5_S_HYDRA */
 				if (known)
 				{
 					if (see_either)
@@ -2777,7 +2777,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						p_ptr->mon_fight = TRUE;
+						p_ptr->state.mon_fight = TRUE;
 					}
 				}
 
@@ -2790,7 +2790,7 @@ bool monst_spell_monst(int m_idx)
 
 				if (known && !see_t && count)
 				{
-					p_ptr->mon_fight = TRUE;
+					p_ptr->state.mon_fight = TRUE;
 				}
 
 				break;
@@ -2798,7 +2798,7 @@ bool monst_spell_monst(int m_idx)
 
 			case 160 + 24:
 			{
-				/* RF6_S_ANGEL */
+				/* RF5_S_ANGEL */
 				if (known)
 				{
 					if (see_either)
@@ -2809,7 +2809,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						p_ptr->mon_fight = TRUE;
+						p_ptr->state.mon_fight = TRUE;
 					}
 				}
 
@@ -2822,7 +2822,7 @@ bool monst_spell_monst(int m_idx)
 
 				if (known && !see_t && count)
 				{
-					p_ptr->mon_fight = TRUE;
+					p_ptr->state.mon_fight = TRUE;
 				}
 
 				break;
@@ -2830,7 +2830,7 @@ bool monst_spell_monst(int m_idx)
 
 			case 160 + 25:
 			{
-				/* RF6_S_DEMON */
+				/* RF5_S_DEMON */
 				if (known)
 				{
 					if (see_either)
@@ -2843,7 +2843,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						p_ptr->mon_fight = TRUE;
+						p_ptr->state.mon_fight = TRUE;
 					}
 				}
 
@@ -2856,7 +2856,7 @@ bool monst_spell_monst(int m_idx)
 
 				if (known && !see_t && count)
 				{
-					p_ptr->mon_fight = TRUE;
+					p_ptr->state.mon_fight = TRUE;
 				}
 
 				break;
@@ -2864,7 +2864,7 @@ bool monst_spell_monst(int m_idx)
 
 			case 160 + 26:
 			{
-				/* RF6_S_UNDEAD */
+				/* RF5_S_UNDEAD */
 				if (known)
 				{
 					if (see_either)
@@ -2875,7 +2875,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						p_ptr->mon_fight = TRUE;
+						p_ptr->state.mon_fight = TRUE;
 					}
 				}
 
@@ -2888,7 +2888,7 @@ bool monst_spell_monst(int m_idx)
 
 				if (known && !see_t && count)
 				{
-					p_ptr->mon_fight = TRUE;
+					p_ptr->state.mon_fight = TRUE;
 				}
 
 				break;
@@ -2896,7 +2896,7 @@ bool monst_spell_monst(int m_idx)
 
 			case 160 + 27:
 			{
-				/* RF6_S_DRAGON */
+				/* RF5_S_DRAGON */
 				if (known)
 				{
 					if (see_either)
@@ -2907,7 +2907,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						p_ptr->mon_fight = TRUE;
+						p_ptr->state.mon_fight = TRUE;
 					}
 				}
 
@@ -2920,7 +2920,7 @@ bool monst_spell_monst(int m_idx)
 
 				if (known && !see_t && count)
 				{
-					p_ptr->mon_fight = TRUE;
+					p_ptr->state.mon_fight = TRUE;
 				}
 
 				break;
@@ -2928,7 +2928,7 @@ bool monst_spell_monst(int m_idx)
 
 			case 160 + 28:
 			{
-				/* RF6_S_HI_UNDEAD */
+				/* RF5_S_HI_UNDEAD */
 				int type =
 					(friendly ? SUMMON_HI_UNDEAD_NO_UNIQUES : SUMMON_HI_UNDEAD);
 
@@ -2942,7 +2942,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						p_ptr->mon_fight = TRUE;
+						p_ptr->state.mon_fight = TRUE;
 					}
 				}
 
@@ -2955,7 +2955,7 @@ bool monst_spell_monst(int m_idx)
 
 				if (known && !see_t && count)
 				{
-					p_ptr->mon_fight = TRUE;
+					p_ptr->state.mon_fight = TRUE;
 				}
 
 				break;
@@ -2963,7 +2963,7 @@ bool monst_spell_monst(int m_idx)
 
 			case 160 + 29:
 			{
-				/* RF6_S_HI_DRAGON */
+				/* RF5_S_HI_DRAGON */
 				int type =
 					(friendly ? SUMMON_HI_DRAGON_NO_UNIQUES : SUMMON_HI_DRAGON);
 
@@ -2978,7 +2978,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						p_ptr->mon_fight = TRUE;
+						p_ptr->state.mon_fight = TRUE;
 					}
 				}
 
@@ -2991,7 +2991,7 @@ bool monst_spell_monst(int m_idx)
 
 				if (known && !see_t && count)
 				{
-					p_ptr->mon_fight = TRUE;
+					p_ptr->state.mon_fight = TRUE;
 				}
 
 				break;
@@ -2999,7 +2999,7 @@ bool monst_spell_monst(int m_idx)
 
 			case 160 + 30:
 			{
-				/* RF6_S_AMBERITES */
+				/* RF5_S_AMBERITES */
 				if (known)
 				{
 					if (see_either)
@@ -3011,7 +3011,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						p_ptr->mon_fight = TRUE;
+						p_ptr->state.mon_fight = TRUE;
 					}
 				}
 
@@ -3024,7 +3024,7 @@ bool monst_spell_monst(int m_idx)
 
 				if (known && !see_t && count)
 				{
-					p_ptr->mon_fight = TRUE;
+					p_ptr->state.mon_fight = TRUE;
 				}
 
 				break;
@@ -3032,7 +3032,7 @@ bool monst_spell_monst(int m_idx)
 
 			case 160 + 31:
 			{
-				/* RF6_S_UNIQUE */
+				/* RF5_S_UNIQUE */
 				if (known)
 				{
 					if (see_either)
@@ -3044,7 +3044,7 @@ bool monst_spell_monst(int m_idx)
 					}
 					else
 					{
-						p_ptr->mon_fight = TRUE;
+						p_ptr->state.mon_fight = TRUE;
 					}
 				}
 
@@ -3057,7 +3057,7 @@ bool monst_spell_monst(int m_idx)
 
 				if (known && !see_t && count)
 				{
-					p_ptr->mon_fight = TRUE;
+					p_ptr->state.mon_fight = TRUE;
 				}
 
 				break;
@@ -3092,21 +3092,21 @@ bool monst_spell_monst(int m_idx)
 			/* Inate spell */
 			if (thrown_spell < 32 * 4)
 			{
-				r_ptr->r_flags4 |= (1L << (thrown_spell - 32 * 3));
+				r_ptr->r_flags[3] |= (1L << (thrown_spell - 32 * 3));
 				if (r_ptr->r_cast_inate < MAX_UCHAR) r_ptr->r_cast_inate++;
 			}
 
 			/* Bolt or Ball */
 			else if (thrown_spell < 32 * 5)
 			{
-				r_ptr->r_flags5 |= (1L << (thrown_spell - 32 * 4));
+				r_ptr->r_flags[4] |= (1L << (thrown_spell - 32 * 4));
 				if (r_ptr->r_cast_spell < MAX_UCHAR) r_ptr->r_cast_spell++;
 			}
 
 			/* Special spell */
 			else if (thrown_spell < 32 * 6)
 			{
-				r_ptr->r_flags6 |= (1L << (thrown_spell - 32 * 5));
+				r_ptr->r_flags[5] |= (1L << (thrown_spell - 32 * 5));
 				if (r_ptr->r_cast_spell < MAX_UCHAR) r_ptr->r_cast_spell++;
 			}
 		}

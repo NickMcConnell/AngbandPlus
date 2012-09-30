@@ -525,6 +525,8 @@ static void wr_string(cptr str)
  */
 static void wr_item(const object_type *o_ptr)
 {
+	int i;
+	
 	wr_s16b(o_ptr->k_idx);
 
 	/* Location */
@@ -550,10 +552,10 @@ static void wr_item(const object_type *o_ptr)
 
 	wr_byte(o_ptr->info);
 
-	wr_u32b(o_ptr->flags1);
-	wr_u32b(o_ptr->flags2);
-	wr_u32b(o_ptr->flags3);
-	wr_u32b(o_ptr->flags4);
+	wr_u32b(o_ptr->flags[0]);
+	wr_u32b(o_ptr->flags[1]);
+	wr_u32b(o_ptr->flags[2]);
+	wr_u32b(o_ptr->flags[3]);
 
 	/* Next object in list */
 	wr_s16b(o_ptr->next_o_idx);
@@ -584,18 +586,29 @@ static void wr_item(const object_type *o_ptr)
 		wr_string("");
 	}
 
+	/* Save attached scripts */
+	for (i = 0; i < MAX_TRIGGER; i++)
+	{
+		if (o_ptr->trigger[i])
+		{
+			wr_byte(i);
+			wr_string(quark_str(o_ptr->trigger[i]));
+		}
+	}
+	wr_byte(255);
+
 	/* No Python object */
 	wr_s32b(0);
 
 	/* The new flags */
 	wr_s32b(o_ptr->cost);
 
-	wr_byte(o_ptr->activate);
+	wr_byte(o_ptr->a_idx);
 
-	wr_u32b(o_ptr->kn_flags1);
-	wr_u32b(o_ptr->kn_flags2);
-	wr_u32b(o_ptr->kn_flags3);
-	wr_u32b(o_ptr->kn_flags4);
+	wr_u32b(o_ptr->kn_flags[0]);
+	wr_u32b(o_ptr->kn_flags[1]);
+	wr_u32b(o_ptr->kn_flags[2]);
+	wr_u32b(o_ptr->kn_flags[3]);
 }
 
 
@@ -688,12 +701,12 @@ static void wr_lore(int r_idx)
 	wr_byte(r_ptr->r_blows[3]);
 
 	/* Memorize flags */
-	wr_u32b(r_ptr->r_flags1);
-	wr_u32b(r_ptr->r_flags2);
-	wr_u32b(r_ptr->r_flags3);
-	wr_u32b(r_ptr->r_flags4);
-	wr_u32b(r_ptr->r_flags5);
-	wr_u32b(r_ptr->r_flags6);
+	wr_u32b(r_ptr->r_flags[0]);
+	wr_u32b(r_ptr->r_flags[1]);
+	wr_u32b(r_ptr->r_flags[2]);
+	wr_u32b(r_ptr->r_flags[3]);
+	wr_u32b(r_ptr->r_flags[4]);
+	wr_u32b(r_ptr->r_flags[5]);
 
 
 	/* Monster limit per level */
@@ -941,7 +954,7 @@ static void wr_extra(void)
 
 	/* Max Player and Dungeon Levels */
 	wr_s16b(p_ptr->max_lev);
-	wr_s16b(p_ptr->max_depth);
+	wr_s16b(0);					/* oops */
 
 	/* More info */
 	wr_s16b(0);					/* oops */
@@ -1041,7 +1054,7 @@ static void wr_extra(void)
 	wr_s32b(turn);
 
 	/* Trap detection status */
-	wr_byte(p_ptr->detected);
+	wr_byte(p_ptr->state.detected);
 
 	/* Player inventory item */
 	wr_s16b(p_ptr->inventory);
@@ -1496,20 +1509,20 @@ static bool wr_savefile_new(void)
 		/* Data - quest-type specific */
 		switch (quest[i].type)
 		{
-			case QUEST_TYPE_UNKNOWN: break;
+			case QUEST_TYPE_NONE: break;
 
-			case QUEST_TYPE_GENERAL:
+			case QUEST_TYPE_BOUNTY:
 			{
-				wr_u16b(quest[i].data.gen.place);
-				wr_u16b(quest[i].data.gen.shop);
-				wr_u16b(quest[i].data.gen.r_idx);
-				wr_u16b(quest[i].data.gen.cur_num);
-				wr_u16b(quest[i].data.gen.max_num);
+				/* Bounty quests */
+				wr_u16b(quest[i].data.bnt.r_idx);
+				wr_u16b(quest[i].data.bnt.cur_num);
+				wr_u16b(quest[i].data.bnt.max_num);
 				break;
 			}
 
 			case QUEST_TYPE_DUNGEON:
 			{
+				/* Dungeon quests */
 				wr_u16b(quest[i].data.dun.r_idx);
 				wr_u16b(quest[i].data.dun.level);
 
@@ -1521,9 +1534,33 @@ static bool wr_savefile_new(void)
 
 			case QUEST_TYPE_WILD:
 			{
+				/* Wilderness quests */
 				wr_u16b(quest[i].data.wld.place);
 				wr_u16b(quest[i].data.wld.data);
 				wr_byte(quest[i].data.wld.depth);
+				break;
+			}
+			
+			case QUEST_TYPE_MESSAGE:
+			{
+				/* Message quests */
+				wr_u16b(quest[i].data.msg.place);
+				wr_u16b(quest[i].data.msg.shop);
+				break;
+			}
+			
+			case QUEST_TYPE_FIND_ITEM:
+			{
+				/* Find item quests */
+				wr_u16b(quest[i].data.fit.a_idx);
+				wr_u16b(quest[i].data.fit.place);
+				break;
+			}
+			
+			case QUEST_TYPE_FIND_PLACE:
+			{
+				/* Find place quests */
+				wr_u16b(quest[i].data.fpl.place);
 				break;
 			}
 
@@ -1674,6 +1711,9 @@ static bool wr_savefile_new(void)
 			wr_byte(dun_ptr->floor);
 			wr_byte(dun_ptr->liquid);
 			wr_byte(dun_ptr->flags);
+			
+			/* Recall depth */
+			wr_byte(dun_ptr->recall_depth);
 		}
 		else
 		{
@@ -2157,6 +2197,9 @@ bool load_player(void)
 				 */
 				create_wilderness();
 
+				/* If we are dead, then our inventory is corrupt */
+				p_ptr->inventory = 0;
+		
 				/* Done */
 				return (TRUE);
 			}

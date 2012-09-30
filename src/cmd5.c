@@ -141,7 +141,8 @@ static int get_spell(int *sn, cptr prompt, int sval, bool known, bool realm_2)
 			/* Belay that order */
 			if (!get_check("%^s %s (%d mana, %d%% fail)? ",
 						  prompt, spell_names[use_realm - 1][spell % 32],
-						  s_ptr->smana, spell_chance(spell, use_realm - 1))) continue;
+						  spell_mana(spell, use_realm - 1), 
+						  spell_chance(spell, use_realm - 1))) continue;
 		}
 
 		/* Stop the loop */
@@ -385,7 +386,7 @@ void do_cmd_study(void)
 
 
 	/* Take a turn */
-	p_ptr->energy_use = 100;
+	p_ptr->state.energy_use = 100;
 
 	if (increment) spell += increment;
 
@@ -867,7 +868,7 @@ static bool cast_sorcery_spell(int spell)
 			break;
 		case 27:				/* Clairvoyance */
 			wiz_lite();
-			if (!(p_ptr->flags3 & (TR3_TELEPATHY)))
+			if (!(FLAG(p_ptr, TR_TELEPATHY)))
 			{
 				(void)inc_tim_esp(rand_range(25, 55));
 			}
@@ -926,9 +927,9 @@ static bool cast_nature_spell(int spell)
 			break;
 		case 4:				/* Daylight */
 			(void)lite_area(damroll(2, (plev / 2)), (plev / 10) + 1);
-			if ((p_ptr->flags4 & (TR4_HURT_LITE)) &&
-				!(p_ptr->flags2 & (TR2_RES_LITE)) &&
-				!(p_ptr->flags4 & (TR4_IM_LITE)))
+			if ((FLAG(p_ptr, TR_HURT_LITE)) &&
+				!(FLAG(p_ptr, TR_RES_LITE)) &&
+				!(FLAG(p_ptr, TR_IM_LITE)))
 			{
 				msgf("The daylight scorches your flesh!");
 				take_hit(damroll(2, 2), "daylight");
@@ -1021,28 +1022,7 @@ static bool cast_nature_spell(int spell)
 			(void)earthquake(px, py, 10);
 			break;
 		case 25:				/* Whirlwind Attack */
-		{
-			int y = 0, x = 0;
-			cave_type *c_ptr;
-			monster_type *m_ptr;
-
-			for (dir = 0; dir <= 9; dir++)
-			{
-				y = py + ddy[dir];
-				x = px + ddx[dir];
-
-				/* paranoia */
-				if (!in_bounds2(x, y)) continue;
-				c_ptr = area(x, y);
-
-				/* Get the monster */
-				m_ptr = &m_list[c_ptr->m_idx];
-
-				/* Hack -- attack monsters */
-				if (c_ptr->m_idx && (m_ptr->ml || cave_floor_grid(c_ptr)))
-					py_attack(x, y);
-			}
-		}
+			whirlwind_attack();
 			break;
 		case 26:				/* Blizzard */
 			if (!get_aim_dir(&dir)) return FALSE;
@@ -1060,9 +1040,9 @@ static bool cast_nature_spell(int spell)
 		case 29:				/* Call Sunlight */
 			(void)fire_ball(GF_LITE, 0, 150, 8);
 			wiz_lite();
-			if ((p_ptr->flags4 & (TR4_HURT_LITE)) &&
-				!(p_ptr->flags2 & (TR2_RES_LITE)) &&
-				!(p_ptr->flags4 & (TR4_IM_LITE)))
+			if ((FLAG(p_ptr, TR_HURT_LITE)) &&
+				!(FLAG(p_ptr, TR_RES_LITE)) &&
+				!(FLAG(p_ptr, TR_IM_LITE)))
 			{
 				msgf("The sunlight scorches your flesh!");
 				take_hit(50, "sunlight");
@@ -1725,13 +1705,13 @@ static bool cast_death_spell(int spell)
 				if (!m_ptr->r_idx) continue;
 
 				/* Hack -- Skip Unique Monsters */
-				if (r_ptr->flags1 & (RF1_UNIQUE)) continue;
+				if (FLAG(r_ptr, RF_UNIQUE)) continue;
 
 				/* Hack -- Skip Quest Monsters */
-				if (r_ptr->flags1 & RF1_QUESTOR) continue;
+				if (FLAG(r_ptr, RF_QUESTOR)) continue;
 
 				/* Notice changes in view */
-				if (r_ptr->flags7 & (RF7_LITE_1 | RF7_LITE_2))
+				if (FLAG(r_ptr, RF_LITE_1) || FLAG(r_ptr, RF_LITE_2))
 				{
 					/* Update some things */
 					p_ptr->update |= (PU_MON_LITE);
@@ -1998,14 +1978,18 @@ static bool cast_trump_spell(int spell, bool success)
 			}
 			break;
 		case 3:				/* Reset Recall */
-			if (success)
+			if (p_ptr->depth && success)
 			{
+				dun_type *d_ptr = dungeon();
+				
+				s16b max_depth = MAX(p_ptr->depth, d_ptr->recall_depth);
+			
 				/* Default */
-				strnfmt(tmp_val, 160, "%d", MAX(p_ptr->depth, 1));
+				strnfmt(tmp_val, 160, "%d", MAX(max_depth, 1));
 
 				/* Ask for a level */
 				if (get_string(tmp_val, 11, "Reset to which level (1-%d): ",
-								 p_ptr->max_depth))
+								 d_ptr->recall_depth))
 				{
 					/* Extract request */
 					dummy = atoi(tmp_val);
@@ -2014,9 +1998,9 @@ static bool cast_trump_spell(int spell, bool success)
 					if (dummy < 1) dummy = 1;
 
 					/* Paranoia */
-					if (dummy > p_ptr->max_depth) dummy = p_ptr->max_depth;
+					if (dummy > max_depth) dummy = max_depth;
 
-					p_ptr->max_depth = dummy;
+					d_ptr->recall_depth = dummy;
 
 					/* Accept request */
 					msgf("Recall depth set to level %d (%d').", dummy,
@@ -2610,7 +2594,7 @@ static bool cast_arcane_spell(int spell)
 			break;
 		case 31:				/* Clairvoyance */
 			wiz_lite();
-			if (!(p_ptr->flags3 & (TR3_TELEPATHY)))
+			if (!(FLAG(p_ptr, TR_TELEPATHY)))
 			{
 				(void)inc_tim_esp(rand_range(25, 55));
 			}
@@ -2632,7 +2616,7 @@ static bool cast_arcane_spell(int spell)
 void do_cmd_cast(void)
 {
 	int sval, spell, realm;
-	int chance;
+	int chance, smana;
 	int increment = 0;
 	int use_realm;
 	bool cast;
@@ -2709,9 +2693,11 @@ void do_cmd_cast(void)
 
 	s_ptr = &mp_ptr->info[use_realm - 1][spell];
 
+	/* Get mana cost */
+	smana = spell_mana(spell, use_realm - 1);
 
 	/* Verify "dangerous" spells */
-	if (s_ptr->smana > p_ptr->csp)
+	if (smana > p_ptr->csp)
 	{
 		/* Warning */
 		msgf("You do not have enough mana to %s this %s.",
@@ -2756,20 +2742,20 @@ void do_cmd_cast(void)
 				msgf("Your sanity is shaken by reading the Necronomicon!");
 
 				/* Mind blast */
-				if (!saving_throw(p_ptr->skill.sav))
+				if (!saving_throw(p_ptr->skills[SKILL_SAV]))
 				{
-					if (!(p_ptr->flags2 & (TR2_RES_CONF)))
+					if (!(FLAG(p_ptr, TR_RES_CONF)))
 					{
 						(void)inc_confused(rand_range(4, 8));
 					}
-					if (!(p_ptr->flags2 & (TR2_RES_CHAOS)) && one_in_(3))
+					if (!(FLAG(p_ptr, TR_RES_CHAOS)) && one_in_(3))
 					{
 						(void)inc_image(rand_range(150, 400));
 					}
 				}
 
 				/* Lose int & wis */
-				else if (!saving_throw(p_ptr->skill.sav))
+				else if (!saving_throw(p_ptr->skills[SKILL_SAV]))
 				{
 					(void)do_dec_stat(A_INT);
 					(void)do_dec_stat(A_WIS);
@@ -2780,7 +2766,7 @@ void do_cmd_cast(void)
 				msgf("It hurts!");
 				take_hit(damroll(o_ptr->sval + 1, 6), "a miscast Death spell");
 				if ((spell > 15) && one_in_(6) &&
-					 !(p_ptr->flags2 & (TR2_HOLD_LIFE)))
+					 !(FLAG(p_ptr, TR_HOLD_LIFE)))
 					lose_exp(spell * 250);
 			}
 		}
@@ -2857,19 +2843,19 @@ void do_cmd_cast(void)
 	}
 
 	/* Take a turn */
-	p_ptr->energy_use = 100;
+	p_ptr->state.energy_use = 100;
 
 	/* Sufficient mana */
-	if (s_ptr->smana <= p_ptr->csp)
+	if (smana <= p_ptr->csp)
 	{
 		/* Use some mana */
-		p_ptr->csp -= s_ptr->smana;
+		p_ptr->csp -= smana;
 	}
 
 	/* Over-exert the player */
 	else
 	{
-		int oops = s_ptr->smana - p_ptr->csp;
+		int oops = smana - p_ptr->csp;
 
 		/* No mana left */
 		p_ptr->csp = 0;
@@ -2959,8 +2945,8 @@ static bool cmd_pets_dismiss(int dummy)
 			if (delete_this)
 			{
 				/* Notice changes in view */
-				if (r_info[m_ptr->r_idx].flags7 &
-					(RF7_LITE_1 | RF7_LITE_2))
+				if (r_info[m_ptr->r_idx].flags[6] &
+					(RF6_LITE_1 | RF6_LITE_2))
 				{
 					/* Update some things */
 					p_ptr->update |= (PU_MON_LITE);

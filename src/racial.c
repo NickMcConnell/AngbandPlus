@@ -77,16 +77,11 @@ static int racial_chance(s16b min_level, int use_stat, int difficulty)
  */
 static void eat_corpse(void)
 {
-	s16b fld_idx;
 	field_type *f_ptr;
 
-	fld_idx = area(p_ptr->px, p_ptr->py)->fld_idx;
-
 	/* While there are fields in the linked list */
-	while (fld_idx)
+	FLD_ITT_START (area(p_ptr->px, p_ptr->py)->fld_idx, f_ptr)
 	{
-		f_ptr = &fld_list[fld_idx];
-
 		/* Want a corpse / skeleton */
 		if ((f_ptr->t_idx == FT_CORPSE || f_ptr->t_idx == FT_SKELETON))
 		{
@@ -104,19 +99,17 @@ static void eat_corpse(void)
 			/* Sound */
 			sound(SOUND_EAT);
 
-			delete_field_idx(fld_idx);
+			delete_field_ptr(f_ptr);
 
 			/* Done */
 			return;
 		}
-
-		/* Get next field in list */
-		fld_idx = f_ptr->next_f_idx;
 	}
+	FLD_ITT_END;
 
 	/* Nothing to eat */
 	msgf("There is no fresh skeleton or corpse here!");
-	p_ptr->energy_use = 0;
+	p_ptr->state.energy_use = 0;
 
 	/* Done */
 	return;
@@ -143,7 +136,7 @@ bool racial_aux(s16b min_level, int cost, int use_stat, int difficulty)
 	if (p_ptr->lev < min_level)
 	{
 		msgf("You need to attain level %d to use this power.", min_level);
-		p_ptr->energy_use = 0;
+		p_ptr->state.energy_use = 0;
 		return FALSE;
 	}
 
@@ -151,7 +144,7 @@ bool racial_aux(s16b min_level, int cost, int use_stat, int difficulty)
 	else if (p_ptr->tim.confused)
 	{
 		msgf("You are too confused to use this power.");
-		p_ptr->energy_use = 0;
+		p_ptr->state.energy_use = 0;
 		return FALSE;
 	}
 
@@ -160,7 +153,7 @@ bool racial_aux(s16b min_level, int cost, int use_stat, int difficulty)
 	{
 		if (!get_check("Really use the power in your weakened state? "))
 		{
-			p_ptr->energy_use = 0;
+			p_ptr->state.energy_use = 0;
 			return FALSE;
 		}
 	}
@@ -181,7 +174,7 @@ bool racial_aux(s16b min_level, int cost, int use_stat, int difficulty)
 	if (difficulty < 5) difficulty = 5;
 
 	/* take time and pay the price */
-	p_ptr->energy_use = 100;
+	p_ptr->state.energy_use = 100;
 
 	if (use_hp)
 	{
@@ -231,13 +224,7 @@ static void cmd_racial_power_aux(const mutation_type *mut_ptr)
 
 			case RACE_HOBBIT:
 			{
-				object_type *q_ptr;
-
-				/* Hack - Create the food ration */
-				q_ptr = object_prep(lookup_kind(TV_FOOD, SV_FOOD_RATION));
-
-				/* Drop the object from heaven */
-				drop_near(q_ptr, -1, p_ptr->px, p_ptr->py);
+				create_food();
 				msgf("You cook some food.");
 
 				break;
@@ -294,21 +281,12 @@ static void cmd_racial_power_aux(const mutation_type *mut_ptr)
 
 				else if (mut_ptr->level == 30)
 				{
-					/* No effect in arena or quest */
-					if (is_quest_level(p_ptr->depth))
-					{
-						msgf("There is no effect.");
-					}
-					else
-					{
-						msgf
-							("You start walking around. Your surroundings change.");
+					msgf("You start walking around. Your surroundings change.");
 
-						if (autosave_l) do_cmd_save_game(TRUE);
+					if (autosave_l) do_cmd_save_game(TRUE);
 
-						/* Leaving */
-						p_ptr->state.leaving = TRUE;
-					}
+					/* Leaving */
+					p_ptr->state.leaving = TRUE;
 				}
 				break;
 			}
@@ -620,7 +598,7 @@ static void cmd_racial_power_aux(const mutation_type *mut_ptr)
 			}
 			default:
 				msgf("This race has no bonus power.");
-				p_ptr->energy_use = 0;
+				p_ptr->state.energy_use = 0;
 		}
 	}
 
@@ -701,7 +679,7 @@ void do_cmd_racial_power(void)
 	if (p_ptr->tim.confused)
 	{
 		msgf("You are too confused to use any powers!");
-		p_ptr->energy_use = 0;
+		p_ptr->state.energy_use = 0;
 		return;
 	}
 
@@ -745,7 +723,7 @@ void do_cmd_racial_power(void)
 	if (num == 0)
 	{
 		msgf("You have no powers to activate.");
-		p_ptr->energy_use = 0;
+		p_ptr->state.energy_use = 0;
 		return;
 	}
 	
@@ -774,7 +752,7 @@ void do_cmd_racial_power(void)
 	if (!display_menu(racial_menu, -1, FALSE, display_racial_header, "Use which power?"))
 	{
 		/* We aborted */
-		p_ptr->energy_use = 0;
+		p_ptr->state.energy_use = 0;
 	}
 	
 	/* Free the allocated strings */

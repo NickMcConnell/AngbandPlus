@@ -1,0 +1,148 @@
+# Project: Zangband
+#
+# Wimpslot: 5000k
+# Make: make
+#
+# To use this makefile, the current working directory must be where
+# this makefile is (if this makefile is at "raFS::Temp.$.ang.src.makefile",
+# the CWD must be "raFS::Temp.$.ang.src").
+#
+# This makefile is for GNU make, and either GCC or Norcroft compilers, though
+# some fiddling is needed with the norcroft settings (e.g. StubsG location
+# and a little hacking of stdarg.h)
+  
+# Defaults
+COMPILER = norcroft
+default: standard
+
+# Lua object files
+LUAOBJS := lapi.o ldebug.o lmem.o lstrlib.o lvm.o \
+  tolua_lb.o lauxlib.o ldo.o lobject.o ltable.o \
+  lzio.o tolua_rg.o lbaselib.o lfunc.o lparser.o \
+  tolua_bd.o tolua_tm.o lcode.o lgc.o \
+  lstate.o ltm.o tolua_eh.o tolua_tt.o ldblib.o \
+  llex.o lstring.o lundump.o tolua_gp.o
+
+# toLua object files
+TOLUAOBJS := tolua.o tolualua.o liolib.o $(LUAOBJS)
+
+# Lua package files:
+LUAPKGS := \
+  l-monst.c l-object.c l-player.c l-random.c l-ui.c l-misc.c l-spell.c
+
+# The standard object files:
+OBJS := variable.o tables.o util.o cave.o \
+	object1.o object2.o monster1.o monster2.o \
+	xtra1.o xtra2.o spells1.o spells2.o \
+	melee1.o melee2.o save.o files.o fields.o\
+	cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o \
+	store.o birth.o load.o ui.o fields.o \
+	wizard1.o wizard2.o grid.o streams.o rooms.o \
+	generate.o dungeon.o init1.o init2.o \
+	effects.o quest.o racial.o script.o \
+	artifact.o mutation.o flavor.o spells3.o \
+	mspells1.o mspells2.o scores.o mind.o maid-x11.o\
+	bldg.o obj_kind.o wild1.o wild2.o wild3.o avatar.o notes.o\
+	maid-grf.o main-ros.o \
+	z-util.o z-virt.o z-form.o z-rand.o z-term.o\
+	l-monst.o l-object.o l-player.o l-random.o l-ui.o l-misc.o l-spell.o
+
+
+# Defaults for norcy
+ifeq (norcroft, $(COMPILER))  
+  # Tools:
+  CC := cc -D RISCOS
+  LD := link
+  RM := remove    
+  tolua := tolua
+
+  # Libraries:
+  LIBS := <CLibs$$Dir>.clib.o.StubsG <DeskLib$$Dir>.o.DeskLib
+
+  CCFLAGS_BASIC := -apcs 3/32/fpe2/swst/fp/nofpr -c -Wan -DRISCOS 
+       
+  SLUAOBJS := $(addprefix lua/,$(LUAOBJS))
+  STOLUAOBJS := $(addprefix lua/,$(TOLUAOBJS))
+  
+  DLUAOBJS := $(addprefix lua.,$(LUAOBJS))
+  DTOLUAOBJS := $(addprefix lua.,$(TOLUAOBJS))
+
+endif
+   
+# Defaults for gcc
+ifeq (gcc, $(COMPILER))
+  WARNINGS := -ansi -pedantic -Wall -Wno-unused -Wno-long-long -W -Wcast-qual
+       
+  # Tools:
+  CC := gcc -mlibscl -c -D RISCOS
+  LD := gcc -mlibscl
+  RM := remove
+  tolua := tolua
+
+  # Libraries:
+  LIBS := <DeskLib$$Dir>.o.DeskLib
+
+  WARNINGS := -ansi -pedantic -Wall -Wundef -Wpointer-arith \
+            -Wcast-align -Wwrite-strings -Wstrict-prototypes \
+            -Wmissing-prototypes -Wmissing-declarations -Wnested-externs \
+            -Winline -Wno-unused -Wno-long-long -W -Wcast-qual
+
+  CCFLAGS_BASIC := -O2 $(WARNINGS) -mthrowback -mpoke-function-name -DRISCOS
+         
+  SLUAOBJS := $(addprefix lua/,$(LUAOBJS))
+  STOLUAOBJS := $(addprefix lua/,$(TOLUAOBJS))
+  
+  DLUAOBJS := $(SLUAOBJS)
+  DTOLUAOBJS := $(STOLUAOBJS)
+endif
+
+
+#
+# Rules to make the various targets
+#
+ALL_TARGETS := standard fullscreen
+
+#$(ALL_TARGETS): tolua
+
+standard: CCFLAGS := $(CCFLAGS_BASIC)
+standard: $(LUAPKGS) $(SLUAOBJS) $(OBJS) $(LIBS)
+	$(LD) $(LDFLAGS) -o ^.!RunImage $(OBJS) $(DLUAOBJS) $(LIBS)
+
+fullscreen: CCFLAGS := -DFULLSCREEN_ONLY $(CCFLAGS_BASIC)  
+fullscreen: $(LUAPKGS) $(OBJS) $(SLUAOBJS) $(LIBS)
+	$(LD) $(LDFLAGS) -o ^.!RunImageF $(OBJS) $(DLUAOBJS)  $(LIBS)
+
+# tolua
+tolua: $(STOLUAOBJS)
+	$(LD) -o tolua $(DTOLUAOBJS) $(LDFLAGS) $(LIBS)
+
+# Lua packages
+l-monst.c: $(tolua) l-monst.pkg
+	$(tolua) -n monster -o c.l-monst l-monst/pkg
+
+l-object.c: $(tolua) l-object.pkg
+	$(tolua) -n object -o c.l-object l-object/pkg
+
+l-player.c: $(tolua) l-player.pkg
+	$(tolua) -n player -o c.l-player l-player/pkg
+
+l-random.c: $(tolua) l-random.pkg
+	$(tolua) -n random -o c.l-random l-random/pkg
+
+l-ui.c: $(tolua) l-ui.pkg
+	$(tolua) -n ui -o c.l-ui l-ui/pkg
+
+l-misc.c: $(tolua) l-misc.pkg
+	$(tolua) -n misc -o c.l-misc l-misc/pkg
+
+l-spell.c: $(tolua) l-spell.pkg
+	$(tolua) -n spell -o c.l-spell l-spell/pkg   
+
+# Suffix rules
+.SUFFIXES: .o .c
+
+# A basic rule
+.c.o:;	$(CC) $(CCFLAGS) -o $@ $<
+
+# Dynamic dependencies:
+

@@ -11,12 +11,12 @@
 ##
 ## makefile.  Generated from makefile.in by configure.
 
-CC := gcc
+CC_AUX := gcc
 
-CFLAGS := -Wnested-externs -Wundef -Wuninitialized -Wunused -Wswitch -Wreturn-type -Wsequence-point -Wimplicit -Wchar-subscripts -Wredundant-decls -Wstrict-prototypes -Waggregate-return -Wbad-function-cast -Wpointer-arith -Wwrite-strings -Wno-long-long -Wmissing-declarations -Wmissing-prototypes -Wall -W -pedantic -L/usr/local/lib  -I/usr/X11R6/include -g -O2 -fno-strength-reduce -I/usr/include/gtk-1.2 -I/usr/X11R6/include -I/usr/include/glib-1.2 -I/usr/lib/glib/include   -DHAVE_CONFIG_H
-CPPFLAGS := -I/usr/include/tcl8.4/tk-private/generic -I/usr/include/tcl8.4/tk-private/generic -I/usr/include/tcl8.4/tcl-private/unix -I/usr/include/tcl8.4/tcl-private/generic -I/usr/include/tcl8.4 -I/usr/include/tcl8.4  -I/usr/X11R6/include
-LIBS := -ltk8.4 -ltcl8.4  -lSM -lICE  -L/usr/X11R6/lib   -lncurses -lX11 -lXaw -L/usr/X11R6/lib -lgtk -lgdk -lXi -lXext -lX11 -lm -lglib  
-LDFLAGS :=  -L/usr/X11R6/lib 
+CFLAGS := -Wsign-compare -Wnested-externs -Wundef -Wuninitialized -Wunused -Wswitch -Wreturn-type -Wsequence-point -Wparentheses -Wimplicit -Wchar-subscripts -Wredundant-decls -Wstrict-prototypes -Waggregate-return -Wbad-function-cast -Wpointer-arith -Wwrite-strings -Wno-long-long -Wmissing-declarations -Wmissing-prototypes -Wall -W -pedantic -g -O2 -I/usr/include/gtk-1.2 -I/usr/include/glib-1.2 -I/usr/lib/glib/include -DHAVE_CONFIG_H
+CPPFLAGS := -I/usr/include/tcl8.4 -I/usr/include/tcl8.4 -I/usr/X11R6/include 
+LIBS := -lz -lrpcsvc -ltk8.4 -ltcl8.4 -lncurses -lXaw -lICE -lXpm -lSM -lXt -lXmu -lXm -lXext 
+LDFLAGS :=  -L/usr/lib -L/usr/X11R6/lib -lgtk -lgdk -rdynamic -lgmodule -lglib -ldl -lXi -lXext -lX11 -lm -L/usr/X11R6/lib
 
 prefix = /usr/local
 exec_prefix = ${prefix}
@@ -30,6 +30,28 @@ GAMEGROUP = games
 
 CFLAGS += -DDEFAULT_PATH=\"$(DESTDIR)lib/\"
 
+#
+# Default verbose settings
+#
+ifdef V
+  ifeq ("$(origin V)", "command line")
+    VERBOSE = $(V)
+  endif
+endif
+ifndef VERBOSE
+  VERBOSE = 0
+endif
+
+#
+# Standard configuration method.
+#
+define CONFIGURE
+	if [ -x ./config.status ] ; then \
+	    ./config.status --recheck && ./config.status; \
+	else \
+		./configure; \
+	fi
+endef
 
 cygwin = 
 TK_PORT = y
@@ -40,10 +62,10 @@ scandir = $(addprefix $(subdir),$(addsuffix /makefile.zb,$(dirs)))
 
 files = angdos.cfg readme z_faq.txt z_update.txt
 
-clean-files = zangband
+clean-files = zangband .default_path
 distclean-files = *.bak gmon.out config.log config.status
 
-srcfiles = bootstrap configure configure.in makefile makefile.in
+srcfiles = configure configure.in makefile makefile.in
 
 ##
 ## Default target
@@ -59,6 +81,16 @@ dirlist := lib
 include $(scandir)
 
 
+ifeq ($(VERBOSE), 0)
+define CC
+	@ echo CC $@
+	@ $(CC_AUX) 
+endef
+else
+CC = $(CC_AUX)
+endif
+
+
 
 ##
 ## Default target
@@ -69,11 +101,17 @@ zangband: $(objs-y)
 	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS) $(LIBS) $(DEFS)
 
 ##
+## .c files
+##
+%.o: %.c
+	$(CC) $(CFLAGS) $(CPPFLAGS) $(DEFS) $< -c -o $@ $(DEFS)
+
+##
 ## Hack - make sure the build system is consistant.
 ##
 makefile: configure makefile.in
-	./configure
-
+	$(CONFIGURE)
+	
 configure: configure.in
 	aclocal
 	autoheader
@@ -83,26 +121,35 @@ dirs:
 	-mkdir $(DESTDIR)
 	-mkdir $(addprefix $(DESTDIR),$(filter-out $(srcdirlist), $(dirlist)))
 
-installbase: dirs zangband
+base: dirs
 	for i in $(files) ; do \
 	    cp $$i $(DESTDIR)$$i; \
 	done
+	
+installbase: base
 	$(INSTALL)
 
-install: installbase
+install: installbase zangband
 	cp zangband $(bindir)/zangband
-	chgrp $(GAMEGROUP) $(bindir)/zangband
-	chmod g+s $(bindir)/zangband
+	if [ -n "$(GAMEGROUP)" ] ; then \
+		chgrp $(GAMEGROUP) $(bindir)/zangband; \
+		chmod g+s $(bindir)/zangband; \
+	fi
 
 uninstall:
 	-rm -f $(bindir)/zangband
 	-rm -rf $(DESTDIR)
 
-dist: installbase
+dist: base
 	-mkdir $(addprefix $(DESTDIR),$(srcdirlist))
 	for i in $(srcfiles) ; do \
-	    cp $$i $(DESTDIR)$$i; \
+		cp $$i $(DESTDIR)$$i; \
 	done
+	-for i in $(notsrcfiles) ; do \
+		rm $(DESTDIR)$$i; \
+	done
+
+	chmod -R +rw $(DESTDIR)
 
 distcheck: dist
 	cp -a $(DESTDIR) temp1
@@ -147,5 +194,28 @@ test:
 	@echo I will distinstall:
 	@echo $(srcdirlist) $(srcfiles)
 
-.PHONY: dirs installbase install uninstall dist distcheck distgz \
+# Hack to remake files depending on DEFAULT_PATH
+.default_path: makefile
+	@if [ ! -r .default_path ]; then \
+		echo "$(DESTDIR)" > .default_path; \
+	fi
+	@if [ x"$(DESTDIR)" != x`cat .default_path` ]; then \
+		echo "$(DESTDIR)" > .default_path; \
+	fi
+
+# Hack to remake configure.in if the version number changes
+.version: src/defines.h
+	@if [ ! -r .version ]; then \
+		echo "$(VERSION)" > .version; \
+	fi
+	@if [ x"$(VERSION)" != x`cat .version` ]; then \
+		echo "$(VERSION)" > .version; \
+	fi
+
+configure.in: .version
+	cat configure.in | sed -e "s/AC_INIT.*$$/AC_INIT\(Zangband,\ `cat .version`,\ bugs@zangband.org\)/" > configure.new
+	mv configure.new configure.in
+		
+
+.PHONY: dirs base installbase install uninstall dist distcheck distgz \
 		 clean distclean test

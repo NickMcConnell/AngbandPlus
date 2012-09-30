@@ -11,7 +11,7 @@
 ##
 ## @configure_input@
 
-CC := @CC@
+CC_AUX := @CC@
 
 CFLAGS := @CFLAGS@ @DEFS@
 CPPFLAGS := @CPPFLAGS@
@@ -26,10 +26,32 @@ bindir = @bindir@
 datadir = @datadir@
 
 DESTDIR = $(datadir)/games/zangband/
-GAMEGROUP = games
+GAMEGROUP = @GAMEGROUP@
 
 CFLAGS += -DDEFAULT_PATH=\"$(DESTDIR)lib/\"
 
+#
+# Default verbose settings
+#
+ifdef V
+  ifeq ("$(origin V)", "command line")
+    VERBOSE = $(V)
+  endif
+endif
+ifndef VERBOSE
+  VERBOSE = 0
+endif
+
+#
+# Standard configuration method.
+#
+define CONFIGURE
+	if [ -x ./config.status ] ; then \
+	    ./config.status --recheck && ./config.status; \
+	else \
+		./configure; \
+	fi
+endef
 
 cygwin = @cygwin@
 TK_PORT = @TK_PORT@
@@ -40,10 +62,10 @@ scandir = $(addprefix $(subdir),$(addsuffix /makefile.zb,$(dirs)))
 
 files = angdos.cfg readme z_faq.txt z_update.txt
 
-clean-files = zangband
+clean-files = zangband .default_path
 distclean-files = *.bak gmon.out config.log config.status
 
-srcfiles = bootstrap configure configure.in makefile makefile.in
+srcfiles = configure configure.in makefile makefile.in
 
 ##
 ## Default target
@@ -59,6 +81,16 @@ dirlist := lib
 include $(scandir)
 
 
+ifeq ($(VERBOSE), 0)
+define CC
+	@ echo CC $@
+	@ $(CC_AUX) 
+endef
+else
+CC = $(CC_AUX)
+endif
+
+
 
 ##
 ## Default target
@@ -69,11 +101,17 @@ zangband: $(objs-y)
 	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS) $(LIBS) $(DEFS)
 
 ##
+## .c files
+##
+%.o: %.c
+	$(CC) $(CFLAGS) $(CPPFLAGS) $(DEFS) $< -c -o $@ $(DEFS)
+
+##
 ## Hack - make sure the build system is consistant.
 ##
 makefile: configure makefile.in
-	./configure
-
+	$(CONFIGURE)
+	
 configure: configure.in
 	aclocal
 	autoheader
@@ -83,26 +121,35 @@ dirs:
 	-mkdir $(DESTDIR)
 	-mkdir $(addprefix $(DESTDIR),$(filter-out $(srcdirlist), $(dirlist)))
 
-installbase: dirs zangband
+base: dirs
 	for i in $(files) ; do \
 	    cp $$i $(DESTDIR)$$i; \
 	done
+	
+installbase: base
 	$(INSTALL)
 
-install: installbase
+install: installbase zangband
 	cp zangband $(bindir)/zangband
-	chgrp $(GAMEGROUP) $(bindir)/zangband
-	chmod g+s $(bindir)/zangband
+	if [ -n "$(GAMEGROUP)" ] ; then \
+		chgrp $(GAMEGROUP) $(bindir)/zangband; \
+		chmod g+s $(bindir)/zangband; \
+	fi
 
 uninstall:
 	-rm -f $(bindir)/zangband
 	-rm -rf $(DESTDIR)
 
-dist: installbase
+dist: base
 	-mkdir $(addprefix $(DESTDIR),$(srcdirlist))
 	for i in $(srcfiles) ; do \
-	    cp $$i $(DESTDIR)$$i; \
+		cp $$i $(DESTDIR)$$i; \
 	done
+	-for i in $(notsrcfiles) ; do \
+		rm $(DESTDIR)$$i; \
+	done
+
+	chmod -R +rw $(DESTDIR)
 
 distcheck: dist
 	cp -a $(DESTDIR) temp1
@@ -147,5 +194,28 @@ test:
 	@echo I will distinstall:
 	@echo $(srcdirlist) $(srcfiles)
 
-.PHONY: dirs installbase install uninstall dist distcheck distgz \
+# Hack to remake files depending on DEFAULT_PATH
+.default_path: makefile
+	@if [ ! -r .default_path ]; then \
+		echo "$(DESTDIR)" > .default_path; \
+	fi
+	@if [ x"$(DESTDIR)" != x`cat .default_path` ]; then \
+		echo "$(DESTDIR)" > .default_path; \
+	fi
+
+# Hack to remake configure.in if the version number changes
+.version: src/defines.h
+	@if [ ! -r .version ]; then \
+		echo "$(VERSION)" > .version; \
+	fi
+	@if [ x"$(VERSION)" != x`cat .version` ]; then \
+		echo "$(VERSION)" > .version; \
+	fi
+
+configure.in: .version
+	cat configure.in | sed -e "s/AC_INIT.*$$/AC_INIT\(Zangband,\ `cat .version`,\ bugs@zangband.org\)/" > configure.new
+	mv configure.new configure.in
+		
+
+.PHONY: dirs base installbase install uninstall dist distcheck distgz \
 		 clean distclean test

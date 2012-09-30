@@ -28,12 +28,12 @@ static void have_nightmare_aux(int r_idx)
 	cptr desc = r_name + r_ptr->name;
 
 
-	if (!(r_ptr->flags1 & RF1_UNIQUE))
+	if (!FLAG(r_ptr, RF_UNIQUE))
 	{
 		/* Describe it */
 		strnfmt(m_name, 80, "%s %s", (is_a_vowel(desc[0]) ? "an" : "a"), desc);
 
-		if (r_ptr->flags1 & RF1_FRIENDS)
+		if (FLAG(r_ptr, RF_FRIENDS))
 		{
 			power /= 2;
 		}
@@ -46,7 +46,7 @@ static void have_nightmare_aux(int r_idx)
 		power *= 2;
 	}
 
-	if (saving_throw(p_ptr->skill.sav * 100 / power))
+	if (saving_throw(p_ptr->skills[SKILL_SAV] * 100 / power))
 	{
 		msgf("%^s chases you through your dreams.", m_name);
 
@@ -74,7 +74,7 @@ static void have_nightmare_aux(int r_idx)
 	msgf("You behold the %s visage of %s!",
 			   horror_desc[randint0(MAX_SAN_HORROR)], desc);
 
-	r_ptr->r_flags4 |= RF4_ELDRITCH_HORROR;
+	r_ptr->r_flags[3] |= RF3_ELDRITCH_HORROR;
 
 	switch (p_ptr->rp.prace)
 	{
@@ -100,13 +100,13 @@ static void have_nightmare_aux(int r_idx)
 	}
 
 	/* Mind blast */
-	if (!saving_throw(p_ptr->skill.sav * 100 / power))
+	if (!saving_throw(p_ptr->skills[SKILL_SAV] * 100 / power))
 	{
-		if (!(p_ptr->flags2 & (TR2_RES_CONF)))
+		if (!(FLAG(p_ptr, TR_RES_CONF)))
 		{
 			(void)inc_confused(rand_range(4, 8));
 		}
-		if (!(p_ptr->flags2 & (TR2_RES_CHAOS)) && one_in_(3))
+		if (!(FLAG(p_ptr, TR_RES_CHAOS)) && one_in_(3))
 		{
 			(void)inc_image(rand_range(250, 400));
 		}
@@ -114,7 +114,7 @@ static void have_nightmare_aux(int r_idx)
 	}
 
 	/* Lose int & wis */
-	if (!saving_throw(p_ptr->skill.sav * 100 / power))
+	if (!saving_throw(p_ptr->skills[SKILL_SAV] * 100 / power))
 	{
 		(void)do_dec_stat(A_INT);
 		(void)do_dec_stat(A_WIS);
@@ -122,25 +122,25 @@ static void have_nightmare_aux(int r_idx)
 	}
 
 	/* Brain smash */
-	if (!saving_throw(p_ptr->skill.sav * 100 / power))
+	if (!saving_throw(p_ptr->skills[SKILL_SAV] * 100 / power))
 	{
-		if (!(p_ptr->flags2 & (TR2_RES_CONF)))
+		if (!(FLAG(p_ptr, TR_RES_CONF)))
 		{
 			(void)inc_confused(rand_range(4, 8));
 		}
-		if (!(p_ptr->flags2 & (TR2_FREE_ACT)))
+		if (!(FLAG(p_ptr, TR_FREE_ACT)))
 		{
 			(void)inc_paralyzed(rand_range(4, 8));
 		}
-		while (!saving_throw(p_ptr->skill.sav))
+		while (!saving_throw(p_ptr->skills[SKILL_SAV]))
 		{
 			(void)do_dec_stat(A_INT);
 		}
-		while (!saving_throw(p_ptr->skill.sav))
+		while (!saving_throw(p_ptr->skills[SKILL_SAV]))
 		{
 			(void)do_dec_stat(A_WIS);
 		}
-		if (!(p_ptr->flags2 & (TR2_RES_CHAOS)))
+		if (!(FLAG(p_ptr, TR_RES_CHAOS)))
 		{
 			(void)inc_image(rand_range(250, 400));
 		}
@@ -148,7 +148,7 @@ static void have_nightmare_aux(int r_idx)
 	}
 
 	/* Permanent lose int & wis */
-	if (!saving_throw(p_ptr->skill.sav * 100 / power))
+	if (!saving_throw(p_ptr->skills[SKILL_SAV] * 100 / power))
 	{
 		if (dec_stat(A_INT, 10, TRUE)) happened = TRUE;
 		if (dec_stat(A_WIS, 10, TRUE)) happened = TRUE;
@@ -160,7 +160,7 @@ static void have_nightmare_aux(int r_idx)
 	}
 
 	/* Amnesia */
-	if (!saving_throw(p_ptr->skill.sav * 100 / power))
+	if (!saving_throw(p_ptr->skills[SKILL_SAV] * 100 / power))
 	{
 		if (lose_all_info())
 		{
@@ -171,8 +171,8 @@ static void have_nightmare_aux(int r_idx)
 
 	/* Else gain permanent insanity */
 	if ((p_ptr->muta3 & MUT3_MORONIC) && (p_ptr->muta2 & MUT2_BERS_RAGE) &&
-		((p_ptr->muta2 & MUT2_COWARDICE) || (p_ptr->flags2 & (TR2_RES_FEAR))) &&
-		((p_ptr->muta2 & MUT2_HALLU) || (p_ptr->flags2 & (TR2_RES_CHAOS))))
+		((p_ptr->muta2 & MUT2_COWARDICE) || (FLAG(p_ptr, TR_RES_FEAR))) &&
+		((p_ptr->muta2 & MUT2_HALLU) || (FLAG(p_ptr, TR_RES_CHAOS))))
 	{
 		/* The poor bastard already has all possible insanities! */
 		return;
@@ -200,7 +200,7 @@ static void have_nightmare_aux(int r_idx)
 			case 2:
 			{
 				if (!(p_ptr->muta2 & MUT2_COWARDICE) &&
-					!(p_ptr->flags2 & (TR2_RES_FEAR)))
+					!(FLAG(p_ptr, TR_RES_FEAR)))
 				{
 					msgf("You become paranoid!");
 
@@ -219,7 +219,7 @@ static void have_nightmare_aux(int r_idx)
 			case 3:
 			{
 				if (!(p_ptr->muta2 & MUT2_HALLU) &&
-					!(p_ptr->flags2 & (TR2_RES_CHAOS)))
+					!(FLAG(p_ptr, TR_RES_CHAOS)))
 				{
 					msgf("You are afflicted by a hallucinatory insanity!");
 					p_ptr->muta2 |= MUT2_HALLU;
@@ -263,7 +263,7 @@ bool get_nightmare(int r_idx)
 	monster_race *r_ptr = &r_info[r_idx];
 
 	/* Require eldritch horrors */
-	if (!(r_ptr->flags4 & (RF4_ELDRITCH_HORROR))) return (FALSE);
+	if (!FLAG(r_ptr, RF_ELDRITCH_HORROR)) return (FALSE);
 
 	/* Require high level */
 	if (r_ptr->level <= p_ptr->lev) return (FALSE);
@@ -302,7 +302,7 @@ bool test_gold(s32b *cost)
 /*
  * Display a building.
  */
-static void display_build(const field_type *f_ptr, const store_type *b_ptr)
+void display_build(const field_type *f_ptr, const store_type *b_ptr)
 {
 	const b_own_type *bo_ptr = &b_owners[f_ptr->data[0]][b_ptr->owner];
 
@@ -323,8 +323,8 @@ static void display_build(const field_type *f_ptr, const store_type *b_ptr)
 
 
 	/* Display building-specific information */
-	field_hook(&area(p_ptr->px, p_ptr->py)->fld_idx,
-			   FIELD_ACT_STORE_ACT1, factor);
+	field_hook(area(p_ptr->px, p_ptr->py),
+			   FIELD_ACT_STORE_ACT1, factor, b_ptr);
 
 	prtf(0, 23, " ESC) Exit building");
 
@@ -912,72 +912,72 @@ static void compare_weapon_aux1(const object_type *o_ptr)
 	int r = 10;
 
 	/* Print the relevant lines */
-	if (o_ptr->flags1 & TR1_SLAY_ANIMAL)
+	if (FLAG(o_ptr, TR_SLAY_ANIMAL))
 	{
 		compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++,
 							CLR_YELLOW "Animals:", 17);
 	}
-	if (o_ptr->flags1 & TR1_SLAY_EVIL)
+	if (FLAG(o_ptr, TR_SLAY_EVIL))
 	{
 		compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++,
 							CLR_YELLOW "Evil:", 15);
 	}
-	if (o_ptr->flags1 & TR1_SLAY_UNDEAD)
+	if (FLAG(o_ptr, TR_SLAY_UNDEAD))
 	{
 		compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++,
 							CLR_YELLOW "Undead:", 20);
 	}
-	if (o_ptr->flags1 & TR1_SLAY_DEMON)
+	if (FLAG(o_ptr, TR_SLAY_DEMON))
 	{
 		compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++,
 							CLR_YELLOW "Demons:", 20);
 	}
-	if (o_ptr->flags1 & TR1_SLAY_ORC)
+	if (FLAG(o_ptr, TR_SLAY_ORC))
 	{
 		compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++,
 							CLR_YELLOW "Orcs:", 20);
 	}
-	if (o_ptr->flags1 & TR1_SLAY_TROLL)
+	if (FLAG(o_ptr, TR_SLAY_TROLL))
 	{
 		compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++,
 							CLR_YELLOW "Trolls:", 20);
 	}
-	if (o_ptr->flags1 & TR1_SLAY_GIANT)
+	if (FLAG(o_ptr, TR_SLAY_GIANT))
 	{
 		compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++,
 							CLR_YELLOW "Giants:", 20);
 	}
-	if (o_ptr->flags1 & TR1_SLAY_DRAGON)
+	if (FLAG(o_ptr, TR_SLAY_DRAGON))
 	{
 		compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++,
 							CLR_YELLOW "Dragons:", 20);
 	}
-	if (o_ptr->flags1 & TR1_KILL_DRAGON)
+	if (FLAG(o_ptr, TR_KILL_DRAGON))
 	{
 		compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++,
 							CLR_YELLOW "Dragons:", 30);
 	}
-	if (o_ptr->flags1 & TR1_BRAND_ACID)
+	if (FLAG(o_ptr, TR_BRAND_ACID))
 	{
 		compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++,
 							CLR_RED "Acid:", 20);
 	}
-	if (o_ptr->flags1 & TR1_BRAND_ELEC)
+	if (FLAG(o_ptr, TR_BRAND_ELEC))
 	{
 		compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++,
 							CLR_RED "Elec:", 20);
 	}
-	if (o_ptr->flags1 & TR1_BRAND_FIRE)
+	if (FLAG(o_ptr, TR_BRAND_FIRE))
 	{
 		compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++,
 							CLR_RED "Fire:", 20);
 	}
-	if (o_ptr->flags1 & TR1_BRAND_COLD)
+	if (FLAG(o_ptr, TR_BRAND_COLD))
 	{
 		compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++,
 							CLR_RED "Cold:", 20);
 	}
-	if (o_ptr->flags1 & TR1_BRAND_POIS)
+	if (FLAG(o_ptr, TR_BRAND_POIS))
 	{
 		compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++,
 							CLR_RED "Poison:", 20);
@@ -993,7 +993,7 @@ static void compare_weapon_aux1(const object_type *o_ptr)
  */
 static int hit_prob(int to_h, int ac)
 {
-	int chance = p_ptr->skill.thn + (p_ptr->to_h + to_h) * BTH_PLUS_ADJ;
+	int chance = p_ptr->skills[SKILL_THN] + (p_ptr->to_h + to_h) * BTH_PLUS_ADJ;
 	int prob = 0;
 
 	if (chance > 0 && ac < chance) prob = (100 * (chance - ac) / chance);
@@ -1009,7 +1009,7 @@ static int hit_prob(int to_h, int ac)
  */
 static int critical_prob(int to_h, int number)
 {
-	int chance = p_ptr->skill.thn + (p_ptr->to_h + to_h) * BTH_PLUS_ADJ;
+	int chance = p_ptr->skills[SKILL_THN] + (p_ptr->to_h + to_h) * BTH_PLUS_ADJ;
 
 	if (chance <= 0) return (0);
 
@@ -1164,10 +1164,10 @@ bool compare_weapons(void)
 	object_mental(o_ptr);
 
 	/* Save all the known flags */
-	o_ptr->kn_flags1 = o_ptr->flags1;
-	o_ptr->kn_flags2 = o_ptr->flags2;
-	o_ptr->kn_flags3 = o_ptr->flags3;
-	o_ptr->kn_flags4 = o_ptr->flags4;
+	o_ptr->kn_flags[0] = o_ptr->flags[0];
+	o_ptr->kn_flags[1] = o_ptr->flags[1];
+	o_ptr->kn_flags[2] = o_ptr->flags[2];
+	o_ptr->kn_flags[3] = o_ptr->flags[3];
 
 	/* Erase the "feeling" */
 	o_ptr->feeling = FEEL_NONE;
@@ -1651,139 +1651,6 @@ bool building_magetower(int factor, bool display)
 	return (FALSE);
 }
 
-#if 0
-/*
- * Execute a building command
- */
-static void bldg_process_command(building_type * bldg, int i)
-{
-
-
-	switch (bact)
-	{
-		case BACT_NOTHING:
-		{
-			/* Do nothing */
-			break;
-		}
-		case BACT_RESEARCH_ITEM:
-		{
-			paid = identify_fully();
-			break;
-		}
-		case BACT_TOWN_HISTORY:
-		{
-			town_history();
-			break;
-		}
-		case BACT_RACE_LEGENDS:
-		{
-			race_legends();
-			break;
-		}
-		case BACT_KING_LEGENDS:
-		case BACT_ARENA_LEGENDS:
-		case BACT_LEGENDS:
-		{
-			show_highclass();
-			break;
-
-		}
-		case BACT_IDENTS:
-		{
-			/* needs work */
-			identify_pack();
-
-			/* Combine / Reorder the pack (later) */
-			p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-
-			msgf("Your posessions have been identified.");
-			message_flush();
-			paid = TRUE;
-			break;
-		}
-		case BACT_LEARN:
-		{
-			do_cmd_study();
-			break;
-		}
-		case BACT_HEALING:
-		{
-			/* needs work */
-			hp_player(200);
-			clear_poisoned();
-			clear_blind();
-			clear_confused();
-			clear_cut();
-			clear_stun();
-			paid = TRUE;
-			break;
-		}
-		case BACT_RESTORE:
-		{
-			/* needs work */
-			if (do_res_stat(A_STR)) paid = TRUE;
-			if (do_res_stat(A_INT)) paid = TRUE;
-			if (do_res_stat(A_WIS)) paid = TRUE;
-			if (do_res_stat(A_DEX)) paid = TRUE;
-			if (do_res_stat(A_CON)) paid = TRUE;
-			if (do_res_stat(A_CHR)) paid = TRUE;
-			break;
-		}
-		case BACT_GOLD:
-		{
-			/* set timed reward flag */
-			if (!p_ptr->rewards[BACT_GOLD])
-			{
-				share_gold();
-				p_ptr->rewards[BACT_GOLD] = TRUE;
-			}
-			else
-			{
-				msgf("You just had your daily allowance!");
-				message_flush();
-			}
-			break;
-		}
-		case BACT_ENCHANT_ARROWS:
-		{
-			item_tester_hook = item_tester_hook_ammo;
-			enchant_item(bcost, 1, 1, 0);
-			break;
-		}
-		case BACT_ENCHANT_BOW:
-		{
-			item_tester_tval = TV_BOW;
-			enchant_item(bcost, 1, 1, 0);
-			break;
-		}
-		case BACT_RECALL:
-		{
-			p_ptr->word_recall = 1;
-			msgf("The air about you becomes charged...");
-			paid = TRUE;
-			p_ptr->redraw |= (PR_STATUS);
-			break;
-		}
-		case BACT_TELEPORT_LEVEL:
-		{
-			amt = get_quantity("Teleport to which level? ", 98);
-			if (amt > 0)
-			{
-				p_ptr->word_recall = 1;
-				p_ptr->max_depth = amt;
-				msgf("The air about you becomes charged...");
-				paid = TRUE;
-				p_ptr->redraw |= (PR_STATUS);
-			}
-			break;
-		}
-	}
-}
-
-
-#endif /* 0 */
-
 
 static bool process_build_hook(field_type *f_ptr, store_type *b_ptr)
 {
@@ -1796,15 +1663,8 @@ static bool process_build_hook(field_type *f_ptr, store_type *b_ptr)
 
 	factor = ((factor + 200) * bo_ptr->inflate) / 400;
 
-	field_hook(&area(p_ptr->px, p_ptr->py)->fld_idx,
-			   FIELD_ACT_STORE_ACT2, &factor);
-
-	/* Hack XXX XXX, factor is returned as 2 if we want a redraw */
-	if (factor == 2)
-	{
-		/* Redraw screen */
-		display_build(f_ptr, b_ptr);
-	}
+	field_hook(area(p_ptr->px, p_ptr->py),
+			   FIELD_ACT_STORE_ACT2, &factor, b_ptr);
 
 	/* Did we do anything? */
 	return (factor);
@@ -2005,32 +1865,17 @@ static bool build_process_command(field_type *f_ptr, store_type *b_ptr)
  */
 void do_cmd_bldg(field_type *f_ptr)
 {
-	int i, which = -1;
 	store_type *b_ptr;
 	bool leave_build = FALSE;
 
-	place_type *pl_ptr = &place[p_ptr->place_num];
-
-	/* Get the building the player is on */
-	for (i = 0; i < pl_ptr->numstores; i++)
-	{
-		if ((p_ptr->py - pl_ptr->y * 16 == pl_ptr->store[i].y) &&
-			(p_ptr->px - pl_ptr->x * 16 == pl_ptr->store[i].x))
-		{
-			which = i;
-		}
-	}
-
+	b_ptr = get_current_store();
+	
 	/* Paranoia */
-	if (which == -1)
-	{
-		msgf("Could not locate building!");
-		return;
-	}
-
-
-	b_ptr = &pl_ptr->store[which];
-
+	if (!b_ptr) return;
+	
+	/* Some quests are finished by finding a building */
+	trigger_quest_complete(QX_FIND_SHOP, (vptr)b_ptr);
+	
 	/* Forget the view */
 	forget_view();
 
@@ -2083,7 +1928,7 @@ void do_cmd_bldg(field_type *f_ptr)
 	}
 
 	/* Free turn XXX XXX XXX */
-	p_ptr->energy_use = 0;
+	p_ptr->state.energy_use = 0;
 
 	/* Hack -- Character is no longer in "icky" mode */
 	character_icky = FALSE;

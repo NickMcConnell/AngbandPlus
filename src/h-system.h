@@ -147,7 +147,7 @@ extern cptr help_gcu[];
 #endif
 
 #ifdef USE_CAP
-extern errr init_cap(int argc, char **argv);
+extern errr init_cap(void);
 extern cptr help_cap[];
 #endif
 

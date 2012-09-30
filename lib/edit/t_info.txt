@@ -1398,3 +1398,20 @@ D:1:5:0:0:0:0:0:0
 F:2,field_action_door_build
 F:18,field_action_magetower1 | 19,field_action_magetower2
 
+# Quest-giver
+N:145:Small Castle
+G:0:v
+W:100:3:0
+I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
+D:1:10:0:0:0:0:0:0
+F:2,field_action_door_build
+F:18,field_action_castlequest1 | 19,field_action_castlequest2
+
+# Quest-giver
+N:146:Large Castle
+G:0:v
+W:100:3:0
+I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
+D:1:25:0:0:0:0:0:0
+F:2,field_action_door_build
+F:18,field_action_castlequest1 | 19,field_action_castlequest2

@@ -27,6 +27,13 @@ TOLUAOBJS := $(addprefix src/lua/,tolua.o tolualua.o liolib.o) $(LUAOBJS)
 src/lua/tolua: $(TOLUAOBJS)
 	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS) $(LIBS)
 
+
+# Wrappers also depend on these
+TOLUALUAOBJS := $(addprefix src/lua/,basic.lua feature.lua verbatim.lua code.lua \
+					typedef.lua container.lua package.lua module.lua define.lua \
+					enumerate.lua declaration.lua variable.lua array.lua function.lua \
+					operator.lua class.lua clean.lua doit.lua)
+
 srcdirlist += src/lua
 srcfiles += src/lua/*.c src/lua/*.h src/lua/*.lua src/lua/*.pkg src/lua/makefile.zb
 clean-files += src/lua/*.bak src/lua/*.o src/lua/tolua

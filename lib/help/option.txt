@@ -224,6 +224,13 @@ Disturb when you leave detection radius    [disturb_traps]
     This option causes you to be disturbed when you move out of an area
     for which you have already cast "detect traps".
 
+***** <auto_more>
+Automatically clear -more- prompts    [auto_more]
+    The game does not wait for a keypress when it comes to a -more-
+    prompt, but carries on going.
+
+
+
 ***** <alert_failure>
 Alert user to various failures    [alert_failure]
     Produce a "bell" noise, and flush all pending input, when various

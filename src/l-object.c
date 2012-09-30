@@ -10,6 +10,7 @@ int  tolua_object_open (lua_State* tolua_S);
 void tolua_object_close (lua_State* tolua_S);
 
 #include "angband.h"
+#include "script.h"
 
 /* function to register type */
 static void toluaI_reg_types (lua_State* tolua_S)
@@ -284,63 +285,37 @@ static int toluaI_set_object_object_kind_cost(lua_State* tolua_S)
  return 0;
 }
 
-/* get function: flags1 of class  object_kind */
-static int toluaI_get_object_object_kind_flags1(lua_State* tolua_S)
+/* get function: flags of class  object_kind */
+static int toluaI_get_object_object_kind_flags(lua_State* tolua_S)
 {
-  object_kind* self = (object_kind*)  tolua_getusertype(tolua_S,1,0);
-  if (!self) TOLUA_ERR_SELF;
-  tolua_pushnumber(tolua_S,(long)self->flags1);
+ int toluaI_index;
+  object_kind* self;
+ lua_pushstring(tolua_S,".self");
+ lua_rawget(tolua_S,1);
+ self = (object_kind*)  lua_touserdata(tolua_S,-1);
+ if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
+  tolua_error(tolua_S,"invalid type in array indexing.");
+ toluaI_index = (int)tolua_getnumber(tolua_S,2,0);
+ if (toluaI_index<0 || toluaI_index>=4)
+  tolua_error(tolua_S,"array object_kind: flags indexing out of range.");
+ tolua_pushnumber(tolua_S,(long)self->flags[toluaI_index]);
  return 1;
 }
 
-/* set function: flags1 of class  object_kind */
-static int toluaI_set_object_object_kind_flags1(lua_State* tolua_S)
+/* set function: flags of class  object_kind */
+static int toluaI_set_object_object_kind_flags(lua_State* tolua_S)
 {
-  object_kind* self = (object_kind*)  tolua_getusertype(tolua_S,1,0);
-  if (!self) TOLUA_ERR_SELF;
-  if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
-   TOLUA_ERR_ASSIGN;
-  self->flags1 = ((u32b)  tolua_getnumber(tolua_S,2,0));
- return 0;
-}
-
-/* get function: flags2 of class  object_kind */
-static int toluaI_get_object_object_kind_flags2(lua_State* tolua_S)
-{
-  object_kind* self = (object_kind*)  tolua_getusertype(tolua_S,1,0);
-  if (!self) TOLUA_ERR_SELF;
-  tolua_pushnumber(tolua_S,(long)self->flags2);
- return 1;
-}
-
-/* set function: flags2 of class  object_kind */
-static int toluaI_set_object_object_kind_flags2(lua_State* tolua_S)
-{
-  object_kind* self = (object_kind*)  tolua_getusertype(tolua_S,1,0);
-  if (!self) TOLUA_ERR_SELF;
-  if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
-   TOLUA_ERR_ASSIGN;
-  self->flags2 = ((u32b)  tolua_getnumber(tolua_S,2,0));
- return 0;
-}
-
-/* get function: flags3 of class  object_kind */
-static int toluaI_get_object_object_kind_flags3(lua_State* tolua_S)
-{
-  object_kind* self = (object_kind*)  tolua_getusertype(tolua_S,1,0);
-  if (!self) TOLUA_ERR_SELF;
-  tolua_pushnumber(tolua_S,(long)self->flags3);
- return 1;
-}
-
-/* set function: flags3 of class  object_kind */
-static int toluaI_set_object_object_kind_flags3(lua_State* tolua_S)
-{
-  object_kind* self = (object_kind*)  tolua_getusertype(tolua_S,1,0);
-  if (!self) TOLUA_ERR_SELF;
-  if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
-   TOLUA_ERR_ASSIGN;
-  self->flags3 = ((u32b)  tolua_getnumber(tolua_S,2,0));
+ int toluaI_index;
+  object_kind* self;
+ lua_pushstring(tolua_S,".self");
+ lua_rawget(tolua_S,1);
+ self = (object_kind*)  lua_touserdata(tolua_S,-1);
+ if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
+  tolua_error(tolua_S,"invalid type in array indexing.");
+ toluaI_index = (int)tolua_getnumber(tolua_S,2,0);
+ if (toluaI_index<0 || toluaI_index>=4)
+  tolua_error(tolua_S,"array object_kind: flags indexing out of range.");
+  self->flags[toluaI_index] = ((u32b)  tolua_getnumber(tolua_S,3,0));
  return 0;
 }
 
@@ -354,9 +329,9 @@ static int toluaI_get_object_object_kind_locale(lua_State* tolua_S)
  self = (object_kind*)  lua_touserdata(tolua_S,-1);
  if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
   tolua_error(tolua_S,"invalid type in array indexing.");
- toluaI_index = (int)tolua_getnumber(tolua_S,2,0)-1;
+ toluaI_index = (int)tolua_getnumber(tolua_S,2,0);
  if (toluaI_index<0 || toluaI_index>=4)
-  tolua_error(tolua_S,"array indexing out of range.");
+  tolua_error(tolua_S,"array object_kind: locale indexing out of range.");
  tolua_pushnumber(tolua_S,(long)self->locale[toluaI_index]);
  return 1;
 }
@@ -371,9 +346,9 @@ static int toluaI_set_object_object_kind_locale(lua_State* tolua_S)
  self = (object_kind*)  lua_touserdata(tolua_S,-1);
  if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
   tolua_error(tolua_S,"invalid type in array indexing.");
- toluaI_index = (int)tolua_getnumber(tolua_S,2,0)-1;
+ toluaI_index = (int)tolua_getnumber(tolua_S,2,0);
  if (toluaI_index<0 || toluaI_index>=4)
-  tolua_error(tolua_S,"array indexing out of range.");
+  tolua_error(tolua_S,"array object_kind: locale indexing out of range.");
   self->locale[toluaI_index] = ((byte)  tolua_getnumber(tolua_S,3,0));
  return 0;
 }
@@ -388,9 +363,9 @@ static int toluaI_get_object_object_kind_chance(lua_State* tolua_S)
  self = (object_kind*)  lua_touserdata(tolua_S,-1);
  if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
   tolua_error(tolua_S,"invalid type in array indexing.");
- toluaI_index = (int)tolua_getnumber(tolua_S,2,0)-1;
+ toluaI_index = (int)tolua_getnumber(tolua_S,2,0);
  if (toluaI_index<0 || toluaI_index>=4)
-  tolua_error(tolua_S,"array indexing out of range.");
+  tolua_error(tolua_S,"array object_kind: chance indexing out of range.");
  tolua_pushnumber(tolua_S,(long)self->chance[toluaI_index]);
  return 1;
 }
@@ -405,9 +380,9 @@ static int toluaI_set_object_object_kind_chance(lua_State* tolua_S)
  self = (object_kind*)  lua_touserdata(tolua_S,-1);
  if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
   tolua_error(tolua_S,"invalid type in array indexing.");
- toluaI_index = (int)tolua_getnumber(tolua_S,2,0)-1;
+ toluaI_index = (int)tolua_getnumber(tolua_S,2,0);
  if (toluaI_index<0 || toluaI_index>=4)
-  tolua_error(tolua_S,"array indexing out of range.");
+  tolua_error(tolua_S,"array object_kind: chance indexing out of range.");
   self->chance[toluaI_index] = ((byte)  tolua_getnumber(tolua_S,3,0));
  return 0;
 }
@@ -1052,123 +1027,71 @@ static int toluaI_set_object_object_type_xtra_name(lua_State* tolua_S)
  return 0;
 }
 
-/* get function: flags1 of class  object_type */
-static int toluaI_get_object_object_type_flags1(lua_State* tolua_S)
+/* get function: flags of class  object_type */
+static int toluaI_get_object_object_type_flags(lua_State* tolua_S)
 {
-  object_type* self = (object_type*)  tolua_getusertype(tolua_S,1,0);
-  if (!self) TOLUA_ERR_SELF;
-  tolua_pushnumber(tolua_S,(long)self->flags1);
+ int toluaI_index;
+  object_type* self;
+ lua_pushstring(tolua_S,".self");
+ lua_rawget(tolua_S,1);
+ self = (object_type*)  lua_touserdata(tolua_S,-1);
+ if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
+  tolua_error(tolua_S,"invalid type in array indexing.");
+ toluaI_index = (int)tolua_getnumber(tolua_S,2,0);
+ if (toluaI_index<0 || toluaI_index>=4)
+  tolua_error(tolua_S,"array object_type: flags indexing out of range.");
+ tolua_pushnumber(tolua_S,(long)self->flags[toluaI_index]);
  return 1;
 }
 
-/* set function: flags1 of class  object_type */
-static int toluaI_set_object_object_type_flags1(lua_State* tolua_S)
+/* set function: flags of class  object_type */
+static int toluaI_set_object_object_type_flags(lua_State* tolua_S)
 {
-  object_type* self = (object_type*)  tolua_getusertype(tolua_S,1,0);
-  if (!self) TOLUA_ERR_SELF;
-  if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
-   TOLUA_ERR_ASSIGN;
-  self->flags1 = ((u32b)  tolua_getnumber(tolua_S,2,0));
+ int toluaI_index;
+  object_type* self;
+ lua_pushstring(tolua_S,".self");
+ lua_rawget(tolua_S,1);
+ self = (object_type*)  lua_touserdata(tolua_S,-1);
+ if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
+  tolua_error(tolua_S,"invalid type in array indexing.");
+ toluaI_index = (int)tolua_getnumber(tolua_S,2,0);
+ if (toluaI_index<0 || toluaI_index>=4)
+  tolua_error(tolua_S,"array object_type: flags indexing out of range.");
+  self->flags[toluaI_index] = ((u32b)  tolua_getnumber(tolua_S,3,0));
  return 0;
 }
 
-/* get function: flags2 of class  object_type */
-static int toluaI_get_object_object_type_flags2(lua_State* tolua_S)
+/* get function: kn_flags of class  object_type */
+static int toluaI_get_object_object_type_kn_flags(lua_State* tolua_S)
 {
-  object_type* self = (object_type*)  tolua_getusertype(tolua_S,1,0);
-  if (!self) TOLUA_ERR_SELF;
-  tolua_pushnumber(tolua_S,(long)self->flags2);
+ int toluaI_index;
+  object_type* self;
+ lua_pushstring(tolua_S,".self");
+ lua_rawget(tolua_S,1);
+ self = (object_type*)  lua_touserdata(tolua_S,-1);
+ if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
+  tolua_error(tolua_S,"invalid type in array indexing.");
+ toluaI_index = (int)tolua_getnumber(tolua_S,2,0);
+ if (toluaI_index<0 || toluaI_index>=4)
+  tolua_error(tolua_S,"array object_type: kn_flags indexing out of range.");
+ tolua_pushnumber(tolua_S,(long)self->kn_flags[toluaI_index]);
  return 1;
 }
 
-/* set function: flags2 of class  object_type */
-static int toluaI_set_object_object_type_flags2(lua_State* tolua_S)
+/* set function: kn_flags of class  object_type */
+static int toluaI_set_object_object_type_kn_flags(lua_State* tolua_S)
 {
-  object_type* self = (object_type*)  tolua_getusertype(tolua_S,1,0);
-  if (!self) TOLUA_ERR_SELF;
-  if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
-   TOLUA_ERR_ASSIGN;
-  self->flags2 = ((u32b)  tolua_getnumber(tolua_S,2,0));
- return 0;
-}
-
-/* get function: flags3 of class  object_type */
-static int toluaI_get_object_object_type_flags3(lua_State* tolua_S)
-{
-  object_type* self = (object_type*)  tolua_getusertype(tolua_S,1,0);
-  if (!self) TOLUA_ERR_SELF;
-  tolua_pushnumber(tolua_S,(long)self->flags3);
- return 1;
-}
-
-/* set function: flags3 of class  object_type */
-static int toluaI_set_object_object_type_flags3(lua_State* tolua_S)
-{
-  object_type* self = (object_type*)  tolua_getusertype(tolua_S,1,0);
-  if (!self) TOLUA_ERR_SELF;
-  if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
-   TOLUA_ERR_ASSIGN;
-  self->flags3 = ((u32b)  tolua_getnumber(tolua_S,2,0));
- return 0;
-}
-
-/* get function: kn_flags1 of class  object_type */
-static int toluaI_get_object_object_type_kn_flags1(lua_State* tolua_S)
-{
-  object_type* self = (object_type*)  tolua_getusertype(tolua_S,1,0);
-  if (!self) TOLUA_ERR_SELF;
-  tolua_pushnumber(tolua_S,(long)self->kn_flags1);
- return 1;
-}
-
-/* set function: kn_flags1 of class  object_type */
-static int toluaI_set_object_object_type_kn_flags1(lua_State* tolua_S)
-{
-  object_type* self = (object_type*)  tolua_getusertype(tolua_S,1,0);
-  if (!self) TOLUA_ERR_SELF;
-  if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
-   TOLUA_ERR_ASSIGN;
-  self->kn_flags1 = ((u32b)  tolua_getnumber(tolua_S,2,0));
- return 0;
-}
-
-/* get function: kn_flags2 of class  object_type */
-static int toluaI_get_object_object_type_kn_flags2(lua_State* tolua_S)
-{
-  object_type* self = (object_type*)  tolua_getusertype(tolua_S,1,0);
-  if (!self) TOLUA_ERR_SELF;
-  tolua_pushnumber(tolua_S,(long)self->kn_flags2);
- return 1;
-}
-
-/* set function: kn_flags2 of class  object_type */
-static int toluaI_set_object_object_type_kn_flags2(lua_State* tolua_S)
-{
-  object_type* self = (object_type*)  tolua_getusertype(tolua_S,1,0);
-  if (!self) TOLUA_ERR_SELF;
-  if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
-   TOLUA_ERR_ASSIGN;
-  self->kn_flags2 = ((u32b)  tolua_getnumber(tolua_S,2,0));
- return 0;
-}
-
-/* get function: kn_flags3 of class  object_type */
-static int toluaI_get_object_object_type_kn_flags3(lua_State* tolua_S)
-{
-  object_type* self = (object_type*)  tolua_getusertype(tolua_S,1,0);
-  if (!self) TOLUA_ERR_SELF;
-  tolua_pushnumber(tolua_S,(long)self->kn_flags3);
- return 1;
-}
-
-/* set function: kn_flags3 of class  object_type */
-static int toluaI_set_object_object_type_kn_flags3(lua_State* tolua_S)
-{
-  object_type* self = (object_type*)  tolua_getusertype(tolua_S,1,0);
-  if (!self) TOLUA_ERR_SELF;
-  if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
-   TOLUA_ERR_ASSIGN;
-  self->kn_flags3 = ((u32b)  tolua_getnumber(tolua_S,2,0));
+ int toluaI_index;
+  object_type* self;
+ lua_pushstring(tolua_S,".self");
+ lua_rawget(tolua_S,1);
+ self = (object_type*)  lua_touserdata(tolua_S,-1);
+ if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
+  tolua_error(tolua_S,"invalid type in array indexing.");
+ toluaI_index = (int)tolua_getnumber(tolua_S,2,0);
+ if (toluaI_index<0 || toluaI_index>=4)
+  tolua_error(tolua_S,"array object_type: kn_flags indexing out of range.");
+  self->kn_flags[toluaI_index] = ((u32b)  tolua_getnumber(tolua_S,3,0));
  return 0;
 }
 
@@ -1232,23 +1155,23 @@ static int toluaI_set_object_object_type_feeling(lua_State* tolua_S)
  return 0;
 }
 
-/* get function: activate of class  object_type */
-static int toluaI_get_object_object_type_activate(lua_State* tolua_S)
+/* get function: a_idx of class  object_type */
+static int toluaI_get_object_object_type_a_idx(lua_State* tolua_S)
 {
   object_type* self = (object_type*)  tolua_getusertype(tolua_S,1,0);
   if (!self) TOLUA_ERR_SELF;
-  tolua_pushnumber(tolua_S,(long)self->activate);
+  tolua_pushnumber(tolua_S,(long)self->a_idx);
  return 1;
 }
 
-/* set function: activate of class  object_type */
-static int toluaI_set_object_object_type_activate(lua_State* tolua_S)
+/* set function: a_idx of class  object_type */
+static int toluaI_set_object_object_type_a_idx(lua_State* tolua_S)
 {
   object_type* self = (object_type*)  tolua_getusertype(tolua_S,1,0);
   if (!self) TOLUA_ERR_SELF;
   if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
    TOLUA_ERR_ASSIGN;
-  self->activate = ((byte)  tolua_getnumber(tolua_S,2,0));
+  self->a_idx = ((byte)  tolua_getnumber(tolua_S,2,0));
  return 0;
 }
 
@@ -1330,9 +1253,9 @@ static int toluaI_get_object_o_list(lua_State* tolua_S)
  int toluaI_index;
  if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
   tolua_error(tolua_S,"invalid type in array indexing.");
- toluaI_index = (int)tolua_getnumber(tolua_S,2,0)-1;
+ toluaI_index = (int)tolua_getnumber(tolua_S,2,0);
  if (toluaI_index<0 || toluaI_index>=o_max)
-  tolua_error(tolua_S,"array indexing out of range.");
+  tolua_error(tolua_S,"array: o_list indexing out of range.");
  tolua_pushusertype(tolua_S,(void*)&o_list[toluaI_index],tolua_tag(tolua_S,"object_type"));
  return 1;
 }
@@ -1343,9 +1266,9 @@ static int toluaI_set_object_o_list(lua_State* tolua_S)
  int toluaI_index;
  if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
   tolua_error(tolua_S,"invalid type in array indexing.");
- toluaI_index = (int)tolua_getnumber(tolua_S,2,0)-1;
+ toluaI_index = (int)tolua_getnumber(tolua_S,2,0);
  if (toluaI_index<0 || toluaI_index>=o_max)
-  tolua_error(tolua_S,"array indexing out of range.");
+  tolua_error(tolua_S,"array: o_list indexing out of range.");
   o_list[toluaI_index] = *((object_type*)  tolua_getusertype(tolua_S,3,0));
  return 0;
 }
@@ -1356,9 +1279,9 @@ static int toluaI_get_object_k_info(lua_State* tolua_S)
  int toluaI_index;
  if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
   tolua_error(tolua_S,"invalid type in array indexing.");
- toluaI_index = (int)tolua_getnumber(tolua_S,2,0)-1;
+ toluaI_index = (int)tolua_getnumber(tolua_S,2,0);
  if (toluaI_index<0 || toluaI_index>=z_info->k_max)
-  tolua_error(tolua_S,"array indexing out of range.");
+  tolua_error(tolua_S,"array: k_info indexing out of range.");
  tolua_pushusertype(tolua_S,(void*)&k_info[toluaI_index],tolua_tag(tolua_S,"object_kind"));
  return 1;
 }
@@ -1369,9 +1292,9 @@ static int toluaI_set_object_k_info(lua_State* tolua_S)
  int toluaI_index;
  if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
   tolua_error(tolua_S,"invalid type in array indexing.");
- toluaI_index = (int)tolua_getnumber(tolua_S,2,0)-1;
+ toluaI_index = (int)tolua_getnumber(tolua_S,2,0);
  if (toluaI_index<0 || toluaI_index>=z_info->k_max)
-  tolua_error(tolua_S,"array indexing out of range.");
+  tolua_error(tolua_S,"array: k_info indexing out of range.");
   k_info[toluaI_index] = *((object_kind*)  tolua_getusertype(tolua_S,3,0));
  return 0;
 }
@@ -2740,6 +2663,30 @@ static int toluaI_object_add_ego_power00(lua_State* tolua_S)
  return 0;
 }
 
+/* function: m_bonus */
+static int toluaI_object_m_bonus00(lua_State* tolua_S)
+{
+ if (
+     !tolua_istype(tolua_S,1,LUA_TNUMBER,0) ||
+     !tolua_istype(tolua_S,2,LUA_TNUMBER,0) ||
+     !tolua_isnoobj(tolua_S,3)
+ )
+ {
+  tolua_error(tolua_S,"#ferror in function 'm_bonus'.");
+  return 0;
+ }
+ else
+ {
+  int max = ((int)  tolua_getnumber(tolua_S,1,0));
+  int level = ((int)  tolua_getnumber(tolua_S,2,0));
+  {
+   s16b toluaI_ret = (s16b)  m_bonus(max,level);
+   tolua_pushnumber(tolua_S,(long)toluaI_ret);
+  }
+ }
+ return 1;
+}
+
 /* function: apply_magic */
 static int toluaI_object_apply_magic00(lua_State* tolua_S)
 {
@@ -3104,72 +3051,6 @@ static int toluaI_object_create_artifact00(lua_State* tolua_S)
  return 1;
 }
 
-/* function: random_resistance */
-static int toluaI_object_random_resistance00(lua_State* tolua_S)
-{
- if (
-     !tolua_istype(tolua_S,1,tolua_tag(tolua_S,"object_type"),0) ||
-     !tolua_istype(tolua_S,2,LUA_TNUMBER,0) ||
-     !tolua_isnoobj(tolua_S,3)
- )
- {
-  tolua_error(tolua_S,"#ferror in function 'random_resistance'.");
-  return 0;
- }
- else
- {
-  object_type* o_ptr = ((object_type*)  tolua_getusertype(tolua_S,1,0));
-  int specific = ((int)  tolua_getnumber(tolua_S,2,0));
-  {
-   random_resistance(o_ptr,specific);
-  }
- }
- return 0;
-}
-
-/* function: activate_effect */
-static int toluaI_object_activate_effect00(lua_State* tolua_S)
-{
- if (
-     !tolua_istype(tolua_S,1,tolua_tag(tolua_S,"object_type"),0) ||
-     !tolua_isnoobj(tolua_S,2)
- )
- {
-  tolua_error(tolua_S,"#ferror in function 'activate_effect'.");
-  return 0;
- }
- else
- {
-  object_type* o_ptr = ((object_type*)  tolua_getusertype(tolua_S,1,0));
-  {
-   bool toluaI_ret = (bool)  activate_effect(o_ptr);
-   tolua_pushbool(tolua_S,(int)toluaI_ret);
-  }
- }
- return 1;
-}
-
-/* function: random_artifact_resistance */
-static int toluaI_object_random_artifact_resistance00(lua_State* tolua_S)
-{
- if (
-     !tolua_istype(tolua_S,1,tolua_tag(tolua_S,"object_type"),0) ||
-     !tolua_isnoobj(tolua_S,2)
- )
- {
-  tolua_error(tolua_S,"#ferror in function 'random_artifact_resistance'.");
-  return 0;
- }
- else
- {
-  object_type* o_ptr = ((object_type*)  tolua_getusertype(tolua_S,1,0));
-  {
-   random_artifact_resistance(o_ptr);
-  }
- }
- return 0;
-}
-
 /* function: create_named_art */
 static int toluaI_object_create_named_art00(lua_State* tolua_S)
 {
@@ -3499,81 +3380,18 @@ int tolua_object_open (lua_State* tolua_S)
 {
  tolua_open(tolua_S);
  toluaI_reg_types(tolua_S);
- tolua_constant(tolua_S,NULL,"ACT_SUNLIGHT",ACT_SUNLIGHT);
- tolua_constant(tolua_S,NULL,"ACT_BO_MISS_1",ACT_BO_MISS_1);
- tolua_constant(tolua_S,NULL,"ACT_BA_POIS_1",ACT_BA_POIS_1);
- tolua_constant(tolua_S,NULL,"ACT_BO_ELEC_1",ACT_BO_ELEC_1);
- tolua_constant(tolua_S,NULL,"ACT_BO_ACID_1",ACT_BO_ACID_1);
- tolua_constant(tolua_S,NULL,"ACT_BO_COLD_1",ACT_BO_COLD_1);
- tolua_constant(tolua_S,NULL,"ACT_BO_FIRE_1",ACT_BO_FIRE_1);
- tolua_constant(tolua_S,NULL,"ACT_BA_COLD_1",ACT_BA_COLD_1);
- tolua_constant(tolua_S,NULL,"ACT_BA_FIRE_1",ACT_BA_FIRE_1);
- tolua_constant(tolua_S,NULL,"ACT_DRAIN_1",ACT_DRAIN_1);
- tolua_constant(tolua_S,NULL,"ACT_BA_COLD_2",ACT_BA_COLD_2);
- tolua_constant(tolua_S,NULL,"ACT_BA_ELEC_2",ACT_BA_ELEC_2);
- tolua_constant(tolua_S,NULL,"ACT_DRAIN_2",ACT_DRAIN_2);
- tolua_constant(tolua_S,NULL,"ACT_VAMPIRE_1",ACT_VAMPIRE_1);
- tolua_constant(tolua_S,NULL,"ACT_BO_MISS_2",ACT_BO_MISS_2);
- tolua_constant(tolua_S,NULL,"ACT_BA_FIRE_2",ACT_BA_FIRE_2);
- tolua_constant(tolua_S,NULL,"ACT_BA_COLD_3",ACT_BA_COLD_3);
- tolua_constant(tolua_S,NULL,"ACT_BA_ELEC_3",ACT_BA_ELEC_3);
- tolua_constant(tolua_S,NULL,"ACT_WHIRLWIND",ACT_WHIRLWIND);
- tolua_constant(tolua_S,NULL,"ACT_VAMPIRE_2",ACT_VAMPIRE_2);
- tolua_constant(tolua_S,NULL,"ACT_CALL_CHAOS",ACT_CALL_CHAOS);
- tolua_constant(tolua_S,NULL,"ACT_ROCKET",ACT_ROCKET);
- tolua_constant(tolua_S,NULL,"ACT_DISP_EVIL",ACT_DISP_EVIL);
- tolua_constant(tolua_S,NULL,"ACT_BA_MISS_3",ACT_BA_MISS_3);
- tolua_constant(tolua_S,NULL,"ACT_DISP_GOOD",ACT_DISP_GOOD);
- tolua_constant(tolua_S,NULL,"ACT_CONFUSE",ACT_CONFUSE);
- tolua_constant(tolua_S,NULL,"ACT_SLEEP",ACT_SLEEP);
- tolua_constant(tolua_S,NULL,"ACT_QUAKE",ACT_QUAKE);
- tolua_constant(tolua_S,NULL,"ACT_TERROR",ACT_TERROR);
- tolua_constant(tolua_S,NULL,"ACT_TELE_AWAY",ACT_TELE_AWAY);
- tolua_constant(tolua_S,NULL,"ACT_BANISH_EVIL",ACT_BANISH_EVIL);
- tolua_constant(tolua_S,NULL,"ACT_GENOCIDE",ACT_GENOCIDE);
- tolua_constant(tolua_S,NULL,"ACT_MASS_GENO",ACT_MASS_GENO);
- tolua_constant(tolua_S,NULL,"ACT_CHARM_ANIMAL",ACT_CHARM_ANIMAL);
- tolua_constant(tolua_S,NULL,"ACT_CHARM_UNDEAD",ACT_CHARM_UNDEAD);
- tolua_constant(tolua_S,NULL,"ACT_CHARM_OTHER",ACT_CHARM_OTHER);
- tolua_constant(tolua_S,NULL,"ACT_CHARM_ANIMALS",ACT_CHARM_ANIMALS);
- tolua_constant(tolua_S,NULL,"ACT_CHARM_OTHERS",ACT_CHARM_OTHERS);
- tolua_constant(tolua_S,NULL,"ACT_SUMMON_ANIMAL",ACT_SUMMON_ANIMAL);
- tolua_constant(tolua_S,NULL,"ACT_SUMMON_PHANTOM",ACT_SUMMON_PHANTOM);
- tolua_constant(tolua_S,NULL,"ACT_SUMMON_ELEMENTAL",ACT_SUMMON_ELEMENTAL);
- tolua_constant(tolua_S,NULL,"ACT_SUMMON_DEMON",ACT_SUMMON_DEMON);
- tolua_constant(tolua_S,NULL,"ACT_SUMMON_UNDEAD",ACT_SUMMON_UNDEAD);
- tolua_constant(tolua_S,NULL,"ACT_CURE_LW",ACT_CURE_LW);
- tolua_constant(tolua_S,NULL,"ACT_CURE_MW",ACT_CURE_MW);
- tolua_constant(tolua_S,NULL,"ACT_CURE_POISON",ACT_CURE_POISON);
- tolua_constant(tolua_S,NULL,"ACT_REST_LIFE",ACT_REST_LIFE);
- tolua_constant(tolua_S,NULL,"ACT_REST_ALL",ACT_REST_ALL);
- tolua_constant(tolua_S,NULL,"ACT_CURE_700",ACT_CURE_700);
- tolua_constant(tolua_S,NULL,"ACT_CURE_1000",ACT_CURE_1000);
- tolua_constant(tolua_S,NULL,"ACT_ESP",ACT_ESP);
- tolua_constant(tolua_S,NULL,"ACT_BERSERK",ACT_BERSERK);
- tolua_constant(tolua_S,NULL,"ACT_PROT_EVIL",ACT_PROT_EVIL);
- tolua_constant(tolua_S,NULL,"ACT_RESIST_ALL",ACT_RESIST_ALL);
- tolua_constant(tolua_S,NULL,"ACT_SPEED",ACT_SPEED);
- tolua_constant(tolua_S,NULL,"ACT_XTRA_SPEED",ACT_XTRA_SPEED);
- tolua_constant(tolua_S,NULL,"ACT_WRAITH",ACT_WRAITH);
- tolua_constant(tolua_S,NULL,"ACT_INVULN",ACT_INVULN);
- tolua_constant(tolua_S,NULL,"ACT_TELEPORT_1",ACT_TELEPORT_1);
- tolua_constant(tolua_S,NULL,"ACT_LIGHT",ACT_LIGHT);
- tolua_constant(tolua_S,NULL,"ACT_MAP_LIGHT",ACT_MAP_LIGHT);
- tolua_constant(tolua_S,NULL,"ACT_DETECT_ALL",ACT_DETECT_ALL);
- tolua_constant(tolua_S,NULL,"ACT_DETECT_XTRA",ACT_DETECT_XTRA);
- tolua_constant(tolua_S,NULL,"ACT_ID_FULL",ACT_ID_FULL);
- tolua_constant(tolua_S,NULL,"ACT_ID_PLAIN",ACT_ID_PLAIN);
- tolua_constant(tolua_S,NULL,"ACT_RUNE_EXPLO",ACT_RUNE_EXPLO);
- tolua_constant(tolua_S,NULL,"ACT_RUNE_PROT",ACT_RUNE_PROT);
- tolua_constant(tolua_S,NULL,"ACT_SATIATE",ACT_SATIATE);
- tolua_constant(tolua_S,NULL,"ACT_DEST_DOOR",ACT_DEST_DOOR);
- tolua_constant(tolua_S,NULL,"ACT_STONE_MUD",ACT_STONE_MUD);
- tolua_constant(tolua_S,NULL,"ACT_RECHARGE",ACT_RECHARGE);
- tolua_constant(tolua_S,NULL,"ACT_ALCHEMY",ACT_ALCHEMY);
- tolua_constant(tolua_S,NULL,"ACT_DIM_DOOR",ACT_DIM_DOOR);
- tolua_constant(tolua_S,NULL,"ACT_TELEPORT_2",ACT_TELEPORT_2);
- tolua_constant(tolua_S,NULL,"ACT_RECALL",ACT_RECALL);
+ tolua_constant(tolua_S,NULL,"MAX_TRIGGER",MAX_TRIGGER);
+ tolua_constant(tolua_S,NULL,"TRIGGER_USE",TRIGGER_USE);
+ tolua_constant(tolua_S,NULL,"TRIGGER_MAKE",TRIGGER_MAKE);
+ tolua_constant(tolua_S,NULL,"TRIGGER_BONUS",TRIGGER_BONUS);
+ tolua_constant(tolua_S,NULL,"TRIGGER_SMASH",TRIGGER_SMASH);
+ tolua_constant(tolua_S,NULL,"TRIGGER_DESC",TRIGGER_DESC);
+ tolua_constant(tolua_S,NULL,"EGO_XTRA_SUSTAIN",EGO_XTRA_SUSTAIN);
+ tolua_constant(tolua_S,NULL,"EGO_XTRA_LO_RESIST",EGO_XTRA_LO_RESIST);
+ tolua_constant(tolua_S,NULL,"EGO_XTRA_HI_RESIST",EGO_XTRA_HI_RESIST);
+ tolua_constant(tolua_S,NULL,"EGO_XTRA_ANY_RESIST",EGO_XTRA_ANY_RESIST);
+ tolua_constant(tolua_S,NULL,"EGO_XTRA_ABILITY",EGO_XTRA_ABILITY);
+ tolua_constant(tolua_S,NULL,"EGO_XTRA_POWER",EGO_XTRA_POWER);
  tolua_constant(tolua_S,NULL,"TV_ANY",TV_ANY);
  tolua_constant(tolua_S,NULL,"TV_SKELETON",TV_SKELETON);
  tolua_constant(tolua_S,NULL,"TV_BOTTLE",TV_BOTTLE);
@@ -3619,279 +3437,6 @@ int tolua_object_open (lua_State* tolua_S)
  tolua_constant(tolua_S,NULL,"TV_GOLD",TV_GOLD);
  tolua_constant(tolua_S,NULL,"TV_BOOKS_MIN",TV_BOOKS_MIN);
  tolua_constant(tolua_S,NULL,"TV_BOOKS_MAX",TV_BOOKS_MAX);
- tolua_constant(tolua_S,NULL,"SV_ANY",SV_ANY);
- tolua_constant(tolua_S,NULL,"SV_FIGURINE_NORMAL",SV_FIGURINE_NORMAL);
- tolua_constant(tolua_S,NULL,"SV_WOODEN_STATUE",SV_WOODEN_STATUE);
- tolua_constant(tolua_S,NULL,"SV_CLAY_STATUE",SV_CLAY_STATUE);
- tolua_constant(tolua_S,NULL,"SV_STONE_STATUE",SV_STONE_STATUE);
- tolua_constant(tolua_S,NULL,"SV_IRON_STATUE",SV_IRON_STATUE);
- tolua_constant(tolua_S,NULL,"SV_COPPER_STATUE",SV_COPPER_STATUE);
- tolua_constant(tolua_S,NULL,"SV_SILVER_STATUE",SV_SILVER_STATUE);
- tolua_constant(tolua_S,NULL,"SV_GOLDEN_STATUE",SV_GOLDEN_STATUE);
- tolua_constant(tolua_S,NULL,"SV_IVORY_STATUE",SV_IVORY_STATUE);
- tolua_constant(tolua_S,NULL,"SV_MITHRIL_STATUE",SV_MITHRIL_STATUE);
- tolua_constant(tolua_S,NULL,"SV_ORNATE_STATUE",SV_ORNATE_STATUE);
- tolua_constant(tolua_S,NULL,"SV_AMMO_LIGHT",SV_AMMO_LIGHT);
- tolua_constant(tolua_S,NULL,"SV_AMMO_NORMAL",SV_AMMO_NORMAL);
- tolua_constant(tolua_S,NULL,"SV_AMMO_HEAVY",SV_AMMO_HEAVY);
- tolua_constant(tolua_S,NULL,"SV_SLING",SV_SLING);
- tolua_constant(tolua_S,NULL,"SV_SHORT_BOW",SV_SHORT_BOW);
- tolua_constant(tolua_S,NULL,"SV_LONG_BOW",SV_LONG_BOW);
- tolua_constant(tolua_S,NULL,"SV_LIGHT_XBOW",SV_LIGHT_XBOW);
- tolua_constant(tolua_S,NULL,"SV_HEAVY_XBOW",SV_HEAVY_XBOW);
- tolua_constant(tolua_S,NULL,"SV_SHOVEL",SV_SHOVEL);
- tolua_constant(tolua_S,NULL,"SV_GNOMISH_SHOVEL",SV_GNOMISH_SHOVEL);
- tolua_constant(tolua_S,NULL,"SV_DWARVEN_SHOVEL",SV_DWARVEN_SHOVEL);
- tolua_constant(tolua_S,NULL,"SV_PICK",SV_PICK);
- tolua_constant(tolua_S,NULL,"SV_ORCISH_PICK",SV_ORCISH_PICK);
- tolua_constant(tolua_S,NULL,"SV_DWARVEN_PICK",SV_DWARVEN_PICK);
- tolua_constant(tolua_S,NULL,"SV_MATTOCK",SV_MATTOCK);
- tolua_constant(tolua_S,NULL,"SV_CLUB",SV_CLUB);
- tolua_constant(tolua_S,NULL,"SV_WHIP",SV_WHIP);
- tolua_constant(tolua_S,NULL,"SV_QUARTERSTAFF",SV_QUARTERSTAFF);
- tolua_constant(tolua_S,NULL,"SV_NUNCHAKU",SV_NUNCHAKU);
- tolua_constant(tolua_S,NULL,"SV_MACE",SV_MACE);
- tolua_constant(tolua_S,NULL,"SV_BALL_AND_CHAIN",SV_BALL_AND_CHAIN);
- tolua_constant(tolua_S,NULL,"SV_JO_STAFF",SV_JO_STAFF);
- tolua_constant(tolua_S,NULL,"SV_WAR_HAMMER",SV_WAR_HAMMER);
- tolua_constant(tolua_S,NULL,"SV_THREE_PIECE_ROD",SV_THREE_PIECE_ROD);
- tolua_constant(tolua_S,NULL,"SV_MORNING_STAR",SV_MORNING_STAR);
- tolua_constant(tolua_S,NULL,"SV_FLAIL",SV_FLAIL);
- tolua_constant(tolua_S,NULL,"SV_BO_STAFF",SV_BO_STAFF);
- tolua_constant(tolua_S,NULL,"SV_LEAD_FILLED_MACE",SV_LEAD_FILLED_MACE);
- tolua_constant(tolua_S,NULL,"SV_TETSUBO",SV_TETSUBO);
- tolua_constant(tolua_S,NULL,"SV_TWO_HANDED_FLAIL",SV_TWO_HANDED_FLAIL);
- tolua_constant(tolua_S,NULL,"SV_GREAT_HAMMER",SV_GREAT_HAMMER);
- tolua_constant(tolua_S,NULL,"SV_MACE_OF_DISRUPTION",SV_MACE_OF_DISRUPTION);
- tolua_constant(tolua_S,NULL,"SV_GROND",SV_GROND);
- tolua_constant(tolua_S,NULL,"SV_HATCHET",SV_HATCHET);
- tolua_constant(tolua_S,NULL,"SV_SPEAR",SV_SPEAR);
- tolua_constant(tolua_S,NULL,"SV_SICKLE",SV_SICKLE);
- tolua_constant(tolua_S,NULL,"SV_AWL_PIKE",SV_AWL_PIKE);
- tolua_constant(tolua_S,NULL,"SV_TRIDENT",SV_TRIDENT);
- tolua_constant(tolua_S,NULL,"SV_FAUCHARD",SV_FAUCHARD);
- tolua_constant(tolua_S,NULL,"SV_BROAD_SPEAR",SV_BROAD_SPEAR);
- tolua_constant(tolua_S,NULL,"SV_PIKE",SV_PIKE);
- tolua_constant(tolua_S,NULL,"SV_NAGINATA",SV_NAGINATA);
- tolua_constant(tolua_S,NULL,"SV_BEAKED_AXE",SV_BEAKED_AXE);
- tolua_constant(tolua_S,NULL,"SV_BROAD_AXE",SV_BROAD_AXE);
- tolua_constant(tolua_S,NULL,"SV_LUCERNE_HAMMER",SV_LUCERNE_HAMMER);
- tolua_constant(tolua_S,NULL,"SV_GLAIVE",SV_GLAIVE);
- tolua_constant(tolua_S,NULL,"SV_LAJATANG",SV_LAJATANG);
- tolua_constant(tolua_S,NULL,"SV_HALBERD",SV_HALBERD);
- tolua_constant(tolua_S,NULL,"SV_GUISARME",SV_GUISARME);
- tolua_constant(tolua_S,NULL,"SV_SCYTHE",SV_SCYTHE);
- tolua_constant(tolua_S,NULL,"SV_LANCE",SV_LANCE);
- tolua_constant(tolua_S,NULL,"SV_BATTLE_AXE",SV_BATTLE_AXE);
- tolua_constant(tolua_S,NULL,"SV_GREAT_AXE",SV_GREAT_AXE);
- tolua_constant(tolua_S,NULL,"SV_TRIFURCATE_SPEAR",SV_TRIFURCATE_SPEAR);
- tolua_constant(tolua_S,NULL,"SV_LOCHABER_AXE",SV_LOCHABER_AXE);
- tolua_constant(tolua_S,NULL,"SV_HEAVY_LANCE",SV_HEAVY_LANCE);
- tolua_constant(tolua_S,NULL,"SV_SCYTHE_OF_SLICING",SV_SCYTHE_OF_SLICING);
- tolua_constant(tolua_S,NULL,"SV_BROKEN_DAGGER",SV_BROKEN_DAGGER);
- tolua_constant(tolua_S,NULL,"SV_BROKEN_SWORD",SV_BROKEN_SWORD);
- tolua_constant(tolua_S,NULL,"SV_DAGGER",SV_DAGGER);
- tolua_constant(tolua_S,NULL,"SV_MAIN_GAUCHE",SV_MAIN_GAUCHE);
- tolua_constant(tolua_S,NULL,"SV_TANTO",SV_TANTO);
- tolua_constant(tolua_S,NULL,"SV_RAPIER",SV_RAPIER);
- tolua_constant(tolua_S,NULL,"SV_SMALL_SWORD",SV_SMALL_SWORD);
- tolua_constant(tolua_S,NULL,"SV_BASILLARD",SV_BASILLARD);
- tolua_constant(tolua_S,NULL,"SV_SHORT_SWORD",SV_SHORT_SWORD);
- tolua_constant(tolua_S,NULL,"SV_SABRE",SV_SABRE);
- tolua_constant(tolua_S,NULL,"SV_CUTLASS",SV_CUTLASS);
- tolua_constant(tolua_S,NULL,"SV_WAKIZASHI",SV_WAKIZASHI);
- tolua_constant(tolua_S,NULL,"SV_KHOPESH",SV_KHOPESH);
- tolua_constant(tolua_S,NULL,"SV_TULWAR",SV_TULWAR);
- tolua_constant(tolua_S,NULL,"SV_BROAD_SWORD",SV_BROAD_SWORD);
- tolua_constant(tolua_S,NULL,"SV_LONG_SWORD",SV_LONG_SWORD);
- tolua_constant(tolua_S,NULL,"SV_SCIMITAR",SV_SCIMITAR);
- tolua_constant(tolua_S,NULL,"SV_NINJATO",SV_NINJATO);
- tolua_constant(tolua_S,NULL,"SV_KATANA",SV_KATANA);
- tolua_constant(tolua_S,NULL,"SV_BASTARD_SWORD",SV_BASTARD_SWORD);
- tolua_constant(tolua_S,NULL,"SV_GREAT_SCIMITAR",SV_GREAT_SCIMITAR);
- tolua_constant(tolua_S,NULL,"SV_CLAYMORE",SV_CLAYMORE);
- tolua_constant(tolua_S,NULL,"SV_ESPADON",SV_ESPADON);
- tolua_constant(tolua_S,NULL,"SV_TWO_HANDED_SWORD",SV_TWO_HANDED_SWORD);
- tolua_constant(tolua_S,NULL,"SV_FLAMBERGE",SV_FLAMBERGE);
- tolua_constant(tolua_S,NULL,"SV_NO_DACHI",SV_NO_DACHI);
- tolua_constant(tolua_S,NULL,"SV_EXECUTIONERS_SWORD",SV_EXECUTIONERS_SWORD);
- tolua_constant(tolua_S,NULL,"SV_ZWEIHANDER",SV_ZWEIHANDER);
- tolua_constant(tolua_S,NULL,"SV_BLADE_OF_CHAOS",SV_BLADE_OF_CHAOS);
- tolua_constant(tolua_S,NULL,"SV_DIAMOND_EDGE",SV_DIAMOND_EDGE);
- tolua_constant(tolua_S,NULL,"SV_SMALL_LEATHER_SHIELD",SV_SMALL_LEATHER_SHIELD);
- tolua_constant(tolua_S,NULL,"SV_SMALL_METAL_SHIELD",SV_SMALL_METAL_SHIELD);
- tolua_constant(tolua_S,NULL,"SV_LARGE_LEATHER_SHIELD",SV_LARGE_LEATHER_SHIELD);
- tolua_constant(tolua_S,NULL,"SV_LARGE_METAL_SHIELD",SV_LARGE_METAL_SHIELD);
- tolua_constant(tolua_S,NULL,"SV_DRAGON_SHIELD",SV_DRAGON_SHIELD);
- tolua_constant(tolua_S,NULL,"SV_SHIELD_OF_DEFLECTION",SV_SHIELD_OF_DEFLECTION);
- tolua_constant(tolua_S,NULL,"SV_HARD_LEATHER_CAP",SV_HARD_LEATHER_CAP);
- tolua_constant(tolua_S,NULL,"SV_METAL_CAP",SV_METAL_CAP);
- tolua_constant(tolua_S,NULL,"SV_JINGASA",SV_JINGASA);
- tolua_constant(tolua_S,NULL,"SV_IRON_HELM",SV_IRON_HELM);
- tolua_constant(tolua_S,NULL,"SV_STEEL_HELM",SV_STEEL_HELM);
- tolua_constant(tolua_S,NULL,"SV_DRAGON_HELM",SV_DRAGON_HELM);
- tolua_constant(tolua_S,NULL,"SV_KABUTO",SV_KABUTO);
- tolua_constant(tolua_S,NULL,"SV_IRON_CROWN",SV_IRON_CROWN);
- tolua_constant(tolua_S,NULL,"SV_GOLDEN_CROWN",SV_GOLDEN_CROWN);
- tolua_constant(tolua_S,NULL,"SV_JEWELED_CROWN",SV_JEWELED_CROWN);
- tolua_constant(tolua_S,NULL,"SV_MORGOTH",SV_MORGOTH);
- tolua_constant(tolua_S,NULL,"SV_PAIR_OF_SOFT_LEATHER_BOOTS",SV_PAIR_OF_SOFT_LEATHER_BOOTS);
- tolua_constant(tolua_S,NULL,"SV_PAIR_OF_HARD_LEATHER_BOOTS",SV_PAIR_OF_HARD_LEATHER_BOOTS);
- tolua_constant(tolua_S,NULL,"SV_PAIR_OF_METAL_SHOD_BOOTS",SV_PAIR_OF_METAL_SHOD_BOOTS);
- tolua_constant(tolua_S,NULL,"SV_CLOAK",SV_CLOAK);
- tolua_constant(tolua_S,NULL,"SV_ELVEN_CLOAK",SV_ELVEN_CLOAK);
- tolua_constant(tolua_S,NULL,"SV_FUR_CLOAK",SV_FUR_CLOAK);
- tolua_constant(tolua_S,NULL,"SV_SHADOW_CLOAK",SV_SHADOW_CLOAK);
- tolua_constant(tolua_S,NULL,"SV_SET_OF_LEATHER_GLOVES",SV_SET_OF_LEATHER_GLOVES);
- tolua_constant(tolua_S,NULL,"SV_SET_OF_GAUNTLETS",SV_SET_OF_GAUNTLETS);
- tolua_constant(tolua_S,NULL,"SV_SET_OF_CESTI",SV_SET_OF_CESTI);
- tolua_constant(tolua_S,NULL,"SV_T_SHIRT",SV_T_SHIRT);
- tolua_constant(tolua_S,NULL,"SV_FILTHY_RAG",SV_FILTHY_RAG);
- tolua_constant(tolua_S,NULL,"SV_ROBE",SV_ROBE);
- tolua_constant(tolua_S,NULL,"SV_PAPER_ARMOR",SV_PAPER_ARMOR);
- tolua_constant(tolua_S,NULL,"SV_SOFT_LEATHER_ARMOR",SV_SOFT_LEATHER_ARMOR);
- tolua_constant(tolua_S,NULL,"SV_SOFT_STUDDED_LEATHER",SV_SOFT_STUDDED_LEATHER);
- tolua_constant(tolua_S,NULL,"SV_HARD_LEATHER_ARMOR",SV_HARD_LEATHER_ARMOR);
- tolua_constant(tolua_S,NULL,"SV_HARD_STUDDED_LEATHER",SV_HARD_STUDDED_LEATHER);
- tolua_constant(tolua_S,NULL,"SV_RHINO_HIDE_ARMOR",SV_RHINO_HIDE_ARMOR);
- tolua_constant(tolua_S,NULL,"SV_CORD_ARMOR",SV_CORD_ARMOR);
- tolua_constant(tolua_S,NULL,"SV_PADDED_ARMOR",SV_PADDED_ARMOR);
- tolua_constant(tolua_S,NULL,"SV_LEATHER_SCALE_MAIL",SV_LEATHER_SCALE_MAIL);
- tolua_constant(tolua_S,NULL,"SV_LEATHER_JACK",SV_LEATHER_JACK);
- tolua_constant(tolua_S,NULL,"SV_STONE_AND_HIDE_ARMOR",SV_STONE_AND_HIDE_ARMOR);
- tolua_constant(tolua_S,NULL,"SV_RUSTY_CHAIN_MAIL",SV_RUSTY_CHAIN_MAIL);
- tolua_constant(tolua_S,NULL,"SV_RING_MAIL",SV_RING_MAIL);
- tolua_constant(tolua_S,NULL,"SV_METAL_SCALE_MAIL",SV_METAL_SCALE_MAIL);
- tolua_constant(tolua_S,NULL,"SV_CHAIN_MAIL",SV_CHAIN_MAIL);
- tolua_constant(tolua_S,NULL,"SV_DOUBLE_RING_MAIL",SV_DOUBLE_RING_MAIL);
- tolua_constant(tolua_S,NULL,"SV_AUGMENTED_CHAIN_MAIL",SV_AUGMENTED_CHAIN_MAIL);
- tolua_constant(tolua_S,NULL,"SV_DOUBLE_CHAIN_MAIL",SV_DOUBLE_CHAIN_MAIL);
- tolua_constant(tolua_S,NULL,"SV_BAR_CHAIN_MAIL",SV_BAR_CHAIN_MAIL);
- tolua_constant(tolua_S,NULL,"SV_METAL_BRIGANDINE_ARMOUR",SV_METAL_BRIGANDINE_ARMOUR);
- tolua_constant(tolua_S,NULL,"SV_SPLINT_MAIL",SV_SPLINT_MAIL);
- tolua_constant(tolua_S,NULL,"SV_DO_MARU",SV_DO_MARU);
- tolua_constant(tolua_S,NULL,"SV_PARTIAL_PLATE_ARMOUR",SV_PARTIAL_PLATE_ARMOUR);
- tolua_constant(tolua_S,NULL,"SV_METAL_LAMELLAR_ARMOUR",SV_METAL_LAMELLAR_ARMOUR);
- tolua_constant(tolua_S,NULL,"SV_HARAMAKIDO",SV_HARAMAKIDO);
- tolua_constant(tolua_S,NULL,"SV_FULL_PLATE_ARMOUR",SV_FULL_PLATE_ARMOUR);
- tolua_constant(tolua_S,NULL,"SV_O_YOROI",SV_O_YOROI);
- tolua_constant(tolua_S,NULL,"SV_RIBBED_PLATE_ARMOUR",SV_RIBBED_PLATE_ARMOUR);
- tolua_constant(tolua_S,NULL,"SV_MITHRIL_CHAIN_MAIL",SV_MITHRIL_CHAIN_MAIL);
- tolua_constant(tolua_S,NULL,"SV_MITHRIL_PLATE_MAIL",SV_MITHRIL_PLATE_MAIL);
- tolua_constant(tolua_S,NULL,"SV_ADAMANTITE_PLATE_MAIL",SV_ADAMANTITE_PLATE_MAIL);
- tolua_constant(tolua_S,NULL,"SV_DRAGON_BLACK",SV_DRAGON_BLACK);
- tolua_constant(tolua_S,NULL,"SV_DRAGON_BLUE",SV_DRAGON_BLUE);
- tolua_constant(tolua_S,NULL,"SV_DRAGON_WHITE",SV_DRAGON_WHITE);
- tolua_constant(tolua_S,NULL,"SV_DRAGON_RED",SV_DRAGON_RED);
- tolua_constant(tolua_S,NULL,"SV_DRAGON_GREEN",SV_DRAGON_GREEN);
- tolua_constant(tolua_S,NULL,"SV_DRAGON_MULTIHUED",SV_DRAGON_MULTIHUED);
- tolua_constant(tolua_S,NULL,"SV_DRAGON_SHINING",SV_DRAGON_SHINING);
- tolua_constant(tolua_S,NULL,"SV_DRAGON_LAW",SV_DRAGON_LAW);
- tolua_constant(tolua_S,NULL,"SV_DRAGON_BRONZE",SV_DRAGON_BRONZE);
- tolua_constant(tolua_S,NULL,"SV_DRAGON_GOLD",SV_DRAGON_GOLD);
- tolua_constant(tolua_S,NULL,"SV_DRAGON_CHAOS",SV_DRAGON_CHAOS);
- tolua_constant(tolua_S,NULL,"SV_DRAGON_BALANCE",SV_DRAGON_BALANCE);
- tolua_constant(tolua_S,NULL,"SV_DRAGON_POWER",SV_DRAGON_POWER);
- tolua_constant(tolua_S,NULL,"SV_LITE_TORCH",SV_LITE_TORCH);
- tolua_constant(tolua_S,NULL,"SV_LITE_LANTERN",SV_LITE_LANTERN);
- tolua_constant(tolua_S,NULL,"SV_LITE_GALADRIEL",SV_LITE_GALADRIEL);
- tolua_constant(tolua_S,NULL,"SV_LITE_ELENDIL",SV_LITE_ELENDIL);
- tolua_constant(tolua_S,NULL,"SV_LITE_THRAIN",SV_LITE_THRAIN);
- tolua_constant(tolua_S,NULL,"SV_AMULET_DOOM",SV_AMULET_DOOM);
- tolua_constant(tolua_S,NULL,"SV_AMULET_TELEPORT",SV_AMULET_TELEPORT);
- tolua_constant(tolua_S,NULL,"SV_AMULET_BERSERK",SV_AMULET_BERSERK);
- tolua_constant(tolua_S,NULL,"SV_AMULET_SLOW_DIGEST",SV_AMULET_SLOW_DIGEST);
- tolua_constant(tolua_S,NULL,"SV_AMULET_RESIST_ACID",SV_AMULET_RESIST_ACID);
- tolua_constant(tolua_S,NULL,"SV_AMULET_SEARCHING",SV_AMULET_SEARCHING);
- tolua_constant(tolua_S,NULL,"SV_AMULET_WISDOM",SV_AMULET_WISDOM);
- tolua_constant(tolua_S,NULL,"SV_AMULET_CHARISMA",SV_AMULET_CHARISMA);
- tolua_constant(tolua_S,NULL,"SV_AMULET_THE_MAGI",SV_AMULET_THE_MAGI);
- tolua_constant(tolua_S,NULL,"SV_AMULET_REFLECTION",SV_AMULET_REFLECTION);
- tolua_constant(tolua_S,NULL,"SV_AMULET_CARLAMMAS",SV_AMULET_CARLAMMAS);
- tolua_constant(tolua_S,NULL,"SV_AMULET_INGWE",SV_AMULET_INGWE);
- tolua_constant(tolua_S,NULL,"SV_AMULET_DWARVES",SV_AMULET_DWARVES);
- tolua_constant(tolua_S,NULL,"SV_AMULET_NO_MAGIC",SV_AMULET_NO_MAGIC);
- tolua_constant(tolua_S,NULL,"SV_AMULET_NO_TELE",SV_AMULET_NO_TELE);
- tolua_constant(tolua_S,NULL,"SV_AMULET_RESISTANCE",SV_AMULET_RESISTANCE);
- tolua_constant(tolua_S,NULL,"SV_RING_WOE",SV_RING_WOE);
- tolua_constant(tolua_S,NULL,"SV_RING_AGGRAVATION",SV_RING_AGGRAVATION);
- tolua_constant(tolua_S,NULL,"SV_RING_WEAKNESS",SV_RING_WEAKNESS);
- tolua_constant(tolua_S,NULL,"SV_RING_STUPIDITY",SV_RING_STUPIDITY);
- tolua_constant(tolua_S,NULL,"SV_RING_TELEPORTATION",SV_RING_TELEPORTATION);
- tolua_constant(tolua_S,NULL,"SV_RING_SLOW_DIGESTION",SV_RING_SLOW_DIGESTION);
- tolua_constant(tolua_S,NULL,"SV_RING_FEATHER_FALL",SV_RING_FEATHER_FALL);
- tolua_constant(tolua_S,NULL,"SV_RING_RESIST_FIRE",SV_RING_RESIST_FIRE);
- tolua_constant(tolua_S,NULL,"SV_RING_RESIST_COLD",SV_RING_RESIST_COLD);
- tolua_constant(tolua_S,NULL,"SV_RING_SUSTAIN_STR",SV_RING_SUSTAIN_STR);
- tolua_constant(tolua_S,NULL,"SV_RING_SUSTAIN_INT",SV_RING_SUSTAIN_INT);
- tolua_constant(tolua_S,NULL,"SV_RING_SUSTAIN_WIS",SV_RING_SUSTAIN_WIS);
- tolua_constant(tolua_S,NULL,"SV_RING_SUSTAIN_DEX",SV_RING_SUSTAIN_DEX);
- tolua_constant(tolua_S,NULL,"SV_RING_SUSTAIN_CON",SV_RING_SUSTAIN_CON);
- tolua_constant(tolua_S,NULL,"SV_RING_SUSTAIN_CHR",SV_RING_SUSTAIN_CHR);
- tolua_constant(tolua_S,NULL,"SV_RING_PROTECTION",SV_RING_PROTECTION);
- tolua_constant(tolua_S,NULL,"SV_RING_ACID",SV_RING_ACID);
- tolua_constant(tolua_S,NULL,"SV_RING_FLAMES",SV_RING_FLAMES);
- tolua_constant(tolua_S,NULL,"SV_RING_ICE",SV_RING_ICE);
- tolua_constant(tolua_S,NULL,"SV_RING_RESIST_POIS",SV_RING_RESIST_POIS);
- tolua_constant(tolua_S,NULL,"SV_RING_FREE_ACTION",SV_RING_FREE_ACTION);
- tolua_constant(tolua_S,NULL,"SV_RING_SEE_INVIS",SV_RING_SEE_INVIS);
- tolua_constant(tolua_S,NULL,"SV_RING_SEARCHING",SV_RING_SEARCHING);
- tolua_constant(tolua_S,NULL,"SV_RING_STR",SV_RING_STR);
- tolua_constant(tolua_S,NULL,"SV_RING_INT",SV_RING_INT);
- tolua_constant(tolua_S,NULL,"SV_RING_DEX",SV_RING_DEX);
- tolua_constant(tolua_S,NULL,"SV_RING_CON",SV_RING_CON);
- tolua_constant(tolua_S,NULL,"SV_RING_ACCURACY",SV_RING_ACCURACY);
- tolua_constant(tolua_S,NULL,"SV_RING_DAMAGE",SV_RING_DAMAGE);
- tolua_constant(tolua_S,NULL,"SV_RING_SLAYING",SV_RING_SLAYING);
- tolua_constant(tolua_S,NULL,"SV_RING_SPEED",SV_RING_SPEED);
- tolua_constant(tolua_S,NULL,"SV_RING_BARAHIR",SV_RING_BARAHIR);
- tolua_constant(tolua_S,NULL,"SV_RING_TULKAS",SV_RING_TULKAS);
- tolua_constant(tolua_S,NULL,"SV_RING_NARYA",SV_RING_NARYA);
- tolua_constant(tolua_S,NULL,"SV_RING_NENYA",SV_RING_NENYA);
- tolua_constant(tolua_S,NULL,"SV_RING_VILYA",SV_RING_VILYA);
- tolua_constant(tolua_S,NULL,"SV_RING_POWER",SV_RING_POWER);
- tolua_constant(tolua_S,NULL,"SV_RING_RES_FEAR",SV_RING_RES_FEAR);
- tolua_constant(tolua_S,NULL,"SV_RING_RES_LD",SV_RING_RES_LD);
- tolua_constant(tolua_S,NULL,"SV_RING_RES_NETHER",SV_RING_RES_NETHER);
- tolua_constant(tolua_S,NULL,"SV_RING_RES_NEXUS",SV_RING_RES_NEXUS);
- tolua_constant(tolua_S,NULL,"SV_RING_RES_SOUND",SV_RING_RES_SOUND);
- tolua_constant(tolua_S,NULL,"SV_RING_RES_CONFUSION",SV_RING_RES_CONFUSION);
- tolua_constant(tolua_S,NULL,"SV_RING_RES_SHARDS",SV_RING_RES_SHARDS);
- tolua_constant(tolua_S,NULL,"SV_RING_RES_DISENCHANT",SV_RING_RES_DISENCHANT);
- tolua_constant(tolua_S,NULL,"SV_RING_RES_CHAOS",SV_RING_RES_CHAOS);
- tolua_constant(tolua_S,NULL,"SV_RING_RES_BLINDNESS",SV_RING_RES_BLINDNESS);
- tolua_constant(tolua_S,NULL,"SV_RING_LORDLY",SV_RING_LORDLY);
- tolua_constant(tolua_S,NULL,"SV_RING_ATTACKS",SV_RING_ATTACKS);
- tolua_constant(tolua_S,NULL,"SV_STAFF_DARKNESS",SV_STAFF_DARKNESS);
- tolua_constant(tolua_S,NULL,"SV_STAFF_SLOWNESS",SV_STAFF_SLOWNESS);
- tolua_constant(tolua_S,NULL,"SV_STAFF_HASTE_MONSTERS",SV_STAFF_HASTE_MONSTERS);
- tolua_constant(tolua_S,NULL,"SV_STAFF_SUMMONING",SV_STAFF_SUMMONING);
- tolua_constant(tolua_S,NULL,"SV_STAFF_TELEPORTATION",SV_STAFF_TELEPORTATION);
- tolua_constant(tolua_S,NULL,"SV_STAFF_IDENTIFY",SV_STAFF_IDENTIFY);
- tolua_constant(tolua_S,NULL,"SV_STAFF_REMOVE_CURSE",SV_STAFF_REMOVE_CURSE);
- tolua_constant(tolua_S,NULL,"SV_STAFF_STARLITE",SV_STAFF_STARLITE);
- tolua_constant(tolua_S,NULL,"SV_STAFF_LITE",SV_STAFF_LITE);
- tolua_constant(tolua_S,NULL,"SV_STAFF_MAPPING",SV_STAFF_MAPPING);
- tolua_constant(tolua_S,NULL,"SV_STAFF_DETECT_GOLD",SV_STAFF_DETECT_GOLD);
- tolua_constant(tolua_S,NULL,"SV_STAFF_DETECT_ITEM",SV_STAFF_DETECT_ITEM);
- tolua_constant(tolua_S,NULL,"SV_STAFF_DETECT_TRAP",SV_STAFF_DETECT_TRAP);
- tolua_constant(tolua_S,NULL,"SV_STAFF_DETECT_DOOR",SV_STAFF_DETECT_DOOR);
- tolua_constant(tolua_S,NULL,"SV_STAFF_DETECT_INVIS",SV_STAFF_DETECT_INVIS);
- tolua_constant(tolua_S,NULL,"SV_STAFF_DETECT_EVIL",SV_STAFF_DETECT_EVIL);
- tolua_constant(tolua_S,NULL,"SV_STAFF_CURE_LIGHT",SV_STAFF_CURE_LIGHT);
- tolua_constant(tolua_S,NULL,"SV_STAFF_CURING",SV_STAFF_CURING);
- tolua_constant(tolua_S,NULL,"SV_STAFF_HEALING",SV_STAFF_HEALING);
- tolua_constant(tolua_S,NULL,"SV_STAFF_THE_MAGI",SV_STAFF_THE_MAGI);
- tolua_constant(tolua_S,NULL,"SV_STAFF_SLEEP_MONSTERS",SV_STAFF_SLEEP_MONSTERS);
- tolua_constant(tolua_S,NULL,"SV_STAFF_SLOW_MONSTERS",SV_STAFF_SLOW_MONSTERS);
- tolua_constant(tolua_S,NULL,"SV_STAFF_SPEED",SV_STAFF_SPEED);
- tolua_constant(tolua_S,NULL,"SV_STAFF_PROBING",SV_STAFF_PROBING);
- tolua_constant(tolua_S,NULL,"SV_STAFF_DISPEL_EVIL",SV_STAFF_DISPEL_EVIL);
- tolua_constant(tolua_S,NULL,"SV_STAFF_POWER",SV_STAFF_POWER);
- tolua_constant(tolua_S,NULL,"SV_STAFF_HOLINESS",SV_STAFF_HOLINESS);
- tolua_constant(tolua_S,NULL,"SV_STAFF_GENOCIDE",SV_STAFF_GENOCIDE);
- tolua_constant(tolua_S,NULL,"SV_STAFF_EARTHQUAKES",SV_STAFF_EARTHQUAKES);
- tolua_constant(tolua_S,NULL,"SV_STAFF_DESTRUCTION",SV_STAFF_DESTRUCTION);
  tolua_constant(tolua_S,NULL,"SV_WAND_HEAL_MONSTER",SV_WAND_HEAL_MONSTER);
  tolua_constant(tolua_S,NULL,"SV_WAND_HASTE_MONSTER",SV_WAND_HASTE_MONSTER);
  tolua_constant(tolua_S,NULL,"SV_WAND_CLONE_MONSTER",SV_WAND_CLONE_MONSTER);
@@ -3917,279 +3462,140 @@ int tolua_object_open (lua_State* tolua_S)
  tolua_constant(tolua_S,NULL,"SV_WAND_FIRE_BALL",SV_WAND_FIRE_BALL);
  tolua_constant(tolua_S,NULL,"SV_WAND_COLD_BALL",SV_WAND_COLD_BALL);
  tolua_constant(tolua_S,NULL,"SV_WAND_WONDER",SV_WAND_WONDER);
- tolua_constant(tolua_S,NULL,"SV_WAND_ANNIHILATION",SV_WAND_ANNIHILATION);
- tolua_constant(tolua_S,NULL,"SV_WAND_DRAGON_FIRE",SV_WAND_DRAGON_FIRE);
- tolua_constant(tolua_S,NULL,"SV_WAND_DRAGON_COLD",SV_WAND_DRAGON_COLD);
- tolua_constant(tolua_S,NULL,"SV_WAND_DRAGON_BREATH",SV_WAND_DRAGON_BREATH);
- tolua_constant(tolua_S,NULL,"SV_WAND_ROCKETS",SV_WAND_ROCKETS);
- tolua_constant(tolua_S,NULL,"SV_ROD_DETECT_TRAP",SV_ROD_DETECT_TRAP);
- tolua_constant(tolua_S,NULL,"SV_ROD_DETECT_DOOR",SV_ROD_DETECT_DOOR);
- tolua_constant(tolua_S,NULL,"SV_ROD_IDENTIFY",SV_ROD_IDENTIFY);
- tolua_constant(tolua_S,NULL,"SV_ROD_RECALL",SV_ROD_RECALL);
- tolua_constant(tolua_S,NULL,"SV_ROD_ILLUMINATION",SV_ROD_ILLUMINATION);
- tolua_constant(tolua_S,NULL,"SV_ROD_MAPPING",SV_ROD_MAPPING);
- tolua_constant(tolua_S,NULL,"SV_ROD_DETECTION",SV_ROD_DETECTION);
- tolua_constant(tolua_S,NULL,"SV_ROD_PROBING",SV_ROD_PROBING);
- tolua_constant(tolua_S,NULL,"SV_ROD_CURING",SV_ROD_CURING);
- tolua_constant(tolua_S,NULL,"SV_ROD_HEALING",SV_ROD_HEALING);
- tolua_constant(tolua_S,NULL,"SV_ROD_RESTORATION",SV_ROD_RESTORATION);
- tolua_constant(tolua_S,NULL,"SV_ROD_SPEED",SV_ROD_SPEED);
- tolua_constant(tolua_S,NULL,"SV_ROD_PESTICIDE",SV_ROD_PESTICIDE);
- tolua_constant(tolua_S,NULL,"SV_ROD_TELEPORT_AWAY",SV_ROD_TELEPORT_AWAY);
- tolua_constant(tolua_S,NULL,"SV_ROD_DISARMING",SV_ROD_DISARMING);
- tolua_constant(tolua_S,NULL,"SV_ROD_LITE",SV_ROD_LITE);
- tolua_constant(tolua_S,NULL,"SV_ROD_SLEEP_MONSTER",SV_ROD_SLEEP_MONSTER);
- tolua_constant(tolua_S,NULL,"SV_ROD_SLOW_MONSTER",SV_ROD_SLOW_MONSTER);
- tolua_constant(tolua_S,NULL,"SV_ROD_DRAIN_LIFE",SV_ROD_DRAIN_LIFE);
- tolua_constant(tolua_S,NULL,"SV_ROD_POLYMORPH",SV_ROD_POLYMORPH);
- tolua_constant(tolua_S,NULL,"SV_ROD_ACID_BOLT",SV_ROD_ACID_BOLT);
- tolua_constant(tolua_S,NULL,"SV_ROD_ELEC_BOLT",SV_ROD_ELEC_BOLT);
- tolua_constant(tolua_S,NULL,"SV_ROD_FIRE_BOLT",SV_ROD_FIRE_BOLT);
- tolua_constant(tolua_S,NULL,"SV_ROD_COLD_BOLT",SV_ROD_COLD_BOLT);
- tolua_constant(tolua_S,NULL,"SV_ROD_ACID_BALL",SV_ROD_ACID_BALL);
- tolua_constant(tolua_S,NULL,"SV_ROD_ELEC_BALL",SV_ROD_ELEC_BALL);
- tolua_constant(tolua_S,NULL,"SV_ROD_FIRE_BALL",SV_ROD_FIRE_BALL);
- tolua_constant(tolua_S,NULL,"SV_ROD_COLD_BALL",SV_ROD_COLD_BALL);
- tolua_constant(tolua_S,NULL,"SV_ROD_HAVOC",SV_ROD_HAVOC);
- tolua_constant(tolua_S,NULL,"SV_SCROLL_DARKNESS",SV_SCROLL_DARKNESS);
- tolua_constant(tolua_S,NULL,"SV_SCROLL_AGGRAVATE_MONSTER",SV_SCROLL_AGGRAVATE_MONSTER);
- tolua_constant(tolua_S,NULL,"SV_SCROLL_CURSE_ARMOR",SV_SCROLL_CURSE_ARMOR);
- tolua_constant(tolua_S,NULL,"SV_SCROLL_CURSE_WEAPON",SV_SCROLL_CURSE_WEAPON);
- tolua_constant(tolua_S,NULL,"SV_SCROLL_SUMMON_MONSTER",SV_SCROLL_SUMMON_MONSTER);
- tolua_constant(tolua_S,NULL,"SV_SCROLL_SUMMON_UNDEAD",SV_SCROLL_SUMMON_UNDEAD);
- tolua_constant(tolua_S,NULL,"SV_SCROLL_TRAP_CREATION",SV_SCROLL_TRAP_CREATION);
- tolua_constant(tolua_S,NULL,"SV_SCROLL_PHASE_DOOR",SV_SCROLL_PHASE_DOOR);
- tolua_constant(tolua_S,NULL,"SV_SCROLL_TELEPORT",SV_SCROLL_TELEPORT);
- tolua_constant(tolua_S,NULL,"SV_SCROLL_TELEPORT_LEVEL",SV_SCROLL_TELEPORT_LEVEL);
- tolua_constant(tolua_S,NULL,"SV_SCROLL_WORD_OF_RECALL",SV_SCROLL_WORD_OF_RECALL);
- tolua_constant(tolua_S,NULL,"SV_SCROLL_IDENTIFY",SV_SCROLL_IDENTIFY);
- tolua_constant(tolua_S,NULL,"SV_SCROLL_STAR_IDENTIFY",SV_SCROLL_STAR_IDENTIFY);
- tolua_constant(tolua_S,NULL,"SV_SCROLL_REMOVE_CURSE",SV_SCROLL_REMOVE_CURSE);
- tolua_constant(tolua_S,NULL,"SV_SCROLL_STAR_REMOVE_CURSE",SV_SCROLL_STAR_REMOVE_CURSE);
- tolua_constant(tolua_S,NULL,"SV_SCROLL_ENCHANT_ARMOR",SV_SCROLL_ENCHANT_ARMOR);
- tolua_constant(tolua_S,NULL,"SV_SCROLL_ENCHANT_WEAPON_TO_HIT",SV_SCROLL_ENCHANT_WEAPON_TO_HIT);
- tolua_constant(tolua_S,NULL,"SV_SCROLL_ENCHANT_WEAPON_TO_DAM",SV_SCROLL_ENCHANT_WEAPON_TO_DAM);
- tolua_constant(tolua_S,NULL,"SV_SCROLL_STAR_ENCHANT_ARMOR",SV_SCROLL_STAR_ENCHANT_ARMOR);
- tolua_constant(tolua_S,NULL,"SV_SCROLL_STAR_ENCHANT_WEAPON",SV_SCROLL_STAR_ENCHANT_WEAPON);
- tolua_constant(tolua_S,NULL,"SV_SCROLL_RECHARGING",SV_SCROLL_RECHARGING);
- tolua_constant(tolua_S,NULL,"SV_SCROLL_MUNDANITY",SV_SCROLL_MUNDANITY);
- tolua_constant(tolua_S,NULL,"SV_SCROLL_LIGHT",SV_SCROLL_LIGHT);
- tolua_constant(tolua_S,NULL,"SV_SCROLL_MAPPING",SV_SCROLL_MAPPING);
- tolua_constant(tolua_S,NULL,"SV_SCROLL_DETECT_GOLD",SV_SCROLL_DETECT_GOLD);
- tolua_constant(tolua_S,NULL,"SV_SCROLL_DETECT_ITEM",SV_SCROLL_DETECT_ITEM);
- tolua_constant(tolua_S,NULL,"SV_SCROLL_DETECT_TRAP",SV_SCROLL_DETECT_TRAP);
- tolua_constant(tolua_S,NULL,"SV_SCROLL_DETECT_DOOR",SV_SCROLL_DETECT_DOOR);
- tolua_constant(tolua_S,NULL,"SV_SCROLL_DETECT_INVIS",SV_SCROLL_DETECT_INVIS);
- tolua_constant(tolua_S,NULL,"SV_SCROLL_SATISFY_HUNGER",SV_SCROLL_SATISFY_HUNGER);
- tolua_constant(tolua_S,NULL,"SV_SCROLL_BLESSING",SV_SCROLL_BLESSING);
- tolua_constant(tolua_S,NULL,"SV_SCROLL_HOLY_CHANT",SV_SCROLL_HOLY_CHANT);
- tolua_constant(tolua_S,NULL,"SV_SCROLL_HOLY_PRAYER",SV_SCROLL_HOLY_PRAYER);
- tolua_constant(tolua_S,NULL,"SV_SCROLL_MONSTER_CONFUSION",SV_SCROLL_MONSTER_CONFUSION);
- tolua_constant(tolua_S,NULL,"SV_SCROLL_PROTECTION_FROM_EVIL",SV_SCROLL_PROTECTION_FROM_EVIL);
- tolua_constant(tolua_S,NULL,"SV_SCROLL_RUNE_OF_PROTECTION",SV_SCROLL_RUNE_OF_PROTECTION);
- tolua_constant(tolua_S,NULL,"SV_SCROLL_TRAP_DOOR_DESTRUCTION",SV_SCROLL_TRAP_DOOR_DESTRUCTION);
- tolua_constant(tolua_S,NULL,"SV_SCROLL_STAR_DESTRUCTION",SV_SCROLL_STAR_DESTRUCTION);
- tolua_constant(tolua_S,NULL,"SV_SCROLL_DISPEL_UNDEAD",SV_SCROLL_DISPEL_UNDEAD);
- tolua_constant(tolua_S,NULL,"SV_SCROLL_GENOCIDE",SV_SCROLL_GENOCIDE);
- tolua_constant(tolua_S,NULL,"SV_SCROLL_MASS_GENOCIDE",SV_SCROLL_MASS_GENOCIDE);
- tolua_constant(tolua_S,NULL,"SV_SCROLL_ACQUIREMENT",SV_SCROLL_ACQUIREMENT);
- tolua_constant(tolua_S,NULL,"SV_SCROLL_STAR_ACQUIREMENT",SV_SCROLL_STAR_ACQUIREMENT);
- tolua_constant(tolua_S,NULL,"SV_SCROLL_FIRE",SV_SCROLL_FIRE);
- tolua_constant(tolua_S,NULL,"SV_SCROLL_ICE",SV_SCROLL_ICE);
- tolua_constant(tolua_S,NULL,"SV_SCROLL_CHAOS",SV_SCROLL_CHAOS);
- tolua_constant(tolua_S,NULL,"SV_SCROLL_RUMOR",SV_SCROLL_RUMOR);
- tolua_constant(tolua_S,NULL,"SV_SCROLL_ARTIFACT",SV_SCROLL_ARTIFACT);
- tolua_constant(tolua_S,NULL,"SV_POTION_WATER",SV_POTION_WATER);
- tolua_constant(tolua_S,NULL,"SV_POTION_APPLE_JUICE",SV_POTION_APPLE_JUICE);
- tolua_constant(tolua_S,NULL,"SV_POTION_SLIME_MOLD",SV_POTION_SLIME_MOLD);
- tolua_constant(tolua_S,NULL,"SV_POTION_SLOWNESS",SV_POTION_SLOWNESS);
- tolua_constant(tolua_S,NULL,"SV_POTION_SALT_WATER",SV_POTION_SALT_WATER);
- tolua_constant(tolua_S,NULL,"SV_POTION_POISON",SV_POTION_POISON);
- tolua_constant(tolua_S,NULL,"SV_POTION_BLINDNESS",SV_POTION_BLINDNESS);
- tolua_constant(tolua_S,NULL,"SV_POTION_CONFUSION",SV_POTION_CONFUSION);
- tolua_constant(tolua_S,NULL,"SV_POTION_SLEEP",SV_POTION_SLEEP);
- tolua_constant(tolua_S,NULL,"SV_POTION_LOSE_MEMORIES",SV_POTION_LOSE_MEMORIES);
- tolua_constant(tolua_S,NULL,"SV_POTION_RUINATION",SV_POTION_RUINATION);
- tolua_constant(tolua_S,NULL,"SV_POTION_DEC_STR",SV_POTION_DEC_STR);
- tolua_constant(tolua_S,NULL,"SV_POTION_DEC_INT",SV_POTION_DEC_INT);
- tolua_constant(tolua_S,NULL,"SV_POTION_DEC_WIS",SV_POTION_DEC_WIS);
- tolua_constant(tolua_S,NULL,"SV_POTION_DEC_DEX",SV_POTION_DEC_DEX);
- tolua_constant(tolua_S,NULL,"SV_POTION_DEC_CON",SV_POTION_DEC_CON);
- tolua_constant(tolua_S,NULL,"SV_POTION_DEC_CHR",SV_POTION_DEC_CHR);
- tolua_constant(tolua_S,NULL,"SV_POTION_DETONATIONS",SV_POTION_DETONATIONS);
- tolua_constant(tolua_S,NULL,"SV_POTION_DEATH",SV_POTION_DEATH);
- tolua_constant(tolua_S,NULL,"SV_POTION_INFRAVISION",SV_POTION_INFRAVISION);
- tolua_constant(tolua_S,NULL,"SV_POTION_DETECT_INVIS",SV_POTION_DETECT_INVIS);
- tolua_constant(tolua_S,NULL,"SV_POTION_SLOW_POISON",SV_POTION_SLOW_POISON);
- tolua_constant(tolua_S,NULL,"SV_POTION_CURE_POISON",SV_POTION_CURE_POISON);
- tolua_constant(tolua_S,NULL,"SV_POTION_BOLDNESS",SV_POTION_BOLDNESS);
- tolua_constant(tolua_S,NULL,"SV_POTION_SPEED",SV_POTION_SPEED);
- tolua_constant(tolua_S,NULL,"SV_POTION_RESIST_HEAT",SV_POTION_RESIST_HEAT);
- tolua_constant(tolua_S,NULL,"SV_POTION_RESIST_COLD",SV_POTION_RESIST_COLD);
- tolua_constant(tolua_S,NULL,"SV_POTION_HEROISM",SV_POTION_HEROISM);
- tolua_constant(tolua_S,NULL,"SV_POTION_BERSERK_STRENGTH",SV_POTION_BERSERK_STRENGTH);
- tolua_constant(tolua_S,NULL,"SV_POTION_CURE_LIGHT",SV_POTION_CURE_LIGHT);
- tolua_constant(tolua_S,NULL,"SV_POTION_CURE_SERIOUS",SV_POTION_CURE_SERIOUS);
- tolua_constant(tolua_S,NULL,"SV_POTION_CURE_CRITICAL",SV_POTION_CURE_CRITICAL);
- tolua_constant(tolua_S,NULL,"SV_POTION_HEALING",SV_POTION_HEALING);
- tolua_constant(tolua_S,NULL,"SV_POTION_STAR_HEALING",SV_POTION_STAR_HEALING);
- tolua_constant(tolua_S,NULL,"SV_POTION_LIFE",SV_POTION_LIFE);
- tolua_constant(tolua_S,NULL,"SV_POTION_RESTORE_MANA",SV_POTION_RESTORE_MANA);
- tolua_constant(tolua_S,NULL,"SV_POTION_RESTORE_EXP",SV_POTION_RESTORE_EXP);
- tolua_constant(tolua_S,NULL,"SV_POTION_RES_STR",SV_POTION_RES_STR);
- tolua_constant(tolua_S,NULL,"SV_POTION_RES_INT",SV_POTION_RES_INT);
- tolua_constant(tolua_S,NULL,"SV_POTION_RES_WIS",SV_POTION_RES_WIS);
- tolua_constant(tolua_S,NULL,"SV_POTION_RES_DEX",SV_POTION_RES_DEX);
- tolua_constant(tolua_S,NULL,"SV_POTION_RES_CON",SV_POTION_RES_CON);
- tolua_constant(tolua_S,NULL,"SV_POTION_RES_CHR",SV_POTION_RES_CHR);
- tolua_constant(tolua_S,NULL,"SV_POTION_INC_STR",SV_POTION_INC_STR);
- tolua_constant(tolua_S,NULL,"SV_POTION_INC_INT",SV_POTION_INC_INT);
- tolua_constant(tolua_S,NULL,"SV_POTION_INC_WIS",SV_POTION_INC_WIS);
- tolua_constant(tolua_S,NULL,"SV_POTION_INC_DEX",SV_POTION_INC_DEX);
- tolua_constant(tolua_S,NULL,"SV_POTION_INC_CON",SV_POTION_INC_CON);
- tolua_constant(tolua_S,NULL,"SV_POTION_INC_CHR",SV_POTION_INC_CHR);
- tolua_constant(tolua_S,NULL,"SV_POTION_AUGMENTATION",SV_POTION_AUGMENTATION);
- tolua_constant(tolua_S,NULL,"SV_POTION_ENLIGHTENMENT",SV_POTION_ENLIGHTENMENT);
- tolua_constant(tolua_S,NULL,"SV_POTION_STAR_ENLIGHTENMENT",SV_POTION_STAR_ENLIGHTENMENT);
- tolua_constant(tolua_S,NULL,"SV_POTION_SELF_KNOWLEDGE",SV_POTION_SELF_KNOWLEDGE);
- tolua_constant(tolua_S,NULL,"SV_POTION_EXPERIENCE",SV_POTION_EXPERIENCE);
- tolua_constant(tolua_S,NULL,"SV_POTION_RESISTANCE",SV_POTION_RESISTANCE);
- tolua_constant(tolua_S,NULL,"SV_POTION_CURING",SV_POTION_CURING);
- tolua_constant(tolua_S,NULL,"SV_POTION_INVULNERABILITY",SV_POTION_INVULNERABILITY);
- tolua_constant(tolua_S,NULL,"SV_POTION_NEW_LIFE",SV_POTION_NEW_LIFE);
- tolua_constant(tolua_S,NULL,"SV_FOOD_POISON",SV_FOOD_POISON);
- tolua_constant(tolua_S,NULL,"SV_FOOD_BLINDNESS",SV_FOOD_BLINDNESS);
- tolua_constant(tolua_S,NULL,"SV_FOOD_PARANOIA",SV_FOOD_PARANOIA);
- tolua_constant(tolua_S,NULL,"SV_FOOD_CONFUSION",SV_FOOD_CONFUSION);
- tolua_constant(tolua_S,NULL,"SV_FOOD_HALLUCINATION",SV_FOOD_HALLUCINATION);
- tolua_constant(tolua_S,NULL,"SV_FOOD_PARALYSIS",SV_FOOD_PARALYSIS);
- tolua_constant(tolua_S,NULL,"SV_FOOD_WEAKNESS",SV_FOOD_WEAKNESS);
- tolua_constant(tolua_S,NULL,"SV_FOOD_SICKNESS",SV_FOOD_SICKNESS);
- tolua_constant(tolua_S,NULL,"SV_FOOD_STUPIDITY",SV_FOOD_STUPIDITY);
- tolua_constant(tolua_S,NULL,"SV_FOOD_NAIVETY",SV_FOOD_NAIVETY);
- tolua_constant(tolua_S,NULL,"SV_FOOD_UNHEALTH",SV_FOOD_UNHEALTH);
- tolua_constant(tolua_S,NULL,"SV_FOOD_DISEASE",SV_FOOD_DISEASE);
- tolua_constant(tolua_S,NULL,"SV_FOOD_CURE_POISON",SV_FOOD_CURE_POISON);
- tolua_constant(tolua_S,NULL,"SV_FOOD_CURE_BLINDNESS",SV_FOOD_CURE_BLINDNESS);
- tolua_constant(tolua_S,NULL,"SV_FOOD_CURE_PARANOIA",SV_FOOD_CURE_PARANOIA);
- tolua_constant(tolua_S,NULL,"SV_FOOD_CURE_CONFUSION",SV_FOOD_CURE_CONFUSION);
- tolua_constant(tolua_S,NULL,"SV_FOOD_CURE_SERIOUS",SV_FOOD_CURE_SERIOUS);
- tolua_constant(tolua_S,NULL,"SV_FOOD_RESTORE_STR",SV_FOOD_RESTORE_STR);
- tolua_constant(tolua_S,NULL,"SV_FOOD_RESTORE_CON",SV_FOOD_RESTORE_CON);
- tolua_constant(tolua_S,NULL,"SV_FOOD_RESTORING",SV_FOOD_RESTORING);
- tolua_constant(tolua_S,NULL,"SV_FOOD_BISCUIT",SV_FOOD_BISCUIT);
- tolua_constant(tolua_S,NULL,"SV_FOOD_JERKY",SV_FOOD_JERKY);
- tolua_constant(tolua_S,NULL,"SV_FOOD_RATION",SV_FOOD_RATION);
- tolua_constant(tolua_S,NULL,"SV_FOOD_SLIME_MOLD",SV_FOOD_SLIME_MOLD);
- tolua_constant(tolua_S,NULL,"SV_FOOD_WAYBREAD",SV_FOOD_WAYBREAD);
- tolua_constant(tolua_S,NULL,"SV_FOOD_PINT_OF_ALE",SV_FOOD_PINT_OF_ALE);
- tolua_constant(tolua_S,NULL,"SV_FOOD_PINT_OF_WINE",SV_FOOD_PINT_OF_WINE);
- tolua_constant(tolua_S,NULL,"SV_FOOD_MIN_FOOD",SV_FOOD_MIN_FOOD);
- tolua_constant(tolua_S,NULL,"SV_ROD_MIN_DIRECTION",SV_ROD_MIN_DIRECTION);
- tolua_constant(tolua_S,NULL,"SV_CHEST_MIN_LARGE",SV_CHEST_MIN_LARGE);
- tolua_constant(tolua_S,NULL,"SV_BOOK_MIN_GOOD",SV_BOOK_MIN_GOOD);
  tolua_constant(tolua_S,NULL,"OBJ_GOLD_LIST",OBJ_GOLD_LIST);
  tolua_constant(tolua_S,NULL,"MAX_GOLD",MAX_GOLD);
  tolua_constant(tolua_S,NULL,"OC_NONE",OC_NONE);
  tolua_constant(tolua_S,NULL,"OC_NORMAL",OC_NORMAL);
  tolua_constant(tolua_S,NULL,"OC_FORCE_BAD",OC_FORCE_BAD);
  tolua_constant(tolua_S,NULL,"OC_FORCE_GOOD",OC_FORCE_GOOD);
- tolua_constant(tolua_S,NULL,"TR1_STR",TR1_STR);
- tolua_constant(tolua_S,NULL,"TR1_INT",TR1_INT);
- tolua_constant(tolua_S,NULL,"TR1_WIS",TR1_WIS);
- tolua_constant(tolua_S,NULL,"TR1_DEX",TR1_DEX);
- tolua_constant(tolua_S,NULL,"TR1_CON",TR1_CON);
- tolua_constant(tolua_S,NULL,"TR1_CHR",TR1_CHR);
+ tolua_constant(tolua_S,NULL,"TR0_STR",TR0_STR);
+ tolua_constant(tolua_S,NULL,"TR0_INT",TR0_INT);
+ tolua_constant(tolua_S,NULL,"TR0_WIS",TR0_WIS);
+ tolua_constant(tolua_S,NULL,"TR0_DEX",TR0_DEX);
+ tolua_constant(tolua_S,NULL,"TR0_CON",TR0_CON);
+ tolua_constant(tolua_S,NULL,"TR0_CHR",TR0_CHR);
+ tolua_constant(tolua_S,NULL,"TR0_XXX1",TR0_XXX1);
+ tolua_constant(tolua_S,NULL,"TR0_SP",TR0_SP);
+ tolua_constant(tolua_S,NULL,"TR0_STEALTH",TR0_STEALTH);
+ tolua_constant(tolua_S,NULL,"TR0_SEARCH",TR0_SEARCH);
+ tolua_constant(tolua_S,NULL,"TR0_INFRA",TR0_INFRA);
+ tolua_constant(tolua_S,NULL,"TR0_TUNNEL",TR0_TUNNEL);
+ tolua_constant(tolua_S,NULL,"TR0_SPEED",TR0_SPEED);
+ tolua_constant(tolua_S,NULL,"TR0_BLOWS",TR0_BLOWS);
+ tolua_constant(tolua_S,NULL,"TR0_CHAOTIC",TR0_CHAOTIC);
+ tolua_constant(tolua_S,NULL,"TR0_VAMPIRIC",TR0_VAMPIRIC);
+ tolua_constant(tolua_S,NULL,"TR0_SLAY_ANIMAL",TR0_SLAY_ANIMAL);
+ tolua_constant(tolua_S,NULL,"TR0_SLAY_EVIL",TR0_SLAY_EVIL);
+ tolua_constant(tolua_S,NULL,"TR0_SLAY_UNDEAD",TR0_SLAY_UNDEAD);
+ tolua_constant(tolua_S,NULL,"TR0_SLAY_DEMON",TR0_SLAY_DEMON);
+ tolua_constant(tolua_S,NULL,"TR0_SLAY_ORC",TR0_SLAY_ORC);
+ tolua_constant(tolua_S,NULL,"TR0_SLAY_TROLL",TR0_SLAY_TROLL);
+ tolua_constant(tolua_S,NULL,"TR0_SLAY_GIANT",TR0_SLAY_GIANT);
+ tolua_constant(tolua_S,NULL,"TR0_SLAY_DRAGON",TR0_SLAY_DRAGON);
+ tolua_constant(tolua_S,NULL,"TR0_KILL_DRAGON",TR0_KILL_DRAGON);
+ tolua_constant(tolua_S,NULL,"TR0_VORPAL",TR0_VORPAL);
+ tolua_constant(tolua_S,NULL,"TR0_IMPACT",TR0_IMPACT);
+ tolua_constant(tolua_S,NULL,"TR0_BRAND_POIS",TR0_BRAND_POIS);
+ tolua_constant(tolua_S,NULL,"TR0_BRAND_ACID",TR0_BRAND_ACID);
+ tolua_constant(tolua_S,NULL,"TR0_BRAND_ELEC",TR0_BRAND_ELEC);
+ tolua_constant(tolua_S,NULL,"TR0_BRAND_FIRE",TR0_BRAND_FIRE);
+ tolua_constant(tolua_S,NULL,"TR0_BRAND_COLD",TR0_BRAND_COLD);
+ tolua_constant(tolua_S,NULL,"TR1_SUST_STR",TR1_SUST_STR);
+ tolua_constant(tolua_S,NULL,"TR1_SUST_INT",TR1_SUST_INT);
+ tolua_constant(tolua_S,NULL,"TR1_SUST_WIS",TR1_SUST_WIS);
+ tolua_constant(tolua_S,NULL,"TR1_SUST_DEX",TR1_SUST_DEX);
+ tolua_constant(tolua_S,NULL,"TR1_SUST_CON",TR1_SUST_CON);
+ tolua_constant(tolua_S,NULL,"TR1_SUST_CHR",TR1_SUST_CHR);
  tolua_constant(tolua_S,NULL,"TR1_XXX1",TR1_XXX1);
- tolua_constant(tolua_S,NULL,"TR1_XXX2",TR1_XXX2);
- tolua_constant(tolua_S,NULL,"TR1_STEALTH",TR1_STEALTH);
- tolua_constant(tolua_S,NULL,"TR1_SEARCH",TR1_SEARCH);
- tolua_constant(tolua_S,NULL,"TR1_INFRA",TR1_INFRA);
- tolua_constant(tolua_S,NULL,"TR1_TUNNEL",TR1_TUNNEL);
- tolua_constant(tolua_S,NULL,"TR1_SPEED",TR1_SPEED);
- tolua_constant(tolua_S,NULL,"TR1_BLOWS",TR1_BLOWS);
- tolua_constant(tolua_S,NULL,"TR1_CHAOTIC",TR1_CHAOTIC);
- tolua_constant(tolua_S,NULL,"TR1_VAMPIRIC",TR1_VAMPIRIC);
- tolua_constant(tolua_S,NULL,"TR1_SLAY_ANIMAL",TR1_SLAY_ANIMAL);
- tolua_constant(tolua_S,NULL,"TR1_SLAY_EVIL",TR1_SLAY_EVIL);
- tolua_constant(tolua_S,NULL,"TR1_SLAY_UNDEAD",TR1_SLAY_UNDEAD);
- tolua_constant(tolua_S,NULL,"TR1_SLAY_DEMON",TR1_SLAY_DEMON);
- tolua_constant(tolua_S,NULL,"TR1_SLAY_ORC",TR1_SLAY_ORC);
- tolua_constant(tolua_S,NULL,"TR1_SLAY_TROLL",TR1_SLAY_TROLL);
- tolua_constant(tolua_S,NULL,"TR1_SLAY_GIANT",TR1_SLAY_GIANT);
- tolua_constant(tolua_S,NULL,"TR1_SLAY_DRAGON",TR1_SLAY_DRAGON);
- tolua_constant(tolua_S,NULL,"TR1_KILL_DRAGON",TR1_KILL_DRAGON);
- tolua_constant(tolua_S,NULL,"TR1_VORPAL",TR1_VORPAL);
- tolua_constant(tolua_S,NULL,"TR1_IMPACT",TR1_IMPACT);
- tolua_constant(tolua_S,NULL,"TR1_BRAND_POIS",TR1_BRAND_POIS);
- tolua_constant(tolua_S,NULL,"TR1_BRAND_ACID",TR1_BRAND_ACID);
- tolua_constant(tolua_S,NULL,"TR1_BRAND_ELEC",TR1_BRAND_ELEC);
- tolua_constant(tolua_S,NULL,"TR1_BRAND_FIRE",TR1_BRAND_FIRE);
- tolua_constant(tolua_S,NULL,"TR1_BRAND_COLD",TR1_BRAND_COLD);
- tolua_constant(tolua_S,NULL,"TR2_SUST_STR",TR2_SUST_STR);
- tolua_constant(tolua_S,NULL,"TR2_SUST_INT",TR2_SUST_INT);
- tolua_constant(tolua_S,NULL,"TR2_SUST_WIS",TR2_SUST_WIS);
- tolua_constant(tolua_S,NULL,"TR2_SUST_DEX",TR2_SUST_DEX);
- tolua_constant(tolua_S,NULL,"TR2_SUST_CON",TR2_SUST_CON);
- tolua_constant(tolua_S,NULL,"TR2_SUST_CHR",TR2_SUST_CHR);
- tolua_constant(tolua_S,NULL,"TR2_XXX1",TR2_XXX1);
- tolua_constant(tolua_S,NULL,"TR2_XXX2",TR2_XXX2);
- tolua_constant(tolua_S,NULL,"TR2_IM_ACID",TR2_IM_ACID);
- tolua_constant(tolua_S,NULL,"TR2_IM_ELEC",TR2_IM_ELEC);
- tolua_constant(tolua_S,NULL,"TR2_IM_FIRE",TR2_IM_FIRE);
- tolua_constant(tolua_S,NULL,"TR2_IM_COLD",TR2_IM_COLD);
- tolua_constant(tolua_S,NULL,"TR2_THROW",TR2_THROW);
- tolua_constant(tolua_S,NULL,"TR2_REFLECT",TR2_REFLECT);
- tolua_constant(tolua_S,NULL,"TR2_FREE_ACT",TR2_FREE_ACT);
- tolua_constant(tolua_S,NULL,"TR2_HOLD_LIFE",TR2_HOLD_LIFE);
- tolua_constant(tolua_S,NULL,"TR2_RES_ACID",TR2_RES_ACID);
- tolua_constant(tolua_S,NULL,"TR2_RES_ELEC",TR2_RES_ELEC);
- tolua_constant(tolua_S,NULL,"TR2_RES_FIRE",TR2_RES_FIRE);
- tolua_constant(tolua_S,NULL,"TR2_RES_COLD",TR2_RES_COLD);
- tolua_constant(tolua_S,NULL,"TR2_RES_POIS",TR2_RES_POIS);
- tolua_constant(tolua_S,NULL,"TR2_RES_FEAR",TR2_RES_FEAR);
- tolua_constant(tolua_S,NULL,"TR2_RES_LITE",TR2_RES_LITE);
- tolua_constant(tolua_S,NULL,"TR2_RES_DARK",TR2_RES_DARK);
- tolua_constant(tolua_S,NULL,"TR2_RES_BLIND",TR2_RES_BLIND);
- tolua_constant(tolua_S,NULL,"TR2_RES_CONF",TR2_RES_CONF);
- tolua_constant(tolua_S,NULL,"TR2_RES_SOUND",TR2_RES_SOUND);
- tolua_constant(tolua_S,NULL,"TR2_RES_SHARDS",TR2_RES_SHARDS);
- tolua_constant(tolua_S,NULL,"TR2_RES_NETHER",TR2_RES_NETHER);
- tolua_constant(tolua_S,NULL,"TR2_RES_NEXUS",TR2_RES_NEXUS);
- tolua_constant(tolua_S,NULL,"TR2_RES_CHAOS",TR2_RES_CHAOS);
- tolua_constant(tolua_S,NULL,"TR2_RES_DISEN",TR2_RES_DISEN);
- tolua_constant(tolua_S,NULL,"TR3_SH_FIRE",TR3_SH_FIRE);
- tolua_constant(tolua_S,NULL,"TR3_SH_ELEC",TR3_SH_ELEC);
- tolua_constant(tolua_S,NULL,"TR3_QUESTITEM",TR3_QUESTITEM);
+ tolua_constant(tolua_S,NULL,"TR1_IM_POIS",TR1_IM_POIS);
+ tolua_constant(tolua_S,NULL,"TR1_IM_ACID",TR1_IM_ACID);
+ tolua_constant(tolua_S,NULL,"TR1_IM_ELEC",TR1_IM_ELEC);
+ tolua_constant(tolua_S,NULL,"TR1_IM_FIRE",TR1_IM_FIRE);
+ tolua_constant(tolua_S,NULL,"TR1_IM_COLD",TR1_IM_COLD);
+ tolua_constant(tolua_S,NULL,"TR1_THROW",TR1_THROW);
+ tolua_constant(tolua_S,NULL,"TR1_REFLECT",TR1_REFLECT);
+ tolua_constant(tolua_S,NULL,"TR1_FREE_ACT",TR1_FREE_ACT);
+ tolua_constant(tolua_S,NULL,"TR1_HOLD_LIFE",TR1_HOLD_LIFE);
+ tolua_constant(tolua_S,NULL,"TR1_RES_ACID",TR1_RES_ACID);
+ tolua_constant(tolua_S,NULL,"TR1_RES_ELEC",TR1_RES_ELEC);
+ tolua_constant(tolua_S,NULL,"TR1_RES_FIRE",TR1_RES_FIRE);
+ tolua_constant(tolua_S,NULL,"TR1_RES_COLD",TR1_RES_COLD);
+ tolua_constant(tolua_S,NULL,"TR1_RES_POIS",TR1_RES_POIS);
+ tolua_constant(tolua_S,NULL,"TR1_RES_FEAR",TR1_RES_FEAR);
+ tolua_constant(tolua_S,NULL,"TR1_RES_LITE",TR1_RES_LITE);
+ tolua_constant(tolua_S,NULL,"TR1_RES_DARK",TR1_RES_DARK);
+ tolua_constant(tolua_S,NULL,"TR1_RES_BLIND",TR1_RES_BLIND);
+ tolua_constant(tolua_S,NULL,"TR1_RES_CONF",TR1_RES_CONF);
+ tolua_constant(tolua_S,NULL,"TR1_RES_SOUND",TR1_RES_SOUND);
+ tolua_constant(tolua_S,NULL,"TR1_RES_SHARDS",TR1_RES_SHARDS);
+ tolua_constant(tolua_S,NULL,"TR1_RES_NETHER",TR1_RES_NETHER);
+ tolua_constant(tolua_S,NULL,"TR1_RES_NEXUS",TR1_RES_NEXUS);
+ tolua_constant(tolua_S,NULL,"TR1_RES_CHAOS",TR1_RES_CHAOS);
+ tolua_constant(tolua_S,NULL,"TR1_RES_DISEN",TR1_RES_DISEN);
+ tolua_constant(tolua_S,NULL,"TR2_SH_FIRE",TR2_SH_FIRE);
+ tolua_constant(tolua_S,NULL,"TR2_SH_ELEC",TR2_SH_ELEC);
+ tolua_constant(tolua_S,NULL,"TR2_QUESTITEM",TR2_QUESTITEM);
+ tolua_constant(tolua_S,NULL,"TR2_XXX4",TR2_XXX4);
+ tolua_constant(tolua_S,NULL,"TR2_NO_TELE",TR2_NO_TELE);
+ tolua_constant(tolua_S,NULL,"TR2_NO_MAGIC",TR2_NO_MAGIC);
+ tolua_constant(tolua_S,NULL,"TR2_XXX7",TR2_XXX7);
+ tolua_constant(tolua_S,NULL,"TR2_TY_CURSE",TR2_TY_CURSE);
+ tolua_constant(tolua_S,NULL,"TR2_EASY_KNOW",TR2_EASY_KNOW);
+ tolua_constant(tolua_S,NULL,"TR2_HIDE_TYPE",TR2_HIDE_TYPE);
+ tolua_constant(tolua_S,NULL,"TR2_SHOW_MODS",TR2_SHOW_MODS);
+ tolua_constant(tolua_S,NULL,"TR2_INSTA_ART",TR2_INSTA_ART);
+ tolua_constant(tolua_S,NULL,"TR2_FEATHER",TR2_FEATHER);
+ tolua_constant(tolua_S,NULL,"TR2_LITE",TR2_LITE);
+ tolua_constant(tolua_S,NULL,"TR2_SEE_INVIS",TR2_SEE_INVIS);
+ tolua_constant(tolua_S,NULL,"TR2_TELEPATHY",TR2_TELEPATHY);
+ tolua_constant(tolua_S,NULL,"TR2_SLOW_DIGEST",TR2_SLOW_DIGEST);
+ tolua_constant(tolua_S,NULL,"TR2_REGEN",TR2_REGEN);
+ tolua_constant(tolua_S,NULL,"TR2_XTRA_MIGHT",TR2_XTRA_MIGHT);
+ tolua_constant(tolua_S,NULL,"TR2_XTRA_SHOTS",TR2_XTRA_SHOTS);
+ tolua_constant(tolua_S,NULL,"TR2_IGNORE_ACID",TR2_IGNORE_ACID);
+ tolua_constant(tolua_S,NULL,"TR2_IGNORE_ELEC",TR2_IGNORE_ELEC);
+ tolua_constant(tolua_S,NULL,"TR2_IGNORE_FIRE",TR2_IGNORE_FIRE);
+ tolua_constant(tolua_S,NULL,"TR2_IGNORE_COLD",TR2_IGNORE_COLD);
+ tolua_constant(tolua_S,NULL,"TR2_ACTIVATE",TR2_ACTIVATE);
+ tolua_constant(tolua_S,NULL,"TR2_DRAIN_EXP",TR2_DRAIN_EXP);
+ tolua_constant(tolua_S,NULL,"TR2_TELEPORT",TR2_TELEPORT);
+ tolua_constant(tolua_S,NULL,"TR2_AGGRAVATE",TR2_AGGRAVATE);
+ tolua_constant(tolua_S,NULL,"TR2_BLESSED",TR2_BLESSED);
+ tolua_constant(tolua_S,NULL,"TR2_CURSED",TR2_CURSED);
+ tolua_constant(tolua_S,NULL,"TR2_HEAVY_CURSE",TR2_HEAVY_CURSE);
+ tolua_constant(tolua_S,NULL,"TR2_PERMA_CURSE",TR2_PERMA_CURSE);
+ tolua_constant(tolua_S,NULL,"TR3_LUCK_10",TR3_LUCK_10);
+ tolua_constant(tolua_S,NULL,"TR3_XXX2",TR3_XXX2);
+ tolua_constant(tolua_S,NULL,"TR3_XXX3",TR3_XXX3);
  tolua_constant(tolua_S,NULL,"TR3_XXX4",TR3_XXX4);
- tolua_constant(tolua_S,NULL,"TR3_NO_TELE",TR3_NO_TELE);
- tolua_constant(tolua_S,NULL,"TR3_NO_MAGIC",TR3_NO_MAGIC);
+ tolua_constant(tolua_S,NULL,"TR3_XXX5",TR3_XXX5);
+ tolua_constant(tolua_S,NULL,"TR3_XXX6",TR3_XXX6);
  tolua_constant(tolua_S,NULL,"TR3_XXX7",TR3_XXX7);
- tolua_constant(tolua_S,NULL,"TR3_TY_CURSE",TR3_TY_CURSE);
- tolua_constant(tolua_S,NULL,"TR3_EASY_KNOW",TR3_EASY_KNOW);
- tolua_constant(tolua_S,NULL,"TR3_HIDE_TYPE",TR3_HIDE_TYPE);
- tolua_constant(tolua_S,NULL,"TR3_SHOW_MODS",TR3_SHOW_MODS);
- tolua_constant(tolua_S,NULL,"TR3_INSTA_ART",TR3_INSTA_ART);
- tolua_constant(tolua_S,NULL,"TR3_FEATHER",TR3_FEATHER);
- tolua_constant(tolua_S,NULL,"TR3_LITE",TR3_LITE);
- tolua_constant(tolua_S,NULL,"TR3_SEE_INVIS",TR3_SEE_INVIS);
- tolua_constant(tolua_S,NULL,"TR3_TELEPATHY",TR3_TELEPATHY);
- tolua_constant(tolua_S,NULL,"TR3_SLOW_DIGEST",TR3_SLOW_DIGEST);
- tolua_constant(tolua_S,NULL,"TR3_REGEN",TR3_REGEN);
- tolua_constant(tolua_S,NULL,"TR3_XTRA_MIGHT",TR3_XTRA_MIGHT);
- tolua_constant(tolua_S,NULL,"TR3_XTRA_SHOTS",TR3_XTRA_SHOTS);
- tolua_constant(tolua_S,NULL,"TR3_IGNORE_ACID",TR3_IGNORE_ACID);
- tolua_constant(tolua_S,NULL,"TR3_IGNORE_ELEC",TR3_IGNORE_ELEC);
- tolua_constant(tolua_S,NULL,"TR3_IGNORE_FIRE",TR3_IGNORE_FIRE);
- tolua_constant(tolua_S,NULL,"TR3_IGNORE_COLD",TR3_IGNORE_COLD);
- tolua_constant(tolua_S,NULL,"TR3_ACTIVATE",TR3_ACTIVATE);
- tolua_constant(tolua_S,NULL,"TR3_DRAIN_EXP",TR3_DRAIN_EXP);
- tolua_constant(tolua_S,NULL,"TR3_TELEPORT",TR3_TELEPORT);
- tolua_constant(tolua_S,NULL,"TR3_AGGRAVATE",TR3_AGGRAVATE);
- tolua_constant(tolua_S,NULL,"TR3_BLESSED",TR3_BLESSED);
- tolua_constant(tolua_S,NULL,"TR3_CURSED",TR3_CURSED);
- tolua_constant(tolua_S,NULL,"TR3_HEAVY_CURSE",TR3_HEAVY_CURSE);
- tolua_constant(tolua_S,NULL,"TR3_PERMA_CURSE",TR3_PERMA_CURSE);
+ tolua_constant(tolua_S,NULL,"TR3_XXX8",TR3_XXX8);
+ tolua_constant(tolua_S,NULL,"TR3_IM_LITE",TR3_IM_LITE);
+ tolua_constant(tolua_S,NULL,"TR3_IM_DARK",TR3_IM_DARK);
+ tolua_constant(tolua_S,NULL,"TR3_SH_ACID",TR3_SH_ACID);
+ tolua_constant(tolua_S,NULL,"TR3_SH_COLD",TR3_SH_COLD);
+ tolua_constant(tolua_S,NULL,"TR3_MUTATE",TR3_MUTATE);
+ tolua_constant(tolua_S,NULL,"TR3_PATRON",TR3_PATRON);
+ tolua_constant(tolua_S,NULL,"TR3_STRANGE_LUCK",TR3_STRANGE_LUCK);
+ tolua_constant(tolua_S,NULL,"TR3_PASS_WALL",TR3_PASS_WALL);
+ tolua_constant(tolua_S,NULL,"TR3_GHOUL_TOUCH",TR3_GHOUL_TOUCH);
+ tolua_constant(tolua_S,NULL,"TR3_PSI_CRIT",TR3_PSI_CRIT);
+ tolua_constant(tolua_S,NULL,"TR3_RETURN",TR3_RETURN);
+ tolua_constant(tolua_S,NULL,"TR3_EXPLODE",TR3_EXPLODE);
+ tolua_constant(tolua_S,NULL,"TR3_HURT_ACID",TR3_HURT_ACID);
+ tolua_constant(tolua_S,NULL,"TR3_HURT_ELEC",TR3_HURT_ELEC);
+ tolua_constant(tolua_S,NULL,"TR3_HURT_FIRE",TR3_HURT_FIRE);
+ tolua_constant(tolua_S,NULL,"TR3_HURT_COLD",TR3_HURT_COLD);
+ tolua_constant(tolua_S,NULL,"TR3_HURT_LITE",TR3_HURT_LITE);
+ tolua_constant(tolua_S,NULL,"TR3_HURT_DARK",TR3_HURT_DARK);
+ tolua_constant(tolua_S,NULL,"TR3_XXX27",TR3_XXX27);
+ tolua_constant(tolua_S,NULL,"TR3_XXX28",TR3_XXX28);
+ tolua_constant(tolua_S,NULL,"TR3_AUTO_CURSE",TR3_AUTO_CURSE);
+ tolua_constant(tolua_S,NULL,"TR3_DRAIN_STATS",TR3_DRAIN_STATS);
+ tolua_constant(tolua_S,NULL,"TR3_CANT_EAT",TR3_CANT_EAT);
+ tolua_constant(tolua_S,NULL,"TR3_SLOW_HEAL",TR3_SLOW_HEAL);
  tolua_cclass(tolua_S,"object_kind","");
  tolua_tablevar(tolua_S,"object_kind","name",toluaI_get_object_object_kind_name,toluaI_set_object_object_kind_name);
  tolua_tablevar(tolua_S,"object_kind","text",toluaI_get_object_object_kind_text,toluaI_set_object_object_kind_text);
@@ -4204,9 +3610,7 @@ int tolua_object_open (lua_State* tolua_S)
  tolua_tablevar(tolua_S,"object_kind","ds",toluaI_get_object_object_kind_ds,toluaI_set_object_object_kind_ds);
  tolua_tablevar(tolua_S,"object_kind","weight",toluaI_get_object_object_kind_weight,toluaI_set_object_object_kind_weight);
  tolua_tablevar(tolua_S,"object_kind","cost",toluaI_get_object_object_kind_cost,toluaI_set_object_object_kind_cost);
- tolua_tablevar(tolua_S,"object_kind","flags1",toluaI_get_object_object_kind_flags1,toluaI_set_object_object_kind_flags1);
- tolua_tablevar(tolua_S,"object_kind","flags2",toluaI_get_object_object_kind_flags2,toluaI_set_object_object_kind_flags2);
- tolua_tablevar(tolua_S,"object_kind","flags3",toluaI_get_object_object_kind_flags3,toluaI_set_object_object_kind_flags3);
+ tolua_tablearray(tolua_S,"object_kind","flags",toluaI_get_object_object_kind_flags,toluaI_set_object_object_kind_flags);
  tolua_tablearray(tolua_S,"object_kind","locale",toluaI_get_object_object_kind_locale,toluaI_set_object_object_kind_locale);
  tolua_tablearray(tolua_S,"object_kind","chance",toluaI_get_object_object_kind_chance,toluaI_set_object_object_kind_chance);
  tolua_tablevar(tolua_S,"object_kind","level",toluaI_get_object_object_kind_level,toluaI_set_object_object_kind_level);
@@ -4243,16 +3647,12 @@ int tolua_object_open (lua_State* tolua_S)
  tolua_tablevar(tolua_S,"object_type","ds",toluaI_get_object_object_type_ds,toluaI_set_object_object_type_ds);
  tolua_tablevar(tolua_S,"object_type","inscription",toluaI_get_object_object_type_inscription,toluaI_set_object_object_type_inscription);
  tolua_tablevar(tolua_S,"object_type","xtra_name",toluaI_get_object_object_type_xtra_name,toluaI_set_object_object_type_xtra_name);
- tolua_tablevar(tolua_S,"object_type","flags1",toluaI_get_object_object_type_flags1,toluaI_set_object_object_type_flags1);
- tolua_tablevar(tolua_S,"object_type","flags2",toluaI_get_object_object_type_flags2,toluaI_set_object_object_type_flags2);
- tolua_tablevar(tolua_S,"object_type","flags3",toluaI_get_object_object_type_flags3,toluaI_set_object_object_type_flags3);
- tolua_tablevar(tolua_S,"object_type","kn_flags1",toluaI_get_object_object_type_kn_flags1,toluaI_set_object_object_type_kn_flags1);
- tolua_tablevar(tolua_S,"object_type","kn_flags2",toluaI_get_object_object_type_kn_flags2,toluaI_set_object_object_type_kn_flags2);
- tolua_tablevar(tolua_S,"object_type","kn_flags3",toluaI_get_object_object_type_kn_flags3,toluaI_set_object_object_type_kn_flags3);
+ tolua_tablearray(tolua_S,"object_type","flags",toluaI_get_object_object_type_flags,toluaI_set_object_object_type_flags);
+ tolua_tablearray(tolua_S,"object_type","kn_flags",toluaI_get_object_object_type_kn_flags,toluaI_set_object_object_type_kn_flags);
  tolua_tablevar(tolua_S,"object_type","next_o_idx",toluaI_get_object_object_type_next_o_idx,toluaI_set_object_object_type_next_o_idx);
  tolua_tablevar(tolua_S,"object_type","cost",toluaI_get_object_object_type_cost,toluaI_set_object_object_type_cost);
  tolua_tablevar(tolua_S,"object_type","feeling",toluaI_get_object_object_type_feeling,toluaI_set_object_object_type_feeling);
- tolua_tablevar(tolua_S,"object_type","activate",toluaI_get_object_object_type_activate,toluaI_set_object_object_type_activate);
+ tolua_tablevar(tolua_S,"object_type","a_idx",toluaI_get_object_object_type_a_idx,toluaI_set_object_object_type_a_idx);
  tolua_tablevar(tolua_S,"object_type","info",toluaI_get_object_object_type_info,toluaI_set_object_object_type_info);
  tolua_tablevar(tolua_S,"object_type","allocated",toluaI_get_object_object_type_allocated,toluaI_set_object_object_type_allocated);
  tolua_globalvar(tolua_S,"o_max",toluaI_get_object_o_max,toluaI_set_object_o_max);
@@ -4322,6 +3722,7 @@ int tolua_object_open (lua_State* tolua_S)
  tolua_function(tolua_S,NULL,"object_prep",toluaI_object_object_prep00);
  tolua_function(tolua_S,NULL,"add_ego_flags",toluaI_object_add_ego_flags00);
  tolua_function(tolua_S,NULL,"add_ego_power",toluaI_object_add_ego_power00);
+ tolua_function(tolua_S,NULL,"m_bonus",toluaI_object_m_bonus00);
  tolua_function(tolua_S,NULL,"apply_magic",toluaI_object_apply_magic00);
  tolua_function(tolua_S,NULL,"init_match_hook",toluaI_object_init_match_hook00);
  tolua_function(tolua_S,NULL,"kind_is_match",toluaI_object_kind_is_match00);
@@ -4337,9 +3738,6 @@ int tolua_object_open (lua_State* tolua_S)
  tolua_function(tolua_S,NULL,"can_player_destroy_object",toluaI_object_can_player_destroy_object00);
  tolua_function(tolua_S,NULL,"display_koff",toluaI_object_display_koff00);
  tolua_function(tolua_S,NULL,"create_artifact",toluaI_object_create_artifact00);
- tolua_function(tolua_S,NULL,"random_resistance",toluaI_object_random_resistance00);
- tolua_function(tolua_S,NULL,"activate_effect",toluaI_object_activate_effect00);
- tolua_function(tolua_S,NULL,"random_artifact_resistance",toluaI_object_random_artifact_resistance00);
  tolua_function(tolua_S,NULL,"create_named_art",toluaI_object_create_named_art00);
  tolua_function(tolua_S,NULL,"k_info_alloc",toluaI_object_k_info_alloc00);
  tolua_function(tolua_S,NULL,"k_info_free",toluaI_object_k_info_free00);
@@ -4360,81 +3758,18 @@ int tolua_object_open (lua_State* tolua_S)
 /* Close function */
 void tolua_object_close (lua_State* tolua_S)
 {
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"ACT_SUNLIGHT");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"ACT_BO_MISS_1");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"ACT_BA_POIS_1");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"ACT_BO_ELEC_1");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"ACT_BO_ACID_1");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"ACT_BO_COLD_1");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"ACT_BO_FIRE_1");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"ACT_BA_COLD_1");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"ACT_BA_FIRE_1");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"ACT_DRAIN_1");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"ACT_BA_COLD_2");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"ACT_BA_ELEC_2");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"ACT_DRAIN_2");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"ACT_VAMPIRE_1");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"ACT_BO_MISS_2");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"ACT_BA_FIRE_2");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"ACT_BA_COLD_3");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"ACT_BA_ELEC_3");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"ACT_WHIRLWIND");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"ACT_VAMPIRE_2");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"ACT_CALL_CHAOS");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"ACT_ROCKET");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"ACT_DISP_EVIL");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"ACT_BA_MISS_3");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"ACT_DISP_GOOD");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"ACT_CONFUSE");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"ACT_SLEEP");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"ACT_QUAKE");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"ACT_TERROR");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"ACT_TELE_AWAY");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"ACT_BANISH_EVIL");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"ACT_GENOCIDE");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"ACT_MASS_GENO");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"ACT_CHARM_ANIMAL");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"ACT_CHARM_UNDEAD");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"ACT_CHARM_OTHER");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"ACT_CHARM_ANIMALS");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"ACT_CHARM_OTHERS");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"ACT_SUMMON_ANIMAL");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"ACT_SUMMON_PHANTOM");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"ACT_SUMMON_ELEMENTAL");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"ACT_SUMMON_DEMON");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"ACT_SUMMON_UNDEAD");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"ACT_CURE_LW");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"ACT_CURE_MW");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"ACT_CURE_POISON");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"ACT_REST_LIFE");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"ACT_REST_ALL");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"ACT_CURE_700");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"ACT_CURE_1000");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"ACT_ESP");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"ACT_BERSERK");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"ACT_PROT_EVIL");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"ACT_RESIST_ALL");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"ACT_SPEED");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"ACT_XTRA_SPEED");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"ACT_WRAITH");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"ACT_INVULN");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"ACT_TELEPORT_1");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"ACT_LIGHT");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"ACT_MAP_LIGHT");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"ACT_DETECT_ALL");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"ACT_DETECT_XTRA");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"ACT_ID_FULL");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"ACT_ID_PLAIN");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"ACT_RUNE_EXPLO");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"ACT_RUNE_PROT");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"ACT_SATIATE");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"ACT_DEST_DOOR");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"ACT_STONE_MUD");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"ACT_RECHARGE");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"ACT_ALCHEMY");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"ACT_DIM_DOOR");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"ACT_TELEPORT_2");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"ACT_RECALL");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"MAX_TRIGGER");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TRIGGER_USE");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TRIGGER_MAKE");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TRIGGER_BONUS");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TRIGGER_SMASH");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TRIGGER_DESC");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"EGO_XTRA_SUSTAIN");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"EGO_XTRA_LO_RESIST");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"EGO_XTRA_HI_RESIST");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"EGO_XTRA_ANY_RESIST");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"EGO_XTRA_ABILITY");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"EGO_XTRA_POWER");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TV_ANY");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TV_SKELETON");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TV_BOTTLE");
@@ -4480,279 +3815,6 @@ void tolua_object_close (lua_State* tolua_S)
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TV_GOLD");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TV_BOOKS_MIN");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TV_BOOKS_MAX");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_ANY");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_FIGURINE_NORMAL");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_WOODEN_STATUE");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_CLAY_STATUE");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_STONE_STATUE");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_IRON_STATUE");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_COPPER_STATUE");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_SILVER_STATUE");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_GOLDEN_STATUE");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_IVORY_STATUE");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_MITHRIL_STATUE");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_ORNATE_STATUE");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_AMMO_LIGHT");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_AMMO_NORMAL");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_AMMO_HEAVY");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_SLING");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_SHORT_BOW");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_LONG_BOW");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_LIGHT_XBOW");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_HEAVY_XBOW");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_SHOVEL");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_GNOMISH_SHOVEL");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_DWARVEN_SHOVEL");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_PICK");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_ORCISH_PICK");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_DWARVEN_PICK");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_MATTOCK");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_CLUB");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_WHIP");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_QUARTERSTAFF");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_NUNCHAKU");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_MACE");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_BALL_AND_CHAIN");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_JO_STAFF");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_WAR_HAMMER");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_THREE_PIECE_ROD");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_MORNING_STAR");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_FLAIL");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_BO_STAFF");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_LEAD_FILLED_MACE");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_TETSUBO");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_TWO_HANDED_FLAIL");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_GREAT_HAMMER");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_MACE_OF_DISRUPTION");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_GROND");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_HATCHET");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_SPEAR");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_SICKLE");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_AWL_PIKE");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_TRIDENT");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_FAUCHARD");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_BROAD_SPEAR");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_PIKE");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_NAGINATA");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_BEAKED_AXE");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_BROAD_AXE");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_LUCERNE_HAMMER");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_GLAIVE");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_LAJATANG");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_HALBERD");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_GUISARME");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_SCYTHE");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_LANCE");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_BATTLE_AXE");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_GREAT_AXE");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_TRIFURCATE_SPEAR");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_LOCHABER_AXE");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_HEAVY_LANCE");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_SCYTHE_OF_SLICING");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_BROKEN_DAGGER");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_BROKEN_SWORD");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_DAGGER");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_MAIN_GAUCHE");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_TANTO");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_RAPIER");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_SMALL_SWORD");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_BASILLARD");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_SHORT_SWORD");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_SABRE");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_CUTLASS");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_WAKIZASHI");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_KHOPESH");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_TULWAR");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_BROAD_SWORD");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_LONG_SWORD");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_SCIMITAR");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_NINJATO");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_KATANA");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_BASTARD_SWORD");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_GREAT_SCIMITAR");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_CLAYMORE");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_ESPADON");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_TWO_HANDED_SWORD");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_FLAMBERGE");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_NO_DACHI");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_EXECUTIONERS_SWORD");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_ZWEIHANDER");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_BLADE_OF_CHAOS");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_DIAMOND_EDGE");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_SMALL_LEATHER_SHIELD");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_SMALL_METAL_SHIELD");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_LARGE_LEATHER_SHIELD");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_LARGE_METAL_SHIELD");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_DRAGON_SHIELD");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_SHIELD_OF_DEFLECTION");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_HARD_LEATHER_CAP");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_METAL_CAP");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_JINGASA");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_IRON_HELM");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_STEEL_HELM");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_DRAGON_HELM");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_KABUTO");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_IRON_CROWN");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_GOLDEN_CROWN");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_JEWELED_CROWN");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_MORGOTH");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_PAIR_OF_SOFT_LEATHER_BOOTS");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_PAIR_OF_HARD_LEATHER_BOOTS");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_PAIR_OF_METAL_SHOD_BOOTS");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_CLOAK");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_ELVEN_CLOAK");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_FUR_CLOAK");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_SHADOW_CLOAK");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_SET_OF_LEATHER_GLOVES");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_SET_OF_GAUNTLETS");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_SET_OF_CESTI");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_T_SHIRT");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_FILTHY_RAG");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_ROBE");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_PAPER_ARMOR");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_SOFT_LEATHER_ARMOR");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_SOFT_STUDDED_LEATHER");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_HARD_LEATHER_ARMOR");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_HARD_STUDDED_LEATHER");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_RHINO_HIDE_ARMOR");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_CORD_ARMOR");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_PADDED_ARMOR");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_LEATHER_SCALE_MAIL");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_LEATHER_JACK");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_STONE_AND_HIDE_ARMOR");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_RUSTY_CHAIN_MAIL");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_RING_MAIL");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_METAL_SCALE_MAIL");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_CHAIN_MAIL");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_DOUBLE_RING_MAIL");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_AUGMENTED_CHAIN_MAIL");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_DOUBLE_CHAIN_MAIL");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_BAR_CHAIN_MAIL");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_METAL_BRIGANDINE_ARMOUR");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_SPLINT_MAIL");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_DO_MARU");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_PARTIAL_PLATE_ARMOUR");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_METAL_LAMELLAR_ARMOUR");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_HARAMAKIDO");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_FULL_PLATE_ARMOUR");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_O_YOROI");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_RIBBED_PLATE_ARMOUR");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_MITHRIL_CHAIN_MAIL");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_MITHRIL_PLATE_MAIL");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_ADAMANTITE_PLATE_MAIL");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_DRAGON_BLACK");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_DRAGON_BLUE");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_DRAGON_WHITE");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_DRAGON_RED");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_DRAGON_GREEN");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_DRAGON_MULTIHUED");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_DRAGON_SHINING");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_DRAGON_LAW");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_DRAGON_BRONZE");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_DRAGON_GOLD");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_DRAGON_CHAOS");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_DRAGON_BALANCE");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_DRAGON_POWER");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_LITE_TORCH");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_LITE_LANTERN");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_LITE_GALADRIEL");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_LITE_ELENDIL");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_LITE_THRAIN");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_AMULET_DOOM");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_AMULET_TELEPORT");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_AMULET_BERSERK");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_AMULET_SLOW_DIGEST");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_AMULET_RESIST_ACID");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_AMULET_SEARCHING");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_AMULET_WISDOM");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_AMULET_CHARISMA");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_AMULET_THE_MAGI");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_AMULET_REFLECTION");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_AMULET_CARLAMMAS");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_AMULET_INGWE");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_AMULET_DWARVES");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_AMULET_NO_MAGIC");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_AMULET_NO_TELE");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_AMULET_RESISTANCE");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_RING_WOE");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_RING_AGGRAVATION");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_RING_WEAKNESS");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_RING_STUPIDITY");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_RING_TELEPORTATION");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_RING_SLOW_DIGESTION");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_RING_FEATHER_FALL");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_RING_RESIST_FIRE");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_RING_RESIST_COLD");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_RING_SUSTAIN_STR");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_RING_SUSTAIN_INT");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_RING_SUSTAIN_WIS");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_RING_SUSTAIN_DEX");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_RING_SUSTAIN_CON");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_RING_SUSTAIN_CHR");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_RING_PROTECTION");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_RING_ACID");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_RING_FLAMES");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_RING_ICE");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_RING_RESIST_POIS");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_RING_FREE_ACTION");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_RING_SEE_INVIS");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_RING_SEARCHING");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_RING_STR");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_RING_INT");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_RING_DEX");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_RING_CON");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_RING_ACCURACY");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_RING_DAMAGE");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_RING_SLAYING");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_RING_SPEED");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_RING_BARAHIR");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_RING_TULKAS");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_RING_NARYA");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_RING_NENYA");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_RING_VILYA");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_RING_POWER");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_RING_RES_FEAR");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_RING_RES_LD");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_RING_RES_NETHER");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_RING_RES_NEXUS");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_RING_RES_SOUND");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_RING_RES_CONFUSION");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_RING_RES_SHARDS");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_RING_RES_DISENCHANT");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_RING_RES_CHAOS");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_RING_RES_BLINDNESS");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_RING_LORDLY");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_RING_ATTACKS");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_STAFF_DARKNESS");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_STAFF_SLOWNESS");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_STAFF_HASTE_MONSTERS");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_STAFF_SUMMONING");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_STAFF_TELEPORTATION");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_STAFF_IDENTIFY");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_STAFF_REMOVE_CURSE");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_STAFF_STARLITE");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_STAFF_LITE");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_STAFF_MAPPING");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_STAFF_DETECT_GOLD");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_STAFF_DETECT_ITEM");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_STAFF_DETECT_TRAP");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_STAFF_DETECT_DOOR");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_STAFF_DETECT_INVIS");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_STAFF_DETECT_EVIL");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_STAFF_CURE_LIGHT");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_STAFF_CURING");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_STAFF_HEALING");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_STAFF_THE_MAGI");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_STAFF_SLEEP_MONSTERS");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_STAFF_SLOW_MONSTERS");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_STAFF_SPEED");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_STAFF_PROBING");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_STAFF_DISPEL_EVIL");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_STAFF_POWER");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_STAFF_HOLINESS");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_STAFF_GENOCIDE");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_STAFF_EARTHQUAKES");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_STAFF_DESTRUCTION");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_WAND_HEAL_MONSTER");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_WAND_HASTE_MONSTER");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_WAND_CLONE_MONSTER");
@@ -4778,279 +3840,140 @@ void tolua_object_close (lua_State* tolua_S)
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_WAND_FIRE_BALL");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_WAND_COLD_BALL");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_WAND_WONDER");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_WAND_ANNIHILATION");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_WAND_DRAGON_FIRE");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_WAND_DRAGON_COLD");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_WAND_DRAGON_BREATH");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_WAND_ROCKETS");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_ROD_DETECT_TRAP");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_ROD_DETECT_DOOR");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_ROD_IDENTIFY");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_ROD_RECALL");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_ROD_ILLUMINATION");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_ROD_MAPPING");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_ROD_DETECTION");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_ROD_PROBING");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_ROD_CURING");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_ROD_HEALING");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_ROD_RESTORATION");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_ROD_SPEED");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_ROD_PESTICIDE");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_ROD_TELEPORT_AWAY");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_ROD_DISARMING");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_ROD_LITE");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_ROD_SLEEP_MONSTER");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_ROD_SLOW_MONSTER");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_ROD_DRAIN_LIFE");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_ROD_POLYMORPH");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_ROD_ACID_BOLT");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_ROD_ELEC_BOLT");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_ROD_FIRE_BOLT");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_ROD_COLD_BOLT");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_ROD_ACID_BALL");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_ROD_ELEC_BALL");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_ROD_FIRE_BALL");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_ROD_COLD_BALL");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_ROD_HAVOC");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_SCROLL_DARKNESS");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_SCROLL_AGGRAVATE_MONSTER");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_SCROLL_CURSE_ARMOR");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_SCROLL_CURSE_WEAPON");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_SCROLL_SUMMON_MONSTER");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_SCROLL_SUMMON_UNDEAD");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_SCROLL_TRAP_CREATION");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_SCROLL_PHASE_DOOR");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_SCROLL_TELEPORT");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_SCROLL_TELEPORT_LEVEL");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_SCROLL_WORD_OF_RECALL");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_SCROLL_IDENTIFY");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_SCROLL_STAR_IDENTIFY");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_SCROLL_REMOVE_CURSE");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_SCROLL_STAR_REMOVE_CURSE");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_SCROLL_ENCHANT_ARMOR");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_SCROLL_ENCHANT_WEAPON_TO_HIT");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_SCROLL_ENCHANT_WEAPON_TO_DAM");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_SCROLL_STAR_ENCHANT_ARMOR");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_SCROLL_STAR_ENCHANT_WEAPON");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_SCROLL_RECHARGING");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_SCROLL_MUNDANITY");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_SCROLL_LIGHT");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_SCROLL_MAPPING");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_SCROLL_DETECT_GOLD");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_SCROLL_DETECT_ITEM");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_SCROLL_DETECT_TRAP");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_SCROLL_DETECT_DOOR");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_SCROLL_DETECT_INVIS");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_SCROLL_SATISFY_HUNGER");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_SCROLL_BLESSING");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_SCROLL_HOLY_CHANT");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_SCROLL_HOLY_PRAYER");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_SCROLL_MONSTER_CONFUSION");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_SCROLL_PROTECTION_FROM_EVIL");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_SCROLL_RUNE_OF_PROTECTION");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_SCROLL_TRAP_DOOR_DESTRUCTION");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_SCROLL_STAR_DESTRUCTION");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_SCROLL_DISPEL_UNDEAD");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_SCROLL_GENOCIDE");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_SCROLL_MASS_GENOCIDE");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_SCROLL_ACQUIREMENT");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_SCROLL_STAR_ACQUIREMENT");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_SCROLL_FIRE");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_SCROLL_ICE");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_SCROLL_CHAOS");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_SCROLL_RUMOR");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_SCROLL_ARTIFACT");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_POTION_WATER");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_POTION_APPLE_JUICE");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_POTION_SLIME_MOLD");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_POTION_SLOWNESS");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_POTION_SALT_WATER");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_POTION_POISON");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_POTION_BLINDNESS");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_POTION_CONFUSION");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_POTION_SLEEP");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_POTION_LOSE_MEMORIES");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_POTION_RUINATION");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_POTION_DEC_STR");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_POTION_DEC_INT");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_POTION_DEC_WIS");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_POTION_DEC_DEX");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_POTION_DEC_CON");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_POTION_DEC_CHR");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_POTION_DETONATIONS");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_POTION_DEATH");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_POTION_INFRAVISION");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_POTION_DETECT_INVIS");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_POTION_SLOW_POISON");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_POTION_CURE_POISON");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_POTION_BOLDNESS");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_POTION_SPEED");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_POTION_RESIST_HEAT");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_POTION_RESIST_COLD");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_POTION_HEROISM");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_POTION_BERSERK_STRENGTH");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_POTION_CURE_LIGHT");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_POTION_CURE_SERIOUS");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_POTION_CURE_CRITICAL");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_POTION_HEALING");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_POTION_STAR_HEALING");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_POTION_LIFE");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_POTION_RESTORE_MANA");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_POTION_RESTORE_EXP");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_POTION_RES_STR");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_POTION_RES_INT");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_POTION_RES_WIS");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_POTION_RES_DEX");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_POTION_RES_CON");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_POTION_RES_CHR");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_POTION_INC_STR");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_POTION_INC_INT");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_POTION_INC_WIS");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_POTION_INC_DEX");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_POTION_INC_CON");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_POTION_INC_CHR");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_POTION_AUGMENTATION");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_POTION_ENLIGHTENMENT");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_POTION_STAR_ENLIGHTENMENT");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_POTION_SELF_KNOWLEDGE");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_POTION_EXPERIENCE");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_POTION_RESISTANCE");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_POTION_CURING");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_POTION_INVULNERABILITY");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_POTION_NEW_LIFE");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_FOOD_POISON");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_FOOD_BLINDNESS");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_FOOD_PARANOIA");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_FOOD_CONFUSION");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_FOOD_HALLUCINATION");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_FOOD_PARALYSIS");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_FOOD_WEAKNESS");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_FOOD_SICKNESS");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_FOOD_STUPIDITY");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_FOOD_NAIVETY");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_FOOD_UNHEALTH");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_FOOD_DISEASE");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_FOOD_CURE_POISON");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_FOOD_CURE_BLINDNESS");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_FOOD_CURE_PARANOIA");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_FOOD_CURE_CONFUSION");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_FOOD_CURE_SERIOUS");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_FOOD_RESTORE_STR");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_FOOD_RESTORE_CON");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_FOOD_RESTORING");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_FOOD_BISCUIT");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_FOOD_JERKY");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_FOOD_RATION");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_FOOD_SLIME_MOLD");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_FOOD_WAYBREAD");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_FOOD_PINT_OF_ALE");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_FOOD_PINT_OF_WINE");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_FOOD_MIN_FOOD");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_ROD_MIN_DIRECTION");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_CHEST_MIN_LARGE");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_BOOK_MIN_GOOD");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"OBJ_GOLD_LIST");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"MAX_GOLD");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"OC_NONE");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"OC_NORMAL");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"OC_FORCE_BAD");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"OC_FORCE_GOOD");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR1_STR");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR1_INT");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR1_WIS");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR1_DEX");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR1_CON");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR1_CHR");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR0_STR");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR0_INT");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR0_WIS");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR0_DEX");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR0_CON");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR0_CHR");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR0_XXX1");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR0_SP");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR0_STEALTH");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR0_SEARCH");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR0_INFRA");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR0_TUNNEL");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR0_SPEED");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR0_BLOWS");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR0_CHAOTIC");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR0_VAMPIRIC");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR0_SLAY_ANIMAL");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR0_SLAY_EVIL");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR0_SLAY_UNDEAD");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR0_SLAY_DEMON");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR0_SLAY_ORC");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR0_SLAY_TROLL");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR0_SLAY_GIANT");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR0_SLAY_DRAGON");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR0_KILL_DRAGON");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR0_VORPAL");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR0_IMPACT");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR0_BRAND_POIS");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR0_BRAND_ACID");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR0_BRAND_ELEC");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR0_BRAND_FIRE");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR0_BRAND_COLD");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR1_SUST_STR");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR1_SUST_INT");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR1_SUST_WIS");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR1_SUST_DEX");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR1_SUST_CON");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR1_SUST_CHR");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR1_XXX1");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR1_XXX2");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR1_STEALTH");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR1_SEARCH");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR1_INFRA");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR1_TUNNEL");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR1_SPEED");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR1_BLOWS");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR1_CHAOTIC");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR1_VAMPIRIC");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR1_SLAY_ANIMAL");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR1_SLAY_EVIL");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR1_SLAY_UNDEAD");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR1_SLAY_DEMON");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR1_SLAY_ORC");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR1_SLAY_TROLL");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR1_SLAY_GIANT");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR1_SLAY_DRAGON");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR1_KILL_DRAGON");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR1_VORPAL");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR1_IMPACT");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR1_BRAND_POIS");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR1_BRAND_ACID");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR1_BRAND_ELEC");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR1_BRAND_FIRE");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR1_BRAND_COLD");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR2_SUST_STR");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR2_SUST_INT");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR2_SUST_WIS");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR2_SUST_DEX");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR2_SUST_CON");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR2_SUST_CHR");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR2_XXX1");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR2_XXX2");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR2_IM_ACID");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR2_IM_ELEC");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR2_IM_FIRE");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR2_IM_COLD");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR2_THROW");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR2_REFLECT");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR2_FREE_ACT");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR2_HOLD_LIFE");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR2_RES_ACID");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR2_RES_ELEC");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR2_RES_FIRE");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR2_RES_COLD");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR2_RES_POIS");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR2_RES_FEAR");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR2_RES_LITE");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR2_RES_DARK");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR2_RES_BLIND");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR2_RES_CONF");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR2_RES_SOUND");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR2_RES_SHARDS");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR2_RES_NETHER");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR2_RES_NEXUS");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR2_RES_CHAOS");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR2_RES_DISEN");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR3_SH_FIRE");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR3_SH_ELEC");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR3_QUESTITEM");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR1_IM_POIS");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR1_IM_ACID");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR1_IM_ELEC");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR1_IM_FIRE");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR1_IM_COLD");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR1_THROW");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR1_REFLECT");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR1_FREE_ACT");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR1_HOLD_LIFE");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR1_RES_ACID");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR1_RES_ELEC");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR1_RES_FIRE");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR1_RES_COLD");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR1_RES_POIS");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR1_RES_FEAR");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR1_RES_LITE");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR1_RES_DARK");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR1_RES_BLIND");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR1_RES_CONF");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR1_RES_SOUND");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR1_RES_SHARDS");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR1_RES_NETHER");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR1_RES_NEXUS");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR1_RES_CHAOS");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR1_RES_DISEN");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR2_SH_FIRE");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR2_SH_ELEC");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR2_QUESTITEM");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR2_XXX4");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR2_NO_TELE");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR2_NO_MAGIC");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR2_XXX7");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR2_TY_CURSE");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR2_EASY_KNOW");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR2_HIDE_TYPE");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR2_SHOW_MODS");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR2_INSTA_ART");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR2_FEATHER");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR2_LITE");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR2_SEE_INVIS");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR2_TELEPATHY");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR2_SLOW_DIGEST");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR2_REGEN");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR2_XTRA_MIGHT");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR2_XTRA_SHOTS");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR2_IGNORE_ACID");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR2_IGNORE_ELEC");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR2_IGNORE_FIRE");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR2_IGNORE_COLD");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR2_ACTIVATE");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR2_DRAIN_EXP");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR2_TELEPORT");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR2_AGGRAVATE");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR2_BLESSED");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR2_CURSED");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR2_HEAVY_CURSE");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR2_PERMA_CURSE");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR3_LUCK_10");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR3_XXX2");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR3_XXX3");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR3_XXX4");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR3_NO_TELE");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR3_NO_MAGIC");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR3_XXX5");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR3_XXX6");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR3_XXX7");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR3_TY_CURSE");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR3_EASY_KNOW");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR3_HIDE_TYPE");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR3_SHOW_MODS");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR3_INSTA_ART");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR3_FEATHER");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR3_LITE");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR3_SEE_INVIS");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR3_TELEPATHY");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR3_SLOW_DIGEST");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR3_REGEN");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR3_XTRA_MIGHT");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR3_XTRA_SHOTS");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR3_IGNORE_ACID");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR3_IGNORE_ELEC");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR3_IGNORE_FIRE");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR3_IGNORE_COLD");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR3_ACTIVATE");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR3_DRAIN_EXP");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR3_TELEPORT");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR3_AGGRAVATE");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR3_BLESSED");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR3_CURSED");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR3_HEAVY_CURSE");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR3_PERMA_CURSE");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR3_XXX8");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR3_IM_LITE");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR3_IM_DARK");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR3_SH_ACID");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR3_SH_COLD");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR3_MUTATE");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR3_PATRON");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR3_STRANGE_LUCK");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR3_PASS_WALL");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR3_GHOUL_TOUCH");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR3_PSI_CRIT");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR3_RETURN");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR3_EXPLODE");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR3_HURT_ACID");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR3_HURT_ELEC");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR3_HURT_FIRE");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR3_HURT_COLD");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR3_HURT_LITE");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR3_HURT_DARK");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR3_XXX27");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR3_XXX28");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR3_AUTO_CURSE");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR3_DRAIN_STATS");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR3_CANT_EAT");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR3_SLOW_HEAL");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"object_kind");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"obj_theme");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"object_type");
@@ -5133,6 +4056,7 @@ void tolua_object_close (lua_State* tolua_S)
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"object_prep");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"add_ego_flags");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"add_ego_power");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"m_bonus");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"apply_magic");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"init_match_hook");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"kind_is_match");
@@ -5148,9 +4072,6 @@ void tolua_object_close (lua_State* tolua_S)
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"can_player_destroy_object");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"display_koff");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"create_artifact");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"random_resistance");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"activate_effect");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"random_artifact_resistance");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"create_named_art");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"k_info_alloc");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"k_info_free");

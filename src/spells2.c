@@ -33,7 +33,7 @@ void self_knowledge(void)
 	int v_nr;
 	char v_string[8][128];
 
-	u32b f1 = 0L, f2 = 0L, f3 = 0L, f4 = 0L;
+	u32b ff[4] = {0, 0, 0, 0};
 
 	object_type *o_ptr;
 	const mutation_type *mut_ptr;
@@ -68,10 +68,10 @@ void self_knowledge(void)
 		if (!o_ptr->k_idx) continue;
 
 		/* Extract flags */
-		f1 |= o_ptr->flags1;
-		f2 |= o_ptr->flags2;
-		f3 |= o_ptr->flags3;
-		f4 |= o_ptr->flags4;
+		ff[0] |= o_ptr->flags[0];
+		ff[1] |= o_ptr->flags[1];
+		ff[2] |= o_ptr->flags[2];
+		ff[3] |= o_ptr->flags[3];
 	}
 
 	for (v_nr = 0; v_nr < MAX_PLAYER_VIRTUES; v_nr++)
@@ -184,15 +184,15 @@ void self_knowledge(void)
 	{
 		info[i++] = "You are hallucinating.";
 	}
-	if (p_ptr->flags3 & (TR3_AGGRAVATE))
+	if (FLAG(p_ptr, TR_AGGRAVATE))
 	{
 		info[i++] = "You aggravate monsters.";
 	}
-	if (p_ptr->flags3 & (TR3_TELEPORT))
+	if (FLAG(p_ptr, TR_TELEPORT))
 	{
 		info[i++] = "Your position is very uncertain.";
 	}
-	if (p_ptr->flags4 & (TR4_CANT_EAT))
+	if (FLAG(p_ptr, TR_CANT_EAT))
 	{
 		info[i++] = "You cannot survive on normal food.";
 	}
@@ -208,35 +208,35 @@ void self_knowledge(void)
 	{
 		info[i++] = "You are in a battle rage.";
 	}
-	if (p_ptr->tim.protevil || (p_ptr->flags1 & (TR1_SLAY_EVIL)))
+	if (p_ptr->tim.protevil || (FLAG(p_ptr, TR_SLAY_EVIL)))
 	{
 		info[i++] = "You are protected from evil.";
 	}
-	if (p_ptr->flags1 & (TR1_SLAY_ANIMAL))
+	if (FLAG(p_ptr, TR_SLAY_ANIMAL))
 	{
 		info[i++] = "You are protected from animals.";
 	}
-	if (p_ptr->flags1 & (TR1_SLAY_UNDEAD))
+	if (FLAG(p_ptr, TR_SLAY_UNDEAD))
 	{
 		info[i++] = "You are protected from undead.";
 	}
-	if (p_ptr->flags1 & (TR1_SLAY_DEMON))
+	if (FLAG(p_ptr, TR_SLAY_DEMON))
 	{
 		info[i++] = "You are protected from demons.";
 	}
-	if (p_ptr->flags1 & (TR1_SLAY_ORC))
+	if (FLAG(p_ptr, TR_SLAY_ORC))
 	{
 		info[i++] = "You are protected from orcs.";
 	}
-	if (p_ptr->flags1 & (TR1_SLAY_TROLL))
+	if (FLAG(p_ptr, TR_SLAY_TROLL))
 	{
 		info[i++] = "You are protected from trolls.";
 	}
-	if (p_ptr->flags1 & (TR1_SLAY_GIANT))
+	if (FLAG(p_ptr, TR_SLAY_GIANT))
 	{
 		info[i++] = "You are protected from giants.";
 	}
-	if (p_ptr->flags1 & (TR1_SLAY_DRAGON))
+	if (FLAG(p_ptr, TR_SLAY_DRAGON))
 	{
 		info[i++] = "You are protected from dragons.";
 	}
@@ -272,345 +272,349 @@ void self_knowledge(void)
 	{
 		info[i++] = "Your eyes are sensitive to infrared light.";
 	}
-	if (p_ptr->flags3 & (TR3_SEE_INVIS))
+	if (FLAG(p_ptr, TR_SEE_INVIS))
 	{
 		info[i++] = "You can see invisible creatures.";
 	}
-	if (p_ptr->flags3 & (TR3_FEATHER))
+	if (FLAG(p_ptr, TR_FEATHER))
 	{
 		info[i++] = "You can fly.";
 	}
-	if (p_ptr->flags2 & (TR2_FREE_ACT))
+	if (FLAG(p_ptr, TR_FREE_ACT))
 	{
 		info[i++] = "You have free action.";
 	}
-	if (p_ptr->flags4 & (TR4_MUTATE))
+	if (FLAG(p_ptr, TR_MUTATE))
 	{
 		info[i++] = "You mutate spontaneously.";
 	}
-	if (p_ptr->flags4 & (TR4_PATRON))
+	if (FLAG(p_ptr, TR_PATRON))
 	{
 		info[i++] = "You have a chaos patron.";
 	}
-	if (p_ptr->flags4 & (TR4_STRANGE_LUCK))
+	if (FLAG(p_ptr, TR_STRANGE_LUCK))
 	{
 		info[i++] = "Chance is warped around you.";
 	}
-	if (p_ptr->flags4 & (TR4_PASS_WALL))
+	if (FLAG(p_ptr, TR_PASS_WALL))
 	{
 		info[i++] = "You can pass through solid rock.";
 	}
 
-	if ((p_ptr->flags3 & (TR3_REGEN)) && (!(p_ptr->muta3 & MUT3_REGEN)))
+	if ((FLAG(p_ptr, TR_REGEN)) && (!(p_ptr->muta3 & MUT3_REGEN)))
 	{
-		if (p_ptr->flags4 & (TR4_SLOW_HEAL))
+		if (FLAG(p_ptr, TR_SLOW_HEAL))
 			info[i++] = "You regenerate slowly.";
 		else
 			info[i++] = "You regenerate quickly.";
 	}
-	else if (p_ptr->flags4 & (TR4_SLOW_HEAL))
+	else if (FLAG(p_ptr, TR_SLOW_HEAL))
 	{
 		info[i++] = "You regenerate very slowly.";
 	}
 	
-	if ((p_ptr->flags3 & (TR3_SLOW_DIGEST)) &&
-		(p_ptr->flags4 & (TR4_SLOW_HEAL)))
+	if ((FLAG(p_ptr, TR_SLOW_DIGEST)) &&
+		(FLAG(p_ptr, TR_SLOW_HEAL)))
 	{
 		info[i++] = "Your appetite is very small.";
 	}
-	else if ((p_ptr->flags3 & (TR3_SLOW_DIGEST)) ||
-		(p_ptr->flags4 & (TR4_SLOW_HEAL)))
+	else if ((FLAG(p_ptr, TR_SLOW_DIGEST)) ||
+		(FLAG(p_ptr, TR_SLOW_HEAL)))
 	{
 		info[i++] = "Your appetite is small.";
 	}
 	
-	if ((p_ptr->flags3 & (TR3_TELEPATHY)) && (!(p_ptr->muta3 & MUT3_ESP)))
+	if ((FLAG(p_ptr, TR_TELEPATHY)) && (!(p_ptr->muta3 & MUT3_ESP)))
 	{
 		info[i++] = "You have ESP.";
 	}
-	if (p_ptr->flags2 & (TR2_HOLD_LIFE))
+	if (FLAG(p_ptr, TR_HOLD_LIFE))
 	{
 		info[i++] = "You have a firm hold on your life force.";
 	}
-	if (p_ptr->flags2 & (TR2_REFLECT))
+	if (FLAG(p_ptr, TR_REFLECT))
 	{
 		info[i++] = "You reflect arrows and bolts.";
 	}
-	if (p_ptr->flags3 & (TR3_SH_FIRE))
+	if (FLAG(p_ptr, TR_SH_FIRE))
 	{
 		info[i++] = "You are surrounded with a fiery aura.";
 	}
-	if (p_ptr->flags3 & (TR3_SH_ELEC))
+	if (FLAG(p_ptr, TR_SH_ELEC))
 	{
 		info[i++] = "You are surrounded with electricity.";
 	}
-	if (p_ptr->flags4 & (TR4_SH_ACID))
+	if (FLAG(p_ptr, TR_SH_ACID))
 	{
 		info[i++] = "You are surrounded by an acidic cloud.";
 	}
-	if (p_ptr->flags4 & (TR4_SH_COLD))
+	if (FLAG(p_ptr, TR_SH_COLD))
 	{
 		info[i++] = "You are surrounded by a freezing aura.";
 	}
-	if (p_ptr->flags3 & (TR3_NO_MAGIC))
+	if (FLAG(p_ptr, TR_NO_MAGIC))
 	{
 		info[i++] = "You are surrounded by an anti-magic shell.";
 	}
-	if (p_ptr->flags3 & (TR3_NO_TELE))
+	if (FLAG(p_ptr, TR_NO_TELE))
 	{
 		info[i++] = "You cannot teleport.";
 	}
-	if (p_ptr->flags3 & (TR3_LITE))
+	if (FLAG(p_ptr, TR_LITE))
 	{
 		info[i++] = "You have a source of permanent light.";
 	}
 
-	if (p_ptr->flags2 & (TR2_IM_ACID))
+	if (FLAG(p_ptr, TR_IM_ACID))
 	{
 		info[i++] = "You are completely immune to acid.";
 	}
-	else if ((p_ptr->flags2 & (TR2_RES_ACID)) && (p_ptr->tim.oppose_acid))
+	else if ((FLAG(p_ptr, TR_RES_ACID)) && (p_ptr->tim.oppose_acid))
 	{
-		if (p_ptr->flags4 & (TR4_HURT_ACID))
+		if (FLAG(p_ptr, TR_HURT_ACID))
 			info[i++] = "You resist acid very well.";
 		else
 			info[i++] = "You resist acid exceptionally well.";
 	}
-	else if ((p_ptr->flags2 & (TR2_RES_ACID)) || (p_ptr->tim.oppose_acid))
+	else if ((FLAG(p_ptr, TR_RES_ACID)) || (p_ptr->tim.oppose_acid))
 	{
-		if (p_ptr->flags4 & (TR4_HURT_ACID))
+		if (FLAG(p_ptr, TR_HURT_ACID))
 			info[i++] = "You are somewhat resistant to acid.";
 		else
 			info[i++] = "You are resistant to acid.";
 	}
-	else if (p_ptr->flags4 & (TR4_HURT_ACID))
+	else if (FLAG(p_ptr, TR_HURT_ACID))
 	{
 		info[i++] = "You are vulnerable to acid.";
 	}
 
-	if (p_ptr->flags2 & (TR2_IM_ELEC))
+	if (FLAG(p_ptr, TR_IM_ELEC))
 	{
 		info[i++] = "You are completely immune to lightning.";
 	}
-	else if ((p_ptr->flags2 & (TR2_RES_ELEC)) && (p_ptr->tim.oppose_elec))
+	else if ((FLAG(p_ptr, TR_RES_ELEC)) && (p_ptr->tim.oppose_elec))
 	{
-		if (p_ptr->flags4 & (TR4_HURT_ELEC))
+		if (FLAG(p_ptr, TR_HURT_ELEC))
 			info[i++] = "You resist lightning very well.";
 		else
 			info[i++] = "You resist lightning exceptionally well.";
 	}
-	else if ((p_ptr->flags2 & (TR2_RES_ELEC)) || (p_ptr->tim.oppose_elec))
+	else if ((FLAG(p_ptr, TR_RES_ELEC)) || (p_ptr->tim.oppose_elec))
 	{
-		if (p_ptr->flags4 & (TR4_HURT_ELEC))
+		if (FLAG(p_ptr, TR_HURT_ELEC))
 			info[i++] = "You are somewhat resistant to lightning.";
 		else
 			info[i++] = "You are resistant to lightning.";
 	}
-	else if (p_ptr->flags4 & (TR4_HURT_ELEC))
+	else if (FLAG(p_ptr, TR_HURT_ELEC))
 	{
 		info[i++] = "You are vulnerable to lightning.";
 	}
 
-	if (p_ptr->flags2 & (TR2_IM_FIRE))
+	if (FLAG(p_ptr, TR_IM_FIRE))
 	{
 		info[i++] = "You are completely immune to fire.";
 	}
-	else if ((p_ptr->flags2 & (TR2_RES_FIRE)) && (p_ptr->tim.oppose_fire))
+	else if ((FLAG(p_ptr, TR_RES_FIRE)) && (p_ptr->tim.oppose_fire))
 	{
-		if (p_ptr->flags4 & (TR4_HURT_FIRE))
+		if (FLAG(p_ptr, TR_HURT_FIRE))
 			info[i++] = "You resist fire very well.";
 		else
 			info[i++] = "You resist fire exceptionally well.";
 	}
-	else if ((p_ptr->flags2 & (TR2_RES_FIRE)) || (p_ptr->tim.oppose_fire))
+	else if ((FLAG(p_ptr, TR_RES_FIRE)) || (p_ptr->tim.oppose_fire))
 	{
-		if (p_ptr->flags4 & (TR4_HURT_FIRE))
+		if (FLAG(p_ptr, TR_HURT_FIRE))
 			info[i++] = "You are somewhat resistant to fire.";
 		else
 			info[i++] = "You are resistant to fire.";
 	}
-	else if (p_ptr->flags4 & (TR4_HURT_FIRE))
+	else if (FLAG(p_ptr, TR_HURT_FIRE))
 	{
 		info[i++] = "You are vulnerable to fire.";
 	}
 
-	if (p_ptr->flags2 & (TR2_IM_COLD))
+	if (FLAG(p_ptr, TR_IM_COLD))
 	{
 		info[i++] = "You are completely immune to cold.";
 	}
-	else if ((p_ptr->flags2 & (TR2_RES_COLD)) && (p_ptr->tim.oppose_cold))
+	else if ((FLAG(p_ptr, TR_RES_COLD)) && (p_ptr->tim.oppose_cold))
 	{
-		if (p_ptr->flags4 & (TR4_HURT_COLD))
+		if (FLAG(p_ptr, TR_HURT_COLD))
 			info[i++] = "You resist cold very well.";
 		else
 			info[i++] = "You resist cold exceptionally well.";
 	}
-	else if ((p_ptr->flags2 & (TR2_RES_COLD)) || (p_ptr->tim.oppose_cold))
+	else if ((FLAG(p_ptr, TR_RES_COLD)) || (p_ptr->tim.oppose_cold))
 	{
-		if (p_ptr->flags4 & (TR4_HURT_COLD))
+		if (FLAG(p_ptr, TR_HURT_COLD))
 			info[i++] = "You are somewhat resistant to cold.";
 		else
 			info[i++] = "You are resistant to cold.";
 	}
-	else if (p_ptr->flags4 & (TR4_HURT_COLD))
+	else if (FLAG(p_ptr, TR_HURT_COLD))
 	{
 		info[i++] = "You are vulnerable to cold.";
 	}
 
-	if ((p_ptr->flags2 & (TR2_RES_POIS)) && (p_ptr->tim.oppose_pois))
+	if (FLAG(p_ptr, TR_IM_POIS))
+	{
+		info[i++] = "You are completely immune to poison.";
+	}
+	else if ((FLAG(p_ptr, TR_RES_POIS)) && (p_ptr->tim.oppose_pois))
 	{
 		info[i++] = "You resist poison exceptionally well.";
 	}
-	else if ((p_ptr->flags2 & (TR2_RES_POIS)) || (p_ptr->tim.oppose_pois))
+	else if ((FLAG(p_ptr, TR_RES_POIS)) || (p_ptr->tim.oppose_pois))
 	{
 		info[i++] = "You are resistant to poison.";
 	}
 
-	if (p_ptr->flags4 & (TR4_IM_LITE))
+	if (FLAG(p_ptr, TR_IM_LITE))
 	{
 		info[i++] = "You are completely immune to bright light.";
 	}
-	else if (p_ptr->flags2 & (TR2_RES_LITE))
+	else if (FLAG(p_ptr, TR_RES_LITE))
 	{
-		if (p_ptr->flags4 & (TR4_HURT_LITE))
+		if (FLAG(p_ptr, TR_HURT_LITE))
 			info[i++] = "You are somewhat resistant to bright light.";
 		else
 			info[i++] = "You are resistant to bright light.";
 	}
-	else if (p_ptr->flags4 & (TR4_HURT_LITE))
+	else if (FLAG(p_ptr, TR_HURT_LITE))
 	{
 		info[i++] = "You are vulnerable to bright light.";
 	}
 
-	if (p_ptr->flags4 & (TR4_IM_DARK))
+	if (FLAG(p_ptr, TR_IM_DARK))
 	{
 		info[i++] = "You are completely immune to darkness.";
 	}
-	else if (p_ptr->flags2 & (TR2_RES_DARK))
+	else if (FLAG(p_ptr, TR_RES_DARK))
 	{
-		if (p_ptr->flags4 & (TR4_HURT_DARK))
+		if (FLAG(p_ptr, TR_HURT_DARK))
 			info[i++] = "You are somewhat resistant to darkness.";
 		else
 			info[i++] = "You are resistant to darkness.";
 	}
-	else if (p_ptr->flags4 & (TR4_HURT_DARK))
+	else if (FLAG(p_ptr, TR_HURT_DARK))
 	{
 		info[i++] = "You are vulnerable to darkness.";
 	}
 
-	if (p_ptr->flags2 & (TR2_RES_CONF))
+	if (FLAG(p_ptr, TR_RES_CONF))
 	{
 		info[i++] = "You are resistant to confusion.";
 	}
-	if (p_ptr->flags2 & (TR2_RES_SOUND))
+	if (FLAG(p_ptr, TR_RES_SOUND))
 	{
 		info[i++] = "You are resistant to sonic attacks.";
 	}
-	if (p_ptr->flags2 & (TR2_RES_DISEN))
+	if (FLAG(p_ptr, TR_RES_DISEN))
 	{
 		info[i++] = "You are resistant to disenchantment.";
 	}
-	if (p_ptr->flags2 & (TR2_RES_CHAOS))
+	if (FLAG(p_ptr, TR_RES_CHAOS))
 	{
 		info[i++] = "You are resistant to chaos.";
 	}
-	if (p_ptr->flags2 & (TR2_RES_SHARDS))
+	if (FLAG(p_ptr, TR_RES_SHARDS))
 	{
 		info[i++] = "You are resistant to blasts of shards.";
 	}
-	if (p_ptr->flags2 & (TR2_RES_NEXUS))
+	if (FLAG(p_ptr, TR_RES_NEXUS))
 	{
 		info[i++] = "You are resistant to nexus attacks.";
 	}
-	if (p_ptr->flags2 & (TR2_RES_NETHER))
+	if (FLAG(p_ptr, TR_RES_NETHER))
 	{
 		info[i++] = "You are resistant to nether forces.";
 	}
-	if ((p_ptr->flags2 & (TR2_RES_FEAR)) && (!(p_ptr->muta3 & MUT3_ESP)))
+	if ((FLAG(p_ptr, TR_RES_FEAR)) && (!(p_ptr->muta3 & MUT3_ESP)))
 	{
 		info[i++] = "You are completely fearless.";
 	}
-	if (p_ptr->flags2 & (TR2_RES_BLIND))
+	if (FLAG(p_ptr, TR_RES_BLIND))
 	{
 		info[i++] = "Your eyes are resistant to blindness.";
 	}
 
-	if (p_ptr->flags2 & (TR2_SUST_STR))
+	if (FLAG(p_ptr, TR_SUST_STR))
 	{
 		info[i++] = "Your strength is sustained.";
 	}
-	if (p_ptr->flags2 & (TR2_SUST_INT))
+	if (FLAG(p_ptr, TR_SUST_INT))
 	{
 		info[i++] = "Your intelligence is sustained.";
 	}
-	if (p_ptr->flags2 & (TR2_SUST_WIS))
+	if (FLAG(p_ptr, TR_SUST_WIS))
 	{
 		info[i++] = "Your wisdom is sustained.";
 	}
-	if (p_ptr->flags2 & (TR2_SUST_CON))
+	if (FLAG(p_ptr, TR_SUST_CON))
 	{
 		info[i++] = "Your constitution is sustained.";
 	}
-	if (p_ptr->flags2 & (TR2_SUST_DEX))
+	if (FLAG(p_ptr, TR_SUST_DEX))
 	{
 		info[i++] = "Your dexterity is sustained.";
 	}
-	if (p_ptr->flags2 & (TR2_SUST_CHR))
+	if (FLAG(p_ptr, TR_SUST_CHR))
 	{
 		info[i++] = "Your charisma is sustained.";
 	}
 
-	if (p_ptr->flags4 & (TR4_GHOUL_TOUCH))
+	if (FLAG(p_ptr, TR_GHOUL_TOUCH))
 	{
 		info[i++] = "Your touch paralyzes your foes.";
 	}
 
-	if (f1 & (TR1_STR))
+	if (ff[0] & (TR0_STR))
 	{
 		info[i++] = "Your strength is affected by your equipment.";
 	}
-	if (f1 & (TR1_INT))
+	if (ff[0] & (TR0_INT))
 	{
 		info[i++] = "Your intelligence is affected by your equipment.";
 	}
-	if (f1 & (TR1_WIS))
+	if (ff[0] & (TR0_WIS))
 	{
 		info[i++] = "Your wisdom is affected by your equipment.";
 	}
-	if (f1 & (TR1_DEX))
+	if (ff[0] & (TR0_DEX))
 	{
 		info[i++] = "Your dexterity is affected by your equipment.";
 	}
-	if (f1 & (TR1_CON))
+	if (ff[0] & (TR0_CON))
 	{
 		info[i++] = "Your constitution is affected by your equipment.";
 	}
-	if (f1 & (TR1_CHR))
+	if (ff[0] & (TR0_CHR))
 	{
 		info[i++] = "Your charisma is affected by your equipment.";
 	}
 
-	if (f1 & (TR1_STEALTH))
+	if (ff[0] & (TR0_STEALTH))
 	{
 		info[i++] = "Your stealth is affected by your equipment.";
 	}
-	if (f1 & (TR1_SEARCH))
+	if (ff[0] & (TR0_SEARCH))
 	{
 		info[i++] = "Your searching ability is affected by your equipment.";
 	}
-	if (f1 & (TR1_INFRA))
+	if (ff[0] & (TR0_INFRA))
 	{
 		info[i++] = "Your infravision is affected by your equipment.";
 	}
-	if (f1 & (TR1_TUNNEL))
+	if (ff[0] & (TR0_TUNNEL))
 	{
 		info[i++] = "Your digging ability is affected by your equipment.";
 	}
-	if (f1 & (TR1_SPEED))
+	if (ff[0] & (TR0_SPEED))
 	{
 		info[i++] = "Your speed is affected by your equipment.";
 	}
-	if (f1 & (TR1_BLOWS))
+	if (ff[0] & (TR0_BLOWS))
 	{
 		info[i++] = "Your attack speed is affected by your equipment.";
 	}
@@ -623,100 +627,100 @@ void self_knowledge(void)
 	if (o_ptr->k_idx)
 	{
 		/* Indicate Blessing */
-		if (o_ptr->flags3 & (TR3_BLESSED))
+		if (FLAG(o_ptr, TR_BLESSED))
 		{
 			info[i++] = "Your weapon has been blessed by the gods.";
 		}
 
-		if (o_ptr->flags1 & (TR1_CHAOTIC))
+		if (FLAG(o_ptr, TR_CHAOTIC))
 		{
 			info[i++] = "Your weapon is branded with the Sign of Logrus.";
 		}
 
 		/* Hack */
-		if (o_ptr->flags1 & (TR1_IMPACT))
+		if (FLAG(o_ptr, TR_IMPACT))
 		{
 			info[i++] = "The impact of your weapon can cause earthquakes.";
 		}
 
-		if (o_ptr->flags1 & (TR1_VORPAL))
+		if (FLAG(o_ptr, TR_VORPAL))
 		{
 			info[i++] = "Your weapon is very sharp.";
 		}
 
-		if (o_ptr->flags1 & (TR1_VAMPIRIC))
+		if (FLAG(o_ptr, TR_VAMPIRIC))
 		{
 			info[i++] = "Your weapon drains life from your foes.";
 		}
 
 		/* Special "Attack Bonuses" */
-		if (f1 & (TR1_BRAND_ACID))
+		if (ff[0] & (TR0_BRAND_ACID))
 		{
 			info[i++] = "Your weapon melts your foes.";
 		}
-		if (f1 & (TR1_BRAND_ELEC))
+		if (ff[0] & (TR0_BRAND_ELEC))
 		{
 			info[i++] = "Your weapon shocks your foes.";
 		}
-		if (f1 & (TR1_BRAND_FIRE))
+		if (ff[0] & (TR0_BRAND_FIRE))
 		{
 			info[i++] = "Your weapon burns your foes.";
 		}
-		if (f1 & (TR1_BRAND_COLD))
+		if (ff[0] & (TR0_BRAND_COLD))
 		{
 			info[i++] = "Your weapon freezes your foes.";
 		}
-		if (f1 & (TR1_BRAND_POIS))
+		if (ff[0] & (TR0_BRAND_POIS))
 		{
 			info[i++] = "Your weapon poisons your foes.";
 		}
 
 		/* Special "slay" flags */
-		if (o_ptr->flags1 & (TR1_SLAY_ANIMAL))
+		if (FLAG(o_ptr, TR_SLAY_ANIMAL))
 		{
 			info[i++] = "Your weapon strikes at animals with extra force.";
 		}
-		if (o_ptr->flags1 & (TR1_SLAY_EVIL))
+		if (FLAG(o_ptr, TR_SLAY_EVIL))
 		{
 			info[i++] = "Your weapon strikes at evil with extra force.";
 		}
-		if (o_ptr->flags1 & (TR1_SLAY_UNDEAD))
+		if (FLAG(o_ptr, TR_SLAY_UNDEAD))
 		{
 			info[i++] = "Your weapon strikes at undead with holy wrath.";
 		}
-		if (o_ptr->flags1 & (TR1_SLAY_DEMON))
+		if (FLAG(o_ptr, TR_SLAY_DEMON))
 		{
 			info[i++] = "Your weapon strikes at demons with holy wrath.";
 		}
-		if (o_ptr->flags1 & (TR1_SLAY_ORC))
+		if (FLAG(o_ptr, TR_SLAY_ORC))
 		{
 			info[i++] = "Your weapon is especially deadly against orcs.";
 		}
-		if (o_ptr->flags1 & (TR1_SLAY_TROLL))
+		if (FLAG(o_ptr, TR_SLAY_TROLL))
 		{
 			info[i++] = "Your weapon is especially deadly against trolls.";
 		}
-		if (o_ptr->flags1 & (TR1_SLAY_GIANT))
+		if (FLAG(o_ptr, TR_SLAY_GIANT))
 		{
 			info[i++] = "Your weapon is especially deadly against giants.";
 		}
-		if (o_ptr->flags1 & (TR1_SLAY_DRAGON))
+		if (FLAG(o_ptr, TR_SLAY_DRAGON))
 		{
 			info[i++] = "Your weapon is especially deadly against dragons.";
 		}
 
 		/* Special "kill" flags */
-		if (f1 & (TR1_KILL_DRAGON))
+		if (ff[0] & (TR0_KILL_DRAGON))
 		{
 			info[i++] = "Your weapon is a great bane of dragons.";
 		}
 
-		if (f2 & (TR2_THROW))
+		if (ff[1] & (TR1_THROW))
 		{
 			info[i++] = "Your weapon can be thrown well.";
 		}
 
-		if (f4 & (TR4_PSI_CRIT))
+		if (ff[3] & (TR3_PSI_CRIT))
 		{
 			info[i++] = "Your weapon uses magical power to strike great blows.";
 		}
@@ -940,23 +944,24 @@ void report_magics(void)
 }
 
 
+
 /*
- * Detect all traps in range
+ * Detect things on a square.
+ *
+ * The location (x,y) is passed to the tester function pointer.
+ *
+ * This is an "engine" function that does all the work, and
+ * prevents a huge amount of code duplication.
  */
-bool detect_traps(void)
+static bool detect_sq_aux(bool tester(int x, int y), cptr msg)
 {
 	int px = p_ptr->px;
 	int py = p_ptr->py;
-
+	
 	int x, y;
+	
 	bool detect = FALSE;
-	cave_type *c_ptr;
-	pcave_type *pc_ptr;
-
-	/* Have detected traps on this level */
-	p_ptr->detected = TRUE;
-
-
+	
 	/* Scan a radius MAX_DETECT circle */
 	for (y = py - MAX_DETECT; y <= py + MAX_DETECT; y++)
 	{
@@ -965,31 +970,49 @@ bool detect_traps(void)
 			if (!in_bounds2(x, y)) continue;
 
 			if (distance(px, py, x, y) > MAX_DETECT) continue;
-
-			/* Access the grid */
-			c_ptr = area(x, y);
-			pc_ptr = parea(x, y);
-
-			/* Detect traps */
-			if (field_detect_type(c_ptr->fld_idx, FTYPE_TRAP))
-			{
-				/* Obvious */
-				detect = TRUE;
-			}
-
-			/* Save the 'detected' status for this square */
-			pc_ptr->player |= GRID_DTCT;
+			
+			/* Detect something? */
+			if (tester(x, y)) detect = TRUE;
 		}
 	}
-
-	/* Describe */
+	
 	if (detect)
 	{
-		msgf("You sense the presence of traps!");
+		/* Describe */
+		msgf(msg);
+		
+		/* Window stuff */
+		p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
 	}
-
-	/* Result */
+	
 	return (detect);
+}
+
+
+/* Test for the existance of traps here */
+static bool trap_tester(int x, int y)
+{
+	cave_type *c_ptr = area(x, y);
+	pcave_type *pc_ptr = parea(x, y);
+	
+	/* Save the 'detected' status for this square */
+	pc_ptr->player |= GRID_DTCT;
+
+	/* Detect traps */
+	return (field_detect_type(c_ptr, FTYPE_TRAP));
+}
+
+
+/*
+ * Detect all traps in range
+ */
+bool detect_traps(void)
+{
+	/* Have detected traps on this level */
+	p_ptr->state.detected = TRUE;
+	
+	/* Detect them */
+	return(detect_sq_aux(trap_tester, "You sense the presence of traps!"));
 }
 
 
@@ -1035,6 +1058,35 @@ void create_closed_door(int x, int y)
 	}
 }
 
+/* Test for the existance of doors here */
+static bool door_tester(int x, int y)
+{
+	cave_type *c_ptr = area(x, y);
+	pcave_type *pc_ptr = parea(x, y);
+	
+	/* Detect secret doors */
+	if (c_ptr->feat == FEAT_SECRET)
+	{
+		/* Pick a door */
+		create_closed_door(x, y);
+	}
+
+	/* Detect doors */
+	if ((c_ptr->feat == FEAT_CLOSED) || (c_ptr->feat == FEAT_OPEN) ||
+		(c_ptr->feat == FEAT_BROKEN))
+	{
+		/* Hack -- Memorize */
+		remember_grid(c_ptr, pc_ptr);
+
+		/* Redraw */
+		lite_spot(x, y);
+
+		/* Obvious */
+		return (TRUE);
+	}
+	
+	return (FALSE);
+}
 
 
 /*
@@ -1042,112 +1094,62 @@ void create_closed_door(int x, int y)
  */
 bool detect_doors(void)
 {
-	int px = p_ptr->px;
-	int py = p_ptr->py;
-
-	int y, x;
-
-	bool detect = FALSE;
-
-	cave_type *c_ptr;
-	pcave_type *pc_ptr;
-
-	/* Scan a radius MAX_DETECT circle */
-	for (y = py - MAX_DETECT; y <= py + MAX_DETECT; y++)
-	{
-		for (x = px - MAX_DETECT; x <= px + MAX_DETECT; x++)
-		{
-			if (!in_boundsp(x, y)) continue;
-
-			if (distance(px, py, x, y) > MAX_DETECT) continue;
-
-			c_ptr = area(x, y);
-			pc_ptr = parea(x, y);
-
-			/* Detect secret doors */
-			if (c_ptr->feat == FEAT_SECRET)
-			{
-				/* Pick a door */
-				create_closed_door(x, y);
-			}
-
-			/* Detect doors */
-			if ((c_ptr->feat == FEAT_CLOSED) ||
-				(c_ptr->feat == FEAT_OPEN) || (c_ptr->feat == FEAT_BROKEN))
-			{
-				/* Hack -- Memorize */
-				remember_grid(c_ptr, pc_ptr);
-
-				/* Redraw */
-				lite_spot(x, y);
-
-				/* Obvious */
-				detect = TRUE;
-			}
-		}
-	}
-
-	/* Describe */
-	if (detect)
-	{
-		msgf("You sense the presence of doors!");
-	}
-
-	/* Result */
-	return (detect);
+	return (detect_sq_aux(door_tester, "You sense the presence of doors!"));
 }
 
+
+
+/* Test for the existance of stairs here */
+static bool stair_tester(int x, int y)
+{
+	cave_type *c_ptr = area(x, y);
+	pcave_type *pc_ptr = parea(x, y);
+	
+	/* Detect stairs */
+	if ((c_ptr->feat == FEAT_LESS) || (c_ptr->feat == FEAT_MORE))
+	{
+		/* Hack -- Memorize */
+		remember_grid(c_ptr, pc_ptr);
+
+		/* Redraw */
+		lite_spot(x, y);
+
+		/* Obvious */
+		return (TRUE);
+	}
+
+	return (FALSE);
+}
 
 /*
  * Detect all stairs in range
  */
 bool detect_stairs(void)
 {
-	int px = p_ptr->px;
-	int py = p_ptr->py;
+	return (detect_sq_aux(stair_tester, "You sense the presence of stairs!"));
+}
 
-	int y, x;
 
-	bool detect = FALSE;
-
-	cave_type *c_ptr;
-	pcave_type *pc_ptr;
-
-	/* Scan a radiuc MAX_DETECT circle */
-	for (y = py - MAX_DETECT; y <= py + MAX_DETECT; y++)
+/* Test for the existance of treasure here */
+static bool treasure_tester(int x, int y)
+{
+	cave_type *c_ptr = area(x, y);
+	pcave_type *pc_ptr = parea(x, y);
+	
+	/* Magma/Quartz + Known Gold */
+	if ((c_ptr->feat == FEAT_MAGMA_K) || (c_ptr->feat == FEAT_QUARTZ_K))
 	{
-		for (x = px - MAX_DETECT; x <= px + MAX_DETECT; x++)
-		{
-			if (!in_boundsp(x, y)) continue;
+		/* Hack -- Memorize */
+		remember_grid(c_ptr, pc_ptr);
 
-			if (distance(px, py, x, y) > MAX_DETECT) continue;
+		/* Redraw */
+		lite_spot(x, y);
 
-			c_ptr = area(x, y);
-			pc_ptr = parea(x, y);
-
-			/* Detect stairs */
-			if ((c_ptr->feat == FEAT_LESS) || (c_ptr->feat == FEAT_MORE))
-			{
-				/* Hack -- Memorize */
-				remember_grid(c_ptr, pc_ptr);
-
-				/* Redraw */
-				lite_spot(x, y);
-
-				/* Obvious */
-				detect = TRUE;
-			}
-		}
+		/* Detect */
+		return (TRUE);
 	}
 
-	/* Describe */
-	if (detect)
-	{
-		msgf("You sense the presence of stairs!");
-	}
-
-	/* Result */
-	return (detect);
+	return (FALSE);
 }
 
 
@@ -1156,54 +1158,77 @@ bool detect_stairs(void)
  */
 bool detect_treasure(void)
 {
+	return (detect_sq_aux(treasure_tester,
+			"You sense the presence of buried treasure!"));
+}
+
+
+/*
+ * Detect objects with a given property.
+ *
+ * The object o_ptr is passed to the tester function pointer.
+ *
+ * This is an "engine" function that does all the work, and
+ * prevents a huge amount of code duplication.
+ */
+static bool detect_obj_aux(bool tester(const object_type *o_ptr), cptr msg)
+{
 	int px = p_ptr->px;
 	int py = p_ptr->py;
-
-	int y, x;
-
+	
+	int x, y, i;
+	
 	bool detect = FALSE;
-
-	cave_type *c_ptr;
-	pcave_type *pc_ptr;
-
-	/* Scan a radius MAX_DETECT circle */
-	for (y = py - MAX_DETECT; y <= py + MAX_DETECT; y++)
+	
+	/* Scan objects */
+	for (i = 1; i < o_max; i++)
 	{
-		for (x = px - MAX_DETECT; x <= px + MAX_DETECT; x++)
+		object_type *o_ptr = &o_list[i];
+
+		/* Skip dead objects */
+		if (!o_ptr->k_idx) continue;
+
+		/* Skip held objects */
+		if (!(o_ptr->ix || o_ptr->iy)) continue;
+
+		/* Location */
+		y = o_ptr->iy;
+		x = o_ptr->ix;
+
+		if (distance(px, py, x, y) > MAX_DETECT) continue;
+
+		/* Detect */
+		if (tester(o_ptr))
 		{
-			if (!in_boundsp(x, y)) continue;
+			/* Detect */
+			detect = TRUE;
+			
+			/* Hack -- memorize it */
+			o_ptr->info |= OB_SEEN;
 
-			if (distance(px, py, x, y) > MAX_DETECT) continue;
-
-			c_ptr = area(x, y);
-			pc_ptr = parea(x, y);
-
-			/* Magma/Quartz + Known Gold */
-			if ((c_ptr->feat == FEAT_MAGMA_K) || (c_ptr->feat == FEAT_QUARTZ_K))
-			{
-				/* Hack -- Memorize */
-				remember_grid(c_ptr, pc_ptr);
-
-				/* Redraw */
-				lite_spot(x, y);
-
-				/* Detect */
-				detect = TRUE;
-			}
+			/* Redraw */
+			lite_spot(x, y);
 		}
 	}
-
-	/* Describe */
+	
 	if (detect)
 	{
-		msgf("You sense the presence of buried treasure!");
+		/* Describe */
+		msgf(msg);
+		
+		/* Window stuff */
+		p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
 	}
-
-
-	/* Result */
+	
 	return (detect);
 }
 
+/*  Gold item? */ 
+static bool gold_tester(const object_type *o_ptr)
+{
+	/* Detect "gold" objects */
+	return (o_ptr->tval == TV_GOLD);
+}
 
 
 /*
@@ -1211,162 +1236,35 @@ bool detect_treasure(void)
  */
 bool detect_objects_gold(void)
 {
-	int px = p_ptr->px;
-	int py = p_ptr->py;
-
-	int i, y, x;
-
-	bool detect = FALSE;
-
-
-	/* Scan objects */
-	for (i = 1; i < o_max; i++)
-	{
-		object_type *o_ptr = &o_list[i];
-
-		/* Skip dead objects */
-		if (!o_ptr->k_idx) continue;
-
-		/* Skip held objects */
-		if (!(o_ptr->ix || o_ptr->iy)) continue;
-
-		/* Location */
-		y = o_ptr->iy;
-		x = o_ptr->ix;
-
-		if (distance(px, py, x, y) > MAX_DETECT) continue;
-
-		/* Detect "gold" objects */
-		if (o_ptr->tval == TV_GOLD)
-		{
-			/* Hack -- memorize it */
-			o_ptr->info |= OB_SEEN;
-
-			/* Redraw */
-			lite_spot(x, y);
-
-			/* Detect */
-			detect = TRUE;
-		}
-	}
-
-	/* Describe */
-	if (detect)
-	{
-		msgf("You sense the presence of treasure!");
-	}
-
-	if (detect_monsters_string("$"))
-	{
-		detect = TRUE;
-	}
-
-	/* Result */
-	return (detect);
+	return (detect_obj_aux(gold_tester,
+				"You sense the presence of treasure!") ||
+			detect_monsters_string("$"));
 }
 
+/* Real nongold item? */
+static bool nongold_tester(const object_type *o_ptr)
+{
+	return (o_ptr->tval != TV_GOLD);
+}
 
 /*
  * Detect all "normal" objects in range
  */
 bool detect_objects_normal(void)
 {
-	int px = p_ptr->px;
-	int py = p_ptr->py;
-
-	int i, y, x;
-
-	bool detect = FALSE;
-
-
-	/* Scan objects */
-	for (i = 1; i < o_max; i++)
-	{
-		object_type *o_ptr = &o_list[i];
-
-		/* Skip dead objects */
-		if (!o_ptr->k_idx) continue;
-
-		/* Skip held objects */
-		if (!(o_ptr->ix || o_ptr->iy)) continue;
-
-		/* Location */
-		y = o_ptr->iy;
-		x = o_ptr->ix;
-
-		if (distance(px, py, x, y) > MAX_DETECT) continue;
-
-		/* Detect "real" objects */
-		if (o_ptr->tval != TV_GOLD)
-		{
-			/* Hack -- memorize it */
-			o_ptr->info |= OB_SEEN;
-
-			/* Redraw */
-			lite_spot(x, y);
-
-			/* Detect */
-			detect = TRUE;
-		}
-	}
-
-	/* Describe */
-	if (detect)
-	{
-		msgf("You sense the presence of objects!");
-	}
-
-	if (detect_monsters_string("!=?|"))
-	{
-		detect = TRUE;
-	}
-
-	/* Result */
-	return (detect);
+	return (detect_obj_aux(nongold_tester,
+				"You sense the presence of objects!") ||
+			detect_monsters_string("!=?|"));
 }
 
 
-/*
- * Detect all "magic" objects in range.
- *
- * This will light up all spaces with "magic" items, including artifacts,
- * ego-items, potions, scrolls, books, rods, wands, staves, amulets, rings,
- * and "enchanted" items of the "good" variety.
- *
- * It can probably be argued that this function is now too powerful.
- */
-bool detect_objects_magic(void)
+static bool magic_tester(const object_type *o_ptr)
 {
-	int px = p_ptr->px;
-	int py = p_ptr->py;
+	/* Examine the tval */
+	int	tv = o_ptr->tval;
 
-	int i, y, x, tv;
-
-	bool detect = FALSE;
-
-
-	/* Scan all objects */
-	for (i = 1; i < o_max; i++)
-	{
-		object_type *o_ptr = &o_list[i];
-
-		/* Skip dead objects */
-		if (!o_ptr->k_idx) continue;
-
-		/* Skip held objects */
-		if (!(o_ptr->ix || o_ptr->iy)) continue;
-
-		/* Location */
-		y = o_ptr->iy;
-		x = o_ptr->ix;
-
-		if (distance(px, py, x, y) > MAX_DETECT) continue;
-
-		/* Examine the tval */
-		tv = o_ptr->tval;
-
-		/* Artifacts, misc magic items, or enchanted wearables */
-		if (o_ptr->xtra_name ||
+	/* Artifacts, misc magic items, or enchanted wearables */
+	return	(o_ptr->xtra_name ||
 			(tv == TV_AMULET) ||
 			(tv == TV_RING) ||
 			(tv == TV_STAFF) ||
@@ -1381,48 +1279,47 @@ bool detect_objects_magic(void)
 			(tv == TV_DEATH_BOOK) ||
 			(tv == TV_TRUMP_BOOK) ||
 			(tv == TV_ARCANE_BOOK) ||
-			((o_ptr->to_a > 0) || (o_ptr->to_h + o_ptr->to_d > 0)))
-		{
-			/* Memorize the item */
-			o_ptr->info |= OB_SEEN;
+			((o_ptr->to_a > 0) || (o_ptr->to_h + o_ptr->to_d > 0)));
+}
 
-			/* Redraw */
-			lite_spot(x, y);
-
-			/* Detect */
-			detect = TRUE;
-		}
-	}
-
-	/* Describe */
-	if (detect)
-	{
-		msgf("You sense the presence of magic objects!");
-	}
-
-	/* Return result */
-	return (detect);
+/*
+ * Detect all "magic" objects in range.
+ *
+ * This will light up all spaces with "magic" items, including artifacts,
+ * ego-items, potions, scrolls, books, rods, wands, staves, amulets, rings,
+ * and "enchanted" items of the "good" variety.
+ *
+ * It can probably be argued that this function is now too powerful.
+ */
+bool detect_objects_magic(void)
+{
+	return (detect_obj_aux(magic_tester,
+			"You sense the presence of magic objects!"));
 }
 
 
 /*
- * Detect all "normal" monsters in range
+ * Detect monster with a given property.
+ *
+ * The monster m_ptr is passed to the tester function pointer,
+ * along with the pointer to the extra parameters.
+ *
+ * This is an "engine" function that does all the work, and
+ * prevents a huge amount of code duplication.
  */
-bool detect_monsters_normal(void)
+static bool detect_mon_aux(bool tester(const monster_type *m_ptr, vptr data), cptr msg, vptr data)
 {
 	int px = p_ptr->px;
 	int py = p_ptr->py;
-
-	int i, y, x;
-
-	bool flag = FALSE;
-
-
+	
+	int x, y, i;
+	
+	bool detect = FALSE;
+	
 	/* Scan monsters */
 	for (i = 1; i < m_max; i++)
 	{
 		monster_type *m_ptr = &m_list[i];
-		monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
 		/* Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
@@ -1435,13 +1332,19 @@ bool detect_monsters_normal(void)
 
 		/* Do not detect mimics */
 		if (m_ptr->smart & (SM_MIMIC)) continue;
-
-		/* Detect all non-invisible monsters */
-		if ((!(r_ptr->flags2 & RF2_INVISIBLE)) ||
-			(p_ptr->flags3 & (TR3_SEE_INVIS)) || p_ptr->tim.invis)
+		
+		/* Detect monsters satisfying restriction */
+		if (tester(m_ptr, data))
 		{
+			/* Update monster recall window */
+			if (p_ptr->monster_race_idx == m_ptr->r_idx)
+			{
+				/* Window stuff */
+				p_ptr->window |= (PW_MONSTER);
+			}
+			
 			/* Repair visibility later */
-			repair_monsters = TRUE;
+			p_ptr->change |= (PC_REPAIR);
 
 			/* Hack -- Detect monster */
 			m_ptr->mflag |= (MFLAG_MARK | MFLAG_SHOW);
@@ -1450,337 +1353,188 @@ bool detect_monsters_normal(void)
 			update_mon(i, FALSE);
 
 			/* Detect */
-			flag = TRUE;
+			detect = TRUE;
 		}
 	}
-
-	/* Describe */
-	if (flag)
+	
+	if (detect)
 	{
-		/* Describe result */
-		msgf("You sense the presence of monsters!");
+		/* Describe */
+		msgf(msg);
+		
+		/* Window stuff */
+		p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
 	}
-
-	/* Result */
-	return (flag);
+	
+	return (detect);
 }
 
+
+/* Normal monster? */
+static bool norm_mon_tester(const monster_type *m_ptr, vptr data)
+{
+	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+	
+	/* Ignore parameter */
+	(void) data;
+
+	/* Do not detect mimics */
+	if (m_ptr->smart & (SM_MIMIC)) return (FALSE);
+	
+	/* Detect all non-invisible monsters */
+	if (!FLAG(r_ptr, RF_INVISIBLE) ||
+		FLAG(p_ptr, TR_SEE_INVIS) || p_ptr->tim.invis) return (TRUE);
+		
+	return (FALSE);
+}
+
+
+/*
+ * Detect all "normal" monsters in range
+ */
+bool detect_monsters_normal(void)
+{
+	return (detect_mon_aux(norm_mon_tester,
+			"You sense the presence of monsters!", NULL));
+}
+
+
+/* Invisible monster? */
+static bool invis_mon_tester(const monster_type *m_ptr, vptr data)
+{
+	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+	
+	/* Ignore parameter */
+	(void) data;
+	
+	/* Detect invisible monsters */
+	return (FLAG(r_ptr, RF_INVISIBLE));
+}
 
 /*
  * Detect all "invisible" monsters in range
  */
 bool detect_monsters_invis(void)
 {
-	int px = p_ptr->px;
-	int py = p_ptr->py;
-
-	int i, y, x;
-	bool flag = FALSE;
-
-	/* Scan monsters */
-	for (i = 1; i < m_max; i++)
-	{
-		monster_type *m_ptr = &m_list[i];
-		monster_race *r_ptr = &r_info[m_ptr->r_idx];
-
-		/* Skip dead monsters */
-		if (!m_ptr->r_idx) continue;
-
-		/* Location */
-		y = m_ptr->fy;
-		x = m_ptr->fx;
-
-		if (distance(px, py, x, y) > MAX_DETECT) continue;
-
-		/* Detect invisible monsters */
-		if (r_ptr->flags2 & RF2_INVISIBLE)
-		{
-			/* Update monster recall window */
-			if (p_ptr->monster_race_idx == m_ptr->r_idx)
-			{
-				/* Window stuff */
-				p_ptr->window |= (PW_MONSTER);
-			}
-
-			/* Repair visibility later */
-			repair_monsters = TRUE;
-
-			/* Hack -- Detect monster */
-			m_ptr->mflag |= (MFLAG_MARK | MFLAG_SHOW);
-
-			/* Update the monster */
-			update_mon(i, FALSE);
-
-			/* Detect */
-			flag = TRUE;
-		}
-	}
-
-	/* Describe */
-	if (flag)
-	{
-		/* Describe result */
-		msgf("You sense the presence of invisible creatures!");
-	}
-
-	/* Result */
-	return (flag);
+	return (detect_mon_aux(invis_mon_tester,
+			"You sense the presence of invisible creatures!", NULL));
 }
 
 
+/* Evil monster? */
+static bool evil_mon_tester(const monster_type *m_ptr, vptr data)
+{
+	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+	
+	/* Ignore parameter */
+	(void) data;
+	
+	/* Detect evil monsters */
+	if (FLAG(r_ptr, RF_EVIL))
+	{
+		/* Take note that they are evil */
+		r_ptr->r_flags[2] |= (RF2_EVIL);
+		
+		return (TRUE);
+	}
+	
+	return (FALSE);
+}
 
 /*
  * Detect all "evil" monsters in range
  */
 bool detect_monsters_evil(void)
 {
-	int px = p_ptr->px;
-	int py = p_ptr->py;
-
-	int i, y, x;
-	bool flag = FALSE;
-
-
-	/* Scan monsters */
-	for (i = 1; i < m_max; i++)
-	{
-		monster_type *m_ptr = &m_list[i];
-		monster_race *r_ptr = &r_info[m_ptr->r_idx];
-
-		/* Skip dead monsters */
-		if (!m_ptr->r_idx) continue;
-
-		/* Location */
-		y = m_ptr->fy;
-		x = m_ptr->fx;
-
-		if (distance(px, py, x, y) > MAX_DETECT) continue;
-
-		/* Detect evil monsters */
-		if (r_ptr->flags3 & RF3_EVIL)
-		{
-			/* Take note that they are evil */
-			r_ptr->r_flags3 |= (RF3_EVIL);
-
-			/* Update monster recall window */
-			if (p_ptr->monster_race_idx == m_ptr->r_idx)
-			{
-				/* Window stuff */
-				p_ptr->window |= (PW_MONSTER);
-			}
-
-			/* Repair visibility later */
-			repair_monsters = TRUE;
-
-			/* Hack -- Detect monster */
-			m_ptr->mflag |= (MFLAG_MARK | MFLAG_SHOW);
-
-			/* Update the monster */
-			update_mon(i, FALSE);
-
-			/* Detect */
-			flag = TRUE;
-		}
-	}
-
-	/* Describe */
-	if (flag)
-	{
-		/* Describe result */
-		msgf("You sense the presence of evil creatures!");
-	}
-
-	/* Result */
-	return (flag);
+	return (detect_mon_aux(evil_mon_tester,
+			"You sense the presence of evil creatures!", NULL));
 }
 
+/* Nonliving monster? */
+static bool nonlive_mon_tester(const monster_type *m_ptr, vptr data)
+{
+	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+	
+	/* Ignore parameter */
+	(void) data;
+	
+	/* Not living? */
+	return (!monster_living(r_ptr));
+}
 
 /*
  * Detect all "nonliving", "undead" or "demonic" monsters in range
  */
 bool detect_monsters_nonliving(void)
 {
-	int px = p_ptr->px;
-	int py = p_ptr->py;
-
-	int i, y, x;
-	bool flag = FALSE;
-
-	/* Scan monsters */
-	for (i = 1; i < m_max; i++)
-	{
-		monster_type *m_ptr = &m_list[i];
-		monster_race *r_ptr = &r_info[m_ptr->r_idx];
-
-		/* Skip dead monsters */
-		if (!m_ptr->r_idx) continue;
-
-		/* Location */
-		y = m_ptr->fy;
-		x = m_ptr->fx;
-
-		/* Only detect monsters in range */
-		if (distance(px, py, x, y) > MAX_DETECT) continue;
-
-		/* Detect non-living monsters */
-		if (!monster_living(r_ptr))
-		{
-			/* Update monster recall window */
-			if (p_ptr->monster_race_idx == m_ptr->r_idx)
-			{
-				/* Window stuff */
-				p_ptr->window |= (PW_MONSTER);
-			}
-
-			/* Repair visibility later */
-			repair_monsters = TRUE;
-
-			/* Hack -- Detect monster */
-			m_ptr->mflag |= (MFLAG_MARK | MFLAG_SHOW);
-
-			/* Update the monster */
-			update_mon(i, FALSE);
-
-			/* Detect */
-			flag = TRUE;
-		}
-	}
-
-	/* Describe */
-	if (flag)
-	{
-		/* Describe result */
-		msgf("You sense the presence of unnatural beings!");
-	}
-
-	/* Result */
-	return (flag);
+	return (detect_mon_aux(nonlive_mon_tester,
+			"You sense the presence of unnatural beings!", NULL));
 }
 
+/* Living monster? */
+static bool live_mon_tester(const monster_type *m_ptr, vptr data)
+{
+	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+	
+	/* Ignore parameter */
+	(void) data;
+	
+	/* Not living? */
+	return (monster_living(r_ptr));
+}
 
 /*
  * Detect all "living" monsters in range
  */
 bool detect_monsters_living(void)
 {
-	int px = p_ptr->px;
-	int py = p_ptr->py;
-
-	int i, y, x;
-	bool flag = FALSE;
-
-	/* Scan monsters */
-	for (i = 1; i < m_max; i++)
-	{
-		monster_type *m_ptr = &m_list[i];
-		monster_race *r_ptr = &r_info[m_ptr->r_idx];
-
-		/* Skip dead monsters */
-		if (!m_ptr->r_idx) continue;
-
-		/* Location */
-		y = m_ptr->fy;
-		x = m_ptr->fx;
-
-		/* Only detect monsters in range */
-		if (distance(px, py, x, y) > MAX_DETECT) continue;
-
-		/* Detect living monsters */
-		if (monster_living(r_ptr))
-		{
-			/* Update monster recall window */
-			if (p_ptr->monster_race_idx == m_ptr->r_idx)
-			{
-				/* Window stuff */
-				p_ptr->window |= (PW_MONSTER);
-			}
-
-			/* Repair visibility later */
-			repair_monsters = TRUE;
-
-			/* Hack -- Detect monster */
-			m_ptr->mflag |= (MFLAG_MARK | MFLAG_SHOW);
-
-			/* Update the monster */
-			update_mon(i, FALSE);
-
-			/* Detect */
-			flag = TRUE;
-		}
-	}
-
-	/* Describe */
-	if (flag)
-	{
-		/* Describe result */
-		msgf("You sense the presence of natural beings!");
-	}
-
-	/* Result */
-	return (flag);
+	return (detect_mon_aux(live_mon_tester,
+			"You sense the presence of natural beings!", NULL));
 }
 
+
+/* Is a monster in the list of races? */
+static bool race_mon_tester(const monster_type *m_ptr, vptr data)
+{
+	cptr match;
+
+	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+	
+	/* Get string to compare with */
+	match = (cptr) data;
+	
+	/* Detect monsters with the same symbol */
+	return(strchr(match, r_ptr->d_char) ? TRUE : FALSE);
+}
 
 /*
  * Detect all (string) monsters in range
  */
 bool detect_monsters_string(cptr match)
 {
-	int px = p_ptr->px;
-	int py = p_ptr->py;
+	return (detect_mon_aux(race_mon_tester,
+			"You sense the presence of monsters!", (vptr) match));
+}
 
-	int i, y, x;
-	bool flag = FALSE;
+/* Generic monster tester */
+static bool flag_mon_tester(const monster_type *m_ptr, vptr data)
+{
+	u32b flag;
 
-
-	/* Scan monsters */
-	for (i = 1; i < m_max; i++)
+	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+	
+	/* Get flags to compare with */
+	flag = *((u32b *) data);
+	
+	if (r_ptr->flags[2] & flag)
 	{
-		monster_type *m_ptr = &m_list[i];
-		monster_race *r_ptr = &r_info[m_ptr->r_idx];
-
-		/* Skip dead monsters */
-		if (!m_ptr->r_idx) continue;
-
-		/* Location */
-		y = m_ptr->fy;
-		x = m_ptr->fx;
-
-		if (distance(px, py, x, y) > MAX_DETECT) continue;
-
-		/* Detect monsters with the same symbol */
-		if (strchr(match, r_ptr->d_char))
-		{
-			/* Update monster recall window */
-			if (p_ptr->monster_race_idx == m_ptr->r_idx)
-			{
-				/* Window stuff */
-				p_ptr->window |= (PW_MONSTER);
-			}
-
-			/* Repair visibility later */
-			repair_monsters = TRUE;
-
-			/* Hack -- Detect monster */
-			m_ptr->mflag |= (MFLAG_MARK | MFLAG_SHOW);
-
-			/* Update the monster */
-			update_mon(i, FALSE);
-
-			/* Detect */
-			flag = TRUE;
-		}
+		/* Take note that they are something */
+		r_ptr->r_flags[2] |= (flag);
+		
+		return (TRUE);
 	}
-
-	/* Describe */
-	if (flag)
-	{
-		/* Describe result */
-		msgf("You sense the presence of monsters!");
-	}
-
-	/* Result */
-	return (flag);
+	
+	return (FALSE);
 }
 
 
@@ -1789,76 +1543,23 @@ bool detect_monsters_string(cptr match)
  */
 bool detect_monsters_xxx(u32b match_flag)
 {
-	int px = p_ptr->px;
-	int py = p_ptr->py;
-
-	int i, y, x;
-	bool flag = FALSE;
-	cptr desc_monsters = "weird monsters";
-
-
-	/* Scan monsters */
-	for (i = 1; i < m_max; i++)
-	{
-		monster_type *m_ptr = &m_list[i];
-		monster_race *r_ptr = &r_info[m_ptr->r_idx];
-
-		/* Skip dead monsters */
-		if (!m_ptr->r_idx) continue;
-
-		/* Location */
-		y = m_ptr->fy;
-		x = m_ptr->fx;
-
-		if (distance(px, py, x, y) > MAX_DETECT) continue;
-
-		/* Detect evil monsters */
-		if (r_ptr->flags3 & (match_flag))
-		{
-			/* Take note that they are something */
-			r_ptr->r_flags3 |= (match_flag);
-
-			/* Update monster recall window */
-			if (p_ptr->monster_race_idx == m_ptr->r_idx)
-			{
-				/* Window stuff */
-				p_ptr->window |= (PW_MONSTER);
-			}
-
-			/* Repair visibility later */
-			repair_monsters = TRUE;
-
-			/* Hack -- Detect monster */
-			m_ptr->mflag |= (MFLAG_MARK | MFLAG_SHOW);
-
-			/* Update the monster */
-			update_mon(i, FALSE);
-
-			/* Detect */
-			flag = TRUE;
-		}
-	}
+	cptr desc_monsters;
 
 	/* Describe */
-	if (flag)
+	switch (match_flag)
 	{
-		switch (match_flag)
-		{
-			case RF3_DEMON:
-				desc_monsters = "demons";
-				break;
-			case RF3_UNDEAD:
-				desc_monsters = "the undead";
-				break;
-		}
-
-		/* Describe result */
-		msgf("You sense the presence of %s!", desc_monsters);
-		message_flush();
+		case RF2_DEMON:
+			desc_monsters = "You sense the presence of demons!";
+			break;
+		case RF2_UNDEAD:
+			desc_monsters = "You sense the presence of the undead!";
+			break;
+		default:
+			desc_monsters = "You sense the presence of weird monsters!";
 	}
-
-	/* Result */
-	return (flag);
+	
+	/* Result (note that ints might only be 16bit...) */
+	return (detect_mon_aux(flag_mon_tester, desc_monsters, (vptr) &match_flag));
 }
 
 
@@ -2076,7 +1777,7 @@ bool raise_dead(int x, int y, bool pet)
 		c_ptr = area(fx, fy);
 
 		/* Raise Corpses / Skeletons */
-		if (field_hook_special(&c_ptr->fld_idx, FTYPE_CORPSE, pet))
+		if (field_hook_special(c_ptr, FTYPE_CORPSE, pet))
 		{
 			if (player_has_los_grid(parea(fx, fy))) obvious = TRUE;
 		}
@@ -2168,16 +1869,16 @@ bool genocide(int player_cast)
 		if (!m_ptr->r_idx) continue;
 
 		/* Hack -- Skip Unique Monsters */
-		if (r_ptr->flags1 & (RF1_UNIQUE)) continue;
+		if (FLAG(r_ptr, RF_UNIQUE)) continue;
 
 		/* Hack -- Skip Quest Monsters */
-		if (r_ptr->flags1 & RF1_QUESTOR) continue;
+		if (FLAG(r_ptr, RF_QUESTOR)) continue;
 
 		/* Skip "wrong" monsters */
 		if (r_ptr->d_char != typ) continue;
 
 		/* Notice changes in view */
-		if (r_ptr->flags7 & (RF7_LITE_1 | RF7_LITE_2))
+		if (FLAG(r_ptr, RF_LITE_1) || FLAG(r_ptr, RF_LITE_2))
 		{
 			/* Update some things */
 			p_ptr->update |= (PU_MON_LITE);
@@ -2242,16 +1943,16 @@ bool mass_genocide(int player_cast)
 		if (!m_ptr->r_idx) continue;
 
 		/* Hack -- Skip unique monsters */
-		if (r_ptr->flags1 & (RF1_UNIQUE)) continue;
+		if (FLAG(r_ptr, RF_UNIQUE)) continue;
 
 		/* Hack -- Skip Quest Monsters */
-		if (r_ptr->flags1 & RF1_QUESTOR) continue;
+		if (FLAG(r_ptr, RF_QUESTOR)) continue;
 
 		/* Skip distant monsters */
 		if (m_ptr->cdis > MAX_SIGHT) continue;
 
 		/* Notice changes in view */
-		if (r_ptr->flags7 & (RF7_LITE_1 | RF7_LITE_2))
+		if (FLAG(r_ptr, RF_LITE_1) || FLAG(r_ptr, RF_LITE_2))
 		{
 			/* Update some things */
 			p_ptr->update |= (PU_MON_LITE);
@@ -2363,8 +2064,8 @@ bool destroy_area(int x1, int y1, int r)
 	cave_type *c_ptr;
 	pcave_type *pc_ptr;
 
-	/* Prevent destruction of quest levels and town */
-	if (!p_ptr->depth || is_quest_level(p_ptr->depth))
+	/* Prevent destruction of town and wilderness */
+	if (!p_ptr->depth)
 	{
 		return (FALSE);
 	}
@@ -2406,7 +2107,7 @@ bool destroy_area(int x1, int y1, int r)
 			/* Hack -- Skip the epicenter */
 			if ((y == y1) && (x == x1)) continue;
 
-			if (r_info[m_list[c_ptr->m_idx].r_idx].flags1 & RF1_QUESTOR)
+			if (FLAG(&r_info[m_list[c_ptr->m_idx].r_idx], RF_QUESTOR))
 			{
 				/* Heal the monster */
 				m_list[c_ptr->m_idx].hp = m_list[c_ptr->m_idx].maxhp;
@@ -2421,7 +2122,7 @@ bool destroy_area(int x1, int y1, int r)
 			}
 
 			/* Fields can block destruction */
-			if (fields_have_flags(c_ptr->fld_idx, FIELD_INFO_PERM)) continue;
+			if (fields_have_flags(c_ptr, FIELD_INFO_PERM)) continue;
 
 			/* Destroy the fields on the square */
 			delete_field(x, y);
@@ -2477,9 +2178,9 @@ bool destroy_area(int x1, int y1, int r)
 		msgf("There is a searing blast of light!");
 
 		/* Blind the player */
-		if (!(p_ptr->flags2 & (TR2_RES_BLIND)) &&
-			!(p_ptr->flags2 & (TR2_RES_LITE)) &&
-			!(p_ptr->flags4 & (TR4_IM_LITE)))
+		if (!(FLAG(p_ptr, TR_RES_BLIND)) &&
+			!(FLAG(p_ptr, TR_RES_LITE)) &&
+			!(FLAG(p_ptr, TR_IM_LITE)))
 		{
 			/* Become blind */
 			(void)inc_blind(rand_range(10, 20));
@@ -2525,8 +2226,8 @@ bool earthquake(int cx, int cy, int r)
 	bool map[32][32];
 	byte flags;
 
-	/* Prevent destruction of quest levels and town */
-	if (!p_ptr->depth || is_quest_level(p_ptr->depth))
+	/* Prevent destruction of town and wilderness */
+	if (!p_ptr->depth)
 	{
 		return (FALSE);
 	}
@@ -2604,7 +2305,7 @@ bool earthquake(int cx, int cy, int r)
 			if (map[16 + y - cy][16 + x - cx]) continue;
 
 			/* Check for a field that blocks movement */
-			if (fields_have_flags(c_ptr->fld_idx, FIELD_INFO_NO_ENTER))
+			if (fields_have_flags(c_ptr, FIELD_INFO_NO_ENTER))
 			{
 				continue;
 			}
@@ -2681,7 +2382,7 @@ bool earthquake(int cx, int cy, int r)
 			ox = px;
 
 			/* Process fields under the player. */
-			field_hook(&area(px, py)->fld_idx, FIELD_ACT_PLAYER_LEAVE);
+			field_hook(area(px, py), FIELD_ACT_PLAYER_LEAVE);
 
 			/* Move the player */
 			py = sy;
@@ -2709,7 +2410,7 @@ bool earthquake(int cx, int cy, int r)
 			lite_spot(px, py);
 
 			/* Process fields under the player. */
-			field_hook(&area(px, py)->fld_idx, FIELD_ACT_PLAYER_ENTER);
+			field_hook(area(px, py), FIELD_ACT_PLAYER_ENTER);
 
 			/* Check for new panel */
 			verify_panel();
@@ -2747,7 +2448,7 @@ bool earthquake(int cx, int cy, int r)
 				monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
 				/* Quest monsters */
-				if (r_ptr->flags1 & RF1_QUESTOR)
+				if (FLAG(r_ptr, RF_QUESTOR))
 				{
 					/* No wall on quest monsters */
 					map[16 + yy - cy][16 + xx - cx] = FALSE;
@@ -2756,14 +2457,14 @@ bool earthquake(int cx, int cy, int r)
 				}
 
 				/* Most monsters cannot co-exist with rock */
-				if (!(r_ptr->flags2 & (RF2_KILL_WALL)) &&
-					!(r_ptr->flags2 & (RF2_PASS_WALL)))
+				if (!FLAG(r_ptr, RF_KILL_WALL) &&
+					!FLAG(r_ptr, RF_PASS_WALL))
 				{
 					/* Assume not safe */
 					sn = 0;
 
 					/* Monster can move to escape the wall */
-					if (!(r_ptr->flags1 & (RF1_NEVER_MOVE)))
+					if (!FLAG(r_ptr, RF_NEVER_MOVE))
 					{
 						/* Look for safety */
 						for (i = 0; i < 8; i++)
@@ -2784,8 +2485,7 @@ bool earthquake(int cx, int cy, int r)
 							if ((y == py) && (x == px)) continue;
 
 							/* Check for a field that blocks movement */
-							if (fields_have_flags(c_ptr->fld_idx,
-												  FIELD_INFO_NO_ENTER))
+							if (fields_have_flags(c_ptr, FIELD_INFO_NO_ENTER))
 								continue;
 
 							/*
@@ -2797,8 +2497,7 @@ bool earthquake(int cx, int cy, int r)
 							flags = MEG_DO_MOVE;
 
 							/* Call the hook */
-							field_hook(&c_ptr->fld_idx,
-									   FIELD_ACT_MON_ENTER_TEST,
+							field_hook(c_ptr, FIELD_ACT_MON_ENTER_TEST,
 									   (monster_type *) NULL, &flags);
 
 							/* Get result */
@@ -2902,7 +2601,7 @@ bool earthquake(int cx, int cy, int r)
 			if ((yy == py) && (xx == px)) continue;
 
 			/* Fields can block destruction */
-			if (fields_have_flags(c_ptr->fld_idx, FIELD_INFO_PERM)) continue;
+			if (fields_have_flags(c_ptr, FIELD_INFO_PERM)) continue;
 
 			/* Destroy the fields on the square */
 			delete_field(xx, yy);
@@ -2987,10 +2686,12 @@ static void cave_temp_room_lite(void)
 			int y = temp_y[i] + ddy_ddd[j];
 			int x = temp_x[i] + ddx_ddd[j];
 
-			cave_type *c_ptr = area(x, y);
+			cave_type *c_ptr;
 
 			/* Verify */
 			if (!in_bounds2(x, y)) continue;
+			
+			c_ptr = area(x, y);
 
 			/* No longer in the array */
 			c_ptr->info &= ~(CAVE_TEMP);
@@ -3011,10 +2712,10 @@ static void cave_temp_room_lite(void)
 				monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
 				/* Stupid monsters rarely wake up */
-				if (r_ptr->flags2 & (RF2_STUPID)) chance = 10;
+				if (FLAG(r_ptr, RF_STUPID)) chance = 10;
 
 				/* Smart monsters always wake up */
-				if (r_ptr->flags2 & (RF2_SMART)) chance = 100;
+				if (FLAG(r_ptr, RF_SMART)) chance = 100;
 
 				/* Sometimes monsters wake up */
 				if (m_ptr->csleep && (randint0(100) < chance))
@@ -3449,7 +3150,7 @@ bool teleport_swap(int dir)
 	m_ptr = &m_list[c_ptr->m_idx];
 	r_ptr = &r_info[m_ptr->r_idx];
 
-	if (r_ptr->flags3 & RF3_RES_TELE)
+	if (FLAG(r_ptr, RF_RES_TELE))
 	{
 		msgf("Your teleportation is blocked!");
 
@@ -3460,10 +3161,10 @@ bool teleport_swap(int dir)
 	sound(SOUND_TELEPORT);
 
 	/* Process fields under the player. */
-	field_hook(&area(px, py)->fld_idx, FIELD_ACT_PLAYER_LEAVE);
+	field_hook(area(px, py), FIELD_ACT_PLAYER_LEAVE);
 
 	/* Process fields under the monster. */
-	field_hook(&area(m_ptr->fx, m_ptr->fy)->fld_idx,
+	field_hook(area(m_ptr->fx, m_ptr->fy),
 			   FIELD_ACT_MONSTER_LEAVE, m_ptr);
 
 	/* Move monster */
@@ -3508,10 +3209,10 @@ bool teleport_swap(int dir)
 	lite_spot(px, py);
 
 	/* Process fields under the player. */
-	field_hook(&area(px, py)->fld_idx, FIELD_ACT_PLAYER_ENTER);
+	field_hook(area(px, py), FIELD_ACT_PLAYER_ENTER);
 
 	/* Process fields under the monster. */
-	field_hook(&area(m_ptr->fx, m_ptr->fy)->fld_idx,
+	field_hook(area(m_ptr->fx, m_ptr->fy),
 			   FIELD_ACT_MONSTER_ENTER, m_ptr);
 
 	/* Check for new panel (redraw map) */
@@ -3521,7 +3222,7 @@ bool teleport_swap(int dir)
 	p_ptr->update |= (PU_VIEW | PU_FLOW);
 
 	/* Notice changes in view */
-	if (r_ptr->flags7 & (RF7_LITE_1 | RF7_LITE_2))
+	if (FLAG(r_ptr, RF_LITE_1) || FLAG(r_ptr, RF_LITE_2))
 	{
 		/* Update some things */
 		p_ptr->update |= (PU_MON_LITE);
@@ -3953,15 +3654,15 @@ bool activate_ty_curse(bool stop_ty, int *count)
 			case 13:  case 14:  case 15:  case 19:  case 20:
 			{
 				if (stop_ty ||
-					((p_ptr->flags2 & (TR2_FREE_ACT)) &&
-					 (randint1(100) < p_ptr->skill.sav)))
+					((FLAG(p_ptr, TR_FREE_ACT)) &&
+					 (saving_throw(p_ptr->skills[SKILL_SAV]))))
 				{
 					/* Do nothing */ ;
 				}
 				else
 				{
 					msgf("You feel like a statue!");
-					if (p_ptr->flags2 & (TR2_FREE_ACT))
+					if (FLAG(p_ptr, TR_FREE_ACT))
 					{
 						(void)inc_paralyzed(randint1(3));
 					}
@@ -4363,4 +4064,75 @@ bool starlite(void)
 	}
 
 	return (TRUE);
+}
+
+
+bool scatter_ball(int num, int type, int dam, int rad)
+{
+	int k;
+	int y, x;
+	int attempts;
+
+	cave_type *c_ptr;
+
+	for (k = 0; k < num; k++)
+	{
+		attempts = 1000;
+
+		while (attempts--)
+		{
+			scatter(&x, &y, p_ptr->px, p_ptr->py, 4);
+
+			/* paranoia */
+			if (!in_bounds2(x, y)) continue;
+
+			c_ptr = area(x, y);
+
+			if (cave_wall_grid(c_ptr)) continue;
+
+			if ((y != p_ptr->py) || (x != p_ptr->px)) break;
+		}
+
+		project(0, rad, x, y, dam, type,
+				(PROJECT_THRU | PROJECT_STOP | PROJECT_GRID |
+				 PROJECT_ITEM | PROJECT_KILL));
+	}
+
+	return (TRUE);
+}
+
+
+void create_food()
+{
+	object_type *q_ptr;
+
+	/* Hack - create a food ration */
+	q_ptr = object_prep(lookup_kind(TV_FOOD, SV_FOOD_RATION));
+
+	/* Drop the object from heaven */
+	drop_near(q_ptr, -1, p_ptr->px, p_ptr->py);
+}
+
+void whirlwind_attack()
+{
+	int y = 0, x = 0, dir;
+	cave_type *c_ptr;
+	monster_type *m_ptr;
+
+	for (dir = 0; dir <= 9; dir++)
+	{
+		y = p_ptr->py + ddy[dir];
+		x = p_ptr->px + ddx[dir];
+
+		/* paranoia */
+		if (!in_bounds2(x, y)) return;
+		c_ptr = area(x, y);
+
+		/* Get the monster */
+		m_ptr = &m_list[c_ptr->m_idx];
+
+		/* Hack -- attack monsters */
+		if (c_ptr->m_idx && (m_ptr->ml || cave_floor_grid(c_ptr)))
+			py_attack(x, y);
+	}
 }

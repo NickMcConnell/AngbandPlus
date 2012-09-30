@@ -109,32 +109,28 @@
 #define DEBUG_ABORT
 
 
-
 /*
  * An assertion macro
  */
 #undef assert
 
-#ifdef NDEBUG
-# define assert(ignore)	((void) 0)
-#else /* NDEBUG */
+/* Pick which type of output to use */
+#ifdef DEBUG_CORE
+# define ANG__assert_fmt core_fmt
+#else /* DEBUG_CORE */
+# define ANG__assert_fmt quit_fmt
+#endif /* DEBUG_CORE */
 
-	/* Pick which type of output to use */
-# ifdef DEBUG_CORE
-#  define ANG__assert_fmt core_fmt
-# else /* DEBUG_CORE */
-#  define ANG__assert_fmt quit_fmt
-# endif /* DEBUG_CORE */
+/* Pick whether to save the game before aborting */
+#ifdef DEBUG_ABORT
+# define ANG__assert_save ((void) 0)
+#else
+# define ANG__assert_save save_player()
+#endif
 
-	/* Pick whether to save the game before aborting */
-# ifdef DEBUG_ABORT
-#  define ANG__assert_save ((void) 0)
-# else
-#  define ANG__assert_save save_player()
-# endif
 
-	/* Possibly save the game, and then abort. */
-# define assert(expr)\
+/* Possibly save the game, and then abort. */
+#define assert(expr)\
 	do\
 	{\
 		if (!(expr))\
@@ -147,9 +143,11 @@
 			"on line ", __LINE__);\
 		}\
 	}\
-	while (FALSE)
-#endif /* NDEBUG */
+while (FALSE)
 
+/* An assert that can be used in an expression */
+#define assert_exp(expr)\
+	assert_helper(#expr, __FILE__, __LINE__, (expr))
 
 
 /*
@@ -164,14 +162,14 @@
 #  define A2I(X)	alphatoindex(X)
 #  define I2A(X)	indextoalpha(X)
 #  define D2I(X)	((X) - '0')
-#  define I2D(X)	((X) + '0')
+#  define I2D(X)	((char) ((X) + '0'))
 #  define KTRL(X)	((X) & 0x1F)
 #  define ESCAPE	'\033'
 #else
 #  define A2I(X)	((X) - 'a')
-#  define I2A(X)	((X) + 'a')
+#  define I2A(X)	((char) ((X) + 'a'))
 #  define D2I(X)	((X) - '0')
-#  define I2D(X)	((X) + '0')
+#  define I2D(X)	((char) ((X) + '0'))
 #  define KTRL(X)	((X) & 0x1F)
 #  define ESCAPE	'\033'
 #endif

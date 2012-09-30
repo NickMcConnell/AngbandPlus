@@ -126,6 +126,17 @@ struct feature_type
 
 
 /*
+ * Hack - a type for 'object flags'
+ */
+typedef struct object_flags object_flags;
+
+struct object_flags
+{
+	u32b flags[4];
+};
+
+
+/*
  * Information about object "kinds", including player knowledge.
  *
  * Only "aware" and "tried" are saved in the savefile
@@ -155,10 +166,7 @@ struct object_kind
 
 	s32b cost;	/* Object "base cost" */
 
-	u32b flags1;	/* Flags, set 1 */
-	u32b flags2;	/* Flags, set 2 */
-	u32b flags3;	/* Flags, set 3 */
-	u32b flags4;    /* Flags, set 4 */
+	u32b flags[4];	/* Flags */
 
 	byte locale[4];	/* Allocation level(s) */
 	byte chance[4];	/* Allocation chance(s) */
@@ -166,6 +174,8 @@ struct object_kind
 	byte level;	/* Level */
 
 	byte extra;	/* Rarity (for special randarts) */
+
+	u32b trigger[MAX_TRIGGER]; /* Special object scripts */
 
 	byte d_attr;	/* Default object attribute */
 	char d_char;	/* Default object character */
@@ -234,13 +244,12 @@ struct artifact_type
 
 	s32b cost;	/* Artifact "cost" */
 
-	u32b flags1;	/* Artifact Flags, set 1 */
-	u32b flags2;	/* Artifact Flags, set 2 */
-	u32b flags3;	/* Artifact Flags, set 3 */
-	u32b flags4;    /* Artifact Flags, set 4 */
+	u32b flags[4];	/* Artifact Flags */
 
 	byte level;	/* Artifact level */
 	byte rarity;	/* Artifact rarity */
+
+	u32b trigger[MAX_TRIGGER]; /* Special object scripts */
 
 	byte cur_num;	/* Number created (0 or 1) */
 	byte max_num;	/* Unused (should be "1") */
@@ -272,13 +281,10 @@ struct ego_item_type
 
 	s32b cost;	/* Ego-item "cost" */
 
-	u32b flags1;	/* Ego-Item Flags, set 1 */
-	u32b flags2;	/* Ego-Item Flags, set 2 */
-	u32b flags3;	/* Ego-Item Flags, set 3 */
-	u32b flags4;    /* Ego-Item Flags, set 4 */
+	u32b flags[4];	/* Ego-Item Flags */
+
+	u32b trigger[MAX_TRIGGER]; /* Special object scripts */
 };
-
-
 
 
 /*
@@ -346,15 +352,15 @@ struct monster_race
 	byte freq_inate;	/* Inate spell frequency */
 	byte freq_spell;	/* Other spell frequency */
 
-	u32b flags1;	/* Flags 1 (general) */
-	u32b flags2;	/* Flags 2 (abilities) */
-	u32b flags3;	/* Flags 3 (race/resist) */
-	u32b flags4;	/* Flags 4 (inate/breath) */
-	u32b flags5;	/* Flags 5 (normal spells) */
-	u32b flags6;	/* Flags 6 (special spells) */
-	u32b flags7;	/* Flags 7 (movement related abilities) */
-	u32b flags8;	/* Flags 8 (wilderness info) */
-	u32b flags9;	/* Flags 9 (drops info) */
+	u32b flags[9];	/* Flags 1 (general) */
+			/* Flags 2 (abilities) */
+			/* Flags 3 (race/resist) */
+			/* Flags 4 (inate/breath) */
+			/* Flags 5 (normal spells) */
+			/* Flags 6 (special spells) */
+			/* Flags 7 (movement related abilities) */
+			/* Flags 8 (wilderness info) */
+			/* Flags 9 (drops info) */
 
 	monster_blow blow[4];	/* Up to four blows per round */
 
@@ -396,13 +402,7 @@ struct monster_race
 
 	byte r_blows[4];	/* Number of times each blow type was seen */
 
-	u32b r_flags1;	/* Observed racial flags */
-	u32b r_flags2;	/* Observed racial flags */
-	u32b r_flags3;	/* Observed racial flags */
-	u32b r_flags4;	/* Observed racial flags */
-	u32b r_flags5;	/* Observed racial flags */
-	u32b r_flags6;	/* Observed racial flags */
-	u32b r_flags7;	/* Observed racial flags */
+	u32b r_flags[9];	/* Observed racial flags */
 
 	obj_theme obj_drop;	/* Type of objects to drop when killed */
 
@@ -773,15 +773,9 @@ struct object_type
 	s16b inscription;	/* Inscription index */
 	s16b xtra_name;	/* Extra Name (Artifacts and ego items) */
 
-	u32b flags1;	/* Flags, set 1 */
-	u32b flags2;	/* Flags, set 2 */
-	u32b flags3;	/* Flags, set 3 */
-	u32b flags4;    /* Flags, set 4 */
+	u32b flags[4];	/* Flags */
 
-	u32b kn_flags1;	/* Known Flags, set 1 */
-	u32b kn_flags2;	/* Known Flags, set 2 */
-	u32b kn_flags3;	/* Known Flags, set 3 */
-	u32b kn_flags4; /* Known Flags, set 4 */
+	u32b kn_flags[4];	/* Known Flags */
 
 	s32b cost;	/* Object "base cost" */
 	s32b temp_cost;	/* Cost including shopkeeper effects */
@@ -790,9 +784,11 @@ struct object_type
 
 	byte feeling;	/* Game generated inscription number (eg, pseudo-id) */
 
-	byte activate;	/* Activation type */
+	byte a_idx;	/* Artifact type */
 
 	byte info;	/* Special flags */
+
+	s16b trigger[MAX_TRIGGER]; /* Special object scripts */
 
 	bool allocated;	/* Held in the o_list[] array */
 };
@@ -1020,16 +1016,11 @@ struct option_type
  * Quest type-specific data.
  */
 
-/* General */
-typedef struct quest_gen quest_gen;
+/* Bounty */
+typedef struct quest_bnt quest_bnt;
 
-struct quest_gen
+struct quest_bnt
 {
-	/* Mail quests */
-	u16b place;
-	u16b shop;	/* Owner to bring item */
-
-	/* Bounty quests */
 	u16b r_idx;	/* Monster */
 	u16b cur_num;	/* Number killed */
 	u16b max_num;	/* Number required */
@@ -1060,14 +1051,45 @@ struct quest_wld
 	byte depth;	/* Power of monsters */
 };
 
+/* Message */
+typedef struct quest_msg quest_msg;
+
+struct quest_msg
+{
+	u16b place;	/* Town to go to */
+	u16b shop;	/* Person to give it to */
+};
+
+
+/* Find item */
+typedef struct quest_fit quest_fit;
+
+struct quest_fit
+{
+	u16b a_idx;	/* Artifact index */
+	u16b place;	/* Dungeon it is in */
+};
+
+
+/* Find place */
+typedef struct quest_fpl quest_fpl;
+
+struct quest_fpl
+{
+	u16b place;	/* Place to find */
+};
+
 
 /* The union holding the quest-specific data */
 typedef union quest_data_type quest_data_type;
 union quest_data_type
 {
-	quest_gen gen;
+	quest_bnt bnt;
 	quest_dun dun;
 	quest_wld wld;
+	quest_msg msg;
+	quest_fit fit;
+	quest_fpl fpl;
 };
 
 /*
@@ -1093,7 +1115,7 @@ struct quest_type
 
 	u32b timeout;	/* Time limits */
 
-	char name[60];	/* Quest name */
+	char name[128];	/* Quest name */
 
 	quest_data_type data;	/* Quest-specific data */
 };
@@ -1342,6 +1364,24 @@ struct player_state
 	bool create_down_stair;	/* Create down stair on next level */
 	
 	byte feeling;	/* Most recent feeling */
+	
+	s16b energy_use;	/* Energy use this turn */
+	
+	bool cumber_armor;	/* Mana draining armor */
+	bool cumber_glove;	/* Mana draining gloves */
+	bool heavy_wield;	/* Heavy weapon */
+	bool heavy_shoot;	/* Heavy shooter */
+	bool icky_wield;	/* Icky weapon */
+	bool detected;	/* Detected for traps? */
+	
+	bool skip_more;	/* Skip the --more-- prompt */
+	bool mon_fight;	/* Monster fighting indicator */
+
+	bool monk_armour_stat;	/* Status of monk armour */
+	
+	byte noise_level;	/* Amount of noise since last update */
+	
+	u16b store_top;		/* Top of store inventory list */
 };
 
 /*
@@ -1379,25 +1419,6 @@ struct player_command
 	bool inkey_xtra;	/* See the "inkey()" function */
 	bool inkey_scan;	/* See the "inkey()" function */
 	bool inkey_flag;	/* See the "inkey()" function */
-};
-
-/*
- * The player skills
- */
-typedef struct player_skill player_skill;
-
-struct player_skill
-{
-	s16b dis; /* Skill: Disarming */
-	s16b dev; /* Skill: Magic Devices */
-	s16b sav; /* Skill: Saving throw */
-	s16b stl; /* Skill: Stealth factor */
-	s16b sns; /* Skill: Sensing ability */
-	s16b fos; /* Skill: Searching frequency */
-	s16b thn; /* Skill: To hit (normal) */
-	s16b thb; /* Skill: To hit (shooting) */
-	s16b tht; /* Skill: To hit (throwing) */
-	s16b dig; /* Skill: Digging */
 };
 
 /*
@@ -1442,10 +1463,11 @@ struct player_type
 	
 	player_data rp;	/* Role-play information */
 	
-	s16b max_depth;	/* Max depth */
 	s16b depth;	/* Cur depth */
+
 	s16b max_lev;	/* Max level */
 	s16b lev;	/* Cur level */
+
 	u16b exp_frac;	/* Cur exp frac (times 2^16) */
 
 	s32b max_exp;	/* Max experience */
@@ -1493,7 +1515,7 @@ struct player_type
 	
 	player_state state;	/* Internal state of the player */
 	
-	player_skill skill;	/* Player skills */
+	s16b skills[MAX_SKILL];	/* Player skills */
 	
 	player_command cmd;	/* The current command status */
 	
@@ -1527,21 +1549,13 @@ struct player_type
 	s16b health_who;	/* Health bar trackee */
 
 	s16b monster_race_idx;	/* Monster race trackee */
+	u16b max_seen_r_idx;	/* Most powerful monster visible */
 
 	s16b object_kind_idx;	/* Object kind trackee */
-
-	s16b energy_use;	/* Energy use this turn */
 	
 	player_run run;		/* Current stat of the running routine */
 
 	s16b new_spells;	/* Number of spells available */
-
-	bool cumber_armor;	/* Mana draining armor */
-	bool cumber_glove;	/* Mana draining gloves */
-	bool heavy_wield;	/* Heavy weapon */
-	bool heavy_shoot;	/* Heavy shooter */
-	bool icky_wield;	/* Icky weapon */
-	bool detected;	/* Detected for traps? */
 
 	s16b cur_lite;	/* Radius of lite (if any) */
 
@@ -1549,15 +1563,13 @@ struct player_type
 	u32b update;	/* Pending Updates (bit flags) */
 	u32b redraw;	/* Normal Redraws (bit flags) */
 	u32b window;	/* Window Redraws (bit flags) */
+	u32b change;	/* Once per turn (bit flags) */
 	
 	/*
 	 * Flags on equipment items and the racial/class
 	 * effects logical-ored together.
 	 */
-	u32b flags1;
-	u32b flags2;
-	u32b flags3;
-	u32b flags4;
+	u32b flags[4];
 
 	/*** Extracted fields ***/
 	s16b dis_to_h;	/* Known bonus to hit */
@@ -1585,6 +1597,8 @@ struct player_type
 
 	s16b pspeed;	/* Current speed */
 
+	s16b sp_bonus;  /* Extra mana per level */
+
 	/*** Pet commands ***/
 
 	s16b pet_follow_distance;	/* Length of the imaginary "leash" for pets */
@@ -1594,14 +1608,6 @@ struct player_type
 	/* Options */
 	bool options[OPT_PLAYER];
 	bool birth[OPT_BIRTH];
-
-	/* Extra player-specific flags */
-	bool skip_more;	/* Skip the --more-- prompt */
-	bool mon_fight;	/* Monster fighting indicator */
-
-	u16b max_seen_r_idx;	/* Most powerful monster visible */
-	bool monk_armour_stat;	/* Status of monk armour */
-	byte noise_level;	/* Amount of noise since last update */
 };
 
 
@@ -1721,20 +1727,18 @@ struct dun_type
 	s16b rating;	/* Level's current rating */
 
 	s16b region;	/* Hack - Region for current level */
-
+	
+	u16b rooms;		/* Room types available */
+	
+	byte recall_depth;	/* Recall depth */
+	
 	bool good_item_flag;	/* True if "Artifact" on this level */
 	
-	/* Room types available */
-	u16b rooms;
+	byte floor;		/* Floor terrain type */
 	
-	/* Floor terrain type */
-	byte floor;
+	byte liquid;	/* Liquid type for lakes/ rivers etc. */
 	
-	/* Liquid type for lakes/ rivers etc. */
-	byte liquid;
-	
-	/* Extra flags */
-	byte flags;
+	byte flags;		/* Extra flags */
 };
 
 
@@ -1751,9 +1755,6 @@ struct dun_gen_type
 	int min_level;
 	int max_level;
 
-	/* How deep is the dungeon on average, except that 0 = full depth */
-	int dif_level;
-	
 	/* Probability (inverse rarity) */
 	int chance;
 	
@@ -1904,3 +1905,4 @@ struct menu_type
 
 	byte flags;					/* Flags controling option behaviour */
 };
+

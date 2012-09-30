@@ -90,13 +90,6 @@ bool use_transparency = FALSE;	/* Use transparent tiles */
 
 s16b signal_count;	/* Hack -- Count interupts */
 
-bool shimmer_monsters;	/* Hack -- optimize multi-hued monsters */
-
-bool repair_monsters;	/* Hack -- optimize detect monsters */
-
-/* Is this needed? */
-bool hack_mutation;
-
 s16b o_max = 1;	/* Number of allocated objects */
 s16b o_cnt = 0;	/* Number of live objects */
 
@@ -112,8 +105,6 @@ s16b rg_cnt = 0;	/* Number of live regions */
 s16b q_max = 1;	/* Number of allocated quests */
 
 s16b hack_m_idx = 0;	/* Hack -- see "process_monsters()" */
-s16b hack_m_idx_ii = 0;
-s16b *hack_fld_ptr = NULL;	/* Hack -- see "fields.c" */
 
 /* Can we get rid of this at all? */
 char summon_kin_type;	/* Hack, by Julian Lighton: summon 'relatives' */
@@ -378,14 +369,14 @@ char angband_sound_name[SOUND_MAX][16] =
  * In the wilderness, things are more complicated.
  */
 
-cave_type *(*area) (int, int);
+cave_type *(*area_aux) (int, int);
 
 /*
  * Equivalent function pointer used to get player information
  * for each grid.
  */
 
-pcave_type *(*parea) (int, int);
+pcave_type *(*parea_aux) (int, int);
 
 /*
  * Variables used to access the scrollable wilderness.

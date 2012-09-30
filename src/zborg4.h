@@ -27,6 +27,7 @@ extern void borg_list_info(byte list_type, vptr dummy);
 #define TREAT_AS_LESS	2		/* Pretend one less item */
 #define TREAT_AS_MORE	3		/* Pretend one more item */
 #define TREAT_AS_SWAP	4		/* Pretend other item is here */
+#define TREAT_AS_SHOP	5		/* Some trickery needed for shops */
 
 /* The current home */
 extern int home_shop;
@@ -45,6 +46,15 @@ extern void borg_notice(void);
 extern void borg_notice_home(void);
 extern s32b borg_power_home(void);
 
+
+/*
+ * Macro for the borg_power functions:  This way the borg can count how far (a)
+ * is in a range from (b) to (c)
+ * if a <= b return 0
+ * if a <= c return a - b
+ * if a > c return c - b
+ */
+#define MIN_FLOOR(a,b,c)	(MIN(MAX((a), (b)), (c)) - (b))
 
 /*
  * Initialize this file

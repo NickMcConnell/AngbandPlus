@@ -11,12 +11,18 @@
  */
 
 #include "angband.h"
+#include "script.h"
 
 /* Chance of using syllables to form the name instead of the "template" files */
 #define TABLE_NAME      45
+
+/* Chance of a random artifact being cursed (1 in 13) */
 #define A_CURSED        13
-#define WEIRD_LUCK      12
-#define BIAS_LUCK       20
+
+/* Chance of getting a 'basic 4' immunity rather than resist (1 in 48) */
+#define LOW_IM_LUCK  	48
+/* Chance of getting a 'high' immunity rather than resist (1 in 12) */
+#define HI_IM_LUCK	12
 
 /*
  * Bias luck needs to be higher than weird luck,
@@ -26,180 +32,175 @@
 
 static void random_plus(object_type *o_ptr)
 {
-	switch (randint1(o_ptr->tval < TV_BOOTS ? 23 : 19))
+	switch (randint1(o_ptr->tval < TV_BOOTS ? 24 : 20))
 	{
 		case 1:  case 2:
-			o_ptr->flags1 |= TR1_STR;
+			SET_FLAG(o_ptr, TR_STR);
 			break;
 		case 3:  case 4:
-			o_ptr->flags1 |= TR1_INT;
+			SET_FLAG(o_ptr, TR_INT);
 			break;
 		case 5:  case 6:
-			o_ptr->flags1 |= TR1_WIS;
+			SET_FLAG(o_ptr, TR_WIS);
 			break;
 		case 7:  case 8:
-			o_ptr->flags1 |= TR1_DEX;
+			SET_FLAG(o_ptr, TR_DEX);
 			break;
 		case 9:  case 10:
-			o_ptr->flags1 |= TR1_CON;
+			SET_FLAG(o_ptr, TR_CON);
 			break;
 		case 11:  case 12:
-			o_ptr->flags1 |= TR1_CHR;
+			SET_FLAG(o_ptr, TR_CHR);
 			break;
 		case 13:  case 14:
-			o_ptr->flags1 |= TR1_STEALTH;
+			SET_FLAG(o_ptr, TR_STEALTH);
 			break;
 		case 15:  case 16:
-			o_ptr->flags1 |= TR1_SEARCH;
+			SET_FLAG(o_ptr, TR_SEARCH);
 			break;
 		case 17:  case 18:
-			o_ptr->flags1 |= TR1_INFRA;
+			SET_FLAG(o_ptr, TR_INFRA);
 			break;
 		case 19:
-			o_ptr->flags1 |= TR1_SPEED;
+			SET_FLAG(o_ptr, TR_SPEED);
 			break;
-		case 20:  case 21:
-			o_ptr->flags1 |= TR1_TUNNEL;
+		case 20:
+			SET_FLAG(o_ptr, TR_SP);
 			break;
-		case 22:  case 23:
+		case 21:  case 22:
+			SET_FLAG(o_ptr, TR_TUNNEL);
+			break;
+		case 23:  case 24:
 			if (o_ptr->tval == TV_BOW)
 			{
-				o_ptr->flags1 |= TR1_DEX;
+				SET_FLAG(o_ptr, TR_DEX);
 			}
 			else
 			{
-				o_ptr->flags1 |= TR1_BLOWS;
+				SET_FLAG(o_ptr, TR_BLOWS);
 			}
 			break;
 	}
 }
 
 
-void random_resistance(object_type *o_ptr, int specific)
+static void random_resistance(object_type *o_ptr, int specific)
 {
 	switch (specific ? specific : randint1(42))
 	{
 		case 1:
-			if (!one_in_(WEIRD_LUCK))
-				o_ptr->flags2 |= TR2_RES_ACID;
-			else
-				o_ptr->flags2 |= TR2_IM_ACID;
-			break;
-		case 2:
-			if (!one_in_(WEIRD_LUCK))
-				o_ptr->flags2 |= TR2_RES_ELEC;
-			else
-				o_ptr->flags2 |= TR2_IM_ELEC;
-			break;
-		case 3:
-			if (!one_in_(WEIRD_LUCK))
-				o_ptr->flags2 |= TR2_RES_COLD;
-			else
-				o_ptr->flags2 |= TR2_IM_COLD;
-			break;
-		case 4:
-			if (!one_in_(WEIRD_LUCK))
-				o_ptr->flags2 |= TR2_RES_FIRE;
-			else
-				o_ptr->flags2 |= TR2_IM_FIRE;
-			break;
 		case 5:
 		case 6:
 		case 13:
-			o_ptr->flags2 |= TR2_RES_ACID;
+			if (!one_in_(LOW_IM_LUCK))
+				SET_FLAG(o_ptr, TR_RES_ACID);
+			else
+				SET_FLAG(o_ptr, TR_IM_ACID);
 			break;
+		case 2:
 		case 7:
 		case 8:
 		case 14:
-			o_ptr->flags2 |= TR2_RES_ELEC;
+			if (!one_in_(LOW_IM_LUCK))
+				SET_FLAG(o_ptr, TR_RES_ELEC);
+			else
+				SET_FLAG(o_ptr, TR_IM_ELEC);
 			break;
-		case 9:
-		case 10:
-		case 15:
-			o_ptr->flags2 |= TR2_RES_FIRE;
-			break;
+		case 3:
 		case 11:
 		case 12:
 		case 16:
-			o_ptr->flags2 |= TR2_RES_COLD;
+			if (!one_in_(LOW_IM_LUCK))
+				SET_FLAG(o_ptr, TR_RES_COLD);
+			else
+				SET_FLAG(o_ptr, TR_IM_COLD);
+			break;
+		case 4:
+		case 9:
+		case 10:
+		case 15:
+			if (!one_in_(LOW_IM_LUCK))
+				SET_FLAG(o_ptr, TR_RES_FIRE);
+			else
+				SET_FLAG(o_ptr, TR_IM_FIRE);
 			break;
 		case 17:
 		case 18:
-			o_ptr->flags2 |= TR2_RES_POIS;
+			SET_FLAG(o_ptr, TR_RES_POIS);
 			break;
 		case 19:
 		case 20:
-			o_ptr->flags2 |= TR2_RES_FEAR;
+			SET_FLAG(o_ptr, TR_RES_FEAR);
 			break;
 		case 21:
-			if (!one_in_(WEIRD_LUCK))
-				o_ptr->flags2 |= TR2_RES_LITE;
+			if (!one_in_(HI_IM_LUCK))
+				SET_FLAG(o_ptr, TR_RES_LITE);
 			else
-				o_ptr->flags4 |= TR4_IM_LITE;
+				SET_FLAG(o_ptr, TR_IM_LITE);
 			break;
 		case 22:
-			if (!one_in_(WEIRD_LUCK))
-				o_ptr->flags2 |= TR2_RES_DARK;
+			if (!one_in_(HI_IM_LUCK))
+				SET_FLAG(o_ptr, TR_RES_DARK);
 			else
-				o_ptr->flags4 |= TR4_IM_DARK;
+				SET_FLAG(o_ptr, TR_IM_DARK);
 			break;
 		case 23:
 		case 24:
-			o_ptr->flags2 |= TR2_RES_BLIND;
+			SET_FLAG(o_ptr, TR_RES_BLIND);
 			break;
 		case 25:
 		case 26:
-			o_ptr->flags2 |= TR2_RES_CONF;
+			SET_FLAG(o_ptr, TR_RES_CONF);
 			break;
 		case 27:
 		case 28:
-			o_ptr->flags2 |= TR2_RES_SOUND;
+			SET_FLAG(o_ptr, TR_RES_SOUND);
 			break;
 		case 29:
 		case 30:
-			o_ptr->flags2 |= TR2_RES_SHARDS;
+			SET_FLAG(o_ptr, TR_RES_SHARDS);
 			break;
 		case 31:
 		case 32:
-			o_ptr->flags2 |= TR2_RES_NETHER;
+			SET_FLAG(o_ptr, TR_RES_NETHER);
 			break;
 		case 33:
 		case 34:
-			o_ptr->flags2 |= TR2_RES_NEXUS;
+			SET_FLAG(o_ptr, TR_RES_NEXUS);
 			break;
 		case 35:
 		case 36:
-			o_ptr->flags2 |= TR2_RES_CHAOS;
+			SET_FLAG(o_ptr, TR_RES_CHAOS);
 			break;
 		case 37:
 		case 38:
-			o_ptr->flags2 |= TR2_RES_DISEN;
+			SET_FLAG(o_ptr, TR_RES_DISEN);
 			break;
 		case 39:
 			if (o_ptr->tval >= TV_CLOAK && o_ptr->tval <= TV_HARD_ARMOR)
-				o_ptr->flags3 |= TR3_SH_ELEC;
+				SET_FLAG(o_ptr, TR_SH_ELEC);
 			else
-				o_ptr->flags2 |= TR2_RES_ELEC;
+				SET_FLAG(o_ptr, TR_RES_ELEC);
 			break;
 		case 40:
 			if (o_ptr->tval >= TV_CLOAK && o_ptr->tval <= TV_HARD_ARMOR)
-				o_ptr->flags3 |= TR3_SH_FIRE;
+				SET_FLAG(o_ptr, TR_SH_FIRE);
 			else
-				o_ptr->flags2 |= TR2_RES_FIRE;
+				SET_FLAG(o_ptr, TR_RES_FIRE);
 			break;
 		case 41:
 			if (o_ptr->tval >= TV_CLOAK && o_ptr->tval <= TV_HARD_ARMOR)
-				o_ptr->flags4 |= TR4_SH_COLD;
+				SET_FLAG(o_ptr, TR_SH_COLD);
 			else
-				o_ptr->flags2 |= TR2_RES_COLD;
+				SET_FLAG(o_ptr, TR_RES_COLD);
 			break;
 		/* Note: SH_ACID is deliberately omitted here */
 		case 42:
 			if (o_ptr->tval == TV_SHIELD || o_ptr->tval == TV_CLOAK ||
 				o_ptr->tval == TV_HELM || o_ptr->tval == TV_HARD_ARMOR)
-				o_ptr->flags2 |= TR2_REFLECT;
+				SET_FLAG(o_ptr, TR_REFLECT);
 			else
-				o_ptr->flags2 |= TR2_RES_FEAR;
+				SET_FLAG(o_ptr, TR_RES_FEAR);
 			break;
 	}
 }
@@ -208,92 +209,92 @@ void random_resistance(object_type *o_ptr, int specific)
 
 static void random_misc(object_type *o_ptr)
 {
-	switch (randint1(37))
+	switch (randint1(38))
 	{
 		case 1:
-			o_ptr->flags2 |= TR2_SUST_STR;
+			SET_FLAG(o_ptr, TR_SUST_STR);
 			break;
 		case 2:
-			o_ptr->flags2 |= TR2_SUST_INT;
+			SET_FLAG(o_ptr, TR_SUST_INT);
 			break;
 		case 3:
-			o_ptr->flags2 |= TR2_SUST_WIS;
+			SET_FLAG(o_ptr, TR_SUST_WIS);
 			break;
 		case 4:
-			o_ptr->flags2 |= TR2_SUST_DEX;
+			SET_FLAG(o_ptr, TR_SUST_DEX);
 			break;
 		case 5:
-			o_ptr->flags2 |= TR2_SUST_CON;
+			SET_FLAG(o_ptr, TR_SUST_CON);
 			break;
 		case 6:
-			o_ptr->flags2 |= TR2_SUST_CHR;
+			SET_FLAG(o_ptr, TR_SUST_CHR);
 			break;
 		case 7:
 		case 8:
 		case 14:
-			o_ptr->flags2 |= TR2_FREE_ACT;
+			SET_FLAG(o_ptr, TR_FREE_ACT);
 			break;
 		case 9:
-			o_ptr->flags2 |= TR2_HOLD_LIFE;
+			SET_FLAG(o_ptr, TR_HOLD_LIFE);
 			break;
 		case 10:
 		case 11:
-			o_ptr->flags3 |= TR3_LITE;
+			SET_FLAG(o_ptr, TR_LITE);
 			break;
 		case 12:
 		case 13:
-			o_ptr->flags3 |= TR3_FEATHER;
+			SET_FLAG(o_ptr, TR_FEATHER);
 			break;
 		case 15:
 			if (o_ptr->tval == TV_GLOVES)
-				o_ptr->flags4 |= TR4_GHOUL_TOUCH;
+				SET_FLAG(o_ptr, TR_GHOUL_TOUCH);
 			else
-				o_ptr->flags3 |= TR3_SEE_INVIS;
+				SET_FLAG(o_ptr, TR_SEE_INVIS);
 
 			break;
 		case 16:
 		case 17:
-			o_ptr->flags3 |= TR3_SEE_INVIS;
+			SET_FLAG(o_ptr, TR_SEE_INVIS);
 			break;
 		case 18:
-			o_ptr->flags3 |= TR3_TELEPATHY;
+			SET_FLAG(o_ptr, TR_TELEPATHY);
 			break;
 		case 19:
 		case 20:
-			o_ptr->flags3 |= TR3_SLOW_DIGEST;
+			SET_FLAG(o_ptr, TR_SLOW_DIGEST);
 			break;
 		case 21:
 		case 22:
-			o_ptr->flags3 |= TR3_REGEN;
+			SET_FLAG(o_ptr, TR_REGEN);
 			break;
 		case 23:
-			o_ptr->flags3 |= TR3_TELEPORT;
+			SET_FLAG(o_ptr, TR_TELEPORT);
 			break;
 		case 24:
 		case 25:
 		case 26:
 			if (o_ptr->tval >= TV_BOOTS && o_ptr->tval < TV_LITE)
 			{
-				o_ptr->flags3 |= TR3_SLOW_DIGEST;
+				SET_FLAG(o_ptr, TR_SLOW_DIGEST);
 			}
 			else
 			{
-				o_ptr->flags3 |= TR3_SHOW_MODS;
+				SET_FLAG(o_ptr, TR_SHOW_MODS);
 				o_ptr->to_a = (s16b)rand_range(5, 15);
 			}
 			break;
 		case 27:
 		case 28:
 		case 29:
-			o_ptr->flags3 |= TR3_SHOW_MODS;
+			SET_FLAG(o_ptr, TR_SHOW_MODS);
 			o_ptr->to_h += (s16b)rand_range(5, 15);
 			o_ptr->to_d += (s16b)rand_range(5, 15);
 			break;
 		case 30:
-			o_ptr->flags3 |= TR3_NO_MAGIC;
+			SET_FLAG(o_ptr, TR_NO_MAGIC);
 			break;
 		case 31:
-			o_ptr->flags3 |= TR3_NO_TELE;
+			SET_FLAG(o_ptr, TR_NO_TELE);
 			break;
 		case 32:
 		case 33:
@@ -301,86 +302,106 @@ static void random_misc(object_type *o_ptr)
 			/* A slay on a non-weapon gives protection */
 			switch (randint1(8))
 			{
-				case 1: o_ptr->flags1 |= TR1_SLAY_ANIMAL; break;
-				case 2: o_ptr->flags1 |= TR1_SLAY_EVIL; break;
-				case 3: o_ptr->flags1 |= TR1_SLAY_UNDEAD; break;
-				case 4: o_ptr->flags1 |= TR1_SLAY_DEMON; break;
-				case 5: o_ptr->flags1 |= TR1_SLAY_ORC; break;
-				case 6: o_ptr->flags1 |= TR1_SLAY_TROLL; break;
-				case 7: o_ptr->flags1 |= TR1_SLAY_GIANT; break;
-				case 8: o_ptr->flags1 |= TR1_SLAY_DRAGON; break;
+				case 1: SET_FLAG(o_ptr, TR_SLAY_ANIMAL); break;
+				case 2: SET_FLAG(o_ptr, TR_SLAY_EVIL);   break;
+				case 3: SET_FLAG(o_ptr, TR_SLAY_UNDEAD); break;
+				case 4: SET_FLAG(o_ptr, TR_SLAY_DEMON);  break;
+				case 5: SET_FLAG(o_ptr, TR_SLAY_ORC);	 break;
+				case 6: SET_FLAG(o_ptr, TR_SLAY_TROLL);  break;
+				case 7: SET_FLAG(o_ptr, TR_SLAY_GIANT);  break;
+				case 8: SET_FLAG(o_ptr, TR_SLAY_DRAGON); break;
 			}
 			break;
 		case 35:
-			o_ptr->flags4 |= TR4_MUTATE;
+			SET_FLAG(o_ptr, TR_MUTATE);
 			break;
 		case 36:
-			o_ptr->flags4 |= TR4_PATRON;
+			SET_FLAG(o_ptr, TR_PATRON);
 			break;
 		case 37:
-			o_ptr->flags4 |= TR4_STRANGE_LUCK;
+			SET_FLAG(o_ptr, TR_STRANGE_LUCK);
+			break;
+		case 38:
+			SET_FLAG(o_ptr, TR_LUCK_10);
+			break;
 	}
 }
 
 static void random_curse(object_type *o_ptr, bool evil)
 {
-	switch (randint1(evil ? 26 : 16))
+	switch (randint1(evil ? 32 : 18))
 	{
 		case 1:
-		case 17:
-			o_ptr->flags4 |= TR4_HURT_ACID;
+		case 19:
+			SET_FLAG(o_ptr, TR_HURT_ACID);
 			break;
 		case 2:
-		case 18:
-			o_ptr->flags4 |= TR4_HURT_ELEC;
+		case 20:
+			SET_FLAG(o_ptr, TR_HURT_ELEC);
 			break;
 		case 3:
-		case 19:
-			o_ptr->flags4 |= TR4_HURT_FIRE;
+		case 21:
+			SET_FLAG(o_ptr, TR_HURT_FIRE);
 			break;
 		case 4:
-		case 20:
-			o_ptr->flags4 |= TR4_HURT_COLD;
+		case 22:
+			SET_FLAG(o_ptr, TR_HURT_COLD);
 			break;
 		case 5:
-			o_ptr->flags4 |= TR4_HURT_LITE;
+			SET_FLAG(o_ptr, TR_HURT_LITE);
 			break;
 		case 6:
-			o_ptr->flags4 |= TR4_HURT_DARK;
+			SET_FLAG(o_ptr, TR_HURT_DARK);
 			break;
 		case 7:
 		case 8:
-			o_ptr->flags3 |= TR3_AGGRAVATE;
+			SET_FLAG(o_ptr, TR_AGGRAVATE);
 			break;
 		case 9:
-			o_ptr->flags4 |= TR4_SLOW_HEAL;
+			SET_FLAG(o_ptr, TR_SLOW_HEAL);
 			break;
 		case 10:
-		case 21:
-			o_ptr->flags4 |= TR4_DRAIN_STATS;
+		case 23:
+			SET_FLAG(o_ptr, TR_DRAIN_STATS);
 			break;
 		case 11:
 		case 12:
-			o_ptr->flags4 |= TR4_AUTO_CURSE;
+			SET_FLAG(o_ptr, TR_AUTO_CURSE);
 			break;
 		case 13:
 		case 14:
-			o_ptr->flags4 |= TR4_CANT_EAT;
+			SET_FLAG(o_ptr, TR_CANT_EAT);
 			break;
 		case 15:
 		case 16:
-			o_ptr->flags3 |= TR3_CURSED;
+			SET_FLAG(o_ptr, TR_CURSED);
 			break;
-		case 22:
-		case 23:
-			o_ptr->flags3 |= TR3_TELEPORT;
+		case 17:
+			o_ptr->to_a -= rand_range(5, 15);
+			break;
+		case 18:
+			o_ptr->to_h -= rand_range(5, 10);
+			o_ptr->to_d -= rand_range(5, 10);
 			break;
 		case 24:
-			o_ptr->flags3 |= TR3_DRAIN_EXP;
-			break;
 		case 25:
+			SET_FLAG(o_ptr, TR_TELEPORT);
+			break;
 		case 26:
-			o_ptr->flags3 |= TR3_TY_CURSE;
+			SET_FLAG(o_ptr, TR_DRAIN_EXP);
+			break;
+		case 27:
+		case 28:
+			SET_FLAG(o_ptr, TR_TY_CURSE);
+			break;
+		case 29:
+		case 30:
+		case 31:
+			SET_FLAG(o_ptr, TR_CURSED);
+			SET_FLAG(o_ptr, TR_HEAVY_CURSE);
+			break;
+		case 32:
+			SET_FLAG(o_ptr, TR_NO_MAGIC);
 			break;
 	}
 }
@@ -395,10 +416,10 @@ static void random_slay(object_type *o_ptr)
 			case 1:
 			case 2:
 			case 3:
-				o_ptr->flags3 |= TR3_XTRA_MIGHT;
+				SET_FLAG(o_ptr, TR_XTRA_MIGHT);
 				break;
 			default:
-				o_ptr->flags3 |= TR3_XTRA_SHOTS;
+				SET_FLAG(o_ptr, TR_XTRA_SHOTS);
 				break;
 		}
 	}
@@ -407,199 +428,1026 @@ static void random_slay(object_type *o_ptr)
 	{
 		case 1:
 		case 2:
-			o_ptr->flags1 |= TR1_SLAY_ANIMAL;
+			SET_FLAG(o_ptr, TR_SLAY_ANIMAL);
 			break;
 		case 3:
 		case 4:
-			o_ptr->flags1 |= TR1_SLAY_EVIL;
+			SET_FLAG(o_ptr, TR_SLAY_EVIL);
 			break;
 		case 5:
 		case 6:
-			o_ptr->flags1 |= TR1_SLAY_UNDEAD;
+			SET_FLAG(o_ptr, TR_SLAY_UNDEAD);
 			break;
 		case 7:
 		case 8:
-			o_ptr->flags1 |= TR1_SLAY_DEMON;
+			SET_FLAG(o_ptr, TR_SLAY_DEMON);
 			break;
 		case 9:
 		case 10:
-			o_ptr->flags1 |= TR1_SLAY_ORC;
+			SET_FLAG(o_ptr, TR_SLAY_ORC);
 			break;
 		case 11:
 		case 12:
-			o_ptr->flags1 |= TR1_SLAY_TROLL;
+			SET_FLAG(o_ptr, TR_SLAY_TROLL);
 			break;
 		case 13:
 		case 14:
-			o_ptr->flags1 |= TR1_SLAY_GIANT;
+			SET_FLAG(o_ptr, TR_SLAY_GIANT);
 			break;
 		case 15:
 		case 16:
-			o_ptr->flags1 |= TR1_SLAY_DRAGON;
+			SET_FLAG(o_ptr, TR_SLAY_DRAGON);
 			break;
 		case 17:
-			o_ptr->flags1 |= TR1_KILL_DRAGON;
+			SET_FLAG(o_ptr, TR_KILL_DRAGON);
 			break;
 		case 18:
 		case 19:
 			if (o_ptr->tval == TV_SWORD)
 			{
-				o_ptr->flags1 |= TR1_VORPAL;
+				SET_FLAG(o_ptr, TR_VORPAL);
 			}
 			else
 			{
-				o_ptr->flags1 |= TR1_IMPACT;
+				SET_FLAG(o_ptr, TR_IMPACT);
 			}
 			break;
 		case 20:
 		case 21:
 		case 22:
-			o_ptr->flags1 |= TR1_BRAND_FIRE;
+			SET_FLAG(o_ptr, TR_BRAND_FIRE);
 			break;
 		case 23:
 		case 24:
-			o_ptr->flags1 |= TR1_BRAND_COLD;
+			SET_FLAG(o_ptr, TR_BRAND_COLD);
 			break;
 		case 25:
 		case 26:
-			o_ptr->flags1 |= TR1_BRAND_ELEC;
+			SET_FLAG(o_ptr, TR_BRAND_ELEC);
 			break;
 		case 27:
 		case 28:
-			o_ptr->flags1 |= TR1_BRAND_ACID;
+			SET_FLAG(o_ptr, TR_BRAND_ACID);
 			break;
 		case 29:
 		case 30:
-			o_ptr->flags1 |= TR1_BRAND_POIS;
+			SET_FLAG(o_ptr, TR_BRAND_POIS);
 			break;
 		case 31:
 		case 32:
-			o_ptr->flags1 |= TR1_VAMPIRIC;
+			SET_FLAG(o_ptr, TR_VAMPIRIC);
 			break;
 		case 33:
 		case 34:
-			o_ptr->flags4 |= TR4_PSI_CRIT;
+			SET_FLAG(o_ptr, TR_PSI_CRIT);
 			break;
 		default:
-			o_ptr->flags1 |= TR1_CHAOTIC;
+			SET_FLAG(o_ptr, TR_CHAOTIC);
 			break;
 	}
 }
 
 
-static void give_activation_power(object_type *o_ptr)
+static cptr activation_text[] = {
+	"The %v glows extremely brightly...",
+	"The %v throbs deep green...",
+	"The %v glows an intense red...",
+	"The %v glows black...",
+	"The %v glows an intense blue...",
+	"The %v throbs red...",
+	"The %v glows deep red...",
+	"The %v glows bright white...",
+	"The %v glows deep blue...",
+	"The %v glows in scintillating colours...",
+	"The %v vibrates...",
+	"The %v glows violet...",
+	"The %v lets out a long, shrill note...",
+	"The %v twists in your hands...",
+	"The %v shudders...",
+	"The %v fades in and out...",
+	"The %v hums softly...",
+	"The %v blinks in and out...",
+	"The %v radiates light blue...",
+	"The %v radiates deep purple...",
+	"The %v glows deep green...",
+	"The %v lets out a shrill wail...",
+	"The %v glows brightly...",
+	"The %v shines brightly...",
+	"The %v glows yellow...",
+	"The %v glows light blue...",
+	"The %v glows brown...",
+	"The %v pulsates...",
+	"The %v hums...",
+	"The %v glows bright yellow..."
+};
+
+static cptr element_list[] =
 {
-	int type = 0, chance = 0;
+	"GF_ACID", "GF_ELEC", "GF_FIRE", "GF_COLD", "GF_POIS",
+	"GF_PLASMA", "GF_WATER", "GF_LITE", "GF_DARK", "GF_SHARDS",
+	"GF_SOUND", "GF_CONFUSION", "GF_FORCE", "GF_INERTIA", "GF_MANA",
+	"GF_ICE", "GF_CHAOS", "GF_NETHER", "GF_NEXUS", "GF_TIME",
+	"GF_GRAVITY", "GF_NUKE", "GF_HOLY_FIRE", "GF_HELL_FIRE", "GF_MISSILE",
+};
+static cptr element_names[] =
+{
+	"acid", "lightning", "fire", "cold", "poison",
+	"plasma", "water", "light", "darkness", "shards",
+	"sound", "confusion", "force", "inertia", "mana",
+	"ice", "chaos", "nether", "nexus", "time",
+	"gravity", "toxic waste", "holy power", "unholy power", "elemental force",
+};
+static cptr element_colors[] =
+{
+	"dark grey", "light blue", "bright red", "pale white", "dark green",
+	"bright orange", "dark blue", "bright white", "black", "dark red",
+	"amber", "dark purple", "light grey", "silver", "many colors",
+	"pale white", "many colors", "black", "yellow", "silver",
+	"dark grey", "sickly yellow", "pure white", "dark red", "many colors",
+};
+static cptr glow_desc[] =
+{
+	"glows", "shines", "pulses", "throbs", "radiates", "sparks"
+};
 
-	while (!type || (randint1(100) >= chance))
+/*
+ * An activation for random artifacts
+ */
+typedef struct randart_activation randart_activation;
+
+struct randart_activation
+{
+	cptr text;
+	cptr desc;
+	cptr effect;
+	int freq;
+	bool aimed;
+	int pp;
+	int dice;
+	int bonus;
+};
+
+#define SPDICE_MM -1
+
+/*
+ * {
+ * text,
+ * desc,
+ * effect,
+ * freq, aimed, pp, dice, bonus
+ * }
+ */
+static const struct randart_activation randart_activations[] =
+{
 	{
-		type = randint1(255);
-		switch (type)
-		{
-			case ACT_SUNLIGHT:
-			case ACT_BO_MISS_1:
-			case ACT_BA_POIS_1:
-			case ACT_BO_ELEC_1:
-			case ACT_BO_ACID_1:
-			case ACT_BO_COLD_1:
-			case ACT_BO_FIRE_1:
-			case ACT_CONFUSE:
-			case ACT_SLEEP:
-			case ACT_QUAKE:
-			case ACT_CURE_LW:
-			case ACT_CURE_MW:
-			case ACT_CURE_POISON:
-			case ACT_BERSERK:
-			case ACT_LIGHT:
-			case ACT_MAP_LIGHT:
-			case ACT_DEST_DOOR:
-			case ACT_STONE_MUD:
-			case ACT_TELEPORT_1:
-			case ACT_TELEPORT_2:
-				chance = 101;
-				break;
-			case ACT_BA_COLD_1:
-			case ACT_BA_FIRE_1:
-			case ACT_DRAIN_1:
-			case ACT_TELE_AWAY:
-			case ACT_ESP:
-			case ACT_RESIST_ALL:
-			case ACT_DETECT_ALL:
-			case ACT_RECALL:
-			case ACT_SATIATE:
-			case ACT_RECHARGE:
-				chance = 85;
-				break;
-			case ACT_TERROR:
-			case ACT_PROT_EVIL:
-			case ACT_ID_PLAIN:
-				chance = 75;
-				break;
-			case ACT_DRAIN_2:
-			case ACT_VAMPIRE_1:
-			case ACT_BO_MISS_2:
-			case ACT_BA_FIRE_2:
-			case ACT_REST_LIFE:
-				chance = 66;
-				break;
-			case ACT_BA_COLD_3:
-			case ACT_BA_ELEC_3:
-			case ACT_WHIRLWIND:
-			case ACT_VAMPIRE_2:
-			case ACT_CHARM_ANIMAL:
-				chance = 50;
-				break;
-			case ACT_SUMMON_ANIMAL:
-				chance = 40;
-				break;
-			case ACT_DISP_EVIL:
-			case ACT_BA_MISS_3:
-			case ACT_DISP_GOOD:
-			case ACT_BANISH_EVIL:
-			case ACT_GENOCIDE:
-			case ACT_MASS_GENO:
-			case ACT_CHARM_UNDEAD:
-			case ACT_CHARM_OTHER:
-			case ACT_SUMMON_PHANTOM:
-			case ACT_REST_ALL:
-			case ACT_RUNE_EXPLO:
-				chance = 33;
-				break;
-			case ACT_CALL_CHAOS:
-			case ACT_ROCKET:
-			case ACT_CHARM_ANIMALS:
-			case ACT_CHARM_OTHERS:
-			case ACT_SUMMON_ELEMENTAL:
-			case ACT_CURE_700:
-			case ACT_SPEED:
-			case ACT_ID_FULL:
-			case ACT_RUNE_PROT:
-				chance = 25;
-				break;
-			case ACT_CURE_1000:
-			case ACT_XTRA_SPEED:
-			case ACT_DETECT_XTRA:
-			case ACT_DIM_DOOR:
-				chance = 10;
-				break;
-			case ACT_SUMMON_UNDEAD:
-			case ACT_SUMMON_DEMON:
-			case ACT_WRAITH:
-			case ACT_INVULN:
-			case ACT_ALCHEMY:
-				chance = 5;
-				break;
-			default:
-				chance = 0;
-		}
-	}
+		NULL,
+		"remove fear & cure poison",
+		"clear_afraid(); clear_poisoned()",
+		20, FALSE, 100, 0, 0
+	},
+	{
+		NULL,
+		"stone to mud",
+		"wall_to_mud(dir)",
+		100, TRUE, 1000, 0, 0
+	},
+	{
+		NULL,
+		"destroy doors",
+		"destroy_doors_touch()",
+		20, FALSE, 1000, 0, 0
+	},
+	{
+		NULL,
+		"confuse monster",
+		"confuse_monster(dir, 50)",
+		50, TRUE, 1000, 0, 0
+	},
+	{
+		NULL,
+		"sleep monster",
+		"sleep_monster(dir)",
+		50, TRUE, 1000, 0, 0
+	},
+	{
+		NULL,
+		"slow monster",
+		"slow_monster(dir)",
+		50, TRUE, 1000, 0, 0
+	},
+	{
+		NULL,
+		"identify",
+		"if not ident_spell() then return end",
+		100, FALSE, 1000, 0, 0
+	},
+	{
+		NULL,
+		"recharging",
+		"recharge(130)",
+		25, FALSE, 1000, 0, 0
+	},
+	{
+		NULL,
+		"sleep nearby monsters",
+		"sleep_monsters_touch()",
+		25, FALSE, 1000, 0, 0
+	},
+	{
+		NULL,
+		"sleep monsters",
+		"sleep_monsters()",
+		10, FALSE, 5000, 0, 0
+	},
+	{
+		"You open a dimensional gate. Choose a destination.",
+		"dimension door",
+		"if not dimension_door() return end",
+		25, FALSE, 1000, 0, 0
+	},
+	{
+		"The %v twists space around you...",
+		"teleport (100)",
+		"teleport_player(100)",
+		100, FALSE, 1000, 0, 0
+	},
+	{
+		"An image forms in your mind...",
+		"detection",
+		"detect_all()",
+		50, FALSE, 1000, 0, 0
+	},
+	{
+		"The %v glows bright red...",
+		"explosive rune",
+		"explosive_rune()",
+		5, FALSE, 5000, 0, 0
+	},
+	{
+		NULL,
+		"word of recall",
+		"word_of_recall()",
+		100, FALSE, 5000, 0, 0
+	},
+	{
+		NULL,
+		"restore life levels",
+		"restore_level()",
+		10, FALSE, 25000, 0, 0
+	},
+	{
+		NULL,
+		"teleport away",
+		"fire_beam(GF_AWAY_ALL, dir, player.lev)",
+		50, TRUE, 5000, 0, 0
+	},
+	{
+		NULL,
+		"charm animal",
+		"charm_animal(dir, player.lev)",
+		10, TRUE, 5000, 0, 0
+	},
+	{
+		NULL,
+		"charm animal (level %s)",
+		"charm_animal(dir, %s)",
+		10, TRUE, 200, 100, 0	/* lev */
+	},
+	{
+		NULL,
+		"enslave undead",
+		"control_one_undead(dir, player.lev)",
+		10, TRUE, 7500, 0, 0
+	},
+	{
+		NULL,
+		"enslave undead (level %s)",
+		"control_one_undead(dir, %s)",
+		10, TRUE, 300, 100, 0	/* lev */
+	},
+	{
+		NULL,
+		"charm monster",
+		"charm_monster(dir, player.lev)",
+		10, TRUE, 10000, 0, 0
+	},
+	{
+		NULL,
+		"charm monster (level %s)",
+		"charm_monster(dir, %s)",
+		10, TRUE, 400, 100, 0	/* lev */
+	},
+	{
+		NULL,
+		"alchemy",
+		"alchemy()",
+		5, FALSE, 10000, 0, 0
+	},
+	{
+		NULL,
+		"rune of protection",
+		"warding_glyph()",
+		10, FALSE, 10000, 0, 0
+	},
+	{
+		NULL,
+		"animal friendship",
+		"charm_animals(player.lev * 2)",
+		5, FALSE, 10000, 0, 0
+	},
+	{
+		NULL,
+		"animal friendship (level %s)",
+		"charm_animals(%s * 2)",
+		5, FALSE, 750, 100, 0	/* lev */
+	},
+	{
+		"The power of the %v banishes evil!",
+		"banish evil",
+		"banish_evil(200)",
+		25, FALSE, 10000, 0, 0
+	},
+	{
+		NULL,
+		"genocide",
+		"genocide(TRUE)",
+		10, FALSE, 10000, 0, 0
+	},
+	{
+		NULL,
+		"satisfy hunger",
+		"set_food(PY_FOOD_MAX - 1)",
+		100, FALSE, 10000, 0, 0
+	},
+	{
+		"The %v emits a blast of air...",
+		"whirlwind attack",
+		"whirlwind_attack()",
+		10, FALSE, 20000, 0, 0
+	},
+	{
+		"The %v glows in scintillating colours...",
+		"call chaos",
+		"call_chaos()",
+		10, FALSE, 25000, 0, 0
+	},
+	{
+		NULL,
+		"mass genocide",
+		"mass_genocide(TRUE)",
+		5, FALSE, 25000, 0, 0
+	},
+	{
+		NULL,
+		"mass charm",
+		"charm_monsters(player.lev * 2)",
+		5, FALSE, 25000, 0, 0
+	},
+	{
+		NULL,
+		"mass charm (level %s)",
+		"charm_monsters(%s * 2)",
+		5, FALSE, 2000, 100, 0	/* lev */
+	},
+	{
+		NULL,
+		"restore stats",
+		"restore_all_stats()",
+		10, FALSE, 25000, 0, 0
+	},
+	{
+		NULL,
+		"restore stats and life levels",
+		"restore_all_stats(); restore_level()",
+		5, FALSE, 50000, 0, 0
+	},
+	{
+		NULL,
+		"identify true",
+		"identify_fully()",
+		25, FALSE, 25000, 0, 0
+	},
+	{
+		NULL,
+		"detection, probing and identify true",
+		"detect_all(); probing(); identify_fully()",
+		5, FALSE, 50000, 0, 0
+	},
+	{
+		"A line of sunlight appears.",
+		"beam of sunlight",
+		"lite_line(dir)",
+		100, TRUE, 500, 0, 0
+	},
+	{
+		"The %v glow extremely brightly...",
+		"magic missile (%sd6)",
+		"fire_bolt(GF_MISSILE, dir, damroll(%s, 6))",
+		100, TRUE, 12, 10, 2	/* lev / 10 + 2 */
+	},
+	{
+		"The %v throbs deep green...",
+		"stinking cloud (%s)",
+		"fire_ball(GF_POIS, dir, %s, 2)",
+		50, TRUE, 5, 100, 10	/* lev + 10 */
+	},
+	{
+		"The %v glows black...",
+		"drain life (%s)",
+		"drain_life(dir, %s)",
+		25, TRUE, 10, 500, 0	/* lev * 5 */
+	},
+	{
+		"The %v throbs red...",
+		"vampiric drain (%s)",
+		"drain_gain_life(dir, %s)",
+		25, TRUE, 15, 500, 0	/* lev * 5 */
+	},
+	{
+		"The %v grows magical spikes...",
+		"arrows (%s)",
+		"fire_bolt(GF_ARROW, dir, %s)",
+		10, TRUE, 10, 500, 0	/* lev * 5 */
+	},
+	{
+		"The %v grows magical spikes...",
+		"arrows (%sd25)",
+		"fire_bolt(GF_ARROW, dir, damroll(%s, 25))",
+		5, TRUE, 125, 33, 1	/* lev / 3 + 1 */
+	},
+	{
+		"The %v grows magical spikes...",
+		"arrows (%sd50)",
+		"fire_bolt(GF_ARROW, dir, damroll(%s, 50))",
+		5, TRUE, 250, 33, 1	/* lev / 3 + 1 */
+	},
+	{
+		"You launch a rocket!",
+		"launch rocket (%s)",
+		"fire_ball(GF_ROCKET, dir, %s, 2)",
+		5, TRUE, 20, 500, 100	/* rlev * 5 + 100 */
+	},
+	{
+		"The %v floods the area with goodness...",
+		"dispel evil (%s)",
+		"dispel_evil(%s)",
+		50, FALSE, 100, 500, 0	/* rlev * 5 */
+	},
+	{
+		"The %v floods the area with evil...",
+		"dispel good (%s)",
+		"dispel_good(%s)",
+		25, FALSE, 100, 500, 0	/* rlev * 5 */
+	},
+	{
+		/* Note that this is more powerful than a normal breath activation */
+		"You breathe the elements.",
+		"breathe the elements (%s, rad. 4)",
+		"fire_ball(GF_MISSILE, dir, %s, 4)",
+		5, FALSE, 40, 1000, 0	/* rlev * 10 */
+	},
+	{
+		"The %v vibrates...",
+		"earthquake (rad. %s)",
+		"earthquake(px, py, %s)",
+		10, FALSE, 250, 25, 5	/* lev / 4 + 5 */
+	},
+	{
+		"The %v emits a loud blast...",
+		"terror",
+		"turn_monsters(40 + player.lev)",
+		10, FALSE, 2500, 0, 0
+	},
+	{
+		"You summon a beast.",
+		"summon animal",
+		"summon_controlled(SUMMON_ANIMAL_RANGER)",
+		25, FALSE, 10000, 0, 0
+	},
+	{
+		"You summon a phantasmal servant.",
+		"summon phantasmal servant",
+		"summon_controlled(SUMMON_PHANTOM)",
+		25, FALSE, 10000, 0, 0
+	},
+	{
+		"You summon an elemental.",
+		"summon elemental",
+		"summon_unsafe(SUMMON_ELEMENTAL)",
+		25, FALSE, 25000, 0, 0
+	},
+	{
+		"Ancient, long-dead forms rise from the ground.",
+		"summon undead",
+		"summon_unsafe(SUMMON_UNDEAD)",
+		25, FALSE, 25000, 0, 0
+	},
+	{
+		"Ancient, long-dead forms rise from the ground.",
+		"summon greater undead",
+		"summon_unsafe(SUMMON_HI_UNDEAD)",
+		10, FALSE, 50000, 0, 0
+	},
+	{
+		"The area fills with the stench of sulphur and brimstone.",
+		"summon demon",
+		"summon_unsafe(SUMMON_DEMON)",
+		25, FALSE, 25000, 0, 0
+	},
+	{
+		"The area fills with brilliant white light.",
+		"summon angel",
+		"summon_controlled(SUMMON_ANGEL)",
+		10, FALSE, 50000, 0, 0
+	},
+	{
+		NULL,
+		"remove fear & heal (%sd10)",
+		"clear_afraid(); hp_player(damroll(%s, 10))",
+		25, FALSE, 100, 33, 1	/* lev / 3 + 1 */
+	},
+	{
+		NULL,
+		"cure wounds & heal (%sd10)",
+		"hp_player(damroll(%s, 10)); clear_cut(); clear_stun()",
+		100, FALSE, 100, 100, 0	/* lev */
+	},
+	{
+		NULL,
+		"cure wounds & heal (%s)",
+		"hp_player(%s); clear_cut(); clear_stun()",
+		100, FALSE, 20, 1000, 0	/* lev * 10 */
+	},
+	{
+		"The %v enters your thoughts...",
+		"telepathy (%s+ turns)",
+		"inc_time_esp(rand_range2(%s))",
+		25, FALSE, 200, 100, 0	/* lev */
+	},
+	{
+		NULL,
+		"heroism (%s+ turns)",
+		"inc_hero(rand_range2(%s))",
+		25, FALSE, 150, 100, 0	/* lev */
+	},
+	{
+		NULL,
+		"berserk (%s+ turns)",
+		"inc_shero(rand_range2(%s))",
+		25, FALSE, 150, 100, 0	/* lev */
+	},
+	{
+		NULL,
+		"bless (%s+ turns)",
+		"inc_blessed(rand_range2(%s))",
+		25, FALSE, 100, 100, 0	/* lev */
+	},
+	{
+		NULL,
+		"protection from evil (%s+ turns)",
+		"inc_protevil(rand_range2(%s))",
+		25, FALSE, 100, 200, 0	/* lev * 2 */
+	},
+	{
+		"The %v glows many colours...",
+		"resist elements (%s+ turns)",
+		"inc_oppose_all(rand_range2(%s))",
+		25, FALSE, 250, 100, 0	/* lev */
+	},
+	{
+		NULL,
+		"resist acid (%s+ turns)",
+		"inc_oppose_acid(rand_range2(%s))",
+		10, FALSE, 100, 100, 0	/* lev */
+	},
+	{
+		NULL,
+		"resist lightning (%s+ turns)",
+		"inc_oppose_elec(rand_range2(%s))",
+		10, FALSE, 100, 100, 0	/* lev */
+	},
+	{
+		NULL,
+		"resist fire (%s+ turns)",
+		"inc_oppose_fire(rand_range2(%s))",
+		10, FALSE, 100, 100, 0	/* lev */
+	},
+	{
+		NULL,
+		"resist cold (%s+ turns)",
+		"inc_oppose_cold(rand_range2(%s))",
+		10, FALSE, 100, 100, 0	/* lev */
+	},
+	{
+		NULL,
+		"resist poison (%s+ turns)",
+		"inc_oppose_poison(rand_range2(%s))",
+		5, FALSE, 100, 100, 0	/* lev */
+	},
+	{
+		NULL,
+		"speed (%s+ turns)",
+		"inc_fast(rand_range2(%s))",
+		25, FALSE, 200, 100, 0	/* lev */
+	},
+	{
+		"The %v fades out...",
+		"wraith form (%s+ turns)",
+		"inc_wraith_form(rand_range2(%s))",
+		5, FALSE, 2000, 33, 1	/* lev / 3 + 1 */
+	},
+	{
+		"The %v fires a beam of bright light at you...",
+		"invulnerability (%s+ turns)",
+		"inc_invuln(rand_range2(%s))",
+		5, FALSE, 2000, 10, 3	/* lev / 10 + 3 */
+	},
+	{
+		"The %v wells with clear light...",
+		"light area (2d20)",
+		"lite_area(damroll(2, 20), 3)",
+		100, FALSE, 100, 0, 0
+	},
+	{
+		"The %v shines brightly...",
+		"map & light area (5d20)",
+		"map_area(); lite_area(damroll(5, 20), 3)",
+		50, FALSE, 400, 0, 0
+	},
+	{
+		NULL,
+		"detect evil",
+		"detect_monsters_evil()",
+		25, FALSE, 1000, 0, 0
+	},
+	{
+		NULL,
+		"detect monsters",
+		"detect_monsters()",
+		50, FALSE, 1000, 0, 0
+	},
+	{
+		NULL,
+		"detect traps and doors",
+		"detect_traps(); detect_doors(); detect_stairs()",
+		50, FALSE, 1000, 0, 0
+	},
+	{
+		NULL,
+		"remove curse",
+		"remove_curse()",
+		10, FALSE, 25000, 0, 0
+	},
+	{
+		NULL,
+		"dispel curse",
+		"remove_all_curse()",
+		5, FALSE, 50000, 0, 0
+	},
+	{
+		NULL,
+		"dispel undead (%s)",
+		"dispel_undead(%s)",
+		25, FALSE, 50, 500, 0	/* rlev * 5 */
+	},
+	{
+		NULL,
+		"dispel demons (%s)",
+		"dispel_demons(%s)",
+		25, FALSE, 50, 500, 0	/* rlev * 5 */
+	},
+	{
+		NULL,
+		"dispel living (%s)",
+		"dispel_living (%s)",
+		5, FALSE, 200, 400, 0	/* lev * 4 */
+	},
+	{
+		NULL,
+		"dispel monsters (%s)",
+		"dispel_monsters(%s)",
+		5, FALSE, 250, 400, 0	/* lev * 4 */
+	},
+	{
+		NULL,
+		"slow monsters",
+		"slow_monsters()",
+		10, FALSE, 25000, 0, 0
+	},
+	{
+		NULL,
+		"detect objects",
+		"detect_objects_normal()",
+		25, FALSE, 1000, 0, 0
+	},
+	{
+		NULL,
+		"detect treasure",
+		"detect_treasure(); detect_objects_gold()",
+		10, FALSE, 1000, 0, 0
+	},
+	{
+		NULL,
+		"detect enchantment",
+		"detect_objects_magic()",
+		10, FALSE, 2500, 0, 0
+	},
+	{
+		NULL,
+		"self knowledge",
+		"self_knowledge()",
+		10, FALSE, 10000, 0, 0
+	},
+	{
+		NULL,
+		"teleport level",
+		"teleport_player_level()",
+		5, FALSE, 10000, 0, 0
+	},
+	{
+		NULL,
+		"create doors",
+		"door_creation()",
+		5, FALSE, 2500, 0, 0
+	},
+	{
+		NULL,
+		"create stairs",
+		"stair_creation()",
+		5, FALSE, 10000, 0, 0
+	},
+	{
+		NULL,
+		"alter reality",
+		"alter_reality()",
+		5, FALSE, 10000, 0, 0
+	},
+	{
+		NULL,
+		"polymorph self",
+		"polymorph_self()",
+		10, FALSE, 5000, 0, 0
+	},
+	{
+		NULL,
+		"phase door",
+		"teleport_player(10)",
+		100, FALSE, 100, 0, 0
+	},
+	{
+		NULL,
+		"banishment",
+		"banish_monsters(200)",
+		5, FALSE, 25000, 0, 0
+	},
+		
+	/* XXX stun, confuse, turn, stasis */
 
-	/* A type was chosen... */
-	o_ptr->activate = type;
-	o_ptr->flags3 |= TR3_ACTIVATE;
+};
+	
+static void apply_activation_power(object_type *o_ptr, cptr text, cptr desc, cptr effect, bool aimed, int pp, int level)
+{
+	char buf[1024];
+	char text_buf[256];
+	int len;
+	int charge_min;
+
+	/* Don't add a power if there already is one */
+	if (FLAG(o_ptr, TR_ACTIVATE))
+		return;
+
+	/* Calculate charge time */
+	if (level > 0)
+		charge_min = pp / level;
+	else
+		charge_min = pp;
+
+	/* Round to nice numbers */
+	if (charge_min >= 1000)
+		charge_min -= charge_min % 100;
+	else if (charge_min >= 250)
+		charge_min -= charge_min % 50;
+	else if (charge_min >= 100)
+		charge_min -= charge_min % 10;
+	else if (charge_min >= 25)
+		charge_min -= charge_min % 5;
+
+	/* Enforce minimum & maximum charge time */
+	if (charge_min < 1) charge_min = 1;
+	if (charge_min > 5000) charge_min = 5000;
+
+
+	/* Get a description if needed */
+	if (text == NULL)
+		text = activation_text[randint0(NUM_ELEMENTS(activation_text))];
+
+	/* Get the basic name of the object in the description */
+	strnfmt(text_buf, 256, text, OBJECT_FMT(o_ptr, FALSE, 0));
+	
+	/* Construct the usage script */
+	len = strnfmt(buf, 1024, "msgf(\"%s\"); ", text_buf);
+	
+	if (aimed) strnfcat(buf, 1024, &len, 
+				"local success; local dir; "
+				"success, dir = get_aim_dir(); "
+				"if not success then return; end; ");
+
+	strnfcat(buf, 1024, &len, "%s; object.timeout = rand_range(%i, %i)", effect, charge_min, charge_min * 2);
+	
+	o_ptr->trigger[TRIGGER_USE] = quark_add(buf);
+	
+	
+	/* Description script */
+	len = strnfmt(buf, 1024, "return \"%s every %i-%i turns\"", desc, charge_min, charge_min * 2);
+	o_ptr->trigger[TRIGGER_DESC] = quark_fmt(buf);
+
+	SET_FLAG(o_ptr, TR_ACTIVATE);
 	o_ptr->timeout = 0;
 }
 
+static void attack_activation_power(object_type *o_ptr, int level, cptr fix_element)
+{
+	static char text[256];
+	char effect[256] = "";
+	char desc[256] = "";
+	int element;
+	int dice = 0;
+	int sides = 1;
+	int radius = 0;
+	int pp = 0;	/* Charge time * level */
+	bool aimed = TRUE;
+
+	int rlev = level * rand_range(50, 150) / 100;
+	if (rlev < 1) rlev = 1;
+
+	if (fix_element == NULL)
+	{
+		/* Pick a low or high element */
+		if (level <= randint1(60))
+			element = randint0(5);
+		else
+			element = randint0(NUM_ELEMENTS(element_list));
+	}
+	else
+	{
+		for (element = 0; strcmp(fix_element, element_list[element]) != 0; element++)
+			;
+	}
+
+	/* Describe the visual */
+	strnfmt(text, 256, "The %%v %s %s...", glow_desc[randint0(NUM_ELEMENTS(glow_desc))], element_colors[element]);
+
+	switch (randint1(10))
+	{
+	/* Breathe */
+	case 1:
+		strnfmt(text, 256, "You breathe %s.", element_names[element]);
+
+		/* Dice, radius, and charge time */
+		dice = rlev * 5;
+		radius = 2 + dice / rand_range(100, 200);
+		pp = dice * 10 * radius;
+
+		/* Create the lua */
+		strnfmt(desc, 256, "breathe %s (%i, rad. %i)", element_names[element], dice, radius);
+		strnfmt(effect, 256, "fire_ball(%s, dir, %i, %i)", element_list[element], dice, radius);
+
+		break;
+
+	/* Emit a blast */
+	case 2:
+		strnfmt(text, 256, "The %%v emits a blast of %s...", element_names[element]);
+
+		/* Dice, radius, and charge time */
+		dice = rlev * 10;
+		radius = 2 + dice / rand_range(50, 100);
+		pp = dice * 2 * radius;
+			
+		aimed = FALSE;
+
+		/* Create the lua */
+		strnfmt(desc, 256, "%s blast (%i, rad. %i)", element_names[element], dice, radius);
+		strnfmt(effect, 256, "fire_ball(%s, 0, %i, %i)", element_list[element], dice, radius);
+
+		break;
+
+	/* Fire a ball */
+	case 3:
+	case 4:
+	case 5:
+		/* Dice, radius, and charge time */
+		dice = 5 * (1 + rlev / 2);
+		radius = 2 + dice / rand_range(100, 200);
+		pp = dice * 10 * radius;
+
+		/* Create the lua */
+		strnfmt(desc, 256, "%s%s ball (%i)", radius > 2 ? "large " : "", element_names[element], dice);
+		strnfmt(effect, 256, "fire_ball(%s, dir, %i, %i)", element_list[element], dice, radius);
+
+		break;
+
+	/* Fire a beam */
+	case 6:
+		/* Dice and charge time */
+		dice = 1 + rlev / 3;
+		sides = rand_range(5, 8);
+		pp = dice * sides * 10;
+
+		/* Create the lua */
+		strnfmt(desc, 256, "%s beam (%id%i)", element_names[element], dice, sides);
+		strnfmt(effect, 256, "fire_beam(%s, dir, damroll(%i, %i))", element_list[element], dice, sides);
+
+		break;
+
+	/* Fire a bolt */
+	default:
+		/* Dice and charge time */
+		dice = 1 + rlev / 2;
+		sides = rand_range(5, 8);
+		pp = dice * sides * 5;
+
+		/* Create the lua */
+		strnfmt(desc, 256, "%s bolt (%id%i)", element_names[element], dice, sides);
+		strnfmt(effect, 256, "fire_bolt(%s, dir, damroll(%i, %i))", element_list[element], dice, sides);
+
+		break;
+	}
+
+	apply_activation_power(o_ptr, text, desc, effect, aimed, pp, level);
+}
+
+static void misc_activation_power(object_type *o_ptr, int level, cptr fix_power)
+{
+	const struct randart_activation *act = NULL;
+	char dice[32];
+	char effect[256] = "";
+	char desc[256] = "";
+	int pp;
+
+	int rlev = level * rand_range(50, 150) / 100;
+	if (rlev < 1) rlev = 1;
+
+	if (!fix_power)
+	{
+		do
+		{
+			act = &randart_activations[randint0(NUM_ELEMENTS(randart_activations))];
+		}
+		while (act->freq < randint1(100));
+	}
+	else
+	{
+		int i;
+		for (i = 0; strcmp(randart_activations[i].desc, fix_power) != 0; i++)
+			;
+		act = &randart_activations[i];
+	}
+	
+	/* Sometimes make the activation dependent on the player's level */
+	if (one_in_(10) && act->dice >= 100 && act->bonus == 0)
+	{
+		int mult = act->dice * rand_range(50, 150) / 10000;
+		if (mult < 1) mult = 1;
+
+		if (mult > 1)
+			strnfmt(dice, 32, "player.lev * %i", mult);
+		else
+			strcpy(dice, "player.lev");
+		
+		/* Fill in the dice */
+		strnfmt(desc, 256, act->desc, dice);
+		strnfmt(effect, 256, act->effect, dice);
+
+		/* Assume plev 30 */
+		pp = act->pp * mult * 30;
+	}
+	else
+	{
+		int d = rlev * act->dice / 100 + act->bonus;
+		if (d < 1) d = 1;
+		
+		/* Fill in the dice */
+		strnfmt(dice, 32, "%i", d);
+		strnfmt(desc, 256, act->desc, dice);
+		strnfmt(effect, 256, act->effect, dice);
+
+		pp = act->pp * d;
+	}
+	
+	apply_activation_power(o_ptr, act->text, desc, effect, act->aimed, pp, level);
+}
+
+static void random_activation_power(object_type *o_ptr, int level)
+{
+	int rlev = level * rand_range(50, 150) / 100;
+	if (rlev < 1) rlev = 1;
+
+	/* 60%/20% chance of a random attack */
+	if (randint0(100) < (o_ptr->tval < TV_BOOTS ? 60 : 20))
+		attack_activation_power(o_ptr, level, NULL);
+	else
+		misc_activation_power(o_ptr, level, NULL);
+}
 
 static void get_random_name(char *return_name, byte tval, int power)
 {
@@ -653,219 +1501,178 @@ static void get_random_name(char *return_name, byte tval, int power)
 }
 
 
-static void random_minor_theme_weapon(object_type *o_ptr)
+static int random_minor_theme_weapon(object_type *o_ptr, int level)
 {
+	int activate = 0;
+
 	switch (randint1(39))
 	{
 		case 1:
 		case 2:
 		case 3:
-			o_ptr->flags1 |= TR1_WIS;
-			o_ptr->flags3 |= TR3_BLESSED;
+			SET_FLAG(o_ptr, TR_WIS);
+			SET_FLAG(o_ptr, TR_BLESSED);
 
 			break;
 
 		case 4:
 		case 5:
-			o_ptr->flags1 |= TR1_BRAND_ACID;
-			o_ptr->flags2 |= TR2_RES_ACID;
+			SET_FLAG(o_ptr, TR_BRAND_ACID);
+			SET_FLAG(o_ptr, TR_RES_ACID);
 			if (o_ptr->tval == TV_SWORD && one_in_(3))
-				o_ptr->flags1 |= TR1_TUNNEL;
+				SET_FLAG(o_ptr, TR_TUNNEL);
 
-			if (!o_ptr->activate)
-			{
-				if (one_in_(2))
-					o_ptr->activate = ACT_BO_ACID_1;
-			}
+			if (one_in_(ACTIVATION_CHANCE))
+				attack_activation_power(o_ptr, level, "GF_ACID");
 			
 			break;
 
 		case 6:
 		case 7:
-			o_ptr->flags1 |= TR1_BRAND_ELEC;
-			o_ptr->flags2 |= TR2_RES_ELEC;
+			SET_FLAG(o_ptr, TR_BRAND_ELEC);
+			SET_FLAG(o_ptr, TR_RES_ELEC);
 
-			if (!o_ptr->activate)
-			{
-				if (one_in_(4))
-					o_ptr->activate = ACT_BO_ELEC_1;
-				else if (one_in_(5))
-					o_ptr->activate = ACT_BA_ELEC_2;
-				else if (one_in_(5))
-					o_ptr->activate = ACT_BA_ELEC_3;
-			}
+			if (one_in_(ACTIVATION_CHANCE))
+				attack_activation_power(o_ptr, level, "GF_ELEC");
 
 			break;
 
 		case 8:
 		case 9:
 		case 10:
-			o_ptr->flags1 |= TR1_BRAND_FIRE;
-			o_ptr->flags2 |= TR2_RES_FIRE;
-			o_ptr->flags3 |= TR3_LITE;
+			SET_FLAG(o_ptr, TR_BRAND_FIRE);
+			SET_FLAG(o_ptr, TR_RES_FIRE);
+			SET_FLAG(o_ptr, TR_LITE);
 
-			if (!o_ptr->activate)
-			{
-				if (one_in_(5))
-					o_ptr->activate = ACT_BO_FIRE_1;
-				else if (one_in_(5))
-					o_ptr->activate = ACT_BA_FIRE_1;
-				else if (one_in_(5))
-					o_ptr->activate = ACT_BA_FIRE_2;
-			}
+			if (one_in_(ACTIVATION_CHANCE))
+				attack_activation_power(o_ptr, level, "GF_FIRE");
 
 			break;
 
 		case 11:
 		case 12:
 		case 13:
-			o_ptr->flags1 |= TR1_BRAND_COLD;
-			o_ptr->flags2 |= TR2_RES_COLD;
+			SET_FLAG(o_ptr, TR_BRAND_COLD);
+			SET_FLAG(o_ptr, TR_RES_COLD);
 
-			if (!o_ptr->activate)
-			{
-				if (one_in_(6))
-					o_ptr->activate = ACT_BO_COLD_1;
-				else if (one_in_(6))
-					o_ptr->activate = ACT_BA_COLD_1;
-				else if (one_in_(6))
-					o_ptr->activate = ACT_BA_COLD_2;
-				else if (one_in_(7))
-					o_ptr->flags3 |= TR3_ACTIVATE;
-			}
+			if (one_in_(ACTIVATION_CHANCE))
+				attack_activation_power(o_ptr, level, "GF_COLD");
 
 			break;
 
 		case 14:
 		case 15:	
-			o_ptr->flags1 |= TR1_BRAND_POIS;
-			o_ptr->flags2 |= TR2_RES_POIS;
+			SET_FLAG(o_ptr, TR_BRAND_POIS);
+			SET_FLAG(o_ptr, TR_RES_POIS);
 
-			if (!o_ptr->activate)
-			{
-				if (one_in_(3))
-					o_ptr->activate = ACT_BA_POIS_1;
-			}
+			if (one_in_(ACTIVATION_CHANCE))
+				attack_activation_power(o_ptr, level, "GF_POIS");
 
 			break;
 
 		case 16:
 		case 17:
-			o_ptr->flags1 |= TR1_CHAOTIC;
-			o_ptr->flags2 |= TR2_RES_CHAOS;
+			SET_FLAG(o_ptr, TR_CHAOTIC);
+			SET_FLAG(o_ptr, TR_RES_CHAOS);
 			if (one_in_(3))
-				o_ptr->flags4 |= TR4_PATRON;
+				SET_FLAG(o_ptr, TR_PATRON);
 
-			if (!o_ptr->activate)
-			{
-				if (one_in_(11))
-					o_ptr->activate = ACT_CALL_CHAOS;
-			}
+			if (one_in_(ACTIVATION_CHANCE))
+				attack_activation_power(o_ptr, level, "GF_CHAOS");
 			
 			break;
 
 		case 18:
 			if (o_ptr->tval == TV_SWORD)
 			{
-				o_ptr->flags1 |= TR1_VORPAL;
-				o_ptr->flags1 |= TR1_TUNNEL;
+				SET_FLAG(o_ptr, TR_VORPAL);
+				SET_FLAG(o_ptr, TR_TUNNEL);
 			}
 			else
 			{
-				o_ptr->flags1 |= TR1_BLOWS;
+				SET_FLAG(o_ptr, TR_BLOWS);
 			}
 
 			break;
 
 		case 19:
 		case 20:
-			o_ptr->flags1 |= TR1_SLAY_ANIMAL;
+			SET_FLAG(o_ptr, TR_SLAY_ANIMAL);
 			if (one_in_(2))
-				o_ptr->flags1 |= TR1_INT;
+				SET_FLAG(o_ptr, TR_INT);
 			if (one_in_(2))
-				o_ptr->flags3 |= TR3_REGEN;
+				SET_FLAG(o_ptr, TR_REGEN);
 
 			break;
 
 		case 21:
 		case 22:
 		case 23:
-			o_ptr->flags1 |= TR1_SLAY_EVIL;
-			o_ptr->flags3 |= TR3_BLESSED;
+			SET_FLAG(o_ptr, TR_SLAY_EVIL);
+			SET_FLAG(o_ptr, TR_BLESSED);
 			if (one_in_(2))
-				o_ptr->flags1 |= TR1_WIS;
+				SET_FLAG(o_ptr, TR_WIS);
 			if (one_in_(2))
-				o_ptr->flags2 |= TR2_RES_FEAR;
+				SET_FLAG(o_ptr, TR_RES_FEAR);
 
 			break;
 
 		case 24:
 		case 25:
-			o_ptr->flags1 |= TR1_SLAY_UNDEAD;
+			SET_FLAG(o_ptr, TR_SLAY_UNDEAD);
 			if (one_in_(2))
-				o_ptr->flags1 |= TR1_INT;
+				SET_FLAG(o_ptr, TR_INT);
 			if (one_in_(2))
-				o_ptr->flags2 |= TR2_HOLD_LIFE;
+				SET_FLAG(o_ptr, TR_HOLD_LIFE);
 			if (one_in_(2))
-				o_ptr->flags3 |= TR3_SEE_INVIS;
+				SET_FLAG(o_ptr, TR_SEE_INVIS);
 
 			break;
 
 		case 26:
 		case 27:
-			o_ptr->flags1 |= TR1_SLAY_DEMON;
-			o_ptr->flags1 |= TR1_INT;
+			SET_FLAG(o_ptr, TR_SLAY_DEMON);
+			SET_FLAG(o_ptr, TR_INT);
 			
 			break;
 
 		case 28:
 		case 29:
-			o_ptr->flags1 |= TR1_SLAY_ORC;
-			o_ptr->flags1 |= TR1_DEX;
+			SET_FLAG(o_ptr, TR_SLAY_ORC);
+			SET_FLAG(o_ptr, TR_DEX);
 
 			break;
 
 		case 30:
 		case 31:
-			o_ptr->flags1 |= TR1_SLAY_GIANT;
-			o_ptr->flags1 |= TR1_STR;
+			SET_FLAG(o_ptr, TR_SLAY_GIANT);
+			SET_FLAG(o_ptr, TR_STR);
 
 			break;
 
 		case 32:
 		case 33:
-			o_ptr->flags1 |= TR1_SLAY_DRAGON;
+			SET_FLAG(o_ptr, TR_SLAY_DRAGON);
 			if (one_in_(3))
-				o_ptr->flags1 |= TR1_KILL_DRAGON;
-			o_ptr->flags1 |= TR1_CON;
+				SET_FLAG(o_ptr, TR_KILL_DRAGON);
+			SET_FLAG(o_ptr, TR_CON);
 
 			break;
 
 		case 34:
 		case 35:
-			o_ptr->flags1 |= TR1_VAMPIRIC;
-			o_ptr->flags2 |= TR2_HOLD_LIFE;
+			SET_FLAG(o_ptr, TR_VAMPIRIC);
+			SET_FLAG(o_ptr, TR_HOLD_LIFE);
 
-			if (!o_ptr->activate)
-			{
-				if (one_in_(6))
-					o_ptr->activate = ACT_VAMPIRE_1;
-				else if (one_in_(9))
-					o_ptr->activate = ACT_VAMPIRE_2;
-			}
+			if (one_in_(ACTIVATION_CHANCE))
+				misc_activation_power(o_ptr, level, "vampiric drain (%s)");
 
 			break;
 
 		case 36:
-			o_ptr->flags2 |= TR2_HOLD_LIFE;
-
-			if (!o_ptr->activate)
-			{
-				if (!one_in_(3))
-					o_ptr->activate = ACT_DRAIN_1;
-				else
-					o_ptr->activate = ACT_DRAIN_2;
-			}
+			SET_FLAG(o_ptr, TR_HOLD_LIFE);
+			if (one_in_(ACTIVATION_CHANCE))
+				misc_activation_power(o_ptr, level, "drain life (%s)");
 
 			break;
 
@@ -873,511 +1680,444 @@ static void random_minor_theme_weapon(object_type *o_ptr)
 			o_ptr->to_h += rand_range(5, 15);
 			o_ptr->to_d += rand_range(5, 15);
 
-			if (!o_ptr->activate)
-			{
-				o_ptr->activate = ACT_WHIRLWIND;
-			}
+			if (one_in_(ACTIVATION_CHANCE))
+				misc_activation_power(o_ptr, level, "whirlwind attack");
 
 			break;
 
 		case 38:
-			o_ptr->flags1 |= TR1_SLAY_ANIMAL;
+			SET_FLAG(o_ptr, TR_SLAY_ANIMAL);
 
-			if (!o_ptr->activate)
-			{
-				if (!one_in_(3))
-					o_ptr->activate = ACT_CHARM_ANIMAL;
-				else
-					o_ptr->activate = ACT_CHARM_ANIMALS;
-			}
+			if (one_in_(ACTIVATION_CHANCE))
+				misc_activation_power(o_ptr, level, "charm animal");
 
 			break;
 
 		case 39:
-			o_ptr->flags1 |= TR1_SLAY_UNDEAD;
+			SET_FLAG(o_ptr, TR_SLAY_UNDEAD);
 
-			if (!o_ptr->activate)
-			{
-				o_ptr->activate = ACT_CHARM_UNDEAD;
-			}
+			if (one_in_(ACTIVATION_CHANCE))
+				misc_activation_power(o_ptr, level, "enslave undead");
 
 			break;
 
 		case 40:
 			if (o_ptr->tval == TV_SWORD)
-				o_ptr->flags1 |= TR1_TUNNEL;
+				SET_FLAG(o_ptr, TR_TUNNEL);
 
-			if (!o_ptr->activate)
-			{
-				o_ptr->activate = ACT_STONE_MUD;
-			}
+#if 0
+			activate = ACT_STONE_MUD;
+#endif
 
 			break;
 	}
 
-	if (o_ptr->activate)
-		o_ptr->flags3 |= TR3_ACTIVATE;
+	return activate;
 }
 
-static void random_major_theme_weapon(object_type *o_ptr)
+static int random_major_theme_weapon(object_type *o_ptr, int level)
 {
+	int activate = 0;
+	
 	switch (randint1(7))
 	{
 	case 1:
 		/* Holy Avenger */
-		o_ptr->flags1 |= TR1_SLAY_EVIL;
-		o_ptr->flags1 |= TR1_SLAY_UNDEAD;
-		o_ptr->flags1 |= TR1_SLAY_DEMON;
-		o_ptr->flags3 |= TR3_SEE_INVIS;
-		o_ptr->flags3 |= TR3_BLESSED;
+		SET_FLAG(o_ptr, TR_SLAY_EVIL);
+		SET_FLAG(o_ptr, TR_SLAY_UNDEAD);
+		SET_FLAG(o_ptr, TR_SLAY_DEMON);
+		SET_FLAG(o_ptr, TR_SEE_INVIS);
+		SET_FLAG(o_ptr, TR_BLESSED);
 
-		if (!o_ptr->activate)
-		{
-			if (one_in_(4))
-				o_ptr->activate = ACT_DISP_EVIL;
-			else if (one_in_(7))
-				o_ptr->activate = ACT_CURE_700;
-		}
+		if (one_in_(ACTIVATION_CHANCE))
+			misc_activation_power(o_ptr, level, "dispel evil (%s)");
 		
 		break;
 
 	case 2:
 		/* Defender */
-		o_ptr->flags2 |= TR2_RES_ACID;
-		o_ptr->flags2 |= TR2_RES_ELEC;
-		o_ptr->flags2 |= TR2_RES_FIRE;
-		o_ptr->flags2 |= TR2_RES_COLD;
+		SET_FLAG(o_ptr, TR_RES_ACID);
+		SET_FLAG(o_ptr, TR_RES_ELEC);
+		SET_FLAG(o_ptr, TR_RES_FIRE);
+		SET_FLAG(o_ptr, TR_RES_COLD);
 		if (one_in_(2))
-			o_ptr->flags2 |= TR2_FREE_ACT;
+			SET_FLAG(o_ptr, TR_FREE_ACT);
 		if (one_in_(2))
-			o_ptr->flags3 |= TR3_SEE_INVIS;
+			SET_FLAG(o_ptr, TR_SEE_INVIS);
 		if (one_in_(2))
-			o_ptr->flags3 |= TR3_FEATHER;
+			SET_FLAG(o_ptr, TR_FEATHER);
 		if (one_in_(2))
-			o_ptr->flags3 |= TR3_REGEN;
+			SET_FLAG(o_ptr, TR_REGEN);
 		if (one_in_(2))
 			o_ptr->to_a += randint1(5);
 
-		if (!o_ptr->activate)
-		{
-			if (one_in_(8))
-				o_ptr->activate = ACT_RESIST_ALL;
-		}
+#if 0
+		if (one_in_(8))
+			activate = ACT_RESIST_ALL;
+#endif
 
 		break;
 
 	case 3:
 		/* Westernesse */
-		o_ptr->flags1 |= TR1_STR;
-		o_ptr->flags1 |= TR1_DEX;
-		o_ptr->flags1 |= TR1_CON;
-		o_ptr->flags1 |= TR1_SLAY_ORC;
-		o_ptr->flags1 |= TR1_SLAY_TROLL;
-		o_ptr->flags1 |= TR1_SLAY_GIANT;
+		SET_FLAG(o_ptr, TR_STR);
+		SET_FLAG(o_ptr, TR_DEX);
+		SET_FLAG(o_ptr, TR_CON);
+		SET_FLAG(o_ptr, TR_SLAY_ORC);
+		SET_FLAG(o_ptr, TR_SLAY_TROLL);
+		SET_FLAG(o_ptr, TR_SLAY_GIANT);
 
 		break;
 
 	case 4:
 		/* Trump Weapon */
-		o_ptr->flags1 |= TR1_SLAY_EVIL;
-		o_ptr->flags3 |= TR3_TELEPORT;
-		o_ptr->flags2 |= TR2_FREE_ACT;
+		SET_FLAG(o_ptr, TR_SLAY_EVIL);
+		SET_FLAG(o_ptr, TR_TELEPORT);
+		SET_FLAG(o_ptr, TR_FREE_ACT);
 		if (one_in_(2))
-			o_ptr->flags1 |= TR1_SEARCH;
+			SET_FLAG(o_ptr, TR_SEARCH);
 		if (one_in_(2))
-			o_ptr->flags3 |= TR3_REGEN;
+			SET_FLAG(o_ptr, TR_REGEN);
 		if (one_in_(2))
-			o_ptr->flags3 |= TR3_SLOW_DIGEST;
+			SET_FLAG(o_ptr, TR_SLOW_DIGEST);
 
-		if (!o_ptr->activate)
-		{
-			if (one_in_(3))
-				o_ptr->activate = ACT_TELEPORT_2;
-			else if (one_in_(3))
-				o_ptr->activate = ACT_TELEPORT_1;
-		}
-
+		if (one_in_(ACTIVATION_CHANCE))
+			misc_activation_power(o_ptr, level, "teleport (100)");
+		
 		break;
 
 	case 5:
 		/* Pattern Weapon */
-		o_ptr->flags1 |= TR1_STR;
-		o_ptr->flags1 |= TR1_CON;
-		o_ptr->flags2 |= TR2_FREE_ACT;
-		o_ptr->flags3 |= TR3_SEE_INVIS;
+		SET_FLAG(o_ptr, TR_STR);
+		SET_FLAG(o_ptr, TR_CON);
+		SET_FLAG(o_ptr, TR_FREE_ACT);
+		SET_FLAG(o_ptr, TR_SEE_INVIS);
 		if (one_in_(2))
-			o_ptr->flags1 |= TR1_SLAY_EVIL;
+			SET_FLAG(o_ptr, TR_SLAY_EVIL);
 		if (one_in_(2))
-			o_ptr->flags1 |= TR1_SLAY_DEMON;
+			SET_FLAG(o_ptr, TR_SLAY_DEMON);
 		if (one_in_(2))
-			o_ptr->flags1 |= TR1_SLAY_UNDEAD;
+			SET_FLAG(o_ptr, TR_SLAY_UNDEAD);
 
 		break;
 
 	case 6:
 		/* Mixed slays */
 		if (one_in_(3))
-			o_ptr->flags1 |= TR1_SLAY_ANIMAL;
+			SET_FLAG(o_ptr, TR_SLAY_ANIMAL);
 		if (one_in_(3))
-			o_ptr->flags1 |= TR1_SLAY_EVIL;
+			SET_FLAG(o_ptr, TR_SLAY_EVIL);
 		if (one_in_(3))
-			o_ptr->flags1 |= TR1_SLAY_UNDEAD;
+			SET_FLAG(o_ptr, TR_SLAY_UNDEAD);
 		if (one_in_(3))
-			o_ptr->flags1 |= TR1_SLAY_DEMON;
+			SET_FLAG(o_ptr, TR_SLAY_DEMON);
 		if (one_in_(3))
-			o_ptr->flags1 |= TR1_SLAY_ORC;
+			SET_FLAG(o_ptr, TR_SLAY_ORC);
 		if (one_in_(3))
-			o_ptr->flags1 |= TR1_SLAY_TROLL;
+			SET_FLAG(o_ptr, TR_SLAY_TROLL);
 		if (one_in_(3))
-			o_ptr->flags1 |= TR1_SLAY_GIANT;
+			SET_FLAG(o_ptr, TR_SLAY_GIANT);
 		if (one_in_(3))
-			o_ptr->flags1 |= TR1_SLAY_DRAGON;
+			SET_FLAG(o_ptr, TR_SLAY_DRAGON);
 
 		break;
 
 	case 7:
 		/* Assassin blade */
-		o_ptr->flags1 |= TR1_STEALTH;
-		o_ptr->flags1 |= TR1_BLOWS;
-		o_ptr->flags2 |= TR2_FREE_ACT;
+		SET_FLAG(o_ptr, TR_STEALTH);
+		SET_FLAG(o_ptr, TR_BLOWS);
+		SET_FLAG(o_ptr, TR_FREE_ACT);
 		
 		if (one_in_(2))
-			o_ptr->flags1 |= TR1_BRAND_POIS;
+			SET_FLAG(o_ptr, TR_BRAND_POIS);
 		else
-			o_ptr->flags1 |= TR1_VAMPIRIC;
+			SET_FLAG(o_ptr, TR_VAMPIRIC);
 		
 		if (o_ptr->tval == TV_SWORD)
-			o_ptr->flags2 |= TR2_THROW;
+			SET_FLAG(o_ptr, TR_THROW);
 
 		break;
 	}
 
-	if (o_ptr->activate)
-		o_ptr->flags3 |= TR3_ACTIVATE;
+	return activate;
 }
 
-static void random_minor_theme_armor(object_type *o_ptr)
+static int random_minor_theme_armor(object_type *o_ptr, int level)
 {
+	int activate = 0;
+
 	switch (randint1(33))
 	{
 		case 1:
 		case 2:
 		case 3:
-			o_ptr->flags3 |= TR3_SEE_INVIS;
-			o_ptr->flags1 |= TR1_SEARCH;
+			SET_FLAG(o_ptr, TR_SEE_INVIS);
+			SET_FLAG(o_ptr, TR_SEARCH);
 
 			break;
 
 		case 4:
 		case 5:
-			o_ptr->flags1 |= TR1_STR;
-			o_ptr->flags2 |= TR2_SUST_STR;
+			SET_FLAG(o_ptr, TR_STR);
+			SET_FLAG(o_ptr, TR_SUST_STR);
 			if (one_in_(3))
-				o_ptr->flags2 |= TR2_RES_FEAR;
+				SET_FLAG(o_ptr, TR_RES_FEAR);
 
-			if (!o_ptr->activate)
-			{
-				if (one_in_(8))
-					o_ptr->activate = ACT_BERSERK;
-			}
-			
 			break;
 
 		case 6:
 		case 7:
-			o_ptr->flags1 |= TR1_INT;
-			o_ptr->flags2 |= TR2_SUST_INT;
+			SET_FLAG(o_ptr, TR_INT);
+			SET_FLAG(o_ptr, TR_SUST_INT);
 			if (one_in_(3))
-				o_ptr->flags3 |= TR3_FEATHER;
-			
-			if (!o_ptr->activate)
-			{
-				if (one_in_(8))
-					o_ptr->activate = ACT_ID_PLAIN;
-			}
-			
+				SET_FLAG(o_ptr, TR_FEATHER);
+
 			break;
 
 		case 8:
 		case 9:
-			o_ptr->flags1 |= TR1_WIS;
-			o_ptr->flags2 |= TR2_SUST_WIS;
+			SET_FLAG(o_ptr, TR_WIS);
+			SET_FLAG(o_ptr, TR_SUST_WIS);
 			if (one_in_(3))
-				o_ptr->flags3 |= TR3_SEE_INVIS;
+				SET_FLAG(o_ptr, TR_SEE_INVIS);
 
-			if (!o_ptr->activate)
-			{
-				if (one_in_(8))
-					o_ptr->activate = ACT_DETECT_ALL;
-			}
-			
 			break;
 
 		case 10:
 		case 11:
-			o_ptr->flags1 |= TR1_DEX;
-			o_ptr->flags2 |= TR2_SUST_DEX;
+			SET_FLAG(o_ptr, TR_DEX);
+			SET_FLAG(o_ptr, TR_SUST_DEX);
 			if (one_in_(3))
-				o_ptr->flags2 |= TR2_FREE_ACT;
+				SET_FLAG(o_ptr, TR_FREE_ACT);
 
-			if (!o_ptr->activate)
-			{
-				if (one_in_(8))
-					o_ptr->activate = ACT_SPEED;
-			}
-			
 			break;
 
 		case 12:
 		case 13:
-			o_ptr->flags1 |= TR1_CON;
-			o_ptr->flags2 |= TR2_SUST_CON;
+			SET_FLAG(o_ptr, TR_CON);
+			SET_FLAG(o_ptr, TR_SUST_CON);
 			if (one_in_(3))
-				o_ptr->flags3 |= TR3_REGEN;
+				SET_FLAG(o_ptr, TR_REGEN);
 
-			if (!o_ptr->activate)
-			{
-				if (one_in_(8))
-					o_ptr->activate = ACT_SATIATE;
-			}
-			
 			break;
 
 		case 14:
 		case 15:
-			o_ptr->flags1 |= TR1_CHR;
-			o_ptr->flags2 |= TR2_SUST_CHR;
+			SET_FLAG(o_ptr, TR_CHR);
+			SET_FLAG(o_ptr, TR_SUST_CHR);
 			if (one_in_(3))
-				o_ptr->flags3 |= TR3_LITE;
+				SET_FLAG(o_ptr, TR_LITE);
 
-			if (!o_ptr->activate)
-			{
-				if (one_in_(8))
-					o_ptr->activate = ACT_RECALL;
-			}
-			
 			break;
 
 		case 16:
-			o_ptr->flags3 |= TR3_LITE;
-			o_ptr->flags2 |= TR2_RES_LITE;
+			SET_FLAG(o_ptr, TR_LITE);
+			SET_FLAG(o_ptr, TR_RES_LITE);
 
-			if (!o_ptr->activate)
-			{
-				if (one_in_(3))
-					o_ptr->activate = ACT_LIGHT;
-			}
+			if (one_in_(ACTIVATION_CHANCE))
+				misc_activation_power(o_ptr, level, "light area (2d20)");
 
 			break;
 
 		case 17:
 		case 18:
-			o_ptr->flags2 |= TR2_RES_FIRE;
-			o_ptr->flags3 |= TR3_SH_FIRE;
+			SET_FLAG(o_ptr, TR_RES_FIRE);
+			SET_FLAG(o_ptr, TR_SH_FIRE);
 
 			break;
 
 		case 19:
-			o_ptr->flags2 |= TR2_RES_ELEC;
-			o_ptr->flags3 |= TR3_SH_ELEC;
+			SET_FLAG(o_ptr, TR_RES_ELEC);
+			SET_FLAG(o_ptr, TR_SH_ELEC);
 
 			break;
 
 		case 20:
-			o_ptr->flags2 |= TR2_RES_COLD;
-			o_ptr->flags4 |= TR4_SH_COLD;
+			SET_FLAG(o_ptr, TR_RES_COLD);
+			SET_FLAG(o_ptr, TR_SH_COLD);
 
 			break;
 
 		case 21:
-			o_ptr->flags1 |= TR1_INT;
-			o_ptr->flags1 |= TR1_WIS;
+			SET_FLAG(o_ptr, TR_INT);
+			SET_FLAG(o_ptr, TR_WIS);
 
 			break;
 
 		case 22:
-			o_ptr->flags2 |= TR2_RES_LITE;
-			o_ptr->flags2 |= TR2_RES_DARK;
+			SET_FLAG(o_ptr, TR_RES_LITE);
+			SET_FLAG(o_ptr, TR_RES_DARK);
 			if (one_in_(2))
-				o_ptr->flags3 |= TR3_LITE;
+				SET_FLAG(o_ptr, TR_LITE);
 
 			break;
 
 		case 23:
-			o_ptr->flags1 |= TR1_SLAY_EVIL;
+			SET_FLAG(o_ptr, TR_SLAY_EVIL);
 
-			if (!o_ptr->activate)
-			{
-				if (one_in_(3))
-					o_ptr->activate = ACT_DISP_EVIL;
-				else if (one_in_(2))
-					o_ptr->activate = ACT_BANISH_EVIL;
-				else
-					o_ptr->activate = ACT_PROT_EVIL;
-			}
+			if (one_in_(ACTIVATION_CHANCE))
+				misc_activation_power(o_ptr, level, "banish evil");
+			else if (one_in_(ACTIVATION_CHANCE))
+				misc_activation_power(o_ptr, level, "dispel evil (%s)");
 
 			break;
 
 		case 24:
-			o_ptr->flags1 |= TR1_STEALTH;
+			SET_FLAG(o_ptr, TR_STEALTH);
 
-			if (!o_ptr->activate)
-			{
-				o_ptr->activate = ACT_SLEEP;
-			}
+			if (one_in_(ACTIVATION_CHANCE))
+				misc_activation_power(o_ptr, level, "sleep nearby monsters");
 
 			break;
 
 		case 25:
-			o_ptr->flags1 |= TR1_WIS;
+			SET_FLAG(o_ptr, TR_WIS);
 
-			if (!o_ptr->activate)
-			{
-				o_ptr->activate = ACT_ESP;
-			}
+			if (one_in_(ACTIVATION_CHANCE))
+				misc_activation_power(o_ptr, level, "telepathy (%s+ turns)");
 
 			break;
 
 		case 26:
-			o_ptr->flags2 |= TR2_RES_DARK;
+			SET_FLAG(o_ptr, TR_RES_DARK);
 
-			if (!o_ptr->activate)
-			{
-				o_ptr->activate = ACT_SUNLIGHT;
-			}
+			if (one_in_(ACTIVATION_CHANCE))
+				misc_activation_power(o_ptr, level, "beam of sunlight");
+			else if (one_in_(ACTIVATION_CHANCE))
+				misc_activation_power(o_ptr, level, "light area (2d20)");
 
 			break;
 
 		case 27:
-			o_ptr->flags2 |= TR2_RES_CHAOS;
-			o_ptr->flags2 |= TR2_RES_CONF;
+			SET_FLAG(o_ptr, TR_RES_CHAOS);
+			SET_FLAG(o_ptr, TR_RES_CONF);
 
 			break;
 
 		case 28:
-			o_ptr->flags2 |= TR2_RES_NETHER;
-			o_ptr->flags2 |= TR2_HOLD_LIFE;
+			SET_FLAG(o_ptr, TR_RES_NETHER);
+			SET_FLAG(o_ptr, TR_HOLD_LIFE);
 
-			if (!o_ptr->activate)
-			{
-				if (one_in_(6))
-					o_ptr->activate = ACT_REST_LIFE;
-			}
+			if (one_in_(ACTIVATION_CHANCE))
+				misc_activation_power(o_ptr, level, "restore life levels");
 
 			break;
 
 		case 29:
-			o_ptr->flags2 |= TR2_RES_SOUND;
-			o_ptr->flags2 |= TR2_RES_SHARDS;
+			SET_FLAG(o_ptr, TR_RES_SOUND);
+			SET_FLAG(o_ptr, TR_RES_SHARDS);
 
 			break;
 
 		case 30:
-			o_ptr->flags2 |= TR2_RES_FEAR;
+			SET_FLAG(o_ptr, TR_RES_FEAR);
 
-			if (!o_ptr->activate)
-			{
-				o_ptr->activate = ACT_TERROR;
-			}
+			if (one_in_(ACTIVATION_CHANCE))
+				misc_activation_power(o_ptr, level, "terror");
+			else if (one_in_(ACTIVATION_CHANCE))
+				misc_activation_power(o_ptr, level, "heroism (%s+ turns)");
 
 			break;
 
 		case 31:
-			o_ptr->flags1 |= TR1_SLAY_ANIMAL;
+			SET_FLAG(o_ptr, TR_SLAY_ANIMAL);
 
-			if (!o_ptr->activate)
-			{
-				if (one_in_(3))
-					o_ptr->activate = ACT_CHARM_ANIMAL;
-				else if (one_in_(2))
-					o_ptr->activate = ACT_CHARM_ANIMALS;
-				else
-					o_ptr->activate = ACT_SUMMON_ANIMAL;
-			}
+#if 0
+			if (one_in_(3))
+				activate = ACT_CHARM_ANIMAL;
+			else if (one_in_(2))
+				activate = ACT_CHARM_ANIMALS;
+			else
+				activate = ACT_SUMMON_ANIMAL;
+#endif
 
 			break;
 
 		case 32:
-			o_ptr->flags1 |= TR1_SLAY_UNDEAD;
+			SET_FLAG(o_ptr, TR_SLAY_UNDEAD);
 
-			if (!o_ptr->activate)
-			{
-				if (one_in_(2))
-					o_ptr->activate = ACT_CHARM_UNDEAD;
-				else
-					o_ptr->activate = ACT_SUMMON_UNDEAD;
-			}
+#if 0
+			if (one_in_(2))
+				activate = ACT_CHARM_UNDEAD;
+			else
+				activate = ACT_SUMMON_UNDEAD;
+#endif
 
 			break;
 
 		case 33:
-			o_ptr->flags1 |= TR1_SLAY_DEMON;
+			SET_FLAG(o_ptr, TR_SLAY_DEMON);
 
-			if (!o_ptr->activate)
-			{
-				o_ptr->activate = ACT_SUMMON_DEMON;
-			}
+#if 0
+			activate = ACT_SUMMON_DEMON;
+#endif
 
 			break;
 	}
 
-	if (o_ptr->activate)
-		o_ptr->flags3 |= TR3_ACTIVATE;
+	return activate;
 }
 
-static void random_major_theme_armor(object_type *o_ptr)
+static int random_major_theme_armor(object_type *o_ptr, int level)
 {
+	int activate = 0;
+
 	int i;
+
+	/* Hack - ignore unused parameter */
+	(void) level;
 
 	switch (randint1(10))
 	{
 		case 1:
-			o_ptr->flags2 |= TR2_RES_ACID;
-			o_ptr->flags2 |= TR2_RES_ELEC;
-			o_ptr->flags2 |= TR2_RES_FIRE;
-			o_ptr->flags2 |= TR2_RES_COLD;
+			SET_FLAG(o_ptr, TR_RES_ACID);
+			SET_FLAG(o_ptr, TR_RES_ELEC);
+			SET_FLAG(o_ptr, TR_RES_FIRE);
+			SET_FLAG(o_ptr, TR_RES_COLD);
 
 			if (one_in_(3))
-				o_ptr->flags2 |= TR2_RES_POIS;
+				SET_FLAG(o_ptr, TR_RES_POIS);
 
 			break;
 
 		case 2:
-			o_ptr->flags2 |= TR2_SUST_STR;
-			o_ptr->flags2 |= TR2_SUST_INT;
-			o_ptr->flags2 |= TR2_SUST_WIS;
-			o_ptr->flags2 |= TR2_SUST_DEX;
-			o_ptr->flags2 |= TR2_SUST_CON;
-			o_ptr->flags2 |= TR2_SUST_CHR;
+			SET_FLAG(o_ptr, TR_SUST_STR);
+			SET_FLAG(o_ptr, TR_SUST_INT);
+			SET_FLAG(o_ptr, TR_SUST_WIS);
+			SET_FLAG(o_ptr, TR_SUST_DEX);
+			SET_FLAG(o_ptr, TR_SUST_CON);
+			SET_FLAG(o_ptr, TR_SUST_CHR);
 
 			break;
 
 		case 3:
 			/* Might */
-			o_ptr->flags1 |= TR1_STR;
-			o_ptr->flags2 |= TR2_SUST_STR;
-			o_ptr->flags1 |= TR1_DEX;
-			o_ptr->flags2 |= TR2_SUST_DEX;
-			o_ptr->flags1 |= TR1_CON;
-			o_ptr->flags2 |= TR2_SUST_CON;
+			SET_FLAG(o_ptr, TR_STR);
+			SET_FLAG(o_ptr, TR_SUST_STR);
+			SET_FLAG(o_ptr, TR_DEX);
+			SET_FLAG(o_ptr, TR_SUST_DEX);
+			SET_FLAG(o_ptr, TR_CON);
+			SET_FLAG(o_ptr, TR_SUST_CON);
 
 			break;
 
 		case 4:
 			/* Mental */
-			o_ptr->flags1 |= TR1_INT;
-			o_ptr->flags2 |= TR2_SUST_INT;
-			o_ptr->flags1 |= TR1_WIS;
-			o_ptr->flags2 |= TR2_SUST_WIS;
+			SET_FLAG(o_ptr, TR_INT);
+			SET_FLAG(o_ptr, TR_SUST_INT);
+			SET_FLAG(o_ptr, TR_WIS);
+			SET_FLAG(o_ptr, TR_SUST_WIS);
+			if (one_in_(3))
+				SET_FLAG(o_ptr, TR_SP);
 			
 			break;
 
 		case 5:
 			/* Lohengrin */
-			o_ptr->flags1 |= TR1_STEALTH;
-			o_ptr->flags1 |= TR1_INT;
-			o_ptr->flags1 |= TR1_WIS;
-			o_ptr->flags3 |= TR3_SEE_INVIS;
+			SET_FLAG(o_ptr, TR_STEALTH);
+			SET_FLAG(o_ptr, TR_INT);
+			SET_FLAG(o_ptr, TR_WIS);
+			SET_FLAG(o_ptr, TR_SEE_INVIS);
 
 			break;
 
@@ -1396,12 +2136,12 @@ static void random_major_theme_armor(object_type *o_ptr)
 			{
 				switch (randint1(6))
 				{
-					case 1: o_ptr->flags1 |= TR1_STR; break;
-					case 2: o_ptr->flags1 |= TR1_INT; break;
-					case 3: o_ptr->flags1 |= TR1_WIS; break;
-					case 4: o_ptr->flags1 |= TR1_DEX; break;
-					case 5: o_ptr->flags1 |= TR1_CON; break;
-					case 6: o_ptr->flags1 |= TR1_CHR; break;
+					case 1: SET_FLAG(o_ptr, TR_STR); break;
+					case 2: SET_FLAG(o_ptr, TR_INT); break;
+					case 3: SET_FLAG(o_ptr, TR_WIS); break;
+					case 4: SET_FLAG(o_ptr, TR_DEX); break;
+					case 5: SET_FLAG(o_ptr, TR_CON); break;
+					case 6: SET_FLAG(o_ptr, TR_CHR); break;
 				}
 			}
 
@@ -1409,35 +2149,31 @@ static void random_major_theme_armor(object_type *o_ptr)
 
 		case 10:
 			/* Thranduil */
-			o_ptr->flags1 |= TR1_INT;
-			o_ptr->flags1 |= TR1_WIS;
-			o_ptr->flags2 |= TR2_RES_BLIND;
+			SET_FLAG(o_ptr, TR_INT);
+			SET_FLAG(o_ptr, TR_WIS);
+			SET_FLAG(o_ptr, TR_RES_BLIND);
 			if (o_ptr->tval == TV_HELM || o_ptr->tval == TV_CROWN)
-				o_ptr->flags3 |= TR3_TELEPATHY;
+				SET_FLAG(o_ptr, TR_TELEPATHY);
 
 			break;
 	}
 
-	if (o_ptr->activate)
-		o_ptr->flags3 |= TR3_ACTIVATE;
+	return activate;
 }
 
 static void curse_artifact(object_type *o_ptr)
 {
 	int i;
 	
-	if (o_ptr->pval) o_ptr->pval = 0 - (o_ptr->pval + randint1(4));
-	if (o_ptr->to_a) o_ptr->to_a = 0 - (o_ptr->to_a + randint1(4));
-	if (o_ptr->to_h) o_ptr->to_h = 0 - (o_ptr->to_h + randint1(4));
-	if (o_ptr->to_d) o_ptr->to_d = 0 - (o_ptr->to_d + randint1(4));
+	if (o_ptr->pval > 0) o_ptr->pval = 0 - (o_ptr->pval + randint1(4));
+	if (o_ptr->to_a > 0) o_ptr->to_a = 0 - (o_ptr->to_a + randint1(4));
+	if (o_ptr->to_h > 0) o_ptr->to_h = 0 - (o_ptr->to_h + randint1(4));
+	if (o_ptr->to_d > 0) o_ptr->to_d = 0 - (o_ptr->to_d + randint1(4));
 
-	o_ptr->flags3 |= (TR3_HEAVY_CURSE | TR3_CURSED);
+	SET_FLAG(o_ptr, TR_CURSED);
 
-	for (i = rand_range(2, 5); i > 0; --i)
+	for (i = rand_range(2, 6); i > 0; --i)
 		random_curse(o_ptr, TRUE);
-
-	if ((p_ptr->rp.pclass != CLASS_WARRIOR) && one_in_(3))
-		o_ptr->flags3 |= TR3_NO_MAGIC;
 }
 
 
@@ -1452,7 +2188,7 @@ bool create_artifact(object_type *o_ptr, int level, bool a_scroll)
 	int given = 0;
 
 	/* No activation yet */
-	o_ptr->activate = 0;
+	o_ptr->a_idx = 0;
 
 	new_name[0] = 0;
 
@@ -1463,7 +2199,7 @@ bool create_artifact(object_type *o_ptr, int level, bool a_scroll)
 		powers++;
 
 #if 0
-	if (!a_cursed && one_in_(WEIRD_LUCK))
+	if (!a_cursed && one_in_(12))
 		powers *= 2;
 #endif
 
@@ -1476,53 +2212,129 @@ bool create_artifact(object_type *o_ptr, int level, bool a_scroll)
 	/* Sometimes select a major theme - or two */
 	while (o_ptr->tval < TV_LITE && randint1(powers) > 3)
 	{
+		int act;
+		
 		if (o_ptr->tval < TV_BOOTS)
 		{
-			random_major_theme_weapon(o_ptr);
+			act = random_major_theme_weapon(o_ptr, level);
 			o_ptr->to_h += rand_range(5, 15);
 			o_ptr->to_d += rand_range(5, 15);
 		}
 		else
 		{
-			random_major_theme_armor(o_ptr);
+			act = random_major_theme_armor(o_ptr, level);
 			o_ptr->to_a += rand_range(5, 15);
 		}
 		powers -= 3;
 	}
 
-	if (one_in_(3))
+	/* Possibly apply a power typical for the item's slot */
+	if (one_in_(2))
 	{
 		switch (o_ptr->tval)
 		{
 			case TV_BOOTS:
-				if (one_in_(WEIRD_LUCK))
-					o_ptr->flags1 |= TR1_SPEED;
+				if (one_in_(12))
+					SET_FLAG(o_ptr, TR_SPEED);
 				else if (one_in_(2))
-					o_ptr->flags2 |= TR2_FREE_ACT;
+					SET_FLAG(o_ptr, TR_FREE_ACT);
 				else
-					o_ptr->flags3 |= TR3_FEATHER;
-				powers--;
+					SET_FLAG(o_ptr, TR_FEATHER);
 				given++;
 				break;
 
 			case TV_GLOVES:
-				if (one_in_(2))
-					o_ptr->flags2 |= TR2_FREE_ACT;
-				else
-					o_ptr->flags1 |= TR1_DEX;
-				powers--;
+				switch (randint1(3))
+				{
+				case 1:
+					SET_FLAG(o_ptr, TR_FREE_ACT);
+					break;
+				case 2:
+					SET_FLAG(o_ptr, TR_DEX);
+					break;
+				case 3:
+					SET_FLAG(o_ptr, TR_STR);
+					break;
+				}
 				given++;
 				break;
 
 			case TV_HELM:
 			case TV_CROWN:
-				if (one_in_(3))
-					o_ptr->flags3 |= TR3_TELEPATHY;
-				else if (one_in_(2))
-					o_ptr->flags3 |= TR3_SEE_INVIS;
+				switch (randint1(5))
+				{
+				case 1:
+					SET_FLAG(o_ptr, TR_TELEPATHY);
+					break;
+				case 2:
+					SET_FLAG(o_ptr, TR_SEE_INVIS);
+					break;
+				case 3:
+					SET_FLAG(o_ptr, TR_INFRA);
+					break;
+				case 4:
+					SET_FLAG(o_ptr, TR_INT);
+					break;
+				case 5:
+					SET_FLAG(o_ptr, TR_WIS);
+					break;
+				}
+				given++;
+				break;
+
+			case TV_CLOAK:
+				if (one_in_(2))
+					SET_FLAG(o_ptr, TR_LUCK_10);
 				else
-					o_ptr->flags1 |= TR1_INFRA;
-				powers--;
+					SET_FLAG(o_ptr, TR_STEALTH);
+				given++;
+				break;
+
+			case TV_SOFT_ARMOR:
+				switch (randint1(3))
+				{
+				case 1:
+					SET_FLAG(o_ptr, TR_DEX);
+					break;
+				case 2:
+					SET_FLAG(o_ptr, TR_CON);
+					break;
+				case 3:
+					SET_FLAG(o_ptr, TR_STEALTH);
+					break;
+				}
+				given++;
+				break;
+
+			case TV_HARD_ARMOR:
+				switch (randint1(3))
+				{
+				case 1:
+					SET_FLAG(o_ptr, TR_HOLD_LIFE);
+					break;
+				case 2:
+					SET_FLAG(o_ptr, TR_CON);
+					break;
+				case 3:
+					SET_FLAG(o_ptr, TR_REGEN);
+					break;
+				}
+				given++;
+				break;
+
+			case TV_SHIELD:
+				switch (randint1(3))
+				{
+				case 1:
+					SET_FLAG(o_ptr, TR_REFLECT);
+					break;
+				case 2:
+					SET_FLAG(o_ptr, TR_LITE);
+					break;
+				case 3:
+					SET_FLAG(o_ptr, TR_FREE_ACT);
+					break;
+				}
 				given++;
 				break;
 		}
@@ -1537,6 +2349,8 @@ bool create_artifact(object_type *o_ptr, int level, bool a_scroll)
 	/* Main loop */
 	while (total_flags < target_flags || given < 2)
 	{
+		int act = 0;
+		
 		switch (randint1(o_ptr->tval < TV_BOOTS ? 11 : 7))
 		{
 			case 1:  case 2:
@@ -1549,13 +2363,13 @@ bool create_artifact(object_type *o_ptr, int level, bool a_scroll)
 				random_misc(o_ptr);
 				break;
 			case 6:  case 7:
-				random_minor_theme_armor(o_ptr);
+				act = random_minor_theme_armor(o_ptr, level);
 				break;
 			case 8:  case 9:
 				random_slay(o_ptr);
 				break;
 			case 10:  case 11:
-				random_minor_theme_weapon(o_ptr);
+				act = random_minor_theme_weapon(o_ptr, level);
 				break;
 		}
 		given++;
@@ -1563,9 +2377,9 @@ bool create_artifact(object_type *o_ptr, int level, bool a_scroll)
 		total_flags = flag_cost(o_ptr, 1);
 	}
 
-	if (o_ptr->flags1 & (TR1_PVAL_MASK))
+	if (FLAG(o_ptr, TR_PVAL_MASK))
 	{
-		if (o_ptr->flags1 & TR1_BLOWS)
+		if (FLAG(o_ptr, TR_BLOWS))
 		{
 			if (one_in_(100))
 			{
@@ -1605,8 +2419,8 @@ bool create_artifact(object_type *o_ptr, int level, bool a_scroll)
 	}
 
 	/* Just to be sure */
-	o_ptr->flags3 |= (TR3_IGNORE_ACID | TR3_IGNORE_ELEC |
-					  TR3_IGNORE_FIRE | TR3_IGNORE_COLD);
+	o_ptr->flags[2] |= (TR2_IGNORE_ACID | TR2_IGNORE_ELEC |
+					  TR2_IGNORE_FIRE | TR2_IGNORE_COLD);
 
 	/* Possibly add some curses ... */
 	total_flags = flag_cost(o_ptr, o_ptr->pval);
@@ -1626,9 +2440,9 @@ bool create_artifact(object_type *o_ptr, int level, bool a_scroll)
 			total_flags = flag_cost(o_ptr, o_ptr->pval);
 		}
 		if (total_flags >= target_flags * 3 && total_flags >= 10000 &&
-				!one_in_(WEIRD_LUCK))
+				!one_in_(12))
 		{
-			random_curse(o_ptr, (one_in_(3) ? TRUE : FALSE));
+			random_curse(o_ptr, TRUE);
 			total_flags = flag_cost(o_ptr, o_ptr->pval);
 		}
 	}
@@ -1637,11 +2451,21 @@ bool create_artifact(object_type *o_ptr, int level, bool a_scroll)
 
 	if (a_cursed) curse_artifact(o_ptr);
 
-	if (!a_cursed && !o_ptr->activate && one_in_((o_ptr->tval >= TV_BOOTS)
+	/* Check if it has an activation */
+	if (!a_cursed && one_in_((o_ptr->tval >= TV_BOOTS)
 							 ? ACTIVATION_CHANCE * 2 : ACTIVATION_CHANCE))
 	{
-		o_ptr->activate = 0;
-		give_activation_power(o_ptr);
+		int activation_level = level + randint0(10);
+
+		if (one_in_(5))
+			activation_level = activation_level * 3 / 2;
+
+		if (activation_level > 100) activation_level = 100;
+
+		/* 
+		 * Get a random activation
+		 */
+		random_activation_power(o_ptr, activation_level);
 	}
 
 	if (o_ptr->dd && o_ptr->ds)
@@ -1692,10 +2516,10 @@ bool create_artifact(object_type *o_ptr, int level, bool a_scroll)
 		object_mental(o_ptr);
 
 		/* Save all the known flags */
-		o_ptr->kn_flags1 = o_ptr->flags1;
-		o_ptr->kn_flags2 = o_ptr->flags2;
-		o_ptr->kn_flags3 = o_ptr->flags3;
-		o_ptr->kn_flags4 = o_ptr->flags4;
+		o_ptr->kn_flags[0] = o_ptr->flags[0];
+		o_ptr->kn_flags[1] = o_ptr->flags[1];
+		o_ptr->kn_flags[2] = o_ptr->flags[2];
+		o_ptr->kn_flags[3] = o_ptr->flags[3];
 	}
 	else
 	{
@@ -1712,1532 +2536,12 @@ bool create_artifact(object_type *o_ptr, int level, bool a_scroll)
 	p_ptr->window |= (PW_INVEN | PW_EQUIP);
 
 	/* Make the object an artifact */
-	o_ptr->flags3 |= TR3_INSTA_ART;
+	SET_FLAG(o_ptr, TR_INSTA_ART);
 
 	/* Set the cost */
 	o_ptr->cost = k_info[o_ptr->k_idx].cost + flag_cost(o_ptr, o_ptr->pval);
 
 	return TRUE;
-}
-
-/*
- * Activate an artifact / random artifact or ego item
- */
-bool activate_effect(object_type *o_ptr)
-{
-	int px = p_ptr->px;
-	int py = p_ptr->py;
-
-	int plev = p_ptr->lev;
-	int k, dir, dummy;
-	byte activate;
-
-	char o_name[256];
-
-	/* Get the basic name of the object */
-	object_desc(o_name, o_ptr, FALSE, 0, 256);
-
-	/* Get activation */
-	activate = o_ptr->activate;
-
-	/* Normal artifacts */
-	if (activate > 127)
-	{
-		switch (activate - 128)
-		{
-			case ART_GALADRIEL:
-			{
-				msgf("The phial wells with clear light...");
-				(void)lite_area(damroll(2, 15), 3);
-				o_ptr->timeout = (s16b)rand_range(10, 20);
-				break;
-			}
-
-			case ART_ELENDIL:
-			{
-				msgf("The star shines brightly...");
-				map_area();
-				(void)lite_area(damroll(2, 15), 3);
-				o_ptr->timeout = (s16b)rand_range(50, 100);
-				break;
-			}
-
-			case ART_THRAIN:
-			{
-				msgf("The Jewel flashes bright red!");
-				wiz_lite();
-				msgf("The Jewel drains your vitality...");
-				take_hit(damroll(3, 8), "the Jewel of Judgement");
-				(void)detect_traps();
-				(void)detect_doors();
-				(void)detect_stairs();
-
-				if (get_check("Activate recall? "))
-				{
-					word_of_recall();
-				}
-
-				o_ptr->timeout = (s16b)rand_range(20, 40);
-				break;
-			}
-
-			case ART_CARLAMMAS:
-			{
-				msgf("The amulet lets out a shrill wail...");
-				k = 3 * p_ptr->lev;
-				(void)inc_protevil(randint1(25) + k);
-				o_ptr->timeout = (s16b)rand_range(225, 450);
-				break;
-			}
-
-			case ART_INGWE:
-			{
-				msgf("The amulet floods the area with goodness...");
-				(void)dispel_evil(p_ptr->lev * 5);
-				o_ptr->timeout = (s16b)rand_range(300, 600);
-				break;
-			}
-
-			case ART_BARAHIR:
-			{
-				msgf("You order Frakir to strangle your opponent.");
-				if (!get_aim_dir(&dir)) return FALSE;
-				if (drain_life(dir, 200))
-					o_ptr->timeout = (s16b)rand_range(100, 200);
-				break;
-			}
-
-			case ART_TULKAS:
-			{
-				msgf("The ring glows brightly...");
-				(void)inc_fast(rand_range(75, 150));
-				o_ptr->timeout = (s16b)rand_range(150, 300);
-				break;
-			}
-
-			case ART_NARYA:
-			{
-				msgf("The ring glows deep red...");
-				if (!get_aim_dir(&dir)) return FALSE;
-				(void)fire_ball(GF_FIRE, dir, 250, 3);
-				o_ptr->timeout = (s16b)rand_range(225, 450);
-				break;
-			}
-
-			case ART_NENYA:
-			{
-				msgf("The ring glows bright white...");
-				if (!get_aim_dir(&dir)) return FALSE;
-				(void)fire_ball(GF_COLD, dir, 400, 3);
-				o_ptr->timeout = (s16b)rand_range(325, 650);
-				break;
-			}
-
-			case ART_VILYA:
-			{
-				msgf("The ring glows deep blue...");
-				if (!get_aim_dir(&dir)) return FALSE;
-				(void)fire_ball(GF_ELEC, dir, 500, 3);
-				o_ptr->timeout = (s16b)rand_range(425, 850);
-				break;
-			}
-
-			case ART_POWER:
-			{
-				msgf("The ring glows intensely black...");
-				if (!get_aim_dir(&dir)) return FALSE;
-				ring_of_power(dir);
-				o_ptr->timeout = (s16b)rand_range(450, 900);
-				break;
-			}
-
-			case ART_ELEMENTS:
-			{
-				msgf("The ring glows in multiple colours...");
-				if (!get_aim_dir(&dir)) return FALSE;
-				fire_ball(GF_MISSILE, dir, 800, 3);
-				o_ptr->timeout = (s16b)rand_range(250, 500);
-				break;
-			}
-
-			case ART_RAZORBACK:
-			{
-				int num = damroll(5, 3);
-				int y, x;
-				int attempts;
-				cave_type *c_ptr;
-
-				msgf("Your armor is surrounded by lightning...");
-
-				for (k = 0; k < num; k++)
-				{
-					attempts = 1000;
-
-					while (attempts--)
-					{
-						scatter(&x, &y, px, py, 4);
-
-						/* paranoia */
-						if (!in_bounds2(x, y)) continue;
-
-						c_ptr = area(x, y);
-						if (cave_wall_grid(c_ptr)) continue;
-
-						if ((y != py) || (x != px)) break;
-					}
-
-					(void)project(0, 3, x, y, 1000, GF_ELEC,
-								  (PROJECT_THRU | PROJECT_STOP | PROJECT_GRID |
-								   PROJECT_ITEM | PROJECT_KILL));
-				}
-
-				o_ptr->timeout = 100;
-				break;
-			}
-
-			case ART_BLADETURNER:
-			{
-				if (!get_aim_dir(&dir)) return FALSE;
-				msgf("You breathe the elements.");
-				(void)fire_ball(GF_MISSILE, dir, 1000, 4);
-				msgf("Your armor glows many colours...");
-				(void)clear_afraid();
-				(void)inc_shero(rand_range(50, 100));
-				(void)hp_player(30);
-				(void)inc_blessed(rand_range(50, 100));
-				(void)inc_oppose_acid(rand_range(50, 100));
-				(void)inc_oppose_elec(rand_range(50, 100));
-				(void)inc_oppose_fire(rand_range(50, 100));
-				(void)inc_oppose_cold(rand_range(50, 100));
-				(void)inc_oppose_pois(rand_range(50, 100));
-				o_ptr->timeout = 100;
-				break;
-			}
-
-			case ART_SOULKEEPER:
-			{
-				msgf("Your armor glows a bright white...");
-				msgf("You feel much better...");
-				(void)hp_player(1000);
-				(void)clear_cut();
-				o_ptr->timeout = 888;
-				break;
-			}
-
-			case ART_BELEGENNON:
-			{
-				msgf("A heavenly choir sings...");
-				(void)clear_poisoned();
-				(void)clear_cut();
-				(void)clear_stun();
-				(void)clear_confused();
-				(void)clear_blind();
-				(void)inc_hero(rand_range(25, 50));
-				(void)hp_player(777);
-				o_ptr->timeout = 300;
-				break;
-			}
-
-			case ART_CELEBORN:
-			{
-				msgf("Your armor glows deep blue...");
-				(void)genocide(TRUE);
-				o_ptr->timeout = 500;
-				break;
-			}
-
-			case ART_CASPANION:
-			{
-				msgf("Your armor glows bright red...");
-				(void)destroy_doors_touch();
-				o_ptr->timeout = 10;
-				break;
-			}
-
-			case ART_DOR:
-			case ART_TERROR:
-			{
-				(void)turn_monsters(40 + p_ptr->lev);
-				o_ptr->timeout = 3 * (p_ptr->lev + 10);
-				break;
-			}
-
-			case ART_HOLHENNETH:
-			{
-				msgf("Your helm glows bright white...");
-				msgf("An image forms in your mind...");
-				(void)detect_all();
-				o_ptr->timeout = (s16b)rand_range(55, 110);
-				break;
-			}
-
-			case ART_GONDOR:
-			{
-				msgf("Your crown glows deep blue...");
-				msgf("You feel a warm tingling inside...");
-				(void)hp_player(700);
-				(void)clear_cut();
-				o_ptr->timeout = 250;
-				break;
-			}
-
-			case ART_KERI:
-			{
-				object_type *q_ptr;
-
-				msgf("Your rag feels warm for a moment...");
-
-				/* Hack - Create the food ration */
-				q_ptr = object_prep(lookup_kind(TV_FOOD, SV_FOOD_RATION));
-
-				/* Drop the object from heaven */
-				drop_near(q_ptr, -1, p_ptr->px, p_ptr->py);
-
-				o_ptr->timeout = 100;
-
-				break;
-			}
-
-			case ART_COLLUIN:
-			{
-				msgf("Your cloak glows many colours...");
-				(void)inc_oppose_acid(rand_range(20, 40));
-				(void)inc_oppose_elec(rand_range(20, 40));
-				(void)inc_oppose_fire(rand_range(20, 40));
-				(void)inc_oppose_cold(rand_range(20, 40));
-				(void)inc_oppose_pois(rand_range(20, 40));
-				o_ptr->timeout = 111;
-				break;
-			}
-
-			case ART_HOLCOLLETH:
-			{
-				msgf("Your cloak glows deep blue...");
-				(void)sleep_monsters_touch();
-				o_ptr->timeout = 55;
-				break;
-			}
-
-			case ART_THINGOL:
-			{
-				msgf("Your cloak glows bright yellow...");
-				(void)recharge(130);
-				o_ptr->timeout = 70;
-				break;
-			}
-
-			case ART_COLANNON:
-			{
-				msgf("Your cloak twists space around you...");
-				teleport_player(100);
-				o_ptr->timeout = 45;
-				break;
-			}
-
-			case ART_LUTHIEN:
-			{
-				msgf("Your cloak glows a deep red...");
-				(void)restore_level();
-				o_ptr->timeout = 450;
-				break;
-			}
-
-			case ART_CAMMITHRIM:
-			{
-				msgf("Your gloves glow extremely brightly...");
-				if (!get_aim_dir(&dir)) return FALSE;
-				(void)fire_bolt(GF_MISSILE, dir, damroll(3, 6));
-				o_ptr->timeout = 2;
-				break;
-			}
-
-			case ART_PAURHACH:
-			{
-				msgf("Your gauntlets are covered in fire...");
-				if (!get_aim_dir(&dir)) return FALSE;
-				(void)fire_bolt(GF_FIRE, dir, damroll(11, 8));
-				o_ptr->timeout = (s16b)rand_range(8, 16);
-				break;
-			}
-
-			case ART_CORWIN:
-			{
-				msgf("Your gauntlets are covered in frost...");
-				if (!get_aim_dir(&dir)) return FALSE;
-				(void)fire_bolt(GF_COLD, dir, damroll(8, 8));
-				o_ptr->timeout = (s16b)rand_range(7, 14);
-				break;
-			}
-
-			case ART_PAURAEGEN:
-			{
-				msgf("Your gauntlets are covered in sparks...");
-				if (!get_aim_dir(&dir)) return FALSE;
-				(void)fire_bolt(GF_ELEC, dir, damroll(6, 8));
-				o_ptr->timeout = (s16b)rand_range(6, 12);
-				break;
-			}
-
-			case ART_PAURNEN:
-			{
-				msgf("Your gauntlets are covered in acid...");
-				if (!get_aim_dir(&dir)) return FALSE;
-				(void)fire_bolt(GF_ACID, dir, damroll(8, 8));
-				o_ptr->timeout = (s16b)rand_range(5, 10);
-				break;
-			}
-
-			case ART_FINGOLFIN:
-			{
-				msgf("Your cesti grows magical spikes...");
-				if (!get_aim_dir(&dir)) return FALSE;
-				(void)fire_bolt(GF_ARROW, dir, 250);
-				o_ptr->timeout = (s16b)rand_range(90, 180);
-				break;
-			}
-
-			case ART_FEANOR:
-			{
-				msgf("Your boots glow bright green...");
-				(void)inc_fast(rand_range(20, 40));
-				o_ptr->timeout = 200;
-				break;
-			}
-
-			case ART_DAL:
-			{
-				msgf("Your boots glow deep blue...");
-				(void)clear_afraid();
-				(void)clear_poisoned();
-				o_ptr->timeout = 5;
-				break;
-			}
-
-			case ART_NARTHANC:
-			{
-				msgf("Your dagger is covered in fire...");
-				if (!get_aim_dir(&dir)) return FALSE;
-				(void)fire_bolt(GF_FIRE, dir, damroll(11, 8));
-				o_ptr->timeout = (s16b)rand_range(8, 16);
-				break;
-			}
-
-			case ART_NIMTHANC:
-			{
-				msgf("Your dagger is covered in frost...");
-				if (!get_aim_dir(&dir)) return FALSE;
-				(void)fire_bolt(GF_COLD, dir, damroll(8, 8));
-				o_ptr->timeout = (s16b)rand_range(7, 14);
-				break;
-			}
-
-			case ART_DETHANC:
-			{
-				msgf("Your dagger is covered in sparks...");
-				if (!get_aim_dir(&dir)) return FALSE;
-				(void)fire_bolt(GF_ELEC, dir, damroll(6, 8));
-				o_ptr->timeout = (s16b)rand_range(6, 12);
-				break;
-			}
-
-			case ART_RILIA:
-			{
-				msgf("Your dagger throbs deep green...");
-				if (!get_aim_dir(&dir)) return FALSE;
-				(void)fire_ball(GF_POIS, dir, 25, 3);
-				o_ptr->timeout = (s16b)rand_range(4, 8);
-				break;
-			}
-
-			case ART_BELANGIL:
-			{
-				msgf("Your dagger is covered in frost...");
-				if (!get_aim_dir(&dir)) return FALSE;
-				(void)fire_ball(GF_COLD, dir, 100, 2);
-				o_ptr->timeout = (s16b)rand_range(5, 10);
-				break;
-			}
-
-			case ART_ANGUIREL:
-			{
-				switch (randint1(13))
-				{
-					case 1:  case 2:  case 3:  case 4:  case 5:
-						teleport_player(10);
-						break;
-					case 6:  case 7:  case 8:  case 9:  case 10:
-						teleport_player(222);
-						break;
-					case 11:  case 12:
-						(void)stair_creation();
-						break;
-					default:
-						if (get_check("Leave this level? "))
-						{
-							if (autosave_l) do_cmd_save_game(TRUE);
-
-							/* Leaving */
-							p_ptr->state.leaving = TRUE;
-						}
-				}
-				o_ptr->timeout = 35;
-				break;
-			}
-
-			case ART_RINGIL:
-			{
-				msgf("Your sword glows an intense blue...");
-				if (!get_aim_dir(&dir)) return FALSE;
-				(void)fire_ball(GF_COLD, dir, 200, 2);
-				o_ptr->timeout = 300;
-				break;
-			}
-
-			case ART_DAWN:
-			{
-				msgf("You summon the Legion of the Dawn.");
-				(void)summon_specific(-1, px, py, p_ptr->depth, SUMMON_DAWN,
-									  TRUE, TRUE, TRUE);
-				o_ptr->timeout = (s16b)rand_range(500, 1000);
-				break;
-			}
-
-			case ART_ANDURIL:
-			{
-				msgf("Your sword glows an intense red...");
-				if (!get_aim_dir(&dir)) return FALSE;
-				(void)fire_ball(GF_FIRE, dir, 150, 2);
-				o_ptr->timeout = 400;
-				break;
-			}
-
-			case ART_THEODEN:
-			{
-				msgf("Your axe blade glows black...");
-				if (!get_aim_dir(&dir)) return FALSE;
-				(void)drain_life(dir, 200);
-				o_ptr->timeout = 400;
-				break;
-			}
-
-			case ART_AEGLOS:
-			{
-				msgf("Your spear crackles with electricity...");
-				if (!get_aim_dir(&dir)) return FALSE;
-				(void)fire_ball(GF_ELEC, dir, 200, 3);
-				o_ptr->timeout = 500;
-				break;
-			}
-
-			case ART_OROME:
-			{
-				msgf("Your spear pulsates...");
-				if (!get_aim_dir(&dir)) return FALSE;
-				(void)wall_to_mud(dir);
-				o_ptr->timeout = 5;
-				break;
-			}
-
-			case ART_EONWE:
-			{
-				msgf("Your axe lets out a long, shrill note...");
-				(void)mass_genocide(TRUE);
-				o_ptr->timeout = 1000;
-				break;
-			}
-
-			case ART_LOTHARANG:
-			{
-				msgf("Your battle axe radiates deep purple...");
-				(void)hp_player(100);
-				(void)inc_cut(-50);
-				o_ptr->timeout = (s16b)rand_range(3, 6);
-				break;
-			}
-
-			case ART_ULMO:
-			{
-				msgf("Your trident glows deep red...");
-				if (!get_aim_dir(&dir)) return FALSE;
-				(void)teleport_monster(dir);
-				o_ptr->timeout = 150;
-				break;
-			}
-
-			case ART_AVAVIR:
-			{
-				msgf("Your scythe glows soft white...");
-
-				word_of_recall();
-
-				o_ptr->timeout = 200;
-				break;
-			}
-
-			case ART_TOTILA:
-			{
-				msgf("Your flail glows in scintillating colours...");
-				if (!get_aim_dir(&dir)) return FALSE;
-				(void)confuse_monster(dir, 50);
-				o_ptr->timeout = 15;
-				break;
-			}
-
-			case ART_WHIRLWIND:
-			{
-				int y, x;
-				cave_type *c_ptr;
-				monster_type *m_ptr;
-
-				msgf("Your ball and chain swings through the air...");
-
-				for (dir = 0; dir <= 9; dir++)
-				{
-					y = py + ddy[dir];
-					x = px + ddx[dir];
-
-					/* paranoia */
-					if (!in_bounds2(x, y)) continue;
-
-					c_ptr = area(x, y);
-
-					/* Get the monster */
-					m_ptr = &m_list[c_ptr->m_idx];
-
-					/* Hack -- attack monsters */
-					if (c_ptr->m_idx && (m_ptr->ml || cave_floor_grid(c_ptr)))
-						py_attack(x, y);
-				}
-				o_ptr->timeout = rand_range(50, 100);
-				break;
-			}
-
-			case ART_FIRESTAR:
-			{
-				msgf("Your morning star rages in fire...");
-				if (!get_aim_dir(&dir)) return FALSE;
-				(void)fire_ball(GF_FIRE, dir, 200, 3);
-				o_ptr->timeout = 100;
-				break;
-			}
-
-			case ART_ENERGY:
-			{
-				msgf("Your scythe glows bright green...");
-				(void)inc_fast(rand_range(20, 40));
-				o_ptr->timeout = (s16b)rand_range(100, 200);
-				break;
-			}
-
-			case ART_ERIRIL:
-			{
-				msgf("Your quarterstaff glows yellow...");
-				if (!ident_spell()) return FALSE;
-				o_ptr->timeout = 10;
-				break;
-			}
-
-			case ART_OLORIN:
-			{
-				msgf("Your quarterstaff glows brightly...");
-				(void)detect_all();
-				(void)probing();
-				(void)identify_fully();
-				o_ptr->timeout = 1000;
-				break;
-			}
-
-			case ART_TURMIL:
-			{
-				msgf("Your hammer glows white...");
-				if (!get_aim_dir(&dir)) return FALSE;
-				(void)drain_life(dir, 200);
-				o_ptr->timeout = 70;
-				break;
-			}
-
-			case ART_CATAPULT:
-			{
-				msgf("Your sling hums...");
-				(void)clear_afraid();
-				(void)hp_player(45);
-				o_ptr->timeout = 10;
-				break;
-			}
-
-			case ART_BRAND:
-			{
-				msgf("Your crossbow glows deep red...");
-				(void)brand_bolts();
-				o_ptr->timeout = 999;
-				break;
-			}
-		}
-
-		/* Done */
-		return TRUE;
-	}
-
-	/* Activate random artifacts and ego items */
-	switch (o_ptr->activate)
-	{
-		case ACT_SUNLIGHT:
-		{
-			if (!get_aim_dir(&dir)) return FALSE;
-			msgf("A line of sunlight appears.");
-			(void)lite_line(dir);
-			o_ptr->timeout = 10;
-			break;
-		}
-
-		case ACT_BO_MISS_1:
-		{
-			msgf("The %s glows extremely brightly...", o_name);
-			if (!get_aim_dir(&dir)) return FALSE;
-			(void)fire_bolt(GF_MISSILE, dir, damroll(3, 6));
-			o_ptr->timeout = 2;
-			break;
-		}
-
-		case ACT_BA_POIS_1:
-		{
-			msgf("The %s throbs deep green...", o_name);
-			if (!get_aim_dir(&dir)) return FALSE;
-			(void)fire_ball(GF_POIS, dir, 25, 3);
-			o_ptr->timeout = (s16b)rand_range(4, 8);
-			break;
-		}
-
-		case ACT_BO_ELEC_1:
-		{
-			msgf("The %s is covered in sparks...", o_name);
-			if (!get_aim_dir(&dir)) return FALSE;
-			(void)fire_bolt(GF_ELEC, dir, damroll(6, 8));
-			o_ptr->timeout = (s16b)rand_range(6, 12);
-			break;
-		}
-
-		case ACT_BO_ACID_1:
-		{
-			msgf("The %s is covered in acid...", o_name);
-			if (!get_aim_dir(&dir)) return FALSE;
-			(void)fire_bolt(GF_ACID, dir, damroll(8, 8));
-			o_ptr->timeout = (s16b)rand_range(5, 10);
-			break;
-		}
-
-		case ACT_BO_COLD_1:
-		{
-			msgf("The %s is covered in frost...", o_name);
-			if (!get_aim_dir(&dir)) return FALSE;
-			(void)fire_bolt(GF_COLD, dir, damroll(9, 8));
-			o_ptr->timeout = (s16b)rand_range(7, 14);
-			break;
-		}
-
-		case ACT_BO_FIRE_1:
-		{
-			msgf("The %s is covered in fire...", o_name);
-			if (!get_aim_dir(&dir)) return FALSE;
-			(void)fire_bolt(GF_FIRE, dir, damroll(11, 8));
-			o_ptr->timeout = (s16b)rand_range(8, 16);
-			break;
-		}
-
-		case ACT_BA_COLD_1:
-		{
-			msgf("The %s is covered in frost...", o_name);
-			if (!get_aim_dir(&dir)) return FALSE;
-			(void)fire_ball(GF_COLD, dir, 100, 2);
-			o_ptr->timeout = 400;
-			break;
-		}
-
-		case ACT_BA_FIRE_1:
-		{
-			msgf("The %s glows an intense red...", o_name);
-			if (!get_aim_dir(&dir)) return FALSE;
-			(void)fire_ball(GF_FIRE, dir, 150, 2);
-			o_ptr->timeout = 400;
-			break;
-		}
-
-		case ACT_DRAIN_1:
-		{
-			msgf("The %s glows black...", o_name);
-			if (!get_aim_dir(&dir)) return FALSE;
-			if (drain_life(dir, 200))
-				o_ptr->timeout = (s16b)rand_range(100, 200);
-			break;
-		}
-
-		case ACT_BA_COLD_2:
-		{
-			msgf("The %s glows an intense blue...", o_name);
-			if (!get_aim_dir(&dir)) return FALSE;
-			(void)fire_ball(GF_COLD, dir, 200, 2);
-			o_ptr->timeout = 300;
-			break;
-		}
-
-		case ACT_BA_ELEC_2:
-		{
-			msgf("The crackles with electricity...", o_name);
-			if (!get_aim_dir(&dir)) return FALSE;
-			(void)fire_ball(GF_ELEC, dir, 200, 3);
-			o_ptr->timeout = 500;
-			break;
-		}
-
-		case ACT_DRAIN_2:
-		{
-			msgf("The %s glows black...", o_name);
-			if (!get_aim_dir(&dir)) return FALSE;
-			(void)drain_life(dir, 250);
-			o_ptr->timeout = 400;
-			break;
-		}
-
-		case ACT_VAMPIRE_1:
-		{
-			if (!get_aim_dir(&dir)) return FALSE;
-
-			msgf("The %s throbs red...", o_name);
-			for (dummy = 0; dummy < 3; dummy++)
-			{
-				(void)drain_gain_life(dir, 100);
-			}
-			o_ptr->timeout = 400;
-			break;
-		}
-
-		case ACT_BO_MISS_2:
-		{
-			msgf("The %s grows magical spikes...", o_name);
-			if (!get_aim_dir(&dir)) return FALSE;
-			(void)fire_bolt(GF_ARROW, dir, 250);
-			o_ptr->timeout = (s16b)rand_range(90, 180);
-			break;
-		}
-
-		case ACT_BA_FIRE_2:
-		{
-			msgf("The %s glows deep red...", o_name);
-			if (!get_aim_dir(&dir)) return FALSE;
-			(void)fire_ball(GF_FIRE, dir, 250, 3);
-			o_ptr->timeout = (s16b)rand_range(225, 450);
-			break;
-		}
-
-		case ACT_BA_COLD_3:
-		{
-			msgf("The %s glows bright white...", o_name);
-			if (!get_aim_dir(&dir)) return FALSE;
-			(void)fire_ball(GF_COLD, dir, 400, 3);
-			o_ptr->timeout = (s16b)rand_range(325, 650);
-			break;
-		}
-
-		case ACT_BA_ELEC_3:
-		{
-			msgf("The %s glows deep blue...", o_name);
-			if (!get_aim_dir(&dir)) return FALSE;
-			(void)fire_ball(GF_ELEC, dir, 500, 3);
-			o_ptr->timeout = (s16b)rand_range(425, 850);
-			break;
-		}
-
-		case ACT_WHIRLWIND:
-		{
-			int y, x;
-			cave_type *c_ptr;
-			monster_type *m_ptr;
-
-			msgf("The %s emits a blast of air...", o_name);
-
-			for (dir = 0; dir <= 9; dir++)
-			{
-				y = py + ddy[dir];
-				x = px + ddx[dir];
-
-				/* paranoia */
-				if (!in_bounds2(x, y)) continue;
-
-				c_ptr = area(x, y);
-
-				/* Get the monster */
-				m_ptr = &m_list[c_ptr->m_idx];
-
-				/* Hack -- attack monsters */
-				if (c_ptr->m_idx && (m_ptr->ml || cave_floor_grid(c_ptr)))
-					py_attack(x, y);
-			}
-			o_ptr->timeout = 250;
-			break;
-		}
-
-		case ACT_VAMPIRE_2:
-		{
-			if (!get_aim_dir(&dir)) return FALSE;
-
-			msgf("The %s throbs red...", o_name);
-
-			for (dummy = 0; dummy < 3; dummy++)
-			{
-				(void)drain_gain_life(dir, 200);
-			}
-
-			o_ptr->timeout = 400;
-			break;
-		}
-
-
-		case ACT_CALL_CHAOS:
-		{
-			msgf("The %s glows in scintillating colours...", o_name);
-			call_chaos();
-			o_ptr->timeout = 350;
-			break;
-		}
-
-		case ACT_ROCKET:
-		{
-			if (!get_aim_dir(&dir)) return FALSE;
-			msgf("You launch a rocket!");
-			(void)fire_ball(GF_ROCKET, dir, 300 + plev, 2);
-			o_ptr->timeout = 400;
-			break;
-		}
-
-		case ACT_DISP_EVIL:
-		{
-			msgf("The %s floods the area with goodness...", o_name);
-			(void)dispel_evil(p_ptr->lev * 5);
-			o_ptr->timeout = (s16b)rand_range(300, 600);
-			break;
-		}
-
-		case ACT_DISP_GOOD:
-		{
-			msgf("The %s floods the area with evil...", o_name);
-			(void)dispel_good(p_ptr->lev * 5);
-			o_ptr->timeout = (s16b)rand_range(300, 600);
-			break;
-		}
-
-		case ACT_BA_MISS_3:
-		{
-			if (!get_aim_dir(&dir)) return FALSE;
-			msgf("You breathe the elements.");
-			(void)fire_ball(GF_MISSILE, dir, 600, 4);
-			o_ptr->timeout = 500;
-			break;
-		}
-
-			/* Activate for other offensive action */
-
-		case ACT_CONFUSE:
-		{
-			msgf("The %s glows in scintillating colours...", o_name);
-			if (!get_aim_dir(&dir)) return FALSE;
-			(void)confuse_monster(dir, 50);
-			o_ptr->timeout = 15;
-			break;
-		}
-
-		case ACT_SLEEP:
-		{
-			msgf("The %s glows deep blue...", o_name);
-			(void)sleep_monsters_touch();
-			o_ptr->timeout = 55;
-			break;
-		}
-
-		case ACT_QUAKE:
-		{
-			msgf("The %s vibrates...", o_name);
-
-			(void)earthquake(px, py, 10);
-			o_ptr->timeout = 50;
-			break;
-		}
-
-		case ACT_TERROR:
-		{
-			msgf("The %s emits a loud blast...", o_name);
-
-			(void)turn_monsters(40 + p_ptr->lev);
-			o_ptr->timeout = 3 * (p_ptr->lev + 10);
-			break;
-		}
-
-		case ACT_TELE_AWAY:
-		{
-			msgf("The %s glows violet...", o_name);
-
-			if (!get_aim_dir(&dir)) return FALSE;
-			(void)fire_beam(GF_AWAY_ALL, dir, plev);
-			o_ptr->timeout = 200;
-			break;
-		}
-
-		case ACT_BANISH_EVIL:
-		{
-			if (banish_evil(200))
-			{
-				msgf("The power of the artifact banishes evil!");
-			}
-			o_ptr->timeout = (s16b)rand_range(250, 500);
-			break;
-		}
-
-		case ACT_GENOCIDE:
-		{
-			msgf("The %s glows deep blue...", o_name);
-			(void)genocide(TRUE);
-			o_ptr->timeout = 500;
-			break;
-		}
-
-		case ACT_MASS_GENO:
-		{
-			msgf("The %s lets out a long, shrill note...", o_name);
-			(void)mass_genocide(TRUE);
-			o_ptr->timeout = 1000;
-			break;
-		}
-
-			/* Activate for summoning / charming */
-
-		case ACT_CHARM_ANIMAL:
-		{
-			msgf("The %s twists in your hands...", o_name);
-			if (!get_aim_dir(&dir)) return FALSE;
-			(void)charm_animal(dir, plev);
-			o_ptr->timeout = 300;
-			break;
-		}
-
-		case ACT_CHARM_UNDEAD:
-		{
-			msgf("The %s shudders...", o_name);
-			if (!get_aim_dir(&dir)) return FALSE;
-			(void)control_one_undead(dir, plev);
-			o_ptr->timeout = 333;
-			break;
-		}
-
-		case ACT_CHARM_OTHER:
-		{
-			msgf("The %s fades in and out...", o_name);
-			if (!get_aim_dir(&dir)) return FALSE;
-			(void)charm_monster(dir, plev);
-			o_ptr->timeout = 400;
-			break;
-		}
-
-		case ACT_CHARM_ANIMALS:
-		{
-			msgf("The %s hums softly...", o_name);
-			(void)charm_animals(plev * 2);
-			o_ptr->timeout = 500;
-			break;
-		}
-
-		case ACT_CHARM_OTHERS:
-		{
-			msgf("The %s blinks in and out...", o_name);
-			(void)charm_monsters(plev * 2);
-			o_ptr->timeout = 750;
-			break;
-		}
-
-		case ACT_SUMMON_ANIMAL:
-		{
-			msgf("You summon a beast.");
-			(void)summon_specific(-1, px, py, plev, SUMMON_ANIMAL_RANGER, TRUE,
-								  TRUE, TRUE);
-			o_ptr->timeout = (s16b)rand_range(200, 500);
-			break;
-		}
-
-		case ACT_SUMMON_PHANTOM:
-		{
-			msgf("You summon a phantasmal servant.");
-			(void)summon_specific(-1, px, py, p_ptr->depth, SUMMON_PHANTOM,
-								  TRUE, TRUE, TRUE);
-			o_ptr->timeout = (s16b)rand_range(200, 400);
-			break;
-		}
-
-		case ACT_SUMMON_ELEMENTAL:
-		{
-			bool pet = !one_in_(3);
-			bool group = !(pet && (plev < 50));
-
-			if (summon_specific
-				((pet ? -1 : 0), px, py, ((plev * 3) / 2), SUMMON_ELEMENTAL,
-				 group, FALSE, pet))
-			{
-				msgf("An elemental materializes...");
-
-				if (pet)
-					msgf("It seems obedient to you.");
-				else
-					msgf("You fail to control it!");
-			}
-
-			o_ptr->timeout = 750;
-			break;
-		}
-
-		case ACT_SUMMON_DEMON:
-		{
-			bool pet = !one_in_(3);
-			bool group = !(pet && (plev < 50));
-
-			if (summon_specific
-				((pet ? -1 : 0), px, py, ((plev * 3) / 2), SUMMON_DEMON, group,
-				 FALSE, pet))
-			{
-				msgf
-					("The area fills with a stench of sulphur and brimstone.");
-				if (pet)
-					msgf("'What is thy bidding... Master?'");
-				else
-					msgf
-						("'NON SERVIAM! Wretch! I shall feast on thy mortal soul!'");
-			}
-
-			o_ptr->timeout = (s16b)rand_range(666, 1000);
-			break;
-		}
-
-		case ACT_SUMMON_UNDEAD:
-		{
-			bool pet = !one_in_(3);
-			bool group;
-			int type;
-
-			if (pet)
-			{
-				type = (plev > 47 ? SUMMON_HI_UNDEAD : SUMMON_UNDEAD);
-				group = (((plev > 24) && one_in_(3)) ? TRUE : FALSE);
-			}
-			else
-			{
-				type =
-					(plev > 47 ? SUMMON_HI_UNDEAD_NO_UNIQUES : SUMMON_UNDEAD);
-				group = TRUE;
-			}
-
-			if (summon_specific((pet ? -1 : 0), px, py, ((plev * 3) / 2), type,
-								group, FALSE, pet))
-			{
-				msgf
-					("Cold winds begin to blow around you, carrying with them the stench of decay...");
-				if (pet)
-					msgf
-						("Ancient, long-dead forms arise from the ground to serve you!");
-				else
-					msgf
-						("'The dead arise... to punish you for disturbing them!'");
-			}
-
-			o_ptr->timeout = (s16b)rand_range(666, 1000);
-			break;
-		}
-
-			/* Activate for healing */
-
-		case ACT_CURE_LW:
-		{
-			msgf("The %s radiates light blue...", o_name);
-			(void)clear_afraid();
-			(void)hp_player(30);
-			o_ptr->timeout = 10;
-			break;
-		}
-
-		case ACT_CURE_MW:
-		{
-			msgf("The %s radiates deep purple...", o_name);
-			(void)hp_player(75);
-			(void)inc_cut(-50);
-			o_ptr->timeout = (s16b)rand_range(3, 6);
-			break;
-		}
-
-		case ACT_CURE_POISON:
-		{
-			msgf("The %s glows deep blue...", o_name);
-			(void)clear_afraid();
-			(void)clear_poisoned();
-			o_ptr->timeout = 5;
-			break;
-		}
-
-		case ACT_REST_LIFE:
-		{
-			msgf("The %s glows a deep red...", o_name);
-			(void)restore_level();
-			o_ptr->timeout = 450;
-			break;
-		}
-
-		case ACT_REST_ALL:
-		{
-			msgf("The %s glows a deep green...", o_name);
-			(void)do_res_stat(A_STR);
-			(void)do_res_stat(A_INT);
-			(void)do_res_stat(A_WIS);
-			(void)do_res_stat(A_DEX);
-			(void)do_res_stat(A_CON);
-			(void)do_res_stat(A_CHR);
-			(void)restore_level();
-			o_ptr->timeout = 750;
-			break;
-		}
-
-		case ACT_CURE_700:
-		{
-			msgf("The %s glows deep blue...", o_name);
-			msgf("You feel a warm tingling inside...");
-			(void)hp_player(700);
-			(void)clear_cut();
-			o_ptr->timeout = 250;
-			break;
-		}
-
-		case ACT_CURE_1000:
-		{
-			msgf("The %s glows a bright white...", o_name);
-			msgf("You feel much better...");
-			(void)hp_player(1000);
-			(void)clear_cut();
-			o_ptr->timeout = 888;
-			break;
-		}
-
-			/* Activate for timed effect */
-
-		case ACT_ESP:
-		{
-			msgf("The %s enters your thoughts...", o_name);
-			(void)inc_tim_esp(rand_range(25, 55));
-			o_ptr->timeout = 200;
-			break;
-		}
-
-		case ACT_BERSERK:
-		{
-			msgf("The %s angers you...", o_name);
-			(void)inc_shero(rand_range(50, 100));
-			(void)inc_blessed(rand_range(50, 100));
-			o_ptr->timeout = (s16b)rand_range(100, 200);
-			break;
-		}
-
-		case ACT_PROT_EVIL:
-		{
-			msgf("The %s lets out a shrill wail...", o_name);
-			k = 3 * p_ptr->lev;
-			(void)inc_protevil(randint1(25) + k);
-			o_ptr->timeout = (s16b)rand_range(225, 450);
-			break;
-		}
-
-		case ACT_RESIST_ALL:
-		{
-			msgf("The %s glows many colours...", o_name);
-			(void)inc_oppose_acid(rand_range(40, 80));
-			(void)inc_oppose_elec(rand_range(40, 80));
-			(void)inc_oppose_fire(rand_range(40, 80));
-			(void)inc_oppose_cold(rand_range(40, 80));
-			(void)inc_oppose_pois(rand_range(40, 80));
-			o_ptr->timeout = 200;
-			break;
-		}
-
-		case ACT_SPEED:
-		{
-			msgf("The %s glows bright green...", o_name);
-			(void)inc_fast(rand_range(20, 40));
-			o_ptr->timeout = 250;
-			break;
-		}
-
-		case ACT_XTRA_SPEED:
-		{
-			msgf("The %s glows brightly...", o_name);
-			(void)inc_fast(rand_range(75, 150));
-			o_ptr->timeout = (s16b)rand_range(200, 400);
-			break;
-		}
-
-		case ACT_WRAITH:
-		{
-			msgf("The %s fades out...", o_name);
-			(void)inc_wraith_form(rand_range(plev / 2, plev));
-			o_ptr->timeout = 1000;
-			break;
-		}
-
-		case ACT_INVULN:
-		{
-			msgf("The %s fires a beam of bright white light at you...",
-					   o_name);
-			(void)inc_invuln(rand_range(8, 16));
-			o_ptr->timeout = 1000;
-			break;
-		}
-
-		case ACT_TELEPORT_1:
-		{
-			msgf("The %s twists space around you...", o_name);
-			teleport_player(100);
-			o_ptr->timeout = (s16b)rand_range(50, 100);
-			break;
-		}
-
-			/* Activate for general purpose effect (detection etc.) */
-
-		case ACT_LIGHT:
-		{
-			msgf("The %s wells with clear light...", o_name);
-			(void)lite_area(damroll(2, 15), 3);
-			o_ptr->timeout = (s16b)rand_range(10, 20);
-			break;
-		}
-
-		case ACT_MAP_LIGHT:
-		{
-			msgf("The %s shines brightly...", o_name);
-			map_area();
-			(void)lite_area(damroll(2, 15), 3);
-			o_ptr->timeout = (s16b)rand_range(50, 100);
-			break;
-		}
-
-		case ACT_DETECT_ALL:
-		{
-			msgf("The %s glows bright white...", o_name);
-			msgf("An image forms in your mind...");
-			(void)detect_all();
-			o_ptr->timeout = (s16b)rand_range(55, 110);
-			break;
-		}
-
-		case ACT_DETECT_XTRA:
-		{
-			msgf("The %s glows brightly...", o_name);
-			(void)detect_all();
-			(void)probing();
-			(void)identify_fully();
-			o_ptr->timeout = 1000;
-			break;
-		}
-
-		case ACT_ID_FULL:
-		{
-			msgf("The %s glows yellow...", o_name);
-			(void)identify_fully();
-			o_ptr->timeout = 750;
-			break;
-		}
-
-		case ACT_ID_PLAIN:
-		{
-			if (!ident_spell()) return FALSE;
-			o_ptr->timeout = 10;
-			break;
-		}
-
-		case ACT_RUNE_EXPLO:
-		{
-			msgf("The %s glows bright red...", o_name);
-			(void)explosive_rune();
-			o_ptr->timeout = 200;
-			break;
-		}
-
-		case ACT_RUNE_PROT:
-		{
-			msgf("The %s glows light blue...", o_name);
-			(void)warding_glyph();
-			o_ptr->timeout = 400;
-			break;
-		}
-
-		case ACT_SATIATE:
-		{
-			msgf("The %s glows brown...", o_name);
-			(void)set_food(PY_FOOD_MAX - 1);
-			o_ptr->timeout = 200;
-			break;
-		}
-
-		case ACT_DEST_DOOR:
-		{
-			msgf("The %s glows bright red...", o_name);
-			(void)destroy_doors_touch();
-			o_ptr->timeout = 10;
-			break;
-		}
-
-		case ACT_STONE_MUD:
-		{
-			msgf("The %s pulsates...", o_name);
-			if (!get_aim_dir(&dir)) return FALSE;
-			(void)wall_to_mud(dir);
-			o_ptr->timeout = 5;
-			break;
-		}
-
-		case ACT_RECHARGE:
-		{
-			msgf("The %s hums...", o_name);
-			(void)recharge(130);
-			o_ptr->timeout = 70;
-			break;
-		}
-
-		case ACT_ALCHEMY:
-		{
-			msgf("The %s glows bright yellow...", o_name);
-			(void)alchemy();
-			o_ptr->timeout = 500;
-			break;
-		}
-
-		case ACT_DIM_DOOR:
-		{
-			msgf("You open a dimensional gate. Choose a destination.");
-			if (!dimension_door()) return FALSE;
-			o_ptr->timeout = 100;
-			break;
-		}
-
-
-		case ACT_TELEPORT_2:
-		{
-			msgf("The %s twists space around you...", o_name);
-			teleport_player(100);
-			o_ptr->timeout = 45;
-			break;
-		}
-
-		case ACT_RECALL:
-		{
-			word_of_recall();
-
-			o_ptr->timeout = 200;
-			break;
-		}
-
-		default:
-		{
-			msgf("Unknown activation effect: %d.", o_ptr->activate);
-			return FALSE;
-		}
-	}
-
-	return TRUE;
-}
-
-
-void random_artifact_resistance(object_type *o_ptr)
-{
-	bool give_resistance = FALSE, give_power = FALSE;
-
-	/* Terror Mask is for warriors... */
-	if (o_ptr->activate == ART_TERROR + 128)
-	{
-		if (p_ptr->rp.pclass == CLASS_WARRIOR)
-		{
-			give_power = TRUE;
-			give_resistance = TRUE;
-		}
-		else
-		{
-			o_ptr->flags3 |=
-				(TR3_CURSED | TR3_HEAVY_CURSE | TR3_AGGRAVATE | TR3_TY_CURSE);
-			return;
-		}
-	}
-
-	switch (o_ptr->activate - 128)
-	{
-		case ART_CELEBORN:
-		case ART_ARVEDUI:
-		case ART_CASPANION:
-		case ART_HITHLOMIR:
-		case ART_ROHIRRIM:
-		case ART_CELEGORM:
-		case ART_ANARION:
-		case ART_THRANDUIL:
-		case ART_LUTHIEN:
-		case ART_THROR:
-		case ART_THORIN:
-		case ART_NIMTHANC:
-		case ART_DETHANC:
-		case ART_NARTHANC:
-		case ART_STING:
-		case ART_TURMIL:
-		case ART_THALKETTOTH:
-		{
-			/* Give a resistance */
-			give_resistance = TRUE;
-		}
-			break;
-		case ART_MAEDHROS:
-		case ART_GLAMDRING:
-		case ART_ORCRIST:
-		case ART_ANDURIL:
-		case ART_ZARCUTHRA:
-		case ART_GURTHANG:
-		case ART_HARADEKKET:
-		case ART_BRAND:
-		case ART_DAWN:
-		{
-			/* Give a resistance OR a power */
-			if (one_in_(2)) give_resistance = TRUE;
-			else
-				give_power = TRUE;
-		}
-			break;
-		case ART_NENYA:
-		case ART_VILYA:
-		case ART_BERUTHIEL:
-		case ART_FINGOLFIN:
-		case ART_THINGOL:
-		case ART_ULMO:
-		case ART_OLORIN:
-		{
-			/* Give a power */
-			give_power = TRUE;
-		}
-			break;
-		case ART_POWER:
-		case ART_GONDOR:
-		case ART_AULE:
-		{
-			/* Give both */
-			give_power = TRUE;
-			give_resistance = TRUE;
-		}
-			break;
-	}
-
-	if (give_power)
-	{
-		add_ego_power(EGO_XTRA_ABILITY, o_ptr);
-	}
-
-	if (give_resistance)
-	{
-		random_resistance(o_ptr, rand_range(17, 38));
-	}
 }
 
 
@@ -3263,17 +2567,24 @@ void create_named_art(int a_idx, int x, int y)
 	/* Create the artifact */
 	q_ptr = object_prep(i);
 
-	/* Set the activation */
-	q_ptr->activate = a_idx + 128;
+	/* Save the artifact number */
+	q_ptr->a_idx = a_idx;
+	
+	/* Add any special scripts */
+	for (i = 0; i < MAX_TRIGGER; i++)
+	{
+		if (a_ptr->trigger[i])
+			q_ptr->trigger[i] = quark_add(a_text + a_ptr->trigger[i]);
+	}
 
 	/* Do not make another one */
 	a_ptr->cur_num = 1;
 
 	/* Save the artifact flags */
-	q_ptr->flags1 |= a_ptr->flags1;
-	q_ptr->flags2 |= a_ptr->flags2;
-	q_ptr->flags3 |= a_ptr->flags3;
-	q_ptr->flags4 |= a_ptr->flags4;
+	q_ptr->flags[0] |= a_ptr->flags[0];
+	q_ptr->flags[1] |= a_ptr->flags[1];
+	q_ptr->flags[2] |= a_ptr->flags[2];
+	q_ptr->flags[3] |= a_ptr->flags[3];
 
 	/* Extract the fields */
 	q_ptr->pval = a_ptr->pval;
@@ -3288,7 +2599,8 @@ void create_named_art(int a_idx, int x, int y)
 	/* Save the inscription */
 	q_ptr->xtra_name = quark_add(a_name + a_ptr->name);
 
-	random_artifact_resistance(q_ptr);
+	/* Apply special scripts */
+	apply_object_trigger(TRIGGER_MAKE, q_ptr, "i", "lev", a_ptr->level);
 
 	if (!a_ptr->cost)
 	{

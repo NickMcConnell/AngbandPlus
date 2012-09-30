@@ -165,13 +165,7 @@
  */
 /* #define VERIFY_SAVEFILE */
 
-
-
-/*
- * OPTION: Hack -- Compile in support for "Borg mode"
- */
-#define ALLOW_BORG
-
+/* Debug mode options */
 #ifdef USE_DEBUG
 
 /*
@@ -185,6 +179,11 @@
 #define ALLOW_SPOILERS
 
 #endif /* USE_DEBUG */
+
+/*
+ * OPTION: Hack -- Compile in support for "Borg mode"
+ */
+#define ALLOW_BORG
 
 /*
  * OPTION: Allow "do_cmd_colors" at run-time
@@ -213,14 +212,6 @@
  * It should be usually be defined anyway to allow easy "updating".
  */
 #define ALLOW_TEMPLATES
-
-/*
- * OPTION: Allow loading of pre-2.7.0 savefiles.  Note that it takes
- * about 15K of code in "save-old.c" to parse the old savefile format.
- * Angband 2.8.0 will ignore a lot of info from pre-2.7.0 savefiles.
- */
-#define ALLOW_OLD_SAVEFILES
-
 
 /*
  * OPTION: Delay the loading of the "f_text" array until it is actually
@@ -282,7 +273,7 @@
 
 
 /*
- * OPTION: Gamma correct colours (with X11)
+ * OPTION: Gamma correct colours (with X11 / windows)
  */
 #define SUPPORT_GAMMA
 
@@ -417,12 +408,10 @@
  */
 #define CAPITALIZE_USER_NAME
 
-
-
 /*
  * OPTION: Person to bother if something goes wrong.
  */
-#define MAINTAINER	"rr9@angband.org"
+#define MAINTAINER	"sfuerst@zangband.org"
 
 
 /*
@@ -441,41 +430,6 @@
 #define DEFAULT_X11_FONT_5		"5x8"
 #define DEFAULT_X11_FONT_6		"5x8"
 #define DEFAULT_X11_FONT_7		"5x8"
-
-
-/*
- * Hack -- Special "ancient machine" versions
- */
-#if defined(USE_286) || defined(ANGBAND_LITE_MAC)
-# ifndef ANGBAND_LITE
-#  define ANGBAND_LITE
-# endif
-#endif
-
-/*
- * OPTION: Attempt to minimize the size of the game
- */
-#ifndef ANGBAND_LITE
-/* #define ANGBAND_LITE */
-#endif
-
-/*
- * Hack -- React to the "ANGBAND_LITE" flag
- */
-#ifdef ANGBAND_LITE
-# undef ALLOW_COLORS
-# undef ALLOW_VISUALS
-# undef ALLOW_MACROS
-# undef ALLOW_OLD_SAVEFILES
-# undef ALLOW_BORG
-# undef USE_DEBUG
-# undef ALLOW_SPOILERS
-# undef ALLOW_TEMPLATES
-# undef DELAY_LOAD_R_TEXT
-# define DELAY_LOAD_R_TEXT
-#endif
-
-
 
 /*
  * OPTION: Attempt to prevent all "cheating"
@@ -528,4 +482,10 @@
  * Optional use of 64bit type
  */
 /* #define USE_64B */
+
+/*
+ * Allow execution of arbitrary lua scripts using
+ * the '@' debug command.  (Insecure)
+ */
+/* #define DEBUG_SCRIPTS */
 

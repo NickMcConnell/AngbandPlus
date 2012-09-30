@@ -11,7 +11,6 @@
  */
 
 #include "tnb.h"
-#include <tkFont.h>
 
 #include <limits.h>
 #ifndef USHRT_MAX
@@ -20,6 +19,92 @@
 
 #define MAX_DELTA (255 * 6)
 #define MAX_COLOR_ENTRY 1021
+
+#ifdef HAVE_TKFONT_H
+#include <tkFont.h>
+#else /* HAVE_TKFONT_H */
+
+typedef struct TkFontAttributes {
+    Tk_Uid family;		/* Font family, or NULL to represent
+				 * plaform-specific default system font. */
+    int size;			/* Pointsize of font, 0 for default size, or
+				 * negative number meaning pixel size. */
+    int weight;			/* Weight flag; see below for def'n. */
+    int slant;			/* Slant flag; see below for def'n. */
+    int underline;		/* Non-zero for underline font. */
+    int overstrike;		/* Non-zero for overstrike font. */
+} TkFontAttributes;
+
+#define TK_FW_NORMAL	0
+#define TK_FW_BOLD	1
+
+#define TK_FS_ROMAN	0	
+#define TK_FS_ITALIC	1
+
+typedef struct TkFontMetrics {
+    int	ascent;			/* From baseline to top of font. */
+    int	descent;		/* From baseline to bottom of font. */
+    int maxWidth;		/* Width of widest character in font. */
+    int fixed;			/* Non-zero if this is a fixed-width font,
+				 * 0 otherwise. */
+} TkFontMetrics;
+
+
+typedef struct TkFont {
+    /*
+     * Fields used and maintained exclusively by generic code.
+     */
+
+    int resourceRefCount;	/* Number of active uses of this font (each
+				 * active use corresponds to a call to
+				 * Tk_AllocFontFromTable or Tk_GetFont).
+				 * If this count is 0, then this TkFont
+				 * structure is no longer valid and it isn't
+				 * present in a hash table: it is being
+				 * kept around only because there are objects
+				 * referring to it.  The structure is freed
+				 * when resourceRefCount and objRefCount
+				 * are both 0. */
+    int objRefCount;		/* The number of Tcl objects that reference
+				 * this structure. */
+    Tcl_HashEntry *cacheHashPtr;/* Entry in font cache for this structure,
+				 * used when deleting it. */
+    Tcl_HashEntry *namedHashPtr;/* Pointer to hash table entry that
+				 * corresponds to the named font that the
+				 * tkfont was based on, or NULL if the tkfont
+				 * was not based on a named font. */
+    Screen *screen;		/* The screen where this font is valid. */
+    int tabWidth;		/* Width of tabs in this font (pixels). */
+    int	underlinePos;		/* Offset from baseline to origin of
+				 * underline bar (used for drawing underlines
+				 * on a non-underlined font). */
+    int underlineHeight;	/* Height of underline bar (used for drawing
+				 * underlines on a non-underlined font). */
+
+    /*
+     * Fields used in the generic code that are filled in by
+     * platform-specific code.
+     */
+
+    Font fid;			/* For backwards compatibility with XGCValues
+				 * structures.  Remove when TkGCValues is
+				 * implemented.  */
+    TkFontAttributes fa;	/* Actual font attributes obtained when the
+				 * the font was created, as opposed to the
+				 * desired attributes passed in to
+				 * TkpGetFontFromAttributes().  The desired
+				 * metrics can be determined from the string
+				 * that was used to create this font. */
+    TkFontMetrics fm;		/* Font metrics determined when font was
+				 * created. */
+    struct TkFont *nextPtr;	/* Points to the next TkFont structure with
+				 * the same name.  All fonts with the
+				 * same name (but different displays) are
+				 * chained together off a single entry in
+				 * a hash table. */
+} TkFont;
+
+#endif /* !HAVE_TKFONT_H */
 
 /* Structure for a hash table used by rgb2index() */
 typedef struct

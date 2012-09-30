@@ -5,5 +5,7 @@ subdir = ./lib/bone/
 srcfiles += lib/bone/makefile.zb
 
 INSTALL += \
-		chown -R $(GAMEGROUP) "$(DESTDIR)/lib/bone";\
-		chmod -R 070 "$(DESTDIR)/lib/bone";
+		if [ -n "$(GAMEGROUP)" ]; then \
+			chown -R $(GAMEGROUP) "$(DESTDIR)/lib/bone"; \
+			chmod -R 070 "$(DESTDIR)/lib/bone"; \
+		fi;

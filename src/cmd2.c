@@ -50,7 +50,7 @@ void do_cmd_go_up(void)
 			 * act first when we go up stairs, theoretically resulting in a
 			 * possible insta-death.
 			 */
-			p_ptr->energy_use = 0;
+			p_ptr->state.energy_use = 0;
 
 			/* Success */
 			msgf(MSGT_STAIRS, "You enter a maze of up staircases.");
@@ -60,14 +60,8 @@ void do_cmd_go_up(void)
 			/* Create a way back */
 			p_ptr->state.create_down_stair = TRUE;
 
-			/* New depth */
-			p_ptr->depth--;
-
-			/* Leaving */
-			p_ptr->state.leaving = TRUE;
-			
-			/* Fix dungeon level due to new themed dungeons */
-			fixup_dun_level();
+			/* Go up */
+			move_dun_level(-1);
 
 			/*
 			 * Hack XXX XXX Take some time
@@ -122,24 +116,18 @@ void do_cmd_go_down(void)
 
 		if (go_down)
 		{
-			p_ptr->energy_use = 0;
+			p_ptr->state.energy_use = 0;
 
 			/* Success */
 			msgf(MSGT_STAIRS, "You enter a maze of down staircases.");
 
 			if (autosave_l) do_cmd_save_game(TRUE);
 
-			/* Go down */
-			p_ptr->depth++;
-
-			/* Leaving */
-			p_ptr->state.leaving = TRUE;
-
 			/* Create a way back */
 			p_ptr->state.create_up_stair = TRUE;
 			
-			/* Fix dungeon level due to new themed dungeons */
-			fixup_dun_level();
+			/* Go down */
+			move_dun_level(1);
 
 			/*
 			 * Hack XXX XXX Take some time
@@ -172,7 +160,7 @@ void do_cmd_search(void)
 	}
 
 	/* Take a turn */
-	p_ptr->energy_use = 100;
+	p_ptr->state.energy_use = 100;
 
 	/* Search */
 	search();
@@ -414,10 +402,7 @@ static void chest_trap(int x, int y, object_type *o_ptr)
 	if (trap & (CHEST_POISON))
 	{
 		msgf("A puff of green gas surrounds you!");
-		if (!((p_ptr->flags2 & (TR2_RES_POIS)) || p_ptr->tim.oppose_pois))
-		{
-			(void)inc_poisoned(rand_range(10, 30));
-		}
+		(void)pois_dam(10, "poison", rand_range(10, 30));
 	}
 
 	/* Paralyze */
@@ -425,7 +410,7 @@ static void chest_trap(int x, int y, object_type *o_ptr)
 	{
 		msgf("A puff of yellow gas surrounds you!");
 
-		if (!(p_ptr->flags2 & (TR2_FREE_ACT)))
+		if (!(FLAG(p_ptr, TR_FREE_ACT)))
 		{
 			(void)inc_paralyzed(rand_range(10, 30));
 		}
@@ -478,7 +463,7 @@ static bool do_cmd_open_chest(int x, int y, object_type *o_ptr)
 
 
 	/* Take a turn */
-	p_ptr->energy_use = 100;
+	p_ptr->state.energy_use = 100;
 
 	/* Attempt to unlock it */
 	if (o_ptr->pval > 0)
@@ -487,7 +472,7 @@ static bool do_cmd_open_chest(int x, int y, object_type *o_ptr)
 		flag = FALSE;
 
 		/* Get the "disarm" factor */
-		i = p_ptr->skill.dis;
+		i = p_ptr->skills[SKILL_DIS];
 
 		/* Penalize some conditions */
 		if (p_ptr->tim.blind || no_lite()) i = i / 10;
@@ -712,10 +697,10 @@ bool do_cmd_open_aux(int x, int y)
 
 	cave_type *c_ptr;
 
-	s16b *fld_ptr;
+	field_type *f_ptr;
 
 	/* Take a turn */
-	p_ptr->energy_use = 100;
+	p_ptr->state.energy_use = 100;
 
 	/* Get requested grid */
 	c_ptr = area(x, y);
@@ -728,20 +713,20 @@ bool do_cmd_open_aux(int x, int y)
 	}
 
 	/* Get fields */
-	fld_ptr = field_is_type(&c_ptr->fld_idx, FTYPE_DOOR);
+	f_ptr = field_is_type(c_ptr, FTYPE_DOOR);
 
 	/* If the door is locked / jammed */
-	if (*fld_ptr)
+	if (f_ptr)
 	{
 		/* Get the "disarm" factor */
-		i = p_ptr->skill.dis;
+		i = p_ptr->skills[SKILL_DIS];
 
 		/* Penalize some conditions */
 		if (p_ptr->tim.blind || no_lite()) i = i / 10;
 		if (p_ptr->tim.confused || p_ptr->tim.image) i = i / 10;
 
 		/* Success? */
-		if (!field_hook_single(fld_ptr, FIELD_ACT_INTERACT, i))
+		if (!field_hook_single(f_ptr, FIELD_ACT_INTERACT, i))
 		{
 			/* Sound */
 			sound(SOUND_OPENDOOR);
@@ -774,7 +759,7 @@ bool do_cmd_open_aux(int x, int y)
 	}
 	
 	/* We know about the change */
-	lite_spot(x, y);
+	note_spot(x, y);
 
 	/* Done - no more to try. */
 	return (FALSE);
@@ -854,7 +839,7 @@ void do_cmd_open(void)
 		else if (c_ptr->m_idx)
 		{
 			/* Take a turn */
-			p_ptr->energy_use = 100;
+			p_ptr->state.energy_use = 100;
 
 			/* Message */
 			msgf("There is a monster in the way!");
@@ -910,7 +895,7 @@ static bool do_cmd_close_aux(int x, int y)
 	}
 
 	/* Take a turn */
-	p_ptr->energy_use = 100;
+	p_ptr->state.energy_use = 100;
 
 	/* Get grid and contents */
 	c_ptr = area(x, y);
@@ -935,7 +920,7 @@ static bool do_cmd_close_aux(int x, int y)
 	}
 
 	/* We know about the change */
-	lite_spot(x, y);
+	note_spot(x, y);
 
 	/* Result */
 	return (more);
@@ -1007,7 +992,7 @@ void do_cmd_close(void)
 		else if (c_ptr->m_idx)
 		{
 			/* Take a turn */
-			p_ptr->energy_use = 100;
+			p_ptr->state.energy_use = 100;
 
 			/* Message */
 			msgf("There is a monster in the way!");
@@ -1066,13 +1051,13 @@ static bool do_cmd_tunnel_aux(int x, int y)
 
 	int action;
 
-	int dig = p_ptr->skill.dig;
+	int dig = p_ptr->skills[SKILL_DIG];
 
-	s16b *fld_ptr = field_hook_find(&c_ptr->fld_idx,
-									FIELD_ACT_INTERACT_TEST, &action);
+	field_type *f_ptr = field_hook_find(c_ptr,
+										FIELD_ACT_INTERACT_TEST, &action);
 
 	/* Take a turn */
-	p_ptr->energy_use = 100;
+	p_ptr->state.energy_use = 100;
 
 	/* Sound */
 	sound(SOUND_DIG);
@@ -1087,9 +1072,9 @@ static bool do_cmd_tunnel_aux(int x, int y)
 		return (FALSE);
 	}
 
-	if (*fld_ptr && (action == 0))
+	if (f_ptr && (action == 0))
 	{
-		if (!field_hook_single(fld_ptr, FIELD_ACT_INTERACT, dig))
+		if (!field_hook_single(f_ptr, FIELD_ACT_INTERACT, dig))
 		{
 			/* Finished tunneling */
 			return (FALSE);
@@ -1118,7 +1103,7 @@ static bool do_cmd_tunnel_aux(int x, int y)
 	else if ((c_ptr->feat == FEAT_TREES) || (c_ptr->feat == FEAT_PINE_TREE))
 	{
 		/* Chop Down */
-		if ((p_ptr->skill.dig > 10 + randint0(400)) && twall(x, y, FEAT_GRASS))
+		if ((p_ptr->skills[SKILL_DIG] > 10 + randint0(400)) && twall(x, y, FEAT_GRASS))
 		{
 			msgf("You have cleared away the trees.");
 
@@ -1141,7 +1126,7 @@ static bool do_cmd_tunnel_aux(int x, int y)
 	else if (c_ptr->feat == FEAT_SNOW_TREE)
 	{
 		/* Chop Down */
-		if ((p_ptr->skill.dig > 10 + randint0(400)) && twall(x, y, FEAT_SNOW))
+		if ((p_ptr->skills[SKILL_DIG] > 10 + randint0(400)) && twall(x, y, FEAT_SNOW))
 		{
 			msgf("You have cleared away the trees.");
 
@@ -1165,7 +1150,7 @@ static bool do_cmd_tunnel_aux(int x, int y)
 	else if (c_ptr->feat == FEAT_JUNGLE)
 	{
 		/* Chop Down */
-		if ((p_ptr->skill.dig > 10 + randint0(800)) && twall(x, y, FEAT_BUSH))
+		if ((p_ptr->skills[SKILL_DIG] > 10 + randint0(800)) && twall(x, y, FEAT_BUSH))
 		{
 			msgf("You have cleared away the jungle.");
 
@@ -1193,7 +1178,7 @@ static bool do_cmd_tunnel_aux(int x, int y)
 			 (c_ptr->feat == FEAT_PILLAR))
 	{
 		/* Tunnel */
-		if ((p_ptr->skill.dig > 40 + randint0(1600)) && twall(x, y, the_floor()))
+		if ((p_ptr->skills[SKILL_DIG] > 40 + randint0(1600)) && twall(x, y, the_floor()))
 		{
 			msgf("You have finished the tunnel.");
 
@@ -1226,13 +1211,13 @@ static bool do_cmd_tunnel_aux(int x, int y)
 		/* Quartz */
 		if (hard)
 		{
-			okay = (p_ptr->skill.dig > 20 + randint0(800));
+			okay = (p_ptr->skills[SKILL_DIG] > 20 + randint0(800));
 		}
 
 		/* Magma */
 		else
 		{
-			okay = (p_ptr->skill.dig > 10 + randint0(400));
+			okay = (p_ptr->skills[SKILL_DIG] > 10 + randint0(400));
 		}
 
 		/* Success */
@@ -1280,13 +1265,13 @@ static bool do_cmd_tunnel_aux(int x, int y)
 	else if (c_ptr->feat == FEAT_RUBBLE)
 	{
 		/* Remove the rubble */
-		if ((p_ptr->skill.dig > randint0(200)) && twall(x, y, the_floor()))
+		if ((p_ptr->skills[SKILL_DIG] > randint0(200)) && twall(x, y, the_floor()))
 		{
 			/* Message */
 			msgf("You have removed the rubble.");
 
 			/* Hack -- place an object */
-			if (one_in_(10))
+			if (p_ptr->depth && one_in_(10))
 			{
 				/* Create a simple object */
 				place_object(x, y, FALSE, FALSE, 0);
@@ -1311,7 +1296,7 @@ static bool do_cmd_tunnel_aux(int x, int y)
 	else if (c_ptr->feat >= FEAT_SECRET)
 	{
 		/* Tunnel */
-		if ((p_ptr->skill.dig > 30 + randint0(1200)) && twall(x, y, the_floor()))
+		if ((p_ptr->skills[SKILL_DIG] > 30 + randint0(1200)) && twall(x, y, the_floor()))
 		{
 			msgf("You have finished the tunnel.");
 		}
@@ -1414,7 +1399,7 @@ void do_cmd_tunnel(void)
 		else if (c_ptr->m_idx)
 		{
 			/* Take a turn */
-			p_ptr->energy_use = 100;
+			p_ptr->state.energy_use = 100;
 
 			/* Message */
 			msgf("There is a monster in the way!");
@@ -1452,10 +1437,10 @@ static bool do_cmd_disarm_chest(int x, int y, object_type *o_ptr)
 	bool more = FALSE;
 
 	/* Take a turn */
-	p_ptr->energy_use = 100;
+	p_ptr->state.energy_use = 100;
 
 	/* Get the "disarm" factor */
-	i = p_ptr->skill.dis;
+	i = p_ptr->skills[SKILL_DIS];
 
 	/* Penalize some conditions */
 	if (p_ptr->tim.blind || no_lite()) i = i / 10;
@@ -1531,27 +1516,23 @@ bool do_cmd_disarm_aux(cave_type *c_ptr, int dir)
 
 	field_type *f_ptr;
 	field_thaum *t_ptr;
-	s16b *fld_ptr;
 
 	bool more = FALSE;
 
 	int xp;
 
 	/* Get trap */
-	fld_ptr = field_first_known(&c_ptr->fld_idx, FTYPE_TRAP);
+	f_ptr = field_first_known(c_ptr, FTYPE_TRAP);
 
 	/* This should never happen - no trap here to disarm */
-	if (!(*fld_ptr))
+	if (!f_ptr)
 	{
 		msgf("Error condition:  Trying to disarm a non-existant trap.");
 		return (FALSE);
 	}
 
 	/* Take a turn */
-	p_ptr->energy_use = 100;
-
-	/* Point to field */
-	f_ptr = &fld_list[*fld_ptr];
+	p_ptr->state.energy_use = 100;
 
 	/* Get amount of xp for a successful disarm */
 	xp = f_ptr->data[0] * f_ptr->data[0];
@@ -1560,14 +1541,14 @@ bool do_cmd_disarm_aux(cave_type *c_ptr, int dir)
 	t_ptr = &t_info[f_ptr->t_idx];
 
 	/* Get the "disarm" factor */
-	i = p_ptr->skill.dis;
+	i = p_ptr->skills[SKILL_DIS];
 
 	/* Penalize some conditions */
 	if (p_ptr->tim.blind || no_lite()) i = i / 10;
 	if (p_ptr->tim.confused || p_ptr->tim.image) i = i / 10;
 
 	/* Success */
-	if (!field_hook_single(fld_ptr, FIELD_ACT_INTERACT, i))
+	if (!field_hook_single(f_ptr, FIELD_ACT_INTERACT, i))
 	{
 		/* Message */
 		msgf("You have disarmed the %s.", t_ptr->name);
@@ -1764,7 +1745,7 @@ void do_cmd_alter(void)
 		c_ptr = area(x, y);
 
 		/* Take a turn */
-		p_ptr->energy_use = 100;
+		p_ptr->state.energy_use = 100;
 
 		/* Attack monsters */
 		if (c_ptr->m_idx)
@@ -1773,7 +1754,7 @@ void do_cmd_alter(void)
 			py_attack(x, y);
 		}
 
-		else if (*field_hook_find(&c_ptr->fld_idx, FIELD_ACT_INTERACT_TEST,
+		else if (field_hook_find(c_ptr, FIELD_ACT_INTERACT_TEST,
 								  &action))
 		{
 			switch (action)
@@ -1918,7 +1899,7 @@ void do_cmd_spike(void)
 		else if (c_ptr->m_idx)
 		{
 			/* Take a turn */
-			p_ptr->energy_use = 100;
+			p_ptr->state.energy_use = 100;
 
 			/* Message */
 			msgf("There is a monster in the way!");
@@ -1931,7 +1912,7 @@ void do_cmd_spike(void)
 		else
 		{
 			/* Take a turn */
-			p_ptr->energy_use = 100;
+			p_ptr->state.energy_use = 100;
 
 			/* Successful jamming */
 			msgf("You jam the door with a spike.");
@@ -1976,7 +1957,7 @@ void do_cmd_walk(int pickup)
 	if (get_rep_dir(&dir))
 	{
 		/* Take a turn */
-		p_ptr->energy_use = 100;
+		p_ptr->state.energy_use = 100;
 
 		/* Actually move the character */
 		move_player(dir, pickup);
@@ -2039,11 +2020,11 @@ void do_cmd_stay(int pickup)
 
 
 	/* Take a turn */
-	p_ptr->energy_use = 100;
+	p_ptr->state.energy_use = 100;
 
 
 	/* Spontaneous Searching */
-	if ((p_ptr->skill.fos >= 50) || one_in_(50 - p_ptr->skill.fos))
+	if ((p_ptr->skills[SKILL_FOS] >= 50) || one_in_(50 - p_ptr->skills[SKILL_FOS]))
 	{
 		search();
 	}
@@ -2061,7 +2042,7 @@ void do_cmd_stay(int pickup)
 	/* 
 	 * Fields you are standing on may do something.
 	 */
-	field_hook(&area(p_ptr->px, p_ptr->py)->fld_idx, FIELD_ACT_PLAYER_ENTER);
+	field_hook(area(p_ptr->px, p_ptr->py), FIELD_ACT_PLAYER_ENTER);
 }
 
 
@@ -2124,7 +2105,7 @@ void do_cmd_rest(void)
 		chg_virtue(V_DILIGENCE, -1);
 
 	/* Take a turn XXX XXX XXX (?) */
-	p_ptr->energy_use = 100;
+	p_ptr->state.energy_use = 100;
 
 	/* Save the rest code */
 	p_ptr->state.resting = p_ptr->cmd.arg;
@@ -2192,7 +2173,7 @@ static int critical_shot(int chance, int sleeping_bonus, cptr o_name,
                          cptr m_name, int visible)
 {
 	int power = (chance + sleeping_bonus);
-	int mult_a_crit;
+	int bonus = 0;
 
 	if (!visible)
 	{
@@ -2211,30 +2192,29 @@ static int critical_shot(int chance, int sleeping_bonus, cptr o_name,
 			msgf("You rudely awaken the monster!");
 		}
 
-		/* Determine level of critical hit x 10. */
-		if (randint0(100) == 0) mult_a_crit = 50;
-		if (randint0(40) == 0) mult_a_crit = 36;
-		else if (randint0(12) == 0) mult_a_crit = 27;
-		else if (randint0(3) == 0) mult_a_crit = 20;
-		else
-			mult_a_crit = 15;
+		/* Determine deadliness bonus from critical hit. */
+		if (randint0(100) == 0)     bonus = 800;
+		if (randint0(40) == 0)      bonus = 500;
+		else if (randint0(12) == 0) bonus = 300;
+		else if (randint0(3) == 0)  bonus = 200;
+		else                        bonus = 100;
 
 		/* Only give a message if we see it hit. */
 		if (visible)
 		{
-			if (mult_a_crit == 15)
+			if (bonus <= 100)
 			{
 				msgf("The %s strikes %s.", o_name, m_name);
 			}
-			else if (mult_a_crit == 20)
+			else if (bonus <= 200)
 			{
 				msgf("The %s penetrates %s.", o_name, m_name);
 			}
-			else if (mult_a_crit == 27)
+			else if (bonus <= 300)
 			{
 				msgf("The %s drives into %s!", o_name, m_name);
 			}
-			else if (mult_a_crit == 36)
+			else if (bonus <= 500)
 			{
 				msgf("The %s transpierces %s!", o_name, m_name);
 			}
@@ -2251,15 +2231,13 @@ static int critical_shot(int chance, int sleeping_bonus, cptr o_name,
 	 */
 	else
 	{
-		mult_a_crit = 10;
-
 		if (visible)
 		{
 			msgf("The %s hits %s.", o_name, m_name);
 		}
 	}
 
-	return (mult_a_crit);
+	return (bonus);
 }
 
 
@@ -2269,7 +2247,7 @@ static int critical_shot(int chance, int sleeping_bonus, cptr o_name,
  * thrown item.
  */
 static void throw_item_effect(object_type *o_ptr, bool hit_body, bool hit_wall,
-                              int x, int y)
+                              bool hit_success, int x, int y)
 {
 	/* Chance of breakage (during attacks) */
 	int breakage = (hit_body ? breakage_chance(o_ptr) : 0);
@@ -2286,7 +2264,7 @@ static void throw_item_effect(object_type *o_ptr, bool hit_body, bool hit_wall,
 		}
 	}
 
-	if ((o_ptr->flags4 & TR4_RETURN) && randint0(100) < 95)
+	if ((FLAG(o_ptr, TR_RETURN)) && randint0(100) < 95)
 	{
 		msgf("The %v returns to your hand.", OBJECT_FMT(o_ptr, FALSE, 3));
 
@@ -2296,7 +2274,7 @@ static void throw_item_effect(object_type *o_ptr, bool hit_body, bool hit_wall,
 	}
 
 	/* Exploding arrows */
-	if ((o_ptr->flags4 & TR4_EXPLODE) && hit_body)
+	if ((FLAG(o_ptr, TR_EXPLODE)) && hit_body && hit_success)
 	{
 		project(0, 2, x, y, 100, GF_FIRE, (PROJECT_JUMP |
 					PROJECT_ITEM | PROJECT_KILL));
@@ -2312,7 +2290,7 @@ static void throw_item_effect(object_type *o_ptr, bool hit_body, bool hit_wall,
 			/* Message */
 			msgf("The %v shatters!", OBJECT_FMT(o_ptr, FALSE, 3));
 
-			if (potion_smash_effect(0, x, y, o_ptr->k_idx))
+			if (potion_smash_effect(0, x, y, o_ptr))
 			{
 				monster_type *m_ptr = &m_list[area(x, y)->m_idx];
 
@@ -2475,18 +2453,18 @@ void do_cmd_fire_aux(int mult, object_type *o_ptr, const object_type *j_ptr)
 		total_deadliness = p_ptr->to_d + i_ptr->to_d + j_ptr->to_d;
 		
 		bonus = (p_ptr->to_h + i_ptr->to_h + j_ptr->to_h);
-		chance = (p_ptr->skill.thb + (bonus * BTH_PLUS_ADJ));
+		chance = (p_ptr->skills[SKILL_THB] + (bonus * BTH_PLUS_ADJ));
 	}
 	else
 	{
 		total_deadliness = p_ptr->to_d + i_ptr->to_d;
 
-		if (i_ptr->flags2 & (TR2_THROW))
+		if (FLAG(i_ptr, TR_THROW))
 			bonus = p_ptr->to_h + i_ptr->to_h;
 		else
 			bonus = i_ptr->to_h;
 
-		chance = p_ptr->skill.tht + (bonus * BTH_PLUS_ADJ);
+		chance = p_ptr->skills[SKILL_THT] + (bonus * BTH_PLUS_ADJ);
 	}
 
 	/* Cursed arrows tend not to hit anything */
@@ -2495,17 +2473,17 @@ void do_cmd_fire_aux(int mult, object_type *o_ptr, const object_type *j_ptr)
 	/* Shooter properties */
 	if (j_ptr)
 	{
-		p_ptr->energy_use = p_ptr->bow_energy;
+		p_ptr->state.energy_use = p_ptr->bow_energy;
 		tmul = p_ptr->ammo_mult;
 
 		/* Get extra "power" from "extra might" */
-		if ((p_ptr->flags3 & (TR3_XTRA_MIGHT))) tmul++;
+		if ((FLAG(p_ptr, TR_XTRA_MIGHT))) tmul++;
 	}
 	else
 	{
-		p_ptr->energy_use = 100;
+		p_ptr->state.energy_use = 100;
 
-		if (i_ptr->flags2 & (TR2_THROW))
+		if (FLAG(i_ptr, TR_THROW))
 		{
 			tmul = 5;
 		}
@@ -2533,7 +2511,7 @@ void do_cmd_fire_aux(int mult, object_type *o_ptr, const object_type *j_ptr)
 	/* Take a (partial) turn - note strange formula. */
 
 	/* The real number of shots per round is (1 + n)/2 */
-	p_ptr->energy_use = (2 * p_ptr->energy_use / (1 + thits));
+	p_ptr->state.energy_use = (2 * p_ptr->state.energy_use / (1 + thits));
 
 	/* Another thing to do in python */
 #if 0
@@ -2696,6 +2674,7 @@ void do_cmd_fire_aux(int mult, object_type *o_ptr, const object_type *j_ptr)
 			if (test_hit_fire(chance2 + sleeping_bonus, armour, m_ptr->ml))
 			{
 				bool fear = FALSE;
+				int multiplier = deadliness_calc(total_deadliness);
 
 				/* Assume a default death */
 				cptr note_dies = " dies.";
@@ -2729,38 +2708,32 @@ void do_cmd_fire_aux(int mult, object_type *o_ptr, const object_type *j_ptr)
 				/* Multiply by the missile weapon multiplier. */
 				tdam *= tmul;
 
-				/* multiply by slays or brands. (10x inflation) */
-				slay = tot_dam_aux(i_ptr, m_ptr);
-				tdam *= slay;
+				/* Add deadliness bonus from slays/brands */
+				slay = (tot_dam_aux(i_ptr, m_ptr) - 100);
+				multiplier += slay;
 
 				/*
-				 * Multiply by critical shot.
-				 * (10x inflation) + level damage bonus
+				 * Add deadliness bonus from critical shot
 				 */
-				if (tmul > 1)
-				{
-					tdam *= critical_shot(chance2, sleeping_bonus,
-										  o_name, m_name, m_ptr->ml);
-				}
-				else
-					tdam *= 10;
+				multiplier += critical_shot(tmul > 1 ? chance2 : 0,
+					sleeping_bonus, o_name, m_name, m_ptr->ml);
 
 				/*
 				 * Convert total Deadliness into a percentage, and apply
 				 * it as a bonus or penalty. (100x inflation)
 				 */
-				tdam *= deadliness_calc(total_deadliness);
+				tdam *= multiplier;
 
 
 				/*
 				 * Get the whole number of dice sides by deflating,
 				 * and then get total dice damage.
 				 */
-				tdam = damroll(i_ptr->dd, tdam / 10000 +
-							   (randint0(10000) < (tdam % 10000) ? 1 : 0));
+				tdam = damroll(i_ptr->dd, tdam / 100 +
+							   (randint0(100) < (tdam % 100) ? 1 : 0));
 
 				/* Add in extra effect due to slays */
-				tdam += (slay - 10);
+				tdam += slay / 20;
 
 #if 0
 				/* If a weapon of velocity activates, increase damage. */
@@ -2777,7 +2750,7 @@ void do_cmd_fire_aux(int mult, object_type *o_ptr, const object_type *j_ptr)
 				tdam = mon_damage_mod(m_ptr, tdam, 0);
 								
 				/* Drop (or break) near that location (i_ptr is now invalid) */
-				throw_item_effect(i_ptr, TRUE, FALSE, x, y);
+				throw_item_effect(i_ptr, TRUE, FALSE, TRUE, x, y);
 
 				/* Complex message */
 				if (p_ptr->state.wizard)
@@ -2811,7 +2784,7 @@ void do_cmd_fire_aux(int mult, object_type *o_ptr, const object_type *j_ptr)
 			else
 			{
 				/* Drop (or break) near that location (i_ptr is now invalid) */
-				throw_item_effect(i_ptr, TRUE, FALSE, x, y);
+				throw_item_effect(i_ptr, TRUE, FALSE, FALSE, x, y);
 			}
 
 			/* Stop looking */
@@ -2820,7 +2793,7 @@ void do_cmd_fire_aux(int mult, object_type *o_ptr, const object_type *j_ptr)
 	}
 
 	/* Drop (or break) near that location (i_ptr is now invalid) */
-	throw_item_effect(i_ptr, FALSE, hit_wall, x, y);
+	throw_item_effect(i_ptr, FALSE, hit_wall, FALSE, x, y);
 }
 
 

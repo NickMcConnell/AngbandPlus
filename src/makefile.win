@@ -1,4 +1,4 @@
-# CVS: Last edit by $Author: sfuerst $ on $Date: 2002/08/20 18:49:37 $
+# CVS: Last edit by $Author: sfuerst $ on $Date: 2003/10/07 18:32:35 $
 # File: Makefile.win
 
 # For Borland C++ 4.52 Win16 and Win32
@@ -32,7 +32,7 @@ SRCS = \
   effects.c quest.c racial.c \
   artifact.c mutation.c flavor.c spells3.c \
   mspells1.c mspells2.c scores.c mind.c maid-grf.c \
-  bldg.c obj_kind.c wild1.c wild2.c avatar.c notes.c \
+  bldg.c obj_kind.c wild1.c wild2.c wild3.c avatar.c notes.c \
   zborg1.c zborg2.c zborg3.c zborg4.c zborg5.c \
   zborg6.c zborg7.c zborg8.c zborg9.c
 
@@ -50,7 +50,7 @@ OBJS = \
   effects.obj quest.obj racial.obj \
   artifact.obj mutation.obj flavor.obj spells3.obj \
   mspells1.obj mspells2.obj scores.obj mind.obj maid-grf.obj \
-  bldg.obj obj_kind.obj wild1.obj wild2.obj avatar.obj notes.obj \
+  bldg.obj obj_kind.obj wild1.obj wild2.obj wild3.obj avatar.obj notes.obj \
   zborg1.obj zborg2.obj zborg3.obj zborg4.obj zborg5.obj \
   zborg6.obj zborg7.obj zborg8.obj zborg9.obj
   
@@ -69,7 +69,7 @@ OBJS32 = \
   effects.o32 quest.o32 racial.o32 \
   artifact.o32 mutation.o32 flavor.o32 spells3.o32 \
   mspells1.o32 mspells2.o32 scores.o32 mind.o32 maid-grf.o32 \
-  bldg.o32 obj_kind.o32 wild1.o32 wild2.o32 avatar.o32 notes.o32 \
+  bldg.o32 obj_kind.o32 wild1.o32 wild2.o32 wild3.o32 avatar.o32 notes.o32 \
   zborg1.o32 zborg2.o32 zborg3.o32 zborg4.o32 zborg5.o32 \
   zborg6.o32 zborg7.o32 zborg8.o32 zborg9.o32
 
@@ -187,7 +187,7 @@ generate dungeon init1 init2 +
 effects quest racial obj_kind +
 artifact mutation flavor spells3 +
 mspells1 mspells2 scores mind maid-grf +
-main-win readdib bldg wild1 wild2 avatar notes +
+main-win readdib bldg wild1 wild2 wild3 avatar notes +
 zborg1 zborg2 zborg3 zborg4 zborg5 zborg6 +
 zborg7 zborg8 zborg9,+
 ..\angband.exe,..\angband.map,import cwl,..\ext-win\src\angband.def
@@ -220,7 +220,8 @@ generate.o32 dungeon.o32 init1.o32 init2.o32 +
 effects.o32 quest.o32 racial.o32 obj_kind.o32 +
 artifact.o32 mutation.o32 flavor.o32 spells3.o32 +
 mspells1.o32 mspells2.o32 scores.o32 mind.o32 maid-grf.o32 +
-main-win.o32 readdib.o32 bldg.o32 wild1.o32 wild2.o32 avatar.o32 notes.o32 +
+main-win.o32 readdib.o32 bldg.o32 wild1.o32 wild2.o32 wild3.o32 +
+avatar.o32 notes.o32 +
 zborg1.o32 zborg2.o32 zborg3.o32 zborg4.o32 zborg5.o32 +
 zborg6.o32 zborg7.o32 zborg8.o32 zborg9.o32,+
 ..\angband32.exe,..\angband.map,import32 cw32,..\ext-win\src\angband.def

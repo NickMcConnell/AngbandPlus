@@ -81,21 +81,26 @@
 /*
  * Some assistance with the borg_attack and magic arrows
  */
-#define GF_ARROW_SEEKER  92
-#define GF_ARROW_FLAME   93
-#define GF_ARROW_FROST   94
-#define GF_ARROW_ANIMAL  95
-#define GF_ARROW_DRAGON  96
-#define GF_ARROW_EVIL    97
-#define GF_ARROW_WOUNDING 98
-#define GF_HOLY_WORD      99
-#define GF_DISP_UNDEAD_DEMON 100	/* effect both */
-#define GF_ELEMENTS       101	/* all elements could be cast */
-#define GF_DEATHRAY      102
+#define GF_ARROW_FLAME		93
+#define GF_ARROW_FROST		94
+#define GF_ARROW_SHOCKING	95
+#define GF_ARROW_ANIMAL		96
+#define GF_ARROW_DRAGON		97
+#define GF_ARROW_EVIL		98
+#define GF_ARROW_EXPLOSION	99
+
+#define GF_HOLY_WORD		100
+#define GF_DISP_UNDEAD_DEMON 101	/* effect both */
+#define GF_ELEMENTS			102	/* all elements could be cast */
+#define GF_DEATHRAY			103
 
 /* the Z randarts are considered #127 by the borg */
 #define ART_RANDART  127
 
+/* values for the successful_target global */
+#define BORG_TARGET			-1
+#define BORG_FRESH_TARGET	0
+#define BORG_ARROW_TARGET	5
 
 
 /*
@@ -108,6 +113,12 @@
  * Number of grids in the "temp" array
  */
 #define AUTO_TEMP_MAX 1536
+
+
+/*
+ * Number of grids in the "borg_hit" array
+ */
+#define AUTO_HIT_MAX 1536
 
 
 /*
@@ -197,9 +208,6 @@ extern int successful_target;
 
 extern bool borg_scums_uniques;
 
-/* Borg has is intrinsically broken */
-extern int *borg_has;
-
 /*
  * Borg-abilities
  */
@@ -207,6 +215,7 @@ typedef struct borg_ability borg_ability;
 
 struct borg_ability
 {
+	s16b phase;
 	s16b teleport;
 	s16b teleport_level;
 	s16b escape;
@@ -215,10 +224,13 @@ struct borg_ability
 	s16b heal;
 	s16b easy_heal;
 	s16b id;
+	s16b star_id;
+	s16b berserk;
 	s16b speed;
 
 	s16b staff_magi;
 	s16b staff_dest;
+	s16b staff_cool;
 	s16b missile;
 	s16b curepois;
 
@@ -226,8 +238,11 @@ struct borg_ability
 	s16b det_door;
 	s16b det_evil;
 	s16b magic_map;
+	s16b lite;
 
 	s16b recharge;
+	s16b remove_curse;
+	s16b star_remove_curse;
 	s16b pfe;
 	s16b glyph;
 	s16b ccw;
@@ -235,6 +250,17 @@ struct borg_ability
 	s16b csw;
 	s16b res_heat;
 	s16b res_cold;
+
+	s16b death;
+	s16b poison;
+	s16b mana;
+	s16b logrus;
+	s16b genocide;
+	s16b mass_genocide;
+	s16b invulnerability;
+
+	s16b bolt;
+	s16b ball;
 };
 
 /*
@@ -320,9 +346,12 @@ struct borg_player
 	s16b max_depth;	/* Max depth */
 
 	/* Combined object flags */
-	u32b flags1;
-	u32b flags2;
-	u32b flags3;
+	u32b flags[4];
+
+	/* Mutation flags */
+	u32b muta1;
+	u32b muta2;
+	u32b muta3;
 
 	s16b food;	/* Power of food */
 	s16b recall;	/* Power of recall */
@@ -454,6 +483,7 @@ extern bool my_oppose_acid;
 extern bool my_oppose_pois;
 extern bool my_oppose_elec;
 extern s16b borg_goi;
+extern s16b borg_wraith_form;
 extern s16b borg_inviso;
 extern bool borg_esp;
 extern s16b borg_game_ratio;
@@ -518,6 +548,7 @@ extern s16b my_stat_add[6];	/* aditions to stats */
 extern s16b home_stat_add[6];
 
 extern bool borg_wearing_cursed;
+extern bool borg_heavy_curse;
 
 extern s16b weapon_swap_digger;
 
@@ -525,24 +556,25 @@ extern int my_ammo_tval;	/* Ammo -- "tval"   */
 extern s16b my_ammo_power;	/* Average power   */
 extern s16b my_ammo_range;	/* Shooting range   */
 
-extern s16b my_need_enchant_to_a;	/* Need some enchantment */
-extern s16b my_need_enchant_to_h;	/* Need some enchantment */
-extern s16b my_need_enchant_to_d;	/* Need some enchantment */
+extern bool my_need_enchant_to_a;	/* Need some enchantment */
+extern bool my_need_enchant_to_h;	/* Need some enchantment */
+extern bool my_need_enchant_to_d;	/* Need some enchantment */
 
 
 /*
  * Various "amounts" (for the player)
  */
 
-extern s16b amt_phase;
-extern s16b amt_food_lowcal;
+extern s16b amt_food_scroll;
 extern s16b amt_food_hical;
+extern s16b amt_food_lowcal;
 
 extern s16b amt_slow_poison;
 extern s16b amt_cure_confusion;
 extern s16b amt_cure_blind;
-
-extern s16b amt_cool_staff;	/* holiness-power staff */
+extern s16b amt_star_heal;
+extern s16b amt_life;
+extern s16b amt_rod_heal;
 
 extern s16b amt_book[8][4];	/* [realm][sval] */
 
@@ -555,8 +587,6 @@ extern s16b amt_enchant_to_a;
 extern s16b amt_enchant_to_d;
 extern s16b amt_enchant_to_h;
 extern s16b amt_brand_weapon;	/* cubragol and bolts */
-extern s16b amt_enchant_weapon;
-extern s16b amt_enchant_armor;
 extern s16b amt_digger;
 
 
@@ -687,9 +717,31 @@ extern s16b borg_view_x[AUTO_VIEW_MAX];
 /*
  * Maintain a set of grids (scanning arrays)
  */
+
+/* For any monster within MAX_RANGE */
 extern s16b borg_temp_n;
 extern s16b borg_temp_y[AUTO_TEMP_MAX];
 extern s16b borg_temp_x[AUTO_TEMP_MAX];
+
+/* For the monsters immediately surrounding the borg */
+extern s16b borg_next_n;
+extern s16b borg_next_y[AUTO_HIT_MAX];
+extern s16b borg_next_x[AUTO_HIT_MAX];
+
+/* For the monsters that can be hit by a bolt */
+extern s16b borg_bolt_n;
+extern s16b borg_bolt_y[AUTO_TEMP_MAX];
+extern s16b borg_bolt_x[AUTO_TEMP_MAX];
+
+/* For the monsters that can be hit by a beam, basically any monster in LOS */
+extern s16b borg_beam_n;
+extern s16b borg_beam_y[AUTO_TEMP_MAX];
+extern s16b borg_beam_x[AUTO_TEMP_MAX];
+
+/* For the monsters that can be hit by a ball with radius > 1 */
+extern s16b borg_ball_n;
+extern s16b borg_ball_y[AUTO_TEMP_MAX];
+extern s16b borg_ball_x[AUTO_TEMP_MAX];
 
 
 /*

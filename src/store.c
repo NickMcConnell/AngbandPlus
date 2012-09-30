@@ -430,10 +430,10 @@ static bool store_object_similar(const object_type *o_ptr,
 	if (o_ptr->xtra_name || j_ptr->xtra_name) return (FALSE);
 
 	/* Hack -- Identical flags! */
-	if ((o_ptr->flags1 != j_ptr->flags1) ||
-		(o_ptr->flags2 != j_ptr->flags2) || 
-		(o_ptr->flags3 != j_ptr->flags3) ||
-		(o_ptr->flags4 != j_ptr->flags4))
+	if ((o_ptr->flags[0] != j_ptr->flags[0]) ||
+		(o_ptr->flags[1] != j_ptr->flags[1]) || 
+		(o_ptr->flags[2] != j_ptr->flags[2]) ||
+		(o_ptr->flags[3] != j_ptr->flags[3]))
 		return (FALSE);
 
 	/* Require identical recharge times / fuel level */
@@ -585,12 +585,13 @@ static bool store_will_buy(const object_type *o_ptr)
  */
 static bool store_will_stock(const object_type *o_ptr)
 {
+	cave_type *c_ptr = area(p_ptr->px, p_ptr->py);
+
 	/* Default is to reject this rejection */
 	bool result = FALSE;
 
 	/* Will the store !not! buy this item? */
-	field_hook(&area(p_ptr->px, p_ptr->py)->fld_idx,
-			   FIELD_ACT_STORE_ACT1, o_ptr, &result);
+	field_hook(c_ptr, FIELD_ACT_STORE_ACT1, o_ptr, &result);
 
 	/* We don't want this item type? */
 	if (result == TRUE) return (FALSE);
@@ -599,8 +600,7 @@ static bool store_will_stock(const object_type *o_ptr)
 	result = TRUE;
 
 	/* Will the store buy this item? */
-	field_hook(&area(p_ptr->px, p_ptr->py)->fld_idx,
-			   FIELD_ACT_STORE_ACT2, o_ptr, &result);
+	field_hook(c_ptr, FIELD_ACT_STORE_ACT2, o_ptr, &result);
 
 	/* Finally check to see if we will buy the item */
 	return (result && store_will_buy(o_ptr));
@@ -726,10 +726,10 @@ static object_type *store_carry(object_type *o_ptr)
 	object_mental(o_ptr);
 
 	/* Save all the known flags */
-	o_ptr->kn_flags1 = o_ptr->flags1;
-	o_ptr->kn_flags2 = o_ptr->flags2;
-	o_ptr->kn_flags3 = o_ptr->flags3;
-	o_ptr->kn_flags4 = o_ptr->flags4;
+	o_ptr->kn_flags[0] = o_ptr->flags[0];
+	o_ptr->kn_flags[1] = o_ptr->flags[1];
+	o_ptr->kn_flags[2] = o_ptr->flags[2];
+	o_ptr->kn_flags[3] = o_ptr->flags[3];
 
     /* Erase the inscription */
     quark_remove(&o_ptr->inscription);
@@ -1020,7 +1020,7 @@ static void display_entry(int pos)
  * Displays a store's inventory
  * All prices are listed as "per individual object".  -BEN-
  */
-static void display_inventory(int store_top)
+static void display_inventory(void)
 {
 	int k;
 
@@ -1030,10 +1030,10 @@ static void display_inventory(int store_top)
 	for (k = 0; k < 12; k++)
 	{
 		/* Do not display "dead" items */
-		if (store_top + k >= stocknum) break;
+		if (p_ptr->state.store_top + k >= stocknum) break;
 
 		/* Display that line */
-		display_entry(store_top + k);
+		display_entry(p_ptr->state.store_top + k);
 	}
 
 	/* Erase the extra lines and the "more" prompt */
@@ -1049,7 +1049,7 @@ static void display_inventory(int store_top)
 		prtf(3, k + 6, "-more-");
 
 		/* Indicate the "current page" */
-		put_fstr(20, 5, "(Page %d)", store_top / 12 + 1);
+		put_fstr(20, 5, "(Page %d)", p_ptr->state.store_top / 12 + 1);
 	}
 }
 
@@ -1067,9 +1067,14 @@ static void store_prt_gold(void)
 /*
  * Displays store (after clearing screen)		-RAK-
  */
-static void display_store(int store_top)
+static void display_store(void)
 {
 	const owner_type *ot_ptr = &owners[f_ptr->data[0]][st_ptr->owner];
+	
+	int wid, hgt;
+
+	/* Get size */
+	Term_get_size(&wid, &hgt);
 
 	/* Clear screen */
 	Term_clear();
@@ -1109,18 +1114,21 @@ static void display_store(int store_top)
 		/* If showing weights, show label */
 		if (show_weights)
 		{
-			put_fstr(60, 5, "Weight");
+			put_fstr(wid - 20, 5, "Weight");
 		}
 
 		/* Label the asking price (in stores) */
-		put_fstr(72, 5, "Price");
+		put_fstr(wid - 8, 5, "Price");
 	}
 
 	/* Display the current gold */
 	store_prt_gold();
 
 	/* Draw in the inventory */
-	display_inventory(store_top);
+	display_inventory();
+	
+	/* Refresh */
+	Term_fresh();
 }
 
 
@@ -1315,25 +1323,26 @@ static int get_stock(int *com_val, cptr pmt, int maxobj)
 
 static bool store_access_item(const object_type *o_ptr, s32b price, bool buy)
 {
-	char o_name[256];
-
 	if (buy)
 	{
 		/* Describe the object (fully) */
-		object_desc_store(o_name, o_ptr, TRUE, 3, 256);
+		put_fstr(0, 1, "%s %v", (buy) ? "Buying" : "Selling",
+					OBJECT_STORE_FMT(o_ptr, TRUE, 3));
 	}
 	else
 	{
 		/* Describe the object (only what we know) */
-		object_desc(o_name, o_ptr, TRUE, 3, 256);
+		put_fstr(0, 1, "%s %v", (buy) ? "Buying" : "Selling",
+					OBJECT_FMT(o_ptr, TRUE, 3));
 	}
 
-	put_fstr(0, 1, "%s %s", (buy) ? "Buying" : "Selling", o_name);
 	put_fstr(0, 2, "Offer :  %ld", (long)price);
 
 	/* Ask the user for a response */
-	if (!get_check("Do you want to %s it? ", (buy) ? "buy" : "sell")) return (FALSE);
-
+	if (get_check(buy ? "Enter to buy. Cancel? ": "Enter to sell. Cancel? "))
+	{
+		return (FALSE);
+	}
 
 	/* Chose to make transaction */
 	return (TRUE);
@@ -1342,7 +1351,7 @@ static bool store_access_item(const object_type *o_ptr, s32b price, bool buy)
 /*
  * Buy an item from a store
  */
-static void store_purchase(int *store_top)
+static void store_purchase(void)
 {
 	int i, amt;
 	int item, item_new;
@@ -1366,7 +1375,7 @@ static void store_purchase(int *store_top)
 	}
 
 	/* Find the number of objects on this and following pages */
-	i = (get_list_length(st_ptr->stock) - *store_top);
+	i = (get_list_length(st_ptr->stock) - p_ptr->state.store_top);
 
 	/* And then restrict it to the current page */
 	if (i > 12) i = 12;
@@ -1385,7 +1394,7 @@ static void store_purchase(int *store_top)
 	if (!get_stock(&item, out_val, i)) return;
 
 	/* Get the actual index */
-	item = item + *store_top;
+	item = item + p_ptr->state.store_top;
 
 	/* Get the actual item */
 	o_ptr = get_list_item(st_ptr->stock, item);
@@ -1555,31 +1564,21 @@ static void store_purchase(int *store_top)
 				}
 
 				/* Start over */
-				*store_top = 0;
-
-				/* Redraw everything */
-				display_inventory(*store_top);
+				p_ptr->state.store_top = 0;
 			}
 
 			/* The item is gone */
 			else if (get_list_length(st_ptr->stock) != i)
 			{
 				/* Pick the correct screen */
-				if (*store_top >= get_list_length(st_ptr->stock))
+				if (p_ptr->state.store_top >= get_list_length(st_ptr->stock))
 				{
-					*store_top -= 12;
+					p_ptr->state.store_top -= 12;
 				}
-
-				/* Redraw everything */
-				display_inventory(*store_top);
 			}
-
-			/* Item is still here */
-			else
-			{
-				/* Redraw the item */
-				display_entry(item);
-			}
+			
+			/* Redraw everything */
+			display_inventory();
 		}
 	}
 
@@ -1625,16 +1624,16 @@ static void store_purchase(int *store_top)
 		else
 		{
 			/* Nothing left */
-			if (!st_ptr->stock) *store_top = 0;
+			if (!st_ptr->stock) p_ptr->state.store_top = 0;
 
 			/* Nothing left on that screen */
-			else if (*store_top >= get_list_length(st_ptr->stock))
+			else if (p_ptr->state.store_top >= get_list_length(st_ptr->stock))
 			{
-				*store_top -= 12;
+				p_ptr->state.store_top -= 12;
 			}
 
 			/* Redraw everything */
-			display_inventory(*store_top);
+			display_inventory();
 
 			chg_virtue(V_SACRIFICE, 1);
 		}
@@ -1645,7 +1644,7 @@ static void store_purchase(int *store_top)
 /*
  * Sell an item to the store (or home)
  */
-static void store_sell(int *store_top)
+static void store_sell(void)
 {
 	int item_pos;
 	int amt;
@@ -1841,8 +1840,8 @@ static void store_sell(int *store_top)
 			/* Re-display if item is now in store */
 			if (item_pos >= 0)
 			{
-				*store_top = (item_pos / 12) * 12;
-				display_inventory(*store_top);
+				p_ptr->state.store_top = (item_pos / 12) * 12;
+				display_inventory();
 			}
 		}
 	}
@@ -1871,8 +1870,8 @@ static void store_sell(int *store_top)
 		/* Update store display */
 		if (item_pos >= 0)
 		{
-			*store_top = (item_pos / 12) * 12;
-			display_inventory(*store_top);
+			p_ptr->state.store_top = (item_pos / 12) * 12;
+			display_inventory();
 		}
 	}
 }
@@ -1881,7 +1880,7 @@ static void store_sell(int *store_top)
 /*
  * Examine an item in a store			   -JDL-
  */
-static void store_examine(int store_top)
+static void store_examine(void)
 {
 	int i;
 	int item;
@@ -1901,7 +1900,7 @@ static void store_examine(int store_top)
 
 
 	/* Find the number of objects on this and following pages */
-	i = (get_list_length(st_ptr->stock) - store_top);
+	i = (get_list_length(st_ptr->stock) - p_ptr->state.store_top);
 
 	/* And then restrict it to the current page */
 	if (i > 12) i = 12;
@@ -1913,7 +1912,7 @@ static void store_examine(int store_top)
 	if (!get_stock(&item, out_val, i)) return;
 
 	/* Get the actual index */
-	item = item + store_top;
+	item = item + p_ptr->state.store_top;
 
 	/* Get the actual item */
 	o_ptr = get_list_item(st_ptr->stock, item);
@@ -1943,7 +1942,7 @@ static bool leave_store = FALSE;
  * must disable some commands which are allowed in the dungeon
  * but not in the stores, to prevent chaos.
  */
-static void store_process_command(int *store_top)
+static void store_process_command(void)
 {
 	int stocknum = get_list_length(st_ptr->stock);
 
@@ -1980,9 +1979,9 @@ static void store_process_command(int *store_top)
 			}
 			else
 			{
-				*store_top += 12;
-				if (*store_top >= stocknum) *store_top = 0;
-				display_inventory(*store_top);
+				p_ptr->state.store_top += 12;
+				if (p_ptr->state.store_top >= stocknum) p_ptr->state.store_top = 0;
+				display_inventory();
 			}
 			break;
 		}
@@ -1991,21 +1990,21 @@ static void store_process_command(int *store_top)
 		{
 			/* Redraw */
 			do_cmd_redraw();
-			display_store(*store_top);
+			display_store();
 			break;
 		}
 
 		case 'g':
 		{
 			/* Get (purchase) */
-			store_purchase(store_top);
+			store_purchase();
 			break;
 		}
 
 		case 'd':
 		{
 			/* Drop (Sell) */
-			store_sell(store_top);
+			store_sell();
 			break;
 		}
 
@@ -2013,7 +2012,7 @@ static void store_process_command(int *store_top)
 		case 'x':
 		{
 			/* Examine */
-			store_examine(*store_top);
+			store_examine();
 			break;
 		}
 
@@ -2117,7 +2116,7 @@ static void store_process_command(int *store_top)
 		{
 			/* Character description */
 			do_cmd_character();
-			display_store(*store_top);
+			display_store();
 			break;
 		}
 
@@ -2242,12 +2241,6 @@ static void deallocate_store(void)
 	/* Return if there are no stores with stock */
 	if (store_cache_num == 0) return;
 
-	/* No stock in first one? */
-	if (!store_cache[0]->stock)
-	{
-		store_cache[0]->type = 0;
-	}
-
 	/* Do not deallocate homes or lockers */
 	while (store_cache[0]->type == BUILD_STORE_HOME)
 	{
@@ -2297,26 +2290,18 @@ bool allocate_store(store_type *st_ptr)
 		/* See if cache location matches */
 		if (st_ptr == store_cache[i])
 		{
-			/* note location */
-			n = i;
-			break;
+			/* Resort order based on last_visit */
+			for (n = i + 1; n < store_cache_num; n++)
+			{
+				store_cache[n - 1] = store_cache[n];
+			}
+
+			/* Move current one to end */
+			store_cache[store_cache_num - 1] = st_ptr;
+
+			/* (No need to maintain store) */
+			return FALSE;
 		}
-	}
-
-	/* Did we find it? */
-	if (n != -1)
-	{
-		/* Resort order based on last_visit */
-		for (i = n + 1; i < store_cache_num; i++)
-		{
-			store_cache[i - 1] = store_cache[i];
-		}
-
-		/* Move current one to end */
-		store_cache[store_cache_num - 1] = st_ptr;
-
-		/* (No need to maintain store) */
-		return FALSE;
 	}
 
 	/* Store does not have stock - so need to allocate. */
@@ -2381,7 +2366,6 @@ void do_cmd_store(const field_type *f1_ptr)
 	int maintain_num;
 	int tmp_chr;
 	int i;
-	int store_top;
 
 	object_type *o_ptr;
 
@@ -2393,6 +2377,9 @@ void do_cmd_store(const field_type *f1_ptr)
 
 	/* Paranoia */
 	if (!st_ptr) return;
+	
+	/* Some quests are finished by finding a shop */
+	trigger_quest_complete(QX_FIND_SHOP, (vptr)st_ptr);
 
 	/* Hack - save interesting flags for later */
 	info_flags = f_ptr->data[7];
@@ -2404,7 +2391,7 @@ void do_cmd_store(const field_type *f1_ptr)
 		msgf("The doors are locked.");
 		return;
 	}
-
+		
 	/* Calculate the number of store maintainances since the last visit */
 	maintain_num = (turn - st_ptr->last_visit) / (10L * STORE_TURNS);
 
@@ -2459,10 +2446,13 @@ void do_cmd_store(const field_type *f1_ptr)
 	p_ptr->cmd.new = 0;
 
 	/* Start at the beginning */
-	store_top = 0;
+	p_ptr->state.store_top = 0;
 
 	/* Display the store */
-	display_store(store_top);
+	display_store();
+
+	/* Hack - change the redraw hook so bigscreen works */
+	angband_term[0]->resize_hook = display_store;
 
 	/* Do not leave */
 	leave_store = FALSE;
@@ -2583,7 +2573,7 @@ void do_cmd_store(const field_type *f1_ptr)
 		request_command(TRUE);
 
 		/* Process the command */
-		store_process_command(&store_top);
+		store_process_command();
 
 		/* Hack -- Character is still in "icky" mode */
 		character_icky = TRUE;
@@ -2607,14 +2597,13 @@ void do_cmd_store(const field_type *f1_ptr)
 		/* Hack -- Redisplay store prices if charisma changes */
 		if (tmp_chr != p_ptr->stat[A_CHR].use)
 		{
-			display_inventory(store_top);
+			display_inventory();
 		}
 	}
 
 
 	/* Free turn XXX XXX XXX */
-	p_ptr->energy_use = 0;
-
+	p_ptr->state.energy_use = 0;
 
 	/* Hack -- Character is no longer in "icky" mode */
 	character_icky = FALSE;
@@ -2624,21 +2613,15 @@ void do_cmd_store(const field_type *f1_ptr)
 
 	/* Flush messages XXX XXX XXX */
 	message_flush();
-
+	
+	/* Hack - reset the redraw hook */
+	angband_term[0]->resize_hook = resize_map;
 
 	/* Clear the screen */
 	Term_clear();
-
-
-	/* Update everything */
-	p_ptr->update |= (PU_VIEW);
-	p_ptr->update |= (PU_MONSTERS);
-
-	/* Redraw entire screen */
-	p_ptr->redraw |= (PR_BASIC | PR_EXTRA | PR_EQUIPPY);
-
-	/* Redraw map */
-	p_ptr->redraw |= (PR_MAP);
+	
+	/* Update for the changed screen size */
+	resize_map();
 
 	/* Window stuff */
 	p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);

@@ -7,41 +7,6 @@ typedef int errr;
 /***** Constants *****/
 
 /*
- * Legal restrictions for "summon_specific()"
- */
-#define SUMMON_ANT                  11
-#define SUMMON_SPIDER               12
-#define SUMMON_HOUND                13
-#define SUMMON_HYDRA                14
-#define SUMMON_ANGEL                15
-#define SUMMON_DEMON                16
-#define SUMMON_UNDEAD               17
-#define SUMMON_DRAGON               18
-#define SUMMON_HI_UNDEAD            21
-#define SUMMON_HI_DRAGON            22
-#define SUMMON_AMBERITES            31
-#define SUMMON_UNIQUE               32
-#define SUMMON_BIZARRE1             33
-#define SUMMON_BIZARRE2             34
-#define SUMMON_BIZARRE3             35
-#define SUMMON_BIZARRE4             36
-#define SUMMON_BIZARRE5             37
-#define SUMMON_BIZARRE6             38
-#define SUMMON_CYBER                39
-#define SUMMON_KIN                  40
-#define SUMMON_DAWN                 41
-#define SUMMON_ANIMAL               42
-#define SUMMON_ANIMAL_RANGER        43
-#define SUMMON_HI_UNDEAD_NO_UNIQUES 44
-#define SUMMON_HI_DRAGON_NO_UNIQUES 45
-#define SUMMON_NO_UNIQUES           46
-#define SUMMON_PHANTOM              47
-#define SUMMON_ELEMENTAL            48
-#define SUMMON_BLUE_HORROR          49
-
-
-
-/*
  * Spell types used by project(), and related functions.
  */
 #define GF_ELEC         1
@@ -119,6 +84,18 @@ typedef int errr;
 #define GF_DOMINATION   89
 #define GF_DISP_GOOD    90
 #define MAX_GF			91
+
+
+#define PROJECT_JUMP    0x0001
+#define PROJECT_BEAM    0x0002
+#define PROJECT_THRU    0x0004
+#define PROJECT_STOP    0x0008
+#define PROJECT_GRID    0x0010
+#define PROJECT_ITEM    0x0020
+#define PROJECT_KILL    0x0040
+#define PROJECT_HIDE    0x0080
+#define PROJECT_FRND	0x0100
+#define PROJECT_MFLD	0x0200
 
 
 /***** Types *****/
@@ -213,6 +190,9 @@ extern bool confuse_monsters(int dam);
 extern bool charm_monsters(int dam);
 extern bool charm_animals(int dam);
 extern bool starlite(void);
+extern bool scatter_ball(int num, int typ, int dam, int rad);
+extern void create_food(void);
+extern void whirlwind_attack(void);
 extern bool stun_monsters(int dam);
 extern bool stasis_monsters(int dam);
 extern bool banish_monsters(int dist);
@@ -260,7 +240,7 @@ extern void identify_item(object_type *o_ptr);
 extern bool identify_fully(void);
 extern bool recharge(int num);
 extern bool bless_weapon(void);
-extern bool potion_smash_effect(int who, int x, int y, int k_idx);
+extern bool potion_smash_effect(int who, int x, int y, object_type *o_ptr);
 extern void display_spell_list(void);
 extern s16b spell_chance(int spell, int realm);
 extern bool spell_okay(int spell, bool known, int realm);
@@ -274,10 +254,11 @@ extern int set_elec_destroy(object_type *o_ptr);
 extern int set_fire_destroy(object_type *o_ptr);
 extern int set_cold_destroy(object_type *o_ptr);
 extern int inven_damage(inven_func typ, int perc);
-extern void acid_dam(int dam, cptr kb_str);
-extern void elec_dam(int dam, cptr kb_str);
-extern void fire_dam(int dam, cptr kb_str);
-extern void cold_dam(int dam, cptr kb_str);
+extern bool acid_dam(int dam, cptr kb_str);
+extern bool elec_dam(int dam, cptr kb_str);
+extern bool fire_dam(int dam, cptr kb_str);
+extern bool cold_dam(int dam, cptr kb_str);
+extern bool pois_dam(int dam, cptr kb_str, int pois);
 extern bool rustproof(void);
 extern bool curse_armor(void);
 extern bool curse_weapon(void);

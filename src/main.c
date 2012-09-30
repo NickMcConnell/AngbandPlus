@@ -25,10 +25,6 @@
  */
 static const module_type modules[] =
 {
-#ifdef USE_TNB
-	INIT_MODULE(tnb),
-#endif /* USE_TNB */
-
 #ifdef USE_GTK
 	INIT_MODULE(gtk),
 #endif /* USE_GTK */
@@ -44,6 +40,10 @@ static const module_type modules[] =
 #ifdef USE_XPJ
 	INIT_MODULE(xpj),
 #endif /* USE_XPJ */
+
+#ifdef USE_TNB
+	INIT_MODULE(tnb),
+#endif /* USE_TNB */
 
 #ifdef USE_GCU
 	INIT_MODULE(gcu),

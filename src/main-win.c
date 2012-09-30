@@ -4754,7 +4754,7 @@ bool broken_ascii(void)
 	{
 		/* Win XP is b0rken */
 		if ((Dozeversion.dwPlatformId == VER_PLATFORM_WIN32_NT) &&
-			(Dozeversion.dwMajorVersion > 5))
+			(Dozeversion.dwMajorVersion >= 5))
 		{
 			return (TRUE);
 		}

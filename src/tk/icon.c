@@ -370,7 +370,8 @@ int PixelPtrToLong(IconPtr p, int bypp)
 static int objcmd_icon(ClientData dummy, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[])
 {
 	static cptr cmdOption[] = {"size", NULL};
-	enum {IDX_SIZE} option;
+	enum {IDX_SIZE};
+	int option;
 	Tcl_Obj *resultPtr = Tcl_GetObjResult(interp);
 
 	/* Hack - ignore parameter */
@@ -385,7 +386,7 @@ static int objcmd_icon(ClientData dummy, Tcl_Interp *interp, int objc, Tcl_Obj *
 
 	/* Get requested option */
     if (Tcl_GetIndexFromObj(interp, objv[1], cmdOption, "option", 0, 
-		(int *) &option) != TCL_OK)
+		&option) != TCL_OK)
 	{
 		return TCL_ERROR;
     }

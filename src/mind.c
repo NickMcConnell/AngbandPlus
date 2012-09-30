@@ -473,7 +473,7 @@ void do_cmd_mindcraft(void)
 		msgf("You do not have enough mana to use this power.");
 
 		/* Verify */
-		if (!get_check("Attempt it anyway? ")) return;
+		if (get_check("Stop now? ")) return;
 	}
 
 	/* Spell failure chance */
@@ -559,7 +559,7 @@ void do_cmd_mindcraft(void)
 	}
 
 	/* Take a turn */
-	p_ptr->energy_use = 100;
+	p_ptr->state.energy_use = 100;
 
 	/* Sufficient mana */
 	if (spell.mana_cost <= old_csp)

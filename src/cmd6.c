@@ -62,7 +62,7 @@ static void do_cmd_eat_food_aux(object_type *o_ptr)
 	sound(SOUND_EAT);
 
 	/* Take a turn */
-	p_ptr->energy_use = 100;
+	p_ptr->state.energy_use = 100;
 
 	/* Identity not known yet */
 	ident = FALSE;
@@ -106,7 +106,7 @@ static void do_cmd_eat_food_aux(object_type *o_ptr)
 		if (p_ptr->food < PY_FOOD_ALERT)	/* Hungry */
 			msgf("Your hunger can only be satisfied with fresh blood!");
 	}
-	else if (p_ptr->flags4 & (TR4_CANT_EAT))
+	else if (FLAG(p_ptr, TR_CANT_EAT))
 	{
 		if (p_ptr->rp.prace == RACE_SKELETON)
 		{
@@ -190,7 +190,7 @@ static void do_cmd_quaff_potion_aux(object_type *o_ptr)
 	sound(SOUND_QUAFF);
 
 	/* Take a turn */
-	p_ptr->energy_use = 100;
+	p_ptr->state.energy_use = 100;
 
 	/* Not identified yet */
 	ident = FALSE;
@@ -201,7 +201,7 @@ static void do_cmd_quaff_potion_aux(object_type *o_ptr)
 	if (p_ptr->rp.prace == RACE_SKELETON)
 	{
 		msgf("Some of the fluid falls through your jaws!");
-		(void)potion_smash_effect(0, p_ptr->px, p_ptr->py, o_ptr->k_idx);
+		(void)potion_smash_effect(0, p_ptr->px, p_ptr->py, o_ptr);
 	}
 
 	/* Combine / Reorder the pack (later) */
@@ -289,7 +289,7 @@ static void do_cmd_read_scroll_aux(object_type *o_ptr)
 	bool ident, used_up;
 
 	/* Take a turn */
-	p_ptr->energy_use = 100;
+	p_ptr->state.energy_use = 100;
 
 	/* Not identified yet */
 	ident = FALSE;
@@ -399,7 +399,7 @@ static void do_cmd_use_staff_aux(object_type *o_ptr)
 	}
 
 	/* Take a turn */
-	p_ptr->energy_use = 100;
+	p_ptr->state.energy_use = 100;
 
 	/* Not identified yet */
 	ident = FALSE;
@@ -408,7 +408,7 @@ static void do_cmd_use_staff_aux(object_type *o_ptr)
 	lev = get_object_level(o_ptr);
 
 	/* Base chance of success */
-	chance = p_ptr->skill.dev;
+	chance = p_ptr->skills[SKILL_DEV];
 
 	/* Confusion hurts skill */
 	if (p_ptr->tim.confused) chance = chance / 2;
@@ -569,7 +569,9 @@ void do_cmd_use_staff(void)
  */
 static void do_cmd_aim_wand_aux(object_type *o_ptr)
 {
-	bool ident, use_charge;
+	bool use_charge;
+	int chance, dir, lev;
+	bool ident = TRUE, result = TRUE;
 
 	/* Mega-Hack -- refuse to use a pile from the ground */
 	if (floor_item(o_ptr) && (o_ptr->number > 1))
@@ -594,11 +596,46 @@ static void do_cmd_aim_wand_aux(object_type *o_ptr)
 		return;
 	}
 
+	/* Allow direction to be cancelled for free */
+	if (!get_aim_dir(&dir)) return;
+
+	/* Take a turn */
+	p_ptr->state.energy_use = MIN(75, 200 - 5 * p_ptr->skills[SKILL_DEV] / 8);
+
+	/* Get the object level */
+	lev = k_info[o_ptr->k_idx].level;
+
+	/* Base chance of success */
+	chance = p_ptr->skills[SKILL_DEV];
+
+	/* Confusion hurts skill */
+	if (p_ptr->tim.confused) chance /= 2;
+
+	/* Hight level objects are harder */
+	chance = chance - lev / 2;
+
+	/* Give everyone a (slight) chance */
+	if ((chance < USE_DEVICE) && one_in_(USE_DEVICE - chance + 1))
+	{
+		chance = USE_DEVICE;
+	}
+
+	/* Roll for usage */
+	if ((chance < USE_DEVICE) || (randint1(chance) < USE_DEVICE))
+	{
+		if (flush_failure) flush();
+		msgf("You failed to use the wand properly.");
+		sound(SOUND_FAIL);
+		return;
+	}
+
 	/* Sound */
 	sound(SOUND_ZAP);
 
 	/* Aim the wand */
-	use_charge = use_object(o_ptr, &ident);
+	apply_object_trigger(TRIGGER_USE, o_ptr, "i:bb", 
+		LUA_VAR(dir), LUA_RETURN(result), LUA_RETURN(ident));
+	use_charge = result;
 	
 	/* Hack - wands may destroy themselves if activated on the ground */
 	if (o_ptr->k_idx)
@@ -674,6 +711,7 @@ static void do_cmd_zap_rod_aux(object_type *o_ptr)
 
 	/* Hack -- let perception get aborted */
 	bool use_charge = TRUE;
+	bool result = TRUE;
 
 	object_kind *k_ptr = &k_info[o_ptr->k_idx];
 
@@ -709,7 +747,7 @@ static void do_cmd_zap_rod_aux(object_type *o_ptr)
 	}
 
 	/* Take a turn */
-	p_ptr->energy_use = MIN(75, 200 - 5 * p_ptr->skill.dev / 8);
+	p_ptr->state.energy_use = MIN(75, 200 - 5 * p_ptr->skills[SKILL_DEV] / 8);
 
 	/* Not identified yet */
 	ident = FALSE;
@@ -718,7 +756,7 @@ static void do_cmd_zap_rod_aux(object_type *o_ptr)
 	lev = get_object_level(o_ptr);
 
 	/* Base chance of success */
-	chance = p_ptr->skill.dev;
+	chance = p_ptr->skills[SKILL_DEV];
 
 	/* Confusion hurts skill */
 	if (p_ptr->tim.confused) chance = chance / 2;
@@ -747,205 +785,10 @@ static void do_cmd_zap_rod_aux(object_type *o_ptr)
 	/* Increase the timeout by the rod kind's pval. -LM- */
 	o_ptr->timeout += k_ptr->pval;
 
-	/* Analyze the rod */
-	switch (o_ptr->sval)
-	{
-		case SV_ROD_DETECT_TRAP:
-		{
-			if (detect_traps()) ident = TRUE;
-			break;
-		}
-
-		case SV_ROD_DETECT_DOOR:
-		{
-			if (detect_doors()) ident = TRUE;
-			if (detect_stairs()) ident = TRUE;
-			break;
-		}
-
-		case SV_ROD_IDENTIFY:
-		{
-			ident = TRUE;
-			if (!ident_spell()) use_charge = FALSE;
-			break;
-		}
-
-		case SV_ROD_RECALL:
-		{
-			word_of_recall();
-			ident = TRUE;
-			break;
-		}
-
-		case SV_ROD_ILLUMINATION:
-		{
-			if (lite_area(damroll(4, 8), 2)) ident = TRUE;
-			break;
-		}
-
-		case SV_ROD_MAPPING:
-		{
-			map_area();
-			ident = TRUE;
-			break;
-		}
-
-		case SV_ROD_DETECTION:
-		{
-			ident = detect_all();
-			break;
-		}
-
-		case SV_ROD_PROBING:
-		{
-			ident = probing();
-			break;
-		}
-
-		case SV_ROD_CURING:
-		{
-			if (hp_player(200)) ident = TRUE;
-			if (clear_blind()) ident = TRUE;
-			if (clear_poisoned()) ident = TRUE;
-			if (clear_confused()) ident = TRUE;
-			if (clear_stun()) ident = TRUE;
-			if (clear_cut()) ident = TRUE;
-			if (clear_image()) ident = TRUE;
-			break;
-		}
-
-		case SV_ROD_HEALING:
-		{
-			if (hp_player(500)) ident = TRUE;
-			if (clear_stun()) ident = TRUE;
-			if (clear_cut()) ident = TRUE;
-			break;
-		}
-
-		case SV_ROD_RESTORATION:
-		{
-			if (restore_level()) ident = TRUE;
-			if (do_res_stat(A_STR)) ident = TRUE;
-			if (do_res_stat(A_INT)) ident = TRUE;
-			if (do_res_stat(A_WIS)) ident = TRUE;
-			if (do_res_stat(A_DEX)) ident = TRUE;
-			if (do_res_stat(A_CON)) ident = TRUE;
-			if (do_res_stat(A_CHR)) ident = TRUE;
-			break;
-		}
-
-		case SV_ROD_SPEED:
-		{
-			if (inc_fast(rand_range(15, 45))) ident = TRUE;
-			break;
-		}
-
-		case SV_ROD_PESTICIDE:
-		{
-			ident = fire_ball(GF_POIS, dir, 8, 3);
-			break;
-		}
-
-		case SV_ROD_TELEPORT_AWAY:
-		{
-			if (teleport_monster(dir)) ident = TRUE;
-			break;
-		}
-
-		case SV_ROD_DISARMING:
-		{
-			if (disarm_trap(dir)) ident = TRUE;
-			break;
-		}
-
-		case SV_ROD_LITE:
-		{
-			msgf("A line of blue shimmering light appears.");
-			(void)lite_line(dir);
-			ident = TRUE;
-			break;
-		}
-
-		case SV_ROD_SLEEP_MONSTER:
-		{
-			if (sleep_monster(dir)) ident = TRUE;
-			break;
-		}
-
-		case SV_ROD_SLOW_MONSTER:
-		{
-			if (slow_monster(dir)) ident = TRUE;
-			break;
-		}
-
-		case SV_ROD_DRAIN_LIFE:
-		{
-			if (drain_life(dir, 150)) ident = TRUE;
-			break;
-		}
-
-		case SV_ROD_POLYMORPH:
-		{
-			if (poly_monster(dir)) ident = TRUE;
-			break;
-		}
-
-		case SV_ROD_ACID_BOLT:
-		{
-			ident = fire_bolt_or_beam(10, GF_ACID, dir, damroll(6, 8));
-			break;
-		}
-
-		case SV_ROD_ELEC_BOLT:
-		{
-			ident = fire_bolt_or_beam(10, GF_ELEC, dir, damroll(5, 8));
-			break;
-		}
-
-		case SV_ROD_FIRE_BOLT:
-		{
-			ident = fire_bolt_or_beam(10, GF_FIRE, dir, damroll(10, 8));
-			break;
-		}
-
-		case SV_ROD_COLD_BOLT:
-		{
-			ident = fire_bolt_or_beam(10, GF_COLD, dir, damroll(6, 8));
-			break;
-		}
-
-		case SV_ROD_ACID_BALL:
-		{
-			ident = fire_ball(GF_ACID, dir, 125, 2);
-			break;
-		}
-
-		case SV_ROD_ELEC_BALL:
-		{
-			ident = fire_ball(GF_ELEC, dir, 75, 2);
-			break;
-		}
-
-		case SV_ROD_FIRE_BALL:
-		{
-			ident = fire_ball(GF_FIRE, dir, 150, 2);
-			break;
-		}
-
-		case SV_ROD_COLD_BALL:
-		{
-			ident = fire_ball(GF_COLD, dir, 100, 2);
-			break;
-		}
-
-		case SV_ROD_HAVOC:
-		{
-			call_chaos();
-			ident = TRUE;
-			break;
-		}
-	}
-
+	/* Zap the rod */
+	apply_object_trigger(TRIGGER_USE, o_ptr, "i:bb", 
+		LUA_VAR(dir), LUA_RETURN(result), LUA_RETURN(ident));
+	use_charge = result;
 
 	/* Combine / Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
@@ -1017,7 +860,7 @@ static bool item_tester_hook_activate(const object_type *o_ptr)
 	if (!object_known_p(o_ptr)) return (FALSE);
 
 	/* Check activation flag */
-	if (o_ptr->flags3 & (TR3_ACTIVATE)) return (TRUE);
+	if (FLAG(o_ptr, TR_ACTIVATE)) return (TRUE);
 
 	/* Assume not */
 	return (FALSE);
@@ -1096,16 +939,16 @@ void ring_of_power(int dir)
  */
 static void do_cmd_activate_aux(object_type *o_ptr)
 {
-	int dir, lev, chance;
+	int lev, chance;
 
 	/* Take a turn */
-	p_ptr->energy_use = MIN(75, 200 - 5 * p_ptr->skill.dev / 8);
+	p_ptr->state.energy_use = MIN(75, 200 - 5 * p_ptr->skills[SKILL_DEV] / 8);
 
 	/* Extract the item level */
 	lev = get_object_level(o_ptr);
 
 	/* Base chance of success */
-	chance = p_ptr->skill.dev;
+	chance = p_ptr->skills[SKILL_DEV];
 
 	/* Confusion hurts skill */
 	if (p_ptr->tim.confused) chance /= 2;
@@ -1145,209 +988,15 @@ static void do_cmd_activate_aux(object_type *o_ptr)
 	/* Sound */
 	sound(SOUND_ZAP);
 
-	if (o_ptr->activate)
-	{
-		(void)activate_effect(o_ptr);
+	/* Activate the object */
+	apply_object_trigger(TRIGGER_USE, o_ptr, ""); 
 
-		/* Window stuff */
-		p_ptr->window |= (PW_INVEN | PW_EQUIP);
+	/* Window stuff */
+	p_ptr->window |= (PW_INVEN | PW_EQUIP);
 
-		make_noise(3);
+	make_noise(3);
 
-		/* Success */
-		return;
-	}
-
-	/* Hack -- Dragon Scale Mail can be activated as well */
-	if (o_ptr->tval == TV_DRAG_ARMOR)
-	{
-		/* Get a direction for breathing (or abort) */
-		if (!get_aim_dir(&dir)) return;
-
-		/* Branch on the sub-type */
-		switch (o_ptr->sval)
-		{
-			case SV_DRAGON_BLUE:
-			{
-				msgf("You breathe lightning.");
-				(void)fire_ball(GF_ELEC, dir, 330, 2);
-				o_ptr->timeout = (s16b)rand_range(50, 100);
-				break;
-			}
-
-			case SV_DRAGON_WHITE:
-			{
-				msgf("You breathe frost.");
-				(void)fire_ball(GF_COLD, dir, 370, 2);
-				o_ptr->timeout = (s16b)rand_range(50, 100);
-				break;
-			}
-
-			case SV_DRAGON_BLACK:
-			{
-				msgf("You breathe acid.");
-				(void)fire_ball(GF_ACID, dir, 430, 2);
-				o_ptr->timeout = (s16b)rand_range(50, 100);
-				break;
-			}
-
-			case SV_DRAGON_GREEN:
-			{
-				msgf("You breathe poison gas.");
-				(void)fire_ball(GF_POIS, dir, 500, 2);
-				o_ptr->timeout = (s16b)rand_range(50, 100);
-				break;
-			}
-
-			case SV_DRAGON_RED:
-			{
-				msgf("You breathe fire.");
-				(void)fire_ball(GF_FIRE, dir, 670, 2);
-				o_ptr->timeout = (s16b)rand_range(50, 100);
-				break;
-			}
-
-			case SV_DRAGON_MULTIHUED:
-			{
-				chance = randint0(5);
-				msgf("You breathe %s.",
-						   ((chance == 1) ? "lightning" :
-							((chance == 2) ? "frost" :
-							 ((chance == 3) ? "acid" :
-							  ((chance == 4) ? "poison gas" : "fire")))));
-				(void)fire_ball(((chance == 1) ? GF_ELEC :
-								 ((chance == 2) ? GF_COLD :
-								  ((chance == 3) ? GF_ACID :
-								   ((chance == 4) ? GF_POIS : GF_FIRE)))),
-								dir, 840, 2);
-				o_ptr->timeout = (s16b)rand_range(25, 50);
-				break;
-			}
-
-			case SV_DRAGON_BRONZE:
-			{
-				msgf("You breathe confusion.");
-				(void)fire_ball(GF_CONFUSION, dir, 400, 2);
-				o_ptr->timeout = (s16b)rand_range(50, 100);
-				break;
-			}
-
-			case SV_DRAGON_GOLD:
-			{
-				msgf("You breathe sound.");
-				(void)fire_ball(GF_SOUND, dir, 430, 2);
-				o_ptr->timeout = (s16b)rand_range(50, 100);
-				break;
-			}
-
-			case SV_DRAGON_CHAOS:
-			{
-				chance = randint0(2);
-				msgf("You breathe %s.",
-						   ((chance == 1 ? "chaos" : "disenchantment")));
-				(void)fire_ball((chance == 1 ? GF_CHAOS : GF_DISENCHANT),
-								dir, 740, 2);
-				o_ptr->timeout = (s16b)rand_range(30, 60);
-				break;
-			}
-
-			case SV_DRAGON_LAW:
-			{
-				chance = randint0(2);
-				msgf("You breathe %s.",
-						   ((chance == 1 ? "sound" : "shards")));
-				(void)fire_ball((chance == 1 ? GF_SOUND : GF_SHARDS),
-								dir, 750, 2);
-				o_ptr->timeout = (s16b)rand_range(30, 60);
-				break;
-			}
-
-			case SV_DRAGON_BALANCE:
-			{
-				chance = randint0(4);
-				msgf("You breathe %s.",
-						   ((chance == 1) ? "chaos" :
-							((chance == 2) ? "disenchantment" :
-							 ((chance == 3) ? "sound" : "shards"))));
-				(void)fire_ball(((chance == 1) ? GF_CHAOS :
-								 ((chance == 2) ? GF_DISENCHANT :
-								  ((chance == 3) ? GF_SOUND : GF_SHARDS))),
-								dir, 840, 2);
-				o_ptr->timeout = (s16b)rand_range(30, 60);
-				break;
-			}
-
-			case SV_DRAGON_SHINING:
-			{
-				chance = randint0(2);
-				msgf("You breathe %s.",
-						   ((chance == 0 ? "light" : "darkness")));
-				(void)fire_ball((chance == 0 ? GF_LITE : GF_DARK), dir, 670, 2);
-				o_ptr->timeout = (s16b)rand_range(30, 60);
-				break;
-			}
-
-			case SV_DRAGON_POWER:
-			{
-				msgf("You breathe the elements.");
-				(void)fire_ball(GF_MISSILE, dir, 1000, 3);
-				o_ptr->timeout = (s16b)rand_range(30, 60);
-				break;
-			}
-		}
-
-		/* Window stuff */
-		p_ptr->window |= (PW_INVEN | PW_EQUIP);
-
-		make_noise(4);
-
-		/* Success */
-		return;
-	}
-
-	else if (o_ptr->tval == TV_RING)
-	{
-		/* Get a direction for breathing (or abort) */
-		if (!get_aim_dir(&dir)) return;
-
-		switch (o_ptr->sval)
-		{
-			case SV_RING_ACID:
-			{
-				(void)fire_ball(GF_ACID, dir, 100, 2);
-				(void)inc_oppose_acid(rand_range(20, 40));
-				o_ptr->timeout = (s16b)rand_range(25, 50);
-				break;
-			}
-
-			case SV_RING_ICE:
-			{
-				(void)fire_ball(GF_COLD, dir, 100, 2);
-				(void)inc_oppose_cold(rand_range(20, 40));
-				o_ptr->timeout = (s16b)rand_range(25, 50);
-				break;
-			}
-
-			case SV_RING_FLAMES:
-			{
-				(void)fire_ball(GF_FIRE, dir, 100, 2);
-				(void)inc_oppose_fire(rand_range(20, 40));
-				o_ptr->timeout = (s16b)rand_range(25, 50);
-				break;
-			}
-		}
-
-		/* Window stuff */
-		p_ptr->window |= (PW_INVEN | PW_EQUIP);
-
-		make_noise(2);
-
-		/* Success */
-		return;
-	}
-
-	/* Mistake */
-	msgf("Oops.  That object cannot be activated.");
+	return;
 }
 
 

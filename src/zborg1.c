@@ -32,9 +32,9 @@
 
 /* Needs code:
  *    _QUESTITEM
- * TR3_NO_TELE
- * TR3_NO_MAGIC
- * TR3_TY_CURSE
+ * TR2_NO_TELE
+ * TR2_NO_MAGIC
+ * TR2_TY_CURSE
  */
 
 /* Things that would be nice for the borg to know but would
@@ -53,9 +53,6 @@
 /* Dynamic borg stuff */
 bool borg_scums_uniques;
 
-int *borg_has;
-
-
 borg_player *bp_ptr;
 
 /*
@@ -68,7 +65,7 @@ bool borg_cancel;	/* Being cancelled */
 
 bool borg_stop_king = TRUE;
 bool borg_dont_react = FALSE;
-int successful_target = 0;
+int successful_target = BORG_TARGET;
 
 /*
  * Various silly flags
@@ -167,6 +164,7 @@ bool my_oppose_cold;
 bool my_oppose_acid;
 bool my_oppose_pois;
 bool my_oppose_elec;
+s16b borg_wraith_form;
 s16b borg_goi;
 s16b borg_inviso;
 bool borg_esp;
@@ -236,27 +234,31 @@ s16b my_stat_add[6];	/* additions to stats  This will allow upgrading of */
 s16b home_stat_add[6];
 
 bool borg_wearing_cursed;
+bool borg_heavy_curse;
 
 int my_ammo_tval;	/* Ammo -- "tval" */
 s16b my_ammo_power;	/* Average power */
 s16b my_ammo_range;	/* Shooting range */
 
-s16b my_need_enchant_to_a;	/* Need some enchantment */
-s16b my_need_enchant_to_h;	/* Need some enchantment */
-s16b my_need_enchant_to_d;	/* Need some enchantment */
+bool my_need_enchant_to_a;	/* Need some enchantment */
+bool my_need_enchant_to_h;	/* Need some enchantment */
+bool my_need_enchant_to_d;	/* Need some enchantment */
 
 
 /*
  * Various "amounts" (for the player)
  */
 
-s16b amt_phase;
+s16b amt_food_scroll;
 s16b amt_food_hical;
 s16b amt_food_lowcal;
 
 s16b amt_slow_poison;
 s16b amt_cure_confusion;
 s16b amt_cure_blind;
+s16b amt_star_heal;
+s16b amt_life;
+s16b amt_rod_heal;
 
 s16b amt_book[8][4];	/* [realm][sval] */
 
@@ -264,14 +266,10 @@ s16b amt_add_stat[6];
 s16b amt_fix_stat[7];	/* #7 is to fix all stats */
 s16b amt_fix_exp;
 
-s16b amt_cool_staff;	/* holiness - power staff */
-
 s16b amt_enchant_to_a;
 s16b amt_enchant_to_d;
 s16b amt_enchant_to_h;
 s16b amt_brand_weapon;	/* apw brand bolts */
-s16b amt_enchant_weapon;
-s16b amt_enchant_armor;
 s16b amt_digger;
 
 
@@ -398,10 +396,31 @@ s16b borg_view_y[AUTO_VIEW_MAX];
  * Maintain a temporary set of grids
  */
 
+/* For any monster within MAX_RANGE */
 s16b borg_temp_n = 0;
-
 s16b borg_temp_x[AUTO_TEMP_MAX];
 s16b borg_temp_y[AUTO_TEMP_MAX];
+
+/* For the monsters immediately surrounding the borg */
+s16b borg_next_n = 0;
+s16b borg_next_x[AUTO_HIT_MAX];
+s16b borg_next_y[AUTO_HIT_MAX];
+
+/* For the monsters that can be hit by a bolt */
+s16b borg_bolt_n = 0;
+s16b borg_bolt_x[AUTO_TEMP_MAX];
+s16b borg_bolt_y[AUTO_TEMP_MAX];
+
+/* For the monsters that can be hit by a beam, basically any monster in LOS */
+s16b borg_beam_n = 0;
+s16b borg_beam_x[AUTO_TEMP_MAX];
+s16b borg_beam_y[AUTO_TEMP_MAX];
+
+/* For the monsters that can be hit by a ball with radius > 1 */
+s16b borg_ball_n = 0;
+s16b borg_ball_x[AUTO_TEMP_MAX];
+s16b borg_ball_y[AUTO_TEMP_MAX];
+
 
 /*
  * Maintain a circular queue of grids
@@ -580,8 +599,8 @@ void borg_note(cptr what)
 	/* Mega-Hack -- Check against the search string */
 	if (borg_match[0] && strstr(what, borg_match))
 	{
-		/* Clean cancel */
-		borg_cancel = TRUE;
+		/* Tell the user why you quit */
+		borg_oops("Search string was matched");
 	}
 
 	/* Scan windows */

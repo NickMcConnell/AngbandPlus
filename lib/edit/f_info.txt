@@ -1,4 +1,4 @@
-# CVS: Last edit by $Author: sfuerst $ on $Date: 2003/04/02 19:24:03 $
+# CVS: Last edit by $Author: sfuerst $ on $Date: 2003/09/24 19:40:26 $
 # File: f_info.txt
 
 
@@ -39,7 +39,7 @@
 
 # Version stamp (required)
 
-V:2.7.3
+V:2.7.4
 
 
 # 0x00 --> nothing
@@ -240,39 +240,39 @@ F:USE_TRANS | OBJECT | MARK
 
 N:65:Pattern startpoint
 G:*:w
-F:PERM | OBJECT | PATTERN | MARK
+F:ICKY | PERM | OBJECT | PATTERN | MARK
 
 N:66:section of the Pattern
 G:*:B
-F:PERM | OBJECT | PATTERN | MARK
+F:ICKY | PERM | OBJECT | PATTERN | MARK
 
 N:67:section of the Pattern
 G:*:b
-F:PERM | OBJECT | PATTERN | MARK
+F:ICKY | PERM | OBJECT | PATTERN | MARK
 
 N:68:section of the Pattern
 G:*:B
-F:PERM | OBJECT | PATTERN | MARK
+F:ICKY | PERM | OBJECT | PATTERN | MARK
 
 N:69:section of the Pattern
 G:*:b
-F:PERM | OBJECT | PATTERN | MARK
+F:ICKY | PERM | OBJECT | PATTERN | MARK
 
 N:70:section of the Pattern
 G:*:W
-F:PERM | OBJECT | PATTERN | MARK
+F:ICKY | PERM | OBJECT | PATTERN | MARK
 
 N:71:section of the Pattern (discharged)
 G:*:W
-F:PERM | OBJECT | PATTERN | MARK
+F:ICKY | PERM | OBJECT | PATTERN | MARK
 
 N:72:Pattern exit
 G:*:w
-F:PERM | OBJECT | PATTERN | MARK
+F:ICKY | PERM | OBJECT | PATTERN | MARK
 
 N:73:corrupted section of the Pattern
 G:*:D
-F:PERM | OBJECT | PATTERN | MARK
+F:ICKY | PERM | OBJECT | PATTERN | MARK
 
 # 0x53 --> terrain -- deep water
 

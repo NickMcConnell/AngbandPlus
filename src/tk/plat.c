@@ -19,7 +19,7 @@
 
 #ifdef PLATFORM_WIN
 
-#include <tkWinInt.h>
+/* #include <tkWinInt.h> */
 
 /* HPALETTE in windows headers */
 extern void *Palette_GetHPal(void);
@@ -166,10 +166,15 @@ void *Plat_PaletteInit(unsigned char *rgb)
 
 #include <X11/extensions/XShm.h>
 #include <X11/Xutil.h>
-#include <sys/ipc.h>
-#include <sys/shm.h>
 
-#include <tkIntPlatDecls.h>
+#ifdef HAVE_SYS_IPC_H
+#include <sys/ipc.h>
+#endif
+#ifdef HAVE_SYS_SHM_H
+#include <sys/shm.h>
+#endif
+
+/* #include <tkIntPlatDecls.h> */
 
 struct PlatBitmap
 {
@@ -202,6 +207,7 @@ void Bitmap_New(Tcl_Interp *interp, BitmapPtr bitmapPtr)
 
 	MAKE(platData, struct PlatBitmap);
 
+#ifdef HAVE_SHMGET
 	/* Verify shared-memory pixmaps are available */
 	{
 		int major, minor;
@@ -212,10 +218,12 @@ void Bitmap_New(Tcl_Interp *interp, BitmapPtr bitmapPtr)
 			Tcl_Panic("no shared pixmaps");
 		}
 	}
+#endif /* HAVE_SHMGET */
 
 	if (bitmapPtr->width < 1) bitmapPtr->width = 1;
 	if (bitmapPtr->height < 1) bitmapPtr->height = 1;
 
+#ifdef HAVE_SHMGET
 	/* Create shared-memory image. */
     platData->ximage = XShmCreateImage(display, visual, depth, ZPixmap, NULL,
 		&platData->shminfo, bitmapPtr->width, bitmapPtr->height);
@@ -282,6 +290,17 @@ void Bitmap_New(Tcl_Interp *interp, BitmapPtr bitmapPtr)
 		Tcl_Panic("XShmCreatePixmap() failed");
 	}
 
+#else /* HAVE_SHMGET */
+
+	platData->ximage = XCreateImage(display, visual, depth, ZPixmap, 0, NULL,
+		bitmapPtr->width, bitmapPtr->height, 32, 0);
+	platData->ximage->data = malloc(platData->ximage->bytes_per_line * platData->ximage->height);
+
+	bitmapPtr->pixmap = XCreatePixmap(display, root, bitmapPtr->width,
+		bitmapPtr->height, depth);
+
+#endif /* !HAVE_SHMGET */
+
 	/* Set pitch, pixelSize, and pixelPtr */
 	bitmapPtr->pitch = platData->ximage->bytes_per_line;
 	bitmapPtr->pixelSize = platData->ximage->bits_per_pixel / 8;
@@ -297,11 +316,16 @@ void Bitmap_Delete(BitmapPtr bitmapPtr)
 	struct PlatBitmap *platData = bitmapPtr->platData;
 	Display *display = platData->display;
 
+#ifdef HAVE_SHMGET
 	XShmDetach(display, &platData->shminfo);
 	XDestroyImage(platData->ximage);
 	XFreePixmap(display, bitmapPtr->pixmap);
 	shmdt(platData->shminfo.shmaddr);
 	shmctl(platData->shminfo.shmid, IPC_RMID, 0);
+#else
+	XDestroyImage(platData->ximage);
+	XFreePixmap(display, bitmapPtr->pixmap);
+#endif
 
 	FREE(platData);
 	bitmapPtr->platData = NULL;
@@ -352,9 +376,13 @@ int Plat_XColor2Pixel(XColor *xColorPtr)
 	return 0;
 }
 
+#ifdef HAVE_TKPSYNC
+extern void TkpSync (Display * display);
+#endif
+
 void Plat_SyncDisplay(Display *display)
 {
-#ifdef PLATFORM_X11
+#ifdef HAVE_TKPSYNC
 	TkpSync(display);
 #endif
 }

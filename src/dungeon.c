@@ -11,9 +11,9 @@
  */
 
 #include "angband.h"
+#include "script.h"
 
 #define TY_CURSE_CHANCE 100
-#define CHAINSWORD_NOISE 100
 
 
 /*
@@ -22,7 +22,7 @@
 static byte value_check_aux1(const object_type *o_ptr)
 {
 	/* Artifacts */
-	if (o_ptr->flags3 & TR3_INSTA_ART)
+	if (FLAG(o_ptr, TR_INSTA_ART))
 	{
 		/* Cursed / Worthless */
 		if (cursed_p(o_ptr) || !o_ptr->cost) return FEEL_TERRIBLE;
@@ -35,7 +35,7 @@ static byte value_check_aux1(const object_type *o_ptr)
 	if (ego_item_p(o_ptr))
 	{
 		/* Cursed / Worthless */
-		if (o_ptr->flags3 & TR3_CURSED || !o_ptr->cost)
+		if (FLAG(o_ptr, TR_CURSED) || !o_ptr->cost)
 		{
 			return FEEL_WORTHLESS;
 		}
@@ -84,7 +84,7 @@ static byte value_check_aux2(const object_type *o_ptr)
 	if (!o_ptr->cost) return FEEL_BROKEN;
 
 	/* Artifacts -- except cursed/broken ones */
-	if (o_ptr->flags3 & TR3_INSTA_ART) return FEEL_GOOD;
+	if (FLAG(o_ptr, TR_INSTA_ART)) return FEEL_GOOD;
 
 	/* Ego-Items -- except cursed/broken ones */
 	if (ego_item_p(o_ptr)) return FEEL_GOOD;
@@ -390,7 +390,7 @@ static void sense_inventory(void)
 	 * Scale difficulty depending on sensing ability 
 	 * This can be affected by objects.
 	 */
-	difficulty /= (p_ptr->skill.sns > 0 ? p_ptr->skill.sns : 1);
+	difficulty /= (p_ptr->skills[SKILL_SNS] > 0 ? p_ptr->skills[SKILL_SNS] : 1);
 
 	/* Rescale larger by a facter of 25 */
 	difficulty *= 25;
@@ -445,7 +445,7 @@ static void pattern_teleport(void)
 
 		/* Maximum level */
 		if (p_ptr->depth > 100)
-			max_level = max_dun_level();
+			max_level = dungeon()->max_level;
 		else if (p_ptr->depth == 100)
 			max_level = 100;
 
@@ -719,7 +719,7 @@ static void regen_monsters(void)
 			if (!frac) frac = 1;
 
 			/* Hack -- Some monsters regenerate quickly */
-			if (r_ptr->flags2 & RF2_REGENERATE) frac *= 2;
+			if (FLAG(r_ptr, RF_REGENERATE)) frac *= 2;
 
 			/* Hack -- Regenerate */
 			m_ptr->hp += frac;
@@ -939,7 +939,7 @@ static void process_world(void)
 			do_cmd_save_game(TRUE);
 	}
 
-	if (p_ptr->mon_fight)
+	if (p_ptr->state.mon_fight)
 	{
 		msgf("You hear noise.");
 	}
@@ -1014,10 +1014,10 @@ static void process_world(void)
 
 
 	/* (Vampires) Take damage from sunlight */
-	if (p_ptr->flags4 & (TR4_HURT_LITE))
+	if (FLAG(p_ptr, TR_HURT_LITE))
 	{
-		if (!p_ptr->depth && !(p_ptr->flags2 & (TR2_RES_LITE)) &&
-			!(p_ptr->flags4 & (TR4_IM_LITE)) &&
+		if (!p_ptr->depth && !(FLAG(p_ptr, TR_RES_LITE)) &&
+			!(FLAG(p_ptr, TR_IM_LITE)) &&
 			!p_ptr->tim.invuln &&
 			(!((turn / ((10L * TOWN_DAWN) / 2)) % 2)))
 		{
@@ -1035,28 +1035,22 @@ static void process_world(void)
 		if (o_ptr->tval &&
 			(o_ptr->sval >= SV_LITE_GALADRIEL) &&
 			(o_ptr->sval < SV_LITE_THRAIN) && 
-			!(p_ptr->flags2 & (TR2_RES_LITE)) &&
-			!(p_ptr->flags4 & (TR4_IM_LITE)))
+			!(FLAG(p_ptr, TR_RES_LITE)) &&
+			!(FLAG(p_ptr, TR_IM_LITE)))
 		{
-			char o_name[256];
 			char ouch[280];
 
-			/* Get an object description */
-			object_desc(o_name, o_ptr, FALSE, 0, 256);
-
-			msgf("The %s scorches your undead flesh!", o_name);
+			msgf("The %v scorches your undead flesh!", OBJECT_FMT(o_ptr, FALSE, 0));
 
 			cave_no_regen = TRUE;
 
-			/* Get an object description */
-			object_desc(o_name, o_ptr, TRUE, 0, 256);
-
-			strnfmt(ouch, 280, "wielding %s", o_name);
+			strnfmt(ouch, 280, "wielding %v", OBJECT_FMT(o_ptr, TRUE, 0));
+			
 			if (!p_ptr->tim.invuln) take_hit(1, ouch);
 		}
 	}
 
-	if ((c_ptr->feat == FEAT_SHAL_LAVA) && !(p_ptr->flags3 & (TR3_FEATHER)))
+	if ((c_ptr->feat == FEAT_SHAL_LAVA) && !(FLAG(p_ptr, TR_FEATHER)))
 	{
 		int damage = resist(p_ptr->lev, res_fire_lvl);
 
@@ -1075,7 +1069,7 @@ static void process_world(void)
 		cptr message;
 		cptr hit_from;
 
-		if (p_ptr->flags3 & (TR3_FEATHER))
+		if (FLAG(p_ptr, TR_FEATHER))
 		{
 			damage = damage / 5;
 
@@ -1098,7 +1092,7 @@ static void process_world(void)
 		}
 	}
 
-	if ((c_ptr->feat == FEAT_SHAL_ACID) && !(p_ptr->flags3 & (TR3_FEATHER)))
+	if ((c_ptr->feat == FEAT_SHAL_ACID) && !(FLAG(p_ptr, TR_FEATHER)))
 	{
 		int damage = resist(p_ptr->lev, res_acid_lvl);
 
@@ -1117,7 +1111,7 @@ static void process_world(void)
 		cptr message;
 		cptr hit_from;
 
-		if (p_ptr->flags3 & (TR3_FEATHER))
+		if (FLAG(p_ptr, TR_FEATHER))
 		{
 			damage = damage / 5;
 
@@ -1140,11 +1134,12 @@ static void process_world(void)
 		}
 	}
 
-	if ((c_ptr->feat == FEAT_SHAL_SWAMP) &&	!(p_ptr->flags3 & (TR3_FEATHER)))
+	if ((c_ptr->feat == FEAT_SHAL_SWAMP) &&	!(FLAG(p_ptr, TR_FEATHER)))
 	{
 		int damage = resist(p_ptr->lev, res_pois_lvl);
 
-		if (damage)
+		/* Hack - some resistance will save you */
+		if (damage > p_ptr->lev)
 		{
 			/* Take damage */
 			msgf("The plants poison you!");
@@ -1159,7 +1154,7 @@ static void process_world(void)
 		cptr message;
 		cptr hit_from;
 
-		if (p_ptr->flags3 & (TR3_FEATHER))
+		if (FLAG(p_ptr, TR_FEATHER))
 		{
 			damage = damage / 5;
 
@@ -1184,7 +1179,7 @@ static void process_world(void)
 
 	else if (((c_ptr->feat == FEAT_DEEP_WATER) ||
 			  (c_ptr->feat == FEAT_OCEAN_WATER)) &&
-			  !(p_ptr->flags3 & (TR3_FEATHER)))
+			  !(FLAG(p_ptr, TR_FEATHER)))
 	{
 		if (p_ptr->total_weight >
 			((adj_str_wgt[p_ptr->stat[A_STR].ind] * 100) / 2))
@@ -1207,13 +1202,13 @@ static void process_world(void)
 	{
 		if (!p_ptr->tim.invuln && !p_ptr->tim.wraith_form &&
 			((p_ptr->chp > (p_ptr->lev / 5)) || 
-			 !(p_ptr->flags4 & (TR4_PASS_WALL))))
+			 !(FLAG(p_ptr, TR_PASS_WALL))))
 		{
 			cptr dam_desc;
 
 			cave_no_regen = TRUE;
 
-			if (p_ptr->flags4 & (TR4_PASS_WALL))
+			if (FLAG(p_ptr, TR_PASS_WALL))
 			{
 				msgf("Your molecules feel disrupted!");
 				dam_desc = "density";
@@ -1231,7 +1226,7 @@ static void process_world(void)
 	/* 
 	 * Fields you are standing on may do something.
 	 */
-	field_hook(&c_ptr->fld_idx, FIELD_ACT_PLAYER_ON);
+	field_hook(c_ptr, FIELD_ACT_PLAYER_ON);
 
 	/* Nightmare mode activates the TY_CURSE at midnight */
 	if (ironman_nightmare)
@@ -1333,17 +1328,17 @@ static void process_world(void)
 			i *= 2;
 
 			/* Regeneration takes more food */
-			if (p_ptr->flags3 & (TR3_REGEN)) i += 30;
+			if (FLAG(p_ptr, TR_REGEN)) i += 30;
 
 			/* Some specific mutations increase food requirement */
 			if (p_ptr->muta3 & (MUT3_RESILIENT)) i += 20;
 			if (p_ptr->muta1 & (MUT1_EAT_ROCK)) i += 20;
 
 			/* Slow digestion takes less food */
-			if (p_ptr->flags3 & (TR3_SLOW_DIGEST)) i -= 10;
+			if (FLAG(p_ptr, TR_SLOW_DIGEST)) i -= 10;
 
 			/* Slow healing gives some benefit... */
-			if (p_ptr->flags4 & (TR4_SLOW_HEAL)) i -= 5;
+			if (FLAG(p_ptr, TR_SLOW_HEAL)) i -= 5;
 
 			/* Wasting disease - almost no digestion */
 			if (p_ptr->muta2 & MUT2_WASTING) i -= 50;
@@ -1418,12 +1413,12 @@ static void process_world(void)
 	else
 	{
 		/* Regeneration ability */
-		if (p_ptr->flags3 & (TR3_REGEN))
+		if (FLAG(p_ptr, TR_REGEN))
 		{
 			regen_amount = regen_amount * 2;
 		}
 	
-		if (p_ptr->flags4 & (TR4_SLOW_HEAL))
+		if (FLAG(p_ptr, TR_SLOW_HEAL))
 		{
 			regen_amount = regen_amount / 4;
 		}
@@ -1527,7 +1522,7 @@ static void process_world(void)
 	{
 		int adjust = adj_con_fix[p_ptr->stat[A_CON].ind] + 1;
 
-		if (p_ptr->flags4 & (TR4_SLOW_HEAL))
+		if (FLAG(p_ptr, TR_SLOW_HEAL))
 			adjust /= 2;
 
 		/* Hack -- Truly "mortal" wound */
@@ -1556,7 +1551,7 @@ static void process_world(void)
 	/*** Process Inventory ***/
 
 	/* Handle experience draining */
-	if (p_ptr->flags3 & (TR3_DRAIN_EXP))
+	if (FLAG(p_ptr, TR_DRAIN_EXP))
 	{
 		if ((randint0(100) < 10) && (p_ptr->exp > 0))
 		{
@@ -1567,7 +1562,7 @@ static void process_world(void)
 	}
 
 	/* Handle stat draining */
-	if (p_ptr->flags4 & (TR4_DRAIN_STATS))
+	if (FLAG(p_ptr, TR_DRAIN_STATS))
 	{
 		if (one_in_(250))
 		{
@@ -1581,18 +1576,6 @@ static void process_world(void)
 		}
 	}
 
-	/* Rarely, take damage from the Jewel of Judgement */
-	if (one_in_(999) && !(p_ptr->flags3 & (TR3_NO_MAGIC)))
-	{
-		if ((p_ptr->equipment[EQUIP_LITE].tval) && !p_ptr->tim.invuln &&
-			(p_ptr->equipment[EQUIP_LITE].sval == SV_LITE_THRAIN))
-		{
-			msgf("The Jewel of Judgement drains life from you!");
-			take_hit(MIN(p_ptr->lev, 50), "the Jewel of Judgement");
-		}
-	}
-
-
 	/* Process equipment */
 	for (i = 0; i < EQUIP_MAX; i++)
 	{
@@ -1602,8 +1585,11 @@ static void process_world(void)
 		/* Skip non-objects */
 		if (!o_ptr->k_idx) continue;
 
+		/* Apply extra scripts */
+		apply_object_trigger(TRIGGER_TIMED, o_ptr, "");
+
 		/* TY Curse */
-		if ((o_ptr->flags3 & TR3_TY_CURSE) && one_in_(TY_CURSE_CHANCE))
+		if ((FLAG(o_ptr, TR_TY_CURSE)) && one_in_(TY_CURSE_CHANCE))
 		{
 			int count = 0;
 
@@ -1611,31 +1597,21 @@ static void process_world(void)
 		}
 
 		/* Auto-curse */
-		if ((o_ptr->flags4 & TR4_AUTO_CURSE) && 
-				!(o_ptr->flags3 & TR3_CURSED) && one_in_(1000))
+		if ((FLAG(o_ptr, TR_AUTO_CURSE)) && 
+				!(FLAG(o_ptr, TR_CURSED)) && one_in_(1000))
 		{
-			msgf("There is a malignant black aura surrounding you...");;
-			o_ptr->flags3 |= TR3_CURSED;
+			msgf("There is a malignant black aura surrounding you...");
+			SET_FLAG(o_ptr, TR_CURSED);
 			o_ptr->feeling = FEEL_NONE;
-		}
-
-		/* Make a chainsword noise */
-		if ((o_ptr->activate == ART_CHAINSWORD + 128) &&
-			one_in_(CHAINSWORD_NOISE))
-		{
-			char noise[1024];
-			if (!get_rnd_line("chainswd.txt", 0, noise))
-				msgf(noise);
-			disturb(FALSE);
 		}
 
 		/*
 		 * Hack: Uncursed teleporting items (e.g. Trump Weapons)
 		 * can actually be useful!
 		 */
-		if ((o_ptr->flags3 & TR3_TELEPORT) && one_in_(100))
+		if ((FLAG(o_ptr, TR_TELEPORT)) && one_in_(100))
 		{
-			if (cursed_p(o_ptr) && !(p_ptr->flags3 & (TR3_NO_TELE)))
+			if (cursed_p(o_ptr) && !(FLAG(p_ptr, TR_NO_TELE)))
 			{
 				disturb(FALSE);
 
@@ -1666,7 +1642,7 @@ static void process_world(void)
 			if (o_ptr->tval == TV_LITE)
 			{
 				/* Artifact lights decrease timeout */
-				if (o_ptr->flags3 & TR3_INSTA_ART)
+				if (FLAG(o_ptr, TR_INSTA_ART))
 				{
 					/* Recharge */
 					o_ptr->timeout--;
@@ -1679,7 +1655,7 @@ static void process_world(void)
 						p_ptr->window |= (PW_EQUIP);
 					}
 				}
-				else if (!(o_ptr->flags3 & TR3_LITE))
+				else if (!(FLAG(o_ptr, TR_LITE)))
 				{
 					/* Normal lights that are not everburning */
 					o_ptr->timeout--;
@@ -1764,7 +1740,7 @@ static void process_world(void)
 		/* Exit if not in dungeon */
 		if (!(o_ptr->ix || o_ptr->iy)) continue;
 
-		field_hook(&area(o_ptr->ix, o_ptr->iy)->fld_idx,
+		field_hook(area(o_ptr->ix, o_ptr->iy),
 				   FIELD_ACT_OBJECT_ON, o_ptr);
 
 		if (!o_ptr->timeout) continue;
@@ -1827,16 +1803,19 @@ static void process_world(void)
 			}
 			else
 			{
+				dun_type *d_ptr = dungeon();
+				
 				msgf("You feel yourself yanked downwards!");
 
 				/* Not lower than bottom of dungeon */
-				p_ptr->depth = max_dun_level();
+				p_ptr->depth = d_ptr->recall_depth;
 				
-				/* Not further than we have already gone. */
-				if (p_ptr->depth > p_ptr->max_depth) p_ptr->depth = p_ptr->max_depth;
-
-				if (p_ptr->depth < 1) p_ptr->depth = 1;
-
+				/* Go down at least to the start of the dungeon */
+				if (p_ptr->depth < d_ptr->min_level)
+				{
+					p_ptr->depth = d_ptr->min_level;
+				}
+				
 				/* Nightmare mode makes recall more dangerous */
 				if (ironman_nightmare && one_in_(666))
 				{
@@ -1853,9 +1832,9 @@ static void process_world(void)
 						p_ptr->depth = MAX_DEPTH - 1;
 					}
 					
-					if (p_ptr->depth > max_dun_level())
+					if (p_ptr->depth > d_ptr->max_level)
 					{
-						p_ptr->depth = max_dun_level();
+						p_ptr->depth = d_ptr->max_level;
 					}
 				}
 			}
@@ -2261,7 +2240,7 @@ static void process_command(void)
 		case 'm':
 		{
 			/* Cast a spell */
-			if (p_ptr->flags3 & (TR3_NO_MAGIC))
+			if (FLAG(p_ptr, TR_NO_MAGIC))
 			{
 				cptr which_power = "magic";
 				if (p_ptr->rp.pclass == CLASS_MINDCRAFTER)
@@ -2272,7 +2251,7 @@ static void process_command(void)
 				msgf("An anti-magic shell disrupts your %s!",
 						   which_power);
 
-				p_ptr->energy_use = 0;
+				p_ptr->state.energy_use = 0;
 			}
 			else
 			{
@@ -2615,15 +2594,6 @@ static void process_command(void)
  */
 static void process_player(void)
 {
-	int i;
-
-	if (hack_mutation)
-	{
-		msgf("You feel different!");
-		(void)gain_mutation(0);
-		hack_mutation = FALSE;
-	}
-
 	/*** Check for interupts ***/
 
 	/* Complete resting */
@@ -2694,8 +2664,7 @@ static void process_player(void)
 
 		/* Refresh (optional) */
 		if (fresh_before) Term_fresh();
-
-
+		
 		/* Hack -- Pack Overflow */
 		if (get_list_length(p_ptr->inventory) > INVEN_PACK)
 		{
@@ -2731,16 +2700,16 @@ static void process_player(void)
 			/* Update */
 			handle_stuff();
 		}
-
+		
 		/* Assume free turn */
-		p_ptr->energy_use = 0;
+		p_ptr->state.energy_use = 0;
 
 
 		/* Paralyzed or Knocked Out */
 		if (p_ptr->tim.paralyzed || (p_ptr->tim.stun >= 100))
 		{
 			/* Take a turn */
-			p_ptr->energy_use = 100;
+			p_ptr->state.energy_use = 100;
 		}
 
 		/* Resting */
@@ -2757,7 +2726,7 @@ static void process_player(void)
 			}
 
 			/* Take a turn */
-			p_ptr->energy_use = 100;
+			p_ptr->state.energy_use = 100;
 		}
 
 		/* Running */
@@ -2806,94 +2775,16 @@ static void process_player(void)
 		/*** Clean up ***/
 
 		/* Significant */
-		if (p_ptr->energy_use)
+		if (p_ptr->state.energy_use)
 		{
 			/* Use some energy */
-			p_ptr->energy -= p_ptr->energy_use;
-
+			p_ptr->energy -= p_ptr->state.energy_use;
+			
+			/* Change stuff */
+			change_stuff();
 
 			/* Hack -- constant hallucination */
 			if (p_ptr->tim.image) p_ptr->redraw |= (PR_MAP);
-
-
-			/* Shimmer monsters if needed */
-			if (shimmer_monsters)
-			{
-				/* Clear the flag */
-				shimmer_monsters = FALSE;
-
-				/* Shimmer multi-hued monsters */
-				for (i = 1; i < m_max; i++)
-				{
-					monster_type *m_ptr;
-					monster_race *r_ptr;
-
-					/* Access monster */
-					m_ptr = &m_list[i];
-
-					/* Skip dead monsters */
-					if (!m_ptr->r_idx) continue;
-
-					/* Access the monster race */
-					r_ptr = &r_info[m_ptr->r_idx];
-
-					/* Skip non-multi-hued monsters */
-					if (!(r_ptr->flags1 & RF1_ATTR_MULTI)) continue;
-
-					/* Reset the flag */
-					shimmer_monsters = TRUE;
-
-					/* Redraw regardless */
-					lite_spot(m_ptr->fx, m_ptr->fy);
-				}
-			}
-
-
-			/* Handle monster detection */
-			if (repair_monsters)
-			{
-				/* Reset the flag */
-				repair_monsters = FALSE;
-
-				/* Rotate detection flags */
-				for (i = 1; i < m_max; i++)
-				{
-					monster_type *m_ptr;
-
-					/* Access monster */
-					m_ptr = &m_list[i];
-
-					/* Skip dead monsters */
-					if (!m_ptr->r_idx) continue;
-
-					/* Nice monsters get mean */
-					m_ptr->mflag &= ~(MFLAG_NICE);
-
-					/* Handle memorized monsters */
-					if (m_ptr->mflag & MFLAG_MARK)
-					{
-						/* Maintain detection */
-						if (m_ptr->mflag & MFLAG_SHOW)
-						{
-							/* Forget flag */
-							m_ptr->mflag &= ~(MFLAG_SHOW);
-
-							/* Still need repairs */
-							repair_monsters = TRUE;
-						}
-
-						/* Remove detection */
-						else
-						{
-							/* Forget flag */
-							m_ptr->mflag &= ~(MFLAG_MARK);
-
-							/* Update the monster */
-							update_mon(i, FALSE);
-						}
-					}
-				}
-			}
 		}
 
 
@@ -2904,7 +2795,7 @@ static void process_player(void)
 		if (p_ptr->state.leaving) break;
 
 		/* Used up energy for this turn */
-		if (p_ptr->energy_use) break;
+		if (p_ptr->state.energy_use) break;
 	}
 }
 
@@ -2975,7 +2866,7 @@ static void process_energy(void)
  * This function will not exit until the level is completed,
  * the user dies, or the game is terminated.
  */
-static void dungeon(void)
+static void evolve_dungeon(void)
 {
 	cave_type *c_ptr;
 
@@ -2997,9 +2888,8 @@ static void dungeon(void)
 	health_track(0);
 
 
-	/* Check visual effects */
-	shimmer_monsters = TRUE;
-	repair_monsters = TRUE;
+	/* Check visual effects.  Should this be here? */
+	p_ptr->change |= (PC_SHIMMER | PC_REPAIR);
 
 	/* Disturb */
 	disturb(TRUE);
@@ -3010,14 +2900,8 @@ static void dungeon(void)
 		p_ptr->max_lev = p_ptr->lev;
 	}
 
-	/* Track maximum dungeon level */
-	if (p_ptr->max_depth < p_ptr->depth)
-	{
-		p_ptr->max_depth = p_ptr->depth;
-	}
-
-	/* No stairs down from Quest */
-	if (is_quest_level(p_ptr->depth))
+	/* No stairs down from final quests */
+	if (is_special_level(p_ptr->depth))
 	{
 		p_ptr->state.create_down_stair = FALSE;
 	}
@@ -3278,8 +3162,6 @@ void play_game(bool new_game)
 {
 	int i;
 
-	hack_mutation = FALSE;
-
 	/* Hack -- Character is "icky" */
 	character_icky = TRUE;
 
@@ -3512,7 +3394,7 @@ void play_game(bool new_game)
 	while (TRUE)
 	{
 		/* Process the level */
-		dungeon();
+		evolve_dungeon();
 
 		/* Notice */
 		notice_stuff();

@@ -14,7 +14,6 @@
 #include "zborg7.h"
 #include "zborg8.h"
 
-#if 0
 
 /*
  * Determine if an item can "absorb" a second item
@@ -65,31 +64,35 @@ static bool borg_object_similar(list_item *l_ptr, list_item *q_ptr)
 		case TV_FOOD:
 		case TV_POTION:
 		case TV_SCROLL:
+		case TV_ROD:
 		{
-			/* Food and Potions and Scrolls */
+			/* Food and Potions and Scrolls and Rods */
 
 			/* Assume okay */
 			break;
 		}
 
 		case TV_STAFF:
-		case TV_WAND:
 		{
-			/* Staffs and Wands */
+			/* Staffs */
 
 			/* Require knowledge */
 			if (!borg_obj_known_p(l_ptr) ||
 				!borg_obj_known_p(q_ptr)) return (FALSE);
 
-			/* Fall through */
-		}
-
-		case TV_ROD:
-		{
-			/* Staffs and Wands and Rods */
-
 			/* Require identical charges */
 			if (l_ptr->pval != q_ptr->pval) return (FALSE);
+
+			/* Probably okay */
+			break;
+		}
+		case TV_WAND:
+		{
+			/* Wands */
+
+			/* Require equal knowledge */
+			if (borg_obj_known_p(l_ptr) !=
+				borg_obj_known_p(q_ptr)) return (FALSE);
 
 			/* Probably okay */
 			break;
@@ -115,11 +118,24 @@ static bool borg_object_similar(list_item *l_ptr, list_item *q_ptr)
 			return (FALSE);
 		}
 
-		case TV_RING:
-		case TV_AMULET:
 		case TV_LITE:
 		{
-			/* Rings, Amulets, Lites */
+			/* Lights */
+
+			/* Only Torches can stack */
+			if (k_info[l_ptr->k_idx].sval != SV_LITE_TORCH) return (FALSE);
+
+			/* Require identical charges */
+			if (l_ptr->timeout != q_ptr->timeout) return (FALSE);
+
+			/* Probably okay */
+			break;
+		}
+
+		case TV_RING:
+		case TV_AMULET:
+		{
+			/* Rings, Amulets */
 
 			/* Require full knowledge of both items */
 			if (!borg_obj_known_p(l_ptr) ||
@@ -142,16 +158,13 @@ static bool borg_object_similar(list_item *l_ptr, list_item *q_ptr)
 			/* Require identical "pval" code */
 			if (l_ptr->pval != q_ptr->pval) return (FALSE);
 
-			/* Hack -- "artifact" or "ego" items don't stack */
-			if (borg_obj_is_ego_art(l_ptr)) return (FALSE);
+			/* Hack --  items with hidden flags don't stack */
+			if (borg_obj_star_id_able(l_ptr)) return (FALSE);
 
 			/* Hack -- Never stack "powerful" items */
-			if (l_ptr->kn_flags1 || q_ptr->kn_flags1) return (FALSE);
-			if (l_ptr->kn_flags2 || q_ptr->kn_flags2) return (FALSE);
-			if (l_ptr->kn_flags3 || q_ptr->kn_flags3) return (FALSE);
-
-			/* Hack -- Never stack recharging items */
-			if (l_ptr->timeout || q_ptr->timeout) return (FALSE);
+			if (l_ptr->kn_flags[0] || q_ptr->kn_flags[0]) return (FALSE);
+			if (l_ptr->kn_flags[1] || q_ptr->kn_flags[1]) return (FALSE);
+			if (l_ptr->kn_flags[2] || q_ptr->kn_flags[2]) return (FALSE);
 
 			/* Require identical "values" */
 			if (l_ptr->ac != q_ptr->ac) return (FALSE);
@@ -185,8 +198,6 @@ static bool borg_object_similar(list_item *l_ptr, list_item *q_ptr)
 	/* They match, so they must be similar */
 	return (TRUE);
 }
-
-#endif /* 0 */
 
 
 /*
@@ -236,16 +247,16 @@ static void borg_think_shop_sell(int item, list_item *l_ptr)
 	borg_note_fmt("# Sending key 1");
 	borg_keypress('1');
 
-	/* Buy an item */
+	/* Sell an item */
 	borg_note_fmt("# Sending key s");
 	borg_keypress('s');
 
-	/* Buy the desired item */
+	/* Sell the desired item */
 	borg_note_fmt("# Sending key %c", I2A(item));
 	borg_keypress(I2A(item));
 
 	/* Mega-Hack -- Accept the price */
-	borg_keypress('y');
+	borg_keypress('n');
 	borg_keypress('\r');
 	borg_keypress('\r');
 	borg_keypress('\r');
@@ -266,8 +277,23 @@ static void borg_think_shop_buy(int item)
 {
 	list_item *l_ptr = &cur_list[item];
 
-	/* go to correct Page */
-	if (item / 12) borg_keypress(' ');
+	byte t_a;
+	char buf[2];
+
+	/* Keep it small */
+	buf[1] = '\0';
+
+	/* Grab the page number of the screen*/
+	if (0 == borg_what_text(26, 5, 1, &t_a, buf))
+	{
+		/* If you are on the wrong page of the shop */
+		if ((streq(buf, "1") && item >= (STORE_INVEN_MAX / 2)) ||
+			(streq(buf, "2") && item <  (STORE_INVEN_MAX / 2)))
+		{
+			/* Goto the other page */
+			borg_keypress(' ');
+		}
+	}
 
 	/* Log */
 	borg_note_fmt("# Buying %s (%i gold).", l_ptr->o_name, l_ptr->cost);
@@ -280,17 +306,14 @@ static void borg_think_shop_buy(int item)
 	borg_keypress('p');
 
 	/* Buy the desired item */
-	borg_keypress(I2A(item % 12));
+	borg_keypress(I2A(item % (STORE_INVEN_MAX / 2)));
 
 	/* Mega-Hack -- Accept the price */
-	borg_keypress('y');
+	borg_keypress('n');
 	borg_keypress('\r');
 	borg_keypress('\r');
 	borg_keypress('\r');
 	borg_keypress('\r');
-	
-	/* go to first Page */
-	if (item / 12) borg_keypress(' ');
 
 	/* Increment 'use' count */
 	borg_shops[shop_num].u_count++;
@@ -299,7 +322,6 @@ static void borg_think_shop_buy(int item)
 	goal_shop = -1;
 }
 
-#if 0
 
 /*
  * Test to see if the item can be merged with anything in the home.
@@ -360,15 +382,13 @@ static int borg_think_home_sell_aux2(void)
 		 * Do not dump stuff at home that is not fully id'd and should be
 		 * This is good with random artifacts.
 		 */
-		if (!borg_obj_known_full(l_ptr) && borg_obj_is_ego_art(l_ptr)) continue;
+		if (!borg_obj_known_full(l_ptr) && borg_obj_star_id_able(l_ptr)) continue;
 
 		/* Can we merge with other items in the home? */
 		q_ptr = borg_can_merge_home(l_ptr);
 
 		/* No item to merge with? */
 		if (!q_ptr) continue;
-
-		q_ptr->treat_as = TREAT_AS_MORE;
 
 		if (l_ptr->number == 1)
 		{
@@ -420,7 +440,7 @@ static int borg_think_home_sell_aux2(void)
 		 * Do not dump stuff at home that is not fully id'd and should be
 		 * This is good with random artifacts.
 		 */
-		if (!borg_obj_known_full(l_ptr) && borg_obj_is_ego_art(l_ptr)) continue;
+		if (!borg_obj_known_full(l_ptr) && borg_obj_star_id_able(l_ptr)) continue;
 
 		if (l_ptr->number == 1)
 		{
@@ -485,7 +505,6 @@ static bool borg_think_home_sell_aux(void)
 	return (FALSE);
 }
 
-#endif /* 0 */
 
 /*
  * Determine if an item can be sold in the given store
@@ -497,11 +516,10 @@ static bool borg_good_sell(list_item *l_ptr)
 	/* Never sell worthless items */
 	if (l_ptr->cost <= 0) return (FALSE);
 
-#if 0
-
 	/* Analyze the type */
 	switch (l_ptr->tval)
 	{
+		case TV_FOOD:
 		case TV_POTION:
 		case TV_SCROLL:
 		{
@@ -511,7 +529,6 @@ static bool borg_good_sell(list_item *l_ptr)
 			break;
 		}
 
-		case TV_FOOD:
 		case TV_ROD:
 		case TV_WAND:
 		case TV_STAFF:
@@ -553,13 +570,11 @@ static bool borg_good_sell(list_item *l_ptr)
 	}
 
 	/* Do not sell stuff that is not fully id'd and should be  */
-	if (!borg_obj_known_full(l_ptr) && borg_obj_is_ego_art(l_ptr))
+	if (!borg_obj_known_full(l_ptr) && borg_obj_star_id_able(l_ptr))
 	{
-		/* For now check all artifacts */
+		/* *identify* this item first */
 		return (FALSE);
 	}
-
-#endif /* 0 */
 
 	/* Assume we can */
 	return (TRUE);
@@ -601,12 +616,6 @@ static bool borg_think_shop_sell_aux(int shop)
 			{
 				p += 100;
 			}
-		}
-		else
-		{
-
-			/* Mega-hack, only sell un-identified stuff for now */
-			continue;
 		}
 
 		/* Restore the item */
@@ -659,9 +668,9 @@ static s32b borg_think_buy_slot(list_item *l_ptr, int slot, bool home)
 	s32b p;
 
 	/* Paranoia */
-	if ((q_ptr->kn_flags3 & TR3_CURSED) ||
-		(q_ptr->kn_flags3 & TR3_HEAVY_CURSE) ||
-		(q_ptr->kn_flags3 & TR3_PERMA_CURSE))
+	if (KN_FLAG(q_ptr, TR_CURSED) ||
+		KN_FLAG(q_ptr, TR_HEAVY_CURSE) ||
+		KN_FLAG(q_ptr, TR_PERMA_CURSE))
 	{
 		/* Hack, trying to wield into cursed slot - avoid this */
 		p = borg_power();
@@ -714,7 +723,7 @@ static bool borg_think_shop_buy_aux(int shop)
 	for (n = 0; n < cur_num; n++)
 	{
 		list_item *l_ptr = &cur_list[n];
-		
+
 		/* second check on empty */
 		if (!l_ptr->k_idx) continue;
 
@@ -722,8 +731,8 @@ static bool borg_think_shop_buy_aux(int shop)
 		if (!l_ptr->cost) continue;
 
 		/* Hack -- Require "sufficient" cash */
-		if (borg_gold < l_ptr->cost * 12 / 10) continue;
-		
+		if (borg_gold < l_ptr->cost) continue;
+
 		/* Obtain "slot" */
 		slot = borg_wield_slot(l_ptr);
 
@@ -733,9 +742,22 @@ static bool borg_think_shop_buy_aux(int shop)
 		 */
 		if (l_ptr->tval == TV_DIGGING) slot = -1;
 
+		/* skip it if it has not been decursed */
+		if (strstr(l_ptr->o_name, "{cursed") ||
+			KN_FLAG(l_ptr, TR_CURSED) ||
+			KN_FLAG(l_ptr, TR_HEAVY_CURSE)) continue;
+
 		/* Consider new equipment */
 		if (slot >= 0)
 		{
+			list_item *k_ptr = &equipment[slot];
+		
+			/* skip this object if the slot is occupied by a cursed item */
+			if (k_ptr ||
+				strstr(k_ptr->o_name, "{cursed") ||
+				KN_FLAG(k_ptr, TR_CURSED) ||
+				KN_FLAG(k_ptr, TR_HEAVY_CURSE)) continue;
+
 			/* Get power for doing swap */
 			p = borg_think_buy_slot(l_ptr, slot, FALSE);
 		}
@@ -880,7 +902,6 @@ static bool borg_think_home_buy_aux(void)
 	return (FALSE);
 }
 
-#if 0
 
 /*
  * Step 5 -- buy "interesting" things from a shop (to be used later)
@@ -925,6 +946,9 @@ static bool borg_think_shop_grab_aux(int shop)
 		/* Obtain the "cost" of the item */
 		c = l_ptr->cost;
 
+		/* Ignore too expensive items */
+		if (borg_gold < c) continue;
+
 		/* Penalize expensive items */
 		if (c > borg_gold / 10) s -= c;
 
@@ -963,7 +987,6 @@ static bool borg_think_shop_grab_aux(int shop)
 	return (FALSE);
 }
 
-#endif /* 0 */
 
 /*
  * Step 6 -- take "useless" things from the home (to be sold)
@@ -985,7 +1008,7 @@ static bool borg_think_home_grab_aux(void)
 		list_item *l_ptr = &borg_home[n];
 
 		/* Remove the item */
-		l_ptr->treat_as = TREAT_AS_SWAP;
+		l_ptr->treat_as = TREAT_AS_LESS;
 
 		/* Evaluate the home */
 		s = borg_power_home() + borg_power();
@@ -1119,7 +1142,7 @@ bool borg_think_store(void)
 	if (shop_num == home_shop)
 	{
 		/* Step 1 -- Sell items to the home */
-		/* if (borg_think_home_sell_aux()) return (TRUE); */
+		if (borg_think_home_sell_aux()) return (TRUE);
 
 		/* Step 4 -- Buy items from the home (for the player) */
 		if (borg_think_home_buy_aux()) return (TRUE);
@@ -1138,7 +1161,7 @@ bool borg_think_store(void)
 		if (borg_think_shop_buy_aux(shop_num)) return (TRUE);
 
 		/* Step 6 -- Buy items from the shops (for the home) */
-		/* if (borg_think_shop_grab_aux(shop_num)) return (TRUE); */
+		if (borg_think_shop_grab_aux(shop_num)) return (TRUE);
 
 		borg_note("# Nothing to do in the store.");
 	}
@@ -1384,7 +1407,7 @@ bool borg_think_dungeon(void)
 	}
 
 	/* Avoid the burning sun */
-	if ((borg_race == RACE_VAMPIRE) && !(bp_ptr->flags2 & TR2_RES_LITE) &&
+	if (FLAG(bp_ptr, TR_HURT_LITE) && !FLAG(bp_ptr, TR_RES_LITE) &&
 		!bp_ptr->depth &&
 		(bp_ptr->hour >= 5) && (bp_ptr->hour <= 18))
 	{
@@ -1403,15 +1426,19 @@ bool borg_think_dungeon(void)
 	for (j = 0, i = 1; i < borg_kills_nxt; i++)
 	{
 		borg_kill *kill = &borg_kills[i];
+		
+		monster_race *r_ptr;
 
 		/* Skip dead monsters */
 		if (!kill->r_idx) continue;
 
 		/* Skip sleeping monsters */
 		if (kill->m_flags & MONST_ASLEEP) continue;
+		
+		r_ptr = &r_info[kill->r_idx];
 
 		/* Count the monsters which are "breeders" */
-		if (r_info[kill->r_idx].flags2 & RF2_MULTIPLY) j++;
+		if (FLAG(r_ptr, RF_MULTIPLY)) j++;
 	}
 
 	/* hack -- close doors on breeder levles */
@@ -1489,7 +1516,7 @@ bool borg_think_dungeon(void)
 		if (borg_wear_stuff()) return (TRUE);
 
 		/* Can I recall out with a rod */
-		if (!goal_recalling && borg_zap_rod(SV_ROD_RECALL)) return (TRUE);
+		if (!goal_recalling && borg_recall()) return (TRUE);
 
 		/* Test for stairs */
 		if (map_loc(c_x, c_y)->feat == FEAT_LESS)
@@ -1556,6 +1583,9 @@ bool borg_think_dungeon(void)
 
 	/* Wear things that need to be worn */
 	if (borg_wear_stuff()) return (TRUE);
+
+	/* Take off things that have become useless */
+	if (borg_unwear_stuff()) return (TRUE);
 
 	/* Remove stuff that is useless or detrimental */
 	if (borg_remove_stuff()) return (TRUE);
@@ -1625,11 +1655,14 @@ bool borg_think_dungeon(void)
 	/* Use things */
 	if (borg_use_things()) return (TRUE);
 
+	/* Pseudo identify unknown things */
+	if (borg_test_stuff_pseudo()) return (TRUE);
+
 	/* Identify unknown things */
-	if (borg_test_stuff(FALSE)) return (TRUE);
+	if (borg_test_stuff()) return (TRUE);
 
 	/* *Id* unknown things */
-	if (borg_test_stuff(TRUE)) return (TRUE);
+	if (borg_test_stuff_star()) return (TRUE);
 
 	/* Enchant things */
 	if (borg_enchanting()) return (TRUE);
@@ -1819,7 +1852,7 @@ bool borg_think_dungeon(void)
 		borg_note("# Considering Phase (twitchy)");
 
 		/* Phase */
-		if (amt_phase && borg_caution_phase(15, 2) &&
+		if (bp_ptr->able.phase && borg_caution_phase(15, 2) &&
 			(borg_spell(REALM_SORCERY, 0, 1) ||
 			 borg_spell(REALM_TRUMP, 0, 0) ||
 			 borg_spell(REALM_ARCANE, 0, 4) ||
@@ -1902,7 +1935,9 @@ bool borg_think_dungeon(void)
 		borg_note("# Teleport (twitchy)");
 
 		/* Teleport */
-		if (borg_spell_fail(REALM_ARCANE, 2, 3, 45) ||
+		if (borg_activate_artifact(ART_COLANNON, FALSE) ||
+			borg_activate_artifact(ART_ANGUIREL, FALSE) ||
+			borg_spell_fail(REALM_ARCANE, 2, 3, 45) ||
 			borg_spell_fail(REALM_TRUMP, 0, 4, 45) ||
 			borg_spell_fail(REALM_CHAOS, 0, 7, 45) ||
 			borg_spell_fail(REALM_SORCERY, 0, 5, 45) ||

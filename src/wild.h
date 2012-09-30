@@ -3,8 +3,8 @@
 /* Purpose: Wilderness + Quest generation header file */
 
 /*
- * Copyright (c) 1989, 1999 James E. Wilson, Robert A. Koeneke,
- * Robert Ruehlmann
+ * Copyright (c) 1989, 2003 James E. Wilson, Robert A. Koeneke,
+ *                          Robert Ruehlmann, Steven Fuerst
  *
  * This software may be copied and distributed for educational, research, and
  * not for profit purposes provided that this copyright and statement are
@@ -92,10 +92,7 @@
 #define QUEST_STATUS_UNTAKEN		0
 #define QUEST_STATUS_TAKEN			1
 #define QUEST_STATUS_COMPLETED		2
-#define QUEST_STATUS_REWARDED		3
-#define QUEST_STATUS_FINISHED		4
-#define QUEST_STATUS_FAILED			5
-#define QUEST_STATUS_FAILED_DONE	6
+#define QUEST_STATUS_FINISHED		3
 
 /* Quest creation flags */
 #define Q_GEN_PICKY		0x01
@@ -105,7 +102,7 @@
 #define QUEST_FLAG_ACTIVE		0x01	/* Quest triggers have effect */
 #define QUEST_FLAG_TIME			0x02	/* Quest has timeout */
 #define QUEST_FLAG_ITEM			0x04	/* Player has art. quest item */
-#define QUEST_FLAG_CREATED		0x08	/* Quest is created */
+#define QUEST_FLAG_DUMMY		0x08
 #define QUEST_FLAG_KNOWN		0x10	/* Player knows about this quest */
 
 /* Helper defines for random quests */
@@ -163,18 +160,23 @@ struct quest_aux_type
 	cptr name;
 };
 
-
 /* wild1.c */
-extern void init_vanilla_town(void);
+extern wild_building_type wild_build[MAX_CITY_BUILD];
 extern bool init_places(int xx, int yy);
 extern void clear_temp_block(void);
 extern void set_temp_corner_val(u16b val);
 extern void set_temp_mid(u16b val);
 extern void frac_block(void);
 
+/* wild2.c */
+extern void draw_city(place_type *pl_ptr);
+extern void draw_dungeon(place_type *pl_ptr);
+extern void van_town_gen(place_type *pl_ptr);
+extern void init_vanilla_town(void);
+
 /* quest.c */
 extern void pick_wild_quest(int *xsize, int *ysize, byte *flags);
 extern bool quest_blank(int x, int y, int xsize, int ysize, int place_num,
 						byte flags);
 extern bool create_quest(int x, int y, int place_num);
-extern void draw_quest(u16b place_num);
+extern void draw_quest(place_type *pl_ptr);

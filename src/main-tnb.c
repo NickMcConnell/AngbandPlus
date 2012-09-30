@@ -331,6 +331,9 @@ int init_tnb(int argc, cptr *argv)
 	/* Activate hooks */
 	quit_aux = hook_quit;
 	core_aux = hook_quit;
+	
+	/* Hack - TclTk_Init doesn't fail gracefully, so check manually for X11 */
+	if (!XOpenDisplay("")) return (1);
 
 	/* Initialize Tcl and Tk. */
 	g_interp = TclTk_Init(argv);

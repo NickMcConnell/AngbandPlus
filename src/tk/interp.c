@@ -492,7 +492,7 @@ objcmd_player(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *CONS
 	static cptr cmdOptions[] = {"ability", "age", "armor_class",
 		"blows_per_round", "died_from",
 		"exp", "food", "gold", "height", "hitpoints",
-		"infravision", "level", "mana", "max_depth", "position",
+		"infravision", "level", "mana", "position",
 		"sex", "shots_per_round", "social_class",
 		"title", "to_dam", "to_hit", "weight",
 		"total_weight", "preserve", "base_name",
@@ -504,7 +504,7 @@ objcmd_player(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *CONS
 	enum {IDX_ABILITY, IDX_AGE, IDX_ARMOR_CLASS,
 		IDX_BLOWS_PER_ROUND, IDX_DIED_FROM,
 		IDX_EXP, IDX_FOOD, IDX_GOLD, IDX_HEIGHT, IDX_HITPOINTS,
-		IDX_INFRAVISION, IDX_LEVEL, IDX_MANA, IDX_MAX_DEPTH, IDX_POSITION,
+		IDX_INFRAVISION, IDX_LEVEL, IDX_MANA, IDX_POSITION,
 		IDX_SEX, IDX_SHOTS_PER_ROUND, IDX_SOCIAL_CLASS,
 		IDX_TITLE, IDX_TO_DAM, IDX_TO_HIT, IDX_WEIGHT,
 		IDX_TOTAL_WEIGHT, IDX_PRESERVE, IDX_BASE_NAME,
@@ -512,14 +512,14 @@ objcmd_player(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *CONS
 		IDX_COMMAND_REP, IDX_RUNNING, IDX_PRAYER_OR_SPELL, IDX_HEALTH_WHO,
 		IDX_MONSTER_RACE_IDX, IDX_LIFE_RATING,
 		IDX_PETS, IDX_REALM1, IDX_REALM2, IDX_PATRON
-		} option;
+		};
+	int option;
 	Tcl_Obj *resultPtr = Tcl_GetObjResult(interp);
 	int index;
 
 	object_type *o_ptr;
 	int i, tmp;
 	long expadv;
-	double pct;
 	cptr t;
 
 	static cptr abilityOptions[] = {"fighting", "bows_throw", "saving_throw",
@@ -546,7 +546,7 @@ objcmd_player(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *CONS
 
 	/* Get requested option */
     if (Tcl_GetIndexFromObj(interp, objV[1], cmdOptions, "option", 0, 
-		(int *) &option) != TCL_OK)
+		&option) != TCL_OK)
 	{
 		return TCL_ERROR;
     }
@@ -570,19 +570,19 @@ objcmd_player(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *CONS
 			/* Fighting Skill (with current weapon) */
 			o_ptr = &p_ptr->equipment[EQUIP_WIELD];
 			tmp = p_ptr->to_h + o_ptr->to_h;
-			ability[0].rating = p_ptr->skill.thn + (tmp * BTH_PLUS_ADJ);
+			ability[0].rating = p_ptr->skills[SKILL_THN] + (tmp * BTH_PLUS_ADJ);
 	
 			/* Shooting Skill (with current bow and normal missile) */
 			o_ptr = &p_ptr->equipment[EQUIP_BOW];
 			tmp = p_ptr->to_h + o_ptr->to_h;
-			ability[1].rating = p_ptr->skill.thb + (tmp * BTH_PLUS_ADJ);
+			ability[1].rating = p_ptr->skills[SKILL_THB] + (tmp * BTH_PLUS_ADJ);
 	
-			ability[2].rating = p_ptr->skill.sav;
-			ability[3].rating = p_ptr->skill.stl;
-			ability[4].rating = p_ptr->skill.fos;
-			ability[5].rating = p_ptr->skill.sns;
-			ability[6].rating = p_ptr->skill.dis;
-			ability[7].rating = p_ptr->skill.dev;
+			ability[2].rating = p_ptr->skills[SKILL_SAV];
+			ability[3].rating = p_ptr->skills[SKILL_STL];
+			ability[4].rating = p_ptr->skills[SKILL_FOS];
+			ability[5].rating = p_ptr->skills[SKILL_SNS];
+			ability[6].rating = p_ptr->skills[SKILL_DIS];
+			ability[7].rating = p_ptr->skills[SKILL_DEV];
 			 
 			Tcl_SetStringObj(resultPtr, format("%d %d",
 				ability[index].rating, ability[index].max), -1);
@@ -623,10 +623,8 @@ objcmd_player(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *CONS
 			break;
 
 		case IDX_FOOD: /* food */
-			tmp = MIN(p_ptr->food,PY_FOOD_MAX);
 			Tcl_SetStringObj(resultPtr,
-				format("%d %d %f", p_ptr->food, PY_FOOD_MAX,
-				(double) tmp / PY_FOOD_MAX), -1);
+				format("%d %d", p_ptr->food, PY_FOOD_MAX), -1);
 			break;
 
 		case IDX_GOLD: /* gold */
@@ -639,8 +637,7 @@ objcmd_player(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *CONS
 
 		case IDX_HITPOINTS: /* hitpoints */
 			Tcl_SetStringObj(resultPtr,
-				format("%d %d %f", p_ptr->chp, p_ptr->mhp,
-				(double) p_ptr->chp / p_ptr->mhp), -1);
+				format("%d %d", p_ptr->chp, p_ptr->mhp), -1);
 			break;
 
 		case IDX_INFRAVISION: /* infravision */
@@ -652,15 +649,9 @@ objcmd_player(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *CONS
 			break;
 
 		case IDX_MANA: /* mana */
-			if (p_ptr->msp) pct = (double) p_ptr->csp / p_ptr->msp;
-			else pct = 0;
 			Tcl_SetStringObj(resultPtr,
-				format("%d %d %f", p_ptr->csp, p_ptr->msp, pct), -1);
+				format("%d %d", p_ptr->csp, p_ptr->msp), -1);
 			break;
-
-	    case IDX_MAX_DEPTH: /* max_depth */
-			Tcl_SetIntObj(resultPtr, p_ptr->max_depth);
-			break; 
 
 		case IDX_POSITION: /* position */
 			Tcl_SetStringObj(resultPtr, format("%d %d", p_ptr->py, p_ptr->px),
@@ -1032,7 +1023,8 @@ objcmd_cave(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *CONST 
 	Tcl_Obj *CONST *objV = objv + infoCmd->depth;
 
 	static cptr cmdOptions[] = {"wild_name", NULL};
-	enum {IDX_WILD_NAME} option;
+	enum {IDX_WILD_NAME};
+	int option;
 	Tcl_Obj *resultPtr = Tcl_GetObjResult(interp);
 
     if (objC < 2)
@@ -1042,7 +1034,7 @@ objcmd_cave(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *CONST 
     }
 
     if (Tcl_GetIndexFromObj(interp, objV[1], cmdOptions, "option", 0, 
-		(int *) &option) != TCL_OK)
+		&option) != TCL_OK)
 	{
 		return TCL_ERROR;
     }
@@ -1106,7 +1098,8 @@ objcmd_floor(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *CONST
 
 	static cptr cmdOptions[] = {"find", "memory",
 		NULL};
-	enum {IDX_FIND, IDX_MEMORY} option;
+	enum {IDX_FIND, IDX_MEMORY};
+	int option;
 	Tcl_Obj *resultPtr = Tcl_GetObjResult(interp);
 	int index;
 
@@ -1133,7 +1126,7 @@ objcmd_floor(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *CONST
 	}
 
 	if (Tcl_GetIndexFromObj(interp, objV[1], cmdOptions, "option", 0, 
-		(int *) &option) != TCL_OK)
+		&option) != TCL_OK)
 	{
 		return TCL_ERROR;
 	}
@@ -1304,7 +1297,8 @@ objcmd_game(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *CONST 
 	Tcl_Obj *CONST *objV = objv + infoCmd->depth;
 
 	static cptr cmdOptions[] = {"abort", "tkdir" "version", NULL};
-	enum {IDX_ABORT, IDX_TKDIR, IDX_VERSION} option;
+	enum {IDX_ABORT, IDX_TKDIR, IDX_VERSION};
+	int option;
 	Tcl_Obj *resultPtr = Tcl_GetObjResult(interp);
 	int index;
 
@@ -1315,7 +1309,7 @@ objcmd_game(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *CONST 
 	}
 
 	if (Tcl_GetIndexFromObj(interp, objV[1], cmdOptions, "option", 0, 
-		(int *) &option) != TCL_OK)
+		&option) != TCL_OK)
 	{
 		return TCL_ERROR;
 	}
@@ -1467,9 +1461,8 @@ objcmd_inventory(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *C
 	static cptr cmdOptions[] = {
 		"total_weight", "weight_limit",
 		NULL};
-	enum {
-		IDX_TOTAL_WEIGHT, IDX_WEIGHT_LIMIT
-	} option;
+	enum {IDX_TOTAL_WEIGHT, IDX_WEIGHT_LIMIT};
+	int option;
 	Tcl_Obj *resultPtr = Tcl_GetObjResult(interp);
 
 	int i;
@@ -1481,7 +1474,7 @@ objcmd_inventory(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *C
     }
 
     if (Tcl_GetIndexFromObj(interp, objV[1], cmdOptions, "option", 0, 
-		(int *) &option) != TCL_OK)
+		&option) != TCL_OK)
 	{
 		return TCL_ERROR;
     }
@@ -1566,7 +1559,8 @@ objcmd_message(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *CON
 	Tcl_Obj *CONST *objV = objv + infoCmd->depth;
 
 	static cptr cmdOption[] = {"color", "count", "get", NULL};
-	enum {IDX_COLOR, IDX_COUNT, IDX_GET} option;
+	enum {IDX_COLOR, IDX_COUNT, IDX_GET};
+	int option;
 	Tcl_Obj *resultPtr = Tcl_GetObjResult(interp);
 
 	int i, k;
@@ -1579,7 +1573,7 @@ objcmd_message(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *CON
     }
 
     if (Tcl_GetIndexFromObj(interp, objV[1], cmdOption, "option", 0, 
-		(int *) &option) != TCL_OK)
+		&option) != TCL_OK)
 	{
 		return TCL_ERROR;
     }

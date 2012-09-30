@@ -1644,7 +1644,7 @@ static void play_sound( int sound_number, int sound_volume, bool async )
 								
 							theVolumeCommand.cmd = volumeCmd;
 							theVolumeCommand.param1 = 0;
-							theVolumeCommand.param2 = ((short)(sound_volume)<<4) | ((short)(sound_volume));;
+							theVolumeCommand.param2 = ((short)(sound_volume)<<4) | ((short)(sound_volume));
 							
 							/* Lets grab the first sound channel and play now */
 							/* I'm sure a better algorithm could be used here. */

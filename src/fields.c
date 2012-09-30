@@ -11,109 +11,55 @@
  */
 
 #include "angband.h"
-
-/*
- * Find the connection to the cave array for the field
- * fld_list[fld_idx].
- *
- * This is used so that an arbitrary field can found.
- * This routine is fairly fast if there are not too many fields
- * on a square at one time.  However - it should only be used
- * by routines in this file.
- */
-static s16b *field_find(s16b fld_idx)
-{
-	field_type *f_ptr;
-
-	/* pointer to a field index in a list. */
-	s16b *location;
-
-	/* Point to the field */
-	f_ptr = &fld_list[fld_idx];
-
-	/* Paranoia */
-	if (f_ptr->region != cur_region) quit("Trying to find unregioned field");
-
-	location = &(area(f_ptr->fx, f_ptr->fy)->fld_idx);
-
-	while (*location != fld_idx)
-	{
-		/* Paranoia: Is the list broken? */
-		if (!(*location)) return (location);
-
-		/* Get the next field in the chain */
-		location = &(fld_list[*location].next_f_idx);
-	}
-
-	/* Found a pointer to our field */
-	return (location);
-}
-
+#include "grid.h"
 
 /*
  * Excise a field from a stack
  */
 void excise_field_idx(int fld_idx)
 {
-	s16b this_f_idx, next_f_idx = 0;
-
-	s16b prev_f_idx = 0;
-
-	/* Dungeon */
-	cave_type *c_ptr;
-
 	/* Field */
-	field_type *j_ptr = &fld_list[fld_idx];
-
+	field_type *f_ptr = &fld_list[fld_idx];
+	
+	field_type *j_ptr = NULL;
+	field_type *q_ptr;
+	
 	int y = j_ptr->fy;
 	int x = j_ptr->fx;
 
-	/* Grid */
-	c_ptr = area(x, y);
-
-	/* Scan all fields in the grid */
-	for (this_f_idx = c_ptr->fld_idx; this_f_idx; this_f_idx = next_f_idx)
+	s16b *f_idx_ptr = &area(x, y)->fld_idx;
+	
+	/* Scan all fields in the list */
+	FLD_ITT_START (*f_idx_ptr, q_ptr)
 	{
-		field_type *f_ptr;
-
-		/* Acquire field */
-		f_ptr = &fld_list[this_f_idx];
-
-		/* Acquire next field */
-		next_f_idx = f_ptr->next_f_idx;
-
-		/* Done */
-		if (this_f_idx == fld_idx)
+		/* Hack - Done? */
+		if (q_ptr == f_ptr)
 		{
 			/* No previous */
-			if (prev_f_idx == 0)
+			if (!j_ptr)
 			{
 				/* Remove from list */
-				c_ptr->fld_idx = next_f_idx;
+				*f_idx_ptr = q_ptr->next_f_idx;
 			}
 
 			/* Real previous */
 			else
 			{
-				field_type *k_ptr;
-
-				/* Previous field */
-				k_ptr = &fld_list[prev_f_idx];
-
 				/* Remove from list */
-				k_ptr->next_f_idx = next_f_idx;
+				j_ptr->next_f_idx = q_ptr->next_f_idx;
 			}
 
 			/* Forget next pointer */
-			f_ptr->next_f_idx = 0;
+			q_ptr->next_f_idx = 0;
 
 			/* Done */
 			break;
 		}
 
-		/* Save prev_f_idx */
-		prev_f_idx = this_f_idx;
+		/* Save previous object */
+		j_ptr = q_ptr;
 	}
+	FLD_ITT_END;
 }
 
 
@@ -139,103 +85,82 @@ static void notice_field(field_type *f_ptr)
 
 
 /*
- * Delete a dungeon field
+ * Delete a field
  *
  * Handle "lists" of fields correctly.
  */
-void delete_field_idx(int fld_idx)
+void delete_field_ptr(field_type *f_ptr)
 {
-	/* Field */
-	field_type *j_ptr = &fld_list[fld_idx];
-
-	/* Dungeon floor */
-	int y, x;
-
-	/* Location */
-	y = j_ptr->fy;
-	x = j_ptr->fx;
-
-	/* Excise */
-	excise_field_idx(fld_idx);
-
-	/* Refuse "illegal" locations */
-	if (in_boundsp(x, y))
+	int x = f_ptr->fx;
+	int y = f_ptr->fy;
+	cave_type *c_ptr = area(x, y);
+	field_type *j_ptr;
+	field_type *q_ptr = NULL;
+	
+	/* Paranoia */
+	if (f_ptr->region != cur_region) quit("Trying to find unregioned field");
+	
+	/* Find field to delete */
+	FLD_ITT_START (c_ptr->fld_idx, j_ptr);
 	{
-		/* Note + Lite the spot */
-		note_spot(x, y);
+		/* Found it? */
+		if (j_ptr == f_ptr)
+		{
+			/* Delete it */
+			if (q_ptr)
+			{
+				q_ptr->next_f_idx = f_ptr->next_f_idx;
+			}
+			else
+			{
+				c_ptr->fld_idx = f_ptr->next_f_idx;
+			}
+			
+			/* Notice the change */
+			notice_field(f_ptr);
+
+			/* Wipe the field */
+			field_wipe(f_ptr);
+
+			/* Count fields */
+			fld_cnt--;
+			
+			return;
+		}
+	
+		/* Remember previous field */
+		q_ptr = j_ptr;
 	}
-
-	/* Wipe the field */
-	field_wipe(j_ptr);
-
-	/* Count fields */
-	fld_cnt--;
+	FLD_ITT_END;
+	
+	/* We shouldn't get here! */
+	quit("Cannot field to delete!");
+	return;
 }
 
 
 /*
- * Delete a dungeon field
+ * Deletes all fields at given location
  *
- * Handle "lists" of fields correctly.
- *
- * Given a pointer to a s16b that points to this fld_idx.
+ * Note it does not display the changes on screen
  */
-void delete_field_ptr(s16b *fld_idx)
+void delete_field_location(cave_type *c_ptr)
 {
-	/* Field */
-	field_type *f_ptr = &fld_list[*fld_idx];
-
-	/* Dungeon floor */
-	int y, x;
-
-	/* Location */
-	y = f_ptr->fy;
-	x = f_ptr->fx;
-
-	/* Remove from list */
-	*fld_idx = f_ptr->next_f_idx;
-
-	/* Refuse "illegal" locations */
-	if (in_boundsp(x, y))
-	{
-		/* Note + Lite the spot */
-		note_spot(x, y);
-	}
-
-	/* Wipe the field */
-	field_wipe(f_ptr);
-
-	/* Count fields */
-	fld_cnt--;
-}
-
-/*
- * Deletes the list of fields attached to something.
- */
-void delete_field_aux(s16b *fld_idx_ptr)
-{
-	s16b this_f_idx, next_f_idx = 0;
-
+	field_type *f_ptr;
+	
 	/* Scan all fields in the grid */
-	for (this_f_idx = *fld_idx_ptr; this_f_idx; this_f_idx = next_f_idx)
+	FLD_ITT_START (c_ptr->fld_idx, f_ptr)
 	{
-		field_type *f_ptr;
-
-		/* Acquire field */
-		f_ptr = &fld_list[this_f_idx];
-
-		/* Acquire next field */
-		next_f_idx = f_ptr->next_f_idx;
-
 		/* Wipe the field */
 		field_wipe(f_ptr);
 
 		/* Count fields */
 		fld_cnt--;
 	}
+	FLD_ITT_END;
 
 	/* Nothing left */
-	*fld_idx_ptr = 0;
+	c_ptr->fld_idx = 0;
 }
 
 
@@ -252,22 +177,13 @@ void delete_field(int x, int y)
 	/* Grid */
 	c_ptr = area(x, y);
 
-	delete_field_aux(&(c_ptr->fld_idx));
+	delete_field_location(c_ptr);
 
 	/* Paranoia */
 	if (!in_boundsp(x, y)) return;
 
 	/* Note + Lite the spot */
 	if (character_dungeon) note_spot(x, y);
-}
-
-
-/*
- * Deletes all fields at given location
- */
-void delete_field_location(cave_type *c_ptr)
-{
-	delete_field_aux(&c_ptr->fld_idx);
 }
 
 
@@ -357,9 +273,7 @@ void compact_fields(int size)
 	int cur_lev, cur_dis, chance;
 	s16b i;
 
-	s16b *fld_ptr;
 	field_thaum *t_ptr;
-
 
 	/* Compact */
 	if (size)
@@ -484,13 +398,11 @@ void compact_fields(int size)
 			/* Apply the saving throw */
 			if (randint0(100) < chance) continue;
 
-			fld_ptr = field_find(i);
-
 			/* Call completion routine */
-			if (field_hook_single(fld_ptr, FIELD_ACT_EXIT))
+			if (field_hook_single(f_ptr, FIELD_ACT_EXIT))
 			{
 				/* It didn't delete itself, so we do it now */
-				delete_field_ptr(fld_ptr);
+				delete_field_ptr(f_ptr);
 			}
 
 			/* Count it */
@@ -672,90 +584,78 @@ void field_copy(field_type *f_ptr, field_type *j_ptr)
  * f_ptr is the field to add.
  * *fld_idx2 is a pointer to the head of the list of fields.
  */
-s16b field_add(field_type *f_ptr, s16b *fld_idx2)
+s16b field_add(field_type *f_ptr, cave_type *c_ptr)
 {
-	s16b fld_idx = 0;
 	s16b new_idx;
-	field_type *j_ptr = &fld_list[*fld_idx2];
-
-	bool merge = FALSE;
-
-	s32b counter;
-
-	/* Add to a list of fields */
-	while ((*fld_idx2) && (j_ptr->priority > f_ptr->priority))
+	
+	field_type *j_ptr;
+	field_type *q_ptr = NULL;
+	
+	FLD_ITT_START (c_ptr->fld_idx, j_ptr)
 	{
 		/* Look for fields that can be merged */
 		if ((f_ptr->info & FIELD_INFO_MERGE) && (f_ptr->t_idx == j_ptr->t_idx))
 		{
-			/* Set merging flag */
-			merge = TRUE;
-			break;
+			s32b counter;
+		
+			/* Merge the two together */
+			counter = j_ptr->counter + f_ptr->counter;
+
+			/* Bounds checking */
+			if (counter > MAX_SHORT) counter = MAX_SHORT;
+
+			/* Store in new counter */
+			j_ptr->counter = (s16b)counter;
+
+			/* Return index */
+			if (q_ptr)
+			{
+				return (q_ptr->next_f_idx);
+			}
+			else
+			{
+				return (c_ptr->fld_idx);
+			}
 		}
-
-		/* Save old field number */
-		fld_idx = *fld_idx2;
-
-		/* Get next field in the list */
-		fld_idx2 = &(j_ptr->next_f_idx);
-
-		/* Update the pointer */
-		j_ptr = &fld_list[*fld_idx2];
+		
+		/* Sort in priority order */
+		if (j_ptr->priority < f_ptr->priority) break;
+	
+		/* Save previous object */
+		q_ptr = j_ptr;
 	}
-
-	if (merge)
-	{
-		/* Merge the two together */
-		counter = j_ptr->counter + f_ptr->counter;
-
-		/* Bounds checking */
-		if (counter > MAX_SHORT) counter = MAX_SHORT;
-
-		/* Store in new counter */
-		j_ptr->counter = (s16b)counter;
-
-		return (*fld_idx2);
-	}
+	FLD_ITT_END;
 
 	/* Add the field to the list */
+
+	/*
+	 * fld_idx points to node before this one.
+	 * *fld_idx2 points to the node after this one.
+	 */
+
+	/* Get new node in list */
+	new_idx = f_pop();
+
+	if (!new_idx) return (0);
+
+	/* Move field to location */
+	field_copy(&fld_list[new_idx], f_ptr);
+
+	/* If a previous node exists */
+	if (q_ptr)
+	{
+		q_ptr->next_f_idx = new_idx;
+	}
 	else
 	{
-		/*
-		 * fld_idx points to node before this one.
-		 * *fld_idx2 points to the node after this one.
-		 */
-
-		/* The next node */
-		f_ptr->next_f_idx = *fld_idx2;
-
-		/* Get new node in list */
-		new_idx = f_pop();
-
-		if (!new_idx) return (0);
-
-		/* Move field to location */
-		field_copy(&fld_list[new_idx], f_ptr);
-
-		/* Make node before this one, point to this one. */
-		if (fld_idx)
-		{
-			/* If a previous node exists */
-			fld_list[fld_idx].next_f_idx = new_idx;
-		}
-		else
-		{
-			/* No old node - just link directly */
-			*fld_idx2 = new_idx;
-		}
-
-		/* Hack - save the location */
-		hack_fld_ptr = fld_idx2;
-
-		return (new_idx);
+		/* No old node - just link directly */
+		c_ptr->fld_idx = new_idx;
 	}
+
+	return (new_idx);
 }
 
-
+#ifdef UNUSED_FUNC
 /*
  * Sort a list of fields so that they are in priority order.
  *
@@ -766,7 +666,7 @@ s16b field_add(field_type *f_ptr, s16b *fld_idx2)
  * This routine is so slow - it should really never be used.
  * If at all possible - use a merge sort based on the above code.
  */
-void field_sort_priority(s16b *fld_idx_ptr)
+static void field_sort_priority(s16b *fld_idx_ptr)
 {
 	s16b *i_ptr, *j_ptr;
 
@@ -804,6 +704,7 @@ void field_sort_priority(s16b *fld_idx_ptr)
 		}
 	}
 }
+#endif /* UNUSED_FUNC */
 
 
 /*
@@ -864,33 +765,28 @@ void init_fields(void)
 		f_ptr->f_char = t_ptr->f_char;
 
 		/* Call loading routine */
-		(void)field_hook_single(field_find(fld_idx), FIELD_ACT_LOAD);
+		(void)field_hook_single(f_ptr, FIELD_ACT_LOAD);
 	}
 }
 
 /*
  * See if a field of a particular type is on a square.
- * (eg. call with (&c_ptr->fld_idx, FTYPE_TRAP) to get traps)
+ * (eg. call with (c_ptr, FTYPE_TRAP) to get traps)
  */
-s16b *field_is_type(s16b *fld_ptr, byte typ)
+field_type *field_is_type(const cave_type *c_ptr, byte typ)
 {
 	field_type *f_ptr;
 
 	/* While the field exists */
-	while (*fld_ptr)
+	FLD_ITT_START (c_ptr->fld_idx, f_ptr)
 	{
-		/* Get field */
-		f_ptr = &fld_list[*fld_ptr];
-
 		/* Is it the correct type? */
-		if (t_info[f_ptr->t_idx].type == typ) break;
-
-		/* If not, get next one. */
-		fld_ptr = &f_ptr->next_f_idx;
+		if (t_info[f_ptr->t_idx].type == typ) return (f_ptr);
 	}
-
-	/* Return result */
-	return (fld_ptr);
+	FLD_ITT_END;
+	
+	/* Nothing found */
+	return (NULL);
 }
 
 
@@ -898,27 +794,22 @@ s16b *field_is_type(s16b *fld_ptr, byte typ)
  * Return the first known field of the requested type
  * in the list.
  */
-s16b *field_first_known(s16b *fld_ptr, byte typ)
+field_type *field_first_known(const cave_type *c_ptr, byte typ)
 {
 	field_type *f_ptr;
 
 	/* While the field exists */
-	while (*fld_ptr)
+	FLD_ITT_START (c_ptr->fld_idx, f_ptr)
 	{
-		/* Get field */
-		f_ptr = &fld_list[*fld_ptr];
-
 		/* Is it known to be the correct type? */
 		if ((t_info[f_ptr->t_idx].type == typ) &&
 			((f_ptr->info & (FIELD_INFO_MARK | FIELD_INFO_VIS)) ==
-			 (FIELD_INFO_MARK | FIELD_INFO_VIS))) break;
-
-		/* If not, get next one. */
-		fld_ptr = &f_ptr->next_f_idx;
+			 (FIELD_INFO_MARK | FIELD_INFO_VIS))) return (f_ptr);
 	}
+	FLD_ITT_END;
 
-	/* Return Result */
-	return (fld_ptr);
+	/* Nothing found */
+	return (NULL);
 }
 
 
@@ -927,18 +818,15 @@ s16b *field_first_known(s16b *fld_ptr, byte typ)
  * Return TRUE if a field is "found" that was previously
  * unknown.
  */
-bool field_detect_type(s16b fld_idx, byte typ)
+bool field_detect_type(const cave_type *c_ptr, byte typ)
 {
 	field_type *f_ptr;
 
 	bool flag = FALSE;
 
-	/* While the field exists */
-	while (fld_idx)
+	/* Scan the list */
+	FLD_ITT_START (c_ptr->fld_idx, f_ptr)
 	{
-		/* Get field */
-		f_ptr = &fld_list[fld_idx];
-
 		/* Is it the correct type? */
 		if (t_info[f_ptr->t_idx].type == typ)
 		{
@@ -963,10 +851,8 @@ bool field_detect_type(s16b fld_idx, byte typ)
 			/* Note + Lite the spot */
 			note_spot(f_ptr->fx, f_ptr->fy);
 		}
-
-		/* If not, get next one. */
-		fld_idx = f_ptr->next_f_idx;
 	}
+	FLD_ITT_END;
 
 	/* Return whether we found something or not */
 	return (flag);
@@ -976,37 +862,26 @@ bool field_detect_type(s16b fld_idx, byte typ)
 /*
  * Destroy all fields of a given type in the list.
  */
-void field_destroy_type(s16b fld_idx, byte typ)
+void field_destroy_type(cave_type *c_ptr, byte typ)
 {
 	field_type *f_ptr;
-	s16b *fld_ptr;
 
 	/* While the field exists */
-	while (fld_idx)
+	FLD_ITT_START (c_ptr->fld_idx, f_ptr)
 	{
-		/* Get field */
-		f_ptr = &fld_list[fld_idx];
-
 		/* Is it the correct type? */
 		if (t_info[f_ptr->t_idx].type == typ)
 		{
-			fld_ptr = field_find(fld_idx);
-
 			/* Call completion routine */
-			if (field_hook_single(fld_ptr, FIELD_ACT_EXIT))
+			if (field_hook_single(f_ptr, FIELD_ACT_EXIT))
 			{
 				/* It didn't delete itself, so we do it now */
-				delete_field_ptr(fld_ptr);
+				delete_field_ptr(f_ptr);
 			}
 		}
-		else
-		{
-			/* If not, get next one. */
-			fld_idx = f_ptr->next_f_idx;
-		}
 	}
+	FLD_ITT_END;
 }
-
 
 
 /*
@@ -1014,24 +889,19 @@ void field_destroy_type(s16b fld_idx, byte typ)
  *
  * This is used to see of a grid blocks movement or magic
  */
-u16b fields_have_flags(s16b fld_idx, u16b info)
+u16b fields_have_flags(const cave_type *c_ptr, u16b info)
 {
 	field_type *f_ptr;
 
 	u16b flags = 0;
 
-	/* While the field exists */
-	while (fld_idx)
+	/* Scan the fields */
+	FLD_ITT_START (c_ptr->fld_idx, f_ptr)
 	{
-		/* Get field */
-		f_ptr = &fld_list[fld_idx];
-
 		/* Or the flags together */
 		flags |= f_ptr->info;
-
-		/* Get next field. */
-		fld_idx = f_ptr->next_f_idx;
 	}
+	FLD_ITT_END;
 
 	return (flags & info);
 }
@@ -1040,31 +910,36 @@ u16b fields_have_flags(s16b fld_idx, u16b info)
 /*
  * Place a field of a given type on a square
  */
-s16b place_field(int x, int y, s16b t_idx)
+field_type *place_field(int x, int y, s16b t_idx)
 {
 	field_type *f_ptr;
 
 	s16b fld_idx;
-
-	s16b *fld_ptr;
+	region_info *ri_ptr = &ri_list[cur_region];
 
 	field_type temp_field;
 	field_type *ft_ptr = &temp_field;
 
 	/* Paranoia */
-	if ((t_idx <= 0) || (t_idx >= z_info->t_max)) return (0);
+	if ((t_idx <= 0) || (t_idx >= z_info->t_max)) return (NULL);
+
+	/* Overlay regions are easy - just store the field type for later */
+	if (ri_ptr->flags & REGION_OVER)
+	{
+		cave_data[y][x].fld_idx = t_idx;
+	
+		/* Hack - we didn't actually place a real field */
+		return (NULL);
+	}
 
 	/* Make the field */
 	field_prep(ft_ptr, t_idx);
 
-	/* Get pointer to field list */
-	fld_ptr = &(area(x, y)->fld_idx);
-
 	/* Place it */
-	fld_idx = field_add(ft_ptr, fld_ptr);
+	fld_idx = field_add(ft_ptr, area(x, y));
 
 	/* Paranoia */
-	if (!fld_idx) return (0);
+	if (!fld_idx) return (NULL);
 
 	/* Get new field */
 	f_ptr = &fld_list[fld_idx];
@@ -1076,7 +951,7 @@ s16b place_field(int x, int y, s16b t_idx)
 	/* Region */
 	f_ptr->region = cur_region;
 
-	return (fld_idx);
+	return (f_ptr);
 }
 
 
@@ -1088,12 +963,11 @@ s16b place_field(int x, int y, s16b t_idx)
  *
  * It returns FALSE if the field deleted itself, TRUE otherwise.
  */
-bool field_hook_single(s16b *fld_ptr, int action, ...)
+bool field_hook_single(field_type *f_ptr, int action, ...)
 {
 	va_list vp;
 
 	/* Point to the field */
-	field_type *f_ptr = &fld_list[*fld_ptr];
 	field_thaum *t_ptr = &t_info[f_ptr->t_idx];
     
     /* Begin the Varargs Stuff */
@@ -1106,7 +980,7 @@ bool field_hook_single(s16b *fld_ptr, int action, ...)
 		if (t_ptr->action[action] (f_ptr, vp))
 		{
 			/* The field wants to be deleted */
-			delete_field_ptr(fld_ptr);
+			delete_field_ptr(f_ptr);
             
             /* End the Varargs Stuff */
 			va_end(vp);
@@ -1148,27 +1022,26 @@ bool field_hook_single(s16b *fld_ptr, int action, ...)
 
 /*
  * Call the specified action routine for each field
- * in the list specified by *field_ptr.
+ * in the list at the square c_ptr
  *
  * Note the code must take into account fields deleting
  * themselves.
  */
-void field_hook(s16b *field_ptr, int action, ...)
+void field_hook(cave_type *c_ptr, int action, ...)
 {
-	va_list vp;
-	
 	field_type *f_ptr;
 	field_thaum *t_ptr;
 
-	while (*field_ptr)
+	FLD_ITT_START (c_ptr->fld_idx, f_ptr);
 	{
 		/* Point to the field */
-		f_ptr = &fld_list[*field_ptr];
 		t_ptr = &t_info[f_ptr->t_idx];
 
 		/* Paranoia - Is there a function to call? */
 		if (t_ptr->action[action])
 		{
+			va_list vp;
+		
 			/* Begin the Varargs Stuff */
 			va_start(vp, action);
 		
@@ -1176,23 +1049,14 @@ void field_hook(s16b *field_ptr, int action, ...)
 			if (t_ptr->action[action] (f_ptr, vp))
 			{
 				/* The field wants to be deleted */
-				delete_field_ptr(field_ptr);
-			}
-			else
-			{
-				/* Get next field in the list */
-				field_ptr = &f_ptr->next_f_idx;
+				delete_field_ptr(f_ptr);
 			}
 			
 			/* End the Varargs Stuff */
 			va_end(vp);
 		}
-		else
-		{
-			/* Get next field in the list */
-			field_ptr = &f_ptr->next_f_idx;
-		}
 	}
+	FLD_ITT_END;
 }
 
 
@@ -1201,50 +1065,40 @@ void field_hook(s16b *field_ptr, int action, ...)
  * in the specified list which match the required
  * field type.
  */
-bool field_hook_special(s16b *field_ptr, u16b ftype, ...)
+bool field_hook_special(cave_type *c_ptr, u16b ftype, ...)
 {
-	va_list vp;
-
 	field_type *f_ptr;
 	field_thaum *t_ptr;
 
 	bool deleted = FALSE;
     
-    /* Begin the Varargs Stuff */
-	va_start(vp, ftype);
-
-	while (*field_ptr)
+	FLD_ITT_START (c_ptr->fld_idx, f_ptr)
 	{
 		/* Point to the field */
-		f_ptr = &fld_list[*field_ptr];
 		t_ptr = &t_info[f_ptr->t_idx];
 
 		/* Check for the right field + existance of a function to call */
 		if ((t_ptr->type == ftype) && (t_ptr->action[FIELD_ACT_SPECIAL]))
 		{
+			va_list vp;
+		
+			/* Begin the Varargs Stuff */
+			va_start(vp, ftype);
+		
 			/* Call the action function */
 			if (t_ptr->action[FIELD_ACT_SPECIAL] (f_ptr, vp))
 			{
 				/* The field wants to be deleted */
-				delete_field_ptr(field_ptr);
+				delete_field_ptr(f_ptr);
 
 				deleted = TRUE;
 			}
-			else
-			{
-				/* Get next field in the list */
-				field_ptr = &f_ptr->next_f_idx;
-			}
-		}
-		else
-		{
-			/* Get next field in the list */
-			field_ptr = &f_ptr->next_f_idx;
+			
+			/* End the Varargs Stuff */
+			va_end(vp);
 		}
 	}
-    
-    /* End the Varargs Stuff */
-	va_end(vp);
+	FLD_ITT_END;
 
 	/* Was a field deleted? */
 	return (deleted);
@@ -1255,47 +1109,43 @@ bool field_hook_special(s16b *field_ptr, u16b ftype, ...)
  * Call the required action function for the first field
  * in the specified list with that function.
  */
-s16b *field_hook_find(s16b *field_ptr, int action, ...)
+field_type *field_hook_find(cave_type *c_ptr, int action, ...)
 {
-	va_list vp;
-
 	field_type *f_ptr;
-	field_thaum *t_ptr;
-    
-    /* Begin the Varargs Stuff */
-	va_start(vp, action);
+	field_thaum *t_ptr;   
 
-	while (*field_ptr)
+	FLD_ITT_START (c_ptr->fld_idx, f_ptr)
 	{
 		/* Point to the field */
-		f_ptr = &fld_list[*field_ptr];
 		t_ptr = &t_info[f_ptr->t_idx];
 
 		/* Is there a function to call? */
 		if (t_ptr->action[action])
 		{
+			va_list vp;
+
+		    /* Begin the Varargs Stuff */
+			va_start(vp, action);
+		
 			/* Call the action function */
 			if (t_ptr->action[action] (f_ptr, vp))
 			{
 				/* The field wants to be deleted */
-				delete_field_ptr(field_ptr);
+				delete_field_ptr(f_ptr);
 			}
+			
+			/* End the Varargs Stuff */
+			va_end(vp);
 
 			/* Done */
-			break;
-		}
-		else
-		{
-			/* Get next field in the list */
-			field_ptr = &f_ptr->next_f_idx;
+			return (f_ptr);
 		}
 	}
+	FLD_ITT_END;
     
-    /* End the Varargs Stuff */
-	va_end(vp);
 
-	/* Done */
-	return (field_ptr);
+	/* Found nothing */
+	return (NULL);
 }
 
 
@@ -1305,8 +1155,6 @@ void process_fields(void)
 	s16b fld_idx;
 	field_type *f_ptr;
 
-	s16b *fld_ptr;
-
 	for (fld_idx = 0; fld_idx < fld_max; fld_idx++)
 	{
 		/* Point to field */
@@ -1314,9 +1162,6 @@ void process_fields(void)
 
 		/* No dead fields */
 		if (!f_ptr->t_idx) continue;
-
-		/* Get pointer to field index */
-		fld_ptr = field_find(fld_idx);
 
 		/* If it is a temporary field, count down every 10 turns */
 		if ((f_ptr->info & FIELD_INFO_TEMP) && !(turn % 10))
@@ -1328,10 +1173,10 @@ void process_fields(void)
 			if (!f_ptr->counter)
 			{
 				/* Call completion routine */
-				if (field_hook_single(fld_ptr, FIELD_ACT_EXIT))
+				if (field_hook_single(f_ptr, FIELD_ACT_EXIT))
 				{
 					/* It didn't delete itself - do it now */
-					delete_field_ptr(fld_ptr);
+					delete_field_ptr(f_ptr);
 				}
 
 				/* Nothing else to do now */
@@ -1354,8 +1199,6 @@ void test_field_data_integrity(void)
 	cave_type *c_ptr;
 	field_type *f_ptr;
 
-	s16b fld_idx;
-
 	/* Test cave data structure */
 	for (i = p_ptr->min_wid; i < p_ptr->max_wid; i++)
 	{
@@ -1364,21 +1207,17 @@ void test_field_data_integrity(void)
 			/* Point to location */
 			c_ptr = area(i, j);
 
-			fld_idx = c_ptr->fld_idx;
-
 			/* Want a field */
-			while (fld_idx)
+			FLD_ITT_START (c_ptr->fld_idx, f_ptr)
 			{
-				f_ptr = &fld_list[fld_idx];
-
 				/* Dead field? */
 				if (!f_ptr->t_idx)
 				{
 					msgf("Dead Field");
-					msgf("Field %d", fld_idx);
+					msgf("Field %d", _this_f_idx);
 				}
 
-				if (fld_idx > fld_max)
+				if (_this_f_idx > fld_max)
 				{
 					msgf("Field index inconsistancy.");
 				}
@@ -1389,9 +1228,8 @@ void test_field_data_integrity(void)
 					msgf("Field x, cave x,%d,%d", f_ptr->fx, i);
 					msgf("Field y, cave y,%d,%d", f_ptr->fy, j);
 				}
-
-				fld_idx = f_ptr->next_f_idx;
 			}
+			FLD_ITT_END;
 		}
 	}
 }
@@ -1483,7 +1321,7 @@ bool field_action_glyph_warding(field_type *f_ptr, va_list vp)
 	r_ptr = &r_info[m_ptr->r_idx];
 
 	if ((*flags & (MEG_DO_MOVE))
-		&& !(r_ptr->flags1 & RF1_NEVER_BLOW)
+		&& !FLAG(r_ptr, RF_NEVER_BLOW)
 		&& (randint1(BREAK_GLYPH) < r_ptr->level))
 	{
 		/* Describe observable breakage */
@@ -1537,7 +1375,7 @@ bool field_action_glyph_explode(field_type *f_ptr, va_list vp)
 	r_ptr = &r_info[m_ptr->r_idx];
 
 	if ((*flags & (MEG_DO_MOVE))
-		&& !(r_ptr->flags1 & RF1_NEVER_BLOW)
+		&& !FLAG(r_ptr, RF_NEVER_BLOW)
 		&& (randint1(BREAK_MINOR_GLYPH) < r_ptr->level))
 	{
 		if ((f_ptr->fy == p_ptr->py) && (f_ptr->fx == p_ptr->px))
@@ -1582,15 +1420,17 @@ bool field_action_corpse_decay(field_type *f_ptr, va_list vp)
 	/* Monster race */
 	u16b r_idx = ((u16b)f_ptr->data[1]) * 256 + f_ptr->data[2];
 
+	monster_type *m_ptr;
+
 	/* Hack - ignore 'vp' */
 	(void) vp;
-
-
+	
 	if (ironman_nightmare)
 	{
 		/* Make a monster nearby if possible */
-		if (summon_named_creature(f_ptr->fx, f_ptr->fy,
-								  r_idx, FALSE, FALSE, FALSE))
+		m_ptr = summon_named_creature(f_ptr->fx, f_ptr->fy,
+								  r_idx, FALSE, FALSE, FALSE);
+		if (m_ptr)
 		{
 			if (player_has_los_grid(parea(f_ptr->fx, f_ptr->fy)))
 			{
@@ -1598,7 +1438,7 @@ bool field_action_corpse_decay(field_type *f_ptr, va_list vp)
 			}
 
 			/* Set the cloned flag, so no treasure is dropped */
-			m_list[hack_m_idx_ii].smart |= SM_CLONED;
+			m_ptr->smart |= SM_CLONED;
 		}
 
 		/* Paranoia */
@@ -1636,13 +1476,16 @@ bool field_action_corpse_raise(field_type *f_ptr, va_list vp)
 
 	/* Monster race */
 	u16b r_idx = ((u16b)f_ptr->data[1]) * 256 + f_ptr->data[2];
-
+	
 	/* Make a monster nearby if possible */
-	if (summon_named_creature(f_ptr->fx, f_ptr->fy,
-							  r_idx, FALSE, FALSE, want_pet))
+	monster_type *m_ptr = summon_named_creature(f_ptr->fx, f_ptr->fy,
+							  r_idx, FALSE, FALSE, want_pet);
+
+	/* Success? */
+	if (m_ptr)
 	{
 		/* Set the cloned flag, so no treasure is dropped */
-		m_list[hack_m_idx_ii].smart |= SM_CLONED;
+		m_ptr->smart |= SM_CLONED;
 	}
 
 	/* Delete the field */
@@ -1788,7 +1631,7 @@ bool field_action_corpse_look(field_type *f_ptr, va_list vp)
 	monster_race *r_ptr = &r_info[r_idx];
 
 	/* Are we looking at a unique corpse? */
-	if (r_ptr->flags1 & RF1_UNIQUE)
+	if (FLAG(r_ptr, RF_UNIQUE))
 	{
 		/* Copy name to the output string. */
 		(void)strnfmt(name, 40, "%s of %s", t_info[f_ptr->t_idx].name,
@@ -1978,7 +1821,7 @@ static bool check_save(int power)
 	if (power <= 0) return (FALSE);
 
 	/* Power competes against saving throw */
-	if (randint1(power) > randint1(p_ptr->skill.sav)) return (TRUE);
+	if (randint1(power) > randint1(p_ptr->skills[SKILL_SAV])) return (TRUE);
 
 	/* Assume miss */
 	return (FALSE);
@@ -2042,6 +1885,8 @@ void place_trap(int x, int y)
 
 	field_trap_type *n_ptr = trap_num;
 
+	field_type *f_ptr;
+
 	/* Paranoia -- verify location */
 	if (!in_bounds2(x, y)) return;
 
@@ -2093,22 +1938,24 @@ void place_trap(int x, int y)
 		if (t_idx != FT_TRAP_DOOR) break;
 
 		/* Hack -- no trap doors on special levels */
-		if (is_quest_level(p_ptr->depth)) continue;
-
-		/* Hack -- no trap doors on the deepest level */
-		if (p_ptr->depth >= max_dun_level()) continue;
-
+		if (is_special_level(p_ptr->depth)) continue;
+		
 		/* Probably should prevent trap doors in the wilderness */
 		if (!p_ptr->depth) continue;
+
+		/* Hack -- no trap doors on the deepest level */
+		if (p_ptr->depth >= dungeon()->max_level) continue;
 
 		break;
 	}
 
+	f_ptr = place_field(x, y, t_idx);
+	
 	/* Activate the trap */
-	if (place_field(x, y, t_idx))
+	if (f_ptr)
 	{
 		/* Initialise it */
-		(void)field_hook_single(hack_fld_ptr, FIELD_ACT_INIT);
+		(void)field_hook_single(f_ptr, FIELD_ACT_INIT);
 	}
 }
 
@@ -2263,7 +2110,7 @@ bool field_action_hit_trap_door(field_type *f_ptr, va_list vp)
 	/* Hit the trap */
 	hit_trap(f_ptr);
 
-	if (p_ptr->flags3 & (TR3_FEATHER))
+	if (FLAG(p_ptr, TR_FEATHER))
 	{
 		msgf("You fly over a trap door.");
 	}
@@ -2306,7 +2153,7 @@ bool field_action_hit_trap_pit(field_type *f_ptr, va_list vp)
 	/* Hit the trap */
 	hit_trap(f_ptr);
 
-	if (p_ptr->flags3 & (TR3_FEATHER))
+	if (FLAG(p_ptr, TR_FEATHER))
 	{
 		msgf("You fly over a pit trap.");
 	}
@@ -2335,7 +2182,7 @@ bool field_action_hit_trap_spike(field_type *f_ptr, va_list vp)
 	/* Hit the trap */
 	hit_trap(f_ptr);
 
-	if (p_ptr->flags3 & (TR3_FEATHER))
+	if (FLAG(p_ptr, TR_FEATHER))
 	{
 		msgf("You fly over a spiked pit.");
 	}
@@ -2378,7 +2225,7 @@ bool field_action_hit_trap_poison_pit(field_type *f_ptr, va_list vp)
 	/* Hit the trap */
 	hit_trap(f_ptr);
 
-	if (p_ptr->flags3 & (TR3_FEATHER))
+	if (FLAG(p_ptr, TR_FEATHER))
 	{
 		msgf("You fly over a spiked pit.");
 	}
@@ -2401,14 +2248,14 @@ bool field_action_hit_trap_poison_pit(field_type *f_ptr, va_list vp)
 			dam *= 2;
 			(void)inc_cut(randint1(dam));
 
-			if ((p_ptr->flags2 & (TR2_RES_POIS)) || p_ptr->tim.oppose_pois)
+			if (res_pois_lvl() <= 3)
 			{
 				msgf("The poison does not affect you!");
 			}
 			else
 			{
 				dam *= 2;
-				(void)inc_poisoned(randint1(dam));
+				(void)pois_dam(10, "poison", randint1(dam));
 			}
 		}
 
@@ -2503,7 +2350,7 @@ bool field_action_hit_trap_element(field_type *f_ptr, va_list vp)
 		{
 			msgf("You are enveloped in flames!");
 			dam = damroll(4, 6);
-			fire_dam(dam, "a fire trap");
+			(void)fire_dam(dam, "a fire trap");
 			break;
 		}
 
@@ -2511,17 +2358,14 @@ bool field_action_hit_trap_element(field_type *f_ptr, va_list vp)
 		{
 			msgf("You are splashed with acid!");
 			dam = damroll(4, 6);
-			acid_dam(dam, "an acid trap");
+			(void)acid_dam(dam, "an acid trap");
 			break;
 		}
 
 		case 2:
 		{
 			msgf("A pungent green gas surrounds you!");
-			if (!(p_ptr->flags2 & (TR2_RES_POIS)) && !p_ptr->tim.oppose_pois)
-			{
-				(void)inc_poisoned(rand_range(10, 30));
-			}
+			(void) pois_dam(10, "poison", rand_range(10, 30));
 			break;
 		}
 
@@ -2529,7 +2373,7 @@ bool field_action_hit_trap_element(field_type *f_ptr, va_list vp)
 		{
 			msgf("You are splashed with freezing liquid!");
 			dam = damroll(4, 6);
-			cold_dam(dam, "a cold trap");
+			(void)cold_dam(dam, "a cold trap");
 			break;
 		}
 
@@ -2537,7 +2381,7 @@ bool field_action_hit_trap_element(field_type *f_ptr, va_list vp)
 		{
 			msgf("You are hit by a spark!");
 			dam = damroll(4, 6);
-			elec_dam(dam, "an electric trap");
+			(void)elec_dam(dam, "an electric trap");
 			break;
 		}
 	}
@@ -2563,7 +2407,7 @@ bool field_action_hit_trap_ba_element(field_type *f_ptr, va_list vp)
 			msgf("You are enveloped in a ball of flames!");
 			(void)fire_ball(GF_FIRE, 0, 350, 4);
 
-			fire_dam(150, "a fire trap");
+			(void)fire_dam(150, "a fire trap");
 			break;
 		}
 
@@ -2572,7 +2416,7 @@ bool field_action_hit_trap_ba_element(field_type *f_ptr, va_list vp)
 			msgf("You are soaked with acid!");
 			(void)fire_ball(GF_ACID, 0, 350, 4);
 
-			acid_dam(150, "an acid trap");
+			(void)acid_dam(150, "an acid trap");
 			break;
 		}
 
@@ -2581,10 +2425,8 @@ bool field_action_hit_trap_ba_element(field_type *f_ptr, va_list vp)
 			msgf("A pungent grey gas surrounds you!");
 			(void)fire_ball(GF_POIS, 0, 350, 4);
 
-			if (!(p_ptr->flags2 & (TR2_RES_POIS)) && !p_ptr->tim.oppose_pois)
-			{
-				(void)inc_poisoned(rand_range(100, 150));
-			}
+			/* Special damage */
+			(void)pois_dam(10, "poison", rand_range(100, 150));
 			break;
 		}
 
@@ -2593,7 +2435,7 @@ bool field_action_hit_trap_ba_element(field_type *f_ptr, va_list vp)
 			msgf("You are soaked with freezing liquid!");
 			(void)fire_ball(GF_ICE, 0, 350, 4);
 
-			cold_dam(150, "a cold trap");
+			(void)cold_dam(150, "a cold trap");
 			break;
 		}
 
@@ -2602,7 +2444,7 @@ bool field_action_hit_trap_ba_element(field_type *f_ptr, va_list vp)
 			msgf("You are hit by lightning!");
 			(void)fire_ball(GF_ELEC, 0, 350, 4);
 
-			elec_dam(150, "a lightning trap");
+			(void)elec_dam(150, "a lightning trap");
 			break;
 		}
 	}
@@ -2633,7 +2475,7 @@ bool field_action_hit_trap_gas(field_type *f_ptr, va_list vp)
 		case 1:
 		{
 			msgf("A black gas surrounds you!");
-			if (!(p_ptr->flags2 & (TR2_RES_BLIND)))
+			if (!(FLAG(p_ptr, TR_RES_BLIND)))
 			{
 				(void)inc_blind(rand_range(25, 75));
 			}
@@ -2643,7 +2485,7 @@ bool field_action_hit_trap_gas(field_type *f_ptr, va_list vp)
 		case 2:
 		{
 			msgf("A gas of scintillating colors surrounds you!");
-			if (!(p_ptr->flags2 & (TR2_RES_CONF)))
+			if (!(FLAG(p_ptr, TR_RES_CONF)))
 			{
 				(void)inc_confused(rand_range(10, 30));
 			}
@@ -2653,7 +2495,7 @@ bool field_action_hit_trap_gas(field_type *f_ptr, va_list vp)
 		case 3:
 		{
 			msgf("A strange white mist surrounds you!");
-			if (!(p_ptr->flags2 & (TR2_FREE_ACT)))
+			if (!(FLAG(p_ptr, TR_FREE_ACT)))
 			{
 				msgf("You fall asleep.");
 
@@ -2673,7 +2515,7 @@ bool field_action_hit_trap_gas(field_type *f_ptr, va_list vp)
 		{
 			msgf("A gas of scintillating colors surrounds you!");
 
-			if (!(p_ptr->flags2 & (TR2_RES_CHAOS)))
+			if (!(FLAG(p_ptr, TR_RES_CHAOS)))
 			{
 				(void)inc_image(rand_range(10, 30));
 			}
@@ -2832,7 +2674,7 @@ bool field_action_hit_trap_disenchant(field_type *f_ptr, va_list vp)
 	/* Saving throw */
 	if (!check_save(f_ptr->data[1])) return (FALSE);
 
-	if (!(p_ptr->flags2 & (TR2_RES_DISEN)))
+	if (!(FLAG(p_ptr, TR_RES_DISEN)))
 	{
 		msgf("There is a bright flash of light!");
 		(void)apply_disenchant();
@@ -3174,22 +3016,43 @@ bool field_action_hit_trap_lose_memory(field_type *f_ptr, va_list vp)
  */
 void make_lockjam_door(int x, int y, int power, bool jam)
 {
-	cave_type *c_ptr = area(x, y);
+	cave_type *c_ptr;
 	field_type *f_ptr;
-
-	s16b fld_idx = *field_is_type(&c_ptr->fld_idx, FTYPE_DOOR);
 
 	int old_power = 0;
 
-	/* Hack - Make a closed door on the square */
+	
+	/* Overlays are simpler */
+	if (ri_list[cur_region].flags & REGION_OVER)
+	{
+		/* Make a closed door on the square */
+		set_feat_bold(x, y, FEAT_CLOSED);
+	
+		/* Make a new field */
+		if (jam)
+		{
+			/* Add a jammed door field */
+			(void) place_field(x, y, FT_JAM_DOOR);
+		}
+		else
+		{
+			/* Add a locked door field */
+			(void) place_field(x, y, FT_LOCK_DOOR);
+		}
+
+		return;
+	}
+	
+	/* Make a closed door on the square */
 	cave_set_feat(x, y, FEAT_CLOSED);
 
-	/* look for a door field on the square */
-	if (fld_idx)
-	{
-		/* Point to the field */
-		f_ptr = &fld_list[fld_idx];
+	c_ptr = area(x, y);
 
+	f_ptr = field_is_type(c_ptr, FTYPE_DOOR);
+
+	/* look for a door field on the square */
+	if (f_ptr)
+	{
 		/* There already is a door field here... */
 
 		/* HACK - Look at type */
@@ -3211,24 +3074,26 @@ void make_lockjam_door(int x, int y, int power, bool jam)
 		old_power = f_ptr->counter;
 
 		/* Get rid of old field */
-		delete_field_idx(fld_idx);
+		delete_field_ptr(f_ptr);
 	}
 
 	/* Make a new field */
 	if (jam)
 	{
 		/* Add a jammed door field */
-		fld_idx = place_field(x, y, FT_JAM_DOOR);
+		f_ptr = place_field(x, y, FT_JAM_DOOR);
 	}
 	else
 	{
 		/* Add a locked door field */
-		fld_idx = place_field(x, y, FT_LOCK_DOOR);
+		f_ptr = place_field(x, y, FT_LOCK_DOOR);
 	}
 
-	if (!fld_idx)
+	/* It didn't work for some reason? */
+	if (!f_ptr)
 	{
 		msgf("Cannot make door! Too many fields.");
+		
 		return;
 	}
 
@@ -3236,10 +3101,8 @@ void make_lockjam_door(int x, int y, int power, bool jam)
 
 	/* 
 	 * Initialise it.
-	 * Hack - note that hack_fld_ptr is a global that is overwritten
-	 * by the place_field() function.
 	 */
-	(void)field_hook_single(hack_fld_ptr, FIELD_ACT_INIT, power);
+	(void)field_hook_single(f_ptr, FIELD_ACT_INIT, power);
 }
 
 /*
@@ -3391,7 +3254,7 @@ bool field_action_door_lock_monster(field_type *f_ptr, va_list vp)
 	*flags |= MEG_DO_TURN;
 
 	/* Locked doors */
-	if ((r_ptr->flags2 & RF2_OPEN_DOOR) &&
+	if (FLAG(r_ptr, RF_OPEN_DOOR) &&
 		(!is_pet(m_ptr) || p_ptr->pet_open_doors))
 	{
 		/* Attempt to Unlock */
@@ -3445,7 +3308,7 @@ bool field_action_door_jam_monster(field_type *f_ptr, va_list vp)
 	*flags |= MEG_DO_TURN;
 
 	/* Stuck Door */
-	if ((r_ptr->flags2 & RF2_BASH_DOOR) &&
+	if (FLAG(r_ptr, RF_BASH_DOOR) &&
 		(!is_pet(m_ptr) || p_ptr->pet_open_doors))
 	{
 		/* Attempt to Bash */
@@ -3788,6 +3651,8 @@ bool field_action_mutate2(field_type *f_ptr, va_list vp)
 {
 	int *factor = va_arg(vp, int *);
 	s32b cost;
+	
+	const store_type *b_ptr = va_arg(vp, const store_type *);
 
 	if (p_ptr->cmd.cmd == 'E')
 	{
@@ -3809,9 +3674,9 @@ bool field_action_mutate2(field_type *f_ptr, va_list vp)
 
 			/* Display messages */
 			message_flush();
-
-			/* Hack - We want to redraw the screen */
-			*factor = 2;
+			
+			/* Redraw screen */
+			display_build(f_ptr, b_ptr);
 		}
 		else
 		{
@@ -4671,6 +4536,81 @@ bool field_action_issupplies_tester(field_type *f_ptr, va_list vp)
 
 	/* This leaves the store with scrolls, tools, ammo, and diggers. */
 
+	/* Done */
+	return (FALSE);
+}
+
+
+/*
+ * Castle quest-giver building
+ */
+bool field_action_castlequest1(field_type *f_ptr, va_list vp)
+{
+	int factor = va_arg(vp, int);
+	const store_type *b_ptr = va_arg(vp, const store_type *);
+	
+	quest_type *q_ptr = lookup_quest_building(b_ptr);
+	
+	/* Ignore parameter */
+	(void) factor;
+	(void) f_ptr;
+	
+	/* Do we already have a quest here? */
+	if (q_ptr)
+	{
+		put_fstr(35, 19, CLR_YELLOW " R) Request Reward");
+	}
+	else
+	{
+		put_fstr(35, 19, CLR_YELLOW " R) Request Quest");
+	}
+	
+	/* Done */
+	return (FALSE);
+}
+
+
+/*
+ * Request a quest from the Lord.
+ */
+bool field_action_castlequest2(field_type *f_ptr, va_list vp)
+{
+	int *factor = va_arg(vp, int *);
+	
+	const store_type *b_ptr = va_arg(vp, const store_type *);
+	
+	quest_type *q_ptr = lookup_quest_building(b_ptr);
+	
+	
+	if (p_ptr->cmd.cmd == 'R')
+	{
+		/* Do we already have a quest? */
+		if (q_ptr)
+		{
+			/* Give reward? */
+			reward_quest(q_ptr);
+		}
+		else
+		{
+			/* Make a new quest */
+			request_quest(b_ptr, f_ptr->data[1]);
+		}
+
+		/* Hack, use factor as a return value */
+		*factor = TRUE;
+		
+		/* Display messages */
+		message_flush();
+			
+		/* Redraw screen */
+		display_build(f_ptr, b_ptr);
+	}
+	else
+	{
+	
+		*factor = FALSE;
+	}
+	
 	/* Done */
 	return (FALSE);
 }

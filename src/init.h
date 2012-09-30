@@ -91,6 +91,8 @@ struct header
 	char *name_ptr;
 	char *text_ptr;
 
+	void *mmap_base;
+
 	parse_info_txt_func parse_info_txt;
 };
 

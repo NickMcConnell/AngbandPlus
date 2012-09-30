@@ -5,5 +5,7 @@ subdir = ./lib/save/
 srcfiles += lib/save/makefile.zb
 
 INSTALL += \
-		chown -R root.$(GAMEGROUP) "$(DESTDIR)/lib/save";\
-		chmod -R 070 "$(DESTDIR)/lib/save";
+		if [ -n "$(GAMEGROUP)" ]; then \
+			chown -R root.$(GAMEGROUP) "$(DESTDIR)/lib/save";\
+			chmod -R 070 "$(DESTDIR)/lib/save";\
+		fi;

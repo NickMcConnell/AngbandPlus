@@ -59,8 +59,12 @@ int usleep(huge usecs)
  * Hack -- External functions
  */
 #ifndef	_PWD_H
+# ifndef HAVE_GETPWUID
 extern struct passwd *getpwuid();
+# endif
+# ifndef HAVE_GETPWNAM
 extern struct passwd *getpwnam();
+# endif
 #endif /* _PWD_H */
 
 /*
@@ -93,7 +97,27 @@ void user_name(char *buf, int id)
 
 #endif /* SET_UID */
 
+/*
+ * Helper function to assert something inside an expression
+ *
+ * (Note that the normal assert macro can only be used
+ *  as a statement - which prevents debugging via
+ *  function wrappers.)
+ */
+bool assert_helper(cptr expr, cptr file, int line, bool result)
+{
+	if (!result)
+	{
+		signals_ignore_tstp();\
+		ANG__assert_save;\
+		ANG__assert_fmt("\n"
+						"Assertion failed:%s\n"
+						"in file %s\n"
+						"on line %d\n\n", expr, file, line);
+	}
 
+	return (result);
+}
 
 
 /*
@@ -374,9 +398,9 @@ FILE *my_fopen_temp(char *buf, int max)
  *
  * Read a string, without a newline, to a file
  *
- * Process tabs, strip internal non-printables
+ * Process tabs, strip internal non-printables if told.
  */
-errr my_fgets(FILE *fff, char *buf, huge n)
+static errr my_fgets_aux(FILE *fff, char *buf, huge n, bool strip)
 {
 	huge i = 0;
 
@@ -412,9 +436,9 @@ errr my_fgets(FILE *fff, char *buf, huge n)
 				/* Append some more spaces */
 				while (!(i % 8)) buf[i++] = ' ';
 			}
-
-			/* Handle printables */
-			else if (isprint(*s))
+			
+			/* Strip non-printables if asked */
+			else if(!strip || isprint(*s))
 			{
 				/* Copy */
 				buf[i++] = *s;
@@ -431,6 +455,32 @@ errr my_fgets(FILE *fff, char *buf, huge n)
 	/* Failure */
 	return (1);
 }
+
+
+/*
+ * Hack -- replacement for "fgets()"
+ *
+ * Read a string, without a newline, to a file
+ *
+ * Process tabs, strip internal non-printables
+ */
+errr my_fgets(FILE *fff, char *buf, huge n)
+{
+	return (my_fgets_aux(fff, buf, n, TRUE));
+}
+
+/*
+ * Hack -- replacement for "fgets()"
+ *
+ * Read a string, without a newline, to a file
+ *
+ * Process tabs, do not strip internal non-printables
+ */
+errr my_raw_fgets(FILE *fff, char *buf, huge n)
+{
+	return (my_fgets_aux(fff, buf, n, FALSE));
+}
+
 
 
 /*
@@ -1830,6 +1880,29 @@ s16b quark_add(cptr str)
 }
 
 /*
+ * Like quark_add(), but take a format string.
+ */
+s16b quark_fmt(cptr str, ...)
+{
+	va_list vp;
+
+	char buf[1024];
+
+	/* Begin the Varargs Stuff */
+	va_start(vp, str);
+
+	/* Format the args, save the length */
+	(void)vstrnfmt(buf, 1024, str, &vp);
+
+	/* End the Varargs Stuff */
+	va_end(vp);
+
+	/* Quark stuff */
+	return (quark_add(buf));
+}
+
+
+/*
  * Remove the quark
  */
 void quark_remove(s16b *i)
@@ -2399,7 +2472,7 @@ void messages_free(void)
  */
 static void msg_flush(int x)
 {
-	if (!p_ptr->skip_more)
+	if (!p_ptr->state.skip_more && !auto_more)
 	{
 		/* Pause for response */
 		prtf(x, 0, CLR_L_BLUE "-more-");
@@ -2412,7 +2485,7 @@ static void msg_flush(int x)
 			if (cmd == ESCAPE)
 			{
 				/* Skip all the prompt until player's turn */
-				p_ptr->skip_more = TRUE;
+				p_ptr->state.skip_more = TRUE;
 				break;
 			}
 
@@ -2500,7 +2573,6 @@ static void msg_print_aux(u16b type, cptr msg)
 
 	/* Window stuff */
 	p_ptr->window |= (PW_MESSAGE);
-
 
 	/* Copy it */
 	strcpy(buf, msg);
@@ -2599,6 +2671,8 @@ void set_message_type(char *buf, uint max, cptr fmt, va_list *vp)
 void msgf(cptr fmt, ...)
 {
 	va_list vp;
+	
+	int i;
 
 	char buf[1024];
 	
@@ -2615,6 +2689,13 @@ void msgf(cptr fmt, ...)
 	va_end(vp);
 	
 	sound(current_message_type);
+
+	/* Clean the string of '\n' characters */
+	for (i = 0; buf[i]; i++)
+	{
+		/* Erase carriage returns */
+		if (buf[i] == '\n') buf[i] = ' ';
+	}
 	
 	/* Display */
 	msg_print_aux(current_message_type, buf);
@@ -2763,7 +2844,7 @@ void request_command(int shopping)
 			msg_flag = FALSE;
 
 			/* Reset the skip_more flag */
-			p_ptr->skip_more = FALSE;
+			p_ptr->state.skip_more = FALSE;
 
 			/* Activate "command mode" */
 			p_ptr->cmd.inkey_flag = TRUE;

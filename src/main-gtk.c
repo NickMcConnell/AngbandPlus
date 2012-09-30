@@ -1981,7 +1981,7 @@ static void term_menu_update_handler(GtkWidget *widget, gpointer user_data)
 	for (i = 0; i < MAX_TERM_DATA; i++)
 	{
 		/* Build the path name */
-		strnfmt(buf, 64, "<Angband>/Terms/%s", angband_term_name);
+		strnfmt(buf, 64, "<Angband>/Terms/%s", angband_term_name[i]);
 
 		/* Update the check mark on the item */
 		check_menu_item(buf, data[i].shown);
@@ -2005,7 +2005,7 @@ static void font_menu_update_handler(GtkWidget *widget, gpointer user_data)
 	for (i = 0; i < MAX_TERM_DATA; i++)
 	{
 		/* Build the path name */
-		strnfmt(buf, 64, "<Angband>/Options/Font/%s", angband_term_name);
+		strnfmt(buf, 64, "<Angband>/Options/Font/%s", angband_term_name[i]);
 
 		/* Enable selection if the term is shown */
 		enable_menu_item(buf, data[i].shown);

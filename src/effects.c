@@ -1059,7 +1059,7 @@ static bool set_tim_esp(int v)
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
 	/* Don't notice if we have permanent telepathy */
-	if (!(p_ptr->flags3 & TR3_TELEPATHY))
+	if (!(FLAG(p_ptr, TR_TELEPATHY)))
 	{
 		/* Open */
 		if (v)
@@ -1533,11 +1533,10 @@ byte res_acid_lvl(void)
 {
 	byte level = 9;
 	
-	if (p_ptr->tim.invuln) return (0);
-	if (p_ptr->flags2 & TR2_IM_ACID) return (0);
-	if (p_ptr->flags2 & TR2_RES_ACID) level /= 3;
+	if (FLAG(p_ptr, TR_IM_ACID)) return (0);
+	if (FLAG(p_ptr, TR_RES_ACID)) level /= 3;
 	if (p_ptr->tim.oppose_acid) level /= 3;
-	if (p_ptr->flags4 & TR4_HURT_ACID) level *= 2;
+	if (FLAG(p_ptr, TR_HURT_ACID)) level *= 2;
 
 	return (level);
 }
@@ -1549,11 +1548,10 @@ byte res_elec_lvl(void)
 {
 	byte level = 9;
 	
-	if (p_ptr->tim.invuln) return (0);
-	if (p_ptr->flags2 & TR2_IM_ELEC) return (0);
-	if (p_ptr->flags2 & TR2_RES_ELEC) level /= 3;
+	if (FLAG(p_ptr, TR_IM_ELEC)) return (0);
+	if (FLAG(p_ptr, TR_RES_ELEC)) level /= 3;
 	if (p_ptr->tim.oppose_elec) level /= 3;
-	if (p_ptr->flags4 & TR4_HURT_ELEC) level *= 2;
+	if (FLAG(p_ptr, TR_HURT_ELEC)) level *= 2;
 
 	return (level);
 }
@@ -1565,11 +1563,10 @@ byte res_fire_lvl(void)
 {
 	byte level = 9;
 	
-	if (p_ptr->tim.invuln) return (0);
-	if (p_ptr->flags2 & TR2_IM_FIRE) return (0);
-	if (p_ptr->flags2 & TR2_RES_FIRE) level /= 3;
+	if (FLAG(p_ptr, TR_IM_FIRE)) return (0);
+	if (FLAG(p_ptr, TR_RES_FIRE)) level /= 3;
 	if (p_ptr->tim.oppose_fire) level /= 3;
-	if (p_ptr->flags4 & TR4_HURT_FIRE) level *= 2;
+	if (FLAG(p_ptr, TR_HURT_FIRE)) level *= 2;
 
 	return (level);
 }
@@ -1581,11 +1578,10 @@ byte res_cold_lvl(void)
 {
 	byte level = 9;
 	
-	if (p_ptr->tim.invuln) return (0);
-	if (p_ptr->flags2 & TR2_IM_COLD) return (0);
-	if (p_ptr->flags2 & TR2_RES_COLD) level /= 3;
+	if (FLAG(p_ptr, TR_IM_COLD)) return (0);
+	if (FLAG(p_ptr, TR_RES_COLD)) level /= 3;
 	if (p_ptr->tim.oppose_cold) level /= 3;
-	if (p_ptr->flags4 & TR4_HURT_COLD) level *= 2;
+	if (FLAG(p_ptr, TR_HURT_COLD)) level *= 2;
 
 	return (level);
 }
@@ -1597,9 +1593,9 @@ byte res_pois_lvl(void)
 {
 	byte level = 9;
 	
-	if (p_ptr->tim.invuln) return (0);
-	if (p_ptr->flags2 & TR2_RES_POIS) return(0);
-	if (p_ptr->tim.oppose_pois) return(0);
+	if (FLAG(p_ptr, TR_IM_POIS)) return (0);
+	if (FLAG(p_ptr, TR_RES_POIS)) level /= 3;
+	if (p_ptr->tim.oppose_pois) level /= 3;
 
 	return (level);
 }
@@ -1609,6 +1605,9 @@ byte res_pois_lvl(void)
  */
 int resist(int dam, byte (*f_func) (void))
 {
+	/* Invulnerability */
+	if (p_ptr->tim.invuln) return (0);
+
 	/* Use the function we were passed, and round up the damage */
 	return ((dam * f_func() + 8) / 9);
 }
@@ -1624,8 +1623,6 @@ int resist(int dam, byte (*f_func) (void))
 static int minus_ac(void)
 {
 	object_type *o_ptr = NULL;
-	char o_name[256];
-
 
 	/* Pick a (possibly empty) inventory slot */
 	switch (randint1(6))
@@ -1669,19 +1666,16 @@ static int minus_ac(void)
 	if (o_ptr->ac + o_ptr->to_a <= 0) return (FALSE);
 
 
-	/* Describe */
-	object_desc(o_name, o_ptr, FALSE, 0, 256);
-
 	/* Object resists */
-	if (o_ptr->flags3 & TR3_IGNORE_ACID)
+	if (FLAG(o_ptr, TR_IGNORE_ACID))
 	{
-		msgf("Your %s is unaffected!", o_name);
+		msgf("Your %v is unaffected!", OBJECT_FMT(o_ptr, FALSE, 0));
 
 		return (TRUE);
 	}
 
 	/* Message */
-	msgf("Your %s is damaged!", o_name);
+	msgf("Your %v is damaged!", OBJECT_FMT(o_ptr, FALSE, 0));
 
 	/* Damage the item */
 	o_ptr->to_a--;
@@ -1700,14 +1694,14 @@ static int minus_ac(void)
 /*
  * Hurt the player with Acid
  */
-void acid_dam(int dam, cptr kb_str)
+bool acid_dam(int dam, cptr kb_str)
 {
 	int inv;
 	
 	dam = resist(dam, res_acid_lvl);
 
 	/* Total Immunity? */
-	if (dam <= 0) return;
+	if (dam <= 0) return (FALSE);
 
 	inv = (dam < 30) ? 1 : (dam < 60) ? 2 : 3;
 
@@ -1723,20 +1717,23 @@ void acid_dam(int dam, cptr kb_str)
 	/* Inventory damage */
 	if (res_acid_lvl() > 3)
 		(void)inven_damage(set_acid_destroy, inv);
+	
+	/* Obvious */
+	return (TRUE);
 }
 
 
 /*
  * Hurt the player with electricity
  */
-void elec_dam(int dam, cptr kb_str)
+bool elec_dam(int dam, cptr kb_str)
 {
 	int inv;
 	
 	dam = resist(dam, res_elec_lvl);
 
 	/* Total immunity */
-	if (dam <= 0) return;
+	if (dam <= 0) return (FALSE);
 
 	inv = (dam < 30) ? 1 : (dam < 60) ? 2 : 3;
 
@@ -1749,20 +1746,23 @@ void elec_dam(int dam, cptr kb_str)
 	/* Inventory damage */
 	if (res_acid_lvl() > 3)
 		(void)inven_damage(set_elec_destroy, inv);
+
+	/* Obvious */
+	return (TRUE);
 }
 
 
 /*
  * Hurt the player with Fire
  */
-void fire_dam(int dam, cptr kb_str)
+bool fire_dam(int dam, cptr kb_str)
 {
 	int inv;
 	
 	dam = resist(dam, res_fire_lvl);
 
 	/* Totally immune? */
-	if (dam <= 0) return;
+	if (dam <= 0) return (FALSE);
 
 	inv = (dam < 30) ? 1 : (dam < 60) ? 2 : 3;
 
@@ -1775,20 +1775,23 @@ void fire_dam(int dam, cptr kb_str)
 	/* Inventory damage */
 	if (res_fire_lvl() > 3)
 		(void)inven_damage(set_fire_destroy, inv);
+
+	/* Obvious */
+	return (TRUE);
 }
 
 
 /*
  * Hurt the player with Cold
  */
-void cold_dam(int dam, cptr kb_str)
+bool cold_dam(int dam, cptr kb_str)
 {
 	int inv;
 	
 	dam = resist(dam, res_cold_lvl);
 
 	/* Total immunity? */
-	if (dam <= 0) return;
+	if (dam <= 0) return (FALSE);
 
 	inv = (dam < 30) ? 1 : (dam < 60) ? 2 : 3;
 
@@ -1801,6 +1804,36 @@ void cold_dam(int dam, cptr kb_str)
 	/* Inventory damage */
 	if (res_cold_lvl() > 3)
 		(void)inven_damage(set_cold_destroy, inv);
+
+	/* Obvious */
+	return (TRUE);
+}
+
+
+/*
+ * Hurt the player with Poison
+ *
+ * Hack - this should probably take a second argument
+ * to add to the poison counter
+ */
+bool pois_dam(int dam, cptr kb_str, int pois)
+{
+	dam = resist(dam, res_pois_lvl);
+
+	/* Totally immune? */
+	if (dam <= 0) return (FALSE);
+
+	if ((res_pois_lvl() > 3) && one_in_(HURT_CHANCE))
+		(void)do_dec_stat(A_CON);
+
+	/* Take damage */
+	take_hit(dam, kb_str);
+
+	/* Add poison to counter */
+	inc_poisoned(pois);
+	
+	/* Obvious */
+	return (TRUE);
 }
 
 
@@ -1825,9 +1858,7 @@ static bool set_stun(int v)
 	 * designed for newbies - not scummers.)
 	 */
 	if ((p_ptr->rp.prace == RACE_GOLEM) &&
-		!(ironman_shops || ironman_downward || ironman_hard_quests ||
-		  ironman_empty_levels || ironman_nightmare ||
-		  ironman_deep_quests))
+		!(ironman_shops || ironman_downward || ironman_nightmare))
 	{
 		v = 0;
 	}
@@ -1924,16 +1955,16 @@ static bool set_stun(int v)
 			msgf("A vicious blow hits your head.");
 			if (one_in_(3))
 			{
-				if (!(p_ptr->flags2 & (TR2_SUST_INT))) (void)do_dec_stat(A_INT);
-				if (!(p_ptr->flags2 & (TR2_SUST_WIS))) (void)do_dec_stat(A_WIS);
+				if (!(FLAG(p_ptr, TR_SUST_INT))) (void)do_dec_stat(A_INT);
+				if (!(FLAG(p_ptr, TR_SUST_WIS))) (void)do_dec_stat(A_WIS);
 			}
 			else if (one_in_(2))
 			{
-				if (!(p_ptr->flags2 & (TR2_SUST_INT))) (void)do_dec_stat(A_INT);
+				if (!(FLAG(p_ptr, TR_SUST_INT))) (void)do_dec_stat(A_INT);
 			}
 			else
 			{
-				if (!(p_ptr->flags2 & (TR2_SUST_WIS))) (void)do_dec_stat(A_WIS);
+				if (!(FLAG(p_ptr, TR_SUST_WIS))) (void)do_dec_stat(A_WIS);
 			}
 		}
 
@@ -2178,7 +2209,7 @@ static bool set_cut(int v)
 
 		if (randint1(1000) < v || one_in_(16))
 		{
-			if (!(p_ptr->flags2 & (TR2_SUST_CHR)))
+			if (!(FLAG(p_ptr, TR_SUST_CHR)))
 			{
 				msgf("You have been horribly scarred.");
 
@@ -2727,32 +2758,32 @@ bool do_dec_stat(int stat)
 	{
 		case A_STR:
 		{
-			if (p_ptr->flags2 & (TR2_SUST_STR)) sust = TRUE;
+			if (FLAG(p_ptr, TR_SUST_STR)) sust = TRUE;
 			break;
 		}
 		case A_INT:
 		{
-			if (p_ptr->flags2 & (TR2_SUST_INT)) sust = TRUE;
+			if (FLAG(p_ptr, TR_SUST_INT)) sust = TRUE;
 			break;
 		}
 		case A_WIS:
 		{
-			if (p_ptr->flags2 & (TR2_SUST_WIS)) sust = TRUE;
+			if (FLAG(p_ptr, TR_SUST_WIS)) sust = TRUE;
 			break;
 		}
 		case A_DEX:
 		{
-			if (p_ptr->flags2 & (TR2_SUST_DEX)) sust = TRUE;
+			if (FLAG(p_ptr, TR_SUST_DEX)) sust = TRUE;
 			break;
 		}
 		case A_CON:
 		{
-			if (p_ptr->flags2 & (TR2_SUST_CON)) sust = TRUE;
+			if (FLAG(p_ptr, TR_SUST_CON)) sust = TRUE;
 			break;
 		}
 		case A_CHR:
 		{
-			if (p_ptr->flags2 & (TR2_SUST_CHR)) sust = TRUE;
+			if (FLAG(p_ptr, TR_SUST_CHR)) sust = TRUE;
 			break;
 		}
 	}
@@ -2941,7 +2972,7 @@ bool lose_all_info(void)
 		object_kind *k_ptr = &k_info[k];
 
 		/* Forget flavored items, with saving throw */
-		if (k_ptr->flavor && one_in_(p_ptr->skill.sav))
+		if (k_ptr->flavor && one_in_(p_ptr->skills[SKILL_SAV]))
 		{
 			/* Forget knowledge */
 			k_ptr->aware = FALSE;
@@ -3252,7 +3283,7 @@ void take_hit(int damage, cptr hit_from)
 	p_ptr->window |= (PW_PLAYER);
 
 	/* Do not skip the message */
-	p_ptr->skip_more = FALSE;
+	p_ptr->state.skip_more = FALSE;
 
 	if (pen_invuln)
 		msgf("The attack penetrates your shield of invulnerability!");
@@ -3366,7 +3397,7 @@ void lose_exp(s32b amount)
  */
 void make_noise(byte amount)
 {
-	int total = amount + p_ptr->noise_level;
+	int total = amount + p_ptr->state.noise_level;
 
 	/* Paranoia (watching for overflow) */
 	if (total > MONSTER_FLOW_DEPTH)
@@ -3381,7 +3412,7 @@ void make_noise(byte amount)
 	}
 
 	/* Save the new noise level */
-	p_ptr->noise_level = (byte)total;
+	p_ptr->state.noise_level = (byte)total;
 }
 
 

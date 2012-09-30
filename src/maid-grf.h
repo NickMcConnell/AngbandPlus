@@ -222,10 +222,7 @@ struct term_list
 	cptr o_name;	/* Name */
 	cptr xtra_name;	/* Extra Name (Artifacts and ego items) */
 
-	u32b kn_flags1;	/* Known Flags, set 1 */
-	u32b kn_flags2;	/* Known Flags, set 2 */
-	u32b kn_flags3;	/* Known Flags, set 3 */
-	u32b kn_flags4; /* Known Flags, set 4 */
+	u32b kn_flags[4];	/* Known Flags */
 
 	s32b cost;	/* Object "base cost" */
 
@@ -257,10 +254,7 @@ struct list_item
 	cptr o_name;	/* Name */
 	cptr xtra_name;	/* Extra Name (Artifacts and ego items) */
 
-	u32b kn_flags1;	/* Known Flags, set 1 */
-	u32b kn_flags2;	/* Known Flags, set 2 */
-	u32b kn_flags3;	/* Known Flags, set 3 */
-	u32b kn_flags4; /* Known Flags, set 4 */
+	u32b kn_flags[4];	/* Known Flags */
 
 	s32b cost;	/* Object "base cost" */
 

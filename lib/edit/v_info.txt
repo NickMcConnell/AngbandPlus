@@ -1,4 +1,4 @@
-# CVS: Last edit by $Author: sfuerst $ on $Date: 2003/03/29 15:57:38 $
+# CVS: Last edit by $Author: antimatter $ on $Date: 2003/05/20 19:38:47 $
 # File: v_info.txt
 
 
@@ -51,7 +51,7 @@
 
 # Version stamp (required)
 
-V:2.7.3
+V:2.7.4
 
 
 ### Lesser vaults (type 7) -- maximum size 33x22 ###

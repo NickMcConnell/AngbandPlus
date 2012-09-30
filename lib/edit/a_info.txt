@@ -45,7 +45,7 @@
 
 # Version stamp (required)
 
-V:2.7.3
+V:2.7.4
 
 
 # The Phial of Galadriel
@@ -55,6 +55,10 @@ I:39:4:1
 W:20:1:10:10000
 P:0:1d1:0:0:0
 F:ACTIVATE | SENSE | INSTA_ART | LITE
+L:USE:	msgf("The phial wells with clear light...")
+L:USE:	lite_area(damroll(2, 15), 3)
+L:USE:	object.timeout = rand_range(10, 20)
+L:DESC:	return "illumination every 10-20 turns"
 
 
 # The Star of Elendil
@@ -64,6 +68,11 @@ I:39:5:1
 W:52:25:5:32500
 P:0:1d1:0:0:0
 F:ACTIVATE | SEE_INVIS | HOLD_LIFE | INSTA_ART | SPEED | LITE
+L:USE:	msgf("The star shines brightly...")
+L:USE:	map_area()
+L:USE:	lite_area(damroll(2, 15), 3)
+L:USE:	object.timeout = rand_range(50, 100)
+L:DESC:	return "magic mapping and illumination every 50-100 turns"
 
 
 # The Arkenstone of Thrain -> JoJ
@@ -75,6 +84,19 @@ W:80:50:5:150000
 P:0:1d1:0:0:0
 F:ACTIVATE | SEE_INVIS | HOLD_LIFE | RES_CONF | RES_CHAOS |
 F:INSTA_ART | SPEED | WIS | INT | LITE
+L:USE:	msgf("The Jewel flashes bright red!")
+L:USE:	wiz_lite()
+L:USE:	msgf("The Jewel drains your vitality...")
+L:USE:	take_hit(damroll(3, 8), "the Jewel of Judgement")
+L:USE:	detect_traps(); detect_doors(); detect_stairs()
+L:USE:	if get_check("Activate recall? ") then word_of_recall() end
+L:USE:	object.timeout = rand_range(20, 40)
+L:DESC:	return "dangerous clairvoyance and recall every 20-40 turns"
+L:TIMED:	if randint0(999) == 0 and bAnd(player.flags[2], TR2_NO_MAGIC) == 0
+L:TIMED:	and not player.tim_invuln then
+L:TIMED:		msgf("The Jewel of Judgement drains life from you!")
+L:TIMED:		take_hit(player.lev, "The Jewel of Judgement")
+L:TIMED:	end
 
 
 # The Amulet of Carlammas
@@ -83,6 +105,10 @@ N:4:of Carlammas
 I:40:10:2
 W:80:10:3:60000
 F:CON | HIDE_TYPE | ACTIVATE | RES_FIRE | INSTA_ART
+L:USE:	msgf("The amulet lets out a shrill wail...")
+L:USE:	inc_protevil(randint1(25) + 3 * player.lev)
+L:USE:	object.timeout = rand_range(225, 450)
+L:DESC:	return "protection from evil every 225-450 turns"
 
 
 # The Amulet of Ingwe
@@ -94,6 +120,10 @@ F:WIS | CHR | INFRA | HIDE_TYPE |
 F:SEE_INVIS | FREE_ACT | ACTIVATE |
 F:RES_ACID | RES_COLD | RES_ELEC |
 F:INSTA_ART
+L:USE:	msgf("The amulet floods the area with goodness...")
+L:USE:	dispel_evil(player.lev * 5)
+L:USE:	object.timeout = rand_range(300, 600)
+L:DESC:	return "dispel evil (level * 5) every 300-600 turns"
 
 
 # The Necklace of the Dwarves
@@ -121,6 +151,11 @@ I:45:32:1
 W:80:25:2:75000
 F:STR | INT | WIS | DEX | CON | CHR | STEALTH | HIDE_TYPE |
 F:RES_POIS | ACTIVATE | SEE_INVIS | SENSE | INSTA_ART
+L:USE:	msgf("You order Frakir to strangle your opponent.")
+L:USE:	local success; local dir; success, dir = get_aim_dir()
+L:USE:	if not success then return end
+L:USE:	if drain_life(dir, 200) then object.timeout = rand_range(100, 200) end
+L:DESC:	return "a strangling attack (200) every 100-200 turns"
 
 
 # The Ring of Tulkas
@@ -129,6 +164,10 @@ N:9:of Tulkas
 I:45:33:4
 W:100:50:2:175000
 F:STR | DEX | CON | HIDE_TYPE | ACTIVATE | SPEED | INSTA_ART
+L:USE:	msgf("The ring glows brightly...")
+L:USE:	inc_fast(rand_range(75, 150))
+L:USE:	object.timeout = rand_range(150, 300)
+L:DESC:	return "haste self (75-150) every 150-300 turns"
 
 
 # The Ring of Power (Narya)
@@ -141,6 +180,12 @@ F:STR | INT | WIS | DEX | CON | CHR | SPEED | HIDE_TYPE |
 F:ACTIVATE | FREE_ACT | SEE_INVIS |
 F:SLOW_DIGEST | REGEN | SUST_STR | SUST_DEX | IM_FIRE |
 F:INSTA_ART
+L:USE:	msgf("The ring glows deep red...")
+L:USE:	local success; local dir; success, dir = get_aim_dir()
+L:USE:	if not success then return end
+L:USE:	fire_ball(GF_FIRE, dir, 250, 3)
+L:USE:	object.timeout = rand_range(225, 450)
+L:DESC:	return "fire ball (250), rad. 3, every 225-450 turns"
 
 
 # The Ring of Power (Nenya)
@@ -154,6 +199,13 @@ F:ACTIVATE | HOLD_LIFE | FREE_ACT | SEE_INVIS |
 F:FEATHER | REGEN | SHOW_MODS |
 F:SUST_INT | SUST_WIS | IM_COLD |
 F:INSTA_ART
+L:USE:	msgf("The ring glows bright white...")
+L:USE:	local success; local dir; success, dir = get_aim_dir()
+L:USE:	if not success then return end
+L:USE:	fire_ball(GF_COLD, dir, 400, 3)
+L:USE:	object.timeout = rand_range(325, 650)
+L:DESC:	return "frost ball (400), rad. 3, every 325-650 turns"
+L:MAKE:	add_ego_power(EGO_XTRA_ABILITY, object)
 
 
 # The Ring of Power (Vilya)
@@ -167,6 +219,13 @@ F:ACTIVATE | HOLD_LIFE | FREE_ACT | SEE_INVIS |
 F:FEATHER | SLOW_DIGEST | REGEN |
 F:SUST_INT | SUST_WIS | SUST_STR | SUST_DEX | IM_ELEC |
 F:INSTA_ART
+L:USE:	msgf("The ring glows bright white...")
+L:USE:	local success; local dir; success, dir = get_aim_dir()
+L:USE:	if not success then return end
+L:USE:	fire_ball(GF_ELEC, dir, 500, 3)
+L:USE:	object.timeout = rand_range(425, 850)
+L:DESC:	return "lightning ball (500), rad. 3, every 425-850 turns"
+L:MAKE:	add_ego_power(EGO_XTRA_ABILITY, object)
 
 
 # The Ring of Power (The One Ring)
@@ -182,6 +241,14 @@ F:IM_FIRE | IM_COLD | IM_ELEC | IM_ACID |
 F:SUST_STR | SUST_DEX | SUST_CON |
 F:SUST_INT | SUST_WIS | SUST_CHR |
 F:INSTA_ART
+L:USE:	msgf("The ring glows intensely black...")
+L:USE:	local success; local dir; success, dir = get_aim_dir()
+L:USE:	if not success then return end
+L:USE:	ring_of_power(dir)
+L:USE:	object.timeout = rand_range(450, 900)
+L:DESC:	return "bizarre things every 450-900 turns"
+L:MAKE:	add_ego_power(EGO_XTRA_HI_RESIST, object)
+L:MAKE:	add_ego_power(EGO_XTRA_ABILITY, object)
 
 
 N:14:of Elemental Mastery
@@ -191,6 +258,12 @@ F:STR | INT | DEX | SPEED | STEALTH | HIDE_TYPE |
 F:RES_FIRE | RES_COLD | RES_ACID | RES_ELEC | RES_POIS |
 F:TELEPATHY |
 F:INSTA_ART | ACTIVATE
+L:USE:	msgf("The ring glows in multiple colours...")
+L:USE:	local success; local dir; success, dir = get_aim_dir()
+L:USE:	if not success then return end
+L:USE:	fire_ball(GF_MISSILE, dir, 800, 3)
+L:USE:	object.timeout = rand_range(250, 500)
+L:DESC:	return "ball of the elements (800), rad. 3, every 250-500 turns"
 
 
 # Artifact 15 is unused
@@ -206,6 +279,10 @@ P:30:2d4:-4:0:25
 F:RES_FIRE | RES_COLD | RES_POIS | RES_LITE | RES_DARK |
 F:LITE | SEE_INVIS | AGGRAVATE | FREE_ACT | IM_ELEC |
 F:ACTIVATE | INSTA_ART
+L:USE:	msgf("Your armor is surrounded by lightning...")
+L:USE:	scatter_ball(damroll(5, 3), GF_ELEC, 1000, 3)
+L:USE:	object.timeout = 100
+L:DESC:	return "star ball (1000) every 100 turns";
 
 
 # The Power Dragon Scale Mail 'Bladeturner'
@@ -221,6 +298,22 @@ F:RES_NETHER | RES_NEXUS | RES_CHAOS | RES_LITE | RES_DARK |
 F:RES_SHARDS | RES_SOUND | RES_DISEN | RES_BLIND | RES_CONF |
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD |
 F:ACTIVATE | INSTA_ART
+L:USE:	local success; local dir; success, dir = get_aim_dir()
+L:USE:	if not success then return end
+L:USE:	msgf("You breathe the elements.")
+L:USE:	fire_ball(GF_MISSILE, dir, 1000, 4)
+L:USE:	msgf("Your armor glows many colours...")
+L:USE:	clear_afraid()
+L:USE:	inc_shero(rand_range(50, 100))
+L:USE:	hp_player(30)
+L:USE:	inc_blessed(rand_range(50, 100))
+L:USE:	inc_oppose_acid(rand_range(50, 100))
+L:USE:	inc_oppose_elec(rand_range(50, 100))
+L:USE:	inc_oppose_fire(rand_range(50, 100))
+L:USE:	inc_oppose_cold(rand_range(50, 100))
+L:USE:	inc_oppose_pois(rand_range(50, 100))
+L:USE:	object.timeout = 100
+L:DESC:	return "berserk, bless, resistance, and breathe elements (1000) every 100 turns"
 
 
 # The Robe of the Thaumaturgist
@@ -241,6 +334,12 @@ P:40:2d4:-4:0:20
 F:CON | HOLD_LIFE | SUST_CON |
 F:RES_ACID | RES_COLD | RES_DARK | RES_NETHER | RES_NEXUS | RES_CHAOS |
 F:ACTIVATE | INSTA_ART
+L:USE:	msgf("Your armor glows a bright white...")
+L:USE:	msgf("You feel much better...")
+L:USE:	hp_player(1000)
+L:USE:	clear_cut()
+L:USE:	object.timeout = 888
+L:DESC:	return "heal (1000) every 888 turns"
 
 
 # The Full Plate Armour of Isildur
@@ -262,17 +361,30 @@ P:19:1d4:0:0:15
 F:STR | DEX | HIDE_TYPE |
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_CONF | RES_SOUND
 F:INSTA_ART
+L:MAKE:	add_ego_power(EGO_XTRA_HI_RESIST, object)
 
-# The Mithril Chain Mail 'Belegennon' -> of Lohengrin
+# The Mithril Chain Mail of Lohengrin -> the Crusader
 
-N:22:of Lohengrin
+N:22:of the Crusader
 I:37:20:4
 W:70:3:150:135000
 P:28:1d4:-1:0:20
-F:STEALTH | WIS | INT | SEE_INVIS |
+F:LUCK_10 | WIS | INT | SEE_INVIS |
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_POIS |
 F:HOLD_LIFE | RES_NETHER | RES_DARK | RES_FEAR |
-F:ACTIVATE | INSTA_ART
+F:ACTIVATE | SLAY_EVIL | INSTA_ART
+L:USE:	msgf("A heavenly choir sings...")
+L:USE:	clear_poisoned()
+L:USE:	clear_cut()
+L:USE:	clear_stun()
+L:USE:	clear_confused()
+L:USE:	clear_blind()
+L:USE:	inc_hero(rand_range(25, 50))
+L:USE:	hp_player(777)
+L:USE:	object.timeout = 300
+L:DESC:	return "curing, heroism and heal (777) every 300 turns"
+D:This armor is said to have been forged by an angel and 
+D:imbued with celestial power.
 
 
 # The Mithril Plate Mail of Celeborn -> Julian
@@ -284,16 +396,30 @@ P:15:2d4:-2:0:40
 F:STR | CHR | HIDE_TYPE |
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_DARK |
 F:RES_DISEN | ACTIVATE | INSTA_ART
+L:USE:	msgf("Your armor glows deep blue...")
+L:USE:	genocide()
+L:USE:	object.timeout = 500
+L:DESC:	return "genocide every 500 turns"
+L:MAKE:	add_ego_power(EGO_XTRA_HI_RESIST, object)
 
 
-# The Chain Mail of Arvedui
+# The Chain Mail of Arvedui -> Command
 
-N:24:of Arvedui
+N:24:of Command
 I:37:4:2
 W:35:3:220:32000
 P:14:1d4:-2:0:15
 F:STR | CHR | HIDE_TYPE | INSTA_ART
-F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_SHARDS | RES_NEXUS
+F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD
+L:USE:	msgf("Your armor shines with a brilliant white light.")
+L:USE:	charm_monsters(player.lev * 2)
+L:USE:	object.timeout = 600
+L:DESC:	return "mass charm every 600 turns"
+L:MAKE:	add_ego_power(EGO_XTRA_HI_RESIST, object)
+L:MAKE:	add_ego_power(EGO_XTRA_HI_RESIST, object)
+D:This finely wrought suit of mail seems worthy of a great king. 
+D:Every detail is perfect, and the whole radiates an aura of 
+D:total confidence and power.
 
 
 # The Augmented Chain Mail of Caspanion
@@ -304,6 +430,11 @@ W:43:9:270:40000
 P:16:1d4:-2:0:20
 F:INT | WIS | CON | HIDE_TYPE | INSTA_ART
 F:RES_ACID | RES_POIS | RES_CONF | ACTIVATE
+L:USE:	msgf("Your armor glows bright red...")
+L:USE:	destroy_doors_touch()
+L:USE:	object.timeout = 10
+L:DESC:	return "trap and door destruction every 10 turns"
+L:MAKE:	add_ego_power(EGO_XTRA_HI_RESIST, object)
 
 # The Metal Scale Mail 'Nemovebla'
 
@@ -314,14 +445,32 @@ P:13:1d4:0:0:10
 F:STR | CON | RES_NEXUS | RES_NETHER | NO_TELE | SLOW_DIGEST | HIDE_TYPE
 F:INSTA_ART
 
-# The Soft Leather Armour 'Hithlomir'
+# The Hagaromo 'Tenyo's Despair'
 
-N:27:'Hithlomir'
-I:36:4:4
-W:35:3:80:45000
-P:4:0d0:0:0:20
-F:STEALTH | RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_DARK
+N:27:'Tenyo's Despair'
+I:36:16:4
+W:45:3:20:40000
+P:2:0d0:0:0:20
+F:STEALTH | FEATHER | RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_DARK |
+F:ACTIVATE | SUST_STR | SUST_INT | SUST_WIS | SUST_DEX | SUST_CON | SUST_CHR
 F:INSTA_ART
+L:USE:	msgf("Your robe shines brightly.")
+L:USE:	cure_potion(500, TRUE, TRUE, TRUE)
+L:USE:  local d = randint1(100)
+L:USE:	if d <= 50 then
+L:USE:		inc_blessed(rand_range(25, 50))
+L:USE:	elseif d <= 75 then
+L:USE:		turn_monsters(player.lev * 4)
+L:USE:	else
+L:USE:		summon_controlled(SUMMON_ANGEL)
+L:USE:	end
+L:USE:	object.timeout = 1000
+L:DESC:	return "heavenly blessing and heal (500) every 1000 turns"
+L:MAKE:	add_ego_power(EGO_XTRA_HI_RESIST, object)
+D:According to legend, a celestial maiden was bathing in a stream when 
+D:a man came and took her hagaromo. Unable to return to heaven without 
+D:it, she had no choice but to marry the man and hope to eventually 
+D:find her robe.
 
 # The Leather Scale Mail 'Thalkettoth'
 
@@ -330,6 +479,7 @@ I:36:11:3
 W:35:3:60:25000
 P:11:1d1:-1:0:25
 F:DEX | HIDE_TYPE | RES_ACID | RES_SHARDS | INSTA_ART
+L:MAKE:	add_ego_power(EGO_XTRA_HI_RESIST, object)
 
 # The Leather Jacket of Melman
 
@@ -347,6 +497,7 @@ W:52:6:65:60000
 P:5:1d3:0:0:25
 F:STR | CON | HIDE_TYPE | FREE_ACT | IM_ACID | RES_SOUND | RES_CHAOS
 F:INSTA_ART
+L:MAKE:	add_ego_power(EGO_XTRA_HI_RESIST, object)
 
 # The Large Leather Shield of Celegorm
 
@@ -356,6 +507,7 @@ W:52:3:60:12000
 P:6:1d4:0:0:20
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_LITE | RES_DARK
 F:INSTA_ART
+L:MAKE:	add_ego_power(EGO_XTRA_HI_RESIST, object)
 
 # The Large Metal Shield of Anarion
 
@@ -365,6 +517,7 @@ W:70:9:120:160000
 P:8:1d5:0:0:20
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | SUST_STR | SUST_INT |
 F:SUST_WIS | SUST_DEX | SUST_CON | SUST_CHR | INSTA_ART
+L:MAKE:	add_ego_power(EGO_XTRA_HI_RESIST, object)
 
 
 # The Hard Leather Cap of Sawall
@@ -397,6 +550,7 @@ P:0:1d1:0:0:25
 F:STR | DEX | CON | HIDE_TYPE |
 F:FREE_ACT | SEE_INVIS | TELEPATHY | CURSED
 F:INSTA_ART
+L:MAKE:	add_ego_power(EGO_XTRA_ABILITY, object)
 
 # The Hard Leather Cap of Thranduil
 
@@ -406,6 +560,7 @@ W:35:2:15:50000
 P:2:0d0:0:0:10
 F:INT | WIS | HIDE_TYPE | RES_BLIND | TELEPATHY
 F:INSTA_ART
+L:MAKE:	add_ego_power(EGO_XTRA_HI_RESIST, object)
 
 # The Metal Cap of Thengel
 
@@ -433,6 +588,9 @@ P:8:1d3:0:0:20
 F:STR | DEX | CON | HIDE_TYPE |
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_LITE | RES_BLIND |
 F:LITE | SEE_INVIS | TELEPATHY | ACTIVATE | INSTA_ART
+L:USE:	turn_monsters(40 + player.lev)
+L:USE:	object.timeout = 3 * (player.lev + 10)
+L:DESC:	return "turn monsters every 33-180 turns"
 
 
 # The Iron Helm 'Holhenneth'
@@ -443,6 +601,11 @@ W:35:5:75:100000
 P:5:1d3:0:0:10
 F:INT | WIS | SENSE | HIDE_TYPE | RES_BLIND | SEE_INVIS | ACTIVATE
 F:INSTA_ART
+L:USE:	msgf("Your helm glows bright white...")
+L:USE:	msgf("An image forms in your mind...")
+L:USE:	detect_all()
+L:USE:	object.timeout = rand_range(55, 110)
+L:DESC:	return "detection every 55-110 turns"
 
 # The Iron Helm of Gorlim -> Terror Mask (for warriors only...)
 
@@ -454,6 +617,16 @@ F:INT | WIS | SENSE | HIDE_TYPE | SHOW_MODS |
 F:SEE_INVIS | NO_MAGIC | IM_COLD | ACTIVATE |
 F:RES_DISEN | RES_FEAR | FREE_ACT | RES_ACID | RES_COLD | RES_POIS |
 F:TELEPORT | INSTA_ART
+L:USE:	turn_monsters(40 + player.lev)
+L:USE:	object.timeout = 3 * (player.lev + 10)
+L:DESC:	return "turn monsters every 33-180 turns"
+L:MAKE:	if player.rp.pclass == CLASS_WARRIOR then
+L:MAKE:		add_ego_power(EGO_XTRA_ABILITY, object)
+L:MAKE:		add_ego_power(EGO_XTRA_HI_RESIST, object)
+L:MAKE:	else
+L:MAKE:		set_obj_flag(object, 2, bOr(object.flags2, bOr(TR2_CURSED,
+L:MAKE:			bOr(TR2_HEAVY_CURSE, bOr(TR2_AGGRAVATE, TR2_TY_CURSE)))))
+L:MAKE:	end
 
 
 # The Golden Crown of Gondor -> Amber
@@ -465,6 +638,14 @@ P:0:1d1:0:0:15
 F:STR | WIS | CON | HIDE_TYPE | SPEED |
 F:RES_COLD | RES_FIRE | RES_LITE | RES_BLIND | RES_ELEC | RES_CONF |
 F:RES_CHAOS | LITE | SEE_INVIS | REGEN | ACTIVATE | INSTA_ART
+L:USE:	msgf("Your crown glows deep blue...")
+L:USE:	msgf("You feel a warm tingling inside...")
+L:USE:	hp_player(700)
+L:USE:	clear_cut()
+L:USE:	object.timeout = 250
+L:DESC:	return "heal (700) every 250 turns"
+L:MAKE:	add_ego_power(EGO_XTRA_HI_RESIST, object)
+L:MAKE:	add_ego_power(EGO_XTRA_ABILITY, object)
 
 # The Filthy Rag of Keri the Humble
 
@@ -474,6 +655,10 @@ W:9:6:20:4500
 P:1:0d0:0:0:20
 F:STR | CON | CHR | HIDE_TYPE |
 F:SUST_STR | SLOW_DIGEST | ACTIVATE | INSTA_ART
+L:USE:	msgf("Your rag feels warm for a moment...")
+L:USE:	create_food()
+L:USE:	object.timeout = 100
+L:DESC:	return "create food every 100 turns"
 
 
 # The Cloak 'Colluin'
@@ -484,24 +669,47 @@ W:9:45:10:10000
 P:1:0d0:0:0:15
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_POIS | ACTIVATE
 F:INSTA_ART
+L:USE:	msgf("Your cloak glows many colours...")
+L:USE:	inc_oppose_acid(rand_range(20, 40))
+L:USE:	inc_oppose_elec(rand_range(20, 40))
+L:USE:	inc_oppose_fire(rand_range(20, 40))
+L:USE:	inc_oppose_cold(rand_range(20, 40))
+L:USE:	inc_oppose_pois(rand_range(20, 40))
+L:USE:	object.timeout = 111
+L:DESC:	return "resistance (20-40) every 111 turns"
 
-# The Cloak 'Holcolleth'
+# The Cloak 'Holcolleth' -> 'Thief's Shadow'
 
-N:45:'Holcolleth'
+N:45:'Thief's Shadow'
 I:35:1:2
 W:9:45:10:13000
 P:1:0d0:0:0:4
-F:INT | WIS | STEALTH | HIDE_TYPE | RES_ACID | ACTIVATE | INSTA_ART
+F:DEX | STEALTH | HIDE_TYPE | RES_LITE | ACTIVATE | INSTA_ART
+L:USE:	msgf("Your cloak glows deep blue...")
+L:USE:	sleep_monsters_touch()
+L:USE:	object.timeout = 55
+L:DESC:	return "sleep nearby monsters every 55 turns"
+# Also apply 1/2 the armor bonus to stealth
+L:BONUS:	player.skills[SKILL_STL] = player.skills[SKILL_STL] + object.to_a / 2
+D:This fine cloak of dark cloth allows its wearer to blend 
+D:perfectly with the shadows.
 
 
-# The Cloak of Thingol
+# The Cloak of Thingol -> the Alchemist
 
-N:46:of Thingol
+N:46:of the Alchemist
 I:35:1:3
 W:17:90:10:35000
 P:1:0d0:0:0:18
-F:DEX | CHR | HIDE_TYPE |
+F:DEX | LUCK_10 | HIDE_TYPE |
 F:FREE_ACT | RES_ACID | RES_FIRE | RES_COLD | ACTIVATE | INSTA_ART
+L:USE:	msgf("Your cloak glows bright yellow...")
+L:USE:	recharge(130)
+L:USE:	object.timeout = 70
+L:DESC:	return "recharge item every 70 turns"
+L:MAKE:	add_ego_power(EGO_XTRA_ABILITY, object)
+D:This cloak was created by the gnome Samagar the Scorched to 
+D:protect him from his frequent magical mishaps.
 
 
 # The Cloak of Thorongil
@@ -520,6 +728,10 @@ I:35:1:3
 W:5:10:10:11000
 P:1:0d0:0:0:15
 F:STEALTH | RES_ACID | ACTIVATE | INSTA_ART
+L:USE:	msgf("Your cloak twists space around you...")
+L:USE:	teleport_player(100)
+L:USE:	object.timeout = 45
+L:DESC:	return "teleport every 45 turns"
 
 
 # The Shadow Cloak of Luthien
@@ -531,6 +743,11 @@ P:6:0d0:0:0:20
 F:INT | WIS | CHR | HIDE_TYPE | SPEED | STEALTH |
 F:RES_ACID | RES_FIRE | RES_COLD | ACTIVATE |
 F:RES_DARK | RES_LITE | INSTA_ART
+L:USE:	msgf("Your cloak glows a deep red...")
+L:USE:	restore_level()
+L:USE:	object.timeout = 450
+L:DESC:	return "restore life levels every 450 turns"
+L:MAKE:	add_ego_power(EGO_XTRA_HI_RESIST, object)
 
 
 # The Shadow Cloak of Tuor
@@ -545,13 +762,13 @@ F:STEALTH | FREE_ACT | IM_ACID | SEE_INVIS | INSTA_ART
 # Artifact 51 is unused
 
 
-# The Set of Leather Gloves 'Cambeleg'
+# The Set of Leather Gloves 'Cambeleg' -> of the Ogre
 
-N:52:'Cambeleg'
-I:31:1:2
+N:52:of the Ogre
+I:31:1:3
 W:17:6:5:5000
 P:1:0d0:8:8:15
-F:STR | CON | HIDE_TYPE | FREE_ACT | SHOW_MODS | INSTA_ART
+F:STR | CON | HIDE_TYPE | SHOW_MODS | INSTA_ART
 
 
 # The Set of Leather Gloves 'Cammithrim'
@@ -561,6 +778,12 @@ I:31:1:0
 W:17:3:5:3000
 P:1:0d0:0:0:10
 F:FREE_ACT | RES_LITE | SUST_CON | LITE | ACTIVATE | INSTA_ART
+L:USE:	msgf("Your gloves glow extremely brightly...")
+L:USE:	local success; local dir; success, dir = get_aim_dir()
+L:USE:	if not success then return end
+L:USE:	fire_bolt(GF_MISSILE, dir, damroll(3, 6))
+L:USE:	object.timeout = 2
+L:DESC:	return "magic missile (3d6) every 2 turns"
 
 
 # The Set of Gauntlets 'Paurhach'
@@ -570,6 +793,12 @@ I:31:2:0
 W:17:20:25:5000
 P:2:1d1:0:0:15
 F:RES_FIRE | ACTIVATE | INSTA_ART
+L:USE:	msgf("Your gauntlets are covered in fire...")
+L:USE:	local success; local dir; success, dir = get_aim_dir()
+L:USE:	if not success then return end
+L:USE:	fire_bolt(GF_FIRE, dir, damroll(11, 8))
+L:USE:	object.timeout = rand_range(8, 16)
+L:DESC:	return "fire bolt (11d8) every 8-16 turns"
 
 
 # The Set of Gauntlets 'Paurnimmen' -> of Corwin
@@ -579,6 +808,12 @@ I:31:2:4
 W:17:20:25:10000
 P:2:1d1:0:0:15
 F:SUST_CON | CON | REGEN | RES_COLD | ACTIVATE | INSTA_ART
+L:USE:	msgf("Your gauntlets are covered in frost...")
+L:USE:	local success; local dir; success, dir = get_aim_dir()
+L:USE:	if not success then return end
+L:USE:	fire_bolt(GF_COLD, dir, damroll(8, 8))
+L:USE:	object.timeout = rand_range(7, 14)
+L:DESC:	return "frost bolt (8d8) every 7-14 turns"
 
 
 # The Set of Gauntlets 'Pauraegen'
@@ -588,6 +823,12 @@ I:31:2:0
 W:17:20:25:5000
 P:2:1d1:0:0:15
 F:RES_ELEC | ACTIVATE | INSTA_ART
+L:USE:	msgf("Your gauntlets are covered in sparks...")
+L:USE:	local success; local dir; success, dir = get_aim_dir()
+L:USE:	if not success then return end
+L:USE:	fire_bolt(GF_ELEC, dir, damroll(6, 8))
+L:USE:	object.timeout = rand_range(6, 12)
+L:DESC:	return "lightning bolt (6d8) every 6-12 turns"
 
 
 # The Set of Gauntlets 'Paurnen'
@@ -597,6 +838,12 @@ I:31:2:0
 W:17:20:25:6000
 P:2:1d1:0:0:15
 F:RES_ACID | ACTIVATE | INSTA_ART
+L:USE:	msgf("Your gauntlets are covered in acid...")
+L:USE:	local success; local dir; success, dir = get_aim_dir()
+L:USE:	if not success then return end
+L:USE:	fire_bolt(GF_ACID, dir, damroll(8, 8))
+L:USE:	object_timeout = rand_range(5, 10)
+L:DESC:	return "acid bolt (8d8) every 5-10 turns"
 
 
 # The Set of Gauntlets 'Camlost' -> of Thanos
@@ -619,6 +866,13 @@ W:70:15:40:110000
 P:5:1d1:10:10:20
 F:DEX | HIDE_TYPE |
 F:FREE_ACT | RES_ACID | ACTIVATE | SHOW_MODS | INSTA_ART
+L:USE:	msgf("Your cesti grows magical spikes...")
+L:USE:	local success; local dir; success, dir = get_aim_dir()
+L:USE:	if not success then return end
+L:USE:	fire_bolt(GF_ARROW, dir, 250)
+L:USE:	object.timeout = rand_range(90, 180)
+L:DESC:	return "a magical arrow (250) every 90-180 turns"
+L:MAKE:	add_ego_power(EGO_XTRA_ABILITY, object)
 
 
 # The Pair of Hard Leather Boots of Feanor
@@ -629,6 +883,10 @@ W:70:120:40:300000
 P:3:1d1:0:0:20
 F:SPEED |
 F:RES_NEXUS | ACTIVATE | INSTA_ART
+L:USE:	msgf("Your boots glow bright green...")
+L:USE:	inc_fast(rand_range(20, 40))
+L:USE:	object.timeout = 200
+L:DESC:	return "haste self (20-40) every 200 turns"
 
 
 # The Pair of Soft Leather Boots 'Dal-i-thalion' -> of Flora
@@ -639,6 +897,11 @@ W:17:25:20:40000
 P:2:1d1:0:0:15
 F:DEX | HIDE_TYPE | CHR | SUST_CHR | ACTIVATE | FREE_ACT |
 F:RES_NETHER | RES_CHAOS | SUST_CON | INSTA_ART
+L:USE:	msgf("Your boots glow deep blue...")
+L:USE:	clear_afraid()
+L:USE:	clear_poisoned()
+L:USE:	object.timeout = 5
+L:DESC:	return "remove fear and cure poison every 5 turns"
 
 
 # The Pair of Metal Shod Boots of Thror
@@ -648,6 +911,7 @@ I:30:6:3
 W:52:25:80:15000
 P:6:1d1:0:0:20
 F:STR | CON | HIDE_TYPE | SPEED | INSTA_ART
+L:MAKE:	add_ego_power(EGO_XTRA_HI_RESIST, object)
 
 
 # The Pair of Soft Leather Boots of Bleys
@@ -667,6 +931,7 @@ W:26:30:30:22500
 P:0:2d5:12:15:0
 F:INT | DEX | HIDE_TYPE | SPEED |
 F:SLAY_TROLL | SLAY_GIANT | FREE_ACT | SEE_INVIS | SHOW_MODS | INSTA_ART
+L:MAKE:	add_ego_power(EGO_XTRA_POWER, object)
 
 
 # The Dagger 'Angrist' -> of Caine
@@ -688,6 +953,13 @@ W:7:10:12:4000
 P:0:1d6:4:6:0
 F:BRAND_FIRE | RES_FIRE | ACTIVATE | SHOW_MODS | LITE | 
 F:THROW | RETURN | INSTA_ART
+L:USE:	msgf("Your dagger is covered in fire...")
+L:USE:	local success; local dir; success, dir = get_aim_dir()
+L:USE:	if not success then return end
+L:USE:	fire_bolt(GF_FIRE, dir, damroll(11, 8))
+L:USE:	object.timeout = rand_range(8, 16)
+L:DESC:	return "fire bolt(11d8) every 8-16 turns"
+L:MAKE:	add_ego_power(EGO_XTRA_HI_RESIST, object)
 
 
 # The Dagger 'Nimthanc'
@@ -697,6 +969,13 @@ I:23:4:0
 W:5:10:12:3500
 P:0:1d6:4:6:0
 F:BRAND_COLD | RES_COLD | ACTIVATE | SHOW_MODS | THROW | RETURN | INSTA_ART
+L:USE:	msgf("Your dagger is covered in frost...")
+L:USE:	local success; local dir; success, dir = get_aim_dir()
+L:USE:	if not success then return end
+L:USE:	fire_bolt(GF_COLD, dir, damroll(8, 8))
+L:USE:	object.timeout = rand_range(7, 14)
+L:DESC:	return "frost bolt (8d8) every 7-14 turns"
+L:MAKE:	add_ego_power(EGO_XTRA_HI_RESIST, object)
 
 
 # The Dagger 'Dethanc'
@@ -706,6 +985,13 @@ I:23:4:0
 W:9:10:12:5000
 P:0:1d6:4:6:0
 F:BRAND_ELEC | RES_ELEC | ACTIVATE | SHOW_MODS | THROW | RETURN | INSTA_ART
+L:USE:	msgf("Your dagger is covered in sparks...")
+L:USE:	local success; local dir; success, dir = get_aim_dir()
+L:USE:	if not success then return end
+L:USE:	fire_bolt(GF_ELEC, dir, damroll(6, 8))
+L:USE:	object.timeout = rand_range(6, 12)
+L:DESC:	return "lightning bolt (6d8) every 6-12 turns"
+L:MAKE:	add_ego_power(EGO_XTRA_HI_RESIST, object)
 
 
 # The Dagger of Rilia
@@ -716,6 +1002,12 @@ W:9:40:12:10000
 P:0:2d4:4:3:0
 F:SLAY_ORC | RES_POIS | RES_DISEN | ACTIVATE | SHOW_MODS | BRAND_POIS | 
 F:THROW | RETURN | INSTA_ART
+L:USE:	msgf("Your dagger throbs deep green...")
+L:USE:	local success; local dir; success, dir = get_aim_dir()
+L:USE:	if not success then return end
+L:USE:	fire_ball(GF_POIS, dir, 25, 3)
+L:USE:	object.timeout = rand_range(4, 8)
+L:DESC:	return "stinking cloud (25) every 4-8 turns"
 
 # The Dagger 'Belangil' -> of Fiona
 
@@ -726,6 +1018,12 @@ P:0:2d4:6:9:0
 F:DEX | HIDE_TYPE | SPEED | BLOWS | BRAND_COLD | RES_COLD |
 F:SEE_INVIS | SLOW_DIGEST | REGEN |
 F:ACTIVATE | SHOW_MODS | BRAND_POIS | THROW | INSTA_ART
+L:USE:	msgf("Your dagger is covered in frost...")
+L:USE:	local success; local dir; success, dir = get_aim_dir()
+L:USE:	if not success then return end
+L:USE:	fire_ball(GF_COLD, dir, 100, 2)
+L:USE:	object.timeout = rand_range(5, 10)
+L:DESC:	return "frost ball (100) every 5-10 turns"
 
 
 # The Bastard Sword 'Calris'
@@ -762,6 +1060,7 @@ P:0:2d5:10:15:0
 F:SENSE |
 F:SLAY_EVIL | BRAND_FIRE | SLAY_ORC | RES_FIRE | RES_LITE | LITE |
 F:SLOW_DIGEST | SHOW_MODS | INSTA_ART
+L:MAKE:	add_ego_power(EGO_XTRA_POWER, object)
 
 
 # The Broad Sword 'Aeglin' -> 'Nothung'
@@ -783,6 +1082,7 @@ W:35:20:150:40000
 P:0:2d5:10:15:0
 F:STEALTH | SLAY_EVIL | BRAND_COLD | SLAY_ORC | RES_COLD | LITE |
 F:SLOW_DIGEST | SHOW_MODS | INSTA_ART
+L:MAKE:	add_ego_power(EGO_XTRA_POWER, object)
 
 
 # The Two-Handed Sword 'Gurthang'
@@ -794,6 +1094,7 @@ P:0:3d6:13:17:0
 F:STR | HIDE_TYPE |
 F:KILL_DRAGON | SLAY_TROLL | FREE_ACT | SLOW_DIGEST | REGEN | SHOW_MODS
 F:INSTA_ART
+L:MAKE:	add_ego_power(EGO_XTRA_POWER, object)
 
 # The Two-Handed Sword 'Zarcuthra'
 
@@ -806,6 +1107,7 @@ F:KILL_DRAGON | SLAY_ANIMAL | SLAY_EVIL | BRAND_FIRE | LITE |
 F:SLAY_UNDEAD | SLAY_DEMON | SLAY_TROLL | SLAY_GIANT | SLAY_ORC |
 F:RES_FIRE | RES_CONF | RES_CHAOS | FREE_ACT | SEE_INVIS | AGGRAVATE |
 F:SHOW_MODS | INSTA_ART
+L:MAKE:	add_ego_power(EGO_XTRA_POWER, object)
 
 
 # The Two-Handed Sword 'Mormegil' -> Twilight
@@ -859,6 +1161,13 @@ F:SPEED | REGEN | ACTIVATE | SHOW_MODS |
 F:SLAY_EVIL | BRAND_COLD | SLAY_UNDEAD | SLAY_DEMON | SLAY_TROLL |
 F:FREE_ACT | RES_COLD | RES_LITE | LITE | SEE_INVIS | SLOW_DIGEST | 
 F:INSTA_ART
+L:USE:	msgf("Your sword glows an intense blue...")
+L:USE:	local success; local dir; success, dir = get_aim_dir()
+L:USE:	if not success then return end
+L:USE:	fire_ball(GF_COLD, dir, 200, 2)
+L:USE:	object.timeout = 300
+L:DESC:	return "frost ball (200) every 300 turns"
+
 
 # The Long Sword 'Anduril'
 
@@ -870,6 +1179,13 @@ F:STR | HIDE_TYPE |
 F:SLAY_EVIL | BRAND_FIRE | SLAY_TROLL | SLAY_ORC | FREE_ACT |
 F:RES_FIRE | SUST_DEX | SEE_INVIS | ACTIVATE | SHOW_MODS | LITE
 F:INSTA_ART
+L:USE:	msgf("Your sword glows an intense red...")
+L:USE:	local success; local dir; success, dir = get_aim_dir()
+L:USE:	if not success then return end
+L:USE:	fire_ball(GF_FIRE, dir, 150, 2)
+L:USE:	object.timeout = 400
+L:DESC:	return "fire ball (150) every 400 turns"
+L:MAKE:	add_ego_power(EGO_XTRA_POWER, object)
 
 
 # The Long Sword 'Anguirel' -> Werewindle
@@ -883,6 +1199,9 @@ F:SLAY_EVIL | BRAND_ELEC | SLAY_DEMON | FREE_ACT | RES_ELEC |
 F:RES_LITE | LITE | SEE_INVIS | SHOW_MODS | ACTIVATE | SPEED |
 F:SUST_CON | SUST_STR | SUST_INT | SUST_WIS | RES_ELEC | RES_DARK |
 F:RES_DISEN | RES_FEAR | SPEED | INSTA_ART
+L:USE:	werewindle()
+L:USE:	object.timeout = 35
+L:USE:	"a getaway every 35 turns"
 
 
 # The Long Sword 'Elvagil'-> 'Chainsword'
@@ -893,6 +1212,10 @@ W:52:15:130:66666
 P:0:9d5:-30:7:0
 F:DEX | CHR | HIDE_TYPE | SPEED | AGGRAVATE |
 F:SLAY_TROLL | SLAY_ORC | SEE_INVIS | SHOW_MODS | INSTA_ART
+L:TIMED:	if randint0(100) == 0 then
+L:TIMED:		local line = get_rnd_line("chainswd.txt")
+L:TIMED:		if line then msgf(line) end
+L:TIMED:	end
 
 
 # The Rapier 'Forasgil'
@@ -924,6 +1247,7 @@ P:0:2d6:7:8:0
 F:STR | DEX | CON | SLAY_EVIL | SLAY_UNDEAD | SLAY_ORC |
 F:BLOWS | FREE_ACT | RES_LITE | LITE | SEE_INVIS | SHOW_MODS
 F:INSTA_ART
+L:MAKE:	add_ego_power(EGO_XTRA_HI_RESIST, object)
 
 # The Scimitar 'Haradekket' -> Soulsword
 
@@ -935,6 +1259,7 @@ F:INT | WIS | SEE_INVIS | BLESSED |
 F:SLAY_ANIMAL | SLAY_EVIL | SLAY_UNDEAD | SLAY_DRAGON | SLAY_DEMON |
 F:RES_CHAOS | RES_DISEN | RES_NEXUS | RES_NETHER | HOLD_LIFE |
 F:SHOW_MODS | INSTA_ART
+L:MAKE:	add_ego_power(EGO_XTRA_POWER, object)
 
 
 # The Short Sword Gilettar -> of Merlin
@@ -969,6 +1294,7 @@ P:0:4d5:32:32:0
 F:VORPAL | SLAY_EVIL |
 F:FREE_ACT | LITE | SEE_INVIS | SLOW_DIGEST | REGEN | SPEED | STR | DEX
 F:INSTA_ART
+L:HIT:	vorpal_chance = 1
 
 # The Beaked Axe of Theoden
 
@@ -978,6 +1304,12 @@ W:35:15:180:40000
 P:0:2d6:8:10:0
 F:WIS | CON | HIDE_TYPE |
 F:SLAY_DRAGON | TELEPATHY | SLOW_DIGEST | ACTIVATE | SHOW_MODS | INSTA_ART
+L:USE:	msgf("Your axe blade glows black...")
+L:USE:	local success; local dir; success, dir = get_aim_dir()
+L:USE:	if not success then return end
+L:USE:	drain_life(dir, 200)
+L:USE:	object.timeout = 400
+L:DESC:	return "drain life (200) every 400 turns"
 
 
 # The Glaive of Pain
@@ -1022,6 +1354,13 @@ F:SLAY_TROLL | SLAY_ORC | SLAY_GIANT |
 F:FREE_ACT | RES_FIRE | RES_ELEC | RES_LITE |
 F:SLOW_DIGEST | ACTIVATE | BLESSED | SHOW_MODS | LITE | THROW | RETURN |
 F:INSTA_ART
+L:USE:	msgf("Your spear crackles with electricity...")
+L:USE:	local success; local dir; success, dir = get_aim_dir()
+L:USE:	if not success then return end
+L:USE:	fire_ball(GF_ELEC, dir, 200, 3)
+L:USE:	object.timeout = 500
+L:DESC:	return "lightning ball (200) every 500 turns"
+
 
 # The Spear of Orome -> Destiny
 
@@ -1034,6 +1373,13 @@ F:SLAY_GIANT | SLAY_EVIL | SLAY_DEMON | SLAY_UNDEAD | SLAY_DRAGON |
 F:RES_FIRE | RES_LITE | HOLD_LIFE | RES_FEAR | LITE | FEATHER |
 F:LITE | SEE_INVIS | ACTIVATE | BLESSED | SHOW_MODS | THROW
 F:INSTA_ART
+L:USE:	msgf("Your spear pulsates...")
+L:USE:	local success; local dir; success, dir = get_aim_dir()
+L:USE:	if not success then return end
+L:USE:	wall_to_mud(dir)
+L:USE:	object.timeout = 5
+L:DESC:	return "stone to mud every 5 turns"
+
 
 # The Spear 'Nimloth' -> Hagen
 
@@ -1076,6 +1422,10 @@ F:STR | INT | WIS | DEX | CON | CHR | HIDE_TYPE |
 F:SLAY_EVIL | BRAND_COLD | SLAY_UNDEAD |
 F:SLAY_ORC | FREE_ACT | IM_COLD | SEE_INVIS | ACTIVATE |
 F:BLESSED | SHOW_MODS | INSTA_ART
+L:USE:	msgf("Your great axe lets out a long, shrill note...")
+L:USE:	mass_genocide()
+L:USE:	object.timeout = 1000
+L:DESC:	return "mass genocide every 1000 turns"
 
 
 # The Battle Axe of Balli Stonehand
@@ -1098,6 +1448,11 @@ W:52:15:170:21000
 P:0:2d8:4:3:0
 F:STR | DEX | HIDE_TYPE |
 F:SLAY_TROLL | SLAY_ORC | ACTIVATE | SHOW_MODS | INSTA_ART
+L:USE:	msgf("Your battle axe radiates deep purple...")
+L:USE:	hp_player(100)
+L:USE:	inc_cut(-50)
+L:USE:	object.timeout = rand_range(3, 6)
+L:DESC:	return "cure wounds (100) every 3-6 turns"
 
 
 # The Lochaber Axe 'Mundwine' -> of the Dwarves
@@ -1143,6 +1498,13 @@ F:DEX | HIDE_TYPE |
 F:SLAY_DRAGON | SLAY_ANIMAL | FREE_ACT | HOLD_LIFE | IM_ACID |
 F:RES_NETHER | SEE_INVIS | SLOW_DIGEST | REGEN | ACTIVATE |
 F:BLESSED | SHOW_MODS | INSTA_ART
+L:USE:	msgf("Your trident glows deep red...")
+L:USE:	local success; local dir; success, dir = get_aim_dir()
+L:USE:	if not success then return end
+L:USE:	teleport_monster(dir)
+L:USE:	object.timeout = 150
+L:DESC:	return "teleport away every 150 turns"
+L:MAKE:	add_ego_power(EGO_XTRA_ABILITY, object)
 
 
 # The Scythe 'Avavir'
@@ -1154,6 +1516,10 @@ P:0:5d3:8:8:10
 F:DEX | CHR | HIDE_TYPE |
 F:BRAND_COLD | BRAND_FIRE | FREE_ACT | RES_FIRE | RES_COLD |
 F:RES_LITE | LITE | SEE_INVIS | ACTIVATE | SHOW_MODS | INSTA_ART
+L:USE:	msgf("Your scythe glows soft white...")
+L:USE:	word_of_recall()
+L:USE:	object.timeout = 200
+L:DESC:	return "word of recall every 200 turns"
 
 
 # The Long Sword of the Dawn
@@ -1166,6 +1532,11 @@ F:ACTIVATE | LITE | BRAND_FIRE | FREE_ACT | RES_FIRE | INFRA |
 F:SLAY_EVIL | SLAY_DRAGON | SLAY_UNDEAD | SLAY_DEMON | VORPAL |
 F:CHR | SUST_CHR | RES_FEAR | RES_LITE | RES_BLIND | REGEN | SHOW_MODS
 F:INSTA_ART
+L:USE:	msgf("You summon the Legion of the Dawn.")
+L:USE:	summon_specific(-1, px, py, player.depth, SUMMON_DAWN, TRUE, TRUE, TRUE)
+L:USE:	object.timeout = rand_range(500, 1000)
+L:DESC:	return "summon the Legion of the Dawn every 500-1000 turns"
+L:MAKE:	add_ego_power(EGO_XTRA_POWER, object)
 
 
 # The Mighty Hammer 'Grond'
@@ -1192,6 +1563,12 @@ P:0:3d6:6:8:0
 F:STEALTH |
 F:SLAY_EVIL | BRAND_FIRE | RES_FIRE | RES_CONF | ACTIVATE |
 F:SHOW_MODS | LITE | INSTA_ART
+L:USE:	msgf("Your flail glows in scintillating colours...")
+L:USE:	local success; local dir; success, dir = get_aim_dir()
+L:USE:	if not success then return end
+L:USE:	confuse_monster(dir, 50)
+L:USE:	object.timeout = 15
+L:DESC:	return "confuse monster every 15 turns"
 
 
 # The Two-Handed Flail 'Thunderfist'
@@ -1215,6 +1592,10 @@ P:0:2d4:13:18:0
 F:DEX | SPEED | BLOWS | CHAOTIC | SLAY_EVIL | SUST_DEX | 
 F:FREE_ACT | RES_FEAR | RES_NEXUS | RES_CHAOS | NO_TELE |
 F:SHOW_MODS | FEATHER | ACTIVATE | INSTA_ART | HIDE_TYPE |
+L:USE:	msgf("Your ball and chain swings through the air...")
+L:USE:	whirlwind_attack()
+L:USE:	object.timeout = rand_range(50, 100)
+L:DESC:	return "whirlwind attack every 50-100 turns"
 
 
 # The Morning Star 'Firestar'
@@ -1224,6 +1605,12 @@ I:21:12:0
 W:35:15:150:35000
 P:0:2d6:5:7:2
 F:BRAND_FIRE | RES_FIRE | ACTIVATE | SHOW_MODS | LITE | INSTA_ART
+L:USE:	msgf("Your morning star rages in fire...")
+L:USE:	local success; local dir; success, dir = get_aim_dir()
+L:USE:	if not success then return end
+L:USE:	fire_ball(GF_FIRE, dir, 200, 3)
+L:USE:	object.timeout = 100
+L:DESC:	return "fire ball (200), rad. 3, every 100 turns"
 
 
 # The Scythe of Energy
@@ -1234,6 +1621,10 @@ W:70:25:250:50000
 P:0:5d3:20:20:0
 F:CON | BRAND_ELEC | IM_ELEC | HIDE_TYPE | SHOW_MODS | KILL_DRAGON
 F:INSTA_ART | ACTIVATE
+L:USE:	msgf("Your scythe glows bright green...")
+L:USE:	inc_fast(rand_range(20, 40))
+L:USE:	object.timeout = rand_range(100, 200)
+L:DESC:	return "haste self (20-40) every 100-200 turns"
 
 # The War Hammer of Aule
 
@@ -1245,6 +1636,8 @@ F:WIS | HIDE_TYPE |
 F:KILL_DRAGON | SLAY_EVIL | BRAND_ELEC | SLAY_UNDEAD | SLAY_DEMON |
 F:FREE_ACT | RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_NEXUS |
 F:SEE_INVIS | SHOW_MODS | INSTA_ART
+L:MAKE:	add_ego_power(EGO_XTRA_HI_RESIST, object)
+L:MAKE:	add_ego_power(EGO_XTRA_ABILITY, object)
 
 
 # The Quarterstaff 'Nar-i-vagil'
@@ -1257,14 +1650,20 @@ F:INT | HIDE_TYPE |
 F:SLAY_ANIMAL | BRAND_FIRE | RES_FIRE | SHOW_MODS | LITE | INSTA_ART
 
 
-# The Quarterstaff 'Eriril'
+# The Quarterstaff 'Eriril' -> of the Wandering Wizard
 
-N:119:'Eriril'
-I:21:3:4
+N:119:of the Wandering Wizard
+I:21:3:2
 W:35:18:150:20000
 P:0:1d18:3:5:0
-F:INT | WIS | HIDE_TYPE |
-F:SLAY_EVIL | RES_LITE | LITE | SEE_INVIS | ACTIVATE | SHOW_MODS | INSTA_ART
+F:INT | SP | HIDE_TYPE |
+F:RES_DARK | RES_LITE | LITE | SEE_INVIS | ACTIVATE | SHOW_MODS | INSTA_ART
+L:USE:	msgf("Your quarterstaff glows yellow...")
+L:USE:	if ident_spell() then object.timeout = 10 end
+L:DESC:	return "identify every 10 turns"
+D:This quarterstaff has been owned by many different mages. Each owner
+D:has become a noteworthy mage, but none has kept the staff, choosing 
+D:to instead pass it to a new keeper.
 
 
 # The Quarterstaff of Olorin -> Gandalf
@@ -1277,6 +1676,13 @@ F:INT | WIS | CHR | HIDE_TYPE | SENSE | BRAND_FIRE |
 F:SLAY_EVIL | BRAND_FIRE | SLAY_TROLL | SLAY_ORC | LITE |
 F:HOLD_LIFE | RES_FIRE | RES_NETHER | SEE_INVIS | ACTIVATE | SHOW_MODS
 F:INSTA_ART
+L:USE:	msgf("Your quarterstaff glows brightly...")
+L:USE:	detect_all()
+L:USE:	probing()
+L:USE:	identify_fully()
+L:USE:	object.timeout = 1000
+L:DESC:	return "probing, detection and full id every 1000 turns"
+L:MAKE:	add_ego_power(EGO_XTRA_ABILITY, object)
 
 
 # The Mace of Disruption 'Deathwreaker'
@@ -1300,6 +1706,13 @@ P:0:2d5:10:6:8
 F:WIS | INFRA | HIDE_TYPE | BLESSED |
 F:BRAND_COLD | SLAY_ORC | RES_COLD | RES_LITE | LITE | REGEN |
 F:ACTIVATE | SHOW_MODS | INSTA_ART
+L:USE:	msgf("Your hammer glows white...")
+L:USE:	local success; local dir; success, dir = get_aim_dir()
+L:USE:	if not success then return end
+L:USE:	drain_life(dir, 200)
+L:USE:	object.timeout = 70
+L:DESC:	return "drain life (200) every 70 turns"
+L:MAKE:	add_ego_power(EGO_XTRA_HI_RESIST, object)
 
 # The Sling 'Catapult'
 
@@ -1309,6 +1722,11 @@ W:12:8:5:7500
 P:0:0d0:20:10:0
 F:DEX | INFRA | HIDE_TYPE | SHOW_MODS | XTRA_MIGHT | ACTIVATE
 F:INSTA_ART
+L:USE:	msgf("Your sling hums...")
+L:USE:	clear_afraid()
+L:USE:	hp_player(45)
+L:USE:	object.timeout = 10
+L:DESC:	return "heal (45) every 10 turns"
 
 # The Long Bow 'Belthronding'
 
@@ -1335,6 +1753,11 @@ I:19:23:10
 W:80:25:60:50000
 P:0:0d0:10:14:0
 F:SPEED | RES_FIRE | XTRA_MIGHT | ACTIVATE | SHOW_MODS | INSTA_ART
+L:USE:	msgf("Your crossbow glows deep red...")
+L:USE:	brand_bolts()
+L:USE:	object.timeout = 999
+L:DESC:	return "fire branding of bolts every 999 turns"
+L:MAKE:	add_ego_power(EGO_XTRA_POWER, object)
 
 # The Short Bow of Marksmanship
 
@@ -1344,3 +1767,37 @@ W:25:20:30:28000
 P:0:0d0:35:15:0
 F:DEX | SENSE | INFRA | SUST_DEX | RES_BLIND | HIDE_TYPE | SHOW_MODS | 
 F:LITE | SEE_INVIS | XTRA_MIGHT | XTRA_SHOTS | INSTA_ART
+
+# The Cloak 'Soulless One'
+
+N:128:'Soulless One'
+I:35:1:4
+W:45:40:10:20000
+P:1:0d0:0:0:25
+F:STEALTH | RES_DARK | RES_NEXUS | DRAIN_EXP | DRAIN_STATS | PASS_WALL |
+F:CURSED | AUTO_CURSE | INSTA_ART
+D:This cloak looks ordinary, but you have a strange feeling that 
+D:there is something very wrong about it.
+
+N:129:'Luck Blade'
+I:23:17:0
+W:20:25:130:10000
+P:0:4d5:13:14:0
+F:VORPAL | LUCK_10 | BLESSED | FREE_ACT | LITE | INSTA_ART
+# Luck bonus depending on enchantment - normally an extra +13,
+# but it will go down if the luck blade is disenchanted, and up
+# if it is enchanted more.
+L:BONUS:	player.skills[SKILL_SAV] = player.skills[SKILL_SAV] + (object.to_h + object.to_d) / 2
+L:MAKE:	add_ego_power(EGO_XTRA_HI_RESIST, object)
+D:A sword said to grant incredible luck to its wielder.
+
+
+N:130:'Stormbringer'
+I:23:30:2
+W:95:0:180:10000
+P:0:6d6:16:16:0
+F:VAMPIRIC | STR | CON | FREE_ACT | HOLD_LIFE | RES_NEXUS
+F:RES_CHAOS | RES_NETHER | RES_CONF | INSTA_ART | CURSED
+F:HEAVY_CURSE | NO_TELE | QUESTITEM
+L:MAKE:	if (one_in_(2) ~= 0) set_flag(object, TR2_DRAIN_EXP) else set_flag(TR2_AGGRAVATE) end
+D:The Stormbringer is now under your control.  It still thrists for souls.

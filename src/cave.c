@@ -82,7 +82,7 @@ int distance(int x1, int y1, int x2, int y2)
 bool is_trap(const cave_type *c_ptr)
 {
 	/* We assume field_is_type does not alter the data in c_ptr */
-	return (*field_is_type((s16b *)&c_ptr->fld_idx, FTYPE_TRAP) != 0);
+	return (field_is_type(c_ptr, FTYPE_TRAP) != 0);
 }
 
 
@@ -92,7 +92,7 @@ bool is_trap(const cave_type *c_ptr)
 bool is_visible_trap(const cave_type *c_ptr)
 {
 	/* We assume field_first_known does not alter the data in c_ptr */
-	return (*field_first_known((s16b *)&c_ptr->fld_idx, FTYPE_TRAP) != 0);
+	return (field_first_known(c_ptr, FTYPE_TRAP) != 0);
 }
 
 
@@ -607,7 +607,7 @@ static bool project_stop(const cave_type *c_ptr, u16b flg)
 	if (cave_los_grid(c_ptr))
 	{
 		/* Require fields do not block magic */
-		if (fields_have_flags(c_ptr->fld_idx, FIELD_INFO_NO_MAGIC))
+		if (fields_have_flags(c_ptr, FIELD_INFO_NO_MAGIC))
 		{
 			return (TRUE);
 		}
@@ -891,7 +891,7 @@ static bool cave_stop_ball(const cave_type *c_ptr)
 	if (!cave_los_grid(c_ptr)) return (TRUE);
 
 	/* Fields can block magic */
-	if (fields_have_flags(c_ptr->fld_idx, FIELD_INFO_NO_MAGIC)) return (TRUE);
+	if (fields_have_flags(c_ptr, FIELD_INFO_NO_MAGIC)) return (TRUE);
 
 	/* Seems ok */
 	return (FALSE);
@@ -919,7 +919,7 @@ static bool cave_stop_disintegration(const cave_type *c_ptr)
 	}
 
 	/* Fields can block disintegration to */
-	if (fields_have_flags(c_ptr->fld_idx, FIELD_INFO_PERM)) return (TRUE);
+	if (fields_have_flags(c_ptr, FIELD_INFO_PERM)) return (TRUE);
 
 	/* Seems ok */
 	return (FALSE);
@@ -1041,7 +1041,7 @@ bool cave_valid_grid(const cave_type *c_ptr)
 	OBJ_ITT_START (c_ptr->o_idx, o_ptr)
 	{
 		/* Forbid artifact grids */
-		if (o_ptr->flags3 & TR3_INSTA_ART) return (FALSE);
+		if (FLAG(o_ptr, TR_INSTA_ART)) return (FALSE);
 	}
 	OBJ_ITT_END;
 
@@ -1126,11 +1126,10 @@ void note_spot(int x, int y)
 	int py = p_ptr->py;
 
 	object_type *o_ptr;
+	field_type *f_ptr;
 
 	cave_type *c_ptr = area(x, y);
 	pcave_type *pc_ptr = parea(x, y);
-
-	s16b this_f_idx, next_f_idx = 0;
 
 	/* Is it lit + in view + player is not blind? */
 	if (((c_ptr->info & (CAVE_GLOW | CAVE_MNLT))
@@ -1175,16 +1174,12 @@ void note_spot(int x, int y)
 		OBJ_ITT_END;
 
 		/* Hack -- memorize fields */
-		for (this_f_idx = c_ptr->fld_idx; this_f_idx; this_f_idx = next_f_idx)
+		FLD_ITT_START (c_ptr->fld_idx, f_ptr)
 		{
-			field_type *f_ptr = &fld_list[this_f_idx];
-
-			/* Acquire next field */
-			next_f_idx = f_ptr->next_f_idx;
-
 			/* Memorize fields */
 			f_ptr->info |= FIELD_INFO_MARK;
 		}
+		FLD_ITT_END;
 	}
 
 	/* Light the spot, now that we have noticed the changes. */
@@ -2007,6 +2002,7 @@ void update_view(void)
 	int px = p_ptr->px;
 
 	object_type *o_ptr;
+	field_type *f_ptr;
 
 	cave_type *c_ptr;
 	pcave_type *pc_ptr;
@@ -2014,8 +2010,6 @@ void update_view(void)
 	byte info, player;
 
 	int x, y, i, o2;
-
-	s16b this_f_idx, next_f_idx = 0;
 
 	/* Light radius */
 	s16b radius = p_ptr->cur_lite;
@@ -2295,17 +2289,12 @@ void update_view(void)
 			OBJ_ITT_END;
 
 			/* Show the fields */
-			for (this_f_idx = c_ptr->fld_idx; this_f_idx;
-				 this_f_idx = next_f_idx)
+			FLD_ITT_START(c_ptr->fld_idx, f_ptr)
 			{
-				field_type *f_ptr = &fld_list[this_f_idx];
-
-				/* Acquire next field */
-				next_f_idx = f_ptr->next_f_idx;
-
 				/* Memorize fields */
 				f_ptr->info |= FIELD_INFO_MARK;
 			}
+			FLD_ITT_END;
 
 			/* Memorise grid */
 			remember_grid(c_ptr, pc_ptr);
@@ -2379,6 +2368,9 @@ static void mon_lite_hack(int x, int y)
 	pcave_type *pc_ptr;
 
 	int dx1, dy1, dx2, dy2;
+	
+	int tx, ty;
+	int rx, ry;
 
 	/* Out of bounds */
 	if (!in_boundsp(x, y)) return;
@@ -2402,9 +2394,49 @@ static void mon_lite_hack(int x, int y)
 	 * need to worry about floor - we won't illuminate that
 	 * if we cannot see it.)
 	 */
-	if (!cave_los_grid(c_ptr) && ((dx1 * dx2 + dy1 * dy2) < 0)) return;
+	if (!cave_los_grid(c_ptr))
+	{
+		if ((dx1 * dx2 + dy1 * dy2) < 0) return;
+	
+		/*
+		 * Look for the case where the bounce doesn't work
+		 * correctly due to the half-block offset:
+		 *
+		 * ####1
+		 * ...d2
+		 * ....#
+		 * ....#  @
+		 * ....#
+		 *
+		 * A solid '1' should not be illuminated if '2' is solid.
+		 * If '2' is not solid, then '1' should be illuminated.
+		 *
+		 * To find this case, find the reflection normal, and
+		 * from that work out where '2' is.
+		 */
+		rx = dx1 + dx2;
+		ry = dy1 + dy2;
+	
+		/* Get the bounce block */
+		if (ABS(rx) > ABS(ry))
+		{
+			tx = x + SGN(rx);
+			ty = y;
+		}
+		else
+		{
+			tx = x;
+			ty = y + SGN(ry);
+		}
+	
+		/* Hack Bounce block is not in bounds - assume is solid */
+		if (!in_bounds(tx, ty)) return;
 
-	/* Save this square */
+		/* Make sure that the light path doesn't pass through a wall. */
+		if (!cave_los_grid(area(tx, ty))) return;
+	}
+	
+	/* Save the square */
 	if (temp_n < TEMP_MAX)
 	{
 		temp_x[temp_n] = x;
@@ -2484,6 +2516,9 @@ void update_mon_lite(void)
 	/* Clear all monster lit squares */
 	for (i = 0; i < lite_n; i++)
 	{
+		/* Paranoia */
+		if (!in_boundsp(lite_x[i], lite_y[i])) continue;
+		
 		/* Point to grid */
 		c_ptr = area(lite_x[i], lite_y[i]);
 		pc_ptr = parea(lite_x[i], lite_y[i]);
@@ -2521,8 +2556,8 @@ void update_mon_lite(void)
 		rad = 0;
 
 		/* Note the radii are cumulative */
-		if (r_ptr->flags7 & (RF7_LITE_1)) rad++;
-		if (r_ptr->flags7 & (RF7_LITE_2)) rad += 2;
+		if (FLAG(r_ptr, RF_LITE_1)) rad++;
+		if (FLAG(r_ptr, RF_LITE_2)) rad += 2;
 
 		/* Exit if has no light */
 		if (!rad) continue;
@@ -2855,7 +2890,7 @@ void update_flow(void)
 		/* Check to see if the player is too close and in los */
 		if ((distance(px, py, flow_x, flow_y) < FLOW_DIST_MAX)
 			&& player_has_los_grid(parea(flow_x, flow_y))
-			&& (p_ptr->noise_level < MONSTER_FLOW_DEPTH / 4)) return;
+			&& (p_ptr->state.noise_level < MONSTER_FLOW_DEPTH / 4)) return;
 	}
 
 	/* Save player position */
@@ -2888,8 +2923,8 @@ void update_flow(void)
 	c_ptr->when = flow_n;
 
 	/* Save the flow cost */
-	c_ptr->cost = p_ptr->noise_level;
-	p_ptr->noise_level = 0;
+	c_ptr->cost = p_ptr->state.noise_level;
+	p_ptr->state.noise_level = 0;
 
 	/* Paranoia - not too much noise */
 	if (c_ptr->cost > MONSTER_FLOW_DEPTH)
@@ -3009,9 +3044,6 @@ void map_area(void)
 			/* All non-walls are "checked" */
 			if (cave_floor_grid(c_ptr))
 			{
-				/* Memorize the grid */
-				remember_grid(c_ptr, pc_ptr);
-
 				/* Memorize known walls */
 				for (i = 0; i < 8; i++)
 				{
@@ -3033,9 +3065,6 @@ void map_area(void)
 						lite_spot(xx, yy);
 					}
 				}
-				
-				/* Notice the change */
-				lite_spot(x, y);
 			}
 		}
 	}
@@ -3075,7 +3104,7 @@ void wiz_lite(void)
 		if (!m_ptr->r_idx) continue;
 
 		/* Repair visibility later */
-		repair_monsters = TRUE;
+		p_ptr->change |= (PC_REPAIR);
 
 		/* Hack -- Detect monster */
 		m_ptr->mflag |= (MFLAG_MARK | MFLAG_SHOW);
@@ -3108,6 +3137,47 @@ void wiz_lite(void)
 		}
 	}
 
+
+	/* Update the monsters */
+	p_ptr->update |= (PU_MONSTERS);
+
+	/* Remember to fix up the viewability */
+	p_ptr->change |= (PC_WIZ_LITE);
+
+	/* Redraw map */
+	p_ptr->redraw |= (PR_MAP);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
+}
+
+/*
+ * Fix up the dungeon after illumination.
+ */
+void change_wiz_lite(void)
+{
+	int x, y;
+
+	cave_type *c_ptr;
+
+	/* Scan all normal grids */
+	for (y = p_ptr->min_hgt; y < p_ptr->max_hgt; y++)
+	{
+		for (x = p_ptr->min_wid; x < p_ptr->max_wid; x++)
+		{
+			c_ptr = area(x, y);
+			
+			/* Forget memorized floor grids from view_torch_grids */
+			if (!(c_ptr->info & (CAVE_GLOW)) && !view_torch_grids
+				&& !cave_mem_grid(c_ptr))
+			{
+				forget_grid(parea(x, y));
+			}
+
+			/* Notice the change */
+			note_spot(x, y);
+		}
+	}
 
 	/* Update the monsters */
 	p_ptr->update |= (PU_MONSTERS);

@@ -103,7 +103,7 @@ proc NSMiscWindow::InitAuxWindows {} {
 		wm withdraw $win
 	
 		Window tool $win
-	
+
 		set child [InitDisplay_Toolbar $win]
 		pack $child \
 			-side top -expand yes -fill x
@@ -182,7 +182,7 @@ pack $child -expand yes -fill y
 	set child [InitDisplay_Progress $win]
 	pack $child \
 		-expand no
-		
+
 	return
 }
 
@@ -349,7 +349,7 @@ if 0 {
 
 	# Character image (center at 22,22)
 	$c create widget 0 0 -anchor center -tags icon
-	
+
 	# Click the image to see character info
 	$c bind icon <Enter> {
 		%W itemconfigure focus -outline gray60
@@ -546,24 +546,23 @@ proc NSMiscWindow::MiscSet {} {
 		$canvas itemconfigure txt,EXP -text "ADV"
 	}
 
-if 0 {
-
 	eval bind_Py_exp [angband player exp]
-	
+
+	eval bind_Py_ac [angband player armor_class]
+
+if 0 {
 	foreach stat [angband info stat_name] {
 		bind_Stat $stat
 	}
-	eval bind_Py_ac [angband player armor_class]
 
 	foreach tag [list gold level name race class title] {
 		bind_Py_value $tag [angband player $tag]
 	}
-
-	foreach tag {hitpoints mana food} {
-		scan [angband player $tag] "%d %d %f" cur max frac
-		UpdateHP_SP_FD $tag $cur $max $frac
-	}
 }
+	foreach tag {hitpoints mana food} {
+		scan [angband player $tag] "%d %d" cur max
+		UpdateHP_SP_FD $tag $cur $max
+	}
 
 	return
 }
@@ -630,7 +629,7 @@ proc NSMiscWindow::ContextMenu_Misc {menu x y} {
 	return
 }
 
-proc NSMiscWindow::UpdateHP_SP_FD {which cur max frac} {
+proc NSMiscWindow::UpdateHP_SP_FD {which cur max} {
 
 	set canvas [Global misc,canvas]
 
@@ -676,11 +675,11 @@ proc NSMiscWindow::UpdateHP_SP_FD {which cur max frac} {
 			$canvas itemconfigure $which -fill $fill -text $cur/$max
 		}
 	}
-
+if 0 {
 	if {[Value progress,showBars]} {
 		NSProgress::SetDoneRatio [NSMiscWindow::Info prog$which] $frac
 	}
-
+}
 	return
 }
 
@@ -757,7 +756,7 @@ proc NSMiscWindow::InitDisplay_Progress {parent} {
 		[Global main,statusBar] \
 		{NSMiscWindow::CanvasFeedbackCmd_Progress hitpoints enter}
 
-	set x [expr {$barLeft - $barSpace}] 
+	set x [expr {$barLeft - $barSpace}]
 	set y2 7
 	$c create text $x [incr y2 15] -text 99999 -font $font \
 		-fill [Value TERM_L_GREEN] -anchor se -tags {font hitpoints}
@@ -916,14 +915,14 @@ proc NSMiscWindow::ConfigProgress {} {
 
 	# Option: Display numbers
 	if {$showNumbers} {
-		set x [expr {$barLeft - $barSpace}] 
+		set x [expr {$barLeft - $barSpace}]
 		set y2 4
 		$canvas coords hitpoints $x [incr y2 $fontHeight]
 
-		set x [expr {$barLeft - $barSpace}] 
+		set x [expr {$barLeft - $barSpace}]
 		$canvas coords mana $x [incr y2 $fontHeight]
 
-		set x [expr {$barLeft - $barSpace}] 
+		set x [expr {$barLeft - $barSpace}]
 		$canvas coords food $x [incr y2 $fontHeight]
 
 	# Don't show numbers
@@ -1392,7 +1391,7 @@ proc NSMiscWindow::CanvasFeedbackCmd_MiscWindow {info action} {
 			set desc(hitpoints) "hit points"
 			set desc(mana) "spell points"
 			set message [format "Your character's %s" $desc($info)]
-			scan [angband player $info] "%d %d %f" cur max frac
+			scan [angband player $info] "%d %d" cur max
 			if {$cur < $max} {
 				append message [format " (max %s)" $max]
 			}
@@ -1421,7 +1420,7 @@ proc NSMiscWindow::CanvasFeedbackCmd_Progress {info action} {
 			set message [format "Your character's %s" $desc($info)]
 			set showNumbers [Value progress,showNumbers]
 			set showBars [Value progress,showBars]
-			scan [angband player $info] "%d %d %f" cur max frac
+			scan [angband player $info] "%d %d" cur max
 			if {!$showNumbers} {
 				append message " ($cur/$max)"
 			} elseif {$showBars} {
@@ -1666,7 +1665,7 @@ proc NSMiscWindow::MiscArrangeWide {} {
 	set pad 10
 	set offset [expr {$maxWidth + $pad + [font measure $font 18/999]}]
 	set y [expr {$topSpace - $rowHeight}]
-if 0 {	
+if 0 {
 	foreach stat [angband info stat_name] {
 		$canvas coords $stat $offset [incr y $rowHeight]
 	}
@@ -1775,8 +1774,8 @@ if 0 {
 	if {[info exists ::Windows(progress)]} {
 		wm deiconify [Window progress]
 		foreach tag {hitpoints mana food} {
-			scan [angband player $tag] "%d %d %f" cur max frac
-			UpdateHP_SP_FD $tag $cur $max $frac
+			scan [angband player $tag] "%d %d" cur max
+			UpdateHP_SP_FD $tag $cur $max
 		}
 		ConfigProgress
 	}

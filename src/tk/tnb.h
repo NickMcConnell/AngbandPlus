@@ -43,8 +43,8 @@
  * Hack - prevent a huge number of compiler warnings when <tclInt.h>
  * is included indirectly below.
  */
-#	define _TCLINTDECLS
-#	include <tkInt.h>
+/* #	define _TCLINTDECLS */
+/* #	include <tkInt.h> */
 #endif /* PLATFORM_X11 */
 
 

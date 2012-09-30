@@ -154,7 +154,7 @@ void do_cmd_wield(void)
 	}
 
 	/* Take a turn */
-	p_ptr->energy_use = 100;
+	p_ptr->state.energy_use = 100;
 
 	/* Split object */
 	q_ptr = item_split(q_ptr, 1);
@@ -215,7 +215,7 @@ void do_cmd_wield(void)
 	}
 
 	/* Learn some "obvious" things about the item */
-	o_ptr->kn_flags1 |= (o_ptr->flags1 & TR1_EASY_MASK);
+	o_ptr->kn_flags[0] |= (o_ptr->flags[0] & TR0_EASY_MASK);
 
 	/* Recalculate bonuses and weight */
 	p_ptr->update |= (PU_BONUS | PU_WEIGHT);
@@ -266,7 +266,7 @@ void do_cmd_takeoff(void)
 	}
 
 	/* Take a partial turn */
-	p_ptr->energy_use = 50;
+	p_ptr->state.energy_use = 50;
 
 	/* Take off the item */
 	(void)inven_takeoff(o_ptr);
@@ -318,7 +318,7 @@ void do_cmd_drop(void)
 
 
 	/* Take a partial turn */
-	p_ptr->energy_use = 50;
+	p_ptr->state.energy_use = 50;
 
 	/* Drop (some of) the item */
 	inven_drop(o_ptr, amt);
@@ -362,7 +362,7 @@ bool destroy_item_aux(object_type *o_ptr, int amt)
 	}
 
 	/* Take a turn */
-	p_ptr->energy_use += 100;
+	p_ptr->state.energy_use += 100;
 
 	/* Message */
 	msgf("You destroy %v.", OBJECT_FMT(o_ptr, TRUE, 3));
@@ -488,7 +488,7 @@ void do_cmd_destroy(void)
 	o_ptr->number = old_number;
 
 	/* No energy used yet */
-	p_ptr->energy_use = 0;
+	p_ptr->state.energy_use = 0;
 
 	/* Physically try to destroy the item(s) */
 	if (!destroy_item_aux(o_ptr, amt)) return;
@@ -667,7 +667,7 @@ static void do_cmd_refill_lamp(void)
 
 
 	/* Take a partial turn */
-	p_ptr->energy_use = 50;
+	p_ptr->state.energy_use = 50;
 
 	/* Access the lantern */
 	j_ptr = &p_ptr->equipment[EQUIP_LITE];
@@ -754,7 +754,7 @@ static void do_cmd_refill_torch(void)
 	if (!o_ptr) return;
 
 	/* Take a partial turn */
-	p_ptr->energy_use = 50;
+	p_ptr->state.energy_use = 50;
 
 	/* Access the primary torch */
 	j_ptr = &p_ptr->equipment[EQUIP_LITE];
@@ -1258,10 +1258,10 @@ void do_cmd_query_symbol(void)
 		if (!cheat_know && !r_ptr->r_sights) continue;
 
 		/* Require non-unique monsters if needed */
-		if (norm && (r_ptr->flags1 & (RF1_UNIQUE))) continue;
+		if (norm && FLAG(r_ptr, RF_UNIQUE)) continue;
 
 		/* Require unique monsters if needed */
-		if (uniq && !(r_ptr->flags1 & (RF1_UNIQUE))) continue;
+		if (uniq && !FLAG(r_ptr, RF_UNIQUE)) continue;
 
 		/* Require killed monsters if needed */
 		if (killed && !r_ptr->r_pkills) continue;
@@ -1361,7 +1361,7 @@ void do_cmd_query_symbol(void)
 		handle_stuff();
 
 		/* Hack -- Begin the prompt */
-		roff_top(r_idx);
+		roff_mon_top(r_idx);
 
 		/* Hack -- Complete the prompt */
 		roff(" [(r)ecall, ESC]");
@@ -1376,7 +1376,7 @@ void do_cmd_query_symbol(void)
 				screen_save();
 
 				/* Recall on screen */
-				screen_roff(who[i], 0);
+				screen_roff_mon(who[i], 0);
 
 				/* Hack -- Complete the prompt (again) */
 				roff(" [(r)ecall, ESC]");
@@ -1547,7 +1547,7 @@ bool research_mon(void)
 		handle_stuff();
 
 		/* Hack -- Begin the prompt */
-		roff_top(r_idx);
+		roff_mon_top(r_idx);
 
 		/* Hack -- Complete the prompt */
 		roff(" [(r)ecall, ESC, space to continue]");
@@ -1563,7 +1563,7 @@ bool research_mon(void)
 
 				oldkills = r2_ptr->r_tkills;
 				oldwake = r2_ptr->r_wake;
-				screen_roff(who[i], 1);
+				screen_roff_mon(who[i], 1);
 				r2_ptr->r_tkills = oldkills;
 				r2_ptr->r_wake = oldwake;
 				cheat_know = oldcheat;

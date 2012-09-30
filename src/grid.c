@@ -80,11 +80,11 @@ void place_random_stairs(int x, int y)
 		up_stairs = FALSE;
 
 	/* Bottom */
-	if (p_ptr->depth >= max_dun_level())
+	if (p_ptr->depth >= dungeon()->max_level)
 		down_stairs = FALSE;
 
-	/* Quest-level */
-	if (is_quest_level(p_ptr->depth))
+	/* Final quest */
+	if (is_special_level(p_ptr->depth))
 		down_stairs = FALSE;
 
 	/* We can't place both */
@@ -1760,10 +1760,9 @@ static void cave_fill(int x, int y)
 {
 	int i, j, d;
 	int ty, tx;
-
+	
 	int flow_tail = 1;
 	int flow_head = 0;
-
 
 	/*** Start Grid ***/
 
@@ -1790,9 +1789,6 @@ static void cave_fill(int x, int y)
 			/* Child location */
 			j = ty + ddy_ddd[d];
 			i = tx + ddx_ddd[d];
-
-			/* Paranoia Don't leave the cave */
-			if (!in_bounds(i, j)) return;
 
 			/* If within bounds */
 			if ((i > fill_data.xmin) && (i < fill_data.xmax)

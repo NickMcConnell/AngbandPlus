@@ -71,6 +71,7 @@ OBJ = \
 	wizard1.obj \
 	wild1.obj \
 	wild2.obj \
+	wild3.obj \
 	variable.obj \
 	util.obj \
 	tables.obj \

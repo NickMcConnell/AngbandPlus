@@ -11,6 +11,8 @@
  */
 
 #include "angband.h"
+#include "script.h"
+
 #define MAX_VAMPIRIC_DRAIN 100
 
 /*
@@ -101,16 +103,16 @@ static int critical_melee(int chance, int sleeping_bonus, cptr m_name,
                           object_type *o_ptr)
 {
 	int power = (chance + sleeping_bonus);
-	int mult_m_crit;
+	int bonus = 0;
 	int psi_hit = FALSE;
 
-	if ((p_ptr->flags4 & (TR4_PSI_CRIT)) && (p_ptr->csp >= PSI_COST) && 
+	if ((FLAG(p_ptr, TR_PSI_CRIT)) && (p_ptr->csp >= PSI_COST) && 
 			(randint(100) < 80))
 	{
 		psi_hit = TRUE;
 	}
 
-	if (p_ptr->flags4 & (TR4_STRANGE_LUCK))
+	if (FLAG(p_ptr, TR_STRANGE_LUCK))
 		power = power * 3 / 2;
 
 	/* Test for critical hit. */
@@ -123,35 +125,54 @@ static int critical_melee(int chance, int sleeping_bonus, cptr m_name,
 		if ((sleeping_bonus) && (p_ptr->rp.pclass == CLASS_ROGUE))
 			msgf("You ruthlessly sneak attack!");
 
-		/* Determine level of critical hit x 10. */
-		if (randint0(90) == 0) mult_m_crit = 50;
-		if (randint0(40) == 0) mult_m_crit = 36;
-		else if (randint0(12) == 0) mult_m_crit = 27;
-		else if (randint0(3) == 0) mult_m_crit = 20;
-		else
-			mult_m_crit = 15;
+		/* Determine level of critical hit. */
+		if (randint0(90) == 0)      bonus = 800;
+		if (randint0(40) == 0)      bonus = 500;
+		else if (randint0(12) == 0) bonus = 300;
+		else if (randint0(3) == 0)  bonus = 200;
+		else                        bonus = 100;
 
 
-		if ((mult_m_crit == 15) ||
+		/* Criticals with PSI_HIT weapons do about 47% more damage */
+		if (psi_hit)
+		{
+			int psi_bonus;
+			if (one_in_(12) && p_ptr->csp >= PSI_COST * 3)
+				psi_bonus = 3;
+			else if (one_in_(3) && p_ptr->csp >= PSI_COST * 2)
+				psi_bonus = 2;
+			else
+				psi_bonus = 1;
+
+			bonus *= psi_bonus;
+			
+			p_ptr->csp -= PSI_COST * psi_bonus;
+			p_ptr->redraw |= (PR_MANA);
+			p_ptr->window |= (PW_PLAYER);
+			p_ptr->window |= (PW_SPELL);
+		}
+
+
+		if ((bonus <= 100) ||
 			((o_ptr->tval == TV_HAFTED) && (o_ptr->sval == SV_WHIP)))
 		{
 			msgf(MSGT_HIT, "You strike %s.", m_name);
 		}
-		else if (mult_m_crit == 20)
+		else if (bonus <= 200)
 		{
 			if ((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_POLEARM))
 				msgf(MSGT_HIT, "You hack at %s.", m_name);
 			else
 				msgf(MSGT_HIT, "You bash %s.", m_name);
 		}
-		else if (mult_m_crit == 27)
+		else if (bonus <= 300)
 		{
 			if ((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_POLEARM))
 				msgf(MSGT_HIT, "You slash %s.", m_name);
 			else
 				msgf(MSGT_HIT, "You pound %s.", m_name);
 		}
-		else if (mult_m_crit == 36)
+		else if (bonus <= 500)
 		{
 			if ((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_POLEARM))
 				msgf(MSGT_HIT, "You gouge %s!", m_name);
@@ -162,16 +183,6 @@ static int critical_melee(int chance, int sleeping_bonus, cptr m_name,
 		{
 			msgf(MSGT_HIT, "You *smite* %s!", m_name);
 		}
-
-		if (psi_hit)
-		{
-			mult_m_crit = mult_m_crit * 3 / 2;
-			
-			p_ptr->csp -= PSI_COST;
-			p_ptr->redraw |= (PR_MANA);
-			p_ptr->window |= (PW_PLAYER);
-			p_ptr->window |= (PW_SPELL);
-		}
 	}
 
 	/*
@@ -180,11 +191,10 @@ static int critical_melee(int chance, int sleeping_bonus, cptr m_name,
 	 */
 	else
 	{
-		mult_m_crit = 10;
 		msgf(MSGT_HIT, "You hit %s.", m_name);
 	}
 
-	return (mult_m_crit);
+	return (bonus);
 }
 
 
@@ -202,7 +212,7 @@ static s16b critical_norm(int weight, int plus, int dam)
 	/* Extract "blow" power */
 	power = (weight + ((p_ptr->to_h + plus) * 5) + (p_ptr->lev * 3));
 
-	if (p_ptr->flags4 & (TR4_STRANGE_LUCK))
+	if (FLAG(p_ptr, TR_STRANGE_LUCK))
 		power = power * 3 / 2;
 
 	/* Chance */
@@ -242,27 +252,26 @@ static s16b critical_norm(int weight, int plus, int dam)
 
 
 /*
- * Extract the "total damage" from a given object hitting a given monster.
+ * Extract the deadliness bonus from slays and brands.
  *
- * Note that "flasks of oil" do NOT do fire damage, although they
- * certainly could be made to do so.  XXX XXX
+ * Note that most brands and slays are +200%, except Slay Animal (+100%),
+ * Slay Evil (+100%), and Kill dragon (+400%).
  *
- * Note that most brands and slays are x2, except Slay Animal (x1.7),
- * Slay Evil (x1.5), and Kill dragon (x3). -SF-
+ * Currently brands add +200%, but it might be more interesting to make
+ * them +100% that is cumulative with other slays and brands.
  */
 int tot_dam_aux(const object_type *o_ptr, const monster_type *m_ptr)
 {
 	/*
-	 * mult is scaled to be *10 so that the fractional slays can be stored
-	 * in an integer. -SF-
+	 * mult is based at 100 = +0 deadliness.
 	 */
-	int mult = 10;
+	int mult = 100;
 
 
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
 	/* Extract the flags */
-	u32b f1 = o_ptr->flags1;
+	u32b f1 = o_ptr->flags[0];
 
 	/* Some "weapons" and "ammo" do extra damage */
 	switch (o_ptr->tval)
@@ -276,195 +285,195 @@ int tot_dam_aux(const object_type *o_ptr, const monster_type *m_ptr)
 		case TV_DIGGING:
 		{
 			/* Slay Animal */
-			if ((f1 & TR1_SLAY_ANIMAL) && (r_ptr->flags3 & RF3_ANIMAL))
+			if ((f1 & TR0_SLAY_ANIMAL) && (FLAG(r_ptr, RF_ANIMAL)))
 			{
 				if (m_ptr->ml)
 				{
-					r_ptr->r_flags3 |= RF3_ANIMAL;
+					r_ptr->r_flags[2] |= RF2_ANIMAL;
 				}
 
-				if (mult < 17) mult = 17;
+				if (mult < 200) mult = 200;
 			}
 
 			/* Slay Evil */
-			if ((f1 & TR1_SLAY_EVIL) && (r_ptr->flags3 & RF3_EVIL))
+			if ((f1 & TR0_SLAY_EVIL) && (FLAG(r_ptr, RF_EVIL)))
 			{
 				if (m_ptr->ml)
 				{
-					r_ptr->r_flags3 |= RF3_EVIL;
+					r_ptr->r_flags[2] |= RF2_EVIL;
 				}
 
-				if (mult < 15) mult = 15;
+				if (mult < 200) mult = 200;
 			}
 
 			/* Slay Undead */
-			if ((f1 & TR1_SLAY_UNDEAD) && (r_ptr->flags3 & RF3_UNDEAD))
+			if ((f1 & TR0_SLAY_UNDEAD) && (FLAG(r_ptr, RF_UNDEAD)))
 			{
 				if (m_ptr->ml)
 				{
-					r_ptr->r_flags3 |= RF3_UNDEAD;
+					r_ptr->r_flags[2] |= RF2_UNDEAD;
 				}
 
-				if (mult < 20) mult = 20;
+				if (mult < 300) mult = 300;
 			}
 
 			/* Slay Demon */
-			if ((f1 & TR1_SLAY_DEMON) && (r_ptr->flags3 & RF3_DEMON))
+			if ((f1 & TR0_SLAY_DEMON) && (FLAG(r_ptr, RF_DEMON)))
 			{
 				if (m_ptr->ml)
 				{
-					r_ptr->r_flags3 |= RF3_DEMON;
+					r_ptr->r_flags[2] |= RF2_DEMON;
 				}
 
-				if (mult < 20) mult = 20;
+				if (mult < 300) mult = 300;
 			}
 
 			/* Slay Orc */
-			if ((f1 & TR1_SLAY_ORC) && (r_ptr->flags3 & RF3_ORC))
+			if ((f1 & TR0_SLAY_ORC) && (FLAG(r_ptr, RF_ORC)))
 			{
 				if (m_ptr->ml)
 				{
-					r_ptr->r_flags3 |= RF3_ORC;
+					r_ptr->r_flags[2] |= RF2_ORC;
 				}
 
-				if (mult < 20) mult = 20;
+				if (mult < 300) mult = 300;
 			}
 
 			/* Slay Troll */
-			if ((f1 & TR1_SLAY_TROLL) && (r_ptr->flags3 & RF3_TROLL))
+			if ((f1 & TR0_SLAY_TROLL) && (FLAG(r_ptr, RF_TROLL)))
 			{
 				if (m_ptr->ml)
 				{
-					r_ptr->r_flags3 |= RF3_TROLL;
+					r_ptr->r_flags[2] |= RF2_TROLL;
 				}
 
-				if (mult < 20) mult = 20;
+				if (mult < 300) mult = 300;
 			}
 
 			/* Slay Giant */
-			if ((f1 & TR1_SLAY_GIANT) && (r_ptr->flags3 & RF3_GIANT))
+			if ((f1 & TR0_SLAY_GIANT) && (FLAG(r_ptr, RF_GIANT)))
 			{
 				if (m_ptr->ml)
 				{
-					r_ptr->r_flags3 |= RF3_GIANT;
+					r_ptr->r_flags[2] |= RF2_GIANT;
 				}
 
-				if (mult < 20) mult = 20;
+				if (mult < 300) mult = 300;
 			}
 
 			/* Slay Dragon */
-			if ((f1 & TR1_SLAY_DRAGON) && (r_ptr->flags3 & RF3_DRAGON))
+			if ((f1 & TR0_SLAY_DRAGON) && (FLAG(r_ptr, RF_DRAGON)))
 			{
 				if (m_ptr->ml)
 				{
-					r_ptr->r_flags3 |= RF3_DRAGON;
+					r_ptr->r_flags[2] |= RF2_DRAGON;
 				}
 
-				if (mult < 20) mult = 20;
+				if (mult < 300) mult = 300;
 			}
 
 			/* Execute Dragon */
-			if ((f1 & TR1_KILL_DRAGON) && (r_ptr->flags3 & RF3_DRAGON))
+			if ((f1 & TR0_KILL_DRAGON) && (FLAG(r_ptr, RF_DRAGON)))
 			{
 				if (m_ptr->ml)
 				{
-					r_ptr->r_flags3 |= RF3_DRAGON;
+					r_ptr->r_flags[2] |= RF2_DRAGON;
 				}
 
-				if (mult < 30) mult = 30;
+				if (mult < 500) mult = 500;
 			}
 
 			/* Brand (Acid) */
-			if (f1 & TR1_BRAND_ACID)
+			if (f1 & TR0_BRAND_ACID)
 			{
 				/* Notice immunity */
-				if (r_ptr->flags3 & RF3_IM_ACID)
+				if (FLAG(r_ptr, RF_IM_ACID))
 				{
 					if (m_ptr->ml)
 					{
-						r_ptr->r_flags3 |= RF3_IM_ACID;
+						r_ptr->r_flags[2] |= RF2_IM_ACID;
 					}
 				}
 
 				/* Otherwise, take the damage */
 				else
 				{
-					if (mult < 20) mult = 20;
+					if (mult < 300) mult = 300;
 				}
 			}
 
 			/* Brand (Elec) */
-			if (f1 & TR1_BRAND_ELEC)
+			if (f1 & TR0_BRAND_ELEC)
 			{
 				/* Notice immunity */
-				if (r_ptr->flags3 & RF3_IM_ELEC)
+				if (FLAG(r_ptr, RF_IM_ELEC))
 				{
 					if (m_ptr->ml)
 					{
-						r_ptr->r_flags3 |= RF3_IM_ELEC;
+						r_ptr->r_flags[2] |= RF2_IM_ELEC;
 					}
 				}
 
 				/* Otherwise, take the damage */
 				else
 				{
-					if (mult < 20) mult = 20;
+					if (mult < 300) mult = 300;
 				}
 			}
 
 			/* Brand (Fire) */
-			if (f1 & TR1_BRAND_FIRE)
+			if (f1 & TR0_BRAND_FIRE)
 			{
 				/* Notice immunity */
-				if (r_ptr->flags3 & RF3_IM_FIRE)
+				if (FLAG(r_ptr, RF_IM_FIRE))
 				{
 					if (m_ptr->ml)
 					{
-						r_ptr->r_flags3 |= RF3_IM_FIRE;
+						r_ptr->r_flags[2] |= RF2_IM_FIRE;
 					}
 				}
 
 				/* Otherwise, take the damage */
 				else
 				{
-					if (mult < 20) mult = 20;
+					if (mult < 300) mult = 300;
 				}
 			}
 
 			/* Brand (Cold) */
-			if (f1 & TR1_BRAND_COLD)
+			if (f1 & TR0_BRAND_COLD)
 			{
 				/* Notice immunity */
-				if (r_ptr->flags3 & RF3_IM_COLD)
+				if (FLAG(r_ptr, RF_IM_COLD))
 				{
 					if (m_ptr->ml)
 					{
-						r_ptr->r_flags3 |= RF3_IM_COLD;
+						r_ptr->r_flags[2] |= RF2_IM_COLD;
 					}
 				}
 				/* Otherwise, take the damage */
 				else
 				{
-					if (mult < 20) mult = 20;
+					if (mult < 300) mult = 300;
 				}
 			}
 
 			/* Brand (Poison) */
-			if (f1 & TR1_BRAND_POIS)
+			if (f1 & TR0_BRAND_POIS)
 			{
 				/* Notice immunity */
-				if (r_ptr->flags3 & RF3_IM_POIS)
+				if (FLAG(r_ptr, RF_IM_POIS))
 				{
 					if (m_ptr->ml)
 					{
-						r_ptr->r_flags3 |= RF3_IM_POIS;
+						r_ptr->r_flags[2] |= RF2_IM_POIS;
 					}
 				}
 
 				/* Otherwise, take the damage */
 				else
 				{
-					if (mult < 20) mult = 20;
+					if (mult < 300) mult = 300;
 				}
 			}
 			break;
@@ -498,7 +507,7 @@ void search(void)
 	object_type *o_ptr;
 
 	/* Start with base search ability */
-	chance = p_ptr->skill.sns;
+	chance = p_ptr->skills[SKILL_SNS];
 
 	/* Penalize various conditions */
 	if (p_ptr->tim.blind || no_lite()) chance = chance / 10;
@@ -526,7 +535,7 @@ void search(void)
 				old_count = count_traps(&tx, &ty, TRUE);
 
 				/* Look for invisible traps */
-				if (field_detect_type(c_ptr->fld_idx, FTYPE_TRAP))
+				if (field_detect_type(c_ptr, FTYPE_TRAP))
 				{
 					/* Save x and y into temp variables */
 					tx = x;
@@ -738,7 +747,7 @@ void carry(int pickup)
 			/* Describe the object */
 			if (!pickup)
 			{
-				msgf("You see %s.", o_name);
+				msgf("You find %s.", o_name);
 			}
 
 			/* Note that the pack is too full */
@@ -827,14 +836,14 @@ void carry(int pickup)
 		if (floor_num == 1)
 		{
 			/* Message */
-			msgf("You see %v.", OBJECT_FMT(fo_ptr, TRUE, 3));
+			msgf("You find %v.", OBJECT_FMT(fo_ptr, TRUE, 3));
 		}
 
 		/* Multiple objects */
 		else
 		{
 			/* Message */
-			msgf("You see a pile of %d items.", floor_num);
+			msgf("You find a pile of %d items.", floor_num);
 		}
 
 		/* Done */
@@ -935,9 +944,9 @@ static void touch_zap_player(const monster_type *m_ptr)
 	int aura_damage;
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
-	if (r_ptr->flags2 & RF2_AURA_FIRE)
+	if (FLAG(r_ptr, RF_AURA_FIRE))
 	{
-		if (!(p_ptr->flags2 & (TR2_IM_FIRE)))
+		if (!(FLAG(p_ptr, TR_IM_FIRE)))
 		{
 			char aura_dam[80];
 
@@ -950,14 +959,14 @@ static void touch_zap_player(const monster_type *m_ptr)
 			msgf("You are suddenly very hot!");
 
 			take_hit(resist(aura_damage, res_fire_lvl), aura_dam);
-			r_ptr->r_flags2 |= RF2_AURA_FIRE;
+			r_ptr->r_flags[1] |= RF1_AURA_FIRE;
 			handle_stuff();
 		}
 	}
 
-	if (r_ptr->flags3 & RF3_AURA_COLD)
+	if (FLAG(r_ptr, RF_AURA_COLD))
 	{
-		if (!(p_ptr->flags2 & (TR2_IM_COLD)))
+		if (!(FLAG(p_ptr, TR_IM_COLD)))
 		{
 			char aura_dam[80];
 
@@ -970,14 +979,14 @@ static void touch_zap_player(const monster_type *m_ptr)
 			msgf("You are suddenly very cold!");
 
 			take_hit(resist(aura_damage, res_cold_lvl), aura_dam);
-			r_ptr->r_flags3 |= RF3_AURA_COLD;
+			r_ptr->r_flags[2] |= RF2_AURA_COLD;
 			handle_stuff();
 		}
 	}
 
-	if (r_ptr->flags2 & RF2_AURA_ELEC)
+	if (FLAG(r_ptr, RF_AURA_ELEC))
 	{
-		if (!(p_ptr->flags2 & (TR2_IM_ELEC)))
+		if (!(FLAG(p_ptr, TR_IM_ELEC)))
 		{
 			char aura_dam[80];
 
@@ -988,7 +997,7 @@ static void touch_zap_player(const monster_type *m_ptr)
 
 			msgf("You get zapped!");
 			take_hit(resist(aura_damage, res_elec_lvl), aura_dam);
-			r_ptr->r_flags2 |= RF2_AURA_ELEC;
+			r_ptr->r_flags[1] |= RF1_AURA_ELEC;
 			handle_stuff();
 		}
 	}
@@ -1060,10 +1069,10 @@ static void natural_attack(s16b m_idx, int attack, bool *fear, bool *mdeath)
 
 	/* Calculate the "attack quality" */
 	bonus = p_ptr->to_h;
-	chance = (p_ptr->skill.thn + (bonus * BTH_PLUS_ADJ));
+	chance = (p_ptr->skills[SKILL_THN] + (bonus * BTH_PLUS_ADJ));
 
 	/* Test for hit */
-	if ((!(r_ptr->flags2 & RF2_QUANTUM) || one_in_(2)) &&
+	if ((!(FLAG(r_ptr, RF_QUANTUM)) || one_in_(2)) &&
 		test_hit_combat(chance, r_ptr->ac, m_ptr->ml))
 	{
 		/* Sound */
@@ -1172,7 +1181,7 @@ static bool monster_bash(int *blows, int sleeping_bonus, const cave_type *c_ptr,
 
 	/* Bashing chance depends on melee Skill, Dex, and a class level bonus. */
 	else
-		bash_chance = p_ptr->skill.thn +
+		bash_chance = p_ptr->skills[SKILL_THN] +
 			(adj_dex_th[p_ptr->stat[A_DEX].ind]) - 128 +
 			(((p_ptr->rp.pclass == CLASS_WARRIOR) ||
 			  (p_ptr->rp.pclass == CLASS_PALADIN) ||
@@ -1200,7 +1209,7 @@ static bool monster_bash(int *blows, int sleeping_bonus, const cave_type *c_ptr,
 		msgf("You get in a shield bash!");
 
 		/* Calculate attack quality, a mix of momentum and accuracy. */
-		bash_quality = p_ptr->skill.thn + (p_ptr->rp.wt / 8) +
+		bash_quality = p_ptr->skills[SKILL_THN] + (p_ptr->rp.wt / 8) +
 			(p_ptr->total_weight / 80) + (o_ptr->weight / 3);
 
 		/* Calculate damage.  Big shields are deadly. */
@@ -1243,7 +1252,7 @@ static bool monster_bash(int *blows, int sleeping_bonus, const cave_type *c_ptr,
 
 		/* Confusion. */
 		if (bash_quality + p_ptr->lev > randint1(300 + r_ptr->level * 6) &&
-			!(r_ptr->flags3 & (RF3_NO_CONF)))
+			!(FLAG(r_ptr, RF_NO_CONF)))
 		{
 			msgf("%^s appears confused.", m_name);
 
@@ -1273,10 +1282,10 @@ static void monk_attack(monster_type *m_ptr, long *k, cptr m_name)
 
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
-	if (r_ptr->flags1 & RF1_UNIQUE) resist_stun += 88;
-	if (r_ptr->flags3 & RF3_NO_CONF) resist_stun += 44;
-	if (r_ptr->flags3 & RF3_NO_SLEEP) resist_stun += 44;
-	if ((r_ptr->flags3 & RF3_UNDEAD) || (r_ptr->flags3 & RF3_NONLIVING))
+	if (FLAG(r_ptr, RF_UNIQUE)) resist_stun += 88;
+	if (FLAG(r_ptr, RF_NO_CONF)) resist_stun += 44;
+	if (FLAG(r_ptr, RF_NO_SLEEP)) resist_stun += 44;
+	if ((FLAG(r_ptr, RF_UNDEAD)) || (FLAG(r_ptr, RF_NONLIVING)))
 		resist_stun += 88;
 
 	/* Attempt 'times' */
@@ -1310,7 +1319,7 @@ static void monk_attack(monster_type *m_ptr, long *k, cptr m_name)
 
 	if (ma_ptr->effect == MA_KNEE)
 	{
-		if (r_ptr->flags1 & RF1_MALE)
+		if (FLAG(r_ptr, RF_MALE))
 		{
 			msgf(MSGT_HIT, "You hit %s in the groin with your knee!", m_name);
 			msg_effect(MSG_HIT, m_ptr->r_idx);
@@ -1326,7 +1335,7 @@ static void monk_attack(monster_type *m_ptr, long *k, cptr m_name)
 
 	else if (ma_ptr->effect == MA_SLOW)
 	{
-		if (!((r_ptr->flags1 & RF1_NEVER_MOVE) ||
+		if (!((FLAG(r_ptr, RF_NEVER_MOVE)) ||
 			  strchr("~#{}.UjmeEv$,DdsbBFIJQSXclnw!=?", r_ptr->d_char)))
 		{
 			msgf(MSGT_HIT, "You kick %s in the ankle.",
@@ -1353,16 +1362,16 @@ static void monk_attack(monster_type *m_ptr, long *k, cptr m_name)
 
 	*k = critical_norm(p_ptr->lev * randint1(10), ma_ptr->min_level, *k);
 
-	if ((special_effect == MA_KNEE) && ((*k + p_ptr->to_d) < m_ptr->hp))
+	if ((special_effect == MA_KNEE) && (*k  < m_ptr->hp))
 	{
 		msgf("%^s moans in agony!", m_name);
 		stun_effect = rand_range(8, 20);
 		resist_stun /= 3;
 	}
 
-	else if ((special_effect == MA_SLOW) && ((*k + p_ptr->to_d) < m_ptr->hp))
+	else if ((special_effect == MA_SLOW) && (*k < m_ptr->hp))
 	{
-		if (!(r_ptr->flags1 & RF1_UNIQUE) &&
+		if (!(FLAG(r_ptr, RF_UNIQUE)) &&
 			(randint1(p_ptr->lev) > r_ptr->level) && m_ptr->mspeed > 60)
 		{
 			msgf("%^s starts limping slower.", m_name);
@@ -1370,7 +1379,7 @@ static void monk_attack(monster_type *m_ptr, long *k, cptr m_name)
 		}
 	}
 
-	if (stun_effect && ((*k + p_ptr->to_d) < m_ptr->hp))
+	if (stun_effect && (*k < m_ptr->hp))
 	{
 		if (p_ptr->lev > randint1(r_ptr->level + resist_stun + 10))
 		{
@@ -1424,11 +1433,10 @@ void py_attack(int x, int y)
 	bool fear = FALSE;
 	bool mdeath = FALSE;
 
-	int chaos_effect = 0;
 	bool do_quake = FALSE;
 	bool drain_msg = TRUE;
 	int drain_result = 0, drain_heal = 0;
-	int drain_left = MAX_VAMPIRIC_DRAIN;
+	int drain_total = 0;
 	s16b ghoul_paral = -1;
 	bool ghoul_hack = FALSE;
 	bool no_extra = FALSE;
@@ -1445,7 +1453,7 @@ void py_attack(int x, int y)
 	blows = p_ptr->num_blow;
 
 	/* Prepare for ghoul paralysis? */
-	if (!(o_ptr->k_idx) && (p_ptr->flags4 & (TR4_GHOUL_TOUCH)))
+	if (!(o_ptr->k_idx) && (FLAG(p_ptr, TR_GHOUL_TOUCH)))
 	{
 		ghoul_paral = 0;
 
@@ -1538,11 +1546,11 @@ void py_attack(int x, int y)
 	}
 
 	/* Using a weapon can cause it to become cursed */
-	if ((o_ptr->flags4 & (TR4_AUTO_CURSE)) && 
-			!(o_ptr->flags3 & (TR3_CURSED)) && (randint(100) < 10))
+	if ((FLAG(o_ptr, TR_AUTO_CURSE)) && 
+			!(FLAG(o_ptr, TR_CURSED)) && (randint(100) < 10))
 	{
 		msgf("Your weapon glows black.");
-		o_ptr->flags3 |= TR3_CURSED;
+		SET_FLAG(o_ptr, TR_CURSED);
 		o_ptr->feeling = FEEL_NONE;
 	}
 
@@ -1575,7 +1583,12 @@ void py_attack(int x, int y)
 	 * to 1, base skill and modifiers to skill are given equal weight. -LM-
 	 */
 	bonus = p_ptr->to_h + o_ptr->to_h;
-	chance = (p_ptr->skill.thn + (bonus * BTH_PLUS_ADJ));
+	chance = (p_ptr->skills[SKILL_THN] + (bonus * BTH_PLUS_ADJ));
+
+	apply_object_trigger(TRIGGER_ATTACK, o_ptr, "p:iiii", 
+		LUA_MONSTER_NAMED(m_ptr, "monster"), LUA_RETURN(chance),
+		LUA_RETURN(terrain_bonus), LUA_RETURN(total_deadliness),
+		LUA_RETURN(sleeping_bonus));
 
 	/* Attack once for each legal blow */
 	while (num++ < blows)
@@ -1584,6 +1597,11 @@ void py_attack(int x, int y)
 		if (test_hit_combat(chance + sleeping_bonus,
 							r_ptr->ac + terrain_bonus, m_ptr->ml))
 		{
+			int drain_power = 0;
+			bool do_poly = FALSE;
+			bool do_tele = FALSE;
+			bool do_conf = FALSE;
+
 			/* Sound */
 			sound(SOUND_HIT);
 
@@ -1591,49 +1609,55 @@ void py_attack(int x, int y)
 			k = 1;
 
 			/* Select a chaotic effect (50% chance) */
-			if ((o_ptr->flags1 & TR1_CHAOTIC) && (one_in_(2)))
+			if ((FLAG(o_ptr, TR_CHAOTIC)) && (one_in_(2)))
 			{
 				if (one_in_(10)) chg_virtue(V_CHANCE, 1);
 
 				if (randint1(5) < 3)
 				{
 					/* Vampiric (20%) */
-					chaos_effect = 1;
+					if (monster_living(r_ptr))
+						drain_power = 4;
+					else
+						drain_power = 0;
 				}
 				else if (one_in_(250))
 				{
 					/* Quake (0.12%) */
-					chaos_effect = 2;
+					do_quake = TRUE;
 				}
 				else if (!one_in_(10))
 				{
 					/* Confusion (26.892%) */
-					chaos_effect = 3;
+					do_conf = TRUE;
 				}
 				else if (one_in_(2))
 				{
 					/* Teleport away (1.494%) */
-					chaos_effect = 4;
+					do_tele = TRUE;
 				}
 				else
 				{
 					/* Polymorph (1.494%) */
-					chaos_effect = 5;
+					do_poly = TRUE;
 				}
 			}
 
 			/* Vampiric drain */
-			if ((o_ptr->flags1 & TR1_VAMPIRIC) || (chaos_effect == 1))
+			if (FLAG(o_ptr, TR_VAMPIRIC))
 			{
 				/* Only drain "living" monsters */
 				if (monster_living(r_ptr))
-					drain_result = m_ptr->hp;
+					drain_power = 4;
 				else
-					drain_result = 0;
+					drain_power = 0;
 			}
 
+			/* Save current hp */
+			drain_result = m_ptr->hp;
+
 			/* Ghoul paralysis */
-			if ((ghoul_paral > -1) && !(r_ptr->flags3 & RF3_NO_SLEEP) &&
+			if ((ghoul_paral > -1) && !(FLAG(r_ptr, RF_NO_SLEEP)) &&
 				(r_ptr->level < randint0(1 + ((p_ptr->lev) * 2))))
 			{
 				ghoul_paral += 25 + randint1(p_ptr->lev / 2);
@@ -1649,36 +1673,47 @@ void py_attack(int x, int y)
 			/* Handle normal weapon */
 			else if (o_ptr->k_idx)
 			{
+				int vorpal_chance = (o_ptr->flags[0] & TR0_VORPAL) ? 2 : 0;
+				int multiplier = deadliness_calc(total_deadliness);
+
 				/* base damage dice. */
 				k = o_ptr->ds;
 
-				/* multiply by slays or brands. (10x inflation) */
-				slay = tot_dam_aux(o_ptr, m_ptr);
-				k *= slay;
+				/* Add deadliness bonus from slays/brands */
+				slay = (tot_dam_aux(o_ptr, m_ptr) - 100);
+				multiplier += slay;
 
 
-				/* multiply by critical hit. (10x inflation) */
-				k *= critical_melee(chance, sleeping_bonus, m_name, o_ptr);
+				/* Add deadliness bonus from critical hits */
+				multiplier += critical_melee(chance, sleeping_bonus, m_name, o_ptr);
 
 				/*
 				 * Convert total Deadliness into a percentage, and apply
 				 * it as a bonus or penalty. (100x inflation)
 				 */
-				k *= deadliness_calc(total_deadliness);
+				k *= multiplier;
 
 				/*
 				 * Get the whole number of dice sides by deflating,
 				 * and then get total dice damage.
 				 */
-				k = damroll(o_ptr->dd, k / 10000 +
-							(randint0(10000) < (k % 10000) ? 1 : 0));
+				k = damroll(o_ptr->dd, k / 100 +
+							(randint0(100) < (k % 100) ? 1 : 0));
 
 				/* Add in extra effect due to slays */
-				k += (slay - 10);
+				k += slay / 20;
+
+				/* Apply scripted effects */
+				apply_object_trigger(TRIGGER_HIT, o_ptr, "p:iiiibbbb", 
+					LUA_MONSTER_NAMED(m_ptr, "monster"), LUA_RETURN(k), 
+					LUA_RETURN(ghoul_paral), LUA_RETURN(drain_power),
+					LUA_RETURN(vorpal_chance), LUA_RETURN(do_quake),
+					LUA_RETURN(do_conf), LUA_RETURN(do_tele),
+					LUA_RETURN(do_poly));
 
 				/* hack -- check for earthquake. */
-				if (((p_ptr->flags1 & (TR1_IMPACT)) &&
-					((k > 50) || one_in_(7))) || (chaos_effect == 2))
+				if ((FLAG(p_ptr, TR_IMPACT)) &&
+					((k > 50) || one_in_(7)))
 				{
 					do_quake = TRUE;
 				}
@@ -1687,9 +1722,7 @@ void py_attack(int x, int y)
 				 * All of these artifact-specific effects
 				 * should be pythonized.
 				 */
-				if ((o_ptr->flags1 & TR1_VORPAL) &&
-					(one_in_((o_ptr->activate + 128 == ART_VORPAL_BLADE)
-							 ? 3 : 6)))
+				if (vorpal_chance && one_in_(3 * vorpal_chance))
 				{
 					/*
 					 * The vorpal blade does average:
@@ -1702,10 +1735,9 @@ void py_attack(int x, int y)
 					 */
 					int mult = 2;
 
-					int inc_chance =
-						(o_ptr->activate + 128 == ART_VORPAL_BLADE) ? 2 : 4;
+					int inc_chance = 2 * vorpal_chance;
 
-					if (o_ptr->activate + 128 == ART_VORPAL_BLADE)
+					if (vorpal_chance < 2)
 					{
 						msgf("Your Vorpal Blade goes snicker-snack!");
 					}
@@ -1800,10 +1832,10 @@ void py_attack(int x, int y)
 				if (((p_ptr->rp.pclass == CLASS_WARRIOR) ||
 					 (p_ptr->rp.pclass == CLASS_CHAOS_WARRIOR)) &&
 					(p_ptr->lev > 39) && (num < p_ptr->num_blow) &&
-					(p_ptr->energy_use))
+					(p_ptr->state.energy_use))
 				{
-					p_ptr->energy_use =
-						p_ptr->energy_use * num / p_ptr->num_blow;
+					p_ptr->state.energy_use =
+						p_ptr->state.energy_use * num / p_ptr->num_blow;
 				}
 
 				mdeath = TRUE;
@@ -1819,32 +1851,33 @@ void py_attack(int x, int y)
 			 * Are we draining it?  A little note: If the monster is
 			 * dead, the drain does not work...
 			 */
-			if (drain_result)
+			if (drain_power)
 			{
+				int max_drain = drain_power * (MAX_VAMPIRIC_DRAIN / 4);
+				int drain_left;
+
 				/* Calculate the difference */
 				drain_result -= m_ptr->hp;
 
 				/* Did we really hurt it? */
 				if (drain_result > 0)
 				{
-					drain_heal = damroll(4, drain_result / 6);
+					drain_heal = damroll(drain_power, drain_result / 6);
+					drain_left = max_drain - drain_total;
 
 					if (cheat_xtra)
 					{
 						msgf("Draining left: %d", drain_left);
 					}
 
-					if (drain_left)
+					if (drain_left > 0)
 					{
-						if (drain_heal < drain_left)
-						{
-							drain_left -= drain_heal;
-						}
-						else
-						{
+						/* Cap life gain */
+						if (drain_heal > drain_left)
 							drain_heal = drain_left;
-							drain_left = 0;
-						}
+
+						/* Add to total */
+						drain_total += drain_heal;
 
 						if (drain_msg)
 						{
@@ -1860,7 +1893,7 @@ void py_attack(int x, int y)
 			}
 
 			/* Confusion attack */
-			if (p_ptr->state.confusing || (chaos_effect == 3))
+			if (p_ptr->state.confusing || do_conf)
 			{
 				/* Cancel glowing hands */
 				if (p_ptr->state.confusing)
@@ -1871,11 +1904,11 @@ void py_attack(int x, int y)
 				}
 
 				/* Confuse the monster */
-				if (r_ptr->flags3 & RF3_NO_CONF)
+				if (FLAG(r_ptr, RF_NO_CONF))
 				{
 					if (m_ptr->ml)
 					{
-						r_ptr->r_flags3 |= RF3_NO_CONF;
+						r_ptr->r_flags[2] |= RF2_NO_CONF;
 					}
 
 					msgf("%^s is unaffected.", m_name);
@@ -1890,21 +1923,21 @@ void py_attack(int x, int y)
 					m_ptr->confused += 10 + randint0(p_ptr->lev) / 5;
 				}
 			}
-			else if (chaos_effect == 4)
+			else if (do_tele)
 			{
 				bool resists_tele = FALSE;
 
-				if (r_ptr->flags3 & RF3_RES_TELE)
+				if (FLAG(r_ptr, RF_RES_TELE))
 				{
-					if (r_ptr->flags1 & RF1_UNIQUE)
+					if (FLAG(r_ptr, RF_UNIQUE))
 					{
-						if (m_ptr->ml) r_ptr->r_flags3 |= RF3_RES_TELE;
+						if (m_ptr->ml) r_ptr->r_flags[2] |= RF2_RES_TELE;
 						msgf("%^s is unaffected!", m_name);
 						resists_tele = TRUE;
 					}
 					else if (r_ptr->level > randint1(100))
 					{
-						if (m_ptr->ml) r_ptr->r_flags3 |= RF3_RES_TELE;
+						if (m_ptr->ml) r_ptr->r_flags[2] |= RF2_RES_TELE;
 						msgf("%^s resists!", m_name);
 						resists_tele = TRUE;
 					}
@@ -1918,12 +1951,12 @@ void py_attack(int x, int y)
 					no_extra = TRUE;
 				}
 			}
-			else if ((chaos_effect == 5) && cave_floor_grid(c_ptr) &&
+			else if (do_poly && cave_floor_grid(c_ptr) &&
 					 (randint1(90) > r_ptr->level))
 			{
-				if (!(r_ptr->flags1 & RF1_UNIQUE) &&
-					!(r_ptr->flags4 & RF4_BR_CHAO) &&
-					!(r_ptr->flags1 & RF1_QUESTOR))
+				if (!(FLAG(r_ptr, RF_UNIQUE)) &&
+					!(FLAG(r_ptr, RF_BR_CHAO)) &&
+					!(FLAG(r_ptr, RF_QUESTOR)))
 				{
 					if (polymorph_monster(x, y))
 					{
@@ -2001,7 +2034,7 @@ void py_attack(int x, int y)
 		flee_message(m_name, m_ptr->r_idx);
 	}
 
-	if (drain_left != MAX_VAMPIRIC_DRAIN)
+	if (drain_total > 0)
 	{
 		if (one_in_(4)) chg_virtue(V_VITALITY, 1);
 	}
@@ -2219,7 +2252,6 @@ static bool pattern_seq(int c_x, int c_y, int n_x, int n_y)
 }
 
 
-
 /*
  * Move player in the given direction, with the given "pickup" flag.
  *
@@ -2260,7 +2292,7 @@ void move_player(int dir, int do_pickup)
 		{
 			/* Do not leave the wilderness */
 			msgf("You can not leave the wilderness.");
-			p_ptr->energy_use = 0;
+			p_ptr->state.energy_use = 0;
 			return;
 		}
 	}
@@ -2286,7 +2318,7 @@ void move_player(int dir, int do_pickup)
 
 	/* Player can not walk through "walls"... */
 	/* unless in Shadow Form */
-	if (p_ptr->tim.wraith_form || (p_ptr->flags4 & (TR4_PASS_WALL)))
+	if (p_ptr->tim.wraith_form || (FLAG(p_ptr, TR_PASS_WALL)))
 		p_can_pass_walls = TRUE;
 
 	/* Never walk through permanent features */
@@ -2296,8 +2328,7 @@ void move_player(int dir, int do_pickup)
 	}
 
 	/* Get passability of field(s) if there */
-	p_cant_pass_fields = fields_have_flags(c_ptr->fld_idx,
-											FIELD_INFO_NO_ENTER);
+	p_cant_pass_fields = fields_have_flags(c_ptr, FIELD_INFO_NO_ENTER);
 
 	/* Hack -- attack monsters */
 	if (c_ptr->m_idx
@@ -2327,7 +2358,7 @@ void move_player(int dir, int do_pickup)
 				py_attack(x, y);
 			}
 			else if (cave_floor_grid(area(px, py)) ||
-					 (r_info[m_ptr->r_idx].flags2 & RF2_PASS_WALL))
+					 FLAG(&r_info[m_ptr->r_idx], RF_PASS_WALL))
 			{
 				msgf("You push past %s.", m_name);
 				m_ptr->fy = py;
@@ -2339,7 +2370,7 @@ void move_player(int dir, int do_pickup)
 			else
 			{
 				msgf("%^s is in your way!", m_name);
-				p_ptr->energy_use = 0;
+				p_ptr->state.energy_use = 0;
 				oktomove = FALSE;
 			}
 
@@ -2369,7 +2400,7 @@ void move_player(int dir, int do_pickup)
 			 (c_ptr->feat == FEAT_PINE_TREE) || (c_ptr->feat == FEAT_SNOW_TREE))
 	{
 		oktomove = TRUE;
-		if (p_ptr->rp.pclass != CLASS_RANGER) p_ptr->energy_use += 10;
+		if (p_ptr->rp.pclass != CLASS_RANGER) p_ptr->state.energy_use += 10;
 	}
 
 	/* Some terrains are hard to move through */
@@ -2378,7 +2409,7 @@ void move_player(int dir, int do_pickup)
 			 (c_ptr->feat == FEAT_OBELISK) || (c_ptr->feat == FEAT_BOULDER))
 	{
 		oktomove = TRUE;
-		p_ptr->energy_use += 10;
+		p_ptr->state.energy_use += 10;
 	}
 
 	/* Disarm a visible trap */
@@ -2436,7 +2467,7 @@ void move_player(int dir, int do_pickup)
 				msgf("There is a closed door blocking your way.");
 
 				if (!(p_ptr->tim.confused || p_ptr->tim.stun || p_ptr->tim.image))
-					p_ptr->energy_use = 0;
+					p_ptr->state.energy_use = 0;
 			}
 
 			/* Sound */
@@ -2468,7 +2499,7 @@ void move_player(int dir, int do_pickup)
 				msgf(MSGT_HITWALL, "There is rubble blocking your way.");
 
 				if (!(p_ptr->tim.confused || p_ptr->tim.stun || p_ptr->tim.image))
-					p_ptr->energy_use = 0;
+					p_ptr->state.energy_use = 0;
 
 				/*
 				 * Well, it makes sense that you lose time bumping into
@@ -2483,7 +2514,7 @@ void move_player(int dir, int do_pickup)
 				msgf(MSGT_HITWALL, "The jungle is impassable.");
 
 				if (!(p_ptr->tim.confused || p_ptr->tim.stun || p_ptr->tim.image))
-					p_ptr->energy_use = 0;
+					p_ptr->state.energy_use = 0;
 			}
 
 			/* Pillar */
@@ -2492,7 +2523,7 @@ void move_player(int dir, int do_pickup)
 				msgf(MSGT_HITWALL, "There is a pillar blocking your way.");
 
 				if (!(p_ptr->tim.confused || p_ptr->tim.stun || p_ptr->tim.image))
-					p_ptr->energy_use = 0;
+					p_ptr->state.energy_use = 0;
 			}
 
 			/* Wall (or secret door) */
@@ -2501,7 +2532,7 @@ void move_player(int dir, int do_pickup)
 				msgf(MSGT_HITWALL, "There is a wall blocking your way.");
 
 				if (!(p_ptr->tim.confused || p_ptr->tim.stun || p_ptr->tim.image))
-					p_ptr->energy_use = 0;
+					p_ptr->state.energy_use = 0;
 			}
 		}
 
@@ -2514,7 +2545,7 @@ void move_player(int dir, int do_pickup)
 	{
 		if (!(p_ptr->tim.confused || p_ptr->tim.stun || p_ptr->tim.image))
 		{
-			p_ptr->energy_use = 0;
+			p_ptr->state.energy_use = 0;
 		}
 
 		/* To avoid a loop with running */
@@ -2533,7 +2564,7 @@ void move_player(int dir, int do_pickup)
 		ox = px;
 
 		/* Process fields under the player. */
-		field_hook(&area(px, py)->fld_idx, FIELD_ACT_PLAYER_LEAVE);
+		field_hook(area(px, py), FIELD_ACT_PLAYER_LEAVE);
 
 		/* Move the player */
 		p_ptr->py = y;
@@ -2557,7 +2588,7 @@ void move_player(int dir, int do_pickup)
 		lite_spot(ox, oy);
 
 		/* Process fields under the player. */
-		field_hook(&area(x, y)->fld_idx, FIELD_ACT_PLAYER_ENTER);
+		field_hook(area(x, y), FIELD_ACT_PLAYER_ENTER);
 
 		/* Sound */
 		/* sound(SOUND_WALK); */
@@ -2579,21 +2610,22 @@ void move_player(int dir, int do_pickup)
 		/* 
 		 * Is the disturb_traps option set and out of detection range?
 		 */
-		if (disturb_traps && !(pc_ptr->player & GRID_DTCT) && p_ptr->detected)
+		if (disturb_traps && !(pc_ptr->player & GRID_DTCT) &&
+			p_ptr->state.detected)
 		{
 			/* We are out of range */
 
 			msgf("Out of trap detection range.");
 
 			/* Reset the detection flag */
-			p_ptr->detected = FALSE;
+			p_ptr->state.detected = FALSE;
 
 			/* Disturb the player */
 			disturb(FALSE);
 		}
 
 		/* Spontaneous Searching */
-		if ((p_ptr->skill.fos >= 50) || one_in_(50 - p_ptr->skill.fos))
+		if ((p_ptr->skills[SKILL_FOS] >= 50) || one_in_(50 - p_ptr->skills[SKILL_FOS]))
 		{
 			search();
 		}
@@ -3064,7 +3096,7 @@ static bool run_test(void)
 				case FEAT_SHAL_LAVA:
 				{
 					/* Ignore */
-					if (p_ptr->tim.invuln || (p_ptr->flags2 & (TR2_IM_FIRE)))
+					if (p_ptr->tim.invuln || (FLAG(p_ptr, TR_IM_FIRE)))
 						 notice = FALSE;
 
 					/* Done */
@@ -3075,7 +3107,7 @@ static bool run_test(void)
 				case FEAT_SHAL_ACID:
 				{
 					/* Ignore */
-					if (p_ptr->tim.invuln || (p_ptr->flags2 & (TR2_IM_ACID)))
+					if (p_ptr->tim.invuln || (FLAG(p_ptr, TR_IM_ACID)))
 						 notice = FALSE;
 
 					/* Done */
@@ -3086,7 +3118,8 @@ static bool run_test(void)
 				case FEAT_SHAL_SWAMP:
 				{
 					/* Ignore */
-					if (p_ptr->tim.invuln) notice = FALSE;
+					if (p_ptr->tim.invuln || (FLAG(p_ptr, TR_IM_POIS)))
+						notice = FALSE;
 
 					/* Done */
 					break;
@@ -3097,7 +3130,7 @@ static bool run_test(void)
 				case FEAT_OCEAN_WATER:
 				{
 					/* Ignore */
-					if (p_ptr->flags3 & (TR3_FEATHER)) notice = FALSE;
+					if (FLAG(p_ptr, TR_FEATHER)) notice = FALSE;
 
 					/* Done */
 					break;
@@ -3402,7 +3435,7 @@ void run_step(int dir)
 	p_ptr->state.running--;
 
 	/* Take time */
-	p_ptr->energy_use = 100;
+	p_ptr->state.energy_use = 100;
 
 	/* Move the player, using the "pickup" flag */
 	move_player(p_ptr->run.cur_dir, FALSE);

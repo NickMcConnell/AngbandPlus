@@ -310,6 +310,7 @@ static void StdinProc(ClientData clientData, int mask)
     Tcl_ResetResult(interp);
 }
 
+extern void TkpDisplayWarning(const char * msg, const char * title);
 
 Tcl_Interp *TclTk_Init(cptr *argv)
 {
