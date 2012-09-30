@@ -282,6 +282,8 @@ struct term
 #define TERM_XTRA_LEVEL 12	/* Change the "soft" level (optional) */
 #define TERM_XTRA_DELAY 13	/* Delay some milliseconds (optional) */
 #define TERM_XTRA_GET_DELAY 14	/* Get the cuyrrent time in milliseconds (optional) */
+#define TERM_XTRA_SCANSUBDIR 15 /* Scan for subdir in a dir */
+#define TERM_XTRA_RENAME_MAIN_WIN 16 /* Rename the main game window */
 
 
 /**** Available Variables ****/
@@ -297,6 +299,9 @@ extern int last_paused;
 extern errr Term_user(int n);
 extern errr Term_xtra(int n, int v);
 extern long Term_xtra_long;
+extern char scansubdir_dir[1024];
+extern int scansubdir_max;
+extern cptr scansubdir_result[255];
 
 #ifdef USE_TRANSPARENCY
 #ifdef USE_EGO_GRAPHICS

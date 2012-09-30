@@ -20,5 +20,4 @@
  * Driver for the context-sensitive help system
  */
 void ingame_help(bool enable)
-{
-}
+{}

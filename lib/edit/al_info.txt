@@ -311,7 +311,7 @@ D:Aids in digging
 d:Pick
 p:Picks
 
-A:1:9:1:0:1:30:5000
+A:1:9:1:0:1:40:50000
 F:LIFE
 f:TROLL
 D:Multiplies Life
@@ -516,11 +516,11 @@ A:3:0:0:0:0:8:2000
 F:BRAND_COLD
 D:Frost Brand
 
-A:3:0:0:0:0:30:3000
+A:3:0:0:0:1:30:3000
 F:XTRA_MIGHT
 D:Extra Might (Bows Only)
 
-A:3:0:0:0:0:35:3000
+A:3:0:0:0:1:35:3000
 F:XTRA_SHOTS
 D:Extra Shots (Bows Only)
 

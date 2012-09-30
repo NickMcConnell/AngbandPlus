@@ -97,7 +97,7 @@ errr func_problem(void)
  */
 errr func_failure(void)
 {
-	return (-1);
+	return ( -1);
 }
 
 
@@ -195,7 +195,7 @@ void quit(cptr str)
 	plog(str);
 
 	/* Failure */
-	(void)(exit(-1));
+	(void)(exit( -1));
 }
 
 

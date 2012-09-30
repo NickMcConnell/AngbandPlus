@@ -11,11 +11,11 @@ OBJS = \
   object1.o object2.o traps.o monster1.o monster2.o monster3.o \
   xtra1.o xtra2.o spells1.o spells2.o help.o \
   melee1.o melee2.o save.o files.o notes.o \
-  status.o randart.o gods.o \
+  status.o randart.o gods.o modules.o \
   cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o cmd7.o \
   store.o birth.o loadsave.o ghost.o powers.o \
   wizard1.o wizard2.o wild.o plots.o \
-  generate.o dungeon.o init1.o init2.o \
+  generate.o gen_maze.o gen_evol.o dungeon.o init1.o init2.o \
   bldg.o levels.o squeltch.o \
   main-ami.o sound-ami.o main.o
 
@@ -63,6 +63,8 @@ cmovie.o: cmovie.c $(INCS)
 dungeon.o: dungeon.c $(INCS)
 files.o: files.c $(INCS)
 generate.o: generate.c $(INCS)
+gen_evol.o: gen_evol.c $(INCS)
+gen_maze.o: gen_maze.c $(INCS)
 init1.o: init1.c $(INCS)
 init2.o: init2.c $(INCS)
 loadsave.o: loadsave.c $(INCS)
@@ -99,6 +101,7 @@ levels.o: levels.c $(INCS)
 ghost.o: ghost.c $(INCS)
 squeltch.o: squeltch.c $(INCS)
 wild.o: wild.c $(INCS)
+modules.o: modules.c $(INCS)
 z-form.o: z-form.c $(HDRS) z-form.h z-util.h z-virt.h
 z-rand.o: z-rand.c $(HDRS) z-rand.h
 z-term.o: z-term.c $(HDRS) z-term.h z-virt.h

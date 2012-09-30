@@ -41,6 +41,9 @@ Spirituality            1.000           [1.000]
 Monster-lore            1.000           [1.200]
   Summoning             1.000           [0.700]
 
+#####GInnate Abilities:
+#####BAbility              Character level
+Perfect-casting             1
 
 #####GStarting Equipment
 A druid begins the game with:

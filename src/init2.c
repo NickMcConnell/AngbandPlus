@@ -1,6 +1,6 @@
 /* File: init2.c */
 
-/* Purpose: Initialization (part 2) -BEN- */
+/* Purpose: Initialisation (part 2) -BEN- */
 
 #include "angband.h"
 
@@ -12,7 +12,7 @@
 
 
 /*
- * This file is used to initialize various variables and arrays for the
+ * This file is used to initialise various variables and arrays for the
  * Angband game.  Note the use of "fd_read()" and "fd_write()" to bypass
  * the common limitation of "read()" and "write()" to only 32767 bytes
  * at a time.
@@ -82,16 +82,19 @@ void init_file_paths(char *path)
 	/* Free the sub-paths */
 	string_free(ANGBAND_DIR_APEX);
 	string_free(ANGBAND_DIR_BONE);
+	string_free(ANGBAND_DIR_CORE);
 	string_free(ANGBAND_DIR_DNGN);
 	string_free(ANGBAND_DIR_DATA);
 	string_free(ANGBAND_DIR_EDIT);
 	string_free(ANGBAND_DIR_FILE);
 	string_free(ANGBAND_DIR_HELP);
 	string_free(ANGBAND_DIR_INFO);
+	string_free(ANGBAND_DIR_MODULES);
 	string_free(ANGBAND_DIR_NOTE);
 	string_free(ANGBAND_DIR_SAVE);
 	string_free(ANGBAND_DIR_SCPT);
 	string_free(ANGBAND_DIR_PREF);
+	string_free(ANGBAND_DIR_PATCH);
 	string_free(ANGBAND_DIR_USER);
 	string_free(ANGBAND_DIR_XTRA);
 	string_free(ANGBAND_DIR_CMOV);
@@ -113,13 +116,16 @@ void init_file_paths(char *path)
 	/* Use "blank" path names */
 	ANGBAND_DIR_APEX = string_make("");
 	ANGBAND_DIR_BONE = string_make("");
+	ANGBAND_DIR_CORE = string_make("");
 	ANGBAND_DIR_DNGN = string_make("");
 	ANGBAND_DIR_DATA = string_make("");
 	ANGBAND_DIR_EDIT = string_make("");
 	ANGBAND_DIR_FILE = string_make("");
 	ANGBAND_DIR_HELP = string_make("");
 	ANGBAND_DIR_INFO = string_make("");
+	ANGBAND_DIR_MODULES = string_make("");
 	ANGBAND_DIR_NOTE = string_make("");
+	ANGBAND_DIR_PATCH = string_make("");
 	ANGBAND_DIR_SAVE = string_make("");
 	ANGBAND_DIR_SCPT = string_make("");
 	ANGBAND_DIR_PREF = string_make("");
@@ -139,6 +145,10 @@ void init_file_paths(char *path)
 	/* Build a path name */
 	strcpy(tail, "bone");
 	ANGBAND_DIR_BONE = string_make(path);
+
+	/* Build a path name */
+	strcpy(tail, "core");
+	ANGBAND_DIR_CORE = string_make(path);
 
 	/* Build a path name */
 	strcpy(tail, "dngn");
@@ -163,6 +173,14 @@ void init_file_paths(char *path)
 	/* Build a path name */
 	strcpy(tail, "info");
 	ANGBAND_DIR_INFO = string_make(path);
+
+	/* Build a path name */
+	strcpy(tail, "mods");
+	ANGBAND_DIR_MODULES = string_make(path);
+
+	/* Build a path name */
+	strcpy(tail, "patch");
+	ANGBAND_DIR_PATCH = string_make(path);
 
 	/* Build a path name */
 	strcpy(tail, "save");
@@ -190,7 +208,7 @@ void init_file_paths(char *path)
 
 #else /* PRIVATE_USER_PATH */
 
-	/* Build a path name */
+/* Build a path name */
 	strcpy(tail, "user");
 	ANGBAND_DIR_USER = string_make(path);
 
@@ -220,19 +238,19 @@ void init_file_paths(char *path)
 
 # if defined(m68k)
 		next = "m68k";
-# endif
+# endif 
 
 # if defined(i386)
 		next = "i386";
-# endif
+# endif 
 
 # if defined(sparc)
 		next = "sparc";
-# endif
+# endif 
 
 # if defined(hppa)
 		next = "hppa";
-# endif
+# endif 
 
 		/* Use special directory */
 		if (next)
@@ -263,7 +281,7 @@ s16b error_line;
 
 
 /*
- * Hack -- help initialize the fake "name" and "text" arrays when
+ * Hack -- help initialise the fake "name" and "text" arrays when
  * parsing an "ascii" template file.
  */
 u32b fake_name_size;
@@ -305,21 +323,21 @@ static errr check_modification_date(int fd, cptr template_file)
 	if (stat(buf, &txt_stat))
 	{
 		/* Error */
-		return (-1);
+		return ( -1);
 	}
 
 	/* Access stats on raw file */
 	if (fstat(fd, &raw_stat))
 	{
 		/* Error */
-		return (-1);
+		return ( -1);
 	}
 
 	/* Ensure text file is not newer than raw file */
 	if (txt_stat.st_mtime > raw_stat.st_mtime)
 	{
 		/* Reprocess text file */
-		return (-1);
+		return ( -1);
 	}
 
 	return (0);
@@ -339,11 +357,11 @@ static void note(cptr str)
 
 
 
-/*** Initialize from binary image files ***/
+/*** Initialise from binary image files ***/
 
 
 /*
- * Initialize the "f_info" array, by parsing a binary "image" file
+ * Initialise the "f_info" array, by parsing a binary "image" file
  */
 static errr init_f_info_raw(int fd)
 {
@@ -351,17 +369,17 @@ static errr init_f_info_raw(int fd)
 
 	/* Read and Verify the header */
 	if (fd_read(fd, (char*)(&test), sizeof(header)) ||
-	    (test.v_major != f_head->v_major) ||
-	    (test.v_minor != f_head->v_minor) ||
-	    (test.v_patch != f_head->v_patch) ||
-	    (test.v_extra != f_head->v_extra) ||
-	    (test.info_num != f_head->info_num) ||
-	    (test.info_len != f_head->info_len) ||
-	    (test.head_size != f_head->head_size) ||
-	    (test.info_size != f_head->info_size))
+	                (test.v_major != f_head->v_major) ||
+	                (test.v_minor != f_head->v_minor) ||
+	                (test.v_patch != f_head->v_patch) ||
+	                (test.v_extra != f_head->v_extra) ||
+	                (test.info_num != f_head->info_num) ||
+	                (test.info_len != f_head->info_len) ||
+	                (test.head_size != f_head->head_size) ||
+	                (test.info_size != f_head->info_size))
 	{
 		/* Error */
-		return (-1);
+		return ( -1);
 	}
 
 
@@ -401,7 +419,7 @@ static errr init_f_info_raw(int fd)
 
 
 /*
- * Initialize the "f_info" array
+ * Initialise the "f_info" array
  *
  * Note that we let each entry have a unique "name" and "text" string,
  * even if the string happens to be empty (everyone has a unique '\0').
@@ -626,7 +644,7 @@ static errr init_f_info(void)
 
 
 /*
- * Initialize the "k_info" array, by parsing a binary "image" file
+ * Initialise the "k_info" array, by parsing a binary "image" file
  */
 static errr init_k_info_raw(int fd)
 {
@@ -634,17 +652,17 @@ static errr init_k_info_raw(int fd)
 
 	/* Read and Verify the header */
 	if (fd_read(fd, (char*)(&test), sizeof(header)) ||
-	    (test.v_major != k_head->v_major) ||
-	    (test.v_minor != k_head->v_minor) ||
-	    (test.v_patch != k_head->v_patch) ||
-	    (test.v_extra != k_head->v_extra) ||
-	    (test.info_num != k_head->info_num) ||
-	    (test.info_len != k_head->info_len) ||
-	    (test.head_size != k_head->head_size) ||
-	    (test.info_size != k_head->info_size))
+	                (test.v_major != k_head->v_major) ||
+	                (test.v_minor != k_head->v_minor) ||
+	                (test.v_patch != k_head->v_patch) ||
+	                (test.v_extra != k_head->v_extra) ||
+	                (test.info_num != k_head->info_num) ||
+	                (test.info_len != k_head->info_len) ||
+	                (test.head_size != k_head->head_size) ||
+	                (test.info_size != k_head->info_size))
 	{
 		/* Error */
-		return (-1);
+		return ( -1);
 	}
 
 
@@ -684,7 +702,7 @@ static errr init_k_info_raw(int fd)
 
 
 /*
- * Initialize the "k_info" array
+ * Initialise the "k_info" array
  *
  * Note that we let each entry have a unique "name" and "text" string,
  * even if the string happens to be empty (everyone has a unique '\0').
@@ -909,7 +927,7 @@ static errr init_k_info(void)
 
 
 /*
- * Initialize the "a_info" array, by parsing a binary "image" file
+ * Initialise the "a_info" array, by parsing a binary "image" file
  */
 static errr init_a_info_raw(int fd)
 {
@@ -917,17 +935,17 @@ static errr init_a_info_raw(int fd)
 
 	/* Read and Verify the header */
 	if (fd_read(fd, (char*)(&test), sizeof(header)) ||
-	    (test.v_major != a_head->v_major) ||
-	    (test.v_minor != a_head->v_minor) ||
-	    (test.v_patch != a_head->v_patch) ||
-	    (test.v_extra != a_head->v_extra) ||
-	    (test.info_num != a_head->info_num) ||
-	    (test.info_len != a_head->info_len) ||
-	    (test.head_size != a_head->head_size) ||
-	    (test.info_size != a_head->info_size))
+	                (test.v_major != a_head->v_major) ||
+	                (test.v_minor != a_head->v_minor) ||
+	                (test.v_patch != a_head->v_patch) ||
+	                (test.v_extra != a_head->v_extra) ||
+	                (test.info_num != a_head->info_num) ||
+	                (test.info_len != a_head->info_len) ||
+	                (test.head_size != a_head->head_size) ||
+	                (test.info_size != a_head->info_size))
 	{
 		/* Error */
-		return (-1);
+		return ( -1);
 	}
 
 
@@ -965,7 +983,7 @@ static errr init_a_info_raw(int fd)
 }
 
 /*
- * Initialize the "s_info" array, by parsing a binary "image" file
+ * Initialise the "s_info" array, by parsing a binary "image" file
  */
 static errr init_s_info_raw(int fd)
 {
@@ -974,17 +992,17 @@ static errr init_s_info_raw(int fd)
 
 	/* Read and Verify the header */
 	if (fd_read(fd, (char*)(&test), sizeof(header)) ||
-	    (test.v_major != s_head->v_major) ||
-	    (test.v_minor != s_head->v_minor) ||
-	    (test.v_patch != s_head->v_patch) ||
-	    (test.v_extra != s_head->v_extra) ||
-	    (test.info_num != s_head->info_num) ||
-	    (test.info_len != s_head->info_len) ||
-	    (test.head_size != s_head->head_size) ||
-	    (test.info_size != s_head->info_size))
+	                (test.v_major != s_head->v_major) ||
+	                (test.v_minor != s_head->v_minor) ||
+	                (test.v_patch != s_head->v_patch) ||
+	                (test.v_extra != s_head->v_extra) ||
+	                (test.info_num != s_head->info_num) ||
+	                (test.info_len != s_head->info_len) ||
+	                (test.head_size != s_head->head_size) ||
+	                (test.info_size != s_head->info_size))
 	{
 		/* Error */
-		return (-1);
+		return ( -1);
 	}
 
 
@@ -1018,7 +1036,60 @@ static errr init_s_info_raw(int fd)
 }
 
 /*
- * Initialize the "set_info" array, by parsing a binary "image" file
+ * Initialise the "ab_info" array, by parsing a binary "image" file
+ */
+static errr init_ab_info_raw(int fd)
+{
+	header test;
+	/*int i;*/
+
+	/* Read and Verify the header */
+	if (fd_read(fd, (char*)(&test), sizeof(header)) ||
+	                (test.v_major != ab_head->v_major) ||
+	                (test.v_minor != ab_head->v_minor) ||
+	                (test.v_patch != ab_head->v_patch) ||
+	                (test.v_extra != ab_head->v_extra) ||
+	                (test.info_num != ab_head->info_num) ||
+	                (test.info_len != ab_head->info_len) ||
+	                (test.head_size != ab_head->head_size) ||
+	                (test.info_size != ab_head->info_size))
+	{
+		/* Error */
+		return ( -1);
+	}
+
+
+	/* Accept the header */
+	(*ab_head) = test;
+
+
+	/* Allocate the "ab_info" array */
+	C_MAKE(ab_info, ab_head->info_num, ability_type);
+
+	/* Read the "ab_info" array */
+	fd_read(fd, (char*)(ab_info), ab_head->info_size);
+
+
+	/* Allocate the "ab_name" array */
+	C_MAKE(ab_name, ab_head->name_size, char);
+
+	/* Read the "ab_name" array */
+	fd_read(fd, (char*)(ab_name), ab_head->name_size);
+
+
+	/* Allocate the "ab_text" array */
+	C_MAKE(ab_text, ab_head->text_size, char);
+
+	/* Read the "ab_text" array */
+	fd_read(fd, (char*)(ab_text), ab_head->text_size);
+
+
+	/* Success */
+	return (0);
+}
+
+/*
+ * Initialise the "set_info" array, by parsing a binary "image" file
  */
 static errr init_set_info_raw(int fd)
 {
@@ -1026,17 +1097,17 @@ static errr init_set_info_raw(int fd)
 
 	/* Read and Verify the header */
 	if (fd_read(fd, (char*)(&test), sizeof(header)) ||
-	    (test.v_major != set_head->v_major) ||
-	    (test.v_minor != set_head->v_minor) ||
-	    (test.v_patch != set_head->v_patch) ||
-	    (test.v_extra != set_head->v_extra) ||
-	    (test.info_num != set_head->info_num) ||
-	    (test.info_len != set_head->info_len) ||
-	    (test.head_size != set_head->head_size) ||
-	    (test.info_size != set_head->info_size))
+	                (test.v_major != set_head->v_major) ||
+	                (test.v_minor != set_head->v_minor) ||
+	                (test.v_patch != set_head->v_patch) ||
+	                (test.v_extra != set_head->v_extra) ||
+	                (test.info_num != set_head->info_num) ||
+	                (test.info_len != set_head->info_len) ||
+	                (test.head_size != set_head->head_size) ||
+	                (test.info_size != set_head->info_size))
 	{
 		/* Error */
-		return (-1);
+		return ( -1);
 	}
 
 
@@ -1070,7 +1141,7 @@ static errr init_set_info_raw(int fd)
 
 
 /*
- * Initialize the "set_info" array
+ * Initialise the "set_info" array
  *
  * Note that we let each entry have a unique "name" and "text" string,
  * even if the string happens to be empty (everyone has a unique '\0').
@@ -1294,7 +1365,7 @@ static errr init_set_info(void)
 
 
 /*
- * Initialize the "a_info" array
+ * Initialise the "a_info" array
  *
  * Note that we let each entry have a unique "name" and "text" string,
  * even if the string happens to be empty (everyone has a unique '\0').
@@ -1518,7 +1589,7 @@ static errr init_a_info(void)
 
 
 /*
- * Initialize the "s_info" array
+ * Initialise the "s_info" array
  *
  * Note that we let each entry have a unique "name" and "text" string,
  * even if the string happens to be empty (everyone has a unique '\0').
@@ -1739,10 +1810,232 @@ static errr init_s_info(void)
 	return (0);
 }
 
+/*
+ * Initialise the "ab_info" array
+ *
+ * Note that we let each entry have a unique "name" and "text" string,
+ * even if the string happens to be empty (everyone has a unique '\0').
+ */
+static errr init_ab_info(void)
+{
+	int fd;
+
+	/* int i; */
+
+	int mode = 0644;
+
+	errr err = 0;
+
+	FILE *fp;
+
+	/* General buffer */
+	char buf[1024];
+
+
+	/*** Make the "header" ***/
+
+	/* Allocate the "header" */
+	MAKE(ab_head, header);
+
+	/* Save the "version" */
+	ab_head->v_major = VERSION_MAJOR;
+	ab_head->v_minor = VERSION_MINOR;
+	ab_head->v_patch = VERSION_PATCH;
+	ab_head->v_extra = 0;
+
+	/* Save the "record" information */
+	ab_head->info_num = max_ab_idx;
+	ab_head->info_len = sizeof(ability_type);
+
+	/* Save the size of "ab_head" and "ab_info" */
+	ab_head->head_size = sizeof(header);
+	ab_head->info_size = ab_head->info_num * ab_head->info_len;
+
+
+#ifdef ALLOW_TEMPLATES
+
+	/*** Load the binary image file ***/
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_DATA, "ab_info.raw");
+
+	/* Grab permission */
+	safe_setuid_grab();
+
+	/* Attempt to open the "raw" file */
+	fd = fd_open(buf, O_RDONLY);
+
+	/* Drop permission */
+	safe_setuid_drop();
+
+	/* Process existing "raw" file */
+	if (fd >= 0)
+	{
+#ifdef CHECK_MODIFICATION_TIME
+
+		err = check_modification_date(fd, "ab_info.txt");
+
+#endif /* CHECK_MODIFICATION_TIME */
+
+		/* Attempt to parse the "raw" file */
+		if (!err)
+			err = init_ab_info_raw(fd);
+
+		/* Close it */
+		(void)fd_close(fd);
+
+		/* Success */
+		if (!err) return (0);
+
+		/* Information */
+		msg_print("Ignoring obsolete/defective 'ab_info.raw' file.");
+		msg_print(NULL);
+	}
+
+	/*** Make the fake arrays ***/
+
+	/* Fake the size of "a_name" and "a_text" */
+	fake_name_size = FAKE_NAME_SIZE;
+	fake_text_size = FAKE_TEXT_SIZE;
+
+	/* Allocate the "ab_info" array */
+	C_MAKE(ab_info, ab_head->info_num, ability_type);
+
+	/* Hack -- make "fake" arrays */
+	C_MAKE(ab_name, fake_name_size, char);
+	C_MAKE(ab_text, fake_text_size, char);
+
+	/*** Load the ascii template file ***/
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_EDIT, "ab_info.txt");
+
+	/* Grab permission */
+	safe_setuid_grab();
+
+	/* Open the file */
+	fp = my_fopen(buf, "r");
+
+	/* Drop permission */
+	safe_setuid_drop();
+
+	/* Parse it */
+	if (!fp) quit("Cannot open 'ab_info.txt' file.");
+
+	/* Parse the file */
+	err = init_ab_info_txt(fp, buf);
+
+	/* Close it */
+	my_fclose(fp);
+
+	/* Errors */
+	if (err)
+	{
+		cptr oops;
+
+		/* Error string */
+		oops = (((err > 0) && (err < 8)) ? err_str[err] : "unknown");
+
+		/* Oops */
+		msg_format("Error %d at line %d of 'ab_info.txt'.", err, error_line);
+		msg_format("Record %d contains a '%s' error.", error_idx, oops);
+		msg_format("Parsing '%s'.", buf);
+		msg_print(NULL);
+
+		/* Quit */
+		quit("Error in 'ab_info.txt' file.");
+	}
+
+	/*** Dump the binary image file ***/
+
+	/* File type is "DATA" */
+	FILE_TYPE(FILE_TYPE_DATA);
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_DATA, "ab_info.raw");
+
+	/* Grab permission */
+	safe_setuid_grab();
+
+	/* Kill the old file */
+	(void)fd_kill(buf);
+
+	/* Attempt to create the raw file */
+	fd = fd_make(buf, mode);
+
+	/* Drop permission */
+	safe_setuid_drop();
+
+	/* Dump to the file */
+	if (fd >= 0)
+	{
+		/* Dump it */
+		fd_write(fd, (char*)(ab_head), ab_head->head_size);
+
+		/* Dump the "ab_info" array */
+		fd_write(fd, (char*)(ab_info), ab_head->info_size);
+
+		/* Dump the "ab_name" array */
+		fd_write(fd, (char*)(ab_name), ab_head->name_size);
+
+		/* Dump the "ab_text" array */
+		fd_write(fd, (char*)(ab_text), ab_head->text_size);
+
+		/* Close */
+		(void)fd_close(fd);
+	}
+
+
+	/*** Kill the fake arrays ***/
+
+	/* Free the "ab_info" array */
+	C_KILL(ab_info, ab_head->info_num, ability_type);
+
+	/* Hack -- Free the "fake" arrays */
+	C_KILL(ab_name, fake_name_size, char);
+	C_KILL(ab_text, fake_text_size, char);
+
+	/* Forget the array sizes */
+	fake_name_size = 0;
+	fake_text_size = 0;
+
+#endif	/* ALLOW_TEMPLATES */
+
+
+	/*** Load the binary image file ***/
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_DATA, "ab_info.raw");
+
+	/* Grab permission */
+	safe_setuid_grab();
+
+	/* Attempt to open the "raw" file */
+	fd = fd_open(buf, O_RDONLY);
+
+	/* Drop permission */
+	safe_setuid_drop();
+
+	/* Process existing "raw" file */
+	if (fd < 0) quit("Cannot open 'ab_info.raw' file.");
+
+	/* Attempt to parse the "raw" file */
+	err = init_ab_info_raw(fd);
+
+	/* Close it */
+	(void)fd_close(fd);
+
+	/* Error */
+	if (err) quit("Cannot parse 'ab_info.raw' file.");
+
+	/* Success */
+	return (0);
+}
+
 
 
 /*
- * Initialize the "e_info" array, by parsing a binary "image" file
+ * Initialise the "e_info" array, by parsing a binary "image" file
  */
 static errr init_e_info_raw(int fd)
 {
@@ -1750,17 +2043,17 @@ static errr init_e_info_raw(int fd)
 
 	/* Read and Verify the header */
 	if (fd_read(fd, (char*)(&test), sizeof(header)) ||
-	    (test.v_major != e_head->v_major) ||
-	    (test.v_minor != e_head->v_minor) ||
-	    (test.v_patch != e_head->v_patch) ||
-	    (test.v_extra != e_head->v_extra) ||
-	    (test.info_num != e_head->info_num) ||
-	    (test.info_len != e_head->info_len) ||
-	    (test.head_size != e_head->head_size) ||
-	    (test.info_size != e_head->info_size))
+	                (test.v_major != e_head->v_major) ||
+	                (test.v_minor != e_head->v_minor) ||
+	                (test.v_patch != e_head->v_patch) ||
+	                (test.v_extra != e_head->v_extra) ||
+	                (test.info_num != e_head->info_num) ||
+	                (test.info_len != e_head->info_len) ||
+	                (test.head_size != e_head->head_size) ||
+	                (test.info_size != e_head->info_size))
 	{
 		/* Error */
-		return (-1);
+		return ( -1);
 	}
 
 
@@ -1800,7 +2093,7 @@ static errr init_e_info_raw(int fd)
 
 
 /*
- * Initialize the "e_info" array
+ * Initialise the "e_info" array
  *
  * Note that we let each entry have a unique "name" and "text" string,
  * even if the string happens to be empty (everyone has a unique '\0').
@@ -2026,7 +2319,7 @@ static errr init_e_info(void)
 
 
 /*
- * Initialize the "ra_info" array, by parsing a binary "image" file
+ * Initialise the "ra_info" array, by parsing a binary "image" file
  */
 static errr init_ra_info_raw(int fd)
 {
@@ -2034,17 +2327,17 @@ static errr init_ra_info_raw(int fd)
 
 	/* Read and Verify the header */
 	if (fd_read(fd, (char*)(&test), sizeof(header)) ||
-	    (test.v_major != ra_head->v_major) ||
-	    (test.v_minor != ra_head->v_minor) ||
-	    (test.v_patch != ra_head->v_patch) ||
-	    (test.v_extra != ra_head->v_extra) ||
-	    (test.info_num != ra_head->info_num) ||
-	    (test.info_len != ra_head->info_len) ||
-	    (test.head_size != ra_head->head_size) ||
-	    (test.info_size != ra_head->info_size))
+	                (test.v_major != ra_head->v_major) ||
+	                (test.v_minor != ra_head->v_minor) ||
+	                (test.v_patch != ra_head->v_patch) ||
+	                (test.v_extra != ra_head->v_extra) ||
+	                (test.info_num != ra_head->info_num) ||
+	                (test.info_len != ra_head->info_len) ||
+	                (test.head_size != ra_head->head_size) ||
+	                (test.info_size != ra_head->info_size))
 	{
 		/* Error */
-		return (-1);
+		return ( -1);
 	}
 
 
@@ -2066,7 +2359,7 @@ static errr init_ra_info_raw(int fd)
 
 
 /*
- * Initialize the "ra_info" array
+ * Initialise the "ra_info" array
  *
  * Note that we let each entry have a unique "name" and "text" string,
  * even if the string happens to be empty (everyone has a unique '\0').
@@ -2279,7 +2572,7 @@ static errr init_ra_info(void)
 
 
 /*
- * Initialize the "r_info" array, by parsing a binary "image" file
+ * Initialise the "r_info" array, by parsing a binary "image" file
  */
 static errr init_r_info_raw(int fd)
 {
@@ -2287,17 +2580,17 @@ static errr init_r_info_raw(int fd)
 
 	/* Read and Verify the header */
 	if (fd_read(fd, (char*)(&test), sizeof(header)) ||
-	    (test.v_major != r_head->v_major) ||
-	    (test.v_minor != r_head->v_minor) ||
-	    (test.v_patch != r_head->v_patch) ||
-	    (test.v_extra != r_head->v_extra) ||
-	    (test.info_num != r_head->info_num) ||
-	    (test.info_len != r_head->info_len) ||
-	    (test.head_size != r_head->head_size) ||
-	    (test.info_size != r_head->info_size))
+	                (test.v_major != r_head->v_major) ||
+	                (test.v_minor != r_head->v_minor) ||
+	                (test.v_patch != r_head->v_patch) ||
+	                (test.v_extra != r_head->v_extra) ||
+	                (test.info_num != r_head->info_num) ||
+	                (test.info_len != r_head->info_len) ||
+	                (test.head_size != r_head->head_size) ||
+	                (test.info_size != r_head->info_size))
 	{
 		/* Error */
-		return (-1);
+		return ( -1);
 	}
 
 
@@ -2335,7 +2628,7 @@ static errr init_r_info_raw(int fd)
 }
 
 /*
- * Initialize the "re_info" array, by parsing a binary "image" file
+ * Initialise the "re_info" array, by parsing a binary "image" file
  */
 static errr init_re_info_raw(int fd)
 {
@@ -2343,17 +2636,17 @@ static errr init_re_info_raw(int fd)
 
 	/* Read and Verify the header */
 	if (fd_read(fd, (char*)(&test), sizeof(header)) ||
-	    (test.v_major != re_head->v_major) ||
-	    (test.v_minor != re_head->v_minor) ||
-	    (test.v_patch != re_head->v_patch) ||
-	    (test.v_extra != re_head->v_extra) ||
-	    (test.info_num != re_head->info_num) ||
-	    (test.info_len != re_head->info_len) ||
-	    (test.head_size != re_head->head_size) ||
-	    (test.info_size != re_head->info_size))
+	                (test.v_major != re_head->v_major) ||
+	                (test.v_minor != re_head->v_minor) ||
+	                (test.v_patch != re_head->v_patch) ||
+	                (test.v_extra != re_head->v_extra) ||
+	                (test.info_num != re_head->info_num) ||
+	                (test.info_len != re_head->info_len) ||
+	                (test.head_size != re_head->head_size) ||
+	                (test.info_size != re_head->info_size))
 	{
 		/* Error */
-		return (-1);
+		return ( -1);
 	}
 
 
@@ -2380,7 +2673,7 @@ static errr init_re_info_raw(int fd)
 
 
 /*
- * Initialize the "d_info" array, by parsing a binary "image" file
+ * Initialise the "d_info" array, by parsing a binary "image" file
  */
 static errr init_d_info_raw(int fd)
 {
@@ -2388,17 +2681,17 @@ static errr init_d_info_raw(int fd)
 
 	/* Read and Verify the header */
 	if (fd_read(fd, (char*)(&test), sizeof(header)) ||
-	    (test.v_major != d_head->v_major) ||
-	    (test.v_minor != d_head->v_minor) ||
-	    (test.v_patch != d_head->v_patch) ||
-	    (test.v_extra != d_head->v_extra) ||
-	    (test.info_num != d_head->info_num) ||
-	    (test.info_len != d_head->info_len) ||
-	    (test.head_size != d_head->head_size) ||
-	    (test.info_size != d_head->info_size))
+	                (test.v_major != d_head->v_major) ||
+	                (test.v_minor != d_head->v_minor) ||
+	                (test.v_patch != d_head->v_patch) ||
+	                (test.v_extra != d_head->v_extra) ||
+	                (test.info_num != d_head->info_num) ||
+	                (test.info_len != d_head->info_len) ||
+	                (test.head_size != d_head->head_size) ||
+	                (test.info_size != d_head->info_size))
 	{
 		/* Error */
-		return (-1);
+		return ( -1);
 	}
 
 
@@ -2431,7 +2724,7 @@ static errr init_d_info_raw(int fd)
 }
 
 /*
- * Initialize the "st_info" array, by parsing a binary "image" file
+ * Initialise the "st_info" array, by parsing a binary "image" file
  */
 static errr init_st_info_raw(int fd)
 {
@@ -2439,17 +2732,17 @@ static errr init_st_info_raw(int fd)
 
 	/* Read and Verify the header */
 	if (fd_read(fd, (char*)(&test), sizeof(header)) ||
-	    (test.v_major != st_head->v_major) ||
-	    (test.v_minor != st_head->v_minor) ||
-	    (test.v_patch != st_head->v_patch) ||
-	    (test.v_extra != st_head->v_extra) ||
-	    (test.info_num != st_head->info_num) ||
-	    (test.info_len != st_head->info_len) ||
-	    (test.head_size != st_head->head_size) ||
-	    (test.info_size != st_head->info_size))
+	                (test.v_major != st_head->v_major) ||
+	                (test.v_minor != st_head->v_minor) ||
+	                (test.v_patch != st_head->v_patch) ||
+	                (test.v_extra != st_head->v_extra) ||
+	                (test.info_num != st_head->info_num) ||
+	                (test.info_len != st_head->info_len) ||
+	                (test.head_size != st_head->head_size) ||
+	                (test.info_size != st_head->info_size))
 	{
 		/* Error */
-		return (-1);
+		return ( -1);
 	}
 
 
@@ -2475,7 +2768,7 @@ static errr init_st_info_raw(int fd)
 }
 
 /*
- * Initialize the "ba_info" array, by parsing a binary "image" file
+ * Initialise the "ba_info" array, by parsing a binary "image" file
  */
 static errr init_ba_info_raw(int fd)
 {
@@ -2483,17 +2776,17 @@ static errr init_ba_info_raw(int fd)
 
 	/* Read and Verify the header */
 	if (fd_read(fd, (char*)(&test), sizeof(header)) ||
-	    (test.v_major != ba_head->v_major) ||
-	    (test.v_minor != ba_head->v_minor) ||
-	    (test.v_patch != ba_head->v_patch) ||
-	    (test.v_extra != ba_head->v_extra) ||
-	    (test.info_num != ba_head->info_num) ||
-	    (test.info_len != ba_head->info_len) ||
-	    (test.head_size != ba_head->head_size) ||
-	    (test.info_size != ba_head->info_size))
+	                (test.v_major != ba_head->v_major) ||
+	                (test.v_minor != ba_head->v_minor) ||
+	                (test.v_patch != ba_head->v_patch) ||
+	                (test.v_extra != ba_head->v_extra) ||
+	                (test.info_num != ba_head->info_num) ||
+	                (test.info_len != ba_head->info_len) ||
+	                (test.head_size != ba_head->head_size) ||
+	                (test.info_size != ba_head->info_size))
 	{
 		/* Error */
-		return (-1);
+		return ( -1);
 	}
 
 
@@ -2519,7 +2812,7 @@ static errr init_ba_info_raw(int fd)
 }
 
 /*
- * Initialize the "ow_info" array, by parsing a binary "image" file
+ * Initialise the "ow_info" array, by parsing a binary "image" file
  */
 static errr init_ow_info_raw(int fd)
 {
@@ -2527,17 +2820,17 @@ static errr init_ow_info_raw(int fd)
 
 	/* Read and Verify the header */
 	if (fd_read(fd, (char*)(&test), sizeof(header)) ||
-	    (test.v_major != ow_head->v_major) ||
-	    (test.v_minor != ow_head->v_minor) ||
-	    (test.v_patch != ow_head->v_patch) ||
-	    (test.v_extra != ow_head->v_extra) ||
-	    (test.info_num != ow_head->info_num) ||
-	    (test.info_len != ow_head->info_len) ||
-	    (test.head_size != ow_head->head_size) ||
-	    (test.info_size != ow_head->info_size))
+	                (test.v_major != ow_head->v_major) ||
+	                (test.v_minor != ow_head->v_minor) ||
+	                (test.v_patch != ow_head->v_patch) ||
+	                (test.v_extra != ow_head->v_extra) ||
+	                (test.info_num != ow_head->info_num) ||
+	                (test.info_len != ow_head->info_len) ||
+	                (test.head_size != ow_head->head_size) ||
+	                (test.info_size != ow_head->info_size))
 	{
 		/* Error */
-		return (-1);
+		return ( -1);
 	}
 
 
@@ -2563,7 +2856,7 @@ static errr init_ow_info_raw(int fd)
 }
 
 /*
- * Initialize the "wf_info" array, by parsing a binary "image" file
+ * Initialise the "wf_info" array, by parsing a binary "image" file
  */
 static errr init_wf_info_raw(int fd)
 {
@@ -2571,17 +2864,17 @@ static errr init_wf_info_raw(int fd)
 
 	/* Read and Verify the header */
 	if (fd_read(fd, (char*)(&test), sizeof(header)) ||
-	    (test.v_major != wf_head->v_major) ||
-	    (test.v_minor != wf_head->v_minor) ||
-	    (test.v_patch != wf_head->v_patch) ||
-	    (test.v_extra != wf_head->v_extra) ||
-	    (test.info_num != wf_head->info_num) ||
-	    (test.info_len != wf_head->info_len) ||
-	    (test.head_size != wf_head->head_size) ||
-	    (test.info_size != wf_head->info_size))
+	                (test.v_major != wf_head->v_major) ||
+	                (test.v_minor != wf_head->v_minor) ||
+	                (test.v_patch != wf_head->v_patch) ||
+	                (test.v_extra != wf_head->v_extra) ||
+	                (test.info_num != wf_head->info_num) ||
+	                (test.info_len != wf_head->info_len) ||
+	                (test.head_size != wf_head->head_size) ||
+	                (test.info_size != wf_head->info_size))
 	{
 		/* Error */
-		return (-1);
+		return ( -1);
 	}
 
 
@@ -2616,7 +2909,7 @@ static errr init_wf_info_raw(int fd)
 }
 
 /*
- * Initialize the "player" arrays, by parsing a binary "image" file
+ * Initialise the "player" arrays, by parsing a binary "image" file
  */
 static errr init_player_info_raw(int fd)
 {
@@ -2625,17 +2918,17 @@ static errr init_player_info_raw(int fd)
 
 	/* Read and Verify the header */
 	if (fd_read(fd, (char*)(&test), sizeof(header)) ||
-	    (test.v_major != rp_head->v_major) ||
-	    (test.v_minor != rp_head->v_minor) ||
-	    (test.v_patch != rp_head->v_patch) ||
-	    (test.v_extra != rp_head->v_extra) ||
-	    (test.info_num != rp_head->info_num) ||
-	    (test.info_len != rp_head->info_len) ||
-	    (test.head_size != rp_head->head_size) ||
-	    (test.info_size != rp_head->info_size))
+	                (test.v_major != rp_head->v_major) ||
+	                (test.v_minor != rp_head->v_minor) ||
+	                (test.v_patch != rp_head->v_patch) ||
+	                (test.v_extra != rp_head->v_extra) ||
+	                (test.info_num != rp_head->info_num) ||
+	                (test.info_len != rp_head->info_len) ||
+	                (test.head_size != rp_head->head_size) ||
+	                (test.info_size != rp_head->info_size))
 	{
 		/* Error */
-		return (-1);
+		return ( -1);
 	}
 
 
@@ -2665,17 +2958,17 @@ static errr init_player_info_raw(int fd)
 
 	/* Read and Verify the header */
 	if (fd_read(fd, (char*)(&test), sizeof(header)) ||
-	    (test.v_major != rmp_head->v_major) ||
-	    (test.v_minor != rmp_head->v_minor) ||
-	    (test.v_patch != rmp_head->v_patch) ||
-	    (test.v_extra != rmp_head->v_extra) ||
-	    (test.info_num != rmp_head->info_num) ||
-	    (test.info_len != rmp_head->info_len) ||
-	    (test.head_size != rmp_head->head_size) ||
-	    (test.info_size != rmp_head->info_size))
+	                (test.v_major != rmp_head->v_major) ||
+	                (test.v_minor != rmp_head->v_minor) ||
+	                (test.v_patch != rmp_head->v_patch) ||
+	                (test.v_extra != rmp_head->v_extra) ||
+	                (test.info_num != rmp_head->info_num) ||
+	                (test.info_len != rmp_head->info_len) ||
+	                (test.head_size != rmp_head->head_size) ||
+	                (test.info_size != rmp_head->info_size))
 	{
 		/* Error */
-		return (-1);
+		return ( -1);
 	}
 
 
@@ -2705,17 +2998,17 @@ static errr init_player_info_raw(int fd)
 
 	/* Read and Verify the header */
 	if (fd_read(fd, (char*)(&test), sizeof(header)) ||
-	    (test.v_major != c_head->v_major) ||
-	    (test.v_minor != c_head->v_minor) ||
-	    (test.v_patch != c_head->v_patch) ||
-	    (test.v_extra != c_head->v_extra) ||
-	    (test.info_num != c_head->info_num) ||
-	    (test.info_len != c_head->info_len) ||
-	    (test.head_size != c_head->head_size) ||
-	    (test.info_size != c_head->info_size))
+	                (test.v_major != c_head->v_major) ||
+	                (test.v_minor != c_head->v_minor) ||
+	                (test.v_patch != c_head->v_patch) ||
+	                (test.v_extra != c_head->v_extra) ||
+	                (test.info_num != c_head->info_num) ||
+	                (test.info_len != c_head->info_len) ||
+	                (test.head_size != c_head->head_size) ||
+	                (test.info_size != c_head->info_size))
 	{
 		/* Error */
-		return (-1);
+		return ( -1);
 	}
 
 
@@ -2760,7 +3053,7 @@ static errr init_player_info_raw(int fd)
 		fd_read(fd, (char*)meta_class_info[i].classes, max_c_idx * sizeof(s16b));
 	}
 
-        /* Read the "gen skills" array */
+	/* Read the "gen skills" array */
 	fd_read(fd, (char*)(gen_skill_base), MAX_SKILLS * sizeof(u32b));
 	fd_read(fd, (char*)(gen_skill_mod), MAX_SKILLS * sizeof(s16b));
 	fd_read(fd, (char*)(gen_skill_basem), MAX_SKILLS * sizeof(char));
@@ -2771,7 +3064,7 @@ static errr init_player_info_raw(int fd)
 }
 
 /*
- * Initialize the "r_info" array
+ * Initialise the "r_info" array
  *
  * Note that we let each entry have a unique "name" and "text" string,
  * even if the string happens to be empty (everyone has a unique '\0').
@@ -2995,7 +3288,7 @@ static errr init_r_info(void)
 
 
 /*
- * Initialize the "re_info" array
+ * Initialise the "re_info" array
  *
  * Note that we let each entry have a unique "name" string,
  * even if the string happens to be empty (everyone has a unique '\0').
@@ -3212,7 +3505,7 @@ static errr init_re_info(void)
 
 
 /*
- * Initialize the "d_info" array
+ * Initialise the "d_info" array
  *
  * Note that we let each entry have a unique "name" and "short name" string,
  * even if the string happens to be empty (everyone has a unique '\0').
@@ -3436,7 +3729,7 @@ static errr init_d_info(void)
 
 
 /*
- * Initialize the "player" arrays
+ * Initialise the "player" arrays
  *
  * Note that we let each entry have a unique "name" and "short name" string,
  * even if the string happens to be empty (everyone has a unique '\0').
@@ -3710,11 +4003,11 @@ static errr init_player_info(void)
 			fd_write(fd, (char*)meta_class_info[i].classes, max_c_idx * sizeof(s16b));
 		}
 
-                /* Read the "gen skills" array */
-                fd_write(fd, (char*)(gen_skill_base), MAX_SKILLS * sizeof(u32b));
-                fd_write(fd, (char*)(gen_skill_mod), MAX_SKILLS * sizeof(s16b));
-                fd_write(fd, (char*)(gen_skill_basem), MAX_SKILLS * sizeof(char));
-                fd_write(fd, (char*)(gen_skill_modm), MAX_SKILLS * sizeof(char));
+		/* Read the "gen skills" array */
+		fd_write(fd, (char*)(gen_skill_base), MAX_SKILLS * sizeof(u32b));
+		fd_write(fd, (char*)(gen_skill_mod), MAX_SKILLS * sizeof(s16b));
+		fd_write(fd, (char*)(gen_skill_basem), MAX_SKILLS * sizeof(char));
+		fd_write(fd, (char*)(gen_skill_modm), MAX_SKILLS * sizeof(char));
 
 		/* Close */
 		(void)fd_close(fd);
@@ -3792,7 +4085,7 @@ static errr init_player_info(void)
 }
 
 /*
- * Initialize the "st_info" array
+ * Initialise the "st_info" array
  *
  * Note that we let each entry have a unique "name" and "short name" string,
  * even if the string happens to be empty (everyone has a unique '\0').
@@ -4009,7 +4302,7 @@ static errr init_st_info(void)
 }
 
 /*
- * Initialize the "ow_info" array
+ * Initialise the "ow_info" array
  *
  * Note that we let each entry have a unique "name" and "short name" string,
  * even if the string happens to be empty (everyone has a unique '\0').
@@ -4226,7 +4519,7 @@ static errr init_ow_info(void)
 }
 
 /*
- * Initialize the "ba_info" array
+ * Initialise the "ba_info" array
  *
  * Note that we let each entry have a unique "name" and "short name" string,
  * even if the string happens to be empty (everyone has a unique '\0').
@@ -4443,7 +4736,7 @@ static errr init_ba_info(void)
 }
 
 /*
- * Initialize the "wf_info" array
+ * Initialise the "wf_info" array
  *
  * Note that we let each entry have a unique "name" and "short name" string,
  * even if the string happens to be empty (everyone has a unique '\0').
@@ -4669,7 +4962,7 @@ static errr init_wf_info(void)
 }
 
 /*
- * Initialize the "t_info" array, by parsing a binary "image" file
+ * Initialise the "t_info" array, by parsing a binary "image" file
  */
 static errr init_t_info_raw(int fd)
 {
@@ -4677,17 +4970,17 @@ static errr init_t_info_raw(int fd)
 
 	/* Read and Verify the header */
 	if (fd_read(fd, (char*)(&test), sizeof(header)) ||
-	    (test.v_major != t_head->v_major) ||
-	    (test.v_minor != t_head->v_minor) ||
-	    (test.v_patch != t_head->v_patch) ||
-	    (test.v_extra != t_head->v_extra) ||
-	    (test.info_num != t_head->info_num) ||
-	    (test.info_len != t_head->info_len) ||
-	    (test.head_size != t_head->head_size) ||
-	    (test.info_size != t_head->info_size))
+	                (test.v_major != t_head->v_major) ||
+	                (test.v_minor != t_head->v_minor) ||
+	                (test.v_patch != t_head->v_patch) ||
+	                (test.v_extra != t_head->v_extra) ||
+	                (test.info_num != t_head->info_num) ||
+	                (test.info_len != t_head->info_len) ||
+	                (test.head_size != t_head->head_size) ||
+	                (test.info_size != t_head->info_size))
 	{
 		/* Error */
-		return (-1);
+		return ( -1);
 	}
 
 
@@ -4725,7 +5018,7 @@ static errr init_t_info_raw(int fd)
 }
 
 /*
- * Initialize the "t_info" array
+ * Initialise the "t_info" array
  *
  * Note that we let each entry have a unique "name" and "text" string,
  * even if the string happens to be empty (everyone has a unique '\0').
@@ -4943,7 +5236,7 @@ static errr init_t_info(void)
 }
 
 /*
- * Initialize the "al_info" array, by parsing a binary "image" file
+ * Initialise the "al_info" array, by parsing a binary "image" file
  */
 static errr init_al_info_raw(int fd)
 {
@@ -4951,17 +5244,17 @@ static errr init_al_info_raw(int fd)
 
 	/* Read and Verify the header */
 	if (fd_read(fd, (char*)(&test), sizeof(header)) ||
-	    (test.v_major != al_head->v_major) ||
-	    (test.v_minor != al_head->v_minor) ||
-	    (test.v_patch != al_head->v_patch) ||
-	    (test.v_extra != al_head->v_extra) ||
-	    (test.info_num != al_head->info_num) ||
-	    (test.info_len != al_head->info_len) ||
-	    (test.head_size != al_head->head_size) ||
-	    (test.info_size != al_head->info_size))
+	                (test.v_major != al_head->v_major) ||
+	                (test.v_minor != al_head->v_minor) ||
+	                (test.v_patch != al_head->v_patch) ||
+	                (test.v_extra != al_head->v_extra) ||
+	                (test.info_num != al_head->info_num) ||
+	                (test.info_len != al_head->info_len) ||
+	                (test.head_size != al_head->head_size) ||
+	                (test.info_size != al_head->info_size))
 	{
 		/* Error */
-		return (-1);
+		return ( -1);
 	}
 
 	/* Accept the header */
@@ -4984,13 +5277,13 @@ static errr init_al_info_raw(int fd)
 
 	/* Read the "al_info" array */
 	fd_read(fd, (char*)(a_select_flags), al_head->text_size);
-	
+
 	/* Success */
 	return (0);
 }
 
 /*
- * Initialize the "al_info" array
+ * Initialise the "al_info" array
  *
  * Not a flat array, but an array none the less
  */
@@ -5048,7 +5341,7 @@ errr init_al_info(void)
 
 #else
 
-	fd = -1;
+fd = -1;
 
 #endif
 
@@ -5165,7 +5458,7 @@ errr init_al_info(void)
 
 		/* Dump the "al_name" array */
 		fd_write(fd, (char*)(al_name), al_head->name_size);
-		
+
 		/* Dump the "al_info" array */
 		fd_write(fd, (char*)(a_select_flags), al_head->text_size);
 
@@ -5221,7 +5514,7 @@ errr init_al_info(void)
 }
 
 /*
- * Initialize the "v_info" array, by parsing a binary "image" file
+ * Initialise the "v_info" array, by parsing a binary "image" file
  */
 static errr init_v_info_raw(int fd)
 {
@@ -5229,17 +5522,17 @@ static errr init_v_info_raw(int fd)
 
 	/* Read and Verify the header */
 	if (fd_read(fd, (char*)(&test), sizeof(header)) ||
-	    (test.v_major != v_head->v_major) ||
-	    (test.v_minor != v_head->v_minor) ||
-	    (test.v_patch != v_head->v_patch) ||
-	    (test.v_extra != v_head->v_extra) ||
-	    (test.info_num != v_head->info_num) ||
-	    (test.info_len != v_head->info_len) ||
-	    (test.head_size != v_head->head_size) ||
-	    (test.info_size != v_head->info_size))
+	                (test.v_major != v_head->v_major) ||
+	                (test.v_minor != v_head->v_minor) ||
+	                (test.v_patch != v_head->v_patch) ||
+	                (test.v_extra != v_head->v_extra) ||
+	                (test.info_num != v_head->info_num) ||
+	                (test.info_len != v_head->info_len) ||
+	                (test.head_size != v_head->head_size) ||
+	                (test.info_size != v_head->info_size))
 	{
 		/* Error */
-		return (-1);
+		return ( -1);
 	}
 
 
@@ -5277,7 +5570,7 @@ static errr init_v_info_raw(int fd)
 
 
 /*
- * Initialize the "v_info" array
+ * Initialise the "v_info" array
  *
  * Note that we let each entry have a unique "name" and "text" string,
  * even if the string happens to be empty (everyone has a unique '\0').
@@ -5507,17 +5800,12 @@ errr init_v_info(void)
 	return (0);
 }
 
-
 /*
- * Initialize misc. values
+ * Initialize the very basic arrays
  */
-static errr  init_misc(void)
+static void init_basic()
 {
-	int xstart = 0;
-	int ystart = 0;
 	int i;
-
-	/*** Prepare the various "bizarre" arrays ***/
 
 	/* Macro variables */
 	C_MAKE(macro__pat, MACRO_MAX, cptr);
@@ -5529,6 +5817,36 @@ static errr  init_misc(void)
 
 	/* Extended trigger macros */
 	C_MAKE(cli_info, CLI_MAX, cli_comm);
+
+	/* Wipe the directory list */
+	for (i = 0; i < 255; i++)
+	{
+		scansubdir_result[i] = NULL;
+	}
+}
+
+/*
+ * Pseudo, dummy quest initializer, to actualy disable them
+ */
+static bool quest_disable_init_hook(int q_idx)
+{
+	q_idx = q_idx;
+	return FALSE;
+}
+
+
+/*
+ * Initialise misc. values
+ */
+static errr init_misc(void)
+{
+	int xstart = 0;
+	int ystart = 0;
+	int i;
+	s32b allow_quest;
+	s32b allow_rquest;
+
+	/*** Prepare the various "bizarre" arrays ***/
 
 	/* Quark variables */
 	C_MAKE(quark__str, QUARK_MAX, cptr);
@@ -5551,10 +5869,32 @@ static errr  init_misc(void)
 	C_COPY(powers_type, powers_type_init, POWER_MAX_INIT, power_type);
 
 	/* Prepare quests */
+	call_lua("get_module_info", "(s)", "d", "C_quest", &allow_quest);
+	call_lua("get_module_info", "(s)", "d", "rand_quest", &allow_rquest);
+
 	quest = NULL;
 	max_q_idx = MAX_Q_IDX_INIT;
 	reinit_quests(max_q_idx);
-	C_COPY(quest, quest_init, MAX_Q_IDX_INIT, quest_type);
+
+	C_COPY(quest, quest_init_tome, MAX_Q_IDX_INIT, quest_type);
+
+	/* If we dont allow C quests, we dont let them init */
+	if (!allow_quest)
+	{
+		for (i = 0; i < MAX_Q_IDX_INIT; i++)
+		{
+			if (allow_rquest && (i == QUEST_RANDOM))
+				continue;
+			quest[i].init = quest_disable_init_hook;
+		}
+	}
+
+	/* Prepare gods */
+	deity_info = NULL;
+	max_gods = MAX_GODS_INIT;
+	reinit_gods(max_gods);
+
+	C_COPY(deity_info, deity_info_init, MAX_GODS_INIT, deity_type);
 
 	/* Prepare schools */
 	max_spells = 0;
@@ -5562,9 +5902,9 @@ static errr  init_misc(void)
 	schools = NULL;
 	school_spells = NULL;
 
-	process_hooks(HOOK_INIT_GAME, "()");
+	process_hooks(HOOK_INIT_GAME, "(s)", "begin");
 
-	/* Initialize the values */
+	/* Initialise the values */
 	process_dungeon_file(NULL, "misc.txt", &ystart, &xstart, 0, 0, TRUE);
 
 	/* Init the spell effects */
@@ -5576,7 +5916,7 @@ static errr  init_misc(void)
 
 
 /*
- * Initialize town array
+ * Initialise town array
  */
 static errr init_towns(void)
 {
@@ -5622,15 +5962,7 @@ void create_stores_stock(int t)
 		store_type *st_ptr = &t_ptr->store[j];
 
 		/* Assume full stock */
-		if (st_info[st_ptr->st_idx].flags1 & SF1_MUSEUM)
-		{
-			/* Hack - Museum can store more items */
-			st_ptr->stock_size = st_info[j].max_obj * STORE_MUSEUM_INVEN;
-		}
-		else
-		{
-			st_ptr->stock_size = st_info[j].max_obj;
-		}
+		st_ptr->stock_size = st_info[j].max_obj;
 
 		/* Allocate the stock */
 		C_MAKE(st_ptr->stock, st_ptr->stock_size, object_type);
@@ -5644,7 +5976,7 @@ void create_stores_stock(int t)
 typedef wilderness_map *wilderness_map_ptr;
 
 /*
- * Initialize wilderness map array
+ * Initialise wilderness map array
  */
 static errr init_wilderness(void)
 {
@@ -5670,49 +6002,64 @@ static errr init_wilderness(void)
  */
 void reinit_powers_type(s16b new_size)
 {
-        power_type *new_powers_type;
-        bool *new_powers;
+	power_type *new_powers_type;
+	bool *new_powers;
 
-        C_MAKE(new_powers_type, new_size, power_type);
-        C_MAKE(new_powers, new_size, bool);
+	C_MAKE(new_powers_type, new_size, power_type);
+	C_MAKE(new_powers, new_size, bool);
 
-        /* Reallocate the extra memory */
-        if (powers_type && p_ptr->powers)
-        {
-                C_COPY(new_powers_type, powers_type, power_max, power_type);
-                C_COPY(new_powers, p_ptr->powers, power_max, bool);
+	/* Reallocate the extra memory */
+	if (powers_type && p_ptr->powers)
+	{
+		C_COPY(new_powers_type, powers_type, power_max, power_type);
+		C_COPY(new_powers, p_ptr->powers, power_max, bool);
 
-                C_FREE(powers_type, power_max, power_type);
-                C_FREE(p_ptr->powers, power_max, bool);
-        }
+		C_FREE(powers_type, power_max, power_type);
+		C_FREE(p_ptr->powers, power_max, bool);
+	}
 
 	powers_type = new_powers_type;
-        p_ptr->powers = new_powers;
+	p_ptr->powers = new_powers;
 
 	power_max = new_size;
 }
 
-/*
- * XXX XXX XXX XXX XXX Realloc is not guaranteed to work (see main-gtk.c
- * and main-mac.c.
- */
 void reinit_quests(s16b new_size)
 {
-        quest_type *new_quest;
+	quest_type *new_quest;
 
-        C_MAKE(new_quest, new_size, quest_type);
+	C_MAKE(new_quest, new_size, quest_type);
 
-        /* Reallocate the extra memory */
-        if (quest)
-        {
-                C_COPY(new_quest, quest, max_q_idx, quest_type);
+	/* Reallocate the extra memory */
+	if (quest)
+	{
+		C_COPY(new_quest, quest, max_q_idx, quest_type);
 
-                C_FREE(quest, max_q_idx, quest_type);
-        }
+		C_FREE(quest, max_q_idx, quest_type);
+	}
 
 	quest = new_quest;
 
 	max_q_idx = new_size;
+}
+
+void reinit_gods(s16b new_size)
+{
+	deity_type *new_deity;
+
+	C_MAKE(new_deity, new_size, deity_type);
+
+	/* Reallocate the extra memory */
+	if (deity_info)
+	{
+		C_COPY(new_deity, deity_info, max_gods, deity_type);
+
+		C_FREE(deity_info, max_gods, deity_type);
+	}
+
+	deity_info = new_deity;
+
+	max_gods = new_size;
 }
 
 void init_spells(s16b new_size)
@@ -5737,7 +6084,7 @@ void init_corruptions(s16b new_size)
 }
 
 /*
- * Initialize some other arrays
+ * Initialise some other arrays
  */
 static errr init_other(void)
 {
@@ -5781,13 +6128,6 @@ static errr init_other(void)
 		/* Allocate one row of the cave */
 		C_MAKE(cave[i], MAX_WID, cave_type);
 	}
-
-
-	/*** Prepare the Player inventory ***/
-
-	/* Allocate it */
-	C_MAKE(inventory, INVEN_TOTAL, object_type);
-
 
 	/*** Pre-allocate the basic "auto-inscriptions" ***/
 
@@ -5854,6 +6194,13 @@ static errr init_other(void)
 	}
 
 
+	/*
+	 * Install the various level generators
+	 */
+	add_level_generator("dungeon", level_generate_dungeon, TRUE, TRUE, TRUE, TRUE);
+	add_level_generator("maze", level_generate_maze, TRUE, TRUE, TRUE, TRUE);
+	add_level_generator("life", level_generate_life, TRUE, TRUE, TRUE, TRUE);
+
 	/*** Pre-allocate space for the "format()" buffer ***/
 
 	/* Hack -- Just call the "format()" function */
@@ -5866,7 +6213,7 @@ static errr init_other(void)
 
 
 /*
- * Initialize some other arrays
+ * Initialise some other arrays
  */
 static errr init_alloc(void)
 {
@@ -5887,10 +6234,10 @@ static errr init_alloc(void)
 	/*** Analyze object allocation info ***/
 
 	/* Clear the "aux" array */
-	tmp=C_WIPE(&aux, MAX_DEPTH_MONSTER, s16b);
+	tmp = C_WIPE(&aux, MAX_DEPTH_MONSTER, s16b);
 
 	/* Clear the "num" array */
-	tmp=C_WIPE(&num, MAX_DEPTH_MONSTER, s16b);
+	tmp = C_WIPE(&num, MAX_DEPTH_MONSTER, s16b);
 
 	/* Size of "alloc_kind_table" */
 	alloc_kind_size = 0;
@@ -5919,14 +6266,14 @@ static errr init_alloc(void)
 	for (i = 1; i < MAX_DEPTH_MONSTER; i++)
 	{
 		/* Group by level */
-		num[i] += num[i-1];
+		num[i] += num[i - 1];
 	}
 
 	/* Paranoia */
 	if (!num[0]) quit("No town objects!");
 
 
-	/*** Initialize object allocation info ***/
+	/*** Initialise object allocation info ***/
 
 	/* Allocate the alloc_kind_table */
 	C_MAKE(alloc_kind_table, alloc_kind_size, alloc_entry);
@@ -5954,7 +6301,7 @@ static errr init_alloc(void)
 				p = (100 / k_ptr->chance[j]);
 
 				/* Skip entries preceding our locale */
-				y = (x > 0) ? num[x-1] : 0;
+				y = (x > 0) ? num[x - 1] : 0;
 
 				/* Skip previous entries at this locale */
 				z = y + aux[x];
@@ -5976,16 +6323,16 @@ static errr init_alloc(void)
 	/*** Analyze monster allocation info ***/
 
 	/* Clear the "aux" array */
-	tmp=C_WIPE(&aux, MAX_DEPTH_MONSTER, s16b);
+	tmp = C_WIPE(&aux, MAX_DEPTH_MONSTER, s16b);
 
 	/* Clear the "num" array */
-	tmp=C_WIPE(&num, MAX_DEPTH_MONSTER, s16b);
+	tmp = C_WIPE(&num, MAX_DEPTH_MONSTER, s16b);
 
 	/* Size of "alloc_race_table" */
 	alloc_race_size = 0;
 
-	/* Scan the monsters (not the ghost) */
-	for (i = 1; i < max_r_idx - 1; i++)
+	/* Scan the monsters */
+	for (i = 1; i < max_r_idx; i++)
 	{
 		/* Get the i'th race */
 		r_ptr = &r_info[i];
@@ -6005,14 +6352,14 @@ static errr init_alloc(void)
 	for (i = 1; i < MAX_DEPTH_MONSTER; i++)
 	{
 		/* Group by level */
-		num[i] += num[i-1];
+		num[i] += num[i - 1];
 	}
 
 	/* Paranoia */
 	if (!num[0]) quit("No town monsters!");
 
 
-	/*** Initialize monster allocation info ***/
+	/*** Initialise monster allocation info ***/
 
 	/* Allocate the alloc_race_table */
 	C_MAKE(alloc_race_table, alloc_race_size, alloc_entry);
@@ -6020,8 +6367,8 @@ static errr init_alloc(void)
 	/* Access the table entry */
 	table = alloc_race_table;
 
-	/* Scan the monsters (not the ghost) */
-	for (i = 1; i < max_r_idx - 1; i++)
+	/* Scan the monsters */
+	for (i = 1; i < max_r_idx; i++)
 	{
 		/* Get the i'th race */
 		r_ptr = &r_info[i];
@@ -6038,7 +6385,7 @@ static errr init_alloc(void)
 			p = (100 / r_ptr->rarity);
 
 			/* Skip entries preceding our locale */
-			y = (x > 0) ? num[x-1] : 0;
+			y = (x > 0) ? num[x - 1] : 0;
 
 			/* Skip previous entries at this locale */
 			z = y + aux[x];
@@ -6076,7 +6423,7 @@ void init_sets_aux()
 	}
 }
 
-/* 
+/*
  * Mark guardians and their artifacts with SPECIAL_GENE flag
  */
 static void init_guardians(void)
@@ -6124,7 +6471,7 @@ static void init_guardians(void)
  * Hack -- Explain a broken "lib" folder and quit (see below).
  *
  * XXX XXX XXX This function is "messy" because various things
- * may or may not be initialized, but the "plog()" and "quit()"
+ * may or may not be initialised, but the "plog()" and "quit()"
  * functions are "supposed" to work under any conditions.
  */
 static void init_angband_aux(cptr why)
@@ -6145,20 +6492,19 @@ static void init_angband_aux(cptr why)
 	quit("Fatal Error.");
 }
 
-
 /*
- * Hack -- main Angband initialization entry point
+ * Hack -- main Angband initialisation entry point
  *
  * Verify some files, display the "news.txt" file, create
- * the high score file, initialize all internal arrays, and
+ * the high score file, initialise all internal arrays, and
  * load the basic "user pref files".
  *
  * Note that we blindly assume that "news2.txt" exists. XXX
  *
  * Be very careful to keep track of the order in which things
- * are initialized, in particular, the only thing *known* to
+ * are initialised, in particular, the only thing *known* to
  * be available when this function is called is the "z-term.c"
- * package, and that may not be fully initialized until the
+ * package, and that may not be fully initialised until the
  * end of this function, when the default "user pref files"
  * are loaded and "Term_xtra(TERM_XTRA_REACT,0)" is called.
  *
@@ -6179,13 +6525,13 @@ static void init_angband_aux(cptr why)
  * standard distributions, is most likely to be "lost", making it
  * impossible to create the high score file.
  *
- * Note that various things are initialized by this function,
+ * Note that various things are initialised by this function,
  * including everything that was once done by "init_some_arrays".
  *
- * This initialization involves the parsing of special files
+ * This initialisation involves the parsing of special files
  * in the "lib/data" and sometimes the "lib/edit" directories.
  *
- * Note that the "template" files are initialized first, since they
+ * Note that the "template" files are initialised first, since they
  * often contain errors.  This means that macros and message recall
  * and things like that are not available until after they are done.
  *
@@ -6207,19 +6553,24 @@ void init_angband(void)
 
 	char buf[1024];
 
+	/* Init some VERY basic stuff, like macro arrays */
+	init_basic();
+
+	/* Select & init a module if needed */
+	select_module();
 
 	/*** Choose which news.txt file to use ***/
 
 	/* Choose the news file */
 	switch (time(NULL) % 2)
 	{
-		default:
+	default:
 		{
 			news_file = "news.txt";
 			break;
 		}
 
-		case 0:
+	case 0:
 		{
 			news_file = "news2.txt";
 			break;
@@ -6258,7 +6609,7 @@ void init_angband(void)
 
 	/*** Display the "news" file ***/
 
-        /* Clear screen */
+	/* Clear screen */
 	Term_clear();
 
 	/* Build the filename */
@@ -6339,115 +6690,119 @@ void init_angband(void)
 	(void)fd_close(fd);
 
 
-	/*** Initialize some arrays ***/
+	/*** Initialise some arrays ***/
 
-        /* Initilize the socket */
-        zsock_init();
+	/* Initilize the socket */
+	zsock_init();
 
-	/* Initialize misc. values */
-	note("[Initializing values... (misc)]");
-	if (init_misc()) quit("Cannot initialize misc. values");
+	/* Initialise misc. values */
+	note("[Initialising values... (misc)]");
+	if (init_misc()) quit("Cannot initialise misc. values");
 
 	wipe_hooks();
-#ifdef USE_LUA
-	/* Initialize some other arrays */
-	note("[Initializing lua scripting... (lua)]");
+
+	/* Initialise some other arrays */
+	note("[Initialising lua scripting... (lua)]");
 	init_lua();
-#endif
+	init_lua_init();
 
-	/* Initialize skills info */
-	note("[Initializing arrays... (skills)]");
-	if (init_s_info()) quit("Cannot initialize skills");
+	/* Initialise skills info */
+	note("[Initialising arrays... (skills)]");
+	if (init_s_info()) quit("Cannot initialise skills");
 
-	/* Initialize alchemy info */
-	note("[Initializing arrays... (alchemy)]");
-	if (init_al_info()) quit("Cannot initialize alchemy");
+	/* Initialise abilities info */
+	note("[Initialising arrays... (abilities)]");
+	if (init_ab_info()) quit("Cannot initialise abilities");
 
-	/* Initialize player info */
-	note("[Initializing arrays... (players)]");
-	if (init_player_info()) quit("Cannot initialize players");
+	/* Initialise alchemy info */
+	note("[Initialising arrays... (alchemy)]");
+	if (init_al_info()) quit("Cannot initialise alchemy");
 
-	/* Initialize feature info */
-	note("[Initializing arrays... (features)]");
-	if (init_f_info()) quit("Cannot initialize features");
+	/* Initialise player info */
+	note("[Initialising arrays... (players)]");
+	if (init_player_info()) quit("Cannot initialise players");
 
-	/* Initialize object info */
-	note("[Initializing arrays... (objects)]");
-	if (init_k_info()) quit("Cannot initialize objects");
+	/* Initialise feature info */
+	note("[Initialising arrays... (features)]");
+	if (init_f_info()) quit("Cannot initialise features");
 
-	/* Initialize artifact info */
-	note("[Initializing arrays... (artifacts)]");
-	if (init_a_info()) quit("Cannot initialize artifacts");
+	/* Initialise object info */
+	note("[Initialising arrays... (objects)]");
+	if (init_k_info()) quit("Cannot initialise objects");
 
-	/* Initialize set info */
-	note("[Initializing item sets... (sets)]");
-	if (init_set_info()) quit("Cannot initialize item sets");
+	/* Initialise artifact info */
+	note("[Initialising arrays... (artifacts)]");
+	if (init_a_info()) quit("Cannot initialise artifacts");
+
+	/* Initialise set info */
+	note("[Initialising item sets... (sets)]");
+	if (init_set_info()) quit("Cannot initialise item sets");
 	init_sets_aux();
 
-	/* Initialize ego-item info */
-	note("[Initializing arrays... (ego-items)]");
-	if (init_e_info()) quit("Cannot initialize ego-items");
+	/* Initialise ego-item info */
+	note("[Initialising arrays... (ego-items)]");
+	if (init_e_info()) quit("Cannot initialise ego-items");
 
-	/* Initialize randart parts info */
-	note("[Initializing arrays... (randarts)]");
-	if (init_ra_info()) quit("Cannot initialize randarts");
+	/* Initialise randart parts info */
+	note("[Initialising arrays... (randarts)]");
+	if (init_ra_info()) quit("Cannot initialise randarts");
 
-	/* Initialize monster info */
-	note("[Initializing arrays... (monsters)]");
-	if (init_r_info()) quit("Cannot initialize monsters");
+	/* Initialise monster info */
+	note("[Initialising arrays... (monsters)]");
+	if (init_r_info()) quit("Cannot initialise monsters");
 
-	/* Initialize ego monster info */
-	note("[Initializing arrays... (ego monsters)]");
-	if (init_re_info()) quit("Cannot initialize ego monsters");
+	/* Initialise ego monster info */
+	note("[Initialising arrays... (ego monsters)]");
+	if (init_re_info()) quit("Cannot initialise ego monsters");
 
-	/* Initialize dungeon type info */
-	note("[Initializing arrays... (dungeon types)]");
-	if (init_d_info()) quit("Cannot initialize dungeon types");
+	/* Initialise dungeon type info */
+	note("[Initialising arrays... (dungeon types)]");
+	if (init_d_info()) quit("Cannot initialise dungeon types");
 	init_guardians();
 
-	/* Initialize actions type info */
-	note("[Initializing arrays... (action types)]");
-	if (init_ba_info()) quit("Cannot initialize action types");
+	/* Initialise actions type info */
+	note("[Initialising arrays... (action types)]");
+	if (init_ba_info()) quit("Cannot initialise action types");
 
-	/* Initialize owners type info */
-	note("[Initializing arrays... (owners types)]");
-	if (init_ow_info()) quit("Cannot initialize owners types");
+	/* Initialise owners type info */
+	note("[Initialising arrays... (owners types)]");
+	if (init_ow_info()) quit("Cannot initialise owners types");
 
-	/* Initialize stores type info */
-	note("[Initializing arrays... (stores types)]");
-	if (init_st_info()) quit("Cannot initialize stores types");
+	/* Initialise stores type info */
+	note("[Initialising arrays... (stores types)]");
+	if (init_st_info()) quit("Cannot initialise stores types");
 
-	/* Initialize wilderness features array */
-	note("[Initializing arrays... (wilderness features)]");
-	if (init_wf_info()) quit("Cannot initialize wilderness features");
+	/* Initialise wilderness features array */
+	note("[Initialising arrays... (wilderness features)]");
+	if (init_wf_info()) quit("Cannot initialise wilderness features");
 
-	/* Initialize wilderness map array */
-	note("[Initializing arrays... (wilderness map)]");
-	if (init_wilderness()) quit("Cannot initialize wilderness map");
+	/* Initialise wilderness map array */
+	note("[Initialising arrays... (wilderness map)]");
+	if (init_wilderness()) quit("Cannot initialise wilderness map");
 
-	/* Initialize town array */
-	note("[Initializing arrays... (towns)]");
-	if (init_towns()) quit("Cannot initialize towns");
+	/* Initialise town array */
+	note("[Initialising arrays... (towns)]");
+	if (init_towns()) quit("Cannot initialise towns");
 
-	/* Initialize trap info */
-	note("[Initializing arrays... (traps)]");
-	if (init_t_info()) quit("Cannot initialize traps");
+	/* Initialise trap info */
+	note("[Initialising arrays... (traps)]");
+	if (init_t_info()) quit("Cannot initialise traps");
 
-	/* Initialize some other arrays */
-	note("[Initializing arrays... (other)]");
-	if (init_other()) quit("Cannot initialize other stuff");
+	/* Initialise some other arrays */
+	note("[Initialising arrays... (other)]");
+	if (init_other()) quit("Cannot initialise other stuff");
 
-	/* Initialize some other arrays */
-	note("[Initializing arrays... (alloc)]");
-	if (init_alloc()) quit("Cannot initialize alloc stuff");
+	/* Initialise some other arrays */
+	note("[Initialising arrays... (alloc)]");
+	if (init_alloc()) quit("Cannot initialise alloc stuff");
 
 	/* Init random artifact names */
 	build_prob(artifact_names_list);
 
 	/*** Load default user pref files ***/
 
-	/* Initialize feature info */
-	note("[Initializing user pref files...]");
+	/* Initialise feature info */
+	note("[Initialising user pref files...]");
 
 	/* Access the "basic" pref file */
 	strcpy(buf, "pref.prf");
@@ -6473,14 +6828,12 @@ void init_angband(void)
 	/* Process that file */
 	process_pref_file(buf);
 
-        /* Initialize the automatizer */
-        tome_dofile("auto.lua");
-	path_build(buf, 1024, ANGBAND_DIR_USER, "automat.atm");
-        luadofile(buf, TRUE);
+	/* Initialise the automatizer */
+	tome_dofile_anywhere(ANGBAND_DIR_CORE, "auto.lua", TRUE);
+	tome_dofile_anywhere(ANGBAND_DIR_USER, "automat.atm", FALSE);
 
 	/* Done */
-	note("[Initialization complete]");
+	note("[Initialisation complete]");
+
+	process_hooks(HOOK_INIT_GAME, "(s)", "end");
 }
-
-
-

@@ -15,10 +15,11 @@ Please choose one of the following online help files:
     *****/goption.txt*0[(g) List of Options]
     *****/hmagic.txt*0[(h) Magic Schools, Wands and Staves]
     *****/iskills.txt*0[(i) Skills]
-    *****/jgods.txt*0[(j) Gods]
+    *****/jability.txt*0[(j) Abilities]
+    *****/kgods.txt*0[(k) Gods]
 
-    *****/klua.hlp*0[(k) Lua scripting help menu]
-    *****/lautomat.txt*0[(l) Automatizer help]
+    *****/llua.hlp*0[(l) Lua scripting help menu]
+    *****/mautomat.txt*0[(m) Automatizer help]
 
     *****/uuser.txt*0[(u) User menu (if any)]
     *****/sspoiler.hlp*0[(s) Spoiler menu]
@@ -30,18 +31,23 @@ Please choose one of the following online help files:
 Space          | Advance 1 page (screen)
 2, down arrow  | Advance 1 line
 8, up arrow    | Back up 1 line
--              | Back up 1 a page (screen)
+-              | Back up 1 page (screen)
 6, right arrow | Advance 1 link
 4, left arrow  | Back up 1 link
 Return         | Activate the selected link
 Escape         | Leave the Online Help
 Backspace, ?   | Return to previous Help File
+#              | Go to a specific line (defaults to line 0)
+%              | Go to a specific help file (defaults to help.hlp)
+=              | Highlight lines containing a string (e.g. "word")
+/              | Search for a string (e.g. "word")
 
 #####GContacts:
-Report bugs to bugs@t-o-m-e.net (this redirects to a mailling list).
+Report bugs to bugs@t-o-m-e.net (this redirects to a mailing list).
 Report various ideas and improvments to ideas@t-o-m-e.net (this
-redirects to a mailling list).
+redirects to a mailing list).
 
 You can also directly contact me at darkgod@t-o-m-e.net .
+
 Help file inaccuracies or suggestions for content should be sent to 
 fearoffours@t-o-m-e.net .

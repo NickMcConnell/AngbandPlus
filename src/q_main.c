@@ -15,7 +15,7 @@ bool quest_main_monsters_hook(char *fmt)
 		/* No Morgoth until Sauron dies */
 		if (r_info[860].max_num) return TRUE;
 	}
-	return FALSE;                
+	return FALSE;
 }
 bool quest_morgoth_hook(char *fmt)
 {
@@ -26,8 +26,8 @@ bool quest_morgoth_hook(char *fmt)
 	if (!r_ptr->max_num)
 	{
 		/* Total winner */
-		total_winner = TRUE;
-                has_won = TRUE;
+		total_winner = WINNER_NORMAL;
+		has_won = WINNER_NORMAL;
 		quest[QUEST_MORGOTH].status = QUEST_STATUS_FINISHED;
 
 		/* Redraw the "title" */
@@ -54,10 +54,16 @@ bool quest_morgoth_hook(char *fmt)
 			cmsg_print(TERM_VIOLET, "You may retire (commit suicide) when you are ready.");
 		}
 
-		/* End the plot */
+		/* Continue the plot(maybe) */
 		del_hook(HOOK_MONSTER_DEATH, quest_morgoth_hook);
-		*(quest[QUEST_MORGOTH].plot) = QUEST_NULL;
 		process_hooks_restart = TRUE;
+
+		/* Either ultra good if the one Ring is destroyed, or ultra evil if used */
+		if (quest[QUEST_ONE].status == QUEST_STATUS_FINISHED)
+			*(quest[QUEST_MORGOTH].plot) = QUEST_ULTRA_GOOD;
+		else
+			*(quest[QUEST_MORGOTH].plot) = QUEST_ULTRA_EVIL;
+		quest[*(quest[QUEST_MORGOTH].plot)].init(*(quest[QUEST_MORGOTH].plot));
 	}
 	return (FALSE);
 };
@@ -106,6 +112,26 @@ bool quest_sauron_hook(char *fmt)
 	}
 	return (FALSE);
 };
+
+bool quest_sauron_resurect_hook(char *fmt)
+{
+	s32b m_idx = get_next_arg(fmt);
+	monster_type *m_ptr = &m_list[m_idx];
+	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+	if ((r_ptr->flags7 & RF7_NAZGUL) && r_info[860].max_num)
+	{
+		msg_format("Somehow you feel %s is not totally destroyed...", (r_ptr->flags1 & RF1_FEMALE ? "she" : "he"));
+		r_ptr->max_num = 1;
+	}
+	else if ((m_ptr->r_idx == 860) && (quest[QUEST_ONE].status < QUEST_STATUS_FINISHED))
+	{
+		msg_print("Sauron will not be permanently defeated until the One Ring is either destroyed or used...");
+		r_ptr->max_num = 1;
+	}
+	return FALSE;
+}
+
 bool quest_sauron_init_hook(int q_idx)
 {
 	if ((quest[QUEST_SAURON].status >= QUEST_STATUS_TAKEN) && (quest[QUEST_SAURON].status < QUEST_STATUS_FINISHED))
@@ -113,6 +139,7 @@ bool quest_sauron_init_hook(int q_idx)
 		add_hook(HOOK_MONSTER_DEATH, quest_sauron_hook, "sauron_death");
 	}
 	add_hook(HOOK_NEW_MONSTER, quest_main_monsters_hook, "main_new_monster");
+	add_hook(HOOK_MONSTER_DEATH, quest_sauron_resurect_hook, "sauron_resurect_death");
 	return (FALSE);
 }
 

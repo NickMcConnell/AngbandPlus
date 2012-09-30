@@ -20,7 +20,7 @@ bool quest_narsil_move_hook(char *fmt)
 	/* Look out for Narsil */
 	for (i = 0; i < INVEN_TOTAL; i++)
 	{
-		o_ptr = &inventory[i];
+		o_ptr = &p_ptr->inventory[i];
 
 		if (!o_ptr->k_idx) continue;
 
@@ -77,7 +77,7 @@ bool quest_narsil_identify_hook(char *fmt)
 		/* Inventory */
 		if (item >= 0)
 		{
-			o_ptr = &inventory[item];
+			o_ptr = &p_ptr->inventory[item];
 		}
 
 		/* Floor */

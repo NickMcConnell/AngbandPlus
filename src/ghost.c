@@ -152,7 +152,7 @@ static void set_ghost_aux_1(void)
 
 	/* A wanderer from the town */
 	sprintf(r_name + r_ptr->name, "%s, the skeletal %s %s",
-	gb_name, gr_name, gc_name);
+	        gb_name, gr_name, gc_name);
 
 
 	/* Use a "player" symbol */
@@ -181,27 +181,34 @@ static void set_ghost_aux_1(void)
 	/* Immunity (by level) */
 	switch ((i > 12) ? 12 : i)
 	{
-		case 12:
+	case 12 :
 		{
 			r_ptr->flags3 |= (RF3_IM_POIS);
 		}
 
-		case 11: case 10:
+	case 11:
+	case 10:
 		{
 			r_ptr->flags3 |= (RF3_IM_ACID);
 		}
 
-		case 9: case 8: case 7:
+	case 9:
+	case 8:
+	case 7:
 		{
 			r_ptr->flags3 |= (RF3_IM_FIRE);
 		}
 
-		case 6: case 5: case 4:
+	case 6:
+	case 5:
+	case 4:
 		{
 			r_ptr->flags3 |= (RF3_IM_COLD);
 		}
 
-		case 3: case 2: case 1:
+	case 3:
+	case 2:
+	case 1:
 		{
 			r_ptr->flags3 |= (RF3_IM_ELEC);
 		}
@@ -212,11 +219,11 @@ static void set_ghost_aux_1(void)
 	switch (gclass)
 	{
 		/* Warrior */
-		case CLASS_WARRIOR:
-		case CLASS_UNBELIEVER:
-		case CLASS_ARCHER:
-		case CLASS_MONK:
-		case CLASS_SYMBIANT:
+	case CLASS_WARRIOR:
+	case CLASS_UNBELIEVER:
+	case CLASS_ARCHER:
+	case CLASS_MONK:
+	case CLASS_SYMBIANT:
 		{
 			r_ptr->freq_inate = r_ptr->freq_spell = 100 / 8;
 			r_ptr->flags4 |= (RF4_ARROW_1);
@@ -230,17 +237,17 @@ static void set_ghost_aux_1(void)
 		}
 
 		/* Mage */
-		case CLASS_MAGE:
-		case CLASS_HIGH_MAGE:
-		case CLASS_POWERMAGE:
-		case CLASS_RUNECRAFTER:
-		case CLASS_HARPER:
-		case CLASS_SORCERER:
-		case CLASS_ILLUSIONIST:
-		case CLASS_DRUID:
-		case CLASS_NECRO:
-		case CLASS_ALCHEMIST:
-		case CLASS_CHAOS_WARRIOR:
+	case CLASS_MAGE:
+	case CLASS_HIGH_MAGE:
+	case CLASS_POWERMAGE:
+	case CLASS_RUNECRAFTER:
+	case CLASS_HARPER:
+	case CLASS_SORCERER:
+	case CLASS_ILLUSIONIST:
+	case CLASS_DRUID:
+	case CLASS_NECRO:
+	case CLASS_ALCHEMIST:
+	case CLASS_CHAOS_WARRIOR:
 		{
 			r_ptr->freq_inate = r_ptr->freq_spell = 100 / 2;
 			r_ptr->flags4 |= (RF4_ARROW_1);
@@ -266,7 +273,7 @@ static void set_ghost_aux_1(void)
 		}
 
 		/* Priest */
-		case CLASS_PRIEST:
+	case CLASS_PRIEST:
 		{
 			r_ptr->freq_inate = r_ptr->freq_spell = 100 / 4;
 			r_ptr->flags5 |= (RF5_CAUSE_1 | RF5_SCARE);
@@ -284,8 +291,8 @@ static void set_ghost_aux_1(void)
 		}
 
 		/* Rogue */
-		case CLASS_ROGUE:
-		case CLASS_MERCHANT:
+	case CLASS_ROGUE:
+	case CLASS_MERCHANT:
 		{
 			r_ptr->freq_inate = r_ptr->freq_spell = 100 / 6;
 			r_ptr->flags6 |= (RF6_BLINK);
@@ -301,8 +308,8 @@ static void set_ghost_aux_1(void)
 		}
 
 		/* Ranger */
-		case CLASS_RANGER:
-		case CLASS_WARLOCK:
+	case CLASS_RANGER:
+	case CLASS_WARLOCK:
 		{
 			r_ptr->freq_inate = r_ptr->freq_spell = 100 / 6;
 			r_ptr->flags4 |= (RF4_ARROW_1);
@@ -320,7 +327,7 @@ static void set_ghost_aux_1(void)
 		}
 
 		/* Paladin */
-		case CLASS_PALADIN:
+	case CLASS_PALADIN:
 		{
 			r_ptr->freq_inate = r_ptr->freq_spell = 100 / 8;
 			r_ptr->flags5 |= (RF5_CAUSE_1 | RF5_SCARE);
@@ -338,8 +345,8 @@ static void set_ghost_aux_1(void)
 		}
 
 		/* Beastmaster */
-		case CLASS_BEASTMASTER:
-		case CLASS_DAEMONOLOGIST:
+	case CLASS_BEASTMASTER:
+	case CLASS_DAEMONOLOGIST:
 		{
 			r_ptr->freq_inate = r_ptr->freq_spell = 100 / 3;
 			r_ptr->flags6 |= (RF6_S_KIN);
@@ -358,7 +365,7 @@ static void set_ghost_aux_1(void)
 		}
 
 		/* Mindcrafter */
-		case CLASS_MINDCRAFTER:
+	case CLASS_MINDCRAFTER:
 		{
 			r_ptr->freq_inate = r_ptr->freq_spell = 100 / 4;
 			r_ptr->flags5 |= (RF5_CAUSE_1 | RF5_SCARE);
@@ -376,11 +383,11 @@ static void set_ghost_aux_1(void)
 		}
 
 		/* Possessor */
-		case CLASS_POSSESSOR:
-		case CLASS_MIMIC:
+	case CLASS_POSSESSOR:
+	case CLASS_MIMIC:
 		{
 			r_ptr->freq_inate = r_ptr->freq_spell = 100 / 4;
-			if (lev > 7)  r_ptr->flags4 |= (RF4_BR_ELEC);
+			if (lev > 7) r_ptr->flags4 |= (RF4_BR_ELEC);
 			if (lev > 10) r_ptr->flags4 |= (RF4_BR_COLD);
 			if (lev > 18) r_ptr->flags4 |= (RF4_BR_ACID);
 			if (lev > 25) r_ptr->flags4 |= (RF4_BR_FIRE);
@@ -394,7 +401,7 @@ static void set_ghost_aux_1(void)
 			break;
 		}
 
-		default:
+	default:
 		{
 			/* Use a "player" color */
 			r_ptr->d_attr = TERM_WHITE;
@@ -435,13 +442,13 @@ static void set_ghost_aux_1(void)
 
 	/* Base damage */
 	d1 = 1;
-	d2 = 2*(lev + 5);
+	d2 = 2 * (lev + 5);
 
 	/* Break up the damage */
 	while ((d1 * 8) < d2)
 	{
-	    d1 = d1 * 2;
-	    d2 = d2 / 2;
+		d1 = d1 * 2;
+		d2 = d2 / 2;
 	}
 
 	attack1 = attack2 = RBM_HIT;
@@ -451,15 +458,15 @@ static void set_ghost_aux_1(void)
 	{
 
 		/* Warrior */
-		case CLASS_WARRIOR:
-		case CLASS_UNBELIEVER:
-		case CLASS_ARCHER:
-		case CLASS_MONK:
-		case CLASS_SYMBIANT:
-		case CLASS_BEASTMASTER:
-		case CLASS_DAEMONOLOGIST:
-		case CLASS_POSSESSOR:
-		case CLASS_MIMIC:
+	case CLASS_WARRIOR:
+	case CLASS_UNBELIEVER:
+	case CLASS_ARCHER:
+	case CLASS_MONK:
+	case CLASS_SYMBIANT:
+	case CLASS_BEASTMASTER:
+	case CLASS_DAEMONOLOGIST:
+	case CLASS_POSSESSOR:
+	case CLASS_MIMIC:
 		{
 			/* Sometimes increase damage */
 			if (lev >= 30) d2 = d2 * 2;
@@ -474,18 +481,18 @@ static void set_ghost_aux_1(void)
 		}
 
 		/* Mage */
-		case CLASS_MAGE:
-		case CLASS_HIGH_MAGE:
-		case CLASS_POWERMAGE:
-		case CLASS_RUNECRAFTER:
-		case CLASS_HARPER:
-		case CLASS_SORCERER:
-		case CLASS_ILLUSIONIST:
-		case CLASS_DRUID:
-		case CLASS_NECRO:
-		case CLASS_ALCHEMIST:
-		case CLASS_CHAOS_WARRIOR:
-		case CLASS_MERCHANT:
+	case CLASS_MAGE:
+	case CLASS_HIGH_MAGE:
+	case CLASS_POWERMAGE:
+	case CLASS_RUNECRAFTER:
+	case CLASS_HARPER:
+	case CLASS_SORCERER:
+	case CLASS_ILLUSIONIST:
+	case CLASS_DRUID:
+	case CLASS_NECRO:
+	case CLASS_ALCHEMIST:
+	case CLASS_CHAOS_WARRIOR:
+	case CLASS_MERCHANT:
 		{
 			/* Sometimes increase damage */
 			if (lev >= 30) d2 = d2 * 3 / 2;
@@ -497,8 +504,8 @@ static void set_ghost_aux_1(void)
 		}
 
 		/* Priest */
-		case CLASS_PRIEST:
-		case CLASS_MINDCRAFTER:
+	case CLASS_PRIEST:
+	case CLASS_MINDCRAFTER:
 		{
 			/* Sometimes increase damage */
 			if (lev >= 30) d2 = d2 * 3 / 2;
@@ -511,7 +518,7 @@ static void set_ghost_aux_1(void)
 		}
 
 		/* Rogue */
-		case CLASS_ROGUE:
+	case CLASS_ROGUE:
 		{
 			/* Sometimes increase damage */
 			if (lev >= 30) d2 = d2 * 2;
@@ -528,8 +535,8 @@ static void set_ghost_aux_1(void)
 		}
 
 		/* Ranger */
-		case CLASS_RANGER:
-		case CLASS_WARLOCK:
+	case CLASS_RANGER:
+	case CLASS_WARLOCK:
 		{
 			/* Sometimes increase damage */
 			if (lev >= 30) d2 = d2 * 2;
@@ -543,7 +550,7 @@ static void set_ghost_aux_1(void)
 		}
 
 		/* Paladin */
-		case CLASS_PALADIN:
+	case CLASS_PALADIN:
 		{
 			/* Sometimes increase damage */
 			if (lev >= 30) d2 = d2 * 2;
@@ -555,7 +562,7 @@ static void set_ghost_aux_1(void)
 			break;
 		}
 
-		default:
+	default:
 		{
 			/* Sometimes increase damage */
 			if (lev >= 30) d2 = d2 * 2;
@@ -597,279 +604,284 @@ static void set_ghost_aux_2(void)
 	r_ptr->flags3 |= (RF3_IM_POIS);
 
 
-		switch ((lev / 4) + randint(3))
+	switch ((lev / 4) + randint(3))
+	{
+	case 1:
+	case 2:
+	case 3:
 		{
-			case 1: case 2: case 3:
-			{
-				sprintf(r_name + r_ptr->name, "%s, the Skeleton %s", gb_name, gr_name);
-				r_ptr->d_char = 's';
-				r_ptr->d_attr = TERM_WHITE;
-				r_ptr->flags2 |= (RF2_OPEN_DOOR | RF2_BASH_DOOR);
-				r_ptr->flags3 |= (RF3_IM_COLD);
-				if (grace == RACE_HALF_ORC) r_ptr->flags3 |= (RF3_ORC);
-				if (grace == RACE_HALF_TROLL) r_ptr->flags3 |= (RF3_TROLL);
-				if (grace == RACE_THUNDERLORD) r_ptr->flags3 |= (RF3_THUNDERLORD);
-				r_ptr->ac = 26;
-				r_ptr->speed = 110;
+			sprintf(r_name + r_ptr->name, "%s, the Skeleton %s", gb_name, gr_name);
+			r_ptr->d_char = 's';
+			r_ptr->d_attr = TERM_WHITE;
+			r_ptr->flags2 |= (RF2_OPEN_DOOR | RF2_BASH_DOOR);
+			r_ptr->flags3 |= (RF3_IM_COLD);
+			if (grace == RACE_HALF_ORC) r_ptr->flags3 |= (RF3_ORC);
+			if (grace == RACE_HALF_TROLL) r_ptr->flags3 |= (RF3_TROLL);
+			if (grace == RACE_THUNDERLORD) r_ptr->flags3 |= (RF3_THUNDERLORD);
+			r_ptr->ac = 26;
+			r_ptr->speed = 110;
 
-				ghost_blow(0, RBM_HIT, RBE_HURT, 2, 6);
-				ghost_blow(1, RBM_HIT, RBE_HURT, 2, 6);
+			ghost_blow(0, RBM_HIT, RBE_HURT, 2, 6);
+			ghost_blow(1, RBM_HIT, RBE_HURT, 2, 6);
 
-				break;
-			}
-
-			case 4: case 5:
-			{
-				sprintf(r_name + r_ptr->name, "%s, the Zombified %s", gb_name, gr_name);
-				r_ptr->d_char = 'z';
-				r_ptr->d_attr = TERM_L_DARK;
-				r_ptr->flags1 |= (RF1_DROP_60 | RF1_DROP_90);
-				r_ptr->flags2 |= (RF2_OPEN_DOOR | RF2_BASH_DOOR);
-				if (grace == RACE_HALF_ORC) r_ptr->flags3 |= (RF3_ORC);
-				if (grace == RACE_HALF_TROLL) r_ptr->flags3 |= (RF3_TROLL);
-				if (grace == RACE_THUNDERLORD) r_ptr->flags3 |= (RF3_THUNDERLORD);
-				r_ptr->ac = 30;
-				r_ptr->speed = 110;
-				r_ptr->hside *= 2;
-
-				ghost_blow(0, RBM_HIT, RBE_HURT, 2, 9);
-
-				break;
-				}
-
-			case 6: case 7:
-			{
-				sprintf(r_name + r_ptr->name, "%s, the Mummified %s", gb_name, gr_name);
-				r_ptr->d_char = 'z';
-				r_ptr->d_attr = TERM_L_DARK;
-				r_ptr->flags1 |= (RF1_DROP_1D2);
-				r_ptr->flags2 |= (RF2_OPEN_DOOR | RF2_BASH_DOOR);
-				if (grace == RACE_HALF_ORC) r_ptr->flags3 |= (RF3_ORC);
-				if (grace == RACE_HALF_TROLL) r_ptr->flags3 |= (RF3_TROLL);
-				if (grace == RACE_THUNDERLORD) r_ptr->flags3 |= (RF3_THUNDERLORD);
-				r_ptr->ac = 35;
-				r_ptr->speed = 110;
-				r_ptr->hside *= 2;
-				r_ptr->mexp = (r_ptr->mexp * 3) / 2;
-
-				ghost_blow(0, RBM_HIT, RBE_HURT, 3, 8);
-				ghost_blow(1, RBM_HIT, RBE_HURT, 3, 8);
-				ghost_blow(2, RBM_HIT, RBE_HURT, 3, 8);
-
-				break;
-			}
-
-			case 8:
-			{
-				sprintf(r_name + r_ptr->name, "%s, the Poltergeist", gb_name);
-				r_ptr->d_char = 'G';
-				r_ptr->d_attr = TERM_WHITE;
-				r_ptr->flags1 |= (RF1_RAND_50 | RF1_RAND_25 | RF1_DROP_1D2);
-				r_ptr->flags2 |= (RF2_INVISIBLE | RF2_PASS_WALL);
-				r_ptr->flags3 |= (RF3_IM_COLD);
-				r_ptr->ac = 20;
-				r_ptr->speed = 130;
-				r_ptr->mexp = (r_ptr->mexp * 3) / 2;
-
-				ghost_blow(0, RBM_HIT, RBE_HURT, 2, 6);
-				ghost_blow(1, RBM_HIT, RBE_HURT, 2, 6);
-				ghost_blow(2, RBM_TOUCH, RBE_TERRIFY, 0, 0);
-				ghost_blow(3, RBM_TOUCH, RBE_TERRIFY, 0, 0);
-
-				break;
-			}
-
-			case 9: case 10:
-			{
-				sprintf(r_name + r_ptr->name, "%s, the Spirit", gb_name);
-				r_ptr->d_char = 'G';
-				r_ptr->d_attr = TERM_WHITE;
-				r_ptr->flags1 |= (RF1_DROP_1D2);
-				r_ptr->flags2 |= (RF2_INVISIBLE | RF2_PASS_WALL);
-				r_ptr->flags3 |= (RF3_IM_COLD);
-				r_ptr->ac = 20;
-				r_ptr->speed = 110;
-				r_ptr->hside *= 2;
-				r_ptr->mexp = r_ptr->mexp * 3;
-
-				ghost_blow(0, RBM_TOUCH, RBE_LOSE_WIS, 2, 6);
-				ghost_blow(1, RBM_TOUCH, RBE_LOSE_DEX, 2, 6);
-				ghost_blow(2, RBM_HIT, RBE_HURT, 4, 6);
-				ghost_blow(3, RBM_WAIL, RBE_TERRIFY, 0, 0);
-
-				break;
-			}
-
-			case 11:
-			{
-				sprintf(r_name + r_ptr->name, "%s, the Ghost", gb_name);
-				r_ptr->d_char = 'G';
-				r_ptr->d_attr = TERM_WHITE;
-				r_ptr->flags1 |= (RF1_DROP_1D2);
-				r_ptr->flags2 |= (RF2_INVISIBLE | RF2_PASS_WALL);
-				r_ptr->flags3 |= (RF3_IM_COLD);
-				r_ptr->flags5 |= (RF5_BLIND | RF5_HOLD | RF5_DRAIN_MANA);
-				r_ptr->freq_inate = r_ptr->freq_spell = 100 / 15;
-				r_ptr->ac = 40;
-				r_ptr->speed = 120;
-				r_ptr->hside *= 2;
-				r_ptr->mexp = (r_ptr->mexp * 7) / 2;
-
-				ghost_blow(0, RBM_WAIL, RBE_TERRIFY, 0, 0);
-				ghost_blow(1, RBM_TOUCH, RBE_EXP_20, 0, 0);
-				ghost_blow(2, RBM_CLAW, RBE_LOSE_INT, 2, 6);
-				ghost_blow(3, RBM_CLAW, RBE_LOSE_WIS, 2, 6);
-
-				break;
-			}
-
-			case 12:
-			{
-				sprintf(r_name + r_ptr->name, "%s, the Vampire", gb_name);
-				r_ptr->d_char = 'V';
-				r_ptr->d_attr = TERM_VIOLET;
-				r_ptr->flags1 |= (RF1_DROP_2D2);
-				r_ptr->flags2 |= (RF2_OPEN_DOOR | RF2_BASH_DOOR);
-				r_ptr->flags3 |= (RF3_HURT_LITE);
-				r_ptr->flags5 |= (RF5_SCARE | RF5_HOLD | RF5_CAUSE_2);
-				r_ptr->flags6 |= (RF6_TELE_TO);
-				r_ptr->freq_inate = r_ptr->freq_spell = 100 / 8;
-				r_ptr->ac = 40;
-				r_ptr->speed = 110;
-				r_ptr->hside *= 3;
-				r_ptr->mexp = r_ptr->mexp * 3;
-
-				ghost_blow(0, RBM_HIT, RBE_HURT, 5, 8);
-				ghost_blow(1, RBM_HIT, RBE_HURT, 5, 8);
-				ghost_blow(2, RBM_BITE, RBE_EXP_40, 0, 0);
-
-				break;
-			}
-
-			case 13:
-			{
-				sprintf(r_name + r_ptr->name, "%s, the Wraith", gb_name);
-				r_ptr->d_char = 'W';
-				r_ptr->d_attr = TERM_WHITE;
-				r_ptr->flags1 |= (RF1_DROP_2D2 | RF1_DROP_4D2);
-				r_ptr->flags2 |= (RF2_OPEN_DOOR | RF2_BASH_DOOR);
-				r_ptr->flags3 |= (RF3_IM_COLD | RF3_HURT_LITE);
-				r_ptr->flags5 |= (RF5_BLIND | RF5_SCARE | RF5_HOLD);
-				r_ptr->flags5 |= (RF5_CAUSE_3 | RF5_BO_NETH);
-				r_ptr->freq_inate = r_ptr->freq_spell = 100 / 7;
-				r_ptr->ac = 60;
-				r_ptr->speed = 120;
-				r_ptr->hside *= 3;
-				r_ptr->mexp = r_ptr->mexp * 5;
-
-				ghost_blow(0, RBM_HIT, RBE_HURT, 6, 8);
-				ghost_blow(1, RBM_HIT, RBE_HURT, 6, 8);
-				ghost_blow(2, RBM_TOUCH, RBE_EXP_20, 0, 0);
-
-				break;
-			}
-
-			case 14:
-			{
-				sprintf(r_name + r_ptr->name, "%s, the Vampire Lord", gb_name);
-				r_ptr->d_char = 'V';
-				r_ptr->d_attr = TERM_BLUE;
-				r_ptr->flags1 |= (RF1_DROP_1D2 | RF1_DROP_GREAT);
-				r_ptr->flags2 |= (RF2_OPEN_DOOR | RF2_BASH_DOOR);
-				r_ptr->flags3 |= (RF3_HURT_LITE);
-				r_ptr->flags5 |= (RF5_SCARE | RF5_HOLD | RF5_CAUSE_3 | RF5_BO_NETH);
-				r_ptr->flags6 |= (RF6_TELE_TO);
-				r_ptr->freq_inate = r_ptr->freq_spell = 100 / 8;
-				r_ptr->ac = 80;
-				r_ptr->speed = 110;
-				r_ptr->hside *= 2;
-				r_ptr->hdice *= 2;
-				r_ptr->mexp = r_ptr->mexp * 20;
-
-				ghost_blow(0, RBM_HIT, RBE_HURT, 6, 8);
-				ghost_blow(1, RBM_HIT, RBE_HURT, 6, 8);
-				ghost_blow(2, RBM_HIT, RBE_HURT, 6, 8);
-				ghost_blow(3, RBM_BITE, RBE_EXP_80, 0, 0);
-
-				break;
-			}
-
-			case 15:
-			{
-				sprintf(r_name + r_ptr->name, "%s, the Ghost", gb_name);
-				r_ptr->d_char = 'G';
-				r_ptr->d_attr = TERM_WHITE;
-				r_ptr->flags1 |= (RF1_DROP_2D2 | RF1_DROP_GREAT);
-				r_ptr->flags2 |= (RF2_INVISIBLE | RF2_PASS_WALL);
-				r_ptr->flags3 |= (RF3_IM_COLD);
-				r_ptr->flags5 |= (RF5_BLIND | RF5_CONF | RF5_HOLD | RF5_DRAIN_MANA);
-				r_ptr->freq_inate = r_ptr->freq_spell = 100 / 5;
-				r_ptr->ac = 90;
-				r_ptr->speed = 130;
-				r_ptr->hside *= 3;
-				r_ptr->mexp = r_ptr->mexp * 20;
-
-				ghost_blow(0, RBM_WAIL, RBE_TERRIFY, 0, 0);
-				ghost_blow(1, RBM_TOUCH, RBE_EXP_20, 0, 0);
-				ghost_blow(2, RBM_CLAW, RBE_LOSE_INT, 2, 6);
-				ghost_blow(3, RBM_CLAW, RBE_LOSE_WIS, 2, 6);
-
-				break;
-			}
-
-			case 17:
-			{
-				sprintf(r_name + r_ptr->name, "%s, the Lich", gb_name);
-				r_ptr->d_char = 'L';
-				r_ptr->d_attr = TERM_ORANGE;
-				r_ptr->flags1 |= (RF1_DROP_2D2 | RF1_DROP_1D2 | RF1_DROP_GREAT);
-				r_ptr->flags2 |= (RF2_SMART | RF2_OPEN_DOOR | RF2_BASH_DOOR);
-				r_ptr->flags3 |= (RF3_IM_COLD);
-				r_ptr->flags5 |= (RF5_BLIND | RF5_SCARE | RF5_CONF | RF5_HOLD);
-				r_ptr->flags5 |= (RF5_DRAIN_MANA | RF5_BA_FIRE | RF5_BA_COLD);
-				r_ptr->flags5 |= (RF5_CAUSE_3 | RF5_CAUSE_4 | RF5_BRAIN_SMASH);
-				r_ptr->flags6 |= (RF6_BLINK | RF6_TPORT | RF6_TELE_TO | RF6_S_UNDEAD);
-				r_ptr->freq_inate = r_ptr->freq_spell = 100 / 3;
-				r_ptr->ac = 120;
-				r_ptr->speed = 120;
-				r_ptr->hside *= 3;
-				r_ptr->hdice *= 2;
-				r_ptr->mexp = r_ptr->mexp * 50;
-
-				ghost_blow(0, RBM_TOUCH, RBE_LOSE_DEX, 4, 12);
-				ghost_blow(1, RBM_TOUCH, RBE_LOSE_DEX, 4, 12);
-				ghost_blow(2, RBM_TOUCH, RBE_UN_POWER, 0, 0);
-				ghost_blow(3, RBM_TOUCH, RBE_EXP_40, 0, 0);
-
-				break;
-			}
-
-			default:
-			{
-				sprintf(r_name + r_ptr->name, "%s, the Ghost", gb_name);
-				r_ptr->d_char = 'G';
-				r_ptr->d_attr = TERM_WHITE;
-				r_ptr->flags1 |= (RF1_DROP_1D2 | RF1_DROP_2D2 | RF1_DROP_GREAT);
-				r_ptr->flags2 |= (RF2_SMART | RF2_INVISIBLE | RF2_PASS_WALL);
-				r_ptr->flags3 |= (RF3_IM_COLD);
-				r_ptr->flags5 |= (RF5_BLIND | RF5_CONF | RF5_HOLD | RF5_BRAIN_SMASH);
-				r_ptr->flags5 |= (RF5_DRAIN_MANA | RF5_BA_NETH | RF5_BO_NETH);
-				r_ptr->flags6 |= (RF6_TELE_TO | RF6_TELE_LEVEL);
-				r_ptr->freq_inate = r_ptr->freq_spell = 100 / 2;
-				r_ptr->ac = 130;
-				r_ptr->speed = 130;
-				r_ptr->hside *= 2;
-				r_ptr->hdice *= 2;
-				r_ptr->mexp = r_ptr->mexp * 30;
-
-				ghost_blow(0, RBM_WAIL, RBE_TERRIFY, 0, 0);
-				ghost_blow(1, RBM_TOUCH, RBE_EXP_20, 0, 0);
-				ghost_blow(2, RBM_CLAW, RBE_LOSE_INT, 2, 6);
-				ghost_blow(3, RBM_CLAW, RBE_LOSE_WIS, 2, 6);
-
-				break;
-			}
+			break;
 		}
+
+	case 4:
+	case 5:
+		{
+			sprintf(r_name + r_ptr->name, "%s, the Zombified %s", gb_name, gr_name);
+			r_ptr->d_char = 'z';
+			r_ptr->d_attr = TERM_L_DARK;
+			r_ptr->flags1 |= (RF1_DROP_60 | RF1_DROP_90);
+			r_ptr->flags2 |= (RF2_OPEN_DOOR | RF2_BASH_DOOR);
+			if (grace == RACE_HALF_ORC) r_ptr->flags3 |= (RF3_ORC);
+			if (grace == RACE_HALF_TROLL) r_ptr->flags3 |= (RF3_TROLL);
+			if (grace == RACE_THUNDERLORD) r_ptr->flags3 |= (RF3_THUNDERLORD);
+			r_ptr->ac = 30;
+			r_ptr->speed = 110;
+			r_ptr->hside *= 2;
+
+			ghost_blow(0, RBM_HIT, RBE_HURT, 2, 9);
+
+			break;
+		}
+
+	case 6:
+	case 7:
+		{
+			sprintf(r_name + r_ptr->name, "%s, the Mummified %s", gb_name, gr_name);
+			r_ptr->d_char = 'z';
+			r_ptr->d_attr = TERM_L_DARK;
+			r_ptr->flags1 |= (RF1_DROP_1D2);
+			r_ptr->flags2 |= (RF2_OPEN_DOOR | RF2_BASH_DOOR);
+			if (grace == RACE_HALF_ORC) r_ptr->flags3 |= (RF3_ORC);
+			if (grace == RACE_HALF_TROLL) r_ptr->flags3 |= (RF3_TROLL);
+			if (grace == RACE_THUNDERLORD) r_ptr->flags3 |= (RF3_THUNDERLORD);
+			r_ptr->ac = 35;
+			r_ptr->speed = 110;
+			r_ptr->hside *= 2;
+			r_ptr->mexp = (r_ptr->mexp * 3) / 2;
+
+			ghost_blow(0, RBM_HIT, RBE_HURT, 3, 8);
+			ghost_blow(1, RBM_HIT, RBE_HURT, 3, 8);
+			ghost_blow(2, RBM_HIT, RBE_HURT, 3, 8);
+
+			break;
+		}
+
+	case 8:
+		{
+			sprintf(r_name + r_ptr->name, "%s, the Poltergeist", gb_name);
+			r_ptr->d_char = 'G';
+			r_ptr->d_attr = TERM_WHITE;
+			r_ptr->flags1 |= (RF1_RAND_50 | RF1_RAND_25 | RF1_DROP_1D2);
+			r_ptr->flags2 |= (RF2_INVISIBLE | RF2_PASS_WALL);
+			r_ptr->flags3 |= (RF3_IM_COLD);
+			r_ptr->ac = 20;
+			r_ptr->speed = 130;
+			r_ptr->mexp = (r_ptr->mexp * 3) / 2;
+
+			ghost_blow(0, RBM_HIT, RBE_HURT, 2, 6);
+			ghost_blow(1, RBM_HIT, RBE_HURT, 2, 6);
+			ghost_blow(2, RBM_TOUCH, RBE_TERRIFY, 0, 0);
+			ghost_blow(3, RBM_TOUCH, RBE_TERRIFY, 0, 0);
+
+			break;
+		}
+
+	case 9:
+	case 10:
+		{
+			sprintf(r_name + r_ptr->name, "%s, the Spirit", gb_name);
+			r_ptr->d_char = 'G';
+			r_ptr->d_attr = TERM_WHITE;
+			r_ptr->flags1 |= (RF1_DROP_1D2);
+			r_ptr->flags2 |= (RF2_INVISIBLE | RF2_PASS_WALL);
+			r_ptr->flags3 |= (RF3_IM_COLD);
+			r_ptr->ac = 20;
+			r_ptr->speed = 110;
+			r_ptr->hside *= 2;
+			r_ptr->mexp = r_ptr->mexp * 3;
+
+			ghost_blow(0, RBM_TOUCH, RBE_LOSE_WIS, 2, 6);
+			ghost_blow(1, RBM_TOUCH, RBE_LOSE_DEX, 2, 6);
+			ghost_blow(2, RBM_HIT, RBE_HURT, 4, 6);
+			ghost_blow(3, RBM_WAIL, RBE_TERRIFY, 0, 0);
+
+			break;
+		}
+
+	case 11:
+		{
+			sprintf(r_name + r_ptr->name, "%s, the Ghost", gb_name);
+			r_ptr->d_char = 'G';
+			r_ptr->d_attr = TERM_WHITE;
+			r_ptr->flags1 |= (RF1_DROP_1D2);
+			r_ptr->flags2 |= (RF2_INVISIBLE | RF2_PASS_WALL);
+			r_ptr->flags3 |= (RF3_IM_COLD);
+			r_ptr->flags5 |= (RF5_BLIND | RF5_HOLD | RF5_DRAIN_MANA);
+			r_ptr->freq_inate = r_ptr->freq_spell = 100 / 15;
+			r_ptr->ac = 40;
+			r_ptr->speed = 120;
+			r_ptr->hside *= 2;
+			r_ptr->mexp = (r_ptr->mexp * 7) / 2;
+
+			ghost_blow(0, RBM_WAIL, RBE_TERRIFY, 0, 0);
+			ghost_blow(1, RBM_TOUCH, RBE_EXP_20, 0, 0);
+			ghost_blow(2, RBM_CLAW, RBE_LOSE_INT, 2, 6);
+			ghost_blow(3, RBM_CLAW, RBE_LOSE_WIS, 2, 6);
+
+			break;
+		}
+
+	case 12:
+		{
+			sprintf(r_name + r_ptr->name, "%s, the Vampire", gb_name);
+			r_ptr->d_char = 'V';
+			r_ptr->d_attr = TERM_VIOLET;
+			r_ptr->flags1 |= (RF1_DROP_2D2);
+			r_ptr->flags2 |= (RF2_OPEN_DOOR | RF2_BASH_DOOR);
+			r_ptr->flags3 |= (RF3_HURT_LITE);
+			r_ptr->flags5 |= (RF5_SCARE | RF5_HOLD | RF5_CAUSE_2);
+			r_ptr->flags6 |= (RF6_TELE_TO);
+			r_ptr->freq_inate = r_ptr->freq_spell = 100 / 8;
+			r_ptr->ac = 40;
+			r_ptr->speed = 110;
+			r_ptr->hside *= 3;
+			r_ptr->mexp = r_ptr->mexp * 3;
+
+			ghost_blow(0, RBM_HIT, RBE_HURT, 5, 8);
+			ghost_blow(1, RBM_HIT, RBE_HURT, 5, 8);
+			ghost_blow(2, RBM_BITE, RBE_EXP_40, 0, 0);
+
+			break;
+		}
+
+	case 13:
+		{
+			sprintf(r_name + r_ptr->name, "%s, the Wraith", gb_name);
+			r_ptr->d_char = 'W';
+			r_ptr->d_attr = TERM_WHITE;
+			r_ptr->flags1 |= (RF1_DROP_2D2 | RF1_DROP_4D2);
+			r_ptr->flags2 |= (RF2_OPEN_DOOR | RF2_BASH_DOOR);
+			r_ptr->flags3 |= (RF3_IM_COLD | RF3_HURT_LITE);
+			r_ptr->flags5 |= (RF5_BLIND | RF5_SCARE | RF5_HOLD);
+			r_ptr->flags5 |= (RF5_CAUSE_3 | RF5_BO_NETH);
+			r_ptr->freq_inate = r_ptr->freq_spell = 100 / 7;
+			r_ptr->ac = 60;
+			r_ptr->speed = 120;
+			r_ptr->hside *= 3;
+			r_ptr->mexp = r_ptr->mexp * 5;
+
+			ghost_blow(0, RBM_HIT, RBE_HURT, 6, 8);
+			ghost_blow(1, RBM_HIT, RBE_HURT, 6, 8);
+			ghost_blow(2, RBM_TOUCH, RBE_EXP_20, 0, 0);
+
+			break;
+		}
+
+	case 14:
+		{
+			sprintf(r_name + r_ptr->name, "%s, the Vampire Lord", gb_name);
+			r_ptr->d_char = 'V';
+			r_ptr->d_attr = TERM_BLUE;
+			r_ptr->flags1 |= (RF1_DROP_1D2 | RF1_DROP_GREAT);
+			r_ptr->flags2 |= (RF2_OPEN_DOOR | RF2_BASH_DOOR);
+			r_ptr->flags3 |= (RF3_HURT_LITE);
+			r_ptr->flags5 |= (RF5_SCARE | RF5_HOLD | RF5_CAUSE_3 | RF5_BO_NETH);
+			r_ptr->flags6 |= (RF6_TELE_TO);
+			r_ptr->freq_inate = r_ptr->freq_spell = 100 / 8;
+			r_ptr->ac = 80;
+			r_ptr->speed = 110;
+			r_ptr->hside *= 2;
+			r_ptr->hdice *= 2;
+			r_ptr->mexp = r_ptr->mexp * 20;
+
+			ghost_blow(0, RBM_HIT, RBE_HURT, 6, 8);
+			ghost_blow(1, RBM_HIT, RBE_HURT, 6, 8);
+			ghost_blow(2, RBM_HIT, RBE_HURT, 6, 8);
+			ghost_blow(3, RBM_BITE, RBE_EXP_80, 0, 0);
+
+			break;
+		}
+
+	case 15:
+		{
+			sprintf(r_name + r_ptr->name, "%s, the Ghost", gb_name);
+			r_ptr->d_char = 'G';
+			r_ptr->d_attr = TERM_WHITE;
+			r_ptr->flags1 |= (RF1_DROP_2D2 | RF1_DROP_GREAT);
+			r_ptr->flags2 |= (RF2_INVISIBLE | RF2_PASS_WALL);
+			r_ptr->flags3 |= (RF3_IM_COLD);
+			r_ptr->flags5 |= (RF5_BLIND | RF5_CONF | RF5_HOLD | RF5_DRAIN_MANA);
+			r_ptr->freq_inate = r_ptr->freq_spell = 100 / 5;
+			r_ptr->ac = 90;
+			r_ptr->speed = 130;
+			r_ptr->hside *= 3;
+			r_ptr->mexp = r_ptr->mexp * 20;
+
+			ghost_blow(0, RBM_WAIL, RBE_TERRIFY, 0, 0);
+			ghost_blow(1, RBM_TOUCH, RBE_EXP_20, 0, 0);
+			ghost_blow(2, RBM_CLAW, RBE_LOSE_INT, 2, 6);
+			ghost_blow(3, RBM_CLAW, RBE_LOSE_WIS, 2, 6);
+
+			break;
+		}
+
+	case 17:
+		{
+			sprintf(r_name + r_ptr->name, "%s, the Lich", gb_name);
+			r_ptr->d_char = 'L';
+			r_ptr->d_attr = TERM_ORANGE;
+			r_ptr->flags1 |= (RF1_DROP_2D2 | RF1_DROP_1D2 | RF1_DROP_GREAT);
+			r_ptr->flags2 |= (RF2_SMART | RF2_OPEN_DOOR | RF2_BASH_DOOR);
+			r_ptr->flags3 |= (RF3_IM_COLD);
+			r_ptr->flags5 |= (RF5_BLIND | RF5_SCARE | RF5_CONF | RF5_HOLD);
+			r_ptr->flags5 |= (RF5_DRAIN_MANA | RF5_BA_FIRE | RF5_BA_COLD);
+			r_ptr->flags5 |= (RF5_CAUSE_3 | RF5_CAUSE_4 | RF5_BRAIN_SMASH);
+			r_ptr->flags6 |= (RF6_BLINK | RF6_TPORT | RF6_TELE_TO | RF6_S_UNDEAD);
+			r_ptr->freq_inate = r_ptr->freq_spell = 100 / 3;
+			r_ptr->ac = 120;
+			r_ptr->speed = 120;
+			r_ptr->hside *= 3;
+			r_ptr->hdice *= 2;
+			r_ptr->mexp = r_ptr->mexp * 50;
+
+			ghost_blow(0, RBM_TOUCH, RBE_LOSE_DEX, 4, 12);
+			ghost_blow(1, RBM_TOUCH, RBE_LOSE_DEX, 4, 12);
+			ghost_blow(2, RBM_TOUCH, RBE_UN_POWER, 0, 0);
+			ghost_blow(3, RBM_TOUCH, RBE_EXP_40, 0, 0);
+
+			break;
+		}
+
+	default:
+		{
+			sprintf(r_name + r_ptr->name, "%s, the Ghost", gb_name);
+			r_ptr->d_char = 'G';
+			r_ptr->d_attr = TERM_WHITE;
+			r_ptr->flags1 |= (RF1_DROP_1D2 | RF1_DROP_2D2 | RF1_DROP_GREAT);
+			r_ptr->flags2 |= (RF2_SMART | RF2_INVISIBLE | RF2_PASS_WALL);
+			r_ptr->flags3 |= (RF3_IM_COLD);
+			r_ptr->flags5 |= (RF5_BLIND | RF5_CONF | RF5_HOLD | RF5_BRAIN_SMASH);
+			r_ptr->flags5 |= (RF5_DRAIN_MANA | RF5_BA_NETH | RF5_BO_NETH);
+			r_ptr->flags6 |= (RF6_TELE_TO | RF6_TELE_LEVEL);
+			r_ptr->freq_inate = r_ptr->freq_spell = 100 / 2;
+			r_ptr->ac = 130;
+			r_ptr->speed = 130;
+			r_ptr->hside *= 2;
+			r_ptr->hdice *= 2;
+			r_ptr->mexp = r_ptr->mexp * 30;
+
+			ghost_blow(0, RBM_WAIL, RBE_TERRIFY, 0, 0);
+			ghost_blow(1, RBM_TOUCH, RBE_EXP_20, 0, 0);
+			ghost_blow(2, RBM_CLAW, RBE_LOSE_INT, 2, 6);
+			ghost_blow(3, RBM_CLAW, RBE_LOSE_WIS, 2, 6);
+
+			break;
+		}
+	}
 }
 
 
@@ -1018,8 +1030,8 @@ s16b place_ghost(void)
 	bool err = FALSE;
 	bool town = FALSE;
 
-	char                name[100];
-	char                tmp[1024];
+	char name[100];
+	char tmp[1024];
 
 	/* Hack -- no ghosts in the town */
 	if (!dun_level) return (FALSE);
@@ -1101,10 +1113,10 @@ s16b place_ghost(void)
 		x = randint(cur_wid - 2);
 
 		/* Require "naked" floor grid */
-		if (!cave_empty_bold(y,x)) continue;
+		if (!cave_empty_bold(y, x)) continue;
 
 		/* Accept far away grids */
-		if (distance(py, px, y, x) > MAX_SIGHT + 5) break;
+		if (distance(p_ptr->py, p_ptr->px, y, x) > MAX_SIGHT + 5) break;
 	}
 
 
@@ -1122,7 +1134,7 @@ s16b place_ghost(void)
 	r_ptr->x_attr = r_ptr->d_attr;
 	r_ptr->x_char = r_ptr->d_char;
 	return TRUE;
-#else
+#else 
 	return (FALSE);
 #endif
 }

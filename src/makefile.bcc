@@ -68,6 +68,8 @@ OBJ = \
 	dungeon.obj \
 	files.obj \
 	generate.obj \
+        gen_maze.obj \
+        gen_evol.obj \
 	ghost.obj \
 	help.obj \
 	init1.obj \
@@ -79,6 +81,7 @@ OBJ = \
 	main.obj \
 	melee1.obj \
 	melee2.obj \
+        modules.obj \
 	monster1.obj \
 	monster2.obj \
 	monster3.obj \

@@ -23,18 +23,18 @@ typedef void (*lose_connection_hook)(ip_connection *conn);
 
 struct ip_connection
 {
-        bool setup;                     /* Has it been setted up yet? */
+	bool setup;                     /* Has it been setted up yet? */
 
-       	long conn_ip;                  	/* The IP where to connect to */
+	long conn_ip;                  	/* The IP where to connect to */
 	int conn_port;                	/* The port where to connect to */
-        byte conn_type;                 /* Type of connection */
+	byte conn_type;                 /* Type of connection */
 
-        bool connected;                 /* The connection status */
-        void *socket;                   /* The socket for the connection */
+	bool connected;                 /* The connection status */
+	void *socket;                   /* The socket for the connection */
 
-        lose_connection_hook lost_conn; /* Called when the conenction dies */
+	lose_connection_hook lost_conn; /* Called when the conenction dies */
 
-        bool server;                    /* Is it a server socket ? */
+	bool server;                    /* Is it a server socket ? */
 };
 
 /*
@@ -54,8 +54,8 @@ typedef void (*timer_callback)();
 typedef struct timer_callback_list timer_callback_list;
 struct timer_callback_list
 {
-        timer_callback callback;
-        timer_callback_list *next;
+	timer_callback callback;
+	timer_callback_list *next;
 };
 
 /*
@@ -64,54 +64,60 @@ struct timer_callback_list
 typedef struct zsock_hooks zsock_hooks;
 struct zsock_hooks
 {
-        /* Creates a struct */
-        ip_connection *(*new_connection)();
+	/* Creates a struct */
+	ip_connection *(*new_connection)();
 
-        /* Free it */
-        void (*free_connection)(ip_connection *c);
+	/* Free it */
+	void (*free_connection)(ip_connection *c);
 
-        /* Setup a connection, but do NOT connect */
+	/* Setup a connection, but do NOT connect */
 	bool (*setup)(ip_connection *conn, cptr conn_ip, int port, byte conn_type, bool server);
 
-        /* Unsetup a connection, but and DO close before if needed */
+	/* Unsetup a connection, but and DO close before if needed */
 	bool (*unsetup)(ip_connection *conn);
 
-        /* Open(connect) a well setup-ed connection */
-        bool (*open)(ip_connection *conn);
+	/* Open(connect) a well setup-ed connection */
+	bool (*open)(ip_connection *conn);
 
-        /* Close a connected connection */
-        bool (*close)(ip_connection *conn);
+	/* Close a connected connection */
+	bool (*close)(ip_connection *conn);
 
-        /* Send data on the connection */
-        bool (*write)(ip_connection *conn, cptr str);
+	/* Send data on the connection */
+	bool (*write)(ip_connection *conn, cptr str, int *size);
 
-        /* Read data on the connection */
-        bool (*read)(ip_connection *conn, char *str, int len);
+	/* Read data on the connection */
+	bool (*read)(ip_connection *conn, char *str, int *len, bool raw);
 
-        /* Set the dying connection callback */
-        void (*set_lose_connection)(ip_connection *conn, lose_connection_hook hook);
+	/* Send data on the connection -- easy to use  */
+	bool (*write_simple)(ip_connection *conn, cptr str);
 
-        /* Accept a connection */
-        bool (*accept)(ip_connection *conn, ip_connection *child);
+	/* Read data on the connection -- easy to use */
+	bool (*read_simple)(ip_connection *conn, char *str, int len);
 
-        /* Check if there is any data to be read and return instantly in any case */
-        bool (*can_read)(ip_connection *conn);
+	/* Set the dying connection callback */
+	void (*set_lose_connection)(ip_connection *conn, lose_connection_hook hook);
 
-        /* Wait until there is any data to be read and return after seconds time in any case */
-        bool (*wait)(ip_connection *conn, int seconds);
+	/* Accept a connection */
+	bool (*accept)(ip_connection *conn, ip_connection *child);
+
+	/* Check if there is any data to be read and return instantly in any case */
+	bool (*can_read)(ip_connection *conn);
+
+	/* Wait until there is any data to be read and return after seconds time in any case */
+	bool (*wait)(ip_connection *conn, int seconds);
 
 
-        /*
-         * Timer stuff, I hope I can make that look better
-         */
-        int __timers;
-        timer_callback_list *__timer_callbacks;
+	/*
+	 * Timer stuff, I hope I can make that look better
+	 */
+	int __timers;
+	timer_callback_list *__timer_callbacks;
 
-        /* Setup the timer */
-        bool (*add_timer)(timer_callback callback);
+	/* Setup the timer */
+	bool (*add_timer)(timer_callback callback);
 
-        /* Remove the timer */
-        bool (*remove_timer)(timer_callback callback);
+	/* Remove the timer */
+	bool (*remove_timer)(timer_callback callback);
 };
 
 extern zsock_hooks zsock;

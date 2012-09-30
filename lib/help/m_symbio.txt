@@ -10,6 +10,9 @@ While a humble student of the Craft of Slime (as it's sometimes called)
 has very few options apart from asking the symbiote to help him in combat,
 master practitioners have access to an incredible amount of tricks.
 
+Once hypnotised, the monster is placed onto the body, or "worn" in order to 
+initiate the symbiotic relationship.
+
 #####uSymbiotic Powers
 There are nine powers a symbiant can develop. They are:
 1. [[[[[uHypnotize] (level 1) Cost:1

@@ -22,3 +22,8 @@ Exp Penalty     +110%
 
 #####GSkill Bonuses (supplementary to existing skills)
 Barehand-combat            0.000           [0.200]
+Boulder-throwing           0.000           [0.600]
+
+#####GInnate Abilities:
+#####BAbility              Character level
+Tree-walking                1

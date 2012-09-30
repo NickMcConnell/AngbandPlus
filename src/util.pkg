@@ -93,6 +93,27 @@ typedef unsigned int u32b;
 #define HOOK_REDRAW             51
 #define HOOK_RECALC_SKILLS      52
 #define HOOK_ENTER_DUNGEON      53
+#define HOOK_FIRE               54
+#define HOOK_EAT                55
+#define HOOK_DIE                56
+#define HOOK_CALC_HP            57
+#define HOOK_GF_COLOR           58
+#define HOOK_GF_EXEC            59
+#define HOOK_CALC_MANA          60
+#define HOOK_LOAD_END           61
+#define HOOK_RECALL             62
+#define HOOK_FOLLOW_GOD         63
+#define HOOK_SACRIFICE_GOD      64
+#define HOOK_BODY_PARTS         65
+#define HOOK_APPLY_MAGIC        66
+#define HOOK_PLAYER_EXP         67
+#define HOOK_BIRTH              68
+#define HOOK_CALC_LITE		69
+#define HOOK_LEARN_ABILITY      70
+#define HOOK_MOVED              71
+#define HOOK_GAME_START         72
+#define HOOK_TAKEOFF            73
+#define HOOK_CALC_WEIGHT        74
 
 extern s32b turn;
 extern s32b old_turn;
@@ -105,6 +126,9 @@ $static char *path_build_lua(cptr path, cptr file){static char buf[1025]; path_b
 static char *path_build_lua@path_build(cptr path, cptr file);
 extern void move_cursor(int row, int col);
 extern void flush(void);
+
+#define ESCAPE
+
 extern bool inkey_scan;
 extern char inkey(void);
 extern void cmsg_print(byte color, cptr msg);
@@ -122,7 +146,7 @@ extern void clear_from(int row);
 extern bool askfor_aux(char *buf, int len);
 extern bool get_string(cptr prompt, char *buf, int len);
 extern bool get_check(cptr prompt);
-extern bool get_com_lua @ get_com(cptr promtp, int *com);
+extern bool get_com_lua @ get_com(cptr promtp, int *com = 0);
 extern s32b get_quantity(cptr prompt, s32b max);
 extern int test_monster_name(cptr name);
 extern int test_item_name(cptr name);
@@ -130,14 +154,16 @@ extern int luck(int min, int max);
 extern cptr get_player_race_name(int pr, int ps);
 extern void quit(cptr str);
 extern s32b value_scale(int value, int vmax, int max, int min);
-extern void c_roff(byte a, cptr str);
-extern void roff(cptr str);
+extern void text_out_c(byte a, cptr str);
+extern void text_out(cptr str);
+extern bool change_option(cptr name, bool value);
 
 extern int process_hooks_restart;
 extern void dump_hooks(int h_idx);
 extern void add_hook_script(int h_idx, char *script, cptr name);
 extern void del_hook_name(int h_idx, cptr name);
 extern bool tome_dofile(char *file);
+extern bool tome_dofile_anywhere(cptr dir, char *file, bool test_exist = TRUE);
 extern int exec_lua(char *file);
 extern void dump_lua_stack(int min, int max);
 extern cptr string_exec_lua(char *file);
@@ -198,6 +224,7 @@ extern void get_count(int number, int max);
 #define FF1_TUNNELABLE          0x00008000L
 #define FF1_WEB                 0x00010000L
 #define FF1_ATTR_MULTI          0x00020000L
+#define FF1_SUPPORT_GROWTH      0x00040000L
 
 /* Cave stuff */
 struct cave_type
@@ -230,22 +257,25 @@ extern cptr ANGBAND_GRAF;
 extern cptr ANGBAND_DIR;
 extern cptr ANGBAND_DIR_APEX;
 extern cptr ANGBAND_DIR_BONE;
+extern cptr ANGBAND_DIR_CORE;
 extern cptr ANGBAND_DIR_DNGN;
 extern cptr ANGBAND_DIR_DATA;
 extern cptr ANGBAND_DIR_EDIT;
 extern cptr ANGBAND_DIR_FILE;
 extern cptr ANGBAND_DIR_HELP;
 extern cptr ANGBAND_DIR_INFO;
+extern cptr ANGBAND_DIR_MODULES;
 extern cptr ANGBAND_DIR_NOTE;
 extern cptr ANGBAND_DIR_SAVE;
 extern cptr ANGBAND_DIR_SCPT;
 extern cptr ANGBAND_DIR_PREF;
+extern cptr ANGBAND_DIR_PATCH;
 extern cptr ANGBAND_DIR_USER;
 extern cptr ANGBAND_DIR_XTRA;
 extern cptr ANGBAND_DIR_CMOV;
 
 extern bool los(int y1, int x1, int y2, int x2);
-$static bool lua_cave_is(cave_type *c_ptr, s32b flag) { return (f_info[c_ptr->feat].flags1 & flag); }
+$static bool lua_cave_is(cave_type *c_ptr, s32b flag) { return (f_info[c_ptr->feat].flags1 & flag) ? TRUE : FALSE; }
 static bool lua_cave_is @ cave_is(cave_type *c_ptr, s32b flag);
 extern cave_type *lua_get_cave @ cave(int y, int x);
 extern void set_target(int y, int x);
@@ -279,6 +309,8 @@ extern bool option_ingame_help;
 extern char *lua_input_box@input_box(cptr title, int max);
 extern char lua_msg_box@msg_box(cptr title);
 extern s32b rescale(s32b x, s32b max, s32b new_max);
+$static const char *player_name_lua(void){return (const char *)player_name;}
+static const char *player_name_lua@player_name();
 
 /* Temp files */
 extern void lua_make_temp_file@make_temp_file();
@@ -289,3 +321,41 @@ extern cptr lua_get_temp_name@get_temp_name();
 /* Quarks */
 extern cptr quark_str(s16b num);
 extern s16b quark_add(cptr str);
+
+/* Modules */
+extern void module_reset_dir(cptr dir, cptr new_path);
+extern void scansubdir(cptr dir);
+extern bool file_exist(char *buf);
+extern cptr game_module;
+
+/* Input */
+extern int get_keymap_dir(char ch);
+
+/*
+ * Timers
+ */
+struct timer_type
+{
+        timer_type *next;       /* The next timer in the list */
+
+        bool enabled;           /* Is it currently counting? */
+
+        s32b delay;             /* Delay between activations */
+        s32b countdown;         /* The current number of turns passed, when it reaches delay it fires */
+
+        cptr callback;          /* The lua function to call upon firing(no C callback yet .. maybe) */
+};
+
+extern timer_type *new_timer(cptr callback, s32b delay);
+extern void del_timer(timer_type *t_ptr);
+
+/*
+ * Lists
+ */
+struct list_type
+{
+};
+extern list_type *lua_create_list@create_list(int size);
+extern void lua_delete_list@delete_list(list_type *, int size);
+extern void lua_add_to_list@add_to_list(list_type *, int idx, cptr str);
+extern void lua_display_list@display_list(int y, int x, int h, int w, cptr title, list_type *list, int max, int begin, int sel, byte sel_color);

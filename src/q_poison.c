@@ -3,18 +3,10 @@
 
 static int wild_locs[4][2] =
 {
-	{
-		32, 49,
-	},
-	{
-		32, 48,
-	},
-	{
-		33, 48,
-	},
-	{
-		34, 48,
-	},
+	{ 32, 49, },
+	{ 32, 48, },
+	{ 33, 48, },
+	{ 34, 48, },
 };
 
 static bool create_molds_hook(int r_idx)
@@ -40,7 +32,7 @@ bool quest_poison_gen_hook(char *fmt)
 	if (p_ptr->wild_mode) return FALSE;
 
 	/* Find a good position */
-	while(try)
+	while (try)
 	{
 		/* Get a random spot */
 		cy = randint(cur_hgt - 24) + 22;
@@ -66,36 +58,36 @@ bool quest_poison_gen_hook(char *fmt)
 
 	/* Pick a monster, using the level calculation */
 	for (x = cx - 25; x <= cx + 25; x++)
-	for (y = cy - 25; y <= cy + 25; y++)
-	{
-		if (!in_bounds(y, x)) continue;
-
-		if (distance(cy, cx, y, x) > 25) continue;
-
-		if (magik(80) && ((cave[y][x].feat == FEAT_DEEP_WATER) || (cave[y][x].feat == FEAT_SHAL_WATER))) cave_set_feat(y, x, FEAT_TAINTED_WATER);
-
-		if (distance(cy, cx, y, x) > 10) continue;
-
-		if (magik(60))
+		for (y = cy - 25; y <= cy + 25; y++)
 		{
-			int m_idx;
+			if (!in_bounds(y, x)) continue;
 
-			r_idx = get_mon_num(30);
-			m_idx = place_monster_one(y, x, r_idx, 0, FALSE, MSTATUS_ENEMY);
+			if (distance(cy, cx, y, x) > 25) continue;
 
-			/* Sometimes make it up some levels */
-			if (magik(80) && m_idx)
+			if (magik(80) && ((cave[y][x].feat == FEAT_DEEP_WATER) || (cave[y][x].feat == FEAT_SHAL_WATER))) cave_set_feat(y, x, FEAT_TAINTED_WATER);
+
+			if (distance(cy, cx, y, x) > 10) continue;
+
+			if (magik(60))
 			{
-				monster_type *m_ptr = &m_list[m_idx];
+				int m_idx;
 
-				if (m_ptr->level < p_ptr->lev)
+				r_idx = get_mon_num(30);
+				m_idx = place_monster_one(y, x, r_idx, 0, FALSE, MSTATUS_ENEMY);
+
+				/* Sometimes make it up some levels */
+				if (magik(80) && m_idx)
 				{
-					m_ptr->exp = MONSTER_EXP(m_ptr->level + randint(p_ptr->lev - m_ptr->level));
-					monster_check_experience(m_idx, TRUE);
+					monster_type *m_ptr = &m_list[m_idx];
+
+					if (m_ptr->level < p_ptr->lev)
+					{
+						m_ptr->exp = MONSTER_EXP(m_ptr->level + randint(p_ptr->lev - m_ptr->level));
+						monster_check_experience(m_idx, TRUE);
+					}
 				}
 			}
 		}
-	}
 
 	/* Reset restriction */
 	get_mon_num_hook = old_get_mon_num_hook;
@@ -119,7 +111,7 @@ bool quest_poison_finish_hook(char *fmt)
 
 	q_ptr = &forge;
 	object_prep(q_ptr, lookup_kind(TV_DRAG_ARMOR, SV_DRAGON_BLUE));
-        q_ptr->found = OBJ_FOUND_REWARD;
+	q_ptr->found = OBJ_FOUND_REWARD;
 	q_ptr->number = 1;
 	q_ptr->name2 = EGO_ELVENKIND;
 	apply_magic(q_ptr, 1, FALSE, FALSE, FALSE);
@@ -172,7 +164,7 @@ bool quest_poison_drop_hook(char *fmt)
 	object_type *o_ptr;
 
 	o_idx = get_next_arg(fmt);
-	o_ptr = &inventory[o_idx];
+	o_ptr = &p_ptr->inventory[o_idx];
 
 	if (cquest.status != QUEST_STATUS_TAKEN) return FALSE;
 	if (p_ptr->wilderness_y != wild_locs[cquest.data[0]][0]) return FALSE;
@@ -196,12 +188,12 @@ bool quest_poison_drop_hook(char *fmt)
 	if (mcnt < 10)
 	{
 		for (x = 1; x < cur_wid - 1; x++)
-		for (y = 1; y < cur_hgt - 1; y++)
-		{
-			if (!in_bounds(y, x)) continue;
+			for (y = 1; y < cur_hgt - 1; y++)
+			{
+				if (!in_bounds(y, x)) continue;
 
-			if (cave[y][x].feat == FEAT_TAINTED_WATER) cave_set_feat(y, x, FEAT_SHAL_WATER);
-		}
+				if (cave[y][x].feat == FEAT_TAINTED_WATER) cave_set_feat(y, x, FEAT_SHAL_WATER);
+			}
 
 		cmsg_print(TERM_YELLOW, "Well done, the water seems to be clean now.");
 

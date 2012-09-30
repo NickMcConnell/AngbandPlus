@@ -115,3 +115,30 @@ It is opposed to:
 [[[[[GGain message: Your blood thickens, you sense corruption in it.]
 [[[[[RLose message: Your blood returns to a normal state.]
 
+
+[[[[[BVampiric Teeth]
+  Your teeth allows you to drain blood to feed yourself
+  However your stomach now only accepts blood.
+[[[[[GGain message: You grow vampiric teeth!]
+It is not removable.
+
+
+[[[[[BVampiric Strength]
+  Your body seems somewhat dead
+  In this near undead state it has improved strength, constitution and intelligence
+  But reduced dexterity, wisdom and charisma.
+[[[[[GGain message: Your body seems more dead than alive.]
+It is not removable.
+It depends on:
+  Vampiric Teeth
+
+
+[[[[[BVampire]
+  You are a Vampire. As such you resist cold, poison, darkness and nether.
+  Your life is sustained, but you cannot stand the light of the sun.
+[[[[[GGain message: You die to be reborn in a Vampire form.]
+It is not removable.
+It depends on:
+  Vampiric Strength
+
+

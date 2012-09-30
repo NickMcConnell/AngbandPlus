@@ -7,9 +7,11 @@
      old corpse's equipment slots
 [B]- Monster memory does not fully work for ego monsters
 [B]- Teleport level out of dungeons, recalling into a dungeon and taking stairs
-     out of it, or changing wilderness mode sometimes brings player to a strange
-     location.
+     out of it, or changing wilderness mode after recalling out of a dungeon
+     sometimes brings player to a strange location.
 [B]- Ego types (like a Cursed Ring of Stupidity) will prevent the
      automatizer from destroying an otherwise destroyable item
+[B]- Nazguls should only drop their rings once.
+[B]- character running on a know trap should stop BEFORE triggering it
 
-[V]  T.o.M.E 2.1.1 aka "Once more unto the breach"
+[V]  T.o.M.E 2.2.0 aka "Born to the Purple"

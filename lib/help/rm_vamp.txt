@@ -1,6 +1,6 @@
 ~~~~~01|Vampire
 ~~~~~02|Race Modifiers|Vampire
-#####R=== Vampiric Race ===
+#####R=== Vampire ===
 
 #####GDescription
 One of the mightier undead creatures, the Vampire is an awe-inspiring 
@@ -21,17 +21,10 @@ effects of sunlight.
 
 #####GStat Modifiers
 Strength       +3   
-Intelligence   +3   
-Wisdom         -1   
-Dexterity      -1   
+Intelligence   +2   
+Wisdom         -3   
+Dexterity      -2   
 Constitution   +1   
-Charisma       +2      
+Charisma       -4      
 Hit Dice       +1 side
 Exp penalty    +100%
-
-#####GStarting Equipment
-A vampiric character begins the game with:
-    Some scrolls of satisfy hunger
-    Some scrolls of light
-    Some scrolls of darkness
-

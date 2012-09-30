@@ -1,0 +1,68 @@
+|||||oy
+~~~~~01|Bard
+~~~~~02|Classes|Bard
+#####R=== Bards ===
+
+#####GDescription
+Bards are traditional musicians. Their magical attacks are sound-based, and 
+last as long as the Bard has mana. If the Bard runs out of mana, he/she stops
+singing. There is also a low-level "spell" that will cease the song.
+
+While any class can use musical instruments, only Bards can tap the 
+power of voice to aid themselves and hinder, dismay, and kill their 
+foes. 
+
+#####GMagic Usage
+
+In order to continue playing a song, mana is consumed each turn, until 
+either the 'Stop Singing' song is sung, or the player's mana runs out.
+
+Each song, as well as having a school level like any other magic spell also
+has a roman numeral following its name. The higher the number of these numerals,
+the more skillful the adventurer must be to play it.
+
+Each musical instrument has a value assigned to it as well, between 1 and 4. The
+higher the number, the better the craftmanship, and hence it will be possible
+for the bard to play higher level songs only with a more powerful instrument.
+Thus a Harp(+1) will allow you to cast "Stop Singing(I)" and "Song of the
+Sun(I)". A Harp(+2) would allow you to sing those songs, as well as "Flow of
+Life(II)".
+
+For information on song effects see the *****m_music.txt*0[Music Songs] file.
+
+#####GStarting Stat Modifiers
+Strength         +1
+Intelligence     -2
+Wisdom           +1
+Dexterity        +1
+Constitution     +0
+Charisma         +1
+Bonus Blows       0
+Hit Die          +d8
+Exp Penalty      40%
+
+#####GStarting Skills:
+#####BSkill                   Start Level     Skill Point Gains
+Combat                  1.000           [0.700]
+  Weaponmastery         1.000           [0.700]
+  Barehand-combat       1.000           [0.600]
+Sneakiness              1.000           [0.700]
+  Stealth               1.000           [0.700]
+  Disarming             1.000           [0.600]
+Magic                   1.000           [0.600]
+  Magic-Device          1.000           [1.000]
+Spirituality            1.000           [0.800]
+  Prayer                0.000           [0.500]
+  Music                 1.000           [0.800]
+Monster-lore            1.000           [1.100]
+  Summoning             0.000           [0.400]
+  Corpse-preservation   1.000           [0.700]
+  Symbiosis             0.000           [0.400]
+  Mimicry               0.000           [0.400]
+
+#####GStarting Equipment
+A Bard begins the game with:
+    A Harp (+1)
+    A short sword
+    A robe
+    A potion of Healing

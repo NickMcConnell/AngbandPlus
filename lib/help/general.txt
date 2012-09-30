@@ -9,7 +9,7 @@ Backspace      | Return to previous Help File
 Space          | Advance 1 page (screen)
 2, down arrow  | Advance 1 line
 8, up arrow    | Back up 1 line
--              | Back up 1 a page (screen)
+-              | Back up 1 page (screen)
 6, right arrow | Advance 1 link
 4, left arrow  | Back up 1 link
 Return         | Activate the selected link

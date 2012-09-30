@@ -4,8 +4,8 @@
 
 ############### Additional default terrain settings ###############
 
-# Default for Quest 1 = entrance is tree
-F:z:96:3
+# Default for Quest 1 = entrance is quest entrance
+F:z:8:3:0:0:0:0:0:4
 
 # Default for Quest 18 = entrance is tree
 F:y:96:3
@@ -13,9 +13,11 @@ F:y:96:3
 # Default for Quest 18 = entrance is tree
 F:x:96:3
 
-############### Quest 4 - Thieves Hideout ###############
-?:[EQU $QUEST4 1]
-F:z:8:3:0:0:0:0:0:4
+############### Quest 4 - Thieves Hideout finished = house ###############
+?:[EQU $QUEST4 2]
+F:z:74:3:0:0:0:0:0:7
+?:[EQU $QUEST4 5]
+F:z:74:3:0:0:0:0:0:7
 ?:1
 
 ############### Quest 8 - Troll Glade ###############
@@ -80,14 +82,14 @@ D:#------- x,   ,,                    OO                            ,CCTT...----
 D:#-------     {,                      OO                           ,CTT..---,,,,###6###,,,---,,--.--###########----..----------..--T^^^^   ^       ---  --                                            #
 D:#---------                            OOO                         ,CT..,,,,----,,,,,,,,------,,-.--###b###e###-....,---sssss---.--T^^   ^         --    --                                           #
 D:#----------                             OO                       ,CCT.,sssssss----,-----------,,.-----.-----....-,--,,-StSSS---.-T^^^   ^        --      -----                                       #
-D:#-------------                           OO                     ,CCTT.-StStSSS---,-----ssssss--..-----.--....--,,,,,,-,sssss---.-T^^^      ^      --         --             ,,z                      #
+D:#-------------                           OO                     ,CCTT.-StStSSS---,-----ssssss--..-----.--....--,,,,,,-,sssss---.-T^^^      ^      --         --             ,,,                      #
 D:#-----------                              OOOOO                 ,CTT-.-sssssss---,-----SSSSSS--.------.-..--,,,-ssss--,#####---.-T^^    ^         --          -----        ,,                        #
 D:#--------                                     OO               ,CCT-..-##5####----,----ssssss-..........--XXXX,-ssss--,------...-^^^  ^ ^^  ^    ---             ----    ,,,                         #
 D:#- ----                                        OOOOOOOO        ,C  OOOO--OOOOO----,----#c##4#-.---.,----,-UUUU,-SSSS--,-----..---^^   ^   ^     ---                 -----,             OOOOOOOOOOOOOO#
 D:#-  ----                                              OOOOOOO  ,CT-OssOOOO---OOOOOOOOO--OOOO--.-T-.-sss--,XXXX,-ssss---,---..--T^^              --                      --           OOO             #
 D:#-  -----                                                   OOOOOOOOSt.---------XXXX-OOOO--OOOO---.-StS--,#0##,-ssss---,---.---^^     ^  ^      --                       ---      OOOO               #
 D:#-     ---   -----                                           ,,CT--.ss.-sssss---XXXX,---------OOOO.-sss---,,,,,-####--,---..-T^^   ^ ^          --                         ---   OO                  #
-D:#    ----     ----                                           ,,CT--.B#.-SStSS---####,------------OO-#8#-ssssss-,,,---,----.--T^^   ^           -,-                           OOOOO                   #
+D:#    ----     ----                                           ,,CT--.B#.-SStSS---####,------------OO-#z#-ssssss-,,,---,----.--T^^   ^           -,-                           OOOOO                   #
 D:#  -------      ----                                         ,,CTT-....-sssss--,,,,,,-------------OO-,--SSSSSt-ss-,-,---...-T^^  ^ ^           -,                         OOOO                       #
 D:#    -------   ------                                        ,,CCTT---..#2###-,sssss,-SSSSSSSS-----OO,--ssssss-tS--,.....---^^ ^^     ^^^     -,                   OOOOOOOO                          #
 D:#   -----        -----                                        ,,CCT----..,,,,,-StSSS,-ssssssss------OOO-#1##a#-ss....-----T^^        ^^      -,-               OOOOO                                 #

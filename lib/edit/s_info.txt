@@ -36,7 +36,7 @@ F:RANDOM_GAIN
 
 N:54:Spell-learning
 D:You should not see that ! that is a BUG!
-A:18:Learn a spell from a realm
+#A:18:Learn a spell from a realm
 I:1000
 F:HIDDEN
 
@@ -133,13 +133,13 @@ D:Spells use the intelligence stat
 A:7:Use Necromancy
 I:1000
 F:RANDOM_GAIN
+G:60
 
 N:34:Runecraft
 D:Ability to combine magic runes to create your own spells
 D:Runespells use the dexterity stat
 A:9:Use Runespells
 I:1000
-F:RANDOM_GAIN
 
 N:43:Thaumaturgy
 D:Ability to gain and cast innate spells
@@ -159,6 +159,11 @@ N:45:Spell-power
 D:Ability to increase the power of spells
 I:1000
 
+N:59:Geomancy
+D:Ability to understand the raw elemental forces of nature and use
+D:them to your advantage. Most spells need Fire/Water/Earth/Air skills
+A:101:Use Geomancy
+I:1000
 
 # All magic skills affect magic skill
 f:Magic-Device:Magic%7
@@ -169,6 +174,10 @@ f:Fire:Magic%10
 f:Air:Magic%10
 f:Water:Magic%10
 f:Earth:Magic%10
+f:Geomancy:Fire%5
+f:Geomancy:Earth%5
+f:Geomancy:Air%5
+f:Geomancy:Water%5
 f:Conveyance:Magic%10
 f:Divination:Magic%10
 f:Nature:Magic%10
@@ -218,30 +227,38 @@ I:1000
 
 N:23:Archery
 D:General ability to use ranged weapons
-A:10:Forge ammo
 I:1000
 F:RANDOM_GAIN
 
 N:24:Sling-mastery
 D:Ability to use slings
+A:23:Fire piercing shots
 I:1000
 
 N:25:Bow-mastery
 D:Ability to use bows
+A:23:Fire piercing shots
 I:1000
 
 N:26:Crossbow-mastery
 D:Ability to use crossbows
+A:23:Fire piercing shots
 I:1000
 
 N:27:Boomerang-mastery
 D:Ability to use boomerangs
 I:1000
 
+N:58:Boulder-throwing
+D:Ability to make and throw boulders
+A:21:Tear down a wall to create boulders
+I:1000
+
 N:42:Barehand-combat
 D:Ability to fight barehanded
 I:1000
 F:RANDOM_GAIN
+G:70
 
 N:47:Bearform-combat
 D:Ability to fight in bear form
@@ -284,6 +301,7 @@ f:Bow-mastery:Combat%7
 f:Crossbow-mastery:Combat%7
 f:Boomerang-mastery:Combat%7
 f:Barehand-combat:Combat%50
+f:Boulder-throwing:Combat%40
 
 # No more, let's see how it turns out
 # Sorcery and Weaponmastery aren't exactly friendly to each other
@@ -321,14 +339,23 @@ D:Mindpowers use the wisdom stat
 A:2:Use Mindcraft
 I:1000
 F:RANDOM_GAIN
+G:50
+
+N:9:Music
+D:Ability to learn and sing songs
+D:Songs use the charisma stat
+A:17:Cast a spell
+I:1000
 
 f:Prayer:Spirituality%10
 f:Druidistic:Spirituality%10
 f:Mindcraft:Spirituality%10
+f:Music:Spirituality%10
 
 f:Prayer:Magic%10
 f:Druidistic:Magic%10
 f:Mindcraft:Magic%10
+f:Music:Magic%10
 
 
 ################################## MISC SKILLS ###############################
@@ -337,17 +364,12 @@ N:30:Misc
 D:Not a real skill, it is only used to regroup some skills
 I:0
 
-N:9:Music
-D:Ability to learn and sing songs
-D:Songs use the charisma stat
-A:17:Cast a spell
-I:1000
-
 N:33:Antimagic
 D:Ability to generates an antimagic field
 A:3:Use antimagic
 I:1000
 F:RANDOM_GAIN
+G:80
 
 N:39:Alchemy
 D:Ability to use essences to modify/create magic items
@@ -357,6 +379,7 @@ I:1000
 # Antimagic exclude all magic
 E:Magic-Device:Antimagic
 E:Mana:Antimagic
+E:Geomancy:Antimagic
 E:Fire:Antimagic
 E:Air:Antimagic
 E:Water:Antimagic
@@ -373,6 +396,7 @@ E:Demonology:Antimagic
 E:Runecraft:Antimagic
 E:Necromancy:Antimagic
 E:Mindcraft:Antimagic
+E:Music:Antimagic
 E:Prayer:Antimagic
 E:Druidistic:Antimagic
 E:Thaumaturgy:Antimagic
@@ -395,12 +419,6 @@ D:Ability to disarm the various traps
 I:0
 F:RANDOM_GAIN
 
-N:38:Trapping
-D:Ability to set monster traps
-A:14:Set trap
-I:0
-F:RANDOM_GAIN
-
 N:40:Stealing
 D:Ability to steal objects
 A:15:Steal object
@@ -413,7 +431,6 @@ I:0
 
 f:Stealth:Sneakiness%15
 f:Disarming:Sneakiness%10
-f:Trapping:Sneakiness%15
 f:Backstab:Sneakiness%5
 f:Stealing:Sneakiness%15
 f:Dodging:Sneakiness%10
@@ -425,6 +442,7 @@ N:48:Monster-lore
 D:General ability at the monster related skills, ability to gain experience
 D:from friendly kills. It also affects the number of companions you can have
 I:0
+A:22:Turn pet into companion
 F:RANDOM_GAIN
 
 N:44:Summoning
@@ -432,6 +450,7 @@ D:Ability to create totems from monsters and use them to summon monsters
 A:13:Manipulate totems
 I:1000
 F:RANDOM_GAIN
+G:60
 
 N:49:Corpse-preservation
 D:Ability to not destroy the monster corpse when killing them
@@ -448,12 +467,14 @@ D:Spells use the intelligence stat
 A:20:Use symbiotic powers
 I:1000
 F:RANDOM_GAIN
+G:70
 
 N:32:Mimicry
 D:Ability to use cloaks of mimicry to change form
 A:6:Use Mimicry
 I:1000
 F:RANDOM_GAIN
+G:80
 
 f:Possession:Monster-lore%10
 f:Corpse-preservation:Monster-lore%10
@@ -478,26 +499,22 @@ T:Archery:Crossbow-mastery
 T:Archery:Boomerang-mastery
 T:Combat:Barehand-combat
 T:Combat:Bearform-combat
+T:Combat:Boulder-throwing
 T:Combat:Antimagic
 
 T:Main:Sneakiness
 T:Sneakiness:Stealth
 T:Sneakiness:Disarming
-T:Sneakiness:Trapping
 T:Sneakiness:Backstab
 T:Sneakiness:Stealing
 T:Sneakiness:Dodging
 
 T:Main:Magic
 T:Magic:Magic-Device
-T:Magic:Spell-learning
 T:Magic:Spell-power
 T:Magic:Sorcery
 T:Magic:Mana
-T:Magic:Fire
-T:Magic:Water
-T:Magic:Air
-T:Magic:Earth
+T:Magic:Geomancy
 T:Magic:Meta
 T:Magic:Conveyance
 T:Magic:Divination
@@ -510,6 +527,11 @@ T:Magic:Necromancy
 T:Magic:Runecraft
 T:Magic:Thaumaturgy
 T:Magic:Alchemy
+
+T:Geomancy:Fire
+T:Geomancy:Water
+T:Geomancy:Air
+T:Geomancy:Earth
 
 T:Main:Spirituality
 T:Spirituality:Prayer

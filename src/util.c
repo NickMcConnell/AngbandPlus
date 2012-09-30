@@ -44,7 +44,7 @@ int stricmp(cptr a, cptr b)
 	{
 		z1 = FORCEUPPER(*s1);
 		z2 = FORCEUPPER(*s2);
-		if (z1 < z2) return (-1);
+		if (z1 < z2) return ( -1);
 		if (z1 > z2) return (1);
 		if (!z1) return (0);
 	}
@@ -64,14 +64,14 @@ int stricmp(cptr a, cptr b)
 */
 int usleep(huge usecs)
 {
-	struct timeval      Timer;
+	struct timeval Timer;
 
-	int                 nfds = 0;
+	int nfds = 0;
 
 #ifdef FD_SET
-	fd_set		*no_fds = NULL;
+	fd_set	*no_fds = NULL;
 #else
-	int			*no_fds = NULL;
+int	*no_fds = NULL;
 #endif
 
 
@@ -98,7 +98,7 @@ int usleep(huge usecs)
 	return 0;
 }
 
-# endif
+# endif 
 
 
 /*
@@ -192,16 +192,16 @@ void user_name(char *buf, int id)
 */
 errr path_parse(char *buf, int max, cptr file)
 {
-	cptr		u, s;
+	cptr	u, s;
 	struct passwd	*pw;
-	char		user[128];
+	char	user[128];
 
 
 	/* Assume no result */
 	buf[0] = '\0';
 
 	/* No file? */
-	if (!file) return (-1);
+	if (!file) return ( -1);
 
 	/* File needs no parsing */
 	if (file[0] != '~')
@@ -211,7 +211,7 @@ errr path_parse(char *buf, int max, cptr file)
 	}
 
 	/* Point at the user */
-	u = file+1;
+	u = file + 1;
 
 	/* Look for non-user portion of the file */
 	s = strstr(u, PATH_SEP);
@@ -284,7 +284,7 @@ errr path_temp(char *buf, int max)
 	s = tmpnam(NULL);
 
 	/* Oops */
-	if (!s) return (-1);
+	if (!s) return ( -1);
 
 	/* Format to length */
 	strnfmt(buf, max, "%s", s);
@@ -347,13 +347,34 @@ errr path_build(char *buf, int max, cptr path, cptr file)
 */
 FILE *my_fopen(cptr file, cptr mode)
 {
-	char                buf[1024];
+#ifndef MACH_O_CARBON
+
+	char buf[1024];
 
 	/* Hack -- Try to parse the path */
 	if (path_parse(buf, 1024, file)) return (NULL);
 
 	/* Attempt to fopen the file anyway */
 	return (fopen(buf, mode));
+
+#else /* MACH_O_CARBON */
+
+char buf[1024];
+FILE *s;
+
+/* Hack -- Try to parse the path */
+if (path_parse(buf, 1024, file)) return (NULL);
+
+/* Attempt to fopen the file anyway */
+s = fopen(buf, mode);
+
+/* Set creator and type if the file is successfully opened */
+if (s) fsetfileinfo(buf, _fcreator, _ftype);
+
+/*  Done */
+return (s);
+
+#endif /* MACH_O_CARBON */
 }
 
 
@@ -363,7 +384,7 @@ FILE *my_fopen(cptr file, cptr mode)
 errr my_fclose(FILE *fff)
 {
 	/* Require a file */
-	if (!fff) return (-1);
+	if (!fff) return ( -1);
 
 	/* Close, check for error */
 	if (fclose(fff) == EOF) return (1);
@@ -383,92 +404,92 @@ errr my_fclose(FILE *fff)
 */
 errr my_str_fgets(cptr full_text, char *buf, huge n)
 {
-        static huge last_read = 0;
-        static huge full_size;
+	static huge last_read = 0;
+	static huge full_size;
 	huge i = 0;
 
 	char *s;
 
-        char tmp[1024];
+	char tmp[1024];
 
-        /* Initialize */
-        if (!buf)
-        {
-                last_read = 0;
-                full_size = strlen(full_text);
-                return 0;
-        }
+	/* Initialize */
+	if (!buf)
+	{
+		last_read = 0;
+		full_size = strlen(full_text);
+		return 0;
+	}
 
-        /* The end!  */
-        if (last_read >= full_size)
-        {
-                return 1;
-        }
+	/* The end!  */
+	if (last_read >= full_size)
+	{
+		return 1;
+	}
 
-        while (last_read < full_size)
-        {
-                char c = full_text[last_read++];
+	while (last_read < full_size)
+	{
+		char c = full_text[last_read++];
 
-                tmp[i++] = c;
+		tmp[i++] = c;
 
-                /* Dont overflow */
-                if (i >= 1024)
-                {
-                        /* Nothing */
-                        buf[0] = '\0';
+		/* Dont overflow */
+		if (i >= 1024)
+		{
+			/* Nothing */
+			buf[0] = '\0';
 
-                        /* Failure */
-                        return (1);
-                }
+			/* Failure */
+			return (1);
+		}
 
-                if ((c == '\n') || (c == '\r'))
-                {
-                        break;
-                }
-        }
+		if ((c == '\n') || (c == '\r'))
+		{
+			break;
+		}
+	}
 
-        tmp[i++] = '\n';
-        tmp[i++] = '\0';
+	tmp[i++] = '\n';
+	tmp[i++] = '\0';
 
-        /* We need it again */
-        i = 0;
+	/* We need it again */
+	i = 0;
 
-        /* Convert weirdness */
-        for (s = tmp; *s; s++)
-        {
-                /* Handle newline */
-                if (*s == '\n')
-                {
-                        /* Terminate */
-                        buf[i] = '\0';
+	/* Convert weirdness */
+	for (s = tmp; *s; s++)
+	{
+		/* Handle newline */
+		if (*s == '\n')
+		{
+			/* Terminate */
+			buf[i] = '\0';
 
-                        /* Success */
-                        return (0);
-                }
+			/* Success */
+			return (0);
+		}
 
-                /* Handle tabs */
-                else if (*s == '\t')
-                {
-                        /* Hack -- require room */
-                        if (i + 8 >= n) break;
+		/* Handle tabs */
+		else if (*s == '\t')
+		{
+			/* Hack -- require room */
+			if (i + 8 >= n) break;
 
-                        /* Append a space */
-                        buf[i++] = ' ';
+			/* Append a space */
+			buf[i++] = ' ';
 
-                        /* Append some more spaces */
-                        while (!(i % 8)) buf[i++] = ' ';
-                }
+			/* Append some more spaces */
+			while (!(i % 8)) buf[i++] = ' ';
+		}
 
-                /* Handle printables */
-                else if (isprint(*s))
-                {
-                        /* Copy */
-                        buf[i++] = *s;
+		/* Handle printables */
+		else if (isprint(*s))
+		{
+			/* Copy */
+			buf[i++] = *s;
 
-                        /* Check length */
-                        if (i >= n) break;
-                }
-        }
+			/* Check length */
+			if (i >= n) break;
+		}
+	}
 
 	/* Nothing */
 	buf[0] = '\0';
@@ -591,10 +612,10 @@ extern long lseek(int, long, int);
 * The Macintosh is a little bit brain-dead sometimes
 */
 #ifdef MACINTOSH
-# define open(N,F,M) \
-((M), open((char*)(N),F))
-# define write(F,B,S) \
-write(F,(char*)(B),S)
+# define open(N, F, M) \
+((M), open((char*)(N), F))
+# define write(F, B, S) \
+write(F, (char*)(B), S)
 #endif /* MACINTOSH */
 
 
@@ -611,10 +632,10 @@ write(F,(char*)(B),S)
 */
 errr fd_kill(cptr file)
 {
-	char                buf[1024];
+	char buf[1024];
 
 	/* Hack -- Try to parse the path */
-	if (path_parse(buf, 1024, file)) return (-1);
+	if (path_parse(buf, 1024, file)) return ( -1);
 
 	/* Remove */
 	(void)remove(buf);
@@ -629,14 +650,14 @@ errr fd_kill(cptr file)
 */
 errr fd_move(cptr file, cptr what)
 {
-	char                buf[1024];
-	char                aux[1024];
+	char buf[1024];
+	char aux[1024];
 
 	/* Hack -- Try to parse the path */
-	if (path_parse(buf, 1024, file)) return (-1);
+	if (path_parse(buf, 1024, file)) return ( -1);
 
 	/* Hack -- Try to parse the path */
-	if (path_parse(aux, 1024, what)) return (-1);
+	if (path_parse(aux, 1024, what)) return ( -1);
 
 	/* Rename */
 	(void)rename(buf, aux);
@@ -651,14 +672,14 @@ errr fd_move(cptr file, cptr what)
 */
 errr fd_copy(cptr file, cptr what)
 {
-	char                buf[1024];
-	char                aux[1024];
+	char buf[1024];
+	char aux[1024];
 
 	/* Hack -- Try to parse the path */
-	if (path_parse(buf, 1024, file)) return (-1);
+	if (path_parse(buf, 1024, file)) return ( -1);
 
 	/* Hack -- Try to parse the path */
-	if (path_parse(aux, 1024, what)) return (-1);
+	if (path_parse(aux, 1024, what)) return ( -1);
 
 	/* Copy XXX XXX XXX */
 	/* (void)rename(buf, aux); */
@@ -683,10 +704,10 @@ errr fd_copy(cptr file, cptr what)
 */
 int fd_make(cptr file, int mode)
 {
-	char                buf[1024];
+	char buf[1024];
 
 	/* Hack -- Try to parse the path */
-	if (path_parse(buf, 1024, file)) return (-1);
+	if (path_parse(buf, 1024, file)) return ( -1);
 
 #ifdef BEN_HACK
 
@@ -701,8 +722,27 @@ int fd_make(cptr file, int mode)
 
 #else /* BEN_HACK */
 
-	/* Create the file, fail if exists, write-only, binary */
-	return (open(buf, O_CREAT | O_EXCL | O_WRONLY | O_BINARY, mode));
+#ifdef MACH_O_CARBON
+
+{
+int fdes;
+
+/* Create the file, fail if exists, write-only, binary */
+fdes = open(buf, O_CREAT | O_EXCL | O_WRONLY | O_BINARY, mode);
+
+/* Set creator and type if the file is successfully opened */
+if (fdes >= 0) fsetfileinfo(buf, _fcreator, _ftype);
+
+/* Return the descriptor */
+return (fdes);
+}
+
+#else /* MACH_O_CARBON */
+
+/* Create the file, fail if exists, write-only, binary */
+return (open(buf, O_CREAT | O_EXCL | O_WRONLY | O_BINARY, mode));
+
+#endif /* MACH_O_CARBON */
 
 #endif /* BEN_HACK */
 
@@ -716,13 +756,32 @@ int fd_make(cptr file, int mode)
 */
 int fd_open(cptr file, int flags)
 {
-	char                buf[1024];
+	char buf[1024];
 
 	/* Hack -- Try to parse the path */
-	if (path_parse(buf, 1024, file)) return (-1);
+	if (path_parse(buf, 1024, file)) return ( -1);
 
-	/* Attempt to open the file */
-	return (open(buf, flags | O_BINARY, 0));
+#ifdef MACH_O_CARBON
+
+	{
+		int fdes;
+
+		/* Attempt to open the file */
+		fdes = open(buf, flags | O_BINARY, 0);
+
+		/* Set creator and type if the file is successfully opened */
+		if (fdes >= 0) fsetfileinfo(buf, _fcreator, _ftype);
+
+		/* Return the descriptor */
+		return (fdes);
+	}
+
+#else /* MACH_O_CARBON */
+
+/* Attempt to open the file */
+return (open(buf, flags | O_BINARY, 0));
+
+#endif /* MACH_O_CARBON */
 }
 
 
@@ -737,13 +796,13 @@ errr fd_lock(int fd, int what)
 	what = what ? what : 0;
 
 	/* Verify the fd */
-	if (fd < 0) return (-1);
+	if (fd < 0) return ( -1);
 
 #ifdef SET_UID
 
 # ifdef USG
 
-#  if defined(F_ULOCK) && defined(F_LOCK)
+# if defined(F_ULOCK) && defined(F_LOCK)
 
 	/* Un-Lock */
 	if (what == F_UNLCK)
@@ -759,11 +818,11 @@ errr fd_lock(int fd, int what)
 		if (lockf(fd, F_LOCK, 0) != 0) return (1);
 	}
 
-#  endif
+# endif 
 
 # else
 
-#  if defined(LOCK_UN) && defined(LOCK_EX)
+# if defined(LOCK_UN) && defined(LOCK_EX)
 
 	/* Un-Lock */
 	if (what == F_UNLCK)
@@ -779,9 +838,9 @@ errr fd_lock(int fd, int what)
 		if (flock(fd, LOCK_EX) != 0) return (1);
 	}
 
-#  endif
+# endif 
 
-# endif
+# endif 
 
 #endif
 
@@ -798,7 +857,7 @@ errr fd_seek(int fd, huge n)
 	huge p;
 
 	/* Verify fd */
-	if (fd < 0) return (-1);
+	if (fd < 0) return ( -1);
 
 	/* Seek to the given position */
 	p = lseek(fd, n, SEEK_SET);
@@ -823,7 +882,7 @@ errr fd_chop(int fd, huge n)
 	n = n ? n : 0;
 
 	/* Verify the fd */
-	if (fd < 0) return (-1);
+	if (fd < 0) return ( -1);
 
 #if defined(SUNOS) || defined(ULTRIX) || defined(NeXT)
 	/* Truncate */
@@ -841,7 +900,7 @@ errr fd_chop(int fd, huge n)
 errr fd_read(int fd, char *buf, huge n)
 {
 	/* Verify the fd */
-	if (fd < 0) return (-1);
+	if (fd < 0) return ( -1);
 
 #ifndef SET_UID
 
@@ -874,7 +933,7 @@ errr fd_read(int fd, char *buf, huge n)
 errr fd_write(int fd, cptr buf, huge n)
 {
 	/* Verify the fd */
-	if (fd < 0) return (-1);
+	if (fd < 0) return ( -1);
 
 #ifndef SET_UID
 
@@ -907,7 +966,7 @@ errr fd_write(int fd, cptr buf, huge n)
 errr fd_close(int fd)
 {
 	/* Verify the fd */
-	if (fd < 0) return (-1);
+	if (fd < 0) return ( -1);
 
 	/* Close */
 	(void)close(fd);
@@ -983,7 +1042,7 @@ void move_cursor(int row, int col)
 */
 static char octify(uint i)
 {
-	return (hexsym[i%8]);
+	return (hexsym[i % 8]);
 }
 
 /*
@@ -991,7 +1050,7 @@ static char octify(uint i)
 */
 static char hexify(uint i)
 {
-	return (hexsym[i%16]);
+	return (hexsym[i % 16]);
 }
 
 
@@ -1026,7 +1085,7 @@ static int my_stricmp(cptr a, cptr b)
 	{
 		z1 = FORCEUPPER(*s1);
 		z2 = FORCEUPPER(*s2);
-		if (z1 < z2) return (-1);
+		if (z1 < z2) return ( -1);
 		if (z1 > z2) return (1);
 		if (!z1) return (0);
 	}
@@ -1042,7 +1101,7 @@ static int my_strnicmp(cptr a, cptr b, int n)
 	{
 		z1 = FORCEUPPER(*s1);
 		z2 = FORCEUPPER(*s2);
-		if (z1 < z2) return (-1);
+		if (z1 < z2) return ( -1);
 		if (z1 > z2) return (1);
 		if (!z1) return (0);
 	}
@@ -1062,7 +1121,7 @@ static void trigger_text_to_ascii(char **bufptr, cptr *strptr)
 
 	if (macro_template == NULL)
 		return;
-	
+
 	for (i = 0; macro_modifier_chr[i]; i++)
 		mod_status[i] = FALSE;
 	str++;
@@ -1070,11 +1129,11 @@ static void trigger_text_to_ascii(char **bufptr, cptr *strptr)
 	/* Examine modifier keys */
 	while (1)
 	{
-		for (i=0; macro_modifier_chr[i]; i++)
+		for (i = 0; macro_modifier_chr[i]; i++)
 		{
 			len = strlen(macro_modifier_name[i]);
-			
-			if(!my_strnicmp(str, macro_modifier_name[i], len))
+
+			if (!my_strnicmp(str, macro_modifier_name[i], len))
 				break;
 		}
 		if (!macro_modifier_chr[i]) break;
@@ -1102,7 +1161,7 @@ static void trigger_text_to_ascii(char **bufptr, cptr *strptr)
 			*s++ = (char)31;
 			*s++ = (char)13;
 			*bufptr = s;
-			*strptr = str; /* where **strptr == ']' */
+			*strptr = str;  /* where **strptr == ']' */
 		}
 		return;
 	}
@@ -1116,10 +1175,11 @@ static void trigger_text_to_ascii(char **bufptr, cptr *strptr)
 		char ch = macro_template[i];
 		int j;
 
-		switch(ch)
+		switch (ch)
 		{
 		case '&':
-			for (j = 0; macro_modifier_chr[j]; j++) {
+			for (j = 0; macro_modifier_chr[j]; j++)
+			{
 				if (mod_status[j])
 					*s++ = macro_modifier_chr[j];
 			}
@@ -1136,7 +1196,7 @@ static void trigger_text_to_ascii(char **bufptr, cptr *strptr)
 	*s++ = (char)13;
 
 	*bufptr = s;
-	*strptr = str; /* where **strptr == ']' */
+	*strptr = str;  /* where **strptr == ']' */
 	return;
 }
 
@@ -1161,14 +1221,14 @@ void text_to_ascii(char *buf, cptr str)
 			/* Skip the backslash */
 			str++;
 
-                        /* Macro Trigger */
- 			if (*str == '[')
- 			{
- 				trigger_text_to_ascii(&s, &str);
- 			}
+			/* Macro Trigger */
+			if (*str == '[')
+			{
+				trigger_text_to_ascii(&s, &str);
+			}
 
-                        /* Hex-mode XXX */
- 			else if (*str == 'x')
+			/* Hex-mode XXX */
+			else if (*str == 'x')
 			{
 				*s = 16 * dehex(*++str);
 				*s++ += dehex(*++str);
@@ -1292,14 +1352,14 @@ bool trigger_ascii_to_text(char **bufptr, cptr *strptr)
 		int j;
 		char ch = macro_template[i];
 
-		switch(ch)
+		switch (ch)
 		{
 		case '&':
 			while ((tmp = strchr(macro_modifier_chr, *str)))
 			{
 				j = (int)(tmp - macro_modifier_chr);
 				tmp = macro_modifier_name[j];
-				while(*tmp) *s++ = *tmp++;
+				while (*tmp) *s++ = *tmp++;
 				str++;
 			}
 			break;
@@ -1318,7 +1378,7 @@ bool trigger_ascii_to_text(char **bufptr, cptr *strptr)
 	for (i = 0; i < max_macrotrigger; i++)
 	{
 		if (!my_stricmp(key_code, macro_trigger_keycode[0][i])
-		    || !my_stricmp(key_code, macro_trigger_keycode[1][i]))
+		                || !my_stricmp(key_code, macro_trigger_keycode[1][i]))
 			break;
 	}
 	if (i == max_macrotrigger)
@@ -1328,7 +1388,7 @@ bool trigger_ascii_to_text(char **bufptr, cptr *strptr)
 	while (*tmp) *s++ = *tmp++;
 
 	*s++ = ']';
-	
+
 	*bufptr = s;
 	*strptr = str;
 	return TRUE;
@@ -1347,16 +1407,16 @@ void ascii_to_text(char *buf, cptr str)
 	{
 		byte i = (byte)(*str++);
 
- 		/* Macro Trigger */
- 		if (i == 31)
- 		{
- 			if(!trigger_ascii_to_text(&s, &str))
- 			{
- 				*s++ = '^';
- 				*s++ = '_';
- 			}
- 		}
- 		else if (i == ESCAPE)
+		/* Macro Trigger */
+		if (i == 31)
+		{
+			if (!trigger_ascii_to_text(&s, &str))
+			{
+				*s++ = '^';
+				*s++ = '_';
+			}
+		}
+		else if (i == ESCAPE)
 		{
 			*s++ = '\\';
 			*s++ = 'e';
@@ -1453,7 +1513,7 @@ sint macro_find_exact(cptr pat)
 	/* Nothing possible */
 	if (!macro__use[(byte)(pat[0])])
 	{
-		return (-1);
+		return ( -1);
 	}
 
 	/* Scan the macros */
@@ -1467,7 +1527,7 @@ sint macro_find_exact(cptr pat)
 	}
 
 	/* No matches */
-	return (-1);
+	return ( -1);
 }
 
 
@@ -1481,7 +1541,7 @@ static sint macro_find_check(cptr pat)
 	/* Nothing possible */
 	if (!macro__use[(byte)(pat[0])])
 	{
-		return (-1);
+		return ( -1);
 	}
 
 	/* Scan the macros */
@@ -1495,7 +1555,7 @@ static sint macro_find_check(cptr pat)
 	}
 
 	/* Nothing */
-	return (-1);
+	return ( -1);
 }
 
 
@@ -1509,7 +1569,7 @@ static sint macro_find_maybe(cptr pat)
 	/* Nothing possible */
 	if (!macro__use[(byte)(pat[0])])
 	{
-		return (-1);
+		return ( -1);
 	}
 
 	/* Scan the macros */
@@ -1526,7 +1586,7 @@ static sint macro_find_maybe(cptr pat)
 	}
 
 	/* Nothing */
-	return (-1);
+	return ( -1);
 }
 
 
@@ -1540,7 +1600,7 @@ static sint macro_find_ready(cptr pat)
 	/* Nothing possible */
 	if (!macro__use[(byte)(pat[0])])
 	{
-		return (-1);
+		return ( -1);
 	}
 
 	/* Scan the macros */
@@ -1585,7 +1645,7 @@ errr macro_add(cptr pat, cptr act)
 
 
 	/* Paranoia -- require data */
-	if (!pat || !act) return (-1);
+	if (!pat || !act) return ( -1);
 
 
 	/* Look for any existing macro */
@@ -1962,8 +2022,8 @@ char inkey(void)
 		/* Cancel the various "global parameters" */
 		inkey_base = inkey_xtra = inkey_flag = inkey_scan = FALSE;
 
-                /* Accept result */
-                macro_recorder_add(ch);
+		/* Accept result */
+		macro_recorder_add(ch);
 		return (ch);
 	}
 
@@ -1980,7 +2040,7 @@ char inkey(void)
 		inkey_base = inkey_xtra = inkey_flag = inkey_scan = FALSE;
 
 		/* Accept result */
-                macro_recorder_add(ch);
+		macro_recorder_add(ch);
 		return (ch);
 	}
 
@@ -2021,7 +2081,7 @@ char inkey(void)
 	{
 		/* Hack -- Handle "inkey_scan" */
 		if (!inkey_base && inkey_scan &&
-			(0 != Term_inkey(&kk, FALSE, FALSE)))
+		                (0 != Term_inkey(&kk, FALSE, FALSE)))
 		{
 			break;
 		}
@@ -2108,8 +2168,13 @@ char inkey(void)
 			/* Strip this key */
 			ch = 0;
 
-                        /* Hack -- always do an html dump */
-			do_cmd_html_dump();
+			if (!do_movies)
+				/* Do an html dump */
+				do_cmd_html_dump();
+			else
+				/* Do a text box in the cmovie */
+				do_cmovie_insert();
+
 
 			/* Continue */
 			continue;
@@ -2170,7 +2235,7 @@ char inkey(void)
 
 
 	/* Return the keypress */
-        macro_recorder_add(ch);
+	macro_recorder_add(ch);
 	return (ch);
 }
 
@@ -2499,7 +2564,7 @@ void message_add(byte type, cptr str, byte color)
 		message__tail = message__head + n + 1;
 
 		/* Advance tail while possible past first "nul" */
-		while (message__buf[message__tail-1]) message__tail++;
+		while (message__buf[message__tail - 1]) message__tail++;
 
 		/* Kill all "dead" messages */
 		for (i = message__last; TRUE; i++)
@@ -2512,7 +2577,7 @@ void message_add(byte type, cptr str, byte color)
 
 			/* Kill "dead" messages */
 			if ((message__ptr[i] >= message__head) &&
-				(message__ptr[i] < message__tail))
+			                (message__ptr[i] < message__tail))
 			{
 				/* Track oldest message */
 				message__last = i + 1;
@@ -2688,7 +2753,7 @@ void cmsg_print(byte color, cptr msg)
 
 	/* Handle "auto_more" */
 	if (auto_more)
-	{	
+	{
 		/* Window stuff */
 		p_ptr->window |= (PW_MESSAGE);
 
@@ -2745,7 +2810,8 @@ void cmsg_print(byte color, cptr msg)
 		t[--split] = ' ';
 
 		/* Prepare to recurse on the rest of "buf" */
-		t += split; n -= split;
+		t += split;
+		n -= split;
 	}
 
 
@@ -2899,7 +2965,7 @@ void c_prt(byte attr, cptr str, int row, int col)
 	Term_erase(col, row, 255);
 
 	/* Dump the attr/text */
-	Term_addstr(-1, attr, str);
+	Term_addstr( -1, attr, str);
 }
 
 /*
@@ -2913,40 +2979,42 @@ void prt(cptr str, int row, int col)
 
 
 
-
 /*
-* Print some (colored) text to the screen at the current cursor position,
-* automatically "wrapping" existing text (at spaces) when necessary to
-* avoid placing any text into the last column, and clearing every line
-* before placing any text in that line.  Also, allow "newline" to force
-* a "wrap" to the next line.  Advance the cursor as needed so sequential
-* calls to this function will work correctly.
-*
-* Once this function has been called, the cursor should not be moved
-* until all the related "c_roff()" calls to the window are complete.
-*
-* This function will correctly handle any width up to the maximum legal
-* value of 256, though it works best for a standard 80 character width.
-*/
-void (*c_roff)(byte a, cptr str) = c_roff_real;
-void c_roff_real(byte a, cptr str)
+ * Print some (colored) text to the screen at the current cursor position,
+ * automatically "wrapping" existing text (at spaces) when necessary to
+ * avoid placing any text into the last column, and clearing every line
+ * before placing any text in that line.  Also, allow "newline" to force
+ * a "wrap" to the next line.  Advance the cursor as needed so sequential
+ * calls to this function will work correctly.
+ *
+ * Once this function has been called, the cursor should not be moved
+ * until all the related "text_out()" calls to the window are complete.
+ *
+ * This function will correctly handle any width up to the maximum legal
+ * value of 256, though it works best for a standard 80 character width.
+ */
+void text_out_to_screen(byte a, cptr str)
 {
 	int x, y;
 
-	int w, h;
+	int wid, h;
+
+	int wrap;
 
 	cptr s;
 
 
-	/* Hack -- fake monochrome */
-	if (!use_color) a = TERM_WHITE;
-
-
 	/* Obtain the size */
-	(void)Term_get_size(&w, &h);
+	(void)Term_get_size(&wid, &h);
 
 	/* Obtain the cursor */
 	(void)Term_locate(&x, &y);
+
+	/* Use special wrapping boundary? */
+	if ((text_out_wrap > 0) && (text_out_wrap < wid))
+		wrap = text_out_wrap;
+	else
+		wrap = wid;
 
 	/* Process the string */
 	for (s = str; *s; s++)
@@ -2957,18 +3025,20 @@ void c_roff_real(byte a, cptr str)
 		if (*s == '\n')
 		{
 			/* Wrap */
-			x = 0;
+			x = text_out_indent;
 			y++;
 
 			/* Clear line, move cursor */
 			Term_erase(x, y, 255);
+
+			continue;
 		}
 
 		/* Clean up the char */
-		ch = (isprint(*s) ? *s : ' ');
+		ch = (isprint((unsigned char) * s) ? *s : ' ');
 
 		/* Wrap words as needed */
-		if ((x >= w - 1) && (ch != ' '))
+		if ((x >= wrap - 1) && (ch != ' '))
 		{
 			int i, n = 0;
 
@@ -2976,10 +3046,10 @@ void c_roff_real(byte a, cptr str)
 			char cv[256];
 
 			/* Wrap word */
-			if (x < w)
+			if (x < wrap)
 			{
 				/* Scan existing text */
-				for (i = w - 2; i >= 0; i--)
+				for (i = wrap - 2; i >= 0; i--)
 				{
 					/* Grab existing attr/char */
 					Term_what(i, y, &av[i], &cv[i]);
@@ -2993,26 +3063,26 @@ void c_roff_real(byte a, cptr str)
 			}
 
 			/* Special case */
-			if (n == 0) n = w;
+			if (n == 0) n = wrap;
 
 			/* Clear line */
 			Term_erase(n, y, 255);
 
 			/* Wrap */
-			x = 0;
+			x = text_out_indent;
 			y++;
 
 			/* Clear line, move cursor */
 			Term_erase(x, y, 255);
 
 			/* Wrap the word (if any) */
-			for (i = n; i < w - 1; i++)
+			for (i = n; i < wrap - 1; i++)
 			{
 				/* Dump */
 				Term_addch(av[i], cv[i]);
 
 				/* Advance (no wrap) */
-				if (++x > w) x = w;
+				if (++x > wrap) x = wrap;
 			}
 		}
 
@@ -3020,150 +3090,150 @@ void c_roff_real(byte a, cptr str)
 		Term_addch(a, ch);
 
 		/* Advance */
-		if (++x > w) x = w;
+		if (++x > wrap) x = wrap;
 	}
 }
 
-/* Same as c_roff, but to a file */
-FILE *c_roff_file_fff = NULL;
-int c_roff_file_x = 0;
-int c_roff_file_y = 0;
-int c_roff_file_tab = 0;
-bool c_roff_file_indent = TRUE;
-
-static void c_roff_file_tab_out()
-{
-        int i;
-
-        for (i = 0; i < c_roff_file_tab; i++)
-                fprintf(c_roff_file_fff, " ");
-}
-
-/* roff to a file */
-void c_roff_file(byte a, cptr str)
-{
-        const char *c;
-
-        for (c = str; *c; c++)
-        {
-                if (c_roff_file_x == 0)
-                {
-                        while (*c)
-                        {
-                                if (*c != ' ') break;
-                                c++;
-                        }
-                }
-                if (!*c)
-                        break;
-
-                if (*c == '\n')
-                {
-                        fprintf(c_roff_file_fff, "\n");
-                        c_roff_file_tab_out();
-                        if (c_roff_file_indent)
-                                fprintf(c_roff_file_fff, " ");
-                        c_roff_file_x = 0;
-                }
-                else
-                {
-                        fprintf(c_roff_file_fff, "%c", *c);
-                        c_roff_file_x++;
-                        if (c_roff_file_x > 65)
-                        {
-                                if (*c != ' ')
-                                {
-                                        c++;
-                                        while (*c)
-                                        {
-                                                if (*c == ' ') break;
-                                                if (*c == '\n') break;
-                                                fprintf(c_roff_file_fff, "%c", *c);
-                                                c++;
-                                        }
-                                        c--;
-                                }
-
-                                if (*(c + 1))
-                                {
-                                        fprintf(c_roff_file_fff, "\n");
-                                        c_roff_file_tab_out();
-                                        c_roff_file_x = 0;
-                                }
-                        }
-                }
-        }
-}
-
-/* roff to an html file */
-void c_roff_file_html(byte a, cptr str)
-{
-        const char *c;
-
-        fprintf(c_roff_file_fff, "<FONT COLOR=\"#%02X%02X%02X\">",
-                angband_color_table[a][1],
-                angband_color_table[a][2],
-                angband_color_table[a][3]);
-
-        for (c = str; *c; c++)
-        {
-                if (c_roff_file_x == 0)
-                {
-                        while (*c)
-                        {
-                                if (*c != ' ') break;
-                                c++;
-                        }
-                }
-                if (!*c)
-                        break;
-
-                if (*c == '\n')
-                {
-                        fprintf(c_roff_file_fff, "<BR>");
-                        c_roff_file_tab_out();
-                        if (c_roff_file_indent)
-                                fprintf(c_roff_file_fff, " ");
-                        c_roff_file_x = 0;
-                }
-                else
-                {
-                        fprintf(c_roff_file_fff, "%c", *c);
-                        c_roff_file_x++;
-                        if (c_roff_file_x > 65)
-                        {
-                                if (*c != ' ')
-                                {
-                                        c++;
-                                        while (*c)
-                                        {
-                                                if (*c == ' ') break;
-                                                if (*c == '\n') break;
-                                                fprintf(c_roff_file_fff, "%c", *c);
-                                                c++;
-                                        }
-                                        c--;
-                                }
-
-                                if (*(c + 1))
-                                {
-                                        fprintf(c_roff_file_fff, "\n");
-                                        c_roff_file_tab_out();
-                                        c_roff_file_x = 0;
-                                }
-                        }
-                }
-        }
-        fprintf(c_roff_file_fff, "</FONT>");
-}
 
 /*
-* As above, but in "white"
-*/
-void roff(cptr str)
+ * Write text to the given file and apply line-wrapping.
+ *
+ * Hook function for text_out(). Make sure that text_out_file points
+ * to an open text-file.
+ *
+ * Long lines will be wrapped at text_out_wrap, or at column 75 if that
+ * is not set; or at a newline character.
+ *
+ * You must be careful to end all file output with a newline character
+ * to "flush" the stored line position.
+ */
+void text_out_to_file(byte a, cptr str)
 {
-	/* Spawn */
-	c_roff(TERM_WHITE, str);
+	/* Current position on the line */
+	static int pos = 0;
+
+	/* Wrap width */
+	int wrap = (text_out_wrap ? text_out_wrap : 75);
+
+	/* Current location within "str" */
+	cptr s = str;
+
+	/* Unused parameter */
+	(void)a;
+
+	/* Process the string */
+	while (*s)
+	{
+		char ch;
+		int n = 0;
+		int len = wrap - pos;
+		int l_space = 0;
+
+		/* If we are at the start of the line... */
+		if (pos == 0)
+		{
+			int i;
+
+			/* Output the indent */
+			for (i = 0; i < text_out_indent; i++)
+			{
+				fputc(' ', text_out_file);
+				pos++;
+			}
+		}
+
+		/* Find length of line up to next newline or end-of-string */
+		while ((n < len) && !((s[n] == '\n') || (s[n] == '\0')))
+		{
+			/* Mark the most recent space in the string */
+			if (s[n] == ' ') l_space = n;
+
+			/* Increment */
+			n++;
+		}
+
+		/* If we have encountered no spaces */
+		if ((l_space == 0) && (n == len))
+		{
+			/* If we are at the start of a new line */
+			if (pos == text_out_indent)
+			{
+				len = n;
+			}
+			else
+			{
+				/* Begin a new line */
+				fputc('\n', text_out_file);
+
+				/* Reset */
+				pos = 0;
+
+				continue;
+			}
+		}
+		else
+		{
+			/* Wrap at the newline */
+			if ((s[n] == '\n') || (s[n] == '\0')) len = n;
+
+			/* Wrap at the last space */
+			else len = l_space;
+		}
+
+		/* Write that line to file */
+		for (n = 0; n < len; n++)
+		{
+			/* Ensure the character is printable */
+			ch = (isprint(s[n]) ? s[n] : ' ');
+
+			/* Write out the character */
+			fputc(ch, text_out_file);
+
+			/* Increment */
+			pos++;
+		}
+
+		/* Move 's' past the stuff we've written */
+		s += len;
+
+		/* If we are at the end of the string, end */
+		if (*s == '\0') return;
+
+		/* Skip newlines */
+		if (*s == '\n') s++;
+
+		/* Begin a new line */
+		fputc('\n', text_out_file);
+
+		/* Reset */
+		pos = 0;
+
+		/* Skip whitespace */
+		while (*s == ' ') s++;
+	}
+
+	/* We are done */
+	return;
+}
+
+
+/*
+ * Output text to the screen or to a file depending on the selected
+ * text_out hook.
+ */
+void text_out(cptr str)
+{
+	text_out_c(TERM_WHITE, str);
+}
+
+
+/*
+ * Output text to the screen (in color) or to a file depending on the
+ * selected hook.
+ */
+void text_out_c(byte a, cptr str)
+{
+	text_out_hook(a, str);
 }
 
 
@@ -3184,7 +3254,7 @@ void clear_from(int row)
 	}
 }
 
-/* 
+/*
  * Try to find a matching command completion.
  * Note that this is not so friendly since it doesn't give
  * a list of possible completions.
@@ -3203,32 +3273,32 @@ static int complete_command(char *buf, int clen, int mlen)
 	complete_buf[clen] = '\0';
 
 	for (i = 0; i < cli_total; i++)
-		{
-		cli_comm *cli_ptr = cli_info+i;
+	{
+		cli_comm *cli_ptr = cli_info + i;
 
 		if (!strncmp(cli_ptr->comm, complete_buf, clen))
 		{
 			Term_erase(0, j, 80);
 			Term_putstr(0, j++, -1, TERM_WHITE, cli_ptr->comm);
 
-                        /* For the first match, copy the whole string to buf. */
-                        if (!gotone)
-                        {
+			/* For the first match, copy the whole string to buf. */
+			if (!gotone)
+			{
 				sprintf(buf, "%.*s", mlen, cli_ptr->comm);
 				gotone = TRUE;
 			}
 			/* For later matches, simply notice how much of buf it
 			 * matches. */
-                        else
-                        {
-                                for (max = clen; max < mlen; max++)
-                                {
-                                        if (cli_ptr->comm[max] == '\0') break;
-                                        if (cli_ptr->comm[max] != buf[max]) break;
-                                }
-                                if (max < mlen) buf[max] = '\0';
-                        }
-                }
+			else
+			{
+				for (max = clen; max < mlen; max++)
+				{
+					if (cli_ptr->comm[max] == '\0') break;
+					if (cli_ptr->comm[max] != buf[max]) break;
+				}
+				if (max < mlen) buf[max] = '\0';
+			}
+		}
 	}
 
 	return strlen(buf) + 1;
@@ -3770,7 +3840,7 @@ void request_command(int shopping)
 		{
 			/* Get a real command */
 			(void)get_com("Command: ", &cmd_char);
-			
+
 			cmd = cmd_char;
 
 			/* Hack -- bypass keymaps */
@@ -3828,15 +3898,14 @@ void request_command(int shopping)
 
 	/* Shopping */
 	if (shopping == 1)
-	{
-	}
+	{}
 
 	/* Hack -- Scan equipment */
 	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
 	{
 		cptr s;
 
-		object_type *o_ptr = &inventory[i];
+		object_type *o_ptr = &p_ptr->inventory[i];
 
 		/* Skip non-objects */
 		if (!o_ptr->k_idx) continue;
@@ -3914,8 +3983,8 @@ bool is_a_vowel(int ch)
 */
 static bool insert_str(char *buf, cptr target, cptr insert)
 {
-	int   i, len;
-	int		   b_len, t_len, i_len;
+	int i, len;
+	int	b_len, t_len, i_len;
 
 	/* Attempt to find the target (modify "buf") */
 	buf = strstr(buf, target);
@@ -3937,17 +4006,17 @@ static bool insert_str(char *buf, cptr target, cptr insert)
 	/* We need less space (for insert) */
 	if (len < 0)
 	{
-		for (i = t_len; i < b_len; ++i) buf[i+len] = buf[i];
+		for (i = t_len; i < b_len; ++i) buf[i + len] = buf[i];
 	}
 
 	/* We need more space (for insert) */
 	else if (len > 0)
 	{
-		for (i = b_len-1; i >= t_len; --i) buf[i+len] = buf[i];
+		for (i = b_len - 1; i >= t_len; --i) buf[i + len] = buf[i];
 	}
 
 	/* If movement occured, we need a new terminator */
-	if (len) buf[b_len+len] = '\0';
+	if (len) buf[b_len + len] = '\0';
 
 	/* Now copy the insertion string */
 	for (i = 0; i < i_len; ++i) buf[i] = insert[i];
@@ -4062,13 +4131,13 @@ bool repeat_pull(int *what)
 
 void repeat_check(void)
 {
-	int             what;
+	int what;
 
-    /* Ignore some commands */
-    if (command_cmd == ESCAPE) return;
-    if (command_cmd == ' ') return;
-    if (command_cmd == '\r') return;
-    if (command_cmd == '\n') return;
+	/* Ignore some commands */
+	if (command_cmd == ESCAPE) return;
+	if (command_cmd == ' ') return;
+	if (command_cmd == '\r') return;
+	if (command_cmd == '\n') return;
 
 	/* Repeat Last Command */
 	if (command_cmd == 'n')
@@ -4218,11 +4287,11 @@ void get_count(int number, int max)
 
 byte count_bits(u32b array)
 {
-	byte k = 0, i;        
+	byte k = 0, i;
 
-	if(array)
-		for(i = 0; i < 32; i++)
-			if(array & (1 << i)) k++;
+	if (array)
+		for (i = 0; i < 32; i++)
+			if (array & (1 << i)) k++;
 
 	return k;
 }
@@ -4232,9 +4301,9 @@ void strlower(char *buf)
 {
 	byte i = 0;
 
-	while((buf[i] != 0) && (i < 256))
+	while ((buf[i] != 0) && (i < 256))
 	{
-		if(isupper(buf[i])) buf[i] = tolower(buf[i]);
+		if (isupper(buf[i])) buf[i] = tolower(buf[i]);
 
 		i++;
 	}
@@ -4248,10 +4317,10 @@ void strlower(char *buf)
 
 int test_monster_name(cptr name)
 {
-       int i;
+	int i;
 
-       /* Scan the monsters (except the ghost) */
-	for (i = 1; i < max_r_idx - 1; i++)
+	/* Scan the monsters */
+	for (i = 1; i < max_r_idx; i++)
 	{
 		monster_race *r_ptr = &r_info[i];
 		cptr mon_name = r_name + r_ptr->name;
@@ -4263,9 +4332,9 @@ int test_monster_name(cptr name)
 }
 int test_mego_name(cptr name)
 {
-       int i;
+	int i;
 
-	/* Scan the monsters (except the ghost) */
+	/* Scan the monsters */
 	for (i = 1; i < max_re_idx; i++)
 	{
 		monster_ego *re_ptr = &re_info[i];
@@ -4285,18 +4354,18 @@ int test_mego_name(cptr name)
 
 int test_item_name(cptr name)
 {
-       int i;
+	int i;
 
-       /* Scan the items */
-       for (i = 1; i < max_k_idx; i++)
-       {
+	/* Scan the items */
+	for (i = 1; i < max_k_idx; i++)
+	{
 		object_kind *k_ptr = &k_info[i];
 		cptr obj_name = k_name + k_ptr->name;
 
 		/* If name matches, give us the number */
 		if (stricmp(name, obj_name) == 0) return (i);
-       }
-       return (0);
+	}
+	return (0);
 }
 
 /*
@@ -4308,18 +4377,18 @@ s32b bst(s32b what, s32b t)
 
 	switch (what)
 	{
-		case MINUTE:
-			return ((turns / 10 / MINUTE) % 60);
-		case HOUR:
-			return (turns / 10 / (HOUR) % 24);
-		case DAY:
-			return (turns / 10 / (DAY) % 365);
-		case YEAR:
-			return (turns / 10 / (YEAR));
-		default:
-			return (0);
+	case MINUTE:
+		return ((turns / 10 / MINUTE) % 60);
+	case HOUR:
+		return (turns / 10 / (HOUR) % 24);
+	case DAY:
+		return (turns / 10 / (DAY) % 365);
+	case YEAR:
+		return (turns / 10 / (YEAR));
+	default:
+		return (0);
 	}
-}	    
+}
 
 cptr get_month_name(int day, bool full, bool compact)
 {
@@ -4335,8 +4404,8 @@ cptr get_month_name(int day, bool full, bool compact)
 	switch (i)
 	{
 		/* Yestare/Mettare */
-		case 0:
-		case 8:
+	case 0:
+	case 8:
 		{
 			char buf2[20];
 
@@ -4346,7 +4415,7 @@ cptr get_month_name(int day, bool full, bool compact)
 			break;
 		}
 		/* 'Normal' months + Enderi */
-		default:
+	default:
 		{
 			char buf2[20];
 			char buf3[20];
@@ -4501,8 +4570,8 @@ void build_gamma_table(int gamma)
  */
 int ask_menu(cptr ask, char **items, int max)
 {
-        int ret = -1, i, start = 0;
-        char c;
+	int ret = -1, i, start = 0;
+	char c;
 
 	/* Enter "icky" mode */
 	character_icky = TRUE;
@@ -4512,53 +4581,53 @@ int ask_menu(cptr ask, char **items, int max)
 
 	while (TRUE)
 	{
-                /* Display list */
-                Term_load();
-                Term_save();
-                prt(ask, 0, 0);
-                for (i = start; (i < max) && (i < start + 20); i++)
-                {
-                        prt(format("%c) %s", I2A(i - start), items[i]), i - start + 1, 0);
-                }
+		/* Display list */
+		Term_load();
+		Term_save();
+		prt(ask, 0, 0);
+		for (i = start; (i < max) && (i < start + 20); i++)
+		{
+			prt(format("%c) %s", I2A(i - start), items[i]), i - start + 1, 0);
+		}
 
 		/* Wait for user input */
 		c = inkey();
 
-                /* Leave the screen */
-                if (c == ESCAPE) break;
+		/* Leave the screen */
+		if (c == ESCAPE) break;
 
-                /* Scroll */
-                else if (c == '+')
-                {
-                        if (start + 20 < max)
-                                start += 20;
-                        continue;
-                }
+		/* Scroll */
+		else if (c == '+')
+		{
+			if (start + 20 < max)
+				start += 20;
+			continue;
+		}
 
-                /* Scroll */
-                else if (c == '-')
-                {
-                        start -= 20;
-                        if (start < 0) start = 0;
-                        continue;
-                }
+		/* Scroll */
+		else if (c == '-')
+		{
+			start -= 20;
+			if (start < 0) start = 0;
+			continue;
+		}
 
-                /* Good selection */
+		/* Good selection */
 		else
 		{
-                        c = tolower(c);
-                        if (A2I(c) + start >= max)
+			c = tolower(c);
+			if (A2I(c) + start >= max)
 			{
 				bell();
 				continue;
 			}
-                        if (A2I(c) + start < 0)
+			if (A2I(c) + start < 0)
 			{
 				bell();
 				continue;
 			}
 
-                        ret = A2I(c) + start;
+			ret = A2I(c) + start;
 			break;
 		}
 	}
@@ -4569,7 +4638,7 @@ int ask_menu(cptr ask, char **items, int max)
 	/* Leave "icky" mode */
 	character_icky = FALSE;
 
-        return ret;
+	return ret;
 }
 
 /*
@@ -4600,12 +4669,12 @@ bool prefix(cptr s, cptr t)
  */
 s32b value_scale(int value, int vmax, int max, int min)
 {
-        s32b full_max = max - min;
+	s32b full_max = max - min;
 
-        value = (value * full_max) / vmax;
-        value += min;
+	value = (value * full_max) / vmax;
+	value += min;
 
-        return value;
+	return value;
 }
 
 /*
@@ -4613,27 +4682,26 @@ s32b value_scale(int value, int vmax, int max, int min)
  */
 void draw_box(int y, int x, int h, int w)
 {
-        int i, j;
+	int i, j;
 
-        for (i = x + 1; i < x + w - 1; i++)
-                for (j = y + 1; j < y + h - 1; j++)
-                        Term_putch(i, j, TERM_L_BLUE, ' ');
+	for (i = x + 1; i < x + w; i++)
+		for (j = y + 1; j < y + h; j++)
+			Term_putch(i, j, TERM_L_BLUE, ' ');
 
-
-        for (i = x; i < x + w; i++)
-        {
-                c_put_str(TERM_L_BLUE, "-", y, i);
-                c_put_str(TERM_L_BLUE, "-", y + h, i);
-        }
-        for (i = y; i < y + h; i++)
-        {
-                c_put_str(TERM_L_BLUE, "|", i, x);
-                c_put_str(TERM_L_BLUE, "|", i, x + w);
-        }
-        Term_putch(x, y, TERM_L_BLUE, '/');
-        Term_putch(x + w, y, TERM_L_BLUE, '\\');
-        Term_putch(x, y + h, TERM_L_BLUE, '\\');
-        Term_putch(x + w, y + h, TERM_L_BLUE, '/');
+	for (i = x; i < x + w; i++)
+	{
+		c_put_str(TERM_L_BLUE, "-", y, i);
+		c_put_str(TERM_L_BLUE, "-", y + h, i);
+	}
+	for (i = y; i < y + h; i++)
+	{
+		c_put_str(TERM_L_BLUE, "|", i, x);
+		c_put_str(TERM_L_BLUE, "|", i, x + w);
+	}
+	Term_putch(x, y, TERM_L_BLUE, '/');
+	Term_putch(x + w, y, TERM_L_BLUE, '\\');
+	Term_putch(x, y + h, TERM_L_BLUE, '\\');
+	Term_putch(x + w, y + h, TERM_L_BLUE, '/');
 }
 
 
@@ -4642,20 +4710,20 @@ void draw_box(int y, int x, int h, int w)
  */
 void display_list(int y, int x, int h, int w, cptr title, cptr *list, int max, int begin, int sel, byte sel_color)
 {
-        int i;
+	int i;
 
-        draw_box(y, x, h, w);
-        c_put_str(TERM_L_BLUE, title, y, x + ((w - strlen(title)) / 2));
+	draw_box(y, x, h, w);
+	c_put_str(TERM_L_BLUE, title, y, x + ((w - strlen(title)) / 2));
 
-        for (i = 0; i < h - 1; i++)
-        {
-                byte color = TERM_WHITE;
+	for (i = 0; i < h - 1; i++)
+	{
+		byte color = TERM_WHITE;
 
-                if (i + begin >= max) break;
+		if (i + begin >= max) break;
 
-                if (i + begin == sel) color = sel_color;
-                c_put_str(color, list[i + begin], y + 1 + i, x + 1);
-        }
+		if (i + begin == sel) color = sel_color;
+		c_put_str(color, list[i + begin], y + 1 + i, x + 1);
+	}
 }
 
 /*
@@ -4663,29 +4731,83 @@ void display_list(int y, int x, int h, int w, cptr title, cptr *list, int max, i
  */
 bool input_box(cptr text, int y, int x, char *buf, int max)
 {
-        int smax;
+	int smax;
 
-        if (max < strlen(text)) smax = strlen(text) + 1;
-        else smax = max + 1;
+	if (max < strlen(text)) smax = strlen(text) + 1;
+	else smax = max + 1;
 
-        draw_box(y - 1, x - (smax / 2), 3, smax);
-        c_put_str(TERM_WHITE, text, y, x - (strlen(text) / 2));
+	draw_box(y - 1, x - (smax / 2), 3, smax);
+	c_put_str(TERM_WHITE, text, y, x - (strlen(text) / 2));
 
-        Term_gotoxy(x - (smax / 2) + 1, y + 1);
-        return askfor_aux(buf, max);
+	Term_gotoxy(x - (smax / 2) + 1, y + 1);
+	return askfor_aux(buf, max);
 }
 /*
  * Creates a msg bbox and ask a question
  */
 char msg_box(cptr text, int y, int x)
 {
-        draw_box(y - 1, x - ((strlen(text) + 1) / 2), 2, strlen(text) + 1);
-        c_put_str(TERM_WHITE, text, y, x - ((strlen(text) + 1) / 2) + 1);
-        return inkey();
+	if (x == -1)
+	{
+		int wid = 0, hgt = 0;
+		Term_get_size(&wid, &hgt);
+		x = wid / 2;
+		y = hgt / 2;
+	}
+
+	draw_box(y - 1, x - ((strlen(text) + 1) / 2), 2, strlen(text) + 1);
+	c_put_str(TERM_WHITE, text, y, x - ((strlen(text) + 1) / 2) + 1);
+	return inkey();
 }
 
 /* Rescale a value */
 s32b rescale(s32b x, s32b max, s32b new_max)
 {
-        return (x * new_max) / max;
+	return (x * new_max) / max;
+}
+
+/* Nicer wrapper around TERM_XTRA_SCANSUBDIR */
+void scansubdir(cptr dir)
+{
+	strnfmt(scansubdir_dir, 1024, "%s", dir);
+	Term_xtra(TERM_XTRA_SCANSUBDIR, 0);
+}
+
+/*
+ * Timers
+ */
+timer_type *new_timer(cptr callback, s32b delay)
+{
+	timer_type *t_ptr;
+
+	MAKE(t_ptr, timer_type);
+	t_ptr->next = gl_timers;
+	gl_timers = t_ptr;
+
+	t_ptr->callback = string_make(callback);
+	t_ptr->delay = delay;
+	t_ptr->countdown = delay;
+	t_ptr->enabled = FALSE;
+
+	return t_ptr;
+}
+
+void del_timer(timer_type *t_ptr)
+{
+	timer_type *i, *old;
+
+	old = NULL;
+	for (i = gl_timers; (i != NULL) && (i != t_ptr); old = i, i = i->next)
+		;
+	if (i)
+	{
+		if (old == NULL)
+			gl_timers = t_ptr->next;
+		else
+			old->next = t_ptr->next;
+		string_free(t_ptr->callback);
+		FREE(t_ptr, timer_type);
+	}
+	else
+		cmsg_print(TERM_VIOLET, "Unknown timer!");
 }

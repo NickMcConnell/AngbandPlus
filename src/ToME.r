@@ -35,7 +35,7 @@ type AngbandSignature as 'STR ';
 
 resource AngbandSignature (0, "Owner resource", purgeable)
 {
-	"T.o.M.E. 2.0.0"
+	"T.o.M.E. 2.1.0"
 };
 
 
@@ -266,6 +266,9 @@ resource 'MENU' (129, preload)
 
 		/* item #3 (was #6) */
 		"-", noicon, nokey, nomark, plain;
+
+		/* item #4 (was #7) */
+		"Score", noicon, "H", nomark, plain;
 
 		/* item #4 (was #7) */
 		"Exit", noicon, "E", nomark, plain;
@@ -687,7 +690,7 @@ resource 'DITL' (128, purgeable)
 			disabled,
 
 			/* title */
-			"T.o.M.E. 2.0.0"
+			"T.o.M.E. 2.1.0"
 		},
 
 		/** item #3 **/

@@ -23,7 +23,7 @@ void wiz_inc_monster_level(int level)
 	monster_type *m_ptr;
 	int ii, jj;
 
-	if (!tgt_pt(&ii,&jj)) return;
+	if (!tgt_pt(&ii, &jj)) return;
 
 	if (cave[jj][ii].m_idx)
 	{
@@ -39,7 +39,7 @@ void wiz_align_monster(int status)
 	monster_type *m_ptr;
 	int ii, jj;
 
-	if (!tgt_pt(&ii,&jj)) return;
+	if (!tgt_pt(&ii, &jj)) return;
 
 	if (cave[jj][ii].m_idx)
 	{
@@ -68,9 +68,9 @@ void teleport_player_town(int town)
 	dun_level = 0;
 	p_ptr->town_num = town;
 
-	for(x = 0; x < max_wild_x; x++)
-		for(y = 0; y < max_wild_y; y++)
-			if(p_ptr->town_num == wf_info[wild_map[y][x].feat].entrance) goto finteletown;
+	for (x = 0; x < max_wild_x; x++)
+		for (y = 0; y < max_wild_y; y++)
+			if (p_ptr->town_num == wf_info[wild_map[y][x].feat].entrance) goto finteletown;
 finteletown:
 	p_ptr->wilderness_y = y;
 	p_ptr->wilderness_x = x;
@@ -96,7 +96,7 @@ void do_cmd_rerate(void)
 
 	for (fubar = 0; fubar < max_k_idx; fubar++)
 	{
-		if ((k_info[fubar].tval == TV_POTION)||(k_info[fubar].tval == TV_POTION2))
+		if ((k_info[fubar].tval == TV_POTION) || (k_info[fubar].tval == TV_POTION2))
 		{
 			k_info[fubar].x_attr = 0xBC;
 			mlk++;
@@ -129,11 +129,11 @@ void do_cmd_rerate(void)
 
 		/* Legal values */
 		if ((player_hp[PY_MAX_LEVEL - 1] >= min_value) &&
-		    (player_hp[PY_MAX_LEVEL - 1] <= max_value)) break;
+		                (player_hp[PY_MAX_LEVEL - 1] <= max_value)) break;
 	}
 
 	percent = (int)(((long)player_hp[PY_MAX_LEVEL - 1] * 200L) /
-			(p_ptr->hitdie + ((PY_MAX_LEVEL - 1) * p_ptr->hitdie)));
+	                (p_ptr->hitdie + ((PY_MAX_LEVEL - 1) * p_ptr->hitdie)));
 
 	/* Update and redraw hitpoints */
 	p_ptr->update |= (PU_HP);
@@ -160,16 +160,16 @@ static void wiz_create_named_art()
 {
 	object_type forge;
 	object_type *q_ptr;
-	int i,a_idx;
-	cptr p="Number of the artifact :";
+	int i, a_idx;
+	cptr p = "Number of the artifact :";
 	char out_val[80];
 	artifact_type *a_ptr;
 
 	if (!get_string(p, out_val, 4)) return;
-	a_idx = atoi(out_val);                                
+	a_idx = atoi(out_val);
 
-/* Return if out-of-bounds */
-if ((a_idx <= 0) || (a_idx >= max_a_idx)) return;
+	/* Return if out-of-bounds */
+	if ((a_idx <= 0) || (a_idx >= max_a_idx)) return;
 
 	a_ptr = &a_info[a_idx];
 
@@ -219,7 +219,7 @@ if ((a_idx <= 0) || (a_idx >= max_a_idx)) return;
 	object_flags(q_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
 
 	/* Hack give a basic exp/exp level to an object that needs it */
-	if(f4 & TR4_LEVELS)
+	if (f4 & TR4_LEVELS)
 	{
 		q_ptr->elevel = (k_ptr->level / 10) + 1;
 		q_ptr->exp = player_exp[q_ptr->elevel - 1];
@@ -231,8 +231,16 @@ if ((a_idx <= 0) || (a_idx >= max_a_idx)) return;
 #else
 	apply_magic(q_ptr, -1, TRUE, TRUE, TRUE);
 #endif
+
+	/* Identify it fully */
+	object_aware(q_ptr);
+	object_known(q_ptr);
+
+	/* Mark the item as fully known */
+	q_ptr->ident |= (IDENT_MENTAL);
+
 	/* Drop the artifact from heaven */
-	drop_near(q_ptr, -1, py, px);
+	drop_near(q_ptr, -1, p_ptr->py, p_ptr->px);
 
 	/* All done */
 	msg_print("Allocated.");
@@ -241,16 +249,30 @@ if ((a_idx <= 0) || (a_idx >= max_a_idx)) return;
 /*
  * Hack -- quick debugging hook
  */
-void do_cmd_wiz_hack_ben(int day)
+void do_cmd_wiz_hack_ben(int num)
 {
+	s32b a;
+
+	/*        MAKE(r_ptr, monster_race);
+	        COPY(r_ptr, &r_info[500], monster_race);
+	 
+	        r_ptr->level = 1;
+	        r_ptr->flags6 |= RF6_BLINK;
+	        r_ptr->freq_inate = r_ptr->freq_spell = 90;
+	 
+	        place_monster_one_race = r_ptr;
+	        place_monster_one(p_ptr->py - 1, p_ptr->px, 500, 0, TRUE, MSTATUS_PET);*/
+
+	get_lua_var("a", 'd', &a);
+	msg_format("a: %d", a);
+
 	/* Success */
 	return;
 }
 
-#ifdef USE_LUA
 void do_cmd_lua_script()
 {
-	char script[80]="tome_dofile(\"gen_idx.lua\")";
+	char script[80] = "tome_dofile_anywhere(ANGBAND_DIR_CORE, 'gen_idx.lua')";
 
 	if (!get_string("Script:", script, 80)) return;
 
@@ -259,7 +281,6 @@ void do_cmd_lua_script()
 	/* Success */
 	return;
 }
-#endif
 
 
 #ifdef MONSTER_HORDES
@@ -267,12 +288,12 @@ void do_cmd_lua_script()
 /* Summon a horde of monsters */
 static void do_cmd_summon_horde()
 {
-	int wy = py, wx = px;
+	int wy = p_ptr->py, wx = p_ptr->px;
 	int attempts = 1000;
 
 	while (--attempts)
 	{
-		scatter(&wy, &wx, py, px, 3, 0);
+		scatter(&wy, &wx, p_ptr->py, p_ptr->px, 3, 0);
 		if (cave_naked_bold(wy, wx)) break;
 	}
 
@@ -287,8 +308,8 @@ static void do_cmd_summon_horde()
  */
 static void prt_binary(u32b flags, int row, int col)
 {
-	int        	i;
-	u32b        bitmask;
+	int i;
+	u32b bitmask;
 
 	/* Scan the flags */
 	for (i = bitmask = 1; i <= 32; i++, bitmask *= 2)
@@ -349,7 +370,7 @@ static void do_cmd_wiz_change_aux(void)
 		tmp_int = atoi(tmp_val);
 
 		/* Verify */
-		if (tmp_int > 18+100) tmp_int = 18+100;
+		if (tmp_int > 18 + 100) tmp_int = 18 + 100;
 		else if (tmp_int < 3) tmp_int = 3;
 
 		/* Save it */
@@ -499,21 +520,21 @@ static void wiz_display_item(object_type *o_ptr)
 	prt(buf, 2, j);
 
 	prt(format("kind = %-5d  level = %-4d  tval = %-5d  sval = %-5d",
-		   o_ptr->k_idx, k_info[o_ptr->k_idx].level,
-		   o_ptr->tval, o_ptr->sval), 4, j);
+	           o_ptr->k_idx, k_info[o_ptr->k_idx].level,
+	           o_ptr->tval, o_ptr->sval), 4, j);
 
 	prt(format("number = %-3d  wgt = %-6d  ac = %-5d    damage = %dd%d",
-		   o_ptr->number, o_ptr->weight,
-		   o_ptr->ac, o_ptr->dd, o_ptr->ds), 5, j);
+	           o_ptr->number, o_ptr->weight,
+	           o_ptr->ac, o_ptr->dd, o_ptr->ds), 5, j);
 
 	prt(format("pval = %-5d  toac = %-5d  tohit = %-4d  todam = %-4d",
-		   o_ptr->pval, o_ptr->to_a, o_ptr->to_h, o_ptr->to_d), 6, j);
+	           o_ptr->pval, o_ptr->to_a, o_ptr->to_h, o_ptr->to_d), 6, j);
 
 	prt(format("name1 = %-4d  name2 = %-4d  cost = %ld  pval2 = %-5d",
-		   o_ptr->name1, o_ptr->name2, (long)object_value(o_ptr), o_ptr->pval2), 7, j);
+	           o_ptr->name1, o_ptr->name2, (long)object_value(o_ptr), o_ptr->pval2), 7, j);
 
 	prt(format("ident = %04x  timeout = %-d",
-		   o_ptr->ident, o_ptr->timeout), 8, j);
+	           o_ptr->ident, o_ptr->timeout), 8, j);
 
 	prt("+------------FLAGS1------------+", 10, j);
 	prt("AFFECT........SLAY........BRAND.", 11, j);
@@ -531,16 +552,16 @@ static void wiz_display_item(object_type *o_ptr)
 	prt("rtsxna..dcedslatdcedsrekdfddrxss", 22, j);
 	prt_binary(f2, 23, j);
 
-	prt("+------------FLAGS3------------+", 10, j+32);
-	prt("fe      ehsi  st    iiiiadta  hp", 11, j+32);
-	prt("il   n taihnf ee    ggggcregb vr", 12, j+32);
-	prt("re  nowysdose eld   nnnntalrl ym", 13, j+32);
-	prt("ec  omrcyewta ieirmsrrrriieaeccc", 14, j+32);
-	prt("aa  taauktmatlnpgeihaefcvnpvsuuu", 15, j+32);
-	prt("uu  egirnyoahivaeggoclioaeoasrrr", 16, j+32);
-	prt("rr  litsopdretitsehtierltxrtesss", 17, j+32);
-	prt("aa  echewestreshtntsdcedeptedeee", 18, j+32);
-	prt_binary(f3, 19, j+32);
+	prt("+------------FLAGS3------------+", 10, j + 32);
+	prt("fe      ehsi  st    iiiiadta  hp", 11, j + 32);
+	prt("il   n taihnf ee    ggggcregb vr", 12, j + 32);
+	prt("re  nowysdose eld   nnnntalrl ym", 13, j + 32);
+	prt("ec  omrcyewta ieirmsrrrriieaeccc", 14, j + 32);
+	prt("aa  taauktmatlnpgeihaefcvnpvsuuu", 15, j + 32);
+	prt("uu  egirnyoahivaeggoclioaeoasrrr", 16, j + 32);
+	prt("rr  litsopdretitsehtierltxrtesss", 17, j + 32);
+	prt("aa  echewestreshtntsdcedeptedeee", 18, j + 32);
+	prt_binary(f3, 19, j + 32);
 }
 
 
@@ -549,53 +570,53 @@ static void wiz_display_item(object_type *o_ptr)
  */
 tval_desc2 tvals[] =
 {
-	{ TV_SWORD,             "Sword"                },
-	{ TV_POLEARM,           "Polearm"              },
-	{ TV_HAFTED,            "Hafted Weapon"        },
-	{ TV_AXE,               "Axe"                  },
-	{ TV_BOW,               "Bow"                  },
-	{ TV_BOOMERANG,         "Boomerang"            },
-	{ TV_ARROW,             "Arrows"               },
-	{ TV_BOLT,              "Bolts"                },
-	{ TV_SHOT,              "Shots"                },
-	{ TV_SHIELD,            "Shield"               },
-	{ TV_CROWN,             "Crown"                },
-	{ TV_HELM,              "Helm"                 },
-	{ TV_GLOVES,            "Gloves"               },
-	{ TV_BOOTS,             "Boots"                },
-	{ TV_CLOAK,             "Cloak"                },
-	{ TV_DRAG_ARMOR,        "Dragon Scale Mail"    },
-	{ TV_HARD_ARMOR,        "Hard Armor"           },
-	{ TV_SOFT_ARMOR,        "Soft Armor"           },
-	{ TV_RING,              "Ring"                 },
-	{ TV_AMULET,            "Amulet"               },
-	{ TV_LITE,              "Lite"                 },
-	{ TV_POTION,            "Potion"               },
-	{ TV_POTION2,           "Potion"               },
-	{ TV_SCROLL,            "Scroll"               },
-	{ TV_WAND,              "Wand"                 },
-	{ TV_STAFF,             "Staff"                },
-	{ TV_ROD_MAIN,          "Rod"                  },
-	{ TV_ROD,               "Rod Tip"              },
-        { TV_BOOK,              "Schools Spellbook",   },
-	{ TV_SYMBIOTIC_BOOK,    "Symbiotic Spellbook", },
-	{ TV_DRUID_BOOK,        "Elemental Stone"      },
-	{ TV_MUSIC_BOOK,        "Music Book"           },
-	{ TV_DAEMON_BOOK,       "Daemon Book"          },
-	{ TV_SPIKE,             "Spikes"               },
-	{ TV_DIGGING,           "Digger"               },
-	{ TV_CHEST,             "Chest"                },
-	{ TV_FOOD,              "Food"                 },
-	{ TV_FLASK,             "Flask"                },
-	{ TV_MSTAFF,            "Mage Staff"           },
-	{ TV_BATERIE,           "Essence"              },
-	{ TV_PARCHEMENT,        "Parchment"            },
-	{ TV_INSTRUMENT,        "Musical Instrument"   },
-	{ TV_RUNE1,             "Rune 1"               },
-	{ TV_RUNE2,             "Rune 2"               },
-	{ TV_JUNK,              "Junk"                 },
-	{ TV_TRAPKIT,           "Trapping Kit"         },
-	{ 0,                    NULL                   }
+	{ TV_SWORD, "Sword" },
+	{ TV_POLEARM, "Polearm" },
+	{ TV_HAFTED, "Hafted Weapon" },
+	{ TV_AXE, "Axe" },
+	{ TV_BOW, "Bow" },
+	{ TV_BOOMERANG, "Boomerang" },
+	{ TV_ARROW, "Arrows" },
+	{ TV_BOLT, "Bolts" },
+	{ TV_SHOT, "Shots" },
+	{ TV_SHIELD, "Shield" },
+	{ TV_CROWN, "Crown" },
+	{ TV_HELM, "Helm" },
+	{ TV_GLOVES, "Gloves" },
+	{ TV_BOOTS, "Boots" },
+	{ TV_CLOAK, "Cloak" },
+	{ TV_DRAG_ARMOR, "Dragon Scale Mail" },
+	{ TV_HARD_ARMOR, "Hard Armor" },
+	{ TV_SOFT_ARMOR, "Soft Armor" },
+	{ TV_RING, "Ring" },
+	{ TV_AMULET, "Amulet" },
+	{ TV_LITE, "Lite" },
+	{ TV_POTION, "Potion" },
+	{ TV_POTION2, "Potion" },
+	{ TV_SCROLL, "Scroll" },
+	{ TV_WAND, "Wand" },
+	{ TV_STAFF, "Staff" },
+	{ TV_ROD_MAIN, "Rod" },
+	{ TV_ROD, "Rod Tip" },
+	{ TV_BOOK, "Schools Spellbook", },
+	{ TV_SYMBIOTIC_BOOK, "Symbiotic Spellbook", },
+	{ TV_DRUID_BOOK, "Elemental Stone" },
+	{ TV_MUSIC_BOOK, "Music Book" },
+	{ TV_DAEMON_BOOK, "Daemon Book" },
+	{ TV_SPIKE, "Spikes" },
+	{ TV_DIGGING, "Digger" },
+	{ TV_CHEST, "Chest" },
+	{ TV_FOOD, "Food" },
+	{ TV_FLASK, "Flask" },
+	{ TV_MSTAFF, "Mage Staff" },
+	{ TV_BATERIE, "Essence" },
+	{ TV_PARCHMENT, "Parchment" },
+	{ TV_INSTRUMENT, "Musical Instrument" },
+	{ TV_RUNE1, "Rune 1" },
+	{ TV_RUNE2, "Rune 2" },
+	{ TV_JUNK, "Junk" },
+	{ TV_TRAPKIT, "Trapping Kit" },
+	{ 0, NULL }
 };
 
 
@@ -630,8 +651,7 @@ static void strip_name(char *buf, int k_idx)
  *
  * XXX XXX XXX This will not work with "EBCDIC", I would think.
  */
-static char head[4] =
-{ 'a', 'A', '0', ':' };
+static char head[4] = { 'a', 'A', '0', ':' };
 
 
 /*
@@ -642,7 +662,7 @@ static char head[4] =
 static void wci_string(cptr string, int num)
 {
 	int row = 2 + (num % 20), col = 30 * (num / 20);
-	int ch = head[num/20] + (num%20), max_len = 0;
+	int ch = head[num / 20] + (num % 20), max_len = 0;
 
 	if (76-col < (signed)max_len)
 		max_len = 76-col;
@@ -650,7 +670,7 @@ static void wci_string(cptr string, int num)
 		max_len = 30-6;
 
 	if (strlen(string) > (unsigned)max_len)
-		string = string+(strlen(string)-max_len);
+		string = string + (strlen(string) - max_len);
 
 	prt(format("[%c] %s", ch, string), row, col);
 }
@@ -934,7 +954,7 @@ static void wiz_reroll_item(object_type *o_ptr)
 		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
 		/* Window stuff */
-		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER);
+		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
 	}
 }
 
@@ -980,9 +1000,12 @@ static void wiz_statistics(object_type *o_ptr)
 	/* XXX XXX XXX Mega-Hack -- allow multiple artifacts */
 	if (artifact_p(o_ptr))
 	{
-		if (o_ptr->tval == TV_RANDART) {
+		if (o_ptr->tval == TV_RANDART)
+		{
 			random_artifacts[o_ptr->sval].generated = FALSE;
-		} else {
+		}
+		else
+		{
 			a_info[o_ptr->name1].cur_num = 0;
 		}
 	}
@@ -1026,7 +1049,7 @@ static void wiz_statistics(object_type *o_ptr)
 
 		/* Let us know what we are doing */
 		msg_format("Creating a lot of %s items. Base level = %d.",
-			   quality, dun_level);
+		           quality, dun_level);
 		msg_print(NULL);
 
 		/* Set counters to zero */
@@ -1070,9 +1093,12 @@ static void wiz_statistics(object_type *o_ptr)
 			/* XXX XXX XXX Mega-Hack -- allow multiple artifacts */
 			if (artifact_p(q_ptr))
 			{
-				if (q_ptr->tval == TV_RANDART) {
+				if (q_ptr->tval == TV_RANDART)
+				{
 					random_artifacts[q_ptr->sval].generated = FALSE;
-				} else {
+				}
+				else
+				{
 					a_info[q_ptr->name1].cur_num = 0;
 				}
 			}
@@ -1084,27 +1110,27 @@ static void wiz_statistics(object_type *o_ptr)
 
 			/* Check for match */
 			if ((q_ptr->pval == o_ptr->pval) &&
-			    (q_ptr->to_a == o_ptr->to_a) &&
-			    (q_ptr->to_h == o_ptr->to_h) &&
-			    (q_ptr->to_d == o_ptr->to_d))
+			                (q_ptr->to_a == o_ptr->to_a) &&
+			                (q_ptr->to_h == o_ptr->to_h) &&
+			                (q_ptr->to_d == o_ptr->to_d))
 			{
 				matches++;
 			}
 
 			/* Check for better */
 			else if ((q_ptr->pval >= o_ptr->pval) &&
-				 (q_ptr->to_a >= o_ptr->to_a) &&
-				 (q_ptr->to_h >= o_ptr->to_h) &&
-				 (q_ptr->to_d >= o_ptr->to_d))
+			                (q_ptr->to_a >= o_ptr->to_a) &&
+			                (q_ptr->to_h >= o_ptr->to_h) &&
+			                (q_ptr->to_d >= o_ptr->to_d))
 			{
 				better++;
 			}
 
 			/* Check for worse */
 			else if ((q_ptr->pval <= o_ptr->pval) &&
-				 (q_ptr->to_a <= o_ptr->to_a) &&
-				 (q_ptr->to_h <= o_ptr->to_h) &&
-				 (q_ptr->to_d <= o_ptr->to_d))
+			                (q_ptr->to_a <= o_ptr->to_a) &&
+			                (q_ptr->to_h <= o_ptr->to_h) &&
+			                (q_ptr->to_d <= o_ptr->to_d))
 			{
 				worse++;
 			}
@@ -1123,10 +1149,14 @@ static void wiz_statistics(object_type *o_ptr)
 
 
 	/* Hack -- Normally only make a single artifact */
-	if (artifact_p(o_ptr)) {
-		if (o_ptr->tval == TV_RANDART) {
+	if (artifact_p(o_ptr))
+	{
+		if (o_ptr->tval == TV_RANDART)
+		{
 			random_artifacts[o_ptr->sval].generated = TRUE;
-		} else {
+		}
+		else
+		{
 			a_info[o_ptr->name1].cur_num = 1;
 		}
 	}
@@ -1138,9 +1168,9 @@ static void wiz_statistics(object_type *o_ptr)
  */
 static void wiz_quantity_item(object_type *o_ptr)
 {
-	int         tmp_int, tmp_qnt;
+	int tmp_int, tmp_qnt;
 
-	char        tmp_val[100];
+	char tmp_val[100];
 
 
 #if 0 /* DG -- A Wizard can do whatever he/she/it wants */
@@ -1200,7 +1230,7 @@ static void do_cmd_wiz_play(void)
 	/* Get the item (in the pack) */
 	if (item >= 0)
 	{
-		o_ptr = &inventory[item];
+		o_ptr = &p_ptr->inventory[item];
 	}
 
 	/* Get the item (on the floor) */
@@ -1302,7 +1332,7 @@ static void do_cmd_wiz_play(void)
 		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
 		/* Window stuff */
-		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER);
+		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
 	}
 
 	/* Ignore change */
@@ -1359,7 +1389,7 @@ static void wiz_create_item(void)
 	apply_magic(q_ptr, dun_level, FALSE, FALSE, FALSE);
 
 	/* Drop the object from heaven */
-	drop_near(q_ptr, -1, py, px);
+	drop_near(q_ptr, -1, p_ptr->py, p_ptr->px);
 
 	/* All done */
 	msg_print("Allocated.");
@@ -1373,11 +1403,11 @@ static void wiz_create_item_2(void)
 	object_type forge;
 	object_type *q_ptr;
 	int a_idx;
-	cptr p="Number of the object :";
+	cptr p = "Number of the object :";
 	char out_val[80] = "";
 
 	if (!get_string(p, out_val, 4)) return;
-	a_idx = atoi(out_val);                                
+	a_idx = atoi(out_val);
 
 	/* Return if failed or out-of-bounds */
 	if ((a_idx <= 0) || (a_idx >= max_k_idx)) return;
@@ -1392,7 +1422,7 @@ static void wiz_create_item_2(void)
 	apply_magic(q_ptr, dun_level, FALSE, FALSE, FALSE);
 
 	/* Drop the object from heaven */
-	drop_near(q_ptr, -1, py, px);
+	drop_near(q_ptr, -1, p_ptr->py, p_ptr->px);
 
 	/* All done */
 	msg_print("Allocated.");
@@ -1431,8 +1461,8 @@ void do_cmd_wiz_cure_all(void)
 
 	/* Heal the player monster */
 	/* Get the carried monster */
-	o_ptr = &inventory[INVEN_CARRY];
-	if(o_ptr->k_idx)
+	o_ptr = &p_ptr->inventory[INVEN_CARRY];
+	if (o_ptr->k_idx)
 	{
 		int max;
 		r_ptr = &r_info[o_ptr->pval];
@@ -1560,7 +1590,7 @@ static void do_cmd_wiz_summon(int num)
 
 	for (i = 0; i < num; i++)
 	{
-	(void)summon_specific(py, px, dun_level, 0);
+		(void)summon_specific(p_ptr->py, p_ptr->px, dun_level, 0);
 	}
 }
 
@@ -1578,7 +1608,7 @@ static void do_cmd_wiz_named(int r_idx, bool slp)
 	/* if (!r_idx) return; */
 
 	/* Prevent illegal monsters */
-	if (r_idx >= max_r_idx-1) return;
+	if (r_idx >= max_r_idx) return;
 
 	/* Try 10 times */
 	for (i = 0; i < 10; i++)
@@ -1586,7 +1616,7 @@ static void do_cmd_wiz_named(int r_idx, bool slp)
 		int d = 1;
 
 		/* Pick a location */
-		scatter(&y, &x, py, px, d, 0);
+		scatter(&y, &x, p_ptr->py, p_ptr->px, d, 0);
 
 		/* Require empty grids */
 		if (!cave_empty_bold(y, x)) continue;
@@ -1612,7 +1642,7 @@ void do_cmd_wiz_named_friendly(int r_idx, bool slp)
 	/* if (!r_idx) return; */
 
 	/* Prevent illegal monsters */
-	if (r_idx >= max_r_idx-1) return;
+	if (r_idx >= max_r_idx) return;
 
 	/* Try 10 times */
 	m_allow_special[r_idx] = TRUE;
@@ -1621,7 +1651,7 @@ void do_cmd_wiz_named_friendly(int r_idx, bool slp)
 		int d = 1;
 
 		/* Pick a location */
-		scatter(&y, &x, py, px, d, 0);
+		scatter(&y, &x, p_ptr->py, p_ptr->px, d, 0);
 
 		/* Require empty grids */
 		if (!cave_empty_bold(y, x)) continue;
@@ -1639,7 +1669,7 @@ void do_cmd_wiz_named_friendly(int r_idx, bool slp)
  */
 static void do_cmd_wiz_zap(void)
 {
-	int        i;
+	int i;
 
 	/* Genocide everyone nearby */
 	for (i = 1; i < m_max; i++)
@@ -1659,10 +1689,10 @@ extern void do_cmd_wiz_body(s16b bidx)
 	/* Might create problems with equipment slots. For safety,
 	be nude when calling this function */
 {
-p_ptr->body_monster = bidx;
-p_ptr->disembodied = FALSE;
-p_ptr->chp = maxroll( (&r_info[bidx])->hdice, (&r_info[bidx])->hside);
-do_cmd_redraw();
+	p_ptr->body_monster = bidx;
+	p_ptr->disembodied = FALSE;
+	p_ptr->chp = maxroll( (&r_info[bidx])->hdice, (&r_info[bidx])->hside);
+	do_cmd_redraw();
 }
 
 #ifdef ALLOW_SPOILERS
@@ -1689,8 +1719,8 @@ extern void do_cmd_debug(void);
  */
 void do_cmd_debug(void)
 {
-	int     x, y;
-	char    cmd;
+	int x, y;
+	char cmd;
 
 
 	/* Get a "debug command" */
@@ -1700,68 +1730,68 @@ void do_cmd_debug(void)
 	switch (cmd)
 	{
 		/* Nothing */
-		case ESCAPE:
-		case ' ':
-		case '\n':
-		case '\r':
+	case ESCAPE:
+	case ' ':
+	case '\n':
+	case '\r':
 		break;
 
 
 #ifdef ALLOW_SPOILERS
 
 		/* Hack -- Generate Spoilers */
-		case '"':
+	case '"':
 		do_cmd_spoilers();
 		break;
 
 #endif /* ALLOW_SPOILERS */
 
-		case 'A':
+	case 'A':
 		status_main();
 		break;
 
 		/* Hack -- Help */
-		case '?':
+	case '?':
 		do_cmd_help();
 		break;
 
 
 		/* Cure all maladies */
-		case 'a':
+	case 'a':
 		do_cmd_wiz_cure_all();
 		break;
 
 		/* Teleport to target */
-		case 'b':
+	case 'b':
 		do_cmd_wiz_bamf();
 		break;
 
-		case 'B':
+	case 'B':
 		do_cmd_wiz_body(command_arg);
 		break;
 
 		/* Create any object */
-		case '-':
+	case '-':
 		wiz_create_item_2();
 		break;
 
 		/* Create any object */
-		case 'c':
+	case 'c':
 		wiz_create_item();
 		break;
 
 		/* Create a named artifact */
-		case 'C':
+	case 'C':
 		wiz_create_named_art();
 		break;
 
 		/* Detect everything */
-		case 'd':
+	case 'd':
 		detect_all(DEFAULT_RADIUS);
 		break;
 
 		/* Change of Dungeon type */
-		case 'D':
+	case 'D':
 		if ((command_arg >= 0) && (command_arg < max_d_idx))
 		{
 			dungeon_type = command_arg;
@@ -1774,120 +1804,120 @@ void do_cmd_debug(void)
 		break;
 
 		/* Edit character */
-		case 'e':
+	case 'e':
 		do_cmd_wiz_change();
 		break;
 
 		/* Change grid's mana */
-		case 'E':
-		cave[py][px].mana = command_arg;
+	case 'E':
+		cave[p_ptr->py][p_ptr->px].mana = command_arg;
 		break;
 
 		/* View item info */
-		case 'f':
+	case 'f':
 		identify_fully();
 		break;
 
 		/* Good Objects */
-		case 'g':
+	case 'g':
 		if (command_arg <= 0) command_arg = 1;
-		acquirement(py, px, command_arg, FALSE, TRUE);
+		acquirement(p_ptr->py, p_ptr->px, command_arg, FALSE, TRUE);
 		break;
 
 		/* Hitpoint rerating */
-		case 'h':
+	case 'h':
 		do_cmd_rerate(); break;
 
 #ifdef MONSTER_HORDES
-		case 'H':
+	case 'H':
 		do_cmd_summon_horde(); break;
 #endif /* MONSTER_HORDES */
 
 		/* Identify */
-		case 'i':
+	case 'i':
 		(void)ident_spell();
 		break;
 
 		/* Go up or down in the dungeon */
-		case 'j':
+	case 'j':
 		do_cmd_wiz_jump();
 		break;
 
 		/* Self-Knowledge */
-		case 'k':
-			self_knowledge(NULL);
-			break;
+	case 'k':
+		self_knowledge(NULL);
+		break;
 
 		/* Learn about objects */
-		case 'l':
-			do_cmd_wiz_learn();
-			break;
+	case 'l':
+		do_cmd_wiz_learn();
+		break;
 
 		/* Magic Mapping */
-		case 'm':
-			map_area();
-			break;
+	case 'm':
+		map_area();
+		break;
 
 		/* corruption */
-		case 'M':
-			(void) gain_random_corruption(command_arg);
-			break;
+	case 'M':
+		(void) gain_random_corruption(command_arg);
+		break;
 
 		/* Specific reward */
-		case 'r':
-			(void) gain_level_reward(command_arg);
-			break;
+	case 'r':
+		(void) gain_level_reward(command_arg);
+		break;
 
 		/* Create a trap */
-		case 'R':
-			wiz_place_trap(py, px, command_arg);
-			break;
+	case 'R':
+		wiz_place_trap(p_ptr->py, p_ptr->px, command_arg);
+		break;
 
 		/* Summon _friendly_ named monster */
-		case 'N':
-			do_cmd_wiz_named_friendly(command_arg, TRUE);
-			break;
+	case 'N':
+		do_cmd_wiz_named_friendly(command_arg, TRUE);
+		break;
 
 		/* Summon Named Monster */
-		case 'n':
-			do_cmd_wiz_named(command_arg, TRUE);
-			break;
+	case 'n':
+		do_cmd_wiz_named(command_arg, TRUE);
+		break;
 
 		/* Object playing routines */
-		case 'o':
-			do_cmd_wiz_play();
-			break;
+	case 'o':
+		do_cmd_wiz_play();
+		break;
 
 		/* Phase Door */
-		case 'p':
-			teleport_player(10);
-			break;
+	case 'p':
+		teleport_player(10);
+		break;
 
 		/* Panic save the game */
-		case 'P':
-			exit_game_panic();
-			break;
+	case 'P':
+		exit_game_panic();
+		break;
 
 		/* get a Quest */
-		case 'q':
+	case 'q':
 		{
-/*                        if (quest[command_arg].status == QUEST_STATUS_UNTAKEN)*/
-		if ((command_arg >= 1) && (command_arg < MAX_Q_IDX_INIT) && (command_arg != QUEST_RANDOM))
+			/*                        if (quest[command_arg].status == QUEST_STATUS_UNTAKEN)*/
+			if ((command_arg >= 1) && (command_arg < MAX_Q_IDX_INIT) && (command_arg != QUEST_RANDOM))
 			{
 				quest[command_arg].status = QUEST_STATUS_TAKEN;
 				*(quest[command_arg].plot) = command_arg;
-				if (quest[command_arg].type ==  HOOK_TYPE_C) quest[command_arg].init(command_arg);
+				if (quest[command_arg].type == HOOK_TYPE_C) quest[command_arg].init(command_arg);
 				break;
 			}
 			break;
 		}
 
 		/* Make every dungeon square "known" to test streamers -KMW- */
-		case 'u':
+	case 'u':
 		{
-			for(y=0;y < cur_hgt;y++)
+			for (y = 0; y < cur_hgt; y++)
 			{
-				for(x=0;x < cur_wid;x++)
+				for (x = 0; x < cur_wid; x++)
 				{
 					cave[y][x].info |= (CAVE_GLOW | CAVE_MARK);
 				}
@@ -1896,7 +1926,7 @@ void do_cmd_debug(void)
 			break;
 		}
 
-		case 'U':
+	case 'U':
 		{
 			p_ptr->necro_extra |= CLASS_UNDEAD;
 			do_cmd_wiz_named(5, TRUE);
@@ -1913,47 +1943,47 @@ void do_cmd_debug(void)
 		}
 
 		/* Summon Random Monster(s) */
-		case 's':
-			if (command_arg <= 0) command_arg = 1;
-			do_cmd_wiz_summon(command_arg);
-			break;
+	case 's':
+		if (command_arg <= 0) command_arg = 1;
+		do_cmd_wiz_summon(command_arg);
+		break;
 
 		/* Change the feature of the map */
-		case 'S':
-			cave[py][px].special = command_arg;
-			break;
+	case 'S':
+		cave[p_ptr->py][p_ptr->px].special = command_arg;
+		break;
 
 		/* Teleport */
-		case 't':
-			teleport_player_bypass = TRUE;
-			teleport_player(100);
-			teleport_player_bypass = FALSE;
-			break;
+	case 't':
+		teleport_player_bypass = TRUE;
+		teleport_player(100);
+		teleport_player_bypass = FALSE;
+		break;
 
 		/* Teleport to a town */
-		case 'T':
-			if ((command_arg >= 1) && (command_arg <= max_real_towns))
-				teleport_player_town(command_arg);
-			break;
+	case 'T':
+		if ((command_arg >= 1) && (command_arg <= max_real_towns))
+			teleport_player_town(command_arg);
+		break;
 
 		/* Very Good Objects */
-		case 'v':
-			if (command_arg <= 0) command_arg = 1;
-			acquirement(py, px, command_arg, TRUE, TRUE);
-			break;
+	case 'v':
+		if (command_arg <= 0) command_arg = 1;
+		acquirement(p_ptr->py, p_ptr->px, command_arg, TRUE, TRUE);
+		break;
 
 		/* Wizard Light the Level */
-		case 'w':
+	case 'w':
 		wiz_lite();
 		break;
 
 		/* Make a wish */
-		case 'W':
+	case 'W':
 		make_wish();
 		break;
 
 		/* Increase Experience */
-		case 'x':
+	case 'x':
 		if (command_arg)
 		{
 			gain_exp(command_arg);
@@ -1965,19 +1995,19 @@ void do_cmd_debug(void)
 		break;
 
 		/* Zap Monsters (Genocide) */
-		case 'z':
+	case 'z':
 		do_cmd_wiz_zap();
 		break;
 
 		/* Hack -- whatever I desire */
-		case '_':
+	case '_':
 		do_cmd_wiz_hack_ben(command_arg);
 		break;
 
 		/* Mimic shape changing */
-		case '*':
-		p_ptr->tim_mimic=100;
-		p_ptr->mimic_form=command_arg;
+	case '*':
+		p_ptr->tim_mimic = 100;
+		p_ptr->mimic_form = command_arg;
 		/* Redraw title */
 		p_ptr->redraw |= (PR_TITLE);
 		/* Recalculate bonuses */
@@ -1985,43 +2015,41 @@ void do_cmd_debug(void)
 		break;
 
 		/* Gain a fate */
-		case '+':
+	case '+':
 		{
-		int i;
-		gain_fate(command_arg);
-		for(i = 0; i < MAX_FATES; i++)
-			fates[i].know = TRUE;
-		break;
+			int i;
+			gain_fate(command_arg);
+			for (i = 0; i < MAX_FATES; i++)
+				fates[i].know = TRUE;
+			break;
 		}
 
 		/* Change the feature of the map */
-		case 'F':
-		msg_format("Trap: %d", cave[py][px].t_idx);
-		msg_format("Old feature: %d", cave[py][px].feat);
-		msg_format("Special: %d", cave[py][px].special);
-		cave_set_feat(py,px,command_arg);
+	case 'F':
+		msg_format("Trap: %d", cave[p_ptr->py][p_ptr->px].t_idx);
+		msg_format("Old feature: %d", cave[p_ptr->py][p_ptr->px].feat);
+		msg_format("Special: %d", cave[p_ptr->py][p_ptr->px].special);
+		cave_set_feat(p_ptr->py, p_ptr->px, command_arg);
 		break;
 
-		case '=':
+	case '=':
 		wiz_align_monster(command_arg);
 		break;
 
-		case '@':
+	case '@':
 		wiz_inc_monster_level(command_arg);
 		break;
 
-		case '/':
-		summon_specific(py,px,max_dlv[dungeon_type],command_arg);
+	case '/':
+		summon_specific(p_ptr->py, p_ptr->px, max_dlv[dungeon_type], command_arg);
 		break;
 
-#ifdef USE_LUA
-		case '>':
+	case '>':
 		do_cmd_lua_script();
 		break;
-#endif
 
 		/* Not a Wizard Command */
-		default:
+	default:
 		msg_print("That is not a valid debug command.");
 		break;
 	}

@@ -37,13 +37,13 @@ bool quest_eol_gen_hook(char *fmt)
 		int grd, roug, cutoff;
 
 		/* testing values for these parameters feel free to adjust*/
-		grd = 2 ^ (randint(4)); 
+		grd = 2 ^ (randint(4));
 
 		/* want average of about 16 */
-		roug = randint(8) * randint(4); 
+		roug = randint(8) * randint(4);
 
 		/* about size/2 */
-		cutoff = randint(xsize / 4) + randint(ysize/4) + randint(xsize/4) + randint(ysize/4); 
+		cutoff = randint(xsize / 4) + randint(ysize / 4) + randint(xsize / 4) + randint(ysize / 4);
 
 		/* make it */
 		generate_hmap(y0, x0, xsize, ysize, grd, roug, cutoff);
@@ -54,29 +54,29 @@ bool quest_eol_gen_hook(char *fmt)
 
 	/* Place a few traps */
 	for (x = xsize - 1; x >= 2; x--)
-	for (y = ysize - 1; y >= 2; y--)
-	{
-		if (!cave_clean_bold(y, x)) continue;
-
-		/* Place eol at the other end */
-		if (!m_idx)
+		for (y = ysize - 1; y >= 2; y--)
 		{
-			m_allow_special[test_monster_name("Eol, the Dark Elf")] = TRUE;
-			m_idx = place_monster_one(y, x, test_monster_name("Eol, the Dark Elf"), 0, FALSE, MSTATUS_ENEMY);
-			m_allow_special[test_monster_name("Eol, the Dark Elf")] = FALSE;
+			if (!cave_clean_bold(y, x)) continue;
+
+			/* Place eol at the other end */
+			if (!m_idx)
+			{
+				m_allow_special[test_monster_name("Eol, the Dark Elf")] = TRUE;
+				m_idx = place_monster_one(y, x, test_monster_name("Eol, the Dark Elf"), 0, FALSE, MSTATUS_ENEMY);
+				m_allow_special[test_monster_name("Eol, the Dark Elf")] = FALSE;
+			}
+
+			if (magik(18))
+			{
+				place_trap(y, x);
+			}
+
+			/* Place player at one end */
+			p_ptr->py = y;
+			p_ptr->px = x;
 		}
 
-		if (magik(18))
-		{
-			place_trap(y, x);
-		}
-
-		/* Place player at one end */
-		py = y;
-		px = x;
-	}
-
-	cave_set_feat(py, px, FEAT_LESS);
+	cave_set_feat(p_ptr->py, p_ptr->px, FEAT_LESS);
 
 	return TRUE;
 }
@@ -93,8 +93,8 @@ bool quest_eol_finish_hook(char *fmt)
 	c_put_str(TERM_YELLOW, "Accept my thanks, and that reward.", 9, 0);
 
 	q_ptr = &forge;
-        object_prep(q_ptr, lookup_kind(TV_LITE, SV_LITE_DWARVEN));
-        q_ptr->found = OBJ_FOUND_REWARD;
+	object_prep(q_ptr, lookup_kind(TV_LITE, SV_LITE_DWARVEN));
+	q_ptr->found = OBJ_FOUND_REWARD;
 	q_ptr->name2 = EGO_LITE_MAGI;
 	apply_magic(q_ptr, 1, FALSE, FALSE, FALSE);
 	q_ptr->number = 1;
@@ -153,17 +153,17 @@ bool quest_eol_death_hook(char *fmt)
 bool quest_eol_stair_hook(char *fmt)
 {
 	monster_race *r_ptr = &r_info[test_monster_name("Eol, the Dark Elf")];
-	s32b down;
+	cptr down;
 
-	down = get_next_arg(fmt);
+	down = get_next_arg_str(fmt);
 
 	if (p_ptr->inside_quest != QUEST_EOL) return FALSE;
 
-	if (cave[py][px].feat != FEAT_LESS) return TRUE;
+	if (cave[p_ptr->py][p_ptr->px].feat != FEAT_LESS) return TRUE;
 
 	if (r_ptr->max_num)
 	{
-		if (!down)
+		if (!strcmp(down, "up"))
 		{
 			/* Flush input */
 			flush();

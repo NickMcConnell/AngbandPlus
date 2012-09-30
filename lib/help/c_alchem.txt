@@ -17,8 +17,9 @@ objects' magical energies.  Because they neither fight well nor cast
 powerful spells, alchemists rely on their craftsmanship to cope with 
 the dangers of the dungeons.  They will quickly learn to create damage-
 dealing wands, rods, and staffs, forge powerful weapons and armour, 
-make highly useful objects of other kinds, and eventually will 
-understand the perilous art of artifact creation itself.
+make highly useful objects of other kinds, and eventually, at great cost 
+to other knowledge, they can learn the perilous art of artifact creation 
+itself.
 
 #####GStarting Stat Modifiers
 Strength         -5
@@ -37,11 +38,12 @@ Combat                  1.000           [0.700]
   Weaponmastery         0.700           [0.700]
 Sneakiness              1.000           [0.900]
 Magic                   3.000           [0.900]
-  Magic-Device          1.000           [1.250]
-  Fire                  0.000           [0.100]
-  Water                 0.000           [0.100]
-  Air                   0.000           [0.100]
-  Earth                 0.000           [0.100]
+  Magic-Device          0.000           [0.250]
+  Geomancy              0.000           [0.500]
+    Fire                0.000           [0.100]
+    Water               0.000           [0.100]
+    Air                 0.000           [0.100]
+    Earth               0.000           [0.100]
   Temporal              0.000           [0.100]
   Divination            0.000           [0.500]
   Conveyance            0.000           [0.100]
@@ -55,6 +57,10 @@ Magic                   3.000           [0.900]
 Spirituality            1.000           [0.800]
   Prayer                0.000           [0.500]
 Monster-lore            0.000           [0.500]
+
+#####GInnate Abilities:
+#####BAbility              Character level
+Perfect-casting             1
 
 #####GStarting Equipment
 An alchemist begins the game with:
@@ -70,8 +76,10 @@ Alchemists may then 'E'xtract power or 'A'dd power. The Alchemist [[[[[vmust]
 be wearing GLOVES to use their alchemy powers.
 
 Alchemist's are also capable of [[[[[Bcreating their own artifacts], but
-this is a time-consuming, though rewarding, activity. To do so, they
-need to imbue an ego item with a number of essences of magic (equal
+this is a time-consuming, and costly, activity. To do so, they must first 
+learn the ability *****ability.txt*09[Artifact Creation], which costs a whopping 70 skill points
+to learn, and requires some high pre-requisites. Once they have done so, 
+they need to imbue an ego item with a number of essences of magic (equal
 to their skill level) and then wield the item. While using the item, 
 it will gain experience (which reduces the amount of exp the wearer 
 gains during this time). When the alchemist feels that the item is 

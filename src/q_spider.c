@@ -46,19 +46,19 @@ bool quest_spider_death_hook(char *fmt)
 		/* Ignore "dead" monsters */
 		if (!m_ptr->r_idx) continue;
 
-		if (m_ptr->status < MSTATUS_FRIEND) mcnt++;
+		if (m_ptr->status <= MSTATUS_ENEMY) mcnt++;
 	}
 
 	if (mcnt <= 1)
 	{
-                cmsg_print(TERM_YELLOW, "The forest is now safer, thanks to you.");
+		cmsg_print(TERM_YELLOW, "The forest is now safer, thanks to you.");
 
-                /* Yavanna LOVES saving forests */
-                GOD(GOD_YAVANNA)
-                {
-                        cmsg_print(TERM_L_GREEN, "You feel the gentle touch of Yavanna, she is smiling at you.");
-                        inc_piety(GOD_YAVANNA, 6000);
-                }
+		/* Yavanna LOVES saving forests */
+		GOD(GOD_YAVANNA)
+		{
+			cmsg_print(TERM_L_GREEN, "You feel the gentle touch of Yavanna, she is smiling at you.");
+			inc_piety(GOD_YAVANNA, 6000);
+		}
 
 		cquest.status = QUEST_STATUS_COMPLETED;
 		del_hook(HOOK_MONSTER_DEATH, quest_spider_death_hook);
@@ -83,7 +83,7 @@ bool quest_spider_finish_hook(char *fmt)
 	q_ptr = &forge;
 	object_prep(q_ptr, lookup_kind(TV_POTION, SV_POTION_AUGMENTATION));
 	q_ptr->number = 1;
-        q_ptr->found = OBJ_FOUND_REWARD;
+	q_ptr->found = OBJ_FOUND_REWARD;
 	object_aware(q_ptr);
 	object_known(q_ptr);
 	q_ptr->ident |= IDENT_STOREB;

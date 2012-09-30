@@ -184,7 +184,7 @@
 
 # Version stamp (required)
 
-V:2.0.0
+V:2.2.0
 
 ##### The Player #####
 
@@ -943,12 +943,12 @@ D:It is as big as a wolf.
 
 N:57:Freesia
 G:f:u
-I:120:5d5:30:30:0
+I:120:6d5:30:30:0
 W:2:1:450:32
 E:0:1:0:2:1:0
 O:0:0:0:0
-B:CLAW:HURT:1d2
 B:CLAW:HURT:1d3
+B:CLAW:HURT:1d4
 F:UNIQUE | 
 F:FORCE_MAXHP | DROP_SKELETON
 F:BASH_DOOR | 
@@ -2009,13 +2009,13 @@ D:It is a black lizard with overlapping scales and a powerful jaw.
 
 N:135:Mughash, the Kobold Lord
 G:k:v
-I:110:15d10:20:20:20
+I:110:17d10:20:20:20
 W:7:3:1100:100
 E:1:1:1:2:1:1
 O:0:100:0:0
-B:HIT:HURT:1d10
-B:HIT:HURT:1d10
-B:HIT:HURT:1d10
+B:HIT:HURT:1d12
+B:HIT:HURT:1d12
+B:HIT:HURT:1d12
 F:UNIQUE | MALE | CAN_SPEAK
 F:FORCE_MAXHP | 
 F:ESCORT | ESCORTS | DROP_SKELETON | DROP_CORPSE | 
@@ -2040,12 +2040,12 @@ D:It is an animated orc skeleton.
 
 N:137:Wormtongue, Agent of Saruman
 G:p:B
-I:110:25d10:20:30:20
+I:110:28d10:20:30:20
 W:9:2:1500:150
 E:1:1:1:2:1:1
 O:10:50:35:0
-B:HIT:HURT:1d5
-B:HIT:HURT:1d5
+B:HIT:HURT:1d7
+B:HIT:HURT:1d7
 B:TOUCH:EAT_GOLD
 B:INSULT:*
 F:UNIQUE | MALE | CAN_SPEAK |
@@ -2060,7 +2060,7 @@ D:He's been spying for Saruman. He is a snivelling wretch with no morals.
 
 N:138:Robin Hood, the Outlaw
 G:p:G
-I:120:14d12:20:30:20
+I:120:16d12:20:30:20
 W:10:2:1600:150
 E:1:1:1:2:1:1
 O:20:80:0:0
@@ -2091,14 +2091,14 @@ D:teddy bear, with twisted eyes and rotting, ghoulish skin.
 
 N:140:Lagduf, the Snaga
 G:o:y
-I:110:19d10:20:32:30
+I:110:22d10:20:32:30
 W:8:2:1700:80
 E:1:1:1:2:1:1
 O:10:80:0:0
+B:HIT:HURT:1d11
+B:HIT:HURT:1d11
 B:HIT:HURT:1d10
 B:HIT:HURT:1d10
-B:HIT:HURT:1d9
-B:HIT:HURT:1d9
 F:UNIQUE | MALE | EVIL | ORC | FORCE_MAXHP | ESCORT | 
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | SPECIAL_GENE | 
 F:OPEN_DOOR | BASH_DOOR | CAN_SPEAK | DROP_SKELETON | DROP_CORPSE | 
@@ -2355,13 +2355,13 @@ D:serves chaos fervently and is greatly feared by others.
 
 N:159:The wounded bear
 G:q:r
-I:110:10d10:10:35:10
+I:110:11d10:10:35:10
 W:12:1:3000:30
 E:0:1:0:2:1:0
 O:0:0:0:0
-B:CLAW:HURT:1d9
-B:CLAW:HURT:1d9
-B:BITE:HURT:1d10
+B:CLAW:HURT:1d10
+B:CLAW:HURT:1d10
+B:BITE:HURT:1d11
 F:BASH_DOOR | FORCE_MAXHP | FORCE_SLEEP | UNIQUE | DROP_CORPSE | 
 F:ANIMAL | WILD_ONLY | WILD_WOOD | WILD_GRASS | WILD_MOUNTAIN | 
 F:MORTAL | BASEANGBAND
@@ -2518,14 +2518,14 @@ D:It is large and has venomous mandibles.
 
 N:169:Brodda, the Easterling
 G:p:U
-I:110:21d10:20:25:20
+I:110:24d10:20:25:20
 W:9:2:2200:100
 E:1:1:1:2:1:1
 O:10:90:0:0
-B:HIT:HURT:1d12
-B:HIT:HURT:1d12
-B:HIT:HURT:1d12
-B:HIT:HURT:1d12
+B:HIT:HURT:1d13
+B:HIT:HURT:1d13
+B:HIT:HURT:1d13
+B:HIT:HURT:1d13
 F:UNIQUE | MALE | EVIL
 F:FORCE_MAXHP | CAN_SPEAK | WILD_TOO | DROP_SKELETON | DROP_CORPSE
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
@@ -2535,12 +2535,12 @@ D:A nasty piece of work, Brodda picks on defenceless women and children.
 
 N:170:Bloodfang, the Wolf
 G:C:R
-I:120:6d6:30:30:20
+I:120:8d6:30:30:20
 W:9:1:1600:30
 E:0:1:0:2:1:0
 O:0:0:0:0
-B:BITE:HURT:1d10
-B:BITE:HURT:1d10
+B:BITE:HURT:1d12
+B:BITE:HURT:1d12
 F:BASH_DOOR | WILD_ONLY | WILD_GRASS | WILD_WOOD | DROP_CORPSE |
 F:ANIMAL | UNIQUE | FORCE_MAXHP | 
 F:MORTAL | BASEANGBAND
@@ -2626,11 +2626,11 @@ D:It is moving slowly towards you.
 
 N:177:The Borshin
 G:g:w
-I:110:10d20:40:30:0
+I:110:12d20:40:30:0
 W:10:2:600:45
 E:1:1:1:2:1:1
 O:0:0:0:0
-B:HIT:HURT:2d11
+B:HIT:HURT:2d12
 B:CRUSH:HURT:2d15
 B:TOUCH:TERRIFY
 F:BASH_DOOR | UNIQUE | FORCE_MAXHP | NO_CONF
@@ -2677,12 +2677,12 @@ D:The evil wizard Bruce has trained them to be living weapons.
 
 N:180:Orfax, Son of Boldor
 G:y:B
-I:120:12d10:18:20:10
+I:120:14d10:18:20:10
 W:11:3:600:80
 E:1:1:1:2:1:1
 O:0:50:50:0
+B:HIT:HURT:1d10
 B:HIT:HURT:1d9
-B:HIT:HURT:1d8
 B:INSULT:*
 B:INSULT:*
 F:UNIQUE | MALE | CAN_SPEAK | DROP_CORPSE | 
@@ -2778,14 +2778,14 @@ D:of the quiver to grab prey.
 
 N:186:Grishnakh, the Hill Orc
 G:o:y
-I:110:23d10:20:20:20
+I:110:25d10:20:20:20
 W:10:3:2300:160
 E:1:1:1:2:1:1
 O:0:100:0:0
-B:HIT:HURT:1d12
-B:HIT:HURT:1d10
-B:HIT:HURT:1d12
-B:HIT:HURT:1d10
+B:HIT:HURT:1d13
+B:HIT:HURT:1d11
+B:HIT:HURT:1d13
+B:HIT:HURT:1d11
 F:UNIQUE | MALE | CAN_SPEAK | 
 F:FORCE_MAXHP | SPECIAL_GENE | 
 F:ESCORT | WILD_TOO |
@@ -2977,13 +2977,13 @@ D:He is eyeing your backpack.
 
 N:200:Hobbes the Tiger
 G:f:y
-I:120:10d10:40:30:0
+I:120:12d10:40:30:0
 W:10:2:1600:45
 E:0:1:0:2:1:0
 O:0:0:0:0
-B:CLAW:HURT:1d11
-B:CLAW:HURT:1d11
-B:BITE:HURT:1d4
+B:CLAW:HURT:1d12
+B:CLAW:HURT:1d12
+B:BITE:HURT:1d5
 F:BASH_DOOR | UNIQUE | FORCE_MAXHP |
 F:ANIMAL | MALE | CAN_SPEAK | DROP_CORPSE | 
 F:MORTAL | JOKEANGBAND
@@ -2991,12 +2991,12 @@ D:Fast-moving, with a taste for tuna sandwiches.
 
 N:201:Shadow Creature of Fiona
 G:h:s
-I:110:9d8:12:12:16
+I:110:11d8:12:12:16
 W:10:2:1000:35
 E:1:1:1:2:1:1
 O:20:30:50:0
-B:HIT:HURT:1d7
-B:HIT:HURT:1d7
+B:HIT:HURT:1d8
+B:HIT:HURT:1d8
 F:BASH_DOOR | OPEN_DOOR | FRIENDS | DROP_60 | IM_POIS | NO_SLEEP | NO_CONF
 F:MALE | DROP_SKELETON | ZANGBAND
 D:"There was something unusual about their appearance... For one thing, 
@@ -3076,12 +3076,12 @@ D:ominously as it jumps at your throat!
 
 N:206:Old Man Willow
 G:#:s
-I:110:30d30:20:20:20
+I:110:32d30:20:20:20
 W:25:5:3000:150
 E:1:1:1:2:1:1
 O:0:50:50:0
-B:TOUCH:PARALYZE:1d12
-B:TOUCH:PARALYZE:1d12
+B:TOUCH:PARALYZE:1d14
+B:TOUCH:PARALYZE:1d14
 B:CRUSH:HURT:2d12
 F:ANIMAL | NEVER_MOVE | COLD_BLOOD | DROP_RANDART
 F:EMPTY_MIND | UNIQUE | FORCE_MAXHP | FORCE_SLEEP |
@@ -3208,14 +3208,14 @@ D:Even more disgusting dark worms, their essence that of unbeing.
 
 N:215:Golfimbul, the Hill Orc Chief
 G:o:y
-I:110:24d10:20:60:20
+I:110:26d10:20:60:20
 W:12:3:2200:230
 E:1:1:1:2:1:1
 O:10:90:0:0
-B:HIT:HURT:1d12
-B:HIT:HURT:1d12
-B:HIT:HURT:1d10
-B:HIT:HURT:1d10
+B:HIT:HURT:1d13
+B:HIT:HURT:1d13
+B:HIT:HURT:1d11
+B:HIT:HURT:1d11
 F:UNIQUE | MALE | 
 F:FORCE_MAXHP | WILD_TOO | SPECIAL_GENE | 
 F:ESCORT | DROP_SKELETON | DROP_CORPSE | 
@@ -3547,13 +3547,13 @@ D:It is a vicious insect with a tough carapace.
 
 N:237:Boldor, King of the Yeeks
 G:y:v
-I:120:18d10:18:24:10
+I:120:20d10:18:24:10
 W:13:3:650:200
 E:1:1:1:2:1:1
 O:0:90:10:0
+B:HIT:HURT:1d10
+B:HIT:HURT:1d10
 B:HIT:HURT:1d9
-B:HIT:HURT:1d9
-B:HIT:HURT:1d8
 F:UNIQUE | MALE | 
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:ESCORT | ESCORTS | 
@@ -3561,7 +3561,7 @@ F:ONLY_ITEM | DROP_90 | DROP_1D2 | DROP_GOOD |
 F:SMART | OPEN_DOOR | BASH_DOOR | CAN_SPEAK | DROP_CORPSE | 
 F:ANIMAL | EVIL | IM_ACID | 
 F:MORTAL | BASEANGBAND
-S:1_IN_3 | 
+S:1_IN_2 | 
 S:HEAL | BLINK | TPORT | BLIND | SLOW | 
 S:S_KIN | S_MONSTER
 D:A great yeek, powerful in magic and sorcery, but a yeek all the same. 
@@ -3895,14 +3895,14 @@ D:It makes you itch just to look at it.
 
 N:260:Ufthak of Cirith Ungol
 G:o:g
-I:110:32d10:20:50:20
+I:110:34d10:20:50:20
 W:14:3:2600:250
 E:1:1:1:2:1:1
 O:0:100:0:0
-B:HIT:HURT:3d4
-B:HIT:HURT:3d4
-B:HIT:HURT:3d4
-B:HIT:HURT:3d4
+B:HIT:HURT:3d5
+B:HIT:HURT:3d5
+B:HIT:HURT:3d5
+B:HIT:HURT:3d5
 F:UNIQUE | MALE | 
 F:FORCE_MAXHP | CAN_SPEAK | DROP_SKELETON | DROP_CORPSE | 
 F:ESCORT | 
@@ -4383,14 +4383,14 @@ D:Intelligent lizard beings from the depths.
 
 N:291:Ulfast, Son of Ulfang
 G:p:U
-I:110:34d10:20:40:40
+I:110:37d10:20:40:40
 W:16:3:1700:200
 E:1:1:1:2:1:1
 O:0:100:0:0
-B:HIT:HURT:3d5
-B:HIT:HURT:3d5
-B:HIT:HURT:3d5
-B:HIT:HURT:3d5
+B:HIT:HURT:3d6
+B:HIT:HURT:3d6
+B:HIT:HURT:3d6
+B:HIT:HURT:3d6
 F:UNIQUE | CAN_SPEAK | DROP_SKELETON | DROP_CORPSE | 
 F:MALE | 
 F:FORCE_MAXHP | 
@@ -4747,14 +4747,14 @@ D:little.
 
 N:314:Shagrat, the Orc Captain
 G:o:g
-I:110:40d10:20:60:20
+I:110:42d10:20:60:20
 W:19:2:2600:400
 E:1:1:1:2:1:1
 O:10:90:0:0
-B:HIT:HURT:3d8
-B:HIT:HURT:3d8
-B:HIT:HURT:3d5
-B:HIT:HURT:3d5
+B:HIT:HURT:3d9
+B:HIT:HURT:3d9
+B:HIT:HURT:3d6
+B:HIT:HURT:3d6
 F:UNIQUE | MALE | CAN_SPEAK |
 F:FORCE_MAXHP | SPECIAL_GENE
 F:ESCORT | DROP_SKELETON | DROP_CORPSE | 
@@ -4766,14 +4766,14 @@ D:He is an orc of power and great cunning, leader of the garrison at Cirith Ungo
 
 N:315:Gorbag, the Orc Captain
 G:o:g
-I:110:40d10:20:60:20
+I:110:42d10:20:60:20
 W:19:2:2600:400
 E:1:1:1:2:1:1
 O:10:90:0:0
-B:HIT:HURT:3d8
-B:HIT:HURT:3d8
-B:HIT:HURT:3d5
-B:HIT:HURT:3d5
+B:HIT:HURT:3d9
+B:HIT:HURT:3d9
+B:HIT:HURT:3d6
+B:HIT:HURT:3d6
 F:UNIQUE | MALE | CAN_SPEAK |
 F:FORCE_MAXHP | 
 F:ESCORT | DROP_SKELETON | DROP_CORPSE
@@ -4998,14 +4998,14 @@ D:A very strong near-sentient tree, which has become hostile to other living thi
 
 N:330:Bolg, Son of Azog
 G:o:v
-I:120:50d10:20:50:20
+I:120:52d10:20:50:20
 W:20:4:2300:800
 E:1:1:1:2:1:1
 O:0:100:0:0
-B:HIT:HURT:3d6
-B:HIT:HURT:3d6
-B:HIT:HURT:3d6
-B:HIT:HURT:3d6
+B:HIT:HURT:3d7
+B:HIT:HURT:3d7
+B:HIT:HURT:3d7
+B:HIT:HURT:3d7
 F:UNIQUE | MALE | CAN_SPEAK |
 F:FORCE_MAXHP | SPECIAL_GENE | 
 F:ESCORT | DROP_SKELETON | DROP_CORPSE | 
@@ -5425,14 +5425,14 @@ D:A caustic spinning whirlpool of foaming, steaming water.
 
 N:356:Lugdush, the Uruk
 G:o:v
-I:110:64d10:20:90:20
+I:110:66d10:20:90:20
 W:21:4:2500:550
 E:1:1:1:2:1:1
 O:10:90:0:0
-B:HIT:HURT:3d5
-B:HIT:HURT:3d5
-B:HIT:HURT:3d5
-B:HIT:HURT:3d5
+B:HIT:HURT:3d6
+B:HIT:HURT:3d6
+B:HIT:HURT:3d6
+B:HIT:HURT:3d6
 F:UNIQUE | MALE | CAN_SPEAK |
 F:FORCE_MAXHP | DROP_SKELETON | DROP_CORPSE | 
 F:ESCORT | 
@@ -5678,11 +5678,11 @@ D:A scarred warrior who moves with confidence.
 
 N:373:Azog, King of the Uruk-Hai
 G:o:v
-I:120:90d10:20:80:20
+I:120:94d10:20:80:20
 W:23:5:2700:1111
 E:1:1:1:2:1:1
 O:10:90:0:0
-B:HIT:HURT:5d5
+B:HIT:HURT:5d6
 B:HIT:HURT:5d5
 B:HIT:HURT:5d5
 F:UNIQUE | MALE | CAN_SPEAK |
@@ -5785,12 +5785,12 @@ D:It is a skeleton covered in frost.
 
 N:380:Angamaite of Umbar
 G:p:U
-I:110:80d10:25:80:25
+I:110:82d10:25:80:25
 W:24:2:2400:400
 E:1:1:1:2:1:1
 O:0:80:20:0
-B:HIT:HURT:4d6
-B:HIT:HURT:4d6
+B:HIT:HURT:4d7
+B:HIT:HURT:4d7
 B:HIT:HURT:4d6
 B:HIT:HURT:4d6
 F:UNIQUE | MALE | CAN_SPEAK | DROP_SKELETON | DROP_CORPSE | 
@@ -5823,12 +5823,12 @@ D:It is a ghostly apparition with a humanoid form.
 
 N:382:Khim, Son of Mim
 G:h:o
-I:110:82d10:20:80:10
+I:110:84d10:20:80:10
 W:24:2:2300:300
 E:1:1:1:2:1:1
 O:10:80:0:10
-B:HIT:HURT:3d7
-B:HIT:HURT:3d7
+B:HIT:HURT:3d8
+B:HIT:HURT:3d8
 B:HIT:HURT:3d7
 B:HIT:UN_BONUS
 F:UNIQUE | MALE | CAN_SPEAK | DROP_SKELETON | DROP_CORPSE
@@ -5844,12 +5844,12 @@ D:being, full of mischief.
 
 N:383:Ibun, Son of Mim
 G:h:o
-I:110:82d10:20:80:10
+I:110:84d10:20:80:10
 W:24:2:2300:300
 E:1:1:1:2:1:1
 O:10:80:0:5
-B:HIT:HURT:3d7
-B:HIT:HURT:3d7
+B:HIT:HURT:3d8
+B:HIT:HURT:3d8
 B:HIT:HURT:3d7
 B:HIT:UN_BONUS
 F:UNIQUE | MALE | CAN_SPEAK | DROP_SKELETON | DROP_CORPSE | 
@@ -5981,14 +5981,14 @@ D:A blood-sucking bat that flies at your neck hungrily.
 
 N:392:Sangahyando of Umbar
 G:p:U
-I:110:80d10:25:80:25
+I:110:82d10:25:80:25
 W:24:2:2400:400
 E:1:1:1:2:1:1
 O:0:90:10:0
-B:HIT:HURT:4d6
-B:HIT:HURT:4d6
-B:HIT:HURT:4d6
-B:HIT:HURT:4d6
+B:HIT:HURT:4d7
+B:HIT:HURT:4d7
+B:HIT:HURT:4d7
+B:HIT:HURT:4d7
 F:UNIQUE | MALE | CAN_SPEAK | DROP_SKELETON | DROP_CORPSE | 
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:ONLY_ITEM | DROP_90 | DROP_1D2 | DROP_GOOD | 
@@ -6426,13 +6426,13 @@ D:Flesh is falling off in chunks from this decaying abomination.
 
 N:419:Mim, Betrayer of Turin
 G:h:o
-I:120:11d100:20:80:20
+I:120:11d105:20:80:20
 W:27:4:1200:1000
 E:1:1:1:2:1:1
 O:10:80:10:0
-B:HIT:HURT:3d8
-B:HIT:HURT:3d8
-B:HIT:HURT:3d8
+B:HIT:HURT:3d9
+B:HIT:HURT:3d9
+B:HIT:HURT:3d9
 B:HIT:UN_BONUS:3d12
 F:UNIQUE | MALE | CAN_SPEAK | 
 F:FORCE_MAXHP | FORCE_SLEEP | DROP_SKELETON | DROP_CORPSE | 
@@ -6626,13 +6626,13 @@ D:intelligence of his half-human ancestry.
 
 N:431:Lokkak, the Ogre Chieftain
 G:O:v
-I:120:15d100:20:100:20
+I:120:15d103:20:100:20
 W:32:2:3000:1500
 E:1:1:1:2:1:1
 O:5:85:0:5
-B:HIT:HURT:6d6
-B:HIT:HURT:6d6
-B:HIT:HURT:6d6
+B:HIT:HURT:6d7
+B:HIT:HURT:6d7
+B:HIT:HURT:6d7
 F:UNIQUE | MALE | CAN_SPEAK | WILD_TOO | WILD_SWAMP | WILD_SHORE |
 F:FORCE_MAXHP | ESCORT | 
 F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | DROP_CORPSE | 
@@ -18371,15 +18371,15 @@ F:EVIL | IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS |
 F:NO_CONF | NO_STUN | NO_SLEEP | NO_FEAR | RES_TELE | BASEANGBAND |
 S:1_IN_4 | 
 S:BRAIN_SMASH | 
-S:BA_MANA | BO_MANA | BA_NETH | BA_CHAO | BA_DARK | ANIM_DEAD | 
+S:BA_MANA | BO_MANA | BA_NETH | BA_CHAO | BA_DARK | ANIM_DEAD | S_KIN |
 S:S_MONSTERS | S_UNIQUE | S_HI_DEMON | S_HI_UNDEAD | S_HI_DRAGON | 
 S:BR_NETH | BR_DISI | HAND_DOOM | S_WRAITH | HEAL | BRAIN_SMASH |
-S:DRAIN_MANA | TELE_TO | DARKNESS
+S:DRAIN_MANA | TELE_TO | DARKNESS | SHRIEK
 D:He was the most powerful of the Valar, the equal of Manwe. 
 D:You banned him here, in the Void, and now you must destroy him 
 D:forever. However here in the Void, his spirit gained much power 
-D:for he is closer to the Eternal Flame. He is coming to you in pure 
-D:madness, which make shim even more dangerous. You are on the verge 
+D:for he is closer to the Flame Imperishable. He is coming to you in pure 
+D:madness, which makes him even more dangerous. You are on the verge 
 D:of dying! 
 
 ## Here are the Spirits, inhabitants of the Void, all called "Spirit" making it hard to know what we are up against ##
@@ -18943,3 +18943,34 @@ F:MORTAL | BASEANGBAND | HAS_LITE | SPIRIT
 D:Stupid but strong, this spirit has an orcish aura about him.
 
 ### Here endeth the Spirits ###
+
+N:1076:Neil, the Sorceror
+G:h:v
+# *Not* enough hitpoints
+I:110:50d100:20:30:30
+# Bottom of Erebor
+W:72:100:330:50000
+E:1:1:1:2:1:1
+O:0:5:90:5
+# Sorceror, not warrior
+B:HIT:HURT:1d1
+B:HIT:HURT:1d1
+F:OPEN_DOOR | SMART | MALE | DROP_SKELETON | DROP_CORPSE
+F:MORTAL | HAS_LITE | JOKEANGBAND | UNIQUE
+# Trone, of course
+F:CAN_FLY | REFLECTING | IM_FIRE
+# Thorin
+F:IM_ACID | FORCE_MAXHP
+# No cold or random gen... waiting on elven rings only at bottom of Erebor
+F:SPECIAL_GENE
+# Dig
+F:KILL_WALL
+# Obvious resistances
+F:NO_CONF | NO_SLEEP | NO_STUN | NO_FEAR
+# Well, he's been there a while
+F:ONLY_ITEM | DROP_4D2 | DROP_GOOD | DROP_GREAT
+# Essence of speed, Manathrust, Noxious Cloud, and Fireflash
+S:1_IN_1 | 
+S:HASTE | BO_MANA | BA_POIS | BA_FIRE
+D:He looks like he is looking for something, and the flecks of dragon
+D:blood on his face tell you he means business!

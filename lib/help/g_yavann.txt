@@ -20,7 +20,8 @@ surname. Her most faithful followers are the *****c_druid.txt*0[Druids].
 2. She doesn't like it if you kill monsters while praying.
 3. She hates it if you kill animals while praying.
 4. She hates it if you hurt your animal pets.
-5. She hates it if you burn or destroy trees with magic.
+5. She hates it if you burn or destroy trees with magic or allow monsters to
+   do so.
 6. She will completely abandon you if you wear The One Ring.
 ~~~~~03|Yavanna|Prayers
 #####GYavanna's Magic
@@ -28,7 +29,7 @@ Worshipping Yavanna gives the adventurer access to a set of special spells
 that come directly from the hands of Yavanna. These spells use your piety to
 cast rather than your spellpoints, and the level of spells that Yavanna will
 permit you to use is determined by your Prayer skill - how skillful you are
-in asking for his help without offending her!
+in asking for her help without offending her!
 
 There is a special book - called the "Forest Tome of Yavanna" which contains
 instructions for the procedure for each of the prayers Yavanna will grant.

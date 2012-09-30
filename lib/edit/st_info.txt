@@ -106,6 +106,7 @@ I:100:& Iron Shot~
 I:100:& Arrow~
 I:100:& Bolt~
 I:100:& Whip~
+I:100:& Small Wooden Boomerang~
 A:23:0:1:2:3:4
 O:12:13:14:15
 G:3:w
@@ -341,7 +342,7 @@ G:+:o
 W:0
 
 N:15:Casino
-A:13:0:9:10:11:12
+A:13:0:9:10:0:12
 O:17:17:17:17
 G:+:s
 W:0
@@ -523,7 +524,7 @@ W:12
 N:42:Rare Jewelry Shop
 T:100:40:256
 T:100:45:256
-A:0:0:1:2:3:0
+A:0:0:1:2:3:4
 O:34:35:36:37
 G:6:v
 F:RANDOM | DEPEND_LEVEL | DEEP_LEVEL | FORCE_LEVEL
@@ -533,7 +534,7 @@ W:10
 N:43:Jewelry Shop
 T:100:40:256
 T:100:45:256
-A:0:0:1:2:3:0
+A:0:0:1:2:3:4
 O:34:35:36:37
 G:6:y
 F:RANDOM | DEPEND_LEVEL | MEDIUM_LEVEL | FORCE_LEVEL
@@ -598,7 +599,7 @@ T:100:122:256
 T:100:123:256
 T:100:124:256
 T:100:125:256
-A:27:0:1:2:3:0
+A:27:0:1:2:3:4
 O:8:9:10:11
 G:9:v
 F:RANDOM | DEPEND_LEVEL | DEEP_LEVEL
@@ -606,7 +607,7 @@ F:RARE
 W:12
 
 N:48:Expensive Black Market
-A:0:0:1:2:3:0
+A:0:0:1:2:3:4
 O:38:39:40:41
 G:7:v
 F:RANDOM | ALL_ITEM | DEEP_LEVEL | DEPEND_LEVEL | MEDIUM_LEVEL
@@ -630,10 +631,11 @@ A:0:0:1:2:3:4
 O:0:5:6:7
 G:1:U
 W:12
+F:RANDOM
 
 N:50:Dragon Hunter
 T:100:38:256
-A:0:0:1:2:3:0
+A:0:0:1:2:3:4
 O:8:9:10:11
 G:2:v
 F:RANDOM | DEEP_LEVEL | DEPEND_LEVEL
@@ -642,7 +644,7 @@ W:12
 
 N:51:Speed Ring Market
 T:100:45:31
-A:0:0:1:2:3:0
+A:0:0:1:2:3:4
 O:34:35:36:37
 G:6:G
 F:RANDOM | SHALLOW_LEVEL | DEPEND_LEVEL
@@ -683,7 +685,7 @@ T:20:19:24
 T:50:16:256
 T:50:17:256
 T:50:18:256
-A:0:0:1:2:3:0
+A:0:0:1:2:3:4
 O:12:13:14:15
 G:3:g
 F:RANDOM | MEDIUM_LEVEL | DEPEND_LEVEL
@@ -701,7 +703,7 @@ A:0:0:59:0:3:0
 O:0:0:0:0
 G:+:g
 F:MUSEUM
-W:24
+W:1200
 
 N:58:The Prancing Pony
 I:100:& Ration~ of Food
@@ -730,3 +732,13 @@ O:11:15:26:40
 F:MEDIUM_LEVEL
 G:+:s
 W:24
+
+## Library quest in Minas Anor
+
+N:60:Library
+I:100:Identify
+A:61:0:14:15:16:2
+O:4:4:4:4
+G:+:U
+W:2
+

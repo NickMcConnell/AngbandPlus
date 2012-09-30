@@ -17,8 +17,8 @@
  */
 void inc_piety(int god, s32b amt)
 {
-        if ((god == GOD_ALL) || (god == p_ptr->pgod))
-                set_grace(p_ptr->grace + amt);
+	if ((god == GOD_ALL) || (god == p_ptr->pgod))
+		set_grace(p_ptr->grace + amt);
 }
 
 /*
@@ -26,11 +26,11 @@ void inc_piety(int god, s32b amt)
  */
 void abandon_god(int god)
 {
-        if ((god == GOD_ALL) || (god == p_ptr->pgod))
-        {
-                p_ptr->pgod = GOD_NONE;
-                set_grace(0);
-        }
+	if ((god == GOD_ALL) || (god == p_ptr->pgod))
+	{
+		p_ptr->pgod = GOD_NONE;
+		set_grace(0);
+	}
 }
 
 /*
@@ -38,24 +38,31 @@ void abandon_god(int god)
  */
 void follow_god(int god, bool silent)
 {
-        /* Poor unbelievers, i'm so mean ... BOUHAHAHA */
-        if (get_skill(SKILL_ANTIMAGIC))
-        {
-                msg_print("Don't be silly, you dont believe in gods.");
-                return;
-        }
+	/* Poor unbelievers, i'm so mean ... BOUHAHAHA */
+	if (get_skill(SKILL_ANTIMAGIC))
+	{
+		msg_print("Don't be silly, you dont believe in gods.");
+		return;
+	}
 
-        if (p_ptr->pgod == GOD_NONE)
-        {
-                p_ptr->pgod = god;
+	/* Are we allowed ? */
+	if (process_hooks(HOOK_FOLLOW_GOD, "(d,s)", "", god, "ask"))
+		return;
 
-                /* Melkor offer Udun magic */
-                GOD(GOD_MELKOR)
-                {
-                        s_info[SKILL_UDUN].hidden = FALSE;
-                        if (!silent) msg_print("You feel the dark powers of melkor in you, you can now use the Udun skill.");
-                }
-        }
+	if (p_ptr->pgod == GOD_NONE)
+	{
+		p_ptr->pgod = god;
+
+		/* Melkor offer Udun magic */
+		GOD(GOD_MELKOR)
+		{
+			s_info[SKILL_UDUN].hidden = FALSE;
+			if (!silent) msg_print("You feel the dark powers of melkor in you, you can now use the Udun skill.");
+		}
+
+		/* Anything to be done? */
+		process_hooks(HOOK_FOLLOW_GOD, "(d,s)", "", god, "done");
+	}
 }
 
 /*
@@ -76,7 +83,7 @@ bool show_god_info(bool ext)
 	}
 	else
 	{
-                int i;
+		int i;
 
 		d_ptr = &deity_info[pgod];
 
@@ -85,10 +92,10 @@ bool show_god_info(bool ext)
 		character_icky = TRUE;
 		Term_save();
 
-                roff(format("You worship %s. ", d_ptr->name));
-                for (i = 0; (i < 10) && (d_ptr->desc[i] != NULL); i++)
-                        roff(d_ptr->desc[i]);
-		roff("\n");
+		text_out(format("You worship %s. ", d_ptr->name));
+		for (i = 0; (i < 10) && (strcmp(d_ptr->desc[i], "")); i++)
+			text_out(d_ptr->desc[i]);
+		text_out("\n");
 
 		tmp = inkey();
 
@@ -104,20 +111,20 @@ bool show_god_info(bool ext)
  */
 int wisdom_scale(int max)
 {
-        int i = p_ptr->stat_ind[A_WIS];
+	int i = p_ptr->stat_ind[A_WIS];
 
-        return (i * max) / 37;
+	return (i * max) / 37;
 }
 
 /* Find a god by name */
 int find_god(cptr name)
 {
-        int i;
+	int i;
 
-        for (i = 0; i < MAX_GODS; i++)
-        {
+	for (i = 0; i < max_gods; i++)
+	{
 		/* The name matches */
-                if (streq(deity_info[i].name, name)) return (i);
-        }
-        return -1;
+		if (streq(deity_info[i].name, name)) return (i);
+	}
+	return -1;
 }

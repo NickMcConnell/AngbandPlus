@@ -11,7 +11,7 @@ bool quest_hobbit_town_gen_hook(char *fmt)
 	if ((turn < (cquest.data[1] + (DAY * 10L))) || (cquest.status > QUEST_STATUS_COMPLETED) || (small) || (p_ptr->town_num != 1)) return (FALSE);
 
 	/* Find a good position */
-	while(try)
+	while (try)
 	{
 		/* Get a random spot */
 		y = randint(20) + (cur_hgt / 2) - 10;
@@ -19,8 +19,8 @@ bool quest_hobbit_town_gen_hook(char *fmt)
 
 		/* Is it a good spot ? */
 		/* Not in player los, and avoid shop grids */
-		if (!los(py, px, y, x) && cave_empty_bold(y, x) &&
-		    cave_plain_floor_bold(y, x)) break;
+		if (!los(p_ptr->py, p_ptr->px, y, x) && cave_empty_bold(y, x) &&
+		                cave_plain_floor_bold(y, x)) break;
 
 		/* One less try */
 		try--;
@@ -40,7 +40,7 @@ bool quest_hobbit_gen_hook(char *fmt)
 	if ((cquest.status != QUEST_STATUS_TAKEN) || (dun_level != cquest.data[0]) || (dungeon_type != DUNGEON_MAZE)) return FALSE;
 
 	/* Find a good position */
-	while(try)
+	while (try)
 	{
 		/* Get a random spot */
 		y = randint(cur_hgt - 4) + 2;
@@ -69,7 +69,7 @@ bool quest_hobbit_give_hook(char *fmt)
 	m_idx = get_next_arg(fmt);
 	item = get_next_arg(fmt);
 
-	o_ptr = &inventory[item];
+	o_ptr = &p_ptr->inventory[item];
 	m_ptr = &m_list[m_idx];
 
 	if (m_ptr->r_idx != test_monster_name("Merton Proudfoot, the lost hobbit")) return (FALSE);
@@ -137,7 +137,7 @@ bool quest_hobbit_chat_hook(char *fmt)
 		q_ptr = &forge;
 		object_prep(q_ptr, lookup_kind(TV_ROD, SV_ROD_RECALL));
 		q_ptr->number = 1;
-                q_ptr->found = OBJ_FOUND_REWARD;
+		q_ptr->found = OBJ_FOUND_REWARD;
 		object_aware(q_ptr);
 		object_known(q_ptr);
 		q_ptr->ident |= IDENT_STOREB;

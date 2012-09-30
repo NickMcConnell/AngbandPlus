@@ -85,16 +85,16 @@
  */
 #if !defined(USE_TPOSIX)
 # if !defined(USE_TERMIO) && !defined(USE_TCHARS)
-#  if defined(_POSIX_VERSION)
-#   define USE_TPOSIX
-#  else
-#   if defined(USG) || defined(linux) || defined(SOLARIS)
-#    define USE_TERMIO
-#   else
-#    define USE_TCHARS
-#   endif
-#  endif
-# endif
+# if defined(_POSIX_VERSION)
+# define USE_TPOSIX
+# else
+# if defined(USG) || defined(linux) || defined(SOLARIS)
+# define USE_TERMIO
+# else
+# define USE_TCHARS
+# endif 
+# endif 
+# endif 
 #endif
 
 /*
@@ -133,8 +133,12 @@
 # include <sys/resource.h>
 # include <sys/param.h>
 # include <sys/file.h>
-# include <sys/types.h>
 #endif
+
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <dirent.h>
 
 
 /*
@@ -168,31 +172,31 @@
 
 #ifdef USE_TPOSIX
 
-static struct termios  norm_termios;
+static struct termios norm_termios;
 
-static struct termios  game_termios;
+static struct termios game_termios;
 
 #endif
 
 #ifdef USE_TERMIO
 
-static struct termio  norm_termio;
+static struct termio norm_termio;
 
-static struct termio  game_termio;
+static struct termio game_termio;
 
 #endif
 
 #ifdef USE_TCHARS
 
 static struct ltchars norm_special_chars;
-static struct sgttyb  norm_ttyb;
-static struct tchars  norm_tchars;
-static int            norm_local_chars;
+static struct sgttyb norm_ttyb;
+static struct tchars norm_tchars;
+static int norm_local_chars;
 
 static struct ltchars game_special_chars;
-static struct sgttyb  game_ttyb;
-static struct tchars  game_tchars;
-static int            game_local_chars;
+static struct sgttyb game_ttyb;
+static struct tchars game_tchars;
+static int game_local_chars;
 
 #endif
 
@@ -203,9 +207,9 @@ typedef struct term_data term_data;
 
 struct term_data
 {
-	term t;                 /* All term info */
+	term t;                  /* All term info */
 
-	WINDOW *win;            /* Pointer to the curses window */
+	WINDOW *win;             /* Pointer to the curses window */
 };
 
 /* Max number of windows on screen */
@@ -369,11 +373,11 @@ static void keymap_game_prepare(void)
 	/* Hack -- Leave "VSTART/VSTOP" alone */
 
 	/* Disable the standard control characters */
-	game_termios.c_cc[VQUIT] = (char)-1;
-	game_termios.c_cc[VERASE] = (char)-1;
-	game_termios.c_cc[VKILL] = (char)-1;
-	game_termios.c_cc[VEOF] = (char)-1;
-	game_termios.c_cc[VEOL] = (char)-1;
+	game_termios.c_cc[VQUIT] = (char) - 1;
+	game_termios.c_cc[VERASE] = (char) - 1;
+	game_termios.c_cc[VKILL] = (char) - 1;
+	game_termios.c_cc[VEOF] = (char) - 1;
+	game_termios.c_cc[VEOL] = (char) - 1;
 
 	/* Normally, block until a character is read */
 	game_termios.c_cc[VMIN] = 1;
@@ -395,22 +399,22 @@ static void keymap_game_prepare(void)
 	/* Hack -- Leave "VSTART/VSTOP" alone */
 
 	/* Disable the standard control characters */
-	game_termio.c_cc[VQUIT] = (char)-1;
-	game_termio.c_cc[VERASE] = (char)-1;
-	game_termio.c_cc[VKILL] = (char)-1;
-	game_termio.c_cc[VEOF] = (char)-1;
-	game_termio.c_cc[VEOL] = (char)-1;
+	game_termio.c_cc[VQUIT] = (char) - 1;
+	game_termio.c_cc[VERASE] = (char) - 1;
+	game_termio.c_cc[VKILL] = (char) - 1;
+	game_termio.c_cc[VEOF] = (char) - 1;
+	game_termio.c_cc[VEOL] = (char) - 1;
 
 #if 0
 	/* Disable the non-posix control characters */
-	game_termio.c_cc[VEOL2] = (char)-1;
-	game_termio.c_cc[VSWTCH] = (char)-1;
-	game_termio.c_cc[VDSUSP] = (char)-1;
-	game_termio.c_cc[VREPRINT] = (char)-1;
-	game_termio.c_cc[VDISCARD] = (char)-1;
-	game_termio.c_cc[VWERASE] = (char)-1;
-	game_termio.c_cc[VLNEXT] = (char)-1;
-	game_termio.c_cc[VSTATUS] = (char)-1;
+	game_termio.c_cc[VEOL2] = (char) - 1;
+	game_termio.c_cc[VSWTCH] = (char) - 1;
+	game_termio.c_cc[VDSUSP] = (char) - 1;
+	game_termio.c_cc[VREPRINT] = (char) - 1;
+	game_termio.c_cc[VDISCARD] = (char) - 1;
+	game_termio.c_cc[VWERASE] = (char) - 1;
+	game_termio.c_cc[VLNEXT] = (char) - 1;
+	game_termio.c_cc[VSTATUS] = (char) - 1;
 #endif
 
 	/* Normally, block until a character is read */
@@ -431,11 +435,11 @@ static void keymap_game_prepare(void)
 	game_special_chars.t_suspc = (char)26;
 
 	/* Cancel some things */
-	game_special_chars.t_dsuspc = (char)-1;
-	game_special_chars.t_rprntc = (char)-1;
-	game_special_chars.t_flushc = (char)-1;
-	game_special_chars.t_werasc = (char)-1;
-	game_special_chars.t_lnextc = (char)-1;
+	game_special_chars.t_dsuspc = (char) - 1;
+	game_special_chars.t_rprntc = (char) - 1;
+	game_special_chars.t_flushc = (char) - 1;
+	game_special_chars.t_werasc = (char) - 1;
+	game_special_chars.t_lnextc = (char) - 1;
 
 	/* Force interupt (^C) */
 	game_tchars.t_intrc = (char)3;
@@ -445,9 +449,9 @@ static void keymap_game_prepare(void)
 	game_tchars.t_stopc = (char)19;
 
 	/* Cancel some things */
-	game_tchars.t_quitc = (char)-1;
-	game_tchars.t_eofc = (char)-1;
-	game_tchars.t_brkc = (char)-1;
+	game_tchars.t_quitc = (char) - 1;
+	game_tchars.t_eofc = (char) - 1;
+	game_tchars.t_brkc = (char) - 1;
 
 #endif
 
@@ -647,8 +651,8 @@ static errr Term_xtra_gcu_event(int v)
 #else	/* USE_GETCH */
 
 /*
- * Process events (with optional wait)
- */
+* Process events (with optional wait)
+*/
 static errr Term_xtra_gcu_event(int v)
 {
 	int i, k;
@@ -714,7 +718,7 @@ static errr Term_xtra_gcu_react(void)
 	{
 		/* Set one color (note scaling) */
 		init_color(i,
-                           angband_color_table[i][1] * 1000 / 255,
+		           angband_color_table[i][1] * 1000 / 255,
 		           angband_color_table[i][2] * 1000 / 255,
 		           angband_color_table[i][3] * 1000 / 255);
 	}
@@ -737,62 +741,92 @@ static errr Term_xtra_gcu(int n, int v)
 	switch (n)
 	{
 		/* Clear screen */
-		case TERM_XTRA_CLEAR:
+	case TERM_XTRA_CLEAR:
 		touchwin(td->win);
 		(void)wclear(td->win);
 		return (0);
 
 		/* Make a noise */
-		case TERM_XTRA_NOISE:
+	case TERM_XTRA_NOISE:
 		(void)write(1, "\007", 1);
 		return (0);
 
 		/* Flush the Curses buffer */
-		case TERM_XTRA_FRESH:
+	case TERM_XTRA_FRESH:
 		(void)wrefresh(td->win);
 		return (0);
 
 #ifdef USE_CURS_SET
 
 		/* Change the cursor visibility */
-		case TERM_XTRA_SHAPE:
+	case TERM_XTRA_SHAPE:
 		curs_set(v);
 		return (0);
 
 #endif
 
 		/* Suspend/Resume curses */
-		case TERM_XTRA_ALIVE:
+	case TERM_XTRA_ALIVE:
 		return (Term_xtra_gcu_alive(v));
 
 		/* Process events */
-		case TERM_XTRA_EVENT:
+	case TERM_XTRA_EVENT:
 		return (Term_xtra_gcu_event(v));
 
 		/* Flush events */
-		case TERM_XTRA_FLUSH:
+	case TERM_XTRA_FLUSH:
 		while (!Term_xtra_gcu_event(FALSE));
 		return (0);
 
 		/* Delay */
-		case TERM_XTRA_DELAY:
+	case TERM_XTRA_DELAY:
 		usleep(1000 * v);
 		return (0);
 
-                /* Get Delay of some milliseconds */
-		case TERM_XTRA_GET_DELAY:
+		/* Get Delay of some milliseconds */
+	case TERM_XTRA_GET_DELAY:
 		{
 			int ret;
 			struct timeval tv;
 
 			ret = gettimeofday(&tv, NULL);
-                        Term_xtra_long = (tv.tv_sec * 1000) + (tv.tv_usec / 1000);
+			Term_xtra_long = (tv.tv_sec * 1000) + (tv.tv_usec / 1000);
 
 			return ret;
 		}
 
+		/* Subdirectory scan */
+	case TERM_XTRA_SCANSUBDIR:
+		{
+			DIR *directory;
+			struct dirent *entry;
+
+			scansubdir_max = 0;
+
+			directory = opendir(scansubdir_dir);
+			if (!directory)
+				return 1;
+
+			while (entry = readdir(directory))
+			{
+				char file[PATH_MAX + NAME_MAX + 2];
+				struct stat filedata;
+
+				file[PATH_MAX + NAME_MAX] = 0;
+				strncpy(file, scansubdir_dir, PATH_MAX);
+				strncat(file, "/", 2);
+				strncat(file, entry->d_name, NAME_MAX);
+				if (!stat(file, &filedata) && S_ISDIR((filedata.st_mode)))
+				{
+					string_free(scansubdir_result[scansubdir_max]);
+					scansubdir_result[scansubdir_max] = string_make(entry->d_name);
+					++scansubdir_max;
+				}
+			}
+		}
+
 		/* React to events */
-		case TERM_XTRA_REACT:
+	case TERM_XTRA_REACT:
 		Term_xtra_gcu_react();
 		return (0);
 	}
@@ -875,22 +909,22 @@ static errr Term_text_gcu(int x, int y, int n, byte a, cptr s)
 
 #ifdef ACS_CKBOARD
 				/* Wall */
-				case '#':
-					pic = ACS_CKBOARD;
-					break;
+			case '#':
+				pic = ACS_CKBOARD;
+				break;
 #endif /* ACS_CKBOARD */
 
 #ifdef ACS_BOARD
 				/* Mineral vein */
-				case '%':
-					pic = ACS_BOARD;
-					break;
+			case '%':
+				pic = ACS_BOARD;
+				break;
 #endif /* ACS_BOARD */
 
 				/* XXX */
-				default:
-					pic = '?';
-					break;
+			default:
+				pic = '?';
+				break;
 			}
 
 			/* Draw the picture */
@@ -986,7 +1020,7 @@ errr init_gcu(int argc, char **argv)
 
 	bool use_big_screen = FALSE;
 
-	
+
 	/* Parse args */
 	for (i = 1; i < argc; i++)
 	{
@@ -1006,10 +1040,10 @@ errr init_gcu(int argc, char **argv)
 
 #if defined(USG)
 	/* Initialize for USG Unix */
-	if (initscr() == NULL) return (-1);
+	if (initscr() == NULL) return ( -1);
 #else
-	/* Initialize for other systems */
-	if (initscr() == (WINDOW*)ERR) return (-1);
+/* Initialize for other systems */
+	if (initscr() == (WINDOW*)ERR) return ( -1);
 #endif
 
 	/* Activate hooks */
@@ -1075,31 +1109,31 @@ errr init_gcu(int argc, char **argv)
 		/* Color-pair 0 is *always* WHITE on BLACK */
 
 		/* Prepare the color pairs */
-		init_pair(1, COLOR_RED,     COLOR_BLACK);
-		init_pair(2, COLOR_GREEN,   COLOR_BLACK);
-		init_pair(3, COLOR_YELLOW,  COLOR_BLACK);
-		init_pair(4, COLOR_BLUE,    COLOR_BLACK);
+		init_pair(1, COLOR_RED, COLOR_BLACK);
+		init_pair(2, COLOR_GREEN, COLOR_BLACK);
+		init_pair(3, COLOR_YELLOW, COLOR_BLACK);
+		init_pair(4, COLOR_BLUE, COLOR_BLACK);
 		init_pair(5, COLOR_MAGENTA, COLOR_BLACK);
-		init_pair(6, COLOR_CYAN,    COLOR_BLACK);
-		init_pair(7, COLOR_BLACK,   COLOR_BLACK);
+		init_pair(6, COLOR_CYAN, COLOR_BLACK);
+		init_pair(7, COLOR_BLACK, COLOR_BLACK);
 
 		/* Prepare the "Angband Colors" -- Bright white is too bright */
-		colortable[0] = (COLOR_PAIR(7) | A_NORMAL);	/* Black */
-		colortable[1] = (COLOR_PAIR(0) | A_NORMAL);	/* White */
-		colortable[2] = (COLOR_PAIR(6) | A_NORMAL);	/* Grey XXX */
-		colortable[3] = (COLOR_PAIR(1) | A_BRIGHT);	/* Orange XXX */
-		colortable[4] = (COLOR_PAIR(1) | A_NORMAL);	/* Red */
-		colortable[5] = (COLOR_PAIR(2) | A_NORMAL);	/* Green */
-		colortable[6] = (COLOR_PAIR(4) | A_NORMAL);	/* Blue */
-		colortable[7] = (COLOR_PAIR(3) | A_NORMAL);	/* Umber */
-		colortable[8] = (COLOR_PAIR(7) | A_BRIGHT);	/* Dark-grey XXX */
-		colortable[9] = (COLOR_PAIR(6) | A_BRIGHT);	/* Light-grey XXX */
-		colortable[10] = (COLOR_PAIR(5) | A_NORMAL);	/* Purple */
-		colortable[11] = (COLOR_PAIR(3) | A_BRIGHT);	/* Yellow */
-		colortable[12] = (COLOR_PAIR(5) | A_BRIGHT);	/* Light Red XXX */
-		colortable[13] = (COLOR_PAIR(2) | A_BRIGHT);	/* Light Green */
-		colortable[14] = (COLOR_PAIR(4) | A_BRIGHT);	/* Light Blue */
-		colortable[15] = (COLOR_PAIR(3) | A_NORMAL);	/* Light Umber XXX */
+		colortable[0] = (COLOR_PAIR(7) | A_NORMAL); 	/* Black */
+		colortable[1] = (COLOR_PAIR(0) | A_NORMAL); 	/* White */
+		colortable[2] = (COLOR_PAIR(6) | A_NORMAL); 	/* Grey XXX */
+		colortable[3] = (COLOR_PAIR(1) | A_BRIGHT); 	/* Orange XXX */
+		colortable[4] = (COLOR_PAIR(1) | A_NORMAL); 	/* Red */
+		colortable[5] = (COLOR_PAIR(2) | A_NORMAL); 	/* Green */
+		colortable[6] = (COLOR_PAIR(4) | A_NORMAL); 	/* Blue */
+		colortable[7] = (COLOR_PAIR(3) | A_NORMAL); 	/* Umber */
+		colortable[8] = (COLOR_PAIR(7) | A_BRIGHT); 	/* Dark-grey XXX */
+		colortable[9] = (COLOR_PAIR(6) | A_BRIGHT); 	/* Light-grey XXX */
+		colortable[10] = (COLOR_PAIR(5) | A_NORMAL); 	/* Purple */
+		colortable[11] = (COLOR_PAIR(3) | A_BRIGHT); 	/* Yellow */
+		colortable[12] = (COLOR_PAIR(5) | A_BRIGHT); 	/* Light Red XXX */
+		colortable[13] = (COLOR_PAIR(2) | A_BRIGHT); 	/* Light Green */
+		colortable[14] = (COLOR_PAIR(4) | A_BRIGHT); 	/* Light Blue */
+		colortable[15] = (COLOR_PAIR(3) | A_NORMAL); 	/* Light Umber XXX */
 	}
 
 #endif
@@ -1147,7 +1181,7 @@ errr init_gcu(int argc, char **argv)
 			switch (i)
 			{
 				/* Upper left */
-				case 0:
+			case 0:
 				{
 					rows = 24;
 					cols = 80;
@@ -1156,7 +1190,7 @@ errr init_gcu(int argc, char **argv)
 				}
 
 				/* Lower left */
-				case 1:
+			case 1:
 				{
 					rows = LINES - 25;
 					cols = 80;
@@ -1166,7 +1200,7 @@ errr init_gcu(int argc, char **argv)
 				}
 
 				/* Upper right */
-				case 2:
+			case 2:
 				{
 					rows = 24;
 					cols = COLS - 81;
@@ -1176,7 +1210,7 @@ errr init_gcu(int argc, char **argv)
 				}
 
 				/* Lower right */
-				case 3:
+			case 3:
 				{
 					rows = LINES - 25;
 					cols = COLS - 81;
@@ -1186,7 +1220,7 @@ errr init_gcu(int argc, char **argv)
 				}
 
 				/* XXX */
-				default:
+			default:
 				{
 					rows = cols = y = x = 0;
 					break;

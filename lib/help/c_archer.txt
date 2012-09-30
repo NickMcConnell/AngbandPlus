@@ -8,7 +8,7 @@ around with any bow/crossbow/sling.
 
 Needing a lot of ammo, they will learn early how to make it from junk found
 in the dungeons. They also gain at skill level 20 the unique ability to make 
-their arrows/bolts/shots ricochet off monsters!
+their arrows/bolts/shots pierce through monsters!
 
 #####GStarting Stat Modifiers
 Strength         +2
@@ -37,6 +37,10 @@ Magic                   0.000           [0.200]
 Spirituality        
   Prayer                0.000           [0.500]
 Monster-lore            0.000           [0.500]
+
+#####GInnate Abilities:
+#####BAbility              Character level
+Ammo-creation               2
 
 #####GStarting Equipment
 An archer begins the game with:

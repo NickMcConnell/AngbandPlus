@@ -262,6 +262,8 @@ static monster_type lua_monster_forge @ monster_forge;
 #define RF7_AI_ANNOY            0x00001000  /* Try to tease the player */
 #define RF7_AI_SPECIAL          0x00002000  /* For quests */
 #define RF7_NO_THEFT			0x00040000  /* Monster is immune to theft */
+#define RF7_SPIRIT		0x00080000  /* This is a Spirit, coming from the Void */
+#define RF7_IM_MELEE            0x00100000  /* IM melee */
 
 
 /*
@@ -491,6 +493,7 @@ extern bool is_enemy(monster_type *m_ptr, monster_type *t_ptr);
 extern bool change_side(monster_type *m_ptr);
 extern void find_position(int y, int x, int *yy = 0, int *xx = 0);
 extern int summon_specific_level;
+extern char summon_kin_type;
 extern bool summon_specific(int y1, int x1, int lev, int type);
 extern bool summon_specific_friendly(int y1, int x1, int lev, int type, bool Group_ok);
 extern bool lua_summon_monster @ summon_monster_aux(int y, int x, int lev, bool friend, char *fct);
@@ -539,3 +542,6 @@ extern void monster_set_level(int m_idx, int level);
 #define SUMMON_QUYLTHULG            57
 
 extern bool do_control_reconnect();
+
+/* monster thing */
+extern s16b m_max;

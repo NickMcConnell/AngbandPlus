@@ -666,7 +666,7 @@ P:0:3d5:0:0:0
 F:SHOW_MODS | COULD2H
 f:COULD2H
 D:This is a polearm.
-D:The halberd has a broad, short axe blade on a 5 - 6’ long haft, with a
+D:The halberd has a broad, short axe blade on a 5 - 6ft long haft, with a
 D:spearpoint at the top, often a back-spike and occasionally a butt-spike. Used to
 D:combat heavier armour. It's usually used for cutting and stabbing.  It's the most
 D:versatile polearm in Middle-earth. The axe is used in general melee. The top
@@ -1759,7 +1759,7 @@ I:40:8:0
 W:70:0:3:30000
 A:70/8
 P:0:0d0:-4:-4:0
-F:INT | SUST_INT | SEARCH | SPELL_CONTAIN
+F:INT | SUST_INT | SEARCH | SPELL_CONTAIN | WIELD_CAST
 F:FREE_ACT | RES_BLIND | RES_CONF |
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:This rare amulet is highly desirable for mages, as it makes its wearer smarter, more attentive
@@ -2496,7 +2496,7 @@ W:25:0:4:800
 A:25/1:50/1:100/1
 P:0:1d1:0:0:0
 F:FOUNTAIN
-D:An exceptional magical drink which lets you „remember“ your current location as if you had
+D:An exceptional magical drink which lets you "remember" your current location as if you had
 D:already seen all of it.
 
 N:257:Heroism
@@ -2798,10 +2798,50 @@ P:0:1d3:0:0:0
 F:SHOW_MODS
 D:An arrow designed for longer flight. Consequently, it is lighter and hits with less force.
 
-# XXX
-# XXX
-# XXX
-# XXX
+N:295:& Boulder~
+G:*:W
+I:11:1:0
+W:3:0:50:1
+A:3/200
+P:0:5d5:0:0:0
+F:SPECIAL_GENE
+D:A big nasty looking piece of rock.
+
+# Used for a quest
+N:296:& Flame~ Imperishable
+G:~:v
+I:11:255:0
+W:127:0:4:0
+A:127/255
+P:0:1d1:0:0:0
+T:39:2
+F:NORM_ART | FULL_NAME | SPECIAL_GENE
+F:ACTIVATE | ACTIVATE_NO_WIELD
+a:SPELL=Artifact Eternal Flame
+
+N:297:& Necromantic Teeth~
+G:|:D
+I:23:34:0
+W:0:0:7:10
+A:0/1:5/1:10/1:20/1
+P:0:1d4:0:0:0
+F:SHOW_MODS | VAMPIRIC | SPECIAL_GENE
+D:This looks like some animal's teeth or at least you think 
+D:it comes from an animal...
+
+# The Horn of the Thunderlords
+N:298:& Golden Horn~ of the Thunderlords
+G:_:d
+I:55:23:-1:SPELL=Artifact Thunderlords
+W:50:10:10:12000
+P:0:1d4:0:0:0
+A:50/200
+T:55:8
+F:NO_RECHARGE | EASY_USE | RECHARGED | NORM_ART | FULL_NAME | SPECIAL_GENE
+D:This horn was given to you as a reward. Blow it if you are in dire need
+D:of leaving your current location fast.
+
+
 # XXX
 # XXX
 
@@ -2814,6 +2854,7 @@ I:55:1:0
 W:5:0:50:100
 A:5/1:15/1:35/1:45/1:65/1:75/1:85/1:95/1
 P:0:1d2:0:0:0
+F:SPECIAL_GENE
 
 N:301:Nothing
 G:_:d
@@ -3174,7 +3215,7 @@ D:A rod of knowledge which will tell you about nearby creatures' health.
 N:354:Recall
 G:-:d
 I:66:3:80
-W:30:0:15:4000
+W:30:0:15:4500
 A:30/4
 P:0:1d1:0:0:0
 D:A rod which can transport you from the depths to your home and back.
@@ -3372,7 +3413,7 @@ G:=:d
 I:45:58:0
 W:10:0:2:1000
 A:10/1
-F:SPELL_CONTAIN
+F:SPELL_CONTAIN | WIELD_CAST
 f:SPELL_CONTAIN
 D:This ring is a container for spells. Those that are skilled in copying spells can inscribe a
 D:spell into it.
@@ -3384,7 +3425,7 @@ G:":d
 I:40:27:0
 W:10:0:2:1000
 A:10/1
-F:SPELL_CONTAIN
+F:SPELL_CONTAIN | WIELD_CAST
 f:SPELL_CONTAIN
 D:This amulet is a container for spells. Those that are skilled in copying spells can inscribe a
 D:spell into it.
@@ -4964,265 +5005,26 @@ A:20/2
 
 #### Here come the shape-shifting potions. ####
 
-N:605:Abomination
+N:605:& Morphic Oil~ of #
 G:!:d
-I:72:1:80
-W:0:0:4:0
-A:0/1
+I:72:1:0
+W:5:0:4:100
+A:1/3:5/1:10/1
 P:0:1d1:0:0:0
-F:FOUNTAIN
+F:FULL_NAME | EASY_KNOW
 
-N:606:Shape of Wolf
-G:!:d
-I:72:2:50
-W:5:0:4:300
-A:5/1
-P:0:1d1:0:0:0
-F:FOUNTAIN
-
-N:607:Shape of Ape
-G:!:d
-I:72:3:50
-W:5:0:4:300
-A:5/1
-P:0:1d1:0:0:0
-F:FOUNTAIN
-
-N:608:Shape of Goat
-G:!:d
-I:72:4:50
-W:5:0:4:300
-A:5/1
-P:0:1d1:0:0:0
-F:FOUNTAIN
-
-N:609:Shape of Insect
-G:!:d
-I:72:5:40
-W:5:0:4:300
-A:5/1
-P:0:1d1:0:0:0
-F:FOUNTAIN
-
-N:610:Shape of Sparrow
-G:!:d
-I:72:6:40
-W:5:0:4:300
-A:5/1
-P:0:1d1:0:0:0
-F:FOUNTAIN
-
-N:611:Shape of Ent
-G:!:d
-I:72:7:35
-W:5:0:4:300
-A:5/1
-P:0:1d1:0:0:0
-F:FOUNTAIN
-
-N:612:Shape of Vampire
-G:!:d
-I:72:8:20
-W:5:0:4:300
-A:5/1
-P:0:1d1:0:0:0
-F:FOUNTAIN
-
-N:613:Shape of Spider
-G:!:d
-I:72:9:40
-W:5:0:4:300
-A:5/1
-P:0:1d1:0:0:0
-F:FOUNTAIN
-
-N:614:Shape of Mana ball
-G:!:d
-I:72:10:30
-W:5:0:4:300
-A:5/1
-P:0:1d1:0:0:0
-F:FOUNTAIN
-
-N:615:Shape of Fire cloud
-G:!:d
-I:72:11:35
-W:5:0:4:300
-A:5/1
-P:0:1d1:0:0:0
-F:FOUNTAIN
-
-N:616:Shape of Cold cloud
-G:!:d
-I:72:12:35
-W:5:0:4:300
-A:5/1
-P:0:1d1:0:0:0
-F:FOUNTAIN
-
-N:617:Shape of Chaos cloud
-G:!:d
-I:72:13:30
-W:5:0:4:300
-A:5/1
-P:0:1d1:0:0:0
-F:FOUNTAIN
+# XXX 606 -> 617
 
 # The Mimic's cloaks
 
-N:618:[Wolf]
+N:618:& #~
 G:(:y
-I:35:102:0:50
+I:35:100:0:50
 W:5:130:30:100
-A:5/1
+A:5/1:15/1:35/1:55/1:75/1
 P:1:1d1:0:0:0
 
-N:619:[Ape]
-G:(:y
-I:35:103:0:45
-W:15:130:30:400
-A:15/1
-P:1:1d1:0:0:0
-
-N:620:[Goat]
-G:(:y
-I:35:104:0:35
-W:15:130:30:400
-A:15/1
-P:1:1d1:0:0:0
-
-N:621:[Insect]
-G:(:y
-I:35:105:0:40
-W:10:130:30:300
-A:10/1
-P:1:1d1:0:0:0
-
-N:622:[Sparrow]
-G:(:y
-I:35:106:0:45
-W:20:130:30:300
-A:20/1
-P:1:1d1:0:0:0
-
-N:623:[Ent]
-G:(:y
-I:35:107:0:35
-W:15:130:30:400
-A:15/1
-P:1:1d1:0:0:0
-
-N:624:[Vampire]
-G:(:y
-I:35:108:0:55
-W:30:130:30:800
-A:30/1
-P:1:1d1:0:0:0
-
-N:625:[Spider]
-G:(:y
-I:35:109:0:55
-W:35:130:30:600
-A:35/1
-P:1:1d1:0:0:0
-
-N:626:[Mana ball]
-G:(:y
-I:35:110:0:45
-W:35:130:30:700
-A:35/1
-P:1:1d1:0:0:0
-
-N:627:[Fire cloud]
-G:(:y
-I:35:111:0:55
-W:30:130:30:800
-A:30/1
-P:1:1d1:0:0:0
-
-N:628:[Cold cloud]
-G:(:y
-I:35:112:0:55
-W:30:130:30:800
-A:30/1
-P:1:1d1:0:0:0
-
-N:629:[Chaos Cloud]
-G:(:y
-I:35:113:0:45
-W:25:130:30:500
-A:25/1
-P:1:1d1:0:0:0
-
-N:630:[Ghost]
-G:(:y
-I:35:114:0:50
-W:20:130:30:600
-A:20/1
-P:1:1d1:0:0:0
-
-N:631:[Kobold]
-G:(:y
-I:35:115:0:45
-W:20:130:30:300
-A:20/1
-P:1:1d1:0:0:0
-
-N:632:[Dragon]
-G:(:y
-I:35:116:0:35
-W:35:130:30:900
-A:35/1
-P:1:1d1:0:0:0
-
-N:633:[Demon]
-G:(:y
-I:35:117:0:35
-W:45:130:30:1200
-A:45/1
-P:1:1d1:0:0:0
-
-N:634:[Hound]
-G:(:y
-I:35:118:0:45
-W:55:130:30:2000
-A:55/1
-P:1:1d1:0:0:0
-
-N:635:[Quylthulg]
-G:(:y
-I:35:119:0:30
-W:35:130:30:800
-A:35/1
-P:1:1d1:0:0:0
-
-N:636:[Maia]
-G:(:y
-I:35:120:0:30
-W:75:130:30:60000
-A:75/3
-P:1:1d1:0:0:0
-
-N:637:[Serpent]
-G:(:y
-I:35:121:0:50
-W:25:130:30:400
-A:25/1
-P:1:1d1:0:0:0
-
-N:638:[Giant]
-G:(:y
-I:35:122:0:50
-W:60:130:30:1200
-A:60/1
-P:1:1d1:0:0:0
-
-N:639:[Vala]
-G:):y
-I:35:123:0:25
-W:100:130:30:100000
-A:100/5
-P:1:1d1:0:0:0
+# XXX 619 -> 639
 
 # One more essence...
 
@@ -5303,34 +5105,34 @@ F:INSTA_ART | SPECIAL_GENE
 N:648:& Small Wooden Boomerang~
 G:{:y
 I:15:1:0
-W:5:0:60:400
-A:5/1
+W:1:0:60:10
+A:1/1:5/2:10/2:20/2
 P:0:1d4:0:0:0
 D:A small curved piece of wood.
 
 N:649:& Wooden Boomerang~
 G:{:y
 I:15:2:0
-W:10:0:60:400
-A:10/1
-P:0:1d9:0:0:0
+W:10:0:60:100
+A:10/1:20/2
+P:0:1d8:0:0:0
 D:A strange, curved leaf-shaped piece of wood.
 
 N:650:& Small Metal Boomerang~
 G:{:y
 I:15:3:0
-W:15:0:60:400
-A:15/1
-P:0:1d8:0:0:0
-D:A short boomerang with metal blades on the „forward“ edges.
+W:20:0:60:400
+A:20/1:30/2
+P:0:3d4:0:0:0
+D:A short boomerang with metal blades on the "forward" edges.
 
 N:651:& metal Boomerang~
 G:{:y
 I:15:4:0
-W:20:0:60:300
-A:20/1
-P:0:2d4:0:0:0
-D:A strange curved leaf-shaped piece of wood, its „forward“ edges enhanced with metal blades.
+W:30:0:60:800
+A:30/1:50/2
+P:0:4d5:0:0:0
+D:A strange curved leaf-shaped piece of wood, its "forward" edges enhanced with metal blades.
 
 # The Space-Time Anchor -- see artifact list
 N:652:& Anchor~
@@ -5443,31 +5245,32 @@ A:10/2
 
 ##### Music Books #####
 
-N:665:& Book~ of the Lays of the Heroes
-G:?:y
-I:111:59:0
-W:20:0:30:10000
-A:20/1
-P:0:1d1:0:0:0
-D:A collection of tunes which grant power over the hearts of listeners.
-
-N:666:& Book~ of Sound Patterns
-G:?:y
-I:111:58:0
-W:20:0:30:10000
-A:20/1
-P:0:1d1:0:0:0
-D:A book of mind wrecking songs.
-
-#N:667:[Harps of Rivendell]
-#G:?:o
-#I:119:2:0
-#W:40:0:30:25000
-#A:40/1
+#N:665:& Songbook~ of the Lays of the Heroes
+#G:?:y
+#I:111:59:0
+#W:20:0:30:10000
+#A:20/1
 #P:0:1d1:0:0:0
-#F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-#D:A volume of exceptionally beautiful songs, which bring a memory of the elder days back to the
-#D:world.
+#F:FULL_NAME | EASY_KNOW |
+#D:A collection of tunes which grant power over the hearts of listeners.
+
+#N:666:& Songbook~ of Sound Patterns
+#G:?:y
+#I:111:58:0
+#W:20:0:30:10000
+#A:20/1
+#P:0:1d1:0:0:0
+#F:FULL_NAME | EASY_KNOW |
+#D:A book of mind wrecking songs.
+
+#N:667:& Songbook~ of Sound Patterns
+#G:?:y
+#I:111:60:0
+#W:20:0:30:10000
+#A:20/1
+#P:0:1d1:0:0:0
+#F:FULL_NAME | EASY_KNOW |
+#D:A book of mind wrecking songs.
 
 #N:668:[Lays of Beleriand]
 #G:?:o
@@ -5480,60 +5283,60 @@ D:A book of mind wrecking songs.
 
 ### Musical Instruments ###
 
-N:669:& Flute~
+N:669:& Horn~
 G:/:W
-I:14:1:0
-W:10:0:30:100
-A:10/1
+I:14:60:1
+W:7:0:30:400
+A:7/2:20/1:40/1:80/1
 P:0:1d1:0:0:0
-F:ACTIVATE
-D:A hollowed-out wooden stick with several holes drilled into it. If you blow into it the right
-D:way, you can produce noise with it.
+F:CON | ACTIVATE | WIELD_CAST
+D:A simple wind instrument made from brass. If used by inexperienced musicians it sounds
+D:like somebody making "prbbt!" noises down a drainpipe.
 
 N:670:& Drum~
 G:/:W
-I:14:5:0
-W:30:0:30:400
-A:30/1
+I:14:58:1
+W:7:0:30:400
+A:7/2:20/1:40/1:80/1
 P:0:1d1:0:0:0
-F:ACTIVATE
+F:STR | WIELD_CAST
 D:A sort of clay pot with a bit of skin stretched over its mouth.
 
 N:671:& Harp~
 G:/:W
-I:14:6:0
-W:35:0:30:400
-A:35/1
+I:14:59:1
+W:7:0:30:400
+A:7/2:20/1:40/1:80/1
 P:0:1d1:0:0:0
-F:ACTIVATE
+F:CHR | WIELD_CAST
 D:A number of strings held by a wooden frame.
 
-N:672:& Banjo~
-G:/:W
-I:14:2:0
-W:15:0:30:200
-A:15/1
-P:0:1d1:0:0:0
-F:ACTIVATE
-D:A combination of kithara and tambourine. It looks strange and sounds bad.
+#N:672:& Banjo~
+#G:/:W
+#I:14:2:0
+#W:15:0:30:200
+#A:15/1
+#P:0:1d1:0:0:0
+#F:ACTIVATE
+#D:A combination of kithara and tambourine. It looks strange and sounds bad.
 
-N:673:& Lute~
-G:/:W
-I:14:3:0
-W:20:0:30:200
-A:20/1
-P:0:1d1:0:0:0
-F:ACTIVATE
-D:A string instrument, to be plucked with your fingers.
+#N:673:& Lute~
+#G:/:W
+#I:14:3:0
+#W:20:0:30:200
+#A:20/1
+#P:0:1d1:0:0:0
+#F:ACTIVATE
+#D:A string instrument, to be plucked with your fingers.
 
-N:674:& Mandolin~
-G:/:W
-I:14:4:0
-W:25:0:30:300
-A:25/1
-P:0:1d1:0:0:0
-F:ACTIVATE
-D:A small string instrument, typically strummed with your fingers or a plectron.
+#N:674:& Mandolin~
+#G:/:W
+#I:14:4:0
+#W:25:0:30:300
+#A:25/1
+#P:0:1d1:0:0:0
+#F:ACTIVATE
+#D:A small string instrument, typically strummed with your fingers or a plectron.
 
 # The Palantir of Orthanc -- see artifact list
 
@@ -5545,6 +5348,7 @@ P:0:10d10:0:0:0
 F:INSTA_ART
 
 ### The Monster Egg template; note the theoretical weight of 3 lbs ###
+# More miscellaneous stuff
 # More miscellaneous stuff
 
 N:676:Egg
@@ -5736,17 +5540,7 @@ A:45/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID
 
-### and another musical instrument.
-
-N:699:& Horn~
-G:/:W
-I:14:7:0
-W:15:0:30:400
-A:15/1:25/1:35/1:45/1
-P:0:1d1:0:0:0
-F:ACTIVATE
-D:A simple wind instrument made from brass. If used by inexperienced musicians it sounds
-D:like somebody making „prbbt!“ noises down a drainpipe.
+#XXX
 
 # The Ring of Precognition (now a k_info.txt artifact)
 N:700:& Ring~ of Precognition
@@ -5892,32 +5686,18 @@ A:10/1
 P:0:1d1:0:0:0
 D:A standard spellbook with one spell. Fortunately it's a good one.
 
-N:740:& Book~ of Recall
-G:?:w
-I:111:52:0
-W:20:0:30:6000
-A:20/1
-P:0:1d1:0:0:0
-D:A standard spellbook with one spell.
-D:It makes you feel home sick.
+# XXX
 
 N:741:& Book~ of Summoning
 G:?:w
-I:111:53:0
+I:111:52:0
 W:7:0:30:700
 A:7/1
 P:0:1d1:0:0:0
 D:A standard spellbook with one spell.
 D:It smells like camel.
 
-N:742:& Book~ of Fireflash
-G:?:w
-I:111:54:0
-W:12:0:30:100
-A:12/1
-P:0:1d1:0:0:0
-D:A standard spellbook with one spell.
-D:It's bit singed.
+# XXX
 
 # The Potion of Learning - another artifact!
 
@@ -5930,7 +5710,8 @@ P:0:1d1:0:0:0
 T:71:49
 F:NORM_ART | FULL_NAME
 F:IGNORE_ACID | IGNORE_FIRE | IGNORE_COLD | IGNORE_ELEC
-D:Konijn wonders what this is
+D:This old potion is supposed to grant more learning power
+D:to its user.
 
 # XXX
 
@@ -5941,13 +5722,7 @@ D:Konijn wonders what this is
 # XXX
 # XXX
 
-# Scroll
-N:749:Spell
-G:?:d
-I:70:54:0
-W:100:0:5:200000
-A:100/16
-D:Even konijn doesn't know what a scroll of spell is.
+# XXX
 
 # XXX
 
@@ -6075,10 +5850,17 @@ A:50/4
 P:0:1d1:0:0:0
 F:FULL_NAME | EASY_KNOW
 
-# XXX
-# XXX
-# XXX
-# XXX
+# for the Library Quest
+# Tome of PLAYER
+N:769:Tome of#
+G:?:v
+I:111:61:0
+W:50:0:30:25000
+A:50/4
+P:0:1d1:0:0:0
+F:FULL_NAME | EASY_KNOW | ATTR_MULTI | SPECIAL_GENE
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | NORM_ART
+D:This book has some of your favorite spells inside.
 
 # The Ring of Phasing -- see artifact list
 
@@ -6268,7 +6050,7 @@ I:115:55:0
 W:10:0:150:500
 A:10/1
 P:0:4d6:0:0:0
-F:SHOW_MODS | SLAY_DEMON
+F:SHOW_MODS | SLAY_DEMON | WIELD_CAST
 D:This blade has been taken from the corpse of a demon,
 D:some demonic energy is still coursing through it, helping
 D:you slay other demons.
@@ -6279,7 +6061,7 @@ I:115:56:0
 W:15:0:70:500
 A:15/1
 P:5:1d1:0:0:0
-F:REGEN
+F:REGEN | WIELD_CAST
 D:This shield has been taken from the corpse of a demon,
 D:some demonic energy is still coursing through it, giving
 D:life to any that wield it.
@@ -6290,7 +6072,7 @@ I:115:57:0
 W:20:0:30:500
 A:20/1
 P:2:1d1:0:0:0
-F:LITE2
+F:LITE2 | WIELD_CAST
 D:This horn is about six feet long.  Just looking at it makes you nervous.
 
 # XXX

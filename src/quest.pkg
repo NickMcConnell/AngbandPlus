@@ -1,7 +1,7 @@
 /* File: quest.pkg */
 
 /*
- * Purpose: Lua interface defitions for quests.
+ * Purpose: Lua interface definitions for quests.
  * To be processed by tolua to generate C source code.
  */
 

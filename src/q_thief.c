@@ -1,3 +1,6 @@
+#undef cquest
+#define cquest (quest[QUEST_THIEVES])
+
 bool quest_thieves_gen_hook(char *fmt)
 {
 	int x, y;
@@ -6,6 +9,10 @@ bool quest_thieves_gen_hook(char *fmt)
 	bool again = TRUE;
 
 	if (p_ptr->inside_quest != QUEST_THIEVES) return FALSE;
+
+	/* Just in case we didnt talk the the mayor */
+	if (cquest.status == QUEST_STATUS_UNTAKEN)
+		cquest.status = QUEST_STATUS_TAKEN;
 
 	/* Start with perm walls */
 	for (y = 0; y < cur_hgt; y++)
@@ -34,7 +41,7 @@ bool quest_thieves_gen_hook(char *fmt)
 		again = FALSE;
 		for (x = 0; x < INVEN_TOTAL; x++)
 		{
-			object_type *o_ptr = &inventory[x];
+			object_type *o_ptr = &p_ptr->inventory[x];
 
 			if (!o_ptr->k_idx) continue;
 
@@ -60,8 +67,8 @@ bool quest_thieves_hook(char *fmt)
 	if (p_ptr->inside_quest != QUEST_THIEVES) return FALSE;
 
 	/* ALARM !!! */
-	if ((cave[17][22].feat == FEAT_OPEN) || 
-            (cave[17][22].feat == FEAT_BROKEN))
+	if ((cave[17][22].feat == FEAT_OPEN) ||
+	                (cave[17][22].feat == FEAT_BROKEN))
 	{
 		cmsg_print(TERM_L_RED, "An alarm rings!");
 		aggravate_monsters(0);
@@ -106,38 +113,29 @@ bool quest_thieves_hook(char *fmt)
 };
 bool quest_thieves_finish_hook(char *fmt)
 {
-	object_type forge, *q_ptr;
 	s32b q_idx;
 
 	q_idx = get_next_arg(fmt);
 
 	if (q_idx != QUEST_THIEVES) return FALSE;
 
-	c_put_str(TERM_YELLOW, "Thank you for killing the band of thieves! Take this small reward.", 8, 0);
+	c_put_str(TERM_YELLOW, "Thank you for killing the band of thieves!.", 8, 0);
+	c_put_str(TERM_YELLOW, "You can use the hideout as your house as a reward.", 9, 0);
 
-	q_ptr = &forge;
-	object_prep(q_ptr, lookup_kind(TV_SWORD, SV_LONG_SWORD));
-	q_ptr->number = 1;
-        q_ptr->found = OBJ_FOUND_REWARD;
-	apply_magic(q_ptr, 5, TRUE, TRUE, FALSE);
-	object_aware(q_ptr);
-	object_known(q_ptr);
-	(void)inven_carry(q_ptr, FALSE);
+	/* Continue the plot */
 
-        /* Continue the plot */
-
-        /* 10% chance to randomly select, otherwise use the combat/magic skill ratio */
-        if (magik(10) || (s_info[SKILL_COMBAT].value == s_info[SKILL_MAGIC].value))
-        {
-                *(quest[q_idx].plot) = (magik(50))?QUEST_TROLL:QUEST_WIGHT;
-        }
-        else
-        {
-                if (s_info[SKILL_COMBAT].value > s_info[SKILL_MAGIC].value)
-                        *(quest[q_idx].plot) = QUEST_TROLL;
-                else
-                        *(quest[q_idx].plot) = QUEST_WIGHT;
-        }
+	/* 10% chance to randomly select, otherwise use the combat/magic skill ratio */
+	if (magik(10) || (s_info[SKILL_COMBAT].value == s_info[SKILL_MAGIC].value))
+	{
+		*(quest[q_idx].plot) = (magik(50)) ? QUEST_TROLL : QUEST_WIGHT;
+	}
+	else
+	{
+		if (s_info[SKILL_COMBAT].value > s_info[SKILL_MAGIC].value)
+			*(quest[q_idx].plot) = QUEST_TROLL;
+		else
+			*(quest[q_idx].plot) = QUEST_WIGHT;
+	}
 	quest[*(quest[q_idx].plot)].init(*(quest[q_idx].plot));
 
 	del_hook(HOOK_QUEST_FINISH, quest_thieves_finish_hook);
@@ -161,7 +159,7 @@ bool quest_thieves_feeling_hook(char *fmt)
 
 bool quest_thieves_init_hook(int q_idx)
 {
-	if ((quest[QUEST_THIEVES].status >= QUEST_STATUS_TAKEN) && (quest[QUEST_THIEVES].status < QUEST_STATUS_FINISHED))
+	if ((cquest.status >= QUEST_STATUS_UNTAKEN) && (cquest.status < QUEST_STATUS_FINISHED))
 	{
 		add_hook(HOOK_END_TURN, quest_thieves_hook, "thieves_end_turn");
 		add_hook(HOOK_QUEST_FINISH, quest_thieves_finish_hook, "thieves_finish");

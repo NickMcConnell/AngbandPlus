@@ -19,25 +19,25 @@
  * Global array for looping through the "keypad directions"
  */
 s16b ddd[9] =
-{ 2, 8, 6, 4, 3, 1, 9, 7, 5 };
+	{ 2, 8, 6, 4, 3, 1, 9, 7, 5 };
 
 /*
  * Global arrays for converting "keypad direction" into offsets
  */
 s16b ddx[10] =
-{ 0, -1, 0, 1, -1, 0, 1, -1, 0, 1 };
+	{ 0, -1, 0, 1, -1, 0, 1, -1, 0, 1 };
 
 s16b ddy[10] =
-{ 0, 1, 1, 1, 0, 0, 0, -1, -1, -1 };
+	{ 0, 1, 1, 1, 0, 0, 0, -1, -1, -1 };
 
 /*
  * Global arrays for optimizing "ddx[ddd[i]]" and "ddy[ddd[i]]"
  */
 s16b ddx_ddd[9] =
-{ 0, 0, 1, -1, 1, -1, 1, -1, 0 };
+	{ 0, 0, 1, -1, 1, -1, 1, -1, 0 };
 
 s16b ddy_ddd[9] =
-{ 1, -1, 0, 0, 1, 1, -1, -1, 0 };
+	{ 1, -1, 0, 0, 1, 1, -1, -1, 0 };
 
 
 
@@ -46,10 +46,10 @@ s16b ddy_ddd[9] =
  * This array can also be used to convert a number to an octal digit
  */
 char hexsym[16] =
-{
-	'0', '1', '2', '3', '4', '5', '6', '7',
-	'8', '9', 'A', 'B', 'C', 'D', 'E', 'F'
-};
+	{
+		'0', '1', '2', '3', '4', '5', '6', '7',
+		'8', '9', 'A', 'B', 'C', 'D', 'E', 'F'
+	};
 
 
 /*
@@ -1051,49 +1051,49 @@ byte blows_table[12][12] =
 	/* 0,   1,   2,   3,   4,   5,   6,   7,   8,   9,  10,  11+ */
 
 	/* 0  */
-	{  1,   1,   1,   1,   1,   1,   2,   2,   2,   2,   2,   3 },
+	{ 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 3 },
 
 	/* 1  */
-	{  1,   1,   1,   1,   2,   2,   3,   3,   3,   4,   4,   4 },
+	{ 1, 1, 1, 1, 2, 2, 3, 3, 3, 4, 4, 4 },
 
 	/* 2  */
-	{  1,   1,   2,   2,   3,   3,   4,   4,   4,   5,   5,   5 },
+	{ 1, 1, 2, 2, 3, 3, 4, 4, 4, 5, 5, 5 },
 
 	/* 3  */
-	{  1,   2,   2,   3,   3,   4,   4,   4,   5,   5,   5,   5 },
+	{ 1, 2, 2, 3, 3, 4, 4, 4, 5, 5, 5, 5 },
 
 	/* 4  */
-	{  1,   2,   2,   3,   3,   4,   4,   5,   5,   5,   5,   5 },
+	{ 1, 2, 2, 3, 3, 4, 4, 5, 5, 5, 5, 5 },
 
 	/* 5  */
-	{  2,   2,   3,   3,   4,   4,   5,   5,   5,   5,   5,   6 },
+	{ 2, 2, 3, 3, 4, 4, 5, 5, 5, 5, 5, 6 },
 
 	/* 6  */
-	{  2,   2,   3,   3,   4,   4,   5,   5,   5,   5,   5,   6 },
+	{ 2, 2, 3, 3, 4, 4, 5, 5, 5, 5, 5, 6 },
 
 	/* 7  */
-	{  2,   3,   3,   4,   4,   4,   5,   5,   5,   5,   5,   6 },
+	{ 2, 3, 3, 4, 4, 4, 5, 5, 5, 5, 5, 6 },
 
 	/* 8  */
-	{  3,   3,   3,   4,   4,   4,   5,   5,   5,   5,   6,   6 },
+	{ 3, 3, 3, 4, 4, 4, 5, 5, 5, 5, 6, 6 },
 
 	/* 9  */
-	{  3,   3,   4,   4,   4,   4,   5,   5,   5,   5,   6,   6 },
+	{ 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 6, 6 },
 
 	/* 10 */
-	{  3,   3,   4,   4,   4,   4,   5,   5,   5,   6,   6,   6 },
+	{ 3, 3, 4, 4, 4, 4, 5, 5, 5, 6, 6, 6 },
 
 	/* 11+ */
-	{  3,   3,   4,   4,   4,   4,   5,   5,   6,   6,   6,   6 },
+	{ 3, 3, 4, 4, 4, 4, 5, 5, 6, 6, 6, 6 },
 };
 
 
 s16b arena_monsters[MAX_ARENA_MONS] =
 {
-	 30,	 43,	102,	118,	126,	149,	173,
-	183,	188,	191,	216,	230,	238,	244,
-	255,	262,	293,	297,	321,	349,	372,
-	401,	415,	454,	464,	485,	538,	631,
+	30, 43, 102, 118, 126, 149, 173,
+	183, 188, 191, 216, 230, 238, 244,
+	255, 262, 293, 297, 321, 349, 372,
+	401, 415, 454, 464, 485, 538, 631,
 	641
 };
 
@@ -1123,36 +1123,36 @@ s16b arena_monsters[MAX_ARENA_MONS] =
  */
 byte extract_energy[300] =
 {
-	/* Slow */     1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
-	/* Slow */     1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
-	/* Slow */     1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
-	/* Slow */     1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
-	/* Slow */     1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
-	/* Slow */     1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
-	/* S-50 */     1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
-	/* S-40 */     2,  2,  2,  2,  2,  2,  2,  2,  2,  2,
-	/* S-30 */     2,  2,  2,  2,  2,  2,  2,  3,  3,  3,
-	/* S-20 */     3,  3,  3,  3,  3,  4,  4,  4,  4,  4,
-	/* S-10 */     5,  5,  5,  5,  6,  6,  7,  7,  8,  9,
-	/* Norm */    10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
-	/* F+10 */    20, 21, 22, 23, 24, 25, 26, 27, 28, 29,
-	/* F+20 */    30, 31, 32, 33, 34, 35, 36, 36, 37, 37,
-	/* F+30 */    38, 38, 39, 39, 40, 40, 40, 41, 41, 41,
-	/* F+40 */    42, 42, 42, 43, 43, 43, 44, 44, 44, 44,
-	/* F+50 */    45, 45, 45, 45, 45, 46, 46, 46, 46, 46,
-	/* F+60 */    47, 47, 47, 47, 47, 48, 48, 48, 48, 48,
-	/* F+70 */    49, 49, 49, 49, 49, 49, 49, 49, 49, 49,
-	/* Fast */    49, 49, 49, 49, 49, 49, 49, 49, 49, 49,
-	/* Virtual */  49, 49, 49, 49, 49, 49, 49, 49, 49, 49,
-	/* Virtual */  49, 49, 49, 49, 49, 49, 49, 49, 49, 49,
-	/* Virtual */  49, 49, 49, 49, 49, 49, 49, 49, 49, 49,
-	/* Virtual */  49, 49, 49, 49, 49, 49, 49, 49, 49, 49,
-	/* Virtual */  49, 49, 49, 49, 49, 49, 49, 49, 49, 49,
-	/* Virtual */  49, 49, 49, 49, 49, 49, 49, 49, 49, 49,
-	/* Virtual */  49, 49, 49, 49, 49, 49, 49, 49, 49, 49,
-	/* Virtual */  49, 49, 49, 49, 49, 49, 49, 49, 49, 49,
-	/* Virtual */  49, 49, 49, 49, 49, 49, 49, 49, 49, 49,
-	/* Virtual */  49, 49, 49, 49, 49, 49, 49, 49, 49, 49,
+	/* Slow */     1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
+	/* Slow */     1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
+	/* Slow */     1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
+	/* Slow */     1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
+	/* Slow */     1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
+	/* Slow */     1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
+	/* S-50 */     1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
+	/* S-40 */     2,    2,    2,    2,    2,    2,    2,    2,    2,    2,
+	/* S-30 */     2,    2,    2,    2,    2,    2,    2,    3,    3,    3,
+	/* S-20 */     3,    3,    3,    3,    3,    4,    4,    4,    4,    4,
+	/* S-10 */     5,    5,    5,    5,    6,    6,    7,    7,    8,    9,
+	/* Norm */    10,   11,   12,   13,   14,   15,   16,   17,   18,   19,
+	/* F+10 */    20,   21,   22,   23,   24,   25,   26,   27,   28,   29,
+	/* F+20 */    30,   31,   32,   33,   34,   35,   36,   36,   37,   37,
+	/* F+30 */    38,   38,   39,   39,   40,   40,   40,   41,   41,   41,
+	/* F+40 */    42,   42,   42,   43,   43,   43,   44,   44,   44,   44,
+	/* F+50 */    45,   45,   45,   45,   45,   46,   46,   46,   46,   46,
+	/* F+60 */    47,   47,   47,   47,   47,   48,   48,   48,   48,   48,
+	/* F+70 */    49,   49,   49,   49,   49,   49,   49,   49,   49,   49,
+	/* Fast */    49,   49,   49,   49,   49,   49,   49,   49,   49,   49,
+	/* Virtual */  49,   49,   49,   49,   49,   49,   49,   49,   49,   49,
+	/* Virtual */  49,   49,   49,   49,   49,   49,   49,   49,   49,   49,
+	/* Virtual */  49,   49,   49,   49,   49,   49,   49,   49,   49,   49,
+	/* Virtual */  49,   49,   49,   49,   49,   49,   49,   49,   49,   49,
+	/* Virtual */  49,   49,   49,   49,   49,   49,   49,   49,   49,   49,
+	/* Virtual */  49,   49,   49,   49,   49,   49,   49,   49,   49,   49,
+	/* Virtual */  49,   49,   49,   49,   49,   49,   49,   49,   49,   49,
+	/* Virtual */  49,   49,   49,   49,   49,   49,   49,   49,   49,   49,
+	/* Virtual */  49,   49,   49,   49,   49,   49,   49,   49,   49,   49,
+	/* Virtual */  49,   49,   49,   49,   49,   49,   49,   49,   49,   49,
 };
 
 
@@ -1229,786 +1229,15 @@ player_sex sex_info[MAX_SEXES] =
 		"Queen"
 	},
 
-	{
-		"Male",
-		"King"
-	},
-	{
-		"Neuter",
-		"Ruler"
-	}
-};
-
-
-/*
- * Info on the spells/realms
- */
-magic_type realm_info[MAX_REALM][64] =
 {
-	/* Nothing */
-	{
-		{ 0 }
-	},
-	/* Symbiotic Magic */
-	{
-		{  1,  2, 25,   4},
-		{  3,  3, 30,   5},
-		{  6,  7, 35,   7},
-		{  9, 10, 40,  10},
-		{ 12, 15, 50,  15},
-		{ 16, 17, 55,  20},
-		{ 20, 26, 40,  15},
-		{ 99,  0,  0,   0},
-
-		{ 99,  0,  0,   0},
-		{ 99,  0,  0,   0},
-		{ 99,  0,  0,   0},
-		{ 99,  0,  0,   0},
-		{ 99,  0,  0,   0},
-		{ 99,  0,  0,   0},
-		{ 99,  0,  0,   0},
-		{ 99,  0,  0,   0},
-
-		{ 24, 30, 60,  36},
-		{ 26, 35, 60,  30},
-		{ 30, 40, 60,  40},
-		{ 35, 43, 63,  50},
-		{ 36, 90, 40, 100},
-		{ 50,100, 50, 200},
-		{ 99,  0,  0,   0},
-		{ 99,  0,  0,   0},
-
-		{ 99,  0,  0,   0},
-		{ 99,  0,  0,   0},
-		{ 99,  0,  0,   0},
-		{ 99,  0,  0,   0},
-		{ 99,  0,  0,   0},
-		{ 99,  0,  0,   0},
-		{ 99,  0,  0,   0},
-		{ 99,  0,  0,   0}
-	},
-
-	/* Harper Music */
-	{
-		{ 1,  1,  10,   2},
-		{ 2,  0,   0,   0},
-		{ 3,  2,  20,   3},
-		{ 4,  3,  20,   4},
-		{ 5,  3,  20,   6},
-		{ 7,  3,  30,   8},
-		{ 9,  3,  30,   10},
-		{ 10,  3,  30,   12},
-
-		{ 12,  5,   40,   20},
-		{ 16,  10,  40,   25},
-		{ 18,  16,  45,   30},
-		{ 20,  20,  50,   35},
-		{ 23,  3,  50,   38},
-		{ 24,  4,   50,   41},
-		{ 26,  8,  60,   42},
-		{ 27,  9,  70,   46},
-
-		{ 10, 100,  20,   13},
-		{ 22,  23,  30,   26},
-		{ 23,  18,  35,   27},
-		{ 26,  12,  37,   29},
-		{ 32,  30,  41,   36},
-		{ 33,  18,  43,   40},
-		{ 38,  50,  46,   42},
-		{ 45,  60,  50,   56},
-
-		{ 23,   6,  20,   23},
-		{ 26,  25,  30,   26},
-		{ 29,   8,  41,   30},
-		{ 34,  16,  43,   35},
-		{ 35,  40,  46,   50},
-		{ 40,  20,  50,   68},
-		{ 42,  20,  62,   73},
-		{ 50,  20,  70,  200}
-	},
-	/* Druidistic */
-	{
-		{ 1, 1, 10,  4},
-		{ 2, 0, 15,  6},
-		{ 4, 4, 18,  8},
-		{ 5, 2, 20, 10},
-		{ 6, 8, 24, 13},
-		{ 8, 9, 26, 16},
-		{ 9, 10, 28, 20},
-		{ 10, 12, 34, 25},
-
-		{ 11, 11, 30, 30},
-		{ 12, 10, 35, 38},
-		{ 14, 14, 38, 42},
-		{ 15, 12, 40, 46},
-		{ 16, 18, 45, 49},
-		{ 18, 19, 46, 55},
-		{ 19, 20, 48, 58},
-		{ 20, 22, 54, 62},
-
-		{ 21,  8, 57, 68},
-		{ 22, 26, 60, 75},
-		{ 24, 26, 62, 78},
-		{ 25, 30, 65, 82},
-		{ 26, 35, 68, 85},
-		{ 28, 38, 70, 90},
-		{ 29, 41, 73, 93},
-		{ 30, 43, 75, 96},
-
-		{ 31, 45, 80, 100},
-		{ 32, 46, 82, 103},
-		{ 34, 50, 83, 110},
-		{ 35, 51, 85, 115},
-		{ 36, 53, 86, 119},
-		{ 38, 60, 89, 123},
-		{ 39, 65, 90, 128},
-		{ 40, 80, 91, 130},
-
-		{ 41, 80, 92, 130},
-		{ 42, 86, 93, 135},
-		{ 44, 20, 94, 145},
-		{ 45, 90, 95, 165},
-		{ 46,  2, 95, 180},
-		{ 48, 100, 95, 200},
-		{ 49, 105, 95, 210},
-		{ 50, 255, 95, 220},
-	},
-
-	/* Daemon -SCSCSC- */
-	{
-		{ 1, 1, 10, 4},
-		{ 2, 2, 12, 4},
-		{ 3, 4, 16, 6},
-		{ 3, 7, 20, 8},
-		{ 4, 4, 22, 8},
-		{ 5, 8, 25, 8},
-		{ 7, 9, 28, 10},
-		{ 12, 10, 32, 15},
-
-		{ 3, 2, 15, 6},
-		{ 5, 6, 18, 8},
-		{ 6, 6, 20, 10},
-		{ 10, 14, 30, 12},
-		{ 12, 8, 34, 14},
-		{ 16, 12, 36, 16},
-		{ 18, 16, 40, 18},
-		{ 20, 18, 50, 19},
-
-		{ 20, 25, 55, 45},
-		{ 25, 20, 60, 52},
-		{ 28, 25, 64, 55},
-		{ 32, 44, 68, 59},
-		{ 38, 35, 72, 65},
-		{ 44, 75, 85, 80},
-		{ 22, 18, 50, 50},
-		{ 25, 25, 60, 65},
-
-		{ 26, 18, 55, 55},
-		{ 30, 28, 63, 67},
-		{ 38, 34, 70, 75},
-		{ 45, 72, 85, 110},
-		{ 40, 35, 90, 120},
-		{ 42, 58, 92, 130},
-		{ 45, 40, 94, 140},
-		{ 48, 60, 95, 150},
-	},
-};
-
-
-/*
- * PernAngband uses this array instead of the spell flags table -- DG
- */
-u32b fake_spell_flags[MAX_REALM][9][2]=
+"Male",
+"King"
+},
 {
-	{
-		{0 }
-	},
-
-	{
-		{0x00000000, 0x000000ff},
-		{0x00000000, 0x0000ff00},
-		{0x00000000, 0x00ff0000},
-		{0x00000000, 0xff000000},
-	},
-
-	{
-		{0x00000000, 0x000000ff},
-		{0x00000000, 0x0000ff00},
-		{0x00000000, 0x00ff0000},
-		{0x00000000, 0xff000000},
-	},
-	/* Druidistic */
-	{
-		{0x00000000, 0x000000ff},
-		{0x00000000, 0x0000ff00},
-		{0x00000000, 0x00ff0000},
-		{0x00000000, 0xff000000},
-		{0x000000ff, 0x00000000},
-	},
-
-	/* Daemon */
-	{
-		{0x00000000, 0x000000ff},
-		{0x00000000, 0x0000ff00},
-		{0x00000000, 0x003f0000},
-		{0x00000000, 0x0fc00000},
-		{0x00000000, 0xf0000000},
-	},
+"Neuter",
+"Ruler"
+}
 };
-
-cptr realm_names[][2] =
-{
-	{ "no magic", "" },
-	{ "Symbiotic", "Specific realm.\n" },
-	{ "Music", "Specific realm.\n" },
-	{ "Druidic", "Specific realm.\n" },
-	{ "Daemon", "Specific realm.\n" },
-};
-
-
-/*
- * Names of the spells
- */
-cptr spell_names[MAX_REALM][64][2] =
-{
-	/*** Nothing ***/
-	{
-		{NULL, NULL},
-	},
-
-	/* Symbiotic Spellbooks */
-	{
-		/* Common Symbiotic Spellbooks */
-		{
-			"Minor Symbiotic Healing",
-			"Heals your currently equipped monster a little bit"
-		},
-		{
-			"Tangled Creepers",
-			"Slows creatures are around you"
-		},
-		{
-			"Vampiric healing",
-			"Steals life force from other creatures and passes it to your pet"
-		},
-		{
-			"Life Transfer",
-			"Transfers some of your life-force to your pet"
-		},
-		{
-			"Satisfy Hunger",
-			"Magically feeds you"
-		},
-		{
-			"Minor Symbiotic Powers",
-			"Allows you to use a lesser ability of your pet"
-		},
-		{
-			"Summon Never-moving Pet",
-			"Summons a charmed creature from the Plane of Unmoving"
-		},
-		{"", ""},
-
-		{"", ""},
-		{"", ""},
-		{"", ""},
-		{"", ""},
-		{"", ""},
-		{"", ""},
-		{"", ""},
-		{"", ""},
-
-		/* Rare Symbiotic Spellbooks */
-		{
-			"Mana Healing",
-			"Replaces your pet's lost life-force with magical energy"
-		},
-		{
-			"Summon Never-moving Pets",
-			"Summons many pets from the Plane of Unmoving"
-		},
-		{
-			"Major Symbiotic Healing",
-			"Heals your currently equipped monster"
-		},
-		{
-			"Healing",
-			"Uses magic energy to heal you"
-		},
-		{
-			"Major Symbiotic Powers",
-			"Allows you to use an ability of your monster"
-		},
-		{
-			"Use Enemy's Powers",
-			"Allows you to turn the powers of your enemies against them"
-		},
-		{"", ""},
-		{"", ""},
-
-
-		{"", ""},
-		{"", ""},
-		{"", ""},
-		{"", ""},
-		{"", ""},
-		{"", ""},
-		{"", ""},
-		{"", ""},
-	},
-	{
-		/******* Apprentice Handbook *******/
-		{
-			"Song of Holding",
-			"Slows down all monsters listening the song."
-		},
-		{
-			"Stop singing",
-			"Stops your current song"
-		},
-		{
-			"Horrible Note",
-			"Screams a directed beam of sound."
-		},
-		{
-			"Stun Pattern",
-			"Stuns all monsters listening to the song."
-		},
-		{
-			"Flow of Life",
-			"Heals you as long as you sing."
-		},
-		{
-			"Clairaudience",
-			"Provides telepathy as long as you sing."
-		},
-		{
-			"Song of the Sun",
-			"Provides light as long as you sing."
-		},
-		{
-			"Heroic Ballad",
-			"Increases your fighting abilities as long as you sing."
-		},
-
-		/******* Minstrel's Music *******/
-		{
-			"Song of Awareness",
-			"Detect magic items as long as you sing."
-		},
-		{
-			"Song of Lore",
-			"Identify objects near you on the ground as long as you sing."
-		},
-		{
-			"Spatial Transfer",
-			"Keeps on teleporting you as long as you sing."
-		},
-		{
-			"Doomcall",
-			"This note will wreck your foes."
-		},
-		{
-			"Illusion Pattern",
-			"Tries to confuse all monsters listening the song."
-		},
-		{
-			"Wrecking Pattern",
-			"Destroy walls around you as long as you sing."
-		},
-		{
-			"Finrod's Resistance",
-			"Provides resistance to the elements as long as you sing."
-		},
-		{
-			"Hobbit Melodies",
-			"Increases your speed as long as you sing."
-		},
-
-		/******* Harps of Rivendell *******/
-		{
-			"Song of Probing",
-			"Learn everything about a monster."
-		},
-		{
-			"World Contortion",
-			"Teleports away all your foes."
-		},
-		{
-			"Fellowship Chant",
-			"Produces a beam of calming sounds that can charm monsters."
-		},
-		{
-			"Song of the Tempest",
-			"Creates a beam of pure sound."
-		},
-		{
-			"Telchar's Forge",
-			"Imbues the power of the sound into a weapon."
-		},
-		{
-			"Akallabeth",
-			"All monsters that hear the song get hit by pure sound."
-		},
-		{
-			"Ambarkanta",
-			"As you sing, the level is reshaped."
-		},
-		{
-			"Lay of Gil-Galad",
-			"Summons allies to your help."
-		},
-
-		/******* Lays of Beleriand *******/
-		{
-			"Felagund's Disguise",
-			"Renders you invisible as long as you sing."
-		},
-		{
-			"Wizardry of Sauron",
-			"Fires a powerful bolt of sound."
-		},
-		{
-			"The Voice of Saruman",
-			"Charms all monsters that hear the song."
-		},
-		{
-			"Ainulindale",
-			"Provides Ainur-like powers as long as you sing."
-		},
-		{
-			"The Horns of Ylmir",
-			"Destroys the area around you."
-		},
-		{
-			"Fingolfin's Challenge",
-			"Gives you invulnerability as long as you sing."
-		},
-		{
-			"Firiel's Song",
-			"Calls upon the dead to aid you."
-		},
-		{
-			"Luthien's Mourning",
-			"Turns you into a wraith being as long as you sing."
-		},
-
-	},
-	/* Druidistic */
-	{
-		/* Elemental Stone[Earth] */
-		{
-			"Tunnel",
-			"Creates a burrow in the ground with a randomly placed exit."
-		},
-		{
-			"Canalise Mana",
-			"Drains the soil of its energy and gives it to you."
-		},
-		{
-			"Acid Bolt",
-			"Sprays a jet of acid on an enemy."
-		},
-		{
-			"Mana Path",
-			"Imbues your feet with magic energy, infusing the earth with magic with each step."
-		},
-		{
-			"Forest Generation",
-			"Speeds the growth of trees around you, to the point that they grow in mere seconds."
-		},
-		{
-			"Druidic Acid Beam",
-			"A beam of acid which follows paths of magic."
-		},
-		{
-			"Raise Mountains",
-			"Raises the soil around you to the full glory of a mountain."
-		},
-		{
-			"Stone Skin",
-			"Hardens your skin until it is as hard as stone."
-		},
-
-		/* Elemental Stone[Fire] */
-		{
-			"Infravision",
-			"Allows you to see heat patterns."
-		},
-		{
-			"Fire Bolt",
-			"Creates a flaming bolt which rushes to its target."
-		},
-		{
-			"Fire Ball",
-			"Produces a small globe of fire that explodes into a ball of flame at the target."
-		},
-		{
-			"Uncover Traps",
-			"Makes any trap in the area clear to the eye."
-		},
-		{
-			"Fire Beam",
-			"Produces a scorching beam of fire."
-		},
-		{
-			"Druidic Fire Bolt",
-			"Produces a bolt of blazing fire which follows paths of magic."
-		},
-		{
-			"Druidic Fire Beam",
-			"Produces a beam which can be directed by paths of magic."
-		},
-		{
-			"Create Lava",
-			"Makes lava spurt randomly from the floor around you."
-		},
-
-		/* Elemental Stone[Air] */
-		{
-			"Winds of Mana",
-			"Infuses the ground around you with a magical signature."
-		},
-		{
-			"Summon Air Elemental",
-			"Summons an elemental from the Plane of Air.  Beware, it may turn on you!"
-		},
-		{
-			"Whispers from Afar",
-			"Contacts unknown nature beings, who know the nature of things."
-		},
-		{
-			"The Winds of Manwe",
-			"Powerful winds blow monsters away from you."
-		},
-		{
-			"Bird View",
-			"Maps the whole area as if you could look at it from above."
-		},
-		{
-			"*Whispers from Afar*",
-			"Contacts unknown nature beings, who know the exact nature of things."
-		},
-		{
-			"Windy Speed",
-			"Imbues you with the quickness of the wind."
-		},
-		{
-			"The Thunders of Manwe",
-			"Sends a roaring beam of sound, as if countless lightnings had just thundered.  It can be directed by mana signatures."
-		},
-
-		/* Elemental Stone[Water] */
-		{
-			"Summon Aquatic Golems",
-			"Steals an aquatic golem from the dwelling place of the gnomes, though beware! These machines can sometimes know when they are stolen!"
-		},
-		{
-			"Walk over Water",
-			"Makes you weigh less then a feather, thus allowing you to walk over water"
-		},
-		{
-			"Flood",
-			"Summons an elemental from the Plane of Water."
-		},
-		{
-			"Summon Water Elementals",
-			"Summons an elemental from the plane of water."
-		},
-		{
-			"Purification",
-			"Purges you of harm."
-		},
-		{
-			"Call of the Deep",
-			"Allows you to dive into water and come out safely in any other water body."
-		},
-		{
-			"Tidal Wave",
-			"Creates a large wave at a point which spreads in all directions, and leaves deep water spots afterwards."
-		},
-		{
-			"Flood Level",
-			"Powerful spell which reconstructs the level and floods it with water"
-		},
-
-		/* Elemental Stone[Mana] */
-		{
-			"Glyph of Warding",
-			"Creates a powerful glyph on the floor which forbids any creature except its maker from getting close to it."
-		},
-		{
-			"Orb of Mana",
-			"Detonates a powerful orb of mana to cause havoc."
-		},
-		{
-			"Gather Mana",
-			"Not coded yet."
-		},
-		{
-			"Mirror of Mana",
-			"Causes a barrier of mana to surround you.  Its intensity twists spells and reflects all bolts."
-		},
-		{
-			"Activate Rune of Mana",
-			"Not coded yet."
-		},
-		{
-			"Combine the 5 Elements",
-			"Releases a bolt each of cold, of fire, of electricity, of acid and of pure mana toward the target."
-		},
-		{
-			"Shield of Mana",
-			"Protects you from almost any harm with a strong field of mana."
-		},
-		{
-			"Drain Level Mana",
-			"Gathers mana from the whole area into one projectile of awesome strength."
-		},
-	},
-
-	/* Demon -SCSCSC- */
-	{
-		/* Dark Incantations */
-		{
-			"Detect Good",
-			"Detects all good beings near you."
-		},
-		{
-			"Phase Door",
-			"Teleport you a few squares."
-		},
-		{
-			"Resist Fire",
-			"Makes you resistant to fire for a short duration."
-		},
-		{
-			"Unearthly Blessing",
-			"Temporarily protects you and increases your fighting accuracy."
-		},
-		{
-			"Steal Thoughts",
-			"Attempts to confuse monsters."
-		},
-		{
-			"Demon Eyes",
-			"Allows you to detect all monsters for a short duration."
-		},
-		{
-			"Mend Flesh",
-			"Heals you."
-		},
-		{
-			"Vision",
-			"Reveals the level around you."
-		},
-
-		/* Immortal Rituals */
-		{
-			"Detect Angels and Demons",
-			"Detects angels and demons near you."
-		},
-		{
-			"Protection from Good",
-			"Deflects attacks made by good beings."
-		},
-		{
-			"Invisibility",
-			"Turns you invisible."
-		},
-		{
-			"Manes Summoning",
-			"Summons an inferior demon to your aid."
-		},
-		{
-			"Demoncloak",
-			"Protects you from fire and cold and shields you."
-		},
-		{
-			"Breath Fire",
-			"Unleashes a powerful fire ball."
-		},
-		{
-			"Fire Blade",
-			"Hastes you, surrounds you with fire and makes you fight with berserk fury."
-		},
-		{
-			"Circle of Madness",
-			"Fires explosions of chaos, confusion and charm."
-		},
-
-		/* Minions of Azathoth */
-		{
-			"Bladecalm",
-			"It needs to be coded :)"
-		},
-		{
-			"Control Demons",
-			"Attempts to charm demons."
-		},
-		{
-			"Revive",
-			"It will revive dead demons."
-		},
-		{
-			"Trap Demonsoul",
-			"Attempts to enslave a demon."
-		},
-		{
-			"Discharge Minions",
-			"Makes all your pets explode like powerful bombs."
-		},
-		{
-			"Summon Demons",
-			"Calls some demons to your aid."
-		},
-
-		/* Demonthoughts */
-		{
-			"Rain of Lava",
-			"Creates a ball of lava."
-		},
-		{
-			"Kiss of the Succubus",
-			"Unleashes a ball of nexus."
-		},
-		{
-			"Immortality",
-			"Allows you to resist the ravages of time."
-		},
-		{
-			"Glyph of Warding",
-			"It will create a glyph that prevents monsters movement."
-		},
-		{
-			"Lava Storm",
-			"Creates a powerful ball of lava."
-		},
-		{
-			"Demonform",
-			"Turns you into a demon lord for a short duration."
-		},
-
-		/* Hellfire Tome */
-		{
-			"Unholy word",
-			"Heals and cures you."
-		},
-		{
-			"Hellfire",
-			"Creates 2 balls of powerful hellfire."
-		},
-		{
-			"Armageddon",
-			"Sends into oblivion all monsters near you."
-		},
-		{
-			"Shield of the Damned",
-			"Makes you nearly invulnerable for a short duration."
-		},
-	},
-};
-
 
 /*
  * Hack -- the "basic" color names (see "TERM_xxx")
@@ -2069,7 +1298,7 @@ cptr window_flag_desc[32] =
 {
 	"Display inven/equip",
 	"Display equip/inven",
-	"Display spell list",
+	NULL,
 	"Display character",
 	"Show visible monsters",
 	"Display IRC messages",
@@ -2120,365 +1349,365 @@ option_type option_info[] =
 {
 	/*** User-Interface ***/
 
-	{ &rogue_like_commands,         FALSE,  1,      0,
-	"rogue_like_commands",          "Rogue-like commands" },
+	{ &rogue_like_commands, FALSE, 1, 0,
+	  "rogue_like_commands", "Rogue-like commands" },
 
-	{ &quick_messages,              TRUE,  1,       1,
-	"quick_messages",               "Activate quick messages" },
+	{ &quick_messages, TRUE, 1, 1,
+	  "quick_messages", "Activate quick messages" },
 
-	{ &other_query_flag,            FALSE,  1,      2,
-	"other_query_flag",             "Prompt for various information" },
+	{ &other_query_flag, FALSE, 1, 2,
+	  "other_query_flag", "Prompt for various information" },
 
-	{ &carry_query_flag,            FALSE,  1,      3,
-	"carry_query_flag",             "Prompt before picking things up" },
+	{ &carry_query_flag, FALSE, 1, 3,
+	  "carry_query_flag", "Prompt before picking things up" },
 
-	{ &use_old_target,              FALSE,  1,      4,
-	"use_old_target",               "Use old target by default" },
+	{ &use_old_target, FALSE, 1, 4,
+	  "use_old_target", "Use old target by default" },
 
-	{ &always_pickup,               FALSE,  1,      5,
-	"always_pickup",                "Pick things up by default" },
+	{ &always_pickup, FALSE, 1, 5,
+	  "always_pickup", "Pick things up by default" },
 
-	{ &prompt_pickup_heavy,         TRUE,   1,      6,
-	"prompt_pickup_heavy",          "Prompt before picking up heavy objects" },
+	{ &prompt_pickup_heavy, TRUE, 1, 6,
+	  "prompt_pickup_heavy", "Prompt before picking up heavy objects" },
 
-	{ &always_repeat,               TRUE,   1,      7,
-	"always_repeat",                "Repeat obvious commands" },
+	{ &always_repeat, TRUE, 1, 7,
+	  "always_repeat", "Repeat obvious commands" },
 
-	{ &depth_in_feet,               FALSE,  1,      8,
-	"depth_in_feet",                "Show dungeon level in feet" },
+	{ &depth_in_feet, FALSE, 1, 8,
+	  "depth_in_feet", "Show dungeon level in feet" },
 
-	{ &stack_force_notes,           TRUE,  1,       9,
-	"stack_force_notes",            "Merge inscriptions when stacking" },
+	{ &stack_force_notes, TRUE, 1, 9,
+	  "stack_force_notes", "Merge inscriptions when stacking" },
 
-	{ &stack_force_costs,           FALSE,  1,      10,
-	"stack_force_costs",            "Merge discounts when stacking" },
+	{ &stack_force_costs, FALSE, 1, 10,
+	  "stack_force_costs", "Merge discounts when stacking" },
 
-	{ &show_labels,                 TRUE,   1,      11,
-	"show_labels",                  "Show labels in object listings" },
+	{ &show_labels, TRUE, 1, 11,
+	  "show_labels", "Show labels in object listings" },
 
-	{ &show_weights,                TRUE,   1,       12,
-	"show_weights",                 "Show weights in object listings" },
+	{ &show_weights, TRUE, 1, 12,
+	  "show_weights", "Show weights in object listings" },
 
-	{ &show_inven_graph,            TRUE,   1,      13,
-	"show_inven_graph",             "Show graphics in inventory list" },
+	{ &show_inven_graph, TRUE, 1, 13,
+	  "show_inven_graph", "Show graphics in inventory list" },
 
-	{ &show_equip_graph,            TRUE,   1,      14,
-	"show_equip_graph",             "Show graphics in equipment list" },
+	{ &show_equip_graph, TRUE, 1, 14,
+	  "show_equip_graph", "Show graphics in equipment list" },
 
-	{ &show_store_graph,            TRUE,   1,      15,
-	"show_store_graph",             "Show graphics in stores" },
+	{ &show_store_graph, TRUE, 1, 15,
+	  "show_store_graph", "Show graphics in stores" },
 
-	{ &show_choices,                TRUE,  1,       16,
-	"show_choices",                 "Show choices in certain sub-windows" },
+	{ &show_choices, TRUE, 1, 16,
+	  "show_choices", "Show choices in certain sub-windows" },
 
-	{ &show_details,                TRUE,  1,       17,
-	"show_details",                 "Show details in certain sub-windows" },
+	{ &show_details, TRUE, 1, 17,
+	  "show_details", "Show details in certain sub-windows" },
 
-	{ &ring_bell,                   FALSE,   1,     18,
-	"ring_bell",                    "Audible bell (on errors, etc)" },
+	{ &ring_bell, FALSE, 1, 18,
+	  "ring_bell", "Audible bell (on errors, etc)" },
 	/* Changed to default to FALSE -- it's so extremely annoying!!! -TY */
 
-	{ &use_color,                   TRUE,   1,      19,
-	"use_color",                    "Use color if possible (slow)" },
+	{ &use_color, TRUE, 1, 19,
+	  "use_color", "Use color if possible (slow)" },
 
 	/*** Disturbance ***/
 
-	{ &find_ignore_stairs,          FALSE,   2,     0,
-	"find_ignore_stairs",           "Run past stairs" },
+	{ &find_ignore_stairs, FALSE, 2, 0,
+	  "find_ignore_stairs", "Run past stairs" },
 
-	{ &find_ignore_doors,           TRUE,   2,      1,
-	"find_ignore_doors",            "Run through open doors" },
+	{ &find_ignore_doors, TRUE, 2, 1,
+	  "find_ignore_doors", "Run through open doors" },
 
-	{ &find_cut,                    FALSE,   2,     2,
-	"find_cut",                     "Run past known corners" },
+	{ &find_cut, FALSE, 2, 2,
+	  "find_cut", "Run past known corners" },
 
-	{ &find_examine,                TRUE,   2,      3,
-	"find_examine",                 "Run into potential corners" },
+	{ &find_examine, TRUE, 2, 3,
+	  "find_examine", "Run into potential corners" },
 
-	{ &disturb_move,                FALSE,   2,     4,
-	"disturb_move",                 "Disturb whenever any monster moves" },
+	{ &disturb_move, FALSE, 2, 4,
+	  "disturb_move", "Disturb whenever any monster moves" },
 
-	{ &disturb_near,                TRUE,   2,      5,
-	"disturb_near",                 "Disturb whenever viewable monster moves" },
+	{ &disturb_near, TRUE, 2, 5,
+	  "disturb_near", "Disturb whenever viewable monster moves" },
 
-	{ &disturb_panel,               TRUE,   2,      6,
-	"disturb_panel",                "Disturb whenever map panel changes" },
+	{ &disturb_panel, TRUE, 2, 6,
+	  "disturb_panel", "Disturb whenever map panel changes" },
 
-	{ &disturb_detect,              TRUE,   2,      21,
-	"disturb_detect",               "Disturb whenever leaving trap-detected area" },
+	{ &disturb_detect, TRUE, 2, 21,
+	  "disturb_detect", "Disturb whenever leaving trap-detected area" },
 
-	{ &disturb_state,               TRUE,   2,      7,
-	"disturb_state",                "Disturb whenever player state changes" },
+	{ &disturb_state, TRUE, 2, 7,
+	  "disturb_state", "Disturb whenever player state changes" },
 
-	{ &disturb_minor,               TRUE,   2,      8,
-	"disturb_minor",                "Disturb whenever boring things happen" },
+	{ &disturb_minor, TRUE, 2, 8,
+	  "disturb_minor", "Disturb whenever boring things happen" },
 
-	{ &disturb_other,               FALSE,   2,      9,
-	"disturb_other",                "Disturb whenever random things happen" },
+	{ &disturb_other, FALSE, 2, 9,
+	  "disturb_other", "Disturb whenever random things happen" },
 
-	{ &alert_hitpoint,              FALSE,  2,      10,
-	"alert_hitpoint",               "Alert user to critical hitpoints" },
+	{ &alert_hitpoint, FALSE, 2, 10,
+	  "alert_hitpoint", "Alert user to critical hitpoints" },
 
-	{ &alert_failure,               FALSE,  2,      11,
-	"alert_failure",                "Alert user to various failures" },
+	{ &alert_failure, FALSE, 2, 11,
+	  "alert_failure", "Alert user to various failures" },
 
-	{ &last_words,                  TRUE,   2,      12,
-	"last_words",                   "Get last words when the character dies" },
+	{ &last_words, TRUE, 2, 12,
+	  "last_words", "Get last words when the character dies" },
 
-	{ &speak_unique,                TRUE,   2,      13,
-	"speak_unique",                 "Allow shopkeepers and uniques to speak" },
+	{ &speak_unique, TRUE, 2, 13,
+	  "speak_unique", "Allow shopkeepers and uniques to speak" },
 
-	{ &auto_destroy,                TRUE,   2,      14,
-	"auto_destroy",                 "No query to destroy known worthless items" },
+	{ &auto_destroy, TRUE, 2, 14,
+	  "auto_destroy", "No query to destroy known worthless items" },
 
-	{ &wear_confirm,                TRUE,   2,      15,
-	"confirm_wear",                 "Confirm to wear/wield known cursed items" },
+	{ &wear_confirm, TRUE, 2, 15,
+	  "confirm_wear", "Confirm to wear/wield known cursed items" },
 
-	{ &confirm_stairs,              FALSE,  2,      16,
-	"confirm_stairs",               "Prompt before exiting a dungeon level" },
+	{ &confirm_stairs, FALSE, 2, 16,
+	  "confirm_stairs", "Prompt before exiting a dungeon level" },
 
-	{ &disturb_pets,                FALSE,  2,      17,
-	"disturb_pets",                 "Disturb when visible pets move" },
+	{ &disturb_pets, FALSE, 2, 17,
+	  "disturb_pets", "Disturb when visible pets move" },
 
 #ifdef ALLOW_EASY_OPEN
-	{ &easy_open,                   TRUE,   2,      18,
-	"easy_open",                    "Automatically open doors" },
+	{ &easy_open, TRUE, 2, 18,
+	  "easy_open", "Automatically open doors" },
 #endif /* ALLOW_EASY_OPEN */
 
 #ifdef ALLOW_EASY_DISARM
-	{ &easy_disarm,                 TRUE,   2,      19,
-	"easy_disarm",                  "Automatically disarm traps" },
+	{ &easy_disarm, TRUE, 2, 19,
+	  "easy_disarm", "Automatically disarm traps" },
 #endif /* ALLOW_EASY_DISARM */
 
-	{ &easy_tunnel,                 FALSE,  2,      20,
-	"easy_tunnel",                  "Automatically tunnel walls" },
+	{ &easy_tunnel, FALSE, 2, 20,
+	  "easy_tunnel", "Automatically tunnel walls" },
 
 	/*** Game-Play ***/
 
-	{ &auto_haggle,                 TRUE,  3,       0,
-	"auto_haggle",                  "Auto-haggle in stores" },
+	{ &auto_haggle, TRUE, 3, 0,
+	  "auto_haggle", "Auto-haggle in stores" },
 
-	{ &auto_scum,                   TRUE,  3,       1,
-	"auto_scum",                    "Auto-scum for good levels" },
+	{ &auto_scum, TRUE, 3, 1,
+	  "auto_scum", "Auto-scum for good levels" },
 
-	{ &stack_allow_items,           TRUE,   3,      2,
-	"stack_allow_items",            "Allow weapons and armour to stack" },
+	{ &stack_allow_items, TRUE, 3, 2,
+	  "stack_allow_items", "Allow weapons and armour to stack" },
 
-	{ &stack_allow_wands,           TRUE,   3,      3,
-	"stack_allow_wands",            "Allow wands/staffs/rods to stack" },
+	{ &stack_allow_wands, TRUE, 3, 3,
+	  "stack_allow_wands", "Allow wands/staffs/rods to stack" },
 
-	{ &expand_look,                 FALSE,  3,      4,
-	"expand_look",                  "Expand the power of the look command" },
+	{ &expand_look, FALSE, 3, 4,
+	  "expand_look", "Expand the power of the look command" },
 
-	{ &expand_list,                 FALSE,  3,      5,
-	"expand_list",                  "Expand the power of the list commands" },
+	{ &expand_list, FALSE, 3, 5,
+	  "expand_list", "Expand the power of the list commands" },
 
-	{ &view_perma_grids,            TRUE,   3,      6,
-	"view_perma_grids",             "Map remembers all perma-lit grids" },
+	{ &view_perma_grids, TRUE, 3, 6,
+	  "view_perma_grids", "Map remembers all perma-lit grids" },
 
-	{ &view_torch_grids,            FALSE,  3,      7,
-	"view_torch_grids",             "Map remembers all torch-lit grids" },
+	{ &view_torch_grids, FALSE, 3, 7,
+	  "view_torch_grids", "Map remembers all torch-lit grids" },
 
-	{ &monster_lite,                TRUE,   3,      19,
-	"monster_lite",                 "Allow some monsters to carry light" },
+	{ &monster_lite, TRUE, 3, 19,
+	  "monster_lite", "Allow some monsters to carry light" },
 
-	{ &dungeon_align,               TRUE,   3,      8,
-	"dungeon_align",                "Generate dungeons with aligned rooms" },
+	{ &dungeon_align, TRUE, 3, 8,
+	  "dungeon_align", "Generate dungeons with aligned rooms" },
 
-	{ &dungeon_stair,               TRUE,   3,      9,
-	"dungeon_stair",                "Generate dungeons with connected stairs" },
+	{ &dungeon_stair, TRUE, 3, 9,
+	  "dungeon_stair", "Generate dungeons with connected stairs" },
 
-	{ &flow_by_sound,               FALSE,  3,      10,
-	"flow_by_sound",                "Monsters chase current location (v.slow)" },
+	{ &flow_by_sound, FALSE, 3, 10,
+	  "flow_by_sound", "Monsters chase current location (v.slow)" },
 
-	{ &flow_by_smell,               FALSE,  3,      11,
-	"flow_by_smell",                "Monsters chase recent locations (v.slow)" },
+	{ &flow_by_smell, FALSE, 3, 11,
+	  "flow_by_smell", "Monsters chase recent locations (v.slow)" },
 
-	 { &player_symbols,              FALSE, 3,      12,
-	"player_symbols",               "Use special symbols for the player char"},
+	{ &player_symbols, FALSE, 3, 12,
+	  "player_symbols", "Use special symbols for the player char"},
 
-	{ &plain_descriptions,          TRUE,   3,      13,
-	"plain_descriptions",           "Plain object descriptions" },
+	{ &plain_descriptions, TRUE, 3, 13,
+	  "plain_descriptions", "Plain object descriptions" },
 
-	{ &smart_learn,                 FALSE,  3,      14,
-	"smart_learn",                  "Monsters learn from their mistakes" },
+	{ &smart_learn, FALSE, 3, 14,
+	  "smart_learn", "Monsters learn from their mistakes" },
 
-	{ &smart_cheat,                 FALSE,  3,      15,
-	"smart_cheat",                  "Monsters exploit players weaknesses" },
+	{ &smart_cheat, FALSE, 3, 15,
+	  "smart_cheat", "Monsters exploit players weaknesses" },
 
-	{ &stupid_monsters,             FALSE,  3,      16,
-	"stupid_monsters",              "Monsters behave stupidly" },
+	{ &stupid_monsters, FALSE, 3, 16,
+	  "stupid_monsters", "Monsters behave stupidly" },
 
-	{ &small_levels,                TRUE,   3,      17,
-	"small_levels",                 "Allow unusually small dungeon levels" },
+	{ &small_levels, TRUE, 3, 17,
+	  "small_levels", "Allow unusually small dungeon levels" },
 
-	{ &empty_levels,                TRUE,   3,      18,
-	"empty_levels",                 "Allow empty 'arena' levels" },
+	{ &empty_levels, TRUE, 3, 18,
+	  "empty_levels", "Allow empty 'arena' levels" },
 
 	/*** Efficiency ***/
 
-	{ &view_reduce_lite,            FALSE,  4,      0,
-	"view_reduce_lite",             "Reduce lite-radius when running" },
+	{ &view_reduce_lite, FALSE, 4, 0,
+	  "view_reduce_lite", "Reduce lite-radius when running" },
 
-	{ &view_reduce_view,            FALSE,  4,      1,
-	"view_reduce_view",             "Reduce view-radius in town" },
+	{ &view_reduce_view, FALSE, 4, 1,
+	  "view_reduce_view", "Reduce view-radius in town" },
 
-	{ &avoid_abort,                 FALSE,  4,      2,
-	"avoid_abort",                  "Avoid checking for user abort" },
+	{ &avoid_abort, FALSE, 4, 2,
+	  "avoid_abort", "Avoid checking for user abort" },
 
-	{ &avoid_shimmer,               FALSE,  4,      17,
-	"avoid_shimmer",                "Avoid extra shimmering (fast)" },
+	{ &avoid_shimmer, FALSE, 4, 17,
+	  "avoid_shimmer", "Avoid extra shimmering (fast)" },
 
-	{ &avoid_other,                 FALSE,  4,      3,
-	"avoid_other",                  "Avoid processing special colors (fast)" },
+	{ &avoid_other, FALSE, 4, 3,
+	  "avoid_other", "Avoid processing special colors (fast)" },
 
-	{ &flush_failure,               TRUE,   4,      4,
-	"flush_failure",                "Flush input on various failures" },
+	{ &flush_failure, TRUE, 4, 4,
+	  "flush_failure", "Flush input on various failures" },
 
-	{ &flush_disturb,               FALSE,  4,      5,
-	"flush_disturb",                "Flush input whenever disturbed" },
+	{ &flush_disturb, FALSE, 4, 5,
+	  "flush_disturb", "Flush input whenever disturbed" },
 
-	{ &flush_command,               FALSE,  4,      6,
-	"flush_command",                "Flush input before every command" },
+	{ &flush_command, FALSE, 4, 6,
+	  "flush_command", "Flush input before every command" },
 
-	{ &fresh_before,                TRUE,   4,      7,
-	"fresh_before",                 "Flush output before every command" },
+	{ &fresh_before, TRUE, 4, 7,
+	  "fresh_before", "Flush output before every command" },
 
-	{ &fresh_after,                 FALSE,  4,      8,
-	"fresh_after",                  "Flush output after every command" },
+	{ &fresh_after, FALSE, 4, 8,
+	  "fresh_after", "Flush output after every command" },
 
-	{ &fresh_message,               FALSE,  4,      9,
-	"fresh_message",                "Flush output after every message" },
+	{ &fresh_message, FALSE, 4, 9,
+	  "fresh_message", "Flush output after every message" },
 
-	{ &compress_savefile,           TRUE,   4,      10,
-	"compress_savefile",            "Compress messages in savefiles" },
+	{ &compress_savefile, TRUE, 4, 10,
+	  "compress_savefile", "Compress messages in savefiles" },
 
-	{ &hilite_player,               FALSE,  4,      11,
-	"hilite_player",                "Hilite the player with the cursor" },
+	{ &hilite_player, FALSE, 4, 11,
+	  "hilite_player", "Hilite the player with the cursor" },
 
-	{ &view_yellow_lite,            FALSE,  4,      12,
-	"view_yellow_lite",             "Use special colors for torch-lit grids" },
+	{ &view_yellow_lite, FALSE, 4, 12,
+	  "view_yellow_lite", "Use special colors for torch-lit grids" },
 
-	{ &view_bright_lite,            FALSE,  4,      13,
-	"view_bright_lite",             "Use special colors for 'viewable' grids" },
+	{ &view_bright_lite, FALSE, 4, 13,
+	  "view_bright_lite", "Use special colors for 'viewable' grids" },
 
-	{ &view_granite_lite,           FALSE,   4,     14,
-	"view_granite_lite",            "Use special colors for wall grids (slow)" },
+	{ &view_granite_lite, FALSE, 4, 14,
+	  "view_granite_lite", "Use special colors for wall grids (slow)" },
 
-	{ &view_special_lite,           FALSE,  4,      15,
-	"view_special_lite",            "Use special colors for floor grids (slow)" },
+	{ &view_special_lite, FALSE, 4, 15,
+	  "view_special_lite", "Use special colors for floor grids (slow)" },
 
-	{ &center_player,               FALSE,  4,      16,
-	"center_player",                "Center the view on the player (very slow)" },
+	{ &center_player, FALSE, 4, 16,
+	  "center_player", "Center the view on the player (very slow)" },
 
 	/*** ToME options ***/
 
 #if 0 /* It's controlled by insanity instead :) - pelpel */
 
-	{ &flavored_attacks,            TRUE,   5,      0,
-	"flavored_attacks",             "Show silly messages when fighting" },
+	{ &flavored_attacks, TRUE, 5, 0,
+	  "flavored_attacks", "Show silly messages when fighting" },
 
 #endif /* 0 */
 
-        { &option_ingame_help,          TRUE,   5,      1,
-	"ingame_help",                  "Ingame contextual help" },
+	{ &option_ingame_help, TRUE, 5, 1,
+	  "ingame_help", "Ingame contextual help" },
 
-	{ &exp_need,                    FALSE,  5,      2,
-	"exp_need",                     "Show the experience needed for next level" },
+	{ &exp_need, FALSE, 5, 2,
+	  "exp_need", "Show the experience needed for next level" },
 
-	{ &autoload_old_colors,         FALSE,  5,      3,
-	"old_colors",                   "Use the old(Z) coloring scheme(reload the game)" },
+	{ &autoload_old_colors, FALSE, 5, 3,
+	  "old_colors", "Use the old(Z) coloring scheme(reload the game)" },
 
-	{ &auto_more,                   FALSE,  5,      4,
-	"auto_more",                    "Automatically clear '-more-' prompts" },
+	{ &auto_more, FALSE, 5, 4,
+	  "auto_more", "Automatically clear '-more-' prompts" },
 
-	{ &player_char_health,          TRUE,   5,      6,
-	"player_char_health",           "Player char represent his/her health" },
+	{ &player_char_health, TRUE, 5, 6,
+	  "player_char_health", "Player char represent his/her health" },
 
-	{ &linear_stats,                FALSE,  5,      7,
-	"linear_stats",                 "Stats are represented in a linear way" },
+	{ &linear_stats, TRUE, 5, 7,
+	  "linear_stats", "Stats are represented in a linear way" },
 
- 	{ &inventory_no_move,           FALSE,   5,      8,
- 	"inventory_no_move",            "In option windows, just omit the select char" },
- 
+	{ &inventory_no_move, FALSE, 5, 8,
+	  "inventory_no_move", "In option windows, just omit the select char" },
+
 
 	/*** Birth Options ***/
 
 #if 0 /* XXX free -- no more used */
-	{ &vanilla_town,                FALSE,  6,      0,
-	"vanilla_town",                 "Use 'vanilla' town without quests and wilderness" },
+	{ &vanilla_town, FALSE, 6, 0,
+	  "vanilla_town", "Use 'vanilla' town without quests and wilderness" },
 #endif
 
-	{ &maximize,                    TRUE,   6,      1,
-	"maximize",                     "Maximise stats" },
+	{ &maximize, TRUE, 6, 1,
+	  "maximize", "Maximise stats" },
 
-	{ &preserve,                    TRUE,   6,      2,
-	"preserve",                     "Preserve artifacts" },
+	{ &preserve, TRUE, 6, 2,
+	  "preserve", "Preserve artifacts" },
 
-	{ &autoroll,                    TRUE,   6,      3,
-	"autoroll",                     "Specify 'minimal' stats" },
+	{ &autoroll, TRUE, 6, 3,
+	  "autoroll", "Specify 'minimal' stats" },
 
-	{ &point_based,                 FALSE,  6,      17,
-	"point_based",                  "Generate character using a point system" },
+	{ &point_based, FALSE, 6, 17,
+	  "point_based", "Generate character using a point system" },
 #if 0
-	{ &special_lvls,                TRUE,   6,      4,
-	"special_lvls",                 "Allow the use of special, unique, levels" },
+	{ &special_lvls, TRUE, 6, 4,
+	  "special_lvls", "Allow the use of special, unique, levels" },
 #endif
-	{ &permanent_levels,            FALSE,  6,      5,
-	"permanent_levels",             "Generate persistent dungeons" },
+	{ &permanent_levels, FALSE, 6, 5,
+	  "permanent_levels", "Generate persistent dungeons" },
 
-	{ &ironman_rooms,               FALSE,  6,      6,
-	"ironman_rooms",                "Always generate very unusual rooms" },
+	{ &ironman_rooms, FALSE, 6, 6,
+	  "ironman_rooms", "Always generate very unusual rooms" },
 
-	{ &take_notes,                  TRUE,   6,      7,
-	"take_notes",                   "Allow notes to be written to a file" },
+	{ &take_notes, TRUE, 6, 7,
+	  "take_notes", "Allow notes to be written to a file" },
 
-	{ &auto_notes,                  TRUE,   6,      8,
-	"auto_notes",                   "Automatically note important events" },
+	{ &auto_notes, TRUE, 6, 8,
+	  "auto_notes", "Automatically note important events" },
 
 #if 0 /* when Ill get some ideas */
-	{ &rand_birth,                  FALSE,  6,      9,
-	"rand_birth",                   "Random present at birth" },
+	{ &rand_birth, FALSE, 6, 9,
+	  "rand_birth", "Random present at birth" },
 #endif
-	{ &fast_autoroller,             FALSE,  6,      10,
-	"fast_autoroller",              "Fast autoroller(NOT on multiuser systems)" },
+	{ &fast_autoroller, FALSE, 6, 10,
+	  "fast_autoroller", "Fast autoroller(NOT on multiuser systems)" },
 
-	{ &cth_monsters,                FALSE,  6,      11,
-	"cth_monsters",                 "Allow use of lovecraftian monsters" },
+	{ &cth_monsters, FALSE, 6, 11,
+	  "cth_monsters", "Allow use of lovecraftian monsters" },
 
 #if 0
-	{ &pern_monsters,               TRUE,   6,      12,
-	"pern_monsters",                "Allow use of some Pern related monsters" },
+	{ &pern_monsters, TRUE, 6, 12,
+	  "pern_monsters", "Allow use of some Pern related monsters" },
 #endif
-	{ &zang_monsters,               FALSE,  6,      13,
-	"zang_monsters",                "Allow use of 'Zangbandish' monsters" },
+	{ &zang_monsters, FALSE, 6, 13,
+	  "zang_monsters", "Allow use of 'Zangbandish' monsters" },
 
-	{ &joke_monsters,               FALSE,  6,      14,
-	"joke_monsters",                "Allow use of some 'joke' monsters" },
+	{ &joke_monsters, FALSE, 6, 14,
+	  "joke_monsters", "Allow use of some 'joke' monsters" },
 
-/* XXX */
+	/* XXX */
 
-	{ &always_small_level,          FALSE,  6,      16,
-	"always_small_level",           "Always make small levels" },
+	{ &always_small_level, FALSE, 6, 16,
+	  "always_small_level", "Always make small levels" },
 
-	{ &fate_option,                 TRUE,   6,      18,
-	"fate_option",                  "You can receive fates, good or bad" },
+	{ &fate_option, TRUE, 6, 18,
+	  "fate_option", "You can receive fates, good or bad" },
 
 	/* XXX 17 is used BEFORE */
 
 	/*** Stacking ***/
 
-	{ &testing_stack,               TRUE,  7,       0,
-	"testing_stack",                "Allow objects to stack on floor" },
+	{ &testing_stack, TRUE, 7, 0,
+	  "testing_stack", "Allow objects to stack on floor" },
 
-	{ &testing_carry,               TRUE,  7,       1,
-	"testing_carry",                "Allow monsters to carry objects" },
+	{ &testing_carry, TRUE, 7, 1,
+	  "testing_carry", "Allow monsters to carry objects" },
 
 
 	/*** End of Table ***/
 
-	{ NULL,                         0, 0, 0,
-	NULL,                           NULL }
+	{ NULL, 0, 0, 0,
+	  NULL, NULL }
 };
 
 
@@ -2507,25 +1736,25 @@ cptr chaos_patrons[MAX_PATRON] =
 
 int chaos_stats[MAX_PATRON] =
 {
-	A_CON,  /* Slortar */
-	A_CON,  /* Mabelode */
-	A_STR,  /* Chardros */
-	A_STR,  /* Hionhurn */
-	A_STR,  /* Xiombarg */
+	A_CON,    /* Slortar */
+	A_CON,    /* Mabelode */
+	A_STR,    /* Chardros */
+	A_STR,    /* Hionhurn */
+	A_STR,    /* Xiombarg */
 
-	A_INT,  /* Pyaray */
-	A_STR,  /* Balaan */
-	A_INT,  /* Arioch */
-	A_CON,  /* Eequor */
-	A_CHR,  /* Narjhan */
+	A_INT,    /* Pyaray */
+	A_STR,    /* Balaan */
+	A_INT,    /* Arioch */
+	A_CON,    /* Eequor */
+	A_CHR,    /* Narjhan */
 
-	-1,     /* Balo */
-	A_STR,  /* Khorne */
-	A_CHR,  /* Slaanesh */
-	A_CON,  /* Nurgle */
-	A_INT,  /* Tzeentch */
+	-1,       /* Balo */
+	A_STR,    /* Khorne */
+	A_CHR,    /* Slaanesh */
+	A_CON,    /* Nurgle */
+	A_INT,    /* Tzeentch */
 
-	A_STR,  /* Khaine */
+	A_STR,    /* Khaine */
 };
 
 
@@ -2548,7 +1777,7 @@ int chaos_rewards[MAX_PATRON][20] =
 		REW_POLY_SLF, REW_HEAL_FUL, REW_HEAL_FUL, REW_GAIN_ABL, REW_SER_UNDE,
 		REW_CHAOS_WP, REW_GOOD_OBJ, REW_GOOD_OBJ, REW_GOOD_OBS, REW_GOOD_OBS
 	},
-
+	
 	/* Chardros the Reaper: */
 	{
 		REW_WRATH, REW_WRATH, REW_HURT_LOT, REW_PISS_OFF, REW_H_SUMMON,
@@ -2556,7 +1785,7 @@ int chaos_rewards[MAX_PATRON][20] =
 		REW_GENOCIDE, REW_MASS_GEN, REW_MASS_GEN, REW_DISPEL_C, REW_GOOD_OBJ,
 		REW_CHAOS_WP, REW_GOOD_OBS, REW_GOOD_OBS, REW_AUGM_ABL, REW_AUGM_ABL
 	},
-
+	
 	/* Hionhurn the Executioner: */
 	{
 		REW_WRATH, REW_WRATH, REW_CURSE_WP, REW_CURSE_AR, REW_RUIN_ABL,
@@ -2564,7 +1793,7 @@ int chaos_rewards[MAX_PATRON][20] =
 		REW_MASS_GEN, REW_MASS_GEN, REW_HEAL_FUL, REW_GAIN_ABL, REW_GAIN_ABL,
 		REW_CHAOS_WP, REW_GOOD_OBS, REW_GOOD_OBS, REW_AUGM_ABL, REW_AUGM_ABL
 	},
-
+	
 	/* Xiombarg the Sword-Queen: */
 	{
 		REW_TY_CURSE, REW_TY_CURSE, REW_PISS_OFF, REW_RUIN_ABL, REW_LOSE_ABL,
@@ -2572,8 +1801,8 @@ int chaos_rewards[MAX_PATRON][20] =
 		REW_GENOCIDE, REW_DISPEL_C, REW_GOOD_OBJ, REW_GOOD_OBJ, REW_SER_MONS,
 		REW_GAIN_ABL, REW_CHAOS_WP, REW_GAIN_EXP, REW_AUGM_ABL, REW_GOOD_OBS
 	},
-
-
+	
+	
 	/* Pyaray the Tentacled Whisperer of Impossible Secretes: */
 	{
 		REW_WRATH, REW_TY_CURSE, REW_PISS_OFF, REW_H_SUMMON, REW_H_SUMMON,
@@ -2581,7 +1810,7 @@ int chaos_rewards[MAX_PATRON][20] =
 		REW_POLY_SLF, REW_SER_DEMO, REW_HEAL_FUL, REW_GAIN_ABL, REW_GAIN_ABL,
 		REW_CHAOS_WP, REW_DO_HAVOC, REW_GOOD_OBJ, REW_GREA_OBJ, REW_GREA_OBS
 	},
-
+	
 	/* Balaan the Grim: */
 	{
 		REW_TY_CURSE, REW_HURT_LOT, REW_CURSE_WP, REW_CURSE_AR, REW_RUIN_ABL,
@@ -2589,7 +1818,7 @@ int chaos_rewards[MAX_PATRON][20] =
 		REW_SER_UNDE, REW_HEAL_FUL, REW_HEAL_FUL, REW_GAIN_EXP, REW_GAIN_EXP,
 		REW_CHAOS_WP, REW_GOOD_OBJ, REW_GOOD_OBS, REW_GREA_OBS, REW_AUGM_ABL
 	},
-
+	
 	/* Arioch, Duke of Hell: */
 	{
 		REW_WRATH, REW_PISS_OFF, REW_RUIN_ABL, REW_LOSE_EXP, REW_H_SUMMON,
@@ -2597,7 +1826,7 @@ int chaos_rewards[MAX_PATRON][20] =
 		REW_POLY_SLF, REW_MASS_GEN, REW_SER_DEMO, REW_HEAL_FUL, REW_CHAOS_WP,
 		REW_CHAOS_WP, REW_GOOD_OBJ, REW_GAIN_EXP, REW_GREA_OBJ, REW_AUGM_ABL
 	},
-
+	
 	/* Eequor, Blue Lady of Dismay: */
 	{
 		REW_WRATH, REW_TY_CURSE, REW_PISS_OFF, REW_CURSE_WP, REW_RUIN_ABL,
@@ -2605,7 +1834,7 @@ int chaos_rewards[MAX_PATRON][20] =
 		REW_GOOD_OBJ, REW_GOOD_OBJ, REW_SER_MONS, REW_HEAL_FUL, REW_GAIN_EXP,
 		REW_GAIN_ABL, REW_CHAOS_WP, REW_GOOD_OBS, REW_GREA_OBJ, REW_AUGM_ABL
 	},
-
+	
 	/* Narjhan, Lord of Beggars: */
 	{
 		REW_WRATH, REW_CURSE_AR, REW_CURSE_WP, REW_CURSE_WP, REW_CURSE_AR,
@@ -2613,7 +1842,7 @@ int chaos_rewards[MAX_PATRON][20] =
 		REW_POLY_WND, REW_HEAL_FUL, REW_HEAL_FUL, REW_GAIN_EXP, REW_AUGM_ABL,
 		REW_GOOD_OBJ, REW_GOOD_OBJ, REW_CHAOS_WP, REW_GREA_OBJ, REW_GREA_OBS
 	},
-
+	
 	/* Balo the Jester: */
 	{
 		REW_WRATH, REW_SER_DEMO, REW_CURSE_WP, REW_CURSE_AR, REW_LOSE_EXP,
@@ -2621,7 +1850,7 @@ int chaos_rewards[MAX_PATRON][20] =
 		REW_DESTRUCT, REW_MASS_GEN, REW_CHAOS_WP, REW_GREA_OBJ, REW_HURT_LOT,
 		REW_AUGM_ABL, REW_RUIN_ABL, REW_H_SUMMON, REW_GREA_OBS, REW_AUGM_ABL
 	},
-
+	
 	/* Khorne the Bloodgod: */
 	{
 		REW_WRATH, REW_HURT_LOT, REW_HURT_LOT, REW_H_SUMMON, REW_H_SUMMON,
@@ -2629,7 +1858,7 @@ int chaos_rewards[MAX_PATRON][20] =
 		REW_POLY_SLF, REW_POLY_WND, REW_HEAL_FUL, REW_GOOD_OBJ, REW_GOOD_OBJ,
 		REW_CHAOS_WP, REW_GOOD_OBS, REW_GOOD_OBS, REW_GREA_OBJ, REW_GREA_OBS
 	},
-
+	
 	/* Slaanesh: */
 	{
 		REW_WRATH, REW_PISS_OFF, REW_PISS_OFF, REW_RUIN_ABL, REW_LOSE_ABL,
@@ -2637,7 +1866,7 @@ int chaos_rewards[MAX_PATRON][20] =
 		REW_POLY_SLF, REW_HEAL_FUL, REW_HEAL_FUL, REW_GOOD_OBJ, REW_GAIN_EXP,
 		REW_GAIN_EXP, REW_CHAOS_WP, REW_GAIN_ABL, REW_GREA_OBJ, REW_AUGM_ABL
 	},
-
+	
 	/* Nurgle: */
 	{
 		REW_WRATH, REW_PISS_OFF, REW_HURT_LOT, REW_RUIN_ABL, REW_LOSE_ABL,
@@ -2645,7 +1874,7 @@ int chaos_rewards[MAX_PATRON][20] =
 		REW_POLY_SLF, REW_POLY_WND, REW_HEAL_FUL, REW_GOOD_OBJ, REW_GAIN_ABL,
 		REW_GAIN_ABL, REW_SER_UNDE, REW_CHAOS_WP, REW_GREA_OBJ, REW_AUGM_ABL
 	},
-
+	
 	/* Tzeentch: */
 	{
 		REW_WRATH, REW_CURSE_WP, REW_CURSE_AR, REW_RUIN_ABL, REW_LOSE_ABL,
@@ -2653,11 +1882,11 @@ int chaos_rewards[MAX_PATRON][20] =
 		REW_POLY_SLF, REW_POLY_WND, REW_HEAL_FUL, REW_CHAOS_WP, REW_GREA_OBJ,
 		REW_GAIN_ABL, REW_GAIN_ABL, REW_GAIN_EXP, REW_GAIN_EXP, REW_AUGM_ABL
 	},
-
+	
 	/* Khaine: */
 	{
 		REW_WRATH, REW_HURT_LOT, REW_PISS_OFF, REW_LOSE_ABL, REW_LOSE_EXP,
-		REW_IGNORE,   REW_IGNORE,   REW_DISPEL_C, REW_DO_HAVOC, REW_DO_HAVOC,
+		REW_IGNORE, REW_IGNORE, REW_DISPEL_C, REW_DO_HAVOC, REW_DO_HAVOC,
 		REW_POLY_SLF, REW_POLY_SLF, REW_GAIN_EXP, REW_GAIN_ABL, REW_GAIN_ABL,
 		REW_SER_MONS, REW_GOOD_OBJ, REW_CHAOS_WP, REW_GREA_OBJ, REW_GOOD_OBS
 	}
@@ -2665,629 +1894,629 @@ int chaos_rewards[MAX_PATRON][20] =
 
 /* Names used for random artifact name generation */
 cptr artifact_names_list =
-"adanedhel\n"
-"adurant\n"
-"aeglos\n"
-"aegnor\n"
-"aelin\n"
-"aeluin\n"
-"aerandir\n"
-"aerin\n"
-"agarwaen\n"
-"aglareb\n"
-"aglarond\n"
-"aglon\n"
-"ainulindale\n"
-"ainur\n"
-"alcarinque\n"
-"aldaron\n"
-"aldudenie\n"
-"almaren\n"
-"alqualonde\n"
-"aman\n"
-"amandil\n"
-"amarie\n"
-"amarth\n"
-"amlach\n"
-"amon\n"
-"amras\n"
-"amrod\n"
-"anach\n"
-"anar\n"
-"anarion\n"
-"ancalagon\n"
-"ancalimon\n"
-"anarrima\n"
-"andor\n"
-"andram\n"
-"androth\n"
-"anduin\n"
-"andunie\n"
-"anfauglir\n"
-"anfauglith\n"
-"angainor\n"
-"angband\n"
-"anghabar\n"
-"anglachel\n"
-"angrenost\n"
-"angrim\n"
-"angrist\n"
-"angrod\n"
-"anguirel\n"
-"annael\n"
-"annatar\n"
-"annon\n"
-"annuminas\n"
-"apanonar\n"
-"aradan\n"
-"aragorn\n"
-"araman\n"
-"aranel\n"
-"aranruth\n"
-"aranwe\n"
-"aras\n"
-"aratan\n"
-"aratar\n"
-"arathorn\n"
-"arda\n"
-"ard-galen\n"
-"aredhel\n"
-"ar-feiniel\n"
-"argonath\n"
-"arien\n"
-"armenelos\n"
-"arminas\n"
-"arnor\n"
-"aros\n"
-"arossiach\n"
-"arthad\n"
-"arvernien\n"
-"arwen\n"
-"ascar\n"
-"astaldo\n"
-"atalante\n"
-"atanamir\n"
-"atanatari\n"
-"atani\n"
-"aule\n"
-"avallone\n"
-"avari\n"
-"avathar\n"
-"balan\n"
-"balar\n"
-"balrog\n"
-"barad\n"
-"baragund\n"
-"barahir\n"
-"baran\n"
-"baranduin\n"
-"bar\n"
-"bauglir\n"
-"beleg\n"
-"belegaer\n"
-"belegost\n"
-"belegund\n"
-"beleriand\n"
-"belfalas\n"
-"belthil\n"
-"belthronding\n"
-"beor\n"
-"beraid\n"
-"bereg\n"
-"beren\n"
-"boromir\n"
-"boron\n"
-"bragollach\n"
-"brandir\n"
-"bregolas\n"
-"bregor\n"
-"brethil\n"
-"brilthor\n"
-"brithiach\n"
-"brithombar\n"
-"brithon\n"
-"cabed\n"
-"calacirya\n"
-"calaquendi\n"
-"calenardhon\n"
-"calion\n"
-"camlost\n"
-"caragdur\n"
-"caranthir\n"
-"carcharoth\n"
-"cardolan\n"
-"carnil\n"
-"celeborn\n"
-"celebrant\n"
-"celebrimbor\n"
-"celebrindal\n"
-"celebros\n"
-"celegorm\n"
-"celon\n"
-"cirdan\n"
-"cirith\n"
-"cirth\n"
-"ciryatan\n"
-"ciryon\n"
-"coimas\n"
-"corollaire\n"
-"crissaegrim\n"
-"cuarthal\n"
-"cuivienen\n"
-"culurien\n"
-"curufin\n"
-"curufinwe\n"
-"curunir\n"
-"cuthalion\n"
-"daedeloth\n"
-"daeron\n"
-"dagnir\n"
-"dagor\n"
-"dagorlad\n"
-"dairuin\n"
-"danwedh\n"
-"delduwath\n"
-"denethor\n"
-"dimbar\n"
-"dimrost\n"
-"dinen\n"
-"dior\n"
-"dirnen\n"
-"dolmed\n"
-"doriath\n"
-"dorlas\n"
-"dorthonion\n"
-"draugluin\n"
-"drengist\n"
-"duath\n"
-"duinath\n"
-"duilwen\n"
-"dunedain\n"
-"dungortheb\n"
-"earendil\n"
-"earendur\n"
-"earnil\n"
-"earnur\n"
-"earrame\n"
-"earwen\n"
-"echor\n"
-"echoriath\n"
-"ecthelion\n"
-"edain\n"
-"edrahil\n"
-"eglador\n"
-"eglarest\n"
-"eglath\n"
-"eilinel\n"
-"eithel\n"
-"ekkaia\n"
-"elbereth\n"
-"eldalie\n"
-"eldalieva\n"
-"eldamar\n"
-"eldar\n"
-"eledhwen\n"
-"elemmire\n"
-"elende\n"
-"elendil\n"
-"elendur\n"
-"elenna\n"
-"elentari\n"
-"elenwe\n"
-"elerrina\n"
-"elleth\n"
-"elmoth\n"
-"elostirion\n"
-"elrond\n"
-"elros\n"
-"elu\n"
-"eluchil\n"
-"elured\n"
-"elurin\n"
-"elwe\n"
-"elwing\n"
-"emeldir\n"
-"endor\n"
-"engrin\n"
-"engwar\n"
-"eol\n"
-"eonwe\n"
-"ephel\n"
-"erchamion\n"
-"ereb\n"
-"ered\n"
-"erech\n"
-"eregion\n"
-"ereinion\n"
-"erellont\n"
-"eressea\n"
-"eriador\n"
-"eru\n"
-"esgalduin\n"
-"este\n"
-"estel\n"
-"estolad\n"
-"ethir\n"
-"ezellohar\n"
-"faelivrin\n"
-"falas\n"
-"falathar\n"
-"falathrim\n"
-"falmari\n"
-"faroth\n"
-"fauglith\n"
-"feanor\n"
-"feanturi\n"
-"felagund\n"
-"finarfin\n"
-"finduilas\n"
-"fingolfin\n"
-"fingon\n"
-"finwe\n"
-"firimar\n"
-"formenos\n"
-"fornost\n"
-"frodo\n"
-"fuin\n"
-"fuinur\n"
-"gabilgathol\n"
-"galad\n"
-"galadriel\n"
-"galathilion\n"
-"galdor\n"
-"galen\n"
-"galvorn\n"
-"gandalf\n"
-"gaurhoth\n"
-"gelion\n"
-"gelmir\n"
-"gelydh\n"
-"gil\n"
-"gildor\n"
-"giliath\n"
-"ginglith\n"
-"girith\n"
-"glaurung\n"
-"glingal\n"
-"glirhuin\n"
-"gloredhel\n"
-"glorfindel\n"
-"golodhrim\n"
-"gondolin\n"
-"gondor\n"
-"gonnhirrim\n"
-"gorgoroth\n"
-"gorlim\n"
-"gorthaur\n"
-"gorthol\n"
-"gothmog\n"
-"guilin\n"
-"guinar\n"
-"guldur\n"
-"gundor\n"
-"gurthang\n"
-"gwaith\n"
-"gwareth\n"
-"gwindor\n"
-"hadhodrond\n"
-"hador\n"
-"haladin\n"
-"haldad\n"
-"haldan\n"
-"haldar\n"
-"haldir\n"
-"haleth\n"
-"halmir\n"
-"handir\n"
-"harad\n"
-"hareth\n"
-"hathaldir\n"
-"hathol\n"
-"haudh\n"
-"helcar\n"
-"helcaraxe\n"
-"helevorn\n"
-"helluin\n"
-"herumor\n"
-"herunumen\n"
-"hildorien\n"
-"himlad\n"
-"himring\n"
-"hirilorn\n"
-"hisilome\n"
-"hithaeglir\n"
-"hithlum\n"
-"hollin\n"
-"huan\n"
-"hunthor\n"
-"huor\n"
-"hurin\n"
-"hyarmendacil\n"
-"hyarmentir\n"
-"iant\n"
-"iaur\n"
-"ibun\n"
-"idril\n"
-"illuin\n"
-"ilmare\n"
-"ilmen\n"
-"iluvatar\n"
-"imlach\n"
-"imladris\n"
-"indis\n"
-"ingwe\n"
-"irmo\n"
-"isil\n"
-"isildur\n"
-"istari\n"
-"ithil\n"
-"ivrin\n"
-"kelvar\n"
-"kementari\n"
-"ladros\n"
-"laiquendi\n"
-"lalaith\n"
-"lamath\n"
-"lammoth\n"
-"lanthir\n"
-"laurelin\n"
-"leithian\n"
-"legolin\n"
-"lembas\n"
-"lenwe\n"
-"linaewen\n"
-"lindon\n"
-"lindorie\n"
-"loeg\n"
-"lomelindi\n"
-"lomin\n"
-"lomion\n"
-"lorellin\n"
-"lorien\n"
-"lorindol\n"
-"losgar\n"
-"lothlann\n"
-"lothlorien\n"
-"luin\n"
-"luinil\n"
-"lumbar\n"
-"luthien\n"
-"mablung\n"
-"maedhros\n"
-"maeglin\n"
-"maglor\n"
-"magor\n"
-"mahanaxar\n"
-"mahtan\n"
-"maiar\n"
-"malduin\n"
-"malinalda\n"
-"mandos\n"
-"manwe\n"
-"mardil\n"
-"melian\n"
-"melkor\n"
-"menegroth\n"
-"meneldil\n"
-"menelmacar\n"
-"meneltarma\n"
-"minas\n"
-"minastir\n"
-"mindeb\n"
-"mindolluin\n"
-"mindon\n"
-"minyatur\n"
-"mirdain\n"
-"miriel\n"
-"mithlond\n"
-"mithrandir\n"
-"mithrim\n"
-"mordor\n"
-"morgoth\n"
-"morgul\n"
-"moria\n"
-"moriquendi\n"
-"mormegil\n"
-"morwen\n"
-"nahar\n"
-"naeramarth\n"
-"namo\n"
-"nandor\n"
-"nargothrond\n"
-"narog\n"
-"narsil\n"
-"narsilion\n"
-"narya\n"
-"nauglamir\n"
-"naugrim\n"
-"ndengin\n"
-"neithan\n"
-"neldoreth\n"
-"nenar\n"
-"nenning\n"
-"nenuial\n"
-"nenya\n"
-"nerdanel\n"
-"nessa\n"
-"nevrast\n"
-"nibin\n"
-"nienna\n"
-"nienor\n"
-"nimbrethil\n"
-"nimloth\n"
-"nimphelos\n"
-"nimrais\n"
-"nimras\n"
-"ningloron\n"
-"niniel\n"
-"ninniach\n"
-"ninquelote\n"
-"niphredil\n"
-"nirnaeth\n"
-"nivrim\n"
-"noegyth\n"
-"nogrod\n"
-"noldolante\n"
-"noldor\n"
-"numenor\n"
-"nurtale\n"
-"obel\n"
-"ohtar\n"
-"oiolosse\n"
-"oiomure\n"
-"olorin\n"
-"olvar\n"
-"olwe\n"
-"ondolinde\n"
-"orfalch\n"
-"ormal\n"
-"orocarni\n"
-"orodreth\n"
-"orodruin\n"
-"orome\n"
-"oromet\n"
-"orthanc\n"
-"osgiliath\n"
-"osse\n"
-"ossiriand\n"
-"palantir\n"
-"pelargir\n"
-"pelori\n"
-"periannath\n"
-"quendi\n"
-"quenta\n"
-"quenya\n"
-"radagast\n"
-"radhruin\n"
-"ragnor\n"
-"ramdal\n"
-"rana\n"
-"rathloriel\n"
-"rauros\n"
-"region\n"
-"rerir\n"
-"rhovanion\n"
-"rhudaur\n"
-"rhun\n"
-"rhunen\n"
-"rian\n"
-"ringil\n"
-"ringwil\n"
-"romenna\n"
-"rudh\n"
-"rumil\n"
-"saeros\n"
-"salmar\n"
-"saruman\n"
-"sauron\n"
-"serech\n"
-"seregon\n"
-"serinde\n"
-"shelob\n"
-"silmarien\n"
-"silmaril\n"
-"silpion\n"
-"sindar\n"
-"singollo\n"
-"sirion\n"
-"soronume\n"
-"sul\n"
-"sulimo\n"
-"talath\n"
-"taniquetil\n"
-"tar\n"
-"taras\n"
-"tarn\n"
-"tathren\n"
-"taur\n"
-"tauron\n"
-"teiglin\n"
-"telchar\n"
-"telemnar\n"
-"teleri\n"
-"telperion\n"
-"telumendil\n"
-"thalion\n"
-"thalos\n"
-"thangorodrim\n"
-"thargelion\n"
-"thingol\n"
-"thoronath\n"
-"thorondor\n"
-"thranduil\n"
-"thuringwethil\n"
-"tilion\n"
-"tintalle\n"
-"tinuviel\n"
-"tirion\n"
-"tirith\n"
-"tol\n"
-"tulkas\n"
-"tumhalad\n"
-"tumladen\n"
-"tuna\n"
-"tuor\n"
-"turambar\n"
-"turgon\n"
-"turin\n"
-"uial\n"
-"uilos\n"
-"uinen\n"
-"ulairi\n"
-"ulmo\n"
-"ulumuri\n"
-"umanyar\n"
-"umarth\n"
-"umbar\n"
-"ungoliant\n"
-"urthel\n"
-"uruloki\n"
-"utumno\n"
-"vaire\n"
-"valacirca\n"
-"valandil\n"
-"valaquenta\n"
-"valar\n"
-"valaraukar\n"
-"valaroma\n"
-"valier\n"
-"valimar\n"
-"valinor\n"
-"valinoreva\n"
-"valmar\n"
-"vana\n"
-"vanyar\n"
-"varda\n"
-"vasa\n"
-"vilya\n"
-"vingilot\n"
-"vinyamar\n"
-"voronwe\n"
-"wethrin\n"
-"wilwarin\n"
-"yavanna\n"
-;
+	"adanedhel\n"
+	"adurant\n"
+	"aeglos\n"
+	"aegnor\n"
+	"aelin\n"
+	"aeluin\n"
+	"aerandir\n"
+	"aerin\n"
+	"agarwaen\n"
+	"aglareb\n"
+	"aglarond\n"
+	"aglon\n"
+	"ainulindale\n"
+	"ainur\n"
+	"alcarinque\n"
+	"aldaron\n"
+	"aldudenie\n"
+	"almaren\n"
+	"alqualonde\n"
+	"aman\n"
+	"amandil\n"
+	"amarie\n"
+	"amarth\n"
+	"amlach\n"
+	"amon\n"
+	"amras\n"
+	"amrod\n"
+	"anach\n"
+	"anar\n"
+	"anarion\n"
+	"ancalagon\n"
+	"ancalimon\n"
+	"anarrima\n"
+	"andor\n"
+	"andram\n"
+	"androth\n"
+	"anduin\n"
+	"andunie\n"
+	"anfauglir\n"
+	"anfauglith\n"
+	"angainor\n"
+	"angband\n"
+	"anghabar\n"
+	"anglachel\n"
+	"angrenost\n"
+	"angrim\n"
+	"angrist\n"
+	"angrod\n"
+	"anguirel\n"
+	"annael\n"
+	"annatar\n"
+	"annon\n"
+	"annuminas\n"
+	"apanonar\n"
+	"aradan\n"
+	"aragorn\n"
+	"araman\n"
+	"aranel\n"
+	"aranruth\n"
+	"aranwe\n"
+	"aras\n"
+	"aratan\n"
+	"aratar\n"
+	"arathorn\n"
+	"arda\n"
+	"ard-galen\n"
+	"aredhel\n"
+	"ar-feiniel\n"
+	"argonath\n"
+	"arien\n"
+	"armenelos\n"
+	"arminas\n"
+	"arnor\n"
+	"aros\n"
+	"arossiach\n"
+	"arthad\n"
+	"arvernien\n"
+	"arwen\n"
+	"ascar\n"
+	"astaldo\n"
+	"atalante\n"
+	"atanamir\n"
+	"atanatari\n"
+	"atani\n"
+	"aule\n"
+	"avallone\n"
+	"avari\n"
+	"avathar\n"
+	"balan\n"
+	"balar\n"
+	"balrog\n"
+	"barad\n"
+	"baragund\n"
+	"barahir\n"
+	"baran\n"
+	"baranduin\n"
+	"bar\n"
+	"bauglir\n"
+	"beleg\n"
+	"belegaer\n"
+	"belegost\n"
+	"belegund\n"
+	"beleriand\n"
+	"belfalas\n"
+	"belthil\n"
+	"belthronding\n"
+	"beor\n"
+	"beraid\n"
+	"bereg\n"
+	"beren\n"
+	"boromir\n"
+	"boron\n"
+	"bragollach\n"
+	"brandir\n"
+	"bregolas\n"
+	"bregor\n"
+	"brethil\n"
+	"brilthor\n"
+	"brithiach\n"
+	"brithombar\n"
+	"brithon\n"
+	"cabed\n"
+	"calacirya\n"
+	"calaquendi\n"
+	"calenardhon\n"
+	"calion\n"
+	"camlost\n"
+	"caragdur\n"
+	"caranthir\n"
+	"carcharoth\n"
+	"cardolan\n"
+	"carnil\n"
+	"celeborn\n"
+	"celebrant\n"
+	"celebrimbor\n"
+	"celebrindal\n"
+	"celebros\n"
+	"celegorm\n"
+	"celon\n"
+	"cirdan\n"
+	"cirith\n"
+	"cirth\n"
+	"ciryatan\n"
+	"ciryon\n"
+	"coimas\n"
+	"corollaire\n"
+	"crissaegrim\n"
+	"cuarthal\n"
+	"cuivienen\n"
+	"culurien\n"
+	"curufin\n"
+	"curufinwe\n"
+	"curunir\n"
+	"cuthalion\n"
+	"daedeloth\n"
+	"daeron\n"
+	"dagnir\n"
+	"dagor\n"
+	"dagorlad\n"
+	"dairuin\n"
+	"danwedh\n"
+	"delduwath\n"
+	"denethor\n"
+	"dimbar\n"
+	"dimrost\n"
+	"dinen\n"
+	"dior\n"
+	"dirnen\n"
+	"dolmed\n"
+	"doriath\n"
+	"dorlas\n"
+	"dorthonion\n"
+	"draugluin\n"
+	"drengist\n"
+	"duath\n"
+	"duinath\n"
+	"duilwen\n"
+	"dunedain\n"
+	"dungortheb\n"
+	"earendil\n"
+	"earendur\n"
+	"earnil\n"
+	"earnur\n"
+	"earrame\n"
+	"earwen\n"
+	"echor\n"
+	"echoriath\n"
+	"ecthelion\n"
+	"edain\n"
+	"edrahil\n"
+	"eglador\n"
+	"eglarest\n"
+	"eglath\n"
+	"eilinel\n"
+	"eithel\n"
+	"ekkaia\n"
+	"elbereth\n"
+	"eldalie\n"
+	"eldalieva\n"
+	"eldamar\n"
+	"eldar\n"
+	"eledhwen\n"
+	"elemmire\n"
+	"elende\n"
+	"elendil\n"
+	"elendur\n"
+	"elenna\n"
+	"elentari\n"
+	"elenwe\n"
+	"elerrina\n"
+	"elleth\n"
+	"elmoth\n"
+	"elostirion\n"
+	"elrond\n"
+	"elros\n"
+	"elu\n"
+	"eluchil\n"
+	"elured\n"
+	"elurin\n"
+	"elwe\n"
+	"elwing\n"
+	"emeldir\n"
+	"endor\n"
+	"engrin\n"
+	"engwar\n"
+	"eol\n"
+	"eonwe\n"
+	"ephel\n"
+	"erchamion\n"
+	"ereb\n"
+	"ered\n"
+	"erech\n"
+	"eregion\n"
+	"ereinion\n"
+	"erellont\n"
+	"eressea\n"
+	"eriador\n"
+	"eru\n"
+	"esgalduin\n"
+	"este\n"
+	"estel\n"
+	"estolad\n"
+	"ethir\n"
+	"ezellohar\n"
+	"faelivrin\n"
+	"falas\n"
+	"falathar\n"
+	"falathrim\n"
+	"falmari\n"
+	"faroth\n"
+	"fauglith\n"
+	"feanor\n"
+	"feanturi\n"
+	"felagund\n"
+	"finarfin\n"
+	"finduilas\n"
+	"fingolfin\n"
+	"fingon\n"
+	"finwe\n"
+	"firimar\n"
+	"formenos\n"
+	"fornost\n"
+	"frodo\n"
+	"fuin\n"
+	"fuinur\n"
+	"gabilgathol\n"
+	"galad\n"
+	"galadriel\n"
+	"galathilion\n"
+	"galdor\n"
+	"galen\n"
+	"galvorn\n"
+	"gandalf\n"
+	"gaurhoth\n"
+	"gelion\n"
+	"gelmir\n"
+	"gelydh\n"
+	"gil\n"
+	"gildor\n"
+	"giliath\n"
+	"ginglith\n"
+	"girith\n"
+	"glaurung\n"
+	"glingal\n"
+	"glirhuin\n"
+	"gloredhel\n"
+	"glorfindel\n"
+	"golodhrim\n"
+	"gondolin\n"
+	"gondor\n"
+	"gonnhirrim\n"
+	"gorgoroth\n"
+	"gorlim\n"
+	"gorthaur\n"
+	"gorthol\n"
+	"gothmog\n"
+	"guilin\n"
+	"guinar\n"
+	"guldur\n"
+	"gundor\n"
+	"gurthang\n"
+	"gwaith\n"
+	"gwareth\n"
+	"gwindor\n"
+	"hadhodrond\n"
+	"hador\n"
+	"haladin\n"
+	"haldad\n"
+	"haldan\n"
+	"haldar\n"
+	"haldir\n"
+	"haleth\n"
+	"halmir\n"
+	"handir\n"
+	"harad\n"
+	"hareth\n"
+	"hathaldir\n"
+	"hathol\n"
+	"haudh\n"
+	"helcar\n"
+	"helcaraxe\n"
+	"helevorn\n"
+	"helluin\n"
+	"herumor\n"
+	"herunumen\n"
+	"hildorien\n"
+	"himlad\n"
+	"himring\n"
+	"hirilorn\n"
+	"hisilome\n"
+	"hithaeglir\n"
+	"hithlum\n"
+	"hollin\n"
+	"huan\n"
+	"hunthor\n"
+	"huor\n"
+	"hurin\n"
+	"hyarmendacil\n"
+	"hyarmentir\n"
+	"iant\n"
+	"iaur\n"
+	"ibun\n"
+	"idril\n"
+	"illuin\n"
+	"ilmare\n"
+	"ilmen\n"
+	"iluvatar\n"
+	"imlach\n"
+	"imladris\n"
+	"indis\n"
+	"ingwe\n"
+	"irmo\n"
+	"isil\n"
+	"isildur\n"
+	"istari\n"
+	"ithil\n"
+	"ivrin\n"
+	"kelvar\n"
+	"kementari\n"
+	"ladros\n"
+	"laiquendi\n"
+	"lalaith\n"
+	"lamath\n"
+	"lammoth\n"
+	"lanthir\n"
+	"laurelin\n"
+	"leithian\n"
+	"legolin\n"
+	"lembas\n"
+	"lenwe\n"
+	"linaewen\n"
+	"lindon\n"
+	"lindorie\n"
+	"loeg\n"
+	"lomelindi\n"
+	"lomin\n"
+	"lomion\n"
+	"lorellin\n"
+	"lorien\n"
+	"lorindol\n"
+	"losgar\n"
+	"lothlann\n"
+	"lothlorien\n"
+	"luin\n"
+	"luinil\n"
+	"lumbar\n"
+	"luthien\n"
+	"mablung\n"
+	"maedhros\n"
+	"maeglin\n"
+	"maglor\n"
+	"magor\n"
+	"mahanaxar\n"
+	"mahtan\n"
+	"maiar\n"
+	"malduin\n"
+	"malinalda\n"
+	"mandos\n"
+	"manwe\n"
+	"mardil\n"
+	"melian\n"
+	"melkor\n"
+	"menegroth\n"
+	"meneldil\n"
+	"menelmacar\n"
+	"meneltarma\n"
+	"minas\n"
+	"minastir\n"
+	"mindeb\n"
+	"mindolluin\n"
+	"mindon\n"
+	"minyatur\n"
+	"mirdain\n"
+	"miriel\n"
+	"mithlond\n"
+	"mithrandir\n"
+	"mithrim\n"
+	"mordor\n"
+	"morgoth\n"
+	"morgul\n"
+	"moria\n"
+	"moriquendi\n"
+	"mormegil\n"
+	"morwen\n"
+	"nahar\n"
+	"naeramarth\n"
+	"namo\n"
+	"nandor\n"
+	"nargothrond\n"
+	"narog\n"
+	"narsil\n"
+	"narsilion\n"
+	"narya\n"
+	"nauglamir\n"
+	"naugrim\n"
+	"ndengin\n"
+	"neithan\n"
+	"neldoreth\n"
+	"nenar\n"
+	"nenning\n"
+	"nenuial\n"
+	"nenya\n"
+	"nerdanel\n"
+	"nessa\n"
+	"nevrast\n"
+	"nibin\n"
+	"nienna\n"
+	"nienor\n"
+	"nimbrethil\n"
+	"nimloth\n"
+	"nimphelos\n"
+	"nimrais\n"
+	"nimras\n"
+	"ningloron\n"
+	"niniel\n"
+	"ninniach\n"
+	"ninquelote\n"
+	"niphredil\n"
+	"nirnaeth\n"
+	"nivrim\n"
+	"noegyth\n"
+	"nogrod\n"
+	"noldolante\n"
+	"noldor\n"
+	"numenor\n"
+	"nurtale\n"
+	"obel\n"
+	"ohtar\n"
+	"oiolosse\n"
+	"oiomure\n"
+	"olorin\n"
+	"olvar\n"
+	"olwe\n"
+	"ondolinde\n"
+	"orfalch\n"
+	"ormal\n"
+	"orocarni\n"
+	"orodreth\n"
+	"orodruin\n"
+	"orome\n"
+	"oromet\n"
+	"orthanc\n"
+	"osgiliath\n"
+	"osse\n"
+	"ossiriand\n"
+	"palantir\n"
+	"pelargir\n"
+	"pelori\n"
+	"periannath\n"
+	"quendi\n"
+	"quenta\n"
+	"quenya\n"
+	"radagast\n"
+	"radhruin\n"
+	"ragnor\n"
+	"ramdal\n"
+	"rana\n"
+	"rathloriel\n"
+	"rauros\n"
+	"region\n"
+	"rerir\n"
+	"rhovanion\n"
+	"rhudaur\n"
+	"rhun\n"
+	"rhunen\n"
+	"rian\n"
+	"ringil\n"
+	"ringwil\n"
+	"romenna\n"
+	"rudh\n"
+	"rumil\n"
+	"saeros\n"
+	"salmar\n"
+	"saruman\n"
+	"sauron\n"
+	"serech\n"
+	"seregon\n"
+	"serinde\n"
+	"shelob\n"
+	"silmarien\n"
+	"silmaril\n"
+	"silpion\n"
+	"sindar\n"
+	"singollo\n"
+	"sirion\n"
+	"soronume\n"
+	"sul\n"
+	"sulimo\n"
+	"talath\n"
+	"taniquetil\n"
+	"tar\n"
+	"taras\n"
+	"tarn\n"
+	"tathren\n"
+	"taur\n"
+	"tauron\n"
+	"teiglin\n"
+	"telchar\n"
+	"telemnar\n"
+	"teleri\n"
+	"telperion\n"
+	"telumendil\n"
+	"thalion\n"
+	"thalos\n"
+	"thangorodrim\n"
+	"thargelion\n"
+	"thingol\n"
+	"thoronath\n"
+	"thorondor\n"
+	"thranduil\n"
+	"thuringwethil\n"
+	"tilion\n"
+	"tintalle\n"
+	"tinuviel\n"
+	"tirion\n"
+	"tirith\n"
+	"tol\n"
+	"tulkas\n"
+	"tumhalad\n"
+	"tumladen\n"
+	"tuna\n"
+	"tuor\n"
+	"turambar\n"
+	"turgon\n"
+	"turin\n"
+	"uial\n"
+	"uilos\n"
+	"uinen\n"
+	"ulairi\n"
+	"ulmo\n"
+	"ulumuri\n"
+	"umanyar\n"
+	"umarth\n"
+	"umbar\n"
+	"ungoliant\n"
+	"urthel\n"
+	"uruloki\n"
+	"utumno\n"
+	"vaire\n"
+	"valacirca\n"
+	"valandil\n"
+	"valaquenta\n"
+	"valar\n"
+	"valaraukar\n"
+	"valaroma\n"
+	"valier\n"
+	"valimar\n"
+	"valinor\n"
+	"valinoreva\n"
+	"valmar\n"
+	"vana\n"
+	"vanyar\n"
+	"varda\n"
+	"vasa\n"
+	"vilya\n"
+	"vingilot\n"
+	"vinyamar\n"
+	"voronwe\n"
+	"wethrin\n"
+	"wilwarin\n"
+	"yavanna\n"
+	;
 
 
 martial_arts ma_blows[MAX_MA] =
 {
-	{ "You punch %s.",                          1, 0, 1, 4, 0, 0 },
-	{ "You kick %s.",                           2, 0, 1, 6, 0, 0 },
-	{ "You strike %s.",                         3, 0, 1, 7, 0, 0 },
-	{ "You hit %s with your knee.",             5, 5, 2, 3, MA_KNEE, 0 },
-	{ "You hit %s with your elbow.",            7, 5, 1, 8, 0, 0 },
-	{ "You butt %s.",                           9, 10, 2, 5, 0, 0 },
-	{ "You kick %s.",                           11, 10, 3, 4, MA_SLOW, 0 },
-	{ "You uppercut %s.",                       13, 12, 4, 4, MA_STUN, 6 },
-	{ "You double-kick %s.",                    16, 15, 5, 4, MA_STUN, 8 },
-	{ "You hit %s with a Cat's Claw.",          20, 20, 5, 5, 0, 0 },
-	{ "You hit %s with a jump kick.",           25, 25, 5, 6, MA_STUN, 10 },
-	{ "You hit %s with an Eagle's Claw.",       29, 25, 6, 6, 0, 0 },
-	{ "You hit %s with a circle kick.",         33, 30, 6, 8, MA_STUN, 10 },
-	{ "You hit %s with an Iron Fist.",          37, 35, 8, 8, MA_STUN, 10 },
-	{ "You hit %s with a flying kick.",         41, 35, 8, 10, MA_STUN, 12 },
-	{ "You hit %s with a Dragon Fist.",         45, 35, 10, 10, MA_STUN, 16 },
-	{ "You hit %s with a Crushing Blow.",       48, 35, 10, 12, MA_STUN, 18 },
+	{ "You punch %s.", 1, 0, 2, 4, 0, 0 },
+	{ "You kick %s.", 2, 0, 2, 6, 0, 0 },
+	{ "You strike %s.", 3, 0, 2, 7, 0, 0 },
+	{ "You hit %s with your knee.", 5, 5, 4, 3, MA_KNEE, 0 },
+	{ "You hit %s with your elbow.", 7, 5, 2, 8, 0, 0 },
+	{ "You butt %s.", 9, 10, 4, 5, 0, 0 },
+	{ "You kick %s.", 11, 10, 6, 4, MA_SLOW, 0 },
+	{ "You uppercut %s.", 13, 12, 8, 4, MA_STUN, 6 },
+	{ "You double-kick %s.", 16, 15, 10, 4, MA_STUN, 8 },
+	{ "You hit %s with a Cat's Claw.", 20, 20, 10, 5, 0, 0 },
+	{ "You hit %s with a jump kick.", 25, 25, 10, 6, MA_STUN, 10 },
+	{ "You hit %s with an Eagle's Claw.", 29, 25, 12, 6, 0, 0 },
+	{ "You hit %s with a circle kick.", 33, 30, 12, 8, MA_STUN, 10 },
+	{ "You hit %s with an Iron Fist.", 37, 35, 16, 8, MA_STUN, 10 },
+	{ "You hit %s with a flying kick.", 41, 35, 16, 10, MA_STUN, 12 },
+	{ "You hit %s with a Dragon Fist.", 45, 35, 20, 10, MA_STUN, 16 },
+	{ "You hit %s with a Crushing Blow.", 48, 35, 20, 12, MA_STUN, 18 },
 };
 
 /*
@@ -3301,14 +2530,14 @@ martial_arts ma_blows[MAX_MA] =
  */
 martial_arts bear_blows[MAX_BEAR] =
 {
-	{ "You claw %s.",                       1, 0, 3, 4, MA_STUN, 4 },
-	{ "You swat %s.",                       4, 0, 4, 4, MA_WOUND, 20 },
-	{ "You bite %s.",                       9, 2, 4, 4, MA_WOUND, 30 },
-	{ "You hug %s.",                       15, 5, 6, 4, MA_FULL_SLOW, 0 },
-	{ "You swat and rake %s.",             25,10, 6, 5, MA_STUN | MA_WOUND, 10 },
-	{ "You hug and claw %s.",              30,15, 6, 6, MA_FULL_SLOW | MA_WOUND, 60 },
-	{ "You double swat %s.",               35,20, 9, 7, MA_STUN | MA_WOUND, 20 },
-	{ "You double swat and rake %s.",      40,25,10,10, MA_STUN | MA_WOUND, 25 },
+	{ "You claw %s.", 1, 0, 3, 4, MA_STUN, 4 },
+	{ "You swat %s.", 4, 0, 4, 4, MA_WOUND, 20 },
+	{ "You bite %s.", 9, 2, 4, 4, MA_WOUND, 30 },
+	{ "You hug %s.", 15, 5, 6, 4, MA_FULL_SLOW, 0 },
+	{ "You swat and rake %s.", 25, 10, 6, 5, MA_STUN | MA_WOUND, 10 },
+	{ "You hug and claw %s.", 30, 15, 6, 6, MA_FULL_SLOW | MA_WOUND, 60 },
+	{ "You double swat %s.", 35, 20, 9, 7, MA_STUN | MA_WOUND, 20 },
+	{ "You double swat and rake %s.", 40, 25, 10, 10, MA_STUN | MA_WOUND, 25 },
 };
 
 
@@ -3317,99 +2546,105 @@ magic_power mindcraft_powers[MAX_MINDCRAFT_POWERS] =
 	/* Level gained,  cost,  %fail,  name,  desc */
 	{
 		/* Det. monsters/traps */
-		1,   1,  15,
+		1, 1, 15,
 		"Precognition",
 		"Detect monsters, traps and level layout and lights up at higher levels."
 	},
 	{
 		/* ~MM */
-		2,   1,  20,
+		2, 1, 20,
 		"Neural Blast",
 		"Blast the minds of your foes."
 	},
 	{
 		/* Phase/Between gate */
-		3,   2,  25,
+		3, 2, 25,
 		"Minor Displacement",
 		"Short distance teleportation"
 	},
 	{
 		/* Tele. Self / All */
-		7,   6,  35,
+		7, 6, 35,
 		"Major Displacement",
 		"Teleport you and others at high levels."
 	},
 	{
-		9,   7,  50,
+		9, 7, 50,
 		"Domination",
 		"Charm monsters"
 	},
 	{
 		/* Telekinetic "bolt" */
-		11,  7,  30,
+		11, 7, 30,
 		"Pulverise",
 		"Fires a bolt of pure sound."
 	},
 	{
 		/* Psychic/physical defenses */
-		13, 12,  50,
+		13, 12, 50,
 		"Character Armour",
 		"Sets up physical/elemental shield."
 	},
 	{
-		15, 12,  60,
+		15, 12, 60,
 		"Psychometry",
 		"Senses/identifies objects."
 	},
 	{
 		/* Ball -> LOS */
-		18, 10,  45,
+		18, 10, 45,
 		"Mind Wave",
 		"Projects psi waves to crush the minds of your foes."
 	},
 	{
-		23, 15,  50,
+		23, 15, 50,
 		"Adrenaline Channeling",
 		"Heals you, cures you and speeds you."
 	},
 	{
 		/* Convert enemy HP to mana */
-		25, 10,  40,
+		25, 10, 40,
 		"Psychic Drain",
 		"Drain your foes' life into your mana reserves"
 	},
 	{
 		/* Ball -> LOS */
-		28, 20,  45,
+		28, 20, 45,
 		"Telekinetic Wave",
 		"Powerful wave of pure telekinetic forces."
 	},
-};
-
-magic_power necro_powers[MAX_NECRO_POWERS] =
-{
-	/* Level gained,  cost,  %fail,  name,  desc */
-	{
-		/* Bolt/beam/ball/LOS of stun/scare */
-		1,   2, 10,
-		"Horrify",
-		"Calls upon the darkness to stun and scare your foes."
-	},
+		};
+	
+	magic_power necro_powers[MAX_NECRO_POWERS] =
+		{
+			/* Level gained,  cost,  %fail,  name,  desc */
+			{
+				/* Bolt/beam/ball/LOS of stun/scare */
+				1, 2, 10,
+				"Horrify",
+				"Calls upon the darkness to stun and scare your foes."
+			},
 	{
 		/* Ball */
-		5,   6, 20,
+		5, 6, 20,
 		"Raise Dead",
 		"Brings back your foes in the form of various undead.  Also, can heal monsters."
 	},
 	{
+		/* Summons weapon */
+		12, 20, 25,
+		"Necromantic Teeth",
+		"Conjures a temporary vampiric weapon."
+	},
+	{
 		/* Heals when killing a monster */
-		20,  10, 25,
+		20, 10, 25,
 		"Absorb Soul",
 		"Gives back some life for each kill."
 	},
 	{
 		/* Bolt */
-		30,  15, 20,
+		30, 15, 20,
 		"Vampirism",
 		"Drain the life of your foes into your own."
 	},
@@ -3426,25 +2661,25 @@ magic_power mimic_powers[MAX_MIMIC_POWERS] =
 	/* Level gained,  cost,  %fail,  name */
 	{
 		/* Use a book of lore */
-		1,   2,  0,
+		1, 2, 0,
 		"Mimic",
 		"Lets you use the powers of a Cloak of Mimicry."
 	},
 	{
 		/* Invisibility */
-		10,   6, 20,
+		10, 6, 20,
 		"Invisibility",
 		"Hides you from the sight of mortals."
 	},
 	{
 		/* +1 pair of legs */
-		25,  20, 25,
+		25, 20, 25,
 		"Legs Mimicry",
 		"Temporarily provides a new pair of legs."
 	},
 	{
 		/* wall form */
-		30,  40, 30,
+		30, 40, 30,
 		"Wall Mimicry",
 		"Temporarily lets you walk in walls, and ONLY in walls."
 	},
@@ -3460,47 +2695,47 @@ magic_power symbiotic_powers[MAX_SYMBIOTIC_POWERS] =
 {
 	/* Level gained,  cost,  %fail,  name */
 	{
-		1,   1,  0,
+		1, 1, 0,
 		"Hypnotise",
 		"Hypnotise a non-moving pet to allow you to enter symbiosis(wear) with it."
 	},
 	{
-		1,   1,  0,
+		1, 1, 0,
 		"Release",
 		"Release an hypnotised pet."
 	},
 	{
-		3,   2,  10,
+		3, 2, 10,
 		"Charm Never-Moving",
 		"Tries to charm a never-moving monster."
 	},
 	{
-		5,   5,  20,
+		5, 5, 20,
 		"Life Share",
 		"Evens out your life with your symbiote."
 	},
 	{
-		10,   10,  20,
+		10, 10, 20,
 		"Use Minor Powers",
 		"Allows you to use some of the powers of your symbiote."
 	},
 	{
-		15,   14,  25,
+		15, 14, 25,
 		"Heal Symbiote",
 		"Heals your symbiotic monster."
 	},
 	{
-		25,   30,  40,
+		25, 30, 40,
 		"Use major powers",
 		"Allows you to use all the powers of your symbiote."
 	},
 	{
-		30,   35,  40,
+		30, 35, 40,
 		"Summon Never-Moving Pet",
 		"Summons a never-moving pet."
 	},
 	{
-		40,   60,  70,
+		40, 60, 70,
 		"Force Symbiosis",
 		"Allows you to use all the powers of a monster in your line of sight."
 	},
@@ -3549,66 +2784,66 @@ cptr deity_standing[11] =
  * Only the first four lines are printed at birth. 
  */
 
-deity_type deity_info[MAX_GODS] =
+deity_type deity_info_init[MAX_GODS_INIT] =
 {
 	{
 		"Nobody",
 		{
 			"Atheist",
-			NULL,
-			NULL,
-			NULL,
-			NULL,
-			NULL,
-			NULL,
-			NULL,
-			NULL,
-			NULL,
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
 		},
 	},
 	{
 		"Eru Iluvatar",
 		{
 			"He is the supreme god, he created the world, and most of its inhabitants.",
-			NULL,
-			NULL,
-			NULL,
-			NULL,
-			NULL,
-			NULL,
-			NULL,
-			NULL,
-			NULL,
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
 		},
 	},
 	{
 		"Manwe Sulimo",
 		{
 			"He is the king of the Valar, most powerful of them after Melkor.",
-			NULL,
-			NULL,
-			NULL,
-			NULL,
-			NULL,
-			NULL,
-			NULL,
-			NULL,
-			NULL,
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
 		},
 	},
 	{
 		"Tulkas",
 		{
 			"He is the last of the Valar that came to the world, and the fiercest fighter.",
-			NULL,
-			NULL,
-			NULL,
-			NULL,
-			NULL,
-			NULL,
-			NULL,
-			NULL,
-			NULL,
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
 		},
 	},
 	{
@@ -3616,14 +2851,14 @@ deity_type deity_info[MAX_GODS] =
 		{
 			"He is the most powerful of the Valar. He became corrupted and he's now ",
 			"the greatest threat of Arda, he is also known as Morgoth, the dark enemy.",
-			NULL,
-			NULL,
-			NULL,
-			NULL,
-			NULL,
-			NULL,
-			NULL,
-			NULL,
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
 		},
 	},
 	{
@@ -3631,15 +2866,15 @@ deity_type deity_info[MAX_GODS] =
 		{
 			"She is the Vala of nature, protectress of the great forests of "
 			"Middle-earth.",
-			NULL,
-			NULL,
-			NULL,
-			NULL,
-			NULL,
-			NULL,
-			NULL,
-			NULL,
-			NULL,
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
 		},
 	},
 };
@@ -3649,16 +2884,16 @@ deity_type deity_info[MAX_GODS] =
 /* as far as I know. */
 tactic_info_type tactic_info[9] =
 {
-/*        hit  dam   ac stl  dis  sav */
-	{ -10, -10, +15, +3, +15, +14, "coward"},           /* 4-4 */
-	{  -8,  -8, +10, +2,  +9,  +9, "meek"},             /* 4-3 */
-	{  -4,  -4,  +5, +1,  +5,  +5, "wary"},             /* 4-2 */
-	{  -2,  -2,  +2, +1,  +2,  +2, "careful"},          /* 4-1 */
-	{   0,   0,   0,  0,   0,   0, "normal"},           /* 4+0 */
-	{   2,   2,  -2, -1,  -2,  -3, "confident"},        /* 4+1 */
-	{   4,   4,  -5, -2,  -5,  -7, "aggressive"},       /* 4+2 */
-	{   6,   6, -10, -3, -11, -12, "furious"},          /* 4+3 */
-	{   8,  12, -25, -5, -18, -18, "berserker"}         /* 4+4 */
+	/*        hit  dam   ac stl  dis  sav */
+	{ -10, -10, + 15, + 3, + 15, + 14, "coward"},             /* 4-4 */
+	{ -8, -8, + 10, + 2, + 9, + 9, "meek"},               /* 4-3 */
+	{ -4, -4, + 5, + 1, + 5, + 5, "wary"},               /* 4-2 */
+	{ -2, -2, + 2, + 1, + 2, + 2, "careful"},            /* 4-1 */
+	{ 0, 0, 0, 0, 0, 0, "normal"},             /* 4+0 */
+	{ 2, 2, -2, -1, -2, -3, "confident"},          /* 4+1 */
+	{ 4, 4, -5, -2, -5, -7, "aggressive"},         /* 4+2 */
+	{ 6, 6, -10, -3, -11, -12, "furious"},            /* 4+3 */
+	{ 8, 12, -25, -5, -18, -18, "berserker"}         /* 4+4 */
 };
 
 /*
@@ -3668,7 +2903,7 @@ activation activation_info[MAX_T_ACT] =
 {
 	{ "death", 0, ACT_DEATH },
 	{ "ruination", 0, ACT_RUINATION },
-	{ "destruction", 0, ACT_DESTRUC },
+	{ "destruction", 1000, ACT_DESTRUC },
 	{ "stupidity", 0, ACT_UNINT },
 	{ "weakness", 0, ACT_UNSTR },
 	{ "unhealth", 0, ACT_UNCON },
@@ -3718,7 +2953,7 @@ activation activation_info[MAX_T_ACT] =
 	{ "cure insanity", 2000, ACT_CURE_INSANITY },
 	{ "light absortion", 800, ACT_LIGHT_ABSORBTION },
 #if 0 /* No more for the time being, ehehhe evil I am :> */
-        { "cure corruption", 2000, ACT_CURE_MUT },
+	{ "cure corruption", 2000, ACT_CURE_MUT },
 #endif
 };
 
@@ -3727,17 +2962,17 @@ activation activation_info[MAX_T_ACT] =
  */
 music music_info[MAX_MUSICS] =
 {
-	{"singing a song of freedom",MUSIC_BETWEEN,10,40,10,1,10},
-	{"singing a charming song",MUSIC_CHARME,6,60,20,1,15},
-	{"singing a knowledge song",MUSIC_ID,6,50,5,2,10},
-	{"singing a *knowledge* song",MUSIC_STAR_ID,2,100,50,4,100}, /* Never random, only for the Harp of Maglor */
-	{"singing a beautiful song",MUSIC_NONE,0,0,0,1,1},
-	{"singing a hiding song",MUSIC_HIDE,20,50,8,3,6},
-	{"singing a song of brightness",MUSIC_LITE,60,20,4,1,5},
-	{"singing a immaterial song",MUSIC_SHADOW,30,50,2,5,15},
-	{"singing a godness song",MUSIC_HOLY,20,100,20,6,15},
-	{"singing a *godness* song",MUSIC_HOLY,30,100,20,5,100}, /* Never random, only for the Drum of the sky */
-	{"singing a *charming* song",MUSIC_CHARME,20,100,20,1,100}, /* Never random, only for the Flute of Daeron */
+	{"singing a song of freedom", MUSIC_BETWEEN, 10, 40, 10, 1, 10},
+	{"singing a charming song", MUSIC_CHARME, 6, 60, 20, 1, 15},
+	{"singing a knowledge song", MUSIC_ID, 6, 50, 5, 2, 10},
+	{"singing a *knowledge* song", MUSIC_STAR_ID, 2, 100, 50, 4, 100},   /* Never random, only for the Harp of Maglor */
+	{"singing a beautiful song", MUSIC_NONE, 0, 0, 0, 1, 1},
+	{"singing a hiding song", MUSIC_HIDE, 20, 50, 8, 3, 6},
+	{"singing a song of brightness", MUSIC_LITE, 60, 20, 4, 1, 5},
+	{"singing a immaterial song", MUSIC_SHADOW, 30, 50, 2, 5, 15},
+	{"singing a godness song", MUSIC_HOLY, 20, 100, 20, 6, 15},
+	{"singing a *godness* song", MUSIC_HOLY, 30, 100, 20, 5, 100},   /* Never random, only for the Drum of the sky */
+	{"singing a *charming* song", MUSIC_CHARME, 20, 100, 20, 1, 100},   /* Never random, only for the Flute of Daeron */
 };
 
 /*
@@ -3745,16 +2980,16 @@ music music_info[MAX_MUSICS] =
  */
 move_info_type move_info[9] =
 {
-/*        speed, searching, stealth, perception */
-	{ -10,     17,        4,      20, "slug-like"},
-	{  -8,     12,        4,      16, "very slow"},
-	{  -6,      8,        3,      10, "slow"},
-	{  -3,      4,        2,       6, "leisurely"},
-	{   0,      0,        0,       0, "normal"},
-	{   1,     -4,       -1,      -4, "brisk"},
-	{   2,     -6,       -4,      -8, "fast"},
-	{   3,    -10,       -7,     -14, "very fast"},
-	{   4,    -16,      -10,     -20, "running"}
+	/*        speed, searching, stealth, perception */
+	{ -10, 17, 4, 20, "slug-like"},
+	{ -8, 12, 4, 16, "very slow"},
+	{ -6, 8, 3, 10, "slow"},
+	{ -3, 4, 2, 6, "leisurely"},
+	{ 0, 0, 0, 0, "normal"},
+	{ 1, -4, -1, -4, "brisk"},
+	{ 2, -6, -4, -8, "fast"},
+	{ 3, -10, -7, -14, "very fast"},
+	{ 4, -16, -10, -20, "running"}
 };
 
 /*
@@ -3769,43 +3004,43 @@ inscription_info_type inscription_info[MAX_INSCRIPTIONS] =
 		0,
 	},
 	{       /* Light up the room(Adunaic) */
-		"ure nimir", /* sun shine */
+		"ure nimir",   /* sun shine */
 		INSCRIP_EXEC_ENGRAVE | INSCRIP_EXEC_WALK | INSCRIP_EXEC_MONST_WALK,
 		FALSE,
 		30,
 	},
 	{       /* Darkness in room(Adunaic) */
-		"lomi gimli", /* night stars */
+		"lomi gimli",   /* night stars */
 		INSCRIP_EXEC_ENGRAVE | INSCRIP_EXEC_WALK | INSCRIP_EXEC_MONST_WALK,
 		FALSE,
 		10,
 	},
 	{       /* Storm(Adunaic) */
-		"dulgi bawiba", /* black winds */
+		"dulgi bawiba",   /* black winds */
 		INSCRIP_EXEC_ENGRAVE | INSCRIP_EXEC_WALK | INSCRIP_EXEC_MONST_WALK,
 		FALSE,
 		40,
 	},
 	{       /* Protection(Sindarin) */
-		"pedo mellon a minno", /* say friend and enter */
+		"pedo mellon a minno",   /* say friend and enter */
 		INSCRIP_EXEC_MONST_WALK,
 		FALSE,
 		8,
 	},
 	{       /* Dwarves summoning(Khuzdul) */
-		"Baruk Khazad! Khazad aimenu!", /* Axes of the Dwarves, the Dwarves are upon you! */
+		"Baruk Khazad! Khazad aimenu!",   /* Axes of the Dwarves, the Dwarves are upon you! */
 		INSCRIP_EXEC_ENGRAVE,
 		FALSE,
 		100,
 	},
 	{       /* Open Chasm(Nandorin) */
-		"dunna hrassa", /* black precipice */
+		"dunna hrassa",   /* black precipice */
 		INSCRIP_EXEC_MONST_WALK,
 		FALSE,
 		50,
 	},
 	{       /* Blast of Black Fire(Orcish) */
-		"burz ghash ronk", /* black fire pool */
+		"burz ghash ronk",   /* black fire pool */
 		INSCRIP_EXEC_ENGRAVE | INSCRIP_EXEC_WALK | INSCRIP_EXEC_MONST_WALK,
 		FALSE,
 		60,
@@ -3866,7 +3101,7 @@ flags_group flags_groups[MAX_FLAG_GROUP] =
 	{
 		"Acid",
 		TERM_GREEN,
-		1,
+		3,
 		TR1_SLAY_ANIMAL | TR1_IMPACT | TR1_TUNNEL | TR1_BRAND_ACID,
 		TR2_RES_ACID,
 		TR3_IGNORE_ACID,
@@ -4407,7 +3642,7 @@ power_type powers_type_init[POWER_MAX_INIT] =
 /*
  * The Quests
  */
-quest_type quest_init[MAX_Q_IDX_INIT] =
+quest_type quest_init_tome[MAX_Q_IDX_INIT] =
 {
 	{
 		FALSE,
@@ -4451,7 +3686,7 @@ quest_type quest_init[MAX_Q_IDX_INIT] =
 		},
 		QUEST_STATUS_TAKEN,
 		70,
-
+	
 		&plots[PLOT_MAIN],
 		HOOK_TYPE_C,
 		quest_necro_init_hook,
@@ -4475,7 +3710,7 @@ quest_type quest_init[MAX_Q_IDX_INIT] =
 		},
 		QUEST_STATUS_UNTAKEN,
 		99,
-
+	
 		&plots[PLOT_MAIN],
 		HOOK_TYPE_C,
 		quest_sauron_init_hook,
@@ -4499,13 +3734,13 @@ quest_type quest_init[MAX_Q_IDX_INIT] =
 		},
 		QUEST_STATUS_UNTAKEN,
 		100,
-
+	
 		&plots[PLOT_MAIN],
 		HOOK_TYPE_C,
 		quest_morgoth_init_hook,
 		{0, 0},
 	},
-
+	
 	/* Bree plot */
 	{
 		FALSE,
@@ -4513,10 +3748,10 @@ quest_type quest_init[MAX_Q_IDX_INIT] =
 		"Thieves!",
 		{
 			"There are thieves robbing my people! They live in a small",
-			"burrow outside the city walls robbing people as they pass",
-			"on the roads. They even sneak inside the town to mug and",
-			"pillage! Your task is to go to the burrow and kill these",
-			"ruffians.",
+			"burrow outside the city walls, but they get inside the walls",
+			"with a tunnel to a building here! Your task is to go to the",
+			"building kill these ruffians.",
+			"",
 			"",
 			"",
 			"",
@@ -4525,13 +3760,13 @@ quest_type quest_init[MAX_Q_IDX_INIT] =
 		},
 		QUEST_STATUS_UNTAKEN,
 		5,
-
+	
 		&plots[PLOT_BREE],
 		HOOK_TYPE_C,
 		quest_thieves_init_hook,
 		{0, 0},
 	},
-
+	
 	{
 		FALSE,
 		TRUE,
@@ -4550,13 +3785,13 @@ quest_type quest_init[MAX_Q_IDX_INIT] =
 		},
 		QUEST_STATUS_UNTAKEN,
 		5,
-
+	
 		NULL,
 		HOOK_TYPE_C,
 		quest_random_init_hook,
 		{0, 0},
 	},
-
+	
 	{
 		FALSE,
 		FALSE,
@@ -4575,13 +3810,13 @@ quest_type quest_init[MAX_Q_IDX_INIT] =
 		},
 		QUEST_STATUS_UNTAKEN,
 		25,
-
+	
 		&plots[PLOT_OTHER],
 		HOOK_TYPE_C,
 		quest_hobbit_init_hook,
 		{0, 0},
 	},
-
+	
 	{
 		FALSE,
 		FALSE,
@@ -4600,13 +3835,13 @@ quest_type quest_init[MAX_Q_IDX_INIT] =
 		},
 		QUEST_STATUS_UNTAKEN,
 		40,
-
+	
 		&plots[PLOT_BREE],
 		HOOK_TYPE_C,
 		quest_nazgul_init_hook,
 		{0, 0},
 	},
-
+	
 	{
 		FALSE,
 		FALSE,
@@ -4625,13 +3860,13 @@ quest_type quest_init[MAX_Q_IDX_INIT] =
 		},
 		QUEST_STATUS_UNTAKEN,
 		30,
-
+	
 		&plots[PLOT_BREE],
 		HOOK_TYPE_C,
 		quest_troll_init_hook,
 		{FALSE, 0},
 	},
-
+	
 	{
 		FALSE,
 		FALSE,
@@ -4650,13 +3885,13 @@ quest_type quest_init[MAX_Q_IDX_INIT] =
 		},
 		QUEST_STATUS_UNTAKEN,
 		30,
-
+	
 		&plots[PLOT_BREE],
 		HOOK_TYPE_C,
 		quest_wight_init_hook,
 		{FALSE, 0},
 	},
-
+	
 	/* Lorien plot */
 	{
 		FALSE,
@@ -4676,7 +3911,7 @@ quest_type quest_init[MAX_Q_IDX_INIT] =
 		},
 		QUEST_STATUS_UNTAKEN,
 		25,
-
+	
 		&plots[PLOT_LORIEN],
 		HOOK_TYPE_C,
 		quest_spider_init_hook,
@@ -4700,7 +3935,7 @@ quest_type quest_init[MAX_Q_IDX_INIT] =
 		},
 		QUEST_STATUS_UNTAKEN,
 		30,
-
+	
 		&plots[PLOT_LORIEN],
 		HOOK_TYPE_C,
 		quest_poison_init_hook,
@@ -4725,7 +3960,7 @@ quest_type quest_init[MAX_Q_IDX_INIT] =
 		},
 		QUEST_STATUS_UNTAKEN,
 		20,
-
+	
 		&plots[PLOT_OTHER],
 		HOOK_TYPE_C,
 		quest_narsil_init_hook,
@@ -4750,7 +3985,7 @@ quest_type quest_init[MAX_Q_IDX_INIT] =
 		},
 		QUEST_STATUS_UNTAKEN,
 		30,
-
+	
 		&plots[PLOT_GONDOLIN],
 		HOOK_TYPE_C,
 		quest_eol_init_hook,
@@ -4774,7 +4009,7 @@ quest_type quest_init[MAX_Q_IDX_INIT] =
 		},
 		QUEST_STATUS_UNTAKEN,
 		37,
-
+	
 		&plots[PLOT_GONDOLIN],
 		HOOK_TYPE_C,
 		quest_nirnaeth_init_hook,
@@ -4798,12 +4033,13 @@ quest_type quest_init[MAX_Q_IDX_INIT] =
 		},
 		QUEST_STATUS_UNTAKEN,
 		80,
-
+	
 		&plots[PLOT_GONDOLIN],
 		HOOK_TYPE_C,
 		quest_invasion_init_hook,
 		{0, 0},
 	},
+	/* Minas Anor Plot*/
 	{
 		FALSE,
 		FALSE,
@@ -4821,8 +4057,8 @@ quest_type quest_init[MAX_Q_IDX_INIT] =
 			"",
 		},
 		QUEST_STATUS_UNTAKEN,
-		60,
-
+		80,
+	
 		&plots[PLOT_MINAS],
 		HOOK_TYPE_C,
 		quest_between_init_hook,
@@ -4846,13 +4082,13 @@ quest_type quest_init[MAX_Q_IDX_INIT] =
 		},
 		QUEST_STATUS_UNTAKEN,
 		99,
-
+	
 		&plots[PLOT_MAIN],
 		HOOK_TYPE_C,
 		quest_one_init_hook,
 		{0, 0},
 	},
-
+	
 	{
 		FALSE,
 		FALSE,
@@ -4871,13 +4107,13 @@ quest_type quest_init[MAX_Q_IDX_INIT] =
 		},
 		QUEST_STATUS_UNTAKEN,
 		3,
-
+	
 		&plots[PLOT_OTHER],
 		HOOK_TYPE_C,
 		quest_shroom_init_hook,
 		{0, 0},
 	},
-
+	
 	{
 		FALSE,
 		FALSE,
@@ -4896,116 +4132,267 @@ quest_type quest_init[MAX_Q_IDX_INIT] =
 		},
 		QUEST_STATUS_UNTAKEN,
 		60,
-
+	
 		&plots[PLOT_OTHER],
 		HOOK_TYPE_C,
 		quest_thrain_init_hook,
 		{0, 0},
 	},
+	
+	/* The 2 ultra endings go here */
+	{
+		FALSE,
+		FALSE,
+		"Falling Toward Apotheosis",
+		{
+			"You must enter the Void where Melkor spirit lurks to destroy",
+			"him forever. Remember however that it is likely to be your own",
+			"death that awaits you.",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+		},
+		QUEST_STATUS_UNTAKEN,
+		150,
+	
+		&plots[PLOT_MAIN],
+		HOOK_TYPE_C,
+		quest_ultra_good_init_hook,
+		{0, 0},
+	},
+	{
+		FALSE,
+		FALSE,
+		"Falling Toward Apotheosis",
+		{
+			"You must now launch an onslaught on Valinor itself to eliminate",
+			"once and for all any posible resistance to your dominance of Arda.",
+			"Remember however that it is likely to be your own death that awaits you.",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+		},
+		QUEST_STATUS_UNTAKEN,
+		150,
+	
+		&plots[PLOT_MAIN],
+		HOOK_TYPE_C,
+		quest_ultra_evil_init_hook,
+		{0, 0},
+	},
+	/* More Lorien */
+	{
+		FALSE,
+		FALSE,
+		"Wolves!",
+		{
+			"There are wolves pestering my people! They gather in a hut",
+			"on the edge of down and menace everyone nearby. Your task",
+			"is to go in there and clear them out.",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+		},
+		QUEST_STATUS_UNTAKEN,
+		15,
+	
+		&plots[PLOT_LORIEN],
+		HOOK_TYPE_C,
+		quest_wolves_init_hook,
+		{0, 0},
+	},
+	/* More Gondolin */
+	{
+		FALSE,
+		FALSE,
+		"Dragons!",
+		{
+			"There are dragons pestering my people! They gather in a",
+			"building on the edge of down and menace everyone nearby.",
+			"Your task is to go into the buildng and clear them out.",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+		},
+		QUEST_STATUS_UNTAKEN,
+		25,
+	
+		&plots[PLOT_GONDOLIN],
+		HOOK_TYPE_C,
+		quest_dragons_init_hook,
+		{0, 0},
+	},
+	/* More Minas Anor */
+	{
+		FALSE,
+		FALSE,
+		"Haunted House!",
+		{
+			"There are undead pestering my people! They gather in a hut",
+			"on the edge of down and menace everyone nearby. Your task",
+			"is to go into the buildng and clear out the beasts.",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+		},
+		QUEST_STATUS_UNTAKEN,
+		45,
+	
+		&plots[PLOT_MINAS],
+		HOOK_TYPE_C,
+		quest_haunted_init_hook,
+		{0, 0},
+	},
+	/* Khazad-Dum Plot*/
+	{
+		FALSE,
+		FALSE,
+		"Evil!",
+		{
+			"We have burrowed too deep, and let out some creatures of",
+			"Morgoth's that threaten to kill us all! Your task is to save us",
+			"from them!",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+		},
+		QUEST_STATUS_UNTAKEN,
+		60,
+	
+		&plots[PLOT_KHAZAD],
+		HOOK_TYPE_C,
+		quest_evil_init_hook,
+		{0, 0},
+	},
 };
+
 
 /* List of powers for Symbiants/Powers */
 monster_power monster_powers[96] =
-{
-	{ RF4_SHRIEK, "Aggravate Monster", 1, FALSE },
-	{ RF4_MULTIPLY, "Multiply", 10, FALSE },
-	{ RF4_S_ANIMAL, "Summon Animal", 30, FALSE },
-	{ RF4_ROCKET, "Fire a Rocket", 40, TRUE },
-	{ RF4_ARROW_1, "Light Arrow", 1, FALSE },
-	{ RF4_ARROW_2, "Minor Arrow", 3, FALSE },
-	{ RF4_ARROW_3, "Major Arrow", 7, TRUE },
-	{ RF4_ARROW_4, "Great Arrow", 9, TRUE },
-	{ RF4_BR_ACID, "Breathe Acid", 10, FALSE },
-	{ RF4_BR_ELEC, "Breathe Lightning", 10, FALSE },
-	{ RF4_BR_FIRE, "Breathe Fire", 10, FALSE },
-	{ RF4_BR_COLD, "Breathe Cold", 10, FALSE },
-	{ RF4_BR_POIS, "Breathe Poison", 15, TRUE },
-	{ RF4_BR_NETH, "Breathe Nether", 30, TRUE },
-	{ RF4_BR_LITE, "Breathe Light", 20, TRUE },
-	{ RF4_BR_DARK, "Breathe Dark", 20, TRUE },
-	{ RF4_BR_CONF, "Breathe Confusion", 15, TRUE },
-	{ RF4_BR_SOUN, "Breathe Sound", 30, TRUE },
-	{ RF4_BR_CHAO, "Breathe Chaos", 30, TRUE },
-	{ RF4_BR_DISE, "Breathe Disenchantment", 30, TRUE },
-	{ RF4_BR_NEXU, "Breathe Nexus", 30, TRUE },
-	{ RF4_BR_TIME, "Breathe Time", 30, TRUE },
-	{ RF4_BR_INER, "Breathe Inertia", 30, TRUE },
-	{ RF4_BR_GRAV, "Breathe Gravity", 30, TRUE },
-	{ RF4_BR_SHAR, "Breathe Shards", 30, TRUE },
-	{ RF4_BR_PLAS, "Breathe Plasma", 30, TRUE },
-	{ RF4_BR_WALL, "Breathe Force", 30, TRUE },
-	{ RF4_BR_MANA, "Breathe Mana", 40, TRUE },
-	{ RF4_BA_NUKE, "Nuke Ball", 30, TRUE },
-	{ RF4_BR_NUKE, "Breathe Nuke", 40, TRUE },
-	{ RF4_BA_CHAO, "Chaos Ball", 30, TRUE },
-	{ RF4_BR_DISI, "Breathe Disintegration", 40, TRUE },
+	{
+		{ RF4_SHRIEK, "Aggravate Monster", 1, FALSE },
+		{ RF4_MULTIPLY, "Multiply", 10, FALSE },
+		{ RF4_S_ANIMAL, "Summon Animal", 30, FALSE },
+		{ RF4_ROCKET, "Fire a Rocket", 40, TRUE },
+		{ RF4_ARROW_1, "Light Arrow", 1, FALSE },
+		{ RF4_ARROW_2, "Minor Arrow", 3, FALSE },
+		{ RF4_ARROW_3, "Major Arrow", 7, TRUE },
+		{ RF4_ARROW_4, "Great Arrow", 9, TRUE },
+		{ RF4_BR_ACID, "Breathe Acid", 10, FALSE },
+		{ RF4_BR_ELEC, "Breathe Lightning", 10, FALSE },
+		{ RF4_BR_FIRE, "Breathe Fire", 10, FALSE },
+		{ RF4_BR_COLD, "Breathe Cold", 10, FALSE },
+		{ RF4_BR_POIS, "Breathe Poison", 15, TRUE },
+		{ RF4_BR_NETH, "Breathe Nether", 30, TRUE },
+		{ RF4_BR_LITE, "Breathe Light", 20, TRUE },
+		{ RF4_BR_DARK, "Breathe Dark", 20, TRUE },
+		{ RF4_BR_CONF, "Breathe Confusion", 15, TRUE },
+		{ RF4_BR_SOUN, "Breathe Sound", 30, TRUE },
+		{ RF4_BR_CHAO, "Breathe Chaos", 30, TRUE },
+		{ RF4_BR_DISE, "Breathe Disenchantment", 30, TRUE },
+		{ RF4_BR_NEXU, "Breathe Nexus", 30, TRUE },
+		{ RF4_BR_TIME, "Breathe Time", 30, TRUE },
+		{ RF4_BR_INER, "Breathe Inertia", 30, TRUE },
+		{ RF4_BR_GRAV, "Breathe Gravity", 30, TRUE },
+		{ RF4_BR_SHAR, "Breathe Shards", 30, TRUE },
+		{ RF4_BR_PLAS, "Breathe Plasma", 30, TRUE },
+		{ RF4_BR_WALL, "Breathe Force", 30, TRUE },
+		{ RF4_BR_MANA, "Breathe Mana", 40, TRUE },
+		{ RF4_BA_NUKE, "Nuke Ball", 30, TRUE },
+		{ RF4_BR_NUKE, "Breathe Nuke", 40, TRUE },
+		{ RF4_BA_CHAO, "Chaos Ball", 30, TRUE },
+		{ RF4_BR_DISI, "Breathe Disintegration", 40, TRUE },
 
-	{ RF5_BA_ACID, "Acid Ball", 8, FALSE },
-	{ RF5_BA_ELEC, "Lightning Ball", 8, FALSE },
-	{ RF5_BA_FIRE, "Fire Ball", 8, FALSE },
-	{ RF5_BA_COLD, "Cold Ball", 8, FALSE },
-	{ RF5_BA_POIS, "Poison Ball", 20, TRUE },
-	{ RF5_BA_NETH, "Nether Ball", 20, TRUE },
-	{ RF5_BA_WATE, "Water Ball", 20, TRUE },
-	{ RF5_BA_MANA, "Mana Ball", 50, TRUE },
-	{ RF5_BA_DARK, "Darkness Ball", 20, TRUE },
-	{ 0, "(none)", 0, FALSE },
-	{ 0, "(none)", 0, FALSE },
-	{ 0, "(none)", 0, FALSE },
-	{ RF5_CAUSE_1, "Cause Light Wounds", 20, FALSE },
-	{ RF5_CAUSE_2, "Cause Medium Wounds", 30, FALSE },
-	{ RF5_CAUSE_3, "Cause Critical Wounds", 35, TRUE },
-	{ RF5_CAUSE_4, "Cause Mortal Wounds", 45, TRUE },
-	{ RF5_BO_ACID, "Acid Bolt", 5, FALSE },
-	{ RF5_BO_ELEC, "Lightning Bolt", 5, FALSE },
-	{ RF5_BO_FIRE, "Fire Bolt", 5, FALSE },
-	{ RF5_BO_COLD, "Cold Bolt", 5, FALSE },
-	{ RF5_BO_POIS, "Poison Bolt", 10, TRUE },
-	{ RF5_BO_NETH, "Nether Bolt", 15, TRUE },
-	{ RF5_BO_WATE, "Water Bolt", 20, TRUE },
-	{ RF5_BO_MANA, "Mana Bolt", 25, TRUE },
-	{ RF5_BO_PLAS, "Plasma Bolt", 20, TRUE },
-	{ RF5_BO_ICEE, "Ice Bolt", 20, TRUE },
-	{ RF5_MISSILE, "Magic Missile", 1, FALSE },
-	{ RF5_SCARE, "Scare", 4, FALSE },
-	{ RF5_BLIND, "Blindness", 6, FALSE },
-	{ RF5_CONF, "Confusion", 7, FALSE },
-	{ RF5_SLOW, "Slowness", 10, FALSE },
-	{ RF5_HOLD, "Paralyse", 10, FALSE },
+		{ RF5_BA_ACID, "Acid Ball", 8, FALSE },
+		{ RF5_BA_ELEC, "Lightning Ball", 8, FALSE },
+		{ RF5_BA_FIRE, "Fire Ball", 8, FALSE },
+		{ RF5_BA_COLD, "Cold Ball", 8, FALSE },
+		{ RF5_BA_POIS, "Poison Ball", 20, TRUE },
+		{ RF5_BA_NETH, "Nether Ball", 20, TRUE },
+		{ RF5_BA_WATE, "Water Ball", 20, TRUE },
+		{ RF5_BA_MANA, "Mana Ball", 50, TRUE },
+		{ RF5_BA_DARK, "Darkness Ball", 20, TRUE },
+		{ 0, "(none)", 0, FALSE },
+		{ 0, "(none)", 0, FALSE },
+		{ 0, "(none)", 0, FALSE },
+		{ RF5_CAUSE_1, "Cause Light Wounds", 20, FALSE },
+		{ RF5_CAUSE_2, "Cause Medium Wounds", 30, FALSE },
+		{ RF5_CAUSE_3, "Cause Critical Wounds", 35, TRUE },
+		{ RF5_CAUSE_4, "Cause Mortal Wounds", 45, TRUE },
+		{ RF5_BO_ACID, "Acid Bolt", 5, FALSE },
+		{ RF5_BO_ELEC, "Lightning Bolt", 5, FALSE },
+		{ RF5_BO_FIRE, "Fire Bolt", 5, FALSE },
+		{ RF5_BO_COLD, "Cold Bolt", 5, FALSE },
+		{ RF5_BO_POIS, "Poison Bolt", 10, TRUE },
+		{ RF5_BO_NETH, "Nether Bolt", 15, TRUE },
+		{ RF5_BO_WATE, "Water Bolt", 20, TRUE },
+		{ RF5_BO_MANA, "Mana Bolt", 25, TRUE },
+		{ RF5_BO_PLAS, "Plasma Bolt", 20, TRUE },
+		{ RF5_BO_ICEE, "Ice Bolt", 20, TRUE },
+		{ RF5_MISSILE, "Magic Missile", 1, FALSE },
+		{ RF5_SCARE, "Scare", 4, FALSE },
+		{ RF5_BLIND, "Blindness", 6, FALSE },
+		{ RF5_CONF, "Confusion", 7, FALSE },
+		{ RF5_SLOW, "Slowness", 10, FALSE },
+		{ RF5_HOLD, "Paralyse", 10, FALSE },
 
-	{ RF6_HASTE, "Haste Self", 50, FALSE },
-	{ RF6_HAND_DOOM, "Hand of Doom", 30, TRUE },
-	{ RF6_HEAL, "Healing", 60, FALSE },
-	{ RF6_S_ANIMALS, "Summon Animals", 60, TRUE },
-	{ RF6_BLINK, "Phase Door", 2, FALSE },
-	{ RF6_TPORT, "Teleport", 10, FALSE },
-	{ RF6_TELE_TO, "Teleport To", 20, TRUE },
-	{ RF6_TELE_AWAY, "Teleport Away", 20, FALSE },
-	{ RF6_TELE_LEVEL, "Teleport Level", 20, TRUE },
-	{ RF6_DARKNESS, "Darkness", 3, FALSE },
-	{ RF6_TRAPS, "Create Traps", 10, TRUE },
-	{ 0, "(none)", 0, FALSE },
-	{ RF6_RAISE_DEAD, "Raise the Dead", 400, TRUE },
-	{ 0, "(none)", 0, FALSE },
-	{ 0, "(none)", 0, FALSE },
-	{ RF6_S_THUNDERLORD, "Summon Thunderlords", 90, TRUE },
-	{ RF6_S_KIN, "Summon Kin", 80, FALSE },
-	{ RF6_S_HI_DEMON, "Summon Greater Demons", 90, TRUE },
-	{ RF6_S_MONSTER, "Summon Monster", 50, FALSE },
-	{ RF6_S_MONSTERS, "Summon Monsters", 60, TRUE },
-	{ RF6_S_ANT, "Summon Ants", 30, FALSE },
-	{ RF6_S_SPIDER, "Summon Spider", 30, FALSE },
-	{ RF6_S_HOUND, "Summon Hound", 50, TRUE },
-	{ RF6_S_HYDRA, "Summon Hydra", 40, TRUE },
-	{ RF6_S_ANGEL, "Summon Angel", 60, TRUE },
-	{ RF6_S_DEMON, "Summon Demon", 60, TRUE },
-	{ RF6_S_UNDEAD, "Summon Undead", 70, TRUE },
-	{ RF6_S_DRAGON, "Summon Dragon", 70, TRUE },
-	{ RF6_S_HI_UNDEAD, "Summon High Undead", 90, TRUE },
-	{ RF6_S_HI_DRAGON, "Summon High Dragon", 90, TRUE },
-	{ RF6_S_WRAITH, "Summon Wraith", 90, TRUE },
-	{ 0, "(none)", 0, FALSE },
-};
+		{ RF6_HASTE, "Haste Self", 50, FALSE },
+		{ RF6_HAND_DOOM, "Hand of Doom", 30, TRUE },
+		{ RF6_HEAL, "Healing", 60, FALSE },
+		{ RF6_S_ANIMALS, "Summon Animals", 60, TRUE },
+		{ RF6_BLINK, "Phase Door", 2, FALSE },
+		{ RF6_TPORT, "Teleport", 10, FALSE },
+		{ RF6_TELE_TO, "Teleport To", 20, TRUE },
+		{ RF6_TELE_AWAY, "Teleport Away", 20, FALSE },
+		{ RF6_TELE_LEVEL, "Teleport Level", 20, TRUE },
+		{ RF6_DARKNESS, "Darkness", 3, FALSE },
+		{ RF6_TRAPS, "Create Traps", 10, TRUE },
+		{ 0, "(none)", 0, FALSE },
+		{ RF6_RAISE_DEAD, "Raise the Dead", 400, TRUE },
+		{ 0, "(none)", 0, FALSE },
+		{ 0, "(none)", 0, FALSE },
+		{ RF6_S_THUNDERLORD, "Summon Thunderlords", 90, TRUE },
+		{ RF6_S_KIN, "Summon Kin", 80, FALSE },
+		{ RF6_S_HI_DEMON, "Summon Greater Demons", 90, TRUE },
+		{ RF6_S_MONSTER, "Summon Monster", 50, FALSE },
+		{ RF6_S_MONSTERS, "Summon Monsters", 60, TRUE },
+		{ RF6_S_ANT, "Summon Ants", 30, FALSE },
+		{ RF6_S_SPIDER, "Summon Spider", 30, FALSE },
+		{ RF6_S_HOUND, "Summon Hound", 50, TRUE },
+		{ RF6_S_HYDRA, "Summon Hydra", 40, TRUE },
+		{ RF6_S_ANGEL, "Summon Angel", 60, TRUE },
+		{ RF6_S_DEMON, "Summon Demon", 60, TRUE },
+		{ RF6_S_UNDEAD, "Summon Undead", 70, TRUE },
+		{ RF6_S_DRAGON, "Summon Dragon", 70, TRUE },
+		{ RF6_S_HI_UNDEAD, "Summon High Undead", 90, TRUE },
+		{ RF6_S_HI_DRAGON, "Summon High Dragon", 90, TRUE },
+		{ RF6_S_WRAITH, "Summon Wraith", 90, TRUE },
+		{ 0, "(none)", 0, FALSE },
+	};
 
 /* Tval descriptions */
 tval_desc tval_descs[] =
@@ -5027,7 +4414,7 @@ tval_desc tval_descs[] =
 		"XXX"
 	},
 	{
-		TV_PARCHEMENT,
+		TV_PARCHMENT,
 		"Parchments can contain useful information ... or useless "
 		"junk."
 	},
@@ -5040,7 +4427,7 @@ tval_desc tval_descs[] =
 		TV_TOOL,
 		"Tools can be digging implements, climbing equipment and such. "
 		"They have their own slot in your inventory."
-
+	
 	},
 	{
 		TV_INSTRUMENT,
@@ -5261,7 +4648,7 @@ tval_desc tval_descs[] =
 	{
 		TV_DAEMON_BOOK,
 		"This unholy demon equipment is used with the Demonology skill to control "
-		"the realm of demon power."
+		"the school of demon power."
 	},
 	{0, ""},
 };
@@ -5272,7 +4659,7 @@ tval_desc tval_descs[] =
  *       bool dungeon;           Do we exit in a dungeon or in the wild ?
  *
  *       s16b wild_x, wild_y;    Wilderness spot to land onto
- *       s16b px, py;            Location of the map
+ *       s16b p_ptr->px, p_ptr->py;            Location of the map
  *
  *       s16b d_idx;             Dungeon to land onto
  *       s16b level;
@@ -5300,20 +4687,21 @@ between_exit between_exits[MAX_BETWEEN_EXITS] =
  */
 int month_day[9] =
 {
-	0,      /* 1 day */
+	0,        /* 1 day */
 
-	1,      /* 54 days */
-	55,     /* 72 days */
-	127,    /* 54 days */
+	1,        /* 54 days */
+	55,       /* 72 days */
+	127,      /* 54 days */
 
-	181,    /* 3 days */
+	181,      /* 3 days */
 
-	184,    /* 54 days */
-	238,    /* 72 days */
-	310,    /* 54 days */
+	184,      /* 54 days */
+	238,      /* 72 days */
+	310,      /* 54 days */
 
-	364,    /* 1 day */
+	364,      /* 1 day */
 };
+
 cptr month_name[9] =
 {
 	"Yestare",
@@ -5336,12 +4724,12 @@ cptr month_name[9] =
  */
 int max_body_part[BODY_MAX] =
 {
-	3,      /* Weapon */
-	1,      /* Torso */
-	3,      /* Arms */
-	6,      /* Finger */
-	2,      /* Head */
-	2,      /* Legs */
+	3,        /* Weapon */
+	1,        /* Torso */
+	3,        /* Arms */
+	6,        /* Finger */
+	2,        /* Head */
+	2,        /* Legs */
 };
 
 /*
@@ -5441,5 +4829,5 @@ gf_name_type gf_names[] =
 	{ GF_RAISE_DEMON, "raise demon" },
 	{ GF_TRAP_DEMONSOUL, "*control demon*" },
 	{ GF_ATTACK, "projected melee attacks" },
-        { -1, NULL },
+	{ -1, NULL },
 };

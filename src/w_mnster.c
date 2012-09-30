@@ -1,6 +1,6 @@
 /*
 ** Lua binding: monster
-** Generated automatically by tolua 4.0a - angband on Fri Dec 20 23:08:21 2002.
+** Generated automatically by tolua 4.0a - angband on Sat Jun  7 17:07:30 2003.
 */
 
 #include "lua/tolua.h"
@@ -2298,6 +2298,22 @@ static int toluaI_set_monster_summon_specific_level(lua_State* tolua_S)
  return 0;
 }
 
+/* get function: summon_kin_type */
+static int toluaI_get_monster_summon_kin_type(lua_State* tolua_S)
+{
+ tolua_pushnumber(tolua_S,(long)summon_kin_type);
+ return 1;
+}
+
+/* set function: summon_kin_type */
+static int toluaI_set_monster_summon_kin_type(lua_State* tolua_S)
+{
+ if (!tolua_istype(tolua_S,1,LUA_TNUMBER,0))
+ TOLUA_ERR_ASSIGN;
+  summon_kin_type = ((char)  tolua_getnumber(tolua_S,1,0));
+ return 0;
+}
+
 /* function: summon_specific */
 static int toluaI_monster_summon_specific00(lua_State* tolua_S)
 {
@@ -2446,6 +2462,22 @@ static int toluaI_monster_do_control_reconnect00(lua_State* tolua_S)
  return 1;
 tolua_lerror:
  tolua_error(tolua_S,"#ferror in function 'do_control_reconnect'.");
+ return 0;
+}
+
+/* get function: m_max */
+static int toluaI_get_monster_m_max(lua_State* tolua_S)
+{
+ tolua_pushnumber(tolua_S,(long)m_max);
+ return 1;
+}
+
+/* set function: m_max */
+static int toluaI_set_monster_m_max(lua_State* tolua_S)
+{
+ if (!tolua_istype(tolua_S,1,LUA_TNUMBER,0))
+ TOLUA_ERR_ASSIGN;
+  m_max = ((s16b)  tolua_getnumber(tolua_S,1,0));
  return 0;
 }
 
@@ -2669,6 +2701,8 @@ int tolua_monster_open (lua_State* tolua_S)
  tolua_constant(tolua_S,NULL,"RF7_AI_ANNOY",RF7_AI_ANNOY);
  tolua_constant(tolua_S,NULL,"RF7_AI_SPECIAL",RF7_AI_SPECIAL);
  tolua_constant(tolua_S,NULL,"RF7_NO_THEFT",RF7_NO_THEFT);
+ tolua_constant(tolua_S,NULL,"RF7_SPIRIT",RF7_SPIRIT);
+ tolua_constant(tolua_S,NULL,"RF7_IM_MELEE",RF7_IM_MELEE);
  tolua_constant(tolua_S,NULL,"RF8_DUNGEON",RF8_DUNGEON);
  tolua_constant(tolua_S,NULL,"RF8_WILD_TOWN",RF8_WILD_TOWN);
  tolua_constant(tolua_S,NULL,"RF8_XXX8X02",RF8_XXX8X02);
@@ -2819,6 +2853,7 @@ int tolua_monster_open (lua_State* tolua_S)
  tolua_function(tolua_S,NULL,"change_side",toluaI_monster_change_side00);
  tolua_function(tolua_S,NULL,"find_position",toluaI_monster_find_position00);
  tolua_globalvar(tolua_S,"summon_specific_level",toluaI_get_monster_summon_specific_level,toluaI_set_monster_summon_specific_level);
+ tolua_globalvar(tolua_S,"summon_kin_type",toluaI_get_monster_summon_kin_type,toluaI_set_monster_summon_kin_type);
  tolua_function(tolua_S,NULL,"summon_specific",toluaI_monster_summon_specific00);
  tolua_function(tolua_S,NULL,"summon_specific_friendly",toluaI_monster_summon_specific_friendly00);
  tolua_function(tolua_S,NULL,"summon_monster_aux",toluaI_monster_summon_monster_aux00);
@@ -2862,6 +2897,7 @@ int tolua_monster_open (lua_State* tolua_S)
  tolua_constant(tolua_S,NULL,"SUMMON_GHOST",SUMMON_GHOST);
  tolua_constant(tolua_S,NULL,"SUMMON_QUYLTHULG",SUMMON_QUYLTHULG);
  tolua_function(tolua_S,NULL,"do_control_reconnect",toluaI_monster_do_control_reconnect00);
+ tolua_globalvar(tolua_S,"m_max",toluaI_get_monster_m_max,toluaI_set_monster_m_max);
  return 1;
 }
 /* Close function */
@@ -3084,6 +3120,8 @@ void tolua_monster_close (lua_State* tolua_S)
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"RF7_AI_ANNOY");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"RF7_AI_SPECIAL");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"RF7_NO_THEFT");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"RF7_SPIRIT");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"RF7_IM_MELEE");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"RF8_DUNGEON");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"RF8_WILD_TOWN");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"RF8_XXX8X02");
@@ -3149,6 +3187,9 @@ void tolua_monster_close (lua_State* tolua_S)
  lua_getglobals(tolua_S);
  lua_pushstring(tolua_S,"summon_specific_level"); lua_pushnil(tolua_S); lua_rawset(tolua_S,-3);
  lua_pop(tolua_S,1);
+ lua_getglobals(tolua_S);
+ lua_pushstring(tolua_S,"summon_kin_type"); lua_pushnil(tolua_S); lua_rawset(tolua_S,-3);
+ lua_pop(tolua_S,1);
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"summon_specific");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"summon_specific_friendly");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"summon_monster_aux");
@@ -3192,4 +3233,7 @@ void tolua_monster_close (lua_State* tolua_S)
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SUMMON_GHOST");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SUMMON_QUYLTHULG");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"do_control_reconnect");
+ lua_getglobals(tolua_S);
+ lua_pushstring(tolua_S,"m_max"); lua_pushnil(tolua_S); lua_rawset(tolua_S,-3);
+ lua_pop(tolua_S,1);
 }

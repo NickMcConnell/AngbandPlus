@@ -19,8 +19,8 @@ void do_cmd_immovable_special(void);
  */
 static bool do_cmd_bash_altar(int y, int x)
 {
-        msg_print("Are you mad ? You want to anger the gods ?");
-        return (FALSE);
+	msg_print("Are you mad ? You want to anger the gods ?");
+	return (FALSE);
 }
 
 
@@ -97,7 +97,7 @@ void do_cmd_go_up(void)
 
 
 	/* Player grid */
-	c_ptr = &cave[py][px];
+	c_ptr = &cave[p_ptr->py][p_ptr->px];
 
 	/* test if on special level */
 	if ((dungeon_flags2 & DF2_ASK_LEAVE))
@@ -110,7 +110,7 @@ void do_cmd_go_up(void)
 	}
 
 	/* Can we ? */
-	if (process_hooks(HOOK_STAIR, "(d)", FALSE)) return;
+	if (process_hooks(HOOK_STAIR, "(s)", "up")) return;
 
 	/* Normal up stairs */
 	if ((c_ptr->feat == FEAT_LESS) || (c_ptr->feat == FEAT_WAY_LESS))
@@ -170,9 +170,15 @@ void do_cmd_go_up(void)
 
 	/* Exits to previous area in flat terrains */
 	else if (!(dungeon_flags1 & DF1_FLAT) &&
-			 p_ptr->prob_travel && !p_ptr->inside_quest)
+	                p_ptr->prob_travel && !p_ptr->inside_quest)
 	{
 		if (d_ptr->mindepth == dun_level) return;
+
+		if (dungeon_flags2 & DF2_NO_EASY_MOVE)
+		{
+			msg_print("Some powerfull force prevents your from teleporting.");
+			return;
+		}
 
 		prob_traveling = TRUE;
 
@@ -204,7 +210,7 @@ void do_cmd_go_up(void)
 		/* Hack -- take a turn */
 		energy_use = 100;
 #else
-		energy_use = 0;
+energy_use = 0;
 #endif
 
 		/* Success */
@@ -266,7 +272,7 @@ static bool between_effect(void)
 	byte bx, by;
 
 
-	if (cave[py][px].feat == FEAT_BETWEEN)
+	if (cave[p_ptr->py][p_ptr->px].feat == FEAT_BETWEEN)
 	{
 #if 0							/* The Between is out of the space-time continuum anyway */
 
@@ -278,8 +284,8 @@ static bool between_effect(void)
 
 #endif
 
-		bx = cave[py][px].special & 255;
-		by = cave[py][px].special >> 8;
+		bx = cave[p_ptr->py][p_ptr->px].special & 255;
+		by = cave[p_ptr->py][p_ptr->px].special >> 8;
 
 		msg_print("You fall into the void.");
 		msg_print("Brrrr! It's deadly cold.");
@@ -292,15 +298,15 @@ static bool between_effect(void)
 		return (TRUE);
 	}
 
-	else if (cave[py][px].feat == FEAT_BETWEEN2)
+	else if (cave[p_ptr->py][p_ptr->px].feat == FEAT_BETWEEN2)
 	{
-		between_exit *be_ptr = &between_exits[cave[py][px].special];
+		between_exit *be_ptr = &between_exits[cave[p_ptr->py][p_ptr->px].special];
 
 		p_ptr->wild_mode = FALSE;
 		p_ptr->wilderness_x = be_ptr->wild_x;
 		p_ptr->wilderness_y = be_ptr->wild_y;
-		p_ptr->oldpx = px = be_ptr->px;
-		p_ptr->oldpy = py = be_ptr->py;
+		p_ptr->oldpx = p_ptr->px = be_ptr->px;
+		p_ptr->oldpy = p_ptr->py = be_ptr->py;
 		dungeon_type = be_ptr->d_idx;
 		dun_level = be_ptr->level;
 		p_ptr->leaving = TRUE;
@@ -333,7 +339,7 @@ void do_cmd_go_down(void)
 	if (between_effect()) return;
 
 	/* Player grid */
-	c_ptr = &cave[py][px];
+	c_ptr = &cave[p_ptr->py][p_ptr->px];
 
 	if (p_ptr->astral && (dun_level == 98)) return;
 
@@ -350,7 +356,7 @@ void do_cmd_go_down(void)
 	}
 
 	/* Can we ? */
-	if (process_hooks(HOOK_STAIR, "(d)", TRUE)) return;
+	if (process_hooks(HOOK_STAIR, "(s)", "down")) return;
 
 	/* Normal up stairs */
 	if (c_ptr->feat == FEAT_SHAFT_DOWN)
@@ -360,8 +366,8 @@ void do_cmd_go_down(void)
 			go_down = TRUE;
 
 			/* Save old player position */
-			p_ptr->oldpx = px;
-			p_ptr->oldpy = py;
+			p_ptr->oldpx = p_ptr->px;
+			p_ptr->oldpy = p_ptr->py;
 		}
 		else
 		{
@@ -389,8 +395,8 @@ void do_cmd_go_down(void)
 			go_down = TRUE;
 
 			/* Save old player position */
-			p_ptr->oldpx = px;
-                        p_ptr->oldpy = py;
+			p_ptr->oldpx = p_ptr->px;
+			p_ptr->oldpy = p_ptr->py;
 		}
 		else
 		{
@@ -416,9 +422,15 @@ void do_cmd_go_down(void)
 	}
 
 	else if (!(dungeon_flags1 & DF1_FLAT) &&
-			 p_ptr->prob_travel && !p_ptr->inside_quest)
+	                p_ptr->prob_travel && !p_ptr->inside_quest)
 	{
 		if (d_ptr->maxdepth == dun_level) return;
+
+		if (dungeon_flags2 & DF2_NO_EASY_MOVE)
+		{
+			msg_print("Some powerfull force prevents your from teleporting.");
+			return;
+		}
 
 		prob_traveling = TRUE;
 
@@ -499,16 +511,16 @@ void do_cmd_go_down(void)
 				}
 
 				/* Ok go in the new dungeon */
-                                dungeon_type = c_ptr->special;
-                                d_ptr = &d_info[dungeon_type];
+				dungeon_type = c_ptr->special;
+				d_ptr = &d_info[dungeon_type];
 
-                                if ((p_ptr->wilderness_x == d_ptr->ix) &&
-					(p_ptr->wilderness_y == d_ptr->iy))
+				if ((p_ptr->wilderness_x == d_ptr->ix) &&
+				                (p_ptr->wilderness_y == d_ptr->iy))
 				{
 					dun_level = d_ptr->mindepth;
 				}
 				else if ((p_ptr->wilderness_x == d_ptr->ox) &&
-						 (p_ptr->wilderness_y == d_ptr->oy))
+				                (p_ptr->wilderness_y == d_ptr->oy))
 				{
 					dun_level = d_ptr->maxdepth;
 				}
@@ -518,12 +530,12 @@ void do_cmd_go_down(void)
 				}
 
 				msg_format("You go into %s",
-						   d_text + d_info[dungeon_type].text);
+				           d_text + d_info[dungeon_type].text);
 			}
 			else
 			{
 				msg_print
-					("You don't feel yourself experienced enough to go there...");
+				("You don't feel yourself experienced enough to go there...");
 				dun_level = old_dun;
 				return;
 			}
@@ -618,7 +630,7 @@ static s16b chest_check(int y, int x)
 	/* Scan all objects in the grid */
 	for (this_o_idx = c_ptr->o_idx; this_o_idx; this_o_idx = next_o_idx)
 	{
-		object_type *o_ptr;
+		object_type * o_ptr;
 
 		/* Acquire object */
 		o_ptr = &o_list[this_o_idx];
@@ -697,7 +709,7 @@ static void chest_death(int y, int x, s16b o_idx)
 		{
 			/* Make an object */
 			if (!make_object(q_ptr, FALSE, FALSE, d_info[dungeon_type].objs))
-					continue;
+				continue;
 		}
 
 		/* Drop it in the dungeon */
@@ -749,7 +761,7 @@ static void chest_trap(int y, int x, s16b o_idx)
 	{
 		t_info[o_ptr->pval].ident = TRUE;
 		msg_format("You identified the trap as %s.",
-				   t_name + t_info[trap].name);
+		           t_name + t_info[trap].name);
 	}
 }
 
@@ -901,8 +913,8 @@ static int count_feats(int *y, int *x, bool (*test) (cave_type *c_ptr),
 		if ((d == 8) && !under) continue;
 
 		/* Extract adjacent (legal) location */
-		yy = py + ddy_ddd[d];
-		xx = px + ddx_ddd[d];
+		yy = p_ptr->py + ddy_ddd[d];
+		xx = p_ptr->px + ddx_ddd[d];
 
 		/* Paranoia */
 		if (!in_bounds(yy, xx)) continue;
@@ -946,8 +958,8 @@ static int count_chests(int *y, int *x, bool trapped)
 	{
 
 		/* Extract adjacent (legal) location */
-		int yy = py + ddy_ddd[d];
-		int xx = px + ddx_ddd[d];
+		int yy = p_ptr->py + ddy_ddd[d];
+		int xx = p_ptr->px + ddx_ddd[d];
 
 		/* No (visible) chest is there */
 		if ((o_idx = chest_check(yy, xx)) == 0) continue;
@@ -980,16 +992,16 @@ static int count_chests(int *y, int *x, bool trapped)
 static int coords_to_dir(int y, int x)
 {
 	int d[3][3] =
-		{
-	{7, 4, 1},
-	{8, 5, 2},
-	{9, 6, 3} };
+	        {
+	                {7, 4, 1},
+	                {8, 5, 2},
+	                {9, 6, 3} };
 
 	int dy, dx;
 
 
-	dy = y - py;
-	dx = x - px;
+	dy = y - p_ptr->py;
+	dx = x - p_ptr->px;
 
 	/* Paranoia */
 	if (ABS(dx) > 1 || ABS(dy) > 1) return (0);
@@ -1191,8 +1203,8 @@ void do_cmd_open(void)
 	if (get_rep_dir(&dir))
 	{
 		/* Get requested location */
-		y = py + ddy[dir];
-		x = px + ddx[dir];
+		y = p_ptr->py + ddy[dir];
+		x = p_ptr->px + ddx[dir];
 
 		/* Get requested grid */
 		c_ptr = &cave[y][x];
@@ -1202,7 +1214,7 @@ void do_cmd_open(void)
 
 		/* Nothing useful */
 		if (!((c_ptr->feat >= FEAT_DOOR_HEAD) &&
-			  (c_ptr->feat <= FEAT_DOOR_TAIL)) && !o_idx)
+		                (c_ptr->feat <= FEAT_DOOR_TAIL)) && !o_idx)
 		{
 			/* Message */
 			msg_print("You see nothing there to open.");
@@ -1362,8 +1374,8 @@ void do_cmd_close(void)
 	if (get_rep_dir(&dir))
 	{
 		/* Get requested location */
-		y = py + ddy[dir];
-		x = px + ddx[dir];
+		y = p_ptr->py + ddy[dir];
+		x = p_ptr->px + ddx[dir];
 
 		/* Get grid and contents */
 		c_ptr = &cave[y][x];
@@ -1486,7 +1498,7 @@ static bool twall(int y, int x, byte feat)
  */
 bool do_cmd_tunnel_aux(int y, int x, int dir)
 {
-        int skill_req=0, skill_req_1pct=0;
+	int skill_req = 0, skill_req_1pct = 0;
 	cave_type *c_ptr = &cave[y][x];
 
 	feature_type *f_ptr = &f_info[c_ptr->feat];
@@ -1497,8 +1509,8 @@ bool do_cmd_tunnel_aux(int y, int x, int dir)
 	/* Must be have something to dig with (except for sandwalls) */
 	if ((c_ptr->feat < FEAT_SANDWALL) || (c_ptr->feat > FEAT_SANDWALL_K))
 	{
-		if (!inventory[INVEN_TOOL].k_idx ||
-			(inventory[INVEN_TOOL].tval != TV_DIGGING))
+		if (!p_ptr->inventory[INVEN_TOOL].k_idx ||
+		                (p_ptr->inventory[INVEN_TOOL].tval != TV_DIGGING))
 		{
 			msg_print("You need to have a shovel or pick in your tool slot.");
 
@@ -1527,8 +1539,8 @@ bool do_cmd_tunnel_aux(int y, int x, int dir)
 	else if ((c_ptr->feat == FEAT_TREES) || (c_ptr->feat == FEAT_DEAD_TREE))
 	{
 		/* Chop Down */
-                skill_req = 10;
-                skill_req_1pct = 14;
+		skill_req = 10;
+		skill_req_1pct = 14;
 		if ((p_ptr->skill_dig > 10 + rand_int(400)) && twall(y, x, FEAT_GRASS))
 		{
 			msg_print("You have cleared away the trees.");
@@ -1549,11 +1561,11 @@ bool do_cmd_tunnel_aux(int y, int x, int dir)
 
 	/* Granite */
 	else if ((c_ptr->feat >= FEAT_WALL_EXTRA) &&
-			 (c_ptr->feat <= FEAT_WALL_SOLID))
+	                (c_ptr->feat <= FEAT_WALL_SOLID))
 	{
 		/* Tunnel */
-                skill_req = 40;
-                skill_req_1pct = 56;
+		skill_req = 40;
+		skill_req_1pct = 56;
 		if ((p_ptr->skill_dig > 40 + rand_int(1600)) && twall(y, x, FEAT_FLOOR))
 		{
 			msg_print("You have finished the tunnel.");
@@ -1571,9 +1583,9 @@ bool do_cmd_tunnel_aux(int y, int x, int dir)
 
 	/* Quartz / Magma / Sandwall */
 	else if (((c_ptr->feat >= FEAT_MAGMA) &&
-			  (c_ptr->feat <= FEAT_QUARTZ_K)) ||
-			 ((c_ptr->feat >= FEAT_SANDWALL) &&
-			  (c_ptr->feat <= FEAT_SANDWALL_K)))
+	                (c_ptr->feat <= FEAT_QUARTZ_K)) ||
+	                ((c_ptr->feat >= FEAT_SANDWALL) &&
+	                 (c_ptr->feat <= FEAT_SANDWALL_K)))
 	{
 		bool okay = FALSE;
 		bool gold = FALSE;
@@ -1582,39 +1594,39 @@ bool do_cmd_tunnel_aux(int y, int x, int dir)
 
 		/* Found gold */
 		if ((c_ptr->feat >= FEAT_MAGMA_H) &&
-			(c_ptr->feat <= FEAT_QUARTZ_K)) gold = TRUE;
+		                (c_ptr->feat <= FEAT_QUARTZ_K)) gold = TRUE;
 
 		if ((c_ptr->feat == FEAT_SANDWALL_H) ||
-			(c_ptr->feat == FEAT_SANDWALL_K))
+		                (c_ptr->feat == FEAT_SANDWALL_K))
 		{
 			gold = TRUE;
 			soft = TRUE;
 		}
 		else
 			/* Extract "quartz" flag XXX XXX XXX */
-		if ((c_ptr->feat - FEAT_MAGMA) & 0x01) hard = TRUE;
+			if ((c_ptr->feat - FEAT_MAGMA) & 0x01) hard = TRUE;
 
 		/* Quartz */
 		if (hard)
 		{
-                        skill_req = 20;
-                        skill_req_1pct = 28;
+			skill_req = 20;
+			skill_req_1pct = 28;
 			okay = (p_ptr->skill_dig > 20 + rand_int(800));
 		}
 
 		/* Sandwall */
 		else if (soft)
 		{
-                        skill_req = 5;
-                        skill_req_1pct = 8;
+			skill_req = 5;
+			skill_req_1pct = 8;
 			okay = (p_ptr->skill_dig > 5 + rand_int(250));
 		}
 
 		/* Magma */
 		else
 		{
-                        skill_req = 10;
-                        skill_req_1pct = 14;
+			skill_req = 10;
+			skill_req_1pct = 14;
 			okay = (p_ptr->skill_dig > 10 + rand_int(400));
 		}
 
@@ -1652,10 +1664,10 @@ bool do_cmd_tunnel_aux(int y, int x, int dir)
 	else if (c_ptr->feat == FEAT_RUBBLE)
 	{
 		/* Remove the rubble */
-                skill_req = 0;
-                skill_req_1pct = 2;
+		skill_req = 0;
+		skill_req_1pct = 2;
 		if ((p_ptr->skill_dig > rand_int(200)) &&
-			twall(y, x, d_info[dungeon_type].floor1))
+		                twall(y, x, d_info[dungeon_type].floor1))
 		{
 			/* Message */
 			msg_print("You have removed the rubble.");
@@ -1686,13 +1698,13 @@ bool do_cmd_tunnel_aux(int y, int x, int dir)
 	else if (c_ptr->feat >= FEAT_SECRET)
 	{
 		/* Tunnel */
-                skill_req = 30;
-                skill_req_1pct = 42;
+		skill_req = 30;
+		skill_req_1pct = 42;
 		if ((p_ptr->skill_dig > 30 + rand_int(1200)) && twall(y, x, FEAT_FLOOR))
 		{
-                        msg_print("You have finished the tunnel.");
-                        c_ptr->mimic = 0;
-                        lite_spot(y, x);
+			msg_print("You have finished the tunnel.");
+			c_ptr->mimic = 0;
+			lite_spot(y, x);
 
 			/* Set off trap */
 			if (c_ptr->t_idx != 0) player_activate_door_trap(y, x);
@@ -1720,8 +1732,8 @@ bool do_cmd_tunnel_aux(int y, int x, int dir)
 	else
 	{
 		/* Tunnel */
-                skill_req = 30;
-                skill_req_1pct = 42;
+		skill_req = 30;
+		skill_req_1pct = 42;
 		if ((p_ptr->skill_dig > 30 + rand_int(1200)) && twall(y, x, FEAT_FLOOR))
 		{
 			msg_print("You have finished the tunnel.");
@@ -1736,14 +1748,18 @@ bool do_cmd_tunnel_aux(int y, int x, int dir)
 		}
 	}
 
-        if(more && magik(2)) {
-                    if(p_ptr->skill_dig < skill_req) {
-                            msg_print("You fail to make even the slightest of progress.");
-                            more = FALSE;
-                    } else if(p_ptr->skill_dig < skill_req_1pct) {
-                            msg_print("This will take some time.");
-                    }
-        }
+	if (more && magik(2))
+	{
+		if (p_ptr->skill_dig < skill_req)
+		{
+			msg_print("You fail to make even the slightest of progress.");
+			more = FALSE;
+		}
+		else if (p_ptr->skill_dig < skill_req_1pct)
+		{
+			msg_print("This will take some time.");
+		}
+	}
 
 	/* Notice new floor grids */
 	if (!cave_floor_bold(y, x))
@@ -1794,15 +1810,15 @@ void do_cmd_tunnel(void)
 	if (get_rep_dir(&dir))
 	{
 		/* Get location */
-		y = py + ddy[dir];
-		x = px + ddx[dir];
+		y = p_ptr->py + ddy[dir];
+		x = p_ptr->px + ddx[dir];
 
 		/* Get grid */
 		c_ptr = &cave[y][x];
 
 		/* No tunnelling through doors */
 		if (((c_ptr->feat >= FEAT_DOOR_HEAD) &&
-			 (c_ptr->feat <= FEAT_DOOR_TAIL)) || (c_ptr->feat == FEAT_SHOP))
+		                (c_ptr->feat <= FEAT_DOOR_TAIL)) || (c_ptr->feat == FEAT_SHOP))
 		{
 			/* Message */
 			msg_print("You cannot tunnel through doors.");
@@ -2154,8 +2170,8 @@ void do_cmd_disarm_mon_trap(int y, int x)
 {
 	msg_print("You disarm the monster trap.");
 
-	cave_set_feat(y, x, FEAT_FLOOR);
-	cave[py][px].special = cave[py][px].special2 = 0;
+	place_floor(y, x);
+	cave[p_ptr->py][p_ptr->px].special = cave[p_ptr->py][p_ptr->px].special2 = 0;
 }
 
 
@@ -2213,8 +2229,8 @@ void do_cmd_disarm(void)
 	if (get_rep_dir(&dir))
 	{
 		/* Get location */
-		y = py + ddy[dir];
-		x = px + ddx[dir];
+		y = p_ptr->py + ddy[dir];
+		x = p_ptr->px + ddx[dir];
 
 		/* Get grid and contents */
 		c_ptr = &cave[y][x];
@@ -2224,7 +2240,7 @@ void do_cmd_disarm(void)
 
 		/* Disarm a trap */
 		if (((c_ptr->t_idx == 0) || (!(c_ptr->info & CAVE_TRDT))) &&
-			!o_idx && (c_ptr->feat != FEAT_MON_TRAP))
+		                !o_idx && (c_ptr->feat != FEAT_MON_TRAP))
 		{
 			/* Message */
 			msg_print("You see nothing there to disarm.");
@@ -2424,17 +2440,17 @@ void do_cmd_bash(void)
 	if (get_rep_dir(&dir))
 	{
 		/* Bash location */
-		y = py + ddy[dir];
-		x = px + ddx[dir];
+		y = p_ptr->py + ddy[dir];
+		x = p_ptr->px + ddx[dir];
 
 		/* Get grid */
 		c_ptr = &cave[y][x];
 
 		/* Nothing useful */
 		if ((c_ptr->feat < FEAT_DOOR_HEAD ||
-			 c_ptr->feat > FEAT_DOOR_TAIL) &&
-			(c_ptr->feat < FEAT_ALTAR_HEAD ||
-			 c_ptr->feat > FEAT_ALTAR_TAIL) && (c_ptr->feat != FEAT_FOUNTAIN))
+		                c_ptr->feat > FEAT_DOOR_TAIL) &&
+		                (c_ptr->feat < FEAT_ALTAR_HEAD ||
+		                 c_ptr->feat > FEAT_ALTAR_TAIL) && (c_ptr->feat != FEAT_FOUNTAIN))
 		{
 			/* Message */
 			msg_print("You see nothing there to bash.");
@@ -2454,7 +2470,7 @@ void do_cmd_bash(void)
 		}
 
 		else if (c_ptr->feat >= FEAT_ALTAR_HEAD &&
-				 c_ptr->feat <= FEAT_ALTAR_TAIL)
+		                c_ptr->feat <= FEAT_ALTAR_TAIL)
 		{
 			more = do_cmd_bash_altar(y, x);
 		}
@@ -2512,8 +2528,8 @@ void do_cmd_alter(void)
 	if (get_rep_dir(&dir))
 	{
 		/* Get location */
-		y = py + ddy[dir];
-		x = px + ddx[dir];
+		y = p_ptr->py + ddy[dir];
+		x = p_ptr->px + ddx[dir];
 
 		/* Get grid */
 		c_ptr = &cave[y][x];
@@ -2528,16 +2544,10 @@ void do_cmd_alter(void)
 			py_attack(y, x, -1);
 		}
 
-		/* Tunnel through walls */
-		else if (f_info[c_ptr->feat].flags1 & FF1_TUNNELABLE)
-		{
-			/* Tunnel */
-			more = do_cmd_tunnel_aux(y, x, dir);
-		}
 #if 0
 		/* Bash jammed doors */
 		else if ((c_ptr->feat >= FEAT_DOOR_HEAD + 0x08) &&
-				 (c_ptr->feat <= FEAT_DOOR_TAIL))
+		                (c_ptr->feat <= FEAT_DOOR_TAIL))
 		{
 			/* Tunnel */
 			more = do_cmd_bash_aux(y, x, dir);
@@ -2545,10 +2555,17 @@ void do_cmd_alter(void)
 #endif
 		/* Open closed doors */
 		else if ((c_ptr->feat >= FEAT_DOOR_HEAD) &&
-				 (c_ptr->feat <= FEAT_DOOR_TAIL))
+		                (c_ptr->feat <= FEAT_DOOR_TAIL))
 		{
 			/* Tunnel */
 			more = do_cmd_open_aux(y, x, dir);
+		}
+
+		/* Tunnel through walls */
+		else if (f_info[c_ptr->feat].flags1 & FF1_TUNNELABLE)
+		{
+			/* Tunnel */
+			more = do_cmd_tunnel_aux(y, x, dir);
 		}
 
 		/* Disarm traps */
@@ -2584,7 +2601,7 @@ static bool get_spike(int *ip)
 	/* Check every item in the pack */
 	for (i = 0; i < INVEN_PACK; i++)
 	{
-		object_type *o_ptr = &inventory[i];
+		object_type *o_ptr = &p_ptr->inventory[i];
 
 		/* Skip non-objects */
 		if (!o_ptr->k_idx) continue;
@@ -2622,15 +2639,15 @@ void do_cmd_spike(void)
 	if (get_rep_dir(&dir))
 	{
 		/* Get location */
-		y = py + ddy[dir];
-		x = px + ddx[dir];
+		y = p_ptr->py + ddy[dir];
+		x = p_ptr->px + ddx[dir];
 
 		/* Get grid and contents */
 		c_ptr = &cave[y][x];
 
 		/* Require closed door */
 		if (!((c_ptr->feat >= FEAT_DOOR_HEAD) &&
-			  (c_ptr->feat <= FEAT_DOOR_TAIL)))
+		                (c_ptr->feat <= FEAT_DOOR_TAIL)))
 		{
 			/* Message */
 			msg_print("You see nothing there to spike.");
@@ -2718,11 +2735,11 @@ void do_cmd_walk_jump(int pickup)
 
 	/* Hack again -- Is there a special encounter ??? */
 	if (p_ptr->wild_mode &&
-		magik(wf_info[wild_map[py][px].feat].level - (p_ptr->lev * 2)))
+	                magik(wf_info[wild_map[p_ptr->py][p_ptr->px].feat].level - (p_ptr->lev * 2)))
 	{
 		/* Go into large wilderness view */
-		p_ptr->wilderness_x = px;
-		p_ptr->wilderness_y = py;
+		p_ptr->wilderness_x = p_ptr->px;
+		p_ptr->wilderness_y = p_ptr->py;
 		energy_use = 100;
 		change_wild_mode();
 
@@ -2806,7 +2823,7 @@ void do_cmd_run(void)
  */
 void do_cmd_stay(int pickup)
 {
-	cave_type *c_ptr = &cave[py][px];
+	cave_type *c_ptr = &cave[p_ptr->py][p_ptr->px];
 
 
 	/* Allow repeated command */
@@ -2861,16 +2878,29 @@ void do_cmd_stay(int pickup)
 void do_cmd_rest(void)
 {
 	/* Can't rest on a Void Jumpgate -- too dangerous */
-	if (cave[py][px].feat == FEAT_BETWEEN)
+	if (cave[p_ptr->py][p_ptr->px].feat == FEAT_BETWEEN)
 	{
-		msg_print("Resting on a Void Jumpgate is too dangerous!");
+		/* 'R&\n' is one of our favourite macros, so we have to do this */
+		if (flush_failure) flush();
+
+		/* Tell the player why */
+		msg_print(format("Resting on a %s is too dangerous!",
+		                 f_name + f_info[cave[p_ptr->py][p_ptr->px].feat].name));
+
+		/* Done */
 		return;
 	}
 
 	/* Can't rest while undead, it would mean dying */
 	if (p_ptr->necro_extra & CLASS_UNDEAD)
 	{
+		/* 'R&\n' is one of our favourite macros, so we have to do this */
+		if (flush_failure) flush();
+
+		/* Tell the player why */
 		msg_print("Resting is impossible while undead!");
+
+		/* Done */
 		return;
 	}
 
@@ -2890,13 +2920,13 @@ void do_cmd_rest(void)
 		/* Rest until done */
 		if (out_val[0] == '&')
 		{
-			command_arg = (-2);
+			command_arg = ( -2);
 		}
 
 		/* Rest a lot */
 		else if (out_val[0] == '*')
 		{
-			command_arg = (-1);
+			command_arg = ( -1);
 		}
 
 		/* Rest some */
@@ -2947,45 +2977,49 @@ void do_cmd_rest(void)
 int breakage_chance(object_type *o_ptr)
 {
 	int reducer =
-                1 + ((get_skill(SKILL_ARCHERY)) ? (get_skill_scale(SKILL_ARCHERY, 10)) : 0);
+	        1 + ((get_skill(SKILL_ARCHERY)) ? (get_skill_scale(SKILL_ARCHERY, 10)) : 0);
 
 	/* Examine the item type */
 	switch (o_ptr->tval)
 	{
-			/* Always break */
-		case TV_FLASK:
-		case TV_POTION:
-		case TV_POTION2:
-		case TV_BOTTLE:
-		case TV_FOOD:
+		/* Always break */
+	case TV_FLASK:
+	case TV_POTION:
+	case TV_POTION2:
+	case TV_BOTTLE:
+	case TV_FOOD:
 		{
 			return (100);
 		}
 
-			/* Often break */
-		case TV_LITE:
-		case TV_SCROLL:
-		case TV_SKELETON:
+		/* Often break */
+	case TV_LITE:
+	case TV_SCROLL:
+	case TV_SKELETON:
 		{
 			return (50);
 		}
 
-		case TV_ARROW:
+	case TV_ARROW:
 		{
 			return (50 / reducer);
 		}
 
-			/* Sometimes break */
-		case TV_WAND:
-		case TV_SPIKE:
+		/* Sometimes break */
+	case TV_WAND:
+	case TV_SPIKE:
 		{
 			return (25);
 		}
 
-		case TV_SHOT:
-		case TV_BOLT:
+	case TV_SHOT:
+	case TV_BOLT:
 		{
 			return (25 / reducer);
+		}
+	case TV_BOOMERANG:
+		{
+			return 1;
 		}
 	}
 
@@ -3004,42 +3038,42 @@ int get_shooter_mult(object_type *o_ptr)
 	/* Analyze the launcher */
 	switch (o_ptr->sval)
 	{
-		case SV_SLING:
+	case SV_SLING:
 		{
 			/* Sling and ammo */
 			tmul = 2;
 			break;
 		}
 
-		case SV_SHORT_BOW:
+	case SV_SHORT_BOW:
 		{
 			/* Short Bow and Arrow */
 			tmul = 2;
 			break;
 		}
 
-		case SV_LONG_BOW:
+	case SV_LONG_BOW:
 		{
-			/* Long Bow and Arrow */		
+			/* Long Bow and Arrow */
 			tmul = 3;
 			break;
 		}
 
-			/* Light Crossbow and Bolt */
-		case SV_LIGHT_XBOW:
+		/* Light Crossbow and Bolt */
+	case SV_LIGHT_XBOW:
 		{
 			tmul = 3;
 			break;
 		}
 
-			/* Heavy Crossbow and Bolt */
-		case SV_HEAVY_XBOW:
+		/* Heavy Crossbow and Bolt */
+	case SV_HEAVY_XBOW:
 		{
 			tmul = 4;
 			break;
 		}
-        }
-        return tmul;
+	}
+	return tmul;
 }
 
 
@@ -3083,7 +3117,7 @@ void do_cmd_fire(void)
 
 	int cur_dis, visible;
 
-	int breakage = -1, num_ricochet = 0;
+	int breakage = -1, num_pierce = 0;
 
 	s32b special = 0;
 
@@ -3109,12 +3143,19 @@ void do_cmd_fire(void)
 
 
 	/* Get the "bow" (if any) */
-	j_ptr = &inventory[INVEN_BOW];
+	j_ptr = &p_ptr->inventory[INVEN_BOW];
 
 	/* Require a launcher */
 	if (!j_ptr->tval)
 	{
 		msg_print("You have nothing to fire with.");
+		return;
+	}
+
+	/* XXX HACK */
+	if (j_ptr->tval == TV_INSTRUMENT)
+	{
+		msg_print("You cannot fire with an instrument.");
 		return;
 	}
 
@@ -3132,7 +3173,7 @@ void do_cmd_fire(void)
 	/* Access the item (if in the pack) */
 	if (item >= 0)
 	{
-		o_ptr = &inventory[item];
+		o_ptr = &p_ptr->inventory[item];
 	}
 	else
 	{
@@ -3142,7 +3183,7 @@ void do_cmd_fire(void)
 #else  /* New code with the quiver slot */
 
 	/* Get the "ammo" (if any) */
-	o_ptr = &inventory[INVEN_AMMO];
+	o_ptr = &p_ptr->inventory[INVEN_AMMO];
 
 	item = INVEN_AMMO;
 
@@ -3161,7 +3202,7 @@ void do_cmd_fire(void)
 		/* Access the item (if in the pack) */
 		if (item >= 0)
 		{
-			o_ptr = &inventory[item];
+			o_ptr = &p_ptr->inventory[item];
 		}
 		else
 		{
@@ -3184,7 +3225,7 @@ void do_cmd_fire(void)
 	/* Single object */
 	q_ptr->number = 1;
 
-	/* Reduce and describe inventory */
+	/* Reduce and describe p_ptr->inventory */
 	if (item >= 0)
 	{
 		inven_item_increase(item, -1);
@@ -3237,16 +3278,16 @@ void do_cmd_fire(void)
 	chance = (p_ptr->skill_thb + (bonus * BTH_PLUS_ADJ));
 	if (chance < 5) chance = 5;
 
-        tmul = get_shooter_mult(j_ptr);
+	tmul = get_shooter_mult(j_ptr);
 
 	/* Get extra "power" from "extra might" */
 	tmul += p_ptr->xtra_might;
 
 	/* Boost the damage */
-        tdam *= tmul;
+	tdam *= tmul;
 
-        /* Add in the player damage */
-        tdam += p_ptr->to_d_ranged;
+	/* Add in the player damage */
+	tdam += p_ptr->to_d_ranged;
 
 	/* Base range */
 	tdis = 10 + 5 * tmul;
@@ -3255,23 +3296,24 @@ void do_cmd_fire(void)
 	/* Take a (partial) turn */
 	energy_use = (100 / thits);
 
-	/* Ricochets ? */
-	if ((get_skill(SKILL_BOW) > 25) || (get_skill(SKILL_XBOW) > 25) ||
-		(get_skill(SKILL_SLING) > 25))
+	/* piercing shots ? */
+	if (p_ptr->use_piercing_shots &&
+	                ((get_skill(SKILL_BOW) > 25) || (get_skill(SKILL_XBOW) > 25) ||
+	                 (get_skill(SKILL_SLING) > 25)))
 	{
-		num_ricochet = (get_skill(SKILL_COMBAT) / 10) - 1;
-		num_ricochet = (num_ricochet < 0) ? 0 : num_ricochet;
+		num_pierce = (get_skill(SKILL_COMBAT) / 10) - 1;
+		num_pierce = (num_pierce < 0) ? 0 : num_pierce;
 	}
 
 	/* Start at the player */
-	by = py;
-	bx = px;
-	y = py;
-	x = px;
+	by = p_ptr->py;
+	bx = p_ptr->px;
+	y = p_ptr->py;
+	x = p_ptr->px;
 
 	/* Predict the "target" location */
-	tx = px + 99 * ddx[dir];
-	ty = py + 99 * ddy[dir];
+	tx = p_ptr->px + 99 * ddx[dir];
+	ty = p_ptr->py + 99 * ddy[dir];
 
 	/* Check for "target request" */
 	if ((dir == 5) && target_okay())
@@ -3287,7 +3329,7 @@ void do_cmd_fire(void)
 	while (TRUE)
 	{
 		/* Travel until stopped */
-		for (cur_dis = 0; cur_dis <= tdis;)
+		for (cur_dis = 0; cur_dis <= tdis; )
 		{
 			/* Hack -- Stop at the target */
 			if ((y == ty) && (x == tx)) break;
@@ -3352,9 +3394,9 @@ void do_cmd_fire(void)
 
 					/* Some monsters get "destroyed" */
 					if ((r_ptr->flags3 & (RF3_DEMON)) ||
-						(r_ptr->flags3 & (RF3_UNDEAD)) ||
-						(r_ptr->flags2 & (RF2_STUPID)) ||
-						(strchr("Evg", r_ptr->d_char)))
+					                (r_ptr->flags3 & (RF3_UNDEAD)) ||
+					                (r_ptr->flags2 & (RF2_STUPID)) ||
+					                (strchr("Evg", r_ptr->d_char)))
 					{
 						/* Special note at death */
 						note_dies = " is destroyed.";
@@ -3381,7 +3423,7 @@ void do_cmd_fire(void)
 
 						/* Hack -- Track this monster race */
 						if (m_ptr->ml) monster_race_track(m_ptr->r_idx,
-														  m_ptr->ego);
+							                                  m_ptr->ego);
 
 						/* Hack -- Track this monster */
 						if (m_ptr->ml) health_track(c_ptr->m_idx);
@@ -3392,13 +3434,13 @@ void do_cmd_fire(void)
 							monster_desc(m_name, m_ptr, 0);
 							switch (is_friend(m_ptr))
 							{
-								case 1:
+							case 1:
 								{
 									msg_format("%^s gets angry!", m_name);
 									change_side(m_ptr);
 									break;
 								}
-								case 0:
+							case 0:
 								{
 									msg_format("%^s gets angry!", m_name);
 									m_ptr->status = MSTATUS_NEUTRAL_M;
@@ -3419,7 +3461,7 @@ void do_cmd_fire(void)
 					if (wizard)
 					{
 						msg_format("You do %d (out of %d) damage.",
-								   tdam, m_ptr->hp);
+						           tdam, m_ptr->hp);
 					}
 
 					/* Hit the monster, check for death */
@@ -3462,20 +3504,23 @@ void do_cmd_fire(void)
 		if (q_ptr->pval2 != 0)
 		{
 			int rad = 0, dam =
-				(damroll(q_ptr->dd, q_ptr->ds) + q_ptr->to_d) * 2;
+			                  (damroll(q_ptr->dd, q_ptr->ds) + q_ptr->to_d) * 2;
 			int flag =
-				PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL |
-				PROJECT_JUMP;
+			        PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL |
+			        PROJECT_JUMP;
 			switch (q_ptr->sval)
 			{
-				case SV_AMMO_LIGHT: rad = 2;
-					dam /= 2;
-					break;
-				case SV_AMMO_NORMAL: rad = 3;
-					break;
-				case SV_AMMO_HEAVY: rad = 4;
-					dam *= 2;
-					break;
+			case SV_AMMO_LIGHT:
+				rad = 2;
+				dam /= 2;
+				break;
+			case SV_AMMO_NORMAL:
+				rad = 3;
+				break;
+			case SV_AMMO_HEAVY:
+				rad = 4;
+				dam *= 2;
+				break;
 			}
 
 			project(0, rad, y, x, dam, q_ptr->pval2, flag);
@@ -3491,29 +3536,29 @@ void do_cmd_fire(void)
 			break;
 		}
 
-		/* If no break and if Archer, the ammo can ricochets */
-		if ((num_ricochet) && (hit_body) &&
-			(magik(45 + get_skill(SKILL_ARCHERY))))
+		/* If the ammo doesn't break, it can pierce through */
+		if ((num_pierce) && (hit_body) &&
+		                (magik(45 + get_skill(SKILL_ARCHERY))))
 		{
-			byte d;
-
-			num_ricochet--;
+			num_pierce--;
 			hit_body = FALSE;
 
-			/* New base location */
-			by = y;
-			bx = x;
-
-			/* New target location */
-			while (TRUE)
+			/* If target isn't reached, continue moving to target */
+			if ( !((tx < x && x < bx) || (bx < x && x < tx)) &&
+			                !((ty < y && y < by) || (by < y && y < ty)))
 			{
-				d = rand_int(10);
-				if (d != 5) break;
-			}
-			tx = px + 99 * ddx[d];
-			ty = py + 99 * ddy[d];
+				/* Continue moving in same direction if we reached the target */
+				int dx = tx - bx;
+				int dy = ty - by;
+				tx = x + 99 * dx;
+				ty = y + 99 * dy;
 
-			msg_format("The %s ricochets!", o_name);
+				/* New base location */
+				by = y;
+				bx = x;
+			}
+
+			msg_format("The %s pierces through!", o_name);
 		}
 		else
 			break;
@@ -3552,6 +3597,9 @@ void do_cmd_throw(void)
 
 	int mul, div;
 
+	int boulder_add = 0;
+	int boulder_mult = 0;
+
 	int cur_dis, visible;
 
 	object_type forge;
@@ -3585,7 +3633,7 @@ void do_cmd_throw(void)
 	/* Access the item (if in the pack) */
 	if (item >= 0)
 	{
-		o_ptr = &inventory[item];
+		o_ptr = &p_ptr->inventory[item];
 	}
 	else
 	{
@@ -3603,6 +3651,13 @@ void do_cmd_throw(void)
 
 		/* Nope */
 		return;
+	}
+
+	/* Boulder throwing */
+	if ((o_ptr->tval == TV_JUNK) && (o_ptr->sval == SV_BOULDER) && (get_skill(SKILL_BOULDER)))
+	{
+		boulder_add = get_skill_scale(SKILL_BOULDER, 80);
+		boulder_mult = get_skill_scale(SKILL_BOULDER, 6);
 	}
 
 	/* Get a direction (or cancel) */
@@ -3638,7 +3693,7 @@ void do_cmd_throw(void)
 	/* Single object */
 	q_ptr->number = 1;
 
-	/* Reduce and describe inventory */
+	/* Reduce and describe p_ptr->inventory */
 	if (item >= 0)
 	{
 		inven_item_increase(item, -1);
@@ -3663,7 +3718,7 @@ void do_cmd_throw(void)
 
 	/* Extract a "distance multiplier" */
 	/* Changed for 'launcher' corruption */
-	mul = 10 + 2 * (p_ptr->throw_mult - 1);
+	mul = 10 + (2 * (p_ptr->throw_mult - 1)) + (2 * boulder_mult);
 
 	/* Enforce a minimum "weight" of one pound */
 	div = ((q_ptr->weight > 10) ? q_ptr->weight : 10);
@@ -3675,8 +3730,8 @@ void do_cmd_throw(void)
 	if (tdis > mul) tdis = mul;
 
 	/* Hack -- Base damage from thrown object */
-	tdam = damroll(q_ptr->dd, q_ptr->ds) + q_ptr->to_d;
-	tdam *= p_ptr->throw_mult;
+	tdam = damroll(q_ptr->dd, q_ptr->ds) + q_ptr->to_d + boulder_add;
+	tdam *= p_ptr->throw_mult + boulder_mult;
 
 	/* Chance of hitting - adjusted for Weaponmasters -- Gumby */
 	chance = (p_ptr->skill_tht + (p_ptr->to_h * BTH_PLUS_ADJ));
@@ -3686,12 +3741,12 @@ void do_cmd_throw(void)
 
 
 	/* Start at the player */
-	y = py;
-	x = px;
+	y = p_ptr->py;
+	x = p_ptr->px;
 
 	/* Predict the "target" location */
-	tx = px + 99 * ddx[dir];
-	ty = py + 99 * ddy[dir];
+	tx = p_ptr->px + 99 * ddx[dir];
+	ty = p_ptr->py + 99 * ddy[dir];
 
 	/* Check for "target request" */
 	if ((dir == 5) && target_okay())
@@ -3706,7 +3761,7 @@ void do_cmd_throw(void)
 
 
 	/* Travel until stopped */
-	for (cur_dis = 0; cur_dis <= tdis;)
+	for (cur_dis = 0; cur_dis <= tdis; )
 	{
 		/* Hack -- Stop at the target */
 		if ((y == ty) && (x == tx)) break;
@@ -3714,7 +3769,7 @@ void do_cmd_throw(void)
 		/* Calculate the new location (see "project()") */
 		ny = y;
 		nx = x;
-		mmove2(&ny, &nx, py, px, ty, tx);
+		mmove2(&ny, &nx, p_ptr->py, p_ptr->px, ty, tx);
 
 		/* Stopped by walls/doors */
 		if (!cave_floor_bold(ny, nx))
@@ -3775,9 +3830,9 @@ void do_cmd_throw(void)
 
 				/* Some monsters get "destroyed" */
 				if ((r_ptr->flags3 & (RF3_DEMON)) ||
-					(r_ptr->flags3 & (RF3_UNDEAD)) ||
-					(r_ptr->flags2 & (RF2_STUPID)) ||
-					(strchr("Evg", r_ptr->d_char)))
+				                (r_ptr->flags3 & (RF3_UNDEAD)) ||
+				                (r_ptr->flags2 & (RF2_STUPID)) ||
+				                (strchr("Evg", r_ptr->d_char)))
 				{
 					/* Special note at death */
 					note_dies = " is destroyed.";
@@ -3820,7 +3875,7 @@ void do_cmd_throw(void)
 				if (wizard)
 				{
 					msg_format("You do %d (out of %d) damage.",
-							   tdam, m_ptr->hp);
+					           tdam, m_ptr->hp);
 				}
 
 				/* Hit the monster, check for death */
@@ -3844,14 +3899,14 @@ void do_cmd_throw(void)
 						monster_desc(m_name, m_ptr, 0);
 						switch (is_friend(m_ptr))
 						{
-							case 1:
-								msg_format("%^s gets angry!", m_name);
-								change_side(m_ptr);
-								break;
-							case 0:
-								msg_format("%^s gets angry!", m_name);
-								m_ptr->status = MSTATUS_NEUTRAL_M;
-								break;
+						case 1:
+							msg_format("%^s gets angry!", m_name);
+							change_side(m_ptr);
+							break;
+						case 0:
+							msg_format("%^s gets angry!", m_name);
+							m_ptr->status = MSTATUS_NEUTRAL_M;
+							break;
 						}
 					}
 
@@ -3896,14 +3951,14 @@ void do_cmd_throw(void)
 					monster_desc(m_name, &m_list[cave[y][x].m_idx], 0);
 					switch (is_friend(&m_list[cave[y][x].m_idx]))
 					{
-						case 1:
-							msg_format("%^s gets angry!", m_name);
-							change_side(&m_list[cave[y][x].m_idx]);
-							break;
-						case 0:
-							msg_format("%^s gets angry!", m_name);
-							m_list[cave[y][x].m_idx].status = MSTATUS_NEUTRAL_M;
-							break;
+					case 1:
+						msg_format("%^s gets angry!", m_name);
+						change_side(&m_list[cave[y][x].m_idx]);
+						break;
+					case 0:
+						msg_format("%^s gets angry!", m_name);
+						m_list[cave[y][x].m_idx].status = MSTATUS_NEUTRAL_M;
+						break;
 					}
 				}
 			}
@@ -3964,7 +4019,7 @@ void do_cmd_boomerang(void)
 
 
 	/* Get the "bow" (if any) */
-	o_ptr = &inventory[INVEN_BOW];
+	o_ptr = &p_ptr->inventory[INVEN_BOW];
 
 
 	/* Get a direction (or cancel) */
@@ -4006,21 +4061,22 @@ void do_cmd_boomerang(void)
 
 	/* Chance of hitting */
 	chance =
-		(p_ptr->skill_tht +
-		 ((p_ptr->to_h + p_ptr->to_h_ranged) * BTH_PLUS_ADJ));
+	        (p_ptr->skill_tht +
+	         ((p_ptr->to_h + p_ptr->to_h_ranged) * BTH_PLUS_ADJ));
 
+	chance += get_skill(SKILL_BOOMERANG);
 
 	/* Take a turn */
 	energy_use = 100;
 
 
 	/* Start at the player */
-	y = py;
-	x = px;
+	y = p_ptr->py;
+	x = p_ptr->px;
 
 	/* Predict the "target" location */
-	tx = px + 99 * ddx[dir];
-	ty = py + 99 * ddy[dir];
+	tx = p_ptr->px + 99 * ddx[dir];
+	ty = p_ptr->py + 99 * ddy[dir];
 
 	/* Check for "target request" */
 	if ((dir == 5) && target_okay())
@@ -4035,7 +4091,7 @@ void do_cmd_boomerang(void)
 
 
 	/* Travel until stopped */
-	for (cur_dis = 0; cur_dis <= tdis;)
+	for (cur_dis = 0; cur_dis <= tdis; )
 	{
 		/* Hack -- Stop at the target */
 		if ((y == ty) && (x == tx)) break;
@@ -4043,7 +4099,7 @@ void do_cmd_boomerang(void)
 		/* Calculate the new location (see "project()") */
 		ny = y;
 		nx = x;
-		mmove2(&ny, &nx, py, px, ty, tx);
+		mmove2(&ny, &nx, p_ptr->py, p_ptr->px, ty, tx);
 
 		/* Stopped by walls/doors */
 		if (!cave_floor_bold(ny, nx))
@@ -4104,9 +4160,9 @@ void do_cmd_boomerang(void)
 
 				/* Some monsters get "destroyed" */
 				if ((r_ptr->flags3 & (RF3_DEMON)) ||
-					(r_ptr->flags3 & (RF3_UNDEAD)) ||
-					(r_ptr->flags2 & (RF2_STUPID)) ||
-					(strchr("Evg", r_ptr->d_char)))
+				                (r_ptr->flags3 & (RF3_UNDEAD)) ||
+				                (r_ptr->flags2 & (RF2_STUPID)) ||
+				                (strchr("Evg", r_ptr->d_char)))
 				{
 					/* Special note at death */
 					note_dies = " is destroyed.";
@@ -4149,7 +4205,7 @@ void do_cmd_boomerang(void)
 				if (wizard)
 				{
 					msg_format("You do %d (out of %d) damage.",
-							   tdam, m_ptr->hp);
+					           tdam, m_ptr->hp);
 				}
 
 				/* Hit the monster, check for death */
@@ -4173,14 +4229,14 @@ void do_cmd_boomerang(void)
 						monster_desc(m_name, m_ptr, 0);
 						switch (is_friend(m_ptr))
 						{
-							case 1:
-								msg_format("%^s gets angry!", m_name);
-								change_side(m_ptr);
-								break;
-							case 0:
-								msg_format("%^s gets angry!", m_name);
-								m_ptr->status = MSTATUS_NEUTRAL_M;
-								break;
+						case 1:
+							msg_format("%^s gets angry!", m_name);
+							change_side(m_ptr);
+							break;
+						case 0:
+							msg_format("%^s gets angry!", m_name);
+							m_ptr->status = MSTATUS_NEUTRAL_M;
+							break;
 						}
 					}
 
@@ -4205,7 +4261,7 @@ void do_cmd_boomerang(void)
 
 				/* Break the boomerang */
 				if (!(o_ptr->art_name || artifact_p(o_ptr)) &&
-					(rand_int(100) < j))
+				                (rand_int(100) < j))
 				{
 					msg_print(format("Your %s is destroyed.", o_name));
 					inven_item_increase(INVEN_BOW, -1);
@@ -4219,15 +4275,15 @@ void do_cmd_boomerang(void)
 	}
 
 	/* Travel back to the player */
-	for (cur_dis = 0; cur_dis <= tdis;)
+	for (cur_dis = 0; cur_dis <= tdis; )
 	{
 		/* Hack -- Stop at the target */
-		if ((y == py) && (x == px)) break;
+		if ((y == p_ptr->py) && (x == p_ptr->px)) break;
 
 		/* Calculate the new location (see "project()") */
 		ny = y;
 		nx = x;
-		mmove2(&ny, &nx, ty, tx, py, px);
+		mmove2(&ny, &nx, ty, tx, p_ptr->py, p_ptr->px);
 
 		/* Advance the distance */
 		cur_dis++;
@@ -4284,8 +4340,8 @@ void do_cmd_unwalk()
 
 #endif
 
-	y = py + ddy[dir];
-	x = px + ddx[dir];
+	y = p_ptr->py + ddy[dir];
+	x = p_ptr->px + ddx[dir];
 
 	c_ptr = &cave[y][x];
 	feat = c_ptr->feat;
@@ -4321,7 +4377,7 @@ void do_cmd_unwalk()
 
 	/* Exit the area */
 	else if ((!dun_level) && (!p_ptr->wild_mode) &&
-			 ((x == 0) || (x == cur_wid - 1) || (y == 0) || (y == cur_hgt - 1)))
+	                ((x == 0) || (x == cur_wid - 1) || (y == 0) || (y == cur_hgt - 1)))
 	{
 		/* Can the player enter the grid? */
 		if (player_can_enter(c_ptr->mimic))
@@ -4409,7 +4465,7 @@ void do_cmd_unwalk()
 
 	/* Enter quests */
 	else if (((feat >= FEAT_QUEST_ENTER) && (feat <= FEAT_QUEST_UP)) ||
-			 ((feat >= FEAT_LESS) && (feat <= FEAT_MORE)))
+	                ((feat >= FEAT_LESS) && (feat <= FEAT_MORE)))
 	{
 		move_player(dir, always_pickup);
 		more = FALSE;
@@ -4451,24 +4507,30 @@ static bool tport_vertically(bool how)
 		return (FALSE);
 	}
 
+	if (dungeon_flags2 & DF2_NO_EASY_MOVE)
+	{
+		msg_print("Some powerful force prevents you from teleporting.");
+		return FALSE;
+	}
+
 	/* Go down */
 	if (how)
 	{
-                if (dun_level >= d_info[dungeon_type].maxdepth)
-                {
-                        msg_print("The floor is impermeable.");
-                        return (FALSE);
-                }
+		if (dun_level >= d_info[dungeon_type].maxdepth)
+		{
+			msg_print("The floor is impermeable.");
+			return (FALSE);
+		}
 
-                msg_print("You sink through the floor.");
-                dun_level++;
-                p_ptr->leaving = TRUE;
-        }
+		msg_print("You sink through the floor.");
+		dun_level++;
+		p_ptr->leaving = TRUE;
+	}
 	else
 	{
-		if (dun_level <= d_info[dungeon_type].mindepth)
+		if (dun_level < d_info[dungeon_type].mindepth)
 		{
-			msg_print("The only thing above you is air.");
+			msg_print("There is nothing above you but air.");
 			return (FALSE);
 		}
 
@@ -4583,7 +4645,7 @@ void do_cmd_immovable_special(void)
 
 			if (!get_aim_dir(&dir)) return;
 			fetch(dir, p_ptr->lev * 15, FALSE);
-                        py_pickup_floor(always_pickup);
+			py_pickup_floor(always_pickup);
 
 			did_act = TRUE;
 			break;
@@ -4649,22 +4711,24 @@ void do_cmd_immovable_special(void)
 			p_ptr->chp -= lose_hp;
 			p_ptr->redraw |= (PR_HP);
 		}
+
+		energy_use = 100;
 	}
 }
 
 /* Can we sacrifice it ? */
 static bool item_tester_hook_sacrifiable(object_type *o_ptr)
 {
-        GOD(GOD_MELKOR)
-        {
-                /* Corpses are */
-                if (o_ptr->tval == TV_CORPSE && o_ptr->sval == SV_CORPSE_CORPSE)
-                        return (TRUE);
+	GOD(GOD_MELKOR)
+	{
+		/* Corpses are */
+		if (o_ptr->tval == TV_CORPSE && o_ptr->sval == SV_CORPSE_CORPSE)
+			return (TRUE);
 
-                /* Books without any udun spells */
-                if ((o_ptr->tval == TV_BOOK) && (exec_lua(format("return udun_in_book(%d, %d)", o_ptr->sval, o_ptr->pval)) == 0))
-                        return TRUE;
-        }
+		/* Books without any udun spells */
+		if ((o_ptr->tval == TV_BOOK) && (exec_lua(format("return udun_in_book(%d, %d)", o_ptr->sval, o_ptr->pval)) == 0))
+			return TRUE;
+	}
 
 	/* Assume not */
 	return (FALSE);
@@ -4676,98 +4740,99 @@ static bool item_tester_hook_sacrifiable(object_type *o_ptr)
  */
 void do_cmd_sacrifice(void)
 {
-	byte on_what = cave[py][px].feat;
+	byte on_what = cave[p_ptr->py][p_ptr->px].feat;
 
 	/* Check valididty */
 	if ((on_what < FEAT_ALTAR_HEAD) || (on_what > FEAT_ALTAR_TAIL))
 	{
 		show_god_info(FALSE);
 		return;
-        }
-        else
-        {
-                int agod = on_what - FEAT_ALTAR_HEAD + 1;
+	}
+	else
+	{
+		int agod = on_what - FEAT_ALTAR_HEAD + 1;
 
-                /* Not worshipping a god ? ahhhh! */
-                GOD(GOD_NONE)
-                {
-                        int i;
+		/* Not worshipping a god ? ahhhh! */
+		GOD(GOD_NONE)
+		{
+			int i;
 
-                        for (i = 0; i < 10; i++)
-                        {
-                                if (deity_info[agod].desc[i] != NULL)
-                                        msg_print(deity_info[agod].desc[i]);
-                        }
-                        if (get_check(format("Do you want to worship %s? ", deity_info[agod].name)))
-                        {
-                                follow_god(agod, FALSE);
-                                p_ptr->grace = -200;
-                                inc_piety(p_ptr->pgod, 0);
-                        }
-                }
-                else if (p_ptr->pgod == agod)
-                {
-                        GOD(GOD_MELKOR)
-                        {
-                                /* One can sacrifice some HP for piety or damage */
-                                if ((p_ptr->mhp > 10) &&(p_ptr->chp > 10) && get_check("Do you want to sacrifice a part of yourself? "))
-                                {
-                                        /* 10 HP = 300 * wis piety */
-                                        if (get_check("Do you want to sacrifice for more piety instead of damage? "))
-                                        {
-                                                int x = wisdom_scale(6);
-                                                if (x < 1) x = 1;
+			for (i = 0; i < 10; i++)
+			{
+				if (deity_info[agod].desc[i] != NULL)
+					msg_print(deity_info[agod].desc[i]);
+			}
+			if (get_check(format("Do you want to worship %s? ", deity_info[agod].name)))
+			{
+				follow_god(agod, FALSE);
+				p_ptr->grace = -200;
+				inc_piety(p_ptr->pgod, 0);
+			}
+		}
+		else if (p_ptr->pgod == agod)
+		{
+			GOD(GOD_MELKOR)
+			{
+				/* One can sacrifice some HP for piety or damage */
+				if ((p_ptr->mhp > 10) && (p_ptr->chp > 10) && get_check("Do you want to sacrifice a part of yourself? "))
+				{
+					/* 10 HP = 300 * wis piety */
+					if (get_check("Do you want to sacrifice for more piety instead of damage? "))
+					{
+						int x = wisdom_scale(6);
+						if (x < 1) x = 1;
 
-                                                p_ptr->hp_mod -= 10;
-                                                take_hit(10, "self sacrifice to Melkor");
-                                                msg_print("Your life slips away, Melkor seems happier.");
-                                                inc_piety(GOD_MELKOR, x * 300);
-                                                p_ptr->update |= (PU_HP);
-                                        }
-                                        /* 10 HP = +wis damage */
-                                        else
-                                        {
-                                                p_ptr->hp_mod -= 10;
-                                                take_hit(10, "self sacrifice to Melkor");
-                                                msg_print("Your life slips away, your arms grow stronger.");
-                                                p_ptr->melkor_sacrifice++;
-                                                p_ptr->update |= (PU_BONUS | PU_HP);
-                                        }
-                                }
-                                else
-                                {
-                                        int item;
-                                        object_type *o_ptr;
+						p_ptr->hp_mod -= 10;
+						take_hit(10, "self sacrifice to Melkor");
+						msg_print("Your life slips away, Melkor seems happier.");
+						inc_piety(GOD_MELKOR, x * 300);
+						p_ptr->update |= (PU_HP);
+					}
+					/* 10 HP = +wis damage */
+					else
+					{
+						take_hit(10, "self sacrifice to Melkor");
+						msg_print("Your life slips away, your arms grow stronger.");
+						p_ptr->melkor_sacrifice++;
+						p_ptr->update |= (PU_BONUS | PU_HP);
+					}
+				}
+				else
+				{
+					int item;
+					object_type *o_ptr;
 
-                                        /* Restrict choices to food */
-                                        item_tester_hook = item_tester_hook_sacrifiable;
+					/* Restrict choices to food */
+					item_tester_hook = item_tester_hook_sacrifiable;
 
-                                        /* Get an item */
-                                        if (!get_item(&item, "Sacrifice which item? ", "You have nothing to sacrifice.", (USE_INVEN))) return;
-                                        o_ptr = get_object(item);
+					/* Get an item */
+					if (!get_item(&item, "Sacrifice which item? ", "You have nothing to sacrifice.", (USE_INVEN))) return;
+					o_ptr = get_object(item);
 
-                                        /* Piety for corpses is based on monster level */
-                                        if (o_ptr->tval == TV_CORPSE)
-                                        {
-                                                inc_piety(GOD_MELKOR, 2 * r_info[o_ptr->pval2].level);
-                                        }
+					/* Piety for corpses is based on monster level */
+					if (o_ptr->tval == TV_CORPSE)
+					{
+						inc_piety(GOD_MELKOR, 2 * r_info[o_ptr->pval2].level);
+					}
 
-                                        /* In books it depends of the spell levels*/
-                                        if (o_ptr->tval == TV_BOOK)
-                                        {
-                                                int x = exec_lua(format("return levels_in_book(%d, %d)", o_ptr->sval, o_ptr->pval));
+					/* In books it depends of the spell levels*/
+					if (o_ptr->tval == TV_BOOK)
+					{
+						int x = exec_lua(format("return levels_in_book(%d, %d)", o_ptr->sval, o_ptr->pval));
 
-                                                inc_piety(GOD_MELKOR, 2 * x);
-                                        }
+						inc_piety(GOD_MELKOR, 2 * x);
+					}
 
-                                        /* Remove the item */
-                                        inven_item_increase(item, -1);
-                                        inven_item_describe(item);
-                                        inven_item_optimize(item);
-                                }
-                        }
-                }
-        }
+					/* Remove the item */
+					inven_item_increase(item, -1);
+					inven_item_describe(item);
+					inven_item_optimize(item);
+				}
+			}
+		}
+		else
+			process_hooks(HOOK_SACRIFICE_GOD, "()", "");
+	}
 }
 
 
@@ -4787,9 +4852,9 @@ bool scan_monst(int *items, int *item_num, int m_idx)
 
 	/* Scan all objects in the grid */
 	for (this_o_idx = m_list[m_idx].hold_o_idx; this_o_idx;
-		 this_o_idx = next_o_idx)
+	                this_o_idx = next_o_idx)
 	{
-		object_type *o_ptr;
+		object_type * o_ptr;
 
 		/* Acquire object */
 		o_ptr = &o_list[this_o_idx];
@@ -4848,7 +4913,7 @@ byte show_monster_inven(int m_idx, int *monst_list)
 	/* Scan for objects on the monster */
 	(void)scan_monst(monst_list, &monst_num, m_idx);
 
-	/* Display the inventory */
+	/* Display the p_ptr->inventory */
 	for (k = 0, i = 0; i < monst_num; i++)
 	{
 		o_ptr = &o_list[monst_list[i]];
@@ -4862,7 +4927,7 @@ byte show_monster_inven(int m_idx, int *monst_list)
 		/* Save the index */
 		out_index[k] = i;
 
-		/* Acquire inventory color */
+		/* Acquire p_ptr->inventory color */
 		out_color[k] = tval_to_attr[o_ptr->tval & 0x7F];
 
 		/* Save the object description */
@@ -4943,8 +5008,8 @@ void do_cmd_steal()
 
 	/* Only works on adjacent monsters */
 	if (!get_rep_dir(&dir)) return;
-	y = py + ddy[dir];
-	x = px + ddx[dir];
+	y = p_ptr->py + ddy[dir];
+	x = p_ptr->px + ddx[dir];
 	c_ptr = &cave[y][x];
 
 	if (!(c_ptr->m_idx))
@@ -4981,7 +5046,7 @@ void do_cmd_steal()
 
 		/* Build the prompt */
 		strnfmt(tmp_val, 80, "Choose an item to steal (a-%c) or ESC:",
-				'a' - 1 + num);
+		        'a' - 1 + num);
 
 		/* Show the prompt */
 		prt(tmp_val, 0, 0);
@@ -4992,14 +5057,14 @@ void do_cmd_steal()
 		/* Parse it */
 		switch (which)
 		{
-			case ESCAPE:
+		case ESCAPE:
 			{
 				done = TRUE;
 
 				break;
 			}
 
-			default:
+		default:
 			{
 				int ver;
 
@@ -5038,7 +5103,7 @@ void do_cmd_steal()
 
 		chance = 40 - p_ptr->stat_ind[A_DEX];
 		chance +=
-			o_list[item].weight / (get_skill_scale(SKILL_STEALING, 19) + 1);
+		        o_list[item].weight / (get_skill_scale(SKILL_STEALING, 19) + 1);
 		chance += get_skill_scale(SKILL_STEALING, 29) + 1;
 		chance -= (m_ptr->csleep) ? 10 : 0;
 		chance += m_ptr->level;
@@ -5137,8 +5202,8 @@ void do_cmd_give()
 	if (!get_rep_dir(&dir)) return;
 
 	/* Get requested location */
-	y = py + ddy[dir];
-	x = px + ddx[dir];
+	y = p_ptr->py + ddy[dir];
+	x = p_ptr->px + ddx[dir];
 
 	/* Get requested grid */
 	c_ptr = &cave[y][x];
@@ -5180,8 +5245,8 @@ void do_cmd_chat()
 	if (!get_rep_dir(&dir)) return;
 
 	/* Get requested location */
-	y = py + ddy[dir];
-	x = px + ddx[dir];
+	y = p_ptr->py + ddy[dir];
+	x = p_ptr->px + ddx[dir];
 
 	/* Get requested grid */
 	c_ptr = &cave[y][x];

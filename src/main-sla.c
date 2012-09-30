@@ -105,7 +105,7 @@ static char *color_terminals [] =
  */
 int has_colors(void)
 {
-	int  i;
+	int i;
 
 	char *terminal;
 
@@ -138,9 +138,9 @@ int has_colors(void)
 	/* Setup bizarre colors */
 	else
 	{
-		SLtt_set_mono (A_BOLD,    NULL, SLTT_BOLD_MASK);
+		SLtt_set_mono (A_BOLD, NULL, SLTT_BOLD_MASK);
 		SLtt_set_mono (A_REVERSE, NULL, SLTT_REV_MASK);
-		SLtt_set_mono (A_BOLD|A_REVERSE, NULL, SLTT_BOLD_MASK | SLTT_REV_MASK);
+		SLtt_set_mono (A_BOLD | A_REVERSE, NULL, SLTT_BOLD_MASK | SLTT_REV_MASK);
 	}
 
 	return SLtt_Use_Ansi_Colors;
@@ -248,41 +248,41 @@ static errr Term_xtra_sla(int n, int v)
 	switch (n)
 	{
 		/* Make a noise */
-		case TERM_XTRA_NOISE:
+	case TERM_XTRA_NOISE:
 		(void)SLsmg_write_char('\007');
 		return (0);
 
 		/* Flush the ncurses buffer */
-		case TERM_XTRA_FRESH:
+	case TERM_XTRA_FRESH:
 		(void)SLsmg_refresh();
 		return (0);
 
 		/* Make the cursor invisible or visible */
-		case TERM_XTRA_SHAPE:
+	case TERM_XTRA_SHAPE:
 		/* curs_set(v); */
 		return (0);
 
 		/* Handle events */
-		case TERM_XTRA_EVENT:
+	case TERM_XTRA_EVENT:
 		return (Term_xtra_sla_event(v));
 
 		/* Handle events */
-		case TERM_XTRA_FLUSH:
+	case TERM_XTRA_FLUSH:
 		while (!Term_xtra_sla_event(FALSE));
 		return (0);
 
 		/* Suspend/Resume */
-		case TERM_XTRA_ALIVE:
+	case TERM_XTRA_ALIVE:
 		return (Term_xtra_sla_alive(v));
 
 		/* Clear the screen */
-		case TERM_XTRA_CLEAR:
+	case TERM_XTRA_CLEAR:
 		(void)SLsmg_cls();
 		SLsmg_gotorc(0, 0);
 		return (0);
 
 		/* Delay */
-		case TERM_XTRA_DELAY:
+	case TERM_XTRA_DELAY:
 		usleep(1000 * v);
 		return (0);
 	}
@@ -356,7 +356,7 @@ errr init_sla(void)
 
 
 	/* Initialize, check for errors */
-	err = (SLang_init_tty(-1, TRUE, 0) == -1);
+	err = (SLang_init_tty( -1, TRUE, 0) == -1);
 
 	/* Quit on error */
 	if (err) quit("SLang initialization failed");
@@ -392,38 +392,38 @@ errr init_sla(void)
 	if (can_use_color)
 	{
 		/* Prepare the color pairs */
-		init_pair(1, COLOR_RED,     COLOR_BLACK);
-		init_pair(2, COLOR_GREEN,   COLOR_BLACK);
-		init_pair(3, COLOR_YELLOW,  COLOR_BLACK);
-		init_pair(4, COLOR_BLUE,    COLOR_BLACK);
+		init_pair(1, COLOR_RED, COLOR_BLACK);
+		init_pair(2, COLOR_GREEN, COLOR_BLACK);
+		init_pair(3, COLOR_YELLOW, COLOR_BLACK);
+		init_pair(4, COLOR_BLUE, COLOR_BLACK);
 		init_pair(5, COLOR_MAGENTA, COLOR_BLACK);
-		init_pair(6, COLOR_CYAN,    COLOR_BLACK);
-		init_pair(7, COLOR_BLACK,   COLOR_BLACK);
-		init_pair(9, COLOR_BRED,    COLOR_BLACK);
-		init_pair(10, COLOR_BGREEN,   COLOR_BLACK);
-		init_pair(11, COLOR_BYELLOW,  COLOR_BLACK);
-		init_pair(12, COLOR_BBLUE,    COLOR_BLACK);
+		init_pair(6, COLOR_CYAN, COLOR_BLACK);
+		init_pair(7, COLOR_BLACK, COLOR_BLACK);
+		init_pair(9, COLOR_BRED, COLOR_BLACK);
+		init_pair(10, COLOR_BGREEN, COLOR_BLACK);
+		init_pair(11, COLOR_BYELLOW, COLOR_BLACK);
+		init_pair(12, COLOR_BBLUE, COLOR_BLACK);
 		init_pair(13, COLOR_BMAGENTA, COLOR_BLACK);
-		init_pair(14, COLOR_BCYAN,    COLOR_BLACK);
-		init_pair(15, COLOR_BBLACK,   COLOR_BLACK);
+		init_pair(14, COLOR_BCYAN, COLOR_BLACK);
+		init_pair(15, COLOR_BBLACK, COLOR_BLACK);
 
 		/* Prepare the color table */
-		colortable[0] = 7;       /* Black */
-		colortable[1] = 0;       /* White */
-		colortable[2] = 6;       /* Grey XXX */
-		colortable[3] = 11;      /* Orange XXX */
-		colortable[4] = 1;       /* Red */
-		colortable[5] = 2;       /* Green */
-		colortable[6] = 4;       /* Blue */
-		colortable[7] = 3;       /* Brown */
-		colortable[8] = 15;      /* Dark-grey XXX */
-		colortable[9] = 14;      /* Light-grey XXX */
-		colortable[10] = 5;       /* Purple */
-		colortable[11] = 11;      /* Yellow */
-		colortable[12] = 9;       /* Light Red */
-		colortable[13] = 10;      /* Light Green */
-		colortable[14] = 12;      /* Light Blue */
-		colortable[15] = 3;       /* Light Brown XXX */
+		colortable[0] = 7;        /* Black */
+		colortable[1] = 0;        /* White */
+		colortable[2] = 6;        /* Grey XXX */
+		colortable[3] = 11;       /* Orange XXX */
+		colortable[4] = 1;        /* Red */
+		colortable[5] = 2;        /* Green */
+		colortable[6] = 4;        /* Blue */
+		colortable[7] = 3;        /* Brown */
+		colortable[8] = 15;       /* Dark-grey XXX */
+		colortable[9] = 14;       /* Light-grey XXX */
+		colortable[10] = 5;        /* Purple */
+		colortable[11] = 11;       /* Yellow */
+		colortable[12] = 9;        /* Light Red */
+		colortable[13] = 10;       /* Light Green */
+		colortable[14] = 12;       /* Light Blue */
+		colortable[15] = 3;        /* Light Brown XXX */
 	}
 
 

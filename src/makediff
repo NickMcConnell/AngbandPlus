@@ -1,0 +1,18 @@
+#!/bin/bash
+# Back-porting without breaking things
+# Set version to Back-port to here
+VERSION=210
+#
+#
+# And leave the driving to the script
+TAG=tome_"$VERSION"_last_merge
+FILE=mergechanges-`date --iso-8601=minutes`
+if test -f changes.txt; then
+	cvs update
+	cvs diff -r $TAG >> "$FILE"
+	if test 1 -eq $?; then
+		cvs tag -F $TAG
+	fi
+else
+	echo "Only run this from the top level directory."
+fi

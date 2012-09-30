@@ -172,6 +172,9 @@ static obj_theme lua_obj_theme @ theme_forge;
 #define TR5_SPELL_CONTAIN       0x00000800L     /* Can contain a spell */
 #define TR5_RES_MORGUL          0x00001000L     /* Is not shattered by morgul fiends(nazguls) */
 #define TR5_ACTIVATE_NO_WIELD   0x00002000L     /* Can be 'A'ctivated without being wielded */
+#define TR5_MAGIC_BREATH        0x00004000L     /* Can breath anywere */
+#define TR5_WATER_BREATH        0x00008000L     /* Can breath underwater */
+#define TR5_WIELD_CAST          0x00010000L     /* Need to be wielded to cast spelsl fomr it(if it can be wiekded) */
 
 #define ESP_ORC                 0x00000001L
 #define ESP_TROLL               0x00000002L
@@ -219,7 +222,8 @@ static obj_theme lua_obj_theme @ theme_forge;
 #define TV_SPIKE         5      /* Spikes ('~') */
 #define TV_MSTAFF        6      /* Mage Staffs */
 #define TV_CHEST         7      /* Chests ('~') */
-#define TV_PARCHEMENT    8      /* Parchements from Kamband */
+#define TV_PARCHMENT     8      /* Parchments from Kamband */
+#define TV_PARCHEMENT    8      /* compatibility define */
 #define TV_CORPSE        9      /* Monster corpses */
 #define TV_EGG          10      /* Monster Eggs */
 #define TV_JUNK         11      /* Sticks, Pottery, etc ('~') */
@@ -282,13 +286,9 @@ static obj_theme lua_obj_theme @ theme_forge;
 #define SV_AMMO_HEAVY                    2	/* seeker arrows and bolts, mithril shots */
 
 /* The "sval" codes for TV_INSTRUMENT */
-#define SV_FLUTE                         1
-#define SV_BANJO                         2
-#define SV_LUTE                          3
-#define SV_MANDOLIN                      4
-#define SV_DRUM                          5
-#define SV_HARP                          6
-#define SV_HORN                          7
+#define SV_DRUM                          58
+#define SV_HARP                          59
+#define SV_HORN                          60
 
 /* The "sval" codes for TV_TRAPKIT */
 #define SV_TRAPKIT_SLING                 1
@@ -392,8 +392,8 @@ static obj_theme lua_obj_theme @ theme_forge;
 #define SV_EXECUTIONERS_SWORD           28  /* 4d5 */
 #define SV_ZWEIHANDER                   29  /* 4d6 */
 #define SV_BLADE_OF_CHAOS               30  /* 6d5 */
-#define SV_SHADOW_BLADE                 31  /* 4d4 */
-#define SV_BLUESTEEL_BLADE              32  /* 3d9 */
+#define SV_BLUESTEEL_BLADE              31  /* 3d9 */
+#define SV_SHADOW_BLADE                 32  /* 4d4 */
 #define SV_DARK_SWORD                   33  /* 3d7 */
 
 /* The "sval" codes for TV_SHIELD */
@@ -588,15 +588,9 @@ static obj_theme lua_obj_theme @ theme_forge;
 #define SV_STAFF_SCHOOL                 1
 #define SV_STAFF_NOTHING                2
 
-/* jk - the first valuable staff */
-#define SV_STAFF_NASTY_STAFF              4
-
 /* The "sval" codes for TV_WAND */
 #define SV_WAND_SCHOOL                  1
 #define SV_WAND_NOTHING                 2
-
-/* jk - the first valuable wand */
-#define SV_WAND_NASTY_WAND               3
 
 /* The "sval" codes for TV_ROD(Rod Tips) */
 #define SV_ROD_NOTHING                   0
@@ -701,7 +695,6 @@ static obj_theme lua_obj_theme @ theme_forge;
 #define SV_SCROLL_RUMOR                 51
 #define SV_SCROLL_ARTIFACT              52
 #define SV_SCROLL_NOTHING               53
-#define SV_SCROLL_SPELL                 54
 
 /* The "sval" codes for TV_POTION */
 #define SV_POTION_WATER                  0
@@ -772,19 +765,7 @@ static obj_theme lua_obj_theme @ theme_forge;
 #define SV_POTION_LAST                  63
 
 /* The "sval" codes for TV_POTION2 */
-#define SV_POTION2_MIMIC_ABOMINATION     1
-#define SV_POTION2_MIMIC_WOLF            2
-#define SV_POTION2_MIMIC_APE             3
-#define SV_POTION2_MIMIC_GOAT            4
-#define SV_POTION2_MIMIC_INSECT          5
-#define SV_POTION2_MIMIC_SPARROW         6
-#define SV_POTION2_MIMIC_STATUE          7
-#define SV_POTION2_MIMIC_VAMPIRE         8
-#define SV_POTION2_MIMIC_SPIDER          9
-#define SV_POTION2_MIMIC_MANA_BALL       10
-#define SV_POTION2_MIMIC_FIRE_CLOUD      11
-#define SV_POTION2_MIMIC_COLD_CLOUD      12
-#define SV_POTION2_MIMIC_CHAOS_CLOUD     13
+#define SV_POTION2_MIMIC                 1
 #define SV_POTION2_CURE_LIGHT_SANITY     14
 #define SV_POTION2_CURE_SERIOUS_SANITY   15
 #define SV_POTION2_CURE_CRITICAL_SANITY  16
@@ -943,8 +924,6 @@ struct object_kind
 	bool tried;			/* The player has "tried" one of the items */
 
 	bool know;                      /* extractable flag for the alchemist */
-
-	byte squeltch;                  /* Should we destroy it ? */
 
 	u32b esp;                       /* ESP flags */
 
@@ -1114,7 +1093,6 @@ struct object_type
 #define SENSE_UNCURSED			10
 
 extern object_type o_list[max_o_idx];
-extern object_type inventory[INVEN_TOTAL];
 extern object_kind k_info[max_k_idx];
 extern char *k_name;
 extern char *k_text;
@@ -1131,7 +1109,7 @@ extern s16b wield_slot_ideal(object_type *o_ptr, bool ideal);
 extern s16b wield_slot(object_type *o_ptr);
 extern void object_flags(object_type *o_ptr, u32b *f1 = 0, u32b *f2 = 0, u32b *f3 = 0, u32b *f4 = 0, u32b *f5 = 0, u32b *esp = 0);
 extern char *lua_object_desc @ object_desc(object_type *o_ptr, int pref, int mode);
-extern bool object_out_desc(object_type *o_ptr, FILE *fff, bool trim_down);
+extern bool object_out_desc(object_type *o_ptr, FILE *fff, bool trim_down, bool wait_for_it);
 extern void inven_item_describe(int item);
 extern void inven_item_increase(int item, int num);
 extern bool inven_item_optimize(int item);
@@ -1185,3 +1163,5 @@ extern byte value_check_aux1_magic(object_type *o_ptr);
 extern byte value_check_aux2(object_type *o_ptr);
 extern byte value_check_aux2_magic(object_type *o_ptr);
 extern byte select_sense(object_type *o_ptr, bool ok_combat, bool ok_magic);
+
+extern bool remove_curse_object(object_type *o_ptr, bool all);

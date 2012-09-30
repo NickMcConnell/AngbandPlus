@@ -125,21 +125,21 @@ static term_data data[MAX_TERM_DATA];
  */
 static local_color_data_type color_data[16] =
 {
-	/* XXX XXX XXX 0,0,0 */,		/* TERM_DARK */
-	/* XXX XXX XXX 4,4,4 */,		/* TERM_WHITE */
-	/* XXX XXX XXX 2,2,2 */,		/* TERM_SLATE */
-	/* XXX XXX XXX 4,2,0 */,		/* TERM_ORANGE */
-	/* XXX XXX XXX 3,0,0 */,		/* TERM_RED */
-	/* XXX XXX XXX 0,2,1 */,		/* TERM_GREEN */
-	/* XXX XXX XXX 0,0,4 */,		/* TERM_BLUE */
-	/* XXX XXX XXX 2,1,0 */,		/* TERM_UMBER */
-	/* XXX XXX XXX 1,1,1 */,		/* TERM_L_DARK */
-	/* XXX XXX XXX 3,3,3 */,		/* TERM_L_WHITE */
-	/* XXX XXX XXX 4,0,4 */,		/* TERM_VIOLET */
-	/* XXX XXX XXX 4,4,0 */,		/* TERM_YELLOW */
-	/* XXX XXX XXX 4,0,0 */,		/* TERM_L_RED */
-	/* XXX XXX XXX 0,4,0 */,		/* TERM_L_GREEN */
-	/* XXX XXX XXX 0,4,4 */,		/* TERM_L_BLUE */
+	/* XXX XXX XXX 0,0,0 */, 		/* TERM_DARK */
+	/* XXX XXX XXX 4,4,4 */, 		/* TERM_WHITE */
+	/* XXX XXX XXX 2,2,2 */, 		/* TERM_SLATE */
+	/* XXX XXX XXX 4,2,0 */, 		/* TERM_ORANGE */
+	/* XXX XXX XXX 3,0,0 */, 		/* TERM_RED */
+	/* XXX XXX XXX 0,2,1 */, 		/* TERM_GREEN */
+	/* XXX XXX XXX 0,0,4 */, 		/* TERM_BLUE */
+	/* XXX XXX XXX 2,1,0 */, 		/* TERM_UMBER */
+	/* XXX XXX XXX 1,1,1 */, 		/* TERM_L_DARK */
+	/* XXX XXX XXX 3,3,3 */, 		/* TERM_L_WHITE */
+	/* XXX XXX XXX 4,0,4 */, 		/* TERM_VIOLET */
+	/* XXX XXX XXX 4,4,0 */, 		/* TERM_YELLOW */
+	/* XXX XXX XXX 4,0,0 */, 		/* TERM_L_RED */
+	/* XXX XXX XXX 0,4,0 */, 		/* TERM_L_GREEN */
+	/* XXX XXX XXX 0,4,4 */, 		/* TERM_L_BLUE */
 	/* XXX XXX XXX 3,2,1 */ 		/* TERM_L_UMBER */
 };
 
@@ -228,7 +228,7 @@ static errr Term_xtra_xxx(int n, int v)
 	/* Analyze */
 	switch (n)
 	{
-		case TERM_XTRA_EVENT:
+	case TERM_XTRA_EVENT:
 		{
 			/*
 			 * Process some pending events XXX XXX XXX
@@ -253,7 +253,7 @@ static errr Term_xtra_xxx(int n, int v)
 			return (0);
 		}
 
-		case TERM_XTRA_FLUSH:
+	case TERM_XTRA_FLUSH:
 		{
 			/*
 			 * Flush all pending events XXX XXX XXX
@@ -268,7 +268,7 @@ static errr Term_xtra_xxx(int n, int v)
 			return (0);
 		}
 
-		case TERM_XTRA_CLEAR:
+	case TERM_XTRA_CLEAR:
 		{
 			/*
 			 * Clear the entire window XXX XXX XXX
@@ -282,7 +282,7 @@ static errr Term_xtra_xxx(int n, int v)
 			return (0);
 		}
 
-		case TERM_XTRA_SHAPE:
+	case TERM_XTRA_SHAPE:
 		{
 			/*
 			 * Set the cursor visibility XXX XXX XXX
@@ -297,7 +297,7 @@ static errr Term_xtra_xxx(int n, int v)
 			return (0);
 		}
 
-		case TERM_XTRA_FROSH:
+	case TERM_XTRA_FROSH:
 		{
 			/*
 			 * Flush a row of output XXX XXX XXX
@@ -314,7 +314,7 @@ static errr Term_xtra_xxx(int n, int v)
 			return (0);
 		}
 
-		case TERM_XTRA_FRESH:
+	case TERM_XTRA_FRESH:
 		{
 			/*
 			 * Flush output XXX XXX XXX
@@ -331,7 +331,7 @@ static errr Term_xtra_xxx(int n, int v)
 			return (0);
 		}
 
-		case TERM_XTRA_NOISE:
+	case TERM_XTRA_NOISE:
 		{
 			/*
 			 * Make a noise XXX XXX XXX
@@ -344,7 +344,7 @@ static errr Term_xtra_xxx(int n, int v)
 			return (0);
 		}
 
-		case TERM_XTRA_SOUND:
+	case TERM_XTRA_SOUND:
 		{
 			/*
 			 * Make a sound XXX XXX XXX
@@ -359,7 +359,7 @@ static errr Term_xtra_xxx(int n, int v)
 			return (0);
 		}
 
-		case TERM_XTRA_BORED:
+	case TERM_XTRA_BORED:
 		{
 			/*
 			 * Handle random events when bored XXX XXX XXX
@@ -370,7 +370,7 @@ static errr Term_xtra_xxx(int n, int v)
 			return (0);
 		}
 
-		case TERM_XTRA_REACT:
+	case TERM_XTRA_REACT:
 		{
 			/*
 			 * React to global changes XXX XXX XXX
@@ -386,7 +386,7 @@ static errr Term_xtra_xxx(int n, int v)
 			return (0);
 		}
 
-		case TERM_XTRA_ALIVE:
+	case TERM_XTRA_ALIVE:
 		{
 			/*
 			 * Change the "hard" level XXX XXX XXX
@@ -405,7 +405,7 @@ static errr Term_xtra_xxx(int n, int v)
 			return (0);
 		}
 
-		case TERM_XTRA_LEVEL:
+	case TERM_XTRA_LEVEL:
 		{
 			/*
 			 * Change the "soft" level XXX XXX XXX
@@ -426,7 +426,7 @@ static errr Term_xtra_xxx(int n, int v)
 			return (0);
 		}
 
-		case TERM_XTRA_DELAY:
+	case TERM_XTRA_DELAY:
 		{
 			/*
 			 * Delay for some milliseconds XXX XXX XXX
@@ -441,17 +441,17 @@ static errr Term_xtra_xxx(int n, int v)
 			return (0);
 		}
 
-		case TERM_XTRA_GET_DELAY:
+	case TERM_XTRA_GET_DELAY:
 		{
 			/*
-                         * Get Delay of some milliseconds XXX XXX XXX
-                         * place the result in Term_xtra_long
+			                      * Get Delay of some milliseconds XXX XXX XXX
+			                      * place the result in Term_xtra_long
 			 *
 			 * This action is useful for proper "timing" of certain
 			 * visual effects, such as recording cmovies.
 			 *
-                         * This action is optional, but cmovies wont perform
-                         * good without it
+			                      * This action is optional, but cmovies wont perform
+			                      * good without it
 			 */
 
 			return (0);
@@ -770,7 +770,7 @@ int main(int argc, char *argv[])
 	init_stuff();
 
 	/* Initialize */
-	init_angband */
+	init_angband * /
 
 	/* Allow auto-startup XXX XXX XXX */
 

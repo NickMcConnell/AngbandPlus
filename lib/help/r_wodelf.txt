@@ -22,3 +22,7 @@ Exp Penalty     +30%
 
 #####GSkill bonuses (supplementary to existing skills)
 Archery            0.000           [0.200]
+
+#####GInnate Abilities:
+#####BAbility              Character level
+Tree-walking                1

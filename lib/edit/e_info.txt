@@ -370,7 +370,7 @@ F:ABILITY | R_HIGH
 R:40
 F:SPELL
 R:50
-F:SPELL_CONTAIN
+F:SPELL_CONTAIN | WIELD_CAST
 
 N:28:of Might
 X:A:33:19
@@ -1567,36 +1567,47 @@ C:0:0:-10:0
 # Instruments
 
 N:128:of the Eldar
-T:14:0:6
-T:14:8:255
+T:14:0:59
+T:14:61:255
 X:A:25:20
 W:0:2:3:1000
-C:0:0:0:4
+C:0:0:0:0
 R:100
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD |
 F:RES_ACID | CHR | SEE_INVIS | ACTIVATE
-F:R_ANY
+F:R_ANY | PVAL_M2
+R:25
+F:PVAL_M1
 
 N:129:of Power
-T:14:0:6
-T:14:8:255
+T:14:0:59
+T:14:61:255
 X:A:25:20
 W:0:1:3:2000
-C:0:0:0:4
+C:0:0:0:0
 R:100
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | SUST_CHR |
 F:RES_FIRE | RES_COLD | RES_ELEC | RES_ACID | CHR | SEE_INVIS | ACTIVATE
-F:R_ANY
+F:R_ANY | PVAL_M3
+R:50
+F:PVAL_M1
+R:35
+F:PVAL_M1
 
 # Horn, now four different ego items (for different GF_ values)
 # see items 181, 182 & 183.
 N:130:Dragon
-T:14:7:7
+T:14:60:60
 X:B:25:20
 W:0:1:2:2000
 C:0:0:0:0
 R:100
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | ACTIVATE
+F:R_ANY | PVAL_M2
+R:50
+F:PVAL_M1
+R:25
+F:PVAL_M1
 a:HARDCORE=BA_ACID_H
 
 # Rods ego
@@ -1932,7 +1943,7 @@ F:R_HIGH
 R:30
 F:PVAL_M2
 R:50:
-F:SPELL_CONTAIN
+F:SPELL_CONTAIN | WIELD_CAST
 
 ### New ego-items added by JLE
 
@@ -1998,7 +2009,7 @@ T:35:0:99
 R:100
 F:INT | SPEED | SUST_INT | FREE_ACT | STEALTH | HIDE_TYPE | IGNORE_ACID
 R:30
-F:SPELL_CONTAIN
+F:SPELL_CONTAIN | WIELD_CAST
 
 # Cloak of Invisibility
 N:170:of Invisibility
@@ -2164,3 +2175,42 @@ r:F:MUST2H
 R:100
 F:LIFE | HOLD_LIFE
 f:LIFE
+
+# Cloak of Air
+N:186:of Air
+X:A:31:10
+W:30:1:35:1500
+C:0:0:0:0
+T:35:0:255
+R:100
+F:MAGIC_BREATH
+
+# Ego DSM
+N:187:Polished
+T:38:0:255
+X:B:30:5
+W:40:25:100:25000
+C:0:0:0:0
+R:100
+F:REFLECT
+
+# Ego Heavy Crossbow
+N:188:of Siegecraft
+T:19:24:24
+X:A:25:30
+W:60:5:30:30000
+C:10:15:20:2
+R:120
+F:XTRA_MIGHT | XTRA_SHOTS | REFLECT | IMMOVABLE
+
+# N: serial number : ego type
+# D: description
+# T: tval : min sval : max sval
+# R: rarity
+# X: position : slot : rating
+# W: depth : rarity1 : rarity2 : cost
+# C: to-hit : to-dam : to-ac : pval
+# r:N:needed flags on the base object
+# r:F:forbidden flags on the base object
+# Z: granted_power
+# F: flags

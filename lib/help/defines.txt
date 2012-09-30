@@ -16,7 +16,7 @@ TV_BOTTLE        2      /* Empty bottles ('!') */
 TV_SPIKE         5      /* Spikes ('~') */
 TV_MSTAFF        6      /* Mage Staffs */
 TV_CHEST         7      /* Chests ('~') */
-TV_PARCHEMENT    8      /* Parchements from Kamband */
+TV_PARCHMENT     8      /* Parchments from Kamband */
 *****defines.txt*09[TV_CORPSE]        9      /* Monster corpses */
 TV_EGG          10      /* Monster Eggs */
 TV_JUNK         11      /* Sticks, Pottery, etc ('~') */

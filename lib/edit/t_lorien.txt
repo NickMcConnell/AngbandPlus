@@ -12,6 +12,24 @@ F:y:96:3
 # Default for Quest 11 = entrance is tree
 F:x:96:3
 
+# Default for entrance to the Void, entrance is dirt
+F:v:88:3
+
+# Default for Quest 22 = entrance is quest entrance
+F:w:8:3:0:0:0:0:0:22
+
+############### Quest 22 - Wolves hut finished = house ###############
+?:[EQU $QUEST22 2]
+F:w:74:3:0:0:0:0:0:7
+?:[EQU $QUEST22 5]
+F:w:74:3:0:0:0:0:0:7
+?:1
+
+############### Entrance to the Void ###############
+?:[EQU $QUEST20 1]
+F:v:7:3:0:0:0:0:0:11
+?:1
+
 ############### Quest 10 - Spiders of Mirkwood ###############
 # Quest 10 taken, entrance is quest entrance
 ?:[EQU $QUEST10 1]
@@ -100,8 +118,8 @@ D:#                                                                      #####  
 D:#               ,,     ,                                                ###        ,      ,     ,  ,   , ,    #3#  ###                      ,                              ,                ,        #
 D:#          ,            ,                                                          ,      ,    ,,  ,   ,       ,    ,   ## ,                                                                         #
 D:#                         ,  ,                                                ,,,  ,,,,,,,,,,,,,  ,,,  ,       ,  , ,  ####             ,,                         , ,             ,                 #
-D:#                      ,                          ,                           , ,,,,           ,,,,b,,,,,,,,,,,,,,,,,,,8###                                                                        , #
-D:#               ,              ,                                             ,,                   ,,,             ,    ####                                                                          #
+D:#                      ,                          ,                           , ,,,,           ,,,,b,,,,,,,,,,,,,,,,,,,w###                                                                        , #
+D:#               ,              ,                                             v,                   ,,,             ,    ####                                                                          #
 D:#                           ,                            ,                 --,--    ,,             ,   VVV        ,     ##                  ,      ,                                               , #
 D:#                   ,,     ,                                            l----,----m                , VWWWV       #2#                ,,          ,              ,               , ,              ,    #
 D:#           ,                            ,    ,                         ---VV,VV---                , VWWVV  ,   #####                             ,                                                  #

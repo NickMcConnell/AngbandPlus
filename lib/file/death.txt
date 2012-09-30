@@ -1,4 +1,4 @@
-348
+349
 ******** BUFFER LINE *********************************** DO NOT REMOVE *******
 Live and let live, right..?
 AAAAAAAAARRRRRRRRRRRRRRGGGGGGGGGGGGGHHHHHHHHHHHHHHH!!!!!!!!!!!!
@@ -348,3 +348,4 @@ We become part of the Land.
 Hah! I'm not dead yet.  I still have five hit points.
 I don't understand.  It should be dead by now.
 I rolled a 20.  How could that be a miss?
+What the frell?!

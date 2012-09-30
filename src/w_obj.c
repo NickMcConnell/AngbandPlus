@@ -1,6 +1,6 @@
 /*
 ** Lua binding: object
-** Generated automatically by tolua 4.0a - angband on Wed Dec 11 09:17:17 2002.
+** Generated automatically by tolua 4.0a - angband on Sat Jun  7 17:07:24 2003.
 */
 
 #include "lua/tolua.h"
@@ -811,26 +811,6 @@ static int toluaI_set_object_object_kind_know(lua_State* tolua_S)
  if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
  TOLUA_ERR_ASSIGN;
   self->know = ((bool)  tolua_getnumber(tolua_S,2,0));
- return 0;
-}
-
-/* get function: squeltch of class  object_kind */
-static int toluaI_get_object_object_kind_squeltch(lua_State* tolua_S)
-{
-  object_kind* self = (object_kind*)  tolua_getusertype(tolua_S,1,0);
- if (!self) TOLUA_ERR_SELF;
- tolua_pushnumber(tolua_S,(long)self->squeltch);
- return 1;
-}
-
-/* set function: squeltch of class  object_kind */
-static int toluaI_set_object_object_kind_squeltch(lua_State* tolua_S)
-{
-  object_kind* self = (object_kind*)  tolua_getusertype(tolua_S,1,0);
- if (!self) TOLUA_ERR_SELF;
- if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
- TOLUA_ERR_ASSIGN;
-  self->squeltch = ((byte)  tolua_getnumber(tolua_S,2,0));
  return 0;
 }
 
@@ -2894,32 +2874,6 @@ static int toluaI_set_object_o_list(lua_State* tolua_S)
  return 0;
 }
 
-/* get function: inventory */
-static int toluaI_get_object_inventory(lua_State* tolua_S)
-{
- int toluaI_index;
- if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
- tolua_error(tolua_S,"invalid type in array indexing.");
- toluaI_index = (int)tolua_getnumber(tolua_S,2,0)-1;
- if (toluaI_index<0 || toluaI_index>=INVEN_TOTAL)
- tolua_error(tolua_S,"array indexing out of range.");
- tolua_pushusertype(tolua_S,(void*)&inventory[toluaI_index],tolua_tag(tolua_S,"object_type"));
- return 1;
-}
-
-/* set function: inventory */
-static int toluaI_set_object_inventory(lua_State* tolua_S)
-{
- int toluaI_index;
- if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
- tolua_error(tolua_S,"invalid type in array indexing.");
- toluaI_index = (int)tolua_getnumber(tolua_S,2,0)-1;
- if (toluaI_index<0 || toluaI_index>=INVEN_TOTAL)
- tolua_error(tolua_S,"array indexing out of range.");
-  inventory[toluaI_index] = *((object_type*)  tolua_getusertype(tolua_S,3,0));
- return 0;
-}
-
 /* get function: k_info */
 static int toluaI_get_object_k_info(lua_State* tolua_S)
 {
@@ -3252,7 +3206,8 @@ static int toluaI_object_object_out_desc00(lua_State* tolua_S)
  !tolua_istype(tolua_S,1,tolua_tag(tolua_S,"object_type"),0) ||
  !tolua_istype(tolua_S,2,tolua_tag(tolua_S,"FILE"),0) ||
  !tolua_istype(tolua_S,3,LUA_TNUMBER,0) ||
- !tolua_isnoobj(tolua_S,4)
+ !tolua_istype(tolua_S,4,LUA_TNUMBER,0) ||
+ !tolua_isnoobj(tolua_S,5)
  )
  goto tolua_lerror;
  else
@@ -3260,8 +3215,9 @@ static int toluaI_object_object_out_desc00(lua_State* tolua_S)
   object_type* o_ptr = ((object_type*)  tolua_getusertype(tolua_S,1,0));
   FILE* fff = ((FILE*)  tolua_getusertype(tolua_S,2,0));
   bool trim_down = ((bool)  tolua_getnumber(tolua_S,3,0));
+  bool wait_for_it = ((bool)  tolua_getnumber(tolua_S,4,0));
  {
-  bool toluaI_ret = (bool)  object_out_desc(o_ptr,fff,trim_down);
+  bool toluaI_ret = (bool)  object_out_desc(o_ptr,fff,trim_down,wait_for_it);
  tolua_pushnumber(tolua_S,(long)toluaI_ret);
  }
  }
@@ -4214,6 +4170,30 @@ tolua_lerror:
  return 0;
 }
 
+/* function: remove_curse_object */
+static int toluaI_object_remove_curse_object00(lua_State* tolua_S)
+{
+ if (
+ !tolua_istype(tolua_S,1,tolua_tag(tolua_S,"object_type"),0) ||
+ !tolua_istype(tolua_S,2,LUA_TNUMBER,0) ||
+ !tolua_isnoobj(tolua_S,3)
+ )
+ goto tolua_lerror;
+ else
+ {
+  object_type* o_ptr = ((object_type*)  tolua_getusertype(tolua_S,1,0));
+  bool all = ((bool)  tolua_getnumber(tolua_S,2,0));
+ {
+  bool toluaI_ret = (bool)  remove_curse_object(o_ptr,all);
+ tolua_pushnumber(tolua_S,(long)toluaI_ret);
+ }
+ }
+ return 1;
+tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'remove_curse_object'.");
+ return 0;
+}
+
 /* Open function */
 int tolua_object_open (lua_State* tolua_S)
 {
@@ -4367,6 +4347,9 @@ int tolua_object_open (lua_State* tolua_S)
  tolua_constant(tolua_S,NULL,"TR5_SPELL_CONTAIN",TR5_SPELL_CONTAIN);
  tolua_constant(tolua_S,NULL,"TR5_RES_MORGUL",TR5_RES_MORGUL);
  tolua_constant(tolua_S,NULL,"TR5_ACTIVATE_NO_WIELD",TR5_ACTIVATE_NO_WIELD);
+ tolua_constant(tolua_S,NULL,"TR5_MAGIC_BREATH",TR5_MAGIC_BREATH);
+ tolua_constant(tolua_S,NULL,"TR5_WATER_BREATH",TR5_WATER_BREATH);
+ tolua_constant(tolua_S,NULL,"TR5_WIELD_CAST",TR5_WIELD_CAST);
  tolua_constant(tolua_S,NULL,"ESP_ORC",ESP_ORC);
  tolua_constant(tolua_S,NULL,"ESP_TROLL",ESP_TROLL);
  tolua_constant(tolua_S,NULL,"ESP_DRAGON",ESP_DRAGON);
@@ -4407,6 +4390,7 @@ int tolua_object_open (lua_State* tolua_S)
  tolua_constant(tolua_S,NULL,"TV_SPIKE",TV_SPIKE);
  tolua_constant(tolua_S,NULL,"TV_MSTAFF",TV_MSTAFF);
  tolua_constant(tolua_S,NULL,"TV_CHEST",TV_CHEST);
+ tolua_constant(tolua_S,NULL,"TV_PARCHMENT",TV_PARCHMENT);
  tolua_constant(tolua_S,NULL,"TV_PARCHEMENT",TV_PARCHEMENT);
  tolua_constant(tolua_S,NULL,"TV_CORPSE",TV_CORPSE);
  tolua_constant(tolua_S,NULL,"TV_EGG",TV_EGG);
@@ -4461,10 +4445,6 @@ int tolua_object_open (lua_State* tolua_S)
  tolua_constant(tolua_S,NULL,"SV_AMMO_LIGHT",SV_AMMO_LIGHT);
  tolua_constant(tolua_S,NULL,"SV_AMMO_NORMAL",SV_AMMO_NORMAL);
  tolua_constant(tolua_S,NULL,"SV_AMMO_HEAVY",SV_AMMO_HEAVY);
- tolua_constant(tolua_S,NULL,"SV_FLUTE",SV_FLUTE);
- tolua_constant(tolua_S,NULL,"SV_BANJO",SV_BANJO);
- tolua_constant(tolua_S,NULL,"SV_LUTE",SV_LUTE);
- tolua_constant(tolua_S,NULL,"SV_MANDOLIN",SV_MANDOLIN);
  tolua_constant(tolua_S,NULL,"SV_DRUM",SV_DRUM);
  tolua_constant(tolua_S,NULL,"SV_HARP",SV_HARP);
  tolua_constant(tolua_S,NULL,"SV_HORN",SV_HORN);
@@ -4555,8 +4535,8 @@ int tolua_object_open (lua_State* tolua_S)
  tolua_constant(tolua_S,NULL,"SV_EXECUTIONERS_SWORD",SV_EXECUTIONERS_SWORD);
  tolua_constant(tolua_S,NULL,"SV_ZWEIHANDER",SV_ZWEIHANDER);
  tolua_constant(tolua_S,NULL,"SV_BLADE_OF_CHAOS",SV_BLADE_OF_CHAOS);
- tolua_constant(tolua_S,NULL,"SV_SHADOW_BLADE",SV_SHADOW_BLADE);
  tolua_constant(tolua_S,NULL,"SV_BLUESTEEL_BLADE",SV_BLUESTEEL_BLADE);
+ tolua_constant(tolua_S,NULL,"SV_SHADOW_BLADE",SV_SHADOW_BLADE);
  tolua_constant(tolua_S,NULL,"SV_DARK_SWORD",SV_DARK_SWORD);
  tolua_constant(tolua_S,NULL,"SV_SMALL_LEATHER_SHIELD",SV_SMALL_LEATHER_SHIELD);
  tolua_constant(tolua_S,NULL,"SV_SMALL_METAL_SHIELD",SV_SMALL_METAL_SHIELD);
@@ -4725,10 +4705,8 @@ int tolua_object_open (lua_State* tolua_S)
  tolua_constant(tolua_S,NULL,"SV_RING_SPELL",SV_RING_SPELL);
  tolua_constant(tolua_S,NULL,"SV_STAFF_SCHOOL",SV_STAFF_SCHOOL);
  tolua_constant(tolua_S,NULL,"SV_STAFF_NOTHING",SV_STAFF_NOTHING);
- tolua_constant(tolua_S,NULL,"SV_STAFF_NASTY_STAFF",SV_STAFF_NASTY_STAFF);
  tolua_constant(tolua_S,NULL,"SV_WAND_SCHOOL",SV_WAND_SCHOOL);
  tolua_constant(tolua_S,NULL,"SV_WAND_NOTHING",SV_WAND_NOTHING);
- tolua_constant(tolua_S,NULL,"SV_WAND_NASTY_WAND",SV_WAND_NASTY_WAND);
  tolua_constant(tolua_S,NULL,"SV_ROD_NOTHING",SV_ROD_NOTHING);
  tolua_constant(tolua_S,NULL,"SV_ROD_DETECT_DOOR",SV_ROD_DETECT_DOOR);
  tolua_constant(tolua_S,NULL,"SV_ROD_IDENTIFY",SV_ROD_IDENTIFY);
@@ -4821,7 +4799,6 @@ int tolua_object_open (lua_State* tolua_S)
  tolua_constant(tolua_S,NULL,"SV_SCROLL_RUMOR",SV_SCROLL_RUMOR);
  tolua_constant(tolua_S,NULL,"SV_SCROLL_ARTIFACT",SV_SCROLL_ARTIFACT);
  tolua_constant(tolua_S,NULL,"SV_SCROLL_NOTHING",SV_SCROLL_NOTHING);
- tolua_constant(tolua_S,NULL,"SV_SCROLL_SPELL",SV_SCROLL_SPELL);
  tolua_constant(tolua_S,NULL,"SV_POTION_WATER",SV_POTION_WATER);
  tolua_constant(tolua_S,NULL,"SV_POTION_APPLE_JUICE",SV_POTION_APPLE_JUICE);
  tolua_constant(tolua_S,NULL,"SV_POTION_SLIME_MOLD",SV_POTION_SLIME_MOLD);
@@ -4885,19 +4862,7 @@ int tolua_object_open (lua_State* tolua_S)
  tolua_constant(tolua_S,NULL,"SV_POTION_INVULNERABILITY",SV_POTION_INVULNERABILITY);
  tolua_constant(tolua_S,NULL,"SV_POTION_NEW_LIFE",SV_POTION_NEW_LIFE);
  tolua_constant(tolua_S,NULL,"SV_POTION_LAST",SV_POTION_LAST);
- tolua_constant(tolua_S,NULL,"SV_POTION2_MIMIC_ABOMINATION",SV_POTION2_MIMIC_ABOMINATION);
- tolua_constant(tolua_S,NULL,"SV_POTION2_MIMIC_WOLF",SV_POTION2_MIMIC_WOLF);
- tolua_constant(tolua_S,NULL,"SV_POTION2_MIMIC_APE",SV_POTION2_MIMIC_APE);
- tolua_constant(tolua_S,NULL,"SV_POTION2_MIMIC_GOAT",SV_POTION2_MIMIC_GOAT);
- tolua_constant(tolua_S,NULL,"SV_POTION2_MIMIC_INSECT",SV_POTION2_MIMIC_INSECT);
- tolua_constant(tolua_S,NULL,"SV_POTION2_MIMIC_SPARROW",SV_POTION2_MIMIC_SPARROW);
- tolua_constant(tolua_S,NULL,"SV_POTION2_MIMIC_STATUE",SV_POTION2_MIMIC_STATUE);
- tolua_constant(tolua_S,NULL,"SV_POTION2_MIMIC_VAMPIRE",SV_POTION2_MIMIC_VAMPIRE);
- tolua_constant(tolua_S,NULL,"SV_POTION2_MIMIC_SPIDER",SV_POTION2_MIMIC_SPIDER);
- tolua_constant(tolua_S,NULL,"SV_POTION2_MIMIC_MANA_BALL",SV_POTION2_MIMIC_MANA_BALL);
- tolua_constant(tolua_S,NULL,"SV_POTION2_MIMIC_FIRE_CLOUD",SV_POTION2_MIMIC_FIRE_CLOUD);
- tolua_constant(tolua_S,NULL,"SV_POTION2_MIMIC_COLD_CLOUD",SV_POTION2_MIMIC_COLD_CLOUD);
- tolua_constant(tolua_S,NULL,"SV_POTION2_MIMIC_CHAOS_CLOUD",SV_POTION2_MIMIC_CHAOS_CLOUD);
+ tolua_constant(tolua_S,NULL,"SV_POTION2_MIMIC",SV_POTION2_MIMIC);
  tolua_constant(tolua_S,NULL,"SV_POTION2_CURE_LIGHT_SANITY",SV_POTION2_CURE_LIGHT_SANITY);
  tolua_constant(tolua_S,NULL,"SV_POTION2_CURE_SERIOUS_SANITY",SV_POTION2_CURE_SERIOUS_SANITY);
  tolua_constant(tolua_S,NULL,"SV_POTION2_CURE_CRITICAL_SANITY",SV_POTION2_CURE_CRITICAL_SANITY);
@@ -5012,7 +4977,6 @@ int tolua_object_open (lua_State* tolua_S)
  tolua_tablevar(tolua_S,"object_kind","aware",toluaI_get_object_object_kind_aware,toluaI_set_object_object_kind_aware);
  tolua_tablevar(tolua_S,"object_kind","tried",toluaI_get_object_object_kind_tried,toluaI_set_object_object_kind_tried);
  tolua_tablevar(tolua_S,"object_kind","know",toluaI_get_object_object_kind_know,toluaI_set_object_object_kind_know);
- tolua_tablevar(tolua_S,"object_kind","squeltch",toluaI_get_object_object_kind_squeltch,toluaI_set_object_object_kind_squeltch);
  tolua_tablevar(tolua_S,"object_kind","esp",toluaI_get_object_object_kind_esp,toluaI_set_object_object_kind_esp);
  tolua_tablevar(tolua_S,"object_kind","btval",toluaI_get_object_object_kind_btval,toluaI_set_object_object_kind_btval);
  tolua_tablevar(tolua_S,"object_kind","bsval",toluaI_get_object_object_kind_bsval,toluaI_set_object_object_kind_bsval);
@@ -5122,7 +5086,6 @@ int tolua_object_open (lua_State* tolua_S)
  tolua_constant(tolua_S,NULL,"SENSE_BROKEN",SENSE_BROKEN);
  tolua_constant(tolua_S,NULL,"SENSE_UNCURSED",SENSE_UNCURSED);
  tolua_globalarray(tolua_S,"o_list",toluaI_get_object_o_list,toluaI_set_object_o_list);
- tolua_globalarray(tolua_S,"inventory",toluaI_get_object_inventory,toluaI_set_object_inventory);
  tolua_globalarray(tolua_S,"k_info",toluaI_get_object_k_info,toluaI_set_object_k_info);
  tolua_globalvar(tolua_S,"k_name",toluaI_get_object_k_name,toluaI_set_object_k_name);
  tolua_globalvar(tolua_S,"k_text",toluaI_get_object_k_text,toluaI_set_object_k_text);
@@ -5181,6 +5144,7 @@ int tolua_object_open (lua_State* tolua_S)
  tolua_function(tolua_S,NULL,"value_check_aux2",toluaI_object_value_check_aux200);
  tolua_function(tolua_S,NULL,"value_check_aux2_magic",toluaI_object_value_check_aux2_magic00);
  tolua_function(tolua_S,NULL,"select_sense",toluaI_object_select_sense00);
+ tolua_function(tolua_S,NULL,"remove_curse_object",toluaI_object_remove_curse_object00);
  return 1;
 }
 /* Close function */
@@ -5338,6 +5302,9 @@ void tolua_object_close (lua_State* tolua_S)
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR5_SPELL_CONTAIN");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR5_RES_MORGUL");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR5_ACTIVATE_NO_WIELD");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR5_MAGIC_BREATH");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR5_WATER_BREATH");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR5_WIELD_CAST");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"ESP_ORC");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"ESP_TROLL");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"ESP_DRAGON");
@@ -5378,6 +5345,7 @@ void tolua_object_close (lua_State* tolua_S)
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TV_SPIKE");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TV_MSTAFF");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TV_CHEST");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TV_PARCHMENT");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TV_PARCHEMENT");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TV_CORPSE");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TV_EGG");
@@ -5432,10 +5400,6 @@ void tolua_object_close (lua_State* tolua_S)
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_AMMO_LIGHT");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_AMMO_NORMAL");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_AMMO_HEAVY");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_FLUTE");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_BANJO");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_LUTE");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_MANDOLIN");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_DRUM");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_HARP");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_HORN");
@@ -5526,8 +5490,8 @@ void tolua_object_close (lua_State* tolua_S)
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_EXECUTIONERS_SWORD");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_ZWEIHANDER");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_BLADE_OF_CHAOS");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_SHADOW_BLADE");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_BLUESTEEL_BLADE");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_SHADOW_BLADE");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_DARK_SWORD");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_SMALL_LEATHER_SHIELD");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_SMALL_METAL_SHIELD");
@@ -5696,10 +5660,8 @@ void tolua_object_close (lua_State* tolua_S)
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_RING_SPELL");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_STAFF_SCHOOL");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_STAFF_NOTHING");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_STAFF_NASTY_STAFF");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_WAND_SCHOOL");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_WAND_NOTHING");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_WAND_NASTY_WAND");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_ROD_NOTHING");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_ROD_DETECT_DOOR");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_ROD_IDENTIFY");
@@ -5792,7 +5754,6 @@ void tolua_object_close (lua_State* tolua_S)
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_SCROLL_RUMOR");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_SCROLL_ARTIFACT");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_SCROLL_NOTHING");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_SCROLL_SPELL");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_POTION_WATER");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_POTION_APPLE_JUICE");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_POTION_SLIME_MOLD");
@@ -5856,19 +5817,7 @@ void tolua_object_close (lua_State* tolua_S)
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_POTION_INVULNERABILITY");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_POTION_NEW_LIFE");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_POTION_LAST");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_POTION2_MIMIC_ABOMINATION");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_POTION2_MIMIC_WOLF");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_POTION2_MIMIC_APE");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_POTION2_MIMIC_GOAT");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_POTION2_MIMIC_INSECT");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_POTION2_MIMIC_SPARROW");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_POTION2_MIMIC_STATUE");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_POTION2_MIMIC_VAMPIRE");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_POTION2_MIMIC_SPIDER");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_POTION2_MIMIC_MANA_BALL");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_POTION2_MIMIC_FIRE_CLOUD");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_POTION2_MIMIC_COLD_CLOUD");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_POTION2_MIMIC_CHAOS_CLOUD");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_POTION2_MIMIC");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_POTION2_CURE_LIGHT_SANITY");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_POTION2_CURE_SERIOUS_SANITY");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_POTION2_CURE_CRITICAL_SANITY");
@@ -5962,7 +5911,6 @@ void tolua_object_close (lua_State* tolua_S)
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SENSE_BROKEN");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SENSE_UNCURSED");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"o_list");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"inventory");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"k_info");
  lua_getglobals(tolua_S);
  lua_pushstring(tolua_S,"k_name"); lua_pushnil(tolua_S); lua_rawset(tolua_S,-3);
@@ -6035,4 +5983,5 @@ void tolua_object_close (lua_State* tolua_S)
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"value_check_aux2");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"value_check_aux2_magic");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"select_sense");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"remove_curse_object");
 }

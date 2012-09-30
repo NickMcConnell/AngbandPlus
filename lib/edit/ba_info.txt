@@ -27,11 +27,11 @@ I:0:0:.
 
 N:1:Sell an item
 C:0:0:0
-I:43:0:s
+I:43:0:s:d
 
 N:2:Purchase an item
 C:0:0:0
-I:44:0:p
+I:44:0:p:g
 
 N:3:Examine an item
 C:0:0:0
@@ -251,11 +251,11 @@ I:28:0:h
 
 N:54:Drop an item
 C:0:0:0
-I:43:0:d
+I:43:0:d:s
 
 N:55:Get an item
 C:0:0:0
-I:44:0:g
+I:44:0:g:p
 
 N:56:Request an item
 C:0:0:0
@@ -277,3 +277,7 @@ I:43:0:d
 N:60:Get a quest
 C:0:0:0
 I:56:0:q
+
+N:61:Get a quest
+C:0:0:0
+I:61:0:q

@@ -411,17 +411,17 @@
  * Warning: Pern chooses to use a different place from Vanilla 2.9.2
  * and its friends.
  */
-#ifdef SET_UID
+#if defined(SET_UID) && !defined(MACH_O_CARBON)
 #define PRIVATE_USER_PATH "~/.tome"
-#endif /* SET_UID */
+#endif /* SET_UID && !MACH_O_CARBON */
 
 
 /*
  * On multiuser systems, add the "uid" to savefile names
  */
-#ifdef SET_UID
+#if defined(SET_UID) && !defined(MACH_O_CARBON)
 # define SAVEFILE_USE_UID
-#endif
+#endif /* SET_UID && !MACH_O_CARBON */
 
 
 /*

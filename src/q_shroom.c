@@ -15,8 +15,8 @@ bool quest_shroom_town_gen_hook(char *fmt)
 	{
 		/* Create the field */
 		for (x = (cur_wid / 2) - 7; x <= (cur_wid / 2) + 7; x++)
-		for (y = (cur_hgt / 2) - 5; y <= (cur_hgt / 2) + 5; y++)
-			cave_set_feat(y, x, 181);
+			for (y = (cur_hgt / 2) - 5; y <= (cur_hgt / 2) + 5; y++)
+				cave_set_feat(y, x, 181);
 
 		/* Throw in some 'shrooms */
 		for (x = 0; x < (cquest.data[1] - cquest.data[0]); x++)
@@ -56,7 +56,7 @@ bool quest_shroom_town_gen_hook(char *fmt)
 	if ((bst(HOUR, turn) < 6) || (bst(HOUR, turn) >= 18) || (cquest.status > QUEST_STATUS_COMPLETED) || (small) || (p_ptr->town_num != 1)) return (FALSE);
 
 	/* Find a good position */
-	while(try)
+	while (try)
 	{
 		/* Get a random spot */
 		y = randint(20) + (cur_hgt / 2) - 10;
@@ -64,8 +64,8 @@ bool quest_shroom_town_gen_hook(char *fmt)
 
 		/* Is it a good spot ? */
 		/* Not in player los, and avoid shop grids */
-		if (!los(py, px, y, x) && cave_empty_bold(y, x) &&
-		    cave_plain_floor_bold(y, x)) break;
+		if (!los(p_ptr->py, p_ptr->px, y, x) && cave_empty_bold(y, x) &&
+		                cave_plain_floor_bold(y, x)) break;
 
 		/* One less try */
 		try--;
@@ -88,8 +88,8 @@ bool quest_shroom_death_hook(char *fmt)
 	if (cquest.status > QUEST_STATUS_COMPLETED) return FALSE;
 
 	if ((r_idx == test_monster_name("Wolf, Farmer Maggot's dog")) ||
-	    (r_idx == test_monster_name("Grip, Farmer Maggot's dog")) ||
-	    (r_idx == test_monster_name("Fang, Farmer Maggot's dog")))
+	                (r_idx == test_monster_name("Grip, Farmer Maggot's dog")) ||
+	                (r_idx == test_monster_name("Fang, Farmer Maggot's dog")))
 	{
 		msg_print("The dog yells a last time and drops dead on the grass.");
 	}
@@ -105,15 +105,15 @@ bool quest_shroom_give_hook(char *fmt)
 	m_idx = get_next_arg(fmt);
 	item = get_next_arg(fmt);
 
-	o_ptr = &inventory[item];
+	o_ptr = &p_ptr->inventory[item];
 	m_ptr = &m_list[m_idx];
 
 	if (m_ptr->r_idx != test_monster_name("Farmer Maggot")) return (FALSE);
 
 	/* If one is dead .. its bad */
 	if ((r_info[test_monster_name("Grip, Farmer Maggot's dog")].max_num == 0) ||
-	    (r_info[test_monster_name("Wolf, Farmer Maggot's dog")].max_num == 0) ||
-	    (r_info[test_monster_name("Fang, Farmer Maggot's dog")].max_num == 0))
+	                (r_info[test_monster_name("Wolf, Farmer Maggot's dog")].max_num == 0) ||
+	                (r_info[test_monster_name("Fang, Farmer Maggot's dog")].max_num == 0))
 	{
 		cquest.status = QUEST_STATUS_FAILED_DONE;
 		msg_print("My puppy!  My poor, defenseless puppy...");
@@ -152,9 +152,9 @@ bool quest_shroom_give_hook(char *fmt)
 		q_ptr->discount = 100;
 		q_ptr->ident |= IDENT_STOREB;
 		if (inven_carry_okay(q_ptr))
-			inven_carry(q_ptr,FALSE);
+			inven_carry(q_ptr, FALSE);
 		else
-			drop_near(q_ptr, 0, py, px);
+			drop_near(q_ptr, 0, p_ptr->py, p_ptr->px);
 
 		/* The sling of farmer maggot */
 		q_ptr = &forge;
@@ -200,8 +200,8 @@ bool quest_shroom_speak_hook(char *fmt)
 	{
 		/* If one is dead .. its bad */
 		if ((r_info[test_monster_name("Grip, Farmer Maggot's dog")].max_num == 0) ||
-		    (r_info[test_monster_name("Wolf, Farmer Maggot's dog")].max_num == 0) ||
-		    (r_info[test_monster_name("Fang, Farmer Maggot's dog")].max_num == 0))
+		                (r_info[test_monster_name("Wolf, Farmer Maggot's dog")].max_num == 0) ||
+		                (r_info[test_monster_name("Fang, Farmer Maggot's dog")].max_num == 0))
 		{
 			cquest.status = QUEST_STATUS_FAILED_DONE;
 			msg_print("My puppy!  My poor, defenseless puppy...");
@@ -244,8 +244,8 @@ bool quest_shroom_chat_hook(char *fmt)
 	{
 		/* If one is dead .. its bad */
 		if ((r_info[test_monster_name("Grip, Farmer Maggot's dog")].max_num == 0) ||
-		    (r_info[test_monster_name("Wolf, Farmer Maggot's dog")].max_num == 0) ||
-		    (r_info[test_monster_name("Fang, Farmer Maggot's dog")].max_num == 0))
+		                (r_info[test_monster_name("Wolf, Farmer Maggot's dog")].max_num == 0) ||
+		                (r_info[test_monster_name("Fang, Farmer Maggot's dog")].max_num == 0))
 		{
 			cquest.status = QUEST_STATUS_FAILED_DONE;
 			msg_print("My puppy ! my poor, defenseless puppy...");
@@ -254,7 +254,7 @@ bool quest_shroom_chat_hook(char *fmt)
 
 			del_hook(HOOK_GIVE, quest_shroom_give_hook);
 			del_hook(HOOK_CHAT, quest_shroom_speak_hook);
-                        del_hook(HOOK_WILD_GEN, quest_shroom_town_gen_hook);
+			del_hook(HOOK_WILD_GEN, quest_shroom_town_gen_hook);
 			process_hooks_restart = TRUE;
 			return TRUE;
 		}

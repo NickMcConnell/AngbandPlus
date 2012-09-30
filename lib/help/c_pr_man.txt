@@ -38,6 +38,9 @@ Spirituality            1.000           [1.000]
   Mindcraft             0.000           [0.600]
 Monster-lore            0.000           [0.500]
 
+#####GInnate Abilities:
+#####BAbility              Character level
+Perfect-casting             1
 
 #####GStarting Equipment
 A priest serving Manwe begins the game with:

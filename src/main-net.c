@@ -67,7 +67,7 @@ typedef struct term_data term_data;
 
 struct term_data
 {
-	term t;                 /* All term info */
+	term t;                  /* All term info */
 };
 
 /* Max number of windows on screen */
@@ -95,13 +95,11 @@ static errr Term_xtra_net_alive(int v)
 
 	/* Suspend */
 	if (!v)
-	{
-	}
+	{}
 
 	/* Resume */
 	else
-	{
-	}
+	{}
 
 	/* Success */
 	return (0);
@@ -146,24 +144,24 @@ static errr Term_xtra_net_event(int v)
 	if (v)
 	{
 		/* Wait for one byte */
-		i = zsock.read(net_connection, buf, 1);
+		i = zsock.read_simple(net_connection, buf, 1);
 #if 1
 		/* Hack -- Handle bizarre "errors" */
-//                if (!i) exit_game_panic();
-                if (!i) return 1;
+		//                if (!i) exit_game_panic();
+		if (!i) return 1;
 #else
-                /* Try again(must be a new connection) */
-                while (!i)
-                        i = zsock.read(net_connection, buf, 1);
+		/* Try again(must be a new connection) */
+		while (!i)
+			i = zsock.read_simple(net_connection, buf, 1);
 #endif
 	}
 
 	/* Do not wait */
 	else
 	{
-                /* Read one byte, if possible */
-                if (zsock.can_read(net_connection))
-                        zsock.read(net_connection, buf, 1);
+		/* Read one byte, if possible */
+		if (zsock.can_read(net_connection))
+			zsock.read_simple(net_connection, buf, 1);
 	}
 
 	/* Ignore "invalid" keys */
@@ -194,7 +192,7 @@ static errr Term_xtra_net_react(void)
 	{
 		/* Set one color (note scaling) */
 		init_color(i,
-                           angband_color_table[i][1] * 1000 / 255,
+		           angband_color_table[i][1] * 1000 / 255,
 		           angband_color_table[i][2] * 1000 / 255,
 		           angband_color_table[i][3] * 1000 / 255);
 	}
@@ -212,58 +210,58 @@ static errr Term_xtra_net_react(void)
 static errr Term_xtra_net(int n, int v)
 {
 	term_data *td = (term_data *)(Term->data);
-        char buf[2];
+	char buf[2];
 
 	/* Analyze the request */
 	switch (n)
 	{
 		/* Clear screen */
-		case TERM_XTRA_CLEAR:
-                        buf[0] = PACKET_CLEAR;
-                        buf[1] = '\0';
-                        zsock.write(net_connection, buf);
-                        return (0);
+	case TERM_XTRA_CLEAR:
+		buf[0] = PACKET_CLEAR;
+		buf[1] = '\0';
+		zsock.write_simple(net_connection, buf);
+		return (0);
 
 		/* Make a noise */
-		case TERM_XTRA_NOISE:
+	case TERM_XTRA_NOISE:
 		return (0);
 
 		/* Flush the Curses buffer */
-		case TERM_XTRA_FRESH:
+	case TERM_XTRA_FRESH:
 		return (0);
 
 		/* Suspend/Resume curses */
-		case TERM_XTRA_ALIVE:
+	case TERM_XTRA_ALIVE:
 		return (Term_xtra_net_alive(v));
 
 		/* Process events */
-		case TERM_XTRA_EVENT:
+	case TERM_XTRA_EVENT:
 		return (Term_xtra_net_event(v));
 
 		/* Flush events */
-		case TERM_XTRA_FLUSH:
+	case TERM_XTRA_FLUSH:
 		while (!Term_xtra_net_event(FALSE));
 		return (0);
 
 		/* Delay */
-		case TERM_XTRA_DELAY:
+	case TERM_XTRA_DELAY:
 		usleep(1000 * v);
 		return (0);
 
-                /* Get Delay of some milliseconds */
-		case TERM_XTRA_GET_DELAY:
+		/* Get Delay of some milliseconds */
+	case TERM_XTRA_GET_DELAY:
 		{
 			int ret;
 			struct timeval tv;
 
 			ret = gettimeofday(&tv, NULL);
-                        Term_xtra_long = (tv.tv_sec * 1000) + (tv.tv_usec / 1000);
+			Term_xtra_long = (tv.tv_sec * 1000) + (tv.tv_usec / 1000);
 
 			return ret;
 		}
 
 		/* React to events */
-		case TERM_XTRA_REACT:
+	case TERM_XTRA_REACT:
 		Term_xtra_net_react();
 		return (0);
 	}
@@ -281,7 +279,7 @@ static errr Term_curs_net(int x, int y)
 	term_data *td = (term_data *)(Term->data);
 
 	/* Literally move the cursor */
-        // DGDGDGD
+	// DGDGDGD
 
 	/* Success */
 	return (0);
@@ -294,13 +292,13 @@ static errr Term_curs_net(int x, int y)
  */
 static errr Term_wipe_net(int x, int y, int n)
 {
-        char buf[2];
+	char buf[2];
 
 	term_data *td = (term_data *)(Term->data);
 
-        buf[0] = PACKET_CLEAR;
-        buf[1] = '\0';
-        zsock.write(net_connection, buf);
+	buf[0] = PACKET_CLEAR;
+	buf[1] = '\0';
+	zsock.write_simple(net_connection, buf);
 
 	/* Success */
 	return (0);
@@ -312,20 +310,20 @@ static errr Term_wipe_net(int x, int y, int n)
 static errr Term_text_net(int x, int y, int n, byte a, cptr s)
 {
 	term_data *td = (term_data *)(Term->data);
-        char buf[5];
+	char buf[5];
 
-        buf[0] = PACKET_TEXT;
-        buf[1] = y + 1;
-        buf[2] = x + 1;
-        buf[3] = a + 1;
-        buf[4] = '\0';
+	buf[0] = PACKET_TEXT;
+	buf[1] = y + 1;
+	buf[2] = x + 1;
+	buf[3] = a + 1;
+	buf[4] = '\0';
 
-        zsock.write(net_connection, buf);
-        zsock.write(net_connection, s);
+	zsock.write_simple(net_connection, buf);
+	zsock.write_simple(net_connection, s);
 
-        buf[0] = PACKET_STOP;
-        buf[1] = '\0';
-        zsock.write(net_connection, buf);
+	buf[0] = PACKET_STOP;
+	buf[1] = '\0';
+	zsock.write_simple(net_connection, buf);
 
 	/* Success */
 	return (0);
@@ -377,10 +375,10 @@ static void hook_quit(cptr str)
 
 static void net_lost_connection_hook(ip_connection *conn)
 {
-        printf("Lost conneciton ! ARGGGG\nAccepting a new one...\n");
-        zsock.accept(net_serv_connection, net_connection);
-        zsock.set_lose_connection(net_connection, net_lost_connection_hook);
-        printf("...accepted\n");
+	printf("Lost connection ! ARGGGG\nAccepting a new one...\n");
+	zsock.accept(net_serv_connection, net_connection);
+	zsock.set_lose_connection(net_connection, net_lost_connection_hook);
+	printf("...accepted\n");
 }
 
 /*
@@ -395,16 +393,16 @@ errr init_net(int argc, char **argv)
 {
 	int i;
 
-        int num_term = MAX_TERM_DATA, next_win = 0;
-        int port = 6666;
+	int num_term = MAX_TERM_DATA, next_win = 0;
+	int port = 6666;
 
-        /* Parse args */
+	/* Parse args */
 	for (i = 1; i < argc; i++)
 	{
 		if (prefix(argv[i], "-P"))
-                {
-                        port = atoi(argv[i + 1]);
-                        i++;
+		{
+			port = atoi(argv[i + 1]);
+			i++;
 			continue;
 		}
 
@@ -415,11 +413,11 @@ errr init_net(int argc, char **argv)
 	quit_aux = hook_quit;
 	core_aux = hook_quit;
 
-        /* Create a term */
-        term_data_init_net(&data[0], 25, 80);
+	/* Create a term */
+	term_data_init_net(&data[0], 25, 80);
 
-        /* Remember the term */
-        angband_term[0] = &data[0].t;
+	/* Remember the term */
+	angband_term[0] = &data[0].t;
 
 	/* Activate the "Angband" window screen */
 	Term_activate(&data[0].t);
@@ -427,14 +425,14 @@ errr init_net(int argc, char **argv)
 	/* Remember the active screen */
 	term_screen = &data[0].t;
 
-        /* Initialize the server and wait for thhe client */
-        zsock.setup(net_serv_connection, "127.0.0.1", port, ZSOCK_TYPE_TCP, TRUE);
-        zsock.open(net_serv_connection);
+	/* Initialize the server and wait for thhe client */
+	zsock.setup(net_serv_connection, "127.0.0.1", port, ZSOCK_TYPE_TCP, TRUE);
+	zsock.open(net_serv_connection);
 
-        printf("Accepting...\n");
-        zsock.accept(net_serv_connection, net_connection);
-        zsock.set_lose_connection(net_connection, net_lost_connection_hook);
-        printf("...accepted\n");
+	printf("Accepting...\n");
+	zsock.accept(net_serv_connection, net_connection);
+	zsock.set_lose_connection(net_connection, net_lost_connection_hook);
+	printf("...accepted\n");
 
 	/* Success */
 	return (0);

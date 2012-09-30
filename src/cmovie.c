@@ -41,7 +41,7 @@ s16b do_play_cmovie(cptr cmov_file)
 	/* safe_setuid_drop(); */
 
 	/* Failure */
-	if (!fff) return (-1);
+	if (!fff) return ( -1);
 
 	/* Save screen */
 	character_icky = TRUE;
@@ -52,9 +52,9 @@ s16b do_play_cmovie(cptr cmov_file)
 	prt("While viewing the movie you can press Escape to exit, t/Space to switch between", 0, 0);
 	prt("fluid more and step by step mode and any other key to step a frame in step by", 1, 0);
 	prt("step mode.", 2, 0);
-        prt("You can press D to do an html screenshot of the current frame.", 3, 0);
-        prt("You can also use + and - to speed up/down the playing speed.", 5, 0);
-        prt("Press any key when ready.", 8, 0);
+	prt("You can press D to do an html screenshot of the current frame.", 3, 0);
+	prt("You can also use + and - to speed up/down the playing speed.", 5, 0);
+	prt("Press any key when ready.", 8, 0);
 
 	inkey();
 
@@ -101,10 +101,10 @@ s16b do_play_cmovie(cptr cmov_file)
 			delay++;
 			if (delay > 5) delay = 5;
 		}
-                else if (ch == 'D')
-                {
-                        do_cmd_html_dump();
-                }
+		else if (ch == 'D')
+		{
+			do_cmd_html_dump();
+		}
 
 		line++;
 
@@ -118,6 +118,24 @@ s16b do_play_cmovie(cptr cmov_file)
 		if (buf[0] == 'C')
 		{
 			Term_clear();
+
+			/* Next */
+			continue;
+		}
+
+		/* Displays a textbox */
+		if (buf[0] == 'B')
+		{
+			int len = strlen(buf + 2);
+
+			/* Clear the line */
+			Term_erase(0, 0, 255);
+
+			/* Display the message */
+			c_put_str(TERM_VIOLET, "###", 0, 0);
+			c_put_str(TERM_ORANGE, buf + 2, 0, 3);
+			c_put_str(TERM_VIOLET, "###", 0, 3 + len);
+			c_put_str(TERM_WHITE, "(more)", 0, 6 + len);
 
 			/* Next */
 			continue;
@@ -138,15 +156,15 @@ s16b do_play_cmovie(cptr cmov_file)
 			long msec;
 
 			/* Scan for the values */
-                        if (1 != sscanf(buf+2, "%ld:", &msec))
-                        {
-                                return (-2);
-                        }
+			if (1 != sscanf(buf + 2, "%ld:", &msec))
+			{
+				return ( -2);
+			}
 
-                        if (!mode)
-                        {
-                                Term_xtra(TERM_XTRA_DELAY, msec);
-                        }
+			if (!mode)
+			{
+				Term_xtra(TERM_XTRA_DELAY, msec);
+			}
 			else
 			{
 				bool stop = FALSE;
@@ -169,26 +187,26 @@ s16b do_play_cmovie(cptr cmov_file)
 					}
 					/* Change mode */
 					else if (ch == ' ')
-                                        {
-                                                if (mode) continue;
+					{
+						if (mode) continue;
 						mode = TRUE;
 						break;
 					}
 					/* Change speed */
-                                        else if (ch == '+')
-                                        {
-                                                delay--;
-                                                if (delay < 0) delay = 0;
-                                        }
-                                        else if (ch == '-')
-                                        {
-                                                delay++;
-                                                if (delay > 5) delay = 5;
-                                        }
-                                        else if (ch == 'D')
-                                        {
-                                                do_cmd_html_dump();
-                                        }
+					else if (ch == '+')
+					{
+						delay--;
+						if (delay < 0) delay = 0;
+					}
+					else if (ch == '-')
+					{
+						delay++;
+						if (delay > 5) delay = 5;
+					}
+					else if (ch == 'D')
+					{
+						do_cmd_html_dump();
+					}
 					else break;
 				}
 				if (stop) break;
@@ -202,19 +220,19 @@ s16b do_play_cmovie(cptr cmov_file)
 		if (buf[0] == 'E')
 		{
 			/* Find the colon before the name */
-			s = strchr(buf+2, ':');
+			s = strchr(buf + 2, ':');
 
 			/* Verify that colon */
-			if (!s) return (-2);
+			if (!s) return ( -2);
 
 			/* Nuke the colon, advance to the name */
 			*s++ = '\0';
 
 			/* Paranoia -- require a name */
-			if (!*s) return (-2);
+			if (!*s) return ( -2);
 
 			/* Get the index */
-			y = atoi(buf+2);
+			y = atoi(buf + 2);
 
 			C_COPY(cbuf, s, 80, char);
 
@@ -226,19 +244,19 @@ s16b do_play_cmovie(cptr cmov_file)
 		if (buf[0] == 'L')
 		{
 			/* Find the colon before the name */
-			s = strchr(buf+2, ':');
+			s = strchr(buf + 2, ':');
 
 			/* Verify that colon */
-			if (!s) return (-2);
+			if (!s) return ( -2);
 
 			/* Nuke the colon, advance to the name */
 			*s++ = '\0';
 
 			/* Paranoia -- require a name */
-			if (!*s) return (-2);
+			if (!*s) return ( -2);
 
 			/* Get the index */
-			y = atoi(buf+2);
+			y = atoi(buf + 2);
 
 			for (x = 0; x < 80; x++)
 			{
@@ -259,12 +277,12 @@ s16b do_play_cmovie(cptr cmov_file)
 			int x, y, a, c;
 
 			/* Scan for the values */
-			if (4 != sscanf(buf+2, "%d:%d:%d:%d",
-				&x, &y, &c, &a))
+			if (4 != sscanf(buf + 2, "%d:%d:%d:%d",
+			                &x, &y, &c, &a))
 			{
 				a = 'w';
-				if (3 != sscanf(buf+2, "%d:%d:%d",
-					&x, &y, &c)) return (-2);
+				if (3 != sscanf(buf + 2, "%d:%d:%d",
+				                &x, &y, &c)) return ( -2);
 			}
 
 			Term_putch(x, y, color_char_to_attr(cbuf[x]), c);
@@ -327,7 +345,7 @@ void do_record_cmovie(cptr cmovie)
 	}
 
 	/* Be sure */
-	if (!get_check("Ready to record?")) return;
+	if (!get_check("Ready to record(Press ctrl+D to enter a textual note while recording)?")) return;
 
 	/* Grab privs */
 	/* safe_setuid_grab(); */
@@ -347,12 +365,12 @@ void do_record_cmovie(cptr cmovie)
 	}
 
 	/* First thing: Record clear screen then enable the recording */
-	fprintf(movfile, "# Generated by ToME %d.%d.%d\n",
-		VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
+	fprintf(movfile, "# Generated by %s %ld.%ld.%ld\n",
+	        game_module, VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
 	fprintf(movfile, "C:\n");
 	last_paused = 0;
-        do_movies = 1;
-        cmovie_init_second();
+	do_movies = 1;
+	cmovie_init_second();
 
 	/* Mega Hack, get the screen */
 	for (y = 0; y < Term->hgt; y++)
@@ -427,10 +445,10 @@ void cmovie_clean_line(int y, char *abuf, char *cbuf)
 	{
 		/* Convert dungeon map into default attr/chars */
 		if (!character_icky &&
-		    ((x - COL_MAP) >= 0) &&
-		    ((x - COL_MAP) < screen_wid) &&
-		    ((y - ROW_MAP) >= 0) &&
-		    ((y - ROW_MAP) < screen_hgt))
+		                ((x - COL_MAP) >= 0) &&
+		                ((x - COL_MAP) < screen_wid) &&
+		                ((y - ROW_MAP) >= 0) &&
+		                ((y - ROW_MAP) < screen_hgt))
 		{
 			/* Retrieve default attr/char */
 			map_info_default(y + panel_row_prt, x + panel_col_prt, &a, &c);
@@ -472,3 +490,25 @@ void cmovie_record_line(int y)
 }
 
 
+/*
+ * Record a "text box"
+ */
+void do_cmovie_insert()
+{
+	char buf[81] = "";
+
+	/* Dont record */
+	do_movies = 2;
+
+	while (get_string("Textbox(ESC to end): ", buf, 80))
+	{
+		fprintf(movfile, "B:%s\nW:\n", buf);
+		buf[0] = '\0';
+	}
+
+	/* We reinit the time as to not count the time the user needed ot enter the text */
+	cmovie_init_second();
+
+	/* Continue recording */
+	do_movies = 1;
+}

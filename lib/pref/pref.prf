@@ -299,6 +299,9 @@ L:j:jam:Jam a door
 ?:[EQU $SYS sdl]
 %:pref-sdl.prf
 
+?:[EQU $SYS pgu]
+%:pref-pgu.prf
+
 ?:1
 
 

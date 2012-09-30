@@ -71,7 +71,7 @@ bool quest_thrain_death_hook(char *fmt)
 			object_wipe(q_ptr);
 			object_prep(q_ptr, lookup_kind(TV_HELM, SV_DRAGON_HELM));
 			q_ptr->number = 1;
-                        q_ptr->found = OBJ_FOUND_REWARD;
+			q_ptr->found = OBJ_FOUND_REWARD;
 			create_artifact(q_ptr, FALSE, TRUE);
 			q_ptr->art_name = quark_add("of Thrain");
 
@@ -115,13 +115,13 @@ bool quest_thrain_gen_hook(char *fmt)
 	process_dungeon_file_full = FALSE;
 
 	/* Try to allocate space for room.  If fails, exit */
-	if (!room_alloc(xsize+2,ysize+2,FALSE,by0,bx0,&xval,&yval)) return FALSE;
+	if (!room_alloc(xsize + 2, ysize + 2, FALSE, by0, bx0, &xval, &yval)) return FALSE;
 
 	/* Get corner values */
-	y1 = yval - ysize/2;
-	x1 = xval - xsize/2;
-	y2 = yval + (ysize)/2;
-	x2 = xval + (xsize)/2;
+	y1 = yval - ysize / 2;
+	x1 = xval - xsize / 2;
+	y2 = yval + (ysize) / 2;
+	x2 = xval + (xsize) / 2;
 
 	/* Place a full floor under the room */
 	for (y = y1 - 1; y <= y2 + 1; y++)
@@ -151,26 +151,26 @@ bool quest_thrain_gen_hook(char *fmt)
 	process_dungeon_file_full = FALSE;
 
 	for (x = x1; x < xstart; x++)
-	for (y = y1; y < ystart; y++)
-	{
-		cave[y][x].info |= CAVE_ICKY | CAVE_ROOM | CAVE_FREE;
-		if (cave[y][x].feat == FEAT_MARKER)
+		for (y = y1; y < ystart; y++)
 		{
-			int i;
-
-			m_allow_special[test_monster_name("Thrain, the King Under the Mountain")] = TRUE;
-			i = place_monster_one(y, x, test_monster_name("Thrain, the King Under the Mountain"), 0, FALSE, MSTATUS_NEUTRAL);
-			m_allow_special[test_monster_name("Thrain, the King Under the Mountain")] = FALSE;
-		}
-		if (cave[y][x].m_idx)
-		{
-			m_ptr = &m_list[cave[y][x].m_idx];
-			if ((m_ptr->r_idx == test_monster_name("Dwar, Dog Lord of Waw")) || (m_ptr->r_idx == test_monster_name("Hoarmurath of Dir")))
+			cave[y][x].info |= CAVE_ICKY | CAVE_ROOM | CAVE_FREE;
+			if (cave[y][x].feat == FEAT_MARKER)
 			{
-				m_ptr->mflag |= MFLAG_QUEST;
+				int i;
+
+				m_allow_special[test_monster_name("Thrain, the King Under the Mountain")] = TRUE;
+				i = place_monster_one(y, x, test_monster_name("Thrain, the King Under the Mountain"), 0, FALSE, MSTATUS_NEUTRAL);
+				m_allow_special[test_monster_name("Thrain, the King Under the Mountain")] = FALSE;
+			}
+			if (cave[y][x].m_idx)
+			{
+				m_ptr = &m_list[cave[y][x].m_idx];
+				if ((m_ptr->r_idx == test_monster_name("Dwar, Dog Lord of Waw")) || (m_ptr->r_idx == test_monster_name("Hoarmurath of Dir")))
+				{
+					m_ptr->mflag |= MFLAG_QUEST;
+				}
 			}
 		}
-	}
 
 	/* Don't try another one for this generation */
 	cquest.data[1] = 1;

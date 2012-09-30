@@ -65,9 +65,6 @@ struct player_class
 	s16b blow_mul;
 	s16b extra_blows;
 
-	u32b Mrealm_choices[2];
-	u32b mrealm_choices[2];
-
 	s32b sense_base;
 	s32b sense_pl;
 	s32b sense_plus;
@@ -95,6 +92,8 @@ struct skill_type
 	u16b mod;                               /* Modifier(1 skill point = modifier skill) */
 	s16b rate;                              /* Modifier decreasing rate */
 
+        u32b uses;                             	/* Number of times used */
+
 	s16b action[9999];                      /* List of actions against other skills */
 
 	s16b father;                            /* Father in the skill tree */
@@ -103,7 +102,14 @@ struct skill_type
         bool hidden;                            /* Innactive */
 };
 
-skill_type s_info[max_s_idx];
+#define MAX_SKILLS              100
+
+$static cptr get_skill_name(int i) { return s_name + s_info[i].name; }
+static cptr get_skill_name(int i);
+
+extern u16b old_max_s_idx;
+extern u16b max_s_idx;
+skill_type s_info[MAX_SKILLS];
 
 #define SKILL_CONVEYANCE        1
 #define SKILL_MANA              2
@@ -142,7 +148,7 @@ skill_type s_info[max_s_idx];
 #define SKILL_SNEAK             35
 #define SKILL_STEALTH           36
 #define SKILL_DISARMING         37
-#define SKILL_TRAPPING          38
+/* XXX */
 #define SKILL_ALCHEMY           39
 #define SKILL_STEALING          40
 #define SKILL_SORCERY           41
@@ -162,6 +168,8 @@ skill_type s_info[max_s_idx];
 #define SKILL_UDUN              55
 #define SKILL_DEVICE            56
 #define SKILL_STUN              57
+#define SKILL_BOULDER           58
+#define SKILL_GEOMANCY          59
 
 #define SKILL_MAX               50000           /* Maximun skill value */
 #define SKILL_STEP              1000            /* 1 skill point */
@@ -181,3 +189,37 @@ char *get_race_name();
 
 $static char *get_subrace_name() {return rmp_ptr->title + rmp_name;}
 char *get_subrace_name();
+
+/*
+ * Abilities
+ */
+struct ability_type
+{
+	s16b action_mkey;                       /* Action do to */
+
+        s16b cost;                              /* Skill points cost */
+
+	bool acquired;                          /* Do the player actualylg ot it ? */
+};
+
+extern s16b find_ability(cptr name);
+extern void do_cmd_ability();
+extern bool has_ability(int ab);
+
+extern s16b max_ab_idx;
+extern ability_type ab_info[max_ab_idx];
+
+/*
+ * The abilities
+ */
+#define AB_SPREAD_BLOWS         0
+#define AB_TREE_WALK            1
+#define AB_PERFECT_CASTING      2
+#define AB_MAX_BLOW1            3
+#define AB_MAX_BLOW2            4
+#define AB_AMMO_CREATION        5
+#define AB_DEATH_TOUCH          6
+#define AB_CREATE_ART           7
+#define AB_FAR_REACHING         8
+#define AB_TRAPPING             9
+#define AB_UNDEAD_FORM          10

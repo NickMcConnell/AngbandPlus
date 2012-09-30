@@ -17,9 +17,11 @@ M:Z:516
 
 # Maximum number of monsters in r_info.txt
 # WARNING ! add one more to the real count for the player ghost !!
-M:R:1077
+M:R:1078
 
 # Maximum number of monsters in re_info.txt
+# WARNING ! Use the exact amount of ego types used, if not you
+# will get weird results !
 M:r:14
 
 # Maximum number of items in k_info.txt
@@ -29,13 +31,13 @@ M:K:819
 M:V:108
 
 # Maximum number of terrain features in f_info.txt
-M:F:212
+M:F:213
 
 # Maximum number of alchemist recipes
 M:a:1000
 
 # Maximum number of artifacts in a_info.txt
-M:A:210
+M:A:213
 
 # Maximum number of sets types in set_info.txt
 M:s:10
@@ -56,10 +58,10 @@ M:W:30
 M:N:70
 
 # Maximum number of building actions in ba_info.txt
-M:B:61
+M:B:62
 
 # Maximum number of store types in st_info.txt
-M:S:60
+M:S:61
 
 # Maximum size for "o_list[]"
 M:O:1024
@@ -71,7 +73,7 @@ M:M:768
 M:P:R:22
 
 # Maximum number of subrace types in p_info.txt
-M:P:S:9
+M:P:S:10
 
 # Maximum number of class types in p_info.txt
 M:P:C:32
@@ -80,7 +82,10 @@ M:P:C:32
 M:P:M:1
 
 # Maximum number of histories types in p_info.txt
-M:P:H:361
+M:P:H:266
 
 # Maximum number of skills in s_info.txt
-M:k:58
+M:k:60
+
+# Maximum number of traits in ab_info.txt
+M:b:50

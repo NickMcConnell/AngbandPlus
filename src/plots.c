@@ -12,11 +12,9 @@
 
 #include "angband.h"
 
-#ifdef USE_LUA
 #include "lua.h"
 #include "tolua.h"
 extern lua_State* L;
-#endif
 
 /* #define DEBUG_HOOK */
 
@@ -49,13 +47,13 @@ void init_hooks()
 
 void dump_hooks(int h_idx)
 {
-        int min = 0, max = MAX_HOOKS, i;
+	int min = 0, max = MAX_HOOKS, i;
 
-        if (h_idx != -1)
-        {
-                min = h_idx;
-                max = h_idx + 1;
-        }
+	if (h_idx != -1)
+	{
+		min = h_idx;
+		max = h_idx + 1;
+	}
 
 	for (i = min; i < max; i++)
 	{
@@ -64,7 +62,7 @@ void dump_hooks(int h_idx)
 		/* Find it */
 		while (c != NULL)
 		{
-                        msg_format("%s(%s)", c->name, (c->type == HOOK_TYPE_C)?"C":"Lua");
+			msg_format("%s(%s)", c->name, (c->type == HOOK_TYPE_C) ? "C" : "Lua");
 
 			c = c->next;
 		}
@@ -198,15 +196,15 @@ s32b get_next_arg(char *fmt)
 	{
 		switch (fmt[get_next_arg_pos++])
 		{
-			case 'd':
-			case 'l':
-				return (param_pile[get_next_arg_pile_pos++].num);
-			case ')':
-				get_next_arg_pos--;
-				return 0;
-			case '(':
-			case ',':
-				break;
+		case 'd':
+		case 'l':
+			return (param_pile[get_next_arg_pile_pos++].num);
+		case ')':
+			get_next_arg_pos--;
+			return 0;
+		case '(':
+		case ',':
+			break;
 		}
 	}
 }
@@ -216,28 +214,32 @@ char* get_next_arg_str(char *fmt)
 	{
 		switch (fmt[get_next_arg_pos++])
 		{
-			case 's':
-				return (char*)(param_pile[get_next_arg_pile_pos++].str);
-			case ')':
-				get_next_arg_pos--;
-				return 0;
-			case '(':
-			case ',':
-				break;
+		case 's':
+			return (char*)(param_pile[get_next_arg_pile_pos++].str);
+		case ')':
+			get_next_arg_pos--;
+			return 0;
+		case '(':
+		case ',':
+			break;
 		}
 	}
 }
 
 /* Actually process the hooks */
 int process_hooks_restart = FALSE;
-hook_return process_hooks_return[10];
-static bool vprocess_hooks_return(int h_idx, char *ret, char *fmt, va_list *ap)
+hook_return process_hooks_return[20];
+static bool vprocess_hooks_return (int h_idx, char *ret, char *fmt, va_list *ap)
 {
 	hooks_chain *c = hooks_heads[h_idx];
 	va_list real_ap;
 
 	while (c != NULL)
 	{
+#ifdef DEBUG_HOOK
+		if (wizard) cmsg_format(TERM_VIOLET, "HOOK: %s", c->name);
+		if (take_notes) add_note(format("HOOK PROCESS: %s", c->name), 'D');
+#endif
 		if (c->type == HOOK_TYPE_C)
 		{
 			int i = 0, nb = 0;
@@ -249,20 +251,20 @@ static bool vprocess_hooks_return(int h_idx, char *ret, char *fmt, va_list *ap)
 			{
 				switch (fmt[i])
 				{
-					case 'O':
-						param_pile[nb++].o_ptr = va_arg(real_ap, object_type *);
-						break;
-					case 's':
-						param_pile[nb++].str = va_arg(real_ap, char *);
-						break;
-					case 'd':
-					case 'l':
-						param_pile[nb++].num = va_arg(real_ap, s32b);
-						break;
-					case '(':
-					case ')':
-					case ',':
-						break;
+				case 'O':
+					param_pile[nb++].o_ptr = va_arg(real_ap, object_type *);
+					break;
+				case 's':
+					param_pile[nb++].str = va_arg(real_ap, char *);
+					break;
+				case 'd':
+				case 'l':
+					param_pile[nb++].num = va_arg(real_ap, s32b);
+					break;
+				case '(':
+				case ')':
+				case ',':
+					break;
 				}
 				i++;
 			}
@@ -285,7 +287,6 @@ static bool vprocess_hooks_return(int h_idx, char *ret, char *fmt, va_list *ap)
 				c = c->next;
 			}
 		}
-#ifdef USE_LUA
 		else if (c->type == HOOK_TYPE_LUA)
 		{
 			int i = 0, nb = 0, nbr = 1;
@@ -300,23 +301,27 @@ static bool vprocess_hooks_return(int h_idx, char *ret, char *fmt, va_list *ap)
 			{
 				switch (fmt[i++])
 				{
-					case 'd':
-					case 'l':
-						tolua_pushnumber(L, va_arg(real_ap, s32b));
-						nb++;
-						break;
-					case 's':
-						tolua_pushstring(L, va_arg(real_ap, char*));
-						nb++;
-						break;
-					case 'O':
-						tolua_pushusertype(L, (void*)va_arg(real_ap, object_type*), tolua_tag(L, "object_type"));
-						nb++;
-						break;
-					case '(':
-					case ')':
-					case ',':
-						break;
+				case 'd':
+				case 'l':
+					tolua_pushnumber(L, va_arg(real_ap, s32b));
+					nb++;
+					break;
+				case 's':
+					tolua_pushstring(L, va_arg(real_ap, char*));
+					nb++;
+					break;
+				case 'O':
+					tolua_pushusertype(L, (void*)va_arg(real_ap, object_type*), tolua_tag(L, "object_type"));
+					nb++;
+					break;
+				case 'M':
+					tolua_pushusertype(L, (void*)va_arg(real_ap, monster_type*), tolua_tag(L, "monster_type"));
+					nb++;
+					break;
+				case '(':
+				case ')':
+				case ',':
+					break;
 				}
 			}
 
@@ -324,43 +329,50 @@ static bool vprocess_hooks_return(int h_idx, char *ret, char *fmt, va_list *ap)
 			nbr += strlen(ret);
 
 			/* Call the function */
-                        if (lua_call(L, nb, nbr))
-                        {
-                                cmsg_format(TERM_VIOLET, "ERROR in lua_call while calling '%s' lua hook script. Breaking the hook chain now.", c->script);
-                                return FALSE;
-                        }
+			if (lua_call(L, nb, nbr))
+			{
+				cmsg_format(TERM_VIOLET, "ERROR in lua_call while calling '%s' lua hook script. Breaking the hook chain now.", c->script);
+				return FALSE;
+			}
 
-                        /* Number of returned values, SHOULD be the same as nbr, but I'm paranoid */
-                        size = lua_gettop(L) - oldtop;
+			/* Number of returned values, SHOULD be the same as nbr, but I'm paranoid */
+			size = lua_gettop(L) - oldtop;
 
 			/* get the extra returns if needed */
 			for (i = 0; i < nbr - 1; i++)
 			{
 				if ((ret[i] == 'd') || (ret[i] == 'l'))
 				{
-					if (lua_isnumber(L, (-size) + 1 + i)) process_hooks_return[i].num = tolua_getnumber(L, (-size) + 1 + i, 0);
-                                        else process_hooks_return[i].num = 0;
+					if (lua_isnumber(L, ( -size) + 1 + i)) process_hooks_return[i].num = tolua_getnumber(L, ( -size) + 1 + i, 0);
+					else process_hooks_return[i].num = 0;
 				}
 				else if (ret[i] == 's')
 				{
-					if (lua_isstring(L, (-size) + 1 + i)) process_hooks_return[i].str = tolua_getstring(L, (-size) + 1 + i, "");
+					if (lua_isstring(L, ( -size) + 1 + i)) process_hooks_return[i].str = tolua_getstring(L, ( -size) + 1 + i, "");
 					else process_hooks_return[i].str = NULL;
 				}
 				else if (ret[i] == 'O')
 				{
-                                        if (tolua_istype(L, (-size) + 1 + i, tolua_tag(L, "object_type"), 0))
-                                                process_hooks_return[i].o_ptr = (object_type*)tolua_getuserdata(L, (-size) + 1 + i, NULL);
-                                        else
-                                                process_hooks_return[i].o_ptr = NULL;
+					if (tolua_istype(L, ( -size) + 1 + i, tolua_tag(L, "object_type"), 0))
+						process_hooks_return[i].o_ptr = (object_type*)tolua_getuserdata(L, ( -size) + 1 + i, NULL);
+					else
+						process_hooks_return[i].o_ptr = NULL;
+				}
+				else if (ret[i] == 'M')
+				{
+					if (tolua_istype(L, ( -size) + 1 + i, tolua_tag(L, "monster_type"), 0))
+						process_hooks_return[i].m_ptr = (monster_type*)tolua_getuserdata(L, ( -size) + 1 + i, NULL);
+					else
+						process_hooks_return[i].m_ptr = NULL;
 				}
 				else process_hooks_return[i].num = 0;
-                        }
+			}
 
 			/* Get the basic return(continue or stop the hook chain) */
 			if (tolua_getnumber(L, -size, 0))
 			{
-                                lua_settop(L, oldtop);
-                                return (TRUE);
+				lua_settop(L, oldtop);
+				return (TRUE);
 			}
 			if (process_hooks_restart)
 			{
@@ -369,9 +381,8 @@ static bool vprocess_hooks_return(int h_idx, char *ret, char *fmt, va_list *ap)
 			}
 			else
 				c = c->next;
-                        lua_settop(L, oldtop);
+			lua_settop(L, oldtop);
 		}
-#endif
 		else
 		{
 			msg_format("Unkown hook type %d, name %s", c->type, c->name);
@@ -387,7 +398,7 @@ bool process_hooks_ret(int h_idx, char *ret, char *fmt, ...)
 	bool r;
 
 	va_start(ap, fmt);
-	r = vprocess_hooks_return(h_idx, ret, fmt, &ap);
+	r = vprocess_hooks_return (h_idx, ret, fmt, &ap);
 	va_end(ap);
 	return (r);
 }
@@ -398,7 +409,7 @@ bool process_hooks(int h_idx, char *fmt, ...)
 	bool ret;
 
 	va_start(ap, fmt);
-	ret = vprocess_hooks_return(h_idx, "", fmt, &ap);
+	ret = vprocess_hooks_return (h_idx, "", fmt, &ap);
 	va_end(ap);
 	return (ret);
 }
@@ -428,6 +439,8 @@ bool quest_null_hook(int q)
 /**************************** Main plot ***************************/
 #include "q_main.c"
 #include "q_one.c"
+#include "q_ultrag.c"
+#include "q_ultrae.c"
 
 /**************************** Bree plot ***************************/
 #include "q_thief.c"
@@ -438,17 +451,23 @@ bool quest_null_hook(int q)
 #include "q_shroom.c"
 
 /*************************** Lorien plot **************************/
+#include "q_wolves.c"
 #include "q_spider.c"
 #include "q_poison.c"
 
 /************************** Gondolin plot *************************/
+#include "q_dragons.c"
 #include "q_eol.c"
 #include "q_nirna.c"
 #include "q_invas.c"
 
-/************************* Minas Anor plot **************************/
+/************************* Minas Anor plot ************************/
+#include "q_haunted.c"
 #include "q_betwen.c"
 
-/*************************** Other plot **************************/
+/************************* Khazad-dum plot ************************/
+#include "q_evil.c"
+
+/*************************** Other plot ***************************/
 #include "q_narsil.c"
 #include "q_thrain.c"

@@ -43,16 +43,16 @@
  */
 #if !defined(USE_TPOSIX)
 # if !defined(USE_TERMIO) && !defined(USE_TCHARS)
-#  if defined(_POSIX_VERSION)
-#   define USE_TPOSIX
-#  else
-#   if defined(USG) || defined(linux) || defined(SOLARIS)
-#    define USE_TERMIO
-#   else
-#    define USE_TCHARS
-#   endif
-#  endif
-# endif
+# if defined(_POSIX_VERSION)
+# define USE_TPOSIX
+# else
+# if defined(USG) || defined(linux) || defined(SOLARIS)
+# define USE_TERMIO
+# else
+# define USE_TCHARS
+# endif 
+# endif 
+# endif 
 #endif
 
 
@@ -104,10 +104,10 @@
  * Termcap string information
  */
 
-static char blob[1024];		/* The "termcap" entry */
-static char area[1024];		/* The string extraction buffer */
-static char *next = area;	/* The current "index" into "area" */
-static char *desc;		/* The terminal name */
+static char blob[1024]; 		/* The "termcap" entry */
+static char area[1024]; 		/* The string extraction buffer */
+static char *next = area; 	/* The current "index" into "area" */
+static char *desc; 		/* The terminal name */
 
 #endif
 
@@ -116,34 +116,34 @@ static char *desc;		/* The terminal name */
  * Pointers into the "area"
  */
 
-static char *cm;	/* Move cursor */
-static char *ch;	/* Move cursor to horizontal location */
-static char *cv;	/* Move cursor to vertical location */
-static char *ho;	/* Move cursor to top left */
-static char *ll;	/* Move cursor to bottom left */
-static char *cs;	/* Set scroll area */
-static char *cl;	/* Clear screen */
-static char *cd;	/* Clear to end of display */
-static char *ce;	/* Clear to end of line */
-static char *cr;	/* Move to start of line */
-static char *so;	/* Turn on standout */
-static char *se;	/* Turn off standout */
-static char *md;	/* Turn on bold */
-static char *me;	/* Turn off bold */
-static char *vi;	/* Cursor - invisible */
-static char *ve;	/* Cursor - normal */
-static char *vs;	/* Cursor - bright */
+static char *cm; 	/* Move cursor */
+static char *ch; 	/* Move cursor to horizontal location */
+static char *cv; 	/* Move cursor to vertical location */
+static char *ho; 	/* Move cursor to top left */
+static char *ll; 	/* Move cursor to bottom left */
+static char *cs; 	/* Set scroll area */
+static char *cl; 	/* Clear screen */
+static char *cd; 	/* Clear to end of display */
+static char *ce; 	/* Clear to end of line */
+static char *cr; 	/* Move to start of line */
+static char *so; 	/* Turn on standout */
+static char *se; 	/* Turn off standout */
+static char *md; 	/* Turn on bold */
+static char *me; 	/* Turn off bold */
+static char *vi; 	/* Cursor - invisible */
+static char *ve; 	/* Cursor - normal */
+static char *vs; 	/* Cursor - bright */
 
 
 /*
  * State variables
  */
 
-static int rows;	/* Screen size (Y) */
-static int cols;	/* Screen size (X) */
-static int curx;	/* Cursor location (X) */
-static int cury;	/* Cursor location (Y) */
-static int curv;	/* Cursor visibility */
+static int rows; 	/* Screen size (Y) */
+static int cols; 	/* Screen size (X) */
+static int curx; 	/* Cursor location (X) */
+static int cury; 	/* Cursor location (Y) */
+static int curv; 	/* Cursor visibility */
 
 
 /*
@@ -300,7 +300,7 @@ static void do_cm(int x, int y)
 
 #ifdef USE_HARDCODE
 	char temp[64];
-	sprintf(temp, cm, y+1, x+1);
+	sprintf(temp, cm, y + 1, x + 1);
 	tp(temp);
 #endif
 
@@ -321,21 +321,27 @@ static void do_move(int x1, int y1, int x2, int y2)
 	else if (x2 == 0)
 	{
 		if ((y2 <= 0) && ho) tp(ho);
-		else if ((y2 >= rows-1) && ll) tp(ll);
+		else if ((y2 >= rows - 1) && ll) tp(ll);
 		else if ((y2 == y1) && cr) tp(cr);
 #if 0
-		else if ((y2 == y1+1) && cr && dn)
-		{ tp(cr); tp(dn); }
-		else if ((y2 == y1-1) && cr && up)
-		{ tp(cr); tp(up); }
+		else if ((y2 == y1 + 1) && cr && dn)
+		{
+			tp(cr);
+			tp(dn);
+		}
+		else if ((y2 == y1 - 1) && cr && up)
+		{
+			tp(cr);
+			tp(up);
+		}
 #endif
 		else do_cm(x2, y2);
 	}
 
 #if 0
 	/* Up/Down one line */
-	else if ((x2 == x1) && (y2 == y1+1) && dn) tp(dn);
-	else if ((x2 == x1) && (y2 == y1-1) && up) tp(up);
+	else if ((x2 == x1) && (y2 == y1 + 1) && dn) tp(dn);
+	else if ((x2 == x1) && (y2 == y1 - 1) && up) tp(up);
 #endif
 
 	/* Default -- go directly there */
@@ -419,20 +425,20 @@ errr init_cap_aux(void)
 	cols = 80;
 
 	/* Clear screen */
-	cl = "\033[2J\033[H";	/* --]--]-- */
+	cl = "\033[2J\033[H"; 	/* --]--]-- */
 
 	/* Clear to end of line */
-	ce = "\033[K";	/* --]-- */
+	ce = "\033[K"; 	/* --]-- */
 
 	/* Hilite on/off */
-	so = "\033[7m";	/* --]-- */
-	se = "\033[m";	/* --]-- */
+	so = "\033[7m"; 	/* --]-- */
+	se = "\033[m"; 	/* --]-- */
 
 	/* Scroll region */
-	cs = "\033[%d;%dr";	/* --]-- */
+	cs = "\033[%d;%dr"; 	/* --]-- */
 
 	/* Move cursor */
-	cm = "\033[%d;%dH";	/* --]-- */
+	cm = "\033[%d;%dH"; 	/* --]-- */
 
 #endif
 
@@ -452,31 +458,31 @@ errr init_cap_aux(void)
 
 #ifdef USE_TPOSIX
 
-static struct termios  norm_termios;
+static struct termios norm_termios;
 
-static struct termios  game_termios;
+static struct termios game_termios;
 
 #endif
 
 #ifdef USE_TERMIO
 
-static struct termio  norm_termio;
+static struct termio norm_termio;
 
-static struct termio  game_termio;
+static struct termio game_termio;
 
 #endif
 
 #ifdef USE_TCHARS
 
-static struct sgttyb  norm_ttyb;
-static struct tchars  norm_tchars;
+static struct sgttyb norm_ttyb;
+static struct tchars norm_tchars;
 static struct ltchars norm_ltchars;
-static int            norm_local_chars;
+static int norm_local_chars;
 
-static struct sgttyb  game_ttyb;
-static struct tchars  game_tchars;
+static struct sgttyb game_ttyb;
+static struct tchars game_tchars;
 static struct ltchars game_ltchars;
-static int            game_local_chars;
+static int game_local_chars;
 
 #endif
 
@@ -614,11 +620,11 @@ static void keymap_game_prepare(void)
 	/* Hack -- Leave "VSTART/VSTOP" alone */
 
 	/* Disable the standard control characters */
-	game_termios.c_cc[VQUIT] = (char)-1;
-	game_termios.c_cc[VERASE] = (char)-1;
-	game_termios.c_cc[VKILL] = (char)-1;
-	game_termios.c_cc[VEOF] = (char)-1;
-	game_termios.c_cc[VEOL] = (char)-1;
+	game_termios.c_cc[VQUIT] = (char) - 1;
+	game_termios.c_cc[VERASE] = (char) - 1;
+	game_termios.c_cc[VKILL] = (char) - 1;
+	game_termios.c_cc[VEOF] = (char) - 1;
+	game_termios.c_cc[VEOL] = (char) - 1;
 
 	/* Normally, block until a character is read */
 	game_termios.c_cc[VMIN] = 1;
@@ -643,22 +649,22 @@ static void keymap_game_prepare(void)
 	/* Hack -- Leave "VSTART/VSTOP" alone */
 
 	/* Disable the standard control characters */
-	game_termio.c_cc[VQUIT] = (char)-1;
-	game_termio.c_cc[VERASE] = (char)-1;
-	game_termio.c_cc[VKILL] = (char)-1;
-	game_termio.c_cc[VEOF] = (char)-1;
-	game_termio.c_cc[VEOL] = (char)-1;
+	game_termio.c_cc[VQUIT] = (char) - 1;
+	game_termio.c_cc[VERASE] = (char) - 1;
+	game_termio.c_cc[VKILL] = (char) - 1;
+	game_termio.c_cc[VEOF] = (char) - 1;
+	game_termio.c_cc[VEOL] = (char) - 1;
 
 #if 0
 	/* Disable the non-posix control characters */
-	game_termio.c_cc[VEOL2] = (char)-1;
-	game_termio.c_cc[VSWTCH] = (char)-1;
-	game_termio.c_cc[VDSUSP] = (char)-1;
-	game_termio.c_cc[VREPRINT] = (char)-1;
-	game_termio.c_cc[VDISCARD] = (char)-1;
-	game_termio.c_cc[VWERASE] = (char)-1;
-	game_termio.c_cc[VLNEXT] = (char)-1;
-	game_termio.c_cc[VSTATUS] = (char)-1;
+	game_termio.c_cc[VEOL2] = (char) - 1;
+	game_termio.c_cc[VSWTCH] = (char) - 1;
+	game_termio.c_cc[VDSUSP] = (char) - 1;
+	game_termio.c_cc[VREPRINT] = (char) - 1;
+	game_termio.c_cc[VDISCARD] = (char) - 1;
+	game_termio.c_cc[VWERASE] = (char) - 1;
+	game_termio.c_cc[VLNEXT] = (char) - 1;
+	game_termio.c_cc[VSTATUS] = (char) - 1;
 #endif
 
 	/* Normally, block until a character is read */
@@ -686,19 +692,19 @@ static void keymap_game_prepare(void)
 	game_tchars.t_stopc = (char)19;
 
 	/* Cancel some things */
-	game_tchars.t_quitc = (char)-1;
-	game_tchars.t_eofc = (char)-1;
-	game_tchars.t_brkc = (char)-1;
+	game_tchars.t_quitc = (char) - 1;
+	game_tchars.t_eofc = (char) - 1;
+	game_tchars.t_brkc = (char) - 1;
 
 	/* Force suspend (^Z) */
 	game_ltchars.t_suspc = (char)26;
 
 	/* Cancel some things */
-	game_ltchars.t_dsuspc = (char)-1;
-	game_ltchars.t_rprntc = (char)-1;
-	game_ltchars.t_flushc = (char)-1;
-	game_ltchars.t_werasc = (char)-1;
-	game_ltchars.t_lnextc = (char)-1;
+	game_ltchars.t_dsuspc = (char) - 1;
+	game_ltchars.t_rprntc = (char) - 1;
+	game_ltchars.t_flushc = (char) - 1;
+	game_ltchars.t_werasc = (char) - 1;
+	game_ltchars.t_lnextc = (char) - 1;
 
 	/* XXX XXX XXX XXX Verify this before use */
 	/* Hack -- Turn off "echo" and "canonical" mode */
@@ -903,37 +909,37 @@ static errr Term_xtra_cap(int n, int v)
 	switch (n)
 	{
 		/* Clear the screen */
-		case TERM_XTRA_CLEAR:
+	case TERM_XTRA_CLEAR:
 		do_cl();
 		do_move(0, 0, 0, 0);
 		return (0);
 
 		/* Make a noise */
-		case TERM_XTRA_NOISE:
+	case TERM_XTRA_NOISE:
 		(void)write(1, "\007", 1);
 		return (0);
 
 		/* Change the cursor visibility */
-		case TERM_XTRA_SHAPE:
+	case TERM_XTRA_SHAPE:
 		curv = v;
 		curs_set(v);
 		return (0);
 
 		/* Suspend/Resume */
-		case TERM_XTRA_ALIVE:
+	case TERM_XTRA_ALIVE:
 		return (Term_xtra_cap_alive(v));
 
 		/* Process events */
-		case TERM_XTRA_EVENT:
+	case TERM_XTRA_EVENT:
 		return (Term_xtra_cap_event(v));
 
 		/* Flush events */
-		case TERM_XTRA_FLUSH:
+	case TERM_XTRA_FLUSH:
 		while (!Term_xtra_cap_event(FALSE));
 		return (0);
 
 		/* Delay */
-		case TERM_XTRA_DELAY:
+	case TERM_XTRA_DELAY:
 		usleep(1000 * v);
 		return (0);
 	}
@@ -1010,7 +1016,7 @@ errr init_cap(void)
 	/*** Initialize ***/
 
 	/* Initialize the screen */
-	if (init_cap_aux()) return (-1);
+	if (init_cap_aux()) return ( -1);
 
 	/* Hack -- Require large screen, or Quit with message */
 	if ((rows < 24) || (cols < 80)) quit("Screen too small!");

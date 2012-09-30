@@ -124,6 +124,10 @@ DESTDIR=
 #
 CC = gcc
 
+# Profiling options
+# PROFILECOPTS = -pg
+# PROFILELDFLAGS = -pg
+
 #
 # Standard version (see main-x11.c and main-gcu.c)
 #
@@ -152,8 +156,9 @@ COPTS = -Wall -O1 -pipe -g
 INCLUDES = -I/usr/X11R6/include
 DEFINES = -DUSE_X11 -DUSE_GCU \
 	-DUSE_EGO_GRAPHICS -DUSE_TRANSPARENCY -DSUPPORT_GAMMA \
-        -DUSE_PRECISE_CMOVIE -DUSE_UNIXSOCK
+	-DUSE_PRECISE_CMOVIE -DUSE_UNIXSOCK
 LIBS = -lX11 -lcurses -L/usr/X11R6/lib
+
 
 
 ##
@@ -191,6 +196,15 @@ LIBS = -lX11 -lcurses -L/usr/X11R6/lib
 #	-DUSE_TRANSPARENCY -DUSE_EGO_GRAPHICS -DSUPPORT_GAMMA
 #LIBS = -lXaw -lXmu -lXt -lX11 -lcurses -ltermcap -L/usr/X11R6/lib
 
+##
+## Variation -- Use "main-sdl.c" instead of "main-x11.c"
+##
+#COPTS = -Wall -O1 -pipe -g
+#INCLUDES = `sdl-config --cflags`
+#DEFINES = -DUSE_SDL -DUSE_GCU \
+#	-DUSE_EGO_GRAPHICS -DUSE_TRANSPARENCY \
+#	-DUSE_PRECISE_CMOVIE -DUSE_UNIXSOCK -DSUPPORT_GAMMA
+#LIBS = `sdl-config --libs` -lSDL_image -lcurses
 
 ##
 ## Variation -- Use "main-cap.c" instead of "main-gcu.c"
@@ -302,10 +316,10 @@ LIBS = -lX11 -lcurses -L/usr/X11R6/lib
 #
 
 BASESRCS = \
-  main-gtk.c main-gcu.c main-x11.c main-xaw.c \
+  main-gtk.c main-gcu.c main-x11.c main-xaw.c main-sdl.c \
   z-rand.c z-util.c z-form.c z-virt.c z-term.c z-sock.c \
   variable.c tables.c plots.c util.c cave.c dungeon.c \
-  melee1.c melee2.c \
+  melee1.c melee2.c modules.c \
   object1.c object2.c randart.c squeltch.c traps.c \
   monster1.c monster2.c monster3.c ghost.c \
   xtra1.c xtra2.c skills.c powers.c gods.c \
@@ -313,15 +327,15 @@ BASESRCS = \
   status.c files.c notes.c loadsave.c \
   cmd1.c cmd2.c cmd3.c cmd4.c cmd5.c cmd6.c cmd7.c \
   help.c \
-  generate.c wild.c levels.c store.c bldg.c \
+  generate.c gen_maze.c gen_evol.c wild.c levels.c store.c bldg.c \
   cmovie.c irc.c \
   wizard2.c init2.c birth.c wizard1.c init1.c main.c 
 
 BASEOBJS = \
-  main-gtk.o main-gcu.o main-x11.o main-xaw.o \
+  main-gtk.o main-gcu.o main-x11.o main-xaw.o main-sdl.o \
   z-rand.o z-util.o z-form.o z-virt.o z-term.o z-sock.o \
   variable.o tables.o plots.o util.o cave.o dungeon.o \
-  melee1.o melee2.o \
+  melee1.o melee2.o modules.o \
   object1.o object2.o randart.o squeltch.o traps.o \
   monster1.o monster2.o monster3.o ghost.o \
   xtra1.o xtra2.o skills.o powers.o gods.o \
@@ -329,7 +343,7 @@ BASEOBJS = \
   status.o files.o notes.o loadsave.o \
   cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o cmd7.o \
   help.o \
-  generate.o wild.o levels.o store.o bldg.o \
+  generate.o gen_maze.o gen_evol.o wild.o levels.o store.o bldg.o \
   cmovie.o irc.o \
   wizard2.o init2.o birth.o wizard1.o init1.o main.o 
 
@@ -369,7 +383,7 @@ OBJS = $(BASEOBJS)
 # Compiler options
 #
 
-CFLAGS = $(COPTS) $(INCLUDES) $(DEFINES) -DDEFAULT_PATH=\"$(LIBDIR)\"
+CFLAGS = $(COPTS) $(PROFILECOPTS) $(INCLUDES) $(DEFINES) -DDEFAULT_PATH=\"$(LIBDIR)\"
 
 
 #
@@ -428,10 +442,10 @@ default: $(TOLUA) $(TARGET)
 	@echo "*** notice the changes."
 
 $(TARGET): $(OBJS)
-	$(CC) $(LDFLAGS) -o $@ $(OBJS) $(LIBS)
+	$(CC) $(PROFILELDFLAGS) $(LDFLAGS) -o $@ $(OBJS) $(LIBS)
 
 $(TOLUA): $(TOLUAOBJS) lua/tolua.c lua/tolualua.c
-	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $(TOLUAOBJS) lua/tolua.c lua/tolualua.c $(LIBS)
+	$(CC) $(CFLAGS) $(PROFILELDFLAGS) $(LDFLAGS) -o $@ $(TOLUAOBJS) lua/tolua.c lua/tolualua.c $(LIBS)
 
 #
 # An install rule.
@@ -474,12 +488,12 @@ depend:
 #
 # Quests
 #
-plots.o: q_rand.c q_main.c q_one.c \
+plots.o: q_rand.c q_main.c q_one.c q_ultrag.c q_ultrae.c \
 	q_thief.c q_hobbit.c q_nazgul.c q_troll.c q_wight.c \
 	q_spider.c q_poison.c \
 	q_eol.c q_nirna.c q_invas.c \
 	q_betwen.c \
-	q_narsil.c q_shroom.c q_thrain.c
+	q_narsil.c q_shroom.c q_thrain.c q_wolves.c q_dragons.c q_haunted.c q_evil.c
 
 #
 # Lua library compilation rules

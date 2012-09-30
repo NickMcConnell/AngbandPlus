@@ -44,6 +44,11 @@ Monster-lore            0.000           [0.500]
 **Actually, every character has this level of proficiency with the *****m_udun.txt*0[Udun] school,
 provided they are worshipping Melkor
 
+
+#####GInnate Abilities:
+#####BAbility              Character level
+Perfect-casting             1
+
 #####GStarting Equipment
 A priest serving Melkor begins the game with:
     A spellbook of Curse

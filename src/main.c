@@ -94,7 +94,7 @@ static bool check_create_user_dir(void)
 		/*
 		 * Something prevents us from create a directory with
 		 * the same pathname
-		 */
+		 */ 
 		return (FALSE);
 	}
 
@@ -185,91 +185,91 @@ static void change_path(cptr info)
 	/* Analyze */
 	switch (tolower(info[0]))
 	{
-		case 'a':
+	case 'a':
 		{
 			string_free(ANGBAND_DIR_APEX);
-			ANGBAND_DIR_APEX = string_make(s+1);
+			ANGBAND_DIR_APEX = string_make(s + 1);
 			break;
 		}
 
-		case 'f':
+	case 'f':
 		{
 			string_free(ANGBAND_DIR_FILE);
-			ANGBAND_DIR_FILE = string_make(s+1);
+			ANGBAND_DIR_FILE = string_make(s + 1);
 			break;
 		}
 
-		case 'h':
+	case 'h':
 		{
 			string_free(ANGBAND_DIR_HELP);
-			ANGBAND_DIR_HELP = string_make(s+1);
+			ANGBAND_DIR_HELP = string_make(s + 1);
 			break;
 		}
 
-		case 'i':
+	case 'i':
 		{
 			string_free(ANGBAND_DIR_INFO);
-			ANGBAND_DIR_INFO = string_make(s+1);
+			ANGBAND_DIR_INFO = string_make(s + 1);
 			break;
 		}
 
-		case 'u':
+	case 'u':
 		{
 			string_free(ANGBAND_DIR_USER);
-			ANGBAND_DIR_USER = string_make(s+1);
+			ANGBAND_DIR_USER = string_make(s + 1);
 			break;
 		}
 
-		case 'x':
+	case 'x':
 		{
 			string_free(ANGBAND_DIR_XTRA);
-			ANGBAND_DIR_XTRA = string_make(s+1);
+			ANGBAND_DIR_XTRA = string_make(s + 1);
 			break;
 		}
 
 #ifdef VERIFY_SAVEFILE
 
-		case 'b':
-		case 'd':
-		case 'e':
-		case 's':
+	case 'b':
+	case 'd':
+	case 'e':
+	case 's':
 		{
 			quit_fmt("Restricted option '-d%s'", info);
 		}
 
 #else /* VERIFY_SAVEFILE */
 
-		case 'b':
+	case 'b':
 		{
 			string_free(ANGBAND_DIR_BONE);
-			ANGBAND_DIR_BONE = string_make(s+1);
+			ANGBAND_DIR_BONE = string_make(s + 1);
 			break;
 		}
 
-		case 'd':
+	case 'd':
 		{
 			string_free(ANGBAND_DIR_DATA);
-			ANGBAND_DIR_DATA = string_make(s+1);
+			ANGBAND_DIR_DATA = string_make(s + 1);
 			break;
 		}
 
-		case 'e':
+	case 'e':
 		{
 			string_free(ANGBAND_DIR_EDIT);
-			ANGBAND_DIR_EDIT = string_make(s+1);
+			ANGBAND_DIR_EDIT = string_make(s + 1);
 			break;
 		}
 
-		case 's':
+	case 's':
 		{
 			string_free(ANGBAND_DIR_SAVE);
-			ANGBAND_DIR_SAVE = string_make(s+1);
+			ANGBAND_DIR_SAVE = string_make(s + 1);
 			break;
 		}
 
 #endif /* VERIFY_SAVEFILE */
 
-		default:
+	default:
 		{
 			quit_fmt("Bad semantics in '-d%s'", info);
 		}
@@ -324,7 +324,7 @@ int main(int argc, char *argv[])
 # ifdef SECURE
 	/* Authenticate */
 	Authenticate();
-# endif /* SECURE */
+# endif  /* SECURE */
 
 #endif /* SET_UID */
 
@@ -345,15 +345,15 @@ int main(int argc, char *argv[])
 
 # ifdef SAFE_SETUID
 
-#  ifdef _POSIX_SAVED_IDS
+# ifdef _POSIX_SAVED_IDS
 
 	/* Save some info for later */
 	player_euid = geteuid();
 	player_egid = getegid();
 
-#  endif
+# endif 
 
-#  if 0	/* XXX XXX XXX */
+# if 0	/* XXX XXX XXX */
 
 	/* Redundant setting necessary in case root is running the game */
 	/* If not root or game not setuid the following two calls do nothing */
@@ -368,9 +368,9 @@ int main(int argc, char *argv[])
 		quit("setuid(): cannot set permissions correctly!");
 	}
 
-#  endif /* XXX XXX XXX */
+# endif  /* XXX XXX XXX */
 
-# endif /* SAFE_SETUID */
+# endif  /* SAFE_SETUID */
 
 #endif /* SET_UID */
 
@@ -403,7 +403,7 @@ int main(int argc, char *argv[])
 	 * this convention must be observed:
 	 *
 	 *    safe_setuid_grab();
-     *
+	    *
 	 *    fd_open/fd_make/fd_kill/fd_move which requires game's permission,
 	 *    i.e. manipulating files under the lib directory
 	 *
@@ -455,65 +455,65 @@ int main(int argc, char *argv[])
 		/* Analyze option */
 		switch (argv[i][1])
 		{
-			case 'N':
-			case 'n':
+		case 'N':
+		case 'n':
 			{
 				new_game = TRUE;
 				break;
 			}
 
-			case 'F':
-			case 'f':
+		case 'F':
+		case 'f':
 			{
 				arg_fiddle = TRUE;
 				break;
 			}
 
-			case 'W':
-			case 'w':
+		case 'W':
+		case 'w':
 			{
 				arg_wizard = TRUE;
 				break;
 			}
 
-			case 'V':
-			case 'v':
+		case 'V':
+		case 'v':
 			{
 				arg_sound = TRUE;
 				break;
 			}
 
-			case 'G':
-			case 'g':
+		case 'G':
+		case 'g':
 			{
 				arg_graphics = TRUE;
 				break;
 			}
 
-			case 'R':
-			case 'r':
+		case 'R':
+		case 'r':
 			{
 				arg_force_roguelike = TRUE;
 				break;
 			}
 
-			case 'O':
-			case 'o':
+		case 'O':
+		case 'o':
 			{
 				arg_force_original = TRUE;
 				break;
 			}
 
-			case 'S':
-			case 's':
+		case 'S':
+		case 's':
 			{
 				show_score = atoi(&argv[i][2]);
 				if (show_score <= 0) show_score = 10;
 				break;
 			}
 
-			case 'u':
-			case 'U':
+		case 'u':
+		case 'U':
 			{
 				if (!argv[i][2]) goto usage;
 				strcpy(player_name, &argv[i][2]);
@@ -522,21 +522,27 @@ int main(int argc, char *argv[])
 				break;
 			}
 
-			case 'm':
-			case 'M':
+		case 'm':
 			{
 				if (!argv[i][2]) goto usage;
 				mstr = &argv[i][2];
 				break;
 			}
 
-			case 'h':
+		case 'M':
+			{
+				if (!argv[i][2]) goto usage;
+				force_module = string_make(&argv[i][2]);
+				break;
+			}
+
+		case 'h':
 			{
 				goto usage;
 				break;
 			}
 
-			case 'H':
+		case 'H':
 			{
 				char *s;
 				int j;
@@ -547,43 +553,45 @@ int main(int argc, char *argv[])
 					s = argv[j];
 
 					while (*s != '.') s++;
-					*s = '\0'; s++;
+					*s = '\0';
+					s++;
 					txt_to_html("head.aux", "foot.aux", argv[j], s, FALSE, FALSE);
 				}
 
 				return 0;
 			}
 
-			case 'c':
-			case 'C':
+		case 'c':
+		case 'C':
 			{
 				chg_to_txt(argv[i + 1], argv[i + 2]);
 
 				return 0;
 			}
 
-			case 'd':
-			case 'D':
+		case 'd':
+		case 'D':
 			{
 				change_path(&argv[i][2]);
 				break;
 			}
 
-			case '-':
+		case '-':
 			{
-			    if (argv[i][2] == 'h' && !strcmp((argv[i]+2), "help"))
-				goto usage;
-			    else {
-				argv[i] = argv[0];
-				argc = argc - i;
-				argv = argv + i;
-				args = FALSE;
-				break;
-			    }
+				if (argv[i][2] == 'h' && !strcmp((argv[i] + 2), "help"))
+					goto usage;
+				else
+				{
+					argv[i] = argv[0];
+					argc = argc - i;
+					argv = argv + i;
+					args = FALSE;
+					break;
+				}
 			}
 
-			default:
-			usage:
+		default:
+usage:
 			{
 				int j;
 
@@ -603,6 +611,7 @@ int main(int argc, char *argv[])
 				puts("  -c f1 f2           Convert changelog f1 to nice txt f2");
 				puts("  -s<num>            Show <num> high scores");
 				puts("  -u<who>            Use your <who> savefile");
+				puts("  -M<which>            Use the <which> module");
 				puts("  -m<sys>            Force 'main-<sys>.c' usage");
 				puts("  -d<def>            Define a 'lib' dir sub-path");
 
@@ -616,8 +625,21 @@ int main(int argc, char *argv[])
 				puts("  -- -o              Requests \"old\" graphics");
 				puts("  -- -g              Requests \"new\" graphics");
 				puts("  -- -t              Enable transparency effect");
-# endif /* USE_GRAPHICS */
+# endif  /* USE_GRAPHICS */
 #endif /* USE_GTK */
+
+#ifdef USE_GTK2
+				puts("  -mgtk2             To use GTK2");
+				puts("  --                 Sub options");
+				puts("  -- -n#             Number of terms to use");
+				puts("  -- -b              Turn off software backing store");
+# ifdef USE_GRAPHICS
+				puts("  -- -s              Turn off smoothscaling graphics");
+				puts("  -- -o              Requests \"old\" graphics");
+				puts("  -- -g              Requests \"new\" graphics");
+				puts("  -- -t              Enable transparency effect");
+# endif  /* USE_GRAPHICS */
+#endif /* USE_GTK2 */
 
 #ifdef USE_XAW
 				puts("  -mxaw              To use XAW");
@@ -627,7 +649,7 @@ int main(int argc, char *argv[])
 # ifdef USE_GRAPHICS
 				puts("  -- -s              Turn off smoothscaling graphics");
 				puts("  -- -o              Requests \"old\" graphics");
-# endif /* USE_GRAPHICS */
+# endif  /* USE_GRAPHICS */
 #endif /* USE_XAW */
 
 #ifdef USE_X11
@@ -639,7 +661,7 @@ int main(int argc, char *argv[])
 				puts("  -- -s              Turn off smoothscaling graphics");
 				puts("  -- -o              Requests \"old\" graphics");
 				puts("  -- -b              Requests double-width tiles");
-# endif /* USE_GRAPHICS */
+# endif  /* USE_GRAPHICS */
 #endif /* USE_X11 */
 
 #ifdef USE_GCU
@@ -680,8 +702,20 @@ int main(int argc, char *argv[])
 				puts("  -mvme              To use VM/ESA");
 #endif /* USE_VME */
 
+#ifdef USE_ISO
+				puts("  -miso              To use ISO");
+#endif /* USE_ISO */
+
 #ifdef USE_SDL
 				puts("  -msdl              To use SDL");
+				puts("  --                 Sub options");
+				puts("  -- -n #            Number of virtual consoles to use");
+				puts("  -- -o              Requests \"old\" graphics");
+				puts("  -- -b              Requests double-width tiles");
+				puts("  -- -w #            Request screen width in pixels");
+				puts("  -- -h #            Request screen height in pixels");
+				puts("  -- -bpp #          Request screen color depth in bits");
+				puts("  -- -fs             Start with full-screen display");
 #endif /* USE_SDL */
 
 				/* Actually abort the process */
@@ -706,8 +740,8 @@ int main(int argc, char *argv[])
 	quit_aux = quit_hook;
 
 
-        /* Install the zsock hooks we cannot do it later because main-net needs them */
-        zsock_init();
+	/* Install the zsock hooks we cannot do it later because main-net needs them */
+	zsock_init();
 
 
 #ifdef USE_GLU
@@ -718,6 +752,19 @@ int main(int argc, char *argv[])
 		if (0 == init_glu(argc, argv))
 		{
 			ANGBAND_SYS = "glu";
+			done = TRUE;
+		}
+	}
+#endif
+
+#ifdef USE_GTK2
+	/* Attempt to use the "main-gtk2.c" support */
+	if (!done && (!mstr || (streq(mstr, "gtk2"))))
+	{
+		extern errr init_gtk2(int, char**);
+		if (0 == init_gtk2(argc, argv))
+		{
+			ANGBAND_SYS = "gtk2";
 			done = TRUE;
 		}
 	}
@@ -899,21 +946,34 @@ int main(int argc, char *argv[])
 #endif
 
 
-#ifdef USE_SDL
-	/* Attempt to use the "main-sdl.c" support */
-	if (!done && (!mstr || (streq(mstr, "sdl"))))
+#ifdef USE_PARAGUI
+	/* Attempt to use the "main-pgu.c" support */
+	if (!done && (!mstr || (streq(mstr, "pgu"))))
 	{
-		extern errr init_sdl(int, char**);
-		if (0 == init_sdl(argc, argv))
+		extern errr init_pgu(int, char**);
+		if (0 == init_pgu(argc, argv))
 		{
-			ANGBAND_SYS = "sdl";
+			ANGBAND_SYS = "pgu";
+			done = TRUE;
+		}
+	}
+#endif
+
+#ifdef USE_ISO
+	/* Attempt to use the "main-iso.c" support */
+	if (!done && (!mstr || (streq(mstr, "iso"))))
+	{
+		extern errr init_iso(int, char**);
+		if (0 == init_iso(argc, argv))
+		{
+			ANGBAND_SYS = "iso";
 			done = TRUE;
 		}
 	}
 #endif
 
 #ifdef USE_LUA_GUI
-        /* Attempt to use the "main-lua.c" support */
+	/* Attempt to use the "main-lua.c" support */
 	if (!done && (!mstr || (streq(mstr, "lua"))))
 	{
 		extern errr init_lua_gui(int, char**);
@@ -926,13 +986,26 @@ int main(int argc, char *argv[])
 #endif
 
 #ifdef USE_NET
-        /* Attempt to use the "main-net.c" support */
+	/* Attempt to use the "main-net.c" support */
 	if (!done && (!mstr || (streq(mstr, "net"))))
 	{
 		extern errr init_net(int, char**);
 		if (0 == init_net(argc, argv))
 		{
 			ANGBAND_SYS = "net";
+			done = TRUE;
+		}
+	}
+#endif
+
+#ifdef USE_SDL
+	/* Attempt to use the "main-sdl.c" support */
+	if (!done && (!mstr || (streq(mstr, "sdl"))))
+	{
+		extern errr init_sdl(int, char**);
+		if (0 == init_sdl(argc, argv))
+		{
+			ANGBAND_SYS = "sdl";
 			done = TRUE;
 		}
 	}
@@ -958,7 +1031,7 @@ int main(int argc, char *argv[])
 	play_game(new_game);
 
 #ifdef CHECK_MEMORY_LEAKS
-        CHECK_LEAKS();
+	CHECK_LEAKS();
 #endif
 
 	/* Quit */

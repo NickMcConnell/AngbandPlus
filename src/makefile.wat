@@ -19,7 +19,7 @@ OBJS = &
   cmd1.obj cmd2.obj cmd3.obj cmd4.obj cmd5.obj cmd6.obj cmd7.obj &
   store.obj birth.obj wizard1.obj wizard2.obj &
   status.obj randart.obj &
-  generate.obj dungeon.obj init1.obj init2.obj plots.obj &
+  generate.obj gen_maze.obj gen_evol.obj dungeon.obj init1.obj init2.obj plots.obj &
   bldg.obj levels.obj notes.obj squeltch.obj wild.obj help.obj &
   main-ibm.obj main.obj
 

@@ -174,11 +174,15 @@ its own adjustments to a character's stats and abilities. Most also have
 intrinsic abilities. If you are not asked for a race modifier, it is because
 your race only supports the classical form.
 
-     *****rm_class.txt*0[Classical]                *****rm_zomb.txt*0[Zombie]
-     *****rm_vamp.txt*0[Vampire]                  *****rm_barb.txt*0[Barbarian]
-     *****rm_spec.txt*0[Spectre]                  *****rm_herm.txt*0[Hermit]
-     *****rm_skel.txt*0[Skeleton]                 *****rm_corru.txt*0[Corrupted]
-     *****rm_lsoul.txt*0[Lost Soul]
+     *****rm_class.txt*0[Classical]                 *****rm_barb.txt*0[Barbarian]
+     *****rm_corru.txt*0[Corrupted]                 *****rm_herm.txt*0[Hermit] 
+     *****rm_lsoul.txt*0[Lost Soul]                 *****rm_skel.txt*0[Skeleton]
+     *****rm_spec.txt*0[Spectre]                   *****rm_zomb.txt*0[Zombie]
+
+Some race modifier are no longer available at the start of the game, but are 
+acquired while playing.     
+
+     *****rm_vamp.txt*0[Vampire] 
 ~~~~~05|Classes
 #####R=== Classes ===
 
@@ -188,17 +192,18 @@ Paladin. For the first few adventures it is suggested that you run a warrior
 or rogue. Spell casting generally requires a more experienced player that is
 familiar with survival techniques.
 
-     *****c_alchem.txt*0[Alchemist]                 *****c_mimic.txt*0[Mimic]                    *****c_rogue.txt*0[Rogue]
-     *****c_archer.txt*0[Archer]                    *****c_mindcr.txt*0[Mindcrafter]              *****c_runecr.txt*0[Runecrafter]
-     *****c_assass.txt*0[Assassin]                  *****c_monk.txt*0[Monk]                     *****c_sorcer.txt*0[Sorceror]
-     *****c_axemas.txt*0[Axemaster]                 *****c_necro.txt*0[Necromancer]              *****c_summon.txt*0[Summoner]
-     *****c_pr_drk.txt*0[Dark-Priest]               *****c_palad.txt*0[Paladin]                  *****c_swordm.txt*0[Swordmaster]
-     *****c_demono.txt*0[Demonologist]              *****c_polear.txt*0[Polearmmaster]            *****c_symbia.txt*0[Symbiant]
-     *****c_druid.txt*0[Druid]                     *****c_posses.txt*0[Possessor]                *****c_thaum.txt*0[Thaumaturgist]
-     *****c_elemen.txt*0[Elementalist]              *****c_pr_eru.txt*0[Priest(Eru)]              *****c_unbel.txt*0[Unbeliever]
-     *****c_hafted.txt*0[Haftedmaster]              *****c_pr_man.txt*0[Priest(Manwe)]            *****c_warper.txt*0[Warper]
-     *****c_lorema.txt*0[Loremaster]                *****c_ranger.txt*0[Ranger]                   *****c_warrio.txt*0[Warrior]
-     *****c_mage.txt*0[Mage]
+     *****c_alchem.txt*0[Alchemist]                 *****c_mage.txt*0[Mage]                     *****c_rogue.txt*0[Rogue]
+     *****c_archer.txt*0[Archer]                    *****c_mimic.txt*0[Mimic]                    *****c_runecr.txt*0[Runecrafter]   
+     *****c_assass.txt*0[Assassin]                  *****c_mindcr.txt*0[Mindcrafter]              *****c_sorcer.txt*0[Sorceror]       
+     *****c_axemas.txt*0[Axemaster]                 *****c_monk.txt*0[Monk]                     *****c_summon.txt*0[Summoner]
+     *****c_bard.txt*0[Bard]                      *****c_necro.txt*0[Necromancer]              *****c_swordm.txt*0[Swordmaster]
+     *****c_pr_drk.txt*0[Dark-Priest]               *****c_palad.txt*0[Paladin]                  *****c_symbia.txt*0[Symbiant]
+     *****c_demono.txt*0[Demonologist]              *****c_polear.txt*0[Polearmmaster]            *****c_thaum.txt*0[Thaumaturgist] 
+     *****c_druid.txt*0[Druid]                     *****c_posses.txt*0[Possessor]                *****c_unbel.txt*0[Unbeliever]
+     *****c_geoman.txt*0[Geomancer]                 *****c_pr_eru.txt*0[Priest(Eru)]              *****c_warper.txt*0[Warper]
+     *****c_hafted.txt*0[Haftedmaster]              *****c_pr_man.txt*0[Priest(Manwe)]            *****c_warrio.txt*0[Warrior]
+     *****c_lorema.txt*0[Loremaster]                *****c_ranger.txt*0[Ranger]                   
+     
 
 ~~~~~39|Character|Stats 2
 ~~~~~06|Stats|Individual explanations
@@ -210,7 +215,7 @@ familiar with survival techniques.
                combat. A high strength can improve your chances of hitting
                as well as the amount of damage done with each hit. Char-
                acters with low strengths may receive penalties. Strength
-               is also useful in tunneling and in carrying heavy items.
+               is also useful in tunnelling and in carrying heavy items.
 ~~~~~33|Stats|Intelligence
 ~~~~~35|Intelligence
 #####G          Intelligence
@@ -259,7 +264,7 @@ familiar with survival techniques.
                very low charisma may be robbed blind. A high charisma will
                also mean more starting money for the character.
 
-~~~~~07|Abilities
+~~~~~07
 ~~~~~46|Character|Abilities
 #####R=== Abilities ===
 
@@ -267,7 +272,6 @@ familiar with survival techniques.
           to survive. The starting abilities of a character are based upon
           race and class. Abilities may be adjusted by high or low  stats,
           and increase with the corresponding *****skills.txt*0[skill] level.
-~~~~~47|Abilities|Fighting
 ~~~~~48|Attacking monsters|Fighting ability
 #####G          Fighting
                Fighting is the ability to hit and do damage with weapons or
@@ -277,7 +281,6 @@ familiar with survival techniques.
                Strength and dexterity both modify the  ability  to  hit  an
                opponent. This skill increases  with the *****skills.txt*02[Weaponmastery] skill
                and its sub-skills.
-~~~~~49|Abilities|Shooting ability
 ~~~~~50|Attacking monsters|Shooting
 #####G          Shooting Ability
                Using  ranged  missile  weapons  (and  throwing  objects) is
@@ -286,7 +289,6 @@ familiar with survival techniques.
                is  thrown/fired, the amount of damage done, and the ability
                to hit a creature. This skill increases with the *****skills.txt*08[Archery] skill
                and its sub-skills.
-~~~~~51|Abilities|Saving throws
 ~~~~~52|Saving throw
 #####G          Saving Throws
                A Saving Throw is the ability of a character to  resist  the
@@ -295,7 +297,6 @@ familiar with survival techniques.
                stupidity, such  as  quaffing a nasty potion. This ability
                increases with the *****skills.txt*38[Spirituality] skill,
                A high wisdom also increases this  ability.
-~~~~~53|Abilities|Stealth
 ~~~~~54|Stealth
 #####G          Stealth
                The ability to move  silently about is very useful. Charac-
@@ -304,7 +305,6 @@ familiar with survival techniques.
                a  stealthy  character  entirely, allowing a player to avoid
                certain fights. This skill is based upon race, class and the
                *****skills.txt*15[Stealth] skill.
-~~~~~55|Abilities|Disarming
 ~~~~~56|Disarming traps
 #####G          Disarming
                Disarming is the  ability  to  remove  traps  (safely), and
@@ -313,7 +313,6 @@ familiar with survival techniques.
                must  be  found  before  it  can be disarmed. Dexterity and
                intelligence both modify the ability  to  disarm, and  this
                ability increases with the *****skills.txt*16[Disarming] skill.
-~~~~~57|Abilities|Magical Devices
 ~~~~~58|Magical Devices
 #####G          Magical Devices
                Using a magical device such as  a  wand  or  staff  requires
@@ -321,7 +320,6 @@ familiar with survival techniques.
                priests are therefore much better at using a magical  device
                than say a warrior. This skill is modified by intelligence,
                and increases with the *****skills.txt*54[Magic-Device] skill.
-~~~~~59|Abilities|Searching Frequency - Perception
 ~~~~~60|Searching
 ~~~~~61|Searching|Searching Frequency - Perception
 ~~~~~62|Perception
@@ -329,14 +327,12 @@ familiar with survival techniques.
                Perception  is  the  ability  to  notice  something  without
                actively  seeking it out. This  skill  is  based  upon  race,
                class and the *****skills.txt*14[Sneakiness] skill.
-~~~~~64|Abilities|Searching Ability
 ~~~~~63|Searching|Searching Ability
 #####G          Searching Ability (Searching)
                To search is to actively look for secret doors, floor traps,
                and  traps on chests. Rogues are the best at searching, but
                magi, rangers, and priests are also good at it. This  skill
                is  based  upon  race, class and the *****skills.txt*14[Sneakiness] skill.
-~~~~~65|Abilities|Infra-vision
 ~~~~~66|Infra-vision
 #####G          Infra-vision
                Infra-vision is the ability to see heat sources. Since most
@@ -364,32 +360,30 @@ are not recommended, or an incredibly unfair combination of race and class.
 If you pick a combination that is not on the chart, don't complain if things
 don't turn out as you expected them to.
 
-
 #####B            Warrior  Archer  Rogue  Mage   Priest  Loremaster
 #####B
-Human         Yes     Yes     Yes    Yes    Yes       Yes
-Half-Elf      Yes     Yes     Yes    Yes    Yes       Yes
-Elf           Yes     Yes     No     Yes    Yes       Yes
-Hobbit        Yes     Yes     Yes    Yes    No        Yes
-Gnome         Yes     No      Yes    Yes    No        No
-Dwarf         Yes     No      No     No     Yes       No
-Orc           Yes     Yes     Yes    No     Yes       No
-Troll         Yes     No      No     No     No        No
-Dunadan       Yes     Yes     Yes    Yes    Yes       Yes
-High-Elf      Yes     Yes     No     Yes    Yes       Yes
-Half-Ogre     Yes     No      No     No     Yes       No
 Beorning      Yes     No      Yes    No     No        Yes
-Kobold        Yes     Yes     Yes    No     No        No
-Petty Dwarf   Yes     No      Yes    No     No        No
 Dark Elf      Yes     Yes     Yes    Yes    Yes       No
+Death Mold    No      No      No     Yes    Yes       No
+Dunadan       Yes     Yes     Yes    Yes    Yes       Yes
+Dwarf         Yes     No      No     No     Yes       No
+Elf           Yes     Yes     No     Yes    Yes       Yes
 Ent           Yes     No      No     No     Yes       Yes
+Gnome         Yes     No      Yes    Yes    No        No
+Half-Elf      Yes     Yes     Yes    Yes    Yes       Yes
+Half-Ogre     Yes     No      No     No     Yes       No
+High-Elf      Yes     Yes     No     Yes    Yes       Yes
+Hobbit        Yes     Yes     Yes    Yes    No        Yes
+Human         Yes     Yes     Yes    Yes    Yes       Yes
+Kobold        Yes     Yes     Yes    No     No        No
+Maia          Yes     Yes     Yes    Yes    Yes       Yes
+Orc           Yes     Yes     Yes    No     Yes       No
+Petty Dwarf   Yes     No      Yes    No     No        No
 RohanKnight   Yes     No      No     No     Yes       No
 Thunderlord   Yes     Yes     No     Yes    Yes       No
-Death Mold    No      No      No     Yes    Yes       No
-Yeek          Yes     Yes     Yes    Yes    Yes       Yes
+Troll         Yes     No      No     No     No        No
 Wood Elf      Yes     Yes     No     Yes    Yes       Yes
-Maia          Yes     Yes     Yes    Yes    Yes       Yes
-
+Yeek          Yes     Yes     Yes    Yes    Yes       Yes
 ~~~~~09|Character|Stat Bonus Table
 ~~~~~71|Stats|Bonus table
 ~~~~~72|Tables|Stat bonuses
@@ -400,148 +394,158 @@ are listed in the following table.
 ~~~~~75|Races|Stat Bonuses
 #####GRaces:
 #####B                       STR  INT  WIS  DEX  CON  CHR  Hit Dice  Rqd Exp/level
-           Human        0    0    0    0    0    0      10         +0%
-           Half-Elf     0   +1   +1   +1   -1   +1       9         +10%
-           Elf         -1   +2   +2   +1   -2   +2       8         +20%
-           Hobbit      -2   +2   +1   +3   +2   +1       7         +10%
-           Gnome       -1   +2    0   +2   +1   -2       8         +35%
-           Dwarf       +2   -2   +2   -2   +2   -3      11         +25%
-           Orc         +2   -1    0   +1   +1   -4      10         +10%
-           Troll       +4   -4   -2   -4   +3   -6      12         +37%
-           Dunadan     +1   +2   +2   +2   +3   +2      10         +80%
-           High-Elf    +1   +3   +2   +3   +1   +5      10         +100%
-           Half-Ogre   +3   -1   -1   -1   +3   -3      12         +30%
            Beorning    +4   -2   -2   -1   +3   -5      12         +50%
-           Kobold      +1   -1    0   +1    0   -4       9         +25%
-           Petty Dwarf +1   -1   +2    0   +2   -4      11         +35%
            Dark Elf    -1   +3   +2   +2   -2   +1       9         +50%
+           Death Mold  +10   0   +10  +0   +10 -15      15         +150%
+           Dunadan     +1   +2   +2   +2   +3   +2      10         +80%
+           Dwarf       +2   -2   +2   -2   +2   -3      11         +25%
+           Elf         -1   +2   +2   +1   -2   +2       8         +20%
            Ent         +10  -3   +2   -5   +11  -3      14         +110%
+           Gnome       -1   +2    0   +2   +1   -2       8         +35%
+           Half-Elf     0   +1   +1   +1   -1   +1       9         +10%
+           Half-Ogre   +3   -1   -1   -1   +3   -3      12         +30%
+           High-Elf    +1   +3   +2   +3   +1   +5      10         +100%
+           Hobbit      -2   +2   +1   +3   +2   +1       7         +10%
+           Human        0    0    0    0    0    0      10         +0%
+           Kobold      +1   -1    0   +1    0   -4       9         +25%
+           Maia         0    0    0    0    0    0      10         +0%
+           Petty Dwarf +1   -1   +2    0   +2   -4      11         +35%
+           Orc         +2   -1    0   +1   +1   -4      10         +10%
            RohanKnight +4   -2   +3   +1   +4   +2      10         +120%
            Thunderlord +6   +2   +1   +1   +3   +8      12         +300%
-           Death Mold  +10   0   +10  +0   +10 -15      15         +150%
-           Yeek        -5   -5   -5   -5   -5   -5       6         -75%
+           Troll       +4   -4   -2   -4   +3   -6      12         +37%
            Wood Elf    -3   +2   +1   +5   -4   +1       7         +30%
-           Maia         0    0    0    0    0    0      10         +0%
+           Yeek        -5   -5   -5   -5   -5   -5       6         -75%
 ~~~~~76|Race Modifiers|Stat Bonuses
 #####GRace Modifiers:
 #####B                       STR  INT  WIS  DEX  CON  CHR  Hit Dice  Rqd Exp/level
            Classical    0    0    0    0    0    0      +0         +0%
-           Vampire     +3   +3   -1   -1   +1   +2      +1         +100%
-           Spectre     -5   +1   +1   +2   -3   -6      -4         +80%
-           Skeleton     0   -2   -2    0   +1   -4      +0         +45%
-           Zombie      +2   -6   -6   +1   +4   -5      +3         +45%
            Barbarian   +2   -3   -2   +1   +1   -3      +1         +25%
-           Hermit      -3   +1   +1   -3   -3   +1      -3         +20%
            Corrupted    0    0    0    0    0    0      +0         +20%
+           Hermit      -3   +1   +1   -3   -3   +1      -3         +20%
            Lost Soul    0    0    0    0    0    0      +0         +0%
+           Skeleton     0   -2   -2    0   +1   -4      +0         +45%
+           Spectre     -5   +1   +1   +2   -3   -6      -4         +80%
+           Zombie      +2   -6   -6   +1   +4   -5      +3         +45%
+
+           Vampire     +3   +2   -3   -2   +1   -4      +1         +100%
 ~~~~~77|Classes|Stat Bonuses
 #####GClasses:
 #####B                         STR     INT     WIS     DEX     CON     CHR
-           Warrior       +5      -2      -2      +2      +2      -1
-           Swordmaster   +5      -2      -2      +2      +2      -1
            Axemaster     +5      -2      -2      +2      +2      -1
-           Haftedmaster  +5      -2      -2      +2      +2      -1
-           Polearmmaster +5      -2      -2      +2      +2      -1
-           Unbeliever    +5      -2      -2      +2      +2      -1
            Demonologist  +5      -2      -2      +2      +2      -1
+           Haftedmaster  +5      -2      -2      +2      +2      -1                      
+           Polearmmaster +5      -2      -2      +2      +2      -1
+           Swordmaster   +5      -2      -2      +2      +2      -1
+           Unbeliever    +5      -2      -2      +2      +2      -1
+           Warrior       +5      -2      -2      +2      +2      -1
+
+           Alchemist     -5      +3       0      +1      -2      +1
+           Geomancer     -5      +3       0      +1      -2      +1
            Mage          -5      +3       0      +1      -2      +1
-           Elementalist  -5      +3       0      +1      -2      +1
-           Warper        -5      +3       0      +1      -2      +1
-           Sorceror      -5      +3       0      +1      -2      +1
            Necromancer   -5      +3       0      +1      -2      +1
            Runecrafter   -5      +3       0      +1      -2      +1
+           Sorceror      -5      +3       0      +1      -2      +1
            Thaumaturgist -5      +3       0      +1      -2      +1
-           Alchemist     -5      +3       0      +1      -2      +1
+           Warper        -5      +3       0      +1      -2      +1
+
            Archer        +2      +1       0      +2      +1      +1
            Ranger        +2      +2       0      +2      +1      +1
-           Rogue         +2      +1      -2      +3      +1      -1
+
            Assassin      +2      +1      -2      +3      +1      -1
+           Rogue         +2      +1      -2      +3      +1      -1
+
+           Bard          +1      -2      +1      +1       0      +1
            Loremaster    +1      -2      +1      +1       0      +1
-           Possessor     +1      -2      +1      +1       0      +1
            Mimic         +1      -2      +1      +1       0      +1
-           Symbiant      +1      -2      +1      +1       0      +1
-           Summoner      +1      -2      +1      +1       0      +1
            Monk          +1      -2      +1      +1       0      +1
+           Possessor     +1      -2      +1      +1       0      +1
+           Summoner      +1      -2      +1      +1       0      +1
+           Symbiant      +1      -2      +1      +1       0      +1
+
+           Dark-Priest   -1      -3      +3      -1       0      +2
+           Druid         -1      -3      +3      -1       0      +2
+           Mindcrafter   -1      -3      +3      -1       0      +2
+           Paladin       -1      -3      +3      -1       0      +2
            Priest(Eru)   -1      -3      +3      -1       0      +2
            Priest(Manwe) -1      -3      +3      -1       0      +2
-           Druid         -1      -3      +3      -1       0      +2
-           Dark-Priest   -1      -3      +3      -1       0      +2
-           Paladin       -1      -3      +3      -1       0      +2
-           Mindcrafter   -1      -3      +3      -1       0      +2
-
 ~~~~~10|Character|Ability tables
-~~~~~73|Abilities|Ability tables
 ~~~~~74|Tables|Ability Tables
 #####R=== Ability Tables ===
 
 ~~~~~78|Races|Ability table
 #####GRaces:
 #####B                        Dsrm Dvce Save Stlh Srch Prcp HtH  Misl   Infra
-           Human        +0   +0   +0   +0   +0   +10  +0   +0     None
-           Half-Elf     +2   +3   +3   +1   +6   +11  -1   +5     20 feet
-           Elf          +5   +6   +6   +2   +8   +12  -5   +15    30 feet
-           Hobbit       +15  +18  +18  +5   +12  +15  -10  +20    40 feet
-           Gnome        +10  +12  +12  +3   +6   +13  -8   +12    40 feet
-           Dwarf        +2   +9   +10  -1   +7   +10  +15  +0     50 feet
-           Orc          -3   -3   -3   -1   +0   +7   +12  -5     30 feet
-           Troll        -5   -8   -8   -2   -1   +5   +20  -10    30 feet
-           Dunadan      +4   +5   +5   +2   +3   +13  +15  +10    None
-           High-Elf     +4   +20  +20  +4   +3   +14  +10  +25    40 feet
-           Half-Ogre    -3   -5   -5   -2   -1   +5   +20  +0     30 feet
            Beorning     -6   -8   -6   -2   -1   +5   +25  +5     30 feet
-           Kobold       -2   -3   -2   -1   +1   +8   +10  -8     30 feet
-           Petty Dwarf  +3   +5   +10  +1   +5   +10  +9   +0     50 feet
            Dark Elf     +5   +15  +20  +3   +8   +12  -5   +10    50 feet
-           Ent          +5   +5   +20  -6   +5   +4   +15  +5     50 feet
-           RohanKnight  +10  +5   +5   -8   +1   +1   +5   +5     None
-           Thunderlord  +6    0   +10  -16  +30  +10  +15  +5     None
            Death Mold   +15  -5   +15  +25  +0   +10  +25  +25    10 feet
-           Yeek         -5   -5   -10  +0   -5   +0   -10  -10    20 feet
+           Dunadan      +4   +5   +5   +2   +3   +13  +15  +10    None
+           Dwarf        +2   +9   +10  -1   +7   +10  +15  +0     50 feet
+           Elf          +5   +6   +6   +2   +8   +12  -5   +15    30 feet
+           Ent          +5   +5   +20  -6   +5   +4   +15  +5     50 feet
+           Gnome        +10  +12  +12  +3   +6   +13  -8   +12    40 feet
+           Half-Elf     +2   +3   +3   +1   +6   +11  -1   +5     20 feet
+           Half-Ogre    -3   -5   -5   -2   -1   +5   +20  +0     30 feet
+           High-Elf     +4   +20  +20  +4   +3   +14  +10  +25    40 feet
+           Hobbit       +15  +18  +18  +5   +12  +15  -10  +20    40 feet
+           Human        +0   +0   +0   +0   +0   +10  +0   +0     None
+           Kobold       -2   -3   -2   -1   +1   +8   +10  -8     30 feet
+           Maia         +0   +0   +0   +0   +0   +10  +0   +0     None        
+           Orc          -3   -3   -3   -1   +0   +7   +12  -5     30 feet
+           Petty Dwarf  +3   +5   +10  +1   +5   +10  +9   +0     50 feet
+           RohanKnight  +10  +5   +5   -8   +1   +1   +5   +5     None 
+           Thunderlord  +6    0   +10  -16  +30  +10  +15  +5     None
+           Troll        -5   -8   -8   -2   -1   +5   +20  -10    30 feet
            Wood Elf     +5   +6   +6   +5   +8   +12  -25  +40    40 feet
-           Maia         +0   +0   +0   +0   +0   +10  +0   +0     None
+           Yeek         -5   -5   -10  +0   -5   +0   -10  -10    20 feet
 ~~~~~79|Race Modifiers|Ability table
 #####GRace Modifiers:
 #####B                        Dsrm Dvce Save Stlh Srch Prcp HtH  Misl   Infra
            Classical    +0   +0   +0   +0   +0   +0   +0   +0     +0 feet
-           Vampire      +1   +3   +3   +1   +1   +4   +2   +0     +30 feet
-           Spectre      +2   +8   +7   +2   +2   +7   -5   -2     +30 feet
-           Skeleton     -5   -5   +5   -1   -1   +8   +8   +0     +10 feet
-           Zombie       -2   -2   +5   -1   -1   +2   +5   +0     +10 feet
            Barbarian    -2   -10  +2   -2   +0   +1   +12  +5     +0 feet
-           Hermit       +5   +10  +5   +3   +4   +10  -5   -5     +10 feet
            Corrupted    +0   +0   +0   +0   +0   +0   +0   +0     +0 feet
-           Lost Soul    +0   +0   +0   +0   +0   +0   +0   +0     +0 feet
+           Hermit       +5   +10  +5   +3   +4   +10  -5   -5     +10 feet
+           Lost Soul    +0   +0   +0   +0   +0   +0   +0   +0     +0 feet                                 
+           Skeleton     -5   -5   +5   -1   -1   +8   +8   +0     +10 feet
+           Spectre      +2   +8   +7   +2   +2   +7   -5   -2     +30 feet
+           Zombie       -2   -2   +5   -1   -1   +2   +5   +0     +10 feet
 ~~~~~80|Classes|Ability table
 #####GClasses:
 #####B                Dsrm    Dvce    Save    Stlh  Srch  Prcp  HtH     Misl   XP
-Warrior         25+12   18+7    18+10   1     14    2     70+45   55+45  +0%
-Swordmaster     25+12   18+7    18+10   1     14    2     70+45   55+45  +0%
 Axemaster       25+12   18+7    18+10   1     14    2     70+45   55+45  +0%
+Demonologist    25+12   18+7    18+10   1     14    2     70+45   55+45  +0%
 Haftedmaster    25+12   18+7    18+10   1     14    2     70+45   55+45  +0%
 Polearmmaster   25+12   18+7    18+10   1     14    2     70+45   55+45  +0%
+Swordmaster     25+12   18+7    18+10   1     14    2     70+45   55+45  +0%
 Unbeliever      25+12   18+7    18+10   1     14    2     70+45   55+45  +0%
-Demonologist    25+12   18+7    18+10   1     14    2     70+45   55+45  +0%
+Warrior         25+12   18+7    18+10   1     14    2     70+45   55+45  +0%
+
+Alchemist       30+7    36+13   30+9    2     16    20    34+15   20+15  +30%
+Geomancer       30+7    36+13   30+9    2     16    20    34+15   20+15  +30%
 Mage            30+7    36+13   30+9    2     16    20    34+15   20+15  +30%
-Elementalist    30+7    36+13   30+9    2     16    20    34+15   20+15  +30%
-Warper          30+7    36+13   30+9    2     16    20    34+15   20+15  +30%
-Sorceror        30+7    36+13   30+9    2     16    20    34+15   20+15  +30%
 Necromancer     30+7    36+13   30+9    2     16    20    34+15   20+15  +30%
 Runecrafter     30+7    36+13   30+9    2     16    20    34+15   20+15  +30%
+Sorceror        30+7    36+13   30+9    2     16    20    34+15   20+15  +30%
 Thaumaturgist   30+7    36+13   30+9    2     16    20    34+15   20+15  +30%
-Alchemist       30+7    36+13   30+9    2     16    20    34+15   20+15  +30%
+Warper          30+7    36+13   30+9    2     16    20    34+15   20+15  +30%
+
 Archer          30+8    32+10   28+10   3     24    16    56+30   82+45  +30%
 Ranger          30+8    32+10   28+10   3     24    16    56+30   82+45  +30%
-Rogue           45+15   32+10   28+10   5     32    24    60+40   66+30  +25%
+
 Assassin        45+15   32+10   28+10   5     32    24    60+40   66+30  +25%
+Rogue           45+15   32+10   28+10   5     32    24    60+40   66+30  +25%
+
+Bard            25+12   18+7    18+10   1     14    2     30+25   25+25  +40%
 Loremaster      25+12   18+7    18+10   1     14    2     30+25   25+25  +40%
-Possessor       25+12   18+7    18+10   1     14    2     30+25   25+25  +40%
 Mimic           25+12   18+7    18+10   1     14    2     30+25   25+25  +40%
-Symbiant        25+12   18+7    18+10   1     14    2     30+25   25+25  +40%
-Summoner        25+12   18+7    18+10   1     14    2     30+25   25+25  +40%
 Monk            25+12   18+7    18+10   1     14    2     30+25   25+25  +40%
+Possessor       25+12   18+7    18+10   1     14    2     30+25   25+25  +40%
+Summoner        25+12   18+7    18+10   1     14    2     30+25   25+25  +40%
+Symbiant        25+12   18+7    18+10   1     14    2     30+25   25+25  +40%
+
+Dark-Priest     25+7    30+10   32+12   2     16    8     48+20   35+20  +20%
+Druid           25+7    30+10   32+12   2     16    8     48+20   35+20  +20%
+Mindcrafter     25+7    30+10   32+12   2     16    8     48+20   35+20  +20%
+Paladin         25+7    30+10   32+12   2     16    8     48+20   35+20  +20%
 Priest(Eru)     25+7    30+10   32+12   2     16    8     48+20   35+20  +20%
 Priest(Manwe)   25+7    30+10   32+12   2     16    8     48+20   35+20  +20%
-Druid           25+7    30+10   32+12   2     16    8     48+20   35+20  +20%
-Dark-Priest     25+7    30+10   32+12   2     16    8     48+20   35+20  +20%
-Paladin         25+7    30+10   32+12   2     16    8     48+20   35+20  +20%
-Mindcrafter     25+7    30+10   32+12   2     16    8     48+20   35+20  +20%

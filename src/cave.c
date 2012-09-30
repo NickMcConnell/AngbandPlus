@@ -31,7 +31,7 @@ int distance(int y1, int x1, int y2, int x2)
 	dx = (x1 > x2) ? (x1 - x2) : (x2 - x1);
 
 	/* Hack -- approximate the distance */
-	d = (dy > dx) ? (dy + (dx>>1)) : (dx + (dy>>1));
+	d = (dy > dx) ? (dy + (dx >> 1)) : (dx + (dy >> 1));
 
 	/* Return the distance */
 	return (d);
@@ -335,7 +335,7 @@ bool los(int y1, int x1, int y2, int x2)
  */
 bool no_lite(void)
 {
-	return (!player_can_see_bold(py, px));
+	return (!player_can_see_bold(p_ptr->py, p_ptr->px));
 }
 
 
@@ -358,7 +358,7 @@ bool cave_valid_bold(int y, int x)
 	/* Check objects */
 	for (this_o_idx = c_ptr->o_idx; this_o_idx; this_o_idx = next_o_idx)
 	{
-		object_type *o_ptr;
+		object_type * o_ptr;
 
 		/* Acquire object */
 		o_ptr = &o_list[this_o_idx];
@@ -380,8 +380,7 @@ bool cave_valid_bold(int y, int x)
 /*
  * Hack -- Legal monster codes
  */
-static cptr image_monster_hack = \
-"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+static cptr image_monster_hack = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 /*
  * Hack -- Legal monster codes for IBM pseudo-graphics
@@ -401,7 +400,7 @@ static void image_monster(byte *ap, char *cp)
 	switch (graphics_mode)
 	{
 		/* Text mode */
-		case GRAPHICS_NONE:
+	case GRAPHICS_NONE:
 		{
 			n = strlen(image_monster_hack);
 
@@ -415,10 +414,10 @@ static void image_monster(byte *ap, char *cp)
 		}
 
 		/* Normal graphics */
-		default:
+	default:
 		{
 			/* Avoid player ghost */
-			n = randint(max_r_idx - 2);
+			n = randint(max_r_idx);
 
 			*cp = r_info[n].x_char;
 
@@ -435,8 +434,7 @@ static void image_monster(byte *ap, char *cp)
 /*
  * Hack -- Legal object codes
  */
-static cptr image_object_hack = \
-"?/|\\\"!$()_-=[]{},~";
+static cptr image_object_hack = "?/|\\\"!$()_-=[]{},~";
 
 /*
  * Hardcoded IBM pseudo-graphics code points have been removed
@@ -453,7 +451,7 @@ static void image_object(byte *ap, char *cp)
 	switch (graphics_mode)
 	{
 		/* Text mode */
-		case GRAPHICS_NONE:
+	case GRAPHICS_NONE:
 		{
 			n = strlen(image_object_hack);
 
@@ -468,7 +466,7 @@ static void image_object(byte *ap, char *cp)
 		}
 
 		/* Normal graphics */
-		default:
+	default:
 		{
 			n = randint(max_k_idx - 1);
 
@@ -506,7 +504,7 @@ static void image_random(byte *ap, char *cp)
 #if 1
 
 #define feat_supports_lighting(F) \
-	((f_info[F].flags1 & FF1_SUPPORT_LIGHT) != 0)
+((f_info[F].flags1 & FF1_SUPPORT_LIGHT) != 0)
 
 #else
 
@@ -523,67 +521,67 @@ char get_shimmer_color()
 {
 	switch (randint(7))
 	{
-		case 1:
-			return (TERM_RED);
-		case 2:
-			return (TERM_L_RED);
-		case 3:
-			return (TERM_WHITE);
-		case 4:
-			return (TERM_L_GREEN);
-		case 5:
-			return (TERM_BLUE);
-		case 6:
-			return (TERM_L_DARK);
-		case 7:
-			return (TERM_GREEN);
+	case 1:
+		return (TERM_RED);
+	case 2:
+		return (TERM_L_RED);
+	case 3:
+		return (TERM_WHITE);
+	case 4:
+		return (TERM_L_GREEN);
+	case 5:
+		return (TERM_BLUE);
+	case 6:
+		return (TERM_L_DARK);
+	case 7:
+		return (TERM_GREEN);
 	}
 
 	return (TERM_VIOLET);
 }
 
 
-/* 
+/*
  * Table of breath colors.  Must match listings in a single set of 
  * monster spell flags.
  *
  * The value "255" is special.  Monsters with that kind of breath 
  * may be any color.
  */
-static byte breath_to_attr[32][2] = 
+static byte breath_to_attr[32][2] =
 {
-	{  0,  0 },
-	{  0,  0 },
-	{  0,  0 },
-	{  0,  0 },
-	{  0,  0 },
-	{  0,  0 },
-	{  0,  0 },
-	{  0,  0 },
-	{  TERM_SLATE, TERM_L_DARK },       /* RF4_BRTH_ACID */
-	{  TERM_BLUE,  TERM_L_BLUE },       /* RF4_BRTH_ELEC */
-	{  TERM_RED,  TERM_L_RED },         /* RF4_BRTH_FIRE */
-	{  TERM_WHITE,  TERM_L_WHITE },     /* RF4_BRTH_COLD */
-	{  TERM_GREEN,  TERM_L_GREEN },     /* RF4_BRTH_POIS */
-	{  TERM_L_GREEN,  TERM_GREEN },     /* RF4_BRTH_NETHR */
-	{  TERM_YELLOW,  TERM_ORANGE },     /* RF4_BRTH_LITE */
-	{  TERM_L_DARK,  TERM_SLATE },      /* RF4_BRTH_DARK */
-	{  TERM_L_UMBER,  TERM_UMBER },     /* RF4_BRTH_CONFU */
-	{  TERM_YELLOW,  TERM_L_UMBER },    /* RF4_BRTH_SOUND */
-	{  255,  255 },   /* (any color) */ /* RF4_BRTH_CHAOS */
-	{  TERM_VIOLET,  TERM_VIOLET },     /* RF4_BRTH_DISEN */
-	{  TERM_L_RED,  TERM_VIOLET },      /* RF4_BRTH_NEXUS */
-	{  TERM_L_BLUE,  TERM_L_BLUE },     /* RF4_BRTH_TIME */
-	{  TERM_L_WHITE,  TERM_SLATE },     /* RF4_BRTH_INER */
-	{  TERM_L_WHITE,  TERM_SLATE },     /* RF4_BRTH_GRAV */
-	{  TERM_UMBER,  TERM_L_UMBER },     /* RF4_BRTH_SHARD */
-	{  TERM_ORANGE,  TERM_RED },        /* RF4_BRTH_PLAS */
-	{  TERM_UMBER,  TERM_L_UMBER },     /* RF4_BRTH_FORCE */
-	{  TERM_L_BLUE,  TERM_WHITE },      /* RF4_BRTH_MANA */
-	{  0,  0 },     /*  */
-	{  TERM_GREEN,  TERM_L_GREEN },     /* RF4_BRTH_NUKE */
-	{  0,  0 },     /*  */
-	{  TERM_WHITE,  TERM_L_RED },       /* RF4_BRTH_DISINT */
+	{ 0, 0 },
+	{ 0, 0 },
+	{ 0, 0 },
+	{ 0, 0 },
+	{ 0, 0 },
+	{ 0, 0 },
+	{ 0, 0 },
+	{ 0, 0 },
+	{ TERM_SLATE, TERM_L_DARK },        /* RF4_BRTH_ACID */
+	{ TERM_BLUE, TERM_L_BLUE },        /* RF4_BRTH_ELEC */
+	{ TERM_RED, TERM_L_RED },          /* RF4_BRTH_FIRE */
+	{ TERM_WHITE, TERM_L_WHITE },      /* RF4_BRTH_COLD */
+	{ TERM_GREEN, TERM_L_GREEN },      /* RF4_BRTH_POIS */
+	{ TERM_L_GREEN, TERM_GREEN },      /* RF4_BRTH_NETHR */
+	{ TERM_YELLOW, TERM_ORANGE },      /* RF4_BRTH_LITE */
+	{ TERM_L_DARK, TERM_SLATE },       /* RF4_BRTH_DARK */
+	{ TERM_L_UMBER, TERM_UMBER },      /* RF4_BRTH_CONFU */
+	{ TERM_YELLOW, TERM_L_UMBER },     /* RF4_BRTH_SOUND */
+	{ 255, 255 },    /* (any color) */ /* RF4_BRTH_CHAOS */
+	{ TERM_VIOLET, TERM_VIOLET },      /* RF4_BRTH_DISEN */
+	{ TERM_L_RED, TERM_VIOLET },       /* RF4_BRTH_NEXUS */
+	{ TERM_L_BLUE, TERM_L_BLUE },      /* RF4_BRTH_TIME */
+	{ TERM_L_WHITE, TERM_SLATE },      /* RF4_BRTH_INER */
+	{ TERM_L_WHITE, TERM_SLATE },      /* RF4_BRTH_GRAV */
+	{ TERM_UMBER, TERM_L_UMBER },      /* RF4_BRTH_SHARD */
+	{ TERM_ORANGE, TERM_RED },         /* RF4_BRTH_PLAS */
+	{ TERM_UMBER, TERM_L_UMBER },      /* RF4_BRTH_FORCE */
+	{ TERM_L_BLUE, TERM_WHITE },       /* RF4_BRTH_MANA */
+	{ 0, 0 },      /*  */
+	{ TERM_GREEN, TERM_L_GREEN },      /* RF4_BRTH_NUKE */
+	{ 0, 0 },      /*  */
+	{ TERM_WHITE, TERM_L_RED },        /* RF4_BRTH_DISINT */
 };
 
 
@@ -651,7 +649,7 @@ static byte multi_hued_attr(monster_race *r_ptr)
 			stored_colors++;
 		}
 
-		/* 
+		/*
 		 * Remember (but do not immediately store) the second color 
 		 * of the first breath.
 		 */
@@ -853,7 +851,7 @@ static byte multi_hued_attr(monster_race *r_ptr)
 static byte dark_attrs[16] =
 {
 	TERM_DARK, TERM_L_WHITE, TERM_L_DARK, TERM_ORANGE,
-	TERM_RED, TERM_GREEN, TERM_BLUE, TERM_UMBER, 
+	TERM_RED, TERM_GREEN, TERM_BLUE, TERM_UMBER,
 	TERM_L_DARK, TERM_SLATE, TERM_VIOLET, TERM_YELLOW,
 	TERM_RED, TERM_GREEN, TERM_BLUE, TERM_UMBER
 };
@@ -862,7 +860,7 @@ static byte dark_attrs[16] =
 static byte darker_attrs[16] =
 {
 	TERM_DARK, TERM_L_WHITE, TERM_L_DARK, TERM_SLATE,
-	TERM_L_DARK, TERM_L_DARK, TERM_L_DARK, TERM_L_DARK, 
+	TERM_L_DARK, TERM_L_DARK, TERM_L_DARK, TERM_L_DARK,
 	TERM_L_DARK, TERM_SLATE, TERM_L_DARK, TERM_SLATE,
 	TERM_SLATE, TERM_SLATE, TERM_SLATE, TERM_SLATE
 };
@@ -871,7 +869,7 @@ static byte darker_attrs[16] =
 #ifdef USE_TRANSPARENCY
 #ifdef USE_EGO_GRAPHICS
 void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp,
-	byte *eap, char *ecp)
+              byte *eap, char *ecp)
 #else /* USE_EGO_GRAPHICS */
 void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 #endif /* USE_EGO_GRAPHICS */
@@ -980,7 +978,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 
 		/* Mega-Hack 2 -- stair to dungeon branch are purple */
 		if (c_ptr->special && attr_mutable &&
-		    ((feat == FEAT_MORE) || (feat == FEAT_LESS)))
+		                ((feat == FEAT_MORE) || (feat == FEAT_LESS)))
 		{
 			a = TERM_VIOLET;
 		}
@@ -992,8 +990,8 @@ void map_info(int y, int x, byte *ap, char *cp)
 			t_idx = c_ptr->t_idx;
 
 			if (use_graphics &&
-			    (t_info[t_idx].g_attr != 0) &&
-			    (t_info[t_idx].g_char != 0))
+			                (t_info[t_idx].g_attr != 0) &&
+			                (t_info[t_idx].g_char != 0))
 			{
 
 #ifdef USE_EGO_GRAPHICS
@@ -1089,11 +1087,11 @@ void map_info(int y, int x, byte *ap, char *cp)
 		 */
 
 		/* view_special_lite: lighting effects for boring features */
-		if (view_special_lite && 
-		    ((f_ptr->flags1 & (FF1_FLOOR | FF1_REMEMBER)) == FF1_FLOOR))
+		if (view_special_lite &&
+		                ((f_ptr->flags1 & (FF1_FLOOR | FF1_REMEMBER)) == FF1_FLOOR))
 		{
 			if (!p_ptr->wild_mode && !(info & (CAVE_TRDT)) &&
-			    (attr_mutable || (graf_new && feat_supports_lighting(feat))))
+			                (attr_mutable || (graf_new && feat_supports_lighting(feat))))
 			{
 				/* Handle "seen" grids */
 				if (info & (CAVE_SEEN))
@@ -1163,10 +1161,10 @@ void map_info(int y, int x, byte *ap, char *cp)
 
 		/* view_granite_lite: lighting effects for walls and doors */
 		else if (view_granite_lite &&
-		         (f_ptr->flags1 & (FF1_NO_VISION | FF1_DOOR)))
+		                (f_ptr->flags1 & (FF1_NO_VISION | FF1_DOOR)))
 		{
 			if (!p_ptr->wild_mode && !(info & (CAVE_TRDT)) &&
-			    (attr_mutable || (graf_new && feat_supports_lighting(feat))))
+			                (attr_mutable || (graf_new && feat_supports_lighting(feat))))
 			{
 				/* Handle "seen" grids */
 				if (info & (CAVE_SEEN))
@@ -1263,7 +1261,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 	{
 		for (this_o_idx = c_ptr->o_idx; this_o_idx; this_o_idx = next_o_idx)
 		{
-			object_type *o_ptr;
+			object_type * o_ptr;
 
 			/* Acquire object */
 			o_ptr = &o_list[this_o_idx];
@@ -1282,7 +1280,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 
 				/* Multi-hued attr */
 				if (!avoid_other && attr_mutable &&
-				    (k_info[o_ptr->k_idx].flags5 & TR5_ATTR_MULTI))
+				                (k_info[o_ptr->k_idx].flags5 & TR5_ATTR_MULTI))
 				{
 					*ap = get_shimmer_color();
 				}
@@ -1322,7 +1320,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 
 				/* Multi-hued attr */
 				if (!avoid_other && attr_mutable &&
-				    (k_info[o_ptr->k_idx].flags5 & TR5_ATTR_MULTI))
+				                (k_info[o_ptr->k_idx].flags5 & TR5_ATTR_MULTI))
 				{
 					*ap = get_shimmer_color();
 				}
@@ -1466,8 +1464,8 @@ void map_info(int y, int x, byte *ap, char *cp)
 	}
 
 	/* Handle "player" */
-	if ((y == py) && (x == px) &&
-	    (!p_ptr->invis || p_ptr->see_inv))
+	if ((y == p_ptr->py) && (x == p_ptr->px) &&
+	                (!p_ptr->invis || p_ptr->see_inv))
 	{
 		monster_race *r_ptr = &r_info[p_ptr->body_monster];
 
@@ -1496,8 +1494,8 @@ void map_info(int y, int x, byte *ap, char *cp)
 		/* Mega-Hack -- Apply modifications to player graphics XXX XXX XXX */
 		switch (graphics_mode)
 		{
-			case GRAPHICS_NONE:
-			case GRAPHICS_IBM:
+		case GRAPHICS_NONE:
+		case GRAPHICS_IBM:
 			{
 				if (player_char_health)
 				{
@@ -1515,12 +1513,12 @@ void map_info(int y, int x, byte *ap, char *cp)
 
 #ifdef VARIABLE_PLAYER_GRAPH
 
-			case GRAPHICS_OLD:
+		case GRAPHICS_OLD:
 			{
 				if (player_symbols)
 				{
 					a = BMP_FIRST_PC_CLASS + p_ptr->pclass;
-					c = BMP_FIRST_PC_RACE  + p_ptr->prace;
+					c = BMP_FIRST_PC_RACE + p_ptr->prace;
 				}
 
 				break;
@@ -1530,8 +1528,8 @@ void map_info(int y, int x, byte *ap, char *cp)
 
 #ifdef USE_EGO_GRAPHICS
 
-			case GRAPHICS_ISO:
-			case GRAPHICS_NEW:
+		case GRAPHICS_ISO:
+		case GRAPHICS_NEW:
 			{
 				if (p_ptr->pracem)
 				{
@@ -1544,19 +1542,19 @@ void map_info(int y, int x, byte *ap, char *cp)
 					*ecp = rmp_ptr->g_char;
 				}
 
-                                /* +AKH 20020421 - Health dispay for graphics, too */
-                                if (player_char_health && (graphics_mode == GRAPHICS_NEW))
-                                {
-                                        int percent = p_ptr->chp * 14 / p_ptr->mhp;
+				/* +AKH 20020421 - Health dispay for graphics, too */
+				if (player_char_health && (graphics_mode == GRAPHICS_NEW))
+				{
+					int percent = p_ptr->chp * 14 / p_ptr->mhp;
 
-                                        if (percent < 10)
-                                        {
-                                                *eap = 10;
-                                                *ecp = 32 + 14 - percent;
-                                        }
-                                }
+					if (percent < 10)
+					{
+						*eap = 10;
+						*ecp = 32 + 14 - percent;
+					}
+				}
 
-                                break;
+				break;
 			}
 
 #endif /* USE_EGO_GRAPHICS */
@@ -1654,8 +1652,8 @@ void map_info_default(int y, int x, byte *ap, char *cp)
 		}
 
 		/* Mega-Hack 2 -- stair to dungeon branch are purple */
-		if (c_ptr->special && 
-		    ((feat == FEAT_MORE) || (feat == FEAT_LESS)))
+		if (c_ptr->special &&
+		                ((feat == FEAT_MORE) || (feat == FEAT_LESS)))
 		{
 			a = TERM_VIOLET;
 		}
@@ -1728,7 +1726,7 @@ void map_info_default(int y, int x, byte *ap, char *cp)
 
 		/* view_special_lite: lighting effects for boring features */
 		if (view_special_lite &&
-		    ((f_ptr->flags1 & (FF1_FLOOR | FF1_REMEMBER)) == FF1_FLOOR))
+		                ((f_ptr->flags1 & (FF1_FLOOR | FF1_REMEMBER)) == FF1_FLOOR))
 		{
 			if (!p_ptr->wild_mode && !(info & (CAVE_TRDT)))
 			{
@@ -1768,7 +1766,7 @@ void map_info_default(int y, int x, byte *ap, char *cp)
 
 		/* view_granite_lite: lighting effects for walls and doors */
 		else if (view_granite_lite &&
-				 (f_ptr->flags1 & (FF1_NO_VISION | FF1_DOOR)))
+		                (f_ptr->flags1 & (FF1_NO_VISION | FF1_DOOR)))
 		{
 			if (!p_ptr->wild_mode && !(info & (CAVE_TRDT)))
 			{
@@ -1830,7 +1828,7 @@ void map_info_default(int y, int x, byte *ap, char *cp)
 	{
 		for (this_o_idx = c_ptr->o_idx; this_o_idx; this_o_idx = next_o_idx)
 		{
-			object_type *o_ptr;
+			object_type * o_ptr;
 
 			/* Acquire object */
 			o_ptr = &o_list[this_o_idx];
@@ -1849,7 +1847,7 @@ void map_info_default(int y, int x, byte *ap, char *cp)
 
 				/* Multi-hued attr */
 				if (!avoid_other &&
-				    (k_info[o_ptr->k_idx].flags5 & TR5_ATTR_MULTI))
+				                (k_info[o_ptr->k_idx].flags5 & TR5_ATTR_MULTI))
 				{
 					*ap = get_shimmer_color();
 				}
@@ -1889,7 +1887,7 @@ void map_info_default(int y, int x, byte *ap, char *cp)
 
 				/* Multi-hued attr */
 				if (!avoid_other && !use_graphics &&
-				    (k_info[o_ptr->k_idx].flags5 & TR5_ATTR_MULTI))
+				                (k_info[o_ptr->k_idx].flags5 & TR5_ATTR_MULTI))
 				{
 					*ap = get_shimmer_color();
 				}
@@ -1991,9 +1989,9 @@ void map_info_default(int y, int x, byte *ap, char *cp)
 
 
 	/* Handle "player" */
-	if ((y == py) && (x == px) &&
-	    (!p_ptr->invis ||
-	     (p_ptr->invis && p_ptr->see_inv)))
+	if ((y == p_ptr->py) && (x == p_ptr->px) &&
+	                (!p_ptr->invis ||
+	                 (p_ptr->invis && p_ptr->see_inv)))
 	{
 		monster_race *r_ptr = &r_info[p_ptr->body_monster];
 
@@ -2029,7 +2027,7 @@ static int panel_col_of(int col)
 {
 	col -= panel_col_min;
 	if (use_bigtile) col *= 2;
-	return col + COL_MAP; 
+	return col + COL_MAP;
 }
 
 
@@ -2053,29 +2051,29 @@ void move_cursor_relative(int row, int col)
  */
 void print_rel(char c, byte a, int y, int x)
 {
-        /* Paranoia -- Only do "legal" locations */
-        if (!panel_contains(y, x)) return;
+	/* Paranoia -- Only do "legal" locations */
+	if (!panel_contains(y, x)) return;
 
-        /* Draw the char using the attr */
-        Term_draw(panel_col_of(x), y-panel_row_prt, a, c);
+	/* Draw the char using the attr */
+	Term_draw(panel_col_of(x), y - panel_row_prt, a, c);
 
-        if (use_bigtile)
-        {
-                char c2;
-                byte a2;
+	if (use_bigtile)
+	{
+		char c2;
+		byte a2;
 
-                if (a & 0x80)
-                {
-                        a2 = 255;
-                        c2 = 255;
-                }
-                else
-                {
-                        a2 = TERM_WHITE;
-                        c2 = ' ';
-                }
-                Term_draw(panel_col_of(x)+1, y-panel_row_prt, a2, c2);
-        }
+		if (a & 0x80)
+		{
+			a2 = 255;
+			c2 = 255;
+		}
+		else
+		{
+			a2 = TERM_WHITE;
+			c2 = ' ';
+		}
+		Term_draw(panel_col_of(x) + 1, y - panel_row_prt, a2, c2);
+	}
 }
 
 
@@ -2137,7 +2135,7 @@ void note_spot(int y, int x)
 	/* Hack -- memorize objects */
 	for (this_o_idx = c_ptr->o_idx; this_o_idx; this_o_idx = next_o_idx)
 	{
-		object_type *o_ptr = &o_list[this_o_idx];
+		object_type * o_ptr = &o_list[this_o_idx];
 
 		/* Acquire next object */
 		next_o_idx = o_ptr->next_o_idx;
@@ -2168,8 +2166,8 @@ void note_spot(int y, int x)
 		{
 			/* Option -- memorise certain floors */
 			if ((info & (CAVE_TRDT)) ||
-			    ((info & (CAVE_GLOW)) && view_perma_grids ) ||
-			    view_torch_grids)
+			                ((info & (CAVE_GLOW)) && view_perma_grids ) ||
+			                view_torch_grids)
 			{
 				/* Memorize */
 				c_ptr->info |= (CAVE_MARK);
@@ -2204,7 +2202,7 @@ void lite_spot(int y, int x)
 	byte ea;
 	char ec;
 
-# endif /* USE_EGO_GRAPHICS */
+# endif  /* USE_EGO_GRAPHICS */
 #endif /* USE_TRANSPARENCY */
 
 
@@ -2219,7 +2217,7 @@ void lite_spot(int y, int x)
 		map_info(y, x, &a, &c, &ta, &tc, &ea, &ec);
 
 		/* Hack -- Queue it */
-		Term_queue_char(panel_col_of(x), y-panel_row_prt, a, c, ta, tc, ea, ec);
+		Term_queue_char(panel_col_of(x), y - panel_row_prt, a, c, ta, tc, ea, ec);
 		if (use_bigtile)
 		{
 			if (a & 0x80)
@@ -2232,7 +2230,7 @@ void lite_spot(int y, int x)
 				a2 = TERM_WHITE;
 				c2 = ' ';
 			}
-			Term_queue_char(panel_col_of(x)+1, y-panel_row_prt, a2, c2, 0, 0, 0, 0);
+			Term_queue_char(panel_col_of(x) + 1, y - panel_row_prt, a2, c2, 0, 0, 0, 0);
 		}
 
 # else /* USE_EGO_GRAPHICS */
@@ -2241,7 +2239,7 @@ void lite_spot(int y, int x)
 		map_info(y, x, &a, &c, &ta, &tc);
 
 		/* Hack -- Queue it */
-		Term_queue_char(panel_col_of(x), y-panel_row_prt, a, c, ta, tc);
+		Term_queue_char(panel_col_of(x), y - panel_row_prt, a, c, ta, tc);
 		if (use_bigtile)
 		{
 			if (a & 0x80)
@@ -2254,10 +2252,10 @@ void lite_spot(int y, int x)
 				a2 = TERM_WHITE;
 				c2 = ' ';
 			}
-			Term_queue_char(panel_col_of(x)+1, y-panel_row_prt, a2, c2, 0, 0);
+			Term_queue_char(panel_col_of(x) + 1, y - panel_row_prt, a2, c2, 0, 0);
 		}
 
-# endif /* USE_EGO_GRAPHICS */
+# endif  /* USE_EGO_GRAPHICS */
 
 #else /* USE_TRANSPARENCY */
 
@@ -2265,7 +2263,7 @@ void lite_spot(int y, int x)
 		map_info(y, x, &a, &c);
 
 		/* Hack -- Queue it */
-		Term_queue_char(panel_col_of(x), y-panel_row_prt, a, c);
+		Term_queue_char(panel_col_of(x), y - panel_row_prt, a, c);
 		if (use_bigtile)
 		{
 			if (a & 0x80)
@@ -2278,7 +2276,7 @@ void lite_spot(int y, int x)
 				a2 = TERM_WHITE;
 				c2 = ' ';
 			}
-			Term_queue_char(panel_col_of(x)+1, y-panel_row_prt, a2, c2);
+			Term_queue_char(panel_col_of(x) + 1, y - panel_row_prt, a2, c2);
 		}
 
 #endif /* USE_TRANSPARENCY */
@@ -2329,7 +2327,7 @@ void prt_map(void)
 			map_info(y, x, &a, &c, &ta, &tc, &ea, &ec);
 
 			/* Efficiency -- Redraw that grid of the map */
-			Term_queue_char(panel_col_of(x), y-panel_row_prt, a, c, ta, tc, ea, ec);
+			Term_queue_char(panel_col_of(x), y - panel_row_prt, a, c, ta, tc, ea, ec);
 			if (use_bigtile)
 			{
 				if (a & 0x80)
@@ -2342,13 +2340,13 @@ void prt_map(void)
 					a2 = TERM_WHITE;
 					c2 = ' ';
 				}
-				Term_queue_char(panel_col_of(x)+1, y-panel_row_prt, a2, c2, 0, 0, 0, 0);
+				Term_queue_char(panel_col_of(x) + 1, y - panel_row_prt, a2, c2, 0, 0, 0, 0);
 			}
 #else /* USE_EGO_GRAPHICS */
-			/* Determine what is there */
+/* Determine what is there */
 			map_info(y, x, &a, &c, &ta, &tc);
 			/* Efficiency -- Redraw that grid of the map */
-			Term_queue_char(panel_col_of(x), y-panel_row_prt, a, c, ta, tc);
+			Term_queue_char(panel_col_of(x), y - panel_row_prt, a, c, ta, tc);
 			if (use_bigtile)
 			{
 				if (a & 0x80)
@@ -2361,7 +2359,7 @@ void prt_map(void)
 					a2 = TERM_WHITE;
 					c2 = ' ';
 				}
-				Term_queue_char(panel_col_of(x)+1, y-panel_row_prt, a2, c2, 0, 0);
+				Term_queue_char(panel_col_of(x) + 1, y - panel_row_prt, a2, c2, 0, 0);
 			}
 
 #endif /* USE_EGO_GRAPHICS */
@@ -2370,7 +2368,7 @@ void prt_map(void)
 			map_info(y, x, &a, &c);
 
 			/* Efficiency -- Redraw that grid of the map */
-			Term_queue_char(panel_col_of(x), y-panel_row_prt, a, c);
+			Term_queue_char(panel_col_of(x), y - panel_row_prt, a, c);
 			if (use_bigtile)
 			{
 				if (a & 0x80)
@@ -2383,14 +2381,14 @@ void prt_map(void)
 					a2 = TERM_WHITE;
 					c2 = ' ';
 				}
-				Term_queue_char(panel_col_of(x)+1, y-panel_row_prt, a2, c2);
+				Term_queue_char(panel_col_of(x) + 1, y - panel_row_prt, a2, c2);
 			}
 #endif /* USE_TRANSPARENCY */
 		}
 	}
 
 	/* Display player */
-	lite_spot(py, px);
+	lite_spot(p_ptr->py, p_ptr->px);
 
 	/* Restore the cursor */
 	(void)Term_set_cursor(v);
@@ -2633,7 +2631,7 @@ void display_map(int *cy, int *cx)
 			map_info(j, i, &ta, &tc, &ta, &tc, &ta, &tc);
 # else /* USE_EGO_GRAPHICS */
 			map_info(j, i, &ta, &tc, &ta, &tc);
-# endif /* USE_EGO_GRAPHICS */
+# endif  /* USE_EGO_GRAPHICS */
 #else /* USE_TRANSPARENCY */
 			map_info(j, i, &ta, &tc);
 #endif /* USE_TRANSPARENCY */
@@ -2642,7 +2640,7 @@ void display_map(int *cy, int *cx)
 			tp = priority(ta, tc);
 
 			/* Player location has the highest priority */
-			if ((py == j) && (px == i)) tp = 255;
+			if ((p_ptr->py == j) && (p_ptr->px == i)) tp = 255;
 
 			/* Save "best" */
 			if (mp[y][x] < tp)
@@ -2713,14 +2711,14 @@ void display_map(int *cy, int *cx)
 	}
 
 	/* Player location in dungeon */
-	*cy = py * yfactor / yrat + ROW_MAP;
+	*cy = p_ptr->py * yfactor / yrat + ROW_MAP;
 	if (!use_bigtile)
 	{
-		*cx = px * xfactor / xrat + COL_MAP;
+		*cx = p_ptr->px * xfactor / xrat + COL_MAP;
 	}
 	else
 	{
-		*cx = (px * xfactor / xrat + 1) * 2 - 1 + COL_MAP;
+		*cx = (p_ptr->px * xfactor / xrat + 1) * 2 - 1 + COL_MAP;
 	}
 
 	/* Free each line in the maps */
@@ -3346,14 +3344,15 @@ typedef struct vinfo_hack vinfo_hack;
  *
  *	- Slope range per grid
  */
-struct vinfo_hack {
+struct vinfo_hack
+{
 
 	int num_slopes;
 
 	long slopes[VINFO_MAX_SLOPES];
 
-	long slopes_min[MAX_SIGHT+1][MAX_SIGHT+1];
-	long slopes_max[MAX_SIGHT+1][MAX_SIGHT+1];
+	long slopes_min[MAX_SIGHT + 1][MAX_SIGHT + 1];
+	long slopes_max[MAX_SIGHT + 1][MAX_SIGHT + 1];
 };
 
 
@@ -3380,12 +3379,12 @@ static void ang_sort_swap_hook_longs(vptr u, vptr v, int a, int b)
 {
 	long *x = (long*)(u);
 
-        long temp;
+	long temp;
 
-        /* Swap */
-        temp = x[a];
-        x[a] = x[b];
-        x[b] = temp;
+	/* Swap */
+	temp = x[a];
+	x[a] = x[b];
+	x[b] = temp;
 }
 
 
@@ -3413,7 +3412,7 @@ static void vinfo_init_aux(vinfo_hack *hack, int y, int x, long m)
 			if (hack->num_slopes >= VINFO_MAX_SLOPES)
 			{
 				quit_fmt("Too many slopes (%d)!",
-			         	VINFO_MAX_SLOPES);
+				         VINFO_MAX_SLOPES);
 			}
 
 			/* Save the slope, and advance */
@@ -3559,14 +3558,22 @@ errr vinfo_init(void)
 
 
 		/* Compute grid offsets */
-		vinfo[e].grid_y[0] = +y; vinfo[e].grid_x[0] = +x;
-		vinfo[e].grid_y[1] = +x; vinfo[e].grid_x[1] = +y;
-		vinfo[e].grid_y[2] = +x; vinfo[e].grid_x[2] = -y;
-		vinfo[e].grid_y[3] = +y; vinfo[e].grid_x[3] = -x;
-		vinfo[e].grid_y[4] = -y; vinfo[e].grid_x[4] = -x;
-		vinfo[e].grid_y[5] = -x; vinfo[e].grid_x[5] = -y;
-		vinfo[e].grid_y[6] = -x; vinfo[e].grid_x[6] = +y;
-		vinfo[e].grid_y[7] = -y; vinfo[e].grid_x[7] = +x;
+		vinfo[e].grid_y[0] = + y;
+		vinfo[e].grid_x[0] = + x;
+		vinfo[e].grid_y[1] = + x;
+		vinfo[e].grid_x[1] = + y;
+		vinfo[e].grid_y[2] = + x;
+		vinfo[e].grid_x[2] = -y;
+		vinfo[e].grid_y[3] = + y;
+		vinfo[e].grid_x[3] = -x;
+		vinfo[e].grid_y[4] = -y;
+		vinfo[e].grid_x[4] = -x;
+		vinfo[e].grid_y[5] = -x;
+		vinfo[e].grid_x[5] = -y;
+		vinfo[e].grid_y[6] = -x;
+		vinfo[e].grid_x[6] = + y;
+		vinfo[e].grid_y[7] = -y;
+		vinfo[e].grid_x[7] = + x;
 
 
 		/* Analyze slopes */
@@ -3576,15 +3583,23 @@ errr vinfo_init(void)
 
 			/* Memorize intersection slopes (for non-player-grids) */
 			if ((e > 0) &&
-			    (hack->slopes_min[y][x] < m) &&
-			    (m < hack->slopes_max[y][x]))
+			                (hack->slopes_min[y][x] < m) &&
+			                (m < hack->slopes_max[y][x]))
 			{
 				switch (i / 32)
 				{
-					case 3: vinfo[e].bits_3 |= (1L << (i % 32)); break;
-					case 2: vinfo[e].bits_2 |= (1L << (i % 32)); break;
-					case 1: vinfo[e].bits_1 |= (1L << (i % 32)); break;
-					case 0: vinfo[e].bits_0 |= (1L << (i % 32)); break;
+				case 3:
+					vinfo[e].bits_3 |= (1L << (i % 32));
+					break;
+				case 2:
+					vinfo[e].bits_2 |= (1L << (i % 32));
+					break;
+				case 1:
+					vinfo[e].bits_1 |= (1L << (i % 32));
+					break;
+				case 0:
+					vinfo[e].bits_0 |= (1L << (i % 32));
+					break;
 				}
 			}
 		}
@@ -3594,10 +3609,10 @@ errr vinfo_init(void)
 		vinfo[e].next_0 = &vinfo[0];
 
 		/* Grid next child */
-		if (distance(0, 0, y, x+1) <= MAX_SIGHT)
+		if (distance(0, 0, y, x + 1) <= MAX_SIGHT)
 		{
-			if ((queue[queue_tail-1]->grid_y[0] != y) ||
-			    (queue[queue_tail-1]->grid_x[0] != x + 1))
+			if ((queue[queue_tail - 1]->grid_y[0] != y) ||
+			                (queue[queue_tail - 1]->grid_x[0] != x + 1))
 			{
 				vinfo[queue_tail].grid_y[0] = y;
 				vinfo[queue_tail].grid_x[0] = x + 1;
@@ -3613,10 +3628,10 @@ errr vinfo_init(void)
 		vinfo[e].next_1 = &vinfo[0];
 
 		/* Grid diag child */
-		if (distance(0, 0, y+1, x+1) <= MAX_SIGHT)
+		if (distance(0, 0, y + 1, x + 1) <= MAX_SIGHT)
 		{
-			if ((queue[queue_tail-1]->grid_y[0] != y + 1) ||
-			    (queue[queue_tail-1]->grid_x[0] != x + 1))
+			if ((queue[queue_tail - 1]->grid_y[0] != y + 1) ||
+			                (queue[queue_tail - 1]->grid_x[0] != x + 1))
 			{
 				vinfo[queue_tail].grid_y[0] = y + 1;
 				vinfo[queue_tail].grid_x[0] = x + 1;
@@ -3635,16 +3650,16 @@ errr vinfo_init(void)
 		/* Extra values */
 		vinfo[e].y = y;
 		vinfo[e].x = x;
-		vinfo[e].d = ((y > x) ? (y + x/2) : (x + y/2));
+		vinfo[e].d = ((y > x) ? (y + x / 2) : (x + y / 2));
 		vinfo[e].r = ((!y) ? x : (!x) ? y : (y == x) ? y : 0);
 	}
 
 
 	/* Verify maximal bits XXX XXX XXX */
 	if (((vinfo[1].bits_3 | vinfo[2].bits_3) != VINFO_BITS_3) ||
-	    ((vinfo[1].bits_2 | vinfo[2].bits_2) != VINFO_BITS_2) ||
-	    ((vinfo[1].bits_1 | vinfo[2].bits_1) != VINFO_BITS_1) ||
-	    ((vinfo[1].bits_0 | vinfo[2].bits_0) != VINFO_BITS_0))
+	                ((vinfo[1].bits_2 | vinfo[2].bits_2) != VINFO_BITS_2) ||
+	                ((vinfo[1].bits_1 | vinfo[2].bits_1) != VINFO_BITS_1) ||
+	                ((vinfo[1].bits_0 | vinfo[2].bits_0) != VINFO_BITS_0))
 	{
 		quit("Incorrect bit masks!");
 	}
@@ -3800,7 +3815,8 @@ void update_view(void)
 		c_ptr = &cave[y][x];
 
 		/* Get grid info */
-		info = c_ptr->info;;
+		info = c_ptr->info;
+		;
 
 		/* Save "CAVE_SEEN" grids */
 		if (info & (CAVE_SEEN))
@@ -3833,7 +3849,7 @@ void update_view(void)
 	/*** Step 1 -- player grid ***/
 
 	/* Player grid */
-	c_ptr = &cave[py][px];
+	c_ptr = &cave[p_ptr->py][p_ptr->px];
 
 	/* Get grid info */
 	info = c_ptr->info;
@@ -3860,8 +3876,8 @@ void update_view(void)
 	c_ptr->info = info;
 
 	/* Save in array */
-	view_y[fast_view_n] = py;
-	view_x[fast_view_n++] = px;
+	view_y[fast_view_n] = p_ptr->py;
+	view_x[fast_view_n++] = p_ptr->px;
 
 
 	/*** Step 2 -- octants ***/
@@ -3900,13 +3916,13 @@ void update_view(void)
 
 			/* Check bits */
 			if ((bits0 & (p->bits_0)) ||
-			    (bits1 & (p->bits_1)) ||
-			    (bits2 & (p->bits_2)) ||
-			    (bits3 & (p->bits_3)))
+			                (bits1 & (p->bits_1)) ||
+			                (bits2 & (p->bits_2)) ||
+			                (bits3 & (p->bits_3)))
 			{
 				/* Extract coordinate value */
-				y = py + p->grid_y[o];
-				x = px + p->grid_x[o];
+				y = p_ptr->py + p->grid_y[o];
+				x = p_ptr->px + p->grid_x[o];
 
 				/* Access the grid */
 				c_ptr = &cave[y][x];
@@ -3947,18 +3963,18 @@ void update_view(void)
 						else if (info & (CAVE_GLOW))
 						{
 							/* Hack -- move towards player */
-							int yy = (y < py) ? (y + 1) : (y > py) ? (y - 1) : y;
-							int xx = (x < px) ? (x + 1) : (x > px) ? (x - 1) : x;
+							int yy = (y < p_ptr->py) ? (y + 1) : (y > p_ptr->py) ? (y - 1) : y;
+							int xx = (x < p_ptr->px) ? (x + 1) : (x > p_ptr->px) ? (x - 1) : x;
 
 #ifdef UPDATE_VIEW_COMPLEX_WALL_ILLUMINATION
 
 							/* Check for "complex" illumination */
 							if ((!(cave[yy][xx].info & (CAVE_WALL)) &&
-							      (cave[yy][xx].info & (CAVE_GLOW))) ||
-							    (!(cave[y][xx].info & (CAVE_WALL)) &&
-							      (cave[y][xx].info & (CAVE_GLOW))) ||
-							    (!(cave[yy][x].info & (CAVE_WALL)) &&
-							      (cave[yy][x].info & (CAVE_GLOW))))
+							                (cave[yy][xx].info & (CAVE_GLOW))) ||
+							                (!(cave[y][xx].info & (CAVE_WALL)) &&
+							                 (cave[y][xx].info & (CAVE_GLOW))) ||
+							                (!(cave[yy][x].info & (CAVE_WALL)) &&
+							                 (cave[yy][x].info & (CAVE_GLOW))))
 							{
 								/* Mark as seen */
 								info |= (CAVE_SEEN);
@@ -4562,7 +4578,7 @@ void update_flow(void)
 	flow_head = flow_tail = 0;
 
 	/* Add the player's grid to the queue */
-	update_flow_aux(py, px, 0);
+	update_flow_aux(p_ptr->py, p_ptr->px, 0);
 
 	/* Now process the queue */
 	while (flow_head != flow_tail)
@@ -4578,7 +4594,7 @@ void update_flow(void)
 		for (d = 0; d < 8; d++)
 		{
 			/* Add that child if "legal" */
-			update_flow_aux(y+ddy_ddd[d], x+ddx_ddd[d], cave[y][x].cost+1);
+			update_flow_aux(y + ddy_ddd[d], x + ddx_ddd[d], cave[y][x].cost + 1);
 		}
 	}
 
@@ -4600,9 +4616,9 @@ void update_flow(void)
  */
 void map_area(void)
 {
-	int             i, x, y, y1, y2, x1, x2;
+	int i, x, y, y1, y2, x1, x2;
 
-	cave_type       *c_ptr;
+	cave_type *c_ptr;
 
 
 	/* Pick an area to map */
@@ -4613,9 +4629,9 @@ void map_area(void)
 
 	/* Speed -- shrink to fit legal bounds */
 	if (y1 < 1) y1 = 1;
-	if (y2 > cur_hgt-2) y2 = cur_hgt-2;
+	if (y2 > cur_hgt - 2) y2 = cur_hgt - 2;
 	if (x1 < 1) x1 = 1;
-	if (x2 > cur_wid-2) x2 = cur_wid-2;
+	if (x2 > cur_wid - 2) x2 = cur_wid - 2;
 
 	/* Scan that area */
 	for (y = y1; y <= y2; y++)
@@ -4637,7 +4653,7 @@ void map_area(void)
 				/* Memorize known walls */
 				for (i = 0; i < 8; i++)
 				{
-					c_ptr = &cave[y+ddy_ddd[i]][x+ddx_ddd[i]];
+					c_ptr = &cave[y + ddy_ddd[i]][x + ddx_ddd[i]];
 
 					/* Memorize walls (etc) */
 					if (is_wall(c_ptr))
@@ -4696,10 +4712,10 @@ void wiz_lite(void)
 	}
 
 	/* Scan all normal grids */
-	for (y = 1; y < cur_hgt-1; y++)
+	for (y = 1; y < cur_hgt - 1; y++)
 	{
 		/* Scan all normal grids */
-		for (x = 1; x < cur_wid-1; x++)
+		for (x = 1; x < cur_wid - 1; x++)
 		{
 			cave_type *c_ptr = &cave[y][x];
 
@@ -4762,14 +4778,14 @@ void wiz_lite(void)
 void wiz_lite_extra(void)
 {
 	int y, x;
-			for(y=0;y < cur_hgt;y++)
-			{
-				for(x=0;x < cur_wid;x++)
-				{
-					cave[y][x].info |= (CAVE_GLOW | CAVE_MARK);
-				}
-			}
-			wiz_lite();
+	for (y = 0; y < cur_hgt; y++)
+	{
+		for (x = 0; x < cur_wid; x++)
+		{
+			cave[y][x].info |= (CAVE_GLOW | CAVE_MARK);
+		}
+	}
+	wiz_lite();
 }
 
 /*
@@ -4875,6 +4891,14 @@ void place_floor(int y, int x)
 	cave_set_feat(y, x, floor_type[rand_int(100)]);
 }
 
+/*
+ * Place a cave filler at (y, x)
+ */
+void place_filler(int y, int x)
+{
+	cave_set_feat(y, x, fill_type[rand_int(100)]);
+}
+
 
 /*
  * Calculate "incremental motion". Used by project() and shoot().
@@ -4930,7 +4954,7 @@ void mmove2(int *y, int *x, int y1, int x1, int y2, int x2)
 #endif
 
 		/* Extract a shift factor */
-		shift = (dist * dx + (dy-1) / 2) / dy;
+		shift = (dist * dx + (dy - 1) / 2) / dy;
 
 		/* Sometimes move along the minor axis */
 		(*x) = (x2 < x1) ? (x1 - shift) : (x1 + shift);
@@ -4966,7 +4990,7 @@ void mmove2(int *y, int *x, int y1, int x1, int y2, int x2)
 #endif
 
 		/* Extract a shift factor */
-		shift = (dist * dy + (dx-1) / 2) / dx;
+		shift = (dist * dy + (dx - 1) / 2) / dx;
 
 		/* Sometimes move along the minor axis */
 		(*y) = (y2 < y1) ? (y1 - shift) : (y1 + shift);
@@ -5055,7 +5079,7 @@ void scatter(int *yp, int *xp, int y, int x, int d, int m)
 		if (los(y, x, ny, nx)) break;
 	}
 
-	if (attempts_left>0)
+	if (attempts_left > 0)
 	{
 		/* Save the location */
 		(*yp) = ny;
@@ -5098,10 +5122,10 @@ void monster_race_track(int r_idx, int ego)
 /*
  * Hack -- track the given object kind
  */
-void object_kind_track(int k_idx)
+void object_track(object_type *o_ptr)
 {
 	/* Save this monster ID */
-	object_kind_idx = k_idx;
+	tracked_object = o_ptr;
 
 	/* Window stuff */
 	p_ptr->window |= (PW_OBJECT);
@@ -5199,8 +5223,8 @@ int is_quest(int level)
 int random_quest_number()
 {
 	if ((dun_level >= 1) && (dun_level < MAX_RANDOM_QUEST) &&
-	    (dungeon_flags1 & DF1_PRINCIPAL) &&
-	    (random_quests[dun_level].type) && (!is_randhero()))
+	                (dungeon_flags1 & DF1_PRINCIPAL) &&
+	                (random_quests[dun_level].type) && (!is_randhero()))
 	{
 		return dun_level;
 	}
@@ -5215,26 +5239,26 @@ int random_quest_number()
  */
 int effect_pop()
 {
-        int i;
+	int i;
 
-        for (i = 1; i < MAX_EFFECTS; i++)
-                if (!effects[i].time)
-                        return i;
-        return -1;
+	for (i = 1; i < MAX_EFFECTS; i++)
+		if (!effects[i].time)
+			return i;
+	return -1;
 }
 
 int new_effect(int type, int dam, int time, int cy, int cx, int rad, s32b flags)
 {
-        int i;
+	int i;
 
-        if ((i = effect_pop()) == -1) return -1;
+	if ((i = effect_pop()) == -1) return -1;
 
-        effects[i].type = type;
-        effects[i].dam = dam;
-        effects[i].time = time;
-        effects[i].flags = flags;
-        effects[i].cx = cx;
-        effects[i].cy = cy;
-        effects[i].rad = rad;
-        return i;
+	effects[i].type = type;
+	effects[i].dam = dam;
+	effects[i].time = time;
+	effects[i].flags = flags;
+	effects[i].cx = cx;
+	effects[i].cy = cy;
+	effects[i].rad = rad;
+	return i;
 }

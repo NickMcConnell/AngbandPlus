@@ -33,7 +33,7 @@ bool quest_between_move_hook(char *fmt)
 	}
 	else
 	{
-		if (py > 19) return (FALSE);
+		if (p_ptr->py > 19) return (FALSE);
 	}
 
 	/* Mark as entered */
@@ -88,12 +88,32 @@ bool quest_between_gen_hook(char *fmt)
 bool quest_between_finish_hook(char *fmt)
 {
 	s32b q_idx;
+	object_type forge, *q_ptr;
+
 	q_idx = get_next_arg(fmt);
 
 	if (q_idx != QUEST_BETWEEN) return FALSE;
 
 	c_put_str(TERM_YELLOW, "Ah you finally arrived, I hope your travel wasn't too hard.", 8, 0);
 	c_put_str(TERM_YELLOW, "As a reward you can freely use the Void Jumpgates for quick travel.", 9, 0);
+	c_put_str(TERM_YELLOW, "Oh and take that horn, it shall serve you well.", 10, 0);
+
+	/* The sling of farmer maggot */
+	q_ptr = &forge;
+	object_prep(q_ptr, test_item_name("& Golden Horn~ of the Thunderlords"));
+	q_ptr->found = OBJ_FOUND_REWARD;
+	q_ptr->number = 1;
+
+
+	/* Mega-Hack -- Actually create "the one ring" */
+	k_allow_special[test_item_name("& Golden Horn~ of the Thunderlords")] = TRUE;
+	apply_magic(q_ptr, -1, TRUE, TRUE, TRUE);
+	k_allow_special[test_item_name("& Golden Horn~ of the Thunderlords")] = FALSE;
+	object_aware(q_ptr);
+	object_known(q_ptr);
+	q_ptr->discount = 100;
+	q_ptr->ident |= IDENT_STOREB;
+	(void)inven_carry(q_ptr, FALSE);
 
 	/* Continue the plot */
 	*(quest[q_idx].plot) = QUEST_NULL;
@@ -123,7 +143,7 @@ bool quest_between_death_hook(char *fmt)
 	if (mcnt < 2)
 	{
 		cmsg_print(TERM_YELLOW, "You can escape now.");
-		cave_set_feat(py, px, FEAT_LESS);
+		cave_set_feat(p_ptr->py, p_ptr->px, FEAT_LESS);
 
 		return FALSE;
 	}
@@ -147,7 +167,7 @@ bool quest_between_forbid_hook(char *fmt)
 
 	if (q_idx != QUEST_BETWEEN) return (FALSE);
 
-	if (p_ptr->lev < 40)
+	if (p_ptr->lev < 45)
 	{
 		c_put_str(TERM_WHITE, "I fear you are not ready for the next quest, come back later.", 8, 0);
 		return (TRUE);

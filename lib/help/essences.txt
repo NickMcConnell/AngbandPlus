@@ -1,8 +1,8 @@
 |||||oy
 ~~~~~01|Spoilers|Essences
 ~~~~~02|Alchemist|Essence Spoiler
-#####REssence Spoiler for ToME 2.1.0(CVS)
-#####R-----------------------------------
+#####REssence Spoiler for ToME 2.2.0
+#####R------------------------------
 
 Essences are the tools of the trade for Alchemists, and unfortunately are
 useless for any other class. Alchemists use essences to create magical
@@ -12,7 +12,11 @@ They can be either found on the floor while exploring the dungeon, or
 extracted from other magical items the alchemist finds during their
 adventures.
 
-To create an artifact, the alchemist will have to sacrifice 10 hit points,
+To create an artifact, the alchemist will have to have first learnt the 
+Artifact Creation ability. This ability costs 70 skill points (yes, 70, 
+it's a very powerful ability!). And you need an alchemy skill of at least 
+40, plus INT and WIS at 35 (thats 18/170 in non-linear form).
+To create the artifact, the alchemist will have to sacrifice 10 hit points,
 and an amount of magic essence similar to his skill in alchemy. The
 alchemist then allows the artifact to gain experience, and when it has
 enough, uses that experience to add abilities to the artifact. The
@@ -55,8 +59,7 @@ selected the option 'always  generate very unusual rooms' (ironman_rooms).
 
 At skill level 15 you can create ego wands, staves, rings, etc.
 
-At skill level 25 you gain the ability to empower artifacts and double ego
-items.
+At skill level 25 you gain the ability to empower double ego items.
 
 At skill level 50 you gain the ability to create temporary artifacts, which
 don't require any exotic ingredients beyond a single corpse of any type.
@@ -95,7 +98,7 @@ lvl     xp   Power
  6     1000  Helps Infravision        Brass Lantern
 30     1000  Lucky                    Rabbit's Left Forefoot
 25    30000  Aids in digging          Pick
-30     5000  Multiplies Life          Troll's Heart
+40    50000  Multiplies Life          Troll's Heart
 
 ~~~~~04
 #####GMisc. (Auras, Light, See Invisibility, etc.)

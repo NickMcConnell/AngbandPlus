@@ -35,148 +35,181 @@ char *macro_trigger_keycode[2][MAX_MACRO_TRIG];
 /*
  * Executable version
  */
-byte version_major = VERSION_MAJOR;
-byte version_minor = VERSION_MINOR;
-byte version_patch = VERSION_PATCH;
+byte version_major;
+byte version_minor;
+byte version_patch;
 byte version_extra = VERSION_EXTRA;
 
 /*
  * Savefile version
  */
-byte sf_major;			/* Savefile's "version_major" */
-byte sf_minor;			/* Savefile's "version_minor" */
-byte sf_patch;			/* Savefile's "version_patch" */
-byte sf_extra;			/* Savefile's "version_extra" */
+byte sf_major; 			/* Savefile's "version_major" */
+byte sf_minor; 			/* Savefile's "version_minor" */
+byte sf_patch; 			/* Savefile's "version_patch" */
+byte sf_extra; 			/* Savefile's "version_extra" */
 u32b vernum;
 
 /*
  * Savefile information
  */
-u32b sf_xtra;			/* Operating system info */
-u32b sf_when;			/* Time when savefile created */
-u16b sf_lives;			/* Number of past "lives" with this file */
-u16b sf_saves;			/* Number of "saves" during this life */
+u32b sf_xtra; 			/* Operating system info */
+u32b sf_when; 			/* Time when savefile created */
+u16b sf_lives; 			/* Number of past "lives" with this file */
+u16b sf_saves; 			/* Number of "saves" during this life */
 
 /*
  * Run-time arguments
  */
-bool arg_fiddle;			/* Command arg -- Request fiddle mode */
-bool arg_wizard;			/* Command arg -- Request wizard mode */
-bool arg_sound;				/* Command arg -- Request special sounds */
-bool arg_graphics;			/* Command arg -- Request graphics mode */
-bool arg_force_original;	/* Command arg -- Request original keyset */
-bool arg_force_roguelike;	/* Command arg -- Request roguelike keyset */
-bool arg_bigtile = FALSE;	/* Command arg -- Request big tile mode */
+bool arg_fiddle; 			/* Command arg -- Request fiddle mode */
+bool arg_wizard; 			/* Command arg -- Request wizard mode */
+bool arg_sound; 				/* Command arg -- Request special sounds */
+bool arg_graphics; 			/* Command arg -- Request graphics mode */
+bool arg_force_original; 	/* Command arg -- Request original keyset */
+bool arg_force_roguelike; 	/* Command arg -- Request roguelike keyset */
+bool arg_bigtile = FALSE; 	/* Command arg -- Request big tile mode */
 
 /*
  * Various things
  */
 
-bool character_generated;	/* The character exists */
-bool character_dungeon;		/* The character has a dungeon */
-bool character_loaded;		/* The character was loaded from a savefile */
-bool character_saved;		/* The character was just saved to a savefile */
+bool character_generated; 	/* The character exists */
+bool character_dungeon; 		/* The character has a dungeon */
+bool character_loaded; 		/* The character was loaded from a savefile */
+bool character_saved; 		/* The character was just saved to a savefile */
 
-bool character_icky;		/* The game is in an icky full screen mode */
-bool character_xtra;		/* The game is in an icky startup mode */
+bool character_icky; 		/* The game is in an icky full screen mode */
+bool character_xtra; 		/* The game is in an icky startup mode */
 
-u32b seed_flavor;		/* Hack -- consistent object colors */
-u32b seed_town;			/* Hack -- consistent town layout */
-u32b seed_dungeon;              /* Simulate persisten dungeons */
+u32b seed_flavor; 		/* Hack -- consistent object colors */
+u32b seed_town; 			/* Hack -- consistent town layout */
+u32b seed_dungeon;               /* Simulate persisten dungeons */
 
-s16b command_cmd;		/* Current "Angband Command" */
+s16b command_cmd; 		/* Current "Angband Command" */
 
-s16b command_arg;		/* Gives argument of current command */
-s16b command_rep;		/* Gives repetition of current command */
-s16b command_dir;		/* Gives direction of current command */
+s16b command_arg; 		/* Gives argument of current command */
+s16b command_rep; 		/* Gives repetition of current command */
+s16b command_dir; 		/* Gives direction of current command */
 
-s16b command_see;		/* See "cmd1.c" */
-s16b command_wrk;		/* See "cmd1.c" */
+s16b command_see; 		/* See "cmd1.c" */
+s16b command_wrk; 		/* See "cmd1.c" */
 
-s16b command_new;		/* Command chaining from inven/equip view */
+s16b command_new; 		/* Command chaining from inven/equip view */
 
-s32b energy_use;                /* Energy use this turn */
+s32b energy_use;                 /* Energy use this turn */
 
-bool create_up_stair;	/* Auto-create "up stairs" */
-bool create_down_stair;	/* Auto-create "down stairs" */
+bool create_up_stair; 	/* Auto-create "up stairs" */
+bool create_down_stair; 	/* Auto-create "down stairs" */
 
-bool create_up_shaft; /* Auto-create "up shaft" */
-bool create_down_shaft;       /* Auto-create "down shaft" */
+bool create_up_shaft;  /* Auto-create "up shaft" */
+bool create_down_shaft;        /* Auto-create "down shaft" */
 
-bool msg_flag;			/* Used in msg_print() for "buffering" */
+bool msg_flag; 			/* Used in msg_print() for "buffering" */
 
-bool alive;				/* True if game is running */
+bool alive; 				/* True if game is running */
 
-bool death;				/* True if player has died */
+bool death; 				/* True if player has died */
 
-s16b running;			/* Current counter for running, if any */
-s16b resting;			/* Current counter for resting, if any */
+s16b running; 			/* Current counter for running, if any */
+s16b resting; 			/* Current counter for resting, if any */
 
-s16b cur_hgt;			/* Current dungeon height */
-s16b cur_wid;			/* Current dungeon width */
-s16b dun_level;			/* Current dungeon level */
-s16b old_dun_level;             /* Old dungeon level */
-s16b num_repro;			/* Current reproducer count */
-s16b object_level;		/* Current object creation level */
-s16b monster_level;		/* Current monster creation level */
+s16b cur_hgt; 			/* Current dungeon height */
+s16b cur_wid; 			/* Current dungeon width */
+s16b dun_level; 			/* Current dungeon level */
+s16b old_dun_level;              /* Old dungeon level */
+s16b num_repro; 			/* Current reproducer count */
+s16b object_level; 		/* Current object creation level */
+s16b monster_level; 		/* Current monster creation level */
 
-s32b turn;				/* Current game turn */
-s32b old_turn;			/* Turn when level began (feelings) */
+s32b turn; 				/* Current game turn */
+s32b old_turn; 			/* Turn when level began (feelings) */
 
-bool wizard;			/* Is the player currently in Wizard mode? */
+bool wizard; 			/* Is the player currently in Wizard mode? */
 
-bool use_sound;			/* The "sound" mode is enabled */
-bool use_graphics;		/* The "graphics" mode is enabled */
+bool use_sound; 			/* The "sound" mode is enabled */
+bool use_graphics; 		/* The "graphics" mode is enabled */
 bool use_bigtile = FALSE;
-byte graphics_mode;		/* Current graphics mode */
+byte graphics_mode; 		/* Current graphics mode */
 
-u16b total_winner;		/* Semi-Hack -- Game has been won */
-u16b has_won;              /* Semi-Hack -- Game has been won */
+u16b total_winner; 		/* Semi-Hack -- Game has been won */
+u16b has_won;               /* Semi-Hack -- Game has been won */
 
-u16b panic_save;		/* Track some special "conditions" */
-u16b noscore;			/* Track various "cheating" conditions */
+u16b panic_save; 		/* Track some special "conditions" */
+u16b noscore; 			/* Track various "cheating" conditions */
 
-s16b signal_count;		/* Hack -- Count interupts */
+s16b signal_count; 		/* Hack -- Count interupts */
 
-bool inkey_base;		/* See the "inkey()" function */
-bool inkey_xtra;		/* See the "inkey()" function */
-bool inkey_scan;		/* See the "inkey()" function */
-bool inkey_flag;		/* See the "inkey()" function */
+bool inkey_base; 		/* See the "inkey()" function */
+bool inkey_xtra; 		/* See the "inkey()" function */
+bool inkey_scan; 		/* See the "inkey()" function */
+bool inkey_flag; 		/* See the "inkey()" function */
 
-s16b coin_type;			/* Hack -- force coin type */
+s16b coin_type; 			/* Hack -- force coin type */
 
-bool opening_chest;		/* Hack -- prevent chest generation */
+bool opening_chest; 		/* Hack -- prevent chest generation */
 
-bool shimmer_monsters;          /* Hack -- optimize multi-hued monsters */
-bool shimmer_objects;           /* Hack -- optimize multi-hued objects */
+bool shimmer_monsters;           /* Hack -- optimize multi-hued monsters */
+bool shimmer_objects;            /* Hack -- optimize multi-hued objects */
 
-bool repair_monsters;	/* Hack -- optimize detect monsters */
-bool repair_objects;	/* Hack -- optimize detect objects */
+bool repair_monsters; 	/* Hack -- optimize detect monsters */
+bool repair_objects; 	/* Hack -- optimize detect objects */
 
-s16b inven_nxt;			/* Hack -- unused */
+s16b inven_nxt; 			/* Hack -- unused */
 bool hack_mind;
 bool hack_corruption;
 int artifact_bias;
 bool is_autosave = FALSE;
 
-s16b inven_cnt;			/* Number of items in inventory */
-s16b equip_cnt;			/* Number of items in equipment */
+s16b inven_cnt; 			/* Number of items in inventory */
+s16b equip_cnt; 			/* Number of items in equipment */
 
-s16b o_max = 1;			/* Number of allocated objects */
-s16b o_cnt = 0;			/* Number of live objects */
+s16b o_max = 1; 			/* Number of allocated objects */
+s16b o_cnt = 0; 			/* Number of live objects */
 
-s16b m_max = 1;			/* Number of allocated monsters */
-s16b m_cnt = 0;			/* Number of live monsters */
+s16b m_max = 1; 			/* Number of allocated monsters */
+s16b m_cnt = 0; 			/* Number of live monsters */
 
-s16b hack_m_idx = 0;	/* Hack -- see "process_monsters()" */
+s16b hack_m_idx = 0; 	/* Hack -- see "process_monsters()" */
 s16b hack_m_idx_ii = 0;
 bool multi_rew = FALSE;
-char summon_kin_type;   /* Hack, by Julian Lighton: summon 'relatives' */
+char summon_kin_type;    /* Hack, by Julian Lighton: summon 'relatives' */
 
 int total_friends = 0;
 s32b total_friend_levels = 0;
 
 int leaving_quest = 0;
+
+
+
+/*
+ * Hack - the destination file for text_out_to_file.
+ */
+FILE *text_out_file = NULL;
+
+
+/*
+ * Hack -- function hook to output (colored) text to the
+ * screen or to a file.
+ */
+void (*text_out_hook)(byte a, cptr str) = text_out_to_screen;
+
+
+/*
+ * Hack -- Where to wrap the text when using text_out().  Use the default
+ * value (for example the screen width) when 'text_out_wrap' is 0.
+ */
+int text_out_wrap = 0;
+
+
+/*
+ * Hack -- Indentation for the text when using text_out().
+ */
+int text_out_indent = 0;
+
+
+/*
+ * The "highscore" file descriptor, if available.
+ */
+int highscore_fd = -1;
 
 
 /*
@@ -186,162 +219,162 @@ int leaving_quest = 0;
 
 /* Option Set 1 -- User Interface */
 
-bool rogue_like_commands;	/* Rogue-like commands */
-bool quick_messages;		/* Activate quick messages */
-bool other_query_flag;		/* Prompt for various information */
-bool carry_query_flag;		/* Prompt before picking things up */
-bool use_old_target;		/* Use old target by default */
-bool always_pickup;             /* Pick things up by default */
-bool prompt_pickup_heavy;       /* Don't pick up the corpses */
-bool always_repeat;             /* Repeat obvious commands */
-bool depth_in_feet;             /* Show dungeon level in feet */
+bool rogue_like_commands; 	/* Rogue-like commands */
+bool quick_messages; 		/* Activate quick messages */
+bool other_query_flag; 		/* Prompt for various information */
+bool carry_query_flag; 		/* Prompt before picking things up */
+bool use_old_target; 		/* Use old target by default */
+bool always_pickup;              /* Pick things up by default */
+bool prompt_pickup_heavy;        /* Don't pick up the corpses */
+bool always_repeat;              /* Repeat obvious commands */
+bool depth_in_feet;              /* Show dungeon level in feet */
 
-bool stack_force_notes;		/* Merge inscriptions when stacking */
-bool stack_force_costs;		/* Merge discounts when stacking */
+bool stack_force_notes; 		/* Merge inscriptions when stacking */
+bool stack_force_costs; 		/* Merge discounts when stacking */
 
-bool show_labels;			/* Show labels in object listings */
-bool show_weights;			/* Show weights in object listings */
-bool show_choices;			/* Show choices in certain sub-windows */
-bool show_details;			/* Show details in certain sub-windows */
+bool show_labels; 			/* Show labels in object listings */
+bool show_weights; 			/* Show weights in object listings */
+bool show_choices; 			/* Show choices in certain sub-windows */
+bool show_details; 			/* Show details in certain sub-windows */
 
-bool ring_bell;				/* Ring the bell (on errors, etc) */
-bool use_color;				/* Use color if possible (slow) */
+bool ring_bell; 				/* Ring the bell (on errors, etc) */
+bool use_color; 				/* Use color if possible (slow) */
 
-bool show_inven_graph;		/* Show graphics in inventory */
-bool show_equip_graph;		/* Show graphics in equip list */
-bool show_store_graph;		/* Show graphics in store */
+bool show_inven_graph; 		/* Show graphics in inventory */
+bool show_equip_graph; 		/* Show graphics in equip list */
+bool show_store_graph; 		/* Show graphics in store */
 
 
 
 /* Option Set 2 -- Disturbance */
 
-bool find_ignore_stairs;	/* Run past stairs */
-bool find_ignore_doors;		/* Run through open doors */
-bool find_cut;				/* Run past known corners */
-bool find_examine;			/* Run into potential corners */
+bool find_ignore_stairs; 	/* Run past stairs */
+bool find_ignore_doors; 		/* Run through open doors */
+bool find_cut; 				/* Run past known corners */
+bool find_examine; 			/* Run into potential corners */
 
-bool disturb_move;			/* Disturb whenever any monster moves */
-bool disturb_near;			/* Disturb whenever viewable monster moves */
-bool disturb_panel;			/* Disturb whenever map panel changes */
-bool disturb_detect;		/* Disturb whenever leaving trap-detected area */
-bool disturb_state;			/* Disturn whenever player state changes */
-bool disturb_minor;			/* Disturb whenever boring things happen */
-bool disturb_other;			/* Disturb whenever various things happen */
+bool disturb_move; 			/* Disturb whenever any monster moves */
+bool disturb_near; 			/* Disturb whenever viewable monster moves */
+bool disturb_panel; 			/* Disturb whenever map panel changes */
+bool disturb_detect; 		/* Disturb whenever leaving trap-detected area */
+bool disturb_state; 			/* Disturn whenever player state changes */
+bool disturb_minor; 			/* Disturb whenever boring things happen */
+bool disturb_other; 			/* Disturb whenever various things happen */
 
-bool alert_hitpoint;		/* Alert user to critical hitpoints */
-bool alert_failure;		/* Alert user to various failures */
-bool last_words;		/* Get last words upon dying */
-bool speak_unique;		/* Speaking uniques + shopkeepers */
-bool small_levels;		/* Allow unusually small dungeon levels */
-bool empty_levels;		/* Allow empty 'arena' levels */
-bool always_small_level;        /* Small levels */
+bool alert_hitpoint; 		/* Alert user to critical hitpoints */
+bool alert_failure; 		/* Alert user to various failures */
+bool last_words; 		/* Get last words upon dying */
+bool speak_unique; 		/* Speaking uniques + shopkeepers */
+bool small_levels; 		/* Allow unusually small dungeon levels */
+bool empty_levels; 		/* Allow empty 'arena' levels */
+bool always_small_level;         /* Small levels */
 #if 0 /* It's controlled by insanity -- pelpel */
-bool flavored_attacks;          /* Show silly messages when fighting */
+bool flavored_attacks;           /* Show silly messages when fighting */
 #endif
-bool player_symbols;		/* Use varying symbols for the player char */
-bool plain_descriptions;	/* Plain object descriptions */
-bool stupid_monsters;		/* Monsters use old AI */
-bool auto_destroy;		/* Known worthless items are destroyed without confirmation */
-bool confirm_stairs;		/* Prompt before staircases... */
-bool wear_confirm;		/* Confirm before putting on known cursed items */
-bool disturb_pets;		/* Pets moving nearby disturb us */
+bool player_symbols; 		/* Use varying symbols for the player char */
+bool plain_descriptions; 	/* Plain object descriptions */
+bool stupid_monsters; 		/* Monsters use old AI */
+bool auto_destroy; 		/* Known worthless items are destroyed without confirmation */
+bool confirm_stairs; 		/* Prompt before staircases... */
+bool wear_confirm; 		/* Confirm before putting on known cursed items */
+bool disturb_pets; 		/* Pets moving nearby disturb us */
 
 
 /* Option Set 3 -- Game-Play */
 
-bool auto_haggle;			/* Auto-haggle in stores */
+bool auto_haggle; 			/* Auto-haggle in stores */
 
-bool auto_scum;				/* Auto-scum for good levels */
+bool auto_scum; 				/* Auto-scum for good levels */
 
-bool stack_allow_items;		/* Allow weapons and armor to stack */
-bool stack_allow_wands;		/* Allow wands/staffs/rods to stack */
+bool stack_allow_items; 		/* Allow weapons and armor to stack */
+bool stack_allow_wands; 		/* Allow wands/staffs/rods to stack */
 
-bool expand_look;			/* Expand the power of the look command */
-bool expand_list;			/* Expand the power of the list commands */
+bool expand_look; 			/* Expand the power of the look command */
+bool expand_list; 			/* Expand the power of the list commands */
 
-bool view_perma_grids;		/* Map remembers all perma-lit grids */
-bool view_torch_grids;		/* Map remembers all torch-lit grids */
+bool view_perma_grids; 		/* Map remembers all perma-lit grids */
+bool view_torch_grids; 		/* Map remembers all torch-lit grids */
 
-bool monster_lite;			/* Allow some monsters to carry light */
+bool monster_lite; 			/* Allow some monsters to carry light */
 
-bool dungeon_align;			/* Generate dungeons with aligned rooms */
-bool dungeon_stair;			/* Generate dungeons with connected stairs */
+bool dungeon_align; 			/* Generate dungeons with aligned rooms */
+bool dungeon_stair; 			/* Generate dungeons with connected stairs */
 
-bool flow_by_sound;			/* Monsters track new player location */
-bool flow_by_smell;			/* Monsters track old player location */
+bool flow_by_sound; 			/* Monsters track new player location */
+bool flow_by_smell; 			/* Monsters track old player location */
 
-bool track_follow;			/* Monsters follow the player */
-bool track_target;			/* Monsters target the player */
+bool track_follow; 			/* Monsters follow the player */
+bool track_target; 			/* Monsters target the player */
 
-bool smart_learn;			/* Monsters learn from their mistakes */
-bool smart_cheat;			/* Monsters exploit player weaknesses */
+bool smart_learn; 			/* Monsters learn from their mistakes */
+bool smart_cheat; 			/* Monsters exploit player weaknesses */
 
 
 /* Option Set 4 -- Efficiency */
 
-bool view_reduce_lite;		/* Reduce lite-radius when running */
-bool view_reduce_view;		/* Reduce view-radius in town */
+bool view_reduce_lite; 		/* Reduce lite-radius when running */
+bool view_reduce_view; 		/* Reduce view-radius in town */
 
-bool avoid_abort;			/* Avoid checking for user abort */
-bool avoid_shimmer;			/* Avoid processing extra shimmering */
-bool avoid_other;			/* Avoid processing special colors */
+bool avoid_abort; 			/* Avoid checking for user abort */
+bool avoid_shimmer; 			/* Avoid processing extra shimmering */
+bool avoid_other; 			/* Avoid processing special colors */
 
-bool flush_failure;			/* Flush input on any failure */
-bool flush_disturb;			/* Flush input on disturbance */
-bool flush_command;			/* Flush input before every command */
+bool flush_failure; 			/* Flush input on any failure */
+bool flush_disturb; 			/* Flush input on disturbance */
+bool flush_command; 			/* Flush input before every command */
 
-bool fresh_before;			/* Flush output before normal commands */
-bool fresh_after;			/* Flush output after normal commands */
-bool fresh_message;			/* Flush output after all messages */
+bool fresh_before; 			/* Flush output before normal commands */
+bool fresh_after; 			/* Flush output after normal commands */
+bool fresh_message; 			/* Flush output after all messages */
 
-bool compress_savefile;		/* Compress messages in savefiles */
+bool compress_savefile; 		/* Compress messages in savefiles */
 
-bool hilite_player;			/* Hilite the player with the cursor */
+bool hilite_player; 			/* Hilite the player with the cursor */
 
-bool view_yellow_lite;		/* Use special colors for torch-lit grids */
-bool view_bright_lite;		/* Use special colors for 'viewable' grids */
+bool view_yellow_lite; 		/* Use special colors for torch-lit grids */
+bool view_bright_lite; 		/* Use special colors for 'viewable' grids */
 
-bool view_granite_lite;		/* Use special colors for wall grids (slow) */
-bool view_special_lite;		/* Use special colors for floor grids (slow) */
+bool view_granite_lite; 		/* Use special colors for wall grids (slow) */
+bool view_special_lite; 		/* Use special colors for floor grids (slow) */
 
 /* Option set 5 -- Testing */
 
-bool testing_stack;			/* Test the stacking code */
+bool testing_stack; 			/* Test the stacking code */
 
-bool testing_carry;			/* Test the carrying code */
+bool testing_carry; 			/* Test the carrying code */
 
 
 /* Cheating options */
 
-bool cheat_peek;		/* Peek into object creation */
-bool cheat_hear;		/* Peek into monster creation */
-bool cheat_room;		/* Peek into dungeon creation */
-bool cheat_xtra;		/* Peek into something else */
-bool cheat_know;		/* Know complete monster info */
-bool cheat_live;		/* Allow player to avoid death */
+bool cheat_peek; 		/* Peek into object creation */
+bool cheat_hear; 		/* Peek into monster creation */
+bool cheat_room; 		/* Peek into dungeon creation */
+bool cheat_xtra; 		/* Peek into something else */
+bool cheat_know; 		/* Know complete monster info */
+bool cheat_live; 		/* Allow player to avoid death */
 
 
 /* Special options */
 
-byte hitpoint_warn;		/* Hitpoint warning (0 to 9) */
+byte hitpoint_warn; 		/* Hitpoint warning (0 to 9) */
 
-byte delay_factor;		/* Delay factor (0 to 9) */
+byte delay_factor; 		/* Delay factor (0 to 9) */
 
-bool autosave_l;        /* Autosave before entering new levels */
-bool autosave_t;        /* Timed autosave */
-s16b autosave_freq;     /* Autosave frequency */
+bool autosave_l;         /* Autosave before entering new levels */
+bool autosave_t;         /* Timed autosave */
+s16b autosave_freq;      /* Autosave frequency */
 
 
 /*
  * Dungeon variables
  */
 
-s16b feeling;			/* Most recent feeling */
-s16b rating;			/* Level's current rating */
+s16b feeling; 			/* Most recent feeling */
+s16b rating; 			/* Level's current rating */
 
-bool good_item_flag;		/* True if "Artifact" on this level */
+bool good_item_flag; 		/* True if "Artifact" on this level */
 
-bool closing_flag;		/* Dungeon is closing */
+bool closing_flag; 		/* Dungeon is closing */
 
 /*
  * Dungeon size info
@@ -356,16 +389,10 @@ s16b panel_col_prt, panel_row_prt;
  * Dungeon graphics info
  * Why the first two are byte and the rest s16b???
  */
-byte feat_wall_outer = FEAT_WALL_OUTER;	/* Outer wall of rooms */
-byte feat_wall_inner = FEAT_WALL_INNER;	/* Inner wall of rooms */
-s16b floor_type[100];	/* Dungeon floor */
-s16b fill_type[100];	/* Dungeon filler */
-
-/*
- * Player location in dungeon
- */
-s16b py;
-s16b px;
+byte feat_wall_outer = FEAT_WALL_OUTER; 	/* Outer wall of rooms */
+byte feat_wall_inner = FEAT_WALL_INNER; 	/* Inner wall of rooms */
+s16b floor_type[100]; 	/* Dungeon floor */
+s16b fill_type[100]; 	/* Dungeon filler */
 
 /*
  * Targetting variables
@@ -386,9 +413,9 @@ s16b monster_race_idx;
 s16b monster_ego_idx;
 
 /*
- * Object kind to track
+ * Object to track
  */
-s16b object_kind_idx;
+object_type *tracked_object;
 
 
 
@@ -553,7 +580,7 @@ term *angband_term[ANGBAND_TERM_MAX];
 /*
  * Standard window names
  */
-char angband_term_name[8][16] =
+char angband_term_name[ANGBAND_TERM_MAX][80] =
 {
 	"ToME",
 	"Mirror",
@@ -571,21 +598,21 @@ char angband_term_name[8][16] =
  */
 byte angband_color_table[256][4] =
 {
-	{0x00, 0x00, 0x00, 0x00},	/* TERM_DARK */
-	{0x00, 0xFF, 0xFF, 0xFF},	/* TERM_WHITE */
-	{0x00, 0x80, 0x80, 0x80},	/* TERM_SLATE */
-	{0x00, 0xFF, 0x80, 0x00},	/* TERM_ORANGE */
-	{0x00, 0xC0, 0x00, 0x00},	/* TERM_RED */
-	{0x00, 0x00, 0x80, 0x40},	/* TERM_GREEN */
-	{0x00, 0x00, 0x00, 0xFF},	/* TERM_BLUE */
-	{0x00, 0x80, 0x40, 0x00},	/* TERM_UMBER */
-	{0x00, 0x40, 0x40, 0x40},	/* TERM_L_DARK */
-	{0x00, 0xC0, 0xC0, 0xC0},	/* TERM_L_WHITE */
-	{0x00, 0xFF, 0x00, 0xFF},	/* TERM_VIOLET */
-	{0x00, 0xFF, 0xFF, 0x00},	/* TERM_YELLOW */
-	{0x00, 0xFF, 0x00, 0x00},	/* TERM_L_RED */
-	{0x00, 0x00, 0xFF, 0x00},	/* TERM_L_GREEN */
-	{0x00, 0x00, 0xFF, 0xFF},	/* TERM_L_BLUE */
+	{0x00, 0x00, 0x00, 0x00}, 	/* TERM_DARK */
+	{0x00, 0xFF, 0xFF, 0xFF}, 	/* TERM_WHITE */
+	{0x00, 0x80, 0x80, 0x80}, 	/* TERM_SLATE */
+	{0x00, 0xFF, 0x80, 0x00}, 	/* TERM_ORANGE */
+	{0x00, 0xC0, 0x00, 0x00}, 	/* TERM_RED */
+	{0x00, 0x00, 0x80, 0x40}, 	/* TERM_GREEN */
+	{0x00, 0x00, 0x00, 0xFF}, 	/* TERM_BLUE */
+	{0x00, 0x80, 0x40, 0x00}, 	/* TERM_UMBER */
+	{0x00, 0x40, 0x40, 0x40}, 	/* TERM_L_DARK */
+	{0x00, 0xC0, 0xC0, 0xC0}, 	/* TERM_L_WHITE */
+	{0x00, 0xFF, 0x00, 0xFF}, 	/* TERM_VIOLET */
+	{0x00, 0xFF, 0xFF, 0x00}, 	/* TERM_YELLOW */
+	{0x00, 0xFF, 0x00, 0x00}, 	/* TERM_L_RED */
+	{0x00, 0x00, 0xFF, 0x00}, 	/* TERM_L_GREEN */
+	{0x00, 0x00, 0xFF, 0xFF}, 	/* TERM_L_BLUE */
 	{0x00, 0xC0, 0x80, 0x40}	/* TERM_L_UMBER */
 };
 
@@ -708,13 +735,6 @@ u16b max_real_towns;
  */
 town_type *town_info;
 
-
-/*
- * The player's inventory [INVEN_TOTAL]
- */
-object_type *inventory;
-
-
 /*
  * The size of "alloc_kind_table" (at most max_k_idx * 4)
  */
@@ -792,10 +812,6 @@ player_spec *spp_ptr;
 /*
  * More spell info
  */
-u32b spell_learned[MAX_REALM][2];   /* bit mask of spells learned */
-u32b spell_worked[MAX_REALM][2];    /* bit mask of spells tried and worked */
-u32b spell_forgotten[MAX_REALM][2]; /* bit mask of spells learned but forgotten */
-byte spell_level[MAX_REALM][64];    /* spell levels */
 u32b alchemist_known_egos[32];
 u32b alchemist_known_artifacts[6];
 u32b alchemist_gained;
@@ -901,6 +917,14 @@ header *d_head;
 dungeon_info_type *d_info;
 char *d_name;
 char *d_text;
+
+/*
+ * Player abilities arrays
+ */
+header *ab_head;
+ability_type *ab_info;
+char *ab_name;
+char *ab_text;
 
 /*
  * Player skills arrays
@@ -1017,6 +1041,12 @@ cptr ANGBAND_DIR_APEX;
 cptr ANGBAND_DIR_BONE;
 
 /*
+ * Core lua system
+ * These files are portable between platforms
+ */
+cptr ANGBAND_DIR_CORE;
+
+/*
  * Textual dungeon level definition files
  * These files are portable between platforms
  */
@@ -1051,6 +1081,17 @@ cptr ANGBAND_DIR_HELP;
  * These files are portable between platforms
  */
 cptr ANGBAND_DIR_INFO;
+
+/*
+ * Modules, those subdirectories are half-mirrors of lib/
+ */
+cptr ANGBAND_DIR_MODULES;
+
+/*
+ * Patches, contains one subdir per patch with a patch.lua file
+ * in it and a patch_init() function in it
+ */
+cptr ANGBAND_DIR_PATCH;
 
 /*
  * Textual template files for the plot files (ascii)
@@ -1183,6 +1224,11 @@ wilderness_map **wild_map;
  */
 u16b old_max_s_idx = 0;
 u16b max_s_idx;
+
+/*
+ * Maximum number of abilities in ab_info.txt
+ */
+u16b max_ab_idx;
 
 /*
  * Maximum number of monsters in r_info.txt
@@ -1550,3 +1596,28 @@ bool automatizer_enabled = FALSE;
  */
 s16b last_teleportation_y = -1;
 s16b last_teleportation_x = -1;
+
+/*
+ * The current game module
+ */
+cptr game_module;
+s32b VERSION_MAJOR;
+s32b VERSION_MINOR;
+s32b VERSION_PATCH;
+
+/*
+ * Some module info
+ */
+s32b max_plev = 50;
+s32b DUNGEON_DEATH = 28;
+
+/*
+ * Gods
+ */
+deity_type *deity_info;
+s32b max_gods = MAX_GODS_INIT;
+
+/*
+ * Timers
+ */
+timer_type *gl_timers = NULL;

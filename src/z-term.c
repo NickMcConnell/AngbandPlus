@@ -273,8 +273,8 @@ term *Term = NULL;
 
 /* File handler for saving movies */
 FILE *movfile = NULL;
-int do_movies = 0; /* Later set this as a global */
-		/* set to 1 if you want movies made */
+int do_movies = 0;  /* Later set this as a global */
+/* set to 1 if you want movies made */
 time_t lastc;
 int last_paused = 0;
 int cmovie_get_msecond(void);
@@ -471,7 +471,7 @@ static errr term_win_copy(term_win *s, term_win *f, int w, int h)
 errr Term_user(int n)
 {
 	/* Verify the hook */
-	if (!Term->user_hook) return (-1);
+	if (!Term->user_hook) return ( -1);
 
 	/* Call the hook */
 	return ((*Term->user_hook)(n));
@@ -482,10 +482,13 @@ errr Term_user(int n)
  * And *hacky* get a return code
  */
 long Term_xtra_long;
+char scansubdir_dir[1024];
+int scansubdir_max = 0;
+cptr scansubdir_result[255];
 errr Term_xtra(int n, int v)
 {
 	/* Verify the hook */
-	if (!Term->xtra_hook) return (-1);
+	if (!Term->xtra_hook) return ( -1);
 
 	/* Call the hook */
 	return ((*Term->xtra_hook)(n, v));
@@ -502,10 +505,10 @@ errr Term_xtra(int n, int v)
 static errr Term_curs_hack(int x, int y)
 {
 	/* Compiler silliness */
-	if (x || y) return (-2);
+	if (x || y) return ( -2);
 
 	/* Oops */
-	return (-1);
+	return ( -1);
 }
 
 /*
@@ -514,10 +517,10 @@ static errr Term_curs_hack(int x, int y)
 static errr Term_wipe_hack(int x, int y, int n)
 {
 	/* Compiler silliness */
-	if (x || y || n) return (-2);
+	if (x || y || n) return ( -2);
 
 	/* Oops */
-	return (-1);
+	return ( -1);
 }
 
 /*
@@ -526,10 +529,10 @@ static errr Term_wipe_hack(int x, int y, int n)
 static errr Term_text_hack(int x, int y, int n, byte a, const char *cp)
 {
 	/* Compiler silliness */
-	if (x || y || n || a || cp) return (-2);
+	if (x || y || n || a || cp) return ( -2);
 
 	/* Oops */
-	return (-1);
+	return ( -1);
 }
 
 /*
@@ -548,16 +551,16 @@ static errr Term_pict_hack(int x, int y, int n, const byte *ap, const char *cp)
 	/* Compiler silliness */
 #ifdef USE_TRANSPARENCY
 #ifdef USE_EGO_GRAPHICS
-	if (x || y || n || ap || cp || tap || tcp || eap || ecp) return (-2);
+	if (x || y || n || ap || cp || tap || tcp || eap || ecp) return ( -2);
 #else /* USE_EGO_GRAPHICS */
-	if (x || y || n || ap || cp || tap || tcp) return (-2);
+if (x || y || n || ap || cp || tap || tcp) return ( -2);
 #endif /* USE_EGO_GRAPHICS */
 #else /* USE_TRANSPARENCY */
-	if (x || y || n || ap || cp) return (-2);
+	if (x || y || n || ap || cp) return ( -2);
 #endif /* USE_TRANSPARENCY */
 
 	/* Oops */
-	return (-1);
+	return ( -1);
 }
 
 
@@ -597,14 +600,14 @@ void Term_queue_char(int x, int y, byte a, char c)
 
 	/* Hack -- Ignore non-changes */
 	if ((*scr_aa == a) && (*scr_cc == c) &&
-	    (*scr_taa == ta) && (*scr_tcc == tc) &&
-	    (*scr_eaa == ea) && (*scr_ecc == ec)) return;
+	                (*scr_taa == ta) && (*scr_tcc == tc) &&
+	                (*scr_eaa == ea) && (*scr_ecc == ec)) return;
 
 #else /* USE_EGO_GRAPHICS */
 
 	/* Hack -- Ignore non-changes */
 	if ((*scr_aa == a) && (*scr_cc == c) &&
-		(*scr_taa == ta) && (*scr_tcc == tc)) return;
+	                (*scr_taa == ta) && (*scr_tcc == tc)) return;
 
 #endif /* USE_EGO_GRAPHICS */
 
@@ -691,12 +694,12 @@ void Term_queue_line(int x, int y, int n, byte *a, char *c)
 #ifdef USE_EGO_GRAPHICS
 		/* Hack -- Ignore non-changes */
 		if ((*scr_aa == *a) && (*scr_cc == *c) &&
-		    (*scr_taa == *ta) && (*scr_tcc == *tc) &&
-		    (*scr_eaa == *ea) && (*scr_ecc == *ec))
+		                (*scr_taa == *ta) && (*scr_tcc == *tc) &&
+		                (*scr_eaa == *ea) && (*scr_ecc == *ec))
 #else /* USE_EGO_GRAPHICS */
 		/* Hack -- Ignore non-changes */
 		if ((*scr_aa == *a) && (*scr_cc == *c) &&
-			(*scr_taa == *ta) && (*scr_tcc == *tc))
+		                (*scr_taa == *ta) && (*scr_tcc == *tc))
 #endif  /* USE_EGO_GRAPHICS */
 		{
 			x++;
@@ -818,8 +821,8 @@ void Term_queue_chars(int x, int y, int n, byte a, cptr s)
 
 		/* Hack -- Ignore non-changes */
 		if ((oa == a) && (oc == *s) &&
-		    (ota == 0) && (otc == 0) &&
-		    (oea == 0) && (oec == 0)) continue;
+		                (ota == 0) && (otc == 0) &&
+		                (oea == 0) && (oec == 0)) continue;
 
 #else /* USE_EGO_GRAPHICS */
 
@@ -965,8 +968,8 @@ static void Term_fresh_row_pict(int y, int x1, int x2)
 
 		/* Handle unchanged grids */
 		if ((na == oa) && (nc == oc) &&
-		    (nta == ota) && (ntc == otc) &&
-		    (nea == oea) && (nec == oec))
+		                (nta == ota) && (ntc == otc) &&
+		                (nea == oea) && (nec == oec))
 
 #else /* USE_EGO_GRAPHICS */
 
@@ -989,12 +992,12 @@ static void Term_fresh_row_pict(int y, int x1, int x2)
 #ifdef USE_TRANSPARENCY
 #ifdef USE_EGO_GRAPHICS
 				(void)((*Term->pict_hook)(fx, y, fn,
-				       &scr_aa[fx], &scr_cc[fx],
-				       &scr_taa[fx], &scr_tcc[fx],
-				       &scr_eaa[fx], &scr_ecc[fx]));
+				                          &scr_aa[fx], &scr_cc[fx],
+				                          &scr_taa[fx], &scr_tcc[fx],
+				                          &scr_eaa[fx], &scr_ecc[fx]));
 #else /* USE_EGO_GRAPHICS */
 				(void)((*Term->pict_hook)(fx, y, fn,
-				       &scr_aa[fx], &scr_cc[fx],&scr_taa[fx], &scr_tcc[fx]));
+				                          &scr_aa[fx], &scr_cc[fx], &scr_taa[fx], &scr_tcc[fx]));
 #endif
 #else /* USE_TRANSPARENCY */
 				(void)((*Term->pict_hook)(fx, y, fn, &scr_aa[fx], &scr_cc[fx]));
@@ -1033,12 +1036,12 @@ static void Term_fresh_row_pict(int y, int x1, int x2)
 #ifdef USE_TRANSPARENCY
 #ifdef USE_EGO_GRAPHICS
 		(void)((*Term->pict_hook)(fx, y, fn,
-			&scr_aa[fx], &scr_cc[fx],
-			&scr_taa[fx], &scr_tcc[fx],
-			&scr_eaa[fx], &scr_ecc[fx]));
+		                          &scr_aa[fx], &scr_cc[fx],
+		                          &scr_taa[fx], &scr_tcc[fx],
+		                          &scr_eaa[fx], &scr_ecc[fx]));
 #else /* USE_EGO_GRAPHICS */
 		(void)((*Term->pict_hook)(fx, y, fn,
-			&scr_aa[fx], &scr_cc[fx], &scr_taa[fx], &scr_tcc[fx]));
+		                          &scr_aa[fx], &scr_cc[fx], &scr_taa[fx], &scr_tcc[fx]));
 #endif /* USE_EGO_GRAPHICS */
 #else /* USE_TRANSPARENCY */
 		(void)((*Term->pict_hook)(fx, y, fn, &scr_aa[fx], &scr_cc[fx]));
@@ -1135,12 +1138,12 @@ static void Term_fresh_row_both(int y, int x1, int x2)
 
 		/* Handle unchanged grids */
 		if ((na == oa) && (nc == oc) &&
-		    (nta == ota) && (ntc == otc) &&
-		    (nea == oea) && (nec == oec))
+		                (nta == ota) && (ntc == otc) &&
+		                (nea == oea) && (nec == oec))
 
 #else /* USE_EGO_GRAPHICS */
 
-		/* Handle unchanged grids */
+/* Handle unchanged grids */
 		if ((na == oa) && (nc == oc) && (nta == ota) && (ntc == otc))
 
 #endif /* USE_EGO_GRAPHICS */
@@ -1205,7 +1208,7 @@ static void Term_fresh_row_both(int y, int x1, int x2)
 				if (fa || always_text)
 				{
 					(void)((*Term->text_hook)(fx, y, fn, fa, &scr_cc[fx]));
-				}	
+				}
 				/* Draw pending chars (black) */
 				else
 				{
@@ -1224,7 +1227,7 @@ static void Term_fresh_row_both(int y, int x1, int x2)
 
 #else /* USE_EGO_GRAPHICS */
 
-			/* Hack -- Draw the special attr/char pair */
+/* Hack -- Draw the special attr/char pair */
 			(void)((*Term->pict_hook)(x, y, 1, &na, &nc, &nta, &ntc));
 
 #endif /* USE_EGO_GRAPHICS */
@@ -1275,7 +1278,7 @@ static void Term_fresh_row_both(int y, int x1, int x2)
 		if (fa || always_text)
 		{
 			(void)((*Term->text_hook)(fx, y, fn, fa, &scr_cc[fx]));
-		}	
+		}
 		/* Draw pending chars (black) */
 		else
 		{
@@ -1320,7 +1323,7 @@ static void Term_fresh_row_text(int y, int x1, int x2)
 
 	/* Scan "modified" columns */
 	for (x = x1; x <= x2; x++)
-        {
+	{
 		/* See what is currently here */
 		oa = old_aa[x];
 		oc = old_cc[x];
@@ -1542,11 +1545,11 @@ errr Term_fresh(void)
 
 	/* Trivial Refresh */
 	if ((y1 > y2) &&
-	    (scr->cu == old->cu) &&
-	    (scr->cv == old->cv) &&
-	    (scr->cx == old->cx) &&
-	    (scr->cy == old->cy) &&
-	    !(Term->total_erase))
+	                (scr->cu == old->cu) &&
+	                (scr->cv == old->cv) &&
+	                (scr->cx == old->cx) &&
+	                (scr->cy == old->cy) &&
+	                !(Term->total_erase))
 	{
 		/* Nothing */
 		return (1);
@@ -1568,7 +1571,7 @@ errr Term_fresh(void)
 
 		if ((do_movies == 1) && IN_MAINWINDOW)
 		{
-			if(!cmovie_get_msecond())
+			if (!cmovie_get_msecond())
 			{
 				fprintf(movfile, "S:%ld:\n", cmov_delta_time_msec);
 			}
@@ -1699,7 +1702,7 @@ errr Term_fresh(void)
 #ifdef USE_EGO_GRAPHICS
 				(void)((*Term->pict_hook)(tx, ty, 1, &oa, &oc, &ota, &otc, &oea, &oec));
 #else /* USE_EGO_GRAPHICS */
-				(void)((*Term->pict_hook)(tx, ty, 1, &oa, &oc, &ota, &otc));
+(void)((*Term->pict_hook)(tx, ty, 1, &oa, &oc, &ota, &otc));
 #endif /* USE_EGO_GRAPHICS */
 #else /* USE_TRANSPARENCY */
 				(void)((*Term->pict_hook)(tx, ty, 1, &oa, &oc));
@@ -1896,8 +1899,8 @@ errr Term_gotoxy(int x, int y)
 	int h = Term->hgt;
 
 	/* Verify */
-	if ((x < 0) || (x >= w)) return (-1);
-	if ((y < 0) || (y >= h)) return (-1);
+	if ((x < 0) || (x >= w)) return ( -1);
+	if ((y < 0) || (y >= h)) return ( -1);
 
 	/* Remember the cursor */
 	Term->scr->cx = x;
@@ -1922,18 +1925,18 @@ errr Term_draw(int x, int y, byte a, char c)
 	int h = Term->hgt;
 
 	/* Verify location */
-	if ((x < 0) || (x >= w)) return (-1);
-	if ((y < 0) || (y >= h)) return (-1);
+	if ((x < 0) || (x >= w)) return ( -1);
+	if ((y < 0) || (y >= h)) return ( -1);
 
 	/* Paranoia -- illegal char */
-	if (!c) return (-2);
+	if (!c) return ( -2);
 
 	/* Queue it for later */
 #ifdef USE_TRANSPARENCY
 #ifdef USE_EGO_GRAPHICS
 	Term_queue_char(x, y, a, c, 0, 0, 0, 0);
 #else /* USE_EGO_GRAPHICS */
-	Term_queue_char(x, y, a, c, 0, 0);
+Term_queue_char(x, y, a, c, 0, 0);
 #endif /* USE_EGO_GRAPHICS */
 #else /* USE_TRANSPARENCY */
 	Term_queue_char(x, y, a, c);
@@ -1965,10 +1968,10 @@ errr Term_addch(byte a, char c)
 	int w = Term->wid;
 
 	/* Handle "unusable" cursor */
-	if (Term->scr->cu) return (-1);
+	if (Term->scr->cu) return ( -1);
 
 	/* Paranoia -- no illegal chars */
-	if (!c) return (-2);
+	if (!c) return ( -2);
 
 	/* Queue the given character for display */
 #ifdef USE_TRANSPARENCY
@@ -2023,7 +2026,7 @@ errr Term_addstr(int n, byte a, cptr s)
 	errr res = 0;
 
 	/* Handle "unusable" cursor */
-	if (Term->scr->cu) return (-1);
+	if (Term->scr->cu) return ( -1);
 
 	/* Obtain maximal length */
 	k = (n < 0) ? (w + 1) : n;
@@ -2115,7 +2118,7 @@ errr Term_erase(int x, int y, int n)
 #endif /* USE_TRANSPARENCY */
 
 	/* Place cursor */
-	if (Term_gotoxy(x, y)) return (-1);
+	if (Term_gotoxy(x, y)) return ( -1);
 
 	/* Force legal size */
 	if (x + n > w) n = w - x;
@@ -2134,11 +2137,11 @@ errr Term_erase(int x, int y, int n)
 #endif
 #endif /* USE_TRANSPARENCY */
 
-        if (n > 0 && (byte)scr_cc[x] == 255 && scr_aa[x] == 255)
-        {
-                x--;
-                n++;
-        }
+	if (n > 0 && (byte)scr_cc[x] == 255 && scr_aa[x] == 255)
+	{
+		x--;
+		n++;
+	}
 
 	/* Scan every column */
 	for (i = 0; i < n; i++, x++)
@@ -2267,14 +2270,14 @@ errr Term_clear(void)
 errr Term_redraw(void)
 {
 	/* Pat */
-	if((do_movies == 1) && IN_MAINWINDOW)
-        {
-                if (!cmovie_get_msecond())
-                {
-                        fprintf(movfile, "S:%ld:\n", cmov_delta_time_msec);
-                }
-                last_paused = 1;
-        }
+	if ((do_movies == 1) && IN_MAINWINDOW)
+	{
+		if (!cmovie_get_msecond())
+		{
+			fprintf(movfile, "S:%ld:\n", cmov_delta_time_msec);
+		}
+		last_paused = 1;
+	}
 	/* Endpat */
 
 	/* Force "total erase" */
@@ -2298,15 +2301,15 @@ errr Term_redraw_section(int x1, int y1, int x2, int y2)
 	char *c_ptr;
 
 #if 0 // DGDGDGDG
-        /* Pat */
+	/* Pat */
 	if ((do_movies == 1) && IN_MAINWINDOW)
-        {
-                if (!cmovie_get_msecond())
-                {
-                        fprintf(movfile,"W:1:\n");
-                }
-        }
-        /* Endpat */
+	{
+		if (!cmovie_get_msecond())
+		{
+			fprintf(movfile, "W:1:\n");
+		}
+	}
+	/* Endpat */
 #endif
 
 	/* Bounds checking */
@@ -2402,8 +2405,8 @@ errr Term_what(int x, int y, byte *a, char *c)
 	int h = Term->hgt;
 
 	/* Verify location */
-	if ((x < 0) || (x >= w)) return (-1);
-	if ((y < 0) || (y >= h)) return (-1);
+	if ((x < 0) || (x >= w)) return ( -1);
+	if ((y < 0) || (y >= h)) return ( -1);
 
 	/* Direct access */
 	(*a) = Term->scr->a[y][x];
@@ -2441,7 +2444,7 @@ errr Term_flush(void)
 errr Term_keypress(int k)
 {
 	/* Hack -- Refuse to enqueue non-keys */
-	if (!k) return (-1);
+	if (!k) return ( -1);
 
 	/* Store the char, advance the queue */
 	Term->key_queue[Term->key_head++] = k;
@@ -2468,7 +2471,7 @@ errr Term_keypress(int k)
 errr Term_key_push(int k)
 {
 	/* Hack -- Refuse to enqueue non-keys */
-	if (!k) return (-1);
+	if (!k) return ( -1);
 
 	/* Hack -- Overflow may induce circular queue */
 	if (Term->key_tail == 0) Term->key_tail = Term->key_size;
@@ -2512,15 +2515,15 @@ errr Term_inkey(char *ch, bool wait, bool take)
 	{
 		/* Process random events */
 		Term_xtra(TERM_XTRA_BORED, 0);
-        }
+	}
 
-        /* PatN */
-        if ((do_movies == 1) && (last_paused == 0) && (!cmovie_get_msecond()))
-        {
-                fprintf(movfile, "S:%ld:\n", cmov_delta_time_msec);
-                last_paused = 1;
-        }
-        /* PatNEnd */
+	/* PatN */
+	if ((do_movies == 1) && (last_paused == 0) && (!cmovie_get_msecond()))
+	{
+		fprintf(movfile, "S:%ld:\n", cmov_delta_time_msec);
+		last_paused = 1;
+	}
+	/* PatNEnd */
 
 	/* Wait */
 	if (wait)
@@ -2596,19 +2599,19 @@ term_win* Term_save_to(void)
 {
 	int w = Term->wid;
 	int h = Term->hgt;
-        term_win *save;
+	term_win *save;
 
-        /* Allocate window */
-        MAKE(save, term_win);
+	/* Allocate window */
+	MAKE(save, term_win);
 
-        /* Initialize window */
-        term_win_init(save, w, h);
+	/* Initialize window */
+	term_win_init(save, w, h);
 
 	/* Grab */
-        term_win_copy(save, Term->scr, w, h);
+	term_win_copy(save, Term->scr, w, h);
 
 	/* Success */
-        return (save);
+	return (save);
 }
 
 /*
@@ -2663,13 +2666,13 @@ errr Term_load_from(term_win *save, bool final)
 	int h = Term->hgt;
 
 	/* Create */
-        if (!save)
+	if (!save)
 	{
-                return (1);
+		return (1);
 	}
 
 	/* Load */
-        term_win_copy(Term->scr, save, w, h);
+	term_win_copy(Term->scr, save, w, h);
 
 	/* Assume change */
 	for (y = 0; y < h; y++)
@@ -2683,9 +2686,9 @@ errr Term_load_from(term_win *save, bool final)
 	Term->y1 = 0;
 	Term->y2 = h - 1;
 
-        /* Free is requested */
-        if (final)
-                FREE(save, term_win);
+	/* Free is requested */
+	if (final)
+		FREE(save, term_win);
 
 	/* Success */
 	return (0);
@@ -2753,10 +2756,10 @@ errr Term_resize(int w, int h)
 	term_win *hold_tmp;
 
 	/* Resizing is forbidden */
-	if (Term->fixed_shape) return (-1);
+	if (Term->fixed_shape) return ( -1);
 
 	/* Ignore illegal changes */
-	if ((w < 1) || (h < 1)) return (-1);
+	if ((w < 1) || (h < 1)) return ( -1);
 
 
 	/* Ignore non-changes */
@@ -3101,12 +3104,12 @@ errr term_init(term *t, int w, int h, int k)
 int cmovie_get_msecond(void)
 {
 #ifndef USE_PRECISE_CMOVIE
-        /* Not very precise, but portable */
+	/* Not very precise, but portable */
 	time_t thisc;
 
 	thisc = time(NULL);
 
-        cmov_delta_time_msec = 300;
+	cmov_delta_time_msec = 300;
 
 	if (thisc == lastc)
 	{
@@ -3114,21 +3117,21 @@ int cmovie_get_msecond(void)
 	}
 	return 0;
 #else /* Very precise but needs main-foo.c to define TERM_XTRA_GET_DELAY */
-        Term_xtra(TERM_XTRA_GET_DELAY, 0);
+Term_xtra(TERM_XTRA_GET_DELAY, 0);
 
-        cmov_delta_time_msec = Term_xtra_long - cmov_last_time_msec;
-        cmov_last_time_msec = Term_xtra_long;
-        return 0;
+	cmov_delta_time_msec = Term_xtra_long - cmov_last_time_msec;
+	cmov_last_time_msec = Term_xtra_long;
+	return 0;
 #endif
 }
 
 void cmovie_init_second()
 {
 #ifndef USE_PRECISE_CMOVIE
-        /* Not very precise, but portable */
-        cmov_last_time_msec = 0;
+	/* Not very precise, but portable */
+	cmov_last_time_msec = 0;
 #else /* Precise but need main-foo.c to have TERM_XTRA_GET_DELAY */
-        Term_xtra(TERM_XTRA_GET_DELAY, 0);
-        cmov_last_time_msec = Term_xtra_long;
+	Term_xtra(TERM_XTRA_GET_DELAY, 0);
+	cmov_last_time_msec = Term_xtra_long;
 #endif
 }

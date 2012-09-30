@@ -46,6 +46,7 @@ static bool grab_one_power(int *ra_idx, object_type *o_ptr, bool good, s16b *max
 
 			if (ok) break;
 		}
+		if ((ra_ptr->max_pval < o_ptr->pval)) ok = FALSE;
 		if (!ok)
 		{
 			/* Doesnt count as a try*/
@@ -147,8 +148,8 @@ int get_activation_power()
 #define S_WORD 26
 #define E_WORD S_WORD
 
-static long lprobs[S_WORD+1][S_WORD+1][S_WORD+1];
-static long ltotal[S_WORD+1][S_WORD+1];
+static long lprobs[S_WORD + 1][S_WORD + 1][S_WORD + 1];
+static long ltotal[S_WORD + 1][S_WORD + 1];
 
 /*
  * Use W. Sheldon Simms' random name generator.  This function builds
@@ -167,7 +168,8 @@ void build_prob(cptr learn)
 		do
 		{
 			c_next = *learn++;
-		} while (!isalpha(c_next) && (c_next != '\0'));
+		}
+		while (!isalpha(c_next) && (c_next != '\0'));
 
 		if (c_next == '\0') break;
 
@@ -179,7 +181,8 @@ void build_prob(cptr learn)
 			c_prev = c_cur;
 			c_cur = c_next;
 			c_next = *learn++;
-		} while (isalpha(c_next));
+		}
+		while (isalpha(c_next));
 
 		lprobs[c_prev][c_cur][E_WORD]++;
 		ltotal[c_prev][c_cur]++;
@@ -210,7 +213,7 @@ startover:
 
 	while (1)
 	{
-	    getletter:
+getletter:
 		c_next = 0;
 		r = rand_int(ltotal[c_prev][c_cur]);
 		totalfreq = lprobs[c_prev][c_cur][c_next];
@@ -273,9 +276,9 @@ bool create_artifact(object_type *o_ptr, bool a_scroll, bool get_name)
 	s16b pval = 0;
 	bool limit_blows = FALSE;
 
-	strcpy(new_name,"");
+	strcpy(new_name, "");
 
-	if ((!a_scroll) && (randint(A_CURSED)==1)) a_cursed = TRUE;
+	if ((!a_scroll) && (randint(A_CURSED) == 1)) a_cursed = TRUE;
 
 	i = 0;
 	while (ra_gen[i].chance)
@@ -323,11 +326,11 @@ bool create_artifact(object_type *o_ptr, bool a_scroll, bool get_name)
 
 		/* Hack -- obtain bonuses */
 		if (ra_ptr->max_to_h > 0) o_ptr->to_h += randint(ra_ptr->max_to_h);
-		if (ra_ptr->max_to_h < 0) o_ptr->to_h -= randint(-ra_ptr->max_to_h);
+		if (ra_ptr->max_to_h < 0) o_ptr->to_h -= randint( -ra_ptr->max_to_h);
 		if (ra_ptr->max_to_d > 0) o_ptr->to_d += randint(ra_ptr->max_to_d);
-		if (ra_ptr->max_to_d < 0) o_ptr->to_d -= randint(-ra_ptr->max_to_d);
+		if (ra_ptr->max_to_d < 0) o_ptr->to_d -= randint( -ra_ptr->max_to_d);
 		if (ra_ptr->max_to_a > 0) o_ptr->to_a += randint(ra_ptr->max_to_a);
-		if (ra_ptr->max_to_a < 0) o_ptr->to_a -= randint(-ra_ptr->max_to_a);
+		if (ra_ptr->max_to_a < 0) o_ptr->to_a -= randint( -ra_ptr->max_to_a);
 
 		/* Hack -- obtain pval */
 		if (((pval > ra_ptr->max_pval) && ra_ptr->max_pval) || (!pval)) pval = ra_ptr->max_pval;
@@ -335,9 +338,9 @@ bool create_artifact(object_type *o_ptr, bool a_scroll, bool get_name)
 	C_FREE(max_times, max_ra_idx, s16b);
 
 	if (pval > 0) o_ptr->pval = randint(pval);
-	if (pval < 0) o_ptr->pval = randint(-pval);
+	if (pval < 0) o_ptr->pval = randint( -pval);
 
-	/* No insane number of blows */  
+	/* No insane number of blows */
 	if (limit_blows && (o_ptr->art_flags1 & TR1_BLOWS))
 	{
 		if (o_ptr->pval > 2) o_ptr->pval = randint(2);
@@ -345,7 +348,7 @@ bool create_artifact(object_type *o_ptr, bool a_scroll, bool get_name)
 
 	/* Just to be sure */
 	o_ptr->art_flags3 |= ( TR3_IGNORE_ACID | TR3_IGNORE_ELEC |
-			       TR3_IGNORE_FIRE | TR3_IGNORE_COLD);
+	                       TR3_IGNORE_FIRE | TR3_IGNORE_COLD);
 
 	total_flags = flag_cost(o_ptr, o_ptr->pval);
 	if (cheat_peek) msg_format("%ld", total_flags);
@@ -355,21 +358,21 @@ bool create_artifact(object_type *o_ptr, bool a_scroll, bool get_name)
 	/* Extract the flags */
 	object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
 
-	if(get_name)
+	if (get_name)
 	{
 		if (a_scroll)
 		{
 			char dummy_name[80];
 			strcpy(dummy_name, "");
-			object_out_desc(o_ptr, NULL, FALSE);
-			o_ptr->ident |= IDENT_STOREB; /* This will be used later on... */
+			object_out_desc(o_ptr, NULL, FALSE, TRUE);
+			o_ptr->ident |= IDENT_STOREB;  /* This will be used later on... */
 			if (!(get_string("What do you want to call the artifact? ", dummy_name, 80)))
 				sprintf(new_name, "of '%s'", player_name);
 			else
 			{
-				strcpy(new_name,"called '");
-				strcat(new_name,dummy_name);
-				strcat(new_name,"'");
+				strcpy(new_name, "called '");
+				strcat(new_name, dummy_name);
+				strcat(new_name, "'");
 			}
 			/* Identify it fully */
 			object_aware(o_ptr);
@@ -397,10 +400,10 @@ bool create_artifact(object_type *o_ptr, bool a_scroll, bool get_name)
 
 bool artifact_scroll(void)
 {
-	int             item;
-	bool            okay = FALSE;
-	object_type     *o_ptr;
-	char            o_name[80];
+	int item;
+	bool okay = FALSE;
+	object_type *o_ptr;
+	char o_name[80];
 
 	cptr q, s;
 
@@ -416,7 +419,7 @@ bool artifact_scroll(void)
 	/* Get the item (in the pack) */
 	if (item >= 0)
 	{
-		o_ptr = &inventory[item];
+		o_ptr = &p_ptr->inventory[item];
 	}
 
 	/* Get the item (on the floor) */
@@ -431,22 +434,22 @@ bool artifact_scroll(void)
 
 	/* Describe */
 	msg_format("%s %s radiate%s a blinding light!",
-		  ((item >= 0) ? "Your" : "The"), o_name,
-		  ((o_ptr->number > 1) ? "" : "s"));
+	           ((item >= 0) ? "Your" : "The"), o_name,
+	           ((o_ptr->number > 1) ? "" : "s"));
 
 	if (artifact_p(o_ptr))
 	{
 		msg_format("The %s %s already %s!",
-		    o_name, ((o_ptr->number > 1) ? "are" : "is"),
-		    ((o_ptr->number > 1) ? "artifacts" : "an artifact"));
+		           o_name, ((o_ptr->number > 1) ? "are" : "is"),
+		           ((o_ptr->number > 1) ? "artifacts" : "an artifact"));
 		okay = FALSE;
 	}
 
 	else if (o_ptr->name2)
 	{
 		msg_format("The %s %s already %s!",
-		    o_name, ((o_ptr->number > 1) ? "are" : "is"),
-		    ((o_ptr->number > 1) ? "ego items" : "an ego item"));
+		           o_name, ((o_ptr->number > 1) ? "are" : "is"),
+		           ((o_ptr->number > 1) ? "ego items" : "an ego item"));
 		okay = FALSE;
 	}
 
@@ -455,7 +458,7 @@ bool artifact_scroll(void)
 		if (o_ptr->number > 1)
 		{
 			msg_print("Not enough enough energy to enchant more than one object!");
-			msg_format("%d of your %s %s destroyed!",(o_ptr->number)-1, o_name, (o_ptr->number>2?"were":"was"));
+			msg_format("%d of your %s %s destroyed!", (o_ptr->number) - 1, o_name, (o_ptr->number > 2 ? "were" : "was"));
 			o_ptr->number = 1;
 		}
 		okay = create_artifact(o_ptr, TRUE, TRUE);

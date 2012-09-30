@@ -12,6 +12,8 @@ in the past. However, not all types of players are able to gain skills to the
 same degree; while a fighter can learn some magic, he's unlikely to become
 as good at it as a mage can. So the amount of skill points required to raise
 a skill to the next level vary according to the starting "type" of character.
+
+You can also spend skill points in "one-off purchase" *****ability.txt*0[Abilities]. 
 ~~~~~56|Skills|Screen
 #####GThe Skills Menu
 Each time a character gains a level of experience, you receive 5 skill points
@@ -58,7 +60,7 @@ skill, the skill would increase from 02.000 to 02.800.
 
 As well as this, skills are grouped together in similar types. Looking under
 the combat skill, there are subtypes of weaponmastery, archery and antimagic.
-An increase of one of these subskills will also increase the main skill by a
+An increase of one of these subskills may also increase the main skill by a
 small amount. You can tell which skills have subskills by the + (or -) in front
 of their name. The + indicates that there are more skills within this category.
 To open a skill category up, move the cursor up/down until the skill category
@@ -74,26 +76,44 @@ unspent points *will* be saved), hit the "Esc" key to finish. This will give
 a confirmation prompt to check that you really do want to spend your points as
 you've assigned them. Saying 'y' saves the changes and allows you to use or
 apply your new skills :).
+
+All skills have a maximum level of 50, and as long as you can learn a skill, 
+and have enough skill points to pump into it, it is theoretically possible to 
+get it to level 50 on matter what your race, class or how you leant it. 
+
+Each skill affects you character differently. It may be worth getting one or 
+more of your characters skills to 50, it may not be worth investing [[[[[Bany] skill 
+points in some other skills. As general and personal advice, which may not work 
+for you, I'd say concentrate on a few skills, and leave the others empty. Just 
+because you [[[[[Bcan] learn a skill, it doesn't mean you have to. It often plays 
+to have a plan ("I'm going to make this assassin the stealthiest, most 
+able-dodging, backstabber around. I'm not going to bother with trapping or 
+thieving ability") which you can stick to for the whole game. 
 ~~~~~57|Skills|List of skills
 #####GThe Skills Themselves
 So you want to know what each of the skills do so that you can decide how to
 spend you're hard-earned points, huh? Well, each skill affects different
 abilities, and not all of them are intuitive - but they don't take all that
-long to learn :). The skills are:
+long to learn :). 
+If you don't find this informative enough, and would like more detailed spoilers 
+on what each skill does, try [[[[[ghttp://www.killerbunnies.org/angband/skill.html] for 
+some third party help!
+The skills are:
 
-  *****skills.txt*27[Air]              *****skills.txt*49[Alchemy]            *****skills.txt*50[Antimagic]           *****skills.txt*08[Archery]
-  *****skills.txt*05[Axe-mastery]      *****skills.txt*18[Backstab]           *****skills.txt*13[Barehand-combat]     *****skills.txt*12[Boomerang-mastery]
-  *****skills.txt*10[Bow-mastery]      *****skills.txt*01[Combat]             *****skills.txt*30[Conveyance]          *****skills.txt*44[Corpse-preservation]
-  *****skills.txt*04[Critical-hits]    *****skills.txt*11[Crossbow-mastery]   *****skills.txt*52[Demonology]          *****skills.txt*16[Disarming]
-  *****skills.txt*31[Divination]       *****skills.txt*20[Dodging]            *****skills.txt*28[Earth]               *****skills.txt*25[Fire]
-  *****skills.txt*06[Hafted-mastery]   *****skills.txt*21[Magic]              *****skills.txt*54[Magic-Device]        *****skills.txt*24[Mana]
-  *****skills.txt*29[Meta]             *****skills.txt*47[Mimicry]            *****skills.txt*33[Mind]                *****skills.txt*41[Mindcraft]
-  *****skills.txt*42[Monster-lore]     *****skills.txt*34[Nature]             *****skills.txt*35[Necromancy]          *****skills.txt*07[Polearm-mastery]
-  *****skills.txt*45[Possession]       *****skills.txt*39[Prayer]             *****skills.txt*36[Runecraft]           *****skills.txt*09[Sling-mastery]
-  *****skills.txt*14[Sneakiness]       *****skills.txt*22[Spell-power]        *****skills.txt*38[Spirituality]        *****skills.txt*23[Sorcery]
-  *****skills.txt*19[Stealing]         *****skills.txt*15[Stealth]            *****skills.txt*53[Stunning-blows]      *****skills.txt*43[Summoning]
-  *****skills.txt*03[Sword-mastery]    *****skills.txt*46[Symbiosis]          *****skills.txt*32[Temporal]            *****skills.txt*37[Thaumaturgy]
-  *****skills.txt*17[Trapping]         *****skills.txt*48[Udun]               *****skills.txt*26[Water]               *****skills.txt*02[Weaponmastery]
+  *****skills.txt*27[Air]                 *****skills.txt*49[Alchemy]            *****skills.txt*50[Antimagic]          *****skills.txt*08[Archery]
+  *****skills.txt*05[Axe-mastery]         *****skills.txt*18[Backstab]           *****skills.txt*13[Barehand-combat]    *****skills.txt*12[Boomerang-mastery]
+  *****skills.txt*58[Boulder-throwing]    *****skills.txt*10[Bow-mastery]        *****skills.txt*01[Combat]             *****skills.txt*30[Conveyance]
+  *****skills.txt*44[Corpse-preservation] *****skills.txt*04[Critical-hits]      *****skills.txt*11[Crossbow-mastery]   *****skills.txt*52[Demonology]
+  *****skills.txt*16[Disarming]           *****skills.txt*31[Divination]         *****skills.txt*20[Dodging]            *****skills.txt*28[Earth]
+  *****skills.txt*25[Fire]                *****skills.txt*60[Geomancy]           *****skills.txt*06[Hafted-mastery]     *****skills.txt*21[Magic]              
+  *****skills.txt*54[Magic-Device]        *****skills.txt*24[Mana]               *****skills.txt*29[Meta]               *****skills.txt*47[Mimicry]          
+  *****skills.txt*33[Mind]                *****skills.txt*41[Mindcraft]          *****skills.txt*42[Monster-lore]       *****skills.txt*59[Music]            
+  *****skills.txt*34[Nature]              *****skills.txt*35[Necromancy]         *****skills.txt*07[Polearm-mastery]    *****skills.txt*45[Possession]       
+  *****skills.txt*39[Prayer]              *****skills.txt*36[Runecraft]          *****skills.txt*09[Sling-mastery]      *****skills.txt*14[Sneakiness]         
+  *****skills.txt*22[Spell-power]         *****skills.txt*38[Spirituality]       *****skills.txt*23[Sorcery]            *****skills.txt*19[Stealing]           
+  *****skills.txt*15[Stealth]             *****skills.txt*53[Stunning-blows]     *****skills.txt*43[Summoning]          *****skills.txt*03[Sword-mastery]    
+  *****skills.txt*46[Symbiosis]           *****skills.txt*32[Temporal]           *****skills.txt*37[Thaumaturgy]        *****skills.txt*48[Udun]
+  *****skills.txt*26[Water]               *****skills.txt*02[Weaponmastery]
 
 
 ~~~~~01|Skills|Combat
@@ -104,7 +124,7 @@ fighting ability, although not to as great an extent as Weaponmastery, and
 determines the speed and strength of pseudo-id of weapons and armour.
 
 Sub-skills of Combat are Weaponmastery, Archery, Barehand-combat,
-and Anti-magic.
+Boulder-throwing and Anti-magic.
 ~~~~~02|Skills|Weaponmastery
 [[[[[BWeaponmastery]
 This skill is a sub-skill of the Combat skill. It affects your general
@@ -195,6 +215,11 @@ This skill is a sub-skill of the Combat skill. It affects your general ability
 to fight using martial arts. In order to utilise it, you must be capable of
 using a weapon in the first place, but choose not to. Spending 1 skill point
 on your Barehand-combat skill adds 0.5 bonus skill points to your Combat skill.
+~~~~~58|Skills|Boulder-throwing
+[[[[[BBoulder-throwing]
+This skill is a sub-skill of the Combat skill. It affects your ability to
+throw boulders and make them from granite walls. Spending 1 skill point on
+your Boulder-throwing skill adds 0.4 bonus skill points to your Combat skill.
 ~~~~~50|Skills|Antimagic
 [[[[[BAntimagic]
 This skill is a sub-skill of the Combat skill.  It generates a field around
@@ -221,11 +246,6 @@ skill points to your Sneakiness skill.
 This skill is a sub-skill of the Sneakiness skill. It affects your ability
 to safely disarm any traps you find. Spending 1 skill point on your Disarming
 skill adds 0.1 bonus skill points to your Sneakiness skill.
-~~~~~17|Skills|Trapping
-[[[[[BTrapping]
-This skill is a sub-skill of the Sneakiness skill. It affects your ability
-to set traps to damage monsters that trigger them. Spending 1 skill point on
-your Trapping skill adds 0.15 bonus skill points to your Sneakiness skill.
 ~~~~~18|Skills|Backstab
 [[[[[BBackstab]
 This skill is a sub-skill of the Sneakiness skill. It affects your ability
@@ -296,6 +316,14 @@ the mana school, you could cast "Manathrust" at a casting level of 1. For
 every skill level you add to Mana, Manathrust will become more powerful,
 adding 1 casting level to the spell. Spending 1 skill point on your Mana
 skill adds 0.1 bonus skill points to your Magic skill.
+~~~~~60|Skills|Geomancy
+[[[[[BGeomancy]
+This skill is a subskill of the Magic skill. It gives access to spells 
+within the *****m_geoman.txt*0[Geomancy] school, and as it increases so does the casting level of
+spells already attained in the school. Most spells from this school rely 
+on the Fire, Water, Air and Earth skills as well. Spending 1 skill point 
+on your Geomancy skill adds 0.05 bonus skill points to your Fire, Water, 
+Air and Earth skills.
 ~~~~~25|Skills|Fire
 [[[[[BFire]
 This skill is a sub-skill of the Magic skill. It gives access to spells
@@ -392,13 +420,13 @@ skill.
 ~~~~~49|Skills|Alchemy
 [[[[[BAlchemy]
 The Alchemy skill affects your ability to extract and use essences to create
-magical items. When it is powerful enough, it can be used to create Artifacts.
+magical items. 
 ~~~~~38|Skills|Spirituality
 [[[[[BSpirituality]
 The spirituality skill influences things which have a "helping hand" from the
 Gods - like your saving throw, and the general spirituality skills.
 
-Sub-skills of Spirituality are Prayer and Mindcraft.
+Sub-skills of Spirituality are Prayer, Mindcraft and Music.
 ~~~~~39|Skills|Prayer
 [[[[[BPrayer]
 This skill is a sub-skill of the Spirituality skill. It affects what level of
@@ -413,11 +441,18 @@ This skill is a sub-skill of the Spirituality skill. It affects what level of
 available under the "m" menu. Spending 1 skill point on your Mindcraft skill
 adds 0.1 bonus skill points to your Spirituality skill and 0.1 bonus skill
 points to your Magic skill.
+~~~~~59|Skills|Music
+This skill is a sub-skill of the Spirituality skill. It affects what level of
+*****m_music.txt*0[Musical songs] you can access through instruments. This power 
+is available under the "m" menu. Spending 1 skill point on your Music skill 
+adds 0.1 bonus skill points to your Spirituality skill and 0.1 bonus skill
+points to your Magic skill.
 ~~~~~42|Skills|Monster-lore
 [[[[[BMonster-lore]
 The monster-lore skill affects your general ability at the monster related
 skills. It determines how much experience you will gain if your *****dungeon.txt*18[pets] kill a
-monster, and how many companions you can have.
+monster, and how many companions you can have. At skill level 12, it allows 
+you to turn a pet into a loyal companion.
 
 Sub-skills of Monster-lore are Summoning, Corpse-preservation, Possession,
 Symbiosis, and Mimicry.

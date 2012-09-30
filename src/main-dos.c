@@ -201,7 +201,7 @@ static bool sound_initialized = FALSE;
  */
 static bool mod_file_initialized = FALSE;
 
-# endif /* USE_MOD_FILES */
+# endif  /* USE_MOD_FILES */
 
 /*
  * Volume settings
@@ -218,7 +218,7 @@ static MIDI *midi_song = NULL;
 
 static JGMOD *mod_song = NULL;
 
-# endif /* USE_MOD_FILES */
+# endif  /* USE_MOD_FILES */
 
 static int current_song;
 
@@ -264,7 +264,8 @@ static char xtra_music_dir[1024];
 /*
  * List of the available videomodes to reduce executable size
  */
-DECLARE_GFX_DRIVER_LIST(
+DECLARE_GFX_DRIVER_LIS
+(
 	GFX_DRIVER_VBEAF
 	GFX_DRIVER_VESA2L
 	GFX_DRIVER_VESA2B
@@ -327,16 +328,16 @@ static void play_song(void);
 #ifdef USE_GRAPHICS
 static bool init_graphics(void);
 # ifdef USE_TRANSPARENCY
-#  ifdef USE_EGO_GRAPHICS
+# ifdef USE_EGO_GRAPHICS
 static errr Term_pict_dos(int x, int y, int n, const byte *ap, const char *cp,
-	const byte *tap, const char *tcp, const byte *eap, const char *ecp);
-#  else /* USE_EGO_GRAPHICS */
+                          const byte *tap, const char *tcp, const byte *eap, const char *ecp);
+# else /* USE_EGO_GRAPHICS */
 static errr Term_pict_dos(int x, int y, int n, const byte *ap, const char *cp,
-	const byte *tap, const char *tcp);
-#  endif /* USE_EGO_GRAPHICS */
+                          const byte *tap, const char *tcp);
+# endif  /* USE_EGO_GRAPHICS */
 # else /* USE_TRANSPARENCY */
 static errr Term_pict_dos(int x, int y, int n, const byte *ap, const char *cp);
-# endif /* USE_TRANSPARENCY */
+# endif  /* USE_TRANSPARENCY */
 #endif /* USE_GRAPHICS */
 
 
@@ -467,8 +468,8 @@ static errr Term_xtra_dos_event(int v)
 	Term_keypress('x');
 
 	/* Encode the hexidecimal scan code */
-	Term_keypress(hexsym[s/16]);
-	Term_keypress(hexsym[s%16]);
+	Term_keypress(hexsym[s / 16]);
+	Term_keypress(hexsym[s % 16]);
 
 	/* End the "macro trigger" */
 	Term_keypress(13);
@@ -610,7 +611,7 @@ static void Term_xtra_dos_react(void)
 	{
 		/* Clear the old song */
 		if (midi_song) destroy_midi(midi_song);
-		midi_song =NULL;
+		midi_song = NULL;
 #ifdef USE_MOD_FILES
 		if (mod_file_initialized)
 		{
@@ -698,8 +699,8 @@ static void Term_xtra_dos_clear(void)
 	{
 		/* Draw the background */
 		stretch_blit(background[bgrnd], screen,
-			0, 0, background[bgrnd]->w, background[bgrnd]->h,
-			x1, y1, w1, h1);
+		             0, 0, background[bgrnd]->w, background[bgrnd]->h,
+		             x1, y1, w1, h1);
 	}
 	else
 
@@ -708,8 +709,8 @@ static void Term_xtra_dos_clear(void)
 	{
 		/* Draw the Term black */
 		rectfill(screen,
-			x1, y1, x1 + w1 - 1, y1 + h1 - 1,
-			COLOR_OFFSET + TERM_DARK);
+		         x1, y1, x1 + w1 - 1, y1 + h1 - 1,
+		         COLOR_OFFSET + TERM_DARK);
 	}
 }
 
@@ -725,7 +726,7 @@ static errr Term_xtra_dos(int n, int v)
 	switch (n)
 	{
 		/* Make a "bell" noise */
-		case TERM_XTRA_NOISE:
+	case TERM_XTRA_NOISE:
 		{
 			/* Make a bell noise */
 			(void)write(1, "\007", 1);
@@ -735,7 +736,7 @@ static errr Term_xtra_dos(int n, int v)
 		}
 
 		/* Clear the screen */
-		case TERM_XTRA_CLEAR:
+	case TERM_XTRA_CLEAR:
 		{
 			/* Clear the screen */
 			Term_xtra_dos_clear();
@@ -745,7 +746,7 @@ static errr Term_xtra_dos(int n, int v)
 		}
 
 		/* Process events */
-		case TERM_XTRA_EVENT:
+	case TERM_XTRA_EVENT:
 		{
 			irc_poll();
 
@@ -754,7 +755,7 @@ static errr Term_xtra_dos(int n, int v)
 		}
 
 		/* Flush events */
-		case TERM_XTRA_FLUSH:
+	case TERM_XTRA_FLUSH:
 		{
 			/* Strip events */
 			while (!Term_xtra_dos_event(FALSE));
@@ -764,7 +765,7 @@ static errr Term_xtra_dos(int n, int v)
 		}
 
 		/* Do something useful if bored */
-		case TERM_XTRA_BORED:
+	case TERM_XTRA_BORED:
 		{
 			irc_poll();
 
@@ -777,7 +778,7 @@ static errr Term_xtra_dos(int n, int v)
 #ifdef USE_MOD_FILES
 			if (song_number && ((midi_pos == -1) && !is_mod_playing()))
 #else /* USE_MOD_FILES */
-			if (song_number && (midi_pos == -1))
+if (song_number && (midi_pos == -1))
 #endif /* USE_MOD_FILES */
 			{
 				if (song_number > 1)
@@ -807,7 +808,7 @@ static errr Term_xtra_dos(int n, int v)
 		}
 
 		/* React to global changes */
-		case TERM_XTRA_REACT:
+	case TERM_XTRA_REACT:
 		{
 			/* Change the colors */
 			Term_xtra_dos_react();
@@ -817,11 +818,11 @@ static errr Term_xtra_dos(int n, int v)
 		}
 
 		/* Delay for some milliseconds */
-		case TERM_XTRA_DELAY:
+	case TERM_XTRA_DELAY:
 		{
 			irc_poll();
 
-                        /* Delay if needed */
+			/* Delay if needed */
 			if (v > 0) delay(v);
 
 			/* Success */
@@ -831,12 +832,39 @@ static errr Term_xtra_dos(int n, int v)
 #ifdef USE_SOUND
 
 		/* Make a sound */
-		case TERM_XTRA_SOUND:
+	case TERM_XTRA_SOUND:
 		{
 			return (Term_xtra_dos_sound(v));
 		}
 
 #endif /* USE_SOUND */
+
+		/*
+		 * Scans for subdirectories in a directory "scansubdir_dir"
+		 * and place teh result in "scansubdir_result/scansubdir_max"
+		 */
+	case TERM_XTRA_SCANSUBDIR:
+		{
+			struct ffblk f;
+			int done;
+
+			done = findfirst(format("%s\\*", scansubdir_dir), &f, FA_DIREC);
+
+			scansubdir_max = 0;
+			while ((!done) && (scansubdir_max < 255))
+			{
+				if ((f.ff_attrib & FA_DIREC) && (strcmp(f.ff_name, ".")) && (strcmp(f.ff_name, "..")))
+				{
+					string_free(scansubdir_result[scansubdir_max]);
+					scansubdir_result[scansubdir_max] = string_make(f.ff_name);
+					scansubdir_max++;
+				}
+
+				done = findnext(&f);
+			}
+
+			return 0;
+		}
 
 	}
 
@@ -920,8 +948,8 @@ static errr Term_user_dos(int n)
 		{
 #ifdef USE_SOUND
 			/* Sound Volume */
-			case 'V':
-			case 'v':
+		case 'V':
+		case 'v':
 			{
 				/* Prompt */
 				prt("Command: Sound Volume", 18, 0);
@@ -935,20 +963,20 @@ static errr Term_user_dos(int n)
 					if (k == ESCAPE) break;
 					switch (k)
 					{
-						case '+':
+					case '+':
 						{
 							digi_volume++;
 							if (digi_volume > 255) digi_volume = 255;
 							break;
 						}
-						case '-':
+					case '-':
 						{
 							digi_volume--;
 							if (digi_volume < 0) digi_volume = 0;
 							break;
 						}
 						/* Unknown option */
-						default:
+					default:
 						{
 							break;
 						}
@@ -959,8 +987,8 @@ static errr Term_user_dos(int n)
 			}
 
 			/* Music Volume */
-			case 'M':
-			case 'm':
+		case 'M':
+		case 'm':
 			{
 				/* Prompt */
 				prt("Command: Music Volume", 18, 0);
@@ -974,25 +1002,25 @@ static errr Term_user_dos(int n)
 					if (k == ESCAPE) break;
 					switch (k)
 					{
-						case '+':
+					case '+':
 						{
 							midi_volume++;
 							if (midi_volume > 255) midi_volume = 255;
 							break;
 						}
-						case '-':
+					case '-':
 						{
 							midi_volume--;
 							if (midi_volume < 0) midi_volume = 0;
 							break;
 						}
 						/* Unknown option */
-						default:
+					default:
 						{
 							break;
 						}
 					}
-					set_volume(-1, midi_volume);
+					set_volume( -1, midi_volume);
 				}
 				break;
 			}
@@ -1002,8 +1030,8 @@ static errr Term_user_dos(int n)
 #ifdef USE_GRAPHICS
 
 			/* Switch graphics on/off */
-			case 'G':
-			case 'g':
+		case 'G':
+		case 'g':
 			{
 				/* Toggle "arg_graphics" */
 				arg_graphics = !arg_graphics;
@@ -1025,8 +1053,8 @@ static errr Term_user_dos(int n)
 #ifdef USE_SOUND
 
 			/* Sound/Music On/Off */
-			case 'S':
-			case 's':
+		case 'S':
+		case 's':
 			{
 				/* Toggle "arg_sound" */
 				arg_sound = !arg_sound;
@@ -1040,8 +1068,8 @@ static errr Term_user_dos(int n)
 #endif /* USE_SOUND */
 
 			/* Screen Resolution */
-			case 'R':
-			case 'r':
+		case 'R':
+		case 'r':
 			{
 				int h, w, i = 1;
 				char *descr;
@@ -1074,7 +1102,7 @@ static errr Term_user_dos(int n)
 				}
 
 				/* Get a new resolution */
-				prt(format("Screen Resolution : %d",resolution), 20, 0);
+				prt(format("Screen Resolution : %d", resolution), 20, 0);
 				k = inkey();
 				if (k == ESCAPE) break;
 				if (isdigit(k)) resolution = D2I(k);
@@ -1091,8 +1119,8 @@ static errr Term_user_dos(int n)
 
 
 			/* Save current option */
-			case 'W':
-			case 'w':
+		case 'W':
+		case 'w':
 			{
 				prt("Saving current options", 18, 0);
 
@@ -1107,7 +1135,7 @@ static errr Term_user_dos(int n)
 			}
 
 			/* Unknown option */
-			default:
+		default:
 			{
 				break;
 			}
@@ -1185,8 +1213,8 @@ static errr Term_wipe_dos(int x, int y, int n)
 
 		/* Draw the background */
 		stretch_blit(background[bgrnd], screen,
-			source_x, source_y, source_w, source_h,
-			x1, y1, w1, h1);
+		             source_x, source_y, source_w, source_h,
+		             x1, y1, w1, h1);
 	}
 	else
 
@@ -1195,7 +1223,7 @@ static errr Term_wipe_dos(int x, int y, int n)
 	{
 		/* Draw a black block */
 		rectfill(screen, x1, y1, x1 + w1 - 1, y1 + h1 - 1,
-			COLOR_OFFSET + TERM_DARK);
+		         COLOR_OFFSET + TERM_DARK);
 	}
 
 	/* Success */
@@ -1245,7 +1273,7 @@ static errr Term_text_dos(int x, int y, int n, byte a, const char *cp)
 
 		/* Dump the text */
 		textout(screen, td->font, text, x1, y1,
-			COLOR_OFFSET + (a & 0x0F));
+		        COLOR_OFFSET + (a & 0x0F));
 	}
 
 	/* Stretch needed */
@@ -1262,7 +1290,7 @@ static errr Term_text_dos(int x, int y, int n, byte a, const char *cp)
 
 			/* Dump some text */
 			textout(screen, td->font, text, x1, y1,
-				COLOR_OFFSET + (a & 0x0F));
+			        COLOR_OFFSET + (a & 0x0F));
 
 			/* Advance */
 			x1 += td->tile_wid;
@@ -1288,11 +1316,11 @@ static errr Term_text_dos(int x, int y, int n, byte a, const char *cp)
 #ifdef USE_TRANSPARENCY
 # ifdef USE_EGO_GRAPHICS
 static errr Term_pict_dos(int x, int y, int n, const byte *ap, const char *cp,
-	const byte *tap, const char *tcp, const byte *eap, const char *ecp)
+                          const byte *tap, const char *tcp, const byte *eap, const char *ecp)
 # else /* USE_EGO_GRAPHICS */
 static errr Term_pict_dos(int x, int y, int n, const byte *ap, const char *cp,
-	const byte *tap, const char *tcp)
-# endif /* USE_EGO_GRAPHICS */
+                          const byte *tap, const char *tcp)
+# endif  /* USE_EGO_GRAPHICS */
 #else /* USE_TRANSPARENCY */
 static errr Term_pict_dos(int x, int y, int n, const byte *ap, const char *cp)
 #endif /* USE_TRANSPARENCY */
@@ -1310,14 +1338,14 @@ static errr Term_pict_dos(int x, int y, int n, const byte *ap, const char *cp)
 
 	int x3, y3;
 
-#  ifdef USE_EGO_GRAPHICS
+# ifdef USE_EGO_GRAPHICS
 
 	int x4, y4;
 	bool has_overlay;
 
-#  endif /* USE_EGO_GRAPHICS */
+# endif  /* USE_EGO_GRAPHICS */
 
-# endif /* USE_TRANSPARENCY */
+# endif  /* USE_TRANSPARENCY */
 
 	/* Size */
 	w = td->tile_wid;
@@ -1338,12 +1366,12 @@ static errr Term_pict_dos(int x, int y, int n, const byte *ap, const char *cp)
 		x3 = (tcp[i] & 0x7F) * w;
 		y3 = (tap[i] & 0x7F) * h;
 
-#  ifdef EGO_GRAPHICS
+# ifdef EGO_GRAPHICS
 		x4 = (ecp[i] & 0x7F) * w;
 		y4 = (eap[i] & 0x7F) * h;
 		has_overlay = (ecp[i] && eap[i]);
 
-#  endif /* EGO_GRAPHICS */
+# endif  /* EGO_GRAPHICS */
 
 		/* Blit the tile to the screen */
 		blit(td->tiles, screen, x3, y3, x1, y1, w, h);
@@ -1351,20 +1379,20 @@ static errr Term_pict_dos(int x, int y, int n, const byte *ap, const char *cp)
 		/* Blit the tile to the screen */
 		masked_blit(td->tiles, screen, x2, y2, x1, y1, w, h);
 
-#  ifdef EGO_GRAPHICS
+# ifdef EGO_GRAPHICS
 
 		/* Blit the overlay to the screen */
 		if (has_overlay)
 			masked_blit(td->tiles, screen, x4, y4, x1, y1, w, h);
 
-#  endif /* EGO_GRAPHICS */
+# endif  /* EGO_GRAPHICS */
 
 # else /* USE_TRANSPARENCY */
 
 		/* Blit the tile to the screen */
 		blit(td->tiles, screen, x2, y2, x1, y1, w, h);
 
-# endif /* USE_TRANSPARENCY */
+# endif  /* USE_TRANSPARENCY */
 
 		/* Advance (window) */
 		x1 += w;
@@ -1505,7 +1533,7 @@ static void dos_quit_hook(cptr str)
 
 	/* Clear the old song */
 	if (midi_song) destroy_midi(midi_song);
-	midi_song =NULL;
+	midi_song = NULL;
 # ifdef USE_MOD_FILES
 	if (mod_file_initialized)
 	{
@@ -1513,7 +1541,7 @@ static void dos_quit_hook(cptr str)
 		if (mod_song) destroy_mod(mod_song);
 		mod_song = NULL;
 	}
-# endif /* USE_MOD_FILES */
+# endif  /* USE_MOD_FILES */
 
 #endif /* USE_SOUND */
 
@@ -1586,8 +1614,8 @@ typedef struct FNTfile_header FNTfile_header;
  */
 struct FNTfile_header
 {
-	unsigned long  magic;
-	unsigned long  bmpsize;
+	unsigned long magic;
+	unsigned long bmpsize;
 	unsigned short width;
 	unsigned short height;
 	unsigned short minchar;
@@ -1596,8 +1624,8 @@ struct FNTfile_header
 	unsigned short reserved;
 	unsigned short baseline;
 	unsigned short undwidth;
-	char           fname[16];
-	char           family[16];
+	char fname[16];
+	char family[16];
 };
 
 
@@ -1616,20 +1644,20 @@ typedef byte *GRX_BITMAP;
 /*
  * ???
  */
-void convert_grx_bitmap(int width, int height, GRX_BITMAP src, GRX_BITMAP dest) 
+void convert_grx_bitmap(int width, int height, GRX_BITMAP src, GRX_BITMAP dest)
 {
 	unsigned short x, y, bytes_per_line;
 	unsigned char bitpos, bitset;
 
-	bytes_per_line = (width+7) >> 3;
+	bytes_per_line = (width + 7) >> 3;
 
-	for (y=0; y<height; y++)
+	for (y = 0; y < height; y++)
 	{
-		for (x=0; x<width; x++)
+		for (x = 0; x < width; x++)
 		{
-			bitpos = 7-(x&7);
-			bitset = !!(src[(bytes_per_line*y) + (x>>3)] & (1<<bitpos));
-			dest[y*width+x] = bitset;
+			bitpos = 7 - (x & 7);
+			bitset = !!(src[(bytes_per_line * y) + (x >> 3)] & (1 << bitpos));
+			dest[y*width + x] = bitset;
 		}
 	}
 }
@@ -1639,7 +1667,7 @@ void convert_grx_bitmap(int width, int height, GRX_BITMAP src, GRX_BITMAP dest)
  * ???
  */
 GRX_BITMAP *load_grx_bmps(PACKFILE *f, FNTfile_header *hdr,
-	int numchar, unsigned short *wtable) 
+                          int numchar, unsigned short *wtable)
 {
 	int t, width, bmp_size;
 	GRX_BITMAP temp;
@@ -1654,25 +1682,25 @@ GRX_BITMAP *load_grx_bmps(PACKFILE *f, FNTfile_header *hdr,
 	/* temporary working area to store FNT bitmap */
 	temp = malloc(GRX_TMP_SIZE);
 
-	for (t=0; t<numchar; t++)
+	for (t = 0; t < numchar; t++)
 	{
 		/* if prop. get character width */
 		if (!hdr->isfixed) width = wtable[t];
 
 		/* work out how many bytes to read */
-		bmp_size = ((width+7) >> 3) * hdr->height;
+		bmp_size = ((width + 7) >> 3) * hdr->height;
 
 		/* oops, out of space! */
 		if (bmp_size > GRX_TMP_SIZE)
 		{
 			free(temp);
-			for (t--; t>=0; t--) free(bmp[t]);
+			for (t--; t >= 0; t--) free(bmp[t]);
 			free(bmp);
 			return NULL;
 		}
 
 		/* alloc space for converted bitmap */
-		bmp[t] = malloc(width*hdr->height);
+		bmp[t] = malloc(width * hdr->height);
 
 		/* read data */
 		pack_fread(temp, bmp_size, f);
@@ -1726,7 +1754,7 @@ FONT *import_grx_font(char *fname)
 		return NULL;
 	}
 
-	numchar = hdr.maxchar-hdr.minchar+1;
+	numchar = hdr.maxchar - hdr.minchar + 1;
 
 	/* proportional font */
 	if (!hdr.isfixed)
@@ -1748,9 +1776,9 @@ FONT *import_grx_font(char *fname)
 	start = 32 - hdr.minchar;
 	width = hdr.width;
 
-	for (c=0; c<FONT_SIZE; c++)
+	for (c = 0; c < FONT_SIZE; c++)
 	{
-		c2 = c+start;
+		c2 = c + start;
 
 		if ((c2 >= 0) && (c2 < numchar))
 		{
@@ -1774,7 +1802,7 @@ get_out:
 
 	if (bmp)
 	{
-		for (c=0; c<numchar; c++) free(bmp[c]);
+		for (c = 0; c < numchar; c++) free(bmp[c]);
 
 		free(bmp);
 	}
@@ -2013,10 +2041,10 @@ static bool init_graphics(void)
 						tgt_x = col * td->tile_wid;
 
 						stretch_blit(tiles, td->tiles,
-							src_x, src_y,
-							bitmap_wid, bitmap_hgt,
-							tgt_x, tgt_y,
-							td->tile_wid, td->tile_hgt);
+						             src_x, src_y,
+						             bitmap_wid, bitmap_hgt,
+						             tgt_x, tgt_y,
+						             td->tile_wid, td->tile_hgt);
 					}
 				}
 			}
@@ -2108,11 +2136,11 @@ static bool init_sound(void)
 #ifdef USE_MOD_FILES
 		if (mod_file_initialized)
 		{
-			done = findfirst(format("%s/*.*",xtra_music_dir), &f, FA_ARCH|FA_RDONLY);
+			done = findfirst(format("%s/*.*", xtra_music_dir), &f, FA_ARCH | FA_RDONLY);
 		}
 		else
 #endif /* USE_MOD_FILES */
-		done = findfirst(format("%s/*.mid",xtra_music_dir), &f, FA_ARCH|FA_RDONLY);
+			done = findfirst(format("%s/*.mid", xtra_music_dir), &f, FA_ARCH | FA_RDONLY);
 
 
 		while (!done && (song_number <= MAX_SONGS))
@@ -2184,7 +2212,7 @@ static void play_song(void)
 
 	/* Clear the old song */
 	if (midi_song) destroy_midi(midi_song);
-	midi_song =NULL;
+	midi_song = NULL;
 #ifdef USE_MOD_FILES
 	if (mod_file_initialized)
 	{
@@ -2239,7 +2267,7 @@ errr init_dos(void)
 	install_timer();
 
 	/* Enable the gif-loading function */
-	register_bitmap_file_type("GIF", load_gif, NULL);
+	register_bitmap_file_type("GIF", load_gif , NULL);
 
 	/* Read config info from filename */
 	set_config_file("angdos.cfg");
@@ -2283,7 +2311,7 @@ errr init_dos(void)
 			plog_fmt("Error selecting screen mode: %s", error_text);
 
 			/* Failure */
-			return (-1);
+			return ( -1);
 		}
 	}
 
@@ -2364,7 +2392,7 @@ errr init_dos(void)
 #ifdef USE_BACKGROUND
 
 	/* Use transparent text */
-	text_mode(-1);
+	text_mode( -1);
 
 #endif /* USE_BACKGROUND */
 

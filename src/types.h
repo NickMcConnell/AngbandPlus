@@ -177,7 +177,7 @@ struct object_kind
 	s16b to_d;			/* Bonus to damage */
 	s16b to_a;			/* Bonus to armor */
 
-        s16b activate;		        /* Activation number */
+	s16b activate;		        /* Activation number */
 
 	s16b ac;			/* Base armor */
 
@@ -193,7 +193,7 @@ struct object_kind
 	u32b flags4;            /* Flags, set 4 */
 	u32b flags5;            /* Flags, set 5 */
 
-        u32b oflags1;		/* Obvious Flags, set 1 */
+	u32b oflags1;		/* Obvious Flags, set 1 */
 	u32b oflags2;		/* Obvious Flags, set 2 */
 	u32b oflags3;		/* Obvious Flags, set 3 */
 	u32b oflags4;           /* Obvious Flags, set 4 */
@@ -224,8 +224,6 @@ struct object_kind
 	bool tried;			/* The player has "tried" one of the items */
 
 	bool know;                      /* extractable flag for the alchemist */
-
-	byte squeltch;                  /* Should we destroy it ? */
 
 	u32b esp;                       /* ESP flags */
 	u32b oesp;                      /* Obvious ESP flags */
@@ -263,7 +261,7 @@ struct artifact_type
 	s16b to_d;			/* Bonus to damage */
 	s16b to_a;			/* Bonus to armor */
 
-        s16b activate;			/* Activation Number */
+	s16b activate;			/* Activation Number */
 
 	s16b ac;			/* Base armor */
 
@@ -279,7 +277,7 @@ struct artifact_type
 	u32b flags4;            /* Artifact Flags, set 4 */
 	u32b flags5;            /* Artifact Flags, set 5 */
 
-        u32b oflags1;		/* Obvious Flags, set 1 */
+	u32b oflags1;		/* Obvious Flags, set 1 */
 	u32b oflags2;		/* Obvious Flags, set 2 */
 	u32b oflags3;		/* Obvious Flags, set 3 */
 	u32b oflags4;           /* Obvious Flags, set 4 */
@@ -327,7 +325,7 @@ struct ego_item_type
 	s16b max_to_d;          /* Maximum to-dam bonus */
 	s16b max_to_a;          /* Maximum to-ac bonus */
 
-        s16b activate;			/* Activation Number */
+	s16b activate;			/* Activation Number */
 
 	s32b max_pval;          /* Maximum pval */
 
@@ -348,13 +346,13 @@ struct ego_item_type
 	u32b oesp[5];              /* Obvious ESP flags */
 	u32b fego[5];              /* ego flags */
 
-        u32b need_flags1;            /* Ego-Item Flags, set 1 */
+	u32b need_flags1;            /* Ego-Item Flags, set 1 */
 	u32b need_flags2;            /* Ego-Item Flags, set 2 */
 	u32b need_flags3;            /* Ego-Item Flags, set 3 */
 	u32b need_flags4;            /* Ego-Item Flags, set 4 */
 	u32b need_flags5;            /* Ego-Item Flags, set 5 */
 	u32b need_esp;                       /* ESP flags */
-        u32b forbid_flags1;            /* Ego-Item Flags, set 1 */
+	u32b forbid_flags1;            /* Ego-Item Flags, set 1 */
 	u32b forbid_flags2;            /* Ego-Item Flags, set 2 */
 	u32b forbid_flags3;            /* Ego-Item Flags, set 3 */
 	u32b forbid_flags4;            /* Ego-Item Flags, set 4 */
@@ -732,20 +730,20 @@ struct cave_type
 	byte when;		/* Hack -- when cost was computed */
 
 #endif
-        s16b effect;            /* The lasting effects */
+	s16b effect;            /* The lasting effects */
 };
 
 /* Lasting spell effects(clouds, ..) */
 typedef struct effect_type effect_type;
 struct effect_type
 {
-        s16b    time;           /* For how long */
-        s16b    dam;            /* How much damage */
-        s16b    type;           /* Of which type */
-        s16b    cy;             /* Center of the cast*/
-        s16b    cx;             /* Center of the cast*/
-        s16b    rad;            /* Radius -- if needed */
-        u32b    flags;          /* Flags */
+	s16b    time;           /* For how long */
+	s16b    dam;            /* How much damage */
+	s16b    type;           /* Of which type */
+	s16b    cy;             /* Center of the cast*/
+	s16b    cx;             /* Center of the cast*/
+	s16b    rad;            /* Radius -- if needed */
+	u32b    flags;          /* Flags */
 };
 
 /*
@@ -834,7 +832,7 @@ struct object_type
 	u32b art_flags5;        /* Flags, set 5  PernAngband */
 	u32b art_esp;           /* Flags, set esp  PernAngband */
 
-        u32b art_oflags1;       /* Obvious Flags, set 1 */
+	u32b art_oflags1;       /* Obvious Flags, set 1 */
 	u32b art_oflags2;       /* Obvious Flags, set 2 */
 	u32b art_oflags3;       /* Obvious Flags, set 3 */
 	u32b art_oflags4;       /* Obvious Flags, set 4 */
@@ -845,13 +843,28 @@ struct object_type
 
 	s16b held_m_idx;	/* Monster holding us (if any) */
 
-        byte sense;             /* Pseudo-id status */
+	byte sense;             /* Pseudo-id status */
 
-        byte found;             /* How did we find it */
-        s16b found_aux1;        /* Stores info for found */
-        s16b found_aux2;        /* Stores info for found */
-        s16b found_aux3;        /* Stores info for found */
-        s16b found_aux4;        /* Stores info for found */
+	byte found;             /* How did we find it */
+	s16b found_aux1;        /* Stores info for found */
+	s16b found_aux2;        /* Stores info for found */
+	s16b found_aux3;        /* Stores info for found */
+	s16b found_aux4;        /* Stores info for found */
+};
+
+
+/*
+ * Monster mind, use for skills and such
+ */
+typedef struct monster_mind monster_mind;
+struct monster_mind
+{
+	/*
+	 * Without this, bcc can't compile because it does not
+	 * allow empty structure.  Remove this when you add some
+	 * variables to this structure.  -- Kusunose
+	 */
+	byte dummy;
 };
 
 
@@ -924,6 +937,10 @@ struct monster_type
 	s16b target;                    /* Monster target */
 
 	s16b possessor;                 /* Is it under the control of a possessor ? */
+
+	monster_race *sr_ptr;           /* Does it have a specific race(not in r_info) */
+
+	monster_mind *mind;             /* Does it have a mind? */
 };
 
 
@@ -1005,7 +1022,6 @@ struct owner_type
 
 	s32b races[2][2];                  /* Liked/hated races */
 	s32b classes[2][2];                /* Liked/hated classes */
-	s32b realms[2][2];                 /* Liked/hated realms */
 
 	s16b costs[3];                  /* Costs for liked people */
 };
@@ -1076,6 +1092,7 @@ struct store_action_type
 
 	s16b costs[3];                  /* Costs for liked people */
 	char letter;                    /* Action letter */
+	char letter_aux;                /* Action letter */
 	s16b action;                    /* Action code */
 	s16b action_restr;              /* Action restriction */
 };
@@ -1172,6 +1189,19 @@ struct player_race
 	u32b skill_base[MAX_SKILLS];
 	char skill_modm[MAX_SKILLS];
 	s16b skill_mod[MAX_SKILLS];
+
+	s16b obj_tval[5];
+	s16b obj_sval[5];
+	s16b obj_pval[5];
+	s16b obj_dd[5];
+	s16b obj_ds[5];
+	s16b obj_num;
+
+	struct
+	{
+		s16b    ability;
+		s16b    level;
+	} abilities[10];                /* Abilitiers to be gained by level(doesnt take prereqs in account) */
 };
 
 typedef struct player_race_mod player_race_mod;
@@ -1241,6 +1271,19 @@ struct player_race_mod
 	u32b skill_base[MAX_SKILLS];
 	char skill_modm[MAX_SKILLS];
 	s16b skill_mod[MAX_SKILLS];
+
+	s16b obj_tval[5];
+	s16b obj_sval[5];
+	s16b obj_pval[5];
+	s16b obj_dd[5];
+	s16b obj_ds[5];
+	s16b obj_num;
+
+	struct
+	{
+		s16b    ability;
+		s16b    level;
+	} abilities[10];                /* Abilitiers to be gained by level(doesnt take prereqs in account) */
 };
 
 
@@ -1255,21 +1298,30 @@ struct player_spec
 	s32b title;                     /* Type of class spec */
 	s32b desc;                      /* Small desc of the class spec */
 
-        char skill_basem[MAX_SKILLS];   /* Mod for value */
-        u32b skill_base[MAX_SKILLS];    /* value */
+	char skill_basem[MAX_SKILLS];   /* Mod for value */
+	u32b skill_base[MAX_SKILLS];    /* value */
 	char skill_modm[MAX_SKILLS];    /* mod for mod */
-        s16b skill_mod[MAX_SKILLS];     /* mod */
+	s16b skill_mod[MAX_SKILLS];     /* mod */
 
-        u32b skill_ideal[MAX_SKILLS];   /* Ideal skill levels at level 50 */
+	u32b skill_ideal[MAX_SKILLS];   /* Ideal skill levels at level 50 */
 
 	s16b obj_tval[5];
 	s16b obj_sval[5];
-        s16b obj_pval[5];
+	s16b obj_pval[5];
 	s16b obj_dd[5];
 	s16b obj_ds[5];
 	s16b obj_num;
 
-        u32b gods;
+	u32b gods;
+
+	u32b flags1;
+	u32b flags2;            /* flags */
+
+	struct
+	{
+		s16b    ability;
+		s16b    level;
+	} abilities[10];                /* Abilitiers to be gained by level(doesnt take prereqs in account) */
 };
 
 typedef struct player_class player_class;
@@ -1324,9 +1376,6 @@ struct player_class
 	s16b blow_mul;
 	s16b extra_blows;
 
-	u32b Mrealm_choices[2];
-	u32b mrealm_choices[2];
-
 	s32b sense_base;
 	s32b sense_pl;
 	s32b sense_plus;
@@ -1335,7 +1384,7 @@ struct player_class
 
 	s16b obj_tval[5];
 	s16b obj_sval[5];
-        s16b obj_pval[5];
+	s16b obj_pval[5];
 	s16b obj_dd[5];
 	s16b obj_ds[5];
 	s16b obj_num;
@@ -1353,11 +1402,17 @@ struct player_class
 	char skill_basem[MAX_SKILLS];
 	u32b skill_base[MAX_SKILLS];
 	char skill_modm[MAX_SKILLS];
-        s16b skill_mod[MAX_SKILLS];
+	s16b skill_mod[MAX_SKILLS];
 
-        u32b gods;
+	u32b gods;
 
-        player_spec spec[MAX_SPEC];
+	player_spec spec[MAX_SPEC];
+
+	struct
+	{
+		s16b    ability;
+		s16b    level;
+	} abilities[10];                /* Abilitiers to be gained by level(doesnt take prereqs in account) */
 };
 
 typedef struct meta_class_type meta_class_type;
@@ -1397,21 +1452,27 @@ typedef struct player_type player_type;
 
 struct player_type
 {
+	s32b lives;             /* How many times we resurected */
+
 	s16b oldpy;		/* Previous player location -KMW- */
 	s16b oldpx;		/* Previous player location -KMW- */
+
+	s16b py;		/* Player location */
+	s16b px;		/* Player location */
 
 	byte psex;              /* Sex index */
 	byte prace;             /* Race index */
 	byte pracem;            /* Race Mod index */
 	byte pclass;		/* Class index */
 	byte pspec;		/* Class spec index */
-	u16b realm1;            /* First magic realm */
-	u16b realm2;            /* Second magic realm */
 	byte mimic_form;        /* Actualy transformation */
+	s16b mimic_level;       /* Level of the mimic effect */
 	byte oops;              /* Unused */
 
+	object_type inventory[INVEN_TOTAL];     /* Player inventory */
+
 	byte hitdie;		/* Hit dice (sides) */
-	u16b expfact;           /* Experience factor */                            
+	u16b expfact;           /* Experience factor */
 
 	byte maximize;		/* Maximize stats */
 	byte preserve;		/* Preserve artifacts */
@@ -1458,8 +1519,8 @@ struct player_type
 
 	s32b grace;                     /* Your God's appreciation factor. */
 	byte pgod;                      /* Your God. */
-        bool praying;                   /* Praying to your god. */
-        s16b melkor_sacrifice;          /* How much hp has been sacrified for damage */
+	bool praying;                   /* Praying to your god. */
+	s16b melkor_sacrifice;          /* How much hp has been sacrified for damage */
 
 	s16b max_plv;                   /* Max Player Level */
 
@@ -1518,17 +1579,17 @@ struct player_type
 	s16b tim_poison;    	/* Timed poison hands */
 	s16b tim_thunder;   	/* Timed thunderstorm */
 	s16b tim_thunder_p1;	/* Timed thunderstorm */
-        s16b tim_thunder_p2;	/* Timed thunderstorm */
+	s16b tim_thunder_p2;	/* Timed thunderstorm */
 
-        s16b tim_project;       /* Timed project upon melee blow */
-        s16b tim_project_dam;
-        s16b tim_project_gf;
-        s16b tim_project_rad;
-        s16b tim_project_flag;
+	s16b tim_project;       /* Timed project upon melee blow */
+	s16b tim_project_dam;
+	s16b tim_project_gf;
+	s16b tim_project_rad;
+	s16b tim_project_flag;
 
-        s16b tim_roots;         /* Timed roots */
-        s16b tim_roots_ac;
-        s16b tim_roots_dam;
+	s16b tim_roots;         /* Timed roots */
+	s16b tim_roots_ac;
+	s16b tim_roots_dam;
 
 	s16b resist_magic;  /* Timed Resist Magic (later) */
 	s16b tim_invisible; /* Timed Invisibility */
@@ -1551,8 +1612,8 @@ struct player_type
 	s16b parasite_r_idx;/* Timed parasite monster */
 	u32b loan, loan_time;/* Timer -- loan */
 	s16b absorb_soul;   /* Timed soul absordtion */
-        s16b tim_magic_breath;      /* Magical breathing -- can breath anywhere */
-        s16b tim_water_breath;      /* Water breathing -- can breath underwater */
+	s16b tim_magic_breath;      /* Magical breathing -- can breath anywhere */
+	s16b tim_water_breath;      /* Water breathing -- can breath underwater */
 
 	s16b immov_cntr;    /* Timed -- Last ``immovable'' command. */
 
@@ -1635,6 +1696,7 @@ struct player_type
 	bool resist_continuum;  /* Resist space-time continuum disruption */
 
 	bool sensible_fire;     /* Fire does more damage on the player */
+	bool sensible_lite;     /* Lite does more damage on the player and blinds her/him */
 
 	bool reflect;       /* Reflect 'bolt' attacks */
 	bool sh_fire;       /* Fiery 'immolation' effect */
@@ -1658,8 +1720,8 @@ struct player_type
 	byte drain_mana;        /* mana draining */
 	byte drain_life;        /* hp draining */
 
-        bool magical_breath;    /* Magical breathing -- can breath anywhere */
-        bool water_breath;      /* Water breathing -- can breath underwater */
+	bool magical_breath;    /* Magical breathing -- can breath anywhere */
+	bool water_breath;      /* Water breathing -- can breath underwater */
 	bool climb;             /* Can climb mountains */
 	bool fly;               /* Can fly over some features */
 	bool ffall;             /* No damage falling */
@@ -1742,13 +1804,13 @@ struct player_type
 	u32b race_extra6;       /* Variable for race */
 	u32b race_extra7;       /* Variable for race */
 
-        s16b dodge_chance;      /* Dodging chance */
+	s16b dodge_chance;      /* Dodging chance */
 
-        u32b maintain_sum;      /* Do we have partial summons */
+	u32b maintain_sum;      /* Do we have partial summons */
 
-        byte spellbinder_num;   /* Number of spells bound */
-        u32b spellbinder[4];    /* Spell bounds */
-        byte spellbinder_trigger;       /* Spellbinder trigger condition */
+	byte spellbinder_num;   /* Number of spells bound */
+	u32b spellbinder[4];    /* Spell bounds */
+	byte spellbinder_trigger;       /* Spellbinder trigger condition */
 
 	cptr mimic_name;
 
@@ -1766,29 +1828,31 @@ struct player_type
 
 	bool precognition;      /* Like the cheat mode */
 
-        /*** Extra flags -- used for lua and easying stuff ***/
-        u32b xtra_f1;
-        u32b xtra_f2;
-        u32b xtra_f3;
-        u32b xtra_f4;
-        u32b xtra_f5;
-        u32b xtra_esp;
+	/*** Extra flags -- used for lua and easying stuff ***/
+	u32b xtra_f1;
+	u32b xtra_f2;
+	u32b xtra_f3;
+	u32b xtra_f4;
+	u32b xtra_f5;
+	u32b xtra_esp;
 
-        /* Corruptions */
-        bool *corruptions;
+	/* Corruptions */
+	bool *corruptions;
 
 	/*** Pet commands ***/
 	byte pet_follow_distance; /* Length of the imaginary "leash" for pets */
 	byte pet_open_doors;      /* flag - allow pets to open doors */
 	byte pet_pickup_items;    /* flag - allow pets to pickup items */
 
-        s16b control;                   /* Controlled monster */
-        byte control_dir;               /* Controlled monster */
+	s16b control;                   /* Controlled monster */
+	byte control_dir;               /* Controlled monster */
 
 	/*** Body changing variables ***/
 	u16b body_monster;        /* In which body is the player */
 	bool disembodied;         /* Is the player in a body ? */
 	byte body_parts[INVEN_TOTAL - INVEN_WIELD]; /* Which body parts does he have ? */
+
+	s16b extra_body_parts[BODY_MAX];      /* Various body modifiers */
 
 	/* Astral */
 	bool astral;              /* We started at the bottom ? */
@@ -1797,17 +1861,18 @@ struct player_type
 	bool *powers;     /* Actual powers */
 	bool powers_mod[POWER_MAX_INIT]; /* Intrinsinc powers */
 
-        /* Skills */
-        s16b skill_points;
-        s16b skill_last_level;  /* Prevents gaining skills by losing level and regaining them */
-        s16b melee_style;       /* How are  */
+	/* Skills */
+	s16b skill_points;
+	s16b skill_last_level;  /* Prevents gaining skills by losing level and regaining them */
+	s16b melee_style;       /* How are  */
+	s16b use_piercing_shots; /* for archery */
 
 	/* Help */
 	help_info help;
 
 	/*** Temporary fields ***/
 
-        bool did_nothing;               /* True if the last action wasnt a real action */
+	bool did_nothing;               /* True if the last action wasnt a real action */
 	bool leaving;                   /* True if player is leaving */
 };
 
@@ -1844,7 +1909,7 @@ struct magic_power
 /* Border */
 typedef struct border_type border_type;
 
-struct border_type 
+struct border_type
 {
 	byte 	north[MAX_WID];
 	byte 	south[MAX_WID];
@@ -1868,6 +1933,8 @@ struct wilderness_type_info
 	u32b    name;                   /* Name (offset) */
 	u32b    text;                   /* Text (offset) */
 	u16b    entrance;               /* Which town is there(<1000 i's a town, >=1000 it a dungeon) */
+	s32b	wild_x;			/* Map coordinates (backed out while parsing map) */
+	s32b	wild_y;
 	byte    road;                   /* Flags of road */
 	int     level;                  /* Difficulty level */
 	u32b    flags1;                 /* Some flags */
@@ -1905,9 +1972,9 @@ struct town_type
 
 	byte flags;             /* Town flags */
 	/* Left this for the sake of compatibility */
-        bool stocked;           /* Is the town actualy stocked ? */
+	bool stocked;           /* Is the town actualy stocked ? */
 
-        bool destroyed;         /* Is the town destroyed? */
+	bool destroyed;         /* Is the town destroyed? */
 };
 
 
@@ -1951,7 +2018,7 @@ typedef struct deity_type deity_type;
 struct deity_type
 {
 	cptr name;
-        cptr desc[10];
+	char desc[10][80];
 };
 
 /* A structure for tactics */
@@ -2084,6 +2151,8 @@ struct dungeon_info_type
 	u32b text;                      /* Description */
 	char short_name[3];             /* Short name */
 
+	char generator[30];             /* Name of the level generator */
+
 	s16b floor1;                    /* Floor tile 1 */
 	byte floor_percent1[2];         /* Chance of type 1 */
 	s16b floor2;                    /* Floor tile 2 */
@@ -2113,7 +2182,7 @@ struct dungeon_info_type
 	u32b flags1;                    /* Flags 1 */
 	u32b flags2;                    /* Flags 1 */
 
-        int size_x, size_y;             /* Desired numers of panels */
+	int size_x, size_y;             /* Desired numers of panels */
 
 	byte rule_percents[100];        /* Flat rule percents */
 	rule_type rules[5];             /* Monster generation rules */
@@ -2185,7 +2254,7 @@ struct power_type
 	byte level;             /* Min level */
 	byte cost;              /* Mana/Life cost */
 	byte stat;              /* Stat used */
-	byte diff;              /* Difficulty */        
+	byte diff;              /* Difficulty */
 };
 
 /* Hooks */
@@ -2200,7 +2269,7 @@ struct quest_type
 {
 	bool silent;
 
-        bool dynamic_desc;      /* Do we need to ask a function to get the description ? */
+	bool dynamic_desc;      /* Do we need to ask a function to get the description ? */
 
 	char name[40];          /* Quest name */
 
@@ -2269,13 +2338,10 @@ struct birther
 	s16b sex;
 	s16b race;
 	s16b rmod;
-	s16b class;
+	s16b pclass;
 	s16b spec;
 
 	byte quests;
-
-	s16b realm1;
-	s16b realm2;
 
 	byte god;
 	s32b grace;
@@ -2316,6 +2382,7 @@ union hook_return
 	s32b num;
 	cptr str;
 	object_type *o_ptr;
+	monster_type *m_ptr;
 };
 
 /*
@@ -2389,14 +2456,18 @@ struct skill_type
 	u16b mod;                               /* Modifier(1 skill point = modifier skill) */
 	s16b rate;                              /* Modifier decreasing rate */
 
+	u32b uses;                             	/* Number of times used */
+
 	s16b action[MAX_SKILLS];                /* List of actions against other skills */
 
 	s16b father;                            /* Father in the skill tree */
 	bool dev;                               /* Is the branch developped ? */
-        s16b order;                             /* Order in the tree */
-        bool hidden;                            /* Innactive */
+	s16b order;                             /* Order in the tree */
+	bool hidden;                            /* Innactive */
 
-        u32b flags1;                            /* Skill flags */
+	byte random_gain_chance;                /* random gain chance, still needs the flag */
+
+	u32b flags1;                            /* Skill flags */
 };
 
 
@@ -2406,19 +2477,19 @@ struct skill_type
 typedef struct spell_type spell_type;
 struct spell_type
 {
-        cptr name;                      /* Name */
-        byte skill_level;               /* Required level (to learn) */
+	cptr name;                      /* Name */
+	byte skill_level;               /* Required level (to learn) */
 	byte mana;			/* Required mana at lvl 1 */
 	byte mana_max;			/* Required mana at max lvl */
-	byte fail;			/* Minimum chance of failure */
-        s16b level;                     /* Spell level(0 = not learnt) */
+	s16b fail;			/* Minimum chance of failure */
+	s16b level;                     /* Spell level(0 = not learnt) */
 };
 
 typedef struct school_type school_type;
 struct school_type
 {
-        cptr name;                      /* Name */
-        s16b skill;                     /* Skill used for that school */
+	cptr name;                      /* Name */
+	s16b skill;                     /* Skill used for that school */
 };
 
 /*
@@ -2429,4 +2500,53 @@ struct gf_name_type
 {
 	int gf;
 	cptr name;
+};
+
+/*
+ * Timers
+ */
+typedef struct timer_type timer_type;
+struct timer_type
+{
+	timer_type *next;       /* The next timer in the list */
+
+	bool enabled;           /* Is it currently counting? */
+
+	s32b delay;             /* Delay between activations */
+	s32b countdown;         /* The current number of turns passed, when it reaches delay it fires */
+
+	cptr callback;          /* The lua function to call upon firing(no C callback yet .. maybe) */
+};
+
+/*
+ * This is for lua functions that need to pass table to c functions
+ */
+typedef struct list_type list_type;
+struct list_type
+{
+	cptr *list;
+};
+
+/*
+ * Abilities
+ */
+typedef struct ability_type ability_type;
+struct ability_type
+{
+	u32b name;                              /* Name */
+	u32b desc;                              /* Description */
+	u32b action_desc;                       /* Action Description */
+
+	s16b action_mkey;                       /* Action do to */
+
+	s16b cost;                              /* Skill points cost */
+
+	bool acquired;                          /* Do the player actualylg ot it ? */
+
+	/* Prereqs */
+	s16b skills[10];                	/* List of prereq skills(10 max) */
+	s16b skill_levels[10];                  /* List of prereq skills(10 max) */
+	s16b stat[6];                		/* List of prereq stats */
+	s16b need_abilities[10];              	/* List of prereq abilities(10 max) */
+	s16b forbid_abilities[10];		/* List of forbidden abilities(10 max) */
 };

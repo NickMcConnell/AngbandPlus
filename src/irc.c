@@ -31,8 +31,8 @@ char irc_world[100];
 
 void irc_connect()
 {
-        char buf[500], *s;
-        int rnd_name = randint(999);
+	char buf[500], *s;
+	int rnd_name = randint(999);
 
 	if (tome_irc->connected) return;
 
@@ -42,23 +42,23 @@ void irc_connect()
 
 	zsock.setup(tome_irc, IRC_SERVER, atoi(IRC_PORT), ZSOCK_TYPE_TCP, FALSE);
 	zsock.open(tome_irc);
-        zsock.write(tome_irc, format("NICK %s\r\n", irc_nick));
+	zsock.write_simple(tome_irc, format("NICK %s\r\n", irc_nick));
 	zsock.wait(tome_irc, 40);
-	zsock.read(tome_irc, buf, 500);
+	zsock.read_simple(tome_irc, buf, 500);
 	s = strchr(buf, ':');
-	zsock.write(tome_irc, format("PONG %s\r\n", s));
-	zsock.write(tome_irc, format("USER tome 0 *BIRC :ToME %d.%d.%d User\r\n",
-                             VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH));
+	zsock.write_simple(tome_irc, format("PONG %s\r\n", s));
+	zsock.write_simple(tome_irc, format("USER tome 0 *BIRC :%s %d.%d.%d User\r\n",
+	                                    game_module, VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH));
 #if 0 /* Pfft spoilsport */
-        while (!irc_can_join)
+	while (!irc_can_join)
 		irc_poll();
 #endif
 
-	zsock.write(tome_irc, format("JOIN %s\r\n", irc_world));
-        
+	zsock.write_simple(tome_irc, format("JOIN %s\r\n", irc_world));
+
 	cmsg_print(TERM_L_GREEN, "Connected to IRC");
 
-        zsock.add_timer(irc_poll);
+	zsock.add_timer(irc_poll);
 }
 
 void irc_change_nick()
@@ -69,9 +69,9 @@ void irc_change_nick()
 void irc_disconnect()
 {
 	if (!tome_irc->connected) return;
-        irc_can_join = FALSE;
+	irc_can_join = FALSE;
 
-        irc_quit(format("ToME %d.%d.%d", VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH));
+	irc_quit(format("%s %d.%d.%d", game_module, VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH));
 
 	cmsg_print(TERM_L_RED, "Disconnected from IRC");
 }
@@ -79,7 +79,7 @@ void irc_disconnect()
 void irc_disconnect_aux(char *str, bool message)
 {
 	if (!tome_irc->connected) return;
-        irc_can_join = FALSE;
+	irc_can_join = FALSE;
 
 	irc_quit(str);
 
@@ -88,18 +88,18 @@ void irc_disconnect_aux(char *str, bool message)
 
 void irc_emote(char *buf)
 {
-        char *b;
-        char *base = "PRIVMSG %s :%cACTION %s%c\r\n";
+	char *b;
+	char *base = "PRIVMSG %s :%cACTION %s%c\r\n";
 
-        if (!tome_irc->connected) return;
+	if (!tome_irc->connected) return;
 
-        C_MAKE(b, strlen(buf) + strlen(base) + 1, char);
-        sprintf(b, base, irc_world, 1, buf, 1);
-        zsock.write(tome_irc, b);
-        sprintf(b, "* %s %s", irc_nick, buf);
-        message_add(MESSAGE_IRC, b, TERM_YELLOW);
-        C_FREE(b, strlen(buf) + strlen(base) + 1, char);
-        fix_irc_message();
+	C_MAKE(b, strlen(buf) + strlen(base) + 1, char);
+	sprintf(b, base, irc_world, 1, buf, 1);
+	zsock.write_simple(tome_irc, b);
+	sprintf(b, "* %s %s", irc_nick, buf);
+	message_add(MESSAGE_IRC, b, TERM_YELLOW);
+	C_FREE(b, strlen(buf) + strlen(base) + 1, char);
+	fix_irc_message();
 }
 
 void irc_chat()
@@ -110,18 +110,18 @@ void irc_chat()
 	if (get_string("Say: ", buf, 80))
 	{
 		if (prefix(buf, "/me "))
-                {
-                        irc_emote(buf + 4);
+		{
+			irc_emote(buf + 4);
 		}
 		else if ((prefix(buf, "/join ")) && (buf[6] != '\0'))
-                {
-                        zsock.write(tome_irc, format("PART %s\r\n", irc_world));
-                        sprintf(irc_world, "%99s", buf + 6);
-                        zsock.write(tome_irc, format("JOIN %s\r\n", irc_world));
+		{
+			zsock.write_simple(tome_irc, format("PART %s\r\n", irc_world));
+			sprintf(irc_world, "%99s", buf + 6);
+			zsock.write_simple(tome_irc, format("JOIN %s\r\n", irc_world));
 		}
 		else
 		{
-			zsock.write(tome_irc, format("PRIVMSG %s :%s\r\n", irc_world, buf /*, 3, irc_world */));
+			zsock.write_simple(tome_irc, format("PRIVMSG %s :%s\r\n", irc_world, buf /*, 3, irc_world */));
 			message_add(MESSAGE_IRC, format("<%s> #w%s", irc_nick, buf), TERM_L_BLUE);
 			fix_irc_message();
 		}
@@ -139,23 +139,23 @@ void irc_poll()
 
 	if (tome_irc->connected && zsock.can_read(tome_irc))
 	{
-		zsock.read(tome_irc, buf, 2500);
+		zsock.read_simple(tome_irc, buf, 2500);
 
 		if (prefix(buf, "PING "))
 		{
 			message_add(MESSAGE_IRC, format("*** Recieved a PING request from server %s.", buf + 6), TERM_SERVER);
-			zsock.write(tome_irc, format("PONG %s\r\n", buf + 5));
+			zsock.write_simple(tome_irc, format("PONG %s\r\n", buf + 5));
 			return;
 		}
 		if (*buf != ':') return;
 		nick = buf + 1;
 
-                space = strchr(nick, ' ');
-                if (space)
-                {
-                        if (prefix(space + 1, "376"))
-                                irc_can_join = TRUE;
-                }
+		space = strchr(nick, ' ');
+		if (space)
+		{
+			if (prefix(space + 1, "376"))
+				irc_can_join = TRUE;
+		}
 
 		if (prefix(nick, "_"))
 		{
@@ -180,88 +180,88 @@ void irc_poll()
 				next++;
 				if (prefix(next, "ACTION"))
 				{
-                                        char tmp[90];
-                                        int i = 0, j = 0;
-                                        bool nicked = FALSE;
+					char tmp[90];
+					int i = 0, j = 0;
+					bool nicked = FALSE;
 
 					next += 7;
 					if (strlen(next)) next[strlen(next) - 1] = '\0';
 
-                                        while (next[i])
-                                        {
-                                                tmp[j++] = next[i++];
-                                                if (j > 79 - strlen(nick) - 3)
-                                                {
-                                                        tmp[j] = '\0';
-                                                        if (nicked)
-                                                                message_add(MESSAGE_IRC, format("%s", tmp), TERM_CHAT1);
-                                                        else
-                                                                message_add(MESSAGE_IRC, format("* %s %s", nick, tmp), TERM_CHAT1);
-                                                        nicked = TRUE;
-                                                        j = 0;
-                                                }
-                                        }
-                                        if (j > 0)
-                                        {
-                                                tmp[j] = '\0';
-                                                if (nicked)
-                                                        message_add(MESSAGE_IRC, format("%s", tmp), TERM_CHAT1);
-                                                else
-                                                        message_add(MESSAGE_IRC, format("* %s %s", nick, tmp), TERM_CHAT1);
-                                        }
+					while (next[i])
+					{
+						tmp[j++] = next[i++];
+						if (j > 79 - strlen(nick) - 3)
+						{
+							tmp[j] = '\0';
+							if (nicked)
+								message_add(MESSAGE_IRC, format("%s", tmp), TERM_CHAT1);
+							else
+								message_add(MESSAGE_IRC, format("* %s %s", nick, tmp), TERM_CHAT1);
+							nicked = TRUE;
+							j = 0;
+						}
+					}
+					if (j > 0)
+					{
+						tmp[j] = '\0';
+						if (nicked)
+							message_add(MESSAGE_IRC, format("%s", tmp), TERM_CHAT1);
+						else
+							message_add(MESSAGE_IRC, format("* %s %s", nick, tmp), TERM_CHAT1);
+					}
 
-                                        fix_irc_message();
+					fix_irc_message();
 				}
 				else if (prefix(next, "PING"))
 				{
 					message_add(MESSAGE_IRC, format("*** PING request from %s", nick), TERM_CTCP);
 					fix_irc_message();
 
-					zsock.write(tome_irc, format("NOTICE %s :%cPING %d%c\r\n", nick, 1, next, 1));
+					zsock.write_simple(tome_irc, format("NOTICE %s :%cPING %d%c\r\n", nick, 1, next, 1));
 				}
 				else if (prefix(next, "NICK"))
 				{
 					message_add(MESSAGE_IRC, format("*** NICK request from %s", nick), TERM_CTCP);
 					fix_irc_message();
 
-					zsock.write(tome_irc, format("NOTICE %s :%cNICK %s%c\r\n", nick, 1, irc_nick, 1));
+					zsock.write_simple(tome_irc, format("NOTICE %s :%cNICK %s%c\r\n", nick, 1, irc_nick, 1));
 				}
 				else if (prefix(next, "VERSION"))
 				{
 					message_add(MESSAGE_IRC, format("*** VERSION request from %s", nick), TERM_CTCP);
 					fix_irc_message();
 
-					zsock.write(tome_irc, format("NOTICE %s :%cVERSION ToME %d.%d.%d%c\r\n", nick, 1, VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH, 1));
+					zsock.write_simple(tome_irc, format("NOTICE %s :%cVERSION %s %d.%d.%d%c\r\n", nick, 1, game_module, VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH, 1));
 				}
 			}
 			else
-                        {
-                                char tmp[90];
-                                int i = 0, j = 0;
-                                bool nicked = FALSE;
+			{
+				char tmp[90];
+				int i = 0, j = 0;
+				bool nicked = FALSE;
 
-                                while (next[i])
-                                {
-                                        tmp[j++] = next[i++];
-                                        if (j > 79 - strlen(nick) - 3)
-                                        {
-                                                tmp[j] = '\0';
-                                                if (nicked)
-                                                        message_add(MESSAGE_IRC, format("#w%s", tmp), TERM_CHAT1);
-                                                else
-                                                        message_add(MESSAGE_IRC, format("#y<%s> #w%s", nick, tmp), TERM_CHAT1);
-                                                nicked = TRUE;
-                                                j = 0;
-                                        }
-                                }
-                                if (j > 0)
-                                {
-                                        tmp[j] = '\0';
-                                        if (nicked)
-                                                message_add(MESSAGE_IRC, format("#w%s", tmp), TERM_CHAT1);
-                                        else
-                                                message_add(MESSAGE_IRC, format("#y<%s> #w%s", nick, tmp), TERM_CHAT1);
-                                }
+				while (next[i])
+				{
+					tmp[j++] = next[i++];
+					if (j > 79 - strlen(nick) - 3)
+					{
+						tmp[j] = '\0';
+						if (nicked)
+							message_add(MESSAGE_IRC, format("#w%s", tmp), TERM_CHAT1);
+						else
+							message_add(MESSAGE_IRC, format("#y<%s> #w%s", nick, tmp), TERM_CHAT1);
+						nicked = TRUE;
+						j = 0;
+					}
+				}
+				if (j > 0)
+				{
+					tmp[j] = '\0';
+					if (nicked)
+						message_add(MESSAGE_IRC, format("#w%s", tmp), TERM_CHAT1);
+					else
+						message_add(MESSAGE_IRC, format("#y<%s> #w%s", nick, tmp), TERM_CHAT1);
+				}
 				fix_irc_message();
 			}
 		}
@@ -287,11 +287,11 @@ void irc_quit(char *str)
 {
 	char buf[300];
 
-        zsock.remove_timer(irc_poll);
+	zsock.remove_timer(irc_poll);
 
-        sprintf(buf, "QUIT :%s\r\n", str);
+	sprintf(buf, "QUIT :%s\r\n", str);
 
-	zsock.write(tome_irc, buf);
+	zsock.write_simple(tome_irc, buf);
 	zsock.close(tome_irc);
 	zsock.unsetup(tome_irc);
 }

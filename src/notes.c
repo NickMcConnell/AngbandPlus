@@ -13,14 +13,14 @@
 
 #include "angband.h"
 
-/* 
+/*
  * Show the notes file on the screen
  */
 void show_notes_file(void)
 {
 	char basename[13];
 	char buf[1024];
-	char caption[10+13];
+	char caption[10 + 13];
 
 	/* Hack -- extract first 8 characters of name and append an extension */
 	(void)strnfmt(basename, sizeof(basename), "%.8s.nte", player_base);
@@ -39,7 +39,7 @@ void show_notes_file(void)
 	return;
 }
 
-/* 
+/*
  * Output a string to the notes file.
  * This is the only function that references that file.
  */
@@ -95,8 +95,8 @@ void add_note(char *note, char code)
 
 	/* Get date and time */
 	sprintf(long_day, "%ld:%02ld %s, %s", (bst(HOUR, turn) % 12 == 0) ? 12 : (bst(HOUR, turn) % 12),
-	   bst(MINUTE, turn), (bst(HOUR, turn) < 12) ? "AM" : "PM", get_month_name(bst(DAY, turn), FALSE,
-	   FALSE));
+	        bst(MINUTE, turn), (bst(HOUR, turn) < 12) ? "AM" : "PM", get_month_name(bst(DAY, turn), FALSE,
+	                        FALSE));
 
 	/* Get depth  */
 	if (!dun_level) strcpy(depths, "  Town");
@@ -130,7 +130,7 @@ void add_note_type(int note_number)
 	/* Work out what to do */
 	switch (note_number)
 	{
-		case NOTE_BIRTH:
+	case NOTE_BIRTH:
 		{
 			/* Player has just been born */
 			char player[100];
@@ -138,42 +138,30 @@ void add_note_type(int note_number)
 			/* Build the string containing the player information */
 			sprintf(player, "the %s %s", get_player_race_name(p_ptr->prace, p_ptr->pracem), class_info[p_ptr->pclass].spec[p_ptr->pspec].title + c_name);
 
-			if (p_ptr->realm1 != REALM_NONE)
-			{
-				strcat(player, " of ");
-				strcat(player, realm_names[p_ptr->realm1][0]);
-			}
-
-			if (p_ptr->realm2 != REALM_NONE)
-			{
-				strcat(player, " and ");
-				strcat(player, realm_names[p_ptr->realm2][0]);
-			}
-
 			/* Add in "character start" information */
 			sprintf(buf,
-				"\n"
-				"================================================\n"
-				"%s %s\n"
-				"Born on %s\n"
-				"================================================\n",
-				player_name, player, true_long_day);
+			        "\n"
+			        "================================================\n"
+			        "%s %s\n"
+			        "Born on %s\n"
+			        "================================================\n",
+			        player_name, player, true_long_day);
 
 			break;
 		}
 
-		case NOTE_WINNER:
+	case NOTE_WINNER:
 		{
 			sprintf(buf,
-				"%s slew Morgoth on %s\n"
-				"Long live %s!\n"
-				"================================================",
-				player_name, long_day, player_name);
+			        "%s slew Morgoth on %s\n"
+			        "Long live %s!\n"
+			        "================================================",
+			        player_name, long_day, player_name);
 
-				break;
+			break;
 		}
 
-		case NOTE_SAVE_GAME:
+	case NOTE_SAVE_GAME:
 		{
 			/* Saving the game */
 			sprintf(buf, "\nSession end: %s", true_long_day);
@@ -181,18 +169,19 @@ void add_note_type(int note_number)
 			break;
 		}
 
-		case NOTE_ENTER_DUNGEON:
+	case NOTE_ENTER_DUNGEON:
 		{
 			/* Entering the game after a break. */
 			sprintf(buf,
-			"================================================\n"
-			"New session start: %s\n",
-			true_long_day);
+			        "================================================\n"
+			        "New session start: %s\n",
+			        true_long_day);
 
 			break;
 		}
 
-		default: return;
+	default:
+		return;
 	}
 
 	/* Output the notes to the file */

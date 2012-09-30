@@ -9,6 +9,9 @@ the Mushrooms, Molds, Floating Eyes, and such. They can hypnotise these
 creatures and then form a symbiotic relationship. Using other symbiotic
 powers, they can even use the magical abilities of their pets.
 
+Once hypnotised, the monster is placed onto the body, or "worn" in order to 
+initiate the symbiotic relationship.
+
 #####GStarting Stat Modifiers
 Strength       +1
 Intelligence   -2
@@ -33,6 +36,7 @@ Magic                   1.000           [0.700]
   Magic-Device          1.000           [1.000]
 Spirituality            1.000           [0.500]
   Prayer                0.000           [0.500]
+  Music                 0.000           [0.300]
 Monster-lore            1.000           [1.100]
   Corpse-preservation   1.000           [0.900]
   Possession            0.000           [0.100]

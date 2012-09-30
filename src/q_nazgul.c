@@ -11,7 +11,7 @@ bool quest_nazgul_gen_hook(char *fmt)
 	if ((cquest.status != QUEST_STATUS_TAKEN) || (small) || (p_ptr->town_num != 1)) return (FALSE);
 
 	/* Find a good position */
-	while(try)
+	while (try)
 	{
 		/* Get a random spot */
 		y = randint(cur_hgt - 4) + 2;
@@ -19,7 +19,7 @@ bool quest_nazgul_gen_hook(char *fmt)
 
 		/* Is it a good spot ? */
 		/* Not in player los */
-		if ((!los(py, px, y, x)) && cave_empty_bold(y, x)) break;
+		if ((!los(p_ptr->py, p_ptr->px, y, x)) && cave_empty_bold(y, x)) break;
 
 		/* One less try */
 		try--;
@@ -47,7 +47,7 @@ bool quest_nazgul_finish_hook(char *fmt)
 
 	q_ptr = &forge;
 	object_prep(q_ptr, lookup_kind(TV_FOOD, SV_FOOD_ATHELAS));
-        q_ptr->found = OBJ_FOUND_REWARD;
+	q_ptr->found = OBJ_FOUND_REWARD;
 	q_ptr->number = 6;
 	object_aware(q_ptr);
 	object_known(q_ptr);

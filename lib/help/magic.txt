@@ -24,14 +24,15 @@ schools:
 Other magical skills, generally being used primarily by characters of a specific
 class are:
      *****m_demono.txt*0[Demonology]     *****m_necrom.txt*0[Necromancy]      *****skills.txt*36[Runecraft]
-     *****m_thaum.txt*0[Thaumaturgy]    *****skills.txt*49[Alchemy]
+     *****m_thaum.txt*0[Thaumaturgy]    *****skills.txt*49[Alchemy]         *****m_geoman.txt*0[Geomancy]
 
 The *****m_demono.txt*0[Demonology] skill is primarily  used by *****c_demono.txt*0[Demonologists] for their special
 spells, whereas the *****m_necrom.txt*0[Necromancy] skill is used by *****c_necro.txt*0[Necromancers] for their own set
 of special spells.
 The same goes for *****skills.txt*36[Runecraft], which is used by *****c_runecr.txt*0[Runecrafters] to allow use of more
 difficult runes or rune-combinations. *****m_thaum.txt*0[Thaumaturgy] gives you a randomly chosen
-attack spell, and as such each game with it will be different. Lastly we have
+attack spell, and as such each game with it will be different. *****c_geoman.txt*0[Geomancers]
+harness the powers of the elements using *****m_geoman.txt*0[Geomancy]. Lastly we have
 *****skills.txt*49[Alchemy], which is used by *****c_alchem.txt*0[Alchemists].
 
 In addition to the schools of magic, you can get access to special sets of
@@ -39,8 +40,11 @@ spells if you worship a God. There are currently four good Gods,
 *****g_eru.txt*0[Eru Iluvatar], *****g_manwe.txt*0[Manwe Sulimo], *****g_yavann.txt*0[Yavanna Kementari] and *****g_tulkas.txt*0[Tulkas]. There is also an evil
 god, *****g_melkor.txt*0[Melkor]. Each of them gives you access to different types of spells.
 
-Worshippers of Melkor also have access to the special *****m_udun.txt*0[Udun] school of magic,
-whereas other Priests and Mindcrafters can use *****m_mindcr.txt*0[Mindcrafting Powers].
+*****c_pr_drk.txt*0[Worshippers of Melkor] also have access to the special *****m_udun.txt*0[Udun] school of magic,
+whereas other *****c_priest.txt*0[Priests] and *****c_mindcr.txt*0[Mindcrafters] can use *****m_mindcr.txt*0[Mindcrafting Powers].
+
+*****c_symbia.txt*0[Symbiants] have access to their own special brand of *****m_symbio.txt*0[magic powers], and *****c_bard.txt*0[Bards] have
+access to *****m_music.txt*0[Songs], which affect creatures in ways that can appear to be magical.
 
 The 11 different primary schools give you access to different spells of
 variable usefulness. The way they work is that by adding skill points to a

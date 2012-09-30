@@ -54,6 +54,10 @@
 #include <X11/Xaw/XawInit.h>
 #endif /* __MAKEDEPEND__ */
 
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <dirent.h>
 
 /*
  * Include some helpful X11 code.
@@ -66,7 +70,7 @@
 
 
 /*
-
+ 
 Name                Class              RepType         Default Value
 ----                -----              -------         -------------
 background          Background         Pixel           XtDefaultBackground
@@ -84,13 +88,13 @@ sensitive           Sensitive          Boolean         True
 width               Width              Dimension       0
 x                   Position           Position        0
 y                   Position           Position        0
-
-
+ 
+ 
 The colors can be changed using the standard Angband user pref files,
 which can also be used to provide black text on a white background,
 by setting color zero to "#FFFFFF" and color one to "#000000", since
 the other colors are unused.
-
+ 
 */
 
 
@@ -204,7 +208,7 @@ struct AngbandPart
 	byte color[NUM_COLORS][4];
 
 	/* GC's (including "xor") */
-	GC gc[NUM_COLORS+1];
+	GC gc[NUM_COLORS + 1];
 };
 
 
@@ -418,18 +422,18 @@ static void AngbandOutputText(AngbandWidget widget, int x, int y,
  * Draw some graphical characters.
  */
 # ifdef USE_TRANSPARENCY
-#  ifdef USE_EGO_GRAPHICS
+# ifdef USE_EGO_GRAPHICS
 static void AngbandOutputPict(AngbandWidget widget, int x, int y, int n,
- const byte *ap, const char *cp, const byte *tap, const char *tcp,
- const byte *eap, const char *ecp)
-#  else /* USE_EGO_GRAPHICS */
+                              const byte *ap, const char *cp, const byte *tap, const char *tcp,
+                              const byte *eap, const char *ecp)
+# else /* USE_EGO_GRAPHICS */
 static void AngbandOutputPict(AngbandWidget widget, int x, int y, int n,
- const byte *ap, const char *cp, const byte *tap, const char *tcp)
-#  endif /* USE_EGO_GRAPHICS */
+                              const byte *ap, const char *cp, const byte *tap, const char *tcp)
+# endif  /* USE_EGO_GRAPHICS */
 # else /* USE_TRANSPARENCY */
 static void AngbandOutputPict(AngbandWidget widget, int x, int y, int n,
- const byte *ap, const char *cp)
-# endif /* USE_TRANSPARENCY */
+                              const byte *ap, const char *cp)
+# endif  /* USE_TRANSPARENCY */
 
 
 {
@@ -451,8 +455,8 @@ static void AngbandOutputPict(AngbandWidget widget, int x, int y, int n,
 	int x3, y3;
 	bool has_overlay;
 
-# endif /* USE_EGO_GRAPHICS */
-	int k,l;
+# endif  /* USE_EGO_GRAPHICS */
+	int k, l;
 	unsigned long pixel, blank;
 
 #endif /* USE_TRANSPARENCY */
@@ -467,8 +471,8 @@ static void AngbandOutputPict(AngbandWidget widget, int x, int y, int n,
 		c = *cp++;
 
 		/* For extra speed - cache these values */
-		x1 = (c&0x7F) * widget->angband.fontwidth;
-		y1 = (a&0x7F) * widget->angband.fontheight;
+		x1 = (c & 0x7F) * widget->angband.fontwidth;
+		y1 = (a & 0x7F) * widget->angband.fontheight;
 
 #ifdef USE_TRANSPARENCY
 
@@ -476,8 +480,8 @@ static void AngbandOutputPict(AngbandWidget widget, int x, int y, int n,
 		tc = *tcp++;
 
 		/* For extra speed - cache these values */
-		x2 = (tc&0x7F) * widget->angband.fontwidth;
-		y2 = (ta&0x7F) * widget->angband.fontheight;
+		x2 = (tc & 0x7F) * widget->angband.fontwidth;
+		y2 = (ta & 0x7F) * widget->angband.fontheight;
 
 # ifdef USE_EGO_GRAPHICS
 
@@ -486,10 +490,10 @@ static void AngbandOutputPict(AngbandWidget widget, int x, int y, int n,
 		has_overlay = (ea && ec);
 
 		/* For extra speed -- cache these values */
-		x3 = (ec&0x7F) * widget->angband.fontwidth;
-		y3 = (ea&0x7F) * widget->angband.fontheight;
+		x3 = (ec & 0x7F) * widget->angband.fontwidth;
+		y3 = (ea & 0x7F) * widget->angband.fontheight;
 
-# endif /* USE_EGO_GRAPHICS */
+# endif  /* USE_EGO_GRAPHICS */
 
 		/* Optimise the common case */
 		if ((x1 == x2) && (y1 == y2))
@@ -499,12 +503,12 @@ static void AngbandOutputPict(AngbandWidget widget, int x, int y, int n,
 
 			/* Draw object / terrain */
 			XPutImage(XtDisplay(widget), XtWindow(widget),
-		  	        widget->angband.gc[0],
-		    	      widget->angband.tiles,
-		    	      x1, y1,
-		    	      x, y,
-		    	      widget->angband.fontwidth,
-		 	      widget->angband.fontheight);
+			          widget->angband.gc[0],
+			          widget->angband.tiles,
+			          x1, y1,
+			          x, y,
+			          widget->angband.fontwidth,
+			          widget->angband.fontheight);
 
 # else /* !USE_EGO_GRAPHICS */
 
@@ -513,12 +517,12 @@ static void AngbandOutputPict(AngbandWidget widget, int x, int y, int n,
 			{
 				/* Draw object / terrain */
 				XPutImage(XtDisplay(widget), XtWindow(widget),
-					widget->angband.gc[0],
-					widget->angband.tiles,
-					x1, y1,
-					x, y,
-					widget->angband.fontwidth,
-					widget->angband.fontheight);
+				          widget->angband.gc[0],
+				          widget->angband.tiles,
+				          x1, y1,
+				          x, y,
+				          widget->angband.fontwidth,
+				          widget->angband.fontheight);
 			}
 
 			/* Terrain overlay */
@@ -526,7 +530,7 @@ static void AngbandOutputPict(AngbandWidget widget, int x, int y, int n,
 			{
 				/* Mega Hack^2 - assume the top left corner is "black" */
 				blank = XGetPixel(widget->angband.tiles,
-					0, widget->angband.fontheight * 6);
+				                  0, widget->angband.fontheight * 6);
 
 				for (k = 0; k < widget->angband.fontwidth; k++)
 				{
@@ -534,37 +538,37 @@ static void AngbandOutputPict(AngbandWidget widget, int x, int y, int n,
 					{
 						/* If mask set... */
 						if ((pixel = XGetPixel(widget->angband.tiles,
-							x3 + k, y3 + l)) == blank)
+						                       x3 + k, y3 + l)) == blank)
 						{
 							/* Output from the terrain */
 							pixel = XGetPixel(widget->angband.tiles,
-								x1 + k, y1 + l);
+							                  x1 + k, y1 + l);
 						}
 
 						/* Store into the temp storage */
 						XPutPixel(widget->angband.TmpImage,
-							k, l, pixel);
+						          k, l, pixel);
 					}
 				}
 
 				/* Draw terrain + overlay */
 				XPutImage(XtDisplay(widget), XtWindow(widget),
-					widget->angband.gc[0],
-					widget->angband.TmpImage,
-					0, 0,
-					x, y,
-					widget->angband.fontwidth,
-					widget->angband.fontheight);
+				          widget->angband.gc[0],
+				          widget->angband.TmpImage,
+				          0, 0,
+				          x, y,
+				          widget->angband.fontwidth,
+				          widget->angband.fontheight);
 			}
 
-# endif /* !USE_EGO_GRAPHICS */
+# endif  /* !USE_EGO_GRAPHICS */
 
 		}
 		else
 		{
 			/* Mega Hack^2 - assume the top left corner is "black" */
 			blank = XGetPixel(widget->angband.tiles,
-				 0, widget->angband.fontheight * 6);
+			                  0, widget->angband.fontheight * 6);
 
 # ifndef USE_EGO_GRAPHICS
 
@@ -574,59 +578,59 @@ static void AngbandOutputPict(AngbandWidget widget, int x, int y, int n,
 				{
 					/* If mask set... */
 					if ((pixel = XGetPixel(widget->angband.tiles,
-						 x1 + k, y1 + l)) == blank)
+					                       x1 + k, y1 + l)) == blank)
 					{
 
 						/* Output from the terrain */
 						pixel = XGetPixel(widget->angband.tiles,
-							 x2 + k, y2 + l);
+						                  x2 + k, y2 + l);
 					}
 
 					/* Store into the temp storage. */
 					XPutPixel(widget->angband.TmpImage,
-						 k, l, pixel);
+					          k, l, pixel);
 				}
 			}
 
 #else /* !USE_EGO_GRAPHICS */
 
-			for (k = 0; k < widget->angband.fontwidth; k++)
+		for (k = 0; k < widget->angband.fontwidth; k++)
+		{
+			for (l = 0; l < widget->angband.fontheight; l++)
 			{
-				for (l = 0; l < widget->angband.fontheight; l++)
+				/* Get overlay pixel */
+				if (has_overlay)
 				{
-					/* Get overlay pixel */
-					if (has_overlay)
-					{
-						pixel = XGetPixel(widget->angband.tiles,
-							x3 + k, y3 + l);
-					}
-
-					/* Hack -- no overlay */
-					else
-					{
-						pixel = blank;
-					}
-
-					/* If it's blank */
-					if (pixel == blank)
-					{
-						/* Use obj/mon */
-						pixel = XGetPixel(widget->angband.tiles,
-							x1 + k, y1 + l);
-					}
-
-					/* Use terrain if it's blank too */
-					if (pixel == blank)
-					{
-						pixel = XGetPixel(widget->angband.tiles,
-							x2 + k, y2 + l);
-					}
-
-					/* Store into the temp storage. */
-					XPutPixel(widget->angband.TmpImage,
-						 k, l, pixel);
+					pixel = XGetPixel(widget->angband.tiles,
+					                  x3 + k, y3 + l);
 				}
+
+				/* Hack -- no overlay */
+				else
+				{
+					pixel = blank;
+				}
+
+				/* If it's blank */
+				if (pixel == blank)
+				{
+					/* Use obj/mon */
+					pixel = XGetPixel(widget->angband.tiles,
+					                  x1 + k, y1 + l);
+				}
+
+				/* Use terrain if it's blank too */
+				if (pixel == blank)
+				{
+					pixel = XGetPixel(widget->angband.tiles,
+					                  x2 + k, y2 + l);
+				}
+
+				/* Store into the temp storage. */
+				XPutPixel(widget->angband.TmpImage,
+				          k, l, pixel);
 			}
+		}
 
 #endif /* !USE_EGO_GRAPHICS */
 
@@ -652,7 +656,7 @@ static void AngbandOutputPict(AngbandWidget widget, int x, int y, int n,
 		          x, y,
 		          widget->angband.fontwidth,
 		          widget->angband.fontheight);
-
+	
 #endif /* USE_TRANSPARENCY */
 
 		x += widget->angband.fontwidth;
@@ -681,7 +685,7 @@ static void Initialize(AngbandWidget request, AngbandWidget wnew)
 
 	XGCValues gcv;
 	TopLevelShellWidget parent =
-	(TopLevelShellWidget)XtParent((Widget) wnew);
+	        (TopLevelShellWidget)XtParent((Widget) wnew);
 	int i;
 
 	/* Default background pixel */
@@ -702,7 +706,7 @@ static void Initialize(AngbandWidget request, AngbandWidget wnew)
 	/* Get some information about the font */
 	wnew->angband.fnt = getFont(wnew, wnew->angband.font, TRUE);
 	wnew->angband.fontheight = wnew->angband.fnt->ascent +
-		wnew->angband.fnt->descent;
+	                           wnew->angband.fnt->descent;
 	wnew->angband.fontwidth = wnew->angband.fnt->max_bounds.width;
 	wnew->angband.fontascent = wnew->angband.fnt->ascent;
 
@@ -891,14 +895,14 @@ static void Redisplay(AngbandWidget wnew, XEvent *xev, Region region)
 	 * but I don't know anything about XAW.
 	 */
 	x1 = (xev->xexpose.x - wnew->angband.internal_border)
-		/wnew->angband.fontwidth;
+	     / wnew->angband.fontwidth;
 	x2 = (xev->xexpose.x + xev->xexpose.width -
-		wnew->angband.internal_border)/wnew->angband.fontwidth;
+	      wnew->angband.internal_border) / wnew->angband.fontwidth;
 
 	y1 = (xev->xexpose.y - wnew->angband.internal_border)
-		/wnew->angband.fontheight;
+	     / wnew->angband.fontheight;
 	y2 = (xev->xexpose.y + xev->xexpose.height -
-		wnew->angband.internal_border)/wnew->angband.fontheight;
+	      wnew->angband.internal_border) / wnew->angband.fontheight;
 
 	Term_redraw_section(x1, y1, x2, y2);
 
@@ -960,7 +964,7 @@ static Boolean SetValues(AngbandWidget current, AngbandWidget request,
 			XFreeFont(XtDisplay((Widget)wnew), current->angband.fnt);
 			/* Update font information */
 			wnew->angband.fontheight = wnew->angband.fnt->ascent +
-				wnew->angband.fnt->descent;
+			                           wnew->angband.fnt->descent;
 			wnew->angband.fontwidth = wnew->angband.fnt->max_bounds.width;
 			wnew->angband.fontascent = wnew->angband.fnt->ascent;
 		}
@@ -1001,13 +1005,13 @@ static Boolean SetValues(AngbandWidget current, AngbandWidget request,
 		height = ((current->core.height - 2 * current->angband.internal_border) /
 		          current->angband.fontheight * wnew->angband.fontheight +
 		          2 * current->angband.internal_border);
-		width = ((current->core.width -  2 * current->angband.internal_border) /
+		width = ((current->core.width - 2 * current->angband.internal_border) /
 		         current->angband.fontwidth * wnew->angband.fontwidth +
 		         2 * wnew->angband.internal_border);
 
 		/* Get the new width */
 		if (XtMakeResizeRequest((Widget)wnew, width, height, NULL, NULL) ==
-		    XtGeometryNo)
+		                XtGeometryNo)
 		{
 			/* Not allowed */
 			XtWarning("Size change denied!");
@@ -1030,30 +1034,30 @@ static Boolean SetValues(AngbandWidget current, AngbandWidget request,
 static void calculateSizeHints(AngbandWidget wnew)
 {
 	TopLevelShellWidget parent =
-	(TopLevelShellWidget)XtParent((Widget) wnew);
+	        (TopLevelShellWidget)XtParent((Widget) wnew);
 
 	/* Calculate minimum size */
 	parent->wm.size_hints.min_height =
-	(wnew->angband.min_rows * wnew->angband.fontheight +
-	 2 * wnew->angband.internal_border);
+	        (wnew->angband.min_rows * wnew->angband.fontheight +
+	         2 * wnew->angband.internal_border);
 
 	/* Calculate minimum size */
 	parent->wm.size_hints.min_width =
-	(wnew->angband.min_columns * wnew->angband.fontwidth +
-	 2 * wnew->angband.internal_border);
+	        (wnew->angband.min_columns * wnew->angband.fontwidth +
+	         2 * wnew->angband.internal_border);
 
 	/* Calculate minimum size */
 	parent->wm.size_hints.flags |= PMinSize;
 
 	/* Calculate maximum size */
 	parent->wm.size_hints.max_height =
-	(wnew->angband.max_rows * wnew->angband.fontheight +
-	 2 * wnew->angband.internal_border);
+	        (wnew->angband.max_rows * wnew->angband.fontheight +
+	         2 * wnew->angband.internal_border);
 
 	/* Calculate maximum size */
 	parent->wm.size_hints.max_width =
-	(wnew->angband.max_columns * wnew->angband.fontwidth +
-	 2 * wnew->angband.internal_border);
+	        (wnew->angband.max_columns * wnew->angband.fontwidth +
+	         2 * wnew->angband.internal_border);
 
 	/* Calculate maximum size */
 	parent->wm.size_hints.flags |= PMaxSize;
@@ -1129,12 +1133,12 @@ char *termNames[MAX_TERM_DATA] =
  */
 Arg specialArgs[TERM_FALLBACKS] =
 {
-	{ XtNstartRows,    24},
+	{ XtNstartRows, 24},
 	{ XtNstartColumns, 80},
-	{ XtNminRows,      24},
-	{ XtNminColumns,   80},
-	{ XtNmaxRows,      255},
-	{ XtNmaxColumns,   255}
+	{ XtNminRows, 24},
+	{ XtNminColumns, 80},
+	{ XtNmaxRows, 255},
+	{ XtNmaxColumns, 255}
 };
 
 
@@ -1143,12 +1147,12 @@ Arg specialArgs[TERM_FALLBACKS] =
  */
 Arg defaultArgs[TERM_FALLBACKS] =
 {
-	{ XtNstartRows,    24},
+	{ XtNstartRows, 24},
 	{ XtNstartColumns, 80},
-	{ XtNminRows,      1},
-	{ XtNminColumns,   1},
-	{ XtNmaxRows,      255},
-	{ XtNmaxColumns,   255}
+	{ XtNminRows, 1},
+	{ XtNminColumns, 1},
+	{ XtNmaxRows, 255},
+	{ XtNmaxColumns, 255}
 };
 
 
@@ -1259,26 +1263,26 @@ static void react_keypress(XKeyEvent *xev)
 	/* Handle a few standard keys (bypass modifiers) XXX XXX XXX */
 	switch (ks1)
 	{
-		case XK_Escape:
+	case XK_Escape:
 		{
 			Term_keypress(ESCAPE);
 			return;
 		}
 
-		case XK_Return:
+	case XK_Return:
 		{
 			Term_keypress('\r');
 			return;
 		}
 
-		case XK_Tab:
+	case XK_Tab:
 		{
 			Term_keypress('\t');
 			return;
 		}
 
-		case XK_Delete:
-		case XK_BackSpace:
+	case XK_Delete:
+	case XK_BackSpace:
 		{
 			Term_keypress('\010');
 			return;
@@ -1334,7 +1338,7 @@ static void handle_event(Widget widget, XtPointer client_data, XEvent *event,
 
 	switch (event->type)
 	{
-		case KeyPress:
+	case KeyPress:
 		{
 			/* Hack -- use old term */
 			Term_activate(&old_td->t);
@@ -1349,7 +1353,7 @@ static void handle_event(Widget widget, XtPointer client_data, XEvent *event,
 		}
 
 		/* Oops */
-		default:
+	default:
 		{
 			break;
 		}
@@ -1403,9 +1407,9 @@ static void Term_xtra_xaw_react_aux(term_data *td)
 		if (depth > 1)
 		{
 			if ((wnew->angband.color[i][0] != angband_color_table[i][0]) ||
-			    (wnew->angband.color[i][1] != angband_color_table[i][1]) ||
-			    (wnew->angband.color[i][2] != angband_color_table[i][2]) ||
-			    (wnew->angband.color[i][3] != angband_color_table[i][3]))
+			                (wnew->angband.color[i][1] != angband_color_table[i][1]) ||
+			                (wnew->angband.color[i][2] != angband_color_table[i][2]) ||
+			                (wnew->angband.color[i][3] != angband_color_table[i][3]))
 			{
 				unsigned long pixel;
 
@@ -1466,53 +1470,83 @@ static errr Term_xtra_xaw(int n, int v)
 	switch (n)
 	{
 		/* Make a noise */
-		case TERM_XTRA_NOISE:
+	case TERM_XTRA_NOISE:
 		XBell(dpy, 100);
 		return (0);
 
 		/* Flush the output */
-		case TERM_XTRA_FRESH:
+	case TERM_XTRA_FRESH:
 		XFlush(dpy);
 		/* Allow flushed events to be showed */
 		CheckEvent(FALSE);
 		return (0);
 
 		/* Process random events */
-		case TERM_XTRA_BORED:
+	case TERM_XTRA_BORED:
 		return (CheckEvent(0));
 
 		/* Process events */
-		case TERM_XTRA_EVENT:
+	case TERM_XTRA_EVENT:
 		return (CheckEvent(v));
 
 		/* Flush events */
-		case TERM_XTRA_FLUSH:
+	case TERM_XTRA_FLUSH:
 		while (!CheckEvent(FALSE));
 		return (0);
 
 		/* Clear the window */
-		case TERM_XTRA_CLEAR:
+	case TERM_XTRA_CLEAR:
 		XClearWindow(dpy, XtWindow(widget));
 		return (0);
 
 		/* Delay */
-		case TERM_XTRA_DELAY:
+	case TERM_XTRA_DELAY:
 		usleep(1000 * v);
 		return (0);
 
-                /* Get Delay of some milliseconds */
-		case TERM_XTRA_GET_DELAY:
+		/* Get Delay of some milliseconds */
+	case TERM_XTRA_GET_DELAY:
 		{
 			int ret;
 			struct timeval tv;
 
 			ret = gettimeofday(&tv, NULL);
-                        Term_xtra_long = (tv.tv_sec * 1000) + (tv.tv_usec / 1000);
+			Term_xtra_long = (tv.tv_sec * 1000) + (tv.tv_usec / 1000);
 
 			return ret;
 		}
 
-		case TERM_XTRA_REACT:
+		/* Subdirectory scan */
+	case TERM_XTRA_SCANSUBDIR:
+		{
+			DIR *directory;
+			struct dirent *entry;
+
+			scansubdir_max = 0;
+
+			directory = opendir(scansubdir_dir);
+			if (!directory)
+				return 1;
+
+			while (entry = readdir(directory))
+			{
+				char file[PATH_MAX + NAME_MAX + 2];
+				struct stat filedata;
+
+				file[PATH_MAX + NAME_MAX] = 0;
+				strncpy(file, scansubdir_dir, PATH_MAX);
+				strncat(file, "/", 2);
+				strncat(file, entry->d_name, NAME_MAX);
+				if (!stat(file, &filedata) && S_ISDIR((filedata.st_mode)))
+				{
+					string_free(scansubdir_result[scansubdir_max]);
+					scansubdir_result[scansubdir_max] = string_make(entry->d_name);
+					++scansubdir_max;
+				}
+			}
+		}
+
+	case TERM_XTRA_REACT:
 		return (Term_xtra_xaw_react());
 	}
 
@@ -1576,29 +1610,29 @@ static errr Term_text_xaw(int x, int y, int n, byte a, cptr s)
  * Draw some graphical characters.
  */
 # ifdef USE_TRANSPARENCY
-#  ifdef USE_EGO_GRAPHICS
+# ifdef USE_EGO_GRAPHICS
 static errr Term_pict_xaw(int x, int y, int n, const byte *ap, const char *cp,
-	const byte *tap, const char *tcp, const byte *eap, const char *ecp)
-#  else /* USE_EGO_GRAPHICS */
+                          const byte *tap, const char *tcp, const byte *eap, const char *ecp)
+# else /* USE_EGO_GRAPHICS */
 static errr Term_pict_xaw(int x, int y, int n, const byte *ap, const char *cp,
-	const byte *tap, const char *tcp)
-#  endif /* USE_EGO_GRAPHICS */
+                          const byte *tap, const char *tcp)
+# endif  /* USE_EGO_GRAPHICS */
 # else /* USE_TRANSPARENCY */
 static errr Term_pict_xaw(int x, int y, int n, const byte *ap, const char *cp)
-# endif /* USE_TRANSPARENCY */
+# endif  /* USE_TRANSPARENCY */
 {
 	term_data *td = (term_data*)(Term->data);
 
 	/* Draw the pictures */
 # ifdef USE_TRANSPARENCY
-#  ifdef USE_EGO_GRAPHICS
+# ifdef USE_EGO_GRAPHICS
 	AngbandOutputPict(td->widget, x, y, n, ap, cp, tap, tcp, eap, ecp);
-#  else /* USE_EGO_GRAPHICS */
+# else /* USE_EGO_GRAPHICS */
 	AngbandOutputPict(td->widget, x, y, n, ap, cp, tap, tcp);
-#  endif /* USE_EGO_GRAPHICS */
+# endif  /* USE_EGO_GRAPHICS */
 # else /* USE_TRANSPARENCY */
 	AngbandOutputPict(td->widget, x, y, n, ap, cp);
-# endif /* USE_TRANSPARENCY */
+# endif  /* USE_TRANSPARENCY */
 
 	/* Success */
 	return (0);
@@ -1665,8 +1699,8 @@ static errr term_data_init(term_data *td, Widget topLevel,
 
 	/* Create the interior widget */
 	td->widget = (AngbandWidget)
-	XtCreateManagedWidget(name, angbandWidgetClass,
-	                      parent, widget_arg, widget_arg_no);
+	             XtCreateManagedWidget(name, angbandWidgetClass,
+	                                   parent, widget_arg, widget_arg_no);
 
 	/* Initialize the term (full size) */
 	term_init(t, cols, rows, key_buf);
@@ -1780,7 +1814,7 @@ errr init_xaw(int argc, char *argv[])
 	dpy = XOpenDisplay(dpy_name);
 
 	/* Failure -- assume no X11 available */
-	if (!dpy) return (-1);
+	if (!dpy) return ( -1);
 
 	/* Close the local display */
 	XCloseDisplay(dpy);
@@ -1809,7 +1843,7 @@ errr init_xaw(int argc, char *argv[])
 		               TERM_FALLBACKS, i);
 
 		angband_term[i] = Term;
-	}	
+	}
 
 	/* Activate the "Angband" window screen */
 	Term_activate(&data[0].t);
@@ -1828,7 +1862,7 @@ errr init_xaw(int argc, char *argv[])
 
 		/* Use the "16x16.bmp" file if it exists */
 		if (!force_old_graphics &&
-		    (0 == fd_close(fd_open(filename, O_RDONLY))))
+		                (0 == fd_close(fd_open(filename, O_RDONLY))))
 		{
 			/* Use graphics */
 			use_graphics = TRUE;
@@ -1881,10 +1915,10 @@ errr init_xaw(int argc, char *argv[])
 
 			/* Resize tiles */
 			td->widget->angband.tiles =
-			ResizeImage(dpy, tiles_raw,
-			            pict_wid, pict_hgt,
-			            td->widget->angband.fontwidth,
-			            td->widget->angband.fontheight);
+			        ResizeImage(dpy, tiles_raw,
+			                    pict_wid, pict_hgt,
+			                    td->widget->angband.fontwidth,
+			                    td->widget->angband.fontheight);
 		}
 
 #ifdef USE_TRANSPARENCY
@@ -1904,16 +1938,16 @@ errr init_xaw(int argc, char *argv[])
 			jj = (depth - 1) >> 2;
 			while (jj >>= 1) ii <<= 1;
 			total = td->widget->angband.fontwidth *
-				 td->widget->angband.fontheight * ii;
+			        td->widget->angband.fontheight * ii;
 
 
 			TmpData = (char *)malloc(total);
 
 			td->widget->angband.TmpImage = XCreateImage(dpy,
-				visual,depth,
-				ZPixmap, 0, TmpData,
-				td->widget->angband.fontwidth,
-			        td->widget->angband.fontheight, 8, 0);
+			                               visual, depth,
+			                               ZPixmap, 0, TmpData,
+			                               td->widget->angband.fontwidth,
+			                               td->widget->angband.fontheight, 8, 0);
 
 		}
 

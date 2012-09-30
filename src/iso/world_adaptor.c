@@ -60,14 +60,10 @@ int get_i_off()
 #ifdef USE_SMALL_ISO_HACK
 
     int i_off;
-/* use this for angband 2.9.1
+
     if(p_ptr) {
 	i_off = p_ptr->px-p_off*mult;
     }
-*/
-
-    /* this is for Pernangband 4.1.5 */
-    i_off = px-p_off*mult;
 
     return i_off;     
 #else
@@ -91,14 +87,9 @@ int get_j_off()
 #ifdef USE_SMALL_ISO_HACK
 
     int j_off;
-/* use this for angband 2.9.1
     if(p_ptr) {
 	j_off = p_ptr->py-p_off*mult;
     }
-*/
-
-    /* this is for Pernangband 4.1.5 */
-    j_off = py-p_off*mult;
 
     return j_off;     
 #else

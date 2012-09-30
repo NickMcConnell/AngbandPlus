@@ -30,13 +30,13 @@
  * Helper for plasma generation.
  */
 static void perturb_point_mid(int x1, int x2, int x3, int x4,
-			  int xmid, int ymid, int rough, int depth_max)
+                              int xmid, int ymid, int rough, int depth_max)
 {
 	/*
 	 * Average the four corners & perturb it a bit.
 	 * tmp is a random int +/- rough
 	 */
-	int tmp2 = rough*2 + 1;
+	int tmp2 = rough * 2 + 1;
 	int tmp = randint(tmp2) - (rough + 1);
 
 	int avg = ((x1 + x2 + x3 + x4) / 4) + tmp;
@@ -54,13 +54,13 @@ static void perturb_point_mid(int x1, int x2, int x3, int x4,
 
 
 static void perturb_point_end(int x1, int x2, int x3,
-			  int xmid, int ymid, int rough, int depth_max)
+                              int xmid, int ymid, int rough, int depth_max)
 {
 	/*
 	 * Average the three corners & perturb it a bit.
 	 * tmp is a random int +/- rough
 	 */
-	int tmp2 = rough*2 + 1;
+	int tmp2 = rough * 2 + 1;
 	int tmp = randint(tmp2) - (rough + 1);
 
 	int avg = ((x1 + x2 + x3) / 3) + tmp;
@@ -88,29 +88,29 @@ static void perturb_point_end(int x1, int x2, int x3,
  * above.
  */
 static void plasma_recursive(int x1, int y1, int x2, int y2,
-			     int depth_max, int rough)
+                             int depth_max, int rough)
 {
 	/* Find middle */
-	int xmid = (x2-x1)/2 + x1;
-	int ymid = (y2-y1)/2 + y1;
+	int xmid = (x2 - x1) / 2 + x1;
+	int ymid = (y2 - y1) / 2 + y1;
 
 	/* Are we done? */
-	if (x1+1 == x2) return;
+	if (x1 + 1 == x2) return;
 
 	perturb_point_mid(cave[y1][x1].feat, cave[y2][x1].feat, cave[y1][x2].feat,
-		cave[y2][x2].feat, xmid, ymid, rough, depth_max);
+	                  cave[y2][x2].feat, xmid, ymid, rough, depth_max);
 
-	perturb_point_end(cave[y1][x1].feat, cave[y1][x2].feat,cave[ymid][xmid].feat,
-		xmid, y1, rough, depth_max);
+	perturb_point_end(cave[y1][x1].feat, cave[y1][x2].feat, cave[ymid][xmid].feat,
+	                  xmid, y1, rough, depth_max);
 
-	perturb_point_end(cave[y1][x2].feat, cave[y2][x2].feat,cave[ymid][xmid].feat,
-		x2, ymid, rough, depth_max);
+	perturb_point_end(cave[y1][x2].feat, cave[y2][x2].feat, cave[ymid][xmid].feat,
+	                  x2, ymid, rough, depth_max);
 
-	perturb_point_end(cave[y2][x2].feat, cave[y2][x1].feat,cave[ymid][xmid].feat,
-		xmid, y2, rough, depth_max);
+	perturb_point_end(cave[y2][x2].feat, cave[y2][x1].feat, cave[ymid][xmid].feat,
+	                  xmid, y2, rough, depth_max);
 
-	perturb_point_end(cave[y2][x1].feat, cave[y1][x1].feat,cave[ymid][xmid].feat,
-		x1, ymid, rough, depth_max);
+	perturb_point_end(cave[y2][x1].feat, cave[y1][x1].feat, cave[ymid][xmid].feat,
+	                  x1, ymid, rough, depth_max);
 
 
 	/* Recurse the four quadrants */
@@ -144,8 +144,8 @@ int generate_area(int y, int x, bool border, bool corner, bool refresh)
 	if (!p_ptr->town_num) p_ptr->town_num = wild_map[y][x].entrance;
 
 	{
-		int roughness = 1; /* The roughness of the level. */
-		int terrain[3][3]; /* The terrain around the current area */
+		int roughness = 1;  /* The roughness of the level. */
+		int terrain[3][3];  /* The terrain around the current area */
 		int ym, xm, yp, xp;
 
 		/* Place the player at the center */
@@ -153,10 +153,10 @@ int generate_area(int y, int x, bool border, bool corner, bool refresh)
 		if (!p_ptr->oldpy) p_ptr->oldpy = MAX_HGT / 2;
 
 		/* Initialize the terrain array */
-		ym = ((y - 1) < 0)?0:(y - 1);
-		xm = ((x - 1) < 0)?0:(x - 1);
-		yp = ((y + 1) >= max_wild_y)?(max_wild_y - 1):(y + 1);
-		xp = ((x + 1) >= max_wild_x)?(max_wild_x - 1):(x + 1);
+		ym = ((y - 1) < 0) ? 0 : (y - 1);
+		xm = ((x - 1) < 0) ? 0 : (x - 1);
+		yp = ((y + 1) >= max_wild_y) ? (max_wild_y - 1) : (y + 1);
+		xp = ((x + 1) >= max_wild_x) ? (max_wild_x - 1) : (x + 1);
 		terrain[0][0] = wild_map[ym][xm].feat;
 		terrain[0][1] = wild_map[ym][x].feat;
 		terrain[0][2] = wild_map[ym][xp].feat;
@@ -191,25 +191,25 @@ int generate_area(int y, int x, bool border, bool corner, bool refresh)
 		 * terrains for every corner.
 		 */
 		cave_set_feat(1, 1, (byte)rand_int(MAX_WILD_TERRAIN));
-		cave_set_feat(MAX_HGT-2, 1, (byte)rand_int(MAX_WILD_TERRAIN));
-		cave_set_feat(1, MAX_WID-2, (byte)rand_int(MAX_WILD_TERRAIN));
-		cave_set_feat(MAX_HGT-2, MAX_WID-2, (byte)rand_int(MAX_WILD_TERRAIN));
+		cave_set_feat(MAX_HGT - 2, 1, (byte)rand_int(MAX_WILD_TERRAIN));
+		cave_set_feat(1, MAX_WID - 2, (byte)rand_int(MAX_WILD_TERRAIN));
+		cave_set_feat(MAX_HGT - 2, MAX_WID - 2, (byte)rand_int(MAX_WILD_TERRAIN));
 
 		if (!corner)
 		{
 			/* x1, y1, x2, y2, num_depths, roughness */
-			plasma_recursive(1, 1, MAX_WID-2, MAX_HGT-2, MAX_WILD_TERRAIN-1, roughness);
+			plasma_recursive(1, 1, MAX_WID - 2, MAX_HGT - 2, MAX_WILD_TERRAIN - 1, roughness);
 		}
 
 		/* Use the complex RNG */
 		Rand_quick = FALSE;
 
-		for (y1 = 1; y1 < MAX_HGT-1; y1++)
+		for (y1 = 1; y1 < MAX_HGT - 1; y1++)
 		{
-			for (x1 = 1; x1 < MAX_WID-1; x1++)
+			for (x1 = 1; x1 < MAX_WID - 1; x1++)
 			{
 				cave_set_feat(y1, x1,
-					wf_info[terrain[1][1]].terrain[cave[y1][x1].feat]);
+				              wf_info[terrain[1][1]].terrain[cave[y1][x1].feat]);
 			}
 		}
 
@@ -243,9 +243,9 @@ int generate_area(int y, int x, bool border, bool corner, bool refresh)
 		if (road & ROAD_NORTH)
 		{
 			/* North road */
-			for (y1 = 1; y1 < MAX_HGT/2; y1++)
+			for (y1 = 1; y1 < MAX_HGT / 2; y1++)
 			{
-				x1 = MAX_WID/2;
+				x1 = MAX_WID / 2;
 				cave_set_feat(y1, x1, FEAT_FLOOR);
 			}
 		}
@@ -253,9 +253,9 @@ int generate_area(int y, int x, bool border, bool corner, bool refresh)
 		if (road & ROAD_SOUTH)
 		{
 			/* North road */
-			for (y1 = MAX_HGT/2; y1 < MAX_HGT - 1; y1++)
+			for (y1 = MAX_HGT / 2; y1 < MAX_HGT - 1; y1++)
 			{
-				x1 = MAX_WID/2;
+				x1 = MAX_WID / 2;
 				cave_set_feat(y1, x1, FEAT_FLOOR);
 			}
 		}
@@ -263,9 +263,9 @@ int generate_area(int y, int x, bool border, bool corner, bool refresh)
 		if (road & ROAD_EAST)
 		{
 			/* East road */
-			for (x1 = MAX_WID/2; x1 < MAX_WID - 1; x1++)
+			for (x1 = MAX_WID / 2; x1 < MAX_WID - 1; x1++)
 			{
-				y1 = MAX_HGT/2;
+				y1 = MAX_HGT / 2;
 				cave_set_feat(y1, x1, FEAT_FLOOR);
 			}
 		}
@@ -273,78 +273,79 @@ int generate_area(int y, int x, bool border, bool corner, bool refresh)
 		if (road & ROAD_WEST)
 		{
 			/* West road */
-			for (x1 = 1; x1 < MAX_WID/2; x1++)
+			for (x1 = 1; x1 < MAX_WID / 2; x1++)
 			{
-				y1 = MAX_HGT/2;
+				y1 = MAX_HGT / 2;
 				cave_set_feat(y1, x1, FEAT_FLOOR);
 			}
 		}
 	}
 
 #if 0
-		/* Hack -- Use the "simple" RNG */
-		Rand_quick = TRUE;
+	/* Hack -- Use the "simple" RNG */
+	Rand_quick = TRUE;
 
-		/* Hack -- Induce consistant town layout */
-		Rand_value = wilderness[y][x].seed;
+	/* Hack -- Induce consistant town layout */
+	Rand_value = wilderness[y][x].seed;
 
-		/* Generate a wilderness vault. */
-		if (magik(DUN_WILD_VAULT)) {  
-			vault_type *v_ptr;
-			int vindex, vy, vx;
-			int i;
+	/* Generate a wilderness vault. */
+	if (magik(DUN_WILD_VAULT))
+	{
+		vault_type *v_ptr;
+		int vindex, vy, vx;
+		int i;
 
-			/* Pick a wilderness vault */
-			for (i = 0; i < 1000; i++)
-			{
-				/* Access a random vault record */
-				vindex = rand_int(max_v_idx);
-				v_ptr = &v_info[vindex];
+		/* Pick a wilderness vault */
+		for (i = 0; i < 1000; i++)
+		{
+			/* Access a random vault record */
+			vindex = rand_int(max_v_idx);
+			v_ptr = &v_info[vindex];
 
-				/* Accept the first greater vault */
-				if (v_ptr->typ == 10) break;
-			}
-
-			/* Message */
-			if (cheat_room) msg_format("Wilderness Vault %d", vindex);
-
-			/* Boost the rating */
-			rating += v_ptr->rat;
-
-			vy = rand_range((v_ptr->hgt/2)+1, MAX_HGT-(v_ptr->hgt/2)-1);
-			vx = rand_range((v_ptr->wid/2)+1, MAX_WID-(v_ptr->wid/2)-1);
-
-			build_vault(vy, vx, v_ptr->hgt, v_ptr->wid, v_text + v_ptr->text);
+			/* Accept the first greater vault */
+			if (v_ptr->typ == 10) break;
 		}
 
-		/* Use the complex RNG */
-		Rand_quick = FALSE;
+		/* Message */
+		if (cheat_room) msg_format("Wilderness Vault %d", vindex);
+
+		/* Boost the rating */
+		rating += v_ptr->rat;
+
+		vy = rand_range((v_ptr->hgt / 2) + 1, MAX_HGT - (v_ptr->hgt / 2)-1);
+		vx = rand_range((v_ptr->wid / 2) + 1, MAX_WID - (v_ptr->wid / 2)-1);
+
+		build_vault(vy, vx, v_ptr->hgt, v_ptr->wid, v_text + v_ptr->text);
+	}
+
+	/* Use the complex RNG */
+	Rand_quick = FALSE;
 #endif
 
-		/* Hack -- Use the "simple" RNG */
-		Rand_quick = TRUE;
+	/* Hack -- Use the "simple" RNG */
+	Rand_quick = TRUE;
 
-		/* Hack -- Induce consistant town layout */
-		Rand_value = wild_map[y][x].seed;
+	/* Hack -- Induce consistant town layout */
+	Rand_value = wild_map[y][x].seed;
 
-		entrance = wf_info[wild_map[y][x].feat].entrance;
-		if (!entrance) entrance = wild_map[y][x].entrance;
+	entrance = wf_info[wild_map[y][x].feat].entrance;
+	if (!entrance) entrance = wild_map[y][x].entrance;
 
-		/* Create the dungeon if requested on the map */
-		if(entrance >= 1000)
-		{
-			int dy, dx;
+	/* Create the dungeon if requested on the map */
+	if (entrance >= 1000)
+	{
+		int dy, dx;
 
-			dy = rand_range(6, cur_hgt - 6);
-			dx = rand_range(6, cur_wid - 6);
+		dy = rand_range(6, cur_hgt - 6);
+		dx = rand_range(6, cur_wid - 6);
 
-			cave_set_feat(dy, dx, FEAT_MORE);
-			cave[dy][dx].special = entrance - 1000;
-			cave[dy][dx].info |= (CAVE_GLOW | CAVE_MARK);
-		}
+		cave_set_feat(dy, dx, FEAT_MORE);
+		cave[dy][dx].special = entrance - 1000;
+		cave[dy][dx].info |= (CAVE_GLOW | CAVE_MARK);
+	}
 
-		/* Use the complex RNG */
-		Rand_quick = FALSE;
+	/* Use the complex RNG */
+	Rand_quick = FALSE;
 
 	/* MEGA HACK -- set at least one floor grid */
 	for (y1 = 1; y1 < cur_hgt - 1; y1++)
@@ -402,15 +403,15 @@ void wilderness_gen(int refresh)
 	get_mon_num_prep();
 
 	/* North border */
-	generate_area(y-1, x, TRUE, FALSE, refresh);
+	generate_area(y - 1, x, TRUE, FALSE, refresh);
 
 	for (i = 1; i < MAX_WID - 1; i++)
 	{
-		border.north[i] = cave[MAX_HGT-2][i].feat;
+		border.north[i] = cave[MAX_HGT - 2][i].feat;
 	}
 
 	/* South border */
-	generate_area(y+1, x, TRUE, FALSE, refresh);
+	generate_area(y + 1, x, TRUE, FALSE, refresh);
 
 	for (i = 1; i < MAX_WID - 1; i++)
 	{
@@ -418,15 +419,15 @@ void wilderness_gen(int refresh)
 	}
 
 	/* West border */
-	generate_area(y, x-1, TRUE, FALSE, refresh);
+	generate_area(y, x - 1, TRUE, FALSE, refresh);
 
 	for (i = 1; i < MAX_HGT - 1; i++)
 	{
-		border.west[i] = cave[i][MAX_WID-2].feat;
+		border.west[i] = cave[i][MAX_WID - 2].feat;
 	}
 
 	/* East border */
-	generate_area(y, x+1, TRUE, FALSE, refresh);
+	generate_area(y, x + 1, TRUE, FALSE, refresh);
 
 	for (i = 1; i < MAX_HGT - 1; i++)
 	{
@@ -434,19 +435,19 @@ void wilderness_gen(int refresh)
 	}
 
 	/* North west corner */
-	generate_area(y-1, x-1, FALSE, TRUE, refresh);
-	border.north_west = cave[MAX_HGT-2][MAX_WID-2].feat;
+	generate_area(y - 1, x - 1, FALSE, TRUE, refresh);
+	border.north_west = cave[MAX_HGT - 2][MAX_WID - 2].feat;
 
 	/* North east corner */
-	generate_area(y-1, x+1, FALSE, TRUE, refresh);
-	border.north_east = cave[MAX_HGT-2][1].feat;
+	generate_area(y - 1, x + 1, FALSE, TRUE, refresh);
+	border.north_east = cave[MAX_HGT - 2][1].feat;
 
 	/* South west corner */
-	generate_area(y+1, x-1, FALSE, TRUE, refresh);
-	border.south_west = cave[1][MAX_WID-2].feat;
+	generate_area(y + 1, x - 1, FALSE, TRUE, refresh);
+	border.south_west = cave[1][MAX_WID - 2].feat;
 
 	/* South east corner */
-	generate_area(y+1, x+1, FALSE, TRUE, refresh);
+	generate_area(y + 1, x + 1, FALSE, TRUE, refresh);
 	border.south_east = cave[1][1].feat;
 
 
@@ -464,8 +465,8 @@ void wilderness_gen(int refresh)
 	/* Special boundary walls -- South */
 	for (i = 0; i < MAX_WID; i++)
 	{
-		cave[MAX_HGT-1][i].mimic = border.south[i];
-		cave_set_feat(MAX_HGT-1, i, FEAT_PERM_SOLID);
+		cave[MAX_HGT - 1][i].mimic = border.south[i];
+		cave_set_feat(MAX_HGT - 1, i, FEAT_PERM_SOLID);
 	}
 
 	/* Special boundary walls -- West */
@@ -478,8 +479,8 @@ void wilderness_gen(int refresh)
 	/* Special boundary walls -- East */
 	for (i = 0; i < MAX_HGT; i++)
 	{
-		cave[i][MAX_WID-1].mimic = border.east[i];
-		cave_set_feat(i, MAX_WID-1, FEAT_PERM_SOLID);
+		cave[i][MAX_WID - 1].mimic = border.east[i];
+		cave_set_feat(i, MAX_WID - 1, FEAT_PERM_SOLID);
 	}
 
 	/* North west corner */
@@ -489,22 +490,22 @@ void wilderness_gen(int refresh)
 	cave_set_feat(0, 0, cave[0][0].feat);
 
 	/* North east corner */
-	cave[0][MAX_WID-1].mimic = border.north_east;
+	cave[0][MAX_WID - 1].mimic = border.north_east;
 
 	/* Make sure it has correct CAVE_WALL flag set */
-	cave_set_feat(0, MAX_WID-1, cave[0][MAX_WID-1].feat);
+	cave_set_feat(0, MAX_WID - 1, cave[0][MAX_WID - 1].feat);
 
 	/* South west corner */
-	cave[MAX_HGT-1][0].mimic = border.south_west;
+	cave[MAX_HGT - 1][0].mimic = border.south_west;
 
 	/* Make sure it has correct CAVE_WALL flag set */
-	cave_set_feat(MAX_HGT-1, 0, cave[MAX_HGT-1][0].feat);
+	cave_set_feat(MAX_HGT - 1, 0, cave[MAX_HGT - 1][0].feat);
 
 	/* South east corner */
-	cave[MAX_HGT-1][MAX_WID-1].mimic = border.south_east;
+	cave[MAX_HGT - 1][MAX_WID - 1].mimic = border.south_east;
 
 	/* Make sure it has correct CAVE_WALL flag set */
-	cave_set_feat(MAX_HGT-1, MAX_WID-1, cave[MAX_HGT-1][MAX_WID-1].feat);
+	cave_set_feat(MAX_HGT - 1, MAX_WID - 1, cave[MAX_HGT - 1][MAX_WID - 1].feat);
 
 
 	/* Day time */
@@ -545,7 +546,7 @@ void wilderness_gen(int refresh)
 
 	if (!refresh)
 	{
-		int lim = (generate_encounter==TRUE)?60:MIN_M_ALLOC_TN;
+		int lim = (generate_encounter == TRUE) ? 60 : MIN_M_ALLOC_TN;
 
 		/*
 		 * Can't have more monsters than floor grids -1(for the player,
@@ -555,12 +556,12 @@ void wilderness_gen(int refresh)
 
 		/* Make some residents */
 		for (i = 0; i < lim; i++)
-                {
+		{
 			/* Make a resident */
-			(void)alloc_monster((generate_encounter==TRUE)?0:3, (generate_encounter==TRUE)?FALSE:TRUE);
-                }
+			(void)alloc_monster((generate_encounter == TRUE) ? 0 : 3, (generate_encounter == TRUE) ? FALSE : TRUE);
+		}
 
-		if(generate_encounter) ambush_flag = TRUE;
+		if (generate_encounter) ambush_flag = TRUE;
 		generate_encounter = FALSE;
 	}
 
@@ -627,8 +628,8 @@ void wilderness_gen_small()
 	}
 
 	/* Place the player */
-	px = p_ptr->wilderness_x;
-	py = p_ptr->wilderness_y;
+	p_ptr->px = p_ptr->wilderness_x;
+	p_ptr->py = p_ptr->wilderness_y;
 
 	/* Set rewarded quests to finished */
 	for (i = 0; i < max_q_idx; i++)
@@ -654,6 +655,9 @@ void reveal_wilderness_around_player(int y, int x, int h, int w)
 			{
 				/* Bound checking */
 				if (!in_bounds(j, i)) continue;
+
+				/* Severe bound checking */
+				if ((i < 0) || (i >= max_wild_x) || (j < 0) || (j >= max_wild_y)) continue;
 
 				/* We want a radius, not a "squarus" :) */
 				if (distance(y, x, j, i) >= w) continue;
@@ -746,9 +750,9 @@ static void build_store(int qy, int qx, int n, int yy, int xx)
 
 	/* Re-roll "annoying" doors */
 	if (((tmp == 0) && (yy == 1)) ||
-	    ((tmp == 1) && (yy == 0)) ||
-	    ((tmp == 2) && (xx == 3)) ||
-	    ((tmp == 3) && (xx == 0)))
+	                ((tmp == 1) && (yy == 0)) ||
+	                ((tmp == 2) && (xx == 3)) ||
+	                ((tmp == 3) && (xx == 0)))
 	{
 		/* Pick a new direction */
 		tmp = rand_int(4);
@@ -758,7 +762,7 @@ static void build_store(int qy, int qx, int n, int yy, int xx)
 	switch (tmp)
 	{
 		/* Bottom side */
-		case 0:
+	case 0:
 		{
 			y = y2;
 			x = rand_range(x1, x2);
@@ -766,7 +770,7 @@ static void build_store(int qy, int qx, int n, int yy, int xx)
 		}
 
 		/* Top side */
-		case 1:
+	case 1:
 		{
 			y = y1;
 			x = rand_range(x1, x2);
@@ -774,7 +778,7 @@ static void build_store(int qy, int qx, int n, int yy, int xx)
 		}
 
 		/* Right side */
-		case 2:
+	case 2:
 		{
 			y = rand_range(y1, y2);
 			x = x2;
@@ -782,7 +786,7 @@ static void build_store(int qy, int qx, int n, int yy, int xx)
 		}
 
 		/* Left side */
-		default:
+	default:
 		{
 			y = rand_range(y1, y2);
 			x = x1;
@@ -823,9 +827,9 @@ static void build_store_circle(int qy, int qx, int n, int yy, int xx)
 
 	/* Re-roll "annoying" doors */
 	if (((tmp == 0) && (yy == 1)) ||
-	    ((tmp == 1) && (yy == 0)) ||
-	    ((tmp == 2) && (xx == 3)) ||
-	    ((tmp == 3) && (xx == 0)))
+	                ((tmp == 1) && (yy == 0)) ||
+	                ((tmp == 2) && (xx == 3)) ||
+	                ((tmp == 3) && (xx == 0)))
 	{
 		/* Pick a new direction */
 		tmp = rand_int(4);
@@ -835,28 +839,28 @@ static void build_store_circle(int qy, int qx, int n, int yy, int xx)
 	switch (tmp)
 	{
 		/* Bottom side */
-		case 0:
+	case 0:
 		{
 			for (y = y0; y <= y0 + rad; y++) cave_set_feat(y, x0, FEAT_FLOOR);
 			break;
 		}
 
 		/* Top side */
-		case 1:
+	case 1:
 		{
 			for (y = y0 - rad; y <= y0; y++) cave_set_feat(y, x0, FEAT_FLOOR);
 			break;
 		}
 
 		/* Right side */
-		case 2:
+	case 2:
 		{
 			for (x = x0; x <= x0 + rad; x++) cave_set_feat(y0, x, FEAT_FLOOR);
 			break;
 		}
 
 		/* Left side */
-		default:
+	default:
 		{
 			for (x = x0 - rad; x <= x0; x++) cave_set_feat(y0, x, FEAT_FLOOR);
 			break;
@@ -913,7 +917,7 @@ static void set_border(int y, int x)
 
 	/* Was a floor */
 	if (cave_floor_bold(y, x) ||
-		(f_info[cave[y][x].feat].flags1 & FF1_DOOR))
+	                (f_info[cave[y][x].feat].flags1 & FF1_DOOR))
 	{
 		cave_set_feat(y, x, FEAT_DOOR_HEAD);
 	}
@@ -997,7 +1001,7 @@ static void town_gen_hack(int t_idx, int qy, int qx)
 		for (x = qx + 1; x < qx + SCREEN_WID - 1; x++)
 		{
 			/* Create empty floor */
-			cave_set_feat(y, x, (floor)?floor:floor_type[rand_int(100)]);
+			cave_set_feat(y, x, (floor) ? floor : floor_type[rand_int(100)]);
 			cave[y][x].info |= (CAVE_ROOM | CAVE_FREE);
 		}
 	}
@@ -1041,32 +1045,32 @@ static void town_gen_hack(int t_idx, int qy, int qx)
 	get_mon_num_prep();
 
 	for (x = qx; x < qx + SCREEN_WID; x++)
-	for (y = qy; y < qy + SCREEN_HGT; y++)
-	{
-		int m_idx, r_idx;
-
-		/* Only in town */
-		if (!in_bounds(y, x)) continue;
-		if (!(cave[y][x].info & CAVE_FREE)) continue;
-		if (!cave_empty_bold(y, x)) continue;
-
-		if (rand_int(100)) continue;
-
-		r_idx = get_mon_num(0);
-		m_allow_special[r_idx] = TRUE;
-		m_idx = place_monster_one(y, x, r_idx, 0, TRUE, MSTATUS_ENEMY);
-		m_allow_special[r_idx] = FALSE;
-
-		if (m_idx)
+		for (y = qy; y < qy + SCREEN_HGT; y++)
 		{
-			monster_type *m_ptr = &m_list[m_idx];
-			if (m_ptr->level < (dun_level / 2))
+			int m_idx, r_idx;
+
+			/* Only in town */
+			if (!in_bounds(y, x)) continue;
+			if (!(cave[y][x].info & CAVE_FREE)) continue;
+			if (!cave_empty_bold(y, x)) continue;
+
+			if (rand_int(100)) continue;
+
+			r_idx = get_mon_num(0);
+			m_allow_special[r_idx] = TRUE;
+			m_idx = place_monster_one(y, x, r_idx, 0, TRUE, MSTATUS_ENEMY);
+			m_allow_special[r_idx] = FALSE;
+
+			if (m_idx)
 			{
-				m_ptr->exp = MONSTER_EXP(m_ptr->level + (dun_level / 2) + randint(dun_level / 2));
-				monster_check_experience(m_idx, TRUE);
+				monster_type *m_ptr = &m_list[m_idx];
+				if (m_ptr->level < (dun_level / 2))
+				{
+					m_ptr->exp = MONSTER_EXP(m_ptr->level + (dun_level / 2) + randint(dun_level / 2));
+					monster_check_experience(m_idx, TRUE);
+				}
 			}
 		}
-	}
 
 	/* Reset restriction */
 	get_mon_num_hook = old_get_mon_num_hook;
@@ -1105,7 +1109,7 @@ static void town_gen_circle(int t_idx, int qy, int qx)
 		for (x = qx + rad; x < qx + SCREEN_WID - rad; x++)
 		{
 			/* Create empty floor */
-			cave_set_feat(y, x, (floor)?floor:floor_type[rand_int(100)]);
+			cave_set_feat(y, x, (floor) ? floor : floor_type[rand_int(100)]);
 			cave[y][x].info |= CAVE_ROOM | CAVE_FREE;
 		}
 	}
@@ -1114,33 +1118,33 @@ static void town_gen_circle(int t_idx, int qy, int qx)
 
 	cx = qx + rad;
 	for (y = cy - rad; y < cy + rad; y++)
-	for (x = cx - rad; x < cx + 1; x++)
-	{
-		int d = distance(cy, cx, y, x);
-
-		if ((d == rad) || (d == rad - 1)) set_border(y, x);
-
-		if (d < rad - 1)
+		for (x = cx - rad; x < cx + 1; x++)
 		{
-			cave_set_feat(y, x, (floor)?floor:floor_type[rand_int(100)]);
-			cave[y][x].info |= CAVE_ROOM | CAVE_FREE;
+			int d = distance(cy, cx, y, x);
+
+			if ((d == rad) || (d == rad - 1)) set_border(y, x);
+
+			if (d < rad - 1)
+			{
+				cave_set_feat(y, x, (floor) ? floor : floor_type[rand_int(100)]);
+				cave[y][x].info |= CAVE_ROOM | CAVE_FREE;
+			}
 		}
-	}
 
 	cx = qx + SCREEN_WID - rad - 1;
 	for (y = cy - rad; y < cy + rad; y++)
-	for (x = cx; x < cx + rad + 1; x++)
-	{
-		int d = distance(cy, cx, y, x);
-
-		if ((d == rad) || (d == rad - 1)) set_border(y, x);
-
-		if (d < rad - 1)
+		for (x = cx; x < cx + rad + 1; x++)
 		{
-			cave_set_feat(y, x, (floor)?floor:floor_type[rand_int(100)]);
-			cave[y][x].info |= CAVE_ROOM | CAVE_FREE;
+			int d = distance(cy, cx, y, x);
+
+			if ((d == rad) || (d == rad - 1)) set_border(y, x);
+
+			if (d < rad - 1)
+			{
+				cave_set_feat(y, x, (floor) ? floor : floor_type[rand_int(100)]);
+				cave[y][x].info |= CAVE_ROOM | CAVE_FREE;
+			}
 		}
-	}
 
 	/* Prepare an Array of "remaining stores", and count them */
 	C_MAKE(rooms, max_st_idx, int);
@@ -1177,31 +1181,31 @@ static void town_gen_circle(int t_idx, int qy, int qx)
 	get_mon_num_prep();
 
 	for (x = qx; x < qx + SCREEN_WID; x++)
-	for (y = qy; y < qy + SCREEN_HGT; y++)
-	{
-		int m_idx, r_idx;
-
-		/* Only in town */
-		if (!in_bounds(y, x)) continue;
-		if (!(cave[y][x].info & CAVE_FREE)) continue;
-		if (!cave_empty_bold(y, x)) continue;
-
-		if (rand_int(100)) continue;
-
-		r_idx = get_mon_num(0);
-		m_allow_special[r_idx] = TRUE;
-		m_idx = place_monster_one(y, x, r_idx, 0, TRUE, MSTATUS_ENEMY);
-		m_allow_special[r_idx] = FALSE;
-		if (m_idx)
+		for (y = qy; y < qy + SCREEN_HGT; y++)
 		{
-			monster_type *m_ptr = &m_list[m_idx];
-			if (m_ptr->level < (dun_level / 2))
+			int m_idx, r_idx;
+
+			/* Only in town */
+			if (!in_bounds(y, x)) continue;
+			if (!(cave[y][x].info & CAVE_FREE)) continue;
+			if (!cave_empty_bold(y, x)) continue;
+
+			if (rand_int(100)) continue;
+
+			r_idx = get_mon_num(0);
+			m_allow_special[r_idx] = TRUE;
+			m_idx = place_monster_one(y, x, r_idx, 0, TRUE, MSTATUS_ENEMY);
+			m_allow_special[r_idx] = FALSE;
+			if (m_idx)
 			{
-				m_ptr->exp = MONSTER_EXP(m_ptr->level + (dun_level / 2) + randint(dun_level / 2));
-				monster_check_experience(m_idx, TRUE);
+				monster_type *m_ptr = &m_list[m_idx];
+				if (m_ptr->level < (dun_level / 2))
+				{
+					m_ptr->exp = MONSTER_EXP(m_ptr->level + (dun_level / 2) + randint(dun_level / 2));
+					monster_check_experience(m_idx, TRUE);
+				}
 			}
 		}
-	}
 
 	/* Reset restriction */
 	get_mon_num_hook = old_get_mon_num_hook;
@@ -1280,9 +1284,9 @@ void town_gen(int t_idx)
 	qx = (cur_wid - SCREEN_WID) / 2;
 
 	/* Build stuff */
-	switch(rand_int(3))
+	switch (rand_int(3))
 	{
-		case 0:
+	case 0:
 		{
 			town_gen_hack(t_idx, qy, qx);
 			if (wizard)
@@ -1293,7 +1297,7 @@ void town_gen(int t_idx)
 			break;
 		}
 
-		case 1:
+	case 1:
 		{
 			town_gen_circle(t_idx, qy, qx);
 			if (wizard)
@@ -1304,7 +1308,7 @@ void town_gen(int t_idx)
 			break;
 		}
 
-		case 2:
+	case 2:
 		{
 			town_gen_hidden(t_idx, qy, qx);
 			if (wizard)

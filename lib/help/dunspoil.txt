@@ -59,7 +59,7 @@ within them!
 #####GOrc Cave
 A dark tunnel leading to an Orc Cave, guarded at it's base by Azog,
 King of the Uruk-Hai. Also somewhere within this dungeon is the
-hidden Orc Town of Deathwatch.
+hidden special level called Deathwatch.
 Equivalent to dungeon levels 10 to 22.
 
 #####GThe Old Forest

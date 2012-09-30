@@ -42,6 +42,10 @@ Spirituality
   Prayer                0.000           [0.500]
 Monster-lore            0.000           [0.700]
 
+#####GInnate Abilities:
+#####BAbility              Character level
+Ammo-creation               2
+
 #####GStarting Equipment
 A ranger begins the game with:
     A spellbook of Phase Door

@@ -1,4 +1,4 @@
-static int randquest_hero[] = {20, 13, 15, 16,  9, 17, 18, -1};
+static int randquest_hero[] = { 20, 13, 15, 16, 9, 17, 18, -1 };
 
 bool is_randhero()
 {
@@ -12,67 +12,124 @@ bool is_randhero()
 		return (FALSE);
 }
 
+void do_get_new_obj(int y, int x)
+{
+	obj_theme theme;
+	char *items[3];
+	object_type *q_ptr[3], forge[3];
+	int max = 0, res, i;
+
+	/* Create 3 ones */
+	max = 0;
+	for (i = 0; i < 3; i++)
+	{
+		/* Get local object */
+		q_ptr[max] = &forge[max];
+
+		/* Wipe the object */
+		object_wipe(q_ptr[max]);
+
+		/* No themes */
+		theme.treasure = 100;
+		theme.combat = 100;
+		theme.magic = 100;
+		theme.tools = 100;
+
+		/* Make a great object */
+		make_object(q_ptr[max], TRUE, TRUE, theme);
+		q_ptr[max]->found = OBJ_FOUND_REWARD;
+
+		C_MAKE(items[max], 100, char);
+		object_desc(items[max], q_ptr[max], 0, 0);
+		max++;
+	}
+
+
+	while (TRUE)
+	{
+		res = ask_menu("Choose a reward to get(a-c to choose, ESC to cancel)?", (char **)items, 3);
+
+		/* Ok ? lets learn ! */
+		if (res > -1)
+		{
+			/* Drop it in the dungeon */
+			drop_near(q_ptr[res], -1, y + 1, x);
+
+			cmsg_print(TERM_YELLOW, "There Noble Hero, I put it there. Thanks again!");
+			break;
+		}
+	}
+
+	for (i = 0; i < 3; i++)
+	{
+
+		object_type *o_ptr = q_ptr[i];
+
+		/* Check if there is any not chosen artifact */
+		if (i != res && artifact_p(o_ptr))
+		{
+			/* Mega-Hack -- Preserve the artifact */
+			if (o_ptr->tval == TV_RANDART)
+			{
+				random_artifacts[o_ptr->sval].generated = FALSE;
+			}
+			else if (k_info[o_ptr->k_idx].flags3 & TR3_NORM_ART)
+			{
+				k_info[o_ptr->k_idx].artifact = FALSE;
+			}
+			else if (o_ptr->name1)
+			{
+				a_info[o_ptr->name1].cur_num = 0;
+			}
+		}
+	}
+
+	for (i = 0; i < 3; i++)
+		C_KILL(items[i], 100, char);
+
+}
+
 void princess_death(s32b m_idx, s32b r_idx)
 {
-		int r;
+	int r;
 
-		cmsg_print(TERM_YELLOW, "O Great And Noble Hero, you saved me!");
-		msg_print("I am heading home now. I cannot reward you as I should, but please take this.");
+	cmsg_print(TERM_YELLOW, "O Great And Noble Hero, you saved me!");
+	cmsg_print(TERM_YELLOW, "I am heading home now. I cannot reward you as I should, but please take this.");
 
-		/* Look for the princess */
-		for (r = m_max - 1; r >= 1; r--)
+	/* Look for the princess */
+	for (r = m_max - 1; r >= 1; r--)
+	{
+		/* Access the monster */
+		monster_type *m_ptr = &m_list[r];
+
+		/* Ignore "dead" monsters */
+		if (!m_ptr->r_idx) continue;
+
+		/* Is it the princess? */
+		if (m_ptr->r_idx == 969)
 		{
-			/* Access the monster */
-			monster_type *m_ptr = &m_list[r];
+			int x = m_ptr->fx;
+			int y = m_ptr->fy;
+			int i, j;
 
-			/* Ignore "dead" monsters */
-			if (!m_ptr->r_idx) continue;
+			delete_monster_idx(r);
 
-			/* Is it the princess? */
-			if (m_ptr->r_idx == 969)
-			{
-				int x = m_ptr->fx;
-				int y = m_ptr->fy;
-				int i, j;
-				object_type forge, *q_ptr;
-				obj_theme theme;
-
-
-				delete_monster_idx(r);
-
-				/* Wipe the glass walls and create a stair */
-				for (i = x - 1; i <= x + 1; i++)
+			/* Wipe the glass walls and create a stair */
+			for (i = x - 1; i <= x + 1; i++)
 				for (j = y - 1; j <= y + 1; j++)
 				{
 					if (in_bounds(j, i)) cave_set_feat(j, i, FEAT_FLOOR);
 				}
-				cave_set_feat(y, x, FEAT_MORE);
+			cave_set_feat(y, x, FEAT_MORE);
 
-				/* Get local object */
-				q_ptr = &forge;
+			do_get_new_obj(y, x);
 
-				/* Wipe the object */
-				object_wipe(q_ptr);
+			random_quests[dun_level].type = 0;
+			random_quests[dun_level].done = TRUE;
 
-				/* No themes */
-				theme.treasure = 100;
-				theme.combat = 100;
-				theme.magic = 100;
-				theme.tools = 100;
-
-				/* Make a great object */
-				make_object(q_ptr, TRUE, TRUE, theme);
-                                q_ptr->found = OBJ_FOUND_REWARD;
-
-				/* Drop it in the dungeon */
-				drop_near(q_ptr, -1, y + 1, x);
-
-				random_quests[dun_level].type = 0;
-				random_quests[dun_level].done = TRUE;
-
-				break;
-			}
+			break;
 		}
+	}
 }
 
 void hero_death(s32b m_idx, s32b r_idx)
@@ -85,10 +142,10 @@ void hero_death(s32b m_idx, s32b r_idx)
 
 	if (!can_create_companion())
 	{
-                cmsg_print(TERM_YELLOW, "I must go on my own way now");
-                cmsg_print(TERM_YELLOW, "But before I can help your skills.'");
-                cmsg_print(TERM_YELLOW, "He touches your forehead.");
-                do_get_new_skill();
+		cmsg_print(TERM_YELLOW, "I must go on my own way now");
+		cmsg_print(TERM_YELLOW, "But before I can help your skills.'");
+		cmsg_print(TERM_YELLOW, "He touches your forehead.");
+		do_get_new_skill();
 		return;
 	}
 	cmsg_print(TERM_YELLOW, "If you wish I can help you in your adventures.'");
@@ -107,7 +164,7 @@ void hero_death(s32b m_idx, s32b r_idx)
 			int d = (i / 15) + 1;
 
 			/* Pick a location */
-			scatter(&y, &x, py, px, d, 0);
+			scatter(&y, &x, p_ptr->py, p_ptr->px, d, 0);
 
 			/* Require "empty" floor grid */
 			if (!cave_empty_bold(y, x)) continue;
@@ -121,7 +178,7 @@ void hero_death(s32b m_idx, s32b r_idx)
 
 			/* ... nor on the Pattern */
 			if ((cave[y][x].feat >= FEAT_PATTERN_START) &&
-			    (cave[y][x].feat <= FEAT_PATTERN_XTRA2))
+			                (cave[y][x].feat <= FEAT_PATTERN_XTRA2))
 				continue;
 
 			/* Okay */
@@ -145,12 +202,12 @@ void hero_death(s32b m_idx, s32b r_idx)
 		else
 			msg_print("The adventurer suddenly seems afraid and flees...");
 	}
-        else
-        {
-                cmsg_print(TERM_YELLOW, "'As you wish, but I want to do something for you.'");
-                cmsg_print(TERM_YELLOW, "He touches your forehead.");
-                do_get_new_skill();
-        }
+	else
+	{
+		cmsg_print(TERM_YELLOW, "'As you wish, but I want to do something for you.'");
+		cmsg_print(TERM_YELLOW, "He touches your forehead.");
+		do_get_new_skill();
+	}
 }
 
 bool quest_random_death_hook(char *fmt)
@@ -261,13 +318,13 @@ bool quest_random_gen_hook(char *fmt)
 	process_dungeon_file_full = FALSE;
 
 	/* Try to allocate space for room.  If fails, exit */
-	if (!room_alloc(xsize+2,ysize+2,FALSE,by0,bx0,&xval,&yval)) return FALSE;
+	if (!room_alloc(xsize + 2, ysize + 2, FALSE, by0, bx0, &xval, &yval)) return FALSE;
 
 	/* Get corner values */
-	y1 = yval - ysize/2;
-	x1 = xval - xsize/2;
-	y2 = yval + (ysize)/2;
-	x2 = xval + (xsize)/2;
+	y1 = yval - ysize / 2;
+	x1 = xval - xsize / 2;
+	y2 = yval + (ysize) / 2;
+	x2 = xval + (xsize) / 2;
 
 	/* Place a full floor under the room */
 	for (y = y1 - 1; y <= y2 + 1; y++)
@@ -297,24 +354,24 @@ bool quest_random_gen_hook(char *fmt)
 	process_dungeon_file_full = FALSE;
 
 	for (x = x1; x < xstart; x++)
-	for (y = y1; y < ystart; y++)
-	{
-		cave[y][x].info |= CAVE_ICKY | CAVE_ROOM;
-		if (cave[y][x].feat == FEAT_MARKER)
+		for (y = y1; y < ystart; y++)
 		{
-			monster_type *m_ptr;
-			int i;
-
-			m_allow_special[random_quests[dun_level].r_idx] = TRUE;
-			i = place_monster_one(y, x, random_quests[dun_level].r_idx, 0, FALSE, MSTATUS_ENEMY);
-			m_allow_special[random_quests[dun_level].r_idx] = FALSE;
-			if (i)
+			cave[y][x].info |= CAVE_ICKY | CAVE_ROOM;
+			if (cave[y][x].feat == FEAT_MARKER)
 			{
-				m_ptr = &m_list[i];
-				m_ptr->mflag |= MFLAG_QUEST;
+				monster_type *m_ptr;
+				int i;
+
+				m_allow_special[random_quests[dun_level].r_idx] = TRUE;
+				i = place_monster_one(y, x, random_quests[dun_level].r_idx, 0, FALSE, MSTATUS_ENEMY);
+				m_allow_special[random_quests[dun_level].r_idx] = FALSE;
+				if (i)
+				{
+					m_ptr = &m_list[i];
+					m_ptr->mflag |= MFLAG_QUEST;
+				}
 			}
 		}
-	}
 
 	/* Dont try another one for this generation */
 	quest[QUEST_RANDOM].data[1] = 1;

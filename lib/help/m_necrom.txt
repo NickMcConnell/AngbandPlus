@@ -21,19 +21,14 @@ and do not need light to be performed.
    undead ego monster at the service of the caster. The loyalty of those
    monsters is not guaranteed, though. It also heals monsters within the
    same radius.
-3. [[[[[DAbsorb Soul] (Level 20) Cost:10
+3. [[[[[DNecromantic Teeth] (Level 12) Cost:20
+   This conjures up a temporary vampiric weapon.
+4. [[[[[DAbsorb Soul] (Level 20) Cost:10
    This heals you by a good amount every time you kill a monster within
    its duration. It is especially useful when your character is in undead
    form (see below)
-4. [[[[[DVampirism] (Level 30) Cost:15
+5. [[[[[DVampirism] (Level 30) Cost:15
    Drains part of the life-force from a nearby monster and gives it to you.
-5. [[[[[DUndead form] (Level 30) Cost:N/A
-   Not actually an activatable power, this kicks in automatically when your
-   character would die. Instead, he/she becomes an undead creature with a
-   small amount of Death Points (DP). Every normal (+0 speed) turn, one DP
-   is lost; you can regain it like you would do with Hit Points.
-   If you manage to kill enough monsters before your DP goes below 0, your
-   character is brought back to life.
 6. [[[[[DDeath] (Level 35) Cost:100
    Yes, the name is not nice. Neither are the effects: the target dies
    immediately, but so does your character (not that death is such a great

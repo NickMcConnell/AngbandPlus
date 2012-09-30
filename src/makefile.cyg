@@ -279,9 +279,9 @@ BASESRCS = \
   melee1.c melee2.c loadsave.c files.c \
   cmd1.c cmd2.c cmd3.c cmd4.c cmd5.c cmd6.c cmd7.c \
   store.c birth.c notes.c help.c \
-  status.c randart.c gods.c \
+  status.c randart.c gods.c modules.c \
   wizard1.c wizard2.c levels.c ghost.c \
-  generate.c dungeon.c init1.c init2.c \
+  generate.c gen_maze.c gen_evol.c dungeon.c init1.c init2.c \
   bldg.c squeltch.c wild.c powers.c plots.c \
   irc.c skills.c \
   readdib.c angband.rc main-win.c main.c
@@ -289,11 +289,11 @@ BASESRCS = \
 BASEOBJS = \
   z-term.o z-rand.o z-form.o z-virt.o z-util.o z-sock.o \
   main.o main-win.o readdib.o angband.res \
-  generate.o dungeon.o init1.o init2.o plots.o help.o \
+  generate.o gen_maze.o gen_evol.o dungeon.o init1.o init2.o plots.o help.o \
   store.o birth.o wizard1.o wizard2.o bldg.o cmovie.o \
   cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o cmd7.o \
   loadsave.o files.o levels.o notes.o squeltch.o \
-  status.o randart.o irc.o skills.o gods.o \
+  status.o randart.o irc.o skills.o gods.o modules.o \
   xtra1.o xtra2.o spells1.o spells2.o melee1.o melee2.o \
   object1.o object2.o traps.o monster1.o monster2.o monster3.o \
   variable.o tables.o util.o cave.o ghost.o wild.o powers.o

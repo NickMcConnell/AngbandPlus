@@ -31,17 +31,17 @@ bool quest_invasion_gen_hook(char *fmt)
 	process_dungeon_file_full = FALSE;
 
 	for (x = 3; x < xstart; x++)
-	for (y = 3; y < ystart; y++)
-	{
-		if (cave[y][x].feat == FEAT_MARKER)
+		for (y = 3; y < ystart; y++)
 		{
-			cquest.data[0] = y;
-			cquest.data[1] = x;
-			py = y;
-			px = x;
-			cave_set_feat(py, px, FEAT_LESS);
+			if (cave[y][x].feat == FEAT_MARKER)
+			{
+				cquest.data[0] = y;
+				cquest.data[1] = x;
+				p_ptr->py = y;
+				p_ptr->px = x;
+				cave_set_feat(p_ptr->py, p_ptr->px, FEAT_LESS);
+			}
 		}
-	}
 
 	return TRUE;
 }
@@ -64,20 +64,20 @@ bool quest_invasion_ai_hook(char *fmt)
 			delete_monster_idx(m_idx);
 
 			cmsg_print(TERM_YELLOW, "Maeglin found the way to Gondolin, all hope is lost now!");
-                        cquest.status = QUEST_STATUS_FAILED;
-                        town_info[2].destroyed = TRUE;
+			cquest.status = QUEST_STATUS_FAILED;
+			town_info[2].destroyed = TRUE;
 			return (FALSE);
 		}
 
 		/* Attack or flee ?*/
-		if (distance(m_ptr->fy, m_ptr->fx, py, px) <= 2)
+		if (distance(m_ptr->fy, m_ptr->fx, p_ptr->py, p_ptr->px) <= 2)
 		{
 			return (FALSE);
 		}
 		else
 		{
-			hack_y2 = cquest.data[0];
-			hack_x2 = cquest.data[1];
+			process_hooks_return[0].num = cquest.data[0];
+			process_hooks_return[1].num = cquest.data[1];
 			return (TRUE);
 		}
 	}
@@ -92,10 +92,10 @@ bool quest_invasion_turn_hook(char *fmt)
 	if (p_ptr->lev < 45) return (FALSE);
 
 	/* Wait until the end of the current quest */
-	if (p_ptr->inside_quest) return( FALSE);
+	if (p_ptr->inside_quest) return ( FALSE);
 
 	/* Wait until the end of the astral mode */
-	if (p_ptr->astral) return( FALSE);
+	if (p_ptr->astral) return ( FALSE);
 
 	/* Ok give the quest */
 	quick_messages = FALSE;
@@ -112,7 +112,7 @@ bool quest_invasion_turn_hook(char *fmt)
 		cmsg_print(TERM_YELLOW, "'I will return alone and die there. May you be doomed!'");
 
 		cquest.status = QUEST_STATUS_FAILED;
-                town_info[2].destroyed = TRUE;
+		town_info[2].destroyed = TRUE;
 
 		quick_messages = old_quick_messages;
 
@@ -120,15 +120,15 @@ bool quest_invasion_turn_hook(char *fmt)
 		process_hooks_restart = TRUE;
 		return (FALSE);
 	}
-        cmsg_print(TERM_YELLOW, "'You made the right decision, quickly jump on Tolan!'");
+	cmsg_print(TERM_YELLOW, "'You made the right decision, quickly jump on Tolan!'");
 	cmsg_print(TERM_YELLOW, "'Here we are, Gondolin, you must speak with Turgon now.'");
 
 	p_ptr->wild_mode = FALSE;
 	p_ptr->wilderness_x = 49;
 	p_ptr->wilderness_y = 11;
 	p_ptr->town_num = 2;
-	p_ptr->oldpx = px = 117;
-	p_ptr->oldpy = py = 24;
+	p_ptr->oldpx = p_ptr->px = 117;
+	p_ptr->oldpy = p_ptr->py = 24;
 	dun_level = 0;
 	p_ptr->leaving = TRUE;
 
@@ -177,15 +177,15 @@ bool quest_invasion_death_hook(char *fmt)
 }
 bool quest_invasion_stair_hook(char *fmt)
 {
-	s32b down;
+	cptr down;
 
-	down = get_next_arg(fmt);
+	down = get_next_arg_str(fmt);
 
 	if (p_ptr->inside_quest != QUEST_INVASION) return FALSE;
 
-	if (cave[py][px].feat != FEAT_LESS) return TRUE;
+	if (cave[p_ptr->py][p_ptr->px].feat != FEAT_LESS) return TRUE;
 
-	if (!down)
+	if (!strcmp(down, "up"))
 	{
 		if (cquest.status == QUEST_STATUS_FAILED)
 		{
@@ -209,7 +209,7 @@ bool quest_invasion_stair_hook(char *fmt)
 			if (!get_check("Really abandon the quest?")) return TRUE;
 			cmsg_print(TERM_YELLOW, "You flee away from Maeglin and his army...");
 			cquest.status = QUEST_STATUS_FAILED;
-                        town_info[2].destroyed = TRUE;
+			town_info[2].destroyed = TRUE;
 		}
 		del_hook(HOOK_STAIR, quest_invasion_stair_hook);
 		process_hooks_restart = TRUE;

@@ -31,73 +31,73 @@ bool quest_wight_gen_hook(char *fmt)
 	process_dungeon_file_full = FALSE;
 
 	for (x = 3; x < xstart; x++)
-	for (y = 3; y < ystart; y++)
-	{
-		if (cave[y][x].feat == FEAT_MARKER)
+		for (y = 3; y < ystart; y++)
 		{
-			int m_idx = 0;
-
-			m_allow_special[test_monster_name("The Wight-King of the Barrow-downs")] = TRUE;
-			m_idx = place_monster_one(y, x, test_monster_name("The Wight-King of the Barrow-downs"), 0, FALSE, MSTATUS_ENEMY);
-			m_allow_special[test_monster_name("The Wight-King of the Barrow-downs")] = FALSE;
-
-			if (m_idx)
+			if (cave[y][x].feat == FEAT_MARKER)
 			{
-				int o_idx;
+				int m_idx = 0;
 
-				/* Get local object */
-				object_type forge, *q_ptr = &forge;
+				m_allow_special[test_monster_name("The Wight-King of the Barrow-downs")] = TRUE;
+				m_idx = place_monster_one(y, x, test_monster_name("The Wight-King of the Barrow-downs"), 0, FALSE, MSTATUS_ENEMY);
+				m_allow_special[test_monster_name("The Wight-King of the Barrow-downs")] = FALSE;
 
-				/* Prepare to make the  */
-				object_prep(q_ptr, lookup_kind(TV_SOFT_ARMOR, SV_FILTHY_RAG));
-
-				/* Name the rags */
-
-				q_ptr->art_name = quark_add("of the Wight");
-
-				q_ptr->art_flags1 |= ( TR1_INT | TR1_SEARCH );
-				q_ptr->art_flags2 |= ( TR2_RES_BLIND | TR2_SENS_FIRE | TR2_RES_CONF );
-				q_ptr->art_flags3 |= ( TR3_IGNORE_ACID | TR3_IGNORE_ELEC |
-				       TR3_IGNORE_FIRE | TR3_IGNORE_COLD | TR3_SEE_INVIS);
-
-				/* For game balance... */
-                                q_ptr->art_flags3 |= (TR3_CURSED | TR3_HEAVY_CURSE);
-                                q_ptr->ident |= IDENT_CURSED;
-
-				if (randint(2) == 1)
+				if (m_idx)
 				{
-					q_ptr->art_flags1 |= (TR1_SPELL);
-					q_ptr->pval = 6;
-				}
-				else
-				{
-					q_ptr->art_flags1 |= (TR1_MANA);
-					q_ptr->pval = 2;
-				}
+					int o_idx;
 
-				/* Get new object */
-				o_idx = o_pop();
+					/* Get local object */
+					object_type forge, *q_ptr = &forge;
 
-				if(o_idx)
-				{
-					/* Get the item */
-					object_type *o_ptr = &o_list[o_idx];
+					/* Prepare to make the  */
+					object_prep(q_ptr, lookup_kind(TV_SOFT_ARMOR, SV_FILTHY_RAG));
 
-					/* Structure copy */
-					object_copy(o_ptr, q_ptr);
+					/* Name the rags */
 
-					/* Build a stack */
-					o_ptr->next_o_idx = m_list[m_idx].hold_o_idx;
+					q_ptr->art_name = quark_add("of the Wight");
 
-					o_ptr->held_m_idx = m_idx;
-					o_ptr->ix = 0;
-					o_ptr->iy = 0;
+					q_ptr->art_flags1 |= ( TR1_INT | TR1_SEARCH );
+					q_ptr->art_flags2 |= ( TR2_RES_BLIND | TR2_SENS_FIRE | TR2_RES_CONF );
+					q_ptr->art_flags3 |= ( TR3_IGNORE_ACID | TR3_IGNORE_ELEC |
+					                       TR3_IGNORE_FIRE | TR3_IGNORE_COLD | TR3_SEE_INVIS);
 
-					m_list[m_idx].hold_o_idx = o_idx;
+					/* For game balance... */
+					q_ptr->art_flags3 |= (TR3_CURSED | TR3_HEAVY_CURSE);
+					q_ptr->ident |= IDENT_CURSED;
+
+					if (randint(2) == 1)
+					{
+						q_ptr->art_flags1 |= (TR1_SPELL);
+						q_ptr->pval = 6;
+					}
+					else
+					{
+						q_ptr->art_flags1 |= (TR1_MANA);
+						q_ptr->pval = 2;
+					}
+
+					/* Get new object */
+					o_idx = o_pop();
+
+					if (o_idx)
+					{
+						/* Get the item */
+						object_type *o_ptr = &o_list[o_idx];
+
+						/* Structure copy */
+						object_copy(o_ptr, q_ptr);
+
+						/* Build a stack */
+						o_ptr->next_o_idx = m_list[m_idx].hold_o_idx;
+
+						o_ptr->held_m_idx = m_idx;
+						o_ptr->ix = 0;
+						o_ptr->iy = 0;
+
+						m_list[m_idx].hold_o_idx = o_idx;
+					}
 				}
 			}
 		}
-	}
 
 	return TRUE;
 }
@@ -114,7 +114,7 @@ bool quest_wight_death_hook(char *fmt)
 	{
 		cmsg_print(TERM_YELLOW, "Without their King the wights won't be able to do much.");
 
-		cave_set_feat(py, px, FEAT_LESS);
+		cave_set_feat(p_ptr->py, p_ptr->px, FEAT_LESS);
 
 		cquest.status = QUEST_STATUS_COMPLETED;
 		del_hook(HOOK_MONSTER_DEATH, quest_wight_death_hook);

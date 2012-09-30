@@ -270,7 +270,7 @@ uint vstrnfmt(char *buf, uint max, cptr fmt, va_list vp)
 		if (*s != '%')
 		{
 			/* Check total length */
-			if (n == max-1) break;
+			if (n == max - 1) break;
 
 			/* Save the character */
 			buf[n++] = *s++;
@@ -286,7 +286,7 @@ uint vstrnfmt(char *buf, uint max, cptr fmt, va_list vp)
 		if (*s == '%')
 		{
 			/* Check total length */
-			if (n == max-1) break;
+			if (n == max - 1) break;
 
 			/* Save the percent */
 			buf[n++] = '%';
@@ -447,10 +447,10 @@ uint vstrnfmt(char *buf, uint max, cptr fmt, va_list vp)
 		tmp[0] = '\0';
 
 		/* Process the "format" char */
-		switch (aux[q-1])
+		switch (aux[q - 1])
 		{
 			/* Simple Character -- standard format */
-			case 'c':
+		case 'c':
 			{
 				int arg;
 
@@ -465,7 +465,8 @@ uint vstrnfmt(char *buf, uint max, cptr fmt, va_list vp)
 			}
 
 			/* Signed Integers -- standard format */
-			case 'd': case 'i':
+		case 'd':
+		case 'i':
 			{
 				if (do_long)
 				{
@@ -493,7 +494,10 @@ uint vstrnfmt(char *buf, uint max, cptr fmt, va_list vp)
 			}
 
 			/* Unsigned Integers -- various formats */
-			case 'u': case 'o': case 'x': case 'X':
+		case 'u':
+		case 'o':
+		case 'x':
+		case 'X':
 			{
 				if (do_long)
 				{
@@ -521,9 +525,11 @@ uint vstrnfmt(char *buf, uint max, cptr fmt, va_list vp)
 			}
 
 			/* Floating Point -- various formats */
-			case 'f':
-			case 'e': case 'E':
-			case 'g': case 'G':
+		case 'f':
+		case 'e':
+		case 'E':
+		case 'g':
+		case 'G':
 			{
 				double arg;
 
@@ -538,7 +544,7 @@ uint vstrnfmt(char *buf, uint max, cptr fmt, va_list vp)
 			}
 
 			/* Pointer -- implementation varies */
-			case 'p':
+		case 'p':
 			{
 				vptr arg;
 
@@ -553,7 +559,7 @@ uint vstrnfmt(char *buf, uint max, cptr fmt, va_list vp)
 			}
 
 			/* String */
-			case 's':
+		case 's':
 			{
 				cptr arg;
 
@@ -571,8 +577,8 @@ uint vstrnfmt(char *buf, uint max, cptr fmt, va_list vp)
 			}
 
 			/* User defined data */
-			case 'V':
-			case 'v':
+		case 'V':
+		case 'v':
 			{
 				vptr arg;
 
@@ -588,7 +594,7 @@ uint vstrnfmt(char *buf, uint max, cptr fmt, va_list vp)
 
 
 			/* Oops */
-			default:
+		default:
 			{
 				/* Error -- illegal format char */
 				buf[0] = '\0';
@@ -621,7 +627,7 @@ uint vstrnfmt(char *buf, uint max, cptr fmt, va_list vp)
 		for (q = 0; tmp[q]; q++)
 		{
 			/* Check total length */
-			if (n == max-1) break;
+			if (n == max - 1) break;
 
 			/* Save the character */
 			buf[n++] = tmp[q];
@@ -665,7 +671,7 @@ char *vformat(cptr fmt, va_list vp)
 		len = vstrnfmt(format_buf, format_len, fmt, vp);
 
 		/* Success */
-		if (len < format_len-1) break;
+		if (len < format_len - 1) break;
 
 		/* Grow the buffer */
 		C_KILL(format_buf, format_len, char);

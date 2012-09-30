@@ -64,6 +64,7 @@
 # define ANG281_RESET_VISUALS	/* The old style reset_visuals() */
 # define INTERACTIVE_GAMMA	/* Supports interactive gamma correction */
 # define SAVEFILE_SCREEN	/* New/Open integrated into the game */
+# define USE_DOUBLE_TILES	/* Mogami's bigtile patch */
 #endif /* TOME */
 
 /*
@@ -71,7 +72,7 @@
  */
 #ifdef ANGBAND300
 # define can_save TRUE	/* Mimick the short-lived flag */
-# define C_FREE(P,N,T)	FREE(P)	/* Emulate the long-lived macro */
+# define C_FREE(P, N, T)	FREE(P)	/* Emulate the long-lived macro */
 # define USE_TRANSPARENCY	/* Because it's default now */
 #endif /* ANGBAND300 */
 
@@ -99,6 +100,10 @@
 
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <dirent.h>
 
 /*
  * Include some helpful X11 code.
@@ -172,11 +177,14 @@ struct term_data
 
 #ifdef USE_GRAPHICS
 
+	int tile_wid;
+	int tile_hgt;
+
 	GdkRGBImage *tiles;
 # ifdef USE_TRANSPARENCY
 	guint32 bg_pixel;
 	GdkRGBImage *trans_buf;
-# endif /* USE_TRANSPARENCY */
+# endif  /* USE_TRANSPARENCY */
 
 #endif /* USE_GRAPHICS */
 
@@ -188,19 +196,19 @@ struct term_data
  * Where to draw when we call Gdk drawing primitives
  */
 # define TERM_DATA_DRAWABLE(td) \
-	((td)->backing_store ? (td)->backing_store : (td)->drawing_area->window)
+((td)->backing_store ? (td)->backing_store : (td)->drawing_area->window)
 
 # define TERM_DATA_REFRESH(td, x, y, wid, hgt) \
-	if ((td)->backing_store) gdk_draw_pixmap( \
-		(td)->drawing_area->window, \
-		(td)->gc, \
-		(td)->backing_store, \
-		(x) * (td)->font_wid, \
-		(y) * (td)->font_hgt, \
-		(x) * (td)->font_wid, \
-		(y) * (td)->font_hgt, \
-		(wid) * (td)->font_wid, \
-		(hgt) * (td)->font_hgt)
+if ((td)->backing_store) gdk_draw_pixmap( \
+(td)->drawing_area->window, \
+(td)->gc, \
+(td)->backing_store, \
+(x) * (td)->font_wid, \
+(y) * (td)->font_hgt, \
+(x) * (td)->font_wid, \
+(y) * (td)->font_hgt, \
+(wid) * (td)->font_wid, \
+(hgt) * (td)->font_hgt)
 
 
 #if 0
@@ -209,26 +217,26 @@ struct term_data
 
 # ifdef USE_BACKING_STORE
 
-#  define TERM_DATA_DRAWABLE(td) (td)->backing_store
+# define TERM_DATA_DRAWABLE(td) (td)->backing_store
 
-#  define TERM_DATA_REFRESH(td, x, y, wid, hgt) \
-	gdk_draw_pixmap( \
-		(td)->drawing_area->window, \
-		(td)->gc, \
-		(td)->backing_store, \
-		(x) * (td)->font_wid, \
-		(y) * (td)->font_hgt, \
-		(x) * (td)->font_wid, \
-		(y) * (td)->font_hgt, \
-		(wid) * (td)->font_wid, \
-		(hgt) * (td)->font_hgt)
+# define TERM_DATA_REFRESH(td, x, y, wid, hgt) \
+gdk_draw_pixmap( \
+(td)->drawing_area->window, \
+(td)->gc, \
+(td)->backing_store, \
+(x) * (td)->font_wid, \
+(y) * (td)->font_hgt, \
+(x) * (td)->font_wid, \
+(y) * (td)->font_hgt, \
+(wid) * (td)->font_wid, \
+(hgt) * (td)->font_hgt)
 
 # else /* USE_BACKING_STORE */
 
-#  define TERM_DATA_DRAWABLE(td) (td)->drawing_area->window
-#  define TERM_DATA_REFRESH(td, x, y, wid, hgt)
+# define TERM_DATA_DRAWABLE(td) (td)->drawing_area->window
+# define TERM_DATA_REFRESH(td, x, y, wid, hgt)
 
-# endif /* USE_BACKING_STORE */
+# endif  /* USE_BACKING_STORE */
 
 #endif /* 0 */
 
@@ -312,7 +320,7 @@ static void cleanup_angband(void)
 	/* XXX XXX XXX */
 }
 
-# endif /* !SAVEFILE_SCREEN */
+# endif  /* !SAVEFILE_SCREEN */
 
 /*
  * New global flag to indicate if it's safe to save now
@@ -478,7 +486,7 @@ static void setup_gamma_table(void)
 	gamma_table_ready = TRUE;
 }
 
-# endif /* INTERACTIVE_GAMMA */
+# endif  /* INTERACTIVE_GAMMA */
 
 #endif /* SUPPORT_GAMMA */
 
@@ -495,7 +503,7 @@ static void setup_gamma_table(void)
  */
 static void init_colours(void)
 {
-	int i; 
+	int i;
 
 
 #ifdef SUPPORT_GAMMA
@@ -638,8 +646,8 @@ static cptr ANGBAND_DIR_XTRA_GRAF;
  * to it. Returns NULL on failure
  */
 static GdkRGBImage *gdk_rgb_image_new(
-	gint width,
-	gint height)
+        gint width,
+        gint height)
 {
 	GdkRGBImage *result;
 
@@ -674,7 +682,7 @@ static GdkRGBImage *gdk_rgb_image_new(
  * Free a GdkRGBImage
  */
 static void gdk_rgb_image_destroy(
-	GdkRGBImage *im)
+        GdkRGBImage *im)
 {
 	/* Paranoia */
 	if (im == NULL) return;
@@ -693,7 +701,7 @@ static void gdk_rgb_image_destroy(
  * Unref a GdkRGBImage
  */
 static void gdk_rgb_image_unref(
-	GdkRGBImage *im)
+        GdkRGBImage *im)
 {
 	/* Paranoia */
 	g_return_if_fail(im != NULL);
@@ -710,7 +718,7 @@ static void gdk_rgb_image_unref(
  * Reference a GdkRGBImage
  */
 static void gdk_rgb_image_ref(
-	GdkRGBImage *im)
+        GdkRGBImage *im)
 {
 	/* Paranoia */
 	g_return_if_fail(im != NULL);
@@ -726,10 +734,10 @@ static void gdk_rgb_image_ref(
  * Write RGB pixel of the format 0xRRGGBB to (x, y) in GdkRGBImage
  */
 static void gdk_rgb_image_put_pixel(
-	GdkRGBImage *im,
-	gint x,
-	gint y,
-	guint32 pixel)
+        GdkRGBImage *im,
+        gint x,
+        gint y,
+        guint32 pixel)
 {
 	guchar *rgbp;
 
@@ -750,7 +758,7 @@ static void gdk_rgb_image_put_pixel(
 	/* Green */
 	*rgbp++ = (pixel >> 8) & 0xFF;
 	/* Blue */
-	*rgbp   = pixel & 0xFF;
+	*rgbp = pixel & 0xFF;
 }
 
 
@@ -758,9 +766,9 @@ static void gdk_rgb_image_put_pixel(
  * Returns RGB pixel (0xRRGGBB) at (x, y) in GdkRGBImage
  */
 static guint32 gdk_rgb_image_get_pixel(
-	GdkRGBImage *im,
-	gint x,
-	gint y)
+        GdkRGBImage *im,
+        gint x,
+        gint y)
 {
 	guchar *rgbp;
 
@@ -788,15 +796,15 @@ static guint32 gdk_rgb_image_get_pixel(
  * the GdkImage parameter replaced with GdkRGBImage.
  */
 static void gdk_draw_rgb_image_2(
-	GdkDrawable *drawable,
-	GdkGC *gc,
-	GdkRGBImage *image,
-	gint xsrc,
-	gint ysrc,
-	gint xdest,
-	gint ydest,
-	gint width,
-	gint height)
+        GdkDrawable *drawable,
+        GdkGC *gc,
+        GdkRGBImage *image,
+        gint xsrc,
+        gint ysrc,
+        gint xdest,
+        gint ydest,
+        gint width,
+        gint height)
 {
 	/* Paranoia */
 	g_return_if_fail(drawable != NULL);
@@ -808,15 +816,15 @@ static void gdk_draw_rgb_image_2(
 
 	/* Draw the image at (xdest, ydest), with dithering if bpp <= 8/16 */
 	gdk_draw_rgb_image(
-		drawable,
-		gc,
-		xdest,
-		ydest,
-		width,
-		height,
-		dith_mode,
-		&image->image[(ysrc * image->width * 3) + (xsrc * 3)],
-		image->width * 3);
+	        drawable,
+	        gc,
+	        xdest,
+	        ydest,
+	        width,
+	        height,
+	        dith_mode,
+	        &image->image[(ysrc * image->width * 3) + (xsrc * 3)],
+	        image->width * 3);
 }
 
 
@@ -851,9 +859,9 @@ struct rgb_type
  * it's logical to do so...
  */
 #define pixel_to_rgb(pix, rgb_buf) \
-	(rgb_buf)->red   = ((pix) >> 16) & 0xFF; \
-	(rgb_buf)->green = ((pix) >> 8)  & 0xFF; \
-	(rgb_buf)->blue  = (pix) & 0xFF
+(rgb_buf)->red   = ((pix) >> 16) & 0xFF; \
+(rgb_buf)->green = ((pix) >> 8)  & 0xFF; \
+(rgb_buf)->blue  = (pix) & 0xFF
 
 
 /*
@@ -865,12 +873,12 @@ struct rgb_type
  * scan must be sufficiently sized
  */
 static void get_scaled_row(
-	GdkRGBImage *im,
-	int x,
-	int y,
-	int iw,
-	int ow,
-	rgb_type *scan)
+        GdkRGBImage *im,
+        int x,
+        int y,
+        int iw,
+        int ow,
+        rgb_type *scan)
 {
 	int xi, si, sifrac, ci, cifrac, add_whole, add_frac;
 	guint32 pix;
@@ -921,9 +929,9 @@ static void get_scaled_row(
 
 			/* calculate subsampled color values: */
 			/* division by ow occurs in scale_icon */
-			scan[xi].red   = prev.red   * (ow - sifrac) + next.red   * sifrac;
+			scan[xi].red = prev.red * (ow - sifrac) + next.red * sifrac;
 			scan[xi].green = prev.green * (ow - sifrac) + next.green * sifrac;
-			scan[xi].blue  = prev.blue  * (ow - sifrac) + next.blue  * sifrac;
+			scan[xi].blue = prev.blue * (ow - sifrac) + next.blue * sifrac;
 
 			/* advance sampling position: */
 			sifrac += iw;
@@ -968,9 +976,9 @@ static void get_scaled_row(
 			}
 
 			/* take fraction of current input pixel (starting segment): */
-			scan[xi].red   = next.red   * (ow - sifrac);
+			scan[xi].red = next.red * (ow - sifrac);
 			scan[xi].green = next.green * (ow - sifrac);
-			scan[xi].blue  = next.blue  * (ow - sifrac);
+			scan[xi].blue = next.blue * (ow - sifrac);
 			si++;
 
 			/* add values for whole pixels: */
@@ -980,9 +988,9 @@ static void get_scaled_row(
 
 				pix = gdk_rgb_image_get_pixel(im, si, y);
 				pixel_to_rgb(pix, &tmp_rgb);
-				scan[xi].red   += tmp_rgb.red   * ow;
+				scan[xi].red += tmp_rgb.red * ow;
 				scan[xi].green += tmp_rgb.green * ow;
-				scan[xi].blue  += tmp_rgb.blue  * ow;
+				scan[xi].blue += tmp_rgb.blue * ow;
 				si++;
 			}
 
@@ -997,9 +1005,9 @@ static void get_scaled_row(
 			sifrac = cifrac;
 			if (sifrac > 0)
 			{
-				scan[xi].red   += next.red   * sifrac;
+				scan[xi].red += next.red * sifrac;
 				scan[xi].green += next.green * sifrac;
-				scan[xi].blue  += next.blue  * sifrac;
+				scan[xi].blue += next.blue * sifrac;
 			}
 		}
 	}
@@ -1013,12 +1021,12 @@ static void get_scaled_row(
  * are divided first.
  */
 static void put_rgb_scan(
-	GdkRGBImage *im,
-	int x,
-	int y,
-	int w,
-	int div,
-	rgb_type *scan)
+        GdkRGBImage *im,
+        int x,
+        int y,
+        int w,
+        int div,
+        rgb_type *scan)
 {
 	int xi;
 	guint32 pix;
@@ -1029,9 +1037,9 @@ static void put_rgb_scan(
 		byte r, g, b;
 
 		/* un-factor the RGB values */
-		r = (scan[xi].red   + adj) / div;
+		r = (scan[xi].red + adj) / div;
 		g = (scan[xi].green + adj) / div;
-		b = (scan[xi].blue  + adj) / div;
+		b = (scan[xi].blue + adj) / div;
 
 #ifdef SUPPORT_GAMMA
 
@@ -1065,16 +1073,16 @@ static void put_rgb_scan(
  * vertical directions (eg. shrink horizontal, grow vertical).
  */
 static void scale_icon(
-	GdkRGBImage *im_in,
-	GdkRGBImage *im_out,
-	int x1,
-	int y1,
-	int x2,
-	int y2,
-	int ix,
-	int iy,
-	int ox,
-	int oy)
+        GdkRGBImage *im_in,
+        GdkRGBImage *im_out,
+        int x1,
+        int y1,
+        int x2,
+        int y2,
+        int ix,
+        int iy,
+        int ox,
+        int oy)
 {
 	int div;
 	int xi, yi, si, sifrac, ci, cifrac, add_whole, add_frac;
@@ -1140,11 +1148,11 @@ static void scale_icon(
 			for (xi = 0; xi < ox; xi++)
 			{
 				temp[xi].red = (prev[xi].red * (oy - sifrac) +
-						next[xi].red * sifrac);
+				                next[xi].red * sifrac);
 				temp[xi].green = (prev[xi].green * (oy - sifrac) +
-						  next[xi].green * sifrac);
+				                  next[xi].green * sifrac);
 				temp[xi].blue = (prev[xi].blue * (oy - sifrac) +
-						 next[xi].blue * sifrac);
+				                 next[xi].blue * sifrac);
 			}
 
 			/* write row to output image: */
@@ -1195,9 +1203,9 @@ static void scale_icon(
 			/* take fraction of current input row (starting segment): */
 			for (xi = 0; xi < ox; xi++)
 			{
-				temp[xi].red   = next[xi].red   * (oy - sifrac);
+				temp[xi].red = next[xi].red * (oy - sifrac);
 				temp[xi].green = next[xi].green * (oy - sifrac);
-				temp[xi].blue  = next[xi].blue  * (oy - sifrac);
+				temp[xi].blue = next[xi].blue * (oy - sifrac);
 			}
 			si++;
 
@@ -1207,9 +1215,9 @@ static void scale_icon(
 				get_scaled_row(im_in, x1, si, ix, ox, next);
 				for (xi = 0; xi < ox; xi++)
 				{
-					temp[xi].red   += next[xi].red   * oy;
+					temp[xi].red += next[xi].red * oy;
 					temp[xi].green += next[xi].green * oy;
-					temp[xi].blue  += next[xi].blue  * oy;
+					temp[xi].blue += next[xi].blue * oy;
 				}
 				si++;
 			}
@@ -1223,9 +1231,9 @@ static void scale_icon(
 			sifrac = cifrac;
 			for (xi = 0; xi < ox; xi++)
 			{
-				temp[xi].red   += next[xi].red   * sifrac;
+				temp[xi].red += next[xi].red * sifrac;
 				temp[xi].green += next[xi].green * sifrac;
-				temp[xi].blue  += next[xi].blue  * sifrac;
+				temp[xi].blue += next[xi].blue * sifrac;
 			}
 
 			/* write row to output image: */
@@ -1239,11 +1247,11 @@ static void scale_icon(
  * Rescale icons using sort of anti-aliasing technique.
  */
 static GdkRGBImage *resize_tiles_smooth(
-	GdkRGBImage *im,
-	int ix,
-	int iy,
-	int ox,
-	int oy)
+        GdkRGBImage *im,
+        int ix,
+        int iy,
+        int ox,
+        int oy)
 {
 	int width1, height1, width2, height2;
 	int x1, x2, y1, y2;
@@ -1270,7 +1278,7 @@ static GdkRGBImage *resize_tiles_smooth(
 		for (x1 = 0, x2 = 0; (x1 < width1) && (x2 < width2); x1 += ix, x2 += ox)
 		{
 			scale_icon(im, tmp, x1, y1, x2, y2,
-				  ix, iy, ox, oy);
+			           ix, iy, ox, oy);
 		}
 	}
 
@@ -1285,12 +1293,12 @@ static GdkRGBImage *resize_tiles_smooth(
 
 /* 24-bit version - GdkRGB uses 24 bit RGB data internally */
 static void copy_pixels(
-	int wid,
-	int y,
-	int offset,
-	int *xoffsets,
-	GdkRGBImage *old_image,
-	GdkRGBImage *new_image)
+        int wid,
+        int y,
+        int offset,
+        int *xoffsets,
+        GdkRGBImage *old_image,
+        GdkRGBImage *new_image)
 {
 	int i;
 
@@ -1325,12 +1333,12 @@ static void copy_pixels(
 
 /* 32-bit version: it might be useful in the future */
 static void copy_pixels(
-	int wid,
-	int y,
-	int offset,
-	int *xoffsets,
-	GdkRGBImage *old_image,
-	GdkRGBImage *new_image)
+        int wid,
+        int y,
+        int offset,
+        int *xoffsets,
+        GdkRGBImage *old_image,
+        GdkRGBImage *new_image)
 {
 	int i;
 
@@ -1356,11 +1364,11 @@ static void copy_pixels(
  * and return a new GdkRGBImage containing the resized tiles
  */
 static GdkRGBImage *resize_tiles_fast(
-	GdkRGBImage *old_image,
-	int ix,
-	int iy,
-	int ox,
-	int oy)
+        GdkRGBImage *old_image,
+        int ix,
+        int iy,
+        int ox,
+        int oy)
 {
 	GdkRGBImage *new_image;
 
@@ -1409,7 +1417,7 @@ static GdkRGBImage *resize_tiles_fast(
 	/* Half-tile offset so 'line' is centered correctly */
 	rem_tot = new_wid / 2;
 
-	for(i = 0; i < new_wid; i++)
+	for (i = 0; i < new_wid; i++)
 	{
 		/* Store into the table */
 		xoffsets[i] = offset;
@@ -1438,7 +1446,7 @@ static GdkRGBImage *resize_tiles_fast(
 	/* Half-tile offset so 'line' is centered correctly */
 	rem_tot = new_hgt / 2;
 
-	for(i = 0; i < new_hgt; i++)
+	for (i = 0; i < new_hgt; i++)
 	{
 		/* Copy pixels to new image */
 		copy_pixels(new_wid, i, offset, xoffsets, old_image, new_image);
@@ -1467,11 +1475,11 @@ static GdkRGBImage *resize_tiles_fast(
  * image of ox * oy pixels.
  */
 static GdkRGBImage *resize_tiles(
-	GdkRGBImage *im,
-	int ix,
-	int iy,
-	int ox,
-	int oy)
+        GdkRGBImage *im,
+        int ix,
+        int iy,
+        int ox,
+        int oy)
 {
 	GdkRGBImage *result;
 
@@ -1483,7 +1491,7 @@ static GdkRGBImage *resize_tiles(
 	 */
 	if (smooth_rescaling_request && (ix != ox || iy != oy))
 	{
-	    result = resize_tiles_smooth(im, ix, iy, ox, oy);
+		result = resize_tiles_smooth(im, ix, iy, ox, oy);
 	}
 
 	/*
@@ -1492,7 +1500,7 @@ static GdkRGBImage *resize_tiles(
 	 */
 	else
 	{
-	    result = resize_tiles_fast(im, ix, iy, ox, oy);
+		result = resize_tiles_fast(im, ix, iy, ox, oy);
 	}
 
 	/* Return rescaled tiles, or NULL */
@@ -1645,7 +1653,7 @@ static GdkRGBImage *load_xpm(cptr filename)
 	 * symbol-to-colour mapping algorithm...
 	 */
 	if ((width <= 0) || (height <= 0) || (colours <= 0) || (chars <= 0) ||
-	    (chars > 2))
+	                (chars > 2))
 	{
 		/* Notify error */
 		plog("Invalid width/height/depth");
@@ -1715,11 +1723,11 @@ static GdkRGBImage *load_xpm(cptr filename)
 		{
 			/* Angband always uses black background */
 			pal[i].rgb = 0x000000;
-		} 
+		}
 
 		/* Read colour */
 		else if ((1 != sscanf(&buf[j], "#%06lX", &tmp)) &&
-			 (1 != sscanf(&buf[j], "#%06lx", &tmp)))
+		                (1 != sscanf(&buf[j], "#%06lx", &tmp)))
 		{
 			/* Notify error */
 			plog("Badly formatted colour");
@@ -1791,8 +1799,8 @@ static GdkRGBImage *load_xpm(cptr filename)
 
 			/* Find colour */
 			for (h_ptr = head[tmp % HASH_SIZE];
-			     h_ptr != NULL;
-			     h_ptr = h_ptr->next)
+			                h_ptr != NULL;
+			                h_ptr = h_ptr->next)
 			{
 				/* Found a match */
 				if (h_ptr->str == tmp) break;
@@ -1810,10 +1818,10 @@ static GdkRGBImage *load_xpm(cptr filename)
 
 			/* Draw it */
 			gdk_rgb_image_put_pixel(
-				img,
-				j,
-				i,
-				h_ptr->rgb);
+			        img,
+			        j,
+			        i,
+			        h_ptr->rgb);
 		}
 	}
 
@@ -2002,8 +2010,8 @@ GdkRGBImage *load_bmp(cptr filename)
 
 	/* Verify the header */
 	if (feof(f) ||
-	    (file_hdr.type != 19778) ||
-	    (info_hdr.size != 40))
+	                (file_hdr.type != 19778) ||
+	                (info_hdr.size != 40))
 	{
 		plog(format("Incorrect BMP file format %s", filename));
 		fclose(f);
@@ -2067,10 +2075,10 @@ GdkRGBImage *load_bmp(cptr filename)
 				/* Verify not at end of file XXX XXX */
 				if (feof(f))
 				{
-					 plog(format("Unexpected end of file in %s", filename));
-					 gdk_rgb_image_destroy(result);
-					 fclose(f);
-					 return (NULL);
+					plog(format("Unexpected end of file in %s", filename));
+					gdk_rgb_image_destroy(result);
+					fclose(f);
+					return (NULL);
 				}
 
 				c3 = getc(f);
@@ -2086,10 +2094,10 @@ GdkRGBImage *load_bmp(cptr filename)
 
 				/* Draw the pixel */
 				gdk_rgb_image_put_pixel(
-					result,
-					x,
-					y2,
-					(ch << 16) | (c2 << 8) | (c3));
+				        result,
+				        x,
+				        y2,
+				        (ch << 16) | (c2 << 8) | (c3));
 			}
 			else if (info_hdr.bit_count == 8)
 			{
@@ -2105,7 +2113,7 @@ GdkRGBImage *load_bmp(cptr filename)
 			{
 				/* Technically 1 bit is legal too */
 				plog(format("Illegal bit count %d in %s",
-					 info_hdr.bit_count, filename));
+				            info_hdr.bit_count, filename));
 				gdk_rgb_image_destroy(result);
 				fclose(f);
 				return (NULL);
@@ -2184,7 +2192,7 @@ static void graf_nuke()
 		/* Forget stale pointer */
 		td->trans_buf = NULL;
 
-# endif /* USE_TRANSPARENCY */
+# endif  /* USE_TRANSPARENCY */
 
 	}
 }
@@ -2199,9 +2207,9 @@ static void graf_nuke()
  * XXX XXX XXX Windows using the same font should share resized tiles
  */
 static bool graf_init(
-	cptr filename,
-	int tile_wid,
-	int tile_hgt)
+        cptr filename,
+        int tile_wid,
+        int tile_hgt)
 {
 	term_data *td;
 
@@ -2211,7 +2219,7 @@ static bool graf_init(
 
 # ifdef USE_TRANSPARENCY
 	GdkRGBImage *buffer;
-# endif /* USE_TRANSPARENCY */
+# endif  /* USE_TRANSPARENCY */
 
 	int i;
 
@@ -2234,7 +2242,7 @@ static bool graf_init(
 
 	/* Calculate and remember numbers of rows and columns */
 	tile_rows = raw_tiles->height / tile_hgt;
-	tile_cols = raw_tiles->width  / tile_wid;
+	tile_cols = raw_tiles->width / tile_wid;
 
 	/* Be optimistic */
 	result = TRUE;
@@ -2258,8 +2266,8 @@ static bool graf_init(
 
 		/* See if we need rescaled tiles XXX */
 		if ((td->tiles == NULL) ||
-		    (td->tiles->width != td->font_wid * tile_cols) ||
-		    (td->tiles->height != td->font_hgt * tile_rows))
+		                (td->tiles->width != td->tile_wid * tile_cols) ||
+		                (td->tiles->height != td->tile_hgt * tile_rows))
 		{
 			/* Free old tiles if present */
 			if (td->tiles) gdk_rgb_image_destroy(td->tiles);
@@ -2269,11 +2277,9 @@ static bool graf_init(
 
 			/* Scale the tiles to current font bounding rect */
 			scaled_tiles = resize_tiles(
-				raw_tiles,
-				tile_wid,
-				tile_hgt,
-				td->font_wid,
-				td->font_hgt);
+			                       raw_tiles,
+			                       tile_wid, tile_hgt,
+			                       td->tile_wid, td->tile_hgt);
 
 			/* Oops */
 			if (scaled_tiles == NULL)
@@ -2292,8 +2298,8 @@ static bool graf_init(
 
 		/* See if we have to (re)allocate a new buffer XXX */
 		if ((td->trans_buf == NULL) ||
-		    (td->trans_buf->width != td->font_wid) ||
-		    (td->trans_buf->height != td->font_hgt))
+		                (td->trans_buf->width != td->tile_wid) ||
+		                (td->trans_buf->height != td->tile_hgt))
 		{
 			/* Free old buffer if present */
 			if (td->trans_buf) gdk_rgb_image_destroy(td->trans_buf);
@@ -2302,7 +2308,7 @@ static bool graf_init(
 			td->trans_buf = NULL;
 
 			/* Allocate a new buffer */
-			buffer = gdk_rgb_image_new(td->font_wid, td->font_hgt);
+			buffer = gdk_rgb_image_new(td->tile_wid, td->tile_hgt);
 
 			/* Oops */
 			if (buffer == NULL)
@@ -2322,11 +2328,11 @@ static bool graf_init(
 		 * in the background colour XXX XXX XXX XXX
 		 */
 		td->bg_pixel = gdk_rgb_image_get_pixel(
-			raw_tiles,
-			0,
-			tile_hgt * 6);
+		                       raw_tiles,
+		                       0,
+		                       tile_hgt * 6);
 
-# endif /* USE_TRANSPARENCY */
+# endif  /* USE_TRANSPARENCY */
 
 	}
 
@@ -2359,8 +2365,8 @@ static void init_graphics(void)
 
 	/* No graphics requests are made - Can't this be simpler? XXX XXX */
 	if ((graf_mode_request == graf_mode) &&
-	    (smooth_rescaling_request == smooth_rescaling) &&
-	    !resize_request) return;
+	                (smooth_rescaling_request == smooth_rescaling) &&
+	                !resize_request) return;
 
 	/* Prevent further unsolicited reaction */
 	resize_request = FALSE;
@@ -2368,16 +2374,16 @@ static void init_graphics(void)
 
 	/* Dispose unusable old tiles - awkward... XXX XXX */
 	if ((graf_mode_request == GRAF_MODE_NONE) ||
-	    (graf_mode_request != graf_mode) ||
-	    (smooth_rescaling_request != smooth_rescaling)) graf_nuke();
+	                (graf_mode_request != graf_mode) ||
+	                (smooth_rescaling_request != smooth_rescaling)) graf_nuke();
 
 
 	/* Setup parameters according to request */
 	switch (graf_mode_request)
 	{
 		/* ASCII - no graphics whatsoever */
-		default:
-		case GRAF_MODE_NONE:
+	default:
+	case GRAF_MODE_NONE:
 		{
 			tile_name = NULL;
 			use_graphics = arg_graphics = FALSE;
@@ -2394,7 +2400,7 @@ static void init_graphics(void)
 		 *
 		 * Dawnmist is working on it for ToME
 		 */
-		case GRAF_MODE_OLD:
+	case GRAF_MODE_OLD:
 		{
 			tile_name = "8x8";
 			graf_wid = graf_hgt = 8;
@@ -2409,7 +2415,7 @@ static void init_graphics(void)
 		 * "new" tile assignments
 		 * It is updated for ToME by Andreas Koch
 		 */
-		case GRAF_MODE_NEW:
+	case GRAF_MODE_NEW:
 		{
 			tile_name = "16x16";
 			graf_wid = graf_hgt = 16;
@@ -2423,7 +2429,7 @@ static void init_graphics(void)
 
 	/* load tiles and set them up if tiles are requested */
 	if ((graf_mode_request != GRAF_MODE_NONE) &&
-	    !graf_init(tile_name, graf_wid, graf_hgt))
+	                !graf_init(tile_name, graf_wid, graf_hgt))
 	{
 		/* Oops */
 		plog("Cannot initialize graphics");
@@ -2498,7 +2504,7 @@ static void Term_nuke_gtk(term *t)
 	/* Amnesia */
 	td->trans_buf = NULL;
 
-# endif /* USE_TRANSPARENCY */
+# endif  /* USE_TRANSPARENCY */
 
 #endif /* USE_GRAPHICS */
 }
@@ -2520,13 +2526,13 @@ static errr Term_clear_gtk(void)
 
 	/* Clear the area */
 	gdk_draw_rectangle(
-		TERM_DATA_DRAWABLE(td),
-		td->drawing_area->style->black_gc,
-		1,
-		0,
-		0,
-		td->cols * td->font_wid,
-		td->rows * td->font_hgt);
+	        TERM_DATA_DRAWABLE(td),
+	        td->drawing_area->style->black_gc,
+	        1,
+	        0,
+	        0,
+	        td->cols * td->font_wid,
+	        td->rows * td->font_hgt);
 
 	/* Copy image from backing store if present */
 	TERM_DATA_REFRESH(td, 0, 0, td->cols, td->rows);
@@ -2552,13 +2558,13 @@ static errr Term_wipe_gtk(int x, int y, int n)
 
 	/* Fill the area with the background colour */
 	gdk_draw_rectangle(
-		TERM_DATA_DRAWABLE(td),
-		td->drawing_area->style->black_gc,
-		TRUE,
-		x * td->font_wid,
-		y * td->font_hgt,
-		n * td->font_wid,
-		td->font_hgt);
+	        TERM_DATA_DRAWABLE(td),
+	        td->drawing_area->style->black_gc,
+	        TRUE,
+	        x * td->font_wid,
+	        y * td->font_hgt,
+	        n * td->font_wid,
+	        td->font_hgt);
 
 	/* Copy image from backing store if present */
 	TERM_DATA_REFRESH(td, x, y, n, 1);
@@ -2590,13 +2596,13 @@ static errr Term_text_gtk(int x, int y, int n, byte a, cptr s)
 
 	/* Draw the text to the window */
 	gdk_draw_text(
-		TERM_DATA_DRAWABLE(td),
-		td->font,
-		td->gc,
-		x * td->font_wid,
-		td->font->ascent + y * td->font_hgt,
-		s,
-		n);
+	        TERM_DATA_DRAWABLE(td),
+	        td->font,
+	        td->gc,
+	        x * td->font_wid,
+	        td->font->ascent + y * td->font_hgt,
+	        s,
+	        n);
 
 	/* Copy image from backing store if present */
 	TERM_DATA_REFRESH(td, x, y, n, 1);
@@ -2612,6 +2618,7 @@ static errr Term_text_gtk(int x, int y, int n, byte a, cptr s)
 static errr Term_curs_gtk(int x, int y)
 {
 	term_data *td = (term_data*)(Term->data);
+	int cells = 1;
 
 
 	/* Don't draw to hidden windows */
@@ -2623,18 +2630,32 @@ static errr Term_curs_gtk(int x, int y)
 	/* Set foreground colour */
 	term_data_set_fg(td, TERM_YELLOW);
 
+#ifdef USE_DOUBLE_TILES
+
+	/* Mogami's bigtile patch */
+
+	/* Adjust it if wide tiles are requested */
+	if (use_bigtile &&
+	                (x + 1 < Term->wid) &&
+	                (Term->old->a[y][x + 1] == 255))
+	{
+		cells = 2;
+	}
+
+#endif /* USE_DOUBLE_TILES */
+
 	/* Draw the software cursor */
 	gdk_draw_rectangle(
-		TERM_DATA_DRAWABLE(td),
-		td->gc,
-		FALSE,
-		x * td->font_wid,
-		y * td->font_hgt,
-		td->font_wid - 1,
-		td->font_hgt - 1);
+	        TERM_DATA_DRAWABLE(td),
+	        td->gc,
+	        FALSE,
+	        x * td->font_wid,
+	        y * td->font_hgt,
+	        td->font_wid * cells - 1,
+	        td->font_hgt - 1);
 
 	/* Copy image from backing store if present */
-	TERM_DATA_REFRESH(td, x, y, 1, 1);
+	TERM_DATA_REFRESH(td, x, y, cells, 1);
 
 	/* Success */
 	return (0);
@@ -2656,45 +2677,35 @@ static errr Term_curs_gtk(int x, int y)
  * assortment of builtin bitblt's...
  */
 static void overlay_tiles_2(
-	term_data *td,
-	int s_x, int s_y,
-	int t_x, int t_y)
+        term_data *td,
+        int s_x, int s_y,
+        int t_x, int t_y)
 {
 	guint32 pix;
 	int x, y;
 
 
 	/* Process each row */
-	for (y = 0; y < td->font_hgt; y++)
+	for (y = 0; y < td->tile_hgt; y++)
 	{
 		/* Process each column */
-		for (x = 0; x < td->font_wid; x++)
+		for (x = 0; x < td->tile_wid; x++)
 		{
 			/* Get an overlay pixel */
-			pix = gdk_rgb_image_get_pixel(
-				td->tiles,
-				s_x + x,
-				s_y + y);
+			pix = gdk_rgb_image_get_pixel(td->tiles, s_x + x, s_y + y);
 
 			/* If it's in background color, use terrain instead */
 			if (pix == td->bg_pixel)
-				pix = gdk_rgb_image_get_pixel(
-					td->tiles,
-					t_x + x,
-					t_y + y);
+				pix = gdk_rgb_image_get_pixel(td->tiles, t_x + x, t_y + y);
 
 			/* Store the result in trans_buf */
-			gdk_rgb_image_put_pixel(
-				td->trans_buf,
-				x,
-				y,
-				pix);
+			gdk_rgb_image_put_pixel(td->trans_buf, x, y, pix);
 		}
 	}
 }
 
 
-#  ifdef USE_EGO_GRAPHICS
+# ifdef USE_EGO_GRAPHICS
 
 /*
  * XXX XXX Low level graphics helper
@@ -2704,60 +2715,47 @@ static void overlay_tiles_2(
  * XXX XXX The same comment applies as that for the above...
  */
 static void overlay_tiles_3(
-	term_data *td,
-	int e_x, int e_y,
-	int s_x, int s_y,
-	int t_x, int t_y)
+        term_data *td,
+        int e_x, int e_y,
+        int s_x, int s_y,
+        int t_x, int t_y)
 {
 	guint32 pix;
 	int x, y;
 
 
 	/* Process each row */
-	for (y = 0; y < td->font_hgt; y++)
+	for (y = 0; y < td->tile_hgt; y++)
 	{
 		/* Process each column */
-		for (x = 0; x < td->font_wid; x++)
+		for (x = 0; x < td->tile_wid; x++)
 		{
 			/* Get an overlay pixel */
-			pix = gdk_rgb_image_get_pixel(
-				td->tiles,
-				e_x + x,
-				e_y + y);
+			pix = gdk_rgb_image_get_pixel(td->tiles, e_x + x, e_y + y);
 
 			/*
 			 * If it's background colour, try to use one from
 			 * the second layer
 			 */
 			if (pix == td->bg_pixel)
-				pix = gdk_rgb_image_get_pixel(
-					td->tiles,
-					s_x + x,
-					s_y + y);
+				pix = gdk_rgb_image_get_pixel(td->tiles, s_x + x, s_y + y);
 
 			/*
 			 * If it's background colour again, fall back to
 			 * the terrain layer
 			 */
 			if (pix == td->bg_pixel)
-				pix = gdk_rgb_image_get_pixel(
-					td->tiles,
-					t_x + x,
-					t_y + y);
+				pix = gdk_rgb_image_get_pixel(td->tiles, t_x + x, t_y + y);
 
 			/* Store the pixel in trans_buf */
-			gdk_rgb_image_put_pixel(
-				td->trans_buf,
-				x,
-				y,
-				pix);
+			gdk_rgb_image_put_pixel(td->trans_buf, x, y, pix);
 		}
 	}
 }
 
-#  endif /* USE_EGO_GRAPHICS */
+# endif  /* USE_EGO_GRAPHICS */
 
-# endif /* USE_TRANSPARENCY */
+# endif  /* USE_TRANSPARENCY */
 
 
 /*
@@ -2766,29 +2764,36 @@ static void overlay_tiles_3(
  * Draw "n" tiles/characters starting at (x,y)
  */
 # ifdef USE_TRANSPARENCY
-#  ifdef USE_EGO_GRAPHICS
+# ifdef USE_EGO_GRAPHICS
 static errr Term_pict_gtk(
-	int x, int y, int n,
-	const byte *ap, const char *cp,
-	const byte *tap, const char *tcp,
-	const byte *eap, const char *ecp)
-#  else /* USE_EGO_GRAPHICS */
+        int x, int y, int n,
+        const byte *ap, const char *cp,
+        const byte *tap, const char *tcp,
+        const byte *eap, const char *ecp)
+# else /* USE_EGO_GRAPHICS */
 static errr Term_pict_gtk(
-	int x, int y, int n,
-	const byte *ap, const char *cp,
-	const byte *tap, const char *tcp)
-#  endif /* USE_EGO_GRAPHICS */
+        int x, int y, int n,
+        const byte *ap, const char *cp,
+        const byte *tap, const char *tcp)
+# endif  /* USE_EGO_GRAPHICS */
 # else /* USE_TRANSPARENCY */
 static errr Term_pict_gtk(
-	int x, int y, int n,
-	const byte *ap, const char *cp)
-# endif /* USE_TRANSPARENCY */
+        int x, int y, int n,
+        const byte *ap, const char *cp)
+# endif  /* USE_TRANSPARENCY */
 {
 	term_data *td = (term_data*)(Term->data);
 
 	int i;
 
 	int d_x, d_y;
+
+# ifdef USE_DOUBLE_TILES
+
+	/* Hack - remember real number of columns affected XXX XXX XXX */
+	int cols;
+
+# endif  /* USE_DOUBLE_TILES */
 
 
 	/* Don't draw to hidden windows */
@@ -2800,6 +2805,14 @@ static errr Term_pict_gtk(
 	/* Top left corner of the destination rect */
 	d_x = x * td->font_wid;
 	d_y = y * td->font_hgt;
+
+
+# ifdef USE_DOUBLE_TILES
+
+	/* Reset column counter */
+	cols = 0;
+
+# endif  /* USE_DOUBLE_TILES */
 
 	/* Scan the input */
 	for (i = 0; i < n; i++)
@@ -2814,16 +2827,16 @@ static errr Term_pict_gtk(
 		char tc;
 		int t_x, t_y;
 
-#  ifdef USE_EGO_GRAPHICS
+# ifdef USE_EGO_GRAPHICS
 
 		byte ea;
 		char ec;
 		int e_x = 0, e_y = 0;
 		bool has_overlay;
 
-#  endif /* USE_EGO_GRAPHICS */
+# endif  /* USE_EGO_GRAPHICS */
 
-# endif /* USE_TRANSPARENCY */
+# endif  /* USE_TRANSPARENCY */
 
 
 		/* Grid attr/char */
@@ -2836,60 +2849,71 @@ static errr Term_pict_gtk(
 		ta = *tap++;
 		tc = *tcp++;
 
-#  ifdef USE_EGO_GRAPHICS
+# ifdef USE_EGO_GRAPHICS
 
 		/* Overlay attr/char */
 		ea = *eap++;
 		ec = *ecp++;
 		has_overlay = (ea && ec);
 
-#  endif /* USE_EGO_GRAPHICS */
+# endif  /* USE_EGO_GRAPHICS */
 
-# endif /* USE_TRANSPARENCY */
+# endif  /* USE_TRANSPARENCY */
 
 		/* Row and Col */
-		s_y = (((byte)a & 0x7F) % tile_rows) * td->font_hgt;
-		s_x = (((byte)c & 0x7F) % tile_cols) * td->font_wid;
+		s_y = (((byte)a & 0x7F) % tile_rows) * td->tile_hgt;
+		s_x = (((byte)c & 0x7F) % tile_cols) * td->tile_wid;
 
 # ifdef USE_TRANSPARENCY
 
 		/* Terrain Row and Col */
-		t_y = (((byte)ta & 0x7F) % tile_rows) * td->font_hgt;
-		t_x = (((byte)tc & 0x7F) % tile_cols) * td->font_wid;
+		t_y = (((byte)ta & 0x7F) % tile_rows) * td->tile_hgt;
+		t_x = (((byte)tc & 0x7F) % tile_cols) * td->tile_wid;
 
-#  ifdef USE_EGO_GRAPHICS
+# ifdef USE_EGO_GRAPHICS
 
 		/* Overlay Row and Col */
 		if (has_overlay)
 		{
-			e_y = (((byte)ea & 0x7F) % tile_rows) * td->font_hgt;
-			e_x = (((byte)ec & 0x7F) % tile_cols) * td->font_wid;
+			e_y = (((byte)ea & 0x7F) % tile_rows) * td->tile_hgt;
+			e_x = (((byte)ec & 0x7F) % tile_cols) * td->tile_wid;
 		}
 
-#  endif /* USE_EGO_GRAPHICS */
+# endif  /* USE_EGO_GRAPHICS */
 
+
+# ifdef USE_DOUBLE_TILES
+
+		/* Mogami's bigtile patch */
+
+		/* Hack -- a filler for wide tile */
+		if (use_bigtile && (a == 255))
+		{
+			/* Advance */
+			d_x += td->font_wid;
+
+			/* Ignore */
+			continue;
+		}
+
+# endif  /* USE_DOUBLE_TILES */
 
 		/* Optimise the common case: terrain == obj/mons */
 		if (!use_transparency ||
-		    ((s_x == t_x) && (s_y == t_y)))
+		                ((s_x == t_x) && (s_y == t_y)))
 		{
 
-#  ifdef USE_EGO_GRAPHICS
+# ifdef USE_EGO_GRAPHICS
 
 			/* The simplest possible case - no overlay */
 			if (!has_overlay)
 			{
 				/* Draw the tile */
 				gdk_draw_rgb_image_2(
-					TERM_DATA_DRAWABLE(td),
-					td->gc,
-					td->tiles,
-					s_x,
-					s_y,
-					d_x,
-					d_y,
-					td->font_wid,
-					td->font_hgt);
+				        TERM_DATA_DRAWABLE(td), td->gc, td->tiles,
+				        s_x, s_y,
+				        d_x, d_y,
+				        td->tile_wid, td->tile_hgt);
 			}
 
 			/* We have to draw overlay... */
@@ -2900,35 +2924,25 @@ static errr Term_pict_gtk(
 
 				/* And draw the result */
 				gdk_draw_rgb_image_2(
-					TERM_DATA_DRAWABLE(td),
-					td->gc,
-					td->trans_buf,
-					0,
-					0,
-					d_x,
-					d_y,
-					td->font_wid,
-					td->font_hgt);
+				        TERM_DATA_DRAWABLE(td), td->gc, td->trans_buf,
+				        0, 0,
+				        d_x, d_y,
+				        td->tile_wid, td->tile_hgt);
 
 				/* Hack -- Prevent potential display problem */
 				gdk_flush();
 			}
 
-#  else /* USE_EGO_GRAPHICS */
+# else /* USE_EGO_GRAPHICS */
 
 			/* Draw the tile */
 			gdk_draw_rgb_image_2(
-				TERM_DATA_DRAWABLE(td),
-				td->gc,
-				td->tiles,
-				s_x,
-				s_y,
-				d_x,
-				d_y,
-				td->font_wid,
-				td->font_hgt);
+			        TERM_DATA_DRAWABLE(td), td->gc, td->tiles,
+			        s_x, s_y,
+			        d_x, d_y,
+			        td->tile_wid, td->tile_hgt);
 
-#  endif /* USE_EGO_GRAPHICS */
+# endif  /* USE_EGO_GRAPHICS */
 
 		}
 
@@ -2939,12 +2953,12 @@ static errr Term_pict_gtk(
 		else
 		{
 
-#  ifndef USE_EGO_GRAPHICS
+# ifndef USE_EGO_GRAPHICS
 
 			/* Draw mon/PC/obj over terrain */
 			overlay_tiles_2(td, s_x, s_y, t_x, t_y);
 
-#  else /* !USE_EGO_GRAPHICS */
+# else /* !USE_EGO_GRAPHICS */
 
 			/* No overlay */
 			if (!has_overlay)
@@ -2958,22 +2972,17 @@ static errr Term_pict_gtk(
 			{
 				/* Ego over mon/PC over terrain */
 				overlay_tiles_3(td, e_x, e_y, s_x, s_y,
-					t_x, t_y);
+				                t_x, t_y);
 			}
 
-#  endif /* !USE_EGO_GRAPHICS */
+# endif  /* !USE_EGO_GRAPHICS */
 
 			/* Draw it */
 			gdk_draw_rgb_image_2(
-				TERM_DATA_DRAWABLE(td),
-				td->gc,
-				td->trans_buf,
-				0,
-				0,
-				d_x,
-				d_y,
-				td->font_wid,
-				td->font_hgt);
+			        TERM_DATA_DRAWABLE(td), td->gc, td->trans_buf,
+			        0, 0,
+			        d_x, d_y,
+			        td->tile_wid, td->tile_hgt);
 
 			/* Hack -- Prevent potential display problem */
 			gdk_flush();
@@ -2983,24 +2992,38 @@ static errr Term_pict_gtk(
 
 		/* Draw the tile */
 		gdk_draw_rgb_image_2(
-			TERM_DATA_DRAWABLE(td),
-			td->gc,
-			td->tiles,
-			s_x,
-			s_y,
-			d_x,
-			d_y,
-			td->font_wid,
-			td->font_hgt);
+		        TERM_DATA_DRAWABLE(td), td->gc, td->tiles,
+		        s_x, s_y,
+		        d_x, d_y,
+		        td->tile_wid, td->tile_hgt);
 
-# endif /* USE_TRANSPARENCY */
+# endif  /* USE_TRANSPARENCY */
 
-		/* Advance x-coordinate */
+		/*
+		 * Advance x-coordinate - wide font fillers are taken care of
+		 * before entering the tile drawing code.
+		 */
 		d_x += td->font_wid;
+
+# ifdef USE_DOUBLE_TILES
+
+		/* Add up *real* number of columns updated XXX XXX XXX */
+		cols += use_bigtile ? 2 : 1;
+
+# endif  /* USE_DOUBLE_TILES */
 	}
+
+# ifndef USE_DOUBLE_TILES
 
 	/* Copy image from backing store if present */
 	TERM_DATA_REFRESH(td, x, y, n, 1);
+
+# else
+
+	/* Copy image from backing store if present */
+	TERM_DATA_REFRESH(td, x, y, cols, 1);
+
+# endif  /* USE_DOUBLE_TILES */
 
 	/* Success */
 	return (0);
@@ -3039,7 +3062,7 @@ static errr Term_xtra_gtk(int n, int v)
 	switch (n)
 	{
 		/* Make a noise */
-		case TERM_XTRA_NOISE:
+	case TERM_XTRA_NOISE:
 		{
 			/* Beep */
 			gdk_beep();
@@ -3049,7 +3072,7 @@ static errr Term_xtra_gtk(int n, int v)
 		}
 
 		/* Flush the output */
-		case TERM_XTRA_FRESH:
+	case TERM_XTRA_FRESH:
 		{
 			/* Flush pending X requests - almost always no-op */
 			gdk_flush();
@@ -3059,7 +3082,7 @@ static errr Term_xtra_gtk(int n, int v)
 		}
 
 		/* Process random events */
-		case TERM_XTRA_BORED:
+	case TERM_XTRA_BORED:
 		{
 			/* Process a pending event if there's one */
 			CheckEvent(FALSE);
@@ -3069,7 +3092,7 @@ static errr Term_xtra_gtk(int n, int v)
 		}
 
 		/* Process Events */
-		case TERM_XTRA_EVENT:
+	case TERM_XTRA_EVENT:
 		{
 			/* Process an event */
 			CheckEvent(v);
@@ -3079,7 +3102,7 @@ static errr Term_xtra_gtk(int n, int v)
 		}
 
 		/* Flush the events */
-		case TERM_XTRA_FLUSH:
+	case TERM_XTRA_FLUSH:
 		{
 			/* Process all pending events */
 			DrainEvents();
@@ -3089,13 +3112,15 @@ static errr Term_xtra_gtk(int n, int v)
 		}
 
 		/* Handle change in the "level" */
-		case TERM_XTRA_LEVEL: return (0);
+	case TERM_XTRA_LEVEL:
+		return (0);
 
 		/* Clear the screen */
-		case TERM_XTRA_CLEAR: return (Term_clear_gtk());
+	case TERM_XTRA_CLEAR:
+		return (Term_clear_gtk());
 
 		/* Delay for some milliseconds */
-		case TERM_XTRA_DELAY:
+	case TERM_XTRA_DELAY:
 		{
 			/* sleep for v milliseconds */
 			usleep(v * 1000);
@@ -3104,20 +3129,53 @@ static errr Term_xtra_gtk(int n, int v)
 			return (0);
 		}
 
-                /* Get Delay of some milliseconds */
-		case TERM_XTRA_GET_DELAY:
+		/* Get Delay of some milliseconds */
+	case TERM_XTRA_GET_DELAY:
 		{
 			int ret;
 			struct timeval tv;
 
 			ret = gettimeofday(&tv, NULL);
-                        Term_xtra_long = (tv.tv_sec * 1000) + (tv.tv_usec / 1000);
+			Term_xtra_long = (tv.tv_sec * 1000) + (tv.tv_usec / 1000);
 
 			return ret;
 		}
 
+		/* Subdirectory scan */
+	case TERM_XTRA_SCANSUBDIR:
+		{
+			DIR *directory;
+			struct dirent *entry;
+
+			scansubdir_max = 0;
+
+			directory = opendir(scansubdir_dir);
+			if (!directory) return (1);
+
+			while ((entry = readdir(directory)) != NULL)
+			{
+				char file[PATH_MAX + NAME_MAX + 2];
+				struct stat filedata;
+
+				file[PATH_MAX + NAME_MAX] = 0;
+				strncpy(file, scansubdir_dir, PATH_MAX);
+				strncat(file, "/", 2);
+				strncat(file, entry->d_name, NAME_MAX);
+				if ((stat(file, &filedata) == 0) && S_ISDIR(filedata.st_mode))
+				{
+					string_free(scansubdir_result[scansubdir_max]);
+					scansubdir_result[scansubdir_max] =
+					        string_make(entry->d_name);
+					++scansubdir_max;
+				}
+			}
+		}
+
+		/* Rename main window */
+	case TERM_XTRA_RENAME_MAIN_WIN: gtk_window_set_title(GTK_WINDOW(data[0].window), angband_term_name[0]); return (0);
+
 		/* React to changes */
-		case TERM_XTRA_REACT:
+	case TERM_XTRA_REACT:
 		{
 			/* (re-)init colours */
 			init_colours();
@@ -3205,9 +3263,9 @@ static void term_data_set_geometry_hints(term_data *td)
 
 	/* Give the window a new set of resizing hints */
 	gtk_window_set_geometry_hints(GTK_WINDOW(td->window),
-				 td->drawing_area, &geometry,
-				 GDK_HINT_MIN_SIZE | GDK_HINT_MAX_SIZE
-				| GDK_HINT_BASE_SIZE | GDK_HINT_RESIZE_INC);
+	                              td->drawing_area, &geometry,
+	                              GDK_HINT_MIN_SIZE | GDK_HINT_MAX_SIZE
+	                              | GDK_HINT_BASE_SIZE | GDK_HINT_RESIZE_INC);
 }
 
 
@@ -3229,8 +3287,8 @@ static void term_data_set_backing_store(term_data *td)
 
 		/* Continue using it if it's the same with desired size */
 		if (use_backing_store &&
-		    (td->cols * td->font_wid == wid) &&
-		    (td->rows * td->font_hgt == hgt)) return;
+		                (td->cols * td->font_wid == wid) &&
+		                (td->rows * td->font_hgt == hgt)) return;
 
 		/* Free it */
 		gdk_pixmap_unref(td->backing_store);
@@ -3244,23 +3302,23 @@ static void term_data_set_backing_store(term_data *td)
 	{
 		/* Allocate new backing store */
 		td->backing_store = gdk_pixmap_new(
-			td->drawing_area->window,
-			td->cols * td->font_wid,
-			td->rows * td->font_hgt,
-			-1);
+		                            td->drawing_area->window,
+		                            td->cols * td->font_wid,
+		                            td->rows * td->font_hgt,
+		                            -1);
 
 		/* Oops - but we can do without it */
 		g_return_if_fail(td->backing_store != NULL);
 
 		/* Clear the backing store */
 		gdk_draw_rectangle(
-			td->backing_store,
-			td->drawing_area->style->black_gc,
-			TRUE,
-			0,
-			0,
-			td->cols * td->font_wid,
-			td->rows * td->font_hgt);
+		        td->backing_store,
+		        td->drawing_area->style->black_gc,
+		        TRUE,
+		        0,
+		        0,
+		        td->cols * td->font_wid,
+		        td->rows * td->font_hgt);
 	}
 }
 
@@ -3288,7 +3346,7 @@ static void save_game_gtk(void)
 	/* Also for OAngband - the parameter tells if it's autosave */
 	do_cmd_save_game(FALSE);
 #else
-	/* Everything else */
+/* Everything else */
 	do_cmd_save_game();
 #endif /* ZANG_SAVE_GAME */
 }
@@ -3313,18 +3371,18 @@ static void gtk_message(cptr msg)
 
 	/* Ensure that the dialogue box is destroyed when OK is clicked */
 	gtk_signal_connect_object(
-		GTK_OBJECT(ok_button),
-		"clicked",
-		GTK_SIGNAL_FUNC(gtk_widget_destroy),
-		(gpointer)dialog);
+	        GTK_OBJECT(ok_button),
+	        "clicked",
+	        GTK_SIGNAL_FUNC(gtk_widget_destroy),
+	        (gpointer)dialog);
 	gtk_container_add(
-		GTK_CONTAINER(GTK_DIALOG(dialog)->action_area),
-		ok_button);
+	        GTK_CONTAINER(GTK_DIALOG(dialog)->action_area),
+	        ok_button);
 
 	/* Add the label, and show the dialog */
 	gtk_container_add(
-		GTK_CONTAINER(GTK_DIALOG(dialog)->vbox),
-		label);
+	        GTK_CONTAINER(GTK_DIALOG(dialog)->vbox),
+	        label);
 
 	/* And make it modal */
 	gtk_window_set_modal(GTK_WINDOW(dialog), TRUE);
@@ -3348,8 +3406,8 @@ static void hook_plog(cptr str)
  * Process File-Quit menu command
  */
 static void quit_event_handler(
-	GtkButton *was_clicked,
-	gpointer user_data)
+        GtkButton *was_clicked,
+        gpointer user_data)
 {
 	/* Save current game */
 	save_game_gtk();
@@ -3363,8 +3421,8 @@ static void quit_event_handler(
  * Process File-Save menu command
  */
 static void save_event_handler(
-	GtkButton *was_clicked,
-	gpointer user_data)
+        GtkButton *was_clicked,
+        gpointer user_data)
 {
 	/* Save current game */
 	save_game_gtk();
@@ -3375,8 +3433,8 @@ static void save_event_handler(
  * Handle destruction of the Angband window
  */
 static void destroy_main_event_handler(
-	GtkButton *was_clicked,
-	gpointer user_data)
+        GtkButton *was_clicked,
+        gpointer user_data)
 {
 	/* This allows for cheating, but... */
 	quit(NULL);
@@ -3387,8 +3445,8 @@ static void destroy_main_event_handler(
  * Handle destruction of Subwindows
  */
 static void destroy_sub_event_handler(
-	GtkWidget *window,
-	gpointer user_data)
+        GtkWidget *window,
+        gpointer user_data)
 {
 	/* Hide the window */
 	gtk_widget_hide_all(window);
@@ -3401,8 +3459,8 @@ static void destroy_sub_event_handler(
  * Process File-New menu command
  */
 static void new_event_handler(
-	GtkButton *was_clicked,
-	gpointer user_data)
+        GtkButton *was_clicked,
+        gpointer user_data)
 {
 	if (game_in_progress)
 	{
@@ -3454,6 +3512,21 @@ static void load_font(term_data *td, cptr fontname)
 	/* Calculate the size of the font XXX */
 	td->font_wid = gdk_char_width(td->font, '@');
 	td->font_hgt = td->font->ascent + td->font->descent;
+
+#ifndef USE_DOUBLE_TILES
+
+	/* Use the current font size for tiles as well */
+	td->tile_wid = td->font_wid;
+	td->tile_hgt = td->font_hgt;
+
+#else /* !USE_DOUBLE_TILES */
+
+	/* Calculate the size of tiles */
+	if (use_bigtile && (td == &data[0])) td->tile_wid = td->font_wid * 2;
+	else td->tile_wid = td->font_wid;
+	td->tile_hgt = td->font_hgt;
+
+#endif /* !USE_DOUBLE_TILES */
 }
 
 
@@ -3461,8 +3534,8 @@ static void load_font(term_data *td, cptr fontname)
  * React to OK button press in font selection dialogue
  */
 static void font_ok_callback(
-	GtkWidget *widget,
-	GtkWidget *font_selector)
+        GtkWidget *widget,
+        GtkWidget *font_selector)
 {
 	gchar *fontname;
 	term_data *td;
@@ -3473,7 +3546,7 @@ static void font_ok_callback(
 
 	/* Retrieve font name from player's selection */
 	fontname = gtk_font_selection_dialog_get_font_name(
-		GTK_FONT_SELECTION_DIALOG(font_selector));
+	                   GTK_FONT_SELECTION_DIALOG(font_selector));
 
 	/* Leave unless selection was valid */
 	if (fontname == NULL) return;
@@ -3486,9 +3559,9 @@ static void font_ok_callback(
 
 	/* Resizes the drawing area */
 	gtk_drawing_area_size(
-		GTK_DRAWING_AREA(td->drawing_area),
-		td->cols * td->font_wid,
-		td->rows * td->font_hgt);
+	        GTK_DRAWING_AREA(td->drawing_area),
+	        td->cols * td->font_wid,
+	        td->rows * td->font_hgt);
 
 	/* Update the geometry hints for the window */
 	term_data_set_geometry_hints(td);
@@ -3515,8 +3588,8 @@ static void font_ok_callback(
  * Process Options-Font-* menu command
  */
 static void change_font_event_handler(
-	GtkWidget *widget,
-	gpointer user_data)
+        GtkWidget *widget,
+        gpointer user_data)
 {
 	GtkWidget *font_selector;
 
@@ -3525,43 +3598,43 @@ static void change_font_event_handler(
 	font_selector = gtk_font_selection_dialog_new("Select font");
 
 	gtk_object_set_data(
-		GTK_OBJECT(font_selector),
-		"term_data",
-		user_data);
+	        GTK_OBJECT(font_selector),
+	        "term_data",
+	        user_data);
 
 	/* Filter to show only fixed-width fonts */
 	gtk_font_selection_dialog_set_filter(
-		GTK_FONT_SELECTION_DIALOG(font_selector),
-		GTK_FONT_FILTER_BASE,
-		GTK_FONT_ALL,
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		spacings,
-		NULL);
+	        GTK_FONT_SELECTION_DIALOG(font_selector),
+	        GTK_FONT_FILTER_BASE,
+	        GTK_FONT_ALL,
+	        NULL,
+	        NULL,
+	        NULL,
+	        NULL,
+	        spacings,
+	        NULL);
 
 	gtk_signal_connect(
-		GTK_OBJECT(GTK_FONT_SELECTION_DIALOG(font_selector)->ok_button),
-		"clicked",
-		font_ok_callback,
-		(gpointer)font_selector);
+	        GTK_OBJECT(GTK_FONT_SELECTION_DIALOG(font_selector)->ok_button),
+	        "clicked",
+	        font_ok_callback,
+	        (gpointer)font_selector);
 
 	/*
 	 * Ensure that the dialog box is destroyed when the user clicks
 	 * a button.
 	 */
 	gtk_signal_connect_object(
-		GTK_OBJECT(GTK_FONT_SELECTION_DIALOG(font_selector)->ok_button),
-		"clicked",
-		GTK_SIGNAL_FUNC(gtk_widget_destroy),
-		(gpointer)font_selector);
+	        GTK_OBJECT(GTK_FONT_SELECTION_DIALOG(font_selector)->ok_button),
+	        "clicked",
+	        GTK_SIGNAL_FUNC(gtk_widget_destroy),
+	        (gpointer)font_selector);
 
 	gtk_signal_connect_object(
-		GTK_OBJECT(GTK_FONT_SELECTION_DIALOG(font_selector)->cancel_button),
-		"clicked",
-		GTK_SIGNAL_FUNC(gtk_widget_destroy),
-		(gpointer)font_selector);
+	        GTK_OBJECT(GTK_FONT_SELECTION_DIALOG(font_selector)->cancel_button),
+	        "clicked",
+	        GTK_SIGNAL_FUNC(gtk_widget_destroy),
+	        (gpointer)font_selector);
 
 	gtk_widget_show(GTK_WIDGET(font_selector));
 }
@@ -3571,8 +3644,8 @@ static void change_font_event_handler(
  * Process Terms-* menu command - hide/show terminal window
  */
 static void term_event_handler(
-	GtkWidget *widget,
-	gpointer user_data)
+        GtkWidget *widget,
+        gpointer user_data)
 {
 	term_data *td = (term_data *)user_data;
 
@@ -3600,8 +3673,8 @@ static void term_event_handler(
  * setup / remove backing store for each term
  */
 static void change_backing_store_event_handler(
-	GtkButton *was_clicked,
-	gpointer user_data)
+        GtkButton *was_clicked,
+        gpointer user_data)
 {
 	int i;
 
@@ -3623,8 +3696,8 @@ static void change_backing_store_event_handler(
  * and let Term_xtra react to the change.
  */
 static void change_graf_mode_event_handler(
-	GtkButton *was_clicked,
-	gpointer user_data)
+        GtkButton *was_clicked,
+        gpointer user_data)
 {
 	/* Set request according to user selection */
 	graf_mode_request = (int)user_data;
@@ -3641,8 +3714,8 @@ static void change_graf_mode_event_handler(
  * Set dither_mode according to user selection
  */
 static void change_dith_mode_event_handler(
-	GtkButton *was_clicked,
-	gpointer user_data)
+        GtkButton *was_clicked,
+        gpointer user_data)
 {
 	/* Set request according to user selection */
 	dith_mode = (int)user_data;
@@ -3658,8 +3731,8 @@ static void change_dith_mode_event_handler(
  * Toggles the graphics tile scaling mode (Fast/Smooth)
  */
 static void change_smooth_mode_event_handler(
-	GtkButton *was_clicked,
-	gpointer user_data)
+        GtkButton *was_clicked,
+        gpointer user_data)
 {
 	/* (Try to) toggle the smooth rescaling mode */
 	smooth_rescaling_request = !smooth_rescaling;
@@ -3672,14 +3745,62 @@ static void change_smooth_mode_event_handler(
 }
 
 
+# ifdef USE_DOUBLE_TILES
+
+static void change_wide_tile_mode_event_handler(
+        GtkButton *was_clicked,
+        gpointer user_data)
+{
+	term *old = Term;
+	term_data *td = &data[0];
+
+	/* Toggle "use_bigtile" */
+	use_bigtile = !use_bigtile;
+
+#ifdef TOME
+	/* T.o.M.E. requires this as well */
+	arg_bigtile = use_bigtile;
+#endif /* TOME */
+
+	/* Double the width of tiles (only for the main window) */
+	if (use_bigtile)
+	{
+		td->tile_wid = td->font_wid * 2;
+	}
+
+	/* Use the width of current font */
+	else
+	{
+		td->tile_wid = td->font_wid;
+	}
+
+	/* Need to resize the tiles */
+	resize_request = TRUE;
+
+	/* Activate the main window */
+	Term_activate(&td->t);
+
+	/* Resize the term */
+	Term_resize(td->cols, td->rows);
+
+	/* Activate the old term */
+	Term_activate(old);
+
+	/* Hack - force redraw XXX ??? XXX */
+	Term_key_push(KTRL('R'));
+}
+
+# endif  /* USE_DOUBLE_TILES */
+
+
 # ifdef USE_TRANSPARENCY
 
 /*
  * Toggles the boolean value of use_transparency
  */
 static void change_trans_mode_event_handler(
-	GtkButton *was_clicked,
-	gpointer user_data)
+        GtkButton *was_clicked,
+        gpointer user_data)
 {
 	/* Toggle the transparency mode */
 	use_transparency = !use_transparency;
@@ -3688,7 +3809,7 @@ static void change_trans_mode_event_handler(
 	Term_key_push(KTRL('R'));
 }
 
-# endif /* USE_TRANSPARENCY */
+# endif  /* USE_TRANSPARENCY */
 
 #endif /* USE_GRAPHICS */
 
@@ -3700,11 +3821,11 @@ static void change_trans_mode_event_handler(
  * so this is the right place to start a game.
  */
 static void file_ok_callback(
-	GtkWidget *widget,
-	GtkWidget *file_selector)
+        GtkWidget *widget,
+        GtkWidget *file_selector)
 {
 	strcpy(savefile,
-	  gtk_file_selection_get_filename(GTK_FILE_SELECTION(file_selector)));
+	       gtk_file_selection_get_filename(GTK_FILE_SELECTION(file_selector)));
 
 	gtk_widget_destroy(file_selector);
 
@@ -3729,8 +3850,8 @@ static void file_ok_callback(
  * Process File-Open menu command
  */
 static void open_event_handler(
-	GtkButton *was_clicked,
-	gpointer user_data)
+        GtkButton *was_clicked,
+        gpointer user_data)
 {
 	GtkWidget *file_selector;
 	char buf[1024];
@@ -3747,29 +3868,29 @@ static void open_event_handler(
 
 	file_selector = gtk_file_selection_new("Select a savefile");
 	gtk_file_selection_set_filename(
-		GTK_FILE_SELECTION(file_selector),
-		buf);
+	        GTK_FILE_SELECTION(file_selector),
+	        buf);
 	gtk_signal_connect(
-		GTK_OBJECT(GTK_FILE_SELECTION(file_selector)->ok_button),
-		"clicked",
-		file_ok_callback,
-		(gpointer)file_selector);
+	        GTK_OBJECT(GTK_FILE_SELECTION(file_selector)->ok_button),
+	        "clicked",
+	        file_ok_callback,
+	        (gpointer)file_selector);
 
 	/*
 	 * Ensure that the dialog box is destroyed when the user
 	 * clicks a button.
 	 */
 	gtk_signal_connect_object(
-		GTK_OBJECT(GTK_FILE_SELECTION(file_selector)->ok_button),
-		"clicked",
-		GTK_SIGNAL_FUNC(gtk_widget_destroy),
-		(gpointer)file_selector);
+	        GTK_OBJECT(GTK_FILE_SELECTION(file_selector)->ok_button),
+	        "clicked",
+	        GTK_SIGNAL_FUNC(gtk_widget_destroy),
+	        (gpointer)file_selector);
 
 	gtk_signal_connect_object(
-		GTK_OBJECT(GTK_FILE_SELECTION(file_selector)->cancel_button),
-		"clicked",
-		GTK_SIGNAL_FUNC(gtk_widget_destroy),
-		(gpointer)file_selector);
+	        GTK_OBJECT(GTK_FILE_SELECTION(file_selector)->cancel_button),
+	        "clicked",
+	        GTK_SIGNAL_FUNC(gtk_widget_destroy),
+	        (gpointer)file_selector);
 
 	gtk_window_set_modal(GTK_WINDOW(file_selector), TRUE);
 	gtk_widget_show(GTK_WIDGET(file_selector));
@@ -3782,9 +3903,9 @@ static void open_event_handler(
  * React to "delete" signal sent to Window widgets
  */
 static gboolean delete_event_handler(
-	GtkWidget *widget,
-	GdkEvent *event,
-	gpointer user_data)
+        GtkWidget *widget,
+        GdkEvent *event,
+        gpointer user_data)
 {
 	/* Save game if possible */
 	save_game_gtk();
@@ -3799,9 +3920,9 @@ static gboolean delete_event_handler(
  * for game
  */
 static gboolean keypress_event_handler(
-	GtkWidget *widget,
-	GdkEventKey *event,
-	gpointer user_data)
+        GtkWidget *widget,
+        GdkEventKey *event,
+        gpointer user_data)
 {
 	int i, mc, ms, mo, mx;
 
@@ -3819,7 +3940,7 @@ static gboolean keypress_event_handler(
 	 * Parse shifted numeric (keypad) keys specially.
 	 */
 	if ((event->state == GDK_SHIFT_MASK)
-		&& (event->keyval >= GDK_KP_0) && (event->keyval <= GDK_KP_9))
+	                && (event->keyval >= GDK_KP_0) && (event->keyval <= GDK_KP_9))
 	{
 		/* Build the macro trigger string */
 		strnfmt(msg, 128, "%cS_%X%c", 31, event->keyval, 13);
@@ -3850,45 +3971,45 @@ static gboolean keypress_event_handler(
 	/* Handle a few standard keys (bypass modifiers) XXX XXX XXX */
 	switch ((uint) event->keyval)
 	{
-		case GDK_Escape:
+	case GDK_Escape:
 		{
 			Term_keypress(ESCAPE);
 			return (TRUE);
 		}
 
-		case GDK_Return:
+	case GDK_Return:
 		{
 			Term_keypress('\r');
 			return (TRUE);
 		}
 
-		case GDK_Tab:
+	case GDK_Tab:
 		{
 			Term_keypress('\t');
 			return (TRUE);
 		}
 
-		case GDK_Delete:
-		case GDK_BackSpace:
+	case GDK_Delete:
+	case GDK_BackSpace:
 		{
 			Term_keypress('\010');
 			return (TRUE);
 		}
 
-		case GDK_Shift_L:
-		case GDK_Shift_R:
-		case GDK_Control_L:
-		case GDK_Control_R:
-		case GDK_Caps_Lock:
-		case GDK_Shift_Lock:
-		case GDK_Meta_L:
-		case GDK_Meta_R:
-		case GDK_Alt_L:
-		case GDK_Alt_R:
-		case GDK_Super_L:
-		case GDK_Super_R:
-		case GDK_Hyper_L:
-		case GDK_Hyper_R:
+	case GDK_Shift_L:
+	case GDK_Shift_R:
+	case GDK_Control_L:
+	case GDK_Control_R:
+	case GDK_Caps_Lock:
+	case GDK_Shift_Lock:
+	case GDK_Meta_L:
+	case GDK_Meta_R:
+	case GDK_Alt_L:
+	case GDK_Alt_R:
+	case GDK_Super_L:
+	case GDK_Super_R:
+	case GDK_Hyper_L:
+	case GDK_Hyper_R:
 		{
 			/* Hack - do nothing to control characters */
 			return (TRUE);
@@ -3897,9 +4018,9 @@ static gboolean keypress_event_handler(
 
 	/* Build the macro trigger string */
 	strnfmt(msg, 128, "%c%s%s%s%s_%X%c", 31,
-		mc ? "N" : "", ms ? "S" : "",
-		mo ? "O" : "", mx ? "M" : "",
-		event->keyval, 13);
+	        mc ? "N" : "", ms ? "S" : "",
+	        mo ? "O" : "", mx ? "M" : "",
+	        event->keyval, 13);
 
 	/* Enqueue the "macro trigger" string */
 	for (i = 0; msg[i]; i++) Term_keypress(msg[i]);
@@ -3922,8 +4043,8 @@ static gboolean keypress_event_handler(
  * area is shown first time.
  */
 static void realize_event_handler(
-	GtkWidget *widget,
-	gpointer user_data)
+        GtkWidget *widget,
+        gpointer user_data)
 {
 	term_data *td = (term_data *)user_data;
 
@@ -3942,13 +4063,13 @@ static void realize_event_handler(
 
 	/* Clear the window */
 	gdk_draw_rectangle(
-		widget->window,
-		widget->style->black_gc,
-		TRUE,
-		0,
-		0,
-		td->cols * td->font_wid,
-		td->rows * td->font_hgt);
+	        widget->window,
+	        widget->style->black_gc,
+	        TRUE,
+	        0,
+	        0,
+	        td->cols * td->font_wid,
+	        td->rows * td->font_hgt);
 }
 
 
@@ -3956,8 +4077,8 @@ static void realize_event_handler(
  * Widget customisation (for drawing area) - "show" signal
  */
 static void show_event_handler(
-	GtkWidget *widget,
-	gpointer user_data)
+        GtkWidget *widget,
+        gpointer user_data)
 {
 	term_data *td = (term_data *)user_data;
 
@@ -3970,8 +4091,8 @@ static void show_event_handler(
  * Widget customisation (for drawing area) - "hide" signal
  */
 static void hide_event_handler(
-	GtkWidget *widget,
-	gpointer user_data)
+        GtkWidget *widget,
+        gpointer user_data)
 {
 	term_data *td = (term_data *)user_data;
 
@@ -3984,9 +4105,9 @@ static void hide_event_handler(
  * Widget customisation (for drawing area)- handle size allocation requests
  */
 static void size_allocate_event_handler(
-	GtkWidget *widget,
-	GtkAllocation *allocation,
-	gpointer user_data)
+        GtkWidget *widget,
+        GtkAllocation *allocation,
+        gpointer user_data)
 {
 	term_data *td = user_data;
 	int old_rows, old_cols;
@@ -4021,11 +4142,11 @@ static void size_allocate_event_handler(
 
 		/* Actually handles resizing in Gtk */
 		gdk_window_move_resize(
-			widget->window,
-			allocation->x,
-			allocation->y,
-			allocation->width,
-			allocation->height);
+		        widget->window,
+		        allocation->x,
+		        allocation->y,
+		        allocation->width,
+		        allocation->height);
 
 		/* And in the term package */
 		Term_activate(&td->t);
@@ -4050,9 +4171,9 @@ static void size_allocate_event_handler(
  * Update exposed area in a window (for drawing area)
  */
 static gboolean expose_event_handler(
-	GtkWidget *widget,
-	GdkEventExpose *event,
-	gpointer user_data)
+        GtkWidget *widget,
+        GdkEventExpose *event,
+        gpointer user_data)
 {
 	term_data *td = user_data;
 
@@ -4073,15 +4194,15 @@ static gboolean expose_event_handler(
 	{
 		/* Simply restore the exposed area from the backing store */
 		gdk_draw_pixmap(
-			td->drawing_area->window,
-			td->gc,
-			td->backing_store,
-			event->area.x,
-			event->area.y,
-			event->area.x,
-			event->area.y,
-			event->area.width,
-			event->area.height);
+		        td->drawing_area->window,
+		        td->gc,
+		        td->backing_store,
+		        event->area.x,
+		        event->area.y,
+		        event->area.x,
+		        event->area.y,
+		        event->area.width,
+		        event->area.height);
 	}
 
 	/* No backing store - use the game's code to redraw the area */
@@ -4091,7 +4212,7 @@ static gboolean expose_event_handler(
 		/* Activate the relevant term */
 		Term_activate(&td->t);
 
-# ifdef NO_REDRAW_SECTION	
+# ifdef NO_REDRAW_SECTION
 
 		/* K.I.S.S. version */
 
@@ -4120,7 +4241,7 @@ static gboolean expose_event_handler(
 		/* Redraw the area */
 		Term_redraw_section(x1, y1, x2, y2);
 
-# endif /* NO_REDRAW_SECTION */
+# endif  /* NO_REDRAW_SECTION */
 
 		/* Refresh */
 		Term_fresh();
@@ -4202,7 +4323,8 @@ static GtkItemFactoryEntry main_menu_items[] =
 {
 	/* "File" menu */
 	{ "/File", NULL,
-	  NULL, 0, "<Branch>" },
+	  NULL, 0, "<Branch>"
+	},
 #ifndef SAVEFILE_SCREEN
 	{ "/File/New", "<mod1>N",
 	  new_event_handler, 0, NULL },
@@ -4273,6 +4395,12 @@ static GtkItemFactoryEntry main_menu_items[] =
 	  change_graf_mode_event_handler, GRAF_MODE_OLD, "<CheckItem>" },
 	{ "/Options/Graphics/New", NULL,
 	  change_graf_mode_event_handler, GRAF_MODE_NEW, "<CheckItem>" },
+# ifdef USE_DOUBLE_TILES
+	{ "/Options/Graphics/sep3", NULL,
+	  NULL, 0, "<Separator>" },
+	{ "/Options/Graphics/Wide tiles", NULL,
+	  change_wide_tile_mode_event_handler, 0, "<CheckItem>" },
+# endif  /* USE_DOUBLE_TILES */
 	{ "/Options/Graphics/sep1", NULL,
 	  NULL, 0, "<Separator>" },
 	{ "/Options/Graphics/Dither if <= 8bpp", NULL,
@@ -4286,7 +4414,7 @@ static GtkItemFactoryEntry main_menu_items[] =
 # ifdef USE_TRANSPARENCY
 	{ "/Options/Graphics/Transparency", NULL,
 	  change_trans_mode_event_handler, 0, "<CheckItem>" },
-# endif /* USE_TRANSPARENCY */
+# endif  /* USE_TRANSPARENCY */
 
 #endif /* USE_GRAPHICS */
 
@@ -4483,8 +4611,8 @@ void check_menu_item(cptr path, bool checked)
  * Update the "File" menu
  */
 static void file_menu_update_handler(
-	GtkWidget *widget,
-	gpointer user_data)
+        GtkWidget *widget,
+        gpointer user_data)
 {
 #ifndef SAVEFILE_SCREEN
 	bool game_start_ok;
@@ -4524,8 +4652,8 @@ static void file_menu_update_handler(
  * Update the "Terms" menu
  */
 static void term_menu_update_handler(
-	GtkWidget *widget,
-	gpointer user_data)
+        GtkWidget *widget,
+        gpointer user_data)
 {
 	int i;
 	char buf[64];
@@ -4546,8 +4674,8 @@ static void term_menu_update_handler(
  * Update the "Font" submenu
  */
 static void font_menu_update_handler(
-	GtkWidget *widget,
-	gpointer user_data)
+        GtkWidget *widget,
+        gpointer user_data)
 {
 	int i;
 	char buf[64];
@@ -4568,13 +4696,13 @@ static void font_menu_update_handler(
  * Update the "Misc" submenu
  */
 static void misc_menu_update_handler(
-	GtkWidget *widget,
-	gpointer user_data)
+        GtkWidget *widget,
+        gpointer user_data)
 {
 	/* Update an item */
 	check_menu_item(
-		"<Angband>/Options/Misc/Backing store",
-		use_backing_store);
+	        "<Angband>/Options/Misc/Backing store",
+	        use_backing_store);
 }
 
 
@@ -4584,38 +4712,46 @@ static void misc_menu_update_handler(
  * Update the "Graphics" submenu
  */
 static void graf_menu_update_handler(
-	GtkWidget *widget,
-	gpointer user_data)
+        GtkWidget *widget,
+        gpointer user_data)
 {
 	/* Update menu items */
 	check_menu_item(
-		"<Angband>/Options/Graphics/None",
-		(graf_mode == GRAF_MODE_NONE));
+	        "<Angband>/Options/Graphics/None",
+	        (graf_mode == GRAF_MODE_NONE));
 	check_menu_item(
-		"<Angband>/Options/Graphics/Old",
-		(graf_mode == GRAF_MODE_OLD));
+	        "<Angband>/Options/Graphics/Old",
+	        (graf_mode == GRAF_MODE_OLD));
 	check_menu_item(
-		"<Angband>/Options/Graphics/New",
-		(graf_mode == GRAF_MODE_NEW));
+	        "<Angband>/Options/Graphics/New",
+	        (graf_mode == GRAF_MODE_NEW));
+
+#ifdef USE_DOUBLE_TILES
 
 	check_menu_item(
-		"<Angband>/Options/Graphics/Dither if <= 8bpp",
-		(dith_mode == GDK_RGB_DITHER_NORMAL));
-	check_menu_item(
-		"<Angband>/Options/Graphics/Dither if <= 16bpp",
-		(dith_mode == GDK_RGB_DITHER_MAX));
+	        "<Angband>/Options/Graphics/Wide tiles",
+	        use_bigtile);
+
+#endif /* USE_DOUBLE_TILES */
 
 	check_menu_item(
-		"<Angband>/Options/Graphics/Smoothing",
-		smooth_rescaling);
+	        "<Angband>/Options/Graphics/Dither if <= 8bpp",
+	        (dith_mode == GDK_RGB_DITHER_NORMAL));
+	check_menu_item(
+	        "<Angband>/Options/Graphics/Dither if <= 16bpp",
+	        (dith_mode == GDK_RGB_DITHER_MAX));
+
+	check_menu_item(
+	        "<Angband>/Options/Graphics/Smoothing",
+	        smooth_rescaling);
 
 # ifdef USE_TRANSPARENCY
 
 	check_menu_item(
-		"<Angband>/Options/Graphics/Transparency",
-		use_transparency);
+	        "<Angband>/Options/Graphics/Transparency",
+	        use_transparency);
 
-# endif /* USE_TRANSPARENCY */
+# endif  /* USE_TRANSPARENCY */
 }
 
 #endif /* USE_GRAPHICS */
@@ -4642,22 +4778,22 @@ GtkWidget *get_main_menu(term_data *td)
 
 	/* Initialise the item factory */
 	item_factory = gtk_item_factory_new(
-		GTK_TYPE_MENU_BAR,
-		"<Angband>",
-		accel_group);
+	                       GTK_TYPE_MENU_BAR,
+	                       "<Angband>",
+	                       accel_group);
 	g_assert(item_factory != NULL);
 
 	/* Generate the menu items */
 	gtk_item_factory_create_items(
-		item_factory,
-		nmenu_items,
-		main_menu_items,
-		NULL);
+	        item_factory,
+	        nmenu_items,
+	        main_menu_items,
+	        NULL);
 
 	/* Attach the new accelerator group to the window */
 	gtk_window_add_accel_group(
-		GTK_WINDOW(td->window),
-		accel_group);
+	        GTK_WINDOW(td->window),
+	        accel_group);
 
 	/* Return the actual menu bar created */
 	return (gtk_item_factory_get_widget(item_factory, "<Angband>"));
@@ -4680,10 +4816,10 @@ static void add_menu_update_callbacks()
 
 	/* Assign callback */
 	gtk_signal_connect(
-		GTK_OBJECT(widget),
-		"show",
-		GTK_SIGNAL_FUNC(file_menu_update_handler),
-		NULL);
+	        GTK_OBJECT(widget),
+	        "show",
+	        GTK_SIGNAL_FUNC(file_menu_update_handler),
+	        NULL);
 
 	/* Access the "Terms" menu */
 	widget = get_widget_from_path("<Angband>/Terms");
@@ -4694,10 +4830,10 @@ static void add_menu_update_callbacks()
 
 	/* Assign callback */
 	gtk_signal_connect(
-		GTK_OBJECT(widget),
-		"show",
-		GTK_SIGNAL_FUNC(term_menu_update_handler),
-		NULL);
+	        GTK_OBJECT(widget),
+	        "show",
+	        GTK_SIGNAL_FUNC(term_menu_update_handler),
+	        NULL);
 
 	/* Access the "Font" menu */
 	widget = get_widget_from_path("<Angband>/Options/Font");
@@ -4708,10 +4844,10 @@ static void add_menu_update_callbacks()
 
 	/* Assign callback */
 	gtk_signal_connect(
-		GTK_OBJECT(widget),
-		"show",
-		GTK_SIGNAL_FUNC(font_menu_update_handler),
-		NULL);
+	        GTK_OBJECT(widget),
+	        "show",
+	        GTK_SIGNAL_FUNC(font_menu_update_handler),
+	        NULL);
 
 	/* Access the "Misc" menu */
 	widget = get_widget_from_path("<Angband>/Options/Misc");
@@ -4722,10 +4858,10 @@ static void add_menu_update_callbacks()
 
 	/* Assign callback */
 	gtk_signal_connect(
-		GTK_OBJECT(widget),
-		"show",
-		GTK_SIGNAL_FUNC(misc_menu_update_handler),
-		NULL);
+	        GTK_OBJECT(widget),
+	        "show",
+	        GTK_SIGNAL_FUNC(misc_menu_update_handler),
+	        NULL);
 
 #ifdef USE_GRAPHICS
 
@@ -4738,10 +4874,10 @@ static void add_menu_update_callbacks()
 
 	/* Assign callback */
 	gtk_signal_connect(
-		GTK_OBJECT(widget),
-		"show",
-		GTK_SIGNAL_FUNC(graf_menu_update_handler),
-		NULL);
+	        GTK_OBJECT(widget),
+	        "show",
+	        GTK_SIGNAL_FUNC(graf_menu_update_handler),
+	        NULL);
 
 #endif /* USE_GRAPHICS */
 }
@@ -4777,9 +4913,9 @@ static void init_gtk_window(term_data *td, int i)
 
 	/* Set the size of the drawing area */
 	gtk_drawing_area_size(
-		GTK_DRAWING_AREA(td->drawing_area),
-		td->cols * td->font_wid,
-		td->rows * td->font_hgt);
+	        GTK_DRAWING_AREA(td->drawing_area),
+	        td->cols * td->font_wid,
+	        td->rows * td->font_hgt);
 
 	/* Set geometry hints */
 	term_data_set_geometry_hints(td);
@@ -4787,63 +4923,63 @@ static void init_gtk_window(term_data *td, int i)
 
 	/* Install window event handlers */
 	gtk_signal_connect(
-		GTK_OBJECT(td->window),
-		"delete_event",
-		GTK_SIGNAL_FUNC(delete_event_handler),
-		NULL);
+	        GTK_OBJECT(td->window),
+	        "delete_event",
+	        GTK_SIGNAL_FUNC(delete_event_handler),
+	        NULL);
 	gtk_signal_connect(
-		GTK_OBJECT(td->window),
-		"key_press_event",
-		GTK_SIGNAL_FUNC(keypress_event_handler),
-		NULL);
+	        GTK_OBJECT(td->window),
+	        "key_press_event",
+	        GTK_SIGNAL_FUNC(keypress_event_handler),
+	        NULL);
 
 	/* Destroying the Angband window terminates the game */
 	if (main_window)
 	{
 		gtk_signal_connect(
-			GTK_OBJECT(td->window),
-			"destroy_event",
-			GTK_SIGNAL_FUNC(destroy_main_event_handler),
-			NULL);
+		        GTK_OBJECT(td->window),
+		        "destroy_event",
+		        GTK_SIGNAL_FUNC(destroy_main_event_handler),
+		        NULL);
 	}
 
 	/* The other windows are just hidden */
 	else
 	{
 		gtk_signal_connect(
-			GTK_OBJECT(td->window),
-			"destroy_event",
-			GTK_SIGNAL_FUNC(destroy_sub_event_handler),
-			td);
+		        GTK_OBJECT(td->window),
+		        "destroy_event",
+		        GTK_SIGNAL_FUNC(destroy_sub_event_handler),
+		        td);
 	}
 
 
 	/* Install drawing area event handlers */
 	gtk_signal_connect(
-		GTK_OBJECT(td->drawing_area),
-		"realize",
-		GTK_SIGNAL_FUNC(realize_event_handler),
-		(gpointer)td);
+	        GTK_OBJECT(td->drawing_area),
+	        "realize",
+	        GTK_SIGNAL_FUNC(realize_event_handler),
+	        (gpointer)td);
 	gtk_signal_connect(
-		GTK_OBJECT(td->drawing_area),
-		"show",
-		GTK_SIGNAL_FUNC(show_event_handler),
-		(gpointer)td);
+	        GTK_OBJECT(td->drawing_area),
+	        "show",
+	        GTK_SIGNAL_FUNC(show_event_handler),
+	        (gpointer)td);
 	gtk_signal_connect(
-		GTK_OBJECT(td->drawing_area),
-		"hide",
-		GTK_SIGNAL_FUNC(hide_event_handler),
-		(gpointer)td);
+	        GTK_OBJECT(td->drawing_area),
+	        "hide",
+	        GTK_SIGNAL_FUNC(hide_event_handler),
+	        (gpointer)td);
 	gtk_signal_connect(
-		GTK_OBJECT(td->drawing_area),
-		"size_allocate",
-		GTK_SIGNAL_FUNC(size_allocate_event_handler),
-		(gpointer)td);
+	        GTK_OBJECT(td->drawing_area),
+	        "size_allocate",
+	        GTK_SIGNAL_FUNC(size_allocate_event_handler),
+	        (gpointer)td);
 	gtk_signal_connect(
-		GTK_OBJECT(td->drawing_area),
-		"expose_event",
-		GTK_SIGNAL_FUNC(expose_event_handler),
-		(gpointer)td);
+	        GTK_OBJECT(td->drawing_area),
+	        "expose_event",
+	        GTK_SIGNAL_FUNC(expose_event_handler),
+	        (gpointer)td);
 
 
 	/* Create menu */
@@ -4868,11 +5004,11 @@ static void init_gtk_window(term_data *td, int i)
 	/* The main window has a menu bar */
 	if (main_window)
 		gtk_box_pack_start(
-			GTK_BOX(box),
-			menu_bar,
-			FALSE,
-			FALSE,
-			NO_PADDING);
+		        GTK_BOX(box),
+		        menu_bar,
+		        FALSE,
+		        FALSE,
+		        NO_PADDING);
 
 	/* And place the drawing area just beneath it */
 	gtk_box_pack_start_defaults(GTK_BOX(box), td->drawing_area);
@@ -4896,7 +5032,7 @@ static void hook_quit(cptr str)
 	/* Free pathname string */
 	if (ANGBAND_DIR_XTRA_GRAF) string_free(ANGBAND_DIR_XTRA_GRAF);
 
-# endif /* USE_GRAPHICS */
+# endif  /* USE_GRAPHICS */
 
 	/* Terminate the program */
 	gtk_exit(0);
@@ -4910,9 +5046,13 @@ static void hook_quit(cptr str)
  */
 const char help_gtk[] =
 	"GTK for X11, subopts -n<windows>\n"
-	"           -b(acking store disabled)\n"
+	"           -b(acking store off)\n"
 #ifdef USE_GRAPHICS
-	"           -o(ld graphics) -s(moothscale disabled) -t(ransparency on)\n"
+	"           -g(raphics) -o(ld graphics) -s(moothscaling off) \n"
+	"           -t(ransparency on)\n"
+# ifdef USE_DOUBLE_TILES
+	"           -w(ide tiles)\n"
+# endif  /* USE_DOUBLE_TILES */
 #endif /* USE_GRAPHICS */
 	"           and standard GTK options";
 
@@ -4970,6 +5110,22 @@ errr init_gtk(int argc, char **argv)
 			graf_mode_request = GRAF_MODE_NEW;
 			continue;
 		}
+
+# ifdef USE_DOUBLE_TILES
+
+		/* Requests wide tile mode */
+		if (streq(argv[i], "-w"))
+		{
+			use_bigtile = TRUE;
+# ifdef TOME
+			/* T.o.M.E. uses older version of the patch */
+			arg_bigtile = TRUE;
+# endif  /* TOME */
+			continue;
+		}
+
+# endif  /* USE_DOUBLE_TILES */
+
 
 		/* Enable transparency effect */
 		if (streq(argv[i], "-t"))

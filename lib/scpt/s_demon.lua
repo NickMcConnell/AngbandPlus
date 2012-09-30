@@ -15,9 +15,9 @@ DEMON_BLADE = add_spell
 			["charge"] =    { 3, 7 },
 			[TV_WAND] =
 			{
-				["rarity"] =            75,
-				["base_level"] =        { 1, 17 },
-				["max_level"] =                { 20, 40 },
+				["rarity"] =	    75,
+				["base_level"] =	{ 1, 17 },
+				["max_level"] =		{ 20, 40 },
 			},
 	},
 	["spell"] =     function()
@@ -66,8 +66,8 @@ DEMON_MADNESS = add_spell
 
 			-- Calc the coordinates of arrival
 			y1, x1 = get_target(dir)
-			y2 = py - (y1 - py)
-			x2 = px - (x1 - px)
+			y2 = player.py - (y1 - player.py)
+			x2 = player.px - (x1 - player.px)
 
 			local obvious = nil
 			obvious = project(0, 1 + get_level(DEMON_MADNESS, 4, 0),
@@ -218,11 +218,13 @@ DEMON_SUMMON = add_spell
 	["fail"] =      30,
 	["random"] =    0,
 	["spell"] =     function()
-			summon_specific_level = 5 + get_level(DEMON_SUMMON, 100)
-
 			local type = SUMMON_DEMON
+			local level = dun_level
+			local minlevel = 4
+			if level < minlevel then level=minlevel end
+			summon_specific_level = 5 + get_level(DEMON_SUMMON, 100)
 			if get_level(DEMON_SUMMON) >= 35 then type = SUMMON_HI_DEMON end
-			return summon_monster(py, px, dun_level, TRUE, type)
+			return summon_monster(player.py, player.px, level, TRUE, type)
 	end,
 	["info"] =      function()
 			return "level "..(5 + get_level(DEMON_SUMMON, 100))

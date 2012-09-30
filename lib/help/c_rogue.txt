@@ -31,13 +31,12 @@ Combat                  1.000           [0.700]
   Weaponmastery         1.000           [0.700]
     Sword-mastery       1.000           [0.300]
       Critical-hits     1.000           [0.500]
-Sneakiness              1.000           [1.100]
-  Stealth               1.000           [0.700]
-  Disarming             1.000           [1.100]
-  Trapping              1.000           [1.600]
-  Backstab              1.000           [1.100]
-  Stealing              1.000           [1.100]
-  Dodging               1.000           [1.000]
+Sneakiness              1.000           [2.000]
+  Stealth               1.000           [1.500]
+  Disarming             1.000           [2.000]
+  Backstab              1.000           [1.000]
+  Stealing              1.000           [2.000]
+  Dodging               1.000           [2.000]
 Magic                   1.000           [0.700]
   Magic-Device          1.000           [1.150]
   Conveyance            0.000           [0.500]
@@ -46,6 +45,11 @@ Magic                   1.000           [0.700]
 Spirituality            1.000           [0.700]
   Prayer                0.000           [0.500]
 Monster-lore            0.000           [0.500]
+
+#####GInnate Abilities:
+#####BAbility              Character level
+Trapping                    1
+Extra-Max-Blow(1)           10
 
 #####GStarting Equipment
 A Rogue begins the game with:

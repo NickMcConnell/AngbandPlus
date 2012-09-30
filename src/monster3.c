@@ -19,21 +19,21 @@
 int is_friend(monster_type *m_ptr)
 {
 	switch (m_ptr->status)
-	{                
+	{
 		/* pets/friends/companion attacks monsters */
-		case MSTATUS_NEUTRAL_P:
-		case MSTATUS_FRIEND:
-		case MSTATUS_PET:
-		case MSTATUS_COMPANION:
-			return 1;
-			break;
-		case MSTATUS_NEUTRAL_M:
-		case MSTATUS_ENEMY:
-			return -1;
-			break;
-		case MSTATUS_NEUTRAL:
-			return 0;
-			break;
+	case MSTATUS_NEUTRAL_P:
+	case MSTATUS_FRIEND:
+	case MSTATUS_PET:
+	case MSTATUS_COMPANION:
+		return 1;
+		break;
+	case MSTATUS_NEUTRAL_M:
+	case MSTATUS_ENEMY:
+		return -1;
+		break;
+	case MSTATUS_NEUTRAL:
+		return 0;
+		break;
 	}
 
 	/* OUPS */
@@ -62,35 +62,35 @@ bool is_enemy(monster_type *m_ptr, monster_type *t_ptr)
 
 bool change_side(monster_type *m_ptr)
 {
-        monster_race *r_ptr = race_inf(m_ptr);
+	monster_race *r_ptr = race_inf(m_ptr);
 
 	/* neutrals and companions  */
 	switch (m_ptr->status)
 	{
 #if 0
-		case MSTATUS_ENEMY:
-			m_ptr->status = MSTATUS_FRIEND;
-			break;
+	case MSTATUS_ENEMY:
+		m_ptr->status = MSTATUS_FRIEND;
+		break;
 #endif
-		case MSTATUS_FRIEND:
-                        m_ptr->status = MSTATUS_ENEMY;
-                        if ((r_ptr->flags3 & RF3_ANIMAL) && (!(r_ptr->flags3 & RF3_EVIL)))
-                                inc_piety(GOD_YAVANNA, -m_ptr->level * 4);
-                        break;
-		case MSTATUS_NEUTRAL_P:
-			m_ptr->status = MSTATUS_NEUTRAL_M;
-			break;
-		case MSTATUS_NEUTRAL_M:
-			m_ptr->status = MSTATUS_NEUTRAL_P;
-			break;
-		case MSTATUS_PET:
-			m_ptr->status = MSTATUS_ENEMY;
-                        if ((r_ptr->flags3 & RF3_ANIMAL) && (!(r_ptr->flags3 & RF3_EVIL)))
-                                inc_piety(GOD_YAVANNA, -m_ptr->level * 4);
-			break;
-		case MSTATUS_COMPANION:
-			return FALSE;
-			break;
+	case MSTATUS_FRIEND:
+		m_ptr->status = MSTATUS_ENEMY;
+		if ((r_ptr->flags3 & RF3_ANIMAL) && (!(r_ptr->flags3 & RF3_EVIL)))
+			inc_piety(GOD_YAVANNA, -m_ptr->level * 4);
+		break;
+	case MSTATUS_NEUTRAL_P:
+		m_ptr->status = MSTATUS_NEUTRAL_M;
+		break;
+	case MSTATUS_NEUTRAL_M:
+		m_ptr->status = MSTATUS_NEUTRAL_P;
+		break;
+	case MSTATUS_PET:
+		m_ptr->status = MSTATUS_ENEMY;
+		if ((r_ptr->flags3 & RF3_ANIMAL) && (!(r_ptr->flags3 & RF3_EVIL)))
+			inc_piety(GOD_YAVANNA, -m_ptr->level * 4);
+		break;
+	case MSTATUS_COMPANION:
+		return FALSE;
+		break;
 	}
 	/* changed */
 	return TRUE;
@@ -120,7 +120,7 @@ bool ai_multiply(int m_idx)
 	else
 	{
 		is_frien = FALSE;
-	}		
+	}
 
 	/* Hack -- multiply slower in crowded areas */
 	if ((k < 4) && (!k || !rand_int(k * MON_MULT_ADJ)))
@@ -311,11 +311,7 @@ bool can_create_companion(void)
 		if (m_ptr->status == MSTATUS_COMPANION) mcnt++;
 	}
 
-#if 0
-	if (mcnt < (cp_ptr->max_companion + (p_ptr->lev / cp_ptr->max_companion_plus))) return (TRUE);
-#else
 	if (mcnt < (1 + get_skill_scale(SKILL_LORE, 6))) return (TRUE);
-#endif
 	else return (FALSE);
 }
 
@@ -368,7 +364,7 @@ bool do_control_pickup(void)
 	c_ptr = &cave[m_ptr->fy][m_ptr->fx];
 	for (this_o_idx = c_ptr->o_idx; this_o_idx; this_o_idx = next_o_idx)
 	{
-		object_type *o_ptr;
+		object_type * o_ptr;
 
 		/* Acquire object */
 		o_ptr = &o_list[this_o_idx];
@@ -427,8 +423,8 @@ bool do_control_magic(void)
 
 	if (get_check("Do you want to abandon the golem?"))
 	{
-                if (get_check("Abandon it permanently?"))
-                        delete_monster_idx(p_ptr->control);
+		if (get_check("Abandon it permanently?"))
+			delete_monster_idx(p_ptr->control);
 		p_ptr->control = 0;
 		return TRUE;
 	}
@@ -480,7 +476,7 @@ bool do_control_magic(void)
 
 	/* Build a prompt (accept all spells) */
 	strnfmt(out_val, 78,
-	        "(Powers a-%c, *=List, ESC=exit) Use which power of your monster? ",
+	        "(Powers a-%c, *=List, ESC=exit) Use which power of your golem? ",
 	        label);
 
 	/* Get a spell from the user */
@@ -622,7 +618,7 @@ bool do_control_magic(void)
 /* Finds the controlled monster and "reconnect" to it */
 bool do_control_reconnect()
 {
-        int i;
+	int i;
 
 	for (i = m_max - 1; i >= 1; i--)
 	{
@@ -632,11 +628,52 @@ bool do_control_reconnect()
 		/* Ignore "dead" monsters */
 		if (!m_ptr->r_idx) continue;
 
-                if (m_ptr->mflag & MFLAG_CONTROL)
-                {
-                        p_ptr->control = i;
-                        return TRUE;
-                }
+		if (m_ptr->mflag & MFLAG_CONTROL)
+		{
+			p_ptr->control = i;
+			return TRUE;
+		}
 	}
-        return FALSE;
+	return FALSE;
+}
+
+/*
+ * Turns a simple pet into a faithful companion
+ */
+void do_cmd_companion()
+{
+	monster_type *m_ptr;
+	int ii, jj;
+
+	if (!can_create_companion())
+	{
+		msg_print("You cannot get anymore companion.");
+		return;
+	}
+
+	if (!tgt_pt(&ii, &jj))
+	{
+		msg_print("You must target a pet.");
+		return;
+	}
+
+	if (cave[jj][ii].m_idx)
+	{
+		char m_name[100];
+
+		m_ptr = &m_list[cave[jj][ii].m_idx];
+
+		monster_desc(m_name, m_ptr, 0);
+		if (m_ptr->status == MSTATUS_PET)
+		{
+			m_ptr->status = MSTATUS_COMPANION;
+			msg_format("%^s agrees to follow you.", m_name);
+		}
+		else
+		{
+			msg_format("%^s is not your pet!", m_name);
+		}
+	}
+	else
+		msg_print("You must target a pet.");
 }

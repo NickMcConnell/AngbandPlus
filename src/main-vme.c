@@ -6,28 +6,28 @@
 This is MAIN-VME C for VM/ESA machines.
 First enable definition of VM in file "h-config.h"
 You need to unpack archive EXT-VM VMARC .
-
+ 
 To do that first set fixed file record length:
 'COPYFILE EXT-VM VMARC A = = = ( REC F'
 Then unpack:
 VMARC UNPACK EXT-VM VMARC A
-
+ 
 ( if you don't have archivator vmarc, there is many places where you
 get it, i got it from cc1.kuleuven.ac.be )
-
+ 
 Then read MAKEFILE EXEC. It contains all neccessary information to
 compile Angband.
-
+ 
 EXT-VM VMARC content:
 MAKEFILE EXEC
 VMSERV TXTLIB
 CNSHND ASSEMBLE
-
+ 
 You will need about 3-4 MB free disk space to compile it.
 If you have any problems, mail to
-
+ 
 SM20616@vm.lanet.lv or SD30066@vm.lanet.lv
-
+ 
 A large amount of this file appears to be a complete hack, but
 what can you expect from a system designed for the Vax... :-)
  */
@@ -41,7 +41,7 @@ what can you expect from a system designed for the Vax... :-)
 /*
  * Convert EBCDIC to ASCII
  */
-char e2a[]=
+char e2a[] =
 {
 	0x00, 0x01, 0x02, 0x03, 0x1A, 0x09, 0x1A, 0x7F, 0x1A, 0x1A, 0x1A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
 	0x10, 0x11, 0x12, 0x13, 0x1A, 0x0A, 0x08, 0x1A, 0x18, 0x19, 0x1A, 0x1A, 0x1C, 0x1D, 0x1E, 0x1F,
@@ -65,7 +65,7 @@ char e2a[]=
 /*
  * Convert ASCII to EBCDIC
  */
-char a2e[]=
+char a2e[] =
 {
 	0x00, 0x01, 0x02, 0x03, 0x37, 0x2D, 0x2E, 0x2F, 0x16, 0x05, 0x25, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
 	0x10, 0x11, 0x12, 0x13, 0x3C, 0x3D, 0x32, 0x26, 0x18, 0x19, 0x3F, 0x27, 0x22, 0x1D, 0x35, 0x1F,
@@ -128,8 +128,8 @@ int rows, cols;
 
 /* Game cursor position on screen */
 
-int curx=1;
-int cury=1;
+int curx = 1;
+int cury = 1;
 
 /*
  * Virtual Screen
@@ -153,7 +153,7 @@ static term term_screen_body;
  */
 void ScreenUpdateLine(int line)
 {
-	DISP[line+1]=1;
+	DISP[line + 1] = 1;
 }
 
 /*
@@ -189,9 +189,9 @@ static errr Term_curs_vm(int x, int y)
 	/* Hack: mark line cursor was at as changed to ensure that old
 	 ** cursor would be removed.
 	 */
-	DISP[cury]=1;
-	curx=x+1;
-	cury=y+1;
+	DISP[cury] = 1;
+	curx = x + 1;
+	cury = y + 1;
 	return (0);
 }
 
@@ -211,11 +211,10 @@ static errr Term_curs_vm(int x, int y)
  */
 static const byte vm_color[] =
 {
-
-	0xF1,      0xF1,      0xF1,       0xF3,
-	0xF2,      0xF4-0x80, 0xF1-0x80,  0xF6,
-	0xF1,      0xF7-0x80, 0xF3-0x80,  0xF6,
-	0xF2-0x80, 0xF4,      0xF5,       0xF6-0x80
+	0xF1, 0xF1, 0xF1, 0xF3,
+	0xF2, 0xF4 - 0x80, 0xF1 - 0x80, 0xF6,
+	0xF1, 0xF7 - 0x80, 0xF3 - 0x80, 0xF6,
+	0xF2 - 0x80, 0xF4, 0xF5, 0xF6 - 0x80
 };
 
 /*
@@ -229,7 +228,7 @@ static errr Term_text_vm(int x, int y, int n, byte a, cptr s)
 	register byte *dest2;
 
 	/* Attribute... */
-	attr = vm_color[a&0x0F];
+	attr = vm_color[a & 0x0F];
 
 	/* Paranoia */
 	if (n > cols - x) n = cols - x;
@@ -260,7 +259,7 @@ static errr Term_wipe_vm(int x, int y, int w)
 {
 
 	/* Paranoia -- Verify the dimensions */
-	if (cols < (w+x)) w = (cols-x);
+	if (cols < (w + x)) w = (cols - x);
 
 	/* Wipe part of the virtual screen, and update */
 	memcpy(VirtualScreen + (y*cols + x), wiper, w);
@@ -285,13 +284,13 @@ static errr Term_xtra_vm(int n, int v)
 	{
 
 		/* Make a noise */
-		case TERM_XTRA_NOISE:
+	case TERM_XTRA_NOISE:
 
 		/* No noises here! :) */
 		return (0);
 
 		/* Wait for a single event */
-		case TERM_XTRA_EVENT:
+	case TERM_XTRA_EVENT:
 
 		/* No wait key press check */
 		if (!v && !kbhit()) return (1);
@@ -305,23 +304,23 @@ static errr Term_xtra_vm(int n, int v)
 		/* Success */
 		return (0);
 
-		case TERM_XTRA_CLEAR:
+	case TERM_XTRA_CLEAR:
 
 		ScreenClear();
 		return (0);
 
 #if 0
-		case TERM_XTRA_FROSH:
+	case TERM_XTRA_FROSH:
 		ScreenUpdateLine(VirtualScreen + (cols*v), v);
 		return (0);
 #endif
 
-		case TERM_XTRA_FLUSH:
+	case TERM_XTRA_FLUSH:
 
 		/* Flush keys */
 		while (1)
 		{
-			tmp=getkeybuf();
+			tmp = getkeybuf();
 			if (!tmp) break;
 			Term_keypress(tmp);
 		}
@@ -349,7 +348,7 @@ errr init_vme(void)
 	static int done = FALSE;
 
 	/* Paranoia -- Already done */
-	if (done) return (-1);
+	if (done) return ( -1);
 
 	/* Build a "wiper line" of blank spaces */
 	for (i = 0; i < 256; i++) wiper[i] = blank;
@@ -420,10 +419,10 @@ getkeybuf(void)
 
 
 /* Low-level functions */
-int  CNSINIT(char *path, int device);
-int  CNSTERM(char *path);
-int  CNSREAD(char *path, char *buffer, int buflen);
-int  CNSWRITE(char *path, char *buffer, int buflen);
+int CNSINIT(char *path, int device);
+int CNSTERM(char *path);
+int CNSREAD(char *path, char *buffer, int buflen);
+int CNSWRITE(char *path, char *buffer, int buflen);
 
 #define _PF1    (0xF1)
 #define _PF2    (0xF2)
@@ -457,10 +456,10 @@ int  CNSWRITE(char *path, char *buffer, int buflen);
 
 #define _ENTER  (0x7D)
 
-extern char cnscrstb[];   /* Hardware 3270 cursor offsets */
+extern char cnscrstb[];    /* Hardware 3270 cursor offsets */
 
 /* Console identificator */
-char *cons="console";
+char *cons = "console";
 
 /* Console interrupt flag; should be set by assembler patch */
 int CNSINTR;
@@ -480,10 +479,9 @@ static char * ComPtr;
 /* This array is used to clean up input field.
  ** Comment: erase everything user entered after we accepted it.
  */
-static char wiping[]=
-{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+static char wiping[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 /* Flag: should we wipe input field ? */
-static int wipe=0;
+static int wipe = 0;
 /* Counter: how many times did game checked if we pressed any key.
  ** Comment: after every 100th we update the screen.
  ** Comment2: because of slow work with screen it would be _very_
@@ -495,16 +493,15 @@ static int BufLen;
 /* Define array which will be used to bring actual cursor
  ** (not game cursor!!!) back to the beginning of input field.
  */
-static char CursorHome[]=
-{0, 0, 0, 0x13};
+static char CursorHome[] = {0, 0, 0, 0x13};
 /* Define array to make fields on the screen.
  ** Comment: 2 fields: input field(writable), and game field(protected).
  ** Comment2: We will change PSS settings into dumb repeating of color
  **           setting if PSS fonts are not abailable.
  */
-static char ScrField[]=
-{0, 0, 0, 0x29, 0x03, 0xC0, 0xC1, 0x42, 0xF3, 0x43, 0xC1, \
-0, 0, 0, 0x29, 0x03, 0xC0, 0x60, 0x42, 0xF1, 0x43, 0xC1};
+static char ScrField[] =
+        {0, 0, 0, 0x29, 0x03, 0xC0, 0xC1, 0x42, 0xF3, 0x43, 0xC1, \
+         0, 0, 0, 0x29, 0x03, 0xC0, 0x60, 0x42, 0xF1, 0x43, 0xC1};
 /* Last command user entered (for repeating purposes */
 static char LastCmd[256];
 /* Array which holds PFkeys definitions */
@@ -518,14 +515,14 @@ void InitConsole(void)
 	 ** initialized.
 	 */
 	unsigned char init[6] =
-	{0xC2, 0x11, 0x40, 0x40, 0, 0};
+	        {0xC2, 0x11, 0x40, 0x40, 0, 0};
 	int i;
 	/* Array for checking is PSS fonts are loaded */
 	char pss[256];
 
 	/* Allocate memory */
-	ScrBuf=malloc(4100);
-	if (ScrBuf==NULL)
+	ScrBuf = malloc(4100);
+	if (ScrBuf == NULL)
 	{
 		puts("Cannot mallocate memory for screen buffer!");
 		exit(77);
@@ -539,52 +536,52 @@ void InitConsole(void)
 	system("desbuf");
 	system("query display (stack");
 	gets(pss);
-	i=1;
-	if (pss[63]!='P') i=0;
-	if (pss[64]!='S') i=0;
-	if (pss[65]!='S') i=0;
-	if (pss[72]!='0') i=0;
-	if (pss[73]!='1') i=0;
-	if (pss[74]!='A') i=0;
-	if (pss[75]!='B') i=0;
-	if (i==0)
+	i = 1;
+	if (pss[63] != 'P') i = 0;
+	if (pss[64] != 'S') i = 0;
+	if (pss[65] != 'S') i = 0;
+	if (pss[72] != '0') i = 0;
+	if (pss[73] != '1') i = 0;
+	if (pss[74] != 'A') i = 0;
+	if (pss[75] != 'B') i = 0;
+	if (i == 0)
 	{
 		/* No PSS. Cannot run without them... */
 		puts("ERROR: Cannot run without PSS fonts!");
 		exit(77);
 	}
-	ScrBuf[0]=0xC2;
-	ScrBuf[1]=0;
-	BufLen=1;
+	ScrBuf[0] = 0xC2;
+	ScrBuf[1] = 0;
+	BufLen = 1;
 	/* Allocate memory */
-	InBuf=malloc(200);
-	if (InBuf==NULL)
+	InBuf = malloc(200);
+	if (InBuf == NULL)
 	{
 		puts("Cannot mallocate memory for screen buffer!");
 		exit(77);
 	}
 	/* Okay, lets make some intial assigments */
-	InBuf[0]=0;
-	ComBuf[0]=0;
-	ComPtr=ComBuf;
-	LastCmd[0]=0;
+	InBuf[0] = 0;
+	ComBuf[0] = 0;
+	ComPtr = ComBuf;
+	LastCmd[0] = 0;
 	GetAddr(FIELD_SY, FIELD_SX, ScrField);
-	GetAddr(FIELD_EY, FIELD_EX, ScrField+11);
-	GetAddr(FIELD_SY, FIELD_SX+1, wiping);
-	GetAddr(FIELD_SY, FIELD_SX+1, CursorHome);
+	GetAddr(FIELD_EY, FIELD_EX, ScrField + 11);
+	GetAddr(FIELD_SY, FIELD_SX + 1, wiping);
+	GetAddr(FIELD_SY, FIELD_SX + 1, CursorHome);
 	/* Initialize console */
 	cnsxinit(cons, 0x9, 1, CNSHD);
 	/* Activate full-screen mode */
 	cnswrite(cons, init, 6);
 	/* No lines on screen were changed */
-	for (i=1; i<25; i++)
-		DISP[i]=0;
+	for (i = 1; i < 25; i++)
+		DISP[i] = 0;
 	/* Corsor home... */
 	AddScrBuf(CursorHome, sizeof(CursorHome));
 	/* No console interrupt yet */
-	CNSINTR=0;
+	CNSINTR = 0;
 	/* No check keypresses yet */
-	kbhitcount=0;
+	kbhitcount = 0;
 	/* Let's load 'profile angband' for PFs settings */
 	LoadProfile();
 }
@@ -612,58 +609,58 @@ void ResetScrBuf(void)
 	unsigned char attr;
 
 	/* Where shall cursor be ? */
-	GetAddr(cury, curx, ScrBuf+BufLen);
-	BufLen+=3;
+	GetAddr(cury, curx, ScrBuf + BufLen);
+	BufLen += 3;
 	/* Actually 'make' cursor : underline symbol */
-	ScrBuf[BufLen++]=0x28;
-	ScrBuf[BufLen++]=0x41;
-	ScrBuf[BufLen++]=0xF4;
-	attr=*(ScreenAttr+(cury-1)*cols+curx-1);
-	ScrBuf[BufLen++]=0x28;
-	ScrBuf[BufLen++]=0x42;
-	ScrBuf[BufLen++]=attr|0x80;
-	ScrBuf[BufLen++]=0x28;
-	ScrBuf[BufLen++]=0x43;
-	if (attr>0x80) ScrBuf[BufLen++]=0xC1;
-	else ScrBuf[BufLen++]=0xC2;
-	ScrBuf[BufLen++]=*(VirtualScreen+(cury-1)*cols+curx-1);
-	ScrBuf[BufLen++]=0x28;
-	ScrBuf[BufLen++]=0x41;
-	ScrBuf[BufLen++]=0x00;
-	ScrBuf[BufLen++]=0x28;
-	ScrBuf[BufLen++]=0x43;
-	ScrBuf[BufLen++]=0xC1;
+	ScrBuf[BufLen++] = 0x28;
+	ScrBuf[BufLen++] = 0x41;
+	ScrBuf[BufLen++] = 0xF4;
+	attr = *(ScreenAttr + (cury - 1) * cols + curx - 1);
+	ScrBuf[BufLen++] = 0x28;
+	ScrBuf[BufLen++] = 0x42;
+	ScrBuf[BufLen++] = attr | 0x80;
+	ScrBuf[BufLen++] = 0x28;
+	ScrBuf[BufLen++] = 0x43;
+	if (attr > 0x80) ScrBuf[BufLen++] = 0xC1;
+	else ScrBuf[BufLen++] = 0xC2;
+	ScrBuf[BufLen++] = *(VirtualScreen + (cury - 1) * cols + curx - 1);
+	ScrBuf[BufLen++] = 0x28;
+	ScrBuf[BufLen++] = 0x41;
+	ScrBuf[BufLen++] = 0x00;
+	ScrBuf[BufLen++] = 0x28;
+	ScrBuf[BufLen++] = 0x43;
+	ScrBuf[BufLen++] = 0xC1;
 	/* Draw screen fields.
 	 ** Comment: paranoia, should always be there, but won't be any worse
 	 **          if we redraw them.
 	 */
-	memcpy(ScrBuf+BufLen, ScrField, 22);
+	memcpy(ScrBuf + BufLen, ScrField, 22);
 	if (wipe)
 	{
 		/* If we should wipe input field, let's do it. */
-		wipe=0;
-		memcpy(ScrBuf+BufLen+22, wiping, sizeof(wiping));
+		wipe = 0;
+		memcpy(ScrBuf + BufLen + 22, wiping, sizeof(wiping));
 		/* Actually write to terminal */
-		cnswrite(cons, ScrBuf, BufLen+22+sizeof(wiping));
+		cnswrite(cons, ScrBuf, BufLen + 22 + sizeof(wiping));
 	}
 	else
 	{
 		/* Actually write to terminal */
-		cnswrite(cons, ScrBuf, BufLen+22);
+		cnswrite(cons, ScrBuf, BufLen + 22);
 	}
 	/* Discard old output stream */
-	ScrBuf[0]=0xC2;
-	ScrBuf[1]=0;
-	BufLen=1;
+	ScrBuf[0] = 0xC2;
+	ScrBuf[1] = 0;
+	BufLen = 1;
 }
 
 /* Just add some more to output stream */
 void AddScrBuf(char * ptr, int len)
 {
 	/* Stream cannot be longer than 4k, so reset it */
-	if (len+BufLen>4000) ResetScrBuf();
-	memcpy(ScrBuf+BufLen, ptr, len);
-	BufLen+=len;
+	if (len + BufLen > 4000) ResetScrBuf();
+	memcpy(ScrBuf + BufLen, ptr, len);
+	BufLen += len;
 }
 
 /* Calculate codes for cursor setting and write them down into *stream.
@@ -705,7 +702,7 @@ char InKey(void)
 	 */
 	if (*ComPtr)
 	{
-		ret=*ComPtr;
+		ret = *ComPtr;
 		ComPtr++;
 		return (ret);
 	}
@@ -717,139 +714,140 @@ char InKey(void)
 	/* Well, now wait till user enters something and read it. */
 	cnsread(cons, InBuf, 200);
 	/* Oh, we already handling interrupt so, reset interrupt flag */
-	CNSINTR=0;
+	CNSINTR = 0;
 	/* No previous cmd inserted yet */
-	prev=0;
+	prev = 0;
 	/* User pressed CLEAR key. Redraw all screen then. */
-	if (*InBuf==0x6D)
+	if (*InBuf == 0x6D)
 	{
 		/* Hack: mark all lines as changed */
-		for (i=1; i<26; i++)
-			DISP[i]=1;
+		for (i = 1; i < 26; i++)
+			DISP[i] = 1;
 		/* Cursor home */
 		AddScrBuf(CursorHome, sizeof(CursorHome));
 		/* Redraw the whole screen */
 		ResetDISP();
 		/* Hack: we should return something, shouldn't we?
 		 ** Just return CR. It seems safest.
-		 */
+		 */ 
 		return (13);
 	}
 	/* Okay parse stream from console to make string only of
 	 ** user's input.
 	 */
-	info=memchr(InBuf, 0x1D, 200);
-	info+=2;
-	info[9]=0;
+	info = memchr(InBuf, 0x1D, 200);
+	info += 2;
+	info[9] = 0;
 	/* Mark that we should clear input field */
-	wipe=1;
+	wipe = 1;
 	/* Cursor home */
 	AddScrBuf(CursorHome, sizeof(CursorHome));
 	/* Pointer to current letter in buffered command set to start */
-	ComPtr=ComBuf;
+	ComPtr = ComBuf;
 	/* Clear length buffer */
-	ComBuf[0]=0;
+	ComBuf[0] = 0;
 	switch (*InBuf)
 	{
 		/* PA2 & PA1 */
-		case 0x6E:;
-		case 0x6C:
+	case 0x6E:
+		;
+	case 0x6C:
 		/* These 2 keys are supposed to mean 'ESC' */
 		return (27);
 		break;
 		/* Hack: determine which PF key was exactly pressed.
 		 */
-		case _PF1:
-		PF=1;
+	case _PF1:
+		PF = 1;
 		break;
-		case _PF2:
-		PF=2;
+	case _PF2:
+		PF = 2;
 		break;
-		case _PF3:
-		PF=3;
+	case _PF3:
+		PF = 3;
 		break;
-		case _PF4:
-		PF=4;
+	case _PF4:
+		PF = 4;
 		break;
-		case _PF5:
-		PF=5;
+	case _PF5:
+		PF = 5;
 		break;
-		case _PF6:
-		PF=6;
+	case _PF6:
+		PF = 6;
 		break;
-		case _PF7:
-		PF=7;
+	case _PF7:
+		PF = 7;
 		break;
-		case _PF8:
-		PF=8;
+	case _PF8:
+		PF = 8;
 		break;
-		case _PF9:
-		PF=9;
+	case _PF9:
+		PF = 9;
 		break;
-		case _PF10:
-		PF=10;
+	case _PF10:
+		PF = 10;
 		break;
-		case _PF11:
-		PF=11;
+	case _PF11:
+		PF = 11;
 		break;
-		case _PF12:
-		PF=12;
+	case _PF12:
+		PF = 12;
 		break;
-		case _PF13:
-		PF=13;
+	case _PF13:
+		PF = 13;
 		break;
-		case _PF14:
-		PF=14;
+	case _PF14:
+		PF = 14;
 		break;
-		case _PF15:
-		PF=15;
+	case _PF15:
+		PF = 15;
 		break;
-		case _PF16:
-		PF=16;
+	case _PF16:
+		PF = 16;
 		break;
-		case _PF17:
-		PF=17;
+	case _PF17:
+		PF = 17;
 		break;
-		case _PF18:
-		PF=18;
+	case _PF18:
+		PF = 18;
 		break;
-		case _PF19:
-		PF=19;
+	case _PF19:
+		PF = 19;
 		break;
-		case _PF20:
-		PF=20;
+	case _PF20:
+		PF = 20;
 		break;
-		case _PF21:
-		PF=21;
+	case _PF21:
+		PF = 21;
 		break;
-		case _PF22:
-		PF=22;
+	case _PF22:
+		PF = 22;
 		break;
-		case _PF23:
-		PF=23;
+	case _PF23:
+		PF = 23;
 		break;
-		case _PF24:
-		PF=24;
+	case _PF24:
+		PF = 24;
 		break;
 		/* Uh, user pressed ENTER.
 		 ** Determine if we should add 'CR' at the end or not ?
 		 */
-		case _ENTER:
-		PF=0;
+	case _ENTER:
+		PF = 0;
 		/* Copy entered string into buffer */
 		strcpy(ComBuf, info);
 		/* Never end strings of length 1 or 0 with CR */
-		if (strlen(ComBuf)<2) break;
+		if (strlen(ComBuf) < 2) break;
 		/* If string ends with R* or R& add CR */
-		ptr=info+strlen(info)-1;
-		if (*ptr=='*'||*ptr=='&')
+		ptr = info + strlen(info) - 1;
+		if (*ptr == '*' || *ptr == '&')
 		{
 			ptr--;
-			if (ptr<info) break;
-			if (*ptr!='R') break;
-			ptr=ComBuf+strlen(ComBuf);
-			ptr[0]=13;
-			ptr[1]=0;
+			if (ptr < info) break;
+			if (*ptr != 'R') break;
+			ptr = ComBuf + strlen(ComBuf);
+			ptr[0] = 13;
+			ptr[1] = 0;
 			break;
 		}
 		/* Well, only numbers should be padded with CR.
@@ -857,48 +855,48 @@ char InKey(void)
 		 */
 		if (!isdigit(*ptr)) break;
 		ptr--;
-		i=1;
-		while (ptr>=info)
+		i = 1;
+		while (ptr >= info)
 		{
-			if (*ptr=='R') break;
-			if (*ptr=='@'&&ptr==info)
+			if (*ptr == 'R') break;
+			if (*ptr == '@' && ptr == info)
 				break;
-			if (*ptr=='/')
+			if (*ptr == '/')
 			{
-				i=0;
-				if (*(ptr-1)!='8') break;
-				if (*(ptr-2)!='1') break;
-				if ((ptr-2)!=info) break;
-				i=1;
+				i = 0;
+				if (*(ptr - 1) != '8') break;
+				if (*(ptr - 2) != '1') break;
+				if ((ptr - 2) != info) break;
+				i = 1;
 				break;
 			}
 			if (!isdigit(*ptr))
 			{
-				i=0;
+				i = 0;
 				break;
 			}
 			ptr--;
 		}
 		if (i)
-			ptr=ComBuf+strlen(ComBuf);
-		ptr[0]=13;
-		ptr[1]=0;
+			ptr = ComBuf + strlen(ComBuf);
+		ptr[0] = 13;
+		ptr[1] = 0;
 		break;
-		default:
-		PF=0;
+	default:
+		PF = 0;
 	}
 	/* Okay let's proceed with parsing PFkeys commands */
-	ptrs=PFcmd[PF];
-	ptr=ComBuf;
+	ptrs = PFcmd[PF];
+	ptr = ComBuf;
 	/* If key actually was PF and we didn't run into end of PF
 	 ** command definition...
 	 */
 	while (*ptrs && PF)
 	{
 		/* If not '\' just copy symbol into buffer */
-		if (*ptrs!='\\')
+		if (*ptrs != '\\')
 		{
-			*ptr=*ptrs;
+			*ptr = *ptrs;
 			ptr++;
 			ptrs++;
 			continue;
@@ -908,51 +906,51 @@ char InKey(void)
 		switch (*ptrs)
 		{
 			/* End of line ? Do nothing then. */
-			case 0:
+		case 0:
 			break;
 			/* User actually wants '\' */
-			case '\\':
-			*ptr='\\';
+		case '\\':
+			*ptr = '\\';
 			ptr++;
 			break;
 			/* User wants his previous command inserted. */
-			case 'p':
+		case 'p':
 			/* Set flag that we used previous command */
-			prev=1;
+			prev = 1;
 			strcpy(ptr, LastCmd);
-			ptr=ComBuf+strlen(ComBuf);
+			ptr = ComBuf + strlen(ComBuf);
 			break;
 			/* Insert string user actually entered */
-			case 's':
+		case 's':
 			strcpy(ptr, info);
-			ptr=ComBuf+strlen(ComBuf);
+			ptr = ComBuf + strlen(ComBuf);
 			break;
 			/* User wants 'CR' */
-			case 'n':
-			*ptr=13;
+		case 'n':
+			*ptr = 13;
 			ptr++;
 			break;
 			/* Simulate CTRL key pressing */
-			case '^':
+		case '^':
 			ptrs++;
 			if (!(*ptrs)) break;
-			*ptr=KTRL(*ptrs);
+			*ptr = KTRL(*ptrs);
 			ptr++;
 			break;
 			/* ESC */
-			case 'c':
-			*ptr=27;
+		case 'c':
+			*ptr = 27;
 			ptr++;
 			break;
 			/* Hmm, urecognized command. Just copy letter. */
-			default:
-			*ptr=*ptrs;
+		default:
+			*ptr = *ptrs;
 			ptr++;
 		}
 		if (ptrs) ptrs++;
 	}
 	/* Terminate string with 0 if neccessary */
-	if (PF) *ptr=0;
+	if (PF) *ptr = 0;
 	/* Empty string? User probably wants to send CR. */
 	if (!(*ComBuf))
 	{
@@ -961,20 +959,20 @@ char InKey(void)
 	/* Okay, set pointer to next letter */
 	ComPtr++;
 	/* Backup last command if not empty */
-	ptr=ComBuf;
+	ptr = ComBuf;
 	/* String still "empty" */
-	i=1;
-	while ((*ptr)&&i)
+	i = 1;
+	while ((*ptr) && i)
 	{
-		if ((*ptr!=13)&&(*ptr!=27)&&(*ptr!=' '))
-			i=0;
+		if ((*ptr != 13) && (*ptr != 27) && (*ptr != ' '))
+			i = 0;
 		ptr++;
 	}
 	/* Never update previous command if we inserted it.
 	 ** Comment: this is to avoid recursively multiplying previous
 	 **          commands.
 	 */
-	if ((!i)&&(!prev))
+	if ((!i) && (!prev))
 		strcpy(LastCmd, ComBuf);
 	/* Return something */
 	return (*ComBuf);
@@ -986,7 +984,7 @@ char InKeyBuf(void)
 {
 	char ret;
 
-	ret=*ComPtr;
+	ret = *ComPtr;
 	if (ret) ComPtr++;
 	return (ret);
 }
@@ -997,31 +995,31 @@ void ResetDISP(void)
 	int i;
 
 	/* No need to redraw screen in near future */
-	kbhitcount=0;
-	for (i=1; i<25; i++)
-		if (DISP[i]!=0)
-	{
-		/* If line was changed, it won't stay changed any more */
-		DISP[i]=0;
-		/* We don't want to erase input field definitons from
-		 ** screen, so check it carefully.
-		 */
-		switch (i)
+	kbhitcount = 0;
+	for (i = 1; i < 25; i++)
+		if (DISP[i] != 0)
 		{
-			case FIELD_SY:
-			ShowLine(i, 1, FIELD_SX-1);
-			if (i==FIELD_EY)
+			/* If line was changed, it won't stay changed any more */
+			DISP[i] = 0;
+			/* We don't want to erase input field definitons from
+			 ** screen, so check it carefully.
+			 */
+			switch (i)
 			{
-				ShowLine(i, FIELD_EX+1, 80-FIELD_EX);
-			}
-			break;
+			case FIELD_SY:
+				ShowLine(i, 1, FIELD_SX - 1);
+				if (i == FIELD_EY)
+				{
+					ShowLine(i, FIELD_EX + 1, 80-FIELD_EX);
+				}
+				break;
 			case FIELD_EY:
-			ShowLine(i, FIELD_EX+1, 80-FIELD_EX);
-			break;
+				ShowLine(i, FIELD_EX + 1, 80-FIELD_EX);
+				break;
 			default:
-			ShowLine(i, 1, 80);
+				ShowLine(i, 1, 80);
+			}
 		}
-	}
 	/* Okay, actually show something */
 	ResetScrBuf();
 }
@@ -1030,12 +1028,12 @@ void ResetDISP(void)
 int kbhit(void)
 {
 	kbhitcount++;
-	if (kbhitcount>99)
+	if (kbhitcount > 99)
 	{
 		/* We waited long enough, time to redraw screen.
 		 ** Comment: during sleep every 100th turn is shown.
 		 */
-		kbhitcount=0;
+		kbhitcount = 0;
 		ResetDISP();
 	}
 	return (CNSINTR);
@@ -1049,48 +1047,48 @@ void ShowLine(int y, int x, int len)
 	int i;
 	unsigned char curattr;
 
-	ptr=slbuf+3;
+	ptr = slbuf + 3;
 	/* Hack: was used for older version to place 25th string on
 	 ** 24th.
 	 */
-	if (y<25)
+	if (y < 25)
 		GetAddr(y, x, slbuf);
 	else
 		GetAddr(24, x, slbuf);
 	/* Set some adresses */
-	curattr=0;
-	scr=VirtualScreen+(y-1)*cols+x-1;
-	attr=ScreenAttr+(y-1)*cols+x-1;
+	curattr = 0;
+	scr = VirtualScreen + (y - 1) * cols + x - 1;
+	attr = ScreenAttr + (y - 1) * cols + x - 1;
 	/* Let's proceed with string. */
-	for (i=0; i<len; i++)
+	for (i = 0; i < len; i++)
 	{
 		/* Attribute has changed ? Let's add codes for changing color */
-		if (*attr!=curattr)
+		if (*attr != curattr)
 		{
 			/* Pss has changed ? Let's change pss. */
-			if (((*attr)&0x80)!=(curattr&0x80)||(!curattr))
+			if (((*attr)&0x80) != (curattr&0x80) || (!curattr))
 			{
-				*ptr++=0x28;
-				*ptr++=0x43;
-				if (*attr>0x80) *ptr++=0xC1;
-				else *ptr++=0xC2;
+				*ptr++ = 0x28;
+				*ptr++ = 0x43;
+				if (*attr > 0x80) *ptr++ = 0xC1;
+				else *ptr++ = 0xC2;
 			}
 			/* Color has changed ? Let's change it. */
-			if (((*attr)&0x7F)!=(curattr&0x7F))
+			if (((*attr)&0x7F) != (curattr&0x7F))
 			{
-				*ptr++=0x28;
-				*ptr++=0x42;
-				if (*attr>0x80) *ptr++=*attr;
-				else *ptr++=*attr+0x80;
+				*ptr++ = 0x28;
+				*ptr++ = 0x42;
+				if (*attr > 0x80) *ptr++ = *attr;
+				else *ptr++ = *attr + 0x80;
 			}
-			curattr=*attr;
+			curattr = *attr;
 		}
-		*ptr++=*scr;
+		*ptr++ = *scr;
 		scr++;
 		attr++;
 	}
 	/* Add string to output stream */
-	AddScrBuf(slbuf, ptr-slbuf);
+	AddScrBuf(slbuf, ptr - slbuf);
 }
 
 void LoadProfile(void)
@@ -1104,8 +1102,10 @@ void LoadProfile(void)
 
 	fp = fopen("PROFILE ANGBAND", "r");
 	if (!fp) return;
-	{   while (fgets(line, 128, fp))
-		{   if (*line == '#') continue;
+	{
+		while (fgets(line, 128, fp))
+		{
+			if (*line == '#') continue;
 			ptr = strstr(line, "PF");
 			if (!ptr) continue;
 			ptr += 2;
@@ -1118,7 +1118,8 @@ void LoadProfile(void)
 			++ptr;
 			p = strchr(ptr, '"');
 			if (!p)
-			{   puts("'\"' missing in PROFILE ANGBAND.");
+			{
+				puts("'\"' missing in PROFILE ANGBAND.");
 				continue;
 			}
 			*p = 0;
@@ -1152,13 +1153,14 @@ open(char *name, int flags, int mode)
 
 	fp = fopen(name, fmode);
 
-	if (!fp) return (-1);
+	if (!fp) return ( -1);
 	for (i = 1; i < 40; i++)
 		if (!file_descriptors[i])
-	{   file_descriptors[i] = fp;
-		return (i);
-	}
-	return (-1);
+		{
+			file_descriptors[i] = fp;
+			return (i);
+		}
+	return ( -1);
 }
 
 void

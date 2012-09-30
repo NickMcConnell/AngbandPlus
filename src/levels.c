@@ -53,7 +53,7 @@ bool get_command(const char *file, char comm, char *param)
 		if ((i > start_line) && (buf[0] == comm))
 		{
 			/* Acquire the text */
-			s = buf+2;
+			s = buf + 2;
 
 			start_line = i;
 
@@ -139,6 +139,21 @@ bool get_dungeon_save(char *buf)
 	/* Get and return the level */
 	start_line = -1;
 	if (get_command(file, 'S', buf)) return (TRUE);
+	else return FALSE;
+}
+
+/*
+ * Return the level generator
+ */
+bool get_dungeon_generator(char *buf)
+{
+	char file[20];
+
+	sprintf(file, "dun%d.%d", dungeon_type, dun_level - d_info[dungeon_type].mindepth);
+
+	/* Get and return the level */
+	start_line = -1;
+	if (get_command(file, 'G', buf)) return (TRUE);
 	else return FALSE;
 }
 

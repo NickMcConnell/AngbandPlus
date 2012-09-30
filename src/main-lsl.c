@@ -46,7 +46,8 @@ typedef struct BITMAPFILEHEADER
 	u16b bfReserved1;
 	u16b bfReserved2;
 	u32b bfOffBits;
-} BITMAPFILEHEADER;
+}
+BITMAPFILEHEADER;
 
 
 /*
@@ -65,7 +66,8 @@ typedef struct BITMAPINFOHEADER
 	u32b biYPelsPerMeter;
 	u32b biClrUsed;
 	u32b biClrImportand;
-} BITMAPINFOHEADER;
+}
+BITMAPINFOHEADER;
 
 /*
  * The Win32 "RGBQUAD" type.
@@ -74,7 +76,8 @@ typedef struct RGBQUAD
 {
 	unsigned char b, g, r;
 	unsigned char filler;
-} RGBQUAD;
+}
+RGBQUAD;
 
 
 /*** Helper functions for system independent file loading. ***/
@@ -159,8 +162,8 @@ static byte *ReadBMP(char *Name, int *bw, int *bh)
 
 	/* Verify the header */
 	if (feof(f) ||
-	    (fileheader.bfType != 19778) ||
-	    (infoheader.biSize != 40))
+	                (fileheader.bfType != 19778) ||
+	                (infoheader.biSize != 40))
 	{
 		quit_fmt("Incorrect BMP file format %s", Name);
 	}
@@ -191,7 +194,7 @@ static byte *ReadBMP(char *Name, int *bw, int *bh)
 	if ((infoheader.biBitCount == 1) || (infoheader.biBitCount == 24))
 	{
 		quit_fmt("Illegal biBitCount %d in %s",
-			 infoheader.biBitCount, Name);
+		         infoheader.biBitCount, Name);
 	}
 
 	/* Determine total bytes needed for image */
@@ -253,10 +256,10 @@ static void initfont(void)
 	void *temp;
 	long junk;
 
-	if (!(fontfile = gzopen("/usr/lib/kbd/consolefonts/lat1-12.psf.gz","r")))
+	if (!(fontfile = gzopen("/usr/lib/kbd/consolefonts/lat1-12.psf.gz", "r")))
 	{
 		/* Try uncompressed */
-		if (!(fontfile = gzopen("/usr/lib/kbd/consolefonts/lat1-12.psf","r")))
+		if (!(fontfile = gzopen("/usr/lib/kbd/consolefonts/lat1-12.psf", "r")))
 		{
 			printf ("Error: could not open font file.  Aborting....\n");
 			exit(1);
@@ -298,9 +301,9 @@ static void setpal(void)
 	for (i = 0; i < 16; i++)
 	{
 		gl_setpalettecolor(COLOR_OFFSET + i,
-			angband_color_table[i][1] >> 2,
-			angband_color_table[i][2] >> 2,
-			angband_color_table[i][3] >> 2);
+		                   angband_color_table[i][1] >> 2,
+		                   angband_color_table[i][2] >> 2,
+		                   angband_color_table[i][3] >> 2);
 	}
 }
 
@@ -323,7 +326,7 @@ static errr CheckEvents(int block)
 	}
 
 	Term_keypress(k);
-	return(0);
+	return (0);
 }
 
 
@@ -335,7 +338,7 @@ static errr term_xtra_svgalib(int n, int v)
 {
 	switch (n)
 	{
-		case TERM_XTRA_EVENT:
+	case TERM_XTRA_EVENT:
 		{
 			/* Process some pending events */
 			if (v) return (CheckEvents (FALSE));
@@ -343,21 +346,21 @@ static errr term_xtra_svgalib(int n, int v)
 			return 0;
 		}
 
-		case TERM_XTRA_FLUSH:
+	case TERM_XTRA_FLUSH:
 		{
 			/* Flush all pending events */
 			/* Should discard all key presses but unimplemented */
 			return 0;
 		}
 
-		case TERM_XTRA_CLEAR:
+	case TERM_XTRA_CLEAR:
 		{
 			/* Clear the entire window */
 			gl_fillbox (0, 0, 80 * CHAR_W, 25 * CHAR_H, 0);
 			return 0;
 		}
 
-		case TERM_XTRA_DELAY:
+	case TERM_XTRA_DELAY:
 		{
 			/* Delay for some milliseconds */
 			usleep(1000 * v);
@@ -374,7 +377,7 @@ static errr term_xtra_svgalib(int n, int v)
 static errr term_curs_svgalib(int x, int y)
 {
 	gl_fillbox(x * CHAR_W, y * CHAR_H, CHAR_W, CHAR_H, 15);
-	return(0);
+	return (0);
 }
 
 /*
@@ -384,7 +387,7 @@ static errr term_curs_svgalib(int x, int y)
 static errr term_wipe_svgalib(int x, int y, int n)
 {
 	gl_fillbox(x * CHAR_W, y * CHAR_H, n * CHAR_W, CHAR_H, 0);
-	return(0);
+	return (0);
 }
 
 /*
@@ -399,7 +402,7 @@ static errr term_text_svgalib(int x, int y, int n, byte a, cptr s)
 	/* Draw the coloured text */
 	gl_colorfont(8, 12, COLOR_OFFSET + (a & 0x0F), font);
 	gl_writen(x * CHAR_W, y * CHAR_H, n, (char *) s);
-	return(0);
+	return (0);
 }
 
 /*
@@ -411,11 +414,11 @@ static errr term_text_svgalib(int x, int y, int n, byte a, cptr s)
 
 # ifdef USE_TRANSPARENCY
 static errr term_pict_svgalib(int x, int y, int n,
-	 const byte *ap, const char *cp, const byte *tap, const char *tcp)
+                              const byte *ap, const char *cp, const byte *tap, const char *tcp)
 # else /* USE_TRANSPARENCY */
 static errr term_pict_svgalib(int x, int y, int n,
-	 const byte *ap, const char *cp)
-# endif /* USE_TRANSPARENCY */
+                              const byte *ap, const char *cp)
+# endif  /* USE_TRANSPARENCY */
 {
 	int i;
 	int x2, y2;
@@ -425,7 +428,7 @@ static errr term_pict_svgalib(int x, int y, int n,
 	/* Hack - Ignore unused transparency data for now */
 	(void) tap;
 	(void) tcp;
-# endif /* USE_TRANSPARENCY */
+# endif  /* USE_TRANSPARENCY */
 
 	for (i = 0; i < n; i++)
 	{
@@ -433,9 +436,9 @@ static errr term_pict_svgalib(int x, int y, int n,
 		y2 = (ap[i] & 0x7F) * CHAR_H;
 
 		gl_copyboxfromcontext(buffer, x2, y2, CHAR_W, CHAR_H,
-			 (x + i) * CHAR_W, y * CHAR_H);
+		                      (x + i) * CHAR_W, y * CHAR_H);
 	}
-	return(0);
+	return (0);
 }
 
 static void term_load_bitmap(void)
@@ -455,7 +458,7 @@ static void term_load_bitmap(void)
 	if (fd_close(fd_open(path, O_RDONLY)))
 	{
 		printf ("Unable to load bitmap data file %s, bailing out....\n", path);
-		exit (-1);
+		exit ( -1);
 	}
 
 	temp = ReadBMP(path, &bw, &bh);
@@ -515,7 +518,7 @@ static void term_init_svgalib(term *t)
 	gl_getcontext(screen);
 
 	/* Is this needed? */
-	gl_enablepageflipping(screen);	
+	gl_enablepageflipping(screen);
 
 	/* Set up palette colors */
 	setpal();
@@ -589,7 +592,7 @@ errr init_lsl(void)
 	/* Activate it */
 	Term_activate(term_screen);
 
-	return(0);
+	return (0);
 }
 
 #endif /* USE_LSL */

@@ -25,3 +25,5 @@ Charisma        -3
 Hit Dice Sides  11         
 Exp Penalty     +25%
 
+#####GSkill bonuses (supplementary to existing skills)
+Axe-mastery            0.000           [0.200]

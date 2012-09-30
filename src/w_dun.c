@@ -1,6 +1,6 @@
 /*
 ** Lua binding: dungeon
-** Generated automatically by tolua 4.0a - angband on Mon Jan  6 12:03:09 2003.
+** Generated automatically by tolua 4.0a - angband on Sun Jun 15 19:53:34 2003.
 */
 
 #include "lua/tolua.h"
@@ -1705,6 +1705,46 @@ static int toluaI_set_dungeon_dungeon_info_type_flags2(lua_State* tolua_S)
  return 0;
 }
 
+/* get function: size_x of class  dungeon_info_type */
+static int toluaI_get_dungeon_dungeon_info_type_size_x(lua_State* tolua_S)
+{
+  dungeon_info_type* self = (dungeon_info_type*)  tolua_getusertype(tolua_S,1,0);
+ if (!self) TOLUA_ERR_SELF;
+ tolua_pushnumber(tolua_S,(long)self->size_x);
+ return 1;
+}
+
+/* set function: size_x of class  dungeon_info_type */
+static int toluaI_set_dungeon_dungeon_info_type_size_x(lua_State* tolua_S)
+{
+  dungeon_info_type* self = (dungeon_info_type*)  tolua_getusertype(tolua_S,1,0);
+ if (!self) TOLUA_ERR_SELF;
+ if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
+ TOLUA_ERR_ASSIGN;
+  self->size_x = ((int)  tolua_getnumber(tolua_S,2,0));
+ return 0;
+}
+
+/* get function: size_y of class  dungeon_info_type */
+static int toluaI_get_dungeon_dungeon_info_type_size_y(lua_State* tolua_S)
+{
+  dungeon_info_type* self = (dungeon_info_type*)  tolua_getusertype(tolua_S,1,0);
+ if (!self) TOLUA_ERR_SELF;
+ tolua_pushnumber(tolua_S,(long)self->size_y);
+ return 1;
+}
+
+/* set function: size_y of class  dungeon_info_type */
+static int toluaI_set_dungeon_dungeon_info_type_size_y(lua_State* tolua_S)
+{
+  dungeon_info_type* self = (dungeon_info_type*)  tolua_getusertype(tolua_S,1,0);
+ if (!self) TOLUA_ERR_SELF;
+ if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
+ TOLUA_ERR_ASSIGN;
+  self->size_y = ((int)  tolua_getnumber(tolua_S,2,0));
+ return 0;
+}
+
 /* get function: rule_percents of class  dungeon_info_type */
 static int toluaI_get_dungeon_dungeon_info_type_rule_percents(lua_State* tolua_S)
 {
@@ -2337,6 +2377,22 @@ static int toluaI_set_dungeon_wf_text(lua_State* tolua_S)
  return 0;
 }
 
+/* get function: DUNGEON_DEATH */
+static int toluaI_get_dungeon_DUNGEON_DEATH(lua_State* tolua_S)
+{
+ tolua_pushnumber(tolua_S,(long)DUNGEON_DEATH);
+ return 1;
+}
+
+/* set function: DUNGEON_DEATH */
+static int toluaI_set_dungeon_DUNGEON_DEATH(lua_State* tolua_S)
+{
+ if (!tolua_istype(tolua_S,1,LUA_TNUMBER,0))
+ TOLUA_ERR_ASSIGN;
+  DUNGEON_DEATH = ((s32b)  tolua_getnumber(tolua_S,1,0));
+ return 0;
+}
+
 /* get function: dungeon_type */
 static int toluaI_get_dungeon_current_dungeon_idx(lua_State* tolua_S)
 {
@@ -2400,11 +2456,316 @@ tolua_lerror:
  return 0;
 }
 
+/* function: place_floor */
+static int toluaI_dungeon_place_floor00(lua_State* tolua_S)
+{
+ if (
+ !tolua_istype(tolua_S,1,LUA_TNUMBER,0) ||
+ !tolua_istype(tolua_S,2,LUA_TNUMBER,0) ||
+ !tolua_isnoobj(tolua_S,3)
+ )
+ goto tolua_lerror;
+ else
+ {
+  int y = ((int)  tolua_getnumber(tolua_S,1,0));
+  int x = ((int)  tolua_getnumber(tolua_S,2,0));
+ {
+  place_floor(y,x);
+ }
+ }
+ return 0;
+tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'place_floor'.");
+ return 0;
+}
+
+/* function: place_filler */
+static int toluaI_dungeon_place_filler00(lua_State* tolua_S)
+{
+ if (
+ !tolua_istype(tolua_S,1,LUA_TNUMBER,0) ||
+ !tolua_istype(tolua_S,2,LUA_TNUMBER,0) ||
+ !tolua_isnoobj(tolua_S,3)
+ )
+ goto tolua_lerror;
+ else
+ {
+  int y = ((int)  tolua_getnumber(tolua_S,1,0));
+  int x = ((int)  tolua_getnumber(tolua_S,2,0));
+ {
+  place_filler(y,x);
+ }
+ }
+ return 0;
+tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'place_filler'.");
+ return 0;
+}
+
+/* function: add_scripted_generator */
+static int toluaI_dungeon_add_scripted_generator00(lua_State* tolua_S)
+{
+ if (
+ !tolua_istype(tolua_S,1,LUA_TSTRING,0) ||
+ !tolua_istype(tolua_S,2,LUA_TNUMBER,0) ||
+ !tolua_istype(tolua_S,3,LUA_TNUMBER,0) ||
+ !tolua_istype(tolua_S,4,LUA_TNUMBER,0) ||
+ !tolua_istype(tolua_S,5,LUA_TNUMBER,0) ||
+ !tolua_isnoobj(tolua_S,6)
+ )
+ goto tolua_lerror;
+ else
+ {
+  cptr name = ((cptr)  tolua_getstring(tolua_S,1,0));
+  bool stairs = ((bool)  tolua_getnumber(tolua_S,2,0));
+  bool monsters = ((bool)  tolua_getnumber(tolua_S,3,0));
+  bool objects = ((bool)  tolua_getnumber(tolua_S,4,0));
+  bool miscs = ((bool)  tolua_getnumber(tolua_S,5,0));
+ {
+  add_scripted_generator(name,stairs,monsters,objects,miscs);
+ }
+ }
+ return 0;
+tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'add_scripted_generator'.");
+ return 0;
+}
+
+/* function: new_player_spot */
+static int toluaI_dungeon_new_player_spot00(lua_State* tolua_S)
+{
+ if (
+ !tolua_istype(tolua_S,1,LUA_TNUMBER,0) ||
+ !tolua_isnoobj(tolua_S,2)
+ )
+ goto tolua_lerror;
+ else
+ {
+  int branch = ((int)  tolua_getnumber(tolua_S,1,0));
+ {
+  bool toluaI_ret = (bool)  new_player_spot(branch);
+ tolua_pushnumber(tolua_S,(long)toluaI_ret);
+ }
+ }
+ return 1;
+tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'new_player_spot'.");
+ return 0;
+}
+
+/* function: get_level_desc */
+static int toluaI_dungeon_get_level_desc00(lua_State* tolua_S)
+{
+ if (
+ !tolua_istype(tolua_S,1,LUA_TSTRING,0) ||
+ !tolua_isnoobj(tolua_S,2)
+ )
+ goto tolua_lerror;
+ else
+ {
+  char* buf = ((char*)  tolua_getstring(tolua_S,1,0));
+ {
+  bool toluaI_ret = (bool)  get_level_desc(buf);
+ tolua_pushnumber(tolua_S,(long)toluaI_ret);
+ }
+ }
+ return 1;
+tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'get_level_desc'.");
+ return 0;
+}
+
+/* function: get_level_flags */
+static int toluaI_dungeon_get_level_flags00(lua_State* tolua_S)
+{
+ if (
+ !tolua_isnoobj(tolua_S,1)
+ )
+ goto tolua_lerror;
+ else
+ {
+ {
+  get_level_flags();
+ }
+ }
+ return 0;
+tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'get_level_flags'.");
+ return 0;
+}
+
+/* function: get_dungeon_name */
+static int toluaI_dungeon_get_dungeon_name00(lua_State* tolua_S)
+{
+ if (
+ !tolua_istype(tolua_S,1,LUA_TSTRING,0) ||
+ !tolua_isnoobj(tolua_S,2)
+ )
+ goto tolua_lerror;
+ else
+ {
+  char* buf = ((char*)  tolua_getstring(tolua_S,1,0));
+ {
+  bool toluaI_ret = (bool)  get_dungeon_name(buf);
+ tolua_pushnumber(tolua_S,(long)toluaI_ret);
+ }
+ }
+ return 1;
+tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'get_dungeon_name'.");
+ return 0;
+}
+
+/* function: get_dungeon_special */
+static int toluaI_dungeon_get_dungeon_special00(lua_State* tolua_S)
+{
+ if (
+ !tolua_istype(tolua_S,1,LUA_TSTRING,0) ||
+ !tolua_isnoobj(tolua_S,2)
+ )
+ goto tolua_lerror;
+ else
+ {
+  char* buf = ((char*)  tolua_getstring(tolua_S,1,0));
+ {
+  bool toluaI_ret = (bool)  get_dungeon_special(buf);
+ tolua_pushnumber(tolua_S,(long)toluaI_ret);
+ }
+ }
+ return 1;
+tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'get_dungeon_special'.");
+ return 0;
+}
+
+/* function: get_command */
+static int toluaI_dungeon_get_command00(lua_State* tolua_S)
+{
+ if (
+ !tolua_istype(tolua_S,1,LUA_TSTRING,0) ||
+ !tolua_istype(tolua_S,2,LUA_TNUMBER,0) ||
+ !tolua_istype(tolua_S,3,LUA_TSTRING,0) ||
+ !tolua_isnoobj(tolua_S,4)
+ )
+ goto tolua_lerror;
+ else
+ {
+  const char* file = ((const char*)  tolua_getstring(tolua_S,1,0));
+  char comm = ((char)  tolua_getnumber(tolua_S,2,0));
+  char* param = ((char*)  tolua_getstring(tolua_S,3,0));
+ {
+  bool toluaI_ret = (bool)  get_command(file,comm,param);
+ tolua_pushnumber(tolua_S,(long)toluaI_ret);
+ }
+ }
+ return 1;
+tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'get_command'.");
+ return 0;
+}
+
+/* function: get_branch */
+static int toluaI_dungeon_get_branch00(lua_State* tolua_S)
+{
+ if (
+ !tolua_isnoobj(tolua_S,1)
+ )
+ goto tolua_lerror;
+ else
+ {
+ {
+  int toluaI_ret = (int)  get_branch();
+ tolua_pushnumber(tolua_S,(long)toluaI_ret);
+ }
+ }
+ return 1;
+tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'get_branch'.");
+ return 0;
+}
+
+/* function: get_fbranch */
+static int toluaI_dungeon_get_fbranch00(lua_State* tolua_S)
+{
+ if (
+ !tolua_isnoobj(tolua_S,1)
+ )
+ goto tolua_lerror;
+ else
+ {
+ {
+  int toluaI_ret = (int)  get_fbranch();
+ tolua_pushnumber(tolua_S,(long)toluaI_ret);
+ }
+ }
+ return 1;
+tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'get_fbranch'.");
+ return 0;
+}
+
+/* function: get_flevel */
+static int toluaI_dungeon_get_flevel00(lua_State* tolua_S)
+{
+ if (
+ !tolua_isnoobj(tolua_S,1)
+ )
+ goto tolua_lerror;
+ else
+ {
+ {
+  int toluaI_ret = (int)  get_flevel();
+ tolua_pushnumber(tolua_S,(long)toluaI_ret);
+ }
+ }
+ return 1;
+tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'get_flevel'.");
+ return 0;
+}
+
+/* function: get_dungeon_save */
+static int toluaI_dungeon_get_dungeon_save00(lua_State* tolua_S)
+{
+ if (
+ !tolua_istype(tolua_S,1,LUA_TSTRING,0) ||
+ !tolua_isnoobj(tolua_S,2)
+ )
+ goto tolua_lerror;
+ else
+ {
+  char* buf = ((char*)  tolua_getstring(tolua_S,1,0));
+ {
+  bool toluaI_ret = (bool)  get_dungeon_save(buf);
+ tolua_pushnumber(tolua_S,(long)toluaI_ret);
+ }
+ }
+ return 1;
+tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'get_dungeon_save'.");
+ return 0;
+}
+
 /* Open function */
 int tolua_dungeon_open (lua_State* tolua_S)
 {
  tolua_open(tolua_S);
  toluaI_reg_types(tolua_S);
+ tolua_constant(tolua_S,NULL,"CAVE_MARK",CAVE_MARK);
+ tolua_constant(tolua_S,NULL,"CAVE_GLOW",CAVE_GLOW);
+ tolua_constant(tolua_S,NULL,"CAVE_ICKY",CAVE_ICKY);
+ tolua_constant(tolua_S,NULL,"CAVE_ROOM",CAVE_ROOM);
+ tolua_constant(tolua_S,NULL,"CAVE_SEEN",CAVE_SEEN);
+ tolua_constant(tolua_S,NULL,"CAVE_VIEW",CAVE_VIEW);
+ tolua_constant(tolua_S,NULL,"CAVE_TEMP",CAVE_TEMP);
+ tolua_constant(tolua_S,NULL,"CAVE_WALL",CAVE_WALL);
+ tolua_constant(tolua_S,NULL,"CAVE_TRDT",CAVE_TRDT);
+ tolua_constant(tolua_S,NULL,"CAVE_IDNT",CAVE_IDNT);
+ tolua_constant(tolua_S,NULL,"CAVE_SPEC",CAVE_SPEC);
+ tolua_constant(tolua_S,NULL,"CAVE_FREE",CAVE_FREE);
+ tolua_constant(tolua_S,NULL,"CAVE_DETECT",CAVE_DETECT);
+ tolua_constant(tolua_S,NULL,"CAVE_PLIT",CAVE_PLIT);
+ tolua_constant(tolua_S,NULL,"CAVE_MLIT",CAVE_MLIT);
  tolua_constant(tolua_S,NULL,"FEAT_NONE",FEAT_NONE);
  tolua_constant(tolua_S,NULL,"FEAT_FLOOR",FEAT_FLOOR);
  tolua_constant(tolua_S,NULL,"FEAT_FOUNTAIN",FEAT_FOUNTAIN);
@@ -2478,6 +2839,7 @@ int tolua_dungeon_open (lua_State* tolua_S)
  tolua_constant(tolua_S,NULL,"FEAT_TAINTED_WATER",FEAT_TAINTED_WATER);
  tolua_constant(tolua_S,NULL,"FEAT_MON_TRAP",FEAT_MON_TRAP);
  tolua_constant(tolua_S,NULL,"FEAT_BETWEEN2",FEAT_BETWEEN2);
+ tolua_constant(tolua_S,NULL,"FEAT_LAVA_WALL",FEAT_LAVA_WALL);
  tolua_constant(tolua_S,NULL,"FEAT_GREAT_FIRE",FEAT_GREAT_FIRE);
  tolua_constant(tolua_S,NULL,"FEAT_WAY_MORE",FEAT_WAY_MORE);
  tolua_constant(tolua_S,NULL,"FEAT_WAY_LESS",FEAT_WAY_LESS);
@@ -2535,6 +2897,9 @@ int tolua_dungeon_open (lua_State* tolua_S)
  tolua_constant(tolua_S,NULL,"DF2_WATER_BREATH",DF2_WATER_BREATH);
  tolua_constant(tolua_S,NULL,"DF2_ELVEN",DF2_ELVEN);
  tolua_constant(tolua_S,NULL,"DF2_DWARVEN",DF2_DWARVEN);
+ tolua_constant(tolua_S,NULL,"DF2_NO_EASY_MOVE",DF2_NO_EASY_MOVE);
+ tolua_constant(tolua_S,NULL,"DF2_NO_RECALL_OUT",DF2_NO_RECALL_OUT);
+ tolua_constant(tolua_S,NULL,"DF2_DESC_ALWAYS",DF2_DESC_ALWAYS);
  tolua_globalvar(tolua_S,"level_flags1",toluaI_get_dungeon_level_flags1,toluaI_set_dungeon_level_flags1);
  tolua_globalvar(tolua_S,"level_flags2",toluaI_get_dungeon_level_flags2,toluaI_set_dungeon_level_flags2);
  tolua_constant(tolua_S,NULL,"MAX_HGT",MAX_HGT);
@@ -2635,6 +3000,8 @@ int tolua_dungeon_open (lua_State* tolua_S)
  tolua_tablevar(tolua_S,"dungeon_info_type","max_m_alloc_chance",toluaI_get_dungeon_dungeon_info_type_max_m_alloc_chance,toluaI_set_dungeon_dungeon_info_type_max_m_alloc_chance);
  tolua_tablevar(tolua_S,"dungeon_info_type","flags1",toluaI_get_dungeon_dungeon_info_type_flags1,toluaI_set_dungeon_dungeon_info_type_flags1);
  tolua_tablevar(tolua_S,"dungeon_info_type","flags2",toluaI_get_dungeon_dungeon_info_type_flags2,toluaI_set_dungeon_dungeon_info_type_flags2);
+ tolua_tablevar(tolua_S,"dungeon_info_type","size_x",toluaI_get_dungeon_dungeon_info_type_size_x,toluaI_set_dungeon_dungeon_info_type_size_x);
+ tolua_tablevar(tolua_S,"dungeon_info_type","size_y",toluaI_get_dungeon_dungeon_info_type_size_y,toluaI_set_dungeon_dungeon_info_type_size_y);
  tolua_tablearray(tolua_S,"dungeon_info_type","rule_percents",toluaI_get_dungeon_dungeon_info_type_rule_percents,toluaI_set_dungeon_dungeon_info_type_rule_percents);
  tolua_tablearray(tolua_S,"dungeon_info_type","rules",toluaI_get_dungeon_dungeon_info_type_rules,toluaI_set_dungeon_dungeon_info_type_rules);
  tolua_tablevar(tolua_S,"dungeon_info_type","final_object",toluaI_get_dungeon_dungeon_info_type_final_object,toluaI_set_dungeon_dungeon_info_type_final_object);
@@ -2662,14 +3029,43 @@ int tolua_dungeon_open (lua_State* tolua_S)
  tolua_globalarray(tolua_S,"wf_info",toluaI_get_dungeon_wf_info,toluaI_set_dungeon_wf_info);
  tolua_globalvar(tolua_S,"wf_name",toluaI_get_dungeon_wf_name,toluaI_set_dungeon_wf_name);
  tolua_globalvar(tolua_S,"wf_text",toluaI_get_dungeon_wf_text,toluaI_set_dungeon_wf_text);
+ tolua_globalvar(tolua_S,"DUNGEON_DEATH",toluaI_get_dungeon_DUNGEON_DEATH,toluaI_set_dungeon_DUNGEON_DEATH);
  tolua_globalvar(tolua_S,"current_dungeon_idx",toluaI_get_dungeon_current_dungeon_idx,toluaI_set_dungeon_current_dungeon_idx);
  tolua_function(tolua_S,NULL,"wild_map",toluaI_dungeon_wild_map00);
  tolua_function(tolua_S,NULL,"place_trap",toluaI_dungeon_place_trap00);
+ tolua_function(tolua_S,NULL,"place_floor",toluaI_dungeon_place_floor00);
+ tolua_function(tolua_S,NULL,"place_filler",toluaI_dungeon_place_filler00);
+ tolua_function(tolua_S,NULL,"add_scripted_generator",toluaI_dungeon_add_scripted_generator00);
+ tolua_function(tolua_S,NULL,"new_player_spot",toluaI_dungeon_new_player_spot00);
+ tolua_function(tolua_S,NULL,"get_level_desc",toluaI_dungeon_get_level_desc00);
+ tolua_function(tolua_S,NULL,"get_level_flags",toluaI_dungeon_get_level_flags00);
+ tolua_function(tolua_S,NULL,"get_dungeon_name",toluaI_dungeon_get_dungeon_name00);
+ tolua_function(tolua_S,NULL,"get_dungeon_special",toluaI_dungeon_get_dungeon_special00);
+ tolua_function(tolua_S,NULL,"get_command",toluaI_dungeon_get_command00);
+ tolua_function(tolua_S,NULL,"get_branch",toluaI_dungeon_get_branch00);
+ tolua_function(tolua_S,NULL,"get_fbranch",toluaI_dungeon_get_fbranch00);
+ tolua_function(tolua_S,NULL,"get_flevel",toluaI_dungeon_get_flevel00);
+ tolua_function(tolua_S,NULL,"get_dungeon_save",toluaI_dungeon_get_dungeon_save00);
  return 1;
 }
 /* Close function */
 void tolua_dungeon_close (lua_State* tolua_S)
 {
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"CAVE_MARK");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"CAVE_GLOW");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"CAVE_ICKY");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"CAVE_ROOM");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"CAVE_SEEN");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"CAVE_VIEW");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"CAVE_TEMP");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"CAVE_WALL");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"CAVE_TRDT");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"CAVE_IDNT");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"CAVE_SPEC");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"CAVE_FREE");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"CAVE_DETECT");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"CAVE_PLIT");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"CAVE_MLIT");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"FEAT_NONE");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"FEAT_FLOOR");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"FEAT_FOUNTAIN");
@@ -2743,6 +3139,7 @@ void tolua_dungeon_close (lua_State* tolua_S)
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"FEAT_TAINTED_WATER");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"FEAT_MON_TRAP");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"FEAT_BETWEEN2");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"FEAT_LAVA_WALL");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"FEAT_GREAT_FIRE");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"FEAT_WAY_MORE");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"FEAT_WAY_LESS");
@@ -2800,6 +3197,9 @@ void tolua_dungeon_close (lua_State* tolua_S)
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"DF2_WATER_BREATH");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"DF2_ELVEN");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"DF2_DWARVEN");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"DF2_NO_EASY_MOVE");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"DF2_NO_RECALL_OUT");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"DF2_DESC_ALWAYS");
  lua_getglobals(tolua_S);
  lua_pushstring(tolua_S,"level_flags1"); lua_pushnil(tolua_S); lua_rawset(tolua_S,-3);
  lua_pop(tolua_S,1);
@@ -2862,8 +3262,24 @@ void tolua_dungeon_close (lua_State* tolua_S)
  lua_pushstring(tolua_S,"wf_text"); lua_pushnil(tolua_S); lua_rawset(tolua_S,-3);
  lua_pop(tolua_S,1);
  lua_getglobals(tolua_S);
+ lua_pushstring(tolua_S,"DUNGEON_DEATH"); lua_pushnil(tolua_S); lua_rawset(tolua_S,-3);
+ lua_pop(tolua_S,1);
+ lua_getglobals(tolua_S);
  lua_pushstring(tolua_S,"current_dungeon_idx"); lua_pushnil(tolua_S); lua_rawset(tolua_S,-3);
  lua_pop(tolua_S,1);
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"wild_map");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"place_trap");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"place_floor");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"place_filler");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"add_scripted_generator");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"new_player_spot");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"get_level_desc");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"get_level_flags");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"get_dungeon_name");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"get_dungeon_special");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"get_command");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"get_branch");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"get_fbranch");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"get_flevel");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"get_dungeon_save");
 }

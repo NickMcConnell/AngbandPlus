@@ -181,9 +181,7 @@ static bool is_blind()
  */
 static int get_distance_to_player(int x, int y)
 {                                
-  // PernAngband variant
-  
-  return distance(y, x, py, px);
+  return distance(y, x, p_ptr->py, p_ptr->px);
 }
 
 #else
@@ -266,8 +264,8 @@ void display_dinge(int x, int y, int xpos, int ypos)
   int i;
 
   // relative to view position
-  int xoff = x - px + (SCREEN_WID/2+13);
-  int yoff = y - py + (SCREEN_HGT/2+1);
+  int xoff = x - p_ptr->px + (SCREEN_WID/2+13);
+  int yoff = y - p_ptr->py + (SCREEN_HGT/2+1);
 
   // try to use output of the term package
   if(xoff >= 0 && yoff >= 1 && xoff < 80 && yoff < 23) {

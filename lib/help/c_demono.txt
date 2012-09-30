@@ -37,6 +37,12 @@ Spirituality            2.000           [0.700]
   Prayer                0.000           [0.500]
 Monster-lore            0.000           [0.500]
 
+#####GInnate Abilities:
+#####BAbility              Character level
+Extra-Max-Blow(1)           1
+Extra-Max-Blow(2)           1
+Spread-blows                25
+
 #####GStarting Equipment
 A Demonologist begins the game with:
     A ring of fear resistance

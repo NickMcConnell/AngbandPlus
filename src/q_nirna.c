@@ -34,10 +34,10 @@ bool quest_nirnaeth_gen_hook(char *fmt)
 	cquest.data[0] = 0;
 	cquest.data[1] = 0;
 	for (x = 2; x < xstart; x++)
-	for (y = 2; y < ystart; y++)
-	{
-		if (cave[y][x].m_idx) cquest.data[0]++;
-	}
+		for (y = 2; y < ystart; y++)
+		{
+			if (cave[y][x].m_idx) cquest.data[0]++;
+		}
 
 	return TRUE;
 }
@@ -90,7 +90,7 @@ bool quest_nirnaeth_stair_hook(char *fmt)
 {
 	if (p_ptr->inside_quest != QUEST_NIRNAETH) return FALSE;
 
-	if (cave[py][px].feat != FEAT_LESS) return (FALSE);
+	if (cave[p_ptr->py][p_ptr->px].feat != FEAT_LESS) return (FALSE);
 
 	cmsg_print(TERM_YELLOW, "You found a way out!");
 	cquest.status = QUEST_STATUS_COMPLETED;

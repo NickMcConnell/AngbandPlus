@@ -1,6 +1,6 @@
 /*
 ** Lua binding: spells
-** Generated automatically by tolua 4.0a - angband on Tue Dec  3 21:40:42 2002.
+** Generated automatically by tolua 4.0a - angband on Sat Jun  7 17:07:33 2003.
 */
 
 #include "lua/tolua.h"
@@ -342,6 +342,29 @@ static int toluaI_spells_corrupt_player00(lua_State* tolua_S)
  return 0;
 tolua_lerror:
  tolua_error(tolua_S,"#ferror in function 'corrupt_player'.");
+ return 0;
+}
+
+/* function: grow_things */
+static int toluaI_spells_grow_things00(lua_State* tolua_S)
+{
+ if (
+ !tolua_istype(tolua_S,1,LUA_TNUMBER,0) ||
+ !tolua_istype(tolua_S,2,LUA_TNUMBER,0) ||
+ !tolua_isnoobj(tolua_S,3)
+ )
+ goto tolua_lerror;
+ else
+ {
+  s16b type = ((s16b)  tolua_getnumber(tolua_S,1,0));
+  int rad = ((int)  tolua_getnumber(tolua_S,2,0));
+ {
+  grow_things(type,rad);
+ }
+ }
+ return 0;
+tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'grow_things'.");
  return 0;
 }
 
@@ -1206,6 +1229,30 @@ static int toluaI_spells_aggravate_monsters00(lua_State* tolua_S)
  return 0;
 tolua_lerror:
  tolua_error(tolua_S,"#ferror in function 'aggravate_monsters'.");
+ return 0;
+}
+
+/* function: genocide_aux */
+static int toluaI_spells_genocide_aux00(lua_State* tolua_S)
+{
+ if (
+ !tolua_istype(tolua_S,1,LUA_TNUMBER,0) ||
+ !tolua_istype(tolua_S,2,LUA_TNUMBER,0) ||
+ !tolua_isnoobj(tolua_S,3)
+ )
+ goto tolua_lerror;
+ else
+ {
+  bool player_cast = ((bool)  tolua_getnumber(tolua_S,1,0));
+  char typ = ((char)  tolua_getnumber(tolua_S,2,0));
+ {
+  bool toluaI_ret = (bool)  genocide_aux(player_cast,typ);
+ tolua_pushnumber(tolua_S,(long)toluaI_ret);
+ }
+ }
+ return 1;
+tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'genocide_aux'.");
  return 0;
 }
 
@@ -2189,39 +2236,6 @@ tolua_lerror:
  return 0;
 }
 
-/* function: project */
-static int toluaI_spells_project01(lua_State* tolua_S)
-{
- if (
- !tolua_istype(tolua_S,1,LUA_TNUMBER,0) ||
- !tolua_istype(tolua_S,2,LUA_TNUMBER,0) ||
- !tolua_istype(tolua_S,3,LUA_TNUMBER,0) ||
- !tolua_istype(tolua_S,4,LUA_TNUMBER,0) ||
- !tolua_istype(tolua_S,5,LUA_TNUMBER,0) ||
- !tolua_istype(tolua_S,6,LUA_TNUMBER,0) ||
- !tolua_istype(tolua_S,7,LUA_TNUMBER,0) ||
- !tolua_isnoobj(tolua_S,8)
- )
- goto tolua_lerror;
- else
- {
-  int who = ((int)  tolua_getnumber(tolua_S,1,0));
-  int rad = ((int)  tolua_getnumber(tolua_S,2,0));
-  int y = ((int)  tolua_getnumber(tolua_S,3,0));
-  int x = ((int)  tolua_getnumber(tolua_S,4,0));
-  int dam = ((int)  tolua_getnumber(tolua_S,5,0));
-  int typ = ((int)  tolua_getnumber(tolua_S,6,0));
-  int flg = ((int)  tolua_getnumber(tolua_S,7,0));
- {
-  bool toluaI_ret = (bool)  project(who,rad,y,x,dam,typ,flg);
- tolua_pushnumber(tolua_S,(long)toluaI_ret);
- }
- }
- return 1;
-tolua_lerror:
- return toluaI_spells_project00(tolua_S);
-}
-
 /* function: reset_recall */
 static int toluaI_spells_reset_recall00(lua_State* tolua_S)
 {
@@ -2623,7 +2637,7 @@ static int toluaI_spells_select_magic_power00(lua_State* tolua_S)
   int plev = ((int)  tolua_getnumber(tolua_S,5,0));
   int cast_stat = ((int)  tolua_getnumber(tolua_S,6,0));
  {
-  int toluaI_ret = (int)  get_magic_power_lua(&sn,powers,max_powers,info_fct,plev,cast_stat);
+  bool toluaI_ret = (bool)  get_magic_power_lua(&sn,powers,max_powers,info_fct,plev,cast_stat);
  tolua_pushnumber(tolua_S,(long)toluaI_ret);
  tolua_pushnumber(tolua_S,(long)sn);
  }
@@ -2808,7 +2822,7 @@ static int toluaI_set_spells_spell_type_fail(lua_State* tolua_S)
  if (!self) TOLUA_ERR_SELF;
  if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
  TOLUA_ERR_ASSIGN;
-  self->fail = ((byte)  tolua_getnumber(tolua_S,2,0));
+  self->fail = ((s16b)  tolua_getnumber(tolua_S,2,0));
  return 0;
 }
 
@@ -3059,14 +3073,18 @@ static int toluaI_spells_get_school_spell00(lua_State* tolua_S)
 {
  if (
  !tolua_istype(tolua_S,1,LUA_TSTRING,0) ||
- !tolua_isnoobj(tolua_S,2)
+ !tolua_istype(tolua_S,2,LUA_TSTRING,0) ||
+ !tolua_istype(tolua_S,3,LUA_TNUMBER,0) ||
+ !tolua_isnoobj(tolua_S,4)
  )
  goto tolua_lerror;
  else
  {
   cptr do_what = ((cptr)  tolua_getstring(tolua_S,1,0));
+  cptr check_fct = ((cptr)  tolua_getstring(tolua_S,2,0));
+  s16b force_book = ((s16b)  tolua_getnumber(tolua_S,3,0));
  {
-  u32b toluaI_ret = (u32b)  get_school_spell(do_what);
+  u32b toluaI_ret = (u32b)  get_school_spell(do_what,check_fct,force_book);
  tolua_pushnumber(tolua_S,(long)toluaI_ret);
  }
  }
@@ -3113,8 +3131,8 @@ static int toluaI_spells_get_pos_player00(lua_State* tolua_S)
 {
  if (
  !tolua_istype(tolua_S,1,LUA_TNUMBER,0) ||
- !tolua_istype(tolua_S,2,LUA_TNUMBER,0) ||
- !tolua_istype(tolua_S,3,LUA_TNUMBER,0) ||
+ !tolua_istype(tolua_S,2,LUA_TNUMBER,1) ||
+ !tolua_istype(tolua_S,3,LUA_TNUMBER,1) ||
  !tolua_isnoobj(tolua_S,4)
  )
  goto tolua_lerror;
@@ -3133,28 +3151,6 @@ static int toluaI_spells_get_pos_player00(lua_State* tolua_S)
 tolua_lerror:
  tolua_error(tolua_S,"#ferror in function 'get_pos_player'.");
  return 0;
-}
-
-/* function: teleport_player_to */
-static int toluaI_spells_teleport_player_to01(lua_State* tolua_S)
-{
- if (
- !tolua_istype(tolua_S,1,LUA_TNUMBER,0) ||
- !tolua_istype(tolua_S,2,LUA_TNUMBER,0) ||
- !tolua_isnoobj(tolua_S,3)
- )
- goto tolua_lerror;
- else
- {
-  int ny = ((int)  tolua_getnumber(tolua_S,1,0));
-  int nx = ((int)  tolua_getnumber(tolua_S,2,0));
- {
-  teleport_player_to(ny,nx);
- }
- }
- return 0;
-tolua_lerror:
- return toluaI_spells_teleport_player_to00(tolua_S);
 }
 
 /* Open function */
@@ -3255,6 +3251,8 @@ int tolua_spells_open (lua_State* tolua_S)
  tolua_constant(tolua_S,NULL,"GF_RAISE_DEMON",GF_RAISE_DEMON);
  tolua_constant(tolua_S,NULL,"GF_TRAP_DEMONSOUL",GF_TRAP_DEMONSOUL);
  tolua_constant(tolua_S,NULL,"GF_ATTACK",GF_ATTACK);
+ tolua_constant(tolua_S,NULL,"GF_CHARM_UNMOVING",GF_CHARM_UNMOVING);
+ tolua_constant(tolua_S,NULL,"MAX_GF",MAX_GF);
  tolua_constant(tolua_S,NULL,"PROJECT_JUMP",PROJECT_JUMP);
  tolua_constant(tolua_S,NULL,"PROJECT_BEAM",PROJECT_BEAM);
  tolua_constant(tolua_S,NULL,"PROJECT_THRU",PROJECT_THRU);
@@ -3286,6 +3284,7 @@ int tolua_spells_open (lua_State* tolua_S)
  tolua_function(tolua_S,NULL,"take_sanity_hit",toluaI_spells_take_sanity_hit00);
  tolua_function(tolua_S,NULL,"project",toluaI_spells_project00);
  tolua_function(tolua_S,NULL,"corrupt_player",toluaI_spells_corrupt_player00);
+ tolua_function(tolua_S,NULL,"grow_things",toluaI_spells_grow_things00);
  tolua_function(tolua_S,NULL,"grow_grass",toluaI_spells_grow_grass00);
  tolua_function(tolua_S,NULL,"grow_trees",toluaI_spells_grow_trees00);
  tolua_function(tolua_S,NULL,"hp_player",toluaI_spells_hp_player00);
@@ -3326,6 +3325,7 @@ int tolua_spells_open (lua_State* tolua_S)
  tolua_function(tolua_S,NULL,"identify_fully",toluaI_spells_identify_fully00);
  tolua_function(tolua_S,NULL,"recharge",toluaI_spells_recharge00);
  tolua_function(tolua_S,NULL,"aggravate_monsters",toluaI_spells_aggravate_monsters00);
+ tolua_function(tolua_S,NULL,"genocide_aux",toluaI_spells_genocide_aux00);
  tolua_function(tolua_S,NULL,"genocide",toluaI_spells_genocide00);
  tolua_function(tolua_S,NULL,"mass_genocide",toluaI_spells_mass_genocide00);
  tolua_function(tolua_S,NULL,"probing",toluaI_spells_probing00);
@@ -3353,6 +3353,14 @@ int tolua_spells_open (lua_State* tolua_S)
  tolua_constant(tolua_S,NULL,"EFF_WAVE",EFF_WAVE);
  tolua_constant(tolua_S,NULL,"EFF_LAST",EFF_LAST);
  tolua_constant(tolua_S,NULL,"EFF_STORM",EFF_STORM);
+ tolua_constant(tolua_S,NULL,"EFF_DIR1",EFF_DIR1);
+ tolua_constant(tolua_S,NULL,"EFF_DIR2",EFF_DIR2);
+ tolua_constant(tolua_S,NULL,"EFF_DIR3",EFF_DIR3);
+ tolua_constant(tolua_S,NULL,"EFF_DIR4",EFF_DIR4);
+ tolua_constant(tolua_S,NULL,"EFF_DIR6",EFF_DIR6);
+ tolua_constant(tolua_S,NULL,"EFF_DIR7",EFF_DIR7);
+ tolua_constant(tolua_S,NULL,"EFF_DIR8",EFF_DIR8);
+ tolua_constant(tolua_S,NULL,"EFF_DIR9",EFF_DIR9);
  tolua_function(tolua_S,NULL,"fire_cloud",toluaI_spells_fire_cloud00);
  tolua_function(tolua_S,NULL,"fire_wall",toluaI_spells_fire_wall00);
  tolua_function(tolua_S,NULL,"fire_ball",toluaI_spells_fire_ball00);
@@ -3370,7 +3378,6 @@ int tolua_spells_open (lua_State* tolua_S)
  tolua_function(tolua_S,NULL,"passwall",toluaI_spells_passwall00);
  tolua_function(tolua_S,NULL,"project_hook",toluaI_spells_project_hook00);
  tolua_function(tolua_S,NULL,"wizard_lock",toluaI_spells_wizard_lock00);
- tolua_function(tolua_S,NULL,"project",toluaI_spells_project01);
  tolua_function(tolua_S,NULL,"reset_recall",toluaI_spells_reset_recall00);
  tolua_function(tolua_S,NULL,"get_aim_dir",toluaI_spells_get_aim_dir00);
  tolua_function(tolua_S,NULL,"get_rep_dir",toluaI_spells_get_rep_dir00);
@@ -3415,7 +3422,6 @@ int tolua_spells_open (lua_State* tolua_S)
  tolua_globalvar(tolua_S,"last_teleportation_y",toluaI_get_spells_last_teleportation_y,toluaI_set_spells_last_teleportation_y);
  tolua_globalvar(tolua_S,"last_teleportation_x",toluaI_get_spells_last_teleportation_x,toluaI_set_spells_last_teleportation_x);
  tolua_function(tolua_S,NULL,"get_pos_player",toluaI_spells_get_pos_player00);
- tolua_function(tolua_S,NULL,"teleport_player_to",toluaI_spells_teleport_player_to01);
  return 1;
 }
 /* Close function */
@@ -3514,6 +3520,8 @@ void tolua_spells_close (lua_State* tolua_S)
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"GF_RAISE_DEMON");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"GF_TRAP_DEMONSOUL");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"GF_ATTACK");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"GF_CHARM_UNMOVING");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"MAX_GF");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"PROJECT_JUMP");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"PROJECT_BEAM");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"PROJECT_THRU");
@@ -3547,6 +3555,7 @@ void tolua_spells_close (lua_State* tolua_S)
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"take_sanity_hit");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"project");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"corrupt_player");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"grow_things");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"grow_grass");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"grow_trees");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"hp_player");
@@ -3589,6 +3598,7 @@ void tolua_spells_close (lua_State* tolua_S)
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"identify_fully");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"recharge");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"aggravate_monsters");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"genocide_aux");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"genocide");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"mass_genocide");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"probing");
@@ -3616,6 +3626,14 @@ void tolua_spells_close (lua_State* tolua_S)
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"EFF_WAVE");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"EFF_LAST");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"EFF_STORM");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"EFF_DIR1");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"EFF_DIR2");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"EFF_DIR3");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"EFF_DIR4");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"EFF_DIR6");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"EFF_DIR7");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"EFF_DIR8");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"EFF_DIR9");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"fire_cloud");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"fire_wall");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"fire_ball");
@@ -3633,7 +3651,6 @@ void tolua_spells_close (lua_State* tolua_S)
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"passwall");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"project_hook");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"wizard_lock");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"project");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"reset_recall");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"get_aim_dir");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"get_rep_dir");
@@ -3671,5 +3688,4 @@ void tolua_spells_close (lua_State* tolua_S)
  lua_pushstring(tolua_S,"last_teleportation_x"); lua_pushnil(tolua_S); lua_rawset(tolua_S,-3);
  lua_pop(tolua_S,1);
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"get_pos_player");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"teleport_player_to");
 }

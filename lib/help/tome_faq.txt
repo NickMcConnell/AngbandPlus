@@ -49,7 +49,7 @@ which were by default safe in Vanilla are not necessarily safe in ToME (a
 certain early artifact comes to mind here ...), and picking on defenceless 
 creatures is frowned upon....
 
-Happy 'Banding!
+Happy adventuring!
 ~~~~~03|Altars
 ~~~~~04|Gods|Altars
 #####G------------------------------------------------------------------------------
@@ -87,7 +87,8 @@ trained in the Alchemy, you can reuse bottles after quaffing potions as well.
 #####GQ: I got killed by a Great Wyrm of Power at 50'!!! What happened?
 
 A: You killed a defenceless creature. I told you that it was frowned upon!
-
+~~~~~18|Artifacts that activate but I can't wear or wield
+~~~~~17|Strange items
 #####G------------------------------------------------------------------------------
 #####GQ: I've found some strange items like a Red Tome, a Voodoo Doll, ...
 #####G   What can I do with them?
@@ -100,7 +101,28 @@ activation can be something very nasty...
 
 To activate it, use the normal Activation command, but when prompted for which 
 item to activate change to the backpack instead of wielded equipment.
+~~~~~10|Essences
+~~~~~11|Runes
+#####G------------------------------------------------------------------------------
+#####GQ: I keep coming across "essences" and "runes". What are they? 
 
+Essences are the *****c_alchem.txt*0[Alchemists] friend, and you can only use them if you have 
+access to the *****skills.txt*49[alchemy] skill. 
+Runes are used to cast and store spells of varying types. *****c_runecr.txt*0[Runecrafters] are the
+class who are most proficient at using these. You can only use them if you 
+have access to the *****skills.txt*36[Runecrafting] skill
+~~~~~12|Homes
+#####G------------------------------------------------------------------------------
+#####GQ: Where can I store all my equipment? Theere's not enough room in my
+#####Ginventory? And what happened to the thieves quest in Bree?
+
+And nor is there supposed to be enough room in your backpack. It's not 
+bottomless you know! If you go talk to the Mayor in Bree, he might let you know 
+about a slight problem that there's been in town. If you can clear up the 
+problem, you may find yourself with someone extra to keep your stuff. I've 
+heard tell that there are other similiar problems in other towns in 
+Middle-Earth. 
+~~~~~13|Fates|Prophets
 #####G------------------------------------------------------------------------------
 #####GQ: I spent 500 gp at the Prophet but she said nothing. Is that a bug ?
 
@@ -109,7 +131,7 @@ because you have no fate at this moment.  You gain fate while playing, and
 will be warned by a message such as "You feel your fate has changed".  A fate
 can be useless like finding a broken skull at level 30, deadly like dying at
 level 56, or really useful like to never die by the hand of a mortal.
-
+~~~~~14|Mathilde
 #####G------------------------------------------------------------------------------
 #####GQ: Who is Mathilde, the Science Student whom I see every so often in the
 #####G   town?
@@ -117,7 +139,7 @@ level 56, or really useful like to never die by the hand of a mortal.
 A: Most of the time she laughs and giggles, she has no loot on her, and
 she's never done you any harm. So leave her be - even if she should
 happen to shout "Drop dead, creep!".
-
+~~~~~15|Wrists hurting
 #####G------------------------------------------------------------------------------
 #####GQ: My wrists hurt a lot when playing the game. Should I take precautions?
 
@@ -135,11 +157,11 @@ ceiling (this one is hard, so don't push it too much). You should feel your
 tendons stretching. Repeat this a few times. Take frequent breaks and do this 
 if it starts to hurt a little bit. I was sliding very fast towards CTS and this
 corrected it.
-
+~~~~~16|Void jumpgates
 #####G------------------------------------------------------------------------------
 #####GQ: When I stand on void jumpgates I'm never teleported away, what's wrong?
 
-A: void jumpgates are not automatic. You must press '>' while standing
+A: Void jumpgates are not automatic. You must press '>' while standing
 on one to activate it. 
 
 #####G------------------------------------------------------------------------------
@@ -179,6 +201,26 @@ quest. (Viewed from the Wilderness map).
 
 A: Both these people need to talk to you about something. Have a chat to them 
 (check the file *****command.txt*96[command.txt] for how to chat).
+~~~~~09|Sentient weapons
+#####G------------------------------------------------------------------------------
+#####GQ: I have found a sentient weapon, it says it has access to the realms 
+#####G   of Earth and Fire. How do I use these realms?
+
+A: You don't actually 'use' them as such. If a weapon is sentient it means it 
+gains experience itself as it delivers killing blows. As it levels up it has 
+the chance to gain pluses to hit and to damage, and also powers from any of the 
+available 'realms'. For instance, the realm of fire gives the chance to gain 
+resistance to fire, or fire branding on your weapon. The realm of earth has a 
+chance to confer extra attacks or the power of causing earthquakes and so on.
+~~~~~19|Deathmolds on Mount Doom and other quest areas.
+#####G------------------------------------------------------------------------------
+#####GQ: How do I complete the special no-teleport level quests with a Deathmold?
+
+A: You will need either some morphic oils, some mimicry skill, or the ring of 
+Flare. Deathmolds are marked as experimental for a reason you know. Morphic 
+oils can also help if you're having trouble communictaing with monsters. A very
+beautiful Elf springs to mind as possibly causing some problems if you are in 
+Deathmold form.
 
 #####G------------------------------------------------------------------------------
 #####GQ: The game is so slow...

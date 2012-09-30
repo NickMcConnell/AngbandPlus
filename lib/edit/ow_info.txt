@@ -389,7 +389,7 @@ H:Orc | Troll | Half-Ogre | Beorning | Kobold |
 N:61:Lomelosse(High-Elf)
 I:0:120:105:6:16
 C:120:100:80
-L:High-Elf | Half-Elf | Elf | Druidic | 
+L:High-Elf | Half-Elf | Elf |
 H:Orc | Troll | Half-Ogre | Beorning | Kobold | 
 
 N:62:Arlindel(High-Elf)
@@ -415,7 +415,7 @@ H:Orc | Troll | Half-Ogre | Beorning | Kobold |
 N:65:Earendur(High-Elf)
 I:0:120:105:6:16
 C:120:100:80
-L:High-Elf | Half-Elf | Elf | Druidic
+L:High-Elf | Half-Elf | Elf
 H:Orc | Troll | Half-Ogre | Beorning | Kobold | 
 
 N:66:Glorfindel(High-Elf)
