@@ -52,10 +52,10 @@ specific school will enable you to get higher level spells for that specific
 school. By level requirements for a specific spell you could actually say skill
 requirement, since they correlate exactly. Let's take a simple example:
 If you have the *****m_mana.txt*0[Mana] school skill at level 24.000, it means you can use any
-spell in the mana school up to and including those requiring level 24. There are
-also some spells requiring a certain skill level in two schools, and there is a
-possibility of spells requiring three or more. For these kind of spells the 
-spell level is determined by taking an average of the necessary skills. 
+spell in the mana school up to and including those requiring level 24. [[[[[BThere are]
+[[[[[Balso some spells requiring a certain skill level in two schools, and there is a]
+[[[[[Bpossibility of spells requiring three or more. For these kind of spells the ]
+[[[[[Bspell level is determined by taking an average of the necessary skills. ]
 When calculating spell level for spells which require more than one school, 
 sorcery (or god-granted access) can be used in place of the primary schools in 
 the normal way. Once the average has been calculated, any bonus from the 

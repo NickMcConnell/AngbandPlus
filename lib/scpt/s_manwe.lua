@@ -59,7 +59,7 @@ MANWE_AVATAR = add_spell
 	["stat"] =      A_WIS,
 	["random"] = 	SKILL_SPIRITUALITY,
 	["spell"] = 	function()
-			return set_mimic(get_level(MANWE_AVATAR, 20) + randint(10), MIMIC_MAIAR)
+			return set_mimic(get_level(MANWE_AVATAR, 20) + randint(10), resolve_mimic_name("Maia"), player.lev)
 	end,
 	["info"] =      function()
 			return "dur "..(get_level(MANWE_AVATAR, 20)).."+d10"

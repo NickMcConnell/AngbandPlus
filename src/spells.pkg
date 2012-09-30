@@ -2106,27 +2106,27 @@ extern bool destroy_traps_touch(void);
  */
 struct magic_power
 {
-	/** @var min_lev
+	/** @structvar min_lev
 	 * @brief Number
 	 */
 	int     min_lev;
     
-	/** @var mana_cost
+	/** @structvar mana_cost
 	 * @brief Number
 	 */
 	int     mana_cost;
     
-	/** @var fail
+	/** @structvar fail
 	 * @brief Number
 	 */
 	int     fail;
     
-	/** @var name
+	/** @structvar name
 	 * @brief String
 	 */
 	cptr    name;
     
-	/** @var desc
+	/** @structvar desc
 	 * @brief String
 	 */
 	cptr    desc;
@@ -2247,7 +2247,7 @@ extern bool lua_spell_success @ magic_power_sucess(magic_power *spell, int stat,
  * By order of DG.
  * @note (see file lua_bind.c)
  */
-s16b    add_new_power(cptr name, cptr desc, cptr gain, cptr lose, byte level, byte cost, byte stat, byte diff);
+s16b add_new_power(cptr name, cptr desc, cptr gain, cptr lose, byte level, byte cost, byte stat, byte diff);
 
 /** @var power_max
  * @brief Number
@@ -2263,36 +2263,36 @@ extern s16b power_max;
  */
 struct spell_type@school_spell_type
 {
-	/** @var name
+	/** @structvar name
 	 * @brief String
 	 */
 	cptr name;
     
-	/** @var skill_level
+	/** @structvar skill_level
 	 * @brief Number
 	 * @note Required level (to learn) 
 	 */
 	byte skill_level;
     
-	/** @var mana
+	/** @structvar mana
 	 * @brief Number
 	 * @note Required mana at lvl 1 
 	 */
 	byte mana;
     
-	/** @var mana_max
+	/** @structvar mana_max
 	 * @brief Number
 	 * @note Required mana at max lvl 
 	 */
 	byte mana_max;
     
-	/** @var fail
+	/** @structvar fail
 	 * @brief Number
 	 * @note Minimum chance of failure 
 	 */
 	s16b fail;
     
-        /** @var level
+        /** @structvar level
          * @brief Number
          * @note Spell level(0 = not learnt) 
          */
@@ -2304,12 +2304,12 @@ struct spell_type@school_spell_type
  */
 struct school_type
 {
-        /** @var name
+        /** @structvar name
          * @brief String
          * @note Name 
          */
         cptr name;
-        /** @var skill
+        /** @structvar skill
          * @brief Number
          * @note Skil used for that school 
          */

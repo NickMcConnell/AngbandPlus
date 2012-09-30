@@ -3904,7 +3904,8 @@ static void process_command(void)
 			{
 				msg_print("Your light is too low on fuel for you to travel with it.");
 			}
-			else
+			/* TODO: make the above stuff use this hook */
+			else if (!process_hooks(HOOK_FORBID_TRAVEL, "()"))
 			{
 				p_ptr->oldpx = p_ptr->px;
 				p_ptr->oldpy = p_ptr->py;

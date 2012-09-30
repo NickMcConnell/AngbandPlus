@@ -40,24 +40,32 @@ There are six spells available for the conveyance school. These Spells are:
 
 #####GAir spells that can be cast with Conveyance skill
 
-1. [[[[[BWings of Winds] (school level 22)
+1. [[[[[BWings of Winds] (dual school level 22)
    Grants the power of levitation.
    At spell level 16 it grants the power of controlled flight.
+#####v   Your Air and Conveyance skills must have reached a combined average level 
+#####v   of 22 in order to cast this spell.
 
 #####GTemporal spells that can be cast with Conveyance skill
 
-1. [[[[[sBanishment] (school level 30)
+1. [[[[[sBanishment] (dual school level 30)
    Disrupt the space/time continuum in your area and teleports all monsters
       away.
    At spell level 15 it also may lock them in a time bubble for some turns.
+#####v   Your Temporal and Conveyance skills must have reached a combined average level 
+#####v   of 30 in order to cast this spell.
 
 #####GMeta spells that can be cast with Conveyance skill
 
-1. [[[[[sTracker] (school level 30)
+1. [[[[[sTracker] (dual school level 30)
    Tracks down the last teleportation that happened on the level and teleports
    you to it.
+#####v   Your Meta and Conveyance skills must have reached a combined average level 
+#####v   of 30 in order to cast this spell.
 
 #####GUdun spells that can be cast with Conveyance skill
 
-1. [[[[[DWraithform] (school level 30)
+1. [[[[[DWraithform] (dual school level 30)
    Turns you temporarily into an immaterial being.
+#####v   Your Udun and Conveyance skills must have reached a combined average level 
+#####v   of 30 in order to cast this spell.

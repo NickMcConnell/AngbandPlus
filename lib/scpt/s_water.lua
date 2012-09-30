@@ -120,7 +120,7 @@ VAPOR = add_spell
 }
 
 function get_geyser_damage()
-	return get_level(GEYSER, 10), 3 + get_level(GEYSER, 25)
+	return get_level(GEYSER, 10), 3 + get_level(GEYSER, 35)
 end
 
 GEYSER = add_spell
@@ -128,14 +128,14 @@ GEYSER = add_spell
 	["name"] = "Geyser",
 	["school"] = SCHOOL_WATER,
 	["level"] = 1,
-	["mana"] = 2,
-	["mana_max"] = 25,
-	["fail"] = 10,
+	["mana"] = 1,
+	["mana_max"] = 35,
+	["fail"] = 5,
 	["spell"] = function()
 		local ret, dir
 		ret, dir = get_aim_dir()
 		if ret == FALSE then return end
-		return fire_bolt_or_beam(get_level(GEYSER, 100), GF_WATER, dir, damroll(get_geyser_damage()))
+		return fire_bolt_or_beam(2 * get_level(GEYSER, 85), GF_WATER, dir, damroll(get_geyser_damage()))
 	end,
 	["info"] = function()
 		local n, d
@@ -144,7 +144,7 @@ GEYSER = add_spell
 	end,
 	["desc"] =
 	{
-		"Shoot a geyser of water from your fingertips.",
+		"Shoots a geyser of water from your fingertips.",
 		"Sometimes it can blast through its first target."
 	},
 }

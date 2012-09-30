@@ -816,42 +816,42 @@ extern u32b dungeon_flags2@level_flags2;
  */
 struct border_type 
 {
-	/** @var north[MAX_WID]
+	/** @structvar north[MAX_WID]
 	 * @brief Number
 	 */
 	byte 	north[MAX_WID];
 
-	/** @var south[MAX_WID]
+	/** @structvar south[MAX_WID]
 	 * @brief Number
 	 */
 	byte 	south[MAX_WID];
 
-    /** @var east[MAX_HGT]
+	/** @structvar east[MAX_HGT]
 	 * @brief Number
 	 */
-    byte 	east[MAX_HGT];
+	byte 	east[MAX_HGT];
 
-    /** @var west[MAX_HGT]
+	/** @structvar west[MAX_HGT]
 	 * @brief Number
 	 */
 	byte 	west[MAX_HGT];
 
-    /** @var north_west
+	/** @structvar north_west
 	 * @brief Number
 	 */
 	byte	north_west;
 
-    /** @var north_east
+	/** @structvar north_east
 	 * @brief Number
 	 */
 	byte	north_east;
 
-    /** @var south_west
+	/** @structvar south_west
 	 * @brief Number
 	 */
 	byte	south_west;
 
-    /** @var south_east
+	/** @structvar south_east
 	 * @brief Number
 	 */
 	byte	south_east;
@@ -864,55 +864,55 @@ struct border_type
  */
 struct wilderness_type_info
 {
-	/** @var name
+	/** @structvar name
 	 * @brief Number
 	 * @note Name (offset) 
 	 */
 	u32b    name;
 
-	/** @var text
+	/** @structvar text
 	 * @brief Number
 	 * @note Text (offset) 
 	 */
-    u32b    text;
+	u32b    text;
 
-    /** @var entrance
+	/** @structvar entrance
 	 * @brief Number
 	 * @note Which town is there(<1000 i's a town, >=1000 it a dungeon) 
 	 */
 	u16b    entrance;
 
-    /** @var road
+	/** @structvar road
 	 * @brief Number
 	 * @note Flags of road 
 	 */
 	byte    road;
 
-    /** @var level
+	/** @structvar level
 	 * @brief Number
 	 * @note Difficulty level 
 	 */
 	int     level;
 
-    /** @var flags1
+	/** @structvar flags1
 	 * @brief Number
 	 * @note Some flags 
 	 */
 	u32b    flags1;
 
-    /** @var feat
+	/** @structvar feat
 	 * @brief Number
 	 * @note The feature of f_info.txt that is used to allow passing, ... and to get a char/color/graph 
 	 */
 	byte    feat;
 
-    /** @var terrain_idx
+	/** @structvar terrain_idx
 	 * @brief Number
 	 * @note Terrain index(defined in defines.h) 
 	 */
 	byte    terrain_idx;
 
-	/** @var terrain[MAX_WILD_TERRAIN]
+	/** @structvar terrain[MAX_WILD_TERRAIN]
 	 * @brief Number
 	 * @note Feature types for the plasma generator 
 	 */
@@ -924,25 +924,25 @@ struct wilderness_type_info
  */
 struct wilderness_map
 {
-	/** @var feat
+	/** @structvar feat
 	 * @brief Number
 	 * @note Wilderness feature 
 	 */
 	int     feat;
 
-	/** @var seed
+	/** @structvar seed
 	 * @brief Number
 	 * @note Seed for the RNG 
 	 */
 	u32b    seed;
 
-	/** @var entrance
+	/** @structvar entrance
 	 * @brief Number
 	 * @note Entrance for dungeons 
 	 */
 	u16b    entrance;
 
-	/** @var known
+	/** @structvar known
 	 * @brief Boolean
 	 * @note Is it seen by the player ? 
 	 */
@@ -956,42 +956,42 @@ struct wilderness_map
  */
 struct town_type
 {
-	/** @var name
+	/** @structvar name
 	 * @brief String
 	 */
 	cptr name;
 
-	/** @var seed
+	/** @structvar seed
 	 * @brief Number
 	 * @note Seed for RNG 
 	 */
 	u32b seed;
 
-	/** @var *store
+	/** @structvar *store
 	 * @brief store_type
 	 * @note The stores [max_st_idx] 
 	 */
-	store_type *store;
+	store_type store[max_st_idx];
 
-	/** @var numstores
+	/** @structvar numstores
 	 * @brief Number
 	 */
 	byte numstores;
 
-	/** @var flags
+	/** @structvar flags
 	 * @brief Number
 	 * @note Town flags 
 	 */
 	byte flags;
 
-        /** @var stocked
+        /** @structvar stocked
          * @brief Boolean
          * @note Is the town actually stocked ? 
          * Left this for the sake of compatibility
          */
         bool stocked;
 
-        /** @var destroyed
+        /** @structvar destroyed
          * @brief Boolean
          * @note Is the town destroyed? 
          */
@@ -1013,65 +1013,65 @@ extern town_type town_info[max_towns];
  */
 struct rule_type
 {
-	/** @var mode
+	/** @structvar mode
 	 * @brief Number
 	 * @note Mode of combination of the monster flags 
 	 */
 	byte mode;
 
-	/** @var percent
+	/** @structvar percent
 	 * @brief Number
 	 * @note Percent of monsters affected by the rule 
 	 */
 	byte percent;
 
-	/** @var mflags1
+	/** @structvar mflags1
 	 * @brief Number
 	 * @note The monster flags that are allowed 
 	 */
 	u32b mflags1;
 
-	/** @var mflags2
+	/** @structvar mflags2
 	 * @brief Number
 	 */
 	u32b mflags2;
 
-	/** @var mflags3
+	/** @structvar mflags3
 	 * @brief Number
 	 */
 	u32b mflags3;
 
-	/** @var mflags4
+	/** @structvar mflags4
 	 * @brief Number
 	 */
 	u32b mflags4;
 
-	/** @var mflags5
+	/** @structvar mflags5
 	 * @brief Number
 	 */
 	u32b mflags5;
 
-	/** @var mflags6
+	/** @structvar mflags6
 	 * @brief Number
 	 */
 	u32b mflags6;
 
-	/** @var mflags7
+	/** @structvar mflags7
 	 * @brief Number
 	 */
 	u32b mflags7;
 
-	/** @var mflags8
+	/** @structvar mflags8
 	 * @brief Number
 	 */
 	u32b mflags8;
 
-	/** @var mflags9
+	/** @structvar mflags9
 	 * @brief Number
 	 */
 	u32b mflags9;
 
-	/** @var r_char[5]
+	/** @structvar r_char[5]
 	 * @brief String
 	 * @note Monster race allowed 
 	 */
@@ -1085,22 +1085,22 @@ struct rule_type
  */
 struct obj_theme
 {
-	/** @var treasure
+	/** @structvar treasure
 	 * @brief Number
 	 */
 	byte treasure;
 
-	/** @var combat
+	/** @structvar combat
 	 * @brief Number
 	 */
 	byte combat;
 
-	/** @var magic
+	/** @structvar magic
 	 * @brief Number
 	 */
 	byte magic;
 
-	/** @var tools
+	/** @structvar tools
 	 * @brief Number
 	 */
 	byte tools;
@@ -1111,273 +1111,273 @@ struct obj_theme
  */
 struct dungeon_info_type
 {
-	/** @var name
+	/** @structvar name
 	 * @brief Number
 	 * @note Name 
 	 */
 	u32b name;
 
-	/** @var text
+	/** @structvar text
 	 * @brief Number
 	 * @note Description 
 	 */
 	u32b text;
 
-	/** @var short_name[3]
+	/** @structvar short_name[3]
 	 * @brief String
 	 * @note Short name 
 	 */
 	char short_name[3];
 
-	/** @var floor1
+	/** @structvar floor1
 	 * @brief Number
 	 * @note Floor tile 1 
 	 */
 	s16b floor1;
 
-	/** @var floor_percent1[2]
+	/** @structvar floor_percent1[2]
 	 * @brief Number
 	 * @note Chance of type 1 
 	 */
 	byte floor_percent1[2];
 
-	/** @var floor2
+	/** @structvar floor2
 	 * @brief Number
 	 * @note Floor tile 2 
 	 */
 	s16b floor2;
 
-	/** @var floor_percent2[2]
+	/** @structvar floor_percent2[2]
 	 * @brief Number
 	 * @note Chance of type 2 
 	 */
 	byte floor_percent2[2];
 
-	/** @var floor3
+	/** @structvar floor3
 	 * @brief Number
 	 * @note Floor tile 3 
 	 */
 	s16b floor3;
 
-	/** @var floor_percent3[2]
+	/** @structvar floor_percent3[2]
 	 * @brief Number
 	 * @note Chance of type 3 
 	 */
 	byte floor_percent3[2];
 
-	/** @var outer_wall
+	/** @structvar outer_wall
 	 * @brief Number
 	 * @note Outer wall tile 
 	 */
 	s16b outer_wall;
 
-	/** @var inner_wall
+	/** @structvar inner_wall
 	 * @brief Number
 	 * @note Inner wall tile 
 	 */
 	s16b inner_wall;
 
-	/** @var fill_type1
+	/** @structvar fill_type1
 	 * @brief Number
 	 * @note Cave tile 1 
 	 */
 	s16b fill_type1;
 
-	/** @var fill_percent1[2]
+	/** @structvar fill_percent1[2]
 	 * @brief Number
 	 * @note Chance of type 1 
 	 */
 	byte fill_percent1[2];
 
-	/** @var fill_type2
+	/** @structvar fill_type2
 	 * @brief Number
 	 * @note Cave tile 2 
 	 */
 	s16b fill_type2;
 
-	/** @var fill_percent2[2]
+	/** @structvar fill_percent2[2]
 	 * @brief Number
 	 * @note Chance of type 2 
 	 */
 	byte fill_percent2[2];
 
-	/** @var fill_type3
+	/** @structvar fill_type3
 	 * @brief Number
 	 * @note Cave tile 3 
 	 */
 	s16b fill_type3;
 
-	/** @var fill_percent3[2]
+	/** @structvar fill_percent3[2]
 	 * @brief Number
 	 * @note Chance of type 3 
 	 */
 	byte fill_percent3[2];
 
-	/** @var fill_method
+	/** @structvar fill_method
 	 * @brief Number
 	 * @note Smoothing parameter for the above 
 	 */
 	byte fill_method;
 
-	/** @var mindepth
+	/** @structvar mindepth
 	 * @brief Number
 	 * @note Minimal depth 
 	 */
 	s16b mindepth;
 
-	/** @var maxdepth
+	/** @structvar maxdepth
 	 * @brief Number
 	 * @note Maximal depth 
 	 */
 	s16b maxdepth;
 
-	/** @var principal
+	/** @structvar principal
 	 * @brief Boolean
 	 * @note If it's a part of the main dungeon 
 	 */
 	bool principal;
 
-	/** @var next
+	/** @structvar next
 	 * @brief Number
 	 * @note The next part of the main dungeon 
 	 */
 	byte next;
 
-	/** @var min_plev
+	/** @structvar min_plev
 	 * @brief Number
 	 * @note Minimal plev needed to enter -- it's an anti-cheating mesure 
 	 */
 	byte min_plev;
 
-	/** @var min_m_alloc_level
+	/** @structvar min_m_alloc_level
 	 * @brief Number
 	 * @note Minimal number of monsters per level 
 	 */
 	int min_m_alloc_level;
 
-	/** @var max_m_alloc_chance
+	/** @structvar max_m_alloc_chance
 	 * @brief Number
 	 * @note There is a 1/max_m_alloc_chance chance per round of creating a new monster 
 	 */
 	int max_m_alloc_chance;
 
-	/** @var flags1
+	/** @structvar flags1
 	 * @brief Number
 	 * @note Flags 1 
 	 */
 	u32b flags1;
 
-	/** @var flags2
+	/** @structvar flags2
 	 * @brief Number
 	 * @note Flags 1 
 	 */
 	u32b flags2;
 
-        /** @var size_x
+        /** @structvar size_x
          * @brief Number
          */
         int size_x;
 
-        /** @var size_y
+        /** @structvar size_y
          * @brief Number
          * @note Desired numers of panels 
          */
         int size_y;
 
-	/** @var rule_percents[100]
+	/** @structvar rule_percents[100]
 	 * @brief Number
 	 * @note Flat rule percents 
 	 */
 	byte rule_percents[100];
 
-	/** @var rules[5]
+	/** @structvar rules[5]
 	 * @brief rule_type
 	 * @note Monster generation rules 
 	 */
 	rule_type rules[5];
 
-	/** @var final_object
+	/** @structvar final_object
 	 * @brief Number
 	 * @note The object you'll find at the bottom 
 	 */
 	int final_object;
 
-	/** @var final_artifact
+	/** @structvar final_artifact
 	 * @brief Number
 	 * @note The artifact you'll find at the bottom 
 	 */
 	int final_artifact;
 
-	/** @var final_guardian
+	/** @structvar final_guardian
 	 * @brief Number
 	 * @note The artifact's guardian. If an artifact is specified, then it's NEEDED 
 	 */
 	int final_guardian;
 
-	/** @var ix
+	/** @structvar ix
 	 * @brief Number
 	 */
 	int ix;
     
-        /** @var iy
+        /** @structvar iy
          * @brief Number
          */
         int iy;
     
-        /** @var ox
+        /** @structvar ox
          * @brief Number
          */
         int ox;
     
-        /** @var oy
+        /** @structvar oy
          * @brief Number
          * @note Wilderness coordinates of the entrance/output of the dungeon 
          */
         int oy;
 
-	/** @var objs
+	/** @structvar objs
 	 * @brief obj_theme
 	 * @note The drops type 
 	 */
 	obj_theme objs;
 
-	/** @var d_dice[4]
+	/** @structvar d_dice[4]
 	 * @brief Number
 	 * @note Number of dices 
 	 */
 	int d_dice[4];
     
-	/** @var d_side[4]
+	/** @structvar d_side[4]
 	 * @brief Number
 	 * @note Number of sides 
 	 */
 	int d_side[4];
     
-	/** @var d_frequency[4]
+	/** @structvar d_frequency[4]
 	 * @brief Number
 	 * @note Frequency of damage (1 is the minimum) 
 	 */
 	int d_frequency[4];
     
-	/** @var d_type[4]
+	/** @structvar d_type[4]
 	 * @brief Number
 	 * @note Type of damage 
 	 */
 	int d_type[4];
 
-	/** @var t_idx[TOWN_DUNGEON]
+	/** @structvar t_idx[TOWN_DUNGEON]
 	 * @brief Number
 	 * @note The towns 
 	 */
 	s16b t_idx[TOWN_DUNGEON];
     
-	/** @var t_level[TOWN_DUNGEON]
+	/** @structvar t_level[TOWN_DUNGEON]
 	 * @brief Number
 	 * @note The towns levels 
 	 */
 	s16b t_level[TOWN_DUNGEON];
     
-	/** @var t_num
+	/** @structvar t_num
 	 * @brief Number
 	 * @note Number of towns 
 	 */

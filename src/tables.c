@@ -3749,8 +3749,8 @@ quest_type quest_init_tome[MAX_Q_IDX_INIT] =
 		{
 			"There are thieves robbing my people! They live in a small",
 			"burrow outside the city walls, but they get inside the walls",
-			"with a tunnel to a building here! Your task is to go to the",
-			"building kill these ruffians.",
+			"with a tunnel to a building here! Your task is to go into",
+			"the building and kill these ruffians.",
 			"",
 			"",
 			"",

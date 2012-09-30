@@ -25,13 +25,19 @@ There are five spells available for the air school. These Spells are:
    At spell level 15 it provides poison branding to the wielded weapon.
 3. [[[[[BInvisibility] (school level 16)
    Grants invisibility.
-4. [[[[[BWings of Winds] (school level 22)
+4. [[[[[BSterilize] (school level 20)
+   Prevents explosive breeding for a while.
+5. [[[[[BWings of Winds] (dual school level 22)
    Grants the power of levitation.
    At spell level 16 it grants the power of controlled flight.
-5. [[[[[BThunderstorm] (school level 25)
+#####v   Your Air and Conveyance skills must have reached a combined average level 
+#####v   of 22 in order to cast this spell.
+6. [[[[[BThunderstorm] (dual school level 25)
    Charges up the air around you with electricity.
    Each turn it will throw a bolt of thunder at a random monster in sight.
    This thunder does 3 types of damage:
       one third of lightning
       one third of sound
       and one third of light.
+#####v   Your Air and Nature skills must have reached a combined average level 
+#####v   of 25 in order to cast this spell.

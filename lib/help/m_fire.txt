@@ -14,7 +14,7 @@ There are five spells available for the fire school. These Spells are:
    Creates a globe of pure light.
    At spell level 3 it starts damaging monsters.
    At spell level 15 it starts creating a more powerful kind of light.
-2. [[[[[RFire Golem] (school level 7)
+2. [[[[[RFire Golem] (dual school level 7)
    Creates a fiery golem and controls it.
    During the control the available keylist is:
    Movement keys: move the golem(depending on its speed it can move more
@@ -27,6 +27,8 @@ There are five spells available for the fire school. These Spells are:
       real body while controlling the golem.
    But to cast the spell you will need a lantern or a wooden torch to create
       the golem from.
+#####v   Your Fire and Mind skills must have reached a combined average level 
+#####v   of 7 in order to cast this spell.
 3. [[[[[RFireflash] (school level 10)
    Conjures a ball of fire to burn your foes to ashes.
    At spell level 20 it turns into a ball of holy fire.
@@ -41,5 +43,7 @@ There are five spells available for the fire school. These Spells are:
 
 #####GUdun spells that can be cast with Fire skill
 
-1. [[[[[DFlame of Udun] (school level 35)
+1. [[[[[DFlame of Udun] (dual school level 35)
    Turns you temporarily into a powerful Balrog.
+#####v   Your Fire and Udun skills must have reached a combined average level 
+#####v   of 35 in order to cast this spell.

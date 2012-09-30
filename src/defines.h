@@ -35,7 +35,7 @@
 /*
  * Release state, CVS or not, remember to switch it when making releases
  */
-/* #define IS_CVS          "" */
+/*#define IS_CVS          ""*/
 #define IS_CVS          ""
 
 #define ANGBAND_2_8_1
@@ -4511,13 +4511,14 @@ extern int PlayerUID;
 #define HOOK_APPLY_MAGIC        66
 #define HOOK_PLAYER_EXP         67
 #define HOOK_BIRTH              68
-#define HOOK_CALC_LITE		69
+#define HOOK_CALC_LITE          69
 #define HOOK_LEARN_ABILITY      70
 #define HOOK_MOVED              71
 #define HOOK_GAME_START         72
 #define HOOK_TAKEOFF            73
 #define HOOK_CALC_WEIGHT        74
-#define MAX_HOOKS               75
+#define HOOK_FORBID_TRAVEL      75
+#define MAX_HOOKS               76
 
 #define HOOK_TYPE_C             0
 #define HOOK_TYPE_LUA           1
@@ -4565,7 +4566,7 @@ extern int PlayerUID;
 #define SKILL_MAX               50000           /* Maximun skill value */
 #define SKILL_STEP              1000            /* 1 skill point */
 
-#define SKILl_EXCLUSIVE         9999            /* Flag to tell exclusive skills */
+#define SKILL_EXCLUSIVE         9999            /* Flag to tell exclusive skills */
 
 #define SKILL_CONVEYANCE        1
 #define SKILL_MANA              2

@@ -411,7 +411,7 @@ void recalc_skills_theory(s16b *invest, s32b *base_val, u16b *base_mod, s32b *bo
 			if (j == i) continue;
 
 			/* Exclusive skills */
-			if ((s_info[i].action[j] == SKILl_EXCLUSIVE) && invest[i])
+			if ((s_info[i].action[j] == SKILL_EXCLUSIVE) && invest[i])
 			{
 				/* Turn it off */
 				p_ptr->skill_points += invest[j];
@@ -781,6 +781,7 @@ int do_cmd_activate_skill_aux()
 	/* More than 1 melee skill ? */
 	if (get_melee_skills() > 1)
 	{
+		p_desc[max] = "Change melee mode";
 		p[max++] = 0;
 	}
 
@@ -1364,7 +1365,7 @@ void do_get_new_skill()
 			/* Check we don't oppose an existing skill */
 			for (i = 0; i < max_s_idx; i++)
 			{
-				if ((s_info[i].action[skl[res]] == SKILl_EXCLUSIVE) &&
+				if ((s_info[i].action[skl[res]] == SKILL_EXCLUSIVE) &&
 				                (s_info[i].value != 0))
 				{
 					oppose = TRUE;

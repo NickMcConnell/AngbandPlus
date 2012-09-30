@@ -49,6 +49,12 @@ function __birth_hook_objects()
 		inven_carry(obj, FALSE)
 		end_object(obj)
 	end
+	if get_class_name() == "Mimic" then
+		local obj = create_object(TV_CLOAK, 100);
+		obj.pval2 = resolve_mimic_name("Mouse")
+		inven_carry(obj, FALSE)
+		end_object(obj)
+	end
 
 	-- Start the undeads, as undeads with the corruptions
 	if get_subrace_name() == "Vampire" then

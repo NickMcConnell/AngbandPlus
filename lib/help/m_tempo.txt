@@ -29,8 +29,12 @@ There are four spells available for the temporal school. These Spells are:
    Disrupt the space/time continuum in your area and teleports all monsters
       away.
    At spell level 15 it also may lock them in a time bubble for some turns.
+#####v   Your Temporal and Conveyance skills must have reached a combined average level 
+#####v   of 30 in order to cast this spell.
 
 #####GNature spells that can be cast with Temporal skill
 
-1. [[[[[GGrow Trees] (school level 6)
+1. [[[[[GGrow Trees] (dual school level 6)
    Makes trees grow extremely quickly around you.
+#####v   Your Nature and Temporal skills must have reached a combined average level 
+#####v   of 6 in order to cast this spell.

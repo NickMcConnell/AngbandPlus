@@ -362,4 +362,3 @@ function input_list_example()
 
 	if res then msg_print("Selected: " .. res) end
 end
-

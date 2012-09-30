@@ -2531,6 +2531,7 @@ void do_cmd_copy_spell()
 	if (exec_lua(format("return can_spell_random(%d)", spell)) == FALSE)
 	{
 		msg_print("This spell cannot be copied.");
+		return;
 	}
 
 	item_tester_hook = hook_school_can_spellable;

@@ -174,10 +174,10 @@ f:Fire:Magic%10
 f:Air:Magic%10
 f:Water:Magic%10
 f:Earth:Magic%10
-f:Geomancy:Fire%5
-f:Geomancy:Earth%5
-f:Geomancy:Air%5
-f:Geomancy:Water%5
+f:Geomancy:Fire%45
+f:Geomancy:Earth%45
+f:Geomancy:Air%45
+f:Geomancy:Water%45
 f:Conveyance:Magic%10
 f:Divination:Magic%10
 f:Nature:Magic%10

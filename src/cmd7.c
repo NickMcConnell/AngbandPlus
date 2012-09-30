@@ -856,6 +856,19 @@ void do_cmd_mimic_lore()
 	p_ptr->update |= (PU_BONUS);
 }
 
+static bool mimic_forbid_travel(char *fmt)
+{
+	u32b value = p_ptr->mimic_extra >> 16;
+	u32b att = p_ptr->mimic_extra & 0xFFFF;
+
+	if(value > 0 && (att & CLASS_ARMS || att & CLASS_LEGS))
+	{
+		msg_print("You had best not travel with your extra limbs.");
+		return TRUE;
+	}
+
+	return FALSE;
+}
 
 /*
  * do_cmd_cast calls this function if the player's class
@@ -873,6 +886,12 @@ void do_cmd_mimic(void)
 
 	magic_power spell;
 
+	static bool added_hooks = FALSE;
+	if(!added_hooks)
+	{
+		add_hook(HOOK_FORBID_TRAVEL, mimic_forbid_travel, "mimic_forbid_travel");
+		added_hooks = TRUE;
+	}
 
 	/* No magic */
 	if (p_ptr->antimagic)
@@ -1007,9 +1026,8 @@ void do_cmd_mimic(void)
 		case 2:
 			{
 				/* Extract the value and the flags */
-				u32b value = p_ptr->mimic_extra >> 16,
-
-				             att = p_ptr->mimic_extra & 0xFFFF;
+				u32b value = p_ptr->mimic_extra >> 16;
+				u32b att = p_ptr->mimic_extra & 0xFFFF;
 
 				/* Clear useless things */
 				att &= ~(CLASS_ARMS);
@@ -1039,9 +1057,8 @@ void do_cmd_mimic(void)
 		case 3:
 			{
 				/* Extract the value and the flags */
-				u32b value = p_ptr->mimic_extra >> 16,
-
-				             att = p_ptr->mimic_extra & 0xFFFF;
+				u32b value = p_ptr->mimic_extra >> 16;
+				u32b att = p_ptr->mimic_extra & 0xFFFF;
 
 				/* Clear useless things */
 				att &= ~(CLASS_ARMS);
@@ -1070,9 +1087,8 @@ void do_cmd_mimic(void)
 		case 4:    /* Arms Mimicry */
 			{
 				/* Extract the value and the flags */
-				u32b value = p_ptr->mimic_extra >> 16,
-
-				             att = p_ptr->mimic_extra & 0xFFFF;
+				u32b value = p_ptr->mimic_extra >> 16;
+				u32b att = p_ptr->mimic_extra & 0xFFFF;
 
 				/* Clear useless things */
 				att &= ~(CLASS_LEGS);
@@ -7573,7 +7589,19 @@ void do_cmd_symbiotic(void)
 					m_ptr = &m_list[c_ptr->m_idx];
 					r_ptr = race_inf(m_ptr);
 
-					if ((r_ptr->flags1 & RF1_NEVER_MOVE) && (m_ptr->status == MSTATUS_PET) && (!(r_ptr->flags9 & RF9_SPECIAL_GENE)))
+					if (!(r_ptr->flags1 & RF1_NEVER_MOVE))
+					{
+						msg_print("You can only hypnotise monsters that cannot move.");
+					}
+					else if (m_ptr->status < MSTATUS_PET)
+					{
+						msg_print("You can only hypnotise pets and companions.");
+					}
+					else if (r_ptr->flags9 & RF9_SPECIAL_GENE)
+					{
+						msg_print("You cannot hypnotise this monster.");
+					}
+					else
 					{
 						q_ptr = &forge;
 						object_prep(q_ptr, lookup_kind(TV_HYPNOS, 1));
@@ -7590,10 +7618,11 @@ void do_cmd_symbiotic(void)
 						delete_monster(y, x);
 						health_who = 0;
 					}
-					else
-						msg_print("You can only hypnotise monsters that can't move.");
 				}
-				else msg_print("There is no pet here !");
+				else
+				{
+					msg_print("There is no pet here !");
+				}
 
 				break;
 			}

@@ -1,7 +1,7 @@
 |||||oy
 ~~~~~01|Magic|Music
 ~~~~~02|Music
-~~~~~03|Skills|Music - Spell Info
+~~~~~03|Skills|Music - Song Info
 #####R === ToME Spells - Music ===
 
 Musical songs can have a powerful effect on those who have the ability to

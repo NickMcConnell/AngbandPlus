@@ -1,6 +1,6 @@
 /*
 ** Lua binding: player
-** Generated automatically by tolua 4.0a - angband on Sat Jun  7 17:07:17 2003.
+** Generated automatically by tolua 4.0a - angband on Sun Jun 29 14:33:25 2003.
 */
 
 #include "lua/tolua.h"
@@ -8210,7 +8210,7 @@ static int toluaI_player_inc_piety00(lua_State* tolua_S)
  goto tolua_lerror;
  else
  {
-  char god = ((char)  tolua_getnumber(tolua_S,1,0));
+  int god = ((int)  tolua_getnumber(tolua_S,1,0));
   s32b amt = ((s32b)  tolua_getnumber(tolua_S,2,0));
  {
   inc_piety(god,amt);
@@ -8232,7 +8232,7 @@ static int toluaI_player_abandon_god00(lua_State* tolua_S)
  goto tolua_lerror;
  else
  {
-  char god = ((char)  tolua_getnumber(tolua_S,1,0));
+  int god = ((int)  tolua_getnumber(tolua_S,1,0));
  {
   abandon_god(god);
  }

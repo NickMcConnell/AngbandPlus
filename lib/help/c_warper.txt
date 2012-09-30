@@ -5,7 +5,7 @@
 
 #####GDescription
 A Warper is a type of mage that prefers to deal in magic that alters the 
-fabric of space and time. They specialise in the schools of *****m_convey,txt*0[Conveyance], 
+fabric of space and time. They specialise in the schools of *****m_convey.txt*0[Conveyance], 
 *****m_divin.txt*0[Divination] and *****m_tempo.txt*0[Temporal] magic. 
 
 #####GStarting Stat Modifiers

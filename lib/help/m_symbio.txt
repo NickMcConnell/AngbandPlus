@@ -1,7 +1,7 @@
 |||||oy
 ~~~~~01|Magic|Symbiosis
 ~~~~~02|Symbiosis Magic
-~~~~~03|Skills|Symbiosis - Spell Info
+~~~~~03|Skills|Symbiosis - Symbiotic Powers
 #####R === ToME Magic - Symbiosis ===
 
 Symbiosis is the art of joining body, fate and sometimes even mind with

@@ -491,9 +491,9 @@ player.dripping_tread = 0
 add_loadsave("player.dripping_tread", 0)
 add_hooks
 {
-	[HOOK_MOVED] = function()
+	[HOOK_MOVED] = function(oy, ox)
 		if player.dripping_tread > 0 then
-			geomancy_random_floor(player.py, player.px)
+			geomancy_random_floor(oy, ox)
 			player.dripping_tread = player.dripping_tread - 1
 			if player.dripping_tread == 0 then
 				msg_print("You stop dripping raw elemental energies.")

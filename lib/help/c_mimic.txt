@@ -7,6 +7,8 @@ Mimics possess the ability to transform into various creatures using
 special cloaks. While transformed, they lose their intrinsic abilities, 
 and gain those of the creature they have transformed into.
 
+See more on *****m_mimic.txt*0[mimicry powers].
+
 
 #####GStarting Stat Modifiers
 Strength         +1
@@ -43,20 +45,6 @@ A mimic begins the game with:
     A cloak of mimicry [Wolf]
     A potion of healing
     A dagger
-~~~~~03|Mimic|Mimicry powers
-~~~~~05|Skills|Mimicry - mimicry powers
-#####GMimicry
-[[[[[BMimicry powers are accessed using the 'm' key.]  
-Mimics can alter their form using special cloaks called cloaks of mimicry.
-Even if this ability can give them access to increased stats, regeneration,
-speed and resistances, there is always the risk of the shape-change going
-horribly wrong, turning the character into an abomination for some time.
-Also, you should keep in mind that any racial power or stat modifier is
-overridden during the shape-shift. 
-As your mimicry skill increases, your character is less likely to spoil
-the transformation attempt and may even gain other powers, such as making
-his colouration match his surroundings (becoming in all respects invisible)
-or even stranger abilities... rumors abound about Tarka the Chameleon and 
-her two pairs of boots of speed.
+
 
     

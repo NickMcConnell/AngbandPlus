@@ -5,7 +5,7 @@ add_mimic_shape
 {
 	["name"] =      "Mouse",
 	["obj_name"] =  "Mouse Fur",
-	["desc"] = 	"Mouses are small, fast and very stealthy",
+	["desc"] = 	"Mice are small, fast and very stealthy",
 	["realm"] =     "nature",
 	["level"] =     1,
 	["rarity"] =    10,
@@ -66,7 +66,7 @@ add_mimic_shape
 {
 	["name"] =      "Wolf",
 	["obj_name"] =  "Wolf Pelt",
-	["desc"] = 	"Wolf. describe me please",
+	["desc"] = 	"Wolves are masters of movement, strong and have excellent eyesight.",
 	["realm"] =     "nature",
 	["level"] =     20,
 	["rarity"] =    40,
@@ -92,7 +92,7 @@ add_mimic_shape
 {
 	["name"] =      "Spider",
 	["obj_name"] =  "Spider Web",
-	["desc"] = 	"Spider. describe me please",
+	["desc"] = 	"Spiders are clever and become good climbers.",
 	["realm"] =     "nature",
 	["level"] =     25,
 	["rarity"] =    50,
@@ -124,7 +124,7 @@ add_mimic_shape
 {
 	["name"] =      "Elder Ent",
 	["obj_name"] =  "Entish Bark",
-	["desc"] = 	"Ents are powerfull tree-like beings dating from the dawn of time.",
+	["desc"] = 	"Ents are powerful tree-like beings dating from the dawn of time.",
 	["realm"] =     "nature",
 	["level"] =     40,
 	["rarity"] =    60,
@@ -170,7 +170,7 @@ add_mimic_shape
 	["duration"] =  {50, 200},
 	["limit"] =     TRUE,
 	["calc"] =      function ()
-			player.pspeed = player.pspeed - 5 - (player.mimic_level / 10)
+			player.pspeed = player.pspeed - 5 - (player.mimic_level / 5)
 
 			player.to_a = player.to_a + 5 + ((player.mimic_level * 2) / 3)
 			player.dis_to_a = player.dis_to_a + 5 + ((player.mimic_level * 2) / 3)
@@ -221,5 +221,38 @@ add_mimic_shape
 			player.regenerate = TRUE
 			player.sh_fire = TRUE
 			return 1
+	end,
+}
+
+-- For avatar spell
+add_mimic_shape
+{
+	["name"] =      "Maia",
+	["desc"] = 	"A near god-like being.",
+	["realm"] =     nil,
+	["level"] =     1,
+	["rarity"] =    101,
+	["duration"] =  {30, 70},
+	["limit"] =     TRUE,
+	["calc"] =      function ()
+			player.modify_stat(A_STR, 5 + player.mimic_level / 5)
+			player.modify_stat(A_INT, 5 + player.mimic_level / 5)
+			player.modify_stat(A_WIS, 5 + player.mimic_level / 5)
+			player.modify_stat(A_DEX, 5 + player.mimic_level / 5)
+			player.modify_stat(A_CON, 5 + player.mimic_level / 5)
+			player.modify_stat(A_CHR, 5 + player.mimic_level / 5)
+
+			player.immune_fire = TRUE
+			player.immune_elec = TRUE
+			player.immune_acid = TRUE
+			player.immune_cold = TRUE
+			player.resist_pois = TRUE
+			player.resist_lite = TRUE
+			player.resist_dark = TRUE
+			player.resist_chaos = TRUE
+			player.hold_life = TRUE
+			player.ffall = TRUE
+			player.regenerate = TRUE
+			return 2
 	end,
 }

@@ -206,10 +206,8 @@ C:P:0:30
 C:E:0:0:0:0:0:0
 C:k:+1000:+900:Magic
 C:k:+0:+200:Magic-Device
-C:k:+0:+300:Sorcery
 C:k:+0:+600:Spell-power
 C:k:+1000:+600:Mana
-C:k:+0:+500:Geomancy
 C:k:+0:+700:Fire
 C:k:+0:+700:Water
 C:k:+0:+700:Air
@@ -233,6 +231,7 @@ C:g:All Gods
 C:a:N:Mage
 C:a:D:The basic spellcaster with lots of different skills
 C:a:k:+0:+050:Combat
+C:a:k:+0:+300:Sorcery
 C:a:k:+0:+300:Mana
 C:a:k:+0:+300:Fire
 C:a:k:+0:+300:Water
@@ -251,18 +250,12 @@ C:a:N:Geomancer
 C:a:D:The master of the four elements
 C:a:k:+0:-150:Magic-Device
 C:a:k:+1000:+100:Spell-power
-C:a:k:-1000:+100:Mana
-C:a:k:+1000:+200:Geomancy
+C:a:k:-1000:-600:Mana
+C:a:k:+1000:+700:Geomancy
 C:a:k:+1000:+350:Fire
 C:a:k:+1000:+350:Water
 C:a:k:+1000:+350:Air
 C:a:k:+1000:+350:Earth
-C:a:k:+0:+100:Conveyance
-C:a:k:+0:+100:Nature
-C:a:k:+0:+100:Temporal
-C:a:k:+0:+100:Divination
-C:a:k:+0:+100:Meta
-C:a:k:+0:-300:Sorcery
 C:a:k:+0:-100:Weaponmastery
 C:a:O:6:1:1d1
 
@@ -280,7 +273,6 @@ C:a:k:+0:+100:Nature
 C:a:k:+0:+500:Temporal
 C:a:k:+0:+500:Divination
 C:a:k:+0:+100:Meta
-C:a:k:+0:-300:Sorcery
 C:a:k:+0:-100:Weaponmastery
 C:a:O:23:4:1d1
 C:a:O:111:50:1d1
@@ -290,7 +282,7 @@ C:a:D:The master of all magic schools
 C:a:k:+0:-200:Magic-Device
 C:a:k:=0:=0:Weaponmastery
 C:a:k:=0:=0:Combat
-C:a:k:+1000:+400:Sorcery
+C:a:k:+1000:+700:Sorcery
 C:a:k:+0:+100:Magic
 C:a:k:-1000:+0:Mana
 C:a:k:+0:+200:Necromancy
@@ -312,7 +304,6 @@ C:a:k:+0:+100:Temporal
 C:a:k:+0:+200:Mind
 C:a:k:+1000:+600:Monster-lore
 C:a:k:+5000:+900:Corpse-preservation
-C:a:k:+0:-300:Sorcery
 C:a:O:23:4:1d1
 C:a:O:111:50:1d1
 C:a:b:25:Undead Form
@@ -322,7 +313,6 @@ C:a:D:Runecrafters use the runes found in Middle-earth to create
 C:a:D:finely tuned spells for each specific situation.
 C:a:k:+1000:+50:Magic
 C:a:k:+1000:+300:Runecraft
-C:a:k:+0:-300:Sorcery
 C:a:k:+0:-100:Weaponmastery
 C:a:O:111:50:1d1
 C:a:O:105:1:1d1
@@ -344,7 +334,6 @@ C:a:N:Alchemist
 C:a:D:An alchemists can quickly create powerful magic items through the correct use
 C:a:D:of the essences of magic they can extract from magical objects.
 C:a:k:+2000:+0:Magic
-C:a:k:+0:-400:Sorcery
 C:a:k:+0:-600:Spell-power
 C:a:k:+0:-600:Necromancy
 C:a:k:+0:-600:Thaumaturgy
@@ -362,7 +351,6 @@ C:a:k:+0:-600:Temporal
 C:a:k:+0:-200:Divination
 C:a:k:+0:-200:Meta
 C:a:k:+0:-600:Mind
-C:a:k:+0:-300:Sorcery
 C:a:k:+1000:+800:Alchemy
 C:a:k:+0:+50:Magic-Device
 C:a:O:31:1:1d1

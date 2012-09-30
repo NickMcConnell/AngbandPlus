@@ -3705,7 +3705,7 @@ void move_player_aux(int dir, int do_pickup, int run, bool disarm)
 			feat = cave[p_ptr->py][p_ptr->px].feat;
 
 		/* Some hooks */
-		if (process_hooks(HOOK_MOVED, "()")) return;
+		if (process_hooks(HOOK_MOVED, "(d,d)", oy, ox)) return;
 
 		/* Redraw new spot */
 		lite_spot(p_ptr->py, p_ptr->px);

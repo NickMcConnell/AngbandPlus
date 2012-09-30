@@ -1,6 +1,6 @@
 /*
 ** Lua binding: monster
-** Generated automatically by tolua 4.0a - angband on Sat Jun  7 17:07:30 2003.
+** Generated automatically by tolua 4.0a - angband on Tue Jun 24 13:54:19 2003.
 */
 
 #include "lua/tolua.h"
@@ -2896,6 +2896,7 @@ int tolua_monster_open (lua_State* tolua_S)
  tolua_constant(tolua_S,NULL,"SUMMON_SHADOWS",SUMMON_SHADOWS);
  tolua_constant(tolua_S,NULL,"SUMMON_GHOST",SUMMON_GHOST);
  tolua_constant(tolua_S,NULL,"SUMMON_QUYLTHULG",SUMMON_QUYLTHULG);
+ tolua_constant(tolua_S,NULL,"SUMMON_LUA",SUMMON_LUA);
  tolua_function(tolua_S,NULL,"do_control_reconnect",toluaI_monster_do_control_reconnect00);
  tolua_globalvar(tolua_S,"m_max",toluaI_get_monster_m_max,toluaI_set_monster_m_max);
  return 1;
@@ -3232,6 +3233,7 @@ void tolua_monster_close (lua_State* tolua_S)
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SUMMON_SHADOWS");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SUMMON_GHOST");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SUMMON_QUYLTHULG");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SUMMON_LUA");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"do_control_reconnect");
  lua_getglobals(tolua_S);
  lua_pushstring(tolua_S,"m_max"); lua_pushnil(tolua_S); lua_rawset(tolua_S,-3);

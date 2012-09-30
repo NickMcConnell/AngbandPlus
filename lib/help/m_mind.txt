@@ -45,3 +45,5 @@ There are four spells available for the mind school. These Spells are:
       real body while controlling the golem.
    But to cast the spell you will need a lantern or a wooden torch to create
       the golem from.
+#####v   Your Fire and Mind skills must have reached a combined average level 
+#####v   of 7 in order to cast this spell.

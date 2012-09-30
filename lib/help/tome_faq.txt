@@ -2,7 +2,7 @@
 ~~~~~01|Help|FAQ
 ~~~~~02|FAQ
 #####R                             ToME FAQ
-#####R                     Updated for version 2.1.x
+#####R                     Updated for version 2.2.x
 
 #####G------------------------------------------------------------------------------
 
@@ -194,6 +194,34 @@ needed to get back to the town?
 A: This quest is located in the wilderness. To the west of Lothlorien is 4 
 water squares in an upside down L shape. One of these squares will contain the
 quest. (Viewed from the Wilderness map).
+~~~~~20|Spoilers|God Quest - directions
+~~~~~23|Gods|Quest - Spoilers
+#####G------------------------------------------------------------------------------
+#####GQ: I've been given directions to a temple by my God but can't find the 
+#####G   temple anywhere!
+
+A: It [[[[[BIS] there. However, your god's idea of compass directions that are 
+not directly on the 4 main axes are probably slightly less acurate than your 
+idea. In other words, if your god says it is South-East, s/he means it is 
+somewhere in the quadrant that is between the south and east axes.
+~~~~~21|Spoilers|God Quest - relic
+#####G------------------------------------------------------------------------------
+#####GQ: Where is the relic by god was talking about? I've looked in the lost 
+#####G   temple and can't find it anywhere!
+
+A: It [[[[[BIS] there. However, when your god told you to look for it VERY  
+carefully, s/he meant it. Regardless of your game settings, the relic will only
+be created once in the temple, at a random place. If you have searched the 
+whole temple once over, and not located it, someone else has found it before 
+you, and it is lost forever.
+~~~~~22|Spoilers|God Quest - how many?
+#####G------------------------------------------------------------------------------
+#####GQ: Apparently my god has lost another piece of his relic and wants me to go 
+#####G   find it again. How many of these are there? 
+
+A: You can receive up to five god quests, with the final piece yielding an 
+extra reward. However you will only receive extra quests if you have 
+sucessfully completed all the previous ones. 
 ~~~~~08|Monsters|They are talking to me!
 #####G------------------------------------------------------------------------------
 #####GQ: Farmer Maggot / Melinda Proudfoot keep shouting at me, and I cannot

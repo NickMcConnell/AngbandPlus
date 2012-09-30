@@ -1,7 +1,7 @@
 |||||oy
-#####R             /----------------------------------------\
-#####R            <                 Help Index               >
-#####R             \----------------------------------------/
+#####R	     /----------------------------------------\
+#####R	    <		 Help Index	       >
+#####R	     \----------------------------------------/
 
 This is the index of everything in the T.o.M.E. documentation.
 
@@ -35,6 +35,7 @@ Don't forget you can browse the help from the *****help.hlp*02[Main menu].
     *****ability.txt*08[Touch of death]
     *****ability.txt*11[Trapping]
     *****ability.txt*03[Tree walking]
+    *****ability.txt*12[Undead Form]
   *****m_air.txt*02[Air Magic]
   *****c_alchem.txt*01[Alchemist]
     *****c_alchem.txt*03[Alchemy powers explained]
@@ -203,6 +204,7 @@ Don't forget you can browse the help from the *****help.hlp*02[Main menu].
     *****g_manwe.txt*01[Manwe]
     *****g_melkor.txt*02[Melkor]
     *****birth.txt*30[Piety]
+    *****tome_faq.txt*23[Quest - Spoilers]
     *****g_tulkas.txt*02[Tulkas]
     *****g_yavann.txt*02[Yavanna]
   *****birth.txt*16[Gold]
@@ -215,6 +217,7 @@ Don't forget you can browse the help from the *****help.hlp*02[Main menu].
     *****dungeon.txt*16[Contact]
     *****tome_faq.txt*01[FAQ]
     *****lua.hlp*01[Lua scripting for ToME]
+    *****magic.hlp*02[Magic]
     *****help.hlp*01[Main Menu]
     *****TANG.txt*01[Newbie help]
   *****rm_herm.txt*01[Hermit]
@@ -249,9 +252,11 @@ Don't forget you can browse the help from the *****help.hlp*02[Main menu].
     *****m_earth.txt*01[Earth School]
     *****m_fire.txt*01[Fire School]
     *****m_geoman.txt*01[Geomancy]
+    *****magic.hlp*01[Index]
     *****birth.txt*27[Mana]
     *****m_mana.txt*01[Mana School]
     *****m_meta.txt*01[Meta School]
+    *****m_mimic.txt*01[Mimicry]
     *****m_mind.txt*01[Mind School]
     *****m_mindcr.txt*01[Mindcraft]
     *****m_music.txt*01[Music]
@@ -277,7 +282,7 @@ Don't forget you can browse the help from the *****help.hlp*02[Main menu].
     *****g_melkor.txt*03[Prayers]
   *****m_meta.txt*02[Meta Magic]
   *****c_mimic.txt*01[Mimic]
-    *****c_mimic.txt*03[Mimicry powers]
+    *****m_mimic.txt*02[Mimicry powers]
   *****m_mind.txt*02[Mind Magic]
   *****c_mindcr.txt*01[Mindcrafter]
     *****m_mindcr.txt*02[Mindcraft powers]
@@ -431,14 +436,14 @@ Don't forget you can browse the help from the *****help.hlp*02[Main menu].
     *****skills.txt*29[Meta]
     *****m_meta.txt*03[Meta - Spell Info]
     *****skills.txt*47[Mimicry]
-    *****c_mimic.txt*05[Mimicry - mimicry powers]
+    *****m_mimic.txt*03[Mimicry - mimicry powers]
     *****skills.txt*33[Mind]
     *****m_mind.txt*03[Mind - Spell Info]
     *****skills.txt*41[Mindcraft]
     *****m_mindcr.txt*03[Mindcraft - Spell Info]
     *****skills.txt*42[Monster-lore]
     *****skills.txt*59[Music]
-    *****m_music.txt*03[Music - Spell Info]
+    *****m_music.txt*03[Music - Song Info]
     *****skills.txt*34[Nature]
     *****m_nature.txt*03[Nature - Spell Info]
     *****skills.txt*35[Necromancy]
@@ -462,7 +467,7 @@ Don't forget you can browse the help from the *****help.hlp*02[Main menu].
     *****c_summon.txt*04[Summoning - Summoning powers]
     *****skills.txt*03[Sword-mastery]
     *****skills.txt*46[Symbiosis]
-    *****m_symbio.txt*03[Symbiosis - Spell Info]
+    *****m_symbio.txt*03[Symbiosis - Symbiotic Powers]
     *****skills.txt*32[Temporal]
     *****m_tempo.txt*03[Temporal - Spell Info]
     *****skills.txt*37[Thaumaturgy]
@@ -480,6 +485,9 @@ Don't forget you can browse the help from the *****help.hlp*02[Main menu].
     *****essences.txt*01[Essences]
     *****fatespoi.txt*01[Fates]
     *****inscrip.txt*02[Floor Inscriptions]
+    *****tome_faq.txt*20[God Quest - directions]
+    *****tome_faq.txt*22[God Quest - how many]
+    *****tome_faq.txt*21[God Quest - relic]
     *****tome_faq.txt*07[Lothlorien Poisoned water quest]
     *****luckspoi.txt*02[Luck]
     *****tome_faq.txt*06[Merton the lost Hobbit quest]
@@ -513,8 +521,8 @@ Don't forget you can browse the help from the *****help.hlp*02[Main menu].
     *****c_monk.txt*04[Monk attacks]
     *****birth.txt*72[Stat bonuses]
   *****m_tempo.txt*02[Temporal Magic]
+  *****m_thaum.txt*02[Thaumaturgical Magic]
   *****c_thaum.txt*01[Thaumaturgist]
-  *****m_thaum.txt*02[Thaumaturgy Magic]
   *****r_thlord.txt*01[Thunderlord]
   *****dungeon.txt*07[Town]
   *****r_troll.txt*01[Troll]

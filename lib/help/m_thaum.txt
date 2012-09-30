@@ -1,6 +1,6 @@
 |||||oy
 ~~~~~01|Magic|Thaumaturgy
-~~~~~02|Thaumaturgy Magic
+~~~~~02|Thaumaturgical Magic
 ~~~~~03|Skills|Thaumaturgy - Spell Info
 #####R === ToME Magic - Thaumaturgy ===
 

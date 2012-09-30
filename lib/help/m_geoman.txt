@@ -20,7 +20,7 @@ as usual through the *****skills.txt*21[Magic] skill.
    Randomly creates various elements around you.
    Each type of element chance is controlled by your level in the 
    corresponding skill.
-   At level 17 it can be targeted.
+   At air level 17 it can be targeted.
 
 2. [[[[[UChannel] [[[[[GElements] (Level 3) Cost:3
    Draws on the caster's immediate environs to form an attack or other effect.
@@ -69,7 +69,7 @@ as usual through the *****skills.txt*21[Magic] skill.
 
 8. [[[[[UGrow Barrier] (Level 12) Cost:30
    Creates impassable terrain (walls trees etc.) around you.
-   At level 20 it can be projected around another area.
+   At air level 20 it can be projected around another area.
 #####v   You must have reached at least level 12 in the Earth skill to cast this 
 #####v   spell.
 

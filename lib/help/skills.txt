@@ -123,6 +123,9 @@ you can wear before you become encumbered by it. It also affects your general
 fighting ability, although not to as great an extent as Weaponmastery, and
 determines the speed and strength of pseudo-id of weapons and armour.
 
+Investing in the combat skill? You might be interested in the 
+*****ability.txt*05[Extra Max Blow(1)] and *****ability.txt*06[(2)] abilities.
+
 Sub-skills of Combat are Weaponmastery, Archery, Barehand-combat,
 Boulder-throwing and Anti-magic.
 ~~~~~02|Skills|Weaponmastery
@@ -130,6 +133,9 @@ Boulder-throwing and Anti-magic.
 This skill is a sub-skill of the Combat skill. It affects your general
 ability to use melee weapons of all sorts. Spending 1 skill point on
 Weaponmastery adds 0.5 bonus skill points to Combat.
+
+Investing in the weaponmastery skill? You might be interested in the 
+*****ability.txt*02[Spread Blows] ability.
 
 Sub-skills of Weaponmastery are Sword-mastery, Axe-mastery, Hafted-mastery
 and Polearm-mastery.
@@ -173,15 +179,17 @@ This skill is a sub-skill of the Weaponmastery skill. It affects your ability
 to use polearms (e.g. pikes & halberds). Spending 1 skill point on your
 Polearm-mastery skill adds 0.25 bonus skill points to your Weaponmastery skill
 and adds 0.07 bonus skill points to your Combat skill.
+
+Investing in the Polearm-mastery skill? You might be interested in the 
+*****ability.txt*10[Far reaching attack] ability.
 ~~~~~08|Skills|Archery
 [[[[[BArchery]
 This skill is a sub-skill of the Combat skill. It affects your general
-ability to use ranged weapons of all sorts. It also allows you to forge ammo
-from common junk. At level 1 you can forge shots from piles of rubble. At
-level 10 you learn to forge arrows, and at level 20 bolts, both from broken
-pottery, skeletons (although not those left by defeated foes) and sticks.
-Spending one skill point on your Archery skill adds 0.5 bonus skill points
-to your Combat skill.
+ability to use ranged weapons of all sorts. Spending one skill point on your 
+Archery skill adds 0.5 bonus skill points to your Combat skill.
+
+Investing in the Archery skill? You might be interested in the 
+*****ability.txt*07[Ammo creation] ability.
 
 Sub-skills of Archery include Sling-mastery, Bow-mastery, Crossbow-mastery
 and Boomerang-mastery.
@@ -246,6 +254,9 @@ skill points to your Sneakiness skill.
 This skill is a sub-skill of the Sneakiness skill. It affects your ability
 to safely disarm any traps you find. Spending 1 skill point on your Disarming
 skill adds 0.1 bonus skill points to your Sneakiness skill.
+
+Investing in the Disarming skill? You might be interested in the *****ability.txt*11[Trapping] 
+ability.
 ~~~~~18|Skills|Backstab
 [[[[[BBackstab]
 This skill is a sub-skill of the Sneakiness skill. It affects your ability
@@ -267,6 +278,9 @@ on your Dodging skill adds 0.1 bonus skill points to your Sneakiness skill.
 The magic skill affects your general use of magic items, the amount of mana
 you can handle, and in general your ability to do magic. It can also affect
 the strength of wands and staffs.
+
+Investing in the Magic skill? You might be interested in the *****ability.txt*04[Perfect Casting] 
+ability.
 
 Sub-skills include: Magic-Device, Spell-power, Sorcery, Mana, Fire, Water, Air,
 Earth, Meta, Conveyance, Divination, Temporal, Mind, Nature, Udun, Demonology,
@@ -384,6 +398,9 @@ This skill is a sub-skill of the Magic skill. It gives access to spells
 within the *****m_nature.txt*0[nature] school, and as it increases so does the casting level of
 spells already attained in the school. Spending 1 skill point on your Nature
 skill adds 0.1 bonus skill points to your Magic skill.
+
+Investing in the Nature skill? You might be interested in the *****ability.txt*03[Tree Walking] 
+ability.
 ~~~~~48|Skills|Udun
 [[[[[BUdun]
 This skill is a sub-skill of the Magic skill. It gives access to spells
@@ -404,6 +421,9 @@ skill adds 0.1 bonus skill points to your Magic skill.
 This skill is a sub-skill of the Magic skill. It grants access to *****m_necrom.txt*0[necromancy]
 spells. This is the base skill of the Necromancer class. Spending 1 skill
 point on your Necromancy skill adds 0.04 bonus skill points to your Magic skill.
+
+Investing in the Necromancy skill? You might be interested in the 
+*****ability.txt*08[Touch of Death] and *****ability.txt*12[Undead Form] abilities.
 ~~~~~36|Skills|Runecraft
 [[[[[BRunecraft]
 This skill is a sub-skill of the Magic skill. This is the base skill of the
@@ -421,6 +441,10 @@ skill.
 [[[[[BAlchemy]
 The Alchemy skill affects your ability to extract and use essences to create
 magical items. 
+
+Investing in the Alchemy skill? You might be interested in the *****ability.txt*09[Artifact Creation] 
+ability.
+
 ~~~~~38|Skills|Spirituality
 [[[[[BSpirituality]
 The spirituality skill influences things which have a "helping hand" from the

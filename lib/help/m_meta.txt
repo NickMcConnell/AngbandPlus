@@ -32,7 +32,8 @@ There are four spells available for the meta school. These Spells are:
       safe area.
    Also it will use the mana for the Spellbinder and the mana for the selected
       spells.
-4. [[[[[sTracker] (school level 30)
+4. [[[[[sTracker] (dual school level 30)
    Tracks down the last teleportation that happened on the level and teleports
    you to it.
-
+#####v   Your Meta and Conveyance skills must have reached a combined average level 
+#####v   of 30 in order to cast this spell.

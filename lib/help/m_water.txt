@@ -16,15 +16,18 @@ spells.
 
 #####bWater Spells
 There are four spells available for the water school. These Spells are:
-1. [[[[[bVapor] (school level 2)
+1. [[[[[bGeyser] (school level 1)
+   Shoots a geyser of water from your fingertips.
+   Sometimes it can blast through its first target
+2. [[[[[bVapor] (school level 2)
    Fills the air with toxic moisture to eradicate annoying creatures.
-2. [[[[[bEnt's Potion] (school level 6)
+3. [[[[[bEnt's Potion] (school level 6)
    Fills up your stomach (i.e. satisfy hunger).
    At spell level 5 it emboldens your heart (boldness).
    At level 12 it make you heroic.
-3. [[[[[bTidal Wave] (school level 16)
+4. [[[[[bTidal Wave] (school level 16)
    Summons a monstrous tidal wave that will expand and crush monsters under
    it's mighty waves.
-4. [[[[[bIce Storm] (school level 22)
+5. [[[[[bIce Storm] (school level 22)
    Engulfs you in a storm of roaring cold that strikes your foes.
    At spell level 10 it turns into shards of ice.

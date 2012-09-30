@@ -1896,6 +1896,7 @@ extern void dump_abilities(FILE *fff);
 extern void do_cmd_ability();
 extern bool has_ability(int ab);
 extern void apply_level_abilities(int level);
+extern void recalc_skills(bool init);
 
 /* gods.c */
 extern void inc_piety(int god, s32b amt);

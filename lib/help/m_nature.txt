@@ -15,8 +15,10 @@ spells.
 
 #####GNature Spells
 There are five spells available for the nature school. These Spells are:
-1. [[[[[GGrow Trees] (school level 6)
+1. [[[[[GGrow Trees] (dual school level 6)
    Makes trees grow extremely quickly around you.
+#####v   Your Nature and Temporal skills must have reached a combined average level 
+#####v   of 6 in order to cast this spell.
 2. [[[[[GHealing] (school level 10)
    Heals a percent of hitpoints.
 3. [[[[[GRecovery] (school level 15)
@@ -32,16 +34,20 @@ There are five spells available for the nature school. These Spells are:
 
 #####GAir spells that can be cast with Nature skill
 
-1. [[[[[BThunderstorm] (school level 25)
+1. [[[[[BThunderstorm] (dual school level 25)
    Charges up the air around you with electricity.
    Each turn it will throw a bolt of thunder at a random monster in sight.
    This thunder does 3 types of damage:
       one third of lightning
       one third of sound
       and one third of light.
+#####v   Your Nature and Air skills must have reached a combined average level 
+#####v   of 25 in order to cast this spell.
       
 #####GUdun spells that can be cast with Nature skill
 
-1. [[[[[DGenocide] (school level 25)
+1. [[[[[DGenocide] (dual school level 25)
    Genocides all monsters of a race on the level.
    At level 10 it can genocide all monsters near you.
+#####v   Your Nature and Udun skills must have reached a combined average level 
+#####v   of 25 in order to cast this spell.

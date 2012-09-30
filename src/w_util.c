@@ -1,6 +1,6 @@
 /*
 ** Lua binding: util
-** Generated automatically by tolua 4.0a - angband on Sat Jun  7 17:07:14 2003.
+** Generated automatically by tolua 4.0a - angband on Sun Jun 22 13:52:26 2003.
 */
 
 #include "lua/tolua.h"
@@ -3550,6 +3550,7 @@ int tolua_util_open (lua_State* tolua_S)
  tolua_constant(tolua_S,NULL,"HOOK_GAME_START",HOOK_GAME_START);
  tolua_constant(tolua_S,NULL,"HOOK_TAKEOFF",HOOK_TAKEOFF);
  tolua_constant(tolua_S,NULL,"HOOK_CALC_WEIGHT",HOOK_CALC_WEIGHT);
+ tolua_constant(tolua_S,NULL,"HOOK_FORBID_TRAVEL",HOOK_FORBID_TRAVEL);
  tolua_globalvar(tolua_S,"turn",toluaI_get_util_turn,toluaI_set_util_turn);
  tolua_globalvar(tolua_S,"old_turn",toluaI_get_util_old_turn,toluaI_set_util_old_turn);
  tolua_globalvar(tolua_S,"cur_wid",toluaI_get_util_cur_wid,toluaI_set_util_cur_wid);
@@ -3559,7 +3560,6 @@ int tolua_util_open (lua_State* tolua_S)
  tolua_function(tolua_S,NULL,"path_build",toluaI_util_path_build00);
  tolua_function(tolua_S,NULL,"move_cursor",toluaI_util_move_cursor00);
  tolua_function(tolua_S,NULL,"flush",toluaI_util_flush00);
- tolua_constant(tolua_S,NULL,"ESCAPE",ESCAPE);
  tolua_globalvar(tolua_S,"inkey_scan",toluaI_get_util_inkey_scan,toluaI_set_util_inkey_scan);
  tolua_function(tolua_S,NULL,"inkey",toluaI_util_inkey00);
  tolua_function(tolua_S,NULL,"cmsg_print",toluaI_util_cmsg_print00);
@@ -3828,6 +3828,7 @@ void tolua_util_close (lua_State* tolua_S)
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"HOOK_GAME_START");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"HOOK_TAKEOFF");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"HOOK_CALC_WEIGHT");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"HOOK_FORBID_TRAVEL");
  lua_getglobals(tolua_S);
  lua_pushstring(tolua_S,"turn"); lua_pushnil(tolua_S); lua_rawset(tolua_S,-3);
  lua_pop(tolua_S,1);
@@ -3845,7 +3846,6 @@ void tolua_util_close (lua_State* tolua_S)
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"path_build");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"move_cursor");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"flush");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"ESCAPE");
  lua_getglobals(tolua_S);
  lua_pushstring(tolua_S,"inkey_scan"); lua_pushnil(tolua_S); lua_rawset(tolua_S,-3);
  lua_pop(tolua_S,1);

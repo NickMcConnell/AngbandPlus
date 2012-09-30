@@ -539,7 +539,7 @@ end
 -- Calling this function returns the direction the dungeon is in from the players position at the time 
 -- the quest was given, and also the direction from angband (if the player is worshipping Melkor) or lothlorien.
 function get_god_quest_axes()
-	local play_y_coord, play_x_coord, y_axis, x_axis
+	local play_y_coord, play_x_coord, y_axis, x_axis, player_axis, home_axis, mydistance
 
 	player_axis = compass(god_quest.player_y, god_quest.player_x, god_quest.dung_y, god_quest.dung_x)
 
@@ -559,7 +559,7 @@ function get_god_quest_axes()
 
 	home_axis = compass(home_y_coord, home_x_coord, god_quest.dung_y, god_quest.dung_x)
 
-	local mydistance = distance(god_quest.player_y, god_quest.player_x, god_quest.dung_y, god_quest.dung_x)
+	mydistance = distance(god_quest.player_y, god_quest.player_x, god_quest.dung_y, god_quest.dung_x)
 
 	return player_axis, home, home_axis, mydistance
 end

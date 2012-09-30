@@ -32,6 +32,8 @@ There are four spells available for the mana school. These Spells are:
 
 #####GUdun spells that can be cast with Mana skill
 
-1. [[[[[DDrain] (school level 1)
+1. [[[[[DDrain] (dual school level 1)
    Drains the mana contained in wands, staves and rods to increase yours.
+#####v   Your Mana and Udun skills must have reached a combined average level 
+#####v   of 1 in order to cast this spell.
    
