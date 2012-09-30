@@ -1651,16 +1651,18 @@ bool create_artifact(object_type *o_ptr, bool a_scroll)
 		while ((o_ptr->to_d+o_ptr->to_h) > 20)
 		{
 			if (one_in_(o_ptr->to_d) && one_in_(o_ptr->to_h)) break;
-			o_ptr->to_d -= rand_int(3);
-			o_ptr->to_h -= rand_int(3);
+			o_ptr->to_d -= (s16b)rand_int(3);
+			o_ptr->to_h -= (s16b)rand_int(3);
 		}
 		while ((o_ptr->to_d+o_ptr->to_h) > 10)
 		{
 			if (one_in_(o_ptr->to_d) || one_in_(o_ptr->to_h)) break;
-			o_ptr->to_d -= rand_int(3);
-			o_ptr->to_h -= rand_int(3);
+			o_ptr->to_d -= (s16b)rand_int(3);
+			o_ptr->to_h -= (s16b)rand_int(3);
 		}
 	}
+
+	if (((artifact_bias == BIAS_MAGE) || (artifact_bias == BIAS_INT)) && (o_ptr->tval == TV_GLOVES)) o_ptr->art_flags2 |= TR2_FREE_ACT;
 
 	if ((o_ptr->tval == TV_SWORD) && (o_ptr->sval == SV_DOKUBARI))
 	{
@@ -2097,7 +2099,7 @@ bool activate_random_artifact(object_type * o_ptr)
 			msg_print("You launch a rocket!");
 #endif
 
-			fire_ball(GF_ROCKET, dir, 120 + plev, 2);
+			fire_ball(GF_ROCKET, dir, 250 + plev*3, 2);
 			o_ptr->timeout = 400;
 			break;
 		}
@@ -2299,7 +2301,7 @@ bool activate_random_artifact(object_type * o_ptr)
 			bool pet = (randint(3) == 1);
 			bool group = !(pet && (plev < 50));
 
-			if (summon_specific((pet ? -1 : 0), py, px, ((plev * 3) / 2), SUMMON_ELEMENTAL, group, FALSE, pet, FALSE, !pet))
+			if (summon_specific((pet ? -1 : 0), py, px, ((plev * 3) / 2), SUMMON_ELEMENTAL, group, FALSE, pet, FALSE, (bool)(!pet)))
 			{
 #ifdef JP
 				msg_print("エレメンタルが現れた...");
@@ -2333,7 +2335,7 @@ bool activate_random_artifact(object_type * o_ptr)
 			bool pet = (randint(3) == 1);
 			bool group = !(pet && (plev < 50));
 
-			if (summon_specific((pet ? -1 : 0), py, px, ((plev * 3) / 2), SUMMON_DEMON, group, FALSE, pet, FALSE, !pet))
+			if (summon_specific((pet ? -1 : 0), py, px, ((plev * 3) / 2), SUMMON_DEMON, group, FALSE, pet, FALSE, (bool)(!pet)))
 			{
 #ifdef JP
 				msg_print("硫黄の悪臭が充満した。");
@@ -2381,7 +2383,7 @@ bool activate_random_artifact(object_type * o_ptr)
 			}
 
 			if (summon_specific((pet ? -1 : 0), py, px, ((plev * 3) / 2), type,
-					    group, FALSE, pet, unique_okay, !pet))
+					    group, FALSE, pet, unique_okay, (bool)(!pet)))
 			{
 #ifdef JP
 				msg_print("冷たい風があなたの周りに吹き始めた。それは腐敗臭を運んでいる...");
@@ -3002,12 +3004,6 @@ void create_named_art(int a_idx, int y, int x)
 	if (a_ptr->flags3 & TR3_CURSED) q_ptr->ident |= (IDENT_CURSED);
 
 	random_artifact_resistance(q_ptr);
-
-#ifdef USE_SCRIPT
-
-	q_ptr->python = object_create_callback(q_ptr);
-
-#endif /* USE_SCRIPT */
 
 	/* Drop the artifact from heaven */
 	(void)drop_near(q_ptr, -1, y, x);

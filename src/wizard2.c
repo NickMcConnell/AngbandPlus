@@ -334,6 +334,7 @@ static void do_cmd_wiz_change_aux(void)
 	int i, j;
 	int tmp_int;
 	long tmp_long;
+	s16b tmp_s16b;
 	char tmp_val[160];
 	char ppp[80];
 
@@ -373,31 +374,31 @@ static void do_cmd_wiz_change_aux(void)
 #endif
 
 	/* Extract */
-	tmp_long = atol(tmp_val);
+	tmp_s16b = atoi(tmp_val);
 
 	/* Verify */
-	if (tmp_long < 0) tmp_long = 0L;
-	if (tmp_long > 8000) tmp_long = 8000L;
+	if (tmp_s16b < 0) tmp_s16b = 0L;
+	if (tmp_s16b > 8000) tmp_s16b = 8000L;
 
 	for (j = 0; j <= TV_SWORD - TV_BOW;j++)
 	{
 		for (i = 0;i < 64;i++)
 		{
-			weapon_exp[j][i] = tmp_long;
-			if (weapon_exp[j][i] > weapon_exp_settei[p_ptr->pclass][j][i][1]) weapon_exp[j][i] = weapon_exp_settei[p_ptr->pclass][j][i][1];
+			weapon_exp[j][i] = tmp_s16b;
+			if (weapon_exp[j][i] > s_info[p_ptr->pclass].w_max[j][i]) weapon_exp[j][i] = s_info[p_ptr->pclass].w_max[j][i];
 		}
 	}
 
 	for (j = 0; j < 10; j++)
 	{
-		skill_exp[j] = tmp_long;
-		if (skill_exp[j] > skill_exp_settei[p_ptr->pclass][j][1]) skill_exp[j] = skill_exp_settei[p_ptr->pclass][j][1];
+		skill_exp[j] = tmp_s16b;
+		if (skill_exp[j] > s_info[p_ptr->pclass].s_max[j]) skill_exp[j] = s_info[p_ptr->pclass].s_max[j];
 	}
 
 	for (j = 0; j < 32; j++)
-		spell_exp[j] = (tmp_long > 1600 ? 1600 : tmp_long);
+		spell_exp[j] = (tmp_s16b > 1600 ? 1600 : tmp_s16b);
 	for (; j < 64; j++)
-		spell_exp[j] = (tmp_long > 1400 ? 1400 : tmp_long);
+		spell_exp[j] = (tmp_s16b > 1400 ? 1400 : tmp_s16b);
 
 	/* Default */
 	sprintf(tmp_val, "%ld", (long)(p_ptr->au));
@@ -1351,10 +1352,6 @@ static void wiz_create_item(void)
 		apply_magic(q_ptr, dun_level, FALSE, FALSE, FALSE, FALSE);
 	}
 
-#ifdef USE_SCRIPT
-	q_ptr->python = object_create_callback(q_ptr);
-#endif /* USE_SCRIPT */
-
 	/* Drop the object from heaven */
 	(void)drop_near(q_ptr, -1, py, px);
 
@@ -1464,7 +1461,7 @@ static void do_cmd_wiz_jump(void)
 	dun_level = command_arg;
 
 	if (!dun_level) dungeon_type = 0;
-	p_ptr->inside_arena = 0;
+	p_ptr->inside_arena = FALSE;
 	leaving_quest = p_ptr->inside_quest;
 
 	/* Leaving an 'only once' quest marks it as failed */
@@ -1473,7 +1470,7 @@ static void do_cmd_wiz_jump(void)
 		(quest[leaving_quest].status == QUEST_STATUS_TAKEN))
 	{
 		quest[leaving_quest].status = QUEST_STATUS_FAILED;
-		quest[leaving_quest].complev = p_ptr->lev;
+		quest[leaving_quest].complev = (byte)p_ptr->lev;
 		if (record_fix_quest)
 			do_cmd_write_nikki(NIKKI_FIX_QUEST_F, leaving_quest, NULL);
 	}
@@ -1633,43 +1630,6 @@ static void do_cmd_wiz_zap_all(void)
 		delete_monster_idx(i);
 	}
 }
-
-
-#ifdef USE_SCRIPT
-
-/*
- * Hack -- Execute a script function
- */
-static void do_cmd_wiz_script(void)
-{
-	int err;
-	char name[80];
-
-	/* Get name of script to execute */
-	name[0] = '\0';
-
-	if (!get_string("Function name: ", name, 80)) return;
-
-	/* No name, no execute */
-	if (name[0] == '\0')
-	{
-		msg_print("Cancelled.");
-		return;
-	}
-
-	/* Execute script */
-	err = script_execute(name);
-
-	/* Error */
-	if (err)
-	{
-		msg_print("Failed.");
-		return;
-	}
-}
-
-#endif /* USE_SCRIPT */
-
 
 
 #ifdef ALLOW_SPOILERS
@@ -1905,7 +1865,7 @@ void do_cmd_debug(void)
 
 		/* Wizard Light the Level */
 		case 'w':
-		wiz_lite(TRUE, (p_ptr->pclass == CLASS_NINJA));
+		wiz_lite(TRUE, (bool)(p_ptr->pclass == CLASS_NINJA));
 		break;
 
 		/* Increase Experience */
@@ -1933,13 +1893,6 @@ void do_cmd_debug(void)
 		case '_':
 		do_cmd_wiz_hack_ben();
 		break;
-
-#ifdef USE_SCRIPT
-		/* Hack -- activate a script */
-		case '@':
-		do_cmd_wiz_script();
-		break;
-#endif /* USE_SCRIPT */
 
 		/* Not a Wizard Command */
 		default:

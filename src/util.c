@@ -131,7 +131,11 @@ void user_name(char *buf, int id)
 
 #ifdef CAPITALIZE_USER_NAME
 		/* Hack -- capitalize the user name */
-		if (islower(buf[0])) buf[0] = toupper(buf[0]);
+#ifdef JP
+		if (!iskanji(buf[0]))
+#endif
+			if (islower(buf[0]))
+				buf[0] = toupper(buf[0]);
 #endif /* CAPITALIZE_USER_NAME */
 
 		return;
@@ -616,6 +620,8 @@ errr fd_copy(cptr file, cptr what)
 {
 	char buf[1024];
 	char aux[1024];
+	int read_num;
+	int src_fd, dst_fd;
 
 	/* Hack -- Try to parse the path */
 	if (path_parse(buf, 1024, file)) return (-1);
@@ -623,11 +629,26 @@ errr fd_copy(cptr file, cptr what)
 	/* Hack -- Try to parse the path */
 	if (path_parse(aux, 1024, what)) return (-1);
 
-	/* Copy XXX XXX XXX */
-	/* (void)rename(buf, aux); */
+	/* Open source file */
+	src_fd = fd_open(buf, O_RDONLY);
+	if (src_fd < 0) return (-1);
+
+	/* Open destination file */
+	dst_fd = fd_open(aux, O_WRONLY|O_TRUNC|O_CREAT);
+	if (dst_fd < 0) return (-1);
+
+	/* Copy */
+	while ((read_num = read(src_fd, buf, 1024)) > 0)
+	{
+		write(dst_fd, buf, read_num);
+	}
+
+	/* Close files */
+	fd_close(src_fd);
+	fd_close(dst_fd);
 
 	/* XXX XXX XXX */
-	return (1);
+	return (0);
 }
 
 
@@ -1055,8 +1076,20 @@ static void trigger_text_to_ascii(char **bufptr, cptr *strptr)
 			break;
 		}
 	}
+
+	/* Invalid trigger name? */
 	if (i == max_macrotrigger)
+	{
+		str = strchr(str, ']');
+		if (str)
+		{
+			*s++ = (char)31;
+			*s++ = (char)13;
+			*bufptr = s;
+			*strptr = str; /* where **strptr == ']' */
+		}
 		return;
+	}
 	key_code = macro_trigger_keycode[shiftstatus][i];
 	str += len;
 
@@ -1674,7 +1707,7 @@ static char inkey_aux(void)
 
 	char buf[1024];
 
-	/* Hack : キー入力待ちで止まっているので、流れた行の記憶は不要。*/
+	/* Hack : キー入力待ちで止まっているので、流れた行の記憶は不要。 */
 	num_more = 0;
 
 	/* Wait for a keypress */
@@ -1897,10 +1930,6 @@ char inkey(void)
 	bool done = FALSE;
 	term *old = Term;
 
-#ifdef USE_SCRIPT
-	char result;
-#endif /* USE_SCRIPT */
-
 	/* Hack -- Use the "inkey_next" pointer */
 	if (inkey_next && *inkey_next && !inkey_xtra)
 	{
@@ -1931,18 +1960,6 @@ char inkey(void)
 	}
 
 #endif /* ALLOW_BORG */
-
-#ifdef USE_SCRIPT
-
-	if ((result = inkey_borg_callback(inkey_base, inkey_xtra, inkey_flag, inkey_scan)))
-	{
-		/* Cancel the various "global parameters" */
-		inkey_base = inkey_xtra = inkey_flag = inkey_scan = FALSE;
-
-		return (result);
-	}
-
-#endif /* USE_SCRIPT */
 
 
 	/* Hack -- handle delayed "flush()" */
@@ -2122,12 +2139,6 @@ char inkey(void)
 
 	/* Cancel the various "global parameters" */
 	inkey_base = inkey_xtra = inkey_flag = inkey_scan = FALSE;
-
-#ifdef USE_SCRIPT
-
-	if ((result = inkey_callback(ch))) return result;
-
-#endif /* USE_SCRIPT */
 
 	/* Return the keypress */
 	return (ch);
@@ -2391,7 +2402,7 @@ void message_add(cptr str)
 		}
 		else
 		{
-			num_more++;/*流れた行の数を数えておく*/
+			num_more++;/*流れた行の数を数えておく */
 			now_message++;
 		}
 
@@ -2574,7 +2585,7 @@ static void msg_flush(int x)
 	}
 	now_damaged = FALSE;
 
-	if (!nagasu)
+	if (!alive || !nagasu)
 	{
 		/* Pause for response */
 #ifdef JP
@@ -2589,13 +2600,13 @@ static void msg_flush(int x)
 		{
 			int cmd = inkey();
 			if (cmd == ESCAPE) {
-			    num_more = -9999; /*auto_moreのとき、全て流す。*/
+			    num_more = -9999; /*auto_moreのとき、全て流す。 */
 			    break;
 			} else if (cmd == ' ') {
-			    num_more = 0; /*１画面だけ流す。*/
+			    num_more = 0; /*１画面だけ流す。 */
 			    break;
 			} else if ((cmd == '\n') || (cmd == '\r')) {
-			    num_more--; /*１行だけ流す。*/
+			    num_more--; /*１行だけ流す。 */
 			    break;
 			}
 			if (quick_messages) break;
@@ -3048,7 +3059,7 @@ void c_roff(byte a, cptr str)
 
 		/* Dump */
 #ifdef JP
-                Term_addch(a|0x10, ch);
+                Term_addch((byte)(a|0x10), ch);
 #else
 		Term_addch(a, ch);
 #endif
@@ -3060,7 +3071,7 @@ void c_roff(byte a, cptr str)
 			s++;
 			x++;
 			ch = *s;
-			Term_addch(a|0x20, ch);
+			Term_addch((byte)(a|0x20), ch);
 		}
 #endif
 		/* Advance */
@@ -3280,8 +3291,18 @@ bool get_string(cptr prompt, char *buf, int len)
  */
 bool get_check(cptr prompt)
 {
-	int i;
+	return get_check_strict(prompt, 0);
+}
 
+/*
+ * Verify something with the user strictly
+ *
+ * mode & 0x01 : force user to answer "YES" or "N"
+ * mode & 0x02 : don't allow ESCAPE key
+ */
+bool get_check_strict(cptr prompt, int mode)
+{
+	int i;
 	char buf[80];
 
 	if (auto_more)
@@ -3294,8 +3315,28 @@ bool get_check(cptr prompt)
 	/* Paranoia XXX XXX XXX */
 	msg_print(NULL);
 
+	if (!rogue_like_commands)
+		mode &= ~1;
+
 	/* Hack -- Build a "useful" prompt */
-	(void)strnfmt(buf, 78, "%.70s[y/n] ", prompt);
+	if (mode & 1)
+	{
+#ifdef JP
+		mb_strlcpy(buf, prompt, 78-8);
+#else
+		strncpy(buf, prompt, 78-8);
+#endif
+		strcat(buf, "[yes/no]");
+	}
+	else
+	{
+#ifdef JP
+		mb_strlcpy(buf, prompt, 78-5);
+#else
+		strncpy(buf, prompt, 78-5);
+#endif
+		strcat(buf, "[y/n]");
+	}
 
 	/* Prompt for it */
 	prt(buf, 0, 0);
@@ -3304,9 +3345,39 @@ bool get_check(cptr prompt)
 	while (TRUE)
 	{
 		i = inkey();
-/*		if (quick_messages) break; */
-		if (i == ESCAPE) break;
-		if (strchr("YyNn", i)) break;
+
+		if (i == 'y' || i == 'Y')
+		{
+			if (!(mode & 1))
+				break;
+			else
+			{
+#ifdef JP
+				prt("y (YESと入力してください)", 0, strlen(buf));
+#else
+				prt("y (Please answer YES.)", 0, strlen(buf));
+#endif
+				i = inkey();
+				if (i == 'e' || i == 'E')
+				{
+#ifdef JP
+					prt("e (YESと入力してください)", 0, strlen(buf)+1);
+#else
+					prt("e (Please answer YES.)", 0, strlen(buf)+1);
+#endif
+					i = inkey();
+					if (i == 's' || i == 'S')
+					{
+						i = 'y';
+						break;
+					}
+					prt("", 0, strlen(buf)+1);
+				}
+				prt("", 0, strlen(buf));
+			}
+		}
+		if (!(mode & 2) && (i == ESCAPE)) break;
+		if (strchr("Nn", i)) break;
 		bell();
 	}
 
@@ -4795,3 +4866,4 @@ void roff_to_buf(cptr str, int maxlen, char *tbuf)
 
 	return;
 }
+

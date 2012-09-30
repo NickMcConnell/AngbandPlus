@@ -53,7 +53,7 @@ void do_cmd_go_up(void)
 			(quest[leaving_quest].status == QUEST_STATUS_TAKEN))
 		{
 			quest[leaving_quest].status = QUEST_STATUS_FAILED;
-			quest[leaving_quest].complev = p_ptr->lev;
+			quest[leaving_quest].complev = (byte)p_ptr->lev;
 			if (quest[leaving_quest].type == QUEST_TYPE_RANDOM)
 			{
 				r_info[quest[leaving_quest].r_idx].flags1 &= ~(RF1_QUESTOR);
@@ -63,10 +63,6 @@ void do_cmd_go_up(void)
 			else if (record_fix_quest)
 				do_cmd_write_nikki(NIKKI_FIX_QUEST_F, leaving_quest, NULL);
 		}
-
-#ifdef USE_SCRIPT
-		if (cmd_go_up_callback()) return;
-#endif /* USE_SCRIPT */
 
 		/* Activate the quest */
 		if (!quest[p_ptr->inside_quest].status)
@@ -120,10 +116,6 @@ if (get_check("本当にこの階を去りますか？"))
 
 			if (autosave_l) do_cmd_save_game(TRUE);
 
-#ifdef USE_SCRIPT
-			if (cmd_go_up_callback()) return;
-#endif /* USE_SCRIPT */
-
 			if (p_ptr->inside_quest)
 			{
 				leaving_quest = p_ptr->inside_quest;
@@ -135,7 +127,7 @@ if (get_check("本当にこの階を去りますか？"))
 					(quest[leaving_quest].status == QUEST_STATUS_TAKEN))
 				{
 					quest[leaving_quest].status = QUEST_STATUS_FAILED;
-					quest[leaving_quest].complev = p_ptr->lev;
+					quest[leaving_quest].complev = (byte)p_ptr->lev;
 					if (quest[leaving_quest].type == QUEST_TYPE_RANDOM)
 					{
 						r_info[quest[leaving_quest].r_idx].flags1 &= ~(RF1_QUESTOR);
@@ -266,7 +258,7 @@ void do_cmd_go_down(void)
 			(quest[leaving_quest].status == QUEST_STATUS_TAKEN))
 		{
 			quest[leaving_quest].status = QUEST_STATUS_FAILED;
-			quest[leaving_quest].complev = p_ptr->lev;
+			quest[leaving_quest].complev = (byte)p_ptr->lev;
 			if (quest[leaving_quest].type == QUEST_TYPE_RANDOM)
 			{
 				r_info[quest[leaving_quest].r_idx].flags1 &= ~(RF1_QUESTOR);
@@ -337,7 +329,7 @@ void do_cmd_go_down(void)
 			/* Save old player position */
 			p_ptr->oldpx = px;
 			p_ptr->oldpy = py;
-			dungeon_type = c_ptr->special;
+			dungeon_type = (byte)c_ptr->special;
 		}
 		else
 		{
@@ -470,16 +462,6 @@ void do_cmd_search(void)
 	/* Take a turn */
 	energy_use = 100;
 
-#ifdef USE_SCRIPT
-	if (cmd_search_callback(py, px))
-	{
-		/* Disturb */
-		disturb(0, 0);
-
-		return;
-	}
-#endif /* USE_SCRIPT */
-
 	/* Search */
 	search();
 }
@@ -589,10 +571,6 @@ static void chest_death(bool scatter, int y, int x, s16b o_idx)
 			/* Make a good object */
 			if (!make_object(q_ptr, TRUE, great)) continue;
 		}
-
-#ifdef USE_SCRIPT
-		q_ptr->python = object_create_callback(q_ptr);
-#endif /* USE_SCRIPT */
 
 		/* If chest scatters its contents, pick any floor square. */
 		if (scatter)
@@ -1295,15 +1273,6 @@ void do_cmd_open(void)
 		/* Get requested location */
 		y = py + ddy[dir];
 		x = px + ddx[dir];
-
-#ifdef USE_SCRIPT
-		if (cmd_open_callback(y, x))
-		{
-			/* Don't repeat the action */
-			disturb(0, 0);
-			return;
-		}
-#endif /* USE_SCRIPT */
 
 		/* Get requested grid */
 		c_ptr = &cave[y][x];
@@ -3009,7 +2978,10 @@ void do_cmd_walk(int pickup)
         /* Hack again -- Is there a special encounter ??? */
 	if(p_ptr->wild_mode && (cave[py][px].feat != FEAT_TOWN))
         {
-		if (((wilderness[py][px].level + 5) > (p_ptr->lev / 2)) && rand_int(120+p_ptr->lev*10 - wilderness[py][px].level+5) < (21-p_ptr->skill_stl))
+		int tmp = 120 + p_ptr->lev*10 - wilderness[py][px].level + 5;
+		if (tmp < 1) 
+			tmp = 1;
+		if (((wilderness[py][px].level + 5) > (p_ptr->lev / 2)) && rand_int(tmp) < (21-p_ptr->skill_stl))
 		{
 			/* Inform the player of his horrible fate :=) */
 #ifdef JP
@@ -3128,7 +3100,7 @@ void do_cmd_stay(int pickup)
 
 		energy_use = 0;
 		/* Hack -- enter store */
-		command_new = '_';
+		command_new = 253;
 	}
 
 	/* Hack -- enter a building if we are on one -KMW- */
@@ -3152,7 +3124,7 @@ void do_cmd_stay(int pickup)
 		if (quest[q_index].type == QUEST_TYPE_FIND_EXIT)
 		{
 			quest[q_index].status = QUEST_STATUS_COMPLETED;
-			quest[q_index].complev = p_ptr->lev;
+			quest[q_index].complev = (byte)p_ptr->lev;
 #ifdef JP
 			msg_print("クエストを完了した！");
 #else
@@ -3170,7 +3142,7 @@ void do_cmd_stay(int pickup)
 			(quest[leaving_quest].status == QUEST_STATUS_TAKEN))
 		{
 			quest[leaving_quest].status = QUEST_STATUS_FAILED;
-			quest[leaving_quest].complev = p_ptr->lev;
+			quest[leaving_quest].complev = (byte)p_ptr->lev;
 			if (quest[leaving_quest].type == QUEST_TYPE_RANDOM)
 			{
 				r_info[quest[leaving_quest].r_idx].flags1 &= ~(RF1_QUESTOR);
@@ -3641,61 +3613,13 @@ void do_cmd_fire_aux(int item, object_type *j_ptr)
 
 	/* Actually "fire" the object */
 	bonus = (p_ptr->to_h_b + o_ptr->to_h + j_ptr->to_h);
-	chance = (p_ptr->skill_thb + ((weapon_exp[0][j_ptr->sval]-4000)/200 + bonus) * BTH_PLUS_ADJ);
+	if ((j_ptr->sval == SV_LIGHT_XBOW) || (j_ptr->sval == SV_HEAVY_XBOW))
+		chance = (p_ptr->skill_thb + ((weapon_exp[0][j_ptr->sval])/400 + bonus) * BTH_PLUS_ADJ);
+	else
+		chance = (p_ptr->skill_thb + ((weapon_exp[0][j_ptr->sval]-4000)/200 + bonus) * BTH_PLUS_ADJ);
 
-	/* Assume a base multiplier */
-	tmul = 1;
-
-	/* Analyze the launcher */
-	switch (j_ptr->sval)
-	{
-		/* Sling and ammo */
-		case SV_SLING:
-		{
-			tmul = 2;
-			energy_use = 8000;
-			break;
-		}
-
-		/* Short Bow and Arrow */
-		case SV_SHORT_BOW:
-		{
-			tmul = 2;
-			energy_use = 10000;
-			break;
-		}
-
-		/* Long Bow and Arrow */
-		case SV_LONG_BOW:
-		{
-			tmul = 3;
-			energy_use = 10000;
-			break;
-		}
-
-		case SV_NAMAKE_BOW:
-		{
-			tmul = 3;
-			energy_use = 7777;
-			break;
-		}
-
-		/* Light Crossbow and Bolt */
-		case SV_LIGHT_XBOW:
-		{
-			tmul = 3;
-			energy_use = 12000;
-			break;
-		}
-
-		/* Heavy Crossbow and Bolt */
-		case SV_HEAVY_XBOW:
-		{
-			tmul = 4;
-			energy_use = 13333;
-			break;
-		}
-	}
+	energy_use = bow_energy(j_ptr->sval);
+	tmul = bow_tmul(j_ptr->sval);
 
 	/* Get extra "power" from "extra might" */
 	if (p_ptr->xtra_might) tmul++;
@@ -3709,7 +3633,7 @@ void do_cmd_fire_aux(int item, object_type *j_ptr)
 	/* Base range */
 	tdis = 10 + tmul/40;
 	if ((j_ptr->sval == SV_LIGHT_XBOW) || (j_ptr->sval == SV_HEAVY_XBOW))
-		tdis += 5;
+		tdis -= 5;
 
 	project_length = tdis + 1;
 
@@ -3844,22 +3768,22 @@ void do_cmd_fire_aux(int item, object_type *j_ptr)
 
 			if ((r_ptr->level + 10) > p_ptr->lev)
 			{
-				if (weapon_exp[0][j_ptr->sval] < weapon_exp_settei[p_ptr->pclass][0][j_ptr->sval][1])
+				int now_exp = weapon_exp[0][j_ptr->sval];
+				if (now_exp < s_info[p_ptr->pclass].w_max[0][j_ptr->sval])
 				{
-					if (weapon_exp[0][j_ptr->sval] < 4000)
-						weapon_exp[0][j_ptr->sval]+=80;
-					else if ((weapon_exp[0][j_ptr->sval] < 6000))
-						weapon_exp[0][j_ptr->sval]+=25;
-					else if ((weapon_exp[0][j_ptr->sval] < 7000) && (p_ptr->lev > 19))
-						weapon_exp[0][j_ptr->sval]+=10;
-					else if ((weapon_exp[0][j_ptr->sval] < 8000) && (p_ptr->lev > 34))
-						weapon_exp[0][j_ptr->sval]+=2;
+					int amount = 0;
+					if (now_exp < 4000) amount = 80;
+					else if (now_exp <  6000) amount = 25;
+					else if ((now_exp < 7000) && (p_ptr->lev > 19)) amount = 10;
+					else if (p_ptr->lev > 34) amount = 2;
+					weapon_exp[0][j_ptr->sval] += amount;
+					p_ptr->update |= (PU_BONUS);
 				}
 			}
 
 			if (p_ptr->riding)
 			{
-				if (skill_exp[GINOU_RIDING] < skill_exp_settei[p_ptr->pclass][GINOU_RIDING][1] && ((skill_exp[GINOU_RIDING] - 1000) / 200 < r_info[m_list[p_ptr->riding].r_idx].level) && one_in_(2))
+				if (skill_exp[GINOU_RIDING] < s_info[p_ptr->pclass].s_max[GINOU_RIDING] && ((skill_exp[GINOU_RIDING] - 1000) / 200 < r_info[m_list[p_ptr->riding].r_idx].level) && one_in_(2))
 				{
 					skill_exp[GINOU_RIDING]+=1;
 					p_ptr->update |= (PU_BONUS);
@@ -3934,7 +3858,7 @@ note_dies = "は爆発して粉々になった。";
 
 
 					/* Hack -- Track this monster race */
-					if (m_ptr->ml) monster_race_track((m_ptr->mflag2 & MFLAG_KAGE), m_ptr->r_idx);
+					if (m_ptr->ml) monster_race_track((bool)(m_ptr->mflag2 & MFLAG_KAGE), m_ptr->r_idx);
 
 					/* Hack -- Track this monster */
 					if (m_ptr->ml) health_track(c_ptr->m_idx);
@@ -4036,7 +3960,11 @@ note_dies = "は爆発して粉々になった。";
 
 		if (!o_idx)
 		  {
+#ifdef JP
 		    msg_format("%sはどこかへ行った。", o_name);
+#else
+		    msg_format("The %s have gone to somewhere.", o_name);
+#endif
 		    if (q_ptr->name1)
 		      {
 			a_info[j_ptr->name1].cur_num = 0;
@@ -4341,10 +4269,11 @@ bool do_cmd_throw_aux(int mult, bool boomerang, int shuriken)
 	}
 	
 	/* Take a turn */
+	energy_use = 100;
+
+	/* Rogue and Ninja gets bonus */
 	if ((p_ptr->pclass == CLASS_ROGUE) || (p_ptr->pclass == CLASS_NINJA))
-		energy_use = 100-p_ptr->lev;
-	else
-		energy_use = 100;
+		energy_use -= p_ptr->lev;
 
 	/* Start at the player */
 	y = py;
@@ -4496,7 +4425,7 @@ note_dies = "は爆発して粉々になった。";
 
 
 					/* Hack -- Track this monster race */
-					if (m_ptr->ml) monster_race_track((m_ptr->mflag2 & MFLAG_KAGE), m_ptr->r_idx);
+					if (m_ptr->ml) monster_race_track((bool)(m_ptr->mflag2 & MFLAG_KAGE), m_ptr->r_idx);
 
 					/* Hack -- Track this monster */
 					if (m_ptr->ml) health_track(c_ptr->m_idx);

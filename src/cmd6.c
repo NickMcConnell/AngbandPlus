@@ -83,15 +83,8 @@ static void do_cmd_eat_food_aux(int item)
 	/* Object level */
 	lev = get_object_level(o_ptr);
 
-#ifdef USE_SCRIPT
-	eat_callback(o_ptr->sval);
-
-	if (!object_eat_callback(o_ptr))
-#endif /* USE_SCRIPT */
-
+	if (o_ptr->tval == TV_FOOD)
 	{
-		if (o_ptr->tval == TV_FOOD)
-		{
 		/* Analyze the food */
 		switch (o_ptr->sval)
 		{
@@ -170,7 +163,7 @@ static void do_cmd_eat_food_aux(int item)
 			case SV_FOOD_WEAKNESS:
 			{
 #ifdef JP
-			take_hit(DAMAGE_NOESCAPE, damroll(6, 6), "毒入り食料", -1);
+				take_hit(DAMAGE_NOESCAPE, damroll(6, 6), "毒入り食料", -1);
 #else
 				take_hit(DAMAGE_NOESCAPE, damroll(6, 6), "poisonous food", -1);
 #endif
@@ -183,7 +176,7 @@ static void do_cmd_eat_food_aux(int item)
 			case SV_FOOD_SICKNESS:
 			{
 #ifdef JP
-			take_hit(DAMAGE_NOESCAPE, damroll(6, 6), "毒入り食料", -1);
+				take_hit(DAMAGE_NOESCAPE, damroll(6, 6), "毒入り食料", -1);
 #else
 				take_hit(DAMAGE_NOESCAPE, damroll(6, 6), "poisonous food", -1);
 #endif
@@ -196,7 +189,7 @@ static void do_cmd_eat_food_aux(int item)
 			case SV_FOOD_STUPIDITY:
 			{
 #ifdef JP
-			take_hit(DAMAGE_NOESCAPE, damroll(8, 8), "毒入り食料", -1);
+				take_hit(DAMAGE_NOESCAPE, damroll(8, 8), "毒入り食料", -1);
 #else
 				take_hit(DAMAGE_NOESCAPE, damroll(8, 8), "poisonous food", -1);
 #endif
@@ -209,7 +202,7 @@ static void do_cmd_eat_food_aux(int item)
 			case SV_FOOD_NAIVETY:
 			{
 #ifdef JP
-			take_hit(DAMAGE_NOESCAPE, damroll(8, 8), "毒入り食料", -1);
+				take_hit(DAMAGE_NOESCAPE, damroll(8, 8), "毒入り食料", -1);
 #else
 				take_hit(DAMAGE_NOESCAPE, damroll(8, 8), "poisonous food", -1);
 #endif
@@ -222,7 +215,7 @@ static void do_cmd_eat_food_aux(int item)
 			case SV_FOOD_UNHEALTH:
 			{
 #ifdef JP
-			take_hit(DAMAGE_NOESCAPE, damroll(10, 10), "毒入り食料", -1);
+				take_hit(DAMAGE_NOESCAPE, damroll(10, 10), "毒入り食料", -1);
 #else
 				take_hit(DAMAGE_NOESCAPE, damroll(10, 10), "poisonous food", -1);
 #endif
@@ -235,7 +228,7 @@ static void do_cmd_eat_food_aux(int item)
 			case SV_FOOD_DISEASE:
 			{
 #ifdef JP
-			take_hit(DAMAGE_NOESCAPE, damroll(10, 10), "毒入り食料", -1);
+				take_hit(DAMAGE_NOESCAPE, damroll(10, 10), "毒入り食料", -1);
 #else
 				take_hit(DAMAGE_NOESCAPE, damroll(10, 10), "poisonous food", -1);
 #endif
@@ -300,34 +293,34 @@ static void do_cmd_eat_food_aux(int item)
 
 
 #ifdef JP
-		/* それぞれの食べ物の感想をオリジナルより細かく表現 */
-		case SV_FOOD_BISCUIT:
-		{
-			msg_print("甘くてサクサクしてとてもおいしい。");
-			ident = TRUE;
-			break;
-		}
+			/* それぞれの食べ物の感想をオリジナルより細かく表現 */
+			case SV_FOOD_BISCUIT:
+			{
+				msg_print("甘くてサクサクしてとてもおいしい。");
+				ident = TRUE;
+				break;
+			}
 
-		case SV_FOOD_JERKY:
-		{
-			msg_print("歯ごたえがあっておいしい。");
-			ident = TRUE;
-			break;
-		}
+			case SV_FOOD_JERKY:
+			{
+				msg_print("歯ごたえがあっておいしい。");
+				ident = TRUE;
+				break;
+			}
 
-		case SV_FOOD_SLIME_MOLD:
-		{
-			msg_print("これはなんとも形容しがたい味だ。");
-			ident = TRUE;
-			break;
-		}
+			case SV_FOOD_SLIME_MOLD:
+			{
+				msg_print("これはなんとも形容しがたい味だ。");
+				ident = TRUE;
+				break;
+			}
 
-		case SV_FOOD_RATION:
-		{
-			msg_print("これはおいしい。");
-			ident = TRUE;
-			break;
-		}
+			case SV_FOOD_RATION:
+			{
+				msg_print("これはおいしい。");
+				ident = TRUE;
+				break;
+			}
 #else
 			case SV_FOOD_RATION:
 			case SV_FOOD_BISCUIT:
@@ -344,7 +337,7 @@ static void do_cmd_eat_food_aux(int item)
 			case SV_FOOD_WAYBREAD:
 			{
 #ifdef JP
-			msg_print("これはひじょうに美味だ。");
+				msg_print("これはひじょうに美味だ。");
 #else
 				msg_print("That tastes good.");
 #endif
@@ -357,11 +350,11 @@ static void do_cmd_eat_food_aux(int item)
 
 #ifdef JP
 			case SV_FOOD_PINT_OF_ALE:
-		{
-			msg_print("のどごし爽やかだ。");
-			ident = TRUE;
-			break;
-		}
+			{
+				msg_print("のどごし爽やかだ。");
+				ident = TRUE;
+				break;
+			}
 
 			case SV_FOOD_PINT_OF_WINE:
 			{
@@ -379,10 +372,6 @@ static void do_cmd_eat_food_aux(int item)
 			}
 #endif
 
-		}
-		}
-		else
-		{
 		}
 	}
 
@@ -446,10 +435,6 @@ msg_print("食べ物がアゴを素通りして落ちた！");
 
 			/* Create the item */
 			object_prep(q_ptr, lookup_kind(o_ptr->tval, o_ptr->sval));
-
-#ifdef USE_SCRIPT
-			q_ptr->python = object_create_callback(q_ptr);
-#endif /* USE_SCRIPT */
 
 			/* Drop the object from heaven */
 			(void)drop_near(q_ptr, -1, py, px);
@@ -1056,6 +1041,7 @@ msg_print("恐ろしい光景が頭に浮かんできた。");
 			(void)do_res_stat(A_INT);
 			(void)do_res_stat(A_CHR);
 			(void)set_shero(0,TRUE);
+			update_stuff();
 			hp_player(5000);
 			ident = TRUE;
 			break;
@@ -1884,7 +1870,7 @@ msg_print("ダンジョンが揺れた...");
 
 		case SV_SCROLL_SPELL:
 		{
-			if ((p_ptr->pclass == CLASS_WARRIOR) || (p_ptr->pclass == CLASS_IMITATOR) || (p_ptr->pclass == CLASS_MINDCRAFTER) || (p_ptr->pclass == CLASS_SORCERER) || (p_ptr->pclass == CLASS_ARCHER) || (p_ptr->pclass == CLASS_MAGIC_EATER) || (p_ptr->pclass == CLASS_RED_MAGE) || (p_ptr->pclass == CLASS_SAMURAI) || (p_ptr->pclass == CLASS_BLUE_MAGE) || (p_ptr->pclass == CLASS_CAVALRY) || (p_ptr->pclass == CLASS_BERSERKER) || (p_ptr->pclass == CLASS_SMITH) || (p_ptr->pclass == CLASS_MIRROR_MASTER)) break;
+			if ((p_ptr->pclass == CLASS_WARRIOR) || (p_ptr->pclass == CLASS_IMITATOR) || (p_ptr->pclass == CLASS_MINDCRAFTER) || (p_ptr->pclass == CLASS_SORCERER) || (p_ptr->pclass == CLASS_ARCHER) || (p_ptr->pclass == CLASS_MAGIC_EATER) || (p_ptr->pclass == CLASS_RED_MAGE) || (p_ptr->pclass == CLASS_SAMURAI) || (p_ptr->pclass == CLASS_BLUE_MAGE) || (p_ptr->pclass == CLASS_CAVALRY) || (p_ptr->pclass == CLASS_BERSERKER) || (p_ptr->pclass == CLASS_SMITH) || (p_ptr->pclass == CLASS_MIRROR_MASTER) || (p_ptr->pclass == CLASS_NINJA)) break;
 			p_ptr->add_spells++;
 			p_ptr->update |= (PU_SPELLS);
 			ident = TRUE;
@@ -2048,7 +2034,7 @@ msg_print("巻物は煙を立てて消え去った！");
 		}
 	}
 	}
-	else if (o_ptr->tval == TV_SOFT_ARMOR)
+	else if (o_ptr->name1 == ART_GHB)
 	{
 #ifdef JP
 		msg_print("私は苦労して『グレーター・ヘル=ビースト』を倒した。");
@@ -3384,8 +3370,7 @@ static int rod_effect(int sval, int dir, bool *use_charge, bool magic)
 
 		case SV_ROD_PESTICIDE:
 		{
-			fire_ball(GF_POIS, dir, 10, 3);
-			ident = TRUE;
+			if (dispel_monsters(4)) ident = TRUE;
 			break;
 		}
 
@@ -3565,7 +3550,7 @@ static void do_cmd_zap_rod_aux(int item)
 
 
 	/* Get a direction (unless KNOWN not to need it) */
-	if (((o_ptr->sval >= SV_ROD_MIN_DIRECTION) && (o_ptr->sval != SV_ROD_HAVOC) && (o_ptr->sval != SV_ROD_AGGRAVATE)) ||
+	if (((o_ptr->sval >= SV_ROD_MIN_DIRECTION) && (o_ptr->sval != SV_ROD_HAVOC) && (o_ptr->sval != SV_ROD_AGGRAVATE) && (o_ptr->sval != SV_ROD_PESTICIDE)) ||
 	     !object_aware_p(o_ptr))
 	{
 		/* Get a direction, allow cancel */
@@ -3891,6 +3876,104 @@ static void do_cmd_activate_aux(int item)
 
 	/* Hack -- use artifact level instead */
 	if (artifact_p(o_ptr)) lev = a_info[o_ptr->name1].level;
+	else if (o_ptr->art_name)
+	{
+		switch (o_ptr->xtra2)
+		{
+			case ACT_SUNLIGHT:
+			case ACT_BO_MISS_1:
+			case ACT_BA_POIS_1:
+			case ACT_CONFUSE:
+			case ACT_SLEEP:
+			case ACT_CURE_LW:
+			case ACT_CURE_POISON:
+			case ACT_BERSERK:
+			case ACT_LIGHT:
+			case ACT_DEST_DOOR:
+			case ACT_TELEPORT:
+				lev = 10;
+				break;
+			case ACT_BO_ELEC_1:
+			case ACT_BO_ACID_1:
+			case ACT_BO_COLD_1:
+			case ACT_BO_FIRE_1:
+			case ACT_MAP_LIGHT:
+			case ACT_STONE_MUD:
+			case ACT_CURE_MW:
+			case ACT_QUAKE:
+				lev = 20;
+				break;
+			case ACT_DRAIN_1:
+			case ACT_TELE_AWAY:
+			case ACT_ESP:
+			case ACT_RESIST_ALL:
+			case ACT_DETECT_ALL:
+			case ACT_RECALL:
+			case ACT_SATIATE:
+			case ACT_RECHARGE:
+				lev = 30;
+				break;
+			case ACT_BA_COLD_1:
+			case ACT_BA_FIRE_1:
+			case ACT_TERROR:
+			case ACT_PROT_EVIL:
+			case ACT_ID_PLAIN:
+			case ACT_REST_LIFE:
+			case ACT_SPEED:
+			case ACT_BANISH_EVIL:
+				lev = 40;
+				break;
+			case ACT_DRAIN_2:
+			case ACT_VAMPIRE_1:
+			case ACT_BO_MISS_2:
+			case ACT_BA_FIRE_2:
+			case ACT_WHIRLWIND:
+			case ACT_CHARM_ANIMAL:
+			case ACT_SUMMON_ANIMAL:
+			case ACT_DISP_EVIL:
+			case ACT_DISP_GOOD:
+			case ACT_XTRA_SPEED:
+			case ACT_DETECT_XTRA:
+			case ACT_ID_FULL:
+				lev = 50;
+				break;
+			case ACT_VAMPIRE_2:
+			case ACT_BA_COLD_3:
+			case ACT_BA_ELEC_3:
+			case ACT_GENOCIDE:
+			case ACT_CHARM_UNDEAD:
+			case ACT_CHARM_OTHER:
+			case ACT_SUMMON_PHANTOM:
+			case ACT_SUMMON_ELEMENTAL:
+			case ACT_RUNE_EXPLO:
+				lev = 60;
+				break;
+			case ACT_MASS_GENO:
+			case ACT_CHARM_ANIMALS:
+			case ACT_CHARM_OTHERS:
+			case ACT_CURE_700:
+			case ACT_RUNE_PROT:
+			case ACT_ALCHEMY:
+			case ACT_REST_ALL:
+				lev = 70;
+				break;
+			case ACT_CALL_CHAOS:
+			case ACT_ROCKET:
+			case ACT_BA_MISS_3:
+			case ACT_CURE_1000:
+			case ACT_DIM_DOOR:
+			case ACT_SUMMON_UNDEAD:
+			case ACT_SUMMON_DEMON:
+				lev = 80;
+				break;
+			case ACT_WRAITH:
+			case ACT_INVULN:
+				lev = 100;
+				break;
+			default:
+				lev = 0;
+		}
+	}
 	else if (((o_ptr->tval == TV_RING) || (o_ptr->tval == TV_AMULET)) && o_ptr->name2) lev = e_info[o_ptr->name2].level;
 
 	/* Base chance of success */
@@ -4967,7 +5050,7 @@ msg_print("あなたの槍は電気でスパークしている...");
 				}
 
 				for (i = 0; i < num; i++)
-					project(0, p_ptr->lev/20+1, ty, tx, p_ptr->lev*6, GF_ROCKET, flg, -1);
+					project(0, p_ptr->lev/20+1, ty, tx, p_ptr->lev*p_ptr->lev*6/50, GF_ROCKET, flg, -1);
 				o_ptr->timeout = 15;
 				break;
 			}
@@ -5153,7 +5236,11 @@ msg_print("あなたの槍は電気でスパークしている...");
 			}
 			case ART_MURAMASA:
 			{
+#ifdef JP
 				if (get_check("本当に使いますか？"))
+#else
+				if (get_check("Are you sure?!"))
+#endif
 				{
 #ifdef JP
 					msg_print("村正が震えた．．．");
@@ -5236,7 +5323,7 @@ msg_print("あなたの槍は電気でスパークしている...");
 			{
 				bool pet = (randint(5) != 1);
 
-				if (summon_specific((pet ? -1 : 0), py, px, ((p_ptr->lev * 3) / 2), SUMMON_HOUND, TRUE, FALSE, pet, FALSE, !pet))
+				if (summon_specific((pet ? -1 : 0), py, px, ((p_ptr->lev * 3) / 2), SUMMON_HOUND, TRUE, FALSE, pet, FALSE, (bool)(!pet)))
 				{
 
 					if (pet)
@@ -5577,7 +5664,11 @@ msg_print("あなたの槍は電気でスパークしている...");
 	{
 		if (!o_ptr->xtra4 && ((o_ptr->sval == SV_LITE_TORCH) || (o_ptr->sval == SV_LITE_LANTERN)))
 		{
+#ifdef JP
 			msg_print("燃料がない。");
+#else
+			msg_print("It has no fuel.");
+#endif
 			energy_use = 0;
 			return;
 		}
@@ -6106,6 +6197,9 @@ msg_print("あなたはエレメントのブレスを吐いた。");
 				pet_ctr = who[i];
 				teleport_to_player(pet_ctr, 100);
 			}
+
+			/* Free the "who" array */
+			C_KILL(who, max_m_idx, u16b);
 		}
 		o_ptr->timeout = 100+randint(100);
 		return;
@@ -6812,7 +6906,16 @@ static bool select_magic_eater(int mode)
 					{
 						if (tval == TV_ROD)
 						{
-							strcat(dummy, format(" %-22.22s 充填:%2d/%2d%3d%%", k_name + k_info[k_idx].name, p_ptr->magic_num1[ctr+ext] ? (p_ptr->magic_num1[ctr+ext] - 1) / (0x10000L * k_info[k_idx].pval) +1 : 0, p_ptr->magic_num2[ctr+ext], chance));
+strcat(dummy, format(
+#ifdef JP
+	" %-22.22s 充填:%2d/%2d%3d%%",
+#else
+	" %-22.22s   (%2d/%2d) %3d%%",
+#endif
+	k_name + k_info[k_idx].name, 
+	p_ptr->magic_num1[ctr+ext] ? 
+	(p_ptr->magic_num1[ctr+ext] - 1) / (0x10000L * k_info[k_idx].pval) +1 : 0, 
+	p_ptr->magic_num2[ctr+ext], chance));
 							if (p_ptr->magic_num1[ctr+ext] > k_info[k_idx].pval * (p_ptr->magic_num2[ctr+ext]-1) * 0x10000L) col = TERM_RED;
 						}
 						else
@@ -7003,7 +7106,7 @@ msg_print("呪文をうまく唱えられなかった！");
 	{
 		if (tval == TV_ROD)
 		{
-			if ((sval >= SV_ROD_MIN_DIRECTION) && (sval != SV_ROD_HAVOC))
+			if ((sval >= SV_ROD_MIN_DIRECTION) && (sval != SV_ROD_HAVOC) && (sval != SV_ROD_AGGRAVATE) && (sval != SV_ROD_PESTICIDE))
 				if (!get_aim_dir(&dir)) return;
 			rod_effect(sval, dir, &use_charge, TRUE);
 			if (!use_charge) return;

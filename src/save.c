@@ -601,27 +601,8 @@ static void wr_item(object_type *o_ptr)
 		wr_string("");
 	}
 
-#ifdef USE_SCRIPT
-	{
-		cptr python_object = object_save_callback(o_ptr);
-		if (python_object && *python_object)
-		{
-			wr_s32b(strlen(python_object));
-			wr_string(python_object);
-			string_free(python_object);
-		}
-		else
-		{
-			/* No Python object */
-			wr_s32b(0);
-		}
-	}
-#else /* USE_SCRIPT */
-
 	/* No Python object */
 	wr_s32b(0);
-
-#endif /* USE_SCRIPT */
 }
 
 
@@ -891,7 +872,7 @@ static void wr_ghost(void)
 
 	/* Name */
 #ifdef JP
-wr_string("不正なゴースト");
+	wr_string("不正なゴースト");
 #else
 	wr_string("Broken Ghost");
 #endif
@@ -1007,7 +988,7 @@ static void wr_extra(void)
 
 	/* Max Player and Dungeon Levels */
 	wr_s16b(p_ptr->max_plv);
-        tmp8u = max_d_idx;
+        tmp8u = (byte)max_d_idx;
         wr_byte(tmp8u);
         for (i = 0; i < tmp8u; i++)
                 wr_s16b(max_dlv[i]);
@@ -1141,7 +1122,7 @@ static void wr_extra(void)
 
 	wr_s32b(p_ptr->visit);
 
-	wr_s32b(p_ptr->count);
+	wr_u32b(p_ptr->count);
 }
 
 
@@ -1170,8 +1151,8 @@ static void wr_dungeon(void)
 	wr_byte(dungeon_type);
 	wr_u16b(base_level);
 	wr_u16b(num_repro);
-	wr_u16b(py);
-	wr_u16b(px);
+	wr_u16b((u16b)py);
+	wr_u16b((u16b)px);
 	wr_u16b(cur_hgt);
 	wr_u16b(cur_wid);
 	wr_u16b(max_panel_rows);
@@ -1621,6 +1602,16 @@ static bool wr_savefile_new(void)
 	wr_s16b(p_ptr->pet_follow_distance);
 	wr_s16b(p_ptr->pet_extra_flags);
 
+	/* Write screen dump for sending score */
+	if (screen_dump && (wait_report_score || !death))
+	{
+		wr_string(screen_dump);
+	}
+	else
+	{
+		wr_string("");
+	}
+
 	/* Player is not dead, write the dungeon */
 	if (!death)
 	{
@@ -1630,28 +1621,8 @@ static bool wr_savefile_new(void)
 		/* Dump the ghost */
 		wr_ghost();
 
-#ifdef USE_SCRIPT
-		{
-			cptr callbacks = callbacks_save_callback();
-			if (callbacks && *callbacks)
-			{
-				wr_s32b(strlen(callbacks));
-				wr_string(callbacks);
-				string_free(callbacks);
-			}
-			else
-			{
-				/* No scripts */
-				wr_s32b(0);
-			}
-		}
-#else /* USE_SCRIPT */
-
 		/* No scripts */
 		wr_s32b(0);
-
-#endif /* USE_SCRIPT */
-
 	}
 
 
@@ -1892,7 +1863,7 @@ bool load_player(void)
 	{
 		/* Give a message */
 #ifdef JP
-msg_print("セーブファイルがありません。");
+		msg_print("セーブファイルがありません。");
 #else
 		msg_print("Savefile does not exist.");
 #endif
@@ -1930,7 +1901,7 @@ msg_print("セーブファイルがありません。");
 
 			/* Message */
 #ifdef JP
-msg_print("セーブファイルは現在使用中です。");
+			msg_print("セーブファイルは現在使用中です。");
 #else
 			msg_print("Savefile is currently in use.");
 #endif
@@ -1965,7 +1936,7 @@ msg_print("セーブファイルは現在使用中です。");
 
 		/* Message (below) */
 #ifdef JP
-if (err) what = "セーブファイルを開けません。";
+		if (err) what = "セーブファイルを開けません。";
 #else
 		if (err) what = "Cannot open savefile";
 #endif
@@ -1986,7 +1957,7 @@ if (err) what = "セーブファイルを開けません。";
 
 		/* What */
 #ifdef JP
-if (err) what = "セーブファイルを読めません。";
+		if (err) what = "セーブファイルを読めません。";
 #else
 		if (err) what = "Cannot read savefile";
 #endif
@@ -2052,7 +2023,7 @@ if (err) what = "セーブファイルを読めません。";
 
 		/* Message (below) */
 #ifdef JP
-if (err) what = "セーブファイルを解析出来ません。";
+		if (err) what = "セーブファイルを解析出来ません。";
 #else
 		if (err) what = "Cannot parse savefile";
 #endif
@@ -2067,7 +2038,7 @@ if (err) what = "セーブファイルを解析出来ません。";
 
 		/* Message (below) */
 #ifdef JP
-if (err) what = "セーブファイルが壊れています";
+		if (err) what = "セーブファイルが壊れています";
 #else
 		if (err) what = "Broken savefile";
 #endif
@@ -2084,7 +2055,7 @@ if (err) what = "セーブファイルが壊れています";
 		{
 			/* Message */
 #ifdef JP
-what = "無効なタイム・スタンプです";
+			what = "無効なタイム・スタンプです";
 #else
 			what = "Invalid timestamp";
 #endif
@@ -2108,7 +2079,7 @@ what = "無効なタイム・スタンプです";
 			if (z_major == 2 && z_minor == 0 && z_patch == 6)
 			{
 #ifdef JP
-msg_print("バージョン 2.0.* 用のセーブファイルを変換しました。");
+				msg_print("バージョン 2.0.* 用のセーブファイルを変換しました。");
 #else
 				msg_print("Converted a 2.0.* savefile.");
 #endif
@@ -2118,7 +2089,7 @@ msg_print("バージョン 2.0.* 用のセーブファイルを変換しました。");
 			{
 				/* Message */
 #ifdef JP
-msg_format("バージョン %d.%d.%d 用のセーブ・ファイルを変換しました。",
+				msg_format("バージョン %d.%d.%d 用のセーブ・ファイルを変換しました。",
 #else
 				msg_format("Converted a %d.%d.%d savefile.",
 #endif
@@ -2158,7 +2129,7 @@ msg_format("バージョン %d.%d.%d 用のセーブ・ファイルを変換しました。",
 		character_loaded = TRUE;
 
 		{
-			s32b tmp = counts_read(2);
+			u32b tmp = counts_read(2);
 			if (tmp > p_ptr->count)
 				p_ptr->count = tmp;
 			if (counts_read(0) > playtime || counts_read(1) == playtime)
@@ -2191,7 +2162,7 @@ msg_format("バージョン %d.%d.%d 用のセーブ・ファイルを変換しました。",
 
 	/* Message */
 #ifdef JP
-msg_format("エラー(%s)がバージョン%d.%d.%d 用セーブファイル読み込中に発生。",
+	msg_format("エラー(%s)がバージョン%d.%d.%d 用セーブファイル読み込中に発生。",
 #else
 	msg_format("Error (%s) reading %d.%d.%d savefile.",
 #endif

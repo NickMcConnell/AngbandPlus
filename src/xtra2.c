@@ -440,7 +440,7 @@ void check_quest_completion(monster_type *m_ptr)
 					if (record_fix_quest) do_cmd_write_nikki(NIKKI_FIX_QUEST_C, i, NULL);
 					/* completed quest */
 					quest[i].status = QUEST_STATUS_COMPLETED;
-					quest[i].complev = p_ptr->lev;
+					quest[i].complev = (byte)p_ptr->lev;
 
 					if (!(quest[i].flags & QUEST_FLAG_SILENT))
 					{
@@ -481,7 +481,7 @@ msg_print("クエストを達成した！");
 					else
 					{
 						quest[i].status = QUEST_STATUS_COMPLETED;
-						quest[i].complev = p_ptr->lev;
+						quest[i].complev = (byte)p_ptr->lev;
 #ifdef JP
 msg_print("クエストを達成した！");
 #else
@@ -508,7 +508,7 @@ msg_print("クエストを達成した！");
 					if (record_rand_quest && (quest[i].type == QUEST_TYPE_RANDOM)) do_cmd_write_nikki(NIKKI_RAND_QUEST_C, i, NULL);
 					/* completed quest */
 					quest[i].status = QUEST_STATUS_COMPLETED;
-					quest[i].complev = p_ptr->lev;
+					quest[i].complev = (byte)p_ptr->lev;
 					if (!(quest[i].flags & QUEST_FLAG_PRESET))
 					{
 						create_stairs = TRUE;
@@ -548,7 +548,7 @@ msg_print("クエストを達成した！");
 					if (record_fix_quest) do_cmd_write_nikki(NIKKI_FIX_QUEST_C, i, NULL);
 					 /* completed quest */
 					quest[i].status = QUEST_STATUS_COMPLETED;
-					quest[i].complev = p_ptr->lev;
+					quest[i].complev = (byte)p_ptr->lev;
 
 					if (!quest[i].flags & QUEST_FLAG_SILENT)
 					{
@@ -613,10 +613,6 @@ msg_print("魔法の階段が現れた...");
 
 			/* Make a great object */
 			make_object(q_ptr, TRUE, TRUE);
-
-#ifdef USE_SCRIPT
-			q_ptr->python = object_create_callback(q_ptr);
-#endif /* USE_SCRIPT */
 
 			/* Drop it in the dungeon */
 			(void)drop_near(q_ptr, -1, y, x);
@@ -793,10 +789,6 @@ msg_print("勝利！チャンピオンへの道を進んでいる。");
 
 			apply_magic(q_ptr, object_level, FALSE, FALSE, FALSE, FALSE);
 
-#ifdef USE_SCRIPT
-			q_ptr->python = object_create_callback(q_ptr);
-#endif /* USE_SCRIPT */
-
 			/* Drop it in the dungeon */
 			(void)drop_near(q_ptr, -1, y, x);
 		}
@@ -859,10 +851,6 @@ msg_print("地面に落とされた。");
 		apply_magic(q_ptr, object_level, FALSE, FALSE, FALSE, FALSE);
 
 		q_ptr->pval = m_ptr->r_idx;
-
-#ifdef USE_SCRIPT
-		q_ptr->python = object_create_callback(q_ptr);
-#endif /* USE_SCRIPT */
 
 		/* Drop it in the dungeon */
 		(void)drop_near(q_ptr, -1, y, x);
@@ -954,10 +942,6 @@ msg_print("地面に落とされた。");
 
 		apply_magic(q_ptr, object_level, FALSE, FALSE, FALSE, FALSE);
 
-#ifdef USE_SCRIPT
-		q_ptr->python = object_create_callback(q_ptr);
-#endif /* USE_SCRIPT */
-
 		/* Drop it in the dungeon */
 		(void)drop_near(q_ptr, -1, y, x);
 	}
@@ -984,10 +968,6 @@ msg_print("地面に落とされた。");
 		/* Make a great object */
 		make_object(q_ptr, FALSE, FALSE);
 
-#ifdef USE_SCRIPT
-		q_ptr->python = object_create_callback(q_ptr);
-#endif /* USE_SCRIPT */
-
 		/* Drop it in the dungeon */
 		(void)drop_near(q_ptr, -1, y, x);
 	}
@@ -1000,10 +980,6 @@ msg_print("地面に落とされた。");
 
 		/* Prepare to make a Blade of Chaos */
 		object_prep(q_ptr, lookup_kind(TV_SWORD, randint(2)));
-
-#ifdef USE_SCRIPT
-		q_ptr->python = object_create_callback(q_ptr);
-#endif /* USE_SCRIPT */
 
 		/* Drop it in the dungeon */
 		(void)drop_near(q_ptr, -1, y, x);
@@ -1027,10 +1003,6 @@ msg_print("地面に落とされた。");
 		/* Make a great object */
 		make_object(q_ptr, FALSE, FALSE);
 
-#ifdef USE_SCRIPT
-		q_ptr->python = object_create_callback(q_ptr);
-#endif /* USE_SCRIPT */
-
 		/* Drop it in the dungeon */
 		(void)drop_near(q_ptr, -1, y, x);
 	}
@@ -1052,10 +1024,6 @@ msg_print("地面に落とされた。");
 
 		/* Make a great object */
 		make_object(q_ptr, FALSE, FALSE);
-
-#ifdef USE_SCRIPT
-		q_ptr->python = object_create_callback(q_ptr);
-#endif /* USE_SCRIPT */
 
 		/* Drop it in the dungeon */
 		(void)drop_near(q_ptr, -1, y, x);
@@ -1079,10 +1047,6 @@ msg_print("地面に落とされた。");
 		/* Make a great object */
 		make_object(q_ptr, FALSE, FALSE);
 
-#ifdef USE_SCRIPT
-		q_ptr->python = object_create_callback(q_ptr);
-#endif /* USE_SCRIPT */
-
 		/* Drop it in the dungeon */
 		(void)drop_near(q_ptr, -1, y, x);
 	}
@@ -1105,10 +1069,6 @@ msg_print("地面に落とされた。");
 		/* Make a great object */
 		make_object(q_ptr, FALSE, FALSE);
 
-#ifdef USE_SCRIPT
-		q_ptr->python = object_create_callback(q_ptr);
-#endif /* USE_SCRIPT */
-
 		/* Drop it in the dungeon */
 		(void)drop_near(q_ptr, -1, y, x);
 	}
@@ -1122,10 +1082,6 @@ msg_print("地面に落とされた。");
 		object_prep(q_ptr, lookup_kind(TV_CHEST, 50));
 
 		apply_magic(q_ptr, object_level, FALSE, FALSE, FALSE, FALSE);
-
-#ifdef USE_SCRIPT
-		q_ptr->python = object_create_callback(q_ptr);
-#endif /* USE_SCRIPT */
 
 		/* Drop it in the dungeon */
 		(void)drop_near(q_ptr, -1, y, x);
@@ -1148,10 +1104,6 @@ msg_print("地面に落とされた。");
 			/* Mega-Hack -- Actually create "Grond" */
 			apply_magic(q_ptr, -1, TRUE, TRUE, TRUE, FALSE);
 
-#ifdef USE_SCRIPT
-			q_ptr->python = object_create_callback(q_ptr);
-#endif /* USE_SCRIPT */
-
 			/* Drop it in the dungeon */
 			(void)drop_near(q_ptr, -1, y, x);
 
@@ -1166,10 +1118,6 @@ msg_print("地面に落とされた。");
 
 			/* Mega-Hack -- Actually create "Morgoth" */
 			apply_magic(q_ptr, -1, TRUE, TRUE, TRUE, FALSE);
-
-#ifdef USE_SCRIPT
-			q_ptr->python = object_create_callback(q_ptr);
-#endif /* USE_SCRIPT */
 
 			/* Drop it in the dungeon */
 			(void)drop_near(q_ptr, -1, y, x);
@@ -1389,6 +1337,11 @@ msg_print("地面に落とされた。");
 	}
 	if ((r_ptr->flags7 & RF7_GUARDIAN) && !p_ptr->inside_battle && (d_info[dungeon_type].final_guardian == m_ptr->r_idx))
 	{
+		s16b k_idx = 198; /* Acquirement */;
+
+		if (d_info[dungeon_type].final_object)
+			k_idx = d_info[dungeon_type].final_object;
+
 		if (d_info[dungeon_type].final_artifact)
 		{
 			byte a_idx = d_info[dungeon_type].final_artifact;
@@ -1398,16 +1351,12 @@ msg_print("地面に落とされた。");
 				create_named_art(a_idx, y, x);
 
 				a_info[a_idx].cur_num = 1;
+				k_idx = 0;
 			}
 		}
-		else
+
+		if (k_idx)
 		{
-			s16b k_idx;
-
-			if (d_info[dungeon_type].final_object)
-				k_idx = d_info[dungeon_type].final_object;
-			else k_idx = 198;/* Acquirement */
-
 			/* Get local object */
 			q_ptr = &forge;
 
@@ -1415,10 +1364,6 @@ msg_print("地面に落とされた。");
 			object_prep(q_ptr, k_idx);
 
 			apply_magic(q_ptr, object_level, FALSE, TRUE, FALSE, FALSE);
-
-#ifdef USE_SCRIPT
-			q_ptr->python = object_create_callback(q_ptr);
-#endif /* USE_SCRIPT */
 
 			/* Drop it in the dungeon */
 			(void)drop_near(q_ptr, -1, y, x);
@@ -1477,10 +1422,6 @@ msg_print("地面に落とされた。");
 			dump_item++;
 		}
 
-#ifdef USE_SCRIPT
-		q_ptr->python = object_create_callback(q_ptr);
-#endif /* USE_SCRIPT */
-
 		/* Drop it in the dungeon */
 		(void)drop_near(q_ptr, -1, y, x);
 	}
@@ -1498,10 +1439,6 @@ msg_print("地面に落とされた。");
 		/* Take notes on treasure */
 		lore_treasure(m_idx, dump_item, dump_gold);
 	}
-
-#ifdef USE_SCRIPT
-	kill_monster_callback(m_idx);
-#endif /* USE_SCRIPT */
 
 	/* Only process "Quest Monsters" */
 	if (!(r_ptr->flags1 & RF1_QUESTOR)) return;
@@ -1641,7 +1578,7 @@ static void get_exp_from_mon(int dam, monster_type *m_ptr)
 
 		  div *= r_ptr->hdice * (r_ptr->hside + 1);
 		}
-		if (!dun_level && ((r_ptr->flags8 & RF8_DUNGEON) || !(r_ptr->flags1 & RF1_UNIQUE))) div *= 5;
+		if (!dun_level && (!(r_ptr->flags8 & RF8_WILD_ONLY) || !(r_ptr->flags1 & RF1_UNIQUE))) div *= 5;
 		div_h = div/0x10000L;
 		div_l = div%0x10000L;
 		div_h *= (m_ptr->max_maxhp*2);
@@ -1814,6 +1751,12 @@ msg_format("%^sは恐ろしい血の呪いをあなたにかけた！", m_name);
 #endif
 
 				msg_format("%^s %s", m_name, line_got);
+
+			if (m_ptr->r_idx == MON_SERPENT)
+			{
+				/* Make screen dump */
+				screen_dump = make_screen_dump();
+			}
 		}
 
 		if (!(d_info[dungeon_type].flags1 & DF1_BEGINNER))
@@ -2048,7 +1991,7 @@ msg_format("%sの首には賞金がかかっている。", m_name);
 			else if (r_ptr->r_tkills < MAX_SHORT) r_ptr->r_tkills++;
 
 			/* Hack -- Auto-recall */
-			monster_race_track((m_ptr->mflag2 & MFLAG_KAGE), m_ptr->r_idx);
+			monster_race_track((bool)(m_ptr->mflag2 & MFLAG_KAGE), m_ptr->r_idx);
 		}
 
 		if ((m_ptr->r_idx == MON_BANOR) || (m_ptr->r_idx == MON_LUPART))
@@ -2760,8 +2703,10 @@ static bool target_set_accept(int y, int x)
 		    (c_ptr->feat <= FEAT_DOOR_TAIL)) return (TRUE);
 
 		/* Notice rubble */
+		/* I think FEAT_RUBBLEs should not be "interesting" */
+#if 0
 		if (c_ptr->feat == FEAT_RUBBLE) return (TRUE);
-
+#endif
 		/* Notice veins with treasure */
 		if (c_ptr->feat == FEAT_MAGMA_K) return (TRUE);
 		if (c_ptr->feat == FEAT_QUARTZ_K) return (TRUE);
@@ -2969,7 +2914,7 @@ cptr name = "何か奇妙な物";
 				monster_desc(m_name, m_ptr, 0x08);
 
 				/* Hack -- track this monster race */
-				monster_race_track((m_ptr->mflag2 & MFLAG_KAGE), m_ptr->r_idx);
+				monster_race_track((bool)(m_ptr->mflag2 & MFLAG_KAGE), m_ptr->r_idx);
 
 				/* Hack -- health bar for this monster */
 				health_track(c_ptr->m_idx);
@@ -4553,7 +4498,11 @@ msg_print("「汝は良く行いたり！続けよ！」");
 
 			if (p_ptr->prace == RACE_ANDROID)
 			{
+#ifdef JP
 				msg_print("しかし何も起こらなかった。");
+#else
+				msg_print("But, nothing happen.");
+#endif
 			}
 			else if (p_ptr->exp < PY_MAX_EXP)
 			{
@@ -4590,7 +4539,11 @@ msg_print("「下僕よ、汝それに値せず。」");
 
 			if (p_ptr->prace == RACE_ANDROID)
 			{
+#ifdef JP
 				msg_print("しかし何も起こらなかった。");
+#else
+				msg_print("But, nothing happen.");
+#endif
 			}
 			else
 			{
@@ -4756,10 +4709,6 @@ msg_print("「汝の行いは貴き剣に値せり。」");
 			q_ptr->to_d = 3 + randint(dun_level) % 10;
 			random_resistance(q_ptr, FALSE, randint(34) + 4);
 			q_ptr->name2 = EGO_CHAOTIC;
-
-#ifdef USE_SCRIPT
-			q_ptr->python = object_create_callback(q_ptr);
-#endif /* USE_SCRIPT */
 
 			/* Drop it in the dungeon */
 			(void)drop_near(q_ptr, -1, py, px);
@@ -5164,14 +5113,22 @@ msg_print("「我を怒りしめた罪を償うべし。」");
 						if (!buki_motteruka(INVEN_RARM)) break;
 						object_desc(o_name, &inventory[INVEN_RARM], TRUE, 0);
 						(void)curse_weapon(FALSE, INVEN_RARM);
+#ifdef JP
 						reward = format("%sが破壊された。", o_name);
+#else
+						reward = format("destroying %s", o_name);
+#endif
 					}
 					else
 					{
 						if (!inventory[INVEN_BODY].k_idx) break;
 						object_desc(o_name, &inventory[INVEN_BODY], TRUE, 0);
 						(void)curse_armor();
+#ifdef JP
 						reward = format("%sが破壊された。", o_name);
+#else
+						reward = format("destroying %s", o_name);
+#endif
 					}
 					break;
 				default:
@@ -5628,3 +5585,167 @@ msg_print("あなたは混乱している。");
 	/* A "valid" direction was entered */
 	return (TRUE);
 }
+
+
+/*
+ * エネルギーの増加量10d5を速く計算するための関数
+ */
+
+#define Go_no_JuuJou 5*5*5*5*5*5*5*5*5*5
+
+s16b gain_energy(void)
+{
+	int i;
+	s32b energy_result = 10;
+	s32b tmp;
+
+	tmp = rand_int(Go_no_JuuJou);
+
+	for (i = 0; i < 9; i ++){
+		energy_result += tmp % 5;
+		tmp /= 5;
+	}
+
+	return (s16b)(energy_result + tmp);
+}
+
+
+/*
+ * Return bow energy 
+ */
+s16b bow_energy(int sval)
+{
+	int energy = 100;
+
+	/* Analyze the launcher */
+	switch (sval)
+	{
+		/* Sling and ammo */
+		case SV_SLING:
+		{
+			energy = 8000;
+			break;
+		}
+
+		/* Short Bow and Arrow */
+		case SV_SHORT_BOW:
+		{
+			energy = 10000;
+			break;
+		}
+
+		/* Long Bow and Arrow */
+		case SV_LONG_BOW:
+		{
+			energy = 10000;
+			break;
+		}
+
+		/* Bow of irresponsiblity and Arrow */
+		case SV_NAMAKE_BOW:
+		{
+			energy = 7777;
+			break;
+		}
+
+		/* Light Crossbow and Bolt */
+		case SV_LIGHT_XBOW:
+		{
+			energy = 12000;
+			break;
+		}
+
+		/* Heavy Crossbow and Bolt */
+		case SV_HEAVY_XBOW:
+		{
+			energy = 13333;
+			break;
+		}
+	}
+
+	return (energy);
+}
+
+
+/*
+ * Return bow tmul
+ */
+int bow_tmul(int sval)
+{
+	int tmul = 0;
+
+	/* Analyze the launcher */
+	switch (sval)
+	{
+		/* Sling and ammo */
+		case SV_SLING:
+		{
+			tmul = 2;
+			break;
+		}
+
+		/* Short Bow and Arrow */
+		case SV_SHORT_BOW:
+		{
+			tmul = 2;
+			break;
+		}
+
+		/* Long Bow and Arrow */
+		case SV_LONG_BOW:
+		{
+			tmul = 3;
+			break;
+		}
+
+		/* Bow of irresponsiblity and Arrow */
+		case SV_NAMAKE_BOW:
+		{
+			tmul = 3;
+			break;
+		}
+
+		/* Light Crossbow and Bolt */
+		case SV_LIGHT_XBOW:
+		{
+			tmul = 3;
+			break;
+		}
+
+		/* Heavy Crossbow and Bolt */
+		case SV_HEAVY_XBOW:
+		{
+			tmul = 4;
+			break;
+		}
+	}
+
+	return (tmul);
+}
+
+/*
+ * Return alignment title
+ */
+cptr your_alignment(void)
+{
+#ifdef JP
+	if (p_ptr->align > 150) return "大善";
+	else if (p_ptr->align > 50) return "中善";
+	else if (p_ptr->align > 10) return "小善";
+	else if (p_ptr->align > -11) return "中立";
+	else if (p_ptr->align > -51) return "小悪";
+	else if (p_ptr->align > -151) return "中悪";
+	else return "大悪";
+#else
+	if (p_ptr->align > 150) return "Lawful";
+	else if (p_ptr->align > 50) return "Good";
+	else if (p_ptr->align > 10) return "Neutral Good";
+	else if (p_ptr->align > -11) return "Neutral";
+	else if (p_ptr->align > -51) return "Neutral Evil";
+	else if (p_ptr->align > -151) return "Evil";
+	else return "Chaotic";
+#endif
+}
+
+
+

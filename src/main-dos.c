@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/07/19 13:50:06 $ */
 /* File: main-dos.c */
 
 /*

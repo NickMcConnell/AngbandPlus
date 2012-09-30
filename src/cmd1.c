@@ -573,16 +573,6 @@ void search(void)
 				/* Access the grid */
 				c_ptr = &cave[y][x];
 
-#ifdef USE_SCRIPT
-				if (player_search_grid_callback(y, x))
-				{
-					/* Disturb */
-					disturb(0, 0);
-
-					return;
-				}
-#endif /* USE_SCRIPT */
-
 				/* Invisible trap */
 				if (c_ptr->info & CAVE_TRAP)
 				{
@@ -751,8 +741,9 @@ void py_pickup_aux(int o_idx)
 		    (quest[i].status == QUEST_STATUS_TAKEN) &&
 			   (quest[i].k_idx == o_ptr->name1))
 		{
+			if (record_fix_quest) do_cmd_write_nikki(NIKKI_FIX_QUEST_C, i, NULL);
 			quest[i].status = QUEST_STATUS_COMPLETED;
-			quest[i].complev = p_ptr->lev;
+			quest[i].complev = (byte)p_ptr->lev;
 #ifdef JP
 			msg_print("クエストを達成した！");
 #else
@@ -938,6 +929,12 @@ int is_autopick(object_type *o_ptr)
 		/*** アイテムのカテゴリ指定予約語 ***/
 		if (!strncmp(str, "アイテム",8)) len = 8;
 		
+		else if (!strncmp(str, "アーティファクト", 16)){
+			if (object_known_p(o_ptr)
+			    && (artifact_p(o_ptr) || o_ptr->art_name))
+				len = 16;
+		}
+
 		else if (!strncmp(str, "武器", 4)){
 			switch( o_ptr->tval ){
 			case TV_BOW:
@@ -1272,7 +1269,7 @@ int is_autopick(object_type *o_ptr)
 			/* Check if there is a same item */
 			for (j = 0; j < INVEN_PACK; j++)
 			{
-				if (inventory[j].k_idx == o_ptr->k_idx)
+				if (object_similar(&inventory[j], o_ptr))
 					return i;
 			}
 		}
@@ -1364,7 +1361,7 @@ static void auto_pickup_items(cave_type *c_ptr)
 			o_ptr->inscription = inscribe_flags(o_ptr, autopick_insc[idx]);
 
 		if (is_autopick2(o_ptr) ||
-		   (idx >= 0 && autopick_action[idx] == DO_AUTOPICK))
+		   (idx >= 0 && (autopick_action[idx] & DO_AUTOPICK)))
 		{
 			disturb(0,0);
 
@@ -1385,7 +1382,7 @@ static void auto_pickup_items(cave_type *c_ptr)
 		}
 		
 		else if ((idx == -1 && is_opt_confirm_destroy(o_ptr)) ||
-			 (!always_pickup && (idx != -1 && autopick_action[idx] == DO_AUTODESTROY)))
+			 (!always_pickup && (idx != -1 && (autopick_action[idx] & DO_AUTODESTROY))))
 		{
 			disturb(0,0);
 			/* Describe the object (with {terrible/special}) */
@@ -1670,7 +1667,11 @@ static void hit_trap(bool break_trap)
 				if (autosave_l && (p_ptr->chp >= 0))
 					do_cmd_save_game(TRUE);
 
+#ifdef JP
 				do_cmd_write_nikki(NIKKI_STAIR, 1, "落し戸に落ちた");
+#else
+				do_cmd_write_nikki(NIKKI_STAIR, 1, "You have fallen through a trap door!");
+#endif
 				dun_level++;
 
 				/* Leaving */
@@ -2340,7 +2341,7 @@ static void natural_attack(s16b m_idx, int attack, bool *fear, bool *mdeath)
 
 
 		k = damroll(ddd, dss);
-		k = critical_norm(n_weight, bonus, k, bonus, 0);
+		k = critical_norm(n_weight, bonus, k, (s16b)bonus, 0);
 
 		/* Apply the player damage bonuses */
 		k += p_ptr->to_d_m;
@@ -2448,7 +2449,7 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 
 	if (((p_ptr->pclass == CLASS_ROGUE) || (p_ptr->pclass == CLASS_NINJA)) && inventory[INVEN_RARM+hand].tval)
 	{
-		int tmp = p_ptr->lev*8+50;
+		int tmp = p_ptr->lev*6+(p_ptr->skill_stl+10)*4;
 		if (p_ptr->monlite && (mode != HISSATSU_NYUSIN)) tmp /= 3;
 		if (p_ptr->aggravate) tmp /= 2;
 		if (r_ptr->level > (p_ptr->lev*p_ptr->lev/20+10)) tmp /= 3;
@@ -2457,7 +2458,7 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 			/* Can't backstab creatures that we can't see, right? */
 			backstab = TRUE;
 		}
-		else if ((p_ptr->special_defense & NINJA_S_STEALTH) && (rand_int(tmp) > (r_ptr->level+20)) && m_ptr->ml)
+		else if ((p_ptr->special_defense & NINJA_S_STEALTH) && (rand_int(tmp) > (r_ptr->level+20)) && m_ptr->ml && !(r_ptr->flags3 & RF3_RES_ALL))
 		{
 			fuiuchi = TRUE;
 		}
@@ -2471,7 +2472,7 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 	{
 		if ((r_ptr->level + 10) > p_ptr->lev)
 		{
-			if (skill_exp[GINOU_SUDE] < skill_exp_settei[p_ptr->pclass][GINOU_SUDE][1])
+			if (skill_exp[GINOU_SUDE] < s_info[p_ptr->pclass].s_max[GINOU_SUDE])
 			{
 				if (skill_exp[GINOU_SUDE] < 4000)
 					skill_exp[GINOU_SUDE]+=40;
@@ -2489,16 +2490,17 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 	{
 		if ((r_ptr->level + 10) > p_ptr->lev)
 		{
-			if (weapon_exp[inventory[INVEN_RARM+hand].tval-TV_BOW][inventory[INVEN_RARM+hand].sval] < weapon_exp_settei[p_ptr->pclass][inventory[INVEN_RARM+hand].tval-TV_BOW][inventory[INVEN_RARM+hand].sval][1])
+			int tval = inventory[INVEN_RARM+hand].tval - TV_BOW;
+			int sval = inventory[INVEN_RARM+hand].sval;
+			int now_exp = weapon_exp[tval][sval];
+			if (now_exp < s_info[p_ptr->pclass].w_max[tval][sval])
 			{
-				if (weapon_exp[inventory[INVEN_RARM+hand].tval-TV_BOW][inventory[INVEN_RARM+hand].sval] < 4000)
-					weapon_exp[inventory[INVEN_RARM+hand].tval-TV_BOW][inventory[INVEN_RARM+hand].sval]+=80;
-				else if((weapon_exp[inventory[INVEN_RARM+hand].tval-TV_BOW][inventory[INVEN_RARM+hand].sval] < 6000))
-					weapon_exp[inventory[INVEN_RARM+hand].tval-TV_BOW][inventory[INVEN_RARM+hand].sval]+=10;
-				else if((weapon_exp[inventory[INVEN_RARM+hand].tval-TV_BOW][inventory[INVEN_RARM+hand].sval] < 7000) && (p_ptr->lev > 19))
-					weapon_exp[inventory[INVEN_RARM+hand].tval-TV_BOW][inventory[INVEN_RARM+hand].sval]+=1;
-				else if((weapon_exp[inventory[INVEN_RARM+hand].tval-TV_BOW][inventory[INVEN_RARM+hand].sval] < 8000) && (p_ptr->lev > 34))
-					if (one_in_(2)) weapon_exp[inventory[INVEN_RARM+hand].tval-TV_BOW][inventory[INVEN_RARM+hand].sval]+=1;
+				int amount = 0;
+				if (now_exp < 4000) amount = 80;
+				else if(now_exp < 6000) amount = 10;
+				else if((now_exp < 7000) && (p_ptr->lev > 19)) amount = 1;
+				else if((p_ptr->lev > 34) && one_in_(2)) amount = 1;
+				weapon_exp[tval][sval] += amount;
 				p_ptr->update |= (PU_BONUS);
 			}
 		}
@@ -3040,7 +3042,7 @@ msg_format("%s には効果がなかった。", m_name);
 			}
 
 			/* Modify the damage */
-			k = mon_damage_mod(m_ptr, k, (((o_ptr->tval == TV_POLEARM) && (o_ptr->sval == SV_DEATH_SCYTHE)) || ((p_ptr->pclass == CLASS_BERSERKER) && one_in_(2))));
+			k = mon_damage_mod(m_ptr, k, (bool)(((o_ptr->tval == TV_POLEARM) && (o_ptr->sval == SV_DEATH_SCYTHE)) || ((p_ptr->pclass == CLASS_BERSERKER) && one_in_(2))));
 			if (((o_ptr->tval == TV_SWORD) && (o_ptr->sval == SV_DOKUBARI)) || (mode == HISSATSU_KYUSHO))
 			{
 				if ((randint(randint(r_ptr->level/7)+5) == 1) && !(r_ptr->flags1 & RF1_UNIQUE) && !(r_ptr->flags7 & RF7_UNIQUE2))
@@ -3560,7 +3562,7 @@ bool py_attack(int y, int x, int mode)
 	monster_desc(m_name, m_ptr, 0);
 
 	/* Auto-Recall if possible and visible */
-	if (m_ptr->ml) monster_race_track((m_ptr->mflag2 & MFLAG_KAGE), m_ptr->r_idx);
+	if (m_ptr->ml) monster_race_track((bool)(m_ptr->mflag2 & MFLAG_KAGE), m_ptr->r_idx);
 
 	/* Track a new monster */
 	if (m_ptr->ml) health_track(c_ptr->m_idx);
@@ -3668,7 +3670,7 @@ bool py_attack(int y, int x, int mode)
 
 	if (p_ptr->migite && p_ptr->hidarite)
 	{
-		if ((skill_exp[GINOU_NITOURYU] < skill_exp_settei[p_ptr->pclass][GINOU_NITOURYU][1]) && ((skill_exp[GINOU_NITOURYU] - 1000) / 200 < r_info[m_ptr->r_idx].level))
+		if ((skill_exp[GINOU_NITOURYU] < s_info[p_ptr->pclass].s_max[GINOU_NITOURYU]) && ((skill_exp[GINOU_NITOURYU] - 1000) / 200 < r_info[m_ptr->r_idx].level))
 		{
 			if (skill_exp[GINOU_NITOURYU] < 4000)
 				skill_exp[GINOU_NITOURYU]+=80;
@@ -3685,9 +3687,9 @@ bool py_attack(int y, int x, int mode)
 	if (p_ptr->riding)
 	{
 		int ridinglevel = r_info[m_list[p_ptr->riding].r_idx].level;
-		if ((skill_exp[GINOU_RIDING] < skill_exp_settei[p_ptr->pclass][GINOU_RIDING][1]) && ((skill_exp[GINOU_RIDING] - 1000) / 200 < r_info[m_ptr->r_idx].level) && (skill_exp[GINOU_RIDING]/100 - 2000 < ridinglevel))
+		if ((skill_exp[GINOU_RIDING] < s_info[p_ptr->pclass].s_max[GINOU_RIDING]) && ((skill_exp[GINOU_RIDING] - 1000) / 200 < r_info[m_ptr->r_idx].level) && (skill_exp[GINOU_RIDING]/100 - 2000 < ridinglevel))
 			skill_exp[GINOU_RIDING]++;
-		if ((skill_exp[GINOU_RIDING] < skill_exp_settei[p_ptr->pclass][GINOU_RIDING][1]) && (skill_exp[GINOU_RIDING]/100 < ridinglevel))
+		if ((skill_exp[GINOU_RIDING] < s_info[p_ptr->pclass].s_max[GINOU_RIDING]) && (skill_exp[GINOU_RIDING]/100 < ridinglevel))
 		{
 			if (ridinglevel*100 > (skill_exp[GINOU_RIDING] + 1500))
 				skill_exp[GINOU_RIDING] += (1+(ridinglevel - skill_exp[GINOU_RIDING]/100 - 15));
@@ -4117,7 +4119,7 @@ void move_player(int dir, int do_pickup, bool break_trap)
 			monster_desc(m_name, m_ptr, 0);
 
 			/* Auto-Recall if possible and visible */
-			if (m_ptr->ml) monster_race_track((m_ptr->mflag2 & MFLAG_KAGE), m_ptr->r_idx);
+			if (m_ptr->ml) monster_race_track((bool)(m_ptr->mflag2 & MFLAG_KAGE), m_ptr->r_idx);
 
 			/* Track a new monster */
 			if (m_ptr->ml) health_track(c_ptr->m_idx);
@@ -4478,13 +4480,6 @@ msg_format("%sが恐怖していて制御できない。", m_name);
 	{
 		int oy, ox;
 
-#ifdef USE_SCRIPT
-		if (player_enter_grid_callback(y, x)) return;
-
-		/* Player movement callback */
-		if (player_move_callback(y, x)) return;
-#endif /* USE_SCRIPT */
-
 #ifdef USE_FRAKIR
                 if (p_ptr->warning)
 		  {
@@ -4503,8 +4498,8 @@ msg_format("%sが恐怖していて制御できない。", m_name);
 			msg_format("You push past %s.", m_name);
 #endif
 
-			m_ptr->fy = (byte)py;
-			m_ptr->fx = (byte)px;
+			m_ptr->fy = py;
+			m_ptr->fx = px;
 			cave[py][px].m_idx = c_ptr->m_idx;
 			c_ptr->m_idx = 0;
 			update_mon(cave[py][px].m_idx, TRUE);
@@ -4643,7 +4638,7 @@ msg_format("%sが恐怖していて制御できない。", m_name);
 
 			energy_use = 0;
 			/* Hack -- Enter store */
-			command_new = '_';
+			command_new = 253;
 		}
 
 		/* Handle "building doors" -KMW- */
@@ -4675,7 +4670,7 @@ msg_format("%sが恐怖していて制御できない。", m_name);
 			{
 				if (record_fix_quest) do_cmd_write_nikki(NIKKI_FIX_QUEST_C, p_ptr->inside_quest, NULL);
 				quest[p_ptr->inside_quest].status = QUEST_STATUS_COMPLETED;
-				quest[p_ptr->inside_quest].complev = p_ptr->lev;
+				quest[p_ptr->inside_quest].complev = (byte)p_ptr->lev;
 #ifdef JP
 				msg_print("クエストを達成した！");
 #else
@@ -4697,7 +4692,7 @@ msg_format("%sが恐怖していて制御できない。", m_name);
 				else if (record_fix_quest)
 					do_cmd_write_nikki(NIKKI_FIX_QUEST_F, leaving_quest, NULL);
 				quest[leaving_quest].status = QUEST_STATUS_FAILED;
-				quest[leaving_quest].complev = p_ptr->lev;
+				quest[leaving_quest].complev = (byte)p_ptr->lev;
 				if (quest[leaving_quest].type == QUEST_TYPE_RANDOM)
 					r_info[quest[leaving_quest].r_idx].flags1 &= ~(RF1_QUESTOR);
 			}
@@ -5233,7 +5228,7 @@ static bool run_test(void)
 				case FEAT_DEEP_WATER:
 				{
 					/* Ignore */
-					if (p_ptr->ffall) notice = FALSE;
+					if (p_ptr->ffall || p_ptr->total_weight<= (((u32b)adj_str_wgt[p_ptr->stat_ind[A_STR]]*(p_ptr->pclass == CLASS_BERSERKER ? 150 : 100))/2)) notice = FALSE;
 
 					/* Done */
 					break;

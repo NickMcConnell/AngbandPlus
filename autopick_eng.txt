@@ -1,17 +1,17 @@
 # autopick.txt for Hengband
 #
 # The last part of this file is an example of 'pickpref.prf'. 
-# You can copy this file to lib/user/ or ~/.angband/Hengband/ 
+# You can copy this file to lib\user\ or ~/.angband/Hengband/ 
 # to use as preference of auto-picker.
 # (UNIX user must copy to ~/.angband/Hengband/. Others must 
-# copy to lib/user/.)
+# copy to lib\user\ .)
 #
 #    =====   How to use auto-picker/destroyer   ========
 #    
 #      Create a file named "pickpref.prf" or "pickpref-<<name>>.prf" 
 #      (or move and rename this file) in the same directory as your 
 #      user preference files.  This will be ~/.angband/Hengband/ 
-#      for UNIX, or hengband/lib/user/ for other operating systems.
+#      for UNIX, or hengband\lib\user\ for other operating systems.
 #      
 #      The game will read the file "pickpref-<<current character 
 #      name>>.prf" first and then read the file "pickpref.prf".  The 
@@ -34,6 +34,8 @@
 #      this kind of object.  Starting a line with '~' indicates that you wish 
 #      to leave this kind of object on the floor.  Otherwise, your character 
 #      will automatically attempt to pick up the object.
+#           There is an additional command letter '('.  It indicates that 
+#      you don't wish this item to be displayed in full map. see below.
 #
 #      Notes:
 #      If you want to disable the effect of the '!' indicator temporally, 
@@ -133,10 +135,10 @@
 #      up, followed by a general item name with '!' to destroy useless items.
 #    
 #      ! Tips
-#      !  In full map command ('M'), you can press 'M' again to 
-#      !  display auto-pick items. The behavior of the display 
-#      !  is changed by options in 
-#      !  '(6) Object Auto-pick/Destroy Options'.
+#      !     In full map command ('M'), you can press M, N, K, or D to 
+#      ! display locations of items for auto-pickup, leaving, auto-destroy 
+#      ! or both auto-pickup and leaving.
+#      !     Additional command letter '(' prevents this display.
 #      !
 #
 #      If you begin the last string in a line with '#', this string will
@@ -189,26 +191,28 @@
 #      - Special variables
 #        $RACE
 #         Returns name of player race. One of below:
-#          Human, Half-Elf, Elf, Hobbit, Gnome, Dwarf, Half-Orc, Half-Troll,
-#          Amberite, High-Elf, Barbarian, Half-Ogre, Half-Giant, Half-Titan,
-#          Cyclops, Yeek, Klackon, Kobold, Nibelung, Dark-Elf, Draconian,
-#          Mindflayer, Imp, Golem, Skeleton, Zombie, Vampire, Spectre, Sprite,
-#          Beastman, Ent, Archon, Balrog, Dunadan, Shadow-Fairy, Kutar, Android,
+#          Human, Half-Elf, Elf, Hobbit, Gnome, Dwarf, Half-Orc,
+#          Half-Troll, Amberite, High-Elf, Barbarian, Half-Ogre,
+#          Half-Giant, Half-Titan, Cyclops, Yeek, Klackon, Kobold,
+#          Nibelung, Dark-Elf, Draconian, Mindflayer, Imp, Golem,
+#          Skeleton, Zombie, Vampire, Spectre, Sprite, Beastman, Ent,
+#          Archon, Balrog, Dunadan, Shadow-Fairy, Kutar, Android,
 #
 #        $CLASS
 #         Returns name of player class. One of below:
-#          Warrior, Mage, Priest, Rogue, Ranger, Paladin, Warrior-Mage,
-#          Chaos-Warrior, Monk, Mindcrafter, High-Mage, Tourist, Imitator,
-#          BeastMaster, Sorcerer, Archer, Magic-Eater, Bard, Red-Mage, Samurai,
-#          ForceTrainer, Blue-Mage, Cavalry, Berserker, Weaponsmith, 
-#          Mirror-Master, Ninja
+#          Warrior, Mage, Priest, Rogue, Ranger, Paladin,
+#          Warrior-Mage, Chaos-Warrior, Monk, Mindcrafter, High-Mage,
+#          Tourist, Imitator, BeastMaster, Sorcerer, Archer,
+#          Magic-Eater, Bard, Red-Mage, Samurai, ForceTrainer,
+#          Blue-Mage, Cavalry, Berserker, Weaponsmith, Mirror-Master,
+#          Ninja
 #
 #        $PLAYER
 #         Returns player name.
 #        $REALM1
 #         Returns player's first magic realm
-#          Life, Sorcery, Nature, Chaos, Death, Trump
-#          Arcane, Craft, Daemon, Music, Kendo
+#          none, Life, Sorcery, Nature, Chaos, Death, Trump Arcane,
+#          Craft, Daemon, Music, Kendo
 #        $REALM2
 #         Returns player's second magic realm
 #        $LEVEL
@@ -218,15 +222,16 @@
 #------------------------------------------------------------------
 #
 #    Below is an example 'pickpref.prf' file.
-#    You can copy this file to lib/user/ or ~/.angband/Hengband/.
+#    You can copy this file to lib\user\ or ~/.angband/Hengband/.
 #    (UNIX user must copy to ~/.angband/Hengband/. Others must copy 
-#    to  lib/user/.)
+#    to  lib\user\ .)
 #
 #------------------------------------------------------------------
 
 wanted corpse
 wanted Skeleton
 
+# Berserker cannot use magical devices; rods, wands, and scrolls.
 ?:[EQU $CLASS Berserker]
 !magical devices
 ?:1
@@ -234,24 +239,36 @@ wanted Skeleton
 unaware items
 
 #Artifact lights
-unidentified lites:^Jewel#!!
-unidentified lites:^stone
-unidentified lites:^star#!!
-unidentified lites:^Incandescent Light
-unidentified lites:^Phial#!!
+unidentified lights:^Jewel#!!
+unidentified lights:^levitatioin stone#!!
+unidentified lights:^Palantir#!!
+unidentified lights:^stone#@A0
+unidentified lights:^star#!!
+unidentified lights:^Incandescent Light
+unidentified lights:^Phial#!!
 
 # auto inscribe resistances...
-~*identified* weapons#%
-~*identified* armors#%
+~*identified* artifacts#%
 
+#
+# pick all items which can stack your inventry without inscription.
+#
+collecting rod
+collecting potion
+collecting scroll
+collecting missiles
+(collecting items
+
+#
 # good items
-~rod of Perception#!k!!
+#
+~rod of Perception#@z0!k!!
 ~rod of speed#!k!!
 ~rod of Healing#!k!!
-~rod of Enlightenment#!k!!
-~rod of Detection#!k!d!!
+~rod of Enlightenment#k!!
+~rod of Detection#!k!!
 
-potion of Invulnerability#!*
+potion of Invulnerability#!k
 Acquirement#!k
 potion of Experience
 potion of Augmentation
@@ -265,14 +282,8 @@ potion of constitution
 potion of intelligence
 potion of Charisma
 
-potion of life#!*
+potion of life#!k
 healing#!k
-
-# pick all items which can stack your inventry
-
-collecting rod
-collecting potion
-collecting scroll
 
 #
 # Magic-Eaters pick up all magical device to absorb.
@@ -290,37 +301,43 @@ skeleton of
 ~lights:darkness
 Iron Spike#@v0
 ?:[EQU $RACE Vampire]
-~scroll of darkness
-~staff of darkness
+(~scroll of darkness
+(~staff of darkness
 ?:1
 
 # Destroy unless very early stage.
 ?:[GEQ $LEVEL 10]
-!amulet of Adornment
-!potion of Apple Juice
-!Empty Bottle
-!potion of water
+(!amulet of Adornment
+(!potion of Apple Juice
+(!Empty Bottle
+(!potion of water
 ?:1
 
-# These have some use at very early stage.
+# These worthless potions have some use at very early stage.
+# Command letter '(' means, 'Don't display its location in full map command.'
 ?:[LEQ $LEVEL 20]
-~potion of booze
-~potion of Slowness
-~potion of Sleep
+(~potion of booze
+(~potion of Slowness
+(~potion of Sleep
 ?:1
 
-# complex example
+# complex example; destroy needless food items.
 ?:[AND [GEQ $LEVEL 20] [IOR [EQU $REALM1 Life] [EQU $REALM2 Life] [EQU $REALM1 Nature] [EQU $REALM2 Nature] [EQU $REALM1 Craft] [EQU $REALM2 Craft]]]
-!Satisfy Hunger
-!food
-!Slime Mold
-!of Elvish Waybread
+(!Satisfy Hunger
+(!food
+(!Slime Mold
+(!of Elvish Waybread
 ?:1
 
 
 #
 # Destroy useless equipment at high level.
 #
+# Beware!!!!
+#    The line '!nameless armors' destroy all dragon armour!
+#    '~identified armors:dragon' will prevent this dangerous behavior.
+#
+
 ?:[GEQ $LEVEL 40]
 ~identified armors:dragon
 ~nameless armors:Elven Cloak
@@ -337,8 +354,8 @@ Iron Spike#@v0
 ?:1
 
 # higher rank of your spellbooks
-first realm's fourth Book of Samurai Arts#!k
-first realm's third Book of Samurai Arts#!k
+first realm's fourth Book of Kendo#!k
+first realm's third Book of Kendo#!k
 first realm's fourth spellbooks#@md!k
 first realm's third spellbooks#@mc!k
 second realm's fourth spellbooks#@mh!k
@@ -361,16 +378,16 @@ collecting spellbooks
 # other spellbooks
 
 ?:[GEQ $LEVEL 30]
-!unreadable first spellbooks
-!unreadable second spellbooks
-!unreadable third spellbooks:arcane
-!unreadable fourth spellbooks:arcane
+(!unreadable first spellbooks
+(!unreadable second spellbooks
+(!unreadable third spellbooks:arcane
+(!unreadable fourth spellbooks:arcane
 ?:1
 
 # pick up for experience
 ?:[IOR [EQU $CLASS Warrior] [EQU $CLASS Berserker] [AND [EQU $CLASS Paladin] [EQU $REALM1 Life]]]
-~unreadable third spellbooks:arcane
-~unreadable fourth spellbooks:arcane
+(~unreadable third spellbooks:arcane
+(~unreadable fourth spellbooks:arcane
 unreadable fourth spellbooks
 unreadable third spellbooks
 ?:1
@@ -381,8 +398,9 @@ unreadable third spellbooks:life
 
 # pick up for money
 ?:[LEQ $LEVEL 29]
-~unreadable third spellbooks:arcane
-~unreadable fourth spellbooks:arcane
+(~unreadable third spellbooks:arcane
+(~unreadable fourth spellbooks:arcane
 unreadable fourth spellbooks
 unreadable third spellbooks
 ?:1
+

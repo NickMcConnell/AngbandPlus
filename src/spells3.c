@@ -338,7 +338,7 @@ msg_print("不思議な力がテレポートを防いだ！");
 
 #ifdef JP
 	if ((p_ptr->pseikaku == SEIKAKU_COMBAT) || (inventory[INVEN_BOW].name1 == ART_CRIMSON))
-				msg_format("『こっちだぁ、%s』", player_name);
+		msg_format("『こっちだぁ、%s』", player_name);
 #endif
 
 	/* Save the old location */
@@ -596,7 +596,7 @@ msg_print("あなたは天井を突き破って宙へ浮いていく。");
 			(quest[leaving_quest].status == QUEST_STATUS_TAKEN))
 		{
 			quest[leaving_quest].status = QUEST_STATUS_FAILED;
-			quest[leaving_quest].complev = p_ptr->lev;
+			quest[leaving_quest].complev = (byte)p_ptr->lev;
 			if (quest[leaving_quest].type == QUEST_TYPE_RANDOM)
 			{
 				r_info[quest[leaving_quest].r_idx].flags1 &= ~(RF1_QUESTOR);
@@ -708,6 +708,9 @@ static int choose_dungeon(cptr note)
 		i = inkey();
 		if (i == ESCAPE)
 		{
+			/* Free the "dun" array */
+			C_KILL(dun, max_d_idx, s16b);
+
 			screen_load();
 			return 0;
 		}
@@ -719,6 +722,10 @@ static int choose_dungeon(cptr note)
 		else bell();
 	}
 	screen_load();
+
+	/* Free the "dun" array */
+	C_KILL(dun, max_d_idx, s16b);
+
 	return select_dungeon;
 }
 
@@ -2158,6 +2165,42 @@ bool item_tester_hook_weapon_armour(object_type *o_ptr)
 
 
 /*
+ * Check if an object is nameless weapon or armour
+ */
+bool item_tester_hook_nameless_weapon_armour(object_type *o_ptr)
+{
+	if (o_ptr->name1 || o_ptr->art_name || o_ptr->name2 || o_ptr->xtra3)
+		return FALSE;
+
+	switch (o_ptr->tval)
+	{
+		case TV_SWORD:
+		case TV_HAFTED:
+		case TV_POLEARM:
+		case TV_DIGGING:
+		case TV_BOW:
+		case TV_BOLT:
+		case TV_ARROW:
+		case TV_SHOT:
+		case TV_DRAG_ARMOR:
+		case TV_HARD_ARMOR:
+		case TV_SOFT_ARMOR:
+		case TV_SHIELD:
+		case TV_CLOAK:
+		case TV_CROWN:
+		case TV_HELM:
+		case TV_BOOTS:
+		case TV_GLOVES:
+		{
+			return (TRUE);
+		}
+	}
+
+	return (FALSE);
+}
+
+
+/*
  * Break the curse of an item
  */
 static void break_curse(object_type *o_ptr)
@@ -2402,7 +2445,7 @@ bool artifact_scroll(void)
 
 	item_tester_no_ryoute = TRUE;
 	/* Enchant weapon/armour */
-	item_tester_hook = item_tester_hook_weapon_armour;
+	item_tester_hook = item_tester_hook_nameless_weapon_armour;
 
 	/* Get an item */
 #ifdef JP
@@ -2540,8 +2583,7 @@ void identify_item(object_type *o_ptr)
 	/* Description */
 	object_desc(o_name, o_ptr, TRUE, 3);
 
-	if ((artifact_p(o_ptr) || o_ptr->art_name) &&
-	    !object_known_p(o_ptr) && !(o_ptr->ident&IDENT_SENSE))
+	if ((artifact_p(o_ptr) || o_ptr->art_name) && !(o_ptr->ident & IDENT_KNOWN))
 		motoart = FALSE;
 
 	if (!(o_ptr->ident & (IDENT_MENTAL)))
@@ -2576,6 +2618,18 @@ void identify_item(object_type *o_ptr)
 }
 
 
+bool item_tester_hook_identify(object_type *o_ptr)
+{
+	return (bool)!object_known_p(o_ptr);
+}
+
+bool item_tester_hook_identify_weapon_armour(object_type *o_ptr)
+{
+	if (object_known_p(o_ptr))
+		return FALSE;
+	return item_tester_hook_weapon_armour(o_ptr);
+}
+
 /*
  * Identify an object in the inventory (or on the floor)
  * This routine does *not* automatically combine objects.
@@ -2591,12 +2645,26 @@ bool ident_spell(bool only_equip)
 	item_tester_no_ryoute = TRUE;
 
 	if (only_equip)
-		item_tester_hook = item_tester_hook_weapon_armour;
+		item_tester_hook = item_tester_hook_identify_weapon_armour;
+	else
+		item_tester_hook = item_tester_hook_identify;
+
+	if (!can_get_item())
+	{
+		if (only_equip)
+		{
+			item_tester_hook = item_tester_hook_weapon_armour;
+		}
+		else
+		{
+			item_tester_hook = NULL;
+		}
+	}
 
 	/* Get an item */
 #ifdef JP
 q = "どのアイテムを鑑定しますか? ";
-s = "鑑定できるアイテムがない。";
+s = "鑑定するべきアイテムがない。";
 #else
 	q = "Identify which item? ";
 	s = "You have nothing to identify.";
@@ -2726,6 +2794,18 @@ msg_print("まばゆい閃光が走った！");
 
 
 
+bool item_tester_hook_identify_fully(object_type *o_ptr)
+{
+	return (bool)(!object_known_p(o_ptr) || !(o_ptr->ident & IDENT_MENTAL));
+}
+
+bool item_tester_hook_identify_fully_weapon_armour(object_type *o_ptr)
+{
+	if (!item_tester_hook_identify_fully(o_ptr))
+		return FALSE;
+	return item_tester_hook_weapon_armour(o_ptr);
+}
+
 /*
  * Fully "identify" an object in the inventory  -BEN-
  * This routine returns TRUE if an item was identified.
@@ -2739,12 +2819,22 @@ bool identify_fully(bool only_equip)
 
 	item_tester_no_ryoute = TRUE;
 	if (only_equip)
-		item_tester_hook = item_tester_hook_weapon_armour;
+		item_tester_hook = item_tester_hook_identify_fully_weapon_armour;
+	else
+		item_tester_hook = item_tester_hook_identify_fully;
+
+	if (!can_get_item())
+	{
+		if (only_equip)
+			item_tester_hook = item_tester_hook_weapon_armour;
+		else
+			item_tester_hook = NULL;
+	}
 
 	/* Get an item */
 #ifdef JP
 q = "どのアイテムを鑑定しますか? ";
-s = "鑑定できるアイテムがない。";
+s = "鑑定するべきアイテムがない。";
 #else
 	q = "Identify which item? ";
 	s = "You have nothing to identify.";
@@ -4080,14 +4170,14 @@ static void spell_info(char *p, int spell, int realm)
 		case 13: sprintf(p, " %s%d+d%d", s_dur, plev, plev + 20); break;
 		case 18: sprintf(p, " %s25+d30", s_dur); break;
 		case 22: sprintf(p, " %s15+d21", s_delay); break;
-		case 23: sprintf(p, " %s7d7+%d", s_dam, plev / 2); break;
+		case 23: sprintf(p, " %s%d", s_range, plev / 2 + 10); break;
+		case 25: sprintf(p, " %s7d7+%d", s_dam, plev); break;
 #ifdef JP
-		case 25: sprintf(p, " 最大重量:%d.%dkg", lbtokg1(plev * 15),lbtokg2(plev * 15)); break;
+		case 26: sprintf(p, " 最大重量:%d.%dkg", lbtokg1(plev * 15),lbtokg2(plev * 15)); break;
 #else
-		case 25: sprintf(p, " max wgt %d", plev * 15 / 10); break;
+		case 26: sprintf(p, " max wgt %d", plev * 15 / 10); break;
 #endif
-		case 26: sprintf(p, " %s25+d30", s_dur); break;
-		case 28: sprintf(p, " %s%d", s_range, plev / 2 + 10); break;
+		case 27: sprintf(p, " %s25+d30", s_dur); break;
 		case 31: sprintf(p, " %s4+d4", s_dur); break;
 		}
 		break;
@@ -4171,7 +4261,7 @@ static void spell_info(char *p, int spell, int realm)
 		case 16: sprintf(p, " %s25+d25", s_dur); break;
 		case 17: sprintf(p, " %s", s_random); break;
 		case 18: sprintf(p, " %s%dd8", s_dam, (4 + ((plev - 5) / 4))); break;
-		case 19: sprintf(p, " 最大%s50", s_dur); break;
+		case 19: sprintf(p, " %s25+d25", s_dur); break;
 		case 21: sprintf(p, " %s3*100", s_dam); break;
 		case 22: sprintf(p, " %sd%d", s_dam, plev * 3); break;
 		case 23: sprintf(p, " %s%d", s_dam, 100 + plev * 2); break;
@@ -5429,7 +5519,7 @@ bool polymorph_monster(int y, int x)
 		delete_monster_idx(c_ptr->m_idx);
 
 		/* Create a new monster (no groups) */
-		if (place_monster_aux(y, x, new_r_idx, FALSE, FALSE, friendly, pet, FALSE, (m_ptr->mflag2 & MFLAG_NOPET)))
+		if (place_monster_aux(y, x, new_r_idx, FALSE, FALSE, friendly, pet, FALSE, (bool)(m_ptr->mflag2 & MFLAG_NOPET)))
 		{
 			/* Success */
 			polymorphed = TRUE;
@@ -5439,7 +5529,7 @@ bool polymorph_monster(int y, int x)
 			monster_terrain_sensitive = FALSE;
 
 			/* Placing the new monster failed */
-			place_monster_aux(y, x, old_r_idx, FALSE, FALSE, friendly, pet, TRUE, (m_ptr->mflag2 & MFLAG_NOPET));
+			place_monster_aux(y, x, old_r_idx, FALSE, FALSE, friendly, pet, TRUE, (bool)(m_ptr->mflag2 & MFLAG_NOPET));
 
 			monster_terrain_sensitive = TRUE;
 		}
@@ -5914,5 +6004,5 @@ bool summon_kin_player(bool pet, int level, int y, int x, bool group)
 		summon_kin_type = 'V';
 		break;
 	}	
-	return summon_specific((pet ? -1 : 0), y, x, level, SUMMON_KIN, group, FALSE, pet, FALSE, !pet);
+	return summon_specific((pet ? -1 : 0), y, x, level, SUMMON_KIN, group, FALSE, pet, FALSE, (bool)(!pet));
 }

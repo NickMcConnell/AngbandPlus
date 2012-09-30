@@ -11,7 +11,7 @@
  * by Robert Ruehlmann (rr9@angband.org)
  */
 
-static int display_autopick;
+static byte display_autopick;
 static int match_autopick;
 static object_type *autopick_obj;
 
@@ -865,7 +865,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 
 	s16b this_o_idx, next_o_idx = 0;
 
-	int feat;
+	byte feat;
 
 	byte a;
 	byte c;
@@ -1288,13 +1288,25 @@ void map_info(int y, int x, byte *ap, char *cp)
 		/* Memorized objects */
 		if (o_ptr->marked)
 		{
-			if(display_autopick == 1){
+			if (display_autopick)
+			{
+				byte act;
+
 				match_autopick = is_autopick(o_ptr);
-				if(match_autopick == -1) continue;
-				else if (((autopick_action[match_autopick] == DO_AUTOPICK) && display_pick) || ((autopick_action[match_autopick] == DONT_AUTOPICK) && display_nopick) || ((autopick_action[match_autopick] == DO_AUTODESTROY) && display_destroy))
+				if(match_autopick == -1)
+					continue;
+
+				act = autopick_action[match_autopick];
+
+				if ((act & DO_DISPLAY) && (act & display_autopick))
+				{
 					autopick_obj = o_ptr;
+				}
 				else
-				{match_autopick = -1; continue;}
+				{
+					match_autopick = -1;
+					continue;
+				}
 			}
 			/* Normal char */
 			(*cp) = object_char(o_ptr);
@@ -1312,7 +1324,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 
 
 	/* Handle monsters */
-	if (c_ptr->m_idx && display_autopick==0 )
+	if (c_ptr->m_idx && display_autopick == 0 )
 	{
 		monster_type *m_ptr = &m_list[c_ptr->m_idx];
 
@@ -1374,8 +1386,8 @@ void map_info(int y, int x, byte *ap, char *cp)
 					else
 					{
 						(*cp) = (randint(25) == 1 ?
-							image_object_hack[randint(strlen(image_object_hack))] :
-							image_monster_hack[randint(strlen(image_monster_hack))]);
+							image_object_hack[rand_int(strlen(image_object_hack))] :
+							image_monster_hack[rand_int(strlen(image_monster_hack))]);
 					}
 				}
 				else
@@ -1472,16 +1484,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 
 		if (!streq(ANGBAND_GRAF, "new"))
 		{
-			if (!streq(ANGBAND_SYS,"ibm"))
-			{
-
-				if (use_graphics && player_symbols)
-				{
-					a = BMP_FIRST_PC_CLASS + p_ptr->pclass;
-					c = BMP_FIRST_PC_RACE  + p_ptr->prace;
-				}
-			}
-			else
+			if (streq(ANGBAND_SYS,"ibm"))
 			{
 				if (use_graphics && player_symbols)
 				{
@@ -2251,20 +2254,21 @@ static cptr simplify_list[][2] =
 	{"の魔法書", ""},
 	{NULL, NULL}
 #else
-	{"Ring of ",   "="},
-	{"Amulet of ", "\""},
-	{"Scroll of ", "?"},
-	{"Wand of "  , "-"},
-	{"Rod of "   , "-"},
-	{"Staff of " , "_"},
-	{"Potion of ", "!"},
+	{"^Ring of ",   "="},
+	{"^Amulet of ", "\""},
+	{"^Scroll of ", "?"},
+	{"^Scroll titled ", "?"},
+	{"^Wand of "  , "-"},
+	{"^Rod of "   , "-"},
+	{"^Staff of " , "_"},
+	{"^Potion of ", "!"},
 	{" Spellbook ",""},
-	{"Book of ",   ""},
+	{"^Book of ",   ""},
 	{" Magic [",   "["},
 	{" Book [",    "["},
 	{" Arts [",    "["},
-	{"Set of ",    ""},
-	{"Pair of ",   ""},
+	{"^Set of ",    ""},
+	{"^Pair of ",   ""},
 	{NULL, NULL}
 #endif
 };
@@ -2283,6 +2287,15 @@ static void display_shortened_item_name(object_type *o_ptr, int y)
 		for (i = 0; simplify_list[i][1]; i++)
 		{
 			cptr org_w = simplify_list[i][0];
+
+			if (*org_w == '^')
+			{
+				if (c == buf)
+					org_w++;
+				else
+					continue;
+			}
+
 			if (!strncmp(c, org_w, strlen(org_w)))
 			{
 				char *s = c;
@@ -2484,6 +2497,10 @@ void display_map(int *cy, int *cx)
 	      autopick_obj = object_autopick_yx[y][x];
 	    }
 	  }
+
+	  /* Clear old display */
+	  Term_putstr(0, y, 12, 0, "            ");
+
 	  if (match_autopick != -1)
 #if 1
 		  display_shortened_item_name(autopick_obj, y);
@@ -2535,41 +2552,55 @@ prt("お待ち下さい...", 0, 0);
 	/* Clear the screen */
 	Term_clear();
 
-        display_autopick=0;
+        display_autopick = 0;
 
 	/* Display the map */
 	display_map(&cy, &cx);
 
 	/* Wait for it */
-        if(max_autopick && !p_ptr->wild_mode && (display_pick || display_nopick || display_destroy))
+        if(max_autopick && !p_ptr->wild_mode)
 	{
+		display_autopick = ITEM_DISPLAY;
+
+		while (1)
+		{
+			int i;
+			byte flag;
+
 #ifdef JP
-		put_str("何かキーを押すとゲームに戻ります('M':アイテムのみ表示)", 23, 17);
+			put_str("何かキーを押してください('M':拾う 'N':放置 'D':M+N 'K':壊すアイテムを表示)", 23, 1);
 #else
-		put_str("Hit M for display items, hit any other key to continue.", 23, 17);
+			put_str(" Hit M, N(for ~), K(for !), or D(same as M+N) to display auto-picker items.", 23, 1);
 #endif
-		/* Hilite the player */
-		move_cursor(cy, cx);
-		
-		/* Get any key */
-		if( inkey()=='M')
-		{ 
-			Term_fresh();
-			
-			/* Display the map */
-			display_autopick=1;
-			display_map(&cy, &cx);
-			display_autopick=0;
-#ifdef JP
-			put_str("何かキーを押すとゲームに戻ります", 23, 30);
-#else
-			put_str("Hit any key to continue", 23, 30);
-#endif
+
 			/* Hilite the player */
 			move_cursor(cy, cx);
-			/* Get any key */
-			inkey();
+
+			i = inkey();
+
+			if ('M' == i)
+				flag = DO_AUTOPICK;
+			else if ('N' == i)
+				flag = DONT_AUTOPICK;
+			else if ('K' == i)
+				flag = DO_AUTODESTROY;
+			else if ('D' == i)
+				flag = (DO_AUTOPICK | DONT_AUTOPICK);
+			else
+				break;
+
+			Term_fresh();
+			
+			if (~display_autopick & flag)
+				display_autopick |= flag;
+			else
+				display_autopick &= ~flag;
+			/* Display the map */
+			display_map(&cy, &cx);
 		}
+		
+		display_autopick = 0;
+
 	}
 	else
 	{
@@ -3340,8 +3371,8 @@ void update_mon_lite(void)
 		}
 
 		/* Add to end of temp array */
-		temp_x[temp_n] = fx;
-		temp_y[temp_n] = fy;
+		temp_x[temp_n] = (byte)fx;
+		temp_y[temp_n] = (byte)fy;
 		temp_n++;
 	}
 
@@ -4192,54 +4223,6 @@ void forget_flow(void)
 
 
 /*
- * Hack -- Allow us to treat the "seen" array as a queue
- */
-static int flow_head = 0;
-static int flow_tail = 0;
-
-
-/*
- * Take note of a reachable grid.  Assume grid is legal.
- */
-static void update_flow_aux(int y, int x, int m, int n)
-{
-	cave_type *c_ptr;
-
-	int old_head = flow_head;
-
-
-	/* Get the grid */
-	c_ptr = &cave[y][x];
-
-	/* Ignore "pre-stamped" entries */
-	if (c_ptr->when == flow_n && (c_ptr->dist <= n) && (c_ptr->cost <= m)) return;
-
-	/* Ignore "walls" and "rubble" */
-	if ((c_ptr->feat > FEAT_SECRET) && (c_ptr->feat != FEAT_TREES) && !cave_floor_grid(c_ptr)) return;
-
-	/* Save the flow cost */
-	if (c_ptr->when != flow_n || c_ptr->cost > m) c_ptr->cost = m;
-	if (c_ptr->when != flow_n || c_ptr->dist > n) c_ptr->dist = n;
-
-	/* Save the time-stamp */
-	c_ptr->when = flow_n;
-
-	/* Hack -- limit flow depth */
-	if (n == MONSTER_FLOW_DEPTH) return;
-
-	/* Enqueue that entry */
-	temp_y[flow_head] = y;
-	temp_x[flow_head] = x;
-
-	/* Advance the queue */
-	if (++flow_head == TEMP_MAX) flow_head = 0;
-
-	/* Hack -- notice overflow by forgetting new entry */
-	if (flow_head == flow_tail) flow_head = old_head;
-}
-
-
-/*
  * Hack - speed up the update_flow algorithm by only doing
  * it everytime the player moves out of LOS of the last
  * "way-point".
@@ -4265,6 +4248,8 @@ static u16b flow_y = 0;
 void update_flow(void)
 {
 	int x, y, d;
+	int flow_head = 1;
+	int flow_tail = 0;
 
 	/* Hack -- disabled */
 	if (stupid_monsters) return;
@@ -4272,23 +4257,126 @@ void update_flow(void)
 	/* Paranoia -- make sure the array is empty */
 	if (temp_n) return;
 
-#if 0
 	/* The last way-point is on the map */
 	if (running && in_bounds(flow_y, flow_x))
 	{
 		/* The way point is in sight - do not update.  (Speedup) */
 		if (cave[flow_y][flow_x].info & CAVE_VIEW) return;
 	}
-#endif
+
+	/* Erase all of the current flow information */
+	for (y = 0; y < cur_hgt; y++)
+	{
+		for (x = 0; x < cur_wid; x++)
+		{
+			cave[y][x].cost = 0;
+			cave[y][x].dist = 0;
+		}
+	}
 
 	/* Save player position */
 	flow_y = py;
 	flow_x = px;
 
-	/* Cycle the old entries (once per 128 updates) */
-	if (flow_n == 255)
+	/* Add the player's grid to the queue */
+	temp_y[0] = py;
+	temp_x[0] = px;
+
+	/* Now process the queue */
+	while (flow_head != flow_tail)
 	{
-		/* Rotate the time-stamps */
+		int ty, tx;
+
+		/* Extract the next entry */
+		ty = temp_y[flow_tail];
+		tx = temp_x[flow_tail];
+
+		/* Forget that entry */
+		if (++flow_tail == TEMP_MAX) flow_tail = 0;
+
+		/* Add the "children" */
+		for (d = 0; d < 8; d++)
+		{
+			int old_head = flow_head;
+			int m = cave[ty][tx].cost + 1;
+			int n = cave[ty][tx].dist + 1;
+			cave_type *c_ptr;
+
+			/* Child location */
+			y = ty + ddy_ddd[d];
+			x = tx + ddx_ddd[d];
+
+			/* Ignore player's grid */
+			if (x == px && y == py) continue;
+
+			c_ptr = &cave[y][x];
+				       
+			if ((c_ptr->feat >= FEAT_DOOR_HEAD) && (c_ptr->feat <= FEAT_SECRET)) m += 3;
+
+			/* Ignore "pre-stamped" entries */
+			if (c_ptr->dist != 0 && c_ptr->dist <= n && c_ptr->cost <= m) continue;
+
+			/* Ignore "walls" and "rubble" */
+			if ((c_ptr->feat > FEAT_SECRET) && (c_ptr->feat != FEAT_TREES) && !cave_floor_grid(c_ptr)) continue;
+
+			/* Save the flow cost */
+			if (c_ptr->cost == 0 || c_ptr->cost > m) c_ptr->cost = m;
+			if (c_ptr->dist == 0 || c_ptr->dist > n) c_ptr->dist = n;
+
+			/* Hack -- limit flow depth */
+			if (n == MONSTER_FLOW_DEPTH) continue;
+
+			/* Enqueue that entry */
+			temp_y[flow_head] = y;
+			temp_x[flow_head] = x;
+
+			/* Advance the queue */
+			if (++flow_head == TEMP_MAX) flow_head = 0;
+
+			/* Hack -- notice overflow by forgetting new entry */
+			if (flow_head == flow_tail) flow_head = old_head;
+		}
+	}
+}
+
+
+static int scent_when = 0;
+
+/*
+ * Characters leave scent trails for perceptive monsters to track.
+ *
+ * Smell is rather more limited than sound.  Many creatures cannot use 
+ * it at all, it doesn't extend very far outwards from the character's 
+ * current position, and monsters can use it to home in the character, 
+ * but not to run away from him.
+ *
+ * Smell is valued according to age.  When a character takes his turn, 
+ * scent is aged by one, and new scent of the current age is laid down.  
+ * Speedy characters leave more scent, true, but it also ages faster, 
+ * which makes it harder to hunt them down.
+ *
+ * Whenever the age count loops, most of the scent trail is erased and 
+ * the age of the remainder is recalculated.
+ */
+void update_smell(void)
+{
+	int i, j;
+	int y, x;
+
+	/* Create a table that controls the spread of scent */
+	int scent_adjust[5][5] = 
+	{
+		{ 250,  0,  0,  0, 250 },
+		{   0,  1,  1,  1,   0 },
+		{   0,  1,  2,  1,   0 },
+		{   0,  1,  1,  1,   0 },
+		{ 250,  0,  0,  0, 250 },
+	};
+
+	/* Loop the age and adjust scent values when necessary */
+	if (scent_when++ == 250)
+	{
+		/* Scan the entire dungeon */
 		for (y = 0; y < cur_hgt; y++)
 		{
 			for (x = 0; x < cur_wid; x++)
@@ -4299,46 +4387,40 @@ void update_flow(void)
 		}
 
 		/* Restart */
-		flow_n = 127;
+		scent_when = 127;
 	}
 
-	/* Start a new flow (never use "zero") */
-	flow_n++;
 
-
-	/* Reset the "queue" */
-	flow_head = flow_tail = 0;
-
-	/* Add the player's grid to the queue */
-	update_flow_aux(py, px, 0, 0);
-
-	/* Now process the queue */
-	while (flow_head != flow_tail)
+	/* Lay down new scent */
+	for (i = 0; i < 5; i++)
 	{
-		/* Extract the next entry */
-		y = temp_y[flow_tail];
-		x = temp_x[flow_tail];
-
-		/* Forget that entry */
-		if (++flow_tail == TEMP_MAX) flow_tail = 0;
-
-		/* Add the "children" */
-		for (d = 0; d < 8; d++)
+		for (j = 0; j < 5; j++)
 		{
-			int tmp = cave[y][x].cost+1;
-			int yy = y+ddy_ddd[d];
-			int xx = x+ddx_ddd[d];
+			cave_type *c_ptr;
 
-			if ((cave[yy][xx].feat >= FEAT_DOOR_HEAD) && (cave[yy][xx].feat <= FEAT_SECRET)) tmp += 3;
-			/* Add that child if "legal" */
-			update_flow_aux(yy, xx, tmp, cave[y][x].dist+1);
+			/* Translate table to map grids */
+			y = i + py - 2;
+			x = j + px - 2;
+
+			/* Check Bounds */
+			if (!in_bounds(y, x)) continue;
+
+			c_ptr = &cave[y][x];
+
+			/* Walls, water, and lava cannot hold scent. */
+			if ((c_ptr->feat > FEAT_SECRET) && (c_ptr->feat != FEAT_TREES) && !cave_floor_grid(c_ptr)) continue;
+
+			/* Grid must not be blocked by walls from the character */
+			if (!player_has_los_bold(y, x)) continue;
+
+			/* Note grids that are too far away */
+			if (scent_adjust[i][j] == 250) continue;
+
+			/* Mark the grid with new scent */
+			c_ptr->when = scent_when + scent_adjust[i][j];
 		}
 	}
-
-	/* Forget the flow info */
-	flow_head = flow_tail = 0;
 }
-
 
 
 /*

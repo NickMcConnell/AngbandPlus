@@ -36,9 +36,9 @@ char *macro_trigger_keycode[2][MAX_MACRO_TRIG];
 /* レベルアップの時に上昇量を表示するのに使う */
 int level_up = 0;
 int max_autopick=0;
-char *autopick_name[MAX_AUTOPICK];
-char *autopick_insc[MAX_AUTOPICK];
-s16b autopick_action[MAX_AUTOPICK];
+cptr autopick_name[MAX_AUTOPICK];
+cptr autopick_insc[MAX_AUTOPICK];
+byte autopick_action[MAX_AUTOPICK];
 
 /*
  * Executable version
@@ -353,8 +353,8 @@ s16b panel_col_prt, panel_row_prt;
 /*
  * Player location in dungeon
  */
-s16b py;
-s16b px;
+int py;
+int px;
 
 /*
  * Targetting variables
@@ -755,72 +755,64 @@ s16b player_hp[PY_MAX_LEVEL];
 /*
  * The vault generation arrays
  */
-header *v_head;
 vault_type *v_info;
 char *v_name;
 char *v_text;
 
 /*
+ * The skill table
+ */
+skill_table *s_info;
+char *s_name;
+char *s_text;
+
+/*
+ * The magic info
+ */
+player_magic *m_info;
+char *m_name;
+char *m_text;
+
+/*
  * The terrain feature arrays
  */
-header *f_head;
 feature_type *f_info;
 char *f_name;
-#ifdef JP
-char *E_f_name;         /* 英語地形名 */
-#endif
 char *f_text;
 
 /*
  * The object kind arrays
  */
-header *k_head;
 object_kind *k_info;
 char *k_name;
-#ifdef JP
-char *E_k_name;         /* 英語アイテム名 */
-#endif
 char *k_text;
 
 /*
  * The artifact arrays
  */
-header *a_head;
 artifact_type *a_info;
 char *a_name;
-#ifdef JP
-char *E_a_name;         /* 英語アーティファクト名 */
-#endif
 char *a_text;
 
 /*
  * The ego-item arrays
  */
-header *e_head;
 ego_item_type *e_info;
 char *e_name;
-#ifdef JP
-char *E_e_name;         /* 英語「名のある」アイテム名 */
-#endif
 char *e_text;
 
 
 /*
  * The monster race arrays
  */
-header *r_head;
 monster_race *r_info;
 char *r_name;
-#ifdef JP
-char *E_r_name;         /* 英語モンスター名 */
-#endif
 char *r_text;
 
 
 /*
  * The dungeon arrays
  */
-header *d_head;
 dungeon_info_type *d_info;
 char *d_name;
 char *d_text;
@@ -846,7 +838,7 @@ cptr ANGBAND_KEYBOARD = "0";
  * Hack -- The special Angband "Graphics Suffix"
  * This variable is used to choose an appropriate "graf-xxx" file
  */
-cptr ANGBAND_GRAF = "old";
+cptr ANGBAND_GRAF = "ascii";
 
 /*
  * Path name: The main "lib" directory
@@ -995,10 +987,6 @@ bool easy_floor;
 bool use_command;
 bool center_player;
 bool center_running;
-
-bool display_pick;
-bool display_nopick;
-bool display_destroy;
 
 /* Auto-destruction options */
 bool destroy_items;
@@ -1206,6 +1194,8 @@ bool mon_fight;
 bool ambush_flag;
 bool generate_encounter;
 
+cptr screen_dump = NULL;
+
 /*
  * Which dungeon ?
  */
@@ -1215,7 +1205,7 @@ s16b *max_dlv;
 byte feat_wall_outer;
 byte feat_wall_inner;
 byte feat_wall_solid;
-s16b floor_type[100], fill_type[100];
+byte floor_type[100], fill_type[100];
 
 bool now_damaged;
 s16b now_message;

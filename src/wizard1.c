@@ -1625,9 +1625,6 @@ static void spoil_mon_desc(cptr fname)
 	char hp[80];
 	char exp[80];
 
-	/* Allocate the "who" array */
-	C_MAKE(who, max_r_idx, s16b);
-
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_USER, fname);
 
@@ -1643,6 +1640,9 @@ static void spoil_mon_desc(cptr fname)
 		msg_print("Cannot create spoiler file.");
 		return;
 	}
+
+	/* Allocate the "who" array */
+	C_MAKE(who, max_r_idx, s16b);
 
 	/* Dump the header */
 
@@ -1751,6 +1751,9 @@ static void spoil_mon_desc(cptr fname)
 	/* End it */
 	fprintf(fff, "\n");
 
+
+	/* Free the "who" array */
+	C_KILL(who, max_r_idx, s16b);
 
 	/* Check for errors */
 	if (ferror(fff) || my_fclose(fff))
@@ -2010,7 +2013,7 @@ static void spoil_mon_info(cptr fname)
 
 		/* Name */
 #ifdef JP
-		sprintf(buf, "%s/%s  (", (r_name + r_ptr->name),(E_r_name+r_ptr->E_name));  /* ---)--- */
+		sprintf(buf, "%s/%s  (", (r_name + r_ptr->name),(r_name+r_ptr->E_name));  /* ---)--- */
 #else
 		sprintf(buf, "%s  (", (r_name + r_ptr->name));  /* ---)--- */
 #endif
@@ -3140,6 +3143,9 @@ case RBE_DR_MANA:	q = "À‚Œœ§Ú√•§¶"; break;
 		spoil_out(NULL);
 	}
 
+	/* Free the "who" array */
+	C_KILL(who, max_r_idx, s16b);
+
 	/* Check for errors */
 	if (ferror(fff) || my_fclose(fff))
 	{
@@ -3368,6 +3374,9 @@ void spoil_random_artifact(cptr fname)
 	char buf[1024];
 
 
+	/* Drop priv's */
+	safe_setuid_drop();
+
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_USER, fname);
 
@@ -3428,6 +3437,9 @@ void spoil_random_artifact(cptr fname)
 		msg_print("Cannot close list file.");
 		return;
 	}
+
+	/* Grab priv's */
+	safe_setuid_grab();
 
 	/* Message */
 	msg_print("Successfully created a list file.");

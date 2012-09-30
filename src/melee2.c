@@ -371,7 +371,7 @@ msg_format("%^sは殺された。", m_name);
 		/*
 		* Run (sometimes) if at 10% or less of max hit points,
 		* or (usually) when hit for half its current hit points
-		*/
+		 */
 		if (((percentage <= 10) && (rand_int(10) < percentage)) ||
 			((dam >= m_ptr->hp) && (rand_int(100) < 80)))
 		{
@@ -524,9 +524,11 @@ static int mon_will_run(int m_idx)
  */
 static bool get_moves_aux(int m_idx, int *yp, int *xp)
 {
-	int i, y, x, y1, x1, when = 0, cost = 999;
+	int i, y, x, y1, x1, best;
 
 	cave_type *c_ptr;
+	bool use_sound = FALSE;
+	bool use_scent = FALSE;
 
 	monster_type *m_ptr = &m_list[m_idx];
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
@@ -543,27 +545,38 @@ static bool get_moves_aux(int m_idx, int *yp, int *xp)
 	y1 = m_ptr->fy;
 	x1 = m_ptr->fx;
 
+	/* Hack -- Player can see us, run towards him */
+	if (player_has_los_bold(y1, x1)) return (FALSE);
+
 	/* Monster grid */
 	c_ptr = &cave[y1][x1];
 
-	/* The player is not currently near the monster grid */
-	if (c_ptr->when < cave[py][px].when)
+	/* If we can hear noises, advance towards them */
+	if (c_ptr->cost)
 	{
-		/* The player has never been near the monster grid */
-		if (!c_ptr->when) return (FALSE);
+		use_sound = TRUE;
+		best = 999;
 	}
 
-	if (c_ptr->dist > MONSTER_FLOW_DEPTH) return (FALSE);
-	if ((c_ptr->dist > r_ptr->aaf) && !m_ptr->target_y) return (FALSE);
+	/* Otherwise, try to follow a scent trail */
+	else if (c_ptr->when)
+	{
+		/* Too old smell */
+		if (cave[py][px].when - c_ptr->when > 127) return (FALSE);
 
-	/* Hack -- Player can see us, run towards him */
-	if (player_has_los_bold(y1, x1)) return (FALSE);
+		use_scent = TRUE;
+		best = 0;
+	}
+
+	/* Otherwise, advance blindly */
+	else
+	{
+		return (FALSE);
+	}
 
 	/* Check nearby grids, diagonals first */
 	for (i = 7; i >= 0; i--)
 	{
-		int value;
-
 		/* Get the location */
 		y = y1 + ddy_ddd[i];
 		x = x1 + ddx_ddd[i];
@@ -573,22 +586,29 @@ static bool get_moves_aux(int m_idx, int *yp, int *xp)
 
 		c_ptr = &cave[y][x];
 
-		/* Ignore illegal locations */
-		if (!c_ptr->when) continue;
+		/* We're following a scent trail */
+		if (use_scent)
+		{
+			int when = c_ptr->when;
 
-		/* Ignore ancient locations */
-		if (c_ptr->when < when) continue;
+			/* Accept younger scent */
+			if (best > when) continue;
+			best = when;
+		}
 
-		if (r_ptr->flags2 & (RF2_BASH_DOOR | RF2_OPEN_DOOR))
-			value = c_ptr->dist;
-		else value = c_ptr->cost;
+		/* We're using sound */
+		else
+		{
+			int cost;
 
-		/* Ignore distant locations */
-		if (value > cost) continue;
+			if (r_ptr->flags2 & (RF2_BASH_DOOR | RF2_OPEN_DOOR))
+				cost = c_ptr->dist;
+			else cost = c_ptr->cost;
 
-		/* Save the cost and time */
-		when = c_ptr->when;
-		cost = value;
+			/* Accept louder sounds */
+			if ((cost == 0) || (best < cost)) continue;
+			best = cost;
+		}
 
 		/* Hack -- Save the "twiddled" location */
 		(*yp) = py + 16 * ddy_ddd[i];
@@ -596,7 +616,7 @@ static bool get_moves_aux(int m_idx, int *yp, int *xp)
 	}
 
 	/* No legal move (?) */
-	if (!when) return (FALSE);
+	if (best == 999 || best == 0) return (FALSE);
 
 	/* Success */
 	return (TRUE);
@@ -613,11 +633,10 @@ static bool get_moves_aux(int m_idx, int *yp, int *xp)
 static bool get_fear_moves_aux(int m_idx, int *yp, int *xp)
 {
 	int y, x, y1, x1, fy, fx, gy = 0, gx = 0;
-	int when = 0, score = -1;
+	int dist = 0, score = -1;
 	int i;
 
 	monster_type *m_ptr = &m_list[m_idx];
-	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
 	/* Monster flowing disabled */
 	if (stupid_monsters) return (FALSE);
@@ -629,17 +648,6 @@ static bool get_fear_moves_aux(int m_idx, int *yp, int *xp)
 	/* Desired destination */
 	y1 = fy - (*yp);
 	x1 = fx - (*xp);
-
-	/* The player is not currently near the monster grid */
-	if (cave[fy][fx].when < cave[py][px].when)
-	{
-		/* No reason to attempt flowing */
-		return (FALSE);
-	}
-
-	/* Monster is too far away to use flow information */
-	if (cave[fy][fx].dist > MONSTER_FLOW_DEPTH) return (FALSE);
-	if ((cave[fy][fx].dist > r_ptr->aaf) && !m_ptr->target_y) return (FALSE);
 
 	/* Check nearby grids, diagonals first */
 	for (i = 7; i >= 0; i--)
@@ -653,11 +661,7 @@ static bool get_fear_moves_aux(int m_idx, int *yp, int *xp)
 		/* Ignore locations off of edge */
 		if (!in_bounds2(y, x)) continue;
 
-		/* Ignore illegal locations */
-		if (cave[y][x].when == 0) continue;
-
-		/* Ignore ancient locations */
-		if (cave[y][x].when < when) continue;
+		if (cave[y][x].dist < dist) continue;
 
 		/* Calculate distance of this grid from our destination */
 		dis = distance(y, x, y1, x1);
@@ -672,7 +676,7 @@ static bool get_fear_moves_aux(int m_idx, int *yp, int *xp)
 		if (s < score) continue;
 
 		/* Save the score and time */
-		when = cave[y][x].when;
+		dist = cave[y][x].dist;
 		score = s;
 
 		/* Save the location */
@@ -681,7 +685,7 @@ static bool get_fear_moves_aux(int m_idx, int *yp, int *xp)
 	}
 
 	/* No legal move (?) */
-	if (!when) return (FALSE);
+	if (score == -1) return (FALSE);
 
 	/* Find deltas */
 	(*yp) = fy - gy;
@@ -878,7 +882,7 @@ static bool find_safety(int m_idx, int *yp, int *xp)
 			if (!cave_floor_grid(c_ptr)) continue;
 
 			/* Check for "availability" (if monsters can flow) */
-			if (!stupid_monsters && !p_ptr->no_flowed)
+			if (!stupid_monsters && !(m_ptr->mflag2 & MFLAG_NOFLOW))
 			{
 				/* Ignore grids very far from the player */
 				if (c_ptr->when < cave[py][px].when) continue;
@@ -1026,7 +1030,7 @@ static bool get_moves(int m_idx, int *mm)
 	bool         done = FALSE;
 	bool         will_run = mon_will_run(m_idx);
 	cave_type	*c_ptr;
-	bool         no_flow = (p_ptr->no_flowed && (cave[m_ptr->fy][m_ptr->fx].cost > 2));
+	bool         no_flow = ((m_ptr->mflag2 & MFLAG_NOFLOW) && (cave[m_ptr->fy][m_ptr->fx].cost > 2));
 	bool         can_pass_wall;
 
 	/* Flow towards the player */
@@ -2250,7 +2254,7 @@ static void process_monster(int m_idx)
 	/* Players hidden in shadow are almost imperceptable. -LM- */
 	if (p_ptr->special_defense & NINJA_S_STEALTH)
 	{
-		int tmp = p_ptr->lev*8+50;
+		int tmp = p_ptr->lev*6+(p_ptr->skill_stl+10)*4;
 		if (p_ptr->monlite) tmp /= 3;
 		if (p_ptr->aggravate) tmp /= 2;
 		if (r_ptr->level > (p_ptr->lev*p_ptr->lev/20+10)) tmp /= 3;
@@ -2849,13 +2853,6 @@ msg_format("%^s%s", m_name, monmessage);
 	mm[0] = mm[1] = mm[2] = mm[3] = 0;
 	mm[4] = mm[5] = mm[6] = mm[7] = 0;
 
-#ifdef USE_SCRIPT
-	if (monster_move_callback(mm, m_idx))
-	{
-	}
-	else
-#endif /* USE_SCRIPT */
-
 
 	/* Confused -- 100% random */
 	if (m_ptr->confused || !aware)
@@ -3246,7 +3243,7 @@ msg_print("ルーンが爆発した！");
 						msg_print("The rune explodes!");
 #endif
 
-						project(0, 2, ny, nx, 2 * ((p_ptr->lev / 2) + damroll(7, 7)), GF_MANA, (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP | PROJECT_NO_REF | PROJECT_NO_HANGEKI), -1);
+						project(0, 2, ny, nx, 2 * (p_ptr->lev + damroll(7, 7)), GF_MANA, (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP | PROJECT_NO_REF | PROJECT_NO_HANGEKI), -1);
 					}
 				}
 				else
@@ -3537,12 +3534,10 @@ msg_print("爆発のルーンは解除された。");
 							{
 								/* Dump a message */
 #ifdef JP
-msg_format("%^sは%sを拾おうとしたが、だめだった。",
+msg_format("%^sは%sを拾おうとしたが、だめだった。", m_name, o_name);
 #else
-								msg_format("%^s tries to pick up %s, but fails.",
+msg_format("%^s tries to pick up %s, but fails.", m_name, o_name);
 #endif
-
-									m_name, o_name);
 							}
 						}
 					}
@@ -3613,6 +3608,12 @@ msg_format("%^sが%sを破壊した。", m_name, o_name);
 		if (do_turn) break;
 	}
 
+	/*
+	 *  Forward movements failed, but now recieved LOS attack!
+	 *  Try to flow by smell.
+	 */
+	if (p_ptr->no_flowed && i > 2 &&  m_ptr->target_y)
+		m_ptr->mflag2 &= ~MFLAG_NOFLOW;
 
 	/* If we haven't done anything, try casting a spell again */
 	if (!do_turn && !do_move && !m_ptr->monfear && !stupid_monsters && !(p_ptr->riding == m_idx) && aware)
@@ -3821,6 +3822,11 @@ void process_monsters(void)
 		fx = m_ptr->fx;
 		fy = m_ptr->fy;
 
+		/* Flow by smell is allowed */
+		if (!stupid_monsters && !p_ptr->no_flowed)
+		{
+			m_ptr->mflag2 &= ~MFLAG_NOFLOW;
+		}
 
 		/* Assume no move */
 		test = FALSE;
@@ -3842,7 +3848,7 @@ void process_monsters(void)
 
 		/* Hack -- Monsters can "smell" the player from far away */
 		/* Note that most monsters have "aaf" of "20" or so */
-		else if (!stupid_monsters && !p_ptr->no_flowed &&
+		else if (!stupid_monsters && !(m_ptr->mflag2 & MFLAG_NOFLOW) &&
 			(cave_floor_bold(py, px) || (cave[py][px].feat == FEAT_TREES)) &&
 			(cave[py][px].when == cave[fy][fx].when) &&
 			(cave[fy][fx].dist < MONSTER_FLOW_DEPTH) &&
@@ -3895,6 +3901,10 @@ void process_monsters(void)
 
 		m_ptr->target_y = 0;
 		m_ptr->target_x = 0;
+
+		/* Give up flow_by_smell when it might useless */
+		if (p_ptr->no_flowed && one_in_(3))
+			m_ptr->mflag2 |= MFLAG_NOFLOW;
 
 		/* Hack -- notice death or departure */
 		if (!alive || death) break;
@@ -4083,34 +4093,15 @@ void monster_gain_exp(int m_idx, int s_idx)
 
 		if (is_pet(m_ptr) || m_ptr->ml)
 		{
+#ifdef JP
 			msg_format("%sは%sに進化した。", m_name, r_name + r_ptr->name);
+#else
+			msg_format("%^s evolved into %s.", m_name, r_name + r_ptr->name);
+#endif
 			r_info[old_r_idx].r_xtra1 |= MR1_SINKA;
 		}
 		update_mon(m_idx, FALSE);
 		lite_spot(m_ptr->fy, m_ptr->fx);
 	}
 	if (m_idx == p_ptr->riding) p_ptr->update |= PU_BONUS;
-}
-
-
-/*
- * エネルギーの増加量10d5を速く計算するための関数
- */
-
-#define Go_no_JuuJou 5*5*5*5*5*5*5*5*5*5
-
-s32b gain_energy(void)
-{
-	int i;
-	s32b energy_result = 10;
-	s32b tmp;
-
-	tmp = rand_int(Go_no_JuuJou);
-
-	for (i = 0; i < 9; i ++){
-		energy_result += tmp % 5;
-		tmp /= 5;
-	}
-
-	return energy_result + tmp;
 }

@@ -422,7 +422,7 @@ sprintf(dummy, "%sを装備すると吸血鬼になります。よろしいですか？", o_name);
 		{
 			if (record_fix_quest) do_cmd_write_nikki(NIKKI_FIX_QUEST_C, i, NULL);
 			quest[i].status = QUEST_STATUS_COMPLETED;
-			quest[i].complev = p_ptr->lev;
+			quest[i].complev = (byte)p_ptr->lev;
 #ifdef JP
 msg_print("クエストを達成した！");
 #else
@@ -1007,12 +1007,6 @@ void do_cmd_destroy(void)
 			if (!get_check(out_val)) return;
 		}
 	}
-
-#ifdef USE_SCRIPT
-
-	if (destroy_object_callback(o_ptr, amt)) return;
-
-#endif /* USE_SCRIPT */
 
 	/* Take a turn */
 	energy_use = 100;
@@ -2677,9 +2671,6 @@ void do_cmd_query_symbol(void)
 	u16b	why = 0;
 	u16b	*who;
 
-	/* Allocate the "who" array */
-	C_MAKE(who, max_r_idx, u16b);
-
 	/* Get a character, or abort */
 #ifdef JP
 	if (!get_com("知りたい文字を入力して下さい(記号 or ^A全,^Uユ,^N非ユ,^M名前): ", &sym, FALSE)) return;
@@ -2731,14 +2722,17 @@ void do_cmd_query_symbol(void)
 		all = TRUE;
 #ifdef JP
 		if (!get_string("名前(英語の場合小文字で可)",temp, 70))
-			temp[0]=0;
-		else
-			sprintf(buf, "名前:%sにマッチ",temp);
 #else
 		if (!get_string("Enter name:",temp, 70))
+#endif
+		{
 			temp[0]=0;
-		else
-			sprintf(buf, "List of '%s'",temp);
+			return;
+		}
+#ifdef JP
+		sprintf(buf, "名前:%sにマッチ",temp);
+#else
+		sprintf(buf, "Monsters with a name \"%s\"",temp);
 #endif
 	}
 	else if (ident_info[i])
@@ -2758,6 +2752,8 @@ void do_cmd_query_symbol(void)
 	/* Display the result */
 	prt(buf, 0, 0);
 
+	/* Allocate the "who" array */
+	C_MAKE(who, max_r_idx, u16b);
 
 	/* Collect matching monsters */
 	for (n = 0, i = 1; i < max_r_idx; i++)
@@ -2786,7 +2782,7 @@ void do_cmd_query_symbol(void)
 		  }
   
 #ifdef JP
-		  strcpy(temp2, E_r_name+r_ptr->E_name);
+		  strcpy(temp2, r_name+r_ptr->E_name);
 #else
 		  strcpy(temp2, r_name+r_ptr->name);
 #endif
@@ -2805,7 +2801,13 @@ void do_cmd_query_symbol(void)
 	}
 
 	/* Nothing to recall */
-	if (!n) return;
+	if (!n)
+	{
+		/* Free the "who" array */
+		C_KILL(who, max_r_idx, u16b);
+
+		return;
+	}
 
 
 	/* Prompt XXX XXX XXX */
@@ -2839,7 +2841,13 @@ void do_cmd_query_symbol(void)
 	}
 
 	/* Catch "escape" */
-	if (query != 'y') return;
+	if (query != 'y')
+	{
+		/* Free the "who" array */
+		C_KILL(who, max_r_idx, u16b);
+
+		return;
+	}
 
 	/* Sort if needed */
 	if (why == 4)
@@ -2941,6 +2949,9 @@ void do_cmd_query_symbol(void)
 		}
 	}
 
+	/* Free the "who" array */
+	C_KILL(who, max_r_idx, u16b);
+
 	/* Re-display the identity */
 	prt(buf, 0, 0);
 }
@@ -3000,9 +3011,6 @@ if (!get_com("モンスターの文字を入力して下さい(記号 or ^A全,^Uユ,^N非ユ,^M名前):
 		return (FALSE);
 	}
 
-	/* Allocate the "who" array */
-	C_MAKE(who, max_r_idx, u16b);
-
 	/* Find that character info, and describe it */
 	for (i = 0; ident_info[i]; ++i)
 	{
@@ -3042,14 +3050,17 @@ if (!get_com("モンスターの文字を入力して下さい(記号 or ^A全,^Uユ,^N非ユ,^M名前):
 		all = TRUE;
 #ifdef JP
 		if (!get_string("名前(英語の場合小文字で可)",temp, 70))
-			temp[0]=0;
-		else
-			sprintf(buf, "名前:%sにマッチ",temp);
 #else
 		if (!get_string("Enter name:",temp, 70))
+#endif
+		{
 			temp[0]=0;
-		else
-			sprintf(buf, "List of '%s'",temp);
+			return FALSE;
+		}
+#ifdef JP
+		sprintf(buf, "名前:%sにマッチ",temp);
+#else
+		sprintf(buf, "Monsters with a name \"%s\"",temp);
 #endif
 	}
 	else if (ident_info[i])
@@ -3069,6 +3080,9 @@ sprintf(buf, "%c - %s", sym, "無効な文字");
 	/* Display the result */
 	prt(buf, 16, 10);
 
+
+	/* Allocate the "who" array */
+	C_MAKE(who, max_r_idx, u16b);
 
 	/* Collect matching monsters */
 	for (n = 0, i = 1; i < max_r_idx; i++)
@@ -3097,7 +3111,7 @@ sprintf(buf, "%c - %s", sym, "無効な文字");
 		  }
   
 #ifdef JP
-		  strcpy(temp2, E_r_name+r_ptr->E_name);
+		  strcpy(temp2, r_name+r_ptr->E_name);
 #else
 		  strcpy(temp2, r_name+r_ptr->name);
 #endif

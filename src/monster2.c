@@ -152,18 +152,6 @@ cptr funny_comments[MAX_SAN_COMMENT] =
 };
 
 
-int get_wilderness_flag(void)
-{
-	int x = p_ptr->wilderness_x;
-	int y = p_ptr->wilderness_y;
-
-	if (dun_level)
-		return (RF8_DUNGEON);
-	else
-		return (1L << wilderness[y][x].terrain);
-}
-
-
 /*
  * Delete a monster by index.
  *
@@ -230,10 +218,6 @@ void delete_monster_idx(int i)
 
 	/* Count monsters */
 	m_cnt--;
-
-#ifdef USE_SCRIPT
-	delete_monster_callback(i);
-#endif /* USE_SCRIPT */
 
 	/* Visual update */
 	lite_spot(y, x);
@@ -322,10 +306,6 @@ static void compact_monsters_aux(int i1, int i2)
 
 	/* Wipe the hole */
 	(void)WIPE(&m_list[i1], monster_type);
-
-#ifdef USE_SCRIPT
-	copy_monster_callback(i1, i2);
-#endif /* USE_SCRIPT */
 
 }
 
@@ -431,6 +411,23 @@ void wipe_m_list(void)
 {
 	int i;
 
+	/* Hack -- if Banor or Lupart dies, stay another dead */
+	if (!r_info[MON_BANORLUPART].max_num)
+	{
+		if (r_info[MON_BANOR].max_num)
+		{
+			r_info[MON_BANOR].max_num = 0;
+			r_info[MON_BANOR].r_pkills++;
+			if (r_info[MON_BANOR].r_tkills < MAX_SHORT) r_info[MON_BANOR].r_tkills++;
+		}
+		if (r_info[MON_LUPART].max_num)
+		{
+			r_info[MON_LUPART].max_num = 0;
+			r_info[MON_LUPART].r_pkills++;
+			if (r_info[MON_LUPART].r_tkills < MAX_SHORT) r_info[MON_LUPART].r_tkills++;
+		}
+	}
+
 	/* Delete all the monsters */
 	for (i = m_max - 1; i >= 1; i--)
 	{
@@ -452,9 +449,6 @@ void wipe_m_list(void)
 		/* Wipe the Monster */
 		(void)WIPE(m_ptr, monster_type);
 
-#ifdef USE_SCRIPT
-		delete_monster_callback(i);
-#endif /* USE_SCRIPT */
 	}
 
 	/* Reset "m_max" */
@@ -597,19 +591,19 @@ static bool summon_specific_aux(int r_idx)
 
 		case SUMMON_DEMON:
 		{
-			okay = (r_ptr->flags3 & RF3_DEMON);
+			okay = (bool)(r_ptr->flags3 & RF3_DEMON);
 			break;
 		}
 
 		case SUMMON_UNDEAD:
 		{
-			okay = (r_ptr->flags3 & RF3_UNDEAD);
+			okay = (bool)(r_ptr->flags3 & RF3_UNDEAD);
 			break;
 		}
 
 		case SUMMON_DRAGON:
 		{
-			okay = (r_ptr->flags3 & RF3_DRAGON);
+			okay = (bool)(r_ptr->flags3 & RF3_DRAGON);
 			break;
 		}
 
@@ -714,7 +708,7 @@ static bool summon_specific_aux(int r_idx)
 
 		case SUMMON_ANIMAL:
 		{
-			okay = (r_ptr->flags3 & (RF3_ANIMAL));
+			okay = (bool)(r_ptr->flags3 & (RF3_ANIMAL));
 			break;
 		}
 
@@ -2497,9 +2491,19 @@ void choose_new_monster(int m_idx, bool born, int r_idx)
 
 	if (m_idx == p_ptr->riding)
 	{
+		char m_name[80];
+		monster_desc(m_name, m_ptr, 0);
+#ifdef JP
 		msg_format("突然%sが変身した。", old_m_name);
+#else
+		msg_format("Suddenly, %s transforms!", old_m_name);
+#endif
 		if (!(r_ptr->flags7 & RF7_RIDING))
+#ifdef JP
 			if (rakuba(0, TRUE)) msg_print("地面に落とされた。");
+#else
+			if (rakuba(0, TRUE)) msg_format("You have fallen from %s.", m_name);
+#endif
 	}
 
 	/* Extract the monster base speed */
@@ -2552,6 +2556,7 @@ void choose_new_monster(int m_idx, bool born, int r_idx)
 bool place_monster_one(int y, int x, int r_idx, bool slp, bool friendly, bool pet, bool no_pet)
 {
 	int			i;
+	int rune_dam = 0;
 
 	cave_type		*c_ptr;
 
@@ -2574,20 +2579,22 @@ bool place_monster_one(int y, int x, int r_idx, bool slp, bool friendly, bool pe
 	    !(cave_perma_bold(y, x) || cave[y][x].m_idx ||
 	    ((y == py) && (x == px))))) return (FALSE);
 
-	/* Hack -- no creation on glyph of warding */
-	if (cave[y][x].feat == FEAT_GLYPH) return (FALSE);
-	if (cave[y][x].feat == FEAT_MINOR_GLYPH) return (FALSE);
-
-	/* Nor on the Pattern */
-	if ((cave[y][x].feat >= FEAT_PATTERN_START)
-	 && (cave[y][x].feat <= FEAT_PATTERN_XTRA2))
-		return (FALSE);
-
 	/* Paranoia */
 	if (!r_idx) return (FALSE);
 
 	/* Paranoia */
 	if (!r_ptr->name) return (FALSE);
+
+#if 0
+	/* Hack -- no creation on glyph of warding */
+	if (cave[y][x].feat == FEAT_GLYPH) return (FALSE);
+	if (cave[y][x].feat == FEAT_MINOR_GLYPH) return (FALSE);
+#endif
+
+	/* Nor on the Pattern */
+	if ((cave[y][x].feat >= FEAT_PATTERN_START)
+	 && (cave[y][x].feat <= FEAT_PATTERN_XTRA2))
+		return (FALSE);
 
 	if (monster_terrain_sensitive &&
 	    !monster_can_cross_terrain(cave[y][x].feat, r_ptr))
@@ -2666,6 +2673,39 @@ bool place_monster_one(int y, int x, int r_idx, bool slp, bool friendly, bool pe
 		}
 	}
 
+	/* Access the location */
+	c_ptr = &cave[y][x];
+
+	if (c_ptr->feat == FEAT_GLYPH)
+	{
+		if (randint(BREAK_GLYPH) < (r_ptr->level+20))
+		{
+			/* Describe observable breakage */
+			if (c_ptr->info & CAVE_MARK)
+			{
+#ifdef JP
+msg_print("守りのルーンが壊れた！");
+#else
+				msg_print("The rune of protection is broken!");
+#endif
+
+			}
+
+			/* Forget the rune */
+			c_ptr->info &= ~(CAVE_MARK);
+
+			/* Break the rune */
+			c_ptr->feat = floor_type[rand_int(100)];
+			c_ptr->info &= ~(CAVE_MASK);
+			c_ptr->info |= CAVE_FLOOR;
+
+			/* Notice */
+			note_spot(y, x);
+			rune_dam = 1000;
+		}
+		else return FALSE;
+	}
+
 	/* Powerful monster */
 	if (r_ptr->level > dun_level)
 	{
@@ -2713,9 +2753,6 @@ bool place_monster_one(int y, int x, int r_idx, bool slp, bool friendly, bool pe
 	}
 
 	if ((r_ptr->flags1 & RF1_UNIQUE) || (r_ptr->flags7 & RF7_UNIQUE_7) || (r_ptr->level < 10)) is_kage = FALSE;
-
-	/* Access the location */
-	c_ptr = &cave[y][x];
 
 	/* Make a new monster */
 	c_ptr->m_idx = m_pop();
@@ -2878,29 +2915,90 @@ bool place_monster_one(int y, int x, int r_idx, bool slp, bool friendly, bool pe
 	/* Hack -- Notice new multi-hued monsters */
 	if (r_ptr->flags1 & RF1_ATTR_MULTI) shimmer_monsters = TRUE;
 
-#ifdef USE_SCRIPT
-	create_monster_callback(c_ptr->m_idx);
-#endif /* USE_SCRIPT */
-
 	if (p_ptr->warning && character_dungeon)
 	{
 		cptr color;
 		if (r_ptr->flags1 & RF1_UNIQUE)
 		{
 			if (r_ptr->level > p_ptr->lev + 30)
+#ifdef JP
 				color = "黒く";
+#else
+				color = "black";
+#endif
 			else if (r_ptr->level > p_ptr->lev + 15)
+#ifdef JP
 				color = "紫色に";
+#else
+				color = "perple";
+#endif
 			else if (r_ptr->level > p_ptr->lev + 5)
+#ifdef JP
 				color = "ルビー色に";
+#else
+				color = "deep red";
+#endif
 			else if (r_ptr->level > p_ptr->lev - 5)
+#ifdef JP
 				color = "赤く";
+#else
+				color = "red";
+#endif
 			else if (r_ptr->level > p_ptr->lev - 15)
+#ifdef JP
 				color = "ピンク色に";
+#else
+				color = "pink";
+#endif
 			else
+#ifdef JP
 				color = "白く";
+#else
+				color = "white";
+#endif
+#ifdef JP
 			msg_format("指輪は%s光った。",color);
+#else
+			msg_format("Your ring glows %s.",color);
+#endif
 		}
+	}
+
+	if (c_ptr->feat == FEAT_MINOR_GLYPH)
+	{
+		/* Break the ward */
+		if (randint(BREAK_MINOR_GLYPH) > r_ptr->level)
+		{
+			/* Describe observable breakage */
+			if (c_ptr->info & CAVE_MARK)
+			{
+#ifdef JP
+msg_print("ルーンが爆発した！");
+#else
+				msg_print("The rune explodes!");
+#endif
+
+				project(0, 2, y, x, 2 * (p_ptr->lev + damroll(7, 7)), GF_MANA, (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP | PROJECT_NO_REF | PROJECT_NO_HANGEKI), -1);
+			}
+		}
+		else
+		{
+#ifdef JP
+msg_print("爆発のルーンは解除された。");
+#else
+			msg_print("An explosive rune was disarmed.");
+#endif
+		}
+
+		/* Forget the rune */
+		c_ptr->info &= ~(CAVE_MARK);
+
+		/* Break the rune */
+		c_ptr->feat = floor_type[rand_int(100)];
+		c_ptr->info &= ~(CAVE_MASK);
+		c_ptr->info |= CAVE_FLOOR;
+		note_spot(y, x);
+		lite_spot(y, x);
 	}
 
 	/* Success */
@@ -2942,9 +3040,11 @@ static bool mon_scatter(int *yp, int *xp, int y, int x, int max_dist)
 			if (cave[ny][nx].m_idx) continue;
 			if ((ny == py) && (nx == px)) continue;
 			
+#if 0
 			/* Hack -- no summon on glyph of warding */
 			if (cave[ny][nx].feat == FEAT_GLYPH) continue;
 			if (cave[ny][nx].feat == FEAT_MINOR_GLYPH) continue;
+#endif
 			
 			/* ... nor on the Pattern */
 			if ((cave[ny][nx].feat >= FEAT_PATTERN_START) &&
@@ -3563,7 +3663,7 @@ bool multiply_monster(int m_idx, bool clone, bool friendly, bool pet)
 		return FALSE;
 
 	/* Create a new monster (awake, no groups) */
-	if (!place_monster_aux(y, x, m_ptr->r_idx, FALSE, FALSE, friendly, pet, TRUE, (m_ptr->mflag2 & MFLAG_NOPET)))
+	if (!place_monster_aux(y, x, m_ptr->r_idx, FALSE, FALSE, friendly, pet, TRUE, (bool)(m_ptr->mflag2 & MFLAG_NOPET)))
 		return FALSE;
 
 	if (clone)

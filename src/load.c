@@ -488,17 +488,7 @@ static void rd_item(object_type *o_ptr)
 		s32b tmp32s;
 
 		rd_s32b(&tmp32s);
-#ifdef USE_SCRIPT
-		if (tmp32s)
-		{
-			char *python_object = (char*) malloc(tmp32s + 1);
-			rd_string(python_object, tmp32s + 1);
-			o_ptr->python = object_load_callback(python_object);
-			free(python_object);
-		}
-#else /* USE_SCRIPT */
 		strip_bytes(tmp32s);
-#endif /* USE_SCRIPT */
 	}
 
 	/* Mega-Hack -- handle "dungeon objects" later */
@@ -1292,7 +1282,7 @@ static void rd_extra(void)
 	if (z_older_than(10, 4, 1))
 	{
 		if (p_ptr->pclass != CLASS_BEASTMASTER) skill_exp[GINOU_RIDING] /= 2;
-		skill_exp[GINOU_RIDING] = MIN(skill_exp[GINOU_RIDING], skill_exp_settei[p_ptr->pclass][GINOU_RIDING][1]);
+		skill_exp[GINOU_RIDING] = MIN(skill_exp[GINOU_RIDING], s_info[p_ptr->pclass].s_max[GINOU_RIDING]);
 	}
 	if (z_older_than(10, 3, 14))
 	{
@@ -1429,10 +1419,15 @@ static void rd_extra(void)
 
 	/* Read arena and rewards information */
 	rd_s16b(&p_ptr->arena_number);
-	rd_s16b(&p_ptr->inside_arena);
+	rd_s16b(&tmp16s);
+	p_ptr->inside_arena = (bool)tmp16s;
 	rd_s16b(&p_ptr->inside_quest);
 	if (z_older_than(10, 3, 5)) p_ptr->inside_battle = FALSE;
-	else rd_s16b(&p_ptr->inside_battle);
+	else
+	{
+		rd_s16b(&tmp16s);
+		p_ptr->inside_battle = (bool)tmp16s;
+	}
 	rd_byte(&p_ptr->exit_bldg);
 	rd_byte(&p_ptr->leftbldg);
 
@@ -1469,7 +1464,7 @@ note(format("の中", tmp16s));
 	}
 	else
 	{
-                byte max = max_d_idx;
+                byte max = (byte)max_d_idx;
 
                 rd_byte(&max);
 
@@ -1518,7 +1513,10 @@ note(format("の中", tmp16s));
 	if (z_older_than(10, 3, 8))
 		p_ptr->recall_dungeon = DUNGEON_ANGBAND;
 	else
-		rd_s16b(&p_ptr->recall_dungeon);
+	{
+		rd_s16b(&tmp16s);
+		p_ptr->recall_dungeon = (byte)tmp16s;
+	}
 	rd_s16b(&p_ptr->see_infra);
 	rd_s16b(&p_ptr->tim_infra);
 	rd_s16b(&p_ptr->oppose_fire);
@@ -1756,7 +1754,7 @@ note(format("の中", tmp16s));
 	}
 	if (!z_older_than(11, 0, 5))
 	{
-		rd_s32b(&p_ptr->count);
+		rd_u32b(&p_ptr->count);
 	}
 }
 
@@ -1918,8 +1916,10 @@ static errr rd_dungeon(void)
 	rd_s16b(&base_level);
 
 	rd_s16b(&num_repro);
-	rd_s16b(&py);
-	rd_s16b(&px);
+	rd_s16b(&tmp16s);
+	py = (int)tmp16s;
+	rd_s16b(&tmp16s);
+	px = (int)tmp16s;
 	if (z_older_than(10, 3, 13) && !dun_level && !p_ptr->inside_arena) {py = 33;px = 131;}
 	rd_s16b(&cur_hgt);
 	rd_s16b(&cur_wid);
@@ -2533,7 +2533,7 @@ note(format("クエストが多すぎる(%u)！", max_quests_load));
 
 							if(r_ptr->flags7 & RF7_AQUATIC) continue;
 
-							if(!(r_ptr->flags8 & RF8_DUNGEON)) continue;
+							if(r_ptr->flags8 & RF8_WILD_ONLY) continue;
 
 							/*
 							 * Accept monsters that are 2 - 6 levels
@@ -2703,8 +2703,6 @@ note(format("ヒットポイント配列が大きすぎる(%u)！", tmp16u));
 		rd_s16b(&player_hp[i]);
 	}
 
-	if(p_ptr->pseikaku == SEIKAKU_SEXY)
-		weapon_exp_settei[p_ptr->pclass][TV_HAFTED-TV_BOW][SV_WHIP][1] = 8000;
 	/* Important -- Initialize the sex */
 	sp_ptr = &sex_info[p_ptr->psex];
 
@@ -2735,7 +2733,7 @@ note(format("ヒットポイント配列が大きすぎる(%u)！", tmp16u));
 	}
 
 	/* Important -- Initialize the magic */
-	mp_ptr = &magic_info[p_ptr->pclass];
+	mp_ptr = &m_info[p_ptr->pclass];
 
 
 	/* Read spell info */
@@ -2842,6 +2840,13 @@ note("持ち物情報を読み込むことができません");
 		rd_s16b(&p_ptr->pet_extra_flags);
 	}
 
+	if (!z_older_than(11, 0, 9))
+	{
+		char buf[SCREEN_BUF_SIZE];
+		rd_string(buf, SCREEN_BUF_SIZE);
+		if (buf[0]) screen_dump = string_make(buf);
+	}
+
 	if (death)
 	{
 		for (i = MIN_RANDOM_QUEST; i < MAX_RANDOM_QUEST + 1; i++)
@@ -2879,17 +2884,7 @@ note("ダンジョンデータ読み込み失敗");
 			s32b tmp32s;
 
 			rd_s32b(&tmp32s);
-#ifdef USE_SCRIPT
-			if (tmp32s)
-			{
-				char *callbacks = (char*) malloc(tmp32s + 1);
-				rd_string(callbacks, tmp32s + 1);
-				callbacks_load_callback(callbacks);
-				free(callbacks);
-			}
-#else /* USE_SCRIPT */
 			strip_bytes(tmp32s);
-#endif /* USE_SCRIPT */
 		}
 	}
 

@@ -419,7 +419,11 @@ msg_print("あなたは混乱した！");
 
 			if (p_ptr->action == ACTION_KAMAE)
 			{
+#ifdef JP
 				msg_print("構えがとけた。");
+#else
+				msg_print("Your posture gets loose.");
+#endif
 				p_ptr->special_defense &= ~(KAMAE_MASK);
 				p_ptr->update |= (PU_BONUS);
 				p_ptr->redraw |= (PR_STATE);
@@ -427,7 +431,11 @@ msg_print("あなたは混乱した！");
 			}
 			else if (p_ptr->action == ACTION_KATA)
 			{
+#ifdef JP
 				msg_print("型が崩れた。");
+#else
+				msg_print("Your posture gets loose.");
+#endif
 				p_ptr->special_defense &= ~(KATA_MASK);
 				p_ptr->update |= (PU_BONUS);
 				p_ptr->update |= (PU_MONSTERS);
@@ -565,7 +573,11 @@ msg_print("何もかも恐くなってきた！");
 
 			if (p_ptr->special_defense & KATA_MASK)
 			{
+#ifdef JP
 				msg_print("型が崩れた。");
+#else
+				msg_print("Your posture gets loose.");
+#endif
 				p_ptr->special_defense &= ~(KATA_MASK);
 				p_ptr->update |= (PU_BONUS);
 				p_ptr->update |= (PU_MONSTERS);
@@ -3338,7 +3350,11 @@ msg_print("割れるような頭痛がする。");
 		}
 		if (p_ptr->special_defense & KATA_MASK)
 		{
+#ifdef JP
 			msg_print("型が崩れた。");
+#else
+			msg_print("Your posture gets loose.");
+#endif
 			p_ptr->special_defense &= ~(KATA_MASK);
 			p_ptr->update |= (PU_BONUS);
 			p_ptr->update |= (PU_MONSTERS);
@@ -4965,6 +4981,9 @@ msg_format("You are beaten by %s.", r_name+r_info[arena_monsters[p_ptr->arena_nu
 		}
 		else
 		{
+			/* Make screen dump */
+			screen_dump = make_screen_dump();
+
 			/* Note cause of death */
 			(void)strcpy(died_from, hit_from);
 
@@ -5131,7 +5150,11 @@ get_rnd_line("death_j.txt", 0, death_message);
 
 		if (record_danger && (old_chp > warning))
 		{
+#ifdef JP
 			sprintf(tmp,"%sによってピンチに陥いった。",hit_from);
+#else
+			sprintf(tmp,"A critical situation because of %s.",hit_from);
+#endif
 			do_cmd_write_nikki(NIKKI_BUNSHOU, 0, tmp);
 		}
 

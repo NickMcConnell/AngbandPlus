@@ -24,9 +24,9 @@ extern char *macro_trigger_keycode[2][MAX_MACRO_TRIG];
 extern int level_up;
 
 extern int max_autopick;
-extern char *autopick_name[MAX_AUTOPICK];
-extern char *autopick_insc[MAX_AUTOPICK];
-extern s16b autopick_action[MAX_AUTOPICK];
+extern cptr autopick_name[MAX_AUTOPICK];
+extern cptr autopick_insc[MAX_AUTOPICK];
+extern byte autopick_action[MAX_AUTOPICK];
 
 /* tables.c */
 extern s16b ddd[9];
@@ -72,7 +72,6 @@ extern s32b player_exp_a[PY_MAX_LEVEL];
 extern player_sex sex_info[MAX_SEXES];
 extern player_race race_info[MAX_RACES];
 extern player_class class_info[MAX_CLASS];
-extern player_magic magic_info[MAX_CLASS];
 extern magic_type technic_info[NUM_TECHNIC][32];
 extern player_seikaku seikaku_info[MAX_SEIKAKU];
 extern player_race mimic_info[];
@@ -97,8 +96,6 @@ extern int chaos_rewards[MAX_PATRON][20];
 extern martial_arts ma_blows[MAX_MA];
 extern int monk_ave_damage[PY_MAX_LEVEL+1][3];
 extern cptr game_inscriptions[];
-extern s16b weapon_exp_settei[MAX_CLASS][5][64][2];
-extern s16b skill_exp_settei[MAX_CLASS][10][2];
 extern kamae kamae_shurui[MAX_KAMAE];
 extern kamae kata_shurui[MAX_KATA];
 extern cptr shougou_moji[5];
@@ -289,9 +286,6 @@ extern bool equippy_chars;
 extern bool use_command;
 extern bool center_player;
 extern bool center_running;
-extern bool display_pick;
-extern bool display_nopick;
-extern bool display_destroy;
 extern bool destroy_items;
 extern bool leave_worth;
 extern bool leave_equip;
@@ -329,8 +323,8 @@ extern s16b panel_row, panel_col;
 extern s16b panel_row_min, panel_row_max;
 extern s16b panel_col_min, panel_col_max;
 extern s16b panel_col_prt, panel_row_prt;
-extern s16b py;
-extern s16b px;
+extern int py;
+extern int px;
 extern s16b target_who;
 extern s16b target_col;
 extern s16b target_row;
@@ -405,46 +399,30 @@ extern u32b spell_forgotten1;
 extern u32b spell_forgotten2;
 extern byte spell_order[64];
 extern s16b player_hp[PY_MAX_LEVEL];
-extern header *v_head;
 extern vault_type *v_info;
 extern char *v_name;
 extern char *v_text;
-extern header *f_head;
+extern skill_table *s_info;
+extern char *s_name;
+extern char *s_text;
+extern player_magic *m_info;
+extern char *m_name;
+extern char *m_text;
 extern feature_type *f_info;
 extern char *f_name;
-#ifdef JP
-extern char *E_f_name;                  /* 英語地形名 */
-#endif
 extern char *f_text;
-extern header *k_head;
 extern object_kind *k_info;
 extern char *k_name;
-#ifdef JP
-extern char *E_k_name;                  /* 英語アイテム名 */
-#endif
 extern char *k_text;
-extern header *a_head;
 extern artifact_type *a_info;
 extern char *a_name;
-#ifdef JP
-extern char *E_a_name;                  /* 英語伝説のアイテム名 */
-#endif
 extern char *a_text;
-extern header *e_head;
 extern ego_item_type *e_info;
 extern char *e_name;
-#ifdef JP
-extern char *E_e_name;                  /* 英語名のあるアイテム名 */
-#endif
 extern char *e_text;
-extern header *r_head;
 extern monster_race *r_info;
 extern char *r_name;
-#ifdef JP
-extern char *E_r_name;                  /* 英語モンスター名 */
-#endif
 extern char *r_text;
-extern header *d_head;
 extern dungeon_info_type *d_info;
 extern char *d_name;
 extern char *d_text;
@@ -548,12 +526,13 @@ extern bool new_mane;
 extern bool mon_fight;
 extern bool ambush_flag;
 extern bool generate_encounter;
+extern cptr screen_dump;
 extern byte dungeon_type;
 extern s16b *max_dlv;
 extern byte feat_wall_outer;
 extern byte feat_wall_inner;
 extern byte feat_wall_solid;
-extern s16b floor_type[100], fill_type[100];
+extern byte floor_type[100], fill_type[100];
 extern bool now_damaged;
 extern s16b now_message;
 extern bool use_menu;
@@ -594,6 +573,7 @@ extern void update_mon_lite(void);
 extern void clear_mon_lite(void);
 extern void forget_flow(void);
 extern void update_flow(void);
+extern void update_smell(void);
 extern void map_area(int range);
 extern void wiz_lite(bool wizard, bool ninja);
 extern void wiz_dark(void);
@@ -751,18 +731,14 @@ extern errr get_rnd_line(cptr file_name, int entry, char *output);
 #ifdef JP
 extern errr get_rnd_line_jonly(cptr file_name, int entry, char *output, int count);
 #endif
+extern errr counts_write(int where, u32b count);
+extern u32b counts_read(int where);
+
 /* generate.c */
 extern void place_closed_door(int y, int x);
 extern void generate_cave(void);
 
 /* init1.c */
-extern errr init_v_info_txt(FILE *fp, char *buf, bool start);
-extern errr init_f_info_txt(FILE *fp, char *buf);
-extern errr init_k_info_txt(FILE *fp, char *buf);
-extern errr init_a_info_txt(FILE *fp, char *buf);
-extern errr init_e_info_txt(FILE *fp, char *buf);
-extern errr init_r_info_txt(FILE *fp, char *buf);
-extern errr init_d_info_txt(FILE *fp, char *buf);
 extern errr process_dungeon_file(cptr name, int ymin, int xmin, int ymax, int xmax);
 
 /* init2.c */
@@ -771,15 +747,6 @@ extern errr init_v_info(void);
 extern void init_file_paths(char *path);
 extern void init_angband(void);
 extern errr init_buildings(void);
-#ifdef ALLOW_TEMPLATES
-extern s16b error_idx;
-extern s16b error_line;
-extern u32b fake_name_size;
-extern u32b fake_text_size;
-#ifdef JP
-extern u32b E_fake_name_size;         /* 英語名用 */
-#endif
-#endif /* ALLOW_TEMPLATES */
 
 /* load.c */
 extern errr rd_savefile_new(void);
@@ -793,7 +760,6 @@ extern void curse_equipment(int chance, int heavy_chance);
 extern void mon_take_hit_mon(bool is_psy_spear, int m_idx, int dam, bool *fear, cptr note, int who);
 extern bool process_the_world(int num, int who, bool vs_player);
 extern void monster_gain_exp(int m_idx, int s_idx);
-extern s32b gain_energy(void);
 
 /* monster1.c */
 extern void screen_roff(int r_idx, int remember);
@@ -804,7 +770,6 @@ extern void create_name(int type, char *name);
 extern cptr horror_desc[MAX_SAN_HORROR];
 extern cptr funny_desc[MAX_SAN_FUNNY];
 extern cptr funny_comments[MAX_SAN_COMMENT];
-extern int get_wilderness_flag(void);
 extern void sanity_blast(monster_type *m_ptr, bool necro);
 extern void delete_monster_idx(int i);
 extern void delete_monster(int y, int x);
@@ -889,6 +854,7 @@ extern void display_equip(void);
 extern int show_inven(int target_item);
 extern int show_equip(int target_item);
 extern void toggle_inven_equip(void);
+extern bool can_get_item(void);
 extern bool get_item(int *cp, cptr pmt, cptr str, int mode);
 extern void excise_object_idx(int o_idx);
 extern void delete_object_idx(int o_idx);
@@ -1052,7 +1018,7 @@ extern bool item_tester_hook_recharge(object_type *o_ptr);
 extern bool project_hook(int typ, int dir, int dam, int flg);
 extern bool project_hack(int typ, int dam);
 extern bool eat_magic(int power);
-extern void discharge_minion(bool force);
+extern void discharge_minion(void);
 extern void kawarimi(bool success);
 
 /* spells3.c */
@@ -1186,6 +1152,7 @@ extern void clear_from(int row);
 extern bool askfor_aux(char *buf, int len);
 extern bool get_string(cptr prompt, char *buf, int len);
 extern bool get_check(cptr prompt);
+extern bool get_check_strict(cptr prompt, int mode);
 extern bool get_com(cptr prompt, char *command, bool z_escape);
 extern s16b get_quantity(cptr prompt, int max);
 extern void pause_line(int row);
@@ -1205,6 +1172,7 @@ extern void build_gamma_table(int gamma);
 
 /* xtra1.c */
 extern void prt_time(void);
+extern cptr map_name(void);
 extern void cnv_stat(int val, char *out_val);
 extern s16b modify_stat_value(int value, int amount);
 extern void notice_stuff(void);
@@ -1307,6 +1275,10 @@ extern void gain_level_reward(int chosen_reward);
 extern bool tgt_pt (int *x, int *y);
 extern void do_poly_wounds(void);
 extern int mon_damage_mod(monster_type *m_ptr, int dam, bool is_psy_spear);
+extern s16b gain_energy(void);
+extern s16b bow_energy(int sval);
+extern int bow_tmul(int sval);
+extern cptr your_alignment(void);
 
 /* mspells1.c */
 extern bool clean_shot(int y1, int x1, int y2, int x2, bool friend);
@@ -1429,12 +1401,6 @@ extern bool do_cmd_disarm_aux(int y, int x, int dir);
 #endif /* ALLOW_EASY_DISARM -- TNB */
 
 
-#ifdef USE_SCRIPT
-extern errr script_execute(char *name);
-extern errr init_script(void);
-#endif /* USE_SCRIPT */
-
-
 #ifdef ALLOW_EASY_FLOOR /* TNB */
 
 /* object1.c */
@@ -1498,6 +1464,7 @@ extern size_t mb_strlcpy(char *dst, const char *src, size_t size);
 
 /* report.c */
 extern errr report_score(void);
+extern cptr make_screen_dump(void);
 
 /* inet.c */
 extern int soc_write(int sd, char *buf, size_t sz);
@@ -1519,5 +1486,3 @@ extern void send_curs_to_chuukei_server(int x, int y);
 extern void flush_ringbuf(void);
 #endif
 
-extern errr counts_write(int where, s32b count);
-extern s32b counts_read(int where);

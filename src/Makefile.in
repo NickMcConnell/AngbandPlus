@@ -1,6 +1,7 @@
-# Makefile.in generated automatically by automake 1.4 from Makefile.am
+# Makefile.in generated automatically by automake 1.5 from Makefile.am.
 
-# Copyright (C) 1994, 1995-8, 1999 Free Software Foundation, Inc.
+# Copyright 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001
+# Free Software Foundation, Inc.
 # This Makefile.in is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
 # with or without modifications, as long as this notice is preserved.
@@ -10,6 +11,7 @@
 # even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 # PARTICULAR PURPOSE.
 
+@SET_MAKE@
 
 SHELL = @SHELL@
 
@@ -31,13 +33,9 @@ infodir = @infodir@
 mandir = @mandir@
 includedir = @includedir@
 oldincludedir = /usr/include
-
-DESTDIR =
-
 pkgdatadir = $(datadir)/@PACKAGE@
 pkglibdir = $(libdir)/@PACKAGE@
 pkgincludedir = $(includedir)/@PACKAGE@
-
 top_builddir = ..
 
 ACLOCAL = @ACLOCAL@
@@ -46,421 +44,439 @@ AUTOMAKE = @AUTOMAKE@
 AUTOHEADER = @AUTOHEADER@
 
 INSTALL = @INSTALL@
-INSTALL_PROGRAM = @INSTALL_PROGRAM@ $(AM_INSTALL_PROGRAM_FLAGS)
+INSTALL_PROGRAM = @INSTALL_PROGRAM@
 INSTALL_DATA = @INSTALL_DATA@
 INSTALL_SCRIPT = @INSTALL_SCRIPT@
+INSTALL_HEADER = $(INSTALL_DATA)
 transform = @program_transform_name@
-
 NORMAL_INSTALL = :
 PRE_INSTALL = :
 POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
+AMTAR = @AMTAR@
+AWK = @AWK@
 CC = @CC@
-MAKEINFO = @MAKEINFO@
+DEPDIR = @DEPDIR@
+EXEEXT = @EXEEXT@
+INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
+OBJEXT = @OBJEXT@
 PACKAGE = @PACKAGE@
 VERSION = @VERSION@
+X_CFLAGS = @X_CFLAGS@
+X_EXTRA_LIBS = @X_EXTRA_LIBS@
+X_LIBS = @X_LIBS@
+X_PRE_LIBS = @X_PRE_LIBS@
+am__include = @am__include@
+am__quote = @am__quote@
+install_sh = @install_sh@
 
 AUTOMAKE_OPTIONS = foreign
 
 bin_PROGRAMS = hengband
 
-hengband_SOURCES =  	z-util.c z-virt.c z-form.c z-rand.c z-term.c 	variable.c tables.c util.c cave.c 	kajitips.h object1.c object2.c monster1.c monster2.c 	xtra1.c xtra2.c spells1.c spells2.c 	melee1.c melee2.c save.c files.c 	cmd1.c cmd2.c cmd3.c cmd4.c cmd5.c cmd6.c 	store.c birth.c load.c 	wizard1.c wizard2.c grid.c streams.c rooms.c 	generate.c dungeon.c init1.c init2.c 	effects.c racial.c inet.c report.c 	artifact.c mutation.c flavor.c spells3.c 	mspells1.c mspells2.c scores.c mind.c mane.c hissatsu.c 	bldg.c obj_kind.c wild.c avatar.c japanese.c mspells3.c 	main-cap.c main-gcu.c main-x11.c main-xaw.c main.c chuukei.c 	angband.h defines.h event.h externs.h generate.h grid.h 	h-basic.h h-config.h h-define.h h-system.h h-type.h 	mindtips.h readdib.h rooms.h spellstips.h streams.h 	types.h z-config.h z-form.h z-rand.h z-term.h z-util.h z-virt.h
+hengband_SOURCES = \
+	z-util.c z-virt.c z-form.c z-rand.c z-term.c \
+	variable.c tables.c util.c cave.c \
+	kajitips.h object1.c object2.c monster1.c monster2.c \
+	xtra1.c xtra2.c spells1.c spells2.c \
+	melee1.c melee2.c save.c files.c \
+	cmd1.c cmd2.c cmd3.c cmd4.c cmd5.c cmd6.c \
+	store.c birth.c load.c \
+	wizard1.c wizard2.c grid.c streams.c rooms.c \
+	generate.c dungeon.c init1.c init2.c \
+	effects.c racial.c inet.c report.c\
+	artifact.c mutation.c flavor.c spells3.c \
+	mspells1.c mspells2.c scores.c mind.c mane.c hissatsu.c \
+	bldg.c obj_kind.c wild.c avatar.c japanese.c mspells3.c \
+	main-cap.c main-gcu.c main-x11.c main-xaw.c main.c chuukei.c \
+	angband.h defines.h event.h externs.h generate.h grid.h \
+	h-basic.h h-config.h h-define.h h-system.h h-type.h \
+	mindtips.h readdib.h rooms.h spellstips.h streams.h init.h \
+	types.h z-config.h z-form.h z-rand.h z-term.h z-util.h z-virt.h
 
 
-EXTRA_hengband_SOURCES =  	angband.ico angband.rc ang_eng.rc maid-x11.c main-mac.c main-win.c main-dos.c main-ibm.c	makefile.bcc makefile.std makefile.dos makefile.ibm readdib.c script.c wall.bmp
+EXTRA_hengband_SOURCES = \
+	angband.ico angband.rc ang_eng.rc maid-x11.c main-mac.c main-win.c \
+	main-dos.c main-ibm.c \
+	makefile.bcc makefile.std makefile.dos makefile.ibm \
+	readdib.c script.c wall.bmp
 
-
-CFLAGS = @CFLAGS@ -Wall -fno-strength-reduce
+subdir = src
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = autoconf.h
-CONFIG_CLEAN_FILES = 
-PROGRAMS =  $(bin_PROGRAMS)
+CONFIG_CLEAN_FILES =
+bin_PROGRAMS = hengband$(EXEEXT)
+PROGRAMS = $(bin_PROGRAMS)
 
+am_hengband_OBJECTS = z-util.$(OBJEXT) z-virt.$(OBJEXT) z-form.$(OBJEXT) \
+	z-rand.$(OBJEXT) z-term.$(OBJEXT) variable.$(OBJEXT) \
+	tables.$(OBJEXT) util.$(OBJEXT) cave.$(OBJEXT) \
+	object1.$(OBJEXT) object2.$(OBJEXT) monster1.$(OBJEXT) \
+	monster2.$(OBJEXT) xtra1.$(OBJEXT) xtra2.$(OBJEXT) \
+	spells1.$(OBJEXT) spells2.$(OBJEXT) melee1.$(OBJEXT) \
+	melee2.$(OBJEXT) save.$(OBJEXT) files.$(OBJEXT) cmd1.$(OBJEXT) \
+	cmd2.$(OBJEXT) cmd3.$(OBJEXT) cmd4.$(OBJEXT) cmd5.$(OBJEXT) \
+	cmd6.$(OBJEXT) store.$(OBJEXT) birth.$(OBJEXT) load.$(OBJEXT) \
+	wizard1.$(OBJEXT) wizard2.$(OBJEXT) grid.$(OBJEXT) \
+	streams.$(OBJEXT) rooms.$(OBJEXT) generate.$(OBJEXT) \
+	dungeon.$(OBJEXT) init1.$(OBJEXT) init2.$(OBJEXT) \
+	effects.$(OBJEXT) racial.$(OBJEXT) inet.$(OBJEXT) \
+	report.$(OBJEXT) artifact.$(OBJEXT) mutation.$(OBJEXT) \
+	flavor.$(OBJEXT) spells3.$(OBJEXT) mspells1.$(OBJEXT) \
+	mspells2.$(OBJEXT) scores.$(OBJEXT) mind.$(OBJEXT) \
+	mane.$(OBJEXT) hissatsu.$(OBJEXT) bldg.$(OBJEXT) \
+	obj_kind.$(OBJEXT) wild.$(OBJEXT) avatar.$(OBJEXT) \
+	japanese.$(OBJEXT) mspells3.$(OBJEXT) main-cap.$(OBJEXT) \
+	main-gcu.$(OBJEXT) main-x11.$(OBJEXT) main-xaw.$(OBJEXT) \
+	main.$(OBJEXT) chuukei.$(OBJEXT)
+hengband_OBJECTS = $(am_hengband_OBJECTS)
+hengband_LDADD = $(LDADD)
+hengband_DEPENDENCIES =
+hengband_LDFLAGS =
 
-DEFS = @DEFS@ -I. -I$(srcdir) -I.
+DEFS = @DEFS@
+DEFAULT_INCLUDES =  -I. -I$(srcdir) -I.
 CPPFLAGS = @CPPFLAGS@
 LDFLAGS = @LDFLAGS@
 LIBS = @LIBS@
-X_CFLAGS = @X_CFLAGS@
-X_LIBS = @X_LIBS@
-X_EXTRA_LIBS = @X_EXTRA_LIBS@
-X_PRE_LIBS = @X_PRE_LIBS@
-hengband_OBJECTS =  z-util.o z-virt.o z-form.o z-rand.o z-term.o \
-variable.o tables.o util.o cave.o object1.o object2.o monster1.o \
-monster2.o xtra1.o xtra2.o spells1.o spells2.o melee1.o melee2.o save.o \
-files.o cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o store.o birth.o \
-load.o wizard1.o wizard2.o grid.o streams.o rooms.o generate.o \
-dungeon.o init1.o init2.o effects.o racial.o inet.o report.o artifact.o \
-mutation.o flavor.o spells3.o mspells1.o mspells2.o scores.o mind.o \
-mane.o hissatsu.o bldg.o obj_kind.o wild.o avatar.o japanese.o \
-mspells3.o main-cap.o main-gcu.o main-x11.o main-xaw.o main.o chuukei.o
-hengband_LDADD = $(LDADD)
-hengband_DEPENDENCIES = 
-hengband_LDFLAGS = 
-COMPILE = $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
+depcomp = $(SHELL) $(top_srcdir)/depcomp
+@AMDEP_TRUE@DEP_FILES = $(DEPDIR)/artifact.Po $(DEPDIR)/avatar.Po \
+@AMDEP_TRUE@	$(DEPDIR)/birth.Po $(DEPDIR)/bldg.Po \
+@AMDEP_TRUE@	$(DEPDIR)/cave.Po $(DEPDIR)/chuukei.Po \
+@AMDEP_TRUE@	$(DEPDIR)/cmd1.Po $(DEPDIR)/cmd2.Po \
+@AMDEP_TRUE@	$(DEPDIR)/cmd3.Po $(DEPDIR)/cmd4.Po \
+@AMDEP_TRUE@	$(DEPDIR)/cmd5.Po $(DEPDIR)/cmd6.Po \
+@AMDEP_TRUE@	$(DEPDIR)/dungeon.Po $(DEPDIR)/effects.Po \
+@AMDEP_TRUE@	$(DEPDIR)/files.Po $(DEPDIR)/flavor.Po \
+@AMDEP_TRUE@	$(DEPDIR)/generate.Po $(DEPDIR)/grid.Po \
+@AMDEP_TRUE@	$(DEPDIR)/hissatsu.Po $(DEPDIR)/inet.Po \
+@AMDEP_TRUE@	$(DEPDIR)/init1.Po $(DEPDIR)/init2.Po \
+@AMDEP_TRUE@	$(DEPDIR)/japanese.Po $(DEPDIR)/load.Po \
+@AMDEP_TRUE@	$(DEPDIR)/maid-x11.Po $(DEPDIR)/main-cap.Po \
+@AMDEP_TRUE@	$(DEPDIR)/main-dos.Po $(DEPDIR)/main-gcu.Po \
+@AMDEP_TRUE@	$(DEPDIR)/main-ibm.Po $(DEPDIR)/main-mac.Po \
+@AMDEP_TRUE@	$(DEPDIR)/main-win.Po $(DEPDIR)/main-x11.Po \
+@AMDEP_TRUE@	$(DEPDIR)/main-xaw.Po $(DEPDIR)/main.Po \
+@AMDEP_TRUE@	$(DEPDIR)/mane.Po $(DEPDIR)/melee1.Po \
+@AMDEP_TRUE@	$(DEPDIR)/melee2.Po $(DEPDIR)/mind.Po \
+@AMDEP_TRUE@	$(DEPDIR)/monster1.Po $(DEPDIR)/monster2.Po \
+@AMDEP_TRUE@	$(DEPDIR)/mspells1.Po $(DEPDIR)/mspells2.Po \
+@AMDEP_TRUE@	$(DEPDIR)/mspells3.Po $(DEPDIR)/mutation.Po \
+@AMDEP_TRUE@	$(DEPDIR)/obj_kind.Po $(DEPDIR)/object1.Po \
+@AMDEP_TRUE@	$(DEPDIR)/object2.Po $(DEPDIR)/racial.Po \
+@AMDEP_TRUE@	$(DEPDIR)/readdib.Po $(DEPDIR)/report.Po \
+@AMDEP_TRUE@	$(DEPDIR)/rooms.Po $(DEPDIR)/save.Po \
+@AMDEP_TRUE@	$(DEPDIR)/scores.Po $(DEPDIR)/script.Po \
+@AMDEP_TRUE@	$(DEPDIR)/spells1.Po $(DEPDIR)/spells2.Po \
+@AMDEP_TRUE@	$(DEPDIR)/spells3.Po $(DEPDIR)/store.Po \
+@AMDEP_TRUE@	$(DEPDIR)/streams.Po $(DEPDIR)/tables.Po \
+@AMDEP_TRUE@	$(DEPDIR)/util.Po $(DEPDIR)/variable.Po \
+@AMDEP_TRUE@	$(DEPDIR)/wild.Po $(DEPDIR)/wizard1.Po \
+@AMDEP_TRUE@	$(DEPDIR)/wizard2.Po $(DEPDIR)/xtra1.Po \
+@AMDEP_TRUE@	$(DEPDIR)/xtra2.Po $(DEPDIR)/z-form.Po \
+@AMDEP_TRUE@	$(DEPDIR)/z-rand.Po $(DEPDIR)/z-term.Po \
+@AMDEP_TRUE@	$(DEPDIR)/z-util.Po $(DEPDIR)/z-virt.Po
+COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
+	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 CCLD = $(CC)
-LINK = $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(LDFLAGS) -o $@
-DIST_COMMON =  ./stamp-h.in Makefile.am Makefile.in autoconf.h.in
-
-
-DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
-
-TAR = gtar
-GZIP_ENV = --best
+LINK = $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
+CFLAGS = @CFLAGS@
+DIST_SOURCES = $(hengband_SOURCES) $(EXTRA_hengband_SOURCES)
+DIST_COMMON = ./stamp-h.in Makefile.am Makefile.in autoconf.h.in
 SOURCES = $(hengband_SOURCES) $(EXTRA_hengband_SOURCES)
-OBJECTS = $(hengband_OBJECTS)
 
-all: all-redirect
+all: autoconf.h
+	$(MAKE) $(AM_MAKEFLAGS) all-am
+
 .SUFFIXES:
-.SUFFIXES: .S .c .o .s
-$(srcdir)/Makefile.in: Makefile.am $(top_srcdir)/configure.in $(ACLOCAL_M4) 
-	cd $(top_srcdir) && $(AUTOMAKE) --foreign --include-deps src/Makefile
-
-Makefile: $(srcdir)/Makefile.in  $(top_builddir)/config.status
-	cd $(top_builddir) \
-	  && CONFIG_FILES=$(subdir)/$@ CONFIG_HEADERS= $(SHELL) ./config.status
-
-
+.SUFFIXES: .c .o .obj
+$(srcdir)/Makefile.in:  Makefile.am  $(top_srcdir)/configure.in $(ACLOCAL_M4)
+	cd $(top_srcdir) && \
+	  $(AUTOMAKE) --foreign  src/Makefile
+Makefile:  $(srcdir)/Makefile.in  $(top_builddir)/config.status
+	cd $(top_builddir) && \
+	  CONFIG_HEADERS= CONFIG_LINKS= \
+	  CONFIG_FILES=$(subdir)/$@ $(SHELL) ./config.status
 autoconf.h: stamp-h
 	@if test ! -f $@; then \
 		rm -f stamp-h; \
 		$(MAKE) stamp-h; \
 	else :; fi
 stamp-h: $(srcdir)/autoconf.h.in $(top_builddir)/config.status
+	@rm -f stamp-h stamp-hT
+	@echo timestamp > stamp-hT 2> /dev/null
 	cd $(top_builddir) \
 	  && CONFIG_FILES= CONFIG_HEADERS=src/autoconf.h \
 	     $(SHELL) ./config.status
-	@echo timestamp > stamp-h 2> /dev/null
-$(srcdir)/autoconf.h.in: $(srcdir)/stamp-h.in
+	@mv stamp-hT stamp-h
+$(srcdir)/autoconf.h.in:  $(srcdir)/./stamp-h.in
 	@if test ! -f $@; then \
-		rm -f $(srcdir)/stamp-h.in; \
-		$(MAKE) $(srcdir)/stamp-h.in; \
+		rm -f $(srcdir)/./stamp-h.in; \
+		$(MAKE) $(srcdir)/./stamp-h.in; \
 	else :; fi
-$(srcdir)/stamp-h.in: $(top_srcdir)/configure.in $(ACLOCAL_M4) 
+$(srcdir)/./stamp-h.in: $(top_srcdir)/configure.in $(ACLOCAL_M4) $(top_srcdir)/acconfig.h
+	@rm -f $(srcdir)/./stamp-h.in $(srcdir)/./stamp-h.inT
+	@echo timestamp > $(srcdir)/./stamp-h.inT 2> /dev/null
 	cd $(top_srcdir) && $(AUTOHEADER)
-	@echo timestamp > $(srcdir)/stamp-h.in 2> /dev/null
-
-mostlyclean-hdr:
-
-clean-hdr:
+	@mv $(srcdir)/./stamp-h.inT $(srcdir)/./stamp-h.in
 
 distclean-hdr:
 	-rm -f autoconf.h
-
-maintainer-clean-hdr:
-
-mostlyclean-binPROGRAMS:
-
-clean-binPROGRAMS:
-	-test -z "$(bin_PROGRAMS)" || rm -f $(bin_PROGRAMS)
-
-distclean-binPROGRAMS:
-
-maintainer-clean-binPROGRAMS:
-
 install-binPROGRAMS: $(bin_PROGRAMS)
 	@$(NORMAL_INSTALL)
 	$(mkinstalldirs) $(DESTDIR)$(bindir)
 	@list='$(bin_PROGRAMS)'; for p in $$list; do \
-	  if test -f $$p; then \
-	    echo "  $(INSTALL_PROGRAM) $$p $(DESTDIR)$(bindir)/`echo $$p|sed 's/$(EXEEXT)$$//'|sed '$(transform)'|sed 's/$$/$(EXEEXT)/'`"; \
-	     $(INSTALL_PROGRAM) $$p $(DESTDIR)$(bindir)/`echo $$p|sed 's/$(EXEEXT)$$//'|sed '$(transform)'|sed 's/$$/$(EXEEXT)/'`; \
+	  p1=`echo $$p|sed 's/$(EXEEXT)$$//'`; \
+	  if test -f $$p \
+	  ; then \
+	    f=`echo $$p1|sed '$(transform);s/$$/$(EXEEXT)/'`; \
+	   echo " $(INSTALL_PROGRAM_ENV) $(INSTALL_PROGRAM) $$p $(DESTDIR)$(bindir)/$$f"; \
+	   $(INSTALL_PROGRAM_ENV) $(INSTALL_PROGRAM) $$p $(DESTDIR)$(bindir)/$$f; \
 	  else :; fi; \
 	done
 
 uninstall-binPROGRAMS:
 	@$(NORMAL_UNINSTALL)
-	list='$(bin_PROGRAMS)'; for p in $$list; do \
-	  rm -f $(DESTDIR)$(bindir)/`echo $$p|sed 's/$(EXEEXT)$$//'|sed '$(transform)'|sed 's/$$/$(EXEEXT)/'`; \
+	@list='$(bin_PROGRAMS)'; for p in $$list; do \
+	  f=`echo $$p|sed 's/$(EXEEXT)$$//;$(transform);s/$$/$(EXEEXT)/'`; \
+	  echo " rm -f $(DESTDIR)$(bindir)/$$f"; \
+	  rm -f $(DESTDIR)$(bindir)/$$f; \
 	done
 
-.c.o:
-	$(COMPILE) -c $<
-
-.s.o:
-	$(COMPILE) -c $<
-
-.S.o:
-	$(COMPILE) -c $<
+clean-binPROGRAMS:
+	-test -z "$(bin_PROGRAMS)" || rm -f $(bin_PROGRAMS)
+hengband$(EXEEXT): $(hengband_OBJECTS) $(hengband_DEPENDENCIES) 
+	@rm -f hengband$(EXEEXT)
+	$(LINK) $(hengband_LDFLAGS) $(hengband_OBJECTS) $(hengband_LDADD) $(LIBS)
 
 mostlyclean-compile:
-	-rm -f *.o core *.core
-
-clean-compile:
+	-rm -f *.$(OBJEXT) core *.core
 
 distclean-compile:
 	-rm -f *.tab.c
 
-maintainer-clean-compile:
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/artifact.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/avatar.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/birth.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/bldg.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/cave.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/chuukei.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/cmd1.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/cmd2.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/cmd3.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/cmd4.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/cmd5.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/cmd6.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/dungeon.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/effects.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/files.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/flavor.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/generate.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/grid.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/hissatsu.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/inet.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/init1.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/init2.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/japanese.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/load.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/maid-x11.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/main-cap.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/main-dos.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/main-gcu.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/main-ibm.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/main-mac.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/main-win.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/main-x11.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/main-xaw.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/main.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/mane.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/melee1.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/melee2.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/mind.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/monster1.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/monster2.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/mspells1.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/mspells2.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/mspells3.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/mutation.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/obj_kind.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/object1.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/object2.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/racial.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/readdib.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/report.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/rooms.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/save.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/scores.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/script.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/spells1.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/spells2.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/spells3.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/store.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/streams.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/tables.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/util.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/variable.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/wild.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/wizard1.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/wizard2.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/xtra1.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/xtra2.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/z-form.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/z-rand.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/z-term.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/z-util.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/z-virt.Po@am__quote@
 
-hengband: $(hengband_OBJECTS) $(hengband_DEPENDENCIES)
-	@rm -f hengband
-	$(LINK) $(hengband_LDFLAGS) $(hengband_OBJECTS) $(hengband_LDADD) $(LIBS)
+distclean-depend:
+	-rm -rf $(DEPDIR)
+
+.c.o:
+@AMDEP_TRUE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@	depfile='$(DEPDIR)/$*.Po' tmpdepfile='$(DEPDIR)/$*.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+	$(COMPILE) -c `test -f $< || echo '$(srcdir)/'`$<
+
+.c.obj:
+@AMDEP_TRUE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@	depfile='$(DEPDIR)/$*.Po' tmpdepfile='$(DEPDIR)/$*.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+	$(COMPILE) -c `cygpath -w $<`
+CCDEPMODE = @CCDEPMODE@
+uninstall-info-am:
 
 tags: TAGS
 
-ID: $(HEADERS) $(SOURCES) $(LISP)
-	list='$(SOURCES) $(HEADERS)'; \
-	unique=`for i in $$list; do echo $$i; done | \
-	  awk '    { files[$$0] = 1; } \
+ID: $(HEADERS) $(SOURCES) $(LISP) $(TAGS_FILES)
+	list='$(SOURCES) $(HEADERS) $(TAGS_FILES)'; \
+	unique=`for i in $$list; do \
+	    if test -f "$$i"; then echo $$i; else echo $(srcdir)/$$i; fi; \
+	  done | \
+	  $(AWK) '    { files[$$0] = 1; } \
 	       END { for (i in files) print i; }'`; \
-	here=`pwd` && cd $(srcdir) \
-	  && mkid -f$$here/ID $$unique $(LISP)
+	mkid -fID $$unique $(LISP)
 
-TAGS:  $(HEADERS) $(SOURCES) autoconf.h.in $(TAGS_DEPENDENCIES) $(LISP)
+TAGS:  $(HEADERS) $(SOURCES) autoconf.h.in $(TAGS_DEPENDENCIES) \
+		$(TAGS_FILES) $(LISP)
 	tags=; \
 	here=`pwd`; \
-	list='$(SOURCES) $(HEADERS)'; \
-	unique=`for i in $$list; do echo $$i; done | \
-	  awk '    { files[$$0] = 1; } \
+	list='$(SOURCES) $(HEADERS) $(TAGS_FILES)'; \
+	unique=`for i in $$list; do \
+	    if test -f "$$i"; then echo $$i; else echo $(srcdir)/$$i; fi; \
+	  done | \
+	  $(AWK) '    { files[$$0] = 1; } \
 	       END { for (i in files) print i; }'`; \
 	test -z "$(ETAGS_ARGS)autoconf.h.in$$unique$(LISP)$$tags" \
-	  || (cd $(srcdir) && etags $(ETAGS_ARGS) $$tags autoconf.h.in $$unique $(LISP) -o $$here/TAGS)
+	  || etags $(ETAGS_ARGS) $$tags autoconf.h.in $$unique $(LISP)
 
-mostlyclean-tags:
-
-clean-tags:
+GTAGS:
+	here=`CDPATH=: && cd $(top_builddir) && pwd` \
+	  && cd $(top_srcdir) \
+	  && gtags -i $(GTAGS_ARGS) $$here
 
 distclean-tags:
-	-rm -f TAGS ID
+	-rm -f TAGS ID GTAGS GRTAGS GSYMS GPATH
 
-maintainer-clean-tags:
+DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 
-distdir = $(top_builddir)/$(PACKAGE)-$(VERSION)/$(subdir)
-
-subdir = src
+top_distdir = ..
+distdir = $(top_distdir)/$(PACKAGE)-$(VERSION)
 
 distdir: $(DISTFILES)
 	@for file in $(DISTFILES); do \
-	  d=$(srcdir); \
+	  if test -f $$file; then d=.; else d=$(srcdir); fi; \
+	  dir=`echo "$$file" | sed -e 's,/[^/]*$$,,'`; \
+	  if test "$$dir" != "$$file" && test "$$dir" != "."; then \
+	    $(mkinstalldirs) "$(distdir)/$$dir"; \
+	  fi; \
 	  if test -d $$d/$$file; then \
-	    cp -pr $$d/$$file $(distdir)/$$file; \
+	    cp -pR $$d/$$file $(distdir) \
+	    || exit 1; \
 	  else \
 	    test -f $(distdir)/$$file \
-	    || ln $$d/$$file $(distdir)/$$file 2> /dev/null \
-	    || cp -p $$d/$$file $(distdir)/$$file || :; \
+	    || cp -p $$d/$$file $(distdir)/$$file \
+	    || exit 1; \
 	  fi; \
 	done
-birth.o: birth.c angband.h h-basic.h autoconf.h h-config.h h-system.h \
-	h-type.h h-define.h z-util.h z-virt.h z-form.h z-rand.h \
-	z-term.h z-config.h defines.h types.h externs.h
-bldg.o: bldg.c angband.h h-basic.h autoconf.h h-config.h h-system.h \
-	h-type.h h-define.h z-util.h z-virt.h z-form.h z-rand.h \
-	z-term.h z-config.h defines.h types.h externs.h
-cave.o: cave.c angband.h h-basic.h autoconf.h h-config.h h-system.h \
-	h-type.h h-define.h z-util.h z-virt.h z-form.h z-rand.h \
-	z-term.h z-config.h defines.h types.h externs.h
-chuukei.o: chuukei.c angband.h h-basic.h autoconf.h h-config.h \
-	h-system.h h-type.h h-define.h z-util.h z-virt.h z-form.h \
-	z-rand.h z-term.h z-config.h defines.h types.h externs.h
-cmd1.o: cmd1.c angband.h h-basic.h autoconf.h h-config.h h-system.h \
-	h-type.h h-define.h z-util.h z-virt.h z-form.h z-rand.h \
-	z-term.h z-config.h defines.h types.h externs.h
-cmd2.o: cmd2.c angband.h h-basic.h autoconf.h h-config.h h-system.h \
-	h-type.h h-define.h z-util.h z-virt.h z-form.h z-rand.h \
-	z-term.h z-config.h defines.h types.h externs.h
-cmd3.o: cmd3.c angband.h h-basic.h autoconf.h h-config.h h-system.h \
-	h-type.h h-define.h z-util.h z-virt.h z-form.h z-rand.h \
-	z-term.h z-config.h defines.h types.h externs.h
-cmd4.o: cmd4.c angband.h h-basic.h autoconf.h h-config.h h-system.h \
-	h-type.h h-define.h z-util.h z-virt.h z-form.h z-rand.h \
-	z-term.h z-config.h defines.h types.h externs.h
-cmd5.o: cmd5.c angband.h h-basic.h autoconf.h h-config.h h-system.h \
-	h-type.h h-define.h z-util.h z-virt.h z-form.h z-rand.h \
-	z-term.h z-config.h defines.h types.h externs.h spellstips.h
-cmd6.o: cmd6.c angband.h h-basic.h autoconf.h h-config.h h-system.h \
-	h-type.h h-define.h z-util.h z-virt.h z-form.h z-rand.h \
-	z-term.h z-config.h defines.h types.h externs.h
-dungeon.o: dungeon.c angband.h h-basic.h autoconf.h h-config.h \
-	h-system.h h-type.h h-define.h z-util.h z-virt.h z-form.h \
-	z-rand.h z-term.h z-config.h defines.h types.h externs.h
-effects.o: effects.c angband.h h-basic.h autoconf.h h-config.h \
-	h-system.h h-type.h h-define.h z-util.h z-virt.h z-form.h \
-	z-rand.h z-term.h z-config.h defines.h types.h externs.h
-files.o: files.c angband.h h-basic.h autoconf.h h-config.h h-system.h \
-	h-type.h h-define.h z-util.h z-virt.h z-form.h z-rand.h \
-	z-term.h z-config.h defines.h types.h externs.h
-flavor.o: flavor.c angband.h h-basic.h autoconf.h h-config.h h-system.h \
-	h-type.h h-define.h z-util.h z-virt.h z-form.h z-rand.h \
-	z-term.h z-config.h defines.h types.h externs.h
-generate.o: generate.c angband.h h-basic.h autoconf.h h-config.h \
-	h-system.h h-type.h h-define.h z-util.h z-virt.h z-form.h \
-	z-rand.h z-term.h z-config.h defines.h types.h externs.h \
-	generate.h grid.h rooms.h streams.h
-hissatsu.o: hissatsu.c angband.h h-basic.h autoconf.h h-config.h \
-	h-system.h h-type.h h-define.h z-util.h z-virt.h z-form.h \
-	z-rand.h z-term.h z-config.h defines.h types.h externs.h
-inet.o: inet.c angband.h h-basic.h autoconf.h h-config.h h-system.h \
-	h-type.h h-define.h z-util.h z-virt.h z-form.h z-rand.h \
-	z-term.h z-config.h defines.h types.h externs.h
-init2.o: init2.c angband.h h-basic.h autoconf.h h-config.h h-system.h \
-	h-type.h h-define.h z-util.h z-virt.h z-form.h z-rand.h \
-	z-term.h z-config.h defines.h types.h externs.h
-japanese.o: japanese.c angband.h h-basic.h autoconf.h h-config.h \
-	h-system.h h-type.h h-define.h z-util.h z-virt.h z-form.h \
-	z-rand.h z-term.h z-config.h defines.h types.h externs.h
-load.o: load.c angband.h h-basic.h autoconf.h h-config.h h-system.h \
-	h-type.h h-define.h z-util.h z-virt.h z-form.h z-rand.h \
-	z-term.h z-config.h defines.h types.h externs.h
-main-x11.o: main-x11.c angband.h h-basic.h autoconf.h h-config.h \
-	h-system.h h-type.h h-define.h z-util.h z-virt.h z-form.h \
-	z-rand.h z-term.h z-config.h defines.h types.h externs.h \
-	maid-x11.c
-melee1.o: melee1.c angband.h h-basic.h autoconf.h h-config.h h-system.h \
-	h-type.h h-define.h z-util.h z-virt.h z-form.h z-rand.h \
-	z-term.h z-config.h defines.h types.h externs.h
-melee2.o: melee2.c angband.h h-basic.h autoconf.h h-config.h h-system.h \
-	h-type.h h-define.h z-util.h z-virt.h z-form.h z-rand.h \
-	z-term.h z-config.h defines.h types.h externs.h
-mind.o: mind.c angband.h h-basic.h autoconf.h h-config.h h-system.h \
-	h-type.h h-define.h z-util.h z-virt.h z-form.h z-rand.h \
-	z-term.h z-config.h defines.h types.h externs.h mindtips.h
-monster1.o: monster1.c angband.h h-basic.h autoconf.h h-config.h \
-	h-system.h h-type.h h-define.h z-util.h z-virt.h z-form.h \
-	z-rand.h z-term.h z-config.h defines.h types.h externs.h
-monster2.o: monster2.c angband.h h-basic.h autoconf.h h-config.h \
-	h-system.h h-type.h h-define.h z-util.h z-virt.h z-form.h \
-	z-rand.h z-term.h z-config.h defines.h types.h externs.h
-mspells3.o: mspells3.c angband.h h-basic.h autoconf.h h-config.h \
-	h-system.h h-type.h h-define.h z-util.h z-virt.h z-form.h \
-	z-rand.h z-term.h z-config.h defines.h types.h externs.h
-object1.o: object1.c angband.h h-basic.h autoconf.h h-config.h \
-	h-system.h h-type.h h-define.h z-util.h z-virt.h z-form.h \
-	z-rand.h z-term.h z-config.h defines.h types.h externs.h
-object2.o: object2.c angband.h h-basic.h autoconf.h h-config.h \
-	h-system.h h-type.h h-define.h z-util.h z-virt.h z-form.h \
-	z-rand.h z-term.h z-config.h defines.h types.h externs.h \
-	kajitips.h
-racial.o: racial.c angband.h h-basic.h autoconf.h h-config.h h-system.h \
-	h-type.h h-define.h z-util.h z-virt.h z-form.h z-rand.h \
-	z-term.h z-config.h defines.h types.h externs.h
-report.o: report.c angband.h h-basic.h autoconf.h h-config.h h-system.h \
-	h-type.h h-define.h z-util.h z-virt.h z-form.h z-rand.h \
-	z-term.h z-config.h defines.h types.h externs.h
-rooms.o: rooms.c angband.h h-basic.h autoconf.h h-config.h h-system.h \
-	h-type.h h-define.h z-util.h z-virt.h z-form.h z-rand.h \
-	z-term.h z-config.h defines.h types.h externs.h generate.h \
-	grid.h rooms.h
-save.o: save.c angband.h h-basic.h autoconf.h h-config.h h-system.h \
-	h-type.h h-define.h z-util.h z-virt.h z-form.h z-rand.h \
-	z-term.h z-config.h defines.h types.h externs.h
-scores.o: scores.c angband.h h-basic.h autoconf.h h-config.h h-system.h \
-	h-type.h h-define.h z-util.h z-virt.h z-form.h z-rand.h \
-	z-term.h z-config.h defines.h types.h externs.h
-spells1.o: spells1.c angband.h h-basic.h autoconf.h h-config.h \
-	h-system.h h-type.h h-define.h z-util.h z-virt.h z-form.h \
-	z-rand.h z-term.h z-config.h defines.h types.h externs.h
-spells2.o: spells2.c angband.h h-basic.h autoconf.h h-config.h \
-	h-system.h h-type.h h-define.h z-util.h z-virt.h z-form.h \
-	z-rand.h z-term.h z-config.h defines.h types.h externs.h
-spells3.o: spells3.c angband.h h-basic.h autoconf.h h-config.h \
-	h-system.h h-type.h h-define.h z-util.h z-virt.h z-form.h \
-	z-rand.h z-term.h z-config.h defines.h types.h externs.h
-store.o: store.c angband.h h-basic.h autoconf.h h-config.h h-system.h \
-	h-type.h h-define.h z-util.h z-virt.h z-form.h z-rand.h \
-	z-term.h z-config.h defines.h types.h externs.h
-tables.o: tables.c angband.h h-basic.h autoconf.h h-config.h h-system.h \
-	h-type.h h-define.h z-util.h z-virt.h z-form.h z-rand.h \
-	z-term.h z-config.h defines.h types.h externs.h
-util.o: util.c angband.h h-basic.h autoconf.h h-config.h h-system.h \
-	h-type.h h-define.h z-util.h z-virt.h z-form.h z-rand.h \
-	z-term.h z-config.h defines.h types.h externs.h
-variable.o: variable.c angband.h h-basic.h autoconf.h h-config.h \
-	h-system.h h-type.h h-define.h z-util.h z-virt.h z-form.h \
-	z-rand.h z-term.h z-config.h defines.h types.h externs.h
-wild.o: wild.c angband.h h-basic.h autoconf.h h-config.h h-system.h \
-	h-type.h h-define.h z-util.h z-virt.h z-form.h z-rand.h \
-	z-term.h z-config.h defines.h types.h externs.h
-wizard1.o: wizard1.c angband.h h-basic.h autoconf.h h-config.h \
-	h-system.h h-type.h h-define.h z-util.h z-virt.h z-form.h \
-	z-rand.h z-term.h z-config.h defines.h types.h externs.h
-xtra1.o: xtra1.c angband.h h-basic.h autoconf.h h-config.h h-system.h \
-	h-type.h h-define.h z-util.h z-virt.h z-form.h z-rand.h \
-	z-term.h z-config.h defines.h types.h externs.h
-xtra2.o: xtra2.c angband.h h-basic.h autoconf.h h-config.h h-system.h \
-	h-type.h h-define.h z-util.h z-virt.h z-form.h z-rand.h \
-	z-term.h z-config.h defines.h types.h externs.h
-z-term.o: z-term.c angband.h h-basic.h autoconf.h h-config.h h-system.h \
-	h-type.h h-define.h z-util.h z-virt.h z-form.h z-rand.h \
-	z-term.h z-config.h defines.h types.h externs.h
-
-info-am:
-info: info-am
-dvi-am:
-dvi: dvi-am
 check-am: all-am
 check: check-am
-installcheck-am:
-installcheck: installcheck-am
-all-recursive-am: autoconf.h
-	$(MAKE) $(AM_MAKEFLAGS) all-recursive
+all-am: Makefile $(PROGRAMS) autoconf.h
 
-install-exec-am: install-binPROGRAMS
+installdirs:
+	$(mkinstalldirs) $(DESTDIR)$(bindir)
+
+install: install-am
 install-exec: install-exec-am
-
-install-data-am:
 install-data: install-data-am
+uninstall: uninstall-am
 
 install-am: all-am
 	@$(MAKE) $(AM_MAKEFLAGS) install-exec-am install-data-am
-install: install-am
-uninstall-am: uninstall-binPROGRAMS
-uninstall: uninstall-am
-all-am: Makefile $(PROGRAMS) autoconf.h
-all-redirect: all-am
+
+installcheck: installcheck-am
 install-strip:
-	$(MAKE) $(AM_MAKEFLAGS) AM_INSTALL_PROGRAM_FLAGS=-s install
-installdirs:
-	$(mkinstalldirs)  $(DESTDIR)$(bindir)
-
-
+	$(MAKE) $(AM_MAKEFLAGS) INSTALL_PROGRAM="$(INSTALL_STRIP_PROGRAM)" \
+	  `test -z '$(STRIP)' || \
+	    echo "INSTALL_PROGRAM_ENV=STRIPPROG='$(STRIP)'"` install
 mostlyclean-generic:
 
 clean-generic:
 
 distclean-generic:
-	-rm -f Makefile $(CONFIG_CLEAN_FILES)
-	-rm -f config.cache config.log stamp-h stamp-h[0-9]*
+	-rm -f Makefile $(CONFIG_CLEAN_FILES) stamp-h stamp-h[0-9]*
 
 maintainer-clean-generic:
-mostlyclean-am:  mostlyclean-hdr mostlyclean-binPROGRAMS \
-		mostlyclean-compile mostlyclean-tags \
-		mostlyclean-generic
-
-mostlyclean: mostlyclean-am
-
-clean-am:  clean-hdr clean-binPROGRAMS clean-compile clean-tags \
-		clean-generic mostlyclean-am
-
+	@echo "This command is intended for maintainers to use"
+	@echo "it deletes files that may require special tools to rebuild."
 clean: clean-am
 
-distclean-am:  distclean-hdr distclean-binPROGRAMS distclean-compile \
-		distclean-tags distclean-generic clean-am
+clean-am: clean-binPROGRAMS clean-generic mostlyclean-am
 
 distclean: distclean-am
 
-maintainer-clean-am:  maintainer-clean-hdr maintainer-clean-binPROGRAMS \
-		maintainer-clean-compile maintainer-clean-tags \
-		maintainer-clean-generic distclean-am
-	@echo "This command is intended for maintainers to use;"
-	@echo "it deletes files that may require special tools to rebuild."
+distclean-am: clean-am distclean-compile distclean-depend \
+	distclean-generic distclean-hdr distclean-tags
+
+dvi: dvi-am
+
+dvi-am:
+
+info: info-am
+
+info-am:
+
+install-data-am:
+
+install-exec-am: install-binPROGRAMS
+
+install-info: install-info-am
+
+install-man:
+
+installcheck-am:
 
 maintainer-clean: maintainer-clean-am
 
-.PHONY: mostlyclean-hdr distclean-hdr clean-hdr maintainer-clean-hdr \
-mostlyclean-binPROGRAMS distclean-binPROGRAMS clean-binPROGRAMS \
-maintainer-clean-binPROGRAMS uninstall-binPROGRAMS install-binPROGRAMS \
-mostlyclean-compile distclean-compile clean-compile \
-maintainer-clean-compile tags mostlyclean-tags distclean-tags \
-clean-tags maintainer-clean-tags distdir info-am info dvi-am dvi check \
-check-am installcheck-am installcheck all-recursive-am install-exec-am \
-install-exec install-data-am install-data install-am install \
-uninstall-am uninstall all-redirect all-am all installdirs \
-mostlyclean-generic distclean-generic clean-generic \
-maintainer-clean-generic clean mostlyclean distclean maintainer-clean
+maintainer-clean-am: distclean-am maintainer-clean-generic
 
+mostlyclean: mostlyclean-am
+
+mostlyclean-am: mostlyclean-compile mostlyclean-generic
+
+uninstall-am: uninstall-binPROGRAMS uninstall-info-am
+
+.PHONY: GTAGS all all-am check check-am clean clean-binPROGRAMS \
+	clean-generic distclean distclean-compile distclean-depend \
+	distclean-generic distclean-hdr distclean-tags distdir dvi \
+	dvi-am info info-am install install-am install-binPROGRAMS \
+	install-data install-data-am install-exec install-exec-am \
+	install-info install-info-am install-man install-strip \
+	installcheck installcheck-am installdirs maintainer-clean \
+	maintainer-clean-generic mostlyclean mostlyclean-compile \
+	mostlyclean-generic tags uninstall uninstall-am \
+	uninstall-binPROGRAMS uninstall-info-am
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

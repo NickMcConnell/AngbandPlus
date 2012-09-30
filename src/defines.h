@@ -48,17 +48,10 @@
 #define SAVEFILE_VERSION 3
 
 /* Added for ZAngband */
-#ifdef USE_SCRIPT
-#define FAKE_VERSION   0
-#define FAKE_VER_MAJOR 3
-#define FAKE_VER_MINOR 0
-#define FAKE_VER_PATCH 0
-#else /* USE_SCRIPT */
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 11
 #define FAKE_VER_MINOR 0
-#define FAKE_VER_PATCH 8
-#endif /* USE_SCRIPT */
+#define FAKE_VER_PATCH 9
 
 #define ANGBAND_2_8_1
 #define ZANGBAND
@@ -373,10 +366,6 @@
 #define MIND_MIRROR_MASTER  3
 #define MIND_NINJUTSU       4
 
-/* A hack for cave.c */
-#define BMP_FIRST_PC_CLASS 164
-#define BMP_FIRST_PC_RACE 128
-
 
 /*
  * Size of memory reserved for initialization of some arrays
@@ -502,7 +491,7 @@
  */
 #define TOWN_DAWN               10000   /* Number of turns from dawn to dawn XXX */
 #define BREAK_GLYPH             550             /* Rune of protection resistance */
-#define BREAK_MINOR_GLYPH       199             /* For explosive runes */
+#define BREAK_MINOR_GLYPH       299             /* For explosive runes */
 #define BTH_PLUS_ADJ    3       /* Adjust BTH per plus-to-hit */
 #define MON_MULT_ADJ    8               /* High value slows multiplication */
 #define MON_SUMMON_ADJ  2               /* Adjust level of summoned creatures */
@@ -732,6 +721,11 @@
 #define INVEN_HEAD      33
 #define INVEN_HANDS     34
 #define INVEN_FEET      35
+
+/*
+ * used for get_random_ego()
+ */
+#define INVEN_AMMO     23
 
 /*
  * Total number of inventory slots (hard-coded).
@@ -1437,10 +1431,10 @@
 #define EGO_KILL_ANIMAL         88
 #define EGO_KILL_EVIL           89
 #define EGO_KILL_UNDEAD         90
-#define EGO_KILL_DEMON          83
-#define EGO_KILL_ORC            84
-#define EGO_KILL_TROLL          85
-#define EGO_KILL_GIANT          86
+#define EGO_KILL_DEMON          91
+#define EGO_KILL_ORC            92
+#define EGO_KILL_TROLL          93
+#define EGO_KILL_GIANT          94
 #define EGO_KILL_DRAGON         95
 #define EGO_VAMPIRIC            96
 #define EGO_PRISM               97
@@ -1895,6 +1889,7 @@
 #define SV_PADDED_ARMOR                 10  /*  4 */
 #define SV_LEATHER_SCALE_MAIL           11
 #define SV_LEATHER_JACK                 12
+#define SV_KUROSHOUZOKU                 13
 #define SV_STONE_AND_HIDE_ARMOR         15  /* 15 */
 #define SV_ABUNAI_MIZUGI                50
 #define SV_YOIYAMI_ROBE                 60
@@ -2860,6 +2855,7 @@
 #define MFLAG_NOPET     0x02    /* Cannot make monster pet */
 #define MFLAG_NOGENO    0x04    /* Cannot genocide */
 #define MFLAG_CHAMELEON 0x08    /* Monster is chameleon */
+#define MFLAG_NOFLOW    0x10    /* Monster is in no_flow_by_smell mode */
 
 
 /*
@@ -3308,7 +3304,7 @@
 /*
  * Monster race flags
  */
-#define RF8_DUNGEON             0x00000001
+#define RF8_WILD_ONLY           0x00000001
 #define RF8_WILD_TOWN           0x00000002
 #define RF8_XXX8X02             0x00000004
 #define RF8_WILD_SHORE          0x00000008
@@ -3319,7 +3315,7 @@
 #define RF8_XXX8X08             0x00000100
 #define RF8_WILD_MOUNTAIN       0x00000200
 #define RF8_WILD_GRASS          0x00000400
-#define RF8_WILD_TOO            0x80000000
+#define RF8_WILD_ALL            0x80000000
 
 /*
  * Monster drop info
@@ -3532,13 +3528,13 @@
 
 
 #define is_friendly(A) \
-	 (((A)->smart & SM_FRIENDLY) ? TRUE : FALSE)
+	 (bool)(((A)->smart & SM_FRIENDLY) ? TRUE : FALSE)
 
 #define is_pet(A) \
-	 (((A)->smart & SM_PET) ? TRUE : FALSE)
+	 (bool)(((A)->smart & SM_PET) ? TRUE : FALSE)
 
 #define is_hostile(A) \
-	 ((is_friendly(A) || is_pet(A)) ? FALSE : TRUE)
+	 (bool)((is_friendly(A) || is_pet(A)) ? FALSE : TRUE)
 
 
 /*** Macro Definitions ***/
@@ -3932,7 +3928,6 @@
 {\
 	u32b tmp;\
 	tmp = time(NULL);\
-	if (tmp == start_time) tmp++; \
 	playtime += (tmp - start_time);\
 	start_time = tmp;\
 }
@@ -4396,6 +4391,7 @@ extern int PlayerUID;
 #define MON_ARCH_VILE     357
 #define MON_COLD_VOR      358
 #define MON_ENERGY_VOR    359
+#define MON_JADE_MONK     370
 #define MON_HAGEN         383
 #define MON_PHANTOM_B     385
 #define MON_ANGEL         417
@@ -4404,6 +4400,7 @@ extern int PlayerUID;
 #define MON_ARCHANGEL     456
 #define MON_GHOST         477
 #define MON_NINJA         485
+#define MON_IVORY_MONK    492
 #define MON_LOG_MASTER    498
 #define MON_GOEMON        505
 #define MON_CHERUB        511
@@ -4497,6 +4494,7 @@ extern int PlayerUID;
 #define MON_ONE_RING      864
 #define MON_CAAWS         866
 #define MON_CULVERIN      867
+#define MON_EBONY_MONK    870
 #define MON_HAGURE        871
 #define MON_OROCHI        872
 #define MON_ECHIZEN       873
@@ -4546,16 +4544,20 @@ extern int PlayerUID;
 #define MON_SHURYUUDAN    1023
 #define MON_WAHHA         1031
 #define MON_DEBBY         1032
+#define MON_KNI_TEMPLAR   1037
 #define MON_PALADIN       1038
 #define MON_CHAMELEON     1040
 #define MON_CHAMELEON_K   1041
+#define MON_TOPAZ_MONK    1047
 #define MON_LOUSY         1063
 #define MON_JIZOTAKO      1065
 
 #define MAX_AUTOPICK 1009
-#define DONT_AUTOPICK 0
-#define DO_AUTOPICK 1
-#define DO_AUTODESTROY 2
+#define DO_AUTOPICK    0x01
+#define DO_AUTODESTROY 0x02
+#define DO_DISPLAY     0x04
+#define DONT_AUTOPICK  0x08
+#define ITEM_DISPLAY   0x10
 
 #define MAGIC_GLOVE_REDUCE_MANA 0x0001
 #define MAGIC_FAIL_5PERCENT     0x0002
@@ -4806,3 +4808,5 @@ extern int PlayerUID;
 
 #define MAX_MACRO_MOD 12
 #define MAX_MACRO_TRIG 200
+
+#define SCREEN_BUF_SIZE 65536           /* max screen dump buffer size */

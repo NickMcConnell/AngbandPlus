@@ -220,197 +220,180 @@ static void sense_inventory1(void)
 	bool        heavy = FALSE;
 	object_type *o_ptr;
 
-#ifdef USE_SCRIPT
-	int         result;
-#endif /* USE_SCRIPT */
-
 
 	/*** Check for "sensing" ***/
 
 	/* No sensing when confused */
 	if (p_ptr->confused) return;
 
-#ifdef USE_SCRIPT
-
-	result = sense_inventory_callback();
-
-	if (result == -1)
-		heavy = TRUE;
-
-	if (!result)
-
-#endif /* USE_SCRIPT */
-
+	/* Analyze the class */
+	switch (p_ptr->pclass)
 	{
-		/* Analyze the class */
-		switch (p_ptr->pclass)
+		case CLASS_WARRIOR:
+		case CLASS_ARCHER:
+		case CLASS_SAMURAI:
+		case CLASS_CAVALRY:
 		{
-			case CLASS_WARRIOR:
-			case CLASS_ARCHER:
-			case CLASS_SAMURAI:
-			case CLASS_CAVALRY:
-			{
-				/* Good sensing */
-				if (0 != rand_int(9000L / (plev * plev + 40))) return;
+			/* Good sensing */
+			if (0 != rand_int(9000L / (plev * plev + 40))) return;
 
-				/* Heavy sensing */
-				heavy = TRUE;
+			/* Heavy sensing */
+			heavy = TRUE;
 
-				/* Done */
-				break;
-			}
+			/* Done */
+			break;
+		}
 
-			case CLASS_SMITH:
-			{
-				/* Good sensing */
-				if (0 != rand_int(6000L / (plev * plev + 50))) return;
+		case CLASS_SMITH:
+		{
+			/* Good sensing */
+			if (0 != rand_int(6000L / (plev * plev + 50))) return;
 
-				/* Heavy sensing */
-				heavy = TRUE;
+			/* Heavy sensing */
+			heavy = TRUE;
 
-				/* Done */
-				break;
-			}
+			/* Done */
+			break;
+		}
 
-			case CLASS_MAGE:
-			case CLASS_HIGH_MAGE:
-			case CLASS_SORCERER:
-			case CLASS_MAGIC_EATER:
-			{
-				/* Very bad (light) sensing */
-				if (0 != rand_int(240000L / (plev + 5))) return;
+		case CLASS_MAGE:
+		case CLASS_HIGH_MAGE:
+		case CLASS_SORCERER:
+		case CLASS_MAGIC_EATER:
+		{
+			/* Very bad (light) sensing */
+			if (0 != rand_int(240000L / (plev + 5))) return;
 
-				/* Done */
-				break;
-			}
+			/* Done */
+			break;
+		}
 
-			case CLASS_PRIEST:
-			case CLASS_BARD:
-			{
-				/* Good (light) sensing */
-				if (0 != rand_int(10000L / (plev * plev + 40))) return;
+		case CLASS_PRIEST:
+		case CLASS_BARD:
+		{
+			/* Good (light) sensing */
+			if (0 != rand_int(10000L / (plev * plev + 40))) return;
 
-				/* Done */
-				break;
-			}
+			/* Done */
+			break;
+		}
 
-			case CLASS_ROGUE:
-			case CLASS_NINJA:
-			{
-				/* Okay sensing */
-				if (0 != rand_int(20000L / (plev * plev + 40))) return;
+		case CLASS_ROGUE:
+		case CLASS_NINJA:
+		{
+			/* Okay sensing */
+			if (0 != rand_int(20000L / (plev * plev + 40))) return;
 
-				/* Heavy sensing */
-				heavy = TRUE;
+			/* Heavy sensing */
+			heavy = TRUE;
 
-				/* Done */
-				break;
-			}
+			/* Done */
+			break;
+		}
 
-			case CLASS_RANGER:
-			{
-				/* Bad sensing */
-				if (0 != rand_int(95000L / (plev * plev + 40))) return;
+		case CLASS_RANGER:
+		{
+			/* Bad sensing */
+			if (0 != rand_int(95000L / (plev * plev + 40))) return;
 
-				/* Changed! */
-				heavy = TRUE;
+			/* Changed! */
+			heavy = TRUE;
 
-				/* Done */
-				break;
-			}
+			/* Done */
+			break;
+		}
 
-			case CLASS_PALADIN:
-			{
-				/* Bad sensing */
-				if (0 != rand_int(77777L / (plev * plev + 40))) return;
+		case CLASS_PALADIN:
+		{
+			/* Bad sensing */
+			if (0 != rand_int(77777L / (plev * plev + 40))) return;
 
-				/* Heavy sensing */
-				heavy = TRUE;
+			/* Heavy sensing */
+			heavy = TRUE;
 
-				/* Done */
-				break;
-			}
+			/* Done */
+			break;
+		}
 
-			case CLASS_WARRIOR_MAGE:
-			case CLASS_RED_MAGE:
-			{
-				/* Bad sensing */
-				if (0 != rand_int(75000L / (plev * plev + 40))) return;
+		case CLASS_WARRIOR_MAGE:
+		case CLASS_RED_MAGE:
+		{
+			/* Bad sensing */
+			if (0 != rand_int(75000L / (plev * plev + 40))) return;
 
-				/* Done */
-				break;
-			}
+			/* Done */
+			break;
+		}
 
-			case CLASS_MINDCRAFTER:
-			case CLASS_MIRROR_MASTER:
-			{
-				/* Bad sensing */
-				if (0 != rand_int(55000L / (plev * plev + 40))) return;
+		case CLASS_MINDCRAFTER:
+		case CLASS_MIRROR_MASTER:
+		{
+			/* Bad sensing */
+			if (0 != rand_int(55000L / (plev * plev + 40))) return;
 
-				/* Done */
-				break;
-			}
+			/* Done */
+			break;
+		}
 
-			case CLASS_CHAOS_WARRIOR:
-			{
-				/* Bad sensing */
-				if (0 != rand_int(80000L / (plev * plev + 40))) return;
+		case CLASS_CHAOS_WARRIOR:
+		{
+			/* Bad sensing */
+			if (0 != rand_int(80000L / (plev * plev + 40))) return;
 
-				/* Changed! */
-				heavy = TRUE;
+			/* Changed! */
+			heavy = TRUE;
 
-				/* Done */
-				break;
-			}
+			/* Done */
+			break;
+		}
 
-			case CLASS_MONK:
-			case CLASS_FORCETRAINER:
-			{
-				/* Okay sensing */
-				if (0 != rand_int(20000L / (plev * plev + 40))) return;
+		case CLASS_MONK:
+		case CLASS_FORCETRAINER:
+		{
+			/* Okay sensing */
+			if (0 != rand_int(20000L / (plev * plev + 40))) return;
 
-				/* Done */
-				break;
-			}
+			/* Done */
+			break;
+		}
 
-			case CLASS_TOURIST:
-			{
-				/* Good sensing */
-				if (0 != rand_int(20000L / ((plev+50)*(plev+50)))) return;
+		case CLASS_TOURIST:
+		{
+			/* Good sensing */
+			if (0 != rand_int(20000L / ((plev+50)*(plev+50)))) return;
 
-				/* Heavy sensing */
-				heavy = TRUE;
+			/* Heavy sensing */
+			heavy = TRUE;
 
-				/* Done */
-				break;
-			}
+			/* Done */
+			break;
+		}
 
-			case CLASS_IMITATOR:
-			case CLASS_BLUE_MAGE:
-			{
-				/* Bad sensing */
-				if (0 != rand_int(55000L / (plev * plev + 40))) return;
+		case CLASS_IMITATOR:
+		case CLASS_BLUE_MAGE:
+		{
+			/* Bad sensing */
+			if (0 != rand_int(55000L / (plev * plev + 40))) return;
 
-				/* Done */
-				break;
-			}
+			/* Done */
+			break;
+		}
 
-			case CLASS_BEASTMASTER:
-			{
-				/* Bad sensing */
-				if (0 != rand_int(65000L / (plev * plev + 40))) return;
+		case CLASS_BEASTMASTER:
+		{
+			/* Bad sensing */
+			if (0 != rand_int(65000L / (plev * plev + 40))) return;
 
-				/* Done */
-				break;
-			}
-			case CLASS_BERSERKER:
-			{
-				/* Heavy sensing */
-				heavy = TRUE;
+			/* Done */
+			break;
+		}
+		case CLASS_BERSERKER:
+		{
+			/* Heavy sensing */
+			heavy = TRUE;
 
-				/* Done */
-				break;
-			}
+			/* Done */
+			break;
 		}
 	}
 
@@ -477,98 +460,84 @@ static void sense_inventory2(void)
 	int         plev = p_ptr->lev;
 	object_type *o_ptr;
 
-#ifdef USE_SCRIPT
-	int         result;
-#endif /* USE_SCRIPT */
-
 
 	/*** Check for "sensing" ***/
 
 	/* No sensing when confused */
 	if (p_ptr->confused) return;
 
-#ifdef USE_SCRIPT
-
-	result = sense_inventory_callback();
-
-	if (!result)
-
-#endif /* USE_SCRIPT */
-
+	/* Analyze the class */
+	switch (p_ptr->pclass)
 	{
-		/* Analyze the class */
-		switch (p_ptr->pclass)
+		case CLASS_WARRIOR:
+		case CLASS_ARCHER:
+		case CLASS_SAMURAI:
+		case CLASS_CAVALRY:
+		case CLASS_BERSERKER:
 		{
-			case CLASS_WARRIOR:
-			case CLASS_ARCHER:
-			case CLASS_SAMURAI:
-			case CLASS_CAVALRY:
-			case CLASS_BERSERKER:
-			{
-				return;
-			}
+			return;
+		}
 
-			case CLASS_SMITH:
-			case CLASS_PALADIN:
-			case CLASS_CHAOS_WARRIOR:
-			case CLASS_IMITATOR:
-			case CLASS_BEASTMASTER:
-			case CLASS_NINJA:
-			{
-				/* Very bad (light) sensing */
-				if (0 != rand_int(240000L / (plev + 5))) return;
+		case CLASS_SMITH:
+		case CLASS_PALADIN:
+		case CLASS_CHAOS_WARRIOR:
+		case CLASS_IMITATOR:
+		case CLASS_BEASTMASTER:
+		case CLASS_NINJA:
+		{
+			/* Very bad (light) sensing */
+			if (0 != rand_int(240000L / (plev + 5))) return;
 
-				/* Done */
-				break;
-			}
+			/* Done */
+			break;
+		}
 
-			case CLASS_RANGER:
-			case CLASS_WARRIOR_MAGE:
-			case CLASS_RED_MAGE:
-			case CLASS_MONK:
-			{
-				/* Bad sensing */
-				if (0 != rand_int(95000L / (plev * plev + 40))) return;
+		case CLASS_RANGER:
+		case CLASS_WARRIOR_MAGE:
+		case CLASS_RED_MAGE:
+		case CLASS_MONK:
+		{
+			/* Bad sensing */
+			if (0 != rand_int(95000L / (plev * plev + 40))) return;
 
-				/* Done */
-				break;
-			}
+			/* Done */
+			break;
+		}
 
-			case CLASS_PRIEST:
-			case CLASS_BARD:
-			case CLASS_ROGUE:
-			case CLASS_FORCETRAINER:
-			case CLASS_MINDCRAFTER:
-			{
-				/* Good sensing */
-				if (0 != rand_int(20000L / (plev * plev + 40))) return;
+		case CLASS_PRIEST:
+		case CLASS_BARD:
+		case CLASS_ROGUE:
+		case CLASS_FORCETRAINER:
+		case CLASS_MINDCRAFTER:
+		{
+			/* Good sensing */
+			if (0 != rand_int(20000L / (plev * plev + 40))) return;
 
-				/* Done */
-				break;
-			}
+			/* Done */
+			break;
+		}
 
-			case CLASS_MAGE:
-			case CLASS_HIGH_MAGE:
-			case CLASS_SORCERER:
-			case CLASS_MAGIC_EATER:
-			case CLASS_MIRROR_MASTER:
-			case CLASS_BLUE_MAGE:
-			{
-				/* Good sensing */
-				if (0 != rand_int(9000L / (plev * plev + 40))) return;
+		case CLASS_MAGE:
+		case CLASS_HIGH_MAGE:
+		case CLASS_SORCERER:
+		case CLASS_MAGIC_EATER:
+		case CLASS_MIRROR_MASTER:
+		case CLASS_BLUE_MAGE:
+		{
+			/* Good sensing */
+			if (0 != rand_int(9000L / (plev * plev + 40))) return;
 
-				/* Done */
-				break;
-			}
+			/* Done */
+			break;
+		}
 
-			case CLASS_TOURIST:
-			{
-				/* Good sensing */
-				if (0 != rand_int(20000L / ((plev+50)*(plev+50)))) return;
+		case CLASS_TOURIST:
+		{
+			/* Good sensing */
+			if (0 != rand_int(20000L / ((plev+50)*(plev+50)))) return;
 
-				/* Done */
-				break;
-			}
+			/* Done */
+			break;
 		}
 	}
 
@@ -894,10 +863,8 @@ static void regenmana(int percent)
 	{
 		new_mana *= 32;
 		p_ptr->csp--;
-		p_ptr->csp_frac += 0x10000L;
-
 		p_ptr->csp -= (s16b)(new_mana >> 16);	/* div 65536 */
-		new_mana_frac = p_ptr->csp_frac - (new_mana & 0xFFFF);
+		new_mana_frac = p_ptr->csp_frac + 0x10000L - (new_mana & 0xFFFF);
 	}
 	else
 	{
@@ -1246,7 +1213,7 @@ msg_format("%s¤Ï%s¤È¤¤¤¦´¶¤¸¤¬¤¹¤ë...",
 }
 
 
-static void gere_music(s16b music)
+static void gere_music(s32b music)
 {
         switch(music)
         {
@@ -1390,7 +1357,7 @@ else msg_format("%s¤ÏºÆ½¼Å¶¤µ¤ì¤¿¡£", o_name);
 static void check_music()
 {
         magic_type *s_ptr;
-	int shouhimana;
+	u32b shouhimana;
 
         /* Music singed by player */
         if(p_ptr->pclass != CLASS_BARD) return;
@@ -1413,20 +1380,27 @@ static void check_music()
         else
         {
                 p_ptr->csp -= shouhimana / 0x10000;
-		shouhimana = (shouhimana % 0x10000);
+		shouhimana = (shouhimana & 0xffff);
 		if (p_ptr->csp_frac < shouhimana)
 		{
 			p_ptr->csp--;
-			p_ptr->csp_frac += 0x10000;
+			p_ptr->csp_frac += (u16b)(0x10000L - shouhimana);
 		}
-		p_ptr->csp_frac -= shouhimana;
+		else
+		{
+			p_ptr->csp_frac -= (u16b)shouhimana;
+		}
 
                 p_ptr->redraw |= PR_MANA;
 		if (p_ptr->magic_num1[1])
 		{
 			p_ptr->magic_num1[0] = p_ptr->magic_num1[1];
 			p_ptr->magic_num1[1] = 0;
+#ifdef JP
 			msg_print("²Î¤òºÆ³«¤·¤¿¡£");
+#else
+			msg_print("You restart singing.");
+#endif
 			p_ptr->action = ACTION_SING;
 
 			/* Recalculate bonuses */
@@ -1894,7 +1868,7 @@ hit_from = "¿¼¤¤ÍÏ´äÎ®";
 
 	else if ((cave[py][px].feat == FEAT_DEEP_WATER) && !p_ptr->ffall && !p_ptr->can_swim)
 	{
-		if (p_ptr->total_weight > ((adj_str_wgt[p_ptr->stat_ind[A_STR]] * (p_ptr->pclass == CLASS_BERSERKER ? 150 : 100)) / 2))
+		if (p_ptr->total_weight > (((u32b)adj_str_wgt[p_ptr->stat_ind[A_STR]] * (p_ptr->pclass == CLASS_BERSERKER ? 150 : 100)) / 2))
 		{
 			/* Take damage */
 #ifdef JP
@@ -2833,9 +2807,10 @@ msg_print("ËâË¡¤Î¥¨¥Í¥ë¥®¡¼¤¬ÆÍÁ³¤¢¤Ê¤¿¤ÎÃæ¤ËÎ®¤ì¹þ¤ó¤Ç¤­¤¿¡ª¥¨¥Í¥ë¥®¡¼¤ò²òÊü¤·¤
 		    !p_ptr->anti_magic && (randint(6666) == 666))
 		{
 			bool pet = (randint(6) == 1);
+			bool not_pet = (bool)(!pet);
 
 			if (summon_specific((pet ? -1 : 0), py, px,
-				    dun_level, SUMMON_DEMON, TRUE, FALSE, pet, !pet, !pet))
+				    dun_level, SUMMON_DEMON, TRUE, FALSE, pet, not_pet, not_pet))
 			{
 #ifdef JP
 msg_print("¤¢¤Ê¤¿¤Ï¥Ç¡¼¥â¥ó¤ò°ú¤­´ó¤»¤¿¡ª");
@@ -2964,9 +2939,10 @@ msg_print("¸÷¸»¤«¤é¥¨¥Í¥ë¥®¡¼¤òµÛ¼ý¤·¤¿¡ª");
 		   !p_ptr->anti_magic && one_in_(7000))
 		{
 			bool pet = (randint(3) == 1);
+			bool not_pet = (bool)(!pet);
 
 			if (summon_specific((pet ? -1 : 0), py, px, dun_level, SUMMON_ANIMAL,
-			    TRUE, FALSE, pet, !pet, !pet))
+			    TRUE, FALSE, pet, not_pet, not_pet))
 			{
 #ifdef JP
 msg_print("Æ°Êª¤ò°ú¤­´ó¤»¤¿¡ª");
@@ -3069,9 +3045,10 @@ msg_print("¼«Ê¬¤¬¿ê¼å¤·¤Æ¤¤¤¯¤Î¤¬Ê¬¤«¤ë¡ª");
 		   !p_ptr->anti_magic && one_in_(3000))
 		{
 			bool pet = (randint(5) == 1);
+			bool not_pet = (bool)(!pet);
 
 			if (summon_specific((pet ? -1 : 0), py, px, dun_level, SUMMON_DRAGON,
-			    TRUE, FALSE, pet, !pet, !pet))
+			    TRUE, FALSE, pet, not_pet, not_pet))
 			{
 #ifdef JP
 msg_print("¥É¥é¥´¥ó¤ò°ú¤­´ó¤»¤¿¡ª");
@@ -3370,7 +3347,7 @@ if (!get_rnd_line("chainswd_j.txt", 0, noise))
 						/* msg_print("Teleport aborted.") */ ;
 					}
 #ifdef JP
-else if (get_check("¥Æ¥ì¥Ý¡¼¥È¤·¤Þ¤¹¤«¡©"))
+else if (get_check_strict("¥Æ¥ì¥Ý¡¼¥È¤·¤Þ¤¹¤«¡©", 1))
 #else
 					else if (get_check("Teleport? "))
 #endif
@@ -3528,7 +3505,7 @@ msg_print("¾å¤Ë°ú¤ÃÄ¥¤ê¤¢¤²¤é¤ì¤ë´¶¤¸¤¬¤¹¤ë¡ª");
 					(quest[leaving_quest].status == QUEST_STATUS_TAKEN))
 				{
 					quest[leaving_quest].status = QUEST_STATUS_FAILED;
-					quest[leaving_quest].complev = p_ptr->lev;
+					quest[leaving_quest].complev = (byte)p_ptr->lev;
 					if (quest[leaving_quest].type == QUEST_TYPE_RANDOM)
 					{
 						r_info[quest[leaving_quest].r_idx].flags1 &= ~(RF1_QUESTOR);
@@ -3601,7 +3578,7 @@ msg_print("²¼¤Ë°ú¤­¤º¤ê¹ß¤í¤µ¤ì¤ë´¶¤¸¤¬¤¹¤ë¡ª");
 						    (quest[i].level < dun_level))
 						{
 							quest[i].status = QUEST_STATUS_FAILED;
-							quest[i].complev = p_ptr->lev;
+							quest[i].complev = (byte)p_ptr->lev;
 							r_info[quest[i].r_idx].flags1 &= ~(RF1_QUESTOR);
 						}
 					}
@@ -4022,7 +3999,7 @@ msg_print("¥¦¥£¥¶¡¼¥É¥â¡¼¥ÉÆÍÆþ¡£");
 		/*** Stairs and Doors and Chests and Traps ***/
 
 		/* Enter store */
-		case '_':
+		case 253:
 		{
 			if (!p_ptr->wild_mode) do_cmd_store();
 			break;
@@ -4169,105 +4146,105 @@ msg_print("¥¦¥£¥¶¡¼¥É¥â¡¼¥ÉÆÍÆþ¡£");
 			/* -KMW- */
 			if (!p_ptr->wild_mode)
 			{
-			if (dun_level && (d_info[dungeon_type].flags1 & DF1_NO_MAGIC) && (p_ptr->pclass != CLASS_BERSERKER) && (p_ptr->pclass != CLASS_SMITH))
-			{
+				if ((p_ptr->pclass == CLASS_WARRIOR) || (p_ptr->pclass == CLASS_ARCHER) || (p_ptr->pclass == CLASS_CAVALRY))
+				{
 #ifdef JP
-msg_print("¥À¥ó¥¸¥ç¥ó¤¬ËâË¡¤òµÛ¼ý¤·¤¿¡ª");
+					msg_print("¼öÊ¸¤ò¾§¤¨¤é¤ì¤Ê¤¤¡ª");
 #else
-				msg_print("The arena absorbs all attempted magic!");
+					msg_print("You cannot cast spells!");
+#endif
+				}
+				else if (dun_level && (d_info[dungeon_type].flags1 & DF1_NO_MAGIC) && (p_ptr->pclass != CLASS_BERSERKER) && (p_ptr->pclass != CLASS_SMITH))
+				{
+#ifdef JP
+					msg_print("¥À¥ó¥¸¥ç¥ó¤¬ËâË¡¤òµÛ¼ý¤·¤¿¡ª");
+#else
+					msg_print("The arena absorbs all attempted magic!");
+#endif
+					msg_print(NULL);
+				}
+				else if (p_ptr->anti_magic && (p_ptr->pclass != CLASS_BERSERKER) && (p_ptr->pclass != CLASS_SMITH))
+				{
+#ifdef JP
+
+					cptr which_power = "ËâË¡";
+#else
+					cptr which_power = "magic";
+#endif
+					if (p_ptr->pclass == CLASS_MINDCRAFTER)
+#ifdef JP
+						which_power = "Ä¶Ç½ÎÏ";
+#else
+						which_power = "psionic powers";
+#endif
+					else if (p_ptr->pclass == CLASS_IMITATOR)
+#ifdef JP
+						which_power = "¤â¤Î¤Þ¤Í";
+#else
+						which_power = "imitation";
+#endif
+					else if (p_ptr->pclass == CLASS_SAMURAI)
+#ifdef JP
+						which_power = "É¬»¦·õ";
+#else
+						which_power = "hissatsu";
+#endif
+					else if (p_ptr->pclass == CLASS_MIRROR_MASTER)
+#ifdef JP
+						which_power = "¶ÀËâË¡";
+#else
+						which_power = "mirror magic";
+#endif
+					else if (p_ptr->pclass == CLASS_NINJA)
+#ifdef JP
+						which_power = "Ç¦½Ñ";
+#else
+						which_power = "ninjutsu";
+#endif
+					else if (mp_ptr->spell_book == TV_LIFE_BOOK)
+#ifdef JP
+						which_power = "µ§¤ê";
+#else
+						which_power = "prayer";
 #endif
 
-				msg_print(NULL);
-			}
-			else if (p_ptr->anti_magic && (p_ptr->pclass != CLASS_BERSERKER) && (p_ptr->pclass != CLASS_SMITH))
-			{
 #ifdef JP
-cptr which_power = "ËâË¡";
+					msg_format("È¿ËâË¡¥Ð¥ê¥¢¤¬%s¤ò¼ÙËâ¤·¤¿¡ª", which_power);
 #else
-				cptr which_power = "magic";
+					msg_format("An anti-magic shell disrupts your %s!", which_power);
 #endif
-
-				if (p_ptr->pclass == CLASS_MINDCRAFTER)
+					energy_use = 0;
+				}
+				else if (p_ptr->shero && (p_ptr->pclass != CLASS_BERSERKER))
+				{
 #ifdef JP
-which_power = "Ä¶Ç½ÎÏ";
+					msg_format("¶¸Àï»Î²½¤·¤Æ¤¤¤ÆÆ¬¤¬²ó¤é¤Ê¤¤¡ª");
 #else
-					which_power = "psionic powers";
+					msg_format("You cannot think directly!");
 #endif
-
-				else if (p_ptr->pclass == CLASS_IMITATOR)
-#ifdef JP
-which_power = "¤â¤Î¤Þ¤Í";
-#else
-					which_power = "mane";
-#endif
-
-				else if (p_ptr->pclass == CLASS_SAMURAI)
-#ifdef JP
-which_power = "É¬»¦·õ";
-#else
-					which_power = "hissatsu";
-#endif
-				else if (p_ptr->pclass == CLASS_MIRROR_MASTER)
-#ifdef JP
-which_power = "¶ÀËâË¡";
-#else
-					which_power = "mirror magic";
-#endif
-
-				else if (p_ptr->pclass == CLASS_NINJA)
-#ifdef JP
-which_power = "Ç¦½Ñ";
-#else
-					which_power = "ninjutsu";
-#endif
-
-				else if (mp_ptr->spell_book == TV_LIFE_BOOK)
-#ifdef JP
-which_power = "µ§¤ê";
-#else
-					which_power = "prayer";
-#endif
-
-
-#ifdef JP
-msg_format("È¿ËâË¡¥Ð¥ê¥¢¤¬%s¤ò¼ÙËâ¤·¤¿¡ª", which_power);
-#else
-				msg_format("An anti-magic shell disrupts your %s!", which_power);
-#endif
-
-
-				energy_use = 0;
-			}
-			else if (p_ptr->shero && (p_ptr->pclass != CLASS_BERSERKER))
-			{
-#ifdef JP
-msg_format("¶¸Àï»Î²½¤·¤Æ¤¤¤ÆÆ¬¤¬²ó¤é¤Ê¤¤¡ª");
-#else
-				msg_format("You cannot think directly!");
-#endif
-				energy_use = 0;
-			}
-			else
-			{
-				if ((p_ptr->pclass == CLASS_MINDCRAFTER) ||
-				    (p_ptr->pclass == CLASS_BERSERKER) ||
-				    (p_ptr->pclass == CLASS_NINJA) ||
-				    (p_ptr->pclass == CLASS_MIRROR_MASTER) 
-				    )
-					do_cmd_mind();
-				else if (p_ptr->pclass == CLASS_IMITATOR)
-					do_cmd_mane(FALSE);
-				else if (p_ptr->pclass == CLASS_MAGIC_EATER)
-					do_cmd_magic_eater();
-				else if (p_ptr->pclass == CLASS_SAMURAI)
-					do_cmd_hissatsu();
-				else if (p_ptr->pclass == CLASS_BLUE_MAGE)
-					do_cmd_cast_learned();
-				else if (p_ptr->pclass == CLASS_SMITH)
-					do_cmd_kaji(FALSE);
+					energy_use = 0;
+				}
 				else
-					do_cmd_cast();
-			}
+				{
+					if ((p_ptr->pclass == CLASS_MINDCRAFTER) ||
+					    (p_ptr->pclass == CLASS_BERSERKER) ||
+					    (p_ptr->pclass == CLASS_NINJA) ||
+					    (p_ptr->pclass == CLASS_MIRROR_MASTER)
+					    )
+						do_cmd_mind();
+					else if (p_ptr->pclass == CLASS_IMITATOR)
+						do_cmd_mane(FALSE);
+					else if (p_ptr->pclass == CLASS_MAGIC_EATER)
+						do_cmd_magic_eater();
+					else if (p_ptr->pclass == CLASS_SAMURAI)
+						do_cmd_hissatsu();
+					else if (p_ptr->pclass == CLASS_BLUE_MAGE)
+						do_cmd_cast_learned();
+					else if (p_ptr->pclass == CLASS_SMITH)
+						do_cmd_kaji(FALSE);
+					else
+						do_cmd_cast();
+				}
 			}
 			break;
 		}
@@ -4813,7 +4790,6 @@ msg_print("²¿¤«ÊÑ¤ï¤Ã¤¿µ¤¤¬¤¹¤ë¡ª");
 			if ((p_ptr->chp == p_ptr->mhp) &&
 			    (p_ptr->csp >= p_ptr->msp))
 			{
-				disturb(0, 0);
 				set_action(ACTION_NONE);
 			}
 		}
@@ -4830,7 +4806,6 @@ msg_print("²¿¤«ÊÑ¤ï¤Ã¤¿µ¤¤¬¤¹¤ë¡ª");
 			    !p_ptr->slow && !p_ptr->paralyzed &&
 			    !p_ptr->image && !p_ptr->word_recall)
 			{
-				disturb(0, 0);
 				set_action(ACTION_NONE);
 			}
 		}
@@ -5079,14 +5054,15 @@ msg_format("%^s¤ò¶²ÉÝ¤«¤éÎ©¤ÁÄ¾¤é¤»¤¿¡£", m_name);
 		}
 		else
 		{
-			p_ptr->csp -= (hoge / 0x10000L);
+			p_ptr->csp -= (s16b)(hoge >> 16);
 			hoge &= 0xFFFFL;
 			if (p_ptr->csp_frac < hoge)
 			{
-				p_ptr->csp_frac += 0x10000L;
-				p_ptr->csp --;
+				p_ptr->csp_frac += 0x10000L - hoge;
+				p_ptr->csp--;
 			}
-			p_ptr->csp_frac -= hoge;
+			else
+				p_ptr->csp_frac -= hoge;
 		}
 		p_ptr->redraw |= PR_MANA;
 	}
@@ -5448,6 +5424,9 @@ msg_format("%s(%c)¤òÍî¤È¤·¤¿¡£", o_name, index_to_label(item));
 		/* Handle "leaving" */
 		if (p_ptr->leaving) break;
 	}
+
+	/* Update scent trail */
+	update_smell();
 }
 
 
@@ -5616,7 +5595,7 @@ static void dungeon(bool load_game)
 
 	/* Update stuff */
 	p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_DISTANCE | PU_MON_LITE);
-	p_ptr->update |= (PU_MONSTERS);/*¼«Ê¬¤Ç¸÷¤Ã¤Æ¤¤¤ë¥â¥ó¥¹¥¿¡¼¤Î°Ù*/
+	p_ptr->update |= (PU_MONSTERS);/*¼«Ê¬¤Ç¸÷¤Ã¤Æ¤¤¤ë¥â¥ó¥¹¥¿¡¼¤Î°Ù */
 
 	/* Update stuff */
 	update_stuff();
@@ -6137,7 +6116,7 @@ quit("¥»¡¼¥Ö¥Õ¥¡¥¤¥ë¤¬²õ¤ì¤Æ¤¤¤Þ¤¹");
 		/* Start in town */
 		dun_level = 0;
 		p_ptr->inside_quest = 0;
-		p_ptr->inside_arena = 0;
+		p_ptr->inside_arena = FALSE;
 		p_ptr->inside_battle = FALSE;
 
 		write_level = TRUE;
@@ -6242,8 +6221,12 @@ quit("¥»¡¼¥Ö¥Õ¥¡¥¤¥ë¤¬²õ¤ì¤Æ¤¤¤Þ¤¹");
 	world_monster = FALSE;
 	now_damaged = FALSE;
 	now_message = 0;
-	start_time = time(NULL);
+	start_time = time(NULL) - 1;
 	record_o_name[0] = '\0';
+
+	/* Sexy gal gets bonus to maximum weapon skill of whip */
+	if(p_ptr->pseikaku == SEIKAKU_SEXY)
+		s_info[p_ptr->pclass].w_max[TV_HAFTED-TV_BOW][SV_WHIP] = 8000;
 
         /* Fill the arrays of floors and walls in the good proportions */
         for (i = 0; i < 100; i++)
@@ -6379,18 +6362,6 @@ if (init_v_info()) quit("·úÃÛÊª½é´ü²½ÉÔÇ½");
 	/* Process */
 	while (TRUE)
 	{
-#ifdef USE_SCRIPT
-		/* Save the current coordinates */
-		s32b wild_y = p_ptr->wilderness_y;
-		s32b wild_x = p_ptr->wilderness_x;
-		s16b level = dun_level;
-
-		if (level == 0)
-			enter_wilderness_callback(wild_y, wild_x);
-		else
-			enter_level_callback(level);
-#endif /* USE_SCRIPT */
-
 		/* Process the level */
 		dungeon(load_game);
 
@@ -6435,13 +6406,6 @@ if (init_v_info()) quit("·úÃÛÊª½é´ü²½ÉÔÇ½");
 		msg_print(NULL);
 
 		load_game = FALSE;
-
-#ifdef USE_SCRIPT
-		if (level == 0)
-			leave_wilderness_callback(wild_y, wild_x);
-		else
-			leave_level_callback(level);
-#endif /* USE_SCRIPT */
 
 		/* Accidental Death */
 		if (alive && death)
@@ -6549,8 +6513,8 @@ msg_print("Ä¥¤ê¤Ä¤á¤¿Âçµ¤¤¬Î®¤ìµî¤Ã¤¿...");
 					death = FALSE;
 
 					dun_level = 0;
-					p_ptr->inside_arena = 0;
-					p_ptr->inside_battle = 0;
+					p_ptr->inside_arena = FALSE;
+					p_ptr->inside_battle = FALSE;
 					leaving_quest = 0;
 					p_ptr->inside_quest = 0;
 					p_ptr->recall_dungeon = dungeon_type;

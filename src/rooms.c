@@ -1225,6 +1225,14 @@ static bool vault_aux_undead(int r_idx)
  */
 static bool vault_aux_chapel_g(int r_idx)
 {
+	static int chapel_list[] = {
+		MON_NOV_PRIEST, MON_NOV_PALADIN, MON_NOV_PRIEST_G, MON_NOV_PALADIN_G, 
+		MON_PRIEST, MON_JADE_MONK, MON_IVORY_MONK, MON_ULTRA_PALADIN, 
+		MON_EBONY_MONK, MON_KNI_TEMPLAR, MON_PALADIN, MON_TOPAZ_MONK,
+		0};
+
+	int i;
+
 	monster_race *r_ptr = &r_info[r_idx];
 
 	/* Validate the monster */
@@ -1234,29 +1242,13 @@ static bool vault_aux_chapel_g(int r_idx)
 	if ((r_idx == MON_A_GOLD) || (r_idx == MON_A_SILVER)) return (FALSE);
 
 	/* Require "priest" or Angel */
-	if (!((r_ptr->d_char == 'A') ||
-#ifdef JP
-strstr((E_r_name + r_ptr->E_name),"aladin") ||
-#else
-		strstr((r_name + r_ptr->name),"aladin") ||
-#endif
-#ifdef JP
-strstr((E_r_name + r_ptr->E_name),"Monk") ||
-#else
-		strstr((r_name + r_ptr->name),"Monk") ||
-#endif
-#ifdef JP
-strstr((E_r_name + r_ptr->E_name),"riest")))
-#else
-		strstr((r_name + r_ptr->name),"riest")))
-#endif
 
-	{
-		return (FALSE);
-	}
+	if (r_ptr->d_char == 'A') return TRUE;
 
-	/* Okay */
-	return (TRUE);
+	for (i = 0; chapel_list[i]; i++)
+		if (r_idx == chapel_list[i]) return TRUE;
+
+	return FALSE;
 }
 
 
@@ -2799,7 +2791,7 @@ static void generate_hmap(int y0, int x0, int xsiz, int ysiz, int grd, int roug,
 	* Scale factor for middle points:
 	* About sqrt(2) * 256 - correct for a square lattice
 	* approximately correct for everything else.
-	*/
+	 */
 	diagsize = 362;
 
 	/* maximum of xsize and ysize */

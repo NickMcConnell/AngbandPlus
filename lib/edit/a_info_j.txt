@@ -876,7 +876,7 @@ D:of Elements.
 N:45:『ホルコレス』
 E:'Holcolleth'
 I:35:2:2
-W:20:15:10:43000
+W:20:15:5:43000
 P:4:0d0:0:0:4
 F:INT | WIS | STEALTH | HIDE_TYPE | RES_ACID | SEARCH | ACTIVATE
 D:$This elven-grey mantle possesses great powers of tranquility and of 
@@ -2412,20 +2412,20 @@ D:あらゆる色彩の鱗に被われたアダマンタイトの鎧で、完璧にコントロールされた
 D:地、水、火、風および霊的な力が調和し
 D:渾然一体となり、輝く護光となってこの鎧を包んでいる。
 
-N:131:イカヌスの
-E:of Icanus
+N:131:インカヌスの
+E:of Incanus
 I:36:2:3
 W:50:40:20:100000
 P:2:0d0:0:0:20
 F:INT | WIS | SEARCH | HIDE_TYPE | FEATHER | ACTIVATE 
 F:SUST_INT | SUST_WIS | FREE_ACT | SEE_INVIS | DEC_MANA |
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD
-D:$The robe of the great wizard Gandalf, also known as Icanus in the 
+D:$The robe of the great wizard Gandalf, also known as Incanus in the 
 D:$lands of the South. It is proof against elements, for neither the 
 D:$heat of the South, nor the ice of the North, nor the acidy pits of Dol 
 D:$Guldur were able to hold back the defiant Maia in the pursuit of 
 D:$his mission 
-D:南方ではイカヌスの名で知られる大賢者ガンダルフのローブだ。様々なエレメント
+D:南方ではインカヌスの名で知られる大賢者ガンダルフのローブだ。様々なエレメント
 D:から身を護るこのローブのおかげで、南の熱暑、北の氷結、ドル・グルドゥアの
 D:酸の沼でさえも、かの挑戦的なマイアの任務を妨げる事はなかったのだ。
 
@@ -2975,11 +2975,11 @@ F:STR | DEX | SUST_STR | SUST_DEX | FREE_ACT | SEE_INVIS | VAMPIRIC |
 F:KILL_DRAGON | SLAY_ANIMAL | SLAY_EVIL | BRAND_ELEC | BRAND_ACID |
 F:SLAY_UNDEAD | SLAY_DEMON | SLAY_TROLL | SLAY_GIANT | SLAY_ORC |
 F:IM_FIRE | RES_SHARDS | RES_FEAR | TUNNEL | INFRA | SEARCH | REFLECT |
-F:LITE | TELEPATHY | REGEN |
+F:LITE | TELEPATHY | REGEN | BRAND_FIRE | BRAND_COLD | BRAND_POIS |
 F:HIDE_TYPE | SHOW_MODS | RIDING | QUESTITEM | INSTA_ART
 
 N:182:いいかげんな
-E:of irresponsiblity
+E:of irresponsibility
 I:19:63:7
 W:127:1:50:1000000
 P:0:1d1:22:22:10
@@ -3309,7 +3309,7 @@ D:（富士見書房「アイスウインド・サーガ１魔石の復活」 R・A・サルヴァトーレ著、
 D:風見潤訳）
 
 N:209:『隠者の紫』
-E:'hermit's perple'
+E:'hermit's purple'
 I:21:2:2
 W:40:40:30:40000
 P:0:1d6:10:5:0

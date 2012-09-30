@@ -124,19 +124,20 @@ void prt_time(void)
 	c_put_str(TERM_WHITE, "             ", ROW_DAY, COL_DAY);
 
 	/* Dump the info itself */
+	c_put_str(TERM_WHITE, format(
 #ifdef JP
-	c_put_str(TERM_WHITE, format("%2d日目",
+		"%2d日目",
 #else
-	c_put_str(TERM_WHITE, format("Day %-2d",
+		"Day %-2d",
 #endif
-		  ((p_ptr->prace == RACE_VAMPIRE) ||
-		   (p_ptr->prace == RACE_SKELETON) ||
-		   (p_ptr->prace == RACE_ZOMBIE) ||
-		   (p_ptr->prace == RACE_SPECTRE))
-		   ? (turn - (15L * TOWN_DAWN)) / len + 1
-		   : (turn + (5L * TOWN_DAWN))/ len + 1),
+		((p_ptr->prace == RACE_VAMPIRE) ||
+		 (p_ptr->prace == RACE_SKELETON) ||
+		 (p_ptr->prace == RACE_ZOMBIE) ||
+		 (p_ptr->prace == RACE_SPECTRE))
+		? (turn - (15L * TOWN_DAWN)) / len + 1
+		: (turn + (5L * TOWN_DAWN))/ len + 1),
 		  ROW_DAY, COL_DAY);
-
+	
 	c_put_str(TERM_WHITE, format("%2d:%02d",
 				      (24 * tick / len) % 24,
 				      (1440 * tick / len) % 60),
@@ -144,46 +145,52 @@ void prt_time(void)
 }
 
 
-
+cptr map_name(void)
+{
+	if (p_ptr->inside_quest && (p_ptr->inside_quest < MIN_RANDOM_QUEST)
+	    && (quest[p_ptr->inside_quest].flags & QUEST_FLAG_PRESET))
+#ifdef JP
+		return "クエスト";
+#else
+          	return "Quest";
+#endif
+	else if (p_ptr->wild_mode)
+#ifdef JP
+		return "地上";
+#else
+		return "Surface";
+#endif
+	else if (p_ptr->inside_arena)
+#ifdef JP
+		return "アリーナ";
+#else
+		return "Monster Arena";
+#endif
+	else if (p_ptr->inside_battle)
+#ifdef JP
+		return "闘技場";
+#else
+		return "Arena";
+#endif
+	else if (!dun_level && p_ptr->town_num)
+		return town[p_ptr->town_num].name;
+	else
+		return d_name+d_info[dungeon_type].name;
+}
 
 /*
  * Print dungeon
  */
 static void prt_dungeon(void)
 {
-	cptr dungeon_name = d_name+d_info[dungeon_type].name;
+	cptr dungeon_name;
 	int col;
 
 	/* Dump 13 spaces to clear */
 	c_put_str(TERM_WHITE, "             ", ROW_DUNGEON, COL_DUNGEON);
 
-	if (p_ptr->inside_quest && (p_ptr->inside_quest < MIN_RANDOM_QUEST) && (quest[p_ptr->inside_quest].flags & QUEST_FLAG_PRESET))
+	dungeon_name = map_name();
 
-#ifdef JP
-	dungeon_name = "クエスト";
-#else
-	dungeon_name = "Quest";
-#endif
-	else if (p_ptr->wild_mode)
-#ifdef JP
-		dungeon_name = "地上";
-#else
-		dungeon_name = "Surface";
-#endif
-	else if (p_ptr->inside_arena)
-#ifdef JP
-		dungeon_name = "アリーナ";
-#else
-		dungeon_name = "Monster Arena";
-#endif
-	else if (p_ptr->inside_battle)
-#ifdef JP
-		dungeon_name = "闘技場";
-#else
-		dungeon_name = "Arena";
-#endif
-	else if (!dun_level && p_ptr->town_num)
-		dungeon_name = town[p_ptr->town_num].name;
 	col = COL_DUNGEON + 6 - strlen(dungeon_name)/2;
 	if (col < 0) col = 0;
 
@@ -2034,7 +2041,7 @@ static void fix_message(void)
 		for (i = 0; i < h; i++)
 		{
 			/* Dump the message on the appropriate line */
-			Term_putstr(0, (h - 1) - i, -1, (i < now_message) ? TERM_WHITE : TERM_SLATE, message_str((s16b)i));
+			Term_putstr(0, (h - 1) - i, -1, (byte)((i < now_message) ? TERM_WHITE : TERM_SLATE), message_str((s16b)i));
 
 			/* Cursor */
 			Term_locate(&x, &y);
@@ -2505,7 +2512,7 @@ static void calc_spells(void)
 			k++;
 		}
 		if (k>32) k = 32;
-		if ((p_ptr->new_spells > k) && (mp_ptr->spell_book == TV_LIFE_BOOK)) p_ptr->new_spells = k;
+		if ((p_ptr->new_spells > k) && ((mp_ptr->spell_book == TV_LIFE_BOOK) || (mp_ptr->spell_book == TV_HISSATSU_BOOK))) p_ptr->new_spells = k;
 	}
 
 	if (p_ptr->new_spells < 0) p_ptr->new_spells = 0;
@@ -3303,119 +3310,107 @@ void calc_bonuses(void)
 		}
 	}
 
-#ifdef USE_SCRIPT
-
-	if (!get_player_flags_callback())
-
-#endif /* USE_SCRIPT */
-
+	switch (p_ptr->pclass)
 	{
-		switch (p_ptr->pclass)
-		{
-			case CLASS_WARRIOR:
-				if (p_ptr->lev > 29) p_ptr->resist_fear = TRUE;
-				if (p_ptr->lev > 44) p_ptr->regenerate = TRUE;
-				break;
-			case CLASS_PALADIN:
-				if (p_ptr->lev > 39) p_ptr->resist_fear = TRUE;
-				break;
-			case CLASS_CHAOS_WARRIOR:
-				if (p_ptr->lev > 29) p_ptr->resist_chaos = TRUE;
-				if (p_ptr->lev > 39) p_ptr->resist_fear = TRUE;
-				break;
-			case CLASS_MINDCRAFTER:
-				if (p_ptr->lev >  9) p_ptr->resist_fear = TRUE;
-				if (p_ptr->lev > 19) p_ptr->sustain_wis = TRUE;
-				if (p_ptr->lev > 29) p_ptr->resist_conf = TRUE;
-				if (p_ptr->lev > 39) p_ptr->telepathy = TRUE;
-				break;
-			case CLASS_MONK:
-			case CLASS_FORCETRAINER:
-				/* Unencumbered Monks become faster every 10 levels */
-				if (!(heavy_armor()))
-				{
-					if (!((p_ptr->prace == RACE_KLACKON) ||
-						(p_ptr->prace == RACE_SPRITE) ||
-						(p_ptr->pseikaku == SEIKAKU_MUNCHKIN)))
-						p_ptr->pspeed += (p_ptr->lev) / 10;
+		case CLASS_WARRIOR:
+			if (p_ptr->lev > 29) p_ptr->resist_fear = TRUE;
+			if (p_ptr->lev > 44) p_ptr->regenerate = TRUE;
+			break;
+		case CLASS_PALADIN:
+			if (p_ptr->lev > 39) p_ptr->resist_fear = TRUE;
+			break;
+		case CLASS_CHAOS_WARRIOR:
+			if (p_ptr->lev > 29) p_ptr->resist_chaos = TRUE;
+			if (p_ptr->lev > 39) p_ptr->resist_fear = TRUE;
+			break;
+		case CLASS_MINDCRAFTER:
+			if (p_ptr->lev >  9) p_ptr->resist_fear = TRUE;
+			if (p_ptr->lev > 19) p_ptr->sustain_wis = TRUE;
+			if (p_ptr->lev > 29) p_ptr->resist_conf = TRUE;
+			if (p_ptr->lev > 39) p_ptr->telepathy = TRUE;
+			break;
+		case CLASS_MONK:
+		case CLASS_FORCETRAINER:
+			/* Unencumbered Monks become faster every 10 levels */
+			if (!(heavy_armor()))
+			{
+				if (!((p_ptr->prace == RACE_KLACKON) ||
+				      (p_ptr->prace == RACE_SPRITE) ||
+				      (p_ptr->pseikaku == SEIKAKU_MUNCHKIN)))
+					p_ptr->pspeed += (p_ptr->lev) / 10;
 
-					/* Free action if unencumbered at level 25 */
-					if  (p_ptr->lev > 24)
-						p_ptr->free_act = TRUE;
-				}
-				break;
-			case CLASS_SORCERER:
-				p_ptr->to_a -= 50;
-				p_ptr->dis_to_a -= 50;
-				break;
-			case CLASS_BARD:
-				p_ptr->resist_sound = TRUE;
-				break;
-			case CLASS_SAMURAI:
-				if (p_ptr->lev > 29) p_ptr->resist_fear = TRUE;
-				break;
-			case CLASS_BERSERKER:
-				p_ptr->shero = 1;
-				p_ptr->sustain_str = TRUE;
-				p_ptr->sustain_dex = TRUE;
-				p_ptr->sustain_con = TRUE;
-				p_ptr->regenerate = TRUE;
-				p_ptr->free_act = TRUE;
-				p_ptr->pspeed += 2;
-				if (p_ptr->lev > 29) p_ptr->pspeed++;
-				if (p_ptr->lev > 39) p_ptr->pspeed++;
-				if (p_ptr->lev > 44) p_ptr->pspeed++;
-				if (p_ptr->lev > 49) p_ptr->pspeed++;
-				p_ptr->to_a += 10+p_ptr->lev/2;
-				p_ptr->dis_to_a += 10+p_ptr->lev/2;
-				p_ptr->skill_dig += (100+p_ptr->lev*8);
-				if (p_ptr->lev > 39) p_ptr->reflect = TRUE;
+				/* Free action if unencumbered at level 25 */
+				if  (p_ptr->lev > 24)
+					p_ptr->free_act = TRUE;
+			}
+			break;
+		case CLASS_SORCERER:
+			p_ptr->to_a -= 50;
+			p_ptr->dis_to_a -= 50;
+			break;
+		case CLASS_BARD:
+			p_ptr->resist_sound = TRUE;
+			break;
+		case CLASS_SAMURAI:
+			if (p_ptr->lev > 29) p_ptr->resist_fear = TRUE;
+			break;
+		case CLASS_BERSERKER:
+			p_ptr->shero = 1;
+			p_ptr->sustain_str = TRUE;
+			p_ptr->sustain_dex = TRUE;
+			p_ptr->sustain_con = TRUE;
+			p_ptr->regenerate = TRUE;
+			p_ptr->free_act = TRUE;
+			p_ptr->pspeed += 2;
+			if (p_ptr->lev > 29) p_ptr->pspeed++;
+			if (p_ptr->lev > 39) p_ptr->pspeed++;
+			if (p_ptr->lev > 44) p_ptr->pspeed++;
+			if (p_ptr->lev > 49) p_ptr->pspeed++;
+			p_ptr->to_a += 10+p_ptr->lev/2;
+			p_ptr->dis_to_a += 10+p_ptr->lev/2;
+			p_ptr->skill_dig += (100+p_ptr->lev*8);
+			if (p_ptr->lev > 39) p_ptr->reflect = TRUE;
+			p_ptr->redraw |= PR_STATUS;
+			break;
+		case CLASS_MIRROR_MASTER:
+			if (p_ptr->lev > 39) p_ptr->reflect = TRUE;
+			break;
+		case CLASS_NINJA:
+			/* Unencumbered Monks become faster every 10 levels */
+			if (heavy_armor())
+			{
+				p_ptr->pspeed -= (p_ptr->lev) / 10;
+				p_ptr->skill_stl -= (p_ptr->lev)/10;
+			}
+			else if (!inventory[INVEN_LARM].tval || p_ptr->hidarite)
+			{
+				p_ptr->pspeed += 3;
+				if (!((p_ptr->prace == RACE_KLACKON) ||
+				      (p_ptr->prace == RACE_SPRITE) ||
+				      (p_ptr->pseikaku == SEIKAKU_MUNCHKIN)))
+					p_ptr->pspeed += (p_ptr->lev) / 10;
+				p_ptr->skill_stl += (p_ptr->lev)/10;
+
+				/* Free action if unencumbered at level 25 */
+				if  (p_ptr->lev > 24)
+					p_ptr->free_act = TRUE;
+			}
+			if (!inventory[INVEN_LARM].tval || p_ptr->hidarite)
+			{
+				p_ptr->to_a += p_ptr->lev/2+5;
+				p_ptr->dis_to_a += p_ptr->lev/2+5;
+			}
+			p_ptr->slow_digest = TRUE;
+			p_ptr->resist_fear = TRUE;
+			if (p_ptr->lev > 19) p_ptr->resist_pois = TRUE;
+			if (p_ptr->lev > 24) p_ptr->sustain_dex = TRUE;
+			if (p_ptr->lev > 29) p_ptr->see_inv = TRUE;
+			if (p_ptr->lev > 44)
+			{
+				p_ptr->oppose_pois = 1;
 				p_ptr->redraw |= PR_STATUS;
-				break;
-			case CLASS_MIRROR_MASTER:
-				if (p_ptr->lev > 39) p_ptr->reflect = TRUE;
-				break;
-			case CLASS_NINJA:
-				/* Unencumbered Monks become faster every 10 levels */
-				if (heavy_armor())
-				{
-					p_ptr->pspeed -= (p_ptr->lev) / 10;
-					p_ptr->skill_stl -= (p_ptr->lev)/10;
-				}
-				else
-				{
-					if (!inventory[INVEN_LARM].tval || p_ptr->hidarite)
-					{
-						p_ptr->pspeed += 3;
-					if (!((p_ptr->prace == RACE_KLACKON) ||
-						(p_ptr->prace == RACE_SPRITE) ||
-						(p_ptr->pseikaku == SEIKAKU_MUNCHKIN)))
-						p_ptr->pspeed += (p_ptr->lev) / 10;
-
-					p_ptr->skill_stl += (p_ptr->lev)/10;
-					
-					/* Free action if unencumbered at level 25 */
-					if  (p_ptr->lev > 24)
-						p_ptr->free_act = TRUE;
-					}
-				}
-				if (!inventory[INVEN_LARM].tval || p_ptr->hidarite)
-				{
-					p_ptr->to_a += p_ptr->lev/2+5;
-					p_ptr->dis_to_a += p_ptr->lev/2+5;
-				}
-				p_ptr->slow_digest = TRUE;
-				p_ptr->resist_fear = TRUE;
-				if (p_ptr->lev > 19) p_ptr->resist_pois = TRUE;
-				if (p_ptr->lev > 24) p_ptr->sustain_dex = TRUE;
-				if (p_ptr->lev > 29) p_ptr->see_inv = TRUE;
-				if (p_ptr->lev > 44)
-				{
-					p_ptr->oppose_pois = 1;
-					p_ptr->redraw |= PR_STATUS;
-				}
-				break;
-		}
+			}
+			break;
 	}
 
 	/***** Races ****/
@@ -4561,7 +4556,7 @@ void calc_bonuses(void)
 		int speed = m_list[p_ptr->riding].mspeed;
 		if (m_list[p_ptr->riding].mspeed > 110)
 		{
-			p_ptr->pspeed = 110 + ((speed-110)*(skill_exp[GINOU_RIDING]*3 + p_ptr->lev*160L - 10000L)/(22000L));
+			p_ptr->pspeed = 110 + (s16b)((speed-110)*(skill_exp[GINOU_RIDING]*3 + p_ptr->lev*160L - 10000L)/(22000L));
 			if (p_ptr->pspeed < 110) p_ptr->pspeed = 110;
 		}
 		else
@@ -4687,7 +4682,10 @@ void calc_bonuses(void)
 
 			if (p_ptr->pclass == CLASS_ARCHER)
 			{
-				p_ptr->num_fire += (p_ptr->lev * 6);
+				if (p_ptr->tval_ammo == TV_ARROW)
+					p_ptr->num_fire += (p_ptr->lev * 6);
+				else if ((p_ptr->tval_ammo == TV_BOLT) || (p_ptr->tval_ammo == TV_SHOT))
+					p_ptr->num_fire += (p_ptr->lev * 4);
 			}
 
 			/*
@@ -5084,15 +5082,18 @@ void calc_bonuses(void)
 	{
 		if(buki_motteruka(INVEN_RARM+i))
 		{
-			p_ptr->to_h[i] += (weapon_exp[inventory[INVEN_RARM+i].tval-TV_BOW][inventory[INVEN_RARM+i].sval]-4000)/200;
-			p_ptr->dis_to_h[i] += (weapon_exp[inventory[INVEN_RARM+i].tval-TV_BOW][inventory[INVEN_RARM+i].sval]-4000)/200;
-			if ((p_ptr->pclass == CLASS_MONK) && !(weapon_exp_settei[CLASS_MONK][inventory[INVEN_RARM+i].tval-TV_BOW][inventory[INVEN_RARM+i].sval][1]))
+			int tval = inventory[INVEN_RARM+i].tval - TV_BOW;
+			int sval = inventory[INVEN_RARM+i].sval;
+
+			p_ptr->to_h[i] += (weapon_exp[tval][sval]-4000)/200;
+			p_ptr->dis_to_h[i] += (weapon_exp[tval][sval]-4000)/200;
+			if ((p_ptr->pclass == CLASS_MONK) && !(s_info[CLASS_MONK].w_max[tval][sval]))
 			{
 				p_ptr->to_h[i] -= 40;
 				p_ptr->dis_to_h[i] -= 40;
 				p_ptr->icky_wield[i] = TRUE;
 			}
-			else if ((p_ptr->pclass == CLASS_FORCETRAINER) && !(weapon_exp_settei[CLASS_FORCETRAINER][inventory[INVEN_RARM+i].tval-TV_BOW][inventory[INVEN_RARM+i].sval][1]))
+			else if ((p_ptr->pclass == CLASS_FORCETRAINER) && !(s_info[CLASS_FORCETRAINER].w_max[tval][sval]))
 			{
 				p_ptr->to_h[i] -= 40;
 				p_ptr->dis_to_h[i] -= 40;
@@ -5100,7 +5101,7 @@ void calc_bonuses(void)
 			}
 			else if (p_ptr->pclass == CLASS_NINJA)
 			{
-				if ((weapon_exp_settei[CLASS_NINJA][inventory[INVEN_RARM+i].tval-TV_BOW][inventory[INVEN_RARM+i].sval][1] <= 4000) || (inventory[INVEN_LARM-i].tval == TV_SHIELD))
+				if ((s_info[CLASS_NINJA].w_max[tval][sval] <= 4000) || (inventory[INVEN_LARM-i].tval == TV_SHIELD))
 				{
 					p_ptr->to_h[i] -= 40;
 					p_ptr->dis_to_h[i] -= 40;

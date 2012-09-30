@@ -463,10 +463,6 @@ s = "ÆÉ¤á¤ëËÜ¤¬¤Ê¤¤¡£";
 		o_ptr = &o_list[0 - item];
 	}
 
-#ifdef USE_SCRIPT
-	if (object_browse_callback(o_ptr)) return;
-#endif /* USE_SCRIPT */
-
 	/* Access the item's sval */
 	sval = o_ptr->sval;
 
@@ -1317,24 +1313,36 @@ static bool cast_sorcery_spell(int spell)
 		(void)self_knowledge();
 		break;
 	case 21: /* Teleport Level */
+#ifdef JP
 		if (!get_check("ËÜÅö¤ËÂ¾¤Î³¬¤Ë¥Æ¥ì¥Ý¡¼¥È¤·¤Þ¤¹¤«¡©")) return FALSE;
+#else
+		if (!get_check("Are you sure? (Teleport Level)")) return FALSE;
+#endif
 		(void)teleport_player_level();
 		break;
 	case 22: /* Word of Recall */
 		if (!word_of_recall()) return FALSE;
 		break;
-	case 23: /* Explosive Rune */
-		explosive_rune();
-		break;
+	case 23: /* Dimension Door */
+#ifdef JP
+msg_print("¼¡¸µ¤ÎÈâ¤¬³«¤¤¤¿¡£ÌÜÅªÃÏ¤òÁª¤ó¤Ç²¼¤µ¤¤¡£");
+#else
+		msg_print("You open a dimensional gate. Choose a destination.");
+#endif
+
+		return dimension_door();
 	case 24: /* Probing */
 		(void)probing();
 		break;
-	case 25: /* Telekinesis */
+	case 25: /* Explosive Rune */
+		explosive_rune();
+		break;
+	case 26: /* Telekinesis */
 		if (!get_aim_dir(&dir)) return FALSE;
 
 		fetch(dir, plev * 15, FALSE);
 		break;
-	case 26: /* Clairvoyance */
+	case 27: /* Clairvoyance */
 		chg_virtue(V_KNOWLEDGE, 1);
 		chg_virtue(V_ENLIGHTEN, 1);
 
@@ -1344,17 +1352,9 @@ static bool cast_sorcery_spell(int spell)
 			(void)set_tim_esp(randint(30) + 25, FALSE);
 		}
 		break;
-	case 27: /* Charm Monsters */
+	case 28: /* Charm Monsters */
 		charm_monsters(plev * 2);
 		break;
-	case 28: /* Dimension Door */
-#ifdef JP
-msg_print("¼¡¸µ¤ÎÈâ¤¬³«¤¤¤¿¡£ÌÜÅªÃÏ¤òÁª¤ó¤Ç²¼¤µ¤¤¡£");
-#else
-		msg_print("You open a dimensional gate. Choose a destination.");
-#endif
-
-		return dimension_door();
 	case 29: /* Alchemy */
 		return alchemy();
 	case 30: /* Banish */
@@ -1826,7 +1826,7 @@ msg_print("¥í¥±¥Ã¥ÈÈ¯¼Í¡ª");
 			bool pet = (randint(3) == 1);
 			bool group = !(pet && (plev < 50));
 
-			if (summon_specific((pet ? -1 : 0), py, px, (plev * 3) / 2, SUMMON_DEMON, group, FALSE, pet, FALSE, !pet))
+			if (summon_specific((pet ? -1 : 0), py, px, (plev * 3) / 2, SUMMON_DEMON, group, FALSE, pet, FALSE, (bool)(!pet)))
 			{
 #ifdef JP
 msg_print("Î²²«¤Î°­½­¤¬½¼Ëþ¤·¤¿¡£");
@@ -2272,7 +2272,7 @@ msg_print("±¢±µ¤ÊÀ¼¤¬¥¯¥¹¥¯¥¹¾Ð¤¦¡£¡Ö¤â¤¦¤¹¤°¤ª¤Þ¤¨¤Ï²æ¡¹¤ÎÃç´Ö¤Ë¤Ê¤ë¤À¤í¤¦¡£¼å¤
 				group = TRUE;
 			}
 
-			if (summon_specific((pet ? -1 : 0), py, px, (plev * 3) / 2, type, group, FALSE, pet, !pet, !pet))
+			if (summon_specific((pet ? -1 : 0), py, px, (plev * 3) / 2, type, group, FALSE, pet, (bool)(!pet), (bool)(!pet)))
 			{
 #ifdef JP
 msg_print("Îä¤¿¤¤É÷¤¬¤¢¤Ê¤¿¤Î¼þ¤ê¤Ë¿á¤­»Ï¤á¤¿¡£¤½¤ì¤ÏÉåÇÔ½­¤ò±¿¤ó¤Ç¤¤¤ë...");
@@ -2374,7 +2374,7 @@ msg_print("¤¢¤Ê¤¿¤ÏÃØéá¤Î¥«¡¼¥É¤Ë½¸Ãæ¤¹¤ë...");
 #endif
 
 
-			if (summon_specific((pet ? -1 : 0), py, px, summon_lev, SUMMON_SPIDER, TRUE, FALSE, pet, FALSE, !pet))
+			if (summon_specific((pet ? -1 : 0), py, px, summon_lev, SUMMON_SPIDER, TRUE, FALSE, pet, FALSE, (bool)(!pet)))
 			{
 				if (!pet)
 #ifdef JP
@@ -2739,7 +2739,7 @@ msg_print("¤¢¤Ê¤¿¤ÏÆ°Êª¤Î¥«¡¼¥É¤Ë½¸Ãæ¤¹¤ë...");
 #endif
 
 
-			if (summon_specific((pet ? -1 : 0), py, px, summon_lev, type, group, FALSE, pet, FALSE, !pet))
+			if (summon_specific((pet ? -1 : 0), py, px, summon_lev, type, group, FALSE, pet, FALSE, (bool)(!pet)))
 			{
 				if (!pet)
 #ifdef JP
@@ -2796,7 +2796,7 @@ msg_print("¤¢¤Ê¤¿¤Ï¥«¥ß¥«¥¼¤Î¥«¡¼¥É¤Ë½¸Ãæ¤¹¤ë...");
 					type = SUMMON_KAMIKAZE;
 				}
 
-				if (summon_specific((pet ? -1 : 0), y, x, summon_lev, type, group, FALSE, pet, FALSE, !pet))
+				if (summon_specific((pet ? -1 : 0), y, x, summon_lev, type, group, FALSE, pet, FALSE, (bool)(!pet)))
 				{
 					if (!pet)
 #ifdef JP
@@ -2905,7 +2905,7 @@ msg_print("¤¢¤Ê¤¿¤Ï¥¢¥ó¥Ç¥Ã¥É¤Î¥«¡¼¥É¤Ë½¸Ãæ¤¹¤ë...");
 #endif
 
 
-			if (summon_specific((pet ? -1 : 0), py, px, summon_lev, SUMMON_UNDEAD, group, FALSE, pet, FALSE, !pet))
+			if (summon_specific((pet ? -1 : 0), py, px, summon_lev, SUMMON_UNDEAD, group, FALSE, pet, FALSE, (bool)(!pet)))
 			{
 				if (!pet)
 #ifdef JP
@@ -2934,7 +2934,7 @@ msg_print("¤¢¤Ê¤¿¤Ïà¨ÃîÎà¤Î¥«¡¼¥É¤Ë½¸Ãæ¤¹¤ë...");
 #endif
 
 
-			if (summon_specific((pet ? -1 : 0), py, px, summon_lev, SUMMON_HYDRA, group, FALSE, pet, FALSE, !pet))
+			if (summon_specific((pet ? -1 : 0), py, px, summon_lev, SUMMON_HYDRA, group, FALSE, pet, FALSE, (bool)(!pet)))
 			{
 				if (!pet)
 #ifdef JP
@@ -2977,7 +2977,7 @@ msg_print("¤¢¤Ê¤¿¤Ï¥â¥ó¥¹¥¿¡¼¤Î¥«¡¼¥É¤Ë½¸Ãæ¤¹¤ë...");
 					type = 0;
 				}
 
-				if (summon_specific((pet ? -1 : 0), py, px, summon_lev, type, group, FALSE, pet, unique_okay, !pet))
+				if (summon_specific((pet ? -1 : 0), py, px, summon_lev, type, group, FALSE, pet, unique_okay, (bool)(!pet)))
 				{
 					if (!pet)
 #ifdef JP
@@ -3002,7 +3002,7 @@ msg_print("¤¢¤Ê¤¿¤Ï¥Ï¥¦¥ó¥É¤Î¥«¡¼¥É¤Ë½¸Ãæ¤¹¤ë...");
 #endif
 
 
-			if (summon_specific((pet ? -1 : 0), py, px, summon_lev, SUMMON_HOUND, TRUE, FALSE, pet, FALSE, !pet))
+			if (summon_specific((pet ? -1 : 0), py, px, summon_lev, SUMMON_HOUND, TRUE, FALSE, pet, FALSE, (bool)(!pet)))
 			{
 				if (!pet)
 #ifdef JP
@@ -3055,7 +3055,7 @@ msg_print("¤¢¤Ê¤¿¤Ï¥µ¥¤¥Ð¡¼¥Ç¡¼¥â¥ó¤Î¥«¡¼¥É¤Ë½¸Ãæ¤¹¤ë...");
 #endif
 
 
-			if (summon_specific((pet ? -1 : 0), py, px, summon_lev, SUMMON_CYBER, FALSE, FALSE, pet, FALSE, !pet))
+			if (summon_specific((pet ? -1 : 0), py, px, summon_lev, SUMMON_CYBER, FALSE, FALSE, pet, FALSE, (bool)(!pet)))
 			{
 				if (!pet)
 #ifdef JP
@@ -3111,7 +3111,7 @@ msg_print("¤¢¤Ê¤¿¤Ï¥É¥é¥´¥ó¤Î¥«¡¼¥É¤Ë½¸Ãæ¤¹¤ë...");
 #endif
 
 
-			if (summon_specific((pet ? -1 : 0), py, px, summon_lev, SUMMON_DRAGON, group, FALSE, pet, FALSE, !pet))
+			if (summon_specific((pet ? -1 : 0), py, px, summon_lev, SUMMON_DRAGON, group, FALSE, pet, FALSE, (bool)(!pet)))
 			{
 				if (!pet)
 #ifdef JP
@@ -3172,7 +3172,7 @@ msg_print("¤¢¤Ê¤¿¤Ï¥Ç¡¼¥â¥ó¤Î¥«¡¼¥É¤Ë½¸Ãæ¤¹¤ë...");
 #endif
 
 
-			if (summon_specific((pet ? -1 : 0), py, px, summon_lev, SUMMON_DEMON, group, FALSE, pet, FALSE, !pet))
+			if (summon_specific((pet ? -1 : 0), py, px, summon_lev, SUMMON_DEMON, group, FALSE, pet, FALSE, (bool)(!pet)))
 			{
 				if (!pet)
 #ifdef JP
@@ -3201,7 +3201,7 @@ msg_print("¤¢¤Ê¤¿¤Ï¶¯ÎÏ¤Ê¥¢¥ó¥Ç¥Ã¥É¤Î¥«¡¼¥É¤Ë½¸Ãæ¤¹¤ë...");
 #endif
 
 
-			if (summon_specific((pet ? -1 : 0), py, px, summon_lev, SUMMON_HI_UNDEAD, group, FALSE, pet, unique_okay, !pet))
+			if (summon_specific((pet ? -1 : 0), py, px, summon_lev, SUMMON_HI_UNDEAD, group, FALSE, pet, unique_okay, (bool)(!pet)))
 			{
 				if (!pet)
 #ifdef JP
@@ -3239,7 +3239,7 @@ msg_print("¤¢¤Ê¤¿¤Ï¸ÅÂå¥É¥é¥´¥ó¤Î¥«¡¼¥É¤Ë½¸Ãæ¤¹¤ë...");
 #endif
 
 
-			if (summon_specific((pet ? -1 : 0), py, px, summon_lev, type, group, FALSE, pet, unique_okay, !pet))
+			if (summon_specific((pet ? -1 : 0), py, px, summon_lev, type, group, FALSE, pet, unique_okay, (bool)(!pet)))
 			{
 				if (!pet)
 #ifdef JP
@@ -3395,7 +3395,11 @@ msg_print("¸÷Àþ¤¬Êü¤¿¤ì¤¿¡£");
 			no_trump = TRUE;
 		break;
 	case 26: /* Teleport Level */
+#ifdef JP
 		if (!get_check("ËÜÅö¤ËÂ¾¤Î³¬¤Ë¥Æ¥ì¥Ý¡¼¥È¤·¤Þ¤¹¤«¡©")) return FALSE;
+#else
+		if (!get_check("Are you sure? (Teleport Level)")) return FALSE;
+#endif
 		(void)teleport_player_level();
 		break;
 	case 27: /* Teleport Away */
@@ -3724,7 +3728,7 @@ msg_print("¸ÅÂå¤Î»àÎî¤Ï¸½¤ì¤Ê¤«¤Ã¤¿¡£");
 		bool pet = (randint(3) != 1);
 		bool group = !(pet && (plev < 50));
 
-		if (summon_specific((pet ? -1 : 0), py, px, plev*2/3+randint(plev/2), SUMMON_DEMON, group, FALSE, pet, FALSE, !pet))
+		if (summon_specific((pet ? -1 : 0), py, px, plev*2/3+randint(plev/2), SUMMON_DEMON, group, FALSE, pet, FALSE, (bool)(!pet)))
 		{
 #ifdef JP
 msg_print("Î²²«¤Î°­½­¤¬½¼Ëþ¤·¤¿¡£");
@@ -3815,7 +3819,7 @@ else msg_print("<ÇËÌÇ¤Î¼ê>¤òÊü¤Ã¤¿¡ª");
 		fire_ball(GF_CHARM, 0, 20+plev, 3+plev/20);
 		break;
 	case 27: /* True Discharge Minion */
-		discharge_minion(TRUE);
+		discharge_minion();
 		break;
 	case 28: /* Summon Greater Demon */
 	{
@@ -4075,7 +4079,7 @@ static bool cast_music_spell(int spell)
 
 	switch (spell)
 	{
-	case 0: /* Song of Holding ÃÙÆß¤Î²Î*/
+	case 0: /* Song of Holding ÃÙÆß¤Î²Î */
 #ifdef JP
 		msg_print("¤æ¤Ã¤¯¤ê¤È¤·¤¿¥á¥í¥Ç¥£¤ò¸ý¤º¤µ¤ß»Ï¤á¤¿¡¥¡¥¡¥");
 #else
@@ -4366,9 +4370,6 @@ static bool cast_music_spell(int spell)
  */
 void do_cmd_cast(void)
 {
-#ifdef USE_SCRIPT
-	use_skill_callback();
-#else /* USE_SCRIPT */
 	int	item, sval, spell, realm;
 	int	chance;
 	int	increment = 0;
@@ -4467,10 +4468,6 @@ s = "¼öÊ¸½ñ¤¬¤Ê¤¤¡ª";
 	{
 		o_ptr = &o_list[0 - item];
 	}
-
-#ifdef USE_SCRIPT
-	if (object_cast_callback(o_ptr)) return;
-#endif /* USE_SCRIPT */
 
 	/* Access the item's sval */
 	sval = o_ptr->sval;
@@ -4639,7 +4636,11 @@ msg_print("¥«¥ª¥¹Åª¤Ê¸ú²Ì¤òÈ¯À¸¤·¤¿¡ª");
 		}
 		else if ((o_ptr->tval == TV_MUSIC_BOOK) && (randint(200) < spell))
 		{
+#ifdef JP
 msg_print("¤¤¤ä¤Ê²»¤¬¶Á¤¤¤¿");
+#else
+msg_print("An infernal sound echoed.");
+#endif
 
 			aggravate_monsters(0);
 		}
@@ -4850,7 +4851,6 @@ msg_print("ÂÎ¤ò°­¤¯¤·¤Æ¤·¤Þ¤Ã¤¿¡ª");
 	/* Window stuff */
 	p_ptr->window |= (PW_PLAYER);
 	p_ptr->window |= (PW_SPELL);
-#endif /* USE_SCRIPT */
 }
 
 
@@ -5123,7 +5123,7 @@ bool rakuba(int dam, bool force)
 			if (p_ptr->riding_ryoute) level += 20;
 			if ((dam/2 + r_ptr->level) > (skill_exp[GINOU_RIDING]/30+10))
 			{
-				if((skill_exp[GINOU_RIDING] < skill_exp_settei[p_ptr->pclass][GINOU_RIDING][1]) && skill_exp_settei[p_ptr->pclass][GINOU_RIDING][1] > 1000)
+				if((skill_exp[GINOU_RIDING] < s_info[p_ptr->pclass].s_max[GINOU_RIDING]) && s_info[p_ptr->pclass].s_max[GINOU_RIDING] > 1000)
 				{
 					if (r_ptr->level*100 > (skill_exp[GINOU_RIDING] + 1500))
 						skill_exp[GINOU_RIDING] += (1+(r_ptr->level - skill_exp[GINOU_RIDING]/100 - 15));

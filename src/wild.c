@@ -528,10 +528,6 @@ static void generate_area(int y, int x, bool border, bool corner)
 	/* Set the object generation level */
 	object_level = base_level;
 
-#ifdef USE_SCRIPT
-	if (generate_wilderness_callback(y, x)) return;
-#endif /* USE_SCRIPT */
-
 
 	/* Create the town */
 	if (p_ptr->town_num)
@@ -853,7 +849,7 @@ void wilderness_gen(void)
 	for (i = 0; i < lim; i++)
 	{
 		/* Make a resident */
-		(void)alloc_monster((generate_encounter==TRUE)?0:3, ((generate_encounter==TRUE) || (one_in_(2) && (!p_ptr->town_num)))?FALSE:TRUE);
+		(void)alloc_monster(generate_encounter ? 0 : 3, (bool)!(generate_encounter || (one_in_(2) && (!p_ptr->town_num))));
 	}
 
 	if(generate_encounter) ambush_flag = TRUE;
@@ -940,7 +936,7 @@ struct wilderness_grid
 {
 	int		terrain;    /* Terrain type */
 	int		town;       /* Town number */
-	byte	level;		/* Level of the wilderness */
+	s16b	level;		/* Level of the wilderness */
 	byte	road;       /* Road */
 	char	name[32];	/* Name of the town/wilderness */
 };
@@ -1097,18 +1093,13 @@ void seed_wilderness(void)
 {
 	int x, y;
 
-#ifdef USE_SCRIPT
-	if (!wilderness_init_callback())
-#endif /* USE_SCRIPT */
+	/* Init wilderness seeds */
+	for (x = 0; x < max_wild_x; x++)
 	{
-		/* Init wilderness seeds */
-		for (x = 0; x < max_wild_x; x++)
+		for (y = 0; y < max_wild_y; y++)
 		{
-			for (y = 0; y < max_wild_y; y++)
-			{
-				wilderness[y][x].seed = rand_int(0x10000000);
-				wilderness[y][x].entrance = 0;
-			}
+			wilderness[y][x].seed = rand_int(0x10000000);
+			wilderness[y][x].entrance = 0;
 		}
 	}
 }

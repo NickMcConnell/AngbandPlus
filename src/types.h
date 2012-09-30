@@ -15,12 +15,6 @@
  * This file should ONLY be included by "angband.h"
  */
 
-#ifdef USE_SCRIPT
-
-#include "Python.h"
-
-#endif /* USE_SCRIPT */
-
 /*
  * Note that "char" may or may not be signed, and that "signed char"
  * may or may not work on all machines.  So always use "s16b" or "s32b"
@@ -55,63 +49,6 @@
 
 
 /*
- * Template file header information (see "init.c").  16 bytes.
- *
- * Note that the sizes of many of the "arrays" are between 32768 and
- * 65535, and so we must use "unsigned" values to hold the "sizes" of
- * these arrays below.  Normally, I try to avoid using unsigned values,
- * since they can cause all sorts of bizarre problems, but I have no
- * choice here, at least, until the "race" array is split into "normal"
- * and "unique" monsters, which may or may not actually help.
- *
- * Note that, on some machines, for example, the Macintosh, the standard
- * "read()" and "write()" functions cannot handle more than 32767 bytes
- * at one time, so we need replacement functions, see "util.c" for details.
- *
- * Note that, on some machines, for example, the Macintosh, the standard
- * "malloc()" function cannot handle more than 32767 bytes at one time,
- * but we may assume that the "ralloc()" function can handle up to 65535
- * butes at one time.  We should not, however, assume that the "ralloc()"
- * function can handle more than 65536 bytes at a time, since this might
- * result in segmentation problems on certain older machines, and in fact,
- * we should not assume that it can handle exactly 65536 bytes at a time,
- * since the internal functions may use an unsigned short to specify size.
- *
- * In general, these problems occur only on machines (such as most personal
- * computers) which use 2 byte "int" values, and which use "int" for the
- * arguments to the relevent functions.
- */
-
-typedef struct header header;
-
-struct header
-{
-	byte	v_major;		/* Version -- major */
-	byte	v_minor;		/* Version -- minor */
-	byte	v_patch;		/* Version -- patch */
-	byte	v_extra;		/* Version -- extra */
-
-
-	u16b	info_num;		/* Number of "info" records */
-
-	u16b	info_len;		/* Size of each "info" record */
-
-
-	u32b	head_size;		/* Size of the "header" in bytes */
-
-	u32b	info_size;		/* Size of the "info" array in bytes */
-
-	u32b	name_size;		/* Size of the "name" array in bytes */
-
-#ifdef JP
-        u32b    E_name_size;    /* Size of the "English-name" array in bytes */
-#endif
-	u32b	text_size;		/* Size of the "text" array in bytes */
-};
-
-
-
-/*
  * Information about terrain "features"
  */
 
@@ -120,9 +57,6 @@ typedef struct feature_type feature_type;
 struct feature_type
 {
 	u32b name;			/* Name (offset) */
-#ifdef JP
-    u32b E_name;        /* ±Ñ¸ìÌ¾ (offset) */
-#endif
 	u32b text;			/* Text (offset) */
 
 	byte mimic;			/* Feature to mimic */
@@ -132,11 +66,11 @@ struct feature_type
 	s16b unused;		/* Extra bytes (unused) */
 
 	byte d_attr;		/* Default feature attribute */
-	char d_char;		/* Default feature character */
+	byte d_char;		/* Default feature character */
 
 
 	byte x_attr;		/* Desired feature attribute */
-	char x_char;		/* Desired feature character */
+	byte x_char;		/* Desired feature character */
 };
 
 
@@ -151,9 +85,6 @@ typedef struct object_kind object_kind;
 struct object_kind
 {
 	u32b name;			/* Name (offset) */
-#ifdef JP
-        u32b E_name;                    /* ±Ñ¸ìÌ¾ (offset) */
-#endif
 	u32b text;			/* Text (offset) */
 
 	byte tval;			/* Object type */
@@ -185,11 +116,11 @@ struct object_kind
 
 
 	byte d_attr;		/* Default object attribute */
-	char d_char;		/* Default object character */
+	byte d_char;		/* Default object character */
 
 
 	byte x_attr;		/* Desired object attribute */
-	char x_char;		/* Desired object character */
+	byte x_char;		/* Desired object character */
 
 
 	byte flavor;			/* Special object flavor (or zero) */
@@ -217,9 +148,6 @@ typedef struct artifact_type artifact_type;
 struct artifact_type
 {
 	u32b name;			/* Name (offset) */
-#ifdef JP
-        u32b E_name;            /* ±Ñ¸ìÌ¾ (offset) */
-#endif
 	u32b text;			/* Text (offset) */
 
 	byte tval;			/* Artifact type */
@@ -260,9 +188,6 @@ typedef struct ego_item_type ego_item_type;
 struct ego_item_type
 {
 	u32b name;			/* Name (offset) */
-#ifdef JP
-        u32b E_name;                    /* Name (offset) */
-#endif
 	u32b text;			/* Text (offset) */
 
 	byte slot;			/* Standard slot value */
@@ -375,11 +300,11 @@ struct monster_race
 
 
 	byte d_attr;			/* Default monster attribute */
-	char d_char;			/* Default monster character */
+	byte d_char;			/* Default monster character */
 
 
 	byte x_attr;			/* Desired monster attribute */
-	char x_char;			/* Desired monster character */
+	byte x_char;			/* Desired monster character */
 
 
 	byte max_num;			/* Maximum population allowed per level */
@@ -438,7 +363,19 @@ struct vault_type
 };
 
 
+/*
+ * Information about "skill"
+ */
 
+typedef struct skill_table skill_table;
+
+struct skill_table
+{
+	s16b w_start[5][64];	  /* start weapon exp */
+	s16b w_max[5][64];        /* max weapon exp */
+	s16b s_start[10];	  /* start skill */
+	s16b s_max[10];           /* max skill */
+};
 
 
 /*
@@ -587,19 +524,15 @@ struct object_type
 
 	s16b held_m_idx;	/* Monster holding us (if any) */
 
-#ifdef USE_SCRIPT
-	PyObject *python;
-#endif /* USE_SCRIPT */
-
 #ifdef SCRIPT_OBJ_KIND
 	char *name;
 
 	byte d_attr;		/* Default object attribute */
-	char d_char;		/* Default object character */
+	byte d_char;		/* Default object character */
 
 
 	byte x_attr;		/* Desired object attribute */
-	char x_char;		/* Desired object character */
+	byte x_char;		/* Desired object character */
 
 
 	byte flavor;			/* Special object flavor (or zero) */
@@ -699,10 +632,6 @@ typedef struct alloc_entry alloc_entry;
 
 struct alloc_entry
 {
-#ifdef USE_SCRIPT
-	PyObject *python;
-#endif /* USE_SCRIPT */
-
 	s16b index;		/* The actual index */
 
 	byte level;		/* Base dungeon level */
@@ -1055,9 +984,9 @@ struct player_type
 
 	s16b town_num;			/* Current town number */
 	s16b arena_number;		/* monster number in arena -KMW- */
-	s16b inside_arena;		/* Is character inside arena? */
+	bool inside_arena;		/* Is character inside arena? */
 	s16b inside_quest;		/* Inside quest level */
-	s16b inside_battle;		/* Is character inside tougijou? */
+	bool inside_battle;		/* Is character inside tougijou? */
 
 	s16b rewards[MAX_BACT];	/* Status of rewards in town */
 
@@ -1079,7 +1008,7 @@ struct player_type
 	s16b stat_max_max[6];	/* Maximal "maximal" stat values */
 	s16b stat_cur[6];	/* Current "natural" stat values */
 
-	s32b count;
+	u32b count;
 
 	s16b fast;			/* Timed -- Fast */
 	s16b slow;			/* Timed -- Slow */
@@ -1144,7 +1073,7 @@ struct player_type
 	s16b vir_types[8];
 
 	s16b word_recall;	/* Word of recall counter */
-	s16b recall_dungeon;
+	byte recall_dungeon;
 
 	s16b energy;		/* Current energy */
 
@@ -1378,9 +1307,6 @@ struct mind_type
 	int     mana_cost;
 	int     fail;
 	cptr    name;
-#ifdef JP
-        cptr    E_name;
-#endif
 };
 
 typedef struct mind_power mind_power;
@@ -1401,9 +1327,6 @@ struct monster_power
 	int     manefail;
 	int     use_stat;
 	cptr    name;
-#ifdef JP
-        cptr    E_name;
-#endif
 };
 
 
@@ -1425,10 +1348,6 @@ struct building_type
 	char letters[8];                /* action letters */
 	s16b actions[8];                /* action codes */
 	s16b action_restr[8];           /* action restrictions */
-
-#ifdef USE_SCRIPT
-	char act_script[8][128];        /* Scripts for the building */
-#endif /* USE_SCRIPT */
 
 	s16b member_class[MAX_CLASS];   /* which classes are part of guild */
 	s16b member_race[MAX_RACES];    /* which classes are part of guild */
@@ -1462,7 +1381,7 @@ struct wilderness_type
 	int         town;
 	int         road;
 	u32b        seed;
-	byte        level;
+	s16b        level;
 	byte        entrance;
 };
 
@@ -1561,21 +1480,21 @@ struct dungeon_info_type {
 	byte dy;
 	byte dx;
 
-	s16b floor1;		/* Floor tile 1 */
+	byte floor1;		/* Floor tile 1 */
 	byte floor_percent1;	/* Chance of type 1 */
-	s16b floor2;		/* Floor tile 2 */
+	byte floor2;		/* Floor tile 2 */
 	byte floor_percent2;	/* Chance of type 2 */
-	s16b floor3;		/* Floor tile 3 */
+	byte floor3;		/* Floor tile 3 */
 	byte floor_percent3;	/* Chance of type 3 */
-	s16b outer_wall;	/* Outer wall tile */
-	s16b inner_wall;	/* Inner wall tile */
+	byte outer_wall;	/* Outer wall tile */
+	byte inner_wall;	/* Inner wall tile */
 	s16b stream1;		/* stream tile */
 	s16b stream2;		/* stream tile */
-	s16b fill_type1;	/* Cave tile 1 */
+	byte fill_type1;	/* Cave tile 1 */
 	byte fill_percent1;	/* Chance of type 1 */
-	s16b fill_type2;	/* Cave tile 2 */
+	byte fill_type2;	/* Cave tile 2 */
 	byte fill_percent2;	/* Chance of type 2 */
-	s16b fill_type3;	/* Cave tile 3 */
+	byte fill_type3;	/* Cave tile 3 */
 	byte fill_percent3;	/* Chance of type 3 */
 	s16b mindepth;		/* Minimal depth */
 	s16b maxdepth;		/* Maximal depth */
@@ -1587,17 +1506,17 @@ struct dungeon_info_type {
 	int min_m_alloc_level;	/* Minimal number of monsters per level */
 	int max_m_alloc_chance;	/* There is a 1/max_m_alloc_chance chance per round of creating a new monster */
 
-	s32b flags1;		/* Flags 1 */
+	u32b flags1;		/* Flags 1 */
 
-	s32b mflags1;		/* The monster flags that are allowed */
-	s32b mflags2;
-	s32b mflags3;
-	s32b mflags4;
-	s32b mflags5;
-	s32b mflags6;
-	s32b mflags7;
-	s32b mflags8;
-	s32b mflags9;
+	u32b mflags1;		/* The monster flags that are allowed */
+	u32b mflags2;
+	u32b mflags3;
+	u32b mflags4;
+	u32b mflags5;
+	u32b mflags6;
+	u32b mflags7;
+	u32b mflags8;
+	u32b mflags9;
 
 	char r_char[5];		/* Monster race allowed */
 	int final_object;	/* The object you'll find at the bottom */
@@ -1609,3 +1528,7 @@ struct dungeon_info_type {
 	int obj_great;
 	int obj_good;
 };
+
+
+
+

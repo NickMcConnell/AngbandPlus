@@ -1,6 +1,6 @@
 
                   ***************************************
-                  **   Hengband 1.0.8 English version  **
+                  **   Hengband 1.0.9 English version  **
                   ***************************************
 
           Based on Moria:    Copyright (c) 1985 Robert Alan Koeneke
@@ -12,12 +12,11 @@
        Old ZAngband code:    (Mr) Topi Ylinen < f1toyl@uta.fi >
        New ZAngband code:    Robert Ruehlmann < rr9@angband.org >
     ZAngband 2.3.0 - ???:    The ZAngband DevTeam
-       ZAngband Jap ver.:    Mitsuhiro Itakera < m-itakura@geocities.co.jp >
+       ZAngband Jap ver.:    Mitsuhiro Itakura < m-itakura@geocities.co.jp >
 
 
-          Hengband: Mr.hoge (echizen @ s5.xrea.com) & Meny others
-                     http://echizen.s5.xrea.com/heng/
+           Hengband: Mr.Hoge (echizen @ s5.xrea.com) & Many others
+                       http://echizen.s5.xrea.com/heng/
 
-           Hengband is running on UNIX/X11, Windows, Macintosh.
-   Please report bugs at BBS "http://echizen.s5.xrea.com/heng/eng-hengband/".
-
+                 Send bug report to "echizen @ s5.xrea.com"
+                     or "mogami @ het.ph.tsukuba.ac.jp".
