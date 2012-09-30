@@ -1,5 +1,7 @@
 /* File: monmod.c */
 
+#ifdef USE_PYTHON
+
 /*
  * Copyright (c) 1998 Keldon Jones
  *
@@ -434,3 +436,4 @@ void initmonster()
 	add_constant(d, "SUMMON_UNIQUE", SUMMON_UNIQUE);
         add_constant(d, "SUMMON_DRAGONRIDER", SUMMON_DRAGONRIDER);
 }
+#endif

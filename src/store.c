@@ -604,6 +604,7 @@ static void mass_produce(object_type *o_ptr)
                 case TV_PRAYER_BOOK:
                 case TV_ILLUSION_BOOK:
                 case TV_TRIBAL_BOOK:
+                case TV_DRUID_BOOK:
 		{
 			if (cost <= 50L) size += mass_roll(2, 3);
 			if (cost <= 500L) size += mass_roll(1, 3);
@@ -640,6 +641,18 @@ static void mass_produce(object_type *o_ptr)
 			if (cost <= 500L) size += mass_roll(5, 5);
 			break;
 		}
+
+                /* Because many rods (and a few wands and staffs) are useful mainly
+                 * in quantity, the Black Market will occasionally have a bunch of
+                 * one kind. -LM- */
+                case TV_ROD:
+                case TV_WAND:
+                case TV_STAFF:
+                {
+                        if (cost < 1601L) size += mass_roll(1, 5);
+                        else if (cost < 3201L) size += mass_roll(1, 3);
+                        break;
+                }
 	}
 
 
@@ -702,8 +715,8 @@ static bool store_object_similar(object_type *o_ptr, object_type *j_ptr)
 	/* Different objects cannot be stacked */
 	if (o_ptr->k_idx != j_ptr->k_idx) return (0);
 
-	/* Different charges (etc) cannot be stacked */
-	if (o_ptr->pval != j_ptr->pval) return (0);
+	/* Different charges (etc) cannot be stacked, unless wands or rods. */
+	if ((o_ptr->pval != j_ptr->pval) && (o_ptr->tval != TV_WAND) && (o_ptr->tval != TV_ROD)) return (0);
 
 	/* Require many identical values */
 	if (o_ptr->to_h  !=  j_ptr->to_h) return (0);
@@ -756,6 +769,18 @@ static void store_object_absorb(object_type *o_ptr, object_type *j_ptr)
 
 	/* Combine quantity, lose excess items */
 	o_ptr->number = (total > 99) ? 99 : total;
+
+	/* Hack -- if rods are stacking, add the pvals (maximum timeouts) together. -LM- */
+	if (o_ptr->tval == TV_ROD)
+	{
+		o_ptr->pval += j_ptr->pval;
+	}
+
+	/* Hack -- if wands are stacking, combine the charges. -LM- */
+	if (o_ptr->tval == TV_WAND)
+	{
+		o_ptr->pval += j_ptr->pval;
+	}
 }
 
 
@@ -956,6 +981,7 @@ static bool store_will_buy(object_type *o_ptr)
                                 case TV_MAGIC_BOOK:
                                 case TV_ILLUSION_BOOK:
                                 case TV_TRIBAL_BOOK:
+                                case TV_DRUID_BOOK:
 				case TV_AMULET:
 				case TV_RING:
 				case TV_STAFF:
@@ -992,6 +1018,7 @@ static bool store_will_buy(object_type *o_ptr)
                                                 case TV_PRAYER_BOOK:
                                                 case TV_ILLUSION_BOOK:
                                                 case TV_TRIBAL_BOOK:
+                                                case TV_DRUID_BOOK:
 					break;
 				default:
 					return (FALSE);
@@ -1334,6 +1361,12 @@ static void store_delete(void)
 
 	/* Hack -- sometimes, only destroy a single item */
 	if (rand_int(100) < 50) num = 1;
+
+	/* Hack -- decrement the maximum timeouts and total charges of rods and wands. -LM- */
+	if ((st_ptr->stock[what].tval == TV_ROD) || (st_ptr->stock[what].tval == TV_WAND))
+	{
+		st_ptr->stock[what].pval -= num * st_ptr->stock[what].pval / st_ptr->stock[what].number;
+	}
 
 	/* Actually destroy (part of) the item */
 	store_item_increase(what, -num);
@@ -2412,9 +2445,208 @@ static bool sell_haggle(object_type *o_ptr, s32b *price)
 	return (FALSE);
 }
 
+/*
+ * Stole an item from a store                   -DG-
+ */
+static void store_stole(void)
+{
+        int i, amt;
+	int item, item_new;
+
+	object_type forge;
+	object_type *j_ptr;
+
+	object_type *o_ptr;
+
+	char o_name[80];
+
+	char out_val[160];
+
+        if (cur_store_num == 7)
+        {
+                msg_print("You can't stole from your home!");
+                return;
+        }
+
+	/* Empty? */
+	if (st_ptr->stock_num <= 0)
+	{
+                msg_print("There is no item to stole.");
+		return;
+	}
 
 
+	/* Find the number of objects on this and following pages */
+	i = (st_ptr->stock_num - store_top);
 
+	/* And then restrict it to the current page */
+	if (i > 12) i = 12;
+
+	/* Prompt */
+        sprintf(out_val, "Which item do you want to stole? ");
+
+	/* Get the item number to be bought */
+	if (!get_stock(&item, out_val, 0, i-1)) return;
+
+	/* Get the actual index */
+	item = item + store_top;
+
+	/* Get the actual item */
+	o_ptr = &st_ptr->stock[item];
+
+	/* Assume the player wants just one of them */
+	amt = 1;
+
+	/* Get local object */
+	j_ptr = &forge;
+	
+	/* Get a copy of the object */
+	object_copy(j_ptr, o_ptr);
+
+	/* Modify quantity */
+	j_ptr->number = amt;
+
+	/* Hack -- require room in pack */
+	if (!inven_carry_okay(j_ptr))
+	{
+		msg_print("You cannot carry that many different items.");
+		return;
+	}
+
+	/* Find out how many the player wants */
+	if (o_ptr->number > 1)
+	{
+		/* Get a quantity */
+		amt = get_quantity(NULL, o_ptr->number);
+
+		/* Allow user abort */
+		if (amt <= 0) return;
+	}
+
+	/* Get local object */
+	j_ptr = &forge;
+	
+	/* Get desired object */
+	object_copy(j_ptr, o_ptr);
+
+	/* Modify quantity */
+	j_ptr->number = amt;
+
+	/* Hack -- require room in pack */
+	if (!inven_carry_okay(j_ptr))
+	{
+		msg_print("You cannot carry that many items.");
+		return;
+	}
+
+        /* Player tries to stole it */
+        if (rand_int((40 - p_ptr->stat_ind[A_DEX]) +
+            ((j_ptr->weight * amt) / ((p_ptr->pclass == CLASS_ROGUE)?20:5)) +
+            ((p_ptr->pclass != CLASS_ROGUE)?25:0)) <= 10)
+        {
+				/* Hack -- buying an item makes you aware of it */
+				object_aware(j_ptr);
+
+				/* Hack -- clear the "fixed" flag from the item */
+				j_ptr->ident &= ~(IDENT_FIXED);
+
+				/* Describe the transaction */
+				object_desc(o_name, j_ptr, TRUE, 3);
+
+				/* Message */
+                                msg_format("You stole %s.", o_name);
+
+				/* Erase the inscription */
+				j_ptr->note = 0;
+
+				/* Give it to the player */
+				item_new = inven_carry(j_ptr, FALSE);
+
+				/* Describe the final result */
+				object_desc(o_name, &inventory[item_new], TRUE, 3);
+
+				/* Message */
+				msg_format("You have %s (%c).",
+						   o_name, index_to_label(item_new));
+
+				/* Handle stuff */
+				handle_stuff();
+
+				/* Note how many slots the store used to have */
+				i = st_ptr->stock_num;
+
+				/* Remove the bought items from the store */
+				store_item_increase(item, -amt);
+				store_item_optimize(item);
+
+				/* Store is empty */
+				if (st_ptr->stock_num == 0)
+				{
+					/* Shuffle */
+					if (rand_int(STORE_SHUFFLE) == 0)
+					{
+						/* Message */
+						msg_print("The shopkeeper retires.");
+
+						/* Shuffle the store */
+						store_shuffle(cur_store_num);
+					}
+
+					/* Maintain */
+					else
+					{
+						/* Message */
+						msg_print("The shopkeeper brings out some new stock.");
+					}
+
+					/* New inventory */
+					for (i = 0; i < 10; i++)
+					{
+						/* Maintain the store */
+						store_maint(p_ptr->town_num, cur_store_num);
+					}
+
+					/* Start over */
+					store_top = 0;
+
+					/* Redraw everything */
+					display_inventory();
+				}
+
+				/* The item is gone */
+				else if (st_ptr->stock_num != i)
+				{
+					/* Pick the correct screen */
+					if (store_top >= st_ptr->stock_num) store_top -= 12;
+
+					/* Redraw everything */
+					display_inventory();
+				}
+
+				/* Item is still here */
+				else
+				{
+					/* Redraw the item */
+					display_entry(item);
+				}
+                        }
+        else
+        {
+                /* Complain */
+                say_comment_4();
+
+                /* Reset insults */
+                st_ptr->insult_cur = 0;
+                st_ptr->good_buy = 0;
+                st_ptr->bad_buy = 0;
+
+                /* Kicked out for a LONG time */
+                st_ptr->store_open = turn + 500000 + randint(500000);
+        }
+
+	/* Not kicked out */
+	return;
+}
 
 /*
  * Buy an item from a store 			-RAK-
@@ -2516,6 +2748,14 @@ static void store_purchase(void)
 
 	/* Modify quantity */
 	j_ptr->number = amt;
+
+	/* Hack -- If a rod or wand, allocate total maximum timeouts or charges 
+	 * between those purchased and left on the shelf. -LM-
+	 */
+	if ((o_ptr->tval == TV_ROD) || (o_ptr->tval == TV_WAND))
+	{
+		j_ptr->pval = o_ptr->pval * amt / o_ptr->number;
+	}
 
 	/* Hack -- require room in pack */
 	if (!inven_carry_okay(j_ptr))
@@ -2678,6 +2918,29 @@ static void store_purchase(void)
 	/* Home is much easier */
 	else
 	{
+		/* Hack -- If a rod or wand, allocate total maximum
+		 * timeouts or charges between those picked up and 
+		 * those left behind. -LM-
+		 */
+		if ((o_ptr->tval == TV_ROD) || (o_ptr->tval == TV_WAND))
+		{
+			j_ptr->pval = o_ptr->pval * amt / o_ptr->number;
+			o_ptr->pval -= j_ptr->pval;
+
+			/* Hack -- Rods also need to have their timeouts distributed.  
+			 * The dropped stack will accept all time remaining to charge 
+			 * up to its maximum.
+		 	 */
+			if ((o_ptr->tval == TV_ROD) && (o_ptr->timeout))
+			{
+				if (j_ptr->pval > o_ptr->timeout) 
+					j_ptr->timeout = o_ptr->timeout;
+				else j_ptr->timeout = j_ptr->pval;
+
+				if (amt < o_ptr->number) o_ptr->timeout -= j_ptr->timeout;
+			}
+		}
+
 		/* Give it to the player */
 		item_new = inven_carry(j_ptr, FALSE);
 
@@ -2801,6 +3064,14 @@ static void store_sell(void)
 	/* Modify quantity */
 	q_ptr->number = amt;
 
+	/* Hack -- If a rod or wand, allocate total maximum
+	 * timeouts or charges to those being sold. -LM-
+	 */
+	if ((o_ptr->tval == TV_ROD) || (o_ptr->tval == TV_WAND))
+	{
+		q_ptr->pval = o_ptr->pval * amt / o_ptr->number;
+	}
+
 	/* Get a full description */
 	object_desc(o_name, q_ptr, TRUE, 3);
 
@@ -2870,6 +3141,15 @@ static void store_sell(void)
 			/* Modify quantity */
 			q_ptr->number = amt;
 
+			/*
+			 * Hack -- If a rod or wand, let the shopkeeper know just 
+			 * how many charges he really paid for. -LM-
+			 */
+			if ((o_ptr->tval == TV_ROD) || (o_ptr->tval == TV_WAND))
+			{
+				q_ptr->pval = o_ptr->pval * amt / o_ptr->number;
+			}
+
 			/* Get the "actual" value */
 			value = object_value(q_ptr) * q_ptr->number;
 
@@ -2881,6 +3161,17 @@ static void store_sell(void)
 
 			/* Analyze the prices (and comment verbally) */
 			purchase_analyze(price, value, dummy);
+
+			/*
+			 * Hack -- Allocate charges between those wands or rods sold 
+			 * and retained, unless all are being sold. -LM-
+			 */
+			if ((o_ptr->tval == TV_ROD) || (o_ptr->tval == TV_WAND))
+			{
+				q_ptr->pval = o_ptr->pval * amt / o_ptr->number;
+
+				if (o_ptr->number > amt) o_ptr->pval -= q_ptr->pval;
+			}
 
 			/* Take the item from the player, describe the result */
 			inven_item_increase(item, -amt);
@@ -2987,7 +3278,15 @@ static void store_sell(void)
    msg_format("Examining %s...", o_name);
 
    /* Describe it fully */
-   if (!identify_fully_aux(o_ptr)) msg_print("You see nothing special.");
+   if (!check_book_realm(o_ptr->tval))
+   {
+        if (!identify_fully_aux(o_ptr)) msg_print("You see nothing special.");
+   /* Books are read */
+   }
+   else
+   {
+        do_cmd_browse_aux(o_ptr);
+   }
 
    return;
  }
@@ -3069,6 +3368,13 @@ static void store_process_command(void)
 		case 'd':
 		{
 			store_sell();
+			break;
+		}
+
+                        /* Stole */
+                case 'Z':
+		{
+                        store_stole();
 			break;
 		}
 
@@ -3255,7 +3561,7 @@ static void store_process_command(void)
 			/* Take notes */
 		case ':':
 		{
-			do_cmd_note();
+                        do_cmd_note("");
 			break;
 		}
 
@@ -3451,8 +3757,11 @@ void do_cmd_store(void)
 		   prt(" s) Sell an item.", 23, 31);
 		}
   
-	   /* Add in the eXamine option */
-	   prt(" x) eXamine an item.", 22, 56);
+                /* Add in the eXamine option */
+                prt(" x) eXamine an item.", 22, 56);
+  
+                /* Add in the stole(Z) option */
+                prt(" Z) stole(Z) an item.", 23, 56);
 
 		/* Prompt */
 		prt("You may: ", 21, 0);
@@ -3581,7 +3890,7 @@ void do_cmd_store(void)
 	p_ptr->update |= (PU_MONSTERS);
 
 	/* Redraw entire screen */
-	p_ptr->redraw |= (PR_BASIC | PR_EXTRA | PR_EQUIPPY);
+        p_ptr->redraw |= (PR_BASIC | PR_EXTRA);
 
 	/* Redraw map */
 	p_ptr->redraw |= (PR_MAP);
@@ -4030,7 +4339,7 @@ void do_cmd_home_trump(void)
 	p_ptr->update |= (PU_MONSTERS);
 
 	/* Redraw entire screen */
-	p_ptr->redraw |= (PR_BASIC | PR_EXTRA | PR_EQUIPPY);
+        p_ptr->redraw |= (PR_BASIC | PR_EXTRA);
 
 	/* Redraw map */
 	p_ptr->redraw |= (PR_MAP);

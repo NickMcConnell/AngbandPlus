@@ -436,6 +436,7 @@ void teleport_player(int dis)
 	bool look = TRUE;
 
         if(p_ptr->resist_continuum) {msg_print("The space-time continuum can't be disrupted."); return;}
+        if(p_ptr->wild_mode) return;
 
 	if (p_ptr->anti_tele)
 	{
@@ -874,10 +875,10 @@ void recall_player(void)
 		return;
 	}
 #endif
-        if (dun_level && (p_ptr->max_dlv[dungeon_type] > dun_level) && (!p_ptr->inside_quest))
+        if (dun_level && (max_dlv[dungeon_type] > dun_level) && (!p_ptr->inside_quest))
 	{
 		if (get_check("Reset recall depth? "))
-                        p_ptr->max_dlv[dungeon_type] = dun_level;
+                        max_dlv[dungeon_type] = dun_level;
 		
 	}
 	if (!p_ptr->word_recall)
@@ -1010,7 +1011,9 @@ static byte spell_color(int type)
 			case GF_METEOR:         return (randint(3)==1?TERM_RED:TERM_UMBER);
 			case GF_ICE:            return (randint(4)==1?TERM_L_BLUE:TERM_WHITE);
 			case GF_ROCKET:         return (randint(6)<4?TERM_L_RED:(randint(4)==1?TERM_RED:TERM_L_UMBER));
-			case GF_DEATH_RAY:      return (TERM_L_DARK);
+                        case GF_DEATH:
+			case GF_DEATH_RAY:
+                                                return (TERM_L_DARK);
 			case GF_NUKE:           return (mh_attr(2));
 			case GF_DISINTEGRATE:   return (randint(3)!=1?TERM_L_DARK:(randint(2)==1?TERM_ORANGE:TERM_L_UMBER));
 			case GF_PSI:
@@ -1158,42 +1161,69 @@ void take_hit(int damage, cptr hit_from)
 	/* Dead player */
 	if (p_ptr->chp < 0)
 	{
-		/* Sound */
-		sound(SOUND_DEATH);
+                /* Necromancers get a special treatment */
+                if((p_ptr->pclass != CLASS_NECRO) || ((p_ptr->pclass == CLASS_NECRO) && (p_ptr->class_extra6 & CLASS_UNDEAD)))
+                {
+                        /* Sound */
+                        sound(SOUND_DEATH);
 
-		/* Hack -- Note death */
-		if (!last_words)
-		{
-			msg_print("You die.");
-			msg_print(NULL);
-		}
-		else
-		{
-			(void)get_rnd_line("death.txt", death_message);
-			msg_print(death_message);
-		}
+                        /* Hack -- Note death */
+                        if (!last_words)
+                        {
+                                msg_print("You die.");
+                                msg_print(NULL);
+                        }
+                        else
+                        {
+                                (void)get_rnd_line("death.txt", death_message);
+                                msg_print(death_message);
+                        }
 
-		/* Note cause of death */
-		(void)strcpy(died_from, hit_from);
+                        /* Note cause of death */
+                        (void)strcpy(died_from, hit_from);
 
-		if (p_ptr->image) strcat(died_from,"(?)");
+                        if (p_ptr->image) strcat(died_from,"(?)");
 
-		/* No longer a winner */
-		total_winner = FALSE;
+                        /* No longer a winner */
+                        total_winner = FALSE;
 
-		/* Leaving */
-		p_ptr->leaving = TRUE;
+                        /* Leaving */
+                        p_ptr->leaving = TRUE;
 
-		/* Note death */
-		death = TRUE;
+                        /* Note death */
+                        death = TRUE;
 
-		if (get_check("Dump the screen? "))
-		{
-			do_cmd_save_screen();
-		}
+                        if (get_check("Dump the screen? "))
+                        {
+                                do_cmd_save_screen();
+                        }
 
-		/* Dead */
-		return;
+                        /* Dead */
+                        return;
+                }
+                /* Just turn the necromancer into an undead */
+                else
+                {
+                        p_ptr->class_extra6 |= CLASS_UNDEAD;
+                        p_ptr->class_extra4 = p_ptr->lev + (rand_int(p_ptr->lev / 2) - (p_ptr->lev / 4));
+                        if (p_ptr->class_extra4 < 1) p_ptr->class_extra4 = 1;
+                        msg_format("You have to kill %d monster%s to be bringed back to life.", p_ptr->class_extra4, (p_ptr->class_extra4 == 1)?"":"s");
+
+                        /* MEGA-HACK !!! */
+                        calc_hitpoints();
+
+                        /* Enforce maximum */
+                        p_ptr->chp = p_ptr->mhp;
+                        p_ptr->chp_frac = 0;
+
+                        do_cmd_wiz_cure_all();
+
+                        /* Display the hitpoints */
+                        p_ptr->redraw |= (PR_HP);
+
+                        /* Window stuff */
+                        p_ptr->window |= (PW_PLAYER);
+                }
 	}
 
 	/* Hitpoint warning */
@@ -1205,7 +1235,10 @@ void take_hit(int damage, cptr hit_from)
 		sound(SOUND_WARN);		
 
 		/* Message */
-		msg_print("*** LOW HITPOINT WARNING! ***");
+                if(p_ptr->class_extra6 & CLASS_UNDEAD)
+                        msg_print("*** LOW DEATHPOINT WARNING! ***");
+                else
+                        msg_print("*** LOW HITPOINT WARNING! ***");
 		msg_print(NULL);
 	}
 }
@@ -1602,6 +1635,15 @@ static int inven_damage(inven_func typ, int perc)
 					(void)potion_smash_effect(0, py, px, o_ptr->sval);
 				}
                 
+				/* Hack -- If rods or wand are destroyed, the total maximum 
+				 * timeout or charges of the stack needs to be reduced, 
+				 * unless all the items are being destroyed. -LM-
+				 */
+				if (((o_ptr->tval == TV_WAND) || (o_ptr->tval == TV_ROD)) 
+					&& (amt < o_ptr->number))
+				{
+					o_ptr->pval -= o_ptr->pval * amt / o_ptr->number;
+				}
 
 				/* Destroy "amt" items */
 				inven_item_increase(i, -amt);
@@ -1704,7 +1746,7 @@ void acid_dam(int dam, cptr kb_str)
 
 	if ((!(p_ptr->oppose_acid || p_ptr->resist_acid)) &&
 	    randint(HURT_CHANCE)==1)
-		(void) do_dec_stat(A_CHR);
+		(void) do_dec_stat(A_CHR, STAT_DEC_NORMAL);
 
 	/* If any armor gets hit, defend the player */
 	if (minus_ac()) dam = (dam + 1) / 2;
@@ -1737,7 +1779,7 @@ void elec_dam(int dam, cptr kb_str)
 
 	if ((!(p_ptr->oppose_elec || p_ptr->resist_elec)) &&
 	    randint(HURT_CHANCE)==1)
-		(void) do_dec_stat(A_DEX);
+		(void) do_dec_stat(A_DEX, STAT_DEC_NORMAL);
 
 	/* Take damage */
 	take_hit(dam, kb_str);
@@ -1770,7 +1812,7 @@ void fire_dam(int dam, cptr kb_str)
 
 	if ((!(p_ptr->oppose_fire || p_ptr->resist_fire)) &&
 	    randint(HURT_CHANCE)==1)
-		(void) do_dec_stat(A_STR);
+		(void) do_dec_stat(A_STR, STAT_DEC_NORMAL);
 
 
 	/* Take damage */
@@ -1801,7 +1843,7 @@ void cold_dam(int dam, cptr kb_str)
 
 	if ((!(p_ptr->oppose_cold || p_ptr->resist_cold)) &&
 	    randint(HURT_CHANCE)==1)
-		(void) do_dec_stat(A_STR);
+		(void) do_dec_stat(A_STR, STAT_DEC_NORMAL);
 
 	/* Take damage */
 	take_hit(dam, kb_str);
@@ -1894,7 +1936,7 @@ bool inc_stat(int stat)
  * if your stat is already drained, the "max" value will not drop all
  * the way down to the "cur" value.
  */
-bool dec_stat(int stat, int amount, int permanent)
+bool dec_stat(int stat, int amount, int mode)
 {
 	int cur, max, loss, same, res = FALSE;
 
@@ -1950,7 +1992,7 @@ bool dec_stat(int stat, int amount, int permanent)
 	}
 
 	/* Damage "max" value */
-	if (permanent && (max > 3))
+	if ((mode==STAT_DEC_PERMANENT) && (max > 3))
 	{
 		/* Handle "low" values */
 		if (max <= 18)
@@ -1992,6 +2034,29 @@ bool dec_stat(int stat, int amount, int permanent)
 		p_ptr->stat_cur[stat] = cur;
 		p_ptr->stat_max[stat] = max;
 
+		if (mode==STAT_DEC_TEMPORARY)
+		{
+			u16b dectime;
+
+			/* a little crude, perhaps */
+			dectime = rand_int(max_dlv[dungeon_type]*50) + 50;
+			
+			/* prevent overflow, stat_cnt = u16b */
+			/* or add another temporary drain... */
+			if ( ((p_ptr->stat_cnt[stat]+dectime)<p_ptr->stat_cnt[stat]) ||
+			    (p_ptr->stat_los[stat]>0) )
+
+			{
+				p_ptr->stat_cnt[stat] += dectime;
+				p_ptr->stat_los[stat] += loss;
+			}
+			else
+			{
+				p_ptr->stat_cnt[stat] = dectime;
+				p_ptr->stat_los[stat] = loss;
+			}
+		}
+
 		/* Recalculate bonuses */
 		p_ptr->update |= (PU_BONUS);
 	}
@@ -2011,6 +2076,9 @@ bool res_stat(int stat)
 	{
 		/* Restore */
 		p_ptr->stat_cur[stat] = p_ptr->stat_max[stat];
+
+		/* Remove temporary drain */
+		p_ptr->stat_cnt[stat] = 0;
 
 		/* Recalculate bonuses */
 		p_ptr->update |= (PU_BONUS);
@@ -2190,6 +2258,100 @@ static void apply_nexus(monster_type *m_ptr)
         }
 }
 
+/*
+ * Convert 2 couples of coordonates to a direction
+ */
+int yx_to_dir(int y2, int x2, int y1, int x1)
+{
+        int y = y2 - y1, x = x2 - x1;
+
+        if((y == 0) && (x == 1)) return 6;
+        if((y == 0) && (x == -1)) return 4;
+        if((y == -1) && (x == 0)) return 8;
+        if((y == 1) && (x == 0)) return 2;
+        if((y == -1) && (x == -1)) return 7;
+        if((y == -1) && (x == 1)) return 9;
+        if((y == 1) && (x == 1)) return 3;
+        if((y == 1) && (x == -1)) return 1;
+
+        return 5;
+}
+
+/*
+ * Give the opposate direction of the given one
+ */
+int invert_dir(int dir)
+{
+        if(dir == 4) return 6;
+        if(dir == 6) return 4;
+        if(dir == 8) return 2;
+        if(dir == 2) return 8;
+        if(dir == 7) return 3;
+        if(dir == 9) return 1;
+        if(dir == 1) return 9;
+        if(dir == 3) return 7;
+        return 5;
+}
+
+/*
+ * Determine which way the mana path follow
+ */
+int get_mana_path_dir(int y, int x, int oy, int ox, int pdir, int mana)
+{
+        int dir[8] = {5, 5, 5, 5, 5, 5, 5, 5}, n = 0, i, r;
+
+        /* Check which case are allowed */
+        if(cave[y - 1][x].mana == mana) dir[n++] = 8;
+        if(cave[y + 1][x].mana == mana) dir[n++] = 2;
+        if(cave[y][x - 1].mana == mana) dir[n++] = 4;
+        if(cave[y][x + 1].mana == mana) dir[n++] = 6;
+
+        /* If only 2 possibilities select the only good one */
+        if(n == 2)
+        {
+                if(invert_dir(yx_to_dir(y, x, oy, ox)) != dir[0]) return dir[0];
+                if(invert_dir(yx_to_dir(y, x, oy, ox)) != dir[1]) return dir[1];
+
+                /* Should never happen */
+                return 5;
+        }
+
+
+        /* Check if it's not your last place */
+        for(i = 0; i < n; i++)
+        {
+                if((oy == y + ddy[dir[i]]) && (ox == x + ddx[dir[i]]))
+                {
+                        if(dir[i] == 8) dir[i] = 2;
+                        else if(dir[i] == 2) dir[i] = 8;
+                        else if(dir[i] == 6) dir[i] = 4;
+                        else if(dir[i] == 4) dir[i] = 6;
+                }
+        }
+
+        /* Select the desired one if possible */
+        for(i = 0; i < n; i++)
+        {
+                if((dir[i] == pdir) && (cave[y + ddy[dir[i]]][x + ddx[dir[i]]].mana == mana)) return dir[i];
+        }
+
+        /* If not select a random one */
+        if(n > 2)
+        {
+                byte nb = 200;
+
+                while(nb)
+                {
+                        nb--;
+
+                        r = rand_int(n);
+                        if((dir[r] != 5) && (yx_to_dir(y, x, oy, ox) != dir[r])) break;
+                }
+                return dir[r];
+        }
+        /* If nothing is found return 5 */
+        else return 5;
+}
 
 /*
  * Determine the path taken by a projection.
@@ -2233,7 +2395,7 @@ static void apply_nexus(monster_type *m_ptr)
  */
 sint project_path(u16b *gp, int range, int y1, int x1, int y2, int x2, int flg)
 {
-	int y, x;
+        int y, x, mana = 0, dir = 0;
 
 	int n = 0;
 	int k = 0;
@@ -2257,6 +2419,46 @@ sint project_path(u16b *gp, int range, int y1, int x1, int y2, int x2, int flg)
 	/* No path necessary (or allowed) */
 	if ((x1 == x2) && (y1 == y2)) return (0);
 
+        /* Hack -- to make a bolt/beam/ball follow a mana path */
+        if(flg & PROJECT_MANA_PATH)
+        {
+                int oy = y1, ox = x1, pdir = yx_to_dir(y2, x2, y1, x1);
+
+                /* Get the mana path level to follow */
+                mana = cave[y1][x1].mana;
+
+		/* Start */
+                dir = get_mana_path_dir(y1, x1, y1, x1, pdir, mana);
+                y = y1 + ddy[dir];
+                x = x1 + ddx[dir];
+
+		/* Create the projection path */
+		while (1)
+		{
+			/* Save grid */
+			gp[n++] = GRID(y,x);
+
+			/* Hack -- Check maximum range */
+                        if (n >= range + 10) return n;
+
+			/* Always stop at non-initial wall grids */
+                        if ((n > 0) && !cave_floor_bold(y, x)) return n;
+
+			/* Sometimes stop at non-initial monsters/players */
+			if (flg & (PROJECT_STOP))
+			{
+                                if ((n > 0) && (cave[y][x].m_idx != 0)) return n;
+			}
+
+                        /* Get the new direction */
+                        dir = get_mana_path_dir(y, x, oy, ox, pdir, mana);
+                        if(dir == 5) return n;
+                        oy = y;
+                        ox = x;
+                        y += ddy[dir];
+                        x += ddx[dir];
+		}
+        }
 
 	/* Analyze "dy" */
 	if (y2 < y1)
@@ -2567,9 +2769,7 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 		case GF_KILL_TRAP:
 		{
 			/* Destroy traps */
-			if ((c_ptr->feat == FEAT_INVIS) ||
-			    ((c_ptr->feat >= FEAT_TRAP_HEAD) &&
-			     (c_ptr->feat <= FEAT_TRAP_TAIL)))
+			if (c_ptr->t_idx != 0)
 			{
 				/* Check line of sight */
 				if (player_has_los_bold(y, x))
@@ -2582,7 +2782,7 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 				c_ptr->info &= ~(CAVE_MARK);
 
 				/* Destroy the trap */
-				cave_set_feat(y, x, FEAT_FLOOR);
+				c_ptr->t_idx = 0;
 			}
 
 			/* Secret / Locked doors are found and unlocked */
@@ -2610,9 +2810,7 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 			/* Destroy all doors and traps */
 			if ((c_ptr->feat == FEAT_OPEN) ||
 			    (c_ptr->feat == FEAT_BROKEN) ||
-			    (c_ptr->feat == FEAT_INVIS) ||
-			   ((c_ptr->feat >= FEAT_TRAP_HEAD) &&
-			    (c_ptr->feat <= FEAT_TRAP_TAIL)) ||
+			    (c_ptr->t_idx != 0) ||
 			   ((c_ptr->feat >= FEAT_DOOR_HEAD) &&
 			    (c_ptr->feat <= FEAT_DOOR_TAIL)))
 			{
@@ -2637,6 +2835,9 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 
 				/* Destroy the feature */
 				cave_set_feat(y, x, FEAT_FLOOR);
+
+				/* Remove traps */
+				c_ptr->t_idx = 0;
 			}
 
 			break;
@@ -2836,6 +3037,33 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 			break;
 		}
 
+                case GF_WINDS_MANA:
+                {
+                        if(dam >= 256)
+                        {
+                                /* With erase mana */
+
+                                /* Absorb some of the mana of the grid */
+                                p_ptr->csp += cave[y][x].mana / 80;
+                                if(p_ptr->csp > p_ptr->msp) p_ptr->csp = p_ptr->msp;
+
+                                /* Set the new amount */
+                                cave[y][x].mana = dam - 256;
+                        }
+                        else
+                        {
+                                /* Without erase mana */
+                                int amt = cave[y][x].mana + dam;
+
+                                /* Check if not overflow */
+                                if(amt > 255) amt = 255;
+
+                                /* Set the new amount */
+                                cave[y][x].mana = amt;
+                        }
+                        break;
+                }
+
                 case GF_LAVA_FLOW:
 		{
                         /* Shallow Lava */
@@ -2896,7 +3124,7 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 			c_ptr->info &= ~(CAVE_GLOW);
 
 			/* Hack -- Forget "boring" grids */
-			if (c_ptr->feat <= FEAT_INVIS)
+			if (c_ptr->feat == FEAT_FLOOR)
 			{
 				/* Forget */
 				c_ptr->info &= ~(CAVE_MARK);
@@ -3546,6 +3774,23 @@ bool project_m(int who, int r, int y, int x, int dam, int typ)
 	/* Analyze the damage type */
 	switch (typ)
 	{
+		/* Magic Missile -- pure damage */
+                case GF_DEATH:
+		{
+                        if (seen) obvious = TRUE;
+
+                        if(r_ptr->r_flags1 & RF1_UNIQUE)
+                        {
+                                note = " resists.";
+                                dam = 0;
+                        }
+                        else
+                        {
+                                /* It KILLS */
+                                dam = 32535;
+                        }
+                        break;
+		}
 		/* Magic Missile -- pure damage */
 		case GF_MISSILE:
 		{
@@ -5832,6 +6077,9 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 	/* If the player is blind, be more descriptive */
 	if (blind) fuzzy = TRUE;
 
+	/* If the player is hit by a trap, be more descritive */
+	if (who == -2) fuzzy = TRUE;
+
         /* Did ``God'' do it? */
         if (who == -99)
         {
@@ -5899,7 +6147,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 			if ((!(p_ptr->oppose_pois || p_ptr->resist_pois)) &&
 			     randint(HURT_CHANCE)==1)
 			{
-				do_dec_stat(A_CON);
+				do_dec_stat(A_CON, STAT_DEC_NORMAL);
 			}
 
 			take_hit(dam, killer);
@@ -6545,6 +6793,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
  *
  * Input:
  *   who: Index of "source" monster (negative for "player")
+ *        jk -- -2 for traps, only used with project_jump
  *   rad: Radius of explosion (0 = beam/bolt, 1 to 9 = ball)
  *   y,x: Target location (or location to travel "towards")
  *   dam: Base damage roll to apply to affected monsters (or player)
@@ -6711,16 +6960,16 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
 	int path_n = 0;
 
 	/* Actual grids in the "path" */
-	u16b path_g[512];
+        u16b path_g[1024];
 
 	/* Number of grids in the "blast area" (including the "beam" path) */
 	int grids = 0;
 
 	/* Coordinates of the affected grids */
-	byte gx[256], gy[256];
+        byte gx[1024], gy[1024];
 
 	/* Encoded "radius" info (see above) */
-	byte gm[16];
+        byte gm[64];
 
 
 	/* Hack -- Jump to target */
@@ -6773,7 +7022,7 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
 
 
 	/* Hack -- Assume there will be no blast (max radius 16) */
-	for (dist = 0; dist < 16; dist++) gm[dist] = 0;
+        for (dist = 0; dist < 64; dist++) gm[dist] = 0;
 
 
 	/* Initial grid */

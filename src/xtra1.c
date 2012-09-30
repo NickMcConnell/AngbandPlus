@@ -462,9 +462,16 @@ static void prt_stat(int stat)
 	/* Display "injured" stat */
 	if (p_ptr->stat_cur[stat] < p_ptr->stat_max[stat])
 	{
+		int colour;
+
+		if (p_ptr->stat_cnt[stat])
+			colour=TERM_ORANGE;
+		else
+			colour=TERM_YELLOW;
+
 		put_str(stat_names_reduced[stat], ROW_STAT + stat, 0);
 		cnv_stat(p_ptr->stat_use[stat], tmp);
-		c_put_str(TERM_YELLOW, tmp, ROW_STAT + stat, COL_STAT + 6);
+		c_put_str(colour, tmp, ROW_STAT + stat, COL_STAT + 6);
 	}
 
 	/* Display "healthy" stat */
@@ -602,22 +609,44 @@ static void prt_hp(void)
 	byte color;
 
 
-        put_str("HP ", ROW_HP, COL_HP);
+        if(p_ptr->class_extra6 & CLASS_UNDEAD)
+        {
+                put_str("DP ", ROW_HP, COL_HP);
 
-        sprintf(tmp, "%5d/%5d", p_ptr->chp, p_ptr->mhp);
-	if (p_ptr->chp >= p_ptr->mhp)
-	{
-		color = TERM_L_GREEN;
-	}
-	else if (p_ptr->chp > (p_ptr->mhp * hitpoint_warn) / 10)
-	{
-		color = TERM_YELLOW;
-	}
-	else
-	{
-		color = TERM_RED;
-	}
-        c_put_str(color, tmp, ROW_HP, COL_HP + 2);
+                sprintf(tmp, "%5d/%5d", p_ptr->chp, p_ptr->mhp);
+                if (p_ptr->chp >= p_ptr->mhp)
+                {
+                        color = TERM_L_BLUE;
+                }
+                else if (p_ptr->chp > (p_ptr->mhp * hitpoint_warn) / 10)
+                {
+                        color = TERM_VIOLET;
+                }
+                else
+                {
+                        color = TERM_L_RED;
+                }
+                c_put_str(color, tmp, ROW_HP, COL_HP + 2);
+        }
+        else
+        {
+                put_str("HP ", ROW_HP, COL_HP);
+
+                sprintf(tmp, "%5d/%5d", p_ptr->chp, p_ptr->mhp);
+                if (p_ptr->chp >= p_ptr->mhp)
+                {
+                        color = TERM_L_GREEN;
+                }
+                else if (p_ptr->chp > (p_ptr->mhp * hitpoint_warn) / 10)
+                {
+                        color = TERM_YELLOW;
+                }
+                else
+                {
+                        color = TERM_RED;
+                }
+                c_put_str(color, tmp, ROW_HP, COL_HP + 2);
+        }
 }
 
 /*
@@ -717,8 +746,8 @@ static void prt_depth(void)
 	}
 	else if (!dun_level)
 	{
-		if (wilderness[p_ptr->wilderness_y][p_ptr->wilderness_x].name[0])
-			strcpy(depths, wilderness[p_ptr->wilderness_y][p_ptr->wilderness_x].name);
+                if (wf_info[wild_map[p_ptr->wilderness_y][p_ptr->wilderness_x].feat].name + wf_name)
+                        strcpy(depths, wf_info[wild_map[p_ptr->wilderness_y][p_ptr->wilderness_x].feat].name + wf_name);
 		else
 			strcpy(depths, "Town/Wild");
 	}
@@ -1547,7 +1576,7 @@ static void calc_spells(void)
 
         cptr p = (((mp_ptr->spell_book == TV_VALARIN_BOOK) || (mp_ptr->spell_book == TV_PRAYER_BOOK)) ? "prayer" : "spell");
 
-        if (p_ptr->pclass == CLASS_SORCERER)
+        if ((p_ptr->pclass == CLASS_SORCERER) || (p_ptr->pclass == CLASS_NECRO))
         {
                 p_ptr->new_spells = 0;
                 return;
@@ -1564,7 +1593,6 @@ static void calc_spells(void)
 	/* Hack -- handle "xtra" mode */
 	if (character_xtra) return;
 
-
 	/* Determine the number of spells allowed */
 	levels = p_ptr->lev - mp_ptr->spell_first + 1;
 
@@ -1573,7 +1601,6 @@ static void calc_spells(void)
 
 	/* Extract total allowed spells */
 	num_allowed = (adj_mag_study[p_ptr->stat_ind[mp_ptr->spell_stat]] * levels / 2);
-
 
 	/* Assume none known */
 	num_known = 0;
@@ -1606,7 +1633,16 @@ static void calc_spells(void)
                 case CLASS_CHAOS_WARRIOR:
                 case CLASS_RANGER:
                 case CLASS_PALADIN:
+                case CLASS_HARPER:
                         class_max = 32;
+                        break;
+
+                case CLASS_DRUID:
+                        class_max = 40;
+                        break;
+
+                case CLASS_SYMBIANT:
+                        class_max = 13;
                         break;
 
                 default:                
@@ -2059,7 +2095,7 @@ static void calc_mana(void)
  * Calculate the players (maximal) hit points
  * Adjust current hitpoints if necessary
  */
-static void calc_hitpoints(void)
+void calc_hitpoints(void)
 {
 	int bonus, mhp;
         u32b f1, f2, f3, f4;
@@ -2103,7 +2139,22 @@ static void calc_hitpoints(void)
                 /* Augment Hitpoint */
                 mhp += mhp * o_ptr->pval / 5;
         }
-        
+
+        /* HACK - being undead means less DP */
+        if(p_ptr->class_extra6 & CLASS_UNDEAD)
+        {
+                int divisor = p_ptr->lev / 6;
+
+                /* Beware of the horrible division by zero ! :) */
+                if(divisor == 0) divisor = 1;
+
+                /* Actually decrease the max hp */
+                mhp /= divisor;
+
+                /* Never less than 1 */
+                if (mhp < 1) mhp = 1;
+        }
+
 	/* New maximum hitpoints */
 	if (p_ptr->mhp != mhp)
 	{
@@ -2261,11 +2312,65 @@ void calc_wield_monster()
         }
 }
 
-void calc_incarnate_monster()
+/*
+ * Calc which body parts the player have, based on the
+ * monster he incarnate, note that that's bnot a hack
+ * since body parts of the player when in it's own body
+ * are also defined in r_info(monster 0)
+ */
+void calc_body()
 {
         monster_race *r_ptr = &r_info[p_ptr->body_monster];
+        int i;
 
-        /* If in the player's body do nothing */
+        for (i = 0; i < INVEN_TOTAL - INVEN_WIELD; i++)
+                p_ptr->body_parts[i] = FALSE;
+
+        for (i = 0; i < r_ptr->body_parts[BODY_WEAPON]; i++)
+                p_ptr->body_parts[INVEN_WIELD - INVEN_WIELD + i] = TRUE;
+        if (r_ptr->body_parts[BODY_WEAPON])
+                p_ptr->body_parts[INVEN_BOW - INVEN_WIELD] = TRUE;
+
+        if (r_ptr->body_parts[BODY_TORSO])
+        {
+                p_ptr->body_parts[INVEN_BODY - INVEN_WIELD] = TRUE;
+                p_ptr->body_parts[INVEN_OUTER - INVEN_WIELD] = TRUE;
+                p_ptr->body_parts[INVEN_LITE - INVEN_WIELD] = TRUE;
+                p_ptr->body_parts[INVEN_AMMO - INVEN_WIELD] = TRUE;
+                p_ptr->body_parts[INVEN_CARRY - INVEN_WIELD] = TRUE;
+        }
+
+        for (i = 0; i < r_ptr->body_parts[BODY_FINGER]; i++)
+                p_ptr->body_parts[INVEN_RING - INVEN_WIELD + i] = TRUE;
+
+        for (i = 0; i < r_ptr->body_parts[BODY_HEAD]; i++)
+        {
+                p_ptr->body_parts[INVEN_HEAD - INVEN_WIELD + i] = TRUE;
+                p_ptr->body_parts[INVEN_NECK - INVEN_WIELD + i] = TRUE;
+        }
+
+        for (i = 0; i < r_ptr->body_parts[BODY_ARMS]; i++)
+        {
+                p_ptr->body_parts[INVEN_ARM - INVEN_WIELD + i] = TRUE;
+                p_ptr->body_parts[INVEN_HANDS - INVEN_WIELD + i] = TRUE;
+        }
+        if (r_ptr->body_parts[BODY_ARMS])
+                p_ptr->body_parts[INVEN_TOOL - INVEN_WIELD] = TRUE;
+
+        for (i = 0; i < r_ptr->body_parts[BODY_LEGS]; i++)
+                p_ptr->body_parts[INVEN_FEET - INVEN_WIELD + i] = TRUE;
+
+        /* Ok now if the player lost a body part, he must drop the object he had on it */
+        for (i = 0; i < INVEN_TOTAL - INVEN_WIELD; i++)
+        {
+                if ((!p_ptr->body_parts[i]) && (inventory[i + INVEN_WIELD].k_idx))
+                {
+                        /* Drop it NOW ! */
+                        inven_takeoff(i + INVEN_WIELD, 255, TRUE);
+                }
+        }
+
+        /* If in the player's body nothing else is needed */
         if(!p_ptr->body_monster) return;
 
         if(p_ptr->disembodied)
@@ -2824,6 +2929,7 @@ void calc_bonuses(void)
 	p_ptr->slow_digest = FALSE;
 	p_ptr->regenerate = FALSE;
         p_ptr->fly = FALSE;
+        p_ptr->climb = FALSE;
 	p_ptr->ffall = FALSE;
 	p_ptr->hold_life = FALSE;
 	p_ptr->telepathy = FALSE;
@@ -2905,9 +3011,6 @@ void calc_bonuses(void)
 
         /* The powers gived by the wielded monster */
         calc_wield_monster();
-
-        /* The powers of the corpse of the player */
-        calc_incarnate_monster();
 
         /* Calculate bonuses due to gods. */
         if (p_ptr->pgod) {
@@ -3211,6 +3314,7 @@ void calc_bonuses(void)
 		if (p_ptr->muta3 & MUT3_WINGS)
 		{
 			p_ptr->ffall = TRUE;
+                        p_ptr->fly = TRUE;
 		}
 		
 		if (p_ptr->muta3 & MUT3_FEARLESS)
@@ -3342,6 +3446,7 @@ void calc_bonuses(void)
 		if (f3 & (TR3_WRAITH)) p_ptr->wraith_form = MAX(p_ptr->wraith_form, 20);
 		if (f3 & (TR3_FEATHER)) p_ptr->ffall = TRUE;
                 if (f4 & (TR4_FLY)) p_ptr->fly = TRUE;
+                if (f4 & (TR4_CLIMB)) p_ptr->climb = TRUE;
 
 		/* Immunity flags */
 		if (f2 & (TR2_IM_FIRE)) p_ptr->immune_fire = TRUE;
@@ -3824,6 +3929,10 @@ void calc_bonuses(void)
 	/* Searching slows the player down */
 	if (p_ptr->searching) p_ptr->pspeed -= 10;
 
+        /* In order to get a "nice" mana path druids need to ahve a 0 speed */
+        if ((p_ptr->class_extra7 == CLASS_MANA_PATH) && (p_ptr->pspeed > 110))
+                p_ptr->pspeed = 110;
+
 	/* Display the speed (if needed) */
 	if (p_ptr->pspeed != old_speed) p_ptr->redraw |= (PR_SPEED);
 
@@ -3874,34 +3983,33 @@ void calc_bonuses(void)
 		p_ptr->heavy_shoot = TRUE;
 	}
 
+        /* Take note of required "tval" for missiles */
+        switch (o_ptr->sval)
+        {
+                case SV_SLING:
+                {
+                        p_ptr->tval_ammo = TV_SHOT;
+                        break;
+                }
+
+                case SV_SHORT_BOW:
+                case SV_LONG_BOW:
+                {
+                        p_ptr->tval_ammo = TV_ARROW;
+                        break;
+                }
+
+                case SV_LIGHT_XBOW:
+                case SV_HEAVY_XBOW:
+                {
+                        p_ptr->tval_ammo = TV_BOLT;
+                        break;
+                }
+        }
 
 	/* Compute "extra shots" if needed */
 	if (o_ptr->k_idx && !p_ptr->heavy_shoot)
 	{
-		/* Take note of required "tval" for missiles */
-		switch (o_ptr->sval)
-		{
-			case SV_SLING:
-			{
-				p_ptr->tval_ammo = TV_SHOT;
-				break;
-			}
-
-			case SV_SHORT_BOW:
-			case SV_LONG_BOW:
-			{
-				p_ptr->tval_ammo = TV_ARROW;
-				break;
-			}
-
-			case SV_LIGHT_XBOW:
-			case SV_HEAVY_XBOW:
-			{
-				p_ptr->tval_ammo = TV_BOLT;
-				break;
-			}
-		}
-
 		/* Hack -- Reward High Level Rangers using Bows */
 		if (((p_ptr->pclass == 4) && (p_ptr->tval_ammo == TV_ARROW)))
 		{
@@ -3949,6 +4057,12 @@ void calc_bonuses(void)
 		/* Require at least one shot */
 		if (p_ptr->num_fire < 1) p_ptr->num_fire = 1;
 	}
+
+        /* Boost digging skill by tool weight */
+        if(inventory[INVEN_TOOL].k_idx && (inventory[INVEN_TOOL].tval == TV_DIGGING))
+        {
+		p_ptr->skill_dig += (o_ptr->weight / 10);
+        }
 
         /* Examine the main weapon */
 	o_ptr = &inventory[INVEN_WIELD];
@@ -4020,6 +4134,11 @@ void calc_bonuses(void)
 			case CLASS_RANGER:
 				num = 5; wgt = 35; mul = 4; break;
 
+                        /* Druid, Necromancer */
+                        case CLASS_DRUID:
+                        case CLASS_NECRO:
+                                num = 4; wgt = 35; mul = 3; break;
+
                         case CLASS_ARCHER:
                                 num = 4; wgt = 35; mul = 4; break;
 
@@ -4073,12 +4192,110 @@ void calc_bonuses(void)
 
 		/* Require at least one blow */
 		if (p_ptr->num_blow < 1) p_ptr->num_blow = 1;
-
-
-		/* Boost digging skill by weapon weight */
-		p_ptr->skill_dig += (o_ptr->weight / 10);
 	}
+        /* Monsters that only have their "natural" attacks */
+        else if (!r_info[p_ptr->body_monster].body_parts[BODY_WEAPON])
+        {
+		int str_index, dex_index;
+                int num = 0, mul = 0;
 
+		/* Analyze the class */
+		switch (p_ptr->pclass)
+		{
+			/* Warrior */
+			case CLASS_WARRIOR:
+                                num = 6; mul = 5; break;
+
+                        case CLASS_MIMIC:
+                        case CLASS_HARPER:
+                        case CLASS_BEASTMASTER:
+                                num = 5; mul = 4; break;
+
+                        /* Sorcerer */
+                        case CLASS_SORCERER:
+                                num = 1; mul = 1; break;
+
+			/* Mage */
+			case CLASS_MAGE:
+                        case CLASS_WIZARD:
+			case CLASS_HIGH_MAGE:
+                        case CLASS_POWERMAGE:
+                        case CLASS_RUNECRAFTER:
+                                num = 4; mul = 2; break;
+
+			/* Priest, Mindcrafter */
+			case CLASS_PRIEST:
+                        case CLASS_PRIOR:
+			case CLASS_MINDCRAFTER:
+                                num = 5; mul = 3; break;
+
+			/* Rogue */
+			case CLASS_ROGUE:
+                        case CLASS_SYMBIANT:
+                        case CLASS_POSSESSOR:
+                                num = 5; mul = 3; break;
+
+			/* Ranger */
+                        case CLASS_ALCHEMIST:
+			case CLASS_RANGER:
+                                num = 5; mul = 4; break;
+
+                        /* Druid, Necromancer */
+                        case CLASS_DRUID:
+                        case CLASS_NECRO:
+                                num = 4; mul = 3; break;
+
+                        case CLASS_ARCHER:
+                                num = 4; mul = 4; break;
+
+			/* Paladin */
+                        case CLASS_PALADIN:             
+                                num = 5; mul = 4; break;
+
+			/* Warrior-Mage */
+			case CLASS_WARRIOR_MAGE:
+                                num = 5; mul = 3; break;
+
+			/* Chaos Warrior */
+			case CLASS_CHAOS_WARRIOR:
+                                num = 5; mul = 4; break;
+
+			/* Monk */
+			case CLASS_MONK:
+                                num = (p_ptr->lev<40?3:4); mul = 4; break;
+
+			/* Illusionist -KMW- */
+                        case CLASS_ILLUSIONIST:
+                                num = 4; mul = 3; break;
+		}
+
+		/* Access the strength vs weight */
+                str_index = (adj_str_blow[p_ptr->stat_ind[A_STR]] * mul / 3);
+
+		/* Maximal value */
+		if (str_index > 11) str_index = 11;
+
+		/* Index by dexterity */
+		dex_index = (adj_dex_blow[p_ptr->stat_ind[A_DEX]]);
+
+		/* Maximal value */
+		if (dex_index > 11) dex_index = 11;
+
+		/* Use the blows table */
+		p_ptr->num_blow = blows_table[str_index][dex_index];
+
+		/* Add in the "bonus blows" */
+		p_ptr->num_blow += extra_blows;
+
+		/* Level bonus for warriors (1-3) */
+		if (p_ptr->pclass == CLASS_WARRIOR) p_ptr->num_blow += (p_ptr->lev) / 15;
+
+		/* Maximal value */
+                if (p_ptr->num_blow > 4) p_ptr->num_blow = 4;
+
+		/* Require at least one blow */
+		if (p_ptr->num_blow < 1) p_ptr->num_blow = 1;
+        }
 
 	/* Different calculation for monks with empty hands */
 	else if (p_ptr->pclass == CLASS_MONK && monk_empty_hands())
@@ -4170,6 +4387,20 @@ void calc_bonuses(void)
 		monk_armour_aux = TRUE;
 	}
 
+	/* Hack by SBF: Rogues get a stealth bonus every 5 levels */
+	/* while Rangers and Monks get one every 10 levels. */
+        if (!p_ptr->aggravate)
+	{
+		if (p_ptr->pclass == CLASS_ROGUE)
+		{
+			p_ptr->skill_stl += (p_ptr->lev/5);   /* give a stealth bonus */
+		}
+
+		if (p_ptr->pclass == CLASS_RANGER || p_ptr->pclass == CLASS_MONK) 
+		{
+			p_ptr->skill_stl += (p_ptr->lev/10); /* give a stealth bonus */
+		}
+	}
 
 	/* Affect Skill -- stealth (bonus one) */
 	p_ptr->skill_stl += 1;
@@ -4345,6 +4576,12 @@ void update_stuff(void)
 	if (!p_ptr->update) return;
 
 
+        if (p_ptr->update & (PU_BODY))
+	{
+                p_ptr->update &= ~(PU_BODY);
+                calc_body();
+	}
+
 	if (p_ptr->update & (PU_BONUS))
 	{
 		p_ptr->update &= ~(PU_BONUS);
@@ -4480,12 +4717,6 @@ void redraw_stuff(void)
                 p_ptr->redraw &= ~(PR_ARMOR | PR_HP | PR_MANA | PR_TANK | PR_MH);
 		p_ptr->redraw &= ~(PR_DEPTH | PR_HEALTH);
 		prt_frame_basic();
-	}
-
-	if (p_ptr->redraw & (PR_EQUIPPY))
-	{
-		p_ptr->redraw &= ~(PR_EQUIPPY);
-		print_equippy(); /* To draw / delete equippy chars */
 	}
 
 	if (p_ptr->redraw & (PR_MISC))
@@ -4827,6 +5058,7 @@ int get_artifact_idx(int level)
         return i;
 }
 
+/* Chose a fate */
 void gain_fate(byte fate)
 {
         int i;
@@ -4867,8 +5099,8 @@ void gain_fate(byte fate)
                         switch(fates[i].fate)
                         {
                                 case FATE_FIND_O:
-                                        fates[i].o_idx = get_obj_num(p_ptr->max_dlv[dungeon_type] + randint(10));
-                                        level = rand_range(p_ptr->max_dlv[dungeon_type] - 20, p_ptr->max_dlv[dungeon_type] + 20);
+                                        fates[i].o_idx = get_obj_num(max_dlv[dungeon_type] + randint(10));
+                                        level = rand_range(max_dlv[dungeon_type] - 20, max_dlv[dungeon_type] + 20);
                                         fates[i].level = (level < 1)?1:(level > 98)?98:level;
                                         fates[i].serious = rand_int(2);
                                         fates[i].know = FALSE;
@@ -4879,8 +5111,8 @@ void gain_fate(byte fate)
                                         /* Prepare allocation table */
                                         get_mon_num_prep();
 
-                                        fates[i].r_idx = get_mon_num(p_ptr->max_dlv[dungeon_type] + randint(10));
-                                        level = rand_range(p_ptr->max_dlv[dungeon_type] - 20, p_ptr->max_dlv[dungeon_type] + 20);
+                                        fates[i].r_idx = get_mon_num(max_dlv[dungeon_type] + randint(10));
+                                        level = rand_range(max_dlv[dungeon_type] - 20, max_dlv[dungeon_type] + 20);
                                         fates[i].level = (level < 1)?1:(level > 98)?98:level;
                                         fates[i].serious = rand_int(2);
                                         fates[i].know = FALSE;
@@ -4888,8 +5120,8 @@ void gain_fate(byte fate)
                                         break;
 
                                 case FATE_FIND_A:
-                                        fates[i].a_idx = get_artifact_idx(p_ptr->max_dlv[dungeon_type] + randint(10));
-                                        level = rand_range(p_ptr->max_dlv[dungeon_type] - 20, p_ptr->max_dlv[dungeon_type] + 20);
+                                        fates[i].a_idx = get_artifact_idx(max_dlv[dungeon_type] + randint(10));
+                                        level = rand_range(max_dlv[dungeon_type] - 20, max_dlv[dungeon_type] + 20);
                                         fates[i].level = (level < 1)?1:(level > 98)?98:level;
                                         fates[i].serious = TRUE;
                                         fates[i].know = FALSE;
@@ -4897,7 +5129,7 @@ void gain_fate(byte fate)
                                         break;
 
                                 case FATE_DIE:
-                                        level = rand_range(p_ptr->max_dlv[dungeon_type] - 20, p_ptr->max_dlv[dungeon_type] + 20);
+                                        level = rand_range(max_dlv[dungeon_type] - 20, max_dlv[dungeon_type] + 20);
                                         fates[i].level = (level < 1)?1:(level > 98)?98:level;
                                         fates[i].serious = TRUE;
                                         fates[i].know = FALSE;

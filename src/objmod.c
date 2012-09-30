@@ -1,5 +1,7 @@
 /* File: objmod.c */
 
+#ifdef USE_PYTHON
+
 /*
  * Copyright (c) 1998 Keldon Jones
  *
@@ -716,7 +718,7 @@ static PyMethodDef obj_methods[] =
 	{ "identify_fully", object_identify_fully, 1 },
 	{ "recharge", object_recharge, 1 },
 	{ "o_max", object_o_max, 1 },
-        { "create_artifact", create_named_art, 1 },
+        { "create_artifact", create_named_art, 1, 1 },
 	{ NULL, NULL }
 };
 
@@ -754,8 +756,7 @@ void initobject()
 	add_constant(d, "INVEN_PACK", INVEN_PACK);
 	add_constant(d, "INVEN_WIELD", INVEN_WIELD);
 	add_constant(d, "INVEN_BOW", INVEN_BOW);
-	add_constant(d, "INVEN_LEFT", INVEN_LEFT);
-	add_constant(d, "INVEN_RIGHT", INVEN_RIGHT);
+        add_constant(d, "INVEN_RING", INVEN_RING);
 	add_constant(d, "INVEN_NECK", INVEN_NECK);
 	add_constant(d, "INVEN_LITE", INVEN_LITE);
 	add_constant(d, "INVEN_BODY", INVEN_BODY);
@@ -912,3 +913,4 @@ void initobject()
 	add_constant(d, "ART_BARD", ART_BARD);
 	add_constant(d, "ART_CUBRAGOL", ART_CUBRAGOL);
 }
+#endif

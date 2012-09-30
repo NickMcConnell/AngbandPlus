@@ -565,7 +565,7 @@
 /* Wizard mode testing options: */
 
 /* For testing the vaults */
-/* # define FORCE_V_IDX 106 */
+/* # define FORCE_V_IDX 20 */
 
 /* Testing upkeep */
 /* # define TRACK_FRIENDS */
@@ -599,9 +599,19 @@
 /*
  * Using the fast autoroller can be considered as cheating
  */
-/* #define USE_FAST_AUTOROLLER */
+#define USE_FAST_AUTOROLLER
 
 /*
  * Unallow the using of every race/class combinaison
  */
 /* #define FORBID_BAD_COMBINAISON */
+
+/*
+ * Allow generation of player ghosts. beware, they have bugs
+ */
+/* #define USE_GHOSTS */
+
+/*
+ * Enable the CTRL + L command to quit without saving
+ */
+/* #define ALLOW_QUITING */

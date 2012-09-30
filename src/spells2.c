@@ -24,6 +24,8 @@
 
 #define ACTIVATION_CHANCE 3
 
+void summon_dragon_riders();
+
 
 /*
  * Grow trees
@@ -167,7 +169,7 @@ static cptr desc_stat_neg[] =
 /*
  * Lose a "point"
  */
-bool do_dec_stat(int stat)
+bool do_dec_stat(int stat, int mode)
 {
 	bool sust = FALSE;
 
@@ -194,7 +196,7 @@ bool do_dec_stat(int stat)
 	}
 
 	/* Attempt to reduce the stat */
-	if (dec_stat(stat, 10, FALSE))
+	if (dec_stat(stat, 10, mode))
 	{
 		/* Message */
 		msg_format("You feel very %s.", desc_stat_neg[stat]);
@@ -613,9 +615,380 @@ void self_knowledge(void)
 
 
 	/* Racial powers... */
+	if (p_ptr->body_monster != 0)
+	{
+		monster_race *r_ptr = &r_info[p_ptr->body_monster];
+
+		if (r_ptr->flags1 & RF1_CHAR_CLEAR ||
+		    r_ptr->flags1 & RF1_ATTR_CLEAR)
+			info[i++] = "You are clear.";
+		if ((r_ptr->flags1 & RF1_CHAR_MULTI) ||
+		    (r_ptr->flags2 & RF2_SHAPECHANGER))
+			info[i++] = "Your form constantly change.";
+		if (r_ptr->flags1 & RF1_ATTR_MULTI)
+			info[i++] = "Your color constantly change.";
+		if (r_ptr->flags1 & RF1_NEVER_BLOW)
+			info[i++] = "You do not have any physical weapon";
+		if (r_ptr->flags1 & RF1_NEVER_MOVE)
+			info[i++] = "You cannot move.";
+		if ((r_ptr->flags1 & RF1_RAND_25) &&
+		    (r_ptr->flags1 & RF1_RAND_50))
+			info[i++] = "You move extremely erratically.";
+		else if (r_ptr->flags1 & RF1_RAND_50)
+		        info[i++] = "You move somewhat erratically.";
+		else if (r_ptr->flags1 & RF1_RAND_25)
+			info[i++] = "You move a bit erratically.";
+		if (r_ptr->flags2 & RF2_STUPID)
+			info[i++] = "You are very stupid (INT -4).";
+		if (r_ptr->flags2 & RF2_SMART)
+			info[i++] = "You are very smart (INT +4).";
+		/* Not implemented */
+		if (r_ptr->flags2 & RF2_CAN_SPEAK)
+			info[i++] = "You can speak.";
+		else
+			info[i++] = "You cannot speak.";
+		/* Not implemented */
+		if (r_ptr->flags2 & RF2_COLD_BLOOD)
+			info[i++] = "You are cold blooded.";
+		/* Not implemented */
+		if (r_ptr->flags2 & RF2_EMPTY_MIND)
+			info[i++] = "You have empty mind.";
+		if (r_ptr->flags2 & RF2_WEIRD_MIND)
+			info[i++] = "You have weird mind.";
+		if (r_ptr->flags2 & RF2_MULTIPLY)
+			info[i++] = "You can multiply.";	
+		if (r_ptr->flags2 & RF2_POWERFUL)
+			info[i++] = "You have strong breath.";
+		/* Not implemented */
+		if (r_ptr->flags2 & RF2_ELDRITCH_HORROR)
+			info[i++] = "You are an eldritch horror.";
+		if (r_ptr->flags2 & RF2_OPEN_DOOR)
+			info[i++] = "You can open doors.";
+		else
+			info[i++] = "You cannot open doors.";
+		if (r_ptr->flags2 & RF2_BASH_DOOR)
+			info[i++] = "You can bash doors.";
+		else
+			info[i++] = "You cannot bash doors.";
+		if (r_ptr->flags2 & RF2_PASS_WALL)
+			info[i++] = "You can pass walls.";
+		if (r_ptr->flags2 & RF2_KILL_WALL)
+			info[i++] = "You destroy walls.";
+		/* Not implemented */
+		if (r_ptr->flags2 & RF2_MOVE_BODY)
+			info[i++] = "You can move monsters.";
+		/* Not implemented */
+#ifdef 0
+		/* They are disabled, because the r_info.txt array has to
+		 * few RF2_TAKE_ITEM flags... */
+		if (r_ptr->flags2 & RF2_TAKE_ITEM)
+			info[i++] = "You can pick up items.";
+		else
+			info[i++] = "You cannot pick up items.";
+#endif
+		/* Not implemented */
+		if (r_ptr->flags3 & RF3_ORC)
+			info[i++] = "You have orc blood in your veins.";
+		/* Not implemented */
+		else if (r_ptr->flags3 & RF3_TROLL)
+			info[i++] = "You have troll blood in your veins.";
+		/* Not implemented */
+		else if (r_ptr->flags3 & RF3_GIANT)
+			info[i++] = "You have giant blood in your veins.";
+		/* Not implemented */
+		else if (r_ptr->flags3 & RF3_DRAGON)
+			info[i++] = "You have dragon blood in your veins.";
+		/* Not implemented */
+		else if (r_ptr->flags3 & RF3_DEMON)
+			info[i++] = "You have demon blood in your veins.";
+		/* Not implemented */
+		else if (r_ptr->flags3 & RF3_UNDEAD)
+			info[i++] = "You are an undead.";
+		/* Not implemented */
+		else if (r_ptr->flags3 & RF3_ANIMAL)
+			info[i++] = "You are an animal.";
+		/* Not implemented */
+		else if (r_ptr->flags3 & RF3_DRAGONRIDER)
+			info[i++] = "You have dragonrider blood in your veins.";
+		if (r_ptr->flags3 & RF3_EVIL)
+			info[i++] = "You are inherently evil.";
+		else if (r_ptr->flags3 & RF3_GOOD)
+			info[i++] = "You are inherently good.";
+		if (r_ptr->flags3 & RF3_AURA_COLD)
+			info[i++] = "You are surrounded by a chilly aura.";
+		/* Not implemented */
+		if (r_ptr->flags3 & RF3_NONLIVING)
+			info[i++] = "You are not living.";
+		/* Not implemented */
+		if (r_ptr->flags3 & RF3_HURT_LITE)
+			info[i++] = "Your eyes are sensible to bright light.";
+		/* Not implemented */
+		if (r_ptr->flags3 & RF3_HURT_ROCK)
+			info[i++] = "You can be hurt by rock remover.";
+		if (r_ptr->flags3 & RF3_SUSCEP_FIRE)
+			info[i++] = "You are sensitive to fire.";
+		if (r_ptr->flags3 & RF3_SUSCEP_COLD)
+			info[i++] = "You are sensitive to cold.";
+		if (r_ptr->flags3 & RF3_RES_TELE)
+			info[i++] = "You are resistant to teleportation.";
+		if (r_ptr->flags3 & RF3_RES_NETH)
+			info[i++] = "You are resistant to nether.";
+		if (r_ptr->flags3 & RF3_RES_WATE)
+			info[i++] = "You are resistant to water.";
+		if (r_ptr->flags3 & RF3_RES_PLAS)
+			info[i++] = "You are resistant to plasma.";
+		if (r_ptr->flags3 & RF3_RES_WATE)
+			info[i++] = "You are resistant to nexus.";
+		if (r_ptr->flags3 & RF3_RES_DISE)
+			info[i++] = "You are resistant to disease.";
+		/* Not implemented */
+		if (r_ptr->flags3 & RF3_NO_SLEEP)
+			info[i++] = "You cannot be slept.";
+		/* Not implemented */
+		if (r_ptr->flags3 & RF3_UNIQUE_4)
+			info[i++] = "You are a Nazgul.";
+		if (r_ptr->flags3 & RF3_NO_FEAR)
+			info[i++] = "You are immune to fear.";
+		if (r_ptr->flags3 & RF3_NO_STUN)
+			info[i++] = "You are immune to stun.";
+		if (r_ptr->flags3 & RF3_NO_CONF)
+			info[i++] = "You are immune to confusion.";
+		if (r_ptr->flags3 & RF3_NO_SLEEP)
+			info[i++] = "You are immune to sleep.";
+
+		if (r_ptr->flags4 & RF4_SHRIEK)
+			info[i++] = "You can aggrevate monsters.";
+		if (r_ptr->flags4 & RF4_ROCKET)
+			info[i++] = "You can fire a rocket.";
+		if (r_ptr->flags4 & RF4_ARROW_1)
+			info[i++] = "You can fire a light arrow.";
+		if (r_ptr->flags4 & RF4_ARROW_2)
+			info[i++] = "You can fire a heavy arrow.";
+		if (r_ptr->flags4 & RF4_ARROW_3)
+			info[i++] = "You can fire a light missile.";
+		if (r_ptr->flags4 & RF4_ARROW_4)
+			info[i++] = "You can fire a heavy missile.";
+		if (r_ptr->flags4 & RF4_BR_ACID)
+			info[i++] = "You can breathe acid.";
+		if (r_ptr->flags4 & RF4_BR_ELEC)
+			info[i++] = "You can breathe electricity.";
+		if (r_ptr->flags4 & RF4_BR_FIRE)
+			info[i++] = "You can breathe fire.";
+		if (r_ptr->flags4 & RF4_BR_COLD)
+			info[i++] = "You can breathe cold.";
+		if (r_ptr->flags4 & RF4_BR_POIS)
+			info[i++] = "You can breathe poison.";
+		if (r_ptr->flags4 & RF4_BR_NETH)
+			info[i++] = "You can breathe nether.";
+		if (r_ptr->flags4 & RF4_BR_LITE)
+			info[i++] = "You can breathe light.";
+		if (r_ptr->flags4 & RF4_BR_DARK)
+			info[i++] = "You can breathe darkness.";
+		if (r_ptr->flags4 & RF4_BR_CONF)
+			info[i++] = "You can breathe confusion.";
+		if (r_ptr->flags4 & RF4_BR_SOUN)
+			info[i++] = "You can breathe sound.";
+		if (r_ptr->flags4 & RF4_BR_CHAO)
+			info[i++] = "You can breathe chaos.";
+		if (r_ptr->flags4 & RF4_BR_DISE)
+			info[i++] = "You can breathe disenchantment.";
+		if (r_ptr->flags4 & RF4_BR_NEXU)
+			info[i++] = "You can breathe nexus.";
+		if (r_ptr->flags4 & RF4_BR_TIME)
+			info[i++] = "You can breathe time.";
+		if (r_ptr->flags4 & RF4_BR_INER)
+			info[i++] = "You can breathe inertia.";
+		if (r_ptr->flags4 & RF4_BR_GRAV)
+			info[i++] = "You can breathe gravity.";
+		if (r_ptr->flags4 & RF4_BR_SHAR)
+			info[i++] = "You can breathe shards.";
+		if (r_ptr->flags4 & RF4_BR_PLAS)
+			info[i++] = "You can breathe plasma.";
+		if (r_ptr->flags4 & RF4_BR_WALL)
+			info[i++] = "You can breathe force.";
+		if (r_ptr->flags4 & RF4_BR_MANA)
+			info[i++] = "You can breathe mana.";
+		if (r_ptr->flags4 & RF4_BR_NUKE)
+			info[i++] = "You can breathe nuke.";
+		if (r_ptr->flags4 & RF4_BR_DISI)
+			info[i++] = "You can breathe disitegration.";
+		if (r_ptr->flags5 & RF5_BA_ACID)
+			info[i++] = "You can cast a ball of acid.";
+		if (r_ptr->flags5 & RF5_BA_ELEC)
+			info[i++] = "You can cast a ball of electricity.";
+		if (r_ptr->flags5 & RF5_BA_FIRE)
+			info[i++] = "You can cast a ball of fire.";
+		if (r_ptr->flags5 & RF5_BA_COLD)
+			info[i++] = "You can cast a ball of cold.";
+		if (r_ptr->flags5 & RF5_BA_POIS)
+			info[i++] = "You can cast a ball of poison.";
+		if (r_ptr->flags5 & RF5_BA_NETH)
+			info[i++] = "You can cast a ball of nether.";
+		if (r_ptr->flags5 & RF5_BA_WATE)
+			info[i++] = "You can cast a ball of water.";
+		/* Not implemented */
+		if (r_ptr->flags5 & RF5_DRAIN_MANA)
+			info[i++] = "You can drain mana.";
+		if (r_ptr->flags5 & RF5_MIND_BLAST)
+			info[i++] = "You can cause mind blasting.";
+		if (r_ptr->flags5 & RF5_BRAIN_SMASH)
+			info[i++] = "You can cause brain smashing.";
+		if (r_ptr->flags5 & RF5_CAUSE_1)
+			info[i++] = "You can cause light wounds.";
+		if (r_ptr->flags5 & RF5_CAUSE_2)
+			info[i++] = "You can cause serious wounds.";
+		if (r_ptr->flags5 & RF5_CAUSE_3)
+			info[i++] = "You can cause critical wounds.";
+		if (r_ptr->flags5 & RF5_CAUSE_4)
+			info[i++] = "You can cause mortal wounds.";
+		if (r_ptr->flags5 & RF5_BO_ACID)
+			info[i++] = "You can cast a bolt of acid.";
+		if (r_ptr->flags5 & RF5_BO_ELEC)
+			info[i++] = "You can cast a bolt of electricity.";
+		if (r_ptr->flags5 & RF5_BO_FIRE)
+			info[i++] = "You can cast a bolt of fire.";
+		if (r_ptr->flags5 & RF5_BO_COLD)
+			info[i++] = "You can cast a bolt of cold.";
+		if (r_ptr->flags5 & RF5_BO_POIS)
+			info[i++] = "You can cast a bolt of poison.";
+		if (r_ptr->flags5 & RF5_BO_NETH)
+			info[i++] = "You can cast a bolt of nether.";
+		if (r_ptr->flags5 & RF5_BO_WATE)
+			info[i++] = "You can cast a bolt of water.";
+		if (r_ptr->flags5 & RF5_BO_MANA)
+			info[i++] = "You can cast a bolt of mana.";
+		if (r_ptr->flags5 & RF5_BO_PLAS)
+			info[i++] = "You can cast a bolt of plasma.";
+		if (r_ptr->flags5 & RF5_BO_ICEE)
+			info[i++] = "You can cast a bolt of ice.";
+		if (r_ptr->flags5 & RF5_MISSILE)
+			info[i++] = "You can cast magic missile.";
+		if (r_ptr->flags5 & RF5_SCARE)
+			info[i++] = "You can terrify.";
+		if (r_ptr->flags5 & RF5_BLIND)
+			info[i++] = "You can blind.";
+		if (r_ptr->flags5 & RF5_CONF)
+			info[i++] = "You can use confusion.";
+		if (r_ptr->flags5 & RF5_SLOW)
+			info[i++] = "You can cast slow.";
+		if (r_ptr->flags5 & RF5_HOLD)
+			info[i++] = "You can touch to paralyze.";
+		if (r_ptr->flags6 & RF6_HASTE)
+			info[i++] = "You can haste yourself.";
+		if (r_ptr->flags6 & RF6_HAND_DOOM)
+			info[i++] = "You can invoke Hand of Doom.";
+		if (r_ptr->flags6 & RF6_HEAL)
+			info[i++] = "You can heal yourself.";
+		if (r_ptr->flags6 & RF6_BLINK)
+			info[i++] = "You can blink.";
+		if (r_ptr->flags6 & RF6_TPORT)
+			info[i++] = "You can teleport.";
+		if (r_ptr->flags6 & RF6_TELE_TO)
+			info[i++] = "You can go between.";
+		if (r_ptr->flags6 & RF6_TELE_AWAY)
+			info[i++] = "You can teleport away.";
+		if (r_ptr->flags6 & RF6_TELE_LEVEL)
+			info[i++] = "You can teleport level.";
+		if (r_ptr->flags6 & RF6_DARKNESS)
+			info[i++] = "You can create darkness.";
+		if (r_ptr->flags6 & RF6_TRAPS)
+			info[i++] = "You can create traps.";
+		/* Not implemented */
+		if (r_ptr->flags6 & RF6_FORGET)
+			info[i++] = "You can fade memories.";
+		if (r_ptr->flags6 & RF6_RAISE_DEAD)
+			info[i++] = "You can Raise the Dead.";
+		if (r_ptr->flags6 & RF6_S_BUG)
+			info[i++] = "You can magically summon a Software Bugs.";
+		if (r_ptr->flags6 & RF6_S_RNG)
+			info[i++] = "You can magically summon the RNG.";
+		if (r_ptr->flags6 & RF6_S_DRAGONRIDER)
+			info[i++] = "You can magically summon some Dragonriders.";
+		if (r_ptr->flags6 & RF6_S_KIN)
+			info[i++] = "You can magically summon some Kins.";
+		if (r_ptr->flags6 & RF6_S_CYBER)
+			info[i++] = "You can magically summon a Cyberdemon.";
+		if (r_ptr->flags6 & RF6_S_MONSTER)
+			info[i++] = "You can magically summon a monster.";
+		if (r_ptr->flags6 & RF6_S_MONSTERS)
+			info[i++] = "You can magically summon monsters.";
+		if (r_ptr->flags6 & RF6_S_ANT)
+			info[i++] = "You can magically summon ants.";
+		if (r_ptr->flags6 & RF6_S_SPIDER)
+			info[i++] = "You can magically summon spiders.";
+		if (r_ptr->flags6 & RF6_S_HOUND)
+			info[i++] = "You can magically summon hounds.";
+		if (r_ptr->flags6 & RF6_S_HYDRA)
+			info[i++] = "You can magically summon hydras.";
+		if (r_ptr->flags6 & RF6_S_ANGEL)
+			info[i++] = "You can magically summon an angel.";
+		if (r_ptr->flags6 & RF6_S_DEMON)
+			info[i++] = "You can magically summon a demon.";
+		if (r_ptr->flags6 & RF6_S_UNDEAD)
+			info[i++] = "You can magically summon an undead.";
+		if (r_ptr->flags6 & RF6_S_DRAGON)
+			info[i++] = "You can magically summon a dragon.";
+		if (r_ptr->flags6 & RF6_S_HI_UNDEAD)
+			info[i++] = "You can magically summon greater undeads.";
+		if (r_ptr->flags6 & RF6_S_HI_DRAGON)
+			info[i++] = "You can magically summon greater dragons.";
+		if (r_ptr->flags6 & RF6_S_WRAITH)
+			info[i++] = "You can magically summon a wraith.";
+		/* Not implemented */
+		if (r_ptr->flags6 & RF6_S_UNIQUE)
+			info[i++] = "You can magically summon an unique monster.";
+		/* Not implemented */
+		if (r_ptr->flags7 & RF7_AQUATIC)
+			info[i++] = "You are aquatic.";
+		/* Not implemented */
+		if (r_ptr->flags7 & RF7_CAN_SWIM)
+			info[i++] = "You can swim.";
+		/* Not implemented */
+		if (r_ptr->flags7 & RF7_CAN_FLY)
+			info[i++] = "You can fly.";
+		if ((r_ptr->flags7 & RF7_MORTAL) == 0)
+			info[i++] = "You are immortal.";
+		/* Not implemented */
+		if (r_ptr->flags7 & RF7_NAZGUL)
+			info[i++] = "You are a Nazgul.";
+
+                if (r_ptr->flags8 & RF8_WILD_TOWN)
+			info[i++] = "You appear in towns.";
+		if (r_ptr->flags8 & RF8_WILD_SHORE)
+			info[i++] = "You appear in shores.";
+		if (r_ptr->flags8 & RF8_WILD_OCEAN)
+			info[i++] = "You appear in the ocean.";
+		if (r_ptr->flags8 & RF8_WILD_WASTE)
+			info[i++] = "You appear in the waste.";
+		if (r_ptr->flags8 & RF8_WILD_WOOD)
+			info[i++] = "You appear in woods.";
+		if (r_ptr->flags8 & RF8_WILD_VOLCANO)
+			info[i++] = "You appear in volcanos.";
+		if (r_ptr->flags8 & RF8_WILD_MOUNTAIN)
+			info[i++] = "You appear in the mountains.";
+		if (r_ptr->flags8 & RF8_WILD_GRASS)
+			info[i++] = "You appear in grasses.";
+		if (r_ptr->flags8 & RF8_WILD_TOO)
+			info[i++] = "You appear everywhere.";
+		
+		if (r_ptr->flags9 & RF9_SUSCEP_ACID)
+			info[i++] = "You are sensitive to acid.";
+		if (r_ptr->flags9 & RF9_SUSCEP_ELEC)
+			info[i++] = "You are sensitive to electricity.";
+		if (r_ptr->flags9 & RF9_SUSCEP_POIS)
+			info[i++] = "You are sensitive to poison.";
+		if (r_ptr->flags9 & RF9_KILL_TREES)
+			info[i++] = "You can eat trees.";
+		if (r_ptr->flags9 & RF9_WYRM_PROTECT)
+			info[i++] = "You are protected by great wyrms of power.";
+	}
+	else
 	switch (p_ptr->prace)
 	{
-		case RACE_NIBELUNG: case RACE_DWARF:
+                case RACE_DWARF:
+                        if (plev > 14)
+                                info[i++] = "You can find secret passages (cost 30).";
+                case RACE_NIBELUNG:
 			if (plev > 4)
 				info[i++] = "You can find traps, doors and stairs (cost 5).";
 			break;
@@ -1454,7 +1827,7 @@ void self_knowledge(void)
 
 		if (f1 & (TR1_CHAOTIC))
 		{
-			info[i++] = "Your weapon is branded with the Sign of Logrus.";
+                        info[i++] = "Your weapon is branded with the Sign of Chaos.";
 		}
 
 		/* Hack */
@@ -1844,16 +2217,11 @@ bool detect_traps(void)
 			c_ptr = &cave[y][x];
 
 			/* Detect invisible traps */
-			if (c_ptr->feat == FEAT_INVIS)
+			if (c_ptr->t_idx != 0)
 			{
 				/* Pick a trap */
 				pick_trap(y, x);
-			}
-			
-			/* Detect traps */
-			if ((c_ptr->feat >= FEAT_TRAP_HEAD) &&
-			    (c_ptr->feat <= FEAT_TRAP_TAIL))
-			{
+
 				/* Hack -- Memorize */
 				c_ptr->info |= (CAVE_MARK);
 
@@ -4194,7 +4562,7 @@ void get_random_name(char * return_name, bool armour, int power)
 }
 
 
-bool create_artifact(object_type *o_ptr, bool a_scroll)
+bool create_artifact(object_type *o_ptr, bool a_scroll, bool get_name)
 {
 	char new_name[80];
 	int has_pval = 0;
@@ -4355,6 +4723,8 @@ bool create_artifact(object_type *o_ptr, bool a_scroll)
 		else power_level = 3;
 	}
 
+        if(get_name)
+        {
 	if (a_scroll)
 	{
 		char dummy_name[80];
@@ -4380,6 +4750,7 @@ bool create_artifact(object_type *o_ptr, bool a_scroll)
 	{
 		get_random_name(new_name, (bool)(o_ptr->tval >= TV_BOOTS), power_level);
 	}
+        }
 
 	if (cheat_xtra)
 	{
@@ -4462,7 +4833,7 @@ bool artifact_scroll(void)
 			msg_format("%d of your %s %s destroyed!",(o_ptr->number)-1, o_name, (o_ptr->number>2?"were":"was"));
 			o_ptr->number = 1;
 		}
-		okay = create_artifact(o_ptr, TRUE);
+                okay = create_artifact(o_ptr, TRUE, TRUE);
 	}
 
 	/* Failure */
@@ -4545,6 +4916,19 @@ bool ident_spell(void)
 		msg_format("On the ground: %s.",
 			   o_name);
 	}
+
+        /* If the item was an artifact, and if the auto-note is selected, write a message. */
+          if (take_notes && auto_notes && (artifact_p(o_ptr) || o_ptr->name1))
+          {
+            char note[80];
+            char item_name[80];
+            object_desc(item_name, o_ptr, FALSE, 0);
+         
+            /* Build note and write */
+            sprintf(note, "Found The %s", item_name);
+ 
+            do_cmd_note(note);
+          }
 
 	/* Something happened */
 	return (TRUE);
@@ -4636,8 +5020,8 @@ bool identify_fully(void)
  */
 bool item_tester_hook_recharge(object_type *o_ptr)
 {
-	/* Recharge staffs */
-	if (o_ptr->tval == TV_STAFF) return (TRUE);
+        /* Recharge staffs -- hack -- not the Staffs of Wishing*/
+        if ((o_ptr->tval == TV_STAFF) && (o_ptr->sval != SV_STAFF_WISHING)) return (TRUE);
 
 	/* Recharge wands */
 	if (o_ptr->tval == TV_WAND) return (TRUE);
@@ -4652,34 +5036,40 @@ bool item_tester_hook_recharge(object_type *o_ptr)
 
 /*
  * Recharge a wand/staff/rod from the pack or on the floor.
+ * This function has been rewritten in Oangband. -LM-
  *
- * Scroll of recharging --> recharge(60)
+ * Mage -- Recharge I --> recharge(90)
+ * Mage -- Recharge II --> recharge(150)
+ * Mage -- Recharge III --> recharge(220)
  *
- * recharge(20) = 1/6 failure for empty 10th level wand
- * recharge(60) = 1/10 failure for empty 10th level wand
+ * Priest or Necromancer -- Recharge --> recharge(140)
  *
- * It is harder to recharge high level, and highly charged wands.
+ * Scroll of recharging --> recharge(130)
+ * Scroll of *recharging* --> recharge(200)
+ *
+ * It is harder to recharge high level, and highly charged wands, 
+ * staffs, and rods.  The more wands in a stack, the more easily and 
+ * strongly they recharge.  Staffs, however, each get fewer charges if 
+ * stacked.
  *
  * XXX XXX XXX Beware of "sliding index errors".
- *
- * Should probably not "destroy" over-charged items, unless we
- * "replace" them by, say, a broken stick or some such.  The only
- * reason this is okay is because "scrolls of recharging" appear
- * BEFORE all staffs/wands/rods in the inventory.  Note that the
- * new "auto_sort_pack" option would correctly handle replacing
- * the "broken" wand with any other item (i.e. a broken stick).
- *
- * XXX XXX XXX Perhaps we should auto-unstack recharging stacks.
  */
-bool recharge(int num)
+bool recharge(int power)
 {
-	int                 i, t, item, lev;
+	int recharge_strength, recharge_amount;
+        int item, lev;
 
-	object_type             *o_ptr;
+	bool fail = FALSE;
+	byte fail_type = 1;
+
 
 	cptr q, s;
 
         u32b f1, f2, f3, f4;
+	char o_name[80];
+
+	object_type *o_ptr;
+	object_kind *k_ptr;
 
 	/* Only accept legal items */
 	item_tester_hook = item_tester_hook_recharge;
@@ -4706,95 +5096,245 @@ bool recharge(int num)
 
 	/* Extract the object "level" */
 	lev = k_info[o_ptr->k_idx].level;
+        k_ptr = &k_info[o_ptr->k_idx];
 
 	/* Recharge a rod */
 	if (o_ptr->tval == TV_ROD)
 	{
-		/* Extract a recharge power */
-		i = (100 - lev + num) / 5;
-
-		/* Paranoia -- prevent crashes */
-		if (i < 1) i = 1;
+		/* Extract a recharge strength by comparing object level to power. */
+		recharge_strength = ((power > lev) ? (power - lev) : 0) / 5;
+                
+                /* Paranoia */
+                if (recharge_strength < 0) recharge_strength = 0;
 
 		/* Back-fire */
-                if ((rand_int(i) == 0)&&(!(f4 & TR4_RECHARGE)))
+                if ((rand_int(recharge_strength) == 0)&&(!(f4 & TR4_RECHARGE)))
 		{
-			/* Hack -- backfire */
-			msg_print("The recharge backfires, draining the rod further!");
-
-			/* Hack -- decharge the rod */
-			if (o_ptr->pval < 10000) o_ptr->pval = (o_ptr->pval + 100) * 2;
+			/* Activate the failure code. */
+			fail = TRUE;
 		}
 
 		/* Recharge */
 		else
 		{
-			/* Rechange amount */
-			t = (num * damroll(2, 4));
+			/* Recharge amount */
+			recharge_amount = (power * damroll(3, 2));
 
 			/* Recharge by that amount */
-			if (o_ptr->pval > t)
-			{
-				o_ptr->pval -= t;
-			}
-
-			/* Fully recharged */
+			if (o_ptr->timeout > recharge_amount)
+				o_ptr->timeout -= recharge_amount;
 			else
-			{
-				o_ptr->pval = 0;
-			}
+				o_ptr->timeout = 0;
 		}
 	}
+
 
 	/* Recharge wand/staff */
 	else
 	{
-		/* Recharge power */
-		i = (num + 100 - lev - (10 * o_ptr->pval)) / 15;
+		/* Extract a recharge strength by comparing object level to power. 
+		 * Divide up a stack of wands' charges to calculate charge penalty.
+		 */
+		if ((o_ptr->tval == TV_WAND) && (o_ptr->number > 1))
+			recharge_strength = (100 + power - lev - 
+			(8 * o_ptr->pval / o_ptr->number)) / 15;
 
-		/* Paranoia -- prevent crashes */
-		if (i < 1) i = 1;
+		/* All staffs, unstacked wands. */
+		else recharge_strength = (100 + power - lev - 
+			(8 * o_ptr->pval)) / 15;
+
 
 		/* Back-fire XXX XXX XXX */
-                if (((rand_int(i) == 0)&&(!(f4 & TR4_RECHARGE))) ||
+                if (((rand_int(recharge_strength) == 0)&&(!(f4 & TR4_RECHARGE))) ||
                     ((o_ptr->tval == TV_STAFF) && o_ptr->sval == SV_STAFF_WISHING))
 		{
-			/* Dangerous Hack -- Destroy the item */
-			msg_print("There is a bright flash of light.");
-
-			/* Reduce and describe inventory */
-			if (item >= 0)
-			{
-				inven_item_increase(item, -999);
-				inven_item_describe(item);
-				inven_item_optimize(item);
-			}
-
-			/* Reduce and describe floor item */
-			else
-			{
-				floor_item_increase(0 - item, -999);
-				floor_item_describe(0 - item);
-				floor_item_optimize(0 - item);
-			}
+			/* Activate the failure code. */
+			fail = TRUE;
 		}
 
-		/* Recharge */
+		/* If the spell didn't backfire, recharge the wand or staff. */
 		else
 		{
-			/* Extract a "power" */
-			t = (num / (lev + 2)) + 1;
+			/* Recharge based on the standard number of charges. */
+			recharge_amount = randint(1 + k_ptr->pval / 2);
 
-			/* Recharge based on the power */
-			if (t > 0) o_ptr->pval += 2 + randint(t);
+			/* Multiple wands in a stack increase recharging somewhat. */
+			if ((o_ptr->tval == TV_WAND) && (o_ptr->number > 1))
+			{
+				recharge_amount += 
+					(randint(recharge_amount * (o_ptr->number - 1))) / 2;
+				if (recharge_amount < 1) recharge_amount = 1;
+				if (recharge_amount > 12) recharge_amount = 12;
+			}
 
-			/* Hack -- we no longer "know" the item */
-			o_ptr->ident &= ~(IDENT_KNOWN);
+			/* But each staff in a stack gets fewer additional charges, 
+			 * although always at least one.
+			 */
+			if ((o_ptr->tval == TV_STAFF) && (o_ptr->number > 1))
+			{
+				recharge_amount /= o_ptr->number;
+				if (recharge_amount < 1) recharge_amount = 1;
+			}
+
+			/* Recharge the wand or staff. */
+			o_ptr->pval += recharge_amount;
+
+                        if(!(f4 & TR4_RECHARGE))
+                        {
+                                /* Hack -- we no longer "know" the item */
+                                o_ptr->ident &= ~(IDENT_KNOWN);
+                        }
 
 			/* Hack -- we no longer think the item is empty */
 			o_ptr->ident &= ~(IDENT_EMPTY);
 		}
 	}
+
+	/* Inflict the penalties for failing a recharge. */
+	if (fail)
+	{
+		/* Artifacts are never destroyed. */
+		if (artifact_p(o_ptr))
+		{
+			object_desc(o_name, o_ptr, TRUE, 0);
+			msg_format("The recharging backfires - %s is completely drained!", o_name);
+
+			/* Artifact rods. */
+			if ((o_ptr->tval == TV_ROD) && (o_ptr->timeout < 10000)) 
+				o_ptr->timeout = (o_ptr->timeout + 100) * 2;
+
+			/* Artifact wands and staffs. */
+			else if ((o_ptr->tval == TV_WAND) || (o_ptr->tval == TV_STAFF)) 
+				o_ptr->pval = 0;
+		}
+		else 
+		{
+			/* Get the object description */
+			object_desc(o_name, o_ptr, FALSE, 0);
+
+			/*** Determine Seriousness of Failure ***/
+
+			/* Mages recharge objects more safely. */
+			if (p_ptr->pclass == CLASS_MAGE)
+			{
+				/* 10% chance to blow up one rod, otherwise draining. */
+				if (o_ptr->tval == TV_ROD)
+				{
+					if (randint(10) == 1) fail_type = 2;
+					else fail_type = 1;
+				}
+				/* 75% chance to blow up one wand, otherwise draining. */
+				else if (o_ptr->tval == TV_WAND)
+				{
+					if (randint(3) != 1) fail_type = 2;
+					else fail_type = 1;
+				}
+				/* 50% chance to blow up one staff, otherwise no effect. */
+				else if (o_ptr->tval == TV_STAFF)
+				{
+					if (randint(2) == 1) fail_type = 2;
+					else fail_type = 0;
+				}
+			}
+
+			/* All other classes get no special favors. */
+			else
+			{
+				/* 33% chance to blow up one rod, otherwise draining. */
+				if (o_ptr->tval == TV_ROD)
+				{
+					if (randint(3) == 1) fail_type = 2;
+					else fail_type = 1;
+				}
+				/* 20% chance of the entire stack, else destroy one wand. */
+				else if (o_ptr->tval == TV_WAND)
+				{
+					if (randint(5) == 1) fail_type = 3;
+					else fail_type = 2;
+				}
+				/* Blow up one staff. */
+				else if (o_ptr->tval == TV_STAFF)
+				{
+					fail_type = 2;
+				}
+			}
+
+			/*** Apply draining and destruction. ***/
+
+			/* Drain object or stack of objects. */
+			if (fail_type == 1)
+			{
+				if (o_ptr->tval == TV_ROD)
+				{
+					msg_print("The recharge backfires, draining the rod further!");
+					if (o_ptr->timeout < 10000) 
+						o_ptr->timeout = (o_ptr->timeout + 100) * 2;
+				}
+				else if (o_ptr->tval == TV_WAND)
+				{
+					msg_format("You save your %s from destruction, but all charges are lost.", o_name);
+					o_ptr->pval = 0;
+				}
+				/* Staffs aren't drained. */
+			}
+
+			/* Destroy an object or one in a stack of objects. */
+			if (fail_type == 2)
+			{
+				if (o_ptr->number > 1)
+					msg_format("Wild magic consumes one of your %s!", o_name);
+				else
+					msg_format("Wild magic consumes your %s!", o_name);
+
+				/* Reduce rod stack maximum timeout, drain wands. */
+				if (o_ptr->tval == TV_ROD) o_ptr->pval -= k_ptr->pval;
+				if (o_ptr->tval == TV_WAND) o_ptr->pval = 0;
+
+				/* Reduce and describe inventory */
+				if (item >= 0)
+				{
+					inven_item_increase(item, -1);
+					inven_item_describe(item);
+					inven_item_optimize(item);
+				}
+
+				/* Reduce and describe floor item */
+				else
+				{
+					floor_item_increase(0 - item, -1);
+					floor_item_describe(0 - item);
+					floor_item_optimize(0 - item);
+				}
+			}
+
+			/* Destroy all memebers of a stack of objects. */
+			if (fail_type == 3)
+			{
+				if (o_ptr->number > 1)
+					msg_format("Wild magic consumes all your %s!", o_name);
+				else
+					msg_format("Wild magic consumes your %s!", o_name);
+
+
+				/* Reduce and describe inventory */
+				if (item >= 0)
+				{
+					inven_item_increase(item, -999);
+					inven_item_describe(item);
+					inven_item_optimize(item);
+				}
+
+				/* Reduce and describe floor item */
+				else
+				{
+					floor_item_increase(0 - item, -999);
+					floor_item_describe(0 - item);
+					floor_item_optimize(0 - item);
+				}
+			}
+		}
+	}
+
 
 	/* Combine / Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
@@ -5928,7 +6468,7 @@ static void cave_temp_room_unlite(void)
 		c_ptr->info &= ~(CAVE_GLOW);
 
 		/* Hack -- Forget "boring" grids */
-		if (c_ptr->feat <= FEAT_INVIS)
+		if (c_ptr->feat == FEAT_FLOOR)
 		{
 			/* Forget the grid */
 			c_ptr->info &= ~(CAVE_MARK);
@@ -6131,7 +6671,35 @@ bool fire_ball(int typ, int dir, int dam, int rad)
 	}
 
 	/* Analyze the "dir" and the "target".  Hurt items on floor. */
-        return (project(0, (rad > 8)?8:rad, ty, tx, dam, typ, flg));
+        return (project(0, (rad > 16)?16:rad, ty, tx, dam, typ, flg));
+}
+
+/*
+ * Cast a druidistic ball spell
+ * Stop if we hit a monster, act as a "ball"
+ * Allow "target" mode to pass over monsters
+ * Affect grids, objects, and monsters
+ */
+bool fire_druid_ball(int typ, int dir, int dam, int rad)
+{
+	int tx, ty;
+
+        int flg = PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_MANA_PATH;
+
+	/* Use the given direction */
+	tx = px + 99 * ddx[dir];
+	ty = py + 99 * ddy[dir];
+
+	/* Hack -- Use an actual "target" */
+	if ((dir == 5) && target_okay())
+	{
+		flg &= ~(PROJECT_STOP);
+		tx = target_col;
+		ty = target_row;
+	}
+
+	/* Analyze the "dir" and the "target".  Hurt items on floor. */
+        return (project(0, (rad > 16)?16:rad, ty, tx, dam, typ, flg));
 }
 
 
@@ -6160,7 +6728,7 @@ bool fire_ball_beam(int typ, int dir, int dam, int rad)
 	}
 
 	/* Analyze the "dir" and the "target".  Hurt items on floor. */
-        return (project(0, (rad > 9)?9:rad, ty, tx, dam, typ, flg));
+        return (project(0, (rad > 16)?16:rad, ty, tx, dam, typ, flg));
 }
 
 
@@ -6226,6 +6794,25 @@ void teleport_swap(int dir)
 			
 			/* Redraw the new grid */
 			lite_spot(py, px);
+
+                        /* Execute the inscription */
+                        c_ptr = &cave[m_ptr->fy][m_ptr->fx];
+                        if (c_ptr->inscription)
+                        {
+                                if(inscription_info[c_ptr->inscription].when & INSCRIP_EXEC_MONST_WALK)
+                                {
+                                        execute_inscription(c_ptr->inscription, m_ptr->fy, m_ptr->fx);
+                                }
+                        }
+                        c_ptr = &cave[py][px];
+                        if (c_ptr->inscription)
+                        {
+                                msg_format("There is an inscription here: %s", inscription_info[c_ptr->inscription].text);
+                                if(inscription_info[c_ptr->inscription].when & INSCRIP_EXEC_WALK)
+                                {
+                                        execute_inscription(c_ptr->inscription, py, px);
+                                }
+                        }
 			
 			/* Check for new panel (redraw map) */
 			verify_panel();
@@ -6376,6 +6963,28 @@ bool fire_bolt(int typ, int dir, int dam)
 	return (project_hook(typ, dir, dam, flg));
 }
 
+/*
+ * Cast a druidistic bolt spell
+ * Stop if we hit a monster, as a "bolt"
+ * Affect monsters (not grids or objects)
+ */
+bool fire_druid_bolt(int typ, int dir, int dam)
+{
+        int flg = PROJECT_STOP | PROJECT_KILL | PROJECT_MANA_PATH;
+	return (project_hook(typ, dir, dam, flg));
+}
+
+
+/*
+ * Cast a druidistic beam spell
+ * Pass through monsters, as a "beam"
+ * Affect monsters (not grids or objects)
+ */
+bool fire_druid_beam(int typ, int dir, int dam)
+{
+        int flg = PROJECT_BEAM | PROJECT_KILL | PROJECT_MANA_PATH;
+	return (project_hook(typ, dir, dam, flg));
+}
 
 /*
  * Cast a beam spell
@@ -6705,7 +7314,7 @@ void activate_ty_curse(void)
 			}
 			if (randint(6) != 1) break;
 		case 21: case 22: case 23:
-			(void)do_dec_stat((randint(6))-1);
+			(void)do_dec_stat((randint(6))-1, STAT_DEC_NORMAL);
 			if (randint(6) != 1) break;
 		case 24:
 			msg_print("Huh? Who am I? What am I doing here?");
@@ -6726,7 +7335,7 @@ void activate_ty_curse(void)
 			{
 				do
 				{
-					(void)do_dec_stat(i);
+					(void)do_dec_stat(i, STAT_DEC_NORMAL);
 				}
 				while (randint(2)==1);
 
@@ -6735,6 +7344,102 @@ void activate_ty_curse(void)
 		}
 	}
 	while ((randint(3) == 1) && !stop_ty);
+}
+
+/*
+ * Activate the ultra evil Dark God curse
+ */
+void activate_dg_curse(void)
+{
+	int     i = 0;
+        bool    stop_dg = FALSE;
+
+	do
+	{
+                switch(randint(30))
+		{
+		case 1: case 2: case 3: case 16: case 17:
+			aggravate_monsters(1);
+                        if (randint(8) != 1) break;
+		case 4: case 5: case 6:
+                        msg_print("Oh ! You feel that the curse is replicating itself!");
+                        curse_equipment_dg(100, 50 * randint(2));
+                        if (randint(8) != 1) break;
+		case 7: case 8: case 9: case 18:
+                        curse_equipment(100, 50 * randint(2));
+                        if (randint(8) != 1) break;
+		case 10: case 11: case 12:
+			msg_print("You feel your life draining away...");
+                        lose_exp(p_ptr->exp / 12);
+                        if(rand_int(2))
+                        {
+                                msg_print("You feel the coldness of the black breath attacking you!");
+                                p_ptr->black_breath = TRUE;
+                        }
+                        if (randint(8) != 1) break;
+                case 13: case 14: case 15:
+			if (p_ptr->free_act && (randint(100) < p_ptr->skill_sav))
+			{
+				/* Do nothing */ ;
+			}
+			else
+			{
+				msg_print("You feel like a statue!");
+				if (p_ptr->free_act)
+					set_paralyzed (p_ptr->paralyzed + randint(3));
+				else
+					set_paralyzed (p_ptr->paralyzed + randint(13));
+                                stop_dg = TRUE;
+			}
+                        if (randint(7) != 1) break;
+                case 19: case 20:
+			{
+                                msg_print("Wohhh! you see 10 little Morgoths dancing before you!");
+                                set_confused(p_ptr->confused + randint(13 * 2));
+                                if(rand_int(2)) stop_dg = TRUE;
+			}
+                        if (randint(7) != 1) break;
+		case 21: case 22: case 23:
+                        (void)do_dec_stat((randint(6))-1, STAT_DEC_PERMANENT);
+                        if (randint(7) != 1) break;
+		case 24:
+			msg_print("Huh? Who am I? What am I doing here?");
+			lose_all_info();
+			break;
+                case 27: case 28: case 29:
+                        if(inventory[INVEN_WIELD].k_idx)
+                        {
+                                msg_print("Your weapon now seems useless...");
+                                inventory[INVEN_WIELD].art_flags4 = TR4_NEVER_BLOW;
+                        }
+                        break;
+		case 25:
+			/*
+                         * Only summon Dragon Riders not too shallow in the dungeon.
+			 */
+                        if ((dun_level > 25) && !stop_dg)
+			{
+                                msg_print("Oh! You attracted some evil DragonRiders!");
+                                summon_dragon_riders();
+
+                                /* This is evil -- DG */
+                                if(rand_int(2)) stop_dg = TRUE;
+				break;
+			}
+		default:
+			while (i<6)
+			{
+				do
+				{
+                                        (void)do_dec_stat(i, STAT_DEC_NORMAL);
+				}
+				while (randint(2)==1);
+
+				i++;
+			}
+		}
+	}
+        while ((randint(4) == 1) && !stop_dg);
 }
 
 
@@ -6800,6 +7505,17 @@ void summon_cyber(void)
 	for (i = 0; i < max_cyber; i++)
 	{
 		(void)summon_specific(py, px, 100, SUMMON_CYBER);
+	}
+}
+
+void summon_dragon_riders()
+{
+	int i;
+        int max_dr = (dun_level / 50) + randint(6);
+
+        for (i = 0; i < max_dr; i++)
+	{
+                (void)summon_specific(py, px, 100, SUMMON_DRAGONRIDER);
 	}
 }
 
@@ -7153,6 +7869,29 @@ bool charm_animal(int dir, int plev)
 {
 	int flg = PROJECT_STOP | PROJECT_KILL;
 	return (project_hook(GF_CONTROL_ANIMAL, dir, plev, flg));
+}
+
+void change_wild_mode(void)
+{
+        /*
+         * A mold can't go into small scale mode, it's impossible for me to find
+         * a good way to handle blinking on such a small map
+         */
+        if(!p_ptr->immovable && (p_ptr->prace != RACE_MOLD))
+        {
+                p_ptr->wild_mode = !p_ptr->wild_mode;
+
+                if (autosave_l)
+                {
+                        is_autosave = TRUE;
+                        msg_print("Autosaving the game...");
+                        do_cmd_save_game();
+                        is_autosave = FALSE;
+                }
+
+                /* Leaving */
+                p_ptr->leaving = TRUE;
+        }
 }
 
 

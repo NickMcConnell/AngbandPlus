@@ -1,5 +1,7 @@
 /* File: spellmod.c */
 
+#ifdef USE_PYTHON
+
 /*
  * Copyright (c) 1998 Keldon Jones
  *
@@ -119,7 +121,7 @@ static PyObject *spell_dec_stat(PyObject *self, PyObject *args)
 		return NULL;
 
 	/* Decrement stat */
-	retval = do_dec_stat(stat);
+        retval = do_dec_stat(stat, STAT_DEC_NORMAL);
 
 	/* Return */
 	return Py_BuildValue("i", retval);
@@ -985,3 +987,4 @@ void initspell(void)
 	add_constant(d, "PROJECT_KILL", PROJECT_KILL);
 	add_constant(d, "PROJECT_HIDE", PROJECT_HIDE);
 }
+#endif

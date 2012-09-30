@@ -215,43 +215,43 @@ static void corpse_effect(object_type *o_ptr, bool cutting)
             }
 				case RBE_LOSE_STR:
             {
-                                        do_dec_stat(A_STR);
+                                        do_dec_stat(A_STR, STAT_DEC_NORMAL);
                break;
             }
 	   		case RBE_LOSE_INT:
             {
-                do_dec_stat(A_INT);
+                do_dec_stat(A_INT, STAT_DEC_NORMAL);
                break;
             }
 				case RBE_LOSE_WIS:
             {
-                do_dec_stat(A_WIS);
+                do_dec_stat(A_WIS, STAT_DEC_NORMAL);
                break;
             }
 				case RBE_LOSE_DEX:
             {
-                do_dec_stat(A_DEX);
+                do_dec_stat(A_DEX, STAT_DEC_NORMAL);
                break;
             }
 	   		case RBE_LOSE_CON:
             {
-                do_dec_stat(A_CON);
+                do_dec_stat(A_CON, STAT_DEC_NORMAL);
                break;
    			}
 	   		case RBE_LOSE_CHR:
             {
-                do_dec_stat(A_CHR);
+                do_dec_stat(A_CHR, STAT_DEC_NORMAL);
 					break;
             }
             /* Don't eat Morgoth's corpse :) */
 		   	case RBE_LOSE_ALL:
             {
-                   do_dec_stat(A_STR);
-                do_dec_stat(A_INT);
-                do_dec_stat(A_WIS);
-                                        do_dec_stat(A_DEX);
-                do_dec_stat(A_CON);
-                                        do_dec_stat(A_CHR);
+		    do_dec_stat(A_STR, STAT_DEC_NORMAL);
+		    do_dec_stat(A_INT, STAT_DEC_NORMAL);
+		    do_dec_stat(A_WIS, STAT_DEC_NORMAL);
+		    do_dec_stat(A_DEX, STAT_DEC_NORMAL);
+		    do_dec_stat(A_CON, STAT_DEC_NORMAL);
+		    do_dec_stat(A_CHR, STAT_DEC_NORMAL);
                o_ptr->pval = 0;
                break;
             }
@@ -842,7 +842,7 @@ void do_cmd_eat_food(void)
 		case SV_FOOD_WEAKNESS:
 		{
 			take_hit(damroll(6, 6), "poisonous food.");
-			(void)do_dec_stat(A_STR);
+			(void)do_dec_stat(A_STR, STAT_DEC_NORMAL);
 			ident = TRUE;
 			break;
 		}
@@ -850,7 +850,7 @@ void do_cmd_eat_food(void)
 		case SV_FOOD_SICKNESS:
 		{
 			take_hit(damroll(6, 6), "poisonous food.");
-			(void)do_dec_stat(A_CON);
+			(void)do_dec_stat(A_CON, STAT_DEC_NORMAL);
 			ident = TRUE;
 			break;
 		}
@@ -858,7 +858,7 @@ void do_cmd_eat_food(void)
 		case SV_FOOD_STUPIDITY:
 		{
 			take_hit(damroll(8, 8), "poisonous food.");
-			(void)do_dec_stat(A_INT);
+			(void)do_dec_stat(A_INT, STAT_DEC_NORMAL);
 			ident = TRUE;
 			break;
 		}
@@ -866,7 +866,7 @@ void do_cmd_eat_food(void)
 		case SV_FOOD_NAIVETY:
 		{
 			take_hit(damroll(8, 8), "poisonous food.");
-			(void)do_dec_stat(A_WIS);
+			(void)do_dec_stat(A_WIS, STAT_DEC_NORMAL);
 			ident = TRUE;
 			break;
 		}
@@ -874,7 +874,7 @@ void do_cmd_eat_food(void)
 		case SV_FOOD_UNHEALTH:
 		{
 			take_hit(damroll(10, 10), "poisonous food.");
-			(void)do_dec_stat(A_CON);
+			(void)do_dec_stat(A_CON, STAT_DEC_NORMAL);
 			ident = TRUE;
 			break;
 		}
@@ -882,7 +882,7 @@ void do_cmd_eat_food(void)
 		case SV_FOOD_DISEASE:
 		{
 			take_hit(damroll(10, 10), "poisonous food.");
-			(void)do_dec_stat(A_STR);
+			(void)do_dec_stat(A_STR, STAT_DEC_NORMAL);
 			ident = TRUE;
 			break;
 		}
@@ -1037,13 +1037,6 @@ void do_cmd_eat_food(void)
 			}
                         case SV_CORPSE_HEAD:
 			{
-				/* Not all is edible */
-                                if (((!(r_ptr->flags9 & RF9_HAS_NO_SKULL)) && (o_ptr->weight <= (r_ptr->weight * 7) / 300)) ||
-                                        ((r_ptr->flags9 & RF9_HAS_NO_SKULL) && (o_ptr->weight <= r_ptr->weight / 150)))
-				{
-					msg_print("There is not enough meat.");
-					return;
-				}
 				msg_print("You feel rather sick.");
 
 				/* A pound of raw meat */
@@ -1191,39 +1184,32 @@ void do_cmd_cut_corpse(void)
 		o_ptr = &o_list[0 - item];
 	}
 
-   r_ptr = &r_info[o_ptr->pval2];
+        r_ptr = &r_info[o_ptr->pval2];
 
-   if (o_ptr->sval != SV_CORPSE_CORPSE && o_ptr->sval != SV_CORPSE_HEAD)
-   {
+        if (o_ptr->sval != SV_CORPSE_CORPSE && o_ptr->sval != SV_CORPSE_HEAD)
+        {
 		msg_print ("You cannot split that.");
 		return;
 	}
 
 	switch (o_ptr->sval)
-   {
+        {
                 case SV_CORPSE_CORPSE:
-      {
-         if (r_ptr->flags9 & RF9_DROP_SKELETON)
+                {
+                        if (r_ptr->flags9 & RF9_DROP_SKELETON)
 			{
-            not_meat = (r_ptr->weight * 3) / 5;
+                               not_meat = (r_ptr->weight * 3) / 5;
 			}
-         else
+                        else
 			{
-            not_meat = (r_ptr->weight * 7) / 20;
+                               not_meat = (r_ptr->weight * 7) / 20;
 			}
-         meat = r_ptr->weight + r_ptr->weight / 10 - not_meat;
-         break;
-      }
+                        meat = r_ptr->weight + r_ptr->weight / 10 - not_meat;
+                        break;
+                }
       case SV_CORPSE_HEAD:
       {
-         if ((!r_ptr->flags9 & RF9_HAS_NO_SKULL))
-         {
-                                not_meat = (r_ptr->weight * 7) / 300;
-			}
-         else
-         {
                                 not_meat = r_ptr->weight / 150;
-         }
          meat = r_ptr->weight / 30 + r_ptr->weight / 300 - not_meat;
          break;
       }
@@ -1610,37 +1596,37 @@ void do_cmd_quaff_potion(void)
 
 		case SV_POTION_DEC_STR:
 		{
-			if (do_dec_stat(A_STR)) ident = TRUE;
+			if (do_dec_stat(A_STR, STAT_DEC_NORMAL)) ident = TRUE;
 			break;
 		}
 
 		case SV_POTION_DEC_INT:
 		{
-			if (do_dec_stat(A_INT)) ident = TRUE;
+			if (do_dec_stat(A_INT, STAT_DEC_NORMAL)) ident = TRUE;
 			break;
 		}
 
 		case SV_POTION_DEC_WIS:
 		{
-			if (do_dec_stat(A_WIS)) ident = TRUE;
+			if (do_dec_stat(A_WIS, STAT_DEC_NORMAL)) ident = TRUE;
 			break;
 		}
 
 		case SV_POTION_DEC_DEX:
 		{
-			if (do_dec_stat(A_DEX)) ident = TRUE;
+			if (do_dec_stat(A_DEX, STAT_DEC_NORMAL)) ident = TRUE;
 			break;
 		}
 
 		case SV_POTION_DEC_CON:
 		{
-			if (do_dec_stat(A_CON)) ident = TRUE;
+			if (do_dec_stat(A_CON, STAT_DEC_NORMAL)) ident = TRUE;
 			break;
 		}
 
 		case SV_POTION_DEC_CHR:
 		{
-			if (do_dec_stat(A_CHR)) ident = TRUE;
+			if (do_dec_stat(A_CHR, STAT_DEC_NORMAL)) ident = TRUE;
 			break;
 		}
 
@@ -2027,7 +2013,7 @@ void do_cmd_quaff_potion(void)
                       }
                 case SV_POTION_MUTATION:
                 {
-                        msg_print("You fell a change comming over you !");
+                        msg_print("You fell a change coming over you !");
                         gain_random_mutation(0);
                         ident = TRUE;
                         break;
@@ -2321,12 +2307,12 @@ static bool item_tester_hook_readable(object_type *o_ptr)
  */
 void do_cmd_read_scroll(void)
 {
-        int                     item, k, used_up, ident, lev,dummy;
+        int                     item, k, used_up, ident, lev;
 
 	object_type		*o_ptr;
         object_type     *q_ptr,forge;
 
-        char  Rumor[80], tmp_val[20], ppp[80] ;
+        char  Rumor[80];
 
 	cptr q, s;
 
@@ -2426,28 +2412,38 @@ void do_cmd_read_scroll(void)
                         break;
                 }
                 case SV_SCROLL_RESET_RECALL:
-                {                               
-                        /* Prompt */
-                        sprintf(ppp, "Reset to which level (1-%d): ", p_ptr->max_dlv[dungeon_type]);
+                {
+                        char buf[80], buf2[80];
+                        int i, amt;
 
-                        /* Default */
-                        sprintf(tmp_val, "%d", MAX(dun_level,1));
+                        if(!get_string("Reset to which dungeon? ", buf, 80)) break;
 
-                        /* Ask for a level */
-                        if (!get_string(ppp, tmp_val, 10)) return;
+                        /* Find the index corresponding to the name */
+                        for(i = 1; i < max_d_idx; i++)
+                        {
+                                sprintf(buf2, "%s", d_info[i].name + d_name);
 
-                        /* Extract request */
-                        dummy = atoi(tmp_val);
+                                /* Lowercase the name */
+                                strlower(buf);
+                                strlower(buf2);
 
-                        /* Paranoia */
-                        if (dummy < 1) dummy = 1;
+                                if(strstr(buf2, buf)) break;
+                        }
 
-                        /* Paranoia */
-                        if (dummy > p_ptr->max_dlv[dungeon_type]) dummy = p_ptr->max_dlv[dungeon_type];
+                        amt = get_quantity(format("Reset to which level(%d-%d)? ", d_info[i].mindepth, d_info[i].maxdepth) , d_info[i].maxdepth);
 
-                        /* Accept request */
-                        msg_format("Recall depth set to level %d (%d').", dummy, dummy * 50 );
-                        break;
+                        /* Mega hack -- Forbid levels 99 and 100 */
+                        if((amt == 99) || (amt == 100)) amt = 98;
+
+                        if ((amt > d_info[i].mindepth) && (i < max_d_idx))
+			{
+                                p_ptr->recall_dungeon = i;
+                                max_dlv[p_ptr->recall_dungeon] = amt;
+                                msg_format("Recall reseted to %s at level %d.", d_info[i].name + d_name, amt);
+			}
+                        else
+                                msg_print("Recall NOT reseted(bad dungeon or level).");
+			break;
                 }
                 case SV_SCROLL_DIVINATION:
                 {
@@ -2982,7 +2978,13 @@ void do_cmd_use_staff(void)
 
 
 	/* Take a turn */
-	energy_use = 100;
+        if ((p_ptr->pclass == CLASS_MAGE) || (p_ptr->pclass == CLASS_HIGH_MAGE) || (p_ptr->pclass == CLASS_SORCERER))
+        {
+                energy_use = 75;
+                if (p_ptr->lev>=35) energy_use = 33;
+                else if (p_ptr->lev>=15) energy_use = 50;
+        }
+        else energy_use = 100;
 
 	/* Not identified yet */
 	ident = FALSE;
@@ -3421,7 +3423,13 @@ void do_cmd_aim_wand(void)
 
 
 	/* Take a turn */
-	energy_use = 100;
+        if ((p_ptr->pclass == CLASS_MAGE) || (p_ptr->pclass == CLASS_HIGH_MAGE) || (p_ptr->pclass == CLASS_SORCERER))
+        {
+                energy_use = 75;
+                if (p_ptr->lev>=35) energy_use = 33;
+                else if (p_ptr->lev>=15) energy_use = 50;
+        }
+        else energy_use = 100;
 
 	/* Not identified yet */
 	ident = FALSE;
@@ -3738,33 +3746,6 @@ void do_cmd_aim_wand(void)
 	/* Use a single charge */
 	o_ptr->pval--;
 
-	/* Hack -- unstack if necessary */
-	if ((item >= 0) && (o_ptr->number > 1))
-	{
-		object_type forge;
-		object_type *q_ptr;
-
-		/* Get local object */
-		q_ptr = &forge;
-
-		/* Obtain a local object */
-		object_copy(q_ptr, o_ptr);
-
-		/* Modify quantity */
-		q_ptr->number = 1;
-
-		/* Restore the charges */
-		o_ptr->pval++;
-
-		/* Unstack the used item */
-		o_ptr->number--;
-		total_weight -= q_ptr->weight;
-		item = inven_carry(q_ptr, FALSE);
-
-		/* Message */
-		msg_print("You unstack your wand.");
-	}
-
 	/* Describe the charges in the pack */
 	if (item >= 0)
 	{
@@ -3795,6 +3776,7 @@ void do_cmd_zap_rod(void)
 	int                 item, ident, chance, dir, lev;
 
 	object_type		*o_ptr;
+        object_kind *k_ptr;
 
 	cptr q, s;
 
@@ -3814,12 +3796,14 @@ void do_cmd_zap_rod(void)
 	if (item >= 0)
 	{
 		o_ptr = &inventory[item];
+                k_ptr = &k_info[o_ptr->k_idx];
 	}
 
 	/* Get the item (on the floor) */
 	else
 	{
 		o_ptr = &o_list[0 - item];
+                k_ptr = &k_info[o_ptr->k_idx];
 	}
 
 
@@ -3832,16 +3816,21 @@ void do_cmd_zap_rod(void)
 
 
 	/* Get a direction (unless KNOWN not to need it) */
-	if (((o_ptr->sval >= SV_ROD_MIN_DIRECTION) && !(o_ptr->sval == SV_ROD_HAVOC)) ||
+        if (((o_ptr->sval >= SV_ROD_MIN_DIRECTION) && !(o_ptr->sval == SV_ROD_HAVOC) && !(o_ptr->sval == SV_ROD_HOME)) ||
 	     !object_aware_p(o_ptr))
 	{
 		/* Get a direction, allow cancel */
 		if (!get_aim_dir(&dir)) return;
 	}
 
-
 	/* Take a turn */
-	energy_use = 100;
+        if ((p_ptr->pclass == CLASS_MAGE) || (p_ptr->pclass == CLASS_HIGH_MAGE) || (p_ptr->pclass == CLASS_SORCERER))
+        {
+                energy_use = 75;
+                if (p_ptr->lev>=35) energy_use = 33;
+                else if (p_ptr->lev>=15) energy_use = 50;
+        }
+        else energy_use = 100;
 
 	/* Not identified yet */
 	ident = FALSE;
@@ -3873,14 +3862,24 @@ void do_cmd_zap_rod(void)
 		return;
 	}
 
-	/* Still charging */
-	if (o_ptr->pval)
+	/* A single rod is still charging */
+	if ((o_ptr->number == 1) && (o_ptr->timeout))
 	{
 		if (flush_failure) flush();
 		msg_print("The rod is still charging.");
 		return;
 	}
+	
+	/* A stack of rods lacks enough energy. */
+	else if ((o_ptr->number > 1) && (o_ptr->timeout > o_ptr->pval - k_ptr->pval))
+	{
+		if (flush_failure) flush();
+		msg_print("The rods are all still charging.");
+		return;
+	}
 
+	/* Increase the timeout by the rod kind's pval. -LM- */
+	o_ptr->timeout += k_ptr->pval;
 
 	/* Sound */
 	sound(SOUND_ZAP);
@@ -3892,10 +3891,16 @@ void do_cmd_zap_rod(void)
 	/* Analyze the rod */
 	switch (o_ptr->sval)
 	{
+                case SV_ROD_HOME:
+		{
+                        ident = TRUE;
+                        do_cmd_home_trump();
+			break;
+		}
+
 		case SV_ROD_DETECT_TRAP:
 		{
 			if (detect_traps()) ident = TRUE;
-			o_ptr->pval = (10 + (randint(10)));
 			break;
 		}
 
@@ -3903,7 +3908,6 @@ void do_cmd_zap_rod(void)
 		{
 			if (detect_doors()) ident = TRUE;
 			if (detect_stairs()) ident = TRUE;
-			o_ptr->pval = 70;
 			break;
 		}
 
@@ -3911,7 +3915,6 @@ void do_cmd_zap_rod(void)
 		{
 			ident = TRUE;
 			if (!ident_spell()) use_charge = FALSE;
-			o_ptr->pval = 10;
 			break;
 		}
 
@@ -3919,14 +3922,12 @@ void do_cmd_zap_rod(void)
 		{
 			recall_player();
 			ident = TRUE;
-			o_ptr->pval = 60;
 			break;
 		}
 
 		case SV_ROD_ILLUMINATION:
 		{
 			if (lite_area(damroll(2, 8), 2)) ident = TRUE;
-			o_ptr->pval = 10 + (randint(11));
 			break;
 		}
 
@@ -3934,7 +3935,6 @@ void do_cmd_zap_rod(void)
 		{
 			map_area();
 			ident = TRUE;
-			o_ptr->pval = 99;
 			break;
 		}
 
@@ -3942,7 +3942,6 @@ void do_cmd_zap_rod(void)
 		{
 			detect_all();
 			ident = TRUE;
-			o_ptr->pval = 99;
 			break;
 		}
 
@@ -3950,7 +3949,6 @@ void do_cmd_zap_rod(void)
 		{
 			probing();
 			ident = TRUE;
-			o_ptr->pval = 50;
 			break;
 		}
 
@@ -3962,7 +3960,6 @@ void do_cmd_zap_rod(void)
 			if (set_stun(0)) ident = TRUE;
 			if (set_cut(0)) ident = TRUE;
 			if (set_image(0)) ident = TRUE;
-			o_ptr->pval = 999;
 			break;
 		}
 
@@ -3971,7 +3968,6 @@ void do_cmd_zap_rod(void)
 			if (hp_player(500)) ident = TRUE;
 			if (set_stun(0)) ident = TRUE;
 			if (set_cut(0)) ident = TRUE;
-			o_ptr->pval = 999;
 			break;
 		}
 
@@ -3984,7 +3980,6 @@ void do_cmd_zap_rod(void)
 			if (do_res_stat(A_DEX)) ident = TRUE;
 			if (do_res_stat(A_CON)) ident = TRUE;
 			if (do_res_stat(A_CHR)) ident = TRUE;
-			o_ptr->pval = 999;
 			break;
 		}
 
@@ -3998,21 +3993,18 @@ void do_cmd_zap_rod(void)
 			{
 				(void)set_fast(p_ptr->fast + 5);
 			}
-			o_ptr->pval = 99;
 			break;
 		}
 
 		case SV_ROD_TELEPORT_AWAY:
 		{
 			if (teleport_monster(dir)) ident = TRUE;
-			o_ptr->pval = 25;
 			break;
 		}
 
 		case SV_ROD_DISARMING:
 		{
 			if (disarm_trap(dir)) ident = TRUE;
-			o_ptr->pval = 15 + (randint(15));
 			break;
 		}
 
@@ -4021,35 +4013,30 @@ void do_cmd_zap_rod(void)
 			msg_print("A line of blue shimmering light appears.");
 			lite_line(dir);
 			ident = TRUE;
-			o_ptr->pval = 9;
 			break;
 		}
 
 		case SV_ROD_SLEEP_MONSTER:
 		{
 			if (sleep_monster(dir)) ident = TRUE;
-			o_ptr->pval = 18;
 			break;
 		}
 
 		case SV_ROD_SLOW_MONSTER:
 		{
 			if (slow_monster(dir)) ident = TRUE;
-			o_ptr->pval = 20;
 			break;
 		}
 
 		case SV_ROD_DRAIN_LIFE:
 		{
 			if (drain_life(dir, 75)) ident = TRUE;
-			o_ptr->pval = 23;
 			break;
 		}
 
 		case SV_ROD_POLYMORPH:
 		{
 			if (poly_monster(dir)) ident = TRUE;
-			o_ptr->pval = 25;
 			break;
 		}
 
@@ -4057,7 +4044,6 @@ void do_cmd_zap_rod(void)
 		{
 			fire_bolt_or_beam(10, GF_ACID, dir, damroll(6, 8));
 			ident = TRUE;
-			o_ptr->pval = 12;
 			break;
 		}
 
@@ -4065,7 +4051,6 @@ void do_cmd_zap_rod(void)
 		{
 			fire_bolt_or_beam(10, GF_ELEC, dir, damroll(3, 8));
 			ident = TRUE;
-			o_ptr->pval = 11;
 			break;
 		}
 
@@ -4073,7 +4058,6 @@ void do_cmd_zap_rod(void)
 		{
 			fire_bolt_or_beam(10, GF_FIRE, dir, damroll(8, 8));
 			ident = TRUE;
-			o_ptr->pval = 15;
 			break;
 		}
 
@@ -4081,7 +4065,6 @@ void do_cmd_zap_rod(void)
 		{
 			fire_bolt_or_beam(10, GF_COLD, dir, damroll(5, 8));
 			ident = TRUE;
-			o_ptr->pval = 13;
 			break;
 		}
 
@@ -4089,7 +4072,6 @@ void do_cmd_zap_rod(void)
 		{
 			fire_ball(GF_ACID, dir, 60, 2);
 			ident = TRUE;
-			o_ptr->pval = 27;
 			break;
 		}
 
@@ -4097,7 +4079,6 @@ void do_cmd_zap_rod(void)
 		{
 			fire_ball(GF_ELEC, dir, 32, 2);
 			ident = TRUE;
-			o_ptr->pval = 23;
 			break;
 		}
 
@@ -4105,7 +4086,6 @@ void do_cmd_zap_rod(void)
 		{
 			fire_ball(GF_FIRE, dir, 72, 2);
 			ident = TRUE;
-			o_ptr->pval = 30;
 			break;
 		}
 
@@ -4113,7 +4093,6 @@ void do_cmd_zap_rod(void)
 		{
 			fire_ball(GF_COLD, dir, 48, 2);
 			ident = TRUE;
-			o_ptr->pval = 25;
 			break;
 		}
 
@@ -4121,7 +4100,6 @@ void do_cmd_zap_rod(void)
 		{
 			call_chaos();
 			ident = TRUE;
-			o_ptr->pval = 250;
 			break;
 		}
 	}
@@ -4146,36 +4124,8 @@ void do_cmd_zap_rod(void)
 	/* Hack -- deal with cancelled zap */
 	if (!use_charge)
 	{
-		o_ptr->pval = 0;
+		o_ptr->timeout -= k_ptr->pval;
 		return;
-	}
-
-
-	/* XXX Hack -- unstack if necessary */
-	if ((item >= 0) && (o_ptr->number > 1))
-	{
-		object_type forge;
-		object_type *q_ptr;
-
-		/* Get local object */
-		q_ptr = &forge;
-
-		/* Obtain a local object */
-		object_copy(q_ptr, o_ptr);
-
-		/* Modify quantity */
-		q_ptr->number = 1;
-
-		/* Restore "charge" */
-		o_ptr->pval = 0;
-
-		/* Unstack the used item */
-		o_ptr->number--;
-		total_weight -= q_ptr->weight;
-		item = inven_carry(q_ptr, FALSE);
-
-		/* Message */
-		msg_print("You unstack your rod.");
 	}
 }
 
@@ -4532,12 +4482,12 @@ void do_cmd_activate(void)
                                 msg_print("The phial wells with dark light...");
                                 unlite_area(damroll(2, 15), 3);
                                 take_hit(damroll(10, 10), "activating The Phial of Undeath");
-                                (void)dec_stat(A_DEX, 25, TRUE);
-                                (void)dec_stat(A_WIS, 25, TRUE);
-                                (void)dec_stat(A_CON, 25, TRUE);
-                                (void)dec_stat(A_STR, 25, TRUE);
-                                (void)dec_stat(A_CHR, 25, TRUE);
-                                (void)dec_stat(A_INT, 25, TRUE);
+                                (void)dec_stat(A_DEX, 25, STAT_DEC_PERMANENT);
+                                (void)dec_stat(A_WIS, 25, STAT_DEC_PERMANENT);
+                                (void)dec_stat(A_CON, 25, STAT_DEC_PERMANENT);
+                                (void)dec_stat(A_STR, 25, STAT_DEC_PERMANENT);
+                                (void)dec_stat(A_CHR, 25, STAT_DEC_PERMANENT);
+                                (void)dec_stat(A_INT, 25, STAT_DEC_PERMANENT);
                                 o_ptr->timeout = rand_int(10) + 10;
 				break;
 			}
@@ -4596,7 +4546,7 @@ void do_cmd_activate(void)
                                     (distance(ij,ii,py,px) > plev + 2) ||
                                     (!rand_int(plev * plev / 2)))
                                 {
-                                        msg_print("You fail to exit the astral plane correctly!");
+                                        msg_print("You fail to exit the between correctly!");
                                         p_ptr->energy -= 100;
                                         teleport_player(10);
                                 }
@@ -5113,10 +5063,10 @@ void do_cmd_activate(void)
 
 			case ART_AVAVIR:
 			{
-                                if (dun_level && (p_ptr->max_dlv[dungeon_type] > dun_level))
+                                if (dun_level && (max_dlv[dungeon_type] > dun_level))
 				{
 					if (get_check("Reset recall depth? "))
-                                        p_ptr->max_dlv[dungeon_type] = dun_level;
+                                        max_dlv[dungeon_type] = dun_level;
 				}
                 
 				msg_print("Your scythe glows soft white...");
@@ -5399,6 +5349,13 @@ void do_cmd_activate(void)
                                 o_ptr->timeout = 100;
                                 break;
                         }
+                        case ART_GROND:
+                        {
+                                msg_print("Your hammer hits the floor...");
+                                alter_reality();
+                                o_ptr->timeout = 100;
+                                break;
+                        }
 		}
 
 		/* Window stuff */
@@ -5462,6 +5419,17 @@ void do_cmd_activate(void)
 		/* Done */
 		return;
 	}
+        else if (o_ptr->name2 == EGO_SPINING)
+	{
+                do_spin();
+                o_ptr->timeout = 50 + randint(25);
+
+		/* Window stuff */
+		p_ptr->window |= (PW_INVEN | PW_EQUIP);
+
+		/* Done */
+		return;
+	}
         else if (o_ptr->name2 == EGO_NOLDOR)
 	{
                 detect_treasure();
@@ -5488,6 +5456,22 @@ void do_cmd_activate(void)
                 return;
         }
 
+        /* Hack -- Amulet of the Serpents can be activated as well */
+        if ((o_ptr->tval == TV_AMULET) && (o_ptr->sval == SV_AMULET_SERPENT))
+        {
+		/* Get a direction for breathing (or abort) */
+		if (!get_aim_dir(&dir)) return;
+
+                msg_print("You breathe venom...");
+                fire_ball(GF_POIS, dir, 100, 2);
+                o_ptr->timeout = rand_int(60) + 40;
+
+		/* Window stuff */
+                p_ptr->window |= PW_INVEN | PW_EQUIP;
+
+		/* Done */
+                return;
+        }
 
 	/* Hack -- Dragon Scale Mail can be activated as well */
 	if (o_ptr->tval == TV_DRAG_ARMOR)
@@ -5502,7 +5486,7 @@ void do_cmd_activate(void)
 			{
 				msg_print("You breathe lightning.");
 				fire_ball(GF_ELEC, dir, 100, 2);
-				o_ptr->timeout = rand_int(450) + 450;
+                                o_ptr->timeout = rand_int(90) + 90;
 				break;
 			}
 
@@ -5510,7 +5494,7 @@ void do_cmd_activate(void)
 			{
 				msg_print("You breathe frost.");
 				fire_ball(GF_COLD, dir, 110, 2);
-				o_ptr->timeout = rand_int(450) + 450;
+                                o_ptr->timeout = rand_int(90) + 90;
 				break;
 			}
 
@@ -5518,7 +5502,7 @@ void do_cmd_activate(void)
 			{
 				msg_print("You breathe acid.");
 				fire_ball(GF_ACID, dir, 130, 2);
-				o_ptr->timeout = rand_int(450) + 450;
+                                o_ptr->timeout = rand_int(90) + 90;
 				break;
 			}
 
@@ -5526,7 +5510,7 @@ void do_cmd_activate(void)
 			{
 				msg_print("You breathe poison gas.");
 				fire_ball(GF_POIS, dir, 150, 2);
-				o_ptr->timeout = rand_int(450) + 450;
+                                o_ptr->timeout = rand_int(90) + 90;
 				break;
 			}
 
@@ -5534,7 +5518,7 @@ void do_cmd_activate(void)
 			{
 				msg_print("You breathe fire.");
 				fire_ball(GF_FIRE, dir, 200, 2);
-				o_ptr->timeout = rand_int(450) + 450;
+                                o_ptr->timeout = rand_int(90) + 90;
 				break;
 			}
 
@@ -5551,7 +5535,7 @@ void do_cmd_activate(void)
 				            ((chance == 3) ? GF_ACID :
 				             ((chance == 4) ? GF_POIS : GF_FIRE)))),
 				          dir, 250, 2);
-				o_ptr->timeout = rand_int(225) + 225;
+                                o_ptr->timeout = rand_int(60) + 60;
 				break;
 			}
 
@@ -5559,7 +5543,7 @@ void do_cmd_activate(void)
 			{
 				msg_print("You breathe confusion.");
 				fire_ball(GF_CONFUSION, dir, 120, 2);
-				o_ptr->timeout = rand_int(450) + 450;
+                                o_ptr->timeout = rand_int(90) + 90;
 				break;
 			}
 
@@ -5567,7 +5551,7 @@ void do_cmd_activate(void)
 			{
 				msg_print("You breathe sound.");
 				fire_ball(GF_SOUND, dir, 130, 2);
-				o_ptr->timeout = rand_int(450) + 450;
+                                o_ptr->timeout = rand_int(90) + 90;
 				break;
 			}
 
@@ -5578,7 +5562,7 @@ void do_cmd_activate(void)
 				           ((chance == 1 ? "chaos" : "disenchantment")));
 				fire_ball((chance == 1 ? GF_CHAOS : GF_DISENCHANT),
 				          dir, 220, 2);
-				o_ptr->timeout = rand_int(300) + 300;
+                                o_ptr->timeout = rand_int(90) + 60;
 				break;
 			}
 
@@ -5589,7 +5573,7 @@ void do_cmd_activate(void)
 				           ((chance == 1 ? "sound" : "shards")));
 				fire_ball((chance == 1 ? GF_SOUND : GF_SHARDS),
 				          dir, 230, 2);
-				o_ptr->timeout = rand_int(300) + 300;
+                                o_ptr->timeout = rand_int(90) + 60;
 				break;
 			}
 
@@ -5604,7 +5588,7 @@ void do_cmd_activate(void)
 				           ((chance == 2) ? GF_DISENCHANT :
 				            ((chance == 3) ? GF_SOUND : GF_SHARDS))),
 				          dir, 250, 2);
-				o_ptr->timeout = rand_int(300) + 300;
+                                o_ptr->timeout = rand_int(90) + 60;
 				break;
 			}
 
@@ -5614,7 +5598,7 @@ void do_cmd_activate(void)
 				msg_format("You breathe %s.",
 				           ((chance == 0 ? "light" : "darkness")));
 				fire_ball((chance == 0 ? GF_LITE : GF_DARK), dir, 200, 2);
-				o_ptr->timeout = rand_int(300) + 300;
+                                o_ptr->timeout = rand_int(90) + 60;
 				break;
 			}
 
@@ -5622,7 +5606,7 @@ void do_cmd_activate(void)
 			{
 				msg_print("You breathe the elements.");
 				fire_ball(GF_MISSILE, dir, 300, 3);
-				o_ptr->timeout = rand_int(300) + 300;
+                                o_ptr->timeout = rand_int(90) + 60;
 				break;
 			}
 		}
@@ -5681,8 +5665,7 @@ void do_cmd_activate(void)
                                         msg_print("The ring explode into a space distorsion.");
                                         teleport_player(200);
                                         o_ptr->k_idx = 0;
-                                        inven_item_optimize(INVEN_LEFT);
-                                        inven_item_optimize(INVEN_RIGHT);
+                                        inven_item_optimize(INVEN_WIELD + item);
                                 }
 				break;
 			}
@@ -5899,7 +5882,7 @@ static bool activate_random_artifact(object_type * o_ptr)
 
 					/* Hack -- attack monsters */
 					if (c_ptr->m_idx && (m_ptr->ml || cave_floor_bold(y, x)))
-						py_attack(y, x);
+                                                py_attack(y, x, -1);
 				}
 			}
 			o_ptr->timeout = 250;
@@ -6459,10 +6442,10 @@ static bool activate_random_artifact(object_type * o_ptr)
 
 		case ACT_RECALL:
 		{
-                        if (dun_level && (p_ptr->max_dlv[dungeon_type] > dun_level))
+                        if (dun_level && (max_dlv[dungeon_type] > dun_level))
 			{
 				if (get_check("Reset recall depth? "))
-                                p_ptr->max_dlv[dungeon_type] = dun_level;
+                                max_dlv[dungeon_type] = dun_level;
 			}
 
 			msg_print("It glows soft white...");
@@ -6536,7 +6519,7 @@ static bool activate_random_artifact(object_type * o_ptr)
                         lose_exp(p_ptr->exp/10);
                         break;
                 case ACT_SUMMON_MONST:
-                        summon_specific(py,px,p_ptr->max_dlv[dungeon_type],0);
+                        summon_specific(py,px,max_dlv[dungeon_type],0);
                         break;
                 case ACT_PARALYZE:
                         set_paralyzed(p_ptr->paralyzed + 20 + randint(10));
@@ -6566,7 +6549,7 @@ static bool activate_random_artifact(object_type * o_ptr)
                         set_blind(p_ptr->blind + 20 + randint(10));
                         break;
                 case ACT_PET_SUMMON:
-                        summon_specific_friendly(py,px,p_ptr->max_dlv[dungeon_type],0,FALSE);
+                        summon_specific_friendly(py,px,max_dlv[dungeon_type],0,FALSE);
                         break;
                 case ACT_CURE_PARA:
                         set_confused(0);
@@ -6659,7 +6642,7 @@ static bool activate_random_artifact(object_type * o_ptr)
                                                 c_ptr->info &= ~(CAVE_GLOW);
 
                                                 /* Hack -- Forget "boring" grids */
-                                                if (c_ptr->feat <= FEAT_INVIS)
+                                                if ((f_info[c_ptr->feat].flags1 & FF1_FLOOR) && !(f_info[c_ptr->feat].flags1 & FF1_REMEMBER))
                                                 {
                                                         /* Forget the grid */
                                                         c_ptr->info &= ~(CAVE_MARK);

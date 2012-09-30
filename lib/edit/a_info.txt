@@ -203,7 +203,7 @@ F:IM_FIRE | IM_COLD | IM_ELEC | IM_ACID | PERMA_CURSE |
 F:SUST_STR | SUST_DEX | SUST_CON | 
 F:SUST_INT | SUST_WIS | SUST_CHR | 
 F:INSTA_ART
-D:"Ash nazg durbatulûk, ash nazg gimbatul, ash nazg thrakatulûk agh 
+D:"Ash nazg durbatuluk, ash nazg gimbatul, ash nazg thrakatuluk agh 
 D:burzum-ishi krimpatul". Unadorned, made of massive gold, 
 D:set with runes in the foul speech of Mordor, with power so great that it 
 D:inevitably twists and masters any earthly being who wears it.
@@ -276,7 +276,7 @@ N:18:of Melkor
 I:22:2:4
 W:15:45:60:100000
 P:0:3d10:12:24:0
-F:STEALTH | INFRA | CURSED | HEAVY_CURSE |
+F:STEALTH | INFRA | CURSED | HEAVY_CURSE | DG_CURSE |
 F:RES_DARK | RES_BLIND | RES_LITE | RES_NETHER | RES_CONF
 D:The mighty spear used once by Melkor to slay the trees of Valinor.
 
@@ -479,9 +479,8 @@ W:20:15:180:90000
 P:0:2d6:12:20:0
 F:BLOWS | CON | HIDE_TYPE | BRAND_ACID
 F:SLAY_ORC | SLAY_DEMON | ACTIVATE | SHOW_MODS
-D:An axe that makes the user fast in attacking and is
-D:feared by orcs.  It is said to be useful when stuck
-D:in a room with no way out.  
+D:Wielded by Hurin Thalion in the Fifth Battle of Beleriand, this 
+D:troll-bane smoked in the black blood of Gothmog's guards.
 
 
 # The Massive Iron Crown of Morgoth
@@ -496,9 +495,10 @@ F:RES_LITE | RES_DARK | RES_CONF | RES_NEXUS |
 F:LITE | SEE_INVIS | TELEPATHY |
 F:CURSED | HEAVY_CURSE | PERMA_CURSE |
 F:INSTA_ART
-D:Containing much of the power of he who once was mightiest among the Ainur, 
-D:this plain iron crown is mounted with the three greatest treasures of 
-D:Middle Earth, the Simarils.
+D:Two Silmarils of Feanor blaze from the thunderous crown of twisted 
+D:iron. The corrupted metal feels at once as infernal as hellfire 
+D:and as chilling as the Outer Darkness. One protrusion from the 
+D:crown is abruptly ended where a third jewel might have shone.
 
 
 # The Iron Crown of Beruthiel
@@ -670,8 +670,8 @@ W:3:10:10:11000
 P:1:0d0:0:0:15
 F:STEALTH | 
 F:RES_ACID | ACTIVATE
-D:A crystal-blue cape of fine silk worn by a silent messanger of the forces 
-D:of Law.
+D:A crystal-blue cape of fine silk worn by a silent messenger of 
+D:the forces of Law.
 
 
 # The Shadow Cloak of Luthien
@@ -782,7 +782,7 @@ N:58:'Camlost'
 I:31:2:2
 W:10:20:25:0
 P:2:1d1:-11:-12:0
-F:STR | DEX | HIDE_TYPE | RES_DISEN | RES_NEXUS |
+F:STR | DEX | HIDE_TYPE | RES_DISEN | RES_NEXUS | DG_CURSE |
 F:HOLD_LIFE | RES_NETHER | RES_CHAOS | RES_POIS | IM_COLD | IM_FIRE |
 F:AGGRAVATE | CURSED | SHOW_MODS | HEAVY_CURSE | TY_CURSE | TELEPORT
 D:A pair of gauntlets that sap combat ability, named after the empty hand 
@@ -853,10 +853,8 @@ P:0:8d4:20:15:0
 F:SLAY_ANIMAL | SLAY_EVIL | SLAY_UNDEAD | SLAY_DEMON | 
 F:SLAY_ORC | SLAY_TROLL | SLAY_GIANT | SLAY_DRAGON | KILL_DRAGON | 
 F:BRAND_ACID | BRAND_ELEC | BRAND_FIRE | BRAND_COLD | BRAND_POIS
-D:The most powerful of arrows.  It is deadly againts almost all 
-D:monsters and is filled with the powers of the elements and 
-D:poison, but it is against dragons that is is truly a powerful 
-D:arrow.  
+D:Dealiest of arrowed, embued with elemental strength, this shaft is 
+D:feared especially by the wyrmkin.
 
 
 # The Main Gauche of Maedhros
@@ -890,7 +888,7 @@ N:66:'Narthanc'
 I:23:4:0
 W:4:10:12:12000
 P:0:1d4:4:6:0
-F:BRAND_FIRE | RES_FIRE | ACTIVATE | SHOW_MODS | LITE
+F:BRAND_FIRE | RES_FIRE | ACTIVATE | SHOW_MODS | LITE | LEVELS
 D:A fiery dagger finely balanced for deadly throws.
 
 
@@ -900,7 +898,7 @@ N:67:'Nimthanc'
 I:23:4:0
 W:3:10:12:11000
 P:0:1d4:4:6:0
-F:BRAND_COLD | RES_COLD | ACTIVATE | SHOW_MODS
+F:BRAND_COLD | RES_COLD | ACTIVATE | SHOW_MODS | LEVELS
 D:A frosty dagger finely balanced for deadly throws.
 
 
@@ -910,7 +908,7 @@ N:68:'Dethanc'
 I:23:4:0
 W:5:10:12:13000
 P:0:1d4:4:6:0
-F:BRAND_ELEC | RES_ELEC | ACTIVATE | SHOW_MODS
+F:BRAND_ELEC | RES_ELEC | ACTIVATE | SHOW_MODS | LEVELS
 D:A dagger covered in sparks and finely balanced for deadly throws.
 
 
@@ -1046,8 +1044,8 @@ N:78:'Mormegil'
 I:23:25:10
 W:30:15:250:0
 P:0:4d6:-40:-60:-50
-F:SPEED | IM_FIRE | RES_FIRE | BRAND_FIRE | RES_DISEN | RES_FEAR |
-F:AGGRAVATE | CURSED | HEAVY_CURSE | SHOW_MODS | TY_CURSE | LITE
+F:SPEED | IM_FIRE | RES_FIRE | BRAND_FIRE | RES_DISEN | RES_FEAR | DG_CURSE |
+F:AGGRAVATE | CURSED | HEAVY_CURSE | SHOW_MODS | LITE | LEVELS
 D:A foul, twisted sword with blacked spines and knobs, whose very name is a 
 D:curse upon the lips of Elves and Men.
 
@@ -1166,7 +1164,8 @@ P:0:1d7:6:8:0
 F:BLOWS | 
 F:SLAY_DRAGON | SLAY_ANIMAL | SLAY_TROLL | SLAY_GIANT | 
 F:SLAY_ORC | SHOW_MODS
-D:An heirloom of the Lords of Rhun far to the east, and a name of dismay to creatures natural and unnatural.
+D:An heirloom of the Lords of Rhun far to the east, and a name of 
+D:dismay to creatures natural and unnatural.
 
 
 # The Small Sword 'Sting'
@@ -1175,7 +1174,7 @@ N:88:'Sting'
 I:23:8:2
 W:20:15:75:100000
 P:0:1d6:7:8:0
-F:STR | DEX | CON | BLOWS | 
+F:STR | DEX | CON | BLOWS | LEVELS |
 F:SLAY_EVIL | SLAY_UNDEAD | SLAY_ORC | 
 F:FREE_ACT | RES_LITE | LITE | SEE_INVIS | SHOW_MODS
 D:"I will give you a name, and I shall call you Sting."  The perfect size  
@@ -1257,7 +1256,7 @@ N:94:of Pain
 I:22:13:0
 W:30:25:190:50000
 P:0:9d6:0:30:0
-F:SHOW_MODS
+F:SHOW_MODS | LEVELS
 D:The massive chopper that crowns this glaive glows blood-red and black; 
 D:fell spells of annihilation swirl and dance as you swing death's myrmidon 
 D:down.
@@ -1453,7 +1452,7 @@ P:0:4d8:15:19:0
 F:DEX | HIDE_TYPE | 
 F:SLAY_DRAGON | SLAY_ANIMAL | FREE_ACT | HOLD_LIFE | IM_ACID | 
 F:RES_NETHER | SEE_INVIS | SLOW_DIGEST | REGEN | ACTIVATE | 
-F:BLESSED | SHOW_MODS
+F:BLESSED | SHOW_MODS | SPECIAL_GENE |
 D:The awesome weapon of the Vala Ulmo, Lord of Waters.  Mightest of all the 
 D:powers of good save Manwe himself, Ulmo laughs to scorn the dread powers  
 D:of the undead, and is utterly in command of the Element of acid.
@@ -1479,8 +1478,8 @@ N:110:of the Dawn
 I:23:17:3
 W:40:120:130:250000
 P:0:3d5:20:20:0
-F:ACTIVATE | LITE | BRAND_FIRE | FREE_ACT | RES_FIRE | INFRA |
-F:SLAY_EVIL | SLAY_DRAGON | SLAY_UNDEAD | SLAY_DEMON | VORPAL |
+F:ACTIVATE | LITE | BRAND_FIRE | FREE_ACT | RES_FIRE | INFRA | LEVELS |
+F:SLAY_EVIL | SLAY_DRAGON | SLAY_UNDEAD | SLAY_DEMON | VORPAL | CLONE |
 F:CHR | SUST_CHR | RES_FEAR | RES_LITE | RES_BLIND | REGEN | SHOW_MODS
 D:Forged in the farthest East by a race of mighty spellcasters, this
 D:shiny pale sword gleams with the rays of rising sun as you invoke
@@ -1494,12 +1493,13 @@ D:its power of commanding legions of powerful immortal warriors...
 # Note that it takes 18/200 strength to wield Grond correctly
 
 N:111:'Grond'
-I:21:50:0
+I:21:50:2
 W:100:1:1000:500000
 P:0:9d9:5:25:10
 F:KILL_DRAGON | SLAY_ANIMAL | SLAY_EVIL | IMPACT | SLAY_UNDEAD | NO_MAGIC |
 F:SLAY_DEMON | SLAY_TROLL | SLAY_ORC | RES_ACID | RES_ELEC | RES_FIRE | 
-F:RES_COLD | SEE_INVIS | TELEPATHY | AGGRAVATE | SHOW_MODS | INSTA_ART
+F:RES_COLD | SEE_INVIS | TELEPATHY | AGGRAVATE | SHOW_MODS | INSTA_ART |
+F:LEVELS | LIFE | ACTIVATE |
 D:The mighty Hammer of the Underworld, blackened by doomspells of shattering, 
 D:whose wielder holds the lives of all Morgoth's servants in his hand.
 
@@ -1600,7 +1600,7 @@ N:119:'Eriril'
 I:21:3:4
 W:20:18:150:20000
 P:0:1d9:3:5:0
-F:INT | WIS | HIDE_TYPE | 
+F:INT | WIS | HIDE_TYPE | LEVELS |
 F:SLAY_EVIL | RES_LITE | LITE | SEE_INVIS | ACTIVATE | SHOW_MODS
 D:The radiant golden staff of an Istari of legend, this wizard's companion 
 D:grants keen sight and the knowledge of many hidden things.
@@ -1612,7 +1612,7 @@ N:120:of Olorin
 I:21:3:4
 W:30:105:150:140000
 P:0:2d9:10:13:0
-F:INT | WIS | CHR | HIDE_TYPE | SEARCH | BRAND_FIRE |
+F:INT | WIS | CHR | HIDE_TYPE | SEARCH | BRAND_FIRE | SPECIAL_GENE |
 F:SLAY_EVIL | BRAND_FIRE | SLAY_TROLL | SLAY_ORC | LITE |
 F:HOLD_LIFE | RES_FIRE | RES_NETHER | SEE_INVIS | ACTIVATE | SHOW_MODS
 D:A staff tall and sturdy, with rough-hewn runes that invoke the element of 
@@ -1705,17 +1705,14 @@ D:shoot bolts that blaze with flame unquenchable.
 
 N:127:of Gandalf
 I:6:1:12
-W:100:100:20:9000000
+W:127:100:20:9000000
 P:0:1d4:-19:-19:0
 F:INT | CHR | WIS | MANA | SPELL | ACTIVATE |
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD |
 F:SEE_INVIS | TELEPATHY | NEVER_BLOW | INFRA
-F:PRECOGNITION
-D:The staff of Gandalf into which he placed mighty powers indeed. 
-D:spells are far more powerful when wielding this and the mage can 
-D:continue for longer than he would otherwise, but those who invest 
-D:all of their time in spell casting have little time left over to 
-D:fight as well.
+F:PRECOGNITION | IM_FIRE
+D:A simple, wooden wizard's staff. Unremarkable in all aspects... 
+D:except that it pulses with overwhelming power.
 
 # Boomerang Artifacts
 
@@ -1844,8 +1841,9 @@ I:14:7:2
 W:14:10:15:80000
 P:0:3d4:0:0:0
 F:ACTIVATE | CHR | WIS
-D:The seemingly simple horn of Rohan that actually makes those who 
-D:blow it more beautifur and wise.  
+D:A horn carved from the bones of the Dragon of Ered-Mithrin, this 
+D:heirloom of the House of Eorl bestows to its user the gifts of 
+D:courage and command.
 
 # The Horn of Helm
 
@@ -1854,8 +1852,9 @@ I:14:7:2
 W:16:10:15:15000
 P:0:3d4:0:0:0
 F:ACTIVATE | STR | CON | IM_COLD | RES_NETHER | RES_FEAR
-D:A horn that protects those whe blow it from cold and the attacks 
-D:of undead.  
+D:Heedless of cold, fearless of darkness -- besiegers fled at the wind 
+D:of the solitary coming of King Helm Hammerhand, proclaimed by a single 
+D:horn-blast in the dead of winter.
 
 # The Horn of Boromir
 
@@ -1873,7 +1872,7 @@ N:145:of Gothmog
 I:22:28:-4
 W:30:8:250:30000
 P:0:3d8:14:19:0
-F:BRAND_FIRE | CHR | ACTIVATE | SHOW_MODS | CURSED
+F:BRAND_FIRE | CHR | ACTIVATE | SHOW_MODS | CURSED |  DG_CURSE |
 D:The black axe of Gothmog, which struck Fingon at Nirnaeth. Mighty 
 D:spells of evil make it unsafe in any hands but of the original wielder.
 
@@ -1893,30 +1892,30 @@ D:An arrow that was created to rid the world from deamons.
 
 N:147:of Eru Iluvatar
 I:23:17:10
-W:99:120:130:100000
-P:0:5d5:21:26:0
-F:LIFE | CON | CHR | WRAITH |
-F:SLAY_EVIL | BRAND_FIRE | SLAY_UNDEAD | SLAY_DEMON | SLAY_TROLL | SLAY_DEMON |
+W:127:120:130:100000
+P:50:5d5:21:26:0
+F:LIFE | CON | CHR |
+F:SUST_STR | SUST_INT | SUST_WIS | SUST_DEX | SUST_CON | SUST_CHR |
+F:BRAND_FIRE | BRAND_COLD | BRAND_ELEC | VORPAL | IM_COLD |
+F:SLAY_EVIL | SLAY_UNDEAD | SLAY_DEMON | SLAY_TROLL | SLAY_DEMON |
 F:FREE_ACT | RES_FIRE | RES_DARK | LITE | SEE_INVIS | SLOW_DIGEST | REGEN | 
 F:ACTIVATE | SHOW_MODS | BLESSED |
-F:PRECOGNITION
-D:This all powerful sword generates a glowing light.  Those who use 
-D:it are very hard to kill and even more so because they often 
-D:seem to know their own fates.  This sword is very sharp and deadly 
-D:against many creatures and it is rumored that none has escaped 
-D:the attacks of this sword alive.
+F:PRECOGNITION | NO_MAGIC
+D:A warm light bathes this translucent blade. The power of the fates are 
+D:at the command of its wielder as the weapon passes Supreme Judgment on 
+D:the inhabitants of Angband.
 
 
-# The Wand of Fire Ball of Gandalf
+# The Wand of Fire Ball of Mithrandir
 
 N:148:of Mithrandir
-I:65:22:18
+I:65:22:38
 W:50:10:10:12000
 P:0:2d4:0:0:0
 F:RECHARGE
-D:Gandalf's wand that throws powerful fire balls at enemies.  It 
+D:Mithrandir's wand that throws powerful fire balls at enemies.  It 
 D:can be rechanged without blowing up, for it is built to hold 
-D:much magical energy.  
+D:much magical energy.
 
 
 # The Wand of Stone to Mud of Thrain
@@ -1925,11 +1924,57 @@ N:149:of Thrain
 I:65:6:25
 W:10:10:10:3200
 P:0:2d4:0:0:0
-F:RECHARGE
+F:RECHARGE | SPECIAL_GENE |
 D:The miner's friend.  This wand was used by Thrain to dig into the 
 D:walls of the dungeon and is quite useful because it will never 
-D:be destroyed.  
+D:be destroyed.
 
+
+# The Long Sword of Murazor (a.k.a. anti-Ringil)
+# The next time someone wields an unidentified Long Sword (4d5) ...
+
+N:150:of Murazor
+I:23:17:-10
+W:20:40:130:30000
+P:0:4d5:-22:-25:0
+F:SPEED | STR | WIS | CHR |
+F:BRAND_FIRE | SEE_INVIS | SLOW_DIGEST | FREE_ACT |
+F:VAMPIRIC | NO_TELE | AGGRAVATE | WRAITH | INVIS |
+F:CURSED | HEAVY_CURSE | DG_CURSE | SHOW_MODS | CLONE |
+D:Dark flames wreath the naked steel of the Witch-King of Angmar.  
+D:A mighty curse to all those who wield it despite its master, 
+D:the torture of the wraithworld awaits those who dare.
+
+
+# The XBow/Bolt of the Elfes
+# The ULTIMATE bow/bolt for an archer class
+
+# The Seeker Bolt of the Elves
+
+N:151:of the Elves
+I:18:2:0
+W:127:120:130:100000
+P:0:10d5:25:26:0
+F:VORPAL | BRAND_COLD | BRAND_FIRE | BRAND_ELEC | BRAND_ACID | BRAND_POIS |
+F:KILL_DRAGON | SLAY_GIANT | SLAY_TROLL | SLAY_UNDEAD | SLAY_ORC |
+F:SLAY_DEMON | SLAY_EVIL |
+D:Made during the war against Morgoth in the Belegriand, this powerfull 
+D:bolt is the bane of Morgoth power.
+
+
+# The Heavy Crossbow of the Elves
+
+N:152:of the Elves
+I:19:24:10
+W:127:120:130:100000
+P:0:0d0:36:28:0
+F:SEE_INVIS | SLOW_DIGEST | FREE_ACT | SPEED | DEX | CON | FLY |
+F:XTRA_MIGHT | XTRA_SHOTS | IM_ELEC | REFLECT | INVIS | STEALTH |
+F:SUST_STR | SUST_INT | SUST_WIS | SUST_DEX | SUST_CON | SUST_CHR |
+F:RES_CHAOS | RES_DISEN | RES_CONF | RES_BLIND | INFRA | TELEPATHY |
+F:PRECOGNITION
+D:Designed to be used with the Seeker Bolt of the Elves, this Crossbow 
+D:is perfect against the terrible powers of Morgoth.
 
 # The Phial of Undeath
 
@@ -1938,7 +1983,7 @@ I:39:7:-5
 W:1:1:10:0
 P:0:1d1:0:0:0
 F:CURSED | INT | WIS | CON | DEX | CHR | STR | ACTIVATE |
-F:INSTA_ART 
+F:INSTA_ART | DG_CURSE |
 D:It appears like the Phial of Galadrial at first, but wait!  It 
 D:is a cursed phail created by an evil wizard to lure adventurers 
 D:into wielding it unknowingly.

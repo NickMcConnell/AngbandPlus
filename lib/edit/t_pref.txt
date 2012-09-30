@@ -65,6 +65,9 @@ F:U:191:3
 # Grass Roof Chimney
 F:Y:192:3
 
+# Cobblestone Road
+F:O:200:3
+
 # General Store
 F:1:74:3
 
@@ -115,3 +118,10 @@ F:p:143:3
 F:q:144:3
 F:r:145:3
 
+# Altars
+F:u:162:3
+F:v:163:3
+F:w:165:3
+F:x:168:3
+F:y:169:3
+F:z:170:3

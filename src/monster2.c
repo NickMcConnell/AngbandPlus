@@ -91,7 +91,7 @@ int get_wilderness_flag(void)
 	if (dun_level)
 		return (RF8_DUNGEON);
 	else
-		return (1L << wilderness[y][x].terrain);
+                return (1L << wf_info[wild_map[y][x].feat].terrain_idx);
 }
 
 
@@ -473,6 +473,9 @@ bool restrict_monster_to_dungeon(monster_race *r_ptr)
 {
         dungeon_info_type *d_ptr = &d_info[dungeon_type];
         byte a;
+
+        /* Some percent of monsters are alloways accepted */
+        if (magik(100 - d_ptr->special_percent)) return TRUE;
 
         if(d_ptr->mode == DUNGEON_MODE_AND)
         {
@@ -1151,10 +1154,14 @@ void sanity_blast(monster_type * m_ptr, bool necro)
 	if (!necro)
 	{
 		char            m_name[80];
-		monster_race    *r_ptr = &r_info[m_ptr->r_idx];
+		monster_race    *r_ptr;
+
+		if (m_ptr != NULL) r_ptr = &r_info[m_ptr->r_idx];
 
 		power = (r_ptr->level)+10;
 
+		if (m_ptr != NULL)
+		{
 		monster_desc(m_name, m_ptr, 0);
 
 		if (!(r_ptr->flags1 & RF1_UNIQUE))
@@ -1177,6 +1184,7 @@ void sanity_blast(monster_type * m_ptr, bool necro)
 
 		if (is_pet(m_ptr) && (randint(8)!=1))
 			return; /* Pet eldritch horrors are safe most of the time */
+
 
 		if (randint(power)<p_ptr->skill_sav)
 		{
@@ -1203,6 +1211,8 @@ void sanity_blast(monster_type * m_ptr, bool necro)
 
 		r_ptr->r_flags2 |= RF2_ELDRITCH_HORROR;
 
+		}
+
 		/* Undead characters are 50% likely to be unaffected */
                 if (((p_ptr->prace == RACE_VAMPIRE)||(p_ptr->mimic_form == MIMIC_VAMPIRE)) || (p_ptr->prace == RACE_SPECTRE))
 		{
@@ -1228,8 +1238,8 @@ void sanity_blast(monster_type * m_ptr, bool necro)
 
 	if (randint(power)<p_ptr->skill_sav) /* Lose int & wis */
 	{
-		do_dec_stat (A_INT);
-		do_dec_stat (A_WIS);
+		do_dec_stat (A_INT, STAT_DEC_NORMAL);
+		do_dec_stat (A_WIS, STAT_DEC_NORMAL);
 		return;
 	}
 
@@ -1245,9 +1255,9 @@ void sanity_blast(monster_type * m_ptr, bool necro)
 			(void)set_paralyzed(p_ptr->paralyzed + rand_int(4) + 4);
 		}
 		while (rand_int(100) > p_ptr->skill_sav)
-			(void)do_dec_stat(A_INT);
+			(void)do_dec_stat(A_INT, STAT_DEC_NORMAL);	
 		while (rand_int(100) > p_ptr->skill_sav)
-			(void)do_dec_stat(A_WIS);
+			(void)do_dec_stat(A_WIS, STAT_DEC_NORMAL);
 		if (!p_ptr->resist_chaos)
 		{
 			(void) set_image(p_ptr->image + rand_int(250) + 150);
@@ -1678,6 +1688,8 @@ bool place_monster_one(int y, int x, int r_idx, bool slp, bool charm)
 
 	cptr		name = (r_name + r_ptr->name);
 
+        /* DO NOT PLACE A MONSTER IN THE SMALL SCALE WILDERNESS !!! */
+        if(p_ptr->wild_mode) return FALSE;
 
 	/* Verify location */
 	if (!in_bounds(y, x)) return (FALSE);
@@ -1708,6 +1720,9 @@ bool place_monster_one(int y, int x, int r_idx, bool slp, bool charm)
 	/* Paranoia */
 	if (!r_ptr->name) return (FALSE);
 
+        /* No Uniques on saved levels(this would cause too much confusion) */
+        if((d_info[dungeon_type].flags1 & DF1_PERSISTENT) && (r_ptr->flags1 & RF1_UNIQUE)) return (FALSE);
+
         /* Don't allow undefined ghosts */
         if ((r_idx >= GHOST_R_IDX_HEAD)&&(r_idx <= GHOST_R_IDX_TAIL))
                 if(ghost_file[r_idx - GHOST_R_IDX_HEAD][0] == 0)
@@ -1718,6 +1733,12 @@ bool place_monster_one(int y, int x, int r_idx, bool slp, bool charm)
 		return FALSE;
 	}
 
+        /* Unallow some uniques to be generated outside of their quests/special levels/dungeons */
+        if ((r_ptr->flags9 & RF9_SPECIAL_GENE) && !hack_allow_special && !vanilla_town)
+        {
+                return FALSE;
+        }
+
 	/* Hack -- "unique" monsters must be "unique" */
         if ((r_ptr->flags1 & (RF1_UNIQUE)) && (r_ptr->max_num == -1))
 	{
@@ -1725,6 +1746,15 @@ bool place_monster_one(int y, int x, int r_idx, bool slp, bool charm)
 		return (FALSE);
 	}
 
+/* Anyway that doesn't work .... hum... TO FIX -- DG */
+#if 0
+        /* Hack -- non "town" monsters are NEVER generated in town */
+        if ((!(r_ptr->flags8 & (RF8_WILD_TOWN))) && (wf_info[wild_map[p_ptr->wilderness_y][p_ptr->wilderness_x].feat].terrain_idx == TERRAIN_TOWN) && !dun_level)
+	{
+		/* Cannot create */
+		return (FALSE);
+	}
+#endif
 	/* Hack -- "unique" monsters must be "unique" */
 	if ((r_ptr->flags1 & (RF1_UNIQUE)) && (r_ptr->cur_num >= r_ptr->max_num))
 	{
@@ -2025,6 +2055,9 @@ s16b place_monster_one_return(int y, int x, int r_idx, bool slp, bool charm)
 
 	/* Paranoia */
         if (!r_ptr->name) return 0;
+
+        /* No Uniques on saved levels(this would cause too much confusion) */
+        if(r_ptr->flags1 & RF1_UNIQUE) return (FALSE);
 
 	if (!monster_can_cross_terrain(cave[y][x].feat, r_ptr))
 	{
@@ -3028,6 +3061,13 @@ static bool summon_specific_okay(int r_idx)
 			        !(r_ptr->flags1 & (RF1_UNIQUE)));
 			break;
 		}
+
+		case SUMMON_QUYLTHULG:
+		{
+			okay = ((r_ptr->d_char == 'Q') &&
+				!(r_ptr->flags1 & (RF1_UNIQUE)));
+			break;
+		}
 	}
 
 	/* Result */
@@ -3374,7 +3414,7 @@ bool multiply_monster(int m_idx, bool charm, bool clone)
                 new_race = m_ptr->r_idx;
 
                 /* It can mutate into a nastier monster */
-                if(rand_int(100)<7)
+                if((rand_int(100)<7) && (!clone))
                 {
                         bool (*old_get_mon_num_hook)(int r_idx);
 

@@ -1142,10 +1142,10 @@ owner_type owners[MAX_STORES][MAX_OWNERS] =
 	},
 	{
 		/* Magic Shop */
-		{ "Lo Pan the Sorcerer",        20000,  200, 110,  7,  8, RACE_HALF_ELF},
-		{ "Buggerby the Great",         20000,  215, 113,  6, 10, RACE_GNOME},
-		{ "The Wizard of Yendor",       30000,  200, 110,  7, 10, RACE_HUMAN},
-		{ "Rjak the Necromancer",       30000,  175, 110,  5, 11, RACE_DARK_ELF},
+		{ "Ariel the Sorceress",	20000,	200, 110,  7,  8, RACE_HALF_ELF},
+		{ "Buggerby the Great",		20000,	215, 113,  6, 10, RACE_GNOME},
+		{ "Inglorian the Mage",		30000,	200, 110,  7, 10, RACE_HUMAN},
+		{ "Luthien Starshine",		30000,	175, 110,  5, 11, RACE_HIGH_ELF},
 	},
 	{
 		/* Black Market */
@@ -1338,7 +1338,7 @@ player_race race_info[MAX_RACES] =
 		72,  6, 180, 25,
 		66,  4, 150, 20,
 		0,
-                0x7FF+(1<<23)+(1<<22)+(1<<21)+(1<<20)+(1<<19)+(1<<18)+(1<<17)+(1<<15)+(1<<14)+(1<<13)+(1<<12),
+                0x7FF+(1<<25)+(1<<24)+(1<<23)+(1<<22)+(1<<21)+(1<<20)+(1<<19)+(1<<18)+(1<<17)+(1<<15)+(1<<14)+(1<<13)+(1<<12),
 	},
 	{
 		"Half-Elf",
@@ -1349,7 +1349,7 @@ player_race race_info[MAX_RACES] =
 		66,  6, 130, 15,
 		62,  6, 100, 10,
 		2,
-                0x7FF+(1<<23)+(1<<22)+(1<<21)+(1<<20)+(1<<19)+(1<<18)+(1<<17)+(1<<15)+(1<<14)+(1<<13)+(1<<12)+(1<<11),
+                0x7FF+(1<<24)+(1<<23)+(1<<22)+(1<<21)+(1<<20)+(1<<19)+(1<<18)+(1<<17)+(1<<15)+(1<<14)+(1<<13)+(1<<12)+(1<<11),
 	},
 	{
 		"Elf",
@@ -1360,7 +1360,7 @@ player_race race_info[MAX_RACES] =
 		60,  4, 100,  6,
 		54,  4, 80,  6,
 		3,
-                0x75F+(1<<23)+(1<<22)+(1<<21)+(1<<20)+(1<<19)+(1<<18)+(1<<17)+(1<<15)+(1<<14)+(1<<13)+(1<<12)+(1<<11),
+                0x75F+(1<<24)+(1<<23)+(1<<22)+(1<<21)+(1<<20)+(1<<19)+(1<<18)+(1<<17)+(1<<15)+(1<<14)+(1<<13)+(1<<12)+(1<<11),
 
 	},
 	{
@@ -1394,7 +1394,7 @@ player_race race_info[MAX_RACES] =
 		48,  3, 150, 10,
 		46,  3, 120, 10,
 		5,
-                0x005+(1<<19)+(1<<15)+(1<<14)+(1<<13)+(1<<11),        
+                0x005+(1<<24)+(1<<19)+(1<<15)+(1<<14)+(1<<13)+(1<<11),        
 	},
 	{
 		"Half-Orc",
@@ -1405,7 +1405,7 @@ player_race race_info[MAX_RACES] =
 		66,  1, 150,  5,
 		62,  1, 120,  5,
 		3,
-                0x18D+(1<<19)+(1<<17)+(1<<16)+(1<<11),
+                0x18D+(1<<25)+(1<<19)+(1<<17)+(1<<16)+(1<<11),
 	},
 	{
 		"Half-Troll",
@@ -1416,7 +1416,7 @@ player_race race_info[MAX_RACES] =
 		96, 10, 250, 50,
 		84,  8, 225, 40,
 		3,
-                0x005+(1<<19)+(1<<16),
+                0x005+(1<<25)+(1<<19)+(1<<16),
 	},
 	{
                 "Dunadan",
@@ -1427,7 +1427,7 @@ player_race race_info[MAX_RACES] =
 		82, 5, 190, 20,
 		78,  6, 180, 15,
 		0,
-                0x7FF+(1<<23)+(1<<22)+(1<<21)+(1<<20)+(1<<19)+(1<<18)+(1<<17)+(1<<15)+(1<<14)+(1<<13)+(1<<12),
+                0x7FF+(1<<24)+(1<<23)+(1<<22)+(1<<21)+(1<<20)+(1<<19)+(1<<18)+(1<<17)+(1<<15)+(1<<14)+(1<<13)+(1<<12),
 	},
 	{
 		"High-Elf",
@@ -1438,7 +1438,7 @@ player_race race_info[MAX_RACES] =
 		90, 10, 190, 20,
 		82, 10, 180, 15,
 		4,
-                0x75F+(1<<23)+(1<<22)+(1<<21)+(1<<20)+(1<<19)+(1<<18)+(1<<17)+(1<<15)+(1<<14)+(1<<13)+(1<<12)+(1<<11),
+                0x75F+(1<<24)+(1<<23)+(1<<22)+(1<<21)+(1<<20)+(1<<19)+(1<<18)+(1<<17)+(1<<15)+(1<<14)+(1<<13)+(1<<12)+(1<<11),
 	},
 	{
 		"Barbarian",
@@ -1460,7 +1460,7 @@ player_race race_info[MAX_RACES] =
 		92, 10, 255, 60,
 		80,  8, 235, 60,
 		3,
-                0x407+(1<<19)+(1<<18)+(1<<16),
+                0x407+(1<<25)+(1<<19)+(1<<18)+(1<<16),
 	},
 	{
 		"Half-Giant",
@@ -1471,7 +1471,7 @@ player_race race_info[MAX_RACES] =
 		100,10, 255, 65,
 		80, 10, 240, 64,
 		3,
-                0x011+(1<<19)+(1<<16),
+                0x011+(1<<25)+(1<<19)+(1<<16),
 	},
 	{
 		"Kobold",
@@ -1482,7 +1482,7 @@ player_race race_info[MAX_RACES] =
 		60,  1, 130,  5,
 		55,  1, 100,  5,
 		3,
-                0x009+(1<<23)+(1<<19)+(1<<17)+(1<<16)+(1<<15)+(1<<14)+(1<<11),
+                0x009+(1<<25)+(1<<23)+(1<<19)+(1<<17)+(1<<16)+(1<<15)+(1<<14)+(1<<11),
 	},
 	{
 		"Nibelung",
@@ -1504,7 +1504,7 @@ player_race race_info[MAX_RACES] =
 		60,  4, 100,  6,
 		54,  4, 80,  6,
 		5,
-                0x7DF+(1<<23)+(1<<22)+(1<<21)+(1<<20)+(1<<19)+(1<<18)+(1<<17)+(1<<15)+(1<<14)+(1<<13)+(1<<12)+(1<<11),
+                0x7DF+(1<<25)+(1<<23)+(1<<22)+(1<<21)+(1<<20)+(1<<19)+(1<<18)+(1<<17)+(1<<15)+(1<<14)+(1<<13)+(1<<12)+(1<<11),
 	},
 	{
 		"Vampire",
@@ -1515,7 +1515,7 @@ player_race race_info[MAX_RACES] =
 		72,  6, 180, 25,
 		66,  4, 150, 20,
 		5,
-                0x7FF+(1<<23)+(1<<21)+(1<<20)+(1<<19)+(1<<18)+(1<<17)+(1<<16)+(1<<15)+(1<<13)+(1<<11),
+                0x7FF+(1<<25)+(1<<23)+(1<<21)+(1<<20)+(1<<19)+(1<<18)+(1<<17)+(1<<16)+(1<<15)+(1<<13)+(1<<11),
 	},
 	{
 		"Spectre",
@@ -1526,7 +1526,7 @@ player_race race_info[MAX_RACES] =
 		72, 6, 100, 25,
 		66, 4, 100, 20,
 		5,
-                0x2FC74E,
+                0x22FC74E,
 	},
 	{
                 "Ent",
@@ -1537,7 +1537,7 @@ player_race race_info[MAX_RACES] =
 		72, 6, 100, 25,
 		66, 4, 100, 20,
 		5,
-                0x1C65+(1<<19)+(1<<14),
+                0x1C65+(1<<24)+(1<<19)+(1<<14),
 	},
 	{
                 "RohanKnight",
@@ -1571,7 +1571,7 @@ player_race race_info[MAX_RACES] =
                 10, 1, 50, 1,
                 10, 1, 50, 1,
                 10,
-                0x2D660E,
+                0x22D660E,
         },
         {
                 "Yeek",
@@ -1582,7 +1582,7 @@ player_race race_info[MAX_RACES] =
                 40, 5, 50, 10,
                 35, 4, 45, 10,
                 2,
-                0x7FF+(1<<23)+(1<<22)+(1<<21)+(1<<20)+(1<<19)+(1<<18)+(1<<17)+(1<<15)+(1<<14)+(1<<13)+(1<<12),
+                0x7FF+(1<<24)+(1<<23)+(1<<22)+(1<<21)+(1<<20)+(1<<19)+(1<<18)+(1<<17)+(1<<15)+(1<<14)+(1<<13)+(1<<12),
         },
 };
 
@@ -1787,6 +1787,22 @@ player_class class_info[MAX_CLASS] =
 		30, 36, 30, 2,  16, 20, 34, 20,
 		7,  13, 9,  0,  0,  0,  15, 15,
 		0, 30
+	},
+
+	{
+                "Druid",
+                {-2, -2, 3, 1, 1, 2},
+                20, 20, 38, 4,  8, 16, 42, 35,
+                7,  10, 10, 0,  0,  0, 18, 20,
+                3, 30
+	},
+
+	{
+                "Necromancer",
+                {-3, 3, -1, 3, -1, -5},
+                16, 40, 42, 3,  10, 8, 35, 20,
+                9,  16, 3, 0,  0,  0, 10, 5,
+                1, 40
 	},
 };
 /*
@@ -2571,6 +2587,54 @@ magic_type realm_info_base[MAX_REALM][64] =
                 { 50, 90, 90,  78},
                 { 99,  0, 92,  80},
         },
+
+        /* Druidistic */
+        {
+                { 1, 1, 10,  4},
+                { 2, 0, 15,  6},
+                { 4, 4, 18,  8},
+                { 5, 2, 20, 10},
+                { 6, 8, 24, 13},
+                { 8, 9, 26, 16},
+                { 9, 10, 28, 20},
+                { 10, 12, 34, 25},
+
+                { 11, 11, 30, 30},
+                { 12, 10, 35, 38},
+                { 14, 14, 38, 42},
+                { 15, 12, 40, 46},
+                { 16, 18, 45, 49},
+                { 18, 19, 46, 55},
+                { 19, 20, 48, 58},
+                { 20, 22, 54, 62},
+
+                { 21,  8, 57, 68},
+                { 22, 26, 60, 75},
+                { 24, 26, 62, 78},
+                { 25, 30, 65, 82},
+                { 26, 35, 68, 85},
+                { 28, 38, 70, 90},
+                { 29, 41, 73, 93},
+                { 30, 43, 75, 96},
+
+                { 31, 45, 80, 100},
+                { 32, 46, 82, 103},
+                { 34, 50, 83, 110},
+                { 35, 51, 85, 115},
+                { 36, 53, 86, 119},
+                { 38, 60, 89, 123},
+                { 39, 65, 90, 128},
+                { 40, 80, 91, 130},
+
+                { 41, 80, 92, 130},
+                { 42, 86, 93, 135},
+                { 44, 20, 94, 145},
+                { 45, 90, 95, 165},
+                { 46,  2, 95, 180},
+                { 48, 100, 95, 200},
+                { 49, 105, 95, 210},
+                { 50, 255, 95, 220},
+        },
 };
 
 
@@ -2764,7 +2828,7 @@ player_magic magic_info[MAX_CLASS] =
 		0,
 
                 -2,
-                -16
+                -16,
                 -12,
 		1,
 		300,
@@ -2960,7 +3024,7 @@ player_magic magic_info[MAX_CLASS] =
                 TV_MAGERY_BOOK,
 		0,
 
-		A_INT,
+                A_INT,
 		2,
 
                 0,
@@ -2968,6 +3032,38 @@ player_magic magic_info[MAX_CLASS] =
                 0,
 		1,
 		300,
+	},
+
+	{
+                /*** Druid ***/
+
+                TV_VALARIN_BOOK,
+		0,
+
+		A_WIS,
+		1,
+
+                0,
+                0,
+                0,
+		1,
+		350,
+	},
+
+	{
+                /*** Necromancer ***/
+
+                TV_MAGERY_BOOK,
+		0,
+
+                A_CON,
+		1,
+
+                0,
+                0,
+                0,
+		1,
+		350,
 	},
 };
 
@@ -3120,6 +3216,15 @@ u32b fake_spell_flags[MAX_REALM][9][2]=
                 {0x00000000, 0x00ff0000},
                 {0x00000000, 0xff000000},
         },
+
+        /* Druidistic */
+        {
+                {0x00000000, 0x000000ff},
+                {0x00000000, 0x0000ff00},
+                {0x00000000, 0x00ff0000},
+                {0x00000000, 0xff000000},
+                {0x000000ff, 0x00000000},
+        },
 };
 
 
@@ -3132,7 +3237,7 @@ u32b Mrealm_choices[MAX_CLASS]=
 /* Ranger */        (CH_VALARIN | CH_ILLUSION | CH_TRIBAL),
 /* Paladin */       (CH_VALARIN | CH_NETHER | CH_CRUSADE),
 /* Warrior-Mage */  (CH_SIGALDRY),
-/* Chaos Warrior */ (CH_NONE),
+/* Chaos Warrior */ (CH_CHAOS),
 /* Monk */          (CH_VALARIN | CH_SHADOW | CH_ILLUSION | CH_TRIBAL),
 /* Mindcrafter */   (CH_NONE),
 /* High Mage */     (CH_VALARIN | CH_MAGERY | CH_SHADOW | CH_NETHER | CH_CRUSADE | CH_SIGALDRY | CH_TRIBAL | CH_ILLUSION),
@@ -3149,6 +3254,8 @@ u32b Mrealm_choices[MAX_CLASS]=
 /* Sorceror */      (CH_VALARIN | CH_MAGERY | CH_SHADOW | CH_NETHER ),
 /* Archer */        (CH_NONE),
 /* Illusionist */   (CH_ILLUSION),
+/* Druid */         (CH_DRUID),
+/* Necromancer */   (CH_NONE),
 };
 
 u32b mrealm_choices[MAX_CLASS]=
@@ -3163,7 +3270,7 @@ u32b mrealm_choices[MAX_CLASS]=
 /* Chaos Warrior */ (CH_NONE),
 /* Monk */          (CH_NONE),
 /* Mindcrafter */   (CH_NONE),
-/* High Mage */     (CH_CRUSADE | CH_SIGALDRY | CH_TRIBAL | CH_ILLUSION),
+/* High Mage */     (CH_NONE),
 /* Mimic       */   (CH_NONE),
 /* BeastMaster */   (CH_NONE),
 /* Alchemist   */   (CH_NONE),
@@ -3176,7 +3283,9 @@ u32b mrealm_choices[MAX_CLASS]=
 /* Possessor */     (CH_NONE),
 /* Sorceror */      (CH_CRUSADE | CH_SIGALDRY | CH_TRIBAL | CH_ILLUSION),
 /* Archer */        (CH_NONE),
-/* Illusionist */   (CH_ILLUSION),
+/* Illusionist */   (CH_NONE),
+/* Druid */         (CH_NONE),
+/* Necromancer */   (CH_NONE),
 };
 
 cptr realm_names [] =
@@ -3195,6 +3304,7 @@ cptr realm_names [] =
         "Prayer",
         "Illusion",
         "Tribal",
+        "Druidic",
 };
 
 
@@ -3385,7 +3495,7 @@ cptr spell_names[MAX_REALM][64] =
                 "Darkness Storm",
                 "Energies Channeling",
                 "Immaterial Beings",
-                "Shadow Enlightment",
+                "Shadow Enlightenmentt",
                 "Disolve Matter",
                 "Invoke the Night",
                 "Resist Light & Dark",
@@ -3412,7 +3522,7 @@ cptr spell_names[MAX_REALM][64] =
 
                 /* Aiding Shades */
                 "Examin Shadow",
-                "*Shadow Enlightment*",
+                "*Shadow Enlightenment*",
                 "Remove Curse",
                 "*Remove Curse*",
                 "Shadow Form",
@@ -3428,9 +3538,9 @@ cptr spell_names[MAX_REALM][64] =
                 /* Murazor Tome of Conjuring & Dispeling */
                 "Dispel Living",
                 "Conjure Dragons",
-                "Dispel Undead",
+                "Dispel Undeads",
                 "Conjure Undeads",
-                "Dispel Demon",
+                "Dispel Demons",
                 "Conjure Demons",
 
                 /* Channeling the Void */
@@ -4052,90 +4162,60 @@ cptr spell_names[MAX_REALM][64] =
                 "Mystic Forces",
                 "",
         },
+
+        /* Druidistic */
+        {
+                /* Elemental Stone[Earth] */
+                "Tunnel",
+                "Canalize Mana",
+                "Acid Bolt",
+                "Mana Path",
+                "Forest Generation",
+                "Druidic Acid Beam",
+                "Raise Mountains",
+                "Stone Skin",
+
+                /* Elemental Stone[Fire] */
+                "Infravision",
+                "Fire Bolt",
+                "Fire Ball",
+                "Enlight Traps",
+                "Fire Beam",
+                "Druidic Fire Bolt",
+                "Druidic Fire Beam",
+                "Create Lava",
+
+                /* Elemental Stone[Air] */
+                "Winds of Mana",
+                "Summon Air Elemental",
+                "Wispers from Afar",
+                "The Winds of Manwe",
+                "Bird View",
+                "*Wispers from Afar*",
+                "Windy Speed",
+                "The Thunders of Manwe",
+
+                /* Elemental Stone[Water] */
+                "Summon Aquatic Golems",
+                "Walk over the Water",
+                "Flood",
+                "Summon Water Elementals",
+                "Purification",
+                "Go Underwater",
+                "Tidal Wave",
+                "Flood Level",
+
+                /* Elemental Stone[Mana] */
+                "Glyph of Warding",
+                "Orb of Mana",
+                "Gather Mana",
+                "Mirror of Mana",
+                "Activate Rune of Mana",
+                "Combine the 5 Elements",
+                "Shield of Mana",
+                "Drain Level Mana",
+        },
 };
-
-
-/*
- * Each chest has a certain set of traps, determined by pval
- * Each chest has a "pval" from 1 to the chest level (max 55)
- * If the "pval" is negative then the trap has been disarmed
- * The "pval" of a chest determines the quality of its treasure
- * Note that disarming a trap on a chest also removes the lock.
- */
-byte chest_traps[64] =
-{
-	0,                                      /* 0 == empty */
-	(CHEST_POISON),
-	(CHEST_LOSE_STR),
-	(CHEST_LOSE_CON),
-	(CHEST_LOSE_STR),
-	(CHEST_LOSE_CON),                       /* 5 == best small wooden */
-	0,
-	(CHEST_POISON),
-	(CHEST_POISON),
-	(CHEST_LOSE_STR),
-	(CHEST_LOSE_CON),
-	(CHEST_POISON),
-	(CHEST_LOSE_STR | CHEST_LOSE_CON),
-	(CHEST_LOSE_STR | CHEST_LOSE_CON),
-	(CHEST_LOSE_STR | CHEST_LOSE_CON),
-	(CHEST_SUMMON),                 /* 15 == best large wooden */
-	0,
-	(CHEST_LOSE_STR),
-	(CHEST_LOSE_CON),
-	(CHEST_PARALYZE),
-	(CHEST_LOSE_STR | CHEST_LOSE_CON),
-	(CHEST_SUMMON),
-	(CHEST_PARALYZE),
-	(CHEST_LOSE_STR),
-	(CHEST_LOSE_CON),
-	(CHEST_EXPLODE),                        /* 25 == best small iron */
-	0,
-	(CHEST_POISON | CHEST_LOSE_STR),
-	(CHEST_POISON | CHEST_LOSE_CON),
-	(CHEST_LOSE_STR | CHEST_LOSE_CON),
-	(CHEST_EXPLODE | CHEST_SUMMON),
-	(CHEST_PARALYZE),
-	(CHEST_POISON | CHEST_SUMMON),
-	(CHEST_SUMMON),
-	(CHEST_EXPLODE),
-	(CHEST_EXPLODE | CHEST_SUMMON), /* 35 == best large iron */
-	0,
-	(CHEST_SUMMON),
-	(CHEST_EXPLODE),
-	(CHEST_EXPLODE | CHEST_SUMMON),
-	(CHEST_EXPLODE | CHEST_SUMMON),
-	(CHEST_POISON | CHEST_PARALYZE),
-	(CHEST_EXPLODE),
-	(CHEST_EXPLODE | CHEST_SUMMON),
-	(CHEST_EXPLODE | CHEST_SUMMON),
-	(CHEST_POISON | CHEST_PARALYZE),        /* 45 == best small steel */
-	0,
-	(CHEST_LOSE_STR | CHEST_LOSE_CON),
-	(CHEST_LOSE_STR | CHEST_LOSE_CON),
-	(CHEST_POISON | CHEST_PARALYZE | CHEST_LOSE_STR),
-	(CHEST_POISON | CHEST_PARALYZE | CHEST_LOSE_CON),
-	(CHEST_POISON | CHEST_LOSE_STR | CHEST_LOSE_CON),
-	(CHEST_POISON | CHEST_LOSE_STR | CHEST_LOSE_CON),
-	(CHEST_POISON | CHEST_PARALYZE | CHEST_LOSE_STR | CHEST_LOSE_CON),
-	(CHEST_POISON | CHEST_PARALYZE),
-	(CHEST_POISON | CHEST_PARALYZE),        /* 55 == best large steel */
-	(CHEST_EXPLODE | CHEST_SUMMON),
-	(CHEST_EXPLODE | CHEST_SUMMON),
-	(CHEST_EXPLODE | CHEST_SUMMON),
-	(CHEST_EXPLODE | CHEST_SUMMON),
-	(CHEST_EXPLODE | CHEST_SUMMON),
-	(CHEST_EXPLODE | CHEST_SUMMON),
-	(CHEST_EXPLODE | CHEST_SUMMON),
-	(CHEST_EXPLODE | CHEST_SUMMON),
-};
-
-
-
-
-
-
-
 
 /*
  * Class titles for the player.
@@ -4480,6 +4560,34 @@ cptr player_title[MAX_CLASS][PY_MAX_LEVEL/5] =
 		"Shadow",
 		"Shadow Lord",
 	},
+
+	/* Druid */
+	{
+		"Wanderer",
+		"Tamer",
+		"Nurturer",
+		"Gardener",
+		"Creator",
+		"Earth Warder",
+		"Windrider",
+		"Stormwielder",
+                "Druid",
+                "Archdruid",
+	},
+
+        /* Necromancer */
+	{
+		"Acolyte",
+		"Curser",
+		"Dark Student",
+		"Initiate",
+		"Slavemaster",
+		"Summoner",
+		"Controller",
+		"Commander",
+		"Dark Master",
+		"Night Lord",
+	},
 };
 
 
@@ -4585,6 +4693,8 @@ cptr window_flag_desc[32] =
  *      Set 2: Disturbance
  *      Set 3: Inventory
  *      Set 4: Game Play
+ *      Set 5: PernAngband
+ *      Set 6: Birth
  *
  * Note that bits 28-31 of set 0 are currently unused.
  */
@@ -4742,8 +4852,7 @@ option_type option_info[] =
          { &player_symbols,              FALSE,   5,      1, 13,
 	"player_symbols",               "Use special symbols for the player char"},
 
-	{ &equippy_chars,               TRUE,  5,      1, 12,
-	"equippy_chars",                "Display 'equippy' chars" },
+/***** Space to use *****/
 
 	{ &smart_learn,                 FALSE,  3,      1, 14,
 	"smart_learn",                  "Monsters learn from their mistakes" },
@@ -4844,6 +4953,42 @@ option_type option_info[] =
 
         { &no_pickup_corpse,              TRUE, 5,5,12,
         "no_pickup_corpse",               "Don't pick up the monster's corpses" },
+
+        /*** Birth Options ***/
+
+	{ &vanilla_town,                FALSE, 6, 6, 0,
+	"vanilla_town",                 "Use 'vanilla' town without quests and wilderness" },
+
+        { &maximize,                    TRUE, 6, 6, 1,
+        "maximize",                     "Maximize stats" },
+
+        { &preserve,                    TRUE, 6, 6, 2,
+        "preserve",                     "Preserve artifacts" },
+
+        { &autoroll,                    TRUE, 6, 6, 3,
+        "autoroll",                     "Specify 'minimal' stats" },
+
+        { &special_lvls,                TRUE, 6, 6, 4,
+        "special_lvls",                 "Allow the use of special, unique, levels" },
+
+        { &permanent_levels,            FALSE, 6, 6, 5,
+        "permanent_levels",             "Generate persistent dungeons" },
+
+        { &ironman_rooms,               FALSE, 6, 6, 6,
+	"ironman_rooms",                "Always generate very unusual rooms" },
+
+        { &take_notes,                  TRUE, 6, 6, 7,
+        "take_notes",                   "Allow notes to be written to a file" },
+
+        { &auto_notes,                  TRUE, 6, 6, 8,
+        "auto_notes",                   "Automatically note important events" },
+
+#if 0 /* when Ill get some ideas */
+        { &rand_birth,                  FALSE, 6, 6, 9,
+        "rand_birth",                   "Random present at brith" },
+#endif
+        { &fast_autoroller,             FALSE, 6, 6, 10,
+        "fast_autoroller",              "Fast autoroller(NOT on multiuser systems)" },
 
 	/*** Stacking ***/
 
@@ -5084,7 +5229,7 @@ martial_arts ma_blows[MAX_MA] =
 };
 
 
-mindcraft_power mindcraft_powers[MAX_MINDCRAFT_POWERS] =
+magic_power mindcraft_powers[MAX_MINDCRAFT_POWERS] =
 {
 	/* Level gained,  cost,  %fail,  name */
 	{ 1,   1,  15, "Precognition" },          /* Det. monsters/traps */
@@ -5099,6 +5244,16 @@ mindcraft_power mindcraft_powers[MAX_MINDCRAFT_POWERS] =
 	{ 23, 15,  50, "Adrenaline Channeling" },
 	{ 25, 10,  40, "Psychic Drain" },         /* Convert enemy HP to mana */
 	{ 28, 20,  45, "Telekinetic Wave" },      /* Ball -> LOS */
+};
+
+magic_power necro_powers[MAX_NECRO_POWERS] =
+{
+	/* Level gained,  cost,  %fail,  name */
+        {  1,   2, 10, "Call Darkness" },       /* Bolt/beam/ball/LOS of dark */
+        { 10,   6, 20, "Raise Dead" },          /* Ball */
+        { 25,  10, 25, "Summon Undead" },       /* Summon one(some) undead(s) */
+        { 30,  15, 20, "Vampirism" },           /* Bolt */
+        { 35, 100, 25, "Death" },               /* The Death word, always bolt put your HP to 1 */
 };
 
 alchemist_recipe alchemist_recipes[MAX_ALCHEMIST_RECIPES] = {
@@ -5486,7 +5641,7 @@ alchemist_recipe alchemist_recipes[MAX_ALCHEMIST_RECIPES] = {
                          TV_STAFF,SV_STAFF_THE_MAGI},
                         {TV_STAFF,SV_STAFF_THE_MAGI,3,
                          TV_STAFF,SV_STAFF_THE_MAGI},
-                        {TV_ROD,SV_ROD_IDENTIFY,9,
+                        {TV_ROD,SV_ROD_NOTHING,9,
                          TV_ROD,SV_ROD_IDENTIFY},
                         {TV_SCROLL,SV_SCROLL_NOTHING,99,
                          TV_SCROLL,SV_SCROLL_ARTIFACT},
@@ -5530,6 +5685,176 @@ alchemist_recipe alchemist_recipes[MAX_ALCHEMIST_RECIPES] = {
                         {0,0,1,
                          0,0},
                 }
+        },
+        {SV_BATERIE_DARKNESS,
+                {
+                        {EGO_STEALTH,TV_CLOAK,ALCHEMIST_ENCHANT_PVAL,12},
+                        {EGO_QUIET,TV_BOOTS,ALCHEMIST_ENCHANT_PVAL,12},
+                        {0,0,0,1},
+                        {0,0,0,1},
+                        {0,0,0,1},
+                        {0,0,0,1},
+                        {0,0,0,1},
+                        {0,0,0,1},
+                        {0,0,0,1},
+                },
+
+                {
+                        {TV_BOTTLE,1,2,
+                         TV_POTION,SV_POTION_INVIS},
+                        {TV_WAND,SV_WAND_NOTHING,1,
+                         TV_WAND,SV_WAND_FEAR_MONSTER},
+                        {TV_WAND,SV_WAND_FEAR_MONSTER,2,
+                         TV_WAND,SV_WAND_FEAR_MONSTER},
+                        {TV_STAFF,SV_STAFF_NOTHING,1,
+                         TV_STAFF,SV_STAFF_DARKNESS},
+                        {TV_STAFF,SV_STAFF_DARKNESS,1,
+                         TV_STAFF,SV_STAFF_DARKNESS},
+                        {TV_ROD,SV_ROD_NOTHING,6,
+                         TV_ROD,SV_ROD_SLEEP_MONSTER},
+                        {TV_RING,SV_RING_NOTHING,8,
+                         TV_RING,SV_RING_INVIS},
+                        {TV_AMULET,SV_AMULET_NOTHING,3,
+                         TV_AMULET,SV_AMULET_DOOM},
+                        {0,0,0,
+                         0,0},
+                },
+        },
+        {SV_BATERIE_KNOWLEDGE,
+                {
+                        {EGO_WISDOM,TV_CROWN,ALCHEMIST_ENCHANT_PVAL,8},
+                        {EGO_WISDOM,TV_HELM,ALCHEMIST_ENCHANT_PVAL,8},
+                        {EGO_BLESS_BLADE,TV_SWORD,ALCHEMIST_ENCHANT_PVAL,7},
+                        {EGO_BLESS_BLADE,TV_HAFTED,ALCHEMIST_ENCHANT_PVAL,7},
+                        {EGO_BLESS_BLADE,TV_POLEARM,ALCHEMIST_ENCHANT_PVAL,7},
+                        {0,0,0,1},
+                        {0,0,0,1},
+                        {0,0,0,1},
+                        {0,0,0,1},
+                },
+
+                {
+                        {TV_BOTTLE,1,7,
+                         TV_POTION,SV_POTION_SELF_KNOWLEDGE},
+                        {TV_WAND,SV_WAND_NOTHING,2,
+                         TV_WAND,SV_WAND_DISARMING},
+                        {TV_WAND,SV_WAND_DISARMING,2,
+                         TV_WAND,SV_WAND_DISARMING},
+                        {TV_STAFF,SV_STAFF_NOTHING,3,
+                         TV_STAFF,SV_STAFF_IDENTIFY},
+                        {TV_STAFF,SV_STAFF_IDENTIFY,3,
+                         TV_STAFF,SV_STAFF_IDENTIFY},
+                        {TV_ROD,SV_ROD_NOTHING,7,
+                         TV_ROD,SV_ROD_PROBING},
+                        {TV_RING,SV_RING_NOTHING,5,
+                         TV_RING,SV_RING_SEE_INVIS},
+                        {TV_AMULET,SV_AMULET_NOTHING,6,
+                         TV_AMULET,SV_AMULET_SEARCHING},
+                        {TV_SCROLL,SV_SCROLL_NOTHING,2,
+                         TV_SCROLL,SV_SCROLL_IDENTIFY},
+                },
+        },
+        {SV_BATERIE_FORCE,
+                {
+                        {EGO_PROTECTION,TV_CLOAK,ALCHEMIST_ENCHANT_AC,6},
+                        {0,0,0,1},
+                        {0,0,0,1},
+                        {0,0,0,1},
+                        {0,0,0,1},
+                        {0,0,0,1},
+                        {0,0,0,1},
+                        {0,0,0,1},
+                        {0,0,0,1},
+                },
+
+                {
+                        {TV_BOTTLE,1,7,
+                         TV_POTION,SV_POTION_RESISTANCE},
+                        {TV_WAND,SV_WAND_NOTHING,1,
+                         TV_WAND,SV_WAND_STONE_TO_MUD},
+                        {TV_WAND,SV_WAND_STONE_TO_MUD,1,
+                         TV_WAND,SV_WAND_STONE_TO_MUD},
+                        {TV_STAFF,SV_STAFF_NOTHING,2,
+                         TV_STAFF,SV_STAFF_DESTRUCTION},
+                        {TV_STAFF,SV_STAFF_DESTRUCTION,2,
+                         TV_STAFF,SV_STAFF_DESTRUCTION},
+                        {TV_ROD,SV_ROD_NOTHING,20,
+                         TV_ROD,SV_ROD_HAVOC},
+                        {TV_RING,SV_RING_NOTHING,8,
+                         TV_RING,SV_RING_RES_SHARDS},
+                        {TV_AMULET,SV_AMULET_NOTHING,2,
+                         TV_AMULET,SV_AMULET_SLOW_DIGEST},
+                        {TV_SCROLL,SV_SCROLL_NOTHING,2,
+                         TV_SCROLL,SV_SCROLL_ENCHANT_ARMOR},
+                },
+        },
+        {SV_BATERIE_LIGHTNING,
+                {
+                        {EGO_RESIST_ELEC,TV_SOFT_ARMOR,0,4},
+                        {EGO_RESIST_ELEC,TV_HARD_ARMOR,0,4},
+                        {EGO_ENDURE_ELEC,TV_SHIELD,0,4},
+                        {EGO_BRAND_ELEC,TV_SWORD,0,9},
+                        {EGO_BRAND_ELEC,TV_POLEARM,0,9},
+                        {EGO_BRAND_ELEC,TV_HAFTED,0,9},
+                        {EGO_LIGHTNING_BOLT,TV_SHOT,0,2},
+                        {EGO_LIGHTNING_BOLT,TV_ARROW,0,2},
+                        {EGO_LIGHTNING_BOLT,TV_BOLT,0,2},
+                },
+
+                {
+                        {TV_BOTTLE,1,10,
+                         TV_POTION,SV_POTION_ENLIGHTENMENT},
+                        {TV_WAND,SV_WAND_NOTHING,2,
+                         TV_WAND,SV_WAND_ELEC_BALL},
+                        {TV_WAND,SV_WAND_ELEC_BALL,2,
+                         TV_WAND,SV_WAND_ELEC_BALL},
+                        {TV_STAFF,SV_STAFF_NOTHING,1,
+                         TV_STAFF,SV_STAFF_STARLITE},
+                        {TV_STAFF,SV_STAFF_STARLITE,1,
+                         TV_STAFF,SV_STAFF_STARLITE},
+                        {TV_ROD,SV_ROD_NOTHING,15,
+                         TV_ROD,SV_ROD_ELEC_BALL},
+                        {TV_RING,SV_RING_NOTHING,6,
+                         TV_RING,SV_RING_RES_BLINDNESS},
+                        {TV_AMULET,SV_AMULET_NOTHING,40,
+                         TV_AMULET,SV_AMULET_REFLECTION},
+                        {TV_SCROLL,SV_SCROLL_NOTHING,3,
+                         TV_SCROLL,SV_SCROLL_RECHARGING},
+                },
+        },
+        {SV_BATERIE_MANA,
+                {
+                        {EGO_FREE_ACTION,TV_GLOVES,0,15},
+                        {EGO_MOTION,TV_BOOTS,0,15},
+                        {EGO_DF,TV_SWORD,ALCHEMIST_ENCHANT_DAM | ALCHEMIST_ENCHANT_PVAL | ALCHEMIST_ENCHANT_AC,23},
+                        {EGO_DF,TV_POLEARM,ALCHEMIST_ENCHANT_DAM | ALCHEMIST_ENCHANT_PVAL | ALCHEMIST_ENCHANT_AC,23},
+                        {EGO_DF,TV_HAFTED,ALCHEMIST_ENCHANT_DAM | ALCHEMIST_ENCHANT_PVAL | ALCHEMIST_ENCHANT_AC,23},
+                        {0,0,0,1},
+                        {0,0,0,1},
+                        {0,0,0,1},
+                        {0,0,0,1},
+                },
+
+                {
+                        {TV_BOTTLE,1,1,
+                         TV_POTION,SV_POTION_SLEEP},
+                        {TV_WAND,SV_WAND_NOTHING,1,
+                         TV_WAND,SV_WAND_SLEEP_MONSTER},
+                        {TV_WAND,SV_WAND_SLEEP_MONSTER,1,
+                         TV_WAND,SV_WAND_SLEEP_MONSTER},
+                        {TV_STAFF,SV_STAFF_NOTHING,2,
+                         TV_STAFF,SV_STAFF_SLEEP_MONSTERS},
+                        {TV_STAFF,SV_STAFF_SLEEP_MONSTERS,2,
+                         TV_STAFF,SV_STAFF_SLEEP_MONSTERS},
+                        {TV_ROD,SV_ROD_NOTHING,10,
+                         TV_ROD,SV_ROD_SLEEP_MONSTER},
+                        {TV_RING,SV_RING_NOTHING,6,
+                         TV_RING,SV_RING_FREE_ACTION},
+                        {TV_AMULET,SV_AMULET_NOTHING,15,
+                         TV_AMULET,SV_AMULET_THE_MAGI},
+                        {TV_SCROLL,SV_SCROLL_NOTHING,3,
+                         TV_SCROLL,SV_SCROLL_STAR_ENCHANT_WEAPON},
+                },
         },
 };
 /*
@@ -5629,7 +5954,7 @@ deity deity_info[MAX_GODS] = {
 
 /* jk - to hit, to dam, to ac, to stealth, to disarm, to saving throw */
 /* this concept is taken from Adom, where Thomas Biskup thought it out, */
-/* as far as I know - thanks, Thomas, for a great game. */
+/* as far as I know. */
 tactic_info_type tactic_info[9] =
 {
 /*     hit  dam   ac stl  dis  sav */
@@ -5672,7 +5997,7 @@ activation activation_info[MAX_T_ACT] = {
   {"paranoia",0,147},
   {"confusion",0,148},
   {"blindness",0,149},
-  {"pet summoning",0,150},
+  {"pet summoning",1010,150},
   {"cure paralyzation",5000,151},
   {"cure hallucination",1000,152},
   {"cure poison",1000,83},
@@ -5699,7 +6024,7 @@ activation activation_info[MAX_T_ACT] = {
   {"mutation",100,166},
   {"cure insanity",2000,167},
   {"cure mutation",2000,168},
-  {"light absortion",500,169},
+  {"light absortion",800,169},
 };
 
 /*

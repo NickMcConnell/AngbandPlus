@@ -1,5 +1,7 @@
 /* File: objmod.c */
 
+#ifdef USE_PYTHON
+
 /*
  * Copyright (c) 1998 Keldon Jones
  *
@@ -630,3 +632,4 @@ void initplayer()
 	add_constant(d, "PW_OBJECT", PW_OBJECT);
 	add_constant(d, "PW_SNAPSHOT", PW_SNAPSHOT);
 }
+#endif

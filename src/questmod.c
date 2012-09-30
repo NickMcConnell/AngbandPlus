@@ -1,5 +1,7 @@
 /* File: questmod.c */
 
+#ifdef USE_PYTHON
+
 /*
  * Copyright (c) 1999 Dark God
  *
@@ -105,3 +107,4 @@ void initquest(void)
         add_constant(d, "QUEST_TYPE_RANDOM", QUEST_TYPE_RANDOM);
 }
 
+#endif

@@ -93,10 +93,13 @@ s16b command_gap = 50;	/* See "cmd1.c" */
 
 s16b command_new;		/* Command chaining from inven/equip view */
 
-s16b energy_use;		/* Energy use this turn */
+s32b energy_use;                /* Energy use this turn */
 
 bool create_up_stair;	/* Auto-create "up stairs" */
 bool create_down_stair;	/* Auto-create "down stairs" */
+
+bool create_up_shaft; /* Auto-create "up shaft" */
+bool create_down_shaft;       /* Auto-create "down shaft" */
 
 bool msg_flag;			/* Used in msg_print() for "buffering" */
 
@@ -231,7 +234,6 @@ bool water_levels;              /* Allow flooded levels */
 bool always_small_level;        /* Small levels */
 bool flavored_attacks;          /* Show silly messages when fighting */
 bool player_symbols;		/* Use varying symbols for the player char */
-bool equippy_chars;		/* Back by popular demand... */
 bool skip_mutations;		/* Skip mutations screen even if we have it */
 bool plain_descriptions;	/* Plain object descriptions */
 bool stupid_monsters;		/* Monsters use old AI */
@@ -333,7 +335,6 @@ s16b rating;			/* Level's current rating */
 bool good_item_flag;		/* True if "Artifact" on this level */
 
 bool closing_flag;		/* Dungeon is closing */
-
 
 /*
  * Dungeon size info
@@ -792,6 +793,12 @@ ego_item_type *e_info;
 char *e_name;
 char *e_text;
 
+/* jk */
+/* the trap-arrays */
+header *t_head;
+trap_type *t_info;
+char *t_name;
+char *t_text;
 
 /*
  * The monster race arrays
@@ -801,7 +808,6 @@ monster_race *r_info;
 char *r_name;
 char *r_text;
 
-
 /*
  * The dungeon types arrays
  */
@@ -809,6 +815,15 @@ header *d_head;
 dungeon_info_type *d_info;
 char *d_name;
 char *d_text;
+
+/*
+ * The wilderness features arrays
+ */
+header *wf_head;
+wilderness_type_info *wf_info;
+char *wf_name;
+char *wf_text;
+int wildc2i[256];
 
 /*
  * The player monster race arrays
@@ -961,15 +976,15 @@ bool easy_disarm = TRUE;
 
 
 /*
- * Maximum size of the wilderness
+ * Maximum size of the wilderness map
  */
 u16b max_wild_x;
 u16b max_wild_y;
 
 /*
- * Wilderness
+ * Wilderness map
  */
-wilderness_type **wilderness;
+wilderness_map **wild_map;
 
 /*
  * Buildings
@@ -1028,6 +1043,16 @@ u16b max_o_idx;
 u16b max_m_idx;
 
 /*
+ * Maximum number of traps in tr_info.txt
+ */
+u16b max_t_idx;
+
+/*
+ * Maximum number of wilderness features in wf_info.txt
+ */
+u16b max_wf_idx;
+
+/*
  * Quest info
  */
 quest_type *quest;
@@ -1049,6 +1074,9 @@ int init_flags;
 
 /* True if on special level */
 bool special_flag;
+
+/* True if on an ambush */
+bool ambush_flag;
 
 /* True if on fated level */
 bool fate_flag;
@@ -1106,6 +1134,7 @@ byte dungeon_type;
  * 2 = special level used
  */
 byte *spec_history[MAX_DUNGEON_DEPTH];
+s16b *max_dlv;
 
 /*
  * Number of total bounties the player had had.
@@ -1117,3 +1146,38 @@ magic_type realm_info[MAX_REALM][64];
 
 /* The Doppleganger index in m_list */
 s16b doppleganger;
+
+/* To allow wilderness encounters */
+bool generate_encounter;
+
+/* Permanent dungeons ? */
+bool permanent_levels;
+
+/* Autoroler */
+bool autoroll;
+
+/* Maximize, preserve, special levels, ironman_rooms */
+bool maximize, preserve, special_lvls, ironman_rooms;
+
+/* Notes patch */
+bool take_notes, auto_notes;
+
+/*
+ * File for taking notes 
+ */
+FILE *notes_file;
+
+/*
+ * Such an ugly hack ...
+ */
+bool hack_allow_special = FALSE;
+
+/*
+ * Gives a random object to newly created characters
+ */
+bool rand_birth;
+
+/*
+ * Fast autoroller
+ */
+bool fast_autoroller;

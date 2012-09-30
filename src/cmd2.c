@@ -20,24 +20,33 @@ static bool do_cmd_bash_altar(int y, int x) {
   cave_type       *c_ptr;
 
   bool more = FALSE;
-  int pgod = p_ptr->pgod;
-  int agod = cave[y][x].feat-FEAT_ALTAR_HEAD+1;
-  int tmp = randint(100);
-  c_ptr = &cave[y][x];
+       int pgod = p_ptr->pgod;
+       int agod = cave[y][x].feat-FEAT_ALTAR_HEAD+1;
+       int tmp = randint(100);
+       monster_race *r_ptr = &r_info[p_ptr->body_monster];
+
+       c_ptr = &cave[y][x];
+  
+       if ((p_ptr->body_monster != 0) && !(r_ptr->flags2 & RF2_BASH_DOOR))
+       {
+               msg_print("You cannot do that.");
+        
+               return(FALSE);
+       }
 
   msg_print("You smash into the altar!");
 
   /* Player doesn't worship anyone -- create an explosion. */
   if (pgod == 0) {
     /* 5% to explode. */
-    if (randint(20) == 10) {
-      godly_wrath_blast();
+   if (randint(20) == 10) {
+       godly_wrath_blast();
     } else {
       more = TRUE;
     }
   } else if (pgod == agod) {
     /* Supreme blasphemy! */
-    msg_format("%s thunders: ``Enjoy your eternity in hell, mortal!",
+    msg_format("%s thunders: ``Enjoy your eternity in hell, mortal!``",
                deity_info[pgod-1].name);
     set_grace(-200000);
     godly_wrath_blast();
@@ -50,7 +59,7 @@ static bool do_cmd_bash_altar(int y, int x) {
       more = TRUE;
     }
     else if (tmp < 90) {
-      msg_format("%s thunders: ``Know thy place, mortal!''",
+      msg_format("%s thunders: ``Know thy place, mortal!``",
                  deity_info[agod-1].name);
       godly_wrath_blast();
       set_grace(p_ptr->grace - 1000);
@@ -77,140 +86,170 @@ static bool do_cmd_bash_altar(int y, int x) {
  */
 void do_cmd_go_up(void)
 {
-	bool go_up = FALSE;
-	cave_type *c_ptr;
+        bool go_up = FALSE, go_up_many = FALSE;
+        cave_type *c_ptr;
         char i;
-
+  
 #ifdef USE_PYTHON
         if(perform_event(EVENT_GO_UP, Py_BuildValue("(ii)", dun_level, p_ptr->inside_quest))) return;
 #endif
-
-	/* Player grid */
-	c_ptr = &cave[py][px];
-
-	/* test if on special level */
-	if (special_flag)
-	{
-		prt("Leave this unique level forever (y/n) ? ",0,0);
-		flush();
-		i=inkey();
-		prt("",0,0);
-		if (i != 'y') return;
-	}
-
-	/* Quest up stairs */
-	if (c_ptr->feat == FEAT_QUEST_UP)
-	{
-		/* Success */
-		msg_print("You enter the up staircase.");
-
-		leaving_quest = p_ptr->inside_quest;
-		p_ptr->inside_quest = c_ptr->special;
-
-		/* Leaving an 'only once' quest marks it as failed */
-		if (leaving_quest &&
-			(quest[leaving_quest].flags & QUEST_FLAG_ONCE) &&
-			(quest[leaving_quest].status == QUEST_STATUS_TAKEN))
-		{
-			quest[leaving_quest].status = QUEST_STATUS_FAILED;
-		}
-
-		/* Activate the quest */
-		if (!quest[p_ptr->inside_quest].status)
-		{
-			quest[p_ptr->inside_quest].status = QUEST_STATUS_TAKEN;
-		}
-
-		/* Leaving a quest */
-		if (!p_ptr->inside_quest)
-		{
-			dun_level = 0;
-		}
-
-		/* Leaving */
-		p_ptr->leaving = TRUE;
-		p_ptr->leftbldg = TRUE;
-
-		p_ptr->oldpx = 0;
-		p_ptr->oldpy = 0;
-	}
-	/* Normal up stairs */
-	else if (c_ptr->feat == FEAT_LESS)
-	{
-		if (!dun_level)
-		{
-			go_up = TRUE;
-		}
-		else
-		{
-			if (confirm_stairs)
-			{
-				if (get_check("Really leave the level? "))
-					go_up = TRUE;
-			}
-			else
-			{
-				go_up = TRUE;
-			}
-		}
-
-		if (go_up)
-		{
-
+  
+        /* Player grid */
+        c_ptr = &cave[py][px];
+  
+        /* test if on special level */
+        if (special_flag)
+        {
+                prt("Leave this unique level forever (y/n) ? ",0,0);
+                flush();
+                i=inkey();
+                prt("",0,0);
+                if (i != 'y') return;
+        }
+  
+        /* Quest up stairs */
+        if (c_ptr->feat == FEAT_QUEST_UP)
+        {
+                /* Success */
+                msg_print("You enter the up staircase.");
+  
+                leaving_quest = p_ptr->inside_quest;
+                p_ptr->inside_quest = c_ptr->special;
+  
+                /* Leaving an 'only once' quest marks it as failed */
+                if (leaving_quest &&
+                        (quest[leaving_quest].flags & QUEST_FLAG_ONCE) &&
+                        (quest[leaving_quest].status == QUEST_STATUS_TAKEN))
+                {
+                        quest[leaving_quest].status = QUEST_STATUS_FAILED;
+                }
+  
+                /* Activate the quest */
+                if (!quest[p_ptr->inside_quest].status)
+                {
+                        quest[p_ptr->inside_quest].status = QUEST_STATUS_TAKEN;
+                }
+  
+                /* Leaving a quest */
+                if (!p_ptr->inside_quest)
+                {
+                        dun_level = 0;
+                }
+  
+                /* Leaving */
+                p_ptr->leaving = TRUE;
+                p_ptr->leftbldg = TRUE;
+  
+                p_ptr->oldpx = 0;
+                p_ptr->oldpy = 0;
+        }
+        /* Normal up stairs */
+        else if (c_ptr->feat == FEAT_LESS)
+        {
+                if (!dun_level)
+                {
+                        go_up = TRUE;
+                }
+                else
+                {
+                        if (confirm_stairs)
+                        {
+                                if (get_check("Really leave the level? "))
+                                        go_up = TRUE;
+                        }
+                        else
+                        {
+                                go_up = TRUE;
+                        }
+                }
+  
+        }
+        /* Normal up stairs */
+        else if (c_ptr->feat == FEAT_SHAFT_UP)
+        {
+                if (dun_level == 1)
+                {
+                        go_up = TRUE;
+                }
+                else
+                {
+                        if (confirm_stairs)
+                        {
+                                if (get_check("Really leave the level? "))
+                                        go_up_many = TRUE;
+                        }
+                        else
+                        {
+                                go_up_many = TRUE;
+                        }
+                }
+        }
+        else
+        {
+                msg_print("I see no up staircase here.");
+                return;
+        }
+  
+        if (go_up || go_up_many)
+        {
+  
 #if 0
-	/*
-	 * I'm experimenting without this... otherwise the monsters get to
-	 * act first when we go up stairs, theoretically resulting in a possible
-	 * insta-death.
-	 */
-			/* Hack -- take a turn */
-			energy_use = 100;
+        /*
+         * I'm experimenting without this... otherwise the monsters get to
+         * act first when we go up stairs, theoretically resulting in a possible
+         * insta-death.
+         */
+                /* Hack -- take a turn */
+                energy_use = 100;
 #else
-			energy_use = 0;
+                energy_use = 0;
 #endif
-
-			/* Success */
-			msg_print("You enter a maze of up staircases.");
-
-			if (autosave_l)
-			{
-				is_autosave = TRUE;
-				msg_print("Autosaving the game...");
-				do_cmd_save_game();
-				is_autosave = FALSE;
-			}
-
-			if (p_ptr->inside_quest)
-			{
-				dun_level = 1;
-				leaving_quest = p_ptr->inside_quest;
-
-				/* Leaving an 'only once' quest marks it as failed */
-				if (leaving_quest &&
-					(quest[leaving_quest].flags & QUEST_FLAG_ONCE) &&
-					(quest[leaving_quest].status == QUEST_STATUS_TAKEN))
-				{
-					quest[leaving_quest].status = QUEST_STATUS_FAILED;
-				}
-
-				p_ptr->inside_quest = c_ptr->special;
-			}
-
-			/* Create a way back */
-			create_down_stair = TRUE;
-
-			/* New depth */
-			dun_level--;
-
-			/* Leaving */
-			p_ptr->leaving = TRUE;
-		}
-	}
-	else
-	{
-		msg_print("I see no up staircase here.");
-		return;
-	}
+  
+                /* Success */
+                msg_print("You enter a maze of up staircases.");
+  
+                if (autosave_l)
+                {
+                        is_autosave = TRUE;
+                        msg_print("Autosaving the game...");
+                        do_cmd_save_game();
+                        is_autosave = FALSE;
+                }
+  
+                if (p_ptr->inside_quest)
+                {
+                        dun_level = 1;
+                        leaving_quest = p_ptr->inside_quest;
+  
+                        /* Leaving an 'only once' quest marks it as failed */
+                        if (leaving_quest &&
+                            (quest[leaving_quest].flags & QUEST_FLAG_ONCE) &&
+                            (quest[leaving_quest].status == QUEST_STATUS_TAKEN))
+                        {
+                                quest[leaving_quest].status = QUEST_STATUS_FAILED;
+                        }
+  
+                        p_ptr->inside_quest = c_ptr->special;
+                }
+  
+                /* Create a way back */
+                if (go_up_many)
+                        create_down_shaft = TRUE;
+                else
+                create_down_stair = TRUE;
+  
+                /* New depth */
+                if (go_up)
+                        dun_level--;
+                else
+                {
+                        dun_level -= randint(3) + 1;
+                        if (dun_level <= 0) dun_level = 0;
+                }
+  
+                /* Leaving */
+                p_ptr->leaving = TRUE;
+        }
 }
 
 
@@ -219,147 +258,188 @@ void do_cmd_go_up(void)
  */
 void do_cmd_go_down(void)
 {
-	cave_type *c_ptr;
-	bool go_down = FALSE;
-	bool fall_trap = FALSE;
+        cave_type *c_ptr;
+        bool go_down = FALSE, go_down_many = FALSE;
+        bool fall_trap = FALSE;
         char i;
-
+        int old_dun = dun_level;
+  
 #ifdef USE_PYTHON
         if(perform_event(EVENT_GO_DOWN, Py_BuildValue("(ii)", dun_level, p_ptr->inside_quest))) return;
 #endif
-
-	/* Player grid */
-	c_ptr = &cave[py][px];
-
-	if (c_ptr->feat == (FEAT_TRAP_HEAD + 0x00)) fall_trap = TRUE;
-
-	/* test if on special level */
-	if (special_flag)
-	{
-		prt("Leave this unique level forever (y/n) ? ",0,0);
-		flush();
-		i=inkey();
-		prt("",0,0);
-		if (i != 'y') return;
-	}
-
-	/* Quest down stairs */
-	if (c_ptr->feat == FEAT_QUEST_DOWN)
-	{
-		msg_print("You enter the down staircase.");
-
-		leaving_quest = p_ptr->inside_quest;
-		p_ptr->inside_quest = c_ptr->special;
-
-		/* Leaving an 'only once' quest marks it as failed */
-		if (leaving_quest &&
-			(quest[leaving_quest].flags & QUEST_FLAG_ONCE) &&
-			(quest[leaving_quest].status == QUEST_STATUS_TAKEN))
-		{
-			quest[leaving_quest].status = QUEST_STATUS_FAILED;
-		}
-
-
-		/* Activate the quest */
-		if (!quest[p_ptr->inside_quest].status)
-		{
-			quest[p_ptr->inside_quest].status = 1;
-		}
-
-		/* Leaving a quest */
-		if (!p_ptr->inside_quest)
-		{
-			dun_level = 0;
-		}
-
-		/* Leaving */
-		p_ptr->leaving = TRUE;
-		p_ptr->leftbldg = TRUE;
-
-		p_ptr->oldpx = 0;
-		p_ptr->oldpy = 0;
-	}
-	/* Verify stairs */
-	else if ((c_ptr->feat != FEAT_MORE) && !(fall_trap))
-	{
-		msg_print("I see no down staircase here.");
-		return;
-	}
-	else
-	{
-		if (!dun_level)
-		{
-			go_down = TRUE;
-
-			/* Save old player position */
-			p_ptr->oldpx = px;
-			p_ptr->oldpy = py;
-		}
-		else
-		{
-			if (confirm_stairs)
-			{
-				if (get_check("Really leave the level? "))
-					go_down = TRUE;
-			}
-			else
-			{
-				go_down = TRUE;
-			}
-		}
-
-		if (go_down)
-		{
-
-#if 0
-			/* Hack -- take a turn */
-			energy_use = 100;
-#else
-			energy_use = 0;
-#endif
-
-			if (fall_trap)
-				msg_print("You deliberately jump through the trap door.");
-			else
-				/* Success */
-				msg_print("You enter a maze of down staircases.");
-
-			if (autosave_l)
-			{
-				is_autosave = TRUE;
-				msg_print("Autosaving the game...");
-				do_cmd_save_game();
-				is_autosave = FALSE;
-			}
-
-			/* Go down */
-			dun_level++;
-
-                        if(c_ptr->special)
+  
+        /* Player grid */
+        c_ptr = &cave[py][px];
+  
+	if (c_ptr->t_idx == TRAP_OF_SINKING) fall_trap = TRUE;
+  
+        /* test if on special level */
+        if (special_flag)
+        {
+                prt("Leave this unique level forever (y/n) ? ",0,0);
+                flush();
+                i=inkey();
+                prt("",0,0);
+                if (i != 'y') return;
+        }
+  
+        /* Quest down stairs */
+        if (c_ptr->feat == FEAT_QUEST_DOWN)
+        {
+                msg_print("You enter the down staircase.");
+  
+                leaving_quest = p_ptr->inside_quest;
+                p_ptr->inside_quest = c_ptr->special;
+  
+                /* Leaving an 'only once' quest marks it as failed */
+                if (leaving_quest &&
+                        (quest[leaving_quest].flags & QUEST_FLAG_ONCE) &&
+                        (quest[leaving_quest].status == QUEST_STATUS_TAKEN))
+                {
+                        quest[leaving_quest].status = QUEST_STATUS_FAILED;
+                }
+  
+  
+                /* Activate the quest */
+                if (!quest[p_ptr->inside_quest].status)
+                {
+                        quest[p_ptr->inside_quest].status = 1;
+                }
+  
+                /* Leaving a quest */
+                if (!p_ptr->inside_quest)
+                {
+                        dun_level = 0;
+                }
+  
+                /* Leaving */
+                p_ptr->leaving = TRUE;
+                p_ptr->leftbldg = TRUE;
+  
+                p_ptr->oldpx = 0;
+                p_ptr->oldpy = 0;
+        }
+        /* Normal up stairs */
+        else if (c_ptr->feat == FEAT_SHAFT_DOWN)
+        {
+                if (!dun_level)
+                {
+                        go_down = TRUE;
+  
+                        /* Save old player position */
+                        p_ptr->oldpx = px;
+                        p_ptr->oldpy = py;
+                }
+                else
+                {
+                        if (confirm_stairs)
                         {
-                                if(d_info[c_ptr->special].min_plev <= p_ptr->lev)
-                                {
-                                        dungeon_type = c_ptr->special;
-                                        dun_level = d_info[dungeon_type].mindepth;
-                                        msg_format("You go into %s", d_text + d_info[dungeon_type].text);
-                                }
-                                else
-                                {
-                                        msg_print("You don't feel yourself experimented enought for going there...");
-                                        dun_level--;
-                                }
+                                if (get_check("Really leave the level? "))
+                                        go_down_many = TRUE;
                         }
+                        else
+                        {
+                                go_down_many = TRUE;
+                        }
+                }
+        }
+        /* Normal stairs */
+        else if (c_ptr->feat == FEAT_MORE)
+        {
+                if (!dun_level)
+                {
+                        go_down = TRUE;
+  
+                        /* Save old player position */
+                        p_ptr->oldpx = px;
+                        p_ptr->oldpy = py;
+                }
+                else
+                {
+                        if (confirm_stairs)
+                        {
+                                if (get_check("Really leave the level? "))
+                                        go_down = TRUE;
+                        }
+                        else
+                        {
+                                go_down = TRUE;
+                        }
+                }
+        }
+   
+        else if (!(fall_trap))
+        {
+                msg_print("I see no down staircase here.");
+                return;
+        }
+  
+        if (go_down || go_down_many)
+        {
+  
+#if 0
+                /* Hack -- take a turn */
+                energy_use = 100;
+#else
+                energy_use = 0;
+#endif
+  
+                if (fall_trap)
+                        msg_print("You deliberately jump through the trap door.");
+                else
+                        /* Success */
+                        msg_print("You enter a maze of down staircases.");
+  
+                if (autosave_l)
+                {
+                        is_autosave = TRUE;
+                        msg_print("Autosaving the game...");
+                        do_cmd_save_game();
+                        is_autosave = FALSE;
+                }
+  
+                /* Go down */
+                if (go_down)
+                        dun_level++;
+                else if (go_down_many)
+                {
+                        int i = randint(3) + 1, j;
 
-			/* Leaving */
-			p_ptr->leaving = TRUE;
+                        for(j = 1; j < i; j++)
+                        {
+                                dun_level++;
+                                if(is_quest(dun_level + i - 1)) break;
+                        }
+                }
 
-			if (!fall_trap)
-			{
-				/* Create a way back */
-				create_up_stair = TRUE;
-			}
-		}
-	}
+                if(c_ptr->special)
+                {
+                        if(d_info[c_ptr->special].min_plev <= p_ptr->lev)
+                        {
+                                dungeon_type = c_ptr->special;
+                                dun_level = d_info[dungeon_type].mindepth;
+                                msg_format("You go into %s", d_text + d_info[dungeon_type].text);
+                        }
+                        else
+                        {
+                                msg_print("You don't feel yourself experienced enough to go there...");
+                                dun_level = old_dun;
+                                return;
+                        }
+                }
+  
+                /* Leaving */
+                p_ptr->leaving = TRUE;
+
+                if (!fall_trap)
+                {
+                        /* Create a way back */
+                        if (go_down_many)
+                                create_up_shaft = TRUE;
+                        else
+                        create_up_stair = TRUE;
+                }
+        }
 }
 
 
@@ -548,73 +628,24 @@ static void chest_trap(int y, int x, s16b o_idx)
 
 	object_type *o_ptr = &o_list[o_idx];
 
+	bool ident = FALSE;
 
 	/* Ignore disarmed chests */
 	if (o_ptr->pval <= 0) return;
 
-	/* Obtain the traps */
-	trap = chest_traps[o_ptr->pval];
-
-	/* Lose strength */
-	if (trap & (CHEST_LOSE_STR))
+	/* Obtain the trap */
+	trap = o_ptr->pval;
+	
+	/* Message */
+	msg_print("You found a trap!");
+	
+	/* Set off trap */
+	ident = player_activate_trap_type(y, x, o_ptr, o_idx);
+	if (ident)
 	{
-		msg_print("A small needle has pricked you!");
-		take_hit(damroll(1, 4), "a poison needle");
-		(void)do_dec_stat(A_STR);
-	}
-
-	/* Lose constitution */
-	if (trap & (CHEST_LOSE_CON))
-	{
-		msg_print("A small needle has pricked you!");
-		take_hit(damroll(1, 4), "a poison needle");
-		(void)do_dec_stat(A_CON);
-	}
-
-	/* Poison */
-	if (trap & (CHEST_POISON))
-	{
-		msg_print("A puff of green gas surrounds you!");
-		if (!(p_ptr->resist_pois || p_ptr->oppose_pois))
-		{
-			(void)set_poisoned(p_ptr->poisoned + 10 + randint(20));
-		}
-	}
-
-	/* Paralyze */
-	if (trap & (CHEST_PARALYZE))
-	{
-		msg_print("A puff of yellow gas surrounds you!");
-
-		if (!p_ptr->free_act)
-		{
-			(void)set_paralyzed(p_ptr->paralyzed + 10 + randint(20));
-		}
-	}
-
-	/* Summon monsters */
-	if (trap & (CHEST_SUMMON))
-	{
-		int num = 2 + randint(3);
-		msg_print("You are enveloped in a cloud of smoke!");
-
-		for (i = 0; i < num; i++)
-		{
-			if (randint(100)<dun_level)
-				activate_hi_summon();
-			else
-				(void)summon_specific(y, x, dun_level, 0);
-		}
-	}
-
-	/* Explode */
-	if (trap & (CHEST_EXPLODE))
-	{
-		msg_print("There is a sudden explosion!");
-		msg_print("Everything inside the chest is destroyed!");
-		o_ptr->pval = 0;
-		sound(SOUND_EXPLODE);
-		take_hit(damroll(5, 8), "an exploding chest");
+		t_info[o_ptr->pval].ident = TRUE;
+		msg_format("You identified the trap as %s.",
+			   t_name + t_info[trap].name);
 	}
 }
 
@@ -636,6 +667,14 @@ static bool do_cmd_open_chest(int y, int x, s16b o_idx)
 
 	object_type *o_ptr = &o_list[o_idx];
 
+        monster_race *r_ptr = &r_info[p_ptr->body_monster];
+   
+        if ((p_ptr->body_monster != 0) && !(r_ptr->flags2 & RF2_OPEN_DOOR))
+        {
+                msg_print("You cannot open chests.");
+         
+                return(FALSE);
+        }
 
 	/* Take a turn */
 	energy_use = 100;
@@ -731,6 +770,40 @@ static int count_dt(int *y, int *x, byte f1, byte f2)
 	return count;
 }
 
+/*
+ * Return the number of traps around (or under) the character.
+ */
+static int count_traps(int *y, int *x)
+{
+	int d, count;
+	
+	/* Count how many matches */
+	count = 0;
+	
+	/* Check around (and under) the character */
+	for (d = 0; d < 9; d++) {
+
+		/* Extract adjacent (legal) location */
+		int yy = py + ddy_ddd[d];
+		int xx = px + ddx_ddd[d];
+
+		/* Must have knowledge */
+		if (!(cave[yy][xx].info & (CAVE_MARK))) continue;
+				
+		/* Not looking for this feature */
+		if (cave[yy][xx].t_idx == 0) continue;
+			
+		/* OK */
+		++count;
+			
+		/* Remember the location. Only useful if only one match */
+		*y = yy;
+		*x = xx;
+	}
+	
+	/* All done */
+	return count;
+}
 
 /*
  * Return the number of chests around (or under) the character.
@@ -763,7 +836,7 @@ static int count_chests(int *y, int *x, bool trapped)
 
 		/* No (known) traps here */
 		if (trapped && (!object_known_p(o_ptr) ||
-			!chest_traps[o_ptr->pval])) continue;
+			!o_ptr->pval)) continue;
 
 		/* OK */
 		++count;
@@ -815,6 +888,14 @@ static bool do_cmd_open_aux(int y, int x, int dir)
 
 	bool more = FALSE;
 
+        monster_race *r_ptr = &r_info[p_ptr->body_monster];
+   
+        if ((p_ptr->body_monster != 0) && !(r_ptr->flags2 & RF2_OPEN_DOOR))
+        {
+                msg_print("You cannot open doors.");
+         
+                return(FALSE);
+        }
 
 	/* Take a turn */
 	energy_use = 100;
@@ -854,6 +935,9 @@ static bool do_cmd_open_aux(int y, int x, int dir)
 			/* Message */
 			msg_print("You have picked the lock.");
 		
+			/* Set off trap */
+			if (c_ptr->t_idx != 0) player_activate_door_trap(y, x);
+
 			/* Open the door */
 			cave_set_feat(y, x, FEAT_OPEN);
 
@@ -884,6 +968,9 @@ static bool do_cmd_open_aux(int y, int x, int dir)
 	/* Closed door */
 	else
 	{
+		/* Set off trap */
+		if (c_ptr->t_idx != 0) player_activate_door_trap(y, x);
+
 		/* Open the door */
 		cave_set_feat(y, x, FEAT_OPEN);
 
@@ -914,6 +1001,15 @@ void do_cmd_open(void)
 	cave_type *c_ptr;
 
 	bool more = FALSE;
+
+        monster_race *r_ptr = &r_info[p_ptr->body_monster];
+   
+        if ((p_ptr->body_monster != 0) && !(r_ptr->flags2 & RF2_OPEN_DOOR))
+        {
+                msg_print("You cannot open doors.");
+         
+                return;
+        }
 
 #ifdef ALLOW_EASY_OPEN /* TNB */
 
@@ -984,7 +1080,7 @@ void do_cmd_open(void)
 			msg_print("There is a monster in the way!");
 
 			/* Attack */
-			py_attack(y, x);
+                        py_attack(y, x, -1);
 		}
 
 		/* Handle chests */
@@ -1023,6 +1119,14 @@ static bool do_cmd_close_aux(int y, int x, int dir)
 
 	bool		more = FALSE;
 
+        monster_race *r_ptr = &r_info[p_ptr->body_monster];
+   
+        if ((p_ptr->body_monster != 0) && !(r_ptr->flags2 & RF2_OPEN_DOOR))
+        {
+                msg_print("You cannot close doors.");
+         
+                return(FALSE);
+        }
 
 	/* Take a turn */
 	energy_use = 100;
@@ -1030,9 +1134,13 @@ static bool do_cmd_close_aux(int y, int x, int dir)
 	/* Get grid and contents */
 	c_ptr = &cave[y][x];
 
+	/* Set off trap */
+	if (c_ptr->t_idx != 0) player_activate_door_trap(y, x);
+
 	/* Broken door */
 	if (c_ptr->feat == FEAT_BROKEN)
 	{
+
 		/* Message */
 		msg_print("The door appears to be broken.");
 	}
@@ -1120,7 +1228,7 @@ void do_cmd_close(void)
 			msg_print("There is a monster in the way!");
 
 			/* Attack */
-			py_attack(y, x);
+                        py_attack(y, x, -1);
 		}
 
 		/* Close the door */
@@ -1213,6 +1321,14 @@ static bool do_cmd_tunnel_aux(int y, int x, int dir)
 	cave_type *c_ptr;
 
 	bool more = FALSE;
+
+        /* Must be have something to dig with */
+        if(!inventory[INVEN_TOOL].k_idx || (inventory[INVEN_TOOL].tval != TV_DIGGING))
+        {
+                msg_print("You have to use a shovel or a pick in your tool slot.");
+
+                return FALSE;
+        }
 
 	/* Verify legality */
 	if (!do_cmd_tunnel_test(y, x)) return (FALSE);
@@ -1382,6 +1498,9 @@ static bool do_cmd_tunnel_aux(int y, int x, int dir)
 		if ((p_ptr->skill_dig > 30 + rand_int(1200)) && twall(y, x, FEAT_FLOOR))
 		{
 			msg_print("You have finished the tunnel.");
+
+			/* Set off trap */
+			if (c_ptr->t_idx != 0) player_activate_door_trap(y, x);
 		}
 
 		/* Keep trying */
@@ -1500,7 +1619,7 @@ void do_cmd_tunnel(void)
 			msg_print("There is a monster in the way!");
 
 			/* Attack */
-			py_attack(y, x);
+                        py_attack(y, x, -1);
 		}
 
 		/* Try digging */
@@ -1534,6 +1653,15 @@ bool easy_open_door(int y, int x)
 	int i, j;
 
 	cave_type *c_ptr = &cave[y][x];
+
+        monster_race *r_ptr = &r_info[p_ptr->body_monster];
+   
+        if ((p_ptr->body_monster != 0) && !(r_ptr->flags2 & RF2_OPEN_DOOR))
+        {
+                msg_print("You cannot open doors.");
+         
+                return(FALSE);
+        }
 
 	/* Must be a closed door */
 	if (!((c_ptr->feat >= FEAT_DOOR_HEAD) &&
@@ -1575,6 +1703,9 @@ bool easy_open_door(int y, int x)
 			/* Message */
 			msg_print("You have picked the lock.");
 
+			/* Set off trap */
+			if (c_ptr->t_idx != 0) player_activate_door_trap(y, x);
+
 			/* Open the door */
 			cave_set_feat(y, x, FEAT_OPEN);
 
@@ -1602,6 +1733,9 @@ bool easy_open_door(int y, int x)
 	/* Closed door */
 	else
 	{
+		/* Set off trap */
+		if (c_ptr->t_idx != 0) player_activate_door_trap(y, x);
+
 		/* Open the door */
 		cave_set_feat(y, x, FEAT_OPEN);
 
@@ -1635,7 +1769,9 @@ static bool do_cmd_disarm_chest(int y, int x, s16b o_idx)
 	bool more = FALSE;
 
 	object_type *o_ptr = &o_list[o_idx];
+	trap_type *t_ptr;
 
+	if (o_ptr->pval) t_ptr = &t_info[o_ptr->pval];
 
 	/* Take a turn */
 	energy_use = 100;
@@ -1648,7 +1784,7 @@ static bool do_cmd_disarm_chest(int y, int x, s16b o_idx)
 	if (p_ptr->confused || p_ptr->image) i = i / 10;
 
 	/* Extract the difficulty */
-	j = i - o_ptr->pval;
+	j = i - t_ptr->difficulty * 3;
 
 	/* Always have a small chance of success */
 	if (j < 2) j = 2;
@@ -1665,17 +1801,11 @@ static bool do_cmd_disarm_chest(int y, int x, s16b o_idx)
 		msg_print("The chest is not trapped.");
 	}
 
-	/* No traps to find. */
-	else if (!chest_traps[o_ptr->pval])
-	{
-		msg_print("The chest is not trapped.");
-	}
-
 	/* Success (get a lot of experience) */
 	else if (rand_int(100) < j)
 	{
 		msg_print("You have disarmed the chest.");
-		gain_exp(o_ptr->pval);
+		gain_exp(t_ptr->difficulty * 3);
 		o_ptr->pval = (0 - o_ptr->pval);
 	}
 
@@ -1736,7 +1866,10 @@ static bool do_cmd_disarm_aux(int y, int x, int dir)
 	c_ptr = &cave[y][x];
 
 	/* Access trap name */
-	name = (f_name + f_info[c_ptr->feat].name);
+	if (t_info[c_ptr->t_idx].ident)
+		name = (t_name + t_info[c_ptr->t_idx].name);
+	else
+		name = "unknown trap";
 
 	/* Get the "disarm" factor */
 	i = p_ptr->skill_dis;
@@ -1748,7 +1881,7 @@ static bool do_cmd_disarm_aux(int y, int x, int dir)
 	/* XXX XXX XXX Variable power? */
 
 	/* Extract trap "power" */
-	power = 5;
+	power = t_info[c_ptr->t_idx].difficulty;
 
 	/* Extract the difficulty */
 	j = i - power;
@@ -1769,19 +1902,25 @@ static bool do_cmd_disarm_aux(int y, int x, int dir)
 		c_ptr->info &= ~(CAVE_MARK);
 
 		/* Remove the trap */
-		cave_set_feat(y, x, FEAT_FLOOR);
+		c_ptr->t_idx = 0;
 
 #ifdef ALLOW_EASY_DISARM /* TNB */
 
 		/* Move the player onto the trap */
-		move_player(dir, easy_disarm);
+		if (!(f_info[c_ptr->feat].flags1 & FF1_DOOR))
+                        move_player(dir, easy_disarm);
 
 #else /* ALLOW_EASY_DISARM -- TNB */
 
 		/* move the player onto the trap grid */
-		move_player(dir, FALSE);
+		if (!(f_info[c_ptr->feat].flags1 & FF1_DOOR))
+                        move_player(dir, FALSE);
 
 #endif /* ALLOW_EASY_DISARM -- TNB */
+
+		/* Remove trap attr from grid */
+		note_spot(y, x);
+		lite_spot(y, x);
 	}
 
 	/* Failure -- Keep trying */
@@ -1806,11 +1945,13 @@ static bool do_cmd_disarm_aux(int y, int x, int dir)
 #ifdef ALLOW_EASY_DISARM /* TNB */
 
 		/* Move the player onto the trap */
+		if (!(f_info[c_ptr->feat].flags1 & FF1_DOOR))
 		move_player(dir, easy_disarm);
 
 #else /* ALLOW_EASY_DISARM -- TNB */
 
 		/* Move the player onto the trap */
+		if (!(f_info[c_ptr->feat].flags1 & FF1_DOOR))
 		move_player(dir, FALSE);
 
 #endif /* ALLOW_EASY_DISARM -- TNB */
@@ -1842,7 +1983,7 @@ void do_cmd_disarm(void)
 	    int num_traps, num_chests;
 	
 	    /* Count visible traps */
-	    num_traps = count_dt(&y, &x, FEAT_TRAP_HEAD, FEAT_TRAP_TAIL);
+	    num_traps = count_traps(&y, &x);
 	    
 	    /* Count chests (trapped) */
 	    num_chests = count_chests(&y, &x, TRUE);
@@ -1885,8 +2026,7 @@ void do_cmd_disarm(void)
 		o_idx = chest_check(y, x);
 
 		/* Disarm a trap */
-		if (!((c_ptr->feat >= FEAT_TRAP_HEAD) &&
-		    (c_ptr->feat <= FEAT_TRAP_TAIL)) &&
+		if ((c_ptr->t_idx == 0) &&
 		    !o_idx)
 		{
 			/* Message */
@@ -1900,7 +2040,7 @@ void do_cmd_disarm(void)
 			msg_print("There is a monster in the way!");
 
 			/* Attack */
-			py_attack(y, x);
+                        py_attack(y, x, -1);
 		}
 
 		/* Disarm chest */
@@ -1940,6 +2080,14 @@ static bool do_cmd_bash_aux(int y, int x, int dir)
 
 	bool		more = FALSE;
 
+        monster_race *r_ptr = &r_info[p_ptr->body_monster];
+   
+        if ((p_ptr->body_monster != 0) && !(r_ptr->flags2 & RF2_BASH_DOOR))
+        {
+                msg_print("You cannot do that.");
+         
+                return(FALSE);
+        }
 
 	/* Take a turn */
 	energy_use = 100;
@@ -1972,12 +2120,18 @@ static bool do_cmd_bash_aux(int y, int x, int dir)
 		/* Break down the door */
 		if (rand_int(100) < 50)
 		{
+			/* Set off trap */
+			if (c_ptr->t_idx != 0) player_activate_door_trap(y, x);
+
 			cave_set_feat(y, x, FEAT_BROKEN);
 		}
 
 		/* Open the door */
 		else
 		{
+			/* Set off trap */
+			if (c_ptr->t_idx != 0) player_activate_door_trap(y, x);
+
 			cave_set_feat(y, x, FEAT_OPEN);
 		}
 
@@ -2040,7 +2194,15 @@ void do_cmd_bash(void)
 
 	bool		more = FALSE;
 
-
+        monster_race *r_ptr = &r_info[p_ptr->body_monster];
+   
+        if ((p_ptr->body_monster != 0) && !(r_ptr->flags2 & RF2_BASH_DOOR))
+        {
+                msg_print("You cannot do that.");
+         
+                return;
+        }
+ 
 	/* Allow repeated command */
 	if (command_arg)
 	{
@@ -2084,7 +2246,7 @@ void do_cmd_bash(void)
 			msg_print("There is a monster in the way!");
 
 			/* Attack */
-			py_attack(y, x);
+                        py_attack(y, x, -1);
 		}
 
                 else if (c_ptr->feat >= FEAT_ALTAR_HEAD &&
@@ -2155,7 +2317,7 @@ void do_cmd_alter(void)
 		if (c_ptr->m_idx)
 		{
 			/* Attack */
-			py_attack(y, x);
+                        py_attack(y, x, -1);
 		}
 
 		/* Tunnel through walls */
@@ -2185,8 +2347,7 @@ void do_cmd_alter(void)
 		}
 
 		/* Disarm traps */
-		else if ((c_ptr->feat >= FEAT_TRAP_HEAD) &&
-		    (c_ptr->feat < FEAT_MINOR_GLYPH))
+		else if (c_ptr->t_idx != 0)
 		{
 			/* Tunnel */
 			more = do_cmd_disarm_aux(y, x, dir);
@@ -2286,7 +2447,7 @@ void do_cmd_spike(void)
 			msg_print("There is a monster in the way!");
 
 			/* Attack */
-			py_attack(y, x);
+                        py_attack(y, x, -1);
 		}
 
 		/* Go for it */
@@ -2341,10 +2502,29 @@ void do_cmd_walk_jump(int pickup)
 
 		/* Actually move the character */
 		move_player(dir, pickup);
-
+                
 		/* Allow more walking */
 		more = TRUE;
 	}
+
+        /* Hack -- In small scale wilderness it takes MUCH more time to move */
+        energy_use *= (p_ptr->wild_mode)?((MAX_HGT + MAX_WID) / 2):1;
+
+        /* Hack again -- Is there a special encounter ??? */
+        if(p_ptr->wild_mode && magik(wf_info[wild_map[p_ptr->wilderness_y][p_ptr->wilderness_x].feat].level - (p_ptr->lev * 2 / 3)))
+        {
+                /* Go into large wilderness view */
+                p_ptr->wilderness_x = px;
+                p_ptr->wilderness_y = py;
+                energy_use = 100;
+                change_wild_mode();
+
+                /* HACk -- set the encouter flag for the wilderness generation */
+                generate_encounter = TRUE;
+
+                /* Inform the player of his horrible fate :=) */
+                msg_print("You are ambushed !");
+        }
 
 	/* Cancel repeat unless we may continue */
 	if (!more) disturb(0, 0);
@@ -2385,6 +2565,7 @@ void do_cmd_run_run()
 		/* First step */
 		run_step(dir);
 	}
+        p_ptr->window |= (PW_OVERHEAD);
 }
 
 /*
@@ -2500,6 +2681,20 @@ void do_cmd_stay(int pickup)
  */
 void do_cmd_rest(void)
 {
+        /* Can't rest on a Between Gate -- too dangerous */
+        if (cave[py][px].feat == FEAT_BETWEEN)
+        {
+                msg_print("Resting on a between gate is too dangerous!");
+                return;
+        }
+
+        /* Can't rest while undead, it would mean dying */
+        if (p_ptr->class_extra6 & CLASS_UNDEAD)
+        {
+                msg_print("Resting is impossible while undead!");
+                return;
+        }
+
 	/* Prompt for time if needed */
 	if (command_arg <= 0)
 	{
@@ -3054,7 +3249,7 @@ void do_cmd_fire(void)
                         tx = px + 99 * ddx[d];
                         ty = py + 99 * ddy[d];
 
-                        msg_format("The %s ricochet!", o_name);
+                        msg_format("The %s ricochets!", o_name);
                 }
                 else
                         break;
@@ -3127,6 +3322,29 @@ void do_cmd_throw(void)
 
 	/* Obtain a local object */
 	object_copy(q_ptr, o_ptr);
+
+	/*
+	 * Hack -- If rods or wands are thrown, the total maximum timeout or
+	 * charges need to be allocated between the two stacks.
+	 */
+        if ((o_ptr->tval == TV_WAND) || (o_ptr->tval == TV_ROD))
+	{
+		q_ptr->pval = o_ptr->pval / o_ptr->number;
+
+		if (o_ptr->number > 1) o_ptr->pval -= q_ptr->pval;
+
+		/* Hack -- Rods also need to have their timeouts distributed.  The
+		 * thrown rod will accept all time remaining to charge up to its
+		 * maximum.
+	         */
+		if ((o_ptr->tval == TV_ROD) && (o_ptr->timeout))
+		{
+			if (q_ptr->pval > o_ptr->timeout) q_ptr->timeout = o_ptr->timeout;
+			else q_ptr->timeout = q_ptr->pval;
+
+			if (o_ptr->number > 1) o_ptr->timeout -= q_ptr->timeout;
+		}
+	}
 
 	/* Single object */
 	q_ptr->number = 1;
@@ -3862,12 +4080,14 @@ static void cmd_racial_power_aux (void)
         switch(p_ptr->prace)
 	{
 		case RACE_DWARF:
-			if (racial_aux(5, 5, A_WIS, 12))
+                        if (racial_aux(15, 15, A_DEX, 12))
 			{
-				msg_print("You examine your surroundings.");
-				(void)detect_traps();
-				(void)detect_doors();
-				(void)detect_stairs();
+                                if (!get_aim_dir(&dir))
+                                        break;
+                                if (passwall(dir, TRUE, TRUE))
+                                        msg_print("A passage opens, and you step through.");
+                                else
+                                        msg_print("There is no wall there!");
 			}
 			break;
 
@@ -4022,7 +4242,7 @@ static void cmd_racial_power_aux (void)
 			/* Select power to use */
 			while (TRUE)
 			{
-                                if (!get_com("Use [F]lame breathing , Flame [D]amage , [G]o between , come [B]ack in town ?", &ch))
+                                if (!get_com("Use [F]lame breathing , Flame [D]amage , [G]o between , go [B]ack in town ?", &ch))
 				{
 					amber_power = 0;
 					break;
@@ -4059,7 +4279,7 @@ static void cmd_racial_power_aux (void)
                                 if (racial_aux_tank(0, p_ptr->tp_aux1, A_STR, 6))
                                 {
                                         if (!get_aim_dir(&dir)) break;
-                                        msg_format("You breathe an big flame.");
+                                        msg_format("You breathe a big flame.");
                                         if(p_ptr->race_extra1==0)
                                                 fire_bolt(GF_METEOR, dir, p_ptr->tp_aux1*2);
                                         if(p_ptr->race_extra1==1)
@@ -4107,7 +4327,7 @@ static void cmd_racial_power_aux (void)
                         if (amber_power == 4)
 			{
                                 /* Ask for power */
-                                if (!get_com("Type of the flame , [B]olt ,B[a]ll or B[e]am ?", &ch)) return;
+                                if (!get_com("Type of flame , [B]olt ,B[a]ll or B[e]am ?", &ch)) return;
                                 if((ch=='B')||(ch=='b'))p_ptr->race_extra1=0;
                                 if((ch=='A')||(ch=='a'))p_ptr->race_extra1=1;
                                 if((ch=='E')||(ch=='e'))p_ptr->race_extra1=2;
@@ -4275,8 +4495,8 @@ static void cmd_racial_power_aux (void)
                 case MIMIC_VALAR:
                         if (racial_aux(1, 30, A_CHR, 6))
 			{
-                        msg_print("The power of Eru Iluvatar flows trought you!");
-                        msg_print("The world change!");
+                        msg_print("The power of Eru Iluvatar flows through you!");
+                        msg_print("The world changes!");
                 if (autosave_l)
                 {
                     is_autosave = TRUE;
@@ -4347,14 +4567,14 @@ void do_cmd_racial_power(void)
 	switch (p_ptr->prace)
 	{
 		case RACE_DWARF:
-			if (lvl < 5)
-				racial_power = "detect doors+traps (racial, lvl 5, cost 5)";
+                        if (lvl < 15)
+                                racial_power = "find secret passages (racial, lvl 15, cost 15)";
 			else
-				racial_power = "detect doors+traps (racial, cost 5, WIS 12@5)";
+                                racial_power = "find secret passages (racial, cost 15, DEX 12@15)";
 			has_racial = TRUE;
 			break;
 
-		case RACE_NIBELUNG:
+                case RACE_NIBELUNG:
 			if (lvl < 5)
 				racial_power = "detect doors+traps (racial, lvl 5, cost 5)";
 			else
@@ -4786,7 +5006,7 @@ void do_cmd_racial_power(void)
 		if (p_ptr->muta1 & MUT1_BANISH)
 		{
 			if (lvl < 25)
-				strcpy(power_desc[num],"bansih evil      (lvl 25, cost 25)");
+                                strcpy(power_desc[num],"banish evil      (lvl 25, cost 25)");
 			else
 				strcpy(power_desc[num],"banish evil      (cost 25, WIS 18@25)");
 			powers[num++] = MUT1_BANISH;
@@ -4813,7 +5033,7 @@ void do_cmd_racial_power(void)
                 powers[num++] = -3;
 	}
 
-        strcpy(power_desc[num], "Awake an hypnotized pet");
+        strcpy(power_desc[num], "Awaken an hypnotized pet");
         powers[num++] = -4;
 
 	/* Nothing chosen yet */
@@ -5021,8 +5241,8 @@ void do_cmd_racial_power(void)
                         item_tester_tval = TV_HYPNOS;
 
                         /* Get an item */
-                        q = "Awake which monster? ";
-                        s = "You have no monster to awake.";
+                        q = "Awaken which monster? ";
+                        s = "You have no monster to awaken.";
                         if (!get_item(&item, q, s, (USE_FLOOR))) return;
 
                         o_ptr = &o_list[0 - item];
@@ -5327,60 +5547,60 @@ void do_cmd_racial_power(void)
 			case MUT1_EAT_MAGIC:
 				if (racial_aux(17, 1, A_WIS, 15))
 				{
-					object_type * o_ptr;
-					int lev, item;
+				object_type * o_ptr;
+				int lev, item;
 
-					item_tester_hook = item_tester_hook_recharge;
+				item_tester_hook = item_tester_hook_recharge;
 
-					/* Get an item */
-					q = "Drain which item? ";
-					s = "You have nothing to drain.";
-					if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) break;
+				/* Get an item */
+				q = "Drain which item? ";
+				s = "You have nothing to drain.";
+				if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) break;
 
-					if (item >= 0)
+				if (item >= 0)
+				{
+					o_ptr = &inventory[item];
+				}
+				else
+				{
+					o_ptr = &o_list[0 - item];
+				}
+
+				lev = k_info[o_ptr->k_idx].level;
+
+				if (o_ptr->tval == TV_ROD)
+				{
+					if (o_ptr->pval > 0)
 					{
-						o_ptr = &inventory[item];
+						msg_print("You can't absorb energy from a discharged rod.");
 					}
 					else
 					{
-						o_ptr = &o_list[0 - item];
+						p_ptr->csp += 2 * lev;
+						o_ptr->pval = 500;
 					}
-					
-					lev = k_info[o_ptr->k_idx].level;
-					
-					if (o_ptr->tval == TV_ROD)
+				}
+				else
+				{
+					if (o_ptr->pval > 0)
 					{
-						if (o_ptr->pval > 0)
-						{
-							msg_print("You can't absorb energy from a discharged rod.");
-						}
-						else
-						{
-							p_ptr->csp += 2*lev;
-							o_ptr->pval = 500;
-						}
+						p_ptr->csp += o_ptr->pval * lev;
+						o_ptr->pval = 0;
 					}
 					else
 					{
-						if (o_ptr->pval > 0)
-						{
-							p_ptr->csp += o_ptr->pval * lev;
-							o_ptr->pval = 0;
-						}
-						else
-						{
-							msg_print("There's no energy there to absorb!");
-						}
-						o_ptr->ident |= IDENT_EMPTY;
+						msg_print("There's no energy there to absorb!");
 					}
-					
-					if (p_ptr->csp > p_ptr->msp)
-					{
-						p_ptr->csp = p_ptr->msp;
-					}
-					
-					p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-					p_ptr->window |= (PW_INVEN);
+					o_ptr->ident |= IDENT_EMPTY;
+				}
+
+				if (p_ptr->csp > p_ptr->msp)
+				{
+					p_ptr->csp = p_ptr->msp;
+				}
+
+				p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+				p_ptr->window |= (PW_INVEN);
 				}
 				break;
 				
@@ -5411,7 +5631,7 @@ void do_cmd_racial_power(void)
 					x = px + ddx[dir];
 					if (cave[y][x].m_idx)
 					{
-						py_attack(y, x);
+                                                py_attack(y, x, -1);
 						teleport_player(30);
 					}
 					else
@@ -5442,10 +5662,10 @@ void do_cmd_racial_power(void)
 			case MUT1_RECALL:
 				if (racial_aux(17, 50, A_INT, 16))
 				{
-                                        if (dun_level && (p_ptr->max_dlv[dungeon_type] > dun_level))
+                                        if (dun_level && (max_dlv[dungeon_type] > dun_level))
 					{
 						if (get_check("Reset recall depth? "))
-                                                        p_ptr->max_dlv[dungeon_type] = dun_level;
+                                                        max_dlv[dungeon_type] = dun_level;
 					}
 					if (!p_ptr->word_recall)
 					{
@@ -5576,11 +5796,11 @@ void do_cmd_unwalk() {
   /* Attack monsters */
   if (c_ptr->m_idx > 0) {
     /* Attack */
-    py_attack(y, x);
+    py_attack(y, x, -1);
   }
 
 	/* Exit the area */
-        else if ((!dun_level) &&
+        else if ((!dun_level) && (!p_ptr->wild_mode) &&
 		((x == 0) || (x == cur_wid-1) ||
 		 (y == 0) || (y == cur_hgt-1)))
 	{
@@ -5594,6 +5814,7 @@ void do_cmd_unwalk() {
 				p_ptr->wilderness_x--;
 				p_ptr->oldpy = cur_hgt - 2;
 				p_ptr->oldpx = cur_wid - 2;
+                                ambush_flag = FALSE;
 			}
 
 			else if ((y == 0) && (x == MAX_WID-1))
@@ -5602,6 +5823,7 @@ void do_cmd_unwalk() {
 				p_ptr->wilderness_x++;
 				p_ptr->oldpy = cur_hgt - 2;
 				p_ptr->oldpx = 1;
+                                ambush_flag = FALSE;
 			}
 
 			else if ((y == MAX_HGT-1) && (x == 0))
@@ -5610,6 +5832,7 @@ void do_cmd_unwalk() {
 				p_ptr->wilderness_x--;
 				p_ptr->oldpy = 1;
 				p_ptr->oldpx = cur_wid - 2;
+                                ambush_flag = FALSE;
 			}
 
 			else if ((y == MAX_HGT-1) && (x == MAX_WID-1))
@@ -5618,6 +5841,7 @@ void do_cmd_unwalk() {
 				p_ptr->wilderness_x++;
 				p_ptr->oldpy = 1;
 				p_ptr->oldpx = 1;
+                                ambush_flag = FALSE;
 			}
 
 			else if (y == 0)
@@ -5625,6 +5849,7 @@ void do_cmd_unwalk() {
 				p_ptr->wilderness_y--;
 				p_ptr->oldpy = cur_hgt - 2;
 				p_ptr->oldpx = x;
+                                ambush_flag = FALSE;
 			}
 
 			else if (y == cur_hgt-1) 
@@ -5632,6 +5857,7 @@ void do_cmd_unwalk() {
 				p_ptr->wilderness_y++;
 				p_ptr->oldpy = 1;
 				p_ptr->oldpx = x;
+                                ambush_flag = FALSE;
 			}
 
 			else if (x == 0) 
@@ -5639,6 +5865,7 @@ void do_cmd_unwalk() {
 				p_ptr->wilderness_x--;
 				p_ptr->oldpx = cur_wid - 2;
 				p_ptr->oldpy = y;
+                                ambush_flag = FALSE;
 			}
 
 			else if (x == cur_wid-1) 
@@ -5646,6 +5873,7 @@ void do_cmd_unwalk() {
 				p_ptr->wilderness_x++;
 				p_ptr->oldpx = 1;
 				p_ptr->oldpy = y;
+                                ambush_flag = FALSE;
 			}
 
 			p_ptr->leftbldg = TRUE;
@@ -5918,7 +6146,7 @@ void do_cmd_sacrifice(void) {
             deity_info[p_ptr->pgod-1].name);
 
     set_grace(p_ptr->grace - val*10);
-    (void) do_dec_stat(A_WIS);
+    (void) do_dec_stat(A_WIS, STAT_DEC_NORMAL);
     p_ptr->update |= PU_BONUS;
 
     if (val > 2500) {
@@ -6052,7 +6280,7 @@ void do_cmd_rune(void)
 
         if(!rune2)
         {
-                msg_print("You have not chosed a second rune!");
+                msg_print("You have not chosen a second rune!");
                 return;
         }
 
@@ -6405,7 +6633,7 @@ void do_cmd_create_artifact()
 	{
                 if (q_ptr->number > 1)
 		{
-			msg_print("Not enough enough energy to enchant more than one object!");
+                        msg_print("Not enough energy to enchant more than one object!");
                         msg_format("%d of your %s %s destroyed!",(q_ptr->number)-1, o_name, (q_ptr->number>2?"were":"was"));
                         q_ptr->number = 1;
 		}
@@ -6653,7 +6881,7 @@ void do_cmd_create_artifact()
         /* Failure ? */
         if(cur_cost > rand_int(max_lev))
         {
-                msg_print("You fail to create the artifact, the powerful force of it are released!");
+                msg_print("You fail to create the artifact, the powerful forces in it are released!");
                 msg_print("Your body is altered by them!");
                 dec_stat(A_STR, 45, TRUE);
                 dec_stat(A_INT, 45, TRUE);
@@ -6970,7 +7198,7 @@ void do_cmd_steal()
         if(item != -1)
         {
                 /* Failure check */
-                if(rand_int((40 - p_ptr->stat_ind[A_DEX]) + (o_list[item].weight / ((p_ptr->pclass == CLASS_ROGUE)?20:5)) + ((p_ptr->pclass != CLASS_ROGUE)?25:0) - ((m_ptr->csleep)?10:0) + r_info[m_ptr->r_idx].level) > 10)
+                if(rand_int((40 - p_ptr->stat_ind[A_DEX]) + (o_list[item].weight / ((p_ptr->pclass == CLASS_ROGUE)?30:5)) + ((p_ptr->pclass != CLASS_ROGUE)?25:0) - ((m_ptr->csleep)?10:0) + r_info[m_ptr->r_idx].level) > 10)
                 {
                         /* Take a turn */
                         energy_use = 100;
@@ -6983,7 +7211,7 @@ void do_cmd_steal()
 
                         screen_load();
 
-                        msg_print("Oups ! The monster is now realy *ANGRY*.");
+                        msg_print("Oops ! The monster is now really *ANGRY*.");
 
                         return;
                 }
@@ -6998,6 +7226,7 @@ void do_cmd_steal()
                 if(p_ptr->pclass == CLASS_ROGUE)
                 {
                         gain_exp((randint((o_list[item].weight / 2) + (r_info[m_ptr->r_idx].level * 10)) / 2) + (((o_list[item].weight / 2) + (r_info[m_ptr->r_idx].level * 10)) / 2));
+                        if(get_check("Phase door now ?")) teleport_player(10);
                 }
 
                 /* Get the item */

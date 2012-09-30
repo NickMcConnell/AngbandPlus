@@ -30,20 +30,15 @@ F:FLOOR
 
 N:1:open floor
 G:.:w
-F:FLOOR
+F:FLOOR | SUPPORT_LIGHT
 
-# 0x02 --> invisible trap (drawn as open floor)
-
-N:2:invisible trap
-G:.:w
-M:1
-F:FLOOR
+# 0x02 -> UNUSED
 
 # 0x03 --> glyph of warding
 
 N:3:glyph of warding
 G:;:y
-F:FLOOR | NOTICE
+F:FLOOR | NOTICE | SUPPORT_LIGHT
 
 # 0x04 --> open door
 
@@ -61,13 +56,13 @@ F:FLOOR | NOTICE
 
 N:6:up staircase
 G:<:w
-F:FLOOR | PERMANENT | NOTICE
+F:FLOOR | PERMANENT | NOTICE | SUPPORT_LIGHT | REMEMBER
 
 # 0x07 --> down stairs (perm)
 
 N:7:down staircase
 G:>:w
-F:FLOOR | PERMANENT | NOTICE
+F:FLOOR | PERMANENT | NOTICE | SUPPORT_LIGHT | REMEMBER
 
 N:8:quest entrance
 G:>:y
@@ -89,157 +84,71 @@ N:12:town exit
 G:>:g
 F:FLOOR | PERMANENT | REMEMBER | NOTICE
 
-# 0x10 --> visible trap -- trap door
+N:13:shaft down
+G:>:U
+F:FLOOR | PERMANENT | REMEMBER | NOTICE
 
-N:16:trap door
-G:^:w
-F:FLOOR | CAN_LEVITATE | CAN_FLY | NOTICE
+N:14:shaft up
+G:<:U
+F:FLOOR | PERMANENT | REMEMBER | NOTICE
 
-# 0x11 --> visible trap -- open pit
-
-N:17:pit
-G:^:s
-F:FLOOR | CAN_LEVITATE | CAN_FLY | NOTICE
-
-# 0x12 --> visible trap -- spiked pit
-
-N:18:pit
-G:^:s
-F:FLOOR | CAN_LEVITATE | CAN_FLY | NOTICE
-
-# 0x13 --> visible trap -- poison pit
-
-N:19:pit
-G:^:s
-F:FLOOR | CAN_LEVITATE | CAN_FLY | NOTICE
-
-# 0x14 --> visible trap -- rune -- summon
-
-N:20:strange rune
-G:^:o
-F:FLOOR | CAN_LEVITATE | CAN_FLY | NOTICE
-
-# 0x15 --> visible trap -- rune -- teleport
-
-N:21:strange rune
-G:^:o
-F:FLOOR | CAN_LEVITATE | CAN_FLY | NOTICE
-
-# 0x16 --> visible trap -- spot -- fire
-
-N:22:discolored spot
-G:^:u
-F:FLOOR | CAN_LEVITATE | CAN_FLY | NOTICE
-
-# 0x17 --> visible trap -- spot -- acid
-
-N:23:discolored spot
-G:^:u
-F:FLOOR | CAN_LEVITATE | CAN_FLY | NOTICE
-
-# 0x18 --> visible trap -- dart -- slow
-
-N:24:dart trap
-G:^:r
-F:FLOOR | CAN_LEVITATE | CAN_FLY | NOTICE
-
-# 0x19 --> visible trap -- dart -- lose str
-
-N:25:dart trap
-G:^:r
-F:FLOOR | CAN_LEVITATE | CAN_FLY | NOTICE
-
-# 0x1A --> visible trap -- dart -- lose dex
-
-N:26:dart trap
-G:^:r
-F:FLOOR | CAN_LEVITATE | CAN_FLY | NOTICE
-
-# 0x1B --> visible trap -- dart -- lose con
-
-N:27:dart trap
-G:^:r
-F:FLOOR | CAN_LEVITATE | CAN_FLY | NOTICE
-
-# 0x1C --> visible trap -- gas -- blind
-
-N:28:gas trap
-G:^:g
-F:FLOOR | CAN_LEVITATE | CAN_FLY | NOTICE
-
-# 0x1D --> visible trap -- gas -- confuse
-
-N:29:gas trap
-G:^:g
-F:FLOOR | CAN_LEVITATE | CAN_FLY | NOTICE
-
-# 0x1E --> visible trap -- gas -- poison
-
-N:30:gas trap
-G:^:g
-F:FLOOR | CAN_LEVITATE | CAN_FLY | NOTICE
-
-# 0x1F --> visible trap -- gas -- sleep
-
-N:31:gas trap
-G:^:g
-F:FLOOR | CAN_LEVITATE | CAN_FLY | NOTICE
+# 0x0F --> 0x1F -- UNUSED
 
 # 0x2x --> locked door (power 0)
 
 N:32:door
 G:+:U
 M:32
-F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE
+F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE | DOOR
 
 # 0x2x --> locked door (power 1)
 
 N:33:locked door
 G:+:U
 M:32
-F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE
+F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE | DOOR
 
 # 0x2x --> locked door (power 2)
 
 N:34:locked door
 G:+:U
 M:32
-F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE
+F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE | DOOR
 
 # 0x2x --> locked door (power 3)
 
 N:35:locked door
 G:+:U
 M:32
-F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE
+F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE | DOOR
 
 # 0x2x --> locked door (power 4)
 
 N:36:locked door
 G:+:U
 M:32
-F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE
+F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE | DOOR
 
 # 0x2x --> locked door (power 5)
 
 N:37:locked door
 G:+:U
 M:32
-F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE
+F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE | DOOR
 
 # 0x2x --> locked door (power 6)
 
 N:38:locked door
 G:+:U
 M:32
-F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE
+F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE | DOOR
 
 # 0x2x --> locked door (power 7)
 
 N:39:locked door
 G:+:U
 M:32
-F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE
+F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE | DOOR
 
 # 0x2x --> jammed door (power 0)
 
@@ -302,110 +211,110 @@ F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE
 N:48:secret door
 G:#:w
 M:56
-F:WALL | NO_WALK | CAN_PASS | NO_VISION
+F:WALL | NO_WALK | CAN_PASS | NO_VISION | DOOR
 
 # 0x31 --> rubble
 
 N:49:pile of rubble
 G:::w
 F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE
-F:CAN_FLY
+F:CAN_FLY | SUPPORT_LIGHT
 
 # 0x32 --> magma vein
 
 N:50:magma vein
 G:%:s
-F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE
+F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE | SUPPORT_LIGHT
 
 # 0x33 --> quartz vein
 
 N:51:quartz vein
 G:%:w
-F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE
+F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE | SUPPORT_LIGHT
 
 # 0x34 --> magma vein + treasure
 
 N:52:magma vein
 G:%:s
 M:50
-F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE
+F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE | SUPPORT_LIGHT
 
 # 0x35 --> quartz vein + treasure
 
 N:53:quartz vein
 G:%:w
 M:51
-F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE
+F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE | SUPPORT_LIGHT
 
 # 0x36 --> magma vein + known treasure
 
 N:54:magma vein with treasure
 G:*:o
-F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE
+F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE | SUPPORT_LIGHT
 
 # 0x37 --> quartz vein + known treasure
 
 N:55:quartz vein with treasure
 G:*:o
-F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE
+F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE | SUPPORT_LIGHT
 
 # 0x38 --> granite wall -- basic
 
 N:56:granite wall
 G:#:w
-F:WALL | NO_WALK | CAN_PASS | NO_VISION
+F:WALL | NO_WALK | CAN_PASS | NO_VISION | SUPPORT_LIGHT
 
 # 0x39 --> granite wall -- inner
 
 N:57:granite wall
 G:#:w
 M:56
-F:WALL | NO_WALK | CAN_PASS | NO_VISION
+F:WALL | NO_WALK | CAN_PASS | NO_VISION | SUPPORT_LIGHT
 
 # 0x3A --> granite wall -- outer
 
 N:58:granite wall
 G:#:w
 M:56
-F:WALL | NO_WALK | CAN_PASS | NO_VISION
+F:WALL | NO_WALK | CAN_PASS | NO_VISION | SUPPORT_LIGHT
 
 # 0x3B --> granite wall -- solid
 
 N:59:granite wall
 G:#:w
 M:56
-F:WALL | NO_WALK | CAN_PASS | NO_VISION
+F:WALL | NO_WALK | CAN_PASS | NO_VISION | SUPPORT_LIGHT
 
 # 0x3C --> permanent wall -- basic (perm)
 
 N:60:permanent wall
 G:#:w
-F:WALL | NO_WALK | NO_VISION | PERMANENT
+F:WALL | NO_WALK | NO_VISION | PERMANENT | SUPPORT_LIGHT
 
 # 0x3D --> permanent wall -- inner (perm)
 
 N:61:permanent wall
 G:#:w
 M:60
-F:WALL | NO_WALK | NO_VISION | PERMANENT
+F:WALL | NO_WALK | NO_VISION | PERMANENT | SUPPORT_LIGHT
 
 # 0x3E --> permanent wall -- outer (perm)
 
 N:62:permanent wall
 G:#:w
 M:60
-F:WALL | NO_WALK | NO_VISION | PERMANENT
+F:WALL | NO_WALK | NO_VISION | PERMANENT | SUPPORT_LIGHT
 
 # 0x3F --> permanent wall -- solid (perm)
 
 N:63:permanent wall
 G:#:w
 M:60
-F:WALL | NO_WALK | NO_VISION | PERMANENT
+F:WALL | NO_WALK | NO_VISION | PERMANENT | SUPPORT_LIGHT
 
 N:64:explosive rune
 G:*:R
-F:FLOOR | CAN_LEVITATE | CAN_FLY | NOTICE
+F:FLOOR | CAN_LEVITATE | CAN_FLY | NOTICE | SUPPORT_LIGHT
 
 N:65:Straight Road startpoint
 G:*:w
@@ -504,38 +413,38 @@ G:p:B
 F:FLOOR | PERMANENT | REMEMBER | NOTICE
 
 N:84:stream of shallow water
-G:#:B
-F:FLOOR | CAN_LEVITATE | CAN_FLY | REMEMBER
+G:~:B
+F:FLOOR | CAN_LEVITATE | CAN_FLY | REMEMBER | SUPPORT_LIGHT
 
 N:85:pool of deep lava
 G:#:r
-F:CAN_LEVITATE | CAN_FLY | FLOOR | REMEMBER
+F:CAN_LEVITATE | CAN_FLY | FLOOR | REMEMBER | SUPPORT_LIGHT
 
 N:86:stream of shallow lava
 G:#:U
-F:FLOOR | CAN_LEVITATE | CAN_FLY | REMEMBER
+F:FLOOR | CAN_LEVITATE | CAN_FLY | REMEMBER | SUPPORT_LIGHT
 
 N:87:dark pit
 G:#:D
 F:CAN_LEVITATE | CAN_FLY
-F:NO_WALK
+F:NO_WALK | SUPPORT_LIGHT
 
 N:88:dirt
 G:.:u
-F:FLOOR
+F:FLOOR | SUPPORT_LIGHT
 
 N:89:patch of grass
 G:.:g
-F:FLOOR
+F:FLOOR | SUPPORT_LIGHT
 
 N:96:tree
 G:#:G
-F:CAN_FLY
+F:CAN_FLY | SUPPORT_LIGHT
 F:WALL | NO_WALK | NO_VISION
 
 N:97:mountain chain
 G:^:U
-F:CAN_FLY | CAN_PASS
+F:CAN_CLIMB | CAN_PASS | SUPPORT_LIGHT
 F:WALL | NO_WALK | NO_VISION
 
 N:128:Building
@@ -668,7 +577,7 @@ F:FLOOR | PERMANENT | REMEMBER | NOTICE
 
 N:160:Between gate
 G:|:B
-F:FLOOR | REMEMBER | NOTICE
+F:FLOOR | REMEMBER | NOTICE | PERMANENT
 
 ###### Here are the altars. ######
 
@@ -721,75 +630,84 @@ F:FLOOR | REMEMBER | NOTICE
 # 187 --> terrain -- deep water
 
 N:187:pool of deep water
-G:#:b
-F:CAN_LEVITATE | CAN_FLY | FLOOR | REMEMBER
+G:~:b
+F:CAN_LEVITATE | CAN_FLY | FLOOR | REMEMBER | SUPPORT_LIGHT
 
 # Glass wall -- can see but not pass
 N:188:glass wall
-G:.:B
+G:.:w
 F:NO_WALK | WALL | PERMANENT | NOTICE
 
 # Illusion wall -- can't see but can pass
 N:189:illusion wall
 G:#:w
-F:FLOOR | NO_VISION | REMEMBER
+F:FLOOR | NO_VISION | REMEMBER | SUPPORT_LIGHT | DONT_NOTICE_RUNNING
 
 # Grass roof
 N:190:Grass roof
 G:#:w
-F:WALL | NO_WALK | NO_VISION | PERMANENT
+F:WALL | NO_WALK | NO_VISION | PERMANENT | DONT_NOTICE_RUNNING
 
 # grass roof top
 N:191:grass roof top
 G:#:w
-F:WALL | NO_WALK | NO_VISION | PERMANENT
+F:WALL | NO_WALK | NO_VISION | PERMANENT | DONT_NOTICE_RUNNING
 
 # grass roof chimney
 N:192:grass roof chimney
 G:#:w
-F:WALL | NO_WALK | NO_VISION | PERMANENT
+F:WALL | NO_WALK | NO_VISION | PERMANENT | DONT_NOTICE_RUNNING
 
 # brick roof
 N:193:brick roof
 G:#:w
-F:WALL | NO_WALK | NO_VISION | PERMANENT
+F:WALL | NO_WALK | NO_VISION | PERMANENT | DONT_NOTICE_RUNNING
 
 # brick roof top
 N:194:brick roof top
 G:#:w
-F:WALL | NO_WALK | NO_VISION | PERMANENT
+F:WALL | NO_WALK | NO_VISION | PERMANENT | DONT_NOTICE_RUNNING
 
 # brick roof chimney
 N:195:brick roof chimney
 G:#:w
-F:WALL | NO_WALK | NO_VISION | PERMANENT
+F:WALL | NO_WALK | NO_VISION | PERMANENT | DONT_NOTICE_RUNNING
 
 # window
 N:196:window
 G:#:w
-F:WALL | NO_WALK | NO_VISION | PERMANENT
+F:WALL | NO_WALK | NO_VISION | PERMANENT | DONT_NOTICE_RUNNING
 
 # small window
 N:197:small window
 G:#:w
-F:WALL | NO_WALK | NO_VISION | PERMANENT
+F:WALL | NO_WALK | NO_VISION | PERMANENT | DONT_NOTICE_RUNNING
 
 # rain barrel
 N:198:rain barrel
 G:#:w
-F:WALL | NO_WALK | NO_VISION | PERMANENT
+F:WALL | NO_WALK | NO_VISION | PERMANENT | DONT_NOTICE_RUNNING
 
 # grass with flowers
 N:199:grass with flowers
-G:.:g
-F:FLOOR
+G:;:g
+F:FLOOR | DONT_NOTICE_RUNNING | CAN_RUN
 
 # cobblestone road
 N:200:cobblestone road
 G:.:w
-F:FLOOR
+F:FLOOR | DONT_NOTICE_RUNNING | CAN_RUN
 
 # cobblestone with outlet
 N:201:cobblestone with outlet
 G:.:w
+F:FLOOR | DONT_NOTICE_RUNNING | CAN_RUN
+
+N:202:small tree
+G:#:g
+F:FLOOR | DONT_NOTICE_RUNNING | CAN_RUN | SUPPORT_LIGHT
+
+# Just to have a town entrance picture
+N:203:town
+G:*:w
 F:FLOOR

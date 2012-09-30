@@ -1,5 +1,7 @@
 /* File: eventmod.c */
 
+#ifdef USE_PYTHON
+
 /*
  * Copyright (c) 1998 Keldon Jones
  *
@@ -200,3 +202,4 @@ int perform_event(int type, PyObject *args)
 	/* Return */
 	return (retval);
 }
+#endif

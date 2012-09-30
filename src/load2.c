@@ -349,6 +349,25 @@ static void rd_item(object_type *o_ptr)
 	rd_byte(&o_ptr->xtra1);
 	rd_byte(&o_ptr->xtra2);
 
+	/* Extract the flags */
+        object_flags(o_ptr, &f1, &f2, &f3, &f4);
+
+        if(!p_older_than(4,0,3))
+        {
+                rd_byte(&o_ptr->elevel);
+                rd_s32b(&o_ptr->exp);
+        }
+        else
+        {
+                if(f4 & TR4_LEVELS)
+                {
+                        k_ptr = &k_info[o_ptr->k_idx];
+
+                        o_ptr->elevel = (k_ptr->level / 10) + 1;
+                        o_ptr->exp = player_exp[o_ptr->elevel - 1];
+                }
+        }
+
 	/* Inscription */
 	rd_string(buf, 128);
 
@@ -445,9 +464,6 @@ static void rd_item(object_type *o_ptr)
 
 		/* Obtain the artifact info */
 		a_ptr = &a_info[o_ptr->name1];
-
-		/* Acquire new artifact "pval" */
-                if(a_ptr->flags4 != TR4_RECHARGE) o_ptr->pval = a_ptr->pval;
 
 		/* Acquire new artifact fields */
 		o_ptr->ac = a_ptr->ac;
@@ -899,6 +915,16 @@ static void rd_extra(void)
 	/* Read the stat info */
 	for (i = 0; i < 6; i++) rd_s16b(&p_ptr->stat_max[i]);
 	for (i = 0; i < 6; i++) rd_s16b(&p_ptr->stat_cur[i]);
+        if(!p_older_than(4,0,2))
+        {
+                for (i = 0; i < 6; i++) rd_s16b(&p_ptr->stat_cnt[i]);
+                for (i = 0; i < 6; i++) rd_s16b(&p_ptr->stat_los[i]);
+        }
+        else
+        {
+                for (i = 0; i < 6; ++i) p_ptr->stat_cnt[i] = 0;
+                for (i = 0; i < 6; ++i) p_ptr->stat_los[i] = 0;
+        }
 
 	strip_bytes(24);        /* oops */
 
@@ -960,7 +986,7 @@ static void rd_extra(void)
                 rd_byte(&max);
 
                 for(i = 0; i < max; i++)
-                        rd_s16b(&p_ptr->max_dlv[i]);
+                        rd_s16b(&max_dlv[i]);
         }
 
 	/* Repair maximum player level XXX XXX XXX */
@@ -978,8 +1004,15 @@ static void rd_extra(void)
 	rd_s16b(&p_ptr->confused);
 	rd_s16b(&p_ptr->food);
 	strip_bytes(4); /* Old "food_digested" / "protection" */
-	rd_s16b(&p_ptr->energy);
-	rd_s16b(&p_ptr->fast);
+        if(!p_older_than(4,0,5))
+        {
+                rd_s32b(&p_ptr->energy);
+        }else{
+                s16b e;
+                rd_s16b(&e);
+                p_ptr->energy = e;
+        }
+        rd_s16b(&p_ptr->fast);
 	rd_s16b(&p_ptr->slow);
 	rd_s16b(&p_ptr->afraid);
 	rd_s16b(&p_ptr->cut);
@@ -1336,6 +1369,40 @@ static errr rd_dungeon(void)
 	xmax = cur_wid;
 
 
+        if(!p_older_than(4,0,2))
+        {
+		/*** Run length decoding ***/
+
+		/* Load the dungeon data */
+		for (x = y = 0; y < ymax; )
+		{
+			/* Grab RLE info */
+			rd_byte(&count);
+			rd_s16b(&tmp16s);
+
+			/* Apply the RLE info */
+			for (i = count; i > 0; i--)
+			{
+				/* Access the cave */
+				c_ptr = &cave[y][x];
+
+				/* Extract "feat" */
+                                c_ptr->info = tmp16s;
+
+				/* Advance/Wrap */
+				if (++x >= xmax)
+				{
+					/* Wrap */
+					x = 0;
+
+					/* Advance/Wrap */
+					if (++y >= ymax) break;
+				}
+			}
+		}
+        }
+        else
+        {
 	/*** Run length decoding ***/
 
 	/* Load the dungeon data */
@@ -1365,7 +1432,7 @@ static errr rd_dungeon(void)
 			}
 		}
 	}
-
+        }
 
 	/*** Run length decoding ***/
 
@@ -1457,6 +1524,39 @@ static errr rd_dungeon(void)
 				}
 			}
 		}
+
+                if(!p_older_than(4,0,2))
+                {
+		/*** Run length decoding ***/
+
+		/* Load the dungeon data */
+		for (x = y = 0; y < ymax; )
+		{
+			/* Grab RLE info */
+			rd_byte(&count);
+			rd_s16b(&tmp16s);
+
+			/* Apply the RLE info */
+			for (i = count; i > 0; i--)
+			{
+				/* Access the cave */
+				c_ptr = &cave[y][x];
+
+				/* Extract "feat" */
+                                c_ptr->t_idx = tmp16s;
+
+				/* Advance/Wrap */
+				if (++x >= xmax)
+				{
+					/* Wrap */
+					x = 0;
+
+					/* Advance/Wrap */
+					if (++y >= ymax) break;
+				}
+			}
+		}
+                }
 
                 /*** Run length decoding ***/
 
@@ -1651,6 +1751,47 @@ static errr rd_dungeon(void)
 	return (0);
 }
 
+/* Returns TRUE if we successfully load the dungeon */
+bool load_dungeon(void)
+{
+        char tmp[16];
+        char name[1024];
+        byte old_dungeon_type = dungeon_type;
+        s16b old_dun = dun_level;
+  
+        /* Construct name */
+        sprintf(tmp, "./d%il%i.sav", dungeon_type, dun_level);
+        path_build(name, 1024, ANGBAND_DIR_SAVE, tmp);
+
+        /* Open the file */
+        fff = my_fopen(name, "rb");
+        if (fff == NULL)
+        {
+                dun_level = old_dun;
+                dungeon_type = old_dungeon_type;
+
+                my_fclose(fff);
+                return(FALSE);
+        }
+
+        /* Read the dungeon */
+        if (rd_dungeon())
+        {
+                dun_level = old_dun;
+                dungeon_type = old_dungeon_type;
+
+                my_fclose(fff);
+                return(FALSE);
+        }
+
+        dun_level = old_dun;
+        dungeon_type = old_dungeon_type;
+
+        /* Done */
+        my_fclose(fff);
+        return(TRUE);
+}
+
 void rd_fate(int i)
 {
         if (i >= MAX_FATES) i = MAX_FATES - 1;
@@ -1830,6 +1971,10 @@ static errr rd_savefile_new_aux(void)
                         init_ghost_info(i);
                 }
         }
+#ifndef USE_GHOSTS
+        for(i = 0; i < MAX_GHOSTS; i++)
+                ghost_file[i][0] = 0;
+#endif /* USE_GHOSTS */
 
 	/* Object Memory */
 	rd_u16b(&tmp16u);
@@ -1876,7 +2021,7 @@ static errr rd_savefile_new_aux(void)
 	{
 		for (j = 0; j < max_wild_y; j++)
 		{
-			wilderness[j][i].seed = rand_int(0x10000000);
+                        wild_map[j][i].seed = rand_int(0x10000000);
 		}
 	}
 
@@ -1930,6 +2075,12 @@ static errr rd_savefile_new_aux(void)
 		/* Position in the wilderness */
 		rd_s32b(&p_ptr->wilderness_x);
 		rd_s32b(&p_ptr->wilderness_y);
+                if(!p_older_than(4,0,4))
+                {
+                        rd_byte(&p_ptr->wild_mode);
+                }else{
+                        p_ptr->wild_mode = FALSE;
+                }
 
 		/* Size of the wilderness */
 		rd_s32b(&wild_x_size);
@@ -1947,7 +2098,12 @@ static errr rd_savefile_new_aux(void)
 		{
 			for (j = 0; j < wild_y_size; j++)
 			{
-				rd_u32b(&wilderness[j][i].seed);
+                                rd_u32b(&wild_map[j][i].seed);
+                                if(!p_older_than(4,0,7))
+                                {
+                                        rd_u16b(&tmp16u);
+                                        wild_map[j][i].entrance = tmp16u;
+                                }
 			}
 		}
         }
@@ -2011,6 +2167,26 @@ static errr rd_savefile_new_aux(void)
                 rd_fate(i);
         }
         if (arg_fiddle) note("Loaded Fates");
+
+        if(!p_older_than(4,0,2))
+        {
+        /* Load the Traps */
+        rd_u16b(&tmp16u);
+
+        /* Incompatible save files */
+        if (tmp16u > max_t_idx)
+        {
+                note(format("Too many (%u) traps!", tmp16u));
+                return (24);
+        }
+
+        /* Read the fate flags */
+        for (i = 0; i < tmp16u; i++)
+        {
+                rd_byte(&t_info[i].ident);
+        }
+        if (arg_fiddle) note("Loaded Traps");
+        }
 
         /* Load the inscription knowledge */
         rd_u16b(&tmp16u);

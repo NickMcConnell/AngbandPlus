@@ -16,8 +16,30 @@
 extern void do_cmd_rerate(void);
 extern bool item_tester_hook_armour(object_type *o_ptr);
 
+void mindcraft_info(char *p, int power)
+{
+    int plev = p_ptr->lev;
+	
+    strcpy(p, "");
+	
+    switch (power) {
+	case 0:  break;
+	case 1:  sprintf(p, " dam %dd%d", 3 + ((plev - 1) / 4), 3 + plev/15); break;
+	case 2:  sprintf(p, " range %d", (plev < 25 ? 10 : plev + 2)); break;
+	case 3:  sprintf(p, " range %d", plev * 5);  break;
+	case 4:  break;
+	case 5:  sprintf(p, " dam %dd8", 8+((plev-5)/4));  break;
+	case 6:  sprintf(p, " dur %d", plev);  break;
+	case 7:  break;
+	case 8:  sprintf(p, " dam %d", plev * ((plev-5) / 10 + 1)); break;
+	case 9:  sprintf(p, " dur 11-%d", plev + plev/2);  break;
+	case 10: sprintf(p, " dam %dd6", plev/2);  break;
+	case 11: sprintf(p, " dam %d", plev * (plev > 39 ? 4: 3)); break;
+    }
+}
+
 /*
- * Allow user to choose a mindcrafter power.
+ * Allow user to choose a magic power.
  *
  * If a valid spell is chosen, saves it in '*sn' and returns TRUE
  * If the user hits escape, returns FALSE, and set '*sn' to -1
@@ -30,7 +52,7 @@ extern bool item_tester_hook_armour(object_type *o_ptr);
  * when you run it. It's probably easy to fix but I haven't tried,
  * sorry.
  */
-static int get_mindcraft_power(int *sn)
+static int get_magic_power(int *sn, magic_power *powers, int max_powers, void (*power_info)(char *p, int power))
 {
 	int             i;
 	int             num = 0;
@@ -44,7 +66,7 @@ static int get_mindcraft_power(int *sn)
 	char            out_val[160];
 	char            comment[80];
 	cptr            p = "power";
-	mindcraft_power spell;
+        magic_power     spell;
 	bool            flag, redraw;
 
 	/* Assume cancelled */
@@ -56,7 +78,7 @@ static int get_mindcraft_power(int *sn)
 	if (repeat_pull(sn))
 	{
 		/* Verify the spell */
-		if (mindcraft_powers[*sn].min_lev <= plev)
+                if (powers[*sn].min_lev <= plev)
 		{
 			/* Success */
 			return (TRUE);
@@ -71,9 +93,9 @@ static int get_mindcraft_power(int *sn)
 	/* No redraw yet */
 	redraw = FALSE;
 
-	for (i = 0; i < MAX_MINDCRAFT_POWERS; i++)
+        for (i = 0; i < max_powers; i++)
 	{
-		if (mindcraft_powers[i].min_lev <= plev)
+                if (powers[i].min_lev <= plev)
 		{
 			num++;
 		}
@@ -106,10 +128,10 @@ static int get_mindcraft_power(int *sn)
 				put_str("Lv Mana Fail Info", y, x + 35);
 
 				/* Dump the spells */
-				for (i = 0; i < MAX_MINDCRAFT_POWERS; i++)
+                                for (i = 0; i < max_powers; i++)
 				{
 					/* Access the spell */
-					spell = mindcraft_powers[i];
+                                        spell = powers[i];
 					if (spell.min_lev > plev)   break;
 
 					chance = spell.fail;
@@ -139,7 +161,7 @@ static int get_mindcraft_power(int *sn)
 					if (chance > 95) chance = 95;
 
 					/* Get info */
-					mindcraft_info(comment, i);
+                                        power_info(comment, i);
 
 					/* Dump the spell --(-- */
                     sprintf(psi_desc, "  %c) %-30s%2d %4d %3d%%%s",
@@ -183,7 +205,7 @@ static int get_mindcraft_power(int *sn)
 		}
 
 		/* Save the spell index */
-		spell = mindcraft_powers[i];
+                spell = powers[i];
 
         /* Verify it */
 		if (ask)
@@ -191,7 +213,7 @@ static int get_mindcraft_power(int *sn)
 			char tmp_val[160];
 
 			/* Prompt */
-            strnfmt(tmp_val, 78, "Use %s? ", mindcraft_powers[i].name);
+            strnfmt(tmp_val, 78, "Use %s? ", powers[i].name);
 
 			/* Belay that order */
 			if (!get_check(tmp_val)) continue;
@@ -242,7 +264,7 @@ void do_cmd_mindcraft(void)
 	int             dir;
 	int             minfail = 0;
 	int             plev = p_ptr->lev;
-	mindcraft_power spell;
+        magic_power     spell;
 
 	/* not if confused */
 	if (p_ptr->confused)
@@ -252,9 +274,9 @@ void do_cmd_mindcraft(void)
 	}
 
 	/* get power */
-	if (!get_mindcraft_power(&n))  return;
+        if (!get_magic_power(&n, mindcraft_powers, MAX_MINDCRAFT_POWERS, mindcraft_info))  return;
 	
-	spell = mindcraft_powers[n];
+        spell = mindcraft_powers[n];
     
 	/* Verify "dangerous" spells */
 	if (spell.mana_cost > p_ptr->csp)
@@ -913,17 +935,15 @@ void do_cmd_alchemist(void)
                                         goto fin_alchemist;
                                 }
                                 q_ptr->name2=alchemist_recipes[a].ego[alchemist_num].ego;
-                                if(alchemist_recipes[a].ego[alchemist_num].enchant==ALCHEMIST_ENCHANT_DAM){
+                                if(alchemist_recipes[a].ego[alchemist_num].enchant & ALCHEMIST_ENCHANT_DAM){
                                         q_ptr->to_h=rand_int(4+p_ptr->lev/5)+1;
                                         q_ptr->to_d=rand_int(4+p_ptr->lev/5)+1;
                                 }
-                                if(alchemist_recipes[a].ego[alchemist_num].enchant==ALCHEMIST_ENCHANT_PVAL){
+                                if(alchemist_recipes[a].ego[alchemist_num].enchant & ALCHEMIST_ENCHANT_PVAL){
                                         q_ptr->pval=rand_int(4+p_ptr->lev/5)+1;
                                 }
-                                if(alchemist_recipes[a].ego[alchemist_num].enchant==ALCHEMIST_ENCHANT_DAM_PVAL){
-                                        q_ptr->to_h=rand_int(4+p_ptr->lev/5)+1;
-                                        q_ptr->to_d=rand_int(4+p_ptr->lev/5)+1;
-                                        q_ptr->pval=rand_int(4+p_ptr->lev/5)+1;
+                                if(alchemist_recipes[a].ego[alchemist_num].enchant & ALCHEMIST_ENCHANT_AC){
+                                        q_ptr->to_a=rand_int(5+p_ptr->lev/5)+4;
                                 }
                         }else{
                                 msg_print("This object is already enchanted !");
@@ -944,7 +964,7 @@ void do_cmd_alchemist(void)
                         object_prep(q_ptr, lookup_kind(alchemist_recipes[a].item[alchemist_num].etval, alchemist_recipes[a].item[alchemist_num].esval));
                         if((q_ptr->tval==TV_WAND)||(q_ptr->tval==TV_STAFF))q_ptr->pval=alchemist_charge+1;
                         if((q_ptr->tval==TV_RING)||(q_ptr->tval==TV_AMULET))
-                                apply_magic(q_ptr,p_ptr->max_dlv[dungeon_type],(randint(110-(p_ptr->max_dlv[dungeon_type]))==0)?TRUE:FALSE,
+                                apply_magic(q_ptr,max_dlv[dungeon_type],(randint(110-(max_dlv[dungeon_type]))==0)?TRUE:FALSE,
                                                                          FALSE,
                                                                          FALSE);
                         object_aware(q_ptr);
@@ -1008,7 +1028,7 @@ fin_alchemist:
 
 	/* Get an item */
         q = "Extract from which item? ";
-        s = "You have no item to extract power.";
+        s = "You have no item to extract power from.";
         if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
 
 	/* Get the item (in the pack) */
@@ -1504,7 +1524,9 @@ void do_cmd_powermage(void)
         p_ptr->redraw |= (PR_MANA);
 }
 
-/* Old magic system */
+/*
+ * Old magic system
+ */
 
 /*
  * Cast a spell
@@ -2083,7 +2105,7 @@ void cast_prayer_spell(int spell)
 			{
 				if (!get_aim_dir(&dir)) return;
                                 fire_ball(GF_HOLY_FIRE, dir,
-                                          (damroll(3, 6) + plev * to_s2 +
+                                          (damroll(3, 6) + plev * to_s2 +           
 					   (plev / ((p_ptr->pclass == 2) ? 2 : 4))),
                                           ((plev < 30) ? 2 : 3) + to_s2);
 				break;
@@ -3292,4 +3314,284 @@ void do_cmd_archer(void)
                         floor_item_optimize(0 - item);
                 }
         }
+}
+
+/*
+ * Helper function to describe necro powers
+ */
+void necro_info(char *p, int power)
+{
+    int plev = p_ptr->lev;
+    int mto_s2=p_ptr->to_s/2;
+
+    mto_s2 = (mto_s2==0)?1:mto_s2;
+	
+    strcpy(p, "");
+	
+    switch (power) {
+        case 0:
+                        if (p_ptr->lev > 45)
+                        {
+                                sprintf(p, " dam %d", (50 + plev) * mto_s2);
+                        }
+                        else if (p_ptr->lev > 35)
+                        {
+                                sprintf(p, " dam %d", (120 + plev) * mto_s2);
+                        }
+                        else if (p_ptr->lev > 20)
+                        {
+                                sprintf(p, " dam %dd%d", 2 + (plev / 5), 8 * mto_s2);
+                        }
+                        else
+                        {
+                                sprintf(p, " dam %dd%d", 2 + (plev / 5), 4 * mto_s2);
+                        }
+                break;
+    }
+}
+
+/*
+ * Cast a Necromancy spell
+ */
+void do_cmd_necromancer(void)
+{
+	int             n = 0,  b = 0;
+	int             chance;
+	int             dir;
+	int             minfail = 0;
+	int             plev = p_ptr->lev;
+        magic_power     spell;
+        int to_s2=p_ptr->to_s/2;
+        int mto_s2=p_ptr->to_s/2;
+
+        mto_s2 = (mto_s2==0)?1:mto_s2;
+
+	/* not if confused */
+	if (p_ptr->confused)
+	{
+		msg_print("You are too confused!");
+		return;
+	}
+
+	/* get power */
+        if (!get_magic_power(&n, necro_powers, MAX_NECRO_POWERS, necro_info))  return;
+	
+        spell = necro_powers[n];
+    
+	/* Verify "dangerous" spells */
+	if (spell.mana_cost > p_ptr->csp)
+	{
+		/* Warning */
+		msg_print("You do not have enough mana to use this power.");
+		
+		/* Verify */
+		if (!get_check("Attempt it anyway? ")) return;
+	}
+    
+	/* Spell failure chance */
+	chance = spell.fail;
+	
+	/* Reduce failure rate by "effective" level adjustment */
+	chance -= 3 * (p_ptr->lev - spell.min_lev);
+	
+	/* Reduce failure rate by INT/WIS adjustment */
+	chance -= 3 * (adj_mag_stat[p_ptr->stat_ind[mp_ptr->spell_stat]] - 1);
+	
+	/* Not enough mana to cast */
+	if (spell.mana_cost > p_ptr->csp)
+	{
+		chance += 5 * (spell.mana_cost - p_ptr->csp);
+	}
+	
+	/* Extract the minimum failure rate */
+	minfail = adj_mag_fail[p_ptr->stat_ind[mp_ptr->spell_stat]];
+	
+	/* Minimum failure rate */
+	if (chance < minfail) chance = minfail;
+	
+	/* Stunning makes spells harder */
+	if (p_ptr->stun > 50) chance += 25;
+	else if (p_ptr->stun) chance += 15;
+	
+	/* Always a 5 percent chance of working */
+	if (chance > 95) chance = 95;
+	
+	/* Failed spell */
+	if (rand_int(100) < chance)
+	{
+		if (flush_failure) flush();
+		msg_format("You failed to concentrate hard enough!");
+		sound(SOUND_FAIL);
+		
+		if (randint(100) < (chance/2))
+		{
+			/* Backfire */
+			b = randint(100);
+                        if (b < 10)
+			{
+                                msg_print("Oh, no! You become un undead !");
+
+                                p_ptr->class_extra6 |= CLASS_UNDEAD;
+                                p_ptr->class_extra4 = 2 * p_ptr->lev;
+                                msg_format("You have to kill %d monster%s to be bringed back to life.", p_ptr->class_extra4, (p_ptr->class_extra4 == 1)?"":"s");
+
+                                /* MEGA-HACK !!! */
+                                calc_hitpoints();
+
+                                /* Enforce maximum */
+                                p_ptr->chp = p_ptr->mhp;
+                                p_ptr->chp_frac = 0;
+
+                                /* Display the hitpoints */
+                                p_ptr->redraw |= (PR_HP);
+
+                                /* Window stuff */
+                                p_ptr->window |= (PW_PLAYER);
+			}
+                        else if (b < 40)
+			{
+                                msg_print("Suddently you feel yourself in bad situation...");
+                                summon_specific(py, px, max_dlv[dungeon_type], (p_ptr->lev >= 30)?SUMMON_HI_UNDEAD:SUMMON_UNDEAD);
+			}
+			else
+			{
+                                msg_print("Your body is damaged by the horrible forces of the spell!");
+                                take_hit(damroll(10, p_ptr->lev), "using necromancy unwisely");
+			}
+		}
+	}
+	else
+	{
+		sound(SOUND_ZAP);
+
+		/* spell code */
+		switch (n)
+		{
+                case 0:   /* Call Darkness */
+                        if (p_ptr->lev > 45)
+                        {
+                                project_hack(GF_DARK, (50 + plev) * mto_s2);
+                        }
+                        else if (p_ptr->lev > 35)
+                        {
+                                if (!get_aim_dir(&dir)) return;
+                                fire_ball(GF_DARK, dir, (120 + plev) * mto_s2, 2 + (plev / 10));
+                        }
+                        else if (p_ptr->lev > 20)
+                        {
+                                if (!get_aim_dir(&dir)) return;
+                                fire_beam(GF_DARK, dir, damroll(2 + (plev / 5), 8 * mto_s2));
+                        }
+                        else
+                        {
+                                if (!get_aim_dir(&dir)) return;
+                                fire_bolt(GF_DARK, dir, damroll(2 + (plev / 5), 4 * mto_s2));
+                        }
+                        break;
+                case 1:   /* Raise Death */
+                        fire_ball(GF_RAISE, 0, 1, 1 + to_s2 + (plev / 10));
+                        break;
+                case 2:   /* Summon Undeads */
+                {
+                        int i;
+                        bool ok = FALSE;
+
+                        for(i = 0; i < 1 + (plev / 10) + to_s2; i++)
+                        {
+                                if (summon_specific_friendly(py, px, dun_level + randint(5), (plev > 38)?SUMMON_HI_UNDEAD:SUMMON_UNDEAD, FALSE))
+                                        ok = TRUE;
+                        }
+
+                        if(ok)
+                                msg_print("You summon some help.");
+                        else
+                                msg_print("You called, but no help came.");
+
+                        break;
+                }
+                case 3:   /* Vampirism */
+                {
+                        int i;
+                        if (!get_aim_dir(&dir)) return;
+                        for (i = 0; i < 1 + to_s2 + (plev / 15); i++)
+                        {
+                                if (drain_life(dir, 100))
+                                        hp_player(100);
+                        }
+                        break;
+                }
+                case 4:   /* Death */
+                        if(get_check("Using the Death word will leaves you undead, with 1 DP, do you REALY want to use it ?"))
+                        {
+                                if (!get_aim_dir(&dir)) return;
+                                fire_bolt(GF_DEATH, dir, 1);
+
+                                p_ptr->class_extra6 |= CLASS_UNDEAD;
+                                p_ptr->class_extra4 = p_ptr->lev + (rand_int(p_ptr->lev / 2) - (p_ptr->lev / 4));
+                                msg_format("You have to kill %d monster%s to be bringed back to life.", p_ptr->class_extra4, (p_ptr->class_extra4 == 1)?"":"s");
+
+                                /* MEGA-HACK !!! */
+                                calc_hitpoints();
+
+                                /* Enforce 1 DP */
+                                p_ptr->chp = 1;
+                                p_ptr->chp_frac = 0;
+
+                                /* Display the hitpoints */
+                                p_ptr->redraw |= (PR_HP);
+
+                                /* Window stuff */
+                                p_ptr->window |= (PW_PLAYER);
+                        }
+                        break;
+
+		default:
+			msg_print("Zap?");
+		}
+	}
+    
+	/* Take a turn */
+	energy_use = 100;
+	
+	/* Sufficient mana */
+	if (spell.mana_cost <= p_ptr->csp)
+	{
+		/* Use some mana */
+		p_ptr->csp -= spell.mana_cost;
+	}
+	
+	/* Over-exert the player */
+	else
+	{
+		int oops = spell.mana_cost - p_ptr->csp;
+		
+		/* No mana left */
+		p_ptr->csp = 0;
+		p_ptr->csp_frac = 0;
+		
+		/* Message */
+		msg_print("You faint from the effort!");
+		
+		/* Hack -- Bypass free action */
+		(void)set_paralyzed(p_ptr->paralyzed + randint(5 * oops + 1));
+		
+                /* Damage CON (possibly permanently) */
+		if (rand_int(100) < 50)
+		{
+			bool perm = (rand_int(100) < 25);
+			
+			/* Message */
+                        msg_print("You have damaged your body!");
+			
+			/* Reduce constitution */
+                        (void)dec_stat(A_CON, 15 + randint(10), perm);
+		}
+	}
+	
+	/* Redraw mana */
+	p_ptr->redraw |= (PR_MANA);
+	
+	/* Window stuff */
+	p_ptr->window |= (PW_PLAYER);
+	p_ptr->window |= (PW_SPELL);
 }

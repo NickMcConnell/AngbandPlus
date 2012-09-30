@@ -7,10 +7,10 @@ M:T:100
 M:Q:1000
 
 # Maximum x size of the wilderness
-M:X:10
+M:X:101
 
 # Maximum y size of the wilderness
-M:Y:10
+M:Y:66
 
 # Maximum number of monsters in r_info.txt
 M:R:1000
@@ -22,7 +22,7 @@ M:K:800
 M:V:111
 
 # Maximum number of terrain features in f_info.txt
-M:F:202
+M:F:204
 
 # Maximum number of artifacts in a_info.txt
 M:A:210
@@ -31,7 +31,13 @@ M:A:210
 M:E:140
 
 # Maximum number of dungeon types in d_info.txt
-M:D:25
+M:D:27
+
+# Maximum number of trap types in tr_info.txt
+M:U:170
+
+# Maximum number of trap types in wf_info.txt
+M:W:25
 
 # Maximum size for "o_list[]"
 M:O:1024

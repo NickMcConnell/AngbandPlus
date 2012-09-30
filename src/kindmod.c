@@ -1,5 +1,7 @@
 /* File: kindmod.c */
 
+#ifdef USE_PYTHON
+
 /*
  * Copyright (c) 1998 Keldon Jones
  *
@@ -194,3 +196,4 @@ void initkind()
 	add_constant(d, "TR3_HEAVY_CURSE", TR3_HEAVY_CURSE);
 	add_constant(d, "TR3_PERMA_CURSE", TR3_PERMA_CURSE);
 }
+#endif

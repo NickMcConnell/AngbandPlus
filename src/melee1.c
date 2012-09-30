@@ -721,7 +721,7 @@ bool carried_make_attack_normal(int r_idx)
 					take_hit(damage, ddesc);
 
 					/* Damage (stat) */
-					if (do_dec_stat(A_STR)) obvious = TRUE;
+					if (do_dec_stat(A_STR, STAT_DEC_NORMAL)) obvious = TRUE;
 
 					break;
 				}
@@ -733,7 +733,7 @@ bool carried_make_attack_normal(int r_idx)
 					take_hit(damage, ddesc);
 
 					/* Damage (stat) */
-					if (do_dec_stat(A_INT)) obvious = TRUE;
+					if (do_dec_stat(A_INT, STAT_DEC_NORMAL)) obvious = TRUE;
 
 					break;
 				}
@@ -745,7 +745,7 @@ bool carried_make_attack_normal(int r_idx)
 					take_hit(damage, ddesc);
 
 					/* Damage (stat) */
-					if (do_dec_stat(A_WIS)) obvious = TRUE;
+					if (do_dec_stat(A_WIS, STAT_DEC_NORMAL)) obvious = TRUE;
 
 					break;
 				}
@@ -757,7 +757,7 @@ bool carried_make_attack_normal(int r_idx)
 					take_hit(damage, ddesc);
 
 					/* Damage (stat) */
-					if (do_dec_stat(A_DEX)) obvious = TRUE;
+					if (do_dec_stat(A_DEX, STAT_DEC_NORMAL)) obvious = TRUE;
 
 					break;
 				}
@@ -769,7 +769,7 @@ bool carried_make_attack_normal(int r_idx)
 					take_hit(damage, ddesc);
 
 					/* Damage (stat) */
-					if (do_dec_stat(A_CON)) obvious = TRUE;
+					if (do_dec_stat(A_CON, STAT_DEC_NORMAL)) obvious = TRUE;
 
 					break;
 				}
@@ -781,7 +781,7 @@ bool carried_make_attack_normal(int r_idx)
 					take_hit(damage, ddesc);
 
 					/* Damage (stat) */
-					if (do_dec_stat(A_CHR)) obvious = TRUE;
+					if (do_dec_stat(A_CHR, STAT_DEC_NORMAL)) obvious = TRUE;
 
 					break;
 				}
@@ -793,12 +793,12 @@ bool carried_make_attack_normal(int r_idx)
 					take_hit(damage, ddesc);
 
 					/* Damage (stats) */
-					if (do_dec_stat(A_STR)) obvious = TRUE;
-					if (do_dec_stat(A_DEX)) obvious = TRUE;
-					if (do_dec_stat(A_CON)) obvious = TRUE;
-					if (do_dec_stat(A_INT)) obvious = TRUE;
-					if (do_dec_stat(A_WIS)) obvious = TRUE;
-					if (do_dec_stat(A_CHR)) obvious = TRUE;
+					if (do_dec_stat(A_STR, STAT_DEC_NORMAL)) obvious = TRUE;
+					if (do_dec_stat(A_DEX, STAT_DEC_NORMAL)) obvious = TRUE;
+					if (do_dec_stat(A_CON, STAT_DEC_NORMAL)) obvious = TRUE;
+					if (do_dec_stat(A_INT, STAT_DEC_NORMAL)) obvious = TRUE;
+					if (do_dec_stat(A_WIS, STAT_DEC_NORMAL)) obvious = TRUE;
+					if (do_dec_stat(A_CHR, STAT_DEC_NORMAL)) obvious = TRUE;
 
 					break;
 				}
@@ -1794,6 +1794,16 @@ bool make_attack_normal(int m_idx, byte divis)
 								/* Modify number */
 								j_ptr->number = 1;
 
+								/* Hack -- If a rod or wand, allocate total 
+								 * maximum timeouts or charges between those 
+								 * stolen and those missed. -LM-
+								 */
+								if ((o_ptr->tval == TV_ROD) || (o_ptr->tval == TV_WAND))
+								{
+									j_ptr->pval = o_ptr->pval / o_ptr->number;
+									o_ptr->pval -= j_ptr->pval;
+								}
+
 								/* Forget mark */
 								j_ptr->marked = FALSE;
 
@@ -2106,7 +2116,7 @@ bool make_attack_normal(int m_idx, byte divis)
 					take_hit(damage, ddesc);
 
 					/* Damage (stat) */
-					if (do_dec_stat(A_STR)) obvious = TRUE;
+					if (do_dec_stat(A_STR, STAT_DEC_NORMAL)) obvious = TRUE;
 
 					break;
 				}
@@ -2117,7 +2127,7 @@ bool make_attack_normal(int m_idx, byte divis)
 					take_hit(damage, ddesc);
 
 					/* Damage (stat) */
-					if (do_dec_stat(A_INT)) obvious = TRUE;
+					if (do_dec_stat(A_INT, STAT_DEC_NORMAL)) obvious = TRUE;
 
 					break;
 				}
@@ -2128,7 +2138,7 @@ bool make_attack_normal(int m_idx, byte divis)
 					take_hit(damage, ddesc);
 
 					/* Damage (stat) */
-					if (do_dec_stat(A_WIS)) obvious = TRUE;
+					if (do_dec_stat(A_WIS, STAT_DEC_NORMAL)) obvious = TRUE;
 
 					break;
 				}
@@ -2139,7 +2149,7 @@ bool make_attack_normal(int m_idx, byte divis)
 					take_hit(damage, ddesc);
 
 					/* Damage (stat) */
-					if (do_dec_stat(A_DEX)) obvious = TRUE;
+					if (do_dec_stat(A_DEX, STAT_DEC_NORMAL)) obvious = TRUE;
 
 					break;
 				}
@@ -2150,7 +2160,7 @@ bool make_attack_normal(int m_idx, byte divis)
 					take_hit(damage, ddesc);
 
 					/* Damage (stat) */
-					if (do_dec_stat(A_CON)) obvious = TRUE;
+					if (do_dec_stat(A_CON, STAT_DEC_NORMAL)) obvious = TRUE;
 
 					break;
 				}
@@ -2161,7 +2171,7 @@ bool make_attack_normal(int m_idx, byte divis)
 					take_hit(damage, ddesc);
 
 					/* Damage (stat) */
-					if (do_dec_stat(A_CHR)) obvious = TRUE;
+					if (do_dec_stat(A_CHR, STAT_DEC_NORMAL)) obvious = TRUE;
 
 					break;
 				}
@@ -2172,12 +2182,12 @@ bool make_attack_normal(int m_idx, byte divis)
 					take_hit(damage, ddesc);
 
 					/* Damage (stats) */
-					if (do_dec_stat(A_STR)) obvious = TRUE;
-					if (do_dec_stat(A_DEX)) obvious = TRUE;
-					if (do_dec_stat(A_CON)) obvious = TRUE;
-					if (do_dec_stat(A_INT)) obvious = TRUE;
-					if (do_dec_stat(A_WIS)) obvious = TRUE;
-					if (do_dec_stat(A_CHR)) obvious = TRUE;
+					if (do_dec_stat(A_STR, STAT_DEC_NORMAL)) obvious = TRUE;
+					if (do_dec_stat(A_DEX, STAT_DEC_NORMAL)) obvious = TRUE;
+					if (do_dec_stat(A_CON, STAT_DEC_NORMAL)) obvious = TRUE;
+					if (do_dec_stat(A_INT, STAT_DEC_NORMAL)) obvious = TRUE;
+					if (do_dec_stat(A_WIS, STAT_DEC_NORMAL)) obvious = TRUE;
+					if (do_dec_stat(A_CHR, STAT_DEC_NORMAL)) obvious = TRUE;
 
 					break;
 				}
@@ -2197,7 +2207,7 @@ bool make_attack_normal(int m_idx, byte divis)
 					if (damage > 23)
 					{
 						/* Prevent destruction of quest levels and town */
-						if (!is_quest(dun_level) && dun_level)
+                                                if (!is_quest(dun_level) && dun_level)
 							earthquake(m_ptr->fy, m_ptr->fx, 8);
 					}
 

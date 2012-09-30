@@ -1,5 +1,7 @@
 /* File: miscmod.c */
 
+#ifdef USE_PYTHON
+
 /*
  * Copyright (c) 1998 Keldon Jones
  *
@@ -144,3 +146,4 @@ void initmisc(void)
 	add_string(d, "ANGBAND_DIR_XTRA", ANGBAND_DIR_XTRA);
 }
 
+#endif

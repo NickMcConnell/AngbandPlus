@@ -215,12 +215,13 @@ N:505:Groo the Wanderer
 says: 'A fray! A fray!'
 
 N:934:Fangorn the Treebeard
-5
+6
 says: 'The night stretchs out on the Isengard!'
 says: 'Trolls are strong, Ents are STRONGER!'
 says: 'Saruman will now stop using his axes on the trees...'
 says: 'have you seen some Ent women ?'
 says: 'I will crush all those burarum ... those orcs!'
+says: 'I am totaly of the side of nobody since nobody is totaly of my side...'
 0
 
 N:732:Bull Gates
@@ -313,3 +314,11 @@ says, 'I'm no god... God has MERCY!'
 2
 screams, 'This CAN'T be happening!'
 shouts, 'Kill me if you want, the Boss will getcha!'
+
+N:928:Mathilde, the Science Student
+3
+waves.
+wishes you luck.
+skips along happily.
+1
+is surrounded by the purple aura of the RNG. Touch at your peril.

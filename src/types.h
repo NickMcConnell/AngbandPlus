@@ -349,10 +349,11 @@ struct monster_race
 	u32b flags8;			/* Flags 8 (wilderness info) */
 	u32b flags9;			/* Flags 9 (drops info) */
 
-	monster_blow blow[4];	/* Up to four blows per round */
+        monster_blow blow[4];           /* Up to four blows per round */
 
+        byte body_parts[BODY_MAX];      /* To help to decide what to use when body changing */
 
-	byte level;				/* Level of creature */
+        byte level;                     /* Level of creature */
 	byte rarity;			/* Rarity of creature */
 
 
@@ -428,6 +429,23 @@ struct vault_type
 };
 
 
+/* jk */
+/* name and description are in some other arrays */
+typedef struct trap_type trap_type;
+struct trap_type {
+  s16b probability; /* probability of existence */
+  s16b another;     /* does this trap easily combine */
+  s16b p1valinc;     /* how much does this trap attribute to p1val */
+  byte difficulty;  /* how difficult to disarm */
+  byte minlevel;    /* what is the minimum level on which the traps should be */
+  byte color;       /* what is the color on screen */
+  u32b flags;       /* where can these traps go - and perhaps other flags */
+  bool ident;       /* do we know the name */
+  s16b known;       /* how well is this trap known */
+  s16b name;        /* normal name like weakness */
+  s16b dd, ds;      /* base damage */
+  s16b text;        /* longer description once you've met this trap */
+};
 
 
 
@@ -461,7 +479,7 @@ typedef struct cave_type cave_type;
 
 struct cave_type
 {
-	byte info;		/* Hack -- cave flags */
+	s16b info;		/* Hack -- cave flags */
 
 	byte feat;		/* Hack -- feature type */
 
@@ -469,6 +487,8 @@ struct cave_type
 
 	s16b m_idx;		/* Monster in this grid */
 
+	s16b t_idx;		/* trap index (in t_list) or zero       */
+	
         s16b special;           /* Special cave info */
 
         s16b inscription;       /* Inscription of the grid */
@@ -539,6 +559,9 @@ struct object_type
 	byte number;		/* Number of items */
 
         s32b weight;            /* Item weight */
+
+        byte elevel;            /* Item exp level */
+        s32b exp;               /* Item exp */
 
 	byte name1;			/* Artifact type, if any */
 	byte name2;			/* Ego-Item type, if any */
@@ -970,10 +993,11 @@ struct player_type
 	bool exit_bldg;			/* Goal obtained in arena? -KMW- */
 	bool leftbldg;			/* did we just leave a special area? -KMW- */
 
-	s16b rewards[MAX_BACT];	/* Status of rewards in town */
+        s16b rewards[MAX_BACT];         /* Status of rewards in town */
 
-	s32b wilderness_x;	/* Coordinates in the wilderness */
+        s32b wilderness_x;              /* Coordinates in the wilderness */
 	s32b wilderness_y;
+        bool wild_mode;                 /* TRUE = Small map, FLASE = Big map */
 
 	s16b mhp;			/* Max hit pts */
 	s16b chp;			/* Cur hit pts */
@@ -997,7 +1021,6 @@ struct player_type
         byte pgod;                    /* Your God. */
 
 	s16b max_plv;		/* Max Player Level */
-        s16b *max_dlv;           /* Max level explored */
 
 	s16b stat_max[6];	/* Current "maximal" stat values */
 	s16b stat_cur[6];	/* Current "natural" stat values */
@@ -1064,7 +1087,7 @@ struct player_type
         s16b recall_dungeon;    /* Recall in which dungeon */
 	s16b word_recall;	/* Word of recall counter */
 
-	s16b energy;		/* Current energy */
+        s32b energy;            /* Current energy */
 
 	s16b food;			/* Current nutrition */
 
@@ -1109,6 +1132,8 @@ struct player_type
 
 	s16b stat_add[6];	/* Modifiers to stat values */
 	s16b stat_ind[6];	/* Indexes into stat tables */
+	s16b stat_cnt[6];	/* Counter for temporary drains */
+	s16b stat_los[6];	/* Amount of temporary drains */
 
 	bool immune_acid;	/* Immunity to acid */
 	bool immune_elec;	/* Immunity to lightning */
@@ -1136,9 +1161,9 @@ struct player_type
 
         bool sensible_fire;     /* Fire does more damage on the player */
 /* Not used and NOT coded now */
-//        bool sensible_cold;     /* Cold does more damage on the player */
-//        bool sensible_elec;     /* Lightning does more damage on the player */
-//        bool sensible_acid;     /* Acid does more damage on the player */
+/*        bool sensible_cold;*/   /* Cold does more damage on the player */
+/*        bool sensible_elec;*/   /* Lightning does more damage on the player */
+/*        bool sensible_acid;*/   /* Acid does more damage on the player */
 
     bool reflect;       /* Reflect 'bolt' attacks */
     bool sh_fire;       /* Fiery 'immolation' effect */
@@ -1159,6 +1184,7 @@ struct player_type
 
 	bool exp_drain;		/* Experience draining */
 
+        bool climb;             /* Can climb mountains */
         bool fly;               /* Can fly over some features */
         bool ffall;             /* No damage falling */
         bool lite;              /* Permanent light */
@@ -1248,6 +1274,7 @@ struct player_type
         /*** Body changing variables ***/
         u16b body_monster;        /* In which body is the player */
         bool disembodied;         /* Is the player in a body ? */
+        bool body_parts[INVEN_TOTAL - INVEN_WIELD]; /* Which body parts does he have ? */
 
 	/*** Temporary fields ***/
 
@@ -1271,10 +1298,9 @@ struct martial_arts
 
 
 
-/* Mindcrafters */
-
-typedef struct mindcraft_power mindcraft_power;
-struct mindcraft_power
+/* Powers - used by Mindcrafters and Necromancers */
+typedef struct magic_power magic_power;
+struct magic_power
 {
 	int     min_lev;
 	int     mana_cost;
@@ -1325,19 +1351,33 @@ struct border_type
 
 /*
  * A structure describing a wilderness area
- * with a terrain or a town
+ * with a terrain, a town or a dungeon entrance
  */
-typedef struct wilderness_type wilderness_type;
-struct wilderness_type
+typedef struct wilderness_type_info wilderness_type_info;
+struct wilderness_type_info
 {
-	int         terrain;
-	int         town;
-	int         road;
-	u32b        seed;
-	char		name[32];
-	byte        level;
+        u32b    name;                   /* Name (offset) */
+        u32b    text;                   /* Text (offset) */
+        u16b    entrance;               /* Which town is there(<1000 i's a town, >=1000 it a dungeon) */
+        byte    road;                   /* Flags of road */
+        int     level;                  /* Difficulty level */
+        s32b    flags1;                 /* Some flags */
+        byte    feat;                   /* The feature of f_info.txt that is used to allow passing, ... and to get a char/color/graph */
+        byte    terrain_idx;            /* Terrain index(defined in defines.h) */
+
+        byte    terrain[MAX_WILD_TERRAIN];/* Feature types for the plasma generator */
 };
 
+/*
+ * A structure describing a wilderness map
+ */
+typedef struct wilderness_map wilderness_map;
+struct wilderness_map
+{
+        int     feat;                   /* Wilderness feature */
+        u32b    seed;                   /* Seed for the RNG */
+        u16b    entrance;               /* Entrance for random dungeons */
+};
 
 /*
  * A structure describing a town with
@@ -1516,6 +1556,8 @@ struct dungeon_info_type {
         char r_char[5];                 /* Monster race allowed */
         int final_artifact;             /* The artifact you'll find at the bottom */
         int final_guardian;             /* The artifact's guardian. If an artifact is specified, then it's NEEDED */
+
+        byte special_percent;           /* % of monsters affected by the flags/races allowed, to add some variety */
 };
 
 /* A structure for inscriptions */

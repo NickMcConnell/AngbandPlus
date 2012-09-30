@@ -27,7 +27,7 @@ OBJS = \
   cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o cmd7.o \
   load2.o save.o files.o \
   xtra1.o xtra2.o spells1.o spells2.o melee1.o melee2.o \
-  object1.o object2.o monster1.o monster2.o \
+  object1.o object2.o traps.o monster1.o monster2.o \
   variable.o tables.o util.o cave.o \
   z-term.o z-rand.o z-form.o z-virt.o z-util.o \
   bldg.o eventmod.o iomod.o cavemod.o monmod.o playmod.o \

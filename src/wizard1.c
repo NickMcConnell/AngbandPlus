@@ -115,6 +115,7 @@ static grouper group_item[] =
         { TV_SIGALDRY_BOOK, "Books (Sigaldry)" },
         { TV_SYMBIOTIC_BOOK,"Books (Symbiotic)" },
         { TV_TRIBAL_BOOK,   "Books (Tribal)"},
+        { TV_DRUID_BOOK,    "Books (Druid)"},
         { TV_MUSIC_BOOK,    "Books (Music)" },
         { TV_MIMIC_BOOK,    "Books (Mimic)" },
         { TV_MAGIC_BOOK,    "Books (Magic)" },
@@ -2236,6 +2237,7 @@ static void spoil_mon_info(cptr fname)
 				case RBE_EXP_80:        q = "lower experience (by 80d6+)"; break;
 				case RBE_DISEASE:       q = "disease"; break;
 				case RBE_TIME:          q = "time"; break;
+                                case RBE_SANITY:        q = "make insane"; break;
 			}
 
 
@@ -2373,14 +2375,14 @@ static void spoil_bateries(cptr fname)
                 object_prep(o_ptr, lookup_kind(TV_BATERIE, alchemist_recipes[i].sval_baterie));
                 k_ptr = &k_info[o_ptr->k_idx];
 
-                sprintf(ttt, "Baterie of %s :\n", k_name + k_ptr->name);
+                sprintf(ttt, "Essence of %s :\n", k_name + k_ptr->name);
                 spoil_out(ttt);
 
                 spoil_out("Can be used to make :\n");
                 for(b = 0; b < 9; b++)
                         if(alchemist_recipes[i].ego[b].ego){
                                 e_ptr = &e_info[alchemist_recipes[i].ego[b].ego];
-                                sprintf(ttt, "-       %s %s with %d baterie%s\n", get_tval_name(alchemist_recipes[i].ego[b].which), e_name + e_ptr->name, alchemist_recipes[i].ego[b].ego_num, (alchemist_recipes[i].ego[b].ego_num)?"s":"");
+                                sprintf(ttt, "-       %s %s with %d essence%s\n", get_tval_name(alchemist_recipes[i].ego[b].which), e_name + e_ptr->name, alchemist_recipes[i].ego[b].ego_num, (alchemist_recipes[i].ego[b].ego_num)?"s":"");
                                 spoil_out(ttt);
                         }
 
@@ -2395,7 +2397,7 @@ static void spoil_bateries(cptr fname)
                                 q_ptr = &forge;
                                 object_prep(q_ptr, lookup_kind(alchemist_recipes[i].item[b].etval, alchemist_recipes[i].item[b].esval));
                                 object_desc_store(desc2, q_ptr, 1, 0);
-                                sprintf(ttt, "Convert %s into %s with %d baterie%s\n", desc1, desc2, alchemist_recipes[i].item[b].num, (alchemist_recipes[i].item[b].num)?"s":"");
+                                sprintf(ttt, "Convert %s into %s with %d essence%s\n", desc1, desc2, alchemist_recipes[i].item[b].num, (alchemist_recipes[i].item[b].num)?"s":"");
                                 spoil_out(ttt);
                         }
 

@@ -2931,7 +2931,65 @@ void curse_equipment(int chance, int heavy_chance)
 		}
 	}
 }
- 
+
+
+void curse_equipment_dg(int chance, int heavy_chance)
+{
+	bool changed = FALSE;
+        u32b    o1, o2, o3, o4;
+	object_type * o_ptr = &inventory[INVEN_WIELD - 1 + randint(12)];
+
+	if (randint(100) > chance) return;
+
+	if (!(o_ptr->k_idx)) return;
+
+        object_flags(o_ptr, &o1, &o2, &o3, &o4);
+
+
+	/* Extra, biased saving throw for blessed items */
+	if ((o3 & (TR3_BLESSED)) && (randint(888) > chance))
+	{   
+		char o_name[256];
+		object_desc(o_name, o_ptr, FALSE, 0);
+		msg_format("Your %s resist%s cursing!", o_name,
+			((o_ptr->number > 1) ? "" : "s"));
+		/* Hmmm -- can we wear multiple items? If not, this is unnecessary */
+                /* DG -- Yes we can, in the quiver */
+		return;
+	}
+
+	if ((randint(100) <= heavy_chance) &&
+		(o_ptr->name1 || o_ptr->name2 || o_ptr->art_name))
+	{
+		if (!(o3 & TR3_HEAVY_CURSE))
+			changed = TRUE;
+		o_ptr->art_flags3 |= TR3_HEAVY_CURSE;
+		o_ptr->art_flags3 |= TR3_CURSED;
+                o_ptr->art_flags4 |= TR4_DG_CURSE;
+		o_ptr->ident |= IDENT_CURSED;
+	}
+	else
+	{
+		if (!(o_ptr->ident & (IDENT_CURSED)))
+			changed = TRUE;
+		o_ptr->art_flags3 |= TR3_CURSED;
+                o_ptr->art_flags4 |= TR4_DG_CURSE;
+		o_ptr->ident |= IDENT_CURSED;
+	}
+
+	if (changed)
+	{
+		msg_print("There is a malignant black aura surrounding you...");
+		if (o_ptr->note)
+		{
+			if (streq(quark_str(o_ptr->note), "uncursed"))
+			{
+				o_ptr->note = 0;
+			}
+		}
+	}
+}
+
  
 /*
  * Creatures can cast spells, shoot missiles, and breathe.
@@ -3796,9 +3854,9 @@ bool make_attack_spell(int m_idx)
 				 (void)set_slow(p_ptr->slow + rand_int(4) + 4);
 				 
 				 while (rand_int(100) > p_ptr->skill_sav)
-					 (void)do_dec_stat(A_INT);
+					 (void)do_dec_stat(A_INT, STAT_DEC_NORMAL);
 				 while (rand_int(100) > p_ptr->skill_sav)
-					 (void)do_dec_stat(A_WIS);
+					 (void)do_dec_stat(A_WIS, STAT_DEC_NORMAL);
 				 
 				 if (!p_ptr->resist_chaos)
 				 {
@@ -5121,7 +5179,7 @@ static bool get_moves(int m_idx, int *mm)
 
         if(doppleganger)
         {
-//                if(magik(50))
+                if(magik(90))
                 {
                         y2 = m_list[doppleganger].fy;
                         x2 = m_list[doppleganger].fx;
@@ -6826,8 +6884,8 @@ static void process_monster(int m_idx, bool is_friend)
                         }
 		}
 
-                /* Execute the inscription */
-                if (c_ptr->inscription)
+                /* Execute the inscription -- MEGA HACK -- */
+                if ((c_ptr->inscription) && (c_ptr->inscription != INSCRIP_CHASM))
                 {
                         if(inscription_info[c_ptr->inscription].when & INSCRIP_EXEC_MONST_WALK)
                         {
@@ -6843,7 +6901,7 @@ static void process_monster(int m_idx, bool is_friend)
                                 }
                         }
                 }
-		
+
 		/* Some monsters never attack */
 		if (do_move && (ny == py) && (nx == px) &&
 			(r_ptr->flags1 & RF1_NEVER_BLOW))
@@ -6999,7 +7057,16 @@ static void process_monster(int m_idx, bool is_friend)
 			
 			/* Redraw the new grid */
 			lite_spot(ny, nx);
-			
+
+                        /* Execute the inscription -- MEGA HACK -- */
+                        if (c_ptr->inscription == INSCRIP_CHASM)
+                        {
+                                if(inscription_info[c_ptr->inscription].when & INSCRIP_EXEC_MONST_WALK)
+                                {
+                                        execute_inscription(c_ptr->inscription, ny, nx);
+                                }
+                        }
+
 			/* Possible disturb */
 			if (m_ptr->ml && (disturb_move ||
 				((m_ptr->mflag & (MFLAG_VIEW)) &&

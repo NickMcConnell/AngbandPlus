@@ -1,5 +1,7 @@
 /* File: iomod.c */
 
+#ifdef USE_PYTHON
+
 /*
  * Copyright (c) 1998 Keldon Jones
  *
@@ -516,3 +518,4 @@ void initio(void)
 	add_constant(d, "SOUND_TPLEVEL", SOUND_TPLEVEL);
 }
 
+#endif

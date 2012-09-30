@@ -40,9 +40,6 @@ F:a:88:1:945
 # Dirt with Balrog
 F:b:88:1:720
 
-# Dirt with Muar, the Balrog
-F:c:88:1:872
-
 # Dirt with Lungorthin, the Balrog of White Fire
 F:d:88:1:839
 
@@ -97,7 +94,7 @@ D:XXXXXX....f......ff...........%%%%%sssssssssssssssssssssss%%%%%%%%...........f
 D:XXX...f....ff........f........m.........f..mf........%%%s%%%%%%%%%%%.....m....ff.......ff......XXXXXXXX
 D:X........m.....f..........f.....ff.....f......f....%%%%%%%%%...........f..........m...............XXXXX
 D:X..f...f.........ff.....ff...f.....f.......j....m.%%%%%%%%%..................fmf....ff..........XXXXXXX
-D:X...........f.ff.....f........................ff..ff%%%%%%%%%.ff.......m......................XXXXXXXX
+D:X...........f.ff.....f........................ff..ff%%%%%%%%%.ff.......m.......................XXXXXXXX
 D:XXX.......ff.......b.......f......d..f...........f.m....LLL....................f....f............XXXXXX
 D:XXXXXX........f..........................%%%%%%%..f......LLL.........f...ff...........ff............XXX
 D:XXXXXXX.....f...f..f..f.f......f........%%%%%%%%%.....ff.LLL.ff...f..............b........m..........XX
@@ -109,7 +106,7 @@ D:XXXXXXXXXX...f.............................%%%%%%......LLL...................f
 D:XXXXXXXXXX..........fff...%%%..f.............%%%...ff.LLL..m...ff....f....fff..f...f.......XXXXXXXXXXXX
 D:XXXXXXXXXX......ff.....%%%%%....................f...LLL.f.................ff..f.......ff.......XXXXXXXX
 D:XXXXXXXXXXX...........%%%LLL.......f....f...LLLLLLLLLLf..ff......f....ff...........m....ff.........XXXX
-D:XXXXXXXXXXXX....m.....%%LLLLLLLf...LLLLLLLcLLLLLLLLL.......f............f...ff.f..........fff...ff...XX
+D:XXXXXXXXXXXX....m.....%%LLLLLLLf....LLLLLLL.LLLLLLLL.......f............f...ff.f..........fff...ff...XX
 D:XXXXXXXXXXXXX.....ff..%%LLLLLLLLLLLLLLLLLLLLLLff...................f...............f...fff...........XX
 D:XXXXXXXXXXXX...ff.....%%%%..LLLLLLLLLLLLLLLLLf......aaaaa............XXX....ff..ff...........ff....XXXX
 D:XXXXXXXX.....ff...f...%%%%%....f.........f.....f...aa...aa...f......XXXXXX..............f........XXXXXX

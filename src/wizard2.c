@@ -33,7 +33,7 @@ void teleport_player_town(int town)
 
         for(x = 0; x < max_wild_x; x++)
                 for(y = 0; y < max_wild_y; y++)
-                        if(p_ptr->town_num == wilderness[y][x].town) goto finteletown;
+                        if(p_ptr->town_num == wf_info[wild_map[y][x].feat].entrance) goto finteletown;
 finteletown:
         p_ptr->wilderness_y = y;
         p_ptr->wilderness_x = x;
@@ -124,10 +124,12 @@ static void wiz_create_named_art()
 {
 	object_type forge;
 	object_type *q_ptr;
+        object_kind *k_ptr;
         int i,a_idx;
         cptr p="Number of the artifact :";
         char out_val[80];
         artifact_type *a_ptr;
+        u32b f1, f2, f3, f4;
 
         if (!get_string(p, out_val, 4)) return;
         a_idx = atoi(out_val);                                
@@ -142,6 +144,11 @@ static void wiz_create_named_art()
 
 	/* Ignore "empty" artifacts */
 	if (!a_ptr->name) return;
+
+#if 0
+        /* Ignore generated artifacts */
+        if (a_ptr->cur_num) return;
+#endif
 
 	/* Acquire the "kind" index */
 	i = lookup_kind(a_ptr->tval, a_ptr->sval);
@@ -167,6 +174,18 @@ static void wiz_create_named_art()
 
 	/* Hack -- acquire "cursed" flag */
 	if (a_ptr->flags3 & (TR3_CURSED)) q_ptr->ident |= (IDENT_CURSED);
+
+        k_ptr = &k_info[q_ptr->k_idx];
+
+        /* Extract some flags */
+        object_flags(q_ptr, &f1, &f2, &f3, &f4);
+
+        /* Hack give a basic exp/exp level to an object that needs it */
+        if(f4 & TR4_LEVELS)
+        {
+                q_ptr->elevel = (k_ptr->level / 10) + 1;
+                q_ptr->exp = player_exp[q_ptr->elevel - 1];
+        }
 
 	random_artifact_resistance(q_ptr);
 
@@ -563,6 +582,7 @@ static tval_desc tvals[] =
         { TV_SIGALDRY_BOOK,     "Sigaldry Spellbook",  },
         { TV_SYMBIOTIC_BOOK,    "Symbiotic Spellbook", },
         { TV_TRIBAL_BOOK,       "Tribal Spellbook"     },
+        { TV_DRUID_BOOK,        "Elemental Stone"      },
         { TV_MUSIC_BOOK,        "Music Book"           },
         { TV_MAGIC_BOOK,        "Book of Spells"       },
         { TV_PRAYER_BOOK,       "Holy Book"            },
@@ -574,7 +594,7 @@ static tval_desc tvals[] =
 	{ TV_FOOD,              "Food"                 },
 	{ TV_FLASK,             "Flask"                },
         { TV_MSTAFF,            "Mage Staff"           },
-        { TV_BATERIE,           "Baterie"              },
+        { TV_BATERIE,           "Essence"              },
         { TV_PARCHEMENT,        "Parchement"           },
         { TV_INSTRUMENT,        "Musical Instrument"   },
         { TV_RUNE1,             "Rune 1"               },
@@ -786,6 +806,13 @@ static void wiz_tweak_item(object_type *o_ptr)
 	if (!get_string(p, tmp_val, 5)) return;
         o_ptr->sval = atoi(tmp_val);
 	wiz_display_item(o_ptr);
+
+        p = "Enter new 'exp level' setting: ";
+        sprintf(tmp_val, "%d", o_ptr->elevel);
+	if (!get_string(p, tmp_val, 5)) return;
+        o_ptr->elevel = atoi(tmp_val);
+	wiz_display_item(o_ptr);
+        o_ptr->exp = player_exp[o_ptr->elevel - 1];
 }
 
 
@@ -1066,14 +1093,17 @@ static void wiz_statistics(object_type *o_ptr)
  */
 static void wiz_quantity_item(object_type *o_ptr)
 {
-	int         tmp_int;
+        int         tmp_int, tmp_qnt;
 
 	char        tmp_val[100];
 
 
+#if 0 /* DG -- A Wizard can do whatever he/she/it wants */
 	/* Never duplicate artifacts */
 	if (artifact_p(o_ptr) || o_ptr->art_name) return;
+#endif
 
+	tmp_qnt = o_ptr->number;
 
 	/* Default */
 	sprintf(tmp_val, "%d", o_ptr->number);
@@ -1090,6 +1120,10 @@ static void wiz_quantity_item(object_type *o_ptr)
 
 		/* Accept modifications */
 		o_ptr->number = tmp_int;
+
+		/* Hack -- rod pvals must change if the number in the stack does. -LM- */
+		if (o_ptr->tval == TV_ROD)
+			o_ptr->pval = o_ptr->pval * o_ptr->number / tmp_qnt;
 	}
 }
 
@@ -1314,7 +1348,7 @@ static void wiz_create_item_2(void)
 /*
  * Cure everything instantly
  */
-static void do_cmd_wiz_cure_all(void)
+void do_cmd_wiz_cure_all(void)
 {
         object_type *o_ptr;
         monster_race *r_ptr;
@@ -1526,7 +1560,7 @@ static void do_cmd_wiz_named(int r_idx, bool slp)
  *
  * XXX XXX XXX This function is rather dangerous
  */
-static void do_cmd_wiz_named_friendly(int r_idx, bool slp)
+void do_cmd_wiz_named_friendly(int r_idx, bool slp)
 {
 	int i, x, y;
 
@@ -1738,6 +1772,11 @@ void do_cmd_debug(void)
 			(void) gain_level_reward(command_arg);
 			break;
 
+                /* Create a trap */
+                case 'R':
+                        cave[py][px].t_idx = command_arg;
+			break;
+
 		/* Summon _friendly_ named monster */
 		case 'N':
 			do_cmd_wiz_named_friendly(command_arg, TRUE);
@@ -1784,6 +1823,22 @@ void do_cmd_debug(void)
 			wiz_lite();
 			break;
 		}
+
+                case 'U':
+		{
+                        p_ptr->class_extra6 |= CLASS_UNDEAD;
+                        do_cmd_wiz_named(5, TRUE);
+
+                        p_ptr->class_extra4 = 2 * p_ptr->lev;
+
+                        /* Display the hitpoints */
+                        p_ptr->update |= (PU_HP);
+                        p_ptr->redraw |= (PR_HP);
+
+                        /* Window stuff */
+                        p_ptr->window |= (PW_PLAYER);
+                        break;
+                }
 
 		/* Summon Random Monster(s) */
 		case 's':
@@ -1861,12 +1916,13 @@ void do_cmd_debug(void)
 
                 /* Change the feature of the map */
                 case 'F':
+                msg_format("Trap: %d", cave[py][px].t_idx);
                 msg_format("Old feature: %d", cave[py][px].feat);
                 cave_set_feat(py,px,command_arg);
                 break;
 
                 case '/':
-                summon_specific(py,px,p_ptr->max_dlv[dungeon_type],command_arg);
+                summon_specific(py,px,max_dlv[dungeon_type],command_arg);
                 break;
 
 		/* Not a Wizard Command */

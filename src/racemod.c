@@ -1,5 +1,7 @@
 /* File: racemod.c */
 
+#ifdef USE_PYTHON
+
 /*
  * Copyright (c) 1998 Keldon Jones
  *
@@ -265,3 +267,4 @@ void initrace()
 	add_constant(d, "RF6_S_WRAITH", RF6_S_WRAITH);
 	add_constant(d, "RF6_S_UNIQUE", RF6_S_UNIQUE);
 }
+#endif

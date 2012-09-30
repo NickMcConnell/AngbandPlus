@@ -43,7 +43,7 @@ void do_cmd_redraw(void)
 	p_ptr->update |= (PU_TORCH);
 
 	/* Update stuff */
-        p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS | PU_SANITY);
+        p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS | PU_SANITY | PU_BODY);
 
 	/* Forget lite/view */
 	p_ptr->update |= (PU_UN_VIEW | PU_UN_LITE);
@@ -55,7 +55,7 @@ void do_cmd_redraw(void)
 	p_ptr->update |= (PU_MONSTERS);
 
 	/* Redraw everything */
-        p_ptr->redraw |= (PR_WIPE | PR_BASIC | PR_EXTRA | PR_MAP | PR_EQUIPPY);
+        p_ptr->redraw |= (PR_WIPE | PR_BASIC | PR_EXTRA | PR_MAP);
 
 	/* Window stuff */
 	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER);
@@ -112,7 +112,7 @@ void do_cmd_change_name(void)
 		/* Display the player */
 		display_player(mode);
 
-                if (mode == 6)
+                if (mode == 8)
 		{
 			mode = 0;
 			display_player(mode);
@@ -188,7 +188,7 @@ void do_cmd_change_name(void)
 
 
 	/* Redraw everything */
-	p_ptr->redraw |= (PR_WIPE | PR_BASIC | PR_EXTRA | PR_MAP | PR_EQUIPPY);
+        p_ptr->redraw |= (PR_WIPE | PR_BASIC | PR_EXTRA | PR_MAP);
 
 	handle_stuff();
 }
@@ -682,7 +682,7 @@ static void do_cmd_options_autosave(cptr info)
 /*
  * Interact with some options
  */
-static void do_cmd_options_aux(int page, cptr info)
+void do_cmd_options_aux(int page, cptr info)
 {
 	char	ch;
 
@@ -2515,23 +2515,69 @@ void do_cmd_colors(void)
 
 
 /*
- * Note something in the message recall
+ * Take notes.  There are two ways this can happen, either in the message recall or
+ * a file.  The command can also be passed a string, which will automatically be
+ * written. -CK-
  */
-void do_cmd_note(void)
+void do_cmd_note(char *note)
 {
-	char buf[80];
-
-	/* Default */
-	strcpy(buf, "");
-
-	/* Input */
-	if (!get_string("Note: ", buf, 60)) return;
-
-	/* Ignore empty notes */
-	if (!buf[0] || (buf[0] == ' ')) return;
-
-	/* Add the note to the message recall */
-	msg_format("Note: %s", buf);
+       char buf[80];
+  
+  	/* Default */
+       strcpy(buf, "");
+  
+       /* If a note is passed, use that, otherwise accept user input. */
+       if (streq(note, "")) { 
+         if (!get_string("Note: ", buf, 60)) return;
+       }
+  
+       else
+         strncpy(buf, note, 60);
+  
+  	/* Ignore empty notes */
+       if (!buf[0] || (buf[0] == ' ')) return;
+ 
+       /* If the note taking option is on, write it to the file, otherwise write to
+        * the message recall.
+        */
+       if (take_notes) {
+ 
+           char final_note[80];
+           char long_day[25];
+           time_t ct = time((time_t*)0);
+           char depths[32];
+ 
+         /* Get depth if note is program native */
+         
+         if (!streq(note, "")) {
+ 
+           if (!dun_level)
+             {
+               strcpy(depths, "in the Town");
+             }
+           else if (depth_in_feet)
+             {
+               sprintf(depths, "at %d ft", dun_level * 50);
+             }
+           else
+             {
+               sprintf(depths, "on D. Lev %d", dun_level);
+             }
+ 
+         }
+         else (strcpy(depths, ""));
+ 
+           /* Get date and time */
+           (void)strftime(long_day, 25, "%m/%d/%Y at %I:%M %p", localtime(&ct));
+ 
+           /* Make note */
+           sprintf(final_note, "%s | %s %s\n", long_day, buf, depths);
+     
+         /* Add note to buffer */
+         fprintf(notes_file, final_note);
+ 
+       }
+       else msg_format("Note: %s", buf);
 }
 
 
@@ -3008,6 +3054,52 @@ void do_cmd_knowledge_artifacts(void)
 
 	/* Display the file contents */
 	show_file(file_name, "Artifacts Seen", 0, 0);
+
+	/* Remove the file */
+	fd_kill(file_name);
+}
+
+
+/*
+ * Check the status of traps
+ */
+void do_cmd_knowledge_traps(void)
+{
+        int k;
+
+	FILE *fff;
+
+        trap_type *t_ptr;
+
+	char file_name[1024];
+
+	/* Temporary file */
+	if (path_temp(file_name, 1024)) return;
+
+	/* Open a new file */
+	fff = my_fopen(file_name, "w");
+
+        /* Scan the traps */
+        for (k = 0; k < max_t_idx; k++)
+	{
+                /* Get the trap */
+                t_ptr = &t_info[k];
+
+                /* Skip "empty" traps */
+                if (!t_ptr->name) continue;
+
+                /* Skip unidentified traps */
+                if(!t_ptr->ident) continue;
+
+                /* Hack -- Build the trap name */
+                fprintf(fff, "     %s\n", t_name + t_ptr->name);
+	}
+
+	/* Close the file */
+	my_fclose(fff);
+
+	/* Display the file contents */
+        show_file(file_name, "Traps known", 0, 0);
 
 	/* Remove the file */
 	fd_kill(file_name);
@@ -3504,7 +3596,7 @@ static void do_cmd_knowledge_quests(void)
 				/* New random */
 				rand_level = quest[i].level;
 
-                                if (p_ptr->max_dlv[dungeon_type] >= rand_level)
+                                if (max_dlv[dungeon_type] >= rand_level)
 				{
 					/* Print the quest info */
 					r_ptr = &r_info[quest[i].r_idx];
@@ -3696,9 +3788,10 @@ void do_cmd_knowledge(void)
 		prt("(6) Display current pets", 9, 5);
 		prt("(7) Display current quests", 10, 5);
                 prt("(8) Display current fates", 11, 5);
+                prt("(9) Display known traps", 12, 5);
 
 		/* Prompt */
-		prt("Command: ", 12, 0);
+                prt("Command: ", 13, 0);
 
 		/* Prompt */
 		i = inkey();
@@ -3731,6 +3824,9 @@ void do_cmd_knowledge(void)
 			break;
                 case '8': /* Fates */
                         do_cmd_knowledge_fates();
+			break;
+                case '9': /* Traps */
+                        do_cmd_knowledge_traps();
 			break;
 		default: /* Unknown option */
 			bell();
@@ -3799,3 +3895,104 @@ void do_cmd_change_movement(void)
    prt("",0,0);
 }
 
+/*
+ * Display the time and date
+ */
+void do_cmd_time(void)
+{
+	s32b len = 10L * TOWN_DAWN;
+	s32b tick = turn % len + len / 4;
+
+	int day = turn / len + 1;
+	int hour = (24 * tick / len) % 24;
+	int min = (1440 * tick / len) % 60;
+	int full = hour * 100 + min;
+
+	int start = 9999;
+	int end = -9999;
+
+	int num = 0;
+
+	char desc[1024];
+
+	char buf[1024];
+
+	FILE *fff;
+
+	strcpy(desc, "It is a strange time.");
+
+	/* Message */
+	msg_format("This is day %d. The time is %d:%02d %s.",
+				  day, (hour % 12 == 0) ? 12 : (hour % 12),
+				  min, (hour < 12) ? "AM" : "PM");
+
+	/* Find the path */
+	if (!rand_int(10) || p_ptr->image)
+		{
+		path_build(buf, 1024, ANGBAND_DIR_FILE, "timefun.txt");
+		}
+		else
+		{
+		path_build(buf, 1024, ANGBAND_DIR_FILE, "timenorm.txt");
+		}
+
+	/* Open this file */
+	fff = my_fopen(buf, "rt");
+
+	/* Oops */
+	if (!fff) return;
+
+	/* Find this time */
+	while (!my_fgets(fff, buf, 1024))
+	{
+		/* Ignore comments */
+		if (!buf[0] || (buf[0] == '#')) continue;
+
+		/* Ignore invalid lines */
+		if (buf[1] != ':') continue;
+
+		/* Process 'Start' */
+		if (buf[0] == 'S')
+		{
+			/* Extract the starting time */
+			start = atoi(buf + 2);
+
+			/* Assume valid for an hour */
+			end = start + 59;
+
+			/* Next... */
+			continue;
+		}
+
+		/* Process 'End' */
+		if (buf[0] == 'E')
+		{
+			/* Extract the ending time */
+			end = atoi(buf + 2);
+
+			/* Next... */
+			continue;
+		}
+
+		/* Ignore incorrect range */
+		if ((start > full) || (full > end)) continue;
+
+		/* Process 'Description' */
+		if (buf[0] == 'D')
+		{
+			num++;
+
+			/* Apply the randomizer */
+			if (!rand_int(num)) strcpy(desc, buf + 2);
+
+			/* Next... */
+			continue;
+		}
+	}
+
+	/* Message */
+	msg_print(desc);
+
+	/* Close the file */
+	my_fclose(fff);
+}

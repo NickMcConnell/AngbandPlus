@@ -230,8 +230,8 @@ Mirkwood is accessed by Lothlorien.
 Mordor is accessed by Minas Anor.
 Angband is accessed by Gondolin.
 
-A new character mustn't try to go at Mordor or Angband as it's first dungeon !
-It must go to the Upper reaches of Galgals.
+A new character mustn't try to go at Mordor or Angband as its first dungeon !
+He must go to the Upper reaches of Galgals.
 
 There is also some other dungeons that are totaly new to the game, they aren't
 created from the old big dungeon.
@@ -243,8 +243,7 @@ The lost ruins of Numenor at the west of Bree, levels 40-55 with shallow/deep
 water, some wall.
 
 And THE harder dungeon of the game:
-The Hell near the volcano, levels 500-530 with shallow/deep lava and dark pit.
-And well... some presents at level 530!
+The Hell near the volcano, levels 666-696 with shallow/deep lava and dark pit.
 --------------------------
 
 Once your character is adequately supplied with food, light, armor, and

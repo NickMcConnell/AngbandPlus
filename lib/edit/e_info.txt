@@ -459,7 +459,11 @@ X:24:15
 W:0:0:0:2500
 C:0:0:0:0
 
-# 71 (unused)
+N:71:of Spining
+X:24:18
+W:0:0:0:9000
+C:8:8:0:2
+F:DEX | STR | VORPAL | ACTIVATE
 
 # The "Elemental" brands (4) (6)
 
@@ -642,7 +646,7 @@ N:102:of Morgul
 X:24:0
 W:0:0:0:0
 C:20:20:10:0
-F:SEE_INVIS | AGGRAVATE | HEAVY_CURSE | CURSED | BLACK_BREATH
+F:SEE_INVIS | AGGRAVATE | HEAVY_CURSE | CURSED | BLACK_BREATH | CLONE
 
 N:103:of Nothing
 X:24:0

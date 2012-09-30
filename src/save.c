@@ -578,6 +578,10 @@ static void wr_item(object_type *o_ptr)
 	wr_byte(o_ptr->xtra1);
 	wr_byte(o_ptr->xtra2);
 
+        /* Write the exp/exp level */
+        wr_byte(o_ptr->elevel);
+        wr_s32b(o_ptr->exp);
+
 	/* Save the inscription (if any) */
 	if (o_ptr->note)
 	{
@@ -922,6 +926,8 @@ static void wr_extra(void)
 	/* Dump the stats (maximum and current) */
 	for (i = 0; i < 6; ++i) wr_s16b(p_ptr->stat_max[i]);
 	for (i = 0; i < 6; ++i) wr_s16b(p_ptr->stat_cur[i]);
+        for (i = 0; i < 6; ++i) wr_s16b(p_ptr->stat_cnt[i]);
+        for (i = 0; i < 6; ++i) wr_s16b(p_ptr->stat_los[i]);
 
 	/* Ignore the transient stats */
 	for (i = 0; i < 12; ++i) wr_s16b(0);
@@ -978,7 +984,7 @@ static void wr_extra(void)
         tmp8u = max_d_idx;
         wr_byte(tmp8u);
         for (i = 0; i < tmp8u; i++)
-                wr_s16b(p_ptr->max_dlv[i]);
+                wr_s16b(max_dlv[i]);
 
 	/* More info */
 	wr_s16b(0);     /* oops */
@@ -995,7 +1001,7 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->food);
 	wr_s16b(0);     /* old "food_digested" */
 	wr_s16b(0);     /* old "protection" */
-	wr_s16b(p_ptr->energy);
+        wr_s32b(p_ptr->energy);
 	wr_s16b(p_ptr->fast);
 	wr_s16b(p_ptr->slow);
 	wr_s16b(p_ptr->afraid);
@@ -1181,7 +1187,7 @@ static void wr_dungeon(void)
 
 	/* Note that this will induce two wasted bytes */
 	count = 0;
-	prev_char = 0;
+	prev_s16b = 0;
 
 	/* Dump the cave */
 	for (y = 0; y < cur_hgt; y++)
@@ -1192,14 +1198,14 @@ static void wr_dungeon(void)
 			c_ptr = &cave[y][x];
 
 			/* Extract a byte */
-			tmp8u = c_ptr->info;
+                        tmp16s = c_ptr->info;
 			
 			/* If the run is broken, or too full, flush it */
-			if ((tmp8u != prev_char) || (count == MAX_UCHAR))
+			if ((tmp16s != prev_s16b) || (count == MAX_UCHAR))
 			{
 				wr_byte((byte)count);
-				wr_byte((byte)prev_char);
-				prev_char = tmp8u;
+				wr_u16b(prev_s16b);
+				prev_s16b = tmp16s;
 				count = 1;
 			}
 
@@ -1215,7 +1221,7 @@ static void wr_dungeon(void)
 	if (count)
 	{
 		wr_byte((byte)count);
-		wr_byte((byte)prev_char);
+		wr_u16b(prev_s16b);
 	}
 
 
@@ -1319,6 +1325,47 @@ static void wr_dungeon(void)
 
 			/* Extract a byte */
 			tmp16s = c_ptr->special;
+			
+			/* If the run is broken, or too full, flush it */
+			if ((tmp16s != prev_s16b) || (count == MAX_UCHAR))
+			{
+				wr_byte((byte)count);
+				wr_u16b(prev_s16b);
+				prev_s16b = tmp16s;
+				count = 1;
+			}
+
+			/* Continue the run */
+			else
+			{
+				count++;
+			}
+		}
+	}
+
+	/* Flush the data (if any) */
+	if (count)
+	{
+		wr_byte((byte)count);
+		wr_u16b(prev_s16b);
+	}
+
+	/*** Simple "Run-Length-Encoding" of cave ***/
+
+	/* Note that this will induce two wasted bytes */
+	count = 0;
+	prev_s16b = 0;
+
+	/* Dump the cave */
+	for (y = 0; y < cur_hgt; y++)
+	{
+		for (x = 0; x < cur_wid; x++)
+		{
+			/* Get the cave */
+			c_ptr = &cave[y][x];
+
+			/* Extract a byte */
+                        tmp16s = c_ptr->t_idx;
 			
 			/* If the run is broken, or too full, flush it */
 			if ((tmp16s != prev_s16b) || (count == MAX_UCHAR))
@@ -1463,7 +1510,40 @@ static void wr_dungeon(void)
 	}
 }
 
-void wr_fate(int i)
+/* Save the current persistent dungeon -SC- */
+void save_dungeon(void)
+{
+        char tmp[16];
+        char name[1024];
+        dungeon_info_type *d_ptr = &d_info[dungeon_type];
+
+        /* Mega Hack */
+        s16b new_dun = dun_level;
+
+        /* Save only persistent dungeons */
+        if (((d_ptr->flags1 & DF1_PERSISTENT) == 0) || (!dun_level)) return;
+
+        /* Mega Hack */
+        dun_level = old_dun_level;
+
+        /* Construct filename */
+        sprintf(tmp, "d%il%i.sav", dungeon_type, dun_level);
+        path_build(name, 1024, ANGBAND_DIR_SAVE, tmp);
+   
+        /* Open the file */
+        fff = my_fopen(name, "wb");
+
+        /* Save the dungeon */
+        wr_dungeon();
+
+        /* Mega Hack */
+        dun_level = new_dun;
+
+        /* Done */
+        my_fclose(fff);
+}
+
+static void wr_fate(int i)
 {
         wr_byte(fates[i].fate);
         wr_byte(fates[i].level);
@@ -1665,6 +1745,7 @@ static bool wr_savefile_new(void)
 	/* Dump the position in the wilderness */
 	wr_s32b(p_ptr->wilderness_x);
 	wr_s32b(p_ptr->wilderness_y);
+        wr_byte(p_ptr->wild_mode);
 
 	wr_s32b(max_wild_x);
 	wr_s32b(max_wild_y);
@@ -1674,7 +1755,8 @@ static bool wr_savefile_new(void)
 	{
                 for (j = 0; j < max_wild_y; j++)
 		{
-			wr_u32b(wilderness[j][i].seed);
+                        wr_u32b(wild_map[j][i].seed);
+                        wr_u16b(wild_map[j][i].entrance);
 		}
 	}
 
@@ -1712,6 +1794,14 @@ static bool wr_savefile_new(void)
 	for (i = 0; i < tmp16u; i++)
 	{
                 wr_fate(i);
+	}
+
+        /* Hack -- Dump the traps */
+        tmp16u = max_t_idx;
+	wr_u16b(tmp16u);
+	for (i = 0; i < tmp16u; i++)
+	{
+                wr_byte(t_info[i].ident);
 	}
 
         /* Hack -- Dump the inscriptions */

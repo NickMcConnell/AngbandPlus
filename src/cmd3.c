@@ -167,13 +167,15 @@ void do_cmd_wield(void)
 	object_type forge;
 	object_type *q_ptr;
 
-	object_type *o_ptr;
+        object_type *o_ptr, *i_ptr;
 
 	cptr act;
 
 	char o_name[80];
 
 	cptr q, s;
+
+        u32b f1, f2, f3, f4;
 
 	/* Restrict the choices */
 	item_tester_hook = item_tester_hook_wear;
@@ -226,6 +228,45 @@ void do_cmd_wield(void)
             return;
     }
 
+	/* Extract the flags */
+        object_flags(o_ptr, &f1, &f2, &f3, &f4);
+
+	/* Two handed weapons can't be wielded with a shield */
+        if ((inventory[INVEN_ARM].k_idx != 0) && (f4 & TR4_MUST2H))
+	{
+           object_desc(o_name, o_ptr, FALSE, 0);
+	   msg_format("You cannot wield your %s with a shield.", o_name);
+	   return;
+	}
+
+	i_ptr = &inventory[INVEN_WIELD];
+	
+	/* Extract the flags */
+        object_flags(i_ptr, &f1, &f2, &f3, &f4);
+
+	/* Prevent shield from being put on if wielding 2H */
+        if ((slot == INVEN_ARM) && (f4 & TR4_MUST2H))
+	{
+           object_desc(o_name, o_ptr, FALSE, 0);
+	   msg_format("You cannot wield your %s with a two-handed weapon.", o_name);
+	   return;
+	}
+
+        if ((slot == INVEN_ARM) && (f4 & TR4_COULD2H))
+	{
+	   if (!get_check("Are you sure you want to restrict your fighting? "))
+            return;
+	}
+
+	/* Extract the flags */
+        object_flags(o_ptr, &f1, &f2, &f3, &f4);
+
+        if ((inventory[INVEN_ARM].k_idx != 0) && (f4 & TR4_COULD2H))
+	{
+           if (!get_check("Are you sure you want to use this weapon with a shield?"))
+            return;
+	}
+
 	/* Check if completed a quest */
 	for (i = 0; i < max_quests; i++)
 	{
@@ -275,7 +316,7 @@ void do_cmd_wield(void)
                 if (o_ptr->k_idx)
                 {
                         /* Take off existing item */
-                        (void)inven_takeoff(slot, 255);
+                        (void)inven_takeoff(slot, 255, FALSE);
                 }
         }
         else
@@ -285,7 +326,7 @@ void do_cmd_wield(void)
                         if (!object_similar(o_ptr, q_ptr))
                         {
                                 /* Take off existing item */
-                                (void)inven_takeoff(slot, 255);
+                                (void)inven_takeoff(slot, 255, FALSE);
                         }
                         else
                         {
@@ -319,6 +360,10 @@ void do_cmd_wield(void)
         else if (slot == INVEN_AMMO)
 	{
                 act = "In your quiver you have";
+	}
+        else if (slot == INVEN_AMMO)
+	{
+                act = "You are using";
 	}
 	else
 	{
@@ -356,8 +401,6 @@ void do_cmd_wield(void)
         /* Redraw monster hitpoint */
         p_ptr->redraw |= (PR_MH);
 
-        p_ptr->redraw |= (PR_EQUIPPY);
- 
 	/* Window stuff */
 	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
 }
@@ -408,14 +451,12 @@ void do_cmd_takeoff(void)
 	energy_use = 50;
 
 	/* Take off the item */
-	(void)inven_takeoff(item, 255);
+        (void)inven_takeoff(item, 255, FALSE);
 
         /* Recalculate hitpoint */
         p_ptr->update |= (PU_HP);
 
         p_ptr->redraw |= (PR_MH);
-
-        p_ptr->redraw |= (PR_EQUIPPY);
 }
 
 
@@ -475,19 +516,21 @@ void do_cmd_drop(void)
 
 	/* Drop (some of) the item */
 	inven_drop(item, amt);
-
-    p_ptr->redraw |= (PR_EQUIPPY);
 }
 
-//
+
 static bool high_level_book(object_type * o_ptr)
 {
     if ((o_ptr->tval == TV_VALARIN_BOOK) || (o_ptr->tval == TV_MAGERY_BOOK) ||
-        (o_ptr->tval == TV_SHADOW_BOOK) || (o_ptr->tval == TV_CHAOS_BOOK) ||
-        (o_ptr->tval == TV_NETHER_BOOK) || (o_ptr->tval == TV_CRUSADE_BOOK)  ||
+        (o_ptr->tval == TV_SHADOW_BOOK) || (o_ptr->tval == TV_NETHER_BOOK))
+        {
+            if (o_ptr->sval>3) return TRUE;
+            else return FALSE;
+        }
+    if ((o_ptr->tval == TV_CHAOS_BOOK) || (o_ptr->tval == TV_CRUSADE_BOOK) ||
         (o_ptr->tval == TV_SYMBIOTIC_BOOK) || (o_ptr->tval == TV_MUSIC_BOOK))
         {
-            if (o_ptr->sval>1) return TRUE;
+            if (o_ptr->sval>3) return TRUE;
             else return FALSE;
         }
         return FALSE;
@@ -587,8 +630,6 @@ void do_cmd_destroy(void)
 		/* Combine the pack */
 		p_ptr->notice |= (PN_COMBINE);
 
-      p_ptr->redraw |= (PR_EQUIPPY);
-
 		/* Window stuff */
 		p_ptr->window |= (PW_INVEN | PW_EQUIP);
 
@@ -631,6 +672,17 @@ void do_cmd_destroy(void)
             msg_print("You feel more experienced.");
             gain_exp(tester_exp * amt);
 		}
+	}
+
+	/*
+	 * Hack -- If rods or wand are destroyed, the total maximum timeout or 
+	 * charges of the stack needs to be reduced, unless all the items are 
+	 * being destroyed. -LM-
+	 */
+	if (((o_ptr->tval == TV_WAND) || (o_ptr->tval == TV_ROD)) &&
+		(amt < o_ptr->number))
+	{
+		o_ptr->pval -= o_ptr->pval * amt / o_ptr->number;
 	}
 
 	/* Eliminate the item (from the pack) */
@@ -1883,6 +1935,10 @@ void do_cmd_sense_grid_mana()
         {
                 msg_format("Grid's mana: %d\n", cave[py][px].mana);
                 msg_format("Average grid's mana: %d\n", (cave[py][px].mana / i) * i);
+        }
+        else if(p_ptr->pclass == CLASS_DRUID)
+        {
+                msg_format("Grid's mana: %d\n", cave[py][px].mana);
         }
         else
         {

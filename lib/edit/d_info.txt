@@ -21,6 +21,12 @@
 # M:<monster flags>
 # S:<monster spells>
 
+# Note on the MONSTER_PERCENT_ dungeon flag
+# It defines the percentage of monsters affected by the restrictions
+# so MONSTER_PERCENT_70 will create 70% of restricted monsters and 30%
+# of absulutly random monsters.
+# by default MONSTER_PERCENT_ is 0%
+
 # Note for <flags mode> :
 # 0 = No restriction
 # 1 = AND
@@ -37,7 +43,7 @@ V:2.8.1
 N:0:Wilderness
 D:a way to the Wilderness
 W:0:0:0:4:0:14:160
-L:89:100:1:0:1:0
+L:89:80:199:20:1:0
 A:96:100:56:0:56:0:57:58
 F:PRINCIPAL
 
@@ -47,29 +53,29 @@ F:PRINCIPAL
 N:1:Mirkwood
 D:a way to the Mirkwood Forest
 W:11:33:5:2:0:14:160
-L:89:100:1:0:1:0
-A:96:100:56:0:56:0:57:96
-F:PRINCIPAL
+L:89:95:199:5:1:0
+A:96:100:56:0:56:0:202:96
+F:PRINCIPAL | NO_DOORS
 
 N:2:Mordor
 D:a door to the Land of Mordor
 W:34:66:15:3:0:14:160
 L:88:100:1:0:1:0
 A:97:50:56:50:56:0:57:97
-F:PRINCIPAL
+F:PRINCIPAL | LAVA_RIVER | CAVERN
 
 N:3:Angband
 D:an entrance to the Dungeon of Angband
 W:67:127:30:0:0:14:160
 L:1:100:1:0:1:0
 A:56:100:56:0:56:0:57:58
-F:PRINCIPAL
+F:PRINCIPAL | CAVERN
 
 N:4:Galgals
 D:a way to the Upper reaches of Galgals
 W:1:10:1:1:0:14:160
-L:88:80:89:20:1:0
-A:96:34:97:66:56:0:57:96
+L:88:78:89:18:199:4
+A:96:34:97:66:56:0:57:97
 F:PRINCIPAL
 
 # The Additionnal dungeons
@@ -79,20 +85,29 @@ D:a hole to the center of the Volcano
 W:30:45:18:0:1:14:160
 L:86:100:1:0:1:0
 A:85:33:97:33:87:34:57:85
+F:CAVE | MONSTER_PERCENT_100
 M:IM_FIRE
 
 N:6:Hell
 D:a stairway to the Hell
-W:500:530:50:0:1:14:160
+W:666:696:50:0:1:14:160
 L:86:80:85:20:1:0
 A:85:80:87:20:87:0:57:85
+F:CAVERN | MONSTER_PERCENT_100
 M:IM_FIRE
 
 N:7:Submerged Ruins
 D:a submerged way to the lost land of Numenor
 W:40:60:25:0:0:14:160
 L:84:95:187:5:1:0
-A:187:80:84:10:56:0:57:187
+A:187:80:84:10:56:10:57:187
+
+# Dungeon from Variaz
+N:8:Vanilla Dungeon
+D:an entrance to the classic dungeon of Angband
+W:1:127:1:0:0:14:160
+L:1:100:1:0:1:0
+A:56:100:56:0:56:0:57:58
 
 # The random dungeons found in the wilderness
 
@@ -101,6 +116,7 @@ D:a hole to a Graveyard Underground
 W:30:38:18:0:3:24:100
 L:88:85:84:15:1:0
 A:56:75:87:25:56:0:57:58
+F:RANDOM | MONSTER_PERCENT_90 | T_GRASS
 M:UNDEAD | NONLIVING
 
 N:17:Illusory Castle
@@ -108,37 +124,86 @@ D:an entrance to an Illusory Castle
 W:25:33:10:0:3:24:100
 L:1:98:188:2:1:0
 A:56:50:189:50:56:0:57:58
+F:RANDOM | MONSTER_PERCENT_70 | T_GRASS
 M:STUPID | WEIRD_MIND | SHAPECHANGER | ATTR_MULTI | CHAR_MULTI | RAND_25 |
 M:RAND_50 | EMPTY_MIND | MULTIPLY | INVISIBLE | PASS_WALL
 S:BR_CONF | BR_CHAO | BA_CHAO | CONF | FORGET | TRAPS
 
 N:18:Maze
 D:a frightening entrance to a strange Maze
-W:3:10:1:0:0:20:160
+W:10:18:1:0:0:20:160
 L:1:100:1:0:1:0
 A:56:98:48:2:56:0:57:58
-F:MAZE | SMALL
+F:MAZE | SMALL | RANDOM | T_GRASS
 
 # There is Azog with the Wand of Thrain at the bottom
 N:19:Orc Cave
 D:a dark tunnel leading to an Orc Cave
-W:10:20:1:0:3:35:200
+W:10:22:5:0:3:35:200
 L:88:100:1:0:1:0
 A:97:100:56:0:56:0:57:97
-F:FINAL_ARTIFACT_149 | FINAL_GUARDIAN_373
+F:FINAL_ARTIFACT_149 | FINAL_GUARDIAN_373 | CAVE | RANDOM | T_MOUNTAIN
+F:MONSTER_PERCENT_68
 M:ORC | R_CHAR_k | R_CHAR_o | R_CHAR_O | ANIMAL
 
 N:20:Dragon's Lair
 D:a big dark and frigthening tunnel leading to a Dragon's Lair
-W:60:72:1:0:3:20:140
+W:60:72:25:0:3:20:140
 L:88:100:1:0:1:0
 A:97:90:87:10:56:0:57:97
-F:BIG
+F:BIG | LAVA_RIVER | CAVERN | RANDOM | MONSTER_PERCENT_60 | T_MOUNTAIN
+F:CAVE
 M:DRAGON | R_CHAR_d | R_CHAR_D
 
 N:21:Forest
 D:a patch of grass leading to a Forest
-W:28:40:1:0:3:15:190
-L:88:80:84:20:1:0
-A:96:100:56:0:56:0:57:96
+W:28:40:15:0:3:15:100
+L:88:76:84:16:199:8
+A:96:100:56:0:56:0:202:96
+F:WATER_RIVERS | NO_DOORS | RANDOM | MONSTER_PERCENT_70 | T_TREES
 M:ANIMAL | R_CHAR_S | R_CHAR_J | R_CHAR_Z
+
+# There is Muar with The Quarterstaff of Olorin
+# that's NOT a random dungeon
+N:22:Moria
+D:a stone door leading to the depths of the Moria
+W:30:50:20:0:3:40:40
+L:88:100:1:0:1:0
+A:97:100:56:0:56:0:57:97
+F:FINAL_ARTIFACT_120 | FINAL_GUARDIAN_872 | WATER_RIVER | BIG
+F:MONSTER_PERCENT_80
+M:ORC | TROLL | GIANT | DEMON
+
+#N:23:Outer World
+#D:an entrance to a place of an incredible stability
+#W:300:305:35:0:0:30:60
+#L:1:34:89:33:88:33
+#A:56:34:96:33:97:33:86:187
+#F:PERSISTENT | WATER_RIVER | LAVA_RIVER | CAVERN | T_ALL
+#F:BIG | RANDOM
+
+# Dungeons from Variaz
+
+# Waldern at the bottom guarding the Trident of Ulmo
+N:24:The Small Water Cave
+D:the entrace to a small water cave...
+W:32:32:20:0:0:14:160
+L:84:100:84:0:84:0
+A:97:100:56:0:56:0:57:58
+F:RANDOM | FINAL_ARTIFACT_108 | FINAL_GUARDIAN_517 | MONSTER_PERCENT_90
+F:T_SHALLOW_WATER
+M:IM_COLD
+
+N:25:The Sacred Land Of Mountains
+D:the entrace to The Sacred Land Of Mountains
+W:37:100:20:0:0:14:160
+L:89:100:89:0:89:0
+A:97:100:56:0:56:0:97:97
+F:RANDOM | T_MOUNTAIN
+
+N:26:The Wild Land Of Kurukar
+D:an entrace to the The Wild Land Of Kurukar
+W:36:76:15:0:0:14:160
+L:89:100:1:0:1:0
+A:89:50:96:25:84:25:57:58
+F:RANDOM | T_GRASS

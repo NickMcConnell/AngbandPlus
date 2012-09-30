@@ -1,3 +1,4 @@
+
 /* File: cave.c */
 
 /* Purpose: low level dungeon routines -BEN- */
@@ -538,45 +539,8 @@ static void image_random(byte *ap, char *cp)
  */
 static bool feat_supports_lighting(byte feat)
 {
-	if ((feat >= FEAT_TRAP_HEAD) && (feat <= FEAT_TRAP_TAIL)) return TRUE;
-	
-	switch (feat)
-	{
-		case FEAT_FLOOR:
-		case FEAT_INVIS:
-		case FEAT_GLYPH:
-		case FEAT_LESS:
-		case FEAT_MORE:
-		case FEAT_SECRET:
-		case FEAT_RUBBLE:
-		case FEAT_MAGMA:
-		case FEAT_QUARTZ:
-		case FEAT_MAGMA_H:
-		case FEAT_QUARTZ_H:
-		case FEAT_MAGMA_K:
-		case FEAT_QUARTZ_K:
-		case FEAT_WALL_EXTRA:
-		case FEAT_WALL_INNER:
-		case FEAT_WALL_OUTER:
-		case FEAT_WALL_SOLID:
-		case FEAT_PERM_EXTRA:
-		case FEAT_PERM_INNER:
-		case FEAT_PERM_OUTER:
-		case FEAT_PERM_SOLID:
-		case FEAT_MINOR_GLYPH:
-		case FEAT_DEEP_WATER:
-		case FEAT_SHAL_WATER:
-		case FEAT_DEEP_LAVA:
-		case FEAT_SHAL_LAVA:
-		case FEAT_DARK_PIT:
-		case FEAT_DIRT:
-		case FEAT_GRASS:
-		case FEAT_TREES:
-		case FEAT_MOUNTAIN:
-			return TRUE;
-		default:
-			return FALSE;
-	}
+        if(f_info[feat].flags1 & FF1_SUPPORT_LIGHT) return TRUE;
+        else return FALSE;
 }
 
 
@@ -739,17 +703,24 @@ void map_info(int y, int x, byte *ap, char *cp)
 			/* Access floor */
                         f_ptr = &f_info[feat];
 
-                        if ((feat == FEAT_INVIS) && (!(p_ptr->inside_quest)))
-                                f_ptr = &f_info[d_info[dungeon_type].floor1];
-
 			/* Normal char */
 			c = f_ptr->x_char;
 
 			/* Normal attr */
 			a = f_ptr->x_attr;
 
+			/* Hack to display detected traps */
+			if ((c_ptr->t_idx != 0) && (c_ptr->info & CAVE_TRDT))
+			{
+				/* If trap isn't on door display it */
+				if (!(f_ptr->flags1 & FF1_DOOR)) c = '^';
+				
+				/* Add attr */
+				a = t_info[c_ptr->t_idx].color;
+			}
+			
 			/* Special lighting effects */
-                        if (view_special_lite && ((a == TERM_WHITE) || (graf_new && feat_supports_lighting(c_ptr->feat))))
+                        if (view_special_lite && (!p_ptr->wild_mode) && ((a == TERM_WHITE) || (graf_new && feat_supports_lighting(c_ptr->feat) && (!(c_ptr->t_idx && (c_ptr->info & CAVE_TRDT))))))
 			{
 				/* Handle "blind" */
 				if (p_ptr->blind)
@@ -770,7 +741,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 				else if (c_ptr->info & (CAVE_LITE))
 				{
 					/* Torch lite */
-					if (view_yellow_lite)
+                                        if (view_yellow_lite && (!p_ptr->wild_mode))
 					{
 						if (graf_new)
 						{
@@ -804,7 +775,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 				else if (!(c_ptr->info & (CAVE_VIEW)))
 				{
 					/* Special flag */
-					if (view_bright_lite)
+                                        if (view_bright_lite && (!p_ptr->wild_mode))
 					{
 						if (graf_new)
 						{
@@ -856,10 +827,15 @@ void map_info(int y, int x, byte *ap, char *cp)
 			/* Normal attr */
 			a = f_ptr->x_attr;
 
+			/* Add trap color - Illusory wall masks everythink */
+			if ((c_ptr->t_idx != 0) && (c_ptr->info & CAVE_TRDT) &&
+			    (c_ptr->feat != FEAT_ILLUS_WALL))
+				a = t_info[c_ptr->t_idx].color;
+
 			/* Special lighting effects */
-			if (view_granite_lite &&
+                        if (view_granite_lite && (!p_ptr->wild_mode) &&
 			   (((a == TERM_WHITE) && !graf_new) ||
-                           (graf_new && feat_supports_lighting(c_ptr->feat))))
+                           (graf_new && feat_supports_lighting(c_ptr->feat) && (!(c_ptr->t_idx && (c_ptr->info & CAVE_TRDT))))))
 			{
 				/* Handle "blind" */
 				if (p_ptr->blind)
@@ -880,7 +856,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 				else if (c_ptr->info & (CAVE_LITE))
 				{
 					/* Torch lite */
-					if (view_yellow_lite)
+                                        if (view_yellow_lite && (!p_ptr->wild_mode))
 					{
 						if (graf_new)
 						{
@@ -896,7 +872,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 				}
 
 				/* Handle "view_bright_lite" */
-				else if (view_bright_lite)
+                                else if (view_bright_lite && (!p_ptr->wild_mode))
 				{
 					/* Not viewable */
 					if (!(c_ptr->info & (CAVE_VIEW)))
@@ -1226,6 +1202,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 								a = TERM_BLUE;
 							c = 248;
 							break;
+                                                case CLASS_DRUID:
 						case CLASS_RANGER:
 							if (p_ptr->lev < 20)
 								a = TERM_L_GREEN;
@@ -1359,7 +1336,8 @@ void print_rel(char c, byte a, int y, int x)
 		if (!use_graphics || streq(ANGBAND_SYS, "ibm"))
 		{
 			if (p_ptr->invuln || !use_color) a = TERM_WHITE;
-			else if (p_ptr->wraith_form) a = TERM_L_DARK;
+                        else if (p_ptr->wraith_form) a = TERM_L_DARK;
+                        else if (p_ptr->shero) a = TERM_L_RED;
 		}
 
 		/* Draw the char using the attr */
@@ -1528,6 +1506,7 @@ void lite_spot(int y, int x)
 		{
 			if (p_ptr->invuln || !use_color) a = TERM_WHITE;
 			else if (p_ptr->wraith_form) a = TERM_L_DARK;
+                        else if (p_ptr->shero) a = TERM_L_RED;
 		}
 
 #ifdef USE_TRANSPARENCY
@@ -1583,6 +1562,7 @@ void prt_map(void)
 			{
 				if (p_ptr->invuln || !use_color) a = TERM_WHITE;
 				else if (p_ptr->wraith_form) a = TERM_L_DARK;
+                                else if (p_ptr->shero) a = TERM_L_RED;
 			}
 
 			/* Efficiency -- Redraw that grid of the map */
@@ -1596,6 +1576,7 @@ void prt_map(void)
 			{
 				if (p_ptr->invuln || !use_color) a = TERM_WHITE;
 				else if (p_ptr->wraith_form) a = TERM_L_DARK;
+                                else if (p_ptr->shero) a = TERM_L_RED;
 			}
 
 			/* Efficiency -- Redraw that grid of the map */
@@ -1618,7 +1599,6 @@ void prt_map(void)
 /*
  * Display highest priority object in the RATIO by RATIO area
  */
-#define RATIO 3
 
 /*
  * Display the entire map
@@ -1676,6 +1656,9 @@ static byte priority_table[][2] =
 	/* Stairs */
 	{ FEAT_LESS, 25 },
 	{ FEAT_MORE, 25 },
+
+        { FEAT_SHAFT_UP, 25 },
+        { FEAT_SHAFT_DOWN, 25 },
 
 	/* End */
 	{ 0, 0 }
@@ -1787,6 +1770,7 @@ void display_map(int *cy, int *cx)
 
 			/* Extract the priority of that attr/char */
 			tp = priority(ta, tc);
+                        if ((px == i) && (py == j)) tp = 255;
 
 			/* Save "best" */
 			if (mp[y][x] < tp)
@@ -1835,6 +1819,7 @@ void display_map(int *cy, int *cx)
 			{
 				if (p_ptr->invuln || !use_color) ta = TERM_WHITE;
 				else if (p_ptr->wraith_form) ta = TERM_L_DARK;
+                                else if (p_ptr->shero) ta = TERM_L_RED;
 			}
 
 			/* Add the character */
@@ -3380,7 +3365,7 @@ void map_area(void)
 
 
 /*
- * Light up the dungeon using "claravoyance"
+ * Light up the dungeon using "clairvoyance"
  *
  * This function "illuminates" every grid in the dungeon, memorizes all
  * "objects", memorizes all grids as with magic mapping, and, under the
@@ -3425,7 +3410,6 @@ void wiz_lite(void)
 
 			/* Process all non-walls */
 			/* if (c_ptr->feat < FEAT_SECRET) */
-			if (cave_floor_bold(y,x))
 			{
 				/* Scan all neighbors */
 				for (i = 0; i < 9; i++)
@@ -3897,8 +3881,9 @@ bool is_quest(int level)
 	for (i = 0; i < max_quests; i++)
 	{
 		if ((quest[i].type == QUEST_TYPE_KILL_LEVEL) &&
-			(quest[i].status == QUEST_STATUS_TAKEN) &&
-		    (quest[i].level == level))
+                    (quest[i].status == QUEST_STATUS_TAKEN) &&
+                    (quest[i].level == level) &&
+                    (d_info[dungeon_type].flags1 & DF1_PRINCIPAL))
 			return (TRUE);
 	}
 
@@ -3922,7 +3907,8 @@ int random_quest_number(int level)
 	{
 		if ((quest[i].type == QUEST_TYPE_RANDOM) &&
 			(quest[i].status == QUEST_STATUS_TAKEN) &&
-		    (quest[i].level == level))
+                    (quest[i].level == level) &&
+                    (d_info[dungeon_type].flags1 & DF1_PRINCIPAL))
 		{
 			return i;
 		}

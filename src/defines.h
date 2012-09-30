@@ -43,7 +43,7 @@
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 4
 #define FAKE_VER_MINOR 0
-#define FAKE_VER_PATCH 0
+#define FAKE_VER_PATCH 7
 
 #define ANGBAND_2_8_1
 
@@ -104,6 +104,18 @@
  */
 #define MAX_WID         198
 
+/* Used only in object3.c / trap effects */
+#if ((MAX_HGT / SCREEN_HGT) < (MAX_WID / SCREEN_WID))
+ #define RATIO (MAX_WID / SCREEN_WID)
+#else
+ #define RATIO (MAX_HGT / SCREEN_HGT)
+#endif
+
+#define CHANCE_TRAP_JAMMED_DOOR 2500
+#define CHANCE_TRAP_SECRET_DOOR 1500
+#define CHANCE_TRAP_LOCKED_DOOR 1000
+#define CHANCE_TRAP_DOOR  500        /* in 10000 */
+#define CHANCE_TRAP_FLOOR 4          /* in 10000 chance of placing a trap */
 
 /*
  * Quest constants
@@ -178,7 +190,7 @@
 /*
  * Maximum number of player "class" types (see "table.c", etc)
  */
-#define MAX_CLASS            24
+#define MAX_CLASS            26
 
 /* The number of "patrons" available (for Chaos Warriors) */
 #define MAX_PATRON          16
@@ -345,6 +357,9 @@
 
 /* Mindcraft */
 #define MAX_MINDCRAFT_POWERS  12
+
+/* Necromancy */
+#define MAX_NECRO_POWERS  5
 
 
 /* A hack for cave.c */
@@ -591,6 +606,7 @@ and tables.c --TY */
 #define CH_PRAYER       0x00000400
 #define CH_ILLUSION     0x00000800
 #define CH_TRIBAL       0x00001000
+#define CH_DRUID        0x00002000
 
 #define REALM_NONE         0
 #define REALM_VALARIN      1
@@ -606,7 +622,8 @@ and tables.c --TY */
 #define REALM_PRAYER       11
 #define REALM_ILLUSION     12
 #define REALM_TRIBAL       13
-#define MAX_REALM          14
+#define REALM_DRUID        14
+#define MAX_REALM          15
 
 /*
  * Maximum number of "normal" pack slots, and the index of the "overflow"
@@ -619,28 +636,44 @@ and tables.c --TY */
 #define INVEN_PACK              23
 
 /*
+ * Body parts
+ */
+#define BODY_WEAPON     0
+#define BODY_WEAPON_MAX 3
+#define BODY_TORSO      1
+#define BODY_TORSO_MAX  1
+#define BODY_ARMS       2
+#define BODY_ARMS_MAX   3
+#define BODY_FINGER     3
+#define BODY_FINGER_MAX 6
+#define BODY_HEAD       4
+#define BODY_HEAD_MAX   2
+#define BODY_LEGS       5
+#define BODY_LEGS_MAX   2
+#define BODY_MAX        6
+
+/*
  * Indexes used for various "equipment" slots (hard-coded by savefiles, etc).
  */
-#define INVEN_WIELD             24
-#define INVEN_BOW       25
-#define INVEN_LEFT      26
-#define INVEN_RIGHT     27
-#define INVEN_NECK      28
-#define INVEN_LITE      29
-#define INVEN_BODY      30
-#define INVEN_OUTER     31
-#define INVEN_ARM       32
-#define INVEN_HEAD      33
-#define INVEN_HANDS     34
-#define INVEN_FEET      35
-#define INVEN_CARRY     36
-#define INVEN_AMMO      37
+#define INVEN_WIELD     24 /* 3 weapons -- WEAPONS */
+#define INVEN_BOW       27 /* 1 bow -- WEAPON */
+#define INVEN_RING      28 /* 6 rings -- FINGER */
+#define INVEN_NECK      34 /* 2 amulets -- HEAD */
+#define INVEN_LITE      36 /* 1 lite -- TORSO */
+#define INVEN_BODY      37 /* 1 body -- TORSO */
+#define INVEN_OUTER     38 /* 1 cloak -- TORSO */
+#define INVEN_ARM       39 /* 3 arms -- ARMS */
+#define INVEN_HEAD      42 /* 2 heads -- HEAD */
+#define INVEN_HANDS     44 /* 3 hands -- ARMS */
+#define INVEN_FEET      47 /* 2 feets --LEGS */
+#define INVEN_CARRY     49 /* 1 carried monster -- TORSO */
+#define INVEN_AMMO      50 /* 1 quiver -- TORSO */
+#define INVEN_TOOL      51 /* 1 tool -- ARMS */
 
 /*
  * Total number of inventory slots (hard-coded).
  */
-#define INVEN_TOTAL     38
-
+#define INVEN_TOTAL     52
 
 /*
  * A "stack" of items is limited to less than 100 items (hard-coded).
@@ -670,7 +703,7 @@ and tables.c --TY */
  * Player race constants (hard-coded by save-files, arrays, etc)
  */
 #define RACE_HUMAN              0
-#define RACE_HALF_ELF   1
+#define RACE_HALF_ELF           1
 #define RACE_ELF                2
 #define RACE_HOBBIT             3
 #define RACE_GNOME              4
@@ -721,6 +754,8 @@ and tables.c --TY */
 #define CLASS_SORCERER          21
 #define CLASS_ARCHER            22
 #define CLASS_ILLUSIONIST       23
+#define CLASS_DRUID             24
+#define CLASS_NECRO             25
 
 /*** Screen Locations ***/
 
@@ -747,9 +782,6 @@ and tables.c --TY */
 
 #define ROW_GOLD                6
 #define COL_GOLD                0       /* "AU xxxxxxxxx" */
-
-#define ROW_EQUIPPY             7
-#define COL_EQUIPPY             0       /* equippy chars */
 
 #define ROW_STAT                8
 #define COL_STAT                0       /* "xxx   xxxxxx" */
@@ -817,7 +849,7 @@ and tables.c --TY */
 
 /* Various */
 #define FEAT_FLOOR              0x01
-#define FEAT_INVIS              0x02
+/*** 0x02 UNUSED ***/
 #define FEAT_GLYPH              0x03
 #define FEAT_OPEN               0x04
 #define FEAT_BROKEN             0x05
@@ -830,11 +862,11 @@ and tables.c --TY */
 #define FEAT_QUEST_DOWN			0x0A
 #define FEAT_QUEST_UP			0x0B
 
-/* Feature 0x0C - 0x0F unused */
+/* Shafts -GSN- */
+#define FEAT_SHAFT_DOWN         0x0D
+#define FEAT_SHAFT_UP           0x0E
 
-/* Traps */
-#define FEAT_TRAP_HEAD  0x10
-#define FEAT_TRAP_TAIL  0x1F
+/* Feature 0x0F - 01F unused */
 
 /* Doors */
 #define FEAT_DOOR_HEAD  0x20
@@ -928,9 +960,7 @@ and tables.c --TY */
 #define TERRAIN_DEEP_LAVA       10 /* Deep lava */
 #define TERRAIN_MOUNTAIN        11 /* Mountain */
 
-#define MAX_WILDERNESS          12 /* Maximum wilderness index */
-
-
+#define MAX_WILD_TERRAIN        18
 
 /*** Artifact indexes (see "lib/edit/a_info.txt") ***/
 
@@ -1219,7 +1249,7 @@ and tables.c --TY */
 #define EGO_WEST                        68
 #define EGO_ATTACKS                     69
 #define EGO_SLAYING_WEAPON              70
-/* xxx */
+#define EGO_SPINING                     71
 #define EGO_BRAND_ACID          72
 #define EGO_BRAND_ELEC          73
 #define EGO_BRAND_FIRE          74
@@ -1256,6 +1286,7 @@ and tables.c --TY */
 /* Bows */
 #define EGO_ACCURACY            104
 #define EGO_VELOCITY            105
+
 /* xxx */
 /* xxx */
 #define EGO_EXTRA_MIGHT         108
@@ -1440,6 +1471,7 @@ and tables.c --TY */
 #define TV_CORPSE        9      /* Monster corpses */
 #define TV_EGG          10      /* Monster Eggs */
 #define TV_JUNK         11      /* Sticks, Pottery, etc ('~') */
+#define TV_TOOL         12      /* Tools */
 #define TV_INSTRUMENT   14      /* Musical instruments */
 #define TV_BOOMERANG    15      /* Boomerangs */
 #define TV_SHOT         16      /* Ammo for slings */
@@ -1489,8 +1521,15 @@ and tables.c --TY */
 #define TV_MAGIC_BOOK   120
 #define TV_PRAYER_BOOK  121
 #define TV_ILLUSION_BOOK 122
-#define TV_TRIBAL_BOOK 123
+#define TV_TRIBAL_BOOK  123
+#define TV_DRUID_BOOK   124
 
+
+/* The "sval" codes for TV_TOOL */
+#define SV_TOOL_CLIMB 0
+
+/* The "sval" codes for TV_MSTAFF */
+#define SV_MSTAFF 1
 
 /* The "sval" codes for TV_FIRESTONE */
 #define SV_FIRESTONE  3
@@ -1608,6 +1647,8 @@ and tables.c --TY */
 #define SV_EXECUTIONERS_SWORD           28  /* 4d5 */
 #define SV_ZWEIHANDER                   29  /* 4d6 */
 #define SV_BLADE_OF_CHAOS               30  /* 6d5 */
+#define SV_SHADOW_BLADE                 31  /* 4d4 */
+#define SV_BLUESTEEL_BLADE              32  /* 3d9 */
 
 /* The "sval" codes for TV_SHIELD */
 #define SV_SMALL_LEATHER_SHIELD          2
@@ -1728,6 +1769,7 @@ and tables.c --TY */
 #define SV_AMULET_NO_TELE               14
 #define SV_AMULET_RESISTANCE            15
 #define SV_AMULET_NOTHING               16
+#define SV_AMULET_SERPENT               17
 
 /* The sval codes for TV_RING */
 #define SV_RING_WOE                      0
@@ -1735,6 +1777,7 @@ and tables.c --TY */
 #define SV_RING_WEAKNESS                 2
 #define SV_RING_STUPIDITY                3
 #define SV_RING_TELEPORTATION            4
+#define SV_RING_SPECIAL                  5
 #define SV_RING_SLOW_DIGESTION           6
 #define SV_RING_FEATHER_FALL             7
 #define SV_RING_RESIST_FIRE              8
@@ -1784,6 +1827,7 @@ and tables.c --TY */
 #define SV_RING_FLAR                    52
 #define SV_RING_INVIS                   53
 #define SV_RING_FLYING                  54
+#define SV_RING_WRAITH                  55
 
 /* The "sval" codes for TV_STAFF */
 #define SV_STAFF_DARKNESS                0
@@ -1819,6 +1863,9 @@ and tables.c --TY */
 #define SV_STAFF_NOTHING                30
 #define SV_STAFF_WISHING                31
 
+/* jk - the first valuable staff */
+#define SV_STAFF_NASTY_STAFF              4
+
 /* The "sval" codes for TV_WAND */
 #define SV_WAND_HEAL_MONSTER             0
 #define SV_WAND_HASTE_MONSTER            1
@@ -1853,6 +1900,9 @@ and tables.c --TY */
 #define SV_WAND_NOTHING                 30
 #define SV_WAND_WALL_CREATION           31
 
+/* jk - the first valuable wand */
+#define SV_WAND_NASTY_WAND               3
+
 /* The "sval" codes for TV_ROD */
 #define SV_ROD_DETECT_TRAP               0
 #define SV_ROD_DETECT_DOOR               1
@@ -1883,7 +1933,8 @@ and tables.c --TY */
 #define SV_ROD_FIRE_BALL                26
 #define SV_ROD_COLD_BALL                27
 #define SV_ROD_HAVOC                    28
-#define SV_ROD_NOTHING                   29
+#define SV_ROD_NOTHING                  29
+#define SV_ROD_HOME                     30
 
 
 /* The "sval" codes for TV_SCROLL */
@@ -2074,6 +2125,11 @@ and tables.c --TY */
 #define SV_BATERIE_TIME      11
 #define SV_BATERIE_MAGIC     12
 #define SV_BATERIE_XTRA_LIFE 13
+#define SV_BATERIE_DARKNESS  14
+#define SV_BATERIE_KNOWLEDGE 15
+#define SV_BATERIE_FORCE     16
+#define SV_BATERIE_LIGHTNING 17
+#define SV_BATERIE_MANA      18
 
 /* The "sval" codes for TV_CORPSE */
 #define SV_CORPSE_CORPSE     1
@@ -2102,7 +2158,12 @@ and tables.c --TY */
  */
 #define SV_BOOK_MIN_GOOD    2
 
+/* flags for operation in get_random_trap in object3.c */
 
+#define TRAP_EXISTS     0x00000001L
+#define TRAP_FOUND      0x00000002L
+#define TRAP_NOTFOUND   0x00000004L
+#define TRAP_IDENTIFIED 0x00000008L
 
 /*** General flag values ***/
 
@@ -2110,15 +2171,15 @@ and tables.c --TY */
 /*
  * Special cave grid flags
  */
-#define CAVE_MARK       0x01    /* memorized feature */
-#define CAVE_GLOW       0x02    /* self-illuminating */
-#define CAVE_ICKY       0x04    /* part of a vault */
-#define CAVE_ROOM       0x08    /* part of a room */
-#define CAVE_LITE       0x10    /* lite flag  */
-#define CAVE_VIEW       0x20    /* view flag */
-#define CAVE_TEMP       0x40    /* temp flag */
-#define CAVE_XTRA       0x80    /* misc flag */
-
+#define CAVE_MARK       0x0001    /* memorized feature */
+#define CAVE_GLOW       0x0002    /* self-illuminating */
+#define CAVE_ICKY       0x0004    /* part of a vault */
+#define CAVE_ROOM       0x0008    /* part of a room */
+#define CAVE_LITE       0x0010    /* lite flag  */
+#define CAVE_VIEW       0x0020    /* view flag */
+#define CAVE_TEMP       0x0040    /* temp flag */
+#define CAVE_XTRA       0x0080    /* misc flag */
+#define CAVE_TRDT       0x0100    /* trap detected */
 
 
 /*
@@ -2148,6 +2209,8 @@ and tables.c --TY */
 #define PROJECT_PANEL      0x00000800   /* Affect everything in the panel. */
 #define PROJECT_ALL        0x00001000   /* Affect every single grid. */
 #define PROJECT_WALL       0x00002000
+#define PROJECT_MANA_PATH  0x00004000   /* Follow a mana path. */
+#define PROJECT_ABSORB_MANA 0x00008000   /* The spell increase in power as it absord grid's mana. */
 
 /*
  * Bit flags for the "enchant()" function
@@ -2229,6 +2292,7 @@ and tables.c --TY */
  */
 #define PU_BONUS        0x00000001L     /* Calculate bonuses */
 #define PU_TORCH        0x00000002L     /* Calculate torch radius */
+#define PU_BODY         0x00000004L     /* Calculate body parts */
 /* xxx (many) */
 #define PU_SANITY       0x00000008L     /* Calculate csan and msan */
 #define PU_HP           0x00000010L     /* Calculate chp and mhp */
@@ -2262,7 +2326,7 @@ and tables.c --TY */
 #define PR_MANA         0x00000080L     /* Display Mana */
 #define PR_GOLD         0x00000100L     /* Display Gold */
 #define PR_DEPTH        0x00000200L     /* Display Depth */
-#define PR_EQUIPPY      0x00000400L     /* Display equippy chars */
+/****/ 
 #define PR_HEALTH       0x00000800L     /* Display Health Bar */
 #define PR_CUT          0x00001000L     /* Display Extra (Cut) */
 #define PR_STUN         0x00002000L     /* Display Extra (Stun) */
@@ -2305,6 +2369,199 @@ and tables.c --TY */
 #define PW_BORG_1       0x00004000L     /* Display borg messages */
 #define PW_BORG_2       0x00008000L     /* Display borg status */
 
+
+/* jk */
+#define FTRAP_CHEST      0x000000001 /* may appear on chests */
+#define FTRAP_DOOR       0x000000002 /* may appear on doors/floors */
+#define FTRAP_FLOOR      0x000000004 /* may appear on floor */
+#define FTRAP_XXX4       0x000000008
+#define FTRAP_XXX5       0x000000010
+#define FTRAP_XXX6       0x000000020
+#define FTRAP_XXX7       0x000000040
+#define FTRAP_XXX8       0x000000080
+#define FTRAP_XXX9       0x000000100
+#define FTRAP_XXX10      0x000000200
+#define FTRAP_XXX11      0x000000400
+#define FTRAP_XXX12      0x000000800
+#define FTRAP_XXX13      0x000001000
+#define FTRAP_XXX14      0x000002000
+#define FTRAP_XXX15      0x000004000
+#define FTRAP_XXX16      0x000008000
+#define FTRAP_LEVEL1     0x000010000 /* low level ball/bolt trap */
+#define FTRAP_LEVEL2     0x000020000 /* medium level ball/bolt trap */
+#define FTRAP_LEVEL3     0x000040000 /* high level ball/bolt trap */
+#define FTRAP_LEVEL4     0x000080000 /* oops level ball/bolt trap */
+#define FTRAP_XXX21      0x000100000
+#define FTRAP_XXX22      0x000200000
+#define FTRAP_XXX23      0x000400000
+#define FTRAP_XXX24      0x000800000
+#define FTRAP_XXX25      0x001000000
+#define FTRAP_XXX26      0x002000000
+#define FTRAP_XXX27      0x004000000
+#define FTRAP_XXX28      0x008000000
+#define FTRAP_XXX29      0x010000000
+#define FTRAP_XXX30      0x020000000
+#define FTRAP_XXX31      0x040000000
+#define FTRAP_XXX32      0x080000000
+
+/* jk */
+#define STAT_DEC_TEMPORARY 1
+#define STAT_DEC_NORMAL 2
+#define STAT_DEC_PERMANENT 3
+
+/* jk - which trap is which number */
+#define TRAP_OF_WEAKNESS_I                  1
+#define TRAP_OF_WEAKNESS_II                 2
+#define TRAP_OF_WEAKNESS_III                3
+#define TRAP_OF_INTELLIGENCE_I              4
+#define TRAP_OF_INTELLIGENCE_II             5
+#define TRAP_OF_INTELLIGENCE_III            6
+#define TRAP_OF_WISDOM_I                    7
+#define TRAP_OF_WISDOM_II                   8
+#define TRAP_OF_WISDOM_III                  9
+#define TRAP_OF_FUMBLING_I                 10
+#define TRAP_OF_FUMBLING_II                11
+#define TRAP_OF_FUMBLING_III               12
+#define TRAP_OF_WASTING_I                  13
+#define TRAP_OF_WASTING_II                 14
+#define TRAP_OF_WASTING_III                15
+#define TRAP_OF_BEAUTY_I                   16
+#define TRAP_OF_BEAUTY_II                  17
+#define TRAP_OF_BEAUTY_III                 18
+
+#define TRAP_OF_CURSE_WEAPON               20
+#define TRAP_OF_CURSE_ARMOR                21
+#define TRAP_OF_EARTHQUAKE                 22
+#define TRAP_OF_POISON_NEEDLE              23
+#define TRAP_OF_SUMMON_MONSTER             24
+#define TRAP_OF_SUMMON_UNDEAD              25
+#define TRAP_OF_SUMMON_GREATER_UNDEAD      26
+#define TRAP_OF_TELEPORT                   27
+#define TRAP_OF_PARALYZING                 28
+#define TRAP_OF_EXPLOSIVE_DEVICE           29
+#define TRAP_OF_TELEPORT_AWAY              30
+#define TRAP_OF_LOSE_MEMORY                31
+#define TRAP_OF_BITTER_REGRET              32
+#define TRAP_OF_BOWEL_CRAMPS               33
+#define TRAP_OF_BLINDNESS_CONFUSION        34
+#define TRAP_OF_AGGRAVATION                35
+#define TRAP_OF_MULTIPLICATION             36
+#define TRAP_OF_STEAL_ITEM                 37
+#define TRAP_OF_SUMMON_FAST_QUYLTHULGS     38
+#define TRAP_OF_SINKING                    39
+#define TRAP_OF_MANA_DRAIN                 40
+#define TRAP_OF_MISSING_MONEY              41
+#define TRAP_OF_NO_RETURN                  42
+#define TRAP_OF_SILENT_SWITCHING           43
+#define TRAP_OF_WALLS                      44
+#define TRAP_OF_CALLING_OUT                45
+#define TRAP_OF_SLIDING                    46
+#define TRAP_OF_CHARGES_DRAIN              47
+#define TRAP_OF_STAIR_MOVEMENT             48
+#define TRAP_OF_NEW                        49
+#define TRAP_OF_SCATTER_ITEMS              50
+#define TRAP_OF_DECAY                      51
+#define TRAP_OF_WASTING_WANDS              52
+#define TRAP_OF_FILLING                    53
+#define TRAP_OF_DRAIN_SPEED                54
+
+#define TRAP_OF_ELEC_BOLT                  60
+#define TRAP_OF_POIS_BOLT                  61
+#define TRAP_OF_ACID_BOLT                  62
+#define TRAP_OF_COLD_BOLT                  63
+#define TRAP_OF_FIRE_BOLT                  64
+#define TRAP_OF_PLASMA_BOLT                65
+#define TRAP_OF_WATER_BOLT                 66
+#define TRAP_OF_LITE_BOLT                  67
+#define TRAP_OF_DARK_BOLT                  68
+#define TRAP_OF_SHARDS_BOLT                69
+#define TRAP_OF_SOUND_BOLT                 70
+#define TRAP_OF_CONFUSION_BOLT             71
+#define TRAP_OF_FORCE_BOLT                 72
+#define TRAP_OF_INERTIA_BOLT               73
+#define TRAP_OF_MANA_BOLT                  74
+#define TRAP_OF_ICE_BOLT                   75
+#define TRAP_OF_CHAOS_BOLT                 76
+#define TRAP_OF_NETHER_BOLT                77
+#define TRAP_OF_DISENCHANT_BOLT            78
+#define TRAP_OF_NEXUS_BOLT                 79
+#define TRAP_OF_TIME_BOLT                  80
+#define TRAP_OF_GRAVITY_BOLT               81
+
+#define TRAP_OF_ELEC_BALL                  82
+#define TRAP_OF_POIS_BALL                  83
+#define TRAP_OF_ACID_BALL                  84
+#define TRAP_OF_COLD_BALL                  85
+#define TRAP_OF_FIRE_BALL                  86
+#define TRAP_OF_PLASMA_BALL                87
+#define TRAP_OF_WATER_BALL                 88
+#define TRAP_OF_LITE_BALL                  89
+#define TRAP_OF_DARK_BALL                  90
+#define TRAP_OF_SHARDS_BALL                91
+#define TRAP_OF_SOUND_BALL                 92
+#define TRAP_OF_CONFUSION_BALL             93
+#define TRAP_OF_FORCE_BALL                 94
+#define TRAP_OF_INERTIA_BALL               95
+#define TRAP_OF_MANA_BALL                  96
+#define TRAP_OF_ICE_BALL                   97
+#define TRAP_OF_CHAOS_BALL                 98
+#define TRAP_OF_NETHER_BALL                99
+#define TRAP_OF_DISENCHANT_BALL           100
+#define TRAP_OF_NEXUS_BALL                101
+#define TRAP_OF_TIME_BALL                 102
+#define TRAP_OF_GRAVITY_BALL              103
+
+#define TRAP_OF_ARROW_I                   110
+#define TRAP_OF_ARROW_II                  111
+#define TRAP_OF_ARROW_III                 112
+#define TRAP_OF_ARROW_IV                  113
+#define TRAP_OF_POISON_ARROW_I            114
+#define TRAP_OF_POISON_ARROW_II           115
+#define TRAP_OF_POISON_ARROW_III          116
+#define TRAP_OF_POISON_ARROW_IV           117
+#define TRAP_OF_DAGGER_I                  118
+#define TRAP_OF_DAGGER_II                 119
+#define TRAP_OF_POISON_DAGGER_I           120
+#define TRAP_OF_POISON_DAGGER_II          121
+#define TRAP_OF_ARROWS_I                  122
+#define TRAP_OF_ARROWS_II                 123
+#define TRAP_OF_ARROWS_III                124
+#define TRAP_OF_ARROWS_IV                 125
+#define TRAP_OF_POISON_ARROWS_I           126
+#define TRAP_OF_POISON_ARROWS_II          127
+#define TRAP_OF_POISON_ARROWS_III         128
+#define TRAP_OF_POISON_ARROWS_IV          129
+#define TRAP_OF_DAGGERS_I                 130
+#define TRAP_OF_DAGGERS_II                131
+#define TRAP_OF_POISON_DAGGERS_I          132
+#define TRAP_OF_POISON_DAGGERS_II         133
+
+#define TRAP_OF_DROP_ITEMS                140
+#define TRAP_OF_DROP_ALL_ITEMS            141
+#define TRAP_OF_DROP_EVERYTHING           142
+
+/* -SC- */
+#define TRAP_OF_FEMINITY                  150
+#define TRAP_OF_MASCULINITY               151
+#define TRAP_OF_NEUTRALITY                152
+#define TRAP_OF_AGING                     153
+#define TRAP_OF_GROWING                   154
+#define TRAP_OF_SHRINKING                 155
+#define TRAP_OF_ELDRITCH_HORROR           156
+#define TRAP_OF_TANKER_DRAIN              157
+#define TRAP_OF_DIVINE_ANGER              158
+#define TRAP_OF_DIVINE_WRATH              159
+#define TRAP_OF_HALLUCINATION             160
+
+#define TRAP_OF_ROCKET                    161
+#define TRAP_OF_NUKE_BOLT                 162
+#define TRAP_OF_DEATH_RAY                 163
+#define TRAP_OF_HOLY_FIRE                 164
+#define TRAP_OF_HELL_FIRE                 165
+#define TRAP_OF_PSI_BOLT                  166
+#define TRAP_OF_PSI_DRAIN                 167
+#define TRAP_OF_NUKE_BALL                 168
+#define TRAP_OF_PSI_BALL                  169
 
 
 /*** General index values ***/
@@ -2349,6 +2606,7 @@ and tables.c --TY */
 #define SUMMON_HUMAN                54
 #define SUMMON_SHADOWS              55
 #define SUMMON_GHOST                56
+#define SUMMON_QUYLTHULG            57
 
 
 /*
@@ -2439,6 +2697,8 @@ and tables.c --TY */
 #define GF_LAVA_FLOW    101
 #define GF_FEAR         102
 #define GF_BETWEEN_GATE 103
+#define GF_WINDS_MANA   104
+#define GF_DEATH        105
 
 /*
  * Some things which induce learning
@@ -2488,18 +2748,6 @@ and tables.c --TY */
 #define EGO_XTRA_ABILITY        3
 
 /*** Object flag values ***/
-
-
-/*
- * Chest trap flags (see "tables.c")
- */
-#define CHEST_LOSE_STR          0x01
-#define CHEST_LOSE_CON          0x02
-#define CHEST_POISON            0x04
-#define CHEST_PARALYZE          0x08
-#define CHEST_EXPLODE           0x10
-#define CHEST_SUMMON            0x20
-
 
 
 /*
@@ -2657,7 +2905,14 @@ and tables.c --TY */
 #define TR4_PRECOGNITION        0x00000002L     /* Like activating the cheat mode */
 #define TR4_BLACK_BREATH        0x00000004L     /* Tolkien's Black Breath */
 #define TR4_RECHARGE            0x00000008L     /* For artifact Wands and Staffs */
-#define TR4_FLY                 0x00000010L     /* This one and ONLY this one allow you to fly over mountains and trees */
+#define TR4_FLY                 0x00000010L     /* This one and ONLY this one allow you to fly over trees */
+#define TR4_DG_CURSE            0x00000020L     /* The Ancient Morgothian Curse */
+#define TR4_COULD2H             0x00000040L     /* Can wield it 2 Handed */
+#define TR4_MUST2H              0x00000080L     /* Must wield it 2 Handed */
+#define TR4_LEVELS              0x00000100L     /* Can gain exp/exp levels !! */
+#define TR4_CLONE               0x00000200L     /* Can clone monsters */
+#define TR4_SPECIAL_GENE        0x00000400L     /* The object can only be generated in special conditions like quests, special dungeons, ... */
+#define TR4_CLIMB               0x00000800L     /* Allow climbing mountains */
 #define TR4_NULL_MASK           0xFFFFFFFCL
 
 
@@ -2682,7 +2937,11 @@ and tables.c --TY */
 #define FF1_CAN_FLY             0x00000080L
 #define FF1_REMEMBER            0x00000100L
 #define FF1_NOTICE              0x00000200L
-
+#define FF1_DONT_NOTICE_RUNNING 0x00000400L
+#define FF1_CAN_RUN             0x00000800L
+#define FF1_DOOR                0x00001000L
+#define FF1_SUPPORT_LIGHT       0x00002000L
+#define FF1_CAN_CLIMB           0x00004000L
 
 /*** Dungeon type flags -- DG ***/
 #define DF1_PRINCIPAL           0x00000001L
@@ -2690,7 +2949,28 @@ and tables.c --TY */
 #define DF1_SMALLEST            0x00000004L
 #define DF1_SMALL               0x00000008L
 #define DF1_BIG                 0x00000010L
-
+#define DF1_NO_DOORS            0x00000020L
+#define DF1_WATER_RIVER         0x00000040L
+#define DF1_LAVA_RIVER          0x00000080L
+#define DF1_WATER_RIVERS        0x00000100L
+#define DF1_LAVA_RIVERS         0x00000200L
+#define DF1_CAVE                0x00000400L
+#define DF1_CAVERN              0x00000800L
+#define DF1_PERSISTENT          0x00001000L
+#define DF1_HOT                 0x00002000L
+#define DF1_COLD                0x00004000L
+#define DF1_RANDOM              0x00008000L
+#define DF1_T_DEEP_WATER        0x00001000L
+#define DF1_T_SHALLOW_WATER     0x00002000L
+#define DF1_T_SWAMP             0x00004000L
+#define DF1_T_DIRT              0x00008000L
+#define DF1_T_GRASS             0x00010000L
+#define DF1_T_TREES             0x00020000L
+#define DF1_T_DESERT            0x00040000L
+#define DF1_T_SHALLOW_LAVA      0x00080000L
+#define DF1_T_DEEP_LAVA         0x00100000L
+#define DF1_T_MOUNTAIN          0x00200000L
+#define DF1_T_ALL               0x00400000L
 
 /*** Monster blow constants ***/
 
@@ -2990,6 +3270,7 @@ and tables.c --TY */
 #define RF7_MORTAL              0x00000020  /* Monster is a mortal being */
 #define RF7_PLAYER_MONSTER      0x00000040  /* Monster is an old player */
 #define RF7_NAZGUL              0x00000080  /* Monster is a Nazgul */
+#define RF7_DG_CURSE            0x00000080  /* If killed the monster grant a DG Curse to the player */
 
 
 /*
@@ -3015,8 +3296,8 @@ and tables.c --TY */
  */
 #define RF9_DROP_CORPSE         0x00000001
 #define RF9_DROP_SKELETON       0x00000002
-#define RF9_HAS_NO_HEAD         0x00000004      /* Has no head */
-#define RF9_HAS_NO_SKULL        0x00000008      /* Has no skull (useful for undead) */
+/****/
+/****/
 #define RF9_HAS_EGG             0x00000010      /* Can be monster's eggs */
 #define RF9_IMPRESED            0x00000020      /* The monster can follow you on each level until he dies */
 #define RF9_SUSCEP_ACID         0x00000040      /* Susceptible to acid */
@@ -3026,6 +3307,7 @@ and tables.c --TY */
 #define RF9_WYRM_PROTECT        0x00000400      /* The monster is protected by great wyrms of power: They'll be summoned if it's killed */
 #define RF9_DOPPLEGANGER        0x00000800      /* The monster looks like you */
 #define RF9_ONLY_DEPTH          0x00001000      /* The monster can only be generated at the GIVEN depth */
+#define RF9_SPECIAL_GENE        0x00002000      /* The monster can only be generated in special conditions like quests, special dungeons, ... */
 
 
 
@@ -3621,10 +3903,10 @@ extern int PlayerUID;
 /*
  * Alchemists defines
  */
-#define MAX_ALCHEMIST_RECIPES 15
-#define ALCHEMIST_ENCHANT_DAM      1
-#define ALCHEMIST_ENCHANT_PVAL     2
-#define ALCHEMIST_ENCHANT_DAM_PVAL 3
+#define MAX_ALCHEMIST_RECIPES 20
+#define ALCHEMIST_ENCHANT_DAM      0x01
+#define ALCHEMIST_ENCHANT_PVAL     0x02
+#define ALCHEMIST_ENCHANT_AC       0x04
 
 /*
  * Music songs
@@ -3720,9 +4002,10 @@ extern int PlayerUID;
 #define DUNGEON_VOLCANO         5
 #define DUNGEON_HELL            6
 #define DUNGEON_NUMENOR         7
+#define DUNGEON_VANILLA         8
 
 /* Max depth of each dungeon(max_depth - min_depth) */
-#define MAX_DUNGEON_DEPTH       40
+#define MAX_DUNGEON_DEPTH       128
 
 #define DUNGEON_MODE_NONE       0
 #define DUNGEON_MODE_AND        1
@@ -3770,3 +4053,23 @@ extern int PlayerUID;
 #define GOD_ERU                 10
 #define GOD_RNG                 11
 #define MAX_GOD                 12
+
+/*
+ * Various class dependant defines
+ */
+#define CLASS_NONE              0
+#define CLASS_MANA_PATH         1
+#define CLASS_CANALIZE_MANA     2
+#define CLASS_WINDS_MANA        3
+
+#define CLASS_MANA_PATH_ERASE           0x01
+#define CLASS_FLOOD_LEVEL               0x02
+#define CLASS_CANALIZE_MANA_EXTRA       0x04
+#define CLASS_UNDEAD                    0x08
+
+/*
+ * Types of birth presents
+ */
+#define BIRTH_NONE      0
+#define BIRTH_RING      1
+#define BIRTH_AMULET    2

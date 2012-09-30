@@ -55,7 +55,7 @@ F:<:6:8
 F:a:1:6:44
 
 # Floor with Bandit
-F:b:1:6:150
+F:b:1:6:150:43:*
 
 # Floor with novice warrior
 F:c:1:6:43

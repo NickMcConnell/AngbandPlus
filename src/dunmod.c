@@ -1,5 +1,7 @@
 /* File: dunmod.c */
 
+#ifdef USE_PYTHON
+
 /*
  * Copyright (c) 1999 Dark God
  *
@@ -92,3 +94,4 @@ void initdungeon(void)
         add_constant(d, "DUNGEON_HELL", DUNGEON_HELL);
 }
 
+#endif

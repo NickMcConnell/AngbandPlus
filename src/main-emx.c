@@ -1,8 +1,19 @@
 /* File: main-emx.c */
 
+/*
+ * Copyright (c) 1997 Ben Harrison, Ekkehard Kraemer, and others
+ *
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statement
+ * are included in all such copies.
+ */
+
 /* Purpose: Support for OS/2 EMX Angband */
 
 /* Author: ekraemer@pluto.camelot.de (Ekkehard Kraemer) */
+
+/* Current maintainer: silasd@psyber.com (Silas Dunsmore) */
+/* Unless somebody else wants it.... */
 
 #ifdef USE_EMX
 
@@ -52,7 +63,7 @@
  *                              Introduced __EMX__CLIENT__ hack
  *
  *  15.12.95   EK      2.7.9    Updated for 2.7.9
- *                     beta     Added mirror view
+ *                     beta     Added third view
  *                              Added number of line support in aclient
  *
  *  25.12.95   EK      2.7.9    Added 'install' target
@@ -74,11 +85,18 @@
  *
  *   9.03.96   EK      2.7.9    Adjustable background color (PM)
  *                      v5      Added map window
+
+ *  3 Dec 97   SWD      282     Brought key-handling, macros in sync with DOS.
+ *                              Hacked on sub-window code -- it compiles, but
+ *                              doesn't link.
  *
- *   16.08.98 Graham Muray      Changed terminal window names to use the
- *                              angband_term array. So that will compile
- *                              for zangband 2.1.x
- 
+ * 23 Jan 98   SWD      282     Hacked more on sub-windows.  Now links, with
+ *                              warnings.  Seems to work.
+ *
+ * 01 Nov 98   AGA      2.8.3	Adjusted for 2.8.3 sources, typos corrected
+ *
+ * 01 Nov 98   AGA	Z214b	Corrections for ZAngband 2.1.4 beta
+ *
  */
 
 #include <signal.h>
@@ -86,10 +104,34 @@
 #include <stdlib.h>
 #include <sys/kbdscan.h>
 #include <io.h>
+#define INCL_KBD 1
 #include <os2.h>
 #include <sys/video.h>
 
 #include "angband.h"
+
+
+/*
+ * Maximum windows
+ */
+#define MAX_TERM_DATA 8
+
+
+/*
+ * Keypress input modifier flags (copied from main-ibm.c)
+ *
+ * SWD: these could be changed to the definitions in <os2.h>, which are
+ *      direct bitmasks instead of shift-counts.
+ */
+#define K_RSHIFT	0	/* Right shift key down */
+#define K_LSHIFT	1	/* Left shift key down */
+#define K_CTRL		2	/* Ctrl key down */
+#define K_ALT		3	/* Alt key down */
+#define K_SCROLL	4	/* Scroll lock on */
+#define K_NUM		5	/* Num lock on */
+#define K_CAPS		6	/* Caps lock on */
+#define K_INSERT	7	/* Insert on */
+
 
 /*
  * Prototypes!
@@ -208,10 +250,31 @@ static errr Term_text_emx(int x, int y, int n, unsigned char a, cptr s)
  */
 static void Term_init_emx(term *t)
 {
+	struct _KBDINFO kbdinfo;	/* see structure description ?somewhere? */
+
 	v_init();
 	v_getctype(&curs_start, &curs_end);
+	/* hide cursor (?) XXX XXX XXX */
 	v_clear();
 
+	/* the documentation I (SWD) have implies, in passing, that setting */
+	/* "binary mode" on the keyboard device will prevent the O/S from */
+	/* acting on keys such as ^S (pause) and ^P (printer echo). */
+
+	/* note also that "KbdSetStatus is ignored for a Vio-windowed application." */
+	/* so there may well be problems with running this in a window.  Damnit. */
+
+	/* this is kind of a nasty structure, as you can't just flip a bit */
+	/* to change binary/ASCII mode, or echo on/off mode... nor can you */
+	/* clear the whole thing -- certain bits need to be preserved. */
+
+	KbdGetStatus(&kbdinfo, (HKBD)0);
+	kbdinfo.fsMask &= ~ (KEYBOARD_ECHO_ON|	/* clear lowest four bits */
+		KEYBOARD_ECHO_OFF|KEYBOARD_BINARY_MODE|KEYBOARD_ASCII_MODE);
+	kbdinfo.fsMask |= (KEYBOARD_BINARY_MODE);	/* set bit two */
+	KbdSetStatus(&kbdinfo, (HKBD)0);
+
+#if 1 /* turn off for debug */
 	signal(SIGHUP, SIG_IGN);
 	signal(SIGINT, SIG_IGN);
 	signal(SIGQUIT, SIG_IGN);
@@ -230,6 +293,8 @@ static void Term_init_emx(term *t)
 	signal(SIGUSR2, SIG_IGN);
 	signal(SIGCHLD, SIG_IGN);
 	signal(SIGBREAK, SIG_IGN);
+#endif
+
 }
 
 /*
@@ -263,8 +328,8 @@ static errr Term_wipe_pipe_emx(int x, int y, int n);
 static errr Term_text_pipe_emx(int x, int y, int n, unsigned char a, cptr s);
 static void Term_init_pipe_emx(term *t);
 static void Term_nuke_pipe_emx(term *t);
-static FILE *initPipe(char *name);
-static void initPipeTerm(termPipe *pipe, char *name, term **term);
+static FILE *initPipe(const char *name);
+static void initPipeTerm(termPipe *pipe, const char *name, term **term);
 
 /*
  * Main initialization function
@@ -274,11 +339,8 @@ errr init_emx(void);
 /*
  * The screens
  */
-static termPipe term_screen_main,
-term_screen_recall,
-term_screen_choice,
-term_screen_mirror,
-term_screen_map;
+static termPipe term_screen_aga[MAX_TERM_DATA];
+
 
 /*
  * Check for events -- called by "Term_scan_emx()"
@@ -286,170 +348,250 @@ term_screen_map;
  * Note -- this is probably NOT the most efficient way
  * to "wait" for a keypress (TERM_XTRA_EVENT).
  *
- * _read_kbd(0,0,0) does this:
- *       - if no key is available, return -1
- *       - if extended key available, return 0
- *       - normal key available, return ASCII value (1 ... 255)
  *
- *  _read_kbd(0,1,0) waits on a key and then returns
- *       - 0, if it's an extended key
- *       - the ASCII value, if it's a normal key
+ * This code was ripped from "main-ibm.c" -- consult it to
+ * figure out what's going on.
  *
- *  *If* _read_kbd() returns 0, *then*, and only then, the next
- *  call to _read_kbd() will return the extended scan code.
- *
- * See "main-ibm.c" for a "better" use of "macro sequences".
- *
- * Note that this file does *NOT* currently extract modifiers
- * (such as Control and Shift).  See "main-ibm.c" for a method.
- *
- * XXX XXX XXX XXX The "key handling" really needs to be fixed.
  * See "main-ibm.c" for more information about "macro encoding".
+ *
+ *
+ * The following documentation was cut&pasted from
+ * the OS/2 Programming Reference, PRCP.INF
+ * <ftp://hobbes.nmsu.edu/pub/os2/dev/16-bit/inf16bit.zip>
+-------------------------------------------------------------------------------
+
+
+ This call returns a character data record from the keyboard.
+
+  KbdCharIn    (CharData, IOWait, KbdHandle)
+
+  CharData (PKBDKEYINFO) - output
+     Address of the character data structure:
+
+     asciicharcode (UCHAR)
+        ASCII character code. The scan code received from the keyboard is
+        translated to the ASCII character code.
+
+     scancode (UCHAR)
+        Code received from the keyboard.  The scan code received from the
+        keyboard is translated to the ASCII character code.
+
+     status (UCHAR)
+        State of the keystroke event:
+
+        Bit       Description
+
+        7-6       00 = Undefined
+
+                  01 = Final character, interim character flag off
+
+                  10 = Interim character
+
+                  11 = Final character, interim character flag on.
+
+        5         1 = Immediate conversion requested.
+
+        4-2       Reserved.
+
+        1         0 = Scan code is a character.
+
+                  1 = Scan code is not a character; is an extended key code
+                  from the keyboard.
+
+        0         1 = Shift status returned without character.
+
+     reserved (UCHAR)
+        NLS shift status.  Reserved, set to zero.
+
+     shiftkeystat (USHORT)
+        Shift key status.
+
+        Bit       Description
+        15        SysReq key down
+        14        CapsLock key down
+        13        NumLock key down
+        12        ScrollLock key down
+        11        Right Alt key down
+        10        Right Ctrl key down
+        9         Left Alt key down
+        8         Left Ctrl key down
+        7         Insert on
+        6         CapsLock on
+        5         NumLock on
+        4         ScrollLock on
+        3         Either Alt key down
+        2         Either Ctrl key down
+        1         Left Shift key down
+        0         Right Shift key down
+
+     time (ULONG)
+        Time stamp indicating when a key was pressed.  It is specified in
+        milliseconds from the time the system was started.
+
+  IOWait (USHORT) - input
+     Wait if a character is not available.
+
+     Value     Definition
+     0         Requestor waits for a character if one is not available.
+     1         Requestor gets an immediate return if no character is
+               available.
+
+  KbdHandle (HKBD) - input
+     Default keyboard or the logical keyboard.
+
+  rc (USHORT) - return
+     Return code descriptions are:
+
+     0         NO_ERROR
+     375       ERROR_KBD_INVALID_IOWAIT
+     439       ERROR_KBD_INVALID_HANDLE
+     445       ERROR_KBD_FOCUS_REQUIRED
+     447       ERROR_KBD_KEYBOARD_BUSY
+     464       ERROR_KBD_DETACHED
+     504       ERROR_KBD_EXTENDED_SG
+
+  Remarks
+
+  On an enhanced keyboard, the secondary enter key returns the normal
+  character 0DH and a scan code of E0H.
+
+  Double-byte character codes (DBCS) require two function calls to obtain
+  the entire code.
+
+  If shift report is set with KbdSetStatus, the CharData record returned
+  reflects changed shift information only.
+
+  Extended ASCII codes are identified with the status byte, bit 1 on and the
+  ASCII character code being either 00H or E0H. Both conditions must be
+  satisfied for the character to be an extended keystroke.  For extended
+  ASCII codes, the scan code byte returned is the second code (extended
+  code). Usually the extended ASCII code is the scan code of the primary
+  key that was pressed.
+
+  A thread in the foreground session that repeatedly polls the keyboard
+  with KbdCharIn (with no wait), can prevent all regular priority class
+  threads from executing.  If polling must be used and a minimal amount of
+  other processing is being performed, the thread should periodically yield to
+  the CPU by issuing a DosSleep call for an interval of at least 5
+  milliseconds.
+
+
+  Family API Considerations
+
+  Some options operate differently in the DOS mode than in the OS /2 mode.
+  Therefore, the following restrictions apply to KbdCharIn when coding in
+  the DOS mode:
+
+  o The CharData structure includes everything except the time stamp.
+  o Interim character is not supported
+  o Status can be 0 or 40H
+  o KbdHandle is ignored.
+
+
+-------------------------------------------------------------------------------
+
+
+   typedef struct _KBDKEYINFO {   / * kbci * /
+     UCHAR    chChar;             / * ASCII character code * /
+     UCHAR    chScan;             / * Scan Code * /
+     UCHAR    fbStatus;           / * State of the character * /
+     UCHAR    bNlsShift;          / * Reserved (set to zero) * /
+     USHORT   fsState;            / * State of the shift keys * /
+     ULONG    time;               / * Time stamp of keystroke (ms since ipl) * /
+   }KBDKEYINFO;
+
+   #define INCL_KBD
+
+   USHORT  rc = KbdCharIn(CharData, IOWait, KbdHandle);
+
+   PKBDKEYINFO      CharData;      / * Buffer for data * /
+   USHORT           IOWait;        / * Indicate if wait * /
+   HKBD             KbdHandle;     / * Keyboard handle * /
+
+   USHORT           rc;            / * return code * /
+
+
+-------------------------------------------------------------------------------
+ *
  */
 static errr CheckEvents(int returnImmediately)
 {
-	int k = 0, ke = 0;
+	int i, k, s;
 
-	/* Get key */
-	k=_read_kbd(0, returnImmediately?0:1, 0);
+	bool mc = FALSE;
+	bool ms = FALSE;
+	bool ma = FALSE;
 
-	/* Nothing ready */
-	if (k < 0) return (1);
+	/* start OS/2 specific section */
 
-	if(k == 0xe0)
-	  {
-	    k = 0;
-	  }
-	/* Get an extended scan code */
-	if (!k)
-	  {
-	    ke = _read_kbd(0, 1, 0);
-#if 0	    
-	    switch(ke)
-	      {
-	      case 0x4b:
-		/* Left */
-		k = '4';
-		break;
-		
-	      case 0x50:
-		/* Down */
-		k = '2';
-		break;
-		
-	      case 0x4d:
-		/* Right */
-		k = '6';
-		break;
-		
-	      case 0x48:
-		/* Up */
-		k = '8';
-		break;
+	struct _KBDKEYINFO keyinfo;	/* see structure description above */
 
-	      case 0x47:
-		/* Home */
-		k = '7';
-		break;
-		
-	      case 0x4f:
-		/* End */
-		k = '1';
-		break;
-		
-	      case 0x51:
-		/* PgDn */
-		k = '3';
-		break;
-		
-	      case 0x49:
-		/* PgUp */
-		k = '9';
-		break;
-	      case 0x4c:
-		/* 5 */
-		k = '5';
-		break;
-		
-/*  Control + Direction starts running in that direction */
+	/* Check (and possibly wait) for a keypress */
+	/* see function description above */
+	KbdCharIn( &keyinfo, returnImmediately, (HKBD)0 );
 
-	      case 0x91:
-		/* C-Down */
-		Term_keypress('.');
-		k = '2';
-		break;
-		
-	      case 0x73:
-		/* C-Left */
-		Term_keypress('.');
-		k = '4';
-		break;
-		
-	      case 0x74:
-		/* C-Right */
-		Term_keypress('.');
-		k = '6';
-		break;
-		
-	      case 0x8D:
-		/* C-Up */
-		Term_keypress('.');
-		k = '8';
-		break;
-		
-	      case 0x77:
-		/* C-Home */
-		Term_keypress('.');
-		k = '7';
-		break;
-		
-	      case 0x75:
-		/* C-End */
-		Term_keypress('.');
-		k = '1';
-		break;
-		
-	      case 0x76:
-		/* C-PgDn */
-		Term_keypress('.');
-		k = '3';
-		break;
-		
-	      case 0x84:
-		/* C-PgUp */
-		k = '9';
-		break;
-		
-	      default:
-		k = 0;
-		break;
-	      }
+#if 0
+	printf("AC:%x SC:%x ST:%x R1:%x SH:%x TI:%ld\n",	/* OS/2 debug */
+		keyinfo.chChar,
+		keyinfo.chScan,
+		keyinfo.fbStatus,
+		keyinfo.bNlsShift,
+		keyinfo.fsState,
+		keyinfo.time );
 #endif
-	   
-	  }
 
-	if(k)
-	  {
-	    Term_keypress(k);
-	    return (0);
-	  }
+	/* If there wasn't a key, leave now. */
+	if ((keyinfo.fbStatus & 0xC0) == 0) return(1);
 
-	/* Hack -- introduce a macro sequence */
+
+	/* by a set of lucky coincidences, the data maps directly over. */
+	k = keyinfo.chChar;
+	s = keyinfo.chScan;
+	i = (keyinfo.fsState & 0xFF);
+
+	/* end OS/2 specific section */
+
+
+	/* Process "normal" keys */
+	if ( k != 0 && ((s <= 58) || (s == 0xE0)) )	/* Tweak: allow for ALT-keys */
+	{
+		/* Enqueue it */
+		Term_keypress(k);
+
+		/* Success */
+		return (0);
+	}
+
+	/* Extract the modifier flags */
+	if (i & (1 << K_CTRL)) mc = TRUE;
+	if (i & (1 << K_LSHIFT)) ms = TRUE;
+	if (i & (1 << K_RSHIFT)) ms = TRUE;
+	if (i & (1 << K_ALT)) ma = TRUE;
+
+
+	/* Begin a "macro trigger" */
 	Term_keypress(31);
 
-	/* XXX We're not able to extract shift/ctrl/alt key information here. */
+	/* Hack -- Send the modifiers */
+	if (mc) Term_keypress('C');
+	if (ms) Term_keypress('S');
+	if (ma) Term_keypress('A');
 
-	/* Hack -- send the key sequence */
-	Term_keypress('0' + (ke % 1000) / 100);
-	Term_keypress('0' + (ke % 100) / 10);
-	Term_keypress('0' + (ke % 10));
+	/* Introduce the hexidecimal scan code */
+	Term_keypress('x');
 
-	/* Hack --  end the macro sequence */
+	/* Encode the hexidecimal scan code */
+	Term_keypress(hexsym[s/16]);
+	Term_keypress(hexsym[s%16]);
+
+	/* End the "macro trigger" */
 	Term_keypress(13);
 
 	/* Success */
 	return (0);
 }
+
+
 
 /*
  * Do a special thing (beep, flush, etc)
@@ -598,11 +740,11 @@ static void Term_nuke_pipe_emx(term *t)
 	}
 }
 
-static void initPipeTerm(termPipe *pipe, char *name, term **termTarget)
+static void initPipeTerm(termPipe *pipe, const char *name, term **termTarget)
 {
 	term *t;
 
-	t=(term*)pipe;
+	t=&pipe->t;
 
 	if ((pipe->out=initPipe(name))!=NULL)
 	{
@@ -632,16 +774,19 @@ static void initPipeTerm(termPipe *pipe, char *name, term **termTarget)
  */
 errr init_emx(void)
 {
+	int i;
+
 	term *t;
 
 	/* Initialize the pipe windows */
-	initPipeTerm(&term_screen_recall, "recall", &(angband_term[1]));
-	initPipeTerm(&term_screen_choice, "choice", &(angband_term[2]));
-	initPipeTerm(&term_screen_mirror, "mirror", &(angband_term[3]));
-	initPipeTerm(&term_screen_map,   "map",   &(angband_term[4]));
+	for (i = MAX_TERM_DATA-1; i > 0; --i)
+	{
+		const char *name = angband_term_name[i];
+		initPipeTerm(&term_screen_aga[i], name, &angband_term[i]);
+	}
 
 	/* Initialize main window */
-	t = (term*)(&term_screen_main);
+	t = &term_screen_aga[0].t;
 
 	/* Initialize the term -- big key buffer */
 	term_init(t, 80, 24, 1024);
@@ -657,7 +802,7 @@ errr init_emx(void)
 	t->xtra_hook = Term_xtra_emx;
 
 	/* Save it */
-	term_screen = t;
+	angband_term[0] = t;
 
 	/* Activate it */
 	Term_activate(t);
@@ -666,7 +811,7 @@ errr init_emx(void)
 	return (0);
 }
 
-static FILE *initPipe(char *name)
+static FILE *initPipe(const char *name)
 {
 	char buf[256];
 	FILE *fi;
@@ -693,7 +838,7 @@ int main(int argc, char **argv)
 	/* Check command line */
 	if (argc!=2 && argc!=3)
 	{
-		printf("Usage: %s choice|recall|mirror [number of lines]\n"
+		printf("Usage: %s Mirror|Recall|Choice|Term-4|...|Term-7 [number of lines]\n"
 		       "Start this before angband.exe\n", argv[0]);
 		exit(1);
 	}
@@ -907,11 +1052,7 @@ errr init_emx(void);
 /*
  * The screens
  */
-static termWindow term_screen_main,
-term_screen_recall,
-term_screen_choice,
-term_screen_mirror,
-term_screen_map;
+static termWindow term_screen_aga[MAX_TERM_DATA];
 
 /*
  * Check for events -- called by "Term_scan_emx()"
@@ -1002,15 +1143,18 @@ void emx_init_term(termWindow *t, void *main_instance, term **angTerm, int n)
  */
 errr init_emx(void)
 {
+	int i;
+
 	/* Initialize the windows */
-	emx_init_term(&term_screen_main,  NULL,                      &term_screen, 0);
-	emx_init_term(&term_screen_recall, term_screen_main.instance, &(angband_term[1]), 1);
-	emx_init_term(&term_screen_choice, term_screen_main.instance, &(angband_term[2]), 2);
-	emx_init_term(&term_screen_mirror, term_screen_main.instance, &(angband_term[3]), 3);
-	emx_init_term(&term_screen_map, term_screen_main.instance,    &(angband_term[4]), 4);
+	emx_init_term(&term_screen_aga[0],  NULL, &angband_term[0], 0);
+
+	for (i = 1; i < MAX_TERM_DATA; ++i)
+	{
+		emx_init_term(&term_screen_aga[i], term_screen_aga[0].instance, &angband_term[i], i);
+	}
 
 	/* Activate main window */
-	Term_activate(term_screen);
+	Term_activate(angband_term[0]);
 
 	/* Success */
 	return (0);
@@ -1036,42 +1180,30 @@ static void init_stuff(void)
 
 static void quit_hook(cptr s)
 {
-	/* Shut down the term windows */
-	if (term_choice)
+	int i;
+
+	for (i = MAX_TERM_DATA - 1; i >= 0; --i)
 	{
-		term_nuke(term_choice);
-		emx_nuke(((termWindow*)term_choice)->instance);
-	}
-	if (term_recall)
-	{
-		term_nuke(term_recall);
-		emx_nuke(((termWindow*)term_recall)->instance);
-	}
-	if (term_mirror)
-	{
-		term_nuke(term_mirror);
-		emx_nuke(((termWindow*)term_mirror)->instance);
-	}
-	if (term_map)
-	{
-		term_nuke(term_map);
-		emx_nuke(((termWindow*)term_map)->instance);
-	}
-	if (term_screen)
-	{
-		term_nuke(term_screen);
-		emx_nuke(((termWindow*)term_screen)->instance);
+		/* Shut down the term windows */
+		if (angband_term[i])
+		{
+			term_nuke(angband_term[i]);
+			emx_nuke(((termWindow*)angband_term[i])->instance);
+		}
 	}
 
 	/* Shut down window system - doesn't return */
 	emx_endPM(s);
 }
 
+
 void angbandThread(void *arg)
 {
 	bool new_game = FALSE;
 
 	int show_score = 0;
+
+	char player_name_aga[32];
 
 	/* Save the "program name" */
 	argv0 = (char*)arg;
@@ -1090,7 +1222,10 @@ void angbandThread(void *arg)
 	                 &arg_force_original,
 	                 &arg_fiddle,
 	                 &arg_wizard,
-	                 player_name)) quit(NULL);
+	                 player_name_aga)) quit(NULL);
+
+	/* XXX XXX XXX (?) */
+	strcpy(player_name, player_name_aga);
 
 	/* Process the player name */
 	process_player_name(TRUE);
@@ -1104,11 +1239,8 @@ void angbandThread(void *arg)
 	/* Catch nasty signals */
 	signals_init();
 
-	/* Display the 'news' file */
-	show_news();
-
-	/* Initialize the arrays */
-	init_some_arrays();
+	/* Initialize */
+	init_angband();
 
 	/* Wait for response */
 	pause_line(23);
@@ -1130,3 +1262,4 @@ void angbandThread(void *arg)
  * End:
  *
  */
+

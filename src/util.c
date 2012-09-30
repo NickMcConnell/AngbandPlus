@@ -3419,8 +3419,6 @@ void repeat_check(void)
  */
 u32b get_number(u32b def, u32b max, int y, int x, char *cmd)
 {
-	int i;
-
 	u32b res = def;
 
 	/* Player has not typed anything yet */

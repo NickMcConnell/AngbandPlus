@@ -1,9 +1,10 @@
 === Creating a Character ===
 
-Angband is a roleplaying game, in which you, the player, control a character
-in the world of Angband.  Perhaps the most important thing you control is the
-birth of your character, in which you choose or allow to be chosen various
-attributes that will affect the future life of your character.
+PernAngband is a roleplaying game, in which you, the player, control a
+character in the various dungeons and places of Arda.  Perhaps the most
+important thing you control is the birth of your character, in which you
+choose or allow to be chosen various attributes that will affect the future
+life of your character.
 
 Character creation, or birth, is controlled through a variety of choices
 as to constraints on the type of character you wish to play, followed by
@@ -32,7 +33,7 @@ Each character has three primary attributes, sex, race, and class, that
 are chosen before the character is generated, and which will stay fixed
 for the entire life of that character.  These attributes have many effects,
 which will be mentioned as they come up.  Keep in mind that in the current
-version of Angband, your choice of race may restrict your choice of class.
+version of PernAngband, your choice of race may restrict your choice of class.
 
 Each character has a few secondary attributes, height, weight, social class,
 and background history, which are randomly determined, but which are affected
@@ -67,19 +68,21 @@ stats, and current equipment.  These skills have rather obvious effects, but
 will be described more completely below.
 
 Each character may have one or more "racially intrinsic skills", based on
-the race of the character.  These may include special resistances, or even
-abilities such as infravision.
+the race of the character.  These may include special resistances, abilities 
+such as infravision, or even activatable powers such as fire breathing or tele-
+portation.
 
 Each character has experience, which increases as the character becomes more
 experienced, and a level, which is based on experience, and also on race and
 class.  As the experience rises, so does the level, and as the level rises,
-certain other abilities and characteristics rise as well.  Deep down inside,
-the real objective of the game is to increase your experience, and certain
-other characteristics, and also to collect useful items, to give you a decent
-chance against the powerful Morgoth .  Certain monsters can "drain" your
-experience, and thus your level, which will cause you to lose all of the
-effects of the higher level.  Luckily, you can restore drained experience
-through magical means, or by simply regaining the experience all over again.
+certain other abilities and characteristics rise, and possible new abilities
+become available as well.  Deep down inside, the real objective of the game is 
+to increase your experience, and certain other characteristics, and also to 
+collect useful items, to give you a decent chance against the powerful Morgoth.
+Certain monsters can "drain" your experience, and thus your level, which will
+cause you to lose all of the effects of the higher level.  Luckily, you can 
+restore drained experience through magical means, or by simply regaining the 
+experience all over again.
 
 Each character has some gold, which can be used to buy items from the shops
 in the town, and which can be obtained not only from selling items to the
@@ -92,7 +95,8 @@ out with a few useful items, which may be kept, or sold to a shop-keeper for
 more gold.
 
 Each character has an armor class, representing how well the character can
-avoid damage.  The armor class is affected by dexterity and the equipment.
+avoid damage.  The armor class is affected by dexterity, the equipment, and 
+sometimes the race.
 
 Each character has hit points, representing how much damage the character can
 sustain before he dies.  Your hit points are derived from your race, class,
@@ -112,107 +116,107 @@ races are restricted as to what profession they may be, and each race has
 its own adjustments to a character's stats and abilities. Most races also
 have intrinsic abilities.
  
-          Human
-               The human is the base character.  All other races are com-
-               pared to them.  Humans can choose any class and are average
-               at everything.  Humans tend to go up levels faster than any
-               other race because of their shorter life spans.  No racial
-               adjustments or intrinsics occur to characters choosing human.
+        Human
+                The human is the base character.  All other races are com-
+                pared to them.  Humans can choose any class and are average
+                at everything.  Humans tend to go up levels faster than any
+                other race because of their shorter life spans.  No racial
+                adjustments or intrinsics occur to characters choosing human.
  
-          Half-Elf
-               Half-elves tend to be smarter and faster than a  human,  but
-               not as strong.  Half-elves are slightly better at searching,
-               disarming, saving throws, stealth, bows, and magic, but they
-               are not as good at hand weapons.  Half-elves may choose any
-               class and do not receive any intrinsic abilities.
+        Half-Elf
+                Half-elves tend to be smarter and faster than a  human,  but
+                not as strong.  Half-elves are slightly better at searching,
+                disarming, saving throws, stealth, bows, and magic, but they
+                are not as good at hand weapons.  Half-elves may choose any
+                class and do not receive any intrinsic abilities.
  
-          Elf
-               Elves are better magicians then humans, but not as good at
-               fighting.  They tend to be smarter and faster than either
-               humans or half-elves and also have better wisdom.  Elves
-               are better at searching, disarming, perception, stealth, bows,
-               and magic, but they are not as good at hand weapons.  Elves
-               may choose any class except Paladin.  They resist light
-               effects intrinsically.
+        Elf
+                Elves are better magicians then humans, but not as good at
+                fighting.  They tend to be smarter and faster than either
+                humans or half-elves and also have better wisdom.  Elves
+                are better at searching, disarming, perception, stealth, bows,
+                and magic, but they are not as good at hand weapons.  Elves
+                may choose any class except Paladin.  They resist light
+                effects intrinsically.
  
-          Hobbits
-               Hobbits, or Halflings, are very good at bows, throwing,  and
-               have good saving throws.  They also are very good at search-
-               ing, disarming, perception, and stealth; so they make excel-
-               lent rogues, but prefer to be called burglars.  They will be
-               much weaker than humans, and no good at melee fighting.
-               Halflings have fair infravision, so they can detect warm
-               creatures at a distance.  Hobbits can choose between being a
-               warrior, mage, or rogue.  They have their dexterity sustained.
-               They are very fond of food, and learn, in due time, to cook
-               a delicious meal from available ingredients.
+        Hobbits
+                Hobbits, or Halflings, are very good at bows, throwing,  and
+                have good saving throws.  They also are very good at search-
+                ing, disarming, perception, and stealth; so they make excel-
+                lent rogues, but prefer to be called burglars.  They will be
+                much weaker than humans, and no good at melee fighting.
+                Halflings have fair infravision, so they can detect warm
+                creatures at a distance.  Hobbits can choose between being a
+                warrior, mage, or rogue.  They have their dexterity sustained
+                and in time they learn to cook a delicious meal from available
+                ingredients.
  
-          Gnome
-               Gnomes are smaller than dwarves but larger than halflings.
-               They, like  the halflings, live in the earth in burrow-like
-               homes.  Gnomes make excellent mages, and have very good saving
-               throws.  They are good at searching, disarming, perception,
-               and stealth.  They have lower strength than humans so they
-               are not very good at fighting with hand weapons.  Gnomes have
-               fair infra-vision, so they can detect warm-blooded creatures
-               at a distance.  A gnome may choose between being a warrior,
-               mage, priest, or rogue.  Gnomes are intrinsically protected
-               against paralysis and some slowing effects.  At higher levels,
-               Gnomes learn to teleport at will.
+        Gnome
+                Gnomes are smaller than dwarves but larger than halflings.
+                They, like  the halflings, live in the earth in burrow-like
+                homes.  Gnomes make excellent mages, and have very good saving
+                throws.  They are good at searching, disarming, perception,
+                and stealth.  They have lower strength than humans so they
+                are not very good at fighting with hand weapons.  Gnomes have
+                fair infra-vision, so they can detect warm-blooded creatures
+                at a distance.  A gnome may choose between being a warrior,
+                mage, priest, or rogue.  Gnomes are intrinsically protected
+                against paralysis and some slowing effects.  At higher levels,
+                Gnomes learn to teleport at will.
  
-          Dwarf
-               Dwarves are the headstrong miners and fighters of legend.
-               Since dungeons are the natural home of a dwarf, they are
-               excellent choices for a warrior or priest.  Dwarves tend to
-               be stronger and tougher but slower and less intelligent than
-               humans.  Because they are so headstrong and are somewhat wise,
-               they resist spells which are cast on them.  Dwarves also have
-               very good infra-vision because they live underground.  They
-               do have one big drawback, though.  Dwarves are loudmouthed and
-               proud, singing in loud voices, arguing with themselves for no
-               good reason, screaming out challenges at imagined foes.  In
-               other words, dwarves have a miserable stealth.  They can never
-               be blinded.  Dwarves also learn to study the structure of a
-               dungeon, and can spot things that go unseen by the other races.
+        Dwarf
+                Dwarves are the headstrong miners and fighters of legend.
+                Since dungeons are the natural home of a dwarf, they are
+                excellent choices for a warrior or priest.  Dwarves tend to
+                be stronger and tougher but slower and less intelligent than
+                humans.  Because they are so headstrong and are somewhat wise,
+                they resist spells which are cast on them.  Dwarves also have
+                very good infra-vision because they live underground.  They
+                do have one big drawback, though.  Dwarves are loudmouthed and
+                proud, singing in loud voices, arguing with themselves for no
+                good reason, screaming out challenges at imagined foes.  In
+                other words, dwarves have a miserable stealth.  They can never
+                be blinded and learn to study the structure of a dungeon,
+                spotting things that go unseen by the other races.
  
-          Half-Orc
-               Half-Orcs make excellent warriors and decent priests, but
-               are terrible at magic.  They are as bad as dwarves at stealth,
-               and horrible at searching, disarming, and perception.
-               Half-Orcs are, let's face it, ugly.  They tend to pay more for
-               goods in town.  Half-Orcs do make good warriors and rogues,
-               for the simple reason that Half-Orcs tend to have great
-               constitutions and lots of hit points.  Because of their
-               preference to living underground to on the surface, half-orcs
-               resist darkness attacks.  Upon reaching experience level 3, a
-               half-orc learns to dispel any fear that may be upon him or her.
+        Half-Orc
+                Half-Orcs make excellent warriors and decent priests, but
+                are terrible at magic.  They are as bad as dwarves at stealth,
+                and horrible at searching, disarming, and perception.
+                Half-Orcs are, let's face it, ugly.  They tend to pay more for
+                goods in town.  Half-Orcs do make good warriors and rogues,
+                for the simple reason that Half-Orcs tend to have great
+                constitutions and lots of hit points.  Because of their
+                preference to living underground to on the surface, half-orcs
+                resist darkness attacks.  Upon reaching experience level 3, a
+                half-orc learns to dispel any fear that may be upon him or her.
  
-          Half-Troll
-               Half-Trolls are incredibly strong, and have more hit points
-               than any other character race.  They are also very stupid and
-               slow.  They will make great warriors and iffy priests.  They
-               are bad at searching, disarming, perception, and stealth.
-               They are so ugly that a Half-Orc grimaces in their presence.
-               They also happen to be fun to run...  Half-trolls always have
-               their strength sustained.  At higher levels, Half-Trolls learn
-               to enter a berserk fury, and regenerate wounds automatically.
+        Half-Troll
+                Half-Trolls are incredibly strong, and have more hit points
+                than any other character race.  They are also very stupid and
+                slow.  They will make great warriors and iffy priests.  They
+                are bad at searching, disarming, perception, and stealth.
+                They are so ugly that a Half-Orc grimaces in their presence.
+                They also happen to be fun to run...  Half-trolls always have
+                their strength sustained.  At higher levels, Half-Trolls learn
+                to enter a berserk fury, and regenerate wounds automatically.
 
-          Dunadan
-               Dunedain are a race of hardy men from the West.  This elder
-               race surpasses human abilities in every field, especially
-               constitution.  However, being men of the world, very little is
-               new to them, and levels are very hard to gain...  They can
-               play all classes.  Their constitution cannot be reduced.
+        Dunadan
+                Dunedain are a race of hardy men from the West.  This elder
+                race surpasses human abilities in every field, especially
+                constitution.  However, being men of the world, very little is
+                new to them, and levels are very hard to gain.  They can
+                play all classes.  Their constitution cannot be reduced.
 
-          High-Elf
-               High-elves are a race of immortal beings dating from the
-               beginning of time. They are masters of all skills, and are
-               strong and intelligent, although their wisdom is sometimes
-               suspect.  They can play all classes except Paladin, and very
-               well at that.  High-elves begin their lives able to see the
-               unseen, and resist light effects just like regular elves.
-               However, there are few things that they have not seen
-               already, and experience is very hard for them to gain.
+        High-Elf
+                High-elves are a race of immortal beings dating from the
+                beginning of time. They are masters of all skills, and are
+                strong and intelligent, although their wisdom is sometimes
+                suspect.  They can play all classes except Paladin, and very
+                well at that.  High-elves begin their lives able to see the
+                unseen, and resist light effects just like regular elves.
+                However, there are few things that they have not seen
+                already, and experience is very hard for them to gain.
 
         Barbarian
                 Barbarians are hardy men of the north. They are fierce in
@@ -313,39 +317,36 @@ have intrinsic abilities.
         Ent
                 The Ents are a powerful race dating from the beginning of the
                 world, eldest of all animals or plants who inhabit Arda.
-                Spirits from afar, they were summoned to guard the forests of
-                Middle-earth. As the Shepherds of the Trees, they have the
-                innate power to cause trees to rise about them for protection.
+                Spirits of the land, they were summoned to guard the forests of
+                Middle-earth. Being much like trees they are very slow, but strong,
+                and very susceptible to fire.  As the Shepherds of the Trees, they 
+                have the innate ability to cause trees to rise about them for protection.
 
-        Rohan's Knight
+        Rohan Knight
                 Knights of the Riddermark, these warriors are mounted upon
-                swift steeds. As thus, they receive a +5 to speed from the
-                beginning of their adventures, and gain in speed as they
-                become more experienced in riding. Wise through their
-                prolonged contact with the Dunedain, their wrath may be seen
-                in auras of war that drive their foes to confusion, and in
-                a ray of light when jumping to the light speed.
+                swift steeds. Thus they receive a bonus to speed from the
+                beginning and gain in speed as they become more experienced in 
+                riding. Wise through their prolonged contact with the Dunedain, 
+                their wrath may be seen in auras of war that drive their foes to 
+                confusion, and in a ray of light when jumping to the light speed.
 
-        DragonRider
-		As the war with Morgoth continued, the desperate elves sent a
-                telepathic distress call through time and space. On the
-                distant planet of Pern, the powerful Dragonriders responded.
-                Dragonriders are very powerful, and the dragon can breathe
-                flame after eating some firestone. They are also telepathic,
-                and gain the ability to go Between, traveling through space
-                and time. However, they take a very long time to gain levels,
-                as both human and dragon must accumulate experience.
+        Dragonrider
+                The dragonriders from the planet of Pern are supremely powerful,
+                and their dragons can breathe flame after eating firestone. They 
+                are also telepathic, and gain the ability to go Between, traveling
+                to any location they have previously been.  However, they are none too
+                wise and take a very long time to gain levels as both human and dragon 
+                must accumulate experience.
 
-	Death Mold
-                Death Molds are very powerful creatures. However, they are
-                also molds. Lacking the ability to move as other creatures
-                do, Death Molds have the powers of Phase Door, targeted
-                teleportation, telekinesis, and controlled Teleport Level.
-                They also intrinsically resist Nexus and Nether.
+        Death Mold
+                Death Molds are incredibly powerful creatures. However, they are also molds. 
+                Lacking the ability to move as other creatures do, Death Molds have the 
+                powers of Phase Door, targeted teleportation, telekinesis, and controlled 
+                Teleport Level. They also intrinsically resist Nexus and Nether.
         Yeek
-                Yeeks are the less powerfull of all the races. They suffer
+                Yeeks are the least powerfull of all the races. They suffer
                 disadvantages in nearly all skills and attributes but to
-                compasate this they learn, and thus gain level, extremely
+                compasate this they learn, and thus gain levels, extremely
                 quick.
 
 === Classes ===
@@ -377,9 +378,8 @@ have intrinsic abilities.
                the best saving throw to resist effects of  spells  cast  at
                him.  Intelligence  and   Dexterity  are  his primary stats.
                There is no rule that says  a  mage  cannot  become  a  good
-               fighter, but spells are his true realm.
-               A mage can choose any two realms of magic in which he wishes
-               to specialize.
+               fighter, but spells are his true realm. A mage can choose and
+               master any two realms of magic which he wishes.
  
           Priest
                A Priest is a character of holy devotion.  They explore  the
@@ -392,14 +392,8 @@ have intrinsic abilities.
                not  as good as a mage in their use.  Priests have good sav-
                ing throws,  and  make  decent  fighters,  preferring  blunt
                weapons  over  edged  ones.  Wisdom  and  Charisma  are  the
-               priest's primary stats.
-               There are two types of priests:  the 'good' Priests who  are
-               trained in Life magic, and the 'evil' dark Priests who  have
-               chosen to study  Death magic instead.  In addition to  their
-               primary  realm  of  magic (Life or Death  magic),  they  can
-               select a secondary realm from  Arcane , Trump,  Nature,  and
-               Chaos.
-
+               priest's primary stats. Priests, like mages, can choose two
+               realms of prayer learning all the spells in both realms.
           Rogue
                A Rogue is a character that prefers to live by his  cunning,
                but  is capable of fighting his way out of a tight spot.  He
@@ -413,13 +407,8 @@ have intrinsic abilities.
                still  can  not  rely on their performance.  Rogues can also
                learn a few spells, but not the  powerful  offensive  spells
                magi  can use.  A rogue's primary stats are Intelligence and
-               Dexterity.
-               Rogues  who  wish  to  specialize  as burglars can choose to
-               study Sorcery while Death magic is  available to rogues  who
-               wish to become Assassins.  In  the  latest  versions, Arcane
-               magic is available for 'common' thieves, and Trump magic for
-               card sharks.
- 
+               Dexterity. Rogues can choose one realm of magic and learn all
+               spells in the first four books. 
           Ranger
                A Ranger is a warrior/mage.  He is a good fighter,  and  the
                best  of  the  classes  with a missile weapon such as a bow.
@@ -429,11 +418,8 @@ have intrinsic abilities.
                experience  is  required for him to advance.  A ranger has a
                good stealth, good perception, good searching, a good saving
                throw,  and is good with magical devices.  His primary stats
-               are Intelligence and Dexterity.
-               All  rangers  are  trained  in  Nature  magic. They can also
-               select  a secondary realm of magic  (from  Sorcery,  Arcane,
-               Trump, Chaos and Death) but their skills are more limited in
-               the second realm than in their native Nature magic.
+               are Intelligence and Dexterity. Rangers can choose two realms
+               magic but can only learn a limited number of spells in each.
  
           Paladin
                A Paladin is a warrior/priest.  He is a very  good  fighter,
@@ -445,26 +431,22 @@ have intrinsic abilities.
                much in the way of abilities.  He is poor at  stealth,  per-
                ception,  searching,  and  magical devices.  He has a decent
                saving throw due to his divine alliance.  His primary  stats
-               are Strength and Charisma.
-               All paladins are trained in Life magic, and they regard  the
-               realms of magic as the Devil's work. The variant class,  the
-               "Death Knight",  is  trained in Death magic instead of  Life
-               magic.
+               are Strength and Charisma. A paladin may choose one realm of
+               magic and can become fairly proficient in it.
 
           Warrior-Mage
                A Warrior-Mage is precisely what the name suggests: a  cross
                between the warrior  and mage classes. While their brothers,
                the Rangers, specialize in Nature magic and survival skills,
                true Warrior-Mages attempt to reach the best of both worlds:
-               as magicians, they are  trained in  Arcane or Sorcery  magic
-               and can  select  anothe r realm, eventually  learning  every
-               spell in both of them (although slower than true magicians);
-               as warriors they are much superior to the usual Mage class .
-               The Warrior-Mage  is a truly  powerful  class,    which   is
-               recommended  for  the  players   who want to cast spells but
-               whose mages tend to  die too quickly.   However,  the  power
-               does not  come  without  a  price:   Warrior-Mages   require
-               more experience  to  advance levels than any other class.
+               as magicians, they are  trained in two types of magic magic
+               eventually  learning  every spell in both of them (although 
+               slower than true magicians); as warriors they are much superior
+               to the usual Mage class. The Warrior-Mage is a truly powerful 
+               class, which is recommended for the players who want to cast 
+               spells but whose mages tend to  die too quickly. However, the
+               power does not come without a price: Warrior-Mages require
+               more experience to advance levels than any other class.
 
           Chaos Warrior
                Chaos Warriors are the feared servants of the terrible Demon
@@ -479,9 +461,9 @@ have intrinsic abilities.
                equipment. Or they might simply ignore him. The Demon  Lords
                of Chaos  are  chaotic and  unpredictable indeed.  The exact
                type of reward depends on  the Patron Demon Lord  (different
-               Demons give different rewards) and chance.
-               Chaos Warriors  are  very good fighters,  but they are  also
-               trained in Chaos magic, and can learn every Chaos spell.
+               Demons give different rewards) and chance. Chaos Warriors  
+               are  very good fighters,  but they are  also trained in Chaos 
+               magic, and can learn every Chaos spell.
 
           Monk
                The Monk  character class is  very different from all  other
@@ -498,13 +480,10 @@ have intrinsic abilities.
                monastic training even  makes  monks faster than  any  other
                character class!  Fortunately,  also the amount of armour  a
                monk  can  wear,  while  still  fighting  efficiently,  also
-               increases with experience.
-               There are three kinds of monasteries: those devoted to Life,
-               those devoted to Nature,  and those devoted to Death.  These
-               are the three possible realms of magic avaiilable to a monk,
-               who can learn every prayer in the realm of his choice.
-
-        Mindcrafter
+               increases with experience. A monk may choose one realm of magic
+               and learn all it's spells.
+        
+	    Mindcrafter
                The Mindcrafter is  character  who  uses  the powers of mind
                instead of magic. These powers are unique to the Mindcrafter
                class,  and vary from simple extrasensory powers  to  mental
@@ -564,7 +543,7 @@ have intrinsic abilities.
 
         Power Mage
                 They are combat oriented mage, they don't use any spellbooks
-                and gain their spells when they pass a level, they can have
+                and gain their spells when they pass a level; they can have
                 up to 100 offensive spells which are randomly chosen. But they
                 are very *bad* warriors. They also have a lot more of mana than
                 the other spellcasters.
@@ -572,18 +551,17 @@ have intrinsic abilities.
         Runecrafter
                 Instead of using spellbooks like the other spellcasters they
                 have chosen to use their runes. To cast a spell they just
-                select the primary rune, like the elements, fire, cold, ... and
-                they also chose a set of secondary runes, which modify the
-                effect of the primal one. The secondary runes can be Self,
+                select a primary rune of the elements, fire, cold, etc.
+                and they also chose a set of secondary runes, which modify the
+                effect of the first one. The secondary runes can be Self,
                 Arrow, Ray, ... and even Armageddon. After that they chose
-                the amount of mana to use and the spell is casted! But the
-                more of second runes they chose the more of mana is used just
-                to cast the spell. They also are bad fighters, but if they
-                concentrate all their mana in one spell(and with a mage staff
-                of mana it's better) they could kill nearly everything in
-                one spell.
+                the amount of mana to use and the spell is cast! But the
+                more secondary runes they chose the more mana is used to cast 
+                the spell. They also are bad fighters, but if they concentrate
+                all their mana in one spell (especially with a mage staff of mana)
+                they could kill nearly anything.
  
-          Wizard
+        Wizard
                 A wizard must live by his wits. He cannot hope to simply hack
                 his  way  through the dungeon, and so must therefore use his
                 magic to defeat,  deceive, confuse, and escape. A wizard  is
@@ -593,9 +571,10 @@ have intrinsic abilities.
                 the best saving throw to resist effects of  spells  cast  at
                 him.  Intelligence  and   Dexterity  are  his primary stats.
                 There is no rule that says a wizard  cannot  become  a  good
-                fighter, but spells are his true realm.
+                fighter, but spells are his true realm. Wizards use their own
+                seperate realm of magic.
  
-          Prior
+        Prior
                 A Prior is a character of holy devotion.  They explore  the
                 dungeon  only  to destroy the evil that lurks within, and if
                 treasure just happens to fall into  their  packs,  well,  so
@@ -619,7 +598,7 @@ have intrinsic abilities.
         Sorceror
                 Sorcerors are to magic what warriors are to melee. They are
                 the all-around best magicians, being able to cast any spell
-                from any book without having to learn it. On the flip side,
+                from any book without having to learn it. On the contrary,
                 they are the worst fighters, being unable to use any weapon
                 but a Mage Staff comfortably, and still unable to be anything
                 even remotely approaching affective with it. To compensate for
@@ -629,16 +608,23 @@ have intrinsic abilities.
         Archer
                 Archers are to bows what warriors are to melee. They are the
                 best class around with any bow/xbow/sling. Needing a lot of
-                ammo they will soon learn how to make them from some junk
-                found in the dungeons. they also gain at level 20 the unique
-                ability in angband of making their arrows/bolts/shots to
-                ricochet on the monsters !
+                ammo they will soon learn how to make them from junk
+                found in the dungeons. They also gain at level 20 the unique
+                ability to make their arrows/bolts/shots ricochet off the monsters!
 
-          Illusionist
-               An illusionist is a different faction of the Mage class. This
-               class believes more in confusing and tricking monsters rather
-               than outright damage spells. Besides this, the illusionist is
-               the same as the mage.
+        Illusionist
+                An illusionist is a different version of the Mage class. This
+                class believes more in confusing and tricking monsters rather
+                than outright damage spells. Besides this, the illusionist is
+                the same as the mage.
+
+        Druid
+                A Druid is in communion with nature. From this relationship he
+                gains the power to control the elemental flows(Earth, Fire, Air,
+                Water and Mana). They also have special attack spells that 
+                can follow a laid path of mana in order to create magic "traps". 
+                Thus with one spell they can hit a monster more than one time, or they can
+                have a spell travel down a tunnel.
 
 === Stats ===
 
@@ -692,7 +678,7 @@ have intrinsic abilities.
                also mean more starting money for the character.
  
 
-=== Abilities (outdated) ===
+=== Abilities ===
 
           Characters possess some different abilities which can  help  them
           to survive.  The starting abilities of a character are based upon
@@ -768,9 +754,10 @@ have intrinsic abilities.
 
 These are the classes that are recommended for different races. You can
 still select a race that is not in the chart, but these combinations are
-either rather poor (like a zombie mage) or as a concept so silly that they
-are not recommended. If you pick a combination that is not on the chart,
-don't complain if things don't turn out as you expected them to.
+either rather poor (like a zombie mage), a concept so silly that they
+are not recommended, or an incredibly unfair combination of race and class. 
+If you pick a combination that is not on the chart, don't complain if things 
+don't turn out as you expected them to.
  
  
             Warrior  Mage    Priest  Rogue   Ranger  Paladin Warrior Chaos
@@ -827,30 +814,30 @@ Death Mold    No      Yes     Yes    Yes     No    No      Yes    No    Yes
 Yeek          Yes     Yes     Yes    Yes     Yes   No      Yes    Yes   No
 
              Rune-                  Poss-  Sor-         Illu-
-            crafter Wizard   Prior  essor ceror Archer sionist
-Human         Yes     Yes     Yes    Yes   Yes   Yes     Yes
-Half-Elf      Yes     Yes     Yes    Yes   Yes   Yes     Yes
-Elf           Yes     Yes     Yes    Yes   Yes   Yes     Yes
-Hobbit        No      Yes     No     No    No    Yes     Yes
-Gnome         No      Yes     Yes    No    Yes   No      Yes
-Dwarf         No      No      Yes    No    No    No      No
-Half-Orc      Yes     No      Yes    No    No    No      No
-Half-Troll    No      No      Yes    No    No    No      No
-Dunadan       Yes     Yes     Yes    Yes   Yes   Yes     Yes
-High-Elf      Yes     Yes     Yes    Yes   Yes   Yes     Yes
-Barbarian     Yes     No      Yes    No    Yes   No      No
-Half-Ogre     No      Yes     Yes    No    No    No      No
-Half-Giant    No      No      No     No    No    No      No
-Kobold        Yes     No      Yes    No    No    No      Yes
-Nibelung      No      Yes     Yes    No    No    No      Yes
-Dark Elf      Yes     Yes     Yes    Yes   Yes   Yes     Yes
-Vampire       Yes     Yes     Yes    Yes   Yes   No      Yes
-Spectre       Yes     Yes     Yes    Yes   Yes   No      No
-Ent           No      No      Yes    No    No    No      No
-RohanKnigth   Yes     No      No     No    Yes   Yes     Yes
-DragonRider   Yes     No      No     No    Yes   Yes     No
-Death Mold    No      Yes     Yes    No    Yes   No      No
-Yeek          Yes     Yes     Yes    Yes   Yes   Yes     Yes
+            crafter Wizard   Prior  essor ceror Archer sionist Druid
+Human         Yes     Yes     Yes    Yes   Yes   Yes     Yes    Yes
+Half-Elf      Yes     Yes     Yes    Yes   Yes   Yes     Yes    Yes
+Elf           Yes     Yes     Yes    Yes   Yes   Yes     Yes    Yes
+Hobbit        No      Yes     No     No    No    Yes     Yes    No
+Gnome         No      Yes     Yes    No    Yes   No      Yes    No
+Dwarf         No      No      Yes    No    No    No      No     Yes
+Half-Orc      Yes     No      Yes    No    No    No      No     No
+Half-Troll    No      No      Yes    No    No    No      No     No
+Dunadan       Yes     Yes     Yes    Yes   Yes   Yes     Yes    Yes
+High-Elf      Yes     Yes     Yes    Yes   Yes   Yes     Yes    Yes
+Barbarian     Yes     No      Yes    No    Yes   No      No     No
+Half-Ogre     No      Yes     Yes    No    No    No      No     No
+Half-Giant    No      No      No     No    No    No      No     No
+Kobold        Yes     No      Yes    No    No    No      Yes    No
+Nibelung      No      Yes     Yes    No    No    No      Yes    No
+Dark Elf      Yes     Yes     Yes    Yes   Yes   Yes     Yes    No
+Vampire       Yes     Yes     Yes    Yes   Yes   No      Yes    No
+Spectre       Yes     Yes     Yes    Yes   Yes   No      No     No
+Ent           No      No      Yes    No    No    No      No     Yes
+RohanKnigth   Yes     No      No     No    Yes   Yes     Yes    No
+DragonRider   Yes     No      No     No    Yes   Yes     No     No
+Death Mold    No      Yes     Yes    No    Yes   No      No     No
+Yeek          Yes     Yes     Yes    Yes   Yes   Yes     Yes    Yes
 
 
 
@@ -925,6 +912,7 @@ are listed in the following table.
            Sorceror      -5      +6      +4      +2      -5      +1
            Archer        +2      +1       0      +2      +1      +1
            Illusionist   -5      +3       0      +1      -2      +1
+           Druid         -2      -2      +3      +1      +1      +2
  
 === Ability Tables (updated for 2.0.6) ===
 
@@ -957,50 +945,52 @@ are listed in the following table.
  
 
                 Disarm  Device  Save    Stealth Search  Melee   Missile XP
-Warrior         25+12   18+7    18+10   1       14/2    70+45   55+45   +0%
-Mage            30+7    36+13   30+9    2       15/20   34+15   20+15   +30%
-Priest          25+7    30+10   32+12   2       16/8    48+20   35+20   +20%
-Rogue           45+15   32+10   28+10   5       32/24   60+40   66+30   +25%
-Ranger          30+8    32+10   28+10   3       24/16   56+30   72+45   +30%
-Paladin         20+7    24+10   26+11   1       12/2    68+35   40+30   +35%
-Warrior-Mage    30+7    30+10   28+9    2       18/16   50+20   25+20   +50%
-Chaos Warrior   20+7    25+11   25+10   1       14/12   65+34   40+29   +35%
-Monk            45+15   32+11   28+10   5       32/24   64+40   60+30   +40%
-Mindcrafter     30+10   30+10   30+10   3       22/16   50+20   40+30   +25%
-High Mage       30+7    36+13   30+9    2       15/20   34+15   20+15   +30%
-BeastMaster     20+7    36+13   30+9    4       16/20   56+15   20+15   +20%
-Alchemist       30+7    60+30   10+9    2       26/20   34+15   30+15   +40%
-Mimic           10+11   11+13   30+9    22      26/20   64+25   40+25   +40%
-Symbiant        10+4    12+13   30+9    10      16/10   36+15   20+15   +20%
-Harper          10+8    16+13   20+12  -5       16/20   34+15   20+15   +50%
-Power Mage      20+7    36+13   30+9    2       16/20   14+7    10+7    +20%
-Runecrafter     15+7    36+13   20+9    6       16/30   20+7    18+7    +40%
-Wizard          30+7    36+13   30+9    2       15/20   34+15   20+15   +30%
-Prior           25+7    30+10   32+12   2       16/8    48+20   35+20   +20%
-Possessor       25+12   18+7    18+10   1       14/2    30+25   25+25   +40%
-Sorceror        35+22   48+17   38+20   3       22/12   10+15   15+15   +60%
-Archer          30+8    32+10   28+10   3       24/16   56+30   82+45   +30%
-Illusionist     30+7    36+13   30+9    2       16/20   34+15   20+15   +30%
+           Warrior         25+12   18+7    18+10   1       14/2    70+45   55+45   +0%
+           Mage            30+7    36+13   30+9    2       15/20   34+15   20+15   +30%
+	     Priest          25+7    30+10   32+12   2       16/8    48+20   35+20   +20%
+	     Rogue           45+15   32+10   28+10   5       32/24   60+40   66+30   +25%
+	     Ranger          30+8    32+10   28+10   3       24/16   56+30   72+45   +30%
+	     Paladin         20+7    24+10   26+11   1       12/2    68+35   40+30   +35%
+	     Warrior-Mage    30+7    30+10   28+9    2       18/16   50+20   25+20   +50%
+	     Chaos Warrior   20+7    25+11   25+10   1       14/12   65+34   40+29   +35%
+	     Monk            45+15   32+11   28+10   5       32/24   64+40   60+30   +40%
+	     Mindcrafter     30+10   30+10   30+10   3       22/16   50+20   40+30   +25%
+	     High Mage       30+7    36+13   30+9    2       15/20   34+15   20+15   +30%
+	     BeastMaster     20+7    36+13   30+9    4       16/20   56+15   20+15   +20%
+	     Alchemist       30+7    60+30   10+9    2       26/20   34+15   30+15   +40%
+	     Mimic           10+11   11+13   30+9    22      26/20   64+25   40+25   +40%
+	     Symbiant        10+4    12+13   30+9    10      16/10   36+15   20+15   +20%
+	     Harper          10+8    16+13   20+12  -5       16/20   34+15   20+15   +50%
+	     Power Mage      20+7    36+13   30+9    2       16/20   14+7    10+7    +20%
+	     Runecrafter     15+7    36+13   20+9    6       16/30   20+7    18+7    +40%
+	     Wizard          30+7    36+13   30+9    2       15/20   34+15   20+15   +30%
+	     Prior           25+7    30+10   32+12   2       16/8    48+20   35+20   +20%
+	     Possessor       25+12   18+7    18+10   1       14/2    30+25   25+25   +40%
+	     Sorceror        35+22   48+17   38+20   3       22/12   10+15   15+15   +60%
+	     Archer          30+8    32+10   28+10   3       24/16   56+30   82+45   +30%
+	     Illusionist     30+7    36+13   30+9    2       16/20   34+15   20+15   +30%
+	     Druid           20+7    20+10   38+10   4        8/16   42+18   35+20   +30%
 
 === Monks: Attack Types (2.0.6b)
 
 
-Attack Name     Min.lvl Damage  Stun    Notes
------------------------------------------------------------------------------
-Punch           1       1d4     -
-Kick            2       1d6     -
-Strike          3       1d7     -
-Knee            5       2d3     *       Painful to males; likely to stun them
-Elbow           7       1d8     -
-Butt            9       2d5     -
-Ankle Kick      11      3d4     -       May slow down the opponent
-Uppercut        13      4d4     6
-Double-kick     16      5d4     8
-Cat's Claw      20      5d5     -
-Jump Kick       25      5d6     10
-Eagle's Claw    29      6d6     -
-Circle Kick     33      6d8     10
-Iron Fist       37      8d8     10
-Flying Kick     41      8d10    12
-Dragon Fist     45      10d10   16
-Crushing Blow   48      10d12   18
+	     Attack Name     Min.lvl Damage  Stun    Notes
+	     -----------------------------------------------------------------------------
+	     Punch           1       1d4     -
+	     Kick            2       1d6     -
+	     Strike          3       1d7     -
+	     Knee            5       2d3     *       Painful to males; likely to stun them
+	     Elbow           7       1d8     -
+	     Butt            9       2d5     -
+	     Ankle Kick      11      3d4     -       May slow down the opponent
+	     Uppercut        13      4d4     6
+	     Double-kick     16      5d4     8
+	     Cat's Claw      20      5d5     -
+	     Jump Kick       25      5d6     10
+	     Eagle's Claw    29      6d6     -
+	     Circle Kick     33      6d8     10
+	     Iron Fist       37      8d8     10
+	     Flying Kick     41      8d10    12
+	     Dragon Fist     45      10d10   16
+	     Crushing Blow   48      10d12   18
+

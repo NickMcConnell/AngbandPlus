@@ -1463,7 +1463,16 @@ bool set_shero(int v)
 		{
 			msg_print("You feel like a killing machine!");
 			notice = TRUE;
-		}
+
+                        /* Redraw map */
+                        p_ptr->redraw |= (PR_MAP);
+
+                        /* Update monsters */
+                        p_ptr->update |= (PU_MONSTERS);
+
+                        /* Window stuff */
+                        p_ptr->window |= (PW_OVERHEAD);
+                }
 	}
 
 	/* Shut */
@@ -1473,6 +1482,15 @@ bool set_shero(int v)
 		{
 			msg_print("You feel less Berserk.");
 			notice = TRUE;
+
+                        /* Redraw map */
+                        p_ptr->redraw |= (PR_MAP);
+
+                        /* Update monsters */
+                        p_ptr->update |= (PU_MONSTERS);
+
+                        /* Window stuff */
+                        p_ptr->window |= (PW_OVERHEAD);
 		}
 	}
 
@@ -2281,16 +2299,16 @@ bool set_stun(int v)
             msg_print("A vicious blow hits your head.");
             if(randint(3)==1)
             {
-                if (!p_ptr->sustain_int) { (void) do_dec_stat(A_INT); }
-                if (!p_ptr->sustain_wis) { (void) do_dec_stat(A_WIS); }
+                if (!p_ptr->sustain_int) { (void) do_dec_stat(A_INT, STAT_DEC_NORMAL); }
+                if (!p_ptr->sustain_wis) { (void) do_dec_stat(A_WIS, STAT_DEC_NORMAL); }
             }
             else if (randint(2)==1)
             {
-                if (!p_ptr->sustain_int) { (void) do_dec_stat(A_INT); }
+                if (!p_ptr->sustain_int) { (void) do_dec_stat(A_INT, STAT_DEC_NORMAL); }
             }
             else
             {
-                if (!p_ptr->sustain_wis) { (void) do_dec_stat(A_WIS); }
+                if (!p_ptr->sustain_wis) { (void) do_dec_stat(A_WIS, STAT_DEC_NORMAL); }
             }
         }
 
@@ -2502,7 +2520,7 @@ bool set_cut(int v)
             {
             msg_print("You have been horribly scarred.");
 
-            do_dec_stat(A_CHR);
+            do_dec_stat(A_CHR, STAT_DEC_NORMAL);
             }
         }
 
@@ -2831,6 +2849,18 @@ void check_experience(void)
 		/* Message */
 		msg_format("Welcome to level %d.", p_ptr->lev);
 
+                /* If auto-note taking enabled, write a note to the file. */
+                if (take_notes && auto_notes)
+                {
+                    char buf[80];
+ 
+                    /* Build the message */
+                    sprintf(buf, "Reached level %d", p_ptr->lev);
+  
+                    /* Write message */
+                    do_cmd_note(buf);
+                }
+
 		/* Update some stuff */
                 p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS | PU_SANITY);
 
@@ -3122,6 +3152,29 @@ void monster_death(int m_idx)
 	y = m_ptr->fy;
 	x = m_ptr->fx;
 
+        /* Handle reviving if undead */
+        if((p_ptr->class_extra6 & CLASS_UNDEAD) && p_ptr->class_extra4)
+        {
+                p_ptr->class_extra4--;
+
+                if(!p_ptr->class_extra4)
+                {
+                        msg_print("Your death has been advanged, thus you come back to live.");
+                        p_ptr->class_extra6 &= ~CLASS_UNDEAD;
+
+                        /* Display the hitpoints */
+                        p_ptr->update |= (PU_HP);
+                        p_ptr->redraw |= (PR_HP);
+
+                        /* Window stuff */
+                        p_ptr->window |= (PW_PLAYER);
+                }
+                else
+                {
+                        msg_format("You still have to kill %d monster%s.", p_ptr->class_extra4, (p_ptr->class_extra4 == 1)?"":"s");
+                }
+        }
+
 	/* Handle the possibility of player vanquishing arena combatant -KMW- */
 	if (p_ptr->inside_arena)
 	{
@@ -3364,6 +3417,28 @@ void monster_death(int m_idx)
 			/* Drop it in the dungeon */
 			drop_near(q_ptr, -1, y, x);
                 }
+                else if (r_ptr->flags7 & RF7_NAZGUL)
+                {
+			/* Get local object */
+			q_ptr = &forge;
+
+                        object_wipe(q_ptr);
+
+                        /* Mega-Hack -- Prepare to make a Ring of Power */
+                        object_prep(q_ptr, lookup_kind(TV_RING, SV_RING_SPECIAL));
+                        q_ptr->number = 1;
+
+                        apply_magic(q_ptr, -1, TRUE, TRUE, FALSE);
+
+                        /* Create a random artifact */
+                        create_artifact(q_ptr, TRUE, FALSE);
+
+                        /* Save the inscription */
+                        q_ptr->art_name = quark_add(format("(%s)", r_name + r_ptr->name));
+
+			/* Drop it in the dungeon */
+			drop_near(q_ptr, -1, y, x);
+                }
                 else
 		{
 			byte a_idx = 0;
@@ -3535,8 +3610,6 @@ void monster_death(int m_idx)
 		}
 	}
 
-//        if (cloned) number = 0; /* Clones drop no stuff */
-
         if((!force_coin)&&(randint(100)<50)) place_corpse(m_ptr);
 
 	/* Take note of any dropped treasure */
@@ -3662,14 +3735,11 @@ void monster_death(int m_idx)
 	/* Create a magical staircase */
 	if (create_stairs)
 	{
-                cave_set_feat(y - 1, x + 1, FEAT_FLOOR);
-                cave_set_feat(y + 1, x + 1, FEAT_FLOOR);
-                cave_set_feat(y + 1, x - 1, FEAT_FLOOR);
-                cave_set_feat(y - 1, x - 1, FEAT_FLOOR);
-                cave_set_feat(y - 1, x, FEAT_FLOOR);
-                cave_set_feat(y + 1, x, FEAT_FLOOR);
-                cave_set_feat(y, x - 1, FEAT_FLOOR);
-                cave_set_feat(y, x + 1, FEAT_FLOOR);
+                int i, j;
+
+                for(i = -1; i <= 1; i++)
+                for(j = -1; j <= 1; j++)
+                        if(!(f_info[cave[y + j][x + i].feat].flags1 & FF1_PERMANENT)) cave_set_feat(y + j, x + i, d_info[dungeon_type].floor1);
 
 		/* Stagger around */
 		while (!cave_valid_bold(y, x))
@@ -3796,6 +3866,20 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		/* Extract monster name */
 		monster_desc(m_name, m_ptr, 0);
 
+                if ((r_ptr->flags7 & RF7_DG_CURSE) && (randint(2) == 1))
+		{
+                        int curses = 2 + randint(5);
+
+                        msg_format("%^s puts a terrible morgothian curse on you!", m_name);
+                        curse_equipment_dg(100, 50);
+
+			do
+			{
+                                activate_dg_curse();
+			}
+			while (--curses);
+		}
+
 		if (speak_unique && (r_ptr->flags2 & (RF2_CAN_SPEAK)))
 		{
 			char line_got[80];
@@ -3878,11 +3962,57 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		/* Gain experience */
 		gain_exp(new_exp);
 
+                if(!note)
+                {
+                        object_type *o_ptr;
+                        object_kind *k_ptr;
+                        u32b f1, f2, f3, f4;
+                        char buf[128];
+
+                        /* Access the weapon */
+                        o_ptr = &inventory[INVEN_WIELD];
+                        k_ptr = &k_info[o_ptr->k_idx];
+                        object_flags(o_ptr, &f1, &f2, &f3, &f4);
+
+                        /* Can the weapon gain levels ? */
+                        if((o_ptr->k_idx) && (f4 & TR4_LEVELS))
+                        {
+                                /* Give some experience for the kill */
+                                new_exp = ((long)r_ptr->mexp * r_ptr->level) / (div * 2);
+
+                                /* Gain experience */
+                                o_ptr->exp += new_exp;
+                                if((o_ptr->exp >= player_exp[o_ptr->elevel - 1]) && (o_ptr->elevel < 50))
+                                {
+                                        /* Add a level */
+                                        o_ptr->elevel++;
+
+                                        /* Get object name */
+                                        object_desc(buf, o_ptr, 1, 0);
+                                        msg_format("%s gains a level!", buf);
+
+                                        /* What does it gains ? */
+                                        object_gain_level(o_ptr);
+                                }
+                        }
+                }
+
 		/* Generate treasure */
 		monster_death(m_idx);
 
 		/* When the player kills a Unique, it stays dead */
 		if (r_ptr->flags1 & (RF1_UNIQUE)) r_ptr->max_num = 0;
+
+                /* If the player kills a Unique, and the notes options are on, write a note */
+                if ((r_ptr->flags1 & RF1_UNIQUE) && take_notes && auto_notes)
+                {
+                    char note[60];
+
+                    /* Write note */
+                    sprintf(note, "Killed %s", m_name);
+    
+                    do_cmd_note(note);
+                }
 
 		/* Recall even invisible uniques or winners */
 		if (m_ptr->ml || (r_ptr->flags1 & (RF1_UNIQUE)))
@@ -4468,7 +4598,7 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 
 	s16b this_o_idx, next_o_idx = 0;
 
-	cptr s1, s2, s3;
+        cptr s1, s2, s3;
 
 	bool boring;
 
@@ -4704,6 +4834,29 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 		/* Double break */
 		if (this_o_idx) break;
 
+		/* Actual traps */
+		if (c_ptr->t_idx)
+		{
+                        cptr name = "a trap", s4;
+
+			/* Name trap */
+                        if (t_info[c_ptr->t_idx].ident)
+                                s4 = format("(%s)", t_name + t_info[c_ptr->t_idx].name);
+                        else
+                                s4 = "an unknown trap";
+
+			/* Display a message */
+			sprintf(out_val, "%s%s%s%s [%s]", s1, s2, s3, name, s4);
+			prt(out_val, 0, 0);
+			move_cursor_relative(y, x);
+			query = inkey();
+
+			/* Stop on everything but "return" */
+			if ((query != '\r') && (query != '\n')) break;
+
+			/* Repeat forever */
+			continue;
+                }
 
 		/* Feature (apply "mimic") */
 		feat = f_info[c_ptr->feat].mimic;
@@ -4716,7 +4869,7 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 		}
 
 		/* Terrain feature if needed */
-		if (boring || (feat > FEAT_INVIS))
+		if (boring || (feat >= FEAT_GLYPH))
 		{
 			cptr name;
 
@@ -5540,9 +5693,9 @@ void gain_level_reward(int chosen_reward)
 				chaos_patrons[p_ptr->chaos_patron]);
 			msg_print("'I grow tired of thee, mortal.'");
 			if ((randint(3) == 1) && !(chaos_stats[p_ptr->chaos_patron] < 0))
-				do_dec_stat(chaos_stats[p_ptr->chaos_patron]);
+				do_dec_stat(chaos_stats[p_ptr->chaos_patron], STAT_DEC_NORMAL);
 			else
-				(void)do_dec_stat(randint(6) - 1);
+				(void)do_dec_stat(randint(6) - 1, STAT_DEC_NORMAL);
 			break;
 		case REW_RUIN_ABL:
 			msg_format("The voice of %s thunders:",
@@ -5964,7 +6117,7 @@ bool gain_random_mutation(int choose_mut)
 		case 83: case 84:
 			muta_class = &(p_ptr->muta2);
 			muta_which = MUT2_HORNS;
-			muta_desc = "Horns pop forth into your forehead!";
+                        muta_desc = "Horns pop forth from your forehead!";
 			break;
 		case 85: case 86:
 			muta_class = &(p_ptr->muta2);
@@ -7643,7 +7796,7 @@ void great_side_effect(void) {
                         break;
                 case GOD_TULKAS:
                         msg_print("The power of Tulkas floods through your body!");
-                        set_invuln(8 + (8 * power));
+                        set_invuln(16 + (8 * power));
                         break;
                 case GOD_MANWE:
                         msg_print("Suddently a great wind coming from the west is blowing up everything!");
@@ -7666,27 +7819,27 @@ void great_side_effect(void) {
                         if(rand_int(2) == 0)
                                 do_inc_stat(A_STR);
                         else
-                                do_dec_stat(A_STR);
+                                do_dec_stat(A_STR, STAT_DEC_NORMAL);
                         if(rand_int(2) == 0)
                                 do_inc_stat(A_INT);
                         else
-                                do_dec_stat(A_INT);
+                                do_dec_stat(A_INT, STAT_DEC_NORMAL);
                         if(rand_int(2) == 0)
                                 do_inc_stat(A_WIS);
                         else
-                                do_dec_stat(A_WIS);
+                                do_dec_stat(A_WIS, STAT_DEC_NORMAL);
                         if(rand_int(2) == 0)
                                 do_inc_stat(A_DEX);
                         else
-                                do_dec_stat(A_DEX);
+                                do_dec_stat(A_DEX, STAT_DEC_NORMAL);
                         if(rand_int(2) == 0)
                                 do_inc_stat(A_CON);
                         else
-                                do_dec_stat(A_CON);
+                                do_dec_stat(A_CON, STAT_DEC_NORMAL);
                         if(rand_int(2) == 0)
                                 do_inc_stat(A_CHR);
                         else
-                                do_dec_stat(A_CHR);
+                                do_dec_stat(A_CHR, STAT_DEC_NORMAL);
                         break;
         }
         }
@@ -7985,10 +8138,17 @@ void make_wish(void)
 
                 if(strstr(name, buf))
                 {
+                        /* You can't wish for a wish ! */
+                        if((q_ptr->tval == TV_STAFF) && (q_ptr->sval == SV_STAFF_WISHING))
+                        {
+                                msg_print("You can't wish for a wish !");
+                                return;
+                        }
+
                         msg_print("Your wish become truth!");
 
                         /* Give it to the player */
-                        (void)inven_carry(q_ptr, FALSE);
+                        drop_near(q_ptr, -1, py, px);
 
                         /* Don't search any more */
                         return;

@@ -627,7 +627,7 @@ static bool inn_comm(int cmd)
                                 msg_print(NULL);
                                 (void) set_food(PY_FOOD_MAX - 1);
                         }else
-                                msg_print("Your a vampire and I don't have any food for you!");
+                                msg_print("You're a vampire and I don't have any food for you!");
 			break;
 
 		case BACT_REST: /* Rest for the night */
@@ -1185,7 +1185,8 @@ static bool compare_weapons(void)
 	if (item >= 0)
 		o1_ptr = &inventory[item];
 
-	if ((o1_ptr->tval < TV_BOW) || (o1_ptr->tval > TV_SWORD))
+	/* To remove a warning */
+        if (((o1_ptr->tval < TV_BOW) || (o1_ptr->tval > TV_SWORD)) && (o1_ptr->tval != TV_MSTAFF))
 	{
 		msg_print("Not a weapon! Try again.");
 		msg_print(NULL);
@@ -1208,7 +1209,8 @@ static bool compare_weapons(void)
 	if (item2 >= 0)
 		o2_ptr = &inventory[item2];
 
-	if ((o2_ptr->tval < TV_BOW) || (o2_ptr->tval > TV_SWORD))
+	/* To remove a warning */
+        if (((o2_ptr->tval < TV_BOW) || (o2_ptr->tval > TV_SWORD)) && (o2_ptr->tval != TV_MSTAFF))
 	{
 		msg_print("Not a weapon! Try again.");
 		msg_print(NULL);
@@ -1467,7 +1469,7 @@ static void sell_corpses(void) {
   for (i = 1; i < MAX_BOUNTIES; i++) {
 
     if (o_ptr->pval2 == bounties[i][0]) {
-      value = bounties[i][1] + boost*(r_info[o_ptr->pval].level);
+      value = bounties[i][1] + boost*(r_info[o_ptr->pval2].level);
 
       value *= o_ptr->number;
 
@@ -1850,24 +1852,47 @@ static void bldg_process_command(building_type *bldg, int i)
 			paid = TRUE;
 			break;
 		case BACT_TELEPORT_LEVEL:
-                        amt = get_quantity("Teleport to which level? ", 98);
-			if (amt > 0)
+                {
+                        char buf[80], buf2[80];
+                        int i;
+
+                        if(!get_string("Teleport to which dungeon? ", buf, 80)) break;
+
+                        /* Find the index corresponding to the name */
+                        for(i = 1; i < max_d_idx; i++)
+                        {
+                                sprintf(buf2, "%s", d_info[i].name + d_name);
+
+                                /* Lowercase the name */
+                                strlower(buf);
+                                strlower(buf2);
+
+                                if(strstr(buf2, buf)) break;
+                        }
+
+                        amt = get_quantity("Teleport to which level? ", d_info[i].maxdepth);
+
+                        /* Mega hack -- Forbid levels 99 and 100 */
+                        if((amt == 99) || (amt == 100)) amt = 98;
+
+                        if ((amt > 0) && (i < 16))
 			{
-                                dungeon_type = calc_dungeon_type();
 				p_ptr->word_recall = 1;
-                                p_ptr->max_dlv[dungeon_type] = amt;
+                                p_ptr->recall_dungeon = i;
+                                max_dlv[p_ptr->recall_dungeon] = amt;
 				msg_print("The air about you becomes charged...");
 				paid = TRUE;
 			}
 			break;
+                }
                 case BACT_BUYFIRESTONE:
-                        amt = get_quantity("How many firestone(10 gold each)? ", 1000);
+                        amt = get_quantity("How many firestones (10 gold each)? ", 1000);
 			if (amt > 0)
 			{
                                 bcost=amt*10;
                                 if(p_ptr->au>=bcost){
                                 paid=TRUE;
-                                msg_print("You have bought some firestone(s) !");
+                                msg_print("You have bought some firestones !");
 
                                 /* Hack -- Give the player Firestone! */
                                 q_ptr = &forge;
@@ -1957,8 +1982,8 @@ void do_cmd_quest(void)
 	else
 	{
 		/* Player enters a new quest */
-		p_ptr->oldpy = 0;
-		p_ptr->oldpx = 0;
+                p_ptr->oldpy = py;
+                p_ptr->oldpx = px;
 
 		leaving_quest = p_ptr->inside_quest;
 
@@ -1983,7 +2008,7 @@ void do_cmd_quest(void)
  */
 void do_cmd_bldg(void)
 {
-	int             i,which;
+        int             i,which, x = px, y = py;
 	char            command;
 	bool            validcmd;
 	building_type   *bldg;
@@ -2072,7 +2097,9 @@ void do_cmd_bldg(void)
 	msg_print(NULL);
 
 	/* Reinit wilderness to activate quests ... */
-	wilderness_gen(1);
+        wilderness_gen(TRUE);
+        py = y;
+        px = x;
 
 	/* Hack -- Decrease "icky" depth */
 	character_icky--;
@@ -2084,7 +2111,7 @@ void do_cmd_bldg(void)
 	p_ptr->update |= (PU_VIEW | PU_MONSTERS | PU_BONUS);
 
 	/* Redraw entire screen */
-	p_ptr->redraw |= (PR_BASIC | PR_EXTRA | PR_EQUIPPY | PR_MAP);
+        p_ptr->redraw |= (PR_BASIC | PR_EXTRA | PR_MAP);
 
 	/* Window stuff */
 	p_ptr->window |= (PW_OVERHEAD);

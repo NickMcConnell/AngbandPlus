@@ -1,5 +1,7 @@
-// GIF Loader
-// by Paul Bartrum
+/*
+ * GIF Loader
+ * by Paul Bartrum
+ */
 
 #include <stdlib.h>
 #include <stdio.h>

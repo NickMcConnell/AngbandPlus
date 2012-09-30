@@ -1,5 +1,7 @@
 /* File: cavemod.c */
 
+#ifdef USE_PYTHON
+
 /*
  * Copyright (c) 1998 Keldon Jones
  *
@@ -412,14 +414,11 @@ void initcave(void)
 	add_constant(d, "FEAT_FLOOR", FEAT_FLOOR);
 	add_constant(d, "FEAT_GRASS", FEAT_GRASS);
 	add_constant(d, "FEAT_DIRT", FEAT_DIRT);
-	add_constant(d, "FEAT_INVIS", FEAT_INVIS);
 	add_constant(d, "FEAT_GLYPH", FEAT_GLYPH);
 	add_constant(d, "FEAT_OPEN", FEAT_OPEN);
 	add_constant(d, "FEAT_BROKEN", FEAT_BROKEN);
 	add_constant(d, "FEAT_LESS", FEAT_LESS);
 	add_constant(d, "FEAT_MORE", FEAT_MORE);
-	add_constant(d, "FEAT_TRAP_HEAD", FEAT_TRAP_HEAD);
-	add_constant(d, "FEAT_TRAP_TAIL", FEAT_TRAP_TAIL);
 	add_constant(d, "FEAT_SHOP_HEAD", FEAT_SHOP_HEAD);
 	add_constant(d, "FEAT_SHOP_TAIL", FEAT_SHOP_TAIL);
         add_constant(d, "FEAT_TREES", FEAT_TREES);
@@ -452,3 +451,4 @@ void initcave(void)
 	add_constant(d, "CAVE_VIEW", CAVE_VIEW);
 	add_constant(d, "CAVE_TEMP", CAVE_TEMP);
 }
+#endif
