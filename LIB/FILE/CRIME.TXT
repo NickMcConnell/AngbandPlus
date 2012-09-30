@@ -1,4 +1,4 @@
-23
+37
 ******** BUFFER LINE *********************************** DO NOT REMOVE *******
 murder.
 arson.
@@ -23,3 +23,17 @@ pillaging.
 rape and pillage.
 cruelty to animals.
 dealing drugs.
+murder for hire.
+luring souls to destruction.
+smashing holy relics.
+glorying in chaos.
+convenanting with Morgoth.
+desecration of holy places.
+conspiring to topple bastions.
+abuse of self-appointed privilege.
+leaguing with the underworld.
+spawning minions of darkness.
+the desolation of kingdoms.
+lese-majesty.
+obstructing justice.
+conspiring to obstruct justice.

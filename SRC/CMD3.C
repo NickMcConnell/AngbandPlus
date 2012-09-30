@@ -22,6 +22,13 @@
  */
 void do_cmd_inven(void)
 {
+
+/* Broken */
+#if 0
+    int capacity_tester = 0;
+    int i = 0, j = 0;
+#endif
+    
 	char out_val[160];
 
 
@@ -41,10 +48,25 @@ void do_cmd_inven(void)
 	/* Hack -- hide empty slots */
 	item_tester_full = FALSE;
 
-	/* Build a prompt */
-	sprintf(out_val, "Inventory (carrying %d.%d pounds). Command: ",
-	        total_weight / 10, total_weight % 10);
+/* Broken */
+#if 0
+    /* Extract the current weight (in tenth pounds) */
+	j = total_weight;
 
+	/* Extract the "weight limit" (in tenth pounds) */
+    i = adj_str_wgt[p_ptr->stat_ind[A_STR]] * 100;
+
+    capacity_tester = i + (i/10) - 1;
+
+    sprintf(out_val, "Inventory: carrying %d.%d pounds (%d%% of capacity). Command: ",
+           total_weight / 10, total_weight % 10,
+       (total_weight * 100) / ((capacity_tester) / 2));
+
+#else
+    sprintf(out_val, "Inventory: carrying %d.%d pounds (%d%% of capacity). Command: ",
+           total_weight / 10, total_weight % 10,
+       (total_weight * 100) / ((adj_str_wgt[p_ptr->stat_ind[A_STR]] * 100) / 2));
+#endif
 	/* Get a command */
 	prt(out_val, 0, 0);
 
@@ -97,8 +119,9 @@ void do_cmd_equip(void)
 	item_tester_full = FALSE;
 
 	/* Build a prompt */
-	sprintf(out_val, "Equipment (carrying %d.%d pounds). Command: ",
-	        total_weight / 10, total_weight % 10);
+   sprintf(out_val, "Equipment: carrying %d.%d pounds (%d%% of capacity). Command: ",
+           total_weight / 10, total_weight % 10,
+       (total_weight * 100) / ((adj_str_wgt[p_ptr->stat_ind[A_STR]] * 100) / 2));
 
 	/* Get a command */
 	prt(out_val, 0, 0);
@@ -196,6 +219,19 @@ void do_cmd_wield(void)
 		/* Cancel the command */
 		return;
 	}
+
+    if ((cursed_p(o_ptr)) && (wear_confirm)
+        && (object_known_p(o_ptr) || (o_ptr->ident & (IDENT_SENSE))))
+    {
+        char dummy[512];
+
+		/* Describe it */
+        object_desc(o_name, o_ptr, FALSE, 0);
+
+        sprintf(dummy, "Really use the %s {cursed}? ", o_name);
+        if (!(get_check(dummy)))
+            return;
+    }
 
 
 	/* Take a turn */
@@ -409,6 +445,18 @@ void do_cmd_drop(void)
 }
 
 
+static bool high_level_book(object_type * o_ptr)
+{
+    if ((o_ptr->tval == TV_LIFE_BOOK) || (o_ptr->tval == TV_SORCERY_BOOK) ||
+        (o_ptr->tval == TV_NATURE_BOOK) || (o_ptr->tval == TV_CHAOS_BOOK) ||
+        (o_ptr->tval == TV_DEATH_BOOK) || (o_ptr->tval == TV_TRUMP_BOOK))
+        {
+            if (o_ptr->sval>1) return TRUE;
+            else return FALSE;
+        }
+        return FALSE;
+}
+
 
 /*
  * Destroy an item
@@ -469,11 +517,14 @@ void do_cmd_destroy(void)
 	o_ptr->number = old_number;
 
 	/* Verify unless quantity given */
-	if (!force)
+    if (!force)
 	{
-		/* Make a verification */
-		sprintf(out_val, "Really destroy %s? ", o_name);
-		if (!get_check(out_val)) return;
+        if (!((auto_destroy) && (object_value(o_ptr)<1)))
+        {
+            /* Make a verification */
+            sprintf(out_val, "Really destroy %s? ", o_name);
+            if (!get_check(out_val)) return;
+        }
 	}
 
 	/* Take a turn */
@@ -483,6 +534,8 @@ void do_cmd_destroy(void)
     if (artifact_p(o_ptr) || o_ptr->art_name)
 	{
 		cptr feel = "special";
+
+        energy_use = 0;
 
 		/* Message */
 		msg_format("You cannot destroy %s.", o_name);
@@ -510,6 +563,36 @@ void do_cmd_destroy(void)
 
 	/* Message */
 	msg_format("You destroy %s.", o_name);
+
+    if (high_level_book(o_ptr))
+    {
+        bool gain_expr = FALSE;
+        if (p_ptr->pclass == CLASS_WARRIOR) gain_expr = TRUE;
+        else if (p_ptr->pclass == CLASS_PALADIN)
+        {
+            if (p_ptr->realm1 == 1)
+            {
+                if (o_ptr->tval != TV_LIFE_BOOK) gain_expr = TRUE;
+            }
+            else
+            {
+                if (o_ptr->tval == TV_LIFE_BOOK) gain_expr = TRUE;
+            }
+        }
+
+        if ((gain_expr) && (p_ptr->exp < PY_MAX_EXP))
+        
+        {
+            s32b tester_exp = p_ptr->max_exp / 20;
+            if (tester_exp > 10000) tester_exp = 10000;
+            if (o_ptr->sval < 3) tester_exp /= 4;
+            if (tester_exp<1) tester_exp = 1;
+
+            msg_print("You feel more experienced.");
+            gain_exp(tester_exp * amt);
+
+        }
+    }
 
 	/* Eliminate the item (from the pack) */
 	if (item >= 0)

@@ -174,7 +174,7 @@ static cptr r_info_flags2[] =
 	"STUPID",
 	"SMART",
     "CAN_SPEAK", /* WAS: XXX1X2 */
-	"XXX2X2",
+    "REFLECTING",
 	"INVISIBLE",
 	"COLD_BLOOD",
 	"EMPTY_MIND",
@@ -184,9 +184,9 @@ static cptr r_info_flags2[] =
     "SHAPECHANGER", /*  WAS: XXX3X2 */
     "ATTR_ANY",     /*  WAS: XXX4X2 */
 	"POWERFUL",
-	"XXX5X2",
-	"XXX7X2",
-	"XXX6X2",
+    "ELDRITCH_HORROR",
+    "AURA_FIRE",
+    "AURA_ELEC",
 	"OPEN_DOOR",
 	"BASH_DOOR",
 	"PASS_WALL",
@@ -219,7 +219,7 @@ static cptr r_info_flags3[] =
 	"EVIL",
 	"ANIMAL",
     "AMBERITE", /*WAS: XXX1X3 */
-	"XXX2X3",
+    "GOOD",
 	"XXX3X3",
     "NONLIVING", /*WAS: XXX4X3 */
 	"HURT_LITE",
@@ -231,7 +231,7 @@ static cptr r_info_flags3[] =
 	"IM_FIRE",
 	"IM_COLD",
 	"IM_POIS",
-	"XXX5X3",
+    "RES_TELE",
 	"RES_NETH",
 	"RES_WATE",
 	"RES_PLAS",
@@ -280,7 +280,7 @@ static cptr r_info_flags4[] =
     "BA_NUKE", /* WAS: XXX5X4 */
     "BR_NUKE", /* WAS: XXX6X4 */
     "BA_CHAO", /* WAS: XXX7X4 */
-	"XXX8X4"
+    "BR_DISI",
 };
 
 /*
@@ -328,7 +328,7 @@ static cptr r_info_flags5[] =
 static cptr r_info_flags6[] =
 {
 	"HASTE",
-	"XXX1X6",
+    "HAND_DOOM",
 	"HEAL",
 	"XXX2X6",
 	"BLINK",
@@ -449,9 +449,9 @@ static cptr k_info_flags3[] =
     "SH_ELEC",
 	"XXX3",
 	"XXX4",
-	"XXX5",
-	"XXX6",
-	"XXX7",
+    "NO_TELE",
+    "NO_MAGIC",
+    "WRAITH",
     "TY_CURSE",
 	"EASY_KNOW",
 	"HIDE_TYPE",

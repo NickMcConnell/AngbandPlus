@@ -142,6 +142,9 @@ bool make_attack_normal(int m_idx)
 	/* Not allowed to attack */
 	if (r_ptr->flags1 & (RF1_NEVER_BLOW)) return (FALSE);
 
+         /* ...nor if friendly */
+         if (m_ptr->smart & SM_FRIEND)  return FALSE;
+
 
 	/* Total armor */
 	ac = p_ptr->ac + p_ptr->to_a;
@@ -1276,6 +1279,7 @@ bool make_attack_normal(int m_idx)
                         if (mon_take_hit(m_idx, damroll(2,6), &fear,
                             " turns into a pile of ash."))
                         {
+                            blinked = FALSE;
                             alive = FALSE;
                         }
                     }
@@ -1294,6 +1298,7 @@ bool make_attack_normal(int m_idx)
                         if (mon_take_hit(m_idx, damroll(2,6), &fear,
                             " turns into a pile of cinder."))
                             {
+                                blinked = FALSE;
                                 alive = FALSE;
                             }
                     }

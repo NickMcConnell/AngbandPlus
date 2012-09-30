@@ -328,6 +328,11 @@
  * learning that the player is not harmed by that attack.
  *
  * This adds about 3K to the memory and about 5K to the executable.
+ *
+ * SPECIAL NOTE: In Z, the "smart" field is also used to store such
+ * monster information as "friendly" and "cloned". Therefore this
+ * option should always be defined when compiling Zangband 2.1.0
+ * or later.
  */
 #define DRS_SMART_OPTIONS
 
@@ -529,17 +534,31 @@
 
 /* Zangband options: */
 
+/* (see above) */
+#ifndef DRS_SMART_OPTIONS
+ #define DRS_SMART_OPTIONS
+#endif
+
 /* Should the player know his / her starting life rate? */
 # define SHOW_LIFE_RATE
 
 /* Do we want different characters for different races? */
 # define VARIABLE_PLAYER_GRAPH
 
-/* To turn on the "confirm staircases" check */
+/* To turn on the "confirm staircases" check  -- obsolete in 2.1.0 and later */
 /* # define CONFIRM_STAIRCASES */
 
 /* For longer martial arts descriptions */
 # define VERBOSE_MARTIAL_ARTS
 
+/* Allow hordes of 'similar' monsters */
+# define MONSTER_HORDES
+
+
+/* Wizard mode testing options: */
+
 /* For testing the vaults */
 /* # define FORCE_V_IDX */
+
+/* Testing upkeep */
+/* # define TRACK_FRIENDS */

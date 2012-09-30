@@ -253,7 +253,7 @@ N:43:of Immolation
 X:31:16
 W:0:0:0:4000
 C:0:0:4:0
-F:IGNORE_ACID | IGNORE_FIRE | SH_FIRE
+F:IGNORE_ACID | IGNORE_FIRE | SH_FIRE | RES_FIRE
 
 N:44:of Enveloping
 X:31:0
@@ -278,7 +278,7 @@ N:47:of Electricity
 X:31:16
 W:0:0:0:4000
 C:0:0:4:0
-F:IGNORE_ACID | IGNORE_ELEC | SH_ELEC
+F:IGNORE_ACID | IGNORE_ELEC | SH_ELEC | RES_ELEC
 
 
 
@@ -326,7 +326,7 @@ F:DEX
 
 ### Boots ###
 
-N:56:of Slow Descent
+N:56:of Levitation
 X:35:7
 W:0:0:0:250
 F:FEATHER

@@ -1,4 +1,4 @@
-85
+102
 ******** BUFFER LINE *********************************** DO NOT REMOVE *******
 cackles evilly.
 cackles diabolically.
@@ -85,3 +85,20 @@ says: 'I have found you, and there is no place to run.'
 says: 'My blood lust defies all my needs.'
 says: 'And damn'd be him that first cries: Hold, enough!'
 says: 'I can smell your blood, human!'
+says: 'Has your folly led to this?'
+wonders aloud how many experience points you're worth...
+says: 'Pride yourself on this, that you were slain by a champion.'
+thunders: 'May heaven have mercy on your soul, for I will have none.'
+screams for your blood!
+sighs: 'They send a poorer grade of adventurers down each year than the last.'
+says: 'Your life-blood will baptise my blade!'
+shouts: 'You will serve me in Valhalla!'
+snickers: 'Mommy's not here to save you now!'
+says: 'You're almost not worth killing...almost!'
+leaps towards you with death in its eye.
+sings: 'Cuts yer if ye stand, shoot yer if ye run.'
+says: 'Another adventurer?  I just got through picking my teeth with the last.'
+says: 'Your two ears will decorate my belt.'
+says: 'I love all that blood.'
+says: 'I don't want to hurt you, I only want to kill you.'
+says: 'I like killing people, because it's so much fun.'

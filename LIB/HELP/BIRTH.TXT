@@ -76,10 +76,10 @@ class.  As the experience rises, so does the level, and as the level rises,
 certain other abilities and characteristics rise as well.  Deep down inside,
 the real objective of the game is to increase your experience, and certain
 other characteristics, and also to collect useful items, to give you a decent
-chance against Morgoth.  Certain monsters can "drain" your experience, and
-thus your level, which will cause you to lose all of the effects of the higher
-level.  Luckily, you can restore drained experience through magical means, or
-by simply regaining the experience all over again.
+chance against the great Serpent of Chaos.  Certain monsters can "drain" your
+experience, and thus your level, which will cause you to lose all of the
+effects of the higher level.  Luckily, you can restore drained experience
+through magical means, or by simply regaining the experience all over again.
 
 Each character has some gold, which can be used to buy items from the shops
 in the town, and which can be obtained not only from selling items to the
@@ -329,7 +329,7 @@ have intrinsic abilities.
                 spellcasters than any other race, even if their physical
                 attributes are a good deal less admirable. As they advance
                 levels, they gain the powers of See Invisible, Telepathy
-                and a mind blast attack to stun and confuse their enemies.
+                and a mind blast attack.
 
         Imp
                 A demon-creature from the nether-world, naturally resistant
@@ -346,10 +346,12 @@ have intrinsic abilities.
                 and move freely. At higher levels, they also become resistant
                 to attacks which threaten to drain away their life force.
                 They also learn to temporarily turn their skin into a very
-                hard, stonelike substance. The life force animating a golem
-                will cause the golem feel hunger like normal living
-                creatures, although a golem will not grow hungry as
-                fast fully living creatures would.
+                hard, stonelike substance. In the most recent version, golems
+                gain very little nutrition from ordinary food. They need to
+                collect scrolls of satisfy hunger, or perish of exhaustion
+                when the life force animating their body runs out. In the
+                most recent version golems also gain natural armor class
+                bonus from their tough body.
 
         Skeleton
                 There are two types of skeletons: the ordinary, warrior-
@@ -362,10 +364,11 @@ have intrinsic abilities.
                 and they will quickly become resistant to cold. Should
                 a skeleton be unlucky enough to lose some of his or her
                 remaining life, he or she will learn to restore it at
-                will. The magical energies animating a skeleton enable
-                it to magically digest any food inserted in its mouth,
-                actually allowing it to eat -- which it has to do,
-                since otherwise it can grow weaker and perish.
+                will. It is very hard for skeletons to eat food or drink
+                potions. Although the magical effects of these will affect
+                the skeleton even without entering the skeleton's (non-
+                existent) belly, the potion / food itself will fall through
+                the skeleton's jaws, giving no nutritional benefit.
 
         Zombie
                 Much like Skeletons, Zombies too are undead horrors: they
@@ -374,15 +377,72 @@ have intrinsic abilities.
                 resistant to cold-based attacks (actually earlier than
                 skeletons), resist poison and can see invisible. While
                 still vulnerable to cuts (unlike skeletons), Zombies are
-                resistant to Nether. Like skeletons, they hunger as if they
-                were alive, although they do not grow hungry as fast as
-                living men do. However, Zombies are, as the name implies,
-                practically mindless: in this company, Groo would seem a
-                genius.
+                resistant to Nether. Like golems, they gain very little
+                nutrition from the food of mortals. However, Zombies are,
+                as the name implies, practically mindless: in this company,
+                Groo would seem a genius.
+
+        Vampire
+                One of the mightier undead creatures, the Vampire is an
+                awe-inspiring sight. Yet this mighty creature has a serious
+                weakness: the bright rays of sun are its bane, and it will
+                need to flee the surface to the deep recesses of earth until
+                the sun finally sets. Darkness, on the other hand, only makes
+                the Vampire stronger. As undead, the Vampire has a firm hold
+                on its life force, and resists nether attacks. The Vampire
+                also resists cold and poison based attacks. It is, however,
+                susceptible to its perpetual hunger for fresh blood, which
+                can only be satiated by sucking the blood from a nearby
+                monster, which is the Vampire's special power. It should be
+                noted that the vampires are so sensitive to daylight that
+                even certain artifact light items which are filled with
+                daylight will hurt them if they try to wield the items.
+                Fortunately, the vampires do not really need these items,
+                since they radiate an aura of 'dark light' of their own.
+                Light resistance will, in any case, protect the vampire
+                from the adverse effects of sunlight.
+
+        Spectre
+                Another powerful undead creature: the spectre is a ghastly
+                apparition, surrounded by an unearthly green glow. They exist
+                only partially on our plane of existence: half-corporeal,
+                they can pass through walls, although the density of the
+                wall will hurt them in the process of doing this. The spectre
+                can scream an eldritch howl, which is enough to scare lesser
+                monsters witless. As undead, they have a firm hold on their
+                life force, see invisible, and resist poison and cold. They
+                also resist nether; in fact, their half-corporeal form
+                actually grows stronger from the effects of nether. At
+                higher levels they develop telepathic abilities. Spectres
+                make superb spellcasters, but their physical form is very
+                weak. Like Golems and Zombies, Spectres gain almost no
+                nutrition from ordinary food.
+
+        Sprite
+                One of the several fairy races, sprites are very small.
+                They have tiny wings, and can fly over traps that may open
+                up beneath them. They enjoy sunlight intensely, and need
+                worry little about light based attacks. Although physically
+                among the weakest races, Sprites are very talented in magic,
+                and can become highly skilled wizards. Sprites have the
+                special power of spraying Sleeping Dust, and at higher
+                levels they learn to fly faster.
+
+        Beastman
+                This race is a blasphemous abomination produced by Chaos.
+                It is not an independent race but rather a humanoid creature,
+                most often a human, twisted by the Chaos, or a nightmarsh
+                crossbreed of a human and a beast. All Beastmen are accustomed
+                to Chaos so much that they are untroubled by confusion and
+                sound, although raw Logrus can still have effects on them.
+                Beastmen revel in chaos, as it twists them more and more.
+                Beastmen are subject to mutations: when they have been
+                created, they receive a random mutation. After that,
+                every time they advance a level they have a little chance
+                of gaining yet another mutation.
 
 
-
-=== Classes (somewhat outdated) ===
+=== Classes ===
  
  
           Once a race has been chosen, you will need to pick a class.  Some
@@ -431,7 +491,8 @@ have intrinsic abilities.
                trained in Life magic, and the 'evil' dark Priests who  have
                chosen to study  Death magic instead.  In addition to  their
                primary  realm  of  magic (Life or Death  magic),  they  can
-               select a secondary realm from Nature, Chaos and Sorcery.
+               select a secondary realm from  Arcane , Trump,  Nature,  and
+               Chaos.
 
           Rogue
                A Rogue is a character that prefers to live by his  cunning,
@@ -449,7 +510,9 @@ have intrinsic abilities.
                Dexterity.
                Rogues  who  wish  to  specialize  as burglars can choose to
                study Sorcery while Death magic is  available to rogues  who
-               wish to become Assassins.
+               wish to become Assassins.  In  the  latest  versions, Arcane
+               magic is available for 'common' thieves, and Trump magic for
+               card sharks.
  
           Ranger
                A Ranger is a warrior/mage.  He is a good fighter,  and  the
@@ -462,9 +525,9 @@ have intrinsic abilities.
                throw,  and is good with magical devices.  His primary stats
                are Intelligence and Dexterity.
                All  rangers  are  trained  in  Nature  magic. They can also
-               select a secondary realm of magic  (from Sorcery, Chaos  and
-               Death magic), but their skills are more limited in  than  in
-               their native Nature magic.
+               select  a secondary realm of magic  (from  Sorcery,  Arcane,
+               Trump, Chaos and Death) but their skills are more limited in
+               the second realm than in their native Nature magic.
  
           Paladin
                A Paladin is a warrior/priest.  He is a very  good  fighter,
@@ -487,15 +550,15 @@ have intrinsic abilities.
                between the warrior  and mage classes. While their brothers,
                the Rangers, specialize in Nature magic and survival skills,
                true Warrior-Mages attempt to reach the best of both worlds:
-               as  magicians,  they are trained  in Sorcery and can  select
-               another realm,  eventually learning every spell  in both  of
-               them (although slower than true magicians); as warriors they
-               are much superior to the usual Mage class.  The Warrior-Mage
-               is  a  truly powerful class,  which  is  recommended for the
-               players  who want to cast spells but whose mages tend to die
-               too quickly.  However,  the power  does not  come without  a
-               price:  Warrior-Mages  require  more experience  to  advance
-               levels than any other class.
+               as magicians,  they are  trained  in  Arcane magic  and  can
+               select  another realm,  eventually  learning every spell  in
+               both of them  (although  slower  than  true  magicians);  as
+               warriors they are much superior to the usual Mage class. The
+               Warrior-Mage  is   a   truly  powerful  class,    which   is
+               recommended  for  the  players   who want to cast spells but
+               whose mages tend to  die too quickly.   However,  the  power
+               does not  come  without  a  price:   Warrior-Mages   require
+               more experience  to  advance levels than any other class.
 
           Chaos Warrior
                Chaos Warriors are the feared servants of the terrible Demon
@@ -534,6 +597,27 @@ have intrinsic abilities.
                those devoted to Nature,  and those devoted to Death.  These
                are the three possible realms of magic avaiilable to a monk,
                who can learn every prayer in the realm of his choice.
+
+        Mindcrafter
+               The Mindcrafter is  character  who  uses  the powers of mind
+               instead of magic. These powers are unique to the Mindcrafter
+               class,  and vary from simple extrasensory powers  to  mental
+               domination  of others.  Since these powers are  developed by
+               the practice of certain disciplines,  a Mindcrafter requires
+               no spellbooks  to use them.  The available powers are simply
+               determined by the character level.  The Mindcrafter uses the
+               wisdom score to determine how well he / she can  perform the
+               psychic powers,  and in combat  a Mindcrafter is roughly the
+               equivalent  of  a  priest,  although a Mindcrafter  is never
+               penalized for wielding an edged weapon (unlike a priest).
+
+        High Mage
+               High  Mages  are  specialist Mages  of the highest order. In
+               most respects they are exactly like ordinary Mages, although
+               their  spell stat is slightly higher.   Instead of selecting
+               two realms of magic,  a High Mage selects  only one realm of
+               magic  and  studies it extremely well,   gaining substantial
+               benefits in mana costs, minimum levels and failure rates.
  
 
 === Stats ===
@@ -661,6 +745,13 @@ have intrinsic abilities.
  
  
 === Combinations of Race and Class ===
+
+These are the classes that are recommended for different races. You can
+still select a race that is not in the chart, but these combinations are
+either rather poor (like a zombie mage) or as a concept so silly that they
+are not recommended. If you pick a combination that is not on the chart,
+don't complain if things don't turn out as you expected them to.
+ 
  
             Warrior  Mage    Priest  Rogue   Ranger  Paladin Warrior Chaos
                                                              -Mage  Warrior
@@ -690,34 +781,46 @@ Imp           Yes     Yes     No      Yes     No      No      Yes     Yes
 Golem         Yes     No      No      No      No      No      No      No
 Skeleton      Yes     Yes     Yes     Yes     No      No      No      No
 Zombie        Yes     No      No      No      No      No      No      No
+Vampire       Yes     Yes     Yes     Yes     Yes     Yes     Yes     Yes
+Spectre       No      Yes     Yes     Yes     No      No      Yes     No
+Sprite        No      Yes     Yes     Yes     Yes     No      Yes     No
+Beastman      Yes     Yes     Yes     Yes     No      No      Yes     Yes
 
-            Monk
-Human         Yes
-Half-Elf      Yes
-Elf           Yes
-Hobbit        No
-Gnome         No
-Dwarf         No
-Half-Orc      Yes
-Half-Troll    No
-Dunadan       Yes
-High-Elf      Yes
-Barbarian     No
-Half-Ogre     No
-Half-Giant    No
-Half-Titan    Yes
-Cyclops       No
-Yeek          No
-Klackon       No
-Kobold        No
-Nibelung      No
-Dark Elf      Yes
-Draconian     Yes
-Mind Flayer   Yes
-Imp           Yes
-Golem         No
-Skeleton      Yes
-Zombie        No
+
+
+                     Mind-   High
+            Monk    crafter  Mage
+Human         Yes     Yes     Yes
+Half-Elf      Yes     Yes     Yes
+Elf           Yes     Yes     Yes
+Hobbit        No      No      Yes
+Gnome         No      Yes     Yes
+Dwarf         No      No      No
+Half-Orc      Yes     No      No
+Half-Troll    No      No      No
+Dunadan       Yes     Yes     Yes
+High-Elf      Yes     Yes     Yes
+Barbarian     No      No      No
+Half-Ogre     No      No      Yes
+Half-Giant    No      No      No
+Half-Titan    Yes     Yes     Yes
+Cyclops       No      No      No
+Yeek          No      Yes     Yes
+Klackon       No      No      No
+Kobold        No      No      No
+Nibelung      No      No      Yes
+Dark Elf      Yes     Yes     Yes
+Draconian     Yes     Yes     Yes
+Mind Flayer   Yes     Yes     Yes
+Imp           Yes     Yes     Yes
+Golem         No      No      No
+Skeleton      Yes     Yes     Yes
+Zombie        No      No      No
+Vampire       Yes     Yes     Yes
+Spectre       Yes     Yes     Yes
+Sprite        No      Yes     Yes
+Beastman      Yes     Yes     Yes
+
 
 
 
@@ -759,18 +862,23 @@ are listed in the following table.
            Half-Titan  +5   +1   +1   -2   +3   +1      14         +155% (*)
            Cyclops     +4   -3   -3   -3   +4   -6      13         +30%
            Yeek        -2   +1   +1   +1   -2   -7       7          +0%
-           Klackon     +2   -1   -1   +1   +2   -2      12         +25%
+           Klackon     +2   -1   -1   +1   +2   -2      12         +35% (**)
            Kobold      +1   -1    0   +1    0   -4       9         +25%
            Nibelung    +1   -1   +2    0   +2   -4      11         +35%
            Dark Elf    -1   +3   +2   +2   -2   +1       9         +50%
            Draconian   +2   +1   +1   +1   +2   -3      11         +150%
            Mind Flayer -3   +4   +4    0   -2   -5       9         +40%
            Imp         -1   -1   -1   +1   +2   -3      10         +10%
-           Golem       +4   -5   -5    0   +4   -4      12         +50% (*)
+           Golem       +4   -5   -5    0   +4   -4      12         +100% (**)
            Skeleton     0   -2   -2    0   +1   -4      10         +45% (*)
            Zombie      +2   -6   -6   +1   +4   -5      13         +35% (*)
+           Vampire     +3   +3   -1   -1   +1   +2      11         +100% (**)
+           Spectre     -5   +4   +4   +2   -3   -6       7         +80% (**)
+           Sprite      -4   +3   +3   +3   -2   +2       7         +75% (**)
+           Beastman    +2   -2   -1   -1   +2   -4      11         +40% (**)
 
                 (*) = Changed in 2.0.6.
+                (**) = Changed or new in 2.1.0.
 
 
                          STR     INT     WIS     DEX     CON     CHR
@@ -783,6 +891,8 @@ are listed in the following table.
            Warrior-Mage  +2      +2       0      +1       0      +1
            Chaos Warrior +2      +1       0      +1      +2      -2
            Monk          +2      -1      +1      +3      +2      +1
+           Mindcrafter   -1       0      +3      -1      -1      +2
+           High Mage     -5      +4       0       0      -2      +1
  
  
 === Ability Tables (updated for 2.0.6) ===
@@ -816,6 +926,10 @@ are listed in the following table.
            Golem        -5   -5   +10  -1   -1   +8   +20  +0     40 feet
            Skeleton     -5   -5   +5   -1   -1   +8   +10  +0     20 feet
            Zombie       -5   -5   +8   -1   -1   +5   +15  +0     20 feet
+           Vampire      +4   +10  +10  +4   +1   +8   +5   +0     50 feet
+           Spectre      +10  +25  +20  +5   +5   +14  -15  -5     50 feet
+           Sprite       +10  +10  +10  +4   +10  +10  -12  +0     40 feet
+           Beastman     -5   -2   -1   -1   -1   +5   +12  +5     None
  
 
                 Disarm  Device  Save    Stealth Search  Melee   Missile XP
@@ -828,6 +942,8 @@ Paladin         20+7    24+10   26+11   1       12/2    68+35   40+30   +35%
 Warrior-Mage    30+7    30+10   28+9    2       18/16   50+20   25+20   +50%
 Chaos Warrior   20+7    25+11   25+10   1       14/12   65+34   40+29   +35%
 Monk            45+15   32+11   28+10   5       32/24   64+40   60+30   +40%
+Mindcrafter     30+10   30+10   30+10   3       22/16   50+20   40+30   +25%
+High Mage       30+7    36+13   30+9    2       15/20   34+15   20+15   +30%
 
   
 

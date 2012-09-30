@@ -1,7 +1,7 @@
 
 
                         ************************
-                        **   Zangband 2.0.6b  **
+                        **   Zangband 2.1.0   **
                         ************************
 
          Based on Moria:    Copyright (c) 1985 Robert Alan Koeneke
@@ -11,7 +11,7 @@
 
        Curses/X11 Module: Ben Harrison, Torbj|rn Lindgren
 
-        Zangband code:    (Mr.) Topi Ylinen (f1toyl@uta.fi)
+        Zangband code:    (Mr) Topi Ylinen (f1toyl@uta.fi)
 
    SVGA graphics and terminal code: Robert Ruehlmann (rr9@inf.tu-dresden.de)
 

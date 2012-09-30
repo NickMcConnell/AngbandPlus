@@ -67,7 +67,7 @@ static byte ring_col[MAX_ROCKS] =
 	TERM_L_RED, TERM_L_WHITE, TERM_WHITE, TERM_L_WHITE, TERM_L_WHITE,
 	TERM_L_RED, TERM_RED, TERM_BLUE, TERM_YELLOW, TERM_YELLOW,
 	TERM_L_BLUE, TERM_L_UMBER, TERM_WHITE, TERM_L_UMBER, TERM_YELLOW,
-	TERM_L_DARK, TERM_L_WHITE, TERM_UMBER, TERM_L_BLUE, TERM_L_DARK,
+    TERM_L_DARK, TERM_L_WHITE, TERM_GREEN, TERM_L_BLUE, TERM_L_DARK,
     TERM_YELLOW, TERM_VIOLET,
     TERM_SLATE, TERM_L_WHITE, TERM_WHITE, TERM_UMBER,
     TERM_BLUE, TERM_GREEN, TERM_YELLOW, TERM_ORANGE,
@@ -92,8 +92,8 @@ static byte amulet_col[MAX_AMULETS] =
 {
 	TERM_YELLOW, TERM_L_UMBER, TERM_WHITE, TERM_L_WHITE, TERM_WHITE,
 	TERM_L_DARK, TERM_WHITE, TERM_L_UMBER, TERM_L_UMBER, TERM_SLATE,
-    TERM_UMBER, TERM_YELLOW, TERM_L_BLUE, TERM_L_BLUE, TERM_L_WHITE,
-    TERM_L_UMBER, TERM_L_DARK
+    TERM_GREEN, TERM_YELLOW, TERM_L_BLUE, TERM_L_BLUE, TERM_L_WHITE,
+    TERM_L_UMBER, TERM_VIOLET /* Hack */
 };
 
 
@@ -354,6 +354,8 @@ static bool object_easy_know(int i)
 	case TV_NATURE_BOOK:
 	case TV_CHAOS_BOOK:
 	case TV_DEATH_BOOK:
+    case TV_TRUMP_BOOK:
+    case TV_ARCANE_BOOK:
 		{
 			return (TRUE);
 		}
@@ -532,7 +534,14 @@ static byte default_tval_to_attr(int tval)
 		{
 	    return (TERM_L_DARK);
 		}
-
+    case TV_TRUMP_BOOK:
+        {
+            return (TERM_ORANGE);
+        }
+    case TV_ARCANE_BOOK:
+        {
+            return (TERM_L_WHITE);
+        }
 	}
 
 	return (TERM_WHITE);
@@ -970,65 +979,68 @@ void object_flags(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
     }
 
 	/* Extra powers */
-	switch (o_ptr->xtra1)
-	{
-		case EGO_XTRA_SUSTAIN:
-		{
-			/* Choose a sustain */
-			switch (o_ptr->xtra2 % 6)
-			{
-				case 0: (*f2) |= (TR2_SUST_STR); break;
-				case 1: (*f2) |= (TR2_SUST_INT); break;
-				case 2: (*f2) |= (TR2_SUST_WIS); break;
-				case 3: (*f2) |= (TR2_SUST_DEX); break;
-				case 4: (*f2) |= (TR2_SUST_CON); break;
-				case 5: (*f2) |= (TR2_SUST_CHR); break;
-			}
+    if (!(o_ptr->art_name))
+    {
+        switch (o_ptr->xtra1)
+        {
+            case EGO_XTRA_SUSTAIN:
+            {
+                /* Choose a sustain */
+                switch (o_ptr->xtra2 % 6)
+                {
+                    case 0: (*f2) |= (TR2_SUST_STR); break;
+                    case 1: (*f2) |= (TR2_SUST_INT); break;
+                    case 2: (*f2) |= (TR2_SUST_WIS); break;
+                    case 3: (*f2) |= (TR2_SUST_DEX); break;
+                        case 4: (*f2) |= (TR2_SUST_CON); break;
+                    case 5: (*f2) |= (TR2_SUST_CHR); break;
+                }
 
-			break;
-		}
+                break;
+                }
 
-		case EGO_XTRA_POWER:
-		{
-			/* Choose a power */
-            switch (o_ptr->xtra2 % 11)
-			{
-				case 0: (*f2) |= (TR2_RES_BLIND); break;
-				case 1: (*f2) |= (TR2_RES_CONF); break;
-				case 2: (*f2) |= (TR2_RES_SOUND); break;
-				case 3: (*f2) |= (TR2_RES_SHARDS); break;
-				case 4: (*f2) |= (TR2_RES_NETHER); break;
-				case 5: (*f2) |= (TR2_RES_NEXUS); break;
-				case 6: (*f2) |= (TR2_RES_CHAOS); break;
-				case 7: (*f2) |= (TR2_RES_DISEN); break;
-				case 8: (*f2) |= (TR2_RES_POIS); break;
-                case 9: (*f2) |= (TR2_RES_DARK); break;
-                case 10: (*f2) |= (TR2_RES_LITE); break;
-			}
+            case EGO_XTRA_POWER:
+            {
+                /* Choose a power */
+                    switch (o_ptr->xtra2 % 11)
+                {
+                    case 0: (*f2) |= (TR2_RES_BLIND); break;
+                    case 1: (*f2) |= (TR2_RES_CONF); break;
+                    case 2: (*f2) |= (TR2_RES_SOUND); break;
+                    case 3: (*f2) |= (TR2_RES_SHARDS); break;
+                        case 4: (*f2) |= (TR2_RES_NETHER); break;
+                    case 5: (*f2) |= (TR2_RES_NEXUS); break;
+                    case 6: (*f2) |= (TR2_RES_CHAOS); break;
+                        case 7: (*f2) |= (TR2_RES_DISEN); break;
+                    case 8: (*f2) |= (TR2_RES_POIS); break;
+                    case 9: (*f2) |= (TR2_RES_DARK); break;
+                    case 10: (*f2) |= (TR2_RES_LITE); break;
+                }
 
-			break;
-		}
+                break;
+            }
 
-		case EGO_XTRA_ABILITY:
-		{
-			/* Choose an ability */
-			switch (o_ptr->xtra2 % 8)
-			{
-				case 0: (*f3) |= (TR3_FEATHER); break;
-				case 1: (*f3) |= (TR3_LITE); break;
-				case 2: (*f3) |= (TR3_SEE_INVIS); break;
-				case 3: (*f3) |= (TR3_TELEPATHY); break;
-				case 4: (*f3) |= (TR3_SLOW_DIGEST); break;
-				case 5: (*f3) |= (TR3_REGEN); break;
-				case 6: (*f2) |= (TR2_FREE_ACT); break;
-				case 7: (*f2) |= (TR2_HOLD_LIFE); break;
-			}
+            case EGO_XTRA_ABILITY:
+            {
+                /* Choose an ability */
+                switch (o_ptr->xtra2 % 8)
+                {
+                    case 0: (*f3) |= (TR3_FEATHER); break;
+                    case 1: (*f3) |= (TR3_LITE); break;
+                    case 2: (*f3) |= (TR3_SEE_INVIS); break;
+                    case 3: (*f3) |= (TR3_TELEPATHY); break;
+                    case 4: (*f3) |= (TR3_SLOW_DIGEST); break;
+                        case 5: (*f3) |= (TR3_REGEN); break;
+                    case 6: (*f2) |= (TR2_FREE_ACT); break;
+                    case 7: (*f2) |= (TR2_HOLD_LIFE); break;
+                }
 
-			break;
-		}
+                break;
+            }
 
-	}
-}
+        }
+        }
+    }
 
 
 
@@ -1108,64 +1120,68 @@ void object_flags_known(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
 	/* Full knowledge for *identified* objects */
 	if (!(o_ptr->ident & IDENT_MENTAL)) return;
 
-	/* Extra powers */
-	switch (o_ptr->xtra1)
-	{
-		case EGO_XTRA_SUSTAIN:
-		{
-			/* Choose a sustain */
-			switch (o_ptr->xtra2 % 6)
-			{
-				case 0: (*f2) |= (TR2_SUST_STR); break;
-				case 1: (*f2) |= (TR2_SUST_INT); break;
-				case 2: (*f2) |= (TR2_SUST_WIS); break;
-				case 3: (*f2) |= (TR2_SUST_DEX); break;
-				case 4: (*f2) |= (TR2_SUST_CON); break;
-				case 5: (*f2) |= (TR2_SUST_CHR); break;
-			}
 
-			break;
-		}
+    if (!(o_ptr->art_name))
+    {
+        /* Extra powers */
+        switch (o_ptr->xtra1)
+        {
+            case EGO_XTRA_SUSTAIN:
+            {
+                /* Choose a sustain */
+                switch (o_ptr->xtra2 % 6)
+                {
+                    case 0: (*f2) |= (TR2_SUST_STR); break;
+                    case 1: (*f2) |= (TR2_SUST_INT); break;
+                    case 2: (*f2) |= (TR2_SUST_WIS); break;
+                    case 3: (*f2) |= (TR2_SUST_DEX); break;
+                    case 4: (*f2) |= (TR2_SUST_CON); break;
+                    case 5: (*f2) |= (TR2_SUST_CHR); break;
+                }
 
-		case EGO_XTRA_POWER:
-		{
-			/* Choose a power */
-            switch (o_ptr->xtra2 % 11)
-			{
-				case 0: (*f2) |= (TR2_RES_BLIND); break;
-				case 1: (*f2) |= (TR2_RES_CONF); break;
-				case 2: (*f2) |= (TR2_RES_SOUND); break;
-				case 3: (*f2) |= (TR2_RES_SHARDS); break;
-				case 4: (*f2) |= (TR2_RES_NETHER); break;
-				case 5: (*f2) |= (TR2_RES_NEXUS); break;
-				case 6: (*f2) |= (TR2_RES_CHAOS); break;
-				case 7: (*f2) |= (TR2_RES_DISEN); break;
-				case 8: (*f2) |= (TR2_RES_POIS); break;
-                case 9: (*f2) |= (TR2_RES_DARK); break;
-                case 10: (*f2) |= (TR2_RES_LITE); break;
-			}
+                break;
+            }
 
-			break;
-		}
+            case EGO_XTRA_POWER:
+            {
+                /* Choose a power */
+                switch (o_ptr->xtra2 % 11)
+                {
+                    case 0: (*f2) |= (TR2_RES_BLIND); break;
+                    case 1: (*f2) |= (TR2_RES_CONF); break;
+                    case 2: (*f2) |= (TR2_RES_SOUND); break;
+                    case 3: (*f2) |= (TR2_RES_SHARDS); break;
+                    case 4: (*f2) |= (TR2_RES_NETHER); break;
+                    case 5: (*f2) |= (TR2_RES_NEXUS); break;
+                    case 6: (*f2) |= (TR2_RES_CHAOS); break;
+                    case 7: (*f2) |= (TR2_RES_DISEN); break;
+                    case 8: (*f2) |= (TR2_RES_POIS); break;
+                    case 9: (*f2) |= (TR2_RES_DARK); break;
+                    case 10: (*f2) |= (TR2_RES_LITE); break;
+                }
 
-		case EGO_XTRA_ABILITY:
-		{
-			/* Choose an ability */
-			switch (o_ptr->xtra2 % 8)
-			{
-				case 0: (*f3) |= (TR3_FEATHER); break;
-				case 1: (*f3) |= (TR3_LITE); break;
-				case 2: (*f3) |= (TR3_SEE_INVIS); break;
-				case 3: (*f3) |= (TR3_TELEPATHY); break;
-				case 4: (*f3) |= (TR3_SLOW_DIGEST); break;
-				case 5: (*f3) |= (TR3_REGEN); break;
-				case 6: (*f2) |= (TR2_FREE_ACT); break;
-				case 7: (*f2) |= (TR2_HOLD_LIFE); break;
-			}
+                break;
+            }
 
-			break;
-		}
-	}
+            case EGO_XTRA_ABILITY:
+            {
+                /* Choose an ability */
+                switch (o_ptr->xtra2 % 8)
+                {
+                    case 0: (*f3) |= (TR3_FEATHER); break;
+                    case 1: (*f3) |= (TR3_LITE); break;
+                    case 2: (*f3) |= (TR3_SEE_INVIS); break;
+                    case 3: (*f3) |= (TR3_TELEPATHY); break;
+                    case 4: (*f3) |= (TR3_SLOW_DIGEST); break;
+                    case 5: (*f3) |= (TR3_REGEN); break;
+                    case 6: (*f2) |= (TR2_FREE_ACT); break;
+                    case 7: (*f2) |= (TR2_HOLD_LIFE); break;
+                }
+
+                break;
+            }
+        }
+    }
 }
 
 
@@ -1452,7 +1468,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 			/* Color the object */
 			modstr = amulet_adj[indexx];
 			if (aware) append_name = TRUE;
-        if (((!show_labels) && (aware))  || o_ptr->ident & IDENT_STOREB)
+        if (((plain_descriptions) && (aware))  || o_ptr->ident & IDENT_STOREB)
 		basenm = "& Amulet~";
 	    else
 		basenm = aware ? "& # Amulet~" : "& # Amulet~";
@@ -1469,7 +1485,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 			/* Color the object */
 			modstr = ring_adj[indexx];
 			if (aware) append_name = TRUE;
-        if (((!show_labels) && (aware))  || o_ptr->ident & IDENT_STOREB)
+        if (((plain_descriptions) && (aware))  || o_ptr->ident & IDENT_STOREB)
 		basenm = "& Ring~";
 	    else
 		basenm = aware ? "& # Ring~" : "& # Ring~";
@@ -1486,7 +1502,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 			/* Color the object */
 			modstr = staff_adj[indexx];
 			if (aware) append_name = TRUE;
-        if (((!show_labels) && (aware))  || o_ptr->ident & IDENT_STOREB)
+        if (((plain_descriptions) && (aware))  || o_ptr->ident & IDENT_STOREB)
 		basenm = "& Staff~";
 	    else
 		basenm = aware ? "& # Staff~" : "& # Staff~";
@@ -1498,7 +1514,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 			/* Color the object */
 			modstr = wand_adj[indexx];
 			if (aware) append_name = TRUE;
-        if (((!show_labels) && (aware))  || o_ptr->ident & IDENT_STOREB)
+        if (((plain_descriptions) && (aware))  || o_ptr->ident & IDENT_STOREB)
 		basenm = "& Wand~";
 	    else
 		basenm = aware ? "& # Wand~" : "& # Wand~";
@@ -1510,7 +1526,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 			/* Color the object */
 			modstr = rod_adj[indexx];
 			if (aware) append_name = TRUE;
-        if (((!show_labels) && (aware))  || o_ptr->ident & IDENT_STOREB)
+        if (((plain_descriptions) && (aware))  || o_ptr->ident & IDENT_STOREB)
 		basenm = "& Rod~";
 	    else
 		basenm = aware ? "& # Rod~" : "& # Rod~";
@@ -1522,7 +1538,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 			/* Color the object */
 			modstr = scroll_adj[indexx];
 			if (aware) append_name = TRUE;
-        if (((!show_labels) && (aware)) || o_ptr->ident & IDENT_STOREB)
+        if (((plain_descriptions) && (aware)) || o_ptr->ident & IDENT_STOREB)
 		basenm = "& Scroll~";
 	    else
 		basenm = aware ? "& Scroll~ titled \"#\"" : "& Scroll~ titled \"#\"";
@@ -1534,7 +1550,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 			/* Color the object */
 			modstr = potion_adj[indexx];
 			if (aware) append_name = TRUE;
-        if (((!show_labels) && (aware))  || o_ptr->ident & IDENT_STOREB)
+        if (((plain_descriptions) && (aware))  || o_ptr->ident & IDENT_STOREB)
 		basenm = "& Potion~";
 	    else
 		basenm = aware ? "& # Potion~" : "& # Potion~";
@@ -1549,7 +1565,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 			/* Color the object */
 			modstr = food_adj[indexx];
 			if (aware) append_name = TRUE;
-        if (((!show_labels) && (aware))  || o_ptr->ident & IDENT_STOREB)
+        if (((plain_descriptions) && (aware))  || o_ptr->ident & IDENT_STOREB)
             basenm = "& Mushroom~";
         else
             basenm = aware ? "& # Mushroom~" : "& # Mushroom~";
@@ -1605,6 +1621,27 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
                 basenm = "& Book~ of Death Magic #";
             else
                 basenm = "& Death Spellbook~ #";
+			break;
+		}
+
+
+    case TV_TRUMP_BOOK:
+		{
+			modstr = basenm;
+            if(mp_ptr->spell_book == TV_LIFE_BOOK)
+                basenm = "& Book~ of Trump Magic #";
+            else
+                basenm = "& Trump Spellbook~ #";
+			break;
+		}
+
+    case TV_ARCANE_BOOK:
+		{
+			modstr = basenm;
+            if(mp_ptr->spell_book == TV_LIFE_BOOK)
+                basenm = "& Book~ of Arcane Magic #";
+            else
+                basenm = "& Arcane Spellbook~ #";
 			break;
 		}
 
@@ -2292,7 +2329,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 			/* Color the object */
 			modstr = amulet_adj[indexx];
 			if (aware) append_name = TRUE;
-        if (((!show_labels) && (aware))  || o_ptr->ident & IDENT_STOREB)
+        if (((plain_descriptions) && (aware))  || o_ptr->ident & IDENT_STOREB)
 		basenm = "& Amulet~";
 	    else
 		basenm = aware ? "& # Amulet~" : "& # Amulet~";
@@ -2309,7 +2346,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 			/* Color the object */
 			modstr = ring_adj[indexx];
 			if (aware) append_name = TRUE;
-        if (((!show_labels) && (aware))  || o_ptr->ident & IDENT_STOREB)
+        if (((plain_descriptions) && (aware))  || o_ptr->ident & IDENT_STOREB)
 		basenm = "& Ring~";
 	    else
 		basenm = aware ? "& # Ring~" : "& # Ring~";
@@ -2326,7 +2363,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 			/* Color the object */
 			modstr = staff_adj[indexx];
 			if (aware) append_name = TRUE;
-        if (((!show_labels) && (aware))  || o_ptr->ident & IDENT_STOREB)
+        if (((plain_descriptions) && (aware))  || o_ptr->ident & IDENT_STOREB)
 		basenm = "& Staff~";
 	    else
 		basenm = aware ? "& # Staff~" : "& # Staff~";
@@ -2338,7 +2375,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 			/* Color the object */
 			modstr = wand_adj[indexx];
 			if (aware) append_name = TRUE;
-        if (((!show_labels) && (aware))  || o_ptr->ident & IDENT_STOREB)
+        if (((plain_descriptions) && (aware))  || o_ptr->ident & IDENT_STOREB)
 		basenm = "& Wand~";
 	    else
 		basenm = aware ? "& # Wand~" : "& # Wand~";
@@ -2350,7 +2387,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 			/* Color the object */
 			modstr = rod_adj[indexx];
 			if (aware) append_name = TRUE;
-        if (((!show_labels) && (aware))  || o_ptr->ident & IDENT_STOREB)
+        if (((plain_descriptions) && (aware))  || o_ptr->ident & IDENT_STOREB)
 		basenm = "& Rod~";
 	    else
 		basenm = aware ? "& # Rod~" : "& # Rod~";
@@ -2362,7 +2399,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 			/* Color the object */
 			modstr = scroll_adj[indexx];
 			if (aware) append_name = TRUE;
-        if (((!show_labels) && (aware)) || o_ptr->ident & IDENT_STOREB)
+        if (((plain_descriptions) && (aware)) || o_ptr->ident & IDENT_STOREB)
 		basenm = "& Scroll~";
 	    else
 		basenm = aware ? "& Scroll~ titled \"#\"" : "& Scroll~ titled \"#\"";
@@ -2374,7 +2411,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 			/* Color the object */
 			modstr = potion_adj[indexx];
 			if (aware) append_name = TRUE;
-        if (((!show_labels) && (aware))  || o_ptr->ident & IDENT_STOREB)
+        if (((plain_descriptions) && (aware))  || o_ptr->ident & IDENT_STOREB)
 		basenm = "& Potion~";
 	    else
 		basenm = aware ? "& # Potion~" : "& # Potion~";
@@ -2389,7 +2426,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 			/* Color the object */
 			modstr = food_adj[indexx];
 			if (aware) append_name = TRUE;
-        if (((!show_labels) && (aware))  || o_ptr->ident & IDENT_STOREB)
+        if (((plain_descriptions) && (aware))  || o_ptr->ident & IDENT_STOREB)
             basenm = "& Mushroom~";
         else
             basenm = aware ? "& # Mushroom~" : "& # Mushroom~";
@@ -2447,6 +2484,28 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
                 basenm = "& Death Spellbook~ #";
 			break;
 		}
+
+
+    case TV_TRUMP_BOOK:
+		{
+			modstr = basenm;
+            if(mp_ptr->spell_book == TV_LIFE_BOOK)
+                basenm = "& Book~ of Trump Magic #";
+            else
+                basenm = "& Trump Spellbook~ #";
+			break;
+		}
+
+    case TV_ARCANE_BOOK:
+		{
+			modstr = basenm;
+            if(mp_ptr->spell_book == TV_LIFE_BOOK)
+                basenm = "& Book~ of Arcane Magic #";
+            else
+                basenm = "& Arcane Spellbook~ #";
+			break;
+		}
+
 
 			/* Hack -- Gold/Gems */
 		case TV_GOLD:
@@ -3078,6 +3137,316 @@ cptr item_activation(object_type *o_ptr)
 	/* Require activation ability */
 	if (!(f3 & (TR3_ACTIVATE))) return (NULL);
 
+
+    /* We need to deduce somehow that it is a random artifact -- one
+       problem: It could be a random artifact which has NOT YET received
+       a name. Thus we eliminate other possibilities instead of checking
+       for art_name */
+
+    if (!(o_ptr->name1) && !(o_ptr->name2)
+        && !(o_ptr->xtra1) && (o_ptr->xtra2))
+    {
+        switch (o_ptr->xtra2)
+        {
+            case ACT_SUNLIGHT:
+            {
+                return "beam of sunlight every 10 turns";
+            }
+            case ACT_BO_MISS_1:
+            {
+                return "magic missile (2d6) every 2 turns";
+            }
+            case ACT_BA_POIS_1:
+            {
+                return "stinking cloud (12), rad. 3, every 4+d4 turns";
+            }
+            case ACT_BO_ELEC_1:
+            {
+                return "lightning bolt (4d8) every 6+d6 turns";
+            }
+            case ACT_BO_ACID_1:
+            {
+                return "acid bolt (5d8) every 5+d5 turns";
+            }
+            case ACT_BO_COLD_1:
+            {
+                return "frost bolt (6d8) every 7+d7 turns";
+            }
+            case ACT_BO_FIRE_1:
+            {
+                return "fire bolt (9d8) every 8+d8 turns";
+            }
+            case ACT_BA_COLD_1:
+            {
+                return "ball of cold (48) every 400 turns";
+            }
+            case ACT_BA_FIRE_1:
+            {
+                return "ball of fire (72) every 400 turns";
+            }
+            case ACT_DRAIN_1:
+            {
+                return "drain life (100) every 100+d100 turns";
+            }
+            case ACT_BA_COLD_2:
+            {
+                return "ball of cold (100) every 300 turns";
+            }
+            case ACT_BA_ELEC_2:
+            {
+                return "ball of lightning (100) every 500 turns";
+            }
+            case ACT_DRAIN_2:
+            {
+                return "drain life (120) every 400 turns";
+            }
+            case ACT_VAMPIRE_1:
+            {
+                return "vampiric drain (3*50) every 400 turns";
+            }
+            case ACT_BO_MISS_2:
+            {
+                return "arrows (150) every 90+d90 turns";
+            }
+            case ACT_BA_FIRE_2:
+            {
+                return "fire ball (120) every 225+d225 turns";
+            }
+            case ACT_BA_COLD_3:
+            {
+                return "ball of cold (200) every 325+d325 turns";
+            }
+            case ACT_WHIRLWIND:
+            {
+                return "whirlwind attack every 250 turns";
+            }
+            case ACT_VAMPIRE_2:
+            {
+                return "vampiric drain (3*100) every 400 turns";
+            }
+            case ACT_CALL_CHAOS:
+            {
+                return "call chaos every 350 turns";
+            }
+            case ACT_ROCKET:
+            {
+                return "launch rocket (120+level) every 400 turns";
+            }
+            case ACT_DISP_EVIL:
+            {
+                return "dispel evil (level*5) every 300+d300 turns";
+            }
+            case ACT_DISP_GOOD:
+            {
+                return "dispel good (level*5) every 300+d300 turns";
+            }
+            case ACT_BA_MISS_3:
+            {
+                return "elemental breath (300) every 500 turns";
+            }
+            case ACT_CONFUSE:
+            {
+                return "confuse monster every 15 turns";
+            }
+            case ACT_SLEEP:
+            {
+                return "sleep nearby monsters every 55 turns";
+            }
+            case ACT_QUAKE:
+            {
+                return "earthquake (rad 10) every 50 turns";
+            }
+            case ACT_TERROR:
+            {
+                return "terror every 3 * (level+10) turns";
+            }
+            case ACT_TELE_AWAY:
+            {
+                return "teleport away every 200 turns";
+            }
+            case ACT_BANISH_EVIL:
+            {
+                return "banish evil every 250+d250 turns";
+            }
+            case ACT_GENOCIDE:
+            {
+                return "genocide every 500 turns";
+            }
+            case ACT_MASS_GENO:
+            {
+                return "mass genocide every 1000 turns";
+            }
+            case ACT_CHARM_ANIMAL:
+            {
+                return "charm animal every 300 turns";
+            }
+            case ACT_CHARM_UNDEAD:
+            {
+                return "enslave undead every 333 turns";
+            }
+            case ACT_CHARM_OTHER:
+            {
+                return "charm monster every 400 turns";
+            }
+            case ACT_CHARM_ANIMALS:
+            {
+                return "animal friendship every 500 turns";
+            }
+            case ACT_CHARM_OTHERS:
+            {
+                return "mass charm every 750 turns";
+            }
+            case ACT_SUMMON_ANIMAL:
+            {
+                return "summon animal every 200+d300 turns";
+            }
+            case ACT_SUMMON_PHANTOM:
+            {
+                return "summon phantasmal servant every 200+d200 turns";
+            }
+            case ACT_SUMMON_ELEMENTAL:
+            {
+                return "summon elemental every 750 turns";
+            }
+            case ACT_SUMMON_DEMON:
+            {
+                return "summon demon every 666+d333 turns";
+            }
+            case ACT_SUMMON_UNDEAD:
+            {
+                return "summon undead every 666+d333 turns";
+            }
+            case ACT_CURE_LW:
+            {
+                return "remove fear & heal 30 hp every 10 turns";
+            }
+            case ACT_CURE_MW:
+            {
+                return "heal 4d8 & wounds every 3+d3 turns";
+            }
+            case ACT_CURE_POISON:
+            {
+                return "remove fear and cure poison every 5 turns";
+            }
+            case ACT_REST_LIFE:
+            {
+                return "restore life levels every 450 turns";
+            }
+            case ACT_REST_ALL:
+            {
+                return "restore stats and life levels every 750 turns";
+            }
+            case ACT_CURE_700:
+            {
+                return "heal 700 hit points every 250 turns";
+            }
+            case ACT_CURE_1000:
+            {
+                return "heal 1000 hit points every 888 turns";
+            }
+            case ACT_ESP:
+            {
+                return "temporary ESP (dur 25+d30) every 200 turns";
+            }
+            case ACT_BERSERK:
+            {
+                return "heroism and berserk (dur 50+d50) every 100+d100 turns";
+            }
+            case ACT_PROT_EVIL:
+            {
+                return "protect evil (dur level*3 + d25) every 225+d225 turns";
+            }
+            case ACT_RESIST_ALL:
+            {
+                return "resist elements (dur 40+d40) every 200 turns";
+            }
+            case ACT_SPEED:
+            {
+                return "speed (dur 20+d20) every 250 turns";
+            }
+            case ACT_XTRA_SPEED:
+            {
+                return "speed (dur 75+d75) every 200+d200 turns";
+            }
+            case ACT_WRAITH:
+            {
+                return "wraith form (level/2 + d(level/2)) every 1000 turns";
+            }
+            case ACT_INVULN:
+            {
+                return "invulnerability (dur 8+d8) every 1000 turns";
+            }
+            case ACT_LIGHT:
+            {
+                return "light area (dam 2d15) every 10+d10 turns";
+            }
+            case ACT_MAP_LIGHT:
+            {
+                return "light (dam 2d15) & map area every 50+d50 turns";
+            }
+            case ACT_DETECT_ALL:
+            {
+                return "detection every 55+d55 turns";
+            }
+            case ACT_DETECT_XTRA:
+            {
+                return "detection, probing and identify true every 1000 turns";
+            }
+            case ACT_ID_FULL:
+            {
+                return "identify true every 750 turns";
+            }
+            case ACT_ID_PLAIN:
+            {
+                return "identify spell every 10 turns";
+            }
+            case ACT_RUNE_EXPLO:
+            {
+                return "explosive rune every 200 turns";
+            }
+            case ACT_RUNE_PROT:
+            {
+                return "rune of protection every 400 turns";
+            }
+            case ACT_SATIATE:
+            {
+                return "satisfy hunger every 200 turns";
+            }
+            case ACT_DEST_DOOR:
+            {
+                return "destroy doors every 10 turns";
+            }
+            case ACT_STONE_MUD:
+            {
+                return "stone to mud every 5 turns";
+            }
+            case ACT_RECHARGE:
+            {
+                return "recharging every 70 turns";
+            }
+            case ACT_ALCHEMY:
+            {
+                return "alchemy every 500 turns";
+            }
+            case ACT_DIM_DOOR:
+            {
+                return "dimension door every 100 turns";
+            }
+            case ACT_TELEPORT:
+            {
+                return "teleport (range 100) every 45 turns";
+            }
+            case ACT_RECALL:
+            {
+                return "word of recall every 200 turns";
+            }
+            default:
+            {
+                return "something undefined";
+            }
+        }
+    }
+
 	/* Some artifacts can be activated */
 	switch (o_ptr->name1)
 	{
@@ -3109,6 +3478,10 @@ cptr item_activation(object_type *o_ptr)
 		{
 			return "frost ball (100) every 300 turns";
 		}
+        case ART_DAWN:
+        {
+            return "summon the Legion of the Dawn every 500+d500 turns";
+        }
 		case ART_ANDURIL:
 		{
 			return "fire ball (72) every 400 turns";
@@ -3251,7 +3624,7 @@ cptr item_activation(object_type *o_ptr)
 		}
 		case ART_BLADETURNER:
 		{
-            return "breath (elements), berserk rage, bless, and resistance";
+            return "breathe elements (300), berserk rage, bless, and resistance";
 		}
 		case ART_GALADRIEL:
 		{
@@ -3297,7 +3670,7 @@ cptr item_activation(object_type *o_ptr)
 		{
 			return "bizarre things every 450+d450 turns";
 		}
-        case ART_DOR:
+        case ART_DOR: case ART_GORLIM:
         {
             return "rays of fear in every direction";
         }
@@ -3682,9 +4055,13 @@ bool identify_fully_aux(object_type *o_ptr)
 		info[i++] = "It provides resistance to disenchantment.";
 	}
 
+    if (f3 & (TR3_WRAITH))
+    {
+        info[i++] = "It renders you incorporeal.";
+    }
 	if (f3 & (TR3_FEATHER))
 	{
-		info[i++] = "It induces feather falling.";
+        info[i++] = "It allows you to levitate.";
 	}
 	if (f3 & (TR3_LITE))
 	{
@@ -3718,7 +4095,14 @@ bool identify_fully_aux(object_type *o_ptr)
     {
         info[i++] = "It produces an electric sheath.";
     }
-
+    if (f3 & (TR3_NO_MAGIC))
+    {
+        info[i++] = "It produces an anti-magic shell.";
+    }
+    if (f3 & (TR3_NO_TELE))
+    {
+        info[i++] = "It prevents teleportation.";
+    }
 	if (f3 & (TR3_XTRA_MIGHT))
 	{
 		info[i++] = "It fires missiles with extra might.";
@@ -4791,9 +5175,10 @@ bool get_item(int *cp, cptr pmt, bool equip, bool inven, bool floor)
 
 	int k, i1, i2, e1, e2;
 
-	bool ver, done, item;
+    bool done, item;
+    int ver;
 
-	bool allow_floor = FALSE;
+    bool allow_floor = FALSE;
 
 	char tmp_val[160];
 	char out_val[160];
@@ -5305,9 +5690,15 @@ byte object_attr(object_type *  o_ptr)
    {
        if (k_info[(o_ptr)->k_idx].tval == TV_SCROLL)
            return TERM_WHITE;
+      else if (k_info[o_ptr->k_idx].tval == TV_AMULET)
+        {
+            if (object_d_attr(o_ptr->k_idx) == TERM_VIOLET)
+                return TERM_L_DARK;
+            else
+                return object_d_attr((o_ptr)->k_idx);
+                }
        else if (object_has_flavor((o_ptr)->k_idx))
            return object_d_attr((o_ptr)->k_idx);
-
 
  #ifdef SV_DRAGON_HELM
  # ifdef SV_DRAGON_SHIELD
@@ -5319,11 +5710,32 @@ byte object_attr(object_type *  o_ptr)
  # endif /* SV_DRAGON_SHIELD */
  #endif /* SV_DRAGON_HELM */
 
-
        else return ((k_info[(o_ptr)->k_idx].aware) ?
            (k_info[(o_ptr)->k_idx].x_attr) :
            (k_info[(o_ptr)->k_idx].d_attr));
    }
+
+   else if (streq(ANGBAND_SYS, "ibm"))
+   {
+    if (k_info[(o_ptr)->k_idx].tval == TV_SCROLL)
+        return TERM_WHITE;
+    else if (k_info[o_ptr->k_idx].tval == TV_AMULET)
+    {
+        if (object_d_attr(o_ptr->k_idx) == TERM_VIOLET)
+            return TERM_L_DARK;
+        else
+            return object_d_attr((o_ptr)->k_idx);
+            }
+    else if (object_has_flavor((o_ptr)->k_idx))
+        return object_d_attr((o_ptr)->k_idx);
+    else if (((o_ptr -> tval == TV_HELM) && (o_ptr-> sval == SV_DRAGON_HELM)) ||
+             ((o_ptr -> tval == TV_SHIELD) && (o_ptr-> sval == SV_DRAGON_SHIELD)))
+        return dragon_colour(o_ptr);
+    else return
+    ((k_info[(o_ptr)->k_idx].aware) ?
+    (k_info[(o_ptr)->k_idx].x_attr) :
+    (k_info[(o_ptr)->k_idx].d_attr));
+    }
    else return ((k_info[(o_ptr)->k_idx].aware) ?
        (k_info[(o_ptr)->k_idx].x_attr) :
        (k_info[(o_ptr)->k_idx].d_attr));
@@ -5333,7 +5745,7 @@ byte object_attr(object_type *  o_ptr)
  /* rr9: Display the correct color of potions */
  byte object_char(object_type *  o_ptr)
  {
-   if (arg_graphics)
+   if (arg_graphics && !(streq(ANGBAND_SYS, "ibm")))
    {
        if (k_info[(o_ptr)->k_idx].tval == TV_POTION)
        {
@@ -5404,7 +5816,8 @@ byte object_attr(object_type *  o_ptr)
         }
        else if (k_info[(o_ptr)->k_idx].tval == TV_AMULET)
        {
-            if (o_ptr->sval < SV_AMULET_CARLAMMAS)
+            if ((o_ptr->sval < SV_AMULET_CARLAMMAS) ||
+                (o_ptr->sval > SV_AMULET_DWARVES))
             {
                 switch(object_d_attr((o_ptr)->k_idx))
                 {
@@ -5425,7 +5838,7 @@ byte object_attr(object_type *  o_ptr)
                     case TERM_YELLOW: case TERM_ORANGE:
                         return 0x86;
                     case TERM_VIOLET:
-                        return 0x80;
+                        return 0x8E;
                     default:
                         return 0x89;
                 }

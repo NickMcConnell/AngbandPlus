@@ -1,5 +1,5 @@
-328
-******** BUFFER LINE *********************************** DO NOT REMOVE *******
+331
+****** BUFFER LINE *********************************** DO NOT REMOVE *******
 'Live and let live, right..?'
 'AAAAAAAAARRRRRRRRRRRRRRRRGGGGGGGGGGGGGGGGHHHHHHHHHHHHHHHH!!!!!!!!!!!'
 'AAAARRRGGGHHH!!!'
@@ -328,3 +328,6 @@
 'I can't believe that really my time has come.'
 'Too much of a good thing, I guess...'
 'When the dream dies, the nightmare begins.'
+'You maggots make me sick. I'll be avenged. Lucifer dwells within all of us!'
+'I really screwed up this time.'
+'Wow, what a trip!'

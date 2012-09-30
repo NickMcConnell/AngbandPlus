@@ -1,7 +1,7 @@
 
 
                         ************************
-                        **   Zangband 2.0.6b  **
+                        **   Zangband 2.1.0   **
                         ************************
 
          Based on Moria:    Copyright (c) 1985 Robert Alan Koeneke
@@ -11,7 +11,7 @@
 
        Curses/X11 Module: Ben Harrison, Torbj|rn Lindgren
 
-        Zangband code:    (Mr.) Topi Ylinen (f1toyl@uta.fi)
+        Zangband code:    (Mr) Topi Ylinen (f1toyl@uta.fi)
 
  Angband 2.8.0 is available for Unix, X11, Macintosh, IBM, Windows, etc.
  Be sure to read the online help, especially "general.txt" and "version.txt".

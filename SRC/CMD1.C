@@ -260,6 +260,8 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 					r_ptr->r_flags3 |= (RF3_TROLL);
 				}
 
+
+
 				if (mult < 3) mult = 3;
 			}
 
@@ -296,7 +298,12 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 					r_ptr->r_flags3 |= (RF3_DRAGON);
 				}
 
+
 				if (mult < 5) mult = 5;
+
+                if ((o_ptr->name1 == ART_AEGLIN) &&
+                    strstr(r_name + r_ptr->name, "Fafner"))
+                    mult *= 3;
 			}
 
 
@@ -659,33 +666,43 @@ static void hit_trap(void)
 	{
 		case FEAT_TRAP_HEAD + 0x00:
 		{
-			msg_print("You fell through a trap door!");
+
 			if (p_ptr->ffall)
 			{
-				msg_print("You float gently down to the next level.");
+                msg_print("You fly over a trap door.");
 			}
 			else
 			{
+                msg_print("You fell through a trap door!");
 				dam = damroll(2, 8);
-		name = "a trap door";
+                name = "a trap door";
 				take_hit(dam, name);
+                if (autosave_l)
+                {
+                    is_autosave = TRUE;
+                    msg_print("Autosaving the game...");
+                    do_cmd_save_game();
+                    is_autosave = FALSE;
+                }
+                new_level_flag = TRUE;
+                dun_level++;
+
 			}
-			new_level_flag = TRUE;
-			dun_level++;
 			break;
 		}
 
 		case FEAT_TRAP_HEAD + 0x01:
 		{
-			msg_print("You fell into a pit!");
+
 			if (p_ptr->ffall)
 			{
-				msg_print("You float gently to the bottom of the pit.");
+                msg_print("You fly over a pit trap.");
 			}
 			else
 			{
+                msg_print("You fell into a pit!");
 				dam = damroll(2, 6);
-		name = "a pit trap";
+                name = "a pit trap";
 				take_hit(dam, name);
 			}
 			break;
@@ -693,16 +710,16 @@ static void hit_trap(void)
 
 		case FEAT_TRAP_HEAD + 0x02:
 		{
-			msg_print("You fall into a spiked pit!");
+
 
 			if (p_ptr->ffall)
 			{
-				msg_print("You float gently to the floor of the pit.");
-				msg_print("You carefully avoid touching the spikes.");
+                msg_print("You fly over a spiked pit.");
 			}
 
 			else
 			{
+                msg_print("You fall into a spiked pit!");
 				/* Base damage */
 		name = "a pit trap";
 				dam = damroll(2, 6);
@@ -725,16 +742,16 @@ static void hit_trap(void)
 
 		case FEAT_TRAP_HEAD + 0x03:
 		{
-			msg_print("You fall into a spiked pit!");
+
 
 			if (p_ptr->ffall)
 			{
-				msg_print("You float gently to the floor of the pit.");
-				msg_print("You carefully avoid touching the spikes.");
+                msg_print("You fly over a spiked pit.");
 			}
 
 			else
 			{
+			msg_print("You fall into a spiked pit!");
 				/* Base damage */
 				dam = damroll(2, 6);
 
@@ -916,6 +933,104 @@ static void hit_trap(void)
 
 
 
+
+static void natural_attack(s16b m_idx, int attack, bool *fear, bool *mdeath)
+{
+
+    int             k, bonus, chance;
+    int             n_weight = 0;
+    monster_type    *m_ptr = &m_list[m_idx];
+    monster_race    *r_ptr = &r_info[m_ptr->r_idx];
+	char            m_name[80];
+
+    int dss, ddd;
+
+    char * atk_desc;
+
+    switch (attack)
+    {
+        case MUT2_SCOR_TAIL:
+            dss = 3;
+            ddd = 7;
+            n_weight = 5;
+            atk_desc = "tail";
+            break;
+        case MUT2_HORNS:
+            dss = 2;
+            ddd = 6;
+            n_weight = 15;
+            atk_desc = "horns";
+            break;
+        case MUT2_BEAK:
+            dss = 2;
+            ddd = 4;
+            n_weight = 5;
+            atk_desc = "beak";
+            break;
+        default:
+            dss = ddd = n_weight = 1;
+            atk_desc = "undefined body part";
+    }
+
+    /* Extract monster name (or "it") */
+	monster_desc(m_name, m_ptr, 0);
+
+
+	/* Calculate the "attack quality" */
+    bonus = p_ptr->to_h;
+	chance = (p_ptr->skill_thn + (bonus * BTH_PLUS_ADJ));
+
+		/* Test for hit */
+		if (test_hit_norm(chance, r_ptr->ac, m_ptr->ml))
+		{
+			/* Sound */
+			sound(SOUND_HIT);
+
+            msg_format("You hit %s with your %s.", m_name, atk_desc);
+
+            k = damroll(ddd, dss);
+            k = critical_norm(n_weight, p_ptr->to_h, k);
+
+			/* Apply the player damage bonuses */
+            k += p_ptr->to_d;   
+
+			/* No negative damage */
+			if (k < 0) k = 0;
+
+			/* Complex message */
+			if (wizard)
+			{
+				msg_format("You do %d (out of %d) damage.", k, m_ptr->hp);
+			}
+
+
+            if (m_ptr->smart & SM_FRIEND)
+            {
+                msg_format("%^s gets angry!", m_name);
+                m_ptr->smart &= ~SM_FRIEND;
+            }
+
+           /* Damage, check for fear and mdeath */
+
+            if (!(attack == MUT2_SCOR_TAIL))
+                *mdeath = mon_take_hit(m_idx, k, fear, NULL);
+            else
+                project(0, 0, m_ptr->fy, m_ptr->fx, k, GF_POIS, PROJECT_KILL);
+        }
+
+		/* Player misses */
+		else
+		{
+			/* Sound */
+			sound(SOUND_MISS);
+
+            /* Message */
+			msg_format("You miss %s.", m_name);
+		}
+}
+
+
+
 /*
  * Player attacks a (poor, defenseless) creature        -RAK-
  *
@@ -933,8 +1048,10 @@ void py_attack(int y, int x)
 	object_type             *o_ptr;
 
 	char            m_name[80];
+    int             aura_damage = 0;
 
 	bool            fear = FALSE;
+    bool            mdeath = FALSE;
 
     bool        backstab = FALSE, vorpal_cut = FALSE, chaos_effect = FALSE;
     bool        stab_fleeing = FALSE;
@@ -943,6 +1060,7 @@ void py_attack(int y, int x)
     int         drain_result = 0, drain_heal = 0;
     int         drain_left = MAX_VAMPIRIC_DRAIN;
     u32b        f1, f2, f3; /* A massive hack -- life-draining weapons */
+    bool        no_extra = FALSE;
 
 
 
@@ -964,8 +1082,6 @@ void py_attack(int y, int x)
     }
 
 
-
-
 	/* Disturb the monster */
 	m_ptr->csleep = 0;
 
@@ -973,19 +1089,47 @@ void py_attack(int y, int x)
 	/* Extract monster name (or "it") */
 	monster_desc(m_name, m_ptr, 0);
 
-
-	/* Auto-Recall if possible and visible */
+    /* Auto-Recall if possible and visible */
 	if (m_ptr->ml) monster_race_track(m_ptr->r_idx);
 
 	/* Track a new monster */
-	if (m_ptr->ml) health_track(c_ptr->m_idx);
+    if (m_ptr->ml) health_track(c_ptr->m_idx);
+
+
+
+         /* Stop if friendly */
+         if (m_ptr->smart & SM_FRIEND &&
+            ! (p_ptr->stun || p_ptr->confused || p_ptr->image ||
+              ((p_ptr->muta2 & MUT2_BERS_RAGE) && p_ptr->shero) ||
+                !(m_ptr->ml)))
+   {
+       if (!(inventory[INVEN_WIELD].art_name))
+       {
+       msg_format("You stop to avoid hitting %s.", m_name);
+       return;
+        }
+
+       if (!(streq(quark_str(inventory[INVEN_WIELD].art_name), "'Stormbringer'")))
+     {
+       msg_format("You stop to avoid hitting %s.", m_name);
+       return;
+     }
+
+            msg_format("Your black blade greedily attacks %s!",
+                m_name);
+
+   }
+
 
 
 	/* Handle player fear */
 	if (p_ptr->afraid)
-	{
-		/* Message */
+    {   /* Message */
+        if (m_ptr->ml)
 		msg_format("You are too afraid to attack %s!", m_name);
+
+        else
+        msg_format ("There is something scary in your way!");
 
 		/* Done */
 		return;
@@ -1025,6 +1169,7 @@ void py_attack(int y, int x)
             /* Hack -- bare hands do one damage */
 			k = 1;
 
+
 	   object_flags(o_ptr, &f1, &f2, &f3);
 
        if ((f1 & TR1_CHAOTIC) && (randint(2)==1))
@@ -1049,18 +1194,40 @@ void py_attack(int y, int x)
 
     if (p_ptr->pclass == CLASS_MONK && monk_empty_hands())
     {
-        int special_effect = 0, stun_effect = 0;
-        martial_arts * ma_ptr = &ma_blows[0];
+        int special_effect = 0, stun_effect = 0, times = 0;
+        martial_arts * ma_ptr = &ma_blows[0], * old_ptr = &ma_blows[0];
         int resist_stun = 0;
-        if (r_ptr->flags1 & RF1_UNIQUE) resist_stun += 66;
-        if (r_ptr->flags3 & RF3_NO_CONF) resist_stun += 33;
+        if (r_ptr->flags1 & RF1_UNIQUE) resist_stun += 88;
+        if (r_ptr->flags3 & RF3_NO_CONF) resist_stun += 44;
+        if (r_ptr->flags3 & RF3_NO_SLEEP) resist_stun += 44;
+        if ((r_ptr->flags3 & RF3_UNDEAD) || (r_ptr->flags3 & RF3_NONLIVING))
+            resist_stun += 88;
 
-        do
+        for (times = 0; times < (p_ptr->lev<7?1:p_ptr->lev/7); times++)
+        /* Attempt 'times' */
         {
-            ma_ptr = &ma_blows[(randint(MAX_MA))-1];
+            do
+            {
+                ma_ptr = &ma_blows[(randint(MAX_MA))-1];
+            }
+            while ((ma_ptr->min_level > p_ptr->lev)
+                    || (randint(p_ptr->lev)<ma_ptr->chance));
+
+            /* keep the highest level attack available we found */
+            if ((ma_ptr->min_level > old_ptr->min_level) &&
+                !(p_ptr->stun || p_ptr->confused))
+            {
+                old_ptr = ma_ptr;
+                if (wizard && cheat_xtra)
+                {
+                    msg_print("Attack re-selected.");
+                }
+            }
+            else
+            {
+                ma_ptr = old_ptr;
+            }
         }
-        while ((ma_ptr->min_level > p_ptr->lev)
-                || (randint(p_ptr->lev)<ma_ptr->chance));
 
         k = damroll(ma_ptr->dd, ma_ptr->ds);
 
@@ -1154,7 +1321,7 @@ void py_attack(int y, int x)
             k = ((3 * k) / 2);
         }
         if ((p_ptr->impact && ((k > 50) || randint(7)==1))
-            || (chaos_effect && (randint(40)==1)))
+            || (chaos_effect && (randint(250)==1)))
             {
 		    do_quake = TRUE;
             chaos_effect = FALSE;
@@ -1199,7 +1366,64 @@ void py_attack(int y, int x)
 			}
 
 			/* Damage, check for fear and death */
-			if (mon_take_hit(c_ptr->m_idx, k, &fear, NULL)) break;
+            if (mon_take_hit(c_ptr->m_idx, k, &fear, NULL))
+            {
+                mdeath = TRUE;
+                break;
+            }
+
+            if (m_ptr->smart & SM_FRIEND)
+            {
+                msg_format("%^s gets angry!", m_name);
+                m_ptr->smart &= ~SM_FRIEND;
+            }
+
+        if (r_ptr->flags2 & (RF2_AURA_FIRE))
+        {
+            if (!(p_ptr->immune_fire))
+            {
+
+                char aura_dam[80];
+
+                aura_damage
+                    = damroll(1 + (r_ptr->level / 26), 1 + (r_ptr->level / 17));
+
+            /* Hack -- Get the "died from" name */
+             monster_desc(aura_dam, m_ptr, 0x88);
+
+                msg_print("You are suddenly very hot!");
+
+                if (p_ptr->oppose_fire) aura_damage = (aura_damage+2) / 3;
+                if (p_ptr->resist_fire) aura_damage = (aura_damage+2) / 3;
+
+                take_hit(aura_damage, aura_dam);
+                r_ptr->r_flags2 |= RF2_AURA_FIRE;
+                handle_stuff();
+            }
+        }
+
+
+        if (r_ptr->flags2 & (RF2_AURA_ELEC))
+        {
+            if (!(p_ptr->immune_elec))
+            {
+                char aura_dam[80];
+
+                aura_damage
+                    = damroll(1 + (r_ptr->level / 26), 1 + (r_ptr->level / 17));
+
+            /* Hack -- Get the "died from" name */
+             monster_desc(aura_dam, m_ptr, 0x88);
+
+                if (p_ptr->oppose_elec) aura_damage = (aura_damage+2) / 3;
+                if (p_ptr->resist_elec) aura_damage = (aura_damage+2) / 3;
+                
+                msg_print("You get zapped!");
+                take_hit(aura_damage, aura_dam);
+                r_ptr->r_flags2 |= RF2_AURA_ELEC;
+                handle_stuff();
+            }
+        }
 
         /* Are we draining it?  A little note: If the monster is
 	    dead, the drain does not work... */
@@ -1211,7 +1435,7 @@ void py_attack(int y, int x)
 
 		if (drain_result > 0) /* Did we really hurt it? */
 		{
-            drain_heal = damroll(5,(drain_result / 5));
+            drain_heal = damroll(4,(drain_result / 6));
 
             if (cheat_xtra)
             {
@@ -1241,7 +1465,7 @@ void py_attack(int y, int x)
             }
 	    }
 			/* Confusion attack */
-            if ((p_ptr->confusing) || (chaos_effect && (randint(4)!=1)))
+            if ((p_ptr->confusing) || (chaos_effect && (randint(20)!=1)))
 			{
 				/* Cancel glowing hands */
 				p_ptr->confusing = FALSE;
@@ -1278,6 +1502,7 @@ void py_attack(int y, int x)
         msg_format("%^s disappears!", m_name);
         teleport_away(c_ptr->m_idx, 50);
         num = p_ptr->num_blow + 1; /* Can't hit it anymore! */
+        no_extra = TRUE;
 
     }
 
@@ -1303,7 +1528,7 @@ void py_attack(int y, int x)
 			delete_monster_idx(c_ptr->m_idx);
 
 			/* Create a new monster (no groups) */
-			(void)place_monster_aux(y, x, tmp, FALSE, FALSE);
+            (void)place_monster_aux(y, x, tmp, FALSE, FALSE, FALSE);
 
 			/* XXX XXX XXX Hack -- Assume success */
 
@@ -1340,8 +1565,20 @@ void py_attack(int y, int x)
 	}
 
 
+    /* Mutations which yield extra 'natural' attacks */
+
+    if (!no_extra)
+    {
+        if (p_ptr->muta2 & MUT2_HORNS && !mdeath)
+            natural_attack(c_ptr->m_idx, MUT2_HORNS, &fear, &mdeath);
+        if (p_ptr->muta2 & MUT2_BEAK && !mdeath)
+            natural_attack(c_ptr->m_idx, MUT2_BEAK, &fear, &mdeath);
+        if (p_ptr->muta2 & MUT2_SCOR_TAIL && !mdeath)
+            natural_attack(c_ptr->m_idx, MUT2_SCOR_TAIL, &fear, &mdeath);
+        }
+
 	/* Hack -- delay fear messages */
-	if (fear && m_ptr->ml)
+    if (fear && m_ptr->ml)
 	{
 		/* Sound */
 		sound(SOUND_FLEE);
@@ -1491,7 +1728,14 @@ void move_player(int dir, int do_pickup)
 	monster_type    *m_ptr;
 
 
-	/* Find the result of moving */
+
+         char m_name[80];
+
+         bool p_can_pass_walls = FALSE;
+         bool wall_is_perma = FALSE;
+         bool stormbringer = FALSE;
+
+    /* Find the result of moving */
 	y = py + ddy[dir];
 	x = px + ddx[dir];
 
@@ -1502,16 +1746,72 @@ void move_player(int dir, int do_pickup)
 	m_ptr = &m_list[c_ptr->m_idx];
 
 
+    if (inventory[INVEN_WIELD].art_name)
+    {
+        if (streq(quark_str(inventory[INVEN_WIELD].art_name), "'Stormbringer'"))
+        stormbringer = TRUE;
+    }
+
+   /* Player can not walk through "walls"... */
+         /* unless in Shadow Form */
+         if ((p_ptr->wraith_form) || (p_ptr->prace == RACE_SPECTRE))
+           p_can_pass_walls = TRUE;
+         if ((cave[y][x].feat >= FEAT_PERM_EXTRA) &&
+       (cave[y][x].feat <= FEAT_PERM_SOLID)) {
+       wall_is_perma = TRUE;
+       p_can_pass_walls = FALSE;
+   }
+
 	/* Hack -- attack monsters */
-    if (c_ptr->m_idx && (m_ptr->ml || cave_floor_bold(y, x)))
+    if (c_ptr->m_idx && (m_ptr->ml || cave_floor_bold(y,x) || p_can_pass_walls))
 	{
 
         /* Attack -- only if we can see it OR it is not in a wall */
-		py_attack(y, x);
-	}
+           if ((m_ptr->smart & SM_FRIEND) &&
+              !(p_ptr->confused || p_ptr->image || !(m_ptr->ml) || p_ptr->stun
+              || ((p_ptr->muta2 & MUT2_BERS_RAGE) && p_ptr->shero))
+               && (pattern_seq(py, px, y, x)) &&
+           ((cave_floor_bold(y, x)) || (p_can_pass_walls))) {
+           m_ptr->csleep = 0;
+           /* Extract monster name (or "it") */
+           monster_desc(m_name, m_ptr, 0);
+           /* Auto-Recall if possible and visible */
+           if (m_ptr->ml) monster_race_track(m_ptr->r_idx);
+           /* Track a new monster */
+           if (m_ptr->ml) health_track(c_ptr->m_idx);
+           /* displace? */
+          if ( stormbringer && (randint(1000)>666))
+          {
 
-	/* Player can not walk through "walls" */
-	else if (!cave_floor_bold(y, x))
+            py_attack(y,x);
+          }
+           else if (cave_floor_bold(py, px) ||
+                (r_info[m_ptr->r_idx].flags2 & RF2_PASS_WALL))
+           {
+               msg_format("You push past %s.", m_name);
+               m_ptr->fy = py;
+               m_ptr->fx = px;
+               cave[py][px].m_idx = c_ptr->m_idx;
+               c_ptr->m_idx = 0;
+               update_mon(cave[py][px].m_idx, TRUE);
+            }
+            else
+            {
+                msg_format("%^s is in your way!", m_name);
+                energy_use = 0;
+                return;
+            }
+
+           /* now continue on to 'movement' */
+
+       } else {
+           py_attack(y, x);
+           return;
+       }
+    }
+
+    /* Player can not walk through "walls" unless in wraith form...*/
+   if ((!cave_floor_bold(y, x)) && (!p_can_pass_walls))
 	{
 		/* Disturb the player */
 		disturb(0, 0);
@@ -1579,18 +1879,20 @@ void move_player(int dir, int do_pickup)
 
 		/* Sound */
 		sound(SOUND_HITWALL);
+        return;
 	}
 
 	/* Normal movement */
-    else if (!pattern_seq(py, px, y, x))
+    if (!pattern_seq(py, px, y, x))
     {
                 if (!(p_ptr->confused || p_ptr->stun || p_ptr->image))
                 {
                     energy_use = 0;
                 }
                 disturb(0,0); /* To avoid a loop with running */
+                return;
     }
-    else
+/*    else */
 	{
 		int oy, ox;
 

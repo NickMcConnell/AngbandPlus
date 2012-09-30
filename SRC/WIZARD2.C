@@ -82,7 +82,6 @@ void do_cmd_rerate(void)
 
 #ifdef ALLOW_WIZARD
 
-
   
  /*
   * Create the artifact of the specified number -- DAN
@@ -127,6 +126,11 @@ void do_cmd_rerate(void)
        q_ptr->to_h = a_ptr->to_h;
        q_ptr->to_d = a_ptr->to_d;
        q_ptr->weight = a_ptr->weight;
+
+       /* Hack -- acquire "cursed" flag */
+       if (a_ptr->flags3 & (TR3_CURSED)) q_ptr->ident |= (IDENT_CURSED);
+
+       random_artifact_resistance(q_ptr);
 
        /* Drop the artifact from heaven */
        drop_near(q_ptr, -1, py, px);
@@ -197,11 +201,28 @@ static void do_cmd_wiz_hack_ben(void)
 
 #endif
 
+
 	/* Oops */
 	msg_print("Oops.");
+    (void) probing();
 }
 
 
+
+#ifdef MONSTER_HORDES
+/* Summon a horde of monsters */
+static void do_cmd_summon_horde()
+{
+            int wy = py, wx = px;
+            int attempts = 1000;
+            while (--attempts)
+            {
+                scatter(&wy, &wx, py, px, 3, 0);
+                if (cave_naked_bold(wy, wx)) break;
+            }
+            (void)alloc_horde(wy, wx);
+}
+#endif
 
 /*
  * Output a long int in binary format.
@@ -448,13 +469,13 @@ static void wiz_display_item(object_type *o_ptr)
 
 	prt("+------------FLAGS3------------+", 10, j+32);
     prt("fe      ehsi  st    iiiiadta  hp", 11, j+32);
-    prt("il     taihnf ee    ggggcregb vr", 12, j+32);
-    prt("re     ysdose eld   nnnntalrl ym", 13, j+32);
-    prt("ec     cyewta ieirmsrrrriieaeccc", 14, j+32);
-    prt("aa     uktmatlnpgeihaefcvnpvsuuu", 15, j+32);
-    prt("uu     rnyoahivaeggoclioaeoasrrr", 16, j+32);
-    prt("rr     sopdretitsehtierltxrtesss", 17, j+32);
-    prt("aa     ewestreshtntsdcedeptedeee", 18, j+32);
+    prt("il   n taihnf ee    ggggcregb vr", 12, j+32);
+    prt("re  nowysdose eld   nnnntalrl ym", 13, j+32);
+    prt("ec  omrcyewta ieirmsrrrriieaeccc", 14, j+32);
+    prt("aa  taauktmatlnpgeihaefcvnpvsuuu", 15, j+32);
+    prt("uu  egirnyoahivaeggoclioaeoasrrr", 16, j+32);
+    prt("rr  litsopdretitsehtierltxrtesss", 17, j+32);
+    prt("aa  echewestreshtntsdcedeptedeee", 18, j+32);
 	prt_binary(f3, 19, j+32);
 }
 
@@ -502,6 +523,8 @@ static tval_desc tvals[] =
     { TV_NATURE_BOOK,       "Nature Spellbook"     },
     { TV_CHAOS_BOOK,        "Chaos Spellbook"      },
     { TV_DEATH_BOOK,        "Death Spellbook"      },
+    { TV_TRUMP_BOOK,        "Trump Spellbook"       },
+    { TV_ARCANE_BOOK,       "Arcane Spellbook",     },
 	{ TV_SPIKE,             "Spikes"               },
 	{ TV_DIGGING,           "Digger"               },
 	{ TV_CHEST,             "Chest"                },
@@ -1243,6 +1266,14 @@ static void do_cmd_wiz_jump(void)
 	/* Accept request */
 	msg_format("You jump to dungeon level %d.", command_arg);
 
+                if (autosave_l)
+                {
+                    is_autosave = TRUE;
+                    msg_print("Autosaving the game...");
+                    do_cmd_save_game();
+                    is_autosave = FALSE;
+                }
+
 	/* Change level */
 	dun_level = command_arg;
 	new_level_flag = TRUE;
@@ -1289,7 +1320,7 @@ static void do_cmd_wiz_summon(int num)
 
 	for (i = 0; i < num; i++)
 	{
-		(void)summon_specific(py, px, dun_level, 0);
+        (void)summon_specific(py, px, dun_level, 0);
 	}
 }
 
@@ -1321,7 +1352,39 @@ static void do_cmd_wiz_named(int r_idx, int slp)
 		if (!cave_empty_bold(y, x)) continue;
 
 		/* Place it (allow groups) */
-		if (place_monster_aux(y, x, r_idx, slp, TRUE)) break;
+        if (place_monster_aux(y, x, r_idx, slp, TRUE, FALSE)) break;
+	}
+}
+
+
+/*
+ * Summon a creature of the specified type
+ *
+ * XXX XXX XXX This function is rather dangerous
+ */
+static void do_cmd_wiz_named_friendly(int r_idx, int slp)
+{
+	int i, x, y;
+
+	/* Paranoia */
+	/* if (!r_idx) return; */
+
+	/* Prevent illegal monsters */
+	if (r_idx >= MAX_R_IDX-1) return;
+
+	/* Try 10 times */
+	for (i = 0; i < 10; i++)
+	{
+		int d = 1;
+
+		/* Pick a location */
+		scatter(&y, &x, py, px, d, 0);
+
+		/* Require empty grids */
+		if (!cave_empty_bold(y, x)) continue;
+
+		/* Place it (allow groups) */
+        if (place_monster_aux(y, x, r_idx, slp, TRUE, TRUE)) break;
 	}
 }
 
@@ -1452,6 +1515,11 @@ void do_cmd_debug(void)
 		case 'h':
 		do_cmd_rerate(); break;
 
+#ifdef MONSTER_HORDES
+        case 'H':
+        do_cmd_summon_horde(); break;
+#endif
+
 		/* Identify */
 		case 'i':
 		(void)ident_spell();
@@ -1477,10 +1545,26 @@ void do_cmd_debug(void)
 		map_area();
 		break;
 
+        /* Mutation */
+        case 'M':
+        (void) gain_random_mutation(command_arg);
+        break;
+
+        /* Specific reward */
+        case 'r':
+        (void) gain_level_reward(command_arg);
+        break;
+
+        /* Summon _friendly_ named monster */
+        case 'N':
+        do_cmd_wiz_named_friendly(command_arg, TRUE);
+        break;
+
 		/* Summon Named Monster */
 		case 'n':
 		do_cmd_wiz_named(command_arg, TRUE);
 		break;
+
 
 		/* Object playing routines */
 		case 'o':

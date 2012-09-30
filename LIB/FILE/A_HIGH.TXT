@@ -1,4 +1,4 @@
-59
+66
 ******** BUFFER LINE *********************************** DO NOT REMOVE *******
 of Super Resistance
 of the Ultimate Defense
@@ -59,3 +59,10 @@ of Random
 of Rebma
 of Celeborn
 of Invincibility
+'Aegis'
+'Eternal Bastion'
+of Lions
+'Ever-Faithful'
+of Collapsium
+of the First Day
+of the Isles of the Blessed

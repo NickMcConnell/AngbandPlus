@@ -422,19 +422,32 @@ bool cave_valid_bold(int y, int x)
 static cptr image_monster_hack = \
 "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
+static cptr image_monster_hack_ibm = \
+"ƒ„…†‡ˆ‰ŠŽ‘’•–™š›œžŸ¡¥¨©ª¯°²³´µ¶·¸¾ÇÌÑÔÕ×ÙÝÞßàáâãåèéæêëìíîïðñòóôõö÷øùúûüýþ";
+
 
 /*
  * Mega-Hack -- Hallucinatory monster
  */
 static void image_monster(byte *ap, char *cp)
 {
-	int n = strlen(image_monster_hack);
+    int n = strlen(image_monster_hack);
 
 	/* Random symbol from set above */
     if (arg_graphics)
     {
-        (*cp) = r_info[randint(MAX_R_IDX-2)].x_char;
-        (*ap) = r_info[randint(MAX_R_IDX-2)].x_attr;
+        if (!(streq(ANGBAND_SYS, "ibm")))
+        {
+            (*cp) = r_info[randint(MAX_R_IDX-2)].x_char;
+            (*ap) = r_info[randint(MAX_R_IDX-2)].x_attr;
+        }
+        else
+        {
+            n = strlen(image_monster_hack_ibm);
+            (*cp) = (image_monster_hack_ibm[rand_int(n)]);
+            /* Random color */
+            (*ap) = randint(15);
+        }
     }
     else
     {
@@ -454,6 +467,8 @@ static void image_monster(byte *ap, char *cp)
 static cptr image_object_hack = \
 "?/|\\\"!$()_-=[]{},~";
 
+static cptr image_object_hack_ibm = \
+"€“”—¤¦«­®º»¼½ÀÁÂÃÄÈÉÊËÍÎÓÚç";
 
 /*
  * Mega-Hack -- Hallucinatory object
@@ -465,8 +480,18 @@ static void image_object(byte *ap, char *cp)
 
     if (arg_graphics)
     {
-        (*cp) = k_info[randint(MAX_K_IDX-1)].x_char;
-        (*ap) = k_info[randint(MAX_K_IDX-1)].x_attr;
+        if (!(streq(ANGBAND_SYS, "ibm")))
+        {
+            (*cp) = k_info[randint(MAX_K_IDX-1)].x_char;
+            (*ap) = k_info[randint(MAX_K_IDX-1)].x_attr;
+        }
+        else
+        {
+            n = strlen(image_object_hack_ibm);
+            (*cp) = (image_object_hack_ibm[rand_int(n)]);
+            /* Random color */
+            (*ap) = randint(15);
+        }
     }
     else
     {
@@ -890,11 +915,22 @@ void map_info(int y, int x, byte *ap, char *cp)
 
 
             if (arg_graphics)
-
             {
-                (*cp) = r_info[randint(MAX_R_IDX-2)].x_char;
-                (*ap) = r_info[randint(MAX_R_IDX-2)].x_attr;
+                if (!(streq(ANGBAND_SYS, "ibm")))
+                {
+                    (*cp) = r_info[randint(MAX_R_IDX-2)].x_char;
+                    (*ap) = r_info[randint(MAX_R_IDX-2)].x_attr;
+                }
+                else
+                {
+                    int n =  strlen(image_monster_hack_ibm);
+                    (*cp) = (image_monster_hack_ibm[rand_int(n)]);
+                    /* Random color */
+                    (*ap) = randint(15);
+                }
             }
+
+
             else
             {
 
@@ -1008,7 +1044,10 @@ void print_rel(char c, byte a, int y, int x)
 	if (panel_contains(y, x))
 	{
 		/* Hack -- fake monochrome */
-        if (!use_graphics && (p_ptr->invuln || !use_color )) a = TERM_WHITE;
+        if ((!use_graphics || streq(ANGBAND_SYS, "ibm"))
+                && (p_ptr->invuln || !use_color )) a = TERM_WHITE;
+        else if ((!use_graphics || streq(ANGBAND_SYS, "ibm"))
+             && (p_ptr->wraith_form && use_color )) a = TERM_L_DARK;
 
 		/* Draw the char using the attr */
 		Term_draw(x-panel_col_prt, y-panel_row_prt, a, c);
@@ -1175,20 +1214,17 @@ void lite_spot(int y, int x)
 
 #ifdef VARIABLE_PLAYER_GRAPH
 
-#if 1
-/* Current code */
+    if (!(streq(ANGBAND_SYS,"ibm")))
+    {
 
         if (arg_graphics && player_symbols)
         {
             a = BMP_FIRST_PC_CLASS + p_ptr->pclass;
             c = BMP_FIRST_PC_RACE  + p_ptr->prace;
         }
-
-#else
-/* Old code, dos specific */
-
-
-
+    }
+    else
+    {
            if (arg_graphics && player_symbols)
            {
            if (p_ptr->psex == SEX_FEMALE) c = 242;
@@ -1214,7 +1250,7 @@ void lite_spot(int y, int x)
                                 }
                                 while (a == TERM_DARK);
                                 break;
-                        case CLASS_MAGE:
+                        case CLASS_MAGE: case CLASS_HIGH_MAGE:
                             if (p_ptr->lev < 20)
                               a = TERM_L_RED;
                             else 
@@ -1245,6 +1281,13 @@ void lite_spot(int y, int x)
                                 a = TERM_L_UMBER;
                             else
                                 a = TERM_UMBER;
+                            break;
+                        case CLASS_MONK: case CLASS_MINDCRAFTER:
+                            if (p_ptr->lev < 20)
+                                a = TERM_L_UMBER;
+                            else
+                                a = TERM_UMBER;
+                            c = 248;
                             break;
                         default: /* Unknown */
                             a = TERM_WHITE;
@@ -1309,7 +1352,10 @@ void lite_spot(int y, int x)
                             break;
                         case RACE_SKELETON:
                             if (p_ptr->pclass == CLASS_MAGE ||
-                                p_ptr->pclass == CLASS_PRIEST)
+                                p_ptr->pclass == CLASS_PRIEST ||
+                                p_ptr->pclass == CLASS_HIGH_MAGE ||
+                                p_ptr->pclass == CLASS_MONK ||
+                                p_ptr->pclass == CLASS_MINDCRAFTER)
                                 c = 159;
                             else
                                 c = 181;
@@ -1317,14 +1363,24 @@ void lite_spot(int y, int x)
                         case RACE_ZOMBIE:
                             c = 221;
                             break;
+                        case RACE_VAMPIRE:
+                            c = 217;
+                            break;
+                        case RACE_SPECTRE:
+                            c = 241;
+                            break;
+                        case RACE_SPRITE:
+                            c = 244;
+                            break;
+                        case RACE_BEASTMAN:
+                            c = 154;
+                            break;
                     }
             }
-#endif
-/* Old variable character */
+        }
+
 
 #endif
-/* "New" variable character */
-
 #endif
 		}
 
@@ -1336,7 +1392,10 @@ void lite_spot(int y, int x)
 		}
 
 		/* Hack -- fake monochrome */
-        if (!use_graphics && (p_ptr->invuln || !use_color)) a = TERM_WHITE;
+        if ((!use_graphics || streq(ANGBAND_SYS, "ibm"))
+                && (p_ptr->invuln || !use_color)) a = TERM_WHITE;
+        else if ((!use_graphics || streq(ANGBAND_SYS, "ibm"))
+                && (p_ptr->wraith_form && use_color )) a = TERM_L_DARK;
 
 		/* Efficiency -- immitate "print_rel()" */
 		Term_draw(x-panel_col_prt, y-panel_row_prt, a, c);
@@ -1378,7 +1437,10 @@ void prt_map(void)
 			map_info(y, x, &a, &c);
 
 			/* Hack -- fake monochrome */
-            if (!use_graphics && (p_ptr->invuln || !use_color)) a = TERM_WHITE;
+            if ((!use_graphics || streq(ANGBAND_SYS, "ibm"))
+                && (p_ptr->invuln || !use_color)) a = TERM_WHITE;
+            else if ((!use_graphics || streq(ANGBAND_SYS, "ibm"))
+                && (p_ptr->wraith_form && use_color )) a = TERM_L_DARK;
 
 			/* Efficiency -- Redraw that grid of the map */
 			Term_draw(x-panel_col_prt, y-panel_row_prt, a, c);
@@ -1597,7 +1659,10 @@ void display_map(int *cy, int *cx)
 			tc = mc[y][x];
 
 			/* Hack -- fake monochrome */
-            if (!use_graphics && (p_ptr->invuln || !use_color)) ta = TERM_WHITE;
+            if ((!use_graphics || streq(ANGBAND_SYS, "ibm"))
+                && (p_ptr->invuln || !use_color)) ta = TERM_WHITE;
+            else if ((!use_graphics || streq(ANGBAND_SYS, "ibm"))
+                && (p_ptr->wraith_form && use_color )) ta = TERM_L_DARK;
 
 			/* Add the character */
 			Term_addch(ta, tc);
@@ -1665,8 +1730,8 @@ void do_cmd_view_map(void)
 
 #ifdef VARIABLE_PLAYER_GRAPH
 
-#if 1
-/* Current code */
+    if (!(streq(ANGBAND_SYS,"ibm")))
+    {
 
 
         if (arg_graphics && player_symbols)
@@ -1674,13 +1739,9 @@ void do_cmd_view_map(void)
             a = BMP_FIRST_PC_CLASS + p_ptr->pclass;
             c = BMP_FIRST_PC_RACE + p_ptr->prace;
         }
-
-
-#else
-/* Old code, dos specific */
-
-
-
+    }
+    else
+    {
            if (arg_graphics && player_symbols)
            {
            if (p_ptr->psex == SEX_FEMALE) c = 242;
@@ -1706,7 +1767,7 @@ void do_cmd_view_map(void)
                                 }
                                 while (a == TERM_DARK);
                                 break;
-                        case CLASS_MAGE:
+                        case CLASS_MAGE: case CLASS_HIGH_MAGE:
                             if (p_ptr->lev < 20)
                               a = TERM_L_RED;
                             else 
@@ -1737,6 +1798,13 @@ void do_cmd_view_map(void)
                                 a = TERM_L_UMBER;
                             else
                                 a = TERM_UMBER;
+                            break;
+                        case CLASS_MONK: case CLASS_MINDCRAFTER:
+                            if (p_ptr->lev < 20)
+                                a = TERM_L_UMBER;
+                            else
+                                a = TERM_UMBER;
+                            c = 248;
                             break;
                         default: /* Unknown */
                             a = TERM_WHITE;
@@ -1801,7 +1869,10 @@ void do_cmd_view_map(void)
                             break;
                         case RACE_SKELETON:
                             if (p_ptr->pclass == CLASS_MAGE ||
-                                p_ptr->pclass == CLASS_PRIEST)
+                                p_ptr->pclass == CLASS_PRIEST ||
+                                p_ptr->pclass == CLASS_HIGH_MAGE ||
+                                p_ptr->pclass == CLASS_MONK ||
+                                p_ptr->pclass == CLASS_MINDCRAFTER)
                                 c = 159;
                             else
                                 c = 181;
@@ -1809,15 +1880,32 @@ void do_cmd_view_map(void)
                         case RACE_ZOMBIE:
                             c = 221;
                             break;
+                        case RACE_VAMPIRE:
+                            c = 217;
+                            break;
+                        case RACE_SPECTRE:
+                            c = 241;
+                            break;
+                        case RACE_SPRITE:
+                            c = 244;
+                            break;
+                        case RACE_BEASTMAN:
+                            c = 154;
+                            break;
+
                     }
             }
-#endif
+        }
+
 
 #endif
 
 #endif
 		/* Hack -- fake monochrome */
-        if (!use_graphics && (p_ptr->invuln || !use_color)) a = TERM_WHITE;
+        if ((!use_graphics || streq(ANGBAND_SYS, "ibm"))
+                && (p_ptr->invuln || !use_color)) a = TERM_WHITE;
+            else if ((!use_graphics || streq(ANGBAND_SYS, "ibm"))
+                && (p_ptr->wraith_form && use_color )) a = TERM_L_DARK;
 
 		/* Dump the player */
 		Term_draw(cx, cy, a, c);
@@ -3576,12 +3664,14 @@ void mmove2(int *y, int *x, int y1, int x1, int y2, int x2)
 }
 
 
+
 /*
  * Determine if a bolt spell cast from (y1,x1) to (y2,x2) will arrive
  * at the final destination, assuming no monster gets in the way.
  *
  * This is slightly (but significantly) different from "los(y1,x1,y2,x2)".
  */
+#if 0
 bool projectable(int y1, int x1, int y2, int x2)
 {
 	int dist, y, x;
@@ -3610,7 +3700,43 @@ bool projectable(int y1, int x1, int y2, int x2)
 }
 
 
+#else
 
+bool projectable(int y1, int x1, int y2, int x2)
+{
+	int dist, y, x;
+
+	/* Start at the initial location */
+	y = y1, x = x1;
+
+	/* See "project()" */
+	for (dist = 0; dist <= MAX_RANGE; dist++)
+	{
+		/* Check for arrival at "final target" */
+	    /* NB: this check was AFTER the 'never pass
+	     * thru walls' clause, below. Switching them
+	     * lets monsters shoot a the player if s/he is
+	     * visible but in a wall. */
+		if ((x == x2) && (y == y2)) return (TRUE);
+
+		/* Never pass through walls */
+        if (dist && !cave_floor_bold(y, x) &&
+            !((cave[y][x].feat <= FEAT_PATTERN_XTRA2) &&
+              (cave[y][x].feat >= FEAT_MINOR_GLYPH))) break;
+
+		/* Calculate the new location */
+		mmove2(&y, &x, y1, x1, y2, x2);
+	}
+
+
+	/* Assume obstruction */
+	return (FALSE);
+}
+
+
+
+
+#endif
 /*
  * Standard "find me a location" function
  *
@@ -3625,12 +3751,14 @@ bool projectable(int y1, int x1, int y2, int x2)
 void scatter(int *yp, int *xp, int y, int x, int d, int m)
 {
 	int nx, ny;
+    int attempts_left = 5000;
 
 	/* Unused */
 	m = m;
 
+
 	/* Pick a location */
-	while (TRUE)
+    while (--attempts_left)
 	{
 		/* Pick a new location */
 		ny = rand_spread(y, d);
@@ -3646,9 +3774,12 @@ void scatter(int *yp, int *xp, int y, int x, int d, int m)
 		if (los(y, x, ny, nx)) break;
 	}
 
-	/* Save the location */
-	(*yp) = ny;
-	(*xp) = nx;
+    if (attempts_left>0)
+    {
+        /* Save the location */
+        (*yp) = ny;
+        (*xp) = nx;
+    }
 }
 
 

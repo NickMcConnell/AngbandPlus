@@ -456,6 +456,98 @@ static hist_type bg[] =
     {"and a fair complexion.",                   90, 112, 0, 50},
     {"and a very fair complexion.",             100, 112, 0, 50},
 
+     {"You arose from an unmarked grave.  ", 20, 113, 114, 50 },
+     {"In life you were a simple peasant, the victim of a powerful Vampire Lord.  ", 40, 109, 110, 50 },
+     {"In life you were a Vampire Hunter, but they got you.  ", 60, 113, 114, 50 },
+     {"In life you were a Necromancer.  ", 80, 113, 114, 50 },
+     {"In life you were a powerful noble.  ", 95, 113, 114, 50 },
+     {"In life you were a powerful and cruel tyrant.  ", 100, 113, 114, 50 },
+
+     {"You have ", 100, 114, 115, 50 },
+
+     {"jet-black hair, ", 25, 115, 116, 50 },
+     {"matted brown hair, ", 50, 115, 116, 50 },
+     {"white hair, ", 75, 115, 116, 50 },
+     {"a hairless head, ", 100, 115, 116, 50 },
+
+     {"eyes like red coals, ", 25, 116, 117, 50 },
+     {"blank white eyes, ", 50, 116, 117, 50 },
+     {"feral yellow eyes, ", 75, 116, 117, 50 },
+     {"bloodshot red eyes, ", 100, 116, 117, 50 },
+
+     {"and a deathly pale complexion.", 100, 117, 0, 50 },
+
+    {"You were created by ", 100, 118, 119, 50 },
+
+    {"a Necromancer.  ", 30, 119, 134, 50 },
+    {"a magical experiment.  ", 50, 119, 134, 50 },
+    {"an Evil Priest.  ", 70, 119, 134, 50 },
+    {"a pact with the demons.  ", 75, 119, 134, 50 },
+    {"a restless spirit.  ", 85, 119, 134, 50 },
+    {"a curse.  ", 95, 119, 134, 30 },
+    {"an oath.  ", 100, 119, 134, 50 },
+
+     {"jet-black hair, ", 25, 120, 121, 50 },
+     {"matted brown hair, ", 50, 120, 121, 50 },
+     {"white hair, ", 75, 120, 121, 50 },
+     {"a hairless head, ", 100, 120, 121, 50 },
+
+     {"eyes like red coals, ", 25, 121, 122, 50 },
+     {"blank white eyes, ", 50, 121, 122, 50 },
+     {"feral yellow eyes, ", 75, 121, 122, 50 },
+     {"bloodshot red eyes, ", 100, 121, 122, 50 },
+
+    {" and a deathly gray complexion. ", 100, 122, 123, 50 },
+    {"An eerie green aura surrounds you.", 100, 123, 0, 50 },
+
+    {"Your parents were ", 100, 124, 125, 50 },
+
+    {"pixies.  ", 20, 125, 126, 35 },
+    {"nixies.  ", 30, 125, 126, 25 },
+    {"wood sprites.  ", 75, 125, 126, 50 },
+    {"wood spirits.  ", 90, 125, 126, 75 },
+    {"noble faerie folk.  ", 100, 125, 126, 85 },
+
+    {"You have light blue wings attached to your back, ", 100, 126, 127, 50 },
+
+    {"straight blond hair, ",                        80, 127, 128, 50},
+    {"wavy blond hair, ",                            100, 127, 128, 50},
+
+    {"blue eyes, and a very fair complexion.", 100, 128, 0, 50},
+
+    {"You were produced by a magical experiment.  ", 30, 129, 130, 40},
+    {"In your childhood, you were stupid enough to stick your head in raw Logrus.  ",
+            50, 129, 130, 50 },
+    {"A Demon Lord of Chaos decided to have some fun, and so he created you.  ",
+            60, 129, 130, 60 },
+    {"You are the magical crossbreed of an animal and a man.  ", 75, 129, 130, 50},
+    {"You are the blasphemous crossbreed of unspeakable creatures of chaos.  ", 100, 129, 130, 30},
+
+
+    {"You have green reptilian eyes, ",              60, 130, 131, 50},
+    {"You have the black eyes of a bird, ",              85, 130, 131, 50},
+    {"You have the orange eyes of a cat, ",               99, 130, 131, 50},
+    {"You have the fiery eyes of a demon, ",             100, 130, 131, 55},
+
+    {"no hair at all, ",                 10, 131, 133, 50 },
+    {"dirty ",                           33, 131, 132, 50},
+    {"mangy ",                           66, 131, 132, 50},
+    {"oily ",                           100, 131, 132, 50},
+
+    {"brown fur, ",                    33, 132, 133, 50},
+    {"gray fur, ",                    66, 132, 133, 50},
+    {"albino fur, ",                  100, 132, 133, 50},
+
+    {"and the hooves of a goat.",      50, 133, 0, 50 },
+    {"and human feet.",        75, 133, 0, 50 },
+    {"and bird's feet.",       85, 133, 0, 50 },
+    {"and reptilian feet.",    90, 133, 0, 50 },
+    {"and bovine feet.",       95, 133, 0, 50 },
+    {"and feline feet.",       97, 133, 0, 50 },
+    {"and canine feet.",       100, 133, 0, 50 },
+
+    {"You have ", 100, 134, 120, 50 },
+
 };
 
 
@@ -485,10 +577,10 @@ static s32b auto_round;
  */
 static s32b last_round;
 
-int choose_realm(byte choices)
+byte choose_realm(byte choices)
 {
 
-    int picks[5] = {0};
+    int picks[MAX_REALM] = {0};
     int k, n;
 
     char c;
@@ -517,11 +609,30 @@ int choose_realm(byte choices)
         n++;
     }
 
+
+
     if ((choices & CH_SORCERY) && p_ptr->realm1 != 2)
     {
         sprintf(buf, "%c%c %s", I2A(n), p2, "Sorcery");
 		put_str(buf, 21 + (n/5), 2 + 15 * (n%5));
         picks[n]=2;
+        n++;
+    }
+
+    if ((choices & CH_ARCANE) && p_ptr->realm1 != 7)
+    {
+        sprintf(buf, "%c%c %s", I2A(n), p2, "Arcane");
+		put_str(buf, 21 + (n/5), 2 + 15 * (n%5));
+        picks[n]=7;
+        n++;
+    }
+
+
+    if ((choices & CH_TRUMP) && p_ptr->realm1 != 6)
+    {
+        sprintf(buf, "%c%c %s", I2A(n), p2, "Trump");
+		put_str(buf, 21 + (n/5), 2 + 15 * (n%5));
+        picks[n]=6;
         n++;
     }
 
@@ -562,9 +673,11 @@ int choose_realm(byte choices)
 		else bell();
     }
 
+
     /* Clean up */
 
 	clear_from(15);
+
     return (picks[k]);
 }
 
@@ -576,16 +689,16 @@ void get_realms()
     /* First we have null realms */
     p_ptr->realm1=p_ptr->realm2=0;
 
-    /* Warriors get no realms */
+    /* Warriors and certain others get no realms */
 
-    if (!pclas) return;
+    if (realm_choices[pclas] == (CH_NONE)) return;
 
     /* Other characters get at least one realm */
 
     switch (pclas)
     {
       case CLASS_WARRIOR_MAGE:
-        p_ptr->realm1 = 2;
+        p_ptr->realm1 = 7;
         break;
       case CLASS_CHAOS_WARRIOR:
         p_ptr->realm1 = 4;
@@ -604,9 +717,11 @@ void get_realms()
 
     /* Paladins, Chaos warrriors and rogues get no second realm */
     if (pclas == 5 || pclas == 3 || pclas == CLASS_CHAOS_WARRIOR
-        || pclas == CLASS_MONK) return;
+        || pclas == CLASS_MONK || pclas == CLASS_HIGH_MAGE) return;
     else
         p_ptr->realm2 = choose_realm(realm_choices[pclas]);
+
+
 }
 
 /*
@@ -1083,7 +1198,26 @@ static void get_history(void)
             chart = 107;
             break;
         }
-
+        case RACE_VAMPIRE:
+        {
+            chart = 113;
+            break;
+        }
+        case RACE_SPECTRE:
+        {
+            chart = 118;
+            break;
+        }
+        case RACE_SPRITE:
+        {
+            chart = 124;
+            break;
+        }
+        case RACE_BEASTMAN:
+        {
+            chart = 129;
+            break;
+        }
 		default:
 		{
 			chart = 0;
@@ -1460,6 +1594,22 @@ static byte player_init[MAX_CLASS][3][2] =
         { TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR },
     },
 
+
+    {
+        /* Mindcrafter */
+        { TV_SWORD, SV_SMALL_SWORD },
+        { TV_POTION, SV_POTION_RESTORE_MANA },
+        { TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR },
+    },
+
+	{
+        /* High Mage */
+        { TV_SORCERY_BOOK, 0 }, /* Hack: for realm1 book */
+		{ TV_SWORD, SV_DAGGER },
+        { TV_RING, SV_RING_SUSTAIN_INT}
+	},
+
+
 };
 
 
@@ -1480,27 +1630,81 @@ static void player_outfit(void)
 	/* Get local object */
 	q_ptr = &forge;
 
-	/* Hack -- Give the player some food */
-	object_prep(q_ptr, lookup_kind(TV_FOOD, SV_FOOD_RATION));
-	q_ptr->number = rand_range(3, 7);
-	object_aware(q_ptr);
-	object_known(q_ptr);
-	(void)inven_carry(q_ptr, FALSE);
+    if (p_ptr->prace == RACE_GOLEM || p_ptr->prace == RACE_SKELETON ||
+        p_ptr->prace == RACE_ZOMBIE || p_ptr->prace == RACE_VAMPIRE ||
+        p_ptr->prace == RACE_SPECTRE)
+    {
+        /* Hack -- Give the player scrolls of satisfy hunger */
+        object_prep(q_ptr, lookup_kind(TV_SCROLL, SV_SCROLL_SATISFY_HUNGER));
+        q_ptr->number = rand_range(2,5);
+        object_aware(q_ptr);
+        object_known(q_ptr);
+
+        /* These objects are "storebought" */
+        q_ptr->ident |= IDENT_STOREB;
+
+        (void)inven_carry(q_ptr, FALSE);
+
+                                        
+    }
+    else
+    {
+        /* Hack -- Give the player some food */
+        object_prep(q_ptr, lookup_kind(TV_FOOD, SV_FOOD_RATION));
+        q_ptr->number = rand_range(3, 7);
+        object_aware(q_ptr);
+        object_known(q_ptr);
+        (void)inven_carry(q_ptr, FALSE);
+    }
 
 
-	/* Get local object */
-	q_ptr = &forge;
+        /* Get local object */
+        q_ptr = &forge;
 
-	/* Hack -- Give the player some torches */
-	object_prep(q_ptr, lookup_kind(TV_LITE, SV_LITE_TORCH));
-	q_ptr->number = rand_range(3, 7);
-	q_ptr->pval = rand_range(3, 7) * 500;
-	object_aware(q_ptr);
-	object_known(q_ptr);
-	(void)inven_carry(q_ptr, FALSE);
 
-	/* Hack -- Give the player three useful objects */
-	for (i = 0; i < 3; i++)
+    if (p_ptr->prace == RACE_VAMPIRE)
+    {
+
+        /* Hack -- Give the player scrolls of light */
+        object_prep(q_ptr, lookup_kind(TV_SCROLL, SV_SCROLL_LIGHT));
+        q_ptr->number = rand_range(3,7);
+        object_aware(q_ptr);
+        object_known(q_ptr);
+
+        /* These objects are "storebought" */
+        q_ptr->ident |= IDENT_STOREB;
+
+        (void)inven_carry(q_ptr, FALSE);
+
+        /* Get local object */
+        q_ptr = &forge;
+
+        /* Hack -- Give the player scrolls of DARKNESS! */
+        object_prep(q_ptr, lookup_kind(TV_SCROLL, SV_SCROLL_DARKNESS));
+        q_ptr->number = rand_range(2,5);
+        object_aware(q_ptr);
+        object_known(q_ptr);
+
+        /* These objects are "storebought" */
+        q_ptr->ident |= IDENT_STOREB;
+
+        (void)inven_carry(q_ptr, FALSE);
+
+    }
+    else
+    {
+
+        /* Hack -- Give the player some torches */
+        object_prep(q_ptr, lookup_kind(TV_LITE, SV_LITE_TORCH));
+        q_ptr->number = rand_range(3, 7);
+        q_ptr->pval = rand_range(3, 7) * 500;
+        object_aware(q_ptr);
+        object_known(q_ptr);
+        (void)inven_carry(q_ptr, FALSE);
+    }
+
+    /* Hack -- Give the player three useful objects */
+    for (i = 0; i < 3; i++)
 	{
 		/* Look up standard equipment */
         tv = player_init[p_ptr->pclass][i][0];
@@ -1508,7 +1712,12 @@ static void player_outfit(void)
 
         /* Hack to initialize spellbooks */
         if (tv  == TV_SORCERY_BOOK) tv = TV_LIFE_BOOK + p_ptr->realm1 - 1;
-        else if (tv  == TV_DEATH_BOOK) tv = TV_LIFE_BOOK + p_ptr->realm2 - 1;
+        else if (tv == TV_DEATH_BOOK) tv = TV_LIFE_BOOK + p_ptr->realm2 - 1;
+
+        else if (tv == TV_RING && sv == SV_RING_RES_FEAR &&
+                 p_ptr->prace == RACE_BARBARIAN)
+        /* Barbarians do not need a ring of resist fear */
+                 sv = SV_RING_SUSTAIN_STR;
 
 		/* Get local object */
 		q_ptr = &forge;
@@ -1561,6 +1770,7 @@ static bool player_birth_aux()
 	char buf[80];
 
 	bool autoroll = FALSE;
+
 
 
 	/*** Intro ***/
@@ -1641,6 +1851,7 @@ static bool player_birth_aux()
 	/* Extra info */
 	Term_putstr(5, 15, -1, TERM_WHITE,
 		"Your 'race' determines various intrinsic factors and bonuses.");
+    hack_mutation = FALSE;
 
 	/* Dump races */
 	for (n = 0; n < MAX_RACES; n++)
@@ -1651,22 +1862,50 @@ static bool player_birth_aux()
 		str = rp_ptr->title;
 		
 		/* Display */
-		sprintf(buf, "%c%c %s", I2A(n), p2, str);
+
+        if (n<RACE_VAMPIRE)
+            sprintf(buf, "%c%c %s", I2A(n), p2, str);
+        else
+            sprintf(buf, "%d%c %s", (n - RACE_ZOMBIE), p2, str); /* HACK */
         put_str(buf, 18 + (n/5), 2 + 15 * (n%5));
 	}
 
 	/* Choose */
 	while (1)
 	{
-		sprintf(buf, "Choose a race (%c-%c): ", I2A(0), I2A(n-1));
+        sprintf(buf, "Choose a race (%c-4): ", I2A(0));
         put_str(buf, 17, 2);
 		c = inkey();
 		if (c == 'Q') quit(NULL);
 		if (c == 'S') return (FALSE);
-		k = (islower(c) ? A2I(c) : -1);
-		if ((k >= 0) && (k < n)) break;
-		if (c == '?') do_cmd_help("help.hlp");
-		else bell();
+        if (c == '1')
+        {
+            k = RACE_VAMPIRE;
+            break;
+        }
+        else if (c == '2')
+        {
+            k = RACE_SPECTRE;
+            break;
+        }
+        else if (c == '3')
+        {
+            k = RACE_SPRITE;
+            break;
+        }
+        else if (c == '4')
+        {
+            k = RACE_BEASTMAN;
+            hack_mutation = TRUE;
+            break;
+        }
+        else
+        {
+            k = (islower(c) ? A2I(c) : -1);
+            if ((k >= 0) && (k < n)) break;
+            if (c == '?') do_cmd_help("help.hlp");
+            else bell();
+        }
 	}
 
 	/* Set race */
@@ -1711,14 +1950,14 @@ static bool player_birth_aux()
 		/* Display */
 		sprintf(buf, "%c%c %s%s", I2A(n), p2, str, mod);
 
-		put_str(buf, 21 + (n/3), 2 + 20 * (n%3));
+        put_str(buf, 19 + (n/3), 2 + 20 * (n%3));
 	}
 
 	/* Get a class */
 	while (1)
 	{
 		sprintf(buf, "Choose a class (%c-%c): ", I2A(0), I2A(n-1));
-		put_str(buf, 20, 2);
+        put_str(buf, 18, 2);
 		c = inkey();
 		if (c == 'Q') quit(NULL);
 		if (c == 'S') return (FALSE);
@@ -2061,6 +2300,27 @@ static bool player_birth_aux()
 
 		/* Roll for gold */
 		get_money();
+
+/* Hack -- get a chaos patron even if you are not a chaos warrior */
+#if 0
+        /* Get a chaos Patron */
+        if (p_ptr->pclass == CLASS_CHAOS_WARRIOR)
+        {
+#endif
+            p_ptr->chaos_patron = (randint(MAX_PATRON)) - 1;
+
+#if 0
+        }
+
+        else
+        {
+            p_ptr->chaos_patron = 0;
+        }
+#endif
+
+        p_ptr->muta1 = 0;
+        p_ptr->muta2 = 0;
+        p_ptr->muta3 = 0;
 
 		/* Input loop */
 		while (TRUE)

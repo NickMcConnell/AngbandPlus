@@ -42,6 +42,10 @@ byte sf_minor;			/* Savefile's "version_minor" */
 byte sf_patch;			/* Savefile's "version_patch" */
 byte sf_extra;			/* Savefile's "version_extra" */
 
+byte z_major;           /* Savefile version for Zangband */
+byte z_minor;
+byte z_patch;
+
 /*
  * Savefile information
  */
@@ -142,7 +146,10 @@ bool repair_objects;	/* Hack -- optimize detect objects */
 s16b total_weight;		/* Total weight being carried */
 
 s16b inven_nxt;			/* Hack -- unused */
+bool hack_mind;
+bool hack_mutation;
 int artifact_bias;
+bool is_autosave = FALSE;
 
 s16b inven_cnt;			/* Number of items in inventory */
 s16b equip_cnt;			/* Number of items in equipment */
@@ -154,7 +161,12 @@ s16b m_max = 1;			/* Number of allocated monsters */
 s16b m_cnt = 0;			/* Number of live monsters */
 
 s16b hack_m_idx = 0;	/* Hack -- see "process_monsters()" */
+s16b hack_m_idx_ii = 0;
+bool multi_rew = FALSE;
 char summon_kin_type;   /* Hack, by Julian Lighton: summon 'relatives' */
+
+int total_friends = 0;
+s32b total_friend_levels = 0;
 
 
 /*
@@ -207,6 +219,17 @@ bool small_levels;          /* Allow unusually small dungeon levels */
 bool empty_levels;          /* Allow empty 'arena' levels */
 bool player_symbols;        /* Use varying symbols for the player char */
 bool equippy_chars;         /* Back by popular demand... */
+bool skip_mutations;         /* Skip mutations screen even if we have it */
+bool plain_descriptions;     /* Plain object descriptions */
+bool stupid_monsters;       /* Monsters use old AI */
+bool auto_destroy;          /* Known worthless items are destroyed without confirmation */
+bool confirm_stairs;        /* Prompt before staircases... */
+bool wear_confirm;          /* Confirm before putting on known cursed items */
+bool disturb_pets;          /* Pets moving nearby disturb us */
+bool shuffle_songs;         /* Randomize midi songs */
+bool mute_songs;            /* No music */
+bool mute_sounds;           /* No sound effects */
+
 
 
 /* Option Set 3 -- Game-Play */
@@ -263,7 +286,6 @@ bool view_bright_lite;		/* Use special colors for 'viewable' grids */
 bool view_granite_lite;		/* Use special colors for wall grids (slow) */
 bool view_special_lite;		/* Use special colors for floor grids (slow) */
 
-
 /* Option set 5 -- Testing */
 
 bool testing_stack;			/* Test the stacking code */
@@ -286,6 +308,10 @@ bool cheat_live;		/* Allow player to avoid death */
 s16b hitpoint_warn;		/* Hitpoint warning (0 to 9) */
 
 s16b delay_factor;		/* Delay factor (0 to 9) */
+
+bool autosave_l;        /* Autosave before entering new levels */
+bool autosave_t;        /* Timed autosave */
+s16b autosave_freq;     /* Autosave frequency */
 
 
 /*

@@ -239,11 +239,19 @@ static errr wr_savefile(void)
 	/* Open the file XXX XXX XXX */
 	data_fd = -1;
 
+#if 0
 	/* Dump the version */
 	fake[0] = (byte)(VERSION_MAJOR);
 	fake[1] = (byte)(VERSION_MINOR);
 	fake[2] = (byte)(VERSION_PATCH);
 	fake[3] = (byte)(VERSION_EXTRA);
+#else
+	/* Dump the version */
+    fake[0] = (byte)(FAKE_VER_MAJOR);
+    fake[1] = (byte)(FAKE_VER_MINOR);
+    fake[2] = (byte)(FAKE_VER_PATCH);
+	fake[3] = (byte)(VERSION_EXTRA);
+#endif
 
 	/* Dump the data */
 	err = fd_write(data_fd, (char*)&fake, 4);
@@ -283,7 +291,7 @@ static errr wr_savefile(void)
 
 
 	/* Dump the "options" */
-	put_options();
+    put_options();
 
 	/* Set the type */
 	data_type = TYPE_OPTIONS;
@@ -775,6 +783,7 @@ static void wr_monster(monster_type *m_ptr)
 	wr_byte(m_ptr->stunned);
 	wr_byte(m_ptr->confused);
 	wr_byte(m_ptr->monfear);
+    wr_u32b(m_ptr->smart);
 	wr_byte(0);
 }
 
@@ -945,6 +954,10 @@ static void wr_options(void)
 
 	wr_u16b(c);
 
+    /* Autosave info */
+    wr_byte(autosave_l);
+    wr_byte(autosave_t);
+    wr_s16b(autosave_freq);
 
 	/*** Extract options ***/
 
@@ -1103,6 +1116,22 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->oppose_acid);
 	wr_s16b(p_ptr->oppose_elec);
 	wr_s16b(p_ptr->oppose_pois);
+    wr_s16b(p_ptr->tim_esp);
+    wr_s16b(p_ptr->wraith_form);
+    wr_s16b(p_ptr->resist_magic);
+    wr_s16b(p_ptr->tim_xtra1);
+    wr_s16b(p_ptr->tim_xtra2);
+    wr_s16b(p_ptr->tim_xtra3);
+    wr_s16b(p_ptr->tim_xtra4);
+    wr_s16b(p_ptr->tim_xtra5);
+    wr_s16b(p_ptr->tim_xtra6);
+    wr_s16b(p_ptr->tim_xtra7);
+    wr_s16b(p_ptr->tim_xtra8);
+
+    wr_s16b(p_ptr->chaos_patron);
+    wr_u32b(p_ptr->muta1);
+    wr_u32b(p_ptr->muta2);
+    wr_u32b(p_ptr->muta3);
 
 	wr_byte(p_ptr->confusing);
 	wr_byte(0);     /* oops */
@@ -1329,6 +1358,7 @@ static bool wr_savefile_new(void)
 
 	/*** Actually write the file ***/
 
+#if 0
 	/* Dump the file header */
 	xor_byte = 0;
 	wr_byte(VERSION_MAJOR);
@@ -1337,6 +1367,17 @@ static bool wr_savefile_new(void)
 	xor_byte = 0;
 	wr_byte(VERSION_PATCH);
 	xor_byte = 0;
+#else
+    /* Dump the file header */
+	xor_byte = 0;
+    wr_byte(FAKE_VER_MAJOR);
+	xor_byte = 0;
+    wr_byte(FAKE_VER_MINOR);
+	xor_byte = 0;
+    wr_byte(FAKE_VER_PATCH);
+	xor_byte = 0;
+#endif
+
 	tmp8u = rand_int(256);
 	wr_byte(tmp8u);
 
@@ -1808,11 +1849,33 @@ bool load_player(void)
 	/* Process file */
 	if (!err)
 	{
+
+#if 0
 		/* Extract version */
 		sf_major = vvv[0];
 		sf_minor = vvv[1];
 		sf_patch = vvv[2];
 		sf_extra = vvv[3];
+#else
+		/* Extract version */
+        z_major = vvv[0];
+        z_minor = vvv[1];
+        z_patch = vvv[2];
+		sf_extra = vvv[3];
+        sf_major = 2;
+        sf_minor = 8;
+        sf_patch = 1;
+
+
+        /* Pre-2.1.0: Assume 2.0.6 (same as 2.0.0 - 2.0.5) */
+        if ((z_major == sf_major) && (z_minor == sf_minor)
+            && (z_patch == sf_patch))
+        {
+            z_major = 2;
+            z_minor = 0;
+            z_patch = 6;
+        }
+#endif
 
 		/* Very old savefiles */
 		if ((sf_major == 5) && (sf_minor == 2))
@@ -1894,13 +1957,20 @@ bool load_player(void)
 	if (!err)
 	{
 		/* Give a conversion warning */
-		if ((version_major != sf_major) ||
-		    (version_minor != sf_minor) ||
-		    (version_patch != sf_patch))
+        if ((FAKE_VER_MAJOR != z_major) ||
+            (FAKE_VER_MINOR != z_minor) ||
+            (FAKE_VER_PATCH != z_patch))
 		{
-			/* Message */
-			msg_format("Converted a %d.%d.%d savefile.",
-				   sf_major, sf_minor, sf_patch);
+            if (z_major == 2 && z_minor == 0 && z_patch == 6)
+            {
+                msg_print("Converted a 2.0.* savefile.");
+            }
+            else
+            {
+                /* Message */
+                msg_format("Converted a %d.%d.%d savefile.",
+                       z_major, z_minor, z_patch);
+            }
 			msg_print(NULL);
 		}
 

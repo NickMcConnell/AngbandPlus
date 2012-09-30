@@ -3,6 +3,74 @@ the standard Angband 2.8.1.) No long explanations, just a list. See
 code for details. In reversed chronological order (more or less):
 
 --
+Zangband 2.1.0
+-Version handling for save files, pre-210 save files loaded as 206 save files
+ * Svga is the default; '-mibm' for no graphics, '-mibm -g' for font graphics
+-The Dos version can run in 3 modes: SVGA graphics, font graphics, text only
+-Lots of extra tests added to generate.c to avoid infinite loops
+-Special feelings caused by other than artifacts should be less common now
+-New options; Autosaving options; "Testing" options renamed ("Stacking")
+-Confirm staircases turned into a runtime option
+-New plain_descriptions option (to split up show_labels)
+-New auto_destroy option to destroy known worthless items without prompting
+-New option to confirm wielding/wearing known cursed items
+-Confirm staircases is a runtime option now
+-Options  menu reorganized. Zangband special options under a separate sub-menu
+-Activate power command ('U'/'O') uses a menu now
+-Total kill count option added in the 'knowledge' menu
+-The display command can dump to file (command 'f')
+-New texts added (into lib/file/) by jd9072@aol.com, for extra colour
+-Gollum patch (by John May & 'Tim') implemented (slighty toned down version)
+-Fixed a number of bugs in the object absorption code (also in store.c)
+-2 new magic realms: Trump (teleport+summoning), Arcane (weak general purpose)
+-The "Polymorph Self" is a bit less useless now
+-Added chaos mutations
+-Potion of New Life gets rid of all mutations (in addition to normal effect)
+-Added (possible) activation effects for random artifacts
+-Immunities are a _lot_ less common in random artifacts now
+-Fixed (?) the bug which was causing the One Ring sometimes not being cursed
+-Four new types of amulets to make amulets more interesting
+-Feather Fall turned into Levitation (allows flying over trap doors)
+-Object flags: NO_TELE (prevents teleporting), NO_MAGIC (no spells, high save)
+-Added a very powerful new artifact, the Sword of the Dawn (as rare as Ringil)
+-Two new races: Sprite (very weak & smart), Chaos Beastman (gain mutations)
+-New class: High Mage (specializes in one realm, learns it really well)
+-Warrior/Paladin/DeathKn gain xp for destroying deep books (all/non-Life/Life)
+-Certain races gain no nutrition from food (they must use Satisfy Hunger)
+-Chaos warriors gain resist chaos at lvl 30, resist fear at lvl 40
+-Unencumbered monks gain free action at lvl 25
+-Monks are more likely to attack with the highest level attack available now
+-Added special breaths for Draconian Monks, Chaos Warriors and Warrior-Mages
+-Monsters which use the same symbol sometimes appear in 'hordes'
+-Everybody's favourite monster, 'the Unmaker', is far nastier now
+-Some monsters are 'good' (as opposed to 'evil'), immune to holy fire
+-Some monsters are sanity-blasting 'eldritch horrors'
+-For fairnesses' sake, monsters can also have reflection & auras of fire/elec
+-Certain monsters may resist teleportation
+-Adjacent monsters which can teleport may follow you when you teleport
+-Clones drop treasure nor objects
+-The 'xxx curses' spells may actually make your equipment 'cursed'
+-Added a new very powerful spell, Hand of Doom, for high level uniques
+-Killing Amberites can be dangerous -- ever heard of the Amberite blood curse?
+-The Serpent of Chaos is a bit tougher now
+-Various minor fixes & cosmetic enhancements & new icons
+-Lots of features by Paul Sexton:
+        * Major revision of the spell system (nature+death+chaos upgraded)
+        * Summoning spells for friendly monsters
+        * Charming spells to make new friends
+        * Wand of Lightning Bolts -> Tame Monster
+        * Two new races: Vampire & Spectre
+        * Mindcrafter class
+        * Potion smashing effects
+        * Cosmetic changes (character info screen)
+-My own changes to the above:
+        * You may accidentally attack friends if blind, confused etc.
+        * No 'friendly uniques' can be summoned
+        * You must pay upkeep (mana) for friendly monsters
+        * Fixed the fatal "displacing crash" bug (caused by my own code)
+        * 'Friends' are also possible as Chaos rewards, artifact activation
+
+--
 Zangband 2.0.6
 -Dos version compiled with Robert Ruehlmann's SVGA graphics+windows code
 -The option display_spell_flags works slightly better now (on windowed systems)
@@ -24,8 +92,7 @@ Zangband 2.0.6
 -Only 'Assassins' (Rogues with Death magic) get a poisoned weapon when created
 -Warriors get the extra shots later than rangers
 -Lots of minor and cosmetic fixes
-
-Bugfix release: 2.0.6b
+*Bugfix release: 2.0.6b:
 -Compiled the dos binary so that it asks for no confirmation with stairs
 -Birth.txt includes a description of monk attack types
 -Chaos Warriors get 'nasty' rewards much less often now

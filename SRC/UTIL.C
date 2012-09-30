@@ -1237,6 +1237,8 @@ static char roguelike_commands(char command)
 		case '7': hack_dir = 7; return (';');
 		case '8': hack_dir = 8; return (';');
 		case '9': hack_dir = 9; return (';');
+
+        case '\'': return KTRL('T');
 	}
 
 	/* Default */

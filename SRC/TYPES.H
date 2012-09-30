@@ -792,7 +792,7 @@ struct player_magic
 	s16b spell_first;		/* Level of first spell */
 	s16b spell_weight;		/* Weight that hurts spells */
 
-    magic_type info[5][32];    /* The available spells */
+    magic_type info[MAX_REALM][32];    /* The available spells */
 };
 
 
@@ -980,6 +980,25 @@ struct player_type
 	s16b oppose_cold;	/* Timed -- oppose cold */
 	s16b oppose_pois;	/* Timed -- oppose poison */
 
+
+    s16b tim_esp;       /* Timed ESP */
+    s16b wraith_form;   /* Timed wraithform */
+
+    s16b resist_magic;  /* Timed Resist Magic (later) */
+    s16b tim_xtra1;     /* Later */
+    s16b tim_xtra2;     /* Later */
+    s16b tim_xtra3;     /* Later */
+    s16b tim_xtra4;     /* Later */
+    s16b tim_xtra5;     /* Later */
+    s16b tim_xtra6;     /* Later */
+    s16b tim_xtra7;     /* Later */
+    s16b tim_xtra8;     /* Later */
+
+    s16b chaos_patron;
+    u32b muta1;
+    u32b muta2;
+    u32b muta3;
+
 	s16b word_recall;	/* Word of recall counter */
 
 	s16b energy;		/* Current energy */
@@ -1051,6 +1070,9 @@ struct player_type
     bool reflect;       /* Reflect 'bolt' attacks */
     bool sh_fire;       /* Fiery 'immolation' effect */
     bool sh_elec;       /* Electric 'immolation' effect */
+
+    bool anti_magic;    /* Anti-magic */
+    bool anti_tele;     /* Prevent teleportation */
 
 	bool sustain_str;	/* Keep strength */
 	bool sustain_int;	/* Keep intelligence */
@@ -1127,4 +1149,14 @@ struct martial_arts
 };
 
 
+
+/* Mindcrafters */
+
+typedef struct mindcraft_power mindcraft_power;
+struct mindcraft_power {
+      int min_lev;
+      int mana_cost;
+      int fail;
+      cptr name;
+};
 

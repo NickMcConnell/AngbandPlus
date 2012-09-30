@@ -20,9 +20,6 @@
  * Extensive modifications by "Ben Harrison (benh@voicenet.com)",
  * including "collation" of the Watcom C/C++ and DOS-286 patches.
  *
- * SVGA Graphic mode by Robert Ruehlmann (rr9@inf.tu-dresden.de)
- * Define "USE_IBM_SVGA" to activate it.
- *
  * Watcom C/C++ changes by "David Boeren (akemi@netcom.com)"
  * Use "Makefile.wat" to compile this file with Watcom C/C++, and
  * be sure to define "USE_IBM" and "USE_WAT".
@@ -57,87 +54,6 @@
 
 #ifdef USE_IBM
 
-#ifdef USE_IBM_SVGA
-
-/*
- * Definitions for SVGA graphics
- */
-
-#include "allegro.h"
-
-BITMAP *tiles;
-BITMAP *cursor;
-
-/* Size of the bitmap tiles */
-int bitmap_tile_width;
-int bitmap_tile_height;
-
-/*
- * Index of the first standard Angband color.
- * All colors below this index are defined by
- * the palette of the tiles-bitmap.
- */
-#define angband_colors 240
-
-
-/* List of the available Videomodes to reduce executable size */
-
-DECLARE_GFX_DRIVER_LIST(
-	GFX_DRIVER_VBEAF
-	GFX_DRIVER_VESA2L
-	GFX_DRIVER_VESA2B
-	GFX_DRIVER_ATI
-	GFX_DRIVER_MACH64
-	GFX_DRIVER_CIRRUS64
-	GFX_DRIVER_CIRRUS54
-	GFX_DRIVER_PARADISE
-	GFX_DRIVER_S3
-	GFX_DRIVER_TRIDENT
-	GFX_DRIVER_ET3000
-	GFX_DRIVER_ET4000
-	GFX_DRIVER_VIDEO7
-	GFX_DRIVER_VESA1
-)
-
-DECLARE_COLOR_DEPTH_LIST(COLOR_DEPTH_8)
-
-/*
- * Forward declare
- */
-typedef struct _term_data term_data;
-
-/*
- * Extra "term" data
- */
-struct _term_data
-{
-	term t;
-
-	int rows;
-	int cols;
-
-	int x;
-	int y;
-
-	int w;
-	int h;
-
-	bool stretch;
-
-	FONT *font;
-};
-
-/*
- * Maximum number of windows
- */
-#define MAX_TERM_DATA 8
-
-/*
- * An array of term_data's
- */
-static term_data data[MAX_TERM_DATA];
-
-#endif /* USE_IBM_SVGA */
 
 /*
  * Use a "virtual" screen to "buffer" screen writes.
@@ -152,13 +68,14 @@ static term_data data[MAX_TERM_DATA];
 
 # include <conio.h>
 
-# ifndef USE_CONIO
+# ifdef USE_CONIO
+# else /* USE_CONIO */
 
 #  include <graph.h>
 
 #  define bioskey(C)	_bios_keybrd(C)
 
-# endif
+# endif /* USE_CONIO */
 
 # ifndef USE_286
 #  define int86(a,b,c)	int386(a,b,c)
@@ -221,7 +138,7 @@ extern int directvideo = 1;
 #define VID_GREEN	0x02
 #define VID_CYAN	0x03
 #define VID_RED		0x04
-#define VID_MAGENTA 0x05
+#define VID_MAGENTA	0x05
 #define VID_YELLOW	0x06
 #define VID_WHITE	0x07
 
@@ -238,7 +155,7 @@ extern int directvideo = 1;
 #define VUD_GREEN	0x20
 #define VUD_CYAN	0x30
 #define VUD_RED		0x40
-#define VUD_MAGENTA 0x50
+#define VUD_MAGENTA	0x50
 #define VUD_YELLOW	0x60
 #define VUD_WHITE	0x70
 
@@ -290,14 +207,15 @@ static int saved_cur_high;
 static int saved_cur_low;
 
 
-#ifndef USE_CONIO
+#ifdef USE_CONIO
+#else /* USE_CONIO */
 
 /*
  * This array is used for "wiping" the screen
  */
 static byte wiper[160];
 
-#endif
+#endif /* USE_CONIO */
 
 
 /*
@@ -526,61 +444,36 @@ static int Term_xtra_ibm_react(void)
  */
 static void curs_set(int v)
 {
-#ifdef USE_IBM_SVGA
-
-	if (arg_graphics)
+	/* If needed */
+	if (saved_cur_v != v)
 	{
-		/* Erase the cursor sprite */
-		clear(cursor);
+		union REGS r;
 
+		/* Set cursor */
+		r.h.ah = 1;
+
+		/* Visible */
 		if (v)
 		{
-			/* Redraw it */
-			rect(cursor, 0, 0, data[0].w - 1, data[0].h - 1, angband_colors+1);
+			/* Use the saved values */
+			r.h.ch = saved_cur_high;
+			r.h.cl = saved_cur_low;
 		}
-	}
-	else
-	{
 
-#endif /* USE_IBM_SVGA */
-
-		/* If needed */
-		if (saved_cur_v != v)
+		/* Invisible */
+		else
 		{
-			union REGS r;
-
-			/* Set cursor */
-			r.h.ah = 1;
-
-			/* Visible */
-			if (v)
-			{
-				/* Use the saved values */
-				r.h.ch = saved_cur_high;
-				r.h.cl = saved_cur_low;
-			}
-
-			/* Invisible */
-			else
-			{
-				/* Make it invisible */
-				r.h.ch = 0x20;
-				r.h.cl = 0x00;
-			}
-
-			/* Make the call */
-			int86(0x10, &r, &r);
-
-			/* Save the cursor state */
-			saved_cur_v = v;
+			/* Make it invisible */
+			r.h.ch = 0x20;
+			r.h.cl = 0x00;
 		}
 
-#ifdef USE_IBM_SVGA
+		/* Make the call */
+		int86(0x10, &r, &r);
 
+		/* Save the cursor state */
+		saved_cur_v = v;
 	}
-
-#endif /* USE_IBM_SVGA */
-
 }
 
 
@@ -653,6 +546,7 @@ static errr Term_xtra_ibm_event(int v)
 	bool ms = FALSE;
 	bool ma = FALSE;
 
+
 	/* Hack -- Check for a keypress */
 	if (!v && !bioskey(1)) return (1);
 
@@ -722,64 +616,51 @@ static errr Term_xtra_ibm(int n, int v)
 	{
 		/* Make a "bell" noise */
 		case TERM_XTRA_NOISE:
+		{
+			/* Make a bell noise */
+			(void)write(1, "\007", 1);
 
-		/* Make a bell noise */
-		(void)write(1, "\007", 1);
-
-		/* Success */
-		return (0);
+			/* Success */
+			return (0);
+		}
 
 		/* Set the cursor shape */
 		case TERM_XTRA_SHAPE:
+		{
+			/* Set cursor shape */
+			curs_set(v);
 
-		/* Set cursor shape */
-		curs_set(v);
-
-		/* Success */
-		return (0);
-
-#ifdef USE_VIRTUAL
+			/* Success */
+			return (0);
+		}
 
 		/* Flush one line of output */
 		case TERM_XTRA_FROSH:
+		{
+
+#ifdef USE_VIRTUAL
 
 # ifdef USE_WAT
 
-		/* Copy the virtual screen to the physical screen */
-		memcpy(PhysicalScreen + (v*160), VirtualScreen + (v*160), 160);
+			/* Copy the virtual screen to the physical screen */
+			memcpy(PhysicalScreen + (v*160), VirtualScreen + (v*160), 160);
 
 # else /* USE_WAT */
 
-		/* Apply the virtual screen to the physical screen */
-		ScreenUpdateLine(VirtualScreen + ((v*cols) << 1), v);
+			/* Apply the virtual screen to the physical screen */
+			ScreenUpdateLine(VirtualScreen + ((v*cols) << 1), v);
 
 # endif /* USE_WAT */
 
-		/* Success */
-		return (0);
-
 #endif /* USE_VIRTUAL */
+
+			/* Success */
+			return (0);
+		}
 
 		/* Clear the screen */
 		case TERM_XTRA_CLEAR:
-
-#ifdef USE_IBM_SVGA
-		if (arg_graphics)
 		{
-			term_data *td = (term_data*)(Term->data);
-
-			int x1 = td->x;
-			int y1 = td->y;
-			int x2 = (td->x + td->w * td->cols);
-			int y2 = (td->y + td->h * td->rows);
-
-			/* Draw the Term black */
-			rectfill(screen, x1, y1, x2, y2, angband_colors);
-		}
-		else
-		{
-
-#endif /* USE_IBM_SVGA */
 
 #ifdef USE_CONIO
 
@@ -813,44 +694,43 @@ static errr Term_xtra_ibm(int n, int v)
 
 #endif /* USE_CONIO */
 
-#ifdef USE_IBM_SVGA
-
+			/* Success */
+			return (0);
 		}
-
-#endif /* USE_IBM_SVGA */
-
-		/* Success */
-		return (0);
 
 		/* Process events */
 		case TERM_XTRA_EVENT:
-
-		/* Process one event */
-		return (Term_xtra_ibm_event(v));
+		{
+			/* Process one event */
+			return (Term_xtra_ibm_event(v));
+		}
 
 		/* Flush events */
 		case TERM_XTRA_FLUSH:
+		{
+			/* Strip events */
+			while (!Term_xtra_ibm_event(FALSE)) /* loop */;
 
-		/* Strip events */
-		while (!Term_xtra_ibm_event(FALSE));
-
-		/* Success */
-		return (0);
+			/* Success */
+			return (0);
+		}
 
 		/* React to global changes */
 		case TERM_XTRA_REACT:
-
-		/* React to "color_table" changes */
-		return (Term_xtra_ibm_react());
+		{
+			/* React to "color_table" changes */
+			return (Term_xtra_ibm_react());
+		}
 
 		/* Delay for some milliseconds */
 		case TERM_XTRA_DELAY:
+		{
+			/* Delay if needed */
+			if (v > 0) delay(v);
 
-		/* Delay if needed */
-		if (v > 0) delay(v);
-
-		/* Success */
-		return (0);
+			/* Success */
+			return (0);
+		}
 	}
 
 	/* Unknown request */
@@ -867,55 +747,33 @@ static errr Term_xtra_ibm(int n, int v)
 static errr Term_curs_ibm(int x, int y)
 {
 
-#ifdef USE_IBM_SVGA
-	if (arg_graphics)
-	{
-		term_data *td = (term_data*)(Term->data);
-
-		x = x * td->w + td->x;
-		y = y * td->h + td->y;
-
-		/* Draw the cursor */
-		draw_sprite(screen, cursor, x, y);
-	}
-	else
-	{
-
-#endif /* USE_IBM_SVGA */
-
 #ifdef USE_WAT
 
 # ifdef USE_CONIO
 
-		/* Place the cursor */
-		gotoxy(x+1, y+1);
+	/* Place the cursor */
+	gotoxy(x+1, y+1);
 
 # else /* USE_CONIO */
 
-		union REGS r;
+	union REGS r;
 
-		r.h.ah = 2;
-		r.h.bh = 0;
-		r.h.dl = x;
-		r.h.dh = y;
+	r.h.ah = 2;
+	r.h.bh = 0;
+	r.h.dl = x;
+	r.h.dh = y;
 
-		/* Place the cursor */
-		int86(0x10, &r, &r);
+	/* Place the cursor */
+	int86(0x10, &r, &r);
 
 # endif /* USE_CONIO */
 
 #else /* USE_WAT */
 
-		/* Move the cursor */
-		ScreenSetCursor(y, x);
+	/* Move the cursor */
+	ScreenSetCursor(y, x);
 
 #endif /* USE_WAT */
-
-#ifdef USE_IBM_SVGA
-
-	}
-
-#endif /* USE_IBM_SVGA */
 
 	/* Success */
 	return (0);
@@ -930,44 +788,19 @@ static errr Term_curs_ibm(int x, int y)
 static errr Term_wipe_ibm(int x, int y, int n)
 {
 
-#ifdef USE_IBM_SVGA
-
-	if (arg_graphics)
-	{
-		term_data *td = (term_data*)(Term->data);
-
-		int x1 = x * td->w + td->x;
-		int y1 = y * td->h + td->y;
-		int x2 = x1 + n * td->w - 1;
-		int y2 = y1 + td->h - 1;
-
-		/* Draw a black block */
-		rectfill(screen, x1, y1, x2, y2, angband_colors);
-	}
-	else
-	{
-
-#endif /* USE_IBM_SVGA */
-
 #ifdef USE_CONIO
 
-		/* Wipe the region */
-		window(x+1, y+1, x+n, y+1);
-		clrscr();
-		window(1, 1, cols, rows);
+	/* Wipe the region */
+	window(x+1, y+1, x+n, y+1);
+	clrscr();
+	window(1, 1, cols, rows);
 
 #else /* USE_CONIO */
 
-		/* Wipe part of the virtual (or physical) screen */
-		memcpy(VirtualScreen + ((cols*y + x)<<1), wiper, n<<1);
+	/* Wipe part of the virtual (or physical) screen */
+	memcpy(VirtualScreen + ((cols*y + x)<<1), wiper, n<<1);
 
 #endif /* USE_CONIO */
-
-#ifdef USE_IBM_SVGA
-
-	}
-
-#endif /* USE_IBM_SVGA */
 
 	/* Success */
 	return (0);
@@ -987,81 +820,46 @@ static errr Term_text_ibm(int x, int y, int n, byte a, const char *cp)
 	register byte attr;
 	register byte *dest;
 
-#ifdef USE_IBM_SVGA
 
-	char text[2];
-
-	if (arg_graphics)
+	/* Handle "complex" color */
+	if (use_color_complex)
 	{
-		term_data *td = (term_data*)(Term->data);
-
-		/* clear the old line */
-		Term_wipe_ibm(x, y, n);
-
-		/* Hack --- textout() needs NULL-terminated string */
-		text[1] = 0;
-
-		/* Write the chars to the screen */
-		for (i = 0; i < n; i++)
-		{
-			int x1 = (x + i) * td->w + td->x;
-			int y1 = y * td->h + td->y;
-
-			text[0] = cp[i];
-
-			textout(screen, td->font, text, x1, y1, angband_colors+a);
-		}
+		/* Extract a color index */
+		attr = (a & 0x0F);
 	}
+
+	/* Handle "simple" color */
 	else
 	{
-
-#endif /* USE_IBM_SVGA */
-
-		/* Handle "complex" color */
-		if (use_color_complex)
-		{
-			/* Extract a color index */
-			attr = (a & 0x0F);
-		}
-
-		/* Handle "simple" color */
-		else
-		{
-			/* Extract a color value */
-			attr = ibm_color_simple[a & 0x0F];
-		}
+		/* Extract a color value */
+		attr = ibm_color_simple[a & 0x0F];
+	}
 
 #ifdef USE_CONIO
 
-		/* Place the cursor */
-		gotoxy(x+1, y+1);
+	/* Place the cursor */
+	gotoxy(x+1, y+1);
 
-		/* Set the attribute */
-		textattr(attr);
+	/* Set the attribute */
+	textattr(attr);
 
-		/* Dump the text */
-		for (i = 0; i < n; i++) putch(cp[i]);
+	/* Dump the text */
+	for (i = 0; i < n; i++) putch(cp[i]);
 
 #else /* USE_CONIO */
 
-		/* Access the virtual (or physical) screen */
-		dest = VirtualScreen + (((cols * y) + x) << 1);
+	/* Access the virtual (or physical) screen */
+	dest = VirtualScreen + (((cols * y) + x) << 1);
 
-		/* Save the data */
-		for (i = 0; i < n; i++)
-		{
-			/* Apply */
-			*dest++ = cp[i];
-			*dest++ = attr;
-		}
-
-#endif /* USE_CONIO */
-
-#ifdef USE_IBM_SVGA
-
+	/* Save the data */
+	for (i = 0; i < n; i++)
+	{
+		/* Apply */
+		*dest++ = cp[i];
+		*dest++ = attr;
 	}
 
-#endif /* USE_IBM_SVGA */
+#endif /* USE_CONIO */
 
 	/* Success */
 	return (0);
@@ -1079,111 +877,64 @@ static errr Term_pict_ibm(int x, int y, int n, const byte *ap, const char *cp)
 	register byte attr;
 	register byte *dest;
 
-#ifdef USE_IBM_SVGA
-
-	if (arg_graphics)
-	{
-		term_data *td = (term_data*)(Term->data);
-
-		/* Dump the tiles */
-		for (i = 0; i < n; i++)
-		{
-			int x1 = (x + i) * td->w + td->x;
-			int y1 = y * td->h + td->y;
-
-			/* Extract tile position */
-			int row = (ap[i] & 0x7F);
-			int col = (cp[i] & 0x7F);
-
-			/* Player - Remap for race and class */
-			if ( row == 12 && col == 0 )
-			{
-				row = p_ptr->pclass + 36;
-				col = p_ptr->prace;
-			}
-
-			if (td->stretch)
-				/* Blit the tile to the screen and stretch it */
-				stretch_blit(tiles, screen,
-					col*bitmap_tile_width, row*bitmap_tile_height,
-					bitmap_tile_width, bitmap_tile_height,
-					x1, y1, td->w, td->h);
-			else
-				/* Blit the tile to the screen */
-				blit(tiles, screen,
-					col*bitmap_tile_width, row*bitmap_tile_height,
-					x1, y1, td->w, td->h);
-		}
-	}
-	else
-	{
-
-#endif /* USE_IBM_SVGA */
 
 #ifdef USE_CONIO
 
-		/* Place the cursor */
-		gotoxy(x+1, y+1);
+	/* Place the cursor */
+	gotoxy(x+1, y+1);
 
-		/* Dump the text */
-		for (i = 0; i < n; i++)
+	/* Dump the text */
+	for (i = 0; i < n; i++)
+	{
+		/* Handle "complex" color */
+		if (use_color_complex)
 		{
-			/* Handle "complex" color */
-			if (use_color_complex)
-			{
-				/* Extract a color index */
-				attr = (ap[i] & 0x0F);
-			}
-
-			/* Handle "simple" color */
-			else
-			{
-				/* Extract a color value */
-				attr = ibm_color_simple[ap[i] & 0x0F];
-			}
-
-			/* Set the attribute */
-			textattr(attr);
-
-			/* Dump the char */
-			putch(cp[i]);
+			/* Extract a color index */
+			attr = (ap[i] & 0x0F);
 		}
+
+		/* Handle "simple" color */
+		else
+		{
+			/* Extract a color value */
+			attr = ibm_color_simple[ap[i] & 0x0F];
+		}
+
+		/* Set the attribute */
+		textattr(attr);
+
+		/* Dump the char */
+		putch(cp[i]);
+	}
 
 #else /* USE_CONIO */
 
-		/* Access the virtual (or physical) screen */
-		dest = VirtualScreen + (((cols * y) + x) << 1);
+	/* Access the virtual (or physical) screen */
+	dest = VirtualScreen + (((cols * y) + x) << 1);
 
-		/* Save the data */
-		for (i = 0; i < n; i++)
+	/* Save the data */
+	for (i = 0; i < n; i++)
+	{
+		/* Handle "complex" color */
+		if (use_color_complex)
 		{
-			/* Handle "complex" color */
-			if (use_color_complex)
-			{
-				/* Extract a color index */
-				attr = (ap[i] & 0x0F);
-			}
-
-			/* Handle "simple" color */
-			else
-			{
-				/* Extract a color value */
-				attr = ibm_color_simple[ap[i] & 0x0F];
-			}
-
-			/* Apply */
-			*dest++ = cp[i];
-			*dest++ = attr;
+			/* Extract a color index */
+			attr = (ap[i] & 0x0F);
 		}
 
-#endif /* USE_CONIO */
+		/* Handle "simple" color */
+		else
+		{
+			/* Extract a color value */
+			attr = ibm_color_simple[ap[i] & 0x0F];
+		}
 
-#ifdef USE_IBM_SVGA
-
+		/* Apply */
+		*dest++ = cp[i];
+		*dest++ = attr;
 	}
 
-#endif /* USE_IBM_SVGA */
-
+#endif /* USE_CONIO */
 
 	/* Success */
 	return (0);
@@ -1204,48 +955,36 @@ static void Term_init_ibm(term *t)
  */
 static void Term_nuke_ibm(term *t)
 {
-#ifndef USE_WAT
-	union REGS r;
-#endif
 
-#ifdef USE_IBM_SVGA
-
-	if (arg_graphics)
-	{
-		/* Free all resources */
-		destroy_bitmap(tiles);
-		destroy_bitmap(cursor);
-		allegro_exit();
-	}
-	else
-	{
-
-#endif /* USE_IBM_SVGA */
-
-		/* Move the cursor to the bottom of the screen */
-		Term_curs_ibm(0, rows-1);
-
-#if 0
 #ifdef USE_WAT
-		/* Restore the original video mode */
-		_setvideomode(_DEFAULTMODE);
-#else
-		/* Restore the original video mode */
-		r.h.ah = 0x00;
-		r.h.al = 0x03;
-		int86(0x10, &r, &r);
-#endif
-#endif
 
-		/* Make the cursor visible */
-		curs_set(1);
+	/* Nothing */
 
-#ifdef USE_IBM_SVGA
+#else /* USE_WAT */
 
-	}
+	union REGS r;
 
-#endif /* USE_IBM_SVGA */
+#endif /* USE_WAT */
 
+	/* Move the cursor to the bottom of the screen */
+	Term_curs_ibm(0, rows-1);
+
+#ifdef USE_WAT
+
+	/* Restore the original video mode */
+	_setvideomode(_DEFAULTMODE);
+
+#else /* USE_WAT */
+
+	/* Restore the original video mode */
+	r.h.ah = 0x00;
+	r.h.al = 0x03;
+	int86(0x10, &r, &r);
+
+#endif /* USE_WAT */
+
+	/* Make the cursor visible */
+	curs_set(1);
 }
 
 
@@ -1383,6 +1122,7 @@ extern void _farnspokeb(unsigned long offset, unsigned char value);
 
 #endif /* USE_WAT */
 
+
 /*
  * Since you cannot send 32bit pointers to a 16bit interrupt handler
  * and the video BIOS wants a (16bit) pointer to the font, we have
@@ -1394,9 +1134,7 @@ extern void _farnspokeb(unsigned long offset, unsigned char value);
  */
 void enable_graphic_font(const char *font)
 {
-	__dpmi_regs dblock =
-	{
-	{0}};
+	__dpmi_regs dblock = {{0}};
 
 	unsigned seg, sel, i;
 
@@ -1441,90 +1179,6 @@ void enable_graphic_font(const char *font)
 #endif /* ALLOW_GRAPH */
 
 
-#ifdef USE_IBM_SVGA
-
-/*
- * Parse the angband.ini file and return a string
- */
-void parse_ini_line_string(FILE *fff, char *buf)
-{
-	while (TRUE)
-	{
-		if (my_fgets(fff, buf, 80)) quit("Error in 'angband.ini' file.");
-
-		/* Skip Comment */
-		if (!(buf[0] == '#')) break;
-	}
-}
-
-/*
- * Parse the angband.ini file and return an integer
- */
-int parse_ini_line_int(FILE *fff)
-{
-	char buf[256];
-
-	parse_ini_line_string(fff, buf);
-	return(atoi(buf));
-}
-
-
-/*
- * Instantiate a "term_data" structure
- */
-static void term_data_link(term_data *td)
-{
-	term *t = &td->t;
-
-	/* Initialize the term */
-	term_init(t, td->cols, td->rows, 255);
-
-	/* Use a "software" cursor */
-	t->soft_cursor = TRUE;
-
-	/* Use "Term_pict" for "graphic" data */
-	t->higher_pict = TRUE;
-
-	/* Ignore the "TERM_XTRA_BORED" action */
-	t->never_bored = TRUE;
-
-	/* Ignore the "TERM_XTRA_FROSH" action */
-	t->never_frosh = TRUE;
-
-	/* Erase with "white space" */
-	t->attr_blank = TERM_WHITE;
-	t->char_blank = ' ';
-
-	/* Prepare the init/nuke hooks */
-	t->init_hook = Term_init_ibm;
-	t->nuke_hook = Term_nuke_ibm;
-
-	/* Prepare the template hooks */
-	t->xtra_hook = Term_xtra_ibm;
-	t->curs_hook = Term_curs_ibm;
-	t->wipe_hook = Term_wipe_ibm;
-	t->text_hook = Term_text_ibm;
-	t->pict_hook = Term_pict_ibm;
-
-	/* Remember where we came from */
-	t->data = (vptr)(td);
-}
-
-
-/*
- * Hook to tell the user something important
- */
-static void hook_plog(cptr str)
-{
-	/* Warning message */
-	set_gfx_mode(GFX_TEXT,0,0,0,0);
-
-	printf(str);
-}
-
-
-#endif /* USE_IBM_SVGA */
-
 
 /*
  * Initialize the IBM "visual module"
@@ -1541,348 +1195,204 @@ errr init_ibm(void)
 	int i;
 	int mode;
 
-	union REGS r;
-
 	term *t = &term_screen_body;
 
-#ifdef USE_IBM_SVGA
+	union REGS r;
 
-	term_data *td;
-
-	if (arg_graphics)
+	/* Check for "Windows" */
+	if (getenv("windir"))
 	{
-		/* Screen-size */
-		int screen_width;
-		int screen_height;
+		r.h.ah = 0x16;           /* Windows API Call -- Set device focus */
+		r.h.al = 0x8B;           /* Causes Dos boxes to become fullscreen */
+		r.h.bh = r.h.bl = 0x00;  /* 0x0000 = current Dos box */
+		int86(0x2F, &r, &r);       /* Call the Windows API */
+	};
 
-		/* Filenames */
-		char filename[1024];
-		char tile_bmp_name[255];
+	/* Initialize "color_table" */
+	for (i = 0; i < 16; i++)
+	{
+		long rv, gv, bv;
 
-		/* angband.ini file */
-		FILE *ini_file;
+		/* Extract desired values */
+		rv = angband_color_table[i][1] >> 2;
+		gv = angband_color_table[i][2] >> 2;
+		bv = angband_color_table[i][3] >> 2;
 
-		PALLETE tiles_pallete;
+		/* Extract the "complex" codes */
+		ibm_color_complex[i] = ((rv) | (gv << 8) | (bv << 16));
 
-		int n;
-
-		/* Use graphics */
-		use_graphics = TRUE;
-
-		/* Prepare Allegro library */
-		allegro_init();
-
-		/*
-		 * Load angband.ini
-		 */
-
-		/* Build the filename for angband.ini */
-		path_build(filename, 1024, ANGBAND_DIR_XTRA, "angband.ini");
-
-		/* Open it */
-		if (!(ini_file = my_fopen(filename, "r")))
-			quit("Cannot open 'angband.ini' file.");
-
-		/* Get screen size */
-		screen_width = parse_ini_line_int(ini_file);
-		screen_height = parse_ini_line_int(ini_file);
-
-		/* Get bitmap filename */
-		parse_ini_line_string(ini_file, tile_bmp_name);
-
-		/* Build the filename for the tiles-bitmap */
-		path_build(filename, 1024, ANGBAND_DIR_XTRA, tile_bmp_name);
-
-		/* Open the bitmap file */
-		if (!(tiles = load_bitmap(filename, tiles_pallete)))
-			quit("Error reading bitmap file");
-
-		/* Get bitmap tile size */
-		bitmap_tile_width = parse_ini_line_int(ini_file);
-		bitmap_tile_height = parse_ini_line_int(ini_file);
-
-		/* Get term count */
-		n = parse_ini_line_int(ini_file);
-
-		/* Init the terms */
-		for (i = 0; i < n; i++)
-		{
-			DATAFILE *fontdata;
-
-			char font_name[255];
-
-			td = &data[i];
-			WIPE(td, term_data);
-
-			/* Coordinates of left top corner */
-			td->x = parse_ini_line_int(ini_file);
-			td->y = parse_ini_line_int(ini_file);
-
-			/* Rows and cols of term */
-			td->rows = parse_ini_line_int(ini_file);
-			td->cols = parse_ini_line_int(ini_file);
-
-			/* Tile size */
-			td->w = parse_ini_line_int(ini_file);
-			td->h = parse_ini_line_int(ini_file);
-
-			/* Has the bitmap to be stretched ? */
-			td->stretch = !((bitmap_tile_width==td->w) && (bitmap_tile_height==td->h));
-
-			/* Get font filename */
-			parse_ini_line_string(ini_file, font_name);
-
-			/* Load the font */
-			path_build(filename, 1024, ANGBAND_DIR_XTRA, font_name);
-
-			if (!(fontdata = load_datafile(filename)))
-			      quit("Error reading font file");
-
-			td->font = fontdata[1].dat;
-
-			unload_datafile_object(fontdata);
-
-			/* Link the term */
-			term_data_link(td);
-			angband_term[i] = &td->t;
-		}
-
-		/* Close angband.ini */
-		my_fclose(ini_file);
-
-		/*
-		 * Set graphics mode and init the palette
-		 */
-
-		set_color_depth(8);
-
-		if ((set_gfx_mode(GFX_AUTODETECT, screen_width, screen_height, 0, 0)) < 0)
-			quit("Error selecting screen mode");
-
-		/* Hook in "z-util.c" hook */
-		plog_aux = hook_plog;
-
-		/* Select the bitmap pallete */
-		set_pallete(tiles_pallete);
-
-		/* Set the Angband colors */
-		for (i = 0; i < 16; i++)
-		{
-			/* Extract desired values */
-			char rv = angband_color_table[i][1] >> 2;
-			char gv = angband_color_table[i][2] >> 2;
-			char bv = angband_color_table[i][3] >> 2;
-
-			RGB color = { rv,  gv,  bv  };
-
-			set_color(angband_colors+i, &color);
-		}
-
-		/* Build a cursor bitmap */
-
-		cursor = create_bitmap(data[0].w, data[0].h);
-
-		curs_set(1);
-
-		/* Activate the main term */
-		Term_activate(angband_term[0]);
+		/* Save the "simple" codes */
+		angband_color_table[i][0] = ibm_color_simple[i];
 	}
-	else
-	{
-
-#endif /* USE_IBM_SVGA */
-
-		/* Check for "Windows" */
-		if (getenv("windir"))
-		{
-			r.h.ah = 0x16;           /* Windows API Call -- Set device focus */
-			r.h.al = 0x8B;           /* Causes Dos boxes to become fullscreen */
-			r.h.bh = r.h.bl = 0x00;  /* 0x0000 = current Dos box */
-			int86(0x2F, &r, &r);       /* Call the Windows API */
-		};
-
-		/* Initialize "color_table" */
-		for (i = 0; i < 16; i++)
-		{
-			long rv, gv, bv;
-
-			/* Extract desired values */
-			rv = angband_color_table[i][1] >> 2;
-			gv = angband_color_table[i][2] >> 2;
-			bv = angband_color_table[i][3] >> 2;
-
-			/* Extract the "complex" codes */
-			ibm_color_complex[i] = ((rv) | (gv << 8) | (bv << 16));
-
-			/* Save the "simple" codes */
-			angband_color_table[i][0] = ibm_color_simple[i];
-		}
 
 #ifdef USE_WAT
 
-		/* Set the video mode */
-		if (_setvideomode(_VRES16COLOR))
-		{
-			mode = 0x13;
-		}
+	/* Set the video mode */
+	if (_setvideomode(_VRES16COLOR))
+	{
+		mode = 0x13;
+	}
 
-		/* Wimpy monitor */
-		else
-		{
-			mode = 0x03;
-		}
+	/* Wimpy monitor */
+	else
+	{
+		mode = 0x03;
+	}
 
-		/* Force 25 line mode */
-		_setvideomode(_TEXTC80);
-		_settextrows(25);
+	/* Force 25 line mode */
+	_setvideomode(_TEXTC80);
+	_settextrows(25);
 
 #else /* USE_WAT */
 
-		/* Set video mode */
-		r.h.ah = 0x00;
-		r.h.al = 0x13; /* VGA only mode */
-		int86(0x10, &r, &r);
+	/* Set video mode */
+	r.h.ah = 0x00;
+	r.h.al = 0x13; /* VGA only mode */
+	int86(0x10, &r, &r);
 
-		/* Get video mode */
-		r.h.ah = 0x0F;
-		int86(0x10, &r, &r);
-		mode = r.h.al;
+	/* Get video mode */
+	r.h.ah = 0x0F;
+	int86(0x10, &r, &r);
+	mode = r.h.al;
 
-		/* Set video mode */
-		r.h.ah = 0x00;
-		r.h.al = 0x03; /* Color text mode */
-		int86(0x10, &r, &r);
+	/* Set video mode */
+	r.h.ah = 0x00;
+	r.h.al = 0x03; /* Color text mode */
+	int86(0x10, &r, &r);
 
 #endif /* USE_WAT */
 
-		/* Check video mode */
-		if (mode == 0x13)
-		{
-			/* Remember the mode */
-			use_color_complex = TRUE;
+	/* Check video mode */
+	if (mode == 0x13)
+	{
+		/* Remember the mode */
+		use_color_complex = TRUE;
 
-			/* Instantiate the color set */
-			activate_color_complex();
-		}
+		/* Instantiate the color set */
+		activate_color_complex();
+	}
 
 #ifdef USE_GRAPHICS
 
-#ifndef USE_IBM_SVGA
+	/* Try to activate bitmap graphics */
+	if (arg_graphics && use_color_complex)
+	{
+		FILE *f;
 
-		/* Try to activate bitmap graphics */
-		if (arg_graphics && use_color_complex)
+		char buf[4096];
+
+		/* Build the filename */
+		path_build(buf, 1024, ANGBAND_DIR_XTRA, "angband.fnt");
+
+		/* Open the file */
+		f = fopen(buf, "rb");
+
+		/* Okay */
+		if (f)
 		{
-			FILE *f;
-
-			char buf[4096];
-
-			/* Build the filename */
-			path_build(buf, 1024, ANGBAND_DIR_XTRA, "angband.fnt");
-
-			/* Open the file */
-			f = fopen(buf, "rb");
-
-			/* Okay */
-			if (f)
+			/* Load the bitmap data */
+			if (fread(buf, 1, 4096, f) != 4096)
 			{
-				/* Load the bitmap data */
-				if (fread(buf, 1, 4096, f) != 4096)
-				{
-					quit("Corrupt 'angband.fnt' file");
-				}
-
-				/* Close the file */
-				fclose(f);
-
-				/* Enable graphics */
-				enable_graphic_font(buf);
-
-				/* Enable colors (again) */
-				activate_color_complex();
-
-				/* Use graphics */
-				use_graphics = TRUE;
+				quit("Corrupt 'angband.fnt' file");
 			}
+
+			/* Close the file */
+			fclose(f);
+
+			/* Enable graphics */
+			enable_graphic_font(buf);
+
+			/* Enable colors (again) */
+			activate_color_complex();
+
+			/* Use graphics */
+			use_graphics = TRUE;
 		}
-#endif /* USE_IBM_SVGA */
+	}
 
-#endif /* USE_GRAPHICS */
+#endif
 
-#ifndef USE_CONIO
+#ifdef USE_CONIO
+#else /* USE_CONIO */
 
-		/* Build a "wiper line" */
-		for (i = 0; i < 80; i++)
-		{
-			/* Space */
-			wiper[2*i] = ' ';
+	/* Build a "wiper line" */
+	for (i = 0; i < 80; i++)
+	{
+		/* Space */
+		wiper[2*i] = ' ';
 
-			/* Black */
-			wiper[2*i+1] = 0;
-		}
+		/* Black */
+		wiper[2*i+1] = TERM_WHITE;
+	}
 
 #endif /* USE_CONIO */
 
 
 #ifdef USE_VIRTUAL
 
-		/* Make the virtual screen */
-		C_MAKE(VirtualScreen, rows * cols * 2, byte);
+	/* Make the virtual screen */
+	C_MAKE(VirtualScreen, rows * cols * 2, byte);
 
 #endif /* USE_VIRTUAL */
 
-		/* Access the "default" cursor info */
-		r.h.ah = 3;
-		r.h.bh = 0;
-
-		/* Make the call */
-		int86(0x10, &r, &r);
-
-		/* Extract the standard cursor info */
-		saved_cur_v = 1;
-		saved_cur_high = r.h.ch;
-		saved_cur_low = r.h.cl;
-
-		/* Initialize the term */
-		term_init(t, 80, 24, 256);
-
-#ifndef USE_CONIO
-
-		/* Always use "Term_pict()" */
-		t->always_pict = TRUE;
-
-#endif /* USE_CONIO */
-
-		/* Prepare the init/nuke hooks */
-		t->init_hook = Term_init_ibm;
-		t->nuke_hook = Term_nuke_ibm;
-
-		/* Connect the hooks */
-		t->xtra_hook = Term_xtra_ibm;
-		t->curs_hook = Term_curs_ibm;
-		t->wipe_hook = Term_wipe_ibm;
-		t->text_hook = Term_text_ibm;
-		t->pict_hook = Term_pict_ibm;
-
-		/* Save it */
-		term_screen = t;
-
-		/* Activate it */
-		Term_activate(term_screen);
-
-#ifdef USE_IBM_SVGA
-
-	}
-
-#endif /* USE_IBM_SVGA */
 
 	/* Erase the screen */
 	Term_xtra_ibm(TERM_XTRA_CLEAR, 0);
 
+
 	/* Place the cursor */
 	Term_curs_ibm(0, 0);
+
+
+	/* Access the "default" cursor info */
+	r.h.ah = 3;
+	r.h.bh = 0;
+
+	/* Make the call */
+	int86(0x10, &r, &r);
+
+	/* Extract the standard cursor info */
+	saved_cur_v = 1;
+	saved_cur_high = r.h.ch;
+	saved_cur_low = r.h.cl;
+
+
+	/* Initialize the term */
+	term_init(t, 80, 24, 256);
+
+#ifdef USE_CONIO
+#else /* USE_CONIO */
+
+	/* Always use "Term_pict()" */
+	t->always_pict = TRUE;
+
+#endif /* USE_CONIO */
+
+	/* Use "white space" to erase */
+	t->attr_blank = TERM_WHITE;
+	t->char_blank = ' ';
+
+	/* Prepare the init/nuke hooks */
+	t->init_hook = Term_init_ibm;
+	t->nuke_hook = Term_nuke_ibm;
+
+	/* Connect the hooks */
+	t->xtra_hook = Term_xtra_ibm;
+	t->curs_hook = Term_curs_ibm;
+	t->wipe_hook = Term_wipe_ibm;
+	t->text_hook = Term_text_ibm;
+	t->pict_hook = Term_pict_ibm;
+
+	/* Save it */
+	term_screen = t;
+
+	/* Activate it */
+	Term_activate(term_screen);
 
 	/* Success */
 	return 0;
 }
 
+
 #endif /* USE_IBM */
+

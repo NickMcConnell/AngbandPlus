@@ -952,9 +952,10 @@ P:1:0d0:0:0:0
 N:124:& Shadow Cloak~
 G:(:D
 I:35:6:0
-W:60:0:5:4000
-A:60/4
+W:60:0:5:7500
+A:75/5
 P:6:0d0:0:0:4
+F:RES_DARK | RES_LITE
 
 
 ### The Gloves ###
@@ -1084,7 +1085,7 @@ W:10:0:2:250
 A:10/1
 F:RES_COLD | IGNORE_COLD | EASY_KNOW
 
-N:142:Feather Falling
+N:142:Levitation
 G:=:d
 I:45:7:0
 W:5:0:2:200
@@ -1233,12 +1234,12 @@ F:SHOW_MODS
 
 ##### Amulets #####
 
-N:163:Wisdom
+N:163:Brilliance
 G:":d
 I:40:6:0
 W:20:0:3:500
 A:20/1
-F:WIS | HIDE_TYPE
+F:INT | WIS | HIDE_TYPE
 
 N:164:Charisma
 G:":d
@@ -1288,7 +1289,7 @@ N:171:the Magi
 G:":d
 I:40:8:0
 W:50:0:3:30000
-A:50/4
+A:50/4:80/3
 P:0:0d0:0:0:3
 F:FREE_ACT | SEE_INVIS | SEARCH |
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
@@ -1344,12 +1345,13 @@ G:?:d
 I:70:50:0
 W:100:0:5:10000
 A:100/8
+F:IGNORE_FIRE | IGNORE_ACID | IGNORE_COLD | IGNORE_ELEC
 
 N:180:Remove Curse
 G:?:d
 I:70:14:0
 W:10:0:5:100
-A:10/1
+A:10/1:20/2:40/2
 
 N:181:Light
 G:?:d
@@ -1362,12 +1364,14 @@ G:?:d
 I:70:48:0
 W:50:0:5:1000
 A:50/4
+F:IGNORE_FIRE
 
 N:183:Ice
 G:?:d
 I:70:49:0
 W:75:0:5:5000
 A:75/6
+F:IGNORE_COLD
 
 N:184:Summon Monster
 G:?:d
@@ -1415,7 +1419,7 @@ N:191:*Remove Curse*
 G:?:d
 I:70:15:0
 W:50:0:5:8000
-A:50/2
+A:50/2:75/2:85/2:95/1
 
 N:192:Treasure Detection
 G:?:d
@@ -1490,8 +1494,8 @@ A:10/1
 N:205:Artifact Creation
 G:?:d
 I:70:52:0
-W:100:0:5:200000
-A:100/12
+W:70:0:5:200000
+A:70/16
 
 N:206:Recharging
 G:?:d
@@ -1521,7 +1525,7 @@ N:210:Satisfy Hunger
 G:?:d
 I:70:32:0
 W:5:0:5:10
-A:5/1:20/1:50/1
+A:5/1:20/1:50/1:75/1
 
 N:211:Dispel Undead
 G:?:d
@@ -1615,8 +1619,8 @@ P:0:1d1:0:0:0
 N:225:Strength
 G:!:d
 I:75:48:0
-W:30:0:4:8000
-A:30/1
+W:20:0:4:8000
+A:20/6:25/3:30/1
 P:0:1d1:0:0:0
 
 N:226:Weakness
@@ -1636,8 +1640,8 @@ P:0:1d1:0:0:0
 N:228:Intelligence
 G:!:d
 I:75:49:0
-W:30:0:4:8000
-A:30/1
+W:20:0:4:8000
+A:20/6:25/3:30/1
 P:0:1d1:0:0:0
 
 N:229:Stupidity
@@ -1657,8 +1661,8 @@ P:0:1d1:0:0:0
 N:231:Wisdom
 G:!:d
 I:75:50:0
-W:30:0:4:8000
-A:30/1
+W:20:0:4:8000
+A:20/6:25/3:30/1
 P:0:1d1:0:0:0
 
 N:232:Naivety
@@ -1679,7 +1683,7 @@ N:234:Charisma
 G:!:d
 I:75:53:0
 W:20:0:4:1000
-A:20/1
+A:20/1:25/1
 P:0:1d1:0:0:0
 
 N:235:Ugliness
@@ -1715,8 +1719,8 @@ P:0:1d1:0:0:0
 N:239:New Life
 G:!:d
 I:75:63:100
-W:120:0:4:750000
-A:120/12
+W:50:0:4:750000
+A:50/20:100/10:120/5
 P:0:1d1:0:0:0
 
 N:240:Cure Serious Wounds
@@ -1743,8 +1747,8 @@ P:0:1d1:0:0:0
 N:243:Constitution
 G:!:d
 I:75:52:0
-W:30:0:4:8000
-A:30/1
+W:20:0:4:8000
+A:20/6:25/3:30/1
 P:0:1d1:0:0:0
 
 N:244:Experience
@@ -1799,8 +1803,8 @@ P:0:1d1:0:0:0
 N:251:Dexterity
 G:!:d
 I:75:51:0
-W:30:0:4:8000
-A:30/1
+W:20:0:4:8000
+A:20/6:25/3:30/1
 P:0:1d1:0:0:0
 
 N:252:Restore Dexterity
@@ -1935,11 +1939,11 @@ W:3:0:10:200
 A:3/1
 P:0:1d1:0:0:0
 
-N:270:Lightning Bolts
+N:270:Tame Monster
 G:-:d
 I:65:17:0
-W:15:0:10:600
-A:15/1
+W:30:0:10:1500
+A:30/2
 P:0:1d1:0:0:0
 
 N:271:Frost Bolts
@@ -2102,7 +2106,7 @@ A:3/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-## XXX 293 XXX ##
+# XXX 293 XXX
 
 N:294:Acid Bolts
 G:-:d
@@ -2150,6 +2154,7 @@ W:75:0:10:95000
 A:75/4
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
 
 
 ##### Staffs #####
@@ -2384,7 +2389,7 @@ P:0:1d1:0:0:0
 N:332:[Book of the Unicorn]
 G:?:w
 I:90:2:0
-W:40:0:30:15000
+W:40:0:30:25000
 A:40/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
@@ -2392,7 +2397,7 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 N:333:[Blessings of the Grail]
 G:?:w
 I:90:3:0
-W:90:0:30:90000
+W:90:0:30:100000
 A:90/3
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
@@ -2414,7 +2419,7 @@ P:0:1d1:0:0:0
 N:336:[Pattern Sorcery]
 G:?:b
 I:91:2:0
-W:40:0:30:15000
+W:40:0:30:25000
 A:40/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
@@ -2422,7 +2427,7 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 N:337:[Grimoire of Power]
 G:?:b
 I:91:3:0
-W:90:0:30:90000
+W:90:0:30:100000
 A:90/3
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
@@ -2746,7 +2751,7 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 N:382:[Nature's Wrath]
 G:?:g
 I:92:3:0
-W:80:0:30:80000
+W:80:0:30:100000
 A:80/2
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
@@ -3082,7 +3087,7 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 N:424:[Necronomicon]
 G:?:v
 I:94:3:0
-W:90:0:30:90000
+W:90:0:30:100000
 A:90/3
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
@@ -3450,3 +3455,103 @@ I:45:37:0
 W:110:0:2:5000000
 F:INSTA_ART
 
+
+### Room for new objects added after 511 (Zangband 2.1.0): 512-575
+
+# Trump Spellbooks
+
+N:512:[Conjurings & Tricks]
+G:?:U
+I:95:0:0
+W:10:0:30:100
+A:10/1
+P:0:1d1:0:0:0
+
+N:513:[Deck of Many Things]
+G:?:U
+I:95:1:0
+W:20:0:30:1000
+A:20/1
+P:0:1d1:0:0:0
+
+N:514:[Trumps of Doom]
+G:?:o
+I:95:2:0
+W:40:0:30:25000
+A:40/1
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+N:515:[Five Aces]
+G:?:o
+I:95:3:0
+W:90:0:30:100000
+A:90/3
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+# Arcane Spellbooks
+
+N:516:[Cantrips for Beginners]
+G:?:s
+I:96:0:0
+W:10:0:30:100
+A:10/1
+P:0:1d1:0:0:0
+
+N:517:[Minor Arcana]
+G:?:s
+I:96:1:0
+W:20:0:30:250
+A:20/1
+P:0:1d1:0:0:0
+
+N:518:[Major Arcana]
+G:?:s
+I:96:2:0
+W:10:0:30:1000
+A:10/1
+P:0:1d1:0:0:0
+
+N:519:[Manual of Mastery]
+G:?:s
+I:96:3:0
+W:20:0:30:2500
+A:20/1
+P:0:1d1:0:0:0
+
+N:520:Reflection
+G:":d
+I:40:9:0
+W:60:0:3:30000
+A:60/4
+F:REFLECT | EASY_KNOW
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+#521 and 522 cannot have EASY_KNOW because they may be cursed
+
+N:521:Anti-Magic
+G:":d
+I:40:13:0
+W:40:0:3:30000
+A:40/4
+F:NO_MAGIC
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+N:522:Anti-Teleportation
+G:":d
+I:40:14:0
+W:30:0:3:15000
+A:30/4
+F:NO_TELE
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+#523 cannot have EASY_KNOW because it can get random resistances
+
+N:523:Resistance
+G:":d
+I:40:15:0
+W:50:0:3:25000
+A:50/4
+F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD

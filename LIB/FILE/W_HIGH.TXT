@@ -1,6 +1,5 @@
-81
+87
 ******** BUFFER LINE *********************************** DO NOT REMOVE *******
-of the Dawn
 of Ultimate Might
 'Slayer'
 'World Ender'
@@ -81,3 +80,10 @@ of Erlik
 of Beowulf
 of Orome
 'Fatal Destiny'
+'Jehovah's Wrath'
+'Undying Samurai'
+'Eternal Verities'
+'Durindana'
+'Joyeuse'
+of the Eagle Lord
+'Azriel's Own'

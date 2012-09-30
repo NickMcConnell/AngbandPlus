@@ -11,6 +11,7 @@
  */
 
 #include "angband.h"
+#define SAFE_MAX_ATTEMPTS 5000
 
 int template_race;
 
@@ -595,14 +596,17 @@ static void alloc_stairs(int feat, int num, int walls)
 static void alloc_object(int set, int typ, int num)
 {
 	int y, x, k;
+    int dummy = 0;
 
 	/* Place some objects */
 	for (k = 0; k < num; k++)
 	{
 		/* Pick a "legal" spot */
-		while (TRUE)
+        while (dummy < SAFE_MAX_ATTEMPTS)
 		{
 			bool room;
+
+            dummy++;
 
 			/* Location */
 			y = rand_int(cur_hgt);
@@ -623,6 +627,16 @@ static void alloc_object(int set, int typ, int num)
 			/* Accept it */
 			break;
 		}
+
+        if (dummy >= SAFE_MAX_ATTEMPTS)
+        {
+            if (cheat_room)
+            {
+                msg_print("Warning! Could not place object!");
+            }
+            return;
+        }
+
 
 		/* Place something */
 		switch (typ)
@@ -668,6 +682,7 @@ static void build_streamer(int feat, int chance)
 {
 	int		i, tx, ty;
 	int		y, x, dir;
+    int dummy = 0;
 
 	cave_type *c_ptr;
 
@@ -679,8 +694,10 @@ static void build_streamer(int feat, int chance)
 	dir = ddd[rand_int(8)];
 
 	/* Place streamer into dungeon */
-	while (TRUE)
+    while (dummy < SAFE_MAX_ATTEMPTS)
 	{
+        dummy++;
+
 		/* One grid per density */
 		for (i = 0; i < DUN_STR_DEN; i++)
 		{
@@ -708,6 +725,16 @@ static void build_streamer(int feat, int chance)
 			/* Hack -- Add some (known) treasure */
 			if (rand_int(chance) == 0) c_ptr->feat += 0x04;
 		}
+
+        if (dummy >= SAFE_MAX_ATTEMPTS)
+        {
+            if (cheat_room)
+            {
+                msg_print("Warning! Could not place streamer!");
+            }
+            return;
+        }
+
 
 		/* Advance the streamer */
 		y += ddy[dir];
@@ -814,7 +841,9 @@ static void destroy_level(void)
  */
 static void vault_objects(int y, int x, int num)
 {
-	int        i, j, k;
+    int dummy = 0;
+    int        i = 0, j = y, k = x;
+
 
 	/* Attempt to place 'num' objects */
 	for (; num > 0; --num)
@@ -823,13 +852,25 @@ static void vault_objects(int y, int x, int num)
 		for (i = 0; i < 11; ++i)
 		{
 			/* Pick a random location */
-			while (1)
+            while (dummy < SAFE_MAX_ATTEMPTS)
 			{
-				j = rand_spread(y, 2);
+                j = rand_spread(y, 2);
 				k = rand_spread(x, 3);
+                dummy++;
 				if (!in_bounds(j, k)) continue;
 				break;
 			}
+
+
+            if (dummy >= SAFE_MAX_ATTEMPTS)
+            {
+                if (cheat_room)
+                {
+                    msg_print("Warning! Could not place vault object!");
+                }
+
+            }
+
 
 			/* Require "clean" floor space */
 			if (!cave_clean_bold(j, k)) continue;
@@ -858,19 +899,30 @@ static void vault_objects(int y, int x, int num)
  */
 static void vault_trap_aux(int y, int x, int yd, int xd)
 {
-	int		count, y1, x1;
+    int     count = 0, y1 = y, x1 = x;
+    int dummy = 0;
 
 	/* Place traps */
 	for (count = 0; count <= 5; count++)
 	{
 		/* Get a location */
-		while (1)
+        while (dummy < SAFE_MAX_ATTEMPTS)
 		{
 			y1 = rand_spread(y, yd);
 			x1 = rand_spread(x, xd);
+            dummy++;
 			if (!in_bounds(y1, x1)) continue;
 			break;
 		}
+            if (dummy >= SAFE_MAX_ATTEMPTS)
+            {
+                if (cheat_room)
+                {
+                    msg_print("Warning! Could not place vault trap!");
+                }
+
+            }
+
 
 		/* Require "naked" floor grids */
 		if (!cave_naked_bold(y1, x1)) continue;
@@ -921,7 +973,7 @@ static void vault_monsters(int y1, int x1, int num)
 
 			/* Place the monster (allow groups) */
 			monster_level = dun_level + 2;
-			(void)place_monster(y, x, TRUE, TRUE);
+            (void)place_monster(y, x, TRUE, TRUE);
 			monster_level = dun_level;
 		}
 	}
@@ -2199,7 +2251,7 @@ static void build_type5(int yval, int xval)
 	rating += 10;
 
 	/* (Sometimes) Cause a "special feeling" (for "Monster Nests") */
-	if ((dun_level <= 40) && (randint(dun_level*dun_level + 1) < 300))
+    if ((dun_level <= 40) && (randint(dun_level*dun_level + 50) < 300))
 	{
 		good_item_flag = TRUE;
 	}
@@ -2213,7 +2265,7 @@ static void build_type5(int yval, int xval)
 			int r_idx = what[rand_int(64)];
 
 			/* Place that "random" monster (no groups) */
-			(void)place_monster_aux(y, x, r_idx, FALSE, FALSE);
+            (void)place_monster_aux(y, x, r_idx, FALSE, FALSE, FALSE);
 		}
 	}
 }
@@ -2558,7 +2610,7 @@ static void build_type6(int yval, int xval)
 	rating += 10;
 
 	/* (Sometimes) Cause a "special feeling" (for "Monster Pits") */
-	if ((dun_level <= 40) && (randint(dun_level*dun_level + 1) < 300))
+    if ((dun_level <= 40) && (randint(dun_level*dun_level + 50) < 300))
 	{
 		good_item_flag = TRUE;
 	}
@@ -2567,51 +2619,51 @@ static void build_type6(int yval, int xval)
 	/* Top and bottom rows */
 	for (x = xval - 9; x <= xval + 9; x++)
 	{
-		place_monster_aux(yval - 2, x, what[0], FALSE, FALSE);
-		place_monster_aux(yval + 2, x, what[0], FALSE, FALSE);
+        place_monster_aux(yval - 2, x, what[0], FALSE, FALSE, FALSE);
+        place_monster_aux(yval + 2, x, what[0], FALSE, FALSE, FALSE);
 	}
 
 	/* Middle columns */
 	for (y = yval - 1; y <= yval + 1; y++)
 	{
-		place_monster_aux(y, xval - 9, what[0], FALSE, FALSE);
-		place_monster_aux(y, xval + 9, what[0], FALSE, FALSE);
+        place_monster_aux(y, xval - 9, what[0], FALSE, FALSE, FALSE);
+        place_monster_aux(y, xval + 9, what[0], FALSE, FALSE, FALSE);
 
-		place_monster_aux(y, xval - 8, what[1], FALSE, FALSE);
-		place_monster_aux(y, xval + 8, what[1], FALSE, FALSE);
+        place_monster_aux(y, xval - 8, what[1], FALSE, FALSE, FALSE);
+        place_monster_aux(y, xval + 8, what[1], FALSE, FALSE, FALSE);
 
-		place_monster_aux(y, xval - 7, what[1], FALSE, FALSE);
-		place_monster_aux(y, xval + 7, what[1], FALSE, FALSE);
+        place_monster_aux(y, xval - 7, what[1], FALSE, FALSE, FALSE);
+        place_monster_aux(y, xval + 7, what[1], FALSE, FALSE, FALSE);
 
-		place_monster_aux(y, xval - 6, what[2], FALSE, FALSE);
-		place_monster_aux(y, xval + 6, what[2], FALSE, FALSE);
+        place_monster_aux(y, xval - 6, what[2], FALSE, FALSE, FALSE);
+        place_monster_aux(y, xval + 6, what[2], FALSE, FALSE, FALSE);
 
-		place_monster_aux(y, xval - 5, what[2], FALSE, FALSE);
-		place_monster_aux(y, xval + 5, what[2], FALSE, FALSE);
+        place_monster_aux(y, xval - 5, what[2], FALSE, FALSE, FALSE);
+        place_monster_aux(y, xval + 5, what[2], FALSE, FALSE, FALSE);
 
-		place_monster_aux(y, xval - 4, what[3], FALSE, FALSE);
-		place_monster_aux(y, xval + 4, what[3], FALSE, FALSE);
+        place_monster_aux(y, xval - 4, what[3], FALSE, FALSE, FALSE);
+        place_monster_aux(y, xval + 4, what[3], FALSE, FALSE, FALSE);
 
-		place_monster_aux(y, xval - 3, what[3], FALSE, FALSE);
-		place_monster_aux(y, xval + 3, what[3], FALSE, FALSE);
+        place_monster_aux(y, xval - 3, what[3], FALSE, FALSE, FALSE);
+        place_monster_aux(y, xval + 3, what[3], FALSE, FALSE, FALSE);
 
-		place_monster_aux(y, xval - 2, what[4], FALSE, FALSE);
-		place_monster_aux(y, xval + 2, what[4], FALSE, FALSE);
+        place_monster_aux(y, xval - 2, what[4], FALSE, FALSE, FALSE);
+        place_monster_aux(y, xval + 2, what[4], FALSE, FALSE, FALSE);
 	}
 
 	/* Above/Below the center monster */
 	for (x = xval - 1; x <= xval + 1; x++)
 	{
-		place_monster_aux(yval + 1, x, what[5], FALSE, FALSE);
-		place_monster_aux(yval - 1, x, what[5], FALSE, FALSE);
+        place_monster_aux(yval + 1, x, what[5], FALSE, FALSE, FALSE);
+        place_monster_aux(yval - 1, x, what[5], FALSE, FALSE, FALSE);
 	}
 
 	/* Next to the center monster */
-	place_monster_aux(yval, xval + 1, what[6], FALSE, FALSE);
-	place_monster_aux(yval, xval - 1, what[6], FALSE, FALSE);
+    place_monster_aux(yval, xval + 1, what[6], FALSE, FALSE, FALSE);
+    place_monster_aux(yval, xval - 1, what[6], FALSE, FALSE, FALSE);
 
 	/* Center monster */
-	place_monster_aux(yval, xval, what[7], FALSE, FALSE);
+    place_monster_aux(yval, xval, what[7], FALSE, FALSE, FALSE);
 }
 
 
@@ -2817,16 +2869,29 @@ static void build_vault(int yval, int xval, int ymax, int xmax, cptr data)
 static void build_type7(int yval, int xval)
 {
 	vault_type	*v_ptr;
+    int dummy = 0;
 
 	/* Pick a lesser vault */
-	while (TRUE)
+    while (dummy < SAFE_MAX_ATTEMPTS)
 	{
+        dummy++;
+
 		/* Access a random vault record */
 		v_ptr = &v_info[rand_int(MAX_V_IDX)];
 
 		/* Accept the first lesser vault */
 		if (v_ptr->typ == 7) break;
 	}
+
+            if (dummy >= SAFE_MAX_ATTEMPTS)
+            {
+                if (cheat_room)
+                {
+                    msg_print("Warning! Could not place lesser vault!");
+                }
+                return;
+            }
+    
 
 #ifdef FORCE_V_IDX
     v_ptr = &v_info[2];
@@ -2840,7 +2905,7 @@ static void build_type7(int yval, int xval)
 
 	/* (Sometimes) Cause a special feeling */
 	if ((dun_level <= 50) ||
-	    (randint((dun_level-40) * (dun_level-40) + 1) < 400))
+        (randint((dun_level-40) * (dun_level-40) + 50) < 400))
 	{
 		good_item_flag = TRUE;
 	}
@@ -2857,16 +2922,29 @@ static void build_type7(int yval, int xval)
 static void build_type8(int yval, int xval)
 {
 	vault_type	*v_ptr;
+    int dummy = 0;
 
 	/* Pick a lesser vault */
-	while (TRUE)
+    while (dummy < SAFE_MAX_ATTEMPTS)
 	{
+        dummy++;
+
 		/* Access a random vault record */
 		v_ptr = &v_info[rand_int(MAX_V_IDX)];
 
 		/* Accept the first greater vault */
 		if (v_ptr->typ == 8) break;
     }
+
+            if (dummy >= SAFE_MAX_ATTEMPTS)
+            {
+                if (cheat_room)
+                {
+                    msg_print("Warning! Could not place greater vault!");
+                }
+                return;
+            }
+
 
 #ifdef FORCE_V_IDX
     v_ptr = &v_info[76 + randint(3)];
@@ -2880,7 +2958,7 @@ static void build_type8(int yval, int xval)
 
 	/* (Sometimes) Cause a special feeling */
 	if ((dun_level <= 50) ||
-	    (randint((dun_level-40) * (dun_level-40) + 1) < 400))
+        (randint((dun_level-40) * (dun_level-40) + 50) < 400))
 	{
 		good_item_flag = TRUE;
 	}
@@ -3778,6 +3856,7 @@ static void build_store(int n, int yy, int xx)
 static void town_gen_hack(void)
 {
 	int			y, x, k, n;
+    int dummy = 0;
 
 	cave_type		*c_ptr;
 
@@ -3813,8 +3892,10 @@ static void town_gen_hack(void)
 
 
 	/* Place the stairs */
-	while (TRUE)
+    while (dummy < SAFE_MAX_ATTEMPTS)
 	{
+        dummy++;
+
 		/* Pick a location at least "three" from the outer walls */
 		y = rand_range(3, cur_hgt - 4);
 		x = rand_range(3, cur_wid - 4);
@@ -3822,6 +3903,15 @@ static void town_gen_hack(void)
 		/* Require a "naked" floor grid */
 		if (cave_naked_bold(y, x)) break;
 	}
+
+            if (dummy >= SAFE_MAX_ATTEMPTS)
+            {
+                if (cheat_room)
+                {
+                    msg_print("Warning! Could not place stairs!");
+                }
+            }
+
 
 	/* Access the stair grid */
 	c_ptr = &cave[y][x];
@@ -3974,7 +4064,6 @@ void generate_cave(void)
 	/* The dungeon is not ready */
 	character_dungeon = FALSE;
 
-
 	/* Generate */
 	for (num = 0; TRUE; num++)
 	{
@@ -4043,7 +4132,7 @@ void generate_cave(void)
 		else
 		{
 
-#ifdef FORCE_V_IDX
+#if 0
             if (small_levels)
 #else
             if ((randint(SMALL_LEVEL)==1) && small_levels)

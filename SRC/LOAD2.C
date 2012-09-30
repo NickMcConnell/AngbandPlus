@@ -87,6 +87,28 @@ static bool older_than(byte x, byte y, byte z)
 
 
 /*
+    The above function, adapted for Zangband
+ */
+static bool z_older_than(byte x, byte y, byte z)
+{
+	/* Much older, or much more recent */
+    if (z_major < x) return (TRUE);
+    if (z_major > x) return (FALSE);
+
+	/* Distinctly older, or distinctly more recent */
+    if (z_minor < y) return (TRUE);
+    if (z_minor > y) return (FALSE);
+
+	/* Barely older, or barely more recent */
+    if (z_patch < z) return (TRUE);
+    if (z_patch > z) return (FALSE);
+
+	/* Identical versions */
+	return (FALSE);
+}
+
+
+/*
  * Hack -- Show information on the screen, one line at a time.
  *
  * Avoid the top two lines, to avoid interference with "msg_print()".
@@ -869,6 +891,10 @@ static void rd_monster(monster_type *m_ptr)
 	rd_byte(&m_ptr->stunned);
 	rd_byte(&m_ptr->confused);
 	rd_byte(&m_ptr->monfear);
+    if (!(z_major == 2 && z_minor == 0 && z_patch == 6))
+        rd_u32b(&m_ptr->smart);
+    else
+        m_ptr->smart = 0;
 	rd_byte(&tmp8u);
 }
 
@@ -1128,6 +1154,18 @@ static void rd_options(void)
 	/* Pre-2.8.0 savefiles are done */
 	if (older_than(2, 8, 0)) return;
 
+    if (z_older_than(2,1,0))
+    {
+        autosave_t = autosave_l = 0;
+        autosave_freq = 0;
+    }
+    else
+    {
+        rd_byte(&autosave_l);
+        rd_byte(&autosave_t);
+        rd_s16b(&autosave_freq);
+    }
+
 
 	/*** Normal Options ***/
 
@@ -1345,6 +1383,44 @@ static void rd_extra(void)
 	rd_s16b(&p_ptr->oppose_acid);
 	rd_s16b(&p_ptr->oppose_elec);
 	rd_s16b(&p_ptr->oppose_pois);
+
+    /* Old savefiles do not have the following fields... */
+    if ((z_major == 2) && (z_minor == 0) && (z_patch == 6))
+    {
+        p_ptr->tim_esp = 0;
+        p_ptr->wraith_form = 0;
+        p_ptr->resist_magic = 0;
+        p_ptr->tim_xtra1 = 0;
+        p_ptr->tim_xtra2 = 0;
+        p_ptr->tim_xtra3 = 0;
+        p_ptr->tim_xtra4 = 0;
+        p_ptr->tim_xtra5 = 0;
+        p_ptr->tim_xtra6 = 0;
+        p_ptr->tim_xtra7 = 0;
+        p_ptr->tim_xtra8 = 0;
+        p_ptr->chaos_patron = get_chaos_patron();
+        p_ptr->muta1 = 0;
+        p_ptr->muta2 = 0;
+        p_ptr->muta3 = 0;
+    }
+    else
+    {
+        rd_s16b(&p_ptr->tim_esp);
+        rd_s16b(&p_ptr->wraith_form);
+        rd_s16b(&p_ptr->resist_magic);
+        rd_s16b(&p_ptr->tim_xtra1);
+        rd_s16b(&p_ptr->tim_xtra2);
+        rd_s16b(&p_ptr->tim_xtra3);
+        rd_s16b(&p_ptr->tim_xtra4);
+        rd_s16b(&p_ptr->tim_xtra5);
+        rd_s16b(&p_ptr->tim_xtra6);
+        rd_s16b(&p_ptr->tim_xtra7);
+        rd_s16b(&p_ptr->tim_xtra8);
+        rd_s16b(&p_ptr->chaos_patron);
+        rd_u32b(&p_ptr->muta1);
+        rd_u32b(&p_ptr->muta2);
+        rd_u32b(&p_ptr->muta3);
+    }
 
 	/* Old redundant flags */
 	if (older_than(2, 7, 7)) strip_bytes(34);
@@ -2702,6 +2778,13 @@ static errr rd_savefile_new_aux(void)
 		if (rd_store(i)) return (22);
 	}
 
+#if 0
+    if (z_older_than(2,1,0))
+    {
+        msg_print("Reallocating flavours...");
+        flavor_init();
+    }
+#endif
 
 	/* I'm not dead yet... */
 	if (!death)

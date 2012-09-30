@@ -1,4 +1,4 @@
-290
+299
 ******************BUFFER LINE -- DO NOT REMOVE!*****************************
 Borg
 Dalek
@@ -290,3 +290,12 @@ Lurking unknown
 Cenobite
 Cheerleader
 Model T-1000 Terminator
+Whippoorwill
+Moon Maniac
+Killer Clown
+Stocking Strangler
+Torture Doctor
+Beast of the Black Forest
+Demon of the Belfry
+Sex Beast
+Sunday Morning Slasher

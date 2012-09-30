@@ -1183,6 +1183,7 @@ static void calc_spells(void)
     num_allowed = (adj_mag_study[p_ptr->stat_ind[mp_ptr->spell_stat]] *
                    levels / 2);
 
+
 	/* Assume none known */
 	num_known = 0;
 
@@ -1472,9 +1473,16 @@ static void calc_mana(void)
 	/* Hack -- Must be literate */
 	if (!mp_ptr->spell_book) return;
 
+    if (p_ptr->pclass == CLASS_MINDCRAFTER)
+    {
+        levels = p_ptr->lev;
+    }
+    else
+    {
+        /* Extract "effective" player level */
+        levels = (p_ptr->lev - mp_ptr->spell_first) + 1;
+    }
 
-	/* Extract "effective" player level */
-	levels = (p_ptr->lev - mp_ptr->spell_first) + 1;
 
 	/* Hack -- no negative mana */
 	if (levels < 0) levels = 0;
@@ -1886,7 +1894,8 @@ static void calc_bonuses(void)
     p_ptr->reflect = FALSE;
     p_ptr->sh_fire = FALSE;
     p_ptr->sh_elec = FALSE;
-
+    p_ptr->anti_magic = FALSE;
+    p_ptr->anti_tele = FALSE;
 
 	p_ptr->immune_acid = FALSE;
 	p_ptr->immune_elec = FALSE;
@@ -1968,9 +1977,34 @@ static void calc_bonuses(void)
 
     /* Warriors */
     if (((p_ptr->pclass == CLASS_WARRIOR) && (p_ptr->lev > 29)) ||
-        ((p_ptr->pclass == CLASS_PALADIN) && (p_ptr->lev > 39)))
+        ((p_ptr->pclass == CLASS_PALADIN) && (p_ptr->lev > 39)) ||
+        ((p_ptr->pclass == CLASS_CHAOS_WARRIOR) && (p_ptr->lev > 39)))
     {
             p_ptr->resist_fear = TRUE;
+    }
+
+    /* Chaos Warriors: resist chaos at level 30 */
+    if ((p_ptr->pclass == CLASS_CHAOS_WARRIOR) && (p_ptr->lev > 29))
+    {
+            p_ptr->resist_chaos = TRUE;
+    }
+
+    if (p_ptr->pclass == CLASS_MINDCRAFTER) {
+	if (p_ptr->lev > 9)
+	  p_ptr->resist_fear = TRUE;
+    	if (p_ptr->lev > 19)
+	  p_ptr->sustain_wis = TRUE;
+    	if (p_ptr->lev > 29)
+	  p_ptr->resist_conf = TRUE;
+    	if (p_ptr->lev > 39)
+	  p_ptr->telepathy = TRUE;
+    }
+
+    /* Monks: free action if unencumbered at level 25 */
+    if ((p_ptr->pclass == CLASS_MONK) && (p_ptr->lev>24) &&
+         !(monk_heavy_armor()))
+    {
+            p_ptr->free_act = TRUE;
     }
 
 	/* Dunadan */
@@ -2066,7 +2100,7 @@ static void calc_bonuses(void)
         {
             p_ptr->see_inv = TRUE;
         }
-        if (p_ptr->lev > 39)
+        if (p_ptr->lev > 29)
         {
             p_ptr->telepathy = TRUE;
         }
@@ -2113,7 +2147,38 @@ static void calc_bonuses(void)
             p_ptr->resist_cold = TRUE;
         }
     }
-
+    else if (p_ptr->prace == RACE_VAMPIRE)
+    {
+        p_ptr->resist_dark = TRUE;
+        p_ptr->hold_life = TRUE;
+        p_ptr->resist_neth = TRUE;
+        p_ptr->resist_cold = TRUE;
+        p_ptr->resist_pois = TRUE;
+        p_ptr->lite = TRUE;
+    }
+    else if (p_ptr->prace == RACE_SPECTRE)
+    {
+        p_ptr->resist_neth = TRUE;
+        p_ptr->hold_life = TRUE;
+        p_ptr->see_inv = TRUE;
+        p_ptr->resist_pois = TRUE;
+        p_ptr->slow_digest = TRUE;
+        p_ptr->resist_cold = TRUE;
+        if (p_ptr->lev > 34)
+        {
+            p_ptr->telepathy = TRUE;
+        }
+    }
+    else if (p_ptr->prace == RACE_SPRITE)
+    {
+        p_ptr->ffall = TRUE;
+        p_ptr->resist_lite = TRUE;
+    }
+    else if (p_ptr->prace == RACE_BEASTMAN)
+    {
+        p_ptr->resist_conf  = TRUE;
+        p_ptr->resist_sound = TRUE;
+    }
 
 
 	/* Start with "normal" speed */
@@ -2143,6 +2208,151 @@ static void calc_bonuses(void)
 		}
 	}
 
+
+    /* I'm adding the mutations here for the lack of a better place... */
+
+
+        if (p_ptr->muta3)
+        {
+                if (p_ptr->muta3 & MUT3_HYPER_STR)
+                {
+                    p_ptr->stat_add[A_STR] += 4;
+                }
+
+                if (p_ptr->muta3 & MUT3_PUNY)
+                {
+                    p_ptr->stat_add[A_STR] -= 4;
+                }
+
+                if (p_ptr->muta3 & MUT3_HYPER_INT)
+                {
+                    p_ptr->stat_add[A_INT] += 4;
+                    p_ptr->stat_add[A_WIS] += 4;
+                }
+
+                if (p_ptr->muta3 & MUT3_MORONIC)
+                {
+                    p_ptr->stat_add[A_INT] -= 4;
+                    p_ptr->stat_add[A_WIS] -= 4;
+                }
+
+                if (p_ptr->muta3 & MUT3_RESILIENT)
+                {
+                    p_ptr->stat_add[A_CON] += 4;
+                }
+
+                if (p_ptr->muta3 & MUT3_XTRA_FAT)
+                {
+                    p_ptr->stat_add[A_CON] += 2;
+                    p_ptr->pspeed -= 2;
+                }
+
+                if (p_ptr->muta3 & MUT3_ALBINO)
+                {
+                    p_ptr->stat_add[A_CON] -= 4;
+                }
+
+                if (p_ptr->muta3 & MUT3_FLESH_ROT)
+                {
+                    p_ptr->stat_add[A_CON] -= 2;
+                    p_ptr->stat_add[A_CHR] -= 1;
+                    p_ptr->regenerate = FALSE;
+                    /* Cancel innate regeneration */
+                }
+
+                if (p_ptr->muta3 & MUT3_SILLY_VOI)
+                {
+                    p_ptr->stat_add[A_CHR] -= 4;
+                }
+
+                if (p_ptr->muta3 & MUT3_BLANK_FAC)
+                {
+                    p_ptr->stat_add[A_CHR] -= 1;
+                }
+
+                if (p_ptr->muta3 & MUT3_XTRA_EYES)
+                {
+                    p_ptr->skill_fos += 15;
+                }
+
+                if (p_ptr->muta3 & MUT3_MAGIC_RES)
+                {
+                    p_ptr->skill_sav += (15 + (p_ptr->lev / 5));
+                }
+
+                if (p_ptr->muta3 & MUT3_XTRA_NOIS)
+                {
+                    p_ptr->skill_stl -= 3;
+                }
+
+                if (p_ptr->muta3 & MUT3_INFRAVIS)
+                {
+                    p_ptr->see_infra += 3;
+                }
+
+                if (p_ptr->muta3 & MUT3_XTRA_LEGS)
+                {
+                    p_ptr->pspeed += 3;
+                }
+
+                if (p_ptr->muta3 & MUT3_SHORT_LEG)
+                {
+                    p_ptr->pspeed -= 3;
+                }
+
+                if (p_ptr->muta3 & MUT3_ELEC_TOUC)
+                {
+                    p_ptr->sh_elec = TRUE;
+                }
+
+                if (p_ptr->muta3 & MUT3_FIRE_BODY)
+                {
+                    p_ptr->sh_fire = TRUE;
+                    p_ptr->lite = TRUE;
+                }
+
+                if (p_ptr->muta3 & MUT3_WART_SKIN)
+                {
+                    p_ptr->stat_add[A_CHR] -= 2;
+                    p_ptr->to_a += 5;
+                    p_ptr->dis_to_a += 5;
+                }
+
+                if (p_ptr->muta3 & MUT3_SCALES)
+                {
+                    p_ptr->stat_add[A_CHR] -= 1;
+                    p_ptr->to_a += 10;
+                    p_ptr->dis_to_a += 10;
+                }
+
+                if (p_ptr->muta3 & MUT3_IRON_SKIN)
+                {
+                    p_ptr->stat_add[A_DEX] -= 1;
+                    p_ptr->to_a += 25;
+                    p_ptr->dis_to_a += 25;
+                }
+
+                if (p_ptr->muta3 & MUT3_WINGS)
+                {
+                    p_ptr->ffall = TRUE;
+                }
+
+                if (p_ptr->muta3 & MUT3_FEARLESS)
+                {
+                    p_ptr->resist_fear = TRUE;
+                }
+
+                if (p_ptr->muta3 & MUT3_REGEN)
+                {
+                    p_ptr->regenerate = TRUE;
+                }
+
+                if (p_ptr->muta3 & MUT3_ESP)
+                {
+                    p_ptr->telepathy =TRUE;
+                }
+        }
+    
 
 	/* Scan the usable inventory */
 	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
@@ -2204,6 +2414,7 @@ static void calc_bonuses(void)
 		if (f3 & (TR3_FEATHER)) p_ptr->ffall = TRUE;
 		if (f2 & (TR2_FREE_ACT)) p_ptr->free_act = TRUE;
 		if (f2 & (TR2_HOLD_LIFE)) p_ptr->hold_life = TRUE;
+        if (f3 & (TR3_WRAITH)) p_ptr->wraith_form = MAX(p_ptr->wraith_form, 20);
 
 		/* Immunity flags */
 		if (f2 & (TR2_IM_FIRE)) p_ptr->immune_fire = TRUE;
@@ -2232,6 +2443,8 @@ static void calc_bonuses(void)
         if (f2 & (TR2_REFLECT)) p_ptr->reflect = TRUE;
         if (f3 & (TR3_SH_FIRE)) p_ptr->sh_fire = TRUE;
         if (f3 & (TR3_SH_ELEC)) p_ptr->sh_elec = TRUE;
+        if (f3 & (TR3_NO_MAGIC)) p_ptr->anti_magic = TRUE;
+        if (f3 & (TR3_NO_TELE)) p_ptr->anti_tele = TRUE;
 
 		/* Sustain flags */
 		if (f2 & (TR2_SUST_STR)) p_ptr->sustain_str = TRUE;
@@ -2251,7 +2464,7 @@ static void calc_bonuses(void)
 		p_ptr->to_a += o_ptr->to_a;
 
 		/* Apply the mental bonuses to armor class, if known */
-		if (object_known_p(o_ptr)) p_ptr->dis_to_a += o_ptr->to_a;
+        if (object_known_p(o_ptr)) p_ptr->dis_to_a += o_ptr->to_a;
 
 		/* Hack -- do not apply "weapon" bonuses */
 		if (i == INVEN_WIELD) continue;
@@ -2301,6 +2514,15 @@ static void calc_bonuses(void)
             p_ptr->to_a += (p_ptr->lev / 3);
             p_ptr->dis_to_a += (p_ptr->lev / 3);
         }
+    }
+
+    /* Hack -- aura of fire also provides light */
+    if (p_ptr->sh_fire) p_ptr->lite = TRUE;
+
+    if (p_ptr->prace == RACE_GOLEM) /* Golems also get an intrinsic AC bonus */
+    {
+        p_ptr->to_a += 20 + (p_ptr->lev / 5);
+        p_ptr->dis_to_a += 20 + (p_ptr->lev / 5);
     }
 
 	/* Calculate stats */
@@ -2412,6 +2634,14 @@ static void calc_bonuses(void)
 		p_ptr->dis_to_a += 100;
 	}
 
+    /* wraith_form */
+    if (p_ptr->wraith_form)
+	{
+		p_ptr->to_a += 100;
+		p_ptr->dis_to_a += 100;
+        p_ptr->reflect = TRUE;
+	}
+
 	/* Temporary blessing */
 	if (p_ptr->blessed)
 	{
@@ -2457,10 +2687,15 @@ static void calc_bonuses(void)
 	}
 
     /* Klackons become faster... */
-    if ((p_ptr->prace == RACE_KLACKON) ||
+    if ((p_ptr->prace == RACE_KLACKON) || (p_ptr->prace == RACE_SPRITE) ||
         ((p_ptr->pclass == CLASS_MONK) && !(monk_heavy_armor())))
     {
         p_ptr->pspeed += (p_ptr->lev) / 10;
+    }
+
+    if (p_ptr->tim_esp)
+    {
+        p_ptr->telepathy = TRUE;
     }
 
 	/* Temporary see invisible */
@@ -2660,10 +2895,12 @@ static void calc_bonuses(void)
 			case CLASS_WARRIOR: num = 6; wgt = 30; mul = 5; break;
 
 			/* Mage */
-			case CLASS_MAGE:    num = 4; wgt = 40; mul = 2; break;
+            case CLASS_MAGE: case CLASS_HIGH_MAGE:
+                num = 4; wgt = 40; mul = 2; break;
 
-			/* Priest */
-			case CLASS_PRIEST:  num = 5; wgt = 35; mul = 3; break;
+            /* Priest, Mindcrafter */
+            case CLASS_PRIEST: case CLASS_MINDCRAFTER:
+                num = 5; wgt = 35; mul = 3; break;
 
 			/* Rogue */
 			case CLASS_ROGUE:   num = 5; wgt = 30; mul = 3; break;
@@ -2738,7 +2975,7 @@ static void calc_bonuses(void)
             if (monk_heavy_armor())
                 p_ptr->num_blow /= 2;
 
-            p_ptr->num_blow += 1;
+            p_ptr->num_blow += 1 + extra_blows;
 
             if (!monk_heavy_armor())
             {
@@ -2838,6 +3075,8 @@ static void calc_bonuses(void)
 	/* Limit Skill -- digging from 1 up */
 	if (p_ptr->skill_dig < 1) p_ptr->skill_dig = 1;
 
+    if ((p_ptr->anti_magic) && (p_ptr->skill_sav < 95))
+        p_ptr->skill_sav = 95;
 
 	/* Hack -- handle "xtra" mode */
 	if (character_xtra) return;
@@ -3341,13 +3580,22 @@ void handle_stuff(void)
 
 bool monk_empty_hands()
 {
+
+    if (!(p_ptr->pclass == CLASS_MONK))
+        return FALSE;
+
     return !(inventory[INVEN_WIELD].k_idx);
 }
 
 bool monk_heavy_armor()
 {
+
     u16b monk_arm_wgt = 0;
 	/* Weigh the armor */
+    if (!(p_ptr->pclass == CLASS_MONK))
+        return FALSE;
+
+ 
 
     monk_arm_wgt += inventory[INVEN_BODY].weight;
     monk_arm_wgt += inventory[INVEN_HEAD].weight;
@@ -3358,3 +3606,5 @@ bool monk_heavy_armor()
 
     return (monk_arm_wgt > ( 100 + (p_ptr->lev * 4))) ;
 }
+
+

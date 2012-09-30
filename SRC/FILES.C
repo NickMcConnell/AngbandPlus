@@ -12,6 +12,7 @@
 
 #include "angband.h"
 
+extern void do_cmd_knowledge_mutations();
 
 
 /*
@@ -457,15 +458,241 @@ errr process_pref_file_aux(char *buf)
 
 
 /*
+ * Helper function for "process_pref_file()"
+ *
+ * Input:
+ *   v: output buffer array
+ *   f: final character
+ *
+ * Output:
+ *   result
+ */
+static cptr process_pref_file_expr(char **sp, char *fp)
+{
+	cptr v;
+
+	char *b;
+	char *s;
+
+	char b1 = '[';
+	char b2 = ']';
+
+	char f = ' ';
+
+	/* Initial */
+	s = (*sp);
+
+	/* Skip spaces */
+	while (isspace(*s)) s++;
+
+	/* Save start */
+	b = s;
+
+	/* Default */
+	v = "?o?o?";
+
+	/* Analyze */
+	if (*s == b1)
+	{
+		const char *p;
+		const char *t;
+
+		/* Skip b1 */
+		s++;
+
+		/* First */
+		t = process_pref_file_expr(&s, &f);
+
+		/* Oops */
+		if (!*t)
+		{
+			/* Nothing */
+		}
+
+		/* Function: IOR */
+		else if (streq(t, "IOR"))
+		{
+			v = "0";
+			while (*s && (f != b2))
+			{
+				t = process_pref_file_expr(&s, &f);
+				if (*t && !streq(t, "0")) v = "1";
+			}
+		}
+
+		/* Function: AND */
+		else if (streq(t, "AND"))
+		{
+			v = "1";
+			while (*s && (f != b2))
+			{
+				t = process_pref_file_expr(&s, &f);
+				if (*t && streq(t, "0")) v = "0";
+			}
+		}
+
+		/* Function: NOT */
+		else if (streq(t, "NOT"))
+		{
+			v = "1";
+			while (*s && (f != b2))
+			{
+				t = process_pref_file_expr(&s, &f);
+				if (*t && streq(t, "0")) v = "0";
+			}
+		}
+
+		/* Function: EQU */
+		else if (streq(t, "EQU"))
+		{
+			v = "1";
+			if (*s && (f != b2))
+			{
+				t = process_pref_file_expr(&s, &f);
+			}
+			while (*s && (f != b2))
+			{
+				p = t;
+				t = process_pref_file_expr(&s, &f);
+				if (*t && !streq(p, t)) v = "0";
+			}
+		}
+
+		/* Function: LEQ */
+		else if (streq(t, "LEQ"))
+		{
+			v = "1";
+			if (*s && (f != b2))
+			{
+				t = process_pref_file_expr(&s, &f);
+			}
+			while (*s && (f != b2))
+			{
+				p = t;
+				t = process_pref_file_expr(&s, &f);
+				if (*t && (strcmp(p, t) >= 0)) v = "0";
+			}
+		}
+
+		/* Function: GEQ */
+		else if (streq(t, "GEQ"))
+		{
+			v = "1";
+			if (*s && (f != b2))
+			{
+				t = process_pref_file_expr(&s, &f);
+			}
+			while (*s && (f != b2))
+			{
+				p = t;
+				t = process_pref_file_expr(&s, &f);
+				if (*t && (strcmp(p, t) <= 0)) v = "0";
+			}
+		}
+
+		/* Oops */
+		else
+		{
+			while (*s && (f != b2))
+			{
+				t = process_pref_file_expr(&s, &f);
+			}
+		}
+
+		/* Verify ending */
+		if (f != b2) v = "?x?x?";
+
+		/* Extract final and Terminate */
+		if ((f = *s) != '\0') *s++ = '\0';
+	}
+
+	/* Other */
+	else
+	{
+		/* Scan (accept identifiers and dollar signs) */
+		while (isalnum(*s) || (*s == '_') || (*s == '$')) s++;
+
+		/* Extract final and Terminate */
+		if ((f = *s) != '\0') *s++ = '\0';
+
+		/* Variable */
+		if (*b == '$')
+		{
+			/* System */
+			if (streq(b+1, "SYS"))
+			{
+				v = ANGBAND_SYS;
+			}
+
+			/* rr9: Graphics */
+			if (streq(b+1, "GRAPHICS"))
+			{
+				if (arg_graphics)
+				{
+					v = "TRUE";
+				}
+				else
+				{
+					v = "FALSE";
+				}
+			}
+
+			/* Race */
+			else if (streq(b+1, "RACE"))
+			{
+				v = rp_ptr->title;
+			}
+
+			/* Class */
+			else if (streq(b+1, "CLASS"))
+			{
+				v = cp_ptr->title;
+			}
+
+			/* Player */
+			else if (streq(b+1, "PLAYER"))
+			{
+				v = player_base;
+			}
+		}
+
+		/* Constant */
+		else
+		{
+			v = b;
+		}
+	}
+
+	/* Save */
+	(*fp) = f;
+
+	/* Save */
+	(*sp) = s;
+
+	/* Result */
+	return (v);
+}
+
+
+/*
  * Process the "user pref file" with the given name
  *
  * See the function above for a list of legal "commands".
+ *
+ * We also accept the special "?" and "%" directives, which
+ * allow conditional evaluation and filename inclusion.
  */
 errr process_pref_file(cptr name)
 {
 	FILE *fp;
 
 	char buf[1024];
+
+	int num = -1;
+
+	errr err = 0;
+
+	bool bypass = FALSE;
 
 
 	/* Build the filename */
@@ -474,25 +701,83 @@ errr process_pref_file(cptr name)
 	/* Open the file */
 	fp = my_fopen(buf, "r");
 
-	/* Catch errors */
+	/* No such file */
 	if (!fp) return (-1);
+
 
 	/* Process the file */
 	while (0 == my_fgets(fp, buf, 1024))
 	{
-		/* Process the line */
-		if (process_pref_file_aux(buf))
+		/* Count lines */
+		num++;
+
+
+		/* Skip "empty" lines */
+		if (!buf[0]) continue;
+
+		/* Skip "blank" lines */
+		if (isspace(buf[0])) continue;
+
+		/* Skip comments */
+		if (buf[0] == '#') continue;
+
+
+		/* Process "?:<expr>" */
+		if ((buf[0] == '?') && (buf[1] == ':'))
 		{
-			/* Useful error message */
-			msg_format("Error in '%s' parsing '%s'.", buf, name);
+			char f;
+			cptr v;
+			char *s;
+
+			/* Start */
+			s = buf + 2;
+
+			/* Parse the expr */
+			v = process_pref_file_expr(&s, &f);
+
+			/* Set flag */
+			bypass = (streq(v, "0") ? TRUE : FALSE);
+
+			/* Continue */
+			continue;
 		}
+
+		/* Apply conditionals */
+		if (bypass) continue;
+
+
+		/* Process "%:<file>" */
+		if (buf[0] == '%')
+		{
+			/* Process that file if allowed */
+			(void)process_pref_file(buf + 2);
+
+			/* Continue */
+			continue;
+		}
+
+
+		/* Process the line */
+		err = process_pref_file_aux(buf);
+
+		/* Oops */
+		if (err) break;
+	}
+
+
+	/* Error */
+	if (err)
+	{
+		/* Useful error message */
+		msg_format("Error %d in line %d of file '%s'.", err, num, name);
+		msg_format("Parsing '%s'", buf);
 	}
 
 	/* Close the file */
 	my_fclose(fp);
 
-	/* Success */
-	return (0);
+	/* Result */
+	return (err);
 }
 
 
@@ -950,13 +1235,17 @@ static cptr likert(int x, int y)
  */
 static void display_player_various(void)
 {
-	int			tmp;
+    int         tmp, damdice, damsides, dambonus, blows;
 	int			xthn, xthb, xfos, xsrh;
 	int			xdis, xdev, xsav, xstl;
 	cptr		desc;
+    int         muta_att = 0;
 
 	object_type		*o_ptr;
 
+    if (p_ptr->muta2 & (MUT2_HORNS)) muta_att++;
+    if (p_ptr->muta2 & (MUT2_SCOR_TAIL)) muta_att++;
+    if (p_ptr->muta2 & (MUT2_BEAK)) muta_att++;
 
 	/* Fighting Skill (with current weapon) */
 	o_ptr = &inventory[INVEN_WIELD];
@@ -968,7 +1257,18 @@ static void display_player_various(void)
 	tmp = p_ptr->to_h + o_ptr->to_h;
 	xthb = p_ptr->skill_thb + (tmp * BTH_PLUS_ADJ);
 
-	/* Basic abilities */
+
+     /* Average damage per round */
+     o_ptr = &inventory[INVEN_WIELD];
+     dambonus = p_ptr->dis_to_d;
+     if (object_known_p(o_ptr)) dambonus += o_ptr->to_d;
+     damdice = o_ptr->dd;
+     damsides = o_ptr->ds;   /* dam += (o_ptr->dd * (o_ptr->ds + 1)) >> 1; */
+     blows = p_ptr->num_blow;
+     /* dam *= p_ptr->num_blow; */
+
+     /* Basic abilities */
+
 	xdis = p_ptr->skill_dis;
 	xdev = p_ptr->skill_dev;
 	xsav = p_ptr->skill_sav;
@@ -1012,10 +1312,29 @@ static void display_player_various(void)
 
 
 	put_str("Blows/Round:", 16, 55);
-	put_str(format("%d", p_ptr->num_blow), 16, 69);
+    if (!muta_att)
+        put_str(format("%d", p_ptr->num_blow), 16, 69);
+    else
+        put_str(format("%d+%d", p_ptr->num_blow, muta_att), 16, 69);
 
 	put_str("Shots/Round:", 17, 55);
 	put_str(format("%d", p_ptr->num_fire), 17, 69);
+
+   put_str("Wpn.dmg/Rnd:", 18, 55);    /* From PsiAngband */
+     if ((damdice == 0) || (damsides == 0)) {
+   if (dambonus <= 0)
+     desc = "nil!";
+   else
+     desc = format("%d", blows * dambonus);
+     } else {
+   if (dambonus == 0)
+     desc = format("%dd%d", blows * damdice, damsides);
+   else
+     desc = format("%dd%d%s%d", blows * damdice, damsides,
+           (dambonus < 0 ? "":"+"), blows * dambonus);
+     }
+   put_str(desc, 18, 69);
+
 
 	put_str("Infra-Vision:", 19, 55);
 	put_str(format("%d feet", p_ptr->see_infra * 10), 19, 69);
@@ -1038,7 +1357,7 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3)
 	if (p_ptr->prace == RACE_HOBBIT) (*f2) |= (TR2_SUST_DEX);
 
 	/* Gnome */
-	if (p_ptr->prace == RACE_GNOME) (*f2) |= (TR2_FREE_ACT);
+    if (p_ptr->prace == RACE_GNOME) (*f2) |= (TR2_FREE_ACT);
 
 	/* Dwarf */
 	if (p_ptr->prace == RACE_DWARF) (*f2) |= (TR2_RES_BLIND);
@@ -1066,11 +1385,40 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3)
 
     /* Warriors... */
     if (((p_ptr->pclass == CLASS_WARRIOR) && (p_ptr->lev>29))||
-        ((p_ptr->pclass == CLASS_PALADIN) && (p_ptr->lev>39)))
+        ((p_ptr->pclass == CLASS_PALADIN) && (p_ptr->lev>39))||
+        ((p_ptr->pclass == CLASS_CHAOS_WARRIOR) && (p_ptr->lev>39)))
         {
             (*f2) |= (TR2_RES_FEAR);
         }
 
+    if ((p_ptr->pclass == CLASS_CHAOS_WARRIOR) && (p_ptr->lev>29))
+    {
+        (*f2) |= (TR2_RES_CHAOS);
+    }
+
+    if ((p_ptr->pclass == CLASS_MONK) && (p_ptr->lev > 9) &&
+        !(monk_heavy_armor()))
+    {
+        (*f1) |= TR1_SPEED;
+    }
+
+    if ((p_ptr->pclass == CLASS_MONK) && (p_ptr->lev>24) &&
+        !(monk_heavy_armor()))
+    {
+        (*f2) |= (TR2_FREE_ACT);
+    }
+
+
+    if (p_ptr->pclass == CLASS_MINDCRAFTER) {
+	if (p_ptr->lev > 9)
+        (*f2) |= (TR2_RES_FEAR);
+    if (p_ptr->lev > 19)
+        (*f2) |= (TR2_SUST_WIS);
+    if (p_ptr->lev > 29)
+        (*f2) |= (TR2_RES_CONF);
+    if (p_ptr->lev > 39)
+        (*f3) |= (TR3_TELEPATHY);
+    }
 
 	/* Dunadan */
     if (p_ptr->prace == RACE_AMBERITE)
@@ -1113,6 +1461,7 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3)
     }
     else if (p_ptr->prace == RACE_KLACKON)
     {
+        if (p_ptr->lev > 9) (*f1) |= TR1_SPEED;
         (*f2) |= (TR2_RES_CONF);
         (*f2) |= (TR2_RES_ACID);
     }
@@ -1135,6 +1484,7 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3)
     }
     else if (p_ptr->prace == RACE_DRACONIAN)
     {
+            (*f3) |= TR3_FEATHER;
         if (p_ptr->lev > 4)
         {
             (*f2) |= (TR2_RES_FIRE);
@@ -1165,7 +1515,7 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3)
         {
             (*f3) |= (TR3_SEE_INVIS);
         }
-        if (p_ptr->lev > 39)
+        if (p_ptr->lev > 29)
         {
             (*f3) |= (TR3_TELEPATHY);
         }
@@ -1212,7 +1562,85 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3)
             (*f2) |= (TR2_RES_COLD);
         }
     }
+    else if (p_ptr->prace == RACE_VAMPIRE)
+    {
+       (*f2) |= (TR2_HOLD_LIFE);
+       (*f2) |= (TR2_RES_DARK);
+       (*f2) |= (TR2_RES_NETHER);
+       (*f3) |= (TR3_LITE);
+       (*f2) |= (TR2_RES_POIS);
+       (*f2) |= (TR2_RES_COLD);
+    }
+    else if (p_ptr->prace == RACE_SPECTRE)
+    {
 
+        (*f2) |= (TR2_RES_COLD);
+        (*f3) |= (TR3_SEE_INVIS);
+        (*f2) |= (TR2_HOLD_LIFE);
+        (*f2) |= (TR2_RES_NETHER);
+        (*f2) |= (TR2_RES_POIS);
+        (*f3) |= (TR3_SLOW_DIGEST);
+        if (p_ptr->lev > 34)
+        {
+            (*f3) |= TR3_TELEPATHY;
+        }
+    }
+    else if (p_ptr->prace == RACE_SPRITE)
+    {
+        (*f2) |= (TR2_RES_LITE);
+        (*f3) |= (TR3_FEATHER);
+        if (p_ptr->lev > 9)
+            (*f1) |= (TR1_SPEED);
+    }
+    else if (p_ptr->prace == RACE_BEASTMAN)
+    {
+        (*f2) |= (TR2_RES_SOUND);
+        (*f2) |= (TR2_RES_CONF);
+    }
+    if (p_ptr->muta3)
+    {
+        if (p_ptr->muta3 & MUT3_FLESH_ROT)
+        {
+            (*f3) &= ~(TR3_REGEN);
+        }
+
+        if ((p_ptr->muta3 & MUT3_XTRA_FAT) || (p_ptr->muta3 & MUT3_XTRA_LEGS) ||
+            (p_ptr->muta3 & MUT3_SHORT_LEG))
+        {
+            (*f1) |= TR1_SPEED;
+        }
+
+        if (p_ptr->muta3  & MUT3_ELEC_TOUC)
+        {
+            (*f3) |= TR3_SH_ELEC;
+        }
+
+        if (p_ptr->muta3 & MUT3_FIRE_BODY)
+        {
+            (*f3) |= TR3_SH_FIRE;
+            (*f3) |= TR3_LITE;
+        }
+
+        if (p_ptr->muta3 & MUT3_WINGS)
+        {
+            (*f3) |= TR3_FEATHER;
+        }
+
+        if (p_ptr->muta3 & MUT3_FEARLESS)
+        {
+            (*f2) |= (TR2_RES_FEAR);
+        }
+
+        if (p_ptr->muta3 & MUT3_REGEN)
+        {
+            (*f3) |= TR3_REGEN;
+        }
+
+        if (p_ptr->muta3 & MUT3_ESP)
+        {
+            (*f3) |= TR3_TELEPATHY;
+        }
+    }
 }
 
 
@@ -1345,8 +1773,8 @@ static void display_player_flag_info(void)
 	display_player_flag_aux(row+5, col, "Light:", 2, TR2_RES_LITE);
 	display_player_flag_aux(row+6, col, "Dark :", 2, TR2_RES_DARK);
 	display_player_flag_aux(row+7, col, "Shard:", 2, TR2_RES_SHARDS);
-    display_player_flag_aux(row+8, col, "Blind :", 2, TR2_RES_BLIND);
-    display_player_flag_aux(row+9, col, "Conf  :", 2, TR2_RES_CONF);
+    display_player_flag_aux(row+8, col, "Blind:", 2, TR2_RES_BLIND);
+    display_player_flag_aux(row+9, col, "Conf :", 2, TR2_RES_CONF);
 
 	/*** Set 2 ***/
 
@@ -1383,7 +1811,7 @@ static void display_player_flag_info(void)
     display_player_flag_aux(row+4, col, "Telepathy    :", 3, TR3_TELEPATHY);
     display_player_flag_aux(row+5, col, "Slow Digest  :", 3, TR3_SLOW_DIGEST);
     display_player_flag_aux(row+6, col, "Regeneration :", 3, TR3_REGEN);
-    display_player_flag_aux(row+7, col, "Feather Fall :", 3, TR3_FEATHER);
+    display_player_flag_aux(row+7, col, "Levitation   :", 3, TR3_FEATHER);
     display_player_flag_aux(row+8, col, "Perm Lite    :", 3, TR3_LITE);
 }
 
@@ -1456,7 +1884,7 @@ static void display_player_stat_info(void)
 	/* Print out the labels for the columns */
 	c_put_str(TERM_WHITE, "Stat", row-1, stat_col);
 	c_put_str(TERM_BLUE, "Intrnl", row-1, stat_col+5);
-	c_put_str(TERM_L_BLUE, "Rce Cls Eqp", row-1, stat_col+12);
+    c_put_str(TERM_L_BLUE, "Rce Cls Mod", row-1, stat_col+12);
 	c_put_str(TERM_L_GREEN, "Actual", row-1, stat_col+24);
 	c_put_str(TERM_YELLOW, "Currnt", row-1, stat_col+31);
   
@@ -1473,6 +1901,9 @@ static void display_player_stat_info(void)
 			e_adj = p_ptr->stat_top[i] - p_ptr->stat_max[i];
 		if ((p_ptr->stat_max[i]<=18) && (p_ptr->stat_top[i]>18))
 			e_adj = (p_ptr->stat_top[i] - 18)/10 - p_ptr->stat_max[i] + 18;
+
+        if ((p_ptr->stat_max[i]>18) && (p_ptr->stat_top[i]<=18))
+            e_adj = p_ptr->stat_top[i] - (p_ptr->stat_max[i]-18)/10 - 19;
       
 		/* Deduct class and race bonuses if in maximize */
 		if (p_ptr->maximize)
@@ -1591,6 +2022,71 @@ static void display_player_stat_info(void)
 		a = TERM_SLATE;
 		c = '.';
 
+        /* Mutations ... */
+        if (p_ptr->muta3)
+        {
+            int dummy = 0;
+
+            if (stat == A_STR)
+            {
+                if (p_ptr->muta3 & MUT3_HYPER_STR) dummy += 4;
+                if (p_ptr->muta3 & MUT3_PUNY)   dummy -= 4;
+            }
+            else if (stat == A_WIS || stat == A_INT)
+            {
+                if (p_ptr->muta3 & MUT3_HYPER_INT) dummy += 4;
+                if (p_ptr->muta3 & MUT3_MORONIC) dummy -= 4;
+            }
+            else if (stat == A_DEX)
+            {
+                if (p_ptr->muta3 & MUT3_IRON_SKIN) dummy -= 1;
+            }
+            else if (stat == A_CON)
+            {
+                if (p_ptr->muta3 & MUT3_RESILIENT) dummy += 4;
+                if (p_ptr->muta3 & MUT3_XTRA_FAT) dummy += 2;
+                if (p_ptr->muta3 & MUT3_ALBINO) dummy -= 4;
+                if (p_ptr->muta3 & MUT3_FLESH_ROT) dummy -= 2;
+            }
+            else if (stat == A_CHR)
+            {
+                if (p_ptr->muta3 & MUT3_SILLY_VOI) dummy -= 4;
+                if (p_ptr->muta3 & MUT3_BLANK_FAC) dummy -= 1;
+                if (p_ptr->muta3 & MUT3_FLESH_ROT) dummy -= 1;
+                if (p_ptr->muta3 & MUT3_SCALES) dummy -= 1;
+                if (p_ptr->muta3 & MUT3_WART_SKIN) dummy -= 2;
+            }
+
+
+			/* Boost */
+            if (dummy)
+			{
+				/* Default */
+				c = '*';
+
+				/* Good */
+                if (dummy > 0)
+				{
+					/* Good */
+					a = TERM_L_GREEN;
+
+					/* Label boost */
+                    if (dummy < 10) c = '0' + dummy;
+				}
+				
+				/* Bad */
+                if (dummy < 0)
+				{
+					/* Bad */
+					a = TERM_RED;
+
+					/* Label boost */
+                    if (dummy < 10) c = '0' - dummy;
+				}
+			}
+        }
+
+
 		/* Sustain */
 		if (f2 & 1<<stat)
 		{
@@ -1598,6 +2094,7 @@ static void display_player_stat_info(void)
 			a = TERM_GREEN;
 			c = 's';
 		}
+
 
 		/* No color */
 		if (!use_color) a = TERM_WHITE;
@@ -1691,7 +2188,7 @@ static cptr object_flag_names[96] =
 	"Hide Type",
 	"Show Mods",
 	"Insta Art",
-	"Feather",
+    "Levitate",
 	"Lite",
 	"See Invis",
 	"Telepathy",
@@ -1909,6 +2406,7 @@ static void display_player_ben_one(int mode)
  * Mode 3 = current flags (combined)
  * Mode 4 = current flags (part 1)
  * Mode 5 = current flags (part 2)
+ * Mode 6 = mutations
  */
 void display_player(int mode)
 {
@@ -1918,8 +2416,10 @@ void display_player(int mode)
 
 
 	/* XXX XXX XXX */
-	mode = (mode % 6);
-
+    if ((p_ptr->muta1 || p_ptr->muta2 || p_ptr->muta3) && !(skip_mutations))
+        mode = (mode % 7);
+    else
+        mode = (mode % 6);
 
 	/* Erase screen */
 	clear_from(0);
@@ -1944,7 +2444,7 @@ void display_player(int mode)
         if (p_ptr->realm1)
           c_put_str(TERM_L_BLUE, realm_names[p_ptr->realm1],6,15);
         if (p_ptr->pclass == CLASS_CHAOS_WARRIOR)
-          c_put_str(TERM_L_BLUE, chaos_patrons[get_chaos_patron()], 7, 15);
+          c_put_str(TERM_L_BLUE, chaos_patrons[p_ptr->chaos_patron], 7, 15);
         else if (p_ptr->realm2)
           c_put_str(TERM_L_BLUE, realm_names[p_ptr->realm2],7,15);
 
@@ -2037,6 +2537,11 @@ void display_player(int mode)
 	{
 		display_player_ben();
 	}
+
+    else if (mode == 6)
+    {
+        do_cmd_knowledge_mutations();
+    }
 	
 	/* Special */
 	else
@@ -2178,6 +2683,87 @@ errr file_character(cptr name, bool full)
 		/* End the row */
 		fprintf(fff, "%s\n", buf);
 	}
+
+
+        fprintf(fff, "\n\n  [Miscellaneous information]\n");
+        if (p_ptr->maximize)
+            fprintf(fff, "\n Maximize Mode:      ON");
+        else
+            fprintf(fff, "\n Maximize Mode:      OFF");
+
+        if (p_ptr->preserve)
+            fprintf(fff, "\n Preserve Mode:      ON");
+        else
+            fprintf(fff, "\n Preserve Mode:      OFF");
+
+        if (auto_scum)
+            fprintf(fff, "\n Autoscum:           ON");
+        else
+            fprintf(fff, "\n Autoscum:           OFF");
+
+        if (small_levels)
+            fprintf(fff, "\n Small Levels:       ON");
+        else
+            fprintf(fff, "\n Small Levels:       OFF");
+
+        if (empty_levels)
+            fprintf(fff, "\n Arena Levels:       ON");
+        else
+            fprintf(fff, "\n Arena Levels:       OFF");
+
+            fprintf(fff, "\n Recall Depth:       Level %d (%d')\n", p_ptr->max_dlv,
+                          50 * (p_ptr->max_dlv));
+
+
+        if (noscore)
+            fprintf(fff, "\n You have done something illegal.");
+
+        if (stupid_monsters)
+            fprintf(fff, "\n Your opponents are behaving stupidly.");
+
+
+    { /* Monsters slain */
+        int k;
+        s32b Total = 0;
+
+        for (k = 1; k < MAX_R_IDX-1; k++)
+        {
+            monster_race *r_ptr = &r_info[k];
+
+            if (r_ptr->flags1 & (RF1_UNIQUE))
+            {
+                bool dead = (r_ptr->max_num == 0);
+                if (dead)
+                {
+                    Total++;
+                }
+            }
+            else
+            {
+                s16b This = r_ptr->r_pkills;
+                if (This > 0)
+                {
+                    Total += This;
+                }
+            }
+        }
+
+        if (Total < 1)
+            fprintf(fff,"\n You have defeated no enemies yet.\n");
+        else if (Total == 1)
+
+            fprintf(fff,"\n You have defeated one enemy.\n");
+        else
+           fprintf(fff,"\n You have defeated %lu enemies.\n", Total);
+    }
+    
+
+    if (p_ptr->muta1 || p_ptr->muta2 || p_ptr->muta3)
+    {
+        fprintf(fff, "\n\n  [Mutations]\n\n");
+        dump_mutations(fff);
+    }
+
 
 	/* Skip some lines */
 	fprintf(fff, "\n\n");
@@ -2507,7 +3093,7 @@ static bool do_cmd_help_aux(cptr name, cptr what, int line)
 		else
 		{
 			/* Wait for it */
-			prt("[Press Return, Space, -, =, /, or ESC to exit.]", 23, 0);
+            prt("[Press Return, Space, -, =, /, f, or ESC to exit.]", 23, 0);
 		}
 
 		/* Get a keypress */
@@ -2590,6 +3176,67 @@ static bool do_cmd_help_aux(cptr name, cptr what, int line)
 			/* Recurse on that file */
 			if (!do_cmd_help_aux(hook[k-'0'], NULL, 0)) k = ESCAPE;
 		}
+
+        /* Hack, dump to file */
+        if (k == 'f' || k == 'F')
+        {
+
+            FILE        *ffp;
+
+            char    buff[1024];
+
+            char xtmp[82];
+
+            strcpy (xtmp, "");
+
+            if (get_string("File name: ", xtmp, 80))
+			{
+                if (xtmp[0] && (xtmp[0] != ' '))
+				{
+
+				}
+			}
+            else
+            {
+                continue;
+            }
+
+            /* Build the filename */
+            path_build(buff, 1024, ANGBAND_DIR_USER, xtmp);
+
+            /* Close it */
+			my_fclose(fff);
+
+			/* Hack -- Re-Open the file */
+			fff = my_fopen(path, "r");
+
+            ffp = my_fopen(buff, "w");
+
+			/* Oops */
+            if (!(fff && ffp))
+                { msg_print("Failed to open file.");
+                  k = ESCAPE;
+                  break;
+                }
+
+            sprintf(xtmp, "%s: %s", player_name, what);
+            my_fputs(ffp, xtmp, 80);
+            my_fputs(ffp, "\n", 80);
+            while (!my_fgets(fff, buff, 80)) my_fputs(ffp, buff, 80);
+
+            /* Close it */
+			my_fclose(fff);
+            my_fclose(ffp);
+
+			/* Hack -- Re-Open the file */
+			fff = my_fopen(path, "r");
+            
+        }
+
+        if (k == 'h')  /* Hack, added for character display */
+        {
+            k = ESCAPE;
+        }
 
 		/* Exit on escape */
 		if (k == ESCAPE) break;
@@ -2840,7 +3487,7 @@ void do_cmd_suicide(void)
 	{
 		/* Verify */
 		if (!get_check("Do you really want to quit? ")) return;
-        if (!wizard)
+        if (!noscore)
         {
 		/* Special Verification for suicide */
 		prt("Please verify QUITTING by typing the '@' sign: ", 0, 0);
@@ -2868,8 +3515,12 @@ void do_cmd_suicide(void)
  */
 void do_cmd_save_game(void)
 {
-	/* Disturb the player */
-	disturb(1, 0);
+    /* Autosaves do not disturb */
+    if (!is_autosave)
+    {
+        /* Disturb the player */
+        disturb(1, 0);
+    }
 
 	/* Clear messages */
 	msg_print(NULL);
@@ -3002,15 +3653,35 @@ static void make_bones(void)
 
 
 /*
+ * Redefinable "print_tombstone" action
+ */
+bool (*tombstone_aux)(void) = NULL;
+
+
+/*
  * Display a "tomb-stone"
  */
 static void print_tomb(void)
 {
+	bool done = FALSE;
+
+	/* Do we use a special tombstone ? */
+	if (tombstone_aux)
+	{
+		/* Use tombstone hook */
+		done = (*tombstone_aux)();
+	}
+
+	/* Print the text-tombstone */
+	if (!done)
+	{
+
 	cptr	p;
 
 	char	tmp[160];
 
 	char	buf[1024];
+    char    dummy[80];
 
 	FILE        *fp;
 
@@ -3084,7 +3755,15 @@ static void print_tomb(void)
 	center_string(buf, tmp);
 	put_str(buf, 14, 11);
 
-	(void)sprintf(tmp, "by %s.", died_from);
+
+    if (strlen(died_from) > 24)
+    {
+        strncpy(dummy, died_from, 24);
+        dummy[24] = '\0';
+        (void)sprintf(tmp, "by %s.", dummy);
+    }
+    else
+        (void)sprintf(tmp, "by %s.", died_from);
 	center_string(buf, tmp);
 	put_str(buf, 15, 11);
 
@@ -3093,7 +3772,8 @@ static void print_tomb(void)
 	center_string(buf, tmp);
 	put_str(buf, 17, 11);
 
-    msg_format("Goodbye, %s!", player_name);
+	msg_format("Goodbye, %s!", player_name);
+	}
 }
 
 
@@ -3944,6 +4624,7 @@ void close_game(void)
 	/* Still alive */
 	else
 	{
+        is_autosave = FALSE;
 		/* Save the game */
 		do_cmd_save_game();
 

@@ -105,6 +105,8 @@ static grouper group_item[] =
     { TV_NATURE_BOOK,     "Books (Nature)" },
     { TV_CHAOS_BOOK,      "Books (Chaos)" },
     { TV_DEATH_BOOK,      "Books (Death)" },
+    { TV_TRUMP_BOOK,      "Books (Trump)" },
+    { TV_ARCANE_BOOK,     "Books (Arcane)" },
 
 	{ TV_CHEST,             "Chests" },
 
@@ -570,7 +572,10 @@ static const flag_desc misc_flags3_desc[] =
 {
     { TR3_SH_FIRE,            "Fiery Aura" },
     { TR3_SH_ELEC,            "Electric Aura" },
-	{ TR3_FEATHER,            "Feather Falling" },
+    { TR3_NO_TELE,            "Prevent Teleportation" },
+    { TR3_NO_MAGIC,           "Anti-Magic" },
+    { TR3_WRAITH,             "Wraith Form" },
+    { TR3_FEATHER,            "Levitation" },
 	{ TR3_SEE_INVIS,          "See Invisible" },
 	{ TR3_TELEPATHY,          "ESP" },
 	{ TR3_SLOW_DIGEST,        "Slow Digestion" },
@@ -1669,8 +1674,10 @@ static void spoil_mon_info(cptr fname)
 
 		spoil_out("This");
 
+        if (flags2 & (RF2_ELDRITCH_HORROR)) spoil_out (" sanity-blasting");
 		if (flags3 & (RF3_ANIMAL)) spoil_out(" natural");
 		if (flags3 & (RF3_EVIL)) spoil_out(" evil");
+        if (flags3 & (RF3_GOOD)) spoil_out(" good");
 		if (flags3 & (RF3_UNDEAD)) spoil_out(" undead");
 
 		if (flags3 & (RF3_DRAGON)) spoil_out(" dragon");
@@ -1678,6 +1685,7 @@ static void spoil_mon_info(cptr fname)
 		else if (flags3 & (RF3_GIANT)) spoil_out(" giant");
 		else if (flags3 & (RF3_TROLL)) spoil_out(" troll");
 		else if (flags3 & (RF3_ORC)) spoil_out(" orc");
+        else if (flags3 & (RF3_AMBERITE)) spoil_out (" Amberite");
 		else spoil_out(" creature");
 
 		spoil_out(" moves");
@@ -1707,19 +1715,37 @@ static void spoil_mon_info(cptr fname)
 		spoil_out(".  ");
 
 
-#if 0
+
 
 		if (!r_ptr->level || (flags1 & (RF1_FORCE_DEPTH)))
 		{
 			sprintf(buf, "%s is never found out of depth.  ", wd_che[msex]);
+            spoil_out(buf);
 		}
 
 		if (flags1 & (RF1_FORCE_SLEEP))
 		{
 			sprintf(buf, "%s is always created sluggish.  ", wd_che[msex]);
+            spoil_out(buf);
 		}
 
-#endif
+        if (flags2 & (RF2_AURA_FIRE))
+        {
+            sprintf(buf, "%s is surrounded in flames.  ", wd_che[msex]);
+            spoil_out(buf);
+        }
+
+        if (flags2 & (RF2_AURA_ELEC))
+        {
+            sprintf(buf, "%s is surrounded in electricity.  ", wd_che[msex]);
+            spoil_out(buf);
+        }
+
+        if (flags2 & (RF2_REFLECTING))
+        {
+            sprintf(buf, "%s reflects bolt spells.  ", wd_che[msex]);
+            spoil_out(buf);
+        }
 
 		if (flags1 & (RF1_ESCORT))
 		{
@@ -1783,7 +1809,7 @@ static void spoil_mon_info(cptr fname)
 		if (flags4 & (RF4_BR_WALL)) vp[vn++] = "force";
 		if (flags4 & (RF4_BR_MANA)) vp[vn++] = "mana";
 	if (flags4 & (RF4_BR_NUKE)) vp[vn++] = "toxic waste";
-	if (flags4 & (RF4_XXX8)) vp[vn++] = "something";
+    if (flags4 & (RF4_BR_DISI)) vp[vn++] = "disintegration";
 
 		if (vn)
 		{
@@ -1811,13 +1837,14 @@ static void spoil_mon_info(cptr fname)
 	if (flags4 & (RF4_BA_NUKE))           vp[vn++] = "produce balls of radiation";
 		if (flags5 & (RF5_BA_MANA))           vp[vn++] = "produce mana storms";
 		if (flags5 & (RF5_BA_DARK))           vp[vn++] = "produce darkness storms";
-	if (flags4 & (RF4_BA_CHAO))           vp[vn++] = "invoke raw Logrus";
+        if (flags4 & (RF4_BA_CHAO))           vp[vn++] = "invoke raw Logrus";
+        if (flags6 & (RF6_HAND_DOOM))            vp[vn++] = "invoke the Hand of Doom";
 		if (flags5 & (RF5_DRAIN_MANA))        vp[vn++] = "drain mana";
 		if (flags5 & (RF5_MIND_BLAST))        vp[vn++] = "cause mind blasting";
 		if (flags5 & (RF5_BRAIN_SMASH))       vp[vn++] = "cause brain smashing";
-		if (flags5 & (RF5_CAUSE_1))           vp[vn++] = "cause light wounds";
-		if (flags5 & (RF5_CAUSE_2))           vp[vn++] = "cause serious wounds";
-		if (flags5 & (RF5_CAUSE_3))           vp[vn++] = "cause critical wounds";
+        if (flags5 & (RF5_CAUSE_1))           vp[vn++] = "cause light wounds and cursing";
+        if (flags5 & (RF5_CAUSE_2))           vp[vn++] = "cause serious wounds and cursing";
+        if (flags5 & (RF5_CAUSE_3))           vp[vn++] = "cause critical wounds and cursing";
 		if (flags5 & (RF5_CAUSE_4))           vp[vn++] = "cause mortal wounds";
 		if (flags5 & (RF5_BO_ACID))           vp[vn++] = "produce acid bolts";
 		if (flags5 & (RF5_BO_ELEC))           vp[vn++] = "produce lightning bolts";
@@ -1836,7 +1863,6 @@ static void spoil_mon_info(cptr fname)
 		if (flags5 & (RF5_SLOW))              vp[vn++] = "slow";
 		if (flags5 & (RF5_HOLD))              vp[vn++] = "paralyze";
 		if (flags6 & (RF6_HASTE))             vp[vn++] = "haste-self";
-		if (flags6 & (RF6_XXX1))            vp[vn++] = "do something";
 		if (flags6 & (RF6_HEAL))              vp[vn++] = "heal-self";
 		if (flags6 & (RF6_XXX2))            vp[vn++] = "do something";
 		if (flags6 & (RF6_BLINK))             vp[vn++] = "blink-self";
@@ -2001,6 +2027,7 @@ static void spoil_mon_info(cptr fname)
 		if (flags3 & (RF3_RES_PLAS)) vp[vn++] = "plasma";
 		if (flags3 & (RF3_RES_NEXU)) vp[vn++] = "nexus";
 		if (flags3 & (RF3_RES_DISE)) vp[vn++] = "disenchantment";
+        if (flags3 & (RF3_RES_TELE)) vp[vn++] = "teleportation";
 
 		if (vn)
 		{

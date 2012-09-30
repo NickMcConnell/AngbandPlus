@@ -243,6 +243,7 @@ static void roff_aux(int r_idx)
 		if (r_ptr->flags3 & (RF3_DEMON)) flags3 |= (RF3_DEMON);
 		if (r_ptr->flags3 & (RF3_UNDEAD)) flags3 |= (RF3_UNDEAD);
 		if (r_ptr->flags3 & (RF3_EVIL)) flags3 |= (RF3_EVIL);
+        if (r_ptr->flags3 & (RF3_GOOD)) flags3 |= (RF3_GOOD);
 		if (r_ptr->flags3 & (RF3_ANIMAL)) flags3 |= (RF3_ANIMAL);
         if (r_ptr->flags3 & (RF3_AMBERITE)) flags3 |= (RF3_AMBERITE);
 
@@ -545,10 +546,11 @@ static void roff_aux(int r_idx)
 		}
 
 		/* Describe the "quality" */
+        if (flags2 & (RF2_ELDRITCH_HORROR)) roff(" sanity-blasting");
 		if (flags3 & (RF3_ANIMAL)) roff(" natural");
 		if (flags3 & (RF3_EVIL)) roff(" evil");
+        if (flags3 & (RF3_GOOD)) roff (" good");
 		if (flags3 & (RF3_UNDEAD)) roff(" undead");
-        if (flags3 & (RF3_AMBERITE)) roff (" Amberite");
 
 		/* Describe the "race" */
 		if (flags3 & (RF3_DRAGON)) roff(" dragon");
@@ -556,6 +558,7 @@ static void roff_aux(int r_idx)
 		else if (flags3 & (RF3_GIANT)) roff(" giant");
 		else if (flags3 & (RF3_TROLL)) roff(" troll");
 		else if (flags3 & (RF3_ORC)) roff(" orc");
+        else if (flags3 & (RF3_AMBERITE)) roff (" Amberite");
 		else roff(" creature");
 
 		/* Group some variables */
@@ -594,6 +597,24 @@ static void roff_aux(int r_idx)
 			            q, (long)i, p));
 		}
 	}
+
+    if ((flags2 & (RF2_AURA_FIRE)) && (flags2 & (RF2_AURA_ELEC)))
+    {
+        roff(format("%^s is surrounded by flames and electricity.  ", wd_he[msex]));
+    }
+    else if (flags2 & (RF2_AURA_FIRE))
+    {
+        roff(format("%^s is surrounded by flames.  ", wd_he[msex]));
+    }
+    else if (flags2 & (RF2_AURA_ELEC))
+    {
+        roff(format("%^s is surrounded by electricity.  ", wd_he[msex]));
+    }
+
+    if (flags2 & (RF2_REFLECTING))
+    {
+        roff(format("%^s reflects bolt spells.  ", wd_he[msex]));
+    }
 
 
 	/* Describe escorts */
@@ -668,7 +689,7 @@ static void roff_aux(int r_idx)
 	if (flags4 & (RF4_BR_WALL))		vp[vn++] = "force";
 	if (flags4 & (RF4_BR_MANA))		vp[vn++] = "mana";
     if (flags4 & (RF4_BR_NUKE))     vp[vn++] = "toxic waste";
-    if (flags4 & (RF4_XXX8))        vp[vn++] = "something";
+    if (flags4 & (RF4_BR_DISI))     vp[vn++] = "disintegration";
 
 	/* Describe breaths */
 	if (vn)
@@ -706,12 +727,13 @@ static void roff_aux(int r_idx)
 	if (flags5 & (RF5_BA_MANA))		vp[vn++] = "invoke mana storms";
 	if (flags5 & (RF5_BA_DARK))		vp[vn++] = "invoke darkness storms";
     if (flags4 & (RF4_BA_CHAO))     vp[vn++] = "invoke raw Logrus";
+    if (flags6 & (RF6_HAND_DOOM))        vp[vn++] = "invoke the Hand of Doom";
 	if (flags5 & (RF5_DRAIN_MANA))	vp[vn++] = "drain mana";
 	if (flags5 & (RF5_MIND_BLAST))	vp[vn++] = "cause mind blasting";
 	if (flags5 & (RF5_BRAIN_SMASH))	vp[vn++] = "cause brain smashing";
-	if (flags5 & (RF5_CAUSE_1))		vp[vn++] = "cause light wounds";
-	if (flags5 & (RF5_CAUSE_2))		vp[vn++] = "cause serious wounds";
-	if (flags5 & (RF5_CAUSE_3))		vp[vn++] = "cause critical wounds";
+    if (flags5 & (RF5_CAUSE_1))     vp[vn++] = "cause light wounds and cursing";
+    if (flags5 & (RF5_CAUSE_2))     vp[vn++] = "cause serious wounds and cursing";
+    if (flags5 & (RF5_CAUSE_3))     vp[vn++] = "cause critical wounds and cursing";
 	if (flags5 & (RF5_CAUSE_4))		vp[vn++] = "cause mortal wounds";
 	if (flags5 & (RF5_BO_ACID))		vp[vn++] = "produce acid bolts";
 	if (flags5 & (RF5_BO_ELEC))		vp[vn++] = "produce lightning bolts";
@@ -730,7 +752,7 @@ static void roff_aux(int r_idx)
 	if (flags5 & (RF5_SLOW))		vp[vn++] = "slow";
 	if (flags5 & (RF5_HOLD))		vp[vn++] = "paralyze";
 	if (flags6 & (RF6_HASTE))		vp[vn++] = "haste-self";
-	if (flags6 & (RF6_XXX1))		vp[vn++] = "do something";
+
 	if (flags6 & (RF6_HEAL))		vp[vn++] = "heal-self";
 	if (flags6 & (RF6_XXX2))		vp[vn++] = "do something";
 	if (flags6 & (RF6_BLINK))		vp[vn++] = "blink-self";
@@ -978,6 +1000,7 @@ static void roff_aux(int r_idx)
 	if (flags3 & (RF3_RES_PLAS)) vp[vn++] = "plasma";
 	if (flags3 & (RF3_RES_NEXU)) vp[vn++] = "nexus";
 	if (flags3 & (RF3_RES_DISE)) vp[vn++] = "disenchantment";
+    if (flags3 & (RF3_RES_TELE)) vp[vn++] = "teleportation";
 
 	/* Describe resistances */
 	if (vn)

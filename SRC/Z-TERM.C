@@ -1794,8 +1794,8 @@ errr Term_inkey(char *ch, bool wait, bool take)
 	/* Hack -- get bored */
 	if (!Term->never_bored)
 	{
-		/* Process random events */
-		Term_xtra(TERM_XTRA_BORED, 0);
+            /* Process random events */
+            Term_xtra(TERM_XTRA_BORED, 0);
 	}
 
 	/* Wait */

@@ -1,4 +1,4 @@
-238
+239
 ******** BUFFER LINE *********************************** DO NOT REMOVE *******
 They say that you can't trust rumors.
 You have no more Black Potions of Death.
@@ -238,3 +238,4 @@ There is a rare spellbook called [M$ PowerFools] {cursed}
 *** LOW HITPOINT WARNING! ***
 You cruelly stab the helpless, sleeping Software bug!
 Slab: Jus' say AarrghaarrghpleeassennononoUGH.
+You feel the Windows (95) on your hard disk is broken...

@@ -1,4 +1,4 @@
-59
+65
 ******** BUFFER LINE *********************************** DO NOT REMOVE *******
 What game do you think you are playing anyway?
 Aivan sairas kaveri kun tuollaista aikoo puuhata!
@@ -59,3 +59,9 @@ Why not read the instructions first?
 Cut it out!
 Nothing interesting happens.
 Just how exactly am I supposed to do THAT?
+That's morally wrong and I won't do it.
+I'm not gonna take this abuse.
+AAAAAAAAAAAAAHHHHHHHHHHHHHHHRRRRRRRRRRRGGGGGGGGGGG!
+No more, if you value your character's life!
+Give it up, guy.
+Disk error. (a)bort, (r)etry, (f)ail?

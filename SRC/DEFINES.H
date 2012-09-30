@@ -42,8 +42,10 @@
 /* Added for Zangband */
 #define FAKE_VERSION
 #define FAKE_VER_MAJOR 2
-#define FAKE_VER_MINOR 0
-#define FAKE_VER_PATCH 6
+#define FAKE_VER_MINOR 1
+#define FAKE_VER_PATCH 0
+
+#define ANGBAND_2_8_1
 
 /*
  * This value is not currently used
@@ -95,12 +97,12 @@
 /*
  * Maximum number of player "race" types (see "table.c", etc)
  */
-#define MAX_RACES           26
+#define MAX_RACES           30 /* Fingers crossed, hope this works... */
 
 /*
  * Maximum number of player "class" types (see "table.c", etc)
  */
-#define MAX_CLASS            9
+#define MAX_CLASS            11
 
 /* The number of "patrons" available (for Chaos Warriors) */
 #define MAX_PATRON          16
@@ -139,11 +141,76 @@
 #define REW_UNUSED_4    30
 #define REW_UNUSED_5    31
 #define REW_IGNORE      32
+#define REW_SER_UNDE    33
+#define REW_SER_DEMO    34
+#define REW_SER_MONS    35
+
+/* Chaos mutations */
+
+/* "Activatable" mutations must be in MUT1_* */
+
+#define MUT1_SPIT_ACID                  0x00000001L
+#define MUT1_BR_FIRE                    0x00000002L
+#define MUT1_HYPN_GAZE                  0x00000004L
+#define MUT1_TELEKINES                  0x00000008L
+#define MUT1_VTELEPORT                  0x00000010L /* Voluntary teleport */
+#define MUT1_MIND_BLST                  0x00000020L
+#define MUT1_RADIATION                  0x00000040L
+#define MUT1_VAMPIRISM                  0x00000080L
+
+
+/* Randomly activating mutations must be MUT2_* */
+#define MUT2_BERS_RAGE                  0x00000001L
+#define MUT2_COWARDICE                  0x00000002L
+#define MUT2_RTELEPORT                  0x00000004L /* Random teleport, instability */
+#define MUT2_ALCOHOL                    0x00000008L
+#define MUT2_HALLU                      0x00000010L
+#define MUT2_FLATULENT                  0x00000020L
+#define MUT2_SCOR_TAIL                  0x00000040L
+#define MUT2_HORNS                      0x00000080L
+#define MUT2_BEAK                       0x00000100L
+#define MUT2_ATT_DEMON                  0x00000200L
+#define MUT2_PROD_MANA                  0x00000400L
+
+
+
+/* Other mutations will be mainly in MUT3_* */
+
+#define MUT3_HYPER_STR                  0x00000001L
+#define MUT3_PUNY                       0x00000002L
+#define MUT3_HYPER_INT                  0x00000004L
+#define MUT3_MORONIC                    0x00000008L
+#define MUT3_RESILIENT                  0x00000010L
+#define MUT3_XTRA_FAT                   0x00000020L
+#define MUT3_ALBINO                     0x00000040L
+#define MUT3_FLESH_ROT                  0x00000080L
+#define MUT3_SILLY_VOI                  0x00000100L
+#define MUT3_BLANK_FAC                  0x00000200L
+#define MUT3_XXX1                       0x00000400L
+#define MUT3_XTRA_EYES                  0x00000800L
+#define MUT3_MAGIC_RES                  0x00001000L
+#define MUT3_XTRA_NOIS                  0x00002000L
+#define MUT3_INFRAVIS                   0x00004000L
+#define MUT3_XTRA_LEGS                  0x00008000L
+#define MUT3_SHORT_LEG                  0x00010000L
+#define MUT3_ELEC_TOUC                  0x00020000L
+#define MUT3_FIRE_BODY                  0x00040000L
+#define MUT3_WART_SKIN                  0x00080000L
+#define MUT3_SCALES                     0x00100000L
+#define MUT3_IRON_SKIN                  0x00200000L
+#define MUT3_WINGS                      0x00400000L
+#define MUT3_FEARLESS                   0x00800000L
+#define MUT3_REGEN                      0x01000000L
+#define MUT3_ESP                        0x02000000L
+
 
 /* Monk martial arts... */
 # define MAX_MA 17
 # define MA_KNEE 1
 # define MA_SLOW 2
+
+/* Mindcraft */
+#define MAX_MINDCRAFT_POWERS  12
 
 /* A hack for cave.c */
 
@@ -155,7 +222,7 @@
  * Maximum array bounds for template based arrays
  */
 #define MAX_F_IDX       78      /* Max size for "f_info[]" */
-#define MAX_K_IDX       512     /* Max size for "k_info[]" */
+#define MAX_K_IDX       576     /* Max size for "k_info[]" */
 #define MAX_A_IDX       128     /* Max size for "a_info[]" */
 #define MAX_E_IDX       128     /* Max size for "e_info[]" */
 #define MAX_R_IDX   585 /* Max size for "r_info[]" */
@@ -256,7 +323,7 @@
  * Store constants
  */
 #define STORE_INVEN_MAX 24              /* Max number of discrete objs in inven */
-#define STORE_CHOICES   32              /* Number of items to choose stock from */
+#define STORE_CHOICES   48              /* Number of items to choose stock from */
 #define STORE_OBJ_LEVEL 5               /* Magic Level for normal stores */
 #define STORE_TURNOVER  9               /* Normal shop turnover, per day */
 #define STORE_MIN_KEEP  6               /* Min slots to "always" keep full */
@@ -392,8 +459,9 @@ and tables.c --TY */
 #define CH_NATURE       0x04
 #define CH_CHAOS        0x08
 #define CH_DEATH        0x10
-
-#define MAX_REALM       0x10
+#define CH_TRUMP        0x20
+#define CH_ARCANE       0x40
+#define MAX_REALM       7
 
 /*
  * Maximum number of "normal" pack slots, and the index of the "overflow"
@@ -479,6 +547,11 @@ and tables.c --TY */
 #define RACE_GOLEM          23
 #define RACE_SKELETON       24
 #define RACE_ZOMBIE         25
+#define RACE_VAMPIRE        26
+#define RACE_SPECTRE        27
+#define RACE_SPRITE         28
+#define RACE_BEASTMAN       29
+
 
 /*
  * Player class constants (hard-coded by save-files, arrays, etc)
@@ -492,10 +565,8 @@ and tables.c --TY */
 #define CLASS_WARRIOR_MAGE 6
 #define CLASS_CHAOS_WARRIOR 7
 #define CLASS_MONK 8
-
-
-
-
+#define CLASS_MINDCRAFTER 9
+#define CLASS_HIGH_MAGE 10
 
 /*** Screen Locations ***/
 
@@ -769,6 +840,9 @@ and tables.c --TY */
 #define ART_ULMO                        108
 #define ART_AVAVIR                      109
 
+/* The sword of the Dawn */
+#define ART_DAWN                110
+
 /* Hafted */
 #define ART_GROND                       111
 #define ART_TOTILA                      112
@@ -941,6 +1015,87 @@ and tables.c --TY */
 #define EGO_SHATTERED           126
 #define EGO_BLASTED                     127
 
+/* Activation effects for random artifacts */
+#define ACT_SUNLIGHT            1
+#define ACT_BO_MISS_1           2
+#define ACT_BA_POIS_1           3
+#define ACT_BO_ELEC_1           4
+#define ACT_BO_ACID_1           5
+#define ACT_BO_COLD_1           6
+#define ACT_BO_FIRE_1           7
+#define ACT_BA_COLD_1           8
+#define ACT_BA_FIRE_1           9
+#define ACT_DRAIN_1             10
+#define ACT_BA_COLD_2           11
+#define ACT_BA_ELEC_2           12
+#define ACT_DRAIN_2             13
+#define ACT_VAMPIRE_1           14
+#define ACT_BO_MISS_2           15
+#define ACT_BA_FIRE_2           16
+#define ACT_BA_COLD_3           17
+#define ACT_BA_ELEC_3           18
+#define ACT_WHIRLWIND           19
+#define ACT_VAMPIRE_2           20
+#define ACT_CALL_CHAOS          21
+#define ACT_ROCKET              22
+#define ACT_DISP_EVIL           23
+#define ACT_BA_MISS_3           24
+#define ACT_DISP_GOOD           25
+/* 26 - 50 unused */
+#define ACT_CONFUSE             51
+#define ACT_SLEEP               52
+#define ACT_QUAKE               53
+#define ACT_TERROR              54
+#define ACT_TELE_AWAY           55
+#define ACT_BANISH_EVIL         56
+#define ACT_GENOCIDE            57
+#define ACT_MASS_GENO           58
+/* 59 - 64 unused */
+#define ACT_CHARM_ANIMAL        65
+#define ACT_CHARM_UNDEAD        66
+#define ACT_CHARM_OTHER         67
+#define ACT_CHARM_ANIMALS       68
+#define ACT_CHARM_OTHERS        69
+#define ACT_SUMMON_ANIMAL       70
+#define ACT_SUMMON_PHANTOM      71
+#define ACT_SUMMON_ELEMENTAL    72
+#define ACT_SUMMON_DEMON        73
+#define ACT_SUMMON_UNDEAD       74
+/* 75 - 80 unused */
+#define ACT_CURE_LW             81
+#define ACT_CURE_MW             82
+#define ACT_CURE_POISON         83
+#define ACT_REST_LIFE           84
+#define ACT_REST_ALL            85
+#define ACT_CURE_700            86
+#define ACT_CURE_1000           87
+/* 88 - 90 unused */
+#define ACT_ESP                 91
+#define ACT_BERSERK             92
+#define ACT_PROT_EVIL           93
+#define ACT_RESIST_ALL          94
+#define ACT_SPEED               95
+#define ACT_XTRA_SPEED          96
+#define ACT_WRAITH              97
+#define ACT_INVULN              98
+/* 99 - 110 unused */
+#define ACT_LIGHT               111
+#define ACT_MAP_LIGHT           112
+#define ACT_DETECT_ALL          113
+#define ACT_DETECT_XTRA         114
+#define ACT_ID_FULL             115
+#define ACT_ID_PLAIN            116
+#define ACT_RUNE_EXPLO          117
+#define ACT_RUNE_PROT           118
+#define ACT_SATIATE             119
+#define ACT_DEST_DOOR          120
+#define ACT_STONE_MUD           121
+#define ACT_RECHARGE            122
+#define ACT_ALCHEMY             123
+#define ACT_DIM_DOOR            124
+#define ACT_TELEPORT            125
+#define ACT_RECALL              126
+/* 127 -> unused */
 
 /*** Object "tval" and "sval" codes ***/
 
@@ -996,6 +1151,8 @@ and tables.c --TY */
 #define TV_NATURE_BOOK  92
 #define TV_CHAOS_BOOK   93
 #define TV_DEATH_BOOK   94
+#define TV_TRUMP_BOOK   95
+#define TV_ARCANE_BOOK  96
 #define TV_GOLD         100     /* Gold can only be picked up by players */
 
 
@@ -1161,10 +1318,13 @@ and tables.c --TY */
 #define SV_AMULET_WISDOM                6
 #define SV_AMULET_CHARISMA              7
 #define SV_AMULET_THE_MAGI              8
-/* xxx */
+#define SV_AMLUET_REFLECTION            9
 #define SV_AMULET_CARLAMMAS             10
 #define SV_AMULET_INGWE                 11
 #define SV_AMULET_DWARVES               12
+#define SV_AMULET_NO_MAGIC              13
+#define SV_AMULET_NO_TELE               14
+#define SV_AMULET_RESISTANCE            15
 
 /* The sval codes for TV_RING */
 #define SV_RING_WOE                             0
@@ -1269,7 +1429,7 @@ and tables.c --TY */
 #define SV_WAND_STINKING_CLOUD  14
 #define SV_WAND_MAGIC_MISSILE   15
 #define SV_WAND_ACID_BOLT               16
-#define SV_WAND_ELEC_BOLT               17
+#define SV_WAND_CHARM_MONSTER           17
 #define SV_WAND_FIRE_BOLT               18
 #define SV_WAND_COLD_BOLT               19
 #define SV_WAND_ACID_BALL               20
@@ -1574,8 +1734,8 @@ and tables.c --TY */
 #define SM_OPP_COLD             0x00080000
 #define SM_OPP_POIS             0x00100000
 #define SM_OPP_XXX1             0x00200000
-#define SM_OPP_XXX2             0x00400000
-#define SM_OPP_XXX3             0x00800000
+#define SM_CLONED               0x00400000
+#define SM_FRIEND           0x00800000
 #define SM_IMM_ACID             0x01000000
 #define SM_IMM_ELEC             0x02000000
 #define SM_IMM_FIRE             0x04000000
@@ -1704,6 +1864,15 @@ and tables.c --TY */
 #define SUMMON_CYBER            39
 #define SUMMON_KIN              40
 #define SUMMON_DAWN             41
+#define SUMMON_ANIMAL           42
+#define SUMMON_ANIMAL_RANGER    43
+#define SUMMON_HI_UNDEAD_NO_UNIQUES            44
+#define SUMMON_HI_DRAGON_NO_UNIQUES            45
+#define SUMMON_NO_UNIQUES                      46
+#define SUMMON_PHANTOM          47
+#define SUMMON_ELEMENTAL        48
+
+
 
 
 /*
@@ -1772,8 +1941,19 @@ and tables.c --TY */
 #define GF_STUN         78
 #define GF_HOLY_FIRE    79
 #define GF_HELL_FIRE    80
+#define GF_DISINTEGRATE 81
+#define GF_CHARM        82
+#define GF_CONTROL_UNDEAD   83
+#define GF_CONTROL_ANIMAL   84
+#define GF_PSI         85
+#define GF_PSI_DRAIN   86
+#define GF_TELEKINESIS  87
+#define GF_JAM_DOOR     88
+#define GF_DOMINATION   89
+#define GF_DISP_GOOD    90
 
 
+#define FOLLOW_DISTANCE 3
 
 /*
  * Some things which induce learning
@@ -1955,10 +2135,10 @@ and tables.c --TY */
 #define TR3_SH_ELEC                     0x00000002L     /* Electric Sheath */
 #define TR3_XXX3                        0x00000004L     /* Later */
 #define TR3_XXX4                        0x00000008L     /* Later */
-#define TR3_XXX5                        0x00000010L     /* Later */
-#define TR3_XXX6                        0x00000020L     /* Later */
-#define TR3_XXX7                        0x00000040L     /* Later */
-#define TR3_TY_CURSE                    0x00000080L     /* Later */
+#define TR3_NO_TELE                     0x00000010L     /* Anti-teleportation */
+#define TR3_NO_MAGIC                    0x00000020L     /* Anti-magic */
+#define TR3_WRAITH                      0x00000040L     /* Wraithform */
+#define TR3_TY_CURSE                    0x00000080L     /* The Ancient Curse */
 #define TR3_EASY_KNOW           0x00000100L     /* Aware -> Known */
 #define TR3_HIDE_TYPE           0x00000200L     /* Hide "pval" description */
 #define TR3_SHOW_MODS           0x00000400L     /* Always show Tohit/Todam */
@@ -2108,7 +2288,7 @@ and tables.c --TY */
 #define RF2_STUPID                      0x00000001      /* Monster is stupid */
 #define RF2_SMART                       0x00000002      /* Monster is smart */
 #define RF2_CAN_SPEAK            0x00000004  /* TY: can speak */
-#define RF2_XXX2                        0x00000008      /* (?) */
+#define RF2_REFLECTING                  0x00000008      /* Reflects bolts */
 #define RF2_INVISIBLE           0x00000010      /* Monster avoids vision */
 #define RF2_COLD_BLOOD          0x00000020      /* Monster avoids infra */
 #define RF2_EMPTY_MIND          0x00000040      /* Monster avoids telepathy */
@@ -2118,9 +2298,9 @@ and tables.c --TY */
 #define RF2_SHAPECHANGER        0x00000400  /* TY: shapechanger */
 #define RF2_ATTR_ANY        0x00000800  /* TY: Attr_any */
 #define RF2_POWERFUL            0x00001000      /* Monster has strong breath */
-#define RF2_XXX5                        0x00002000      /* (?) */
-#define RF2_XXX7                        0x00004000      /* (?) */
-#define RF2_XXX6                        0x00008000      /* (?) */
+#define RF2_ELDRITCH_HORROR             0x00002000      /* Sanity-blasting horror    */
+#define RF2_AURA_FIRE                   0x00004000      /* Burns in melee */
+#define RF2_AURA_ELEC                   0x00008000      /* Shocks in melee */
 #define RF2_OPEN_DOOR           0x00010000      /* Monster can open doors */
 #define RF2_BASH_DOOR           0x00020000      /* Monster can bash doors */
 #define RF2_PASS_WALL           0x00040000      /* Monster can pass walls */
@@ -2150,7 +2330,7 @@ and tables.c --TY */
 #define RF3_EVIL                        0x00000040      /* Evil */
 #define RF3_ANIMAL                      0x00000080      /* Animal */
 #define RF3_AMBERITE            0x00000100  /* TY: Amberite */
-#define RF3_XXX2                        0x00000200      /* (?) */
+#define RF3_GOOD                        0x00000200      /* Good */
 #define RF3_XXX3                        0x00000400      /* Non-Vocal (?) */
 #define RF3_NONLIVING           0x00000800  /* TY: Non-Living (?) */
 #define RF3_HURT_LITE           0x00001000      /* Hurt by lite */
@@ -2162,7 +2342,7 @@ and tables.c --TY */
 #define RF3_IM_FIRE                     0x00040000      /* Resist fire a lot */
 #define RF3_IM_COLD                     0x00080000      /* Resist cold a lot */
 #define RF3_IM_POIS                     0x00100000      /* Resist poison a lot */
-#define RF3_XXX5                        0x00200000      /* Immune to (?) */
+#define RF3_RES_TELE                    0x00200000      /* Resist teleportation */
 #define RF3_RES_NETH            0x00400000      /* Resist nether a lot */
 #define RF3_RES_WATE            0x00800000      /* Resist water */
 #define RF3_RES_PLAS            0x01000000      /* Resist plasma */
@@ -2208,7 +2388,7 @@ and tables.c --TY */
 #define RF4_BA_NUKE         0x10000000  /* TY: Nuke Ball */
 #define RF4_BR_NUKE         0x20000000  /* TY: Toxic Breath */
 #define RF4_BA_CHAO         0x40000000  /* TY: Logrus Ball */
-#define RF4_XXX8                        0x80000000
+#define RF4_BR_DISI                     0x80000000 /* Breathe Disintegration */
 
 /*
  * New monster race bit flags
@@ -2250,7 +2430,7 @@ and tables.c --TY */
  * New monster race bit flags
  */
 #define RF6_HASTE                       0x00000001      /* Speed self */
-#define RF6_XXX1                        0x00000002      /* Speed a lot (?) */
+#define RF6_HAND_DOOM                   0x00000002      /* Hand of Doom */
 #define RF6_HEAL                        0x00000004      /* Heal self */
 #define RF6_XXX2                        0x00000008      /* Heal a lot (?) */
 #define RF6_BLINK                       0x00000010      /* Teleport Short */
@@ -2302,6 +2482,35 @@ and tables.c --TY */
     RF6_S_ANGEL | RF6_S_DRAGON | RF6_S_UNDEAD | RF6_S_DEMON | \
     RF6_S_HI_DRAGON | RF6_S_HI_UNDEAD | RF6_S_WRAITH | RF6_S_UNIQUE)
 
+ 
+/*
+ * Hack -- "bolt" spells that may hurt fellow monsters
+ */
+#define RF4_BOLT_MASK \
+  (RF4_ARROW_1 | RF4_ARROW_2 | RF4_ARROW_3 | RF4_ARROW_4)
+
+#define RF5_BOLT_MASK \
+   (RF5_BO_ACID | RF5_BO_ELEC | RF5_BO_FIRE | RF5_BO_COLD | \
+    RF5_BO_POIS | RF5_BO_NETH | RF5_BO_WATE | RF5_BO_MANA | \
+    RF5_BO_PLAS | RF5_BO_ICEE | RF5_MISSILE)
+
+#define RF6_BOLT_MASK \
+   0L
+
+
+/* Hack -- summon spells */
+
+#define RF4_SUMMON_MASK \
+    0L
+
+#define RF5_SUMMON_MASK \
+    0L
+
+#define RF6_SUMMON_MASK \
+    (RF6_S_KIN | RF6_S_CYBER | RF6_S_MONSTER | RF6_S_MONSTERS | RF6_S_ANT | \
+     RF6_S_SPIDER | RF6_S_HOUND | RF6_S_HYDRA | RF6_S_ANGEL | RF6_S_DEMON | \
+     RF6_S_UNDEAD | RF6_S_DRAGON | RF6_S_HI_UNDEAD | RF6_S_HI_DRAGON | \
+     RF6_S_WRAITH | RF6_S_UNIQUE)
 
 
 /*** Macro Definitions ***/

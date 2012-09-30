@@ -309,8 +309,10 @@
 # endif
 #endif
 
-#if 0
-#define HAS_USLEEP /* Set for gcc (djgpp-v2), TY */
+#ifdef USE_IBM
+    #ifndef HAS_USLEEP
+    #define HAS_USLEEP /* Set for gcc (djgpp-v2), TY */
+    #endif
 #endif
 
 #endif

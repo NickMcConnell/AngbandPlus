@@ -12,7 +12,11 @@
 
 #include "angband.h"
 
+/* 1/x chance of reducing stats (for elemental attacks) */
 #define HURT_CHANCE 16
+
+ /* 1/x chance of hurting even if invulnerable!*/
+#define PENETRATE_INVULNERABILITY 13
 
 
 extern void do_poly_self();
@@ -166,6 +170,106 @@ void teleport_away(int m_idx, int dis)
 }
 
 
+
+/*
+ * Teleport monster next to the player
+ */
+void teleport_to_player(int m_idx)
+{
+	int                     ny, nx, oy, ox, d, i, min;
+    int dis = 2;
+
+	bool            look = TRUE;
+
+	monster_type    *m_ptr = &m_list[m_idx];
+    int attempts = 500;
+
+
+	/* Paranoia */
+	if (!m_ptr->r_idx) return;
+
+	/* Save the old location */
+	oy = m_ptr->fy;
+	ox = m_ptr->fx;
+
+	/* Minimum distance */
+	min = dis / 2;
+
+	/* Look until done */
+    while ((look) && --attempts)
+	{
+		/* Verify max distance */
+		if (dis > 200) dis = 200;
+
+		/* Try several locations */
+		for (i = 0; i < 500; i++)
+		{
+			/* Pick a (possibly illegal) location */
+			while (1)
+			{
+                ny = rand_spread(py, dis);
+                nx = rand_spread(px, dis);
+                d = distance(py, px, ny, nx);
+				if ((d >= min) && (d <= dis)) break;
+			}
+
+			/* Ignore illegal locations */
+			if (!in_bounds(ny, nx)) continue;
+
+			/* Require "empty" floor space */
+			if (!cave_empty_bold(ny, nx)) continue;
+
+			/* Hack -- no teleport onto glyph of warding */
+			if (cave[ny][nx].feat == FEAT_GLYPH) continue;
+            if (cave[ny][nx].feat == FEAT_MINOR_GLYPH) continue;
+
+            /* ...nor onto the Pattern */
+            if ((cave[ny][nx].feat >= FEAT_PATTERN_START) &&
+                (cave[ny][nx].feat <= FEAT_PATTERN_XTRA2)) continue;
+
+			/* No teleporting into vaults and such */
+			/* if (cave[ny][nx].info & (CAVE_ICKY)) continue; */
+
+			/* This grid looks good */
+			look = FALSE;
+
+			/* Stop looking */
+			break;
+		}
+
+		/* Increase the maximum distance */
+		dis = dis * 2;
+
+		/* Decrease the minimum distance */
+		min = min / 2;
+	}
+
+    if (attempts < 1) return;
+
+	/* Sound */
+	sound(SOUND_TPOTHER);
+
+	/* Update the new location */
+	cave[ny][nx].m_idx = m_idx;
+
+	/* Update the old location */
+	cave[oy][ox].m_idx = 0;
+
+	/* Move the monster */
+	m_ptr->fy = ny;
+	m_ptr->fx = nx;
+
+	/* Update the monster (new location) */
+	update_mon(m_idx, TRUE);
+
+	/* Redraw the old grid */
+	lite_spot(oy, ox);
+
+	/* Redraw the new grid */
+	lite_spot(ny, nx);
+}
+
+
 /*
  * Teleport the player to a location up to "dis" grids away.
  *
@@ -176,7 +280,15 @@ void teleport_player(int dis)
 {
 	int d, i, min, ox, oy, x = py, y = px;
 
+    int xx = -1, yy = -1;
+
 	bool look = TRUE;
+
+    if (p_ptr->anti_tele)
+    {
+        msg_print("A mysterious force prevents you from teleporting!");
+        return;
+    }
 
     if (dis > 200) dis = 200; /* To be on the safe side... */
 
@@ -238,6 +350,37 @@ void teleport_player(int dis)
 	/* Redraw the old spot */
 	lite_spot(oy, ox);
 
+    while (xx < 2)
+    {
+        yy = -1;
+
+        while (yy < 2)
+        {
+            if (xx == 0 && yy == 0)
+            {
+                /* Do nothing */
+            }
+            else
+            {
+                if (cave[oy+yy][ox+xx].m_idx)
+                {
+                    if ((r_info[m_list[cave[oy+yy][ox+xx].m_idx].r_idx].flags6
+                        & RF6_TPORT) &&
+                        !(r_info[m_list[cave[oy+yy][ox+xx].m_idx].r_idx].flags3
+                        & RF3_RES_TELE))
+                        /* The latter limitation is to avoid totally
+                        unkillable suckers... */
+                        {
+                            if (!(m_list[cave[oy+yy][ox+xx].m_idx].csleep))
+                            teleport_to_player(cave[oy+yy][ox+xx].m_idx);
+                        }
+                }
+            }
+            yy++;
+        }
+        xx++;
+    }
+
 	/* Redraw the new spot */
 	lite_spot(py, px);
 
@@ -269,6 +412,11 @@ void teleport_player_to(int ny, int nx)
 {
 	int y, x, oy, ox, dis = 0, ctr = 0;
 
+    if (p_ptr->anti_tele)
+    {
+        msg_print("A mysterious force prevents you from teleporting!");
+        return;
+    }
 
 	/* Find a usable location */
 	while (1)
@@ -332,27 +480,61 @@ void teleport_player_to(int ny, int nx)
  */
 void teleport_player_level(void)
 {
+    if (p_ptr->anti_tele)
+    {
+        msg_print("A mysterious force prevents you from teleporting!");
+        return;
+    }
+
 	if (!dun_level)
 	{
 		msg_print("You sink through the floor.");
+                if (autosave_l)
+                {
+                    is_autosave = TRUE;
+                    msg_print("Autosaving the game...");
+                    do_cmd_save_game();
+                    is_autosave = FALSE;
+                }
 		dun_level++;
 		new_level_flag = TRUE;
 	}
 	else if (is_quest(dun_level) || (dun_level >= MAX_DEPTH-1))
 	{
 		msg_print("You rise up through the ceiling.");
+                if (autosave_l)
+                {
+                    is_autosave = TRUE;
+                    msg_print("Autosaving the game...");
+                    do_cmd_save_game();
+                    is_autosave = FALSE;
+                }
 		dun_level--;
 		new_level_flag = TRUE;
 	}
 	else if (rand_int(100) < 50)
 	{
 		msg_print("You rise up through the ceiling.");
+                if (autosave_l)
+                {
+                    is_autosave = TRUE;
+                    msg_print("Autosaving the game...");
+                    do_cmd_save_game();
+                    is_autosave = FALSE;
+                }
 		dun_level--;
 		new_level_flag = TRUE;
 	}
 	else
 	{
 		msg_print("You sink through the floor.");
+                if (autosave_l)
+                {
+                    is_autosave = TRUE;
+                    msg_print("Autosaving the game...");
+                    do_cmd_save_game();
+                    is_autosave = FALSE;
+                }
 		dun_level++;
 		new_level_flag = TRUE;
 	}
@@ -441,6 +623,11 @@ static byte spell_color(int type)
 		case GF_ROCKET:         return (randint(6)<4?TERM_L_RED:(randint(4)==1?TERM_RED:TERM_L_UMBER));
         case GF_DEATH_RAY:      return (TERM_L_DARK);
 		case GF_NUKE:           return (mh_attr(2));
+        case GF_DISINTEGRATE:   return (randint(3)!=1?TERM_L_DARK:(randint(2)==1?TERM_ORANGE:TERM_L_UMBER));
+        case GF_PSI: case GF_PSI_DRAIN: case GF_TELEKINESIS:
+        case GF_DOMINATION:
+                                return (randint(3)!=1?TERM_L_BLUE:TERM_WHITE);
+
 	}
 
 	/* Standard "color" */
@@ -465,6 +652,8 @@ void take_hit(int damage, cptr hit_from)
 {
 	int old_chp = p_ptr->chp;
 
+    bool pen_invuln = FALSE;
+
     char death_message[80];
 
 	int warning = (p_ptr->mhp * hitpoint_warn / 10);
@@ -473,12 +662,27 @@ void take_hit(int damage, cptr hit_from)
 	/* Paranoia */
 	if (death) return;
 
-
 	/* Disturb */
 	disturb(1, 0);
 
 	/* Mega-Hack -- Apply "invulnerability" */
-	if (p_ptr->invuln && (damage < 9000)) return;
+    if (p_ptr->invuln && (damage < 9000))
+    { if (randint(PENETRATE_INVULNERABILITY)==1)
+        {
+            pen_invuln = TRUE;
+        }
+        else
+        {
+            return;
+        }
+    }
+
+    if (p_ptr->wraith_form)
+    {
+        damage /= 10;
+        if ((damage==0) && (randint(10)==1))
+            damage = 1;
+    }
 
 	/* Hurt the player */
 	p_ptr->chp -= damage;
@@ -488,6 +692,9 @@ void take_hit(int damage, cptr hit_from)
 
 	/* Window stuff */
 	p_ptr->window |= (PW_PLAYER);
+
+    if (pen_invuln)
+            msg_print("The attack penetrates your shield of invulnerability!");
 
 	/* Dead player */
 	if (p_ptr->chp < 0)
@@ -520,7 +727,13 @@ void take_hit(int damage, cptr hit_from)
 
         if (get_check("Dump the screen? "))
         {
-            do_cmd_save_screen();
+#ifdef USE_DOS
+            if (streq(ANGBAND_SYS, "dos") && arg_graphics)
+                dos_dump_screen();
+            else
+#endif
+                do_cmd_save_screen();
+
         }
 
 		/* Dead */
@@ -652,6 +865,8 @@ static bool hates_fire(object_type *o_ptr)
 	case TV_NATURE_BOOK:
 	case TV_CHAOS_BOOK:
 	case TV_DEATH_BOOK:
+    case TV_TRUMP_BOOK:
+    case TV_ARCANE_BOOK:
 		{
 			return (TRUE);
 		}
@@ -810,6 +1025,12 @@ static int inven_damage(inven_func typ, int perc)
 					     (amt > 1 ? "Some of y" : "One of y")) : "Y"),
 					   o_name, index_to_label(i),
 					   ((amt > 1) ? "were" : "was"));
+
+                   /* Potions smash open */
+                   if (k_info[o_ptr->k_idx].tval == TV_POTION) {
+                   (void)potion_smash_effect(0, py, px, o_ptr->sval);
+                   }
+                
 
 				/* Destroy "amt" items */
 				inven_item_increase(i, -amt);
@@ -1448,6 +1669,11 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 		case GF_MANA:
         case GF_HOLY_FIRE:
         case GF_HELL_FIRE:
+        case GF_DISINTEGRATE:
+        case GF_PSI:
+        case GF_PSI_DRAIN:
+        case GF_TELEKINESIS:
+        case GF_DOMINATION:
 		{
 			break;
 		}
@@ -1529,6 +1755,29 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 			}
 
 			break;
+		}
+
+        case GF_JAM_DOOR: /* Jams a door (as if with a spike) */
+		{
+        if ((c_ptr->feat >= FEAT_DOOR_HEAD) &&
+              (c_ptr->feat <= FEAT_DOOR_TAIL))
+		{
+			/* Convert "locked" to "stuck" XXX XXX XXX */
+			if (c_ptr->feat < FEAT_DOOR_HEAD + 0x08) c_ptr->feat += 0x08;
+
+			/* Add one spike to the door */
+			if (c_ptr->feat < FEAT_DOOR_TAIL) c_ptr->feat++;
+
+                /* Check line of sight */
+				if (player_has_los_bold(y, x))
+				{
+					/* Message */
+                    msg_print("The door seems stuck.");
+					obvious = TRUE;
+				}
+
+         }
+        break;
 		}
 
 		/* Destroy walls (and doors) */
@@ -1792,6 +2041,9 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 
 	char o_name[80];
 
+    int o_sval = 0;
+    bool is_potion = FALSE;
+
 
 	/* XXX XXX XXX */
 	who = who ? who : 0;
@@ -1931,17 +2183,28 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 			}
 
             /* Mana and Chaos -- destroy everything */
-			case GF_MANA:
+            case GF_MANA: 
 			{
 				do_kill = TRUE;
 				note_kill = (plural ? " are destroyed!" : " is destroyed!");
 			}
+            break;
+
+             case GF_DISINTEGRATE:
+			{
+				do_kill = TRUE;
+                note_kill = (plural ? " evaporate!" : " evaporates!");
+			}
+
+            break;
+
             case GF_CHAOS:
 			{
 				do_kill = TRUE;
 				note_kill = (plural ? " are destroyed!" : " is destroyed!");
                 if (f2 & (TR2_RES_CHAOS)) ignore = TRUE;
 			}
+            break;
 
             /* Holy Fire and Hell Fire -- destroys cursed non-artifacts */
             case GF_HOLY_FIRE:
@@ -2015,8 +2278,18 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 					msg_format("The %s%s", o_name, note_kill);
 				}
 
+                o_sval = o_ptr->sval;
+                is_potion = (k_info[o_ptr->k_idx].tval == TV_POTION);
+
+
 				/* Delete the object */
 				delete_object_idx(this_o_idx);
+
+                   /* Potions produce effects when 'shattered' */
+                   if (is_potion) {
+                   (void)potion_smash_effect(who, y, x, o_sval);
+                   }
+                
 
 				/* Redraw */
 				lite_spot(y, x);
@@ -2093,6 +2366,8 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
+    char killer [80];
+
 	cptr name = (r_name + r_ptr->name);
 
 	/* Is the monster "seen"? */
@@ -2134,8 +2409,12 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 	cptr note_dies = " dies.";
 
 
+
 	/* Walls protect monsters */
+    /* (No, they don't)  */
+#if 0
 	if (!cave_floor_bold(y,x)) return (FALSE);
+#endif
 
 	/* Nobody here */
 	if (!c_ptr->m_idx) return (FALSE);
@@ -2163,6 +2442,84 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		/* Special note at death */
 		note_dies = " is destroyed.";
 	}
+
+    if ((!who) && (m_ptr->smart & SM_FRIEND)) {
+       bool get_angry = FALSE;
+       /* Grrr? */
+       switch (typ) {
+        case GF_AWAY_UNDEAD:
+        case GF_AWAY_EVIL:
+        case GF_AWAY_ALL:
+        case GF_CHARM:
+        case GF_CONTROL_UNDEAD:
+        case GF_CONTROL_ANIMAL:
+        case GF_OLD_HEAL:
+        case GF_OLD_SPEED:
+        case GF_DARK_WEAK:
+        case GF_JAM_DOOR:
+       break;             /* none of the above anger */
+       case GF_KILL_WALL:
+            if (r_ptr->flags3 & (RF3_HURT_ROCK))
+            get_angry = TRUE;
+            break;
+        case GF_HOLY_FIRE:
+            if (!(r_ptr->flags3 & (RF3_GOOD)))
+                get_angry = TRUE;
+            break;
+        case GF_TURN_UNDEAD:
+        case GF_DISP_UNDEAD:
+       if (r_ptr->flags3 & RF3_UNDEAD)
+         get_angry = TRUE;
+       break;
+        case GF_TURN_EVIL:
+        case GF_DISP_EVIL:
+       if (r_ptr->flags3 & RF3_EVIL)
+         get_angry = TRUE;
+       break;
+       case GF_DISP_GOOD:
+        if (r_ptr->flags3 & RF3_GOOD)
+            get_angry = TRUE;
+        break;
+        case GF_DISP_DEMON:
+       if (r_ptr->flags3 & RF3_DEMON)
+         get_angry = TRUE;
+       break;
+        case GF_DISP_LIVING:
+       if (!(r_ptr->flags3 & (RF3_UNDEAD)) &&
+           !(r_ptr->flags3 & (RF3_NONLIVING)))
+         get_angry = TRUE;
+       break;
+       case GF_PSI: case GF_PSI_DRAIN:
+        if (!(r_ptr->flags2 & (RF2_EMPTY_MIND)))
+            get_angry = TRUE;
+        break;
+        case GF_DOMINATION:
+        {
+            if (!(r_ptr->flags3 & (RF3_NO_CONF)))
+            get_angry = TRUE;
+        }
+        break;
+        case GF_OLD_POLY:
+        case GF_OLD_CLONE:
+       if (randint(8) == 1)
+         get_angry = TRUE;
+       break;
+      case GF_LITE:
+      case GF_LITE_WEAK:
+         if (r_ptr->flags3 & RF3_HURT_LITE)
+          get_angry = TRUE;
+       break;
+        default:
+         get_angry = TRUE;
+       }
+
+       /* Now anger it if appropriate */
+       if (get_angry == TRUE && !(who)) {
+       msg_format("%^s gets angry!", m_name);
+       m_ptr->smart &= ~SM_FRIEND;
+       }
+   }
+
 
 
 	/* Analyze the damage type */
@@ -2269,11 +2626,17 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			break;
 		}
 
-        /* Holy Fire -- hurts Evil, others _resist_ */
+        /* Holy Fire -- hurts Evil, Good are immune, others _resist_ */
         case GF_HOLY_FIRE:
 		{
 			if (seen) obvious = TRUE;
-			if (r_ptr->flags3 & (RF3_EVIL))
+            if (r_ptr->flags3 & (RF3_GOOD))
+			{
+                dam = 0;
+                note = " is immune.";
+                if (seen) r_ptr->r_flags3 |= (RF3_GOOD);
+			}
+            else if (r_ptr->flags3 & (RF3_EVIL))
 			{
 				dam *= 2;
 				note = " is hit hard.";
@@ -2481,6 +2844,23 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 				note = " resists.";
 				dam *= 3; dam /= (randint(6)+6);
 			}
+            else
+            {
+
+               /* Powerful monsters can resist */
+               if ((r_ptr->flags1 & (RF1_UNIQUE)) ||
+               (r_ptr->level > randint((dam - 10) < 1 ? 1 : (dam - 10)) + 10))
+               {
+                   obvious = FALSE;
+               }
+               /* Normal monsters slow down */
+               else
+               {
+                   if (m_ptr->mspeed > 60) m_ptr->mspeed -= 10;
+                   note = " starts moving slower.";
+               }
+            }
+                
 			break;
 		}
 
@@ -2499,15 +2879,66 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		/* Gravity -- breathers resist */
 		case GF_GRAVITY:
 		{
+            bool resist_tele = FALSE;
+
 			if (seen) obvious = TRUE;
-			do_dist = 10;
+
+            if (r_ptr->flags3 & (RF3_RES_TELE))
+            {
+                if (r_ptr->flags1 & (RF1_UNIQUE))
+                {
+                    if (seen) r_ptr->r_flags3 |= RF3_RES_TELE;
+                    note = " is unaffected!";
+                    resist_tele = TRUE;
+                }
+                else if (r_ptr->level > randint(100))
+                {
+                    if (seen) r_ptr->r_flags3 |= RF3_RES_TELE;
+                    note = " resists!";
+                    resist_tele = TRUE;
+                }
+            }
+
+            if (!resist_tele) do_dist = 10;
+            else do_dist = 0;
+
 			if (r_ptr->flags4 & (RF4_BR_GRAV))
 			{
 				note = " resists.";
 				dam *= 3; dam /= (randint(6)+6);
 				do_dist = 0;
 			}
-			break;
+            else
+            {
+
+               /* 1. slowness */
+               /* Powerful monsters can resist */
+               if ((r_ptr->flags1 & (RF1_UNIQUE)) ||
+               (r_ptr->level > randint((dam - 10) < 1 ? 1 : (dam - 10)) + 10))
+               {
+                   obvious = FALSE;
+               }
+               /* Normal monsters slow down */
+               else
+               {
+                   if (m_ptr->mspeed > 60) m_ptr->mspeed -= 10;
+                   note = " starts moving slower.";
+               }
+               /* 2. stun */
+               do_stun = damroll((p_ptr->lev / 10) + 3 , (dam)) + 1;
+
+               /* Attempt a saving throw */
+               if ((r_ptr->flags1 & (RF1_UNIQUE)) ||
+               (r_ptr->level > randint((dam - 10) < 1 ? 1 : (dam - 10)) + 10))
+               {
+                   /* Resist */
+                   do_stun = 0;
+                   /* No obvious effect */
+                   note = " is unaffected!";
+                   obvious = FALSE;
+               }
+            }
+            break;
 		}
 
 		/* Pure damage */
@@ -2517,12 +2948,255 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			break;
 		}
 
-		/* Meteor -- powerful magic missile */
+
+       /* Pure damage */
+        case GF_DISINTEGRATE:
+        {
+           if (seen) obvious = TRUE;
+           if (r_ptr->flags3 & (RF3_HURT_ROCK))
+               {
+                   if (seen) r_ptr->r_flags3 |= (RF3_HURT_ROCK);
+                       note = " loses some skin!";
+                   note_dies = " evaporates!";
+                   dam *= 2;
+               }
+
+               if (r_ptr->flags3 & RF1_UNIQUE)
+               {
+                 if (rand_int(r_ptr->level + 10) > rand_int(p_ptr->lev))
+                                   {
+                                     note = " resists.";
+                                     dam >>= 3;
+                                   }
+                }
+        }
+        break;
+
+	 case GF_PSI:
+		{
+			if (seen) obvious = TRUE;
+		    if (r_ptr->flags2 & RF2_EMPTY_MIND) {
+			dam = 0;
+			note = " is immune!";
+		    } else if ((r_ptr->flags2 & RF2_STUPID) ||
+			       (r_ptr->flags2 & RF2_WEIRD_MIND) ||
+			       (r_ptr->flags3 & RF3_ANIMAL) || 
+			       (r_ptr->level > randint(3 * dam))) {
+			dam /= 3;
+			note = " resists.";
+
+            /* Powerful demons & undead can turn a mindcrafter's
+			 * attacks back on them */
+			if (((r_ptr->flags3 & RF3_UNDEAD) ||
+			     (r_ptr->flags3 & RF3_DEMON)) &&
+			    (r_ptr->level > p_ptr->lev/2) && 
+			    (randint(2) == 1)) {
+			    note = NULL;
+                msg_format("%^s%s corrupted mind backlashes your attack!",
+				       m_name, (seen ? "'s" : "s"));
+			    /* Saving throw */
+			    if (rand_int(100) < p_ptr->skill_sav) {
+				msg_print("You resist the effects!");
+			    } else {
+				/* Injure +/- confusion */
+				monster_desc(killer, m_ptr, 0x88);
+                take_hit(dam, killer);  /* has already been /3 */
+				if (randint(4) == 1) {
+				    switch (randint(4)) {
+				     case 1:
+                    set_confused(p_ptr->confused + 3 + randint(dam));
+					break;
+				     case 2:
+                    set_stun(p_ptr->stun + randint(dam)); break;
+				     case 3:
+                     {
+                    if (r_ptr->flags3 & (RF3_NO_FEAR))
+                        note = " is unaffected.";
+                    else
+                        set_afraid(p_ptr->afraid + 3 + randint(dam));
+                    }
+                    break;
+				     default:
+                    if (!p_ptr->free_act)
+                        (void)set_paralyzed(p_ptr->paralyzed + randint(dam));
+					break;
+				    }
+				}
+			    }
+			    dam = 0;
+			}
+		    
+		    }
+		    
+		    if ((dam > 0) && (randint(4) == 1)) {
+			switch (randint(4)) {
+			 case 1:
+			    do_conf = 3 + randint(dam);  break;
+			 case 2:
+			    do_stun = 3 + randint(dam); break;
+			 case 3:
+			    do_fear = 3 + randint(dam);  break;
+			 default:
+			    do_sleep = 3 + randint(dam);  break;
+			}
+		    }
+		    
+		    note_dies = " collapses, a mindless husk.";
+			break;
+		}
+	    
+	 case GF_PSI_DRAIN:
+		{
+			if (seen) obvious = TRUE;
+		    if (r_ptr->flags2 & RF2_EMPTY_MIND) {
+			dam = 0;
+			note = " is immune!";
+		    } else if ((r_ptr->flags2 & RF2_STUPID) ||
+			       (r_ptr->flags2 & RF2_WEIRD_MIND) ||
+			       (r_ptr->flags3 & RF3_ANIMAL) || 
+			       (r_ptr->level > randint(3 * dam))) {
+			dam /= 3;
+			note = " resists.";
+
+            /* Powerful demons & undead can turn a mindcrafter's
+			 * attacks back on them */
+			if (((r_ptr->flags3 & RF3_UNDEAD) ||
+			     (r_ptr->flags3 & RF3_DEMON)) &&
+			    (r_ptr->level > p_ptr->lev/2) && 
+			    (randint(2) == 1)) {
+			    note = NULL;
+                msg_format("%^s%s corrupted mind backlashes your attack!",
+				       m_name, (seen ? "'s" : "s"));
+			    /* Saving throw */
+			    if (rand_int(100) < p_ptr->skill_sav) {
+				msg_print("You resist the effects!");
+			    } else {
+				/* Injure + mana drain */
+				monster_desc(killer, m_ptr, 0x88);
+                msg_print("Your psychic energy is drained!");
+                p_ptr->csp = MAX(0, p_ptr->csp - damroll(5, dam)/2);
+				p_ptr->redraw |= PR_MANA;
+                take_hit(dam, killer);  /* has already been /3 */
+			    }
+			    dam = 0;
+			}
+		    
+		    } else if (dam > 0) {
+			int b = damroll(5, dam) / 4;
+            msg_format("You convert %s%s pain into psychic energy!",
+				   m_name, (seen ? "'s" : "s"));
+			b = MIN(p_ptr->msp, p_ptr->csp + b);
+			p_ptr->csp = b;
+			p_ptr->redraw |= PR_MANA;
+		    }
+		    
+		    note_dies = " collapses, a mindless husk.";
+			break;
+		}
+	 case GF_TELEKINESIS:
+		{
+		    if (seen) obvious = TRUE;
+		    do_dist = 7;
+		    /* 1. stun */
+            do_stun = damroll((p_ptr->lev / 10) + 3 , (dam)) + 1;
+
+		    /* Attempt a saving throw */
+		    if ((r_ptr->flags1 & (RF1_UNIQUE)) ||
+			(r_ptr->level > 5 + randint(dam)))
+			{
+			    /* Resist */
+			    do_stun = 0;
+			    /* No obvious effect */
+			    obvious = FALSE;
+			}
+		    break;
+		}
+
+        /* Meteor -- powerful magic missile */
 		case GF_METEOR:
 		{
 			if (seen) obvious = TRUE;
 			break;
 		}
+
+     case GF_DOMINATION:
+		{
+		        if (m_ptr->smart & SM_FRIEND)   break;
+			if (seen) obvious = TRUE;
+
+			/* Attempt a saving throw */
+			if ((r_ptr->flags1 & (RF1_UNIQUE)) ||
+			    (r_ptr->flags3 & (RF3_NO_CONF)) ||
+			    (r_ptr->level > randint((dam - 10) < 1 ? 1 : (dam - 10)) + 10))
+			{
+				/* Memorize a flag */
+				if (r_ptr->flags3 & (RF3_NO_CONF))
+				{
+					if (seen) r_ptr->r_flags3 |= (RF3_NO_CONF);
+				}
+
+				/* Resist */
+				do_conf = 0;
+			        
+			    /* Powerful demons & undead can turn a mindcrafter's
+			     * attacks back on them */
+			    if (((r_ptr->flags3 & RF3_UNDEAD) ||
+				 (r_ptr->flags3 & RF3_DEMON)) &&
+				(r_ptr->level > p_ptr->lev/2) &&
+				(randint(2) == 1)) {
+				note = NULL;
+                msg_format("%^s%s corrupted mind backlashes your attack!",
+					   m_name, (seen ? "'s" : "s"));
+				/* Saving throw */
+				if (rand_int(100) < p_ptr->skill_sav) {
+				    msg_print("You resist the effects!");
+				} else {
+				    /* Confuse, stun, terrify */
+				    switch (randint(4)) {
+				     case 1:
+					set_stun(p_ptr->stun + dam / 2);
+					break;
+				     case 2:
+					set_confused(p_ptr->confused + dam / 2);
+					break;
+				     default:
+                     {
+                    if (r_ptr->flags3 & (RF3_NO_FEAR))
+                        note = " is unaffected.";
+                    else
+                        set_afraid(p_ptr->afraid + dam);
+                     }
+				    }
+				}
+			    } else {
+				/* No obvious effect */
+				note = " is unaffected!";
+				obvious = FALSE;
+			    }
+			} else {
+			     if ((dam > 29) && (randint(100) < dam)) {
+				 note = " is in your thrall!";
+				 m_ptr->smart |= SM_FRIEND;
+			     } else {
+				 switch (randint(4)) {
+				  case 1:
+				     do_stun = dam/2;
+				     break;
+				  case 2:
+				     do_conf = dam/2;
+				     break;
+				  default:
+				     do_fear = dam;
+				 }
+			     }
+			}
+
+			/* No "real" damage */
+			dam = 0;
+			break;
+		}
+
+
 
 		/* Ice -- Cold + Cuts + Stun */
 		case GF_ICE:
@@ -2627,7 +3301,11 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		/* Clone monsters (Ignore "dam") */
 		case GF_OLD_CLONE:
 		{
+            bool is_friend = FALSE;
+
 			if (seen) obvious = TRUE;
+            if ((m_ptr->smart & SM_FRIEND) && (randint(3)!=1))
+                    is_friend = TRUE;
 
 			/* Heal fully */
 			m_ptr->hp = m_ptr->maxhp;
@@ -2636,7 +3314,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			if (m_ptr->mspeed < 150) m_ptr->mspeed += 10;
 
 			/* Attempt to clone. */
-			if (multiply_monster(c_ptr->m_idx))
+            if (multiply_monster(c_ptr->m_idx, is_friend, TRUE))
 			{
 				note = " spawns!";
 			}
@@ -2772,7 +3450,110 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			break;
 		}
 
-		/* Confusion (Use "dam" as "power") */
+       /* Charm monster */
+       case GF_CHARM:
+       {
+
+           dam += (adj_con_fix[p_ptr->stat_ind[A_CHR]] - 1);
+
+           if (seen) obvious = TRUE;
+
+           /* Attempt a saving throw */
+           if ((r_ptr->flags1 & (RF1_UNIQUE)) ||
+               (r_ptr->flags3 & (RF3_NO_CONF)) ||
+               (r_ptr->level > randint((dam - 10) < 1 ? 1 : (dam - 10)) + 5))
+           {
+               /* Memorize a flag */
+               if (r_ptr->flags3 & (RF3_NO_CONF))
+               {
+                   if (seen) r_ptr->r_flags3 |= (RF3_NO_CONF);
+               }
+
+               /* Resist */
+               /* No obvious effect */
+               note = " is unaffected!";
+               obvious = FALSE;
+           } else if (p_ptr->aggravate) {
+               note = " hates you too much!";
+           } else {
+               note = " suddenly seems friendly!";
+               m_ptr->smart |= SM_FRIEND;
+           }
+
+           /* No "real" damage */
+           dam = 0;
+           break;
+       }
+
+       /* Control undead */
+       case GF_CONTROL_UNDEAD:
+       {
+           if (seen) obvious = TRUE;
+
+           /* Attempt a saving throw */
+           if ((r_ptr->flags1 & (RF1_UNIQUE)) ||
+               (!(r_ptr->flags3 & (RF3_UNDEAD))) ||
+               (r_ptr->level > randint((dam - 10) < 1 ? 1 : (dam - 10)) + 10))
+           {
+
+#if 0
+               /* Memorize a flag */
+               if (r_ptr->flags3 & (RF3_NO_CONF))
+               {
+                   if (seen) r_ptr->r_flags3 |= (RF3_NO_CONF);
+               }
+#endif
+
+               /* Resist */
+               /* No obvious effect */
+               note = " is unaffected!";
+               obvious = FALSE;
+           } else if (p_ptr->aggravate) {
+               note = " hates you too much!";
+           } else {
+               note = " is in your thrall!";
+               m_ptr->smart |= SM_FRIEND;
+           }
+
+           /* No "real" damage */
+           dam = 0;
+           break;
+       }
+
+       /* Tame animal */
+       case GF_CONTROL_ANIMAL:
+       {
+           if (seen) obvious = TRUE;
+
+           /* Attempt a saving throw */
+           if ((r_ptr->flags1 & (RF1_UNIQUE)) ||
+               (!(r_ptr->flags3 & (RF3_ANIMAL))) ||
+               (r_ptr->flags3 & (RF3_NO_CONF)) ||
+               (r_ptr->level > randint((dam - 10) < 1 ? 1 : (dam - 10)) + 10))
+           {
+               /* Memorize a flag */
+               if (r_ptr->flags3 & (RF3_NO_CONF))
+               {
+                   if (seen) r_ptr->r_flags3 |= (RF3_NO_CONF);
+               }
+
+               /* Resist */
+               /* No obvious effect */
+               note = " is unaffected!";
+               obvious = FALSE;
+           } else if (p_ptr->aggravate) {
+               note = " hates you too much!";
+           } else {
+                   note = " is tamed!";
+                   m_ptr->smart |= SM_FRIEND;
+           }
+
+           /* No "real" damage */
+           dam = 0;
+           break;
+       }
+
+        /* Confusion (Use "dam" as "power") */
 		case GF_OLD_CONF:
 		{
 			if (seen) obvious = TRUE;
@@ -2897,7 +3678,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		case GF_KILL_WALL:
 		{
 			/* Hurt by rock remover */
-			if (r_ptr->flags3 & (RF3_HURT_ROCK))
+            if (r_ptr->flags3 & (RF3_HURT_ROCK))
 			{
 				/* Notice effect */
 				if (seen) obvious = TRUE;
@@ -2923,13 +3704,35 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 
 		/* Teleport undead (Use "dam" as "power") */
 		case GF_AWAY_UNDEAD:
-		{
+        {
+
 			/* Only affect undead */
 			if (r_ptr->flags3 & (RF3_UNDEAD))
 			{
-				if (seen) obvious = TRUE;
-				if (seen) r_ptr->r_flags3 |= (RF3_UNDEAD);
-				do_dist = dam;
+             bool resists_tele = FALSE;
+
+            if (r_ptr->flags3 & (RF3_RES_TELE))
+            {
+                if (r_ptr->flags1 & (RF1_UNIQUE))
+                {
+                    if (seen) r_ptr->r_flags3 |= RF3_RES_TELE;
+                    note = " is unaffected!";
+                    resists_tele = TRUE;
+                }
+                else if (r_ptr->level > randint(100))
+                {
+                    if (seen) r_ptr->r_flags3 |= RF3_RES_TELE;
+                    note = " resists!";
+                    resists_tele = TRUE;
+                }
+            }
+
+            if (!resists_tele)
+                {
+                    if (seen) obvious = TRUE;
+                    if (seen) r_ptr->r_flags3 |= (RF3_UNDEAD);
+                    do_dist = dam;
+                }
 			}
 
 			/* Others ignore */
@@ -2948,12 +3751,33 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		/* Teleport evil (Use "dam" as "power") */
 		case GF_AWAY_EVIL:
 		{
-			/* Only affect undead */
+            /* Only affect evil */
 			if (r_ptr->flags3 & (RF3_EVIL))
 			{
-				if (seen) obvious = TRUE;
-				if (seen) r_ptr->r_flags3 |= (RF3_EVIL);
-				do_dist = dam;
+             bool resists_tele = FALSE;
+
+            if (r_ptr->flags3 & (RF3_RES_TELE))
+            {
+                if (r_ptr->flags1 & (RF1_UNIQUE))
+                {
+                    if (seen) r_ptr->r_flags3 |= RF3_RES_TELE;
+                    note = " is unaffected!";
+                    resists_tele = TRUE;
+                }
+                else if (r_ptr->level > randint(100))
+                {
+                    if (seen) r_ptr->r_flags3 |= RF3_RES_TELE;
+                    note = " resists!";
+                    resists_tele = TRUE;
+                }
+            }
+
+            if (!resists_tele)
+                {
+                    if (seen) obvious = TRUE;
+                    if (seen) r_ptr->r_flags3 |= (RF3_EVIL);
+                    do_dist = dam;
+                }
 			}
 
 			/* Others ignore */
@@ -2972,11 +3796,33 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		/* Teleport monster (Use "dam" as "power") */
 		case GF_AWAY_ALL:
 		{
-			/* Obvious */
-			if (seen) obvious = TRUE;
+             bool resists_tele = FALSE;
 
-			/* Prepare to teleport */
-			do_dist = dam;
+            if (r_ptr->flags3 & (RF3_RES_TELE))
+            {
+                if (r_ptr->flags1 & (RF1_UNIQUE))
+                {
+                    if (seen) r_ptr->r_flags3 |= RF3_RES_TELE;
+                    note = " is unaffected!";
+                    resists_tele = TRUE;
+                }
+                else if (r_ptr->level > randint(100))
+                {
+                    if (seen) r_ptr->r_flags3 |= RF3_RES_TELE;
+                    note = " resists!";
+                    resists_tele = TRUE;
+                }
+            }
+
+            if (!resists_tele)
+                {
+
+                    /* Obvious */
+                    if (seen) obvious = TRUE;
+
+                    /* Prepare to teleport */
+                    do_dist = dam;
+                }
 
 			/* No "real" damage */
 			dam = 0;
@@ -3071,7 +3917,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 
 			/* Attempt a saving throw */
 			if ((r_ptr->flags1 & (RF1_UNIQUE)) ||
-			    (r_ptr->flags3 & (RF3_NO_FEAR)) ||
+                (r_ptr->flags3 & (RF3_NO_FEAR)) ||
 			    (r_ptr->level > randint((dam - 10) < 1 ? 1 : (dam - 10)) + 10))
 			{
 				/* No obvious effect */
@@ -3147,7 +3993,39 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			break;
 		}
 
-	/* Dispel living */
+        /* Dispel good */
+        case GF_DISP_GOOD:
+		{
+            /* Only affect good */
+            if (r_ptr->flags3 & (RF3_GOOD))
+			{
+				/* Learn about type */
+                if (seen) r_ptr->r_flags3 |= (RF3_GOOD);
+
+				/* Obvious */
+				if (seen) obvious = TRUE;
+
+				/* Message */
+				note = " shudders.";
+				note_dies = " dissolves!";
+			}
+
+			/* Others ignore */
+			else
+			{
+				/* Irrelevant */
+				skipped = TRUE;
+
+				/* No damage */
+				dam = 0;
+			}
+
+			break;
+		}
+
+
+
+    /* Dispel living */
 	case GF_DISP_LIVING:
 		{
 	    /* Only affect non-undead */
@@ -3259,8 +4137,12 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 	/* Mega-Hack -- Handle "polymorph" -- monsters get a saving throw */
 	else if (do_poly && (randint(90) > r_ptr->level))
 	{
+        bool charm = FALSE;
+
 		/* Default -- assume no polymorph */
 		note = " is unaffected!";
+
+        charm = (m_ptr->smart & SM_FRIEND);
 
 		/* Pick a "new" monster race */
 		tmp = poly_r_idx(m_ptr->r_idx);
@@ -3281,7 +4163,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			delete_monster_idx(c_ptr->m_idx);
 
 			/* Create a new monster (no groups) */
-			(void)place_monster_aux(y, x, tmp, FALSE, FALSE);
+            (void)place_monster_aux(y, x, tmp, FALSE, FALSE, charm);
 
 			/* XXX XXX XXX Hack -- Assume success */
 
@@ -3391,6 +4273,12 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		/* Dead monster */
 		if (m_ptr->hp < 0)
 		{
+            bool sad = FALSE;
+
+            if ((m_ptr->smart & (SM_FRIEND)) &&
+                !(m_ptr->ml))
+                    sad = TRUE;
+
 			/* Generate treasure, etc */
 			monster_death(c_ptr->m_idx);
 
@@ -3399,6 +4287,13 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 
 			/* Give detailed messages if destroyed */
 			if (note) msg_format("%^s%s", m_name, note);
+
+            if (sad)
+            {
+                    msg_print("You feel sad for a moment.");
+                }
+
+
 		}
 
 		/* Damaged monster */
@@ -3653,7 +4548,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 			{
 				(void)set_poisoned(p_ptr->poisoned + rand_int(dam) + 10);
                 if (randint(5)==1) /* 6 */
-                 { msg_print("You undergo a bizarre mutation!");
+                 { msg_print("You undergo a freakish metamorphosis!");
                     if (randint(4)==1) /* 4 */
                         do_poly_self();
                     else
@@ -3728,8 +4623,9 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 		case GF_NETHER:
 		{
             if (fuzzy) msg_print("You are hit by nether forces!");
-			if (p_ptr->resist_neth)
+            if (p_ptr->resist_neth)
 			{
+                if (!(p_ptr->prace == RACE_SPECTRE))
 				dam *= 6; dam /= (randint(6) + 6);
 			}
 			else
@@ -3749,9 +4645,14 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 					lose_exp(200 + (p_ptr->exp/100) * MON_DRAIN_LIFE);
 				}
 			}
-			take_hit(dam, killer);
-			break;
-		}
+       if (p_ptr->prace == RACE_SPECTRE) {
+                   msg_print("You feel invigorated!");
+                   hp_player(dam / 4);
+           } else {
+                   take_hit(dam, killer);
+           }
+       break;
+       }
 
 		/* Water -- stun/confuse */
 		case GF_WATER:
@@ -3790,6 +4691,11 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 			if (!p_ptr->resist_chaos)
 			{
 				(void)set_image(p_ptr->image + randint(10));
+                if (randint(3)==1)
+                {
+                    msg_print("Your body is twisted by chaos!");
+                    (void) gain_random_mutation(0);
+                }
 			}
 			if (!p_ptr->resist_neth && !p_ptr->resist_chaos)
 			{
@@ -3968,7 +4874,23 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 			{
 				(void)set_blind(p_ptr->blind + randint(5) + 2);
 			}
-			take_hit(dam, killer);
+           if (p_ptr->prace == RACE_VAMPIRE) {
+           msg_print("The light scorches your flesh!");
+           dam *= 2;
+           }
+           take_hit(dam, killer);
+           if (p_ptr->wraith_form)
+           {
+               p_ptr->wraith_form = 0;
+               msg_print("The light forces you out of your incorporeal shadow form.");
+               p_ptr->redraw |= PR_MAP;
+                /* Update monsters */
+                p_ptr->update |= (PU_MONSTERS);
+                /* Window stuff */
+                p_ptr->window |= (PW_OVERHEAD);
+               
+           }
+
 			break;
 		}
 
@@ -3978,15 +4900,20 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 			if (fuzzy) msg_print("You are hit by something!");
 			if (p_ptr->resist_dark)
 			{
-				dam *= 4; dam /= (randint(6) + 6);
-			}
+               dam *= 4; dam /= (randint(6) + 6);
+               if (p_ptr->prace == RACE_VAMPIRE)
+                 dam = 0;
+            }
 			else if (!blind && !p_ptr->resist_blind)
 			{
 				(void)set_blind(p_ptr->blind + randint(5) + 2);
 			}
-			take_hit(dam, killer);
-			break;
-		}
+           if (p_ptr->wraith_form)
+             hp_player(dam);
+           else
+             take_hit(dam, killer);
+           break;
+        }
 
 		/* Time -- bolt fewer effects XXX */
 		case GF_TIME:
@@ -4066,7 +4993,46 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 			break;
 		}
 
-		/* Pure damage */
+		/* Standard damage */
+        case GF_DISINTEGRATE:
+		{
+            if (fuzzy) msg_print("You are hit by pure energy!");
+			take_hit(dam, killer);
+			break;
+		}
+
+    case GF_OLD_HEAL:
+       {
+           if (fuzzy) msg_print("You are hit by something invigorating!");
+           (void)hp_player(dam);
+           dam = 0;
+           break;
+       }
+
+    case GF_OLD_SPEED:
+       {
+           if (fuzzy)  msg_print("You are hit by something!");
+           (void)set_fast(p_ptr->fast + randint(5));
+           dam = 0;
+           break;
+       }
+
+    case GF_OLD_SLOW:
+       {
+           if (fuzzy) msg_print("You are hit by something slow!");
+           (void)set_slow(p_ptr->slow + rand_int(4) + 4);
+           break;
+       }
+    case GF_OLD_SLEEP:
+       {
+           if (p_ptr->free_act)  break;
+           if (fuzzy) msg_print("You fall asleep!");
+           set_paralyzed(p_ptr->paralyzed + dam);
+           dam = 0;
+           break;
+       }
+       
+        /* Pure damage */
 		case GF_MANA:
 		{
             if (fuzzy) msg_print("You are hit by an aura of magic!");
@@ -4297,6 +5263,8 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
 	int i, t, dist;
 	int y1, x1, y2, x2;
 	int y0, x0, y9, x9;
+    int dist_hack = 0;
+    int y_saver, x_saver; /* For reflecting monsters */
 
 	int msec = delay_factor * delay_factor * delay_factor;
 
@@ -4350,6 +5318,9 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
 		x1 = m_list[who].fx;
 		y1 = m_list[who].fy;
 	}
+
+    y_saver = y1;
+    x_saver = x1;
 
 
 	/* Default "destination" */
@@ -4466,6 +5437,8 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
 	/* Hack -- make sure beams get to "explode" */
 	gm[1] = grids;
 
+    dist_hack = dist;
+
 	/* If we found a "target", explode there */
 	if (dist <= MAX_RANGE)
 	{
@@ -4487,7 +5460,21 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
 					if (distance(y2, x2, y, x) != dist) continue;
 
 					/* Ball explosions are stopped by walls */
-					if (!los(y2, x2, y, x)) continue;
+                    if (typ == GF_DISINTEGRATE)
+                    {
+                        if (cave_valid_bold(y,x) &&
+                          (c_ptr->feat < FEAT_PATTERN_START
+                          || c_ptr->feat > FEAT_PATTERN_XTRA2))
+                        cave_set_feat(y, x, FEAT_FLOOR);
+                    }
+
+                    else
+
+                    {
+                        if (!los(y2, x2, y, x)) continue;
+                    }
+
+
 
 					/* Save this grid */
 					gy[grids] = y;
@@ -4633,8 +5620,49 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
 			y = gy[i];
 			x = gx[i];
 
-			/* Affect the monster in the grid */
-			if (project_m(who, dist, y, x, dam, typ)) notice = TRUE;
+            if (grids > 1)
+            {
+                /* Affect the monster in the grid */
+                if (project_m(who, dist, y, x, dam, typ)) notice = TRUE;
+            }
+            else
+            {
+                monster_race *ref_ptr = &r_info[m_list[c_ptr->m_idx].r_idx];
+                if ((ref_ptr->flags2 & (RF2_REFLECTING)) && (randint(10)!=1)
+                     && (dist_hack > 1))
+                {
+                    byte t_y, t_x;
+                    int max_attempts = 10;
+
+                    /* Choose 'new' target */
+                    do
+                    {
+                        t_y = y_saver - 1 + randint(3);
+                        t_x = x_saver - 1 + randint(3);
+                        max_attempts--;
+                    }
+                    while (max_attempts && !(los(y, x, t_y, t_x)));
+
+                    if (max_attempts < 1)
+                    {
+
+                        t_y = y_saver;
+                        t_x = x_saver;
+                    }
+                    
+                    if (m_list[c_ptr->m_idx].ml)
+                    {
+                        msg_print("The attack bounces!");
+                        ref_ptr->r_flags2 |= RF2_REFLECTING;
+                    }
+                    project(c_ptr->m_idx, 0, t_y, t_x,  dam, typ, flg);
+                }
+                else
+                {
+                    if (project_m(who, dist, y, x, dam, typ)) notice = TRUE;
+                }
+
+            }
 		}
 
 		/* Player affected one monster (without "jumping") */
@@ -4690,5 +5718,168 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
 
 
 
+
+ /*
+  * Potions "smash open" and cause an area effect when
+  * (1) they are shattered while in the player's inventory,
+  * due to cold (etc) attacks;
+  * (2) they are thrown at a monster, or obstacle;
+  * (3) they are shattered by a "cold ball" or other such spell
+  * while lying on the floor.
+  *
+  * Arguments:
+  *    who   ---  who caused the potion to shatter (0=player)
+  *          potions that smash on the floor are assumed to
+  *          be caused by no-one (who = 1), as are those that
+  *          shatter inside the player inventory.
+  *          (Not anymore -- I changed this; TY)
+  *    y, x  --- coordinates of the potion (or player if
+  *          the potion was in her inventory);
+  *    o_ptr --- pointer to the potion object.
+  */
+bool potion_smash_effect(int who, int y, int x, int o_sval)
+ {
+     int       radius = 2;
+     int       dt = 0;
+     int       dam = 0;
+     bool  ident = FALSE;
+     bool angry = FALSE;
+
+     switch(o_sval) {
+
+      case SV_POTION_SALT_WATER:
+      case SV_POTION_SLIME_MOLD:
+      case SV_POTION_LOSE_MEMORIES:
+      case SV_POTION_DEC_STR:
+      case SV_POTION_DEC_INT:
+      case SV_POTION_DEC_WIS:
+      case SV_POTION_DEC_DEX:
+      case SV_POTION_DEC_CON:
+      case SV_POTION_DEC_CHR:
+      case SV_POTION_WATER:   /* perhaps a 'water' attack? */
+      case SV_POTION_APPLE_JUICE:
+
+            return TRUE;
+
+      case SV_POTION_INFRAVISION:
+      case SV_POTION_DETECT_INVIS:
+      case SV_POTION_SLOW_POISON:
+      case SV_POTION_CURE_POISON:
+      case SV_POTION_BOLDNESS:
+      case SV_POTION_RESIST_HEAT:
+      case SV_POTION_RESIST_COLD:
+      case SV_POTION_HEROISM:
+      case SV_POTION_BESERK_STRENGTH:
+      case SV_POTION_RESTORE_EXP:
+      case SV_POTION_RES_STR:
+      case SV_POTION_RES_INT:
+      case SV_POTION_RES_WIS:
+      case SV_POTION_RES_DEX:
+      case SV_POTION_RES_CON:
+      case SV_POTION_RES_CHR:
+      case SV_POTION_INC_STR:
+      case SV_POTION_INC_INT:
+      case SV_POTION_INC_WIS:
+      case SV_POTION_INC_DEX:
+      case SV_POTION_INC_CON:
+      case SV_POTION_INC_CHR:
+      case SV_POTION_AUGMENTATION:
+      case SV_POTION_ENLIGHTENMENT:
+      case SV_POTION_STAR_ENLIGHTENMENT:
+      case SV_POTION_SELF_KNOWLEDGE:
+      case SV_POTION_EXPERIENCE:
+      case SV_POTION_RESISTANCE:
+      case SV_POTION_INVULNERABILITY:
+      case SV_POTION_NEW_LIFE:
+
+   /* All of the above potions have no effect when shattered */
+   return FALSE;
+      case SV_POTION_SLOWNESS:
+   dt = GF_OLD_SLOW;
+   dam = 5;
+   ident = TRUE;
+   angry = TRUE;
+   break;
+      case SV_POTION_POISON:
+   dt = GF_POIS;
+   dam = 3;
+   ident = TRUE;
+   angry = TRUE;
+   break;
+      case SV_POTION_BLINDNESS:
+   dt = GF_DARK;
+   ident = TRUE;
+   angry = TRUE;
+   break;
+      case SV_POTION_CONFUSION: /* Booze */
+   dt = GF_OLD_CONF;
+   ident = TRUE;
+   angry = TRUE;
+   break;
+      case SV_POTION_SLEEP:
+   dt = GF_OLD_SLEEP;
+   angry = TRUE;
+   ident = TRUE;
+   break;
+      case SV_POTION_RUINATION:
+      case SV_POTION_DETONATIONS:
+   dt = GF_SHARDS;
+   dam = damroll(25, 25);
+   angry = TRUE;
+   ident = TRUE;
+   break;
+      case SV_POTION_DEATH:
+   dt = GF_DEATH_RAY;    /* !! */
+   angry = TRUE;
+   radius = 1;
+   ident = TRUE;
+   break;
+      case SV_POTION_SPEED:
+   dt = GF_OLD_SPEED;
+   ident = TRUE;
+   break;
+      case SV_POTION_CURE_LIGHT:
+   dt = GF_OLD_HEAL;
+   dam = damroll(2,3);
+   ident = TRUE;
+   break;
+      case SV_POTION_CURE_SERIOUS:
+   dt = GF_OLD_HEAL;
+   dam = damroll(4,3);
+   ident = TRUE;
+   break;
+      case SV_POTION_CURE_CRITICAL:
+      case SV_POTION_CURING:
+   dt = GF_OLD_HEAL;
+   dam = damroll(6,3);
+   ident = TRUE;
+   break;
+      case SV_POTION_HEALING:
+   dt = GF_OLD_HEAL;
+   dam = damroll(10,10);
+   ident = TRUE;
+   break;
+      case SV_POTION_STAR_HEALING:
+      case SV_POTION_LIFE:
+   dt = GF_OLD_HEAL;
+   dam = damroll(50,50);
+   radius = 1;
+   ident = TRUE;
+   break;
+      case SV_POTION_RESTORE_MANA:   /* MANA */
+   dt = GF_MANA;
+   dam = damroll(10,10);
+   radius = 1;
+   ident = TRUE;
+   break;
+      default:
+      /* Do nothing */  ;
+     }
+
+    (void) project(who, radius, y, x, dam, dt,
+          (PROJECT_JUMP | PROJECT_ITEM | PROJECT_KILL));
+     /* XXX  those potions that explode need to become "known" */
+    return angry;
+ }
 
 

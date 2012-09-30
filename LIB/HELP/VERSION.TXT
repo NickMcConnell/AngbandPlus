@@ -26,9 +26,11 @@ Incidentally, this person (me, Topi Ylinen) also thought that the
 standard Angband monsters were too easy, which led him to introduce
 such monsters as Death swords, Cyberdemons and Great wyrms of power...
 
-Special thanks -- The current version of Zangband might not come into
+Special thanks -- The current version of Zangband might not have come into
 existence without the significant help from these excellent Angband
 programmers:
+
+        Ben Harrison, for obvious reasons.
 
         Greg Wooledge, who pointed out a bug in the dos compiler,
         which was preventing my progress with the first 2.* version
@@ -39,6 +41,9 @@ programmers:
 
         Robert Ruehlmann, whose nice new main-ibm.c enables SVGA
         graphics and even windows in ms-dos.
+
+        Paul Sexton, who is responsible for about 50% of the new code
+        in 2.1.0.
 
 
 === Brief Version History (of standard Angband) ===

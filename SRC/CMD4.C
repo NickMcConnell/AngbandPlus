@@ -12,6 +12,14 @@
 
 #include "angband.h"
 
+#ifdef USE_SOUND
+#ifdef USE_DOS
+
+extern void do_cmd_new_tune(void);
+
+#endif
+#endif
+
 
 
 /*
@@ -117,6 +125,12 @@ void do_cmd_change_name(void)
 		/* Display the player */
 		display_player(mode);
 
+        if (mode == 6)
+        {
+            mode = 0;
+            display_player(mode);
+        }
+
 		/* Prompt */
 		Term_putstr(2, 23, -1, TERM_WHITE,
 			"['c' to change name, 'f' to file, 'h' to change mode, or ESC]");
@@ -167,6 +181,13 @@ void do_cmd_change_name(void)
 
 	/* Leave "icky" mode */
 	character_icky = FALSE;
+
+
+	/* Redraw everything */
+    p_ptr->redraw |= (PR_WIPE | PR_BASIC | PR_EXTRA | PR_MAP | PR_EQUIPPY);
+
+    handle_stuff();
+
 }
 
 
@@ -426,7 +447,6 @@ static option_type cheat_info[CHEAT_MAX] =
 	"cheat_live",		"Allow player to avoid death" }
 };
 
-
 /*
  * Interact with some options for cheating
  */
@@ -523,6 +543,149 @@ static void do_cmd_options_cheat(cptr info)
 	}
 }
 
+
+static option_type autosave_info[2] =
+{
+    { &autosave_l,      FALSE, 255, 0x01, 0x00,
+       "autosave_l",    "Autosave when entering new levels" },
+
+    { &autosave_t,      FALSE, 255, 0x02, 0x00,
+        "autosave_t",   "Timed autosave" },
+};
+       
+s16b toggle_frequency(s16b current)
+{
+    if (current == 0)
+        return 50;
+    if (current == 50)
+        return 100;
+    if (current == 100)
+        return 250;
+    if (current == 250)
+        return 500;
+    if (current == 500)
+        return 1000;
+    if (current == 1000)
+        return 2500;
+    if (current == 2500)
+        return 5000;
+    if (current == 5000)
+        return 10000;
+    if (current == 10000)
+        return 25000;
+
+    return 0;
+}
+
+
+/*
+ * Interact with some options for cheating
+ */
+static void do_cmd_options_autosave(cptr info)
+{
+	char	ch;
+
+    int     i, k = 0, n = 2;
+
+	char	buf[80];
+
+
+	/* Clear screen */
+	Term_clear();
+
+	/* Interact with the player */
+	while (TRUE)
+	{
+		/* Prompt XXX XXX XXX */
+        sprintf(buf, "%s (RET to advance, y/n to set, 'F' for frequency, ESC to accept) ", info);
+		prt(buf, 0, 0);
+	
+		/* Display the options */
+		for (i = 0; i < n; i++)
+		{
+			byte a = TERM_WHITE;
+
+			/* Color current option */
+			if (i == k) a = TERM_L_BLUE;
+
+			/* Display the option text */
+			sprintf(buf, "%-48s: %s  (%s)",
+                    autosave_info[i].o_desc,
+                    (*autosave_info[i].o_var ? "yes" : "no "),
+                    autosave_info[i].o_text);
+			c_prt(a, buf, i + 2, 0);
+		}
+
+        prt(format("Timed autosave frequency: every %d turns",  autosave_freq), 5, 0);
+
+
+		/* Hilite current option */
+		move_cursor(k + 2, 50);
+
+		/* Get a key */
+		ch = inkey();
+
+		/* Analyze */
+		switch (ch)
+		{
+			case ESCAPE:
+			{
+				return;
+			}
+
+			case '-':
+			case '8':
+			{
+				k = (n + k - 1) % n;
+				break;
+			}
+
+			case ' ':
+			case '\n':
+			case '\r':
+			case '2':
+			{
+				k = (k + 1) % n;
+				break;
+			}
+
+			case 'y':
+			case 'Y':
+			case '6':
+			{
+
+                (*autosave_info[k].o_var) = TRUE;
+				k = (k + 1) % n;
+				break;
+			}
+
+			case 'n':
+			case 'N':
+			case '4':
+			{
+                (*autosave_info[k].o_var) = FALSE;
+                k = (k + 1) % n;
+				break;
+			}
+
+            case 'f':
+            case 'F':
+            {
+
+                autosave_freq = toggle_frequency(autosave_freq);
+                prt(format("Timed autosave frequency: every %d turns",
+                               autosave_freq), 5, 0);
+
+            }
+
+			default:
+			{
+				bell();
+				break;
+			}
+		}
+	}
+}
 
 /*
  * Interact with some options
@@ -665,7 +828,7 @@ static void do_cmd_options_win(void)
 	while (go)
 	{
 		/* Prompt XXX XXX XXX */
-		prt("Window flags (<dir>, t, y, n, ESC) ", 0, 0);
+        prt("Window Flags (<dir>, t, y, n, ESC) ", 0, 0);
 
 		/* Display the windows */
 		for (j = 0; j < 8; j++)
@@ -840,21 +1003,24 @@ void do_cmd_options(void)
 		prt("(3) Game-Play Options", 6, 5);
 		prt("(4) Efficiency Options", 7, 5);
 
-		/* Testing */
-		prt("(T) Testing options", 9, 5);
 
-		/* Cheating */
-		prt("(C) Cheating Options", 10, 5);
+        prt("(Z/5) Zangband Options", 9, 5);
+		/* Testing */
+        prt("(S) Stacking Options", 10, 5);
+		/* Special choices */
+        prt("(D) Base Delay Factor", 11, 5);
+        prt("(H) Hitpoint Warning", 12, 5);
+        prt("(A) Autosave Options", 13, 5);
+
 
 		/* Window flags */
-		prt("(W) Window flags", 12, 5);
+        prt("(W) Window Flags", 14, 5);
 
-		/* Special choices */
-		prt("(D) Base Delay Factor", 14, 5);
-		prt("(H) Hitpoint Warning", 15, 5);
+		/* Cheating */
+        prt("(C) Cheating Options", 16, 5);
 
-		/* Prompt */
-		prt("Command: ", 18, 0);
+        /* Prompt */
+        prt("Command: ", 18, 0);
 
 		/* Get command */
 		k = inkey();
@@ -897,11 +1063,20 @@ void do_cmd_options(void)
 				break;
 			}
 
+            /* Zangband Options */
+            case 'Z': case 'z': case '5':
+            {
+                do_cmd_options_aux(5, "Zangband Options");
+                break;
+            }
+
 			/* Testing Options */
-			case 'T':
+            case 'T': /* For people who do this by memory */
+            case 'S':
+            case 's':
 			{
 				/* Spawn */
-				do_cmd_options_aux(255, "Testing Options");
+                do_cmd_options_aux(255, "Stacking Options");
 				break;
 			}
 
@@ -912,6 +1087,13 @@ void do_cmd_options(void)
 				do_cmd_options_cheat("Cheaters never win");
 				break;
 			}
+
+            case 'a':
+            case 'A':
+            {
+                do_cmd_options_autosave("Autosave");
+                break;
+            }
 
 			/* Window flags */
 			case 'W':
@@ -987,6 +1169,14 @@ void do_cmd_options(void)
 	/* Leave "icky" mode */
 	character_icky = FALSE;
 
+#ifdef USE_SOUND
+#ifdef USE_DOS
+
+    if (mute_songs)
+        do_cmd_new_tune();
+
+#endif
+#endif
 
 	/* Verify the keymap */
 	keymap_init();
@@ -2309,12 +2499,39 @@ void do_cmd_load_screen(void)
 }
 
 
+
+/*
+ * Redefinable "save_screen" action
+ */
+void (*screendump_aux)(void) = NULL;
+
+
+
+
+
+
 /*
  * Hack -- save a screen dump to a file
  */
 void do_cmd_save_screen(void)
 {
-	int y, x;
+
+
+	/* Do we use a special screendump function ? */
+	if (screendump_aux)
+	{
+		/* Dump the screen to a graphics file */
+		(*screendump_aux)();
+	}
+	else
+	{
+		/* Dump the screen as text */
+
+/*
+ * ----- Place the old function code here -----
+ */
+ 
+    int y, x;
 
 	byte a = 0;
 	char c = ' ';
@@ -2412,6 +2629,7 @@ void do_cmd_save_screen(void)
 
 	/* Leave "icky" mode */
 	character_icky = FALSE;
+    }
 }
 
 
@@ -2604,6 +2822,269 @@ static void do_cmd_knowledge_uniques(void)
 	fd_kill(file_name);
 }
 
+void plural_aux(char * Name)
+{
+    int NameLen = strlen(Name);
+
+    if (strstr(Name, "Disembodied hand"))
+    {
+        strcpy(Name, "Disembodied hands that strangled people");
+    }
+    else if (strstr(Name, " of "))
+    {
+        cptr aider = strstr(Name, " of ");
+        char dummy[80];
+        int i = 0;
+        cptr ctr = Name;
+        while (ctr < aider)
+        {
+            dummy[i] = *ctr;
+            ctr++; i++;
+        }
+        if (dummy[i-1] == 's')
+        {
+            strcpy (&(dummy[i]), "es");
+            i++;
+        }
+        else
+        {
+            strcpy (&(dummy[i]), "s");
+        }
+        strcpy(&(dummy[i+1]), aider);
+        strcpy(Name, dummy);
+    }
+    else if (strstr(Name, "coins"))
+    {
+        char dummy[80];
+        strcpy (dummy, "piles of ");
+        strcat (dummy, Name);
+        strcpy (Name, dummy);
+        return;
+    }
+    else if (strstr(Name, "Manes"))
+    {
+        return;
+    }
+    else if (Name[NameLen-1]=='y')
+    {
+        strcpy(&(Name[NameLen-1]), "ies");
+    }
+    else if (streq(&(Name[NameLen-4]), "ouse"))
+    {
+        strcpy (&(Name[NameLen-4]), "ice");
+    }
+    else if (streq(&(Name[NameLen-2]), "ex"))
+    {
+        strcpy (&(Name[NameLen-2]), "ices");
+    }
+    else if (streq(&(Name[NameLen-3]), "olf"))
+    {
+        strcpy (&(Name[NameLen-3]), "olves");
+    }
+    else if ((streq(&(Name[NameLen-2]), "ch"))
+            || (Name[NameLen-1] == 's'))
+    {
+        strcpy (&(Name[NameLen]), "es");
+    }
+    else
+    {
+        strcpy (&(Name[NameLen]), "s");
+    }
+}
+
+/*
+ * Display current pets
+ *
+ */
+static void do_cmd_knowledge_pets(void)
+{
+    int i;
+
+	FILE *fff;
+
+    monster_type * m_ptr;
+
+    int t_friends = 0;
+    int t_levels = 0;
+    int show_upkeep = 0;
+    int upkeep_divider = 20;
+
+	char file_name[1024];
+
+
+	/* Temporary file */
+	if (path_temp(file_name, 1024)) return;
+
+	/* Open a new file */
+	fff = my_fopen(file_name, "w");
+
+    if (p_ptr->pclass == CLASS_MAGE) upkeep_divider = 15;
+    else if (p_ptr->pclass == CLASS_HIGH_MAGE) upkeep_divider = 12;
+
+	/* Process the monsters (backwards) */
+	for (i = m_max - 1; i >= 1; i--)
+	{
+		/* Access the monster */
+		m_ptr = &m_list[i];
+
+        /* Ignore "dead" monsters */
+		if (!m_ptr->r_idx) continue;
+
+            /* Calculate "upkeep" for friendly monsters */
+            if (m_ptr->smart & (SM_FRIEND))
+            {
+                 char pet_name[80];
+                 t_friends++;
+                 t_levels += r_info[m_ptr->r_idx].level;
+                 monster_desc(pet_name, m_ptr, 0x88);
+                 strcat(pet_name, "\n");
+                 fprintf(fff,pet_name);
+
+			}
+	}
+
+        if (t_friends > 1 + (p_ptr->lev / (upkeep_divider)))
+        {
+            show_upkeep = (t_levels);
+
+            if (show_upkeep > 100) show_upkeep = 100;
+            else if (show_upkeep < 10) show_upkeep = 10;
+        }
+
+
+    fprintf(fff,"----------------------------------------------\n");
+    fprintf(fff,"   Total: %d pet%s.\n", t_friends, (t_friends==1?"":"s"));
+    fprintf(fff,"   Upkeep: %d%% mana.\n", show_upkeep);
+
+
+	/* Close the file */
+	my_fclose(fff);
+
+	/* Display the file contents */
+    show_file(file_name, "Current Pets");
+
+	/* Remove the file */
+	fd_kill(file_name);
+}
+
+
+
+/*
+ * Total kill count
+ *
+ * Note that the player ghosts are ignored.  XXX XXX XXX
+ */
+static void do_cmd_knowledge_kill_count(void)
+{
+	int k;
+
+	FILE *fff;
+
+	char file_name[1024];
+
+    s32b Total = 0;
+
+
+	/* Temporary file */
+	if (path_temp(file_name, 1024)) return;
+
+	/* Open a new file */
+	fff = my_fopen(file_name, "w");
+
+    { /* Monsters slain */
+        int kk;
+
+        for (kk = 1; kk < MAX_R_IDX-1; kk++)
+        {
+            monster_race *r_ptr = &r_info[kk];
+
+            if (r_ptr->flags1 & (RF1_UNIQUE))
+            {
+                bool dead = (r_ptr->max_num == 0);
+                if (dead)
+                {
+                    Total++;
+                }
+            }
+            else
+            {
+                s16b This = r_ptr->r_pkills;
+                if (This > 0)
+                {
+                    Total += This;
+                }
+            }
+        }
+
+        if (Total < 1)
+            fprintf(fff,"You have defeated no enemies yet.\n\n");
+        else if (Total == 1)
+
+            fprintf(fff,"You have defeated one enemy.\n\n");
+        else
+           fprintf(fff,"You have defeated %lu enemies.\n\n", Total);
+    }
+
+    Total = 0;
+
+	/* Scan the monster races */
+	for (k = 1; k < MAX_R_IDX-1; k++)
+	{
+		monster_race *r_ptr = &r_info[k];
+
+        if (r_ptr->flags1 & (RF1_UNIQUE))
+		{
+			bool dead = (r_ptr->max_num == 0);
+            if (dead)
+			{
+				/* Print a message */
+                fprintf(fff, "     %s\n",
+                        (r_name + r_ptr->name));
+                Total++;
+            }
+		}
+        else
+        {
+            s16b This = r_ptr->r_pkills;
+            if (This > 0)
+            {
+                if (This < 2)
+                {
+                    if (strstr(r_name + r_ptr->name, "coins"))
+                    {
+                        fprintf(fff, "     1 pile of %s\n", (r_name + r_ptr->name));
+                     }
+                    else
+                    {
+                        fprintf(fff, "     1 %s\n", (r_name + r_ptr->name));
+                    }
+                }
+                else
+                {
+                    char ToPlural[80];
+                    strcpy(ToPlural, (r_name + r_ptr->name));
+                    plural_aux(ToPlural);
+                    fprintf(fff, "     %d %s\n", This, ToPlural);
+                }
+
+                Total += This;
+            }
+        }
+	}
+
+    fprintf(fff,"----------------------------------------------\n");
+    fprintf(fff,"   Total: %lu creature%s killed.\n", Total, (Total==1?"":"s"));
+
+    /* Close the file */
+	my_fclose(fff);
+
+	/* Display the file contents */
+    show_file(file_name, "Kill Count");
+
+	/* Remove the file */
+	fd_kill(file_name);
+}
+
 
 /*
  * Display known objects
@@ -2663,6 +3144,38 @@ static void do_cmd_knowledge_objects(void)
 	fd_kill(file_name);
 }
 
+/*
+ * List mutations we have...
+ *
+ */
+
+void do_cmd_knowledge_mutations(void)
+{
+
+	FILE *fff;
+
+	char file_name[1024];
+
+
+	/* Temporary file */
+	if (path_temp(file_name, 1024)) return;
+
+	/* Open a new file */
+	fff = my_fopen(file_name, "w");
+
+    if (fff) dump_mutations(fff);
+
+	/* Close the file */
+	my_fclose(fff);
+
+	/* Display the file contents */
+    show_file(file_name, "Mutations");
+
+	/* Remove the file */
+	fd_kill(file_name);
+}
+
+
 
 /*
  * Interact with "knowledge"
@@ -2695,10 +3208,13 @@ void do_cmd_knowledge(void)
 		/* Give some choices */
 		prt("(1) Display known artifacts", 4, 5);
 		prt("(2) Display known uniques", 5, 5);
-		prt("(3) Display known objects", 6, 5);
+        prt("(3) Display known objects", 6, 5);
+        prt("(4) Display kill count", 7, 5);
+        prt("(5) Display mutations", 8, 5);
+        prt("(6) Display current pets", 9, 5);
 
 		/* Prompt */
-		prt("Command: ", 8, 0);
+        prt("Command: ", 11, 0);
 
 		/* Prompt */
 		i = inkey();
@@ -2720,13 +3236,29 @@ void do_cmd_knowledge(void)
 			do_cmd_knowledge_uniques();
 		}
 
+        
 		/* Objects */
-		else if (i == '3')
+        else if (i == '3')
 		{
 			/* Spawn */
 			do_cmd_knowledge_objects();
 		}
 
+        /* Kill count  */
+        else if (i == '4')
+		{
+			/* Spawn */
+            do_cmd_knowledge_kill_count();
+		}
+        else if (i == '5')
+        {
+            /* Spawn */
+            do_cmd_knowledge_mutations();
+        }
+        else if (i == '6')
+        {
+            do_cmd_knowledge_pets();
+        }
 		/* Unknown option */
 		else
 		{
@@ -2744,6 +3276,7 @@ void do_cmd_knowledge(void)
 /* For some reason (probably incompatability with 2.8.1) the above
 does not seem to work here... hence the following line */
     do_cmd_redraw();
+
 
 	/* Leave "icky" mode */
 	character_icky = FALSE;
