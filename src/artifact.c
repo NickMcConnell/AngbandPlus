@@ -1192,9 +1192,13 @@ static void random_slay(object_type *o_ptr)
 	{
 		if (o_ptr->sval == SV_CRIMSON || o_ptr->sval == SV_RAILGUN)
 		{
-			random_plus(o_ptr);
-			has_pval = TRUE;
-			one_high_resistance(o_ptr);
+			if (one_in_(2))
+			{
+				random_plus(o_ptr);
+				has_pval = TRUE;
+			}
+			else
+				one_high_resistance(o_ptr);
 			return;
 		}
 		else if (o_ptr->sval == SV_HARP)
@@ -1860,7 +1864,7 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 	bool    a_cursed = FALSE;
 	int     warrior_artifact_bias = 0;
 	int     i;
-	bool    has_resistance = FALSE, boosted_ac = FALSE, boosted_damage = FALSE;
+	bool    has_resistance = FALSE, boosted_ac = FALSE, boosted_dam = FALSE, boosted_hit = FALSE;
 	int     lev = object_level;
 	bool    is_falcon_sword = FALSE;
 	int     max_a = MAX(o_ptr->to_a, 30);
@@ -2222,12 +2226,26 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 						while (one_in_(o_ptr->ds));
 					}			
 				}
-				else if (!boosted_damage && randint1(225) < lev)
+				else if (!boosted_dam && !boosted_hit && randint1(225) < lev)
 				{
-					o_ptr->to_h = 20 + randint1(12);
-					o_ptr->to_d = 20 + randint1(12);
-					boosted_damage = TRUE;
-					powers--;
+					if (one_in_(7))
+					{
+						o_ptr->to_h = 10 + randint1(22);
+						o_ptr->to_d = 10 + randint1(22);
+						boosted_dam = TRUE;
+						boosted_hit = TRUE;
+						powers--;
+					}
+					else if (one_in_(2))
+					{
+						o_ptr->to_h = 10 + randint1(22);
+						boosted_hit = TRUE;
+					}
+					else
+					{
+						o_ptr->to_d = 10 + randint1(22);
+						boosted_dam = TRUE;
+					}
 				}
 				else
 					random_resistance(o_ptr);
@@ -2473,15 +2491,19 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 	/* give it some plusses... */
 	if (object_is_armour(o_ptr))
 	{
-		o_ptr->to_a += randint1(o_ptr->to_a > 19 ? 1 : 20 - o_ptr->to_a);
+		if (!boosted_ac)
+			o_ptr->to_a += randint1(o_ptr->to_a > 19 ? 1 : 20 - o_ptr->to_a);
 
 		if (o_ptr->to_a > max_a)
 			o_ptr->to_a = max_a;
 	}
 	else if (object_is_weapon_ammo(o_ptr))
 	{
-		o_ptr->to_h += randint1(o_ptr->to_h > 19 ? 1 : 20 - o_ptr->to_h);
-		o_ptr->to_d += randint1(o_ptr->to_d > 19 ? 1 : 20 - o_ptr->to_d);
+		if (!boosted_dam)
+			o_ptr->to_d += randint1(o_ptr->to_d > 19 ? 1 : 20 - o_ptr->to_d);
+
+		if (!boosted_hit)
+			o_ptr->to_h += randint1(o_ptr->to_h > 19 ? 1 : 20 - o_ptr->to_h);
 
 		if (o_ptr->to_h > max_h)
 			o_ptr->to_h = max_h;

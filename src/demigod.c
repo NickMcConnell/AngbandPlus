@@ -177,6 +177,22 @@ static void _gain_level(int new_level)
 	}
 }
 
+void demigod_rechoose_powers(void)
+{
+	int i, idx;
+	for (i = 0; i < MAX_DEMIGOD_POWERS; i++)
+	{
+		idx = p_ptr->demigod_power[i];
+		if (idx >= 0)
+		{
+			mut_unlock(idx);
+			mut_lose(idx);
+			p_ptr->demigod_power[i] = -1;
+		}
+	}
+	_gain_level(p_ptr->lev);
+}
+
 /****************************************************************
  * Aphrodite
  ****************************************************************/

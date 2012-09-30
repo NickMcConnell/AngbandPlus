@@ -7252,7 +7252,7 @@ int take_hit(int damage_type, int damage, cptr hit_from, int monspell)
 	}
 
 	/* Hitpoint warning */
-	if (p_ptr->chp < warning)
+	if (p_ptr->chp < warning && !world_monster)
 	{
 		sound(SOUND_WARN);
 

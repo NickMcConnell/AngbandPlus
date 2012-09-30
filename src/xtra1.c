@@ -3295,8 +3295,8 @@ static void calc_hitpoints(void)
 	int bonus, mhp;
 	race_t *race_ptr = get_race_t();
 
-	/* Un-inflate "half-hitpoint bonus per level" value */
 	bonus = ((int)(adj_con_mhp[p_ptr->stat_ind[A_CON]]) - 128) * p_ptr->lev / 4;
+	bonus += p_ptr->lev * 2;
 
 	/* Calculate hitpoints */
 	mhp = p_ptr->player_hp[p_ptr->lev - 1];

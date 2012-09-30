@@ -236,6 +236,35 @@ static s32b _activation_p(object_type *o_ptr)
 		case ART_HELL: return 3000;
 		case ART_SACRED_KNIGHTS: return 1111;
 		case ART_CHARMED: return 15000;
+		case ART_ZEUS: return 10000;
+		case ART_HOLY_GRAIL: return 5000;
+		case ART_POSEIDON: return 5000;
+		case ART_HADES: return 12000;
+		case ART_ATHENA: return 7000;
+		case ART_ARES: return 3000;
+		case ART_HERMES: return 50000;
+		case ART_APOLLO: return 10000;
+		case ART_ARTEMIS: return 3000;
+		case ART_HEPHAESTUS: return 4000;
+		case ART_HERA: return 17000;
+		case ART_DEMETER: return 20000;
+		case ART_APHRODITE: return 5000;
+		case ART_BALLISTA: return 6000;
+		case ART_KAMIKAZE_ROBE: return 9000;
+		case ART_RAILGUN: return 20000;
+		case ART_STOMPER: return 4000; 
+		case ART_GONG: return 5000;
+		case ART_STONE_OF_WAR: return 7000;
+		/* Hack: These activate, but also have *very* valuable hidden powers */
+		case ART_STONE_OF_NATURE: return 100000;
+		case ART_STONE_OF_LIFE: return 100000;
+		case ART_STONE_OF_SORCERY: return 100000;
+		case ART_STONE_OF_CHAOS: return 100000;
+		case ART_STONE_OF_DEATH: return 100000;
+		case ART_STONE_OF_TRUMP: return 100000;
+		case ART_STONE_OF_DAEMON: return 100000;
+		case ART_STONE_OF_CRUSADE: return 100000;
+		case ART_STONE_OF_CRAFT: return 125000;
 		}
 	}
 	
@@ -353,12 +382,9 @@ static s32b _stats_q(u32b flgs[TR_FLAG_SIZE], int pval)
 		return 5000 * ABS(pval); /* Hack! */
 	else
 	{
-		if (have_flag(flgs, TR_STR)) {y += 10; ct++;}
-		if (have_flag(flgs, TR_DEX)) {y += 8; ct++;}
+		if (have_flag(flgs, TR_STR)) {y += 12; ct++;}
+		if (have_flag(flgs, TR_DEX)) {y += 12; ct++;}
 		if (have_flag(flgs, TR_CON)) {y += 12; ct++;}
-
-		if (ct == 3) y += 10;
-		else if (ct == 2) y += 2;
 	}
 
 	ct = 0;
@@ -366,8 +392,6 @@ static s32b _stats_q(u32b flgs[TR_FLAG_SIZE], int pval)
 	if (have_flag(flgs, TR_WIS)) {y += 12; ct++;}
 	if (have_flag(flgs, TR_CHR)) {y += 12; ct++;}
 
-	if (ct == 3) y -= 15;
-	else if (ct == 2) y -= 5;
 
 	if (have_flag(flgs, TR_MAGIC_MASTERY)) y += 9;
 	if (have_flag(flgs, TR_STEALTH)) y += 6;
@@ -378,7 +402,7 @@ static s32b _stats_q(u32b flgs[TR_FLAG_SIZE], int pval)
 			y /= 3;
 
 		/*q = 2*(400 + y * ABS(y))*(1 + pval * ABS(pval));*/
-		q = (400 + y * ABS(y))*(1 + pval * ABS(pval));
+		q = 2*(400 + y * ABS(y))*(1 + pval * ABS(pval));
 	}
 
 	if (have_flag(flgs, TR_SPELL_CAP))
@@ -475,8 +499,6 @@ static s32b _abilities_q(u32b flgs[TR_FLAG_SIZE])
 	cost += _check_flag_and_score(flgs, TR_SUST_WIS, 1000, &count);
 	cost += _check_flag_and_score(flgs, TR_SUST_DEX, 1000, &count);
 	cost += _check_flag_and_score(flgs, TR_SUST_CHR, 1000, &count);
-	cost += _check_flag_and_score(flgs, TR_FREE_ACT, 2000, &count);
-	cost += _check_flag_and_score(flgs, TR_HOLD_LIFE, 2000, &count);
 	cost += _check_flag_and_score(flgs, TR_ESP_ANIMAL, 2000, &count);
 	cost += _check_flag_and_score(flgs, TR_ESP_UNDEAD, 2000, &count);
 	cost += _check_flag_and_score(flgs, TR_ESP_DEMON, 2000, &count);
@@ -486,6 +508,8 @@ static s32b _abilities_q(u32b flgs[TR_FLAG_SIZE])
 	cost += _check_flag_and_score(flgs, TR_ESP_NONLIVING, 2200, &count);
 	cost += _check_flag_and_score(flgs, TR_SUST_CON, 3000, &count);
 	cost += _check_flag_and_score(flgs, TR_LEVITATION, 4000, &count);
+	cost += _check_flag_and_score(flgs, TR_HOLD_LIFE, 5000, &count);
+	cost += _check_flag_and_score(flgs, TR_FREE_ACT, 5000, &count);
 	cost += _check_flag_and_score(flgs, TR_REGEN, 5000, &count);
 	cost += _check_flag_and_score(flgs, TR_ESP_UNIQUE, 5000, &count);
 	cost += _check_flag_and_score(flgs, TR_ESP_EVIL, 15000, &count);
@@ -856,7 +880,7 @@ s32b jewelry_cost(object_type *o_ptr)
 		int y = o_ptr->to_d * ABS(o_ptr->to_d);
 
 		p += 100 * x;
-		p += 300 * y;
+		p += 200 * y;
 
 		if (cost_calc_hook)
 		{
@@ -1030,7 +1054,7 @@ s32b armor_cost(object_type *o_ptr)
 		int y = o_ptr->to_d * ABS(o_ptr->to_d);
 
 		p += 100 * x;
-		p += 300 * y;
+		p += 200 * y;
 
 		if (cost_calc_hook)
 		{
@@ -1050,6 +1074,12 @@ s32b weapon_cost(object_type *o_ptr)
 	char dbg_msg[512];
 
 	object_flags(o_ptr, flgs);
+
+	/* Hacks for objects with "hidden" powers */
+	if (o_ptr->tval == TV_SWORD && o_ptr->sval == SV_DOKUBARI)
+		return 10000;
+	if (o_ptr->tval == TV_SWORD && o_ptr->sval == SV_RUNESWORD)
+		return 100000;
 
 	if (cost_calc_hook)
 	{

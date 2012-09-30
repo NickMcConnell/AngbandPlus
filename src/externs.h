@@ -1942,6 +1942,7 @@ extern race_t *beastman_get_race_t(void);
 extern race_t *cyclops_get_race_t(void);
 extern race_t *dark_elf_get_race_t(void);
 extern race_t *demigod_get_race_t(int psubrace);
+extern void    demigod_rechoose_powers(void);
 extern race_t *doppelganger_get_race_t(void);
 extern race_t *draconian_get_race_t(void);
 extern race_t *dunadan_get_race_t(void);

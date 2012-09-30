@@ -3030,6 +3030,9 @@ errr rd_savefile_new(void)
 	/* Close the file */
 	my_fclose(fff);
 
+	if (h_older_than(0, 0, 130, 2) && p_ptr->pclass == CLASS_RUNE_KNIGHT && p_ptr->prace == RACE_DEMIGOD)
+		demigod_rechoose_powers();
+
 	/* Result */
 	return (err);
 }

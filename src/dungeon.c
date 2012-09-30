@@ -2131,7 +2131,6 @@ static void process_world_aux_timeout(void)
 		(void)set_dustrobe(p_ptr->dustrobe - 1, TRUE);
 	}
 
-	/* Timed infra-vision */
 	if (p_ptr->kabenuke)
 	{
 		(void)set_kabenuke(p_ptr->kabenuke - 1, TRUE);
