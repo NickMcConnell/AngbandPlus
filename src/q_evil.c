@@ -32,6 +32,7 @@ bool quest_evil_gen_hook(char *fmt)
 
 	init_flags = INIT_CREATE_DUNGEON;
 	process_dungeon_file(NULL, "evil.map", &ystart, &xstart, cur_hgt, cur_wid, TRUE);
+	dungeon_flags2 |= DF2_NO_GENO;
 
 	/* Place some random balrogs */
 	for (i = 6; i > 0; )

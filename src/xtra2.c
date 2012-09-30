@@ -13,8 +13,6 @@
 
 #include "angband.h"
 
-#define REWARD_CHANCE 10
-
 /*
  * Invoke The Rush
  */
@@ -4583,27 +4581,10 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		if (speak_unique && (r_ptr->flags2 & (RF2_CAN_SPEAK)))
 		{
 			char line_got[80];
-			int reward = 0;
-
 			/* Dump a message */
 
 			get_rnd_line("mondeath.txt", line_got);
 			msg_format("%^s says: %s", m_name, line_got);
-
-			if (randint(REWARD_CHANCE) == 1)
-			{
-				msg_format("There was a price on %s's head.", m_name);
-				get_rnd_line("crime.txt", line_got);
-				msg_format("%^s was wanted for %s", m_name, line_got);
-				reward = 250 * (randint (10) + m_ptr->level - 5);
-
-				if (reward > 32000) reward = 32000; /* Force 'good' values */
-				else if (reward < 250) reward = 250;
-
-				msg_format("You collect a reward of %d gold pieces.", reward);
-				p_ptr -> au += reward;
-				p_ptr->redraw |= (PR_GOLD);
-			}
 		}
 
 
@@ -7449,7 +7430,9 @@ bool test_object_wish(char *name, object_type *o_ptr, object_type *forge, char *
 		object_desc(buf, o_ptr, FALSE, 0);
 		strlower(buf);
 
-		if (strstr(name, buf))
+		if (strstr(name, buf) ||
+		   /* Hack hack hackery */
+		   (o_ptr->tval == TV_ROD_MAIN && strstr(name, "rod of")))
 		{
 #if 0 // DGDGDGDG
 			/* You can't wish for a wish ! */

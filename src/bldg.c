@@ -1080,8 +1080,7 @@ static bool compare_weapons(void)
 	s = "You have nothing to compare.";
 	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN)))
 	{
-		inven_item_increase(INVEN_PACK, -1);
-		inven_item_optimize(INVEN_PACK);
+		object_wipe(orig_ptr);
 		return (FALSE);
 	}
 
@@ -1097,8 +1096,7 @@ static bool compare_weapons(void)
 	s = "You have nothing to compare.";
 	if (!get_item(&item2, q, s, (USE_EQUIP | USE_INVEN)))
 	{
-		inven_item_increase(INVEN_PACK, -1);
-		inven_item_optimize(INVEN_PACK);
+		object_wipe(orig_ptr);
 		return (FALSE);
 	}
 
@@ -1128,8 +1126,7 @@ static bool compare_weapons(void)
 	object_copy(i_ptr, orig_ptr);
 	calc_bonuses(TRUE);
 
-	inven_item_increase(INVEN_PACK, -1);
-	inven_item_optimize(INVEN_PACK);
+	object_wipe(orig_ptr);
 
 	put_str("(Only highest damage applies per monster. Special damage not cumulative)", 20, 0);
 

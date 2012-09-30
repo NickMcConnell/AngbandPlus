@@ -52,6 +52,7 @@ store_buy_list
 		elseif obj.tval == TV_POLEARM and is_blessed(obj) == TRUE then return TRUE
 		elseif obj.tval == TV_SWORD and is_blessed(obj) == TRUE then return TRUE
 		elseif obj.tval == TV_AXE and is_blessed(obj) == TRUE then return TRUE
+		elseif obj.tval == TV_BOOMERANG and is_blessed(obj) == TRUE then return TRUE
 		end
 	end,
 	["Alchemy shop"] =

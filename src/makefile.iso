@@ -383,7 +383,7 @@ ifdef IRC
 
 IRC_SERVER=irc.worldirc.org
 IRC_PORT=6667
-IRC_CHANNEL=\#angband
+IRC_CHANNEL=\#tome
 
 DEFINES += \
 	-DUSE_SOCK -DUSE_UNIXSOCK \

@@ -1,5 +1,5 @@
 /*
-** $Id: llex.c,v 1.4 2002/03/26 23:41:29 darkgod Exp $
+** $Id: llex.c,v 1.4.4.1 2003/10/07 21:18:34 darkgod Exp $
 ** Lexical Analyzer
 ** See Copyright Notice in lua.h
 */
@@ -109,7 +109,7 @@ void luaX_setinput (lua_State *L, LexState *LS, ZIO *z, TString *source) {
   if (LS->current == '#') {
     do {  /* skip first line */
       next(LS);
-    } while (LS->current != '\n' && LS->current != EOZ);
+    } while (LS->current != '\n' && LS->current != '\r' && LS->current != EOZ);
   }
 }
 
@@ -218,6 +218,12 @@ static void read_long_string (LexState *LS, SemInfo *seminfo) {
       case '\n':
         save(L, '\n', l);
         inclinenumber(LS);
+        if (LS->current == '\r') next(LS);
+        continue;
+      case '\r':
+        save(L, '\n', l);
+        inclinenumber(LS);
+        if (LS->current == '\n') next(LS);
         continue;
       default:
         if (seminfo)	/* no need to save complete comment */
@@ -240,7 +246,7 @@ static void read_string (LexState *LS, int del, SemInfo *seminfo) {
   while (LS->current != del) {
     checkbuffer(L, 10, l);
     switch (LS->current) {
-      case EOZ:  case '\n':
+      case EOZ:  case '\n':  case '\r':
         save(L, '\0', l);
         luaX_error(LS, "unfinished string", TK_STRING);
         break;  /* to avoid warnings */
@@ -254,7 +260,16 @@ static void read_string (LexState *LS, int del, SemInfo *seminfo) {
           case 'r': save(L, '\r', l); next(LS); break;
           case 't': save(L, '\t', l); next(LS); break;
           case 'v': save(L, '\v', l); next(LS); break;
-          case '\n': save(L, '\n', l); inclinenumber(LS); break;
+          case '\n':
+            save(L, '\n', l);
+            inclinenumber(LS);
+            if (LS->current == '\r') next(LS);
+            break;
+          case '\r':
+            save(L, '\n', l);
+            inclinenumber(LS);
+            if (LS->current == '\n') next(LS);
+            break;
           case '0': case '1': case '2': case '3': case '4':
           case '5': case '6': case '7': case '8': case '9': {
             int c = 0;
@@ -288,12 +303,18 @@ int luaX_lex (LexState *LS, SemInfo *seminfo) {
   for (;;) {
     switch (LS->current) {
 
-      case ' ': case '\t': case '\r':  /* `\r' to avoid problems with DOS */
+      case ' ': case '\t':
         next(LS);
         continue;
 
       case '\n':
         inclinenumber(LS);
+        if (LS->current == '\r') next(LS);
+        continue;
+
+      case '\r':
+        inclinenumber(LS);
+        if (LS->current == '\n') next(LS);
         continue;
 
       case '$':
@@ -306,7 +327,7 @@ int luaX_lex (LexState *LS, SemInfo *seminfo) {
         if (next(LS) == '[' && next(LS) == '[')
           read_long_string(LS, NULL);
         else
-          while (LS->current != '\n' && LS->current != EOZ)
+          while (LS->current != '\n' && LS->current != '\r' && LS->current != EOZ)
             next(LS);
         continue;
 

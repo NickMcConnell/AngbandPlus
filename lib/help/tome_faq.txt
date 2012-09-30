@@ -87,7 +87,7 @@ trained in the Alchemy, you can reuse bottles after quaffing potions as well.
 #####GQ: I got killed by a Great Wyrm of Power at 50'!!! What happened?
 
 A: You killed a defenceless creature. I told you that it was frowned upon!
-~~~~~18|Artifacts that activate but I can't wear or wield
+~~~~~18|Artifacts that activate but I cannot wear or wield
 ~~~~~17|Strange items
 #####G------------------------------------------------------------------------------
 #####GQ: I've found some strange items like a Red Tome, a Voodoo Doll, ...

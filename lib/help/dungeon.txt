@@ -420,6 +420,13 @@ etc) by increasing your *****skills.txt*21[Magic] skill. If you increase these
 high enough, you will gain a special method of "sensing" your 
 inventory/equipment items, which tells you if an item is "good" or "cursed", 
 but also if it is "average", "special", "excellent", "terrible" or "worthless".
+~~~~~21|Objects|Colour of inventory slot letter
+The colour of the letter that identifies each item in your backpack can tell 
+you something about their magical status. Grey indicates the item has not been 
+identified yet. After identification, the colour changes to one of the 
+following: white, indicating it is normal; b;ue indicates it is an ego-item 
+(pseudo-id's as {excellent}); yellow indicates it is an artifact {special}; 
+green shows it is an artifact which is part of a set.
 
 It is rumoured that rings of power and extra rare spell books may be found
 deeper in the dungeon...

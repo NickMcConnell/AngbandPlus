@@ -1060,36 +1060,8 @@ static void gere_class_special()
 static void check_music()
 {
 	int use_mana;
-	object_type *o_ptr = &p_ptr->inventory[INVEN_BOW];
 
-
-	/* Music of the instrument, if any */
-	if (p_ptr->music < 255)
-	{
-		if (o_ptr->tval == TV_INSTRUMENT)
-		{
-			music *m_ptr = &music_info[p_ptr->music];
-
-			if (o_ptr->timeout <
-			                (m_ptr->init_recharge + m_ptr->dur * m_ptr->turn_recharge))
-			{
-				o_ptr->timeout += m_ptr->turn_recharge;
-				process_lasting_spell(m_ptr->music);
-			}
-			else
-			{
-				msg_print("Your instrument stops singing.");
-				p_ptr->music = 255;
-			}
-		}
-		else
-		{
-			msg_print("Your instrument stop singing because you don't wield it anymore.");
-			p_ptr->music = 255;
-		}
-	}
-
-	/* Music singed by player */
+	/* Music sung by player */
 	if (!p_ptr->music_extra) return;
 
 	use_mana = process_lasting_spell(p_ptr->music_extra);
@@ -1710,8 +1682,8 @@ static void process_world(void)
 	 */
 	if (!cave_floor_bold(p_ptr->py, p_ptr->px))
 	{
-		/* Player can walk through trees */
-		if (has_ability(AB_TREE_WALK) && (cave[p_ptr->py][p_ptr->px].feat == FEAT_TREES))
+		/* Player can walk through or fly over trees */
+		if ((has_ability(AB_TREE_WALK) || p_ptr->fly) && (cave[p_ptr->py][p_ptr->px].feat == FEAT_TREES))
 		{
 			/* Do nothing */
 		}
@@ -3160,7 +3132,11 @@ static void process_world(void)
 			o_ptr->timeout--;
 
 			/* Notice changes */
-			if (o_ptr->timeout == 0) j++;
+			if (o_ptr->timeout == 0)
+			{
+				j++;
+				recharged_notice(o_ptr);
+			}
 		}
 
 		/* Decay objects in pack */
@@ -3201,34 +3177,37 @@ static void process_world(void)
 		{
 			int mx, my;
 
-			if (o_ptr->timeout > 0) o_ptr->pval--;
-
-			/* Notice changes */
-			if (o_ptr->pval <= 0)
+			if (o_ptr->timeout == 0)
 			{
-				monster_type *m_ptr;
-				monster_race *r_ptr;
+				o_ptr->pval--;
 
-				mx = p_ptr->px;
-				my = p_ptr->py + 1;
-				get_pos_player(5, &my, &mx);
-				msg_print("Your egg hatches!");
-				place_monster_aux(my, mx, o_ptr->pval2, FALSE, FALSE, MSTATUS_PET);
-
-				m_ptr = &m_list[cave[my][mx].m_idx];
-				r_ptr = race_inf(m_ptr);
-
-				if ((r_ptr->flags9 & RF9_IMPRESED) && can_create_companion())
+				/* Notice changes */
+				if (o_ptr->pval <= 0)
 				{
-					msg_format("And you have given the imprint to your %s!",
-					           r_name + r_ptr->name);
-					m_ptr->status = MSTATUS_COMPANION;
+					monster_type *m_ptr;
+					monster_race *r_ptr;
+	
+					mx = p_ptr->px;
+					my = p_ptr->py + 1;
+					get_pos_player(5, &my, &mx);
+					msg_print("Your egg hatches!");
+					place_monster_aux(my, mx, o_ptr->pval2, FALSE, FALSE, MSTATUS_PET);
+	
+					m_ptr = &m_list[cave[my][mx].m_idx];
+					r_ptr = race_inf(m_ptr);
+	
+					if ((r_ptr->flags9 & RF9_IMPRESED) && can_create_companion())
+					{
+						msg_format("And you have given the imprint to your %s!",
+						           r_name + r_ptr->name);
+						m_ptr->status = MSTATUS_COMPANION;
+					}
+	
+					inven_item_increase(i, -1);
+					inven_item_describe(i);
+					inven_item_optimize(i);
+					j++;
 				}
-
-				inven_item_increase(i, -1);
-				inven_item_describe(i);
-				inven_item_optimize(i);
-				j++;
 			}
 		}
 	}
@@ -6068,6 +6047,9 @@ void play_game(bool new_game)
 
 				/* accounting for a new ailment. -LM- */
 				p_ptr->black_breath = FALSE;
+
+				/* Hack -- don't go to undead form */
+				p_ptr->necro_extra &= ~CLASS_UNDEAD;
 
 				/* Hack -- Prevent starvation */
 				(void)set_food(PY_FOOD_MAX - 1);

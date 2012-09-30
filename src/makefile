@@ -75,7 +75,7 @@ LIBS += -lsocket
 # cant get libsocket to resolve hosts
 CFLAGS += -DIRC_SERVER=\"216.41.105.77\"
 CFLAGS += -DIRC_PORT=\"6667\"
-CFLAGS += -DIRC_CHANNEL=\"\#angband\"
+CFLAGS += -DIRC_CHANNEL=\"\#tome\"
 
 endif
 

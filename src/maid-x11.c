@@ -790,7 +790,6 @@ static XImage *ResizeImageSmooth(Display *dpy, XImage *Im,
 	return Tmp;
 }
 
-
 /*
  * Resize an image. XXX XXX XXX
  *

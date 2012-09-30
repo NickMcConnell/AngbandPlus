@@ -5014,25 +5014,13 @@ void do_cmd_activate(void)
 		/* Monster eggs */
 		else if (o_ptr->tval == TV_EGG)
 		{
-			msg_print("You resume the development of the egg...");
+			msg_print("You resume the development of the egg.");
 			o_ptr->timeout = 0;
 
 			/* Window stuff */
 			p_ptr->window |= (PW_INVEN | PW_EQUIP);
 
 			/* Success */
-			return;
-		}
-
-		/* Musical instruments */
-		else if (o_ptr->tval == TV_INSTRUMENT)
-		{
-			if (p_ptr->music < 255)
-				msg_print("Your instrument stop playing...");
-			else
-				msg_print("Your instrument remains mute...");
-
-			p_ptr->music = 255;
 			return;
 		}
 
@@ -5097,7 +5085,7 @@ void do_cmd_activate(void)
 			/* Still need to check timeouts because there is another counter */
 			if (o_ptr->timeout)
 			{
-				msg_print("The spell 1 is still charging !");
+				msg_print("The first spell is still charging ");
 				return;
 			}
 
@@ -5109,7 +5097,7 @@ void do_cmd_activate(void)
 			/* Still need to check timeouts because there is another counter */
 			if (o_ptr->xtra2)
 			{
-				msg_print("The spell 2 is still charging !");
+				msg_print("The second spell is still charging !");
 				return;
 			}
 
@@ -5128,7 +5116,7 @@ void do_cmd_activate(void)
 	if (o_ptr->tval == TV_EGG)
 	{
 		msg_print("You stop the development of the egg.");
-		o_ptr->timeout = 1;
+		o_ptr->timeout = -1;
 
 		/* Window stuff */
 		p_ptr->window |= (PW_INVEN | PW_EQUIP);
@@ -5143,22 +5131,11 @@ void do_cmd_activate(void)
 		/* Horns */
 		if (o_ptr->sval == SV_HORN)
 		{
-			msg_format("Your instrument emits a loud sound...");
+			msg_format("Your instrument emits a loud sound!");
 
 			aggravate_monsters(1);
 
 			o_ptr->timeout = 100;
-		}
-
-		/* Everything else */
-		else
-		{
-			msg_format("Your instrument starts %s",
-			           music_info[o_ptr->pval2].desc);
-
-			p_ptr->music = o_ptr->pval2;
-
-			o_ptr->timeout = music_info[p_ptr->music].init_recharge;
 		}
 
 		/* Success */
@@ -5354,9 +5331,9 @@ const char *activation_aux(object_type * o_ptr, bool doit, int item)
 				r_ptr->r_flags4 = r_ptr->flags4;
 				r_ptr->r_flags5 = r_ptr->flags5;
 				r_ptr->r_flags6 = r_ptr->flags6;
-				r_ptr->r_flags4 = r_ptr->flags7;
-				r_ptr->r_flags5 = r_ptr->flags8;
-				r_ptr->r_flags6 = r_ptr->flags9;
+				r_ptr->r_flags7 = r_ptr->flags7;
+				r_ptr->r_flags8 = r_ptr->flags8;
+				r_ptr->r_flags9 = r_ptr->flags9;
 
 				o_ptr->timeout = rand_int(200) + 500;
 
@@ -5847,43 +5824,6 @@ const char *activation_aux(object_type * o_ptr, bool doit, int item)
 				(void)detect_stairs(DEFAULT_RADIUS);
 
 				o_ptr->timeout = rand_int(100) + 100;
-
-				break;
-			}
-
-		case ACT_MAGLOR:
-			{
-				if (!doit) return music_info[3].desc;
-				msg_format("Your instrument starts %s", music_info[3].desc);
-
-				/* Full ID */
-				p_ptr->music = 3;
-
-				o_ptr->timeout = music_info[p_ptr->music].init_recharge;
-
-				break;
-			}
-
-		case ACT_SKY:
-			{
-				if (!doit) return music_info[9].desc;
-				msg_format("Your instrument starts %s", music_info[9].desc);
-
-				p_ptr->music = 9;
-
-				o_ptr->timeout = music_info[p_ptr->music].init_recharge;
-
-				break;
-			}
-
-		case ACT_DAERON:
-			{
-				if (!doit) return music_info[10].desc;
-				msg_format("Your instrument starts %s", music_info[10].desc);
-
-				p_ptr->music = 10;
-
-				o_ptr->timeout = music_info[p_ptr->music].init_recharge;
 
 				break;
 			}
@@ -6631,7 +6571,7 @@ turn_monsters(40 + p_ptr->lev);
 
 		case ACT_CURE_LW:
 			{
-				if (!doit) return "remove fear & heal 30 hp every 10 turns";
+				if (!doit) return "cure light wounds every 10 turns";
 				(void)set_afraid(0);
 				(void)hp_player(30);
 
@@ -6642,7 +6582,7 @@ turn_monsters(40 + p_ptr->lev);
 
 		case ACT_CURE_MW:
 			{
-				if (!doit) return "heal 4d8 & wounds every 3+d3 turns";
+				if (!doit) return "cure serious wounds every 3+d3 turns";
 				msg_print("It radiates deep purple...");
 				hp_player(damroll(4, 8));
 				(void)set_cut((p_ptr->cut / 2) - 50);

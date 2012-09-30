@@ -1814,10 +1814,8 @@ struct player_type
 
 	cptr mimic_name;
 
-	byte music;             /* Current music */
-
 	char tactic;                  /* from 128-4 extremely coward to */
-				      /* 128+4 berserker */
+	                              /* 128+4 berserker */
 	char movement;                /* base movement way */
 
 	s16b companion_killed;  /* Number of companion death */

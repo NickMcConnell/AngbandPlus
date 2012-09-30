@@ -455,7 +455,7 @@ add_quest
 			i = 1
 			count = -1
 			while i <= m_max do
-				monster = m_list[i]
+				local monster = m_list[i]
 				if (monster.r_idx > 0) and (monster.status <= MSTATUS_ENEMY) then
 					count = count + 1
 				end

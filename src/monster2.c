@@ -1934,6 +1934,9 @@ void update_mon(int m_idx, bool full)
 			/* Update health bar as needed */
 			if (health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
 
+			/* Update monster list window */
+			p_ptr->window |= (PW_M_LIST);
+
 			/* Disturb on disappearance*/
 			if (disturb_move)
 			{

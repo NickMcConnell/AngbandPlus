@@ -24,7 +24,7 @@
 # Comment out this line if you don't want Lua scripting
 LUA=TRUE
 
-#IRCARGS = -DIRC_SERVER=\"irc.worldirc.org\" -DIRC_PORT=\"6667\" -DIRC_CHANNEL=\"\#angband\"
+#IRCARGS = -DIRC_SERVER=\"irc.worldirc.org\" -DIRC_PORT=\"6667\" -DIRC_CHANNEL=\"\#tome\"
 
 
 

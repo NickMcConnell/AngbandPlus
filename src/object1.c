@@ -1925,6 +1925,23 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 				t = object_desc_chr(t, ' ');
 			}
 		}
+
+		/* -TM- Hack -- Add false-artifact names */
+		/* Dagger inscribed {@w0%Smelly} will be named
+		 * Smelly Dagger {@w0} */
+
+		if (o_ptr->note)
+		{
+			str = strchr(quark_str(o_ptr->note), '%');
+
+			/* Add the false name */
+			if (str)
+			{
+				t = object_desc_str(t, &str[1]);
+				t = object_desc_chr(t, ' ');
+			}
+		}
+
 	}
 
 	/* Hack -- objects that "never" take an article */
@@ -2485,19 +2502,16 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	/* Indicate "charging" artifacts XXX XXX XXX */
 	if (known && (f3 & TR3_ACTIVATE) && o_ptr->timeout)
 	{
-		/* Hack -- Dump " (charging)" if relevant */
-		t = object_desc_str(t, " (charging)");
-	}
-
-	/* Indicate "stopped" eggs XXX XXX XXX */
-	if (known && o_ptr->timeout && (o_ptr->tval == TV_EGG))
-	{
-		/* Hack -- Dump " (stoped)" if relevant */
-		t = object_desc_str(t, " (stopped)");
+		if(o_ptr->tval == TV_EGG)
+			/* Hack -- Dump " (stopped)" if relevant */
+			t = object_desc_str(t, " (stopped)");
+		else
+			/* Hack -- Dump " (charging)" if relevant */
+			t = object_desc_str(t, " (charging)");
 	}
 
 	/* Indicate "charging" Mage Staffs XXX XXX XXX */
-	if (known && o_ptr->timeout && (is_ego_p(o_ptr, EGO_MSTAFF_SPELL)) && (o_ptr->tval != TV_EGG))
+	if (known && o_ptr->timeout && (is_ego_p(o_ptr, EGO_MSTAFF_SPELL)))
 	{
 		/* Hack -- Dump " (charging spell1)" if relevant */
 		t = object_desc_str(t, " (charging spell1)");
@@ -2538,7 +2552,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 
 		strcat(tmp_val2, quark_str(o_ptr->note));
 
-		for (; *u && (*u != '#'); u++);
+		for (; *u && (*u != '#') && (*u != '%'); u++);
 
 		*u = '\0';
 	}
@@ -2685,11 +2699,7 @@ cptr item_activation(object_type *o_ptr, byte num)
 		                (o_ptr->name2 && e_info[o_ptr->name2].activate) ||
 		                (o_ptr->name2b && e_info[o_ptr->name2b].activate)))
 		{
-			if (o_ptr->sval != SV_HORN)
-			{
-				return music_info[o_ptr->pval2].desc;
-			}
-			else
+			if (o_ptr->sval == SV_HORN)
 			{
 				return "aggravate monster every 100 turns";
 			}
@@ -3317,7 +3327,7 @@ bool object_out_desc(object_type *o_ptr, FILE *fff, bool trim_down, bool wait_fo
 
 		if (f5 & (TR5_WOUNDING))
 		{
-			text_out("It is very sharp and make your foes bleed.  ");
+			text_out("It is very sharp and can make your foes bleed.  ");
 		}
 
 		if (f1 & (TR1_KILL_DRAGON))

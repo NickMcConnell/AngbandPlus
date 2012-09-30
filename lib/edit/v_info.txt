@@ -999,7 +999,7 @@ X:8:30:19:38
 D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 D:%.........XXXXXXXXX+XXXXXXXXX........%
 D:%......XXXX^^^^^^^^^^^^^^^^^XXXX.....%
-D:%...XXXX^^^^^XXXXXXXXXXXXX^^^^^XXXX..%ÿ
+D:%...XXXX^^^^^XXXXXXXXXXXXX^^^^^XXXX..%
 D:%..XX^^^^^XXXX^^^^^^^^^^^XXXX^^^^^XX.%
 D:%.XX^^^^XXX^^^^XXXXXXXXX^^^^XXX^^^^XX%
 D:%.X^^^^XX^^^^XXX,^^^^^,XXX^^^^XX^^^^X%

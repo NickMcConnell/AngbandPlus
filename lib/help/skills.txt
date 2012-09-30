@@ -278,8 +278,11 @@ points to your Sneakiness skill.
 ~~~~~20|Skills|Dodging
 [[[[[BDodging]
 This skill is a sub-skill of the Sneakiness skill. It affects your ability
-to dodge out of the way of monster blows and bolts. Spending 1 skill point
-on your Dodging skill adds 0.1 bonus skill points to your Sneakiness skill.
+to dodge out of the way of monster blows and bolts. The less armour you wear 
+and the less you carry, the greater your chance of dodging a blow. Rings and 
+amulets do not affect your chance to dodge, but full armour will almost render 
+the effect of the skill obsolete. Spending 1 skill point on your Dodging skill 
+adds 0.1 bonus skill points to your Sneakiness skill.
 ~~~~~21|Skills|Magic
 [[[[[BMagic]
 The magic skill affects your general use of magic items, the amount of mana
@@ -514,5 +517,6 @@ points to your Monster-lore skill.
 ~~~~~47|Skills|Mimicry
 [[[[[BMimicry]
 This skill is a sub-skill of the Monster-lore skill. It affects your ability
-to use cloaks of mimicry to change form. Spending 1 skill point on your
-Mimicry skill adds 0.1 bonus skill points to your Monster-lore skill.
+to use cloaks of mimicry to change form and to cast *****m_mimic.txt*0[Mimicry spells].
+Spending 1 skill point on your Mimicry skill adds 0.1 bonus skill points to 
+your Monster-lore skill.

@@ -32,6 +32,7 @@ bool quest_wolves_gen_hook(char *fmt)
 
 	init_flags = INIT_CREATE_DUNGEON;
 	process_dungeon_file(NULL, "wolves.map", &ystart, &xstart, cur_hgt, cur_wid, TRUE);
+	dungeon_flags2 |= DF2_NO_GENO;
 
 	/* Place some random wolves */
 	for (i = damroll(4, 4); i > 0; )

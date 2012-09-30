@@ -3098,7 +3098,7 @@ errr file_character(cptr name, bool full)
 	if (noscore)
 		fprintf(fff, "\n You have done something illegal.");
 
-	if (PRACE_FLAGS(PR1_EXPERIMENTAL))
+	if (PRACE_FLAGS(PR1_EXPERIMENTAL) || seed_dungeon)
 		fprintf(fff, "\n You have done something experimental.");
 
 	if (stupid_monsters)

@@ -5,6 +5,7 @@
  * To be processed by tolua to generate C source code.
  */
 
+
 $#include "angband.h"
 
 /** @typedef cptr

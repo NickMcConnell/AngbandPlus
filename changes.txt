@@ -1,60 +1,80 @@
-# Keys:
-#   I = Interface, M = Monster, O = Object, G = Gameplay,
-#   m = Misc, P = Player, D = Dungeon, B = Bug
+T.o.M.E 2.2.4 aka "A Bug's Life" changes
 
-20/07/2003
-[P]- No more involuntary corruptions
+Interface changes:
+- Adam Bolt's Tiles are now "New Tiles", as others have worked on them and
+  stuff. -- fearoffours
 
-02/08/2003
-[B]- Fixed crash on 'l'ook in rare conditions, thanks slappy0042
-[B]- Fixed inflation of ammo damage display, patch by 'Zizzo' -- neil
+Object changes:
+- Restore spaces to artifact descriptions -- neil
+- Changed descriptions of some junkart activations. -- fearoffours
+- Non-functioning artifact instrument activations removed -- neil
 
-05/08/2003
-[m]- Help updates - spectres lose hp when passing walls, thieves cannot shoot
-     arrows (very well), non-geomancer mages have a 0.00 modifier to Geomancy.
-     -- fearoffours
-[m]- Help updates - typo in rm_spec.txt and High-elves have good wisdom
-     -- fearoffours.
+Player changes:
+- Wood Elves and Hobbits weren't getting the extra might bonuses
+  they were entitled to -- neil
 
-08/08/2003
-[B]- Tulkas piety gains now match the documentation -- jules
+Misc changes:
+- Applied Ken Dubuc's patches to parsers to make them line ending independant
+- Savefiles on multiuser systems are now in HOME/.tome/2.2/save, to comply
+  with the new 3.0.0 naming scheme that is coming.
+  People upgrading from 2.2.x to 2.2.4 should move their savefiles there
+- Setting module to "all" for an automatizer rule makes the rule apply
+  to all modules -- neil
+- Wizard mode is now turned off at birth -- neil
+- Help updates: macros and macro recorder, dwarf racial ability, more on
+  dodging, link to m_mimic.txt from skills.txt, object inventory letter
+  colouring significance. -- fearoffours
+- Helpfiles updated to reflect that corruptions are permanent and there is
+  no corrupted sub-race. --fearoffours
 
-10/08/2003
-[m]- helpfiles - Clearer geomancy skill values for non-Geomancer Mages, a note
-     about effect of stealing from shops in skills.txt, and some FAQ additions
-     about FF and random quests. -- fearoffours
+Dungeon changes:
+- "The lava burns you", becomes "you move across the lava" to accomodate
+  IM_FIRE and flying characters. -- fearoffours
 
-13/08/2003
-[B]- Manwe, Eru, Yavanna, and Tulkas will not yet you start following them if you
-     are wearing the One -- neil
-
-24/08/2003
-[B]- Set number of charges correctly when a wand is stolen -- neil
-
-26/08/2003
-[m]- Scott Bigham's tome-autoabil.diff:  Adds a new automatizer class
-     <ability>, which is true when you have the given ability -- neil
-
-27/08/2003
-[m]- Riscos support thanks to Antony Sidwell
-
-30/08/2003
-[m]- Savefiles are now stores in ~/.tome/save[/modulename] on multiuser systems
-[m]- Apply patches based on those from FreeBSD ports -- neil
-
-06/09/2003
-[O]- Beaked Axes, Battle Axes and Lochaber Axes are recognized as polearms
-     again. -- neil
-[O]- Misleading "polearm" description removed from non-polearm
-     Quarterstaff -- neil
-
-14/09/2003
-[m]- Added help for 'repeat last command' to command.txt. -- fearoffours
-
-15/09/2003
-[B]- Fixed autopickup of ammo crash under some circumstances
-[B]- Fix monster list mimic bug
-[B]- Tree Roots incorrect bonuses fixed
-[B]- Fixed incorrect display of some skill bonuses
-
-[V]  T.o.M.E 2.2.3 aka 'The Quality of Mercy'
+Bug fixes:
+- Detect doors and traps displays as costing 3, not 5 now. -- fearoffours
+- Maeglin quest reward wording altered (saves confusion for sorcerors).
+  -- fearoffours
+- Typos in One Ring parchment and Necromancy help fixed. -- fearoffours
+- Typos in ultra-good ending, lost-sword quest rewards and flag description
+  fixed. -- fearoffours
+- Axemasters now start with a Hatchet -- neil
+- Fix "analyze monster" activation -- neil
+- Fix library quest breakage of Melkor curses -- neil
+- Fix failure rates for abilities in possessed bodies, patch by 'Slappy'
+  -- neil
+- Monsters detected ONLY by telepathy were not removed from visible monsters
+  list after they had gone out of range. Thanks Slappy for fix. -- fearoffours
+- Recharged junkarts would not always give a notification message. Thanks
+  Slappy for fix. -- fearoffours
+- Completion of Necromancer quest could be triggered incorrectly.
+  -- fearoffours
+- Monsters don't appear to disappear for a turn if you polymorph them -- neil
+- Flying semi-wraiths shouldn't be hurt by flying over trees -- neil
+- Recalling to new lost temples could have crashed the game. -- fearoffours
+- God quest directions could be grammatically incorrect. -- fearoffours
+- Items containing spells should be browsable again -- neil
+- Random artifact mimicry cloaks should now show up correctly -- neil
+- Random artifacts that can contain spells will not come with
+  Globe of Light anymore -- neil
+- Certain non-random artifacts that can contain spells will not come with
+  Globe of Light anymore, either -- neil
+- Pack overflow/weapon disappearing bug fixed, with big thanks to Kevin
+  W. Thomas for telling me where to look -- neil
+- Trap of Divine Wrath would benefit you -- neil
+- Blood of Life would revive necromancers in undead form -- neil
+- Hostile monsters won't get free kills of friendly monsters anymore -- neil
+- Eggs work again -- neil
+- Wishing for ego rods works -- neil
+- Temples now accept blessed boomerangs -- neil
+- If you learn anti-magic, you stop following any Valar -- neil
+- typo in v_info.txt -- fearoffours
+- Old Mage's quest wouldn't always disappear from quest screen when fully
+  rewarded. -- fearoffours
+- No more shafts in certain places -- neil
+- Percing shots will not grossly inflate in damage anymore -- neil
+- No genocide in home quests -- neil
+- Silent Switching can no longer take off permanently cursed items -- neil
+- Fix memory error in command handling -- neil
+- Hypnotizing and restoring levelled monsters now works correctly -- neil
+- permanent_levels marked experimental because it is broken -- neil

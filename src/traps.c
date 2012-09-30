@@ -971,12 +971,17 @@ bool player_activate_trap_type(s16b y, s16b x, object_type *i_ptr, s16b item)
 		{
 			s16b i, j, slot1, slot2;
 			object_type *j_ptr, *k_ptr;
+			u32b f1, f2, f3, f4, f5, esp;
 
 			for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
 			{
 				j_ptr = &p_ptr->inventory[i];
 
 				if (!j_ptr->k_idx) continue;
+
+				/* Do not allow this trap to remove the One Ring */
+				object_flags(j_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
+				if(f3 & TR3_PERMA_CURSE) continue;
 
 				slot1 = wield_slot(j_ptr);
 
@@ -1871,7 +1876,7 @@ bool player_activate_trap_type(s16b y, s16b x, object_type *i_ptr, s16b item)
 
 				name = deity_info[p_ptr->pgod].name;
 				msg_format("You feel you have angered %s.", name);
-				set_grace(p_ptr->grace - 3000);
+				inc_piety(p_ptr->pgod, -3000);
 			}
 			break;
 		}
@@ -1890,7 +1895,7 @@ bool player_activate_trap_type(s16b y, s16b x, object_type *i_ptr, s16b item)
 				name = deity_info[p_ptr->pgod].name;
 
 				msg_format("%s quakes in rage: ``Thou art supremely insolent, mortal!!''", name);
-				inc_piety(p_ptr->pgod, 500 * p_ptr->lev);
+				inc_piety(p_ptr->pgod, -500 * p_ptr->lev);
 			}
 			break;
 		}

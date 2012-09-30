@@ -7162,9 +7162,11 @@ static void process_monster(int m_idx, bool is_frien)
 
 			/* Kill weaker monsters */
 			if ((r_ptr->flags2 & RF2_KILL_BODY) &&
-			                (r_ptr->mexp > z_ptr->mexp) && (cave_floor_bold(ny, nx)) &&
-			                !((is_friend(m_ptr) > 0) && (is_friend(m2_ptr) > 0)))
-				/* Friends don't kill friends... */
+			    (r_ptr->mexp > z_ptr->mexp) && (cave_floor_bold(ny, nx)) &&
+			    /* Friends don't kill friends... */
+			    !((is_friend(m_ptr) > 0) && (is_friend(m2_ptr) > 0)) &&
+			    /* Don't punish summoners for relying on their friends */
+			    (is_friend(m2_ptr) <= 0))
 			{
 				/* Allow movement */
 				do_move = TRUE;

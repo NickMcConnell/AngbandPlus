@@ -10,7 +10,7 @@ bool quest_thrain_death_hook(char *fmt)
 	m_idx = get_next_arg(fmt);
 	r_idx = m_list[m_idx].r_idx;
 
-	if (cquest.status >= QUEST_STATUS_FINISHED) return (FALSE);
+	if ((cquest.status >= QUEST_STATUS_FINISHED) || (dun_level !=cquest.data[0]) || (dungeon_type != DUNGEON_DOL_GULDUR)) return (FALSE);
 	m_ptr = &m_list[m_idx];
 	if ((m_ptr->r_idx != test_monster_name("Dwar, Dog Lord of Waw")) && (m_ptr->r_idx != test_monster_name("Hoarmurath of Dir"))) return (FALSE);
 

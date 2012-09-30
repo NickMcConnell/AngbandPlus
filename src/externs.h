@@ -75,7 +75,6 @@ extern cptr deity_standing[11];
 extern move_info_type move_info[9];
 extern tactic_info_type tactic_info[9];
 extern activation activation_info[MAX_T_ACT];
-extern music music_info[MAX_MUSICS];
 extern inscription_info_type inscription_info[MAX_INSCRIPTIONS];
 extern cptr sense_desc[];
 extern flags_group flags_groups[MAX_FLAG_GROUP];

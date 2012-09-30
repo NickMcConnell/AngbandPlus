@@ -42,13 +42,13 @@ void module_reset_dir(cptr dir, cptr new_path)
 
 		/* Build the new path */
 		strnfmt(buf, 1024, "%s%s%s", ANGBAND_DIR_SAVE, PATH_SEP, new_path);
-		
+
 		string_free(*d);
 		*d = string_make(buf);
-		
+
 		/* Make it if needed */
 		if (!private_check_user_directory(*d)) quit(format("Unable to create module save dir %s\n", *d));
-		
+
 		/* Tell the savefile code that we must not use setuid */
 		savefile_setuid = FALSE;
 	}
@@ -57,7 +57,7 @@ void module_reset_dir(cptr dir, cptr new_path)
 	{
 		/* Build the new path */
 		strnfmt(buf, 1024, "%s%s%s%s%s", ANGBAND_DIR_MODULES, PATH_SEP, new_path, PATH_SEP, dir);
-		
+
 		string_free(*d);
 		*d = string_make(buf);
 	}

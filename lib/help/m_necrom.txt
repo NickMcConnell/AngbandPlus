@@ -25,11 +25,11 @@ and do not need light to be performed.
    This conjures up a temporary vampiric weapon.
 4. [[[[[DAbsorb Soul] (Level 20) Cost:10
    This heals you by a good amount every time you kill a monster within
-   its duration. It is especially useful when your character is in undead
-   form (see below)
+   its duration. It is especially useful when your character is in 
+   in *****ability.txt*12[Undead Form].
 5. [[[[[DVampirism] (Level 30) Cost:15
    Drains part of the life-force from a nearby monster and gives it to you.
 6. [[[[[DDeath] (Level 35) Cost:100
    Yes, the name is not nice. Neither are the effects: the target dies
-   immediately, but so does your character (not that death is such a great
+   immediately, but so does your character (note that death is not such a great
    annoyance for necromancers)

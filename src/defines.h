@@ -35,12 +35,15 @@
 /*
  * Release state, CVS or not, remember to switch it when making releases
  */
-/*#define IS_CVS          ""*/
+
+#ifndef IS_CVS
 #define IS_CVS          ""
+/*#define IS_CVS          "(CVS)"*/
+#endif
 
 #define ANGBAND_2_8_1
 
-#define SAVEFILE_VERSION 100
+#define SAVEFILE_VERSION 101
 
 /*
  * This value is not currently used
@@ -1252,8 +1255,10 @@
 #define ACT_GANDALF             76
 #define ACT_MARDA               77
 #define ACT_PALANTIR            78
-#define ACT_MAGLOR              79
-#define ACT_SKY                 80
+/*
+                                79
+                                80
+*/
 #define ACT_CURE_LW             81
 #define ACT_CURE_MW             82
 #define ACT_CURE_POISON         83
@@ -1261,7 +1266,9 @@
 #define ACT_REST_ALL            85
 #define ACT_CURE_700            86
 #define ACT_CURE_1000           87
-#define ACT_DAERON              88
+/*
+                                88
+*/
 #define ACT_EREBOR              89
 #define ACT_DRUEDAIN            90
 #define ACT_ESP                 91

@@ -32,6 +32,7 @@ bool quest_dragons_gen_hook(char *fmt)
 
 	init_flags = INIT_CREATE_DUNGEON;
 	process_dungeon_file(NULL, "dragons.map", &ystart, &xstart, cur_hgt, cur_wid, TRUE);
+	dungeon_flags2 |= DF2_NO_GENO;
 
 	/* Place some columns */
 	for (i = 35; i > 0; )

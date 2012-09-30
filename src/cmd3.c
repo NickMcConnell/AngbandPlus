@@ -2328,7 +2328,7 @@ void cli_add(cptr active, cptr trigger, cptr descr)
 	cli_ptr->descrip = string_make(descr);
 
 	/* Take description for the previous record if appropriate. */
-	if ((old_ptr->key == cli_ptr->key) && (cli_ptr->descrip == 0))
+	if ((cli_total > 0) && (old_ptr->key == cli_ptr->key) && (cli_ptr->descrip == 0))
 	{
 		cli_ptr->descrip = old_ptr->descrip;
 	}

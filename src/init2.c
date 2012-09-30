@@ -101,14 +101,14 @@ void init_file_paths(char *path)
 
 
 	/*** Prepare the "path" ***/
-	
+
 	pathlen = strlen(path);
-	
+
 	/* Hack -- save the main directory without trailing PATH_SEP if present */
 	if (strlen(PATH_SEP) > 0 && pathlen > 0)
 	{
 		int seplen = strlen(PATH_SEP);
-		
+
 		if (strcmp(path + pathlen - seplen, PATH_SEP) == 0)
 		{
 			path[pathlen - seplen] = '\0';
@@ -124,10 +124,10 @@ void init_file_paths(char *path)
 	{
 		ANGBAND_DIR = string_make(path);
 	}
-	
+
 	/* Prepare to append to the Base Path */
 	tail = path + pathlen;
-        
+
 
 
 #ifdef VM
@@ -218,10 +218,11 @@ void init_file_paths(char *path)
 
 		/* Get an absolute path from the file name */
 		path_parse(user_path, 1024, PRIVATE_USER_PATH);
+		strcat(user_path, "/2.2");
 		ANGBAND_DIR_USER = string_make(user_path);
 		ANGBAND_DIR_NOTE = string_make(user_path);
 		ANGBAND_DIR_CMOV = string_make(user_path);
-		
+
 		/* Savefiles are in user directory */
 		strcat(user_path, "/save");
 		ANGBAND_DIR_SAVE = string_make(user_path);
@@ -229,11 +230,11 @@ void init_file_paths(char *path)
 	}
 
 #else /* PRIVATE_USER_PATH */
-	
+
 	/* Build a path name */
 	strcpy(tail, "save");
 	ANGBAND_DIR_SAVE = string_make(path);
-	
+
 	/* Build a path name */
 	strcpy(tail, "user");
 	ANGBAND_DIR_USER = string_make(path);

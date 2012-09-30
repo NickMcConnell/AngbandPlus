@@ -1287,8 +1287,8 @@ static const char *activation_names[] =
 	"GANDALF",              /*  76*/
 	"MARDA",                /*  77*/
 	"PALANTIR",             /*  78*/
-	"MAGLOR",               /*  79*/
-	"SKY",                  /*  80*/
+	"XXX79",
+	"XXX80",
 	"CURE_LW",              /*  81*/
 	"CURE_MW",              /*  82*/
 	"CURE_POISON",          /*  83*/
@@ -1296,7 +1296,7 @@ static const char *activation_names[] =
 	"REST_ALL",             /*  85*/
 	"CURE_700",             /*  86*/
 	"CURE_1000",            /*  87*/
-	"DAERON",               /*  88*/
+	"XXX88",
 	"EREBOR",               /*  89*/
 	"DRUEDAIN",             /*  90*/
 	"ESP",                  /*  91*/
@@ -11375,8 +11375,20 @@ static errr process_dungeon_file_aux(char *buf, int *yval, int *xval, int xvalst
 
 				a_allow_special[artifact_index] = FALSE;
 
+				/* It's amazing that this "creating objects anywhere"
+				   junk ever worked.
+				   Let's just HACK around one observed bug: Shadow Cloak
+				   of Luthien [Globe of Light] */
+				{
+					u32b f1, f2, f3, f4, f5, esp;
+					object_flags(q_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
+					if (f5 & TR5_SPELL_CONTAIN)
+						q_ptr->pval2 = -1;
+				}
+
 				/* Drop the artifact */
 				drop_near(q_ptr, -1, y, x);
+
 			}
 
 			/* Terrain special */

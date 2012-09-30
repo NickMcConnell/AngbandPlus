@@ -266,7 +266,7 @@ function gen_full_rule(t)
 		t.args.module = "ToME"
 	end
 
-	if not (t.args.module == game_module) then
+	if not ((t.args.module == "all") or (t.args.module == game_module)) then
 		return function() end
 	end
 

@@ -98,7 +98,7 @@ int	*no_fds = NULL;
 	return 0;
 }
 
-# endif 
+# endif
 
 
 /*
@@ -509,48 +509,61 @@ errr my_fgets(FILE *fff, char *buf, huge n)
 {
 	huge i = 0;
 
-	char *s;
-
-	char tmp[1024];
-
-	/* Read a line */
-	if (fgets(tmp, 1024, fff))
+	while (TRUE)
 	{
-		/* Convert weirdness */
-		for (s = tmp; *s; s++)
+		int c = fgetc(fff);
+
+		if (c == EOF)
 		{
-			/* Handle newline */
-			if (*s == '\n')
-			{
-				/* Terminate */
-				buf[i] = '\0';
+			/* Terminate */
+			buf[i] = '\0';
 
-				/* Success */
-				return (0);
-			}
+			/* Success (0) if some characters were read */
+			return (i == 0);
+		}
 
-			/* Handle tabs */
-			else if (*s == '\t')
-			{
-				/* Hack -- require room */
-				if (i + 8 >= n) break;
+		/* Handle newline -- DOS (\015\012), Mac (\015), UNIX (\012) */
+		else if (c == '\r')
+		{
+			c = fgetc(fff);
+			if (c != '\n') ungetc(c, fff);
 
-				/* Append a space */
-				buf[i++] = ' ';
+			/* Terminate */
+			buf[i] = '\0';
 
-				/* Append some more spaces */
-				while (!(i % 8)) buf[i++] = ' ';
-			}
+			/* Success */
+			return (0);
+		}
+		else if (c == '\n')
+		{
+			c = fgetc(fff);
+			if (c != '\r') ungetc(c, fff);
 
-			/* Handle printables */
-			else if (isprint(*s))
-			{
-				/* Copy */
-				buf[i++] = *s;
+			/* Terminate */
+			buf[i] = '\0';
 
-				/* Check length */
-				if (i >= n) break;
-			}
+			/* Success */
+			return (0);
+		}
+
+		/* Handle tabs */
+		else if (c == '\t')
+		{
+			/* Hack -- require room */
+			if (i + 8 >= n) break;
+
+			/* Append 1-8 spaces */
+			do { buf[i++] = ' '; } while (i % 8);
+		}
+
+		/* Handle printables */
+		else if (isprint(c))
+		{
+			/* Copy */
+			buf[i++] = c;
+
+			/* Check length */
+			if (i >= n) break;
 		}
 	}
 
@@ -818,7 +831,7 @@ errr fd_lock(int fd, int what)
 		if (lockf(fd, F_LOCK, 0) != 0) return (1);
 	}
 
-# endif 
+# endif
 
 # else
 
@@ -838,9 +851,9 @@ errr fd_lock(int fd, int what)
 		if (flock(fd, LOCK_EX) != 0) return (1);
 	}
 
-# endif 
+# endif
 
-# endif 
+# endif
 
 #endif
 
@@ -4311,7 +4324,7 @@ void strlower(char *buf)
 
 /*
  * Given monster name as string, return the index in r_info array. Name
- * must exactly match (look out for commas and the like!), or else 0 is 
+ * must exactly match (look out for commas and the like!), or else 0 is
  * returned. Case doesn't matter. -GSN-
  */
 
@@ -4348,7 +4361,7 @@ int test_mego_name(cptr name)
 
 /*
  * Given item name as string, return the index in k_info array. Name
- * must exactly match (look out for commas and the like!), or else 0 is 
+ * must exactly match (look out for commas and the like!), or else 0 is
  * returned. Case doesn't matter. -DG-
  */
 

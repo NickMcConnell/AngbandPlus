@@ -116,14 +116,17 @@ bool private_check_user_directory(cptr dirpath)
 static bool check_create_user_dir(void)
 {
 	char dirpath[1024];
+	char versionpath[1024];
 	char savepath[1024];
 
 	/* Get an absolute path from the filename */
 	path_parse(dirpath, 1024, PRIVATE_USER_PATH);
-	strcpy(savepath, dirpath);
+	strcpy(versionpath, dirpath);
+	strcat(versionpath, "/2.2");
+	strcpy(savepath, versionpath);
 	strcat(savepath, "/save");
 
-	return private_check_user_directory(dirpath) && private_check_user_directory(savepath);
+	return private_check_user_directory(dirpath) && private_check_user_directory(versionpath) && private_check_user_directory(savepath);
 }
 
 #endif /* PRIVATE_USER_PATH */
@@ -161,7 +164,7 @@ static void init_stuff(void)
 	cptr tail;
 
 	/* Get the environment variable */
-	tail = getenv("ANGBAND_PATH");
+	tail = getenv("TOME_PATH");
 
 	/* Use the angband_path, or a default */
 #ifndef ENABLE_BINRELOC

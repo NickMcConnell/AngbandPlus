@@ -5295,7 +5295,6 @@ D:A number of strings held by a wooden frame.
 #W:15:0:30:200
 #A:15/1
 #P:0:1d1:0:0:0
-#F:ACTIVATE
 #D:A combination of kithara and tambourine. It looks strange and sounds bad.
 
 #N:673:& Lute~
@@ -5304,7 +5303,6 @@ D:A number of strings held by a wooden frame.
 #W:20:0:30:200
 #A:20/1
 #P:0:1d1:0:0:0
-#F:ACTIVATE
 #D:A string instrument, to be plucked with your fingers.
 
 #N:674:& Mandolin~
@@ -5313,7 +5311,6 @@ D:A number of strings held by a wooden frame.
 #W:25:0:30:300
 #A:25/1
 #P:0:1d1:0:0:0
-#F:ACTIVATE
 #D:A small string instrument, typically strummed with your fingers or a plectron.
 
 # The Palantir of Orthanc -- see artifact list

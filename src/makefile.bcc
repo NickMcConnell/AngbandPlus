@@ -43,7 +43,7 @@ CCOPTS = -jb -j1 -Hc -tW -lGn -w- \
 	-I$(BCCDIR)\include -I. -Ilua -DUSE_LUA \
         -DUSE_PRECISE_CMOVIE \
 	-DUSE_WINSOCK \
-        -DIRC_SERVER=\"irc.worldirc.org\" -DIRC_PORT=\"6667\" -DIRC_CHANNEL=\"\#angband\"
+        -DIRC_SERVER=\"irc.worldirc.org\" -DIRC_PORT=\"6667\" -DIRC_CHANNEL=\"\#tome\"
 
 # Compile flags:
 CPPFLAGS= $(CCOPTS) $(DBGOPT)

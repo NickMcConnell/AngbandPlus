@@ -3574,6 +3574,15 @@ void calc_bonuses(bool silent)
 		if (p_ptr->num_fire < 1) p_ptr->num_fire = 1;
 	}
 
+	if (PRACE_FLAG(PR1_XTRA_MIGHT_BOW) && p_ptr->tval_ammo == TV_ARROW)
+		p_ptr->xtra_might += 1;
+
+	if (PRACE_FLAG(PR1_XTRA_MIGHT_SLING) && p_ptr->tval_ammo == TV_SHOT)
+		p_ptr->xtra_might += 1;
+
+	if (PRACE_FLAG(PR1_XTRA_MIGHT_XBOW) && p_ptr->tval_ammo == TV_BOLT)
+		p_ptr->xtra_might += 1;
+
 	/* Examine the "current tool" */
 	o_ptr = &p_ptr->inventory[INVEN_TOOL];
 

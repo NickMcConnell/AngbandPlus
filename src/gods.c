@@ -17,8 +17,18 @@
  */
 void inc_piety(int god, s32b amt)
 {
+	s32b old = p_ptr->grace;
+
 	if ((god == GOD_ALL) || (god == p_ptr->pgod))
+	{
 		set_grace(p_ptr->grace + amt);
+	
+		if(amt > 0 && p_ptr->grace <= old)
+			set_grace(300000);
+
+		if(amt < 0 && p_ptr->grace >= old)
+			set_grace(-300000);
+	}
 }
 
 /*

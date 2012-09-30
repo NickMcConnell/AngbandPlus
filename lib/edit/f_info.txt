@@ -500,13 +500,13 @@ N:85:pool of deep lava
 G:.:R
 E:-1d2:1:FIRE
 F:FLOOR | CAN_LEVITATE | CAN_FLY | REMEMBER | SUPPORT_LIGHT
-D:0:The lava BURNS you.
+D:0:You move across the deep lava.
 
 N:86:stream of shallow lava
 G:.:r
 E:-1d1:1:FIRE
 F:FLOOR | CAN_LEVITATE | CAN_FLY | REMEMBER | SUPPORT_LIGHT
-D:0:The lava burns you.
+D:0:You move across the shallow lava.
 
 N:87:dark pit
 G:#:D

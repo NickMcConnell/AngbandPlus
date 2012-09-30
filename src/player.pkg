@@ -3527,3 +3527,5 @@ extern bool joke_monsters;
  * @note TRUE if allowing Lovecraft monsters, otherwise FALSE.
  */
 extern bool cth_monsters;
+
+extern s16b max_dlv[999999];

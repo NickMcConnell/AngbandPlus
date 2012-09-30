@@ -14,7 +14,7 @@
 
 #define IRC_SERVER "irc.worldirc.org"
 #define IRC_PORT "6667"
-#define IRC_CHANNEL "#angband"
+#define IRC_CHANNEL "#tome"
 
 /*
  * By the way, CTCP's for unique kills and artefact finds would be nice to

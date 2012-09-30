@@ -1,6 +1,6 @@
 /*
 ** Lua binding: player
-** Generated automatically by tolua 4.0a - angband on Mon Jul 14 20:42:59 2003.
+** Generated automatically by tolua 4.0a - angband on Sat Oct 25 00:31:53 2003.
 */
 
 #include "lua/tolua.h"
@@ -8622,6 +8622,32 @@ static int toluaI_set_player_cth_monsters(lua_State* tolua_S)
  return 0;
 }
 
+/* get function: max_dlv */
+static int toluaI_get_player_max_dlv(lua_State* tolua_S)
+{
+ int toluaI_index;
+ if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
+ tolua_error(tolua_S,"invalid type in array indexing.");
+ toluaI_index = (int)tolua_getnumber(tolua_S,2,0)-1;
+ if (toluaI_index<0 || toluaI_index>=999999)
+ tolua_error(tolua_S,"array indexing out of range.");
+ tolua_pushnumber(tolua_S,(long)max_dlv[toluaI_index]);
+ return 1;
+}
+
+/* set function: max_dlv */
+static int toluaI_set_player_max_dlv(lua_State* tolua_S)
+{
+ int toluaI_index;
+ if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
+ tolua_error(tolua_S,"invalid type in array indexing.");
+ toluaI_index = (int)tolua_getnumber(tolua_S,2,0)-1;
+ if (toluaI_index<0 || toluaI_index>=999999)
+ tolua_error(tolua_S,"array indexing out of range.");
+  max_dlv[toluaI_index] = ((s16b)  tolua_getnumber(tolua_S,3,0));
+ return 0;
+}
+
 /* Open function */
 int tolua_player_open (lua_State* tolua_S)
 {
@@ -9215,6 +9241,7 @@ int tolua_player_open (lua_State* tolua_S)
  tolua_globalvar(tolua_S,"zang_monsters",toluaI_get_player_zang_monsters,toluaI_set_player_zang_monsters);
  tolua_globalvar(tolua_S,"joke_monsters",toluaI_get_player_joke_monsters,toluaI_set_player_joke_monsters);
  tolua_globalvar(tolua_S,"cth_monsters",toluaI_get_player_cth_monsters,toluaI_set_player_cth_monsters);
+ tolua_globalarray(tolua_S,"max_dlv",toluaI_get_player_max_dlv,toluaI_set_player_max_dlv);
  return 1;
 }
 /* Close function */
@@ -9546,4 +9573,5 @@ void tolua_player_close (lua_State* tolua_S)
  lua_getglobals(tolua_S);
  lua_pushstring(tolua_S,"cth_monsters"); lua_pushnil(tolua_S); lua_rawset(tolua_S,-3);
  lua_pop(tolua_S,1);
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"max_dlv");
 }

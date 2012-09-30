@@ -111,8 +111,17 @@ add_quest
 					cmsg_print(TERM_YELLOW, "Thou art to find my lost temple and retrieve a piece of the relic.")
 					cmsg_print(TERM_YELLOW, "When thy task is done, thou art to lift it in the air and call upon my name.")
 					cmsg_print(TERM_YELLOW, "I shall then come to reclaim what is mine!")
+					if player.axis then 
 					cmsg_print(TERM_YELLOW, "The temple lies "..distance.." to the "..player_axis.." of thy current position,")
+					else
+						cmsg_print(TERM_YELLOW, "The temple lies "..distance.." from thy current position,")
+					end
+
+					if home_axis then
 					cmsg_print(TERM_YELLOW, "and to the "..home_axis.." of "..home..", I can feel it.'")
+					else
+						cmsg_print(TERM_YELLOW, "and very close to "..home..", I can feel it.'")
+					end
 
 					-- Prepare depth of dungeon. If this was generated in set_god_dungeon_attributes(),
 					-- then we'd have trouble if someone levelled up in the dungeon!
@@ -218,7 +227,12 @@ function place_rand_dung()
 	local tries, grid
 
 	-- erase old dungeon
-	if (god_quest.quests_given > 0) then place_dungeon(god_quest.dung_y, god_quest.dung_x) end
+		if (god_quest.quests_given > 0) then 
+		place_dungeon(god_quest.dung_y, god_quest.dung_x)
+		
+		-- erase old recall level
+		max_dlv[god_quest.DUNGEON_GOD + 1] = 0
+	end
 
 	-- initialise tries variable
 	tries = 1000

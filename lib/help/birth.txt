@@ -174,13 +174,13 @@ its own adjustments to a character's stats and abilities. Most also have
 intrinsic abilities. If you are not asked for a race modifier, it is because
 your race only supports the classical form.
 
-     *****rm_class.txt*0[Classical]                 *****rm_barb.txt*0[Barbarian]
-     *****rm_corru.txt*0[Corrupted]                 *****rm_herm.txt*0[Hermit] 
-     *****rm_lsoul.txt*0[Lost Soul]                 *****rm_skel.txt*0[Skeleton]
-     *****rm_spec.txt*0[Spectre]                   *****rm_zomb.txt*0[Zombie]
+     *****rm_class.txt*0[Classical]                   *****rm_barb.txt*0[Barbarian]
+     *****rm_herm.txt*0[Hermit]                      *****rm_lsoul.txt*0[Lost Soul]
+     *****rm_skel.txt*0[Skeleton]                    *****rm_spec.txt*0[Spectre]
+     *****rm_zomb.txt*0[Zombie]
 
 Some race modifier are no longer available at the start of the game, but are 
-acquired while playing.     
+acquired while playing.
 
      *****rm_vamp.txt*0[Vampire] 
 ~~~~~05|Classes

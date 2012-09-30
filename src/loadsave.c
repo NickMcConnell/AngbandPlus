@@ -732,8 +732,7 @@ static bool do_extra(int flag)
 	for (i = 0; i < tmp16s; i++)
 		do_byte(&p_ptr->powers_mod[i], flag);
 
-	/* The music */
-	do_byte(&p_ptr->music, flag);
+	skip_ver_byte(100, flag);
 
 	/* The tactic */
 	do_byte(&p_ptr->tactic, flag);

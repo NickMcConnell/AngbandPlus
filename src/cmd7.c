@@ -7603,11 +7603,18 @@ void do_cmd_symbiotic(void)
 					}
 					else
 					{
+						/* TODO fix this hack hack hack hackity hack with ToME 3 flags */
 						q_ptr = &forge;
 						object_prep(q_ptr, lookup_kind(TV_HYPNOS, 1));
 						q_ptr->number = 1;
 						q_ptr->pval = m_ptr->r_idx;
 						q_ptr->pval2 = m_ptr->hp;
+						q_ptr->pval3 = m_ptr->maxhp;
+						/* overflow alert */
+						q_ptr->exp = m_ptr->exp;
+						q_ptr->elevel = m_ptr->level;
+						q_ptr->dd = m_ptr->speed;
+						q_ptr->found_aux4 = m_ptr->ac;
 						object_aware(q_ptr);
 						object_known(q_ptr);
 
@@ -7660,8 +7667,15 @@ void do_cmd_symbiotic(void)
 
 				if ((m_idx = place_monster_one(y, x, o_ptr->pval, 0, FALSE, MSTATUS_PET)) == 0) return;
 
+				/* TODO fix this hack hack hack hackity hack with ToME 3 flags */
 				m_ptr = &m_list[m_idx];
 				m_ptr->hp = o_ptr->pval2;
+				m_ptr->maxhp = o_ptr->pval3;
+				/* overflow alert */
+				m_ptr->exp = o_ptr->exp;
+				m_ptr->level = o_ptr->elevel;
+				m_ptr->speed = o_ptr->dd;
+				m_ptr->ac = o_ptr->found_aux4;
 
 				floor_item_increase(0 - item, -1);
 				floor_item_describe(0 - item);

@@ -167,27 +167,59 @@ the following keymap:
 
 Now to swap weapons, just press the trigger key 'X' which is bound to
 the default keymap "w0". You may also press "w0" directly to swap.
-
+~~~~~45|Macros|Macro recorder
+~~~~~46|Keymaps|Macro recorder
 #####G----------------------------------------------------------------------
-#####G2.2 Magic books
+#####G2.2 Using the macro-recorder
 #####G----------------------------------------------------------------------
 
-Inscribe the 1st Magery spell book by number:
+You may find all the key-presses involved in ToME a long and time-consuming way 
+to play the game. There are ways to speed up repeated commands by assigning 
+them to a trigger key which can help. These are called macros or keymaps.
 
-1) {    Inscribe an object
-2) *    Show inventory list
-3)      (Choose letter of 1st spellbook)
-4) @m1@b1@G1!d!k!v
-        @m1 - use as book 1 when casting spell (m)
-        @b1 - use as book 1 when browsing (b)
-        @G1 - use as book 1 when gaining a spell (G)
-        !d!k!v - don't drop, destroy, throw without verifying
-5)      (Hit Enter)
+The most obvious use for these in ToME is for mage-types, especially sorcerors, 
+who rely on their spells for just about everything. Typing mbaa*t in order to 
+fire a Manathrust is fine if you only have to do it once or twice, but can 
+quickly get annoying when you're doing every move. Far easier to assign that 
+sequence of keypresses to a single trigger key which you can then press as many 
+times as you need. (Until your SP run out of course!)
 
-Now you can use '1' when choosing this spellbook. [[[[[BFor example, casting ]
-[[[[[BMagic Missile can be done as "m1a"]. Further spell books should be
-inscribed using 2,3,4 ... Other spell books are inscribed similarly,
-using @m1@b1@G1... This topic is covered in more detail later on.
+The easiest way to assign a macro is to use the macro-recorder. Start this by 
+hitting the '$' key. You'll then receive a message telling you that the macro 
+recorder has now started and you will need to press the '$' key a second time 
+to stop the recorder. Preparation is all important here. It is best to be in a 
+situation where you really NEED to cast the spell before recording the macro, 
+so you use all the correct casting techniques and the game behaves as it would 
+in a real (combat) situation (if the spell is to be generally cast in combat).
+
+So assuming we're going to create a macro for manathrust. We've walked into a 
+room and there's a nasty small kobold. What do we do? 
+
+1)  $               Start macro recorder
+2)  *t              target monster (or player if no monster in Line of sight)
+3)  m               open skills menu
+4)  @               enters verbose mode
+5)  Cast a Spell    selects skill to use - CASE SENSITIVE
+6)  @               enters verbose mode
+7)  Manathrust      casts spell from any book/spell container - CASE SENSITIVE
+8)  $               end macro recorder
+9)  y               confirms macro keystrokes[[[[[B*]
+10)                 (choose trigger key)
+11) @               opens macro saving/loading screen
+12) 2               appends macros to a file
+13)                 (choose a name for the file eg sorceror.prf)
+14)                 (Hit Enter)
+15)                 (Hit Esc to exit the editor)
+
+This will search for the spell in all your books and equipment. If it is found, 
+in either a book or a wielded item that contains a spell, then the spell is 
+cast at the targetted monster.
+
+This technique can be used for all the other skills as well (Use Mindcraft, 
+Forge Ammo) etc.
+
+[[[[[B*]If you answer no the recorder continues recording keypresses. If you know you have made a mistake, you need to answer yes, and then not save the macro!
+
 ~~~~~12
 #####G----------------------------------------------------------------------
 #####G2.3 Prevent unwanted use of an item
@@ -267,8 +299,8 @@ Example: The Nice Shiny Armor (-3) [35,+25] {resDk,resDis,A:Geno}
 
 Inscriptions can "number" an item so that you don't have to know where
 it is in your inventory.
-Example: inscribing your spellbooks {@m1} lets you use '1' at the prompt
-for which spellbook to use, instead of having to use the inventory letter,
+Example: inscribing your spellbooks {@r1} lets you use '1' at the prompt
+for which scroll to read, instead of having to use the inventory letter,
 which can change unnoticed.
 
 Number inscriptions work together with macros to allow reproducible
@@ -635,48 +667,7 @@ Prevent leaving town with this item. Need to catch stairs, scrolls and
 rods of Recall, and Mage and Priest Word of Recall spells.
 
 #####G----------------------------------------------------------------------
-#####G4.8 Mage macros and inscriptions
-#####G----------------------------------------------------------------------
-
-#####B= Magery Spell books =
-{@m1@b1@G1!d!k!v} [Apprentice Handbook]
-{@m2@b2@G2!d!k!v} [Mystical Words]
-{@m3@b3@G3!d!k!v} [Arcane Chants]
-{@m4@b4@G4!d!k!v} [Locus of Force]
-
-Others should be labeled similarly in spoiler order.
-
-[[[[[BLabeling spellbooks is one of the most useful uses of labeling.] They
-can be lost to theft or fire attacks, which can unexpectedly leave you
-casting the wrong spell. In some games you won't find a book until
-much later in the game, or may need to ditch one to free an inventory
-slot. Gaining a spellbook can cause the same problem, if you have an
-inscription like "!d!k!v" and the merge inscriptions option is off,
-all spellbooks after that one will be wrong.
-
-Note that when using macros there is the danger of casting a spell you
-don't have enough mana for, and having the macro skip over the warning
-message. Your character can then faint from the effort, becoming
-completely helpless in a room full of nasties. This is a danger you
-face without macros as well, but it is the kind of thing that keeps
-some players from using macros at all.
-
-#####G----------------------------------------------------------------------
-#####G4.9 Priest macros and inscriptions
-#####G----------------------------------------------------------------------
-
-#####B= Valerin Spell books =
-{@b1@m1@G1!d!k!v} [Call of the West]
-{@b2@m2@G2!d!k!v} [Light of Valinor]
-{@b3@m3@G3!d!k!v} [Divine Mastery]
-{@b4@m4@G4!d!k!v} [Words of Power]
-
-Others should be labeled similarly in spoiler order.
-
-(See the warning above about casting spells with insufficient mana.)
-
-#####G----------------------------------------------------------------------
-#####G4.10 Warrior macros and inscriptions
+#####G4.8 Warrior macros and inscriptions
 #####G----------------------------------------------------------------------
 
 #####B= Identify with list =
@@ -687,7 +678,7 @@ Then action "r0*" will cast Identify and bring up the inventory list.
 "r0-" will Identify without showing the inventory.
 
 #####G----------------------------------------------------------------------
-#####G4.11 Verification techniques
+#####G4.9 Verification techniques
 #####G----------------------------------------------------------------------
 
 #####B= Verify All =
@@ -710,7 +701,7 @@ These inscriptions can be repeated. So {!*!*} will make you confirm
 twice for any action using that item.
 
 #####G----------------------------------------------------------------------
-#####G4.12 Canceling targeting
+#####G4.10 Canceling targeting
 #####G----------------------------------------------------------------------
 
 [[[[[B"*\e\s"]
@@ -739,7 +730,7 @@ use the last target without prompting. See section
 *****macrofaq.txt*6["My auto-firing macro shoots the wrong target!"] for more on this.
 ~~~~~15
 #####G----------------------------------------------------------------------
-#####G4.13 Automatically loading pref files
+#####G4.11 Automatically loading pref files
 #####G----------------------------------------------------------------------
 
 Angband automatically loads pref files when a character is loaded or
@@ -787,7 +778,7 @@ is possible to save and load pref files with any or no file extension,
 from the macros and visuals editor screens.
 
 #####G----------------------------------------------------------------------
-#####G4.14 Multiple macros bound to one trigger key
+#####G4.12 Multiple macros bound to one trigger key
 #####G----------------------------------------------------------------------
 
 Angband supports using modifier keys on trigger keys. One thing this
@@ -807,7 +798,7 @@ is possibly to play with the right hand almost always on the numeric
 keypad, and the left on the modifier keys.
 
 #####G----------------------------------------------------------------------
-#####G4.15 Multi-part actions
+#####G4.13 Multi-part actions
 #####G----------------------------------------------------------------------
 
 Better to only do this when spells have ~0% failure.
@@ -817,7 +808,7 @@ Be careful of commands that set or clear targets.
 Use "\e\e\e\e" in-between commands to be safe.
 
 #####G----------------------------------------------------------------------
-#####G4.16 Easy running
+#####G4.14 Easy running
 #####G----------------------------------------------------------------------
 
 Bind Shift+<keypad dir> to running for each of the directions.
@@ -850,7 +841,7 @@ There are also default macros for Ctrl+<dir> which applies the command
 (+) Alter to that direction.
 
 #####G----------------------------------------------------------------------
-#####G4.17 Farming techniques
+#####G4.15 Farming techniques
 #####G----------------------------------------------------------------------
 
 #####v+++ NOTE: This is considered scumming! (cheating) +++
@@ -887,7 +878,7 @@ room you're in. Blues can destroy potions and flasks, so you will need
 to stash your potions outside somewhere before farming.
 ~~~~~10
 #####G----------------------------------------------------------------------
-#####G4.18 Macros can contain their own trigger key
+#####G4.16 Macros can contain their own trigger key
 #####G----------------------------------------------------------------------
 
 It is permissible to make a macro or keymap which contains its own key
@@ -911,7 +902,7 @@ macro. You can also create the macro in a pref file and load it using
 the "Load pref file" command in the (@) Interact with macros screen.
 
 #####G----------------------------------------------------------------------
-#####G4.19 Changing the player's color and character (ASCII text display)
+#####G4.17 Changing the player's color and character (ASCII text display)
 #####G----------------------------------------------------------------------
 
 #####B= Using the Visuals Editor =
@@ -981,7 +972,7 @@ These are accessible through the (=) Set options command.
 and its color based on class, race, and sex.
 
 #####G----------------------------------------------------------------------
-#####G4.20 Recharging a rod using a Recharge Item spell
+#####G4.18 Recharging a rod using a Recharge Item spell
 #####G----------------------------------------------------------------------
 
 (You can also recharge staffs and wands with this technique.)
@@ -1015,7 +1006,7 @@ use the inscription {@r<d>} since the item is being referred to while
 processing the (r) Read scroll command.
 
 #####G----------------------------------------------------------------------
-#####G4.21 Disabling a built-in command
+#####G4.19 Disabling a built-in command
 #####G----------------------------------------------------------------------
 
 At times it may be useful to disable an underlying Angband command.
@@ -1040,7 +1031,7 @@ of the standard pref files.
 [[[[[Bat any prompt to bypass its macro/keymap.]
 
 #####G----------------------------------------------------------------------
-#####G4.22 "Naming" an item (patch)
+#####G4.20 "Naming" an item (patch)
 #####G----------------------------------------------------------------------
 
 #####B= 'Fake artifact' name =
@@ -1082,18 +1073,7 @@ Although discounts display like inscriptions, they are different.
        move down to this line and change to "yes".
 
 #####G----------------------------------------------------------------------
-#####G5.3 How do I inscribe my 10th spellbook?
-#####G----------------------------------------------------------------------
-
-Depending on what class you are, you may have more than 9 spellbooks.
-So start numbering with 0, or use 0 for 10. Note that there is no
-"order" to the digits you use. They are just labels. You can use any
-mapping of digits to spellbooks you want, as long as you can remember
-which is which! Most people start with 1. Many programmers start with
-0. This is a "religious" issue.
-
-#####G----------------------------------------------------------------------
-#####G5.4 Can I use macros inside other macros?
+#####G5.3 Can I use macros inside other macros?
 #####G----------------------------------------------------------------------
 
 No. Macros don't expand macro triggers they contain in their actions,
@@ -1107,7 +1087,7 @@ Keymaps don't expand macro or keymap triggers in their actions.
 Also see section *****macrofaq.txt*9["Can I create an infinite loop using a macro?"].
 
 #####G----------------------------------------------------------------------
-#####G5.5 How do I find out what the standard commands are?
+#####G5.4 How do I find out what the standard commands are?
 #####G----------------------------------------------------------------------
 
 1) ?   Angband help
@@ -1122,7 +1102,7 @@ Note that the original and roguelike command sets differ, and both are
 different from the "underlying" command set.
 
 #####G----------------------------------------------------------------------
-#####G5.6 How can I tell if a key has a keymap/macro?
+#####G5.5 How can I tell if a key has a keymap/macro?
 #####G----------------------------------------------------------------------
 
 #####B= Query Macro/Keymap =
@@ -1150,7 +1130,7 @@ Note: just because a key doesn't have a macro doesn't mean there isn't
 a command that uses that key.
 
 #####G----------------------------------------------------------------------
-#####G5.7 How can I tell if a key has a built-in command bound to it?
+#####G5.6 How can I tell if a key has a built-in command bound to it?
 #####G----------------------------------------------------------------------
 
 Er ... try pressing the key. If there is a command bound to that key
@@ -1167,7 +1147,7 @@ commands, and is up-to-date. There is no specific method for checking if
 a key has a command bound to it from within the game.
 
 #####G----------------------------------------------------------------------
-#####G5.8 Can I inscribe multiple items with the same number?
+#####G5.7 Can I inscribe multiple items with the same number?
 #####G----------------------------------------------------------------------
 
 You can, but it can cause problems if you aren't careful. Use the
@@ -1184,7 +1164,7 @@ scroll it will find the spellbook first, even though it doesn't make
 sense to read it, and the command will fail.
 
 #####G----------------------------------------------------------------------
-#####G5.9 How do I convert a macro to a keymap?
+#####G5.8 How do I convert a macro to a keymap?
 #####G----------------------------------------------------------------------
 
 You can simply remove it and re-add it "by hand", but for more complex
@@ -1231,7 +1211,7 @@ trigger key with a printable internal representation. For example, a
 function key can't be a trigger for a keymap.
 ~~~~~9
 #####G----------------------------------------------------------------------
-#####G5.10 Can I create an infinite loop using a macro?
+#####G5.9 Can I create an infinite loop using a macro?
 #####G----------------------------------------------------------------------
 
 No. Well, okay, you can, but only if you work *really* hard at it and
@@ -1242,7 +1222,7 @@ You also can't create recursion. So don't worry about this. See the
 section *****macrofaq.txt*10["Macros can contain their own trigger key"] for more info.
 ~~~~~4
 #####G----------------------------------------------------------------------
-#####G5.11 What just killed me?
+#####G5.10 What just killed me?
 #####G----------------------------------------------------------------------
 
 When you are using lots of escapes and spaces in your macros to skip
@@ -1438,6 +1418,7 @@ will reappear if the real inscription is removed.
 {tried}  - a "flavored" item which the character
            has used, but whose effects are unknown.
 {N% off} - item bought on sale
+{quest}  - this item is a quest item. It may need to be taken to someone.
 
 #####G----------------------------------------------------------------------
 #####G7.2 Auto-inscriptions

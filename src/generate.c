@@ -385,13 +385,13 @@ static void place_up_stairs(int y, int x)
 	cave_type *c_ptr = &cave[y][x];
 
 	/* Create up stairs */
-	if ((rand_int(3) == 0) && (!(dungeon_flags2 & DF2_NO_SHAFT)))
+	if ((rand_int(3) != 0) || (dungeon_flags2 & DF2_NO_SHAFT))
 	{
-		cave_set_feat(y, x, FEAT_SHAFT_UP);
+		cave_set_feat(y, x, FEAT_LESS);
 	}
 	else
 	{
-		cave_set_feat(y, x, FEAT_LESS);
+		cave_set_feat(y, x, FEAT_SHAFT_UP);
 	}
 
 	c_ptr->special = 0;
@@ -422,14 +422,14 @@ static void place_down_stairs(int y, int x)
 	 * Create down stairs
 	 * All thoses tests are necesary because a shaft can jump up to 4 levels
 	 */
-	if ((dun_level + 4 <= d_info[dungeon_type].maxdepth) &&
-	                (rand_int(3) == 0) && (!(dungeon_flags2 & DF2_NO_SHAFT)))
+	if ((dun_level + 4 > d_info[dungeon_type].maxdepth) ||
+	                (rand_int(3) != 0) || (dungeon_flags2 & DF2_NO_SHAFT))
 	{
-		cave_set_feat(y, x, FEAT_SHAFT_DOWN);
+		cave_set_feat(y, x, FEAT_MORE);
 	}
 	else
 	{
-		cave_set_feat(y, x, FEAT_MORE);
+		cave_set_feat(y, x, FEAT_SHAFT_DOWN);
 	}
 
 	c_ptr->special = 0;

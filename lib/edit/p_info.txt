@@ -123,7 +123,7 @@ C:a:k:+1000:+300:Axe-mastery
 C:a:k:+0:-100:Sword-mastery
 C:a:k:+0:-100:Hafted-mastery
 C:a:k:+0:-100:Polearm-mastery
-C:a:O:24:10:1d1
+C:a:O:24:1:1d1
 C:a:g:Nobody
 C:a:g:Manwe Sulimo
 C:a:g:Tulkas

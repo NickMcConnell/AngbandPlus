@@ -24,13 +24,21 @@ extern lua_State *L;
 bool is_school_book(object_type *o_ptr)
 {
 	if (o_ptr->tval == TV_BOOK)
+	{
 		return TRUE;
+	}
 	else if (o_ptr->tval == TV_DAEMON_BOOK)
+	{
 		return TRUE;
+	}
 	else if (o_ptr->tval == TV_INSTRUMENT)
+	{
 		return TRUE;
+	}
 	else
+	{
 		return FALSE;
+	}
 }
 
 /* Does it contains a schooled spell ? */
@@ -98,8 +106,13 @@ bool is_magestaff()
 
 extern void do_cmd_browse_aux(object_type *o_ptr)
 {
+	u32b f1, f2, f3, f4, f5, esp;
+	object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
+
 	if (is_school_book(o_ptr))
 		browse_school_spell(o_ptr->sval, o_ptr->pval, o_ptr);
+	else if (f5 & TR5_SPELL_CONTAIN && o_ptr->pval2 != -1)
+		browse_school_spell(255, o_ptr->pval2, o_ptr);
 }
 
 void do_cmd_browse(void)
@@ -2064,7 +2077,7 @@ int use_symbiotic_power(int r_idx, bool great, bool only_number, bool no_cost)
 		int chance, pchance;
 
 		chance = (monster_powers[power].mana + r_ptr->level);
-		pchance = adj_str_wgt[A_WIS] / 2 + get_skill(SKILL_POSSESSION);
+		pchance = adj_str_wgt[p_ptr->stat_ind[A_WIS]] / 2 + get_skill(SKILL_POSSESSION);
 
 		if (rand_int(chance) >= pchance)
 		{

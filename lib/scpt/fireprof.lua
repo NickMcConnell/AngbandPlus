@@ -471,6 +471,10 @@ function enough_points(obj)
 		-- if so then subtract those points before we do the fireproofing
 		fireproof_quest.item_points_remaining = fireproof_quest.item_points_remaining - item_value
 	end
+
+	-- Used all the points? the quest is completely rewarded.
+	if fireproof_quest.item_points_remaining == 0 then quest(FIREPROOF_QUEST).status = QUEST_STATUS_REWARDED end
+
 	return TRUE, stack
 end
 

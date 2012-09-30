@@ -1654,7 +1654,7 @@ option_type option_info[] =
 	  "special_lvls", "Allow the use of special, unique, levels" },
 #endif
 	{ &permanent_levels, FALSE, 6, 5,
-	  "permanent_levels", "Generate persistent dungeons" },
+	  "permanent_levels", "Generate persistent dungeons [EXPERIMENTAL]" },
 
 	{ &ironman_rooms, FALSE, 6, 6,
 	  "ironman_rooms", "Always generate very unusual rooms" },
@@ -2958,24 +2958,6 @@ activation activation_info[MAX_T_ACT] =
 };
 
 /*
- * Possible Musics.
- */
-music music_info[MAX_MUSICS] =
-{
-	{"singing a song of freedom", MUSIC_BETWEEN, 10, 40, 10, 1, 10},
-	{"singing a charming song", MUSIC_CHARME, 6, 60, 20, 1, 15},
-	{"singing a knowledge song", MUSIC_ID, 6, 50, 5, 2, 10},
-	{"singing a *knowledge* song", MUSIC_STAR_ID, 2, 100, 50, 4, 100},   /* Never random, only for the Harp of Maglor */
-	{"singing a beautiful song", MUSIC_NONE, 0, 0, 0, 1, 1},
-	{"singing a hiding song", MUSIC_HIDE, 20, 50, 8, 3, 6},
-	{"singing a song of brightness", MUSIC_LITE, 60, 20, 4, 1, 5},
-	{"singing a immaterial song", MUSIC_SHADOW, 30, 50, 2, 5, 15},
-	{"singing a godness song", MUSIC_HOLY, 20, 100, 20, 6, 15},
-	{"singing a *godness* song", MUSIC_HOLY, 30, 100, 20, 5, 100},   /* Never random, only for the Drum of the sky */
-	{"singing a *charming* song", MUSIC_CHARME, 20, 100, 20, 1, 100},   /* Never random, only for the Flute of Daeron */
-};
-
-/*
  * Possible movement type.
  */
 move_info_type move_info[9] =
@@ -3439,7 +3421,7 @@ power_type powers_type_init[POWER_MAX_INIT] =
 		"You can detect hidden doors and traps.",
 		"You grow an affinity for traps.",
 		"You no longer can detect hidden doors and traps.",
-		5, 5, A_WIS, 10,
+		5, 3, A_WIS, 10,
 	},
 	{
 		"create food",

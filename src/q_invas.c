@@ -195,7 +195,7 @@ bool quest_invasion_stair_hook(char *fmt)
 		{
 			cmsg_print(TERM_YELLOW, "Turgon appears before you and speak:");
 			cmsg_print(TERM_YELLOW, "I will never be able to thank you enough.");
-			cmsg_print(TERM_YELLOW, "My most powerful mages will cast a powerful spell for you, giving you 150 more life.");
+			cmsg_print(TERM_YELLOW, "My most powerful mages will cast a powerful spell for you, giving you extra life.");
 
 			p_ptr->hp_mod += 150;
 			p_ptr->update |= (PU_HP);

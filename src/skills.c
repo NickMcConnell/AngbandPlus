@@ -1404,7 +1404,7 @@ void do_get_new_skill()
 			}
 			else
 			{
-				msg_format("Your knowledge of the %s skill increase.",
+				msg_format("Your knowledge of the %s skill increases.",
 				           s_ptr->name + s_name);
 			}
 		}

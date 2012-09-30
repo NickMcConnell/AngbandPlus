@@ -9387,6 +9387,8 @@ s16b do_poly_monster(int y, int x)
 
 		/* "Kill" the "old" monster */
 		delete_monster_idx(old_m_idx);
+
+		p_ptr->redraw |= (PR_MAP);
 	}
 
 	/* Giga-Hack -- restore saved monster XXX XXX XXX */

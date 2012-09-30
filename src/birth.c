@@ -956,9 +956,6 @@ static void player_wipe(void)
 	/* Hack -- Well fed player */
 	p_ptr->food = PY_FOOD_FULL - 1;
 
-	/* No current music */
-	p_ptr->music = 255;
-
 	/* Wipe the alchemists' recipes */
 	for ( i = 0 ; i < 32 ; i++)
 		alchemist_known_egos[i] = 0;
@@ -983,6 +980,7 @@ static void player_wipe(void)
 
 	/* Assume no cheating */
 	noscore = 0;
+	wizard = 0;
 
 	/* Assume no innate spells */
 	spell_num = 0;

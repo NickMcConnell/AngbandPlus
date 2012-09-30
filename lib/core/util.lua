@@ -73,7 +73,8 @@ end
 
 -- Returns the direction of the compass that y2, x2 is from y, x
 -- the return value will be one of the following: north, south,
--- east, west, north-east, south-east, south-west, north-west
+-- east, west, north-east, south-east, south-west, north-west,
+-- or nil if it is within 2 tiles.
 function compass(y, x, y2, x2)
 	local y_axis, x_axis, y_diff, x_diff, compass_dir
 
@@ -103,7 +104,7 @@ function compass(y, x, y2, x2)
 
 
 	-- Maybe it is (almost) due N/S
-	if (not x_axis) and (not y_axis) then compass_dir = "near"
+	if (not x_axis) and (not y_axis) then compass_dir = nil
 
 	elseif not x_axis then compass_dir = y_axis
 
@@ -239,3 +240,12 @@ function stack_pop(stack)
 		return nil
 	end
 end
+
+-- A way to  check if the game is now running(as opposed to initialization/character gen)
+game = {}
+add_hooks
+{
+	[HOOK_GAME_START] = function ()
+		game.started = TRUE
+	end
+}

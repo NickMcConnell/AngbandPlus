@@ -376,7 +376,7 @@ ingame_help
 ingame_help
 {
 	["hook"] =      HOOK_RECALC_SKILLS,
-	["event"] =     function() if get_melee_skills() > 1 then return TRUE end end,
+	["event"] =     function() if game.started and (get_melee_skills() > 1) then return TRUE end end,
 	["desc"] =
 	{
 		"Ah you now possess more than one melee type, to switch between them press 'm'",

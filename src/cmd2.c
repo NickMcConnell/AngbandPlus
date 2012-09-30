@@ -3111,7 +3111,7 @@ void do_cmd_fire(void)
 
 	int j, y, x, ny, nx, ty, tx, by, bx;
 
-	int tdam, tdis, thits, tmul;
+	int oldtdam, tdam, tdis, thits, tmul;
 
 	int bonus, chance;
 
@@ -3326,8 +3326,12 @@ void do_cmd_fire(void)
 	/* Hack -- Handle stuff */
 	handle_stuff();
 
+	oldtdam = tdam;
 	while (TRUE)
 	{
+		/* Reset after a piercing shot */
+		tdam = oldtdam;
+
 		/* Travel until stopped */
 		for (cur_dis = 0; cur_dis <= tdis; )
 		{
