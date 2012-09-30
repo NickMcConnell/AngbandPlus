@@ -240,15 +240,15 @@ static void god_effect(int god, int badness) {
     msg_format("The voice of %s booms:", name);
     msg_format("I am displeased at your continued ignoring me, %s!", player_name);
     take_hit(5, "Godly wrath.");
-    break;
     }
+    break;
   case 4:
     if (randint(1000) == 1)
     {
     msg_format("%s smites you for your negligence!", name);
     godly_wrath_blast();
-    break;
     }
+    break;
   case 3:
     if (randint(800) == 1)
     {
@@ -258,8 +258,8 @@ static void god_effect(int god, int badness) {
     p_ptr->redraw |= PR_CONFUSED;
     p_ptr->redraw |= PR_STATE;
     handle_stuff();
-    break;
     }
+    break;
   case 2:
     if (randint(500) == 1)
     {
@@ -272,24 +272,24 @@ static void god_effect(int god, int badness) {
     p_ptr->redraw |= PR_STUN;
     p_ptr->redraw |= PR_STATE;
     handle_stuff();
-    break;
     }
+    break;
   case 1:
     if (randint(200) == 1)
     {
     msg_format("The voice of %s booms:", name);
     msg_format("A curse on you for your carelessness, %s!", player_name);
     take_hit(damroll(5, 5), "Godly wrath.");
-    break;
     }
+    break;
   case 0:
     if (randint(100) == 1)
     {
     msg_format("The voice of %s booms:", name);
     msg_format("You elected to forego me, %s? Then die!", player_name);
     deadly_side_effect(TRUE);
-    break;
     }
+    break;
   }
 
   old_badness = badness;
@@ -400,13 +400,13 @@ static void prt_tp(void)
 	byte color;
 
 
-        /* Do not show tank unless it matters */
-        if (!(PRACE_FLAG(PR1_TP))) return;
+	/* Do not show tank unless it matters */
+	if (!(PRACE_FLAG(PR1_TP))) return;
 
-        put_str("TP ", ROW_TP, COL_TP);
+	put_str("TP ", ROW_TP, COL_TP);
 
-        sprintf(tmp, "%5d/%5d", p_ptr->ctp, p_ptr->mtp);
-        if (p_ptr->ctp >= p_ptr->mtp)
+	sprintf(tmp, "%4d/%4d", p_ptr->ctp, p_ptr->mtp);
+	if (p_ptr->ctp >= p_ptr->mtp)
 	{
 		color = TERM_L_GREEN;
 	}
@@ -418,7 +418,7 @@ static void prt_tp(void)
 	{
 		color = TERM_RED;
 	}
-        c_put_str(color, tmp, ROW_TP, COL_TP + 2);
+	c_put_str(color, tmp, ROW_TP, COL_TP + 3);
 }
 
 /*
@@ -437,7 +437,7 @@ static void prt_sane(void) {
 
   put_str("SN ", ROW_SANITY, COL_SANITY);
 
-  sprintf(tmp, "%5d/%5d", p_ptr->csane, p_ptr->msane);
+  sprintf(tmp, "%4d/%4d", p_ptr->csane, p_ptr->msane);
 
   if (perc >= 100) {
     color = TERM_L_GREEN;
@@ -447,7 +447,7 @@ static void prt_sane(void) {
     color = TERM_RED;
   }
 
-  c_put_str(color, tmp, ROW_SANITY, COL_SANITY+2);
+  c_put_str(color, tmp, ROW_SANITY, COL_SANITY+3);
 }
 
 /*
@@ -627,7 +627,7 @@ static void prt_hp(void)
         {
                 put_str("DP ", ROW_HP, COL_HP);
 
-                sprintf(tmp, "%5d/%5d", p_ptr->chp, p_ptr->mhp);
+                sprintf(tmp, "%4d/%4d", p_ptr->chp, p_ptr->mhp);
                 if (p_ptr->chp >= p_ptr->mhp)
                 {
                         color = TERM_L_BLUE;
@@ -640,13 +640,13 @@ static void prt_hp(void)
                 {
                         color = TERM_L_RED;
                 }
-                c_put_str(color, tmp, ROW_HP, COL_HP + 2);
+                c_put_str(color, tmp, ROW_HP, COL_HP + 3);
         }
         else
         {
                 put_str("HP ", ROW_HP, COL_HP);
 
-                sprintf(tmp, "%5d/%5d", p_ptr->chp, p_ptr->mhp);
+                sprintf(tmp, "%4d/%4d", p_ptr->chp, p_ptr->mhp);
                 if (p_ptr->chp >= p_ptr->mhp)
                 {
                         color = TERM_L_GREEN;
@@ -659,7 +659,7 @@ static void prt_hp(void)
                 {
                         color = TERM_RED;
                 }
-                c_put_str(color, tmp, ROW_HP, COL_HP + 2);
+                c_put_str(color, tmp, ROW_HP, COL_HP + 3);
         }
 }
 
@@ -690,7 +690,7 @@ static void prt_mh(void)
 
         put_str("MH ", ROW_MH, COL_MH);
 
-        sprintf(tmp, "%5d/%5d", o_ptr->pval2, max);
+        sprintf(tmp, "%4d/%4d", o_ptr->pval2, max);
         if (o_ptr->pval2 >= max)
 	{
 		color = TERM_L_GREEN;
@@ -703,7 +703,7 @@ static void prt_mh(void)
 	{
 		color = TERM_RED;
 	}
-        c_put_str(color, tmp, ROW_MH, COL_MH + 2);
+        c_put_str(color, tmp, ROW_MH, COL_MH + 3);
 }
 
 
@@ -722,7 +722,7 @@ static void prt_sp(void)
 
         put_str("SP ", ROW_SP, COL_SP);
 
-        sprintf(tmp, "%5ld/%5ld", p_ptr->csp, p_ptr->msp);
+        sprintf(tmp, "%4ld/%4ld", p_ptr->csp, p_ptr->msp);
         if (p_ptr->csp >= p_ptr->msp)
 	{
 		color = TERM_L_GREEN;
@@ -735,7 +735,7 @@ static void prt_sp(void)
 	{
 		color = TERM_RED;
 	}
-        c_put_str(color, tmp, ROW_SP, COL_SP + 2);
+        c_put_str(color, tmp, ROW_SP, COL_SP + 3);
 }
 
 
@@ -769,8 +769,22 @@ static void prt_depth(void)
 	}
 	else if (depth_in_feet)
 	{
-                if (d_ptr->flags1 & DF1_TOWER) (void)sprintf(depths, "-%d ft", dun_level * 50);
-                else (void)sprintf(depths, "%d ft", dun_level * 50);
+		if (d_ptr->flags1 & DF1_TOWER)
+		{
+			(void)sprintf(depths, "%c%c%c -%d ft",
+				d_ptr->short_name[0],
+				d_ptr->short_name[1],
+				d_ptr->short_name[2],
+				dun_level * 50);
+		}
+		else
+		{
+			(void)sprintf(depths, "%c%c%c %d ft",
+				d_ptr->short_name[0],
+				d_ptr->short_name[1],
+				d_ptr->short_name[2],
+				dun_level * 50);
+		}
 	}
 	else
 	{
@@ -779,7 +793,7 @@ static void prt_depth(void)
 	}
 
 	/* Right-Adjust the "depth", and clear old values */
-	prt(format("%7s", depths), 23, COL_DEPTH);
+	prt(format("%13s", depths), ROW_DEPTH, COL_DEPTH);
 }
 
 
@@ -1034,7 +1048,7 @@ static void prt_speed(void)
 	}
 
 	/* Display the speed */
-	c_put_str(attr, format("%-14s", buf), ROW_SPEED, COL_SPEED);
+	c_put_str(attr, format("%-10s", buf), ROW_SPEED, COL_SPEED);
 }
 
 
@@ -1042,7 +1056,7 @@ static void prt_study(void)
 {
 	if (p_ptr->new_spells)
 	{
-		put_str("Study", ROW_STUDY, 64);
+		put_str("Study", ROW_STUDY, COL_STUDY);
 	}
 	else
 	{
@@ -3316,7 +3330,7 @@ bool is_weaponmaster_weapon()
         int i;
         object_type *o_ptr;
 
-        if (PRACE_FLAGS(PR1_HACK_WEAPON)) return TRUE;
+        if (!PRACE_FLAGS(PR1_HACK_WEAPON)) return TRUE;
 
         i = 0;
         while (p_ptr->body_parts[i] == INVEN_WIELD)

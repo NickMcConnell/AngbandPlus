@@ -65,14 +65,14 @@ LIBS = -lpc $(LUALIBS) -lsocket
 # Targets
 #
 
-default: ../pernang.exe
+default: ../tome.exe
 
-release: ../pernang.exe
-	upx -9 ../pernang.exe
-#         copy pernang.exe ..
-#         del pernang.exe
+release: ../tome.exe
+	upx -9 ../tome.exe
+#         copy tome.exe ..
+#         del tome.exe
 
-all: ../pernang.exe
+all: ../tome.exe
 #        @echo All done.  Use 'make install' to install.
 
 
@@ -80,7 +80,7 @@ all: ../pernang.exe
 # Link executables
 #
 
-../pernang.exe: $(OBJS)
+../tome.exe: $(OBJS)
 	$(CC) $(CFLAGS) -o $@ $(OBJS) $(LIBS)
 
 

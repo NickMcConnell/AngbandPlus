@@ -1494,7 +1494,7 @@ static void player_outfit(void)
 	/* Get local object */
 	q_ptr = &forge;
 
-        if (PRACE_FLAG(PR1_UNDEAD))
+        if (PRACE_FLAG(PR1_NO_FOOD))
 	{
 		/* Hack -- Give the player scrolls of satisfy hunger */
 		object_prep(q_ptr, lookup_kind(TV_SCROLL, SV_SCROLL_SATISFY_HUNGER));
@@ -3759,67 +3759,90 @@ bool savefile_alive[46];
 int load_savefile_names()
 {
 	FILE *fff;
-        char buf[1024];
-        char tmp[50];
-        int max = 0, fd;
+	char buf[1024];
+	char tmp[50];
+	char player_base_save[32];
+	int max = 0, fd;
 
 	/* Build the filename */
 #ifdef SAVEFILE_USE_UID
-        sprintf(tmp,"user.%d.svg", player_uid);
+	sprintf(tmp,"user.%d.svg", player_uid);
 #else
-        sprintf(tmp, "global.svg");
+	sprintf(tmp, "global.svg");
 #endif /* SAVEFILE_USE_UID */
-        path_build(buf, 1024, ANGBAND_DIR_SAVE, tmp);
+	path_build(buf, 1024, ANGBAND_DIR_SAVE, tmp);
 
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
 
+	/* Open the file for reading */
 	safe_setuid_grab();
-        /* Read the file */
-        fff = my_fopen(buf, "r");
+	fff = my_fopen(buf, "r");
 	safe_setuid_drop();
 
 	/* Failure */
-        if (!fff) return (0);
+	if (!fff) return (0);
 
-        /* Parse, use '@' intead of ':' as a separator because it cannot exists in savefiles */
-        while (0 == my_fgets(fff, buf, 1024))
+	/* Remember current base name of the player */
+	strncpy(player_base_save, player_base, 32);
+
+	/*
+	 * Parse, use '@' intead of ':' as a separator because it cannot exists
+	 * in savefiles
+	 */
+	while (0 == my_fgets(fff, buf, 1024))
 	{
-                int i = 1;
+		int i = 1;
 
-                if (buf[0] == '0') savefile_alive[max] = FALSE;
-                else if (buf[0] == '1') savefile_alive[max] = TRUE;
+		if (buf[0] == '0') savefile_alive[max] = FALSE;
+		else if (buf[0] == '1') savefile_alive[max] = TRUE;
 
-                while (buf[i] != '@')
-                {
-                        savefile_names[max][i - 1] = buf[i];
-                        i++;
-                }
-                savefile_names[max][i - 1] = '\0';
-                i++;
-                sprintf(savefile_desc[max], buf + i);
-#ifdef SAVEFILE_USE_UID
+		while (buf[i] != '@')
+		{
+			savefile_names[max][i - 1] = buf[i];
+			i++;
+		}
+		savefile_names[max][i - 1] = '\0';
+		i++;
+		strcpy(savefile_desc[max], buf + i);
+
+#if 0
+# ifdef SAVEFILE_USE_UID
 		sprintf(tmp,"%d.%s", player_uid, savefile_names[max]);
-#else
+# else
 		sprintf(tmp, "%s", savefile_names[max]);
-#endif /* SAVEFILE_USE_UID */
-                /* Still existing ? */
-                path_build(buf, 1024, ANGBAND_DIR_SAVE, tmp);
+# endif /* SAVEFILE_USE_UID */
+#endif
+
+		/* Convert player name to system-dependant savefile name */
+		strncpy(player_base, savefile_names[max], 32);
+		process_player_name(TRUE);
+
+		/* Grab permission */
 		safe_setuid_grab();
-                FILE_TYPE(FILE_TYPE_SAVE);
-                fd = fd_open(buf, O_RDONLY);
+		FILE_TYPE(FILE_TYPE_SAVE);
+
+		/* Try to open savefile */
+		fd = fd_open(savefile, O_RDONLY);
+
+		/* Drop permission */
 		safe_setuid_drop();
-                if (fd >= 0)
-                {
-                        fd_close(fd);
 
-                        max++;
-                }
-        }
+		/* Still existing ? */
+		if (fd >= 0)
+		{
+			fd_close(fd);
+			max++;
+		}
+	}
 
-        my_fclose(fff);
+	my_fclose(fff);
 
-        return (max);
+	/* Restore values of 'player_base' and 'savefile' */
+	strncpy(player_base, player_base_save, 32);
+	process_player_name(TRUE);
+
+	return (max);
 }
 
 /* Save all the names from an index */
@@ -3923,7 +3946,7 @@ bool begin_screen()
                 Term_clear();
 
                 /* Let the user choose */
-                c_put_str(TERM_YELLOW, "Welcome to PernAngband, to play you will need a character.", 1, 10);
+                c_put_str(TERM_YELLOW, "Welcome to T.o.M.E., to play you will need a character.", 1, 10);
                 put_str("Press 8/2/4/6 to move, Return to select, Backspace to delete a savefile.", 3, 3);
                 put_str("and Esc to quit.", 4, 32);
 
@@ -3967,11 +3990,29 @@ bool begin_screen()
                 else if (((k == 0x7F) || (k == '\010')) && (sel >= 2))
                 {
                         char buf[1024];
+						char player_base_save[32];
 
                         if (!get_check(format("Really delete '%s'?", savefile_names[sel - 2]))) continue;
 
-                        path_build(buf, 1024, ANGBAND_DIR_SAVE, savefile_names[sel - 2]);
-                        fd_kill(buf);
+						/* Save current player_base */
+						strncpy(player_base_save, player_base, 32);
+
+						/* Build platform-specific savefile name */
+						strncpy(player_base, savefile_names[sel - 2], 32);
+						process_player_name(TRUE);
+
+						/* Grab permission */
+						safe_setuid_grab();
+
+						/* Delete savefile */
+                        fd_kill(savefile);
+
+						/* Drop permission */
+						safe_setuid_drop();
+
+						/* Restore 'player_base' and 'savefile' */
+						strncpy(player_base, player_base_save, 32);
+						process_player_name(TRUE);
 
                         /* Grab the savefiles */
                         max = load_savefile_names() + 2;

@@ -1,21 +1,103 @@
-# Keys: I = Interface, M = Monster, O = Object, G = Gameplay
-# m = Misc P = Player D = Dungeon B = Bug
+T.o.M.E. 1.0.0 changes
 
-01/01/2002
-[B]- Removed farmoer maggot abuse
-[B]- Fixed a bug with forgetten spells
-[P]- Vampires can be elves and high elves again
+Interface changes:
+- Incorporated the hopefully improved running code from the CVS version.
+  It uses CAN_RUN and DONT_NOTICE_RUNNING flags for non-conditional
+  checks (i.e. not controlled by the disturbance flags or requiring
+  immunity), so that most running problem can be fixed by editing
+  f_info.txt -- pelpel
+- Inven/equip/item choice in subwindows now clears to the bottom of screen,
+  to avoid glitches and in accordance with the way it worked -- pelpel
+- Identify and *Identify* don't list known/fully known items in
+  object selection -- pelpel
 
-07/01/2002
-[B]- Fixed a bug in the experimental Blade class
-[B]- Fixed a bug with summoning friendly monsters via lua scripts thanks to
-     Kobayasi
+Monster changes:
+- Added a command to dismiss companions in the pet menu. Code adopted
+  from T.o.M.E. 2.0.0 CVS -- Kusunose
 
-09/01/2001
-[B]- FIxed a bug with Melinda proundfoot
-[B]- Fixed the monster casting at other monsters but targetting you bug
+Object changes:
+- Combining rod and rod tip now considers rod's cheapness flag.
+  -- Kusunose
 
-11/01/2001
-[B]- Sacrificing wands now reduce the charges
-[P]- Enabled the Black Knight class
-[B]- Fixed the store info file thanks to wrabhit23
+Player changes:
+- Give Ents scrolls of satisfy hunger instead of some food.  -- Kusunose
+
+Misc changes:
+- Shimmering terrain features no longer shimmer while running/resting,
+  to make them more bearable on slower machines and slow I/O systems
+  like GCU -- pelpel
+- The tunnel code (ordinary one) now performs double check for
+  feat_wall_outer and CAVE_ROOM, so it is safe to use any terrain
+  features for outer wall, including those identical to fill_type.
+  Note: These two changes have very significant effect on the Sacred
+  Land of Mountains. I'm not 100% sure if this is what DG intended,
+  but I believe so reading flags given to it in d_info.txt -- pelpel
+- Depth/field name area is now 13 character long, so that names like
+  "shallow water" will fit, and "Lothlorien" is not truncated in GCU.
+  Also added short dungeon name prefix to the depth-in-feet mode -- pelpel
+- Moved auto-squelch code from process_player() to process_world() -- pelpel
+- CAVE_TRDT wasn't cleared when a trap is disarmed, which had some
+  subtle effects and forced coders to double check c_ptr->info and
+  c_ptr->t_idx in various places -- pelpel
+- Changed repeated message code to V-CVS one -- pelpel
+- Added another graphics mode variable called graphics_mode :),
+  somewhat like use_graphics in ZAngband, but it doesn't
+  require any changes to main-xxx.c. It's set within reset_visuals()
+  and used by map_info(), so that it doesn't have to do streq()
+  each time it is called -- pelpel
+- Renamed 422colors.prf to 422color.prf, to make it fit with the 8.3 naming
+  convention -- pelpel
+- Add support for multiline comments in lua: --[[ ... ]]
+- Improved lua interface for defining new 'm' keys, magic powers, quests, ...
+
+Dungeon changes:
+- There should be less not-at-all secret "secret" doors.
+  This does *not* mean that ancient prob, but those mountains enbedded in
+  plain wall in Barrow-Downs, for example -- pelpel
+- The inn in Bree is now The Prancing Pony.  -- Kusunose
+
+Bug fixes:
+- Normal (non-vampire) races didn't get mana regenerated at Inn -- pelpel
+- The Mathom house acted like a normal shop when selling.  -- Kusunose
+- '-s' crashed the game. Thanks kobayashi for the fix -- pelpel
+- Beastmaster Shanty overpayed a bounty if monster's corpses are stacked.
+  -- Kusunose
+- The random text code left files open in many error cases -- pelpel
+- WeaponMasters were not restricted with their weapons.  -- Kusunose
+- Info text of 'disrupt mind' was described as 'dam'.  -- Kusunose
+- Fixed the "automatic ego filter" bug in the squeltch filter -- pelpel
+- The polymorph random effect could crash the game. Thanks Kevin W.
+  Thomas for the detailed analysis of the problem -- pelpel
+- Stat draining effect of Black breath could crash the game. Thanks
+  Kevin W. Thomas again for the patch -- pelpel
+- With easy_disarm set, players were totally safe from detected traps,
+  whatever messages might say -- pelpel
+- Ego graphics code is now only active when and only when 16x16 tiles
+  are selected -- pelpel
+- Quest entrances/exits now require players to type '>'/'<' commands
+  to move in/out -- pelpel
+- Many room walls didn't have the CAVE_ROOM flag set -- pelpel
+- Dungeon town generation could crash the game. Thanks Mogami
+  for the analysis of the problem -- pelpel
+- Supplied missing suid code in 1) savefile removal action in the startup
+  screen, 2) time table lookup, 3) dungeon savefile removal, and
+  4) bone file removal.  Thanks kobayasi for the patch -- pelpel
+- Less platform-dependent savefile processing code for the game start
+  menu, thanks again for kobayasi. It now uses files.c utility routines
+or building appropriate savefile names -- pelpel
+- Magical branding of weapon/ammo, when successful, now sets enchanted
+  item's discount rate to 100%, so that one can no longer make vast
+  profit or easily gain his/her deity's favour.  Code adopted from
+  T.o.M.E. 2.0.0 CVS -- pelpel
+- '/' in item selection didn't update screen correctly -- pelpel
+- Level generation could cause infinite loop in the Sacred Land of
+  Mountains -- pelpel
+- Player ghosts were disabled in a way causing special feeling on
+  every level -- pelpel
+- Took 64-bit safe RNG from Vanilla -- pelpel
+- Gave SPECIAL_GENE flags to the k_info.txt entries of SPECIAL_GENE
+  special artefacts -- pelpel
+- Player is now guaranteed to have initialive after entering a level.
+  Thanks Joseph William Dixon for the patch -- pelpel
+- Fixed a bug that caused gods start casting nasty effects when player's
+  grace becomes negative. It should have been -60000.  -- Kusunose

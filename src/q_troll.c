@@ -81,6 +81,11 @@ bool quest_troll_gen_hook(char *fmt)
 
                                         m_list[m_idx].hold_o_idx = o_idx;
                                 }
+								else
+								{
+									/* Hack -- Preserve artefact */
+									a_info[q_ptr->name1].cur_num = 0;
+								}
                         }
                 }
         }

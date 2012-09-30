@@ -1103,6 +1103,8 @@ s16b place_ghost(void)
 	/* Make sure it looks right */
 	r_ptr->x_attr = r_ptr->d_attr;
 	r_ptr->x_char = r_ptr->d_char;
-#endif
 	return TRUE;
+#else
+	return (FALSE);
+#endif
 }

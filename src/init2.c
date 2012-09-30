@@ -3118,7 +3118,7 @@ static errr init_player_info(void)
 	/* Open the file */
 	fp = my_fopen(buf, "r");
 
-	/* Parse it */
+        /* Parse it */
         if (!fp) quit("Cannot open 'p_info.txt' file.");
 
 	/* Parse the file */
@@ -4773,8 +4773,9 @@ static errr init_other(void)
 
 	/* Message variables */
 	C_MAKE(message__ptr, MESSAGE_MAX, u16b);
-        C_MAKE(message__color, MESSAGE_MAX, byte);
-        C_MAKE(message__type, MESSAGE_MAX, byte);
+	C_MAKE(message__color, MESSAGE_MAX, byte);
+	C_MAKE(message__type, MESSAGE_MAX, byte);
+	C_MAKE(message__count, MESSAGE_MAX, u16b);
 	C_MAKE(message__buf, MESSAGE_BUF, char);
 
 	/* Hack -- No messages yet */
@@ -4855,7 +4856,7 @@ static errr init_other(void)
 	/*** Pre-allocate space for the "format()" buffer ***/
 
 	/* Hack -- Just call the "format()" function */
-        (void)format("%s (%s).", "Dark God <darkgod@pernangband.net>", MAINTAINER);
+        (void)format("%s (%s).", "Dark God <darkgod@t-o-m-e.net>", MAINTAINER);
 
 	/* Success */
 	return (0);
@@ -5352,7 +5353,6 @@ void init_angband(void)
 	note("[Initializing user pref files...]");
 
 	/* Access the "basic" pref file */
-        user_process_pref_file = FALSE;
 	strcpy(buf, "pref.prf");
 
 	/* Process that file */
@@ -5363,7 +5363,6 @@ void init_angband(void)
 
 	/* Process that file */
 	process_pref_file(buf);
-        user_process_pref_file = TRUE;
 
 	/* Access the "user" pref file */
 	sprintf(buf, "user.prf");

@@ -23,7 +23,7 @@ RC         = brc32
 #
 # Name of the *.exe-file
 
-EXE_FILE = pernang.exe
+EXE_FILE = tome.exe
 TOLUA    = tolua.exe
 
 ###################################################################

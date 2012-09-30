@@ -383,65 +383,226 @@ static void place_down_stairs(int y, int x)
         c_ptr->special = 0;
 }
 
+
 /*
  * Place a way to next / previoous level on flat places
  */
 void place_new_way(int *y, int *x)
 {
-        int xx, yy;
-        cave_type *c_ptr;
+	int xx, yy;
+	int x0, x1, x2;
+	int y0, y1, y2;
+	cave_type *c_ptr;
+	bool ok;
+	int i, way_n;
+	byte way_x[MAX_WID], way_y[MAX_WID];
 
-        /* Pick a random grid */
-        if (magik(50))
-        {
-                yy = *y = rand_int(cur_hgt - 2) + 1;
-                xx = *x = 1 + (rand_int(2) * (cur_wid - 3));
-                if (xx == 1)
-                {
-                        xx++;
-                        while ((xx < cur_wid - 1) && !(f_info[cave[yy][xx].feat].flags1 & FF1_FLOOR))
-                        {
-                                c_ptr = &cave[yy][xx];
-                                c_ptr->feat = floor_type[rand_int(100)];
-                                xx++;
-                        }
-                }
-                else
-                {
-                        xx--;
-                        while ((xx > 0) && !(f_info[cave[yy][xx].feat].flags1 & FF1_FLOOR))
-                        {
-                                c_ptr = &cave[yy][xx];
-                                c_ptr->feat = floor_type[rand_int(100)];
-                                xx--;
-                        }
-                }
-        }
-        else
-        {
-                xx = *x = rand_int(cur_wid - 2) + 1;
-                yy = *y = 1 + (rand_int(2) * (cur_hgt - 3));
-                if (yy == 1)
-                {
-                        yy++;
-                        while ((yy < cur_hgt - 1) && !(f_info[cave[yy][xx].feat].flags1 & FF1_FLOOR))
-                        {
-                                c_ptr = &cave[yy][xx];
-                                c_ptr->feat = floor_type[rand_int(100)];
-                                yy++;
-                        }
-                }
-                else
-                {
-                        yy--;
-                        while ((yy > 0) && !(f_info[cave[yy][xx].feat].flags1 & FF1_FLOOR))
-                        {
-                                c_ptr = &cave[yy][xx];
-                                c_ptr->feat = floor_type[rand_int(100)];
-                                yy--;
-                        }
-                }
-        }
+
+	/* Find valid location XXX XXX XXX */
+	while (TRUE)
+	{
+		/* A way on vertical edge */
+		if (rand_int(cur_hgt + cur_wid) < cur_hgt)
+		{
+			/* Pick a random grid */
+			yy = *y = rand_int(cur_hgt - 2) + 1;
+			xx = *x = 1 + (rand_int(2) * (cur_wid - 3));
+
+			/* Pick a direction */
+			if (xx == 1)
+			{
+				/* Left */
+				x0 = +1; y0 =  0;
+
+				/* Sides */
+				x1 =  0; y1 = -1;
+				x2 =  0; y2 = +1;
+			}
+			else
+			{
+				/* Right */
+				x0 = -1; y0 =  0;
+
+				/* Sides */
+				x1 =  0; y1 = -1;
+				x2 =  0; y2 = +1;
+			}
+		}
+
+		/* A way on horizontal edge */
+		else
+		{
+			/* Pick a random grid */
+			xx = *x = rand_int(cur_wid - 2) + 1;
+			yy = *y = 1 + (rand_int(2) * (cur_hgt - 3));
+
+			/* Pick a direction */
+			if (yy == 1)
+			{
+				/* Down */
+				x0 =  0; y0 = +1;
+
+				/* Sides */
+				x1 = -1; y1 =  0;
+				x2 = +1; y2 =  0;
+			}
+			else
+			{
+				/* Up */
+				x0 =  0; y0 = -1;
+
+				/* Sides */
+				x1 = -1; y1 =  0;
+				x2 = +1; y2 =  0;
+			}
+		}
+
+
+		/* Look at the starting location */
+		c_ptr = &cave[yy][xx];
+
+		/* Reject locations inside vaults */
+		if (c_ptr->info & (CAVE_ICKY)) continue;
+
+		/* Reject permanent features */
+		if ((f_info[c_ptr->feat].flags1 & (FF1_PERMANENT)) &&
+		    (f_info[c_ptr->feat].flags1 & (FF1_FLOOR))) continue;
+
+		/* Reject room walls */
+		if ((c_ptr->info & (CAVE_ROOM)) &&
+		    (c_ptr->feat == feat_wall_outer)) continue;
+
+		/* Look at a neighbouring edge */
+		c_ptr = &cave[yy + y1][xx + x1];
+
+		/* Reject two adjacent ways */
+		if ((c_ptr->feat == FEAT_WAY_MORE) ||
+		    (c_ptr->feat == FEAT_WAY_LESS)) continue;
+
+		/* Look at the other neighbouring edge */
+		c_ptr = &cave[yy + y2][xx + x2];
+
+		/* Reject two adjacent ways */
+		if ((c_ptr->feat == FEAT_WAY_MORE) ||
+		    (c_ptr->feat == FEAT_WAY_LESS)) continue;
+
+		/* Look ahead */
+		c_ptr = &cave[yy + y0][xx + x0];
+
+		/* Reject two adjacent ways -- relatively rare, but this can happen */
+		if ((c_ptr->feat == FEAT_WAY_MORE) ||
+		    (c_ptr->feat == FEAT_WAY_LESS)) continue;
+
+
+		/* Reset counter */
+		way_n = 0;
+
+		/* Assume bad location */
+		ok = FALSE;
+
+		/* Check if it connects to current dungeon */
+		while (in_bounds(yy, xx))
+		{
+			/* Check grids ahead */
+			if (cave_floor_bold(yy + y0, xx + x0)) ok = TRUE;
+
+			/* Check side grids */
+			if (cave_floor_bold(yy + y1, xx + x1)) ok = TRUE;
+			if (cave_floor_bold(yy + y2, xx + x2)) ok = TRUE;
+
+			/* Connected */
+			if (ok) break;
+
+			/* Access grid (ahead) */
+			c_ptr = &cave[yy + y0][xx + x0];
+
+			/* Avoid opening vaults */
+			if (c_ptr->feat == FEAT_PERM_OUTER)
+			{
+				/* Comment this out if you find any problems... */
+				ok = TRUE;
+
+				break;
+			}
+
+			/* Paranoia */
+			if (c_ptr->feat == FEAT_PERM_SOLID) break;
+
+			/*
+			 * Hack -- Avoid digging room corner
+			 *
+			 * CAVEAT: Can't handle situations like this:
+			 *
+			 *     .....########
+			 *     .....########
+			 *     ######.....>#
+			 *     #############
+			 *     .....#
+			 *     .....#
+			 */
+			if (c_ptr->info & (CAVE_ROOM))
+			{
+				cave_type *c1_ptr = &cave[yy + y0 + y1][xx + x0 + x1];
+				cave_type *c2_ptr = &cave[yy + y0 + y2][xx + x0 + x2];
+
+				/* Bend the way */
+				if ((c1_ptr->info & (CAVE_ROOM)) &&
+				    !(c2_ptr->info & (CAVE_ROOM)))
+				{
+					way_x[way_n] = xx + x1;
+					way_y[way_n] = yy + y1;
+					way_n++;
+					way_x[way_n] = xx + x1 + x0;
+					way_y[way_n] = yy + y1 + y0;
+					way_n++;
+				}
+
+				/* Bend the way -- the other direction */
+				else if ((c2_ptr->info & (CAVE_ROOM)) &&
+				         !(c1_ptr->info & (CAVE_ROOM)))
+				{
+					way_x[way_n] = xx + x2;
+					way_y[way_n] = yy + y2;
+					way_n++;
+					way_x[way_n] = xx + x2 + x0;
+					way_y[way_n] = yy + y2 + y0;
+					way_n++;
+				}
+
+				else
+				{
+					way_x[way_n] = xx + x0;
+					way_y[way_n] = yy + y0;
+					way_n++;
+				}
+
+				ok = TRUE;
+				break;
+			}
+
+			/* Remember the location */
+			way_x[way_n] = xx + x0;
+			way_y[way_n] = yy + y0;
+			way_n++;
+
+			/* Advance */
+			xx += x0;
+			yy += y0;
+		}
+
+		/* Accept connected corridor */
+		if (ok) break;
+
+		/* Try again, until valid location is found */
+	}
+
+
+	/* Actually dig a corridor connecting the way to dungeon */
+	for (i = 0; i < way_n; i++)
+	{
+		/* Dig */
+		cave[way_y[i]][way_x[i]].feat = floor_type[rand_int(100)];
+	}
 }
 
 /*
@@ -683,7 +844,33 @@ static void place_secret_door(int y, int x)
 
 	/* Create secret door */
 	c_ptr->feat = FEAT_SECRET;
-        c_ptr->mimic = fill_type[rand_int(100)];
+
+	/* Vaults */
+	if (c_ptr->info & CAVE_ICKY)
+	{
+		c_ptr->mimic = FEAT_WALL_INNER;
+	}
+
+	/* Ordinary room -- use current outer or inner wall */
+	else if (c_ptr->info & CAVE_ROOM)
+	{
+		/* Determine if it's inner or outer XXX XXX XXX */
+		if ((cave[y - 1][x].info & CAVE_ROOM) &&
+		    (cave[y + 1][x].info & CAVE_ROOM) &&
+		    (cave[y][x - 1].info & CAVE_ROOM) &&
+		    (cave[y][x + 1].info & CAVE_ROOM))
+		{
+			c_ptr->mimic = feat_wall_inner;
+		}
+		else
+		{
+			c_ptr->mimic = feat_wall_outer;
+		}
+	}
+	else
+	{
+		c_ptr->mimic = fill_type[rand_int(100)];
+	}
 }
 
 
@@ -718,7 +905,7 @@ static void place_random_door(int y, int x)
 	{
 		/* Create secret door */
 		c_ptr->feat = FEAT_SECRET;
-                c_ptr->mimic = fill_type[rand_int(100)];
+		c_ptr->mimic = fill_type[rand_int(100)];
 	}
 
 	/* Closed doors (300/1000) */
@@ -1778,6 +1965,7 @@ static void build_type1(int by0, int bx0)
 	int y1, x1, xsize, ysize;
 
 	bool light;
+	int info;
 
 	cave_type *c_ptr;
 
@@ -1818,8 +2006,12 @@ static void build_type1(int by0, int bx0)
 		}
 	}
 
+	/* Wall attributes */
+	if (light) info = (CAVE_ROOM | CAVE_GLOW);
+	else info = CAVE_ROOM;
+
 	/* Walls around the room */
-	build_rectangle(y1 - 1, x1 - 1, y2 + 1, x2 + 1, feat_wall_outer, 0);
+	build_rectangle(y1 - 1, x1 - 1, y2 + 1, x2 + 1, feat_wall_outer, info);
 
 
 	/* Hack -- Occasional pillar room */
@@ -1868,6 +2060,7 @@ static void build_type2(int by0, int bx0)
 	int			y1b, x1b, y2b, x2b;
 
 	bool		light;
+	int info;
 
 	cave_type *c_ptr;
 
@@ -1920,11 +2113,15 @@ static void build_type2(int by0, int bx0)
 	}
 
 
-	/* Place the walls around room "a" */
-	build_rectangle(y1a - 1, x1a - 1, y2a + 1, x2a + 1, feat_wall_outer, 0);
+	/* Wall attributes */
+	if (light) info = (CAVE_ROOM | CAVE_GLOW);
+	else info = CAVE_ROOM;
 
 	/* Place the walls around room "a" */
-	build_rectangle(y1b - 1, x1b - 1, y2b + 1, x2b + 1, feat_wall_outer, 0);
+	build_rectangle(y1a - 1, x1a - 1, y2a + 1, x2a + 1, feat_wall_outer, info);
+
+	/* Place the walls around room "a" */
+	build_rectangle(y1b - 1, x1b - 1, y2b + 1, x2b + 1, feat_wall_outer, info);
 
 
 	/* Replace the floor for room "a" */
@@ -1972,6 +2169,7 @@ static void build_type3(int by0, int bx0)
 	int			yval, xval;
 
 	bool		light;
+	int info;
 
 	cave_type *c_ptr;
 
@@ -2033,11 +2231,15 @@ static void build_type3(int by0, int bx0)
 	}
 
 
-	/* Place the walls around room "a" */
-	build_rectangle(y1a - 1, x1a - 1, y2a + 1, x2a + 1, feat_wall_outer, 0);
+	/* Wall attributes */
+	if (light) info = (CAVE_ROOM | CAVE_GLOW);
+	else info = CAVE_ROOM;
 
 	/* Place the walls around room "a" */
-	build_rectangle(y1b - 1, x1b - 1, y2b + 1, x2b + 1, feat_wall_outer, 0);
+	build_rectangle(y1a - 1, x1a - 1, y2a + 1, x2a + 1, feat_wall_outer, info);
+
+	/* Place the walls around room "a" */
+	build_rectangle(y1b - 1, x1b - 1, y2b + 1, x2b + 1, feat_wall_outer, info);
 
 
 	/* Replace the floor for room "a" */
@@ -2086,7 +2288,7 @@ static void build_type3(int by0, int bx0)
 		case 2:
 		{
 			/* Build the vault */
-			build_rectangle(y1b, x1a, y2b, x2a, feat_wall_inner, 0);
+			build_rectangle(y1b, x1a, y2b, x2a, feat_wall_inner, info);
 
 			/* Place a secret door on the inner room */
 			switch (rand_int(4))
@@ -2193,6 +2395,7 @@ static void build_type4(int by0, int bx0)
         int y2, x2, tmp, yval, xval;
 
 	bool light;
+	int info;
 
 	cave_type *c_ptr;
 
@@ -2221,8 +2424,12 @@ static void build_type4(int by0, int bx0)
 		}
 	}
 
+	/* Wall attributes */
+	if (light) info = (CAVE_ROOM | CAVE_GLOW);
+	else info = CAVE_ROOM;
+
 	/* Outer Walls */
-	build_rectangle(y1 - 1, x1 - 1, y2 + 1, x2 + 1, feat_wall_outer, 0);
+	build_rectangle(y1 - 1, x1 - 1, y2 + 1, x2 + 1, feat_wall_outer, info);
 
 
 	/* The inner room */
@@ -2232,7 +2439,7 @@ static void build_type4(int by0, int bx0)
 	x2 = x2 - 2;
 
 	/* The inner walls */
-	build_rectangle(y1 - 1, x1 - 1, y2 + 1, x2 + 1, feat_wall_inner, 0);
+	build_rectangle(y1 - 1, x1 - 1, y2 + 1, x2 + 1, feat_wall_inner, info);
 
 
 	/* Inner room variations */
@@ -2270,7 +2477,7 @@ static void build_type4(int by0, int bx0)
 
 		/* Place another inner room */
 		build_rectangle(yval - 1, xval - 1, yval + 1, xval + 1,
-				feat_wall_inner, 0);
+				feat_wall_inner, info);
 
 		/* Place a locked door on the inner room */
 		switch (randint(4))
@@ -2784,7 +2991,7 @@ static void build_type5(int by0, int bx0)
 	}
 
 	/* Place the outer walls */
-	build_rectangle(y1 - 1, x1 - 1, y2 + 1, x2 + 1, feat_wall_outer, 0);
+	build_rectangle(y1 - 1, x1 - 1, y2 + 1, x2 + 1, feat_wall_outer, CAVE_ROOM);
 
 
 	/* Advance to the center room */
@@ -2794,7 +3001,7 @@ static void build_type5(int by0, int bx0)
 	x2 = x2 - 2;
 
 	/* The inner walls */
-	build_rectangle(y1 - 1, x1 - 1, y2 + 1, x2 + 1, feat_wall_inner, 0);
+	build_rectangle(y1 - 1, x1 - 1, y2 + 1, x2 + 1, feat_wall_inner, CAVE_ROOM);
 
 
 	/* Place a secret door */
@@ -3019,7 +3226,7 @@ static void build_type6(int by0, int bx0)
 	}
 
 	/* Place the outer walls */
-	build_rectangle(y1 - 1, x1 - 1, y2 + 1, x2 + 1, feat_wall_outer, 0);
+	build_rectangle(y1 - 1, x1 - 1, y2 + 1, x2 + 1, feat_wall_outer, CAVE_ROOM);
 
 
 	/* Advance to the center room */
@@ -3029,7 +3236,7 @@ static void build_type6(int by0, int bx0)
 	x2 = x2 - 2;
 
 	/* The inner walls */
-	build_rectangle(y1 - 1, x1 - 1, y2 + 1, x2 + 1, feat_wall_outer, 0);
+	build_rectangle(y1 - 1, x1 - 1, y2 + 1, x2 + 1, feat_wall_outer, CAVE_ROOM);
 
 
 	/* Place a secret door */
@@ -3941,7 +4148,7 @@ void generate_hmap(int y0, int x0,int xsiz,int ysiz,int grd,int roug,int cutoff)
 					/* Average of up and down points +random bit */
 					store_height(i/256,j/256,x0,y0,
 					(cave[y0-yhsize+(j-yhstep)/256][x0-xhsize+i/256].feat
-					+cave[y0-yhsize+(j-yhstep)/256][x0-xhsize+i/256].feat)/2
+					+cave[y0-yhsize+(j+yhstep)/256][x0-xhsize+i/256].feat)/2
 					+(randint(ystep/256)-yhstep/256)*roug/16,xhsize,yhsize,cutoff);
 				}
 			}
@@ -4324,7 +4531,7 @@ static void build_type10(int by0, int bx0)
  */
 static void build_small_room(int x0, int y0)
 {
-	build_rectangle(y0 - 1, x0 - 1, y0 + 1, x0 + 1, feat_wall_inner, 0);
+	build_rectangle(y0 - 1, x0 - 1, y0 + 1, x0 + 1, feat_wall_inner, CAVE_ROOM);
 
 	/* Place a secret door on one side */
 	switch (rand_int(4))
@@ -4971,8 +5178,7 @@ static void build_maze_vault(int x0, int y0, int xsize, int ysize)
 	num_vertices = m * n;
 
 	/* initialize array of visited vertices */
-	/* use ralloc here ? */
-	visited = (int *)malloc(num_vertices * sizeof(int));
+	C_MAKE(visited, num_vertices, int);
 	for (i = 0; i < num_vertices; i++)
 		visited[i] = 0;
 
@@ -4982,7 +5188,7 @@ static void build_maze_vault(int x0, int y0, int xsize, int ysize)
 	/* Fill with monsters and treasure, low difficulty */
 	fill_treasure(x1, x2, y1, y2, randint(5));
 
-	free(visited);
+	C_FREE(visited, num_vertices, int);
 }
 
 
@@ -5032,7 +5238,7 @@ static void build_mini_c_vault(int x0, int y0, int xsize, int ysize)
 
 	/* initialize array of visited vertices */
 	/* use ralloc here ? */
-	visited = (int *) malloc(num_vertices * sizeof(int));
+	C_MAKE(visited, num_vertices, int);
 	for (i = 0; i < num_vertices; i++)
 		visited[i] = 0;
 
@@ -5072,8 +5278,7 @@ static void build_mini_c_vault(int x0, int y0, int xsize, int ysize)
 	/* Fill with monsters and treasure, highest difficulty */
 	fill_treasure(x1, x2, y1, y2, 10);
 
-	/* rnfree(visited, num_vertices * sizeof(int)); */
-	free(visited);
+	C_FREE(visited, num_vertices, int);
 }
 
 
@@ -5734,6 +5939,8 @@ void evolve_level(bool noise)
                         }
                 }
         }
+
+		p_ptr->update = (PU_VIEW | PU_LITE | PU_MONSTERS | PU_FLOW);
 }
 
 static void gen_life_level()
@@ -5861,13 +6068,13 @@ static void build_tunnel(int row1, int col1, int row2, int col2, bool water)
 		if (c_ptr->feat == FEAT_PERM_SOLID) continue;
 
 		/* Avoid the edge of vaults */
-                if (c_ptr->feat == FEAT_PERM_OUTER) continue;
+		if (c_ptr->feat == FEAT_PERM_OUTER) continue;
 
 		/* Avoid "solid" granite walls */
 		if (c_ptr->feat == FEAT_WALL_SOLID) continue;
 
 		/* Pierce "outer" walls of rooms */
-                if (c_ptr->feat == feat_wall_outer)
+		if (c_ptr->feat == feat_wall_outer)
 		{
 			/* Acquire the "next" location */
 			y = tmp_row + row_dir;
@@ -5878,7 +6085,8 @@ static void build_tunnel(int row1, int col1, int row2, int col2, bool water)
 			if (cave[y][x].feat == FEAT_PERM_OUTER) continue;
 
 			/* Hack -- Avoid outer/solid granite walls */
-                        if (cave[y][x].feat == feat_wall_outer) continue;
+			if ((cave[y][x].feat == feat_wall_outer) &&
+			    (cave[y][x].info & CAVE_ROOM)) continue;
 			if (cave[y][x].feat == FEAT_WALL_SOLID) continue;
 
 			/* Accept this location */
@@ -5899,9 +6107,11 @@ static void build_tunnel(int row1, int col1, int row2, int col2, bool water)
 				for (x = col1 - 1; x <= col1 + 1; x++)
 				{
 					/* Convert adjacent "outer" walls as "solid" walls */
-                                        if ((cave[y][x].feat == feat_wall_outer) && !(d_info[dungeon_type].flags1 & DF1_NO_DOORS))
+					if ((cave[y][x].feat == feat_wall_outer) && 
+					    (cave[y][x].info & CAVE_ROOM))
 					{
 						/* Change the wall to a "solid" wall */
+						/* Mega-Hack -- to be brought back later... */
 						cave[y][x].feat = FEAT_WALL_SOLID;
 					}
 				}
@@ -5917,7 +6127,9 @@ static void build_tunnel(int row1, int col1, int row2, int col2, bool water)
 		}
 
 		/* Tunnel through all other walls */
-                else if ((c_ptr->feat >= FEAT_WALL_EXTRA) && (c_ptr->feat != FEAT_GRASS) && (c_ptr->feat != FEAT_DIRT))
+		else if ((c_ptr->feat == d_info[dungeon_type].fill_type1) ||
+		         (c_ptr->feat == d_info[dungeon_type].fill_type2) ||
+		         (c_ptr->feat == d_info[dungeon_type].fill_type3))
 		{
 			/* Accept this location */
 			row1 = tmp_row;
@@ -6868,11 +7080,23 @@ static bool cave_gen(void)
 	for (i = 0; i < dun->cent_n; i++)
 	{
 		/* Connect the room to the previous room */
-                build_tunnel(dun->cent[i].y, dun->cent[i].x, y, x, FALSE);
+		build_tunnel(dun->cent[i].y, dun->cent[i].x, y, x, FALSE);
 
 		/* Remember the "previous" room */
 		y = dun->cent[i].y;
 		x = dun->cent[i].x;
+	}
+
+	/* Mega-Hack -- Convert FEAT_WALL_SOLID back into outer walls */
+	for (y = 0; y < cur_hgt; y++)
+	{
+		for (x = 0; x < cur_wid; x++)
+		{
+			if (cave[y][x].feat == FEAT_WALL_SOLID)
+			{
+				cave[y][x].feat = fill_type[rand_int(100)];
+			}
+		}
 	}
 
 	/* Place intersection doors	 */
@@ -7323,48 +7547,49 @@ static bool cave_gen(void)
 			object_type *q_ptr, forge, *o_ptr;
 			int I_kind, o_idx;
 
-			a_allow_special[d_ptr->final_artifact] = TRUE;
-
-			/* Get local object */
-			q_ptr = &forge;
-
-			/* Wipe the object */
-			object_wipe(q_ptr);
-
-			/* Acquire the "kind" index */
-			I_kind = lookup_kind(a_ptr->tval, a_ptr->sval);
-
-			/* Create the artifact */
-			object_prep(q_ptr, I_kind);
-
-			/* Save the name */
-			q_ptr->name1 = d_ptr->final_artifact;
-
-			/* Extract the fields */
-			q_ptr->pval = a_ptr->pval;
-			q_ptr->ac = a_ptr->ac;
-			q_ptr->dd = a_ptr->dd;
-			q_ptr->ds = a_ptr->ds;
-			q_ptr->to_a = a_ptr->to_a;
-			q_ptr->to_h = a_ptr->to_h;
-			q_ptr->to_d = a_ptr->to_d;
-			q_ptr->weight = a_ptr->weight;
-
-			/* Hack -- acquire "cursed" flag */
-			if (a_ptr->flags3 & (TR3_CURSED)) q_ptr->ident |= (IDENT_CURSED);
-
-			random_artifact_resistance(q_ptr);
-
-			a_info[d_ptr->final_artifact].cur_num = 1;
-
-			a_allow_special[d_ptr->final_artifact] = FALSE;
-
 			/* Create the artifact in the guardian's inventory */
 			/* Get new object */
 			o_idx = o_pop();
 
-			if(o_idx)
+			if (o_idx)
 			{
+				a_allow_special[d_ptr->final_artifact] = TRUE;
+
+				/* Get local object */
+				q_ptr = &forge;
+
+				/* Wipe the object */
+				object_wipe(q_ptr);
+
+				/* Acquire the "kind" index */
+				I_kind = lookup_kind(a_ptr->tval, a_ptr->sval);
+
+				/* Create the artifact */
+				object_prep(q_ptr, I_kind);
+
+				/* Save the name */
+				q_ptr->name1 = d_ptr->final_artifact;
+
+				/* Extract the fields */
+				q_ptr->pval = a_ptr->pval;
+				q_ptr->ac = a_ptr->ac;
+				q_ptr->dd = a_ptr->dd;
+				q_ptr->ds = a_ptr->ds;
+				q_ptr->to_a = a_ptr->to_a;
+				q_ptr->to_h = a_ptr->to_h;
+				q_ptr->to_d = a_ptr->to_d;
+				q_ptr->weight = a_ptr->weight;
+
+				/* Hack -- acquire "cursed" flag */
+				if (a_ptr->flags3 & (TR3_CURSED)) q_ptr->ident |= (IDENT_CURSED);
+
+				random_artifact_resistance(q_ptr);
+
+				a_info[d_ptr->final_artifact].cur_num = 1;
+
+				a_allow_special[d_ptr->final_artifact] = FALSE;
+
+
 				/* Get the item */
 				o_ptr = &o_list[o_idx];
 
@@ -7380,51 +7605,52 @@ static bool cave_gen(void)
 
 				m_list[m_idx].hold_o_idx = o_idx;
 			}
-                }
+		}
 
-                if (m_idx && d_ptr->final_object &&
-		    (k_info[d_ptr->final_object].artifact = FALSE))
-                {
-                        object_type *q_ptr, forge, *o_ptr;
-                        int o_idx;
+		if (m_idx && d_ptr->final_object &&
+		    (k_info[d_ptr->final_object].artifact == FALSE))
+		{
+			object_type *q_ptr, forge, *o_ptr;
+			int o_idx;
 
-                        /* Get local object */
-                        q_ptr = &forge;
+			/* Create the artifact in the guardian's inventory */
+			/* Get new object */
+			o_idx = o_pop();
 
-                        k_allow_special[d_ptr->final_object] = TRUE;
+			if (o_idx)
+			{
+				/* Get local object */
+				q_ptr = &forge;
 
-                        /* Wipe the object */
-                        object_wipe(q_ptr);
+				k_allow_special[d_ptr->final_object] = TRUE;
 
-                        /* Create the artifact */
-                        object_prep(q_ptr, d_ptr->final_object);
-                        apply_magic(q_ptr, 1, FALSE, FALSE, FALSE);
+				/* Wipe the object */
+				object_wipe(q_ptr);
 
-                        k_allow_special[d_ptr->final_object] = FALSE;
+				/* Create the artifact */
+				object_prep(q_ptr, d_ptr->final_object);
+				apply_magic(q_ptr, 1, FALSE, FALSE, FALSE);
 
-                        /* Create the artifact in the guardian's inventory */
-                        /* Get new object */
-                        o_idx = o_pop();
+				k_allow_special[d_ptr->final_object] = FALSE;
 
-                        if (o_idx)
-                        {
-                                /* Get the item */
-                                o_ptr = &o_list[o_idx];
 
-                                /* Structure copy */
-                                object_copy(o_ptr, q_ptr);
+				/* Get the item */
+				o_ptr = &o_list[o_idx];
 
-                                /* Build a stack */
-                                o_ptr->next_o_idx = m_list[m_idx].hold_o_idx;
+				/* Structure copy */
+				object_copy(o_ptr, q_ptr);
 
-                                o_ptr->held_m_idx = m_idx;
-                                o_ptr->ix = 0;
-                                o_ptr->iy = 0;
+				/* Build a stack */
+				o_ptr->next_o_idx = m_list[m_idx].hold_o_idx;
 
-                                m_list[m_idx].hold_o_idx = o_idx;
-                        }
-                }
-        }
+				o_ptr->held_m_idx = m_idx;
+				o_ptr->ix = 0;
+				o_ptr->iy = 0;
+
+				m_list[m_idx].hold_o_idx = o_idx;
+			}
+		}
+		}
 
         if ((empty_level) && (randint(DARK_EMPTY)!=1 || (randint(100) > dun_level)))
                 wiz_lite();
@@ -8233,4 +8459,7 @@ void generate_cave(void)
         {
                 wiz_lite_extra();
         }
+
+	/* Player should get the first move upon entering the dungeon */
+	p_ptr->energy = 100;
 }

@@ -93,7 +93,7 @@ extern void clear_from(int row);
 extern bool askfor_aux(char *buf, int len);
 extern bool get_string(cptr prompt, char *buf, int len);
 extern bool get_check(cptr prompt);
-extern bool get_com(cptr prompt, char *command);
+extern bool get_com_lua @ get_com(cptr promtp, int *com);
 extern s32b get_quantity(cptr prompt, s32b max);
 extern int test_monster_name(cptr name);
 extern int test_item_name(cptr name);
@@ -126,3 +126,8 @@ extern s32b intBitNot @ bnot(s32b b);
 /* Savefile stuff */
 extern void register_savefile(int num);
 extern void save_number_key(char *key, s32b val);
+
+/* Level stuff */
+extern void get_map_size(char *name, int *ysize = 0, int *xsize = 0);
+extern void load_map(char *name, int *y = 2, int *x = 2);
+extern bool alloc_room(int by0, int bx0, int ysize, int xsize, int *y1 = 0, int *x1 = 0, int *y2 = 0, int *x2 = 0);

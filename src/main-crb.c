@@ -237,7 +237,7 @@
  * to future versions of Angband as well as variants.
  * I omitted sound effects and graphic tiles to make it reasonably small.
  * Please copy them from any recent Mac binaries - you can use, say ZAngband
- * ones for Vanilla or [V]-based variants quite safely. Pern uses fairly
+ * ones for Vanilla or [V]-based variants quite safely. T.o.M.E. uses fairly
  * extended 16x16 tileset and it is maintained actively. IIRC Thangorodrim
  * compile page has an intruction explaining how to convert tiles for
  * use on the Mac... It can be tricky, depending on your choice of
@@ -300,14 +300,14 @@
  * Variant-dependent features:
  *
  * #define ALLOW_BIG_SCREEN (O and Z. Dr's big screen needs more work)
- * #define ANG281_RESET_VISUALS (Cth, Gum, Pern, Z)
- * #define SAVEFILE_SCREEN (Pern)
+ * #define ANG281_RESET_VISUALS (Cth, Gum, T.o.M.E., Z)
+ * #define SAVEFILE_SCREEN (T.o.M.E.)
  * #define AUTO_SAVE_ARG_REQUIRED (O and Z)
  * #define ANGBAND_CREATOR four letter code for your variant, if any.
  *  or use the default one.
  *
  * If a variant supports transparency effect for 16x16 tiles but doesn't
- * have variable use_transparency in the code (i.e. Pern), then
+ * have variable use_transparency in the code (i.e. T.o.M.E.), then
  * #define NO_USE_TRANSPARENCY_VAR
  */
 

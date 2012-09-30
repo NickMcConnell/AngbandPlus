@@ -553,9 +553,6 @@ void search(void)
 					/* Pick a trap */
 					pick_trap(y, x);
 
-					/* Hack -- Memorize */
-					c_ptr->info |= (CAVE_MARK);
-
 					/* Redraw */
 					lite_spot(y, x);
 
@@ -2691,22 +2688,25 @@ void py_attack(int y, int x, int max_blow)
 				      (r_ptr->flags4 & RF4_BR_CHAO) ||
 				      (m_ptr->mflag & MFLAG_QUEST)))
 				{
-					int tmp = poly_r_idx(m_ptr->r_idx);
-
 					/* Pick a "new" monster race */
+					int tmp = poly_r_idx(m_ptr->r_idx);
+					s16b hack_m_idx;
+
+					/* Remember monster */
+					hack_m_idx = c_ptr->m_idx;
+
+					/* Giga-Hack -- Removes the moster XXX XXX XXX XXX */
+					c_ptr->m_idx = 0;
 
 					/* Handle polymorph */
-					if (tmp != m_ptr->r_idx)
+					if ((tmp != m_ptr->r_idx) &&
+					    place_monster_aux(y, x, tmp, FALSE, FALSE,
+					                      MSTATUS_ENEMY))
 					{
 						msg_format("%^s changes!", m_name);
 
 						/* "Kill" the "old" monster */
-						delete_monster_idx(c_ptr->m_idx);
-
-						/* Create a new monster (no groups) */
-                                                (void)place_monster_aux(y, x, tmp, FALSE, FALSE, MSTATUS_ENEMY);
-
-						/* XXX XXX XXX Hack -- Assume success */
+						delete_monster_idx(hack_m_idx);
 
 						/* Hack -- Get new monster */
 						m_ptr = &m_list[c_ptr->m_idx];
@@ -2715,10 +2715,18 @@ void py_attack(int y, int x, int max_blow)
 						monster_desc(m_name, m_ptr, 0);
 
 						/* Hack -- Get new race */
-                                                r_ptr = race_inf(m_ptr);
+						r_ptr = race_inf(m_ptr);
 
 						fear = FALSE;
 
+					}
+					else
+					{
+						/* Giga-Hack -- restore saved monster XXX XXX XXX */
+						c_ptr->m_idx = hack_m_idx;
+
+						/* Message */
+						msg_format("%^s resists.", m_name);
 					}
 				}
 				else
@@ -3002,13 +3010,13 @@ bool player_can_enter(byte feature)
  * any monster which might be in the destination grid.  Previously,
  * moving into walls was "free" and did NOT hit invisible monsters.
  */
-void move_player_aux(int dir, int do_pickup, int run)
+void move_player_aux(int dir, int do_pickup, int run, bool disarm)
 {
-        int y, x, tmp;
+	int y, x, tmp;
 
 	cave_type *c_ptr = &cave[py][px];
 	monster_type *m_ptr;
-        monster_race *r_ptr = &r_info[p_ptr->body_monster], *mr_ptr;
+	monster_race *r_ptr = &r_info[p_ptr->body_monster], *mr_ptr;
 
 	char m_name[80];
 
@@ -3016,66 +3024,65 @@ void move_player_aux(int dir, int do_pickup, int run)
 
 	bool oktomove = TRUE;
 
-        /* Hack - random movement */
-        if (p_ptr->disembodied)
-                tmp = dir;
-        else if ((r_ptr->flags1 & RF1_RAND_25) && (r_ptr->flags1 & RF1_RAND_50))
-        {
-                if (randint(100) < 75)
-                        tmp = randint(9);
-                else
-                        tmp = dir;
-        }
-        else if (r_ptr->flags1 & RF1_RAND_50)
-        {
-                if (randint(100) < 50)
-                        tmp = randint(9);
-                else
-                        tmp = dir;
-        }
-        else if (r_ptr->flags1 & RF1_RAND_25)
-        {
-                if (randint(100) < 25)
-                        tmp = randint(9);
-                else
-                        tmp = dir;
-        }
-        else
-        {
-                tmp = dir;
-        }
-
-        if ((c_ptr->feat == FEAT_ICE) && (!p_ptr->ffall && !p_ptr->fly))
+	/* Hack - random movement */
+	if (p_ptr->disembodied) tmp = dir;
+	else if ((r_ptr->flags1 & RF1_RAND_25) && (r_ptr->flags1 & RF1_RAND_50))
 	{
-                if (magik(70 - p_ptr->lev))
-                {
+		if (randint(100) < 75)
 			tmp = randint(9);
-                        msg_print("You slip on the icy floor.");
-                }
+		else
+			tmp = dir;
+	}
+	else if (r_ptr->flags1 & RF1_RAND_50)
+	{
+		if (randint(100) < 50)
+			tmp = randint(9);
+		else
+			tmp = dir;
+	}
+	else if (r_ptr->flags1 & RF1_RAND_25)
+	{
+		if (randint(100) < 25)
+			tmp = randint(9);
+		else
+			tmp = dir;
+	}
+	else
+	{
+		tmp = dir;
+	}
+
+	if ((c_ptr->feat == FEAT_ICE) && (!p_ptr->ffall && !p_ptr->fly))
+	{
+		if (magik(70 - p_ptr->lev))
+		{
+			tmp = randint(9);
+			msg_print("You slip on the icy floor.");
+		}
 		else
 			tmp = dir;
 	}
 
-        /* Find the result of moving */
-        y = py + ddy[tmp];
-        x = px + ddx[tmp];
+	/* Find the result of moving */
+	y = py + ddy[tmp];
+	x = px + ddx[tmp];
 
 	/* Examine the destination */
 	c_ptr = &cave[y][x];
 
-        /* Change oldpx and oldpy to place the player well when going back to big mode */
-        if (p_ptr->wild_mode)
-        {
-                if(ddy[tmp] > 0)  p_ptr->oldpy = 1;
-                if(ddy[tmp] < 0)  p_ptr->oldpy = MAX_HGT - 2;
-                if(ddy[tmp] == 0) p_ptr->oldpy = MAX_HGT / 2;
-                if(ddx[tmp] > 0)  p_ptr->oldpx = 1;
-                if(ddx[tmp] < 0)  p_ptr->oldpx = MAX_WID - 2;
-                if(ddx[tmp] == 0) p_ptr->oldpx = MAX_WID / 2;
-        }
+	/* Change oldpx and oldpy to place the player well when going back to big mode */
+	if (p_ptr->wild_mode)
+	{
+		if(ddy[tmp] > 0)  p_ptr->oldpy = 1;
+		if(ddy[tmp] < 0)  p_ptr->oldpy = MAX_HGT - 2;
+		if(ddy[tmp] == 0) p_ptr->oldpy = MAX_HGT / 2;
+		if(ddx[tmp] > 0)  p_ptr->oldpx = 1;
+		if(ddx[tmp] < 0)  p_ptr->oldpx = MAX_WID - 2;
+		if(ddx[tmp] == 0) p_ptr->oldpx = MAX_WID / 2;
+	}
 
 	/* Exit the area */
-        if ((!dun_level) && (!p_ptr->wild_mode) && (!is_quest(dun_level)) &&
+	if ((!dun_level) && (!p_ptr->wild_mode) && (!is_quest(dun_level)) &&
 		((x == 0) || (x == cur_wid-1) ||
 		 (y == 0) || (y == cur_hgt-1)))
 	{
@@ -3157,12 +3164,12 @@ void move_player_aux(int dir, int do_pickup, int run)
 		}
 	}
 
-        /* Some hooks */
-        if (process_hooks(HOOK_MOVE, "(d,d)", y, x)) return;
+	/* Some hooks */
+	if (process_hooks(HOOK_MOVE, "(d,d)", y, x)) return;
 
 	/* Get the monster */
 	m_ptr = &m_list[c_ptr->m_idx];
-        mr_ptr = race_inf(m_ptr);
+	mr_ptr = race_inf(m_ptr);
 
 	if (inventory[INVEN_WIELD].art_name)
 	{
@@ -3233,34 +3240,16 @@ void move_player_aux(int dir, int do_pickup, int run)
 #ifdef ALLOW_EASY_DISARM /* TNB */
 
 	/* Disarm a visible trap */
-	else if (easy_disarm &&
-		(c_ptr->t_idx != 0) && (c_ptr->info & CAVE_TRDT))
+	else if (easy_disarm && disarm && (c_ptr->info & (CAVE_TRDT)))
 	{
-		/* XXX XXX XXX Why does this happen? */
-		if (running)
-		{
-			/* Stop running now */
-			running = 0;
-
-			/* We don't want to move on, for obvious reasons */
-			oktomove = FALSE;
-
-			/* Overkill? -- Disturb the player */
-			disturb(0, 0);
-		}
-
-		/* Disarm a trap if and only if the player is not running */
-		else
-		{
-			(void) do_cmd_disarm_aux(y, x, tmp);
-			return;
-		}
+		(void) do_cmd_disarm_aux(y, x, tmp, do_pickup);
+		return;
 	}
 
 #endif /* ALLOW_EASY_DISARM -- TNB */
 
-        /* Player can't enter ? soo bad for him/her ... */
-        else if (!player_can_enter(c_ptr->feat))
+	/* Player can't enter ? soo bad for him/her ... */
+	else if (!player_can_enter(c_ptr->feat))
 	{
 		oktomove = FALSE;
 
@@ -3461,15 +3450,7 @@ void move_player_aux(int dir, int do_pickup, int run)
 		}
 
 		/* Handle "objects" */
-#ifdef ALLOW_EASY_DISARM /* TNB */
-
-		carry(do_pickup != always_pickup);
-
-#else /* ALLOW_EASY_DISARM -- TNB */
-
 		carry(do_pickup);
-
-#endif /* ALLOW_EASY_DISARM -- TNB */
 
 		/* Handle "store doors" */
                 if (c_ptr->feat == FEAT_SHOP)
@@ -3480,6 +3461,8 @@ void move_player_aux(int dir, int do_pickup, int run)
 			/* Hack -- Enter store */
 			command_new = '_';
 		}
+
+#if 0 /* This is noxious -- pelpel */
 
 		/* Handle quest areas -KMW- */
 		else if (cave[y][x].feat == FEAT_QUEST_ENTER)
@@ -3502,6 +3485,8 @@ void move_player_aux(int dir, int do_pickup, int run)
 			p_ptr->leaving = TRUE;
 		}
 
+#endif /* 0 */
+
                 else if (cave[y][x].feat >= FEAT_ALTAR_HEAD &&
                          cave[y][x].feat <= FEAT_ALTAR_TAIL)
                          {
@@ -3517,16 +3502,13 @@ void move_player_aux(int dir, int do_pickup, int run)
 			/* Disturb */
 			disturb(0, 0);
 
-			if (!(c_ptr->info & CAVE_TRDT))
+			if (!(c_ptr->info & (CAVE_TRDT)))
 			{
 				/* Message */
 				msg_print("You found a trap!");
 
 				/* Pick a trap */
 				pick_trap(py, px);
-
-				/* Hack -- Memorize */
-				c_ptr->info |= (CAVE_MARK);
 
 				/* Redraw */
 				lite_spot(y, x);
@@ -3559,7 +3541,51 @@ void move_player_aux(int dir, int do_pickup, int run)
 
 void move_player(int dir, int do_pickup)
 {
-        move_player_aux(dir, do_pickup, 0);
+	move_player_aux(dir, do_pickup, 0, TRUE);
+}
+
+
+/*
+ * Hack -- Grid-based version of see_wall
+ */
+static int see_wall_grid(cave_type *c_ptr)
+{
+	/* Hack -- Avoid hitting traps */
+	if (c_ptr->info & (CAVE_TRDT)) return (TRUE);
+
+
+	/* Hack -- Handle special cases XXX XXX */
+	switch (c_ptr->feat)
+	{
+		/* Require levitation */
+		case FEAT_DARK_PIT:
+		case FEAT_DEEP_WATER:
+		case FEAT_ICE:
+		{
+			if (p_ptr->ffall || p_ptr->fly) return (FALSE);
+
+			break;
+		}
+
+		/* Require immunity */
+		case FEAT_DEEP_LAVA:
+		case FEAT_SHAL_LAVA:
+		{
+			if (p_ptr->invuln || p_ptr->immune_fire) return (FALSE);
+
+			break;
+		}
+	}
+
+
+	/* Reject "Safe" floor grids */
+	if (f_info[c_ptr->feat].flags1 & FF1_CAN_RUN) return (FALSE);
+
+	/* Must be known to the player */
+	if (!(c_ptr->info & (CAVE_MARK))) return (FALSE);
+
+	/* Default */
+	return (TRUE);
 }
 
 
@@ -3575,22 +3601,8 @@ static int see_wall(int dir, int y, int x)
 	/* Illegal grids are not known walls */
 	if (!in_bounds2(y, x)) return (FALSE);
 
-	/* Non-wall grids are not known walls */
-	if (cave[y][x].feat < FEAT_SECRET) return (FALSE);
-
-        if ((cave[y][x].feat == FEAT_DEEP_WATER) ||
-           ((cave[y][x].feat >= FEAT_SHAL_WATER) &&
-            (cave[y][x].feat <= FEAT_GRASS))) return (FALSE);
-
-        if (cave[y][x].feat == FEAT_SHOP) return (FALSE);
-
-        if ((f_info[cave[y][x].feat].flags1 & FF1_CAN_RUN)) return (FALSE);
-
-	/* Must be known to the player */
-	if (!(cave[y][x].info & (CAVE_MARK))) return (FALSE);
-
-	/* Default */
-	return (TRUE);
+	/* Analyse the grid */
+	return (see_wall_grid(&cave[y][x]));
 }
 
 
@@ -3968,62 +3980,6 @@ static bool run_test(void)
 			 */
 			switch (c_ptr->feat)
 			{
-				/* Floors */
-				case FEAT_FLOOR:
-
-				/* Secret doors */
-				case FEAT_SECRET:
-
-				/* Normal veins */
-				case FEAT_MAGMA:
-				case FEAT_QUARTZ:
-				case FEAT_SANDWALL:
-
-				/* Hidden treasure */
-				case FEAT_MAGMA_H:
-				case FEAT_QUARTZ_H:
-				case FEAT_SANDWALL_H:
-
-				/* Walls */
-				case FEAT_WALL_EXTRA:
-				case FEAT_WALL_INNER:
-				case FEAT_WALL_OUTER:
-				case FEAT_WALL_SOLID:
-				case FEAT_PERM_EXTRA:
-				case FEAT_PERM_INNER:
-				case FEAT_PERM_OUTER:
-				case FEAT_PERM_SOLID:
-				/* dirt, grass, trees, ... */
-				case FEAT_SHAL_WATER:
-				case FEAT_DIRT:
-				case FEAT_GRASS:
-				case FEAT_FLOWER:
-				case FEAT_DARK_PIT:
-				case FEAT_TREES:
-				case FEAT_MOUNTAIN:
-				case FEAT_SAND:
-				case FEAT_DEAD_TREE:
-				case FEAT_ASH:
-				case FEAT_MUD:
-				{
-					/* Ignore */
-					notice = FALSE;
-
-					/* Done */
-					break;
-				}
-
-				/* quest features */
-				case FEAT_QUEST_ENTER:
-				case FEAT_QUEST_EXIT:
-				{
-					/* Notice */
-					notice = TRUE;
-
-					/* Done */
-					break;
-				}
-
 				case FEAT_DEEP_LAVA:
 				case FEAT_SHAL_LAVA:
 				{
@@ -4038,7 +3994,7 @@ static bool run_test(void)
 				case FEAT_ICE:
 				{
 					/* Ignore */
-					if (p_ptr->ffall) notice = FALSE;
+					if (p_ptr->ffall || p_ptr->fly) notice = FALSE;
 
 					/* Done */
 					break;
@@ -4070,10 +4026,13 @@ static bool run_test(void)
 			}
 
 			/* Check the "don't notice running" flag */
-                        if(f_info[c_ptr->feat].flags1 & FF1_DONT_NOTICE_RUNNING) notice = FALSE;
+			if (f_info[c_ptr->feat].flags1 & FF1_DONT_NOTICE_RUNNING)
+			{
+				notice = FALSE;
+			}
 
 			/* Detected trap */
-			if (c_ptr->t_idx) notice = TRUE;
+			if (c_ptr->info & (CAVE_TRDT)) notice = TRUE;
 
 			/* Interesting feature */
 			if (notice) return (TRUE);
@@ -4081,6 +4040,9 @@ static bool run_test(void)
 			/* The grid is "visible" */
 			inv = FALSE;
 		}
+
+		/* Hack -- for the Maze */
+		if (c_ptr->info & (CAVE_TRDT)) return (TRUE);
 
 		/* Analyze unknown grids and floors */
 		if (inv || cave_floor_bold(row, col))
@@ -4160,21 +4122,8 @@ static bool run_test(void)
 			/* Access grid */
 			c_ptr = &cave[row][col];
 
-			/*
-			 * Unknown grid or non-wall XXX XXX XXX
-			 * cave_floor_grid(c_ptr))
-			 *
-			 * XXX XXX XXX Make this function or use terrain
-			 * flags, or there will be similar bugs whenever new
-			 * terrain features are added.
-			 */
-			if (!(c_ptr->info & (CAVE_MARK)) ||
-			    ((c_ptr->feat < FEAT_SECRET) ||
-			     (c_ptr->feat == FEAT_DEEP_WATER) ||
-			     ((c_ptr->feat >= FEAT_SHAL_WATER) &&
-			      (c_ptr->feat <= FEAT_GRASS)) ||
-			     (c_ptr->feat == FEAT_FLOWER)))
-
+			/* Unknown grid or non-wall */
+			if (!see_wall_grid(c_ptr))
 			{
 				/* Looking to break right */
 				if (find_breakright)
@@ -4205,21 +4154,8 @@ static bool run_test(void)
 			/* Access grid */
 			c_ptr = &cave[row][col];
 
-			/*
-			 * Unknown grid or non-wall XXX XXX XXX
-			 * cave_floor_grid(c_ptr))
-			 *
-			 * XXX XXX XXX Make this function or use terrain
-			 * flags, or they will be similar bugs whenever new
-			 * terrain features are added.
-			 */
-			if (!(c_ptr->info & (CAVE_MARK)) ||
-			    ((c_ptr->feat < FEAT_SECRET) ||
-			     (c_ptr->feat == FEAT_DEEP_WATER) ||
-			     ((c_ptr->feat >= FEAT_SHAL_WATER) &&
-			      (c_ptr->feat <= FEAT_GRASS)) ||
-			     (c_ptr->feat == FEAT_FLOWER)))
-
+			/* Unknown grid or non-wall */
+			if (!see_wall_grid(c_ptr))
 			{
 				/* Looking to break left */
 				if (find_breakleft)
@@ -4381,16 +4317,10 @@ void run_step(int dir)
 
 
 	/* Move the player, using the "pickup" flag */
-#ifdef ALLOW_EASY_DISARM /* TNB */
-
-        move_player_aux(find_current, FALSE, 1);
-
-#else /* ALLOW_EASY_DISARM -- TNB */
-
-        move_player_aux(find_current, always_pickup, 1);
-
-#endif /* ALLOW_EASY_DISARM -- TNB */
+	move_player_aux(find_current, always_pickup, 1, TRUE);
 }
+
+#if 0
 
 /*
  * Take care of the various things that can happen when you step
@@ -4412,7 +4342,7 @@ void step_effects(int y, int x, int do_pickup)
 	}
 
 	/* Discover/set off traps */
-        else if (cave[y][x].t_idx != 0)
+	else if (cave[y][x].t_idx != 0)
 	{
 		/* Disturb */
 		disturb(0, 0);
@@ -4425,9 +4355,6 @@ void step_effects(int y, int x, int do_pickup)
 			/* Pick a trap */
 			pick_trap(y, x);
 
-			/* Hack -- Memorize */
-			cave[y][x].info |= (CAVE_MARK);
-
 			/* Redraw */
 			lite_spot(y, x);
 		}
@@ -4436,6 +4363,8 @@ void step_effects(int y, int x, int do_pickup)
                 hit_trap();
 	}
 }
+
+#endif /* 0 */
 
 /*
  * Issue a pet command
@@ -4490,6 +4419,8 @@ void do_cmd_pet(void)
 	{
 		strcpy(power_desc[num], "dismiss pets");
 		powers[num++] = 1;
+		strcpy(power_desc[num], "dismiss companions");
+		powers[num++] = 10;
 		strcpy(power_desc[num], "call pets");
 		powers[num++] = 2;
 		strcpy(power_desc[num], "follow me");
@@ -4748,6 +4679,50 @@ void do_cmd_pet(void)
 
 			msg_format("You have dismissed %d pet%s.", Dismissed,
 				(Dismissed == 1 ? "" : "s"));
+			break;
+		}
+		case 10:				/* Dismiss companionss */
+		{
+			int Dismissed = 0;
+
+			if (get_check("Dismiss all companionss? ")) all_pets = TRUE;
+
+			/* Process the monsters (backwards) */
+			for (pet_ctr = m_max - 1; pet_ctr >= 1; pet_ctr--)
+			{
+				monster_race *r_ptr;
+
+				/* Access the monster */
+				m_ptr = &m_list[pet_ctr];
+				r_ptr = &r_info[m_ptr->r_idx];
+
+				if ((!(r_ptr->flags7 & RF7_NO_DEATH)) &&
+				    ((m_ptr->status == MSTATUS_COMPANION)))	/* Get rid of it! */
+				{
+					bool delete_this = FALSE;
+
+					if (all_pets)
+						delete_this = TRUE;
+					else
+					{
+						char friend_name[80], check_friend[80];
+						monster_desc(friend_name, m_ptr, 0x80);
+						strnfmt(check_friend, 80, "Dismiss %s? ", friend_name);
+
+						if (get_check(check_friend))
+							delete_this = TRUE;
+					}
+
+					if (delete_this)
+					{
+						delete_monster_idx(pet_ctr);
+						Dismissed++;
+					}
+				}
+			}
+
+			msg_format("You have dismissed %d companion%s.", Dismissed,
+			           (Dismissed == 1 ? "" : "s"));
 			break;
 		}
 		/* Call pets */

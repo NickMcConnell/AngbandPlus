@@ -1,5 +1,5 @@
 /*
-** $Id: lapi.c,v 1.3 2001/11/26 23:00:23 darkgod Exp $
+** $Id: lapi.c,v 1.1.1.1 2002/02/23 21:39:41 darkgod Exp $
 ** Lua API
 ** See Copyright Notice in lua.h
 */

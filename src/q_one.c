@@ -166,23 +166,45 @@ bool quest_one_death_hook(char *fmt)
                 ok = TRUE;
         }
 
-        if (ok)
-        {
-                /* Get local object */
-                object_type forge, *q_ptr = &forge;
+	if (ok)
+	{
+                int i;
 
-                /* Mega-Hack -- Prepare to make "Grond" */
-                object_prep(q_ptr, lookup_kind(TV_RING, SV_RING_POWER));
+		/* Get local object */
+		object_type forge, *q_ptr = &forge;
 
-                /* Mega-Hack -- Mark this item as "the one ring" */
-                q_ptr->name1 = ART_POWER;
+		/* Mega-Hack -- Prepare to make "Grond" */
+		object_prep(q_ptr, lookup_kind(TV_RING, SV_RING_POWER));
 
-                /* Mega-Hack -- Actually create "the one ring" */
-                apply_magic(q_ptr, -1, TRUE, TRUE, TRUE);
+		/* Mega-Hack -- Mark this item as "the one ring" */
+		q_ptr->name1 = ART_POWER;
 
-                /* Drop it in the dungeon */
-                drop_near(q_ptr, -1, m_list[m_idx].fy, m_list[m_idx].fx);
-        }
+		/* Mega-Hack -- Actually create "the one ring" */
+		apply_magic(q_ptr, -1, TRUE, TRUE, TRUE);
+
+                /* Find a space */
+                for (i = 0; i < INVEN_PACK; i++)
+		{
+			/* Skip non-objects */
+                        if (!inventory[i].k_idx) break;
+                }
+                /* Arg, no space ! */
+                if (i == INVEN_PACK)
+                {
+                        char o_name[200];
+
+                        object_desc(o_name, &inventory[INVEN_PACK - 1], FALSE, 0);
+
+                        /* Drop the item */
+                        inven_drop(INVEN_PACK - 1, 99, py, px, FALSE);
+
+                        cmsg_format(TERM_VIOLET, "You feel the urge to drop your %s to make room in your inventory.", o_name);
+                }
+
+                /* Carry it */
+                cmsg_format(TERM_VIOLET, "You feel the urge to pick up that plain gold ring you see.");
+                inven_carry(q_ptr, FALSE);
+	}
 
         return (FALSE);
 }

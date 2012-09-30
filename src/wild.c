@@ -669,15 +669,9 @@ static void build_store(int qy, int qx, int n, int yy, int xx)
 	}
 
 	/* Clear previous contents, add a store door */
-        cave[y][x].feat = FEAT_SHOP;
-        cave[y][x].special = n;
-        cave[y][x].info |= CAVE_FREE;
-
-	/* Notice */
-	note_spot(y, x);
-
-	/* Redraw */
-	lite_spot(y, x);
+	cave[y][x].feat = FEAT_SHOP;
+	cave[y][x].special = n;
+	cave[y][x].info |= CAVE_FREE;
 }
 
 static void build_store_circle(int qy, int qx, int n, int yy, int xx)
@@ -748,29 +742,17 @@ static void build_store_circle(int qy, int qx, int n, int yy, int xx)
 	}
 
 	/* Clear previous contents, add a store door */
-        cave[y0][x0].feat = FEAT_SHOP;
-        cave[y0][x0].special = n;
-        cave[y0][x0].info |= CAVE_FREE;
-
-	/* Notice */
-        note_spot(y0, x0);
-
-	/* Redraw */
-        lite_spot(y0, x0);
+	cave[y0][x0].feat = FEAT_SHOP;
+	cave[y0][x0].special = n;
+	cave[y0][x0].info |= CAVE_FREE;
 }
 
 static void build_store_hidden(int n, int yy, int xx)
 {
 	/* Clear previous contents, add a store door */
-        cave[yy][xx].feat = FEAT_SHOP;
-        cave[yy][xx].special = n;
-        cave[yy][xx].info |= CAVE_FREE;
-
-	/* Notice */
-        note_spot(yy, xx);
-
-	/* Redraw */
-        lite_spot(yy, xx);
+	cave[yy][xx].feat = FEAT_SHOP;
+	cave[yy][xx].special = n;
+	cave[yy][xx].info |= CAVE_FREE;
 }
 
 /* Return a list of stores */
@@ -802,28 +784,17 @@ static int get_shops(int *rooms)
 /* Generate town borders */
 static void set_border(int y, int x)
 {
-        if (cave_floor_bold(y, x))
-        {
-                cave[y][x].feat = FEAT_DOOR_HEAD;
-                cave[y][x].special = 0;
-
-                /* Notice */
-                note_spot(y, x);
-
-                /* Redraw */
-                lite_spot(y, x);
-        }
-        else
-        {
-                cave[y][x].feat = FEAT_PERM_SOLID;
-                cave[y][x].special = 0;
-
-                /* Notice */
-                note_spot(y, x);
-
-                /* Redraw */
-                lite_spot(y, x);
-        }
+	if (cave_floor_bold(y, x))
+	{
+		cave[y][x].feat = FEAT_DOOR_HEAD;
+	}
+	else
+	{
+		cave[y][x].feat = FEAT_PERM_SOLID;
+	}
+	cave[y][x].mimic = 0;
+	cave[y][x].special = 0;
+	cave[y][x].info |= (CAVE_ROOM);
 }
 
 static void town_borders(int t_idx, int qy, int qx)
@@ -1004,7 +975,7 @@ static void town_gen_circle(int t_idx, int qy, int qx)
         cy = qy + (SCREEN_HGT / 2);
         
         cx = qx + rad;
-        for (y = cy - rad; y < cy + rad + 1; y++)
+        for (y = cy - rad; y < cy + rad; y++)
         for (x = cx - rad; x < cx + 1; x++)
         {
                 int d = distance(cy, cx, y, x);
@@ -1019,7 +990,7 @@ static void town_gen_circle(int t_idx, int qy, int qx)
         }
 
         cx = qx + SCREEN_WID - rad - 1;
-        for (y = cy - rad; y < cy + rad + 1; y++)
+        for (y = cy - rad; y < cy + rad; y++)
         for (x = cx; x < cx + rad + 1; x++)
         {
                 int d = distance(cy, cx, y, x);

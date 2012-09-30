@@ -3071,3 +3071,60 @@ becomes 0, allowing spells to summon fiery blades and such
 [M]- Fixed the IRC client some more.
 
 01/01/2001 - PernAngband 5.1.0 aka "Into the Fire"
+
+01/01/2002
+[B]- Removed farmoer maggot abuse
+[B]- Fixed a bug with forgetten spells
+[P]- Vampires can be elves and high elves again
+
+07/01/2002
+[B]- Fixed a bug in the experimental Blade class
+[B]- Fixed a bug with summoning friendly monsters via lua scripts thanks to
+     Kobayasi
+
+09/01/2001
+[B]- FIxed a bug with Melinda proundfoot
+[B]- Fixed the monster casting at other monsters but targetting you bug
+
+11/01/2001
+[B]- Sacrificing wands now reduce the charges
+[P]- Enabled the Black Knight class
+[B]- Fixed the store info file thanks to wrabhit23
+
+12/01/2001 - PernAngband 5.1.1 aka "The Hour of the Wolf"
+
+12/02/2002
+[B]- Fixed a bug in the hook code that may or may not be the cause of
+     various quest-related bugs
+[B]- Fixed a bug in the 6 monster randquest thanks to Louis-Frederic Michaud
+
+13/02/2002
+[I]- added special lighting effects as I did to the CVS -- pelpel
+[B]- fixed running problem with small tree, sand and ash 
+     fixed running problem with traps in the Maze  -- pelpel
+[B]- auto-squelch no longer requires typing space when there's
+     no "-more-" prompt telling players to do so.  -- pelpel
+[B]- * corridors connecting exists to dungeon no longer creates unconnected
+       dungeon sections or destroy room walls
+     * fixed a possible cause of crashes in the Maze
+     * guardian artefacts could be lost when their creation is abort by
+       the "too many objects" error.
+     * final guardian artefacts were never created if they are normal k_info
+       artefacts.
+[B]- main-xaw.c -- IRC client support, use of traditional term names for
+     resource specifications and main window is labeled "PernAngband" :)
+[B]- monster2.c -- monster inventory allocation code could cause permanent
+     loss of artefacts, again if it's aborted by "too many objects" error.
+[B]- object1.c -- there were extra spaces in names of many Ego items.
+[B]- object2.c -- TV_RANDART type artefacts were never preserved in some
+     places.
+[B]- q_troll.c -- the reward artefact wasn't preserved when o_pop() failed.
+[B]- squeltch.c -- {good} items are now destroyed when it's told
+     "Destroy Good" and the "strong" pseudo-ID is in effect.
+[I]- New lighting code by pelpel
+[B]- Fixed some bugs with multiuser systems
+[B]- The xbow of the elves was designed as the ultimate ARMOR
+[B]- Do not drop from wild if player were not in wild mode in previous turn;
+     it put player in wrong place and could crash the game.  -- Kusunose
+[B]- Fixed get_com interface for lua
+[B]- Summoning monsters from totems could crash the game.  -- Kusunose

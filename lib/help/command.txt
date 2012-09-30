@@ -45,7 +45,7 @@ a numeric digit '#' selects the first item (if any) whose inscription contains
 specify items which are "legal" for the command.  Whenever an item inscription
 contains "!*" or "!x" (with "x" as above) you must verify its selection.
 
-    In PernAngband, there are items which occasionally teleport you away, asking
+    In T.o.M.E., there are items which occasionally teleport you away, asking
 for permission first. The recurring "Teleport (y/n)?" can be annoying, and
 this behavior can be eliminated by inscribing the object which causes the
 teleportation with "." (or any inscription containing the character ".").
@@ -400,7 +400,7 @@ the nearest monster.
 
       More detailed information about specific macros can be found in
 *****macrofaq.txt*0[macrofaq.txt], originally written by Jim Lyon (jplyon@attglobal.net),
-modified for PernAngband with Jim's permission by Dawnmist 
+modified for T.o.M.E. with Jim's permission by Dawnmist 
 (angband@dawnmist.8m.com).
 
 #####G--- User Pref Files (Keymaps) ---
@@ -827,9 +827,9 @@ for a quantity will convert any "letters" into the maximal legal value.
         protect meat from hacked-up corpses from going bad.
 ~~~~~16
 [[[[[GDrink from a fountain (H)]
-        All fountains in Pern are magical, and act like magical potions. Unlike
-        potions, however, it is not possible to identify the type of fountain
-        before drinking from it.
+        All fountains in T.o.M.E. are magical, and act like magical potions.
+        Unlike potions, however, it is not possible to identify the type of
+        fountain before drinking from it.
 ~~~~~44
 [[[[[GGive item to monster (y)]
         This command is used to give an item within your inventory to a monster
@@ -1177,7 +1177,7 @@ for a quantity will convert any "letters" into the maximal legal value.
         "dump.txt", including encoded color information.
 ~~~~~64
 [[[[[GQuit to next midi song (^Q)]
-        In the DOS binary (and maybe Windows) of PernAngband, it is possible for
+        In the DOS binary (and maybe Windows) of T.o.M.E., it is possible for
         the game to play any midi song in the lib/xtra/music directory. This
         command allows the player to force the game to finish the current song
         and move on to another one (i.e. if you are tired of hearing the current

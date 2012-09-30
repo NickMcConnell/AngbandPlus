@@ -36,8 +36,8 @@ F:B:75:3:0:0:0:0:0:1
 # Mayor's house
 F:b:74:3:0:0:0:0:0:10
 
-# White Horse Inn
-F:a:74:3:0:0:0:0:0:11
+# The Prancing Pony
+F:a:74:3:0:0:0:0:0:58
 
 # Soothsayer
 F:c:74:3:0:0:0:0:0:12

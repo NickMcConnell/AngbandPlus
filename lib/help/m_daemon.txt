@@ -1,5 +1,5 @@
 |||||oy
-#####R === PernAngband Magic - Daemon Realm ===
+#####R === T.o.M.E. Magic - Daemon Realm ===
 
 Available only to daemonologists, this realm deals mainly with dark 
 summoning and daemonic powers. 

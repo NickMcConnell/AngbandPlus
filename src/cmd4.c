@@ -146,7 +146,7 @@ void do_cmd_change_name(void)
 		else if (c == 'f')
 		{
 			sprintf(tmp, "%s.txt", player_base);
-			if (get_string("File name: ", tmp, 80))
+                        if (get_string("Filename(you can post it to http://angband.oook.cz/): ", tmp, 80))
 			{
 				if (tmp[0] && (tmp[0] != ' '))
 				{
@@ -1166,7 +1166,7 @@ void do_cmd_options(void)
 		prt("(2) Disturbance Options", 5, 5);
 		prt("(3) Game-Play Options", 6, 5);
 		prt("(4) Efficiency Options", 7, 5);
-                prt("(P/5) PernAngband Options", 8, 5);
+                prt("(P/5) T.o.M.E. Options", 8, 5);
                 prt("(6) Birth Options(read only)", 9, 5);
 
 		/* Testing */
@@ -1277,10 +1277,10 @@ void do_cmd_options(void)
 				break;
 			}
 
-                        /* PernAngband Options */
+                        /* T.o.M.E. Options */
                         case 'P': case 'p': case '5':
 			{
-                                do_cmd_options_aux(5, "PernAngband Options", FALSE);
+                                do_cmd_options_aux(5, "T.o.M.E. Options", FALSE);
 				break;
 			}
 
@@ -2161,14 +2161,8 @@ void do_cmd_visuals(void)
 			/* Build the filename */
 			path_build(buf, 1024, ANGBAND_DIR_USER, tmp);
 
-			/* Drop priv's */
-			safe_setuid_grab();
-
 			/* Append to the file */
 			fff = my_fopen(buf, "a");
-
-			/* Grab priv's */
-			safe_setuid_drop();
 
 			/* Failure */
 			if (!fff) continue;
@@ -2221,14 +2215,8 @@ void do_cmd_visuals(void)
 			/* Build the filename */
 			path_build(buf, 1024, ANGBAND_DIR_USER, tmp);
 
-			/* Drop priv's */
-			safe_setuid_grab();
-
 			/* Append to the file */
 			fff = my_fopen(buf, "a");
-
-			/* Grab priv's */
-			safe_setuid_drop();
 
 			/* Failure */
 			if (!fff) continue;
@@ -2281,14 +2269,8 @@ void do_cmd_visuals(void)
 			/* Build the filename */
 			path_build(buf, 1024, ANGBAND_DIR_USER, tmp);
 
-			/* Drop priv's */
-			safe_setuid_grab();
-
 			/* Append to the file */
 			fff = my_fopen(buf, "a");
-
-			/* Grab priv's */
-			safe_setuid_drop();
 
 			/* Failure */
 			if (!fff) continue;
@@ -2640,14 +2622,8 @@ void do_cmd_colors(void)
 			/* Build the filename */
 			path_build(buf, 1024, ANGBAND_DIR_USER, tmp);
 
-			/* Drop priv's */
-			safe_setuid_grab();
-
 			/* Append to the file */
 			fff = my_fopen(buf, "a");
-
-			/* Grab priv's */
-			safe_setuid_drop();
 
 			/* Failure */
 			if (!fff) continue;
@@ -2890,7 +2866,7 @@ void do_cmd_version(void)
     msg_format("You are playing Angband %d.%d.%d.",
 	           VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
 #else
-    msg_format("You are playing PernAngband %d.%d.%d.",
+    msg_format("You are playing T.o.M.E. %d.%d.%d.",
                 FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH);
 #endif
                
@@ -3146,14 +3122,8 @@ void do_cmd_save_screen(void)
 		/* File type is "TEXT" */
 		FILE_TYPE(FILE_TYPE_TEXT);
 
-		/* Hack -- drop permissions */
-		safe_setuid_grab();
-
 		/* Append to the file */
 		fff = my_fopen(buf, "w");
-
-		/* Hack -- grab permissions */
-		safe_setuid_drop();
 
 		/* Oops */
 		if (!fff) return;

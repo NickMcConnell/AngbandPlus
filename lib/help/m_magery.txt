@@ -1,5 +1,5 @@
 |||||oy
-#####R === PernAngband Magic - Magery Realm ===
+#####R === T.o.M.E. Magic - Magery Realm ===
 
 Magery is the standard magic realm for mages living in Middle Earth. 
 As such, it is a good generalised realm for magic users to choose to 

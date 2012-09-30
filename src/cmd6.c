@@ -1176,15 +1176,17 @@ void do_cmd_eat_food(void)
 		if (p_ptr->food < PY_FOOD_ALERT)   /* Hungry */
 			msg_print("Your hunger can only be satisfied with fresh blood!");
 	}
-        else if (PRACE_FLAG(PR1_NO_FOOD))
+	else if (PRACE_FLAG(PR1_NO_FOOD))
 	{
-		msg_print("The food of mortals is poor sustenance for you.");
-                set_food(p_ptr->food + ((fval) / 20));
-	}
-        else if ((PRACE_FLAG(PR1_NO_STUN)) && (PRACE_FLAG(PR1_AC_LEVEL)) && (PRACE_FLAG(PR1_PASS_TREE)))
-	{
-                msg_print("Food is poor sustenance for you.");
-                set_food(p_ptr->food + ((fval) / 20));
+		if (PRACE_FLAG(PR1_UNDEAD))
+		{
+			msg_print("The food of mortals is poor sustenance for you.");
+		}
+		else
+		{
+			msg_print("Food is poor sustenance for you.");
+		}
+		(void)set_food(p_ptr->food + ((fval) / 20));
 	}
 	else
 	{
@@ -4069,6 +4071,8 @@ void zap_combine_rod_tip(object_type *q_ptr, int tip_item)
         object_type *o_ptr;
         object_kind *k_ptr;
 	cptr q, s;
+	u32b f1, f2, f3, f4, f5, esp;
+	s32b cost;
 
         /* No magic */
         if (p_ptr->antimagic)
@@ -4099,11 +4103,21 @@ void zap_combine_rod_tip(object_type *q_ptr, int tip_item)
                 k_ptr = &k_info[o_ptr->k_idx];
 	}
 
+        /* Examine the rod */
+	object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
+
+	cost = q_ptr->pval;
+
+	if (f4 & TR4_CHEAPNESS)
+	{
+		cost /= 2;
+	}
+
         /*
          * The rod must have at least the same mana capacity as the
          * rod tip spell needs
          */
-        if (o_ptr->pval2 < q_ptr->pval)
+        if (o_ptr->pval2 < cost)
         {
                 msg_print("This rod doesn't have enough mana for the rod tip.");
                 return;

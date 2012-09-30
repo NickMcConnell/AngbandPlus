@@ -85,7 +85,7 @@
  *
  *   MENU 128 = apple (about, -, ...)
  *   MENU 129 = File (new, open, close, save, -, exit, quit)
- *     In PernAngband
+ *     In T.o.M.E.
  *   MENU 129 = File (close, save, -, exit, quit)
  *   MENU 130 = Edit (undo, -, cut, copy, paste, clear)
  *   MENU 131 = Font (bold, wide, -)
@@ -160,15 +160,15 @@
  * Variant-dependent features:
  *
  * #define ALLOW_BIG_SCREEN (O and Z. Dr's big screen needs more work)
- * #define ANG281_RESET_VISUALS (Cth, Gum, Pern, Z)
- * #define SAVEFILE_SCREEN (Pern)
+ * #define ANG281_RESET_VISUALS (Cth, Gum, T.o.M.E., Z)
+ * #define SAVEFILE_SCREEN (T.o.M.E.)
  * #define AUTO_SAVE_ARG_REQUIRED (O and Z)
  * #define ANGBAND_PREFERENCES "_your_variant_name_ Preferences"
  * #define ANGBAND_CREATOR four letter code for your variant, if any.
  *  or use the default one.
  *
  * If a variant supports transparency effect for 16x16 tiles but doesn't
- * have variable use_transparency in the code (i.e. Pern), then
+ * have variable use_transparency in the code (i.e. T.o.M.E.), then
  * #define NO_USE_TRANSPARENCY_VAR
  */
 
@@ -337,11 +337,11 @@ struct term_data
 #ifdef MAC_MPW
 
 /*
- * MPW 68K compiler cannot process Pern's variable.c correctly...
+ * MPW 68K compiler cannot process T.o.M.E.'s variable.c correctly...
  * but support for it is here, for your reference. I have tried
  * this with SC and MrC to compile Vanilla successfully.
  */
-QDGlobals dq;
+QDGlobals qd;
 
 /*
  * File type assigner - declare them in externs.h as well.
@@ -2821,7 +2821,7 @@ static void handle_open_when_ready(void)
  *
  *   Apple (128) =   { About, -, ... }
  *   File (129) =    { New,Open,Import,Close,Save,-,Exit,Quit }
- *     In PernAngband, this becomes
+ *     In T.o.M.E., this becomes
  *   File (129) =    { Close,Save,-,Exit,Quit }
  *   Edit (130) =    { Cut, Copy, Paste, Clear }   (?)
  *   Font (131) =    { Bold, Extend, -, Monaco, ..., -, ... }
@@ -3322,6 +3322,9 @@ static void setup_menus(void)
 
 	/* Graphics submenu */
 	m = GetMenuHandle(SUBMENU_GRAPH);
+
+	/* Get menu size */
+	n = CountMItems(m);
 
 	/* Reset menu */
 	for (i = 1; i <= n; i++)

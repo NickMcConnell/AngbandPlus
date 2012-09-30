@@ -10,7 +10,7 @@
  *
  * Changed for ZAngband by Robert Ruehlmann
  *
- * Heavily modified for PernAngband by DarkGod
+ * Heavily modified for T.o.M.E. by DarkGod
  */
 
 #include "angband.h"
@@ -567,100 +567,118 @@ static bool gamble_comm(int cmd)
  */
 static bool inn_comm(int cmd)
 {
+	bool vampire;
+
+
+	/* Extract race info */
+	vampire = ((PRACE_FLAG(PR1_VAMPIRE)) || (p_ptr->mimic_form==MIMIC_VAMPIRE));
+
 	switch(cmd)
 	{
 		case BACT_FOOD: /* Buy food & drink */
-                        if ((!PRACE_FLAG(PR1_VAMPIRE)) && (p_ptr->mimic_form!=MIMIC_VAMPIRE))
-                        {
-                                msg_print("The barkeep gives you some gruel and a beer.");
-                                msg_print(NULL);
-                                (void) set_food(PY_FOOD_MAX - 1);
-                        }else
-                                msg_print("You're a vampire and I don't have any food for you!");
-			break;
-
-		case BACT_REST: /* Rest for the night */
-                        if ((PRACE_FLAG(PR1_VAMPIRE)) || (p_ptr->mimic_form==MIMIC_VAMPIRE)){
-                        if ((bst(HOUR, turn) >= 6) && (bst(HOUR, turn) < 18)) {  /* nighttime */
-				if ((p_ptr->poisoned > 0) || (p_ptr->cut > 0))
-				{
-					msg_print("You need a healer, not a room.");
-					msg_print(NULL);
-					msg_print("Sorry, but don't want anyone dying in here.");
-					return(FALSE);
-				}
-				else
-				{
-                                        while ((bst(HOUR, turn) >= 6) && (bst(HOUR, turn) < 18))
-                                        {
-                                                turn += (10L * MINUTE);
-                                        }
-                                        p_ptr->chp = p_ptr->mhp;
-					p_ptr->csp = p_ptr->msp;
-					set_blind(0);
-					set_confused(0);
-					p_ptr->stun = 0;
-                                        msg_print("You awake refreshed for the new night.");
-					p_ptr->leaving = TRUE;
-                                        p_ptr->oldpx = px;
-                                        p_ptr->oldpy = py;
-
-                                        /* Select new bounties. */
-                                        select_bounties();
-				}
-			}
-			else
+		{
+			if (!vampire)
 			{
-                                msg_print("The rooms are available only at daylight for the Undeads.");
+				msg_print("The barkeep gives you some gruel and a beer.");
 				msg_print(NULL);
-				return(FALSE);
-			}
-                        }else{
-                        if ((bst(HOUR, turn) < 6) || (bst(HOUR, turn) >= 18)) {  /* daytime */
-				if ((p_ptr->poisoned > 0) || (p_ptr->cut > 0))
-				{
-					msg_print("You need a healer, not a room.");
-					msg_print(NULL);
-					msg_print("Sorry, but don't want anyone dying in here.");
-					return(FALSE);
-				}
-				else
-				{
-                                        while ((bst(HOUR, turn) < 6) || (bst(HOUR, turn) >= 18))
-                                        {
-                                                turn += (10L * MINUTE);
-                                        }
-					p_ptr->chp = p_ptr->mhp;
-					set_blind(0);
-					set_confused(0);
-					p_ptr->stun = 0;
-					msg_print("You awake refreshed for the new day.");
-					p_ptr->leaving = TRUE;
-                                        p_ptr->oldpx = px;
-                                        p_ptr->oldpy = py;
-
-                                        /* Select new bounties. */
-                                        select_bounties();
-				}
+				(void) set_food(PY_FOOD_MAX - 1);
 			}
 			else
+				msg_print("You're a vampire and I don't have any food for you!");
+
+			break;
+		}
+
+		/*
+		 * I revamped this... Don't know why normal races didn't get
+		 * mana regenerated. It is the grand tradition of p&p games -- pelpel
+		 */
+		case BACT_REST: /* Rest for the night */
+		{
+			bool nighttime;
+
+			/* Extract the current time */
+			nighttime = ((bst(HOUR, turn) < 6) || (bst(HOUR, turn) >= 18));
+
+			/* Normal races rest at night */
+			if (!vampire && !nighttime)
 			{
 				msg_print("The rooms are available only at night.");
 				msg_print(NULL);
 				return(FALSE);
 			}
-                        }
-			break;
-		case BACT_RUMORS: /* Listen for rumors */
-			{
-				char Rumor[80];
 
-				get_rnd_line("rumors.txt", Rumor);
-				msg_format("%s", Rumor);
+			/* Vampires rest during daytime */
+			if (vampire && nighttime)
+			{
+				msg_print("The rooms are available only at daylight for the Undeads.");
 				msg_print(NULL);
-				break;
+				return(FALSE);
 			}
+
+			/* Must cure HP draining status first */
+			if ((p_ptr->poisoned > 0) || (p_ptr->cut > 0))
+			{
+				msg_print("You need a healer, not a room.");
+				msg_print(NULL);
+				msg_print("Sorry, but don't want anyone dying in here.");
+				return(FALSE);
+			}
+
+			/* Let the time pass XXX XXX XXX */
+			if (vampire)
+			{
+				/* Wait for sunset */
+				while ((bst(HOUR, turn) >= 6) && (bst(HOUR, turn) < 18))
+				{
+					turn += (10L * MINUTE);
+				}
+			}
+			else
+			{
+				/* Wait for sunrise */
+				while ((bst(HOUR, turn) < 6) || (bst(HOUR, turn) >= 18))
+				{
+					turn += (10L * MINUTE);
+				}
+			}
+
+			/* Regen */
+			p_ptr->chp = p_ptr->mhp;
+			p_ptr->csp = p_ptr->msp;
+
+			/* Restore status */
+			set_blind(0);
+			set_confused(0);
+			p_ptr->stun = 0;
+
+			/* Message */
+			if (vampire) msg_print("You awake refreshed for the new night.");
+			else msg_print("You awake refreshed for the new day.");
+
+			/* Dungeon stuff */
+			p_ptr->leaving = TRUE;
+			p_ptr->oldpx = px;
+			p_ptr->oldpy = py;
+
+			/* Select new bounties. */
+			select_bounties();
+
+			break;
+		}
+
+		case BACT_RUMORS: /* Listen for rumors */
+		{
+			char rumor[80];
+
+			get_rnd_line("rumors.txt", rumor);
+			msg_format("%s", rumor);
+			msg_print(NULL);
+
+			break;
+		}
 	}
+
 	return(TRUE);
 }
 
@@ -1177,8 +1195,6 @@ static void sell_corpses(void) {
 
     if (o_ptr->pval2 == bounties[i][0]) {
       value = bounties[i][1] + boost*(r_info[o_ptr->pval2].level);
-
-      value *= o_ptr->number;
 
       msg_format("Sold for %ld gold pieces.", value);
       msg_print(NULL);
@@ -1800,27 +1816,23 @@ bool bldg_process_command(store_type *s_ptr, int i)
 /*
  * Enter quest level
  */
-void do_cmd_quest(void)
+void enter_quest(void)
 {
+	/* Paranoia */
 	if (!(cave[py][px].feat == FEAT_QUEST_ENTER))
 	{
 		msg_print("You see no quest level here.");
 		return;
 	}
-	else
-	{
-		/* Player enters a new quest */
-                p_ptr->oldpy = py;
-                p_ptr->oldpx = px;
 
-		leaving_quest = p_ptr->inside_quest;
+	/* Player enters a new quest */
+	leaving_quest = p_ptr->inside_quest;
 
-		p_ptr->inside_quest = cave[py][px].special;
-		dun_level = 1;
-		p_ptr->leaving = TRUE;
-                p_ptr->oldpx = px;
-                p_ptr->oldpy = py;
-	}
+	p_ptr->inside_quest = cave[py][px].special;
+	dun_level = 1;
+	p_ptr->leaving = TRUE;
+	p_ptr->oldpx = px;
+	p_ptr->oldpy = py;
 }
 
 

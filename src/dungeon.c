@@ -2713,7 +2713,7 @@ static void process_world(void)
                 {
                         p_ptr->exp -= 1 + plev / 5;
                         p_ptr->max_exp -= 1 + plev / 5;
-                        (void)do_dec_stat(randint(6)+1, STAT_DEC_NORMAL);
+                        (void)do_dec_stat(rand_int(6), STAT_DEC_NORMAL);
                         check_experience();
                 }
         }
@@ -3012,6 +3012,11 @@ static void process_world(void)
 
 	/* Feel the inventory */
 	sense_inventory();
+
+
+	/* Handle auto-squelch */
+	squeltch_grid();
+	squeltch_inventory();
 
 
 	/*** Process Objects ***/
@@ -3488,15 +3493,7 @@ static void process_command(void)
 		/* Move (usually pick up things) */
 		case ';':
 		{
-#ifdef ALLOW_EASY_DISARM /* TNB */
-
-			do_cmd_walk(FALSE);
-
-#else /* ALLOW_EASY_DISARM -- TNB */
-
 			do_cmd_walk(always_pickup);
-
-#endif /* ALLOW_EASY_DISARM -- TNB */
 
 			break;
 		}
@@ -3504,15 +3501,7 @@ static void process_command(void)
 		/* Move (usually do not pick up) */
 		case '-':
 		{
-#ifdef ALLOW_EASY_DISARM /* TNB */
-
-			do_cmd_walk(TRUE);
-
-#else /* ALLOW_EASY_DISARM -- TNB */
-
 			do_cmd_walk(!always_pickup);
-
-#endif /* ALLOW_EASY_DISARM -- TNB */
 
 			break;
 		}
@@ -3572,12 +3561,16 @@ static void process_command(void)
 			break;
 		}
 
+#if 0 /* Merged with do_cmd_go_down(), internal command '>' -- pelpel */
+
 		/* Enter quest level -KMW- */
 		case '[':
 		{
                         if(!p_ptr->wild_mode) do_cmd_quest();
 			break;
 		}
+
+#endif
 
 		/* Go up staircase */
 		case '<':
@@ -4510,10 +4503,6 @@ static void process_player(void)
                         process_command();
 		}
 
-                /* Squektch'em up ! */
-                squeltch_grid();
-                squeltch_inventory();
-
 
 		/*** Clean up ***/
 
@@ -4529,7 +4518,7 @@ static void process_player(void)
 
 
 			/* Shimmer monsters if needed */
-			if (!avoid_other && shimmer_monsters)
+			if (!avoid_other && !use_graphics && shimmer_monsters)
 			{
 				/* Clear the flag */
 				shimmer_monsters = FALSE;
@@ -4561,7 +4550,7 @@ static void process_player(void)
 			}
 
                         /* Shimmer objects if needed */
-                        if (!avoid_other && shimmer_objects)
+                        if (!avoid_other && !use_graphics && shimmer_objects)
 			{
 				/* Clear the flag */
                                 shimmer_objects = FALSE;
@@ -4588,7 +4577,7 @@ static void process_player(void)
 			}
 
                         /* Shimmer features if needed */
-                        if (!avoid_other)
+                        if (!avoid_other && !running && !resting && !use_graphics)
 			{
                                 /* Shimmer multi-hued features */
                                 for (j = panel_row_min; j <= panel_row_max; j++)
@@ -5391,9 +5380,7 @@ void play_game(bool new_game)
         /* Should we use old colors */
         if (autoload_old_colors)
         {
-                user_process_pref_file = FALSE;
-                process_pref_file("422colors.prf");
-                user_process_pref_file = TRUE;
+                process_pref_file("422color.prf");
         }
 
 

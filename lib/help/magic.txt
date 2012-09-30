@@ -1,5 +1,5 @@
 |||||oy
-#####R === PernAngband Magic System ===
+#####R === T.o.M.E. Magic System ===
 
 In the official releases of Angband there are only two types magic
 spells:  Magic spells and priestly Prayers.  If the character is a
@@ -7,12 +7,12 @@ mage, ranger or a rogue  (s)he can learn magic spells; if (s)he is
 a priest  or  a paladin,  (s)he  can learn prayers.  All mages can 
 learn the same spells and all priests can learn the same spells.
 
-PernAngband uses a more complex  "realms of magic" system improved 
+T.o.M.E. uses a more complex  "realms of magic" system improved 
 (or so we hope)  from ZAngband, which in turn was inspired  by the 
 commercial  fantasy  strategy game  Master of Magic  (Microprose), 
 which in turn supposedly borrowed it from the card game _Magic the 
 Gathering_ (by Wizards of the Coast).  The magic system,  as it is 
-implemented  in  PernAngband,  consists of  four major realms  and 
+implemented  in  T.o.M.E.,  consists of  four major realms  and 
 eight minor realms.  The major realms are Nether, Valarin, Shadow, 
 and Magery. It may be convenient to think of the realms as being a 
 wheel:  Nether stands opposite  of Valarin,  and Shadow of Magery. 
@@ -55,17 +55,17 @@ Mimics.
 =====================================
 
 In standard Angband,  the type of a  character's spell ability was 
-determined  solely by the  character class.  In PernAngband,  most 
+determined  solely by the  character class.  In T.o.M.E.,  most 
 spellcasting classes can select one  (or even two) types from the 
 realms of magic available. 
 
-The system of magic in  PernAngband is similar to that of standard 
+The system of magic in  T.o.M.E. is similar to that of standard 
 Angband,  but with subtle,  underlying differences  that do make a 
 significant difference.  Spellcasters choose their realms, but are 
 allowed only a set allotment of them.
 
 In standard Angband, there were 9 spellbooks for all spellcasters. 
-In PernAngband,  there are 9 each  for the major realms and 4 each 
+In T.o.M.E.,  there are 9 each  for the major realms and 4 each 
 for the minor realms.  The first four  books of  a major realm and 
 the first  two books  of a minor  realm  can be bought  in a store 
 (Valarin and Crusade  spellbooks in the  town temple,  the rest in 

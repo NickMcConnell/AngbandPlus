@@ -86,9 +86,6 @@ s16b command_dir;		/* Gives direction of current command */
 s16b command_see;		/* See "cmd1.c" */
 s16b command_wrk;		/* See "cmd1.c" */
 
-s16b command_gap = 50;	/* See "cmd1.c" */
-s16b command_gapy = 1;	/* See "cmd1.c" */
-
 s16b command_new;		/* Command chaining from inven/equip view */
 
 s32b energy_use;                /* Energy use this turn */
@@ -123,6 +120,7 @@ bool wizard;			/* Is the player currently in Wizard mode? */
 
 bool use_sound;			/* The "sound" mode is enabled */
 bool use_graphics;		/* The "graphics" mode is enabled */
+byte graphics_mode;		/* Current graphics mode */
 
 u16b total_winner;		/* Semi-Hack -- Game has been won */
 
@@ -498,6 +496,11 @@ byte *message__color;
 byte *message__type;
 
 /*
+ * The array of message counts, by index [MESSAGE_MAX]
+ */
+u16b *message__count;
+
+/*
  * The array of chars, by offset [MESSAGE_BUF]
  */
 char *message__buf;
@@ -528,7 +531,7 @@ term *angband_term[ANGBAND_TERM_MAX];
  */
 char angband_term_name[8][16] =
 {
-        "PernAngband",
+	"Tome",
 	"Mirror",
 	"Recall",
 	"Choice",

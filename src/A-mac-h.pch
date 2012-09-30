@@ -28,7 +28,7 @@
 #define USE_LUA
 
 /*
- * PernAngband specific main-xxx.c features
+ * T.o.M.E. specific main-xxx.c features
  */
 /* We have in-game savefile chooser */
 #define SAVEFILE_SCREEN
@@ -39,7 +39,7 @@
 /* Creator code */
 #define ANGBAND_CREATOR 'PrnA'
 /* Preferences file name */
-#define ANGBAND_PREFERENCES "PernAngband Preferences"
+#define ANGBAND_PREFERENCES "T.o.M.E. Preferences"
 
 /*
  * Activate transparency effect for 16x16 tileset.

@@ -85,17 +85,17 @@ endif
 
 TOLUA = tolua.exe
 
-default: ../pernang.exe $(TOLUA)
+default: ../tome.exe $(TOLUA)
 
-release: ../pernang.exe
-	upx -9 ../pernang.exe
-#         copy pernang.exe ..
-#         del pernang.exe
+release: ../tome.exe
+	upx -9 ../tome.exe
+#         copy tome.exe ..
+#         del tome.exe
 
-install: ../pernang.exe
-#        copy pernang.exe ..
+install: ../tome.exe
+#        copy tome.exe ..
 
-all: ../pernang.exe
+all: ../tome.exe
 #        @echo All done.  Use 'make install' to install.
 
 $(TOLUA): $(TOLUAOBJS) lua/tolua.c lua/tolualua.c
@@ -106,7 +106,7 @@ $(TOLUA): $(TOLUAOBJS) lua/tolua.c lua/tolualua.c
 # Link executables
 #
 
-../pernang.exe: $(OBJS)
+../tome.exe: $(OBJS)
 	$(CC) $(CFLAGS) -o $@ $(OBJS) $(LIBS)
 
 

@@ -1,12 +1,12 @@
 |||||oy
-#####R		The (Pern)Angband Newbie Guide
+#####R		The Angband Newbie Guide
 Pat Gunn
 Based loosely off of Chris Weisieger's Angband Newbie Guide.
 
-	Welcome to PernAngband, a popular descendant of Moria/Angband.
-PernAngband has many unique features that set it apart from other
+	Welcome to T.o.M.E., a popular descendant of Moria/Angband.
+T.o.M.E. has many unique features that set it apart from other
 Angband/Moria descendants, with a nice mix of races/classes available.
-This guide will walk you, a player of Pernangband, through your first
+This guide will walk you, a player of T.o.M.E., through your first
 game (or two), introducing you to basic features that will help your
 character survive.
 
@@ -42,7 +42,7 @@ more complex, but for now, unless you start with a good melee weapon
 store '3'. If available, purchase a lantern and 2 or 3 flasks of oil from the
 general store '1'. You now should be ready to do some adventuring. 
 
-	Provided you chose the normal mode of Pernangband, just west of Bree
+	Provided you chose the normal mode of T.o.M.E., just west of Bree
 are some steps into the first dungeon. Move on top of these stairs and
 hit '>' to go down. You will notice that when you arrive in the dungeon,
 you will be on top of some stairs going back up, and in the lower right,
@@ -84,7 +84,7 @@ to make trips to some of the other towns. The easiest town to get to is
 northeast of Bree; the others are more difficult to find and reach. When
 planning a trip, be sure to carry lots of food and/or scrolls of
 satisfy hunger. Multiple light sources may also be wise, and a bow is
-almost essential. To make long trips easier, Pernangband has a map mode
+almost essential. To make long trips easier, T.o.M.E. has a map mode
 specifically designed for travel. To use it, hit '<' in the wilderness.
 This will change the scale of the map, and make time go by at a much
 faster rate per square of movement (each square being many normal grid

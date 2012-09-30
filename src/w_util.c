@@ -1,6 +1,6 @@
 /*
 ** Lua binding: util
-** Generated automatically by tolua 4.0a - angband on 01/14/02 00:02:43.
+** Generated automatically by tolua 4.0a - angband on Sun Apr 28 23:13:34 2002.
 */
 
 #include "lua/tolua.h"
@@ -400,25 +400,26 @@ tolua_lerror:
  return 0;
 }
 
-/* function: get_com */
+/* function: get_com_lua */
 static int toluaI_util_get_com00(lua_State* tolua_S)
 {
  if (
  !tolua_istype(tolua_S,1,LUA_TSTRING,0) ||
- !tolua_istype(tolua_S,2,LUA_TSTRING,0) ||
+ !tolua_istype(tolua_S,2,LUA_TNUMBER,0) ||
  !tolua_isnoobj(tolua_S,3)
  )
  goto tolua_lerror;
  else
  {
-  cptr prompt = ((cptr)  tolua_getstring(tolua_S,1,0));
-  char* command = ((char*)  tolua_getstring(tolua_S,2,0));
+  cptr promtp = ((cptr)  tolua_getstring(tolua_S,1,0));
+  int com = ((int)  tolua_getnumber(tolua_S,2,0));
  {
-  bool toluaI_ret = (bool)  get_com(prompt,command);
+  bool toluaI_ret = (bool)  get_com_lua(promtp,&com);
  tolua_pushnumber(tolua_S,(long)toluaI_ret);
+ tolua_pushnumber(tolua_S,(long)com);
  }
  }
- return 1;
+ return 2;
 tolua_lerror:
  tolua_error(tolua_S,"#ferror in function 'get_com'.");
  return 0;
@@ -876,6 +877,100 @@ tolua_lerror:
  return 0;
 }
 
+/* function: get_map_size */
+static int toluaI_util_get_map_size00(lua_State* tolua_S)
+{
+ if (
+ !tolua_istype(tolua_S,1,LUA_TSTRING,0) ||
+ !tolua_istype(tolua_S,2,LUA_TNUMBER,1) ||
+ !tolua_istype(tolua_S,3,LUA_TNUMBER,1) ||
+ !tolua_isnoobj(tolua_S,4)
+ )
+ goto tolua_lerror;
+ else
+ {
+  char* name = ((char*)  tolua_getstring(tolua_S,1,0));
+  int ysize = ((int)  tolua_getnumber(tolua_S,2,0));
+  int xsize = ((int)  tolua_getnumber(tolua_S,3,0));
+ {
+  get_map_size(name,&ysize,&xsize);
+ tolua_pushnumber(tolua_S,(long)ysize);
+ tolua_pushnumber(tolua_S,(long)xsize);
+ }
+ }
+ return 2;
+tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'get_map_size'.");
+ return 0;
+}
+
+/* function: load_map */
+static int toluaI_util_load_map00(lua_State* tolua_S)
+{
+ if (
+ !tolua_istype(tolua_S,1,LUA_TSTRING,0) ||
+ !tolua_istype(tolua_S,2,LUA_TNUMBER,1) ||
+ !tolua_istype(tolua_S,3,LUA_TNUMBER,1) ||
+ !tolua_isnoobj(tolua_S,4)
+ )
+ goto tolua_lerror;
+ else
+ {
+  char* name = ((char*)  tolua_getstring(tolua_S,1,0));
+  int y = ((int)  tolua_getnumber(tolua_S,2,2));
+  int x = ((int)  tolua_getnumber(tolua_S,3,2));
+ {
+  load_map(name,&y,&x);
+ tolua_pushnumber(tolua_S,(long)y);
+ tolua_pushnumber(tolua_S,(long)x);
+ }
+ }
+ return 2;
+tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'load_map'.");
+ return 0;
+}
+
+/* function: alloc_room */
+static int toluaI_util_alloc_room00(lua_State* tolua_S)
+{
+ if (
+ !tolua_istype(tolua_S,1,LUA_TNUMBER,0) ||
+ !tolua_istype(tolua_S,2,LUA_TNUMBER,0) ||
+ !tolua_istype(tolua_S,3,LUA_TNUMBER,0) ||
+ !tolua_istype(tolua_S,4,LUA_TNUMBER,0) ||
+ !tolua_istype(tolua_S,5,LUA_TNUMBER,1) ||
+ !tolua_istype(tolua_S,6,LUA_TNUMBER,1) ||
+ !tolua_istype(tolua_S,7,LUA_TNUMBER,1) ||
+ !tolua_istype(tolua_S,8,LUA_TNUMBER,1) ||
+ !tolua_isnoobj(tolua_S,9)
+ )
+ goto tolua_lerror;
+ else
+ {
+  int by0 = ((int)  tolua_getnumber(tolua_S,1,0));
+  int bx0 = ((int)  tolua_getnumber(tolua_S,2,0));
+  int ysize = ((int)  tolua_getnumber(tolua_S,3,0));
+  int xsize = ((int)  tolua_getnumber(tolua_S,4,0));
+  int y1 = ((int)  tolua_getnumber(tolua_S,5,0));
+  int x1 = ((int)  tolua_getnumber(tolua_S,6,0));
+  int y2 = ((int)  tolua_getnumber(tolua_S,7,0));
+  int x2 = ((int)  tolua_getnumber(tolua_S,8,0));
+ {
+  bool toluaI_ret = (bool)  alloc_room(by0,bx0,ysize,xsize,&y1,&x1,&y2,&x2);
+ tolua_pushnumber(tolua_S,(long)toluaI_ret);
+ tolua_pushnumber(tolua_S,(long)y1);
+ tolua_pushnumber(tolua_S,(long)x1);
+ tolua_pushnumber(tolua_S,(long)y2);
+ tolua_pushnumber(tolua_S,(long)x2);
+ }
+ }
+ return 5;
+tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'alloc_room'.");
+ return 0;
+}
+
 /* Open function */
 int tolua_util_open (lua_State* tolua_S)
 {
@@ -981,6 +1076,9 @@ int tolua_util_open (lua_State* tolua_S)
  tolua_function(tolua_S,NULL,"bnot",toluaI_util_bnot00);
  tolua_function(tolua_S,NULL,"register_savefile",toluaI_util_register_savefile00);
  tolua_function(tolua_S,NULL,"save_number_key",toluaI_util_save_number_key00);
+ tolua_function(tolua_S,NULL,"get_map_size",toluaI_util_get_map_size00);
+ tolua_function(tolua_S,NULL,"load_map",toluaI_util_load_map00);
+ tolua_function(tolua_S,NULL,"alloc_room",toluaI_util_alloc_room00);
  return 1;
 }
 /* Close function */
@@ -1094,4 +1192,7 @@ void tolua_util_close (lua_State* tolua_S)
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"bnot");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"register_savefile");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"save_number_key");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"get_map_size");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"load_map");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"alloc_room");
 }

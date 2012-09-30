@@ -2861,6 +2861,9 @@ bool set_cut(int v)
 
 void drop_from_wild()
 {
+        /* Hack -- Not if player were in normal mode in previous turn */
+        if (!p_ptr->old_wild_mode) return;
+
         if (p_ptr->wild_mode && (!dun_level))
         {
                 p_ptr->wilderness_x = px;
@@ -4285,17 +4288,24 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 
 		/* XXX XXX Mega-Hack -- allow another ghost later
 		 * Remove the slain bone file */
-                if (m_ptr->r_idx == max_r_idx - 1)
+		if (m_ptr->r_idx == max_r_idx - 1)
 		{
 			r_ptr->max_num = 1;
 
 			/* Delete the bones file */
-                        sprintf(tmp, "%s%sbone%03d.%03d", ANGBAND_DIR_BONE, PATH_SEP, dungeon_type, dun_level);
+			sprintf(tmp, "%s%sbone%03d.%03d", ANGBAND_DIR_BONE, PATH_SEP, dungeon_type, dun_level);
 			
+			/* Grab permission */
+			safe_setuid_grab();
+
+			/* Remove the bone file */
 			fd_kill(tmp);
+
+			/* Drop permission */
+			safe_setuid_drop();
 		}
 
-                /* If the player kills a Unique, and the notes options are on, write a note */
+		/* If the player kills a Unique, and the notes options are on, write a note */
                 if ((r_ptr->flags1 & RF1_UNIQUE) && take_notes && auto_notes)
                 {
 			char note[80];
@@ -4852,13 +4862,9 @@ static bool target_set_accept(int y, int x)
 	/* Interesting memorized features */
 	if (c_ptr->info & (CAVE_MARK))
 	{
+		/* Detected traps are interesting */
+		if (c_ptr->info & (CAVE_TRDT)) return (TRUE);
 		if (f_info[c_ptr->feat].flags1 & FF1_NOTICE) return TRUE;
-	}
-
-	/* Known traps */
-	if (c_ptr->info & (CAVE_TRDT))
-	{
-		if (c_ptr->t_idx) return TRUE;
 	}
 
 	/* Nope */
@@ -5222,7 +5228,7 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 		if (this_o_idx) break;
 
 		/* Actual traps */
-		if ((c_ptr->t_idx) && (c_ptr->info & (CAVE_TRDT)))
+		if (c_ptr->info & (CAVE_TRDT))
 		{
 			cptr name = "a trap", s4;
 

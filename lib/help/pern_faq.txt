@@ -1,12 +1,12 @@
 |||||oy
-#####R                          PernAngband FAQ
-#####R                     Updated for version 5.x.x
+#####R                          T.o.M.E. FAQ
+#####R                 Updated for PernAngband 5.x.x
 
 #####G------------------------------------------------------------------------------
 
-#####R=== Differences Between PernAngband and Vanilla Angband ===
+#####R=== Differences Between T.o.M.E. and Vanilla Angband ===
 
-The first main difference a new player to PernAngband will need to be aware of
+The first main difference a new player to T.o.M.E. will need to be aware of
 is that the main dungeon from Angband has been split into 4 "dungeons", each 
 of which cover a different portion of the dungeon's levels. Each of these 4 
 dungeons are located either in or near one of the four main towns so that the 
@@ -19,7 +19,7 @@ specific artifacts, or just be used as an alternative place to enjoy gaining
 experience. Note that not all of the places are actually "dungeons" - some are
 caves, forests, etc.
 
-PernAngband also offers the player the ability to undertake a series of quests. 
+T.o.M.E. also offers the player the ability to undertake a series of quests. 
 Random quests can be specified during start-up, and involve rescuing a princess 
 from a group of monsters within the dungeon. If you do not wish to play with 
 random quests, simply specify "0" when asked how many you want during character 
@@ -28,7 +28,7 @@ random quests are enabled or not), usually given by the town leaders upon the
 request of the adventurer. It is not required for any adventurer to undertake 
 the fixed quests, but they can result in some nice rewards.
 
-The third main difference between Vanilla Angband and PernAngband is the 
+The third main difference between Vanilla Angband and T.o.M.E. is the 
 greatly expanded choice in character classes and races, as well as an expanded 
 magic system. Many races/classes can also have special abilities, which can be 
 accessed through the "U" command. This gives a starting adventurer the ability 
@@ -36,7 +36,7 @@ to find a character that suits their own personal playing style.
 
 To balance the expansion in things like player abilities and customisation, the 
 list of both monsters and items has also been expanded. Be warned that items 
-which were by default safe in Vanilla are not necessarily safe in Pern (a 
+which were by default safe in Vanilla are not necessarily safe in T.o.M.E. (a 
 certain early artifact comes to mind here . . . ), and picking on defenceless 
 creatures is frowned upon....
 
@@ -54,7 +54,7 @@ see this file where it expects to, it will default back to pure ASCII.
 #####G------------------------------------------------------------------------------
 #####GQ: How do I use the altars (the 'O's) I see in the dungeon?
 
-A: PernAngband introduces a new system of gods. Each god has one dedicated 
+A: T.o.M.E. introduces a new system of gods. Each god has one dedicated 
 altar. At the beginning of the game, only Priests, Priors and Paladins worship 
 a god.  Everyone else may choose if they want to or not. Sacrifice ('O' key 
 while on an altar) good objects often enough to your chosen god and he/she will
@@ -73,7 +73,7 @@ want heavy spoilers).
 #####G------------------------------------------------------------------------------
 #####GQ: How do I use the fountains (the '_'s) I see in the dungeon?
 
-A: Fountains in PernAngband act like potions, but can only be identified by 
+A: Fountains in T.o.M.E. act like potions, but can only be identified by 
 drinking from them. Each one can hold between 3 and 12 doses of the potion. 
 Quaffing from a fountain can be done by using the 'H' command (in the standard 
 keyset).
@@ -167,9 +167,9 @@ whole level.
 #####G------------------------------------------------------------------------------
 #####GQ: I've found Merton, now what?
 
-A: There is a new command that has been added to Pern that allows you to pass 
-objects to creatures. What would you try and do if you had a broken leg and 
-needed to get home?
+A: There is a new command that has been added to T.o.M.E. that allows you to
+pass objects to creatures. What would you try and do if you had a broken leg
+and needed to get home?
 
 #####G------------------------------------------------------------------------------
 #####GQ: I'm trying to find the Poisoned water quest at Lothlorien, but cannot

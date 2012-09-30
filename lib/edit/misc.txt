@@ -50,13 +50,13 @@ M:U:176
 M:W:30
 
 # Maximum number of owners types in ow_info.txt
-M:N:69
+M:N:70
 
 # Maximum number of owners types in ba_info.txt
 M:B:60
 
 # Maximum number of owners types in st_info.txt
-M:S:58
+M:S:59
 
 # Maximum size for "o_list[]"
 M:O:1024

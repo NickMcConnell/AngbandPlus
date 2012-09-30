@@ -234,4 +234,69 @@ void    desc_quest(int q_idx, int d, char *desc)
                 strncpy(quest[q_idx].desc[d], desc, 79);
 }
 
+/*
+ * Misc
+ */
+bool    get_com_lua(cptr prompt, int *com)
+{
+        char c;
+
+        if (!get_com(prompt, &c)) return (FALSE);
+        *com = c;
+        return (TRUE);
+}
+
+/* Level gen */
+void get_map_size(char *name, int *ysize, int *xsize)
+{
+        *xsize = 0;
+	*ysize = 0;
+	init_flags = INIT_GET_SIZE;
+	process_dungeon_file_full = TRUE;
+	process_dungeon_file(name, ysize, xsize, cur_hgt, cur_wid, TRUE);
+	process_dungeon_file_full = FALSE;
+
+}
+
+void load_map(char *name, int *y, int *x)
+{
+	/* Set the correct monster hook */
+	set_mon_num_hook();
+
+	/* Prepare allocation table */
+	get_mon_num_prep();
+
+	init_flags = INIT_CREATE_DUNGEON;
+	process_dungeon_file_full = TRUE;
+	process_dungeon_file(name, y, x, cur_hgt, cur_wid, TRUE);
+	process_dungeon_file_full = FALSE;
+}
+
+bool alloc_room(int by0, int bx0, int ysize, int xsize, int *y1, int *x1, int *y2, int *x2)
+{
+        int xval, yval, x, y;
+
+	/* Try to allocate space for room.  If fails, exit */
+	if (!room_alloc(xsize + 2, ysize + 2, FALSE, by0, bx0, &xval, &yval)) return FALSE;
+
+	/* Get corner values */
+	*y1 = yval - ysize / 2;
+	*x1 = xval - xsize / 2;
+	*y2 = yval + (ysize) / 2;
+	*x2 = xval + (xsize) / 2;
+
+	/* Place a full floor under the room */
+	for (y = *y1 - 1; y <= *y2 + 1; y++)
+	{
+		for (x = *x1 - 1; x <= *x2 + 1; x++)
+		{
+			cave_type *c_ptr = &cave[y][x];
+			cave_set_feat(y, x, floor_type[rand_int(100)]);
+			c_ptr->info |= (CAVE_ROOM);
+			c_ptr->info |= (CAVE_GLOW);
+		}
+        }
+        return TRUE;
+}
+
 #endif

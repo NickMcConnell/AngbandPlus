@@ -1365,7 +1365,7 @@ R:E:1:1:1:2:1:1
 R:Z:grow trees
 R:C:Warrior | Priest | Paladin | Warlock | High-Mage | BeastMaster | 
 R:C:Alchemist | Symbiant | Druid | Unbeliever | Summoner | Blade | 
-R:G:PASS_TREE | NO_STUN | 
+R:G:PASS_TREE | NO_STUN | NO_FOOD |
 R:G:AC_LEVEL | 
 R:R:1:-5
 R:F:SPEED | SENS_FIRE | SLOW_DIGEST | 

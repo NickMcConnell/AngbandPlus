@@ -2378,7 +2378,7 @@ static void init_graphics(void)
 		 * 8x8 tiles originally written for the Amiga port
 		 * by Lars Haugseth, converted to 256 colours and
 		 * expanded by the Z devteam(?)
-		 * Dawnmist is working on it for Pern
+		 * Dawnmist is working on it for T.o.M.E.
 		 */
 		case GRAF_MODE_OLD:
 		{
@@ -2393,7 +2393,7 @@ static void init_graphics(void)
 		/*
 		 * Adam Bolt's 16x16 tiles
 		 * "new" tile assignments
-		 * It is updated for Pern by Andreas Koch
+		 * It is updated for T.o.M.E. by Andreas Koch
 		 */
 		case GRAF_MODE_NEW:
 		{

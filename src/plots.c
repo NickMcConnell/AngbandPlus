@@ -114,72 +114,72 @@ void add_hook_script(int h_idx, char *script, cptr name)
 /* Remove a hook */
 void del_hook(int h_idx, hook_type hook)
 {
-        hooks_chain *c = hooks_heads[h_idx], *p = NULL;
+	hooks_chain *c = hooks_heads[h_idx], *p = NULL;
 
-        /* Find it */
-        while ((c != NULL) && (c->hook != hook))
-        {
-                p = c;
-                c = c->next;
-        }
+	/* Find it */
+	while ((c != NULL) && (c->hook != hook))
+	{
+		p = c;
+		c = c->next;
+	}
 
-        /* Remove it */
-        if (c != NULL)
-        {
-                if (p == NULL)
-                {
+	/* Remove it */
+	if (c != NULL)
+	{
+		if (p == NULL)
+		{
 #ifdef DEBUG_HOOK
-                        if (wizard) cmsg_format(TERM_VIOLET, "HOOK DEL: %s", c->name);
-                        if (take_notes) add_note(format("HOOK DEL: %s", c->name), 'D');
+			if (wizard) cmsg_format(TERM_VIOLET, "HOOK DEL: %s", c->name);
+			if (take_notes) add_note(format("HOOK DEL: %s", c->name), 'D');
 #endif
-                        FREE(c, hooks_chain);
-                        hooks_heads[h_idx] = NULL;
-                }
-                else
-                {
+			hooks_heads[h_idx] = c->next;
+			FREE(c, hooks_chain);
+		}
+		else
+		{
 #ifdef DEBUG_HOOK
-                        if (wizard) cmsg_format(TERM_VIOLET, "HOOK DEL: %s", c->name);
-                        if (take_notes) add_note(format("HOOK DEL: %s", c->name), 'D');
+			if (wizard) cmsg_format(TERM_VIOLET, "HOOK DEL: %s", c->name);
+			if (take_notes) add_note(format("HOOK DEL: %s", c->name), 'D');
 #endif
-                        p->next = c->next;
-                        FREE(c, hooks_chain);
-                }
-        }
+			p->next = c->next;
+			FREE(c, hooks_chain);
+		}
+	}
 }
 
 void del_hook_name(int h_idx, cptr name)
 {
-        hooks_chain *c = hooks_heads[h_idx], *p = NULL;
+	hooks_chain *c = hooks_heads[h_idx], *p = NULL;
 
-        /* Find it */
-        while ((c != NULL) && (strcmp(c->name, name)))
-        {
-                p = c;
-                c = c->next;
-        }
+	/* Find it */
+	while ((c != NULL) && (strcmp(c->name, name)))
+	{
+		p = c;
+		c = c->next;
+	}
 
-        /* Remove it */
-        if (c != NULL)
-        {
-                if (p == NULL)
-                {
+	/* Remove it */
+	if (c != NULL)
+	{
+		if (p == NULL)
+		{
 #ifdef DEBUG_HOOK
-                        if (wizard) cmsg_format(TERM_VIOLET, "HOOK DEL: %s", c->name);
-                        if (take_notes) add_note(format("HOOK DEL: %s", c->name), 'D');
+			if (wizard) cmsg_format(TERM_VIOLET, "HOOK DEL: %s", c->name);
+			if (take_notes) add_note(format("HOOK DEL: %s", c->name), 'D');
 #endif
-                        FREE(c, hooks_chain);
-                        hooks_heads[h_idx] = NULL;
-                }
-                else
-                {
+			hooks_heads[h_idx] = c->next;
+			FREE(c, hooks_chain);
+		}
+		else
+		{
 #ifdef DEBUG_HOOK
-                        if (wizard) cmsg_format(TERM_VIOLET, "HOOK DEL: %s", c->name);
-                        if (take_notes) add_note(format("HOOK DEL: %s", c->name), 'D');
+			if (wizard) cmsg_format(TERM_VIOLET, "HOOK DEL: %s", c->name);
+			if (take_notes) add_note(format("HOOK DEL: %s", c->name), 'D');
 #endif
-                        p->next = c->next;
-                        FREE(c, hooks_chain);
-                }
-        }
+			p->next = c->next;
+			FREE(c, hooks_chain);
+		}
+	}
 }
 
 /* get the next argument */

@@ -37,7 +37,7 @@ void irc_connect()
         zsock_recv(c, buf, 500);
         s = strchr(buf, ':');
         zsock_send(c, format("PONG %s\r\n", s));
-        zsock_send(c, format("USER guest 0 *BIRC :PernAngband %d.%d.%d User\r\n", FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH));
+        zsock_send(c, format("USER guest 0 *BIRC :T.o.M.E. %d.%d.%d User\r\n", FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH));
         zsock_send(c, format("JOIN %s\r\n", IRC_CHANNEL));
 
         pern_irc = c;
@@ -55,7 +55,7 @@ void irc_disconnect()
         if (!pern_irc_connect) return;
         pern_irc_connect = FALSE;
 
-        irc_quit(format("PernAngband %d.%d.%d", FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH));
+        irc_quit(format("T.o.M.E. %d.%d.%d", FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH));
 
         cmsg_print(TERM_L_RED, "Disconnected from IRC");
 }
@@ -161,7 +161,7 @@ void irc_poll(void *sock)
                                         message_add(MESSAGE_IRC, format("*** VERSION request from %s", nick), TERM_CTCP);
                                         fix_irc_message();
 
-                                        zsock_send(pern_irc, format("NOTICE %s :%cVERSION PernAngband %d.%d.%d%c\r\n", nick, 1, FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH, 1));
+                                        zsock_send(pern_irc, format("NOTICE %s :%cVERSION T.o.M.E. %d.%d.%d%c\r\n", nick, 1, FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH, 1));
                                 }
                         }
                         else

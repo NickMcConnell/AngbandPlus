@@ -2279,7 +2279,7 @@ s16b place_monster_one(int y, int x, int r_idx, int ego, bool slp, int status)
                         /* Get new object */
                         o_idx = o_pop();
 
-                        if(o_idx)
+                        if (o_idx)
                         {
                                 /* Get the item */
                                 o_ptr = &o_list[o_idx];
@@ -2296,6 +2296,22 @@ s16b place_monster_one(int y, int x, int r_idx, int ego, bool slp, int status)
 
                                 m_ptr->hold_o_idx = o_idx;
                         }
+						else
+						{
+							/* Hack -- Preserve artifacts */
+							if (q_ptr->name1)
+							{
+								a_info[q_ptr->name1].cur_num = 0;
+							}
+							else if (k_info[q_ptr->k_idx].flags3 & TR3_NORM_ART)
+							{
+								k_info[q_ptr->k_idx].artifact = 0;
+							}
+							else if (q_ptr->tval == TV_RANDART)
+							{
+								random_artifacts[q_ptr->sval].generated = FALSE;
+							}
+						}
                 }
 
                 /* Reset the object level */

@@ -1,5 +1,5 @@
 # File: Makefile.gdb
-# By DarkGod, to create a pernang.bin to be used with gdb
+# By DarkGod, to create a tome.bin to be used with gdb
 
 # Purpose: Makefile support for "main-dos.c"
 
@@ -73,17 +73,17 @@ LIBS = -lpc -lalleg $(LUALIBS)
 
 TOLUA = tolua.exe
 
-default: ../pernang.bin $(TOLUA)
+default: ../tome.bin $(TOLUA)
 
-release: ../pernang.bin
-	upx -9 ../pernang.exe
-#         copy pernang.exe ..
-#         del pernang.exe
+release: ../tome.bin
+	upx -9 ../tome.exe
+#         copy tome.exe ..
+#         del tome.exe
 
-install: ../pernang.bin
-#        copy pernang.exe ..
+install: ../tome.bin
+#        copy tome.exe ..
 
-all: ../pernang.bin
+all: ../tome.bin
 #        @echo All done.  Use 'make install' to install.
 
 $(TOLUA): $(TOLUAOBJS) lua/tolua.c lua/tolualua.c
@@ -94,7 +94,7 @@ $(TOLUA): $(TOLUAOBJS) lua/tolua.c lua/tolualua.c
 # Link executables
 #
 
-../pernang.bin: $(OBJS)
+../tome.bin: $(OBJS)
 	$(CC) $(CFLAGS) -o $@ $(OBJS) $(LIBS)
 
 

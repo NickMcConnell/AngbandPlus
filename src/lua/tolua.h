@@ -3,7 +3,7 @@
 ** TeCGraf/PUC-Rio
 ** http://www.tecgraf.puc-rio.br/~celes/tolua
 ** Jul 1998
-** $Id: tolua.h,v 1.2 2001/11/26 23:00:27 darkgod Exp $
+** $Id: tolua.h,v 1.1.1.1 2002/02/23 21:39:41 darkgod Exp $
 */
 
 /* This code is free software; you can redistribute it and/or modify it.

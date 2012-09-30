@@ -479,100 +479,194 @@ void do_cmd_squeltch_options(void)
 	return;
 }
 
-/* This function decides whether a particular object should be 
-   squeltched or not. It gets a bit paranoid at times but I'm pretty
-   sure that it won't destroy anything you didn't tell it to...sensing
-   stuff in the rest of the program can be a bit strange.
-   Broken items get squeltched with cursed. Is that right?	
-   Items sensed as 'uncursed' but not known are ignored.
-*/   
+
+/*
+ * Determine whether a particular object should be squeltched or not.
+ * It gets a bit paranoid at times but I'm pretty sure that it won't
+ * destroy anything you didn't tell it to...  Sensing stuff in the rest
+ * of the program can be a bit strange.
+ * Broken items get squeltched with cursed. Is that right?	
+ * Items sensed as 'uncursed' but not known are ignored.
+ */   
+
+#define PSEUDO_ID_CURSED 0
+#define PSEUDO_ID_AVERAGE 1
+#define PSEUDO_ID_GOOD 2
+#define PSEUDO_ID_KEEP 3
+
 static bool destroy_it(object_type *o_ptr)
 {
-	bool known = (bool)object_known_p(o_ptr);
-	bool sensed = (bool)(o_ptr->ident & (IDENT_SENSE));
+	object_kind *k_ptr = &k_info[o_ptr->k_idx];
+	bool known;
+	int sense;
 
-	/* Squeltch on sense */
-	bool sense_good_or_less = ((o_ptr->sense>SENSE_NONE) && (o_ptr->sense<SENSE_GOOD_LIGHT) && (sensed));
-	bool sense_average_or_less = ((o_ptr->sense>SENSE_NONE) && (o_ptr->sense<SENSE_GOOD_HEAVY) && (sensed));
+	/* Destroy none */
+	if (k_ptr->squeltch == DESTROY_NONE) return (FALSE);
+
 
 	/* Unaware things won't be destroyed. */
-	if (!object_aware_p(o_ptr)) return FALSE;
+	if (!object_aware_p(o_ptr)) return (FALSE);
 
 	/* Inscribed things won't be destroyed! */
-	if (o_ptr->note) return FALSE;
+	if (o_ptr->note) return (FALSE);
+
+	/* Keep Artifacts -- they cannot be destroyed anyway */
+	if (artifact_p(o_ptr) || o_ptr->art_name) return (FALSE);
 
 #if 0 /* Maybe .. */
+
 	/* Destroy empty chests */
-	if ((o_ptr->tval==TV_CHEST) && (o_ptr->pval==0)) return TRUE;
+	if ((o_ptr->tval==TV_CHEST) && (o_ptr->pval==0)) return (TRUE);
+
 #endif
 
-	/* Any squeltching on this object? */
-	if (!k_info[o_ptr->k_idx].squeltch) return FALSE;
+	/* Destroy all */
+	if (k_ptr->squeltch == DESTROY_ALL) return (TRUE);
 
-	/* Keep Artifacts */
-        if (artifact_p(o_ptr) || o_ptr->art_name) return FALSE;
 
-	/* Destroy it.. */
-	if (k_info[o_ptr->k_idx].squeltch==DESTROY_ALL) return TRUE;
- 
-	/* Ego items should stay (uncursed ones)*/
-	if ((o_ptr->name2) && (!cursed_p(o_ptr))) return FALSE;
+	/*
+	 * Ego items should stay (uncursed ones) because there's
+	 * no "Destroy Excellent"
+	 */
+	if ((o_ptr->name2 || o_ptr->name2b) && !cursed_p(o_ptr)) return (FALSE);
+
+
+	/* Get object ID status */
+	known = (bool)object_known_p(o_ptr);
+
+	/* To be on the safe side */
+	sense = PSEUDO_ID_KEEP;
+
+	/* Sensed and not ID'ed */
+	if (!known && (o_ptr->ident & (IDENT_SENSE)))
+	{
+		/* Analysed pseudo-ID status */
+		switch (o_ptr->sense)
+		{
+			/* Strong -- cursed normal items; Weak -- everything cursed */
+			case SENSE_CURSED:
+			/* Strong -- cursed ego */
+			case SENSE_WORTHLESS:
+			/* Broken items -- as per the comment above */
+			case SENSE_BROKEN:
+			{
+				sense = PSEUDO_ID_CURSED;
+				break;
+			}
+
+			/* Strong -- normal items w/o bonuses */
+			case SENSE_AVERAGE:
+			{
+				sense = PSEUDO_ID_AVERAGE;
+				break;
+			}
+
+			/* Strong -- normal items w/ bonuses */
+			case SENSE_GOOD_HEAVY:
+			{
+				sense = PSEUDO_ID_GOOD;
+				break;
+			}
+
+			/*
+			 * This includes:
+			 * SENSE_NONE (not sensed yet)
+			 * SENSE_EXCELLENT (Strong -- ego)
+			 * SENSE_TERRIBLE (Strong -- cursed artefacts)
+			 * SENSE_SPECIAL (Strong -- artefacts)
+			 * SENSE_GOOD_LIGHT (Weak -- everything good)
+			 */
+			default:
+			{
+				sense = PSEUDO_ID_KEEP;
+				break;
+			}
+		}
+	}
+
 
 	/* Destoy good stuff */
-	if (k_info[o_ptr->k_idx].squeltch==DESTROY_GOOD)
+	if (k_ptr->squeltch == DESTROY_GOOD)
 	{
-		if (sense_good_or_less) return TRUE;
-		if ((is_weapon(o_ptr->tval)) && (known)) return TRUE;
-		if ((is_armour(o_ptr->tval)) && (known)) return TRUE;
-		return(FALSE);
+		/* Pseudo-ID */
+		if (!known)
+		{
+			if (sense <= PSEUDO_ID_GOOD) return (TRUE);
+			else return (FALSE);
+		}
+
+		/* ID'ed */
+		else
+		{
+			return(TRUE);
+		}
 	}
 
 	/* Check for average destroying */
-	if (k_info[o_ptr->k_idx].squeltch==DESTROY_AVERAGE)
+	else if (k_ptr->squeltch == DESTROY_AVERAGE)
 	{
-		
-		if (sense_average_or_less) return TRUE;
-		if ((is_weapon(o_ptr->tval)) && (known)) 
+		/* Pseudo-ID */
+		if (!known)
 		{
-			if ((o_ptr->to_h+o_ptr->to_d)<1) return TRUE;
-			return FALSE;
+			if (sense <= PSEUDO_ID_AVERAGE) return (TRUE);
+			return (FALSE);
 		}
-		if ((is_armour(o_ptr->tval)) && (known))
+
+		/* ID'ed */
+		else
 		{
-		    if (o_ptr->to_a<1) return TRUE;
-			return FALSE;
+			if (is_weapon(o_ptr->tval))
+			{
+				if ((o_ptr->to_h + o_ptr->to_d) < 1) return (TRUE);
+				else return (FALSE);
+			}
+
+			if (is_armour(o_ptr->tval))
+			{
+				if (o_ptr->to_a < 1) return (TRUE);
+				else return (FALSE);
+			}
+
+			if (o_ptr->tval == TV_INSTRUMENT)
+			{
+				return (TRUE);
+			}
+
+			return (FALSE);
 		}
-		if (o_ptr->tval==TV_INSTRUMENT)
-		{
-			if (known) return TRUE;
-		}
-		return FALSE;
 	}
-	
+
 	/* Check for cursed stuff */
-	if (k_info[o_ptr->k_idx].squeltch==DESTROY_CURSED)
+	else if (k_ptr->squeltch == DESTROY_CURSED)
 	{
-		
-		if (cursed_p(o_ptr)&&(known)) return TRUE;
-
-		/* Sensed as cursed */
-		if (cursed_p(o_ptr) && (o_ptr->sense==SENSE_CURSED) && (sensed)) return TRUE;
-
-		/* Sensed as Worthless */
-		if (cursed_p(o_ptr) && (o_ptr->sense==SENSE_WORTHLESS) && (sensed)) return TRUE;
-
-		if ((o_ptr->k_idx==TV_RING) || (o_ptr->k_idx==TV_AMULET))
+		/* Pseudo-ID */
+		if (!known)
 		{
-			/* Hack - Certain items are always generated cursed */
-			if ((k_info[o_ptr->k_idx].flags3 & (TR3_CURSED | TR3_HEAVY_CURSE))
-				    && (k_info[o_ptr->k_idx].aware))
-				return TRUE;
+			if (sense <= PSEUDO_ID_CURSED) return (TRUE);
+
+			/* Hack -- Certain items are always generated cursed */
+			if ((o_ptr->tval == TV_RING) || (o_ptr->tval == TV_AMULET))
+			{
+				if (k_ptr->aware &&
+				    (k_ptr->flags3 & (TR3_CURSED | TR3_HEAVY_CURSE)))
+				{
+					return (TRUE);
+				}
+			}
+
+			return (FALSE);
 		}
-		return FALSE;
+
+		/* ID'ed */
+		else
+		{
+			if (cursed_p(o_ptr)) return (TRUE);
+			else return (FALSE);
+		}
 	}
-	
+
 	/* Shouldn't get here... */
-	return FALSE;
+	return (FALSE);
 }
 
 
@@ -649,9 +743,6 @@ void squeltch_inventory(void)
 				inven_item_optimize(i);
 
 				found=TRUE;
-
-				/* Disturbing... */
-				disturb(0,0);
 			}
 		}
 	}

@@ -1983,6 +1983,7 @@ s16b message_num(void)
 */
 cptr message_str(int age)
 {
+	static char buf[1024];
 	s16b x;
 	s16b o;
 	cptr s;
@@ -1998,6 +1999,13 @@ cptr message_str(int age)
 	
 	/* Access the message text */
 	s = &message__buf[o];
+
+	/* Hack -- Handle repeated messages */
+	if (message__count[x] > 1)
+	{
+		strnfmt(buf, 1024, "%s <%dx>", s, message__count[x]);
+		s = buf;
+	}
 	
 	/* Return the message text */
 	return (s);
@@ -2052,8 +2060,8 @@ byte message_type(int age)
 */
 void message_add(byte type, cptr str, byte color)
 {
-        int i, k, x, n, m;
-	char u[1024];
+	int i, k, x, n;
+	cptr s;
 	
 	
 	/*** Step 1 -- Analyze the message ***/
@@ -2067,70 +2075,27 @@ void message_add(byte type, cptr str, byte color)
 	/* Important Hack -- Ignore "long" messages */
 	if (n >= MESSAGE_BUF / 4) return;
 
-	/* Limit number of messages to check */
-	m = message_num();
 
-	k = m / 4;
+	/*** Step 2 -- Handle repeated messages ***/
 
-	/* Check previous message */
-	for (i = message__next; m; m--)
+	/* Acquire the "logical" last index */
+	x = (message__next + MESSAGE_MAX - 1) % MESSAGE_MAX;
+
+	/* Get the last message text */
+	s = &message__buf[message__ptr[x]];
+
+	/* Last message repeated? */
+	if (streq(str, s))
 	{
-		int j = 1;
+		/* Increase the message count */
+		message__count[x]++;
 
-		char buf[1024];
-		char *t;
-
-		cptr old;
-
-		/* Back up and wrap if needed */
-		if (i-- == 0) i = MESSAGE_MAX - 1;
-
-		/* Access the old string */
-		old = &message__buf[message__ptr[i]];
-
-		/* Skip small messages */
-		if (!old) continue;
-
-		strcpy(buf, old);
-
-		/* Find multiple */
-		for (t = buf; *t && (*t != '<'); t++);
-
-		if (*t)
-		{
-			/* Message is too small */
-			if (strlen(buf) < 6) break;
-
-			/* Drop the space */
-			*(t - 1) = '\0';
-
-			/* Get multiplier */
-			j = atoi(++t);
-		}
-
-		/* Limit the multiplier to 1000 */
-		if (buf && streq(buf, str) && (j < 1000))
-		{
-			j++;
-
-			/* Overwrite */
-			message__next = i;
-
-			str = u;
-
-			/* Write it out */
-			sprintf(u, "%s <%dx>", buf, j);
-
-			/* Message length */
-			n = strlen(str);
-		}
-
-		/* Done */
-		break;
+		/* Success */
+		return;
 	}
 
 	
-	/*** Step 2 -- Attempt to optimize ***/
+	/*** Step 3 -- Attempt to optimize ***/
 	
 	/* Limit number of messages to check */
 	k = message_num() / 4;
@@ -2177,15 +2142,16 @@ void message_add(byte type, cptr str, byte color)
 		
 		/* Assign the starting address */
 		message__ptr[x] = message__ptr[i];
-                message__color[x] = color;
-                message__type[x] = type;
+		message__color[x] = color;
+		message__type[x] = type;
+		message__count[x] = 1;
 		
 		/* Success */
 		return;
 	}
 	
 	
-	/*** Step 3 -- Ensure space before end of buffer ***/
+	/*** Step 4 -- Ensure space before end of buffer ***/
 	
 	/* Kill messages and Wrap if needed */
 	if (message__head + n + 1 >= MESSAGE_BUF)
@@ -2215,7 +2181,7 @@ void message_add(byte type, cptr str, byte color)
 	}
 	
 	
-	/*** Step 4 -- Ensure space before next message ***/
+	/*** Step 5 -- Ensure space before next message ***/
 	
 	/* Kill messages if needed */
 	if (message__head + n + 1 > message__tail)
@@ -2246,7 +2212,7 @@ void message_add(byte type, cptr str, byte color)
 	}
 	
 	
-	/*** Step 5 -- Grab a new message index ***/
+	/*** Step 6 -- Grab a new message index ***/
 	
 	/* Get the next message index, advance */
 	x = message__next++;
@@ -2262,12 +2228,13 @@ void message_add(byte type, cptr str, byte color)
 	
 	
 	
-	/*** Step 6 -- Insert the message text ***/
+	/*** Step 7 -- Insert the message text ***/
 	
 	/* Assign the starting address */
 	message__ptr[x] = message__head;
-        message__color[x] = color;
-        message__type[x] = type;
+	message__color[x] = color;
+	message__type[x] = type;
+	message__count[x] = 1;
 	
 	/* Append the new part of the message */
 	for (i = 0; i < n; i++)

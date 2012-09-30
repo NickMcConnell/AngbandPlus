@@ -1,5 +1,5 @@
 |||||oy
-#####R === PernAngband Magic - Druidic Realm ===
+#####R === T.o.M.E. Magic - Druidic Realm ===
 
 Magic used solely by the druids, the users of this realm commune with
 the elemental forces of nature (earth, air, fire, water, mana). Their

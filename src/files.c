@@ -246,7 +246,6 @@ s16b tokenize(char *buf, s16b num, char **tokens, char delim1, char delim2)
  * Specify squelch settings
  *   Q:<num>:<squelch>
  */
-bool user_process_pref_file = TRUE;
 errr process_pref_file_aux(char *buf)
 {
 	int i, j, n1, n2;
@@ -857,20 +856,27 @@ errr process_pref_file(cptr name)
 	bool bypass = FALSE;
 
 
-	/* Build the filename */
-        if (user_process_pref_file) path_build(buf, 1024, ANGBAND_DIR_USER, name);
-        else path_build(buf, 1024, ANGBAND_DIR_PREF, name);
+	/* Build the filename -- Allow users to override system pref files */
+	path_build(buf, 1024, ANGBAND_DIR_USER, name);
 
 	/* Open the file */
-	safe_setuid_grab();
 	fp = my_fopen(buf, "r");
-	safe_setuid_drop();
 
-	/* No such file */
-        if (!fp)
-        {
-                return (-1);
-        }
+	/* No such file -- Try system pref file */
+	if (!fp)
+	{
+		/* Build the pathname, this time using the system pref directory */
+		path_build(buf, 1024, ANGBAND_DIR_PREF, name);
+
+		/* Open the file */
+		safe_setuid_grab();
+		fp = my_fopen(buf, "r");
+		safe_setuid_drop();
+
+		/* Failed again */
+		if (!fp) return (-1);
+	}
+
 
 	/* Process the file */
 	while (0 == my_fgets(fp, buf, 1024))
@@ -1022,9 +1028,13 @@ errr check_time_init(void)
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_FILE, "time.txt");
 
-	/* Open the file */
+	/* Grab permission */
 	safe_setuid_grab();
+
+	/* Open the file */
 	fp = my_fopen(buf, "r");
+
+	/* Drop permission */
 	safe_setuid_drop();
 
 	/* No file, no restrictions */
@@ -3172,10 +3182,8 @@ errr file_character(cptr name, bool full)
 		if (get_check(out_val)) fd = -1;
 	}
 
-	safe_setuid_grab();
 	/* Open the non-existing file */
 	if (fd < 0) fff = my_fopen(buf, "w");
-	safe_setuid_drop();
 
 
 	/* Invalid file */
@@ -3195,7 +3203,7 @@ errr file_character(cptr name, bool full)
 	fprintf(fff, "  [Angband %d.%d.%d Character Dump]\n\n",
 	        VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
 #else
-   fprintf(fff, "  [PernAngband %d.%d.%d Character Dump]\n\n",
+   fprintf(fff, "  [T.o.M.E. %d.%d.%d Character Dump]\n\n",
             FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH);
 #endif
 
@@ -4103,7 +4111,7 @@ bool show_file(cptr name, cptr what, int line, int mode)
 
 
 		/* Show a general "title" */
-                prt(format("[PernAngband %d.%d.%d, %s, Line %d/%d]",
+                prt(format("[T.o.M.E. %d.%d.%d, %s, Line %d/%d]",
 		           FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH,
                            h_ptr->caption, line, size), 0, 0);
 
@@ -4347,7 +4355,7 @@ bool txt_to_html(cptr base, cptr ext, bool force, bool recur)
 
         fprintf(htm, "<HTML>\n");
         fprintf(htm, "<HEAD>\n");
-        fprintf(htm, "<META NAME=\"GENERATOR\" Content=\"PernAngband\">\n");
+        fprintf(htm, "<META NAME=\"GENERATOR\" Content=\"T.o.M.E.\">\n");
         fprintf(htm, "<TITLE>%s</TITLE>\n", base);
         fprintf(htm, "</HEAD>\n");
         fprintf(htm, "<body background=\"back1.gif\" text=\"#CCCCCC\" link=\"#FFFF66\" vlink=\"#66CC66\">\n");
@@ -4523,14 +4531,8 @@ void html_screenshot(cptr name)
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
 
-	/* Hack -- drop permissions */
-	safe_setuid_drop();
-
 	/* Append to the file */
         htm = my_fopen(buf, "w");
-
-	/* Hack -- grab permissions */
-	safe_setuid_grab();
 
 	/* Oops */
         if (!htm)
@@ -4538,7 +4540,7 @@ void html_screenshot(cptr name)
 
         fprintf(htm, "<HTML>\n");
         fprintf(htm, "<HEAD>\n");
-        fprintf(htm, "<META NAME=\"GENERATOR\" Content=\"PernAngband\">\n");
+        fprintf(htm, "<META NAME=\"GENERATOR\" Content=\"T.o.M.E.\">\n");
         fprintf(htm, "<TITLE>%s</TITLE>\n", name);
         fprintf(htm, "</HEAD>\n");
         fprintf(htm, "<BODY TEXT=\"#FFFFFF\" BGCOLOR=\"#000000\">");
@@ -4666,7 +4668,7 @@ bool chg_to_txt(cptr base, cptr newname)
         for (i = 0; i < KEY_NUM; i++)
                 lens[i] = 0;
 
-        fprintf(txt, "PernAngband %d.%d.%d changes\n", FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH);
+        fprintf(txt, "T.o.M.E. %d.%d.%d changes\n", FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH);
 
 	/* Display the file */
 	while (TRUE)
@@ -5312,9 +5314,9 @@ static void show_info(void)
 		char out_val[160];
 
 		/* Prompt */
-		put_str("Filename: ", 23, 0);
+                put_str("Filename(you can post it to http://angband.oook.cz/): ", 23, 0);
 
-		/* Default */
+                /* Default */
 		strcpy(out_val, "");
 
 		/* Ask for filename (or abort) */
@@ -5353,7 +5355,7 @@ static void show_info(void)
 	{
 		Term_clear();
 		item_tester_full = TRUE;
-		show_equip();
+		show_equip(FALSE);
 		prt("You are using: -more-", 0, 0);
 		if (inkey() == ESCAPE) return;
 	}
@@ -5363,7 +5365,7 @@ static void show_info(void)
 	{
 		Term_clear();
 		item_tester_full = TRUE;
-		show_inven();
+		show_inven(FALSE);
 		prt("You are carrying: -more-", 0, 0);
 		if (inkey() == ESCAPE) return;
 	}
@@ -5628,7 +5630,7 @@ static void display_scores_aux(int from, int to, int note, high_score *score)
 		Term_clear();
 
 		/* Title */
-                put_str("              PernAngband Hall of Fame", 0, 0);
+                put_str("              T.o.M.E. Hall of Fame", 0, 0);
 
 		/* Indicate non-top scores */
 		if (k > 0)
@@ -6316,7 +6318,14 @@ void wipe_saved()
                                 sprintf(tmp, "%s.%s", player_base, buf);
                                 path_build(name, 1024, ANGBAND_DIR_SAVE, tmp);
 
+								/* Grab permission */
+								safe_setuid_grab();
+
+								/* Remove dungeon save file */
                                 fd_kill(name);
+
+								/* Drop permission */
+								safe_setuid_drop();
                         }
                 }
         }
@@ -6373,14 +6382,14 @@ void close_game(void)
                         }
 
 #ifdef USE_SOCK
-                        irc_disconnect_aux(format("Retired; PernAngband %d.%d.%d rules", FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH), FALSE);
+                        irc_disconnect_aux(format("Retired; T.o.M.E. %d.%d.%d rules", FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH), FALSE);
 #endif
                         kingly();
                 }
                 else
                 {
 #ifdef USE_SOCK
-                        irc_disconnect_aux(format("Killed by %s; PernAngband %d.%d.%d rules", died_from, FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH), FALSE);
+                        irc_disconnect_aux(format("Killed by %s; T.o.M.E. %d.%d.%d rules", died_from, FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH), FALSE);
 #endif
                 }
 
@@ -6437,7 +6446,7 @@ void close_game(void)
                 }
 
 #ifdef USE_SOCK
-                irc_disconnect_aux(format("Alive... for the time being; PernAngband %d.%d.%d rules", FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH), FALSE);
+                irc_disconnect_aux(format("Alive... for the time being; T.o.M.E. %d.%d.%d rules", FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH), FALSE);
 #endif
 
 		/* Prompt for scores XXX XXX XXX */
@@ -6525,15 +6534,22 @@ errr get_rnd_line(char * file_name, char * output)
 
 
 	/* Parse the file */
-	if (0 == my_fgets(fp, buf, 80))
-		lines = atoi(buf);
-	else return (1);
+	if (0 != my_fgets(fp, buf, 80))
+	{
+		my_fclose(fp);
+		return (-1);
+	}
+
+	lines = atoi(buf);
 
 	line = randint(lines);
 	for (counter = 0; counter <= line; counter++)
 	{
-		if (!(0 == my_fgets(fp, buf, 80)))
-			return (1);
+		if (0 != my_fgets(fp, buf, 80))
+		{
+			my_fclose(fp);
+			return (-1);
+		}
 		else if (counter == line)
 			break;
 	}
@@ -6652,7 +6668,10 @@ if(m_ptr->monfear)
 	for (counter = 0; counter <= line; counter++)
 	{
 		if (!(0 == my_fgets(fp, buf, 90)))
+		{
+			my_fclose(fp);
 			return (1);
+		}
 		else if (counter == line)
 			break;
 	}

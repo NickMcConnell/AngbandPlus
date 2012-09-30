@@ -401,11 +401,11 @@
 /*
  * OPTION: Create and use a hidden directory in the user's home directory
  * for storing pref-files and character-dumps.
- * Warning: Pern chooses to use a different place from Vanilla 2.9.2
+ * Warning: T.o.M.E. chooses to use a different place from Vanilla 2.9.2
  * and its friends.
  */
 #ifdef SET_UID
-#define PRIVATE_USER_PATH "~/.pernangband"
+#define PRIVATE_USER_PATH "~/.tome"
 #endif /* SET_UID */
 
 
@@ -456,7 +456,7 @@
 /*
  * OPTION: Person to bother if something goes wrong.
  */
-#define MAINTAINER      "darkgod@pernangband.net"
+#define MAINTAINER      "darkgod@t-o-m-e.net"
 
 
 /*
@@ -525,7 +525,7 @@
 # define VERIFY_TIMESTAMPS
 #endif
 
-/* PernAngband options: */
+/* T.o.M.E. options: */
 
 /* Should the player know his / her starting life rate? */
 /* #define SHOW_LIFE_RATE */

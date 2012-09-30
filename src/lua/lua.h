@@ -1,5 +1,5 @@
 /*
-** $Id: lua.h,v 1.2 2001/11/26 23:00:26 darkgod Exp $
+** $Id: lua.h,v 1.1.1.1 2002/02/23 21:39:18 darkgod Exp $
 ** Lua - An Extensible Extension Language
 ** TeCGraf: Grupo de Tecnologia em Computacao Grafica, PUC-Rio, Brazil
 ** e-mail: lua@tecgraf.puc-rio.br

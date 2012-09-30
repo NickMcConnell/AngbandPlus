@@ -43,16 +43,16 @@ IRCARGS = -DUSE_SOCK -DUSE_WINSOCK -DIRC_SERVER=\"irc.worldirc.org\" -DIRC_PORT=
 ##
 
 # Where lib/ files goes
-#LIBDIR = /usr/lib/games/pernband/
+#LIBDIR = /usr/lib/games/tome/
 # Sysadmins of commercial Unix and/or BSD might prefer this
-#LIBDIR = /usr/local/lib/pernband/
+#LIBDIR = /usr/local/lib/tome/
 # If you like the old default, use this one
 LIBDIR = ./lib/
 # Another example: single user installation using absolute path
-#LIBDIR = /home/myloginname/lib/pern/
+#LIBDIR = /home/myloginname/lib/tome/
 
 
-# Where PernAngband binary goes
+# Where T.o.M.E. binary goes
 #BINDIR = /usr/local/games
 # Another common location
 #BINDIR = /usr/local/bin
@@ -353,7 +353,7 @@ endif
 # Build the binary. The new base target.
 #
 
-TARGET = pernang
+TARGET = tome
 TOLUA = ./tolua
 
 default: $(TARGET) $(TOLUA)

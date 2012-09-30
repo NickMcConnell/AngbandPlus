@@ -1,7 +1,7 @@
 |||||oy
 #####R=== PERN'S DUNGEONS ===
 
-There are numerous dungeons within the Pern world, but not all
+There are numerous dungeons within the world of T.o.M.E., but not all
 of them are required to be ventured into. The original angband
 dungeon has been split into 4 parts, each found near or at a 
 different town. Travel between towns is usually easiest by 
@@ -39,8 +39,8 @@ waits for you at level 99, and Morgoth at level 100. This
 dungeon can be found near Gondolin.
 
 
-#####GAdditional Pern Dungeons
-#####G------------------------
+#####GAdditional  of T.o.M.E. Dungeons
+#####G--------------------------------
 
 In addition to the basic 4 dungeons, there are numerous other 
 dungeons scattered around the world for an adventurer to explore

@@ -769,3 +769,15 @@ O:0:0:0:0
 G:+:g
 F:MUSEUM
 W:24
+
+N:58:The Prancing Pony
+I:100:& Ration~ of Food
+I:100:& Hard Biscuit~
+I:100:& Strip~ of Venison
+I:100:& Pint~ of Fine Wine
+I:100:& Pint~ of Fine Ale
+A:2:4:5:6:7:0
+O:69:69:69:69
+G:+:w
+W:8
+

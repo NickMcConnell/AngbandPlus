@@ -938,6 +938,9 @@ void brand_weapon(int brand_type)
 		msg_format("Your %s %s", o_name, act);
 
 		enchant(o_ptr, rand_int(3) + 4, ENCH_TOHIT | ENCH_TODAM);
+
+		/* You cannot sell them for vast profit any longer */
+		o_ptr->discount = 100;
 	}
 	else
 	{
@@ -7780,8 +7783,7 @@ void cast_spirit_spell(int spell, byte level)
                                 sprintf(spell_txt, " dam %ld", dam);
                                 return;
                         }
-                        if (!get_aim_dir(&dir)) return;
-                        fire_ball(GF_FORCE, dir, dam, rad);
+                        fire_ball(GF_FORCE, 0, dam, rad);
                         break;
                 case 20: /* elem shield */
                         dam = apply_power_dur(20, to_s, 2);
@@ -7833,7 +7835,7 @@ void cast_spirit_spell(int spell, byte level)
                         dam = apply_power_dam(100 + (plev * 3), to_s, 1);
                         if (info_spell)
                         {
-                                sprintf(spell_txt, " dam %ld", dam);
+                                sprintf(spell_txt, " power %ld", dam);
                                 return;
                         }
                         if (!get_aim_dir(&dir)) return;

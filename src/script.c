@@ -33,7 +33,7 @@ int  tolua_quest_open (lua_State *L);
  */
 lua_State* L = NULL;
 
-/* PernAngband Lua error message handler */
+/* T.o.M.E. Lua error message handler */
 static int pern_errormessage(lua_State *L)
 {
         char buf[200];
@@ -96,10 +96,10 @@ void init_lua()
 	lua_iolibopen(L);
 	lua_dblibopen(L);
 
-	/* Register pern lua debug library */
+	/* Register T.o.M.E. lua debug library */
 	luaL_openl(L, pern_iolib);
 
-        /* Register the PernAngband main APIs */
+        /* Register the T.o.M.E. main APIs */
         tolua_player_open(L);
         tolua_util_open(L);
         tolua_z_pack_open(L);

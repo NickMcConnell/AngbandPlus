@@ -778,9 +778,9 @@ struct object_type
         u32b art_flags1;        /* Flags, set 1  Alas, these were necessary */
         u32b art_flags2;        /* Flags, set 2  for the random artifacts of*/
         u32b art_flags3;        /* Flags, set 3  Zangband */
-        u32b art_flags4;        /* Flags, set 4  PernAngband */
-        u32b art_flags5;        /* Flags, set 5  PernAngband */
-        u32b art_esp;           /* Flags, set esp  PernAngband */
+        u32b art_flags4;        /* Flags, set 4  T.o.M.E. */
+        u32b art_flags5;        /* Flags, set 5  T.o.M.E. */
+        u32b art_esp;           /* Flags, set esp  T.o.M.E. */
 	
 	s16b next_o_idx;	/* Next object in stack (if any) */
 

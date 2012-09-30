@@ -4470,9 +4470,13 @@ void place_object(int y, int x, bool good, bool great)
 		{
 			a_info[q_ptr->name1].cur_num = 0;
 		}
-                else if (k_info[q_ptr->k_idx].flags3 & TR3_NORM_ART)
+		else if (k_info[q_ptr->k_idx].flags3 & TR3_NORM_ART)
 		{
-                        k_info[q_ptr->k_idx].artifact = 0;
+			k_info[q_ptr->k_idx].artifact = 0;
+		}
+		else if (q_ptr->tval == TV_RANDART)
+		{
+			random_artifacts[q_ptr->sval].generated = FALSE;
 		}
 	}
 }
@@ -4852,9 +4856,13 @@ s16b drop_near(object_type *j_ptr, int chance, int y, int x)
 		{
 			a_info[j_ptr->name1].cur_num = 0;
 		}
-                else if (k_info[j_ptr->k_idx].flags3 & TR3_NORM_ART)
+		else if (k_info[j_ptr->k_idx].flags3 & TR3_NORM_ART)
 		{
-                        k_info[j_ptr->k_idx].artifact = 0;
+			k_info[j_ptr->k_idx].artifact = 0;
+		}
+		else if (j_ptr->tval == TV_RANDART)
+		{
+			random_artifacts[j_ptr->sval].generated = FALSE;
 		}
 
 		/* Failure */
@@ -4958,10 +4966,10 @@ void pick_trap(int y, int x)
 	cave_type *c_ptr = &cave[y][x];
 
 	/* Paranoia */
-	if ((c_ptr->t_idx == 0) || (c_ptr->info & CAVE_TRDT)) return;
+	if ((c_ptr->t_idx == 0) || (c_ptr->info & (CAVE_TRDT))) return;
 	
 	/* Activate the trap */
-	c_ptr->info |= CAVE_TRDT;
+	c_ptr->info |= (CAVE_TRDT);
 
 	/* Notice and redraw */
 	note_spot(y, x);

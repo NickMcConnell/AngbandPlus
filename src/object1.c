@@ -773,18 +773,39 @@ void reset_visuals(void)
 	if (use_graphics)
 	{
 		/* Process "graf.prf" */
-                user_process_pref_file = FALSE;
 		process_pref_file("graf.prf");
-                user_process_pref_file = TRUE;
+
+		/*
+		 * Hack -- remember graphics mode as an integer value,
+		 * for faster processing of map_info()
+		 */
+		if (streq(ANGBAND_SYS, "ibm"))
+		{
+			/* No longer maintained, but the code is there */
+			graphics_mode = GRAPHICS_IBM;
+		}
+		else if (streq(ANGBAND_GRAF, "new"))
+		{
+			graphics_mode = GRAPHICS_NEW;
+		}
+		else if (streq(ANGBAND_GRAF, "old"))
+		{
+			graphics_mode = GRAPHICS_OLD;
+		}
+		else
+		{
+			/* ??? */
+			graphics_mode = GRAPHICS_UNKNOWN;
+		}
 	}
 
 	/* Normal symbols */
 	else
 	{
 		/* Process "font.prf" */
-                user_process_pref_file = FALSE;
 		process_pref_file("font.prf");
-                user_process_pref_file = TRUE;
+
+		graphics_mode = GRAPHICS_NONE;
 	}
 }
 
@@ -2039,12 +2060,12 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 			ego_item_type *e_ptr = &e_info[o_ptr->name2];
                         ego_item_type *e2_ptr = &e_info[o_ptr->name2b];
 
-                        if (!e_ptr->before)
+                        if (o_ptr->name2 && !e_ptr->before)
                         {
                                 t = object_desc_chr(t, ' ');
                                 t = object_desc_str(t, (e_name + e_ptr->name));
                         }
-                        if (!e2_ptr->before)
+                        if (o_ptr->name2b && !e2_ptr->before)
                         {
                                 t = object_desc_chr(t, ' ');
                                 t = object_desc_str(t, (e_name + e2_ptr->name));
@@ -3673,7 +3694,8 @@ bool identify_fully_aux(object_type *o_ptr, FILE *fff)
         if (f4 & TR4_ULTIMATE)
         {
                 color[i] = TERM_VIOLET;
-                if (wield_slot(o_ptr) == INVEN_WIELD)
+                if ((wield_slot(o_ptr) == INVEN_WIELD) ||
+                    (wield_slot(o_ptr) == INVEN_BOW))
                         info[i++] = "It is part of the trinity of the ultimate weapons.";
                 else
                         info[i++] = "It is the ultimate armor.";
@@ -4731,90 +4753,7 @@ bool item_tester_okay(object_type *o_ptr)
  */
 void display_inven(void)
 {
-#if 0
-	register        int i, n, z = 0;
-	object_type     *o_ptr;
-	byte            attr = TERM_WHITE;
-	char            tmp_val[80];
-	char            o_name[80];
-
-	/* Find the "final" slot */
-	for (i = 0; i < INVEN_PACK; i++)
-	{
-		o_ptr = &inventory[i];
-
-		/* Skip non-objects */
-		if (!o_ptr->k_idx) continue;
-
-		/* Track */
-		z = i + 1;
-	}
-
-	/* Display the pack */
-	for (i = 0; i < z; i++)
-	{
-		/* Examine the item */
-		o_ptr = &inventory[i];
-
-		/* Start with an empty "index" */
-		tmp_val[0] = tmp_val[1] = tmp_val[2] = ' ';
-
-		/* Is this item "acceptable"? */
-		if (item_tester_okay(o_ptr))
-		{
-			/* Prepare an "index" */
-			tmp_val[0] = index_to_label(i);
-
-			/* Bracket the "index" --(-- */
-			tmp_val[1] = ')';
-		}
-
-		/* Display the index (or blank space) */
-		Term_putstr(0, i, 3, TERM_WHITE, tmp_val);
-
-		/* Obtain an item description */
-		object_desc(o_name, o_ptr, TRUE, 3);
-
-		/* Obtain the length of the description */
-		n = strlen(o_name);
-
-		/* Get a color */
-		attr = tval_to_attr[o_ptr->tval % 128];
-
-		/* Hack -- fake monochrome */
-		if (!use_color) attr = TERM_WHITE;
-
-		/* Display the entry itself */
-		Term_putstr(3, i, n, attr, o_name);
-
-		/* Erase the rest of the line */
-		Term_erase(3+n, i, 255);
-
-		/* Display the weight if needed */
-		if (show_weights && o_ptr->weight)
-		{
-			int wgt = o_ptr->weight * o_ptr->number;
-			sprintf(tmp_val, "%3d.%1d lb", wgt / 10, wgt % 10);
-			Term_putstr(71, i, -1, TERM_WHITE, tmp_val);
-		}
-	}
-
-	/* Erase the rest of the window */
-	for (i = z; i < Term->hgt; i++)
-	{
-		/* Erase the line */
-		Term_erase(0, i, 255);
-	}
-#else
-        int old_gap = command_gap;
-        int old_gapy = command_gapy;
-
-        command_gap = 0;
-        command_gapy = 0;
-        show_inven();
-        command_gap = old_gap;
-        command_gapy = old_gapy;
-#endif
+        show_inven(TRUE);
 }
 
 
@@ -4824,93 +4763,7 @@ void display_inven(void)
  */
 void display_equip(void)
 {
-#if 0
-        register        int i, n, line;
-	object_type     *o_ptr;
-	byte            attr = TERM_WHITE;
-	char            tmp_val[80];
-	char            o_name[80];
-
-
-	/* Display the equipment */
-        line = 0;
-	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
-	{
-                /* Is there actualy a body part here ? */
-                if (!p_ptr->body_parts[i - INVEN_WIELD]) continue;
-
-		/* Examine the item */
-		o_ptr = &inventory[i];
-
-		/* Start with an empty "index" */
-		tmp_val[0] = tmp_val[1] = tmp_val[2] = ' ';
-
-		/* Is this item "acceptable"? */
-		if (item_tester_okay(o_ptr))
-		{
-			/* Prepare an "index" */
-			tmp_val[0] = index_to_label(i);
-
-			/* Bracket the "index" --(-- */
-			tmp_val[1] = ')';
-		}
-
-		/* Display the index (or blank space) */
-                Term_putstr(0, line, 3, TERM_WHITE, tmp_val);
-
-		/* Obtain an item description */
-		object_desc(o_name, o_ptr, TRUE, 3);
-
-		/* Obtain the length of the description */
-		n = strlen(o_name);
-
-		/* Get the color */
-		attr = tval_to_attr[o_ptr->tval % 128];
-
-		/* Hack -- fake monochrome */
-		if (!use_color) attr = TERM_WHITE;
-
-		/* Display the entry itself */
-                Term_putstr(3, line, n, attr, o_name);
-
-		/* Erase the rest of the line */
-                Term_erase(3+n, line, 255);
-
-		/* Display the slot description (if needed) */
-		if (show_labels)
-		{
-                        Term_putstr(61, line, -1, TERM_WHITE, "<--");
-                        Term_putstr(65, line, -1, TERM_WHITE, mention_use(i));
-		}
-
-		/* Display the weight (if needed) */
-		if (show_weights && o_ptr->weight)
-		{
-			int wgt = o_ptr->weight * o_ptr->number;
-			int col = (show_labels ? 52 : 71);
-			sprintf(tmp_val, "%3d.%1d lb", wgt / 10, wgt % 10);
-                        Term_putstr(col, line, -1, TERM_WHITE, tmp_val);
-		}
-
-                line++;
-	}
-
-	/* Erase the rest of the window */
-	for (i = INVEN_TOTAL - INVEN_WIELD; i < Term->hgt; i++)
-	{
-		/* Clear that line */
-		Term_erase(0, i, 255);
-	}
-#else
-        int old_gap = command_gap;
-        int old_gapy = command_gapy;
-
-        command_gap = 0;
-        command_gapy = 0;
-        show_equip();
-        command_gap = old_gap;
-        command_gapy = old_gapy;
-#endif
+        show_equip(TRUE);
 }
 
 
@@ -4937,20 +4790,23 @@ byte get_item_letter_color(object_type *o_ptr)
  *
  * Hack -- do not display "trailing" empty slots
  */
-void show_inven(void)
+void show_inven(bool mirror)
 {
 	int             i, j, k, l, z = 0;
-        int             col, len, lim;
+	int             row, col, len, lim;
 	object_type     *o_ptr;
 	char            o_name[80];
 	char            tmp_val[80];
-        int             out_index[23];
+	int             out_index[23];
 	byte            out_color[23];
 	char            out_desc[23][80];
 
 
+	/* Starting row */
+	row = mirror ? 0 : 1;
+
 	/* Starting column */
-	col = command_gap;
+	col = mirror ? 0 : 50;
 
 	/* Default "max-length" */
 	len = 79 - col;
@@ -4990,10 +4846,10 @@ void show_inven(void)
 		/* Hack -- enforce max length */
 		o_name[lim] = '\0';
 
-                /* Save the object index */
-                out_index[k] = i;
+		/* Save the object index */
+		out_index[k] = i;
 
-                /* Save the object color, and description */
+		/* Save the object color, and description */
 		out_color[k] = tval_to_attr[o_ptr->tval % 128];
 		(void)strcpy(out_desc[k], o_name);
 
@@ -5014,7 +4870,8 @@ void show_inven(void)
 	}
 
 	/* Find the column to start in */
-	col = (len > 76) ? 0 : (79 - len);
+	if (mirror) col = 0;
+	else col = (len > 76) ? 0 : (79 - len);
 
 	/* Output each entry */
 	for (j = 0; j < k; j++)
@@ -5026,13 +4883,13 @@ void show_inven(void)
 		o_ptr = &inventory[i];
 
 		/* Clear the line */
-		prt("", j + command_gapy, col ? col - 2 : col);
+		prt("", row + j, col ? col - 2 : col);
 
 		/* Prepare an index --(-- */
 		sprintf(tmp_val, "%c)", index_to_label(i));
 
 		/* Clear the line with the (possibly indented) index */
-                c_put_str(get_item_letter_color(o_ptr), tmp_val, j + command_gapy, col);
+		c_put_str(get_item_letter_color(o_ptr), tmp_val, row + j, col);
 
 		/* Display graphics for object, if desired */
 		if (show_inven_graph)
@@ -5043,29 +4900,41 @@ void show_inven(void)
 #ifdef AMIGA
 			if (a & 0x80) a |= 0x40;
 #endif
-                        if (!o_ptr->k_idx) c = ' ';
+			if (!o_ptr->k_idx) c = ' ';
 
-			Term_draw(col + 3, j + command_gapy, a, c);
+			Term_draw(col + 3, row + j, a, c);
 		}
 
 
 		/* Display the entry itself */
-		c_put_str(out_color[j], out_desc[j], j + command_gapy, show_inven_graph ? (col + 5) : (col + 3));
+		c_put_str(out_color[j], out_desc[j], row + j, show_inven_graph ? (col + 5) : (col + 3));
 
 		/* Display the weight if needed */
 		if (show_weights)
 		{
 			int wgt = o_ptr->weight * o_ptr->number;
 			(void)sprintf(tmp_val, "%3d.%1d lb", wgt / 10, wgt % 10);
-			put_str(tmp_val, j + command_gapy, 71);
+			put_str(tmp_val, row + j, 71);
 		}
 	}
 
-	/* Make a "shadow" below the list (only if needed) */
-	if (j && (j < 23)) prt("", j + command_gapy, col ? col - 2 : col);
+	/* Shadow windows */
+	if (mirror)
+	{
+		/* Erase the rest of the window */
+		for (j = row + k; j < Term->hgt; j++)
+		{
+			/* Erase the line */
+			Term_erase(0, j, 255);
+		}
+	}
 
-	/* Save the new column */
-	command_gap = col;
+	/* Main window */
+	else
+	{
+		/* Make a "shadow" below the list (only if needed) */
+		if (j && (j < 23)) prt("", row + j, col ? col - 2 : col);
+	}
 }
 
 
@@ -5073,21 +4942,24 @@ void show_inven(void)
 /*
  * Display the equipment.
  */
-void show_equip(void)
+void show_equip(bool mirror)
 {
 	int             i, j, k, l;
-        int             col, len, lim, idx;
+	int             row, col, len, lim, idx;
 	object_type     *o_ptr;
 	char            tmp_val[80];
 	char            o_name[80];
-        int             out_index[INVEN_TOOL - INVEN_WIELD],
-                        out_rindex[INVEN_TOOL - INVEN_WIELD];
-        byte            out_color[INVEN_TOOL - INVEN_WIELD];
-        char            out_desc[INVEN_TOOL - INVEN_WIELD][80];
+	int             out_index[INVEN_TOOL - INVEN_WIELD],
+					out_rindex[INVEN_TOOL - INVEN_WIELD];
+	byte            out_color[INVEN_TOOL - INVEN_WIELD];
+	char            out_desc[INVEN_TOOL - INVEN_WIELD][80];
 
+
+	/* Starting row */
+	row = mirror ? 0 : 1;
 
 	/* Starting column */
-	col = command_gap;
+	col = mirror ? 0 : 50;
 
 	/* Maximal length */
 	len = 79 - col;
@@ -5104,71 +4976,71 @@ void show_equip(void)
 	if (show_equip_graph) lim -= 2;
 
 	/* Scan the equipment list */
-        idx = 0;
+	idx = 0;
 	for (k = 0, i = INVEN_WIELD; i < INVEN_TOTAL; i++)
 	{
-                /* Is there actualy a body part here ? */
-                if (!p_ptr->body_parts[i - INVEN_WIELD]) continue;
+		/* Is there actualy a body part here ? */
+		if (!p_ptr->body_parts[i - INVEN_WIELD]) continue;
 
 		o_ptr = &inventory[i];
 
-                /* Inform the player that he/she can't use a shield */
-                if ((p_ptr->body_parts[i - INVEN_WIELD] == INVEN_ARM) && (!o_ptr->k_idx) && (inventory[i - INVEN_ARM + INVEN_WIELD].k_idx))
-                {
-                        u32b f1, f2, f3, f4, f5, esp;
-                        object_type *q_ptr = &inventory[i - INVEN_ARM + INVEN_WIELD];
-                        char q_name[80];
+		/* Inform the player that he/she can't use a shield */
+		if ((p_ptr->body_parts[i - INVEN_WIELD] == INVEN_ARM) && (!o_ptr->k_idx) && (inventory[i - INVEN_ARM + INVEN_WIELD].k_idx))
+		{
+			u32b f1, f2, f3, f4, f5, esp;
+			object_type *q_ptr = &inventory[i - INVEN_ARM + INVEN_WIELD];
+			char q_name[80];
 
-                        /* Is this item acceptable? */
-                        if (!item_tester_okay(q_ptr)) continue;
+			/* Is this item acceptable? */
+			if (!item_tester_okay(q_ptr)) continue;
 
-                        /* Description */
-                        object_desc(q_name, q_ptr, TRUE, 3);
+			/* Description */
+			object_desc(q_name, q_ptr, TRUE, 3);
 
-                        /* Get weapon flags */
-                        object_flags(q_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
+			/* Get weapon flags */
+			object_flags(q_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
 
-                        if (f4 & TR4_MUST2H)
-                        {
-                                sprintf(o_name, "(two handed) %s", q_name);
+			if (f4 & TR4_MUST2H)
+			{
+				sprintf(o_name, "(two handed) %s", q_name);
 
-                                /* Truncate the description */
-                                o_name[lim] = 0;
+				/* Truncate the description */
+				o_name[lim] = 0;
 
-                                /* Save the index */
-                                out_index[k] = idx;
-                                out_rindex[k] = i;
-                                idx++;
+				/* Save the index */
+				out_index[k] = idx;
+				out_rindex[k] = i;
+				idx++;
 
-                                /* Save the color */
-                                out_color[k] = TERM_L_RED;
-                                (void)strcpy(out_desc[k], o_name);
-                        }
-                        else
-                        {
-                                continue;
-                        }
-                }
-                else
-                {
-                        /* Is this item acceptable? */
-                        if (!item_tester_okay(o_ptr)) continue;
+				/* Save the color */
+				out_color[k] = TERM_L_RED;
+				(void)strcpy(out_desc[k], o_name);
+			}
+			else
+			{
+				continue;
+			}
+		}
+		else
+		{
+			/* Is this item acceptable? */
+			if (!item_tester_okay(o_ptr)) continue;
 
-                        /* Description */
-                        object_desc(o_name, o_ptr, TRUE, 3);
+			/* Description */
+			object_desc(o_name, o_ptr, TRUE, 3);
 
-                        /* Truncate the description */
-                        o_name[lim] = 0;
+			/* Truncate the description */
+			o_name[lim] = 0;
 
-                        /* Save the index */
-                        out_index[k] = idx;
-                        out_rindex[k] = i;
-                        idx++;
+			/* Save the index */
+			out_index[k] = idx;
+			out_rindex[k] = i;
+			idx++;
 
-                        /* Save the color */
-                        out_color[k] = tval_to_attr[o_ptr->tval % 128];
-                        (void)strcpy(out_desc[k], o_name);
-                }
+			/* Save the color */
+			out_color[k] = tval_to_attr[o_ptr->tval % 128];
+			(void)strcpy(out_desc[k], o_name);
+		}
 
 		/* Extract the maximal length (see below) */
 		l = strlen(out_desc[k]) + (2 + 3);
@@ -5189,27 +5061,28 @@ void show_equip(void)
 	}
 
 	/* Hack -- Find a column to start in */
-	col = (len > 76) ? 0 : (79 - len);
+	if (mirror) col = 0;
+	else col = (len > 76) ? 0 : (79 - len);
 
 	/* Output each entry */
-        for (j = 0; j < k; j++)
+	for (j = 0; j < k; j++)
 	{
-                if (j > 20) break;
+		if (j > 20) break;
 
 		/* Get the index */
 		i = out_index[j];
 
 		/* Get the item */
-                o_ptr = &inventory[out_rindex[j]];
+		o_ptr = &inventory[out_rindex[j]];
 
 		/* Clear the line */
-		prt("", j + command_gapy, col ? col - 2 : col);
+		prt("", row + j, col ? col - 2 : col);
 
 		/* Prepare an index --(-- */
-                sprintf(tmp_val, "%c)", index_to_label(out_rindex[j]));
+		sprintf(tmp_val, "%c)", index_to_label(out_rindex[j]));
 
 		/* Clear the line with the (possibly indented) index */
-                c_put_str(get_item_letter_color(o_ptr), tmp_val, j + command_gapy, col);
+		c_put_str(get_item_letter_color(o_ptr), tmp_val, row + j, col);
 
 		if (show_equip_graph)
 		{
@@ -5219,27 +5092,27 @@ void show_equip(void)
 #ifdef AMIGA
 			if (a & 0x80) a |= 0x40;
 #endif
-                        if (!o_ptr->k_idx) c = ' ';
+			if (!o_ptr->k_idx) c = ' ';
 
-			Term_draw(col + 3, j + command_gapy, a, c);
+			Term_draw(col + 3, row + j, a, c);
 		}
 
 		/* Use labels */
 		if (show_labels)
 		{
 			/* Mention the use */
-                        (void)sprintf(tmp_val, "%-14s: ", mention_use(out_rindex[j]));
-			put_str(tmp_val, j + command_gapy, show_equip_graph ? col + 5 : col + 3);
+			(void)sprintf(tmp_val, "%-14s: ", mention_use(out_rindex[j]));
+			put_str(tmp_val, row + j, show_equip_graph ? col + 5 : col + 3);
 
 			/* Display the entry itself */
-			c_put_str(out_color[j], out_desc[j], j + command_gapy, show_equip_graph ? col + 21 : col + 19);
+			c_put_str(out_color[j], out_desc[j], row + j, show_equip_graph ? col + 21 : col + 19);
 		}
 
 		/* No labels */
 		else
 		{
 			/* Display the entry itself */
-			c_put_str(out_color[j], out_desc[j], j + command_gapy, show_equip_graph ? col + 5 : col + 3);
+			c_put_str(out_color[j], out_desc[j], row + j, show_equip_graph ? col + 5 : col + 3);
 		}
 
 		/* Display the weight if needed */
@@ -5247,15 +5120,27 @@ void show_equip(void)
 		{
 			int wgt = o_ptr->weight * o_ptr->number;
 			(void)sprintf(tmp_val, "%3d.%d lb", wgt / 10, wgt % 10);
-			put_str(tmp_val, j + command_gapy, 71);
+			put_str(tmp_val, row + j, 71);
 		}
 	}
 
-	/* Make a "shadow" below the list (only if needed) */
-	if (j && (j < 23)) prt("", j + command_gapy, col ? col - 2 : col);
+	/* Shadow windows */
+	if (mirror)
+	{
+		/* Erase the rest of the window */
+		for (j = row + k; j < Term->hgt; j++)
+		{
+			/* Erase the line */
+			Term_erase(0, j, 255);
+		}
+	}
 
-	/* Save the new column */
-	command_gap = col;
+	/* Main window */
+	else
+	{
+		/* Make a "shadow" below the list (only if needed) */
+		if (j && (j < 23)) prt("", row + j, col ? col - 2 : col);
+	}
 }
 
 
@@ -5625,7 +5510,7 @@ static int get_tag(int *cp, char tag)
    * the easy_floor is on.
    */
 bool get_item_floor(int *cp, cptr pmt, cptr str, int mode)
-  {
+{
         char n1 = 0, n2 = 0, which = ' ';
   
         int j, k, i1, i2, e1, e2;
@@ -5852,7 +5737,7 @@ bool get_item_floor(int *cp, cptr pmt, cptr str, int mode)
                         n2 = I2A(i2);
   
                         /* Redraw if needed */
-                        if (command_see) show_inven();
+                        if (command_see) show_inven(FALSE);
                 }
   
                 /* Equipment screen */
@@ -5863,7 +5748,7 @@ bool get_item_floor(int *cp, cptr pmt, cptr str, int mode)
                         n2 = I2A(e2 - INVEN_WIELD);
   
                         /* Redraw if needed */
-                        if (command_see) show_equip();
+                        if (command_see) show_equip(FALSE);
                 }
   
                 /* Floor screen */
@@ -6036,6 +5921,16 @@ bool get_item_floor(int *cp, cptr pmt, cptr str, int mode)
                                         }
                                 }
   
+				/* Hack -- Fix screen */
+				if (command_see)
+				{
+					/* Load screen */
+					screen_load();
+
+					/* Save screen */
+					screen_save();
+				}
+
                                 /* Need to redraw */
                                 break;
                         }

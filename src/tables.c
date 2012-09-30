@@ -2141,7 +2141,7 @@ magic_type realm_info_base[MAX_REALM][64] =
 };
 
 /*
- * PernAngband uses this array instead of the spell flags table -- DG
+ * T.o.M.E. uses this array instead of the spell flags table -- DG
  */
 u32b fake_spell_flags[MAX_REALM][9][2]=
 {
@@ -3434,7 +3434,7 @@ cptr window_flag_desc[32] =
  *      Set 2: Disturbance
  *      Set 3: Inventory
  *      Set 4: Game Play
- *      Set 5: PernAngband
+ *      Set 5: T.o.M.E.
  *      Set 6: Birth
  *
  * Note that bits 28-31 of set 0 are currently unused.
@@ -3686,7 +3686,7 @@ option_type option_info[] =
         { &center_player,               FALSE,  4,      16,
         "center_player",                "Center the view on the player (very slow)" },
 
-        /*** PernAngband options ***/
+        /*** T.o.M.E. options ***/
 
         { &flavored_attacks,            TRUE,   5,      0,
         "flavored_attacks",             "Show silly messages when fighting" },
@@ -6092,9 +6092,9 @@ power_type powers_type_init[POWER_MAX_INIT] =
         },
         {
                 "Dragon's Powers",
-                "You can use perniese dragon powers.",
-                "You gain the ability to use perniese dragon powers.",
-                "You lose the ability to use perniese dragon powers.",
+                "You can use pernese dragon powers.",
+                "You gain the ability to use pernese dragon powers.",
+                "You lose the ability to use pernese dragon powers.",
                 0, 0, 0, 0,
         },
         {

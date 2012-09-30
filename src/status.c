@@ -2,7 +2,7 @@
 
 /* Purpose: Status information */
 
-/* Written by Pat Gunn <qc@apk.net> for PernAngband
+/* Written by Pat Gunn <qc@apk.net> for T.o.M.E.
  * This file is released into the public domain
  */ 
 
@@ -287,7 +287,7 @@ Term_save();
 while(1)
 	{
 	clear_from(0);
-        c_put_str(TERM_WHITE, "PernAngband Character Status screen", 0, 10);
+        c_put_str(TERM_WHITE, "T.o.M.E. Character Status screen", 0, 10);
 	c_put_str(TERM_WHITE, "1) Statistics", 2, 5);
 	c_put_str(TERM_WHITE, "2) Movement", 3, 5);
 	c_put_str(TERM_WHITE, "3) Combat", 4, 5);

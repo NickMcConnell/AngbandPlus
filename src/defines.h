@@ -39,11 +39,11 @@
 #define VERSION_MINOR   8
 #define VERSION_PATCH   1
 
-/* Added for PernAngband */
+/* Added for T.o.M.E. */
 #define FAKE_VERSION   0
-#define FAKE_VER_MAJOR 5
-#define FAKE_VER_MINOR 1
-#define FAKE_VER_PATCH 1
+#define FAKE_VER_MAJOR 1
+#define FAKE_VER_MINOR 0
+#define FAKE_VER_PATCH 0
 
 #define ANGBAND_2_8_1
 
@@ -820,10 +820,10 @@
 #define COL_SPEED               49      /* "Slow (-NN)" or "Fast (+NN)" */
 
 #define ROW_STUDY               23
-#define COL_STUDY               64      /* "Study" */
+#define COL_STUDY               60      /* "Study" */
 
 #define ROW_DEPTH               23
-#define COL_DEPTH               70      /* "Lev NNN" / "NNNN ft" */
+#define COL_DEPTH               66      /* "Lev NNN" / "NNNN ft" */
 
 
 
@@ -3823,6 +3823,19 @@ extern int PlayerUID;
 #define TERM_L_GREEN            13  /* 'G' */   /* 0,4,0 */
 #define TERM_L_BLUE             14  /* 'B' */   /* 0,4,4 */
 #define TERM_L_UMBER            15  /* 'U' */   /* 3,2,1 */
+
+
+/*** Graphics constants ***/
+
+/*
+ * Possible values of graphics_mode
+ * Set by reset_visuals() and used by map_info()
+ */
+#define GRAPHICS_NONE    0
+#define GRAPHICS_UNKNOWN 1
+#define GRAPHICS_IBM     2
+#define GRAPHICS_OLD     3
+#define GRAPHICS_NEW     4
 
 
 /*** Sound constants ***/

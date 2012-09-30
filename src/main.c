@@ -64,7 +64,7 @@ extern unsigned _ovrbuffer = 0x1500;
 #ifdef PRIVATE_USER_PATH
 
 /*
- * Check existence of ".pernangband/" directory in the user's
+ * Check existence of ".tome/" directory in the user's
  * home directory or try to create it if it doesn't exist.
  * Returns FALSE if all the attempts fail.
  */
@@ -78,7 +78,9 @@ static bool check_create_user_dir(void)
 	path_parse(dirpath, 1024, PRIVATE_USER_PATH);
 
 	/* See if it already exists */
+	safe_setuid_drop();
 	ret = stat(dirpath, &stat_buf);
+	safe_setuid_grab();
 
 	/* It does */
 	if (ret == 0)
@@ -96,10 +98,11 @@ static bool check_create_user_dir(void)
 	/* No - this maybe the first time. Try to create a directory */
 	else
 	{
-		/* Create the ~/.pernangband directory */
+		/* Create the ~/.tome directory */
 		safe_setuid_drop();
 		ret = mkdir(dirpath, 0700);
 		safe_setuid_grab();
+
 		/* An error occured */
 		if (ret == -1) return (FALSE);
 
@@ -764,16 +767,14 @@ int main(int argc, char *argv[])
 	/* Make sure we have a display! */
 	if (!done) quit("Unable to prepare any 'display module'!");
 
-
-	/* Hack -- If requested, display scores and quit */
-	if (show_score > 0) display_scores(0, show_score);
-
-
 	/* Catch nasty signals */
 	signals_init();
 
 	/* Initialize */
 	init_angband();
+
+	/* Hack -- If requested, display scores and quit */
+	if (show_score > 0) display_scores(0, show_score);
 
 	/* Wait for response */
 	pause_line(23);

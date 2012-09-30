@@ -1,11 +1,11 @@
-#G ,-=-.                 #W ~ ~~~   ~~~    (       #G ,-=-.
-#G/ //  \                #W      ~~ ) ~~   )       #G/ //  \       -.                ,
-#G  ||  /                #W        )~ #r,.#W~ (   (#G      ||  |        |                |
-#G ,||=" ,-. `.-.  v=-.  #W       _#r,-"####`-^  #W  ) #G   ,||==|v=-. ,-.|,-.  ,-.,v=-. ,-|
-#G  ||  (--"  | (  |  |  #W     ,#D###########r`W='#D###W`.#W () #G    ||  ||  |(  ||   )(   ||  |(  |
-#G\_,'   `-.  |  ` |  `  #W    ,#D#######################D###W:#r,=.   #G\_,'  ||  ` `-||`-"  `-"'|  ` `-^
-#G           `'    `     #W   /.#D###W,".#D#####W,".#D###########r"#W##\  #G      ``      |`         ` #ov5.1.1
-#W  ,-.   _,-= /"._  ,-. #w ,"   #W   `:'   `:#D#####W[JW] ,.  #G       ,=-'
+#G                       #W ~ ~~~   ~~~    (       #G 
+#G   ======/   =====     #W      ~~ ) ~~   )       #G    ===  ===       ===
+#G  /  //     /  __ \    #W        )~ #r,.#W~ (   (#G      //   ||   \\   //   
+#G    //     |  |  | |   #W       _#r,-"####`-^  #W  ) #G   ||    ||   ||   ||==:
+#G    ||     |  |  | |   #W     ,#D###########r`W='#D###W`.#W () #G   ||    ||   ||   ||       
+#G     \\_//  \  -- /    #W    ,#D#######################D###W:#r,=.   #G  ||   ||  ||    \\===
+#G      \_/    =====     #W   /.#D###W,".#D#####W,".#D###########r"#W##\  #G #ov1.0.0 #G      
+#W  ,-.   _,-= /"._  ,-. #w ,"   #W   `:'   `:#D#####W[JW] ,.  #G  
 #W,"   `,"    `=._ `"   -#w; #G  The         #W\#D#####W;"' V  \#W            __,-.     ,-=.
 #W     /        " `-. #w  /  #GTroubles of   #W `"       `-.#W__,-""._,"     "--,"    >-=-
 #W  ,-"`.            #w _'   #G  Middle Earth#w            "._      #W`       _/
@@ -17,7 +17,7 @@
 Maintained by darkgod     #y   f f f         l  l#w   One Ring to find them.
  #o darkgod@pernangband.net #y   t t t         j  j                            
                           #y    \ \ \       /  / #w  One Ring to bring them all     
- #ohttp://www.pernangband.net#y    \ \ \._   /  /#w and in the Darkness bind them.
+ #ohttp://www.t-o-m-e.net   #y     \ \ \._   /  /#w and in the Darkness bind them.
                            #y     `_`-._J-'  /         
                            #y       `-.___,-'        
         In the Land of Mordor, where the Shadows lie. [J.R.R. Tolkien]

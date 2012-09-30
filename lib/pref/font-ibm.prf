@@ -59,11 +59,11 @@ F:86:15/-9
 # dark pit (light dark / solid block)
 F:87:8/-37
 
-# dirt (umber / centered dot)
-F:88:7/-7
+# dirt (light umber / centered dot)
+F:88:15/-7
 
-# patch of grass (green / centered dot)
-F:89:5/-7
+# patch of grass (light green / centered dot)
+F:89:13/-7
 
 # ice (light slate / centered dot)
 F:90:9/-7
@@ -74,8 +74,8 @@ F:91:11/-7
 # dead tree (green / yen sign)
 F:92:8/-99
 
-# ash (light dark / centered dot)
-F:93:8/-7
+# ash (slate / centered dot)
+F:93:2/-7
 
 # mud (umber / centered dot)
 F:94:7/-7

@@ -1984,6 +1984,11 @@ void do_cmd_powermage(void)
 		/* Mana is spent anyway */
 		p_ptr->csp -= s_ptr->mana;
 
+		/* Window stuff */
+		p_ptr->window |= (PW_PLAYER);
+		p_ptr->window |= (PW_SPELL);
+		p_ptr->redraw |= (PR_MANA);
+
                 return;
 	}
 
@@ -3417,9 +3422,13 @@ void brand_ammo (int brand_type, int bolts_only)
 			ammo_name, aura_name);
 		msg_print (msg);
 		o_ptr->name2 = aura_type;
-                /* Apply the ego */
-                apply_magic(o_ptr, dun_level, FALSE, FALSE, FALSE);
+
+		/* Apply the ego */
+		apply_magic(o_ptr, dun_level, FALSE, FALSE, FALSE);
 		enchant (o_ptr, rand_int(3) + 4, ENCH_TOHIT | ENCH_TODAM);
+
+		/* You cannot sell them for vast profit any longer */
+		o_ptr->discount = 100;
 	}
 	else
 	{
@@ -6371,7 +6380,7 @@ void summon_true(int r_idx, int item)
         {
                 rx = (rand_int(8) - 4) + px;
                 ry = (rand_int(8) - 4) + py;
-                if (cave_empty_bold(ry, rx))
+                if (in_bounds(ry, rx) && cave_empty_bold(ry, rx))
                 {
                         x = rx;
                         y = ry;
@@ -6464,7 +6473,7 @@ void do_cmd_summoner_summon()
         {
                 rx = (rand_int(8) - 4) + px;
                 ry = (rand_int(8) - 4) + py;
-                if (cave_empty_bold(ry, rx))
+                if (in_bounds(ry, rx) && cave_empty_bold(ry, rx))
                 {
                         x = rx;
                         y = ry;

@@ -197,6 +197,21 @@ void do_cmd_go_up(void)
                         }
                 }
         }
+
+		/* Quest exit */
+		else if (c_ptr->feat == FEAT_QUEST_EXIT)
+		{
+			leaving_quest = p_ptr->inside_quest;
+
+			p_ptr->inside_quest = c_ptr->special;
+			dun_level = 0;
+			p_ptr->oldpx = 0;
+			p_ptr->oldpy = 0;
+			p_ptr->leaving = TRUE;
+
+			return;
+		}
+
         else if ((!(d_ptr->flags1 & DF1_FLAT)) && p_ptr->prob_travel && !p_ptr->inside_quest)
         {
                 if (d_ptr->mindepth == dun_level) return;
@@ -421,6 +436,14 @@ void do_cmd_go_down(void)
                         }
                 }
         }
+
+		/* Quest entrance */
+		else if (c_ptr->feat == FEAT_QUEST_ENTER)
+		{
+			enter_quest();
+
+			return;
+		}
 
         else if ((!(d_ptr->flags1 & DF1_FLAT)) && p_ptr->prob_travel && !p_ptr->inside_quest)
         {
@@ -1956,11 +1979,11 @@ static bool do_cmd_disarm_chest(int y, int x, s16b o_idx)
  */
 #ifdef ALLOW_EASY_DISARM /* TNB */
 
-bool do_cmd_disarm_aux(int y, int x, int dir)
+bool do_cmd_disarm_aux(int y, int x, int dir, int do_pickup)
 
 #else /* ALLOW_EASY_DISARM -- TNB */
 
-static bool do_cmd_disarm_aux(int y, int x, int dir)
+static bool do_cmd_disarm_aux(int y, int x, int dir, int do_pickup)
 
 #endif /* ALLOW_EASY_DISARM -- TNB */
 {
@@ -2013,26 +2036,17 @@ static bool do_cmd_disarm_aux(int y, int x, int dir)
 		gain_exp(power);
 
 		/* Forget the trap */
-		c_ptr->info &= ~(CAVE_MARK);
+		c_ptr->info &= ~(CAVE_MARK | CAVE_TRDT);
 
 		/* Remove the trap */
 		c_ptr->t_idx = 0;
 
-#ifdef ALLOW_EASY_DISARM /* TNB */
-
 		/* Move the player onto the trap */
 		if (!(f_info[c_ptr->feat].flags1 & FF1_DOOR))
-                        move_player(dir, always_pickup);
+		{
+			move_player_aux(dir, do_pickup, 0, TRUE);
+		}
 
-#else /* ALLOW_EASY_DISARM -- TNB */
-
-		/* move the player onto the trap grid */
-		if (!(f_info[c_ptr->feat].flags1 & FF1_DOOR))
-                        move_player(dir, FALSE);
-
-#endif /* ALLOW_EASY_DISARM -- TNB */
-
-		/* Remove trap attr from grid */
 		note_spot(y, x);
 		lite_spot(y, x);
 	}
@@ -2056,19 +2070,11 @@ static bool do_cmd_disarm_aux(int y, int x, int dir)
 		/* Message */
 		msg_format("You set off the %s!", name);
 
-#ifdef ALLOW_EASY_DISARM /* TNB */
-
 		/* Move the player onto the trap */
 		if (!(f_info[c_ptr->feat].flags1 & FF1_DOOR))
-		move_player(dir, easy_disarm);
-
-#else /* ALLOW_EASY_DISARM -- TNB */
-
-		/* Move the player onto the trap */
-		if (!(f_info[c_ptr->feat].flags1 & FF1_DOOR))
-		move_player(dir, FALSE);
-
-#endif /* ALLOW_EASY_DISARM -- TNB */
+		{
+			move_player_aux(dir, do_pickup, 0, FALSE);
+		}
 	}
 	
 	/* Result */
@@ -2150,8 +2156,8 @@ void do_cmd_disarm(void)
 		o_idx = chest_check(y, x);
 
 		/* Disarm a trap */
-                if (((c_ptr->t_idx == 0) || (!(c_ptr->info & CAVE_TRDT))) && 
-                    !o_idx && (c_ptr->feat != FEAT_MON_TRAP))
+		if (((c_ptr->t_idx == 0) || !(c_ptr->info & (CAVE_TRDT))) && 
+		    !o_idx && (c_ptr->feat != FEAT_MON_TRAP))
 		{
 			/* Message */
 			msg_print("You see nothing there to disarm.");
@@ -2184,7 +2190,7 @@ void do_cmd_disarm(void)
                                 more = FALSE;
                         }
                         else
-                                more = do_cmd_disarm_aux(y, x, dir);
+                                more = do_cmd_disarm_aux(y, x, dir, always_pickup);
 		}
 	}
 
@@ -2269,7 +2275,7 @@ static bool do_cmd_bash_aux(int y, int x, int dir)
 		sound(SOUND_OPENDOOR);
 
 		/* Hack -- Fall through the door */
-		move_player(dir, FALSE);
+		move_player(dir, always_pickup);
 
 		/* Update some things */
 		p_ptr->update |= (PU_VIEW | PU_LITE);
@@ -2482,7 +2488,7 @@ void do_cmd_alter(void)
 		else if (c_ptr->t_idx != 0)
 		{
 			/* Tunnel */
-			more = do_cmd_disarm_aux(y, x, dir);
+			more = do_cmd_disarm_aux(y, x, dir, always_pickup);
 		}
 
 		/* Oops */
@@ -4262,7 +4268,7 @@ void do_cmd_unwalk()
   /* Enter quests */
   else if (((feat >= FEAT_QUEST_ENTER) && (feat <= FEAT_QUEST_UP)) ||
            ((feat >= FEAT_LESS) && (feat <= FEAT_MORE))) {
-    move_player(dir, FALSE);
+    move_player(dir, always_pickup);
     more = FALSE;
   }
 
@@ -4279,7 +4285,7 @@ void do_cmd_unwalk()
                         while (dir == 5);
                 }
 
-                move_player(dir, FALSE);
+                move_player(dir, always_pickup);
         }
 
   /* Walking semantics */

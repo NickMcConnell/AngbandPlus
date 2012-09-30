@@ -31,14 +31,14 @@ void do_cmd_inven(void)
 	command_wrk = FALSE;
 
 	/* Save the screen */
-        character_icky = TRUE;
+	character_icky = TRUE;
 	Term_save();
 
 	/* Hack -- show empty slots */
 	item_tester_full = TRUE;
 
 	/* Display the inventory */
-	show_inven();
+	show_inven(FALSE);
 
 	/* Hack -- hide empty slots */
 	item_tester_full = FALSE;
@@ -82,7 +82,6 @@ void do_cmd_inven(void)
 	{
 		/* Reset stuff */
 		command_new = 0;
-		command_gap = 50;
 	}
 
 	/* Process normal keys */
@@ -113,7 +112,7 @@ void do_cmd_equip(void)
 	item_tester_full = TRUE;
 
 	/* Display the equipment */
-	show_equip();
+	show_equip(FALSE);
 
 	/* Hack -- undo the hack above */
 	item_tester_full = FALSE;
@@ -144,7 +143,6 @@ void do_cmd_equip(void)
 	{
 		/* Reset stuff */
 		command_new = 0;
-		command_gap = 50;
 	}
 
 	/* Process normal keys */
@@ -2364,7 +2362,8 @@ void do_cmd_html_dump()
         char tmp_val[81];
 
 	/* Ask for a file */
-        if (!get_string("File: ", tmp_val, 80))
+        strcpy(tmp_val, "dummy.htm");
+        if (!get_string("File(you can post it to http://angband.oook.cz/): ", tmp_val, 80))
                 return;
 
         html_screenshot(tmp_val);

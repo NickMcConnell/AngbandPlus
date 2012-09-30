@@ -1,10 +1,10 @@
 |||||oy
-#####RWelcome to the PernAngband Online Help System.
-#####R==============================================
+#####RWelcome to the T.o.M.E. Online Help System.
+#####R===========================================
 
 Please choose one of the following online help files:
 
-    *****/anewbie.hlp*0[(a) Extra Help for New Pern Players]
+    *****/anewbie.hlp*0[(a) Extra Help for New T.o.M.E. Players]
     *****/bgeneral.txt*0[(b) General Information]
     *****/cbirth.txt*0[(c) Creating a Character]
     *****/ddungeon.txt*0[(d) Exploring the Dungeon]
@@ -12,7 +12,7 @@ Please choose one of the following online help files:
     *****/fcommand.txt*0[(f) List of Commands]
     *****/goption.txt*0[(g) List of Options]
     *****/hversion.txt*0[(h) Version Information]
-    *****/imagic.txt*0[(i) PernAngband Magic System]
+    *****/imagic.txt*0[(i) T.o.M.E. Magic System]
 
     *****/uuser.txt*0[(u) User menu (if any)]
     *****/sspoiler.hlp*0[(s) Spoiler menu]
@@ -29,8 +29,8 @@ Escape         | Leave the Online Help
 Backspace, ?   | Return to previous Help File
 
 #####GContacts:
-Report bugs to bugs@pernangband.net (this redirects to a mailling list).
-Report various ideas and improvments to ideas@pernangband.net (this
+Report bugs to bugs@t-o-m-e.net (this redirects to a mailling list).
+Report various ideas and improvments to ideas@t-o-m-e.net (this
 redirects to a mailling list).
 
-You can also directly contact me at darkgod@pernangband.net .
+You can also directly contact me at darkgod@t-o-m-e.net .

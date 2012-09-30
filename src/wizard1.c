@@ -261,9 +261,7 @@ static void spoil_obj_desc(cptr fname)
 	FILE_TYPE(FILE_TYPE_TEXT);
 
 	/* Open the file */
-	safe_setuid_grab();
 	fff = my_fopen(buf, "w");
-	safe_setuid_drop();
 
 	/* Oops */
 	if (!fff)
@@ -1017,7 +1015,7 @@ static void print_header(void)
 		VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
 	spoiler_underline(buf);
 #else /* FAKE_VERSION */
-    sprintf(buf, "Artifact Spoilers for PernAngband Version %d.%d.%d",
+    sprintf(buf, "Artifact Spoilers for T.o.M.E. Version %d.%d.%d",
             FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH);
 	spoiler_underline(buf);
 #endif /* FAKE_VERSION */
@@ -1075,7 +1073,7 @@ static void spoiler_outlist(cptr header, cptr *list, char separator)
 	strcpy(line, INDENT1);
 
 	/* Create header (if one was given) */
-	if (header && (header[0]))
+	if (header && *header)
 	{
 		strcat(line, header);
 		strcat(line, " ");
@@ -1155,9 +1153,96 @@ static void spoiler_outlist(cptr header, cptr *list, char separator)
 }
 
 
+static void art_desc(int name1, int set)
+{
+        char buff2[400], *s, *t;
+        int i = 0;
+        int n, oi = i;
+        artifact_type *a_ptr = &a_info[name1];
+
+        strcpy (buff2, a_text + a_ptr->text);
+
+        s = buff2;
+
+        /* Collect the history */
+        while (TRUE)
+        {
+
+                /* Extract remaining length */
+                n = strlen(s);
+
+                /* All done */
+                if (n < 60)
+                {
+                        /* Save one line of history */
+                        fprintf(fff, "    %s\n", s);
+
+                        /* All done */
+                        break;
+                }
+
+                /* Find a reasonable break-point */
+                for (n = 60; ((n > 0) && (s[n-1] != ' ')); n--) /* loop */;
+
+                /* Save next location */
+                t = s + n;
+
+                /* Wipe trailing spaces */
+                while ((n > 0) && (s[n-1] == ' ')) s[--n] = '\0';
+
+                /* Save one line of history */
+                fprintf(fff, "    %s\n", s);
+
+                s = t;
+        }
+
+        if (set != -1)
+        {
+                char buff2[400], *s, *t;
+                int n;
+                set_type *set_ptr = &set_info[set];
+
+                strcpy (buff2, set_text + set_ptr->desc);
+
+                s = buff2;
+
+                /* Collect the history */
+                while (TRUE)
+                {
+
+                        /* Extract remaining length */
+                        n = strlen(s);
+
+                        /* All done */
+                        if (n < 60)
+                        {
+                                /* Save one line of history */
+                                fprintf(fff, "    %s\n", s);
+
+                                /* All done */
+                                break;
+                        }
+
+                        /* Find a reasonable break-point */
+                        for (n = 60; ((n > 0) && (s[n-1] != ' ')); n--) /* loop */;
+
+                        /* Save next location */
+                        t = s + n;
+
+                        /* Wipe trailing spaces */
+                        while ((n > 0) && (s[n-1] == ' ')) s[--n] = '\0';
+
+                        /* Save one line of history */
+                        fprintf(fff, "    %s\n", s);
+
+                        s = t;
+                }
+        }
+}
+
 /* Create a spoiler file entry for an artifact */
 
-static void spoiler_print_art(obj_desc_list *art_ptr)
+static void spoiler_print_art(obj_desc_list *art_ptr, int name1, int set)
 {
 	pval_info_type *pval_ptr = &art_ptr->pval_info;
 
@@ -1165,6 +1250,8 @@ static void spoiler_print_art(obj_desc_list *art_ptr)
 
 	/* Don't indent the first line */
 	fprintf(fff, "%s\n", art_ptr->description);
+
+        art_desc(name1, set);
 
 	/* An "empty" pval description indicates that the pval affects nothing */
 	if (pval_ptr->pval_desc[0])
@@ -1174,7 +1261,7 @@ static void spoiler_print_art(obj_desc_list *art_ptr)
 		spoiler_outlist(buf, pval_ptr->pval_affects, ITEM_SEP);
 	}
 
-	/* Now deal with the description lists */
+        /* Now deal with the description lists */
 
 	spoiler_outlist("Slay", art_ptr->slays, ITEM_SEP);
 
@@ -1226,14 +1313,7 @@ static bool make_fake_artifact(object_type *o_ptr, int name1)
 	o_ptr->name1 = name1;
 
 	/* Extract the fields */
-	o_ptr->pval = a_ptr->pval;
-	o_ptr->ac = a_ptr->ac;
-	o_ptr->dd = a_ptr->dd;
-	o_ptr->ds = a_ptr->ds;
-	o_ptr->to_a = a_ptr->to_a;
-	o_ptr->to_h = a_ptr->to_h;
-	o_ptr->to_d = a_ptr->to_d;
-	o_ptr->weight = a_ptr->weight;
+        apply_magic(o_ptr, -1, TRUE, TRUE, TRUE);
 
 	/* Success */
 	return (TRUE);
@@ -1262,9 +1342,7 @@ static void spoil_artifact(cptr fname)
 	FILE_TYPE(FILE_TYPE_TEXT);
 
 	/* Open the file */
-	safe_setuid_grab();
 	fff = my_fopen(buf, "w");
-	safe_setuid_drop();
 
 	/* Oops */
 	if (!fff)
@@ -1308,7 +1386,7 @@ static void spoil_artifact(cptr fname)
 			object_analyze(q_ptr, &artifact);
 
 			/* Write out the artifact description to the spoiler file */
-			spoiler_print_art(&artifact);
+			spoiler_print_art(&artifact, j, a_ptr->set);
 		}
 	}
 
@@ -1353,9 +1431,7 @@ static void spoil_mon_desc(cptr fname)
 	FILE_TYPE(FILE_TYPE_TEXT);
 
 	/* Open the file */
-	safe_setuid_grab();
 	fff = my_fopen(buf, "w");
-	safe_setuid_drop();
 
 	/* Oops */
 	if (!fff)
@@ -1374,7 +1450,7 @@ static void spoil_mon_desc(cptr fname)
 		VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
 	fprintf(fff, "------------------------------------------\n\n");
 #else
-    fprintf(fff, "Monster Spoilers for PernAngband Version %d.%d.%d\n",
+    fprintf(fff, "Monster Spoilers for T.o.M.E. Version %d.%d.%d\n",
             FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH);
 	fprintf(fff, "------------------------------------------\n\n");
 #endif
@@ -1579,9 +1655,7 @@ static void spoil_mon_info(cptr fname)
 	FILE_TYPE(FILE_TYPE_TEXT);
 
 	/* Open the file */
-	safe_setuid_grab();
 	fff = my_fopen(buf, "w");
-	safe_setuid_drop();
 
 	/* Oops */
 	if (!fff)
@@ -1596,7 +1670,7 @@ static void spoil_mon_info(cptr fname)
 	sprintf(buf, "Monster Spoilers for Angband Version %d.%d.%d\n",
 		VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
 #else
-    sprintf(buf, "Monster Spoilers for PernAngband Version %d.%d.%d\n",
+    sprintf(buf, "Monster Spoilers for T.o.M.E. Version %d.%d.%d\n",
          FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH);
 #endif
 
@@ -2367,9 +2441,7 @@ static void spoil_bateries(cptr fname)
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
 
-	safe_setuid_grab();
 	fff = my_fopen(buf, "w");
-	safe_setuid_drop();
 
 	/* Oops */
 	if (!fff)
@@ -2379,7 +2451,7 @@ static void spoil_bateries(cptr fname)
 	}
 
 	/* Dump the header */
-        sprintf(buf, "Essence Spoiler for PernAngband Version %d.%d.%d",
+        sprintf(buf, "Essence Spoiler for T.o.M.E. Version %d.%d.%d",
                 FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH);
 	spoiler_underline(buf);
 
@@ -2481,9 +2553,7 @@ static void spoil_spells(cptr fname)
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
 
-	safe_setuid_grab();
 	fff = my_fopen(buf, "w");
-	safe_setuid_drop();
 
 	/* Oops */
 	if (!fff)
@@ -2493,7 +2563,7 @@ static void spoil_spells(cptr fname)
 	}
 
 	/* Dump the header */
-        sprintf(buf, "Spell Spoiler for PernAngband Version %d.%d.%d",
+        sprintf(buf, "Spell Spoiler for T.o.M.E. Version %d.%d.%d",
                 FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH);
 	spoiler_underline(buf);
 

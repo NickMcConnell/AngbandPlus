@@ -1,6 +1,6 @@
 /*
 ** Lua binding: player
-** Generated automatically by tolua 4.0a - angband on 01/14/02 00:02:44.
+** Generated automatically by tolua 4.0a - angband on Sun Apr 28 23:13:36 2002.
 */
 
 #include "lua/tolua.h"
@@ -4749,14 +4749,14 @@ static int toluaI_set_player_energy_use(lua_State* tolua_S)
 }
 
 /* get function: p_ptr */
-static int toluaI_get_player_p_ptr(lua_State* tolua_S)
+static int toluaI_get_player_player(lua_State* tolua_S)
 {
  tolua_pushusertype(tolua_S,(void*)p_ptr,tolua_tag(tolua_S,"player_type"));
  return 1;
 }
 
 /* set function: p_ptr */
-static int toluaI_set_player_p_ptr(lua_State* tolua_S)
+static int toluaI_set_player_player(lua_State* tolua_S)
 {
  if (!tolua_istype(tolua_S,1,tolua_tag(tolua_S,"player_type"),0))
  TOLUA_ERR_ASSIGN;
@@ -6476,7 +6476,7 @@ int tolua_player_open (lua_State* tolua_S)
  tolua_tablevar(tolua_S,"player_race_mod","desc",toluaI_get_player_player_race_mod_desc,toluaI_set_player_player_race_mod_desc);
  tolua_tablevar(tolua_S,"player_race_mod","place",toluaI_get_player_player_race_mod_place,toluaI_set_player_player_race_mod_place);
  tolua_globalvar(tolua_S,"energy_use",toluaI_get_player_energy_use,toluaI_set_player_energy_use);
- tolua_globalvar(tolua_S,"p_ptr",toluaI_get_player_p_ptr,toluaI_set_player_p_ptr);
+ tolua_globalvar(tolua_S,"player",toluaI_get_player_player,toluaI_set_player_player);
  tolua_globalvar(tolua_S,"max_rp_idx",toluaI_get_player_max_rp_idx,toluaI_set_player_max_rp_idx);
  tolua_globalarray(tolua_S,"race_info",toluaI_get_player_race_info,toluaI_set_player_race_info);
  tolua_globalvar(tolua_S,"rp_name",toluaI_get_player_rp_name,toluaI_set_player_rp_name);
@@ -6624,7 +6624,7 @@ void tolua_player_close (lua_State* tolua_S)
  lua_pushstring(tolua_S,"energy_use"); lua_pushnil(tolua_S); lua_rawset(tolua_S,-3);
  lua_pop(tolua_S,1);
  lua_getglobals(tolua_S);
- lua_pushstring(tolua_S,"p_ptr"); lua_pushnil(tolua_S); lua_rawset(tolua_S,-3);
+ lua_pushstring(tolua_S,"player"); lua_pushnil(tolua_S); lua_rawset(tolua_S,-3);
  lua_pop(tolua_S,1);
  lua_getglobals(tolua_S);
  lua_pushstring(tolua_S,"max_rp_idx"); lua_pushnil(tolua_S); lua_rawset(tolua_S,-3);

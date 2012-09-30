@@ -423,7 +423,7 @@ struct player_race_mod
 
 extern s32b energy_use;
 
-extern player_type *p_ptr;
+extern player_type *p_ptr @ player;
 extern u16b max_rp_idx;
 extern player_race race_info[max_rp_idx];
 extern char *rp_name;

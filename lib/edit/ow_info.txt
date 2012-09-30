@@ -432,3 +432,9 @@ I:5000:210:115:6:6
 C:120:100:80
 L:Merchant
 H:Rogue
+
+N:69:Barliman Butterbur(Human)
+I:100:170:108:4:10
+C:120:100:80
+L:Dunadan | Hobbit | Human |
+H:Orc | Troll | DeathMold | Half-Ogre | Beorning | Kobold | 

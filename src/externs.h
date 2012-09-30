@@ -49,7 +49,7 @@ extern s32b player_exp[PY_MAX_LEVEL];
 extern player_sex sex_info[MAX_SEXES];
 extern deity deity_info[MAX_GODS];
 extern u32b fake_spell_flags[MAX_REALM][9][2];
-extern cptr realm_names[][2];
+extern cptr realm_names[MAX_REALM][2];
 extern magic_type realm_info_base[MAX_REALM][64];
 extern magic_type realm_info[MAX_REALM][64];
 extern cptr spell_names[MAX_REALM][64][2];
@@ -125,8 +125,6 @@ extern s16b command_arg;
 extern s16b command_rep;
 extern s16b command_dir;
 extern s16b command_see;
-extern s16b command_gap;
-extern s16b command_gapy;
 extern s16b command_wrk;
 extern s16b command_new;
 extern s32b energy_use;
@@ -152,6 +150,7 @@ extern s32b old_turn;
 extern bool wizard;
 extern bool use_sound;
 extern bool use_graphics;
+extern byte graphics_mode;
 extern u16b total_winner;
 extern u16b panic_save;
 extern u16b noscore;
@@ -322,6 +321,7 @@ extern u16b message__tail;
 extern u16b *message__ptr;
 extern byte *message__color;
 extern byte *message__type;
+extern u16b *message__count;
 extern char *message__buf;
 extern u32b option_flag[8];
 extern u32b option_mask[8];
@@ -624,6 +624,8 @@ extern void search(void);
 extern void carry(int pickup);
 extern void py_attack(int y, int x, int max_blow);
 extern bool player_can_enter(byte feature);
+/* XXX XXX XXX Broken easy_disarm... */
+extern void move_player_aux(int dir, int do_pickup, int run, bool disarm);
 extern void move_player(int dir, int do_pickup);
 extern void run_step(int dir);
 extern void step_effects(int y, int x, int do_pickup);
@@ -801,7 +803,6 @@ extern s16b tokenize(char *buf, s16b num, char **tokens, char delim1, char delim
 extern void display_player(int mode);
 extern errr file_character(cptr name, bool full);
 extern errr process_pref_file_aux(char *buf);
-extern bool user_process_pref_file;
 extern errr process_pref_file(cptr name);
 extern errr check_time_init(void);
 extern errr check_load_init(void);
@@ -1025,8 +1026,8 @@ extern void inven_drop(int item, int amt, int dy, int dx, bool silent);
 extern bool item_tester_okay(object_type *o_ptr);
 extern void display_inven(void);
 extern void display_equip(void);
-extern void show_inven(void);
-extern void show_equip(void);
+extern void show_inven(bool mirror);
+extern void show_equip(bool mirror);
 extern void toggle_inven_equip(void);
 extern bool get_item(int *cp, cptr pmt, cptr str, int mode);
 extern void excise_object_idx(int o_idx);
@@ -1298,7 +1299,7 @@ extern void show_building(store_type *s_ptr);
 extern bool is_state(store_type *s_ptr, int state);
 extern void do_cmd_bldg(void);
 extern bool show_god_info(bool ext);
-extern void do_cmd_quest(void);
+extern void enter_quest(void);
 extern void select_bounties(void);
 
 /* util.c */
@@ -1596,7 +1597,7 @@ extern bool easy_open_door(int y, int x);
 extern bool easy_disarm;
 
 /* cmd2.c */
-extern bool do_cmd_disarm_aux(int y, int x, int dir);
+extern bool do_cmd_disarm_aux(int y, int x, int dir, int do_pickup);
 
 #endif /* ALLOW_EASY_DISARM -- TNB */
 
@@ -1648,6 +1649,12 @@ extern bool lua_summon_monster(int y, int x, int lev, bool friend, char *fct);
 
 extern s16b    add_new_quest();
 extern void    desc_quest(int q_idx, int d, char *desc);
+
+extern bool    get_com_lua(cptr prompt, int *com);
+
+extern void get_map_size(char *name, int *ysize, int *xsize);
+extern void load_map(char *name, int *y, int *x);
+extern bool alloc_room(int by0, int bx0, int ysize, int xsize, int *y1, int *x1, int *y2, int *x2);
 
 #endif
 

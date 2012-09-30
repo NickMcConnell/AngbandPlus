@@ -54,11 +54,11 @@ F:86:15/127
 # dark pit (light dark / solid block)
 F:87:8/127
 
-# dirt (umber / centered dot)
-F:88:7/31
+# dirt (light umber / centered dot)
+F:88:15/31
 
-# patch of grass (green / centered dot)
-F:89:5/31
+# patch of grass (light green / centered dot)
+F:89:13/31
 
 # ice (light slate / centered dot)
 F:90:9/31
@@ -69,8 +69,8 @@ F:91:11/31
 # dead tree (light dark / solid block)
 F:92:8/127
 
-# ash (light dark / centered dot)
-F:93:8/31
+# ash (slate / centered dot)
+F:93:2/31
 
 # mud (umber / centered dot)
 F:94:7/31

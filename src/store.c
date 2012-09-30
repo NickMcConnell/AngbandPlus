@@ -3077,7 +3077,7 @@ void store_sell(void)
 
         u32b f1, f2, f3, f4, f5, esp;
 
-	bool museum = (st_info[st_ptr->st_idx].flags1 & SF1_MUSEUM);
+	bool museum = (st_info[st_ptr->st_idx].flags1 & SF1_MUSEUM) ? TRUE : FALSE;
 
 	/* Prepare a prompt */
 	if (cur_store_num == 7) q = "Drop which item? ";

@@ -30,7 +30,9 @@ struct quest_type
 };
 
 extern s16b max_q_idx;
-extern quest_type quest[max_q_idx];
+extern quest_type quest[max_q_idx] @ quest_aux;
 
+$static quest_type *lua_get_quest(int q_idx){return &quest[q_idx];}
+static quest_type *lua_get_quest @ quest(int q_idx);
 extern s16b    add_new_quest @ new_quest(char *name);
 extern void    desc_quest @ quest_desc(int q_idx, int d, char *desc);

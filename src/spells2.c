@@ -605,6 +605,8 @@ void self_knowledge(FILE *fff)
 		f3 |= t3;
 	}
 
+        if (death)
+                info[i++] = "You are dead.";
 
 	/* Racial powers... */
 	if (p_ptr->body_monster != 0)
@@ -4219,6 +4221,14 @@ void random_slay (object_type * o_ptr, bool is_scroll)
 
 
 /*
+ * Determines if an item is not identified
+ */
+static bool item_tester_hook_unknown(object_type *o_ptr)
+{
+	return (object_known_p(o_ptr) ? FALSE : TRUE);
+}
+
+/*
  * Identify an object in the inventory (or on the floor)
  * This routine does *not* automatically combine objects.
  * Returns TRUE if something was identified, else FALSE.
@@ -4234,6 +4244,7 @@ bool ident_spell(void)
 	cptr q, s;
 
 	/* Get an item */
+	item_tester_hook = item_tester_hook_unknown;
 	q = "Identify which item? ";
 	s = "You have nothing to identify.";
 	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return (FALSE);
@@ -4306,6 +4317,15 @@ bool ident_spell(void)
 
 
 /*
+ * Determine if an object is not fully identified
+ */
+static bool item_tester_hook_no_mental(object_type *o_ptr)
+{
+	return ((o_ptr->ident & (IDENT_MENTAL)) ? FALSE : TRUE);
+}
+
+
+/*
  * Fully "identify" an object in the inventory  -BEN-
  * This routine returns TRUE if an item was identified.
  */
@@ -4318,6 +4338,7 @@ bool identify_fully(void)
 	cptr q, s;
 
 	/* Get an item */
+	item_tester_hook = item_tester_hook_no_mental;
 	q = "Identify which item? ";
 	s = "You have nothing to identify.";
 	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return (FALSE);

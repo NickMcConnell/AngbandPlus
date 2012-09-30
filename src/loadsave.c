@@ -70,7 +70,7 @@ int bzerr;
 
 /*
  * Basic byte-level reading from savefile. This provides a single point of
- * interface to the pseudoencryption that Pernangband (and Angband) uses.
+ * interface to the pseudoencryption that T.o.M.E. (and Angband) uses.
  * I'm thinking about if it might be faster/better to modify all the do_*
  * functions to directly do this stuff -- it'd make the code somewhat
  * uglier to maintain, but concievably might be much faster. Or is it better
@@ -860,7 +860,7 @@ bool load_player(void)
 	strcat(panic_fname, ".pnc"); /* This might concievably cause a buffer
 					overflow, but the rest of the code
 					in this file does likewise. If someone
-					ever audits pernband for security
+					ever audits T.o.M.E. for security
 					problems, well, don't blame me. The rest
 					of the code was like this before I even
 					got here -- Pat */

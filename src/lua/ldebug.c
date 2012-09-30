@@ -1,5 +1,5 @@
 /*
-** $Id: ldebug.c,v 1.2 2001/11/26 23:00:23 darkgod Exp $
+** $Id: ldebug.c,v 1.1.1.1 2002/02/23 21:39:15 darkgod Exp $
 ** Debug Interface
 ** See Copyright Notice in lua.h
 */

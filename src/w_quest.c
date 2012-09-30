@@ -1,6 +1,6 @@
 /*
 ** Lua binding: quest
-** Generated automatically by tolua 4.0a - angband on 01/14/02 00:02:52.
+** Generated automatically by tolua 4.0a - angband on Sun Apr 28 23:13:51 2002.
 */
 
 #include "lua/tolua.h"
@@ -10,6 +10,7 @@ int tolua_quest_open (lua_State* tolua_S);
 void tolua_quest_close (lua_State* tolua_S);
 
 #include "angband.h"
+static quest_type *lua_get_quest(int q_idx){return &quest[q_idx];}
 
 /* function to register type */
 static void toluaI_reg_types (lua_State* tolua_S)
@@ -118,7 +119,7 @@ static int toluaI_set_quest_max_q_idx(lua_State* tolua_S)
 }
 
 /* get function: quest */
-static int toluaI_get_quest_quest(lua_State* tolua_S)
+static int toluaI_get_quest_quest_aux(lua_State* tolua_S)
 {
  int toluaI_index;
  if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
@@ -131,7 +132,7 @@ static int toluaI_get_quest_quest(lua_State* tolua_S)
 }
 
 /* set function: quest */
-static int toluaI_set_quest_quest(lua_State* tolua_S)
+static int toluaI_set_quest_quest_aux(lua_State* tolua_S)
 {
  int toluaI_index;
  if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
@@ -140,6 +141,28 @@ static int toluaI_set_quest_quest(lua_State* tolua_S)
  if (toluaI_index<0 || toluaI_index>=max_q_idx)
  tolua_error(tolua_S,"array indexing out of range.");
   quest[toluaI_index] = *((quest_type*)  tolua_getusertype(tolua_S,3,0));
+ return 0;
+}
+
+/* function: lua_get_quest */
+static int toluaI_quest_quest00(lua_State* tolua_S)
+{
+ if (
+ !tolua_istype(tolua_S,1,LUA_TNUMBER,0) ||
+ !tolua_isnoobj(tolua_S,2)
+ )
+ goto tolua_lerror;
+ else
+ {
+  int q_idx = ((int)  tolua_getnumber(tolua_S,1,0));
+ {
+  quest_type* toluaI_ret = (quest_type*)  lua_get_quest(q_idx);
+ tolua_pushusertype(tolua_S,(void*)toluaI_ret,tolua_tag(tolua_S,"quest_type"));
+ }
+ }
+ return 1;
+tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'quest'.");
  return 0;
 }
 
@@ -209,7 +232,8 @@ int tolua_quest_open (lua_State* tolua_S)
  tolua_tablevar(tolua_S,"quest_type","level",toluaI_get_quest_quest_type_level,toluaI_set_quest_quest_type_level);
  tolua_tablevar(tolua_S,"quest_type","type",toluaI_get_quest_quest_type_type,toluaI_set_quest_quest_type_type);
  tolua_globalvar(tolua_S,"max_q_idx",toluaI_get_quest_max_q_idx,toluaI_set_quest_max_q_idx);
- tolua_globalarray(tolua_S,"quest",toluaI_get_quest_quest,toluaI_set_quest_quest);
+ tolua_globalarray(tolua_S,"quest_aux",toluaI_get_quest_quest_aux,toluaI_set_quest_quest_aux);
+ tolua_function(tolua_S,NULL,"quest",toluaI_quest_quest00);
  tolua_function(tolua_S,NULL,"new_quest",toluaI_quest_new_quest00);
  tolua_function(tolua_S,NULL,"quest_desc",toluaI_quest_quest_desc00);
  return 1;
@@ -229,6 +253,7 @@ void tolua_quest_close (lua_State* tolua_S)
  lua_getglobals(tolua_S);
  lua_pushstring(tolua_S,"max_q_idx"); lua_pushnil(tolua_S); lua_rawset(tolua_S,-3);
  lua_pop(tolua_S,1);
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"quest_aux");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"quest");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"new_quest");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"quest_desc");
