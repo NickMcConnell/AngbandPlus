@@ -1,5 +1,4 @@
-/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/10/04 10:32:05 $
- *
+/*
  * File: grid.h
  * Purpose: header file for grid.c, used only in dungeon generation
  * files (generate.c, rooms.c)
@@ -16,7 +15,7 @@
 
 /* Macros */
 
-#define place_locked_door(Y,X)  make_lockjam_door(Y, X, randint(10) + dun_level / 10, FALSE)
+#define place_locked_door(Y,X)  make_lockjam_door(Y, X, randint1(10) + dun_level / 10, FALSE)
 #define place_secret_door(Y,X)  cave[(Y)][(X)].feat = FEAT_SECRET
 
 #define LAKE_LAVA		1

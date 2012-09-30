@@ -30,7 +30,7 @@ Send bug reports, suggestions, etc, to Ben Harrison ("benh@phial.com").
 
 === Quick and dirty compilation instructions (for Unix) === 
 
-Step 1: Acquire.  Ftp to "export.andrew.cmu.edu:/angband/Source"
+Step 1: Acquire.  Ftp to "clockwork.dementia.org:/angband/Source"
                   Try "bin" and "mget angband*.tar.gz" and "y"
 Step 2: Extract.  Try "gunzip *.gz" then "tar -xvf *.tar"
 Step 3: Prepare.  Try "cd angband*/src", then edit "Makefile"

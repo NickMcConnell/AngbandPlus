@@ -106,7 +106,7 @@ http://thangorodrim.angband.org/
 
 and the Angband FTP-Server at:
 
-ftp://export.andrew.cmu.edu/angband/
+ftp://clockwork.dementia.org/angband/
 
 
 ==========================================================================

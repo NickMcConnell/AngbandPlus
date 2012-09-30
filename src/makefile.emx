@@ -69,7 +69,7 @@ OBJS = \
   wizard1.o wizard2.o streams.o grid.o rooms.o \
   generate.o dungeon.o init1.o init2.o \
   bldg.o obj_kind.o effects.o mutation.o mspells1.o mspells2.o racial.o mind.o \
-  artifact.o avatar.o flavor.o scores.o wild.o
+  artifact.o avatar.o flavor.o scores.o wild1.o wild2.o
 
 .c.o:
 	$(NICE) $(CC) $(CFLAGS) -c $*.c

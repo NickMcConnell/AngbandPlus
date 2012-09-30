@@ -48,7 +48,7 @@ void self_knowledge(void)
 	strcpy(Dummy, "");
 	strcpy(Liferating, "");
 
-	percent = (int)(((long)player_hp[PY_MAX_LEVEL - 1] * 200L) /
+	percent = (int)(((long)p_ptr->player_hp[PY_MAX_LEVEL - 1] * 200L) /
 		(2 * p_ptr->hitdie +
 		((PY_MAX_LEVEL - 1) * (p_ptr->hitdie + 1))));
 
@@ -883,7 +883,7 @@ void self_knowledge(void)
 	{
 		info[i++] = "You are resistant to darkness.";
 	}
-	if (p_ptr->resist_conf)
+	if (p_ptr->resist_confu)
 	{
 		info[i++] = "You are resistant to confusion.";
 	}
@@ -907,7 +907,7 @@ void self_knowledge(void)
 	{
 		info[i++] = "You are resistant to nexus attacks.";
 	}
-	if (p_ptr->resist_neth)
+	if (p_ptr->resist_nethr)
 	{
 		info[i++] = "You are resistant to nether forces.";
 	}
@@ -1323,6 +1323,9 @@ void report_magics(void)
  */
 bool detect_traps(void)
 {
+	int px = p_ptr->px;
+	int py = p_ptr->py;
+
 	int             x, y;
 	bool            detect = FALSE;
 	cave_type       *c_ptr;
@@ -1330,7 +1333,7 @@ bool detect_traps(void)
 	/* Save center of detection radius */
 	p_ptr->detectx = px;
 	p_ptr->detecty = py;
-	
+
 	/* Have detected traps on this level */
 	p_ptr->detected = TRUE;
 
@@ -1373,6 +1376,9 @@ bool detect_traps(void)
  */
 bool detect_doors(void)
 {
+	int px = p_ptr->px;
+	int py = p_ptr->py;
+
 	int y, x;
 
 	bool detect = FALSE;
@@ -1431,6 +1437,9 @@ bool detect_doors(void)
  */
 bool detect_stairs(void)
 {
+	int px = p_ptr->px;
+	int py = p_ptr->py;
+
 	int y, x;
 
 	bool detect = FALSE;
@@ -1481,6 +1490,9 @@ bool detect_stairs(void)
  */
 bool detect_treasure(void)
 {
+	int px = p_ptr->px;
+	int py = p_ptr->py;
+
 	int y, x;
 
 	bool detect = FALSE;
@@ -1500,6 +1512,8 @@ bool detect_treasure(void)
 			c_ptr = area(y,x);
 
 			/* Notice embedded gold */
+
+			/* Does "embeded" gold really exist??? */
 			if ((c_ptr->feat == FEAT_MAGMA_H) ||
 			    (c_ptr->feat == FEAT_QUARTZ_H))
 			{
@@ -1541,6 +1555,9 @@ bool detect_treasure(void)
  */
 bool detect_objects_gold(void)
 {
+	int px = p_ptr->px;
+	int py = p_ptr->py;
+
 	int i, y, x;
 
 	bool detect = FALSE;
@@ -1598,6 +1615,9 @@ bool detect_objects_gold(void)
  */
 bool detect_objects_normal(void)
 {
+	int px = p_ptr->px;
+	int py = p_ptr->py;
+
 	int i, y, x;
 
 	bool detect = FALSE;
@@ -1661,6 +1681,9 @@ bool detect_objects_normal(void)
  */
 bool detect_objects_magic(void)
 {
+	int px = p_ptr->px;
+	int py = p_ptr->py;
+
 	int i, y, x, tv;
 
 	bool detect = FALSE;
@@ -1687,9 +1710,7 @@ bool detect_objects_magic(void)
 		tv = o_ptr->tval;
 
 		/* Artifacts, misc magic items, or enchanted wearables */
-		if (artifact_p(o_ptr) ||
-			ego_item_p(o_ptr) ||
-			o_ptr->art_name ||
+		if (o_ptr->xtra_name ||
 		    (tv == TV_AMULET) ||
 			(tv == TV_RING) ||
 		    (tv == TV_STAFF) ||
@@ -1733,6 +1754,9 @@ bool detect_objects_magic(void)
  */
 bool detect_monsters_normal(void)
 {
+	int px = p_ptr->px;
+	int py = p_ptr->py;
+
 	int i, y, x;
 
 	bool flag = FALSE;
@@ -1788,6 +1812,9 @@ bool detect_monsters_normal(void)
  */
 bool detect_monsters_invis(void)
 {
+	int px = p_ptr->px;
+	int py = p_ptr->py;
+
 	int i, y, x;
 	bool flag = FALSE;
 
@@ -1848,6 +1875,9 @@ bool detect_monsters_invis(void)
  */
 bool detect_monsters_evil(void)
 {
+	int px = p_ptr->px;
+	int py = p_ptr->py;
+
 	int i, y, x;
 	bool flag = FALSE;
 
@@ -1913,6 +1943,9 @@ bool detect_monsters_evil(void)
  */
 bool detect_monsters_string(cptr Match)
 {
+	int px = p_ptr->px;
+	int py = p_ptr->py;
+
 	int i, y, x;
 	bool flag = FALSE;
 
@@ -1973,6 +2006,9 @@ bool detect_monsters_string(cptr Match)
  */
 bool detect_monsters_xxx(u32b match_flag)
 {
+	int px = p_ptr->px;
+	int py = p_ptr->py;
+
 	int  i, y, x;
 	bool flag = FALSE;
 	cptr desc_monsters = "weird monsters";
@@ -2249,22 +2285,23 @@ bool raise_dead(int y, int x, bool pet)
 		if (!f_ptr->t_idx) continue;
 
 		/* Want a corpse / skeleton */
-		if (!(f_ptr->t_idx == FT_CORPSE)
-			 || (f_ptr->t_idx == FT_SKELETON)) continue;
-		
+		if (!(f_ptr->t_idx == FT_CORPSE) ||
+		     (f_ptr->t_idx == FT_SKELETON)) continue;
+
 		/* Location */
 		fy = f_ptr->fy;
 		fx = f_ptr->fx;
 
 		/* Require line of sight */
 		if (!los(fy, fx, y, x)) continue;
-		
+
 		c_ptr = area(fy, fx);
 
-		if (player_has_los_grid(c_ptr)) obvious = TRUE;
-		
 		/* Raise Corpses / Skeletons */
-		field_hook_special(&c_ptr->fld_idx, FTYPE_CORPSE, (void *) &pet);
+		if (field_hook_special(&c_ptr->fld_idx, FTYPE_CORPSE, (void *)&pet))
+		{
+			if (player_has_los_grid(c_ptr)) obvious = TRUE;
+		}
 	}
 
 	/* Result */
@@ -2370,17 +2407,24 @@ bool genocide(int player_cast)
 		/* Skip "wrong" monsters */
 		if (r_ptr->d_char != typ) continue;
 
+		/* Notice changes in view */
+		if (r_ptr->flags7 & (RF7_LITE_1 | RF7_LITE_2))
+		{
+			/* Update some things */
+			p_ptr->update |= (PU_MON_LITE);
+		}
+
 		/* Delete the monster */
 		delete_monster_idx(i);
 
 		if (player_cast)
 		{
 			/* Take damage */
-			take_hit(randint(4), "the strain of casting Genocide");
+			take_hit(randint1(4), "the strain of casting Genocide");
 		}
 
 		/* Visual feedback */
-		move_cursor_relative(py, px);
+		move_cursor_relative(p_ptr->py, p_ptr->px);
 
 		/* Redraw */
 		p_ptr->redraw |= (PR_HP);
@@ -2442,16 +2486,23 @@ bool mass_genocide(int player_cast)
 		/* Skip distant monsters */
 		if (m_ptr->cdis > MAX_SIGHT) continue;
 
+		/* Notice changes in view */
+		if (r_ptr->flags7 & (RF7_LITE_1 | RF7_LITE_2))
+		{
+			/* Update some things */
+			p_ptr->update |= (PU_MON_LITE);
+		}
+
 		/* Delete the monster */
 		delete_monster_idx(i);
 
 		if (player_cast)
 		{
 			/* Hack -- visual feedback */
-			take_hit(randint(3), "the strain of casting Mass Genocide");
+			take_hit(randint1(3), "the strain of casting Mass Genocide");
 		}
 
-		move_cursor_relative(py, px);
+		move_cursor_relative(p_ptr->py, p_ptr->px);
 
 		/* Redraw */
 		p_ptr->redraw |= (PR_HP);
@@ -2553,9 +2604,8 @@ bool destroy_area(int y1, int x1, int r, int full)
 	cave_type *c_ptr;
 	bool      flag = FALSE;
 
-
 	/* Prevent destruction of quest levels and town */
-	if (p_ptr->inside_quest || !dun_level)
+	if (p_ptr->inside_quest || !p_ptr->depth)
 	{
 		return (FALSE);
 	}
@@ -2584,7 +2634,7 @@ bool destroy_area(int y1, int x1, int r, int full)
 			c_ptr->info &= ~(CAVE_MARK | CAVE_GLOW);
 
 			/* Hack -- Notice player affect */
-			if ((x == px) && (y == py))
+			if ((x == p_ptr->px) && (y == p_ptr->py))
 			{
 				/* Hurt the player later */
 				flag = TRUE;
@@ -2610,6 +2660,12 @@ bool destroy_area(int y1, int x1, int r, int full)
 				delete_monster(y, x);
 			}
 
+			/* Fields can block destruction */
+			if (fields_have_flags(c_ptr->fld_idx, FIELD_INFO_PERM)) continue;
+
+			/* Destroy the fields on the square */
+			delete_field(y, x);
+
 			/* Destroy "valid" grids */
 			if (cave_valid_grid(c_ptr))
 			{
@@ -2617,7 +2673,7 @@ bool destroy_area(int y1, int x1, int r, int full)
 				delete_object(y, x);
 
 				/* Wall (or floor) type */
-				t = rand_int(200);
+				t = randint0(200);
 
 				/* Granite */
 				if (t < 20)
@@ -2661,7 +2717,7 @@ bool destroy_area(int y1, int x1, int r, int full)
 		if (!p_ptr->resist_blind && !p_ptr->resist_lite)
 		{
 			/* Become blind */
-			(void)set_blind(p_ptr->blind + 10 + randint(10));
+			(void)set_blind(p_ptr->blind + 10 + randint1(10));
 		}
 	}
 
@@ -2706,6 +2762,9 @@ bool destroy_area(int y1, int x1, int r, int full)
  */
 bool earthquake(int cy, int cx, int r)
 {
+	int py = p_ptr->py;
+	int px = p_ptr->px;
+
 	int             i, t, y, x, yy, xx, dy, dx, oy, ox;
 	int             damage = 0;
 	int             sn = 0, sy = 0, sx = 0;
@@ -2715,7 +2774,7 @@ bool earthquake(int cy, int cx, int r)
 	field_mon_test	mon_enter_test;
 
 	/* Prevent destruction of quest levels and town */
-	if (p_ptr->inside_quest || !dun_level)
+	if (p_ptr->inside_quest || !p_ptr->depth)
 	{
 		return (FALSE);
 	}
@@ -2760,7 +2819,7 @@ bool earthquake(int cy, int cx, int r)
 			if (!dx && !dy) continue;
 
 			/* Skip most grids */
-			if (rand_int(100) < 85) continue;
+			if (randint0(100) < 85) continue;
 
 			/* Damage this grid */
 			map[16+yy-cy][16+xx-cx] = TRUE;
@@ -2790,7 +2849,7 @@ bool earthquake(int cy, int cx, int r)
 
 			/* Important -- Skip "quake" grids */
 			if (map[16+y-cy][16+x-cx]) continue;
-		
+
 			/* Check for a field that blocks movement */
 			if (fields_have_flags(c_ptr->fld_idx, FIELD_INFO_NO_ENTER))
 			{
@@ -2801,14 +2860,14 @@ bool earthquake(int cy, int cx, int r)
 			sn++;
 
 			/* Randomize choice */
-			if (rand_int(sn) > 0) continue;
+			if (randint0(sn) > 0) continue;
 
 			/* Save the safe location */
 			sy = y; sx = x;
 		}
 
 		/* Random message */
-		switch (randint(3))
+		switch (randint1(3))
 		{
 			case 1:
 			{
@@ -2839,7 +2898,7 @@ bool earthquake(int cy, int cx, int r)
 		else
 		{
 			/* Calculate results */
-			switch (randint(3))
+			switch (randint1(3))
 			{
 				case 1:
 				{
@@ -2851,14 +2910,14 @@ bool earthquake(int cy, int cx, int r)
 				{
 					msg_print("You are bashed by rubble!");
 					damage = damroll(10, 4);
-					(void)set_stun(p_ptr->stun + randint(50));
+					(void)set_stun(p_ptr->stun + randint1(50));
 					break;
 				}
 				case 3:
 				{
 					msg_print("You are crushed between the floor and ceiling!");
 					damage = damroll(10, 4);
-					(void)set_stun(p_ptr->stun + randint(50));
+					(void)set_stun(p_ptr->stun + randint1(50));
 					break;
 				}
 			}
@@ -2874,15 +2933,19 @@ bool earthquake(int cy, int cx, int r)
 			/* Move the player */
 			py = sy;
 			px = sx;
-			
-			if (!dun_level)
+
+			/* Move the player */
+			p_ptr->py = sy;
+			p_ptr->px = sx;
+
+			if (!p_ptr->depth)
 			{
 				/* Scroll wilderness */
 				p_ptr->wilderness_x = px;
 				p_ptr->wilderness_y = py;
 				move_wild();
 			}
-		
+
 			/* Process fields under the player. */
 			field_hook(&area(py, px)->fld_idx,
 				 FIELD_ACT_PLAYER_ENTER, NULL);
@@ -2963,25 +3026,25 @@ bool earthquake(int cy, int cx, int r)
 
 							/* Skip non-empty grids */
 							if (!cave_empty_grid(c_ptr)) continue;
-							
+
 							/* Check for a field that blocks movement */
 							if (fields_have_flags(c_ptr->fld_idx,
 									 FIELD_INFO_NO_ENTER)) continue;
-							
-							/* 
+
+							/*
 							 * Test for fields that will not allow this
 							 * specific monster to pass. (i.e. Glyph of warding)
 							 */
-		 
+
 							/* Initialise info to pass to action functions */
 							mon_enter_test.m_ptr = NULL;
 							mon_enter_test.do_move = TRUE;
-		
+
 							/* Call the hook */
 							field_hook(&c_ptr->fld_idx,
-								 FIELD_ACT_MON_ENTER_TEST, 
+								 FIELD_ACT_MON_ENTER_TEST,
 								 (void *)&mon_enter_test);
-			 
+
 							/* Get result */
 							if (!mon_enter_test.do_move) continue;
 
@@ -2997,7 +3060,7 @@ bool earthquake(int cy, int cx, int r)
 							sn++;
 
 							/* Randomize choice */
-							if (rand_int(sn) > 0) continue;
+							if (randint0(sn) > 0) continue;
 
 							/* Save the safe grid */
 							sy = y; sx = x;
@@ -3091,7 +3154,7 @@ bool earthquake(int cy, int cx, int r)
 				delete_object(yy, xx);
 
 				/* Wall (or floor) type */
-				t = (floor ? rand_int(100) : 200);
+				t = (floor ? randint0(100) : 200);
 
 				/* Granite */
 				if (t < 20)
@@ -3208,7 +3271,7 @@ static void cave_temp_room_lite(void)
 				if (r_ptr->flags2 & (RF2_SMART)) chance = 100;
 
 				/* Sometimes monsters wake up */
-				if (m_ptr->csleep && (rand_int(100) < chance))
+				if (m_ptr->csleep && (randint0(100) < chance))
 				{
 					/* Wake up! */
 					m_ptr->csleep = 0;
@@ -3395,7 +3458,7 @@ static void cave_temp_room_aux(int y, int x)
 	if (!cave_floor_grid(c_ptr)) return;
 
 	/* Do not exceed the maximum spell range */
-	if (distance(py, px, y, x) > MAX_RANGE) return;
+	if (distance(p_ptr->py, p_ptr->px, y, x) > MAX_RANGE) return;
 
 
 	/* Verify this grid */
@@ -3519,10 +3582,10 @@ bool lite_area(int dam, int rad)
 	}
 
 	/* Hook into the "project()" function */
-	(void)project(0, rad, py, px, dam, GF_LITE_WEAK, flg);
+	(void)project(0, rad, p_ptr->py, p_ptr->px, dam, GF_LITE_WEAK, flg);
 
 	/* Lite up the room */
-	lite_room(py, px);
+	lite_room(p_ptr->py, p_ptr->px);
 
 	/* Assume seen */
 	return (TRUE);
@@ -3544,10 +3607,10 @@ bool unlite_area(int dam, int rad)
 	}
 
 	/* Hook into the "project()" function */
-	(void)project(0, rad, py, px, dam, GF_DARK_WEAK, flg);
+	(void)project(0, rad, p_ptr->py, p_ptr->px, dam, GF_DARK_WEAK, flg);
 
 	/* Lite up the room */
-	unlite_room(py, px);
+	unlite_room(p_ptr->py, p_ptr->px);
 
 	/* Assume seen */
 	return (TRUE);
@@ -3568,15 +3631,15 @@ bool fire_ball(int typ, int dir, int dam, int rad)
 	u16b flg = PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL;
 
 	/* Use the given direction */
-	tx = px + 99 * ddx[dir];
-	ty = py + 99 * ddy[dir];
+	tx = p_ptr->px + 99 * ddx[dir];
+	ty = p_ptr->py + 99 * ddy[dir];
 
 	/* Hack -- Use an actual "target" */
-	if ((dir == 5) && target_okay())
+	if (!ironman_moria && (dir == 5) && target_okay())
 	{
 		flg &= ~(PROJECT_STOP);
-		tx = target_col;
-		ty = target_row;
+		tx = p_ptr->target_col;
+		ty = p_ptr->target_row;
 	}
 
 	/* Analyze the "dir" and the "target".  Hurt items on floor. */
@@ -3591,15 +3654,18 @@ bool fire_ball(int typ, int dir, int dam, int rad)
  */
 bool teleport_swap(int dir)
 {
+	int px = p_ptr->px;
+	int py = p_ptr->py;
+
 	int tx, ty;
 	cave_type * c_ptr;
 	monster_type * m_ptr;
 	monster_race * r_ptr;
 
-	if ((dir == 5) && target_okay())
+	if (!ironman_moria && (dir == 5) && target_okay())
 	{
-		tx = target_col;
-		ty = target_row;
+		tx = p_ptr->target_col;
+		ty = p_ptr->target_row;
 	}
 	else
 	{
@@ -3640,17 +3706,17 @@ bool teleport_swap(int dir)
 
 	/* Process fields under the player. */
 	field_hook(&area(py, px)->fld_idx, FIELD_ACT_PLAYER_LEAVE, NULL);
-	
+
 	/* Process fields under the monster. */
 	field_hook(&area(m_ptr->fy, m_ptr->fx)->fld_idx,
 		 FIELD_ACT_MONSTER_LEAVE, m_ptr);
-		 
+
 	/* Move monster */
-	area(py,px)->m_idx = c_ptr->m_idx;
+	area(py, px)->m_idx = c_ptr->m_idx;
 
 	/* Update the old location */
 	c_ptr->m_idx = 0;
-	
+
 	/* Move the monster */
 	m_ptr->fy = py;
 	m_ptr->fx = px;
@@ -3659,24 +3725,28 @@ bool teleport_swap(int dir)
 	px = tx;
 	py = ty;
 
+	/* Move the player */
+	p_ptr->px = tx;
+	p_ptr->py = ty;
+
 	tx = m_ptr->fx;
 	ty = m_ptr->fy;
-	
-	if (!dun_level)
+
+	if (!p_ptr->depth)
 	{
 		/* Scroll wilderness */
 		p_ptr->wilderness_x = px;
 		p_ptr->wilderness_y = py;
 		move_wild();
 	}
-	
+
 	/* Process fields under the player. */
 	field_hook(&area(py, px)->fld_idx,
 		FIELD_ACT_PLAYER_ENTER, NULL);
 
 	/* Update the monster (new location) */
 	update_mon(area(ty, tx)->m_idx, TRUE);
-	
+
 	/* Process fields under the monster. */
 	field_hook(&area(m_ptr->fy, m_ptr->fx)->fld_idx,
 		FIELD_ACT_MONSTER_ENTER, (void *) m_ptr);
@@ -3725,14 +3795,14 @@ bool project_hook(int typ, int dir, int dam, u16b flg)
 	flg |= (PROJECT_THRU);
 
 	/* Use the given direction */
-	tx = px + ddx[dir];
-	ty = py + ddy[dir];
+	tx = p_ptr->px + ddx[dir];
+	ty = p_ptr->py + ddy[dir];
 
 	/* Hack -- Use an actual "target" */
-	if ((dir == 5) && target_okay())
+	if (!ironman_moria && (dir == 5) && target_okay())
 	{
-		tx = target_col;
-		ty = target_row;
+		tx = p_ptr->target_col;
+		ty = p_ptr->target_row;
 	}
 
 	/* Analyze the "dir" and the "target", do NOT explode */
@@ -3769,7 +3839,7 @@ bool fire_beam(int typ, int dir, int dam)
  */
 bool fire_bolt_or_beam(int prob, int typ, int dir, int dam)
 {
-	if (rand_int(100) < prob)
+	if (randint0(100) < prob)
 	{
 		return (fire_beam(typ, dir, dam));
 	}
@@ -3806,14 +3876,14 @@ bool drain_gain_life(int dir, int dam)
 bool wall_to_mud(int dir)
 {
 	u16b flg = PROJECT_BEAM | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL;
-	return (project_hook(GF_KILL_WALL, dir, 20 + randint(30), flg));
+	return (project_hook(GF_KILL_WALL, dir, 20 + randint1(30), flg));
 }
 
 
 bool wizard_lock(int dir)
 {
 	u16b flg = PROJECT_BEAM | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL;
-	return (project_hook(GF_JAM_DOOR, dir, 20 + randint(30), flg));
+	return (project_hook(GF_JAM_DOOR, dir, 20 + randint1(30), flg));
 }
 
 
@@ -3926,21 +3996,21 @@ bool teleport_monster(int dir)
 bool door_creation(void)
 {
 	u16b flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_HIDE;
-	return (project(0, 1, py, px, 0, GF_MAKE_DOOR, flg));
+	return (project(0, 1, p_ptr->py, p_ptr->px, 0, GF_MAKE_DOOR, flg));
 }
 
 
 bool trap_creation(void)
 {
 	u16b flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_HIDE;
-	return (project(0, 1, py, px, 0, GF_MAKE_TRAP, flg));
+	return (project(0, 1, p_ptr->py, p_ptr->px, 0, GF_MAKE_TRAP, flg));
 }
 
 
 bool glyph_creation(void)
 {
 	u16b flg = PROJECT_GRID | PROJECT_ITEM;
-	return (project(0, 1, py, px, 0, GF_MAKE_GLYPH, flg));
+	return (project(0, 1, p_ptr->py, p_ptr->px, 0, GF_MAKE_GLYPH, flg));
 }
 
 
@@ -3948,7 +4018,7 @@ bool wall_stone(void)
 {
 	u16b flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_HIDE;
 
-	bool dummy = (project(0, 1, py, px, 0, GF_STONE_WALL, flg));
+	bool dummy = (project(0, 1, p_ptr->py, p_ptr->px, 0, GF_STONE_WALL, flg));
 
 	/* Update stuff */
 	p_ptr->update |= (PU_VIEW | PU_FLOW);
@@ -3969,14 +4039,14 @@ bool wall_stone(void)
 bool destroy_doors_touch(void)
 {
 	u16b flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_HIDE;
-	return (project(0, 1, py, px, 0, GF_KILL_DOOR, flg));
+	return (project(0, 1, p_ptr->py, p_ptr->px, 0, GF_KILL_DOOR, flg));
 }
 
 
 bool sleep_monsters_touch(void)
 {
 	u16b flg = PROJECT_KILL | PROJECT_HIDE;
-	return (project(0, 1, py, px, p_ptr->lev, GF_OLD_SLEEP, flg));
+	return (project(0, 1, p_ptr->py, p_ptr->px, p_ptr->lev, GF_OLD_SLEEP, flg));
 }
 
 
@@ -3998,10 +4068,10 @@ void call_chaos(void)
 		GF_HELL_FIRE, GF_DISINTEGRATE
 	};
 
-	Chaos_type = hurt_types[rand_int(30)];
-	if (randint(4) == 1) line_chaos = TRUE;
+	Chaos_type = hurt_types[randint0(30)];
+	if (randint1(4) == 1) line_chaos = TRUE;
 
-	if (randint(6) == 1)
+	if (randint1(6) == 1)
 	{
 		for (dummy = 1; dummy < 10; dummy++)
 		{
@@ -4014,7 +4084,7 @@ void call_chaos(void)
 			}
 		}
 	}
-	else if (randint(3) == 1)
+	else if (randint1(3) == 1)
 	{
 		fire_ball(Chaos_type, 0, 300, 8);
 	}
@@ -4036,21 +4106,24 @@ void call_chaos(void)
  */
 bool activate_ty_curse(bool stop_ty, int *count)
 {
+	int px = p_ptr->px;
+	int py = p_ptr->py;
+
 	int stat = 0;
 
 	u16b flg = (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP);
 
 	do
 	{
-		switch (randint(34))
+		switch (randint1(34))
 		{
 			case 28: case 29:
 			{
 				if (!(*count))
 				{
 					msg_print("The ground trembles...");
-					earthquake(py, px, 5 + rand_int(10));
-					if (randint(6) != 1) break;
+					earthquake(py, px, 5 + randint0(10));
+					if (randint1(6) != 1) break;
 				}
 			}
 			case 30: case 31:
@@ -4060,7 +4133,7 @@ bool activate_ty_curse(bool stop_ty, int *count)
 					msg_print("A portal opens to a plane of raw mana!");
 					destroy_area(py, px, 20, TRUE);
 					project(1, 3, py, px, damroll(10, 5), GF_MANA, flg);
-					if (randint(6) != 1) break;
+					if (randint1(6) != 1) break;
 				}
 			}
 			case 32: case 33:
@@ -4069,44 +4142,44 @@ bool activate_ty_curse(bool stop_ty, int *count)
 				{
 					msg_print("Space warps about you!");
 					teleport_player(damroll(10, 10));
-					if (rand_int(13)) (*count) += activate_hi_summon();
-					if (randint(6) != 1) break;
+					if (randint0(13)) (*count) += activate_hi_summon();
+					if (randint1(6) != 1) break;
 				}
 			}
 			case 34:
 			{
 				msg_print("You feel a surge of energy!");
 				wall_breaker();
-				if (!rand_int(7))
+				if (!randint0(7))
 				{
 					project(1, 7, py, px, 50, GF_KILL_WALL, flg);
 				}
-				if (randint(6) != 1) break;
+				if (randint1(6) != 1) break;
 			}
 			case 1: case 2: case 3: case 16: case 17:
 			{
 				aggravate_monsters(0);
-				if (randint(6) != 1) break;
+				if (randint1(6) != 1) break;
 			}
 			case 4: case 5: case 6:
 			{
 				(*count) += activate_hi_summon();
-				if (randint(6) != 1) break;
+				if (randint1(6) != 1) break;
 			}
 			case 7: case 8: case 9: case 18:
 			{
-				(*count) += summon_specific(0, py, px, dun_level, 0, TRUE, FALSE, FALSE);
-				if (randint(6) != 1) break;
+				(*count) += summon_specific(0, py, px, p_ptr->depth, 0, TRUE, FALSE, FALSE);
+				if (randint1(6) != 1) break;
 			}
 			case 10: case 11: case 12:
 			{
 				msg_print("You feel your life draining away...");
 				lose_exp(p_ptr->exp / 16);
-				if (randint(6) != 1) break;
+				if (randint1(6) != 1) break;
 			}
 			case 13: case 14: case 15: case 19: case 20:
 			{
-				if (stop_ty || (p_ptr->free_act && (randint(100) < p_ptr->skill_sav)))
+				if (stop_ty || (p_ptr->free_act && (randint1(100) < p_ptr->skill_sav)))
 				{
 					/* Do nothing */ ;
 				}
@@ -4115,39 +4188,39 @@ bool activate_ty_curse(bool stop_ty, int *count)
 					msg_print("You feel like a statue!");
 					if (p_ptr->free_act)
 					{
-						set_paralyzed(p_ptr->paralyzed + randint(3));
+						set_paralyzed(p_ptr->paralyzed + randint1(3));
 					}
 					else
 					{
-						set_paralyzed(p_ptr->paralyzed + randint(13));
+						set_paralyzed(p_ptr->paralyzed + randint1(13));
 					}
 					stop_ty = TRUE;
 				}
-				if (randint(6) != 1) break;
+				if (randint1(6) != 1) break;
 			}
 			case 21: case 22: case 23:
 			{
-				(void)do_dec_stat(rand_int(6));
-				if (randint(6) != 1) break;
+				(void)do_dec_stat(randint0(6));
+				if (randint1(6) != 1) break;
 			}
 			case 24:
 			{
 				msg_print("Huh? Who am I? What am I doing here?");
 				lose_all_info();
-				if (randint(6) != 1) break;
+				if (randint1(6) != 1) break;
 			}
 			case 25:
 			{
 				/*
 				 * Only summon Cyberdemons deep in the dungeon.
 				 */
-				if ((dun_level > 65) && !stop_ty)
+				if ((p_ptr->depth > 65) && !stop_ty)
 				{
 					(*count) += summon_cyber(-1, py, px);
 					stop_ty = TRUE;
 					break;
 				}
-				if (randint(6) != 1) break;
+				if (randint1(6) != 1) break;
 			}
 			default:
 			{
@@ -4157,14 +4230,14 @@ bool activate_ty_curse(bool stop_ty, int *count)
 					{
 						(void)do_dec_stat(stat);
 					}
-					while (randint(2) == 1);
+					while (randint1(2) == 1);
 
 					stat++;
 				}
 			}
 		}
 	}
-	while ((randint(3) == 1) && !stop_ty);
+	while ((randint1(3) == 1) && !stop_ty);
 
 	return stop_ty;
 }
@@ -4172,54 +4245,57 @@ bool activate_ty_curse(bool stop_ty, int *count)
 
 int activate_hi_summon(void)
 {
+	int px = p_ptr->px;
+	int py = p_ptr->py;
+
 	int i;
 	int count = 0;
 
-	for (i = 0; i < (randint(9) + (dun_level / 40)); i++)
+	for (i = 0; i < (randint1(9) + (p_ptr->depth / 40)); i++)
 	{
-		switch (randint(26) + (dun_level / 20))
+		switch (randint1(26) + (p_ptr->depth / 20))
 		{
 			case 1: case 2:
-				count += summon_specific(0, py, px, dun_level, SUMMON_ANT, TRUE, FALSE, FALSE);
+				count += summon_specific(0, py, px, p_ptr->depth, SUMMON_ANT, TRUE, FALSE, FALSE);
 				break;
 			case 3: case 4:
-				count += summon_specific(0, py, px, dun_level, SUMMON_SPIDER, TRUE, FALSE, FALSE);
+				count += summon_specific(0, py, px, p_ptr->depth, SUMMON_SPIDER, TRUE, FALSE, FALSE);
 				break;
 			case 5: case 6:
-				count += summon_specific(0, py, px, dun_level, SUMMON_HOUND, TRUE, FALSE, FALSE);
+				count += summon_specific(0, py, px, p_ptr->depth, SUMMON_HOUND, TRUE, FALSE, FALSE);
 				break;
 			case 7: case 8:
-				count += summon_specific(0, py, px, dun_level, SUMMON_HYDRA, TRUE, FALSE, FALSE);
+				count += summon_specific(0, py, px, p_ptr->depth, SUMMON_HYDRA, TRUE, FALSE, FALSE);
 				break;
 			case 9: case 10:
-				count += summon_specific(0, py, px, dun_level, SUMMON_ANGEL, TRUE, FALSE, FALSE);
+				count += summon_specific(0, py, px, p_ptr->depth, SUMMON_ANGEL, TRUE, FALSE, FALSE);
 				break;
 			case 11: case 12:
-				count += summon_specific(0, py, px, dun_level, SUMMON_UNDEAD, TRUE, FALSE, FALSE);
+				count += summon_specific(0, py, px, p_ptr->depth, SUMMON_UNDEAD, TRUE, FALSE, FALSE);
 				break;
 			case 13: case 14:
-				count += summon_specific(0, py, px, dun_level, SUMMON_DRAGON, TRUE, FALSE, FALSE);
+				count += summon_specific(0, py, px, p_ptr->depth, SUMMON_DRAGON, TRUE, FALSE, FALSE);
 				break;
 			case 15: case 16:
-				count += summon_specific(0, py, px, dun_level, SUMMON_DEMON, TRUE, FALSE, FALSE);
+				count += summon_specific(0, py, px, p_ptr->depth, SUMMON_DEMON, TRUE, FALSE, FALSE);
 				break;
 			case 17:
-				count += summon_specific(0, py, px, dun_level, SUMMON_AMBERITES, TRUE, FALSE, FALSE);
+				count += summon_specific(0, py, px, p_ptr->depth, SUMMON_AMBERITES, TRUE, FALSE, FALSE);
 				break;
 			case 18: case 19:
-				count += summon_specific(0, py, px, dun_level, SUMMON_UNIQUE, TRUE, FALSE, FALSE);
+				count += summon_specific(0, py, px, p_ptr->depth, SUMMON_UNIQUE, TRUE, FALSE, FALSE);
 				break;
 			case 20: case 21:
-				count += summon_specific(0, py, px, dun_level, SUMMON_HI_UNDEAD, TRUE, FALSE, FALSE);
+				count += summon_specific(0, py, px, p_ptr->depth, SUMMON_HI_UNDEAD, TRUE, FALSE, FALSE);
 				break;
 			case 22: case 23:
-				count += summon_specific(0, py, px, dun_level, SUMMON_HI_DRAGON, TRUE, FALSE, FALSE);
+				count += summon_specific(0, py, px, p_ptr->depth, SUMMON_HI_DRAGON, TRUE, FALSE, FALSE);
 				break;
 			case 24: case 25:
 				count += summon_specific(0, py, px, 100, SUMMON_CYBER, TRUE, FALSE, FALSE);
 				break;
 			default:
-				count += summon_specific(0, py, px, (((dun_level * 3) / 2) + 5), 0, TRUE, FALSE, FALSE);
+				count += summon_specific(0, py, px, (((p_ptr->depth * 3) / 2) + 5), 0, TRUE, FALSE, FALSE);
 		}
 	}
 
@@ -4231,7 +4307,7 @@ int activate_hi_summon(void)
 int summon_cyber(int who, int y, int x)
 {
 	int i;
-	int max_cyber = (dun_level / 50) + randint(6);
+	int max_cyber = (p_ptr->depth / 50) + randint1(6);
 	int count = 0;
 
 	bool friendly = FALSE;
@@ -4256,23 +4332,26 @@ int summon_cyber(int who, int y, int x)
 
 void wall_breaker(void)
 {
+	int px = p_ptr->px;
+	int py = p_ptr->py;
+
 	int i;
 	int y, x;
 	int attempts = 1000;
 
-	if (randint(80 + p_ptr->lev) < 70)
+	if (randint1(80 + p_ptr->lev) < 70)
 	{
 		while (attempts--)
 		{
-			scatter(&y, &x, py, px, 4, 0);
+			scatter(&y, &x, py, px, 4);
 
 			if ((y != py) || (x != px)) break;
 		}
 
-		project(0, 0, y, x, 20 + randint(30), GF_KILL_WALL,
+		project(0, 0, y, x, 20 + randint1(30), GF_KILL_WALL,
 				  (PROJECT_BEAM | PROJECT_THRU | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL));
 	}
-	else if (randint(100) > 30)
+	else if (randint1(100) > 30)
 	{
 		earthquake(py, px, 1);
 	}
@@ -4284,12 +4363,12 @@ void wall_breaker(void)
 		{
 			while (1)
 			{
-				scatter(&y, &x, py, px, 4, 0);
+				scatter(&y, &x, py, px, 4);
 
 				if ((y != py) || (x != px)) break;
 			}
 
-			project(0, 0, y, x, 20 + randint(30), GF_KILL_WALL,
+			project(0, 0, y, x, 20 + randint1(30), GF_KILL_WALL,
 					  (PROJECT_BEAM | PROJECT_THRU | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL));
 		}
 	}
@@ -4301,6 +4380,9 @@ void wall_breaker(void)
  */
 bool detect_monsters_nonliving(void)
 {
+	int px = p_ptr->px;
+	int py = p_ptr->py;
+
 	int     i, y, x;
 	bool    flag = FALSE;
 

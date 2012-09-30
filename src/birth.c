@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/10/06 11:07:12 $ */
 /* File: birth.c */
 
 /* Purpose: create a player character */
@@ -44,7 +43,7 @@ struct birther
 
 	s32b au;
 
-	s16b stat[6];
+	s16b stat[A_MAX];
 
 	char history[4][60];
 
@@ -733,9 +732,11 @@ static byte choose_realm(byte choices)
 			remove_loc();
 			quit(NULL);
 		}
+		/*Hack - allow 'S' to restart the birth process */
+		if (c == 'S') return (MAX_REALM + 1);
 		if (c == '*')
 		{
-			k = rand_int(n);
+			k = randint0(n);
 			break;
 		}
 		k = (islower(c) ? A2I(c) : -1);
@@ -744,7 +745,7 @@ static byte choose_realm(byte choices)
 		else if (c == '=')
 		{
 			screen_save();
-			do_cmd_options_aux(6, "Startup Options");
+			do_cmd_options(OPT_FLAG_BIRTH | OPT_FLAG_SERVER | OPT_FLAG_PLAYER);
 			screen_load();
 		}
 		else bell();
@@ -777,7 +778,7 @@ static bool get_player_realms(void)
 	/* Select the first realm */
 	p_ptr->realm1 = choose_realm(realm_choices1[p_ptr->pclass]);
 
-	if (p_ptr->realm1)
+	if ((p_ptr->realm1 > REALM_NONE) && (p_ptr->realm1 <= MAX_REALM))
 	{
 		/* Print the realm */
 		put_str("Magic       :", 6, 1);
@@ -787,8 +788,16 @@ static bool get_player_realms(void)
 		p_ptr->realm2 = choose_realm(realm_choices2[p_ptr->pclass]);
 
 		/* Print the realm */
-		if (p_ptr->realm2)
+		if ((p_ptr->realm2 > REALM_NONE) && (p_ptr->realm2 <= MAX_REALM))
+		{
 			c_put_str(TERM_L_BLUE, realm_names[p_ptr->realm2], 7, 15);
+		}
+	}
+
+	/* Hack - allow 'S' to restart the birth process */
+	if ((p_ptr->realm1 > MAX_REALM) || (p_ptr->realm2 > MAX_REALM))
+	{
+		return (FALSE);
 	}
 
 	return (TRUE);
@@ -821,7 +830,7 @@ static void save_prev_data(void)
 	/* Save the history */
 	for (i = 0; i < 4; i++)
 	{
-		strcpy(prev.history[i], history[i]);
+		strcpy(prev.history[i], p_ptr->history[i]);
 	}
 
 	/* Save the patron */
@@ -830,7 +839,7 @@ static void save_prev_data(void)
 	/* Save the hitpoints */
 	for (i = 0; i < PY_MAX_LEVEL; i++)
 	{
-		prev.hp[i] = player_hp[i];
+		prev.hp[i] = p_ptr->player_hp[i];
 	}
 }
 
@@ -863,7 +872,7 @@ static void load_prev_data(void)
 	/* Save the history */
 	for (i = 0; i < 4; i++)
 	{
-		strcpy(temp.history[i], history[i]);
+		strcpy(temp.history[i], p_ptr->history[i]);
 	}
 
 	/* Save the patron */
@@ -872,7 +881,7 @@ static void load_prev_data(void)
 	/* Save the hitpoints */
 	for (i = 0; i < PY_MAX_LEVEL; i++)
 	{
-		temp.hp[i] = player_hp[i];
+		temp.hp[i] = p_ptr->player_hp[i];
 	}
 
 
@@ -895,7 +904,7 @@ static void load_prev_data(void)
 	/* Load the history */
 	for (i = 0; i < 4; i++)
 	{
-		strcpy(history[i], prev.history[i]);
+		strcpy(p_ptr->history[i], prev.history[i]);
 	}
 
 	/* Save the patron */
@@ -904,7 +913,7 @@ static void load_prev_data(void)
 	/* Save the hitpoints */
 	for (i = 0; i < PY_MAX_LEVEL; i++)
 	{
-		player_hp[i] = prev.hp[i];
+		p_ptr->player_hp[i] = prev.hp[i];
 	}
 
 
@@ -991,11 +1000,11 @@ static int adjust_stat(int value, int amount, int auto_roll)
 			}
 			else if (value < 18+70)
 			{
-				value += ((auto_roll ? 15 : randint(15)) + 5);
+				value += ((auto_roll ? 15 : randint1(15)) + 5);
 			}
 			else if (value < 18+90)
 			{
-				value += ((auto_roll ? 6 : randint(6)) + 2);
+				value += ((auto_roll ? 6 : randint1(6)) + 2);
 			}
 			else if (value < 18+100)
 			{
@@ -1032,7 +1041,7 @@ static void get_stats(void)
 		for (j = i = 0; i < 18; i++)
 		{
 			/* Roll the dice */
-			dice[i] = randint(3 + i % 3);
+			dice[i] = randint1(3 + i % 3);
 
 			/* Collect the maximum */
 			j += dice[i];
@@ -1090,23 +1099,13 @@ static void get_extra(void)
 #endif
 
 	/* Level one */
-	p_ptr->max_plv = p_ptr->lev = 1;
+	p_ptr->max_lev = p_ptr->lev = 1;
 
 	/* Experience factor */
 	p_ptr->expfact = rp_ptr->r_exp + cp_ptr->c_exp;
 
-	/* Initialize arena and rewards information -KMW- */
-	p_ptr->arena_number = 0;
-	p_ptr->inside_arena = 0;
+	/* Initialize rewards information -KMW- */
 	p_ptr->inside_quest = 0;
-	p_ptr->leftbldg = FALSE;
-	p_ptr->exit_bldg = TRUE; /* only used for arena now -KMW- */
-
-	/* Reset rewards */
-	for (i = 0; i < MAX_BACT; i++)
-	{
-		p_ptr->rewards[i] = 0;
-	}
 
 	/* Hitdice */
 	p_ptr->hitdie = rp_ptr->r_mhp + cp_ptr->c_mhp;
@@ -1123,7 +1122,7 @@ static void get_extra(void)
 	max_value += PY_MAX_LEVEL;
 
 	/* Pre-calculate level 1 hitdice */
-	player_hp[0] = p_ptr->hitdie;
+	p_ptr->player_hp[0] = p_ptr->hitdie;
 
 	/* Roll out the hitpoints */
 	while (TRUE)
@@ -1132,21 +1131,21 @@ static void get_extra(void)
 		for (i = 1; i < PY_MAX_LEVEL; i++)
 		{
 			/* Add in racial hit dice */
-			j = randint(rp_ptr->r_mhp);
-			player_hp[i] = player_hp[i - 1] + j;
+			j = randint1(rp_ptr->r_mhp);
+			p_ptr->player_hp[i] = p_ptr->player_hp[i - 1] + j;
 
 			/* If class hit dice is non zero - add it on */
 			if (cp_ptr->c_mhp)
 			{
-				player_hp[i] += randint(cp_ptr->c_mhp);
+				p_ptr->player_hp[i] += randint1(cp_ptr->c_mhp);
 			}
 		}
 
 		/* XXX Could also require acceptable "mid-level" hitpoints */
 
 		/* Require "valid" hitpoints at highest level */
-		if (player_hp[PY_MAX_LEVEL - 1] < min_value) continue;
-		if (player_hp[PY_MAX_LEVEL - 1] > max_value) continue;
+		if (p_ptr->player_hp[PY_MAX_LEVEL - 1] < min_value) continue;
+		if (p_ptr->player_hp[PY_MAX_LEVEL - 1] > max_value) continue;
 
 		/* Acceptable */
 		break;
@@ -1154,7 +1153,7 @@ static void get_extra(void)
 
 #ifdef SHOW_LIFE_RATE
 
-	percent = (int)(((long)player_hp[PY_MAX_LEVEL - 1] * 200L) /
+	percent = (int)(((long)p_ptr->player_hp[PY_MAX_LEVEL - 1] * 200L) /
 		(2 * p_ptr->hitdie +
 		((PY_MAX_LEVEL - 1) * (p_ptr->hitdie + 1))));
 
@@ -1178,13 +1177,13 @@ static void get_history(void)
 	char buf[240];
 
 	/* Clear the previous history strings */
-	for (i = 0; i < 4; i++) history[i][0] = '\0';
+	for (i = 0; i < 4; i++) p_ptr->history[i][0] = '\0';
 
 	/* Clear the history text */
 	buf[0] = '\0';
 
 	/* Initial social class */
-	social_class = randint(4);
+	social_class = randint1(4);
 
 	/* Starting place */
 	switch (p_ptr->prace)
@@ -1346,7 +1345,7 @@ static void get_history(void)
 		i = 0;
 
 		/* Roll for nobility */
-		roll = randint(100);
+		roll = randint1(100);
 
 
 		/* Access the proper entry in the table */
@@ -1395,7 +1394,7 @@ static void get_history(void)
 		if (n < 60)
 		{
 			/* Save one line of history */
-			strcpy(history[i++], s);
+			strcpy(p_ptr->history[i++], s);
 
 			/* All done */
 			break;
@@ -1411,7 +1410,7 @@ static void get_history(void)
 		while ((n > 0) && (s[n-1] == ' ')) s[--n] = '\0';
 
 		/* Save one line of history */
-		strcpy(history[i++], s);
+		strcpy(p_ptr->history[i++], s);
 
 		/* Start next line */
 		for (s = t; *s == ' '; s++) /* loop */;
@@ -1427,7 +1426,7 @@ static void get_ahw(void)
 	int h_percent; 
 
 	/* Calculate the age */
-	p_ptr->age = rp_ptr->b_age + randint(rp_ptr->m_age);
+	p_ptr->age = rp_ptr->b_age + randint1(rp_ptr->m_age);
 	
 	/* Calculate the height/weight for males */
 	if (p_ptr->psex == SEX_MALE)
@@ -1459,7 +1458,7 @@ static void get_money(void)
 	int i, gold;
 
 	/* Social Class determines starting gold */
-	gold = (p_ptr->sc * 6) + randint(100) + 300;
+	gold = (p_ptr->sc * 6) + randint1(100) + 300;
 
 	/* Process the stats */
 	for (i = 0; i < A_MAX; i++)
@@ -1485,15 +1484,25 @@ static void get_money(void)
 static void player_wipe(void)
 {
 	int i;
+	
+	bool options[OPT_PLAYER];
+	bool birth[OPT_BIRTH];
 
+	/* Hack -- save these allocated arrays */
+	C_COPY(options, p_ptr->options, OPT_PLAYER, bool);
+	C_COPY(birth, p_ptr->birth, OPT_BIRTH, bool);
 
 	/* Hack -- zero the struct */
 	(void)WIPE(p_ptr, player_type);
+	
+	/* Hack -- Restore the arrays */
+	C_COPY(p_ptr->options, options, OPT_PLAYER, bool);
+	C_COPY(p_ptr->birth, birth, OPT_BIRTH, bool);
 
 	/* Wipe the history */
 	for (i = 0; i < 4; i++)
 	{
-		strcpy(history[i], "");
+		strcpy(p_ptr->history[i], "");
 	}
 
 	/* Wipe the quests */
@@ -1512,8 +1521,8 @@ static void player_wipe(void)
 	p_ptr->total_weight = 0;
 
 	/* No items */
-	inven_cnt = 0;
-	equip_cnt = 0;
+	p_ptr->inven_cnt = 0;
+	p_ptr->equip_cnt = 0;
 
 	/* Clear the inventory */
 	for (i = 0; i < INVEN_TOTAL; i++)
@@ -1557,10 +1566,10 @@ static void player_wipe(void)
 
 
 	/* Wipe the spells */
-	spell_learned1 = spell_learned2 = 0L;
-	spell_worked1 = spell_worked2 = 0L;
-	spell_forgotten1 = spell_forgotten2 = 0L;
-	for (i = 0; i < 64; i++) spell_order[i] = 99;
+	p_ptr->spell_learned1 = p_ptr->spell_learned2 = 0L;
+	p_ptr->spell_worked1 = p_ptr->spell_worked2 = 0L;
+	p_ptr->spell_forgotten1 = p_ptr->spell_forgotten2 = 0L;
+	for (i = 0; i < 64; i++) p_ptr->spell_order[i] = 99;
 
 	/* Clean the mutation count */
 	mutant_regenerate_mod = 100;
@@ -1574,13 +1583,13 @@ static void player_wipe(void)
 	cheat_live = FALSE;
 
 	/* Assume no winning game */
-	total_winner = FALSE;
+	p_ptr->total_winner = FALSE;
 
 	/* Assume no panic save */
-	panic_save = 0;
+	p_ptr->panic_save = 0;
 
 	/* Assume no cheating */
-	noscore = 0;
+	p_ptr->noscore = 0;
 
 	/* Default pet command settings */
 	p_ptr->pet_follow_distance = PET_FOLLOW_DIST;
@@ -1660,7 +1669,7 @@ static byte player_init[MAX_CLASS][3][2] =
 
 	{
 		/* Mindcrafter */
-		{ TV_SWORD, SV_SMALL_SWORD },
+		{ TV_SWORD, SV_DAGGER },
 		{ TV_POTION, SV_POTION_RESTORE_MANA },
 		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR },
 	},
@@ -1856,7 +1865,7 @@ static void player_outfit(void)
 		if (tv == TV_SWORD && p_ptr->pclass == CLASS_ROGUE &&
 			p_ptr->realm1 == REALM_DEATH) /* Only assassins get a poisoned weapon */
 		{
-			q_ptr->name2 = EGO_BRAND_POIS;
+			add_ego_flags(q_ptr, EGO_BRAND_POIS);
 		}
 
 		/* These objects are "storebought" */
@@ -1933,7 +1942,7 @@ static bool get_player_race(void)
 		if (c == 'S') return (FALSE);
 		if (c == '*')
 		{
-			k = rand_int(MAX_RACES);
+			k = randint0(MAX_RACES);
 			break;
 		}
 		if (c == '1')
@@ -1964,7 +1973,8 @@ static bool get_player_race(void)
 			else if (c == '=')
 			{
 				screen_save();
-				do_cmd_options_aux(6, "Startup Options");
+				do_cmd_options(OPT_FLAG_BIRTH | OPT_FLAG_SERVER |
+						 OPT_FLAG_PLAYER);
 				screen_load();
 			}
 			else bell();
@@ -2053,7 +2063,7 @@ static bool get_player_class(void)
 		if (c == 'S') return (FALSE);
 		if (c == '*')
 		{
-			k = rand_int(n);
+			k = randint0(n);
 			break;
 		}
 		k = (islower(c) ? A2I(c) : -1);
@@ -2062,7 +2072,7 @@ static bool get_player_class(void)
 		else if (c == '=')
 		{
 			screen_save();
-			do_cmd_options_aux(6, "Startup Options");
+			do_cmd_options(OPT_FLAG_BIRTH | OPT_FLAG_SERVER | OPT_FLAG_PLAYER);
 			screen_load();
 		}
 		else bell();
@@ -2082,6 +2092,7 @@ static bool get_player_class(void)
 
 	return TRUE;
 }
+
 
 /*
  * Helper function for 'player_birth()'.
@@ -2177,7 +2188,7 @@ static bool player_birth_aux_1(void)
 		if (ch == ESCAPE) ch = '*';
 		if (ch == '*')
 		{
-			k = rand_int(MAX_SEXES);
+			k = randint0(MAX_SEXES);
 			break;
 		}
 
@@ -2187,7 +2198,7 @@ static bool player_birth_aux_1(void)
 		else if (ch == '=')
 		{
 			screen_save();
-			do_cmd_options_aux(6, "Startup Options");
+			do_cmd_options(OPT_FLAG_BIRTH | OPT_FLAG_SERVER | OPT_FLAG_PLAYER);
 			screen_load();
 		}
 		else bell();
@@ -2258,7 +2269,7 @@ static bool player_birth_aux_1(void)
 			if (inp[0] == '*')
 			{
 				/* 0 to 49 random quests */
-				v = rand_int(50);
+				v = randint0(50);
 			}
 			else
 			{
@@ -2300,8 +2311,8 @@ static bool player_birth_aux_1(void)
 			 * (depending on level + number of quests)
 			 */
 			level = q_ptr->level + 6 +
-			        randint(q_ptr->level * v / 200 + 1) +
-			        randint(q_ptr->level * v / 200 + 1);
+			        randint1(q_ptr->level * v / 200 + 1) +
+			        randint1(q_ptr->level * v / 200 + 1);
 
 			r_idx = get_mon_num(level);
 			r_ptr = &r_info[r_idx];
@@ -2334,11 +2345,11 @@ static bool player_birth_aux_1(void)
 			/* Mark uniques */
 			quest_r_ptr->flags1 |= RF1_QUESTOR;
 
-			q_ptr->max_num = randint(quest_r_ptr->max_num);
+			q_ptr->max_num = randint1(quest_r_ptr->max_num);
 		}
 		else
 		{
-			q_ptr->max_num = 5 + (s16b)rand_int(q_ptr->level / 3 + 5) /
+			q_ptr->max_num = 5 + (s16b)randint0(q_ptr->level / 3 + 5) /
 									quest_r_ptr->rarity;
 		}
 	}
@@ -2360,6 +2371,8 @@ static bool player_birth_aux_1(void)
 	/* Done */
 	return (TRUE);
 }
+
+
 /*
  * Initial stat costs (initial stats always range from 10 to 18 inclusive).
  */
@@ -2418,7 +2431,7 @@ static bool player_birth_aux_2(void)
 	get_history();
 	
 	/* Hack -- get a chaos patron even if you are not a chaos warrior */
-	p_ptr->chaos_patron = (s16b)rand_int(MAX_PATRON);
+	p_ptr->chaos_patron = (s16b)randint0(MAX_PATRON);
 
 	p_ptr->muta1 = 0;
 	p_ptr->muta2 = 0;
@@ -2842,7 +2855,7 @@ static bool player_birth_aux_3(void)
 		get_money();
 
 		/* Hack -- get a chaos patron even if you are not a chaos warrior */
-		p_ptr->chaos_patron = (s16b)rand_int(MAX_PATRON);
+		p_ptr->chaos_patron = (s16b)randint0(MAX_PATRON);
 
 		p_ptr->muta1 = 0;
 		p_ptr->muta2 = 0;
@@ -2912,7 +2925,8 @@ static bool player_birth_aux_3(void)
 			else if (ch == '=')
 			{
 				screen_save();
-				do_cmd_options_aux(6, "Startup Options");
+				do_cmd_options(OPT_FLAG_BIRTH | OPT_FLAG_SERVER |
+						 OPT_FLAG_PLAYER);
 				screen_load();
 				continue;
 			}
@@ -2982,6 +2996,8 @@ static bool player_birth_aux(void)
 	/* Accept */
 	return (TRUE);
 }
+
+
 /*
  * Create a new character.
  *
@@ -2990,9 +3006,6 @@ static bool player_birth_aux(void)
  */
 void player_birth(void)
 {
-	int i, j;
-
-
 	/* Create a new character */
 	while (1)
 	{
@@ -3018,16 +3031,6 @@ void player_birth(void)
 
 	/* Hack -- outfit the player */
 	player_outfit();
-
-	/* Init the shops */
-	for (i = 1; i < max_towns; i++)
-	{
-		for (j = 0; j < MAX_STORES; j++)
-		{
-			/* Initialize */
-			store_init(i, j);
-		}
-	}
 
 	/* Set the message window flag as default */
 	if (!window_flag[1])

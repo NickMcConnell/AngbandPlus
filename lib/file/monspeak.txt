@@ -275,9 +275,18 @@ grumbles: 'Stop, greedy one! Leave something for me!'
 shouts: 'Back, over-bold one!'
 whines: 'You swindler, do you seek to vilify me?'
 
-#N:517:Jurt the Living Trump
+N:517:Jurt the Living Trump
+1
+says: 'Only your death will set things right.'
+
 #N:551:Rogrog the Black Troll
-#N:573:Lord Borel of Hendrake
+
+N:573:Lord Borel of Hendrake
+3
+says: 'You smile at your own cowardice? Stand and fight, bastard!'
+says: 'I am Borel, Duke of Hendrake, Master of Arms of the Ways of Hendrake.'
+says: 'Oh, basely done! I had hoped better of thee!'
+
 #N:595:Father Dagon
 #N:596:Mother Hydra
 #N:598:Mandor, Master of the Logrus
@@ -381,7 +390,13 @@ says, 'Verily, it is too late for thee.'
 #N:767:Daoloth, the Render of the Veils
 #N:770:Artsi the Champion of Chaos
 #N:771:Saruman of Many Colours
-#N:772:Gandalf the Grey
+
+N:772:Gandalf the Grey
+3
+says, 'I am a Wielder of the Flame of Anor, you cannot pass.'
+says, 'The dark fire will not avail you, Flame of Udun.'
+says, 'Go Back to the Shadow! You cannot pass!'
+
 #N:773:Brand, Mad Visionary of Amber
 #N:777:Bast, Goddess of Cats
 #N:780:Vlad Dracula, Prince of Darkness

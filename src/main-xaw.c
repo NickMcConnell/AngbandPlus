@@ -671,8 +671,6 @@ static void Resize_term(AngbandWidget wnew)
 	int ox = wnew->angband.internal_border;
 	int oy = wnew->angband.internal_border;
 
-	bool redraw_it = TRUE;
-
 	int i;
 	term_data *old_td = (term_data*)(Term->data);
 	term_data *td = &data[0];
@@ -712,36 +710,7 @@ static void Resize_term(AngbandWidget wnew)
 	hgt = rows * wnew->angband.fontheight + (oy + oy);
 
 	/* Resize the Term (if needed) */
-	if (Term_resize(cols, rows) == 1) redraw_it = FALSE;
-
-	/* Reset map size if required */
-	if (i == 0)
-	{
-		/* Mega-Hack -- no panel yet */
-		panel_row_min = 0;
-		panel_row_max = 0;
-		panel_col_min = 0;
-		panel_col_max = 0;
-
-		/* Reset the panels */
-		map_panel_size();
-		
-		if (character_dungeon)
-		{
-			verify_panel();
-		}
-	}
-
-	/* Only redraw if everything is initialised */
-	if (character_dungeon && redraw_it)
-	{
-		/* Activate term zero for the redraw */
-		Term_activate(&data[0].t);
-
-		/* redraw */
-		do_cmd_redraw_term(i);
-	}
-
+	(void) Term_resize(cols, rows);
 
 	/* Activate the old term */
 	Term_activate(&old_td->t);
@@ -1670,7 +1639,7 @@ errr init_xaw(int argc, char *argv[])
 		               TERM_FALLBACKS, i);
 
 		angband_term[i] = Term;
-	}
+	}	
 
 	/* Activate the "Angband" window screen */
 	Term_activate(&data[0].t);

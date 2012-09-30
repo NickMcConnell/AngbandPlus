@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 2000/09/16 17:41:06 $ */
 /* File: main-gcu.c */
 
 /*
@@ -846,23 +845,21 @@ static errr Term_text_gcu(int x, int y, int n, byte a, cptr s)
 		/* Special characters? */
 		if (use_blocks)
 		{
+			
 			/* Determine picture to use */
-			switch (s[i])
+			if (s[i] == '#')
 			{
-				/* Wall */
-				case '#':
-					pic = ACS_CKBOARD;
-					break;
-
-				/* Mineral vein */
-				case '%':
-					pic = ACS_BOARD;
-					break;
-
-				/* XXX */
-				default:
-					pic = s[i];
-					break;
+				/* Walls */
+				pic = ACS_CKBOARD;
+				
+				/*
+				 *  Note that veins are '#' as well now.
+				 *  Trees are '%' now - and this looks bad when redefined.
+				 */
+			}
+			else
+			{
+			        pic = s[i];
 			}
 
 			/* Draw the picture */
@@ -944,6 +941,13 @@ static errr term_data_init_gcu(term_data *td, int rows, int cols, int y, int x, 
 	return (0);
 }
 
+/* The hook to exit curses on a failure */
+static void hook_quit(cptr str)
+{
+	/* Exit curses */
+	endwin();
+}
+
 
 /*
  * Prepare "curses" for use by the file "term.c"
@@ -953,7 +957,7 @@ static errr term_data_init_gcu(term_data *td, int rows, int cols, int y, int x, 
  *
  * Someone should really check the semantics of "initscr()"
  */
-errr init_gcu(int argc, char *argv[])
+errr init_gcu(void)
 {
 	int i;
 
@@ -971,6 +975,9 @@ errr init_gcu(int argc, char *argv[])
 	if (initscr() == (WINDOW*)ERR) return (-1);
 #endif
 
+	/* Activate hooks */
+	quit_aux = hook_quit;
+	core_aux = hook_quit;
 
 	/* Hack -- Require large screen, or Quit with message */
 	i = ((LINES < 24) || (COLS < 80));

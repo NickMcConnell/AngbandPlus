@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 2000/10/16 17:21:02 $ */
 /* File: cmd5.c */
 
 /* Purpose: Spell/Prayer commands */
@@ -27,7 +26,7 @@
 static int get_spell(int *sn, cptr prompt, int sval, bool known, bool realm_2)
 {
 	int         i;
-	int         spell = -1;
+	int         spell;
 	int         num = 0;
 	int         ask;
 	byte        spells[64];
@@ -206,24 +205,80 @@ static int get_spell(int *sn, cptr prompt, int sval, bool known, bool realm_2)
 
 
 /*
- * Peruse the spells/prayers in a book
+ * Peruse the spells/prayers in a given book.  Note that we may
+ * bypass do_cmd_browse by calling this function directly (as we
+ * do from identify_fully_aux() which has the effect of allowing
+ * any book to be browsed regardless of the player's realm choice.
  *
  * Note that *all* spells in the book are listed
+ */
+void do_cmd_browse_aux(object_type *o_ptr)
+{
+	int sval;
+	int spell;
+	int num = 0;
+
+	byte spells[64];
+
+
+#ifdef USE_SCRIPT
+	if (object_browse_callback(o_ptr)) return;
+#endif /* USE_SCRIPT */
+
+	/* Access the item's sval */
+	sval = o_ptr->sval;
+
+	/* Track the object kind */
+	object_kind_track(o_ptr->k_idx);
+
+	/* Hack -- Handle stuff */
+	handle_stuff();
+
+
+	/* Extract spells */
+	for (spell = 0; spell < 32; spell++)
+	{
+		/* Check for this spell */
+		if ((fake_spell_flags[sval] & (1L << spell)))
+		{
+			/* Collect this spell */
+			spells[num++] = spell;
+		}
+	}
+
+
+	/* Save the screen */
+	screen_save();
+
+	/* Display the spells */
+	print_spells(spells, num, 1, 20, (o_ptr->tval - TV_BOOKS_MIN));
+
+	/* Clear the top line */
+	prt("", 0, 0);
+
+	/* Prompt user */
+	put_str("[Press any key to continue]", 0, 23);
+
+	/* Wait for key */
+	(void)inkey();
+
+	/* Restore the screen */
+	screen_load();
+}
+
+
+/*
+ * Peruse the spells/prayers in a book
  *
  * Note that browsing is allowed while confused or blind,
  * and in the dark, primarily to allow browsing in stores.
  */
-void do_cmd_browse(void)
+void do_cmd_browse()
 {
-	int		item, sval;
-	int		spell = -1;
-	int		num = 0;
-
-	byte		spells[64];
-
+	int item;
 	object_type	*o_ptr;
-
 	cptr q, s;
+
 
 	/* Warriors are illiterate */
 	if (!(p_ptr->realm1 || p_ptr->realm2))
@@ -270,52 +325,9 @@ void do_cmd_browse(void)
 		o_ptr = &o_list[0 - item];
 	}
 
-#ifdef USE_SCRIPT
-	if (object_browse_callback(o_ptr)) return;
-#endif /* USE_SCRIPT */
-
-	/* Access the item's sval */
-	sval = o_ptr->sval;
-
-	/* Track the object kind */
-	object_kind_track(o_ptr->k_idx);
-
-	/* Hack -- Handle stuff */
-	handle_stuff();
-
-
-	/* Extract spells */
-	for (spell = 0; spell < 32; spell++)
-	{
-		/* Check for this spell */
-		if ((fake_spell_flags[sval] & (1L << spell)))
-		{
-			/* Collect this spell */
-			spells[num++] = spell;
-		}
-	}
-
-
-	/* Save the screen */
-	screen_save();
-
-	/* Display the spells */
-	print_spells(spells, num, 1, 20, (o_ptr->tval-90));
-
-	/* Clear the top line */
-	prt("", 0, 0);
-
-	/* Prompt user */
-	put_str("[Press any key to continue]", 0, 23);
-
-	/* Wait for key */
-	(void)inkey();
-
-	/* Restore the screen */
-	screen_load();
+	/* Print out the spells */
+	do_cmd_browse_aux(o_ptr);
 }
-
-
 
 
 /*
@@ -418,13 +430,14 @@ void do_cmd_study(void)
 			{
 				/* Skip non "okay" prayers */
 				if (!spell_okay(spell, FALSE,
-					(increment ? p_ptr->realm2 - 1 : p_ptr->realm1 - 1))) continue;
+					(increment ? p_ptr->realm2 - 1 : p_ptr->realm1 - 1)))
+					continue;
 
 				/* Hack -- Prepare the randomizer */
 				k++;
 
 				/* Hack -- Apply the randomizer */
-				if (rand_int(k) == 0) gift = spell;
+				if (randint0(k) == 0) gift = spell;
 			}
 		}
 
@@ -444,29 +457,29 @@ void do_cmd_study(void)
 
 
 	/* Take a turn */
-	energy_use = 100;
+	p_ptr->energy_use = 100;
 
 	if (increment) spell += increment;
 
 	/* Learn the spell */
 	if (spell < 32)
 	{
-		spell_learned1 |= (1L << spell);
+		p_ptr->spell_learned1 |= (1L << spell);
 	}
 	else
 	{
-		spell_learned2 |= (1L << (spell - 32));
+		p_ptr->spell_learned2 |= (1L << (spell - 32));
 	}
 
 	/* Find the next open entry in "spell_order[]" */
 	for (i = 0; i < 64; i++)
 	{
 		/* Stop at the first empty space */
-		if (spell_order[i] == 99) break;
+		if (p_ptr->spell_order[i] == 99) break;
 	}
 
 	/* Add the spell to the known list */
-	spell_order[i++] = spell;
+	p_ptr->spell_order[i++] = spell;
 
 	/* Mention the result */
 	msg_format("You have learned the %s of %s.",
@@ -493,9 +506,6 @@ void do_cmd_study(void)
 			(p_ptr->new_spells != 1) ? "s" : "");
 	}
 
-	/* Save the new_spells value */
-	p_ptr->old_spells = p_ptr->new_spells;
-
 	/* Redraw Study Status */
 	p_ptr->redraw |= (PR_STUDY);
 }
@@ -517,7 +527,10 @@ static int bizarre_num[MAX_BIZARRE] =
 
 static void wild_magic(int spell)
 {
-	switch (randint(spell) + randint(8) + 1)
+	int px = p_ptr->px;
+	int py = p_ptr->py;
+
+	switch (randint1(spell) + randint1(8) + 1)
 	{
 		case 1:
 		case 2:
@@ -623,11 +636,11 @@ static void wild_magic(int spell)
 		case 35:
 		{
 			int i;
-			int type = bizarre_num[rand_int(6)];
+			int type = bizarre_num[randint0(6)];
 
 			for (i = 0; i < 8; i++)
 			{
-				(void)summon_specific(0, py, px, (dun_level * 3) / 2, type, TRUE, FALSE, FALSE);
+				(void)summon_specific(0, py, px, (p_ptr->depth * 3) / 2, type, TRUE, FALSE, FALSE);
 			}
 			break;
 		}
@@ -658,6 +671,9 @@ static void wild_magic(int spell)
 
 static bool cast_life_spell(int spell)
 {
+	int px = p_ptr->px;
+	int py = p_ptr->py;
+
 	int	dir;
 	int	plev = p_ptr->lev;
 
@@ -671,7 +687,7 @@ static bool cast_life_spell(int spell)
 		(void)set_cut(p_ptr->cut - 10);
 		break;
 	case 2: /* Bless */
-		(void)set_blessed(p_ptr->blessed + randint(12) + 12);
+		(void)set_blessed(p_ptr->blessed + randint1(12) + 12);
 		break;
 	case 3: /* Remove Fear */
 		(void)set_afraid(0);
@@ -703,7 +719,7 @@ static bool cast_life_spell(int spell)
 		(void)set_cut(0);
 		break;
 	case 11: /* Sense Unseen */
-		(void)set_tim_invis(p_ptr->tim_invis + randint(24) + 24);
+		(void)set_tim_invis(p_ptr->tim_invis + randint1(24) + 24);
 		break;
 	case 12: /* Orb or Draining */
 		if (!get_aim_dir(&dir)) return FALSE;
@@ -716,7 +732,7 @@ static bool cast_life_spell(int spell)
 
 		break;
 	case 13: /* Protection from Evil */
-		(void)set_protevil(p_ptr->protevil + randint(25) + 3 * p_ptr->lev);
+		(void)set_protevil(p_ptr->protevil + randint1(25) + 3 * p_ptr->lev);
 		break;
 	case 14: /* Healing */
 		(void)hp_player(300);
@@ -763,12 +779,12 @@ static bool cast_life_spell(int spell)
 		glyph_creation();
 		break;
 	case 24: /* Heroism */
-		(void)set_hero(p_ptr->hero + randint(25) + 25);
+		(void)set_hero(p_ptr->hero + randint1(25) + 25);
 		(void)hp_player(10);
 		(void)set_afraid(0);
 		break;
 	case 25: /* Prayer */
-		(void)set_blessed(p_ptr->blessed + randint(48) + 48);
+		(void)set_blessed(p_ptr->blessed + randint1(48) + 48);
 		break;
 	case 26:
 		return bless_weapon();
@@ -797,20 +813,23 @@ static bool cast_life_spell(int spell)
 		turn_monsters(plev * 4);
 		stasis_monsters(plev * 4);
 		summon_specific(-1, py, px, plev, SUMMON_ANGEL, TRUE, TRUE, TRUE);
-		(void)set_shero(p_ptr->shero + randint(25) + 25);
+		(void)set_shero(p_ptr->shero + randint1(25) + 25);
 		(void)hp_player(300);
+
+		/* Haste */
 		if (!p_ptr->fast)
-		{   /* Haste */
-			(void)set_fast(randint(20 + plev) + plev);
+		{
+			(void)set_fast(randint1(20 + plev) + plev);
 		}
 		else
 		{
-			(void)set_fast(p_ptr->fast + randint(5));
+			(void)set_fast(p_ptr->fast + randint1(5));
 		}
+
 		(void)set_afraid(0);
 		break;
 	case 31: /* Holy Invulnerability */
-		(void)set_invuln(p_ptr->invuln + randint(7) + 7);
+		(void)set_invuln(p_ptr->invuln + randint1(7) + 7);
 		break;
 	default:
 		msg_format("You cast an unknown Life spell: %d.", spell);
@@ -879,11 +898,11 @@ static bool cast_sorcery_spell(int spell)
 	case 13: /* Haste Self */
 		if (!p_ptr->fast)
 		{
-			(void)set_fast(randint(20 + plev) + plev);
+			(void)set_fast(randint1(20 + plev) + plev);
 		}
 		else
 		{
-			(void)set_fast(p_ptr->fast + randint(5));
+			(void)set_fast(p_ptr->fast + randint1(5));
 		}
 		break;
 	case 14: /* Detection True */
@@ -908,7 +927,7 @@ static bool cast_sorcery_spell(int spell)
 		msg_print("You open a dimensional gate. Choose a destination.");
 		return dimension_door();
 	case 20: /* Sense Minds */
-		(void)set_tim_esp(p_ptr->tim_esp + randint(30) + 25);
+		(void)set_tim_esp(p_ptr->tim_esp + randint1(30) + 25);
 		break;
 	case 21: /* Self knowledge */
 		(void)self_knowledge();
@@ -936,17 +955,17 @@ static bool cast_sorcery_spell(int spell)
 		wiz_lite();
 		if (!(p_ptr->telepathy))
 		{
-			(void)set_tim_esp(p_ptr->tim_esp + randint(30) + 25);
+			(void)set_tim_esp(p_ptr->tim_esp + randint1(30) + 25);
 		}
 		break;
 	case 28: /* Enchant Weapon */
-		return enchant_spell(rand_int(4) + 1, rand_int(4) + 1, 0);
+		return enchant_spell(randint0(4) + 1, randint0(4) + 1, 0);
 	case 29: /* Enchant Armour */
-		return enchant_spell(0, 0, rand_int(3) + 2);
+		return enchant_spell(0, 0, randint0(3) + 2);
 	case 30: /* Alchemy */
 		return alchemy();
 	case 31: /* Globe of Invulnerability */
-		(void)set_invuln(p_ptr->invuln + randint(8) + 8);
+		(void)set_invuln(p_ptr->invuln + randint1(8) + 8);
 		break;
 	default:
 		msg_format("You cast an unknown Sorcery spell: %d.", spell);
@@ -959,6 +978,9 @@ static bool cast_sorcery_spell(int spell)
 
 static bool cast_nature_spell(int spell)
 {
+	int px = p_ptr->px;
+	int py = p_ptr->py;
+
 	int	    dir;
 	int	    beam;
 	int	    plev = p_ptr->lev;
@@ -999,9 +1021,9 @@ static bool cast_nature_spell(int spell)
 		(void)charm_animal(dir, plev);
 		break;
 	case 6: /* Resist Environment */
-		(void)set_oppose_cold(p_ptr->oppose_cold + randint(20) + 20);
-		(void)set_oppose_fire(p_ptr->oppose_fire + randint(20) + 20);
-		(void)set_oppose_elec(p_ptr->oppose_elec + randint(20) + 20);
+		(void)set_oppose_cold(p_ptr->oppose_cold + randint1(20) + 20);
+		(void)set_oppose_fire(p_ptr->oppose_fire + randint1(20) + 20);
+		(void)set_oppose_elec(p_ptr->oppose_elec + randint1(20) + 20);
 		break;
 	case 7: /* Cure Wounds + Poison */
 		(void)set_cut(0);
@@ -1055,14 +1077,14 @@ static bool cast_nature_spell(int spell)
 		(void)stair_creation();
 		break;
 	case 18: /* Stone Skin */
-		(void)set_shield(p_ptr->shield + randint(20) + 30);
+		(void)set_shield(p_ptr->shield + randint1(20) + 30);
 		break;
 	case 19: /* Resistance True */
-		(void)set_oppose_acid(p_ptr->oppose_acid + randint(20) + 20);
-		(void)set_oppose_elec(p_ptr->oppose_elec + randint(20) + 20);
-		(void)set_oppose_fire(p_ptr->oppose_fire + randint(20) + 20);
-		(void)set_oppose_cold(p_ptr->oppose_cold + randint(20) + 20);
-		(void)set_oppose_pois(p_ptr->oppose_pois + randint(20) + 20);
+		(void)set_oppose_acid(p_ptr->oppose_acid + randint1(20) + 20);
+		(void)set_oppose_elec(p_ptr->oppose_elec + randint1(20) + 20);
+		(void)set_oppose_fire(p_ptr->oppose_fire + randint1(20) + 20);
+		(void)set_oppose_cold(p_ptr->oppose_cold + randint1(20) + 20);
+		(void)set_oppose_pois(p_ptr->oppose_pois + randint1(20) + 20);
 		break;
 	case 20: /* Animal Friendship */
 		(void)charm_animals(plev * 2);
@@ -1080,8 +1102,8 @@ static bool cast_nature_spell(int spell)
 	case 25: /* Whirlwind Attack */
 		{
 			int y = 0, x = 0;
-			cave_type       *c_ptr;
-			monster_type    *m_ptr;
+			cave_type *c_ptr;
+			monster_type *m_ptr;
 
 			for (dir = 0; dir <= 9; dir++)
 			{
@@ -1146,6 +1168,9 @@ static bool cast_nature_spell(int spell)
 
 static bool cast_chaos_spell(int spell)
 {
+	int px = p_ptr->px;
+	int py = p_ptr->py;
+
 	int	dir, i, beam;
 	int	plev = p_ptr->lev;
 	cave_type *c_ptr;
@@ -1204,14 +1229,15 @@ static bool cast_chaos_spell(int spell)
 		break;
 	case 8: /* Wonder */
 		{
-		/* This spell should become more useful (more
-		controlled) as the player gains experience levels.
-		Thus, add 1/5 of the player's level to the die roll.
-		This eliminates the worst effects later on, while
-		keeping the results quite random.  It also allows
-			some potent effects only at high level. */
-
-			int die = randint(100) + plev / 5;
+		/*
+		 * This spell should become more useful (more
+		 * controlled) as the player gains experience levels.
+		 * Thus, add 1/5 of the player's level to the die roll.
+		 * This eliminates the worst effects later on, while
+		 * keeping the results quite random.  It also allows
+		 * some potent effects only at high level.
+		 */
+			int die = randint1(100) + plev / 5;
 
 			if (die < 26)
 				chg_virtue(V_CHANCE, 1);
@@ -1225,22 +1251,22 @@ static bool cast_chaos_spell(int spell)
 			else if (die < 31) poly_monster(dir);
 			else if (die < 36)
 				fire_bolt_or_beam(beam - 10, GF_MISSILE, dir,
-				    damroll(3 + ((plev - 1) / 5), 4));
+				                  damroll(3 + ((plev - 1) / 5), 4));
 			else if (die < 41) confuse_monster(dir, plev);
 			else if (die < 46) fire_ball(GF_POIS, dir, 20 + (plev / 2), 3);
 			else if (die < 51) (void)lite_line(dir);
 			else if (die < 56)
 				fire_bolt_or_beam(beam - 10, GF_ELEC, dir,
-				    damroll(3 + ((plev - 5) / 4), 8));
+				                  damroll(3 + ((plev - 5) / 4), 8));
 			else if (die < 61)
 				fire_bolt_or_beam(beam - 10, GF_COLD, dir,
-				    damroll(5 + ((plev - 5) / 4), 8));
+				                  damroll(5 + ((plev - 5) / 4), 8));
 			else if (die < 66)
 				fire_bolt_or_beam(beam, GF_ACID, dir,
-				    damroll(6 + ((plev - 5) / 4), 8));
+				                  damroll(6 + ((plev - 5) / 4), 8));
 			else if (die < 71)
 				fire_bolt_or_beam(beam, GF_FIRE, dir,
-					 damroll(8 + ((plev - 5) / 4), 8));
+				                  damroll(8 + ((plev - 5) / 4), 8));
 			else if (die < 76) drain_life(dir, 75);
 			else if (die < 81) fire_ball(GF_ELEC, dir, 30 + plev / 2, 2);
 			else if (die < 86) fire_ball(GF_ACID, dir, 40 + plev, 2);
@@ -1273,7 +1299,7 @@ static bool cast_chaos_spell(int spell)
 		if (!get_aim_dir(&dir)) return FALSE;
 
 		fire_bolt_or_beam(beam, GF_CHAOS, dir,
-			damroll(10 + ((plev - 5) / 4), 8));
+		                  damroll(10 + ((plev - 5) / 4), 8));
 		break;
 	case 10: /* Sonic Boom */
 		msg_print("BOOM! Shake the room!");
@@ -1330,7 +1356,7 @@ static bool cast_chaos_spell(int spell)
 		break;
 	case 23: /* Summon monster, demon */
 		{
-			bool pet = (randint(3) == 1);
+			bool pet = (randint1(3) == 1);
 			bool group = !(pet && (plev < 50));
 
 			if (summon_specific((pet ? -1 : 0), py, px, (plev * 3) / 2, SUMMON_DEMON, group, FALSE, pet))
@@ -1352,7 +1378,7 @@ static bool cast_chaos_spell(int spell)
 	case 25: /* Meteor Swarm */
 		{
 			int x, y;
-			int b = 10 + randint(10);
+			int b = 10 + randint1(10);
 			for (i = 0; i < b; i++)
 			{
 				int count = 0;
@@ -1361,8 +1387,8 @@ static bool cast_chaos_spell(int spell)
 				{
 					count++;
 					
-					x = px - 5 + randint(10);
-					y = py - 5 + randint(10);
+					x = px - 5 + randint1(10);
+					y = py - 5 + randint1(10);
 
 					/* paranoia */
 					if (!in_bounds(y, x)) continue;
@@ -1418,6 +1444,9 @@ static bool cast_chaos_spell(int spell)
 
 static bool cast_death_spell(int spell)
 {
+	int px = p_ptr->px;
+	int py = p_ptr->py;
+
 	int	dir;
 	int	beam;
 	int	plev = p_ptr->lev;
@@ -1443,9 +1472,10 @@ static bool cast_death_spell(int spell)
 		fire_ball(GF_HELL_FIRE, dir,
 			damroll(3 + ((plev - 1) / 5), 3), 0);
 
-		if (randint(5) == 1)
-		{   /* Special effect first */
-			dummy = randint(1000);
+		if (randint1(5) == 1)
+		{
+			/* Special effect first */
+			dummy = randint1(1000);
 			if (dummy == 666)
 				fire_bolt(GF_DEATH_RAY, dir, plev * 50);
 			else if (dummy < 500)
@@ -1470,7 +1500,7 @@ static bool cast_death_spell(int spell)
 		(void)sleep_monster(dir);
 		break;
 	case 5: /* Resist Poison */
-		(void)set_oppose_pois(p_ptr->oppose_pois + randint(20) + 20);
+		(void)set_oppose_pois(p_ptr->oppose_pois + randint1(20) + 20);
 		break;
 	case 6: /* Horrify */
 		if (!get_aim_dir(&dir)) return FALSE;
@@ -1496,7 +1526,7 @@ static bool cast_death_spell(int spell)
 		if (!get_aim_dir(&dir)) return FALSE;
 
 		fire_bolt_or_beam(beam, GF_NETHER, dir,
-		    damroll(6 + ((plev - 5) / 4), 8));
+		                  damroll(6 + ((plev - 5) / 4), 8));
 		break;
 	case 10: /* Terror */
 		(void)turn_monsters(30 + plev);
@@ -1504,7 +1534,7 @@ static bool cast_death_spell(int spell)
 	case 11: /* Vampiric Drain */
 		if (!get_aim_dir(&dir)) return FALSE;
 
-		dummy = plev + randint(plev) * MAX(1, plev / 10);   /* Dmg */
+		dummy = plev + randint1(plev) * MAX(1, plev / 10);   /* Dmg */
 		if (drain_gain_life(dir, dummy))
 		{
 			/*
@@ -1517,7 +1547,7 @@ static bool cast_death_spell(int spell)
 			/* Gain nutritional sustenance: 150/hp drained */
 			/* A Food ration gives 5000 food points (by contrast) */
 			/* Don't ever get more than "Full" this way */
-			/* But if we ARE Gorged,  it won't cure us */
+			/* But if we ARE Gorged, it won't cure us */
 			dummy = p_ptr->food + MIN(5000, 100 * dummy);
 			if (p_ptr->food < PY_FOOD_MAX)   /* Not gorged already */
 				(void)set_food(dummy >= PY_FOOD_MAX ? PY_FOOD_MAX - 1 : dummy);
@@ -1536,13 +1566,13 @@ static bool cast_death_spell(int spell)
 		(void)restore_level();
 		break;
 	case 16: /* Berserk */
-		(void)set_shero(p_ptr->shero + randint(25) + 25);
+		(void)set_shero(p_ptr->shero + randint1(25) + 25);
 		(void)hp_player(30);
 		(void)set_afraid(0);
 		break;
 	case 17: /* Invoke Spirits */
 		{
-			int die = randint(100) + plev / 5;
+			int die = randint1(100) + plev / 5;
 			if (!get_aim_dir(&dir)) return FALSE;
 
 			msg_print("You call on the power of the dead...");
@@ -1556,19 +1586,19 @@ static bool cast_death_spell(int spell)
 			if (die < 8)
 			{
 				msg_print("Oh no! Mouldering forms rise from the earth around you!");
-				(void)summon_specific(0, py, px, dun_level, SUMMON_UNDEAD, TRUE, FALSE, FALSE);
+				(void)summon_specific(0, py, px, p_ptr->depth, SUMMON_UNDEAD, TRUE, FALSE, FALSE);
 
 				chg_virtue(V_UNLIFE, 1);
 			}
 			else if (die < 14)
 			{
 				msg_print("An unnamable evil brushes against your mind...");
-				set_afraid(p_ptr->afraid + randint(4) + 4);
+				set_afraid(p_ptr->afraid + randint1(4) + 4);
 			}
 			else if (die < 26)
 			{
 				msg_print("Your head is invaded by a horde of gibbering spectral voices...");
-				set_confused(p_ptr->confused + randint(4) + 4);
+				set_confused(p_ptr->confused + randint1(4) + 4);
 			}
 			else if (die < 31)
 			{
@@ -1670,16 +1700,16 @@ static bool cast_death_spell(int spell)
 			damroll(4 + ((plev - 5) / 4), 8));
 		break;
 	case 19: /* Battle Frenzy */
-		(void)set_shero(p_ptr->shero + randint(25) + 25);
+		(void)set_shero(p_ptr->shero + randint1(25) + 25);
 		(void)hp_player(30);
 		(void)set_afraid(0);
 		if (!p_ptr->fast)
 		{
-			(void)set_fast(randint(20 + (plev / 2)) + (plev / 2));
+			(void)set_fast(randint1(20 + (plev / 2)) + (plev / 2));
 		}
 		else
 		{
-			(void)set_fast(p_ptr->fast + randint(5));
+			(void)set_fast(p_ptr->fast + randint1(5));
 		}
 		break;
 	case 20: /* Vampirism True */
@@ -1712,14 +1742,14 @@ static bool cast_death_spell(int spell)
 	case 25: /* Raise the Dead */
 		{
 #if 0
-			bool pet = (randint(3) == 1);
+			bool pet = (randint1(3) == 1);
 			bool group;
 			int type;
 
 			if (pet)
 			{
 				type = (plev > 47 ? SUMMON_HI_UNDEAD_NO_UNIQUES : SUMMON_UNDEAD);
-				group = (((plev > 24) && (randint(3) == 1)) ? TRUE : FALSE);
+				group = (((plev > 24) && (randint1(3) == 1)) ? TRUE : FALSE);
 			}
 			else
 			{
@@ -1741,7 +1771,7 @@ static bool cast_death_spell(int spell)
 #else /* 0 */
 
 			/* Testing the new corpse-raising code. */
-			if (raise_dead(py, px, (bool)(randint(3) != 1)))
+			if (raise_dead(py, px, (bool)(randint1(3) != 1)))
 			{
 				msg_print("Cold winds begin to blow around you, carrying with them the stench of decay...");
 				chg_virtue(V_UNLIFE, 1);
@@ -1750,7 +1780,7 @@ static bool cast_death_spell(int spell)
 			break;
 		}
 	case 26: /* Esoteria */
-		if (randint(50) > plev)
+		if (randint1(50) > plev)
 			return ident_spell();
 		else
 			return identify_fully();
@@ -1767,7 +1797,7 @@ static bool cast_death_spell(int spell)
 		if (!get_aim_dir(&dir)) return FALSE;
 
 		fire_ball(GF_HELL_FIRE, dir, 666, 3);
-		take_hit(50 + randint(50), "the strain of casting Hellfire");
+		take_hit(50 + randint1(50), "the strain of casting Hellfire");
 		break;
 	case 30: /* Omnicide */
 		p_ptr->csp -= 100;	/* Display doesn't show mana cost (100)
@@ -1778,8 +1808,8 @@ static bool cast_death_spell(int spell)
 							 * program can deduct it properly */
 		for (i = 1; i < m_max; i++)
 		{
-			monster_type    *m_ptr = &m_list[i];
-			monster_race    *r_ptr = &r_info[m_ptr->r_idx];
+			monster_type *m_ptr = &m_list[i];
+			monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
 			/* Paranoia -- Skip dead monsters */
 			if (!m_ptr->r_idx) continue;
@@ -1790,11 +1820,18 @@ static bool cast_death_spell(int spell)
 			/* Hack -- Skip Quest Monsters */
 			if (r_ptr->flags1 & RF1_QUESTOR) continue;
 
+			/* Notice changes in view */
+			if (r_ptr->flags7 & (RF7_LITE_1 | RF7_LITE_2))
+			{
+				/* Update some things */
+				p_ptr->update |= (PU_MON_LITE);
+			}
+
 			/* Delete the monster */
 			delete_monster_idx(i);
 
 			/* Take damage */
-			take_hit(randint(4), "the strain of casting Omnicide");
+			take_hit(randint1(4), "the strain of casting Omnicide");
 
 			/* Absorb power of dead soul - up to twice max. mana */
 			if (p_ptr->csp < (p_ptr->msp * 2))
@@ -1820,11 +1857,13 @@ static bool cast_death_spell(int spell)
 			Term_xtra(TERM_XTRA_DELAY,
 				delay_factor * delay_factor * delay_factor);
 		}
-		p_ptr->csp += 100;   /* Restore, ready to be deducted properly */
+
+		/* Restore, ready to be deducted properly */
+		p_ptr->csp += 100;
 
 		break;
 	case 31: /* Wraithform */
-		set_wraith_form(p_ptr->wraith_form + randint(plev / 2) + (plev / 2));
+		set_wraith_form(p_ptr->wraith_form + randint1(plev / 2) + (plev / 2));
 		break;
 	default:
 		msg_format("You cast an unknown Death spell: %d.", spell);
@@ -1837,6 +1876,9 @@ static bool cast_death_spell(int spell)
 
 static bool cast_trump_spell(int spell, bool success)
 {
+	int px = p_ptr->px;
+	int py = p_ptr->py;
+
 	int     dir;
 	int     beam;
 	int     plev = p_ptr->lev;
@@ -1862,19 +1904,19 @@ static bool cast_trump_spell(int spell, bool success)
 			if (success)
 			{
 				if (!get_aim_dir(&dir)) return FALSE;
-				fire_bolt_or_beam(beam-10, GF_PSI, dir,
-				    damroll(3 + ((plev - 1) / 5), 3));
+				fire_bolt_or_beam(beam - 10, GF_PSI, dir,
+				                  damroll(3 + ((plev - 1) / 5), 3));
 			}
 			break;
 		case 2: /* Shuffle */
 			if (success)
 			{
 				/* A limited power 'wonder' spell */
-				int die = randint(120);
+				int die = randint1(120);
 
 				if ((p_ptr->pclass == CLASS_ROGUE) ||
 					(p_ptr->pclass == CLASS_HIGH_MAGE))
-					die = (randint(110)) + plev / 5;
+					die = (randint1(110)) + plev / 5;
 				/* Card sharks and high mages get a level bonus */
 
 				msg_print("You shuffle the deck and draw a card...");
@@ -1885,13 +1927,13 @@ static bool cast_trump_spell(int spell, bool success)
 				if (die < 7)
 				{
 					msg_print("Oh no! It's Death!");
-					for (dummy = 0; dummy < randint(3); dummy++)
+					for (dummy = 0; dummy < randint1(3); dummy++)
 						(void)activate_hi_summon();
 				}
 				else if (die < 14)
 				{
 					msg_print("Oh no! It's the Devil!");
-					(void)summon_specific(0, py, px, dun_level, SUMMON_DEMON, TRUE, FALSE, FALSE);
+					(void)summon_specific(0, py, px, p_ptr->depth, SUMMON_DEMON, TRUE, FALSE, FALSE);
 				}
 				else if (die < 18)
 				{
@@ -1914,7 +1956,7 @@ static bool cast_trump_spell(int spell, bool success)
 				else if (die < 30)
 				{
 					msg_print("It's the picture of a strange monster.");
-					if (!(summon_specific(0, py, px, (dun_level * 3) / 2, 32 + randint(6), TRUE, FALSE, FALSE)))
+					if (!(summon_specific(0, py, px, (p_ptr->depth * 3) / 2, 32 + randint1(6), TRUE, FALSE, FALSE)))
 						no_trump = TRUE;
 				}
 				else if (die < 33)
@@ -1925,7 +1967,7 @@ static bool cast_trump_spell(int spell, bool success)
 				else if (die < 38)
 				{
 					msg_print("It's the Wheel of Fortune.");
-					wild_magic(rand_int(32));
+					wild_magic(randint0(32));
 				}
 				else if (die < 40)
 				{
@@ -1965,25 +2007,25 @@ static bool cast_trump_spell(int spell, bool success)
 				else if (die < 82)
 				{
 					msg_print("It's the picture of a friendly monster.");
-					if (!(summon_specific(-1, py, px, (dun_level * 3) / 2, SUMMON_BIZARRE1, FALSE, TRUE, TRUE)))
+					if (!(summon_specific(-1, py, px, (p_ptr->depth * 3) / 2, SUMMON_BIZARRE1, FALSE, TRUE, TRUE)))
 						no_trump = TRUE;
 				}
 				else if (die < 84)
 				{
 					msg_print("It's the picture of a friendly monster.");
-					if (!(summon_specific(-1, py, px, (dun_level * 3) / 2, SUMMON_BIZARRE2, FALSE, TRUE, TRUE)))
+					if (!(summon_specific(-1, py, px, (p_ptr->depth * 3) / 2, SUMMON_BIZARRE2, FALSE, TRUE, TRUE)))
 						no_trump = TRUE;
 				}
 				else if (die < 86)
 				{
 					msg_print("It's the picture of a friendly monster.");
-					if (!(summon_specific(-1, py, px, (dun_level * 3) / 2, SUMMON_BIZARRE4, FALSE, TRUE, TRUE)))
+					if (!(summon_specific(-1, py, px, (p_ptr->depth * 3) / 2, SUMMON_BIZARRE4, FALSE, TRUE, TRUE)))
 						no_trump = TRUE;
 				}
 				else if (die < 88)
 				{
 					msg_print("It's the picture of a friendly monster.");
-					if (!(summon_specific(-1, py, px, (dun_level * 3) / 2, SUMMON_BIZARRE5, FALSE, TRUE, TRUE)))
+					if (!(summon_specific(-1, py, px, (p_ptr->depth * 3) / 2, SUMMON_BIZARRE5, FALSE, TRUE, TRUE)))
 						no_trump = TRUE;
 				}
 				else if (die < 96)
@@ -2031,10 +2073,10 @@ static bool cast_trump_spell(int spell, bool success)
 			if (success)
 			{
 				/* Prompt */
-				sprintf(ppp, "Reset to which level (1-%d): ", p_ptr->max_dlv);
+				sprintf(ppp, "Reset to which level (1-%d): ", p_ptr->max_depth);
 
 				/* Default */
-				sprintf(tmp_val, "%d", MAX(dun_level, 1));
+				sprintf(tmp_val, "%d", MAX(p_ptr->depth, 1));
 
 				/* Ask for a level */
 				if (get_string(ppp, tmp_val, 10))
@@ -2046,9 +2088,9 @@ static bool cast_trump_spell(int spell, bool success)
 					if (dummy < 1) dummy = 1;
 
 					/* Paranoia */
-					if (dummy > p_ptr->max_dlv) dummy = p_ptr->max_dlv;
+					if (dummy > p_ptr->max_depth) dummy = p_ptr->max_depth;
 
-					p_ptr->max_dlv = dummy;
+					p_ptr->max_depth = dummy;
 
 					/* Accept request */
 					msg_format("Recall depth set to level %d (%d').", dummy, dummy * 50);
@@ -2075,7 +2117,7 @@ static bool cast_trump_spell(int spell, bool success)
 		case 6: /* Trump Spying */
 			if (success)
 			{
-				(void)set_tim_esp(p_ptr->tim_esp + randint(30) + 25);
+				(void)set_tim_esp(p_ptr->tim_esp + randint1(30) + 25);
 			}
 			break;
 		case 7: /* Teleport Away */
@@ -2094,7 +2136,7 @@ static bool cast_trump_spell(int spell, bool success)
 			break;
 		case 9: /* Trump Animal */
 		{
-			bool pet = success; /* was (randint(5) > 2) */
+			bool pet = success; /* was (randint1(5) > 2) */
 			int type = (pet ? SUMMON_ANIMAL_RANGER : SUMMON_ANIMAL);
 			bool group = (pet ? FALSE : TRUE);
 
@@ -2128,7 +2170,7 @@ static bool cast_trump_spell(int spell, bool success)
 			break;
 		case 11: /* Trump Monster */
 		{
-			bool pet = success; /* was (randint(5) > 2) */
+			bool pet = success; /* was (randint1(5) > 2) */
 			int type = (pet ? SUMMON_NO_UNIQUES : 0);
 			bool group = (pet ? FALSE : TRUE);
 
@@ -2149,7 +2191,7 @@ static bool cast_trump_spell(int spell, bool success)
 		}
 		case 12: /* Conjure Elemental */
 		{
-			bool pet = success; /* was (randint(6) > 3) */
+			bool pet = success; /* was (randint1(6) > 3) */
 			bool group = (pet ? FALSE : TRUE);
 
 			if (success)
@@ -2187,13 +2229,13 @@ static bool cast_trump_spell(int spell, bool success)
 			break;
 		case 16: /* Joker Card */
 		{
-			bool pet = success; /* was (randint(2) == 1) */
+			bool pet = success; /* was (randint1(2) == 1) */
 			bool group = (pet ? FALSE : TRUE);
 
 			if (success)
 				msg_print("You concentrate on a joker card...");
 
-			switch (randint(4))
+			switch (randint1(4))
 			{
 				case 1: dummy = SUMMON_BIZARRE1; break;
 				case 2: dummy = SUMMON_BIZARRE2; break;
@@ -2214,7 +2256,7 @@ static bool cast_trump_spell(int spell, bool success)
 		}
 		case 17: /* Trump Spiders */
 		{
-			bool pet = success; /* (randint(5) > 2) */
+			bool pet = success; /* (randint1(5) > 2) */
 			bool group = (pet ? FALSE : TRUE);
 
 			if (success)
@@ -2234,7 +2276,7 @@ static bool cast_trump_spell(int spell, bool success)
 		}
 		case 18: /* Trump Reptiles */
 		{
-			bool pet = success; /* was (randint(5) > 2) */
+			bool pet = success; /* was (randint1(5) > 2) */
 			bool group = (pet ? FALSE : TRUE);
 
 			if (success)
@@ -2254,7 +2296,7 @@ static bool cast_trump_spell(int spell, bool success)
 		}
 		case 19: /* Trump Hounds */
 		{
-			bool pet = success; /* was (randint(5) > 2) */
+			bool pet = success; /* was (randint1(5) > 2) */
 
 			if (success)
 				msg_print("You concentrate on the trump of a hound...");
@@ -2280,7 +2322,7 @@ static bool cast_trump_spell(int spell, bool success)
 		case 21: /* Living Trump */
 			if (success)
 			{
-				if (randint(8) == 1)
+				if (randint1(8) == 1)
 					/* Teleport control */
 					dummy = 12;
 				else
@@ -2300,7 +2342,7 @@ static bool cast_trump_spell(int spell, bool success)
 			break;
 		case 23: /* Trump Cyberdemon */
 		{
-			bool pet = success; /* was (randint(10) > 3) */
+			bool pet = success; /* was (randint1(10) > 3) */
 
 			if (success)
 				msg_print("You concentrate on the trump of a Cyberdemon...");
@@ -2331,7 +2373,7 @@ static bool cast_trump_spell(int spell, bool success)
 			break;
 		case 26: /* Trump Undead */
 		{
-			bool pet = success; /* (randint(10) > 3) */
+			bool pet = success; /* (randint1(10) > 3) */
 			bool group = (pet ? FALSE : TRUE);
 
 			if (success)
@@ -2351,7 +2393,7 @@ static bool cast_trump_spell(int spell, bool success)
 		}
 		case 27: /* Trump Dragon */
 		{
-			bool pet = success; /* was (randint(10) > 3) */
+			bool pet = success; /* was (randint1(10) > 3) */
 			bool group = (pet ? FALSE : TRUE);
 
 			if (success)
@@ -2378,7 +2420,7 @@ static bool cast_trump_spell(int spell, bool success)
 
 			for (dummy = 0; dummy < 3 + (plev / 10); dummy++)
 			{
-				bool pet = success; /* was (randint(10) > 3) */
+				bool pet = success; /* was (randint1(10) > 3) */
 				bool group = (pet ? FALSE : TRUE);
 				int type = (pet ? SUMMON_NO_UNIQUES : 0);
 
@@ -2393,7 +2435,7 @@ static bool cast_trump_spell(int spell, bool success)
 		}
 		case 29: /* Trump Demon */
 		{
-			bool pet = success; /* was (randint(10) > 3) */
+			bool pet = success; /* was (randint1(10) > 3) */
 			bool group = (pet ? FALSE : TRUE);
 
 			if (success)
@@ -2413,7 +2455,7 @@ static bool cast_trump_spell(int spell, bool success)
 		}
 		case 30: /* Trump Ancient Dragon */
 		{
-			bool pet = success; /* was (randint(10) > 3) */
+			bool pet = success; /* was (randint1(10) > 3) */
 			bool group = (pet ? FALSE : TRUE);
 			int type = (pet ? SUMMON_HI_DRAGON_NO_UNIQUES : SUMMON_HI_DRAGON);
 
@@ -2434,7 +2476,7 @@ static bool cast_trump_spell(int spell, bool success)
 		}
 		case 31: /* Trump Greater Undead */
 		{
-			bool pet = success; /* was (randint(10) > 3) */
+			bool pet = success; /* was (randint1(10) > 3) */
 			bool group = (pet ? FALSE : TRUE);
 			int type = (pet ? SUMMON_HI_UNDEAD_NO_UNIQUES : SUMMON_HI_UNDEAD);
 
@@ -2534,16 +2576,16 @@ static bool cast_arcane_spell(int spell)
 		(void)set_poisoned(0);
 		break;
 	case 14: /* Resist Cold */
-		(void)set_oppose_cold(p_ptr->oppose_cold + randint(20) + 20);
+		(void)set_oppose_cold(p_ptr->oppose_cold + randint1(20) + 20);
 		break;
 	case 15: /* Resist Fire */
-		(void)set_oppose_fire(p_ptr->oppose_fire + randint(20) + 20);
+		(void)set_oppose_fire(p_ptr->oppose_fire + randint1(20) + 20);
 		break;
 	case 16: /* Resist Lightning */
-		(void)set_oppose_elec(p_ptr->oppose_elec + randint(20) + 20);
+		(void)set_oppose_elec(p_ptr->oppose_elec + randint1(20) + 20);
 		break;
 	case 17: /* Resist Acid */
-		(void)set_oppose_acid(p_ptr->oppose_acid + randint(20) + 20);
+		(void)set_oppose_acid(p_ptr->oppose_acid + randint1(20) + 20);
 		break;
 	case 18: /* Cure Medium Wounds */
 		(void)hp_player(damroll(4, 8));
@@ -2567,7 +2609,7 @@ static bool cast_arcane_spell(int spell)
 		(void)set_food(PY_FOOD_MAX - 1);
 		break;
 	case 23: /* See Invisible */
-		(void)set_tim_invis(p_ptr->tim_invis + randint(24) + 24);
+		(void)set_tim_invis(p_ptr->tim_invis + randint1(24) + 24);
 		break;
 	case 24: /* Recharging */
 		return recharge(plev * 4);
@@ -2584,7 +2626,7 @@ static bool cast_arcane_spell(int spell)
 	case 28: /* Elemental Ball */
 		if (!get_aim_dir(&dir)) return FALSE;
 
-		switch (randint(4))
+		switch (randint1(4))
 		{
 			case 1:  dummy = GF_FIRE; break;
 			case 2:  dummy = GF_ELEC; break;
@@ -2603,7 +2645,7 @@ static bool cast_arcane_spell(int spell)
 		wiz_lite();
 		if (!p_ptr->telepathy)
 		{
-			(void)set_tim_esp(p_ptr->tim_esp + randint(30) + 25);
+			(void)set_tim_esp(p_ptr->tim_esp + randint1(30) + 25);
 		}
 		break;
 	default:
@@ -2699,7 +2741,7 @@ void do_cmd_cast(void)
 
 	/* Ask for a spell */
 	if (!get_spell(&spell, ((mp_ptr->spell_book == TV_LIFE_BOOK) ? "recite" : "cast"),
-		sval, TRUE, (bool)(increment?TRUE:FALSE)))
+	               sval, TRUE, (bool)(increment ? TRUE : FALSE)))
 	{
 		if (spell == -2)
 			msg_format("You don't know any %ss in that book.", prayer);
@@ -2708,7 +2750,7 @@ void do_cmd_cast(void)
 
 
 	/* Access the spell */
-	use_realm = (increment?p_ptr->realm2:p_ptr->realm1);
+	use_realm = (increment ? p_ptr->realm2 : p_ptr->realm1);
 
 	s_ptr = &mp_ptr->info[use_realm - 1][spell];
 
@@ -2730,16 +2772,16 @@ void do_cmd_cast(void)
 	chance = spell_chance(spell, use_realm - 1);
 
 	/* Failed spell */
-	if (rand_int(100) < chance)
+	if (randint0(100) < chance)
 	{
 		if (flush_failure) flush();
 
 		msg_format("You failed to get the %s off!", prayer);
 		sound(SOUND_FAIL);
 
-		if ((randint(100) < chance) && (mp_ptr->spell_book == TV_LIFE_BOOK))
+		if ((randint1(100) < chance) && (mp_ptr->spell_book == TV_LIFE_BOOK))
 			chg_virtue(V_FAITH, -1);
-		else if (randint(100) < chance)
+		else if (randint1(100) < chance)
 			chg_virtue(V_KNOWLEDGE, -1);
 
 
@@ -2747,14 +2789,14 @@ void do_cmd_cast(void)
 		{
 			cast_trump_spell(spell, FALSE);
 		}
-		else if ((o_ptr->tval == TV_CHAOS_BOOK) && (randint(100) < spell))
+		else if ((o_ptr->tval == TV_CHAOS_BOOK) && (randint1(100) < spell))
 		{
 			msg_print("You produce a chaotic effect!");
 			wild_magic(spell);
 		}
-		else if ((o_ptr->tval == TV_DEATH_BOOK) && (randint(100) < spell))
+		else if ((o_ptr->tval == TV_DEATH_BOOK) && (randint1(100) < spell))
 		{
-			if ((sval == 3) && (randint(2) == 1))
+			if ((sval == 3) && (randint1(2) == 1))
 			{
 				sanity_blast(0, TRUE);
 			}
@@ -2762,7 +2804,7 @@ void do_cmd_cast(void)
 			{
 				msg_print("It hurts!");
 				take_hit(damroll(o_ptr->sval + 1, 6), "a miscast Death spell");
-				if ((spell > 15) && (randint(6) == 1) && !p_ptr->hold_life)
+				if ((spell > 15) && (randint1(6) == 1) && !p_ptr->hold_life)
 					lose_exp(spell * 250);
 			}
 		}
@@ -2771,7 +2813,7 @@ void do_cmd_cast(void)
 	/* Process spell */
 	else
 	{
-		if ((randint(100) < chance) && (chance < 50))
+		if ((randint1(100) < chance) && (chance < 50))
 		{
 			if (mp_ptr->spell_book == TV_LIFE_BOOK)
 				chg_virtue(V_FAITH, 1);
@@ -2814,19 +2856,19 @@ void do_cmd_cast(void)
 
 		/* A spell was cast */
 		if (!(increment ?
-		    (spell_worked2 & (1L << spell)) :
-		    (spell_worked1 & (1L << spell))))
+		    (p_ptr->spell_worked2 & (1L << spell)) :
+		    (p_ptr->spell_worked1 & (1L << spell))))
 		{
 			int e = s_ptr->sexp;
 
 			/* The spell worked */
 			if (realm == p_ptr->realm1)
 			{
-				spell_worked1 |= (1L << spell);
+				p_ptr->spell_worked1 |= (1L << spell);
 			}
 			else
 			{
-				spell_worked2 |= (1L << spell);
+				p_ptr->spell_worked2 |= (1L << spell);
 			}
 
 			/* Gain experience */
@@ -2840,7 +2882,7 @@ void do_cmd_cast(void)
 	}
 
 	/* Take a turn */
-	energy_use = 100;
+	p_ptr->energy_use = 100;
 
 	/* Sufficient mana */
 	if (s_ptr->smana <= p_ptr->csp)
@@ -2862,7 +2904,7 @@ void do_cmd_cast(void)
 		msg_print("You faint from the effort!");
 
 		/* Hack -- Bypass free action */
-		(void)set_paralyzed(p_ptr->paralyzed + randint(5 * oops + 1));
+		(void)set_paralyzed(p_ptr->paralyzed + randint1(5 * oops + 1));
 
 		if (mp_ptr->spell_book == TV_LIFE_BOOK)
 			chg_virtue(V_FAITH, -10);
@@ -2870,15 +2912,15 @@ void do_cmd_cast(void)
 			chg_virtue(V_KNOWLEDGE, -10);
 
 		/* Damage CON (possibly permanently) */
-		if (rand_int(100) < 50)
+		if (randint0(100) < 50)
 		{
-			bool perm = (rand_int(100) < 25);
+			bool perm = (randint0(100) < 25);
 
 			/* Message */
 			msg_print("You have damaged your health!");
 
 			/* Reduce constitution */
-			(void)dec_stat(A_CON, 15 + randint(10), perm);
+			(void)dec_stat(A_CON, 15 + randint1(10), perm);
 		}
 	}
 
@@ -2906,25 +2948,23 @@ void do_cmd_pray(void)
  */
 void do_cmd_pet(void)
 {
-	int			i = 0;
-	int			num;
-	int			powers[36];
-	cptr			power_desc[36];
-	bool			flag, redraw;
-	int			ask;
-	char			choice;
-	char			out_val[160];
-	int			pets = 0, pet_ctr;
-	bool			all_pets = FALSE;
-	monster_type	*m_ptr;
-
+	int i = 0;
+	int powers[36];
+	cptr power_desc[36];
+	bool flag, redraw;
+	int ask;
+	char choice;
+	char out_val[160];
+	int pets = 0;
+	int pet_ctr;
+	bool all_pets = FALSE;
+	monster_type *m_ptr;
 	int mode = 0;
-
 	byte y = 1, x = 0;
 	int ctr = 0;
 	char buf[160];
+	int num = 0;
 
-	num = 0;
 
 	/* Calculate pets */
 	/* Process the monsters (backwards) */
@@ -3124,7 +3164,7 @@ void do_cmd_pet(void)
 	/* Abort if needed */
 	if (!flag)
 	{
-		energy_use = 0;
+		p_ptr->energy_use = 0;
 		return;
 	}
 
@@ -3160,6 +3200,14 @@ void do_cmd_pet(void)
 
 					if (delete_this)
 					{
+						/* Notice changes in view */
+						if (r_info[m_ptr->r_idx].flags7 &
+							 (RF7_LITE_1 | RF7_LITE_2))
+						{
+							/* Update some things */
+							p_ptr->update |= (PU_MON_LITE);
+						}
+						
 						delete_monster_idx(pet_ctr);
 						Dismissed++;
 					}

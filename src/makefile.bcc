@@ -37,7 +37,7 @@ EXE_FILE = zangband.exe
 #
 # Set any compiler options
 
-CCOPTS = -jb -j1 -Hc -tW -lGn -e$(EXE_FILE) -w- \
+CCOPTS = -Hc -tW -lGn -e$(EXE_FILE) -w- \
 	-D_WIN32_WINNT=0x0400 -DWINVER=0x0400 \
 	-DUSE_TRANSPARENCY
 
@@ -57,7 +57,8 @@ OBJ = \
 	xtra1.obj \
 	wizard2.obj \
 	wizard1.obj \
-	wild.obj \
+	wild1.obj \
+	wild2.obj \
 	variable.obj \
 	util.obj \
 	tables.obj \

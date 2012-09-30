@@ -1,5 +1,4 @@
-/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/09/25 11:27:04 $
- *
+/*
  * File: rooms.h
  * Purpose: Header file for rooms.c, used only in generate.c
  */

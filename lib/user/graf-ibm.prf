@@ -1,4 +1,4 @@
-# CVS: Last edit by $Author: sfuerst $ on $Date: 2000/10/06 10:31:24 $
+# CVS: Last edit by $Author: sfuerst $ on $Date: 2001/01/18 10:47:30 $
 # Monster attr/char definitions
 
 # Player
@@ -3511,3 +3511,28 @@ T:32:0x0E:0xC5
 
 # Jammed Door
 T:33:0x07:0xC5
+
+# General Store
+T:34:0x05:0xAB
+
+# Armoury
+T:35:0x0F:0xDA
+
+# Weapon Smiths
+T:36:0x02:0x13
+
+# Temple
+T:37:0x01:0x80
+
+# Alchemy Shop
+T:38:0x0A:0xA4
+
+# Magic Shop
+T:39:0x04:0xA6
+
+# Black Market
+T:40:0x08:0xAE
+
+# Home
+T:41:0x07:0xC5
+

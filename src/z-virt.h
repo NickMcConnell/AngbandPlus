@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: remco $ on $Date: 1999/09/30 10:08:55 $ */
 /* File: z-virt.h */
 
 /*

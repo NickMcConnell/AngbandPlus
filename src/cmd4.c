@@ -86,49 +86,77 @@ void do_cmd_redraw(void)
 
 
 /*
- * Redraw the current term.
- *
- * This is used when the map is resized.
+ * Map resizing whenever the main term changes size
  */
-void do_cmd_redraw_term(int window)
+void resize_map(void)
 {
+	/* Only if the dungeon exists */
+	if (!character_dungeon) return;
+	
+	/* Mega-Hack -- no panel yet */
+	panel_row_min = 0;
+	panel_row_max = 0;
+	panel_col_min = 0;
+	panel_col_max = 0;
+
+	/* Reset the panels */
+	map_panel_size();
+				
+	if (character_dungeon)
+	{
+		verify_panel();
+	}
+
+	/* Combine and Reorder the pack (later) */
+	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+
+	/* Update torch */
+	p_ptr->update |= (PU_TORCH);
+
+	/* Update stuff */
+	p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
+
+	/* Forget view */
+	p_ptr->update |= (PU_UN_VIEW);
+
+	/* Update view */
+	p_ptr->update |= (PU_VIEW | PU_MON_LITE);
+
+	/* Update monsters */
+	p_ptr->update |= (PU_MONSTERS);
+
+	/* Redraw everything */
+	p_ptr->redraw |= (PR_WIPE | PR_BASIC | PR_EXTRA | PR_MAP | PR_EQUIPPY);
+
+	/* Hack -- update */
+	handle_stuff();
+	
+	/* Redraw */
+	Term_redraw();
+
+	/* Refresh */
+	Term_fresh();
+}
+
+/*
+ * Redraw a term when it is resized
+ */
+void redraw_window(void)
+{
+	/* Only if the dungeon exists */
+	if (!character_dungeon) return;
+	
+	/* Hack - Activate term zero for the redraw */
+	Term_activate(&term_screen[0]);
+	
 	/* Hack -- react to changes */
 	Term_xtra(TERM_XTRA_REACT, 0);
 
-	/* The main window */
-	if (window == 0)
-	{
-		/* Combine and Reorder the pack (later) */
-		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+	/* Window stuff */
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER);
 
-		/* Update torch */
-		p_ptr->update |= (PU_TORCH);
-
-		/* Update stuff */
-		p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
-
-		/* Forget view */
-		p_ptr->update |= (PU_UN_VIEW);
-
-		/* Update view */
-		p_ptr->update |= (PU_VIEW | PU_MON_LITE);
-
-		/* Update monsters */
-		p_ptr->update |= (PU_MONSTERS);
-
-		/* Redraw everything */
-		p_ptr->redraw |= (PR_WIPE | PR_BASIC | PR_EXTRA | PR_MAP | PR_EQUIPPY);
-	}
-	else
-	{
-		/* Other windows */
-
-		/* Window stuff */
-		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER);
-
-		/* Window stuff */
-		p_ptr->window |= (PW_MESSAGE | PW_OVERHEAD | PW_DUNGEON | PW_MONSTER | PW_OBJECT);
-	}
+	/* Window stuff */
+	p_ptr->window |= (PW_MESSAGE | PW_OVERHEAD | PW_DUNGEON | PW_MONSTER | PW_OBJECT);
 
 	/* Hack -- update */
 	handle_stuff();
@@ -139,7 +167,6 @@ void do_cmd_redraw_term(int window)
 	/* Refresh */
 	Term_fresh();
 }
-
 
 
 /*
@@ -211,7 +238,7 @@ void do_cmd_messages(void)
 			byte attr = message_color(i+j);
 
 			/* Hack -- fake monochrome */
-			if (!use_color) attr = TERM_WHITE;
+			if (!use_color || ironman_moria) attr = TERM_WHITE;
 
 			/* Apply horizontal scroll */
 			msg = ((int)strlen(msg) >= q) ? (msg + q) : "";
@@ -368,6 +395,81 @@ void do_cmd_messages(void)
 	screen_load();
 }
 
+/*
+ * Copy the indicated options out from the
+ * option_info[] data structure into the
+ * player, birth and server data structures as indicated.
+ *
+ * Options that should be unchanged are restored to the
+ * current state.  (This stops the player changing the
+ * birth options in the middle of the game.)
+ */
+void init_options(byte flags)
+{
+	int birth_counter = 0, server_counter = 0, player_counter = 0;
+	int i;
+	
+	for (i = 0; i < OPT_MAX; i++)
+	{
+		/* A birth option? */
+		if (i == birth_options[birth_counter])
+		{
+			/* Are we allowed to copy the data? */
+			if (flags & OPT_FLAG_BIRTH)
+			{
+				/* Copy the state of the flag into p_ptr->birth[] */
+				p_ptr->birth[birth_counter] = option_info[i].o_val;
+			}
+			else
+			{
+				/* Restore the option to its original value */
+				option_info[i].o_val = p_ptr->birth[birth_counter];
+			}
+			
+			/* Increment birth option counter */
+			birth_counter++;
+		}
+		
+		/* A server option? */
+		else if (i == server_options[server_counter])
+		{
+			/* Are we allowed to copy the data? */
+			if (flags & OPT_FLAG_SERVER)
+			{
+				/* Copy the state of the flag into svr_ptr->options[] */
+				svr_ptr->options[server_counter] = option_info[i].o_val;
+			}
+			else
+			{
+				/* Restore the option to its original value */
+				option_info[i].o_val = svr_ptr->options[server_counter];
+			}
+			
+			/* Increment server option counter */
+			server_counter++;
+		}
+		
+		/* A player option */
+		else
+		{
+			/* Are we allowed to copy the data? */
+			if (flags & OPT_FLAG_PLAYER)
+			{
+				/* Copy the state of the flag into p_ptr->options[] */
+				p_ptr->options[player_counter] = option_info[i].o_val;
+			}
+			else
+			{
+				/* Restore the option to its original value */
+				option_info[i].o_val = p_ptr->options[player_counter];
+			}
+			
+			/* Increment player option counter */
+			player_counter++;
+		}
+	}
+}
+
 
 
 /*
@@ -375,27 +477,40 @@ void do_cmd_messages(void)
  */
 #define CHEAT_MAX 6
 
+typedef struct cheat_option_type cheat_option_type;
+
+struct cheat_option_type
+{
+	bool	*o_var;
+
+	u16b	o_word;
+
+	cptr	o_text;
+	cptr	o_desc;
+};
+
+
 /*
  * Cheating options
  */
-static option_type cheat_info[CHEAT_MAX] =
+static cheat_option_type cheat_info[CHEAT_MAX] =
 {
-	{ &cheat_peek,		FALSE,	255,	0x01, 0x00,
+	{ &cheat_peek,		0x0001,
 	"cheat_peek",		"Peek into object creation" },
 
-	{ &cheat_hear,		FALSE,	255,	0x02, 0x00,
+	{ &cheat_hear,		0x0002,
 	"cheat_hear",		"Peek into monster creation" },
 
-	{ &cheat_room,		FALSE,	255,	0x04, 0x00,
+	{ &cheat_room,		0x0004,
 	"cheat_room",		"Peek into dungeon creation" },
 
-	{ &cheat_xtra,		FALSE,	255,	0x08, 0x00,
+	{ &cheat_xtra,		0x0008,
 	"cheat_xtra",		"Peek into something else" },
 
-	{ &cheat_know,		FALSE,	255,	0x10, 0x00,
+	{ &cheat_know,		0x0010,
 	"cheat_know",		"Know complete monster info" },
 
-	{ &cheat_live,		FALSE,	255,	0x20, 0x00,
+	{ &cheat_live,		0x0020,
 	"cheat_live",		"Allow player to avoid death" }
 };
 
@@ -472,7 +587,7 @@ static void do_cmd_options_cheat(cptr info)
 			case 'Y':
 			case '6':
 			{
-				noscore |= (cheat_info[k].o_set * 256 + cheat_info[k].o_bit);
+				p_ptr->noscore |= cheat_info[k].o_word;
 				(*cheat_info[k].o_var) = TRUE;
 				k = (k + 1) % n;
 				break;
@@ -497,12 +612,12 @@ static void do_cmd_options_cheat(cptr info)
 }
 
 
-static option_type autosave_info[2] =
+static cheat_option_type autosave_info[2] =
 {
-	{ (bool *)(&autosave_l), FALSE, 255, 0x01, 0x00,
+	{ (bool *)(&autosave_l), 0x0001,
 	  "autosave_l", "Autosave when entering new levels" },
 
-	{ (bool *)(&autosave_t), FALSE, 255, 0x02, 0x00,
+	{ (bool *)(&autosave_t), 0x0002,
 	  "autosave_t", "Timed autosave" },
 };
 
@@ -635,7 +750,7 @@ static void do_cmd_options_autosave(cptr info)
 /*
  * Interact with some options
  */
-void do_cmd_options_aux(int page, cptr info)
+static void do_cmd_options_aux(int page, cptr info)
 {
 	char    ch;
 	int     i, k = 0, n = 0;
@@ -675,7 +790,7 @@ void do_cmd_options_aux(int page, cptr info)
 			/* Display the option text */
 			sprintf(buf, "%-48s: %s  (%.23s)",
 			        option_info[opt[i]].o_desc,
-			        (*option_info[opt[i]].o_var ? "yes" : "no "),
+			        (option_info[opt[i]].o_val ? "yes" : "no "),
 			        option_info[opt[i]].o_text);
 			c_prt(a, buf, i + 2, 0);
 		}
@@ -714,7 +829,7 @@ void do_cmd_options_aux(int page, cptr info)
 			case 'Y':
 			case '6':
 			{
-				(*option_info[opt[k]].o_var) = TRUE;
+				(option_info[opt[k]].o_val) = TRUE;
 				k = (k + 1) % n;
 				break;
 			}
@@ -723,8 +838,16 @@ void do_cmd_options_aux(int page, cptr info)
 			case 'N':
 			case '4':
 			{
-				(*option_info[opt[k]].o_var) = FALSE;
+				(option_info[opt[k]].o_val) = FALSE;
 				k = (k + 1) % n;
+				break;
+			}
+
+			case '?':
+			{
+				sprintf(buf, "option.txt#%s", option_info[opt[k]].o_text);
+				show_file(buf, NULL, 0, 0);
+				Term_clear();
 				break;
 			}
 
@@ -780,7 +903,7 @@ static void do_cmd_options_win(void)
 			cptr s = angband_term_name[j];
 
 			/* Use color */
-			if (use_color && (j == x)) a = TERM_L_BLUE;
+			if (use_color && (j == x) && !ironman_moria) a = TERM_L_BLUE;
 
 			/* Window name, staggered, centered */
 			Term_putstr(35 + j * 5 - strlen(s) / 2, 2 + j % 2, -1, a, s);
@@ -794,7 +917,7 @@ static void do_cmd_options_win(void)
 			cptr str = window_flag_desc[i];
 
 			/* Use color */
-			if (use_color && (i == y)) a = TERM_L_BLUE;
+			if (use_color && (i == y) && !ironman_moria) a = TERM_L_BLUE;
 
 			/* Unused option */
 			if (!str) str = "(Unused option)";
@@ -810,8 +933,11 @@ static void do_cmd_options_win(void)
 				char c = '.';
 
 				/* Use color */
-				if (use_color && (i == y) && (j == x)) a = TERM_L_BLUE;
-
+				if (use_color && (i == y) && (j == x) && !ironman_moria)
+				{
+					a = TERM_L_BLUE;
+				}
+				
 				/* Active flag */
 				if (window_flag[j] & (1L << i)) c = 'X';
 
@@ -918,7 +1044,7 @@ static void do_cmd_options_win(void)
  * The user must use the "Ctrl-R" command to "adapt" to changes
  * in any options which control "visual" aspects of the game.
  */
-void do_cmd_options(void)
+void do_cmd_options(byte flags)
 {
 	int k;
 
@@ -942,23 +1068,27 @@ void do_cmd_options(void)
 		prt("(3) Game-Play Options", 6, 5);
 		prt("(4) Efficiency Options", 7, 5);
 		prt("(5) Display Options", 8, 5);
-		prt("(6) Artificial Intelligence Options", 9, 5);
-		prt("(7) Testing Options", 10, 5);
+		prt("(6) Birth Options", 9, 5);
+		prt("(7) Artificial Intelligence Options", 10, 5);
+		prt("(8) Testing Options", 11, 5);
 
 		/* Special choices */
-		prt("(D) Base Delay Factor", 12, 5);
-		prt("(H) Hitpoint Warning", 13, 5);
-		prt("(A) Autosave Options", 14, 5);
+		prt("(D) Base Delay Factor", 13, 5);
+		prt("(H) Hitpoint Warning", 14, 5);
+		prt("(A) Autosave Options", 15, 5);
 
 
 		/* Window flags */
-		prt("(W) Window Flags", 15, 5);
+		prt("(W) Window Flags", 16, 5);
 
 		/* Cheating */
-		prt("(C) Cheating Options", 16, 5);
+		prt("(C) Cheating Options", 17, 5);
+
+		/* Dump Options */
+		prt("(|) Dump Options to a Pref File", 19, 5);
 
 		/* Prompt */
-		prt("Command: ", 18, 0);
+		prt("Command: ", 20, 0);
 
 		/* Get command */
 		k = inkey();
@@ -974,6 +1104,9 @@ void do_cmd_options(void)
 			{
 				/* Spawn */
 				do_cmd_options_aux(1, "User Interface Options");
+				
+				/* Save the changes */
+				init_options(flags);
 				break;
 			}
 
@@ -982,6 +1115,9 @@ void do_cmd_options(void)
 			{
 				/* Spawn */
 				do_cmd_options_aux(2, "Disturbance Options");
+				
+				/* Save the changes */
+				init_options(flags);
 				break;
 			}
 
@@ -990,6 +1126,9 @@ void do_cmd_options(void)
 			{
 				/* Spawn */
 				do_cmd_options_aux(3, "Game-Play Options");
+				
+				/* Save the changes */
+				init_options(flags);
 				break;
 			}
 
@@ -998,6 +1137,9 @@ void do_cmd_options(void)
 			{
 				/* Spawn */
 				do_cmd_options_aux(4, "Efficiency Options");
+				
+				/* Save the changes */
+				init_options(flags);
 				break;
 			}
 
@@ -1006,27 +1148,47 @@ void do_cmd_options(void)
 			{
 				/* Spawn */
 				do_cmd_options_aux(5, "Display Options");
+
+				/* Save the changes */
+				init_options(flags);
+				break;
+			}
+			
+			/* Birth Options */
+			case '6':
+			{
+				/* Spawn */
+				do_cmd_options_aux(6, "Birth Options");
+
+				/* Save the changes */
+				init_options(flags);
 				break;
 			}
 
 			/* Artificial Intelligence Options */
-			case '6':
-			{
-				/* Spawn */
-				do_cmd_options_aux(7, "Artificial Intelligence Options");
-				break;
-			}
-
-			/* Testing options (autodestroy) */
-			case 'T': /* For people who do this by memory */
 			case '7':
 			{
 				/* Spawn */
+				do_cmd_options_aux(7, "Artificial Intelligence Options");
+				
+				/* Save the changes */
+				init_options(flags);
+				break;
+			}
+
+			/* Testing options */
+			case '8':
+			{
+				/* Spawn */
 				do_cmd_options_aux(8, "Testing Options");
+				
+				/* Save the changes */
+				init_options(flags);
 				break;
 			}
 
 			/* Cheating Options */
+			case 'c':
 			case 'C':
 			{
 				/* Spawn */
@@ -1058,6 +1220,11 @@ void do_cmd_options(void)
 			case 'D':
 			case 'd':
 			{
+				screen_save();
+
+				/* Clear screen */
+				Term_clear();
+
 				/* Prompt */
 				prt("Command: Base Delay Factor", 18, 0);
 
@@ -1068,11 +1235,18 @@ void do_cmd_options(void)
 					prt(format("Current base delay factor: %d (%d msec)",
 					           delay_factor, msec), 22, 0);
 					prt("Delay Factor (0-9 or ESC to accept): ", 20, 0);
+
 					k = inkey();
-					if (k == ESCAPE) break;
-					if (isdigit(k)) delay_factor = D2I(k);
-					else bell();
+
+					if (k == ESCAPE)
+						break;
+					else if (isdigit(k))
+						delay_factor = D2I(k);
+					else
+						bell();
 				}
+
+				screen_load();
 
 				break;
 			}
@@ -1126,12 +1300,15 @@ void do_cmd_options(void)
 				fprintf(fff, "# Allow user specification of various options\n\n");
 
 				/* Scan the options */
-				for (i = 0; option_info[i].o_desc; i++)
+				for (i = 0; i < OPT_MAX; i++)
 				{
-					/* Dump the option */
-					fprintf(fff, "%c:%s\n",
-					        (*option_info[i].o_var ? 'Y' : 'X'),
-					        option_info[i].o_text);
+					if (option_info[i].o_text)
+					{
+						/* Dump the option */
+						fprintf(fff, "%c:%s\n",
+							(option_info[i].o_val ? 'Y' : 'X'),
+							option_info[i].o_text);
+					}
 				}
 
 				/* Close the file */
@@ -2703,14 +2880,14 @@ void do_cmd_feeling(void)
 	}
 
 	/* No useful feeling in town */
-	else if (p_ptr->town_num && !dun_level)
+	else if (p_ptr->town_num && !p_ptr->depth)
 	{
 		msg_print("Looks like a typical town.");
 		return;
 	}
 
 	/* No useful feeling in the wilderness */
-	else if (!dun_level)
+	else if (!p_ptr->depth)
 	{
 		msg_print("Looks like a typical wilderness.");
 		return;
@@ -2809,14 +2986,12 @@ void do_cmd_load_screen(void)
 			}
 
 			/* Hack -- fake monochrome */
-			if (!use_color) a = TERM_WHITE;
+			if (!use_color || ironman_moria) a = TERM_WHITE;
 
 			/* Put the attr/char */
 			Term_draw(x, y, a, c);
 		}
 
-		/* End the row */
-		fprintf(fff, "\n");
 	}
 
 
@@ -2955,145 +3130,6 @@ void do_cmd_save_screen(void)
 		/* Restore the screen */
 		screen_load();
 	}
-}
-
-
-/*
- * Check the status of "artifacts"
- */
-static void do_cmd_knowledge_artifacts(void)
-{
-	int i, k, z;
-
-	FILE *fff;
-
-	char file_name[1024];
-
-	char base_name[80];
-
-	bool *okay;
-
-
-	/* Temporary file */
-	if (path_temp(file_name, 1024)) return;
-
-	/* Open a new file */
-	fff = my_fopen(file_name, "w");
-
-	/* Allocate the "okay" array */
-	C_MAKE(okay, max_a_idx, bool);
-
-	/* Scan the artifacts */
-	for (k = 0; k < max_a_idx; k++)
-	{
-		artifact_type *a_ptr = &a_info[k];
-
-		/* Default */
-		okay[k] = FALSE;
-
-		/* Skip "empty" artifacts */
-		if (!a_ptr->name) continue;
-
-		/* Skip "uncreated" artifacts */
-		if (!a_ptr->cur_num) continue;
-
-		/* Assume okay */
-		okay[k] = TRUE;
-	}
-
-	/* Check the dungeon */
-
-	/* This loop should work better in the wilderness then the above one */
-	for (i = 0; i < max_o_idx; i++)
-	{
-		object_type *o_ptr;
-
-		/* Acquire object */
-		o_ptr = &o_list[i];
-
-		/* Exit if doesn't exist */
-		if (o_ptr->k_idx == 0) continue;
-
-		/* Exit if not in dungeon */
-		if (o_ptr->held_m_idx) continue;
-
-		/* Ignore non-artifacts */
-		if (!artifact_p(o_ptr)) continue;
-
-		/* Ignore known items */
-		if (object_known_p(o_ptr)) continue;
-
-		/* Note the artifact */
-		okay[o_ptr->name1] = FALSE;
-	}
-
-
-	/* Check the inventory and equipment */
-	for (i = 0; i < INVEN_TOTAL; i++)
-	{
-		object_type *o_ptr = &inventory[i];
-
-		/* Ignore non-objects */
-		if (!o_ptr->k_idx) continue;
-
-		/* Ignore non-artifacts */
-		if (!artifact_p(o_ptr)) continue;
-
-		/* Ignore known items */
-		if (object_known_p(o_ptr)) continue;
-
-		/* Note the artifact */
-		okay[o_ptr->name1] = FALSE;
-	}
-
-	/* Scan the artifacts */
-	for (k = 0; k < max_a_idx; k++)
-	{
-		artifact_type *a_ptr = &a_info[k];
-
-		/* List "dead" ones */
-		if (!okay[k]) continue;
-
-		/* Paranoia */
-		strcpy(base_name, "Unknown Artifact");
-
-		/* Obtain the base object type */
-		z = lookup_kind(a_ptr->tval, a_ptr->sval);
-
-		/* Real object */
-		if (z)
-		{
-			object_type forge;
-			object_type *q_ptr;
-
-			/* Get local object */
-			q_ptr = &forge;
-
-			/* Create fake object */
-			object_prep(q_ptr, z);
-
-			/* Make it an artifact */
-			q_ptr->name1 = k;
-
-			/* Describe the artifact */
-			object_desc_store(base_name, q_ptr, FALSE, 0);
-		}
-
-		/* Hack -- Build the artifact name */
-		fprintf(fff, "     The %s\n", base_name);
-	}
-
-	/* Free the "okay" array */
-	C_KILL(okay, max_a_idx, bool);
-
-	/* Close the file */
-	my_fclose(fff);
-
-	/* Display the file contents */
-	show_file(file_name, "Artifacts Seen", 0, 0);
-
-	/* Remove the file */
-	fd_kill(file_name);
 }
 
 
@@ -3470,11 +3506,11 @@ static void do_cmd_knowledge_kill_count(void)
 		}
 
 		if (Total < 1)
-			fprintf(fff,"You have defeated no enemies yet.\n\n");
+			fprintf(fff, "You have defeated no enemies yet.\n\n");
 		else if (Total == 1)
-			fprintf(fff,"You have defeated one enemy.\n\n");
+			fprintf(fff, "You have defeated one enemy.\n\n");
 		else
-			fprintf(fff,"You have defeated %lu enemies.\n\n", Total);
+			fprintf(fff, "You have defeated %lu enemies.\n\n", Total);
 	}
 
 	Total = 0;
@@ -3526,8 +3562,8 @@ static void do_cmd_knowledge_kill_count(void)
 		}
 	}
 
-	fprintf(fff,"----------------------------------------------\n");
-	fprintf(fff,"   Total: %lu creature%s killed.\n",
+	fprintf(fff, "----------------------------------------------\n");
+	fprintf(fff, "   Total: %lu creature%s killed.\n",
 	        Total, (Total == 1 ? "" : "s"));
 
 	/* Free the "who" array */
@@ -3687,7 +3723,7 @@ static void do_cmd_knowledge_quests(void)
 				sprintf(tmp_str, "%s (Danger level: %d)\n",
 					quest[i].name, quest[i].level);
 
-				fprintf(fff, tmp_str);
+				fprintf(fff, "%s", tmp_str);
 
 				j = 0;
 
@@ -3703,7 +3739,7 @@ static void do_cmd_knowledge_quests(void)
 				/* New random */
 				rand_level = quest[i].level;
 
-				if (p_ptr->max_dlv >= rand_level)
+				if (p_ptr->max_depth >= rand_level)
 				{
 					/* Print the quest info */
 					r_ptr = &r_info[quest[i].r_idx];
@@ -3713,13 +3749,13 @@ static void do_cmd_knowledge_quests(void)
 					{
 						plural_aux(name);
 
-						sprintf(rand_tmp_str,"%s (Dungeon level: %d)\n  Kill %d %s, have killed %d.\n",
+						sprintf(rand_tmp_str, "%s (Dungeon level: %d)\n  Kill %d %s, have killed %d.\n",
 							quest[i].name, quest[i].level,
 							quest[i].max_num, name, quest[i].cur_num);
 					}
 					else
 					{
-						sprintf(rand_tmp_str,"%s (Dungeon level: %d)\n  Kill %s.\n",
+						sprintf(rand_tmp_str, "%s (Dungeon level: %d)\n  Kill %s.\n",
 							quest[i].name, quest[i].level, name);
 					}
 				}
@@ -3729,12 +3765,12 @@ static void do_cmd_knowledge_quests(void)
 		{
 			sprintf(tmp_str, "Quest Completed - Unrewarded\n");
 
-			fprintf(fff, tmp_str);
+			fprintf(fff, "%s", tmp_str);
 		}
 	}
 
 	/* Print the current random quest */
-	fprintf(fff, rand_tmp_str);
+	fprintf(fff, "%s", rand_tmp_str);
 
 	/* Close the file */
 	my_fclose(fff);
@@ -3783,19 +3819,18 @@ void do_cmd_knowledge(void)
 		prt("Display current knowledge", 2, 0);
 
 		/* Give some choices */
-		prt("(1) Display known artifacts", 4, 5);
-		prt("(2) Display known uniques", 5, 5);
-		prt("(3) Display known objects", 6, 5);
-		prt("(4) Display kill count", 7, 5);
-		prt("(5) Display mutations", 8, 5);
-		prt("(6) Display current pets", 9, 5);
-		prt("(7) Display current quests", 10, 5);
-		prt("(8) Display virtues", 11, 5);
+		prt("(1) Display known uniques", 4, 5);
+		prt("(2) Display known objects", 5, 5);
+		prt("(3) Display kill count", 6, 5);
+		prt("(4) Display mutations", 7, 5);
+		prt("(5) Display current pets", 8, 5);
+		prt("(6) Display current quests", 9, 5);
+		/* prt("(7) Display virtues", 10, 5); */
 		if (take_notes)
-			prt("(9) Display notes", 12, 5);
+			prt("(8) Display notes", 11, 5);
 
 		/* Prompt */
-		prt("Command: ", 14, 0);
+		prt("Command: ", 13, 0);
 
 		/* Prompt */
 		i = inkey();
@@ -3805,31 +3840,28 @@ void do_cmd_knowledge(void)
 
 		switch (i)
 		{
-		case '1': /* Artifacts */
-			do_cmd_knowledge_artifacts();
-			break;
-		case '2': /* Uniques */
+		case '1': /* Uniques */
 			do_cmd_knowledge_uniques();
 			break;
-		case '3': /* Objects */
+		case '2': /* Objects */
 			do_cmd_knowledge_objects();
 			break;
-		case '4': /* Kill count */
+		case '3': /* Kill count */
 			do_cmd_knowledge_kill_count();
 			break;
-		case '5': /* Mutations */
+		case '4': /* Mutations */
 			do_cmd_knowledge_mutations();
 			break;
-		case '6': /* Pets */
+		case '5': /* Pets */
 			do_cmd_knowledge_pets();
 			break;
-		case '7': /* Quests */
+		case '6': /* Quests */
 			do_cmd_knowledge_quests();
 			break;
-		case '8': /* Virtues */
+		case '7': /* Virtues */
 			do_cmd_knowledge_virtues();
 			break;
-		case '9': /* Notes */
+		case '8': /* Notes */
 			if (take_notes)
 				do_cmd_knowledge_notes();
 			else
@@ -3899,14 +3931,14 @@ void do_cmd_time(void)
 				  min, (hour < 12) ? "AM" : "PM");
 
 	/* Find the path */
-	if (!rand_int(10) || p_ptr->image)
-		{
+	if (!randint0(10) || p_ptr->image)
+	{
 		path_build(buf, 1024, ANGBAND_DIR_FILE, "timefun.txt");
-		}
-		else
-		{
+	}
+	else
+	{
 		path_build(buf, 1024, ANGBAND_DIR_FILE, "timenorm.txt");
-		}
+	}
 
 	/* Open this file */
 	fff = my_fopen(buf, "rt");
@@ -3955,7 +3987,7 @@ void do_cmd_time(void)
 			num++;
 
 			/* Apply the randomizer */
-			if (!rand_int(num)) strcpy(desc, buf + 2);
+			if (!randint0(num)) strcpy(desc, buf + 2);
 
 			/* Next... */
 			continue;
@@ -3968,3 +4000,4 @@ void do_cmd_time(void)
 	/* Close the file */
 	my_fclose(fff);
 }
+

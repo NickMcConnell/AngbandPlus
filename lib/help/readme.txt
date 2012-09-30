@@ -17,14 +17,10 @@ the two packages merge together properly.
 
 --- Available Formats ---
 
-The Zangband documentation packages will be made available in three
-formats for download, plain text, html and .chm (for windows users).
-The plain text version will run from the in-game '?' command. The html
-version will be placed on the web and will be made available for
-download to allow local browsing. The *.chm file is a windows specific
-format which allows adaption of html documentation packages to be used
-in windows helpfiles. It introduces full text searching and many other
-nice features.
+The Zangband basic documentation package is currently available in
+plain text format and is included in all Zangband downloads. Both the
+basic documentation and the spoilers are available for browsing in
+HTML format on Zangband.org.
 
 
 --- Reporting Errors / Suggestions for Improvement ---
@@ -33,7 +29,7 @@ While every effort will be taken to ensure that the documentation
 packages are accurate and up to date, it is inevitable that some
 errors will be made. If you find an error or have a suggestion to
 improve documentation, please post your report or idea to the Zangband
-Development list by mailing to zangband@onelist.com. Alternatively, you
+Development list by mailing to jianson@zangband.org. Alternatively, you
 may post your report or idea to rec.games.roguelike.angband.
 
 
@@ -108,5 +104,5 @@ filename of the current file in the link).
 
 -- 
 Original    : Zangband DevTeam
-Last update : January 13, 2000
+Last update : February 19, 2001
 

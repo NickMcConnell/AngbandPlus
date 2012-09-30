@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/09/21 03:33:40 $ */
 /* File: melee2.c */
 
 /* Purpose: Monster spells and movement */
@@ -183,7 +182,7 @@ void mon_take_hit_mon(int m_idx, int dam, bool *fear, cptr note)
 	/* Wake it up */
 	m_ptr->csleep = 0;
 
-	if (m_ptr->invulner && rand_int(PENETRATE_INVULNERABILITY))
+	if (m_ptr->invulner && randint0(PENETRATE_INVULNERABILITY))
 	{
 		if (seen)
 		{
@@ -260,7 +259,7 @@ void mon_take_hit_mon(int m_idx, int dam, bool *fear, cptr note)
 	/* Mega-Hack -- Pain cancels fear */
 	if (m_ptr->monfear && (dam > 0))
 	{
-		int tmp = randint(dam / 4);
+		int tmp = randint1(dam / 4);
 
 		/* Cure a little fear */
 		if (tmp < m_ptr->monfear)
@@ -292,14 +291,14 @@ void mon_take_hit_mon(int m_idx, int dam, bool *fear, cptr note)
 		* Run (sometimes) if at 10% or less of max hit points,
 		* or (usually) when hit for half its current hit points
 		*/
-		if (((percentage <= 10) && (rand_int(10) < percentage)) ||
-			((dam >= m_ptr->hp) && (rand_int(100) < 80)))
+		if (((percentage <= 10) && (randint0(10) < percentage)) ||
+			((dam >= m_ptr->hp) && (randint0(100) < 80)))
 		{
 			/* Hack -- note fear */
 			(*fear) = TRUE;
 
 			/* XXX XXX XXX Hack -- Add some timed fear */
-			m_ptr->monfear += (randint(10) +
+			m_ptr->monfear += (randint1(10) +
 				(((dam >= m_ptr->hp) && (percentage > 7)) ?
 				20 : ((11 - percentage) * 5)));
 		}
@@ -419,6 +418,9 @@ static int mon_will_run(int m_idx)
  */
 static bool get_moves_aux(int m_idx, int *yp, int *xp)
 {
+	int py = p_ptr->py;
+	int px = p_ptr->px;
+
 	int i, y, x, y1, x1, when = 0, cost = 999;
 
 	cave_type *c_ptr;
@@ -441,7 +443,7 @@ static bool get_moves_aux(int m_idx, int *yp, int *xp)
 	c_ptr = area(y1,x1);
 
 	/* The player is not currently near the monster grid */
-	if (c_ptr->when < area(py,px)->when)
+	if (c_ptr->when < area(py, px)->when)
 	{
 		/* The player has never been near the monster grid */
 		if (!c_ptr->when) return (FALSE);
@@ -507,7 +509,7 @@ static bool get_moves_aux(int m_idx, int *yp, int *xp)
 */
 static bool get_fear_moves_aux(int m_idx, int *yp, int *xp)
 {
-	int y, x, y1, x1, fy, fx, gy = 0, gx = 0;
+	int y, x, y1, x1, fy, fx, px, py, gy = 0, gx = 0;
 	int when = 0, score = -1;
 	int i;
 
@@ -516,6 +518,10 @@ static bool get_fear_moves_aux(int m_idx, int *yp, int *xp)
 
 	/* Monster flowing disabled */
 	if (!flow_by_sound) return (FALSE);
+
+	/* Player location */
+	py = p_ptr->py;
+	px = p_ptr->px;
 
 	/* Monster location */
 	fy = m_ptr->fy;
@@ -526,7 +532,7 @@ static bool get_fear_moves_aux(int m_idx, int *yp, int *xp)
 	x1 = fx - (*xp);
 
 	/* The player is not currently near the monster grid */
-	if (area(fy,fx)->when < area(py,px)->when)
+	if (area(fy,fx)->when < area(py, px)->when)
 	{
 		/* No reason to attempt flowing */
 		return (FALSE);
@@ -740,6 +746,9 @@ static bool find_safety(int m_idx, int *yp, int *xp)
 {
 	monster_type *m_ptr = &m_list[m_idx];
 
+	int py = p_ptr->py;
+	int px = p_ptr->px;
+
 	int fy = m_ptr->fy;
 	int fx = m_ptr->fx;
 
@@ -778,10 +787,10 @@ static bool find_safety(int m_idx, int *yp, int *xp)
 			if (flow_by_sound)
 				{
 				/* Ignore grids very far from the player */
-				if (c_ptr->when < area(py,px)->when) continue;
+				if (c_ptr->when < area(py, px)->when) continue;
 
 				/* Ignore too-distant grids */
-				if (c_ptr->cost > area(fy,fx)->cost + 2 * d) continue;
+				if (c_ptr->cost > area(fy, fx)->cost + 2 * d) continue;
 			}
 
 			/* Check for absence of shot (more or less) */
@@ -845,6 +854,9 @@ static bool find_hiding(int m_idx, int *yp, int *xp)
 
 	int fy = m_ptr->fy;
 	int fx = m_ptr->fx;
+
+	int py = p_ptr->py;
+	int px = p_ptr->px;
 
 	int y, x, dy, dx, d, dis, i;
 	int gy = 0, gx = 0, gdis = 999;
@@ -914,6 +926,9 @@ static bool find_hiding(int m_idx, int *yp, int *xp)
  */
 static bool get_moves(int m_idx, int *mm)
 {
+	int py = p_ptr->py;
+	int px = p_ptr->px;
+
 	monster_type *m_ptr = &m_list[m_idx];
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 	int          y, ay, x, ax;
@@ -1231,7 +1246,7 @@ static int check_hit2(int power, int level, int ac)
 	int i, k;
 
 	/* Percentile dice */
-	k = rand_int(100);
+	k = randint0(100);
 
 	/* Hack -- Always miss or hit */
 	if (k < 10) return (k < 5);
@@ -1240,7 +1255,7 @@ static int check_hit2(int power, int level, int ac)
 	i = (power + (level * 3));
 
 	/* Power and Level compete against Armor */
-	if ((i > 0) && (randint(i) > ((ac * 3) / 4))) return (TRUE);
+	if ((i > 0) && (randint1(i) > ((ac * 3) / 4))) return (TRUE);
 
 	/* Assume miss */
 	return (FALSE);
@@ -1551,10 +1566,10 @@ static bool monst_attack_monst(int m_idx, int t_idx)
 			/* Message */
 			if (act && see_either)
 			{
-				if ((p_ptr->image) && (randint(3) == 1))
+				if ((p_ptr->image) && (randint1(3) == 1))
 				{
 					strfmt(temp, "%s %s.",
-					       silly_attacks[randint(MAX_SILLY_ATTACK)-1],t_name);
+					       silly_attacks[randint1(MAX_SILLY_ATTACK)-1],t_name);
 				}
 				else
 					strfmt(temp, act, t_name);
@@ -1614,7 +1629,7 @@ static bool monst_attack_monst(int m_idx, int t_idx)
 			case RBE_EAT_GOLD:
 				{
 					pt = damage = 0;
-					if (randint(2) == 1) blinked = TRUE;
+					if (randint1(2) == 1) blinked = TRUE;
 					break;
 				}
 
@@ -1878,12 +1893,6 @@ static bool monst_attack_monst(int m_idx, int t_idx)
 
 
 /*
- * Hack -- local "player stealth" value (see below)
- */
-static u32b noise = 0L;
-
-
-/*
  * Process a monster
  *
  * The monster is known to be within 100 grids of the player
@@ -1940,10 +1949,10 @@ static void process_monster(int m_idx)
 	if (r_ptr->flags2 & (RF2_QUANTUM))
 	{
 		/* Sometimes skip move */
-		if (!rand_int(2)) return;
+		if (!randint0(2)) return;
 
 		/* Sometimes die */
-		if (!rand_int((m_idx % 100) + 10) && !(r_ptr->flags1 & RF1_QUESTOR))
+		if (!randint0((m_idx % 100) + 10) && !(r_ptr->flags1 & RF1_QUESTOR))
 		{
 			bool sad = FALSE;
 
@@ -1992,13 +2001,13 @@ static void process_monster(int m_idx)
 		u32b notice = 0;
 
 		/* Hack -- handle non-aggravation */
-		if (!p_ptr->aggravate) notice = rand_int(1024);
+		if (!p_ptr->aggravate) notice = randint0(1024);
 
 		/* Nightmare monsters are more alert */
 		if (ironman_nightmare) notice /= 2;
 
 		/* Hack -- See if monster "notices" player */
-		if ((notice * notice * notice) <= noise)
+		if ((notice * notice * notice) <= p_ptr->noise)
 		{
 			/* Hack -- amount of "waking" */
 			int d = 1;
@@ -2067,7 +2076,7 @@ static void process_monster(int m_idx)
 		int d = 1;
 
 		/* Make a "saving throw" against stun */
-		if (rand_int(10000) <= r_ptr->level * r_ptr->level)
+		if (randint0(10000) <= r_ptr->level * r_ptr->level)
 		{
 			/* Recover fully */
 			d = m_ptr->stunned;
@@ -2108,7 +2117,7 @@ static void process_monster(int m_idx)
 	if (m_ptr->confused)
 	{
 		/* Amount of "boldness" */
-		int d = randint(r_ptr->level / 20 + 1);
+		int d = randint1(r_ptr->level / 20 + 1);
 
 		/* Still confused */
 		if (m_ptr->confused > d)
@@ -2159,15 +2168,6 @@ static void process_monster(int m_idx)
 	if (!is_hostile(m_ptr) && p_ptr->aggravate)
 		gets_angry = TRUE;
 
-#if 0  /* No need to check this _every_ turn for every monster. */
-
-	/* Paranoia... no pet uniques outside wizard mode -- TY */
-	if (is_pet(m_ptr) && !wizard &&
-	    (r_ptr->flags1 & RF1_UNIQUE))
-		gets_angry = TRUE;
-
-#endif /* 0 */
-
 	if (gets_angry)
 	{
 		char m_name[80];
@@ -2180,7 +2180,7 @@ static void process_monster(int m_idx)
 	if (m_ptr->monfear)
 	{
 		/* Amount of "boldness" */
-		int d = randint(r_ptr->level / 20 + 1);
+		int d = randint1(r_ptr->level / 20 + 1);
 
 		/* Still afraid */
 		if (m_ptr->monfear > d)
@@ -2232,7 +2232,7 @@ static void process_monster(int m_idx)
 		}
 
 		/* Hack -- multiply slower in crowded areas */
-		if ((k < 4) && (!k || !rand_int(k * MON_MULT_ADJ)))
+		if ((k < 4) && (!k || !randint0(k * MON_MULT_ADJ)))
 		{
 			/* Try to multiply */
 			if (multiply_monster(m_idx, FALSE, is_friendly(m_ptr), is_pet(m_ptr)))
@@ -2252,7 +2252,7 @@ static void process_monster(int m_idx)
 
 	/* Hack! "Cyber" monster makes noise... */
 	if (strstr((r_name + r_ptr->name), "Cyber") &&
-	    (randint(CYBERNOISE) == 1) &&
+	    (randint1(CYBERNOISE) == 1) &&
 	    !m_ptr->ml && (m_ptr->cdis <= MAX_SIGHT))
 	{
 		msg_print("You hear heavy steps.");
@@ -2264,7 +2264,7 @@ static void process_monster(int m_idx)
 	/* Some monsters can speak */
 	if (speak_unique &&
 	    (r_ptr->flags2 & RF2_CAN_SPEAK) &&
-		(randint(SPEAK_CHANCE) == 1) &&
+		(randint1(SPEAK_CHANCE) == 1) &&
 		player_has_los_grid(c_ptr))
 	{
 		char m_name[80];
@@ -2326,7 +2326,7 @@ static void process_monster(int m_idx)
 	/* 75% random movement */
 	else if ((r_ptr->flags1 & RF1_RAND_50) &&
 				(r_ptr->flags1 & RF1_RAND_25) &&
-	         (rand_int(100) < 75))
+	         (randint0(100) < 75))
 	{
 		/* Memorize flags */
 		if (m_ptr->ml) r_ptr->r_flags1 |= (RF1_RAND_50);
@@ -2338,7 +2338,7 @@ static void process_monster(int m_idx)
 
 	/* 50% random movement */
 	else if ((r_ptr->flags1 & RF1_RAND_50) &&
-				(rand_int(100) < 50))
+				(randint0(100) < 50))
 	{
 		/* Memorize flags */
 		if (m_ptr->ml) r_ptr->r_flags1 |= (RF1_RAND_50);
@@ -2349,7 +2349,7 @@ static void process_monster(int m_idx)
 
 	/* 25% random movement */
 	else if ((r_ptr->flags1 & RF1_RAND_25) &&
-				(rand_int(100) < 25))
+				(randint0(100) < 25))
 	{
 		/* Memorize flags */
 		if (m_ptr->ml) r_ptr->r_flags1 |= RF1_RAND_25;
@@ -2453,7 +2453,7 @@ static void process_monster(int m_idx)
 		d = mm[i];
 
 		/* Hack -- allow "randomized" motion */
-		if (d == 5) d = ddd[rand_int(8)];
+		if (d == 5) d = ddd[randint0(8)];
 
 		/* Get the destination */
 		ny = oy + ddy[d];
@@ -2476,7 +2476,7 @@ static void process_monster(int m_idx)
 		}
 
 		/* Hack -- player 'in' wall */
-		else if ((ny == py) && (nx == px))
+		else if ((ny == p_ptr->py) && (nx == p_ptr->px))
 		{
 			do_move = TRUE;
 		}
@@ -2520,7 +2520,7 @@ static void process_monster(int m_idx)
 			/* Monster destroyed a wall */
 			did_kill_wall = TRUE;
 
-			if (randint(GRINDNOISE) == 1)
+			if (randint1(GRINDNOISE) == 1)
 			{
 				msg_print("There is a grinding sound.");
 			}
@@ -2534,15 +2534,16 @@ static void process_monster(int m_idx)
 			/* Note changes to viewable region */
 			if (player_can_see_bold(ny, nx)) do_view = TRUE;
 		}
-		else if ((c_ptr->feat >= FEAT_RUBBLE) &&
+		else if (((c_ptr->feat >= FEAT_RUBBLE) &&
 			(c_ptr->feat <= FEAT_WALL_SOLID))
+			 || (c_ptr->feat == FEAT_PILLAR))
 		{
 			/* This monster cannot walk through walls */
 			do_move = FALSE;
 		}
 
 		/* Some monsters never attack */
-		if (do_move && (ny == py) && (nx == px) &&
+		if (do_move && (ny == p_ptr->py) && (nx == p_ptr->px) &&
 			(r_ptr->flags1 & RF1_NEVER_BLOW))
 		{
 			/* Hack -- memorize lack of attacks */
@@ -2606,7 +2607,7 @@ static void process_monster(int m_idx)
 		}
 
 		/* The player is in the way.  Attack him. */
-		if (do_move && (ny == py) && (nx == px))
+		if (do_move && (ny == p_ptr->py) && (nx == p_ptr->px))
 		{
 			/* Do the attack */
 			(void)make_attack_normal(m_idx);
@@ -2807,8 +2808,8 @@ static void process_monster(int m_idx)
 					if (f1 & TR1_SLAY_EVIL)   flg3 |= (RF3_EVIL);
 
 					/* The object cannot be picked up by the monster */
-					if (artifact_p(o_ptr) || (r_ptr->flags3 & flg3) ||
-						(o_ptr->art_name))
+					if ((o_ptr->flags3 & TR3_INSTA_ART) ||
+						 (r_ptr->flags3 & flg3))
 					{
 						/* Only give a message for "take_item" */
 						if ((r_ptr->flags2 & (RF2_TAKE_ITEM)) && (r_ptr->flags2 & (RF2_STUPID)))
@@ -3071,9 +3072,6 @@ void process_monsters(int min_energy)
 	}
 
 
-	/* Hack -- calculate the "player noise" */
-	noise = (1L << (30 - p_ptr->skill_stl));
-
 	/* Process the monsters (backwards) */
 	for (i = m_max - 1; i >= 1; i--)
 	{
@@ -3159,7 +3157,7 @@ void process_monsters(int min_energy)
 		/* Hack -- Monsters can "smell" the player from far away */
 		/* Note that most monsters have "aaf" of "20" or so */
 		else if (flow_by_sound &&
-			(area(py,px)->when == c_ptr->when) &&
+			(area(p_ptr->py, p_ptr->px)->when == c_ptr->when) &&
 			(c_ptr->cost < MONSTER_FLOW_DEPTH) &&
 			(c_ptr->cost < r_ptr->aaf))
 		{
@@ -3179,7 +3177,7 @@ void process_monsters(int min_energy)
 		process_monster(i);
 
 		/* Hack -- notice death or departure */
-		if (!alive || death) break;
+		if (!p_ptr->playing || p_ptr->is_dead) break;
 
 		/* Notice leaving */
 		if (p_ptr->leaving) break;

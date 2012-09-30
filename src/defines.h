@@ -27,13 +27,25 @@
 
 
 /*
+ * Name of the version/variant
+ */
+#define VERSION_NAME "ZAngband"
+
+
+/*
+ * Current version string
+ */
+#define VERSION_STRING	"2.5.3"
+
+
+/*
  * Current version number of Angband: 2.8.1
  */
 #define VERSION_MAJOR   2
 #define VERSION_MINOR   8
 #define VERSION_PATCH   1
 
-#define SAVEFILE_VERSION 18
+#define SAVEFILE_VERSION 23
 
 /* Added for ZAngband */
 #ifdef USE_SCRIPT
@@ -45,11 +57,13 @@
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 2
 #define FAKE_VER_MINOR 5
-#define FAKE_VER_PATCH 2
+#define FAKE_VER_PATCH 3
 #endif /* USE_SCRIPT */
 
 #define ANGBAND_2_8_1
 #define ZANGBAND
+#define ZANGBAND_BIGSCREEN
+#define ZANGBAND_WILDERNESS
 
 /*
  * This value is not currently used
@@ -69,14 +83,12 @@
 #define BLOCK_WID	11
 
 /*
- * Maximum dungeon height in grids, must be a multiple of SCREEN_HGT,
- * probably hard-coded to SCREEN_HGT * 3.
+ * Maximum dungeon height in grids.
  */
 #define MAX_HGT         66
 
 /*
- * Maximum dungeon width in grids, must be a multiple of SCREEN_WID,
- * probably hard-coded to SCREEN_WID * 3.
+ * Maximum dungeon width in grids.
  */
 #define MAX_WID         198
 
@@ -92,9 +104,9 @@
 #define WILD_GRID_SIZE	9
 
 /* number of wilderness blocks in cache */
-#define WILD_BLOCKS	WILD_GRID_SIZE * WILD_GRID_SIZE
+#define WILD_BLOCKS	(WILD_GRID_SIZE * WILD_GRID_SIZE)
 
-/* start of the sea types = 2^16 - 65*/
+/* Hack XXX  Start of the sea types = 2^16 - 65*/
 #define WILD_SEA	65471
 
 /*
@@ -109,33 +121,13 @@
 #define QUEST_OBERON         8
 #define QUEST_SERPENT        9
 
-/*
- * Arena constants
- */
-#define MAX_ARENA_MONS		29	/* -KMW- */
 
 
-/*
- * Total number of stores (see "store.c", etc)
- */
-#define MAX_STORES      9
+/* Number of gates in the city */
+#define MAX_GATES				4
 
-/*
- * Total number of stores with stock (see "store.c", etc)
- */
-#define STORE_CACHE_AMNT 50
 
-/*
- * Number of buildings
- */
-#define MAX_BLDG		32
-
-/*
- * Total number of stores (see "store.c", etc)
- */
-#define MAX_STORES_PER_TOWN 12
-#define MAX_STORE_TYPES      9
-
+/* The store types */
 #define STORE_GENERAL   0
 #define STORE_ARMOURY   1
 #define STORE_WEAPON    2
@@ -146,33 +138,84 @@
 #define STORE_HOME      7
 #define STORE_BOOK      8
 
+/*
+ * Total number of stores (see "store.c", etc)
+ */
+#define MAX_STORES      9
 
-#define BUILDING_NON_MEMBER 0
-#define BUILDING_MEMBER     1
-#define BUILDING_OWNER      2
+
+/*
+ * Total number of stores with stock (see "store.c", etc)
+ */
+#define STORE_CACHE_AMNT 50
+
 
 /*
  * Total number of owners per store (see "store.c", etc)
  */
-#define MAX_OWNERS      32
+#define MAX_OWNERS			32
+
+
+/* The building types */
+#define BLDG_WEAPONMASTER	0
+#define BLDG_RECHARGE		1
+#define BLDG_PLUS_WEAPON	2
+#define BLDG_PLUS_ARMOUR	3
+#define BLDG_MUTATE			4
+#define BLDG_MAP			5
+
+/*
+ * Total number of buildings (see "bldg.c", etc)
+ */
+#define MAX_BLDG		6
+
+/* List of building types */
+#define	BUILD_STORE_GENERAL		0
+#define BUILD_STORE_ARMOURY		1
+#define BUILD_STORE_WEAPON		2
+#define BUILD_STORE_TEMPLE		3
+#define BUILD_STORE_ALCHEMIST	4
+#define BUILD_STORE_MAGIC		5
+#define BUILD_STORE_BLACK		6
+#define BUILD_STORE_HOME		7
+#define BUILD_STORE_BOOK		8
+#define BUILD_STAIRS			9
+#define BUILD_WEAPONMASTER		10
+#define BUILD_RECHARGE			11
+#define BUILD_PLUS_WEAPON		12
+#define BUILD_PLUS_ARMOUR		13
+#define BUILD_MUTATE			14
+#define BUILD_NONE				15
+#define BUILD_BLANK				16
+#define BUILD_MAP				17
+
+/* Maximum number of "building" types in a city */
+#define MAX_CITY_BUILD			18
+
+
+/*
+ * Total number of owners per building (see "bldg.c", etc)
+ */
+#define MAX_B_OWN			1
+
 
 /*
  * Maximum number of player "sex" types (see "table.c", etc)
  */
-#define MAX_SEXES            2
+#define MAX_SEXES           2
 
 /*
  * Maximum number of player "class" types (see "table.c", etc)
  */
-#define MAX_CLASS            11
+#define MAX_CLASS           11
 
 /* The number of "patrons" available (for Chaos Warriors) */
 #define MAX_PATRON          16
 
 /* Number of entries in the sanity-blast descriptions */
-#define MAX_SAN_HORROR 20
-#define MAX_SAN_FUNNY 22
-#define MAX_SAN_COMMENT 5
+#define MAX_SAN_HORROR		20
+#define MAX_SAN_FUNNY		22
+#define MAX_SAN_COMMENT		5
 
 /* Chaos Warrior: Reward types: */
 #define REW_POLY_SLF    1
@@ -321,19 +364,31 @@
 
 
 /* Monk martial arts... */
-# define MAX_MA 17
-# define MA_KNEE 1
-# define MA_SLOW 2
+# define MAX_MA			17
+# define MA_KNEE		1
+# define MA_SLOW		2
 
-/* Mindcraft */
-#define MAX_MINDCRAFT_POWERS  12
+/* Mindcrafter */
+#define MINDCRAFT_NEURAL_BLAST           0
+#define MINDCRAFT_PRECOGNITION           1
+#define MINDCRAFT_MINOR_DISPLACEMENT     2
+#define MINDCRAFT_MAJOR_DISPLACEMENT     3
+#define MINDCRAFT_DOMINATION             4
+#define MINDCRAFT_PULVERISE              5
+#define MINDCRAFT_CHARACTER_ARMOUR       6
+#define MINDCRAFT_PSYCHOMETRY            7
+#define MINDCRAFT_MIND_WAVE              8
+#define MINDCRAFT_ADRENALINE_CHANNELING  9
+#define MINDCRAFT_PSYCHIC_DRAIN         10
+#define MINDCRAFT_TELEKINETIC_WAVE      11
+#define MINDCRAFT_MAX                   12
 
 /* Hallucination stuff */
-#define MAX_SILLY_ATTACK 28
+#define MAX_SILLY_ATTACK		28
 
 /* A hack for cave.c */
-#define BMP_FIRST_PC_CLASS 164
-#define BMP_FIRST_PC_RACE 128
+#define BMP_FIRST_PC_CLASS		164
+#define BMP_FIRST_PC_RACE		128
 
 
 /*
@@ -377,15 +432,14 @@
 
 /*
  * Maximum number of squares lit by monsters.
- * (Note that squares far away from the player do not need to
- * be stored.)
+ * (Note that squares far away from the player do not need to be stored.)
  */
 #define LITE_MAX 2500
 
 /*
  * Number of keymap modes
  */
-#define KEYMAP_MODES	2
+#define KEYMAP_MODES		2
 
 /*
  * Mode for original keyset commands
@@ -399,26 +453,26 @@
 
 
 /*
- * OPTION: Maximum number of macros (see "io.c")
+ * OPTION: Maximum number of macros (see "utils.c")
  * Default: assume at most 256 macros are used
  */
 #define MACRO_MAX       256
 
 /*
- * OPTION: Maximum number of "quarks" (see "io.c")
+ * OPTION: Maximum number of "quarks" (see "utils.c")
  * Default: assume at most 512 different inscriptions are used
  */
 #define QUARK_MAX       768
 /* Was 512... 256 quarks added for random artifacts */
 
 /*
- * OPTION: Maximum number of messages to remember (see "io.c")
+ * OPTION: Maximum number of messages to remember (see "utils.c")
  * Default: assume maximal memorization of 2048 total messages
  */
 #define MESSAGE_MAX     2048
 
 /*
- * OPTION: Maximum space for the message text buffer (see "io.c")
+ * OPTION: Maximum space for the message text buffer (see "utils.c")
  * Default: assume that each of the 2048 messages is repeated an
  * average of three times, and has an average length of 48
  */
@@ -446,20 +500,20 @@
 #define STORE_MIN_KEEP  6               /* Min slots to "always" keep full */
 #define STORE_MAX_KEEP  18              /* Max slots to "always" keep full */
 #define STORE_SHUFFLE   21              /* 1/Chance (per day) of an owner changing */
-#define STORE_TURNS             1000    /* Number of turns between turnovers */
+#define STORE_TURNS     1000		    /* Number of turns between turnovers */
 
 
 /*
  * Misc constants
  */
 #define TOWN_DAWN               10000   /* Number of turns from dawn to dawn XXX */
-#define BREAK_GLYPH             550             /* Rune of protection resistance */
-#define BREAK_MINOR_GLYPH       99             /* For explosive runes */
-#define BTH_PLUS_ADJ    1               /* Adjust BTH per plus-to-hit */
-#define MON_MULT_ADJ    8               /* High value slows multiplication */
-#define MON_SUMMON_ADJ  2               /* Adjust level of summoned creatures */
-#define MON_DRAIN_LIFE  2               /* Percent of player exp drained per hit */
-#define USE_DEVICE      3               /* x> Harder devices x< Easier devices     */
+#define BREAK_GLYPH             550     /* Rune of protection resistance */
+#define BREAK_MINOR_GLYPH       99      /* For explosive runes */
+#define BTH_PLUS_ADJ    		1       /* Adjust BTH per plus-to-hit */
+#define MON_MULT_ADJ    		8       /* High value slows multiplication */
+#define MON_SUMMON_ADJ  		2       /* Adjust level of summoned creatures */
+#define MON_DRAIN_LIFE  		2		/* Percent of player exp drained per hit */
+#define USE_DEVICE      		3       /* x> Harder devices x< Easier devices     */
 
 
 /* "Biases" for random artifact gen */
@@ -497,7 +551,7 @@
 #define PET_SEEK_AND_DESTROY		4
 #define PET_ALLOW_SPACE				5
 #define PET_STAY_AWAY				6
-#define PET_OPEN_DOORS           7
+#define PET_OPEN_DOORS				7
 #define PET_TAKE_ITEMS				8
 
 /*
@@ -512,18 +566,25 @@
 
 
 /*
- * There is a 1/20 (5%) chance of inflating the requested object_level
+ * There is a 1/50 (2%) chance of inflating the requested object_level
  * during the creation of an object (see "get_obj_num()" in "object.c").
  * Lower values yield better objects more often.
  */
-#define GREAT_OBJ       20
+#define GREAT_OBJ       50
+
+
+/*
+ * There is a 1/10 (10%) chance of inflating the level requested in
+ * making an ego item
+ */
+#define EGO_INFLATE		10
 
 /*
  * There is a 1/50 (2%) chance of inflating the requested monster_level
  * during the creation of a monsters (see "get_mon_num()" in "monster.c").
  * Lower values yield harder monsters more often.
  */
-#define NASTY_MON       50              /* 1/chance of inflated monster level */
+#define NASTY_MON       50
 
 /* 1/x chance of hurting even if invulnerable! */
 #define PENETRATE_INVULNERABILITY 13
@@ -556,16 +617,6 @@
  */
 #define MIN_M_ALLOC_LEVEL       14
 
-/*
- * The town starts out with 4 residents during the day
- */
-#define MIN_M_ALLOC_TD          4
-
-/*
- * The town starts out with 8 residents during the night
- */
-#define MIN_M_ALLOC_TN          8
-
 
 /*
  * A monster can only "multiply" (reproduce) if there are fewer than 100
@@ -586,12 +637,12 @@
 /*
  * Player "food" crucial values
  */
-#define PY_FOOD_MAX             15000   /* Food value (Bloated) */
+#define PY_FOOD_MAX  	15000   /* Food value (Bloated) */
 #define PY_FOOD_FULL    10000   /* Food value (Normal) */
 #define PY_FOOD_ALERT   2000    /* Food value (Hungry) */
 #define PY_FOOD_WEAK    1000    /* Food value (Weak) */
-#define PY_FOOD_FAINT   500             /* Food value (Fainting) */
-#define PY_FOOD_STARVE  100             /* Food value (Starving) */
+#define PY_FOOD_FAINT   500		/* Food value (Fainting) */
+#define PY_FOOD_STARVE  100		/* Food value (Starving) */
 
 /*
  * Player regeneration constants
@@ -599,7 +650,7 @@
 #define PY_REGEN_NORMAL         197             /* Regen factor*2^16 when full */
 #define PY_REGEN_WEAK           98              /* Regen factor*2^16 when weak */
 #define PY_REGEN_FAINT          33              /* Regen factor*2^16 when fainting */
-#define PY_REGEN_HPBASE         1442    /* Min amount hp regen*2^16 */
+#define PY_REGEN_HPBASE         1442		    /* Min amount hp regen*2^16 */
 #define PY_REGEN_MNBASE         524             /* Min amount mana regen*2^16 */
 
 /*
@@ -649,6 +700,12 @@
 /*
  * Indexes used for various "equipment" slots (hard-coded by savefiles, etc).
  */
+
+/* Hack XXX XXX XXX these three are used by the ego item code. */
+#define INVEN_CROWN		21
+#define INVEN_DIG		22
+#define INVEN_AMMO		23
+
 #define INVEN_WIELD     24
 #define INVEN_BOW       25
 #define INVEN_LEFT      26
@@ -671,7 +728,7 @@
 /*
  * A "stack" of items is limited to less than 100 items (hard-coded).
  */
-#define MAX_STACK_SIZE                  100
+#define MAX_STACK_SIZE		100
 
 
 
@@ -757,8 +814,6 @@
 
 /*
  * Some screen locations for various display routines
- * Currently, row 8 and 15 are the only "blank" rows.
- * That leaves a "border" around the "stat" values.
  */
 
 #define ROW_RACE                1
@@ -803,8 +858,8 @@
 #define ROW_INFO                20
 #define COL_INFO                0       /* "xxxxxxxxxxxx" */
 
-#define ROW_MAP						1
-#define COL_MAP                  13
+#define ROW_MAP					1
+#define COL_MAP                 13		/* The map of the dungeon */
 
 #define ROW_CUT                 21
 #define COL_CUT                 0       /* <cut> */
@@ -816,11 +871,11 @@
 
 #define COL_BLIND               7       /* "Blind" */
 
-#define COL_CONFUSED    13      /* "Confused" */
+#define COL_CONFUSED    		13      /* "Confused" */
 
 #define COL_AFRAID              22      /* "Afraid" */
 
-#define COL_POISONED    29      /* "Poisoned" */
+#define COL_POISONED		    29      /* "Poisoned" */
 
 #define COL_STATE               38      /* <state> */
 
@@ -869,6 +924,7 @@
 /* Closed Door */
 #define FEAT_CLOSED				0x20
 #define FEAT_PILLAR         	0x21
+
 /* A big gap for expansion */
 
 /* Extra */
@@ -906,10 +962,6 @@
 #define FEAT_PATTERN_XTRA1      0x48
 #define FEAT_PATTERN_XTRA2      0x49
 
-/* Shops */
-#define FEAT_SHOP_HEAD          0x4A
-#define FEAT_SHOP_TAIL          0x52
-
 /* Terrains */
 #define FEAT_DEEP_WATER         0x53
 #define FEAT_SHAL_WATER         0x54
@@ -937,7 +989,6 @@
 #define FEAT_SNOW_TREE		0x65
 #define FEAT_OBELISK		0x66
 
-
 /* Gap */
 
 /* Impassible terrains */
@@ -949,7 +1000,6 @@
 /* Gap  */
 
 /* Slow "floor" terrains */
-
 #define FEAT_BUSH		    0x80
 #define FEAT_DEAD_BUSH		0x81
 #define FEAT_GRASS_LONG		0x82
@@ -966,47 +1016,62 @@
 
 #define WILD_INFO_TRACK		0x01
 #define WILD_INFO_ROAD		0x02
-#define WILD_INFO_RIVER		0x04
+#define WILD_INFO_WATER		0x04
 #define WILD_INFO_LAVA		0x08
 #define WILD_INFO_OBJECT	0x10
 #define WILD_INFO_SEEN		0x20
-#define WILD_INFO_DUMMY1	0x40
+#define WILD_INFO_ACID		0x40
 #define WILD_INFO_DUMMY2	0x80
 
 /*** Field Thaumatergical types - (see "fields.c" and t_info.txt) ***/
-#define FT_WALL_INVIS		0x0001
-#define FT_GLYPH_WARDING	0x0002
-#define FT_GLYPH_EXPLODE	0x0003
-#define FT_CORPSE			0x0004
-#define FT_SKELETON			0x0005
-#define FT_TRAP_DOOR		0x0006
-#define FT_TRAP_PIT			0x0007
-#define FT_TRAP_SPIKE_PIT	0x0008
-#define FT_TRAP_POISON_PIT	0x0009
-#define FT_TRAP_CURSE		0x000A
-#define FT_TRAP_TELEPORT	0x000B
-#define FT_TRAP_ELEMENT		0x000C
-#define FT_TRAP_BA_ELEMENT	0x000D
-#define FT_TRAP_GAS			0x000E
-#define FT_TRAP_TRAPS		0x000F
-#define FT_TRAP_TEMP_STAT	0x0010
-#define FT_TRAP_PERM_STAT	0x0011
-#define FT_TRAP_LOSE_XP		0x0012
-#define FT_TRAP_DISENCHANT	0x0013
-#define FT_TRAP_DROP_ITEM	0x0014
-#define FT_TRAP_MUTATE		0x0015
-#define FT_TRAP_NEW_LIFE	0x0016
-#define FT_TRAP_NO_LITE		0x0017
-#define FT_TRAP_HUNGER		0x0018
-#define FT_TRAP_NO_GOLD		0x0019
-#define FT_TRAP_HASTE_MON	0x001A
-#define FT_TRAP_RAISE_MON	0x001B
-#define FT_TRAP_DRAIN_MAGIC	0x001C
-#define FT_TRAP_AGGRAVATE	0x001D
-#define FT_TRAP_SUMMON		0x001E
-#define FT_TRAP_LOSE_MEMORY	0x001F
-#define FT_LOCK_DOOR		0x0020
-#define FT_JAM_DOOR			0x0021
+#define FT_WALL_INVIS			0x0001
+#define FT_GLYPH_WARDING		0x0002
+#define FT_GLYPH_EXPLODE		0x0003
+#define FT_CORPSE				0x0004
+#define FT_SKELETON				0x0005
+#define FT_TRAP_DOOR			0x0006
+#define FT_TRAP_PIT				0x0007
+#define FT_TRAP_SPIKE_PIT		0x0008
+#define FT_TRAP_POISON_PIT		0x0009
+#define FT_TRAP_CURSE			0x000A
+#define FT_TRAP_TELEPORT		0x000B
+#define FT_TRAP_ELEMENT			0x000C
+#define FT_TRAP_BA_ELEMENT		0x000D
+#define FT_TRAP_GAS				0x000E
+#define FT_TRAP_TRAPS			0x000F
+#define FT_TRAP_TEMP_STAT		0x0010
+#define FT_TRAP_PERM_STAT		0x0011
+#define FT_TRAP_LOSE_XP			0x0012
+#define FT_TRAP_DISENCHANT		0x0013
+#define FT_TRAP_DROP_ITEM		0x0014
+#define FT_TRAP_MUTATE			0x0015
+#define FT_TRAP_NEW_LIFE		0x0016
+#define FT_TRAP_NO_LITE			0x0017
+#define FT_TRAP_HUNGER			0x0018
+#define FT_TRAP_NO_GOLD			0x0019
+#define FT_TRAP_HASTE_MON		0x001A
+#define FT_TRAP_RAISE_MON		0x001B
+#define FT_TRAP_DRAIN_MAGIC		0x001C
+#define FT_TRAP_AGGRAVATE		0x001D
+#define FT_TRAP_SUMMON			0x001E
+#define FT_TRAP_LOSE_MEMORY		0x001F
+#define FT_LOCK_DOOR			0x0020
+#define FT_JAM_DOOR				0x0021
+#define FT_STORE_GENERAL		0x0022
+#define FT_STORE_ARMOURY		0x0023
+#define FT_STORE_WEAPON			0x0024
+#define FT_STORE_TEMPLE			0x0025
+#define FT_STORE_ALCHEMIST		0x0026
+#define FT_STORE_MAGIC			0x0027
+#define FT_STORE_BLACK			0x0028
+#define FT_STORE_HOME			0x0029
+#define FT_STORE_BOOK			0x002A
+#define FT_BUILD_WEAPON			0x002B
+#define FT_BUILD_RECHARGE		0x002C
+#define FT_BUILD_PLUS_WEAPON	0x002D
+#define FT_BUILD_PLUS_ARMOUR	0x002E
+#define FT_BUILD_MUTATE			0x002F
+#define FT_BUILD_MAP			0x0030
 
 /*** Artifact indexes (see "lib/edit/a_info.txt") ***/
 
@@ -1310,6 +1375,7 @@
 #define EGO_SHATTERED           126
 #define EGO_BLASTED             127
 
+
 /* Activation effects for random artifacts */
 #define ACT_SUNLIGHT            1
 #define ACT_BO_MISS_1           2
@@ -1373,7 +1439,8 @@
 #define ACT_XTRA_SPEED          96
 #define ACT_WRAITH              97
 #define ACT_INVULN              98
-/* 99 - 110 unused */
+#define ACT_TELEPORT_1			99
+/* 100 - 110 unused */
 #define ACT_LIGHT               111
 #define ACT_MAP_LIGHT           112
 #define ACT_DETECT_ALL          113
@@ -1388,9 +1455,10 @@
 #define ACT_RECHARGE            122
 #define ACT_ALCHEMY             123
 #define ACT_DIM_DOOR            124
-#define ACT_TELEPORT            125
+#define ACT_TELEPORT_2          125
 #define ACT_RECALL              126
-/* 127 -> unused */
+/* 127 unused */
+/* 128 - 255 Artifact activations */
 
 /*** Object "tval" and "sval" codes ***/
 
@@ -1405,11 +1473,11 @@
  * only armor and weapons and a few other items use any of these flags.
  */
 
-#define TV_SKELETON      1      /* Skeletons ('s'), not specified */
+#define TV_SKELETON      1      /* Skeletons ('~') */
 #define TV_BOTTLE        2      /* Empty bottles ('!') */
 #define TV_JUNK          3      /* Sticks, Pottery, etc ('~') */
 #define TV_SPIKE         5      /* Spikes ('~') */
-#define TV_CHEST         7      /* Chests ('~') */
+#define TV_CHEST         7      /* Chests ('&') */
 #define TV_FIGURINE      8      /* Magical figurines */
 #define TV_STATUE        9      /* Statue, what a silly object... */
 /*#define TV_CORPSE       10  */    /* Corpses are now fields */
@@ -1448,6 +1516,9 @@
 #define TV_TRUMP_BOOK   95
 #define TV_ARCANE_BOOK  96
 #define TV_GOLD         100     /* Gold can only be picked up by players */
+
+#define TV_BOOKS_MIN    TV_LIFE_BOOK  /* First tval of spellbooks */
+#define TV_BOOKS_MAX    TV_ARCANE_BOOK  /* Last tval of spellbooks */
 
 /* Any subvalue */
 #define SV_ANY 					255
@@ -1488,83 +1559,89 @@
 #define SV_DWARVEN_PICK                  6
 #define SV_MATTOCK                       7
 
+/* 
+ * Do not put the damage dice of the weapons or the AC of armour here.
+ * The values rapidly diverge from what is in k_info.txt
+ * as they are tweaked.
+ */
+
 /* The "sval" values for TV_HAFTED */
-#define SV_CLUB                          1	/* 1d4  */
-#define SV_WHIP                          2	/* 1d6  */
-#define SV_QUARTERSTAFF                  3	/* 1d9  */
-#define SV_NUNCHAKU                      4	/* 2d3  */
-#define SV_MACE                          5	/* 2d4  */
-#define SV_BALL_AND_CHAIN                6	/* 2d4  */
-#define SV_JO_STAFF                      7	/* 1d7  */
-#define SV_WAR_HAMMER                    8	/* 3d3  */
-#define SV_THREE_PIECE_ROD              11	/* 3d3  */
-#define SV_MORNING_STAR                 12	/* 2d6  */
-#define SV_FLAIL                        13	/* 2d6  */
-#define SV_BO_STAFF                     14	/* 1d11 */
-#define SV_LEAD_FILLED_MACE             15	/* 3d4  */
-#define SV_TETSUBO                      16	/* 2d7  */
-#define SV_TWO_HANDED_FLAIL             18	/* 3d6  */
-#define SV_GREAT_HAMMER                 19	/* 4d6  */
-#define SV_MACE_OF_DISRUPTION           20	/* 5d8  */
-#define SV_GROND                        50	/* 3d4  */
+#define SV_CLUB                          1
+#define SV_WHIP                          2
+#define SV_QUARTERSTAFF                  3
+#define SV_NUNCHAKU                      4
+#define SV_MACE                          5
+#define SV_BALL_AND_CHAIN                6
+#define SV_JO_STAFF                      7
+#define SV_WAR_HAMMER                    8
+#define SV_THREE_PIECE_ROD              11
+#define SV_MORNING_STAR                 12
+#define SV_FLAIL                        13
+#define SV_BO_STAFF                     14
+#define SV_LEAD_FILLED_MACE             15
+#define SV_TETSUBO                      16
+#define SV_TWO_HANDED_FLAIL             18
+#define SV_GREAT_HAMMER                 19
+#define SV_MACE_OF_DISRUPTION           20
+#define SV_GROND                        50
 
 /* The "sval" values for TV_POLEARM */
-#define SV_HATCHET                       1	/* 1d5 */
-#define SV_SPEAR                         2	/* 1d6 */
-#define SV_SICKLE                        3	/* 2d3 */
-#define SV_AWL_PIKE                      4	/* 1d8 */
-#define SV_TRIDENT                       5	/* 1d9 */
-#define SV_FAUCHARD                      6  /* 1d10 */
-#define SV_BROAD_SPEAR                   7	/* 1d9 */
-#define SV_PIKE                          8	/* 2d5 */
-#define SV_NAGINATA                      9  /* 2d6 */
-#define SV_BEAKED_AXE                   10	/* 2d6 */
-#define SV_BROAD_AXE                    11	/* 2d6 */
-#define SV_LUCERNE_HAMMER               12	/* 2d5  */
-#define SV_GLAIVE                       13	/* 2d6 */
-#define SV_LAJATANG                     14	/* 2d7 */
-#define SV_HALBERD                      15	/* 3d4 */
-#define SV_GUISARME                     16  /* 2d5 */
-#define SV_SCYTHE                       17	/* 5d3 */
-#define SV_LANCE                        20	/* 2d8 */
-#define SV_BATTLE_AXE                   22	/* 2d8 */
-#define SV_GREAT_AXE                    25	/* 4d4 */
-#define SV_TRIFURCATE_SPEAR             26	/* 2d9 */
-#define SV_LOCHABER_AXE                 28	/* 3d8 */
-#define SV_HEAVY_LANCE                  29  /* 4d8 */
-#define SV_SCYTHE_OF_SLICING            30	/* 8d4 */
+#define SV_HATCHET                       1
+#define SV_SPEAR                         2
+#define SV_SICKLE                        3
+#define SV_AWL_PIKE                      4
+#define SV_TRIDENT                       5
+#define SV_FAUCHARD                      6
+#define SV_BROAD_SPEAR                   7
+#define SV_PIKE                          8
+#define SV_NAGINATA                      9
+#define SV_BEAKED_AXE                   10
+#define SV_BROAD_AXE                    11
+#define SV_LUCERNE_HAMMER               12
+#define SV_GLAIVE                       13
+#define SV_LAJATANG                     14
+#define SV_HALBERD                      15
+#define SV_GUISARME                     16
+#define SV_SCYTHE                       17
+#define SV_LANCE                        20
+#define SV_BATTLE_AXE                   22
+#define SV_GREAT_AXE                    25
+#define SV_TRIFURCATE_SPEAR             26
+#define SV_LOCHABER_AXE                 28
+#define SV_HEAVY_LANCE                  29
+#define SV_SCYTHE_OF_SLICING            30
 
 /* The "sval" codes for TV_SWORD */
-#define SV_BROKEN_DAGGER                 1  /* 1d1 */
-#define SV_BROKEN_SWORD                  2  /* 1d2 */
-#define SV_DAGGER                        4  /* 1d4 */
-#define SV_MAIN_GAUCHE                   5  /* 1d5 */
-#define SV_TANTO                         6  /* 1d5 */
-#define SV_RAPIER                        7  /* 1d6 */
-#define SV_SMALL_SWORD                   8  /* 1d6 */
-#define SV_BASILLARD                     9  /* 1d8 */
-#define SV_SHORT_SWORD                  10  /* 1d7 */
-#define SV_SABRE                        11  /* 1d7 */
-#define SV_CUTLASS                      12  /* 1d7 */
-#define SV_WAKIZASHI                    13  /* 2d4 */
-#define SV_KHOPESH                      14  /* 2d4 */
-#define SV_TULWAR                       15  /* 2d4 */
-#define SV_BROAD_SWORD                  16  /* 2d5 */
-#define SV_LONG_SWORD                   17  /* 2d5 */
-#define SV_SCIMITAR                     18  /* 2d5 */
-#define SV_NINJATO                      19  /* 1d9 */
-#define SV_KATANA                       20  /* 3d4 */
-#define SV_BASTARD_SWORD                21  /* 3d4 */
-#define SV_GREAT_SCIMITAR               22  /* 4d5 */
-#define SV_CLAYMORE                     23  /* 2d8 */
-#define SV_ESPADON                      24  /* 2d9 */
-#define SV_TWO_HANDED_SWORD             25  /* 3d6 */
-#define SV_FLAMBERGE                    26  /* 3d7 */
-#define SV_NO_DACHI                     27  /* 5d4 */
-#define SV_EXECUTIONERS_SWORD           28  /* 4d5 */
-#define SV_ZWEIHANDER                   29  /* 4d6 */
-#define SV_BLADE_OF_CHAOS               30  /* 6d5 */
-#define SV_DIAMOND_EDGE                 31  /* 7d5 */
+#define SV_BROKEN_DAGGER                 1
+#define SV_BROKEN_SWORD                  2
+#define SV_DAGGER                        4
+#define SV_MAIN_GAUCHE                   5
+#define SV_TANTO                         6
+#define SV_RAPIER                        7
+#define SV_SMALL_SWORD                   8
+#define SV_BASILLARD                     9
+#define SV_SHORT_SWORD                  10
+#define SV_SABRE                        11
+#define SV_CUTLASS                      12
+#define SV_WAKIZASHI                    13
+#define SV_KHOPESH                      14
+#define SV_TULWAR                       15
+#define SV_BROAD_SWORD                  16
+#define SV_LONG_SWORD                   17
+#define SV_SCIMITAR                     18
+#define SV_NINJATO                      19
+#define SV_KATANA                       20
+#define SV_BASTARD_SWORD                21
+#define SV_GREAT_SCIMITAR               22
+#define SV_CLAYMORE                     23
+#define SV_ESPADON                      24
+#define SV_TWO_HANDED_SWORD             25
+#define SV_FLAMBERGE                    26
+#define SV_NO_DACHI                     27
+#define SV_EXECUTIONERS_SWORD           28
+#define SV_ZWEIHANDER                   29
+#define SV_BLADE_OF_CHAOS               30
+#define SV_DIAMOND_EDGE                 31
 
 /* The "sval" codes for TV_SHIELD */
 #define SV_SMALL_LEATHER_SHIELD          2
@@ -1577,11 +1654,11 @@
 /* The "sval" codes for TV_HELM */
 #define SV_HARD_LEATHER_CAP              2
 #define SV_METAL_CAP                     3
-#define SV_JINGASA                       4  /* 4 */
+#define SV_JINGASA                       4
 #define SV_IRON_HELM                     5
 #define SV_STEEL_HELM                    6
 #define SV_DRAGON_HELM                   7
-#define SV_KABUTO                        8  /* 7 */
+#define SV_KABUTO                        8
 #define SV_IRON_CROWN                   10
 #define SV_GOLDEN_CROWN                 11
 #define SV_JEWELED_CROWN                12
@@ -1607,39 +1684,39 @@
 #define SV_T_SHIRT                       0
 #define SV_FILTHY_RAG                    1
 #define SV_ROBE                          2
-#define SV_PAPER_ARMOR                   3  /* 4 */
+#define SV_PAPER_ARMOR                   3
 #define SV_SOFT_LEATHER_ARMOR            4
 #define SV_SOFT_STUDDED_LEATHER          5
 #define SV_HARD_LEATHER_ARMOR            6
 #define SV_HARD_STUDDED_LEATHER          7
 #define SV_RHINO_HIDE_ARMOR              8
-#define SV_CORD_ARMOR                    9  /*  6 */
-#define SV_PADDED_ARMOR                 10  /*  4 */
+#define SV_CORD_ARMOR                    9
+#define SV_PADDED_ARMOR                 10
 #define SV_LEATHER_SCALE_MAIL           11
 #define SV_LEATHER_JACK                 12
-#define SV_STONE_AND_HIDE_ARMOR         15  /* 15 */
+#define SV_STONE_AND_HIDE_ARMOR         15
 
 /* The "sval" codes for TV_HARD_ARMOR */
-#define SV_RUSTY_CHAIN_MAIL              1  /* 14- */
-#define SV_RING_MAIL                     2  /* 12  */
-#define SV_METAL_SCALE_MAIL              3  /* 13  */
-#define SV_CHAIN_MAIL                    4  /* 14  */
-#define SV_DOUBLE_RING_MAIL              5  /* 15  */
-#define SV_AUGMENTED_CHAIN_MAIL          6  /* 16  */
-#define SV_DOUBLE_CHAIN_MAIL             7  /* 16  */
-#define SV_BAR_CHAIN_MAIL                8  /* 18  */
-#define SV_METAL_BRIGANDINE_ARMOUR       9  /* 19  */
-#define SV_SPLINT_MAIL                  10  /* 19  */
-#define SV_DO_MARU                      11  /* 20  */
-#define SV_PARTIAL_PLATE_ARMOUR         12  /* 22  */
-#define SV_METAL_LAMELLAR_ARMOUR        13  /* 23  */
-#define SV_HARAMAKIDO                   14  /* 17  */
-#define SV_FULL_PLATE_ARMOUR            15  /* 25  */
-#define SV_O_YOROI                      16  /* 24  */
-#define SV_RIBBED_PLATE_ARMOUR          18  /* 28  */
-#define SV_MITHRIL_CHAIN_MAIL           20  /* 28+ */
-#define SV_MITHRIL_PLATE_MAIL           25  /* 35+ */
-#define SV_ADAMANTITE_PLATE_MAIL        30  /* 40+ */
+#define SV_RUSTY_CHAIN_MAIL              1
+#define SV_RING_MAIL                     2
+#define SV_METAL_SCALE_MAIL              3
+#define SV_CHAIN_MAIL                    4
+#define SV_DOUBLE_RING_MAIL              5
+#define SV_AUGMENTED_CHAIN_MAIL          6
+#define SV_DOUBLE_CHAIN_MAIL             7
+#define SV_BAR_CHAIN_MAIL                8
+#define SV_METAL_BRIGANDINE_ARMOUR       9
+#define SV_SPLINT_MAIL                  10
+#define SV_DO_MARU                      11
+#define SV_PARTIAL_PLATE_ARMOUR         12
+#define SV_METAL_LAMELLAR_ARMOUR        13
+#define SV_HARAMAKIDO                   14
+#define SV_FULL_PLATE_ARMOUR            15
+#define SV_O_YOROI                      16
+#define SV_RIBBED_PLATE_ARMOUR          18
+#define SV_MITHRIL_CHAIN_MAIL           20
+#define SV_MITHRIL_PLATE_MAIL           25
+#define SV_ADAMANTITE_PLATE_MAIL        30
 
 /* The "sval" codes for TV_DRAG_ARMOR */
 #define SV_DRAGON_BLACK                  1
@@ -2006,6 +2083,14 @@
 #define OBJ_GOLD_LIST   480     /* First "gold" entry */
 #define MAX_GOLD        18      /* Number of "gold" entries */
 
+/*
+ * Object creation flags
+ * These are the values passable to apply_magic
+ */
+#define OC_NORMAL		0x01
+#define OC_FORCE_BAD	0x02
+#define OC_FORCE_GOOD	0x04
+
 
 /*** General flag values ***/
 
@@ -2037,7 +2122,7 @@
  *   KILL: Affect each monster in the "blast area" in some way
  *   HIDE: Hack -- disable "visual" feedback from projection
  *   FRND: Stop if hit a friendly monster / player.
- *	 MFLD: Make fields using GF_XXX value as type.
+ *	 MFLD: Make fields using GF_XXX value as type. (unused as of yet)
  */
 #define PROJECT_JUMP    0x0001
 #define PROJECT_BEAM    0x0002
@@ -2059,7 +2144,7 @@
 #define ENCH_FORCE      0x08 /* Force enchantment */
 
 /*
- * Bit flags for the "target_set" function XXX XXX XXX
+ * Bit flags for the "target_set" function
  *
  *      KILL: Target monsters
  *      LOOK: Describe grid fully
@@ -2243,7 +2328,6 @@
 #define SUMMON_PHANTOM              47
 #define SUMMON_ELEMENTAL            48
 #define SUMMON_BLUE_HORROR          49
-#define SUMMON_GHB		    50 /* Not actually used */
 
 
 
@@ -2290,7 +2374,7 @@
 #define GF_OLD_HEAL     53
 #define GF_OLD_SPEED    54
 #define GF_OLD_SLOW     55
-#define GF_OLD_CONF	56
+#define GF_OLD_CONF		56
 #define GF_OLD_SLEEP    57
 #define GF_OLD_DRAIN	58
 #define GF_NEW_DRAIN	59
@@ -2302,7 +2386,7 @@
 #define GF_TURN_ALL     66
 #define GF_DISP_UNDEAD  67
 #define GF_DISP_EVIL    68
-#define GF_DISP_ALL 69
+#define GF_DISP_ALL 	69
 #define GF_DISP_DEMON   70      /* New types for Zangband begin here... */
 #define GF_DISP_LIVING  71
 #define GF_ROCKET       72
@@ -2318,14 +2402,13 @@
 #define GF_CHARM        82
 #define GF_CONTROL_UNDEAD   83
 #define GF_CONTROL_ANIMAL   84
-#define GF_PSI         85
-#define GF_PSI_DRAIN   86
+#define GF_PSI			85
+#define GF_PSI_DRAIN	86
 #define GF_TELEKINESIS  87
 #define GF_JAM_DOOR     88
 #define GF_DOMINATION   89
 #define GF_DISP_GOOD    90
-
-#define MAX_GF				91
+#define MAX_GF			91
 
 /*
  * Some things which induce learning
@@ -2348,16 +2431,7 @@
 #define DRS_SHARD       16
 #define DRS_FREE        30
 #define DRS_MANA        31
-#define DRS_REFLECT     32
-
-
-
-/*
- * Hack -- first "normal" artifact in the artifact list.  All of
- * the artifacts with indexes from 1 to 15 are "special" (lights,
- * rings, amulets), and the ones from 16 to 127 are "normal".
- */
-#define ART_MIN_NORMAL          16
+#define DRS_REFLECT		32
 
 /*
  * Game generated inscription indices. These are stored in the object,
@@ -2374,11 +2448,14 @@
 #define FEEL_GOOD              7
 #define FEEL_EXCELLENT         8
 #define FEEL_SPECIAL           9
+#define FEEL_BAD			   10
+#define FEEL_DUBIOUS		   11
+#define FEEL_TAINTED		   12
 
-#define FEEL_MAX               9
+#define FEEL_MAX               13
 
 /*
- * Hack -- special "xtra" object powers
+ * Hack -- special "xtra" object powers for ego items and some artifacts
  */
 
 /* Sustain one stat */
@@ -2389,6 +2466,7 @@
 
 /* Special ability */
 #define EGO_XTRA_ABILITY        3
+
 
 /*** Object flag values ***/
 
@@ -2560,12 +2638,30 @@
  * Hack -- flag set 1 -- mask for "pval-dependant" flags.
  * Note that all "pval" dependant flags must be in "flags1".
  */
-#define TR1_PVAL_MASK   \
+#define TR1_PVAL_MASK \
 	(TR1_STR | TR1_INT | TR1_WIS | TR1_DEX | \
      TR1_CON | TR1_CHR | \
 	 TR1_STEALTH | TR1_SEARCH | TR1_INFRA | TR1_TUNNEL | \
      TR1_SPEED | TR1_BLOWS)
 
+
+/*
+ * Hack - Flags that were not part of Moria.
+ */
+#define TR1_MORIA_MASK \
+	(~(TR1_CHAOTIC | TR1_VAMPIRIC | TR1_VORPAL | \
+	 TR1_BRAND_POIS | TR1_BRAND_ACID | TR1_BRAND_ELEC | \
+	 TR1_BRAND_FIRE | TR1_BRAND_COLD))
+
+#define TR2_MORIA_MASK \
+	(~(TR2_REFLECT | TR2_RES_POIS | TR2_RES_FEAR | TR2_RES_LITE | \
+	 TR2_RES_DARK | TR2_RES_CONF | TR2_RES_SOUND | \
+	 TR2_RES_SHARDS | TR2_RES_NETHER | TR2_RES_NEXUS | \
+	 TR2_RES_CHAOS | TR2_RES_DISEN))
+
+#define TR3_MORIA_MASK \
+	(~(TR3_SH_FIRE | TR3_SH_ELEC | TR3_NO_TELE | TR3_NO_MAGIC | \
+	 TR3_TY_CURSE | TR3_LITE))
 
 
 /*** Monster blow constants ***/
@@ -2858,13 +2954,13 @@
 /*
  * New monster race bit flags
  */
-#define RF7_AQUATIC             0x00000001  /* Aquatic monster */
-#define RF7_CAN_SWIM            0x00000002  /* Monster can swim */
-#define RF7_CAN_FLY             0x00000004  /* Monster can fly */
-#define RF7_FRIENDLY            0x00000008  /* Monster is friendly */
-#define RF7_SILLY               0x00000010  /* Monster is "silly" */
-#define RF7_LITE_1				0x00000020	/* Monster carries a small lite */
-#define RF7_LITE_2				0x00000040	/* Monster carries a large lite */
+#define RF7_AQUATIC			0x00000001  /* Aquatic monster */
+#define RF7_CAN_SWIM		0x00000002  /* Monster can swim */
+#define RF7_CAN_FLY			0x00000004  /* Monster can fly */
+#define RF7_FRIENDLY		0x00000008  /* Monster is friendly */
+#define RF7_SILLY			0x00000010  /* Monster is "silly" */
+#define RF7_LITE_1			0x00000020	/* Monster carries a small lite */
+#define RF7_LITE_2			0x00000040	/* Monster carries a large lite */
 
 /*
  * Monster race wilderness flags
@@ -3105,6 +3201,305 @@
 #define RF6_INNATE_MASK \
 	(0L)
 
+/*** Option Definitions ***/
+
+/*
+ * Option indexes (offsets)
+ *
+ * These values are hard-coded by savefiles (and various pieces of code).
+ */
+
+#define OPT_MAX					256
+#define OPT_PLAYER				192
+#define OPT_BIRTH				32
+#define OPT_SERVER				32
+
+#define OPT_FLAG_BIRTH			0x01
+#define OPT_FLAG_SERVER			0x02
+#define OPT_FLAG_PLAYER			0x04
+
+/* Option set 0 */
+
+#define rogue_like_commands		p_ptr->options[0]
+#define quick_messages			p_ptr->options[1]
+#define other_query_flag		p_ptr->options[2]
+#define carry_query_flag		p_ptr->options[3]
+#define use_old_target			p_ptr->options[4]
+#define always_pickup			p_ptr->options[5]
+#define always_repeat			p_ptr->options[6]
+#define depth_in_feet			p_ptr->options[7]
+#define stack_force_notes		p_ptr->options[8]
+#define stack_force_costs		p_ptr->options[9]
+#define show_labels				p_ptr->options[10]
+#define show_weights			p_ptr->options[11]
+/* {TRUE,  0, NULL,					"Number 12" }, p_ptr->options[12] */
+/* {TRUE,  0, NULL,					"Number 13" }, p_ptr->options[13] */
+#define ring_bell				p_ptr->options[14]
+#define use_color				p_ptr->options[15]
+#define find_ignore_stairs		p_ptr->options[16]
+#define find_ignore_doors		p_ptr->options[17]
+#define find_cut				p_ptr->options[18]
+#define find_examine			p_ptr->options[19]
+#define disturb_move			p_ptr->options[20]
+#define disturb_near			p_ptr->options[21]
+#define disturb_panel			p_ptr->options[22]
+#define disturb_state			p_ptr->options[23]
+#define disturb_minor			p_ptr->options[24]
+#define disturb_other			p_ptr->options[25]
+#define disturb_traps			p_ptr->options[26]
+#define alert_failure			p_ptr->options[27]
+#define last_words				p_ptr->options[28]
+#define speak_unique			p_ptr->options[29]
+#define small_levels			svr_ptr->options[0]
+#define empty_levels			svr_ptr->options[1]
+
+/* Option set 1 */
+
+#define auto_haggle				p_ptr->options[30]
+#define	auto_scum				svr_ptr->options[2]
+#define stack_allow_items		svr_ptr->options[3]
+#define stack_allow_wands		svr_ptr->options[4]
+#define expand_look				svr_ptr->options[5]
+#define expand_list				svr_ptr->options[6]
+#define view_perma_grids		p_ptr->options[31]
+#define view_torch_grids		p_ptr->options[32]
+#define dungeon_align			svr_ptr->options[7]
+#define dungeon_stair			svr_ptr->options[8]
+#define	flow_by_sound			svr_ptr->options[9]
+#define flow_by_smell			svr_ptr->options[10]
+/* {TRUE,  0, NULL,					"Number 44" }, svr_ptr->options[11] */
+/* {TRUE,  0, NULL,					"Number 45" }, svr_ptr->options[12] */
+#define smart_learn				svr_ptr->options[13]
+#define smart_cheat				svr_ptr->options[14]
+#define	view_reduce_lite		p_ptr->options[33]
+#define view_reduce_view		p_ptr->options[34]
+#define avoid_abort				p_ptr->options[35]
+#define avoid_other				p_ptr->options[36]
+#define flush_failure			p_ptr->options[37]
+#define flush_disturb			p_ptr->options[38]
+#define flush_command			p_ptr->options[39]
+#define fresh_before			p_ptr->options[40]
+#define fresh_after				p_ptr->options[41]
+#define fresh_message			p_ptr->options[42]
+#define compress_savefile		p_ptr->options[43]
+#define hilite_player			p_ptr->options[44]
+#define view_yellow_lite		p_ptr->options[45]
+#define	view_bright_lite		p_ptr->options[46]
+#define view_granite_lite		p_ptr->options[47]
+#define	view_special_lite		p_ptr->options[48]
+
+/* Option Set 2 */
+
+/* {TRUE,  0, NULL,					"Number 64" }, p_ptr->options[49] */
+/* {TRUE,  0, NULL,					"Number 65" }, p_ptr->options[50] */
+/* {TRUE,  0, NULL,					"Number 66" }, p_ptr->options[51] */
+/* {TRUE,  0, NULL,					"Number 67" }, p_ptr->options[52] */
+/* {TRUE,  0, NULL,					"Number 68" }, p_ptr->options[53] */
+/* {TRUE,  0, NULL,					"Number 69" }, p_ptr->options[54] */
+/* {TRUE,  0, NULL,					"Number 70" }, p_ptr->options[55] */
+/* {TRUE,  0, NULL,					"Number 71" }, p_ptr->options[56] */
+/* {TRUE,  0, NULL,					"Number 72" }, p_ptr->options[57] */
+/* {TRUE,  0, NULL,					"Number 73" }, p_ptr->options[58] */
+/* {TRUE,  0, NULL,					"Number 74" }, p_ptr->options[59] */
+/* {TRUE,  0, NULL,					"Number 75" }, p_ptr->options[60] */
+/* {TRUE,  0, NULL,					"Number 76" }, p_ptr->options[61] */
+/* {TRUE,  0, NULL,					"Number 77" }, p_ptr->options[62] */
+/* {TRUE,  0, NULL,					"Number 78" }, p_ptr->options[63] */
+/* {TRUE,  0, NULL,					"Number 79" }, p_ptr->options[64] */
+/* {TRUE,  0, NULL,					"Number 80" }, p_ptr->options[65] */
+/* {TRUE,  0, NULL,					"Number 81" }, p_ptr->options[66] */
+/* {TRUE,  0, NULL,					"Number 82" }, p_ptr->options[67] */
+/* {TRUE,  0, NULL,					"Number 83" }, p_ptr->options[68] */
+/* {TRUE,  0, NULL,					"Number 84" }, p_ptr->options[69] */
+/* {TRUE,  0, NULL,					"Number 85" }, p_ptr->options[70] */
+/* {TRUE,  0, NULL,					"Number 86" }, p_ptr->options[71] */
+/* {TRUE,  0, NULL,					"Number 87" }, p_ptr->options[72] */
+/* {TRUE,  0, NULL,					"Number 88" }, p_ptr->options[73] */
+/* {TRUE,  0, NULL,					"Number 89" }, p_ptr->options[74] */
+/* {TRUE,  0, NULL,					"Number 90" }, p_ptr->options[75] */
+/* {TRUE,  0, NULL,					"Number 91" }, p_ptr->options[76] */
+/* {TRUE,  0, NULL,					"Number 92" }, p_ptr->options[77] */
+/* {TRUE,  0, NULL,					"Number 93" }, p_ptr->options[78] */
+/* {TRUE,  0, NULL,					"Number 94" }, p_ptr->options[79] */
+/* {TRUE,  0, NULL,					"Number 95" }, p_ptr->options[80] */
+
+/* Option Set 3 */
+
+/* {TRUE,  0, NULL,					"Number 96" }, p_ptr->options[81] */
+/* {TRUE,  0, NULL,					"Number 97" }, p_ptr->options[82] */
+/* {TRUE,  0, NULL,					"Number 98" }, p_ptr->options[83] */
+/* {TRUE,  0, NULL,					"Number 99" }, p_ptr->options[84] */
+/* {TRUE,  0, NULL,					"Number 100" }, p_ptr->options[85] */
+/* {TRUE,  0, NULL,					"Number 101" }, p_ptr->options[86] */
+/* {TRUE,  0, NULL,					"Number 102" }, p_ptr->options[87] */
+/* {TRUE,  0, NULL,					"Number 103" }, p_ptr->options[88] */
+/* {TRUE,  0, NULL,					"Number 104" }, p_ptr->options[89] */
+/* {TRUE,  0, NULL,					"Number 105" }, p_ptr->options[90] */
+/* {TRUE,  0, NULL,					"Number 106" }, p_ptr->options[91] */
+/* {TRUE,  0, NULL,					"Number 107" }, p_ptr->options[92] */
+/* {TRUE,  0, NULL,					"Number 108" }, p_ptr->options[93] */
+/* {TRUE,  0, NULL,					"Number 109" }, p_ptr->options[94] */
+/* {TRUE,  0, NULL,					"Number 110" }, p_ptr->options[95] */
+/* {TRUE,  0, NULL,					"Number 111" }, p_ptr->options[96] */
+/* {TRUE,  0, NULL,					"Number 112" }, p_ptr->options[97] */
+/* {TRUE,  0, NULL,					"Number 113" }, p_ptr->options[98] */
+/* {TRUE,  0, NULL,					"Number 114" }, p_ptr->options[99] */
+/* {TRUE,  0, NULL,					"Number 115" }, p_ptr->options[100] */
+/* {TRUE,  0, NULL,					"Number 116" }, p_ptr->options[101] */
+/* {TRUE,  0, NULL,					"Number 117" }, p_ptr->options[102] */
+/* {TRUE,  0, NULL,					"Number 118" }, p_ptr->options[103] */
+/* {TRUE,  0, NULL,					"Number 119" }, p_ptr->options[104] */
+/* {TRUE,  0, NULL,					"Number 120" }, p_ptr->options[105] */
+/* {TRUE,  0, NULL,					"Number 121" }, p_ptr->options[106] */
+/* {TRUE,  0, NULL,					"Number 122" }, p_ptr->options[107 */
+/* {TRUE,  0, NULL,					"Number 123" }, p_ptr->options[108] */
+/* {TRUE,  0, NULL,					"Number 124" }, p_ptr->options[109] */
+/* {TRUE,  0, NULL,					"Number 125" }, p_ptr->options[110] */
+/* {TRUE,  0, NULL,					"Number 126" }, p_ptr->options[111] */
+/* {TRUE,  0, NULL,					"Number 127" }, p_ptr->options[112] */
+
+/* Option Set 4 */
+
+/* {TRUE,  0, NULL,					"Number 128" },p_ptr->options[113] */
+/* {TRUE,  0, NULL,					"Number 129" },p_ptr->options[114] */
+/* {TRUE,  0, NULL,					"Number 130" },p_ptr->options[115] */
+/* {TRUE,  0, NULL,					"Number 131" },p_ptr->options[116] */
+/* {TRUE,  0, NULL,					"Number 132" },p_ptr->options[117] */
+/* {TRUE,  0, NULL,					"Number 133" },p_ptr->options[118] */
+/* {TRUE,  0, NULL,					"Number 134" },p_ptr->options[119] */
+/* {TRUE,  0, NULL,					"Number 135" },p_ptr->options[120] */
+/* {TRUE,  0, NULL,					"Number 136" },p_ptr->options[121] */
+/* {TRUE,  0, NULL,					"Number 137" },p_ptr->options[122] */
+/* {TRUE,  0, NULL,					"Number 138" },p_ptr->options[123] */
+/* {TRUE,  0, NULL,					"Number 139" },p_ptr->options[124] */
+/* {TRUE,  0, NULL,					"Number 140" },p_ptr->options[125] */
+/* {TRUE,  0, NULL,					"Number 141" },p_ptr->options[126] */
+/* {TRUE,  0, NULL,					"Number 142" },p_ptr->options[127] */
+/* {TRUE,  0, NULL,					"Number 143" },p_ptr->options[128] */
+/* {TRUE,  0, NULL,					"Number 144" },p_ptr->options[129] */
+/* {TRUE,  0, NULL,					"Number 145" },p_ptr->options[130] */
+/* {TRUE,  0, NULL,					"Number 146" },p_ptr->options[131] */
+/* {TRUE,  0, NULL,					"Number 147" },p_ptr->options[132] */
+/* {TRUE,  0, NULL,					"Number 148" },p_ptr->options[133] */
+/* {TRUE,  0, NULL,					"Number 149" },p_ptr->options[134] */
+/* {TRUE,  0, NULL,					"Number 150" },p_ptr->options[135] */
+/* {TRUE,  0, NULL,					"Number 151" },p_ptr->options[136] */
+/* {TRUE,  0, NULL,					"Number 152" },p_ptr->options[137] */
+/* {TRUE,  0, NULL,					"Number 153" },p_ptr->options[138] */
+/* {TRUE,  0, NULL,					"Number 154" },p_ptr->options[139] */
+/* {TRUE,  0, NULL,					"Number 155" },p_ptr->options[140] */
+/* {TRUE,  0, NULL,					"Number 156" },p_ptr->options[141] */
+/* {TRUE,  0, NULL,					"Number 157" },p_ptr->options[142] */
+/* {TRUE,  0, NULL,					"Number 158" },p_ptr->options[143] */
+/* {TRUE,  0, NULL,					"Number 159" },p_ptr->options[144] */
+
+/* Option Set 5 */
+
+/* {TRUE,  0, NULL,					"Number 160" }, p_ptr->options[145] */
+#define	plain_descriptions		p_ptr->options[146]
+#define stupid_monsters			p_ptr->birth[0]
+#define auto_destroy			p_ptr->options[147]
+#define confirm_wear			p_ptr->options[148]
+#define confirm_stairs			p_ptr->options[149]
+#define easy_open				p_ptr->options[150]
+#define easy_disarm				p_ptr->options[151]
+#define easy_floor				p_ptr->options[152]
+#define use_command				p_ptr->options[153]
+#define center_player			p_ptr->options[154]
+#define avoid_center			p_ptr->options[155]
+/* {TRUE,  0, NULL,					"Number 172" }, p_ptr->options[156] */
+/* {TRUE,  0, NULL,					"Number 173" }, p_ptr->options[157] */
+/* {TRUE,  0, NULL,					"Number 174" }, p_ptr->options[158] */
+/* {TRUE,  0, NULL,					"Number 175" }, p_ptr->options[159] */
+/* {TRUE,  0, NULL,					"Number 176" }, p_ptr->options[160] */
+/* {TRUE,  0, NULL,					"Number 177" }, p_ptr->options[161] */
+/* {TRUE,  0, NULL,					"Number 178" }, p_ptr->options[162] */
+/* {TRUE,  0, NULL,					"Number 179" }, p_ptr->options[163] */
+/* {TRUE,  0, NULL,					"Number 180" }, p_ptr->options[164] */
+/* {TRUE,  0, NULL,					"Number 181" }, p_ptr->options[165] */
+/* {TRUE,  0, NULL,					"Number 182" }, p_ptr->options[166] */
+/* {TRUE,  0, NULL,					"Number 183" }, p_ptr->options[167] */
+/* {TRUE,  0, NULL,					"Number 184" }, p_ptr->options[168] */
+/* {TRUE,  0, NULL,					"Number 185" }, p_ptr->options[169] */
+/* {TRUE,  0, NULL,					"Number 186" }, p_ptr->options[170] */
+/* {TRUE,  0, NULL,					"Number 187" }, p_ptr->options[171] */
+/* {TRUE,  0, NULL,					"Number 188" }, p_ptr->options[172] */
+/* {TRUE,  0, NULL,					"Number 189" }, p_ptr->options[173] */
+/* {TRUE,  0, NULL,					"Number 190" }, p_ptr->options[174] */
+/* {TRUE,  0, NULL,					"Number 191" }, p_ptr->options[175] */
+
+/* Option Set 6 */
+
+#define vanilla_town			p_ptr->birth[1]
+/* {TRUE,  0, NULL,					"Number 193" }, p_ptr->options[176] */
+#define ironman_shops			p_ptr->birth[2]
+#define ironman_small_levels	p_ptr->birth[3]
+#define ironman_downward		p_ptr->birth[4]
+#define ironman_autoscum		p_ptr->birth[5]
+#define ironman_hard_quests		p_ptr->birth[6]
+/* {TRUE,  0, NULL,					"Number 199" }, p_ptr->birth[7] */
+#define ironman_empty_levels	p_ptr->birth[8]
+#define terrain_streams			p_ptr->birth[9]
+#define ironman_moria			p_ptr->birth[10]
+#define munchkin_death			p_ptr->birth[11]
+#define ironman_rooms			p_ptr->birth[12]
+#define maximize_mode			p_ptr->birth[13]
+#define preserve_mode			p_ptr->birth[14]
+#define autoroller				p_ptr->birth[15]
+#define point_based				p_ptr->birth[16]
+#define silly_monsters			p_ptr->birth[17]
+#define ironman_nightmare		p_ptr->birth[18]
+/* {TRUE,  0, NULL,					"Number 211" }, p_ptr->birth[19] */
+/* {TRUE,  0, NULL,					"Number 212" }, p_ptr->birth[20] */
+/* {TRUE,  0, NULL,					"Number 213" }, p_ptr->birth[21] */
+/* {TRUE,  0, NULL,					"Number 214" }, p_ptr->birth[22] */
+/* {TRUE,  0, NULL,					"Number 215" }, p_ptr->birth[23] */
+/* {TRUE,  0, NULL,					"Number 216" }, p_ptr->birth[24] */
+/* {TRUE,  0, NULL,					"Number 217" }, p_ptr->birth[25] */
+/* {TRUE,  0, NULL,					"Number 218" }, p_ptr->birth[26] */
+/* {TRUE,  0, NULL,					"Number 219" }, p_ptr->birth[27] */
+/* {TRUE,  0, NULL,					"Number 220" }, p_ptr->birth[28] */
+/* {TRUE,  0, NULL,					"Number 221" }, p_ptr->birth[29] */
+/* {TRUE,  0, NULL,					"Number 222" }, p_ptr->birth[30] */
+/* {TRUE,  0, NULL,					"Number 223" }, p_ptr->birth[31] */
+
+/* Option Set 7 */
+
+#define destroy_worthless		svr_ptr->options[15]
+#define monster_light			svr_ptr->options[16]
+/* "Turn on muliplayer client - server code" , svr_ptr->options[17] */
+/* {TRUE,  0, NULL,					"Number 227" },svr_ptr->options[18] */
+/* {TRUE,  0, NULL,					"Number 228" },svr_ptr->options[19] */
+/* {TRUE,  0, NULL,					"Number 229" },svr_ptr->options[20] */
+/* {TRUE,  0, NULL,					"Number 230" },svr_ptr->options[21] */
+/* {TRUE,  0, NULL,					"Number 231" },svr_ptr->options[22] */
+/* {TRUE,  0, NULL,					"Number 232" },svr_ptr->options[23] */
+/* {TRUE,  0, NULL,					"Number 233" },svr_ptr->options[24] */
+/* {TRUE,  0, NULL,					"Number 234" },svr_ptr->options[25] */
+/* {TRUE,  0, NULL,					"Number 235" },svr_ptr->options[26] */
+/* {TRUE,  0, NULL,					"Number 236" },svr_ptr->options[27] */
+/* {TRUE,  0, NULL,					"Number 237" },svr_ptr->options[28] */
+/* {TRUE,  0, NULL,					"Number 238" },svr_ptr->options[29] */
+/* {TRUE,  0, NULL,					"Number 239" },p_ptr->options[177] */
+/* {TRUE,  0, NULL,					"Number 240" },p_ptr->options[178] */
+/* {TRUE,  0, NULL,					"Number 241" },p_ptr->options[179] */
+/* {TRUE,  0, NULL,					"Number 242" },p_ptr->options[180] */
+/* {TRUE,  0, NULL,					"Number 243" },p_ptr->options[181] */
+/* {TRUE,  0, NULL,					"Number 244" },p_ptr->options[182] */
+/* {TRUE,  0, NULL,					"Number 245" },p_ptr->options[183] */
+/* {TRUE,  0, NULL,					"Number 246" },p_ptr->options[184] */
+/* {TRUE,  0, NULL,					"Number 247" },p_ptr->options[185] */
+/* {TRUE,  0, NULL,					"Number 248" },p_ptr->options[186] */
+/* {TRUE,  0, NULL,					"Number 249" },p_ptr->options[187] */
+/* {TRUE,  0, NULL,					"Number 250" },p_ptr->options[188] */
+#define auto_notes				p_ptr->options[189]
+#define take_notes				p_ptr->options[190]
+/* {TRUE,  0, NULL,					"Number 253" }, p_ptr->options[191] */
+#define testing_stack			svr_ptr->options[30]
+#define testing_carry			svr_ptr->options[31]
+
+
+
 /*** Macro Definitions ***/
 
 
@@ -3209,18 +3604,11 @@
 
 
 
-
 /*
- * Artifacts use the "name1" field
- */
-#define artifact_p(T) \
-	((T)->name1 ? TRUE : FALSE)
-
-/*
- * Ego-Items use the "name2" field
+ * Ego-Items are named, but are not INSTA_ART.
  */
 #define ego_item_p(T) \
-	((T)->name2 ? TRUE : FALSE)
+	((((T)->xtra_name) && (!((T)->flags3 & TR3_INSTA_ART))) ? TRUE : FALSE)
 
 
 /*
@@ -3344,7 +3732,7 @@
 #define cave_empty_grid(C) \
     (cave_floor_grid(C) && \
      !((C)->m_idx) && \
-     !((C) == area(py, px)))
+     !((C) == area(p_ptr->py, p_ptr->px)))
 
 /*
  * Grid based version of "cave_naked_bold()"
@@ -3373,9 +3761,7 @@
 	 ((C)->feat == FEAT_MORE)) || \
 	(((C)->feat & 0x70) == 0x70) || \
 	 (((C)->feat >= FEAT_PATTERN_START) && \
-	  ((C)->feat <= FEAT_PATTERN_XTRA2)) || \
-	(((C)->feat >= FEAT_SHOP_HEAD) && \
-	 ((C)->feat <= FEAT_SHOP_TAIL)))
+	  ((C)->feat <= FEAT_PATTERN_XTRA2)))
 
 
 /*
@@ -3525,8 +3911,8 @@ extern int PlayerUID;
 #define SOUND_MAX 65
 
 
-#define V_COMPASSION	    1
-#define V_HONOUR	    2
+#define V_COMPASSION	1
+#define V_HONOUR		2
 #define V_JUSTICE	    3
 #define V_SACRIFICE	    4
 #define V_KNOWLEDGE	    5
@@ -3539,12 +3925,12 @@ extern int PlayerUID;
 #define V_VITALITY	   12
 #define V_UNLIFE	   13
 #define V_PATIENCE	   14
-#define V_TEMPERANCE	   15
+#define V_TEMPERANCE   15
 #define V_DILIGENCE	   16
 #define V_VALOUR	   17
 #define V_INDIVIDUALISM    18
 
-#define MAX_VIRTUE 18
+#define MAX_VIRTUE		18
 
 /*
  * Number of virtues the player can have
@@ -3561,7 +3947,7 @@ extern int PlayerUID;
 # undef MACRO_MAX
 # define MACRO_MAX      128
 # undef QUARK_MAX
-# define QUARK_MAX      128
+# define QUARK_MAX      256
 # undef MESSAGE_MAX
 # define MESSAGE_MAX    128
 # undef MESSAGE_BUF
@@ -3573,7 +3959,7 @@ extern int PlayerUID;
  * Buildings actions
  */
 #define BACT_NOTHING                 0
-#define BACT_RESEARCH_ITEM	     1
+#define BACT_RESEARCH_ITEM			 1
 #define BACT_TOWN_HISTORY            2
 #define BACT_RACE_LEGENDS            3
 #define BACT_GREET_KING              4
@@ -3674,7 +4060,7 @@ extern int PlayerUID;
  * Parse errors
  */
 #define PARSE_ERROR_GENERIC                  1
-#define PARSE_ERROR_ABSOLETE_FILE            2
+#define PARSE_ERROR_OBSOLETE_FILE            2
 #define PARSE_ERROR_MISSING_RECORD_HEADER    3
 #define PARSE_ERROR_NON_SEQUENTIAL_RECORDS   4
 #define PARSE_ERROR_INVALID_FLAG             5
@@ -3747,7 +4133,7 @@ extern int PlayerUID;
 #define FIELD_ACTION_MAX		18	/* The last action + 1 */
 
 
-#define FIELD_ACTION_TYPES  46 /* Number of FIELD_ACT functions in tables.c */
+#define FIELD_ACTION_TYPES  54 /* Number of FIELD_ACT functions in tables.c */
 
 
 

@@ -1,4 +1,4 @@
-# CVS: Last edit by $Author: sfuerst $ on $Date: 2000/07/17 11:02:29 $
+# CVS: Last edit by $Author: sfuerst $ on $Date: 2001/01/13 04:55:54 $
 # File: Makefile.wat
 
 # Purpose: Makefile support for "main-ibm.c" for Watcom C/C++
@@ -23,7 +23,7 @@ OBJS = &
   effects.obj racial.obj grid.obj streams.obj rooms.obj &
   artifact.obj mutation.obj flavor.obj spells3.obj &
   mspells1.obj mspells2.obj scores.obj mind.obj &
-  bldg.obj obj_kind.obj wild.obj avatar.obj notes.obj &
+  bldg.obj obj_kind.obj wild1.obj wild2.obj avatar.obj notes.obj &
   main-ibm.obj main.obj
 
 all: angband.exe gredit.exe makepref.exe

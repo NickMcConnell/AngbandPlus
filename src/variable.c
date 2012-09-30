@@ -80,39 +80,14 @@ bool character_xtra;		/* The game is in an icky startup mode */
 u32b seed_flavor;		/* Hack -- consistent object colors */
 u32b seed_town;			/* Hack -- consistent town layout */
 
-s16b command_cmd;		/* Current "Angband Command" */
-
-s16b command_arg;		/* Gives argument of current command */
-s16b command_rep;		/* Gives repetition of current command */
-s16b command_dir;		/* Gives direction of current command */
-
-s16b command_see;		/* See "cmd1.c" */
-s16b command_wrk;		/* See "cmd1.c" */
-
-s16b command_gap = 50;	/* See "cmd1.c" */
-
-s16b command_new;		/* Command chaining from inven/equip view */
-
-s16b energy_use;		/* Energy use this turn */
-
-bool create_up_stair;	/* Auto-create "up stairs" */
-bool create_down_stair;	/* Auto-create "down stairs" */
-
 bool msg_flag;			/* Used in msg_print() for "buffering" */
-
-bool alive;				/* True if game is running */
-
-bool death;				/* True if player has died */
-
-s16b running;			/* Current counter for running, if any */
-s16b resting;			/* Current counter for resting, if any */
 
 s16b min_hgt;			/* Current y bounds of area() */
 s16b max_hgt;
 s16b min_wid;			/* Current x bounds of area() */
 s16b max_wid;
 
-s16b dun_level;			/* Current dungeon level */
+obj_theme dun_theme;	/* Current dungeon object theme */
 s16b num_repro;			/* Current reproducer count */
 
 bool mon_fight;			/* Monster fighting indicator */
@@ -124,15 +99,12 @@ s16b base_level;        /* Base dungeon level */
 s32b turn;				/* Current game turn */
 s32b old_turn;			/* Turn when level began (feelings) */
 
-bool wizard;			/* Is the player currently in Wizard mode? */
-
 bool use_sound;			/* The "sound" mode is enabled */
 bool use_graphics;		/* The "graphics" mode is enabled */
 
-u16b total_winner;		/* Semi-Hack -- Game has been won */
+bool use_transparency = FALSE; /* Use transparent tiles */
 
-u16b panic_save;		/* Track some special "conditions" */
-u16b noscore;			/* Track various "cheating" conditions */
+bool can_save = TRUE;         /* Game can be saved */
 
 s16b signal_count;		/* Hack -- Count interupts */
 
@@ -141,21 +113,12 @@ bool inkey_xtra;		/* See the "inkey()" function */
 bool inkey_scan;		/* See the "inkey()" function */
 bool inkey_flag;		/* See the "inkey()" function */
 
-s16b coin_type;			/* Hack -- force coin type */
-
-bool opening_chest;		/* Hack -- prevent chest generation */
-
 bool shimmer_monsters;	/* Hack -- optimize multi-hued monsters */
 
 bool repair_monsters;	/* Hack -- optimize detect monsters */
 
-s16b inven_nxt;			/* Hack -- unused */
 bool hack_mind;
 bool hack_mutation;
-int artifact_bias;
-
-s16b inven_cnt;			/* Number of items in inventory */
-s16b equip_cnt;			/* Number of items in equipment */
 
 s16b o_max = 1;			/* Number of allocated objects */
 s16b o_cnt = 0;			/* Number of live objects */
@@ -169,7 +132,7 @@ s16b fld_cnt = 0;			/* Number of live fields */
 s16b hack_m_idx = 0;	/* Hack -- see "process_monsters()" */
 s16b hack_m_idx_ii = 0;
 s16b *hack_fld_ptr = NULL; /* Hack -- see "fields.c" */
-bool multi_rew = FALSE;
+
 char summon_kin_type;   /* Hack, by Julian Lighton: summon 'relatives' */
 
 int total_friends = 0;
@@ -181,139 +144,6 @@ int leaving_quest = 0;
 s16b store_cache_num = 0;	/* Number of stores with stock */
 store_type **store_cache;	/* The cache of store stocks */
 
-/*
- * Software options (set via the '=' command).  See "tables.c"
- * Needs to be rearranged to fit the data in tables.c
- */
-
-
-/* Option Set 1 -- User Interface */
-
-bool rogue_like_commands;	/* Rogue-like commands */
-bool quick_messages;		/* Activate quick messages */
-bool other_query_flag;		/* Prompt for various information */
-bool carry_query_flag;		/* Prompt before picking things up */
-bool use_old_target;		/* Use old target by default */
-bool always_pickup;			/* Pick things up by default */
-bool always_repeat;			/* Repeat obvious commands */
-bool depth_in_feet;			/* Show dungeon level in feet */
-
-bool stack_force_notes;		/* Merge inscriptions when stacking */
-bool stack_force_costs;		/* Merge discounts when stacking */
-
-bool show_labels;			/* Show labels in object listings */
-bool show_weights;			/* Show weights in object listings */
-
-bool ring_bell;				/* Ring the bell (on errors, etc) */
-bool use_color;				/* Use color if possible (slow) */
-
-
-/* Option Set 2 -- Disturbance */
-
-bool find_ignore_stairs;	/* Run past stairs */
-bool find_ignore_doors;		/* Run through open doors */
-bool find_cut;				/* Run past known corners */
-bool find_examine;			/* Run into potential corners */
-
-bool disturb_move;			/* Disturb whenever any monster moves */
-bool disturb_near;			/* Disturb whenever viewable monster moves */
-bool disturb_panel;			/* Disturb whenever map panel changes */
-bool disturb_state;			/* Disturn whenever player state changes */
-bool disturb_minor;			/* Disturb whenever boring things happen */
-bool disturb_other;			/* Disturb whenever various things happen */
-bool disturb_traps;			/* Disturb whenever you move out of detect radius */
-
-bool alert_failure;		/* Alert user to various failures */
-bool last_words;		/* Get last words upon dying */
-bool speak_unique;		/* Speaking uniques */
-bool small_levels;		/* Allow unusually small dungeon levels */
-bool empty_levels;		/* Allow empty 'arena' levels */
-bool plain_descriptions;	/* Plain object descriptions */
-bool stupid_monsters;		/* Monsters use old AI */
-bool silly_monsters;		/* Allow the silly monsters to be generated */
-bool auto_destroy;		/* Known worthless items are destroyed without confirmation */
-bool confirm_stairs;		/* Prompt before staircases... */
-bool wear_confirm;		/* Confirm before putting on known cursed items */
-
-bool disturb_pets;		/* Pets moving nearby disturb us */
-
-
-
-
-
-/* Option Set 3 -- Game-Play */
-
-bool auto_haggle;			/* Auto-haggle in stores */
-
-bool auto_scum;				/* Auto-scum for good levels */
-
-bool stack_allow_items;		/* Allow weapons and armor to stack */
-bool stack_allow_wands;		/* Allow wands/staffs/rods to stack */
-
-bool expand_look;			/* Expand the power of the look command */
-bool expand_list;			/* Expand the power of the list commands */
-
-bool view_perma_grids;		/* Map remembers all perma-lit grids */
-bool view_torch_grids;		/* Map remembers all torch-lit grids */
-
-bool dungeon_align;			/* Generate dungeons with aligned rooms */
-bool dungeon_stair;			/* Generate dungeons with connected stairs */
-
-bool flow_by_sound;			/* Monsters track new player location */
-bool flow_by_smell;			/* Monsters track old player location */
-
-bool track_follow;			/* Monsters follow the player */
-bool track_target;			/* Monsters target the player */
-
-bool smart_learn;			/* Monsters learn from their mistakes */
-bool smart_cheat;			/* Monsters exploit player weaknesses */
-
-bool take_notes;                        /* Allow notes to be added to a file */
-bool auto_notes;                        /* Automatically take notes */
-
-bool point_based;                       /* Point-based generation */
-
-/* Option Set 4 -- Efficiency */
-
-bool view_reduce_lite;		/* Reduce lite-radius when running */
-bool view_reduce_view;		/* Reduce view-radius in town */
-
-bool avoid_abort;			/* Avoid checking for user abort */
-bool avoid_other;			/* Avoid processing special colors */
-
-bool flush_failure;			/* Flush input on any failure */
-bool flush_disturb;			/* Flush input on disturbance */
-bool flush_command;			/* Flush input before every command */
-
-bool fresh_before;			/* Flush output before normal commands */
-bool fresh_after;			/* Flush output after normal commands */
-bool fresh_message;			/* Flush output after all messages */
-
-bool compress_savefile;		/* Compress messages in savefiles */
-
-bool hilite_player;			/* Hilite the player with the cursor */
-
-bool view_yellow_lite;		/* Use special colors for torch-lit grids */
-bool view_bright_lite;		/* Use special colors for 'viewable' grids */
-
-bool view_granite_lite;		/* Use special colors for wall grids (slow) */
-bool view_special_lite;		/* Use special colors for floor grids (slow) */
-
-/* Option set 5 -- Testing */
-
-bool testing_stack;			/* Test the stacking code */
-
-bool testing_carry;			/* Test the carrying code */
-
-
-/* Cheating options */
-
-bool cheat_peek;		/* Peek into object creation */
-bool cheat_hear;		/* Peek into monster creation */
-bool cheat_room;		/* Peek into dungeon creation */
-bool cheat_xtra;		/* Peek into something else */
-bool cheat_know;		/* Know complete monster info */
-bool cheat_live;		/* Allow player to avoid death */
 
 
 /* Special options */
@@ -325,6 +155,14 @@ byte delay_factor;		/* Delay factor (0 to 9) */
 byte autosave_l;        /* Autosave before entering new levels */
 byte autosave_t;        /* Timed autosave */
 s16b autosave_freq;     /* Autosave frequency */
+
+/* Cheating options */
+bool cheat_peek;
+bool cheat_hear;
+bool cheat_room;
+bool cheat_xtra;
+bool cheat_know;
+bool cheat_live;
 
 
 /*
@@ -360,20 +198,6 @@ char *mp_tc = NULL;
 
 
 /*
- * Player location in dungeon
- */
-s16b py;
-s16b px;
-
-/*
- * Targeting variables
- */
-s16b target_who;
-s16b target_col;
-s16b target_row;
-
-
-/*
  * User info
  */
 int player_uid;
@@ -390,15 +214,6 @@ char player_name[32];
  */
 char player_base[32];
 
-/*
- * What killed the player
- */
-char died_from[80];
-
-/*
- * Hack -- Textual "history" for the Player
- */
-char history[4][60];
 
 /*
  * Buffer to hold the current savefile name
@@ -466,6 +281,16 @@ s16b quark__num;
  */
 cptr *quark__str;
 
+/*
+ * Current Quark time - for least recently used algorithm
+ */
+u16b quark__tim;
+
+/*
+ * Time of last access for each quark
+ */
+u16b *quark__use;
+
 
 /*
  * The next "free" index to use
@@ -503,19 +328,14 @@ char *message__buf;
 byte *message__color;
 
 
-
-/*
- * The array of normal options
- */
-u32b option_flag[8];
-u32b option_mask[8];
-
-
 /*
  * The array of window options
  */
 u32b window_flag[8];
 u32b window_mask[8];
+
+/* Normal option masks */
+u32b option_mask[8];
 
 
 /*
@@ -663,11 +483,11 @@ cave_type *(*area)(int, int);
  * don't need to be redone if the player moves back and forth.
  */
 
-/* wilderness block - array of 16x16 cave grids. */
-/* cave_type *block[WILD_BLOCK_SIZE]; */
-
 /* block used to generate plasma fractal for random wilderness */
-u16b *temp_block[WILD_BLOCK_SIZE+1];
+u16b *temp_block[WILD_BLOCK_SIZE + 1];
+
+/* block used to make towns and cities in the wilderness */
+u16b *town_block[WILD_BLOCK_SIZE + 1];
 
 /* cache of blocks near the player */
 cave_type **wild_cache[WILD_BLOCKS];
@@ -748,6 +568,17 @@ alloc_entry *alloc_race_table;
 
 
 /*
+ * The size of the "alloc_ego_table" (at most max_e_idx)
+ */
+s16b alloc_ego_size;
+
+/*
+ * The entries in the "ego item allocator table"
+ */
+alloc_entry *alloc_ego_table;
+
+
+/*
  * Specify attr/char pairs for visual special effects
  * Be sure to use "index & 0x7F" to avoid illegal access
  */
@@ -791,26 +622,15 @@ player_race *rp_ptr;
 player_class *cp_ptr;
 player_magic *mp_ptr;
 
+/**** Server Information ****/
+
+server_type s_body;
 
 /*
- * More spell info
+ * Pointer to the server information
  */
-u32b spell_learned1;	/* bit mask of spells learned */
-u32b spell_learned2;	/* bit mask of spells learned */
-u32b spell_worked1;	/* bit mask of spells tried and worked */
-u32b spell_worked2;	/* bit mask of spells tried and worked */
-u32b spell_forgotten1;	/* bit mask of spells learned but forgotten */
-u32b spell_forgotten2;	/* bit mask of spells learned but forgotten */
-byte spell_order[64];	/* order spells learned/remembered/forgotten */
+server_type *svr_ptr = &s_body; 
 
-
-/*
- * Calculated base hp values for player at each level,
- * store them so that drain life + restore life does not
- * affect hit points.  Also prevents shameless use of backup
- * savefiles for hitpoint acquirement.
- */
-s16b player_hp[PY_MAX_LEVEL];
 
 
 /*
@@ -1005,26 +825,6 @@ bool monk_armour_aux;
 bool monk_notify_aux;
 
 
-/* Easy patch flags */
-bool easy_open;
-bool easy_disarm;
-bool easy_floor;
-
-bool use_command;
-bool center_player;
-bool avoid_center;
-
-/* Auto-destruction options */
-bool destroy_worthless;
-
-/* Monster lighting effects */
-bool monster_light;
-
-/*
- * Buildings
- */
-building_type building[MAX_BLDG];
-
 
 /*
  * Maximum number of quests
@@ -1120,7 +920,7 @@ int quest_text_line;
 /*
  * Default spell color table (quark index)
  */
-s16b gf_color[MAX_GF];
+cptr gf_color[MAX_GF];
 
 /*
  * Flags for initialization
@@ -1135,32 +935,11 @@ int highscore_fd = -1;
 
 /*
  * Should the monster allocation fail with inappropriate terrain?
+ *
+ * This hack is only used by the polymoph function... this probably
+ * could be removed, and that function done a different way.
  */
 bool monster_terrain_sensitive = TRUE;
 
 int mutant_regenerate_mod = 100;
-
-/*
- * Startup options
- */
-bool vanilla_town;            /* Use "vanilla" town without set quests */
-bool ironman_shops;           /* Stores are permanently closed */
-bool ironman_small_levels;    /* Always create unusually small dungeon levels */
-bool ironman_downward;        /* Don't allow climbing upwards/recalling */
-bool ironman_autoscum;        /* Permanently enable the autoscummer */
-bool ironman_hard_quests;     /* Quest monsters get reinforcements */
-bool ironman_empty_levels;    /* Always create empty 'arena' levels */
-bool terrain_streams;         /* Create terrain 'streamers' in the dungeon */
-bool munchkin_death;          /* Ask for saving death */
-bool ironman_rooms;           /* Always generate very unusual rooms */
-bool ironman_nightmare;			/* Play the game in Nightmare mode */
-bool maximize_mode;
-bool preserve_mode;
-bool autoroller;
-
-
-bool use_transparency = FALSE; /* Use transparent tiles */
-
-bool can_save = TRUE;         /* Game can be saved */
-
 

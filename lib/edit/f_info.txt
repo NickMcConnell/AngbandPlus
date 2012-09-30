@@ -1,4 +1,4 @@
-# CVS: Last edit by $Author: sfuerst $ on $Date: 2000/10/12 10:32:32 $
+# CVS: Last edit by $Author: sfuerst $ on $Date: 2001/01/04 23:22:59 $
 # File: f_info.txt
 
 
@@ -52,7 +52,6 @@ G:.:w
 
 N:2:invisible trap
 G:.:w
-M:1
 
 # 0x03 --> glyph of warding
 
@@ -186,7 +185,6 @@ G:^:g
 
 N:32:door
 G:+:U
-M:32
 
 # Pillar
 N:33:pillar
@@ -197,7 +195,6 @@ G:#:D
 
 N:48:secret door
 G:#:w
-M:56
 
 # 0x31 --> rubble
 
@@ -215,16 +212,14 @@ N:51:quartz vein
 G:#:W
 
 # 0x34 --> magma vein + treasure
-
+# This terrain type may not actually be needed...
 N:52:magma vein
 G:#:s
-M:50
 
 # 0x35 --> quartz vein + treasure
-
+# This terrain type may not actually be needed...
 N:53:quartz vein
 G:#:W
-M:51
 
 # 0x36 --> magma vein + known treasure
 
@@ -245,19 +240,16 @@ G:#:w
 
 N:57:granite wall
 G:#:w
-M:56
 
 # 0x3A --> granite wall -- outer
 
 N:58:granite wall
 G:#:w
-M:56
 
 # 0x3B --> granite wall -- solid
 
 N:59:granite wall
 G:#:w
-M:56
 
 # 0x3C --> permanent wall -- basic (perm)
 
@@ -268,19 +260,16 @@ G:#:w
 
 N:61:permanent wall
 G:#:w
-M:60
 
 # 0x3E --> permanent wall -- outer (perm)
 
 N:62:permanent wall
 G:#:w
-M:60
 
 # 0x3F --> permanent wall -- solid (perm)
 
 N:63:permanent wall
 G:#:w
-M:60
 
 N:64:explosive rune
 G:*:R
@@ -385,7 +374,6 @@ G:^:D
 
 N:91:invisible wall
 G:.:w
-M:1
 
 N:92:very deep water
 G:~:D

@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/09/18 09:00:57 $ */
 /* File: save.c */
 
 /* Purpose: interact with savefiles */
@@ -48,20 +47,10 @@
  *   TYPE_OBJECTS --> dungeon objects
  *   TYPE_MONSTERS --> dungeon monsters
  *
- * Conversions:
- *   Break old "races" into normals/uniques
- *   Extract info about the "unique" monsters
- *
  * Question:
  *   Should there be a single "block" for info about all the stores, or one
  *   "block" for each store?  Or one "block", which contains "sub-blocks" of
  *   some kind?  Should we dump every "sub-block", or just the "useful" ones?
- *
- * Question:
- *   Should the normals/uniques be broken for 2.8.0, or should 2.8.0 simply
- *   be a "fixed point" into which older savefiles are converted, and then
- *   future versions could ignore older savefiles, and the "conversions"
- *   would be much simpler.
  */
 
 
@@ -550,8 +539,6 @@ static void wr_item(object_type *o_ptr)
 	wr_byte(o_ptr->number);
 	wr_s16b(o_ptr->weight);
 
-	wr_byte(o_ptr->name1);
-	wr_byte(o_ptr->name2);
 	wr_s16b(o_ptr->timeout);
 
 	wr_s16b(o_ptr->to_h);
@@ -565,31 +552,12 @@ static void wr_item(object_type *o_ptr)
 
 	wr_byte(o_ptr->marked);
 
-#if 0
-	/* Old flags */
-	if (o_ptr->art_name || o_ptr->art_flags1 || o_ptr->art_flags2 ||
-	    o_ptr->art_flags3)
-	{
-#endif
-	wr_u32b(o_ptr->art_flags1);
-	wr_u32b(o_ptr->art_flags2);
-	wr_u32b(o_ptr->art_flags3);
-#if 0
-	}
-	else
-	{
-	wr_u32b(0L);
-	wr_u32b(0L);
-	wr_u32b(0L);
-	}
-#endif
+	wr_u32b(o_ptr->flags1);
+	wr_u32b(o_ptr->flags2);
+	wr_u32b(o_ptr->flags3);
 
 	/* Held by monster index */
 	wr_s16b(o_ptr->held_m_idx);
-
-	/* Extra information */
-	wr_byte(o_ptr->xtra1);
-	wr_byte(o_ptr->xtra2);
 
 	/* Feelings */
 	wr_byte(o_ptr->feeling);
@@ -604,10 +572,10 @@ static void wr_item(object_type *o_ptr)
 		wr_string("");
 	}
 
-	/* If it is a "new" named artifact, save the name */
-	if (o_ptr->art_name)
+	/* If it is a named item, save the name */
+	if (o_ptr->xtra_name)
 	{
-		wr_string(quark_str(o_ptr->art_name));
+		wr_string(quark_str(o_ptr->xtra_name));
 	}
 	else
 	{
@@ -635,6 +603,15 @@ static void wr_item(object_type *o_ptr)
 	wr_s32b(0);
 
 #endif /* USE_SCRIPT */
+
+	/* The new flags */
+	wr_s32b(o_ptr->cost);
+	
+	wr_byte(o_ptr->activate);
+	
+	wr_u32b(o_ptr->kn_flags1);
+	wr_u32b(o_ptr->kn_flags2);
+	wr_u32b(o_ptr->kn_flags3);
 }
 
 
@@ -804,6 +781,13 @@ static void wr_store(store_type *st_ptr)
 	wr_s16b(st_ptr->good_buy);
 	wr_s16b(st_ptr->bad_buy);
 
+	/* Position in the town */
+	wr_u16b(st_ptr->x);
+	wr_u16b(st_ptr->y);
+	
+	/* Type of store */
+	wr_byte(st_ptr->type);
+
 	wr_s32b(st_ptr->last_visit);
 
 	/* Save the stock */
@@ -844,10 +828,10 @@ static errr wr_randomizer(void)
  */
 static void wr_options(void)
 {
-	int i;
+	int i, n;
 
 	u16b c;
-
+	u32b flag = 0;
 
 	/*** Oops ***/
 
@@ -868,7 +852,7 @@ static void wr_options(void)
 
 	c = 0;
 
-	if (wizard) c |= 0x0002;
+	if (p_ptr->wizard) c |= 0x0002;
 
 	if (cheat_peek) c |= 0x0100;
 	if (cheat_hear) c |= 0x0200;
@@ -884,40 +868,31 @@ static void wr_options(void)
 	wr_byte(autosave_t);
 	wr_s16b(autosave_freq);
 
-	/*** Extract options ***/
-
+	/*** Normal options ***/
+	
 	/* Analyze the options */
-	for (i = 0; option_info[i].o_desc; i++)
+	for (n = 0; n < 8; n++)
 	{
-		int os = option_info[i].o_set;
-		int ob = option_info[i].o_bit;
-
-		/* Process real entries */
-		if (option_info[i].o_var)
+		/* Analyze the options */
+		for (i = 0; i < 32; i++)
 		{
-			/* Set */
-			if (*option_info[i].o_var)
+			if (option_info[n * 32 + i].o_val)
 			{
-				/* Set */
-				option_flag[os] |= (1L << ob);
+				/* Set flag */
+				flag |= (1L << i);
 			}
-
-			/* Clear */
 			else
 			{
-				/* Clear */
-				option_flag[os] &= ~(1L << ob);
+				/* Clear flag */
+				flag &= ~(1L << i);
 			}
 		}
+		
+		/* Dump the flag */
+		wr_u32b(flag);
 	}
-
-
-	/*** Normal options ***/
-
-	/* Dump the flags */
-	for (i = 0; i < 8; i++) wr_u32b(option_flag[i]);
-
-	/* Dump the masks */
+	
+	/* Oops */
 	for (i = 0; i < 8; i++) wr_u32b(option_mask[i]);
 
 
@@ -955,11 +930,11 @@ static void wr_extra(void)
 
 	wr_string(player_name);
 
-	wr_string(died_from);
+	wr_string(p_ptr->died_from);
 
 	for (i = 0; i < 4; i++)
 	{
-		wr_string(history[i]);
+		wr_string(p_ptr->history[i]);
 	}
 
 	/* Race/Class/Gender/Spells */
@@ -978,8 +953,8 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->wt);
 
 	/* Dump the stats (maximum and current) */
-	for (i = 0; i < 6; ++i) wr_s16b(p_ptr->stat_max[i]);
-	for (i = 0; i < 6; ++i) wr_s16b(p_ptr->stat_cur[i]);
+	for (i = 0; i < A_MAX; ++i) wr_s16b(p_ptr->stat_max[i]);
+	for (i = 0; i < A_MAX; ++i) wr_s16b(p_ptr->stat_cur[i]);
 
 	/* Ignore the transient stats */
 	for (i = 0; i < 12; ++i) wr_s16b(0);
@@ -994,19 +969,18 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->town_num); /* -KMW- */
 
 	/* Write arena and rewards information -KMW- */
-	wr_s16b(p_ptr->arena_number);
-	wr_s16b(p_ptr->inside_arena);
+	wr_s16b(0);
+	wr_s16b(0);
 	wr_s16b(p_ptr->inside_quest);
-	wr_byte(p_ptr->exit_bldg);
-	wr_byte(p_ptr->leftbldg); /* save building leave status -KMW- */
+	wr_byte(0);
+	wr_byte(0);
 
-	wr_s16b(p_ptr->oldpx);
-	wr_s16b(p_ptr->oldpy);
+	/* oldpy and px are not required any more. */
+	wr_s16b(0);
+	wr_s16b(0);
 
-	/* Save builing rewards */
-	wr_s16b(MAX_BACT);
-
-	for (i = 0; i < MAX_BACT; i++) wr_s16b(p_ptr->rewards[i]);
+	/* Save building rewards - not used. */
+	wr_s16b(0);
 
 	wr_s16b(p_ptr->mhp);
 	wr_s16b(p_ptr->chp);
@@ -1017,8 +991,8 @@ static void wr_extra(void)
 	wr_u16b(p_ptr->csp_frac);
 
 	/* Max Player and Dungeon Levels */
-	wr_s16b(p_ptr->max_plv);
-	wr_s16b(p_ptr->max_dlv);
+	wr_s16b(p_ptr->max_lev);
+	wr_s16b(p_ptr->max_depth);
 
 	/* More info */
 	wr_s16b(0);     /* oops */
@@ -1109,13 +1083,13 @@ static void wr_extra(void)
 
 
 	/* Special stuff */
-	wr_u16b(panic_save);
-	wr_u16b(total_winner);
-	wr_u16b(noscore);
+	wr_u16b(p_ptr->panic_save);
+	wr_u16b(p_ptr->total_winner);
+	wr_u16b(p_ptr->noscore);
 
 
 	/* Write death */
-	wr_byte(death);
+	wr_byte(p_ptr->is_dead);
 
 	/* Write feeling */
 	wr_byte(feeling);
@@ -1247,8 +1221,8 @@ static void save_map(int ymax, int ymin, int xmax, int xmin)
 			/* Get the cave */
 			c_ptr = area(y,x);
 
-			/* Extract a byte */
-			tmp8u = c_ptr->mimic;
+			/* Extract a byte - the "mimic" feat variable has been removed. */
+			tmp8u = 0;
 
 			/* If the run is broken, or too full, flush it */
 			if ((tmp8u != prev_char) || (count == MAX_UCHAR))
@@ -1333,11 +1307,11 @@ static void wr_dungeon(void)
 	/*** Basic info ***/
 
 	/* Dungeon specific info follows */
-	wr_u16b(dun_level);
+	wr_u16b(p_ptr->depth);
 	wr_u16b(base_level);
 	wr_u16b(num_repro);
-	wr_u16b(py);
-	wr_u16b(px);
+	wr_u16b(p_ptr->py);
+	wr_u16b(p_ptr->px);
 	wr_u16b(max_hgt);
 	wr_u16b(max_wid);
 	wr_u16b(max_panel_rows);
@@ -1346,18 +1320,24 @@ static void wr_dungeon(void)
 	/* Save wilderness data */
 	save_wild_data();
 
-	if (dun_level)
+	if (p_ptr->depth)
 	{
 		/* Save dungeon map */
 		save_map(max_hgt, min_hgt, max_wid, min_wid);
 
+		/* Hack - the player is not in this dungeon */
+		character_dungeon = FALSE;
+		
 		/* Save wilderness map */
 		change_level(0);
 
 		save_map(wild_grid.y_max, wild_grid.y_min,
 		         wild_grid.x_max, wild_grid.x_min);
 
-		change_level(dun_level);
+		change_level(p_ptr->depth);
+		
+		/* The character is back in the dungeon */
+		character_dungeon = TRUE;
 		
 		/* Restore bounds */
 		max_hgt = cur_hgt;
@@ -1464,7 +1444,7 @@ static bool wr_savefile_new(void)
 	wr_byte(FAKE_VER_PATCH);
 	xor_byte = 0;
 
-	tmp8u = (byte)rand_int(256);
+	tmp8u = (byte)randint0(256);
 	wr_byte(tmp8u);
 
 
@@ -1584,22 +1564,22 @@ static bool wr_savefile_new(void)
 	wr_u16b(tmp16u);
 	for (i = 0; i < tmp16u; i++)
 	{
-		wr_s16b(player_hp[i]);
+		wr_s16b(p_ptr->player_hp[i]);
 	}
 
 
 	/* Write spell data */
-	wr_u32b(spell_learned1);
-	wr_u32b(spell_learned2);
-	wr_u32b(spell_worked1);
-	wr_u32b(spell_worked2);
-	wr_u32b(spell_forgotten1);
-	wr_u32b(spell_forgotten2);
+	wr_u32b(p_ptr->spell_learned1);
+	wr_u32b(p_ptr->spell_learned2);
+	wr_u32b(p_ptr->spell_worked1);
+	wr_u32b(p_ptr->spell_worked2);
+	wr_u32b(p_ptr->spell_forgotten1);
+	wr_u32b(p_ptr->spell_forgotten2);
 
 	/* Dump the ordered spells */
 	for (i = 0; i < 64; i++)
 	{
-		wr_byte(spell_order[i]);
+		wr_byte(p_ptr->spell_order[i]);
 	}
 
 
@@ -1636,6 +1616,18 @@ static bool wr_savefile_new(void)
 
 		/* Type */
 		wr_u16b(town[i].type);
+		wr_byte(town[i].pop);
+		
+		/* Gates */
+		wr_byte(town[i].gates_x[0]);
+		wr_byte(town[i].gates_x[1]);
+		wr_byte(town[i].gates_x[2]);
+		wr_byte(town[i].gates_x[3]);
+		
+		wr_byte(town[i].gates_y[0]);
+		wr_byte(town[i].gates_y[1]);
+		wr_byte(town[i].gates_y[2]);
+		wr_byte(town[i].gates_y[3]);
 
 		/* Location */
 		wr_byte(town[i].x);
@@ -1657,7 +1649,7 @@ static bool wr_savefile_new(void)
 	wr_byte(p_ptr->pet_pickup_items);
 
 	/* Player is not dead, write the dungeon */
-	if (!death)
+	if (!p_ptr->is_dead)
 	{
 		/* Dump the dungeon */
 		wr_dungeon();
@@ -1866,14 +1858,6 @@ bool save_player(void)
 /*
  * Attempt to Load a "savefile"
  *
- * Version 2.7.0 introduced a slightly different "savefile" format from
- * older versions, requiring a completely different parsing method.
- *
- * Note that savefiles from 2.7.0 - 2.7.2 are completely obsolete.
- *
- * Pre-2.8.0 savefiles lose some data, see "load2.c" for info.
- *
- * Pre-2.7.0 savefiles lose a lot of things, see "load1.c" for info.
  *
  * On multi-user systems, you may only "read" a savefile if you will be
  * allowed to "write" it later, this prevents painful situations in which
@@ -1905,7 +1889,7 @@ bool load_player(void)
 	turn = 0;
 
 	/* Paranoia */
-	death = FALSE;
+	p_ptr->is_dead = FALSE;
 
 
 	/* Allow empty savefile name */
@@ -2113,10 +2097,10 @@ bool load_player(void)
 		}
 
 		/* Player is dead */
-		if (death)
+		if (p_ptr->is_dead)
 		{
 			/* Player is no longer "dead" */
-			death = FALSE;
+			p_ptr->is_dead = FALSE;
 
 			/* Cheat death */
 			if (arg_wizard)
@@ -2145,7 +2129,7 @@ bool load_player(void)
 		if (p_ptr->chp >= 0)
 		{
 			/* Reset cause of death */
-			(void)strcpy(died_from, "(alive and well)");
+			(void)strcpy(p_ptr->died_from, "(alive and well)");
 		}
 
 		/* Success */

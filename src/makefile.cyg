@@ -1,11 +1,6 @@
-# This is a makefile for the Cygwin 1.0 release which may
+# This is a makefile for the Cygwin tools which may
 # be downloaded by following the links from the url:
 # http://sources.redhat.com/cygwin/
-
-#
-# File locations - change these as appropriate
-#
-CYGDIR  = c:/cygwin
 
 #
 # Standard defines
@@ -13,9 +8,7 @@ CYGDIR  = c:/cygwin
 
 CC      =       gcc
 WRES    =       windres
-LIBDIRS =       -L$(CYGDIR)/lib
-INCDIRS =       -I$(CYGDIR)/usr/include/mingw32
-LIBS    =       -s -mno-cygwin -mwindows -e _mainCRTStartup -lwinmm
+LIBS    =       -s -mwindows -e _mainCRTStartup -lwinmm
 CFLAGS  =       -Wall -O2 -fno-strength-reduce -DUSE_TRANSPARENCY -DWINDOWS
 
 
@@ -69,7 +62,8 @@ SRCS		= \
 	tables.c \
 	util.c \
 	variable.c \
-	wild.c \
+	wild1.c \
+	wild2.c \
 	wizard1.c \
 	wizard2.c \
 	xtra1.c \
@@ -131,7 +125,8 @@ EXOBJS	= \
 	tables.o \
 	util.o \
 	variable.o \
-	wild.o \
+	wild1.o \
+	wild2.o \
 	wizard1.o \
 	wizard2.o \
 	xtra1.o \
@@ -165,20 +160,16 @@ INCS		= \
 
 default:	zangband
 
-install:	zangband movebin cleanobjs
-
-# movebin:
-#		copy zangband.exe ..
-#		del zangband.exe
+install:	zangband movebin
 
 movebin:
-		mv -f zangband.exe ../zangband.exe
+	mv -f zangband.exe ../zangband.exe
 
 cleanobjs:
-		rm -f $(EXOBJS)
+	rm -f $(EXOBJS)
 
 cleanbin:
-		rm -f zangband
+	rm -f zangband
 
 clean:	cleanobjs cleanbin
 
@@ -358,7 +349,10 @@ util.o: util.c $(INCS)
 variable.o: variable.c $(INCS)
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
-wild.o: wild.c $(INCS)
+wild1.o: wild1.c $(INCS) wild.h
+	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
+
+wild2.o: wild2.c $(INCS) wild.h grid.h
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
 wizard1.o: wizard1.c $(INCS)

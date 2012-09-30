@@ -57,7 +57,7 @@ G:.:w
 W:0:4:0
 I:FEAT | NO_LOOK | NO_ENTER | NO_MAGIC | NO_OBJECT
 D:0:0:0:0:0:0:0:0
-F:10,field_action_wall_tunnel | 11,field_action_delete
+F:10,field_action_wall_tunnel | 11,field_action_wall_gf
 F:16,field_action_interact_tunnel
 
 # Glyph of Warding
@@ -79,7 +79,7 @@ F:17,field_action_glyph_explode
 # Corpse
 N:4:corpse
 G:~:v
-W:150:7:100
+W:50:7:100
 I:TEMP | FEAT | VIS
 D:0:0:0:0:0:0:0:0
 F:0,field_action_corpse_init | 1,field_action_corpse_load
@@ -89,7 +89,7 @@ F:15,field_action_corpse_raise
 # Skeleton
 N:5:skeleton
 G:~:w
-W:150:7:100
+W:50:7:100
 I:TEMP | FEAT | VIS
 D:0:0:0:0:0:0:0:0
 F:0,field_action_corpse_init | 1,field_action_corpse_load
@@ -104,7 +104,7 @@ I:FEAT | TRANS | NO_OBJECT | NO_LOOK
 D:6:125:0:0:0:0:0:0
 F:0,field_action_trap_init | 2,field_action_hit_trap_door
 F:10,field_action_trap_disarm | 15,field_action_trap_disarm
-F:16,field_action_interact_disarm
+F:16,field_action_interact_disarm | 11,field_action_trap_gf
 
 # Pit
 N:7:pit
@@ -114,47 +114,47 @@ I:FEAT | TRANS | NO_OBJECT | NO_LOOK
 D:5:125:0:0:0:0:0:0
 F:0,field_action_trap_init | 2,field_action_hit_trap_pit
 F:10,field_action_trap_disarm | 15,field_action_trap_disarm
-F:16,field_action_interact_disarm
+F:16,field_action_interact_disarm | 11,field_action_trap_gf
 
 # Spiked Pit
 N:8:spiked pit
 G:^:s
 W:100:1:0
 I:FEAT | TRANS | NO_OBJECT | NO_LOOK
-D:10:125:0:0:0:0:0:0
+D:5:125:0:0:0:0:0:0
 F:0,field_action_trap_init | 2,field_action_hit_trap_spike
 F:10,field_action_trap_disarm | 15,field_action_trap_disarm
-F:16,field_action_interact_disarm
+F:16,field_action_interact_disarm | 11,field_action_trap_gf
 
 # Poison Pit
 N:9:spiked pit
 G:^:s
 W:100:1:0
 I:FEAT | TRANS | NO_OBJECT | NO_LOOK
-D:15:125:0:0:0:0:0:0
+D:10:125:0:0:0:0:0:0
 F:0,field_action_trap_init | 2,field_action_hit_trap_poison_pit
 F:10,field_action_trap_disarm | 15,field_action_trap_disarm
-F:16,field_action_interact_disarm
+F:16,field_action_interact_disarm | 11,field_action_trap_gf
 
 # evil rune
 N:10:evil rune
 G:^:G
 W:100:1:0
 I:FEAT | TRANS | NO_OBJECT | NO_LOOK
-D:12:125:0:0:0:0:0:0
+D:5:50:0:0:0:0:0:0
 F:0,field_action_trap_init | 2,field_action_hit_trap_curse
 F:10,field_action_trap_disarm | 15,field_action_trap_disarm
-F:16,field_action_interact_disarm
+F:16,field_action_interact_disarm | 11,field_action_trap_gf
 
 # strange rune
 N:11:strange rune
 G:^:o
 W:100:1:0
 I:FEAT | TRANS | NO_OBJECT | NO_LOOK
-D:20:125:0:0:0:0:0:0
+D:10:50:0:0:0:0:0:0
 F:0,field_action_trap_init | 2,field_action_hit_trap_teleport
 F:10,field_action_trap_disarm | 15,field_action_trap_disarm
-F:16,field_action_interact_disarm
+F:16,field_action_interact_disarm | 11,field_action_trap_gf
 
 # discolored spot
 N:12:discolored spot
@@ -164,107 +164,107 @@ I:FEAT | TRANS | NO_OBJECT | NO_LOOK
 D:8:125:0:5:0:0:0:0
 F:0,field_action_trap_init | 2,field_action_hit_trap_element
 F:10,field_action_trap_disarm | 15,field_action_trap_disarm
-F:16,field_action_interact_disarm
+F:16,field_action_interact_disarm | 11,field_action_trap_gf
 
 # discolored spot
 N:13:discolored spot
 G:^:u
 W:100:1:0
 I:FEAT | TRANS | NO_OBJECT | NO_LOOK
-D:20:125:0:5:0:0:0:0
+D:10:125:0:5:0:0:0:0
 F:0,field_action_trap_init | 2,field_action_hit_trap_ba_element
 F:10,field_action_trap_disarm | 15,field_action_trap_disarm
-F:16,field_action_interact_disarm
+F:16,field_action_interact_disarm | 11,field_action_trap_gf
 
 # gas trap
 N:14:gas trap
 G:^:g
 W:100:1:0
 I:FEAT | TRANS | NO_OBJECT | NO_LOOK
-D:7:125:0:5:0:0:0:0
+D:5:125:0:5:0:0:0:0
 F:0,field_action_trap_init | 2,field_action_hit_trap_gas
 F:10,field_action_trap_disarm | 15,field_action_trap_disarm
-F:16,field_action_interact_disarm
+F:16,field_action_interact_disarm | 11,field_action_trap_gf
 
 # compact rune
 N:15:compact rune
 G:^:D
 W:100:1:0
 I:FEAT | TRANS | NO_OBJECT | NO_LOOK
-D:25:125:0:0:0:0:0:0
+D:10:50:0:0:0:0:0:0
 F:0,field_action_trap_init | 2,field_action_hit_trap_trap
 F:10,field_action_trap_disarm | 15,field_action_trap_disarm
-F:16,field_action_interact_disarm
+F:16,field_action_interact_disarm | 11,field_action_trap_gf
 
 # dart trap
 N:16:dart trap
 G:^:r
 W:100:1:0
 I:FEAT | TRANS | NO_OBJECT | NO_LOOK
-D:11:125:0:3:0:0:0:0
+D:5:125:0:3:0:0:0:0
 F:0,field_action_trap_init | 2,field_action_hit_trap_temp_stat
 F:10,field_action_trap_disarm | 15,field_action_trap_disarm
-F:16,field_action_interact_disarm
+F:16,field_action_interact_disarm | 11,field_action_trap_gf
 
 # dart trap
 N:17:dart trap
 G:^:r
 W:100:1:0
 I:FEAT | TRANS | NO_OBJECT | NO_LOOK
-D:30:125:0:6:0:0:0:0
+D:20:125:0:6:0:0:0:0
 F:0,field_action_trap_init | 2,field_action_hit_trap_perm_stat
 F:10,field_action_trap_disarm | 15,field_action_trap_disarm
-F:16,field_action_interact_disarm
+F:16,field_action_interact_disarm | 11,field_action_trap_gf
 
 # twisted rune
 N:18:twisted rune
 G:^:U
 W:100:1:0
 I:FEAT | TRANS | NO_OBJECT | NO_LOOK
-D:35:125:0:0:0:0:0:0
+D:40:125:0:0:0:0:0:0
 F:0,field_action_trap_init | 2,field_action_hit_trap_lose_xp
 F:10,field_action_trap_disarm | 15,field_action_trap_disarm
-F:16,field_action_interact_disarm
+F:16,field_action_interact_disarm | 11,field_action_trap_gf
 
 # geometric rune
 N:19:geometric rune
 G:^:v
 W:100:1:0
 I:FEAT | TRANS | NO_OBJECT | NO_LOOK
-D:12:125:0:0:0:0:0:0
+D:10:100:0:0:0:0:0:0
 F:0,field_action_trap_init | 2,field_action_hit_trap_disenchant
 F:10,field_action_trap_disarm | 15,field_action_trap_disarm
-F:16,field_action_interact_disarm
+F:16,field_action_interact_disarm | 11,field_action_trap_gf
 
 # glowing rune
 N:20:glowing rune
 G:^:y
 W:100:1:0
 I:FEAT | TRANS | NO_OBJECT | NO_LOOK
-D:24:125:0:0:0:0:0:0
+D:10:100:0:0:0:0:0:0
 F:0,field_action_trap_init | 2,field_action_hit_trap_drop_item
 F:10,field_action_trap_disarm | 15,field_action_trap_disarm
-F:16,field_action_interact_disarm
+F:16,field_action_interact_disarm | 11,field_action_trap_gf
 
 # jagged rune
 N:21:jagged rune
 G:^:b
 W:100:1:0
 I:FEAT | TRANS | NO_OBJECT | NO_LOOK
-D:20:125:0:0:0:0:0:0
+D:15:75:0:0:0:0:0:0
 F:0,field_action_trap_init | 2,field_action_hit_trap_mutate
 F:10,field_action_trap_disarm | 15,field_action_trap_disarm
-F:16,field_action_interact_disarm
+F:16,field_action_interact_disarm | 11,field_action_trap_gf
 
 # fractured rune
 N:22:fractured rune
 G:^:b
 W:100:1:0
 I:FEAT | TRANS | NO_OBJECT | NO_LOOK
-D:40:125:0:0:0:0:0:0
+D:50:125:0:0:0:0:0:0
 F:0,field_action_trap_init | 2,field_action_hit_trap_new_life
 F:10,field_action_trap_disarm | 15,field_action_trap_disarm
-F:16,field_action_interact_disarm
+F:16,field_action_interact_disarm | 11,field_action_trap_gf
 
 # faded rune
 N:23:faded rune
@@ -274,95 +274,96 @@ I:FEAT | TRANS | NO_OBJECT | NO_LOOK
 D:2:125:0:0:0:0:0:0
 F:0,field_action_trap_init | 2,field_action_hit_trap_no_lite
 F:10,field_action_trap_disarm | 15,field_action_trap_disarm
-F:16,field_action_interact_disarm
+F:16,field_action_interact_disarm | 11,field_action_trap_gf
 
 # flashing rune
 N:24:flashing rune
 G:^:R
 W:100:1:0
 I:FEAT | TRANS | NO_OBJECT | NO_LOOK
-D:2:125:0:0:0:0:0:0
+D:2:25:0:0:0:0:0:0
 F:0,field_action_trap_init | 2,field_action_hit_trap_hunger
 F:10,field_action_trap_disarm | 15,field_action_trap_disarm
-F:16,field_action_interact_disarm
+F:16,field_action_interact_disarm | 11,field_action_trap_gf
 
 # weird rune
 N:25:weird rune
 G:^:B
 W:100:1:0
 I:FEAT | TRANS | NO_OBJECT | NO_LOOK
-D:13:125:0:0:0:0:0:0
+D:10:75:0:0:0:0:0:0
 F:0,field_action_trap_init | 2,field_action_hit_trap_no_gold
 F:10,field_action_trap_disarm | 15,field_action_trap_disarm
-F:16,field_action_interact_disarm
+F:16,field_action_interact_disarm | 11,field_action_trap_gf
 
 # shimmering rune
 N:26:shimmering rune
 G:^:b
 W:100:1:0
 I:FEAT | TRANS | NO_OBJECT | NO_LOOK
-D:10:125:0:0:0:0:0:0
+D:5:125:0:0:0:0:0:0
 F:0,field_action_trap_init | 2,field_action_hit_trap_haste_monster
 F:10,field_action_trap_disarm | 15,field_action_trap_disarm
-F:16,field_action_interact_disarm
+F:16,field_action_interact_disarm | 11,field_action_trap_gf
 
 # smelly rune
 N:27:smelly rune
 G:^:b
 W:100:1:0
 I:FEAT | TRANS | NO_OBJECT | NO_LOOK
-D:8:125:0:0:0:0:0:0
+D:5:125:0:0:0:0:0:0
 F:0,field_action_trap_init | 2,field_action_hit_trap_raise_mon
 F:10,field_action_trap_disarm | 15,field_action_trap_disarm
-F:16,field_action_interact_disarm
+F:16,field_action_interact_disarm | 11,field_action_trap_gf
 
 # intricate rune
 N:28:intricate rune
 G:^:v
 W:100:1:0
 I:FEAT | TRANS | NO_OBJECT | NO_LOOK
-D:27:125:0:0:0:0:0:0
+D:5:100:0:0:0:0:0:0
 F:0,field_action_trap_init | 2,field_action_hit_trap_drain_magic
 F:10,field_action_trap_disarm | 15,field_action_trap_disarm
-F:16,field_action_interact_disarm
+F:16,field_action_interact_disarm | 11,field_action_trap_gf
 
 # bright rune
 N:29:bright rune
 G:^:W
 W:100:1:0
 I:FEAT | TRANS | NO_OBJECT | NO_LOOK
-D:10:125:0:0:0:0:0:0
+D:5:125:0:0:0:0:0:0
 F:0,field_action_trap_init | 2,field_action_hit_trap_aggravate
 F:10,field_action_trap_disarm | 15,field_action_trap_disarm
-F:16,field_action_interact_disarm
+F:16,field_action_interact_disarm | 11,field_action_trap_gf
 
 # blurry rune
 N:30:blurry rune
 G:^:b
 W:100:1:0
 I:FEAT | TRANS | NO_OBJECT | NO_LOOK
-D:10:125:0:0:0:0:0:0
+D:5:50:0:0:0:0:0:0
 F:0,field_action_trap_init | 2,field_action_hit_trap_summon
 F:10,field_action_trap_disarm | 15,field_action_trap_disarm
-F:16,field_action_interact_disarm
+F:16,field_action_interact_disarm | 11,field_action_trap_gf
 
 # spiral rune
 N:31:spiral rune
 G:^:W
 W:100:1:0
 I:FEAT | TRANS | NO_OBJECT | NO_LOOK
-D:15:125:0:0:0:0:0:0
+D:5:75:0:0:0:0:0:0
 F:0,field_action_trap_init | 2,field_action_hit_trap_lose_memory
 F:10,field_action_trap_disarm | 15,field_action_trap_disarm
-F:16,field_action_interact_disarm
+F:16,field_action_interact_disarm | 11,field_action_trap_gf
 
 # Locked door
 N:32:locked door
 G:+:U
 W:100:2:0
-I:NO_LOOK | MERGE | NO_LOOK
-D:0:0:0:0:0:0:0:0
-F:10,field_action_door_unlock
+I:NO_LOOK | MERGE
+D:0:0:0:0:0:0:0:25
+F:0,field_action_counter_init
+F:10,field_action_door_unlock | 11,field_action_door_gf
 F:15,field_action_delete | 16,field_action_interact_open
 F:17,field_action_door_lock_monster
 
@@ -370,8 +371,129 @@ F:17,field_action_door_lock_monster
 N:33:stuck door
 G:+:U
 W:100:2:0
-I:NO_LOOK | MERGE | NO_LOOK
-D:15:1:0:0:0:0:0:0
-F:10,field_action_door_bash
+I:NO_LOOK | MERGE
+D:15:1:0:0:0:0:0:25
+F:0,field_action_counter_init
+F:10,field_action_door_bash | 11,field_action_door_gf
 F:15,field_action_delete | 16,field_action_interact_disarm
 F:17,field_action_door_jam_monster
+
+# General store
+N:34:General Store
+G:1:U
+W:100:3:0
+I:FEAT | VIS | MARK | NFT_LOOK | NO_MAGIC | NO_OBJECT | PERM
+D:0:0:0:0:0:0:0:0
+F:2,field_action_door_store
+
+# Armoury
+N:35:Armoury
+G:2:s
+W:100:3:0
+I:FEAT | VIS | MARK | NFT_LOOK | NO_MAGIC | NO_OBJECT | PERM
+D:1:0:0:0:0:0:0:0
+F:2,field_action_door_store
+
+# Weapon Smiths
+N:36:Weapon Smiths
+G:3:w
+W:100:3:0
+I:FEAT | VIS | MARK | NFT_LOOK | NO_MAGIC | NO_OBJECT | PERM
+D:2:0:0:0:0:0:0:0
+F:2,field_action_door_store
+
+# Temple
+N:37:Temple
+G:4:g
+W:100:3:0
+I:FEAT | VIS | MARK | NFT_LOOK | NO_MAGIC | NO_OBJECT | PERM
+D:3:0:0:0:0:0:0:0
+F:2,field_action_door_store
+
+# Alchemy Shop
+N:38:Alchemy Shop
+G:5:b
+W:100:3:0
+I:FEAT | VIS | MARK | NFT_LOOK | NO_MAGIC | NO_OBJECT | PERM
+D:4:0:0:0:0:0:0:0
+F:2,field_action_door_store
+
+# Magic Shop
+N:39:Magic Shop
+G:6:r
+W:100:3:0
+I:FEAT | VIS | MARK | NFT_LOOK | NO_MAGIC | NO_OBJECT | PERM
+D:5:0:0:0:0:0:0:0
+F:2,field_action_door_store
+
+# Black Market
+N:40:Black Market
+G:7:D
+W:100:3:0
+I:FEAT | VIS | MARK | NFT_LOOK | NO_MAGIC | NO_OBJECT | PERM
+D:6:0:0:0:0:0:0:0
+F:2,field_action_door_store
+
+# Home
+N:41:Home
+G:8:y
+W:100:3:0
+I:FEAT | VIS | MARK | NFT_LOOK | NO_MAGIC | NO_OBJECT | PERM
+D:7:0:0:0:0:0:0:0
+F:2,field_action_door_store
+
+# Book Store
+N:42:Book Store
+G:9:o
+W:100:3:0
+I:FEAT | VIS | MARK | NFT_LOOK | NO_MAGIC | NO_OBJECT | PERM
+D:8:0:0:0:0:0:0:0
+F:2,field_action_door_store
+
+# Weaponmaster
+N:43:Weaponmaster
+G:+:r
+W:100:3:0
+I:FEAT | VIS | MARK | NFT_LOOK | NO_MAGIC | NO_OBJECT | PERM
+D:0:3:0:0:0:0:0:0
+F:2,field_action_door_build
+
+# Zymurgist
+N:44:Zymurgist
+G:+:b
+W:100:3:0
+I:FEAT | VIS | MARK | NFT_LOOK | NO_MAGIC | NO_OBJECT | PERM
+D:1:1:4:0:0:0:0:0
+F:2,field_action_door_build
+
+# Magesmith (weapon)
+N:45:Magesmith (weapons)
+G:+:w
+W:100:3:0
+I:FEAT | VIS | MARK | NFT_LOOK | NO_MAGIC | NO_OBJECT | PERM
+D:2:5:0:0:0:0:0:0
+F:2,field_action_door_build
+
+# Magesmith (armour)
+N:46:Magesmith (armor)
+G:+:s
+W:100:3:0
+I:FEAT | VIS | MARK | NFT_LOOK | NO_MAGIC | NO_OBJECT | PERM
+D:3:5:0:0:0:0:0:0
+F:2,field_action_door_build
+
+# Mutatalist
+N:47:Mutatalist
+G:+:R
+W:100:3:0
+I:FEAT | VIS | MARK | NFT_LOOK | NO_MAGIC | NO_OBJECT | PERM
+D:4:50:0:0:0:0:0:0
+F:2,field_action_door_build
+
+# Map Maker
+N:48:Map Maker
+G:+:g
+W:100:3:0
+I:FEAT | VIS | MARK | NFT_LOOK | NO_MAGIC | NO_OBJECT | PERM
+D:5:5:0:0:0:0:0:0
+F:2,field_action_door_build

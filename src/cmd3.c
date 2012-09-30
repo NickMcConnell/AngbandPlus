@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/08/12 11:20:50 $ */
 /* File: cmd3.c */
 
 /* Purpose: Inventory commands */
@@ -23,7 +22,7 @@ void do_cmd_inven(void)
 	char out_val[160];
 
 	/* Note that we are in "inventory" mode */
-	command_wrk = (USE_INVEN);
+	p_ptr->command_wrk = (USE_INVEN);
 
 	/* Save screen */
 	screen_save();
@@ -45,25 +44,24 @@ void do_cmd_inven(void)
 	prt(out_val, 0, 0);
 
 	/* Get a new command */
-	command_new = inkey();
+	p_ptr->command_new = inkey();
 
 	/* Load screen */
 	screen_load();
 
 
 	/* Process "Escape" */
-	if (command_new == ESCAPE)
+	if (p_ptr->command_new == ESCAPE)
 	{
 		/* Reset stuff */
-		command_new = 0;
-		command_gap = 50;
+		p_ptr->command_new = 0;
 	}
 
 	/* Process normal keys */
 	else
 	{
 		/* Hack -- Use "display" mode */
-		command_see = TRUE;
+		p_ptr->command_see = TRUE;
 	}
 }
 
@@ -76,7 +74,7 @@ void do_cmd_equip(void)
 	char out_val[160];
 
 	/* Note that we are in "equipment" mode */
-	command_wrk = (USE_EQUIP);
+	p_ptr->command_wrk = (USE_EQUIP);
 
 	/* Save the screen */
 	screen_save();
@@ -99,25 +97,23 @@ void do_cmd_equip(void)
 	prt(out_val, 0, 0);
 
 	/* Get a new command */
-	command_new = inkey();
+	p_ptr->command_new = inkey();
 
 	/* Restore the screen */
 	screen_load();
 
 
 	/* Process "Escape" */
-	if (command_new == ESCAPE)
+	if (p_ptr->command_new == ESCAPE)
 	{
 		/* Reset stuff */
-		command_new = 0;
-		command_gap = 50;
+		p_ptr->command_new = 0;
 	}
-
 	/* Process normal keys */
 	else
 	{
 		/* Enter "display" mode */
-		command_see = TRUE;
+		p_ptr->command_see = TRUE;
 	}
 }
 
@@ -140,7 +136,7 @@ static bool item_tester_hook_wear(object_type *o_ptr)
  */
 void do_cmd_wield(void)
 {
-	int i, item, slot;
+	int item, slot;
 
 	object_type forge;
 	object_type *q_ptr;
@@ -191,7 +187,7 @@ void do_cmd_wield(void)
 		return;
 	}
 
-	if (cursed_p(o_ptr) && wear_confirm &&
+	if (cursed_p(o_ptr) && confirm_wear &&
 	    (object_known_p(o_ptr) || (o_ptr->ident & IDENT_SENSE)))
 	{
 		char dummy[512];
@@ -205,21 +201,8 @@ void do_cmd_wield(void)
 			return;
 	}
 
-	/* Check if completed a quest */
-	for (i = 0; i < max_quests; i++)
-	{
-		if ((quest[i].type == QUEST_TYPE_FIND_ARTIFACT) &&
-		    (quest[i].status == QUEST_STATUS_TAKEN) &&
-		    (quest[i].k_idx == o_ptr->name1))
-		{
-			quest[i].status = QUEST_STATUS_COMPLETED;
-			msg_print("You completed your quest!");
-			msg_print(NULL);
-		}
-	}
-
 	/* Take a turn */
-	energy_use = 100;
+	p_ptr->energy_use = 100;
 
 	/* Get local object */
 	q_ptr = &forge;
@@ -267,7 +250,7 @@ void do_cmd_wield(void)
 	p_ptr->total_weight += q_ptr->weight;
 
 	/* Increment the equip counter by hand */
-	equip_cnt++;
+	p_ptr->equip_cnt++;
 
 	/* Where is the item now */
 	if (slot == INVEN_WIELD)
@@ -363,7 +346,7 @@ void do_cmd_takeoff(void)
 
 
 	/* Take a partial turn */
-	energy_use = 50;
+	p_ptr->energy_use = 50;
 
 	/* Take off the item */
 	(void)inven_takeoff(item, 255);
@@ -424,7 +407,7 @@ void do_cmd_drop(void)
 
 
 	/* Take a partial turn */
-	energy_use = 50;
+	p_ptr->energy_use = 50;
 
 	/* Drop (some of) the item */
 	inven_drop(item, amt);
@@ -471,7 +454,7 @@ void do_cmd_destroy(void)
 	cptr q, s;
 
 	/* Hack -- force destruction */
-	if (command_arg > 0) force = TRUE;
+	if (p_ptr->command_arg > 0) force = TRUE;
 
 
 	/* Get an item */
@@ -527,13 +510,13 @@ void do_cmd_destroy(void)
 #endif /* USE_SCRIPT */
 
 	/* Take a turn */
-	energy_use = 100;
+	p_ptr->energy_use = 100;
 
 	/* Can the player destroy the object? */
 	if (!can_player_destroy_object(o_ptr))
 	{
 		/* Don't take a turn */
-		energy_use = 0;
+		p_ptr->energy_use = 0;
 
 		/* Message */
 		msg_format("You cannot destroy %s.", o_name);
@@ -841,7 +824,7 @@ static void do_cmd_refill_lamp(void)
 
 
 	/* Take a partial turn */
-	energy_use = 50;
+	p_ptr->energy_use = 50;
 
 	/* Access the lantern */
 	j_ptr = &inventory[INVEN_LITE];
@@ -929,7 +912,7 @@ static void do_cmd_refill_torch(void)
 
 
 	/* Take a partial turn */
-	energy_use = 50;
+	p_ptr->energy_use = 50;
 
 	/* Access the primary torch */
 	j_ptr = &inventory[INVEN_LITE];
@@ -1356,8 +1339,8 @@ static void roff_top(int r_idx)
 	a2 = r_ptr->x_attr;
 
 	/* Hack -- fake monochrome */
-	if (!use_color) a1 = TERM_WHITE;
-	if (!use_color) a2 = TERM_WHITE;
+	if (!use_color || ironman_moria) a1 = TERM_WHITE;
+	if (!use_color || ironman_moria) a2 = TERM_WHITE;
 
 
 	/* Clear the top line */
@@ -1394,6 +1377,7 @@ static void roff_top(int r_idx)
  *   ^A (all monsters)
  *   ^U (all unique monsters)
  *   ^N (all non-unique monsters)
+ *   ^M (case insensitive name search)
  *
  * The responses may be sorted in several ways, see below.
  *
@@ -1414,6 +1398,8 @@ void do_cmd_query_symbol(void)
 	u16b	why = 0;
 	u16b	*who;
 
+	char    temp1[80] = "\0";
+	char    temp2[80] = "\0";
 
 	/* Get a character, or abort */
 	if (!get_com("Enter character to be identified: ", &sym)) return;
@@ -1440,6 +1426,12 @@ void do_cmd_query_symbol(void)
 		all = norm = TRUE;
 		strcpy(buf, "Non-unique monster list.");
 	}
+        else if (sym == KTRL('M'))
+        {
+                all = TRUE;
+                if (!get_string("Name:",temp1, 70)) temp1[0] = 0;
+                else sprintf(buf, "Monsters with a name \"%s\"", temp1);
+        }
 	else if (ident_info[i])
 	{
 		sprintf(buf, "%c - %s.", sym, ident_info[i] + 2);
@@ -1469,8 +1461,27 @@ void do_cmd_query_symbol(void)
 		/* Require unique monsters if needed */
 		if (uniq && !(r_ptr->flags1 & (RF1_UNIQUE))) continue;
 
+		/* Collect monsters with a name temp1 */
+                if (temp1[0])
+		{
+		  int xx;
+
+		  for (xx=0; temp1[xx] && xx<80; xx++)
+		  {
+		      if (isupper(temp1[xx])) temp1[xx]=tolower(temp1[xx]);
+		  }
+		  strcpy(temp2, r_name + r_ptr->name);
+
+		  for (xx=0; temp2[xx] && xx<80; xx++)
+		  {
+                      if (isupper(temp2[xx])) temp2[xx]=tolower(temp2[xx]);
+		  }
+		  
+		  if (strstr(temp2, temp1)) who[n++]=i;
+                }
+
 		/* Collect "appropriate" monsters */
-		if (all || (r_ptr->d_char == sym)) who[n++] = i;
+		else if (all || (r_ptr->d_char == sym)) who[n++] = i;
 	}
 
 	/* Nothing to recall */

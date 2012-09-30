@@ -38,45 +38,36 @@
 */
 
 /************************************************************************/
-/* Please define the following to suit each variant:			*/
-/* 									*/
-/* If variant is based upon Ang 281 : #define ANG281			*/
-/* If variant is based upon Ang 282 : #define ANG282			*/
-/* If variant is based upon Ang 283 : #define ANG283 *and*		*/
-/*	#define ANG282  						*/
-/*									*/
-/* Comment out all the unused ANG28x definitions!			*/
-/*									*/
-/* This is the 'developer' version, which means I've aimed more for 	*/
+/* Please define the following to suit each variant:							*/
+/* 																							*/
+/* If variant is based upon Ang 281 : #define ANG281							*/
+/* If variant is based upon Ang 282 : #define ANG282							*/
+/* If variant is based upon Ang 283 : #define ANG283 *and*					*/
+/*												  #define ANG282  						*/
+/*																								*/
+/* Comment out all the unused ANG28x definitions!								*/
+/*																								*/
+/* This is the 'developer' version, which means I've aimed more for 		*/
 /* convenience than for elegance; this file will compile with variants	*/
-/* based upon 281, 282 or 283.						*/
-/*									*/
+/* based upon 281, 282 or 283.														*/
+/*																								*/
 /* Note : You may need to define ZANGBAND for variants based upon Zang	*/
 /*        but more importantly, for AB tile support. As far as I know	*/
 /*        only Zang's variants support this, so you may need to change	*/
-/*        some #defines as/when this changes.				*/
+/*        some #defines as/when this changes.									*/
 /************************************************************************/
 
 /* What variant is this? Used in the highscore dump */
 
 /* Yep, Bablos, this is still a mess! ;) */
-#define VERTITLE "Zangband 2.2.8"
+#define VERTITLE "Zangband 2.5.2b"
 #define VERSION "Zangband"
-#define VERS "2.2.8"
-#define VARIANT "Zangband 2.2.8"
-
-
-/* Optional info block. Not sure whether this is a good idea or a silly one */
-
-static char infoblock[] = "$INFOBLOCK#VARIANT:"VERSION"#VERSION:"VERS"#MAINTAINER:Robert Ruehlmann#MAINMAIL:rr9@angband.org#AMIMAIN:Bablos#AMIMAIL:bablos@cableinet.co.uk#DATE:"__DATE__"##";
+#define VERS "2.5.2b"
+#define VARIANT "Zangband 2.5.2b"
 
 /* Main 'assign' needed. Kick2.0+ systems usually don't need it anyway */
-
 #define VERPATH "Zangband:"
 
-/* Note : There is much more to the PPC version than this #define */
-
-//#define PPCBAND					/* PPC WOS! XXX HACK WILL BE REMOVED SOON!!! */
 #define CGXSUPPORT					/* Define for RTG support. Leave on */
 //#define SANGBAND					/* Define if this is Sangband. */
 #define ZANGBAND						/* Define if this is Zangband. Zangband now has extra gfx */
@@ -89,6 +80,8 @@ static char infoblock[] = "$INFOBLOCK#VARIANT:"VERSION"#VERSION:"VERS"#MAINTAINE
 
 #ifndef __CEXTRACT__
 #include "angband.h"
+
+#include "vers.h"
 
 #ifndef __GNUC__
 #undef byte					/* Prevents conflicts with dos.h */
@@ -113,8 +106,6 @@ static char infoblock[] = "$INFOBLOCK#VARIANT:"VERSION"#VERSION:"VERS"#MAINTAINE
 #include <datatypes/datatypesclass.h>
 #include <datatypes/pictureclass.h>
 
-#include "vers.h"
-
 /* To prevent warnings... */
 #undef ID_BMHD
 #undef ID_BODY
@@ -132,32 +123,16 @@ static char infoblock[] = "$INFOBLOCK#VARIANT:"VERSION"#VERSION:"VERS"#MAINTAINE
 #include <libraries/iff.h>
 #include <libraries/gadtools.h>
 #include <libraries/reqtools.h>
-
-#ifdef PPCBAND
-#	include <inline/asl.h>
-#	include <inline/exec.h>
-#	include <inline/cybergraphics.h>
-#	include <inline/datatypes.h>
-#	include <inline/diskfont.h>
-#	include <inline/dos.h>
-#	include <inline/iff.h>
-#	include <inline/reqtools.h>
-#	include <inline/intuition.h>
-#	include <inline/graphics.h>
-#	include <inline/console.h>
-#	include <inline/gadtools.h>
-#else
-#	include <proto/asl.h>
-#	include <proto/exec.h>
-#	include <proto/datatypes.h>
-#	include <proto/diskfont.h>
-#	include <proto/dos.h>
-#	include <proto/intuition.h>
-#	include <proto/graphics.h>
-#	include <proto/console.h>
-#	include <proto/gadtools.h>
-#	include <proto/reqtools.h>
-#endif
+#include <proto/asl.h>
+#include <proto/exec.h>
+#include <proto/datatypes.h>
+#include <proto/diskfont.h>
+#include <proto/dos.h>
+#include <proto/intuition.h>
+#include <proto/graphics.h>
+#include <proto/console.h>
+#include <proto/gadtools.h>
+#include <proto/reqtools.h>
 
 #ifdef CGXSUPPORT
 #include <cybergraphx/cybergraphics.h>
@@ -177,7 +152,7 @@ static char infoblock[] = "$INFOBLOCK#VARIANT:"VERSION"#VERSION:"VERS"#MAINTAINE
 
 #define MAX_TERM_DATA 8
 
-/* Maximum length a filename (including a path) can reach. Somewhat arbitrary */
+/* Maximum length a filename (including a path) can reach. Somewhat arbitary */
 #define MAX_PATH_LENGTH		160
 
 /* How much memory to allocate for the blanked out mousepointer */
@@ -215,7 +190,7 @@ static char infoblock[] = "$INFOBLOCK#VARIANT:"VERSION"#VERSION:"VERS"#MAINTAINE
 #  undef DF_GFXW
 #  undef DF_GFXB
 #  define DF_GFXW 320
-#  define DF_GFXH 632
+#  define DF_GFXH 792
 #  define DF_GFXB 5
 #endif
 
@@ -223,14 +198,13 @@ static char infoblock[] = "$INFOBLOCK#VARIANT:"VERSION"#VERSION:"VERS"#MAINTAINE
 int GFXW, GFXH, GFXB;
 
 #define TOMW 512
-#define TOMH 168						/* Size of tombstone image */
+#define TOMH 168										/* Size of tombstone image */
 #define TOMB 4
 
 #define DE_MGFX "gfx/tiles.raw"					/*  8x8 tile image */
 #define AB_MGFX "gfx/tiles256.raw"				/* 16x16 tile image */
 
-#define DE_MGFX_CMAP "gfx/tiles.cmap"			/* Colour map for normal tiles */=
-
+#define DE_MGFX_CMAP "gfx/tiles.cmap"			/* Colour map for normal tiles */
 #define AB_MGFX_CMAP "gfx/tiles256.cmap"		/* Colour map for AB tiles */
 #define MTOM "gfx/tomb.raw"						/* Filename of tombstone image */
 #define WPRF "settings.prf"						/* Preferences file */
@@ -620,7 +594,7 @@ static void cursor_anim ( void );
 static int load_gfx ( void );
 static int conv_gfx ( void );
 static int size_gfx ( term_data *td );
-static void put_gfx ( struct RastPort *rp, int x, int y, int chr, int col);
+static void put_gfx ( struct RastPort *rp, int x, int y, int chr, int col );
 static int breakfunc(void);
 static int amiga_fail ( char *msg );
 static void amiga_map ( void );
@@ -649,7 +623,6 @@ void amiga_makepath ( char *name );
 void amiga_save_palette ( void );
 void amiga_load_palette ( void );
 void amiga_hs_to_ascii ( void );
-void amiga_hs_to_html(void);
 void amiga_user_name ( char *buf );
 void amiga_write_user_name ( char *name );
 static int get_p_attr ( void );
@@ -983,7 +956,7 @@ errr init_ami( void )
 	init_default_palette();
 	load_palette();
 
-	/* Font autoscaling, which ought to be in a function... not enough time. */
+	/* Font autoscaling, which ought to be in a function... not enough time... */
 	if (ts->autoscale)
 	{
 		struct TextAttr attr;
@@ -1128,7 +1101,7 @@ errr init_ami( void )
 		new_win.Title = NULL;
 		new_win.Screen = amiscr;
 		new_win.BitMap = NULL;
-		new_win.MinWidth = new_win.MinHeight = new_win.MaxWidth = new_win = MaxHeight = 0;
+		new_win.MinWidth = new_win.MinHeight = new_win.MaxWidth = new_win.MaxHeight = 0;
 		new_win.Type = CUSTOMSCREEN;
 
 		ts->win = OpenWindow( &new_win );
@@ -1308,7 +1281,9 @@ static int load_backpic(term_data *t, char *name)
 				/* Calculate colour... */
 				r = *colour_table++; g = *colour_table ++ ; b = *colour_table++;
 
-				pens[z] = alloc_pen(r,g,b);
+				pens[z] = alloc_pen( 	r,
+												g,
+												b);
 				z++;
 			}
 		}
@@ -1496,7 +1471,6 @@ static void init_default_palette(void)
 			angband_color_table[ i ][ 1 ] = ( default_colours[ i ] & 0xff0000 ) >> 16;
 			angband_color_table[ i ][ 2 ] = ( default_colours[ i ] & 0x00ff00 ) >> 8;
 			angband_color_table[ i ][ 3 ] = ( default_colours[ i ] & 0x0000ff );
-
 		}
 	}
 }
@@ -2410,8 +2384,7 @@ static char *handle_font(struct term_data *td, char *fontname)
 			scrattr = NULL;
 
 			/* Output error message */
-			sprintf(error, "PREFS:Unable to open font '%s/%d'.\n", fontname, fsize=
- );
+			sprintf(error, "PREFS:Unable to open font '%s/%d'.\n", fontname, fsize );
 			return error;
 		}
 	}
@@ -2711,9 +2684,7 @@ static errr amiga_xtra( int n, int v )
 		case TERM_XTRA_DELAY:
 
 			v *= 1000;
-#ifdef PPCBAND
-	WaitTime(0L, v);
-#else
+
 			/* SAS/C code. I have GNU code for this, but not included it yet */
 			timer(clock);
 			do
@@ -2723,7 +2694,6 @@ static errr amiga_xtra( int n, int v )
 				if (clock2[0] < clock[0])
 					break;
 			} while (mytime < v);
-#endif
 
 			return (0);
 
@@ -2815,7 +2785,6 @@ static void process_msg(int i,ULONG iclass, UWORD icode, UWORD iqual, APTR iaddr
 			nw = (data[i].ww - win->BorderRight - win->BorderLeft) / data[i].fw;
 			nh = (data[i].wh - win->BorderTop - win->BorderBottom) / data[i].fh;
 
-
 			// Don`t let user have huge windows
 			if (nh > MAX_TERM_VERT)
 				nh = MAX_TERM_VERT;
@@ -2859,7 +2828,6 @@ static void process_msg(int i,ULONG iclass, UWORD icode, UWORD iqual, APTR iaddr
 			else
 				Term_resize(nw,nh);
 
-			Term_redraw();
 			Term_fresh();
 
 			Term_activate(angband_term[ 0 ]);
@@ -3192,7 +3160,7 @@ void handle_rawkey( UWORD code, UWORD qual, APTR addr )
 		/* Direction key? (1,2,3,4,6,7,8,9) */
 		if (( code >= 0x1d && code <= 0x1f ) ||
 			 ( code == 0x2d || code == 0x2f ) ||
-			 ( code >= 0x && code <= 0x3f ))
+			 ( code >= 0x3d && code <= 0x3f ))
 		{
 			/* Shift/Ctrl/Alt/Amiga keys */
 			q = qual & 0xff;
@@ -4940,7 +4908,6 @@ void remap_bitmap( struct BitMap *srcbm, struct BitMap *dstbm, long *pens, int w
 		newrast.BitMap = dstbm;
 
 		tmpbm = alloc_bitmap( width, 1, depth_of_bitmap(dstbm), NULL, NULL );
-
 //		tmpbm->BytesPerRow = (((width + 15)>>4)<<1);
 //		tmprp = mainrast;
 		tmprp.Layer = NULL;
@@ -5120,7 +5087,7 @@ void amiga_redefine_colours( void )
 /*  Under OS1.3 (or if PROGDIR: is not available for some bizarre       */
 /*  reason), we'll use a game-specific assign (ie. 'Zangband:')         */
 /*                                                                      */
-/*  This is patched into the 'main.c' file at the moment. 		*/
+/*  This is patched into the 'main.c' file at the moment. 					*/
 /* -------------------------------------------------------------------- */
 
 void amiga_makepath( char *name )
@@ -5245,116 +5212,6 @@ void amiga_load_palette( void )
 }
 
 /* -------------------------------------------------------------------- */
-/*  amiga_hs_to_html( void )                                            */
-/*                                                                      */
-/*  Dumps the highscore table to the 'borg/scores.html' file.           */
-/*  just *too* hacky to document right now.                             */
-/* -------------------------------------------------------------------- */
-
-void amiga_hs_to_html(void)
-{
-	char filename[MAX_PATH_LENGTH];
-	char destfile[MAX_PATH_LENGTH];
-
-	char testchar[MAX_PATH_LENGTH];
-	char charname[50];
-
-	char temp[500];
-	struct high_score h;
-	int i;
-	FILE *f,*d;
-
-	int pr, pc, clev, mlev, cdun, mdun;
-	cptr user, gold, when, aged;
-
-	path_build(filename,MAX_PATH_LENGTH,ANGBAND_DIR_APEX,"scores.raw");
-	f = fopen(filename,"r");
-	if (!f)
-	{
-		amiga_show("Can't open highscore file!");
-		return;
-	}
-
-	path_build(destfile,MAX_PATH_LENGTH,ANGBAND_DIR_APEX,"scores.html");
-	d = fopen(destfile,"w");
-	if (!d)
-	{
-		amiga_show("Can't open destination file!");
-		fclose(f);
-		return;
-	}
-
-	/* Print header, and underline it*/
-
-	fprintf(d,"<html>\n<center>\n<table width=550");
-	fprintf(d," cellpadding=0 cellspacing=2 border=1>\n");
-	fprintf(d,"<tr><td colspan=3 align=center><b>\n");
-	sprintf(temp,"Highscore file for %s",VERSION);
-	fprintf(d,"%s\n",temp);
-	fprintf(d,"</b></td></tr>\n");
-
-	temp[ i = strlen(temp) ] = 0;
-
-	for (i = 0 ; i < MAX_HISCORES; i++)
-	{
-		if (!fread(&h,sizeof(h),1,f))
-			break;
-
-		/* Extract the race/class */
-		pr = atoi(h.p_r);
-		pc = atoi(h.p_c);
-
-	/* Extract the level info */
-	clev = atoi(h.cur_lev);
-	mlev = atoi(h.max_lev);
-	cdun = atoi(h.cur_dun);
-	mdun = atoi(h.max_dun);
-
-	/* Hack -- extract the gold and such */
-	for (user = h.uid; isspace(*user); user++) /* loop */;
-	for (when = h.day; isspace(*when); when++) /* loop */;
-	for (gold = h.gold; isspace(*gold); gold++) /* loop */;
-	for (aged = h.turns; isspace(*aged); aged++) /* loop */;
-
-	sprintf(temp, "%s.txt", h.who);
-	strcpy(charname, temp);
-	path_build(testchar,MAX_PATH_LENGTH,ANGBAND_DIR_USER,temp);
-
-	/* Dump some info */
-	sprintf(temp,"<tr><td width=100 align=center><font size=-1>\n%d\n</font></td>\n",i+1);
-	fprintf(d, "%s",temp);
-	sprintf(temp,"<td width=100 align=center><font size=-1>\n%s\n</font></td>\n",h.pts);
-	fprintf(d, "%s",temp);
-
-	if (access(testchar, F_OK)==0)
-		sprintf(temp,"<td width=350 align=left><font size=-1>\n<a href\"%s\">%s</a> the %s %s, Level %d<br>",charname, h.who, race_info[pr].title, class_info[pc].title, clev);
-	else
-		sprintf(temp,"<td width=350 align=left><font size=-1>\n%s the %s %s, Level %d<br>",h.who, race_info[pr].title, class_info[pc].title, clev);
-
-	fprintf(d, "%s\n",temp);
-
-	sprintf(temp, "Killed by %s on %s %d", h.how, "Dungeon Level", cdun);
-
-	if (!cdun) /* -KMW- */
-		sprintf(temp, "Killed by %s in the Town", h.how);
-
-	/* Append a "maximum level" */
-	if (mdun > cdun) strcat(temp, format(" (Max %d)", mdun));
-
-	/* Dump the info */
-	fprintf(d, "%s<br>\n",temp);
-
-	/* And still another line of info */
-	sprintf(temp, "(User %s, Date %s, Gold %s, Turn %s)", user, when, gold, aged);
-
-	fprintf(d, "%s\n</font></td></tr>\n",temp);
-
-	}
-	fclose(d);
-	fclose(f);
-}
-
-/* -------------------------------------------------------------------- */
 /*  amiga_hs_to_ascii( void )                                           */
 /*                                                                      */
 /*  Dumps the highscore table to the 'apex/scores.txt' file. This is    */
@@ -5425,15 +5282,15 @@ void amiga_hs_to_ascii(void)
 
 	/* Dump some info */
 #ifdef KANGBAND
-	sprintf(temp, "%.%9s  %s the %s %s, Level %d",
+	sprintf(temp, "%3d.%9s  %s the %s %s, Level %d",
 	        i + 1, h.pts, h.who,
 	        race_info[pr].title, class_info[pc].title,
 	        clev);
 #else
-/*	sprintf(temp, "%.%9s  %s the %s %s",
+/*	sprintf(temp, "%3d.%9s  %s the %s %s",
 	        i + 1, h.pts, h.who,
 	        race_info[pr].title,magic_info[pc].title); */
-	sprintf(temp, "%.%9s  %s the %s %s, Level %d",
+	sprintf(temp, "%3d.%9s  %s the %s %s, Level %d",
 	        i + 1, h.pts, h.who,
 	        race_info[pr].title, class_info[pc].title,
 	        clev);
@@ -5469,8 +5326,7 @@ void amiga_hs_to_ascii(void)
 }
 
 /* Provides name of the last used save file in 'buf', by reading
-   'user/data-ami.prf'. This is a hack, but works for most player names.
-
+   'user/data-ami.prf'. This is a hack, but works for most player names. 
    Insert in main.c */
 void amiga_user_name( char *buf )
 {
@@ -5504,14 +5360,14 @@ void amiga_user_name( char *buf )
 }
 
 /* -------------------------------------------------------------------- */
-/*  amiga_write_user_name( char *name )					*/
-/*																						*/
-/*  Writes the 'name' argument to the file 'user/data-ami.prf'.	*/
+/*  amiga_write_user_name( char *name )											*/
+/*																								*/
+/*  Writes the 'name' argument to the file 'user/data-ami.prf'.			*/
 /*  Generally, the 'name' argument will be 'player_name' i.e. 'Gandalf' */
-/*  This is used in the 'save_player()' routine (see save.c) to		*/
-/*  automagically load the last used player... 				*/
-/* 									*/
-/*  Note that this has to be explicitly added to save.c		*/
+/*  This is used in the 'save_player()' routine (see save.c) to			*/
+/*  automagically load the last used player... 									*/
+/* 																							*/
+/*  Note that this has to be explicitly added to save.c						*/
 /* -------------------------------------------------------------------- */
 
 void amiga_write_user_name( char *name )

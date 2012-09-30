@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/09/21 11:29:18 $ */
 /* File: mspells2.c */
 
 /* Purpose: Monster spells (attack monster) */
@@ -103,10 +102,10 @@ bool monst_spell_monst(int m_idx)
 	/* Not allowed to cast spells */
 	if (!chance) return (FALSE);
 
-	if (rand_int(100) >= chance) return (FALSE);
+	if (randint0(100) >= chance) return (FALSE);
 		
 	/* Stop if player is dead or gone */
-	if (!alive || death) return (FALSE);
+	if (!p_ptr->playing || p_ptr->is_dead) return (FALSE);
 
 	/* Handle "leaving" */
 	if (p_ptr->leaving) return (FALSE);
@@ -143,7 +142,7 @@ bool monst_spell_monst(int m_idx)
 		f6 = r_ptr->flags6;
 
 		/* Disallow blink unless close */
-		if ((distance(m_ptr->fy, m_ptr->fx, y, x) > 1) || !rand_int(3)) f6 &= ~(RF6_BLINK);
+		if ((distance(m_ptr->fy, m_ptr->fx, y, x) > 1) || !randint0(3)) f6 &= ~(RF6_BLINK);
 
 		/* Disallow teleport unless wounded */
 		if (m_ptr->hp > m_ptr->maxhp / 2) f6 &= ~(RF6_TPORT);
@@ -165,7 +164,7 @@ bool monst_spell_monst(int m_idx)
 		}
 
 		/* Prevent collateral damage */
-		if (friendly && (distance(py, px, y, x) <= rad))
+		if (friendly && (distance(p_ptr->py, p_ptr->px, y, x) <= rad))
 		{
 			f4 &= ~(RF4_BALL_MASK);
 			f5 &= ~(RF5_BALL_MASK);
@@ -185,7 +184,7 @@ bool monst_spell_monst(int m_idx)
 		/* Hack -- allow "desperate" spells */
 		if ((r_ptr->flags2 & RF2_SMART) &&
 			(m_ptr->hp < m_ptr->maxhp / 10) &&
-			(rand_int(100) < 50))
+			(randint0(100) < 50))
 		{
 			/* Require intelligent spells */
 			f4 &= (RF4_INT_MASK);
@@ -230,7 +229,7 @@ bool monst_spell_monst(int m_idx)
 		monster_desc(ddesc, m_ptr, 0x88);
 
 		/* Choose a spell to cast */
-		thrown_spell = spell[rand_int(num)];
+		thrown_spell = spell[randint0(num)];
 
 		see_t = t_ptr->ml;
 		see_either = (see_m || see_t);
@@ -1206,7 +1205,7 @@ bool monst_spell_monst(int m_idx)
 					}
 				}
 
-				monst_breath_monst(m_idx, y, x, GF_ACID, randint(rlev * 3) + 15, 2, FALSE);
+				monst_breath_monst(m_idx, y, x, GF_ACID, randint1(rlev * 3) + 15, 2, FALSE);
 
 				break;
 			}
@@ -1235,7 +1234,7 @@ bool monst_spell_monst(int m_idx)
 					}
 				}
 
-				monst_breath_monst(m_idx, y, x, GF_ELEC, randint(rlev * 3) / 2 + 8, 2, FALSE);
+				monst_breath_monst(m_idx, y, x, GF_ELEC, randint1(rlev * 3) / 2 + 8, 2, FALSE);
 
 				break;
 			}
@@ -1264,7 +1263,7 @@ bool monst_spell_monst(int m_idx)
 					}
 				}
 
-				monst_breath_monst(m_idx, y, x, GF_FIRE, randint(rlev * 7 / 2) + 10, 2, FALSE);
+				monst_breath_monst(m_idx, y, x, GF_FIRE, randint1(rlev * 7 / 2) + 10, 2, FALSE);
 
 				break;
 			}
@@ -1293,7 +1292,7 @@ bool monst_spell_monst(int m_idx)
 					}
 				}
 
-				monst_breath_monst(m_idx, y, x, GF_COLD, randint(rlev * 3) / 2 + 10, 2, FALSE);
+				monst_breath_monst(m_idx, y, x, GF_COLD, randint1(rlev * 3) / 2 + 10, 2, FALSE);
 
 				break;
 			}
@@ -1381,7 +1380,7 @@ bool monst_spell_monst(int m_idx)
 					}
 				}
 
-				monst_breath_monst(m_idx, y, x, GF_WATER, randint(rlev * 5 / 2) + 50, 4, FALSE);
+				monst_breath_monst(m_idx, y, x, GF_WATER, randint1(rlev * 5 / 2) + 50, 4, FALSE);
 
 				break;
 			}
@@ -1448,7 +1447,7 @@ bool monst_spell_monst(int m_idx)
 			case 128+9:
 			{
 				/* Attack power */
-				int power = (randint(rlev) / 2) + 1;
+				int power = (randint1(rlev) / 2) + 1;
 
 				if (see_m)
 				{
@@ -1499,7 +1498,7 @@ bool monst_spell_monst(int m_idx)
 				/* Attempt a saving throw */
 				if ((tr_ptr->flags1 & RF1_UNIQUE) ||
 					 (tr_ptr->flags3 & RF3_NO_CONF) ||
-					 (tr_ptr->level > randint(rlev * 3) / 2))
+					 (tr_ptr->level > randint1(rlev * 3) / 2))
 				{
 					/* No obvious effect */
 					if (see_both)
@@ -1520,7 +1519,7 @@ bool monst_spell_monst(int m_idx)
 						msg_format("%^s is blasted by psionic energy.", t_name);
 					}
 
-					t_ptr->confused += rand_int(4) + 4;
+					t_ptr->confused += randint0(4) + 4;
 
 					mon_take_hit_mon(t_idx, damroll(8, 8), &fear, " collapses, a mindless husk.");
 				}
@@ -1541,7 +1540,7 @@ bool monst_spell_monst(int m_idx)
 				/* Attempt a saving throw */
 				if ((tr_ptr->flags1 & RF1_UNIQUE) ||
 					 (tr_ptr->flags3 & RF3_NO_CONF) ||
-					 (tr_ptr->level > randint(rlev * 3) / 2))
+					 (tr_ptr->level > randint1(rlev * 3) / 2))
 				{
 					/* No obvious effect */
 					if (see_both)
@@ -1562,9 +1561,9 @@ bool monst_spell_monst(int m_idx)
 						msg_format("%^s is blasted by psionic energy.", t_name);
 					}
 
-					t_ptr->confused += rand_int(4) + 4;
-					t_ptr->mspeed -= rand_int(4) + 4;
-					t_ptr->stunned += rand_int(4) + 4;
+					t_ptr->confused += randint0(4) + 4;
+					t_ptr->mspeed -= randint0(4) + 4;
+					t_ptr->stunned += randint0(4) + 4;
 
 					mon_take_hit_mon(t_idx, damroll(12, 15), &fear, " collapses, a mindless husk.");
 				}
@@ -1589,7 +1588,7 @@ bool monst_spell_monst(int m_idx)
 					}
 				}
 
-				if (tr_ptr->level > randint(rlev * 3) / 2)
+				if (tr_ptr->level > randint1(rlev * 3) / 2)
 				{
 					if (see_both) msg_format("%^s resists!", t_name);
 				}
@@ -1618,7 +1617,7 @@ bool monst_spell_monst(int m_idx)
 					}
 				}
 
-				if (tr_ptr->level > randint(rlev * 3) / 2)
+				if (tr_ptr->level > randint1(rlev * 3) / 2)
 				{
 					if (see_both) msg_format("%^s resists!", t_name);
 				}
@@ -1647,7 +1646,7 @@ bool monst_spell_monst(int m_idx)
 					}
 				}
 
-				if (tr_ptr->level > randint(rlev * 3) / 2)
+				if (tr_ptr->level > randint1(rlev * 3) / 2)
 				{
 					if (see_both) msg_format("%^s resists!", t_name);
 				}
@@ -1676,7 +1675,7 @@ bool monst_spell_monst(int m_idx)
 					}
 				}
 
-				if (tr_ptr->level > randint(rlev * 3) / 2)
+				if (tr_ptr->level > randint1(rlev * 3) / 2)
 				{
 					if (see_both) msg_format("%^s resists!", t_name);
 				}
@@ -1839,7 +1838,7 @@ bool monst_spell_monst(int m_idx)
 				}
 
 				monst_bolt_monst(m_idx, y, x, GF_MANA,
-					randint(rlev * 7 / 2) + 50);
+					randint1(rlev * 7 / 2) + 50);
 
 				break;
 			}
@@ -1926,7 +1925,7 @@ bool monst_spell_monst(int m_idx)
 				{
 					if (see_t) msg_format("%^s refuses to be frightened.", t_name);
 				}
-				else if (tr_ptr->level > randint(rlev * 3) / 2)
+				else if (tr_ptr->level > randint1(rlev * 3) / 2)
 				{
 					if (see_t) msg_format("%^s refuses to be frightened.", t_name);
 				}
@@ -1934,7 +1933,7 @@ bool monst_spell_monst(int m_idx)
 				{
 					if (!t_ptr->monfear) fear = TRUE;
 
-					t_ptr->monfear += rand_int(4) + 4;
+					t_ptr->monfear += randint0(4) + 4;
 				}
 
 				wake_up = TRUE;
@@ -1963,7 +1962,7 @@ bool monst_spell_monst(int m_idx)
 				{
 					if (see_t) msg_format("%^s is unaffected.", t_name);
 				}
-				else if (tr_ptr->level > randint(rlev * 3) / 2)
+				else if (tr_ptr->level > randint1(rlev * 3) / 2)
 				{
 					if (see_t) msg_format("%^s is unaffected.", t_name);
 				}
@@ -1971,7 +1970,7 @@ bool monst_spell_monst(int m_idx)
 				{
 					if (see_t) msg_format("%^s is blinded!", t_name);
 
-					t_ptr->confused += 12 + (byte)rand_int(4);
+					t_ptr->confused += 12 + (byte)randint0(4);
 				}
 
 				wake_up = TRUE;
@@ -1998,7 +1997,7 @@ bool monst_spell_monst(int m_idx)
 				{
 					if (see_t) msg_format("%^s disbelieves the feeble spell.", t_name);
 				}
-				else if (tr_ptr->level > randint(rlev * 3) / 2)
+				else if (tr_ptr->level > randint1(rlev * 3) / 2)
 				{
 					if (see_t) msg_format("%^s disbelieves the feeble spell.", t_name);
 				}
@@ -2006,7 +2005,7 @@ bool monst_spell_monst(int m_idx)
 				{
 					if (see_t) msg_format("%^s seems confused.", t_name);
 
-					t_ptr->confused += 12 + (byte)rand_int(4);
+					t_ptr->confused += 12 + (byte)randint0(4);
 				}
 
 				wake_up = TRUE;
@@ -2034,7 +2033,7 @@ bool monst_spell_monst(int m_idx)
 				{
 					if (see_t) msg_format("%^s is unaffected.", t_name);
 				}
-				else if (tr_ptr->level > randint(rlev * 3) / 2)
+				else if (tr_ptr->level > randint1(rlev * 3) / 2)
 				{
 					if (see_t) msg_format("%^s is unaffected.", t_name);
 				}
@@ -2070,7 +2069,7 @@ bool monst_spell_monst(int m_idx)
 				{
 					if (see_t) msg_format("%^s is unaffected.", t_name);
 				}
-				else if (tr_ptr->level > randint(rlev * 3) / 2)
+				else if (tr_ptr->level > randint1(rlev * 3) / 2)
 				{
 					if (see_t) msg_format("%^s is unaffected.", t_name);
 				}
@@ -2078,7 +2077,7 @@ bool monst_spell_monst(int m_idx)
 				{
 					if (see_t) msg_format("%^s is paralyzed!", t_name);
 
-					t_ptr->stunned += randint(4) + 4;
+					t_ptr->stunned += randint1(4) + 4;
 				}
 
 				wake_up = TRUE;
@@ -2142,11 +2141,11 @@ bool monst_spell_monst(int m_idx)
 				}
 				else
 				{
-					if ((r_ptr->level + randint(20)) >
-						(tr_ptr->level + 10 + randint(20)))
+					if ((r_ptr->level + randint1(20)) >
+						(tr_ptr->level + 10 + randint1(20)))
 					{
 						t_ptr->hp = t_ptr->hp -
-						  (((s32b)((65 + randint(25)) * t_ptr->hp)) / 100);
+						  (((s32b)((65 + randint1(25)) * t_ptr->hp)) / 100);
 
 						if (t_ptr->hp < 1) t_ptr->hp = 1;
 					}
@@ -2243,7 +2242,7 @@ bool monst_spell_monst(int m_idx)
 					}
 				}
 
-				if (!m_ptr->invulner) m_ptr->invulner = randint(4) + 4;
+				if (!m_ptr->invulner) m_ptr->invulner = randint1(4) + 4;
 
 				break;
 			}
@@ -2322,7 +2321,7 @@ bool monst_spell_monst(int m_idx)
 
 						resists_tele = TRUE;
 					}
-					else if (tr_ptr->level > randint(100))
+					else if (tr_ptr->level > randint1(100))
 					{
 						if (see_t)
 						{
@@ -2928,7 +2927,7 @@ bool monst_spell_monst(int m_idx)
 		}
 
 		/* Always take note of monsters that kill you */
-		if (death && (r_ptr->r_deaths < MAX_SHORT))
+		if (p_ptr->is_dead && (r_ptr->r_deaths < MAX_SHORT))
 		{
 			r_ptr->r_deaths++;
 		}

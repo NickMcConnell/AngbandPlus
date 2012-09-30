@@ -93,57 +93,26 @@ denies its intention to live up to this perception.
 ***** <Web>
 === Zangband on the Web ===
 
+--- zangband.org ---
 
---- Thangorodrim ---
+Zangband.org is the official Zangband website. It contains links to the
+latest source code and binary downloads as well as documentation,
+spoilers and other useful and fun zangband-related pages.
 
-Robert Ruehlmann, the DevTeam project Leader maintains, the official
-Zangband website - Thangorodrim (http://thangorodrim.angband.org. It
-includes information on where to download the Zangband source code and
-current executables for most popular operating systems as well as
-information on current development issues such as future plans, bug
-lists, etc. Thangorodrim is also an excellent site for information on
-Angband itself and other variants of Angband. There are also links to
-many other Angband and Zangband related sites.
+--- Sourceforge.net ---
 
-
---- Daily Snapshots ---
-
-This website (http://matrix.crosswinds.net/~dailyzangband/) contains
-downloads of the current source code the DevTeam is working on. It is
-updated daily at approximately 04:00 GMT. The source is untested and it
-may not compile. Also available are logs showing what has been changed
-in the last 24 hours and in the last month.
-
+The DevTeam recently moved its cvs repository to sourceforge.net. This
+also allows us to make use of sourceforge.net's excellent utilities
+including bug tracking, 3rd-party patch submission, mailing lists, etc.
+If you want to follow zangband's development closely, you should get
+a user account with sourceforge and visit our project site located at
+http://sourceforge.net/projects/zangband/ frequently.
 
 --- FTP Sites ---
 
 Zangband sources and executables are uploaded regularly to the official
-Angband ftp site (ftp://export.andrew.cmu.edu/angband/). Links to the
-files are available at Thangorodrim but you may also wish to visit the
-site directly. Various mirror sites exist, the most popular of which is
-(ftp://ftp.sunset.se/pub/games/Angband/).
-
-
---- The Zangband Development Mailing List ---
-
-The Zangband mailing list is for discussion on Zangband development
-issues and is hosted at ONEList's website (http://onelist.com/). The
-mailing list probably represents the quickest method of getting the
-DevTeam's attention and is an ideal forum for posting your ideas and
-bug reports. 
-
-You can send your ideas and bug reports to the mailing list by mailing
-to 'zangband@onelist.com'. If you wish to join the mailing list, send
-an e-mail to 'zangband-subscribe@onelist.com'.
-
-
---- The Zangband Knowledge Base ---
-
-Maintained by John I'anson-Holton, the Zangband Knowledge Base 
-(http://home4.pacific.net.sg/~jianson/) is, or will be, the repository
-of the official Zangband documentation on the web. Once completed,
-downloads of the documents in various formats will be made available
-here.
+Angband ftp site (ftp://clockwork.dementia.org/angband/). Zangband
+files are located in the ./Variant/ZAngband/ subdirectoy.
 
 
 --- ZangbandTk ---
@@ -169,9 +138,8 @@ subject heading so people know your question is about Zangband.
 
 --- #Angband IRC Chat ---
 
-Join the #Angband IRC channel located at 'http://www.othernet.org/'.
-Most of the DevTeam are regulars and sometimes we're even talking about
-Zangband!!
+Join the #Angband IRC channel located at irc.worldirc.org. Most of the
+DevTeam are regulars and sometimes we're even talking about Zangband!!
 
 
 ***** <VersionNumber>
@@ -188,7 +156,7 @@ likely to contain bugs of varying significance.
 Original   : (??)
 Updated    : (??)
 Updated    : Zangband DevTeam
-Last update: January 13, 2000
+Last update: February 19, 2001
 
 
 ***** Begin Hyperlinks

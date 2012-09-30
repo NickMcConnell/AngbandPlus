@@ -36,7 +36,8 @@ OBJS=\
 	xtra1.obj \
 	wizard2.obj \
 	wizard1.obj \
-	wild.obj \
+	wild1.obj \
+	wild2.obj \
 	variable.obj \
 	util.obj \
 	tables.obj \
@@ -261,8 +262,8 @@ WIZARD1_C=\
 wizard1.obj: $(WIZARD1_C) wizard1.c
 	$(CC) -c $(CFLAGS) wizard1.c
 
-# Build WILD.C
-WILD_C=\
+# Build WILD1.C
+WILD1_C=\
 	angband.h\
 	h-basic.h\
 	h-config.h\
@@ -278,9 +279,34 @@ WILD_C=\
 	defines.h\
 	types.h\
 	externs.h\
+	wild.h\
 
-wild.obj: $(WILD_C) wild.c
-	$(CC) -c $(CFLAGS) wild.c
+wild1.obj: $(WILD1_C) wild1.c
+	$(CC) -c $(CFLAGS) wild1.c
+
+# Build WILD2.C
+WILD2_C=\
+	angband.h\
+	h-basic.h\
+	h-config.h\
+	h-system.h\
+	h-type.h\
+	h-define.h\
+	z-util.h\
+	z-virt.h\
+	z-form.h\
+	z-rand.h\
+	z-term.h\
+	z-config.h\
+	defines.h\
+	types.h\
+	externs.h\
+	wild.h\
+	grid.h\
+
+wild2.obj: $(WILD2_C) wild2.c
+	$(CC) -c $(CFLAGS) wild2.c
+
 
 # Build VARIABLE.C
 VARIABLE_C=\

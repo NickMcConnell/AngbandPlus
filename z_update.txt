@@ -2,6 +2,79 @@ This is a document file listing the changes in Zangband (compared to
 the standard Angband 2.8.1.) No long explanations, just a list. See
 code for details. In reversed chronological order (more or less):
 
+ZAngband 2.5.3:
+- Added roads between the towns to the wilderness.
+- Added lakes (of various kinds) to the wilderness.
+- Enchanted ammo is now cheaper.
+- Tweaked the enhanced damage dice of weapons.
+- Fixed a bug that allowed monsters to walk through pillars.
+- Fixed a bug with random quest rewards.
+- Fixed a problem with 'Vanila town' mode and the dungeon 'M'ap.
+- Light carried by monsters is no longer visible if the player is blind.
+- Toned down some of the nastier traps.
+- Improved handling of the bigscreen feature in the Windows port.
+- Updated the bigscreen code to be simpler and less "hack'ish".
+- Added some new 16x16 monster and terrain tiles.
+- Reduced DSM breath damage by one-third.
+- You can now press 'S' while choosing your magic realms to restart
+  the birth process.
+- *Identifying* a book (or eXamining it in a store) will now print out
+  a list of it's spells.
+- Amberites can no longer resurrect themselves via their curse.
+- Chopping down trees no longer creates snow covered terrain.
+- Caverns and lakes in the dungeon are less common.
+- The "bright flash of light" message is now only printed if a trap is
+  destroyed.
+- Improved the message given when the game is started with the '-?' option.
+- The "fetch" command no longer can get artifacts from afar.
+- Changed the wand stacking code to be more intelligent.  It now keeps
+  track of the total number of used charges in a stack.  You sell / recharge
+  the wand with the smallest number of charges.
+- Large changes to how objects are created and stored within the game:
+  Ego items now use the level / rarity in e_info.txt.
+  The object selection function is much more efficient.
+  Monsters drop "themed" objects - by picking kills, you can select what type
+  of items you get.
+  Changed the distribution of items in the dungeon.  There should be much
+  less junk created now.  Monsters drop less items, but the average
+  quality of drop will be higher.
+  "good" and "great" have changed meaning - they are now level offsets.
+  Added three new pseudo id flavors.  "bad", "dubious" and "tainted"
+  Cursed items in the dungeon can have good properties.
+  The rarity graph in wizard mode is now correct.
+  Disabled the autodestroy worthless items option.  This shouldn't be needed
+  now that worthless items are rare.    
+- Added many more lines for the speaking uniques.
+- Chests use "themed similar" objects like [O].
+- *destruction* now destroys fields properly.
+- Creeping adamantite coins are now green just like the coins and armour.
+- Fiddled with the probabilities of vaults and unusual rooms.
+- There are less arrows in a pile.
+- Turned fields on in the wilderness.
+- Implemented stores and buildings as fields.
+- Changed the options code to be more like Angband.
+- Major cleanup of global variables - most are moved to player_type.
+- Added Ed Cogburn's Tombstone patch.
+- Tweaked the stats or descriptions of many monsters.
+- Removed virtues from the '~' menu.  Option 7 still works though.
+- Added an ironman_moria option.  The good old days.
+- Mindcrafters start with a dagger instead of a short sword.
+- Swapped first two mindcrafter abilities.
+- Unidentified wands stack now.
+- Using an artifact creation scroll is much less risky.
+- Merged makefile.lsl into makefile.std
+- Added context-sensitive help for the option screen.
+- Randomly sized cities are created in the wilderness.
+- Updated main-mac-carbon.c so that it actually compiles.
+- Rangers get one more extra shot.
+- Toned down speed increase of activating items. Staves always use 100
+  energy.
+- Added some of the more useful "new" buildings in 2.4.0
+- Changed how word of recall works.  You can only recall into the dungeon
+  when you are standing in a town with stairs.
+- Added a new building type - the map maker.
+- Removed virtues from the chardump.
+
 ZAngband 2.5.2b:
 -The "Good luck" and "Bad luck" mutations no longer affect unweildable
  items.  The "Good luck" mutation can no longer be abused with memory

@@ -224,7 +224,7 @@ static XImage *ReadBMP(Display *dpy, char *Name)
 
 	int i, j;
 
-	int x, y;
+	u16b x, y;
 
 	unsigned long clr_pixels[256];
 
@@ -781,9 +781,7 @@ static XImage *ResizeImageSmooth(Display *dpy, XImage *Im,
 
 
 /*
- * Resize an image. XXX XXX XXX
- *
- * Also appears in "main-xaw.c".
+ * Resize an image.
  */
 static XImage *ResizeImage(Display *dpy, XImage *Im,
                            int ix, int iy, int ox, int oy)

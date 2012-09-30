@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 2000/08/08 12:10:26 $ */
 /* File: main-dos.c */
 
 /*
@@ -128,6 +127,8 @@ struct term_data
 	int font_hgt;
 
 	FONT *font;
+
+	bool uses_grx_font;
 
 #ifdef USE_GRAPHICS
 
@@ -477,12 +478,17 @@ static void Term_xtra_dos_react(void)
 	 */
 	for (i = 0; i < 16; i++)
 	{
+		RGB color;
+
 		/* Extract desired values */
 		char rv = angband_color_table[i][1] >> 2;
 		char gv = angband_color_table[i][2] >> 2;
 		char bv = angband_color_table[i][3] >> 2;
 
-		RGB color = { rv,  gv,  bv  };
+		/* Set the colors */
+		color.r = rv;
+		color.g = gv;
+		color.b = bv;
 
 		set_color(COLOR_OFFSET + i, &color);
 	}
@@ -550,7 +556,7 @@ static void Term_xtra_dos_react(void)
 	/*
 	 * Initialize the window backgrounds
 	 */
-	for (i = 0; i < 8; i++)
+	for (i = 0; i < MAX_TERM_DATA; i++)
 	{
 		td = &data[i];
 
@@ -680,9 +686,9 @@ static errr Term_xtra_dos(int n, int v)
 			if (!use_sound) return (0);
 
 #ifdef USE_MOD_FILES
-			if (song_number && (midi_pos == -1) && !is_mod_playing())
+			if (song_number && (midi_pos < 0) && !is_mod_playing())
 #else /* USE_MOD_FILES */
-			if (song_number && (midi_pos == -1))
+			if (song_number && (midi_pos < 0))
 #endif /* USE_MOD_FILES */
 			{
 				if (song_number > 1)
@@ -690,7 +696,7 @@ static errr Term_xtra_dos(int n, int v)
 					/* Get a *new* song at random */
 					while (1)
 					{
-						n = randint(song_number);
+						n = randint1(song_number);
 						if (n != current_song) break;
 					}
 					current_song = n;
@@ -954,7 +960,7 @@ static errr Term_user_dos(int n)
 
 				/* Prompt */
 				prt("Command: Screen Resolution", 1, 0);
-				prt("Restart Angband to get the new screenmode.", 3, 0);
+				prt(format("Restart %s to get the new screenmode.", VERSION_NAME), 3, 0);
 
 				/* Get a list of the available presets */
 				while (1)
@@ -1121,7 +1127,7 @@ static errr Term_text_dos(int x, int y, int n, byte a, const char *cp)
 
 	int x1, y1;
 
-	char text[257];
+	unsigned char text[257];
 
 	/* Location */
 	x1 = x * td->tile_wid + td->x;
@@ -1268,7 +1274,18 @@ static void Term_nuke_dos(term *t)
 	term_data *td = (term_data*)(t->data);
 
 	/* Free the terminal font */
-	if (td->font) destroy_font(td->font);
+	if (td->font)
+	{
+		if (td->uses_grx_font)
+		{
+			free(td->font->dat.dat_prop);
+			free(td->font);
+		}
+		else
+		{
+			destroy_font(td->font);
+		}
+	}
 
 #ifdef USE_GRAPHICS
 
@@ -1336,8 +1353,8 @@ static void dos_quit_hook(cptr str)
 {
 	int i;
 
-	/* Destroy sub-windows */
-	for (i = MAX_TERM_DATA - 1; i >= 1; i--)
+	/* Destroy windows */
+	for (i = MAX_TERM_DATA - 1; i >= 0; i--)
 	{
 		/* Unused */
 		if (!angband_term[i]) continue;
@@ -1635,9 +1652,6 @@ static bool init_windows(void)
 
 	char buf[128];
 
-	int rows;
-	int cols;
-
 	/* Section name */
 	sprintf(section, "Mode-%d", resolution);
 
@@ -1645,7 +1659,7 @@ static bool init_windows(void)
 	num_windows = get_config_int(section, "num_windows", 1);
 
 	/* Paranoia */
-	if (num_windows > 8) num_windows = 8;
+	if (num_windows > MAX_TERM_DATA) num_windows = MAX_TERM_DATA;
 
 	/* Init the terms */
 	for (i = 0; i < num_windows; i++)
@@ -1664,29 +1678,8 @@ static bool init_windows(void)
 		td->y = get_config_int(section, "y", 0);
 
 		/* Rows and cols of term */
-		rows = get_config_int(section, "rows", 24);
-		cols = get_config_int(section, "cols", 80);
-
-		/* Paranoia */
-		if (rows > 256) rows = 256;
-		if (cols > 256) cols = 256;
-
-		/* The main window must be at least 80x24 */
-		if (i == 0)
-		{
-			if (rows < 24) rows = 24;
-			if (cols < 80) cols = 80;
-		}
-		else
-		{
-			/* Other windows can be as small as 1x1 */
-			if (rows < 1) rows = 1;
-			if (cols < 1) cols = 1;
-		}
-
-		/* Configure the term */
-		td->rows = rows;
-		td->cols = cols;
+		td->rows = get_config_int(section, "rows", 24);
+		td->cols = get_config_int(section, "cols", 80);
 
 		/* Tile size */
 		td->tile_wid = get_config_int(section, "tile_wid", 8);
@@ -1710,6 +1703,8 @@ static bool init_windows(void)
 			{
 				quit_fmt("Error reading font file '%s'", filename);
 			}
+
+			td->uses_grx_font = TRUE;
 		}
 
 		/* Load a "*.dat" file */
@@ -1739,19 +1734,6 @@ static bool init_windows(void)
 		/* Link the term */
 		term_data_link(td);
 		angband_term[i] = &td->t;
-
-		/* Reset map size if required */
-		if (i == 0)
-		{
-			/* Mega-Hack -- no panel yet */
-			panel_row_min = 0;
-			panel_row_max = 0;
-			panel_col_min = 0;
-			panel_col_max = 0;
-
-			/* Reset the panels */
-			map_panel_size();
-		}
 	}
 
 	/* Success */
@@ -1995,13 +1977,12 @@ static bool init_sound(void)
 		done = findfirst(format("%s/*.mid", xtra_music_dir), &f, FA_ARCH|FA_RDONLY);
 
 
-		while (!done && (song_number <= MAX_SONGS))
+		while (!done && (song_number < MAX_SONGS))
 		{
 			/* Add music files */
-			{
-				strcpy(music_files[song_number], f.ff_name);
-				song_number++;
-			}
+			strncpy(music_files[song_number], f.ff_name, 15);
+			music_files[song_number][15] = '\0';
+			song_number++;
 
 			done = findnext(&f);
 		}
@@ -2042,7 +2023,7 @@ static errr Term_xtra_dos_sound(int v)
 	if ((v < 0) || (v >= SOUND_MAX)) return (1);
 
 	/* Get a random sample from the available ones */
-	n = rand_int(sample_count[v]);
+	n = randint0(sample_count[v]);
 
 	/* Play the sound, catch errors */
 	if (samples[v][n])
@@ -2113,10 +2094,10 @@ errr init_dos(void)
 	int screen_hgt;
 
 	/* Initialize the Allegro library (never fails) */
-	(void)allegro_init();
+	if (allegro_init()) return (-1);
 
 	/* Install timer support for music and sound */
-	install_timer();
+	if (install_timer()) return (-1);
 
 	/* Read config info from filename */
 	set_config_file("angdos.cfg");
@@ -2233,7 +2214,7 @@ errr init_dos(void)
 	     COLOR_OFFSET + TERM_YELLOW);
 
 	/* Activate the main term */
-	Term_activate(angband_term[0]);
+	Term_activate(term_screen);
 
 	/* Place the cursor */
 	Term_curs_dos(0, 0);

@@ -1,4 +1,4 @@
-# CVS: Last edit by $Author: sfuerst $ on $Date: 2000/07/17 11:02:29 $
+# CVS: Last edit by $Author: sfuerst $ on $Date: 2001/01/13 04:55:54 $
 # Smakefile
 #
 # Amiga SAS/C 6.50
@@ -19,7 +19,7 @@ OBJS = \
   effects.o racial.o fields.o\
   artifact.o mutation.o flavor.o spells3.o \
   mspells1.o mspells2.o scores.o mind.o \
-  bldg.o obj_kind.o wild.o avatar.o notes.o\
+  bldg.o obj_kind.o wild1.o wild2.o avatar.o notes.o\
   main-ami.o sound-ami.o main.o
 
 # Header files
@@ -94,7 +94,8 @@ store.o: store.c $(INCS)
 tables.o: tables.c $(INCS)
 util.o: util.c $(INCS)
 variable.o: variable.c $(INCS)
-wild.o: wild.c $(INCS)
+wild1.o: wild1.c $(INCS) wild.h
+wild2.o: wild2.c $(INCS) wild.h grid.h
 wizard1.o: wizard1.c $(INCS)
 wizard2.o: wizard2.c $(INCS)
 xtra1.o: xtra1.c $(INCS)

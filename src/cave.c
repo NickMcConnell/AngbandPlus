@@ -64,7 +64,7 @@ bool is_trap(cave_type *c_ptr)
  */
 bool is_visible_trap(cave_type *c_ptr)
 {
-	return (*field_first_known(&c_ptr->fld_idx, FTYPE_TRAP) != 0 );
+	return (*field_first_known(&c_ptr->fld_idx, FTYPE_TRAP) != 0);
 }
 
 
@@ -358,6 +358,9 @@ bool los(int y1, int x1, int y2, int x2)
  */
 bool player_can_see_bold(int y, int x)
 {
+	int px = p_ptr->px;
+	int py = p_ptr->py;
+
 	int xx, yy;
 
 	cave_type *c_ptr;
@@ -401,6 +404,9 @@ bool player_can_see_bold(int y, int x)
  */
 bool no_lite(void)
 {
+	int py = p_ptr->py;
+	int px = p_ptr->px;
+
 	return (!player_can_see_bold(py, px));
 }
 
@@ -430,7 +436,7 @@ bool cave_valid_grid(cave_type *c_ptr)
 		next_o_idx = o_ptr->next_o_idx;
 
 		/* Forbid artifact grids */
-		if ((o_ptr->art_name) || artifact_p(o_ptr)) return (FALSE);
+		if (o_ptr->flags3 & TR3_INSTA_ART) return (FALSE);
 	}
 
 	/* Accept */
@@ -457,16 +463,16 @@ static void image_monster(byte *ap, char *cp)
 	/* Random symbol from set above */
 	if (use_graphics)
 	{
-		(*cp) = r_info[randint(max_r_idx-1)].x_char;
-		(*ap) = r_info[randint(max_r_idx-1)].x_attr;
+		(*cp) = r_info[randint1(max_r_idx-1)].x_char;
+		(*ap) = r_info[randint1(max_r_idx-1)].x_attr;
 	}
 	else
 	/* Text mode */
 	{
-		(*cp) = (image_monster_hack[rand_int(n)]);
+		(*cp) = (image_monster_hack[randint0(n)]);
 
 		/* Random color */
-		(*ap) = randint(15);
+		(*ap) = randint1(15);
 	}
 }
 
@@ -488,15 +494,15 @@ static void image_object(byte *ap, char *cp)
 
 	if (use_graphics)
 	{
-		(*cp) = k_info[randint(max_k_idx-1)].x_char;
-		(*ap) = k_info[randint(max_k_idx-1)].x_attr;
+		(*cp) = k_info[randint1(max_k_idx-1)].x_char;
+		(*ap) = k_info[randint1(max_k_idx-1)].x_attr;
 	}
 	else
 	{
-		(*cp) = (image_object_hack[rand_int(n)]);
+		(*cp) = (image_object_hack[randint0(n)]);
 
 		/* Random color */
-		(*ap) = randint(15);
+		(*ap) = randint1(15);
 	}
 }
 
@@ -508,7 +514,7 @@ static void image_object(byte *ap, char *cp)
 static void image_random(byte *ap, char *cp)
 {
 	/* Normally, assume monsters */
-	if (rand_int(100) < 75)
+	if (randint0(100) < 75)
 	{
 		image_monster(ap, cp);
 	}
@@ -530,7 +536,7 @@ static bool feat_supports_lighting[256] =
 	TRUE,  TRUE,  TRUE,  TRUE,  TRUE,  TRUE,  TRUE,  TRUE, /* 0x08 */
 	TRUE,  TRUE,  TRUE,  TRUE,  TRUE,  TRUE,  TRUE,  TRUE, /* 0x10 */
 	TRUE,  TRUE,  TRUE,  TRUE,  TRUE,  TRUE,  TRUE,  TRUE, /* 0x18 */
-	FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,/* 0x20 */
+	FALSE, TRUE,  FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,/* 0x20 */
 	FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,/* 0x28 */
 	TRUE,  TRUE,  TRUE,  TRUE,  TRUE,  TRUE,  TRUE,  TRUE, /* 0x30 */
 	TRUE,  TRUE,  TRUE,  TRUE,  TRUE,  TRUE,  TRUE,  TRUE, /* 0x38 */
@@ -678,7 +684,7 @@ static void variable_player_graph(byte *a, char *c)
 {
 	if (!streq(ANGBAND_GRAF, "new"))
 	{
-		if (!streq(ANGBAND_SYS,"ibm"))
+		if (!streq(ANGBAND_SYS, "ibm"))
 		{
 			if (use_graphics)
 			{
@@ -707,7 +713,7 @@ static void variable_player_graph(byte *a, char *c)
 							*a = TERM_VIOLET;
 						break;
 					case CLASS_CHAOS_WARRIOR:
-						*a = rand_int(14) + 1;
+						*a = randint0(14) + 1;
 						break;
 					case CLASS_MAGE:
 					case CLASS_HIGH_MAGE:
@@ -764,7 +770,7 @@ static void variable_player_graph(byte *a, char *c)
 						*c = 236;
 						break;
 					case RACE_HALF_ORC:
-							*c = 243;
+						*c = 243;
 						break;
 					case RACE_HALF_TROLL:
 						*c = 184;
@@ -885,13 +891,6 @@ static void variable_player_graph(byte *a, char *c)
  * and these are the only features which get drawn using the special
  * lighting effects activated by "view_special_lite".
  *
- * Note the use of the "mimic" field in the "terrain feature" processing,
- * which allows any feature to "pretend" to be another feature.  This is
- * used to "hide" secret doors, and to make all "doors" appear the same,
- * and all "walls" appear the same, and "hidden" treasure stay hidden.
- * It is possible to use this field to make a feature "look" like a floor,
- * but the "special lighting effects" for floors will not be used.
- *
  * Note the use of the new "terrain feature" information.  Note that the
  * assumption that all interesting "objects" and "terrain features" are
  * memorized allows extremely optimized processing below.  Note the use
@@ -947,6 +946,9 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 void map_info(int y, int x, byte *ap, char *cp)
 #endif /* USE_TRANSPARENCY */
 {
+	int py = p_ptr->py;
+	int px = p_ptr->px;
+
 	cave_type *c_ptr;
 
 	feature_type *f_ptr;
@@ -981,8 +983,8 @@ void map_info(int y, int x, byte *ap, char *cp)
 	{
 		feat = c_ptr->feat;
 
-		/* point to the feat ("mimic"ed) */
-		f_ptr = &f_info[f_info[feat].mimic];
+		/* Pointer to the feature */
+		f_ptr = &f_info[feat];
 
 		/* The feats attr */
 		a = f_ptr->x_attr;
@@ -998,16 +1000,16 @@ void map_info(int y, int x, byte *ap, char *cp)
 		 * tiny speedup.  (But any speed increase in this
 		 * extremely important routine is good.)
 		 */
-		if (view_special_lite && !p_ptr->blind
+		if (view_bright_lite && !p_ptr->blind
 			 && (!(feat & 0x20) || view_granite_lite))
 		{
 			/* It's not in view? */
-			if (((!(info & (CAVE_VIEW))) && view_bright_lite) ||
+			if (((!(info & (CAVE_VIEW))) && view_special_lite) ||
 				((!(info & (CAVE_GLOW | CAVE_LITE | CAVE_MNLT)))
 					 &&  view_torch_grids))
 			{
 				/* If is ascii graphics */
-				if (!(a & 0x80))
+				if (a < 16)
 				{
 					/* Use darkened colour */
 					a = darking_colours[a];
@@ -1021,7 +1023,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 			else if ((info & (CAVE_LITE | CAVE_MNLT)) && view_yellow_lite)
 			{
 				/* Use the torch effect */
-				if (!(a & 0x80))
+				if (a < 16)
 				{
 					/* Use bright colour */
 					a = lighting_colours[a];
@@ -1035,7 +1037,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 		}
 
 		/* Hack -- rare random hallucination, except on outer dungeon walls */
-		if (halluc && !((feat == FEAT_PERM_SOLID) || rand_int(256)))
+		if (halluc && !((feat == FEAT_PERM_SOLID) || randint0(256)))
 		{
 			/* Hallucinate */
 			image_random(&a, &c);
@@ -1125,21 +1127,21 @@ void map_info(int y, int x, byte *ap, char *cp)
 				{
 					if (use_graphics)
 					{
-						c = r_info[randint(max_r_idx-1)].x_char;
-						a = r_info[randint(max_r_idx-1)].x_attr;
+						c = r_info[randint1(max_r_idx-1)].x_char;
+						a = r_info[randint1(max_r_idx-1)].x_attr;
 					}
 					else
 					{
-						c = (randint(25) == 1 ?
-							image_object_hack[randint(strlen(image_object_hack))] :
-							image_monster_hack[randint(strlen(image_monster_hack))]);
+						c = (randint1(25) == 1 ?
+							image_object_hack[randint1(strlen(image_object_hack))] :
+							image_monster_hack[randint1(strlen(image_monster_hack))]);
 					}
 				}
 
 				/* Multi-hued attr */
 				if (r_ptr->flags2 & RF2_ATTR_ANY)
-					a = randint(15);
-				else switch (randint(7))
+					a = randint1(15);
+				else switch (randint1(7))
 				{
 					case 1:
 						a = TERM_RED;
@@ -1185,7 +1187,10 @@ void map_info(int y, int x, byte *ap, char *cp)
 			/* Hack -- fake monochrome */
 			if (fake_monochrome)
 			{
-				if (p_ptr->invuln || !use_color) a = TERM_WHITE;
+				if (p_ptr->invuln || !use_color || ironman_moria)
+				{
+					a = TERM_WHITE;
+				}
 				else if (p_ptr->wraith_form) a = TERM_L_DARK;
 			}
 
@@ -1279,7 +1284,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 	/* Hack -- fake monochrome */
 	if (fake_monochrome)
 	{
-		if (p_ptr->invuln || !use_color) a = TERM_WHITE;
+		if (p_ptr->invuln || !use_color || ironman_moria) a = TERM_WHITE;
 		else if (p_ptr->wraith_form) a = TERM_L_DARK;
 	}
 
@@ -1295,7 +1300,7 @@ void map_info(int y, int x, byte *ap, char *cp)
  */
 void move_cursor_relative(int row, int col)
 {
-	/* Real co-ords convert to screen positions */
+	/* Real coordinates convert to screen positions */
 	row -= panel_row_prt;
 	col -= panel_col_prt;
 
@@ -1316,7 +1321,7 @@ void print_rel(char c, byte a, int y, int x)
 		/* Hack -- fake monochrome */
 		if (fake_monochrome)
 		{
-			if (p_ptr->invuln || !use_color) a = TERM_WHITE;
+			if (p_ptr->invuln || !use_color || ironman_moria) a = TERM_WHITE;
 			else if (p_ptr->wraith_form) a = TERM_L_DARK;
 		}
 
@@ -1367,6 +1372,9 @@ void print_rel(char c, byte a, int y, int x)
  */
 void note_spot(int y, int x)
 {
+	int px = p_ptr->px;
+	int py = p_ptr->py;
+
 	cave_type *c_ptr = area(y,x);
 
 	s16b this_o_idx, next_o_idx = 0;
@@ -1449,7 +1457,7 @@ void note_spot(int y, int x)
 			}
 		}
 	}
-	
+
 	/* Light the spot, now that we have noticed the changes. */
 	lite_spot(y, x);
 }
@@ -1542,6 +1550,9 @@ void note_wild_spot(cave_type *c_ptr)
 
 void display_dungeon(void)
 {
+	int px = p_ptr->px;
+	int py = p_ptr->py;
+
 	int x, y;
 	byte a;
 	char c;
@@ -1869,7 +1880,7 @@ static byte priority(byte a, char c)
 }
 
 /*
- * Tunnels are important.  (Whist bare floor is not.)
+ * Tunnels are important.  (While bare floor is not.)
  */
 static int priority_tunnel(int y, int x)
 {
@@ -1911,6 +1922,9 @@ static int priority_tunnel(int y, int x)
  */
 void display_map(int *cy, int *cx)
 {
+	int py = p_ptr->py;
+	int px = p_ptr->px;
+
 	int i, j, x, y;
 
 	byte ta;
@@ -1918,7 +1932,7 @@ void display_map(int *cy, int *cx)
 
 	byte tp;
 
-	u16b w_type, town;
+	u16b w_type, w_info, town;
 
 	byte **ma;
 	char **mc;
@@ -1934,7 +1948,7 @@ void display_map(int *cy, int *cx)
 	Term_get_size(&wid, &hgt);
 	hgt -= 2;
 	wid -= 14;
-	
+
 
 
 	/* Disable lighting effects */
@@ -1969,7 +1983,7 @@ void display_map(int *cy, int *cx)
 		}
 	}
 
-	if (!dun_level)
+	if (!p_ptr->depth)
 	{
 		/* Plot wilderness */
 
@@ -2000,19 +2014,36 @@ void display_map(int *cy, int *cx)
 				if (!(wild[j + y][i + x].done.info & WILD_INFO_SEEN)) continue;
 
 				w_type = wild[j + y][i + x].done.wild;
+				w_info = wild[j + y][i + x].done.info;
 
 				/* Get attr / char pair for wilderness block type */
 
+				/* This is a nasty hack */
+
 				/* Add in effects of sea / roads */
-				if (w_type >= WILD_SEA)
+				if ((w_type >= WILD_SEA) || (w_info & (WILD_INFO_WATER)))
 				{
 					ma[j + 1][i + 1] = TERM_BLUE;
 					mc[j + 1][i + 1] = '~';
 				}
-				else if (wild[j + y][i + x].done.info &
-					 (WILD_INFO_ROAD | WILD_INFO_TRACK))
+				else if (w_info & (WILD_INFO_ACID))
+				{
+					ma[j + 1][i + 1] = TERM_GREEN;
+					mc[j + 1][i + 1] = '~';
+				}
+				else if (w_info & (WILD_INFO_LAVA))
+				{
+					ma[j + 1][i + 1] = TERM_RED;
+					mc[j + 1][i + 1] = '~';
+				}
+				else if (w_info & (WILD_INFO_ROAD))
 				{
 					ma[j + 1][i + 1] = TERM_UMBER;
+					mc[j + 1][i + 1] = '+';
+				}
+				else if (w_info & (WILD_INFO_TRACK))
+				{
+					ma[j + 1][i + 1] = TERM_L_UMBER;
 					mc[j + 1][i + 1] = '+';
 				}
 				else
@@ -2048,14 +2079,14 @@ void display_map(int *cy, int *cx)
 	{
 		yrat = max_hgt - min_hgt;
 		xrat = max_wid - min_wid;
-	
+
 		/* Get scaling factors */
 		yfactor = ((yrat / hgt < 4) && (yrat > hgt)) ? 10 : 1;
 		xfactor = ((xrat / wid < 4) && (xrat > wid)) ? 10 : 1;
-	
+
 		yrat = (yrat * yfactor + hgt - 1) / hgt;
 		xrat = (xrat * xfactor + wid - 1) / wid;
-		
+
 		/* Player location in dungeon */
 		(*cy) = py * yfactor / yrat + ROW_MAP;
 		(*cx) = px * xfactor / xrat + COL_MAP;
@@ -2163,11 +2194,14 @@ void display_map(int *cy, int *cx)
  */
 void do_cmd_view_map(void)
 {
+	int py = p_ptr->py;
+	int px = p_ptr->px;
+
 	int cy, cx;
 	int wid, hgt;
 
 	/* No overhead map in vanilla town mode. */
-	if (!dun_level && vanilla_town) return;
+	if (!p_ptr->depth && vanilla_town) return;
 
 	/* Get size */
 	Term_get_size(&wid, &hgt);
@@ -2184,7 +2218,7 @@ void do_cmd_view_map(void)
 	/* Clear the screen */
 	Term_clear();
 
-	if (dun_level)
+	if (p_ptr->depth)
 	{
 		/* In the dungeon - All we have to do is display the map */
 
@@ -2314,7 +2348,7 @@ void do_cmd_view_map(void)
  * regions, which is nice.
  *
  * Note that the calls to the nasty "los()" function have been removed with
- * regardes to the view/lite code.  This results in a huge speed increase.
+ * regards to the view/lite code.  This results in a huge speed increase.
  *
  *
  * Note that every "CAVE_LITE" grid is also a "CAVE_VIEW" grid, and in
@@ -2892,7 +2926,7 @@ errr vinfo_init(void)
 
 
 	/* Kill hack */
-	KILL(hack, vinfo_hack);
+	FREE(hack, vinfo_hack);
 
 
 	/* Success */
@@ -2972,6 +3006,9 @@ errr vinfo_init(void)
  */
 void update_view(void)
 {
+	int py = p_ptr->py;
+	int px = p_ptr->px;
+
 	cave_type *c_ptr;
 
 	byte info;
@@ -3327,7 +3364,7 @@ void update_view(void)
 		info = c_ptr->info;
 
 		/* Clear "CAVE_TEMP" and "CAVE_XTRA" flags */
-		info &= ~(CAVE_TEMP | CAVE_XTRA );
+		info &= ~(CAVE_TEMP | CAVE_XTRA);
 
 		/* Was "CAVE_VIEW", is now not "CAVE_VIEW" */
 		if (!(info & (CAVE_VIEW)))
@@ -3364,7 +3401,7 @@ static void mon_lite_hack(int y, int x)
 
 	c_ptr = area(y, x);
 
-	/* Want a unlit square in view of the player */
+	/* Want an unlit square in view of the player */
 	if ((c_ptr->info & (CAVE_MNLT | CAVE_VIEW)) != CAVE_VIEW) return;
 
 	/* Hack XXX XXX - Is it a wall and monster not in LOS? */
@@ -3382,7 +3419,7 @@ static void mon_lite_hack(int y, int x)
 	c_ptr->info |= CAVE_MNLT;
 }
 
- 
+
 
 
 /*
@@ -3403,6 +3440,32 @@ void update_mon_lite(void)
 	s16b fx, fy;
 
 	s16b end_temp;
+
+	/* Blindness check */
+	if (p_ptr->blind)
+	{
+		/* Clear all the monster lit squares */
+		for (i = 0; i < lite_n; i++)
+		{
+			fx = lite_x[i];
+			fy = lite_y[i];
+
+			/* Point to grid */
+			c_ptr = area(fy, fx);
+
+			/* Clear monster illumination flag */
+			c_ptr->info &= ~(CAVE_MNLT);
+
+			/* It is now unlit */
+			note_spot(fy, fx);
+		}
+
+		/* Clear the lit list */
+		lite_n = 0;
+
+		/* Done */
+		return;
+	}
 
 	/* Clear all monster lit squares */
 	for (i = 0; i < lite_n; i++)
@@ -3466,74 +3529,86 @@ void update_mon_lite(void)
 		if (rad >= 2)
 		{
 			/* South of the monster */
-			if (cave_floor_grid(area(fy + 1, fx)))
+			if (in_bounds2(fy + 1, fx) && cave_floor_grid(area(fy + 1, fx)))
 			{
 				mon_lite_hack(fy + 2, fx + 1);
 				mon_lite_hack(fy + 2, fx);
 				mon_lite_hack(fy + 2, fx - 1);
 
-				c_ptr = area(fy + 2, fx);
-
-				/* Radius 3 */
-				if ((rad == 3) && cave_floor_grid(c_ptr))
+				if (in_bounds2(fy + 2, fx))
 				{
-					mon_lite_hack(fy + 3, fx + 1);
-					mon_lite_hack(fy + 3, fx);
-					mon_lite_hack(fy + 3, fx - 1);
+					c_ptr = area(fy + 2, fx);
+	
+					/* Radius 3 */
+					if ((rad == 3) && cave_floor_grid(c_ptr))
+					{
+						mon_lite_hack(fy + 3, fx + 1);
+						mon_lite_hack(fy + 3, fx);
+						mon_lite_hack(fy + 3, fx - 1);
+					}
 				}
 			}
 
 			/* North of the monster */
-			if (cave_floor_grid(area(fy - 1, fx)))
+			if (in_bounds2(fy - 1, fx) && cave_floor_grid(area(fy - 1, fx)))
 			{
 				mon_lite_hack(fy - 2, fx + 1);
 				mon_lite_hack(fy - 2, fx);
 				mon_lite_hack(fy - 2, fx - 1);
 
-				c_ptr = area(fy - 2, fx);
-
-				/* Radius 3 */
-				if ((rad == 3) && cave_floor_grid(c_ptr))
+				if (in_bounds2(fy - 2, fx))
 				{
-					mon_lite_hack(fy - 3, fx + 1);
-					mon_lite_hack(fy - 3, fx);
-					mon_lite_hack(fy - 3, fx - 1);
+					c_ptr = area(fy - 2, fx);
+
+					/* Radius 3 */
+					if ((rad == 3) && cave_floor_grid(c_ptr))
+					{
+						mon_lite_hack(fy - 3, fx + 1);
+						mon_lite_hack(fy - 3, fx);
+						mon_lite_hack(fy - 3, fx - 1);
+					}
 				}
 			}
 
 			/* East of the monster */
-			if (cave_floor_grid(area(fy, fx + 1)))
+			if (in_bounds2(fy, fx + 1) && cave_floor_grid(area(fy, fx + 1)))
 			{
 				mon_lite_hack(fy + 1, fx + 2);
 				mon_lite_hack(fy, fx + 2);
 				mon_lite_hack(fy - 1, fx + 2);
 
-				c_ptr = area(fy, fx + 2);
-
-				/* Radius 3 */
-				if ((rad == 3) && cave_floor_grid(c_ptr))
+				if (in_bounds2(fy, fx + 2))
 				{
-					mon_lite_hack(fy + 1, fx + 3);
-					mon_lite_hack(fy, fx + 3);
-					mon_lite_hack(fy - 1, fx + 3);
+					c_ptr = area(fy, fx + 2);
+
+					/* Radius 3 */
+					if ((rad == 3) && cave_floor_grid(c_ptr))
+					{
+						mon_lite_hack(fy + 1, fx + 3);
+						mon_lite_hack(fy, fx + 3);
+						mon_lite_hack(fy - 1, fx + 3);
+					}
 				}
 			}
 
 			/* West of the monster */
-			if (cave_floor_grid(area(fy, fx - 1)))
+			if (in_bounds2(fy, fx - 1) && cave_floor_grid(area(fy, fx - 1)))
 			{
 				mon_lite_hack(fy + 1, fx - 2);
 				mon_lite_hack(fy, fx - 2);
 				mon_lite_hack(fy - 1, fx - 2);
 
-				c_ptr = area(fy, fx - 2);
-
-				/* Radius 3 */
-				if ((rad == 3) && cave_floor_grid(c_ptr))
+				if (in_bounds2(fy, fx - 2))
 				{
-					mon_lite_hack(fy + 1, fx - 3);
-					mon_lite_hack(fy, fx - 3);
-					mon_lite_hack(fy - 1, fx - 3);
+					c_ptr = area(fy, fx - 2);
+	
+					/* Radius 3 */
+					if ((rad == 3) && cave_floor_grid(c_ptr))
+					{
+						mon_lite_hack(fy + 1, fx - 3);
+						mon_lite_hack(fy, fx - 3);
+						mon_lite_hack(fy - 1, fx - 3);
+					}
 				}
 			}
 		}
@@ -3542,25 +3617,29 @@ void update_mon_lite(void)
 		if (rad == 3)
 		{
 			/* South-East of the monster */
-			if (cave_floor_grid(area(fy + 1, fx + 1)))
+			if (in_bounds2(fy + 1, fx + 1) && 
+				cave_floor_grid(area(fy + 1, fx + 1)))
 			{
 				mon_lite_hack(fy + 2, fx + 2);
 			}
 
 			/* South-West of the monster */
-			if (cave_floor_grid(area(fy + 1, fx - 1)))
+			if (in_bounds2(fy + 1, fx - 1) && 
+				cave_floor_grid(area(fy + 1, fx - 1)))
 			{
 				mon_lite_hack(fy + 2, fx - 2);
 			}
 
 			/* North-East of the monster */
-			if (cave_floor_grid(area(fy - 1, fx + 1)))
+			if (in_bounds2(fy - 1, fx + 1) &&
+				cave_floor_grid(area(fy - 1, fx + 1)))
 			{
 				mon_lite_hack(fy - 2, fx + 2);
 			}
 
 			/* North-West of the monster */
-			if (cave_floor_grid(area(fy - 1, fx - 1)))
+			if (in_bounds2(fy - 1, fx - 1) &&
+				cave_floor_grid(area(fy - 1, fx - 1)))
 			{
 				mon_lite_hack(fy - 2, fx - 2);
 			}
@@ -3736,6 +3815,9 @@ void update_flow(void)
 
 #ifdef MONSTER_FLOW
 
+	int py = p_ptr->py;
+	int px = p_ptr->px;
+
 	int x, y, d, w, n;
 	int ty, tx;
 
@@ -3863,16 +3945,19 @@ void update_flow(void)
  */
 void map_area(void)
 {
+	int py = p_ptr->py;
+	int px = p_ptr->px;
+
 	int i, x, y, y1, y2, x1, x2;
 
 	cave_type *c_ptr;
 
 
 	/* Pick an area to map */
-	y1 = py - MAX_DETECT - randint(10);
-	y2 = py + MAX_DETECT + randint(10);
-	x1 = px - MAX_DETECT - randint(20);
-	x2 = px + MAX_DETECT + randint(20);
+	y1 = py - MAX_DETECT - randint1(10);
+	y2 = py + MAX_DETECT + randint1(10);
+	x1 = px - MAX_DETECT - randint1(20);
+	x2 = px + MAX_DETECT + randint1(20);
 
 	/* Speed -- shrink to fit legal bounds */
 	if (y1 < min_hgt + 1) y1 = min_hgt + 1;
@@ -4180,10 +4265,8 @@ bool projectable(int y1, int x1, int y2, int x2)
  *
  * This function is often called from inside a loop which searches for
  * locations while increasing the "d" distance.
- *
- * Currently the "m" parameter is unused.
  */
-void scatter(int *yp, int *xp, int y, int x, int d, int m)
+void scatter(int *yp, int *xp, int y, int x, int d)
 {
 	int nx = 0, ny = 0;
 
@@ -4271,34 +4354,31 @@ void object_kind_track(int k_idx)
  */
 void disturb(int stop_search, int unused_flag)
 {
-	/* Unused */
-	unused_flag = unused_flag;
-
 	/* Cancel repeated commands */
-	if (command_rep)
+	if (p_ptr->command_rep)
 	{
 		/* Cancel */
-		command_rep = 0;
+		p_ptr->command_rep = 0;
 
 		/* Redraw the state (later) */
 		p_ptr->redraw |= (PR_STATE);
 	}
 
 	/* Cancel Resting */
-	if (resting)
+	if (p_ptr->resting)
 	{
 		/* Cancel */
-		resting = 0;
+		p_ptr->resting = 0;
 
 		/* Redraw the state (later) */
 		p_ptr->redraw |= (PR_STATE);
 	}
 
 	/* Cancel running */
-	if (running)
+	if (p_ptr->running)
 	{
 		/* Cancel */
-		running = 0;
+		p_ptr->running = 0;
 
 		/* Check for new panel if appropriate */
 		if (center_player && avoid_center) verify_panel();

@@ -1,4 +1,4 @@
-# CVS: Last edit by $Author: sfuerst $ on $Date: 2000/10/12 10:31:39 $
+# CVS: Last edit by $Author: sfuerst $ on $Date: 2001/01/18 10:47:30 $
 ##### Special attr/char values #####
 
 
@@ -4971,6 +4971,34 @@ T:32:0x81:0x8B
 
 # Jammed Door
 T:33:0x81:0x8B
+
+# General Store
+T:34:0x81:0x91
+
+# Armoury
+T:35:0x81:0x92
+
+# Weapon Smiths
+T:36:0x81:0x93
+
+# Temple
+T:37:0x81:0x94
+
+# Alchemy Shop
+T:38:0x81:0x95
+
+# Magic Shop
+T:39:0x81:0x96
+
+# Black Market
+T:40:0x81:0x97
+
+# Home
+T:41:0x81:0x98
+
+# Bookstore
+T:42:0xCB:0x90
+
 
 # Load the special player pictures
 %:xtra-xxx.prf

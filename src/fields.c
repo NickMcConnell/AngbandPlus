@@ -1,9 +1,9 @@
-/* File:field.c */
+/* File: fields.c */
 
 /* Purpose: Field code */
 
 /*
- * Copyright (c) 1989 James E. Wilson, Robert A. Koeneke
+ * Copyright (c) 2000 Steven Fuerst
  *
  * This software may be copied and distributed for educational, research, and
  * not for profit purposes provided that this copyright and statement are
@@ -116,6 +116,7 @@ void excise_field_idx(int fld_idx)
 		prev_f_idx = this_f_idx;
 	}
 }
+
 
 /*
  * Notice changes to a field
@@ -272,6 +273,7 @@ void delete_field(int y, int x)
 	note_spot(y, x);
 }
 
+
 /*
  * Deletes all fields at given location
  */
@@ -365,6 +367,9 @@ static void compact_fields_aux(int i1, int i2)
  */
 void compact_fields(int size)
 {
+	int px = p_ptr-> px;
+	int py = p_ptr-> py;
+
 	int y, x, num, cnt;
 	int cur_lev, cur_dis, chance;
 	s16b i;
@@ -493,7 +498,7 @@ void compact_fields(int size)
 			chance = 90;
 
 			/* Apply the saving throw */
-			if (rand_int(100) < chance) continue;
+			if (randint0(100) < chance) continue;
 			
 			fld_ptr = field_find(i);
 
@@ -633,6 +638,7 @@ s16b f_pop(void)
 	return (0);
 }
 
+
 /*
  * Wipe an field clean.
  */
@@ -641,6 +647,7 @@ void field_wipe(field_type *f_ptr)
 	/* Wipe the structure */
 	(void)WIPE(f_ptr, field_type);
 }
+
 
 /*
  * Prepare a field based on an existing one
@@ -746,6 +753,7 @@ s16b field_add(field_type *f_ptr, s16b *fld_idx2)
 	}
 }
 
+
 /*
  * Sort a list of fields so that they are in priority order.
  *
@@ -827,14 +835,12 @@ void field_prep(field_type *f_ptr, s16b t_idx)
 		f_ptr->data[i] = t_ptr->data_init[i];
 	}
 
-
 	/* create actions */
 	for (i = 0; i < FIELD_ACTION_MAX; i++)
 	{
 		/* copy function pointers */
 		f_ptr->action[i] = t_ptr->action[i];
 	}
-	
 }
 
 
@@ -908,9 +914,9 @@ s16b *field_first_known(s16b *fld_ptr, byte typ)
 		f_ptr = &fld_list[*fld_ptr];
 
 		/* Is it known to be the correct type? */
-		if ((t_info[f_ptr->t_idx].type == typ)
-		 && ((f_ptr->info & (FIELD_INFO_MARK | FIELD_INFO_VIS))
-		 	 == (FIELD_INFO_MARK | FIELD_INFO_VIS))) break;
+		if ((t_info[f_ptr->t_idx].type == typ) &&
+		    ((f_ptr->info & (FIELD_INFO_MARK | FIELD_INFO_VIS)) ==
+		    (FIELD_INFO_MARK | FIELD_INFO_VIS))) break;
 
 		/* If not, get next one. */
 		fld_ptr = &f_ptr->next_f_idx;
@@ -1067,6 +1073,7 @@ s16b place_field(int y, int x, s16b t_idx)
 }
 
 
+
 /*
  * Call the action function for the field pointed to by *field_ptr.
  *
@@ -1125,14 +1132,13 @@ void field_hook(s16b *field_ptr, int action, void *action_struct)
 			/* Check for no deletion */
 			if (f_ptr->t_idx)
 			{
-				/*  Get next field in the list */
+				/* Get next field in the list */
 				field_ptr = &f_ptr->next_f_idx;
 			}
-			
 		}
 		else
 		{
-			/*  Get next field in the list */
+			/* Get next field in the list */
 			field_ptr = &f_ptr->next_f_idx;
 		}
 	}
@@ -1144,10 +1150,12 @@ void field_hook(s16b *field_ptr, int action, void *action_struct)
  * in the specified list which match the required
  * field type.
  */
-void field_hook_special(s16b *field_ptr, u16b ftype, void *action_struct)
+bool field_hook_special(s16b *field_ptr, u16b ftype, void *action_struct)
 {
 	field_type *f_ptr;
 	field_thaum *t_ptr;
+	
+	bool deleted = FALSE;
 	
 	while (*field_ptr)
 	{
@@ -1164,8 +1172,12 @@ void field_hook_special(s16b *field_ptr, u16b ftype, void *action_struct)
 			/* Check for no deletion */
 			if (f_ptr->t_idx)
 			{
-				/*  Get next field in the list */
+				/* Get next field in the list */
 				field_ptr = &f_ptr->next_f_idx;
+			}
+			else
+			{
+				deleted = TRUE;
 			}
 		}
 		else
@@ -1174,6 +1186,9 @@ void field_hook_special(s16b *field_ptr, u16b ftype, void *action_struct)
 			field_ptr = &f_ptr->next_f_idx;
 		}
 	}
+	
+	/* Was a field deleted? */
+	return (deleted);
 }
 
 
@@ -1253,11 +1268,12 @@ void process_fields(void)
 	}
 }
 
+
 /*
  * "Testing" function, used to find bugs.
  * It will test cave and field data structures.
  * (A similar function was used to detect the
- *  "invisible monster" bug in the wilderness.
+ * "invisible monster" bug in the wilderness).
  */
 void test_field_data_integrity(void)
 {
@@ -1307,6 +1323,7 @@ void test_field_data_integrity(void)
 	}
 }
 
+
 /* Field action functions - later will be implemented in python */
 
 
@@ -1342,6 +1359,7 @@ void field_action_nothing(s16b *field_ptr, void *nothing)
 	return;
 }
 
+
 /* Simple function that deletes the field */
 void field_action_delete(s16b *field_ptr, void *nothing)
 {		
@@ -1353,7 +1371,9 @@ void field_action_delete(s16b *field_ptr, void *nothing)
 }
 
 
-/* The function that now controls the glyph of warding rune. */
+/*
+ * The function that now controls the glyph of warding rune.
+ */
 void field_action_glyph_warding(s16b *field_ptr, void *input)
 {
 	field_type *f_ptr = &fld_list[*field_ptr];
@@ -1379,7 +1399,7 @@ void field_action_glyph_warding(s16b *field_ptr, void *input)
 	r_ptr = &r_info[m_ptr->r_idx];
 	
 	if (mon_enter->do_move && !(r_ptr->flags1 & RF1_NEVER_BLOW) && 
-		(randint(BREAK_GLYPH) < r_ptr->level)) 
+	    (randint1(BREAK_GLYPH) < r_ptr->level)) 
 	{
 		/* Describe observable breakage */
 		if (area(f_ptr->fy, f_ptr->fx)->info & CAVE_MARK)
@@ -1403,9 +1423,15 @@ void field_action_glyph_warding(s16b *field_ptr, void *input)
 	return;
 }
 
-/* The function that now controls the exploding rune spell . */
+
+/*
+ * The function that now controls the exploding rune spell.
+ */
 void field_action_glyph_explode(s16b *field_ptr, void *input)
 {
+	int px = p_ptr-> px;
+	int py = p_ptr-> py;
+
 	field_type *f_ptr = &fld_list[*field_ptr];
 	
 	/* Look at input data */
@@ -1431,9 +1457,9 @@ void field_action_glyph_explode(s16b *field_ptr, void *input)
 	r_ptr = &r_info[m_ptr->r_idx];
 	
 	if (do_move && !(r_ptr->flags1 & RF1_NEVER_BLOW) && 
-		(randint(BREAK_GLYPH) < r_ptr->level)) 
+	    (randint1(BREAK_GLYPH) < r_ptr->level)) 
 	{
-		if (f_ptr->fy == py && f_ptr->fx == px)
+		if ((f_ptr->fy == py) && (f_ptr->fx == px))
 		{
 			msg_print("The rune explodes!");
 			fire_ball(GF_MANA, 0, 2 * ((p_ptr->lev / 2) + damroll(7, 7)), 2);
@@ -1513,8 +1539,10 @@ void field_action_corpse_decay(s16b *field_ptr, void *nothing)
 
 	/* Delete the field */
 	delete_field_ptr(field_ptr);
+
 	return;
 }
+
 
 /* 
  * Special action to raise corpses.
@@ -1534,17 +1562,18 @@ void field_action_corpse_raise(s16b *field_ptr, void *input)
 
 	/* Make a monster nearby if possible */
 	if (summon_named_creature(f_ptr->fy, f_ptr->fx,
-		 r_idx, FALSE, FALSE, *want_pet))
+	                          r_idx, FALSE, FALSE, *want_pet))
 	{
-
 		/* Set the cloned flag, so no treasure is dropped */
 		m_list[hack_m_idx_ii].smart |= SM_CLONED;
 	}
 
 	/* Delete the field */
 	delete_field_ptr(field_ptr);
+
 	return;
 }
+
 
 /*
  * Hack XXX XXX Convert the char of the monster to a corpse type
@@ -1556,65 +1585,68 @@ static char corpse_type(char feat)
 {
 	switch (feat)
 	{
-		case 'a':return(6);
-		case 'b':return(6);
-		case 'c':return(5);
-		case 'd':return(0);
-		case 'e':return(6);
-		case 'f':return(4);
-		case 'g':return(1);
-		case 'h':return(2);
-		case 'i':return(5);
-		case 'j':return(3);
-		case 'k':return(4);
-		case 'l':return(0);
-		case 'm':return(6);
-		case 'n':return(3);
-		case 'o':return(3);
-		case 'p':return(2);
-		case 'q':return(4);
-		case 'r':return(6);
-		case 's':return(2);
-		case 't':return(2);
-		case 'u':return(3);
-		case 'v':return(4);
-		case 'w':return(5);
-		case 'x':return(5);
-		case 'y':return(4);
-		case 'z':return(3);
-		case 'A':return(2);
-		case 'B':return(5);
-		case 'C':return(5);
-		case 'D':return(0);
-		case 'E':return(3);
-		case 'F':return(4);
-		case 'G':return(3);
-		case 'H':return(2);
-		case 'I':return(6);
-		case 'J':return(5);
-		case 'K':return(3);
-		case 'L':return(1);
-		case 'M':return(1);
-		case 'N':return(3);
-		case 'O':return(1);
-		case 'P':return(0);
-		case 'Q':return(3);
-		case 'R':return(5);
-		case 'S':return(6);
-		case 'T':return(1);
-		case 'U':return(0);
-		case 'V':return(1);
-		case 'W':return(6);
-		case 'X':return(1);
-		case 'Y':return(1);
-		case 'Z':return(5);
-		case ',':return(6);
-		default:return(3);
+		case 'a': return (6);
+		case 'b': return (6);
+		case 'c': return (5);
+		case 'd': return (0);
+		case 'e': return (6);
+		case 'f': return (4);
+		case 'g': return (1);
+		case 'h': return (2);
+		case 'i': return (5);
+		case 'j': return (3);
+		case 'k': return (4);
+		case 'l': return (0);
+		case 'm': return (6);
+		case 'n': return (3);
+		case 'o': return (3);
+		case 'p': return (2);
+		case 'q': return (4);
+		case 'r': return (6);
+		case 's': return (2);
+		case 't': return (2);
+		case 'u': return (3);
+		case 'v': return (4);
+		case 'w': return (5);
+		case 'x': return (5);
+		case 'y': return (4);
+		case 'z': return (3);
+		case 'A': return (2);
+		case 'B': return (5);
+		case 'C': return (5);
+		case 'D': return (0);
+		case 'E': return (3);
+		case 'F': return (4);
+		case 'G': return (3);
+		case 'H': return (2);
+		case 'I': return (6);
+		case 'J': return (5);
+		case 'K': return (3);
+		case 'L': return (1);
+		case 'M': return (1);
+		case 'N': return (3);
+		case 'O': return (1);
+		case 'P': return (0);
+		case 'Q': return (3);
+		case 'R': return (5);
+		case 'S': return (6);
+		case 'T': return (1);
+		case 'U': return (0);
+		case 'V': return (1);
+		case 'W': return (6);
+		case 'X': return (1);
+		case 'Y': return (1);
+		case 'Z': return (5);
+		case ',': return (6);
+		default : return (3);
 	}
 }
 
-/* Initialise a corpse / skeleton after being loaded from a savefile */
-void field_action_corpse_load(s16b *field_ptr, void *input)
+
+/*
+ * Initialise a corpse / skeleton after being loaded from a savefile.
+ */
+void field_action_corpse_load(s16b *field_ptr, void *nothing)
 {
 	field_type *f_ptr = &fld_list[*field_ptr];
 	
@@ -1632,7 +1664,9 @@ void field_action_corpse_load(s16b *field_ptr, void *input)
 }
 
 
-/* Initialise corpse / skeletons */
+/*
+ * Initialise corpse / skeletons
+ */
 void field_action_corpse_init(s16b *field_ptr, void *input)
 {
 	field_type *f_ptr = &fld_list[*field_ptr];
@@ -1662,32 +1696,38 @@ void field_action_corpse_init(s16b *field_ptr, void *input)
 	return;
 }
 
-/* Looking at a corpse tells you what type of monster it was */
+
+/*
+ * Looking at a corpse tells you what type of monster it was
+ */
 void field_action_corpse_look(s16b *field_ptr, void *output)
 {
 	field_type *f_ptr = &fld_list[*field_ptr];
 
-	char *name = (char *) output;
+	char *name = (char *)output;
 	
 	/* Monster race */
-	u16b r_idx = ((u16b) f_ptr->data[1]) * 256 + f_ptr->data[2];
+	u16b r_idx = ((u16b)f_ptr->data[1]) * 256 + f_ptr->data[2];
 	
-	monster_race	*r_ptr = &r_info[r_idx];
+	monster_race *r_ptr = &r_info[r_idx];
 	
 	/* Copy name to the output string. */
 	(void)strnfmt(name, 40, "%s %s", (r_name + r_ptr->name),
-		 t_info[f_ptr->t_idx].name);
+	              t_info[f_ptr->t_idx].name);
 
 	/* Done */
 	return;
 }
 
-/* Try to tunnel into a wall. */
+
+/*
+ * Try to tunnel into a wall.
+ */
 void field_action_wall_tunnel(s16b *field_ptr, void *input)
 {	
 	int *dig = (int *) input;
 	
-	if (*dig > 40 + rand_int(1600))
+	if (*dig > 40 + randint0(1600))
 	{
 		/* Success */
 		
@@ -1704,13 +1744,35 @@ void field_action_wall_tunnel(s16b *field_ptr, void *input)
 	}
 }
 
+
+/*
+ * Invisible walls interact with GF_KILL_WALL
+ */
+void field_action_wall_gf(s16b *field_ptr, void *input)
+{	
+	field_magic_target *f_m_t = (field_magic_target*) input;
+	
+	if (f_m_t->typ == GF_KILL_WALL)
+	{
+		/* Check line of sight */
+		if (f_m_t->known)
+		{
+			f_m_t->notice = TRUE;
+		}
+		
+		/* Delete the field */
+		delete_field_ptr(field_ptr);
+	}
+}
+
+
 /*
  * The various types of interaction used by
  * the "interact with grid" command.
  */
 void field_action_interact_tunnel(s16b *field_ptr, void *output)
 {
-	int *action = (int *) output;
+	int *action = (int *)output;
 	
 	/* Tunnel flag */
 	*action = 0;
@@ -1721,7 +1783,7 @@ void field_action_interact_tunnel(s16b *field_ptr, void *output)
 
 void field_action_interact_disarm(s16b *field_ptr, void *output)
 {
-	int *action = (int *) output;
+	int *action = (int *)output;
 	
 	/* Disarm flag */
 	*action = 1;
@@ -1729,15 +1791,17 @@ void field_action_interact_disarm(s16b *field_ptr, void *output)
 	return;
 }
 
+
 void field_action_interact_open(s16b *field_ptr, void *output)
 {
-	int *action = (int *) output;
+	int *action = (int *)output;
 	
 	/* Open flag */
 	*action = 2;
 
 	return;
 }
+
 
 /*
  * Traps code.
@@ -1754,12 +1818,12 @@ void field_action_interact_open(s16b *field_ptr, void *output)
  * Always miss 5% of the time, Always hit 5% of the time.
  * Otherwise, match trap power against player armor.
  */
-static int check_hit(int power)
+static bool check_hit(int power)
 {
 	int k, ac;
 
 	/* Percentile dice */
-	k = rand_int(100);
+	k = randint0(100);
 
 	/* Hack -- 5% hit, 5% miss */
 	if (k < 10) return (k < 5);
@@ -1771,43 +1835,80 @@ static int check_hit(int power)
 	ac = p_ptr->ac + p_ptr->to_a;
 
 	/* Power competes against Armor */
-	if (randint(power) > ((ac * 3) / 4)) return (TRUE);
+	if (randint1(power) > ((ac * 3) / 4)) return (TRUE);
 
 	/* Assume miss */
 	return (FALSE);
 }
 
 
+/*
+ * Determine if a trap affects the player.
+ * Always miss 5% of the time, Always hit 5% of the time.
+ * Otherwise, match trap power against players saving throw.
+ */
+static bool check_save(int power)
+{
+	int k;
+
+	/* Percentile dice */
+	k = randint0(100);
+
+	/* Hack -- 5% hit, 5% miss */
+	if (k < 10) return (k < 5);
+
+	/* Paranoia -- No power */
+	if (power <= 0) return (FALSE);
+
+	/* Power competes against saving throw */
+	if (randint1(power) > (p_ptr->skill_sav)) return (TRUE);
+
+	/* Assume miss */
+	return (FALSE);
+}
+
+typedef struct field_trap_type field_trap_type;
+
+struct field_trap_type
+{
+	/* Field type */
+	u16b t_idx;
+	
+	/* Average level found on */
+	byte level;
+};
+
+
 /* Array used to work out which trap to place */
 static field_trap_type trap_num[] =
 {
-	{FT_TRAP_DOOR, 5, 0},
-	{FT_TRAP_PIT, 5, 0},	
-	{FT_TRAP_SPIKE_PIT, 15, 0},
-	{FT_TRAP_POISON_PIT, 30, 0},
-	{FT_TRAP_CURSE, 20, 0},
-	{FT_TRAP_TELEPORT, 40, 0},
-	{FT_TRAP_ELEMENT, 10, 5},
-	{FT_TRAP_BA_ELEMENT, 50, 5},
-	{FT_TRAP_GAS, 5, 5},
-	{FT_TRAP_TRAPS, 60, 0},
-	{FT_TRAP_TEMP_STAT, 25, 3},
-	{FT_TRAP_PERM_STAT, 70, 6},
-	{FT_TRAP_LOSE_XP, 80, 0},
-	{FT_TRAP_DISENCHANT, 35, 0}, 
-	{FT_TRAP_DROP_ITEM, 55, 0},
-	{FT_TRAP_MUTATE, 45, 0},
-	{FT_TRAP_NEW_LIFE, 100, 0},
-	{FT_TRAP_NO_LITE, 0, 0},
-	{FT_TRAP_HUNGER, 0, 0},
-	{FT_TRAP_NO_GOLD, 25, 0},
-	{FT_TRAP_HASTE_MON, 15, 0},
-	{FT_TRAP_RAISE_MON, 40, 0},
-	{FT_TRAP_DRAIN_MAGIC, 65, 0},
-	{FT_TRAP_AGGRAVATE, 15, 0},
-	{FT_TRAP_SUMMON, 20, 0},
-	{FT_TRAP_LOSE_MEMORY, 30, 0},
-	{0, 0, 0}
+	{FT_TRAP_DOOR,			5},
+	{FT_TRAP_PIT,			5},	
+	{FT_TRAP_SPIKE_PIT,		15},
+	{FT_TRAP_POISON_PIT,	30},
+	{FT_TRAP_CURSE,			20},
+	{FT_TRAP_TELEPORT,		40},
+	{FT_TRAP_ELEMENT,		10},
+	{FT_TRAP_BA_ELEMENT,	50},
+	{FT_TRAP_GAS,			5},
+	{FT_TRAP_TRAPS,			60},
+	{FT_TRAP_TEMP_STAT,		25},
+	{FT_TRAP_PERM_STAT,		70},
+	{FT_TRAP_LOSE_XP,		80},
+	{FT_TRAP_DISENCHANT,	35}, 
+	{FT_TRAP_DROP_ITEM,		55},
+	{FT_TRAP_MUTATE,		90},
+	{FT_TRAP_NEW_LIFE,		100},
+	{FT_TRAP_NO_LITE,		0},
+	{FT_TRAP_HUNGER,		0},
+	{FT_TRAP_NO_GOLD,		25},
+	{FT_TRAP_HASTE_MON,		15},
+	{FT_TRAP_RAISE_MON,		40},
+	{FT_TRAP_DRAIN_MAGIC,	65},
+	{FT_TRAP_AGGRAVATE,		15},
+	{FT_TRAP_SUMMON,		20},
+	{FT_TRAP_LOSE_MEMORY,	30},
+	{0,						0}
 };
 
 
@@ -1834,17 +1935,17 @@ void place_trap(int y, int x)
 		if (!n_ptr->t_idx) break;
 
 		/* Ignore excessive depth */
-		if (n_ptr->level > dun_level) continue;
+		if (n_ptr->level > p_ptr->depth) continue;
 
 		/* Count this possibility */
-		total += MAX_DEPTH / (dun_level - n_ptr->level + 15);
+		total += MAX_DEPTH / (p_ptr->depth - n_ptr->level + 15);
 	}
 
 	/* Pick a trap */
 	while (1)
 	{
 		/* Pick a random type */
-		tmp = rand_int(total);
+		tmp = randint0(total);
 
 		/* Find this type */
 		for (n_ptr = trap_num, i = 0; TRUE; n_ptr++)
@@ -1860,10 +1961,10 @@ void place_trap(int y, int x)
 			}
 
 			/* Ignore excessive depth */
-			if (n_ptr->level > dun_level) continue;
+			if (n_ptr->level > p_ptr->depth) continue;
 
 			/* Count this possibility */
-			i += MAX_DEPTH / (dun_level - n_ptr->level + 15);
+			i += MAX_DEPTH / (p_ptr->depth - n_ptr->level + 15);
 
 			/* Found the type */
 			if (tmp < i) break;
@@ -1875,38 +1976,41 @@ void place_trap(int y, int x)
 		if (t_idx != FT_TRAP_DOOR) break;
 
 		/* Hack -- no trap doors on special levels */
-		if (p_ptr->inside_arena || quest_number(dun_level)) continue;
+		if (quest_number(p_ptr->depth)) continue;
 
 		/* Hack -- no trap doors on the deepest level */
-		if (dun_level >= MAX_DEPTH-1) continue;
+		if (p_ptr->depth >= MAX_DEPTH-1) continue;
 		
 		/* Probably should prevent trap doors in the wilderness */
-		if (!dun_level) continue;
+		if (!p_ptr->depth) continue;
 
 		break;
 	}
 
 	/* Activate the trap */
-	if (place_field(y, x, t_idx) && n_ptr->rand)
+	if (place_field(y, x, t_idx))
 	{
 		/* Initialise it */
-		(void)field_hook_single(hack_fld_ptr, FIELD_ACT_INIT, &n_ptr->rand);
+		(void)field_hook_single(hack_fld_ptr, FIELD_ACT_INIT, NULL);
 	}
 }
 
-/* Initialise the trap */
-void field_action_trap_init(s16b *field_ptr, void *input)
+
+/*
+ * Initialise the trap
+ */
+void field_action_trap_init(s16b *field_ptr, void *nothing)
 {
 	field_type *f_ptr = &fld_list[*field_ptr];
-
-	byte *rand = (byte *)input;
 	
 	/*
-	 * Data[3] is equal to rand_int(rand)
+	 * Data[3] is equal to randint0(rand)
 	 */
-	
-	/* Some traps use this field to store their sub-type. */
-	f_ptr->data[3] = (byte)rand_int(*rand);
+	if (f_ptr->data[3])
+	{
+		/* Some traps use this field to store their sub-type. */
+		f_ptr->data[3] = (byte)randint0(f_ptr->data[3]);
+	}
 
 	/* Initialize the name here? */
 	
@@ -1914,7 +2018,10 @@ void field_action_trap_init(s16b *field_ptr, void *input)
 	return;
 }
 
-/* Try to disarm a trap. */
+
+/*
+ * Try to disarm a trap.
+ */
 void field_action_trap_disarm(s16b *field_ptr, void *input)
 {
 	field_type *f_ptr = &fld_list[*field_ptr];
@@ -1930,7 +2037,7 @@ void field_action_trap_disarm(s16b *field_ptr, void *input)
 	/* Always have a small chance of success */
 	if (j < 2) j = 2;
 	
-	if (rand_int(100) < j)
+	if (randint0(100) < j)
 	{
 		/* Success */
 		
@@ -1938,6 +2045,47 @@ void field_action_trap_disarm(s16b *field_ptr, void *input)
 		delete_field_ptr(field_ptr);
 	}
 }
+
+
+/*
+ * Traps interact with magic.
+ */
+void field_action_trap_gf(s16b *field_ptr, void *input)
+{
+	field_magic_target *f_m_t = (field_magic_target*) input;
+	
+	field_type *f_ptr = &fld_list[*field_ptr];
+	
+	/* Destroy traps */
+	if ((f_m_t->typ == GF_KILL_TRAP) || (f_m_t->typ == GF_KILL_DOOR))
+	{
+		/* Extract trap "power" */
+		int	power = f_ptr->data[0];	
+	
+		/* Extract the difficulty */
+		int j = f_m_t->dam - power;
+
+		/* Always have a small chance of success */
+		if (j < 2) j = 2;
+	
+		if (randint0(100) < j)
+		{
+			/* Success */
+		
+			/* Check line of sight */
+			if (f_m_t->known)
+			{
+				f_m_t->notice = TRUE;
+				
+				msg_print("There is a bright flash of light!");
+			}
+		
+			/* Delete the field */
+			delete_field_ptr(field_ptr);
+		}
+	}
+}
+
 
 /*
  * Common stuff that happens whenever the player
@@ -2002,7 +2150,7 @@ void field_action_hit_trap_door(s16b *field_ptr, void *nothing)
 			if (autosave_l && (p_ptr->chp >= 0))
 				do_cmd_save_game(TRUE);
 
-			dun_level++;
+			p_ptr->depth++;
 
 			/* Leaving */
 			p_ptr->leaving = TRUE;
@@ -2060,13 +2208,13 @@ void field_action_hit_trap_spike(s16b *field_ptr, void *nothing)
 		dam = damroll(4, 8);
 
 		/* Extra spike damage */
-		if (rand_int(100) < 50)
+		if (randint0(100) < 50)
 		{
 			msg_print("You are impaled!");
 
 			name = "a spiked pit";
 			dam *= 2;
-			(void)set_cut(p_ptr->cut + randint(dam));
+			(void)set_cut(p_ptr->cut + randint1(dam));
 		}
 
 		/* Take the damage */
@@ -2100,14 +2248,14 @@ void field_action_hit_trap_poison_pit(s16b *field_ptr, void *nothing)
 		name = "a pit trap";
 
 		/* Extra spike damage */
-		if (rand_int(100) < 50)
+		if (randint0(100) < 50)
 		{
 			msg_print("You are impaled on poisonous spikes!");
 
 			name = "a spiked pit";
 
 			dam *= 2;
-			(void)set_cut(p_ptr->cut + randint(dam));
+			(void)set_cut(p_ptr->cut + randint1(dam));
 
 			if (p_ptr->resist_pois || p_ptr->oppose_pois)
 			{
@@ -2116,7 +2264,7 @@ void field_action_hit_trap_poison_pit(s16b *field_ptr, void *nothing)
 			else
 			{
 				dam *= 2;
-				(void)set_poisoned(p_ptr->poisoned + randint(dam));
+				(void)set_poisoned(p_ptr->poisoned + randint1(dam));
 			}
 		}
 
@@ -2133,13 +2281,16 @@ void field_action_hit_trap_curse(s16b *field_ptr, void *nothing)
 	/* Hit the trap */
 	hit_trap(f_ptr);
 	
+	/* Saving throw */
+	if (!check_hit(f_ptr->data[1])) return;
+	
 	msg_print("There is a flash of shimmering light!");
 	
 	/* Curse the equipment */
-	curse_equipment(dun_level, dun_level / 10);	
+	curse_equipment(p_ptr->depth, p_ptr->depth / 10);	
 	
 	/* TY Curse */
-	if (dun_level > randint(100)) /* No nasty effect for low levels */
+	if (p_ptr->depth > randint1(100)) /* No nasty effect for low levels */
 	{
 		bool stop_ty = FALSE;
 		int count = 0;
@@ -2148,17 +2299,17 @@ void field_action_hit_trap_curse(s16b *field_ptr, void *nothing)
 		{
 			stop_ty = activate_ty_curse(stop_ty, &count);
 		}
-		while (randint(6) == 1);
+		while (randint1(6) == 1);
 	}
 	
 	/* Blast weapon */
-	if (dun_level > randint(200)) /* No nasty effect for low levels */
+	else if (p_ptr->depth > randint1(500)) /* No nasty effect for low levels */
 	{
 		(void) curse_weapon();
 	}
 	
 	/* Blast armour */
-	if (dun_level > randint(200)) /* No nasty effect for low levels */
+	else if (p_ptr->depth > randint1(500)) /* No nasty effect for low levels */
 	{
 		(void) curse_armor();
 	}
@@ -2174,6 +2325,9 @@ void field_action_hit_trap_teleport(s16b *field_ptr, void *nothing)
 	
 	/* Hit the trap */
 	hit_trap(f_ptr);
+	
+	/* Saving throw */
+	if (!check_hit(f_ptr->data[1])) return;
 	
 	msg_print("You hit a teleport trap!");
 	teleport_player(100);
@@ -2213,7 +2367,7 @@ void field_action_hit_trap_element(s16b *field_ptr, void *nothing)
 			msg_print("A pungent green gas surrounds you!");
 			if (!p_ptr->resist_pois && !p_ptr->oppose_pois)
 			{
-				(void)set_poisoned(p_ptr->poisoned + rand_int(20) + 10);
+				(void)set_poisoned(p_ptr->poisoned + randint0(20) + 10);
 			}
 			break;
 		}
@@ -2235,6 +2389,7 @@ void field_action_hit_trap_element(s16b *field_ptr, void *nothing)
 		}
 	}
 }
+
 
 void field_action_hit_trap_ba_element(s16b *field_ptr, void *nothing)
 {	
@@ -2271,7 +2426,7 @@ void field_action_hit_trap_ba_element(s16b *field_ptr, void *nothing)
 			
 			if (!p_ptr->resist_pois && !p_ptr->oppose_pois)
 			{
-				(void)set_poisoned(p_ptr->poisoned + rand_int(50) + 100);
+				(void)set_poisoned(p_ptr->poisoned + randint0(50) + 100);
 			}
 			break;
 		}
@@ -2310,7 +2465,7 @@ void field_action_hit_trap_gas(s16b *field_ptr, void *nothing)
 		case 0:
 		{
 			msg_print("A blue gas surrounds you!");
-			(void)set_slow(p_ptr->slow + rand_int(20) + 20);
+			(void)set_slow(p_ptr->slow + randint0(20) + 20);
 		}
 
 		case 1:
@@ -2318,7 +2473,7 @@ void field_action_hit_trap_gas(s16b *field_ptr, void *nothing)
 			msg_print("A black gas surrounds you!");
 			if (!p_ptr->resist_blind)
 			{
-				(void)set_blind(p_ptr->blind + rand_int(50) + 25);
+				(void)set_blind(p_ptr->blind + randint0(50) + 25);
 			}
 			break;
 		}
@@ -2326,9 +2481,9 @@ void field_action_hit_trap_gas(s16b *field_ptr, void *nothing)
 		case 2:
 		{
 			msg_print("A gas of scintillating colors surrounds you!");
-			if (!p_ptr->resist_conf)
+			if (!p_ptr->resist_confu)
 			{
-				(void)set_confused(p_ptr->confused + rand_int(20) + 10);
+				(void)set_confused(p_ptr->confused + randint0(20) + 10);
 			}
 			break;
 		}
@@ -2353,7 +2508,7 @@ void field_action_hit_trap_gas(s16b *field_ptr, void *nothing)
 					/* Remove the monster restriction */
 					get_mon_num_prep(NULL, NULL);
 				}
-				(void)set_paralyzed(p_ptr->paralyzed + rand_int(10) + 5);
+				(void)set_paralyzed(p_ptr->paralyzed + randint0(10) + 5);
 			}
 			break;
 		}
@@ -2361,9 +2516,10 @@ void field_action_hit_trap_gas(s16b *field_ptr, void *nothing)
 		case 4:
 		{
 			msg_print("A gas of scintillating colors surrounds you!");
+
 			if (!p_ptr->resist_chaos)
 			{
-				(void)set_image(p_ptr->image + rand_int(20) + 10);
+				(void)set_image(p_ptr->image + randint0(20) + 10);
 			}
 			break;
 		}
@@ -2372,18 +2528,24 @@ void field_action_hit_trap_gas(s16b *field_ptr, void *nothing)
 
 
 void field_action_hit_trap_traps(s16b *field_ptr, void *nothing)
-{	
+{
+	int px = p_ptr->px;
+	int py = p_ptr->py;
+
 	field_type *f_ptr = &fld_list[*field_ptr];
 	
 	/* Hit the trap */
 	hit_trap(f_ptr);
 	
+	/* Saving throw */
+	if (!check_hit(f_ptr->data[1])) return;
+	
 	msg_print("There is a bright flash of light!");
 
 	/* Make some new traps */
 	project(0, 1, py, px, 0, GF_MAKE_TRAP,
-		 PROJECT_HIDE | PROJECT_JUMP | PROJECT_GRID);
-	
+	        PROJECT_HIDE | PROJECT_JUMP | PROJECT_GRID);
+
 	/* Delete the field */
 	delete_field_ptr(field_ptr);
 }
@@ -2479,12 +2641,16 @@ void field_action_hit_trap_lose_xp(s16b *field_ptr, void *nothing)
 {	
 	field_type *f_ptr = &fld_list[*field_ptr];
 	
+	/* Saving throw */
+	if (!check_save(f_ptr->data[1])) return;
+	
 	/* Hit the trap */
 	hit_trap(f_ptr);
 		
 	msg_print("Your head throbs!");
 	lose_exp(p_ptr->exp / 5);
 }
+
 
 void field_action_hit_trap_disenchant(s16b *field_ptr, void *nothing)
 {	
@@ -2493,8 +2659,11 @@ void field_action_hit_trap_disenchant(s16b *field_ptr, void *nothing)
 	/* Hit the trap */
 	hit_trap(f_ptr);
 		
+	/* Saving throw */
+	if (!check_save(f_ptr->data[1])) return;
+	
 	msg_print("There is a bright flash of light!");
-	(void) apply_disenchant(0);
+	(void)apply_disenchant(0);
 }
 
 
@@ -2506,16 +2675,23 @@ void field_action_hit_trap_drop_item(s16b *field_ptr, void *nothing)
 	
 	/* Hit the trap */
 	hit_trap(f_ptr);
+	
+	/* Saving throw */
+	if (!check_save(f_ptr->data[1])) return;
 		
 	msg_print("You fumble with your equipment!");
 	
 	/* Get the item to drop */
-	item = randint(inven_cnt);
+	item = randint1(p_ptr->inven_cnt);
 	
 	if (inventory[item].k_idx)
 	{
-		/* Drop it */
-		inven_drop(item, inventory[item].number);
+		/* Only if not cursed */
+		if (!cursed_p(&inventory[item]))
+		{
+			/* Drop it */
+			inven_drop(item, inventory[item].number);
+		}
 	}
 }
 
@@ -2526,8 +2702,11 @@ void field_action_hit_trap_mutate(s16b *field_ptr, void *nothing)
 	
 	/* Hit the trap */
 	hit_trap(f_ptr);
+	
+	/* Saving throw */
+	if (!check_save(f_ptr->data[1])) return;
 		
-	(void) gain_random_mutation(0);
+	(void)gain_random_mutation(0);
 }
 
 
@@ -2537,6 +2716,9 @@ void field_action_hit_trap_new_life(s16b *field_ptr, void *nothing)
 	
 	/* Hit the trap */
 	hit_trap(f_ptr);
+	
+	/* Saving throw */
+	if (!check_save(f_ptr->data[1])) return;
 		
 	if (p_ptr->muta1 || p_ptr->muta2 || p_ptr->muta3)
 	{
@@ -2550,14 +2732,21 @@ void field_action_hit_trap_new_life(s16b *field_ptr, void *nothing)
 	delete_field_ptr(field_ptr);
 }
 
+
 void field_action_hit_trap_no_lite(s16b *field_ptr, void *nothing)
 {	
+	int px = p_ptr->px;
+	int py = p_ptr->py;
+
 	field_type *f_ptr = &fld_list[*field_ptr];
 	
 	object_type *o_ptr;
 	
 	/* Hit the trap */
 	hit_trap(f_ptr);
+	
+	/* Saving throw */
+	if (!check_save(f_ptr->data[1])) return;
 	
 	msg_print("Darkness surrounds you!");
 	
@@ -2589,11 +2778,18 @@ void field_action_hit_trap_hunger(s16b *field_ptr, void *nothing)
 	/* Hit the trap */
 	hit_trap(f_ptr);
 	
+	/* Saving throw */
+	if (!check_save(f_ptr->data[1])) return;
+	
 	msg_print("You suddenly feel very, very hungry!");
 	
-	/* You are very hungry */
-	(void)set_food(PY_FOOD_WEAK);
-	
+	/* Only effect non-starving people */
+	if (p_ptr->food > PY_FOOD_WEAK)
+	{
+		/* You are very hungry */
+		(void)set_food(PY_FOOD_WEAK);
+	}
+		
 	/* Delete the field */
 	delete_field_ptr(field_ptr);
 }
@@ -2606,10 +2802,13 @@ void field_action_hit_trap_no_gold(s16b *field_ptr, void *nothing)
 	/* Hit the trap */
 	hit_trap(f_ptr);
 	
+	/* Saving throw */
+	if (!check_save(f_ptr->data[1])) return;
+	
 	msg_print("Your purse becomes weightless!");
 	
 	/* No gold! */
-	p_ptr->au = 0;
+	p_ptr->au = p_ptr->au / 2;
 
 	/* Redraw gold */
 	p_ptr->redraw |= (PR_GOLD);
@@ -2626,9 +2825,12 @@ void field_action_hit_trap_haste_mon(s16b *field_ptr, void *nothing)
 	/* Hit the trap */
 	hit_trap(f_ptr);
 	
+	/* Saving throw */
+	if (!check_save(f_ptr->data[1])) return;
+	
 	msg_print("A shrill note sounds!");
 	
-	(void) speed_monsters();	
+	(void)speed_monsters();	
 	
 	/* Delete the field */
 	delete_field_ptr(field_ptr);
@@ -2637,14 +2839,20 @@ void field_action_hit_trap_haste_mon(s16b *field_ptr, void *nothing)
 
 void field_action_hit_trap_raise_mon(s16b *field_ptr, void *nothing)
 {	
+	int px = p_ptr->px;
+	int py = p_ptr->py;
+
 	field_type *f_ptr = &fld_list[*field_ptr];
 	
 	/* Hit the trap */
 	hit_trap(f_ptr);
 	
+	/* Saving throw */
+	if (!check_save(f_ptr->data[1])) return;
+	
 	msg_print("You smell something musty.");
 	
-	(void) raise_dead(py, px, FALSE);
+	(void)raise_dead(py, px, FALSE);
 }
 
 
@@ -2658,13 +2866,16 @@ void field_action_hit_trap_drain_magic(s16b *field_ptr, void *nothing)
 	/* Hit the trap */
 	hit_trap(f_ptr);
 	
+	/* Saving throw */
+	if (!check_save(f_ptr->data[1])) return;
+	
 	msg_print("Static fills the air.");
 	
 	/* Find an item */
 	for (k = 0; k < 10; k++)
 	{
 		/* Pick an item */
-		i = rand_int(INVEN_PACK);
+		i = randint0(INVEN_PACK);
 
 		/* Obtain the item */
 		o_ptr = &inventory[i];
@@ -2677,6 +2888,8 @@ void field_action_hit_trap_drain_magic(s16b *field_ptr, void *nothing)
 			(o_ptr->pval))
 		{
 			/* Uncharge */
+			if (o_ptr->tval == TV_WAND) o_ptr->ac += o_ptr->pval;
+			
 			o_ptr->pval = 0;
 
 			/* Combine / Reorder the pack */
@@ -2684,7 +2897,6 @@ void field_action_hit_trap_drain_magic(s16b *field_ptr, void *nothing)
 
 			/* Window stuff */
 			p_ptr->window |= (PW_INVEN);
-
 		}
 	}
 }
@@ -2697,6 +2909,9 @@ void field_action_hit_trap_aggravate(s16b *field_ptr, void *nothing)
 	/* Hit the trap */
 	hit_trap(f_ptr);
 	
+	/* Saving throw */
+	if (!check_save(f_ptr->data[1])) return;
+	
 	msg_print("Shouts fill the air!");
 	
 	aggravate_monsters(0);
@@ -2705,15 +2920,21 @@ void field_action_hit_trap_aggravate(s16b *field_ptr, void *nothing)
 
 void field_action_hit_trap_summon(s16b *field_ptr, void *nothing)
 {	
+	int px = p_ptr->px;
+	int py = p_ptr->py;
+
 	field_type *f_ptr = &fld_list[*field_ptr];
 	
 	/* Hit the trap */
 	hit_trap(f_ptr);
 	
+	/* Saving throw */
+	if (!check_save(f_ptr->data[1])) return;
+	
 	msg_print("Zap!");
 	
 	/* Summon monsters */
-	summon_specific(0, py, px, dun_level, 0, TRUE, FALSE, FALSE);
+	summon_specific(0, py, px, p_ptr->depth, 0, TRUE, FALSE, FALSE);
 	
 	/* Delete the field */
 	delete_field_ptr(field_ptr);
@@ -2724,13 +2945,23 @@ void field_action_hit_trap_lose_memory(s16b *field_ptr, void *nothing)
 {	
 	field_type *f_ptr = &fld_list[*field_ptr];
 	
-	/* Hit the trap */
-	hit_trap(f_ptr);
+	/* Disturb the player */
+	disturb(0, 0);
+	
+	/* Saving throw */
+	if (!check_save(f_ptr->data[1]))
+	{
+		/* Find the trap */
+		hit_trap(f_ptr);
+		
+		return;
+	}
 	
 	msg_print("You are not sure what just happened!");
 	
 	lose_all_info();
 }
+
 
 /*
  * Make a locked or jammed door on a square
@@ -2795,14 +3026,57 @@ void make_lockjam_door(int y, int x, int power, bool jam)
 		return;
 	}
 	
-	/* Point to the field */
-	f_ptr = &fld_list[fld_idx];
+	power = power + old_power;
 	
-	/* Add "power" of lock / spikes to the field */
-	f_ptr->counter += power + old_power;
+	/* 
+	 * Initialise it.
+	 * Hack - note that hack_fld_ptr is a global that is overwritten
+	 * by the place_field() function.
+	 */
+	(void)field_hook_single(hack_fld_ptr, FIELD_ACT_INIT, (void *) &power);
+}
+
+/*
+ * Initialise a field with a counter
+ */
+void field_action_counter_init(s16b *field_ptr, void *input)
+{
+	field_type *f_ptr = &fld_list[*field_ptr];
+	
+	int *value = (int *) input;
+	int max;
+	int new_value;
+	
+	/* 
+	 * Add the value to the counter
+	 * but not if the counter will overflow.
+	 * data[6] and data[7] control the counter maximum.
+	 */
+	max = f_ptr->data[6] * 256 + f_ptr->data[7];
+	
+	new_value = f_ptr->counter + *value;
 	
 	/* Bounds checking */
-	if (f_ptr->counter > 25) f_ptr->counter = 25;
+	if (new_value > max)
+	{
+		f_ptr->counter = max;
+	}
+	else if (new_value < 0)
+	{
+		f_ptr->counter = 0;
+		
+		/* Call completion routine */
+		if (field_hook_single(field_ptr, FIELD_ACT_EXIT, NULL))
+		{
+			/* It didn't delete itself - do it now */
+			delete_field_ptr(field_ptr);
+		}
+	}
+	else
+	{
+		/* Store in the new value */
+		f_ptr->counter = new_value;
+	}
 }
 
 
@@ -2818,7 +3092,7 @@ void field_action_door_unlock(s16b *field_ptr, void *input)
 	/* Always have a small chance of success */
 	if (power < 2) power = 2;
 		
-	if (rand_int(100) < power)
+	if (randint0(100) < power)
 	{
 		/* Success */
 			
@@ -2854,7 +3128,7 @@ void field_action_door_bash(s16b *field_ptr, void *input)
 	/* Extract unjamming "power" */
 	int power = *jam / 10 + adj_str_wgt[p_ptr->stat_ind[A_STR]] / 2;
 		
-	if (rand_int(power) > f_ptr->counter)
+	if (randint0(power) > f_ptr->counter)
 	{
 		/* Success */
 			
@@ -2862,7 +3136,7 @@ void field_action_door_bash(s16b *field_ptr, void *input)
 		msg_print("The door crashes open!");
 		
 		/* Break down the door */
-		if (rand_int(100) < 50)
+		if (randint0(100) < 50)
 		{
 			cave_set_feat(f_ptr->fy, f_ptr->fx, FEAT_BROKEN);
 		}
@@ -2919,7 +3193,7 @@ void field_action_door_lock_monster(s16b *field_ptr, void *input)
 			(!is_pet(m_ptr) || p_ptr->pet_open_doors))
 	{
 		/* Attempt to Unlock */
-		if (rand_int(m_ptr->hp) > f_ptr->counter * f_ptr->counter)
+		if (randint0(m_ptr->hp) > f_ptr->counter * f_ptr->counter)
 		{
 			/* Open the door */
 			cave_set_feat(f_ptr->fy, f_ptr->fx, FEAT_OPEN);
@@ -2933,8 +3207,6 @@ void field_action_door_lock_monster(s16b *field_ptr, void *input)
 			
 			/* Delete the field */
 			delete_field_ptr(field_ptr);
-
-			/* Note that *field_ptr does not need to be updated */
 		}
 	}
 	
@@ -2977,10 +3249,10 @@ void field_action_door_jam_monster(s16b *field_ptr, void *input)
 
 	/* Stuck Door */
 	if ((r_ptr->flags2 & RF2_BASH_DOOR) &&
-			(!is_pet(m_ptr) || p_ptr->pet_open_doors))
+	    (!is_pet(m_ptr) || p_ptr->pet_open_doors))
 	{
 		/* Attempt to Bash */
-		if (rand_int(m_ptr->hp) > f_ptr->counter * f_ptr->counter)
+		if (randint0(m_ptr->hp) > f_ptr->counter * f_ptr->counter)
 		{
 			/* Message */
 			msg_print("You hear a door burst open!");
@@ -2989,7 +3261,7 @@ void field_action_door_jam_monster(s16b *field_ptr, void *input)
 			if (disturb_minor) disturb(0, 0);
 
 			/* Break down the door */
-			if (rand_int(100) < 50)
+			if (randint0(100) < 50)
 			{
 				cave_set_feat(f_ptr->fy, f_ptr->fx, FEAT_BROKEN);
 			}
@@ -3003,15 +3275,15 @@ void field_action_door_jam_monster(s16b *field_ptr, void *input)
 			/* Update view */
 			if (player_can_see_bold(f_ptr->fy, f_ptr->fx))
 			{
-				p_ptr->update |= (PU_VIEW | PU_FLOW
-					 | PU_MONSTERS | PU_MON_LITE);
+				p_ptr->update |= (PU_VIEW | PU_FLOW |
+				                  PU_MONSTERS | PU_MON_LITE);
 			}
 			
 			/* Delete the field */
 			delete_field_ptr(field_ptr);
 
 			/* Hack -- fall into doorway */
-			mon_enter->do_move  = TRUE;
+			mon_enter->do_move = TRUE;
 				
 			return;
 		}
@@ -3019,4 +3291,108 @@ void field_action_door_jam_monster(s16b *field_ptr, void *input)
 	
 	/* Cannot move */
 	mon_enter->do_move = FALSE;
+}
+
+/*
+ * Doors interact with various magic effects
+ */
+void field_action_door_gf(s16b *field_ptr, void *input)
+{	
+	field_type *f_ptr = &fld_list[*field_ptr];
+
+	field_magic_target *f_m_t = (field_magic_target*) input;
+	
+	cave_type *c_ptr;
+	
+	if (f_m_t->typ == GF_KILL_WALL)
+	{
+		/* Destroy the door */
+		if (f_m_t->known)
+		{
+			msg_print("The door turns into mud!");
+			f_m_t->notice = TRUE;
+		}
+
+		c_ptr = area(f_ptr->fy, f_ptr->fx);
+		
+		/* Forget the door */
+		c_ptr->info &= ~(CAVE_MARK);
+		
+		/* Destroy the feature */
+		c_ptr->feat = FEAT_FLOOR;
+		
+		/* Update some things */
+		p_ptr->update |= (PU_VIEW | PU_FLOW | PU_MONSTERS | PU_MON_LITE);
+
+		/* Delete the field */
+		delete_field_ptr(field_ptr);
+	}
+	else if (f_m_t->typ == GF_KILL_DOOR)
+	{
+		/* Destroy the door */
+		if (f_m_t->known)
+		{
+			msg_print("There is a bright flash of light!");
+			f_m_t->notice = TRUE;
+		}
+
+		c_ptr = area(f_ptr->fy, f_ptr->fx);
+		
+		/* Forget the door */
+		c_ptr->info &= ~(CAVE_MARK);
+		
+		/* Destroy the feature */
+		c_ptr->feat = FEAT_FLOOR;
+		
+		/* Update some things */
+		p_ptr->update |= (PU_VIEW | PU_FLOW | PU_MONSTERS | PU_MON_LITE);
+
+		/* Delete the field */
+		delete_field_ptr(field_ptr);
+	}
+	else if (f_m_t->typ == GF_KILL_TRAP)
+	{
+		/* Unlock the door */
+		if (f_m_t->known)
+		{
+			msg_print("Click!");
+			f_m_t->notice = TRUE;
+		}
+		
+		/* Delete the field */
+		delete_field_ptr(field_ptr);
+	}
+}
+
+/*
+ * Interact with a store
+ */
+void field_action_door_store(s16b *field_ptr, void *nothing)
+{	
+	field_type *f_ptr = &fld_list[*field_ptr];
+
+	/* Disturb */
+	disturb(0, 0);
+
+	/*
+	 * data[0] contains the type of store.
+	 */
+	do_cmd_store(f_ptr);
+}
+
+
+/*
+ * Interact with a building
+ */
+void field_action_door_build(s16b *field_ptr, void *nothing)
+{	
+	field_type *f_ptr = &fld_list[*field_ptr];
+
+	/* Disturb */
+	disturb(0, 0);
+
+	/*
+	 * data[0] contains the type of building.
+	 */
+	do_cmd_bldg(f_ptr);
 }

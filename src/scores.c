@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 2000/05/25 12:14:53 $ */
 /* File: scores.c */
 
 /* Purpose: Highscores handling */
@@ -115,6 +114,78 @@ static int highscore_add(high_score *score)
 	return (slot);
 }
 
+
+/*
+ * How much valuable stuff do we carry. Returns total cost of all found
+ * items currently in equipment (ie. those that haven't been storebought
+ * or started with)
+ */
+static long equip_value(void)
+{
+	object_type *o_ptr;
+	long total = 0L;
+	int i;
+
+	for (i = 1; i < INVEN_TOTAL; i++)
+	{
+		o_ptr = &inventory[i];
+
+		if (o_ptr->ident & IDENT_STOREB) continue;
+		if (!(o_ptr->ident & IDENT_KNOWN)) continue;
+
+		total += object_value(o_ptr);
+	}
+
+	return (total);
+}
+
+
+/*
+ * Hack -- Calculates the total number of points earned         -JWT-
+ * Now with up to 80% penalty for having mutations & other extra things  -GSN-
+ * Fixed this up to be "fairer" -CK-
+ */
+static long total_points(void)
+{
+	long temp;
+	long mult = 100;
+	
+	/* AI is not that big a deal (yet) */
+	if (stupid_monsters) mult -= 20;
+	
+	/* Penalize preserve, maximize modes */
+	if (preserve_mode) mult -= 10;
+	if (maximize_mode) mult -= 15;
+	
+	/* Vanilla town is harder than normal */
+	if (vanilla_town) mult += 5;
+	
+	/* so are hard quests */
+	if (ironman_hard_quests) mult += 10;
+
+	/* Not too much of a reward since some people like playing with this. */
+	if (ironman_small_levels) mult += 5;
+
+	/* Moria mode is very hard */
+	if (ironman_moria) mult += 20;
+
+	/* More ironman options */
+	if (ironman_empty_levels) mult += 10;
+	if (ironman_nightmare) mult += 20;
+	if (ironman_rooms) mult +=10;
+
+	if (mult < 5) mult = 5; /* At least 5% of the original score */
+
+	temp = p_ptr->max_exp + (100 * p_ptr->max_depth);
+
+	temp = (temp * mult) / race_info[p_ptr->prace].r_exp;
+
+	temp += equip_value() / 10;
+
+	if (ironman_downward) temp *= 2;
+
+	return (temp);
+}
 
 
 /*
@@ -314,17 +385,20 @@ void display_scores(int from, int to)
 }
 
 
+/*
+ * Hack - save index of player's high score
+ */
+static int score_idx = -1;
+
 
 /*
- * Enters a players name on a hi-score table, if "legal", and in any
- * case, displays some relevant portion of the high score list.
+ * Enters a players name on a hi-score table, if "legal".
  *
  * Assumes "signals_ignore_tstp()" has been called.
  */
-errr top_twenty(void)
+errr enter_score(void)
 {
-	int          j;
-
+	int i;
 	high_score   the_score;
 
 #ifndef HIGHSCORE_DATE_HACK
@@ -333,66 +407,60 @@ errr top_twenty(void)
 
 	time_t ct = time((time_t*)0);
 
-
-	/* Clear screen */
-	Term_clear();
-
 	/* No score file */
 	if (highscore_fd < 0)
 	{
-		msg_print("Score file unavailable.");
-		msg_print(NULL);
 		return (0);
 	}
 
 #ifndef SCORE_WIZARDS
 	/* Wizard-mode pre-empts scoring */
-	if (noscore & 0x000F)
+	if (p_ptr->noscore & 0x000F)
 	{
 		msg_print("Score not registered for wizards.");
 		msg_print(NULL);
-		display_scores_aux(0, 10, -1, NULL);
+		score_idx = -1;
 		return (0);
 	}
 #endif
 
 #ifndef SCORE_BORGS
 	/* Borg-mode pre-empts scoring */
-	if (noscore & 0x00F0)
+	if (p_ptr->noscore & 0x00F0)
 	{
 		msg_print("Score not registered for borgs.");
 		msg_print(NULL);
-		display_scores_aux(0, 10, -1, NULL);
+		score_idx = -1;
 		return (0);
 	}
 #endif
 
 #ifndef SCORE_CHEATERS
 	/* Cheaters are not scored */
-	if (noscore & 0xFF00)
+	if (p_ptr->noscore & 0xFF00)
 	{
 		msg_print("Score not registered for cheaters.");
 		msg_print(NULL);
-		display_scores_aux(0, 10, -1, NULL);
+		score_idx = -1;
 		return (0);
 	}
 #endif
 
 	/* Interupted */
-	if (!total_winner && streq(died_from, "Interrupting"))
+	if (!p_ptr->total_winner && streq(p_ptr->died_from, "Interrupting"))
 	{
 		msg_print("Score not registered due to interruption.");
 		msg_print(NULL);
-		display_scores_aux(0, 10, -1, NULL);
+		score_idx = -1;
 		return (0);
 	}
 
 	/* Quitter */
-	if (!total_winner && streq(died_from, "Quitting"))
+	if (!p_ptr->total_winner && streq(p_ptr->died_from, "Quitting"))
 	{
 		msg_print("Score not registered due to quitting.");
 		msg_print(NULL);
-		display_scores_aux(0, 10, -1, NULL);
+		score_idx = -1;
 		return (0);
 	}
 
@@ -424,14 +492,14 @@ errr top_twenty(void)
 	(void)strftime(long_day, 11, "%m/%d/%Y", localtime(&ct));
 
 	/* Remove the century */
-	j = 7;
+	i = 7;
 	while (1)
 	{
-		j++;
-		long_day[j-2] = long_day[j];
+		i++;
+		long_day[i-2] = long_day[i];
 
 		/* Exit if get a zero */
-		if (long_day[j]) break;
+		if (!long_day[i] || i==11) break;
 	}
 
 	/* Save the date in standard form (8 chars) */
@@ -449,37 +517,57 @@ errr top_twenty(void)
 
 	/* Save the level and such */
 	sprintf(the_score.cur_lev, "%3d", p_ptr->lev);
-	sprintf(the_score.cur_dun, "%3d", dun_level);
-	sprintf(the_score.max_lev, "%3d", p_ptr->max_plv);
-	sprintf(the_score.max_dun, "%3d", p_ptr->max_dlv);
+	sprintf(the_score.cur_dun, "%3d", p_ptr->depth);
+	sprintf(the_score.max_lev, "%3d", p_ptr->max_lev);
+	sprintf(the_score.max_dun, "%3d", p_ptr->max_depth);
 
 	/* Save the cause of death (31 chars) */
-	sprintf(the_score.how, "%-.31s", died_from);
+	sprintf(the_score.how, "%-.31s", p_ptr->died_from);
 
 
 	/* Lock (for writing) the highscore file, or fail */
 	if (fd_lock(highscore_fd, F_WRLCK)) return (1);
 
 	/* Add a new entry to the score list, see where it went */
-	j = highscore_add(&the_score);
+	score_idx = highscore_add(&the_score);
 
 	/* Unlock the highscore file, or fail */
 	if (fd_lock(highscore_fd, F_UNLCK)) return (1);
 
+	/* Success */
+	return (0);
+}
+
+
+
+/*
+ * Displays some relevant portion of the high score list.
+ */
+errr top_twenty(void)
+{
+	/* Clear screen */
+	Term_clear();
+
+	/* No score file */
+	if (highscore_fd < 0)
+	{
+		msg_print("Score file unavailable.");
+		msg_print(NULL);
+		return (0);
+	}
 
 	/* Hack -- Display the top fifteen scores */
-	if (j < 10)
+	if (score_idx < 10)
 	{
-		display_scores_aux(0, 15, j, NULL);
+		display_scores_aux(0, 15, score_idx, NULL);
 	}
 
 	/* Display the scores surrounding the player */
 	else
 	{
-		display_scores_aux(0, 5, j, NULL);
-		display_scores_aux(j - 2, j + 7, j, NULL);
+		display_scores_aux(0, 5, score_idx, NULL);
+		display_scores_aux(score_idx - 2, score_idx + 7, score_idx, NULL);
 	}
-
 
 	/* Success */
 	return (0);
@@ -532,9 +620,9 @@ errr predict_score(void)
 
 	/* Save the level and such */
 	sprintf(the_score.cur_lev, "%3d", p_ptr->lev);
-	sprintf(the_score.cur_dun, "%3d", dun_level);
-	sprintf(the_score.max_lev, "%3d", p_ptr->max_plv);
-	sprintf(the_score.max_dun, "%3d", p_ptr->max_dlv);
+	sprintf(the_score.cur_dun, "%3d", p_ptr->depth);
+	sprintf(the_score.max_lev, "%3d", p_ptr->max_lev);
+	sprintf(the_score.max_dun, "%3d", p_ptr->max_depth);
 
 	/* Hack -- no cause of death */
 	strcpy(the_score.how, "nobody (yet!)");
@@ -565,52 +653,14 @@ errr predict_score(void)
 
 
 /*
- * show_highclass - selectively list highscores based on class
- * -KMW-
+ * Selectively list highscores based on class -KMW-
  */
-void show_highclass(int building)
+void show_highclass(void)
 {
-
-	register int i = 0, j, m = 0;
+	int i = 0, j, m = 0;
 	int pr, pc, clev/*, al*/;
 	high_score the_score;
 	char buf[1024], out_val[256];
-
-#if 0
-	switch (building)
-	{
-		case 1:
-			prt("               Busts of Greatest Kings", 5, 0);
-			break;
-		case 2:
-			prt("               Plaque - Greatest Arena Champions", 5, 0);
-			break;
-		case 10:
-			prt("               Plaque - Greatest Fighters", 5, 0);
-			break;
-		case 11:
-			prt("               Spires of the Greatest Magic-Users", 5, 0);
-			break;
-		case 12:
-			prt("               Busts of Greatest Priests", 5, 0);
-			break;
-		case 13:
-			prt("               Wall Inscriptions - Greatest Thieves", 5, 0);
-			break;
-		case 14:
-			prt("               Plaque - Greatest Rangers", 5, 0);
-			break;
-		case 15:
-			prt("               Plaque - Greatest Paladins", 5, 0);
-			break;
-		case 16:
-			prt("               Spires of the Greatest Illusionists", 5, 0);
-			break;
-		default:
-			bell();
-			break;
-	}
-#endif
 
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_APEX, "scores.raw");
@@ -667,7 +717,7 @@ void show_highclass(int building)
  */
 void race_score(int race_num)
 {
-	register int i = 0, j, m = 0;
+	int i = 0, j, m = 0;
 	int pr, pc, clev, lastlev;
 	high_score the_score;
 	char buf[1024], out_val[256], tmp_str[80];
@@ -758,16 +808,16 @@ void race_legends(void)
 void kingly(void)
 {
 	/* Hack -- retire in town */
-	dun_level = 0;
+	p_ptr->depth = 0;
 
 	/* Fake death */
-	(void)strcpy(died_from, "Ripe Old Age");
+	(void)strcpy(p_ptr->died_from, "Ripe Old Age");
 
 	/* Restore the experience */
 	p_ptr->exp = p_ptr->max_exp;
 
 	/* Restore the level */
-	p_ptr->lev = p_ptr->max_plv;
+	p_ptr->lev = p_ptr->max_lev;
 
 	/* Hack -- Instant Gold */
 	p_ptr->au += 10000000L;

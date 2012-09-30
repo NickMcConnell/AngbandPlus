@@ -103,7 +103,7 @@ Simply use your old savefile as the base for creating your new
 character.
 
 
-*****<Uniques>
+***** <Uniques>
 === Unique Monsters ===
 
 The monsters in Zangband are unique in that each variety of monster
@@ -167,7 +167,7 @@ reward is dependent upon how deep in the dungeon the relevant Unique
 is normally found.
 
 
-*****<EldritchHorror>
+***** <EldritchHorror>
 === Eldritch Horrors ===
 
 Some of the monsters in the dungeons of Zangband are so fearsome to
@@ -181,7 +181,7 @@ random beserker fits, becoming sporadically scared for no reason or
 becoming moronic.
 
 
-*****<Pets>
+***** <Pets>
 === Pets ===
 
 A pet can be a mixed blessing. At first sight, one might think that
@@ -225,7 +225,7 @@ out your enemies. You can command your pets using the pet command menu
 which can be found be pressing 'p'.
 
 
-*****<Friendly>
+***** <Friendly>
 === Friendly Monsters ===
 
 You will occasionally find a monster in the dungeon that isn't out to

@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/09/20 23:38:38 $ */
 /* File: flavor.c */
 
 /* Purpose: Object flavor code */
@@ -12,17 +11,6 @@
  */
 
 #include "angband.h"
-
-
-/*
- * Hack -- note that "TERM_MULTI" is now just "TERM_VIOLET".
- * We will have to find a cleaner method for "MULTI_HUED" later.
- * There were only two multi-hued "flavors" (one potion, one food).
- * Plus five multi-hued "base-objects" (3 dragon scales, one blade
- * of chaos, and one something else).  See the SHIMMER_OBJECTS code
- * in "dungeon.c" and the object color extractor in "cave.c".
- */
-#define TERM_MULTI      TERM_VIOLET
 
 
 /*
@@ -54,9 +42,9 @@ static cptr ring_adj[MAX_ROCKS] =
 	"Obsidian", "Silver", "Tortoise Shell", "Mithril", "Jet",
 	"Engagement", "Adamantite",
 	"Wire", "Dilithium", "Bone", "Wooden",
-	"Spikard", "Serpent",   "Wedding", "Double",
-	"Plain", "Brass",  "Scarab","Shining",
-	"Rusty","Transparent"
+	"Iron", "Serpent", "Wedding", "Double",
+	"Plain", "Brass",  "Scarab", "Shining",
+	"Rusty", "Transparent"
 };
 
 static byte ring_col[MAX_ROCKS] =
@@ -134,7 +122,7 @@ static cptr wand_adj[MAX_METALS] =
 	"Zirconium", "Zinc", "Aluminum-Plated", "Copper-Plated", "Gold-Plated",
 	"Nickel-Plated", "Silver-Plated", "Steel-Plated", "Tin-Plated", "Zinc-Plated",
 	"Mithril-Plated", "Mithril", "Runed", "Bronze", "Brass",
-	"Platinum", "Lead","Lead-Plated", "Ivory" , "Adamantite",
+	"Platinum", "Lead", "Lead-Plated", "Ivory", "Adamantite",
 	"Uridium", "Long", "Short", "Hexagonal"
 };
 
@@ -218,7 +206,7 @@ static byte potion_col[MAX_COLORS] =
 	TERM_RED, TERM_RED, TERM_L_WHITE, TERM_L_DARK, TERM_ORANGE,
 	TERM_VIOLET, TERM_RED, TERM_WHITE, TERM_YELLOW, TERM_VIOLET,
 	TERM_L_RED, TERM_RED, TERM_L_RED, TERM_YELLOW, TERM_GREEN,
-	TERM_MULTI, TERM_RED, TERM_YELLOW, TERM_YELLOW,
+	TERM_VIOLET, TERM_RED, TERM_YELLOW, TERM_YELLOW,
 	TERM_L_UMBER, TERM_UMBER, TERM_L_DARK, TERM_RED, TERM_WHITE, TERM_L_BLUE
 };
 
@@ -247,7 +235,7 @@ static cptr syllables[MAX_SYLLABLES] =
 	"sno", "so", "sol", "sri", "sta", "sun", "ta", "tab",
 	"tem", "ther", "ti", "tox", "trol", "tue", "turs", "u",
 	"ulk", "um", "un", "uni", "ur", "val", "viv", "vly",
-	"vom", "wah", "wed", "werg", "wex", "whon", "wun", "x",
+	"vom", "wah", "wed", "werg", "wex", "whon", "wun", "xi",
 	"yerg", "yp", "zun", "tri", "blaa", "jah", "bul", "on",
 	"foo", "ju", "xuxu"
 };
@@ -385,19 +373,19 @@ static bool object_flavor(int k_idx)
 
 void get_table_name(char *out_string)
 {
-	int testcounter = randint(3) + 1;
+	int testcounter = randint1(3) + 1;
 
 	strcpy(out_string, "'");
 
-	if (randint(3) == 2)
+	if (randint1(3) == 2)
 	{
 		while (testcounter--)
-			strcat(out_string, syllables[rand_int(MAX_SYLLABLES)]);
+			strcat(out_string, syllables[randint0(MAX_SYLLABLES)]);
 	}
 	else
 	{
 		char Syllable[80];
-		testcounter = randint(2) + 1;
+		testcounter = randint1(2) + 1;
 		while (testcounter--)
 		{
 			(void)get_rnd_line("elvish.txt", 0, Syllable);
@@ -473,7 +461,7 @@ void flavor_init(void)
 	/* Rings have "ring colors" */
 	for (i = 0; i < MAX_ROCKS; i++)
 	{
-		j = rand_int(MAX_ROCKS);
+		j = randint0(MAX_ROCKS);
 		temp_adj = ring_adj[i];
 		ring_adj[i] = ring_adj[j];
 		ring_adj[j] = temp_adj;
@@ -485,7 +473,7 @@ void flavor_init(void)
 	/* Amulets have "amulet colors" */
 	for (i = 0; i < MAX_AMULETS; i++)
 	{
-		j = rand_int(MAX_AMULETS);
+		j = randint0(MAX_AMULETS);
 		temp_adj = amulet_adj[i];
 		amulet_adj[i] = amulet_adj[j];
 		amulet_adj[j] = temp_adj;
@@ -497,7 +485,7 @@ void flavor_init(void)
 	/* Staffs */
 	for (i = 0; i < MAX_WOODS; i++)
 	{
-		j = rand_int(MAX_WOODS);
+		j = randint0(MAX_WOODS);
 		temp_adj = staff_adj[i];
 		staff_adj[i] = staff_adj[j];
 		staff_adj[j] = temp_adj;
@@ -509,7 +497,7 @@ void flavor_init(void)
 	/* Wands */
 	for (i = 0; i < MAX_METALS; i++)
 	{
-		j = rand_int(MAX_METALS);
+		j = randint0(MAX_METALS);
 		temp_adj = wand_adj[i];
 		wand_adj[i] = wand_adj[j];
 		wand_adj[j] = temp_adj;
@@ -521,7 +509,7 @@ void flavor_init(void)
 	/* Rods */
 	for (i = 0; i < MAX_METALS; i++)
 	{
-		j = rand_int(MAX_METALS);
+		j = randint0(MAX_METALS);
 		temp_adj = rod_adj[i];
 		rod_adj[i] = rod_adj[j];
 		rod_adj[j] = temp_adj;
@@ -533,7 +521,7 @@ void flavor_init(void)
 	/* Foods (Mushrooms) */
 	for (i = 0; i < MAX_SHROOM; i++)
 	{
-		j = rand_int(MAX_SHROOM);
+		j = randint0(MAX_SHROOM);
 		temp_adj = food_adj[i];
 		food_adj[i] = food_adj[j];
 		food_adj[j] = temp_adj;
@@ -545,7 +533,7 @@ void flavor_init(void)
 	/* Potions */
 	for (i = 4; i < MAX_COLORS; i++)
 	{
-		j = rand_int(MAX_COLORS - 4) + 4;
+		j = randint0(MAX_COLORS - 4) + 4;
 		temp_adj = potion_adj[i];
 		potion_adj[i] = potion_adj[j];
 		potion_adj[j] = temp_adj;
@@ -578,13 +566,13 @@ void flavor_init(void)
 				tmp[0] = '\0';
 
 				/* Choose one or two syllables */
-				s = ((rand_int(100) < 30) ? 1 : 2);
+				s = ((randint0(100) < 30) ? 1 : 2);
 
 				/* Add a one or two syllable word */
 				for (q = 0; q < s; q++)
 				{
 					/* Add the syllable */
-					strcat(tmp, syllables[rand_int(MAX_SYLLABLES)]);
+					strcat(tmp, syllables[randint0(MAX_SYLLABLES)]);
 				}
 
 				/* Stop before getting too long */
@@ -789,8 +777,8 @@ static char *object_desc_int(char *t, sint v)
  * Note that the inscription will be clipped to keep the total description
  * under 79 chars (plus a terminator).
  *
- * Note the use of "object_desc_num()" and "object_desc_int()" as hyper-efficient,
- * portable, versions of some common "sprintf()" commands.
+ * Note the use of "object_desc_num()" and "object_desc_int()" as
+ * hyper-efficient, portable, versions of some common "sprintf()" commands.
  *
  * Note that all ego-items (when known) append an "Ego-Item Name", unless
  * the item is also an artifact, which should NEVER happen.
@@ -956,7 +944,8 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		case TV_AMULET:
 		{
 			/* Known artifacts */
-			if (artifact_p(o_ptr) && aware) break;
+			if ((o_ptr->flags3 & TR3_INSTA_ART) && aware &&
+				 (o_ptr->activate > 128)) break;
 
 			/* Color the object */
 			modstr = amulet_adj[indexx];
@@ -973,7 +962,8 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		case TV_RING:
 		{
 			/* Known artifacts */
-			if (artifact_p(o_ptr) && aware) break;
+			if ((o_ptr->flags3 & TR3_INSTA_ART) && aware &&
+				 (o_ptr->activate > 128)) break;
 
 			/* Color the object */
 			modstr = ring_adj[indexx];
@@ -1182,7 +1172,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		}
 
 		/* Hack -- The only one of its kind */
-		else if (known && (artifact_p(o_ptr) || o_ptr->art_name))
+		else if (known && (o_ptr->flags3 & TR3_INSTA_ART))
 		{
 			t = object_desc_str(t, "The ");
 		}
@@ -1232,7 +1222,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		}
 
 		/* Hack -- The only one of its kind */
-		else if (known && (artifact_p(o_ptr) || o_ptr->art_name))
+		else if (known && (o_ptr->flags3 & TR3_INSTA_ART))
 		{
 			t = object_desc_str(t, "The ");
 		}
@@ -1308,40 +1298,12 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 			t = object_desc_str(t, &str[1]);
 		}
 
-		/* Is it a new random artifact ? */
-		else if (o_ptr->art_name)
+		/* Is it a new artifact or ego item? */
+		else if (o_ptr->xtra_name)
 		{
-#if 0
-			if (o_ptr->ident & IDENT_STOREB)
-				t = object_desc_str(t, " called '");
-			else
-#endif
-				t = object_desc_chr(t, ' ');
-
-			t = object_desc_str(t, quark_str(o_ptr->art_name));
-
-#if 0
-			if (o_ptr->ident & IDENT_STOREB)
-				t = object_desc_chr(t, '\'');
-#endif
-		}
-
-		/* Grab any artifact name */
-		else if (o_ptr->name1)
-		{
-			artifact_type *a_ptr = &a_info[o_ptr->name1];
-
 			t = object_desc_chr(t, ' ');
-			t = object_desc_str(t, (a_name + a_ptr->name));
-		}
 
-		/* Grab any ego-item name */
-		else if (o_ptr->name2)
-		{
-			ego_item_type *e_ptr = &e_info[o_ptr->name2];
-
-			t = object_desc_chr(t, ' ');
-			t = object_desc_str(t, (e_name + e_ptr->name));
+			t = object_desc_str(t, quark_str(o_ptr->xtra_name));
 		}
 	}
 
@@ -1435,7 +1397,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	if (o_ptr->to_h && o_ptr->to_d) show_weapon = TRUE;
 
 	/* Display the item like armour */
-	if (o_ptr->ac) show_armour = TRUE;
+	if ((o_ptr->ac) && (o_ptr->tval != TV_WAND)) show_armour = TRUE;
 
 	/* Dump base weapon info */
 	switch (o_ptr->tval)
@@ -1792,7 +1754,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	}
 
 	/* Hack -- Process Lanterns/Torches */
-	else if ((o_ptr->tval == TV_LITE) && (!artifact_p(o_ptr)))
+	else if ((o_ptr->tval == TV_LITE) && (!(o_ptr->flags3 & TR3_INSTA_ART)))
 	{
 		/* Hack -- Turns of light for normal lites */
 		t = object_desc_str(t, " (with ");
@@ -1853,12 +1815,6 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		{
 			/* Dump " to infravision" */
 			t = object_desc_str(t, " to infravision");
-		}
-
-		/* Tunneling */
-		else if (f1 & (TR1_TUNNEL))
-		{
-			/* Nothing */
 		}
 
 		/* Finish the display */

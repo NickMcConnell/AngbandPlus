@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/09/06 12:33:09 $ */
 /* File: wizard1.c */
 
 /* Purpose: Spoiler generation -BEN- */
@@ -620,7 +619,6 @@ typedef struct
  * various magical powers. The "ignore X" traits are not noted since
  * all artifacts ignore "normal" destruction.
  */
-
 typedef struct
 {
 	/* "The Longsword Dragonsmiter (6d4) (+20, +25)" */
@@ -645,10 +643,10 @@ typedef struct
 	cptr sustains[N_ELEMENTS(sustain_flags_desc)  - 1 + 1];
 
 	/* A list of various magical qualities an object may have */
-	cptr misc_magic[N_ELEMENTS(misc_flags2_desc) + N_ELEMENTS(misc_flags3_desc)
-			+ 1       /* Permanent Light */
-			+ 1       /* type of curse */
-			+ 1];     /* sentinel NULL */
+	cptr misc_magic[N_ELEMENTS(misc_flags2_desc) + N_ELEMENTS(misc_flags3_desc) +
+			1 +      /* Permanent Light */
+			1 +      /* type of curse */
+			1];     /* sentinel NULL */
 
 	/* A string describing an artifact's activation */
 	cptr activation;
@@ -698,14 +696,14 @@ static void spoiler_underline(cptr str)
  *
  * The possibly updated description pointer is returned.
  */
-static cptr *spoiler_flag_aux(const u32b art_flags, const flag_desc *flag_ptr,
+static cptr *spoiler_flag_aux(const u32b flags, const flag_desc *flag_ptr,
 			      cptr *desc_ptr, const int n_elmnts)
 {
 	int i;
 
 	for (i = 0; i < n_elmnts; ++i)
 	{
-		if (art_flags & flag_ptr[i].flag)
+		if (flags & flag_ptr[i].flag)
 		{
 			*desc_ptr++ = flag_ptr[i].desc;
 		}
@@ -885,7 +883,7 @@ static void analyze_misc_magic (object_type *o_ptr, cptr *misc_list)
 	/*
 	 * Artifact lights -- large radius light.
 	 */
-	if ((o_ptr->tval == TV_LITE) && artifact_p(o_ptr))
+	if ((o_ptr->tval == TV_LITE) && (o_ptr->flags3 & TR3_INSTA_ART))
 	{
 		*misc_list++ = "Permanent Light(3)";
 	}
@@ -937,7 +935,12 @@ static void analyze_misc_magic (object_type *o_ptr, cptr *misc_list)
  */
 static void analyze_misc (object_type *o_ptr, char *misc_desc)
 {
-	artifact_type *a_ptr = &a_info[o_ptr->name1];
+	artifact_type *a_ptr;
+
+	/* Only look at artifacts */
+	if (o_ptr->activate < 128) return;
+
+	a_ptr = &a_info[o_ptr->activate - 128];
 
 	sprintf(misc_desc, "Level %u, Rarity %u, %d.%d lbs, %ld Gold",
 		a_ptr->level, a_ptr->rarity,
@@ -1167,12 +1170,11 @@ static void spoiler_print_art(obj_desc_list *art_ptr)
 /*
  * Hack -- Create a "forged" artifact
  */
-static bool make_fake_artifact(object_type *o_ptr, int name1)
+static bool make_fake_artifact(object_type *o_ptr, int a_idx)
 {
 	int i;
 
-	artifact_type *a_ptr = &a_info[name1];
-
+	artifact_type *a_ptr = &a_info[a_idx];
 
 	/* Ignore "empty" artifacts */
 	if (!a_ptr->name) return FALSE;
@@ -1186,8 +1188,8 @@ static bool make_fake_artifact(object_type *o_ptr, int name1)
 	/* Create the artifact */
 	object_prep(o_ptr, i);
 
-	/* Save the name */
-	o_ptr->name1 = name1;
+	/* Save the activation */
+	o_ptr->activate = a_idx + 128;
 
 	/* Extract the fields */
 	o_ptr->pval = a_ptr->pval;
@@ -1198,6 +1200,12 @@ static bool make_fake_artifact(object_type *o_ptr, int name1)
 	o_ptr->to_h = a_ptr->to_h;
 	o_ptr->to_d = a_ptr->to_d;
 	o_ptr->weight = a_ptr->weight;
+
+	/* Do not make another one */
+	a_ptr->cur_num = 1;
+
+	/* Save the inscription */
+	o_ptr->xtra_name = quark_add(a_name + a_ptr->name);
 
 	/* Success */
 	return (TRUE);
@@ -2206,11 +2214,11 @@ static void spoil_mon_info(cptr fname)
 				case RBM_BUTT:   p = "butt"; break;
 				case RBM_CRUSH:  p = "crush"; break;
 				case RBM_ENGULF: p = "engulf"; break;
-				case RBM_CHARGE: p = "charge";  break;
+				case RBM_CHARGE: p = "charge"; break;
 				case RBM_CRAWL:  p = "crawl on you"; break;
 				case RBM_DROOL:  p = "drool on you"; break;
 				case RBM_SPIT:   p = "spit"; break;
-				case RBM_EXPLODE: p = "explode";  break;
+				case RBM_EXPLODE: p = "explode"; break;
 				case RBM_GAZE:   p = "gaze"; break;
 				case RBM_WAIL:   p = "wail"; break;
 				case RBM_SPORE:  p = "release spores"; break;

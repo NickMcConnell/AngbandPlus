@@ -6,11 +6,11 @@
  */
 #define DUN_UNUSUAL 200 /* Level/chance of unusual room (was 200) */
 #define DUN_DEST    18  /* 1/chance of having a destroyed level */
-#define SMALL_LEVEL 3   /* 1/chance of smaller size (3) */
+#define SMALL_LEVEL 5   /* 1/chance of smaller size (5) */
 #define EMPTY_LEVEL 15  /* 1/chance of being 'empty' (15) */
-#define LAKE_LEVEL  7   /* 1/chance of being a lake on the level */
+#define LAKE_LEVEL  10   /* 1/chance of being a lake on the level */
 #define DARK_EMPTY  5   /* 1/chance of arena level NOT being lit (2) */
-#define DUN_CAV1    918 /* 1/chance for getting a cavern is: */
+#define DUN_CAV1    600 /* 1/chance for getting a cavern is: */
 #define DUN_CAV2    75  /* DUN_CAV1/(dun_level + DUN_CAV2)  */
 			/*  = 5 at dl 30   and = 3 at dl 100 */
 #define MIN_CAVERN  30  /* Minimum level to get a cavern */
@@ -94,7 +94,7 @@ extern int dun_tun_jct;
 #define BLOCK_WID	11
 
 /*
- * Maximum numbers of rooms along each axis (currently 6x6)
+ * Maximum numbers of rooms along each axis
  */
 #define MAX_ROOMS_ROW	(MAX_HGT / BLOCK_HGT)
 #define MAX_ROOMS_COL	(MAX_WID / BLOCK_WID)
@@ -102,7 +102,6 @@ extern int dun_tun_jct;
 
 /*
  * Bounds on some arrays used in the "dun_data" structure.
- * These bounds are checked, though usually this is a formality.
  */
 #define CENT_MAX	100
 #define DOOR_MAX	200
@@ -114,6 +113,8 @@ extern int dun_tun_jct;
 
 /*
  * Structure to hold all "dungeon generation" data
+ * Using this instead of global variables, 
+ * fixes a memory fragmentation problem on some windows compilers.
  */
 
 typedef struct dun_data dun_data;

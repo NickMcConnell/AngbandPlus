@@ -1,5 +1,5 @@
 N:*:Default
-65
+80
 What game do you think you are playing anyway?
 Aivan sairas kaveri kun tuollaista aikoo puuhata!
 Insufficient data for further analysis.
@@ -65,3 +65,18 @@ AAAAAAAAAAAAAHHHHHHHHHHHHHHHRRRRRRRRRRRGGGGGGGGGGG!
 No more, if you value your character's life!
 Give it up, guy.
 Disk error. (a)bort, (r)etry, (f)ail?
+Are you sure you want to use borg commands?
+You feel oddly normal.
+You cannot cast spells!
+'I grow tired of thee, mortal.'
+You just completed your quest!
+You hear a bell toll three times!
+Successfully created a spoiler file.
+Hmmm, it seems to be cursed.
+There is a malignant black aura surrounding you...
+A terrible black aura blasts your weapon!
+You feel your life draining away!
+A mysterious force prevents you from doing that.
+This will mark the savefile as a cheater. Continue? (Y)
+You can't do that while wielding a weapon!
+You must first select a target.

@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/07/29 09:02:55 $ */
 /* File: z-term.h */
 
 /*
@@ -219,6 +218,8 @@ struct term
 
 	errr (*text_hook)(int x, int y, int n, byte a, cptr s);
 
+	void (*resize_hook)(void);
+
 #ifdef USE_TRANSPARENCY
 	errr (*pict_hook)(int x, int y, int n, const byte *ap, const char *cp, const byte *tap, const char *tcp);
 #else /* USE_TRANSPARENCY */
@@ -324,7 +325,6 @@ extern errr Term_activate(term *t);
 
 extern errr term_nuke(term *t);
 extern errr term_init(term *t, int w, int h, int k);
-
 
 #endif
 

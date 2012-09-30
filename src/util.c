@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/09/21 21:35:10 $ */
 /* File: util.c */
 
 /* Purpose: Angband utilities -BEN- */
@@ -25,34 +24,6 @@ char *memset(char *s, int c, huge n)
 }
 
 #endif
-
-
-#if 0
-#ifndef HAS_STRICMP
-
-/*
- * For those systems that don't have "stricmp()"
- *
- * Compare the two strings "a" and "b" ala "strcmp()" ignoring case.
- */
-int stricmp(cptr a, cptr b)
-{
-	cptr s1, s2;
-	char z1, z2;
-
-	/* Scan the strings */
-	for (s1 = a, s2 = b; TRUE; s1++, s2++)
-	{
-		z1 = FORCEUPPER(*s1);
-		z2 = FORCEUPPER(*s2);
-		if (z1 < z2) return (-1);
-		if (z1 > z2) return (1);
-		if (!z1) return (0);
-	}
-}
-
-#endif /* HAS_STRICMP */
-#endif /* 0 */
 
 #ifdef SET_UID
 
@@ -1899,7 +1870,123 @@ char inkey(void)
  * index, which should greatly reduce the need for inscription space.
  *
  * Note that "quark zero" is NULL and should not be "dereferenced".
+ *
+ * From time to time, with random artifacts, and with a borg playing,
+ * the game will run out of quarks.  This has been fixed with the
+ * addition of the compact_quarks() routine.  This routine will remove
+ * the least recently used quark from the list.  If QUARK_MAX is bigger
+ * than the total number of objects possible in the game - then this
+ * will never be a problem.  (At least one quark will be unused.)
+ * As it stands, QUARK_MAX is smaller than that to save memory.  So
+ * occasionally, an object will get the "wrong" inscription.  This
+ * is better than disabling inscriptions alltogether though.  (That
+ * was the previous behaviour.)
+ *
+ * The quark_add_perm() function was added to make certain that some
+ * quarks wouldn't be affected by the compaction process.  These game
+ * inscriptions / strings should never be deallocated.  No matter how
+ * rarely they are used.
  */
+
+
+/*
+ * Sorting hook -- comp function -- by "access time"
+ *
+ * We use "u" and "v" to point to arrays of "x" and "y" positions,
+ * and sort the arrays by the value in y.  The value in x is
+ * saved as a reference to the old position in the list.
+ */
+static bool ang_sort_comp_a_time(vptr u, vptr v, int a, int b)
+{
+	s16b *y = (s16b*)(v);
+
+	/* Compare them */
+	return (y[a] <= y[b]);
+}
+
+
+/*
+ * Sorting hook -- swap function -- by "access time"
+ *
+ * We use "u" and "v" to point to arrays of "x" and "y" positions,
+ * and sort the arrays by the value in y.  The value in x is
+ * saved as a reference to the old position in the list.
+ */
+static void ang_sort_swap_a_time(vptr u, vptr v, int a, int b)
+{
+	s16b *x = (s16b*)(u);
+	s16b *y = (s16b*)(v);
+
+	s16b temp;
+
+	/* Swap "x" */
+	temp = x[a];
+	x[a] = x[b];
+	x[b] = temp;
+
+	/* Swap "y" */
+	temp = y[a];
+	y[a] = y[b];
+	y[b] = temp;
+}
+
+
+/*
+ * Out of space - Compact the quarks
+ */
+static s16b compact_quarks(void)
+{
+	s16b empty, i;
+	
+	/* Save the times */
+	for (i = 1; i < quark__num; i++)
+	{
+		temp_x[i] = i;
+		temp_y[i] = quark__use[i];
+	}
+	
+	temp_n = quark__num;
+	
+	/* Set the sort hooks */
+	ang_sort_comp = ang_sort_comp_a_time;
+	ang_sort_swap = ang_sort_swap_a_time;
+
+	/* Sort by access time */
+	ang_sort(temp_x, temp_y, temp_n);
+
+	
+	/* Find the one with the least non-zero time */
+	i = 1;
+	
+	while (!temp_y[i]) i++;
+	
+	/* Save the most unused temporary quark */
+	empty = i;
+	
+	
+	/* Reset all the times to something "smaller" */
+	for (;i < quark__num; i++)
+	{
+		/* Paranoia */
+		if (temp_x[i])
+		{
+			quark__use[temp_x[i]] = temp_y[i];
+		}
+	}
+
+	/* 
+	 * Reset the time
+	 *
+	 * Note that QUARK_MAX * 3 must be less than the
+	 * size of a s16b.
+	 */
+	quark__tim = quark__num + 1;
+
+	/* Reset temp_n */
+	temp_n = 0;
+
+	return (empty);
+}
 
 /*
  * Add a new "quark" to the set of quarks.
@@ -1911,23 +1998,84 @@ s16b quark_add(cptr str)
 	/* Look for an existing quark */
 	for (i = 1; i < quark__num; i++)
 	{
+		/* Check for non-permanence */
+		if (!quark__use[i]) continue;
+		
 		/* Check for equality */
 		if (streq(quark__str[i], str)) return (i);
 	}
 
 	/* Paranoia -- Require room */
-	if (quark__num == QUARK_MAX) return (0);
-
-	/* New maximal quark */
-	quark__num = i + 1;
-
+	if (quark__num == QUARK_MAX)
+	{
+		i = compact_quarks();
+		
+		/* Paranoia - no room? */
+		if (!i) return(0);
+		
+		/* Delete the old quark */
+		string_free(quark__str[i]);
+	}
+	else
+	{
+		/* New maximal quark */
+		quark__num = i + 1;
+	}
+	
 	/* Add a new quark */
 	quark__str[i] = string_make(str);
+
+	/* Save the time */
+	quark__use[i] = ++quark__tim;
 
 	/* Return the index */
 	return (i);
 }
 
+
+/*
+ * Add a new permanent "quark" to the set of quarks.
+ */
+s16b quark_add_perm(cptr str)
+{
+	int i;
+
+	/* Look for an existing quark */
+	for (i = 1; i < quark__num; i++)
+	{
+		/* Check for permanence */
+		if (quark__use[i]) continue;
+		
+		/* Check for equality */
+		if (streq(quark__str[i], str)) return (i);
+	}
+
+	/* Paranoia -- Require room */
+	if (quark__num == QUARK_MAX)
+	{
+		i = compact_quarks();
+		
+		/* Paranoia - no room? */
+		if (!i) return(0);
+		
+		/* Delete the old quark */
+		string_free(quark__str[i]);
+	}
+	else
+	{
+		/* New maximal quark */
+		quark__num = i + 1;
+	}
+
+	/* Add a new quark */
+	quark__str[i] = string_make(str);
+
+	/* Make it permanent */
+	quark__use[i] = 0;
+
+	/* Return the index */
+	return (i);
+}
 
 /*
  * This function looks up a quark
@@ -1941,6 +2089,15 @@ cptr quark_str(s16b i)
 
 	/* Access the quark */
 	q = quark__str[i];
+	
+	/* Save the access time */
+	quark__use[i] = ++quark__tim;
+	
+	/* Compact from time to time */
+	if (quark__tim > 3 * QUARK_MAX)
+	{
+		(void) compact_quarks();
+	}
 
 	/* Return the quark */
 	return (q);
@@ -2284,7 +2441,7 @@ static void msg_flush(int x)
 	byte a = TERM_L_BLUE;
 
 	/* Hack -- fake monochrome */
-	if (!use_color) a = TERM_WHITE;
+	if (!use_color || ironman_moria) a = TERM_WHITE;
 
 	/* Pause for response */
 	Term_putstr(x, 0, -1, a, "-more-");
@@ -2341,7 +2498,7 @@ void msg_print_color(byte attr, cptr msg)
 
 
 	/* Hack -- fake monochrome */
-	if (!use_color) attr = TERM_WHITE;
+	if (!use_color || ironman_moria) attr = TERM_WHITE;
 
 	/* Hack -- Reset */
 	if (!msg_flag) p = 0;
@@ -2547,7 +2704,7 @@ void msg_format_color(byte attr, cptr fmt, ...)
 void c_put_str(byte attr, cptr str, int row, int col)
 {
 	/* Hack -- fake monochrome */
-	if (!use_color) attr = TERM_WHITE;
+	if (!use_color || ironman_moria) attr = TERM_WHITE;
 
 	/* Position cursor, Dump the attr/text */
 	Term_putstr(col, row, -1, attr, str);
@@ -2571,7 +2728,7 @@ void put_str(cptr str, int row, int col)
 void c_prt(byte attr, cptr str, int row, int col)
 {
 	/* Hack -- fake monochrome */
-	if (!use_color) attr = TERM_WHITE;
+	if (!use_color || ironman_moria) attr = TERM_WHITE;
 
 	/* Clear line, position cursor */
 	Term_erase(col, row, 255);
@@ -2616,7 +2773,7 @@ void c_roff(byte a, cptr str)
 
 
 	/* Hack -- fake monochrome */
-	if (!use_color) a = TERM_WHITE;
+	if (!use_color || ironman_moria) a = TERM_WHITE;
 
 
 	/* Obtain the size */
@@ -2773,8 +2930,16 @@ bool askfor_aux(char *buf, int len)
 
 	/* Display the default answer */
 	Term_erase(x, y, len);
-	Term_putstr(x, y, -1, TERM_YELLOW, buf);
-
+	
+	/* Fake monochrome */
+	if (!use_color || ironman_moria)
+	{
+		Term_putstr(x, y, -1, TERM_WHITE, buf);
+	}
+	else
+	{
+		Term_putstr(x, y, -1, TERM_YELLOW, buf);
+	}
 
 	/* Process input */
 	while (!done)
@@ -2950,13 +3115,13 @@ s16b get_quantity(cptr prompt, int max)
 
 
 	/* Use "command_arg" */
-	if (command_arg)
+	if (p_ptr->command_arg)
 	{
 		/* Extract a number */
-		amt = command_arg;
+		amt = p_ptr->command_arg;
 
 		/* Clear "command_arg" */
-		command_arg = 0;
+		p_ptr->command_arg = 0;
 
 		/* Enforce the maximum */
 		if (amt > max) amt = max;
@@ -3081,29 +3246,29 @@ void request_command(int shopping)
 
 
 	/* No command yet */
-	command_cmd = 0;
+	p_ptr->command_cmd = 0;
 
 	/* No "argument" yet */
-	command_arg = 0;
+	p_ptr->command_arg = 0;
 
 	/* No "direction" yet */
-	command_dir = 0;
+	p_ptr->command_dir = 0;
 
 
 	/* Get command */
 	while (1)
 	{
 		/* Hack -- auto-commands */
-		if (command_new)
+		if (p_ptr->command_new)
 		{
 			/* Flush messages */
 			msg_print(NULL);
 
 			/* Use auto-command */
-			cmd = (char)command_new;
+			cmd = (char)p_ptr->command_new;
 
 			/* Forget it */
-			command_new = 0;
+			p_ptr->command_new = 0;
 		}
 
 		/* Get a keypress in "command" mode */
@@ -3126,10 +3291,10 @@ void request_command(int shopping)
 		/* Command Count */
 		if (cmd == '0')
 		{
-			int old_arg = command_arg;
+			int old_arg = p_ptr->command_arg;
 
 			/* Reset */
-			command_arg = 0;
+			p_ptr->command_arg = 0;
 
 			/* Begin the input */
 			prt("Count: ", 0, 0);
@@ -3144,34 +3309,34 @@ void request_command(int shopping)
 				if ((cmd == 0x7F) || (cmd == KTRL('H')))
 				{
 					/* Delete a digit */
-					command_arg = command_arg / 10;
+					p_ptr->command_arg = p_ptr->command_arg / 10;
 
 					/* Show current count */
-					prt(format("Count: %d", command_arg), 0, 0);
+					prt(format("Count: %d", p_ptr->command_arg), 0, 0);
 				}
 
 				/* Actual numeric data */
 				else if (cmd >= '0' && cmd <= '9')
 				{
 					/* Stop count at 9999 */
-					if (command_arg >= 1000)
+					if (p_ptr->command_arg >= 10000)
 					{
 						/* Warn */
 						bell();
 
 						/* Limit */
-						command_arg = 9999;
+						p_ptr->command_arg = 9999;
 					}
 
 					/* Increase count */
 					else
 					{
 						/* Incorporate that digit */
-						command_arg = command_arg * 10 + D2I(cmd);
+						p_ptr->command_arg = p_ptr->command_arg * 10 + D2I(cmd);
 					}
 
 					/* Show current count */
-					prt(format("Count: %d", command_arg), 0, 0);
+					prt(format("Count: %d", p_ptr->command_arg), 0, 0);
 				}
 
 				/* Exit on "unusable" input */
@@ -3182,23 +3347,23 @@ void request_command(int shopping)
 			}
 
 			/* Hack -- Handle "zero" */
-			if (command_arg == 0)
+			if (p_ptr->command_arg == 0)
 			{
 				/* Default to 99 */
-				command_arg = 99;
+				p_ptr->command_arg = 99;
 
 				/* Show current count */
-				prt(format("Count: %d", command_arg), 0, 0);
+				prt(format("Count: %d", p_ptr->command_arg), 0, 0);
 			}
 
 			/* Hack -- Handle "old_arg" */
 			if (old_arg != 0)
 			{
 				/* Restore old_arg */
-				command_arg = old_arg;
+				p_ptr->command_arg = old_arg;
 
 				/* Show current count */
-				prt(format("Count: %d", command_arg), 0, 0);
+				prt(format("Count: %d", p_ptr->command_arg), 0, 0);
 			}
 
 			/* Hack -- white-space means "enter command now" */
@@ -3208,7 +3373,7 @@ void request_command(int shopping)
 				if (!get_com("Command: ", &cmd))
 				{
 					/* Clear count */
-					command_arg = 0;
+					p_ptr->command_arg = 0;
 
 					/* Continue */
 					continue;
@@ -3258,20 +3423,20 @@ void request_command(int shopping)
 
 
 		/* Use command */
-		command_cmd = cmd;
+		p_ptr->command_cmd = cmd;
 
 		/* Done */
 		break;
 	}
 
 	/* Hack -- Auto-repeat certain commands */
-	if (always_repeat && (command_arg <= 0))
+	if (always_repeat && (p_ptr->command_arg <= 0))
 	{
 		/* Hack -- auto repeat certain commands */
-		if (strchr("TBDoc+", command_cmd))
+		if (strchr("TBDoc+", p_ptr->command_cmd))
 		{
 			/* Repeat 99 times */
-			command_arg = 99;
+			p_ptr->command_arg = 99;
 		}
 	}
 
@@ -3279,16 +3444,16 @@ void request_command(int shopping)
 	if (shopping == 1)
 	{
 		/* Convert */
-		switch (command_cmd)
+		switch (p_ptr->command_cmd)
 		{
 			/* Command "p" -> "purchase" (get) */
-		case 'p': command_cmd = 'g'; break;
+			case 'p': p_ptr->command_cmd = 'g'; break;
 
 			/* Command "m" -> "purchase" (get) */
-		case 'm': command_cmd = 'g'; break;
+			case 'm': p_ptr->command_cmd = 'g'; break;
 
 			/* Command "s" -> "sell" (drop) */
-		case 's': command_cmd = 'd'; break;
+			case 's': p_ptr->command_cmd = 'd'; break;
 		}
 	}
 
@@ -3315,13 +3480,13 @@ void request_command(int shopping)
 		while (s)
 		{
 			/* Check the "restriction" character */
-			if ((s[1] == command_cmd) || (s[1] == '*'))
+			if ((s[1] == p_ptr->command_cmd) || (s[1] == '*'))
 			{
 				/* Hack -- Verify command */
 				if (!get_check("Are you sure? "))
 				{
 					/* Hack -- Use space */
-					command_cmd = ' ';
+					p_ptr->command_cmd = ' ';
 				}
 			}
 
@@ -3434,22 +3599,29 @@ int get_keymap_dir(char ch)
 	cptr act, s;
 	int d = 0;
 
-	if (rogue_like_commands)
+	if (isdigit(ch))
 	{
-		act = keymap_act[KEYMAP_MODE_ROGUE][(byte)ch];
+		d = D2I(ch);
 	}
 	else
 	{
-		act = keymap_act[KEYMAP_MODE_ORIG][(byte)ch];
-	}
-
-	if (act)
-	{
-		/* Convert to a direction */
-		for (s = act; *s; ++s)
+		if (rogue_like_commands)
 		{
-			/* Use any digits in keymap */
-			if (isdigit(*s)) d = D2I(*s);
+			act = keymap_act[KEYMAP_MODE_ROGUE][(byte)ch];
+		}
+		else
+		{
+			act = keymap_act[KEYMAP_MODE_ORIG][(byte)ch];
+		}
+
+		if (act)
+		{
+			/* Convert to a direction */
+			for (s = act; *s; ++s)
+			{
+				/* Use any digits in keymap */
+				if (isdigit(*s)) d = D2I(*s);
+			}
 		}
 	}
 	return d;
@@ -3498,13 +3670,13 @@ void repeat_check(void)
 	int		what;
 
 	/* Ignore some commands */
-	if (command_cmd == ESCAPE) return;
-	if (command_cmd == ' ') return;
-	if (command_cmd == '\r') return;
-	if (command_cmd == '\n') return;
+	if (p_ptr->command_cmd == ESCAPE) return;
+	if (p_ptr->command_cmd == ' ') return;
+	if (p_ptr->command_cmd == '\r') return;
+	if (p_ptr->command_cmd == '\n') return;
 
 	/* Repeat Last Command */
-	if (command_cmd == 'n')
+	if (p_ptr->command_cmd == 'n')
 	{
 		/* Reset */
 		repeat__idx = 0;
@@ -3513,7 +3685,7 @@ void repeat_check(void)
 		if (repeat_pull(&what))
 		{
 			/* Save the command */
-			command_cmd = what;
+			p_ptr->command_cmd = what;
 		}
 	}
 
@@ -3524,7 +3696,7 @@ void repeat_check(void)
 		repeat__cnt = 0;
 		repeat__idx = 0;
 
-		what = command_cmd;
+		what = p_ptr->command_cmd;
 
 		/* Save this command */
 		repeat_push(what);
@@ -3746,7 +3918,8 @@ void build_gamma_table(int gamma)
 			 * divided by 256*256 each itteration, to get back to
 			 * the original power series.
 			 */
-			diff = (((diff / 256) * gamma_helper[i]) * (gamma - 256)) / (256 * n);
+			diff = (((diff / 256) * gamma_helper[i]) *
+				 (gamma - 256)) / (256 * n);
 		}
 
 		/*

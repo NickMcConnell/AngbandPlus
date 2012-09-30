@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 2000/08/08 12:10:26 $ */
 /* File: main-cap.c */
 
 /* Purpose: Support for "term.c" using "termcap" calls */

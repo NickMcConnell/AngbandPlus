@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 1999/10/12 11:34:45 $ */
 /* File: main-xxx.c */
 
 /* Purpose: Sample visual module for Angband 2.8.1 */

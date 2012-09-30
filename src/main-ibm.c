@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 2000/08/01 08:18:18 $ */
 /* File: main-ibm.c */
 
 /*

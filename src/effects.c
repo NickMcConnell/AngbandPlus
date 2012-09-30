@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/09/08 10:16:13 $ */
 /* File: effects.c */
 
 /* Purpose: effects of various "objects" */
@@ -1403,16 +1402,16 @@ bool set_stun(int v)
 		 * explained away by their "superior mental skills" or
 		 * something...
 		 */
-		if ((randint(1000) < v || randint(16) == 1) &&
+		if ((randint1(1000) < v || randint1(16) == 1) &&
 		 (!(p_ptr->pclass == CLASS_MINDCRAFTER)))
 		{
 			msg_print("A vicious blow hits your head.");
-			if (randint(3) == 1)
+			if (randint1(3) == 1)
 			{
 				if (!p_ptr->sustain_int) (void)do_dec_stat(A_INT);
 				if (!p_ptr->sustain_wis) (void)do_dec_stat(A_WIS);
 			}
-			else if (randint(2) == 1)
+			else if (randint1(2) == 1)
 			{
 				if (!p_ptr->sustain_int) (void)do_dec_stat(A_INT);
 			}
@@ -1627,7 +1626,7 @@ bool set_cut(int v)
 		/* Notice */
 		notice = TRUE;
 
-		if (randint(1000) < v || randint(16) == 1)
+		if (randint1(1000) < v || randint1(16) == 1)
 		{
 			if (!p_ptr->sustain_chr)
 			{
@@ -1907,7 +1906,7 @@ bool inc_stat(int stat)
 		/* Gain one (sometimes two) points */
 		if (value < 18)
 		{
-			gain = ((rand_int(100) < 75) ? 1 : 2);
+			gain = ((randint0(100) < 75) ? 1 : 2);
 			value += gain;
 		}
 
@@ -1921,7 +1920,7 @@ bool inc_stat(int stat)
 			if (gain < 1) gain = 1;
 
 			/* Apply the bonus */
-			value += randint(gain) + gain / 2;
+			value += randint1(gain) + gain / 2;
 
 			/* Maximal value */
 			if (value > 18+99) value = 18 + 99;
@@ -2003,7 +2002,7 @@ bool dec_stat(int stat, int amount, int permanent)
 			if (loss < 1) loss = 1;
 
 			/* Randomize the loss */
-			loss = ((randint(loss) + loss) * amount) / 100;
+			loss = ((randint1(loss) + loss) * amount) / 100;
 
 			/* Maximal loss */
 			if (loss < amount/2) loss = amount/2;
@@ -2045,7 +2044,7 @@ bool dec_stat(int stat, int amount, int permanent)
 			/* and one-half of the stat bonus times the percentage, with a */
 			/* minimum damage of half the percentage. -CWS */
 			loss = (((max-18) / 2 + 1) / 2 + 1);
-			loss = ((randint(loss) + loss) * amount) / 100;
+			loss = ((randint1(loss) + loss) * amount) / 100;
 			if (loss < amount/2) loss = amount/2;
 
 			/* Lose some points */
@@ -2209,7 +2208,7 @@ bool do_dec_stat(int stat)
 	}
 
 	/* Sustain */
-	if (sust && (!ironman_nightmare || rand_int(13)))
+	if (sust && (!ironman_nightmare || randint0(13)))
 	{
 		/* Message */
 		msg_format("You feel %s for a moment, but the feeling passes.",
@@ -2220,7 +2219,7 @@ bool do_dec_stat(int stat)
 	}
 
 	/* Attempt to reduce the stat */
-	if (dec_stat(stat, 10, (ironman_nightmare && !rand_int(13))))
+	if (dec_stat(stat, 10, (ironman_nightmare && !randint0(13))))
 	{
 		/* Message */
 		msg_format("You feel very %s.", desc_stat_neg[stat]);
@@ -2385,7 +2384,7 @@ void do_poly_wounds(void)
 	s16b wounds = p_ptr->cut;
 	s16b hit_p = (p_ptr->mhp - p_ptr->chp);
 	s16b change = damroll(p_ptr->lev, 5);
-	bool Nasty_effect = (randint(5) == 1);
+	bool Nasty_effect = (randint1(5) == 1);
 
 	if (!(wounds || hit_p || Nasty_effect)) return;
 
@@ -2412,7 +2411,7 @@ void do_poly_self(void)
 
 	chg_virtue(V_CHANCE, 1);
 
-	if ((power > rand_int(20)) && (rand_int(3) == 1))
+	if ((power > randint0(20)) && (randint0(3) == 1))
 	{
 		char effect_msg[80] = "";
 		int new_race, expfact, goalexpfact;
@@ -2420,7 +2419,7 @@ void do_poly_self(void)
 		/* Some form of racial polymorph... */
 		power -= 10;
 
-		if ((power > rand_int(5)) && (rand_int(4) == 1))
+		if ((power > randint0(5)) && (randint0(4) == 1))
 		{
 			/* sex change */
 			power -= 2;
@@ -2439,7 +2438,7 @@ void do_poly_self(void)
 			}
 		}
 
-		if ((power > rand_int(30)) && (rand_int(5) == 1))
+		if ((power > randint0(30)) && (randint0(5) == 1))
 		{
 			int tmp = 0;
 
@@ -2448,16 +2447,16 @@ void do_poly_self(void)
 
 			while (tmp < 6)
 			{
-				if (rand_int(2) == 1)
+				if (randint0(2) == 1)
 				{
-					(void)dec_stat(tmp, randint(6) + 6, (randint(3) == 1));
+					(void)dec_stat(tmp, randint1(6) + 6, (randint1(3) == 1));
 					power -= 1;
 				}
 				tmp++;
 			}
 
 			/* Deformities are discriminated against! */
-			(void)dec_stat(A_CHR, randint(6), TRUE);
+			(void)dec_stat(A_CHR, randint1(6), TRUE);
 
 			if (effect_msg[0])
 			{
@@ -2467,11 +2466,11 @@ void do_poly_self(void)
 			}
 			else
 			{
-				sprintf(effect_msg,"deformed ");
+				sprintf(effect_msg, "deformed ");
 			}
 		}
 
-		while ((power > rand_int(20)) && (rand_int(10) == 1))
+		while ((power > randint0(20)) && (randint0(10) == 1))
 		{
 			/* Polymorph into a less mutated form */
 			power -= 10;
@@ -2487,11 +2486,11 @@ void do_poly_self(void)
 		if (power < 0)
 			goalexpfact = 100;
 		else
-			goalexpfact = 100 + 3 * rand_int(power);
+			goalexpfact = 100 + 3 * randint0(power);
 
 		do
 		{
-			new_race = rand_int(MAX_RACES);
+			new_race = randint0(MAX_RACES);
 			expfact = race_info[new_race].r_exp;
 		}
 		while ((new_race == p_ptr->prace) && (expfact > goalexpfact));
@@ -2533,17 +2532,17 @@ void do_poly_self(void)
 		}
 
 		check_experience();
-		p_ptr->max_plv = p_ptr->lev;
+		p_ptr->max_lev = p_ptr->lev;
 
 		p_ptr->redraw |= (PR_BASIC);
 
 		p_ptr->update |= (PU_BONUS);
 
 		handle_stuff();
-		lite_spot(py, px);
+		lite_spot(p_ptr->py, p_ptr->px);
 	}
 
-	if ((power > rand_int(30)) && (rand_int(6) == 1))
+	if ((power > randint0(30)) && (randint0(6) == 1))
 	{
 		int tmp = 0;
 
@@ -2553,31 +2552,31 @@ void do_poly_self(void)
 		msg_print("Your internal organs are rearranged!");
 		while (tmp < 6)
 		{
-			(void)dec_stat(tmp, randint(6) + 6, (randint(3) == 1));
+			(void)dec_stat(tmp, randint1(6) + 6, (randint1(3) == 1));
 			tmp++;
 		}
-		if (randint(6) == 1)
+		if (randint1(6) == 1)
 		{
 			msg_print("You find living difficult in your present form!");
-			take_hit(damroll(randint(10), p_ptr->lev), "a lethal mutation");
+			take_hit(damroll(randint1(10), p_ptr->lev), "a lethal mutation");
 			power -= 10;
 		}
 	}
 
-	if ((power > rand_int(20)) && (rand_int(4) == 1))
+	if ((power > randint0(20)) && (randint0(4) == 1))
 	{
 		power -= 10;
 
 		do_cmd_rerate();
 	}
 
-	while ((power > rand_int(15)) && (rand_int(3) == 1))
+	while ((power > randint0(15)) && (randint0(3) == 1))
 	{
 		power -= 7;
 		(void)gain_random_mutation(0);
 	}
 
-	if (power > rand_int(5))
+	if (power > randint0(5))
 	{
 		power -= 5;
 		do_poly_wounds();
@@ -2613,7 +2612,7 @@ void take_hit(int damage, cptr hit_from)
 
 
 	/* Paranoia */
-	if (death) return;
+	if (p_ptr->is_dead) return;
 
 	/* Disturb */
 	disturb(1, 0);
@@ -2621,7 +2620,7 @@ void take_hit(int damage, cptr hit_from)
 	/* Mega-Hack -- Apply "invulnerability" */
 	if (p_ptr->invuln && (damage < 9000))
 	{
-		if (randint(PENETRATE_INVULNERABILITY) == 1)
+		if (randint1(PENETRATE_INVULNERABILITY) == 1)
 		{
 			pen_invuln = TRUE;
 		}
@@ -2634,7 +2633,7 @@ void take_hit(int damage, cptr hit_from)
 	if (p_ptr->wraith_form)
 	{
 		damage /= 10;
-		if ((damage == 0) && (randint(10) == 1)) damage = 1;
+		if ((damage == 0) && (randint1(10) == 1)) damage = 1;
 	}
 
 	/* Hurt the player */
@@ -2679,18 +2678,18 @@ void take_hit(int damage, cptr hit_from)
 		}
 
 		/* Note cause of death */
-		(void)strcpy(died_from, hit_from);
+		(void)strcpy(p_ptr->died_from, hit_from);
 
-		if (p_ptr->image) strcat(died_from,"(?)");
+		if (p_ptr->image) strcat(p_ptr->died_from, "(?)");
 
 		/* No longer a winner */
-		total_winner = FALSE;
+		p_ptr->total_winner = FALSE;
 
 		/* Leaving */
 		p_ptr->leaving = TRUE;
 
 		/* Note death */
-		death = TRUE;
+		p_ptr->is_dead = TRUE;
 
 		if (get_check("Dump the screen? "))
 		{

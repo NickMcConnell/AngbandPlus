@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: remco $ on $Date: 1999/09/30 10:08:53 $ */
 /* File: main-vme.c */
 
 /* Purpose: Support for "Vax Angband" */

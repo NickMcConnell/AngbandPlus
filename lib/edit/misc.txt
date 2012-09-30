@@ -1,4 +1,4 @@
-# CVS: Last edit by $Author: sfuerst $ on $Date: 2000/09/05 11:09:20 $
+# CVS: Last edit by $Author: sfuerst $ on $Date: 2001/01/26 10:15:36 $
 # File: misc.txt
 
 
@@ -44,8 +44,8 @@ M:O:512
 M:M:1024
 
 # Maximum number of fields in the dungeon at one time
-M:D:256
+M:D:512
 
 # Maximum number of field types in t_info.txt
-M:T:34
+M:T:49
 

@@ -21,6 +21,7 @@
 void check_experience(void)
 {
 	bool level_reward = FALSE;
+	bool multi_rew = FALSE;
 	bool level_mutation = FALSE;
 
 	/* Hack -- lower limit */
@@ -50,7 +51,7 @@ void check_experience(void)
 	{
 		/* Lose a level */
 		p_ptr->lev--;
-		lite_spot(py, px);
+		lite_spot(p_ptr->py, p_ptr->px);
 
 		/* Update some stuff */
 		p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
@@ -72,13 +73,13 @@ void check_experience(void)
 	{
 		/* Gain a level */
 		p_ptr->lev++;
-		lite_spot(py, px);
+		lite_spot(p_ptr->py, p_ptr->px);
 
 		/*
 		 * If auto-note taking enabled, write a note to the file.
 		 * Only write this note when the level is gained for the first time.
 		 */
-		if (take_notes && auto_notes && (p_ptr->lev > p_ptr->max_plv))
+		if (take_notes && auto_notes && (p_ptr->lev > p_ptr->max_lev))
 		{
 			char note[80];
 
@@ -89,7 +90,7 @@ void check_experience(void)
 		}
 
 		/* Save the highest level */
-		if (p_ptr->lev > p_ptr->max_plv)
+		if (p_ptr->lev > p_ptr->max_lev)
 		{
 			int vir, i;
 			for (vir = 0; vir < MAX_PLAYER_VIRTUES; vir++)
@@ -101,13 +102,13 @@ void check_experience(void)
 				 * Chance for a mutation is increased
 				 * if multiple levels are gained.
 				 */
-				for (i = p_ptr->max_plv; i < p_ptr->lev; i++)
+				for (i = p_ptr->max_lev; i < p_ptr->lev; i++)
 				{
-					if (randint(5) == 1) level_mutation = TRUE;
+					if (randint1(5) == 1) level_mutation = TRUE;
 				}
 			}
 
-			p_ptr->max_plv = p_ptr->lev;
+			p_ptr->max_lev = p_ptr->lev;
 
 			if ((p_ptr->pclass == CLASS_CHAOS_WARRIOR) ||
 			    (p_ptr->muta2 & MUT2_CHAOS_GIFT))
@@ -138,7 +139,12 @@ void check_experience(void)
 
 		if (level_reward)
 		{
-			gain_level_reward(0);
+			if (!multi_rew)
+			{
+				gain_level_reward(0);
+				multi_rew = TRUE;
+			}
+			
 			level_reward = FALSE;
 		}
 
@@ -244,14 +250,6 @@ void monster_death(int m_idx)
 	y = m_ptr->fy;
 	x = m_ptr->fx;
 
-	/* Handle the possibility of player vanquishing arena combatant -KMW- */
-	if (p_ptr->inside_arena)
-	{
-		p_ptr->exit_bldg = TRUE;
-		msg_print("Victorious! You're on your way to becoming Champion.");
-		p_ptr->arena_number++;
-	}
-
 	if (m_ptr->smart & SM_CLONED)
 		cloned = TRUE;
 
@@ -323,7 +321,7 @@ void monster_death(int m_idx)
 				continue;
 
 			/* Quest is not on this level */
-			if ((quest[i].level != dun_level) &&
+			if ((quest[i].level != p_ptr->depth) &&
 				 (quest[i].type != QUEST_TYPE_KILL_ANY_LEVEL))
 				continue;
 
@@ -481,7 +479,7 @@ void monster_death(int m_idx)
 		while ((cave_perma_grid(c_ptr) || c_ptr->o_idx) && !(i > 100))
 		{
 			/* Pick a location */
-			scatter(&ny, &nx, y, x, 1, 0);
+			scatter(&ny, &nx, y, x, 1);
 
 			/* Stagger */
 			y = ny; x = nx;
@@ -509,7 +507,7 @@ void monster_death(int m_idx)
 	/* Drop a dead corpse? */
 
 	/* Hack: Do not drop a corpse in a random quest.  (reward is set) */
-	if (((randint(r_ptr->flags1 & RF1_UNIQUE ? 1 : 2) == 1) &&
+	if (((randint1(r_ptr->flags1 & RF1_UNIQUE ? 1 : 2) == 1) &&
 	    ((r_ptr->flags9 & RF9_DROP_CORPSE) ||
 	    (r_ptr->flags9 & RF9_DROP_SKELETON))) && !reward)
 	{
@@ -530,11 +528,11 @@ void monster_death(int m_idx)
 			/* Lots of damage in one blow */
 			if ((0 - ((m_ptr->maxhp) / 4)) > m_ptr->hp)
 			{
-				if (randint(3) == 1) corpse = TRUE;
+				if (randint1(3) == 1) corpse = TRUE;
 			}
 			else
 			{
-				if (randint(3) != 1) corpse = TRUE;
+				if (randint1(3) != 1) corpse = TRUE;
 			}
 		}
 
@@ -584,31 +582,31 @@ void monster_death(int m_idx)
 		object_prep(q_ptr, lookup_kind(TV_SWORD, SV_BLADE_OF_CHAOS));
 
 		/* Mega-Hack -- Name the sword */
-		q_ptr->art_name = quark_add("'Stormbringer'");
+		q_ptr->xtra_name = quark_add("'Stormbringer'");
 		q_ptr->to_h = 16;
 		q_ptr->to_d = 16;
 		q_ptr->ds = 6;
 		q_ptr->dd = 6;
 		q_ptr->pval = 2;
 
-		q_ptr->art_flags1 |= (TR1_VAMPIRIC | TR1_STR | TR1_CON);
-		q_ptr->art_flags2 |= (TR2_FREE_ACT | TR2_HOLD_LIFE |
-		                      TR2_RES_NEXUS | TR2_RES_CHAOS | TR2_RES_NETHER |
-		                      TR2_RES_CONF); /* No longer resist_disen */
-		q_ptr->art_flags3 |= (TR3_IGNORE_ACID | TR3_IGNORE_ELEC |
-		                      TR3_IGNORE_FIRE | TR3_IGNORE_COLD);
+		q_ptr->flags1 |= (TR1_VAMPIRIC | TR1_STR | TR1_CON);
+		q_ptr->flags2 |= (TR2_FREE_ACT | TR2_HOLD_LIFE |
+		                  TR2_RES_NEXUS | TR2_RES_CHAOS | TR2_RES_NETHER |
+		                  TR2_RES_CONF); /* No longer resist_disen */
+		q_ptr->flags3 |= (TR3_IGNORE_ACID | TR3_IGNORE_ELEC |
+		                  TR3_IGNORE_FIRE | TR3_IGNORE_COLD);
 
 		/* Just to be sure */
-		q_ptr->art_flags3 |= TR3_NO_TELE; /* How's that for a downside? */
+		q_ptr->flags3 |= TR3_NO_TELE; /* How's that for a downside? */
 
 		/* For game balance... */
-		q_ptr->art_flags3 |= (TR3_CURSED | TR3_HEAVY_CURSE);
+		q_ptr->flags3 |= (TR3_CURSED | TR3_HEAVY_CURSE);
 		q_ptr->ident |= IDENT_CURSED;
 
-		if (randint(2) == 1)
-			q_ptr->art_flags3 |= (TR3_DRAIN_EXP);
+		if (randint1(2) == 1)
+			q_ptr->flags3 |= (TR3_DRAIN_EXP);
 		else
-			q_ptr->art_flags3 |= (TR3_AGGRAVATE);
+			q_ptr->flags3 |= (TR3_AGGRAVATE);
 
 #ifdef USE_SCRIPT
 		q_ptr->python = object_create_callback(q_ptr);
@@ -624,7 +622,7 @@ void monster_death(int m_idx)
 	 */
 	else if (strstr((r_name + r_ptr->name), "the Dawn"))
 	{
-		if (randint(20) != 13)
+		if (randint1(20) != 13)
 		{
 			int wy = y, wx = x;
 			int attempts = 100;
@@ -632,7 +630,7 @@ void monster_death(int m_idx)
 
 			do
 			{
-				scatter(&wy, &wx, y, x, 20, 0);
+				scatter(&wy, &wx, y, x, 20);
 			}
 			while (!(in_bounds(wy, wx) && cave_floor_grid(area(wy, wx))) && --attempts);
 
@@ -679,7 +677,7 @@ void monster_death(int m_idx)
 
 	/* Bloodletters of Khorne may drop a blade of chaos */
 	else if (strstr((r_name + r_ptr->name), "Bloodletter") &&
-	         (randint(100) < 15))
+	         (randint1(100) < 15))
 	{
 		/* Get local object */
 		q_ptr = &forge;
@@ -687,7 +685,7 @@ void monster_death(int m_idx)
 		/* Prepare to make a Blade of Chaos */
 		object_prep(q_ptr, lookup_kind(TV_SWORD, SV_BLADE_OF_CHAOS));
 
-		apply_magic(q_ptr, object_level, FALSE, FALSE, FALSE, FALSE);
+		apply_magic(q_ptr, object_level, 0, 0);
 
 #ifdef USE_SCRIPT
 		q_ptr->python = object_create_callback(q_ptr);
@@ -707,10 +705,10 @@ void monster_death(int m_idx)
 		object_prep(q_ptr, lookup_kind(TV_SOFT_ARMOR, SV_T_SHIRT));
 
 		/* Mega-Hack -- Name the shirt */
-		q_ptr->art_name = quark_add("'I killed the GHB and all I got was this lousy t-shirt!'");
+		q_ptr->xtra_name = quark_add("'I killed the GHB and all I got was this lousy t-shirt!'");
 
-		q_ptr->art_flags3 |= (TR3_IGNORE_ACID | TR3_IGNORE_ELEC |
-									 TR3_IGNORE_FIRE | TR3_IGNORE_COLD);
+		q_ptr->flags3 |= (TR3_IGNORE_ACID | TR3_IGNORE_ELEC |
+						 TR3_IGNORE_FIRE | TR3_IGNORE_COLD);
 
 #ifdef USE_SCRIPT
 		q_ptr->python = object_create_callback(q_ptr);
@@ -725,43 +723,11 @@ void monster_death(int m_idx)
 	{
 		if (strstr((r_name + r_ptr->name), "Serpent of Chaos"))
 		{
-			/* Get local object */
-			q_ptr = &forge;
-
-			/* Mega-Hack -- Prepare to make "Grond" */
-			object_prep(q_ptr, lookup_kind(TV_HAFTED, SV_GROND));
-
-			/* Mega-Hack -- Mark this item as "Grond" */
-			q_ptr->name1 = ART_GROND;
-
-			/* Mega-Hack -- Actually create "Grond" */
-			apply_magic(q_ptr, -1, TRUE, TRUE, TRUE, FALSE);
-
-#ifdef USE_SCRIPT
-			q_ptr->python = object_create_callback(q_ptr);
-#endif /* USE_SCRIPT */
-
-			/* Drop it in the dungeon */
-			(void)drop_near(q_ptr, -1, y, x);
-
-			/* Get local object */
-			q_ptr = &forge;
-
-			/* Mega-Hack -- Prepare to make "Morgoth" */
-			object_prep(q_ptr, lookup_kind(TV_CROWN, SV_MORGOTH));
-
-			/* Mega-Hack -- Mark this item as "Morgoth" */
-			q_ptr->name1 = ART_MORGOTH;
-
-			/* Mega-Hack -- Actually create "Morgoth" */
-			apply_magic(q_ptr, -1, TRUE, TRUE, TRUE, FALSE);
-
-#ifdef USE_SCRIPT
-			q_ptr->python = object_create_callback(q_ptr);
-#endif /* USE_SCRIPT */
-
-			/* Drop it in the dungeon */
-			(void)drop_near(q_ptr, -1, y, x);
+			/* Make Grond */
+			create_named_art(ART_GROND, y, x);
+			
+			/* Make Crown of Morgoth */
+			create_named_art(ART_MORGOTH, y, x);
 		}
 		else
 		{
@@ -770,7 +736,7 @@ void monster_death(int m_idx)
 
 			if (strstr((r_name + r_ptr->name), "Oberon,"))
 			{
-				if (randint(3) == 1)
+				if (randint1(3) == 1)
 				{
 					a_idx = ART_THRAIN;
 					chance = 33;
@@ -793,7 +759,7 @@ void monster_death(int m_idx)
 			}
 			else if (strstr((r_name + r_ptr->name), "Brand, "))
 			{
-				if (randint(3) != 1)
+				if (randint1(3) != 1)
 				{
 					a_idx = ART_BRAND;
 					chance = 25;
@@ -806,7 +772,7 @@ void monster_death(int m_idx)
 			}
 			else if (strstr((r_name + r_ptr->name), "Corwin,"))
 			{
-				if (randint(3) != 1)
+				if (randint1(3) != 1)
 				{
 					a_idx = ART_GRAYSWANDIR;
 					chance = 33;
@@ -853,13 +819,14 @@ void monster_death(int m_idx)
 				chance = 50;
 			}
 
-			if ((a_idx > 0) && ((randint(99) < chance) || (wizard)))
+			if ((a_idx > 0) && ((randint1(99) < chance) || (p_ptr->wizard)))
 			{
 				if (a_info[a_idx].cur_num == 0)
 				{
 					/* Create the artifact */
 					create_named_art(a_idx, y, x);
 
+					/* The artifact has been created */
 					a_info[a_idx].cur_num = 1;
 				}
 			}
@@ -867,8 +834,8 @@ void monster_death(int m_idx)
 	}
 
 	/* Determine how much we can drop */
-	if ((r_ptr->flags1 & RF1_DROP_60) && (rand_int(100) < 60)) number++;
-	if ((r_ptr->flags1 & RF1_DROP_90) && (rand_int(100) < 90)) number++;
+	if ((r_ptr->flags1 & RF1_DROP_60) && (randint0(100) < 60)) number++;
+	if ((r_ptr->flags1 & RF1_DROP_90) && (randint0(100) < 90)) number++;
 	if  (r_ptr->flags1 & RF1_DROP_1D2) number += damroll(1, 2);
 	if  (r_ptr->flags1 & RF1_DROP_2D2) number += damroll(2, 2);
 	if  (r_ptr->flags1 & RF1_DROP_3D2) number += damroll(3, 2);
@@ -876,11 +843,8 @@ void monster_death(int m_idx)
 
 	if (cloned) number = 0; /* Clones drop no stuff */
 
-	/* Hack -- handle creeping coins */
-	coin_type = force_coin;
-
 	/* Average dungeon and monster levels */
-	object_level = (dun_level + r_ptr->level) / 2;
+	object_level = (p_ptr->depth + r_ptr->level) / 2;
 
 	/* Drop some objects */
 	for (j = 0; j < number; j++)
@@ -892,10 +856,10 @@ void monster_death(int m_idx)
 		object_wipe(q_ptr);
 
 		/* Make Gold */
-		if (do_gold && (!do_item || (rand_int(100) < 50)))
+		if (do_gold && (!do_item || (randint0(100) < 50)))
 		{
 			/* Make some gold */
-			if (!make_gold(q_ptr)) continue;
+			if (!make_gold(q_ptr, force_coin)) continue;
 
 			/* XXX XXX XXX */
 			dump_gold++;
@@ -904,8 +868,10 @@ void monster_death(int m_idx)
 		/* Make Object */
 		else
 		{
+			u16b delta_level = (good ? 15 : 0) + (great ? 15 : 0);
+
 			/* Make an object */
-			if (!make_object(q_ptr, good, great)) continue;
+			if (!make_object(q_ptr, delta_level, r_ptr->obj_drop)) continue;
 
 			/* XXX XXX XXX */
 			dump_item++;
@@ -921,10 +887,6 @@ void monster_death(int m_idx)
 
 	/* Reset the object level */
 	object_level = base_level;
-
-	/* Reset "coin" type */
-	coin_type = 0;
-
 
 	/* Take note of any dropped treasure */
 	if (visible && (dump_item || dump_gold))
@@ -945,15 +907,15 @@ void monster_death(int m_idx)
 		object_wipe(q_ptr);
 
 		/* Average of 20 great objects per game */
-		if (rand_int(number_of_quests() + 1) < 20)
+		if (randint0(number_of_quests()) < 20)
 		{
 			/* Make a great object */
-			make_object(q_ptr, TRUE, TRUE);
+			make_object(q_ptr, 30, dun_theme);
 		}
 		else
 		{
 			/* Make a good object */
-			make_object(q_ptr, TRUE, FALSE);
+			make_object(q_ptr, 15, dun_theme);
 		}
 
 #ifdef USE_SCRIPT
@@ -975,7 +937,7 @@ void monster_death(int m_idx)
 	if (strstr((r_name + r_ptr->name), "Serpent of Chaos"))
 	{
 		/* Total winner */
-		total_winner = TRUE;
+		p_ptr->total_winner = TRUE;
 
 		/* Redraw the "title" */
 		p_ptr->redraw |= (PR_TITLE);
@@ -998,7 +960,7 @@ void monster_death(int m_idx)
  */
 int mon_damage_mod(monster_type *m_ptr, int dam, int type)
 {
-	if (m_ptr->invulner && !(randint(PENETRATE_INVULNERABILITY) == 1))
+	if (m_ptr->invulner && !(randint1(PENETRATE_INVULNERABILITY) == 1))
 		return (0);
 	else
 		return (dam);
@@ -1080,23 +1042,6 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		/* Extract monster name */
 		monster_desc(m_name, m_ptr, 0);
 
-		/* Don't kill Amberites */
-		if ((r_ptr->flags3 & RF3_AMBERITE) && (randint(2) == 1))
-		{
-			int curses = 1 + randint(3);
-			bool stop_ty = FALSE;
-			int count = 0;
-
-			msg_format("%^s puts a terrible blood curse on you!", m_name);
-			curse_equipment(100, 50);
-
-			do
-			{
-				stop_ty = activate_ty_curse(stop_ty, &count);
-			}
-			while (--curses);
-		}
-
 		if (r_ptr->flags2 & RF2_CAN_SPEAK)
 		{
 			char line_got[1024];
@@ -1108,12 +1053,12 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 					msg_format("%^s says: %s", m_name, line_got);
 			}
 
-			if ((r_ptr->flags1 & RF1_UNIQUE) && (randint(REWARD_CHANCE) == 1) &&
+			if ((r_ptr->flags1 & RF1_UNIQUE) && (randint1(REWARD_CHANCE) == 1) &&
 			    !(r_ptr->flags7 & RF7_FRIENDLY))
 			{
 				if (!get_rnd_line("crime.txt", m_ptr->r_idx, line_got))
 				{
-					int reward = 250 * (randint(10) + r_ptr->level - 5);
+					int reward = 250 * (randint1(10) + r_ptr->level - 5);
 
 					/* Force 'good' values */
 					if (reward > 32000) reward = 32000;
@@ -1131,9 +1076,9 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 			}
 		}
 
-		if (r_ptr->level > dun_level)
+		if (r_ptr->level > p_ptr->depth)
 		{
-			if (randint(10) <= (dun_level - r_ptr->level))
+			if (randint1(10) <= (p_ptr->depth - r_ptr->level))
 				chg_virtue(V_VALOUR, 1);
 		}
 		if (r_ptr->level >= 2 * (p_ptr->lev))
@@ -1150,7 +1095,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 			chg_virtue(V_VITALITY, -2);
 		}
 
-		if ((r_ptr->flags1 & RF1_UNIQUE) & (randint(3) == 1))
+		if ((r_ptr->flags1 & RF1_UNIQUE) & (randint1(3) == 1))
 			chg_virtue(V_INDIVIDUALISM, -1);
 
 		if ((strstr((r_name + r_ptr->name),"beggar")) ||
@@ -1160,7 +1105,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		}
 
 		if ((r_ptr->flags1 & RF3_GOOD) &&
-			((r_ptr->level) / 10 + (3 * dun_level) >= randint(100)))
+			((r_ptr->level) / 10 + (3 * p_ptr->depth) >= randint1(100)))
 
 			chg_virtue(V_UNLIFE, 1);
 
@@ -1169,7 +1114,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		{
 			if (r_ptr->flags1 & RF1_UNIQUE)
 				chg_virtue(V_FAITH, -2);
-			else if ((r_ptr->level) / 10 + (3 * dun_level) >= randint(100))
+			else if ((r_ptr->level) / 10 + (3 * p_ptr->depth) >= randint1(100))
 				chg_virtue(V_FAITH, -1);
 		}
 
@@ -1179,7 +1124,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		{
 			if (r_ptr->flags1 & RF1_UNIQUE)
 				chg_virtue(V_FAITH, 2);
-			else if ((r_ptr->level) / 10 + (3 * dun_level) >= randint(100))
+			else if ((r_ptr->level) / 10 + (3 * p_ptr->depth) >= randint1(100))
 				chg_virtue(V_FAITH, 1);
 		}
 
@@ -1192,7 +1137,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 			{
 				chg_virtue(V_HONOUR, 10);
 			}
-			else if ((r_ptr->level) / 10 + (2 * dun_level) >= randint(100))
+			else if ((r_ptr->level) / 10 + (2 * p_ptr->depth) >= randint1(100))
 			{
 				chg_virtue(V_HONOUR, 1);
 			}
@@ -1214,7 +1159,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		{
 			if (r_ptr->flags1 & RF1_UNIQUE)
 				chg_virtue(V_JUSTICE, 3);
-			else if (1 + (r_ptr->level / 10 + (2 * dun_level)) >= randint(100))
+			else if (1 + (r_ptr->level / 10 + (2 * p_ptr->depth)) >= randint1(100))
 				chg_virtue(V_JUSTICE, 1);
 		}
 		else if (innocent)
@@ -1224,7 +1169,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 
 		if ((r_ptr->flags3 & RF3_ANIMAL) && !(r_ptr->flags3 & RF3_EVIL))
 		{
-			if (randint(3) == 1) chg_virtue(V_NATURE, -1);
+			if (randint1(3) == 1) chg_virtue(V_NATURE, -1);
 		}
 
 		/* Make a sound */
@@ -1312,6 +1257,23 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 			/* Hack -- Auto-recall */
 			monster_race_track(m_ptr->r_idx);
 		}
+		
+		/* Don't kill Amberites */
+		if ((r_ptr->flags3 & RF3_AMBERITE) && (randint1(2) == 1))
+		{
+			int curses = 1 + randint1(3);
+			bool stop_ty = FALSE;
+			int count = 0;
+
+			msg_format("%^s puts a terrible blood curse on you!", m_name);
+			curse_equipment(100, 50);
+
+			do
+			{
+				stop_ty = activate_ty_curse(stop_ty, &count);
+			}
+			while (--curses);
+		}
 
 		/* Delete the monster */
 		delete_monster_idx(m_idx);
@@ -1329,7 +1291,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 	/* Mega-Hack -- Pain cancels fear */
 	if (m_ptr->monfear && (dam > 0))
 	{
-		int tmp = randint(dam);
+		int tmp = randint1(dam);
 
 		/* Cure a little fear */
 		if (tmp < m_ptr->monfear)
@@ -1361,14 +1323,14 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		 * Run (sometimes) if at 10% or less of max hit points,
 		 * or (usually) when hit for half its current hit points
 		 */
-		if (((percentage <= 10) && (rand_int(10) < percentage)) ||
-		    ((dam >= m_ptr->hp) && (rand_int(100) < 80)))
+		if (((percentage <= 10) && (randint0(10) < percentage)) ||
+		    ((dam >= m_ptr->hp) && (randint0(100) < 80)))
 		{
 			/* Hack -- note fear */
 			(*fear) = TRUE;
 
 			/* XXX XXX XXX Hack -- Add some timed fear */
-			m_ptr->monfear = (randint(10) +
+			m_ptr->monfear = (randint1(10) +
 			                  (((dam >= m_ptr->hp) && (percentage > 7)) ?
 			                   20 : ((11 - percentage) * 5)));
 		}
@@ -1384,10 +1346,8 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 
 /*
  * Calculates current boundaries
- * Called below and from "do_cmd_locate()".
- * Modified for "centering player on screen"
  */
-void panel_bounds_center(void)
+void panel_recalc_bounds(void)
 {
 	int wid, hgt;
 
@@ -1430,7 +1390,7 @@ bool change_panel(int dy, int dx)
 	if (x > max_wid - wid) x = max_wid - wid;
 	if (x < min_wid) x = min_wid;
 	
-	if (vanilla_town)
+	if (vanilla_town && (!p_ptr->depth))
 	{
 		x = max_wild * WILD_BLOCK_SIZE / 2 - wid / 2 - 15;
 		y = max_wild * WILD_BLOCK_SIZE / 2 - hgt / 2 - 5;
@@ -1444,7 +1404,7 @@ bool change_panel(int dy, int dx)
 		panel_col_min = x;
 
 		/* Recalculate the boundaries */
-		panel_bounds_center();
+		panel_recalc_bounds();
 
 		/* Update stuff */
 		p_ptr->update |= (PU_MONSTERS);
@@ -1464,16 +1424,11 @@ bool change_panel(int dy, int dx)
 }
 
 
-/*
- * Given an row (y) and col (x), this routine detects when a move
- * off the screen has occurred and figures new borders. -RAK-
- *
- * "Update" forces a "full update" to take place.
- *
- * The map is reprinted if necessary, and "TRUE" is returned.
- */
 void verify_panel(void)
 {
+	int py = p_ptr->py;
+	int px = p_ptr->px;
+
 	int y = py;
 	int x = px;
 
@@ -1487,7 +1442,7 @@ void verify_panel(void)
 
 
 	/* Hack - in vanilla town mode - do not move the screen */
-	if (vanilla_town && (!dun_level))
+	if (vanilla_town && (!p_ptr->depth))
 	{
 		(void)change_panel(0, 0);
 		return;
@@ -1508,7 +1463,7 @@ void verify_panel(void)
 	if (max_pcol_min < 0) max_pcol_min = 0;
 
 	/* Center on player */
-	if (center_player && (!avoid_center || !running))
+	if (center_player && (!avoid_center || !p_ptr->running))
 	{
 		/* Center vertically */
 		prow_min = y - hgt / 2;
@@ -1579,8 +1534,71 @@ void verify_panel(void)
 	if (disturb_panel && !center_player) disturb(0, 0);
 
 	/* Recalculate the boundaries */
-	panel_bounds_center();
+	panel_recalc_bounds();
+	
+	/* Update stuff */
+	p_ptr->update |= (PU_MONSTERS);
 
+	/* Redraw map */
+	p_ptr->redraw |= (PR_MAP);
+	
+	/* Window stuff */
+	p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
+}
+
+   
+
+   
+
+/*
+ * Center the dungeon display around the player
+ */
+
+void panel_center(void)
+{
+	int wid, hgt;
+	int new_panel_row, new_panel_col;
+
+	/* Hack - in vanilla town mode - do not move the screen */
+	if (vanilla_town && (!p_ptr->depth))
+	{
+		(void)change_panel(0, 0);
+		return;
+	}
+	
+	/* Get the screen size */
+	Term_get_size(&wid, &hgt);
+
+	/* Calculate the dimensions of the displayed map */
+	hgt -= ROW_MAP + 1;
+	wid -= COL_MAP + 1;
+	
+	/* Center the map around the player */
+	new_panel_row = p_ptr->py - (hgt / 2);
+	new_panel_col = p_ptr->px - (wid / 2);
+
+	/* Move the map so that it only shows the dungeon */
+	if (new_panel_row + hgt > max_hgt) new_panel_row = max_hgt - hgt;
+	if (new_panel_col + wid > max_wid) new_panel_col = max_wid - wid;
+
+	/* Verify the lower panel bounds */
+	if (new_panel_row < 0) new_panel_row = 0;
+	if (new_panel_col < 0) new_panel_col = 0;
+
+	/* Check for "no change" */
+	if ((new_panel_row == panel_row_min) && (new_panel_col ==
+		panel_col_min)) return;
+
+	/* Save the new panel info */
+	panel_row_min = new_panel_row;
+	panel_col_min = new_panel_col;
+
+	/* Hack -- optional disturb on "panel change" */
+	if (disturb_panel && !center_player) disturb(0, 0);
+
+	/* Recalculate the boundaries */
+	panel_recalc_bounds();
+	
 	/* Update stuff */
 	p_ptr->update |= (PU_MONSTERS);
 
@@ -1719,6 +1737,9 @@ void ang_sort(vptr u, vptr v, int n)
  */
 bool target_able(int m_idx)
 {
+	int py = p_ptr->py;
+	int px = p_ptr->px;
+
 	monster_type *m_ptr = &m_list[m_idx];
 
 	/* Monster must be alive */
@@ -1748,19 +1769,19 @@ bool target_able(int m_idx)
 bool target_okay(void)
 {
 	/* Accept stationary targets */
-	if (target_who < 0) return (TRUE);
+	if (p_ptr->target_who < 0) return (TRUE);
 
 	/* Check moving targets */
-	if (target_who > 0)
+	if (p_ptr->target_who > 0)
 	{
 		/* Accept reasonable targets */
-		if (target_able(target_who))
+		if (target_able(p_ptr->target_who))
 		{
-			monster_type *m_ptr = &m_list[target_who];
+			monster_type *m_ptr = &m_list[p_ptr->target_who];
 
 			/* Acquire monster location */
-			target_row = m_ptr->fy;
-			target_col = m_ptr->fx;
+			p_ptr->target_row = m_ptr->fy;
+			p_ptr->target_col = m_ptr->fx;
 
 			/* Good target */
 			return (TRUE);
@@ -1781,6 +1802,9 @@ bool target_okay(void)
  */
 static bool ang_sort_comp_distance(vptr u, vptr v, int a, int b)
 {
+	int py = p_ptr->py;
+	int px = p_ptr->px;
+
 	s16b *x = (s16b*)(u);
 	s16b *y = (s16b*)(v);
 
@@ -1888,6 +1912,9 @@ static s16b target_pick(int y1, int x1, int dy, int dx)
  */
 static bool target_set_accept(int y, int x)
 {
+	int px = p_ptr->px;
+	int py = p_ptr->py;
+
 	cave_type *c_ptr;
 
 	s16b this_o_idx, next_o_idx = 0;
@@ -1962,10 +1989,6 @@ static bool target_set_accept(int y, int x)
 		/* Notice stairs */
 		if (c_ptr->feat == FEAT_LESS) return (TRUE);
 		if (c_ptr->feat == FEAT_MORE) return (TRUE);
-
-		/* Notice shops */
-		if ((c_ptr->feat >= FEAT_SHOP_HEAD) &&
-		    (c_ptr->feat <= FEAT_SHOP_TAIL)) return (TRUE);
 
 		/* Notice doors */
 		if (c_ptr->feat == FEAT_CLOSED) return (TRUE);
@@ -2060,6 +2083,9 @@ static void target_set_prepare(int mode)
  */
 static int target_set_aux(int y, int x, int mode, cptr info)
 {
+	int py = p_ptr->py;
+	int px = p_ptr->px;
+
 	cave_type *c_ptr = area(y, x);
 
 	s16b this_o_idx, next_o_idx = 0;
@@ -2291,8 +2317,8 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 					else
 					{
 						/* Message */
-						sprintf(out_val, "%s%s%sa pile of %d items [l,%s]",
-							s1, s2, s3, floor_num, info);
+						sprintf(out_val, "%s%s%sa pile of %d items [%c,%s]",
+							s1, s2, s3, floor_num, rogue_like_commands ? 'x':'l', info);
 					}
 
 					prt(out_val, 0, 0);
@@ -2302,7 +2328,7 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 					query = inkey();
 
 					/* Display list of items (query == "el", not "won") */
-					if ((floor_num > 1) && (query == 'l'))
+					 if ((floor_num > 1) && (query == (rogue_like_commands ? 'x' : 'l')))
 					{
 						/* Save screen */
 						screen_save();
@@ -2407,7 +2433,12 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 					/* Point to it */
 					name = f_name;
 				}
-				
+				else
+				{
+					/* Just use the normal name of the field */
+					name = t_info[f_ptr->t_idx].name;
+				}
+					
 				/* Not boring */
 				boring = FALSE;
 				
@@ -2434,6 +2465,7 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 				
 				/* Hack - we've seen a field here */
 				seen = TRUE;
+				
 			}
 		}
 		
@@ -2461,7 +2493,8 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 			}
 		}
 
-		feat = f_info[c_ptr->feat].mimic;
+		/* Get terrain feature */
+		feat = c_ptr->feat;
 
 		/* Require knowledge about grid, or ability to see grid */
 		if (!(c_ptr->info & CAVE_MARK) && !player_can_see_bold(y, x))
@@ -2473,17 +2506,7 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 		/* Terrain feature if needed */
 		if (boring || (feat >= FEAT_OPEN))
 		{
-			cptr name;
-
-#if 0
-			/* Hack -- special handling for building doors */
-			if ((feat >= FEAT_BLDG_HEAD) && (feat <= FEAT_BLDG_TAIL))
-			{
-				name = building[feat - FEAT_BLDG_HEAD].name;
-			}
-#endif
-
-			name = f_name + f_info[feat].name;
+			cptr name = f_name + f_info[feat].name;
 
 #if 0
 			/* Hack -- special handling for quest entrances */
@@ -2520,23 +2543,18 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 				s2 = "in ";
 			}
 
-			/* Hack -- special introduction for store & building doors -KMW- */
-			if (((feat >= FEAT_SHOP_HEAD) && (feat <= FEAT_SHOP_TAIL)))
-			{
-				s3 = "the entrance to the ";
-			}
-			else if ((feat == FEAT_FLOOR) ||
-					((feat & 0xF8) == 0x08) ||
-					(feat == FEAT_DEEP_WATER) ||
-					(feat == FEAT_SHAL_WATER) ||
-					(feat == FEAT_OCEAN_WATER) ||
-					(feat == FEAT_DEEP_LAVA) ||
-					(feat == FEAT_SHAL_LAVA) ||
-					(feat == FEAT_DIRT) ||
-					(feat == FEAT_DEEP_ACID) ||
-					(feat == FEAT_SHAL_ACID) ||
-					(feat == FEAT_JUNGLE) ||
-					(feat == FEAT_GRASS_LONG))
+			if ((feat == FEAT_FLOOR) ||
+				((feat & 0xF8) == 0x08) ||
+				(feat == FEAT_DEEP_WATER) ||
+				(feat == FEAT_SHAL_WATER) ||
+				(feat == FEAT_OCEAN_WATER) ||
+				(feat == FEAT_DEEP_LAVA) ||
+				(feat == FEAT_SHAL_LAVA) ||
+				(feat == FEAT_DIRT) ||
+				(feat == FEAT_DEEP_ACID) ||
+				(feat == FEAT_SHAL_ACID) ||
+				(feat == FEAT_JUNGLE) ||
+				(feat == FEAT_GRASS_LONG))
 			{
 				s3 ="";
 			}
@@ -2547,7 +2565,7 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 			}
 
 			/* Display a message */
-			if (wizard)
+			if (p_ptr->wizard)
 				sprintf(out_val, "%s%s%s%s [%s] (%d:%d)", s1, s2, s3, name, info, y, x);
 			else
 				sprintf(out_val, "%s%s%s%s [%s]", s1, s2, s3, name, info);
@@ -2573,13 +2591,7 @@ static int target_set_aux(int y, int x, int mode, cptr info)
  *
  * Note that this code can be called from "get_aim_dir()".
  *
- * All locations must be on the current panel.  Consider the use of
- * "panel_bounds()" to allow "off-panel" targets, perhaps by using
- * some form of "scrolling" the map around the cursor.  XXX XXX XXX
- * That is, consider the possibility of "auto-scrolling" the screen
- * while the cursor moves around.  This may require changes in the
- * "update_mon()" code to allow "visibility" even if off panel, and
- * may require dynamic recalculation of the "temp" grid set.
+ * All locations must be on the current panel.
  *
  * Hack -- targeting/observing an "outer border grid" may induce
  * problems, so this is not currently allowed.
@@ -2611,6 +2623,9 @@ static int target_set_aux(int y, int x, int mode, cptr info)
  */
 bool target_set(int mode)
 {
+	int py = p_ptr->py;
+	int px = p_ptr->px;
+
 	int		i, d, m, t, bd;
 	int		y = py;
 	int		x = px;
@@ -2632,7 +2647,7 @@ bool target_set(int mode)
 	Term_get_size(&wid, &hgt);
 
 	/* Cancel target */
-	target_who = 0;
+	p_ptr->target_who = 0;
 
 
 	/* Cancel tracking */
@@ -2696,9 +2711,9 @@ bool target_set(int mode)
 					if (target_able(c_ptr->m_idx))
 					{
 						health_track(c_ptr->m_idx);
-						target_who = c_ptr->m_idx;
-						target_row = y;
-						target_col = x;
+						p_ptr->target_who = c_ptr->m_idx;
+						p_ptr->target_row = y;
+						p_ptr->target_col = x;
 						done = TRUE;
 					}
 					else
@@ -2816,7 +2831,7 @@ bool target_set(int mode)
 						/* Restore previous position */
 						panel_row_min = y2;
 						panel_col_min = x2;
-						panel_bounds_center();
+						panel_recalc_bounds();
 
 						/* Update stuff */
 						p_ptr->update |= (PU_MONSTERS);
@@ -2906,9 +2921,9 @@ bool target_set(int mode)
 				case '5':
 				case '0':
 				{
-					target_who = -1;
-					target_row = y;
-					target_col = x;
+					p_ptr->target_who = -1;
+					p_ptr->target_row = y;
+					p_ptr->target_col = x;
 					done = TRUE;
 					break;
 				}
@@ -3050,7 +3065,7 @@ bool target_set(int mode)
 	handle_stuff();
 
 	/* Failure to set target */
-	if (!target_who) return (FALSE);
+	if (!p_ptr->target_who) return (FALSE);
 
 	/* Success */
 	return (TRUE);
@@ -3080,7 +3095,7 @@ bool get_aim_dir(int *dp)
 	*dp = 0;
 
 	/* Global direction */
-	dir = command_dir;
+	dir = p_ptr->command_dir;
 
 	/* Hack -- auto-target if requested */
 	if (use_old_target && target_okay()) dir = 5;
@@ -3154,17 +3169,17 @@ bool get_aim_dir(int *dp)
 	if (!dir) return (FALSE);
 
 	/* Save the direction */
-	command_dir = dir;
+	p_ptr->command_dir = dir;
 
 	/* Check for confusion */
 	if (p_ptr->confused)
 	{
 		/* Random direction */
-		dir = ddd[rand_int(8)];
+		dir = ddd[randint0(8)];
 	}
 
 	/* Notice confusion */
-	if (command_dir != dir)
+	if (p_ptr->command_dir != dir)
 	{
 		/* Warn the user */
 		msg_print("You are confused.");
@@ -3173,7 +3188,7 @@ bool get_aim_dir(int *dp)
 	/* Save direction */
 	(*dp) = dir;
 
-	repeat_push(command_dir);
+	repeat_push(p_ptr->command_dir);
 
 	/* A "valid" direction was entered */
 	return (TRUE);
@@ -3210,7 +3225,7 @@ bool get_rep_dir(int *dp, bool under)
 	(*dp) = 0;
 
 	/* Global direction */
-	dir = command_dir;
+	dir = p_ptr->command_dir;
 
 	/* Get a direction */
 	while (!dir)
@@ -3234,21 +3249,21 @@ bool get_rep_dir(int *dp, bool under)
 	if (!dir) return (FALSE);
 
 	/* Save desired direction */
-	command_dir = dir;
+	p_ptr->command_dir = dir;
 
 	/* Apply "confusion" */
 	if (p_ptr->confused)
 	{
 		/* Standard confusion */
-		if (rand_int(100) < 75)
+		if (randint0(100) < 75)
 		{
 			/* Random direction */
-			dir = ddd[rand_int(8)];
+			dir = ddd[randint0(8)];
 		}
 	}
 
 	/* Notice confusion */
-	if (command_dir != dir)
+	if (p_ptr->command_dir != dir)
 	{
 		/* Warn the user */
 		msg_print("You are confused.");
@@ -3272,6 +3287,9 @@ int get_chaos_patron(void)
 
 void gain_level_reward(int chosen_reward)
 {
+	int py = p_ptr->py;
+	int px = p_ptr->px;
+
 	object_type *q_ptr;
 	object_type forge;
 	char        wrath_reason[32] = "";
@@ -3282,21 +3300,14 @@ void gain_level_reward(int chosen_reward)
 
 	int count = 0;
 
-	if (!chosen_reward)
-	{
-		if (multi_rew) return;
-		else multi_rew = TRUE;
-	}
-
-
 	if (p_ptr->lev == 13) nasty_chance = 2;
 	else if (!(p_ptr->lev % 13)) nasty_chance = 3;
 	else if (!(p_ptr->lev % 14)) nasty_chance = 12;
 
-	if (randint(nasty_chance) == 1)
-		type = randint(20); /* Allow the 'nasty' effects */
+	if (randint1(nasty_chance) == 1)
+		type = randint1(20); /* Allow the 'nasty' effects */
 	else
-		type = randint(15) + 5; /* Or disallow them */
+		type = randint1(15) + 5; /* Or disallow them */
 
 	if (type < 1) type = 1;
 	if (type > 20) type = 20;
@@ -3308,7 +3319,7 @@ void gain_level_reward(int chosen_reward)
 
 	effect = chaos_rewards[p_ptr->chaos_patron][type];
 
-	if ((randint(6) == 1) && !chosen_reward)
+	if ((randint1(6) == 1) && !chosen_reward)
 	{
 		msg_format("%^s rewards you with a mutation!",
 			chaos_patrons[p_ptr->chaos_patron]);
@@ -3361,7 +3372,7 @@ void gain_level_reward(int chosen_reward)
 			/* Get local object */
 			q_ptr = &forge;
 			tval = TV_SWORD;
-			switch (randint(p_ptr->lev))
+			switch (randint1(p_ptr->lev))
 			{
 				case 0: case 1:
 					sval = SV_DAGGER;
@@ -3449,10 +3460,13 @@ void gain_level_reward(int chosen_reward)
 			}
 
 			object_prep(q_ptr, lookup_kind(tval, sval));
-			q_ptr->to_h = 3 + randint(dun_level) % 10;
-			q_ptr->to_d = 3 + randint(dun_level) % 10;
-			random_resistance(q_ptr, FALSE, randint(34) + 4);
-			q_ptr->name2 = EGO_CHAOTIC;
+			
+			q_ptr->to_h = 3 + randint1(p_ptr->depth) % 10;
+			q_ptr->to_d = 3 + randint1(p_ptr->depth) % 10;
+			
+			(void) random_resistance(q_ptr, randint1(34) + 4, 0);
+			
+			add_ego_flags(q_ptr, EGO_CHAOTIC);
 
 #ifdef USE_SCRIPT
 			q_ptr->python = object_create_callback(q_ptr);
@@ -3465,13 +3479,13 @@ void gain_level_reward(int chosen_reward)
 			msg_format("The voice of %s booms out:",
 				chaos_patrons[p_ptr->chaos_patron]);
 			msg_print("'Thy deed hath earned thee a worthy reward.'");
-			acquirement(py, px, randint(2) + 1, FALSE, FALSE);
+			acquirement(py, px, randint1(2) + 1, FALSE, FALSE);
 			break;
 		case REW_GREA_OBS:
 			msg_format("The voice of %s booms out:",
 				chaos_patrons[p_ptr->chaos_patron]);
 			msg_print("'Behold, mortal, how generously I reward thy loyalty.'");
-			acquirement(py, px, randint(2) + 1, TRUE, FALSE);
+			acquirement(py, px, randint1(2) + 1, TRUE, FALSE);
 			break;
 		case REW_TY_CURSE:
 		{
@@ -3485,9 +3499,9 @@ void gain_level_reward(int chosen_reward)
 			msg_format("The voice of %s booms out:",
 				chaos_patrons[p_ptr->chaos_patron]);
 			msg_print("'My pets, destroy the arrogant mortal!'");
-			for (i = 0; i < randint(5) + 1; i++)
+			for (i = 0; i < randint1(5) + 1; i++)
 			{
-				(void)summon_specific(0, py, px, dun_level, 0, TRUE, FALSE, FALSE);
+				(void)summon_specific(0, py, px, p_ptr->depth, 0, TRUE, FALSE, FALSE);
 			}
 			break;
 		case REW_H_SUMMON:
@@ -3506,19 +3520,19 @@ void gain_level_reward(int chosen_reward)
 			msg_format("The voice of %s rings out:",
 				chaos_patrons[p_ptr->chaos_patron]);
 			msg_print("'Stay, mortal, and let me mold thee.'");
-			if ((randint(3) == 1) && !(chaos_stats[p_ptr->chaos_patron] < 0))
+			if ((randint1(3) == 1) && !(chaos_stats[p_ptr->chaos_patron] < 0))
 				do_inc_stat(chaos_stats[p_ptr->chaos_patron]);
 			else
-				do_inc_stat(rand_int(A_MAX));
+				do_inc_stat(randint0(A_MAX));
 			break;
 		case REW_LOSE_ABL:
 			msg_format("The voice of %s booms out:",
 				chaos_patrons[p_ptr->chaos_patron]);
 			msg_print("'I grow tired of thee, mortal.'");
-			if ((randint(3) == 1) && !(chaos_stats[p_ptr->chaos_patron] < 0))
+			if ((randint1(3) == 1) && !(chaos_stats[p_ptr->chaos_patron] < 0))
 				do_dec_stat(chaos_stats[p_ptr->chaos_patron]);
 			else
-				(void)do_dec_stat(rand_int(A_MAX));
+				(void)do_dec_stat(randint0(A_MAX));
 			break;
 		case REW_RUIN_ABL:
 			msg_format("The voice of %s thunders:",
@@ -3527,7 +3541,7 @@ void gain_level_reward(int chosen_reward)
 			msg_print("You feel less powerful!");
 			for (i = 0; i < A_MAX; i++)
 			{
-				(void)dec_stat(i, 10 + randint(15), TRUE);
+				(void)dec_stat(i, 10 + randint1(15), TRUE);
 			}
 			break;
 		case REW_POLY_WND:
@@ -3584,7 +3598,7 @@ void gain_level_reward(int chosen_reward)
 			msg_format("The voice of %s whispers:",
 				chaos_patrons[p_ptr->chaos_patron]);
 			msg_print("'Now thou shalt pay for annoying me.'");
-			switch (randint(4))
+			switch (randint1(4))
 			{
 				case 1:
 				{
@@ -3595,13 +3609,13 @@ void gain_level_reward(int chosen_reward)
 					activate_hi_summon();
 					break;
 				case 3:
-					if (randint(2) == 1) (void)curse_weapon();
+					if (randint1(2) == 1) (void)curse_weapon();
 					else (void)curse_armor();
 					break;
 				default:
 					for (i = 0; i < A_MAX; i++)
 					{
-						(void)dec_stat(i, 10 + randint(15), TRUE);
+						(void)dec_stat(i, 10 + randint1(15), TRUE);
 					}
 			}
 			break;
@@ -3615,14 +3629,14 @@ void gain_level_reward(int chosen_reward)
 
 			for (i = 0; i < A_MAX; i++)
 			{
-				(void)dec_stat(i, 10 + randint(15), FALSE);
+				(void)dec_stat(i, 10 + randint1(15), FALSE);
 			}
 
 			activate_hi_summon();
 			(void)activate_ty_curse(FALSE, &count);
 
-			if (randint(2) == 1) (void)curse_weapon();
-			if (randint(2) == 1) (void)curse_armor();
+			if (randint1(2) == 1) (void)curse_weapon();
+			if (randint1(2) == 1) (void)curse_armor();
 
 			break;
 		}
@@ -3655,17 +3669,17 @@ void gain_level_reward(int chosen_reward)
 			break;
 		case REW_SER_DEMO:
 			msg_format("%s rewards you with a demonic servant!", chaos_patrons[p_ptr->chaos_patron]);
-			if (!summon_specific(-1, py, px, dun_level, SUMMON_DEMON, FALSE, TRUE, TRUE))
+			if (!summon_specific(-1, py, px, p_ptr->depth, SUMMON_DEMON, FALSE, TRUE, TRUE))
 				msg_print("Nobody ever turns up...");
 			break;
 		case REW_SER_MONS:
 			msg_format("%s rewards you with a servant!", chaos_patrons[p_ptr->chaos_patron]);
-			if (!summon_specific(-1, py, px, dun_level, SUMMON_NO_UNIQUES, FALSE, TRUE, TRUE))
+			if (!summon_specific(-1, py, px, p_ptr->depth, SUMMON_NO_UNIQUES, FALSE, TRUE, TRUE))
 				msg_print("Nobody ever turns up...");
 			break;
 		case REW_SER_UNDE:
 			msg_format("%s rewards you with an undead servant!", chaos_patrons[p_ptr->chaos_patron]);
-			if (!summon_specific(-1, py, px, dun_level, SUMMON_UNDEAD, FALSE, TRUE, TRUE))
+			if (!summon_specific(-1, py, px, p_ptr->depth, SUMMON_UNDEAD, FALSE, TRUE, TRUE))
 				msg_print("Nobody ever turns up...");
 			break;
 		default:
@@ -3681,6 +3695,9 @@ void gain_level_reward(int chosen_reward)
  */
 bool tgt_pt(int *x, int *y)
 {
+	int py = p_ptr->py;
+	int px = p_ptr->px;
+
 	char ch = 0;
 	int d, cu, cv;
 	bool success = FALSE;
@@ -3809,18 +3826,18 @@ bool get_hack_dir(int *dp)
 	if (!dir) return (FALSE);
 
 	/* Save the direction */
-	command_dir = dir;
+	p_ptr->command_dir = dir;
 
 	/* Check for confusion */
 	if (p_ptr->confused)
 	{
 		/* XXX XXX XXX */
 		/* Random direction */
-		dir = ddd[rand_int(8)];
+		dir = ddd[randint0(8)];
 	}
 
 	/* Notice confusion */
-	if (command_dir != dir)
+	if (p_ptr->command_dir != dir)
 	{
 		/* Warn the user */
 		msg_print("You are confused.");

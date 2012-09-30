@@ -1,4 +1,4 @@
-# CVS: Last edit by $Author: sfuerst $ on $Date: 2000/07/17 11:02:29 $
+# CVS: Last edit by $Author: sfuerst $ on $Date: 2001/01/13 04:55:54 $
 # File: Makefile.win
 
 # For Borland C++ 4.52 Win16 and Win32
@@ -32,7 +32,7 @@ SRCS = \
   effects.c racial.c \
   artifact.c mutation.c flavor.c spells3.c \
   mspells1.c mspells2.c scores.c mind.c \
-  bldg.c obj_kind.c wild.c avatar.c notes.c
+  bldg.c obj_kind.c wild1.c wild2.c avatar.c notes.c
 
 OBJS = \
   z-util.obj z-virt.obj z-form.obj z-rand.obj z-term.obj \
@@ -48,7 +48,7 @@ OBJS = \
   effects.o racial.o \
   artifact.o mutation.o flavor.o spells3.o \
   mspells1.o mspells2.o scores.o mind.o \
-  bldg.obj obj_kind.obj wild.o avatar.o notes.o
+  bldg.obj obj_kind.obj wild1.o wild2.o avatar.o notes.o
 
 OBJS32 = \
   z-util.o32 z-virt.o32 z-form.o32 z-rand.o32 z-term.o32 \
@@ -64,7 +64,7 @@ OBJS32 = \
   effects.o32 racial.o32 \
   artifact.o32 mutation.o32 flavor.o32 spells3.o32 \
   mspells1.o32 mspells2.o32 scores.o32 mind.o32 \
-  bldg.o32 obj_kind.o32 wild.o32 avatar.o32 notes.o32
+  bldg.o32 obj_kind.o32 wild1.o32 wild2.o32 avatar.o32 notes.o32
 
 default: bccw16.cfg angband cleanobj bccw32.cfg angband32 cleanobj32
 
@@ -180,7 +180,7 @@ generate dungeon init1 init2 +
 effects racial obj_kind +
 artifact mutation flavor spells3 +
 mspells1 mspells2 scores mind +
-main-win readdib bldg wild avatar notes,+
+main-win readdib bldg wild1 wild2 avatar notes,+
 ..\angband.exe,..\angband.map,import cwl,..\ext-win\src\angband.def
 |
 	$(RC) -31 ..\ext-win\src\angband.rc ..\angband.exe
@@ -211,7 +211,7 @@ generate.o32 dungeon.o32 init1.o32 init2.o32 +
 effects.o32 racial.o32 obj_kind.o32 +
 artifact.o32 mutation.o32 flavor.o32 spells3.o32 +
 mspells1.o32 mspells2.o32 scores.o32 mind.o32 +
-main-win.o32 readdib.o32 bldg.o32 wild.o32 avatar.o32 notes.o32,+
+main-win.o32 readdib.o32 bldg.o32 wild1.o32 wild2.o32 avatar.o32 notes.o32,+
 ..\angband32.exe,..\angband.map,import32 cw32,..\ext-win\src\angband.def
 |
 	$(RC32) -w32 ..\ext-win\src\angband.rc ..\angband32.exe

@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 2000/07/20 17:40:16 $ */
 /* File: readdib.h */
 
 /*

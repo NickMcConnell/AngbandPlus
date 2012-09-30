@@ -31,7 +31,7 @@ be found in the dungeon section (see dungeon.txt#MapSymbols [2]).
   ^ (Brown)        Mountains          6   Entrance to Magic Shop
   . (White)        Floor / Road       7   Entrance to the Black Market
   . (Brown)        Dirt               8   Entrance to your Home
-  . (Green)        Grass              
+  . (Green)        Grass              9   Entrance to the Bookstore
   > (White)        Dungeon Entrance
   > (Yellow)       Quest Entrance
   < (Yellow)       Quest Exit
@@ -288,6 +288,14 @@ services which are only available to their guild. Some building owners
 may offer preferential treatment to their own race or to a group of
 races.
 
+--- Note for development versions 2.5.x ---
+
+Note that special buildings were turned off for the earlier 2.5.x
+development versions while the wilderness code was extensively revised.
+They have started to make a reappearance in version 2.5.3 and currently
+include shops where you can enchant your equipment, recharge and
+identify items, get maps of the wilderness, and add and cure mutations.
+
 
 ***** <FixedQuests>
 === Fixed Quests ===
@@ -327,12 +335,17 @@ Note that to avoid some ugly abuses available to players, the Genocide,
 Mass-Genocide and *Destruction* spells are prevented from working
 inside fixed quests.
 
+--- Note for development versions 2.5.x ---
+
+Note that fixed quests were turned off for the earlier 2.5.x
+development versions while the relevant code was extensively revised.
+This process is ongoing.
 
 --
 Original   : (??)
 Updated    : (??)
 Updated    : Zangband DevTeam
-Last update: May 29, 2000
+Last update: February 5, 2001
 
 
 ***** Begin Hyperlinks

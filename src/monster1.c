@@ -1352,8 +1352,8 @@ static void roff_top(int r_idx)
 	a2 = r_ptr->x_attr;
 
 	/* Hack -- fake monochrome */
-	if (!use_color) a1 = TERM_WHITE;
-	if (!use_color) a2 = TERM_WHITE;
+	if (!use_color || ironman_moria) a1 = TERM_WHITE;
+	if (!use_color || ironman_moria) a2 = TERM_WHITE;
 
 
 	/* Clear the top line */
@@ -1382,7 +1382,7 @@ static void roff_top(int r_idx)
 	Term_addstr(-1, TERM_WHITE, "'):");
 
 	/* Wizards get extra info */
-	if (wizard)
+	if (p_ptr->wizard)
 	{
 		char buf[6];
 
@@ -1664,7 +1664,7 @@ bool monster_swamp_wild(int r_idx)
 
 monster_hook_type get_monster_hook(void)
 {
-	if (dun_level)
+	if (p_ptr->depth)
 	{
 		/* In dungeon */
 		return &(monster_dungeon);
@@ -1680,7 +1680,7 @@ monster_hook_type get_monster_hook2(int y, int x)
 	wild_done_type *w_ptr;
 
 	/* In dungeon */
-	if (dun_level)
+	if (p_ptr->depth)
 	{
 		/* Set the monster list */
 		switch (area(y, x)->feat)
@@ -1717,10 +1717,20 @@ monster_hook_type get_monster_hook2(int y, int x)
 		/* Ocean */
 		wild_mon_hook = &monster_ocean;
 	}
-	else if (w_ptr->info & WILD_INFO_RIVER)
+	else if (w_ptr->info & WILD_INFO_WATER)
 	{
 		/* Shore */
 		wild_mon_hook = &monster_shore;
+	}
+	else if (w_ptr->info & WILD_INFO_ACID)
+	{
+		/* Acid */
+		wild_mon_hook = &monster_acid_wild;
+	}
+	else if (w_ptr->info & WILD_INFO_LAVA)
+	{
+		/* Lava */
+		wild_mon_hook = &monster_lava_wild;
 	}
 	else
 	{
@@ -2081,34 +2091,34 @@ void create_name(int type, char *name)
 	{
 		/* Create the monster name */
 		case NAME_DWARF:
-			strcpy(name, dwarf_syllable1[rand_int(sizeof(dwarf_syllable1) / sizeof(char*))]);
-			strcat(name, dwarf_syllable2[rand_int(sizeof(dwarf_syllable2) / sizeof(char*))]);
-			strcat(name, dwarf_syllable3[rand_int(sizeof(dwarf_syllable3) / sizeof(char*))]);
+			strcpy(name, dwarf_syllable1[randint0(sizeof(dwarf_syllable1) / sizeof(char*))]);
+			strcat(name, dwarf_syllable2[randint0(sizeof(dwarf_syllable2) / sizeof(char*))]);
+			strcat(name, dwarf_syllable3[randint0(sizeof(dwarf_syllable3) / sizeof(char*))]);
 			break;
 		case NAME_ELF:
-			strcpy(name, elf_syllable1[rand_int(sizeof(elf_syllable1) / sizeof(char*))]);
-			strcat(name, elf_syllable2[rand_int(sizeof(elf_syllable2) / sizeof(char*))]);
-			strcat(name, elf_syllable3[rand_int(sizeof(elf_syllable3) / sizeof(char*))]);
+			strcpy(name, elf_syllable1[randint0(sizeof(elf_syllable1) / sizeof(char*))]);
+			strcat(name, elf_syllable2[randint0(sizeof(elf_syllable2) / sizeof(char*))]);
+			strcat(name, elf_syllable3[randint0(sizeof(elf_syllable3) / sizeof(char*))]);
 			break;
 		case NAME_GNOME:
-			strcpy(name, gnome_syllable1[rand_int(sizeof(gnome_syllable1) / sizeof(char*))]);
-			strcat(name, gnome_syllable2[rand_int(sizeof(gnome_syllable2) / sizeof(char*))]);
-			strcat(name, gnome_syllable3[rand_int(sizeof(gnome_syllable3) / sizeof(char*))]);
+			strcpy(name, gnome_syllable1[randint0(sizeof(gnome_syllable1) / sizeof(char*))]);
+			strcat(name, gnome_syllable2[randint0(sizeof(gnome_syllable2) / sizeof(char*))]);
+			strcat(name, gnome_syllable3[randint0(sizeof(gnome_syllable3) / sizeof(char*))]);
 			break;
 		case NAME_HOBBIT:
-			strcpy(name, hobbit_syllable1[rand_int(sizeof(hobbit_syllable1) / sizeof(char*))]);
-			strcat(name, hobbit_syllable2[rand_int(sizeof(hobbit_syllable2) / sizeof(char*))]);
-			strcat(name, hobbit_syllable3[rand_int(sizeof(hobbit_syllable3) / sizeof(char*))]);
+			strcpy(name, hobbit_syllable1[randint0(sizeof(hobbit_syllable1) / sizeof(char*))]);
+			strcat(name, hobbit_syllable2[randint0(sizeof(hobbit_syllable2) / sizeof(char*))]);
+			strcat(name, hobbit_syllable3[randint0(sizeof(hobbit_syllable3) / sizeof(char*))]);
 			break;
 		case NAME_HUMAN:
-			strcpy(name, human_syllable1[rand_int(sizeof(human_syllable1) / sizeof(char*))]);
-			strcat(name, human_syllable2[rand_int(sizeof(human_syllable2) / sizeof(char*))]);
-			strcat(name, human_syllable3[rand_int(sizeof(human_syllable3) / sizeof(char*))]);
+			strcpy(name, human_syllable1[randint0(sizeof(human_syllable1) / sizeof(char*))]);
+			strcat(name, human_syllable2[randint0(sizeof(human_syllable2) / sizeof(char*))]);
+			strcat(name, human_syllable3[randint0(sizeof(human_syllable3) / sizeof(char*))]);
 			break;
 		case NAME_ORC:
-			strcpy(name, orc_syllable1[rand_int(sizeof(orc_syllable1) / sizeof(char*))]);
-			strcat(name, orc_syllable2[rand_int(sizeof(orc_syllable2) / sizeof(char*))]);
-			strcat(name, orc_syllable3[rand_int(sizeof(orc_syllable3) / sizeof(char*))]);
+			strcpy(name, orc_syllable1[randint0(sizeof(orc_syllable1) / sizeof(char*))]);
+			strcat(name, orc_syllable2[randint0(sizeof(orc_syllable2) / sizeof(char*))]);
+			strcat(name, orc_syllable3[randint0(sizeof(orc_syllable3) / sizeof(char*))]);
 			break;
 		/* Create an empty name */
 		default:

@@ -442,13 +442,12 @@ newsgroup ("rec.games.roguelike.angband").
 
 You can obtain the latest source and pre-compiled executables from
 various places, try "ftp://ftp.cis.ksu.edu/pub/Games/Angband/Angband-2.7.x"
-and the developer site at "ftp://export.andrew.cmu.edu/angband". You
+and the developer site at "ftp://clockwork.dementia.org/angband". You
 will need to enter the appropriate sub-directory, such as "Source" or
 "Macintosh".
 
-You should visit "http://www.voicenet.com/~benh/Angband/" (the
-Official Angband Home Page) and "http://www.paranoia.com/~jth/angband.html"
-(the Unofficial Angband Home Page), for more up to date information.
+You should visit "http://thangorodrim.angband.org/" (the Official Angband
+Home Page) for more up to date information.
 
 You may freely distribute the game, and its source, though you are
 bound not only by the existing copyright notice from 1984, but also

@@ -18,8 +18,7 @@
  * make sure to obtain various extra files as described below.
  *
  * The Windows version has been tested to compile with Visual C++ 5.0
- * and 6.0, CygWin 2.01 Beta, Borland C++ 5.5 command line tools, and
- * lcc-win32.
+ * and 6.0, Cygwin 1.0, Borland C++ 5.5 command line tools, and lcc-win32.
  *
  *
  * See also "main-dos.c" and "main-ibm.c".
@@ -246,6 +245,8 @@
  */
 #include <windows.h>
 
+#ifdef USE_SOUND
+
 /*
  * Exclude parts of MMSYSTEM.H that are not needed
  */
@@ -259,14 +260,9 @@
 #define MMNOMMIO         /* Multimedia file I/O support */
 #define MMNOMMSYSTEM     /* General MMSYSTEM functions */
 
-/*
- * Include some more files. Note: the Cygnus Cygwin compiler
- * doesn't use mmsystem.h instead it includes the winmm library
- * which performs a similar function.
- */
-#ifndef __CYGWIN__
-# include <mmsystem.h>
-#endif /* __CYGWIN__ */
+#include <mmsystem.h>
+
+#endif /* USE_SOUND */
 
 #include <commdlg.h>
 
@@ -390,6 +386,7 @@ struct _term_data
 	bool xtra_hack;
 
 	bool visible;
+	bool maximized;
 
 	bool bizarre;
 
@@ -967,6 +964,12 @@ static void save_prefs_aux(term_data *td, cptr sec_name)
 	/* Acquire position in *normal* mode (not minimized) */
 	rc = lpwndpl.rcNormalPosition;
 
+	/* Get information about the placement of the window */
+	if (lpwndpl.flags & SW_SHOWMAXIMIZED)
+		td->maximized = TRUE;
+	else
+		td->maximized = FALSE;
+
 	/* Window position (x) */
 	wsprintf(buf, "%d", rc.left);
 	WritePrivateProfileString(sec_name, "PositionX", buf, ini_file);
@@ -974,6 +977,10 @@ static void save_prefs_aux(term_data *td, cptr sec_name)
 	/* Window position (y) */
 	wsprintf(buf, "%d", rc.top);
 	WritePrivateProfileString(sec_name, "PositionY", buf, ini_file);
+
+	/* Maximized */
+	strcpy(buf, td->maximized ? "1" : "0");
+	WritePrivateProfileString(sec_name, "Maximized", buf, ini_file);
 }
 
 
@@ -1019,6 +1026,9 @@ static void load_prefs_aux(term_data *td, cptr sec_name)
 
 	/* Visible */
 	td->visible = (GetPrivateProfileInt(sec_name, "Visible", td->visible, ini_file) != 0);
+
+	/* Maximized */
+	td->maximized = (GetPrivateProfileInt(sec_name, "Maximized", td->maximized, ini_file) != 0);
 
 	/* Desired font, with default */
 	GetPrivateProfileString(sec_name, "Font", "8X13.FON", tmp, 127, ini_file);
@@ -1527,7 +1537,7 @@ static errr term_force_font(term_data *td, cptr path)
 
 		/* all this trouble to get the cell size */
 		hdcDesktop = GetDC(HWND_DESKTOP);
-		hfOld = SelectObject(hdcDesktop, td->font_id);
+		hfOld = (HFONT)SelectObject(hdcDesktop, td->font_id);
 		GetTextMetrics(hdcDesktop, &tm);
 		SelectObject(hdcDesktop, hfOld);
 		ReleaseDC(HWND_DESKTOP, hdcDesktop);
@@ -1815,9 +1825,6 @@ static errr Term_xtra_win_react(void)
 			/* Hack -- Resize the term */
 			Term_resize(td->cols, td->rows);
 
-			/* Redraw the contents */
-			Term_redraw();
-
 			/* Restore */
 			Term_activate(old);
 		}
@@ -1949,7 +1956,7 @@ static errr Term_xtra_win_sound(int v)
 	if (i == 0) return (1);
 
 	/* Build the path */
-	path_build(buf, 1024, ANGBAND_DIR_XTRA_SOUND, sound_file[v][rand_int(i)]);
+	path_build(buf, 1024, ANGBAND_DIR_XTRA_SOUND, sound_file[v][randint0(i)]);
 
 #ifdef WIN32
 
@@ -2305,7 +2312,7 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp)
 
 	/* More info */
 	hdcSrc = CreateCompatibleDC(hdc);
-	hbmSrcOld = SelectObject(hdcSrc, infGraph.hBitmap);
+	hbmSrcOld = (HBITMAP)SelectObject(hdcSrc, infGraph.hBitmap);
 
 # ifdef USE_TRANSPARENCY
 
@@ -2438,10 +2445,8 @@ static void windows_map_aux(void)
 	char tc;
 #endif /* USE_TRANSPARENCY */
 
-#ifndef ZANGBAND
 	s16b py = p_ptr->py;
 	s16b px = p_ptr->px;
-#endif /* ZANGBAND */
 
 #ifdef ZANGBAND
 
@@ -2610,7 +2615,7 @@ static void init_windows(void)
 	td->size_oh2 = 2;
 	td->pos_x = 7 * 30;
 	td->pos_y = 7 * 20;
-
+	
 	/* Sub windows */
 	for (i = 1; i < MAX_TERM_DATA; i++)
 	{
@@ -2639,6 +2644,7 @@ static void init_windows(void)
 	td->dwStyle = (WS_OVERLAPPED | WS_THICKFRAME | WS_SYSMENU |
 	               WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_CAPTION |
 	               WS_VISIBLE);
+	if (td->maximized) td->dwStyle |= WS_MAXIMIZE;
 	td->dwExStyle = 0;
 	td->visible = TRUE;
 
@@ -2647,6 +2653,7 @@ static void init_windows(void)
 	{
 		td = &data[i];
 		td->dwStyle = (WS_OVERLAPPED | WS_THICKFRAME | WS_SYSMENU);
+		if (td->maximized) td->dwStyle |= WS_MAXIMIZE;
 		td->dwExStyle = (WS_EX_TOOLWINDOW);
 	}
 
@@ -2734,6 +2741,7 @@ static void init_windows(void)
 
 	term_data_link(td);
 	angband_term[0] = &td->t;
+
 
 	/*
 	 * Reset map size if required
@@ -3622,7 +3630,6 @@ LRESULT FAR PASCAL AngbandWndProc(HWND hWnd, UINT uMsg,
 
 		case WM_GETMINMAXINFO:
 		{
-#if 0
 			MINMAXINFO FAR *lpmmi;
 			RECT rc;
 
@@ -3631,10 +3638,10 @@ LRESULT FAR PASCAL AngbandWndProc(HWND hWnd, UINT uMsg,
 			/* this message was sent before WM_NCCREATE */
 			if (!td) return 1;
 
-			/* Minimum window size is 8x2 */
+			/* Minimum window size is 80x24 */
 			rc.left = rc.top = 0;
-			rc.right = rc.left + 8 * td->tile_wid + td->size_ow1 + td->size_ow2;
-			rc.bottom = rc.top + 2 * td->tile_hgt + td->size_oh1 + td->size_oh2 + 1;
+			rc.right = rc.left + 80 * td->tile_wid + td->size_ow1 + td->size_ow2;
+			rc.bottom = rc.top + 24 * td->tile_hgt + td->size_oh1 + td->size_oh2 + 1;
 
 			/* Adjust */
 			AdjustWindowRectEx(&rc, td->dwStyle, TRUE, td->dwExStyle);
@@ -3643,26 +3650,6 @@ LRESULT FAR PASCAL AngbandWndProc(HWND hWnd, UINT uMsg,
 			lpmmi->ptMinTrackSize.x = rc.right - rc.left;
 			lpmmi->ptMinTrackSize.y = rc.bottom - rc.top;
 
-			/* Maximum window size */
-			rc.left = rc.top = 0;
-			rc.right = rc.left + 80 * td->tile_wid + td->size_ow1 + td->size_ow2;
-			rc.bottom = rc.top + 24 * td->tile_hgt + td->size_oh1 + td->size_oh2;
-
-			/* Paranoia */
-			rc.right  += (td->tile_wid - 1);
-			rc.bottom += (td->tile_hgt - 1);
-
-			/* Adjust */
-			AdjustWindowRectEx(&rc, td->dwStyle, TRUE, td->dwExStyle);
-
-			/* Save maximum size */
-			lpmmi->ptMaxSize.x = rc.right - rc.left;
-			lpmmi->ptMaxSize.y = rc.bottom - rc.top;
-
-			/* Save maximum size */
-			lpmmi->ptMaxTrackSize.x = rc.right - rc.left;
-			lpmmi->ptMaxTrackSize.y = rc.bottom - rc.top;
-#endif /* 0 */
 			return 0;
 		}
 
@@ -3793,22 +3780,27 @@ LRESULT FAR PASCAL AngbandWndProc(HWND hWnd, UINT uMsg,
 
 				case SIZE_RESTORED:
 				{
-					uint old_tile_wid = td->tile_wid;
-					uint old_tile_hgt = td->tile_hgt;
+					uint cols = (LOWORD(lParam) - td->size_ow1) / td->tile_wid;
+					uint rows = (HIWORD(lParam) - td->size_oh1) / td->tile_hgt;
 
-					td->size_hack = TRUE;
-
-					td->tile_wid = LOWORD(lParam) / td->cols;
-					td->tile_hgt = HIWORD(lParam) / td->rows;
-
-					if ((td->tile_wid != old_tile_wid) ||
-						(td->tile_hgt != old_tile_hgt))
+					/* New size */
+					if ((td->cols != cols) || (td->rows != rows))
 					{
-						term_getsize(td);
+						/* Save the new size */
+						td->cols = cols;
+						td->rows = rows;
+
+						/* Activate */
+						Term_activate(&td->t);
+
+						/* Resize the term */
+						Term_resize(td->cols, td->rows);
 
 						/* Redraw later */
 						InvalidateRect(td->w, NULL, TRUE);
 					}
+
+					td->size_hack = TRUE;
 
 					/* Show sub-windows */
 					for (i = 1; i < MAX_TERM_DATA; i++)
@@ -3957,9 +3949,9 @@ LRESULT FAR PASCAL AngbandListProc(HWND hWnd, UINT uMsg,
 
 		case WM_SIZE:
 		{
-			uint old_tile_wid = td->tile_wid;
-			uint old_tile_hgt = td->tile_hgt;
-
+			uint cols;
+			uint rows;
+			
 			/* this message was sent before WM_NCCREATE */
 			if (!td) return 1;
 
@@ -3971,29 +3963,34 @@ LRESULT FAR PASCAL AngbandListProc(HWND hWnd, UINT uMsg,
 
 			td->size_hack = TRUE;
 
-			td->tile_wid = LOWORD(lParam) / td->cols;
-			td->tile_hgt = HIWORD(lParam) / td->rows;
+			cols = (LOWORD(lParam) - td->size_ow1) / td->tile_wid;
+			rows = (HIWORD(lParam) - td->size_oh1) / td->tile_hgt;
 
-			if ((td->tile_wid != old_tile_wid) ||
-				(td->tile_hgt != old_tile_hgt))
+			/* New size */
+			if ((td->cols != cols) || (td->rows != rows))
 			{
-				if (((td->tile_wid < td->font_wid) ||
-					 (td->tile_hgt < td->font_hgt)) ||
-					((td->cols < 80) || (td->rows < 24)))
-				{
-					td->tile_wid = td->font_wid;
-					td->tile_hgt = td->font_hgt;
+				/* Save old term */
+				term *old_term = Term;
 
-					td->cols = (LOWORD(lParam) - td->size_ow1 - td->size_ow2) / td->tile_wid;
-					td->rows = (HIWORD(lParam) - td->size_oh1 - td->size_oh2) / td->tile_hgt;
-				}
+				/* Save the new size */
+				td->cols = cols;
+				td->rows = rows;
 
-				term_getsize(td);
+				/* Activate */
+				Term_activate(&td->t);
 
-				MoveWindow(hWnd, td->pos_x, td->pos_y, td->size_wid, td->size_hgt, TRUE);
+				/* Resize the term */
+				Term_resize(td->cols, td->rows);
+
+				/* Activate */
+				Term_activate(old_term);
 
 				/* Redraw later */
 				InvalidateRect(td->w, NULL, TRUE);
+
+				/* HACK - Redraw all windows */
+				p_ptr->window = 0xFFFFFFFF;
+				window_stuff();
 			}
 
 			td->size_hack = FALSE;
@@ -4473,7 +4470,7 @@ int FAR PASCAL WinMain(HINSTANCE hInst, HINSTANCE hPrevInst,
 		wc.hInstance     = hInst;
 		wc.hIcon         = hIcon = LoadIcon(hInst, AppName);
 		wc.hCursor       = LoadCursor(NULL, IDC_ARROW);
-		wc.hbrBackground = GetStockObject(BLACK_BRUSH);
+		wc.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
 		wc.lpszMenuName  = AppName;
 		wc.lpszClassName = AppName;
 

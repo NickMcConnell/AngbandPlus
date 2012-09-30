@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 2000/05/22 15:19:29 $ */
 /* File: readbits.c */
 
 /*
@@ -73,8 +72,10 @@ static DWORD PASCAL lread(int fh, VOID FAR *pv, DWORD ul)
 		ul -= MAXREAD;
 		hp += MAXREAD;
 	}
+
 	if (_lread(fh, (LPSTR)hp, (WORD)ul) != (WORD)ul)
 		return 0;
+
 	return ulT;
 }
 
@@ -129,7 +130,7 @@ static HPALETTE PASCAL NEAR MakeDIBPalette(LPBITMAPINFOHEADER lpInfo)
 	 */
 	else
 	{
-		return (GetStockObject(DEFAULT_PALETTE));
+		return ((HPALETTE)GetStockObject(DEFAULT_PALETTE));
 	}
 }
 

@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/08/12 11:21:01 $ */
 /* File: z-config.h */
 
 /* Purpose: Angband specific configuration stuff */
@@ -519,7 +518,7 @@
 /* # define SHOW_LIFE_RATE */
 
 /* Do we want different characters for different races? */
-/* 
+/*
  * Too slow for general use - note that the 16x16 tiles use a
  * much faster version.
  */

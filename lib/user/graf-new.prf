@@ -1,4 +1,4 @@
-# CVS: Last edit by $Author: sfuerst $ on $Date: 2000/10/12 10:31:39 $
+# CVS: Last edit by $Author: sfuerst $ on $Date: 2001/01/26 10:16:30 $
 # File: graf-new.prf
 
 #
@@ -2117,7 +2117,8 @@ K:540:0xB5/0x93
 # Jo Staff
 K:541:0xB5/0x92
 
-# Club (rr9)
+# Club
+K:542:0xB5/0x94
 
 # Broad Spear
 K:543:0xB5/0x84
@@ -4413,6 +4414,7 @@ R:760:0xB3/0x8C
 #N:761:Ahtu, Avatar of Nyarlathotep
 
 #N:762:Fundin Bluecloak
+R:762:0xA8/0x82
 
 # Dworkin Barimen
 R:763:0xB3/0x8D
@@ -4783,6 +4785,51 @@ T:32:0x82/0x83
 
 # Jammed Door
 T:33:0x82/0x83
+
+# General Store
+T:34:0x82/0x87
+
+# Armoury
+T:35:0x82/0x88
+
+# Weapon Smiths
+T:36:0x82/0x89
+
+# Temple
+T:37:0x82/0x8A
+
+# Alchemy Shop
+T:38:0x82/0x8B
+
+# Magic Shop
+T:39:0x82/0x8C
+
+# Black Market
+T:40:0x82/0x8D
+
+# Home
+T:41:0x82/0x8E
+
+# Bookstore
+T:42:0x82/0x8F
+
+# Weaponmaster
+T:43:0xBE/0x94
+
+# Zymurgist
+T:44:0xBE/0x96
+
+# Magesmith (weapon)
+T:45:0xBE/0x95
+
+# Magesmith (armour)
+T:46:0xBE/0x95
+
+# Mutatalist
+T:47:0xBE/0x91
+
+# Map Maker
+T:48:0xBE/0x92
 
 # Load the special player pictures
 %:xtra-new.prf
