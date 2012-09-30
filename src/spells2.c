@@ -37,7 +37,7 @@ void grow_trees(int rad)
         for(a=0;a<rad*rad+11;a++){
                 i=(Rand_mod((rad*2)+1)-rad+Rand_mod((rad*2)+1)-rad)/2;
                 j=(Rand_mod((rad*2)+1)-rad+Rand_mod((rad*2)+1)-rad)/2;
-                if (cave_clean_bold(py+i, px+j))
+                if (in_bounds(py + i, px + j) && (cave_clean_bold(py+i, px+j)))
                 {
                         cave_set_feat(py+i, px+j, FEAT_TREES);
                 }
@@ -323,7 +323,7 @@ static int remove_curse_aux(int all)
 	/* Attempt to uncurse items being worn */
 	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
 	{
-                u32b f1, f2, f3, f4;
+                u32b f1, f2, f3, f4, esp;
 
 		object_type *o_ptr = &inventory[i];
 
@@ -334,7 +334,7 @@ static int remove_curse_aux(int all)
 		if (!cursed_p(o_ptr)) continue;
 
 		/* Extract the flags */
-                object_flags(o_ptr, &f1, &f2, &f3, &f4);
+                object_flags(o_ptr, &f1, &f2, &f3, &f4, &esp);
 
 		/* Heavily Cursed Items need a special spell */
 		if (!all && (f3 & (TR3_HEAVY_CURSE))) continue;
@@ -355,7 +355,7 @@ static int remove_curse_aux(int all)
 			o_ptr->art_flags3 &= ~(TR3_HEAVY_CURSE);
 
 		/* Take note */
-		o_ptr->note = quark_add("uncursed");
+		o_ptr->sense = SENSE_UNCURSED;
 
                 /* Reverse the curse effect */
  /* jk - scrolls of *remove curse* have a 1 in (55-level chance to */
@@ -494,18 +494,18 @@ bool alchemy(void) /* Turns an object into gold, gain some of its value in a sho
 	}
 
 	/* Artifacts cannot be destroyed */
-	if (artifact_p(o_ptr) || o_ptr->art_name)
+        if (artifact_p(o_ptr) || o_ptr->art_name)
 	{
-		cptr feel = "special";
+                byte feel = SENSE_SPECIAL;
 
 		/* Message */
 		msg_format("You fail to turn %s to gold!", o_name);
 
 		/* Hack -- Handle icky artifacts */
-		if (cursed_p(o_ptr) || broken_p(o_ptr)) feel = "terrible";
+                if (cursed_p(o_ptr)) feel = SENSE_TERRIBLE;
 
 		/* Hack -- inscribe the artifact */
-		o_ptr->note = quark_add(feel);
+		o_ptr->sense = feel;
 
 		/* We have "felt" it (again) */
 		o_ptr->ident |= (IDENT_SENSE);
@@ -517,7 +517,7 @@ bool alchemy(void) /* Turns an object into gold, gain some of its value in a sho
 		p_ptr->window |= (PW_INVEN | PW_EQUIP);
 
 		/* Done */
-	return FALSE;
+                return FALSE;
 	}
 
 	price = object_value_real(o_ptr);
@@ -531,7 +531,6 @@ bool alchemy(void) /* Turns an object into gold, gain some of its value in a sho
 
 		if (amt > 1) price *= amt;
 
-		if (price > 30000) price = 30000;
 		msg_format("You turn %s to %ld coins worth of gold.", o_name, price);
 		p_ptr->au += price;
 
@@ -578,7 +577,7 @@ bool alchemy(void) /* Turns an object into gold, gain some of its value in a sho
  *
  * XXX XXX XXX Use the "show_file()" method, perhaps.
  */
-void self_knowledge(void)
+void self_knowledge(FILE *fff)
 {
 	int i = 0, j, k;
 
@@ -597,7 +596,7 @@ void self_knowledge(void)
 	/* Acquire item flags from equipment */
 	for (k = INVEN_WIELD; k < INVEN_TOTAL; k++)
 	{
-                u32b t1, t2, t3, t4;
+                u32b t1, t2, t3, t4, esp;
 
 		o_ptr = &inventory[k];
 
@@ -605,7 +604,7 @@ void self_knowledge(void)
 		if (!o_ptr->k_idx) continue;
 
 		/* Extract the flags */
-                object_flags(o_ptr, &t1, &t2, &t3, &t4);
+                object_flags(o_ptr, &t1, &t2, &t3, &t4, &esp);
 
 		/* Extract flags */
 		f1 |= t1;
@@ -678,7 +677,7 @@ void self_knowledge(void)
 		if (r_ptr->flags2 & RF2_MOVE_BODY)
 			info[i++] = "You can move monsters.";
 		/* Not implemented */
-#ifdef 0
+#if 0
 		/* They are disabled, because the r_info.txt array has to
 		 * few RF2_TAKE_ITEM flags... */
 		if (r_ptr->flags2 & RF2_TAKE_ITEM)
@@ -968,8 +967,6 @@ void self_knowledge(void)
 			info[i++] = "You appear in the mountains.";
 		if (r_ptr->flags8 & RF8_WILD_GRASS)
 			info[i++] = "You appear in grasses.";
-		if (r_ptr->flags8 & RF8_WILD_TOO)
-			info[i++] = "You appear everywhere.";
 		
 		if (r_ptr->flags9 & RF9_SUSCEP_ACID)
 			info[i++] = "You are sensitive to acid.";
@@ -1534,6 +1531,10 @@ void self_knowledge(void)
 	{
 		info[i++] = "You are protected from evil.";
 	}
+	if (p_ptr->protgood)
+	{
+		info[i++] = "You are protected from good.";
+	}
 	if (p_ptr->shield)
 	{
 		info[i++] = "You are protected by a mystic shield.";
@@ -1574,6 +1575,10 @@ void self_knowledge(void)
 	{
 		info[i++] = "You can fly.";
 	}
+        if (p_ptr->climb)
+	{
+                info[i++] = "You can climb hight mountains.";
+	}
 	if (p_ptr->free_act)
 	{
 		info[i++] = "You have free action.";
@@ -1588,7 +1593,22 @@ void self_knowledge(void)
 	}
 	if (p_ptr->telepathy)
 	{
-		info[i++] = "You have ESP.";
+                if (p_ptr->telepathy & ESP_ALL) info[i++] = "You have ESP.";
+                else
+                {
+                        if (p_ptr->telepathy & ESP_ORC) info[i++] = "You can sense the presence of orcs.";
+                        if (p_ptr->telepathy & ESP_TROLL) info[i++] = "You can sense the presence of trolls.";
+                        if (p_ptr->telepathy & ESP_DRAGON) info[i++] = "You can sense the presence of dragons.";
+                        if (p_ptr->telepathy & ESP_GIANT) info[i++] = "You can sense the presence of giants.";
+                        if (p_ptr->telepathy & ESP_DEMON) info[i++] = "You can sense the presence of demons.";
+                        if (p_ptr->telepathy & ESP_UNDEAD) info[i++] = "You can sense presence of undeads.";
+                        if (p_ptr->telepathy & ESP_EVIL) info[i++] = "You can sense the presence of evil beings.";
+                        if (p_ptr->telepathy & ESP_ANIMAL) info[i++] = "You can sense the presence of animals.";
+                        if (p_ptr->telepathy & ESP_DRAGONRIDER) info[i++] = "You can sense the presence of dragonriders.";
+                        if (p_ptr->telepathy & ESP_GOOD) info[i++] = "You can sense the presence of good beings.";
+                        if (p_ptr->telepathy & ESP_NONLIVING) info[i++] = "You can sense the presence of non-living things.";
+                        if (p_ptr->telepathy & ESP_UNIQUE) info[i++] = "You can sense the presence of Unique beings.";
+                }
 	}
 	if (p_ptr->hold_life)
 	{
@@ -1909,37 +1929,52 @@ void self_knowledge(void)
 		}
 	}
 
+        /* Print on screen or in a file ? */
+        if (fff == NULL)
+        {
+                /* Save the screen */
+                Term_save();
 
-	/* Save the screen */
-	Term_save();
+                /* Erase the screen */
+                for (k = 1; k < 24; k++) prt("", k, 13);
 
-	/* Erase the screen */
-	for (k = 1; k < 24; k++) prt("", k, 13);
+                /* Label the information */
+                prt("     Your Attributes:", 1, 15);
 
-	/* Label the information */
-	prt("     Your Attributes:", 1, 15);
+                /* We will print on top of the map (column 13) */
+                for (k = 2, j = 0; j < i; j++)
+                {
+                        /* Show the info */
+                        prt(info[j], k++, 15);
 
-	/* We will print on top of the map (column 13) */
-	for (k = 2, j = 0; j < i; j++)
-	{
-		/* Show the info */
-		prt(info[j], k++, 15);
+                        /* Every 20 entries (lines 2 to 21), start over */
+                        if ((k == 22) && (j+1 < i))
+                        {
+                                prt("-- more --", k, 15);
+                                inkey();
+                                for (; k > 2; k--) prt("", k, 15);
+                        }
+                }
 
-		/* Every 20 entries (lines 2 to 21), start over */
-		if ((k == 22) && (j+1 < i))
-		{
-			prt("-- more --", k, 15);
-			inkey();
-			for (; k > 2; k--) prt("", k, 15);
-		}
-	}
+                /* Pause */
+                prt("[Press any key to continue]", k, 13);
+                inkey();
 
-	/* Pause */
-	prt("[Press any key to continue]", k, 13);
-	inkey();
+                /* Restore the screen */
+                Term_load();
+        }
+        else
+        {
+                /* Label the information */
+                fprintf(fff, "     Your Attributes:\n");
 
-	/* Restore the screen */
-	Term_load();
+                /* We will print on top of the map (column 13) */
+                for (j = 0; j < i; j ++)
+                {
+                        /* Show the info */
+                        fprintf(fff, "%s\n", info[j]);
+                }
+        }
 }
 
 
@@ -2042,6 +2077,11 @@ void report_magics(void)
 	{
 		info2[i]  = report_magics_aux(p_ptr->protevil);
 		info[i++] = "You are protected from evil";
+	}
+	if (p_ptr->protgood)
+	{
+		info2[i]  = report_magics_aux(p_ptr->protgood);
+		info[i++] = "You are protected from good";
 	}
 	if (p_ptr->shield)
 	{
@@ -2148,26 +2188,8 @@ bool lose_all_info(void)
 		/* Allow "protection" by the MENTAL flag */
 		if (o_ptr->ident & (IDENT_MENTAL)) continue;
 
-		/* Remove "default inscriptions" */
-		if (o_ptr->note && (o_ptr->ident & (IDENT_SENSE)))
-		{
-			/* Access the inscription */
-			cptr q = quark_str(o_ptr->note);
-
-			/* Hack -- Remove auto-inscriptions */
-			if ((streq(q, "cursed")) ||
-			    (streq(q, "broken")) ||
-			    (streq(q, "good")) ||
-			    (streq(q, "average")) ||
-			    (streq(q, "excellent")) ||
-			    (streq(q, "worthless")) ||
-			    (streq(q, "special")) ||
-			    (streq(q, "terrible")))
-			{
-				/* Forget the inscription */
-				o_ptr->note = 0;
-			}
-		}
+		/* Remove sensing */
+		o_ptr->sense = SENSE_NONE;
 
 		/* Hack -- Clear the "empty" flag */
 		o_ptr->ident &= ~(IDENT_EMPTY);
@@ -2373,10 +2395,16 @@ bool detect_treasure(void)
 				/* Expose the gold */
 				c_ptr->feat += 0x02;
 			}
+			else if (c_ptr->feat == FEAT_SANDWALL_H)
+			{
+				/* Expose the gold */
+				c_ptr->feat = FEAT_SANDWALL_K;
+			}
 
 			/* Magma/Quartz + Known Gold */
 			if ((c_ptr->feat == FEAT_MAGMA_K) ||
-			    (c_ptr->feat == FEAT_QUARTZ_K))
+			    (c_ptr->feat == FEAT_QUARTZ_K) ||
+			    (c_ptr->feat == FEAT_SANDWALL_K))
 			{
 				/* Hack -- Memorize */
 				c_ptr->info |= (CAVE_MARK);
@@ -2560,7 +2588,7 @@ bool detect_objects_magic(void)
 		/* Artifacts, misc magic items, or enchanted wearables */
 		if (artifact_p(o_ptr) || ego_item_p(o_ptr) || o_ptr->art_name ||
                     (tv == TV_AMULET) || (tv == TV_RING) || (tv == TV_BATERIE) ||
-		    (tv == TV_STAFF) || (tv == TV_WAND) || (tv == TV_ROD) ||
+                    (tv == TV_STAFF) || (tv == TV_WAND) || (tv == TV_ROD) || (tv == TV_ROD_MAIN) ||
                     (tv == TV_SCROLL) || (tv == TV_POTION) || (tv == TV_POTION2) ||
                     (tv == TV_VALARIN_BOOK) || (tv == TV_MAGERY_BOOK) ||
                     (tv == TV_SHADOW_BOOK) || (tv == TV_CHAOS_BOOK) ||
@@ -2605,7 +2633,7 @@ bool detect_monsters_normal(void)
 	for (i = 1; i < m_max; i++)
 	{
 		monster_type *m_ptr = &m_list[i];
-		monster_race *r_ptr = &r_info[m_ptr->r_idx];
+                monster_race *r_ptr = race_inf(m_ptr);
 
 		/* Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
@@ -2662,7 +2690,7 @@ bool detect_monsters_invis(void)
 	for (i = 1; i < m_max; i++)
 	{
 		monster_type *m_ptr = &m_list[i];
-		monster_race *r_ptr = &r_info[m_ptr->r_idx];
+                monster_race *r_ptr = race_inf(m_ptr);
 
 		/* Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
@@ -2730,7 +2758,7 @@ bool detect_monsters_evil(void)
 	for (i = 1; i < m_max; i++)
 	{
 		monster_type *m_ptr = &m_list[i];
-		monster_race *r_ptr = &r_info[m_ptr->r_idx];
+                monster_race *r_ptr = race_inf(m_ptr);
 
 		/* Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
@@ -2799,7 +2827,7 @@ bool detect_monsters_string(cptr Match)
 	for (i = 1; i < m_max; i++)
 	{
 		monster_type *m_ptr = &m_list[i];
-		monster_race *r_ptr = &r_info[m_ptr->r_idx];
+                monster_race *r_ptr = race_inf(m_ptr);
 
 		/* Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
@@ -2865,7 +2893,7 @@ bool detect_monsters_xxx(u32b match_flag)
 	for (i = 1; i < m_max; i++)
 	{
 		monster_type *m_ptr = &m_list[i];
-		monster_race *r_ptr = &r_info[m_ptr->r_idx];
+                monster_race *r_ptr = race_inf(m_ptr);
 
 		/* Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
@@ -2918,6 +2946,9 @@ bool detect_monsters_xxx(u32b match_flag)
 			case RF3_UNDEAD:
 				desc_monsters = "the undead";
 				break;
+			case RF3_GOOD:
+				desc_monsters = "good";
+				break;
 		}
 
 		/* Describe result */
@@ -2927,6 +2958,12 @@ bool detect_monsters_xxx(u32b match_flag)
 
 	/* Result */
 	return (flag);
+}
+
+/* Detect good monsters */
+bool detect_monsters_good(void)
+{
+	return(detect_monsters_xxx(RF3_GOOD));
 }
 
 
@@ -3093,11 +3130,11 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 	int     i, chance, prob;
 	bool    res = FALSE;
 	bool    a = (artifact_p(o_ptr) || o_ptr->art_name);
-        u32b    f1, f2, f3, f4;
+        u32b    f1, f2, f3, f4, esp;
 
 
 	/* Extract the flags */
-        object_flags(o_ptr, &f1, &f2, &f3, &f4);
+        object_flags(o_ptr, &f1, &f2, &f3, &f4, &esp);
 
 	/* Large piles resist enchantment */
 	prob = o_ptr->number * 100;
@@ -3142,7 +3179,7 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 					if (o_ptr->art_flags3 & (TR3_HEAVY_CURSE))
 					    o_ptr->art_flags3 &= ~(TR3_HEAVY_CURSE);
 
-					o_ptr->note = quark_add("uncursed");
+                                        o_ptr->sense = SENSE_UNCURSED;
 				}
 			}
 		}
@@ -3173,7 +3210,7 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 					if (o_ptr->art_flags3 & (TR3_HEAVY_CURSE))
 					    o_ptr->art_flags3 &= ~(TR3_HEAVY_CURSE);
 
-					o_ptr->note = quark_add("uncursed");
+                                        o_ptr->sense = SENSE_UNCURSED;
 				}
 			}
 		}
@@ -3205,7 +3242,7 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 					if (o_ptr->art_flags3 & (TR3_HEAVY_CURSE))
 					    o_ptr->art_flags3 &= ~(TR3_HEAVY_CURSE);
 
-					o_ptr->note = quark_add("uncursed");
+                                        o_ptr->sense = SENSE_UNCURSED;
 				}
 			}
 		}
@@ -3236,7 +3273,7 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 					if (o_ptr->art_flags3 & (TR3_HEAVY_CURSE))
 					    o_ptr->art_flags3 &= ~(TR3_HEAVY_CURSE);
 
-					o_ptr->note = quark_add("uncursed");
+                                        o_ptr->sense = SENSE_UNCURSED;
 				}
 			}
 		}
@@ -3981,7 +4018,7 @@ void random_misc (object_type * o_ptr, bool is_scroll)
 /*  if (is_scroll) msg_print("It makes you see the air!");*/
 	break;
     case 18:
-	o_ptr->art_flags3 |= TR3_TELEPATHY;
+        o_ptr->art_esp |= 1 << (rand_int(32));
 /*  if (is_scroll) msg_print("It makes you hear voices inside your head!");*/
 	if (!artifact_bias && (randint(9)==1))
 	    artifact_bias = BIAS_MAGE;
@@ -4581,6 +4618,7 @@ bool create_artifact(object_type *o_ptr, bool a_scroll, bool get_name)
 		switch (p_ptr->pclass)
 		{
 			case CLASS_WARRIOR:
+                        case CLASS_UNBELIEVER:
 				artifact_bias = BIAS_WARRIOR;
 				break;
 			case CLASS_MAGE:
@@ -4607,6 +4645,7 @@ bool create_artifact(object_type *o_ptr, bool a_scroll, bool get_name)
 				warrior_artifact_bias = 40;
 				break;
 			case CLASS_CHAOS_WARRIOR:
+			case CLASS_DAEMONOLOGIST:
 				artifact_bias = BIAS_CHAOS;
 				warrior_artifact_bias = 40;
 				break;
@@ -4918,17 +4957,17 @@ bool ident_spell(void)
 	}
 
         /* If the item was an artifact, and if the auto-note is selected, write a message. */
-          if (take_notes && auto_notes && (artifact_p(o_ptr) || o_ptr->name1))
-          {
-            char note[80];
-            char item_name[80];
-            object_desc(item_name, o_ptr, FALSE, 0);
-         
-            /* Build note and write */
-            sprintf(note, "Found The %s", item_name);
- 
-            do_cmd_note(note);
-          }
+        if (take_notes && auto_notes && (artifact_p(o_ptr) || o_ptr->name1))
+        {
+		char note[80];
+		char item_name[80];
+		object_desc(item_name, o_ptr, FALSE, 0);
+  	  
+		/* Build note and write */
+		sprintf(note, "Found The %s", item_name);
+	   
+		add_note(note, 'A');	
+        }
 
 	/* Something happened */
 	return (TRUE);
@@ -5005,6 +5044,19 @@ bool identify_fully(void)
 			   o_name);
 	}
 
+        /* If the item was an artifact, and if the auto-note is selected, write a message. */
+        if (take_notes && auto_notes && (artifact_p(o_ptr) || o_ptr->name1))
+        {
+		char note[80];
+		char item_name[80];
+		object_desc(item_name, o_ptr, FALSE, 0);
+  	  
+		/* Build note and write */
+		sprintf(note, "Found The %s", item_name);
+	   
+		add_note(note, 'A');	
+        }
+
 	/* Describe it fully */
 	identify_fully_aux(o_ptr);
 
@@ -5027,7 +5079,7 @@ bool item_tester_hook_recharge(object_type *o_ptr)
 	if (o_ptr->tval == TV_WAND) return (TRUE);
 
 	/* Hack -- Recharge rods */
-	if (o_ptr->tval == TV_ROD) return (TRUE);
+        if (o_ptr->tval == TV_ROD_MAIN) return (TRUE);
 
 	/* Nope */
 	return (FALSE);
@@ -5065,7 +5117,7 @@ bool recharge(int power)
 
 	cptr q, s;
 
-        u32b f1, f2, f3, f4;
+        u32b f1, f2, f3, f4, esp;
 	char o_name[80];
 
 	object_type *o_ptr;
@@ -5092,14 +5144,14 @@ bool recharge(int power)
 	}
 
         /* Extract the flags */
-        object_flags(o_ptr, &f1, &f2, &f3, &f4);
+        object_flags(o_ptr, &f1, &f2, &f3, &f4, &esp);
 
 	/* Extract the object "level" */
 	lev = k_info[o_ptr->k_idx].level;
         k_ptr = &k_info[o_ptr->k_idx];
 
 	/* Recharge a rod */
-	if (o_ptr->tval == TV_ROD)
+        if (o_ptr->tval == TV_ROD_MAIN)
 	{
 		/* Extract a recharge strength by comparing object level to power. */
 		recharge_strength = ((power > lev) ? (power - lev) : 0) / 5;
@@ -5121,10 +5173,10 @@ bool recharge(int power)
 			recharge_amount = (power * damroll(3, 2));
 
 			/* Recharge by that amount */
-			if (o_ptr->timeout > recharge_amount)
-				o_ptr->timeout -= recharge_amount;
+                        if (o_ptr->timeout + recharge_amount < o_ptr->pval2)
+                                o_ptr->timeout += recharge_amount;
 			else
-				o_ptr->timeout = 0;
+                                o_ptr->timeout = o_ptr->pval2;
 		}
 	}
 
@@ -5156,7 +5208,7 @@ bool recharge(int power)
 		else
 		{
 			/* Recharge based on the standard number of charges. */
-			recharge_amount = randint(1 + k_ptr->pval / 2);
+                        recharge_amount = randint((power / (lev + 2)) + 1);
 
 			/* Multiple wands in a stack increase recharging somewhat. */
 			if ((o_ptr->tval == TV_WAND) && (o_ptr->number > 1))
@@ -5200,8 +5252,8 @@ bool recharge(int power)
 			msg_format("The recharging backfires - %s is completely drained!", o_name);
 
 			/* Artifact rods. */
-			if ((o_ptr->tval == TV_ROD) && (o_ptr->timeout < 10000)) 
-				o_ptr->timeout = (o_ptr->timeout + 100) * 2;
+                        if (o_ptr->tval == TV_ROD_MAIN) 
+                                o_ptr->timeout = 0;
 
 			/* Artifact wands and staffs. */
 			else if ((o_ptr->tval == TV_WAND) || (o_ptr->tval == TV_STAFF)) 
@@ -5218,7 +5270,7 @@ bool recharge(int power)
 			if (p_ptr->pclass == CLASS_MAGE)
 			{
 				/* 10% chance to blow up one rod, otherwise draining. */
-				if (o_ptr->tval == TV_ROD)
+                                if (o_ptr->tval == TV_ROD_MAIN)
 				{
 					if (randint(10) == 1) fail_type = 2;
 					else fail_type = 1;
@@ -5241,7 +5293,7 @@ bool recharge(int power)
 			else
 			{
 				/* 33% chance to blow up one rod, otherwise draining. */
-				if (o_ptr->tval == TV_ROD)
+                                if (o_ptr->tval == TV_ROD_MAIN)
 				{
 					if (randint(3) == 1) fail_type = 2;
 					else fail_type = 1;
@@ -5264,11 +5316,11 @@ bool recharge(int power)
 			/* Drain object or stack of objects. */
 			if (fail_type == 1)
 			{
-				if (o_ptr->tval == TV_ROD)
+                                if (o_ptr->tval == TV_ROD_MAIN)
 				{
 					msg_print("The recharge backfires, draining the rod further!");
 					if (o_ptr->timeout < 10000) 
-						o_ptr->timeout = (o_ptr->timeout + 100) * 2;
+                                                o_ptr->timeout = 0;
 				}
 				else if (o_ptr->tval == TV_WAND)
 				{
@@ -5287,7 +5339,6 @@ bool recharge(int power)
 					msg_format("Wild magic consumes your %s!", o_name);
 
 				/* Reduce rod stack maximum timeout, drain wands. */
-				if (o_ptr->tval == TV_ROD) o_ptr->pval -= k_ptr->pval;
 				if (o_ptr->tval == TV_WAND) o_ptr->pval = 0;
 
 				/* Reduce and describe inventory */
@@ -5531,7 +5582,7 @@ void aggravate_monsters(int who)
 	for (i = 1; i < m_max; i++)
 	{
 		monster_type    *m_ptr = &m_list[i];
-		monster_race    *r_ptr = &r_info[m_ptr->r_idx];
+                monster_race    *r_ptr = race_inf(m_ptr);
 
 		/* Paranoia -- Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
@@ -5597,7 +5648,7 @@ bool invoke(int dam, int typee)
 	for (i = 1; i < m_max; i++)
 	{
 		monster_type    *m_ptr = &m_list[i];
-		monster_race    *r_ptr = &r_info[m_ptr->r_idx];
+                monster_race    *r_ptr = race_inf(m_ptr);
 
 		/* Paranoia -- Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
@@ -5655,7 +5706,7 @@ bool genocide(bool player_cast)
 	for (i = 1; i < m_max; i++)
 	{
 		monster_type    *m_ptr = &m_list[i];
-		monster_race    *r_ptr = &r_info[m_ptr->r_idx];
+                monster_race    *r_ptr = race_inf(m_ptr);
 
 		/* Paranoia -- Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
@@ -5721,7 +5772,7 @@ bool mass_genocide(bool player_cast)
 	for (i = 1; i < m_max; i++)
 	{
 		monster_type    *m_ptr = &m_list[i];
-		monster_race    *r_ptr = &r_info[m_ptr->r_idx];
+                monster_race    *r_ptr = race_inf(m_ptr);
 
 		/* Paranoia -- Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
@@ -5845,7 +5896,15 @@ void destroy_area(int y1, int x1, int r, bool full)
 	/* XXX XXX */
 	full = full ? full : 0;
 
-        if(special_flag){msg_print("Not on special levels!");return;}
+        if (special_flag)
+        {
+                msg_print("Not on special levels!");
+                return;
+        }
+        if (p_ptr->inside_quest)
+        {
+                return;
+        }
 
 	/* Big area of affect */
 	for (y = (y1 - r); y <= (y1 + r); y++)
@@ -5986,6 +6045,10 @@ void earthquake(int cy, int cx, int r)
 	cave_type       *c_ptr;
 	bool            map[32][32];
 
+        if (p_ptr->inside_quest)
+        {
+                return;
+        }
 
 	/* Paranoia -- Enforce maximum range */
 	if (r > 12) r = 12;
@@ -6164,7 +6227,7 @@ void earthquake(int cy, int cx, int r)
 			if (c_ptr->m_idx)
 			{
 				monster_type *m_ptr = &m_list[c_ptr->m_idx];
-				monster_race *r_ptr = &r_info[m_ptr->r_idx];
+                                monster_race *r_ptr = race_inf(m_ptr);
 
 				/* Most monsters cannot co-exist with rock */
 				if (!(r_ptr->flags2 & (RF2_KILL_WALL)) &&
@@ -6394,7 +6457,7 @@ static void cave_temp_room_lite(void)
 
 			monster_type    *m_ptr = &m_list[c_ptr->m_idx];
 
-			monster_race    *r_ptr = &r_info[m_ptr->r_idx];
+                        monster_race    *r_ptr = race_inf(m_ptr);
 
 			/* Update the monster */
 			update_mon(c_ptr->m_idx, FALSE);
@@ -6760,7 +6823,7 @@ void teleport_swap(int dir)
 	else
 	{
 		m_ptr = &m_list[c_ptr->m_idx];
-		r_ptr = &r_info[m_ptr->r_idx];
+                r_ptr = race_inf(m_ptr);
 		
 		if (r_ptr->flags3 & RF3_RES_TELE)
 		{
@@ -6879,7 +6942,7 @@ void swap_position(int lty, int ltx)
 	else
 	{
 		m_ptr = &m_list[c_ptr->m_idx];
-		r_ptr = &r_info[m_ptr->r_idx];
+                r_ptr = race_inf(m_ptr);
 		
 			sound(SOUND_TELEPORT);
 			
@@ -7554,7 +7617,7 @@ void bless_weapon(void)
 {
 	int             item;
 	object_type     *o_ptr;
-        u32b            f1, f2, f3, f4;
+        u32b            f1, f2, f3, f4, esp;
 	char            o_name[80];
 	cptr            q, s;
 
@@ -7583,7 +7646,7 @@ void bless_weapon(void)
 	object_desc(o_name, o_ptr, FALSE, 0);
 
         /* Extract the flags */
-        object_flags(o_ptr, &f1, &f2, &f3, &f4);
+        object_flags(o_ptr, &f1, &f2, &f3, &f4, &esp);
 
 	if (o_ptr->ident & (IDENT_CURSED))
 	{
@@ -7607,7 +7670,7 @@ void bless_weapon(void)
 		o_ptr->ident |= (IDENT_SENSE);
 
 		/* Take note */
-		o_ptr->note = quark_add("uncursed");
+                o_ptr->sense = SENSE_UNCURSED;
 
 		/* Recalculate the bonuses */
 		p_ptr->update |= (PU_BONUS);
@@ -7702,7 +7765,7 @@ bool detect_monsters_nonliving(void)
 	for (i = 1; i < m_max; i++)
 	{
 		monster_type *m_ptr = &m_list[i];
-		monster_race *r_ptr = &r_info[m_ptr->r_idx];
+                monster_race *r_ptr = race_inf(m_ptr);
 
 		/* Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
@@ -7779,6 +7842,14 @@ bool charm_monsters(int dam)
 bool charm_animals(int dam)
 {
 	return (project_hack(GF_CONTROL_ANIMAL, dam));
+}
+
+/*
+ * Charm demons
+ */
+bool charm_demons(int dam)
+{
+	return (project_hack(GF_CONTROL_DEMON, dam));
 }
 
 
@@ -7877,7 +7948,7 @@ void change_wild_mode(void)
          * A mold can't go into small scale mode, it's impossible for me to find
          * a good way to handle blinking on such a small map
          */
-        if(!p_ptr->immovable && (p_ptr->prace != RACE_MOLD))
+        if(!p_ptr->immovable)
         {
                 p_ptr->wild_mode = !p_ptr->wild_mode;
 
@@ -7891,6 +7962,10 @@ void change_wild_mode(void)
 
                 /* Leaving */
                 p_ptr->leaving = TRUE;
+        }
+        else
+        {
+                msg_print("Sorry, you can't move well enough to use the overview display.");
         }
 }
 
@@ -8126,3 +8201,63 @@ bool passwall(int dir, bool safe, bool local)
 		}
 	}
 }
+
+bool reset_recall(void)
+{
+	char buf[80], buf2[80];
+	int i,amt;
+	bool found;
+
+	found = FALSE;
+
+	while (!found) 
+	{
+		strcpy(buf,(d_info[p_ptr->recall_dungeon].name+d_name));
+
+		if(!get_string("Which dungeon? ", buf, 80)) return FALSE;
+
+		/* Find the index corresponding to the name */
+		for(i = 1; i < max_d_idx; i++)
+		{
+			sprintf(buf2, "%s", d_info[i].name + d_name);
+
+			/* Lowercase the name */
+			strlower(buf);
+			strlower(buf2);
+			if(strstr(buf2, buf)) 
+			{
+				/* valid dungeon found */
+				found = TRUE;
+				break;
+			}
+		}
+		if (!found) 
+		{
+			msg_print("Never heard of that dungeon!");
+			msg_print(NULL);		
+		}
+		if (d_info[i].min_plev > p_ptr->lev)
+		{
+			msg_print("You cannot go there yet!");
+			msg_print(NULL);
+			found = FALSE;
+		}
+
+	}
+	amt = get_quantity(format("Which level in %s(%d-%d)? ",d_info[i].name + d_name,
+			d_info[i].mindepth,d_info[i].maxdepth),d_info[i].maxdepth);
+
+	if (amt<1) return FALSE;
+
+	/* Enforce minimum level */
+	if (amt<d_info[i].mindepth) (amt=d_info[i].mindepth);
+
+	/* Mega hack -- Forbid levels 99 and 100 */
+	if((amt == 99) || (amt == 100)) amt = 98;
+
+	p_ptr->recall_dungeon = i;
+	max_dlv[p_ptr->recall_dungeon] = amt;
+
+	return TRUE;
+}
+

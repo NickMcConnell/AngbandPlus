@@ -15,11 +15,11 @@ OBJS = &
   variable.obj tables.obj util.obj cave.obj &
   object1.obj object2.obj traps.obj monster1.obj monster2.obj &
   xtra1.obj xtra2.obj spells1.obj spells2.obj melee1.obj melee2.obj &
-  load2.obj save.obj files.obj &
+  load2.obj save.obj files.obj ghost.obj &
   cmd1.obj cmd2.obj cmd3.obj cmd4.obj cmd5.obj cmd6.obj cmd7.obj &
   store.obj birth.obj wizard1.obj wizard2.obj &
   generate.obj dungeon.obj init1.obj init2.obj &
-  bldg.obj &
+  bldg.obj levels.obj notes.obj squeltch.obj wild.obj &
   main-ibm.obj main.obj
 
 all: angband.exe gredit.exe makepref.exe

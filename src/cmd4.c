@@ -58,7 +58,7 @@ void do_cmd_redraw(void)
         p_ptr->redraw |= (PR_WIPE | PR_BASIC | PR_EXTRA | PR_MAP);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER);
+        p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER | PW_M_LIST);
 
 	/* Window stuff */
 	p_ptr->window |= (PW_MESSAGE | PW_OVERHEAD | PW_MONSTER | PW_OBJECT);
@@ -112,7 +112,7 @@ void do_cmd_change_name(void)
 		/* Display the player */
 		display_player(mode);
 
-                if (mode == 8)
+                if (mode == 7)
 		{
 			mode = 0;
 			display_player(mode);
@@ -123,8 +123,8 @@ void do_cmd_change_name(void)
                 {
                         Term_putstr(6, 22, -1, TERM_WHITE,
                                 "['c' to change name, 'f' to file, 'h' to change mode, or ESC]");
-                        Term_putstr(23, 23, -1, TERM_WHITE,
-                                "['t' to tactics, 'e' to movement]");
+                        Term_putstr(14, 23, -1, TERM_WHITE,
+                                "['t/T' to change tactics, 'e/E' change to movement]");
                 }else{
                         Term_putstr(6, 23, -1, TERM_WHITE,
                                 "['c' to change name, 'f' to file, 'h' to change mode, or ESC]");
@@ -150,7 +150,7 @@ void do_cmd_change_name(void)
 			{
 				if (tmp[0] && (tmp[0] != ' '))
 				{
-					file_character(tmp, TRUE);
+                                        file_character(tmp, FALSE);
 				}
 			}
 		}
@@ -163,12 +163,21 @@ void do_cmd_change_name(void)
 
                 else if (c == 't')
                 {
-                        if (mode==0) (void)do_cmd_change_tactic();
+                        if (mode == 0) (void)do_cmd_change_tactic(-1);
                 }
 
                 else if (c == 'e')
                 {
-                        if (mode==0) do_cmd_change_movement();
+                        if (mode == 0) do_cmd_change_movement(-1);
+                }
+                else if (c == 'T')
+                {
+                        if (mode==0) (void)do_cmd_change_tactic(1);
+                }
+
+                else if (c == 'E')
+                {
+                        if (mode==0) do_cmd_change_movement(1);
                 }
 		/* Oops */
 		else
@@ -1003,12 +1012,15 @@ void do_cmd_options(void)
 		prt("(H) Hitpoint Warning", 12, 5);
 		prt("(A) Autosave Options", 13, 5);
 
+                /* Squeltching */
+                prt("(Q) Squelch Stuff", 14, 5);
+
 
 		/* Window flags */
-		prt("(W) Window Flags", 14, 5);
+                prt("(W) Window Flags", 15, 5);
 
 		/* Cheating */
-		prt("(C) Cheating Options", 16, 5);
+                prt("(C) Cheating Options", 17, 5);
 
 		/* Prompt */
 		prt("Command: ", 18, 0);
@@ -1026,7 +1038,7 @@ void do_cmd_options(void)
 			case '1':
 			{
 				/* Process the general options */
-				do_cmd_options_aux(1, "User Interface Options");
+                                do_cmd_options_aux(1, "User Interface Options");
 				break;
 			}
 
@@ -1083,6 +1095,15 @@ void do_cmd_options(void)
 			case 'A':
 			{
 				do_cmd_options_autosave("Autosave");
+				break;
+			}
+
+                        /* Suqeltch stuff */
+                        case 'Q':
+                        case 'q':
+			{
+				/* Spawn */
+                                do_cmd_squeltch_options();
 				break;
 			}
 
@@ -2516,68 +2537,30 @@ void do_cmd_colors(void)
 
 /*
  * Take notes.  There are two ways this can happen, either in the message recall or
- * a file.  The command can also be passed a string, which will automatically be
- * written. -CK-
+ * a file.
  */
-void do_cmd_note(char *note)
+void do_cmd_note(void)
 {
-       char buf[80];
-  
-  	/* Default */
-       strcpy(buf, "");
-  
-       /* If a note is passed, use that, otherwise accept user input. */
-       if (streq(note, "")) { 
-         if (!get_string("Note: ", buf, 60)) return;
-       }
-  
-       else
-         strncpy(buf, note, 60);
-  
-  	/* Ignore empty notes */
-       if (!buf[0] || (buf[0] == ' ')) return;
- 
-       /* If the note taking option is on, write it to the file, otherwise write to
-        * the message recall.
-        */
-       if (take_notes) {
- 
-           char final_note[80];
-           char long_day[25];
-           time_t ct = time((time_t*)0);
-           char depths[32];
- 
-         /* Get depth if note is program native */
-         
-         if (!streq(note, "")) {
- 
-           if (!dun_level)
-             {
-               strcpy(depths, "in the Town");
-             }
-           else if (depth_in_feet)
-             {
-               sprintf(depths, "at %d ft", dun_level * 50);
-             }
-           else
-             {
-               sprintf(depths, "on D. Lev %d", dun_level);
-             }
- 
-         }
-         else (strcpy(depths, ""));
- 
-           /* Get date and time */
-           (void)strftime(long_day, 25, "%m/%d/%Y at %I:%M %p", localtime(&ct));
- 
-           /* Make note */
-           sprintf(final_note, "%s | %s %s\n", long_day, buf, depths);
-     
-         /* Add note to buffer */
-         fprintf(notes_file, final_note);
- 
-       }
-       else msg_format("Note: %s", buf);
+	char buf[80];
+
+	/* Default */
+	strcpy(buf, "");
+
+	if (!get_string("Note: ", buf, 60)) return;
+	
+	/* Ignore empty notes */
+	if (!buf[0] || (buf[0] == ' ')) return;
+
+	if (take_notes)
+	{
+		/* Add note to file */
+		add_note(buf, ' ');
+	}
+	else
+	{
+		/* Add note to message recall */
+		msg_format("Note: %s", buf);
+	}
 }
 
 
@@ -2625,10 +2608,6 @@ static cptr do_cmd_feeling_text[11] =
  */
 void do_cmd_feeling(void)
 {
-#ifdef USE_PYTHON
-        if (perform_event(EVENT_FEELING, Py_BuildValue("(ii)", dun_level, p_ptr->inside_quest))) return;
-#endif
-
 	/* Verify the feeling */
 	if (feeling < 0) feeling = 0;
 	if (feeling > 10) feeling = 10;
@@ -2991,6 +2970,38 @@ void do_cmd_knowledge_artifacts(void)
 		}
 	}
 
+	/* Check monsters in the dungeon */
+        for (i = 0; i < m_max; i++)
+	{
+		monster_type *m_ptr = &m_list[i];
+
+		s16b this_o_idx, next_o_idx = 0;
+
+		/* Scan all objects the monster carries */
+		for (this_o_idx = m_ptr->hold_o_idx; this_o_idx; this_o_idx = next_o_idx)
+		{
+			object_type *o_ptr;
+		
+			/* Acquire object */
+			o_ptr = &o_list[this_o_idx];
+
+			/* Acquire next object */
+			next_o_idx = o_ptr->next_o_idx;
+
+			/* Ignore random artifacts */
+			if (o_ptr->tval == TV_RANDART) continue;
+
+			/* Ignore non-artifacts */
+			if (!artifact_p(o_ptr)) continue;
+
+			/* Ignore known items */
+			if (object_known_p(o_ptr)) continue;
+
+			/* Note the artifact */
+			okay[o_ptr->name1] = FALSE;
+		}
+	}
+
 	/* Check the inventory and equipment */
 	for (i = 0; i < INVEN_TOTAL; i++)
 	{
@@ -3128,9 +3139,6 @@ static void do_cmd_knowledge_uniques(void)
 	for (k = 1; k < max_r_idx-1; k++)
 	{
 		monster_race *r_ptr = &r_info[k];
-
-                /* Ignore the Player Monsters & Ghosts */
-                if(r_ptr->flags7 & RF7_PLAYER_MONSTER) continue;
 
 		/* Only print Uniques */
 		if (r_ptr->flags1 & (RF1_UNIQUE))
@@ -3276,8 +3284,10 @@ static void do_cmd_knowledge_pets(void)
 		if (is_pet(m_ptr))
 		{
 			char pet_name[80];
+                        monster_race *r_ptr = race_inf(m_ptr);
+
 			t_friends++;
-			t_levels += r_info[m_ptr->r_idx].level;
+                        t_levels += r_ptr->level;
 			monster_desc(pet_name, m_ptr, 0x88);
 			strcat(pet_name, "\n");
 			fprintf(fff,pet_name);
@@ -3340,9 +3350,6 @@ static void do_cmd_knowledge_kill_count(void)
 		{
 			monster_race *r_ptr = &r_info[kk];
 
-                        /* Ignore the Player Monsters & Ghosts */
-                        if(r_ptr->flags7 & RF7_PLAYER_MONSTER) continue;
-                
 			if (r_ptr->flags1 & (RF1_UNIQUE))
 			{
 				bool dead = (r_ptr->max_num == 0);
@@ -3377,9 +3384,6 @@ static void do_cmd_knowledge_kill_count(void)
 	for (k = 1; k < max_r_idx-1; k++)
 	{
 		monster_race *r_ptr = &r_info[k];
-
-                /* Ignore the Player Monsters & Ghosts */
-                if(r_ptr->flags7 & RF7_PLAYER_MONSTER) continue;
 
 		if (r_ptr->flags1 & (RF1_UNIQUE))
 		{
@@ -3532,7 +3536,7 @@ static void do_cmd_knowledge_quests(void)
 	FILE *fff;
 	char file_name[1024];
 	char tmp_str[80];
-	char rand_tmp_str[80] = "\0";
+        char rand_tmp_str[110] = "\0";
 	char name[80];
 	monster_race *r_ptr;
 	int i;
@@ -3645,7 +3649,6 @@ static void do_cmd_knowledge_fates(void)
 {
 	FILE *fff;
 	char file_name[1024];
-	int i;
 
 	/* Temporary file */
 	if (path_temp(file_name, 1024)) return;
@@ -3653,95 +3656,7 @@ static void do_cmd_knowledge_fates(void)
 	/* Open a new file */
 	fff = my_fopen(file_name, "w");
 
-        for (i = 0; i < MAX_FATES; i++)
-	{
-                if((fates[i].fate) && (fates[i].know))
-                {
-                        if(fates[i].serious)
-                        {
-                                fprintf(fff, "You are fated to ");
-                        }
-                        else
-                        {
-                                fprintf(fff, "You may ");
-                        }
-                        switch(fates[i].fate)
-                        {
-                                case FATE_FIND_O:
-                                {
-                                        object_type *o_ptr, forge;
-                                        char desc[80];
-
-                                        o_ptr = &forge;
-                                        object_prep(o_ptr, fates[i].o_idx);
-                                        object_desc_store(desc, o_ptr, 1, 0);
-
-                                        fprintf(fff, "find %s on level %d.\n", desc, fates[i].level);
-                                        break;
-                                }
-                                case FATE_FIND_A:
-                                {
-                                        object_type *q_ptr, forge;
-                                        char desc[80];
-                                        artifact_type *a_ptr = &a_info[fates[i].a_idx];
-                                        int I_kind;
-
-					/* Get local object */
-					q_ptr = &forge;
-
-					/* Wipe the object */
-					object_wipe(q_ptr);
-
-					/* Acquire the "kind" index */
-					I_kind = lookup_kind(a_ptr->tval, a_ptr->sval);
-
-					/* Create the artifact */
-					object_prep(q_ptr, I_kind);
-
-					/* Save the name */
-                                        q_ptr->name1 = fates[i].a_idx;
-
-					/* Extract the fields */
-					q_ptr->pval = a_ptr->pval;
-					q_ptr->ac = a_ptr->ac;
-					q_ptr->dd = a_ptr->dd;
-					q_ptr->ds = a_ptr->ds;
-					q_ptr->to_a = a_ptr->to_a;
-					q_ptr->to_h = a_ptr->to_h;
-					q_ptr->to_d = a_ptr->to_d;
-					q_ptr->weight = a_ptr->weight;
-
-					/* Hack -- acquire "cursed" flag */
-					if (a_ptr->flags3 & (TR3_CURSED)) q_ptr->ident |= (IDENT_CURSED);
-
-					random_artifact_resistance(q_ptr);
-
-                                        object_desc_store(desc, q_ptr, 1, 0);
-
-                                        fprintf(fff, "find %s on level %d.\n", desc, fates[i].level);
-                                        break;
-                                }
-                                case FATE_FIND_R:
-                                {
-                                        char desc[80];
-
-                                        monster_race_desc(desc, fates[i].r_idx);
-                                        fprintf(fff, "meet %s on level %d.\n", desc, fates[i].level);
-                                        break;
-                                }
-                                case FATE_DIE:
-                                {
-                                        fprintf(fff, "die on level %d.\n", fates[i].level);
-                                        break;
-                                }
-                                case FATE_NO_DIE_MORTAL:
-                                {
-                                        fprintf(fff, "never to die by the hand of a mortal being.\n");
-                                        break;
-                                }
-                        }
-                }                        
-	}
+	dump_fates(fff);
 
 	/* Close the file */
 	my_fclose(fff);
@@ -3753,6 +3668,15 @@ static void do_cmd_knowledge_fates(void)
         fd_kill(file_name);
 }
 
+/* Show the notefile */
+void do_cmd_knowledge_notes(void)
+{
+        char fname[80];
+
+	strcpy(fname, notes_file());
+
+	show_file(fname, "Notes", 0, 0);
+}
 
 /*
  * Interact with "knowledge"
@@ -3789,9 +3713,11 @@ void do_cmd_knowledge(void)
 		prt("(7) Display current quests", 10, 5);
                 prt("(8) Display current fates", 11, 5);
                 prt("(9) Display known traps", 12, 5);
+                if (take_notes)
+                        prt("(0) Display notes", 13, 5);
 
 		/* Prompt */
-                prt("Command: ", 13, 0);
+                prt("Command: ", 14, 0);
 
 		/* Prompt */
 		i = inkey();
@@ -3827,6 +3753,12 @@ void do_cmd_knowledge(void)
 			break;
                 case '9': /* Traps */
                         do_cmd_knowledge_traps();
+			break;
+                case '0': /* Notes */
+		        if (take_notes)
+                          do_cmd_knowledge_notes();
+			else
+			  bell();
 			break;
 		default: /* Unknown option */
 			bell();
@@ -3869,30 +3801,26 @@ void do_cmd_checkquest(void)
 	character_icky = FALSE;
 }
 
-void do_cmd_change_tactic(void)
+void do_cmd_change_tactic(int i)
 {
-   char c;
-   p_ptr->tactic++;
-   if (p_ptr->tactic>8) p_ptr->tactic = 0;
-   prt(format("During your adventures in PernAngband, you behave %s. -- more --",
-       tactic_info[p_ptr->tactic].name),0,0);
-   c = inkey();
-   p_ptr->update |= (PU_BONUS);
-   update_stuff();
-   prt("",0,0);
+        p_ptr->tactic += i;
+        if (p_ptr->tactic > 8) p_ptr->tactic = 0;
+        if (p_ptr->tactic < 0) p_ptr->tactic = 8;
+
+        p_ptr->update |= (PU_BONUS);
+        update_stuff();
+        prt("",0,0);
 }
 
-void do_cmd_change_movement(void)
+void do_cmd_change_movement(int i)
 {
-   char c;
-   p_ptr->movement++;
-   if (p_ptr->movement>8) p_ptr->movement = 0;
-   prt(format("During your adventures in PernAngband, you explore %s. -- more --",
-              move_info[p_ptr->movement].name),0,0);
-   c = inkey();
-   p_ptr->update |= (PU_BONUS);
-   update_stuff();
-   prt("",0,0);
+        p_ptr->movement += i;
+        if (p_ptr->movement > 8) p_ptr->movement = 0;
+        if (p_ptr->movement < 0) p_ptr->movement = 8;
+
+        p_ptr->update |= (PU_BONUS);
+        update_stuff();
+        prt("",0,0);
 }
 
 /*

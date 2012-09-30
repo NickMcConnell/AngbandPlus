@@ -43,9 +43,9 @@
 - The DragonRider can now only teleport on known terrain , because they must
   mentaly show the destination to their dragons but to do this they MUST
   have seen the destination before(like in the Anne McCaffrey books) !
-- The Ringwraiths are come back !
-- Some Unique like Bert,Tom,Bill are come back, while other(gandalf , fangorn)
-  have gone!
+- The Ringwraiths are back !
+- Some Unique like Bert,Tom,Bill are back, while other(gandalf , fangorn)
+  are gone!
 - Morgoth and Sauron are back as the final quests
 
 01/11/1998 - PernAngband 3.0.0
@@ -147,7 +147,7 @@
 18/11/1998
 - Warriors can now spread their attack after level 34
 - The experience factor of the races can now be > than 255
-- The DragonRider need more experience to advance(+220%) because it's a REALY
+- The DragonRider need more experience to advance(+220%) because it's a REALLY
   powerfull race.
 - The monster can now use the between but if they are not immune to cold they
   will lose some hp
@@ -174,9 +174,9 @@
 - Fixed(I think) a bug in the unique levels
 - Add a flooded level type(activate those levels in the PernAngband option)
   to make the aquatic monsters more usefull
-- Gandalf and Fangorn are come back as Friendly uniques
+- Gandalf and Fangorn are back as Friendly uniques
 - Changed the Necklace of the Dwarves into The Nauglamir to be more Tolkien-like
-- Changed The Serpent of the Chaos into Dark God, the Mighty coder of the Hell
+- Changed The Serpent of the Chaos into Dark God, the Mighty coder of the Hell :)
 - Reworked the corpse system(stolen from Rangband), now they all have a different
   weight based on the monster weight. You can hack up the corpse with 'h'
   and cure it with 'K'.
@@ -1279,3 +1279,391 @@
   red(as it is white for invulnerability and black for wraithform)
 - r_info is modified to give all monsters some inventory slots. the format is
   E:weapon:torso:arms:finger:head:legs
+
+27/05/2000 - PernAngband 4.0.7
+- add a new dir to lib, DNGN which contain the definition of the LEVELS
+  not the dungeons. one file for each level named dun$dungeon$.$level$
+  In it you can have some declarations, like B:dungeontype which will
+  create a stairway to an other dungeon, thus allowing to have "branchs"
+  in the dungeons.
+  L:dungeontype and L:level specify which is the "father" dungeon and at which
+  level the stair appear.
+  S:ext means to save the level(and thus to reload it) in the player.ext file
+  so allowing the use of persistents levels(the persistent dungeons option
+  is gone)
+
+29/05/2000
+- Necromancers can use the Nether realm in addition to their old set of
+  powers(now accesible through 'U')
+
+01/06/2000
+- Boomerangs of spinning are no more allowed(that was silly)
+- Increased the rarity of the ULTIMATE artifacts(Magestaff of Gandalf,
+  Longsword of Eru, Seeker Bolt/Xbow of the Elves)
+- Fixed the displaying of attrubutes under the 'C'haracter display
+
+-04/06/2000
+- Players can now choose which kinds of monsters they dont want in their game
+  at birth(wipe all Pern monsters, all Cth, monsters, joke monsters, ..)
+  Note that monsters in fixed quests are not affected.
+  Thanks Static Chaos.
+- In the Maze you can no longer remember anything, that means everything you
+  see is what it's in your light radius ! MUAHAHHAH, I'm *NASTY*
+- Archers now get a better chance of not breaking their ammo as they
+  advance levels
+
+08/06/2000
+- Note taking bug should be fixed
+- Fixed a bug with the incarnation code
+
+11/06/2000
+- Added the Orc Barracks special level(level 35 of the Moria) from
+  Chris Weisiger (jmartin@inreach.com)
+- The maze is now guarded by The Baby Minotaur who is holding The Steel
+  helm of Hammerhand
+- The graveyard is guarded by Vecna holding Doomcaller
+- You can now use the 'l'ook command in the small wilderness view
+***********IMPORTANT************
+- Between gates are no more automatics, you must press > while standing on
+  one to activate it
+********************************
+
+16/06/2000
+- Revised the Adventurer's guide thanks to Chris Weisiger(jmartin@inreach.com)
+- You can no more recall from a quest
+- You can no longer target pets
+- Reenabled the "Control the rings" spells of the Shadow realm
+- Between gates are now purple +
+
+02/07/2000
+- Only priest-like characters can use the Valarin realm
+- Removed all the references to Logrus
+- Tunneling rubble will place the standart floor of the current dungeon and
+  not the floor feature
+- Grow trees no more crash when used near the dungeon edge
+
+05/07/2000
+- Fixed the character dump resistances
+- When a full character dump is requested(upon death) the self-knowledge
+  screen is used instead of the grid of abilities, that looks better :)
+- Fixed a bug in the placement of stairs which sometimes lead to a stairway
+  to an other dungeon when not requested
+- Fixed the bug that generated 'unknown' grids
+- Should now compile without(nearly) any warnings
+- Fixed the mountain bug that hung the game when entering mountain chains
+  in the wilderness
+
+07/07/2000
+- Some more monsters from Angband/64 and some more work on r_info from
+  Static Chaos. That brings the number of monsters to ... 1023 !
+- Damage took from going between is divided by (ac / 50) + 1
+  So between 0 and 49 ac it's full damage, between 50 and 99 it's half
+  damage and so on
+- Greater Hell Beasts now have .. 1 hp :)
+
+11/07/2000
+- Add the Unbeliever class, they are anti magicians. Great warriors, they
+  have the worst magic device skill of all the classes, they continuously
+  generate an anti-summoning field around them disabling monsters from
+  summoning. The radius of the field increase with levels. After level 20
+  they can also disrupt the magic continuum, thus getting the same effects
+  as Anti-Magic, Anti-Tele and The Stone of Lore(nobody on the level can
+  teleport)
+
+13/07/2000
+- Add an option to auto tunnel walls when bumping into them.
+  NOTE that it'll ALWAYS take a turn then, so beware...
+- Really fixed the note taking bug(ok stole the fix from Zangband :)
+- Changed the object description so now it's "Smeagol's Corspe" instead of
+  "The Smeagol's Corpse"
+
+13/07/2000 - PernAngband 4.0.9
+
+29/07/2000
+- Orc Barrack's between doors are fixed
+- God favor is reinitialized upon birth
+- Added the Daemologist class along with a brand new realm and lots of new
+  cool effects(try making all your pets explode ! :)
+  All made by Static Chaos
+
+31/07/2000
+- Fixed lots of compilation warnings thanks to Static Chaos
+- Added the random vaults and crypt vaults from Zangband with the help of
+  Static Chaos
+- Fixed some bugs pointed out by Bablos
+- The Ray Rune now relay make a beam and not a pseudo bolt
+
+03/08/2000
+- 2 handed weapons wielded with a shield now really restrict your fighting
+  abilities(I forgot to add the code before :)
+- Possessors can't leave their body while they wear cursed items
+- Word of Destruction is not more allowed in quests
+- Add a fate spoiler created by Dustin Ragan
+- Removed the old new player ghosts implementation
+- Added the new old player ghost implemetation(stolen from Drangband)
+- Rod system have be totaly reworked. Now you can find "base" rods without
+  power(rods of nothing) with a certain quality(wooden, iron, ...) on which
+  depends the amount of mana they contain. You can also find rod tips which
+  contain the real spells but can not be actived alone. You must attach(with
+  the 'z' command) a rod tip to a base rod before using it. The spells of the
+  different rod tips need different amouts of mana(so illumination is less
+  mana hungry than healing :). You can also have base rods ego-items(artifacts
+  soon) that can decrease the mana cost of the spell, increase the capacity
+  of the rod, decrease the time needed to zap the rod, ...
+  Oh BTW, you should be eager to get an Adamantite Rod of Healing of the
+  Istari :)
+  Now rods will hopefully be usefull.
+  Note that you have to identify the base rod to get the mana indicator
+- Note files are now playername.nte instead of playername.txt
+  So if you want your note file to be carrie to the next verison you'd better
+  rename it :)
+- Fixed a bug that prevented Azog to be generated at the bottom of the Orc
+  Caves
+
+07/08/2000
+****************** IMPORTANT *****************
+- Removed the Python support because it was slowing the game, additing
+  wiegth to the executable(and thus to the archive), was mainly unused,
+  and was never present in some ports
+**********************************************
+
+09/08/2000
+- Unbelievers are now much better at perception, and actually become even
+  better as they go up levels
+- Fixed several bugs thanks to Iain McFall
+- Reset recall is now much nicer to use thakns to Iain(again :)
+- When a character is infected by the Black Breath it is show in the char
+  screen & dump
+
+15/08/2000
+- Cursed mage staffs should no more crash the game when identified
+- A Marilith can now drop it's corpse corpse
+- Add the gods spoiler made by Dustin Ragan
+- Fixed a bug that could eventualy crash the game when looking at the quests
+  screen
+- Fixed a bug in the random junkartifacts that made them cure fear when said to
+  cure confusion
+- Add the squeltch patch from Iain McFall
+- Boomerangs are now pseudo-ided
+
+19/08/2000
+- The *thanc artifact daggers are less common because they are so powerfull
+
+24/08/2000
+- The Midas Touch 30k gold limit has been removed(suggestion from Chris)
+- Fixed(ok ok Iain fixed :) several trap related bugs
+- Squeltch now use the pseudo-id thanks to Iain
+- Pseudo-id inscriptions are no more part of the real inscription of an object
+  and thus ... it's better :)
+- Tribal spell "Life Drain" now reduce your stat permanently 30% of the time
+  and the other 70% it can be cured via restore stats pots. The damage is now
+  always 50d50 and is no more affected by mage staffs of spell
+- Tribal spell "Meditate" no more speed/heal you(it still heals your insanity)
+  and the glyphs radius as been decreased
+- Add the Trap of Acquirement that will give a great object and then mutate
+  into an other trap. It can never be identified and the color varies.
+  Idea from Iain
+- When casting charm upon monsters only the non pet ones will be affected
+- Elder Aranea HP reduced
+- Small trees are burned by fire
+- Randomly activated mutations are no more activated in the overview
+  wilderness
+- Ghoulkings are now z instead of p
+- Throw potions now give xp when killing by a ball effect
+- Scrolls of reincarnation have been removed now you can only find scrolls of
+  deincarnation. To reincarnate into a new body 'U'se the appropriate power
+- Recharging is now usefull again
+- Breeders should be a BIT slower
+- Reduced mutation chance of breeders from 7% to 3%
+
+03/09/2000
+- New, unified store/building code
+
+08/09/2000
+- Add quest plots. Feature 75, 76, 77, 78 are now permanent walls but used
+  as quest plot info holders. Before the new building code quest info was
+  stored in the building feature but now all stores/buildings use th same
+  feature(74) and the "special" valure define them.
+- Add semi-random towns. Now if the ' ' (space) character is used in the town
+  definition this grid will be replaced by the feature calculated by the
+  plasma generator as if it was a normal wilderness screen. So the forest of
+  Lothlorien is plasma generated and not fixed. It add variety and consistency
+  with the rest of the wilderness
+- All towns are now updated to the new store/building code
+- Removed the "you are being crushed" bug when going in the overview map thanks
+  to Iain McFall(as usual:)
+
+10/09/2000
+- When you use a 2 handed weapon and press 'e' the equipment list will show
+  the weapon(and some info) in the shield slot too
+- Monsters can't have less arms than weapons(arms)
+- Mimics have been upgraded. They now have 5 powers. First is to use books of
+  lore as before. Second is invisibility. The other ones are Mimicries.
+  There are 3 mimicries, legs mimicry, wall mimicry and arms mimicry.
+  Legs and arms mimicry will "create" a new body part(or some) for a certain
+  duration. Wall mimicry will make the caster able to walk in walls(he becomes
+  a wall) but ONLY in walls .. not on floor .. so beware with this one
+
+27/09/2000
+- For your god to resurect you you need 3 times more grace and your grace
+  will be fixed to -100000
+
+30/09/2000
+- Add exploding ammos(bolt, arrows, shots) thanks to a patch by Static Chaos
+
+13/10/2000
+- Add some patches from Kusunose Toru <kusunose@hcn.zaq.ne.zp>
+- Neuters get a weight & height
+
+13/10/2000 - PernAngband 4.1.2
+
+14/10/2000
+- Buildings doors can't be erased
+
+28/10/2000
+- Fixed a bug in the rod system when attaching form the floor
+- Added fountains that you can quaff from('H' in normal mode, 'V' in roguelike
+  mode, yeah I know it as for version number .. but .. mhh who is using it ?:)
+  Thanks to Static Chaos for the patch
+- You can fill empty options with fountains(thanks static chaos)
+- Added the Iain McFall Show Monster patch to show all viewable monsters
+
+08/11/2000
+- Fixed numerous bugs
+- Fixed the st_info & ba_info files thanks to Kusenose Toru
+
+16/11/2000
+- God's blasts can't be reflected anymore, so beware, puny mortal !!! :)
+- Added a whole bunch of new floor features(ice, mud, sand, sandwalls, ...)
+  thanks to Static Chaos.
+- More spell effect will affect the dungeon, for example, fire will melt ice,
+  nether will kill trees, fire will create ash, cold will freeze water, ...
+  thanks to Static Chaos again :)
+- Cleaned up the feature code again(that is a REALY messy part of angband...
+  and specialy of Zangband)
+- Note: Sandwalls can be dug WITHOUT any digging tools
+- Teleport scrolls/staffs are back in the shops
+- Mages, Wizards and Sorcerors now only get a wand of fire bolt at birth
+- Finnaly fixed the Alchemists extracting powers
+- Fixed numerous bugs thanks to KUSUNOSE Toru
+- Desert and Glacier wilderness features now really look like desert &
+  glacier :)
+
+18/11/2000
+- Debug commands are allowed in the overview map, but beware, do not create
+  objects & monsters there ...
+- The wilderness map is no longer fully known, you have to explorate it
+- New wild.c file to support all wilderness functions
+- Maps can be found to reveal some places of the wilderness
+
+27/11/2000
+- Exp gaining weapons will gain levels way slower
+- Rings & Amulets random artifacts will only be "Ring of foo" and not
+  "Ring of Slow digestion of foo"
+
+30/11/2000
+- Level gaining Artifacts have been significantly towned down
+- Sauron lost his chances to drop The One Ring
+- Blood of Life potions & Staffs of Wishing are more rare
+- Your god wont always resurect you even if you have enough piety
+- When leaving it's corpse Possessor's equipment will be dropped to floor
+  to prevent them form being "lost"
+- Sandworm lair, a new dungeon
+- Staffs of wishing now only have 1 charge
+
+12/12/2000
+- A patch to the alchemist patch from KUSUNOE Toru, they should now work
+  perfectly
+- h-system.h fixed so it should compile fine on Linux
+
+29/12/2000
+- New r_info.txt with the HAS_LITE flag, thanks to Static Chaos :)
+- Now some monsters can have a light around them
+
+03/01/2001
+- Phial of galadriel and Phial of Undeath now use the same symbol(yellow ~)
+
+06/01/2001
+- Fates now show up in the character dump (thanks Kusunoe)
+- Scrolls of Divination are more friendly now (thanks Kusunoe)
+- Artifacts in monsters inventories not yet seen are not shown in the
+  artifact list (thanks Kusunoe)
+
+08/01/2001
+- Zweihanders are now 2handed weapons(as they always should have been :)
+
+11/01/2001
+- Ego Rods are now "xxx rod of egoname of power" and not
+  "xxx rod of power of egoname"
+- Fixed some typos(parchEment, NumeRoNean, ...)
+- Fixed a bug with junk randarts
+
+18/01/2001
+- Gods now need more sacrifices
+- Disabled the monster lite feature right now because it's HORRIBLY buggy
+- The Sandworm Queen will now drop the Sandworm armour when killed
+
+03/02/2001
+- Now you can separate a dungeon entrance from a dungeon exit on the
+  wilderness map using the WILD_ix_iy__ox_oy flag in d_info.txt.
+  ix, iy are the coordinates on the wilderness map of the entrance.
+  ox, oy are the coordinates of the exit.
+  Note that each of them(entrance and exit) must have a physical entrance
+  on the wilderness map(that is a line in w_info.txt).
+  When you use the entrance to enter you get to the first level but when you
+  use the exit to enter you get to the last level.
+  So now you can have dungeons that create shortcuts in the map.
+  Or even allow to go in previously unreachable places(like now the dungeon
+  of Moria allows you to reach  a secret valey in the Mountains of the Moria
+  which allow getting to some other dungeons)
+- Fixed a bug with fountains(yeah, fountains of the Blood of Life were quite
+  unbalancing :)
+- Priests can't use Tribal magic anymore
+- Mages can't use Crusade & Illusion Magic anymore
+- Rogues can't use Crusade anymore
+
+05/02/2001
+- Found why under certain circumstances forbidden objects could still be
+  generated(and thats also fixed now :)
+- Dungeons & Monsters can now have object themes(yeah I know, I stole that
+  from Zangband, thought the dungeon theme was in my head for long, but
+  when I steal I do amit it ...)
+  For exemple The Sandworm lair is really full of magical items, while the
+  Orc Caves are more on the side of the weapons & armors. And the Dragon Lair
+  is filled with ... oh well everything :) and so on.
+  So it's now really worth to get out of the 4 basic dungeons and see the
+  wild world!
+  All dungeons are done with the themes, it could take a bit longer for
+  the (1031) monsters... :)
+  NOTE: Dragon Scale Mails are considered TREASURES
+
+07/02/2001
+- Ego Monsters, yes like Ego items but for monsters. New file re_info.txt
+  define all possible ego monsters types(skeletons, zombie, ...). It can
+  modify, the flags, spells, level, speed, ac, ... of the monster that is
+  turned into an ego monster.
+  This will increase the randomness of the game, increase the number of
+  monsters from 1031 to .. a lot... :)
+  There are not much ego monsters right now, so feel free to submit them
+
+09/02/2001
+- Sorcerors can't use much armor
+- Beastmasters have been give access to the Tribal realm, they Beastmaster's
+  powers are now available throught the 'U' key
+- Player Raise death spells will now really create an undead. For example
+  you cast raise death upon a kobold corpse and you can get a Skeleton Kobold,
+  or a Zombie or a Spectre one. New Undead types will be added later. And Im
+  open to ideas naturaly
+- Narya activation is now Healing (500)
+- Nenya activation is now Healing (800)
+- Vilya activation is now Healing (900) and cure Black Breath
+- Daemonologists can now wield their books(in the weapon slot), when used this
+  way, spells are cast in 1/3 of a turn otherwise it takes 5 turns
+
+11/02/2001
+- Specialized ESP, like Orc ESP, Troll ESP, Dragon ESP, ...
+  They are less rare than full esp, but full esp is more rare
+- Fixed a Runcrafter bug which could crash the game is no second rune was
+  selected
+
+11/02/2001 -- PernAngband 4.1.5

@@ -234,6 +234,10 @@ C:1:]
 A:Z
 C:1:[
 
+# Drink from a fountain
+A:H
+C:1:V
+
 
 ##### System Specific Subfiles #####
 

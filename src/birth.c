@@ -456,7 +456,7 @@ static hist_type bg[] =
 	{"blue eyes, and a very fair complexion.", 100, 128, 0, 50},
 
 	{"You were produced by a magical experiment.  ", 30, 129, 130, 40},
-	{"In your childhood, you were stupid enough to stick your head in raw Logrus.  ",
+        {"In your childhood, you were stupid enough to stick your head in raw chaos.  ",
 	50, 129, 130, 50 },
 	{"A Demon Lord of Chaos decided to have some fun, and so he created you.  ",
 	60, 129, 130, 60 },
@@ -863,7 +863,7 @@ byte choose_realm(s32b choices)
 		n++;
 	}
 
-	/* Get a class */
+        /* Get a realm */
 	while (1)
 	{
                 sprintf(buf, "Choose a realm (%c-%c), * for random, = for options: ", I2A(0), I2A(n-1));
@@ -875,7 +875,7 @@ byte choose_realm(s32b choices)
 			k = randint(n) - 1;
 			break;
 		}
-		k = (islower(c) ? A2I(c) : -1);
+                k = (islower(c) ? A2I(c) : -1);
 		if ((k >= 0) && (k < n)) break;
 		if (c == '?') do_cmd_help();
 		else if (c == '=')
@@ -1262,7 +1262,6 @@ static void get_extra(void)
 	p_ptr->arena_number = 0;
 	p_ptr->inside_arena = 0;
 	p_ptr->inside_quest = 0;
-	p_ptr->leftbldg = FALSE;
 	p_ptr->exit_bldg = TRUE; /* only used for arena now -KMW- */
 
         /* Initialize gods info. */
@@ -1328,7 +1327,7 @@ static void get_extra(void)
                 int i;
                 bool j = FALSE;
 
-                for(i = 0; i < MAX_GOD; i++)
+                for(i = 0; i < MAX_GODS; i++)
                 {
                         if((deity_info[i].race1 == p_ptr->prace) || (deity_info[i].race2 == p_ptr->prace))
                         {
@@ -1338,7 +1337,7 @@ static void get_extra(void)
                 }
 
                 if(j) p_ptr->pgod = i + 1;
-                else p_ptr->pgod = randint(MAX_GOD - 1);
+                else p_ptr->pgod = randint(MAX_GODS - 1);
                 set_grace(5000);
                 p_ptr->god_favor = -60000;
                 show_god_info(FALSE);
@@ -1588,7 +1587,7 @@ errr init_randart(void) {
     strcpy(ra_ptr->name_full, get_line("rart_f.txt", buf, i));
 
     ra_ptr->attr = randint(15);
-    ra_ptr->activation = randint(MAX_T_ACT);
+    ra_ptr->activation = rand_int(MAX_T_ACT);
     ra_ptr->generated = FALSE;
 
     foo = randnor(0, 250);
@@ -1621,6 +1620,13 @@ static void get_ahw(void)
 	{
 		p_ptr->ht = randnor(rp_ptr->f_b_ht, rp_ptr->f_m_ht);
 		p_ptr->wt = randnor(rp_ptr->f_b_wt, rp_ptr->f_m_wt);
+	}
+
+        /* Calculate the height/weight for neuters */
+        else if (p_ptr->psex == SEX_NEUTER)
+	{
+                p_ptr->ht = randnor((rp_ptr->m_b_ht + rp_ptr->f_b_ht) / 2, (rp_ptr->m_m_ht + rp_ptr->f_m_ht) / 2);
+                p_ptr->wt = randnor((rp_ptr->m_b_wt + rp_ptr->f_b_wt) / 2, (rp_ptr->m_m_wt + rp_ptr->f_m_wt) / 2);
 	}
 }
 
@@ -1703,13 +1709,13 @@ static void birth_put_stats(void)
  */
 static void player_wipe(void)
 {
-        int i, j;
+        int i;
         
         /* No mana multiplier */
         p_ptr->to_m = 0;
 
 	/* Hack -- zero the struct */
-	WIPE(p_ptr, player_type);
+	p_ptr=WIPE(p_ptr, player_type);
 
 	/* Wipe the history */
 	for (i = 0; i < 4; i++)
@@ -1765,6 +1771,9 @@ static void player_wipe(void)
 
                 /* Reset "know" */
                 k_ptr->know = FALSE;
+
+                /* Reset "squeltch" */
+                k_ptr->squeltch = 0;
 	}
 
 
@@ -1787,14 +1796,6 @@ static void player_wipe(void)
 		r_ptr->r_pkills = 0;
 	}
 
-
-        /* Hack -- ghosts */
-	r_info[max_r_idx-1].max_num = 0;
-        for(i = 0; i < MAX_GHOSTS; i++)
-        {
-                for(j = 0; j < 120; j++)
-                        ghost_file[i][j] = 0;
-        }        
 
 	/* Hack -- Well fed player */
 	p_ptr->food = PY_FOOD_FULL - 1;
@@ -1888,6 +1889,9 @@ static void player_wipe(void)
 
         /* Reset wild_mode to FALSE */
         p_ptr->wild_mode = FALSE;
+
+	/* Initialize allow_one_death */
+        p_ptr->allow_one_death = 0;
 }
 
 
@@ -1986,9 +1990,9 @@ static byte player_init[MAX_CLASS][3][2] =
 
 	{
                 /* BeastMaster */
+                { TV_MAGERY_BOOK, 0 }, /* Hack: for realm1 book */
                 { TV_RING, SV_RING_SUSTAIN_CHR },
                 { TV_HAFTED, SV_WHIP },
-                { TV_HARD_ARMOR, SV_METAL_SCALE_MAIL }
 	},
 
 	{
@@ -2077,9 +2081,23 @@ static byte player_init[MAX_CLASS][3][2] =
 
 	{
                 /* Necromancer */
+                { TV_MAGERY_BOOK, 0 },
                 { TV_POLEARM, SV_SICKLE },
                 { TV_SCROLL, SV_SCROLL_DISPEL_UNDEAD },
-                { TV_WAND, SV_WAND_DRAIN_LIFE },
+	},
+
+	{
+                /* UNBELIEBER */
+                { TV_RING, SV_RING_RES_FEAR },
+		{ TV_SWORD, SV_BROAD_SWORD },
+		{ TV_HARD_ARMOR, SV_CHAIN_MAIL }
+	},
+
+	{
+                /* Daemonologist -SC- */
+                { TV_MAGERY_BOOK, 0 }, /* Hack: For realm1 book */
+                { TV_SCROLL, SV_SCROLL_WORD_OF_RECALL },
+                { TV_NETHER_BOOK, 0 }  /* Hack: for realm2 book */
 	},
 };
 
@@ -2137,6 +2155,8 @@ byte random_present[MAX_CLASS] =
                 BIRTH_NONE,
                 /* Necromancer */
                 BIRTH_NONE,
+                /* Unbeliever */
+                BIRTH_NONE,
         };
 
 /*
@@ -2150,7 +2170,23 @@ static void player_outfit(void)
 
 	object_type	forge;
 	object_type	*q_ptr;
-	
+
+        /*
+         * Get an adventurer guide describing a bit of the
+         * wilderness(useless for vanilla town)
+         */
+        if (!vanilla_town)
+        {
+                /* Get local object */
+                q_ptr = &forge;
+
+                /* Hack -- Give the player an adventurer guide */
+                object_prep(q_ptr, lookup_kind(TV_PARCHEMENT, 20));
+                q_ptr->number = 1;
+                object_aware(q_ptr);
+                object_known(q_ptr);
+                (void)inven_carry(q_ptr, FALSE);
+        }
 
 	/* Get local object */
 	q_ptr = &forge;
@@ -2285,10 +2321,10 @@ static void player_outfit(void)
 	/* Get local object */
 	q_ptr = &forge;
 
-        if ((p_ptr->pclass == CLASS_MAGE) || (p_ptr->pclass == CLASS_SORCERER))
+        if ((p_ptr->pclass == CLASS_MAGE) || (p_ptr->pclass == CLASS_SORCERER) || (p_ptr->pclass == CLASS_WIZARD))
 	{
                 /* Hack -- Give the player a Wand of Fireball */
-                object_prep(q_ptr, lookup_kind(TV_WAND, SV_WAND_FIRE_BALL));
+                object_prep(q_ptr, lookup_kind(TV_WAND, SV_WAND_FIRE_BOLT));
                 q_ptr->number = 1;
                 apply_magic(q_ptr, 1, TRUE, FALSE, FALSE);
                 object_aware(q_ptr);
@@ -2630,15 +2666,15 @@ static bool player_birth_aux()
 		str = cp_ptr->title;
 
 #if 0
-        /* Verify legality */
-        if (!(rp_ptr->choice & (1L << n))) mod = " (*)";
+                /* Verify legality */
+                if (!(rp_ptr->choice & (1L << n))) mod = " (*)";
 #endif
 
-    if (!(rp_ptr->choice & (1L << n )))
-        sprintf(buf, "%c%c (%s)%s", I2A(n), p2, str, mod);
-    else
-		/* Display */
-		sprintf(buf, "%c%c %s%s", I2A(n), p2, str, mod);
+                if (!(rp_ptr->choice & (1L << n )))
+                        sprintf(buf, "%c%c (%s)%s", (n <= 25)?I2A(n):I2D(n-26), p2, str, mod);
+                else
+                        /* Display */
+                        sprintf(buf, "%c%c %s%s", (n <= 25)?I2A(n):I2D(n-26), p2, str, mod);
 
                 put_str(buf, 17 + (n/4), 2 + 17 * (n%4));
 	}
@@ -2646,7 +2682,7 @@ static bool player_birth_aux()
 	/* Get a class */
 	while (1)
 	{
-                sprintf(buf, "Choose a class (%c-%c), * for random, = for options: ", I2A(0), I2A(n-1));
+                sprintf(buf, "Choose a class (%c-%c), * for random, = for options: ", I2A(0), (n <= 25)?I2A(n-1):I2D(n-26));
                 put_str(buf, 16, 2);
 		c = inkey();
 		if (c == 'Q') quit(NULL);
@@ -2656,7 +2692,7 @@ static bool player_birth_aux()
                         k = randint(n) - 1;
 			break;
 		}
-		k = (islower(c) ? A2I(c) : -1);
+                k = (islower(c) ? A2I(c) : (D2I(c) + 26));
 		if ((k >= 0) && (k < n)) break;
 			if (c == '?') do_cmd_help();
 			else if (c == '=')
@@ -2733,11 +2769,18 @@ static bool player_birth_aux()
                 seed_dungeon = 0;
         }
 
+
         /* Clear */
         clear_from(15);
 
-	/* Initialize allow_one_death */
-        p_ptr->allow_one_death = 0;
+        /*  */
+        if (get_check("Do you want to modify the options"))
+        {
+                screen_save();
+                do_cmd_options_aux(6, "Startup Options");
+                screen_load();
+        }
+
 
 #ifdef ALLOW_AUTOROLLER
 
@@ -3316,27 +3359,6 @@ bool check_near_terrains(x, y)
 }
 
 /*
- * Restrict random dungeons to some areas
- */
-bool restrict_dungeon(u32b flags, byte t_idx, int i, int j)
-{
-/*        if (flags & DF1_T_ALL) return TRUE;
-        if ((flags & DF1_T_DEEP_WATER) && (t_idx == TERRAIN_DEEP_WATER)) return TRUE;
-        if ((flags & DF1_T_SHALLOW_WATER) && (t_idx == TERRAIN_SHALLOW_WATER)) return TRUE;
-        if ((flags & DF1_T_SWAMP) && (t_idx == TERRAIN_SWAMP)) return TRUE;
-        if ((flags & DF1_T_DIRT) && (t_idx == TERRAIN_DIRT)) return TRUE;
-        if ((flags & DF1_T_GRASS) && (t_idx == TERRAIN_GRASS)) return TRUE;
-        if ((flags & DF1_T_TREES) && (t_idx == TERRAIN_TREES) && check_near_terrains(i, j)) return TRUE;
-        if ((flags & DF1_T_DESERT) && (t_idx == TERRAIN_DESERT)) return TRUE;
-        if ((flags & DF1_T_SHALLOW_LAVA) && (t_idx == TERRAIN_SHALLOW_LAVA)) return TRUE;
-        if ((flags & DF1_T_DEEP_LAVA) && (t_idx == TERRAIN_DEEP_LAVA)) return TRUE;
-        if ((flags & DF1_T_MOUNTAIN) && (t_idx == TERRAIN_MOUNTAIN) && check_near_terrains(i, j)) return TRUE;
-*/
-if (t_idx == TERRAIN_GRASS) return TRUE;
-        return FALSE;
-}
-
-/*
  * Create a new character.
  *
  * Note that we may be called with "junk" leftover in the various
@@ -3344,7 +3366,7 @@ if (t_idx == TERRAIN_GRASS) return TRUE;
  */
 void player_birth(void)
 {
-        int i,j,n, d_idx;
+        int i,j,n;
 
         /* Validate the bg[] table */
         validate_bg();
@@ -3362,29 +3384,7 @@ void player_birth(void)
         /* Make a note file if that option is set */
         if (take_notes)
         {
-  
-          /* Variables */
-          char buff[1024];
-          char fname[80];
-          char long_day[25];
-          time_t ct = time((time_t*)0);
-  
-          /* Create the file name from the character's full name plus .txt */
-          sprintf(fname, "%s.txt", player_base);
-          path_build(buff, 1024, ANGBAND_DIR_SAVE, fname);  
-  
-          /* Open the file (notes_file is global) */
-          notes_file = my_fopen(buff, "w");
-  
-          /* Get date */
-          (void)strftime(long_day, 25, "%m/%d/%Y at %I:%M %p", localtime(&ct));
-  
-          /* Add in "character start" information */
-          fprintf(notes_file, "%s the %s %s\n", player_name, 
-                                                race_info[p_ptr->prace].title, 
-                                                class_info[p_ptr->pclass].title );
-          fprintf(notes_file, "Born on %s\n",long_day);
-          fprintf(notes_file, "================================================\n\n");
+		add_note_type(NOTE_BIRTH);
         }
 
 	/* Note player birth in the message recall */
@@ -3401,7 +3401,7 @@ void player_birth(void)
 	/* Init the shops */
 	for (i = 1; i < max_towns; i++)
 	{
-		for (j = 0; j < MAX_STORES; j++)
+                for (j = 0; j < max_st_idx; j++)
 		{
 			/* Initialize */
 			store_init(i, j);
@@ -3415,32 +3415,9 @@ void player_birth(void)
 		{
                         wild_map[j][i].seed = rand_int(0x10000000);
                         wild_map[j][i].entrance = 0;
+                        wild_map[j][i].known = FALSE;
 		}
 	}
-
-        /* Init random dungeons */
-        for (d_idx = 5; d_idx <= max_d_idx; d_idx++)
-        {
-                dungeon_info_type *d_ptr = &d_info[d_idx];
-                int u;
-
-                for (u = 0; u < 10000; u++)
-                {
-                        i = randint(max_wild_x - 1);
-                        j = randint(max_wild_y - 1);
-
-/*                        if ((!wf_info[wild_map[j][i].feat].entrance) &&
-                            (d_ptr->maxdepth > 0) && (d_ptr->flags1 & DF1_RANDOM) &&
-                            restrict_dungeon(d_ptr->flags1, wf_info[wild_map[j][i].feat].terrain_idx, i, j))
-*/
-                        if ((!wf_info[wild_map[j][i].feat].entrance) &&
-                            (d_ptr->maxdepth > 0) && (d_ptr->flags1 & DF1_RANDOM))
-                        {
-                                wild_map[j][i].entrance = 1000 + d_idx;
-                                break;
-                        }
-                }
-        }
 
 	/* Select bounty monsters. */
 	select_bounties();
@@ -3450,14 +3427,14 @@ void player_birth(void)
                 for (n = 0; n < MAX_DUNGEON_DEPTH; n++)
                         spec_history[n][i] = 0;
 
-	/* initialize variable according to text file v_info.txt */
+        /* Initialize variable according to text file v_info.txt */
 
 	if (p_ptr->special)
 	{
                 /* Initialize the vaults */
                 init_v_info();
 
-                for (n=1;n<max_v_idx;n++)
+                for (n = 1; n < max_v_idx; n++)
                 {
                         vault_type *v_ptr = &v_info[n];
 
@@ -3477,19 +3454,9 @@ void player_birth(void)
                                                         r_ptr->max_num--;
                                         }
                                 }
-
-                                for (i = 0; i < 3; i++)
-                                {
-                                        if (v_ptr->item[i] != 0) /* artifact */
-                                        {
-                                                artifact_type   *a_ptr = &a_info[v_ptr->item[i]];
-                                                a_ptr->cur_num = 1;     /* mark artifact found */
-                                        }
-                                }
                         }
                 }
 	}
 }
-
 
 

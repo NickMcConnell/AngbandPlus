@@ -1564,6 +1564,52 @@ bool set_protevil(int v)
 }
 
 /*
+ * Set "p_ptr->protgood", notice observable changes
+ */
+bool set_protgood(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->protgood)
+		{
+			msg_print("You feel safe from good!");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->protgood)
+		{
+			msg_print("You no longer feel safe from good.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->protgood = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+/*
  * Set "p_ptr->protundead", notice observable changes
  */
 bool set_protundead(int v)
@@ -1815,9 +1861,6 @@ bool set_tim_esp(int v)
 	/* Result */
 	return (TRUE);
 }
-
-
-
 
 /*
  * Set "p_ptr->tim_invis", notice observable changes
@@ -2849,16 +2892,19 @@ void check_experience(void)
 		/* Message */
 		msg_format("Welcome to level %d.", p_ptr->lev);
 
-                /* If auto-note taking enabled, write a note to the file. */
+                /* If auto-note taking enabled, write a note to the file. 
+                 * Only write this note when the level is gained for the first
+                 * time.
+                 */
                 if (take_notes && auto_notes)
                 {
-                    char buf[80];
- 
-                    /* Build the message */
-                    sprintf(buf, "Reached level %d", p_ptr->lev);
-  
-                    /* Write message */
-                    do_cmd_note(buf);
+                  char note[80];
+
+		  /* Write note */
+		  sprintf(note, "Reached level %d", p_ptr->lev);
+
+		  add_note(note, 'L');
+
                 }
 
 		/* Update some stuff */
@@ -2965,7 +3011,7 @@ int get_coin_type(monster_race *r_ptr)
  */
 void place_corpse(monster_type *m_ptr)
 {
-   monster_race *r_ptr = &r_info[m_ptr->r_idx];
+   monster_race *r_ptr = race_inf(m_ptr);
 
    object_type *i_ptr;
    object_type object_type_body;
@@ -3131,7 +3177,7 @@ void monster_death(int m_idx)
 
 	monster_type *m_ptr = &m_list[m_idx];
 
-	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+        monster_race *r_ptr = race_inf(m_ptr);
 
 	bool visible = (m_ptr->ml || (r_ptr->flags1 & (RF1_UNIQUE)));
 
@@ -3144,23 +3190,19 @@ void monster_death(int m_idx)
 	object_type forge;
 	object_type *q_ptr;
 
-#ifdef USE_PYTHON
-        if (perform_event(EVENT_MONSTER_DEATH, Py_BuildValue("(iii)", m_idx, m_ptr->r_idx, 0))) return;
-#endif
-
 	/* Get the location */
 	y = m_ptr->fy;
 	x = m_ptr->fx;
 
         /* Handle reviving if undead */
-        if((p_ptr->class_extra6 & CLASS_UNDEAD) && p_ptr->class_extra4)
+        if((p_ptr->class_extra3 & CLASS_UNDEAD) && p_ptr->class_extra4)
         {
                 p_ptr->class_extra4--;
 
                 if(!p_ptr->class_extra4)
                 {
                         msg_print("Your death has been advanged, thus you come back to live.");
-                        p_ptr->class_extra6 &= ~CLASS_UNDEAD;
+                        p_ptr->class_extra3 &= ~CLASS_UNDEAD;
 
                         /* Display the hitpoints */
                         p_ptr->update |= (PU_HP);
@@ -3445,12 +3487,14 @@ void monster_death(int m_idx)
 			int chance = 0;
 			int I_kind = 0;
 
+#if 0 /* DG -- since the One Ring is no more a joke it was too unbalancing */
                         if (strstr((r_name + r_ptr->name),"Sauron, the Sorcerer"))
 			{
 				a_idx = ART_POWER;
                                 chance = 50;
 			}
-                        else if (strstr((r_name + r_ptr->name),"The Witch-King of Angmar"))
+#endif
+                        if (strstr((r_name + r_ptr->name),"The Witch-King of Angmar"))
 			{
                                 a_idx = ART_THRAIN;
                                 chance = 30;
@@ -3778,7 +3822,7 @@ void monster_death(int m_idx)
 		object_wipe(q_ptr);
 
 		/* Make a great object */
-		make_object(q_ptr, TRUE, TRUE);
+                make_object(q_ptr, TRUE, TRUE, r_ptr->drops);
 
 		/* Drop it in the dungeon */
 		drop_near(q_ptr, -1, y, x);
@@ -3804,9 +3848,6 @@ void monster_death(int m_idx)
 		msg_print("You may retire (commit suicide) when you are ready.");
 	}
 
-#ifdef USE_PYTHON
-        perform_event(EVENT_MONSTER_DEATH, Py_BuildValue("(iii)", m_idx, m_ptr->r_idx, 1));
-#endif
 }
 
 
@@ -3843,8 +3884,10 @@ void monster_death(int m_idx)
  */
 bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 {
+	char tmp[1024];
+
 	monster_type    *m_ptr = &m_list[m_idx];
-	monster_race    *r_ptr = &r_info[m_ptr->r_idx];
+        monster_race    *r_ptr = race_inf(m_ptr);
 	s32b            div, new_exp, new_exp_frac;
 
 
@@ -3966,13 +4009,13 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
                 {
                         object_type *o_ptr;
                         object_kind *k_ptr;
-                        u32b f1, f2, f3, f4;
+                        u32b f1, f2, f3, f4, esp;
                         char buf[128];
 
                         /* Access the weapon */
                         o_ptr = &inventory[INVEN_WIELD];
                         k_ptr = &k_info[o_ptr->k_idx];
-                        object_flags(o_ptr, &f1, &f2, &f3, &f4);
+                        object_flags(o_ptr, &f1, &f2, &f3, &f4, &esp);
 
                         /* Can the weapon gain levels ? */
                         if((o_ptr->k_idx) && (f4 & TR4_LEVELS))
@@ -3982,7 +4025,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 
                                 /* Gain experience */
                                 o_ptr->exp += new_exp;
-                                if((o_ptr->exp >= player_exp[o_ptr->elevel - 1]) && (o_ptr->elevel < 50))
+                                if((o_ptr->exp >= (player_exp[o_ptr->elevel - 1] * 5 / 2)) && (o_ptr->elevel < 50))
                                 {
                                         /* Add a level */
                                         o_ptr->elevel++;
@@ -4001,17 +4044,35 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		monster_death(m_idx);
 
 		/* When the player kills a Unique, it stays dead */
-		if (r_ptr->flags1 & (RF1_UNIQUE)) r_ptr->max_num = 0;
+                if (r_ptr->flags1 & (RF1_UNIQUE))
+                {
+                        r_ptr->max_num = 0;
+                }
+
+		/* XXX XXX Mega-Hack -- allow another ghost later
+		 * Remove the slain bone file */
+                if (m_ptr->r_idx == max_r_idx - 1)
+		{
+			r_ptr->max_num = 1;
+
+			/* Delete the bones file */
+                        sprintf(tmp, "%s%sbone%03d.%03d", ANGBAND_DIR_BONE, PATH_SEP, dungeon_type, dun_level);
+			
+			fd_kill(tmp);
+		}
 
                 /* If the player kills a Unique, and the notes options are on, write a note */
                 if ((r_ptr->flags1 & RF1_UNIQUE) && take_notes && auto_notes)
                 {
-                    char note[60];
+			char note[80];
 
-                    /* Write note */
-                    sprintf(note, "Killed %s", m_name);
-    
-                    do_cmd_note(note);
+                        /* Get true name even if blinded/hallucinating */
+                        cptr monst = (r_name + r_ptr->name);
+ 
+			/* Write note */
+			sprintf(note, "Killed %s", monst);
+ 
+			add_note(note, 'U');
                 }
 
 		/* Recall even invisible uniques or winners */
@@ -4176,7 +4237,7 @@ void verify_panel(void)
 cptr look_mon_desc(int m_idx)
 {
 	monster_type *m_ptr = &m_list[m_idx];
-	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+        monster_race *r_ptr = race_inf(m_ptr);
 
 	bool          living = TRUE;
 	int           perc;
@@ -4317,6 +4378,9 @@ bool target_able(int m_idx)
 
 	/* Hack -- no targeting hallucinations */
 	if (p_ptr->image) return (FALSE);
+
+        /* Dont target pets */
+        if (is_pet(m_ptr)) return (FALSE);
 
 	/* XXX XXX XXX Hack -- Never target trappers */
 	/* if (CLEAR_ATTR && (CLEAR_CHAR)) return (FALSE); */
@@ -4520,7 +4584,14 @@ static bool target_set_accept(int y, int x)
 	if (c_ptr->info & (CAVE_MARK))
 	{
                 if(f_info[c_ptr->feat].flags1 & FF1_NOTICE) return TRUE;
+                if (c_ptr->t_idx) return TRUE;
 	}
+
+        /* Known traps */
+        if (c_ptr->info & (CAVE_TRDT))
+        {
+  		if (c_ptr->t_idx) return TRUE;
+  	}
 
 	/* Nope */
 	return (FALSE);
@@ -4657,7 +4728,7 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 		if (c_ptr->m_idx)
 		{
 			monster_type *m_ptr = &m_list[c_ptr->m_idx];
-			monster_race *r_ptr = &r_info[m_ptr->r_idx];
+                        monster_race *r_ptr = race_inf(m_ptr);
 
 			/* Visible */
 			if (m_ptr->ml)
@@ -4835,7 +4906,7 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 		if (this_o_idx) break;
 
 		/* Actual traps */
-		if (c_ptr->t_idx)
+		if ((c_ptr->t_idx) && (c_ptr->info & (CAVE_TRDT)))
 		{
                         cptr name = "a trap", s4;
 
@@ -4874,29 +4945,33 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 			cptr name;
 
 			/* Hack -- special handling for building doors */
-			if ((feat >= FEAT_BLDG_HEAD) && (feat <= FEAT_BLDG_TAIL))
+                        if (feat == FEAT_SHOP)
 			{
-				name = building[feat - FEAT_BLDG_HEAD].name;
+                                name = st_name + st_info[c_ptr->special].name;
 			}
 			else
 			{
-				name = f_name + f_info[feat].name;
+                                name = f_name + f_info[feat].name;
 			}
 
 			/* Hack -- handle unknown grids */
 			if (feat == FEAT_NONE) name = "unknown grid";
 
-			/* Pick a prefix */
-			if (*s2 && ((feat >= FEAT_MINOR_GLYPH) &&
-			   (feat <= FEAT_PATTERN_XTRA2))) s2 = "on ";
-			else if (*s2 && (feat >= FEAT_DOOR_HEAD)) s2 = "in ";
+  			/* Pick a prefix */
+                        if (*s2 &&
+                            (((feat >= FEAT_MINOR_GLYPH) &&
+                              (feat <= FEAT_PATTERN_XTRA2)) ||
+                             (feat == FEAT_DIRT) ||
+                             (feat == FEAT_GRASS) ||
+                             (feat == FEAT_FLOWER))) s2 = "on ";
+                        else if (*s2 && (feat == FEAT_SMALL_TREES)) s2 = "by ";
+  			else if (*s2 && (feat >= FEAT_DOOR_HEAD)) s2 = "in ";
+  
+  			/* Pick proper indefinite article */
+  			s3 = (is_a_vowel(name[0])) ? "an " : "a ";
 
-			/* Pick proper indefinite article */
-			s3 = (is_a_vowel(name[0])) ? "an " : "a ";
-
-			/* Hack -- special introduction for store & building doors -KMW- */
-			if (((feat >= FEAT_SHOP_HEAD) && (feat <= FEAT_SHOP_TAIL)) ||
-			    ((feat >= FEAT_BLDG_HEAD) && (feat <= FEAT_BLDG_TAIL)))
+                        /* Hack -- special introduction for store & building doors */
+                        if (feat == FEAT_SHOP)
 			{
 				s3 = "the entrance to the ";
 			}
@@ -4907,8 +4982,34 @@ static int target_set_aux(int y, int x, int mode, cptr info)
                                 name = d_text + d_info[c_ptr->special].text;
                         }
 
+                        if (p_ptr->wild_mode && (feat == FEAT_TOWN))
+                        {
+                                s3 = "";
+                                name = format("%s(%s)", wf_name + wf_info[wild_map[y][x].feat].name, wf_text + wf_info[wild_map[y][x].feat].text);
+                        }
+			
+			if ((feat==FEAT_FOUNTAIN) && (c_ptr->info & CAVE_IDNT))
+			{
+				object_kind *k_ptr;
+				int tv, sv;
+				
+				if (c_ptr->special <= SV_POTION_LAST)
+				{
+					tv = TV_POTION;
+					sv = c_ptr->special;
+				}
+				else
+				{
+					tv = TV_POTION2;
+					sv = c_ptr->special - SV_POTION_LAST;
+				}
+				
+				k_ptr = &k_info[lookup_kind(tv, sv)];
+                                info = k_name + k_ptr->name;
+			}
+			
 			/* Display a message */
-			sprintf(out_val, "%s%s%s%s [%s]", s1, s2, s3, name, info);
+                        sprintf(out_val, "%s%s%s%s [%s]", s1, s2, s3, name, info);
 			prt(out_val, 0, 0);
 			move_cursor_relative(y, x);
 			query = inkey();
@@ -7719,7 +7820,7 @@ void great_side_effect(void) {
         int dir, tmp, a, b, power = ((deity_info[p_ptr->pgod].race1 == p_ptr->prace) || (deity_info[p_ptr->pgod].race2 == p_ptr->prace));
 
         int per_hp = p_ptr->chp * 100 / p_ptr->mhp;
-        int per_sp = p_ptr->csp * 100 / p_ptr->msp;
+        int per_sp = (p_ptr->msp) ? p_ptr->csp * 100 / p_ptr->msp : 100;
 
         tmp = randint(100);
 
@@ -7754,7 +7855,7 @@ void great_side_effect(void) {
                                 int y = py, x = px;
 
                                 scatter(&y, &x, py, px, 5, 0);
-                                place_monster_one(y, x, test_monster_name("Ent"), FALSE, TRUE);
+                                place_monster_one(y, x, test_monster_name("Ent"), 0, FALSE, TRUE);
                         }
                         break;
                 case GOD_ULMO:
@@ -7998,7 +8099,7 @@ void godly_wrath_blast(void) {
   int tmp;
   int type = 0;
   bool ok = FALSE;
-  int flg = PROJECT_GRID | PROJECT_KILL | PROJECT_STOP;
+  int flg = PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL;
 
   while (1) {
     tmp = randint(10);
@@ -8084,7 +8185,7 @@ void godly_wrath_blast(void) {
     if (ok) break;
   }
 
-  (void)project(-99, 0, py, px, damroll(4, 5), type, flg);
+  (void)project(-99, 1, py, px, damroll(4, ((p_ptr->lev / 3) > 5)?(p_ptr->lev / 3):5), type, flg);
 }
 
 /*
@@ -8158,7 +8259,7 @@ void make_wish(void)
         /* Try all the monsters */
         for(i = 1; i < max_r_idx - 1; i++)
         {
-                monster_race_desc(name, i);
+                monster_race_desc(name, i, 0);
 
                 /* Never Uniques */
                 if(r_info[i].flags1 & RF1_UNIQUE) continue;

@@ -235,7 +235,7 @@ I:23:21:0
 W:15:0:140:350
 A:15/1
 P:0:3d4:0:0:0
-F:SHOW_MODS | MUST2H
+F:SHOW_MODS | COULD2H
 
 N:32:& Scimitar~
 G:|:W
@@ -1363,7 +1363,7 @@ I:70:51:0
 W:1:0:5:10
 A:1/1
 
-N:179:Logrus
+N:179:Chaos
 G:?:d
 I:70:50:0
 W:100:0:5:10000
@@ -1640,6 +1640,7 @@ I:71:2:400
 W:0:0:4:2
 A:0/1
 P:0:1d1:0:0:0
+F:FOUNTAIN
 
 N:223:Apple Juice
 G:!:d
@@ -1647,6 +1648,7 @@ I:71:1:250
 W:0:0:4:1
 A:0/1
 P:0:1d1:0:0:0
+F:FOUNTAIN
 
 N:224:Water
 G:!:d
@@ -1654,6 +1656,7 @@ I:71:0:200
 W:0:0:4:1
 A:0/1
 P:0:1d1:0:0:0
+F:FOUNTAIN
 
 N:225:Strength
 G:!:d
@@ -1668,6 +1671,7 @@ I:71:16:0
 W:3:0:4:0
 A:3/1
 P:0:3d12:0:0:0
+F:FOUNTAIN
 
 N:227:Restore Strength
 G:!:d
@@ -1675,6 +1679,7 @@ I:71:42:0
 W:25:0:4:300
 A:25/1
 P:0:1d1:0:0:0
+F:FOUNTAIN
 
 N:228:Intelligence
 G:!:d
@@ -1689,6 +1694,7 @@ I:71:17:0
 W:20:0:4:0
 A:20/1
 P:0:1d1:0:0:0
+F:FOUNTAIN
 
 N:230:Restore Intelligence
 G:!:d
@@ -1696,6 +1702,7 @@ I:71:43:0
 W:25:0:4:300
 A:25/1
 P:0:1d1:0:0:0
+F:FOUNTAIN
 
 N:231:Wisdom
 G:!:d
@@ -1710,6 +1717,7 @@ I:71:18:0
 W:20:0:4:0
 A:20/1
 P:0:1d1:0:0:0
+F:FOUNTAIN
 
 N:233:Restore Wisdom
 G:!:d
@@ -1717,6 +1725,7 @@ I:71:44:0
 W:25:0:4:300
 A:25/1
 P:0:1d1:0:0:0
+F:FOUNTAIN
 
 N:234:Charisma
 G:!:d
@@ -1731,6 +1740,7 @@ I:71:21:0
 W:20:0:4:0
 A:20/1
 P:0:1d1:0:0:0
+F:FOUNTAIN
 
 N:236:Restore Charisma
 G:!:d
@@ -1738,6 +1748,7 @@ I:71:47:0
 W:20:0:4:300
 A:20/1
 P:0:1d1:0:0:0
+F:FOUNTAIN
 
 N:237:Curing
 G:!:d
@@ -1745,6 +1756,7 @@ I:71:61:100
 W:18:0:4:250
 A:18/1:40/1
 P:0:1d1:0:0:0
+F:FOUNTAIN
 
 # Note! Invulnerability decreases your food...
 
@@ -1754,6 +1766,7 @@ I:71:62:-2500
 W:90:0:4:100000
 A:90/9
 P:0:1d1:0:0:0
+F:FOUNTAIN
 
 N:239:New Life
 G:!:d
@@ -1768,6 +1781,7 @@ I:71:35:100
 W:3:0:4:40
 A:3/1
 P:0:1d1:0:0:0
+F:FOUNTAIN
 
 N:241:Cure Critical Wounds
 G:!:d
@@ -1775,6 +1789,7 @@ I:71:36:100
 W:5:0:4:100
 A:5/1
 P:0:1d1:0:0:0
+F:FOUNTAIN
 
 N:242:Healing
 G:!:d
@@ -1782,6 +1797,7 @@ I:71:37:200
 W:15:0:4:300
 A:15/1:30/1:60/1
 P:0:1d1:0:0:0
+F:FOUNTAIN
 
 N:243:Constitution
 G:!:d
@@ -1803,6 +1819,7 @@ I:71:11:100
 W:0:0:4:0
 A:0/1
 P:0:1d1:0:0:0
+F:FOUNTAIN
 
 N:246:Blindness
 G:!:d
@@ -1810,6 +1827,7 @@ I:71:7:0
 W:0:0:4:0
 A:0/1
 P:0:1d1:0:0:0
+F:FOUNTAIN
 
 N:247:Booze
 G:!:d
@@ -1817,6 +1835,7 @@ I:71:9:50
 W:0:0:4:0
 A:0/1
 P:0:1d1:0:0:0
+F:FOUNTAIN
 
 N:248:Poison
 G:!:d
@@ -1824,6 +1843,7 @@ I:71:6:0
 W:3:0:4:0
 A:3/1
 P:0:1d1:0:0:0
+F:FOUNTAIN
 
 N:249:Speed
 G:!:d
@@ -1831,6 +1851,7 @@ I:71:29:0
 W:1:0:4:75
 A:1/1:40/1:60/1
 P:0:1d1:0:0:0
+F:FOUNTAIN
 
 N:250:Slowness
 G:!:d
@@ -1838,6 +1859,7 @@ I:71:4:50
 W:1:0:4:0
 A:1/1
 P:0:1d1:0:0:0
+F:FOUNTAIN
 
 N:251:Dexterity
 G:!:d
@@ -1852,6 +1874,7 @@ I:71:45:0
 W:25:0:4:300
 A:25/1
 P:0:1d1:0:0:0
+F:FOUNTAIN
 
 N:253:Restore Constitution
 G:!:d
@@ -1859,6 +1882,7 @@ I:71:46:0
 W:25:0:4:300
 A:25/1
 P:0:1d1:0:0:0
+F:FOUNTAIN
 
 N:254:Lose Memories
 G:!:d
@@ -1866,6 +1890,7 @@ I:71:13:0
 W:10:0:4:0
 A:10/1
 P:0:1d1:0:0:0
+F:FOUNTAIN
 
 N:255:Salt Water
 G:!:d
@@ -1873,6 +1898,7 @@ I:71:5:0
 W:0:0:4:0
 A:0/1
 P:0:1d1:0:0:0
+F:FOUNTAIN
 
 N:256:Enlightenment
 G:!:d
@@ -1880,6 +1906,7 @@ I:71:56:0
 W:25:0:4:800
 A:25/1:50/1:100/1
 P:0:1d1:0:0:0
+F:FOUNTAIN
 
 N:257:Heroism
 G:!:d
@@ -1887,6 +1914,7 @@ I:71:32:0
 W:1:0:4:35
 A:1/1
 P:0:1d1:0:0:0
+F:FOUNTAIN
 
 N:258:Berserk Strength
 G:!:d
@@ -1894,6 +1922,7 @@ I:71:33:0
 W:3:0:4:100
 A:3/1
 P:0:1d1:0:0:0
+F:FOUNTAIN
 
 N:259:Boldness
 G:!:d
@@ -1901,6 +1930,7 @@ I:71:28:0
 W:1:0:4:10
 A:1/1
 P:0:1d1:0:0:0
+F:FOUNTAIN
 
 N:260:Restore Life Levels
 G:!:d
@@ -1908,6 +1938,7 @@ I:71:41:0
 W:40:0:4:400
 A:40/1
 P:0:1d1:0:0:0
+F:FOUNTAIN
 
 N:261:Resist Heat
 G:!:d
@@ -1915,6 +1946,7 @@ I:71:30:0
 W:1:0:4:30
 A:1/1
 P:0:1d1:0:0:0
+F:FOUNTAIN
 
 N:262:Resist Cold
 G:!:d
@@ -1922,6 +1954,7 @@ I:71:31:0
 W:1:0:4:30
 A:1/1
 P:0:1d1:0:0:0
+F:FOUNTAIN
 
 N:263:Detect Invisible
 G:!:d
@@ -1929,6 +1962,7 @@ I:71:25:0
 W:3:0:4:50
 A:3/1
 P:0:1d1:0:0:0
+F:FOUNTAIN
 
 N:264:Slow Poison
 G:!:d
@@ -1936,6 +1970,7 @@ I:71:26:0
 W:1:0:4:25
 A:1/1
 P:0:1d1:0:0:0
+F:FOUNTAIN
 
 N:265:Neutralize Poison
 G:!:d
@@ -1943,6 +1978,7 @@ I:71:27:0
 W:5:0:4:75
 A:5/1
 P:0:1d1:0:0:0
+F:FOUNTAIN
 
 N:266:Restore Mana
 G:!:d
@@ -1950,6 +1986,7 @@ I:71:40:0
 W:25:0:4:350
 A:25/1
 P:0:1d1:0:0:0
+F:FOUNTAIN
 
 N:267:Infra-vision
 G:!:d
@@ -1957,6 +1994,7 @@ I:71:24:0
 W:3:0:4:20
 A:3/1
 P:0:1d1:0:0:0
+F:FOUNTAIN
 
 N:268:Resistance
 G:!:d
@@ -1965,6 +2003,7 @@ W:20:0:4:250
 A:20/1:45/1:80/1:100/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+F:FOUNTAIN
 
 
 ##### Wands #####
@@ -2570,25 +2609,25 @@ P:0:1d1:0:0:0
 
 
 
-##### Here are the Rods #####
+##### Here are the Rod Tips #####
 
 N:350:Havoc
 G:-:d
-I:66:28:250
+I:66:28:90
 W:95:0:15:150000
 A:100/16
 P:0:1d1:0:0:0
 
 N:351:Door/Stair Location
 G:-:d
-I:66:1:70
+I:66:1:10
 W:15:0:15:1000
 A:15/1
 P:0:1d1:0:0:0
 
 N:352:Trap Location
 G:-:d
-I:66:0:15
+I:66:29:8
 W:5:0:15:100
 A:5/1
 P:0:1d1:0:0:0
@@ -2602,42 +2641,42 @@ P:0:1d1:0:0:0
 
 N:354:Recall
 G:-:d
-I:66:3:60
+I:66:3:80
 W:30:0:15:4000
 A:30/4
 P:0:1d1:0:0:0
 
 N:355:Illumination
 G:-:d
-I:66:4:16
+I:66:4:8
 W:20:0:15:1000
 A:20/1
 P:0:1d1:0:0:0
 
 N:356:Light
 G:-:d
-I:66:15:9
+I:66:15:15
 W:10:0:15:500
 A:10/1
 P:0:1d1:0:0:0
 
 N:357:Lightning Bolts
 G:-:d
-I:66:21:11
+I:66:21:30
 W:20:0:15:2000
 A:20/1
 P:0:1d1:0:0:0
 
 N:358:Frost Bolts
 G:-:d
-I:66:23:13
+I:66:23:35
 W:25:0:15:2500
 A:25/1
 P:0:1d1:0:0:0
 
 N:359:Fire Bolts
 G:-:d
-I:66:22:15
+I:66:22:40
 W:30:0:15:3000
 A:30/1
 P:0:1d1:0:0:0
@@ -2651,119 +2690,119 @@ P:0:1d1:0:0:0
 
 N:361:Slow Monster
 G:-:d
-I:66:17:20
+I:66:17:25
 W:30:0:15:1500
 A:30/1
 P:0:1d1:0:0:0
 
 N:362:Sleep Monster
 G:-:d
-I:66:16:18
+I:66:16:25
 W:30:0:15:1500
 A:30/1
 P:0:1d1:0:0:0
 
 N:363:Drain Life
 G:-:d
-I:66:18:23
+I:66:18:30
 W:75:0:15:3600
 A:75/4
 P:0:1d1:0:0:0
 
 N:364:Teleport Other
 G:-:d
-I:66:13:25
+I:66:13:60
 W:45:0:15:1400
 A:45/2
 P:0:1d1:0:0:0
 
 N:365:Disarming
 G:-:d
-I:66:14:23
+I:66:14:50
 W:35:0:15:2100
 A:35/1
 P:0:1d1:0:0:0
 
 N:366:Lightning Balls
 G:-:d
-I:66:25:23
+I:66:25:50
 W:55:0:15:4000
 A:55/1
 P:0:1d1:0:0:0
 
 N:367:Cold Balls
 G:-:d
-I:66:27:25
+I:66:27:55
 W:60:0:15:4500
 A:60/1
 P:0:1d1:0:0:0
 
 N:368:Fire Balls
 G:-:d
-I:66:26:30
+I:66:26:60
 W:75:0:15:5000
 A:75/1
 P:0:1d1:0:0:0
 
 N:369:Acid Balls
 G:-:d
-I:66:24:27
+I:66:24:60
 W:70:0:15:5500
 A:70/1
 P:0:1d1:0:0:0
 
 N:370:Acid Bolts
 G:-:d
-I:66:20:12
+I:66:20:40
 W:40:0:15:3500
 A:40/1
 P:0:1d1:0:0:0
 
 N:371:Enlightenment
 G:-:d
-I:66:5:16
+I:66:5:40
 W:65:0:15:10000
 A:65/4
 P:0:1d1:0:0:0
 
 N:372:Perception
 G:-:d
-I:66:2:10
+I:66:2:20
 W:50:0:15:13000
 A:50/8:100/8
 P:0:1d1:0:0:0
 
 N:373:Curing
 G:-:d
-I:66:8:999
+I:66:8:35
 W:65:0:15:15000
 A:65/8
 P:0:1d1:0:0:0
 
 N:374:Healing
 G:-:d
-I:66:9:999
+I:66:9:120
 W:80:0:15:20000
 A:80/8
 P:0:1d1:0:0:0
 
 N:375:Detection
 G:-:d
-I:66:6:99
+I:66:6:80
 W:30:0:15:5000
 A:30/8
 P:0:1d1:0:0:0
 
 N:376:Restoration
 G:-:d
-I:66:10:999
+I:66:10:140
 W:80:0:15:25000
 A:80/16
 P:0:1d1:0:0:0
 
 N:377:Speed
 G:-:d
-I:66:11:99
+I:66:11:100
 W:95:0:15:50000
 A:95/16
 P:0:1d1:0:0:0
@@ -2849,7 +2888,7 @@ P:0:1d1:0:0:0
 N:389:& Firestone~
 G:~:r
 I:3:3:0
-W:2:0:4:2
+W:2:0:40:20
 A:2/1
 P:0:1d1:0:0:0
 
@@ -3076,6 +3115,7 @@ I:71:23:0
 W:55:0:4:0
 A:55/4
 P:0:20d20:0:0:0
+F:FOUNTAIN
 
 N:416:Ruination
 G:!:d
@@ -3083,6 +3123,7 @@ I:71:15:0
 W:40:0:4:0
 A:40/8
 P:0:20d20:0:0:0
+F:FOUNTAIN
 
 N:417:Detonations
 G:!:d
@@ -3090,6 +3131,7 @@ I:71:22:0
 W:60:0:4:10000
 A:60/8
 P:0:25d25:0:0:0
+F:FOUNTAIN
 
 N:418:Augmentation
 G:!:d
@@ -3097,6 +3139,7 @@ I:71:55:0
 W:40:0:4:60000
 A:40/16
 P:0:1d1:0:0:0
+F:FOUNTAIN
 
 N:419:*Healing*
 G:!:d
@@ -3104,6 +3147,7 @@ I:71:38:0
 W:40:0:4:1500
 A:40/4:60/2:80/1
 P:0:1d1:0:0:0
+F:FOUNTAIN
 
 N:420:Life
 G:!:d
@@ -3118,6 +3162,7 @@ I:71:58:0
 W:40:0:4:2000
 A:40/1
 P:0:1d1:0:0:0
+F:FOUNTAIN
 
 N:422:*Enlightenment*
 G:!:d
@@ -3125,6 +3170,7 @@ I:71:57:0
 W:70:0:4:80000
 A:70/4
 P:0:1d1:0:0:0
+F:FOUNTAIN
 
 N:423:[Necromantic Incantations]
 G:?:v
@@ -3230,6 +3276,7 @@ I:71:34:50
 W:0:0:4:15
 A:0/1:1/1:3/1
 P:0:1d1:0:0:0
+F:FOUNTAIN
 
 N:438:Clumsiness
 G:!:d
@@ -3237,6 +3284,7 @@ I:71:19:0
 W:5:0:4:0
 A:5/1
 P:0:1d1:0:0:0
+F:FOUNTAIN
 
 N:439:Sickliness
 G:!:d
@@ -3244,22 +3292,39 @@ I:71:20:0
 W:10:0:4:0
 A:10/1
 P:0:1d1:0:0:0
+F:FOUNTAIN
 
-##### Items 440 to 444 reserved (old "fake" objects) #####
+###### Here start the maps #####
 
-##### Items 445 to 479 reserved (old "terrain" objects) #####
+# Map of Bree
+N:440:Map of Bree
+G:?:s
+I:8:200:0
+W:3:100:5:100
+A:3/3
 
+# Map of Gondolin
+N:441:Map of Gondolin
+G:?:s
+I:8:201:0
+W:70:100:5:50000
+A:70/3
 
-# The old "notice_seams" option is currently unused, but much of its
-# old functionality can be obtained by clever use of 'F' commands in
-# a pref file which define "quartz" and "magma" to look like "granite".
+# Map of LothLorien
+N:442:Map of LothLorien
+G:?:s
+I:8:202:0
+W:6:100:5:1000
+A:6/3
 
-# Note that the "player" picture does not really fit in anywhere, and I
-# have no idea how to go about allowing "redefinition" of that picture.
-# Perhaps by using "monster 0" or "object 0" or "feature 0" or even a
-# special "player picture" which might yield a simple way to show the
-# player in different colors or whatever for different "states", or even
-# a different picture for various "class" or "race" choices.
+# Map of Minas Anor
+N:443:Map of Minas Anor
+G:?:s
+I:8:203:0
+W:36:100:5:10000
+A:36/3
+
+##### Items 444 to 479 unused #####
 
 
 ##### And here starts the gold/gems #####
@@ -3614,7 +3679,7 @@ I:23:29:0
 W:40:0:280:580
 A:40/3
 P:0:4d6:0:0:0
-F:SHOW_MODS
+F:SHOW_MODS | MUST2H
 
 N:525:& Tanto~
 G:|:W
@@ -3947,7 +4012,7 @@ P:0:1d1:0:0:0
 
 N:569:Nothing
 G:-:d
-I:66:29:1
+I:66:0:1
 W:2:0:10:200
 A:2/1
 P:0:1d1:0:0:0
@@ -3979,8 +4044,8 @@ P:0:1d1:0:0:0
 N:573:the Blood of Life
 G:!:d
 I:71:3:200
-W:10:0:4:10000
-A:10/25
+W:70:0:4:10000
+A:70/16
 P:0:1d1:0:0:0
 
 N:574:Cold
@@ -4005,7 +4070,7 @@ A:6/1:20/1:40/1:60/1
 P:0:1d1:0:0:0
 
 N:577:& Mage Staff~
-G:|:B
+G:\:B
 I:6:1:0
 W:5:0:12:300
 A:5/1:10/1:20/1:30/1:50/1:80/1:100/1
@@ -4049,6 +4114,7 @@ I:71:8:0
 W:3:0:4:50
 A:3/1
 P:0:1d1:0:0:0
+F:FOUNTAIN
 
 N:584:Chaos
 G:*:G
@@ -4063,6 +4129,7 @@ I:71:10:0
 W:3:0:4:0
 A:3/1:13/1:23/1
 P:0:1d1:0:0:0
+F:FOUNTAIN
 
 N:586:Invisibility
 G:=:d
@@ -4092,7 +4159,7 @@ I:8:1:0
 W:4:0:5:50
 A:4/1
 
-N:590:Compendum of Deep Thoughts
+N:590:Compendium of Deep Thoughts
 G:?:o
 I:8:2:0
 W:5:0:5:50
@@ -4116,67 +4183,67 @@ I:8:8:0
 W:40:0:5:50
 A:40/3
 
-N:594:Monstrous Compendum 1
+N:594:Monstrous Compendium 1
 G:?:o
 I:8:9:0
 W:10:0:5:50
 A:10/2
 
-N:595:Monstrous Compendum 2
+N:595:Monstrous Compendium 2
 G:?:o
 I:8:10:0
 W:11:0:5:50
 A:11/2
 
-N:596:Monstrous Compendum 3
+N:596:Monstrous Compendium 3
 G:?:o
 I:8:11:0
 W:12:0:5:50
 A:12/2
 
-N:597:Monstrous Compendum 4
+N:597:Monstrous Compendium 4
 G:?:o
 I:8:12:0
 W:13:0:5:50
 A:13/2
 
-N:598:Monstrous Compendum 5
+N:598:Monstrous Compendium 5
 G:?:o
 I:8:13:0
 W:14:0:5:50
 A:14/2
 
-N:599:Monstrous Compendum 6
+N:599:Monstrous Compendium 6
 G:?:o
 I:8:14:0
 W:15:0:5:50
 A:15/2
 
-N:600:Monstrous Compendum 7
+N:600:Monstrous Compendium 7
 G:?:o
 I:8:15:0
 W:16:0:5:50
 A:16/2
 
-N:601:Monstrous Compendum 8
+N:601:Monstrous Compendium 8
 G:?:o
 I:8:16:0
 W:17:0:5:50
 A:17/2
 
-N:602:Monstrous Compendum 9
+N:602:Monstrous Compendium 9
 G:?:o
 I:8:17:0
 W:18:0:5:50
 A:18/2
 
-N:603:Monstrous Compendum 10
+N:603:Monstrous Compendium 10
 G:?:o
 I:8:18:0
 W:19:0:5:50
 A:19/2
 
-N:604:Monstrous Compendum 11
+N:604:Monstrous Compendium 11
 G:?:o
 I:8:19:0
 W:20:0:5:50
@@ -4190,6 +4257,7 @@ I:72:1:80
 W:0:0:4:0
 A:0/1
 P:0:1d1:0:0:0
+F:FOUNTAIN
 
 N:606:Shape of Wolf
 G:!:d
@@ -4197,6 +4265,7 @@ I:72:2:50
 W:5:0:4:300
 A:5/1
 P:0:1d1:0:0:0
+F:FOUNTAIN
 
 N:607:Shape of Ape
 G:!:d
@@ -4204,6 +4273,7 @@ I:72:3:50
 W:5:0:4:300
 A:5/1
 P:0:1d1:0:0:0
+F:FOUNTAIN
 
 N:608:Shape of Goat
 G:!:d
@@ -4211,6 +4281,7 @@ I:72:4:50
 W:5:0:4:300
 A:5/1
 P:0:1d1:0:0:0
+F:FOUNTAIN
 
 N:609:Shape of Insect
 G:!:d
@@ -4218,6 +4289,7 @@ I:72:5:40
 W:5:0:4:300
 A:5/1
 P:0:1d1:0:0:0
+F:FOUNTAIN
 
 N:610:Shape of Sparrow
 G:!:d
@@ -4225,6 +4297,7 @@ I:72:6:40
 W:5:0:4:300
 A:5/1
 P:0:1d1:0:0:0
+F:FOUNTAIN
 
 N:611:Shape of Ent
 G:!:d
@@ -4232,6 +4305,7 @@ I:72:7:35
 W:5:0:4:300
 A:5/1
 P:0:1d1:0:0:0
+F:FOUNTAIN
 
 N:612:Shape of Vampire
 G:!:d
@@ -4239,6 +4313,7 @@ I:72:8:20
 W:5:0:4:300
 A:5/1
 P:0:1d1:0:0:0
+F:FOUNTAIN
 
 N:613:Shape of Spider
 G:!:d
@@ -4246,6 +4321,7 @@ I:72:9:40
 W:5:0:4:300
 A:5/1
 P:0:1d1:0:0:0
+F:FOUNTAIN
 
 N:614:Shape of Mana ball
 G:!:d
@@ -4253,6 +4329,7 @@ I:72:10:30
 W:5:0:4:300
 A:5/1
 P:0:1d1:0:0:0
+F:FOUNTAIN
 
 N:615:Shape of Fire cloud
 G:!:d
@@ -4260,6 +4337,7 @@ I:72:11:35
 W:5:0:4:300
 A:5/1
 P:0:1d1:0:0:0
+F:FOUNTAIN
 
 N:616:Shape of Cold cloud
 G:!:d
@@ -4267,6 +4345,7 @@ I:72:12:35
 W:5:0:4:300
 A:5/1
 P:0:1d1:0:0:0
+F:FOUNTAIN
 
 N:617:Shape of Chaos cloud
 G:!:d
@@ -4274,6 +4353,7 @@ I:72:13:30
 W:5:0:4:300
 A:5/1
 P:0:1d1:0:0:0
+F:FOUNTAIN
 
 # The Mimic's books
 
@@ -4531,7 +4611,7 @@ P:0:2d4:0:0:0
 
 # The Space-Time Anchor -- see artifact list
 N:652:& Anchor~
-G:":d
+G:~:v
 I:39:14:0
 W:30:0:15:50000
 F:INSTA_ART
@@ -4577,6 +4657,7 @@ I:72:14:0
 W:0:5:4:15
 A:0/1:1/1:3/1
 P:0:1d1:0:0:0
+F:FOUNTAIN
 
 N:658:Cure Serious Insanity
 G:!:d
@@ -4584,6 +4665,7 @@ I:72:15:0
 W:3:5:4:40
 A:3/1
 P:0:1d1:0:0:0
+F:FOUNTAIN
 
 N:659:Cure Critical Insanity
 G:!:d
@@ -4591,6 +4673,7 @@ I:72:16:0
 W:5:5:4:100
 A:5/1
 P:0:1d1:0:0:0
+F:FOUNTAIN
 
 N:660:Cure Insanity
 G:!:d
@@ -4598,11 +4681,12 @@ I:72:17:0
 W:15:5:4:30
 A:15/1
 P:0:1d1:0:0:0
+F:FOUNTAIN
 
 # The Phial of Undeath -- He he he he...
 
 N:661:& Phial~
-G:!:y
+G:~:y
 I:39:7:0
 W:1:0:10:0
 P:0:1d1:0:0:0
@@ -4631,7 +4715,7 @@ I:70:19:0
 W:80:0:5:200000
 A:80/16
 
-# A Parchement, not the Artifact
+# A Parchment, not the Artifact
 N:664:The One Ring
 G:?:s
 I:8:4:0
@@ -4742,7 +4826,7 @@ A:20/1:25/1:35/1
 N:678:Divination
 G:?:d
 I:70:31:0
-W:20:0:5:70
+W:20:0:5:600
 A:30/1:45/1:55/1
 
 
@@ -4926,7 +5010,7 @@ N:701:& Sprig~ of Athelas
 G:,:g
 I:80:40:0
 W:25:5:2:450
-A:25/2:55/2:85/2
+A:25/2:55/1:85/1
 
 ##### Basic Books #####
 
@@ -5074,31 +5158,27 @@ I:70:40:0
 W:20:0:5:160000
 A:20/8
 
-N:721:Reincarnation
-G:?:d
-I:70:43:0
-W:20:0:5:160000
-A:20/8
+# 721 -- unused XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
-N:722:Numeronean for beginners
+N:722:Numenorean for beginners
 G:?:s
 I:8:101:0
 W:10:100:5:50
 A:10/2
 
-N:723:Numeronean for beginners
+N:723:Numenorean for beginners
 G:?:s
 I:8:102:0
 W:5:100:5:50
 A:5/2
 
-N:724:Advanced lecons of Numeronean
+N:724:Advanced lessons of Numenorean
 G:?:s
 I:8:103:0
 W:20:100:5:50
 A:20/2
 
-N:725:Advanced lecons of Sindarin
+N:725:Advanced lessons of Sindarin
 G:?:s
 I:8:104:0
 W:20:100:5:50
@@ -5300,7 +5380,7 @@ N:750:Wishing
 G:_:d
 I:55:31:0
 W:80:0:2:300000
-A:80/1
+A:80/50
 P:0:1d2:0:0:0
 
 N:751:Khuzdul - The hidden tonge of the Dwarves
@@ -5315,7 +5395,7 @@ I:8:106:0
 W:20:100:5:50
 A:20/2
 
-N:753:Advanced lecons of Orkish
+N:753:Advanced lessons of Orkish
 G:?:s
 I:8:107:0
 W:30:100:5:50
@@ -5326,7 +5406,7 @@ N:755:Flying
 G:=:d
 I:45:54:0
 W:20:0:2:16000
-A:20/2
+A:20/3
 F:FLY | EASY_KNOW
 
 ##### Magery rare books #####
@@ -5482,7 +5562,7 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 # Rod
 N:776:Home Summoning
 G:-:d
-I:66:30:1000
+I:66:30:75
 W:90:0:15:150000
 A:100/14
 P:0:1d1:0:0:0
@@ -5562,3 +5642,112 @@ I:12:0:0
 W:40:0:2:50000
 A:40/3
 F:CLIMB
+
+# Parchment to help beginners
+N:787:Adventurer's guide to Middle Earth
+G:?:o
+I:8:20:0
+W:0:0:5:1
+A:0/1
+
+##### Daemon Books #####
+N:788:[Dark Incantations]
+G:?:R
+I:125:0:0
+W:10:0:30:100
+A:10/1
+P:0:1d4:0:0:0
+F:SHOW_MODS
+
+N:789:[Immortal Rituals]
+G:?:R
+I:125:1:0
+W:20:0:30:1000
+A:20/1
+P:0:2d6:0:0:0
+F:SHOW_MODS
+
+N:790:[Minions of Azathoth]
+G:?:r
+I:125:2:0
+W:35:0:30:25000
+A:50/1
+P:0:3d7:0:0:0
+F:SHOW_MODS | SUST_INT
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+N:791:[Demonthoughts]
+G:?:r
+I:125:3:0
+W:50:0:30:50000
+A:70/3
+P:0:4d7:0:0:0
+F:SHOW_MODS | RES_CHAOS
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+N:792:[Hellfire Tome]
+G:?:r
+I:125:4:0
+W:100:0:30:100000
+A:100/3
+P:0:6d7:0:0:0
+F:SHOW_MODS | FLY
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+# Rods
+
+N:793:& Wooden Rod~ of#
+G:-:u
+I:67:10:0
+W:10:0:15:100
+A:10/1
+P:0:1d1:0:0:0
+
+N:794:& Copper Rod~ of#
+G:-:s
+I:67:20:0
+W:15:0:15:200
+A:15/1
+P:0:1d1:0:0:0
+
+N:795:& Iron Rod~ of#
+G:-:D
+I:67:50:0
+W:20:0:15:500
+A:20/1
+P:0:1d1:0:0:0
+
+N:796:& Aluminium Rod~ of#
+G:-:U
+I:67:75:0
+W:25:0:15:750
+A:25/1
+P:0:1d1:0:0:0
+
+N:797:& Silver Rod~ of#
+G:-:s
+I:67:100:0
+W:30:0:15:1000
+A:30/1
+P:0:1d1:0:0:0
+
+N:798:& Golden Rod~ of#
+G:-:y
+I:67:125:0
+W:40:0:15:1250
+A:40/1
+P:0:1d1:0:0:0
+
+N:799:& Mithril Rod~ of#
+G:-:B
+I:67:160:0
+W:50:0:15:1600
+A:50/1
+P:0:1d1:0:0:0
+
+N:800:& Adamantite Rod~ of#
+G:-:v
+I:67:200:0
+W:60:0:15:2000
+A:60/1
+P:0:1d1:0:0:0

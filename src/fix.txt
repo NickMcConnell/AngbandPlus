@@ -1,0 +1,36 @@
+--- pern-4.1.2/src/defines.h	Sun Sep 10 15:48:42 2000
++++ pern/src/defines.h	Mon Jan 29 14:30:47 2001
+@@ -906,6 +906,7 @@
+ #define FEAT_TREES			0x60
+ #define FEAT_SMALL_TREES                202
+ #define FEAT_MOUNTAIN		0x61
++#define FEAT_FLOWER		199
+ 
+ /* Feature 0x62 - 0x7F unused */
+ 
+--- pern-4.1.2/src/xtra2.c	Tue Aug 29 15:32:56 2000
++++ pern/src/xtra2.c	Mon Jan 29 14:31:06 2001
+@@ -4952,15 +4952,20 @@
+ 			if (feat == FEAT_NONE) name = "unknown grid";
+ 
+ 			/* Pick a prefix */
+-			if (*s2 && ((feat >= FEAT_MINOR_GLYPH) &&
+-			   (feat <= FEAT_PATTERN_XTRA2))) s2 = "on ";
++			if (*s2 &&
++			    (((feat >= FEAT_MINOR_GLYPH) &&
++			      (feat <= FEAT_PATTERN_XTRA2)) ||
++			     (feat == FEAT_DIRT) ||
++			     (feat == FEAT_GRASS) ||
++			     (feat == FEAT_FLOWER))) s2 = "on ";
++			else if (*s2 && (feat == FEAT_SMALL_TREES)) s2 = "by ";
+ 			else if (*s2 && (feat >= FEAT_DOOR_HEAD)) s2 = "in ";
+ 
+ 			/* Pick proper indefinite article */
+ 			s3 = (is_a_vowel(name[0])) ? "an " : "a ";
+ 
+                         /* Hack -- special introduction for store & building doors */
+-                        if (feat >= FEAT_SHOP)
++                        if (feat == FEAT_SHOP)
+ 			{
+ 				s3 = "the entrance to the ";
+ 			}

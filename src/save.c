@@ -582,6 +582,9 @@ static void wr_item(object_type *o_ptr)
         wr_byte(o_ptr->elevel);
         wr_s32b(o_ptr->exp);
 
+        /* Write the pseudo-id */
+        wr_byte(o_ptr->sense);
+
 	/* Save the inscription (if any) */
 	if (o_ptr->note)
 	{
@@ -611,6 +614,7 @@ static void wr_item(object_type *o_ptr)
 static void wr_monster(monster_type *m_ptr)
 {
 	wr_s16b(m_ptr->r_idx);
+        wr_u16b(m_ptr->ego);
 	wr_byte(m_ptr->fy);
 	wr_byte(m_ptr->fx);
 	wr_s16b(m_ptr->hp);
@@ -674,6 +678,7 @@ static void wr_lore(int r_idx)
 
 	/* Monster limit per level */
         wr_s16b(r_ptr->max_num);
+        wr_byte(r_ptr->on_saved);
 
 	/* Later (?) */
 	wr_byte(0);
@@ -694,6 +699,10 @@ static void wr_xtra(int k_idx)
 	if (k_ptr->aware) tmp8u |= 0x01;
 	if (k_ptr->tried) tmp8u |= 0x02;
         if (k_ptr->know)  tmp8u |= 0x04;
+        if (k_ptr->squeltch == 1)  tmp8u |= 0x08;
+        if (k_ptr->squeltch == 2)  tmp8u |= 0x10;
+        if (k_ptr->squeltch == 3)  tmp8u |= 0x20;
+        if (k_ptr->squeltch == 4)  tmp8u |= 0x40;
 
 	wr_byte(tmp8u);
 }
@@ -856,11 +865,54 @@ static void wr_ghost(void)
 {
 	int i;
 
-	/* Name */
-	wr_string("Broken Ghost");
+        monster_race *r_ptr = &r_info[max_r_idx - 1];
 
-	/* Hack -- stupid data */
-	for (i = 0; i < 60; i++) wr_byte(0);
+
+	/* Name */
+	wr_string(r_name + r_ptr->name);
+
+	/* Visuals */
+	wr_byte(r_ptr->d_char);
+	wr_byte(r_ptr->d_attr);
+
+	/* Level/Rarity */
+	wr_byte(r_ptr->level);
+	wr_byte(r_ptr->rarity);
+
+	/* Misc info */
+	wr_byte(r_ptr->hdice);
+	wr_byte(r_ptr->hside);
+	wr_s16b(r_ptr->ac);
+	wr_s16b(r_ptr->sleep);
+	wr_byte(r_ptr->aaf);
+	wr_byte(r_ptr->speed);
+
+	/* Experience */
+	wr_s32b(r_ptr->mexp);
+
+	/* Frequency */
+	wr_byte(r_ptr->freq_inate);
+	wr_byte(r_ptr->freq_spell);
+
+	/* Flags */
+	wr_u32b(r_ptr->flags1);
+	wr_u32b(r_ptr->flags2);
+	wr_u32b(r_ptr->flags3);
+	wr_u32b(r_ptr->flags4);
+	wr_u32b(r_ptr->flags5);
+	wr_u32b(r_ptr->flags6);
+        wr_u32b(r_ptr->flags7);
+        wr_u32b(r_ptr->flags8);
+        wr_u32b(r_ptr->flags9);
+
+	/* Attacks */
+	for (i = 0; i < 4; i++)
+	{
+		wr_byte(r_ptr->blow[i].method);
+		wr_byte(r_ptr->blow[i].effect);
+		wr_byte(r_ptr->blow[i].d_dice);
+		wr_byte(r_ptr->blow[i].d_side);
+	}
 }
 
 /* Save the random spells info */
@@ -946,7 +998,7 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->inside_arena);
 	wr_s16b(p_ptr->inside_quest);
 	wr_byte(p_ptr->exit_bldg);
-	wr_byte(p_ptr->leftbldg); /* save building leave status -KMW- */
+        wr_byte(0);
 
 	wr_s16b(p_ptr->oldpx);
 	wr_s16b(p_ptr->oldpy);
@@ -1071,9 +1123,10 @@ static void wr_extra(void)
         wr_byte(vanilla_town);
 
         wr_u16b(no_breeds);
+	wr_s16b(p_ptr->protgood);
 
 	/* Future use */
-	for (i = 0; i < 12; i++) wr_u32b(0L);
+	for (i = 0; i < 46; i++) wr_byte(0);
 
         /* Auxilliary variables */
         wr_u32b(p_ptr->class_extra1);
@@ -1365,6 +1418,48 @@ static void wr_dungeon(void)
 			c_ptr = &cave[y][x];
 
 			/* Extract a byte */
+                        tmp16s = c_ptr->special2;
+			
+			/* If the run is broken, or too full, flush it */
+			if ((tmp16s != prev_s16b) || (count == MAX_UCHAR))
+			{
+				wr_byte((byte)count);
+				wr_u16b(prev_s16b);
+				prev_s16b = tmp16s;
+				count = 1;
+			}
+
+			/* Continue the run */
+			else
+			{
+				count++;
+			}
+		}
+	}
+
+	/* Flush the data (if any) */
+	if (count)
+	{
+		wr_byte((byte)count);
+		wr_u16b(prev_s16b);
+	}
+
+
+	/*** Simple "Run-Length-Encoding" of cave ***/
+
+	/* Note that this will induce two wasted bytes */
+	count = 0;
+	prev_s16b = 0;
+
+	/* Dump the cave */
+	for (y = 0; y < cur_hgt; y++)
+	{
+		for (x = 0; x < cur_wid; x++)
+		{
+			/* Get the cave */
+			c_ptr = &cave[y][x];
+
+			/* Extract a byte */
                         tmp16s = c_ptr->t_idx;
 			
 			/* If the run is broken, or too full, flush it */
@@ -1514,20 +1609,13 @@ static void wr_dungeon(void)
 void save_dungeon(void)
 {
         char tmp[16];
-        char name[1024];
-        dungeon_info_type *d_ptr = &d_info[dungeon_type];
-
-        /* Mega Hack */
-        s16b new_dun = dun_level;
+        char name[1024], buf[5];
 
         /* Save only persistent dungeons */
-        if (((d_ptr->flags1 & DF1_PERSISTENT) == 0) || (!dun_level)) return;
-
-        /* Mega Hack */
-        dun_level = old_dun_level;
+        if (!get_dungeon_save(buf) || (!dun_level)) return;
 
         /* Construct filename */
-        sprintf(tmp, "d%il%i.sav", dungeon_type, dun_level);
+        sprintf(tmp, "%s.%s", player_base, buf);
         path_build(name, 1024, ANGBAND_DIR_SAVE, tmp);
    
         /* Open the file */
@@ -1535,9 +1623,6 @@ void save_dungeon(void)
 
         /* Save the dungeon */
         wr_dungeon();
-
-        /* Mega Hack */
-        dun_level = new_dun;
 
         /* Done */
         my_fclose(fff);
@@ -1649,66 +1734,6 @@ static bool wr_savefile_new(void)
 	wr_u16b(tmp16u);
 	for (i = 0; i < tmp16u; i++) wr_lore(i);
 
-        /* Dump the ghosts info */
-        for (i = 0; i < MAX_GHOSTS; i++)
-                wr_string(ghost_file[i]);
-
-        for(i = 0; i < MAX_GHOSTS; i++)
-        {
-                monster_race *r_ptr;
-
-                /* Load the ghost */
-                r_ptr = &r_info[GHOST_R_IDX_HEAD + i];
-
-                wr_string(r_name + r_ptr->name);
-                wr_string(r_text + r_ptr->text);
-
-                wr_byte(r_ptr->hdice);
-                wr_byte(r_ptr->hside);
-
-                wr_s16b(r_ptr->ac);
-
-                wr_s16b(r_ptr->sleep);
-                wr_byte(r_ptr->aaf);
-                wr_byte(r_ptr->speed);
-
-                wr_s32b(r_ptr->mexp);
-                wr_s32b(r_ptr->weight);
-
-                wr_byte(r_ptr->freq_inate);
-                wr_byte(r_ptr->freq_spell);
-
-                wr_u32b(r_ptr->flags1);
-                wr_u32b(r_ptr->flags2);
-                wr_u32b(r_ptr->flags3);
-                wr_u32b(r_ptr->flags4);
-                wr_u32b(r_ptr->flags5);
-                wr_u32b(r_ptr->flags6);
-                wr_u32b(r_ptr->flags7);
-                wr_u32b(r_ptr->flags8);
-                wr_u32b(r_ptr->flags9);
-
-                for(j = 0; j < 4; j++)
-                {
-                        wr_byte(r_ptr->blow[j].method);
-                        wr_byte(r_ptr->blow[j].effect);
-                        wr_byte(r_ptr->blow[j].d_dice);
-                        wr_byte(r_ptr->blow[j].d_side);
-                }
-
-                wr_byte(r_ptr->level);
-                wr_byte(r_ptr->rarity);
-
-                wr_byte(r_ptr->d_attr);
-                wr_byte(r_ptr->d_char);
-
-                wr_byte(r_ptr->x_attr);
-                wr_byte(r_ptr->x_char);
-
-                wr_s16b(r_ptr->max_num);
-                wr_byte(r_ptr->cur_num);
-        }
-
 	/* Dump the object memory */
 	tmp16u = max_k_idx;
 	wr_u16b(tmp16u);
@@ -1757,6 +1782,7 @@ static bool wr_savefile_new(void)
 		{
                         wr_u32b(wild_map[j][i].seed);
                         wr_u16b(wild_map[j][i].entrance);
+                        wr_byte(wild_map[j][i].known);
 		}
 	}
 
@@ -1872,13 +1898,13 @@ static bool wr_savefile_new(void)
 	wr_u16b(tmp16u);
 
 	/* Note the stores */
-	tmp16u = MAX_STORES;
+        tmp16u = max_st_idx;
 	wr_u16b(tmp16u);
 
 	/* Dump the stores of all towns */
 	for (i = 1; i < max_towns; i++)
 	{
-		for (j = 0; j < MAX_STORES; j++)
+                for (j = 0; j < max_st_idx; j++)
 		{
 			wr_store(&town[i].store[j]);
 		}

@@ -132,9 +132,9 @@ Blade of Sharpness
      wielder gives it the permission for a teleport).
 
 (Chaotic)
-     These bizarre, feared weapons have been manufactured in the Courts
-     of Chaos, and they are powered by the Logrus itself. They are very
-     unpredictable in combat: the Logrus can provide a number of various
+     These bizarre, feared weapons have been manufactured in the chaos
+     forges, and they are powered by the chaos. They are very
+     unpredictable in combat: chaos can provide a number of various
      effects when it touches your opponent.
 
 (Vampiric)

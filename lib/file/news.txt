@@ -1,6 +1,6 @@
 
             *********************************************************
-            ** PernAngband 4.0.7  **  The Troubles of Middle Earth **
+            ** PernAngband 4.1.5  **  The Troubles of Middle Earth **
             *********************************************************
 
                "One Ring to rule them all, One Ring to find them
@@ -15,9 +15,9 @@
        ZAngband code:     (Mr) Topi Ylinen (f1toyl@uta.fi)
                           and Robert Ruehlmann (rr9@angband.org)
 
-       PernAngband code:  Dark God < dark.god@infonie.fr >
-       Internet site:     http://perso.infonie.fr/dark.god/index.htm
+       PernAngband code:  Dark God < darkgod@ifrance.com >
+       Internet site:     http://www.pernangband.org
 
-    Send all comments, bug reports, patches, etc, to "dark.god@infonie.fr".
+    Send all comments, bug reports, patches, etc, to "darkgod@ifrance.com".
 
     Press ? for help and = for the options screen while playing

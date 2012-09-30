@@ -8,13 +8,13 @@ include some elements of them into my variant from which it take the name,
 PernAngband.
 
 The hard thing has been to decide to base it on which Angband, thought I don't
-like Zangband because of the Zelazny's universe, which I find no enought
-Tolkiennist, I've chosed it because of all the good things it has(especialy
-the race powers). So I've removed a big part of the Zelazny stuffs to replace
-it with Tolkien or Pernese ones. And so the history of PernAngband began with
-the version 2.9.9a.
+like Zangband because of the Zelazny's universe, which I find no enough
+Tolkiennian, I've chosed it because of all the good things it had(especialy
+the race powers that I wasn't able to code at the time). So I've removed a
+big part of the Zelazny stuffs to replace it with Tolkien or Pernese ones.
+And so the history of PernAngband began with the version 2.9.9a.
 
-Now I've my own internet site and PernAngband is at he 3.1.0 version with
+Now I've my own internet site and PernAngband is at the 4.0.8 version with
 a lot of new stuff(see change.txt in the main directory).
 
 === Zangband History and Information ===

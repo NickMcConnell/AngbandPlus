@@ -1,4 +1,10 @@
-Q: How do I use the altars (the 'O's) I see in the dungeon?  
+                          PernAngband FAQ
+                     Updated for version 4.1.2
+
+------------------------------------------------------------------------------
+------------------------------------------------------------------------------
+
+Q: How do I use the altars (the 'O's) I see in the dungeon?
 
 A: PernAngband introduces a new system of gods. Each god has one
 dedicated altar.  At the beginning of the game, only Priests, Priors
@@ -13,6 +19,8 @@ You can also try to bash altars of other gods, but it's rather
 dangerous. 
 You can also press 'p' to pray to your god if you're in good grace with
 him/her.
+You should also read gods.txt in the help directory(and godspoil.txt if you
+want heavy spoilers)
 ------------------------------------------------------------------------------
 Q: Why do I have -200 to hit and to damage ?
 
@@ -38,17 +46,14 @@ list and its activation is totally random.  It's also recommended that
 this kind of artifact be *identified* before use since the
 activation can be something like death, stat loss, ...
 ------------------------------------------------------------------------------
-Q: I spent 500 gp at the Soothsayer but she said nothing. Is it a
+Q: I spent 500 gp at the Prothet but she said nothing. Is it a
 bug ?
 
-A: No.  Nor is it because Soothsayers are swindlers.  She said nothing
-because
-you have no fate at this moment.  You gain fate while playing, and will
-be warned by a message such as "You feel your fate has changed".  A fate
-can be
-useless like finding a broken skull at level 30, deadly like dying at
-level
-56, or really useful like to never die by the hand of a mortal.
+A: No.  Nor is it because Prophets are swindlers.  She said nothing
+because you have no fate at this moment.  You gain fate while playing, and
+will be warned by a message such as "You feel your fate has changed".  A fate
+can be useless like finding a broken skull at level 30, deadly like dying at
+level 56, or really useful like to never die by the hand of a mortal.
 ------------------------------------------------------------------------------
 Q: Why can't I pick up monster corpses ?
 
@@ -85,4 +90,8 @@ A: Yes, you should. Repetitive strain on wrists (which results from a badly
    few times. Take frequent breaks and do this if it starts to hurt
    a little bit. I was sliding very fast towards CTS and this
    corrected it.''
+------------------------------------------------------------------------------
+Q: When I stand on between gates I'm never teleported away, what's wrong ?
 
+A: Between gates are no more automatics, you must press > while standing on
+   one to activate it

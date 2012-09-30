@@ -1,4 +1,3 @@
-
 /* File: cave.c */
 
 /* Purpose: low level dungeon routines -BEN- */
@@ -717,6 +716,16 @@ void map_info(int y, int x, byte *ap, char *cp)
 				
 				/* Add attr */
 				a = t_info[c_ptr->t_idx].color;
+
+                                /* Get a new color with a strange formula :) */
+                                if (t_info[c_ptr->t_idx].flags & FTRAP_CHANGE)
+                                {
+                                        s32b tmp;
+
+                                        tmp = dun_level + dungeon_type + c_ptr->feat;
+
+                                        a = tmp % 16;
+                                }
 			}
 			
 			/* Special lighting effects */
@@ -827,10 +836,29 @@ void map_info(int y, int x, byte *ap, char *cp)
 			/* Normal attr */
 			a = f_ptr->x_attr;
 
+                        /* MEGA HACK -- show a building at it is supposed to be */
+                        if (feat == FEAT_SHOP)
+                        {
+                                c = st_info[c_ptr->special].chr;
+                                a = st_info[c_ptr->special].attr;
+                        }
+
 			/* Add trap color - Illusory wall masks everythink */
 			if ((c_ptr->t_idx != 0) && (c_ptr->info & CAVE_TRDT) &&
 			    (c_ptr->feat != FEAT_ILLUS_WALL))
+                        {
 				a = t_info[c_ptr->t_idx].color;
+
+                                /* Get a new color with a strange formula :) */
+                                if (t_info[c_ptr->t_idx].flags & FTRAP_CHANGE)
+                                {
+                                        s32b tmp;
+
+                                        tmp = dun_level + dungeon_type + c_ptr->feat;
+
+                                        a = tmp % 16;
+                                }
+                        }
 
 			/* Special lighting effects */
                         if (view_granite_lite && (!p_ptr->wild_mode) &&
@@ -944,6 +972,12 @@ void map_info(int y, int x, byte *ap, char *cp)
 		}
 	}
 
+        /* Mega Hack -- stair to dungeon branch are purple */
+        if (((c_ptr->feat == FEAT_MORE) || (c_ptr->feat == FEAT_LESS)) && (c_ptr->special) && (!use_graphics || streq(ANGBAND_SYS, "ibm")))
+        {
+                a = TERM_VIOLET;
+        }
+
 	/* Hack -- rare random hallucination, except on outer dungeon walls */
 	if (p_ptr->image && (!rand_int(256)) && (c_ptr->feat < FEAT_PERM_SOLID))
 	{
@@ -998,7 +1032,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 		/* Visible monster */
 		if (m_ptr->ml)
 		{
-			monster_race *r_ptr = &r_info[m_ptr->r_idx];
+                        monster_race *r_ptr = race_inf(m_ptr);
 
 			/* Desired attr */
 			a = r_ptr->x_attr;
@@ -1186,9 +1220,13 @@ void map_info(int y, int x, byte *ap, char *cp)
 							}
 							while (a == TERM_DARK);
 							break;
+                                                case CLASS_UNBELIEVER:
+                                                        a = TERM_L_DARK;
+                                                        break;
 						case CLASS_MAGE:
                                                 case CLASS_ALCHEMIST:
 						case CLASS_HIGH_MAGE:
+						case CLASS_DAEMONOLOGIST:
 							if (p_ptr->lev < 20)
 								a = TERM_L_RED;
 							else
@@ -1631,6 +1669,9 @@ static byte priority_table[][2] =
 	/* Rubble */
 	{ FEAT_RUBBLE, 13 },
 
+	/* Sandwall */
+	{ FEAT_SANDWALL, 14 },
+	
 	/* Open doors */
 	{ FEAT_OPEN, 15 },
 	{ FEAT_BROKEN, 15 },
@@ -1641,6 +1682,7 @@ static byte priority_table[][2] =
 	/* Hidden gold */
 	{ FEAT_QUARTZ_K, 19 },
 	{ FEAT_MAGMA_K, 19 },
+	{ FEAT_SANDWALL_K, 19 },
 
 	/* water, lava, & trees oh my! -KMW- */
 	{ FEAT_DEEP_WATER, 20 },
@@ -1652,7 +1694,16 @@ static byte priority_table[][2] =
 	{ FEAT_DARK_PIT, 20 },
 	{ FEAT_TREES, 20 },
 	{ FEAT_MOUNTAIN, 20 },
+	{ FEAT_ICE, 20},
+	{ FEAT_SAND, 20},
+	{ FEAT_DEAD_TREE, 20},
+	{ FEAT_ASH, 20},
+	{ FEAT_MUD, 20},
 
+	/* Fountain */
+	{ FEAT_FOUNTAIN, 22 },
+	{ FEAT_EMPTY_FOUNTAIN, 22 },
+	
 	/* Stairs */
 	{ FEAT_LESS, 25 },
 	{ FEAT_MORE, 25 },
@@ -2174,11 +2225,14 @@ void update_lite(void)
 {
 	int i, x, y, min_x, max_x, min_y, max_y;
 
+#ifdef MONSTER_LITE
+	int k;
+#endif
 
 	/*** Special case ***/
 
 	/* Hack -- Player has no lite */
-	if (p_ptr->cur_lite <= 0)
+        if ((p_ptr->cur_lite <= 0) || (p_ptr->wild_mode))
 	{
 		/* Forget the old lite */
 		forget_lite();
@@ -2350,6 +2404,44 @@ void update_lite(void)
 		}
 	}
 
+#ifdef MONSTER_LITE
+        /*** Monster lites ***/
+
+        /* Scan monster list and add monster lites */
+        for ( k = 1; k < max_m_idx; k++)
+        {
+		/* Check the k'th monster */
+		monster_type *m_ptr = &m_list[k];
+                monster_race *r_ptr = race_inf(m_ptr);
+		int fy, fx;
+		
+		/* Skip dead monsters */
+		if (!m_ptr->r_idx) continue;
+		
+		/* Access the location */
+		fx = m_ptr->fx;
+		fy = m_ptr->fy;
+		
+		/* Carrying lite */
+		if (r_ptr->flags9 & (RF9_HAS_LITE))
+		{
+			/* Radius 1 -- torch radius */
+			if (los(py, px, fy, fx)) cave_lite_hack(fy, fx);
+			
+			/* Adjacent grid */
+			if (los(py, px, fy+1, fx)) cave_lite_hack(fy+1, fx);
+			if (los(py, px, fy-1, fx)) cave_lite_hack(fy-1, fx);
+			if (los(py, px, fy, fx+1)) cave_lite_hack(fy, fx+1);
+			if (los(py, px, fy, fx-1)) cave_lite_hack(fy, fx-1);
+			
+			/* Diagonal grids */
+			if (los(py, px, fy+1, fx+1)) cave_lite_hack(fy+1, fx+1);
+			if (los(py, px, fy+1, fx-1)) cave_lite_hack(fy+1, fx-1);
+			if (los(py, px, fy-1, fx+1)) cave_lite_hack(fy-1, fx+1);
+			if (los(py, px, fy-1, fx-1)) cave_lite_hack(fy-1, fx-1);
+		}
+        }
+#endif /* MONSTER_LITE */
 
 	/*** Complete the algorithm ***/
 
@@ -2710,7 +2802,6 @@ void update_view(void)
 
 	/* Start over with the "view" array */
 	view_n = 0;
-
 
 	/*** Step 1 -- adjacent grids ***/
 
@@ -3726,21 +3817,21 @@ bool projectable(int y1, int x1, int y2, int x2)
 void scatter(int *yp, int *xp, int y, int x, int d, int m)
 {
 	int nx, ny;
-    int attempts_left = 5000;
+        int attempts_left = 5000;
 
 	/* Unused */
 	m = m;
 
 
 	/* Pick a location */
-    while (--attempts_left)
+        while (--attempts_left)
 	{
 		/* Pick a new location */
 		ny = rand_spread(y, d);
 		nx = rand_spread(x, d);
 
 		/* Ignore illegal locations and outer walls */
-		if (!in_bounds(y, x)) continue;
+                if (!in_bounds(ny, nx)) continue;
 
 		/* Ignore "excessively distant" locations */
 		if ((d > 1) && (distance(y, x, ny, nx) > d)) continue;
@@ -3916,4 +4007,16 @@ int random_quest_number(int level)
 
 	/* Nope */
 	return 0;
+}
+
+void place_floor(int y, int x)
+{
+	int k = rand_int(100);
+	
+	if (k < d_info[dungeon_type].floor_percent1)
+		cave_set_feat(y, x, d_info[dungeon_type].floor1);
+	else if (k < d_info[dungeon_type].floor_percent2)
+		cave_set_feat(y, x, d_info[dungeon_type].floor2);
+	else if (k < d_info[dungeon_type].floor_percent3)
+		cave_set_feat(y, x, d_info[dungeon_type].floor3);
 }

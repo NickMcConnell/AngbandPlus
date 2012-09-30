@@ -168,8 +168,6 @@ says, 'Don't hate me because I'm ugly!'
 whimpers and grovels.
 
 N:382:Mime, the Nibelung
-N:383:Hagen, son of Alberich
-N:419:Alberich the Nibelung King
 4
 says, 'Wagner misrepresented us!'
 says, 'I'll mess up all your stuff!'
@@ -258,7 +256,7 @@ attempts to buy you off with offers of goodies.
 
 N:764:Uriel, Angel of Fire
 N:765:Azriel, Angel of Death
-N:769:Raphael, the Messenger
+N:769:Gabriel, the Messenger
 7
 says, 'Repent, evildoer!'
 says, 'My righteousness shall cleanse you!'
@@ -295,7 +293,7 @@ N:831:Mephistopheles, Lord of Hell
 N:818:The Mouth of Sauron
 N:819:Klingsor, Evil Master of Magic
 N:804:Vecna, the Emperor Lich
-N:844:Kaschei the Immortal
+N:844:Feagwath the Undead Sorceror
 N:856:Gothmog, the High Captain of Balrogs
 N:860:Sauron, the Sorcerer
 12

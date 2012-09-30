@@ -1892,32 +1892,53 @@ D:X    X........%........X                                                 %+%%.
 D:X    XXXXXXXXXXXXXXXXXXX                                                    XXXXXX..........X..X.....XXX      XXXXXXXXXXXXXXX X
 D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
-N:81:Treasure Room
-X:99:110:21:72
-Y:85:117:195:239:423:0:0:0:0:0:15:0:0:15:18
-D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-D:X                                                        XXXXXXXXXXXXXXX
-D:X     XXXXXXXXXXXXX                                      X....e....d...X
-D:X     X..e....e...X       XXX                            X.............X
-D:X     X...........X       X1X                            X.b.....a...b.X
-D:X     X....e....e.X       XDX   XXXXXXXXXXXXXXXX         XXXXXXXX.XXXXXX
-D:X     XXXXXX#XXXXXX   XXXXX+XXXXX....c.....c...X                X#X....X
-D:X          X#X        Xe..e.e..eX.b....a.a...b.X                X#X....X
-D:X          XdX        X.dd.d.dd.X....d.....d...X                X#X....X
-D:X          X#X        XXXXXcXXXXXXXX...e.e...XXX                X#X....X
-D:X          X#XXX          X+X      X.XXXXXXX.X                  X#X....X
-D:X          X##cX          XbX      X.+.eee.+.X     XXXXXXXXXXXXXX#XXX..X
-D:X        XXX#XXX          X+X      X.XXXXXXX.X     X########...b....X..X
-D:X        Xb##X            XaX    XXX+XXXXXXX+XXX   X#XXXXXXXXXXXXXX.X..X
-D:X        XXX#XXX          X+XXXXXX....c........X   XcX............X.X..X
-D:X          X###X          X......+..a..........X   X#X............X.X..X
-D:X          X##aX          X.XXXXXX...........d.X   X#X............XaX..X
-D:X          X#XXX          X......+....b........XXXXX#X...........XX+XXXX
-D:XXXXXXXXXXXX#XXXXXXXXXXXXXXXX#XXXX...........d.......X...........X.....X
-D:X>##e#####a###b...c...d.......X  XXXXXXXXXXXXXXXXXXXdX...........X..P..X
-D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+N:81:Orc Barracks
+X:99:80:42:59
+Y:40:118:126:149:264:162:285:313:330:404:15:0:0:35:22
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:Xa.......................ccccccccc.......................aX
+D:X.lllllllllllllllllllllllllllllllllllllllllllllllllllllll.X
+D:X.l......................ccccccccc.....g.g..............l.X
+D:X.l.XXXXXXXXXXXXXXXXXXXXXXXXX.XXXXXXXXXXDXXXXXXXXXXXXXX.l.X
+D:X.l.Xa.......efX1Xfe.......aX.X.aaa.D.gX.XacbdddccjjjaX.l.X
+D:X.l.D........efG.Gfe........D.D.bbb.XXXX.XcfbcbcbbjjeeX.l.X
+D:X.l.X........efX.Xfe........X.X.bbb.D.gX.XfbbgdcbdbjjjX.l.X
+D:X.l.XXXXXX...efG.Gfe...XXXXXX.X.bbb.XXXX.XebdcfbdccejjX.l.X
+D:X.l.X.c..XXX.efX.Xfe.XXXcc.aX.D.ccc.D.gX.XcfcbgeebdebfX.l.X
+D:X.l.D..d..aXXXfX.XfXXXe.....D.X.ccc.XXXX.XedbcdbcdcggeX.l.X
+D:X.l.X........XXX.XXX..bbb.ddX.X.ddd.D.gX.XdgfcfegbeebcX.l.X
+D:X.l.X..f.c.bf.G...G.c..cc...X.D.ddd.XXXX.XcbeefccbfbdbX.l.X
+D:X.l.X.d..bb.d.Gi.iG...cbb.bdX.X.eee.D.gX.XbgcfbgcfdebcX.l.X
+D:X.l.X.cc...c..G.7.G.cc..d.e.X.X.eee.XXXX.XcbdfeccdbcdbX.l.X
+D:X.l.X..b.f.bbXGGGGGX.bbb.bb.X.D.f.f.D.gX.XfdebbdgeefgdX.l.X
+D:X.l.D.c..dbbXXa...aXXX..d...D.X.f.f.XXXX.DdefddbcbdbddX.l.X
+D:X.l.X...c.XXX..g.g...XXX...bX.X.....D..XGXXeegcefdcefcX.l.X
+D:X.l.Xbb..aXg.gggjgggg.gX.bbaXDXaaa..XXjIa8XacbddbegbdaX.l.X
+D:X.l.XXXXXXXXDXXXXXXXXDXXXXXXXaXXXXXXXXXXXXXXXXXXXXXXXXX.l.X
+D:X.l........................DaPaD........................l.X
+D:X.l.XXXXXXXXXXXXXXXXXXXXXXXXXaXXXXXXXXXXXXXXXXXXXXXXXXX.l.X
+D:X.l.....eeeeee.........fffXXXDXXXfff.........eeeeee.....l.X
+D:X.l.....eeeeee.........fffX.....Xfff.........eeeeee.....l.X
+D:X.llllllllllllllllllllllllX.....Xllllllllllllllllllllllll.X
+D:Xa.....................XXXXGGGGGXXXX.....................aX
+D:XXXXXXXXXXIXXXXXXXXXXXXXgafff>fffagXXXXXXXXXXXXXIXXXXXXXXXX
+D:XjjjX.#########.XfffXXgggfffffffffgggXXfffX.#########.XjjjX
+D:XfffX...........XeeeXggggjjj...jjjggggXgggX...........XfffX
+D:XfffXGGGDX.XXXXXX...Xgggg....h....ggggX...XXXXXX.XDGGGXfffX
+D:Xgg......X.X........Xgggg.........ggggX........X.X......eeX
+D:Xgg....ggX.X.XXXXXX.XXgggggggggggggggXX.XXXXXX.X.Xee....eeX
+D:Xgg....ggX.X.X......XXXXgggggggggggXXXX......X.X.Xee....eeX
+D:Xgg....ggX.X.X.XXXXXX..XXXXfffffXXXX..XXXXXX.X.X.Xee....eeX
+D:Xgg....ggX.X.X.........#.4XXXDXXX4.#.........X.X.Xee....eeX
+D:Xgg....ggX.X.XXXXXXXXXIXXXXa...aXXXXIXXXXXXXXX.X.Xee....eeX
+D:Xgg....ggX.X.Xigfedcba.XiX..X#X..XiX.abcdefgiX.X.Xee....eeX
+D:Xgg....ggX.X.XGGGGGGGGGX....X.X....XGGGGGGGGGX.X.Xee....eeX
+D:XggggggggX.X.X@@@@@@@@@IXXXaX7XaXXXI@@@@@@@@@X.X.XeeeeeeeeX
+D:XggggggggI.X+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX+X.IeeeeeeeeX
+D:XaaaaagggX.......................................XeeeaaaaaX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
-N:82:Lesser vault (checkerboard)
+N:82:L.ss.r vault (checker.oard)
 X:7:5:13:21
 D:%%%%%%%%%%%%%%%%%%%%%
 D:%XXXXXXXXXXXXXXXXXXX%
@@ -2093,7 +2114,7 @@ D:%.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.%
 D:%..........................................................%
 D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-N:91:Roundabout Three
+N:91:Rounda.out Three
 X:8:30:20:97
 D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 D:%XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX#XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX%
@@ -2172,7 +2193,7 @@ D:%..###..%
 D:%.......%
 D:%%%%%%%%%
 
-N:96:Minor Boss Vault
+N:96:Minor .oss Vault
 X:7:3:10:10
 D:%%%%%%%%%%
 D:%........%
@@ -2185,7 +2206,7 @@ D:%..X++X..%
 D:%........%
 D:%%%%%%%%%%
 
-N:97:(Lesser) Major Boss Vault
+N:97:(Lesser) Major .oss Vault
 X:7:20:10:10
 D:%%%%%%%%%%
 D:%........%
@@ -2198,7 +2219,7 @@ D:%..X++X..%
 D:%........%
 D:%%%%%%%%%%
 
-N:98:(Greater) Majorly Bossy Vault
+N:98:(Greater) Majorly .ossy Vault
 X:8:37:10:10
 D:%%%%%%%%%%
 D:%........%

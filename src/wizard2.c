@@ -41,7 +41,6 @@ finteletown:
 	p_ptr->inside_arena = 0;
 	leaving_quest = p_ptr->inside_quest;
 	p_ptr->inside_quest = 0;
-	p_ptr->leftbldg = FALSE;
 
 	/* Leaving */
 	p_ptr->leaving = TRUE;
@@ -129,7 +128,7 @@ static void wiz_create_named_art()
         cptr p="Number of the artifact :";
         char out_val[80];
         artifact_type *a_ptr;
-        u32b f1, f2, f3, f4;
+        u32b f1, f2, f3, f4, esp;
 
         if (!get_string(p, out_val, 4)) return;
         a_idx = atoi(out_val);                                
@@ -178,7 +177,7 @@ static void wiz_create_named_art()
         k_ptr = &k_info[q_ptr->k_idx];
 
         /* Extract some flags */
-        object_flags(q_ptr, &f1, &f2, &f3, &f4);
+        object_flags(q_ptr, &f1, &f2, &f3, &f4, &esp);
 
         /* Hack give a basic exp/exp level to an object that needs it */
         if(f4 & TR4_LEVELS)
@@ -246,7 +245,7 @@ static void do_cmd_wiz_hack_ben(void)
 			if (c_ptr->m_idx)
 			{
 				monster_type *m_ptr = &m_list[c_ptr->m_idx];
-				monster_race *r_ptr = &r_info[m_ptr->r_idx];
+                                monster_race *r_ptr = race_inf(m_ptr);
 
 				msg_format("Loc %d,%d Monster '%s' (%d), Lev %d",
 				           x, y, r_name + r_ptr->name, m_ptr->r_idx, r_ptr->level);
@@ -473,11 +472,11 @@ static void do_cmd_wiz_change(void)
 static void wiz_display_item(object_type *o_ptr)
 {
 	int i, j = 13;
-        u32b f1, f2, f3, f4;
+        u32b f1, f2, f3, f4, esp;
 	char buf[256];
 
 	/* Extract the flags */
-        object_flags(o_ptr, &f1, &f2, &f3, &f4);
+        object_flags(o_ptr, &f1, &f2, &f3, &f4, &esp);
 
 	/* Clear the screen */
 	for (i = 1; i <= 23; i++) prt("", i, j - 2);
@@ -572,7 +571,8 @@ static tval_desc tvals[] =
 	{ TV_SCROLL,            "Scroll"               },
 	{ TV_WAND,              "Wand"                 },
 	{ TV_STAFF,             "Staff"                },
-	{ TV_ROD,               "Rod"                  },
+        { TV_ROD_MAIN,          "Rod"                  },
+        { TV_ROD,               "Rod Tip"              },
         { TV_VALARIN_BOOK,      "Valarin Spellbook"    },
         { TV_MAGERY_BOOK,       "Magery Spellbook"     },
         { TV_SHADOW_BOOK,       "Shadow Spellbook"     },
@@ -587,6 +587,7 @@ static tval_desc tvals[] =
         { TV_MAGIC_BOOK,        "Book of Spells"       },
         { TV_PRAYER_BOOK,       "Holy Book"            },
         { TV_ILLUSION_BOOK,     "Book of Illusions"    },
+	{ TV_DAEMON_BOOK,       "Daemon Book"          },
         { TV_MIMIC_BOOK,        "Book of Lore"         },
 	{ TV_SPIKE,             "Spikes"               },
 	{ TV_DIGGING,           "Digger"               },
@@ -928,9 +929,16 @@ static void wiz_statistics(object_type *o_ptr)
 
 	object_type forge;
 	object_type	*q_ptr;
+
+        obj_theme theme;
 	
 	cptr q = "Rolls: %ld, Matches: %ld, Better: %ld, Worse: %ld, Other: %ld";
 
+        /* We can have everything */
+        theme.treasure = OBJ_GENE_TREASURE;
+        theme.combat = OBJ_GENE_COMBAT;
+        theme.magic = OBJ_GENE_MAGIC;
+        theme.tools = OBJ_GENE_TOOL;
 
 	/* XXX XXX XXX Mega-Hack -- allow multiple artifacts */
         if (artifact_p(o_ptr))
@@ -1019,7 +1027,7 @@ static void wiz_statistics(object_type *o_ptr)
 			object_wipe(q_ptr);
 
 			/* Create an object */
-			make_object(q_ptr, good, great);
+                        make_object(q_ptr, good, great, theme);
 
 
 			/* XXX XXX XXX Mega-Hack -- allow multiple artifacts */
@@ -1120,10 +1128,6 @@ static void wiz_quantity_item(object_type *o_ptr)
 
 		/* Accept modifications */
 		o_ptr->number = tmp_int;
-
-		/* Hack -- rod pvals must change if the number in the stack does. -LM- */
-		if (o_ptr->tval == TV_ROD)
-			o_ptr->pval = o_ptr->pval * o_ptr->number / tmp_qnt;
 	}
 }
 
@@ -1471,7 +1475,6 @@ static void do_cmd_wiz_jump(void)
 	}
 
 	p_ptr->inside_quest = 0;
-	p_ptr->leftbldg = FALSE;
 
 	/* Leaving */
 	p_ptr->leaving = TRUE;
@@ -1550,7 +1553,7 @@ static void do_cmd_wiz_named(int r_idx, bool slp)
 		if (!cave_empty_bold(y, x)) continue;
 
 		/* Place it (allow groups) */
-        if (place_monster_aux(y, x, r_idx, slp, TRUE, FALSE)) break;
+                if (place_monster_aux(y, x, r_idx, slp, TRUE, FALSE)) break;
 	}
 }
 
@@ -1633,7 +1636,7 @@ extern void do_cmd_debug(void);
  */
 void do_cmd_debug(void)
 {
-	int     x,y;
+        int     x, y;
 	char    cmd;
 
 
@@ -1749,7 +1752,7 @@ void do_cmd_debug(void)
 
 		/* Self-Knowledge */
 		case 'k':
-			self_knowledge();
+                        self_knowledge(NULL);
 			break;
 
 		/* Learn about objects */
@@ -1774,7 +1777,7 @@ void do_cmd_debug(void)
 
                 /* Create a trap */
                 case 'R':
-                        cave[py][px].t_idx = command_arg;
+                        wiz_place_trap(py, px, command_arg);
 			break;
 
 		/* Summon _friendly_ named monster */
@@ -1826,7 +1829,7 @@ void do_cmd_debug(void)
 
                 case 'U':
 		{
-                        p_ptr->class_extra6 |= CLASS_UNDEAD;
+                        p_ptr->class_extra3 |= CLASS_UNDEAD;
                         do_cmd_wiz_named(5, TRUE);
 
                         p_ptr->class_extra4 = 2 * p_ptr->lev;

@@ -545,7 +545,7 @@ static cptr process_pref_file_expr(char **sp, char *fp)
 			while (*s && (f != b2))
 			{
 				t = process_pref_file_expr(&s, &f);
-				if (*t && streq(t, "0")) v = "0";
+				if (*t && !streq(t, "0")) v = "0";
 			}
 		}
 
@@ -577,7 +577,7 @@ static cptr process_pref_file_expr(char **sp, char *fp)
 			{
 				p = t;
 				t = process_pref_file_expr(&s, &f);
-				if (*t && (strcmp(p, t) >= 0)) v = "0";
+				if (*t && (strcmp(p, t) > 0)) v = "0";
 			}
 		}
 
@@ -593,7 +593,7 @@ static cptr process_pref_file_expr(char **sp, char *fp)
 			{
 				p = t;
 				t = process_pref_file_expr(&s, &f);
-				if (*t && (strcmp(p, t) <= 0)) v = "0";
+				if (*t && (strcmp(p, t) < 0)) v = "0";
 			}
 		}
 
@@ -1105,7 +1105,7 @@ static void display_player_middle(void)
 
 	prt_lnum("Gold       ", p_ptr->au, 13, 28, TERM_L_GREEN);
 
-        if(p_ptr->class_extra6 & CLASS_UNDEAD)
+        if(p_ptr->class_extra3 & CLASS_UNDEAD)
         {
                 prt_num("Max Death Points ", p_ptr->mhp, 9, 52, TERM_L_BLUE);
 
@@ -1170,6 +1170,7 @@ static byte likert_color = TERM_WHITE;
  */
 static cptr likert(int x, int y)
 {
+	static char dummy[20] = "";
 
 	/* Paranoia */
 	if (y <= 0) y = 1;
@@ -1237,7 +1238,8 @@ static cptr likert(int x, int y)
 		default:
 		{
 			likert_color = TERM_L_GREEN;
-			return ("Legendary");
+                        sprintf(dummy,"Legendary[%d]", (int)((((x / y) - 17) * 5) / 2));
+			return dummy;
 		}
 	}
 }
@@ -1381,10 +1383,10 @@ static void display_player_various(void)
 
    /* jk - add tactic */
    put_str("Tactic:",20, 55);
-   c_put_str(TERM_L_BLUE, tactic_info[p_ptr->tactic].name, 20, 69);
+   c_put_str(TERM_L_BLUE, tactic_info[(byte)p_ptr->tactic].name, 20, 69);
 /* jk - add movement */
    put_str("Explor:",21,55);
-   c_put_str(TERM_L_BLUE, move_info[p_ptr->movement].name, 21, 69);
+   c_put_str(TERM_L_BLUE, move_info[(byte)p_ptr->movement].name, 21, 69);
 }
 
 
@@ -1392,10 +1394,10 @@ static void display_player_various(void)
 /*
  * Obtain the "flags" for the player as if he was an item
  */
-static void player_flags(u32b *f1, u32b *f2, u32b *f3, u32b *f4)
+static void player_flags(u32b *f1, u32b *f2, u32b *f3, u32b *f4, u32b *esp)
 {
 	/* Clear */
-	(*f1) = (*f2) = (*f3) = 0L;
+        (*f1) = (*f2) = (*f3) = (*f4) = (*esp) = 0L;
 
 	/* Classes */
 	switch (p_ptr->pclass)
@@ -1428,7 +1430,15 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3, u32b *f4)
 		if (p_ptr->lev > 29)
 			(*f2) |= (TR2_RES_CONF);
 		if (p_ptr->lev > 39)
-			(*f3) |= (TR3_TELEPATHY);
+                        (*esp) |= (ESP_DEMON | ESP_ORC | ESP_TROLL | ESP_GIANT | ESP_UNDEAD | ESP_ANIMAL | ESP_UNIQUE);
+		break;
+	case CLASS_DAEMONOLOGIST:
+		if (p_ptr->lev > 19)
+			(*f2) |= (TR2_RES_CONF);
+		if (p_ptr->lev > 29)
+			(*f2) |= (TR2_RES_FEAR);
+		if (p_ptr->lev > 39)
+			(*f2) |= (TR2_FREE_ACT);
 		break;
 	default:
 		; /* Do nothing */
@@ -1519,14 +1529,14 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3, u32b *f4)
 		(*f2) |= (TR2_RES_POIS);
 		(*f3) |= (TR3_SLOW_DIGEST);
 		if (p_ptr->lev > 34)
-			(*f3) |= TR3_TELEPATHY;
+                        (*esp) |= (ESP_UNIQUE | ESP_GOOD | ESP_EVIL);
 		break;
 
         case RACE_DRAGONRIDER:
             (*f3) |= TR3_FEATHER;
         if (p_ptr->lev > 3)
         {
-            (*f3) |= TR3_TELEPATHY;
+            (*esp) |= ESP_DRAGONRIDER | ESP_DRAGON;
         }
         if (p_ptr->lev > 4)
         {
@@ -1559,7 +1569,7 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3, u32b *f4)
         }
         if (p_ptr->lev > 24)
         {
-            (*f3) |= TR3_TELEPATHY;
+            (*esp) |= ESP_ORC | ESP_TROLL | ESP_EVIL;
         }
         break;
 
@@ -1588,7 +1598,7 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3, u32b *f4)
                 }
                 case MIMIC_INSECT:
                 {
-                        (*f3) |= (TR3_TELEPATHY);
+                        (*esp) |= (ESP_ANIMAL);
                         break;
                 }
                 case MIMIC_SPARROW:
@@ -1631,7 +1641,7 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3, u32b *f4)
                         (*f3) |= (TR2_RES_LITE);
                         (*f3) |= (TR2_IM_COLD);
                         (*f3) |= (TR3_SH_ELEC);
-                        (*f3) |= (TR3_TELEPATHY);
+                        (*esp) |= (ESP_EVIL);
                         (*f3) |= (TR3_REGEN);
                         break;
                 }
@@ -1734,7 +1744,7 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3, u32b *f4)
                         (*f3) |= TR3_REGEN;
                         (*f3) |= TR3_FEATHER;
                         (*f2) |= TR2_HOLD_LIFE;
-                        (*f3) |= TR3_TELEPATHY;
+                        (*esp) |= ESP_ALL;
                         (*f3) |= TR3_LITE;
                         (*f2) |= TR2_SUST_STR;
                         (*f1) |= TR1_INT;
@@ -1785,6 +1795,36 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3, u32b *f4)
                         (*f2) |= TR2_HOLD_LIFE;
                         (*f3) |= TR3_FEATHER;
                         (*f3) |= TR3_REGEN;
+                        break;
+                }
+                case MIMIC_DEMON_LORD:
+                {
+                        (*f3) |= TR3_SEE_INVIS;
+                        (*f2) |= TR2_FREE_ACT;
+                        (*f3) |= TR3_REGEN;
+                        (*f3) |= TR3_FEATHER;
+                        (*f2) |= TR2_HOLD_LIFE;
+                        (*esp) |= ESP_EVIL | ESP_GOOD | ESP_DEMON;
+                        (*f2) |= TR2_RES_ACID;
+                        (*f2) |= TR2_RES_ELEC;
+                        (*f2) |= TR2_RES_FIRE;
+                        (*f2) |= TR2_RES_POIS;
+                        (*f2) |= TR2_RES_CONF;
+                        (*f2) |= TR2_RES_SOUND;
+                        (*f2) |= TR2_RES_LITE;
+                        (*f2) |= TR2_RES_DARK;
+                        (*f2) |= TR2_RES_CHAOS;
+                        (*f2) |= TR2_RES_DISEN;
+                        (*f2) |= TR2_RES_SHARDS;
+                        (*f2) |= TR2_RES_NEXUS;
+                        (*f2) |= TR2_RES_BLIND;
+                        (*f2) |= TR2_RES_NETHER;
+                        (*f2) |= TR2_RES_FEAR;
+                        (*f2) |= TR2_REFLECT;
+                        (*f3) |= TR3_SH_FIRE;
+                        (*f2) |= TR2_IM_FIRE;
+                        (*f2) |= TR2_IM_ELEC;
+                        (*f2) |= TR2_IM_ACID;
                         break;
                 }
         }
@@ -1857,7 +1897,8 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3, u32b *f4)
 		
 		if (p_ptr->muta3 & MUT3_ESP)
 		{
-			(*f3) |= TR3_TELEPATHY;
+                        /* Based on level */
+                        (*esp) |= 1 << (p_ptr->lev * 32 / 50);
 		}
 		
 		if (p_ptr->muta3 & MUT3_MOTION)
@@ -1915,7 +1956,7 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3, u32b *f4)
                                 if(good > 1)
                                 {
                                         (*f3) |= TR3_SEE_INVIS;
-                                        (*f3) |= TR3_TELEPATHY;
+                                        (*esp) |= ESP_ORC | ESP_TROLL | ESP_GOOD | ESP_UNDEAD | ESP_DEMON | ESP_EVIL;
                                 }
                                 if(good > 2)
                                 {
@@ -1949,7 +1990,7 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3, u32b *f4)
                         case GOD_VARDA:
                                 (*f2) |= TR2_SUST_INT;
                                 (*f2) |= TR2_SUST_WIS;
-                                (*f3) |= TR3_TELEPATHY;
+                                (*esp) |= ESP_ALL;
                                 if(good > 2)
                                 {
                                         (*f2) |= TR2_RES_BLIND;
@@ -1967,8 +2008,14 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3, u32b *f4)
                                         (*f2) |= TR2_RES_SOUND;
                 }
         }
+
+        if (p_ptr->black_breath)
+        {
+                (*f4) |= TR4_BLACK_BREATH;
+        }
 }
 
+#if 0
 /*
  * Helper function, see below
  */
@@ -1977,7 +2024,7 @@ static void display_player_flag_aux(int row, int col,
 {
 	int i;
 
-        u32b f[4];
+        u32b f[5];
 
 
 	/* Header */
@@ -1996,7 +2043,7 @@ static void display_player_flag_aux(int row, int col,
 		o_ptr = &inventory[i];
 
 		/* Known flags */
-                object_flags_known(o_ptr, &f[0], &f[1], &f[2], &f[3]);
+                object_flags_known(o_ptr, &f[0], &f[1], &f[2], &f[3], &f[4]);
 
 		/* Default */
 		c_put_str(TERM_SLATE, ".", row, col);
@@ -2010,7 +2057,7 @@ static void display_player_flag_aux(int row, int col,
 	}
 
 	/* Player flags */
-        player_flags(&f[0], &f[1], &f[2], &f[3]);
+        player_flags(&f[0], &f[1], &f[2], &f[3], &f[4]);
 
 	/* Default */
 	c_put_str(TERM_SLATE, ".", row, col);
@@ -2028,7 +2075,7 @@ static void display_player_flag_aux2(int row, int col,
 {
 	int i;
 
-        u32b f[4];
+        u32b f[5];
 
 
 	/* Header */
@@ -2047,7 +2094,7 @@ static void display_player_flag_aux2(int row, int col,
 		o_ptr = &inventory[i];
 
 		/* Known flags */
-                object_flags_known(o_ptr, &f[0], &f[1], &f[2], &f[3]);
+                object_flags_known(o_ptr, &f[0], &f[1], &f[2], &f[3], &f[4], &f[5]);
 
 		/* Default */
 		c_put_str(TERM_SLATE, ".", row, col);
@@ -2062,7 +2109,7 @@ static void display_player_flag_aux2(int row, int col,
 	}
 
 	/* Player flags */
-        player_flags(&f[0], &f[1], &f[2], &f[3]);
+        player_flags(&f[0], &f[1], &f[2], &f[3], &f[4]);
 
 	/* Default */
 	c_put_str(TERM_SLATE, ".", row, col);
@@ -2129,11 +2176,10 @@ static void display_player_flag_info(void)
 	display_player_flag_aux(row+1, col, "Free Action  :", 2, TR2_FREE_ACT, 0);
 	display_player_flag_aux(row+2, col, "See Invisible:", 3, TR3_SEE_INVIS, 0);
 	display_player_flag_aux(row+3, col, "Hold Life    :", 2, TR2_HOLD_LIFE, 0);
-	display_player_flag_aux(row+4, col, "Telepathy    :", 3, TR3_TELEPATHY, 0);
-	display_player_flag_aux(row+5, col, "Slow Digest  :", 3, TR3_SLOW_DIGEST, 0);
-	display_player_flag_aux(row+6, col, "Regeneration :", 3, TR3_REGEN, 0);
-	display_player_flag_aux(row+7, col, "Levitation   :", 3, TR3_FEATHER, 0);
-	display_player_flag_aux(row+8, col, "Perm Lite    :", 3, TR3_LITE, 0);
+        display_player_flag_aux(row+4, col, "Slow Digest  :", 3, TR3_SLOW_DIGEST, 0);
+        display_player_flag_aux(row+5, col, "Regeneration :", 3, TR3_REGEN, 0);
+        display_player_flag_aux(row+6, col, "Levitation   :", 3, TR3_FEATHER, 0);
+        display_player_flag_aux(row+7, col, "Perm Lite    :", 3, TR3_LITE, 0);
 }
 
 
@@ -2201,7 +2247,7 @@ static void display_player_stat_info(void)
 	int row, col;
 
 	object_type *o_ptr;
-        u32b f1, f2, f3, f4;
+        u32b f1, f2, f3, f4, esp;
 	s16b k_idx;
 
 	byte a;
@@ -2299,7 +2345,7 @@ static void display_player_stat_info(void)
 		k_idx = o_ptr->k_idx;
 
 		/* Acquire "known" flags */
-                object_flags_known(o_ptr, &f1, &f2, &f3, &f4);
+                object_flags_known(o_ptr, &f1, &f2, &f3, &f4, &esp);
 
 		/* Initialize color based of sign of pval. */
 		for (stat=0; stat<6; stat++)
@@ -2355,7 +2401,7 @@ static void display_player_stat_info(void)
     }
 
 	/* Player flags */
-        player_flags(&f1, &f2, &f3, &f4);
+        player_flags(&f1, &f2, &f3, &f4, &esp);
 
 	/* Check stats */
 	for (stat=0; stat<6; stat++)
@@ -2447,12 +2493,12 @@ static void display_player_stat_info(void)
 		Term_putch(col, row+stat, a, c);
     }
 }
-
+#endif
 
 /*
  * Object flag names
  */
-static cptr object_flag_names[128] =
+static cptr object_flag_names[192] =
 {
 	"Add Str",
 	"Add Int",
@@ -2538,7 +2584,7 @@ static cptr object_flag_names[128] =
     "Levitate",
 	"Lite",
 	"See Invis",
-	"Telepathy",
+        NULL,
 	"Digestion",
 	"Regen",
 	"Xtra Might",
@@ -2561,6 +2607,14 @@ static cptr object_flag_names[128] =
         "B.Breath",
         "Recharge",
         "Fly",
+        "Mrg.Curse",
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+        "Climb",
         NULL,
         NULL,
         NULL,
@@ -2580,6 +2634,19 @@ static cptr object_flag_names[128] =
         NULL,
         NULL,
         NULL,
+
+        "Orc.ESP",
+        "Troll.ESP",
+        "Dragon.ESP",
+        "Giant.ESP",
+        "Demon.ESP",
+        "Undead.ESP",
+        "Evil.ESP",
+        "Animal.ESP",
+        "DRider.ESP",
+        "Good.ESP",
+        "Nlive.ESP",
+        "Unique.ESP",
         NULL,
         NULL,
         NULL,
@@ -2588,9 +2655,21 @@ static cptr object_flag_names[128] =
         NULL,
         NULL,
         NULL,
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+        "Full ESP",
 };
 
-
+#if 0
 /*
  * Summarize resistances
  */
@@ -2600,7 +2679,7 @@ static void display_player_ben(void)
 	
 	object_type *o_ptr;
 
-        u32b f1, f2, f3, f4;
+        u32b f1, f2, f3, f4, esp;
 
 	u16b b[6];
 
@@ -2616,7 +2695,7 @@ static void display_player_ben(void)
 		o_ptr = &inventory[i];
 
 		/* Known object flags */
-                object_flags_known(o_ptr, &f1, &f2, &f3, &f4);
+                object_flags_known(o_ptr, &f1, &f2, &f3, &f4, &esp);
 
 		/* Incorporate */
 		b[0] |= (f1 & 0xFFFF);
@@ -2629,7 +2708,7 @@ static void display_player_ben(void)
 
 
 	/* Player flags */
-        player_flags(&f1, &f2, &f3, &f4);
+        player_flags(&f1, &f2, &f3, &f4, &esp);
 	
 	/* Incorporate */
 	b[0] |= (f1 & 0xFFFF);
@@ -2675,20 +2754,22 @@ static void display_player_ben(void)
 		}
 	}
 }
-
+#endif
 
 /*
  * Summarize resistances
  */
 static void display_player_ben_one(int mode)
 {
-	int i, n, x, y;
+        int i, n, x, y, dispx;
 	
 	object_type *o_ptr;
 
-        u32b f1, f2, f3, f4;
+        char dummy[80];
 
-        u16b b[INVEN_TOTAL - INVEN_WIELD + 1][8];
+        u32b f1, f2, f3, f4, esp;
+
+        u16b b[INVEN_TOTAL - INVEN_WIELD + 1][10];
 
 	/* Scan equipment */
 	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
@@ -2700,7 +2781,7 @@ static void display_player_ben_one(int mode)
 		o_ptr = &inventory[i];
 
 		/* Known object flags */
-                object_flags_known(o_ptr, &f1, &f2, &f3, &f4);
+                object_flags_known(o_ptr, &f1, &f2, &f3, &f4, &esp);
 
 		/* Incorporate */
 		b[n][0] = (u16b)(f1 & 0xFFFF);
@@ -2711,13 +2792,15 @@ static void display_player_ben_one(int mode)
 		b[n][5] = (u16b)(f3 >> 16);
                 b[n][6] = (u16b)(f4 & 0xFFFF);
                 b[n][7] = (u16b)(f4 >> 16);
+                b[n][8] = (u16b)(esp & 0xFFFF);
+                b[n][9] = (u16b)(esp >> 16);
 	}
 
 	/* Index */
         n = INVEN_TOTAL - INVEN_WIELD;
 
 	/* Player flags */
-        player_flags(&f1, &f2, &f3, &f4);
+        player_flags(&f1, &f2, &f3, &f4, &esp);
 	
 	/* Incorporate */
 	b[n][0] = (u16b)(f1 & 0xFFFF);
@@ -2728,13 +2811,26 @@ static void display_player_ben_one(int mode)
 	b[n][5] = (u16b)(f3 >> 16);
         b[n][6] = (u16b)(f4 & 0xFFFF);
         b[n][7] = (u16b)(f4 >> 16);
+        b[n][8] = (u16b)(esp & 0xFFFF);
+        b[n][9] = (u16b)(esp >> 16);
 
+        /* Generate the equip chars */
+        sprintf(dummy, " ");
+        for (i = 0; i < INVEN_TOTAL - INVEN_WIELD; i++)
+        {
+                /* If you have that body part then show it */
+                if (p_ptr->body_parts[i])
+                {
+                        sprintf(dummy, "%s%c", dummy, i + 'a');
+                }
+        }
+        sprintf(dummy, "%s@", dummy);
 
 	/* Scan cols */
         for (x = 0; x < 2; x++)
 	{
 		/* Label */
-                Term_putstr(x * 40 + 11, 3, -1, TERM_WHITE, "abcdefghijklmno@");
+                Term_putstr(x * 40 + 11, 3, -1, TERM_WHITE, dummy);
 
 		/* Scan rows */
 		for (y = 0; y < 16; y++)
@@ -2751,13 +2847,20 @@ static void display_player_ben_one(int mode)
                         Term_putch(x * 40 + 10, y + 4, TERM_WHITE, ':');
 
 			/* Check flags */
+                        dispx = 0;
                         for (n = 0; n < INVEN_TOTAL - INVEN_WIELD + 1; n++)
 			{
 				byte a = TERM_SLATE;
 				char c = '.';
 
+                                /* If the body part doesn't exists then skip it :) */
+                                if ((n < INVEN_TOTAL - INVEN_WIELD) && (!p_ptr->body_parts[n])) continue;
+
+                                /* Increment the drawing coordinates */
+                                dispx++;
+
 				/* Check flag */
-                                if (b[n][2*mode+x] & (1<<y))
+                                if (b[n][2 * mode + x] & (1 << y))
                                 {
                                         a = TERM_WHITE;
                                         c = '+';
@@ -2767,7 +2870,7 @@ static void display_player_ben_one(int mode)
 				if (!use_color) a = TERM_WHITE;
 
 				/* Dump flag */
-                                Term_putch(x * 40 + 11 + n, y + 4, a, c);
+                                Term_putch(x * 40 + 11 + dispx, y + 4, a, c);
 			}
 		}
 	}
@@ -2781,13 +2884,12 @@ static void display_player_ben_one(int mode)
  *
  * Mode 0 = standard display with skills
  * Mode 1 = standard display with history
- * Mode 2 = summary of various things
- * Mode 3 = current flags (combined)
- * Mode 4 = current flags (part 1)
- * Mode 5 = current flags (part 2)
- * Mode 6 = current flags (part 3)
- * Mode 7 = current flags (part 4)
- * Mode 8 = mutations
+ * Mode 2 = current flags (part 1)
+ * Mode 3 = current flags (part 2)
+ * Mode 4 = current flags (part 3)
+ * Mode 5 = current flags (part 4)
+ * Mode 6 = current flags (part 5 -- esp)
+ * Mode 7 = mutations
  */
 void display_player(int mode)
 {
@@ -2798,9 +2900,9 @@ void display_player(int mode)
 
 	/* XXX XXX XXX */
     if ((p_ptr->muta1 || p_ptr->muta2 || p_ptr->muta3) && !(skip_mutations))
-        mode = (mode % 9);
-    else
         mode = (mode % 8);
+    else
+        mode = (mode % 7);
 
 	/* Erase screen */
 	clear_from(0);
@@ -2925,7 +3027,7 @@ void display_player(int mode)
 			display_player_various();
 		}
 	}
-	
+#if 0 /* Realy BAD with the body part system */ 
 	/* Special */
 	else if (mode == 2)
 	{
@@ -2936,14 +3038,14 @@ void display_player(int mode)
 		display_player_stat_info();
 		display_player_flag_info();
 	}
-	
+ 
 	/* Special */
 	else if (mode == 3)
 	{
                 display_player_ben();
 	}
-
-    else if (mode == 8)
+#endif
+    else if (mode == 7)
     {
         do_cmd_knowledge_mutations();
     }
@@ -2951,7 +3053,7 @@ void display_player(int mode)
 	/* Special */
 	else
 	{
-                display_player_ben_one(mode % 4);
+                display_player_ben_one(mode - 2);
 	}
 }
 
@@ -2965,7 +3067,7 @@ void display_player(int mode)
  */
 errr file_character(cptr name, bool full)
 {
-	int			i, x, y;
+	int			i, j, x, y;
 	byte		a;
 	char		c;
 	cptr		paren = ")";
@@ -3118,9 +3220,9 @@ errr file_character(cptr name, bool full)
                 fprintf(fff, "\n Persistent Dungeons:       OFF");
 
         fprintf(fff, "\n Recall Depth:");
-        for (y = 1; y < 16; y++)
+        for (y = 1; y < max_d_idx; y++)
         {
-                if(d_info[y].maxdepth)
+                if(max_dlv[y])
                         fprintf(fff, "\n        %s: Level %d (%d')",
                                 d_name + d_info[y].name,
                                 max_dlv[y], 50 * (max_dlv[y]));
@@ -3135,10 +3237,13 @@ errr file_character(cptr name, bool full)
 
         {
                 char desc[80];
-                monster_race_desc(desc, p_ptr->body_monster);
+                monster_race_desc(desc, p_ptr->body_monster, 0);
                 fprintf(fff, "\n Your body was %s.", desc);
+
+                if (p_ptr->tim_mimic) fprintf(fff, "\n Your were disguised into a %s.", p_ptr->mimic_name);
         }
 
+#if 0 /* Experimental -- replaced by a self-knowledge screen */
 	/* Show (known) flags grid */
 	if (full)
 	{
@@ -3184,6 +3289,120 @@ errr file_character(cptr name, bool full)
 			fprintf (fff, "%s\n", buf);
 		}
 	}
+#else
+        /* If requesting a full version sue the self-knowledge */
+	if (full)
+	{
+		fprintf (fff, "\n\n");
+
+                self_knowledge(fff);
+	}
+        /* If not use the boring and bad looking grid */
+        else
+        {
+		fprintf (fff, "\n\n");
+
+                /* Dump first page */
+		display_player (2);
+                for (y = 2; y < 23; y++)
+		{
+                        for (x = 0; x < 40; x++)
+			{
+				(void)(Term_what(x, y, &a, &c));
+				buf[x] = c;
+			}
+
+			buf[x] = '\0';
+			fprintf (fff, "        %s\n", buf);
+		}
+                for (y = 2; y < 23; y++)
+		{
+                        for (x = 40; x < 80; x++)
+			{
+				(void)(Term_what(x, y, &a, &c));
+                                buf[x - 40] = c;
+			}
+
+			buf[x] = '\0';
+			fprintf (fff, "        %s\n", buf);
+		}
+
+                /* Dump second page */
+                display_player(3);
+                for (y = 2; y < 23; y++)
+		{
+                        for (x = 0; x < 40; x++)
+			{
+				(void)(Term_what(x, y, &a, &c));
+				buf[x] = c;
+			}
+
+			buf[x] = '\0';
+			fprintf (fff, "        %s\n", buf);
+		}
+                for (y = 2; y < 23; y++)
+		{
+                        for (x = 40; x < 80; x++)
+			{
+				(void)(Term_what(x, y, &a, &c));
+                                buf[x - 40] = c;
+			}
+
+			buf[x] = '\0';
+			fprintf (fff, "        %s\n", buf);
+		}
+
+                /* Dump third page */
+                display_player (4);
+                for (y = 2; y < 23; y++)
+		{
+                        for (x = 0; x < 40; x++)
+			{
+				(void)(Term_what(x, y, &a, &c));
+				buf[x] = c;
+			}
+
+			buf[x] = '\0';
+			fprintf (fff, "        %s\n", buf);
+		}
+                for (y = 2; y < 23; y++)
+		{
+                        for (x = 40; x < 80; x++)
+			{
+				(void)(Term_what(x, y, &a, &c));
+                                buf[x - 40] = c;
+			}
+
+			buf[x] = '\0';
+			fprintf (fff, "        %s\n", buf);
+		}
+
+                /* Dump last page */
+                display_player (5);
+                for (y = 2; y < 23; y++)
+		{
+                        for (x = 0; x < 40; x++)
+			{
+				(void)(Term_what(x, y, &a, &c));
+				buf[x] = c;
+			}
+
+			buf[x] = '\0';
+			fprintf (fff, "        %s\n", buf);
+		}
+                for (y = 2; y < 23; y++)
+		{
+                        for (x = 40; x < 80; x++)
+			{
+				(void)(Term_what(x, y, &a, &c));
+                                buf[x - 40] = c;
+			}
+
+			buf[x] = '\0';
+			fprintf (fff, "        %s\n", buf);
+		}
+        }
+#endif
 
 	/* Monsters slain */
 	{
@@ -3227,6 +3446,15 @@ errr file_character(cptr name, bool full)
 		dump_mutations(fff);
 	}
 
+	for (i = 0; i < MAX_FATES; i++)
+	{
+		if((fates[i].fate) && (fates[i].know))
+		{
+			fprintf(fff, "\n\n  [Fates]\n\n");
+			dump_fates(fff);
+			break;
+		}
+	}
 
 	/* Skip some lines */
 	fprintf(fff, "\n\n");
@@ -3257,27 +3485,29 @@ errr file_character(cptr name, bool full)
 	}
 	fprintf(fff, "\n\n");
 
-	if (p_ptr->town_num)
+	/* Print all homes in the different towns */
+	for (j = 0; j < max_wf_idx; j++)
 	{
-		st_ptr = &town[p_ptr->town_num].store[7];
+		if (wf_info[j].feat != FEAT_TOWN) continue;
 
-		/* Dump the Home (page 1) */
-		fprintf(fff, "  [Home Inventory (page 1)]\n\n");
-		for (i = 0; i < 12; i++)
-		{
-			object_desc(o_name, &st_ptr->stock[i], TRUE, 3);
-			fprintf(fff, "%c%s %s\n", I2A(i%12), paren, o_name);
-		}
-		fprintf(fff, "\n\n");
+		st_ptr = &town[wf_info[j].entrance].store[7];
 
-		/* Dump the Home (page 2) */
-		fprintf(fff, "  [Home Inventory (page 2)]\n\n");
-		for (i = 12; i < 24; i++)
+		/* Home -- if anything there */
+		if (st_ptr->stock_num)
 		{
-			object_desc(o_name, &st_ptr->stock[i], TRUE, 3);
-			fprintf(fff, "%c%s %s\n", I2A(i%12), paren, o_name);
+			/* Header with name of the town */
+			fprintf(fff, "  [Home Inventory - %s]\n\n", wf_name + wf_info[j].name);
+
+			/* Dump all available items */
+			for (i = 0; i < st_ptr->stock_num; i++)
+			{
+				object_desc(o_name, &st_ptr->stock[i], TRUE, 3);
+				fprintf(fff, "%c%s %s\n", I2A(i), paren, o_name);
+			}
+
+			/* Add an empty line */
+			fprintf(fff, "\n\n");
 		}
-		fprintf(fff, "\n\n");
 	}
 
 	/* Close it */
@@ -3902,6 +4132,9 @@ void do_cmd_suicide(void)
  */
 void do_cmd_save_game(void)
 {
+        /* Save the current level if in a persistent level */
+        save_dungeon();
+
 	/* Autosaves do not disturb */
 	if (!is_autosave)
 	{
@@ -3971,12 +4204,12 @@ long total_points(void)
 	
 	if (p_ptr->preserve) mult -= 10; /* Penalize preserve, maximize modes */
 	if (p_ptr->maximize) mult -= 15;
-        if (auto_scum) mult -= 50;
+        if (auto_scum) mult -= 20;
 	if (stupid_monsters) mult -= 50;
 	if (vanilla_town)    mult += 30; /* Vanilla town is harder */
         if (small_levels)    mult += ((always_small_level) ? 20 : 50);
 	if (empty_levels)    mult += 10;
-        if (water_levels)    mult += 10; /* Watter levels are generaly harder */
+        if (water_levels)    mult += 10; /* Water levels are generaly harder */
 	if (smart_learn) mult += 20;
 	if (smart_cheat) mult += 20;	
  
@@ -4082,179 +4315,6 @@ static void center_string(char *buf, cptr str)
 
 	/* Mega-Hack */
 	(void)sprintf(buf, "%*s%s%*s", j, "", str, 31 - i - j, "");
-}
-
-/*
- * Gets a personalized string for ghosts.  Code originally from get_name. -LM-
- */
-static char *get_personalized_string()
-{
-	static char tmp[80];
-	byte n, i;
-
-	/* Clear last line */
-	clear_from(15);
-
-	/* Prompt and ask */
-        prt("Enter a description for your ghost, or hit ESCAPE.", 15, 8);
-
-	prt("(79 characters maximum.  Entry will be used as (a) sentence(s).)", 16, 8);
-
-	/* Ask until happy */
-	while (1)
-	{
-		/* Start at beginning of field. */
-		move_cursor(14, 0);
-
-		/* Get an input */
-		(void)askfor_aux(tmp, 79);
-
-		/* All done */
-		break;
-	}
-
-	/* Pad the string (to clear junk and allow room for a ending) */
-	sprintf(tmp, "%-80.80s", tmp);
-
-	/* Ensure that strings end like a sentence, and neatly clip the string. */
-	for (n = 80;; n--)
-	{
-		/* To eleminate some warnings */
-		if ((tmp[n] == '\0') || (tmp[n] == ' ') || (tmp[n] == '\0')) continue;
-		else
-		{
-			if ((tmp[n] == '!') || (tmp[n] == '.') || (tmp[n] == '?'))
-			{
-				tmp[n + 1] = '\0';
-				for (i = n + 2; i < 80; i++) tmp[i] = '\0';
-				break;
-			}
-			else 
-			{
-				tmp[n + 1] = '.';
-				tmp[n + 2] = '\0';
-				for (i = n + 3; i < 80; i++) tmp[i] = '\0';
-				break;
-			}
-		}
-	}
-
-	/* Start the sentence with a capital letter. */
-	if (islower(tmp[0])) tmp[0] = toupper(tmp[0]);
-
-	/* Return the string */
-	return tmp;
-}
-
-
-/*
- * Save a "bones" file for a dead character
- *
- * Note that we will not use these files until Angband 2.8.0, and
- * then we will only use the name and level on which death occured.
- *
- * Should probably attempt some form of locking...
- */
-void make_bones(byte used)
-{
-	FILE                *fp;
-
-	char                str[1024];
-        char desc[4*80];
-        byte friend = FALSE;
-
-        object_type *o_ptr;
-
-        /* Ignore wizards, borgs and cheaters */
-        if (!noscore)
-	{
-                        char tmp[128];
-                        s16b max_dl = 0, i;
-
-			/* XXX XXX XXX "Bones" name */
-                        sprintf(tmp, "%s.bne", player_base);
-
-			/* Build the filename */
-			path_build(str, 1024, ANGBAND_DIR_BONE, tmp);
-
-			/* Attempt to open the bones file */
-			fp = my_fopen(str, "r");
-
-			/* Close it right away */
-			if (fp) my_fclose(fp);
-
-			/* Do not over-write a previous ghost */
-			if (fp) return;
-
-			/* File type is "TEXT" */
-			FILE_TYPE(FILE_TYPE_TEXT);
-
-			/* Try to write a new "Bones File" */
-			fp = my_fopen(str, "w");
-
-			/* Not allowed to write it?  Weird. */
-			if (!fp) return;
-		
-                        for (i = 0; i < max_d_idx; i++)
-                                if(max_dlv[i] > max_dl)
-                                        max_dl = max_dlv[i];
-
-                        if(get_check("Do you want the player monster to be friendly ?")) friend = TRUE;
-
-                        /* Ask for a description */
-                        sprintf(desc, "%s", get_personalized_string());
-
-                        i = 0;
-                        while(i < 320)
-                        {
-                                if(desc[i] == ' ') desc[i] = '_';
-                                i++;
-                        }
-
-			/* Save the info */
-			fprintf(fp, "%s\n", player_name);
-                        fprintf(fp, "%d\n", p_ptr->psex);
-			fprintf(fp, "%d\n", p_ptr->prace);
-			fprintf(fp, "%d\n", p_ptr->pclass);
-                        fprintf(fp, "%s\n", desc);
-                        fprintf(fp, "%d\n", friend);
-			fprintf(fp, "%d\n", p_ptr->mhp);
-                        fprintf(fp, "%d\n", p_ptr->msp);
-                        fprintf(fp, "%d\n", max_dl);
-                        fprintf(fp, "%ld\n", p_ptr->max_exp);
-                        fprintf(fp, "%d\n", p_ptr->lev);
-                        fprintf(fp, "%d\n", p_ptr->ac);
-                        fprintf(fp, "%d\n", p_ptr->to_a);
-                        fprintf(fp, "%d\n", p_ptr->to_h);
-                        fprintf(fp, "%d\n", p_ptr->to_d);
-                        fprintf(fp, "%d\n", p_ptr->invis);
-                        fprintf(fp, "%d\n", p_ptr->regenerate);
-                        fprintf(fp, "%d\n", p_ptr->ffall);
-                        fprintf(fp, "%d\n", p_ptr->pspeed);
-                        fprintf(fp, "%d\n", p_ptr->resist_acid);
-                        fprintf(fp, "%d\n", p_ptr->resist_elec);
-                        fprintf(fp, "%d\n", p_ptr->resist_pois);
-                        fprintf(fp, "%d\n", p_ptr->resist_fire);
-                        fprintf(fp, "%d\n", p_ptr->resist_cold);
-                        fprintf(fp, "%d\n", p_ptr->resist_conf);
-                        fprintf(fp, "%d\n", p_ptr->resist_lite);
-                        fprintf(fp, "%d\n", p_ptr->resist_dark);
-                        fprintf(fp, "%d\n", p_ptr->resist_fear);
-                        fprintf(fp, "%d\n", p_ptr->resist_chaos);
-                        fprintf(fp, "%d\n", p_ptr->resist_disen);
-                        fprintf(fp, "%d\n", inventory[INVEN_WIELD].k_idx);
-                        fprintf(fp, "%d\n", inventory[INVEN_WIELD].name2);
-                        fprintf(fp, "%d\n", inventory[INVEN_WIELD].name1);
-                        o_ptr = &inventory[INVEN_WIELD];
-                        fprintf(fp, "%dd%d%s%d\n", p_ptr->num_blow * o_ptr->dd, o_ptr->ds,
-                                (o_ptr->to_d < 0 ? "":"+"), p_ptr->num_blow * o_ptr->to_d);
-                        fprintf(fp, "%d\n", p_ptr->num_blow);
-                        fprintf(fp, "%d\n", inventory[INVEN_WIELD].dd);
-                        fprintf(fp, "%d\n", inventory[INVEN_WIELD].ds);
-
-			/* Close and save the Bones file */
-			my_fclose(fp);
-	}
 }
 
 
@@ -4505,6 +4565,11 @@ static void show_info(void)
 	{
 		st_ptr = &town[k].store[7];
 
+#if 0 /* TODO -- actualy somewhere set the real variable */
+                /* Step to the real towns */
+                if (!town[k].real) continue;
+#endif
+
 		/* Home -- if anything there */
 		if (st_ptr->stock_num)
 		{
@@ -4533,7 +4598,7 @@ static void show_info(void)
 				}
 
 				/* Caption */
-				prt(format("Your home contains (page %d): -more-", k+1), 0, 0);
+                                prt(format("Your home contains (page %d): -more-", k+1), 0, 0);
 
 				/* Wait for it */
 				if (inkey() == ESCAPE) return;
@@ -5131,7 +5196,7 @@ static errr top_twenty(void)
 {
 	int          j;
 
-	high_score   the_score;
+	high_score   the_score, *tmp;
 
 	time_t ct = time((time_t*)0);
 
@@ -5200,7 +5265,7 @@ static errr top_twenty(void)
 
 
 	/* Clear the record */
-	WIPE(&the_score, high_score);
+	tmp=WIPE(&the_score, high_score);
 
 	/* Save the version */
 	sprintf(the_score.what, "%u.%u.%u",
@@ -5450,28 +5515,19 @@ void close_game(void)
 	/* Handle death */
 	if (death)
 	{
-               /* Variable for the date */
-               time_t ct = time((time_t*)0);
-               char long_day[25]; 
- 
-               /* Handle retirement */
-               if (total_winner) 
-                 {
- 
-                 /* Write a note, if that option is on */
-                 if (take_notes) {
-                   (void)strftime(long_day, 25, "%m/%d/%Y at %I:%M %p", localtime(&ct));
-                   fprintf(notes_file, "%s slew Morgoth on %s\n.", player_name, long_day);
-                   fprintf(notes_file, "Long live %s!", player_name);
-                   }
-                 kingly();
-                 }
+                /* Handle retirement */
+                if (total_winner) 
+                { 
+                        /* Write a note, if that option is on */
+                        if (take_notes)
+                        {
+                                add_note_type(NOTE_WINNER);
+                        }
+                        kingly();
+                }
 
 		/* Save memories */
                 if (!save_player()) msg_print("death save failed!");
-
-		/* Dump bones file */
-                if(total_points() >= 8700000) make_bones(FALSE);
 
 		/* You are dead */
 		print_tomb();
@@ -5482,12 +5538,24 @@ void close_game(void)
                 /* Write a note */
                 if (take_notes)
                 {
-                  /* Get time */
-                  (void)strftime(long_day, 25, "%m/%d/%Y at %I:%M %p", localtime(&ct));
-                
-                  /* Add note */
-                  fprintf(notes_file, "\n%s was killed by %s on %s\n", player_name, died_from, long_day);
+			char long_day[30];
+			char buf[80];
+			time_t ct = time((time_t*)NULL);
+			
+			/* Get the date */
+			strftime(long_day, 30, 
+				"%Y-%m-%d at %H:%M:%S", localtime(&ct));
+			
+			/* Create string */
+			sprintf(buf, "\n%s was killed by %s on %s\n", player_name,
+				 died_from, long_day);
+			
+			/* Output to the notes file */
+			output_note(buf);
                 }
+
+		/* Dump bones file */
+		make_bones();
 
 		/* Handle score, show Top scores */
 		top_twenty();
@@ -5504,13 +5572,7 @@ void close_game(void)
                 /* If note-taking enabled, write session end to notes file */
                 if (take_notes)
                 {
-                  char long_day[25];
-                  time_t ct = time((time_t*)0);
- 
-                  /* Get date and time */
-                  (void)strftime(long_day, 25, "%m/%d/%Y at %I:%M %p", localtime(&ct));
- 
-                  fprintf(notes_file, "\nSession end: %s\n", long_day);
+			add_note_type(NOTE_SAVE_GAME);
                 }
 
 		/* Prompt for scores XXX XXX XXX */
@@ -5526,10 +5588,6 @@ void close_game(void)
 
 	/* Forget the high score fd */
 	highscore_fd = -1;
-
-        /* Close the notes file */
-        if (take_notes)
-               my_fclose(notes_file);
 
 	/* Allow suspending now */
 	signals_handle_tstp();
@@ -5621,7 +5679,8 @@ errr get_rnd_line(char * file_name, char * output)
 	return (0);
 }
 
-cptr get_line(char* fname, char* fdir, int line) {
+cptr get_line(char* fname, char* fdir, int line)
+{
   FILE* fp;
   static char buf[1024];
   int i;

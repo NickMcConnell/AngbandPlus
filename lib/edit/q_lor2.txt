@@ -9,7 +9,7 @@ Q:12:Q:6:0:0:0:25:0:0:2
 # Description for quest
 ?:[LEQ $QUEST12 2]
 Q:12:T:Powers lurk deep within Mirkwood. Spiders have blocked the 
-Q:12:T:path through the forest, and Thranduil's folk have been 
+Q:12:T:path through the forest, and Thranduil's  folk have been 
 Q:12:T:unable to hold them off. It is your task to drive them 
 Q:12:T:away. Be careful -- many traps have been laid by their 
 Q:12:T:webs, and their venom is dangerous indeed.
@@ -25,19 +25,19 @@ Q:12:T:menace. Another reward awaits you.
 F:t:96:3
 
 # Grass with Giant spider
-F:a:89:8:175
+F:a:89:3:175
 
 # Grass with Giant tarantula
-F:b:89:8:275
+F:b:89:3:275
 
 # Grass with Mirkwood Spider
-F:c:89:8:277
+F:c:89:3:277
 
 # Grass with Aranea
-F:d:89:8:963
+F:d:89:3:963
 
 # Grass with Elder aranea
-F:e:89:8:964
+F:e:89:3:964
 
 # Dungeon layout
 D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX

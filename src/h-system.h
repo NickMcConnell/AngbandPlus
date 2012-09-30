@@ -21,12 +21,11 @@
 #include <ctype.h>
 #include <errno.h>
 
-
 #if defined(NeXT)
 # include <libc.h>
 #else
 # include <stdlib.h>
-#endif /* NeXT */
+#endif
 
 
 #ifdef SET_UID
@@ -44,23 +43,23 @@
 #  include <sys/timeb.h>
 # endif
 
-#endif /* SET_UID */
+#endif
 
 
 #include <time.h>
 
 
+
 #ifdef MACINTOSH
 # include <unix.h>
-#endif /* MACINTOSH */
-
+#endif
 
 #if defined(WINDOWS) || defined(MSDOS) || defined(USE_EMX)
 # include <io.h>
 #endif
 
 #if !defined(MACINTOSH) && !defined(AMIGA) && \
-    !defined(ACORN) && !defined(VM)
+    !defined(ACORN) && !defined(VM) && !defined(__MWERKS__)
 # if defined(__TURBOC__) || defined(__WATCOMC__)
 #  include <mem.h>
 # else
@@ -95,25 +94,34 @@
 #  include <netdb.h>
 # endif
 
-#endif /* SET_UID */
+#endif
 
+#ifdef __DJGPP__
+#include <unistd.h>
+#endif /* __DJGPP__ */
 
 #ifdef SET_UID
 
-# ifdef USG
-#  include <string.h>
-# else /* USG */
-#  include <strings.h>
+#ifdef USG
+# include <string.h>
+#else
+# include <strings.h>
+# ifndef strstr
 extern char *strstr();
+# endif
+# ifndef strchr
 extern char *strchr();
+# endif
+# ifndef strrchr
 extern char *strrchr();
-# endif /* USG */
+# endif
+#endif
 
-#else /* SET_UID */
+#else
 
 # include <string.h>
 
-#endif /* SET_UID */
+#endif
 
 
 
@@ -124,8 +132,7 @@ extern long atol();
 
 #include <stdarg.h>
 
-#ifdef USE_PYTHON
-#include <Python.h>
+
 #endif
 
-#endif /* INCLUDED_H_SYSTEM_H */
+

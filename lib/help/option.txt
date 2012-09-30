@@ -73,7 +73,7 @@ Show labels in object lists    [show_labels]
     this information is no longer useful, and can be annoying.
     Note that in Zangband 2.1.0 and later this option no longer controls
     the "plain flavoured object descriptions": a separate option for them
-    has been added under "Zangband Options".
+    has been added under "PernAngband Options".
 
 Show weights in object lists    [show_weights]
     Display the weights of objects in the "inventory" and "equipment" lists,
@@ -360,14 +360,14 @@ Use special colors for floor grids (slow)    [view_special_lite]
     the speed of the game.
 
 
-=== Zangband Options ===
+=== PernAngband Options ===
 
-All features which are typical to Zangband (i.e. which are not in
+All features which are typical to PernAngband (i.e. which are not in
 vanilla Angband) are collected in this menu (except for the Autosave
 options).
 
 Disturb whenever random things happen    [disturb_other]
-    In Zangband, uncursed teleporting items may teleport you around
+    In PernAngband, uncursed teleporting items may teleport you around
     sometimes, asking for your confirmation (and possibly disturbing
     your rest). If you unset this option, they will stop asking you
     and teleporting you randomly. Cursed items will neither ask for
@@ -421,22 +421,22 @@ Skip mutations in 'C'haracer Display    [skip_mutations]
     Description: they should set this option.
 
 Plain object descriptions    [plain_descriptions]
-    In Zangband, this option disables "full" names for identified
+    In PernAngband, this option disables "full" names for identified
     'flavored' objects, in other words, if this option is not in use, an
     identified Potion of Speed could be listed (for example) as a
     Blue Potion of Speed. If you prefer simpler, less verbose
     descriptions, set this option.
 
 Monsters behave stupidly    [stupid_monsters]
-    Zangband 2.1.0 incorporates Keldon Jones' improved monster Artificial
+    PernAngband incorporates Keldon Jones' improved monster Artificial
     Intelligence patch. While this patch most certainly makes monsters
     behave more realistically, they will also be more deadly with the
     improved AI. If you are a sissy, set this option to get the old,
     really stupid monster AI.
     Note that the new AI is a bit processing power expensive. If you have
-    an old computer (386sx) and Zangband is running too slowly, you could
+    an old computer (386sx) and PernAngband is running too slowly, you could
     try turning stupid_monsters on. Or buying that Pentium II so you can
-    run Zangband. :-)
+    run PernAngband. :-)
 
 No query to destroy known worthless items    [auto_destroy]
     It can sometimes be annoying that the Destroy command asks for confirmation
@@ -481,7 +481,7 @@ No sound effects    [mute_sounds]
 
 In newer official versions of Angband (2.8.2 and higher) items are 'officially'
 allowed to stack on floors and monsters are allowed to maintain inventories.
-However, the code for both features is already in 2.8.1 (which Zangband uses,
+However, the code for both features is already in 2.8.1 (which PernAngband uses,
 with bug fixes to the stacking code). To enable these features set the
 following options:
 
@@ -571,4 +571,4 @@ and "class" stat bonuses to be applied as "equipment" bonuses.  This usually
 makes the character harder at the beginning of the game, but easier later on,
 since the stats are no longer limited to a "natural" value of "18/100".
 
-+++ Ben +++ (Updated by Topi Ylinen for Zangband 2.1.*)
++++ Ben +++ (Updated by Dark God for PernAngband)

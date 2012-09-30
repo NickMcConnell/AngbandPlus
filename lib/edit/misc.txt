@@ -13,13 +13,17 @@ M:X:101
 M:Y:66
 
 # Maximum number of monsters in r_info.txt
-M:R:1000
+# WARNING ! add one more to the real count for the player ghost !!
+M:R:1033
+
+# Maximum number of monsters in re_info.txt
+M:r:10
 
 # Maximum number of items in k_info.txt
-M:K:800
+M:K:810
 
 # Maximum number of vaults in v_info.txt
-M:V:111
+M:V:112
 
 # Maximum number of terrain features in f_info.txt
 M:F:204
@@ -31,17 +35,26 @@ M:A:210
 M:E:140
 
 # Maximum number of dungeon types in d_info.txt
-M:D:27
+M:D:28
 
 # Maximum number of trap types in tr_info.txt
-M:U:170
+M:U:171
 
 # Maximum number of trap types in wf_info.txt
-M:W:25
+M:W:26
+
+# Maximum number of owners types in ow_info.txt
+M:N:68
+
+# Maximum number of owners types in ba_info.txt
+M:B:56
+
+# Maximum number of owners types in st_info.txt
+M:S:38
 
 # Maximum size for "o_list[]"
 M:O:1024
 
 # Maximum size for "m_list[]"
-M:M:512
+M:M:768
 

@@ -2704,7 +2704,11 @@ static void process_menus(WORD wCmd)
 			else
 			{
 				memset(&ofn, 0, sizeof(ofn));
-				ofn.lStructSize = sizeof(ofn);
+#if defined(_WIN32_WINNT) && (_WIN32_WINNT >= 0x0500)
+				ofn.lStructSize = sizeof(OPENFILENAME) - (sizeof(void*) + 2 * sizeof(DWORD));
+#else // old headers
+				ofn.lStructSize = sizeof(OPENFILENAME);
+#endif                                
 				ofn.hwndOwner = data[0].w;
 				ofn.lpstrFilter = "Save Files (*.)\0*\0";
 				ofn.nFilterIndex = 1;

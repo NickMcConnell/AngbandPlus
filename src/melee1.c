@@ -176,6 +176,11 @@ bool carried_make_attack_normal(int r_idx)
 		/* Extract visibility (before blink) */
                 visible = TRUE;
 
+#ifdef MONSTER_LITE
+                /* Extract visibility from carrying lite */
+                if (r_ptr->flags9 & RF9_HAS_LITE) visible = TRUE;
+#endif /* MONSTER_LITE */
+
 		/* Extract the attack "power" */
 		switch (effect)
 		{
@@ -236,6 +241,21 @@ bool carried_make_attack_normal(int r_idx)
 				continue;
 			}
 
+			/* Hack -- Apply "protection from good" */
+			if ((p_ptr->protgood > 0) &&
+			    (r_ptr->flags3 & (RF3_GOOD)) &&
+			    (p_ptr->lev >= rlev) &&
+			    ((rand_int(100) + p_ptr->lev) > 50))
+			{
+				/* Remember the Good-ness */
+                                r_ptr->r_flags3 |= (RF3_GOOD);
+
+				/* Message */
+                                msg_format("Your monster is repelled.");
+
+				/* Hack -- Next attack */
+				continue;
+			}
 
 			/* Assume no cut or stun */
 			do_cut = do_stun = 0;
@@ -1161,7 +1181,7 @@ bool make_attack_normal(int m_idx, byte divis)
 {
 	monster_type *m_ptr = &m_list[m_idx];
 
-	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+        monster_race *r_ptr = race_inf(m_ptr);
 
 	int ap_cnt;
 
@@ -1239,6 +1259,11 @@ bool make_attack_normal(int m_idx, byte divis)
 		/* Extract visibility (before blink) */
 		if (m_ptr->ml) visible = TRUE;
 
+#ifdef MONSTER_LITE
+                /* Extract visibility from carrying lite */
+                if (r_ptr->flags9 & RF9_HAS_LITE) visible = TRUE;
+#endif /* MONSTER_LITE */
+
 		/* Extract the attack "power" */
 		switch (effect)
 		{
@@ -1302,6 +1327,24 @@ bool make_attack_normal(int m_idx, byte divis)
 				continue;
 			}
 
+			/* Hack -- Apply "protection from good" */
+			if ((p_ptr->protgood > 0) &&
+			    (r_ptr->flags3 & (RF3_GOOD)) &&
+			    (p_ptr->lev >= rlev) &&
+			    ((rand_int(100) + p_ptr->lev) > 50))
+			{
+				/* Remember the Good-ness */
+				if (m_ptr->ml)
+				{
+					r_ptr->r_flags3 |= (RF3_GOOD);
+				}
+
+				/* Message */
+				msg_format("%^s is repelled.", m_name);
+
+				/* Hack -- Next attack */
+				continue;
+			}
 
 			/* Assume no cut or stun */
 			do_cut = do_stun = 0;
@@ -1794,11 +1837,11 @@ bool make_attack_normal(int m_idx, byte divis)
 								/* Modify number */
 								j_ptr->number = 1;
 
-								/* Hack -- If a rod or wand, allocate total 
+                                                                /* Hack -- If a wand, allocate total 
 								 * maximum timeouts or charges between those 
 								 * stolen and those missed. -LM-
 								 */
-								if ((o_ptr->tval == TV_ROD) || (o_ptr->tval == TV_WAND))
+                                                                if (o_ptr->tval == TV_WAND)
 								{
 									j_ptr->pval = o_ptr->pval / o_ptr->number;
 									o_ptr->pval -= j_ptr->pval;

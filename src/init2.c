@@ -82,6 +82,7 @@ void init_file_paths(char *path)
 	/* Free the sub-paths */
 	string_free(ANGBAND_DIR_APEX);
 	string_free(ANGBAND_DIR_BONE);
+        string_free(ANGBAND_DIR_DNGN);
 	string_free(ANGBAND_DIR_DATA);
 	string_free(ANGBAND_DIR_EDIT);
 	string_free(ANGBAND_DIR_FILE);
@@ -109,6 +110,7 @@ void init_file_paths(char *path)
 	/* Use "blank" path names */
 	ANGBAND_DIR_APEX = string_make("");
 	ANGBAND_DIR_BONE = string_make("");
+        ANGBAND_DIR_DNGN = string_make("");
 	ANGBAND_DIR_DATA = string_make("");
 	ANGBAND_DIR_EDIT = string_make("");
 	ANGBAND_DIR_FILE = string_make("");
@@ -131,6 +133,10 @@ void init_file_paths(char *path)
 	/* Build a path name */
 	strcpy(tail, "bone");
 	ANGBAND_DIR_BONE = string_make(path);
+
+	/* Build a path name */
+        strcpy(tail, "dngn");
+        ANGBAND_DIR_DNGN = string_make(path);
 
 	/* Build a path name */
 	strcpy(tail, "data");
@@ -1395,6 +1401,50 @@ static errr init_r_info_raw(int fd)
 	return (0);
 }
 
+/*
+ * Initialize the "re_info" array, by parsing a binary "image" file
+ */
+static errr init_re_info_raw(int fd)
+{
+	header test;
+
+	/* Read and Verify the header */
+	if (fd_read(fd, (char*)(&test), sizeof(header)) ||
+            (test.v_major != re_head->v_major) ||
+            (test.v_minor != re_head->v_minor) ||
+            (test.v_patch != re_head->v_patch) ||
+            (test.v_extra != re_head->v_extra) ||
+            (test.info_num != re_head->info_num) ||
+            (test.info_len != re_head->info_len) ||
+            (test.head_size != re_head->head_size) ||
+            (test.info_size != re_head->info_size))
+	{
+		/* Error */
+		return (-1);
+	}
+
+
+	/* Accept the header */
+        (*re_head) = test;
+
+
+        /* Allocate the "re_info" array */
+        C_MAKE(re_info, re_head->info_num, monster_ego);
+
+        /* Read the "re_info" array */
+        fd_read(fd, (char*)(re_info), re_head->info_size);
+
+
+        /* Allocate the "re_name" array */
+        C_MAKE(re_name, re_head->name_size, char);
+
+        /* Read the "re_name" array */
+        fd_read(fd, (char*)(re_name), re_head->name_size);
+
+	/* Success */
+	return (0);
+}
+
 
 /*
  * Initialize the "d_info" array, by parsing a binary "image" file
@@ -1448,6 +1498,138 @@ static errr init_d_info_raw(int fd)
 }
 
 /*
+ * Initialize the "st_info" array, by parsing a binary "image" file
+ */
+static errr init_st_info_raw(int fd)
+{
+	header test;
+
+	/* Read and Verify the header */
+	if (fd_read(fd, (char*)(&test), sizeof(header)) ||
+            (test.v_major != st_head->v_major) ||
+            (test.v_minor != st_head->v_minor) ||
+            (test.v_patch != st_head->v_patch) ||
+            (test.v_extra != st_head->v_extra) ||
+            (test.info_num != st_head->info_num) ||
+            (test.info_len != st_head->info_len) ||
+            (test.head_size != st_head->head_size) ||
+            (test.info_size != st_head->info_size))
+	{
+		/* Error */
+                return (-1);
+	}
+
+
+	/* Accept the header */
+        (*st_head) = test;
+
+
+        /* Allocate the "st_info" array */
+        C_MAKE(st_info, st_head->info_num, store_info_type);
+
+        /* Read the "st_info" array */
+        fd_read(fd, (char*)(st_info), st_head->info_size);
+
+
+        /* Allocate the "st_name" array */
+        C_MAKE(st_name, st_head->name_size, char);
+
+        /* Read the "st_name" array */
+        fd_read(fd, (char*)(st_name), st_head->name_size);
+
+	/* Success */
+	return (0);
+}
+
+/*
+ * Initialize the "ba_info" array, by parsing a binary "image" file
+ */
+static errr init_ba_info_raw(int fd)
+{
+	header test;
+
+	/* Read and Verify the header */
+	if (fd_read(fd, (char*)(&test), sizeof(header)) ||
+            (test.v_major != ba_head->v_major) ||
+            (test.v_minor != ba_head->v_minor) ||
+            (test.v_patch != ba_head->v_patch) ||
+            (test.v_extra != ba_head->v_extra) ||
+            (test.info_num != ba_head->info_num) ||
+            (test.info_len != ba_head->info_len) ||
+            (test.head_size != ba_head->head_size) ||
+            (test.info_size != ba_head->info_size))
+	{
+		/* Error */
+                return (-1);
+	}
+
+
+	/* Accept the header */
+        (*ba_head) = test;
+
+
+        /* Allocate the "ba_info" array */
+        C_MAKE(ba_info, ba_head->info_num, store_action_type);
+
+        /* Read the "ba_info" array */
+        fd_read(fd, (char*)(ba_info), ba_head->info_size);
+
+
+        /* Allocate the "ba_name" array */
+        C_MAKE(ba_name, ba_head->name_size, char);
+
+        /* Read the "ba_name" array */
+        fd_read(fd, (char*)(ba_name), ba_head->name_size);
+
+	/* Success */
+	return (0);
+}
+
+/*
+ * Initialize the "ow_info" array, by parsing a binary "image" file
+ */
+static errr init_ow_info_raw(int fd)
+{
+	header test;
+
+	/* Read and Verify the header */
+	if (fd_read(fd, (char*)(&test), sizeof(header)) ||
+            (test.v_major != ow_head->v_major) ||
+            (test.v_minor != ow_head->v_minor) ||
+            (test.v_patch != ow_head->v_patch) ||
+            (test.v_extra != ow_head->v_extra) ||
+            (test.info_num != ow_head->info_num) ||
+            (test.info_len != ow_head->info_len) ||
+            (test.head_size != ow_head->head_size) ||
+            (test.info_size != ow_head->info_size))
+	{
+		/* Error */
+                return (-1);
+	}
+
+
+	/* Accept the header */
+        (*ow_head) = test;
+
+
+        /* Allocate the "ow_info" array */
+        C_MAKE(ow_info, ow_head->info_num, owner_type);
+
+        /* Read the "ow_info" array */
+        fd_read(fd, (char*)(ow_info), ow_head->info_size);
+
+
+        /* Allocate the "ow_name" array */
+        C_MAKE(ow_name, ow_head->name_size, char);
+
+        /* Read the "ow_name" array */
+        fd_read(fd, (char*)(ow_name), ow_head->name_size);
+
+	/* Success */
+	return (0);
+}
+
+/*
  * Initialize the "wf_info" array, by parsing a binary "image" file
  */
 static errr init_wf_info_raw(int fd)
@@ -1494,7 +1676,7 @@ static errr init_wf_info_raw(int fd)
         fd_read(fd, (char*)(wf_text), wf_head->text_size);
 
         /* Read the "wildc2i" array */
-        fd_read(fd, (int*)(wildc2i), 256 * sizeof(int));
+        fd_read(fd, (char*)wildc2i, 256 * sizeof(int));
 
 	/* Success */
 	return (0);
@@ -1701,6 +1883,199 @@ static errr init_r_info(void)
 
 
 /*
+ * Initialize the "re_info" array
+ *
+ * Note that we let each entry have a unique "name" string,
+ * even if the string happens to be empty (everyone has a unique '\0').
+ */
+static errr init_re_info(void)
+{
+	int fd;
+
+	int mode = 0644;
+
+	errr err = 0;
+
+	FILE *fp;
+
+	/* General buffer */
+	char buf[1024];
+
+
+	/*** Make the header ***/
+
+	/* Allocate the "header" */
+        MAKE(re_head, header);
+
+	/* Save the "version" */
+        re_head->v_major = VERSION_MAJOR;
+        re_head->v_minor = VERSION_MINOR;
+        re_head->v_patch = VERSION_PATCH;
+        re_head->v_extra = 0;
+
+	/* Save the "record" information */
+        re_head->info_num = max_re_idx;
+        re_head->info_len = sizeof(monster_ego);
+
+        /* Save the size of "re_head" and "re_info" */
+        re_head->head_size = sizeof(header);
+        re_head->info_size = re_head->info_num * re_head->info_len;
+
+
+#ifdef ALLOW_TEMPLATES
+
+	/*** Load the binary image file ***/
+
+	/* Build the filename */
+        path_build(buf, 1024, ANGBAND_DIR_DATA, "re_info.raw");
+
+	/* Attempt to open the "raw" file */
+	fd = fd_open(buf, O_RDONLY);
+
+	/* Process existing "raw" file */
+	if (fd >= 0)
+	{
+#ifdef CHECK_MODIFICATION_TIME
+
+                err = check_modification_date(fd, "re_info.txt");
+
+#endif /* CHECK_MODIFICATION_TIME */
+
+		/* Attempt to parse the "raw" file */
+		if (!err)
+                        err = init_re_info_raw(fd);
+
+		/* Close it */
+		(void)fd_close(fd);
+
+		/* Success */
+		if (!err) return (0);
+
+		/* Information */
+                msg_print("Ignoring obsolete/defective 're_info.raw' file.");
+		msg_print(NULL);
+	}
+
+
+	/*** Make the fake arrays ***/
+
+        /* Assume the size of "re_name" */
+	fake_name_size = FAKE_NAME_SIZE;
+
+        /* Allocate the "re_info" array */
+        C_MAKE(re_info, re_head->info_num, monster_ego);
+
+	/* Hack -- make "fake" arrays */
+        C_MAKE(re_name, fake_name_size, char);
+
+
+	/*** Load the ascii template file ***/
+
+	/* Build the filename */
+        path_build(buf, 1024, ANGBAND_DIR_EDIT, "re_info.txt");
+
+	/* Open the file */
+	fp = my_fopen(buf, "r");
+
+	/* Parse it */
+        if (!fp) quit("Cannot open 're_info.txt' file.");
+
+	/* Parse the file */
+        err = init_re_info_txt(fp, buf);
+
+	/* Close it */
+	my_fclose(fp);
+
+	/* Errors */
+	if (err)
+	{
+		cptr oops;
+
+		/* Error string */
+		oops = (((err > 0) && (err < 8)) ? err_str[err] : "unknown");
+
+		/* Oops */
+                msg_format("Error %d at line %d of 're_info.txt'.", err, error_line);
+		msg_format("Record %d contains a '%s' error.", error_idx, oops);
+		msg_format("Parsing '%s'.", buf);
+		msg_print(NULL);
+
+		/* Quit */
+                quit("Error in 're_info.txt' file.");
+	}
+
+
+	/*** Dump the binary image file ***/
+
+	/* File type is "DATA" */
+	FILE_TYPE(FILE_TYPE_DATA);
+
+	/* Build the filename */
+        path_build(buf, 1024, ANGBAND_DIR_DATA, "re_info.raw");
+
+	/* Kill the old file */
+	(void)fd_kill(buf);
+
+	/* Attempt to create the raw file */
+	fd = fd_make(buf, mode);
+
+	/* Dump to the file */
+	if (fd >= 0)
+	{
+		/* Dump it */
+                fd_write(fd, (char*)(re_head), re_head->head_size);
+
+                /* Dump the "re_info" array */
+                fd_write(fd, (char*)(re_info), re_head->info_size);
+
+                /* Dump the "re_name" array */
+                fd_write(fd, (char*)(re_name), re_head->name_size);
+
+		/* Close */
+		(void)fd_close(fd);
+	}
+
+
+	/*** Kill the fake arrays ***/
+
+        /* Free the "re_info" array */
+        C_KILL(re_info, re_head->info_num, monster_ego);
+
+	/* Hack -- Free the "fake" arrays */
+        C_KILL(re_name, fake_name_size, char);
+
+	/* Forget the array sizes */
+	fake_name_size = 0;
+
+#endif	/* ALLOW_TEMPLATES */
+
+
+	/*** Load the binary image file ***/
+
+	/* Build the filename */
+        path_build(buf, 1024, ANGBAND_DIR_DATA, "re_info.raw");
+
+	/* Attempt to open the "raw" file */
+	fd = fd_open(buf, O_RDONLY);
+
+	/* Process existing "raw" file */
+        if (fd < 0) quit("Cannot load 're_info.raw' file.");
+
+	/* Attempt to parse the "raw" file */
+        err = init_re_info_raw(fd);
+
+	/* Close it */
+	(void)fd_close(fd);
+
+	/* Error */
+        if (err) quit("Cannot parse 're_info.raw' file.");
+
+	/* Success */
+	return (0);
+}
+
+
+/*
  * Initialize the "d_info" array
  *
  * Note that we let each entry have a unique "name" and "short name" string,
@@ -1900,6 +2275,585 @@ static errr init_d_info(void)
 }
 
 /*
+ * Initialize the "st_info" array
+ *
+ * Note that we let each entry have a unique "name" and "short name" string,
+ * even if the string happens to be empty (everyone has a unique '\0').
+ */
+static errr init_st_info(void)
+{
+	int fd;
+
+	int mode = 0644;
+
+	errr err = 0;
+
+	FILE *fp;
+
+	/* General buffer */
+	char buf[1024];
+
+
+	/*** Make the header ***/
+
+	/* Allocate the "header" */
+        MAKE(st_head, header);
+
+	/* Save the "version" */
+        st_head->v_major = VERSION_MAJOR;
+        st_head->v_minor = VERSION_MINOR;
+        st_head->v_patch = VERSION_PATCH;
+        st_head->v_extra = 0;
+
+	/* Save the "record" information */
+        st_head->info_num = max_st_idx;
+        st_head->info_len = sizeof(store_info_type);
+
+        /* Save the size of "st_head" and "st_info" */
+        st_head->head_size = sizeof(header);
+        st_head->info_size = st_head->info_num * st_head->info_len;
+
+
+#ifdef ALLOW_TEMPLATES
+
+	/*** Load the binary image file ***/
+
+	/* Build the filename */
+        path_build(buf, 1024, ANGBAND_DIR_DATA, "st_info.raw");
+
+	/* Attempt to open the "raw" file */
+	fd = fd_open(buf, O_RDONLY);
+
+	/* Process existing "raw" file */
+	if (fd >= 0)
+	{
+#ifdef CHECK_MODIFICATION_TIME
+
+                err = check_modification_date(fd, "st_info.txt");
+
+#endif /* CHECK_MODIFICATION_TIME */
+
+		/* Attempt to parse the "raw" file */
+		if (!err)
+                        err = init_st_info_raw(fd);
+
+		/* Close it */
+		(void)fd_close(fd);
+
+		/* Success */
+		if (!err) return (0);
+
+		/* Information */
+                msg_print("Ignoring obsolete/defective 'st_info.raw' file.");
+		msg_print(NULL);
+	}
+
+
+	/*** Make the fake arrays ***/
+
+        /* Assume the size of "st_name" and "st_text" */
+	fake_name_size = FAKE_NAME_SIZE;
+
+        /* Allocate the "st_info" array */
+        C_MAKE(st_info, st_head->info_num, store_info_type);
+
+	/* Hack -- make "fake" arrays */
+        C_MAKE(st_name, fake_name_size, char);
+
+
+	/*** Load the ascii template file ***/
+
+	/* Build the filename */
+        path_build(buf, 1024, ANGBAND_DIR_EDIT, "st_info.txt");
+
+	/* Open the file */
+	fp = my_fopen(buf, "r");
+
+	/* Parse it */
+        if (!fp) quit("Cannot open 'st_info.txt' file.");
+
+	/* Parse the file */
+        err = init_st_info_txt(fp, buf);
+
+	/* Close it */
+	my_fclose(fp);
+
+	/* Errors */
+	if (err)
+	{
+		cptr oops;
+
+		/* Error string */
+		oops = (((err > 0) && (err < 8)) ? err_str[err] : "unknown");
+
+		/* Oops */
+                msg_format("Error %d at line %d df 'st_info.txt'.", err, error_line);
+		msg_format("Record %d contains a '%s' error.", error_idx, oops);
+		msg_format("Parsing '%s'.", buf);
+		msg_print(NULL);
+
+		/* Quit */
+                quit("Error in 'st_info.txt' file.");
+	}
+
+
+	/*** Dump the binary image file ***/
+
+	/* File type is "DATA" */
+	FILE_TYPE(FILE_TYPE_DATA);
+
+	/* Build the filename */
+        path_build(buf, 1024, ANGBAND_DIR_DATA, "st_info.raw");
+
+	/* Kill the old file */
+	(void)fd_kill(buf);
+
+	/* Attempt to create the raw file */
+	fd = fd_make(buf, mode);
+
+	/* Dump to the file */
+	if (fd >= 0)
+	{
+		/* Dump it */
+                fd_write(fd, (char*)(st_head), st_head->head_size);
+
+		/* Dump the "r_info" array */
+                fd_write(fd, (char*)(st_info), st_head->info_size);
+
+		/* Dump the "r_name" array */
+                fd_write(fd, (char*)(st_name), st_head->name_size);
+
+		/* Close */
+		(void)fd_close(fd);
+	}
+
+
+	/*** Kill the fake arrays ***/
+
+        /* Free the "st_info" array */
+        C_KILL(st_info, st_head->info_num, store_info_type);
+
+	/* Hack -- Free the "fake" arrays */
+        C_KILL(st_name, fake_name_size, char);
+
+	/* Forget the array sizes */
+	fake_name_size = 0;
+	fake_text_size = 0;
+
+#endif	/* ALLOW_TEMPLATES */
+
+
+	/*** Load the binary image file ***/
+
+	/* Build the filename */
+        path_build(buf, 1024, ANGBAND_DIR_DATA, "st_info.raw");
+
+	/* Attempt to open the "raw" file */
+	fd = fd_open(buf, O_RDONLY);
+
+	/* Process existing "raw" file */
+        if (fd < 0) quit("Cannot load 'st_info.raw' file.");
+
+	/* Attempt to parse the "raw" file */
+        err = init_st_info_raw(fd);
+
+	/* Close it */
+	(void)fd_close(fd);
+
+	/* Error */
+        if (err) quit("Cannot parse 'st_info.raw' file.");
+
+	/* Success */
+	return (0);
+}
+
+/*
+ * Initialize the "ow_info" array
+ *
+ * Note that we let each entry have a unique "name" and "short name" string,
+ * even if the string happens to be empty (everyone has a unique '\0').
+ */
+static errr init_ow_info(void)
+{
+	int fd;
+
+	int mode = 0644;
+
+	errr err = 0;
+
+	FILE *fp;
+
+	/* General buffer */
+	char buf[1024];
+
+
+	/*** Make the header ***/
+
+	/* Allocate the "header" */
+        MAKE(ow_head, header);
+
+	/* Save the "version" */
+        ow_head->v_major = VERSION_MAJOR;
+        ow_head->v_minor = VERSION_MINOR;
+        ow_head->v_patch = VERSION_PATCH;
+        ow_head->v_extra = 0;
+
+	/* Save the "record" information */
+        ow_head->info_num = max_ow_idx;
+        ow_head->info_len = sizeof(owner_type);
+
+        /* Save the size of "head" and "ow_info" */
+        ow_head->head_size = sizeof(header);
+        ow_head->info_size = ow_head->info_num * ow_head->info_len;
+
+
+#ifdef ALLOW_TEMPLATES
+
+	/*** Load the binary image file ***/
+
+	/* Build the filename */
+        path_build(buf, 1024, ANGBAND_DIR_DATA, "ow_info.raw");
+
+	/* Attempt to open the "raw" file */
+	fd = fd_open(buf, O_RDONLY);
+
+	/* Process existing "raw" file */
+	if (fd >= 0)
+	{
+#ifdef CHECK_MODIFICATION_TIME
+
+                err = check_modification_date(fd, "ow_info.txt");
+
+#endif /* CHECK_MODIFICATION_TIME */
+
+		/* Attempt to parse the "raw" file */
+		if (!err)
+                        err = init_ow_info_raw(fd);
+
+		/* Close it */
+		(void)fd_close(fd);
+
+		/* Success */
+		if (!err) return (0);
+
+		/* Information */
+                msg_print("Ignoring obsolete/defective 'ow_info.raw' file.");
+		msg_print(NULL);
+	}
+
+
+	/*** Make the fake arrays ***/
+
+        /* Assume the size of "ow_name" and "ow_text" */
+	fake_name_size = FAKE_NAME_SIZE;
+
+        /* Allocate the "ow_info" array */
+        C_MAKE(ow_info, ow_head->info_num, owner_type);
+
+	/* Hack -- make "fake" arrays */
+        C_MAKE(ow_name, fake_name_size, char);
+
+
+	/*** Load the ascii template file ***/
+
+	/* Build the filename */
+        path_build(buf, 1024, ANGBAND_DIR_EDIT, "ow_info.txt");
+
+	/* Open the file */
+	fp = my_fopen(buf, "r");
+
+	/* Parse it */
+        if (!fp) quit("Cannot open 'ow_info.txt' file.");
+
+	/* Parse the file */
+        err = init_ow_info_txt(fp, buf);
+
+	/* Close it */
+	my_fclose(fp);
+
+	/* Errors */
+	if (err)
+	{
+		cptr oops;
+
+		/* Error string */
+		oops = (((err > 0) && (err < 8)) ? err_str[err] : "unknown");
+
+		/* Oops */
+                msg_format("Error %d at line %d df 'ow_info.txt'.", err, error_line);
+		msg_format("Record %d contains a '%s' error.", error_idx, oops);
+		msg_format("Parsing '%s'.", buf);
+		msg_print(NULL);
+
+		/* Quit */
+                quit("Error in 'ow_info.txt' file.");
+	}
+
+
+	/*** Dump the binary image file ***/
+
+	/* File type is "DATA" */
+	FILE_TYPE(FILE_TYPE_DATA);
+
+	/* Build the filename */
+        path_build(buf, 1024, ANGBAND_DIR_DATA, "ow_info.raw");
+
+	/* Kill the old file */
+	(void)fd_kill(buf);
+
+	/* Attempt to create the raw file */
+	fd = fd_make(buf, mode);
+
+	/* Dump to the file */
+	if (fd >= 0)
+	{
+		/* Dump it */
+                fd_write(fd, (char*)(ow_head), ow_head->head_size);
+
+		/* Dump the "r_info" array */
+                fd_write(fd, (char*)(ow_info), ow_head->info_size);
+
+		/* Dump the "r_name" array */
+                fd_write(fd, (char*)(ow_name), ow_head->name_size);
+
+		/* Close */
+		(void)fd_close(fd);
+	}
+
+
+	/*** Kill the fake arrays ***/
+
+        /* Free the "ow_info" array */
+        C_KILL(ow_info, ow_head->info_num, owner_type);
+
+	/* Hack -- Free the "fake" arrays */
+        C_KILL(ow_name, fake_name_size, char);
+
+	/* Forget the array sizes */
+	fake_name_size = 0;
+	fake_text_size = 0;
+
+#endif	/* ALLOW_TEMPLATES */
+
+
+	/*** Load the binary image file ***/
+
+	/* Build the filename */
+        path_build(buf, 1024, ANGBAND_DIR_DATA, "ow_info.raw");
+
+	/* Attempt to open the "raw" file */
+	fd = fd_open(buf, O_RDONLY);
+
+	/* Process existing "raw" file */
+        if (fd < 0) quit("Cannot load 'ow_info.raw' file.");
+
+	/* Attempt to parse the "raw" file */
+        err = init_ow_info_raw(fd);
+
+	/* Close it */
+	(void)fd_close(fd);
+
+	/* Error */
+        if (err) quit("Cannot parse 'ow_info.raw' file.");
+
+	/* Success */
+	return (0);
+}
+
+/*
+ * Initialize the "ba_info" array
+ *
+ * Note that we let each entry have a unique "name" and "short name" string,
+ * even if the string happens to be empty (everyone has a unique '\0').
+ */
+static errr init_ba_info(void)
+{
+	int fd;
+
+	int mode = 0644;
+
+	errr err = 0;
+
+	FILE *fp;
+
+	/* General buffer */
+	char buf[1024];
+
+
+	/*** Make the header ***/
+
+	/* Allocate the "header" */
+        MAKE(ba_head, header);
+
+	/* Save the "version" */
+        ba_head->v_major = VERSION_MAJOR;
+        ba_head->v_minor = VERSION_MINOR;
+        ba_head->v_patch = VERSION_PATCH;
+        ba_head->v_extra = 0;
+
+	/* Save the "record" information */
+        ba_head->info_num = max_ba_idx;
+        ba_head->info_len = sizeof(store_action_type);
+
+        /* Save the size of "head" and "ba_info" */
+        ba_head->head_size = sizeof(header);
+        ba_head->info_size = ba_head->info_num * ba_head->info_len;
+
+
+#ifdef ALLOW_TEMPLATES
+
+	/*** Load the binary image file ***/
+
+	/* Build the filename */
+        path_build(buf, 1024, ANGBAND_DIR_DATA, "ba_info.raw");
+
+	/* Attempt to open the "raw" file */
+	fd = fd_open(buf, O_RDONLY);
+
+	/* Process existing "raw" file */
+	if (fd >= 0)
+	{
+#ifdef CHECK_MODIFICATION_TIME
+
+                err = check_modification_date(fd, "ba_info.txt");
+
+#endif /* CHECK_MODIFICATION_TIME */
+
+		/* Attempt to parse the "raw" file */
+		if (!err)
+                        err = init_ba_info_raw(fd);
+
+		/* Close it */
+		(void)fd_close(fd);
+
+		/* Success */
+		if (!err) return (0);
+
+		/* Information */
+                msg_print("Ignoring obsolete/defective 'ba_info.raw' file.");
+		msg_print(NULL);
+	}
+
+
+	/*** Make the fake arrays ***/
+
+        /* Assume the size of "ba_name" and "ba_text" */
+	fake_name_size = FAKE_NAME_SIZE;
+
+        /* Allocate the "ba_info" array */
+        C_MAKE(ba_info, ba_head->info_num, store_action_type);
+
+	/* Hack -- make "fake" arrays */
+        C_MAKE(ba_name, fake_name_size, char);
+
+
+	/*** Load the ascii template file ***/
+
+	/* Build the filename */
+        path_build(buf, 1024, ANGBAND_DIR_EDIT, "ba_info.txt");
+
+	/* Open the file */
+	fp = my_fopen(buf, "r");
+
+	/* Parse it */
+        if (!fp) quit("Cannot open 'ba_info.txt' file.");
+
+	/* Parse the file */
+        err = init_ba_info_txt(fp, buf);
+
+	/* Close it */
+	my_fclose(fp);
+
+	/* Errors */
+	if (err)
+	{
+		cptr oops;
+
+		/* Error string */
+		oops = (((err > 0) && (err < 8)) ? err_str[err] : "unknown");
+
+		/* Oops */
+                msg_format("Error %d at line %d df 'ba_info.txt'.", err, error_line);
+		msg_format("Record %d contains a '%s' error.", error_idx, oops);
+		msg_format("Parsing '%s'.", buf);
+		msg_print(NULL);
+
+		/* Quit */
+                quit("Error in 'ba_info.txt' file.");
+	}
+
+
+	/*** Dump the binary image file ***/
+
+	/* File type is "DATA" */
+	FILE_TYPE(FILE_TYPE_DATA);
+
+	/* Build the filename */
+        path_build(buf, 1024, ANGBAND_DIR_DATA, "ba_info.raw");
+
+	/* Kill the old file */
+	(void)fd_kill(buf);
+
+	/* Attempt to create the raw file */
+	fd = fd_make(buf, mode);
+
+	/* Dump to the file */
+	if (fd >= 0)
+	{
+		/* Dump it */
+                fd_write(fd, (char*)(ba_head), ba_head->head_size);
+
+		/* Dump the "r_info" array */
+                fd_write(fd, (char*)(ba_info), ba_head->info_size);
+
+		/* Dump the "r_name" array */
+                fd_write(fd, (char*)(ba_name), ba_head->name_size);
+
+		/* Close */
+		(void)fd_close(fd);
+	}
+
+
+	/*** Kill the fake arrays ***/
+
+        /* Free the "ba_info" array */
+        C_KILL(ba_info, ba_head->info_num, store_action_type);
+
+	/* Hack -- Free the "fake" arrays */
+        C_KILL(ba_name, fake_name_size, char);
+
+	/* Forget the array sizes */
+	fake_name_size = 0;
+	fake_text_size = 0;
+
+#endif	/* ALLOW_TEMPLATES */
+
+
+	/*** Load the binary image file ***/
+
+	/* Build the filename */
+        path_build(buf, 1024, ANGBAND_DIR_DATA, "ba_info.raw");
+
+	/* Attempt to open the "raw" file */
+	fd = fd_open(buf, O_RDONLY);
+
+	/* Process existing "raw" file */
+        if (fd < 0) quit("Cannot load 'ba_info.raw' file.");
+
+	/* Attempt to parse the "raw" file */
+        err = init_ba_info_raw(fd);
+
+	/* Close it */
+	(void)fd_close(fd);
+
+	/* Error */
+        if (err) quit("Cannot parse 'ba_info.raw' file.");
+
+	/* Success */
+	return (0);
+}
+
+/*
  * Initialize the "wf_info" array
  *
  * Note that we let each entry have a unique "name" and "short name" string,
@@ -2054,7 +3008,7 @@ static errr init_wf_info(void)
                 fd_write(fd, (char*)(wf_text), wf_head->text_size);
 
                 /* Dump the "wildc2i" array */
-                fd_write(fd, (int*)(wildc2i), 256 * sizeof(int));
+                fd_write(fd, (char*)(wildc2i), 256 * sizeof(int));
 
 		/* Close */
 		(void)fd_close(fd);
@@ -2351,623 +3305,6 @@ static errr init_t_info(void)
 	return (0);
 }
 
-
-/* Add various player ghost attributes depending on race. -LM- */
-static void process_ghost_race(int ghost_race, int r_idx)
-{
-	monster_race *r_ptr = &r_info[r_idx];
-	byte n;
-
-	switch(ghost_race)
-	{
-		/* Human */
-		case 0:
-		{
-			/* No differences */
-			break;
-		}
-		/* Half-Elf */
-		case 1:
-		{
-			if (r_ptr->freq_spell) r_ptr->freq_spell += 3;
-			r_ptr->aaf += 3;
-			r_ptr->hdice = 6 * r_ptr->hdice / 7;
-			break;
-		}
-		/* Elf */
-		case 2:
-		{
-			if (r_ptr->freq_spell) r_ptr->freq_spell += 5;
-			r_ptr->aaf += 5;
-			r_ptr->hdice = 4 * r_ptr->hdice / 5;
-			if (r_ptr->flags3 & (RF3_HURT_LITE)) 
-				r_ptr->flags3 &= ~(RF3_HURT_LITE);
-			break;
-		}
-                /* Dark Elf */
-                case RACE_DARK_ELF:
-		{
-                        if (r_ptr->freq_spell) r_ptr->freq_spell += 7;
-                        r_ptr->aaf += 6;
-			r_ptr->hdice = 4 * r_ptr->hdice / 5;
-			break;
-		}
-		/* Hobbit */
-		case 3:
-		{	
-			r_ptr->hdice = 3 * r_ptr->hdice / 4;
-
-			if (randint(3) == 1)
-			{
-				for (n = 0; n < 4; n++)
-				{
-					if (r_ptr->blow[n].effect == RBE_HURT)
-					{
-						if (randint(2) == 1) 
-							r_ptr->blow[n].effect = RBE_EAT_GOLD;
-						else r_ptr->blow[n].effect = RBE_EAT_ITEM;
-	
-						r_ptr->blow[n].d_side = 
-							2 * r_ptr->blow[n].d_side / 3;
-						break;
-					}
-				}
-			}
-			else
-			{
-				if (r_ptr->freq_spell == 0) r_ptr->freq_spell = 8;
-
-                                if (r_ptr->level <= 15) r_ptr->flags4 |= (RF4_ARROW_1);
-                                else r_ptr->flags4 |= (RF4_ARROW_2);
-			}
-
-			break;
-		}
-		/* Gnome */
-		case 4:
-		{
-			r_ptr->flags6 |= (RF6_BLINK);
-			r_ptr->flags3 |= (RF3_NO_SLEEP);
-			r_ptr->hdice = 4 * r_ptr->hdice / 5;
-			break;
-		}
-		/* Dwarf */
-		case 5:
-                case RACE_NIBELUNG:
-		{
-			r_ptr->hdice = 6 * r_ptr->hdice / 5;
-			break;
-		}
-		/* Half-Orc */
-		case 6:
-                case RACE_KOBOLD:
-		{
-			r_ptr->flags3 |= (RF3_ORC);
-			break;
-		}
-		/* Half-Troll */
-		case 7:
-		{
-			if (r_ptr->freq_spell > 5) 
-			r_ptr->freq_spell /= 2;
-
-			r_ptr->flags3 |= (RF3_TROLL);
-
-			r_ptr->hdice = 3 * r_ptr->hdice / 2;
-			r_ptr->aaf = 2;
-
-			r_ptr->ac += r_ptr->level / 10 + 10;
-
-                        if (r_ptr->speed < 111) r_ptr->speed -= 2;
-                        else r_ptr->speed -= 4;
-
-			for (n = 0; n < 4; n++)
-			{
-				r_ptr->blow[n].d_side = 4 * r_ptr->blow[n].d_side / 3;
-			}
-
-			break;
-		}
-		/* Dunadan */
-		case 8:
-		{
-			r_ptr->ac += r_ptr->level / 10 + 5;
-
-			for (n = 0; n < 4; n++)
-			{
-				if (randint(2) == 1) 
-					r_ptr->blow[n].d_side = 6 * r_ptr->blow[n].d_side / 5;
-			}
-			break;
-		}
-		/* High-Elf */
-		case 9:
-		{
-			r_ptr->ac += r_ptr->level / 10 + 2;
-
-			if (r_ptr->freq_spell) r_ptr->freq_spell += 8;
-			r_ptr->aaf += 6;
-			if (r_ptr->flags3 & (RF3_HURT_LITE)) 
-				r_ptr->flags3 &= ~(RF3_HURT_LITE);
-			break;
-		}
-                case RACE_BARBARIAN:
-                {
-                        r_ptr->flags3 |= RF3_NO_FEAR;
-                        break;
-                }
-                case RACE_VAMPIRE:
-                {
-                        r_ptr->flags3 |= RF3_RES_NETH;
-                        r_ptr->flags3 |= RF3_IM_COLD;
-                        r_ptr->flags3 |= RF3_IM_POIS;
-                        r_ptr->flags3 |= RF3_HURT_LITE;
-                        break;
-                }
-                case RACE_SPECTRE:
-                {
-                        r_ptr->flags3 |= RF3_RES_NETH;
-                        r_ptr->flags3 |= RF3_IM_POIS;
-                        r_ptr->flags3 |= RF3_IM_COLD;
-                        r_ptr->flags2 |= RF2_INVISIBLE;
-                        r_ptr->flags2 |= RF2_PASS_WALL;
-                        break;
-                }
-                case RACE_RKNIGHT:
-                {
-                        r_ptr->speed += 10;
-                        break;
-                }
-                case RACE_ENT:
-                {
-                        r_ptr->flags3 |= RF3_SUSCEP_FIRE;
-                        r_ptr->speed -= 3;
-
-			for (n = 0; n < 4; n++)
-                                r_ptr->blow[n].d_side = 5 * r_ptr->blow[n].d_side / 3;
-                        break;
-                }
-                case RACE_DRAGONRIDER:
-                {
-                        r_ptr->flags3 |= RF3_DRAGONRIDER;
-                        r_ptr->flags3 |= RF3_IM_ACID;
-                        r_ptr->flags3 |= RF3_IM_ELEC;
-                        r_ptr->flags3 |= RF3_IM_FIRE;
-                        r_ptr->flags3 |= RF3_IM_COLD;
-                        r_ptr->flags3 |= RF3_IM_POIS;
-
-                        r_ptr->flags4 |= RF4_BR_FIRE;
-                        break;
-                }
-                case RACE_MOLD:
-                {
-                        r_ptr->flags1 |= RF1_NEVER_MOVE;
-                        r_ptr->flags3 |= RF3_RES_NETH;
-                        r_ptr->flags3 |= RF3_RES_NEXU;
-                        break;
-                }
-	}
-}
-
-/* Add various attributes player ghost depending on class. -LM- */
-static void process_ghost_class(int ghost_class, int r_idx)
-{
-	monster_race *r_ptr = &r_info[r_idx];
-	byte n;
-
-	/* Note the care taken to make sure that all monsters that get spells 
-	 * can also cast them, since not all racial templates include spells.
-	 */
-	switch(ghost_class)
-	{
-		/* Warrior */
-		case 0:
-                case CLASS_MIMIC:
-		{
-			if (r_ptr->freq_spell <= 10) r_ptr->freq_spell = 5;
-			else r_ptr->freq_spell -= 5;
-
-			r_ptr->hdice = 5 * r_ptr->hdice / 4;
-			r_ptr->ac += r_ptr->level / 10 + 5;
-
-			for (n = 0; n < 4; n++)
-			{
-				if (r_ptr->blow[n].effect != RBE_HURT)
-				{
-					r_ptr->blow[n].effect = RBE_HURT;
-
-					r_ptr->blow[n].d_side = 3 * r_ptr->blow[n].d_side / 2;
-					break;
-				}
-			}
-
-			break;
-		}
-                /* Beastmaster */
-                case CLASS_BEASTMASTER:
-		{
-			if (r_ptr->freq_spell == 0) r_ptr->freq_spell = 12;
-			else r_ptr->freq_spell += 10;
-
-			r_ptr->hdice = 5 * r_ptr->hdice / 4;
-                        r_ptr->ac += r_ptr->level / 10;
-
-			for (n = 0; n < 4; n++)
-			{
-				if (r_ptr->blow[n].effect != RBE_HURT)
-				{
-					r_ptr->blow[n].effect = RBE_HURT;
-
-					r_ptr->blow[n].d_side = 3 * r_ptr->blow[n].d_side / 2;
-					break;
-				}
-			}
-
-                        r_ptr->flags6 |= RF6_S_MONSTER;
-                        r_ptr->flags6 |= RF6_S_MONSTERS;
-                        r_ptr->flags6 |= RF6_S_ANT;
-                        r_ptr->flags6 |= RF6_S_SPIDER;
-                        r_ptr->flags6 |= RF6_S_RNG;
-                        r_ptr->flags6 |= RF6_S_CYBER;
-                        r_ptr->flags6 |= RF6_S_HOUND;
-                        r_ptr->flags6 |= RF6_S_WRAITH;
-                        r_ptr->flags6 |= RF6_S_DRAGON;
-                        r_ptr->flags6 |= RF6_S_HI_DRAGON;
-
-			break;
-		}
-		/* Mage */
-		case 1:
-                case CLASS_ALCHEMIST:
-                case CLASS_HIGH_MAGE:
-                case CLASS_POWERMAGE:
-                case CLASS_SYMBIANT:
-                case CLASS_RUNECRAFTER:
-                case CLASS_HARPER:
-                case CLASS_POSSESSOR:
-                case CLASS_WIZARD:
-		{
-			if (r_ptr->freq_spell == 0) r_ptr->freq_spell = 12;
-			else r_ptr->freq_spell += 10;
-
-                        if (r_ptr->level < 15) r_ptr->flags5 |= (RF5_MISSILE);
-                        else if (r_ptr->level >= 15) r_ptr->flags5 |= (RF5_BA_POIS);
-                        else if (r_ptr->level >= 25) r_ptr->flags5 |= (RF5_BA_ELEC);
-                        else if (r_ptr->level >= 35) r_ptr->flags5 |= (RF5_BA_COLD);
-                        else if (r_ptr->level >= 50) r_ptr->flags5 |= (RF5_BA_ACID);
-                        else if (r_ptr->level >= 75) r_ptr->flags5 |= (RF5_BA_MANA);
-
-                        if (r_ptr->level >= 20) r_ptr->flags6 |= (RF6_HASTE);
-                        if (r_ptr->level > 40) r_ptr->speed += 5;
-                        if (r_ptr->speed > 150) r_ptr->speed = 150;
-
-			r_ptr->flags6 |= (RF6_BLINK);
-                        if (r_ptr->level > 45) r_ptr->flags6 |= (RF6_TPORT);
-
-			r_ptr->hdice = 2 * r_ptr->hdice / 3;
-
-			for (n = 0; n < 4; n++)
-			{
-				if (randint(3) == 1) r_ptr->blow[n].d_side = 4 * r_ptr->blow[n].d_side / 5;
-			}
-			
-			break;
-		}
-		/* Priest */
-		case 2:
-                case CLASS_PRIOR:
-                case CLASS_MINDCRAFTER:
-		{
-			if (r_ptr->freq_spell == 0) r_ptr->freq_spell = 10;
-			else r_ptr->freq_spell += 5;
-
-                        if (r_ptr->level <= 15) r_ptr->flags5 |= (RF5_CAUSE_1);
-                        else if (r_ptr->level <= 30) r_ptr->flags5 |= (RF5_CAUSE_2);
-                        else if (r_ptr->level <= 45) r_ptr->flags5 |= (RF5_CAUSE_3);
-                        else if (r_ptr->level <= 60) r_ptr->flags5 |= (RF5_CAUSE_4);
-			else r_ptr->flags6 |= (RF6_S_MONSTERS);
-
-                        if (r_ptr->level > 50) r_ptr->flags6 |= (RF6_HEAL);
-
-			r_ptr->hdice = 4 * r_ptr->hdice / 5;
-
-			break;
-		}
-		/* Rogue */
-		case 3:
-		{
-			if (r_ptr->freq_spell == 0) r_ptr->freq_spell = 8;
-
-                        if (r_ptr->level <= 30) r_ptr->flags6 |= (RF6_HASTE);
-                        else if (r_ptr->level > 30) r_ptr->speed += 5;
-                        if (r_ptr->speed > 130) r_ptr->speed = 130;
-
-			r_ptr->hdice = 4 * r_ptr->hdice / 5;
-
-			r_ptr->flags6 |= (RF6_TRAPS);
-
-			for (n = 0; n < 4; n++)
-			{
-				if (r_ptr->blow[n].effect == RBE_HURT)
-				{
-					if (randint(2) == 1) r_ptr->blow[n].effect = RBE_EAT_GOLD;
-					else r_ptr->blow[n].effect = RBE_EAT_ITEM;
-
-					r_ptr->blow[n].d_side = 2 * r_ptr->blow[n].d_side / 3;
-					break;
-				}
-			}
-
-			break;
-		}
-		/* Ranger */
-		case 4:
-		{
-			if (r_ptr->freq_spell == 0) r_ptr->freq_spell = 8;
-
-                        if (r_ptr->level <= 15) r_ptr->flags4 |= (RF4_ARROW_1);
-                        else r_ptr->flags4 |= (RF4_ARROW_2);
-
-			r_ptr->flags6 |= (RF6_BLINK);
-
-			break;
-		}
-		/* Paladin */
-		case 5:
-		{
-			if (r_ptr->freq_spell == 0) r_ptr->freq_spell = 8;
-
-			r_ptr->flags4 |= (RF4_SHRIEK);
-
-                        if (r_ptr->level <= 25) r_ptr->flags5 |= (RF5_CAUSE_1);
-                        else if (r_ptr->level <= 40) r_ptr->flags5 |= (RF5_CAUSE_2);
-                        else if (r_ptr->level <= 55) r_ptr->flags5 |= (RF5_CAUSE_3);
-                        else if (r_ptr->level <= 70) r_ptr->flags5 |= (RF5_CAUSE_4);
-
-			r_ptr->flags3 |= (RF3_IM_FIRE | 
-					RF3_IM_COLD | RF3_IM_ELEC | RF3_IM_ACID);
-			
-			break;
-		}
-                /* Monk */
-                case CLASS_MONK:
-		{
-			if (r_ptr->freq_spell == 0) r_ptr->freq_spell = 10;
-			else r_ptr->freq_spell += 5;
-
-                        if (r_ptr->level <= 20) r_ptr->flags5 |= (RF5_MISSILE);
-                        else if (r_ptr->level >= 20) r_ptr->flags5 |= (RF5_BO_COLD);
-                        else if (r_ptr->level >= 40) r_ptr->flags5 |= (RF5_BO_PLAS);
-                        else if (r_ptr->level >= 50) r_ptr->flags5 |= (RF5_BO_WATE);
-                        else if (r_ptr->level >= 70) r_ptr->flags5 |= (RF5_BA_WATE);
-
-                        if (r_ptr->level >= 25) r_ptr->flags6 |= RF6_S_ANT;
-                        else if (r_ptr->level >= 35) r_ptr->flags6 |= RF6_S_SPIDER;
-                        else if (r_ptr->level >= 45) r_ptr->flags6 |= RF6_S_MONSTER;
-                        else if (r_ptr->level >= 65) r_ptr->flags6 |= RF6_S_HOUND;
-
-			r_ptr->hdice = 4 * r_ptr->hdice / 5;
-
-			break;
-		}
-                case CLASS_SORCERER:
-		{
-                        if (r_ptr->freq_spell == 0) r_ptr->freq_spell = 32;
-                        else r_ptr->freq_spell += 30;
-
-                        if (r_ptr->level < 15) r_ptr->flags5 |= (RF5_MISSILE);
-                        if (r_ptr->level >= 15) r_ptr->flags5 |= (RF5_BA_POIS);
-                        if (r_ptr->level >= 25) r_ptr->flags5 |= (RF5_BA_ELEC);
-                        if (r_ptr->level >= 35) r_ptr->flags5 |= (RF5_BA_COLD);
-                        if (r_ptr->level >= 50) r_ptr->flags5 |= (RF5_BA_ACID);
-                        if (r_ptr->level >= 75) r_ptr->flags5 |= (RF5_BA_MANA);
-                        if (r_ptr->level >= 75) r_ptr->flags4 |= (RF4_ROCKET);
-                        if (r_ptr->level >= 75) r_ptr->flags5 |= (RF5_CONF);
-                        if (r_ptr->level >= 75) r_ptr->flags5 |= (RF5_BLIND);
-                        if (r_ptr->level >= 75) r_ptr->flags5 |= (RF5_SCARE);
-                        if (r_ptr->level >= 75) r_ptr->flags5 |= (RF5_SLOW);
-                        if (r_ptr->level >= 75) r_ptr->flags5 |= (RF5_HOLD);
-                        if (r_ptr->level >= 75) r_ptr->flags6 |= (RF6_TELE_TO);
-                        if (r_ptr->level >= 75) r_ptr->flags6 |= (RF6_TELE_AWAY);
-                        if (r_ptr->level >= 75) r_ptr->flags6 |= (RF6_S_DRAGONRIDER);
-                        if (r_ptr->level >= 75) r_ptr->flags6 |= (RF6_S_CYBER);
-                        if (r_ptr->level >= 75) r_ptr->flags5 |= (RF5_BA_NETH);
-
-                        if (r_ptr->level >= 20) r_ptr->flags6 |= (RF6_HASTE);
-                        if (r_ptr->level > 40) r_ptr->speed += 5;
-                        if (r_ptr->speed > 150) r_ptr->speed = 150;
-
-			r_ptr->flags6 |= (RF6_BLINK);
-                        if (r_ptr->level > 45) r_ptr->flags6 |= (RF6_TPORT);
-
-			r_ptr->hdice = 2 * r_ptr->hdice / 3;
-
-			for (n = 0; n < 4; n++)
-			{
-                                if (randint(3) == 1) r_ptr->blow[n].d_side = 4 * r_ptr->blow[n].d_side / 7;
-			}
-			
-			break;
-		}
-		/* Mage */
-                case CLASS_WARRIOR_MAGE:
-		{
-			if (r_ptr->freq_spell == 0) r_ptr->freq_spell = 12;
-			else r_ptr->freq_spell += 10;
-
-                        if (r_ptr->level < 15) r_ptr->flags5 |= (RF5_MISSILE);
-                        if (r_ptr->level >= 15) r_ptr->flags5 |= (RF5_BA_POIS);
-                        if (r_ptr->level >= 25) r_ptr->flags5 |= (RF5_BA_ELEC);
-                        else if (r_ptr->level >= 35) r_ptr->flags5 |= (RF5_BA_COLD);
-                        else if (r_ptr->level >= 50) r_ptr->flags5 |= (RF5_BA_ACID);
-
-                        if (r_ptr->level >= 20) r_ptr->flags6 |= (RF6_HASTE);
-                        if (r_ptr->level > 40) r_ptr->speed += 5;
-                        if (r_ptr->speed > 150) r_ptr->speed = 150;
-
-			r_ptr->flags6 |= (RF6_BLINK);
-                        if (r_ptr->level > 45) r_ptr->flags6 |= (RF6_TPORT);
-			break;
-		}
-		/* Mage */
-                case CLASS_CHAOS_WARRIOR:
-		{
-			if (r_ptr->freq_spell == 0) r_ptr->freq_spell = 12;
-			else r_ptr->freq_spell += 10;
-
-                        if (r_ptr->level < 15) r_ptr->flags5 |= (RF5_MISSILE);
-                        if (r_ptr->level >= 50) r_ptr->flags4 |= (RF4_BA_CHAO);
-                        if (r_ptr->level >= 75) r_ptr->flags5 |= (RF5_BA_MANA);
-
-			r_ptr->flags6 |= (RF6_BLINK);
-                        if (r_ptr->level > 45) r_ptr->flags6 |= (RF6_TPORT);
-			break;
-		}
-	}
-}
-
-/*
- * Initialize the "ghost_info" array(part of the r_info one)
- */
-errr init_ghost_info(int n)
-{
-	errr err = 0;
-
-	FILE *fp;
-
-        int i, j, k;
-
-        monster_race *r_ptr;
-
-	/* General buffer */
-        char buf[1024], name[80];
-
-        char ghost_name[80], damage[20];
-        char ghost_desc[320];
-        int ghost_sex, ghost_race, ghost_class, ghost_friend;
-        int mhp, msp, max_dlv, max_exp, lev, to_a, to_h, to_d, invis,
-            regen, ffall, speed, res_acid, res_elec, res_pois, res_fire,
-            res_cold, res_conf, res_lite, res_dark, res_fear, res_chaos,
-            res_disen, wpn_k_idx, name2, name1, num_blow, dd, ds, ac;
-
-        {
-                /* Try to find a good and unused file */
-                i = 0;
-                sprintf(buf, "%s", ANGBAND_DIR_BONE);
-                while(i < 20)
-                {                        
-                        int rn;
-
-                        sprintf(name, "%s", get_line("bones.txt", buf, -1));
-
-                        rn = rand_int(atoi(name));
-
-                        sprintf(name, "%s", get_line("bones.txt", buf, rn));
-
-                        /* Find if the file is not used */
-                        k = 0;
-                        for(j = 0; j < MAX_GHOSTS; j++)
-                        {
-                                if(strcmp(ghost_file[j], name) == 0)
-                                        k++;
-                        }
-                        if(!k) break;
-
-                        i++;
-                }
-                /* Find nothing ? so return */
-                if (i >= 20) return 1;
-
-                /*** Load the bone file ***/
-
-                /* Build the filename */
-                path_build(buf, 1024, ANGBAND_DIR_BONE, name);
-
-                /* Attempt to open the bone file */
-                fp = my_fopen(buf, "r");
-
-                /* Process existing bone file */
-                if (!fp) return (1);
-
-                sprintf(ghost_file[n], name);
-
-                r_ptr = &r_info[GHOST_R_IDX_HEAD + n];
-
-                /* Attempt to parse the bone file */
-                err = (fscanf(fp, "%s\n%d\n%d\n%d\n%s\n%d\n%d\n%d\n%d\n%d\n%d\n%d\n%d\n%d\n%d\n%d\n%d\n%d\n%d\n%d\n%d\n%d\n%d\n%d\n%d\n%d\n%d\n%d\n%d\n%d\n%d\n%d\n%d\n%s\n%d\n%d\n%d",
-                              ghost_name, &ghost_sex, &ghost_race, &ghost_class,
-                              ghost_desc, &ghost_friend, &mhp, &msp, &max_dlv,
-                              &max_exp, &lev, &ac, &to_a, &to_h, &to_d, &invis,
-                              &regen, &ffall, &speed, &res_acid, &res_elec,
-                              &res_pois, &res_fire, &res_cold, &res_conf,
-                              &res_lite, &res_dark, &res_fear, &res_chaos,
-                              &res_disen, &wpn_k_idx, &name2, &name1, damage,
-                              &num_blow, &dd, &ds) != 38);
-
-                /* Convert the _ into space, it's needed by the %s format of fscanf */
-                i = 0;
-                while(i < 320)
-                {
-                        if(ghost_desc[i] == '_') ghost_desc[i] = ' ';
-                        i++;
-                }
-
-                num_blow = (num_blow > 4) ? 4 : num_blow;
-
-                for(i = 0; i < num_blow; i++)
-                {
-                        r_ptr->blow[i].method = RBM_HIT;
-                        r_ptr->blow[i].effect = RBE_HURT;
-                        r_ptr->blow[i].d_dice = dd * num_blow;
-                        r_ptr->blow[i].d_side = ds;
-                }
-
-                if (ghost_sex == 0) r_ptr->flags1 |= (RF1_FEMALE);
-                if (ghost_sex == 1) r_ptr->flags1 |= (RF1_MALE);
-
-                if(res_acid) r_ptr->flags3 |= RF3_IM_ACID;
-                if(res_elec) r_ptr->flags3 |= RF3_IM_ELEC;
-                if(res_fire) r_ptr->flags3 |= RF3_IM_FIRE;
-                if(res_cold) r_ptr->flags3 |= RF3_IM_COLD;
-                if(res_pois) r_ptr->flags3 |= RF3_IM_POIS;
-                if(res_conf) r_ptr->flags3 |= RF3_NO_CONF;
-                if(res_disen) r_ptr->flags3 |= RF3_RES_DISE;
-                if(res_fear) r_ptr->flags3 |= RF3_NO_FEAR;
-                r_ptr->freq_inate = 10;
-                r_ptr->freq_spell = 10;
-
-                r_ptr->level = (max_dlv <= 100)?max_dlv - rand_int(10):100 - rand_int(10);
-                r_ptr->rarity = 40;
-                r_ptr->speed = speed;
-                r_ptr->mexp = max_exp / 1000;
-                r_ptr->sleep = 0;
-                r_ptr->aaf = 8;
-                r_ptr->ac = ac + to_a;
-
-                /* Give full hp */
-                r_ptr->hdice = ((mhp / 10) < 1)?1:(mhp / 10);
-                r_ptr->hside = mhp;
-
-                sprintf(r_name + r_ptr->name, "%s, the %s %s",
-                        ghost_name, race_info[ghost_race].title, class_info[ghost_class].title);
-
-                sprintf(r_text + r_ptr->text, "%s", ghost_desc);
-
-                if(ghost_friend) r_ptr->flags7 |= RF7_PET;
-
-                process_ghost_race(ghost_class, GHOST_R_IDX_HEAD + n);
-                process_ghost_class(ghost_class, GHOST_R_IDX_HEAD + n);
-
-                /* Close it */
-                my_fclose(fp);
-        }
-
-        /* Success */
-	return (0);
-}
-
-
-
 /*
  * Initialize the "v_info" array, by parsing a binary "image" file
  */
@@ -3228,583 +3565,10 @@ errr init_v_info(void)
 }
 
 
-
-/*** Initialize others ***/
-
-/*
- * Hack -- Objects sold in the stores -- by tval/sval pair.
- */
-static byte store_table[MAX_STORES][STORE_CHOICES][2] =
-{
-	{
-		/* General Store */
-
-		{ TV_FOOD, SV_FOOD_RATION },
-		{ TV_FOOD, SV_FOOD_RATION },
-		{ TV_FOOD, SV_FOOD_RATION },
-		{ TV_FOOD, SV_FOOD_RATION },
-
-		{ TV_FOOD, SV_FOOD_RATION },
-		{ TV_FOOD, SV_FOOD_BISCUIT },
-		{ TV_FOOD, SV_FOOD_JERKY },
-		{ TV_FOOD, SV_FOOD_JERKY },
-
-		{ TV_FOOD, SV_FOOD_PINT_OF_WINE },
-		{ TV_FOOD, SV_FOOD_PINT_OF_ALE },
-		{ TV_LITE, SV_LITE_TORCH },
-		{ TV_LITE, SV_LITE_TORCH },
-
-		{ TV_LITE, SV_LITE_TORCH },
-		{ TV_LITE, SV_LITE_TORCH },
-		{ TV_LITE, SV_LITE_LANTERN },
-		{ TV_LITE, SV_LITE_LANTERN },
-
-		{ TV_FLASK, 0 },
-		{ TV_FLASK, 0 },
-		{ TV_FLASK, 0 },
-		{ TV_FLASK, 0 },
-
-		{ TV_FLASK, 0 },
-		{ TV_FLASK, 0 },
-		{ TV_SPIKE, 0 },
-		{ TV_SPIKE, 0 },
-
-		{ TV_SHOT, SV_AMMO_NORMAL },
-		{ TV_ARROW, SV_AMMO_NORMAL },
-		{ TV_BOLT, SV_AMMO_NORMAL },
-		{ TV_DIGGING, SV_SHOVEL },
-
-		{ TV_DIGGING, SV_PICK },
-		{ TV_CLOAK, SV_CLOAK },
-		{ TV_CLOAK, SV_CLOAK },
-		{ TV_CLOAK, SV_FUR_CLOAK },
-
-		{ TV_FOOD, SV_FOOD_RATION },
-		{ TV_FOOD, SV_FOOD_RATION },
-		{ TV_FOOD, SV_FOOD_RATION },
-		{ TV_FOOD, SV_FOOD_RATION },
-
-		{ TV_LITE, SV_LITE_TORCH },
-		{ TV_LITE, SV_LITE_TORCH },
-		{ TV_LITE, SV_LITE_LANTERN },
-		{ TV_LITE, SV_LITE_LANTERN },
-
-		{ TV_FLASK, 0 },
-		{ TV_FLASK, 0 },
-		{ TV_FLASK, 0 },
-		{ TV_FLASK, 0 },
-
-		{ TV_SHOT, SV_AMMO_NORMAL },
-		{ TV_ARROW, SV_AMMO_NORMAL },
-		{ TV_BOLT, SV_AMMO_NORMAL },
-		{ TV_DIGGING, SV_SHOVEL }
-	},
-
-	{
-		/* Armoury */
-
-		{ TV_BOOTS, SV_PAIR_OF_SOFT_LEATHER_BOOTS },
-		{ TV_BOOTS, SV_PAIR_OF_SOFT_LEATHER_BOOTS },
-		{ TV_BOOTS, SV_PAIR_OF_HARD_LEATHER_BOOTS },
-		{ TV_BOOTS, SV_PAIR_OF_HARD_LEATHER_BOOTS },
-
-		{ TV_HELM, SV_HARD_LEATHER_CAP },
-		{ TV_HELM, SV_HARD_LEATHER_CAP },
-		{ TV_HELM, SV_METAL_CAP },
-		{ TV_HELM, SV_IRON_HELM },
-
-		{ TV_SOFT_ARMOR, SV_ROBE },
-		{ TV_SOFT_ARMOR, SV_ROBE },
-		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR },
-		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR },
-
-		{ TV_SOFT_ARMOR, SV_HARD_LEATHER_ARMOR },
-		{ TV_SOFT_ARMOR, SV_HARD_LEATHER_ARMOR },
-		{ TV_SOFT_ARMOR, SV_HARD_STUDDED_LEATHER },
-		{ TV_SOFT_ARMOR, SV_HARD_STUDDED_LEATHER },
-
-		{ TV_SOFT_ARMOR, SV_RHINO_HIDE_ARMOR },
-		{ TV_SOFT_ARMOR, SV_LEATHER_SCALE_MAIL },
-		{ TV_HARD_ARMOR, SV_METAL_SCALE_MAIL },
-		{ TV_HARD_ARMOR, SV_CHAIN_MAIL },
-
-		{ TV_HARD_ARMOR, SV_DOUBLE_RING_MAIL },
-		{ TV_HARD_ARMOR, SV_AUGMENTED_CHAIN_MAIL },
-		{ TV_HARD_ARMOR, SV_BAR_CHAIN_MAIL },
-		{ TV_HARD_ARMOR, SV_DOUBLE_CHAIN_MAIL },
-
-		{ TV_HARD_ARMOR, SV_METAL_BRIGANDINE_ARMOUR },
-		{ TV_HARD_ARMOR, SV_SPLINT_MAIL },
-		{ TV_GLOVES, SV_SET_OF_LEATHER_GLOVES },
-		{ TV_GLOVES, SV_SET_OF_LEATHER_GLOVES },
-
-		{ TV_GLOVES, SV_SET_OF_GAUNTLETS },
-		{ TV_SHIELD, SV_SMALL_LEATHER_SHIELD },
-		{ TV_SHIELD, SV_LARGE_LEATHER_SHIELD },
-		{ TV_SHIELD, SV_SMALL_METAL_SHIELD },
-
-		{ TV_BOOTS, SV_PAIR_OF_HARD_LEATHER_BOOTS },
-		{ TV_BOOTS, SV_PAIR_OF_HARD_LEATHER_BOOTS },
-		{ TV_HELM, SV_HARD_LEATHER_CAP },
-		{ TV_HELM, SV_HARD_LEATHER_CAP },
-
-		{ TV_SOFT_ARMOR, SV_ROBE },
-		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR },
-		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR },
-		{ TV_SOFT_ARMOR, SV_HARD_LEATHER_ARMOR },
-
-		{ TV_SOFT_ARMOR, SV_LEATHER_JACK },
-		{ TV_HARD_ARMOR, SV_METAL_SCALE_MAIL },
-		{ TV_HARD_ARMOR, SV_CHAIN_MAIL },
-		{ TV_HARD_ARMOR, SV_CHAIN_MAIL },
-
-		{ TV_GLOVES, SV_SET_OF_LEATHER_GLOVES },
-		{ TV_GLOVES, SV_SET_OF_GAUNTLETS },
-		{ TV_SHIELD, SV_SMALL_LEATHER_SHIELD },
-		{ TV_SHIELD, SV_SMALL_LEATHER_SHIELD }
-	},
-
-	{
-		/* Weaponsmith */
-
-		{ TV_SWORD, SV_DAGGER },
-		{ TV_SWORD, SV_MAIN_GAUCHE },
-		{ TV_SWORD, SV_RAPIER },
-		{ TV_SWORD, SV_SMALL_SWORD },
-
-		{ TV_SWORD, SV_SHORT_SWORD },
-		{ TV_SWORD, SV_SABRE },
-		{ TV_SWORD, SV_CUTLASS },
-		{ TV_SWORD, SV_TULWAR },
-
-		{ TV_SWORD, SV_BROAD_SWORD },
-		{ TV_SWORD, SV_LONG_SWORD },
-		{ TV_SWORD, SV_SCIMITAR },
-		{ TV_SWORD, SV_KATANA },
-
-		{ TV_SWORD, SV_BASTARD_SWORD },
-		{ TV_POLEARM, SV_SPEAR },
-		{ TV_POLEARM, SV_AWL_PIKE },
-		{ TV_POLEARM, SV_TRIDENT },
-
-		{ TV_POLEARM, SV_PIKE },
-		{ TV_POLEARM, SV_BEAKED_AXE },
-		{ TV_POLEARM, SV_BROAD_AXE },
-		{ TV_POLEARM, SV_LANCE },
-
-		{ TV_POLEARM, SV_BATTLE_AXE },
-		{ TV_POLEARM, SV_HATCHET },
-		{ TV_BOW, SV_SLING },
-		{ TV_BOW, SV_SHORT_BOW },
-
-		{ TV_BOW, SV_LONG_BOW },
-		{ TV_BOW, SV_LIGHT_XBOW },
-		{ TV_SHOT, SV_AMMO_NORMAL },
-		{ TV_SHOT, SV_AMMO_NORMAL },
-
-		{ TV_ARROW, SV_AMMO_NORMAL },
-		{ TV_ARROW, SV_AMMO_NORMAL },
-		{ TV_BOLT, SV_AMMO_NORMAL },
-		{ TV_BOLT, SV_AMMO_NORMAL },
-
-		{ TV_BOW, SV_LONG_BOW },
-		{ TV_BOW, SV_LIGHT_XBOW },
-		{ TV_ARROW, SV_AMMO_NORMAL },
-		{ TV_ARROW, SV_AMMO_NORMAL },
-
-		{ TV_BOLT, SV_AMMO_NORMAL },
-		{ TV_BOLT, SV_AMMO_NORMAL },
-		{ TV_BOW, SV_SHORT_BOW },
-		{ TV_SWORD, SV_DAGGER },
-
-		{ TV_SWORD, SV_TANTO },
-		{ TV_SWORD, SV_RAPIER },
-		{ TV_SWORD, SV_SMALL_SWORD },
-		{ TV_SWORD, SV_SHORT_SWORD },
-
-		{ TV_HAFTED, SV_WHIP },
-		{ TV_SWORD, SV_BROAD_SWORD },
-		{ TV_SWORD, SV_LONG_SWORD },
-		{ TV_SWORD, SV_SCIMITAR }
-	},
-
-	{
-		/* Temple */
-
-		{ TV_HAFTED, SV_NUNCHAKU },
-		{ TV_HAFTED, SV_QUARTERSTAFF },
-		{ TV_HAFTED, SV_MACE },
-		{ TV_HAFTED, SV_BO_STAFF },
-
-		{ TV_HAFTED, SV_WAR_HAMMER },
-		{ TV_HAFTED, SV_LUCERN_HAMMER },
-		{ TV_HAFTED, SV_MORNING_STAR },
-		{ TV_HAFTED, SV_FLAIL },
-
-		{ TV_HAFTED, SV_LEAD_FILLED_MACE },
-		{ TV_SCROLL, SV_SCROLL_REMOVE_CURSE },
-		{ TV_SCROLL, SV_SCROLL_BLESSING },
-		{ TV_SCROLL, SV_SCROLL_HOLY_CHANT },
-
-		{ TV_POTION, SV_POTION_HEROISM },
-		{ TV_SCROLL, SV_SCROLL_WORD_OF_RECALL },
-		{ TV_SCROLL, SV_SCROLL_WORD_OF_RECALL },
-		{ TV_SCROLL, SV_SCROLL_WORD_OF_RECALL },
-
-		{ TV_POTION, SV_POTION_CURE_LIGHT },
-		{ TV_POTION, SV_POTION_CURE_SERIOUS },
-		{ TV_POTION, SV_POTION_CURE_SERIOUS },
-		{ TV_POTION, SV_POTION_CURE_CRITICAL },
-
-		{ TV_POTION, SV_POTION_CURE_CRITICAL },
-		{ TV_POTION, SV_POTION_RESTORE_EXP },
-		{ TV_POTION, SV_POTION_RESTORE_EXP },
-		{ TV_POTION, SV_POTION_RESTORE_EXP },
-
-                { TV_VALARIN_BOOK, 0 },
-                { TV_VALARIN_BOOK, 0 },
-                { TV_VALARIN_BOOK, 1 },
-                { TV_VALARIN_BOOK, 1 },
-
-                { TV_VALARIN_BOOK, 2 },
-                { TV_VALARIN_BOOK, 2 },
-                { TV_VALARIN_BOOK, 3 },
-                { TV_VALARIN_BOOK, 3 },
-
-		{ TV_HAFTED, SV_WHIP },
-		{ TV_HAFTED, SV_MACE },
-		{ TV_HAFTED, SV_BALL_AND_CHAIN },
-		{ TV_HAFTED, SV_WAR_HAMMER },
-
-		{ TV_SCROLL, SV_SCROLL_WORD_OF_RECALL },
-		{ TV_SCROLL, SV_SCROLL_WORD_OF_RECALL },
-		{ TV_SCROLL, SV_SCROLL_WORD_OF_RECALL },
-		{ TV_POTION, SV_POTION_CURE_CRITICAL },
-
-		{ TV_POTION, SV_POTION_CURE_CRITICAL },
-		{ TV_POTION, SV_POTION_RESTORE_EXP },
-		{ TV_POTION, SV_POTION_RESTORE_EXP },
-		{ TV_POTION, SV_POTION_RESTORE_EXP },
-
-		{ TV_SCROLL, SV_SCROLL_REMOVE_CURSE },
-		{ TV_SCROLL, SV_SCROLL_REMOVE_CURSE },
-		{ TV_SCROLL, SV_SCROLL_STAR_REMOVE_CURSE },
-                { TV_SCROLL, SV_SCROLL_STAR_REMOVE_CURSE },
-
-		{ TV_PRAYER_BOOK, 0 },
-		{ TV_PRAYER_BOOK, 0 },
-		{ TV_PRAYER_BOOK, 0 },
-		{ TV_PRAYER_BOOK, 1 },
-
-		{ TV_PRAYER_BOOK, 1 },
-		{ TV_PRAYER_BOOK, 2 },
-		{ TV_PRAYER_BOOK, 2 },
-                { TV_PRAYER_BOOK, 3 },
-        },
-
-	{
-		/* Alchemy shop */
-
-		{ TV_SCROLL, SV_SCROLL_ENCHANT_WEAPON_TO_HIT },
-		{ TV_SCROLL, SV_SCROLL_ENCHANT_WEAPON_TO_DAM },
-		{ TV_SCROLL, SV_SCROLL_ENCHANT_ARMOR },
-		{ TV_SCROLL, SV_SCROLL_IDENTIFY },
-
-		{ TV_SCROLL, SV_SCROLL_IDENTIFY },
-		{ TV_SCROLL, SV_SCROLL_IDENTIFY },
-		{ TV_SCROLL, SV_SCROLL_IDENTIFY },
-		{ TV_SCROLL, SV_SCROLL_LIGHT },
-
-		{ TV_SCROLL, SV_SCROLL_PHASE_DOOR },
-		{ TV_SCROLL, SV_SCROLL_PHASE_DOOR },
-		{ TV_SCROLL, SV_SCROLL_TELEPORT },
-		{ TV_SCROLL, SV_SCROLL_MONSTER_CONFUSION },
-
-		{ TV_SCROLL, SV_SCROLL_MAPPING },
-		{ TV_SCROLL, SV_SCROLL_DETECT_GOLD },
-		{ TV_SCROLL, SV_SCROLL_DETECT_ITEM },
-		{ TV_SCROLL, SV_SCROLL_DETECT_TRAP },
-
-		{ TV_SCROLL, SV_SCROLL_DETECT_INVIS },
-		{ TV_SCROLL, SV_SCROLL_RECHARGING },
-		{ TV_SCROLL, SV_SCROLL_SATISFY_HUNGER },
-		{ TV_SCROLL, SV_SCROLL_WORD_OF_RECALL },
-
-		{ TV_SCROLL, SV_SCROLL_WORD_OF_RECALL },
-		{ TV_SCROLL, SV_SCROLL_WORD_OF_RECALL },
-		{ TV_SCROLL, SV_SCROLL_WORD_OF_RECALL },
-		{ TV_SCROLL, SV_SCROLL_TELEPORT },
-
-		{ TV_SCROLL, SV_SCROLL_TELEPORT },
-		{ TV_POTION, SV_POTION_RES_STR },
-		{ TV_POTION, SV_POTION_RES_INT },
-		{ TV_POTION, SV_POTION_RES_WIS },
-
-		{ TV_POTION, SV_POTION_RES_DEX },
-		{ TV_POTION, SV_POTION_RES_CON },
-		{ TV_POTION, SV_POTION_RES_CHR },
-		{ TV_SCROLL, SV_SCROLL_IDENTIFY },
-
-		{ TV_SCROLL, SV_SCROLL_IDENTIFY },
-		{ TV_SCROLL, SV_SCROLL_STAR_IDENTIFY },  /* Yep, occasionally! */
-		{ TV_SCROLL, SV_SCROLL_STAR_IDENTIFY },
-		{ TV_SCROLL, SV_SCROLL_LIGHT },
-
-		{ TV_POTION, SV_POTION_RES_STR },
-		{ TV_POTION, SV_POTION_RES_INT },
-		{ TV_POTION, SV_POTION_RES_WIS },
-		{ TV_POTION, SV_POTION_RES_DEX },
-
-		{ TV_POTION, SV_POTION_RES_CON },
-		{ TV_POTION, SV_POTION_RES_CHR },
-		{ TV_SCROLL, SV_SCROLL_ENCHANT_ARMOR },
-		{ TV_SCROLL, SV_SCROLL_ENCHANT_ARMOR },
-
-		{ TV_SCROLL, SV_SCROLL_RECHARGING },
-		{ TV_SCROLL, SV_SCROLL_SATISFY_HUNGER },
-		{ TV_SCROLL, SV_SCROLL_SATISFY_HUNGER },
-		{ TV_SCROLL, SV_SCROLL_SATISFY_HUNGER }
-
-	},
-
-	{
-		/* Magic-User store */
-
-		{ TV_RING, SV_RING_PROTECTION },
-		{ TV_RING, SV_RING_FEATHER_FALL },
-		{ TV_RING, SV_RING_PROTECTION },
-		{ TV_RING, SV_RING_RESIST_FIRE },
-
-		{ TV_RING, SV_RING_RESIST_COLD },
-		{ TV_AMULET, SV_AMULET_CHARISMA },
-		{ TV_AMULET, SV_AMULET_SLOW_DIGEST },
-		{ TV_AMULET, SV_AMULET_RESIST_ACID },
-
-		{ TV_AMULET, SV_AMULET_SEARCHING },
-		{ TV_WAND, SV_WAND_SLOW_MONSTER },
-		{ TV_WAND, SV_WAND_CONFUSE_MONSTER },
-		{ TV_WAND, SV_WAND_SLEEP_MONSTER },
-
-		{ TV_WAND, SV_WAND_MAGIC_MISSILE },
-		{ TV_WAND, SV_WAND_STINKING_CLOUD },
-		{ TV_WAND, SV_WAND_WONDER },
-		{ TV_WAND, SV_WAND_DISARMING },
-
-		{ TV_STAFF, SV_STAFF_LITE },
-		{ TV_STAFF, SV_STAFF_MAPPING },
-		{ TV_STAFF, SV_STAFF_DETECT_TRAP },
-		{ TV_STAFF, SV_STAFF_DETECT_DOOR },
-
-		{ TV_STAFF, SV_STAFF_DETECT_GOLD },
-		{ TV_STAFF, SV_STAFF_DETECT_ITEM },
-		{ TV_STAFF, SV_STAFF_DETECT_INVIS },
-		{ TV_STAFF, SV_STAFF_DETECT_EVIL },
-
-		{ TV_STAFF, SV_STAFF_TELEPORTATION },
-		{ TV_STAFF, SV_STAFF_TELEPORTATION },
-		{ TV_STAFF, SV_STAFF_TELEPORTATION },
-		{ TV_STAFF, SV_STAFF_TELEPORTATION },
-
-		{ TV_STAFF, SV_STAFF_IDENTIFY },
-		{ TV_STAFF, SV_STAFF_IDENTIFY },
-		{ TV_STAFF, SV_STAFF_IDENTIFY },
-		{ TV_STAFF, SV_STAFF_IDENTIFY },
-
-		{ TV_STAFF, SV_STAFF_IDENTIFY },
-		{ TV_STAFF, SV_STAFF_REMOVE_CURSE },
-		{ TV_STAFF, SV_STAFF_CURE_LIGHT },
-		{ TV_STAFF, SV_STAFF_PROBING },
-
-                { TV_MAGERY_BOOK, 0 },
-                { TV_MAGERY_BOOK, 1 },
-                { TV_MAGERY_BOOK, 2 },
-                { TV_MAGERY_BOOK, 3 },
-
-		{ TV_MAGIC_BOOK, 0 },
-                { TV_MAGIC_BOOK, 1 },
-                { TV_MAGIC_BOOK, 2 },
-                { TV_MAGIC_BOOK, 3 },
-
-                { TV_ILLUSION_BOOK, 0 },
-                { TV_ILLUSION_BOOK, 1 },
-                { TV_ILLUSION_BOOK, 2 },
-                { TV_ILLUSION_BOOK, 3 }
-	},
-
-	{
-		/* Black Market (unused) */
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 }
-	},
-
-	{
-		/* Home (unused) */
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 }
-	},
-
-	{
-		/* Bookstore */
-                { TV_MAGERY_BOOK, 0 },
-                { TV_MAGERY_BOOK, 1 },
-                { TV_MAGERY_BOOK, 2 },
-                { TV_MAGERY_BOOK, 3 },
-
-                { TV_SHADOW_BOOK, 0 },
-                { TV_SHADOW_BOOK, 1 },
-                { TV_SHADOW_BOOK, 2 },
-                { TV_SHADOW_BOOK, 3 },
-
-		{ TV_CHAOS_BOOK, 0 },
-                { TV_CHAOS_BOOK, 1 },
-
-                { TV_TRIBAL_BOOK, 0 },
-                { TV_TRIBAL_BOOK, 1 },
-
-                { TV_NETHER_BOOK, 0 },
-                { TV_NETHER_BOOK, 1 },
-                { TV_NETHER_BOOK, 2 },
-                { TV_NETHER_BOOK, 3 },
-
-                { TV_CRUSADE_BOOK, 0 },           /* +16 */
-                { TV_CRUSADE_BOOK, 1 },
-
-                { TV_DRUID_BOOK, 0 },
-                { TV_DRUID_BOOK, 1 },
-                { TV_DRUID_BOOK, 2 },
-
-                { TV_SIGALDRY_BOOK, 0 },
-                { TV_SIGALDRY_BOOK, 0 },
-                { TV_SIGALDRY_BOOK, 1 },
-
-                { TV_ILLUSION_BOOK, 0 },
-                { TV_ILLUSION_BOOK, 1 },
-                { TV_ILLUSION_BOOK, 2 },
-                { TV_ILLUSION_BOOK, 3 },
-
-                { TV_VALARIN_BOOK, 0 },
-                { TV_VALARIN_BOOK, 1 },
-                { TV_VALARIN_BOOK, 2 },
-                { TV_VALARIN_BOOK, 3 },
-
-                { TV_MUSIC_BOOK, 0 },
-                { TV_MUSIC_BOOK, 0 },
-                { TV_MUSIC_BOOK, 1 },
-                { TV_MUSIC_BOOK, 1 },
-
-                { TV_SYMBIOTIC_BOOK, 0 },
-                { TV_SYMBIOTIC_BOOK, 0 },
-        },
-
-	{
-                /* Pet Shop */
-                { TV_EGG, 1 },
-                { TV_EGG, 1 },
-                { TV_EGG, 1 },
-                { TV_EGG, 1 },
-
-                { TV_EGG, 1 },
-                { TV_EGG, 1 },
-                { TV_EGG, 1 },
-                { TV_EGG, 1 },
-
-		{ TV_FOOD, SV_FOOD_BISCUIT },
-		{ TV_FOOD, SV_FOOD_BISCUIT },
-		{ TV_FOOD, SV_FOOD_BISCUIT },
-		{ TV_FOOD, SV_FOOD_BISCUIT },
-
-                { TV_EGG, 1 },
-                { TV_EGG, 1 },
-                { TV_EGG, 1 },
-                { TV_EGG, 1 },
-
-                { TV_EGG, 1 },
-                { TV_EGG, 1 },
-                { TV_EGG, 1 },
-                { TV_EGG, 1 },
-
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 },
-		{ 0, 0 }
-	},
-};
-
-
 /*
  * Initialize misc. values
  */
-static errr init_misc(void)
+static errr  init_misc(void)
 {
 	int xstart = 0;
 	int ystart = 0;
@@ -3821,7 +3585,7 @@ static errr init_misc(void)
  */
 static errr init_towns(void)
 {
-	int i, j, k;
+        int i = 0, j = 0;
 	
 	/*** Prepare the Towns ***/
 
@@ -3833,101 +3597,27 @@ static errr init_towns(void)
 		/*** Prepare the Stores ***/
 
 		/* Allocate the stores */
-		C_MAKE(town[i].store, MAX_STORES, store_type);
+                C_MAKE(town[i].store, max_st_idx, store_type);
 
 		/* Fill in each store */
-		for (j = 0; j < MAX_STORES; j++)
+                for (j = 0; j < max_st_idx; j++)
 		{
 			/* Access the store */
 			store_type *st_ptr = &town[i].store[j];
+
+                        /* Know who we are */
+                        st_ptr->st_idx = j;
 
 			/* Assume full stock */
 			st_ptr->stock_size = STORE_INVEN_MAX;
 
 			/* Allocate the stock */
 			C_MAKE(st_ptr->stock, st_ptr->stock_size, object_type);
-
-			/* No table for the black market or home */
-			if ((j == STORE_BLACK) || (j == STORE_HOME)) continue;
-
-			/* Assume full table */
-			st_ptr->table_size = STORE_CHOICES;
-
-			/* Allocate the stock */
-			C_MAKE(st_ptr->table, st_ptr->table_size, s16b);
-
-			/* Scan the choices */
-			for (k = 0; k < STORE_CHOICES; k++)
-			{
-				int k_idx;
-
-				/* Extract the tval/sval codes */
-				int tv = store_table[j][k][0];
-				int sv = store_table[j][k][1];
-
-				/* Look for it */
-				for (k_idx = 1; k_idx < max_k_idx; k_idx++)
-				{
-					object_kind *k_ptr = &k_info[k_idx];
-
-					/* Found a match */
-					if ((k_ptr->tval == tv) && (k_ptr->sval == sv)) break;
-				}
-
-				/* Catch errors */
-				if (k_idx == max_k_idx) continue;
-
-				/* Add that item index to the table */
-				st_ptr->table[st_ptr->table_num++] = k_idx;
-			}
 		}
 	}
 
 	return 0;
 }
-
-/*
- * Initialize buildings
- */
-errr init_buildings(void)
-{
-	int i, j;
-
-	for (i = 0; i < MAX_BLDG; i++)
-	{
-		building[i].name[0] = '\0';
-		building[i].owner_name[0] = '\0';
-		building[i].owner_race[0] = '\0';
-		
-		for (j = 0; j < 6; j++)
-		{
-			building[i].act_names[j][0] = '\0';
-			building[i].member_costs[j] = 0;
-			building[i].other_costs[j] = 0;
-			building[i].letters[j] = 0;
-			building[i].actions[j] = 0;
-			building[i].action_restr[j] = 0;
-		}
-
-		for (j = 0; j < MAX_CLASS; j++)
-		{
-			building[i].member_class[j] = 0;
-		}
-
-		for (j = 0; j < MAX_RACES; j++)
-		{
-			building[i].member_race[j] = 0;
-		}
-
-		for (j = 0; j < MAX_REALM+1; j++)
-		{
-			building[i].member_realm[j] = 0;
-		}
-	}
-
-	return (0);
-}
-
 
 /*
  * Initialize quest array
@@ -4130,14 +3820,15 @@ static errr init_alloc(void)
 
 	s16b aux[MAX_DEPTH];
 
+	s16b *tmp;
 
 	/*** Analyze object allocation info ***/
 
 	/* Clear the "aux" array */
-	C_WIPE(&aux, MAX_DEPTH, s16b);
+	tmp=C_WIPE(&aux, MAX_DEPTH, s16b);
 
 	/* Clear the "num" array */
-	C_WIPE(&num, MAX_DEPTH, s16b);
+	tmp=C_WIPE(&num, MAX_DEPTH, s16b);
 
 	/* Size of "alloc_kind_table" */
 	alloc_kind_size = 0;
@@ -4223,10 +3914,10 @@ static errr init_alloc(void)
 	/*** Analyze monster allocation info ***/
 
 	/* Clear the "aux" array */
-	C_WIPE(&aux, MAX_DEPTH, s16b);
+	tmp=C_WIPE(&aux, MAX_DEPTH, s16b);
 
 	/* Clear the "num" array */
-	C_WIPE(&num, MAX_DEPTH, s16b);
+	tmp=C_WIPE(&num, MAX_DEPTH, s16b);
 
 	/* Size of "alloc_race_table" */
 	alloc_race_size = 0;
@@ -4333,53 +4024,6 @@ static void init_angband_aux(cptr why)
 	quit("Fatal Error.");
 }
 
-#ifdef USE_PYTHON
-/*
- * Initialize the Python interpreter that we'll be using, and also insert
- * some modules into it that we provide, so that Python code can call
- * on Angband functions.
- */
-static errr init_python(void)
-{
-        char buf[1024], path[128];
-
-        Py_SetProgramName((char*)argv0);
-
-#if __djgpp__
-        setenv("PYTHONPATH", ANGBAND_DIR_SCPT, 1);
-        setenv("PYTHONHOME", ANGBAND_DIR_SCPT, 1);
-#endif /* __djgpp__ */
-
-	/* Initialize the Python interpreter */
-	Py_Initialize();
-
-        /* Add the "script" directory to the module search path */
-        ascii_to_text(path, ANGBAND_DIR_SCPT);
-        sprintf(buf, "import sys; sys.path.insert(0, '%s')", path);
-	PyRun_SimpleString(buf);
-
-        /* Add the PernAngband modules */
-        initio();
-        initcave();
-        initmisc();
-        initkind();
-        initevent();
-        initobject();
-        initmonster();
-        initplayer();
-        initspell();
-        initquest();
-        initrace();
-        initdungeon();
-
-	/* Import initial module */
-	sprintf(buf, "import init");
-	PyRun_SimpleString(buf);
-
-	/* Success */
-	return (0);
-}
-#endif
 
 /*
  * Hack -- main Angband initialization entry point
@@ -4534,11 +4178,6 @@ void init_angband(void)
 	note("[Initializing values... (misc)]");
 	if (init_misc()) quit("Cannot initialize misc. values");
 
-#ifdef USE_PYTHON
-        note("[Initializing Python scripts... ]");
-        if (init_python()) quit("Cannot initialize Python scripts");
-#endif
-
 	/* Initialize feature info */
 	note("[Initializing arrays... (features)]");
 	if (init_f_info()) quit("Cannot initialize features");
@@ -4559,9 +4198,25 @@ void init_angband(void)
 	note("[Initializing arrays... (monsters)]");
 	if (init_r_info()) quit("Cannot initialize monsters");
 
+        /* Initialize ego monster info */
+        note("[Initializing arrays... (ego monsters)]");
+        if (init_re_info()) quit("Cannot initialize ego monsters");
+
         /* Initialize dungeon type info */
         note("[Initializing arrays... (dungeon types)]");
         if (init_d_info()) quit("Cannot initialize dungeon types");
+
+        /* Initialize actions type info */
+        note("[Initializing arrays... (action types)]");
+        if (init_ba_info()) quit("Cannot initialize action types");
+
+        /* Initialize owners type info */
+        note("[Initializing arrays... (owners types)]");
+        if (init_ow_info()) quit("Cannot initialize owners types");
+
+        /* Initialize stores type info */
+        note("[Initializing arrays... (stores types)]");
+        if (init_st_info()) quit("Cannot initialize stores types");
 
         /* Initialize wilderness features array */
         note("[Initializing arrays... (wilderness features)]");
@@ -4574,10 +4229,6 @@ void init_angband(void)
 	/* Initialize town array */
 	note("[Initializing arrays... (towns)]");
 	if (init_towns()) quit("Cannot initialize towns");
-
-	/* Initialize building array */
-	note("[Initializing arrays... (buildings)]");
-	if (init_buildings()) quit("Cannot initialize buildings");
 
 	/* Initialize quest array */
 	note("[Initializing arrays... (quests)]");

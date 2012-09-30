@@ -102,7 +102,8 @@ static grouper group_item[] =
         { TV_POTION2,       NULL },
 	{ TV_FOOD,          "Food" },
 
-	{ TV_ROD,           "Rods" },
+        { TV_ROD_MAIN,      "Rods" },
+        { TV_ROD,           "Rod Tips" },
 	{ TV_WAND,          "Wands" },
 	{ TV_STAFF,         "Staffs" },
 
@@ -120,6 +121,7 @@ static grouper group_item[] =
         { TV_MIMIC_BOOK,    "Books (Mimic)" },
         { TV_MAGIC_BOOK,    "Books (Magic)" },
         { TV_PRAYER_BOOK,   "Books (Prayer)" },
+	{ TV_DAEMON_BOOK,   "Books (Daemon)" },
 
         { TV_RUNE1,         "Runes" },
         { TV_RUNE2,         NULL },
@@ -400,8 +402,15 @@ static grouper group_artifact[] =
 	{ TV_SWORD,             "Edged Weapons" },
 	{ TV_POLEARM,           "Polearms" },
 	{ TV_HAFTED,            "Hafted Weapons" },
+
         { TV_MSTAFF,            "Mage Staffs" },
+
 	{ TV_BOW,               "Bows" },
+
+        { TV_SHOT,              "Ammo" },
+        { TV_ARROW,             NULL },
+        { TV_BOLT,              NULL },
+
         { TV_BOOMERANG,         "Boomerangs" },
 
         { TV_INSTRUMENT,        "Instruments" },
@@ -594,7 +603,6 @@ static const flag_desc misc_flags3_desc[] =
 	{ TR3_WRAITH,             "Wraith Form" },
 	{ TR3_FEATHER,            "Levitation" },
 	{ TR3_SEE_INVIS,          "See Invisible" },
-	{ TR3_TELEPATHY,          "ESP" },
 	{ TR3_SLOW_DIGEST,        "Slow Digestion" },
 	{ TR3_REGEN,              "Regeneration" },
 	{ TR3_XTRA_SHOTS,         "+1 Extra Shot" },        /* always +1? */
@@ -755,7 +763,7 @@ static void analyze_pval (object_type *o_ptr, pval_info_type *p_ptr)
 	const u32b all_stats = (TR1_STR | TR1_INT | TR1_WIS |
 				TR1_DEX | TR1_CON | TR1_CHR);
 
-        u32b f1, f2, f3, f4;
+        u32b f1, f2, f3, f4, esp;
 
 	cptr *affects_list;
 
@@ -768,7 +776,7 @@ static void analyze_pval (object_type *o_ptr, pval_info_type *p_ptr)
 	}
 
 	/* Extract the flags */
-        object_flags(o_ptr, &f1, &f2, &f3, &f4);
+        object_flags(o_ptr, &f1, &f2, &f3, &f4, &esp);
 
 	affects_list = p_ptr->pval_affects;
 
@@ -802,9 +810,9 @@ static void analyze_pval (object_type *o_ptr, pval_info_type *p_ptr)
 /* Note the slaying specialties of a weapon */
 static void analyze_slay (object_type *o_ptr, cptr *slay_list)
 {
-        u32b f1, f2, f3, f4;
+        u32b f1, f2, f3, f4, esp;
 
-        object_flags(o_ptr, &f1, &f2, &f3, &f4);
+        object_flags(o_ptr, &f1, &f2, &f3, &f4, &esp);
 
 	slay_list = spoiler_flag_aux(f1, slay_flags_desc, slay_list,
 				     N_ELEMENTS(slay_flags_desc));
@@ -816,9 +824,9 @@ static void analyze_slay (object_type *o_ptr, cptr *slay_list)
 /* Note an object's elemental brands */
 static void analyze_brand (object_type *o_ptr, cptr *brand_list)
 {
-        u32b f1, f2, f3, f4;
+        u32b f1, f2, f3, f4, esp;
 
-        object_flags(o_ptr, &f1, &f2, &f3, &f4);
+        object_flags(o_ptr, &f1, &f2, &f3, &f4, &esp);
 
 	brand_list = spoiler_flag_aux(f1, brand_flags_desc, brand_list,
 				      N_ELEMENTS(brand_flags_desc));
@@ -831,9 +839,9 @@ static void analyze_brand (object_type *o_ptr, cptr *brand_list)
 /* Note the resistances granted by an object */
 static void analyze_resist (object_type *o_ptr, cptr *resist_list)
 {
-        u32b f1, f2, f3, f4;
+        u32b f1, f2, f3, f4, esp;
 
-        object_flags(o_ptr, &f1, &f2, &f3, &f4);
+        object_flags(o_ptr, &f1, &f2, &f3, &f4, &esp);
 
 	resist_list = spoiler_flag_aux(f2, resist_flags_desc,
 				       resist_list, N_ELEMENTS(resist_flags_desc));
@@ -846,9 +854,9 @@ static void analyze_resist (object_type *o_ptr, cptr *resist_list)
 /* Note the immunities granted by an object */
 static void analyze_immune (object_type *o_ptr, cptr *immune_list)
 {
-        u32b f1, f2, f3, f4;
+        u32b f1, f2, f3, f4, esp;
 
-        object_flags(o_ptr, &f1, &f2, &f3, &f4);
+        object_flags(o_ptr, &f1, &f2, &f3, &f4, &esp);
 
 	immune_list = spoiler_flag_aux(f2, immune_flags_desc,
 				       immune_list, N_ELEMENTS(immune_flags_desc));
@@ -864,9 +872,9 @@ static void analyze_sustains (object_type *o_ptr, cptr *sustain_list)
 	const u32b all_sustains = (TR2_SUST_STR | TR2_SUST_INT | TR2_SUST_WIS |
 				   TR2_SUST_DEX | TR2_SUST_CON | TR2_SUST_CHR);
 
-        u32b f1, f2, f3, f4;
+        u32b f1, f2, f3, f4, esp;
 
-        object_flags(o_ptr, &f1, &f2, &f3, &f4);
+        object_flags(o_ptr, &f1, &f2, &f3, &f4, &esp);
 
 	/* Simplify things if an item sustains all stats */
 	if ((f2 & all_sustains) == all_sustains)
@@ -893,9 +901,9 @@ static void analyze_sustains (object_type *o_ptr, cptr *sustain_list)
  */
 static void analyze_misc_magic (object_type *o_ptr, cptr *misc_list)
 {
-        u32b f1, f2, f3, f4;
+        u32b f1, f2, f3, f4, esp;
 
-        object_flags(o_ptr, &f1, &f2, &f3, &f4);
+        object_flags(o_ptr, &f1, &f2, &f3, &f4, &esp);
 
 	misc_list = spoiler_flag_aux(f2, misc_flags2_desc, misc_list,
 				     N_ELEMENTS(misc_flags2_desc));
@@ -1552,7 +1560,7 @@ static void spoil_mon_info(cptr fname)
 	bool breath, magic, sin;
 	cptr p, q;
 	cptr vp[64];
-	u32b flags1, flags2, flags3, flags4, flags5, flags6;
+        u32b flags1, flags2, flags3, flags4, flags5, flags6, flags9;
 
 
 	/* Build the filename */
@@ -1598,6 +1606,7 @@ static void spoil_mon_info(cptr fname)
 		flags4 = r_ptr->flags4;
 		flags5 = r_ptr->flags5;
 		flags6 = r_ptr->flags6;
+                flags9 = r_ptr->flags9;
 		breath = FALSE;
 		magic = FALSE;
 
@@ -1845,7 +1854,7 @@ static void spoil_mon_info(cptr fname)
 		if (flags4 & (RF4_BA_NUKE))           vp[vn++] = "produce balls of radiation";
 		if (flags5 & (RF5_BA_MANA))           vp[vn++] = "produce mana storms";
 		if (flags5 & (RF5_BA_DARK))           vp[vn++] = "produce darkness storms";
-		if (flags4 & (RF4_BA_CHAO))           vp[vn++] = "invoke raw Logrus";
+                if (flags4 & (RF4_BA_CHAO))           vp[vn++] = "invoke raw Chaos";
 		if (flags6 & (RF6_HAND_DOOM))         vp[vn++] = "invoke the Hand of Doom";
 		if (flags5 & (RF5_DRAIN_MANA))        vp[vn++] = "drain mana";
 		if (flags5 & (RF5_MIND_BLAST))        vp[vn++] = "cause mind blasting";
@@ -1944,6 +1953,7 @@ static void spoil_mon_info(cptr fname)
 		if (flags2 & (RF2_KILL_BODY)) vp[vn++] = "destroy weaker monsters";
 		if (flags2 & (RF2_TAKE_ITEM)) vp[vn++] = "pick up objects";
 		if (flags2 & (RF2_KILL_ITEM)) vp[vn++] = "destroy objects";
+                if (flags9 & (RF9_HAS_LITE))  vp[vn++] = "illuminate the dungeon";
 
 		if (vn)
 		{
@@ -2330,7 +2340,7 @@ static char* get_tval_name(int tval)
 }
 
 /*
- * Create a spoiler file for bateries
+ * Create a spoiler file for essences
  */
 static void spoil_bateries(cptr fname)
 {
@@ -2357,7 +2367,7 @@ static void spoil_bateries(cptr fname)
 	}
 
 	/* Dump the header */
-        sprintf(buf, "Batery Spoilers for PernAngband Version %d.%d.%d",
+        sprintf(buf, "Essence Spoiler for PernAngband Version %d.%d.%d",
                 FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH);
 	spoiler_underline(buf);
 
@@ -2496,7 +2506,7 @@ void do_cmd_spoilers(void)
                 /* Option (5) */
                 else if (i == '5')
 		{
-                        spoil_bateries("bat-info.spo");
+                        spoil_bateries("ess-info.spo");
 		}
 
 		/* Oops */

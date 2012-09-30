@@ -50,10 +50,10 @@ SRCS = \
   xtra1.c xtra2.c spells1.c spells2.c \
   melee1.c melee2.c save.c files.c \
   cmd1.c cmd2.c cmd3.c cmd4.c cmd5.c cmd6.c cmd7.c \
-  store.c birth.c load2.c \
-  wizard1.c wizard2.c \
+  store.c birth.c load2.c notes.c \
+  wizard1.c wizard2.c levels.c ghost.c \
   generate.c dungeon.c init1.c init2.c \
-  bldg.c \
+  bldg.c squeltch.c wild.c \
   main-cap.c main-gcu.c main-x11.c main-xaw.c main.c
 
 OBJS = \
@@ -63,10 +63,10 @@ OBJS = \
   xtra1.o xtra2.o spells1.o spells2.o \
   melee1.o melee2.o save.o files.o \
   cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o cmd7.o \
-  store.o birth.o load2.o \
-  wizard1.o wizard2.o \
+  store.o birth.o load2.o notes.o \
+  wizard1.o wizard2.o levels.o ghost.o \
   generate.o dungeon.o init1.o init2.o \
-  bldg.o \
+  bldg.o squeltch.o wild.o \
   main-cap.o main-gcu.o main-x11.o main-xaw.o main.o
 
 
@@ -284,6 +284,7 @@ melee1.o: melee1.c $(INCS)
 melee2.o: melee2.c $(INCS)
 monster1.o: monster1.c $(INCS)
 monster2.o: monster2.c $(INCS)
+notes.o: notes.c $(INCS)
 object1.o: object1.c $(INCS)
 object2.o: object2.c $(INCS)
 traps.o: traps.c $(INCS)
@@ -299,6 +300,10 @@ wizard1.o: wizard1.c $(INCS)
 wizard2.o: wizard2.c $(INCS)
 xtra1.o: xtra1.c $(INCS)
 xtra2.o: xtra2.c $(INCS)
+levels.o: levels.c $(INCS)
+ghost.o: ghost.c $(INCS)
+squeltch.o: squeltch.c $(INCS)
+wild.o: wild.c $(INCS)
 z-form.o: z-form.c $(HDRS) z-form.h z-util.h z-virt.h
 z-rand.o: z-rand.c $(HDRS) z-rand.h
 z-term.o: z-term.c $(HDRS) z-term.h z-virt.h

@@ -23,27 +23,24 @@
 OBJS = \
   main.o main-dos.o main-ibm.o \
   generate.o dungeon.o init1.o init2.o \
-  store.o birth.o wizard1.o wizard2.o \
+  store.o birth.o wizard1.o wizard2.o bldg.o \
   cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o cmd7.o \
-  load2.o save.o files.o \
+  load2.o save.o files.o levels.o notes.o squeltch.o \
   xtra1.o xtra2.o spells1.o spells2.o melee1.o melee2.o \
   object1.o object2.o traps.o monster1.o monster2.o \
-  variable.o tables.o util.o cave.o \
-  z-term.o z-rand.o z-form.o z-virt.o z-util.o \
-  bldg.o eventmod.o iomod.o cavemod.o monmod.o playmod.o \
-  miscmod.o kindmod.o objmod.o spellmod.o questmod.o racemod.o \
-  dunmod.o
+  variable.o tables.o util.o cave.o ghost.o wild.o \
+  z-term.o z-rand.o z-form.o z-virt.o z-util.o
 
 # Compiler
 CC = gcc
 
 # Compiler flags
 CFLAGS = -Wall -O2 -s -DUSE_DOS -DUSE_IBM -DUSE_BACKGROUND \
--DUSE_TRANSPARENCY -DUSE_PYTHON
+-DUSE_TRANSPARENCY
 
 
 # Libraries
-LIBS = -lpc -lalleg -lpython -lparser -lobjects
+LIBS = -lpc -lalleg
 
 
 #

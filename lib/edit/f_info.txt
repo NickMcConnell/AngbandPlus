@@ -32,7 +32,10 @@ N:1:open floor
 G:.:w
 F:FLOOR | SUPPORT_LIGHT
 
-# 0x02 -> UNUSED
+# 0x02 -> fountain
+N:2:fountain
+G:_:w
+F:FLOOR | NOTICE | REMEMBER
 
 # 0x03 --> glyph of warding
 
@@ -92,7 +95,12 @@ N:14:shaft up
 G:<:U
 F:FLOOR | PERMANENT | REMEMBER | NOTICE
 
-# 0x0F --> 0x1F -- UNUSED
+# 0x0F -> empty fountain
+N:15:fountain
+G:_:D
+F:FLOOR | NOTICE | REMEMBER
+
+# 0x10 --> 0x1F -- UNUSED
 
 # 0x2x --> locked door (power 0)
 
@@ -100,6 +108,7 @@ N:32:door
 G:+:U
 M:32
 F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE | DOOR
+F:TUNNELABLE
 
 # 0x2x --> locked door (power 1)
 
@@ -107,6 +116,7 @@ N:33:locked door
 G:+:U
 M:32
 F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE | DOOR
+F:TUNNELABLE
 
 # 0x2x --> locked door (power 2)
 
@@ -114,6 +124,7 @@ N:34:locked door
 G:+:U
 M:32
 F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE | DOOR
+F:TUNNELABLE
 
 # 0x2x --> locked door (power 3)
 
@@ -121,6 +132,7 @@ N:35:locked door
 G:+:U
 M:32
 F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE | DOOR
+F:TUNNELABLE
 
 # 0x2x --> locked door (power 4)
 
@@ -128,6 +140,7 @@ N:36:locked door
 G:+:U
 M:32
 F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE | DOOR
+F:TUNNELABLE
 
 # 0x2x --> locked door (power 5)
 
@@ -135,6 +148,7 @@ N:37:locked door
 G:+:U
 M:32
 F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE | DOOR
+F:TUNNELABLE
 
 # 0x2x --> locked door (power 6)
 
@@ -142,6 +156,7 @@ N:38:locked door
 G:+:U
 M:32
 F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE | DOOR
+F:TUNNELABLE
 
 # 0x2x --> locked door (power 7)
 
@@ -149,6 +164,7 @@ N:39:locked door
 G:+:U
 M:32
 F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE | DOOR
+F:TUNNELABLE
 
 # 0x2x --> jammed door (power 0)
 
@@ -156,6 +172,7 @@ N:40:jammed door
 G:+:U
 M:32
 F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE
+F:TUNNELABLE
 
 # 0x2x --> jammed door (power 1)
 
@@ -163,6 +180,7 @@ N:41:jammed door
 G:+:U
 M:32
 F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE
+F:TUNNELABLE
 
 # 0x2x --> jammed door (power 2)
 
@@ -170,6 +188,7 @@ N:42:jammed door
 G:+:U
 M:32
 F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE
+F:TUNNELABLE
 
 # 0x2x --> jammed door (power 3)
 
@@ -177,6 +196,7 @@ N:43:jammed door
 G:+:U
 M:32
 F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE
+F:TUNNELABLE
 
 # 0x2x --> jammed door (power 4)
 
@@ -184,6 +204,7 @@ N:44:jammed door
 G:+:U
 M:32
 F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE
+F:TUNNELABLE
 
 # 0x2x --> jammed door (power 5)
 
@@ -191,6 +212,7 @@ N:45:jammed door
 G:+:U
 M:32
 F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE
+F:TUNNELABLE
 
 # 0x2x --> jammed door (power 6)
 
@@ -198,6 +220,7 @@ N:46:jammed door
 G:+:U
 M:32
 F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE
+F:TUNNELABLE
 
 # 0x2x --> jammed door (power 7)
 
@@ -205,6 +228,7 @@ N:47:jammed door
 G:+:U
 M:32
 F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE
+F:TUNNELABLE
 
 # 0x30 --> secret door
 
@@ -212,6 +236,7 @@ N:48:secret door
 G:#:w
 M:56
 F:WALL | NO_WALK | CAN_PASS | NO_VISION | DOOR
+F:TUNNELABLE
 
 # 0x31 --> rubble
 
@@ -219,18 +244,21 @@ N:49:pile of rubble
 G:::w
 F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE
 F:CAN_FLY | SUPPORT_LIGHT
+F:TUNNELABLE
 
 # 0x32 --> magma vein
 
 N:50:magma vein
 G:%:s
 F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE | SUPPORT_LIGHT
+F:TUNNELABLE
 
 # 0x33 --> quartz vein
 
 N:51:quartz vein
 G:%:w
 F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE | SUPPORT_LIGHT
+F:TUNNELABLE
 
 # 0x34 --> magma vein + treasure
 
@@ -238,6 +266,7 @@ N:52:magma vein
 G:%:s
 M:50
 F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE | SUPPORT_LIGHT
+F:TUNNELABLE
 
 # 0x35 --> quartz vein + treasure
 
@@ -245,24 +274,28 @@ N:53:quartz vein
 G:%:w
 M:51
 F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE | SUPPORT_LIGHT
+F:TUNNELABLE
 
 # 0x36 --> magma vein + known treasure
 
 N:54:magma vein with treasure
 G:*:o
 F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE | SUPPORT_LIGHT
+F:TUNNELABLE
 
 # 0x37 --> quartz vein + known treasure
 
 N:55:quartz vein with treasure
 G:*:o
 F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE | SUPPORT_LIGHT
+F:TUNNELABLE
 
 # 0x38 --> granite wall -- basic
 
 N:56:granite wall
 G:#:w
 F:WALL | NO_WALK | CAN_PASS | NO_VISION | SUPPORT_LIGHT
+F:TUNNELABLE
 
 # 0x39 --> granite wall -- inner
 
@@ -270,6 +303,7 @@ N:57:granite wall
 G:#:w
 M:56
 F:WALL | NO_WALK | CAN_PASS | NO_VISION | SUPPORT_LIGHT
+F:TUNNELABLE
 
 # 0x3A --> granite wall -- outer
 
@@ -277,6 +311,7 @@ N:58:granite wall
 G:#:w
 M:56
 F:WALL | NO_WALK | CAN_PASS | NO_VISION | SUPPORT_LIGHT
+F:TUNNELABLE
 
 # 0x3B --> granite wall -- solid
 
@@ -284,12 +319,14 @@ N:59:granite wall
 G:#:w
 M:56
 F:WALL | NO_WALK | CAN_PASS | NO_VISION | SUPPORT_LIGHT
+F:TUNNELABLE
 
 # 0x3C --> permanent wall -- basic (perm)
 
 N:60:permanent wall
 G:#:w
 F:WALL | NO_WALK | NO_VISION | PERMANENT | SUPPORT_LIGHT
+F:TUNNELABLE
 
 # 0x3D --> permanent wall -- inner (perm)
 
@@ -297,6 +334,7 @@ N:61:permanent wall
 G:#:w
 M:60
 F:WALL | NO_WALK | NO_VISION | PERMANENT | SUPPORT_LIGHT
+F:TUNNELABLE
 
 # 0x3E --> permanent wall -- outer (perm)
 
@@ -304,6 +342,7 @@ N:62:permanent wall
 G:#:w
 M:60
 F:WALL | NO_WALK | NO_VISION | PERMANENT | SUPPORT_LIGHT
+F:TUNNELABLE
 
 # 0x3F --> permanent wall -- solid (perm)
 
@@ -311,6 +350,7 @@ N:63:permanent wall
 G:#:w
 M:60
 F:WALL | NO_WALK | NO_VISION | PERMANENT | SUPPORT_LIGHT
+F:TUNNELABLE
 
 N:64:explosive rune
 G:*:R
@@ -352,65 +392,31 @@ N:73:corrupted section of the Straight Road
 G:*:D
 F:FLOOR | REMEMBER | NOTICE
 
-# 0x4A --> shop -- general store (perm)
+# 74 --> shop
 
-N:74:General Store
+N:74:Building
 G:1:U
 F:FLOOR | PERMANENT | REMEMBER | NOTICE
 
-# 0x4B --> shop -- armoury (perm)
+# 75 --> 78 Quests index
 
-N:75:Armoury
-G:2:s
-F:FLOOR | PERMANENT | REMEMBER | NOTICE
+N:75:permanent wall
+G:#:w
+F:WALL | NO_WALK | NO_VISION | PERMANENT | SUPPORT_LIGHT
 
-# 0x4C --> shop -- weapon shop (perm)
+N:76:permanent wall
+G:#:w
+F:WALL | NO_WALK | NO_VISION | PERMANENT | SUPPORT_LIGHT
 
-N:76:Weapon Smiths
-G:3:w
-F:FLOOR | PERMANENT | REMEMBER | NOTICE
+N:77:permanent wall
+G:#:w
+F:WALL | NO_WALK | NO_VISION | PERMANENT | SUPPORT_LIGHT
 
-# 0x4D --> shop -- temple (perm)
+N:78:permanent wall
+G:#:w
+F:WALL | NO_WALK | NO_VISION | PERMANENT | SUPPORT_LIGHT
 
-N:77:Temple
-G:4:g
-F:FLOOR | PERMANENT | REMEMBER | NOTICE
-
-# 0x4E --> shop -- alchemist (perm)
-
-N:78:Alchemy Shop
-G:5:b
-F:FLOOR | PERMANENT | REMEMBER | NOTICE
-
-# 0x4F --> shop -- magic shop (perm)
-
-N:79:Magic Shop
-G:6:r
-F:FLOOR | PERMANENT | REMEMBER | NOTICE
-
-# 0x50 --> shop -- black market (perm)
-
-N:80:Black Market
-G:7:D
-F:FLOOR | PERMANENT | REMEMBER | NOTICE
-
-# 0x51 --> shop -- home (perm)
-
-N:81:Home
-G:8:y
-F:FLOOR | PERMANENT | REMEMBER | NOTICE
-
-# 0x52 --> shop -- bookstore (perm)
-
-N:82:Bookstore
-G:9:o
-F:FLOOR | PERMANENT | REMEMBER | NOTICE
-
-# 83 --> shop -- Pet Shop (perm)
-
-N:83:Pet Shop
-G:p:B
-F:FLOOR | PERMANENT | REMEMBER | NOTICE
+# 79 --> 83 UNSUSED
 
 N:84:stream of shallow water
 G:~:B
@@ -437,146 +443,70 @@ N:89:patch of grass
 G:.:g
 F:FLOOR | SUPPORT_LIGHT
 
+N:90:ice
+G:.:W
+F:FLOOR | NOTICE
+
+N:91:sand
+G:.:y
+F:FLOOR | DONT_NOTICE_RUNNING | CAN_RUN
+
+N:92:dead tree
+G:#:D
+F:CAN_FLY
+F:WALL | NO_WALK | NO_VISION | NOTICE
+F:TUNNELABLE
+
+N:93:ash
+G:.:D
+F:FLOOR | DONT_NOTICE_RUNNING | CAN_RUN
+
+N:94:mud
+G:.:u
+F:FLOOR | DONT_NOTICE_RUNNING | CAN_RUN
+
 N:96:tree
 G:#:G
 F:CAN_FLY | SUPPORT_LIGHT
 F:WALL | NO_WALK | NO_VISION
+F:TUNNELABLE
 
 N:97:mountain chain
 G:^:U
 F:CAN_CLIMB | CAN_PASS | SUPPORT_LIGHT
 F:WALL | NO_WALK | NO_VISION
+F:TUNNELABLE
 
-N:128:Building
-G:+:U
-F:FLOOR | PERMANENT | REMEMBER | NOTICE
+# 0x62 --> sandwall
 
-N:129:Building
-G:+:U
-F:FLOOR | PERMANENT | REMEMBER | NOTICE
+N:98:sandwall
+G:#:y
+F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE
+F:TUNNELABLE
 
-N:130:Building
-G:+:U
-F:FLOOR | PERMANENT | REMEMBER | NOTICE
+# 0x63 --> sandwall + treasure
 
-N:131:Building
-G:+:U
-F:FLOOR | PERMANENT | REMEMBER | NOTICE
+N:99:sandwall
+G:%:y
+M:98
+F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE
+F:TUNNELABLE
 
-N:132:Building
-G:+:U
-F:FLOOR | PERMANENT | REMEMBER | NOTICE
+# 0x64 --> sandwall + known treasure
 
-N:133:Building
-G:+:U
-F:FLOOR | PERMANENT | REMEMBER | NOTICE
+N:100:sandwall with treasure
+G:*:o
+F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE
+F:TUNNELABLE
 
-N:134:Building
-G:+:U
-F:FLOOR | PERMANENT | REMEMBER | NOTICE
+N:101:high mountain chain
+G:^:W
+F:WALL | NO_WALK | NO_VISION | PERMANENT
 
-N:135:Building
-G:+:o
-F:FLOOR | PERMANENT | REMEMBER | NOTICE
-
-N:136:Building
-G:+:R
-F:FLOOR | PERMANENT | REMEMBER | NOTICE
-
-N:137:Building
-G:+:G
-F:FLOOR | PERMANENT | REMEMBER | NOTICE
-
-N:138:Building
-G:+:v
-F:FLOOR | PERMANENT | REMEMBER | NOTICE
-
-N:139:Building
-G:+:u
-F:FLOOR | PERMANENT | REMEMBER | NOTICE
-
-N:140:Building
-G:+:w
-F:FLOOR | PERMANENT | REMEMBER | NOTICE
-
-N:141:Building
-G:+:B
-F:FLOOR | PERMANENT | REMEMBER | NOTICE
-
-N:142:Building
-G:+:B
-F:FLOOR | PERMANENT | REMEMBER | NOTICE
-
-N:143:Building
-G:+:B
-F:FLOOR | PERMANENT | REMEMBER | NOTICE
-
-N:144:Building
-G:+:B
-F:FLOOR | PERMANENT | REMEMBER | NOTICE
-
-N:145:Building
-G:+:B
-F:FLOOR | PERMANENT | REMEMBER | NOTICE
-
-N:146:Building
-G:+:B
-F:FLOOR | PERMANENT | REMEMBER | NOTICE
-
-N:147:Building
-G:+:B
-F:FLOOR | PERMANENT | REMEMBER | NOTICE
-
-N:148:Building
-G:+:B
-F:FLOOR | PERMANENT | REMEMBER | NOTICE
-
-N:149:Building
-G:+:B
-F:FLOOR | PERMANENT | REMEMBER | NOTICE
-
-N:150:Building
-G:+:B
-F:FLOOR | PERMANENT | REMEMBER | NOTICE
-
-N:151:Building
-G:+:B
-F:FLOOR | PERMANENT | REMEMBER | NOTICE
-
-N:152:Building
-G:+:B
-F:FLOOR | PERMANENT | REMEMBER | NOTICE
-
-N:153:Building
-G:+:B
-F:FLOOR | PERMANENT | REMEMBER | NOTICE
-
-N:154:Building
-G:+:B
-F:FLOOR | PERMANENT | REMEMBER | NOTICE
-
-N:155:Building
-G:+:B
-F:FLOOR | PERMANENT | REMEMBER | NOTICE
-
-N:156:Building
-G:+:B
-F:FLOOR | PERMANENT | REMEMBER | NOTICE
-
-N:157:Building
-G:+:B
-F:FLOOR | PERMANENT | REMEMBER | NOTICE
-
-N:158:Building
-G:+:B
-F:FLOOR | PERMANENT | REMEMBER | NOTICE
-
-N:159:Building
-G:+:B
-F:FLOOR | PERMANENT | REMEMBER | NOTICE
+# XXX 102 -> 159 UNUSED XXX
 
 N:160:Between gate
-G:|:B
+G:+:v
 F:FLOOR | REMEMBER | NOTICE | PERMANENT
 
 ###### Here are the altars. ######
@@ -631,11 +561,11 @@ F:FLOOR | REMEMBER | NOTICE
 
 N:187:pool of deep water
 G:~:b
-F:CAN_LEVITATE | CAN_FLY | FLOOR | REMEMBER | SUPPORT_LIGHT
+F:FLOOR | CAN_LEVITATE | CAN_FLY | REMEMBER | SUPPORT_LIGHT
 
 # Glass wall -- can see but not pass
 N:188:glass wall
-G:.:w
+G:.:B
 F:NO_WALK | WALL | PERMANENT | NOTICE
 
 # Illusion wall -- can't see but can pass
@@ -705,9 +635,9 @@ F:FLOOR | DONT_NOTICE_RUNNING | CAN_RUN
 
 N:202:small tree
 G:#:g
-F:FLOOR | DONT_NOTICE_RUNNING | CAN_RUN | SUPPORT_LIGHT
+F:FLOOR | DONT_NOTICE_RUNNING | CAN_RUN | SUPPORT_LIGHT | REMEMBER
 
 # Just to have a town entrance picture
 N:203:town
 G:*:w
-F:FLOOR
+F:FLOOR | NOTICE

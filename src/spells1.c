@@ -31,16 +31,18 @@ s16b poly_r_idx(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
-	int i, r, lev1, lev2;
+        int i, r;
+
+#if 0 /* No more -- hehehe -- DG */
+	/* Allowable range of "levels" for resulting monster */
+        int lev1 = r_ptr->level - ((randint(20) / randint(9)) + 1);
+        int lev2 = r_ptr->level + ((randint(20) / randint(9)) + 1);
+#endif
 
 	/* Hack -- Uniques/Questors never polymorph */
 	if ((r_ptr->flags1 & RF1_UNIQUE) ||
 	    (r_ptr->flags1 & RF1_QUESTOR))
 		return (r_idx);
-
-	/* Allowable range of "levels" for resulting monster */
-	lev1 = r_ptr->level - ((randint(20) / randint(9)) + 1);
-	lev2 = r_ptr->level + ((randint(20) / randint(9)) + 1);
 
 	/* Pick a (possibly new) non-unique race */
 	for (i = 0; i < 1000; i++)
@@ -57,8 +59,10 @@ s16b poly_r_idx(int r_idx)
 		/* Ignore unique monsters */
 		if (r_ptr->flags1 & (RF1_UNIQUE)) continue;
 
+#if 0
 		/* Ignore monsters with incompatible levels */
 		if ((r_ptr->level < lev1) || (r_ptr->level > lev2)) continue;
+#endif
 
 		/* Use that index */
 		r_idx = r;
@@ -173,22 +177,13 @@ void teleport_player_directed(int rad, int dir)
 
   c_ptr = &cave[y][x];
   /* Hack -- enter a store if we are on one */
-  if ((c_ptr->feat >= FEAT_SHOP_HEAD) &&
-      (c_ptr->feat <= FEAT_SHOP_TAIL)) {
+  if (c_ptr->feat == FEAT_SHOP)
+  {
     /* Disturb */
     disturb(0, 0);
 
     /* Hack -- enter store */
     command_new = '_';
-  }
-  /* Hack -- enter a building if we are on one -KMW- */
-  if ((c_ptr->feat >= FEAT_BLDG_HEAD) &&
-      (c_ptr->feat <= FEAT_BLDG_TAIL)) {
-    /* Disturb */
-    disturb(0, 0);
-
-    /* Hack -- enter building */
-    command_new = ']';
   }
   /* Exit a quest if reach the quest exit -KMW */
   if (c_ptr->feat == FEAT_QUEST_EXIT) {
@@ -218,7 +213,7 @@ void teleport_player_directed(int rad, int dir)
  */
 void teleport_away(int m_idx, int dis)
 {
-	int ny, nx, oy, ox, d, i, min;
+	int ny=0, nx=0, oy, ox, d, i, min;
 	int tries = 0;
 
 	bool look = TRUE;
@@ -322,12 +317,13 @@ void teleport_away(int m_idx, int dis)
  */
 void teleport_to_player(int m_idx)
 {
-	int ny, nx, oy, ox, d, i, min;
+	int ny=0, nx=0, oy, ox, d, i, min;
 	int dis = 2;
 
 	bool look = TRUE;
 
 	monster_type *m_ptr = &m_list[m_idx];
+        monster_race *r_ptr = race_inf(m_ptr);
 	int attempts = 500;
 
         if(p_ptr->resist_continuum) {msg_print("The space-time continuum can't be disrupted."); return;}
@@ -336,7 +332,7 @@ void teleport_to_player(int m_idx)
 	if (!m_ptr->r_idx) return;
 
 	/* "Skill" test */
-	if (randint(100) > r_info[m_ptr->r_idx].level) return;
+        if (randint(100) > r_ptr->level) return;
 
 	/* Save the old location */
 	oy = m_ptr->fy;
@@ -428,7 +424,7 @@ void teleport_to_player(int m_idx)
  */
 void teleport_player(int dis)
 {
-	int d, i, min, ox, oy, x, y;
+	int d, i, min, ox, oy, x=0, y=0;
 	int tries = 0;
 
 	int xx = -1, yy = -1;
@@ -523,9 +519,11 @@ void teleport_player(int dis)
 			{
 				if (cave[oy+yy][ox+xx].m_idx)
 				{
-					if ((r_info[m_list[cave[oy+yy][ox+xx].m_idx].r_idx].flags6
+                                        monster_race *r_ptr = race_inf(&m_list[cave[oy+yy][ox+xx].m_idx]);
+
+                                        if ((r_ptr->flags6
 					    & RF6_TPORT) &&
-					    !(r_info[m_list[cave[oy+yy][ox+xx].m_idx].r_idx].flags3
+                                            !(r_ptr->flags3
 					    & RF3_RES_TELE))
 						/*
 						 * The latter limitation is to avoid
@@ -568,7 +566,7 @@ void teleport_player(int dis)
  */
 void get_pos_player(int dis, int *ny, int *nx)
 {
-        int d, i, min, x, y;
+        int d, i, min, x=0, y=0;
 	int tries = 0;
 
 	bool look = TRUE;
@@ -1162,7 +1160,7 @@ void take_hit(int damage, cptr hit_from)
 	if (p_ptr->chp < 0)
 	{
                 /* Necromancers get a special treatment */
-                if((p_ptr->pclass != CLASS_NECRO) || ((p_ptr->pclass == CLASS_NECRO) && (p_ptr->class_extra6 & CLASS_UNDEAD)))
+                if((p_ptr->pclass != CLASS_NECRO) || ((p_ptr->pclass == CLASS_NECRO) && (p_ptr->class_extra3 & CLASS_UNDEAD)))
                 {
                         /* Sound */
                         sound(SOUND_DEATH);
@@ -1204,7 +1202,7 @@ void take_hit(int damage, cptr hit_from)
                 /* Just turn the necromancer into an undead */
                 else
                 {
-                        p_ptr->class_extra6 |= CLASS_UNDEAD;
+                        p_ptr->class_extra3 |= CLASS_UNDEAD;
                         p_ptr->class_extra4 = p_ptr->lev + (rand_int(p_ptr->lev / 2) - (p_ptr->lev / 4));
                         if (p_ptr->class_extra4 < 1) p_ptr->class_extra4 = 1;
                         msg_format("You have to kill %d monster%s to be bringed back to life.", p_ptr->class_extra4, (p_ptr->class_extra4 == 1)?"":"s");
@@ -1235,7 +1233,7 @@ void take_hit(int damage, cptr hit_from)
 		sound(SOUND_WARN);		
 
 		/* Message */
-                if(p_ptr->class_extra6 & CLASS_UNDEAD)
+                if(p_ptr->class_extra3 & CLASS_UNDEAD)
                         msg_print("*** LOW DEATHPOINT WARNING! ***");
                 else
                         msg_print("*** LOW HITPOINT WARNING! ***");
@@ -1523,9 +1521,9 @@ static bool hates_cold(object_type *o_ptr)
  */
 static int set_acid_destroy(object_type *o_ptr)
 {
-        u32b f1, f2, f3, f4;
+        u32b f1, f2, f3, f4, esp;
 	if (!hates_acid(o_ptr)) return (FALSE);
-        object_flags(o_ptr, &f1, &f2, &f3, &f4);
+        object_flags(o_ptr, &f1, &f2, &f3, &f4, &esp);
 	if (f3 & (TR3_IGNORE_ACID)) return (FALSE);
 	return (TRUE);
 }
@@ -1536,9 +1534,9 @@ static int set_acid_destroy(object_type *o_ptr)
  */
 static int set_elec_destroy(object_type *o_ptr)
 {
-        u32b f1, f2, f3, f4;
+        u32b f1, f2, f3, f4, esp;
 	if (!hates_elec(o_ptr)) return (FALSE);
-        object_flags(o_ptr, &f1, &f2, &f3, &f4);
+        object_flags(o_ptr, &f1, &f2, &f3, &f4, &esp);
 	if (f3 & (TR3_IGNORE_ELEC)) return (FALSE);
 	return (TRUE);
 }
@@ -1549,9 +1547,9 @@ static int set_elec_destroy(object_type *o_ptr)
  */
 static int set_fire_destroy(object_type *o_ptr)
 {
-        u32b f1, f2, f3, f4;
+        u32b f1, f2, f3, f4, esp;
 	if (!hates_fire(o_ptr)) return (FALSE);
-        object_flags(o_ptr, &f1, &f2, &f3, &f4);
+        object_flags(o_ptr, &f1, &f2, &f3, &f4, &esp);
 	if (f3 & (TR3_IGNORE_FIRE)) return (FALSE);
 	return (TRUE);
 }
@@ -1562,9 +1560,9 @@ static int set_fire_destroy(object_type *o_ptr)
  */
 static int set_cold_destroy(object_type *o_ptr)
 {
-        u32b f1, f2, f3, f4;
+        u32b f1, f2, f3, f4, esp;
 	if (!hates_cold(o_ptr)) return (FALSE);
-        object_flags(o_ptr, &f1, &f2, &f3, &f4);
+        object_flags(o_ptr, &f1, &f2, &f3, &f4, &esp);
 	if (f3 & (TR3_IGNORE_COLD)) return (FALSE);
 	return (TRUE);
 }
@@ -1639,7 +1637,7 @@ static int inven_damage(inven_func typ, int perc)
 				 * timeout or charges of the stack needs to be reduced, 
 				 * unless all the items are being destroyed. -LM-
 				 */
-				if (((o_ptr->tval == TV_WAND) || (o_ptr->tval == TV_ROD)) 
+                                if ((o_ptr->tval == TV_WAND) 
 					&& (amt < o_ptr->number))
 				{
 					o_ptr->pval -= o_ptr->pval * amt / o_ptr->number;
@@ -1673,7 +1671,7 @@ static int minus_ac(void)
 {
 	object_type     *o_ptr = NULL;
 
-        u32b            f1, f2, f3, f4;
+        u32b            f1, f2, f3, f4, esp;
 
 	char            o_name[80];
 
@@ -1700,7 +1698,7 @@ static int minus_ac(void)
 	object_desc(o_name, o_ptr, FALSE, 0);
 
 	/* Extract the flags */
-        object_flags(o_ptr, &f1, &f2, &f3, &f4);
+        object_flags(o_ptr, &f1, &f2, &f3, &f4, &esp);
 
 	/* Object resists */
 	if (f3 & (TR3_IGNORE_ACID))
@@ -1938,7 +1936,7 @@ bool inc_stat(int stat)
  */
 bool dec_stat(int stat, int amount, int mode)
 {
-	int cur, max, loss, same, res = FALSE;
+        int cur, max, loss = 0, same, res = FALSE;
 
 
 	/* Acquire current value */
@@ -2706,23 +2704,26 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 	switch (typ)
 	{
 		/* Ignore most effects */
-		case GF_ACID:
 		case GF_ELEC:
-		case GF_COLD:
-		case GF_PLASMA:
-		case GF_ICE:
-		case GF_SHARDS:
-		case GF_FORCE:
 		case GF_SOUND:
 		case GF_MANA:
-		case GF_HOLY_FIRE:
-		case GF_HELL_FIRE:
-		case GF_DISINTEGRATE:
 		case GF_PSI:
 		case GF_PSI_DRAIN:
 		case GF_TELEKINESIS:
 		case GF_DOMINATION:
 		{
+			break;
+		}
+
+		case GF_COLD:
+		case GF_ICE:
+		{
+			int percent = c_ptr->feat == GF_COLD ? 20 : 50;
+			
+                        if(!(f_info[c_ptr->feat].flags1 & FF1_FLOOR)) break;
+			
+			if (randint(100) < percent)
+				cave_set_feat(y, x, FEAT_ICE);
 			break;
 		}
 
@@ -2750,18 +2751,120 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
                         break;
                 }
 
-                /* Burn trees */
+                /* Burn trees & melt ice */
 		case GF_FIRE:
 		case GF_METEOR:
+                case GF_PLASMA:
+                case GF_HOLY_FIRE:
+                case GF_HELL_FIRE:
                 {
-                        if(c_ptr->feat == FEAT_TREES)
+                        if ((c_ptr->feat == FEAT_TREES) || (c_ptr->feat == FEAT_SMALL_TREES))
                         {
 				/* Forget the trap */
 				c_ptr->info &= ~(CAVE_MARK);
 
 				/* Destroy the trap */
-                                cave_set_feat(y, x, FEAT_GRASS);
+                                cave_set_feat(y, x, FEAT_DEAD_TREE);
                         }
+                        else if (c_ptr->feat == FEAT_ICE)
+                        {
+                                int k = randint(100);
+
+                                /* Melt ice */
+                                if (k < 10)
+                                        cave_set_feat(y, x, FEAT_DIRT);
+                                else if (k < 30)
+                                        cave_set_feat(y, x, FEAT_SHAL_WATER);
+                        }
+                        else if (f_info[c_ptr->feat].flags1 & FF1_FLOOR)
+                        {
+                                int k = randint(100);
+                         
+                                /* Burn floor */
+                                if (k < 10)
+                                        cave_set_feat(y, x, FEAT_SHAL_LAVA);
+                                else if (k < 25)
+                                        cave_set_feat(y, x, FEAT_ASH);
+                        }
+                        break;
+                }
+		
+		case GF_WATER:
+		{
+			int p1 = 0, p2 = 0, f1 = 0, f2 = 0, f = 0, k;
+			
+			if ((c_ptr->feat == FEAT_FLOOR) ||
+			    (c_ptr->feat == FEAT_DIRT) ||
+			    (c_ptr->feat == FEAT_GRASS))
+			{
+				/* 35% chance to create shallow water */
+				p1 = 35; f1 = FEAT_SHAL_WATER;
+				/* 5% chance to create deep water */
+				p2 = 40; f2 = FEAT_DEEP_WATER;
+			}
+			else if ((c_ptr->feat == FEAT_MAGMA) ||
+				 (c_ptr->feat == FEAT_MAGMA_H) ||
+				 (c_ptr->feat == FEAT_MAGMA_K) ||
+				 (c_ptr->feat == FEAT_SHAL_LAVA))
+			{
+				/* 15% chance to convert it to normal floor */
+				p1 = 15; f1 = FEAT_FLOOR;
+			}
+			else if (c_ptr->feat == FEAT_DEEP_LAVA)
+			{
+				/* 10% chance to convert it to shallow lava */
+				p1 = 10; f1 = FEAT_SHAL_LAVA;
+				/* 5% chance to convert it to normal floor */
+				p2 = 15; f2 = FEAT_FLOOR;
+			}
+			else if ((c_ptr->feat == FEAT_SHAL_WATER) ||
+				 (c_ptr->feat == FEAT_DARK_PIT))
+			{
+				/* 10% chance to convert it to deep water */
+				p1 = 10; f1 = FEAT_DEEP_WATER;
+			}
+			
+			k = randint(100);
+			
+			if (k < p1) f = f1;
+			else if (k < p2) f = f2;
+			
+			if (f)
+			{
+				if (f == FEAT_FLOOR) place_floor(y, x);
+				else cave_set_feat(y, x, f);
+			}
+			
+			break;
+		}
+
+                case GF_NETHER:
+                case GF_NEXUS:
+                case GF_ACID:
+                case GF_SHARDS:
+                case GF_TIME:
+                case GF_FORCE:
+                case GF_NUKE:
+                {
+                        if ((c_ptr->feat == FEAT_TREES) || (c_ptr->feat == FEAT_SMALL_TREES))
+                        {
+                                /* Forget the grid */
+                                c_ptr->info &= ~(CAVE_MARK);
+
+                                /* Destroy the grid */
+                                cave_set_feat(y, x, FEAT_DEAD_TREE);
+                        }
+                        break;
+                }
+  
+                case GF_DISINTEGRATE:
+                {
+                        if (((c_ptr->feat == FEAT_TREES) || (c_ptr->feat == FEAT_SMALL_TREES) ||
+                            (f_info[c_ptr->feat].flags1 & FF1_FLOOR)) &&
+                            randint(100) < 30)
+                        {
+                                cave_set_feat(y, x, FEAT_ASH);
+                        }                 
                         break;
                 }
 
@@ -2891,7 +2994,7 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 				cave_set_feat(y, x, FEAT_FLOOR);
 			}
 
-			/* Quartz / Magma with treasure */
+			/* Quartz / Magma / Sand with treasure */
 			else if (c_ptr->feat >= FEAT_MAGMA_H)
 			{
 				/* Message */
@@ -2912,7 +3015,7 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 				place_gold(y, x);
 			}
 
-			/* Quartz / Magma */
+			/* Quartz / Magma / Sand */
 			else if (c_ptr->feat >= FEAT_MAGMA)
 			{
 				/* Message */
@@ -2987,7 +3090,7 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 		case GF_MAKE_DOOR:
 		{
 			/* Require a "naked" floor grid */
-			if (!cave_naked_bold(y, x)) break;
+                        if (!cave_clean_bold(y, x)) break;
 
 			/* Create a closed door */
 			cave_set_feat(y, x, FEAT_DOOR_HEAD + 0x00);
@@ -3005,7 +3108,7 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 		case GF_MAKE_TRAP:
 		{
 			/* Require a "naked" floor grid */
-			if (!cave_naked_bold(y, x)) break;
+                        if (!cave_clean_bold(y, x)) break;
 
 			/* Place a trap */
 			place_trap(y, x);
@@ -3017,7 +3120,7 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 		case GF_MAKE_GLYPH:
 		{
 			/* Require a "naked" floor grid */
-			if (!cave_naked_bold(y, x)) break;
+                        if (!cave_clean_bold(y, x)) break;
 
 			cave_set_feat(y, x, FEAT_GLYPH);
 
@@ -3029,11 +3132,13 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 		case GF_STONE_WALL:
 		{
 			/* Require a "naked" floor grid */
-			if (!cave_naked_bold(y, x)) break;
+                        if (!cave_clean_bold(y, x)) break;
 
                         /* Place a wall */
 			cave_set_feat(y, x, FEAT_WALL_EXTRA);
 
+			/* Update some things */
+			p_ptr->update |= (PU_VIEW | PU_LITE | PU_MONSTERS);
 			break;
 		}
 
@@ -3183,17 +3288,24 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 				}
 
 				/* Quartz */
-				else if (t < 70)
+				else if (t < 60)
 				{
 					/* Create quartz vein */
 					c_ptr->feat = FEAT_QUARTZ;
 				}
 
 				/* Magma */
-				else if (t < 100)
+				else if (t < 90)
 				{
 					/* Create magma vein */
 					c_ptr->feat = FEAT_MAGMA;
+				}
+
+				/* Sand */
+				else if (t < 110)
+				{
+					/* Create sand vein */
+					c_ptr->feat = FEAT_SANDWALL;
 				}
 
 				/* Floor */
@@ -3227,6 +3339,17 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 }
 
 
+/* Array of raisable ego monster */
+#define MAX_RAISE 6
+static int raise_ego[MAX_RAISE] =
+{
+        1,      /* Skeleton */
+        1,      /* Skeleton */
+        1,      /* Skeleton */
+        2,      /* Zombie */
+        2,      /* Zombie */
+        4,      /* Spectre */
+};
 
 /*
  * We are called from "project()" to "damage" objects
@@ -3252,7 +3375,7 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 
 	bool obvious = FALSE;
 
-        u32b f1, f2, f3, f4;
+        u32b f1, f2, f3, f4, esp;
 
 	char o_name[80];
 
@@ -3287,7 +3410,7 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 		next_o_idx = o_ptr->next_o_idx;
 
 		/* Extract the flags */
-                object_flags(o_ptr, &f1, &f2, &f3, &f4);
+                object_flags(o_ptr, &f1, &f2, &f3, &f4, &esp);
 
 		/* Get the "plural"-ness */
 		if (o_ptr->number > 1) plural = TRUE;
@@ -3478,11 +3601,48 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
                         }
                         case GF_RAISE:
                         {
-                                xx=x;
-                                yy=y;
-                                get_pos_player(100, &y, &x);
-                                if(place_monster_one(y, x, o_ptr->pval2, FALSE, TRUE))
-                                        msg_print("A monster raise from the grave!");
+                                xx = x;
+                                yy = y;
+                                get_pos_player(7, &y, &x);
+
+                                /* Only corpses can be raised */
+                                if (o_ptr->tval == TV_CORPSE)
+                                {
+                                        int ego = raise_ego[rand_int(MAX_RAISE)];
+
+                                        if (place_monster_one(y, x, o_ptr->pval2, ego, FALSE, TRUE))
+                                                msg_print("A monster raise from the grave!");
+                                }
+
+				do_kill = TRUE;
+                                break;
+                        }
+			case GF_RAISE_DEMON:
+                        {
+				monster_race *r_ptr = &r_info[o_ptr->pval2];
+				cptr name;
+
+                                if (o_ptr->tval != TV_CORPSE) break;
+
+				if (randint(100) > r_ptr->level - p_ptr->lev)
+				{
+					if (r_ptr->level < 10) name="Manes";
+					else if (r_ptr->level < 18) name="Tengu";
+					else if (r_ptr->level < 26) name="Imp";
+					else if (r_ptr->level < 34) name="Arch-vile";
+					else if (r_ptr->level < 42) name="Bodak";
+					else if (r_ptr->level < 50) name="Erynies";
+					else if (r_ptr->level < 58) name="Vrock";
+					else if (r_ptr->level < 66) name="Hezrou";
+					else if (r_ptr->level < 74) name="Glabrezu";
+					else if (r_ptr->level < 82) name="Nalfeshnee";
+					else if (r_ptr->level < 90) name="Marilith";
+					else name="Nycadaemon";
+					
+                                        if (place_monster_one(y, x, test_monster_name(name), 0, FALSE, TRUE))
+                                        msg_print("A demon emerges from the hell!");
+				}
+				
 				do_kill = TRUE;
                                 break;
                         }
@@ -3606,7 +3766,7 @@ bool project_m(int who, int r, int y, int x, int dam, int typ)
 
 	monster_type *m_ptr = &m_list[c_ptr->m_idx];
 
-	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+        monster_race *r_ptr = race_inf(m_ptr);
 
 	char killer [80];
 
@@ -3702,12 +3862,18 @@ bool project_m(int who, int r, int y, int x, int dam, int typ)
                         case GF_STAR_CHARM:
 			case GF_CONTROL_UNDEAD:
 			case GF_CONTROL_ANIMAL:
+			case GF_CONTROL_DEMON:
 			case GF_OLD_HEAL:
 			case GF_OLD_SPEED:
 			case GF_DARK_WEAK:
 			case GF_JAM_DOOR:
                         case GF_RAISE:
+			case GF_RAISE_DEMON:
 				break;             /* none of the above anger */
+			case GF_TRAP_DEMONSOUL:
+				if (r_ptr->flags3 & RF3_DEMON)
+					get_angry = TRUE;
+				break;
 			case GF_KILL_WALL:
 				if (r_ptr->flags3 & (RF3_HURT_ROCK))
 					get_angry = TRUE;
@@ -3774,7 +3940,7 @@ bool project_m(int who, int r, int y, int x, int dam, int typ)
 	/* Analyze the damage type */
 	switch (typ)
 	{
-		/* Magic Missile -- pure damage */
+                /* Death -- instant death  */
                 case GF_DEATH:
 		{
                         if (seen) obvious = TRUE;
@@ -4835,8 +5001,11 @@ bool project_m(int who, int r, int y, int x, int dam, int typ)
 			}
 			else
 			{
-				note = " suddenly seems friendly!";
-				set_pet(m_ptr, TRUE);
+                                if (!is_pet(m_ptr))
+                                {
+                                        note = " suddenly seems friendly!";
+                                        set_pet(m_ptr, TRUE);
+                                }
 			}
 
 			/* No "real" damage */
@@ -4874,10 +5043,13 @@ bool project_m(int who, int r, int y, int x, int dam, int typ)
 			}
 			else
 			{
-				note = " suddenly seems friendly!";
-				set_pet(m_ptr, TRUE);
-                                m_ptr->imprinted = TRUE;
-			}
+                                if (!is_pet(m_ptr))
+                                {
+                                        note = " suddenly seems friendly!";
+                                        set_pet(m_ptr, TRUE);
+                                        m_ptr->imprinted = TRUE;
+                                }
+                        }
 
 			/* No "real" damage */
 			dam = 0;
@@ -4954,6 +5126,43 @@ bool project_m(int who, int r, int y, int x, int dam, int typ)
 			else
 			{
 				note = " is tamed!";
+				set_pet(m_ptr, TRUE);
+			}
+
+			/* No "real" damage */
+			dam = 0;
+			break;
+		}
+
+		/* Control demon */
+		case GF_CONTROL_DEMON:
+		{
+			if (seen) obvious = TRUE;
+
+			/* Attempt a saving throw */
+			if ((r_ptr->flags1 & (RF1_UNIQUE)) ||
+			    (r_ptr->flags1 & (RF1_QUESTOR)) ||
+			  (!(r_ptr->flags3 & (RF3_DEMON))) ||
+			    (r_ptr->level > randint((dam - 10) < 1 ? 1 : (dam - 10)) + 10))
+			{
+				/* Memorize a flag */
+				if (r_ptr->flags3 & (RF3_NO_CONF))
+				{
+					if (seen) r_ptr->r_flags3 |= (RF3_NO_CONF);
+				}
+
+				/* Resist */
+				/* No obvious effect */
+				note = " is unaffected!";
+				obvious = FALSE;
+			}
+			else if (p_ptr->aggravate)
+			{
+				note = " hates you too much!";
+			}
+			else
+			{
+				note = " obeys your commands!";
 				set_pet(m_ptr, TRUE);
 			}
 
@@ -5656,6 +5865,55 @@ bool project_m(int who, int r, int y, int x, int dam, int typ)
 			break;
 		}
 
+		/* Trap the soul of a demon and leave body */
+		case GF_TRAP_DEMONSOUL:
+		{
+			if (seen) obvious = TRUE;
+
+			/* Check race */
+			if ((r_ptr->flags1 & (RF1_UNIQUE)) ||
+			    (r_ptr->flags1 & (RF1_QUESTOR)) ||
+			  (!(r_ptr->flags3 & (RF3_DEMON))))
+			{
+				/* No obvious effect */
+				note = " is unaffected!";
+				obvious = FALSE;
+				dam = 0;
+			}
+			/* Hack : drop corpse if the demon is killed by this
+			 * spell */
+			else if (dam > m_ptr->hp)
+			{
+				object_type forge, *i_ptr=&forge;
+				
+				/* Wipe the object */
+				object_prep(i_ptr, lookup_kind(TV_CORPSE, SV_CORPSE_CORPSE));
+				
+				/* Unique corpses are unique */
+				if (r_ptr->flags1 & RF1_UNIQUE)
+				{
+					object_aware(i_ptr);
+					i_ptr->name1 = 201;
+				}
+				
+				/* Length of decay - very long time */
+				i_ptr->pval = 100000;
+				
+				/* Set weight */
+				i_ptr->weight = (r_ptr->weight + rand_int(r_ptr->weight) / 10) + 1;
+				
+				/* Remember what we are */
+				i_ptr->pval2 = m_ptr->r_idx;
+				
+				/* Give HP */
+				i_ptr->pval3 = maxroll(r_ptr->hdice, r_ptr->hside);
+				
+				/* Drop it */
+				drop_near(i_ptr, -1, y, x);
+			}
+			
+			break;
+		}
 
 		/* Default */
 		default:
@@ -5751,7 +6009,7 @@ bool project_m(int who, int r, int y, int x, int dam, int typ)
 			m_ptr = &m_list[c_ptr->m_idx];
 
 			/* Hack -- Get new race */
-			r_ptr = &r_info[m_ptr->r_idx];
+                        r_ptr = race_inf(m_ptr);
 		}
 	}
 
@@ -6731,7 +6989,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
                 case GF_IDENTIFY:
 		{
                         if (fuzzy) msg_print("You are hit by pure knowledge!");
-                        self_knowledge();
+                        self_knowledge(NULL);
 			break;
 		}
 
@@ -7342,7 +7600,7 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
 			}
 			else
 			{
-				monster_race *ref_ptr = &r_info[m_list[cave[y][x].m_idx].r_idx];
+                                monster_race *ref_ptr = race_inf(&m_list[cave[y][x].m_idx]);
 
 				if ((ref_ptr->flags2 & (RF2_REFLECTING)) && (randint(10)!=1)
 				    && (dist_hack > 1))

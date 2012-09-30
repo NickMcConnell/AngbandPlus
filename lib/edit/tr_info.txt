@@ -781,3 +781,10 @@ N:169:Psi Ball Trap
 I:8:60:5:8:20:12d18:B
 D:A ball of psi hits you
 F:FLOOR | CHEST | DOOR | LEVEL3
+
+# Usefull traps
+
+N:170:Acquirement Trap
+I:1:40:5:5:18:0d0:v
+D:Woh !
+F:FLOOR | DOOR

@@ -175,7 +175,7 @@ void do_cmd_wield(void)
 
 	cptr q, s;
 
-        u32b f1, f2, f3, f4;
+        u32b f1, f2, f3, f4, esp;
 
 	/* Restrict the choices */
 	item_tester_hook = item_tester_hook_wear;
@@ -229,39 +229,39 @@ void do_cmd_wield(void)
     }
 
 	/* Extract the flags */
-        object_flags(o_ptr, &f1, &f2, &f3, &f4);
+        object_flags(o_ptr, &f1, &f2, &f3, &f4, &esp);
 
 	/* Two handed weapons can't be wielded with a shield */
-        if ((inventory[INVEN_ARM].k_idx != 0) && (f4 & TR4_MUST2H))
+        if ((f4 & TR4_MUST2H) && (inventory[slot - INVEN_WIELD + INVEN_ARM].k_idx != 0))
 	{
-           object_desc(o_name, o_ptr, FALSE, 0);
-	   msg_format("You cannot wield your %s with a shield.", o_name);
-	   return;
+                object_desc(o_name, o_ptr, FALSE, 0);
+                msg_format("You cannot wield your %s with a shield.", o_name);
+                return;
 	}
 
-	i_ptr = &inventory[INVEN_WIELD];
+        i_ptr = &inventory[slot - INVEN_ARM + INVEN_WIELD];
 	
 	/* Extract the flags */
-        object_flags(i_ptr, &f1, &f2, &f3, &f4);
+        object_flags(i_ptr, &f1, &f2, &f3, &f4, &esp);
 
 	/* Prevent shield from being put on if wielding 2H */
-        if ((slot == INVEN_ARM) && (f4 & TR4_MUST2H))
+        if ((f4 & TR4_MUST2H) && (i_ptr->k_idx))
 	{
            object_desc(o_name, o_ptr, FALSE, 0);
 	   msg_format("You cannot wield your %s with a two-handed weapon.", o_name);
 	   return;
 	}
 
-        if ((slot == INVEN_ARM) && (f4 & TR4_COULD2H))
+        if ((p_ptr->body_parts[slot - INVEN_WIELD] == INVEN_ARM) && (f4 & TR4_COULD2H))
 	{
 	   if (!get_check("Are you sure you want to restrict your fighting? "))
             return;
 	}
 
 	/* Extract the flags */
-        object_flags(o_ptr, &f1, &f2, &f3, &f4);
+        object_flags(o_ptr, &f1, &f2, &f3, &f4, &esp);
 
-        if ((inventory[INVEN_ARM].k_idx != 0) && (f4 & TR4_COULD2H))
+        if ((inventory[slot - INVEN_WIELD + INVEN_ARM].k_idx != 0) && (f4 & TR4_COULD2H))
 	{
            if (!get_check("Are you sure you want to use this weapon with a shield?"))
             return;
@@ -361,7 +361,7 @@ void do_cmd_wield(void)
 	{
                 act = "In your quiver you have";
 	}
-        else if (slot == INVEN_AMMO)
+        else if (slot == INVEN_TOOL)
 	{
                 act = "You are using";
 	}
@@ -377,13 +377,14 @@ void do_cmd_wield(void)
 	msg_format("%s %s (%c).", act, o_name, index_to_label(slot));
 
 	/* Cursed! */
-	if (cursed_p(o_ptr))
+        if (cursed_p(o_ptr))
 	{
 		/* Warn the player */
 		msg_print("Oops! It feels deathly cold!");
 
 		/* Note the curse */
 		o_ptr->ident |= (IDENT_SENSE);
+		o_ptr->sense = SENSE_CURSED;
 	}
 
 	/* Recalculate bonuses */
@@ -608,21 +609,21 @@ void do_cmd_destroy(void)
 	/* Take a turn */
 	energy_use = 100;
 
-	/* Artifacts cannot be destroyed */
+        /* Artifacts cannot be destroyed */
 	if (artifact_p(o_ptr) || o_ptr->art_name)
 	{
-		cptr feel = "special";
+		byte feel = SENSE_SPECIAL;
 
-        energy_use = 0;
+                energy_use = 0;
 
 		/* Message */
 		msg_format("You cannot destroy %s.", o_name);
 
 		/* Hack -- Handle icky artifacts */
-		if (cursed_p(o_ptr) || broken_p(o_ptr)) feel = "terrible";
+                if (cursed_p(o_ptr)) feel = SENSE_TERRIBLE;
 
 		/* Hack -- inscribe the artifact */
-		o_ptr->note = quark_add(feel);
+		o_ptr->sense = feel;
 
 		/* We have "felt" it (again) */
 		o_ptr->ident |= (IDENT_SENSE);
@@ -645,7 +646,7 @@ void do_cmd_destroy(void)
     {
         bool gain_expr = FALSE;
 
-        if (p_ptr->pclass == CLASS_WARRIOR)
+        if ((p_ptr->pclass == CLASS_WARRIOR) || (p_ptr->pclass == CLASS_UNBELIEVER))
 		{
 			gain_expr = TRUE;
 		}
@@ -679,8 +680,7 @@ void do_cmd_destroy(void)
 	 * charges of the stack needs to be reduced, unless all the items are 
 	 * being destroyed. -LM-
 	 */
-	if (((o_ptr->tval == TV_WAND) || (o_ptr->tval == TV_ROD)) &&
-		(amt < o_ptr->number))
+        if ((o_ptr->tval == TV_WAND) && (amt < o_ptr->number))
 	{
 		o_ptr->pval -= o_ptr->pval * amt / o_ptr->number;
 	}
@@ -1778,7 +1778,11 @@ bool research_mon()
 	}
 
 	/* Nothing to recall */
-	if (!n) return (TRUE);
+	if (!n)
+	{
+		cheat_know = oldcheat;
+		return (TRUE);
+	}
 
 
 	/* Sort by level */
@@ -1922,7 +1926,7 @@ void do_cmd_sense_grid_mana()
         if ((chance < USE_DEVICE) || (randint(chance) < USE_DEVICE))
         {
                 if (flush_failure) flush();
-                msg_print("You failed to use the sense the grid's mana.");
+                msg_print("You failed to sense the grid's mana.");
                 sound(SOUND_FAIL);
                 return;
         }

@@ -1098,90 +1098,6 @@ s16b arena_monsters[MAX_ARENA_MONS] =
 };
 
 
-
-/*
- * Store owners (exactly four "possible" owners per store, chosen randomly)
- * { name, purse, max greed, min greed, haggle_per, tolerance, race, unused }
- */
-owner_type owners[MAX_STORES][MAX_OWNERS] =
-{
-	{
-		/* General store */
-                { "Bilbo the Friendly",         200,    170, 108,  5, 15, RACE_HOBBIT},
-		{ "Raistlin the Chicken",       200,    175, 108,  4, 12, RACE_HUMAN},
-		{ "Sultan the Midget",          300,    170, 107,  5, 15, RACE_GNOME},
-		{ "Lyar-el the Comely",         300,    165, 107,  6, 18, RACE_ELF},
-	},
-	{
-		/* Armoury */
-		{ "Kon-Dar the Ugly",           5000,   210, 115,  5,  7, RACE_HALF_ORC},
-		{ "Darg-Low the Grim",          10000,  190, 111,  4,  9, RACE_HUMAN},
-                { "Decado the Handsome",            25000,  200, 112,  4, 10, RACE_DUNADAN},
-		{ "Wieland the Smith",          30000,  200, 112,  4,  5, RACE_DWARF},
-	},
-	{
-		/* Weapon Smith */
-		{ "Arnold the Beastly",      5000,   210, 115,  6,  6, RACE_BARBARIAN},
-		{ "Arndal Beast-Slayer",        10000,  185, 110,  5,  9, RACE_HALF_ELF},
-		{ "Eddie Beast-Master",         25000,  190, 115,  5,  7, RACE_HALF_ORC},
-		{ "Oglign Dragon-Slayer",       30000,  195, 112,  4,  8, RACE_DWARF},
-	},
-	{
-		/* Temple */
-		{ "Ludwig the Humble",          5000,   175, 109,  6, 15, RACE_DWARF},
-		{ "Gunnar the Paladin",         10000,  185, 110,  5, 23, RACE_HALF_TROLL},
-		{ "Torin the Chosen",           25000,  180, 107,  6, 20, RACE_HIGH_ELF},
-		{ "Sarastro the Wise",          30000,  185, 109,  5, 15, RACE_HUMAN},
-	},
-	{
-		/* Alchemist */
-		{ "Mauser the Chemist",         10000,  190, 111,  5,  8, RACE_HALF_ELF},
-		{ "Wizzle the Chaotic",         10000,  190, 110,  6,  8, RACE_HOBBIT},
-		{ "Midas the Greedy",           15000,  200, 116,  6,  9, RACE_GNOME},
-		{ "Ja-Far the Alchemist",       15000,  220, 111,  4,  9, RACE_ELF},
-	},
-	{
-		/* Magic Shop */
-		{ "Ariel the Sorceress",	20000,	200, 110,  7,  8, RACE_HALF_ELF},
-		{ "Buggerby the Great",		20000,	215, 113,  6, 10, RACE_GNOME},
-		{ "Inglorian the Mage",		30000,	200, 110,  7, 10, RACE_HUMAN},
-		{ "Luthien Starshine",		30000,	175, 110,  5, 11, RACE_HIGH_ELF},
-	},
-	{
-		/* Black Market */
-		{ "Gary Gygaz",                 20000,  250, 150, 10,  5, RACE_HALF_TROLL},
-		{ "Histor the Goblin",          20000,  250, 150, 10,  5, RACE_HALF_ORC},
-		{ "Quark the Ferengi",          30000,  250, 150, 10,  5, RACE_DWARF},
-		{ "Topi the Fair(?)",           30000,  250, 150, 10,  5, RACE_HUMAN},
-	},
-	{
-		/* Home */
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99}
-	},
-
-	{
-		/* Bookstore */
-		{ "Dolaf the Greedy", 10000, 175, 108, 4, 12, RACE_HUMAN},
-		{ "Odnar the Sage", 15000, 120, 105, 6, 16, RACE_HIGH_ELF},
-		{ "Gandar the Neutral", 25000, 120, 110, 7, 19, RACE_DARK_ELF},
-		{ "Ro-sha the Patient", 30000, 140, 105, 6, 12, RACE_ELF},
-        },
-
-	{
-                /* Pet Shop */
-                { "N'rak the Summoner", 10000, 175, 108, 4, 12, RACE_DRAGONRIDER},
-                { "Esperion the Beastlover", 15000, 120, 105, 6, 16, RACE_HIGH_ELF},
-                { "Flarim the Shopkeeper", 25000, 120, 110, 7, 19, RACE_DUNADAN},
-                { "Tril-akheb the Supreme", 30000, 140, 105, 6, 12, RACE_ELF},
-	}
-};
-
-
-
-
 /*
  * This table allows quick conversion from "speed" to "energy"
  * The basic function WAS ((S>=110) ? (S-110) : (100 / (120-S)))
@@ -1338,7 +1254,7 @@ player_race race_info[MAX_RACES] =
 		72,  6, 180, 25,
 		66,  4, 150, 20,
 		0,
-                0x7FF+(1<<25)+(1<<24)+(1<<23)+(1<<22)+(1<<21)+(1<<20)+(1<<19)+(1<<18)+(1<<17)+(1<<15)+(1<<14)+(1<<13)+(1<<12),
+                0x7FF+(1<<27)+(1<<26)+(1<<25)+(1<<24)+(1<<23)+(1<<22)+(1<<21)+(1<<20)+(1<<19)+(1<<18)+(1<<17)+(1<<15)+(1<<14)+(1<<13)+(1<<12),
 	},
 	{
 		"Half-Elf",
@@ -1349,7 +1265,7 @@ player_race race_info[MAX_RACES] =
 		66,  6, 130, 15,
 		62,  6, 100, 10,
 		2,
-                0x7FF+(1<<24)+(1<<23)+(1<<22)+(1<<21)+(1<<20)+(1<<19)+(1<<18)+(1<<17)+(1<<15)+(1<<14)+(1<<13)+(1<<12)+(1<<11),
+                0x7FF+(1<<27)+(1<<24)+(1<<23)+(1<<22)+(1<<21)+(1<<20)+(1<<19)+(1<<18)+(1<<17)+(1<<15)+(1<<14)+(1<<13)+(1<<12)+(1<<11),
 	},
 	{
 		"Elf",
@@ -1360,7 +1276,7 @@ player_race race_info[MAX_RACES] =
 		60,  4, 100,  6,
 		54,  4, 80,  6,
 		3,
-                0x75F+(1<<24)+(1<<23)+(1<<22)+(1<<21)+(1<<20)+(1<<19)+(1<<18)+(1<<17)+(1<<15)+(1<<14)+(1<<13)+(1<<12)+(1<<11),
+                0x75F+(1<<27)+(1<<24)+(1<<23)+(1<<22)+(1<<21)+(1<<20)+(1<<19)+(1<<18)+(1<<17)+(1<<15)+(1<<14)+(1<<13)+(1<<12)+(1<<11),
 
 	},
 	{
@@ -1372,7 +1288,7 @@ player_race race_info[MAX_RACES] =
 		36,  3, 60,  3,
 		33,  3, 50,  3,
 		4,
-                0x40B+(1<<23)+(1<<22)+(1<<18)+(1<<15)+(1<<14)+(1<<13)+(1<<11),
+                0x40B+(1<<26)+(1<<23)+(1<<22)+(1<<18)+(1<<15)+(1<<14)+(1<<13)+(1<<11),
 	},
 	{
 		"Gnome",
@@ -1383,7 +1299,7 @@ player_race race_info[MAX_RACES] =
 		42,  3, 90,  6,
 		39,  3, 75,  3,
 		4,
-                0x60F+(1<<23)+(1<<21)+(1<<19)+(1<<18)+(1<<14)+(1<<13)+(1<<11),
+                0x60F+(1<<27)+(1<<23)+(1<<21)+(1<<19)+(1<<18)+(1<<14)+(1<<13)+(1<<11),
 	},
 	{
 		"Dwarf",
@@ -1394,7 +1310,7 @@ player_race race_info[MAX_RACES] =
 		48,  3, 150, 10,
 		46,  3, 120, 10,
 		5,
-                0x005+(1<<24)+(1<<19)+(1<<15)+(1<<14)+(1<<13)+(1<<11),        
+                0x005+(1<<26)+(1<<24)+(1<<19)+(1<<15)+(1<<14)+(1<<13)+(1<<11),        
 	},
 	{
 		"Half-Orc",
@@ -1405,7 +1321,7 @@ player_race race_info[MAX_RACES] =
 		66,  1, 150,  5,
 		62,  1, 120,  5,
 		3,
-                0x18D+(1<<25)+(1<<19)+(1<<17)+(1<<16)+(1<<11),
+                0x18D+(1<<26)+(1<<25)+(1<<19)+(1<<17)+(1<<16)+(1<<11),
 	},
 	{
 		"Half-Troll",
@@ -1416,7 +1332,7 @@ player_race race_info[MAX_RACES] =
 		96, 10, 250, 50,
 		84,  8, 225, 40,
 		3,
-                0x005+(1<<25)+(1<<19)+(1<<16),
+                0x005+(1<<26)+(1<<25)+(1<<19)+(1<<16),
 	},
 	{
                 "Dunadan",
@@ -1427,7 +1343,7 @@ player_race race_info[MAX_RACES] =
 		82, 5, 190, 20,
 		78,  6, 180, 15,
 		0,
-                0x7FF+(1<<24)+(1<<23)+(1<<22)+(1<<21)+(1<<20)+(1<<19)+(1<<18)+(1<<17)+(1<<15)+(1<<14)+(1<<13)+(1<<12),
+                0x7FF+(1<<27)+(1<<26)+(1<<24)+(1<<23)+(1<<22)+(1<<21)+(1<<20)+(1<<19)+(1<<18)+(1<<17)+(1<<15)+(1<<14)+(1<<13)+(1<<12),
 	},
 	{
 		"High-Elf",
@@ -1438,7 +1354,7 @@ player_race race_info[MAX_RACES] =
 		90, 10, 190, 20,
 		82, 10, 180, 15,
 		4,
-                0x75F+(1<<24)+(1<<23)+(1<<22)+(1<<21)+(1<<20)+(1<<19)+(1<<18)+(1<<17)+(1<<15)+(1<<14)+(1<<13)+(1<<12)+(1<<11),
+                0x75F+(1<<27)+(1<<24)+(1<<23)+(1<<22)+(1<<21)+(1<<20)+(1<<19)+(1<<18)+(1<<17)+(1<<15)+(1<<14)+(1<<13)+(1<<12)+(1<<11),
 	},
 	{
 		"Barbarian",
@@ -1449,7 +1365,7 @@ player_race race_info[MAX_RACES] =
 		82, 5, 200, 20,
 		78,  6, 190, 15,
 		0,
-                0x09D+(1<<21)+(1<<19)+(1<<17)+(1<<16)+(1<<12),
+                0x09D+(1<<26)+(1<<21)+(1<<19)+(1<<17)+(1<<16)+(1<<12),
         },           
 	{
 		"Half-Ogre",
@@ -1471,7 +1387,7 @@ player_race race_info[MAX_RACES] =
 		100,10, 255, 65,
 		80, 10, 240, 64,
 		3,
-                0x011+(1<<25)+(1<<19)+(1<<16),
+                0x011+(1<<26)+(1<<25)+(1<<19)+(1<<16),
 	},
 	{
 		"Kobold",
@@ -1482,7 +1398,7 @@ player_race race_info[MAX_RACES] =
 		60,  1, 130,  5,
 		55,  1, 100,  5,
 		3,
-                0x009+(1<<25)+(1<<23)+(1<<19)+(1<<17)+(1<<16)+(1<<15)+(1<<14)+(1<<11),
+                0x009+(1<<26)+(1<<25)+(1<<23)+(1<<19)+(1<<17)+(1<<16)+(1<<15)+(1<<14)+(1<<11),
 	},
 	{
 		"Nibelung",
@@ -1504,7 +1420,7 @@ player_race race_info[MAX_RACES] =
 		60,  4, 100,  6,
 		54,  4, 80,  6,
 		5,
-                0x7DF+(1<<25)+(1<<23)+(1<<22)+(1<<21)+(1<<20)+(1<<19)+(1<<18)+(1<<17)+(1<<15)+(1<<14)+(1<<13)+(1<<12)+(1<<11),
+                0x7DF+(1<<27)+(1<<25)+(1<<23)+(1<<22)+(1<<21)+(1<<20)+(1<<19)+(1<<18)+(1<<17)+(1<<15)+(1<<14)+(1<<13)+(1<<12)+(1<<11),
 	},
 	{
 		"Vampire",
@@ -1515,7 +1431,7 @@ player_race race_info[MAX_RACES] =
 		72,  6, 180, 25,
 		66,  4, 150, 20,
 		5,
-                0x7FF+(1<<25)+(1<<23)+(1<<21)+(1<<20)+(1<<19)+(1<<18)+(1<<17)+(1<<16)+(1<<15)+(1<<13)+(1<<11),
+                0x7FF+(1<<27)+(1<<25)+(1<<23)+(1<<21)+(1<<20)+(1<<19)+(1<<18)+(1<<17)+(1<<16)+(1<<15)+(1<<13)+(1<<11),
 	},
 	{
 		"Spectre",
@@ -1526,7 +1442,7 @@ player_race race_info[MAX_RACES] =
 		72, 6, 100, 25,
 		66, 4, 100, 20,
 		5,
-                0x22FC74E,
+                0xA2FC74E,
 	},
 	{
                 "Ent",
@@ -1537,7 +1453,7 @@ player_race race_info[MAX_RACES] =
 		72, 6, 100, 25,
 		66, 4, 100, 20,
 		5,
-                0x1C65+(1<<24)+(1<<19)+(1<<14),
+                0x1C65+(1<<26)+(1<<24)+(1<<19)+(1<<14),
 	},
 	{
                 "RohanKnight",
@@ -1548,7 +1464,7 @@ player_race race_info[MAX_RACES] =
 		60,  3, 80,  4,
 		54,  3, 70,  4,
                 0,
-                0x4F1+(1<<23)+(1<<22)+(1<<21)+(1<<17)+(1<<15),
+                0x4F1+(1<<26)+(1<<23)+(1<<22)+(1<<21)+(1<<17)+(1<<15),
 	},
 	{
                 "DragonRider",
@@ -1559,7 +1475,7 @@ player_race race_info[MAX_RACES] =
                 180,  6, 255, 25,
                 150,  4, 230, 20,
                 0,
-                0x671+(1<<22)+(1<<21)+(1<<17)+(1<<15)+(1<<12),
+                0x671+(1<<26)+(1<<22)+(1<<21)+(1<<17)+(1<<15)+(1<<12),
         },
 
 	{
@@ -1582,7 +1498,7 @@ player_race race_info[MAX_RACES] =
                 40, 5, 50, 10,
                 35, 4, 45, 10,
                 2,
-                0x7FF+(1<<24)+(1<<23)+(1<<22)+(1<<21)+(1<<20)+(1<<19)+(1<<18)+(1<<17)+(1<<15)+(1<<14)+(1<<13)+(1<<12),
+                0x7FF+(1<<27)+(1<<26)+(1<<24)+(1<<23)+(1<<22)+(1<<21)+(1<<20)+(1<<19)+(1<<18)+(1<<17)+(1<<15)+(1<<14)+(1<<13)+(1<<12),
         },
 };
 
@@ -1601,7 +1517,7 @@ player_class class_info[MAX_CLASS] =
 		"Warrior",
 		{ 5, -2, -2, 2, 2, -1},
 		25, 18, 18, 1,  14, 2, 70, 55,
-        12, 7,  10, 0,  0,  0,  45, 45,
+                12, 7,  10, 0,  0,  0,  45, 45,
 		9,  0
 	},
 
@@ -1804,7 +1720,24 @@ player_class class_info[MAX_CLASS] =
                 9,  16, 3, 0,  0,  0, 10, 5,
                 1, 40
 	},
+
+	{
+                "Unbeliever",
+                { 5, -10, -10, 4, 5, 1},
+                25,  0, 40, 1,  30, 10, 80, 60,
+                12,  0, 18, 0,  4,  5, 45, 45,
+                10,  20
+	},
+
+	{ /* Added -SC- */
+		"Daemonologist",
+		{-2, 3, -1, 1, -1, -1},
+		20, 36, 35, 3,  15, 12, 35, 25,
+		7,  15, 10,  0,  0,  0,  15, 10,
+		0, 30
+	},
 };
+
 /*
  * Player Classes
  *
@@ -1822,6 +1755,7 @@ magic_type realm_info_base[MAX_REALM][64] =
 {
         /* Nothing */
         {
+                {NULL}
         },
 
         /* Valarin */
@@ -2635,6 +2569,45 @@ magic_type realm_info_base[MAX_REALM][64] =
                 { 49, 105, 95, 210},
                 { 50, 255, 95, 220},
         },
+	
+	/* Daemon -SCSCSC- */
+	{
+		{ 1, 1, 10, 4},
+		{ 2, 2, 12, 4},
+		{ 3, 4, 16, 6},
+		{ 3, 7, 20, 8},
+		{ 4, 4, 22, 8},
+		{ 5, 8, 25, 8},
+		{ 7, 9, 28, 10},
+		{ 12, 10, 32, 15},
+	
+		{ 3, 2, 15, 6},
+		{ 5, 6, 18, 8},
+		{ 6, 6, 20, 10},
+		{ 10, 14, 30, 12},
+		{ 12, 8, 34, 14},
+		{ 16, 12, 36, 16},
+		{ 18, 16, 40, 18},
+		{ 20, 18, 50, 19},
+	
+		{ 20, 25, 55, 45},
+		{ 25, 20, 60, 52},
+		{ 28, 25, 64, 55},
+		{ 32, 44, 68, 59},
+		{ 38, 35, 72, 65},
+		{ 44, 75, 85, 80},
+		{ 22, 18, 50, 50},
+		{ 25, 25, 60, 65},
+	
+		{ 26, 18, 55, 55},
+		{ 30, 28, 63, 67},
+		{ 38, 34, 70, 75},
+		{ 45, 72, 85, 110},
+		{ 40, 35, 90, 120},
+		{ 42, 58, 92, 130},
+		{ 45, 40, 94, 140},
+		{ 48, 60, 95, 150},
+	}
 };
 
 
@@ -2651,8 +2624,6 @@ magic_type realm_info_base[MAX_REALM][64] =
  *
  *   Spell Level,
  *   Spell Encumbrance,
- *
- *   Array of { Lev, Mana, Fail, Exp/Lev }
  */
 player_magic magic_info[MAX_CLASS] =
 {
@@ -2847,22 +2818,22 @@ player_magic magic_info[MAX_CLASS] =
                 0,
                 0,
 		99,
-		0,
+                200,
 	},
 	{
                 /*** BeastMaster ***/
 
-		0,
-		0,
-
-		A_STR,
+                TV_MAGERY_BOOK,
 		0,
 
-                0,
-                0,
-                0,
-		99,
+                A_CHR,
 		0,
+
+                2,
+                0,
+                0,
+                2,
+                250,
 	},
 	{
                 /*** Alchemist ***/
@@ -3000,7 +2971,7 @@ player_magic magic_info[MAX_CLASS] =
                 -8,
                 -9,
 		1,
-		300,
+                100,
 	},
 	{
                 /*** Archer ***/
@@ -3065,6 +3036,37 @@ player_magic magic_info[MAX_CLASS] =
 		1,
 		350,
 	},
+
+	{
+                /*** Unbeliever ***/
+
+		0,
+		0,
+
+		A_STR,
+		0,
+
+                0,
+                0,
+                0,
+		99,
+		0,
+	},
+
+	{
+                /*** Daemonologist ***/
+                TV_MAGERY_BOOK,
+		0,
+
+		A_INT,
+		0,
+
+                0,
+                0,
+                0,
+                1,
+                300,
+	},
 };
 
 
@@ -3074,6 +3076,7 @@ player_magic magic_info[MAX_CLASS] =
 u32b fake_spell_flags[MAX_REALM][9][2]=
 {
         {
+                {NULL}
         },
 
         {       /* Valarin */
@@ -3225,24 +3228,33 @@ u32b fake_spell_flags[MAX_REALM][9][2]=
                 {0x00000000, 0xff000000},
                 {0x000000ff, 0x00000000},
         },
+
+        /* Daemon */
+        {
+                {0x00000000, 0x000000ff},
+                {0x00000000, 0x0000ff00},
+                {0x00000000, 0x003f0000},
+                {0x00000000, 0x0fc00000},
+                {0x00000000, 0xf0000000},		
+        },
 };
 
 
 u32b Mrealm_choices[MAX_CLASS]=
 {
 /* Warrior */       (CH_NONE),
-/* Mage */          (CH_VALARIN | CH_MAGERY | CH_SHADOW | CH_NETHER ),
-/* Priest */        (CH_VALARIN | CH_NETHER | CH_SHADOW),
-/* Rogue */         (CH_MAGERY | CH_SHADOW | CH_NETHER | CH_CRUSADE | CH_ILLUSION | CH_TRIBAL | CH_SIGALDRY),
-/* Ranger */        (CH_VALARIN | CH_ILLUSION | CH_TRIBAL),
+/* Mage */          (CH_MAGERY | CH_SHADOW | CH_NETHER ),
+/* Priest */        (CH_VALARIN | CH_NETHER),
+/* Rogue */         (CH_MAGERY | CH_SHADOW | CH_NETHER | CH_ILLUSION | CH_TRIBAL | CH_SIGALDRY),
+/* Ranger */        (CH_ILLUSION | CH_TRIBAL),
 /* Paladin */       (CH_VALARIN | CH_NETHER | CH_CRUSADE),
 /* Warrior-Mage */  (CH_SIGALDRY),
 /* Chaos Warrior */ (CH_CHAOS),
 /* Monk */          (CH_VALARIN | CH_SHADOW | CH_ILLUSION | CH_TRIBAL),
 /* Mindcrafter */   (CH_NONE),
-/* High Mage */     (CH_VALARIN | CH_MAGERY | CH_SHADOW | CH_NETHER | CH_CRUSADE | CH_SIGALDRY | CH_TRIBAL | CH_ILLUSION),
+/* High Mage */     (CH_MAGERY | CH_SHADOW | CH_NETHER | CH_CRUSADE | CH_SIGALDRY | CH_TRIBAL | CH_ILLUSION),
 /* Mimic       */   (CH_NONE),
-/* BeastMaster */   (CH_NONE),
+/* BeastMaster */   (CH_TRIBAL),
 /* Alchemist   */   (CH_NONE),
 /* Symbiant    */   (CH_NONE),
 /* Harper      */   (CH_NONE),
@@ -3251,18 +3263,20 @@ u32b Mrealm_choices[MAX_CLASS]=
 /* Wizard */        (CH_MAGIC),
 /* Prior */         (CH_PRAYER),
 /* Possessor */     (CH_NONE),
-/* Sorceror */      (CH_VALARIN | CH_MAGERY | CH_SHADOW | CH_NETHER ),
+/* Sorceror */      (CH_MAGERY | CH_SHADOW | CH_NETHER ),
 /* Archer */        (CH_NONE),
 /* Illusionist */   (CH_ILLUSION),
 /* Druid */         (CH_DRUID),
-/* Necromancer */   (CH_NONE),
+/* Necromancer */   (CH_NETHER),
+/* Unbeliever  */   (CH_NONE),
+/* Daemonologist */ (CH_DAEMON)
 };
 
 u32b mrealm_choices[MAX_CLASS]=
 {
 /* Warrior */       (CH_NONE),
-/* Mage */          (CH_CRUSADE | CH_SIGALDRY | CH_TRIBAL | CH_ILLUSION),
-/* Priest */        (CH_CRUSADE | CH_TRIBAL | CH_ILLUSION),
+/* Mage */          (CH_SIGALDRY | CH_TRIBAL),
+/* Priest */        (CH_CRUSADE | CH_ILLUSION),
 /* Rogue */         (CH_NONE),
 /* Ranger */        (CH_NONE),
 /* Paladin */       (CH_NONE),
@@ -3286,6 +3300,8 @@ u32b mrealm_choices[MAX_CLASS]=
 /* Illusionist */   (CH_NONE),
 /* Druid */         (CH_NONE),
 /* Necromancer */   (CH_NONE),
+/* Unbeliever  */   (CH_NONE),
+/* Daemonologist */ (CH_CHAOS)
 };
 
 cptr realm_names [] =
@@ -3305,6 +3321,7 @@ cptr realm_names [] =
         "Illusion",
         "Tribal",
         "Druidic",
+	"Daemon",
 };
 
 
@@ -3315,6 +3332,7 @@ cptr spell_names[MAX_REALM][64] =
 {
         /*** Nothing ***/
         {
+                NULL
         },
 
         /*** Valarin Spells ***/
@@ -3521,7 +3539,7 @@ cptr spell_names[MAX_REALM][64] =
                 "Call the Void",
 
                 /* Aiding Shades */
-                "Examin Shadow",
+                "Examine Shadow",
                 "*Shadow Enlightenment*",
                 "Remove Curse",
                 "*Remove Curse*",
@@ -3583,7 +3601,7 @@ cptr spell_names[MAX_REALM][64] =
 		"Fire Ball",
 		"Teleport Other",
 		"Word of Destruction",
-		"Invoke Logrus",
+                "Invoke Chaos",
 
 		/* Rare Chaos Spellbooks */
 		"Polymorph Other",
@@ -3601,7 +3619,7 @@ cptr spell_names[MAX_REALM][64] =
 		"Call Chaos",
 		"Magic Rocket",
 		"Mana Storm",
-		"Breathe Logrus",
+                "Breathe Chaos",
 		"Call the Void"
 	},
 
@@ -3692,7 +3710,6 @@ cptr spell_names[MAX_REALM][64] =
 	},
 
         /* Crusade Spellbooks */
-
 	{
                 /* Rites of Initiation */
                 "Boldness",
@@ -3750,7 +3767,7 @@ cptr spell_names[MAX_REALM][64] =
 
                 /* Arcane Channels */
                 "Detect Objects",
-                "Warding I",
+                "Warding",
                 "Trap/Door Destruction",
                 "Sleep I",
                 "Preservation",
@@ -3772,7 +3789,7 @@ cptr spell_names[MAX_REALM][64] =
                 "True Strike",
                 "Between Gate",
                 "Disruption II",
-                "Drain Magic I",
+                "Drain Magic",
                 "Scribe Scroll",
                 "Infuse Amulet",
                 "Glyph of Warding",
@@ -4215,6 +4232,51 @@ cptr spell_names[MAX_REALM][64] =
                 "Shield of Mana",
                 "Drain Level Mana",
         },
+	
+	/* Demon -SCSCSC- */
+	{
+		/* Dark Incantations */
+		"Detect Good",
+		"Phase Door",
+		"Resist Fire",
+		"Unearthly Blessing",
+		"Steal Thoughts",
+		"Demon Eyes",
+		"Mend Flesh",
+		"Vision",
+		
+		/* Immortal Rituals */
+		"Detect Angels and Demons",
+		"Protection from Good",
+		"Invisibility",
+		"Manes Summoning",
+		"Demoncloak",
+		"Breath Fire",
+		"Fire Blade",
+		"Circle of Madness",
+		
+		/* Minions of Azathoth */
+		"Bladecalm",
+		"Control Demons",
+		"Revive",
+		"Trap Demonsoul",
+		"Discharge Minions",
+		"Summon Demons",
+		
+		/* Demonthoughts */
+		"Rain of Lava",
+		"Kiss of the Succubus",
+		"Immortality",
+		"Glyph of Warding",
+		"Lava Storm",
+		"Demonform",
+		
+		/* Hellfire Tome */
+		"Unholy word",
+		"Hellfire",
+		"Armageddon",
+		"Shield of the Damned",
+	},
 };
 
 /*
@@ -4381,16 +4443,16 @@ cptr player_title[MAX_CLASS][PY_MAX_LEVEL/5] =
 
         /* Mimic */
 	{
-                "[???]",
-                "[???]",
-                "[???]",
-                "[???]",
-                "[???]",
-                "[???]",
-                "[???]",
-                "[???]",
-                "[???]",
-                "[???]",
+                "Learner",
+                "Itemhider",
+                "Woodshider",
+                "Wolfleader",
+                "Low Mirror",
+                "Journeymirror",
+                "High Mirror",
+                "Dragonleader",
+                "Shapechanger",
+                "Mirror Lord",
 	},
 
         /* BeastMaster */
@@ -4413,7 +4475,7 @@ cptr player_title[MAX_CLASS][PY_MAX_LEVEL/5] =
                 "Alchemist",
                 "Alchemist",
                 "Alchemist",
-                "Newton",
+                "Meddler",
                 "Chimist",
                 "Chimist",
                 "Grand Chimist",
@@ -4508,29 +4570,28 @@ cptr player_title[MAX_CLASS][PY_MAX_LEVEL/5] =
         /* Possessor */
 	{
                 "Soul",
-                "Soul",
                 "Free Soul",
-                "Free Soul",
-                "Corpser",
-                "Corpser",
-                "High Corpser",
+                "True Soul",
+                "Soul Bender",
+                "Body Render",
+                "Low Corpser",
                 "High Corpser",
                 "Possessor",
-                "Possessor",
+                "PossessorLord",
 	},
 
         /* Sorceror -- Same as Mage */
 	{
 		"Apprentice",
 		"Trickster",
-		"Illusionist",
-		"Spellbinder",
-		"Evoker",
-		"Conjurer",
-		"Warlock",
-                "Sorceror",
-		"Ipsissimus",
-		"Archimage",
+                "Dilante",
+                "Dabbler",
+                "Invoker",
+                "Low Sorceror",
+                "High Sorceror",
+                "Low Magus",
+                "Magus",
+                "True Magus",
 	},
 
         /* Archer */
@@ -4587,6 +4648,34 @@ cptr player_title[MAX_CLASS][PY_MAX_LEVEL/5] =
 		"Commander",
 		"Dark Master",
 		"Night Lord",
+	},
+
+        /* Unbeliever */
+	{
+                "Asker",
+                "Thinker",
+                "Faithless",
+                "Critic",
+                "Betrayer",
+                "Renegate",
+                "Undisciple",
+                "Disbeliever",
+                "Knower",
+                "Magicbane",
+	},
+
+        /* Daemonologist -SC- */
+	{
+		"Initiate",
+		"Acolyte",
+		"Adept",
+		"Slavemaster",
+		"Spellweaver",
+		"Demonriser",
+		"Controller",
+		"Commander",
+		"Hell Master",
+		"Daemon Lord",
 	},
 };
 
@@ -4653,7 +4742,7 @@ cptr window_flag_desc[32] =
 	"Display equip/inven",
 	"Display spell list",
 	"Display character",
-	NULL,
+        "Show visible monsters",
 	NULL,
 	"Display messages",
 	"Display overhead view",
@@ -4949,10 +5038,13 @@ option_type option_info[] =
         "flavored_attacks",               "Show silly messages when fighting" },
 
         { &always_small_level,            FALSE, 5,5,11,
-        "always_small_level",             "Always made small levels" },
+        "always_small_level",             "Always make small levels" },
 
         { &no_pickup_corpse,              TRUE, 5,5,12,
         "no_pickup_corpse",               "Don't pick up the monster's corpses" },
+
+        { &easy_tunnel,                   FALSE, 5,5,13,
+        "easy_tunnel",                    "Automaticaly tunnel walls" },
 
         /*** Birth Options ***/
 
@@ -4990,6 +5082,21 @@ option_type option_info[] =
         { &fast_autoroller,             FALSE, 6, 6, 10,
         "fast_autoroller",              "Fast autoroller(NOT on multiuser systems)" },
 
+        { &cth_monsters,                TRUE, 6, 6, 11,
+        "cth_monsters",                 "Allow use of lovercraftian monsters" },
+
+        { &pern_monsters,               TRUE, 6, 6, 12,
+        "pern_monsters",                "Allow use of some Pern related monsters" },
+
+        { &zang_monsters,               TRUE, 6, 6, 13,
+        "zang_monsters",                "Allow use of 'Zangbandish' monsters" },
+
+        { &joke_monsters,               TRUE, 6, 6, 14,
+        "joke_monsters",                "Allow use of some 'joke' monsters" },
+#if 0 /* Can please everybody .. sorry gsn :)*/
+        { &munchkin_multipliers,        FALSE, 6, 6, 15,
+        "munchkin_multipliers",         "Mana & Life weapons have better bonuses" },
+#endif
 	/*** Stacking ***/
 
 	{ &testing_stack,               TRUE,  255, 7, 30,
@@ -5254,6 +5361,16 @@ magic_power necro_powers[MAX_NECRO_POWERS] =
         { 25,  10, 25, "Summon Undead" },       /* Summon one(some) undead(s) */
         { 30,  15, 20, "Vampirism" },           /* Bolt */
         { 35, 100, 25, "Death" },               /* The Death word, always bolt put your HP to 1 */
+};
+
+magic_power mimic_powers[MAX_MIMIC_POWERS] =
+{
+	/* Level gained,  cost,  %fail,  name */
+        {  1,   2,  0, "Mimic" },               /* Use a book of lore */
+        { 10,   6, 20, "Invisibility" },        /* Invisibility */
+        { 25,  20, 25, "Legs Mimicry" },        /* +1 pair of legs */
+        { 30,  40, 30, "Wall Mimicry" },        /* wall form */
+        { 35, 100, 40, "Arms Mimicry" },        /* +1 pair of arms, +1 weapon */
 };
 
 alchemist_recipe alchemist_recipes[MAX_ALCHEMIST_RECIPES] = {
@@ -5847,11 +5964,11 @@ alchemist_recipe alchemist_recipes[MAX_ALCHEMIST_RECIPES] = {
                         {TV_STAFF,SV_STAFF_SLEEP_MONSTERS,2,
                          TV_STAFF,SV_STAFF_SLEEP_MONSTERS},
                         {TV_ROD,SV_ROD_NOTHING,10,
-                         TV_ROD,SV_ROD_SLEEP_MONSTER},
+                         TV_ROD,SV_ROD_MAPPING},
                         {TV_RING,SV_RING_NOTHING,6,
                          TV_RING,SV_RING_FREE_ACTION},
                         {TV_AMULET,SV_AMULET_NOTHING,15,
-                         TV_AMULET,SV_AMULET_THE_MAGI},
+                         TV_AMULET,SV_AMULET_NO_MAGIC},
                         {TV_SCROLL,SV_SCROLL_NOTHING,3,
                          TV_SCROLL,SV_SCROLL_STAR_ENCHANT_WEAPON},
                 },
@@ -6005,8 +6122,8 @@ activation activation_info[MAX_T_ACT] = {
   {"cure stun",1000,154},
   {"cure cut",1000,155},
   {"cure fear",1000,156},
-  {"cure confusion",1000,157},
-  {"cure blindness",1000,158},
+  {"cure confusion",1000,158},
+  {"cure blindness",1000,159},
   {"cure light wounds",500,81},
   {"cure serious wounds",750,82},
   {"cure critical wounds",1000,86},
@@ -6115,3 +6232,9 @@ inscription_info_type inscription_info[MAX_INSCRIPTIONS] =
                 60,
         },
 };
+
+/*
+ * Inscriptions for pseudo-id
+ */
+cptr sense_desc[]= {"whoops","cursed","average","good","good","excellent",
+		    "worthless","terrible","special","broken","uncursed"};

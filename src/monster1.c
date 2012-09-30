@@ -742,7 +742,7 @@ static void roff_aux(int r_idx, int remem)
 	if (flags4 & (RF4_BA_NUKE))         vp[vn++] = "produce balls of radiation";
 	if (flags5 & (RF5_BA_MANA))         vp[vn++] = "invoke mana storms";
 	if (flags5 & (RF5_BA_DARK))         vp[vn++] = "invoke darkness storms";
-	if (flags4 & (RF4_BA_CHAO))         vp[vn++] = "invoke raw Logrus";
+        if (flags4 & (RF4_BA_CHAO))         vp[vn++] = "invoke raw chaos";
 	if (flags6 & (RF6_HAND_DOOM))       vp[vn++] = "invoke the Hand of Doom";
 	if (flags5 & (RF5_DRAIN_MANA))      vp[vn++] = "drain mana";
 	if (flags5 & (RF5_MIND_BLAST))      vp[vn++] = "cause mind blasting";
@@ -896,6 +896,7 @@ static void roff_aux(int r_idx, int remem)
 	if (flags2 & (RF2_KILL_BODY)) vp[vn++] = "destroy weaker monsters";
 	if (flags2 & (RF2_TAKE_ITEM)) vp[vn++] = "pick up objects";
 	if (flags2 & (RF2_KILL_ITEM)) vp[vn++] = "destroy objects";
+        if (flags9 & (RF9_HAS_LITE))  vp[vn++] = "illuminate the dungeon";
 
 	/* Describe special abilities. */
 	if (vn)
@@ -1735,7 +1736,8 @@ void set_mon_num2_hook(int y, int x)
 
 bool is_pet(monster_type *m_ptr)
 {
-	if (m_ptr->smart & (SM_FRIEND))
+#ifdef DRS_SMART_OPTIONS
+        if (m_ptr->smart & (SM_FRIEND))
 	{
 		return (TRUE);
 	}
@@ -1743,10 +1745,14 @@ bool is_pet(monster_type *m_ptr)
 	{
 		return (FALSE);
 	}
+#else
+        return FALSE;
+#endif
 }
 
 void set_pet(monster_type *m_ptr, bool pet)
 {
+#ifdef DRS_SMART_OPTIONS
 	if (pet)
 	{
 		m_ptr->smart |= SM_FRIEND;
@@ -1755,6 +1761,7 @@ void set_pet(monster_type *m_ptr, bool pet)
 	{
 		m_ptr->smart &= ~SM_FRIEND;
 	}
+#endif
 }
 
 /*

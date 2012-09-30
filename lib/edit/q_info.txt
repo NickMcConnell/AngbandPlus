@@ -21,7 +21,7 @@
 ?:[EQU $QUEST_NUMBER 9]
 %:q_morgot.txt
 
-# Node of Sorcery
+# Node of Magery
 ?:[EQU $QUEST_NUMBER 10]
 %:q000sorc.txt
 
@@ -68,10 +68,6 @@
 # The Rise and Fall of Micro$oft
 ?:[EQU $QUEST_NUMBER 25]
 %:q00000ms.txt
-
-# Fight against a threadfall
-?:[EQU $QUEST_NUMBER 30]
-%:q_thread.txt
 
 # Random quests (always adressed with number 40)
 ?:[EQU $QUEST_NUMBER 40]

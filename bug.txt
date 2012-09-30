@@ -2,8 +2,4 @@ Known bugs:
 - When saving while in a 'only once' quest and then reloading if you exit
   without completing the quest it's not marked as failed ...
 - Corpses weight ... is strange when hacked
-- Artifacts can reappear if leaved on saved
-  levels, they should NOT !
 - when god gets angry it may crash the game, but the savefile is safe
-- display of the attributes when pressing C is broken(will be fixed in the
-  next version)

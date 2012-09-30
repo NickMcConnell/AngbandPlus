@@ -38,6 +38,21 @@ void mindcraft_info(char *p, int power)
     }
 }
 
+void mimic_info(char *p, int power)
+{
+    int plev = p_ptr->lev;
+	
+    strcpy(p, "");
+	
+    switch (power) {
+	case 0:  break;
+        case 1:  sprintf(p, " dur %d+d20", 10 + plev); break;
+        case 2:  sprintf(p, " dur 50+d%d", 50 + (2 * plev)); break;
+        case 3:  sprintf(p, " dur 50+d%d", 50 + (2 * plev)); break;
+        case 4:  sprintf(p, " dur 50+d%d", 50 + (2 * plev)); break;
+    }
+}
+
 /*
  * Allow user to choose a magic power.
  *
@@ -578,7 +593,7 @@ static int get_mimic_chance(int c)
   return (chance);
 }
 
-void do_cmd_mimic()
+void do_cmd_mimic_lore()
 {
         int             item;
         int chance;
@@ -587,15 +602,15 @@ void do_cmd_mimic()
 
 	cptr q, s;
 
-  if (p_ptr->blind || no_lite()) {
-    msg_print("You cannot see!");
-    return;
-  }
+        if (p_ptr->blind || no_lite()) {
+                msg_print("You cannot see!");
+                return;
+        }
 
-  if (p_ptr->confused) {
-    msg_print("You are too confused!");
-    return;
-  }
+        if (p_ptr->confused) {
+                msg_print("You are too confused!");
+                return;
+        }
 
         if(!p_ptr->mimic_form){
 
@@ -623,7 +638,8 @@ void do_cmd_mimic()
 
   if (chance > 75) {
     msg_print("You feel uneasy with this shape-change.");
-    if (!get_check("Try it anyway? ")) {
+    if (!get_check("Try it anyway? "))
+    {
       return;
     }
   }
@@ -665,6 +681,252 @@ void do_cmd_mimic()
                         p_ptr->update |= (PU_BONUS);
                 }
         }
+}
+
+/*
+ * do_cmd_cast calls this function if the player's class
+ * is 'mimic'.
+ */
+void do_cmd_mimic(void)
+{
+	int             n = 0,  b = 0;
+	int             chance;
+	int             minfail = 0;
+	int             plev = p_ptr->lev;
+        magic_power     spell;
+
+	/* not if confused */
+	if (p_ptr->confused)
+	{
+		msg_print("You are too confused!");
+		return;
+	}
+
+	/* get power */
+        if (!get_magic_power(&n, mimic_powers, MAX_MIMIC_POWERS, mimic_info))  return;
+	
+        spell = mimic_powers[n];
+    
+	/* Verify "dangerous" spells */
+	if (spell.mana_cost > p_ptr->csp)
+	{
+		/* Warning */
+		msg_print("You do not have enough mana to use this power.");
+		
+		/* Verify */
+		if (!get_check("Attempt it anyway? ")) return;
+	}
+    
+	/* Spell failure chance */
+	chance = spell.fail;
+	
+	/* Reduce failure rate by "effective" level adjustment */
+	chance -= 3 * (p_ptr->lev - spell.min_lev);
+	
+	/* Reduce failure rate by INT/WIS adjustment */
+	chance -= 3 * (adj_mag_stat[p_ptr->stat_ind[mp_ptr->spell_stat]] - 1);
+	
+	/* Not enough mana to cast */
+	if (spell.mana_cost > p_ptr->csp)
+	{
+		chance += 5 * (spell.mana_cost - p_ptr->csp);
+	}
+	
+	/* Extract the minimum failure rate */
+	minfail = adj_mag_fail[p_ptr->stat_ind[mp_ptr->spell_stat]];
+	
+	/* Minimum failure rate */
+	if (chance < minfail) chance = minfail;
+	
+	/* Stunning makes spells harder */
+	if (p_ptr->stun > 50) chance += 25;
+	else if (p_ptr->stun) chance += 15;
+	
+	/* Always a 5 percent chance of working */
+	if (chance > 95) chance = 95;
+	
+	/* Failed spell */
+	if (rand_int(100) < chance)
+	{
+		if (flush_failure) flush();
+		msg_format("You failed to concentrate hard enough!");
+		sound(SOUND_FAIL);
+		
+		if (randint(100) < (chance/2))
+		{
+			/* Backfire */
+			b = randint(100);
+			if (b < 5)
+			{
+				msg_print("Oh, no! Your mind has gone blank!");
+				lose_all_info();
+			}
+			else if (b < 15)
+			{
+				msg_print("Weird visions seem to dance before your eyes...");
+				set_image(p_ptr->image + 5 + randint(10));
+			}
+			else if (b < 45)
+			{
+				msg_print("Your brain is addled!");
+				set_confused(p_ptr->confused + randint(8));
+			}
+                        else
+			{
+				set_stun(p_ptr->stun + randint(8));
+			}
+		}
+	}
+	else
+	{
+		sound(SOUND_ZAP);
+
+		/* spell code */
+		switch (n)
+		{
+                case 0:   /* Mimic */
+                        do_cmd_mimic_lore();
+			break;
+                case 1:   /* Invisibility */
+                {
+                        int ii = 10 + p_ptr->lev + randint(20) + p_ptr->to_s;
+                        set_invis(p_ptr->tim_invisible + ii, 50);
+                        set_tim_invis(p_ptr->tim_invisible + ii);
+			break;
+                }
+                case 2:   /* Legs Mimicry */
+                {
+                        /* Extract the value and the flags */
+                        u32b value = p_ptr->class_extra6 >> 16,
+                             att = p_ptr->class_extra6 & 0xFFFF;
+
+                        /* Clear useless things */
+                        att &= ~CLASS_ARMS;
+                        att &= ~CLASS_WALL;
+
+                        if (att & CLASS_LEGS)
+                        {
+                                value += 50 + randint(50 + (2 * plev));
+                        }
+                        else
+                        {
+                                msg_print("You mimic a new pair of legs.");
+
+                                value = 50 + randint(50 + (2 * plev));
+                                att |= CLASS_LEGS;
+                        }
+
+                        if (value > 10000) value = 10000;
+
+                        p_ptr->class_extra6 = att + (value << 16);
+                        p_ptr->update |= PU_BODY;
+			break;
+                }
+                case 3:   /* Wall Mimicry */
+                {
+                        /* Extract the value and the flags */
+                        u32b value = p_ptr->class_extra6 >> 16,
+                             att = p_ptr->class_extra6 & 0xFFFF;
+
+                        /* Clear useless things */
+                        att &= ~CLASS_ARMS;
+                        att &= ~CLASS_LEGS;
+
+                        if (att & CLASS_WALL)
+                        {
+                                value += 50 + randint(50 + (2 * plev));
+                        }
+                        else
+                        {
+                                msg_print("You grow an affinity for walls.");
+
+                                value = 50 + randint(50 + (2 * plev));
+                                att |= CLASS_WALL;
+                        }
+
+                        if (value > 10000) value = 10000;
+
+                        p_ptr->class_extra6 = att + (value << 16);
+                        p_ptr->update |= PU_BODY;
+			break;
+                }
+                case 4:   /* Arms Mimicry */
+                {
+                        /* Extract the value and the flags */
+                        u32b value = p_ptr->class_extra6 >> 16,
+                             att = p_ptr->class_extra6 & 0xFFFF;
+
+                        /* Clear useless things */
+                        att &= ~CLASS_LEGS;
+                        att &= ~CLASS_WALL;
+
+                        if (att & CLASS_ARMS)
+                        {
+                                value += 50 + randint(50 + (2 * plev));
+                        }
+                        else
+                        {
+                                msg_print("You mimic a new pair of arms.");
+
+                                value = 50 + randint(50 + (2 * plev));
+                                att |= CLASS_ARMS;
+                        }
+
+                        if (value > 10000) value = 10000;
+
+                        p_ptr->class_extra6 = att + (value << 16);
+                        p_ptr->update |= PU_BODY;
+			break;
+                }
+		default:
+			msg_print("Zap?");
+		}
+	}
+    
+	/* Take a turn */
+	energy_use = 100;
+	
+	/* Sufficient mana */
+	if (spell.mana_cost <= p_ptr->csp)
+	{
+		/* Use some mana */
+		p_ptr->csp -= spell.mana_cost;
+	}
+	
+	/* Over-exert the player */
+	else
+	{
+		int oops = spell.mana_cost - p_ptr->csp;
+		
+		/* No mana left */
+		p_ptr->csp = 0;
+		p_ptr->csp_frac = 0;
+		
+		/* Message */
+		msg_print("You faint from the effort!");
+		
+		/* Hack -- Bypass free action */
+		(void)set_paralyzed(p_ptr->paralyzed + randint(5 * oops + 1));
+		
+		/* Damage WIS (possibly permanently) */
+		if (rand_int(100) < 50)
+		{
+			bool perm = (rand_int(100) < 25);
+			
+			/* Message */
+			msg_print("You have damaged your mind!");
+			
+			/* Reduce constitution */
+                        (void)dec_stat(A_DEX, 15 + randint(10), perm);
+		}
+	}
+	
+	/* Redraw mana */
+	p_ptr->redraw |= (PR_MANA);
+	
+	/* Window stuff */
+	p_ptr->window |= (PW_PLAYER);
+	p_ptr->window |= (PW_SPELL);
 }
 
 /*
@@ -767,7 +1029,9 @@ static bool item_tester_hook_extractable(object_type *o_ptr)
         (o_ptr->tval==TV_RING)||
         (o_ptr->tval==TV_AMULET)||
         (o_ptr->tval==TV_SCROLL)||
-        (o_ptr->tval==TV_ROD))&&(!k_ptr->know)) return TRUE;
+        ((o_ptr->tval==TV_ROD_MAIN) && o_ptr->pval)||
+        (o_ptr->tval==TV_ROD))
+        &&(!k_ptr->know)) return TRUE;
 
 	/* Assume not */
 	return (FALSE);
@@ -800,7 +1064,15 @@ bool get_alchemist_target(int *i)
 	{
 		o_ptr = &o_list[0 - item];
 	}
-        if((o_ptr->tval==TV_WAND)||(o_ptr->tval==TV_STAFF))alchemist_charge=o_ptr->pval;
+
+	if (o_ptr->tval==TV_STAFF)
+	{
+		alchemist_charge = o_ptr->pval;
+	}
+	else if (o_ptr->tval==TV_WAND)
+	{
+		alchemist_charge = o_ptr->pval / o_ptr->number;
+	}
 
         for(a = 0; a < 9; a++)
                 if((alchemist_recipes[alchemist_baterie].item[a].ctval==o_ptr->tval)&&(alchemist_recipes[alchemist_baterie].item[a].csval==o_ptr->sval)) {alchemist_num = a; alchemist_ego = FALSE; return TRUE;}
@@ -809,6 +1081,29 @@ bool get_alchemist_target(int *i)
                 if(alchemist_recipes[alchemist_baterie].ego[a].which==o_ptr->tval) {alchemist_num = a; alchemist_ego = TRUE; return TRUE;}
 
         return TRUE;
+}
+
+/* Extract a rod tip from a rod */
+void rod_tip_extract(object_type *o_ptr, int item)
+{
+        object_type *q_ptr;
+        object_type forge;
+
+        /* Get local object */
+        q_ptr = &forge;
+
+        /* Extract the rod tip */
+        object_prep(q_ptr, lookup_kind(TV_ROD, o_ptr->pval));
+        q_ptr->number = 1;
+        object_aware(q_ptr);
+        object_known(q_ptr);
+        (void)inven_carry(q_ptr, FALSE);
+
+        /* Remove it from the rod */
+        o_ptr->pval = SV_ROD_NOTHING;
+
+        /* Window stuff */
+        p_ptr->window |= (PW_INVEN);
 }
 
 /*
@@ -824,6 +1119,8 @@ void do_cmd_alchemist(void)
 	object_type	*o_ptr;
 	object_type	forge;
         object_type     *q_ptr;
+	object_type	forge2;
+        byte carry_o_ptr = FALSE;
 
         cptr q, s;
         char com[80];
@@ -867,7 +1164,7 @@ void do_cmd_alchemist(void)
                         ext = 2;
                         break;
                 }
-                if ((ch == 'C' || ch == 'c')&&(p_ptr->lev > 29))
+                if ((ch == 'C' || ch == 'c') && (p_ptr->lev > 29))
                 {
                         ext = 3;
                         break;
@@ -903,17 +1200,19 @@ void do_cmd_alchemist(void)
         /* Assume the baterie will get used up */
 	used_up = TRUE;
 
-        for(a=0;a<=MAX_ALCHEMIST_RECIPES;a++){
-                if(alchemist_recipes[a].sval_baterie==o_ptr->sval)break;
+        for (a = 0; a <= MAX_ALCHEMIST_RECIPES; a++)
+        {
+                if (alchemist_recipes[a].sval_baterie == o_ptr->sval) break;
         }
 
         alchemist_baterie = a;
 
         used_up=get_alchemist_target(&i);
 
-        if(used_up==TRUE){
-                if(alchemist_ego){
-                        if(alchemist_recipes[a].ego[alchemist_num].ego_num>o_ptr->number)
+        if (used_up == TRUE){
+                if (alchemist_ego)
+                {
+                        if(alchemist_recipes[a].ego[alchemist_num].ego_num > o_ptr->number)
                         {
                                q=format("You need at least %d bateries !",alchemist_recipes[a].ego[alchemist_num].ego_num);
                                msg_print(q);
@@ -930,7 +1229,7 @@ void do_cmd_alchemist(void)
                         }
                         if(q_ptr->name2==0){
                                 if(q_ptr->number>1){
-                                        msg_print("Can't enchant more than one item !");
+                                        msg_print("You can't enchant more than one item !");
                                         used_up=FALSE;
                                         goto fin_alchemist;
                                 }
@@ -962,7 +1261,10 @@ void do_cmd_alchemist(void)
                         q_ptr = &forge;
                         object_wipe(q_ptr);
                         object_prep(q_ptr, lookup_kind(alchemist_recipes[a].item[alchemist_num].etval, alchemist_recipes[a].item[alchemist_num].esval));
-                        if((q_ptr->tval==TV_WAND)||(q_ptr->tval==TV_STAFF))q_ptr->pval=alchemist_charge+1;
+			if ((q_ptr->tval == TV_STAFF) || (q_ptr->tval == TV_WAND))
+			{
+				q_ptr->pval = alchemist_charge + 1;
+			}
                         if((q_ptr->tval==TV_RING)||(q_ptr->tval==TV_AMULET))
                                 apply_magic(q_ptr,max_dlv[dungeon_type],(randint(110-(max_dlv[dungeon_type]))==0)?TRUE:FALSE,
                                                                          FALSE,
@@ -1007,12 +1309,22 @@ fin_alchemist:
                                 if (i >= 0)
                                 {
                                         inven_item_increase(i, -1);
+                                        /* reduce wand's charge */
+                                        if (inventory[i].tval == TV_WAND)
+                                        {
+                                                inventory[i].pval -= alchemist_charge;
+                                        }
                                         inven_item_describe(i);
                                         inven_item_optimize(i);
                                 }
                                 else
                                 {
                                         floor_item_increase(0 - i, -1);
+                                        /* reduce wand's charge */
+                                        if (o_list[0 - i].tval == TV_WAND)
+                                        {
+                                                o_list[0 - i].pval -= alchemist_charge;
+                                        }
                                         floor_item_describe(0 - i);
                                         floor_item_optimize(0 - i);
                                 }
@@ -1029,7 +1341,7 @@ fin_alchemist:
 	/* Get an item */
         q = "Extract from which item? ";
         s = "You have no item to extract power from.";
-        if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+        if (!get_item(&item, q, s, (USE_INVEN))) return;
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -1042,9 +1354,15 @@ fin_alchemist:
 		o_ptr = &o_list[0 - item];
 	}
 
+        if (o_ptr->tval == TV_ROD_MAIN)
+        {
+                rod_tip_extract(o_ptr, item);
+                return;
+        }
+
         for(a=0;a<=MAX_ALCHEMIST_RECIPES;a++){
                 for(b = 0; b < 9; b++)
-                        if((alchemist_recipes[a].item[b].etval==o_ptr->tval)&&(alchemist_recipes[a].item[b].esval==o_ptr->sval)) goto fin_alchemist_2;
+                        if((alchemist_recipes[a].item[b].etval == o_ptr->tval)&&(alchemist_recipes[a].item[b].esval == o_ptr->sval)) goto fin_alchemist_2;
         }
         b = -1;
 fin_alchemist_2:
@@ -1057,9 +1375,41 @@ fin_alchemist_2:
                         break;
                 }
                 default:
-                        if(((o_ptr->tval==TV_WAND)||(o_ptr->tval==TV_STAFF))&&(o_ptr->pval>1)){
-                                o_ptr->pval--;
-                        }else{
+			/* XXX Hack -- unstack if necessary */
+			if ((o_ptr->tval==TV_STAFF) && (o_ptr->number > 1))
+			{
+				/* Get local object */
+				q_ptr = &forge2;
+
+				/* Obtain a local object */
+				object_copy(q_ptr, o_ptr);
+
+				/* Modify quantity */
+				q_ptr->number = 1;
+
+				/* Unstack the used item */
+				o_ptr->number--;
+				total_weight -= q_ptr->weight;
+
+				o_ptr = q_ptr;
+
+				carry_o_ptr = TRUE;
+			}
+
+			if(((o_ptr->tval==TV_WAND) || (o_ptr->tval==TV_STAFF)) &&
+			   (o_ptr->pval>0))
+			{
+				o_ptr->pval--;
+                        }
+
+			if (carry_o_ptr == TRUE)
+			{
+				item = inven_carry(o_ptr, FALSE);
+			}
+
+                        if(((o_ptr->tval!=TV_WAND) && (o_ptr->tval!=TV_STAFF)) ||
+                           (o_ptr->number > o_ptr->pval))
+                        {
                                 q_ptr = &forge;
                                 object_wipe(q_ptr);
                                 object_prep(q_ptr, lookup_kind(alchemist_recipes[a].item[b].ctval,alchemist_recipes[a].item[b].csval));
@@ -1071,7 +1421,8 @@ fin_alchemist_2:
                         }
                         break;
         }
-        if(b!=-1){                    
+        if (b != -1)
+        {
                 if(create_q_ptr==TRUE){
                         if (item >= 0)
                         {
@@ -1185,11 +1536,11 @@ void do_cmd_pray(void) {
   level = interpret_grace() - interpret_favor();
   name = deity_info[p_ptr->pgod-1].name;
 
-  if (p_ptr->pclass == CLASS_PRIEST && magik(30)) {
+  if (((p_ptr->pclass == CLASS_PRIEST) || (p_ptr->pclass == CLASS_PRIOR)) && magik(30)) {
     level++;
   }
 
-  if (p_ptr->pclass == CLASS_PALADIN && magik(10)) {
+  if ((p_ptr->pclass == CLASS_PALADIN) && magik(10)) {
     level++;
   }
 
@@ -2477,7 +2828,7 @@ void brand_ammo (int brand_type, int bolts_only)
 		    (o_ptr->tval != TV_ARROW) && (o_ptr->tval != TV_SHOT))
 		    	continue;
 		if ((!artifact_p(o_ptr)) && (!ego_item_p(o_ptr)) &&
-		   (!cursed_p(o_ptr) && !broken_p(o_ptr)))
+                   (!cursed_p(o_ptr)))
 		   	break;
 	}
 
@@ -3096,14 +3447,20 @@ void do_cmd_possessor()
         {
                 monster_race *r_ptr = &r_info[p_ptr->body_monster];
 
-                use_symbiotic_power(p_ptr->body_monster, TRUE, TRUE);
-                if(rand_int(100) < (r_ptr->freq_inate + r_ptr->freq_spell + p_ptr->lev) * 3 / 2) use_symbiotic_power(p_ptr->body_monster, TRUE, FALSE);
+                if (use_symbiotic_power(p_ptr->body_monster, TRUE, TRUE) &&
+                    (rand_int(100) < (r_ptr->freq_inate + r_ptr->freq_spell + p_ptr->lev) * 3 / 2))
+                {
+                        use_symbiotic_power(p_ptr->body_monster, TRUE, FALSE);
+                }
         }
+
         else if(ext == 2)
+	{
                 if(p_ptr->disembodied)
                         do_cmd_integrate_body();
                 else
                         do_cmd_leave_body(TRUE);
+	}
 
 	/* Take a turn */
 	energy_use = 100;
@@ -3196,10 +3553,11 @@ void do_cmd_archer(void)
                         q_ptr = &forge;
 
                         /* Hack -- Give the player some small firestones */
-                        object_prep(q_ptr, lookup_kind(TV_SHOT, m_bonus(2, dun_level) + 1));
+                        object_prep(q_ptr, lookup_kind(TV_SHOT, m_bonus(2, dun_level)));
                         q_ptr->number = (byte)rand_range(15,30);
                         object_aware(q_ptr);
                         object_known(q_ptr);
+                        apply_magic(q_ptr, dun_level, TRUE, TRUE, (magik(20))?TRUE:FALSE);
 
                         (void)inven_carry(q_ptr, FALSE);
 
@@ -3240,12 +3598,11 @@ void do_cmd_archer(void)
                 q_ptr = &forge;
 
                 /* Hack -- Give the player some small firestones */
-                object_prep(q_ptr, lookup_kind(TV_ARROW, m_bonus(1, dun_level) + 2));
+                object_prep(q_ptr, lookup_kind(TV_ARROW, m_bonus(1, dun_level) + 1));
                 q_ptr->number = (byte)rand_range(15,25);
                 object_aware(q_ptr);
                 object_known(q_ptr);
-
-                (void)inven_carry(q_ptr, FALSE);
+                apply_magic(q_ptr, dun_level, TRUE, TRUE, (magik(20))?TRUE:FALSE);
 
                 msg_print("You make some ammo.");
 
@@ -3261,6 +3618,8 @@ void do_cmd_archer(void)
                         floor_item_describe(0 - item);
                         floor_item_optimize(0 - item);
                 }
+
+                (void)inven_carry(q_ptr, FALSE);
         }
         /**********Create bolts*********/
         else if (ext == 3)
@@ -3292,12 +3651,11 @@ void do_cmd_archer(void)
                 q_ptr = &forge;
 
                 /* Hack -- Give the player some small firestones */
-                object_prep(q_ptr, lookup_kind(TV_BOLT, m_bonus(1, dun_level) + 2));
+                object_prep(q_ptr, lookup_kind(TV_BOLT, m_bonus(1, dun_level) + 1));
                 q_ptr->number = (byte)rand_range(15,25);
                 object_aware(q_ptr);
                 object_known(q_ptr);
-
-                (void)inven_carry(q_ptr, FALSE);
+                apply_magic(q_ptr, dun_level, TRUE, TRUE, (magik(20))?TRUE:FALSE);
 
                 msg_print("You make some ammo.");
 
@@ -3313,6 +3671,8 @@ void do_cmd_archer(void)
                         floor_item_describe(0 - item);
                         floor_item_optimize(0 - item);
                 }
+
+                (void)inven_carry(q_ptr, FALSE);
         }
 }
 
@@ -3431,7 +3791,7 @@ void do_cmd_necromancer(void)
 			{
                                 msg_print("Oh, no! You become un undead !");
 
-                                p_ptr->class_extra6 |= CLASS_UNDEAD;
+                                p_ptr->class_extra3 |= CLASS_UNDEAD;
                                 p_ptr->class_extra4 = 2 * p_ptr->lev;
                                 msg_format("You have to kill %d monster%s to be bringed back to life.", p_ptr->class_extra4, (p_ptr->class_extra4 == 1)?"":"s");
 
@@ -3526,7 +3886,7 @@ void do_cmd_necromancer(void)
                                 if (!get_aim_dir(&dir)) return;
                                 fire_bolt(GF_DEATH, dir, 1);
 
-                                p_ptr->class_extra6 |= CLASS_UNDEAD;
+                                p_ptr->class_extra3 |= CLASS_UNDEAD;
                                 p_ptr->class_extra4 = p_ptr->lev + (rand_int(p_ptr->lev / 2) - (p_ptr->lev / 4));
                                 msg_format("You have to kill %d monster%s to be bringed back to life.", p_ptr->class_extra4, (p_ptr->class_extra4 == 1)?"":"s");
 
@@ -3594,4 +3954,239 @@ void do_cmd_necromancer(void)
 	/* Window stuff */
 	p_ptr->window |= (PW_PLAYER);
 	p_ptr->window |= (PW_SPELL);
+}
+
+void do_cmd_unbeliever()
+{
+        if (p_ptr->pclass != CLASS_UNBELIEVER)
+                return;
+
+        if (p_ptr->lev < 20)
+        {
+                msg_print("You must be at least level 20 to be able to disrupt the magic continuum.");
+                return;
+        }
+
+        if (p_ptr->class_extra6 & CLASS_ANTIMAGIC)
+        {
+                p_ptr->class_extra6 &= ~CLASS_ANTIMAGIC;
+                msg_print("You stop disrupting the magic continuum.");
+        }
+        else
+        {
+                p_ptr->class_extra6 |= CLASS_ANTIMAGIC;
+                msg_print("You start disrupting the magic continuum.");
+        }
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+}
+
+/*
+ * Cast a daemon spell -SC-
+ */
+void cast_daemon_spell(int spell)
+{
+        int dir;
+        int beam;
+	int plev = p_ptr->lev;
+        int to_s2=p_ptr->to_s/2;
+        int mto_s2=p_ptr->to_s/2;
+	
+        mto_s2 = (mto_s2==0)?1:mto_s2;
+	
+	/* Hack -- chance of "beam" instead of "bolt" */
+	beam = plev;
+	
+	/* Spells.  */
+	switch (spell)
+	{
+		case 0: /* Detect Good */
+			(void)detect_monsters_good();
+			break;
+		case 1: /* Phase Door */
+			teleport_player(10 * mto_s2);
+			break;
+		case 2: /* Resist Fire */
+			set_oppose_fire(p_ptr->oppose_fire + 10 + rand_int(10) + mto_s2);
+			break;	
+		case 3: /* Unearthly Blessing */
+		{
+			int dur;
+			
+			dur = randint(8) + to_s2 + 8;
+			set_blessed(p_ptr->blessed + dur);
+			set_shield(p_ptr->shield + dur, 10 + to_s2);
+			set_afraid(0);
+			break;
+		}
+		case 4: /* Steal Thoughts */
+			if (!get_aim_dir(&dir)) return;
+			fire_ball(GF_CONFUSION, dir, damroll(2 + (plev/5) + to_s2, 5), 3+plev/10);
+			break;
+		case 5: /* Demon Eyes */
+		{
+			int dur = 14 + randint(14) + to_s2;
+			
+			set_tim_invis(p_ptr->tim_invis + dur);
+			set_tim_esp(p_ptr->tim_esp + dur);
+			break;
+		}
+		case 6: /* Mend Flesh */
+			hp_player(damroll(4*mto_s2, 10));
+			set_cut(0);
+			break;
+		case 7: /* Vision */
+			map_area();
+			break;
+		case 8: /* Detect Angels and Demons */
+			detect_monsters_xxx(RF3_DEMON);
+			detect_monsters_xxx(RF3_GOOD);
+			break;	
+		case 9: /* Protection from Good */
+			set_protgood(p_ptr->protgood + randint(20) + 4 * plev + to_s2);
+			break;
+		case 10: /* Invisibility */
+			set_invis(p_ptr->tim_invisible + randint(25) + p_ptr->to_s, 25);
+			break;
+		case 11: /* Manes Summoning */
+		{
+			int xx = px, yy = py, i;
+			
+			for (i=0; i<plev/5; i++)
+			{
+				scatter(&yy, &xx, py, px, 5, 0);
+				place_monster_aux(yy, xx, test_monster_name("Manes"), FALSE, FALSE, TRUE);
+			}
+			break;
+		}
+		case 12: /* Demoncloak */
+		{
+			int dur=randint(20) + 20 + to_s2;
+			
+			set_oppose_fire(p_ptr->oppose_fire + dur);
+			set_oppose_cold(p_ptr->oppose_cold + dur);
+			set_shield(p_ptr->shield + dur, 40 + to_s2);
+			set_lite(p_ptr->lite + dur);
+			set_afraid(0);
+			break;
+		}
+		case 13: /* Breath Fire */
+			if (!get_aim_dir(&dir)) return;
+			fire_ball(GF_FIRE, dir, 40+(plev/6)*mto_s2, 3+to_s2);
+			break;
+		case 14: /* Fire Blade */
+		{
+			int dur=randint(25) + 25 + p_ptr->to_s;
+			
+			set_tim_fire_aura(p_ptr->tim_fire_aura + dur);
+			set_fast(dur);
+			set_blessed(p_ptr->blessed + dur);
+			set_hero(p_ptr->hero + dur);
+			break;
+		}
+		case 15: /* Circle of Madness */
+		{
+			int dam = 20 + plev * mto_s2;
+			int rad = 2 + mto_s2;
+			
+			fire_ball(GF_CHAOS, 0, dam, rad);
+			fire_ball(GF_CONF_DAM, 0, dam, rad);
+			fire_ball(GF_CHARM, 0, dam, rad);
+			break;
+		}
+		case 16: /* Bladecalm */
+			break;
+		case 17: /* Control Demons */
+			charm_demons(100 * mto_s2);
+			break;
+		case 18: /* Revive */
+			fire_ball(GF_RAISE_DEMON, 0, 1, 2 + to_s2 + (plev / 5));
+			break;
+		case 19: /* Trap Demonsoul */
+			if (!get_aim_dir(&dir)) return;
+			fire_bolt_or_beam(beam, GF_TRAP_DEMONSOUL, dir,
+					  damroll(20+((plev-5)/4), 8 + to_s2));
+			break;
+		case 20: /* Discharge Minions */
+		{
+			int i, y, x;
+			
+			/* Affect all pets */
+			for (i = 1; i < m_max; i++)
+			{
+				monster_type *m_ptr = &m_list[i];
+                                monster_race *r_ptr = race_inf(m_ptr);
+				bool tmp;
+				int dam;
+				
+				/* Skip dead monsters and non-pets */
+				if (!is_pet(m_ptr)||!m_ptr->r_idx) continue;
+				
+				/* Location */
+				y = m_ptr->fy;
+				x = m_ptr->fx;
+				
+				dam = m_ptr->hp / 2;
+				
+				/* Kill the monster */
+                                mon_take_hit(i, m_ptr->hp + 1, &tmp, " explodes.");
+				
+				/* Create the explosion */
+				project(0, 2+(r_ptr->level/20), y,
+					x, dam, GF_PLASMA, 
+					PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL);
+			}
+			break;
+		}
+		case 21: /* Summon Demons */
+			summon_specific_friendly(py, px, (plev*3)*mto_s2/2, SUMMON_DEMON, FALSE);
+			break;
+		case 22: /* Rain of Lava */
+			fire_ball(GF_FIRE, 0, 40 + plev * mto_s2, 2 + to_s2);
+			fire_ball(GF_LAVA_FLOW, 0, 5 + (plev / 5) + to_s2, 2 + to_s2);
+			break;
+		case 23: /* Kiss of the Succubus */
+			if (!get_aim_dir(&dir)) return;
+			fire_ball(GF_NEXUS, dir, 150 + plev*mto_s2, 3 + to_s2 + plev/20);
+			take_hit(50, "The Kiss of the Succubus");
+			break;
+		case 24: /* Immortality */
+			set_tim_res_time(p_ptr->tim_res_time + 30 + randint(30) + to_s2);
+			break;
+		case 25: /* Glyph of Warding */
+			warding_glyph();
+			break;
+		case 26: /* Lava Storm */
+			if (!get_aim_dir(&dir)) return;
+			fire_ball(GF_FIRE, dir, 60 + plev * mto_s2, 4 + to_s2);
+			fire_ball(GF_LAVA_FLOW, 0, 10 + (plev / 2) + mto_s2, 4 + to_s2);
+			break;
+		case 27: /* Demonform */
+			set_mimic(p_ptr->tim_mimic + 15 + randint(15) + to_s2, MIMIC_DEMON_LORD);
+			break;
+		case 28: /* Unholy word */
+			dispel_living(plev * 4 * mto_s2);
+			hp_player(1000 * mto_s2);
+			set_afraid(0);
+			set_poisoned(0);
+			set_stun(0);
+			set_cut(0);
+			break;
+		case 29: /* Hellfire */
+			if (!get_aim_dir(&dir)) return;
+			fire_ball(GF_HELL_FIRE, dir, 250 * mto_s2, 3 + to_s2);
+			fire_ball(GF_HELL_FIRE, 10-dir, 250 * mto_s2, 3 + to_s2);
+			break;
+		case 30: /* Armageddon */
+			mass_genocide(TRUE);
+			break;
+		case 31: /* Shield of the Damned */
+			set_invuln(p_ptr->invuln + randint(10) + 10 + to_s2);
+			break;
+		default:
+			msg_format("You cast an unknown Daemon spell: %d.", spell);
+			msg_print(NULL);
+			break;
+	}
 }

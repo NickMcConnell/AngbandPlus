@@ -513,10 +513,10 @@ have intrinsic abilities.
 
 	Alchemist
                 Alchemists are the only class that can harness the abilities
-                of the power batteries found in the dungeon. They can add
-                these batteries to staves, rings, wands, rods, and sometimes
+                of the essences found in the dungeon. They can add
+                these essences to staves, rings, wands, rods, and sometimes
                 weapons and armor to create new items or recharge old ones.
-                They can also extract batteries from magical items they find.
+                They can also extract essences from magical items they find.
                 Using these abilities, Alchemists can get very good items at
                 low levels. The trouble is getting them to survive later on.
 
@@ -623,8 +623,32 @@ have intrinsic abilities.
                 gains the power to control the elemental flows(Earth, Fire, Air,
                 Water and Mana). They also have special attack spells that 
                 can follow a laid path of mana in order to create magic "traps". 
-                Thus with one spell they can hit a monster more than one time, or they can
-                have a spell travel down a tunnel.
+                Thus with one spell they can hit a monster more than one time,
+                or they can have a spell travel down a tunnel.
+
+        Necromancer
+                As a Priest devotes his life to his chosen diety, so
+                Necromancers devote their lives to the study of death.
+                Familiar with all of the forms of unbeing, they are able to
+                cast spells from the Nether realm with great effect. Moreover,
+                if and when they die, they can send out their spirit to avenge
+                their enemies and drain their life force. If enough beings are
+                so drained, the Necromancer may return to life. On the other
+                hand, a Necromancer can only maintain the force of will
+                required to animate his spirit for a limited time. If he does
+                not manage to return to the realm of the living before his
+                willpower gives out, his death becomes permanent. 
+
+        Unbeliever
+                The full opposite of sorcerors, unbelievers so strongly
+                despise magic that not only do they refuse to use magic
+                spells, they refuse all training in the use of magic items,
+                which leaves them almost totally incompetent when trying to
+                use a magic item.  In addition, they are so unattuned to magic
+                that summoning gates are incapable of opening around them (in
+                a radius that grows larger with their level), eventually
+                extending to a complete suppression of teleportation abilities
+                in the area around them.
 
 === Stats ===
 
@@ -813,32 +837,58 @@ DragonRider   No      Yes     Yes    Yes     No    No      No     Yes   No
 Death Mold    No      Yes     Yes    Yes     No    No      Yes    No    Yes
 Yeek          Yes     Yes     Yes    Yes     Yes   No      Yes    Yes   No
 
-             Rune-                  Poss-  Sor-         Illu-
-            crafter Wizard   Prior  essor ceror Archer sionist Druid
-Human         Yes     Yes     Yes    Yes   Yes   Yes     Yes    Yes
-Half-Elf      Yes     Yes     Yes    Yes   Yes   Yes     Yes    Yes
-Elf           Yes     Yes     Yes    Yes   Yes   Yes     Yes    Yes
-Hobbit        No      Yes     No     No    No    Yes     Yes    No
-Gnome         No      Yes     Yes    No    Yes   No      Yes    No
-Dwarf         No      No      Yes    No    No    No      No     Yes
-Half-Orc      Yes     No      Yes    No    No    No      No     No
-Half-Troll    No      No      Yes    No    No    No      No     No
-Dunadan       Yes     Yes     Yes    Yes   Yes   Yes     Yes    Yes
-High-Elf      Yes     Yes     Yes    Yes   Yes   Yes     Yes    Yes
-Barbarian     Yes     No      Yes    No    Yes   No      No     No
-Half-Ogre     No      Yes     Yes    No    No    No      No     No
-Half-Giant    No      No      No     No    No    No      No     No
-Kobold        Yes     No      Yes    No    No    No      Yes    No
-Nibelung      No      Yes     Yes    No    No    No      Yes    No
-Dark Elf      Yes     Yes     Yes    Yes   Yes   Yes     Yes    No
-Vampire       Yes     Yes     Yes    Yes   Yes   No      Yes    No
-Spectre       Yes     Yes     Yes    Yes   Yes   No      No     No
-Ent           No      No      Yes    No    No    No      No     Yes
-RohanKnigth   Yes     No      No     No    Yes   Yes     Yes    No
-DragonRider   Yes     No      No     No    Yes   Yes     No     No
-Death Mold    No      Yes     Yes    No    Yes   No      No     No
-Yeek          Yes     Yes     Yes    Yes   Yes   Yes     Yes    Yes
+             Rune-                  Poss-  Sor-         Illu-         Necro-
+            crafter Wizard   Prior  essor ceror Archer sionist Druid  mancer
+Human         Yes     Yes     Yes    Yes   Yes   Yes     Yes    Yes    Yes
+Half-Elf      Yes     Yes     Yes    Yes   Yes   Yes     Yes    Yes    No
+Elf           Yes     Yes     Yes    Yes   Yes   Yes     Yes    Yes    No
+Hobbit        No      Yes     No     No    No    Yes     Yes    No     No
+Gnome         No      Yes     Yes    No    Yes   No      Yes    No     No
+Dwarf         No      No      Yes    No    No    No      No     Yes    No
+Half-Orc      Yes     No      Yes    No    No    No      No     No     Yes
+Half-Troll    No      No      Yes    No    No    No      No     No     Yes
+Dunadan       Yes     Yes     Yes    Yes   Yes   Yes     Yes    Yes    No
+High-Elf      Yes     Yes     Yes    Yes   Yes   Yes     Yes    Yes    No
+Barbarian     Yes     No      Yes    No    Yes   No      No     No     No
+Half-Ogre     No      Yes     Yes    No    No    No      No     No     Yes
+Half-Giant    No      No      No     No    No    No      No     No     Yes
+Kobold        Yes     No      Yes    No    No    No      Yes    No     Yes
+Nibelung      No      Yes     Yes    No    No    No      Yes    No     No
+Dark Elf      Yes     Yes     Yes    Yes   Yes   Yes     Yes    No     Yes
+Vampire       Yes     Yes     Yes    Yes   Yes   No      Yes    No     Yes
+Spectre       Yes     Yes     Yes    Yes   Yes   No      No     No     Yes
+Ent           No      No      Yes    No    No    No      No     Yes    No
+RohanKnigth   Yes     No      No     No    Yes   Yes     Yes    No     No
+DragonRider   Yes     No      No     No    Yes   Yes     No     No     No
+Death Mold    No      Yes     Yes    No    Yes   No      No     No     Yes
+Yeek          Yes     Yes     Yes    Yes   Yes   Yes     Yes    Yes    No
 
+             
+             Unbe-  Daemono-
+             liever logist
+Human         Yes     Yes
+Half-Elf      No      Yes
+Elf           No      Yes
+Hobbit        Yes     No
+Gnome         No      Yes
+Dwarf         Yes     No
+Half-Orc      Yes     No
+Half-Troll    Yes     No
+Dunadan       Yes     Yes
+High-Elf      No      Yes
+Barbarian     Yes     No
+Half-Ogre     No      No
+Half-Giant    Yes     No
+Kobold        Yes     No
+Nibelung      No      No
+Dark Elf      No      Yes
+Vampire       No      Yes
+Spectre       No      Yes
+Ent           Yes     No
+RohanKnigth   Yes     No
+DragonRider   Yes     No
+Death Mold    No      No
+Yeek          Yes     Yes
 
 
 === Miscellaneous ===
@@ -913,6 +963,9 @@ are listed in the following table.
            Archer        +2      +1       0      +2      +1      +1
            Illusionist   -5      +3       0      +1      -2      +1
            Druid         -2      -2      +3      +1      +1      +2
+           Necromancer   -3      +3      -1      +3      -1      -5
+           Unbeliever    +5     -10     -10      +4      +5      +1
+	   Daemonologist -2      +3      -1      +1      -1      -1
  
 === Ability Tables (updated for 2.0.6) ===
 
@@ -945,52 +998,55 @@ are listed in the following table.
  
 
                 Disarm  Device  Save    Stealth Search  Melee   Missile XP
-           Warrior         25+12   18+7    18+10   1       14/2    70+45   55+45   +0%
-           Mage            30+7    36+13   30+9    2       15/20   34+15   20+15   +30%
-	     Priest          25+7    30+10   32+12   2       16/8    48+20   35+20   +20%
-	     Rogue           45+15   32+10   28+10   5       32/24   60+40   66+30   +25%
-	     Ranger          30+8    32+10   28+10   3       24/16   56+30   72+45   +30%
-	     Paladin         20+7    24+10   26+11   1       12/2    68+35   40+30   +35%
-	     Warrior-Mage    30+7    30+10   28+9    2       18/16   50+20   25+20   +50%
-	     Chaos Warrior   20+7    25+11   25+10   1       14/12   65+34   40+29   +35%
-	     Monk            45+15   32+11   28+10   5       32/24   64+40   60+30   +40%
-	     Mindcrafter     30+10   30+10   30+10   3       22/16   50+20   40+30   +25%
-	     High Mage       30+7    36+13   30+9    2       15/20   34+15   20+15   +30%
-	     BeastMaster     20+7    36+13   30+9    4       16/20   56+15   20+15   +20%
-	     Alchemist       30+7    60+30   10+9    2       26/20   34+15   30+15   +40%
-	     Mimic           10+11   11+13   30+9    22      26/20   64+25   40+25   +40%
-	     Symbiant        10+4    12+13   30+9    10      16/10   36+15   20+15   +20%
-	     Harper          10+8    16+13   20+12  -5       16/20   34+15   20+15   +50%
-	     Power Mage      20+7    36+13   30+9    2       16/20   14+7    10+7    +20%
-	     Runecrafter     15+7    36+13   20+9    6       16/30   20+7    18+7    +40%
-	     Wizard          30+7    36+13   30+9    2       15/20   34+15   20+15   +30%
-	     Prior           25+7    30+10   32+12   2       16/8    48+20   35+20   +20%
-	     Possessor       25+12   18+7    18+10   1       14/2    30+25   25+25   +40%
-	     Sorceror        35+22   48+17   38+20   3       22/12   10+15   15+15   +60%
-	     Archer          30+8    32+10   28+10   3       24/16   56+30   82+45   +30%
-	     Illusionist     30+7    36+13   30+9    2       16/20   34+15   20+15   +30%
-	     Druid           20+7    20+10   38+10   4        8/16   42+18   35+20   +30%
+Warrior         25+12   18+7    18+10   1       14/2    70+45   55+45   +0%
+Mage            30+7    36+13   30+9    2       15/20   34+15   20+15   +30%
+Priest          25+7    30+10   32+12   2       16/8    48+20   35+20   +20%
+Rogue           45+15   32+10   28+10   5       32/24   60+40   66+30   +25%
+Ranger          30+8    32+10   28+10   3       24/16   56+30   72+45   +30%
+Paladin         20+7    24+10   26+11   1       12/2    68+35   40+30   +35%
+Warrior-Mage    30+7    30+10   28+9    2       18/16   50+20   25+20   +50%
+Chaos Warrior   20+7    25+11   25+10   1       14/12   65+34   40+29   +35%
+Monk            45+15   32+11   28+10   5       32/24   64+40   60+30   +40%
+Mindcrafter     30+10   30+10   30+10   3       22/16   50+20   40+30   +25%
+High Mage       30+7    36+13   30+9    2       15/20   34+15   20+15   +30%
+BeastMaster     20+7    36+13   30+9    4       16/20   56+15   20+15   +20%
+Alchemist       30+7    60+30   10+9    2       26/20   34+15   30+15   +40%
+Mimic           10+11   11+13   30+9    22      26/20   64+25   40+25   +40%
+Symbiant        10+4    12+13   30+9    10      16/10   36+15   20+15   +20%
+Harper          10+8    16+13   20+12  -5       16/20   34+15   20+15   +50%
+Power Mage      20+7    36+13   30+9    2       16/20   14+7    10+7    +20%
+Runecrafter     15+7    36+13   20+9    6       16/30   20+7    18+7    +40%
+Wizard          30+7    36+13   30+9    2       15/20   34+15   20+15   +30%
+Prior           25+7    30+10   32+12   2       16/8    48+20   35+20   +20%
+Possessor       25+12   18+7    18+10   1       14/2    30+25   25+25   +40%
+Sorceror        35+22   48+17   38+20   3       22/12   10+15   15+15   +60%
+Archer          30+8    32+10   28+10   3       24/16   56+30   82+45   +30%
+Illusionist     30+7    36+13   30+9    2       16/20   34+15   20+15   +30%
+Druid           20+7    20+10   38+10   4        8/16   42+18   35+20   +30%
+Necromancer     16+9    40+16   42+3    3       10/8    35+10   20+5    +40%
+Unbeliever      25+12    0+0    40+18   1       14/2    80+45   60+45   +20%
+Daemonologist   20+7    36+15   35+10   3       15/12   35+15   25+10   +30%
 
 === Monks: Attack Types (2.0.6b)
 
 
-	     Attack Name     Min.lvl Damage  Stun    Notes
-	     -----------------------------------------------------------------------------
-	     Punch           1       1d4     -
-	     Kick            2       1d6     -
-	     Strike          3       1d7     -
-	     Knee            5       2d3     *       Painful to males; likely to stun them
-	     Elbow           7       1d8     -
-	     Butt            9       2d5     -
-	     Ankle Kick      11      3d4     -       May slow down the opponent
-	     Uppercut        13      4d4     6
-	     Double-kick     16      5d4     8
-	     Cat's Claw      20      5d5     -
-	     Jump Kick       25      5d6     10
-	     Eagle's Claw    29      6d6     -
-	     Circle Kick     33      6d8     10
-	     Iron Fist       37      8d8     10
-	     Flying Kick     41      8d10    12
-	     Dragon Fist     45      10d10   16
-	     Crushing Blow   48      10d12   18
+Attack Name     Min.lvl Damage  Stun    Notes
+-----------------------------------------------------------------------------
+Punch           1       1d4     -
+Kick            2       1d6     -
+Strike          3       1d7     -
+Knee            5       2d3     *       Painful to males; likely to stun them
+Elbow           7       1d8     -
+Butt            9       2d5     -
+Ankle Kick      11      3d4     -       May slow down the opponent
+Uppercut        13      4d4     6
+Double-kick     16      5d4     8
+Cat's Claw      20      5d5     -
+Jump Kick       25      5d6     10
+Eagle's Claw    29      6d6     -
+Circle Kick     33      6d8     10
+Iron Fist       37      8d8     10
+Flying Kick     41      8d10    12
+Dragon Fist     45      10d10   16
+Crushing Blow   48      10d12   18
 

@@ -462,7 +462,7 @@
 /*
  * OPTION: Person to bother if something goes wrong.
  */
-#define MAINTAINER      "dark.god@infonie.fr"
+#define MAINTAINER      "darkgod@ifrance.com"
 
 
 /*
@@ -540,19 +540,16 @@
 #endif
 
 /* Should the player know his / her starting life rate? */
-# define SHOW_LIFE_RATE
+#define SHOW_LIFE_RATE
 
 /* Do we want different characters for different races? */
-# define VARIABLE_PLAYER_GRAPH
-
-/* To turn on the "confirm staircases" check  -- obsolete in 2.1.0 and later */
-/* # define CONFIRM_STAIRCASES */
+#define VARIABLE_PLAYER_GRAPH
 
 /* For longer martial arts descriptions */
-# define VERBOSE_MARTIAL_ARTS
+#define VERBOSE_MARTIAL_ARTS
 
 /* Allow hordes of 'similar' monsters */
-# define MONSTER_HORDES
+#define MONSTER_HORDES
 
 /* Allow Klackon- and Sprite-Monks to get extra speed
  *
@@ -592,7 +589,7 @@
 #define CHECK_MODIFICATION_TIME
 
 /*
- * Pet give exp to beastmaster and dragon users
+ * Pet give exp to beastmaster
  */
 #define PET_GAIN_EXP
 
@@ -607,11 +604,12 @@
 /* #define FORBID_BAD_COMBINAISON */
 
 /*
- * Allow generation of player ghosts. beware, they have bugs
- */
-/* #define USE_GHOSTS */
-
-/*
  * Enable the CTRL + L command to quit without saving
  */
 /* #define ALLOW_QUITING */
+
+/*
+ * OPTION: Allow the monsters to illuminate the hallways with either
+ * innate lite sources (light hounds, etc) or torches (mages, paladins, etc)
+ */
+/* #define MONSTER_LITE */

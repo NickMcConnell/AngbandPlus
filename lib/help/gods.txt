@@ -1,0 +1,63 @@
+The Beginner's Guide to Gods and Goddesses
+
+1.  Introduction
+        Everybody likes to have a little helping hand now and then.  What
+could be better than having a god on your side?  But it's not quite that easy.
+The gods won't help just any mortal who calls for help.  You have to give them
+a little something too.
+
+2.  How Do I Get in on This?
+        First of all, find an altar.  They're found just laying around in the
+dungeon.  Then offer a sacrifice.  Make sure you're certain you want to
+worship this god, they don't take rejection very well.
+
+3.  So, Who Are These Gods?
+
+Yavanna: The vala in charge of trees, she protects her followers from cold.
+Ulmo: The vala of the sea, he can protect the worthy from poison and sound.
+Aule: The smith of the vala, associated with earth.  His followers are free to
+        move about the earth and will not be harmed by shards of earth.
+Melkor:  Yes, this is Morgoth, the guy you're spending the entire game trying
+        to whack.  But you can still worship him.  He grants sustains, and
+        protects his followers from several dark powers.
+Tilion:  Vala of the moon, whose followers need fear neither the dark or the
+        creatures that dwell in it.
+Arien:  Vala of the sun, whose followers have no fear during the day.
+Tulkas:  Vala of rage, his followers are mighty warriors, who cannot be
+        deceived in battle.
+Manwe:  Vala of the winds, his followers move with supernatural grace and
+        swiftness.
+Varda:  Vala of the stars, her followers have keen and clear minds.
+Eru:  Also known as Illuvatar, he is the creator, the god of being.  Those who
+        follow him are granted knowledge beyond that of ordinary mortals, but
+        they are so strongly connected to life that it is hard for them to kill
+        directly.
+The RNG:  The god of chaos, he is as unpredictable and irrational as a high
+        school girl.
+
+Any god has the ability to resurrect their followers, if they feel them worthy
+of the honor.  But such a gift is only granted rarely, and the gods are
+grudgeful of such favors.
+
+4.  How Do I Get on Their Good Side?
+	Sacrifice items at their altars.  The more expensive, the better.
+
+5.  I'm in Trouble.  What Do I Do?
+        Pray.  Your relationship with your god is measured by two numbers,
+your grace and your favor.  Grace is increased by sacrifices, favor is
+increased by praying.  Favor is actually a measure of how much you've bothered
+your god, so you want it to be as low as possible.  It will slowly decrease
+over time.  The chance of your prayer being answered is roughly dependant on
+the difference between grace and favor.  Paladins, priests, and priors all
+receive a bonus when praying.
+
+6.  My God is Mad.  Help!
+        Your grace naturally decreases over time.  If you pray when your grace
+is too low, or when your favor is too high, you can find yourself in a lot of
+trouble.  The only solution is to rebuild your grace with sacrifices and to
+let your favor decrease.
+
+[This spoiler is only guaranteed to be current as of version 4.0.7.  I have no
+reason to believe that anything was changed in 4.0.9.  If you wish to contact
+the author, write to dustinragan@yahoo.com.  Special thanks go to DarkGod and
+to cross11.]

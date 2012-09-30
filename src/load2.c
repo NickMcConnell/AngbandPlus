@@ -66,7 +66,7 @@ static u32b	v_check = 0L;
 static u32b	x_check = 0L;
 
 
-
+#if 0 /* DG -- Not used anymore  */
 /*
  * This function determines if the version of the savefile
  * currently being read is older than version "x.y.z".
@@ -88,7 +88,7 @@ static bool older_than(byte x, byte y, byte z)
 	/* Identical versions */
 	return (FALSE);
 }
-
+#endif
 
 /*
  * The above function, adapted for PernAngband
@@ -143,6 +143,8 @@ static bool wearable_p(object_type *o_ptr)
                 case TV_WAND:
                 case TV_STAFF:
                 case TV_ROD:
+                case TV_ROD_MAIN:
+                case TV_SHOT:
 		case TV_ARROW:
 		case TV_BOLT:
                 case TV_BOOMERANG:
@@ -166,6 +168,7 @@ static bool wearable_p(object_type *o_ptr)
 		case TV_RING:
                 case TV_HYPNOS:
                 case TV_INSTRUMENT:
+                case TV_DAEMON_BOOK:
 		{
 			return (TRUE);
 		}
@@ -288,7 +291,7 @@ static void rd_item(object_type *o_ptr)
 	byte old_dd;
 	byte old_ds;
 
-        u32b f1, f2, f3, f4;
+        u32b f1, f2, f3, f4, esp;
 
 	object_kind *k_ptr;
 
@@ -350,9 +353,9 @@ static void rd_item(object_type *o_ptr)
 	rd_byte(&o_ptr->xtra2);
 
 	/* Extract the flags */
-        object_flags(o_ptr, &f1, &f2, &f3, &f4);
+        object_flags(o_ptr, &f1, &f2, &f3, &f4, &esp);
 
-        if(!p_older_than(4,0,3))
+        if (!p_older_than(4,0,3))
         {
                 rd_byte(&o_ptr->elevel);
                 rd_s32b(&o_ptr->exp);
@@ -366,6 +369,16 @@ static void rd_item(object_type *o_ptr)
                         o_ptr->elevel = (k_ptr->level / 10) + 1;
                         o_ptr->exp = player_exp[o_ptr->elevel - 1];
                 }
+        }
+
+        /* Read the pseudo-id */
+        if (!p_older_than(4,1,2))
+        {
+                rd_byte(&o_ptr->sense);
+        }
+        else
+        {
+                o_ptr->sense = SENSE_NONE;
         }
 
 	/* Inscription */
@@ -387,10 +400,6 @@ static void rd_item(object_type *o_ptr)
 	/* Obtain tval/sval from k_info */
 	o_ptr->tval = k_ptr->tval;
         if(o_ptr->tval != TV_RANDART) o_ptr->sval = k_ptr->sval;
-
-
-	/* Hack -- notice "broken" items */
-	if (k_ptr->cost <= 0) o_ptr->ident |= (IDENT_BROKEN);
 
 
 	/* Repair non "wearable" items */
@@ -418,7 +427,7 @@ static void rd_item(object_type *o_ptr)
 
 
 	/* Extract the flags */
-        object_flags(o_ptr, &f1, &f2, &f3, &f4);
+        object_flags(o_ptr, &f1, &f2, &f3, &f4, &esp);
 
 	/* Paranoia */
 	if (o_ptr->name1)
@@ -453,9 +462,6 @@ static void rd_item(object_type *o_ptr)
 	/* Acquire standard weight */
 	o_ptr->weight = k_ptr->weight;
 
-	/* Hack -- extract the "broken" flag */
-	if (!o_ptr->pval < 0) o_ptr->ident |= (IDENT_BROKEN);
-
 
 	/* Artifacts */
 	if (o_ptr->name1)
@@ -472,9 +478,6 @@ static void rd_item(object_type *o_ptr)
 
 		/* Acquire new artifact weight */
 		o_ptr->weight = a_ptr->weight;
-
-		/* Hack -- extract the "broken" flag */
-		if (!a_ptr->cost) o_ptr->ident |= (IDENT_BROKEN);
 	}
 
 	/* Ego items */
@@ -488,9 +491,6 @@ static void rd_item(object_type *o_ptr)
 
 		o_ptr->dd = old_dd;
 		o_ptr->ds = old_ds;
-
-		/* Hack -- extract the "broken" flag */
-		if (!e_ptr->cost) o_ptr->ident |= (IDENT_BROKEN);
 	}
 
 	if (o_ptr->art_name) /* A random artifact */
@@ -510,6 +510,15 @@ static void rd_monster(monster_type *m_ptr)
 {
 	/* Read the monster race */
 	rd_s16b(&m_ptr->r_idx);
+
+        if (!p_older_than(4, 1, 5))
+        {
+                rd_u16b(&m_ptr->ego);
+        }
+        else
+        {
+                m_ptr->ego = 0;
+        }
 
 	/* Read the other information */
 	rd_byte(&m_ptr->fy);
@@ -581,6 +590,11 @@ static void rd_lore(int r_idx)
 
         /* Read the "Racial" monster limit per level */
         rd_s16b(&r_ptr->max_num);
+
+        if(!p_older_than(4, 0, 9))
+        {
+                rd_byte(&r_ptr->on_saved);
+        }
 
         /* Later (?) */
         rd_byte(&tmp8u);
@@ -831,13 +845,70 @@ static void rd_options(void)
 static void rd_ghost(void)
 {
 	char buf[64];
+        int i;
 
-	/* Strip name */
-	rd_string(buf, 64);
+        if (p_older_than(4, 1, 1))
+        {
+                /* Strip name */
+                rd_string(buf, 64);
 
-        /* Newer ghost */
-        /* Strip old data */
-        strip_bytes(60);
+                /* Strip old data */
+                strip_bytes(60);
+        }
+        else
+        {
+                monster_race *r_ptr = &r_info[max_r_idx - 1];
+
+		/* Name */
+		rd_string(r_name + r_ptr->name, 64);
+
+		/* Visuals */
+		rd_byte(&r_ptr->d_char);
+		rd_byte(&r_ptr->d_attr);
+
+		/* Level/Rarity */
+		rd_byte(&r_ptr->level);
+		rd_byte(&r_ptr->rarity);
+
+		/* Misc info */
+		rd_byte(&r_ptr->hdice);
+		rd_byte(&r_ptr->hside);
+		rd_s16b(&r_ptr->ac);
+		rd_s16b(&r_ptr->sleep);
+		rd_byte(&r_ptr->aaf);
+		rd_byte(&r_ptr->speed);
+
+		/* Experience */
+		rd_s32b(&r_ptr->mexp);
+
+		/* Frequency */
+		rd_byte(&r_ptr->freq_inate);
+		rd_byte(&r_ptr->freq_spell);
+
+		/* Flags */
+		rd_u32b(&r_ptr->flags1);
+		rd_u32b(&r_ptr->flags2);
+		rd_u32b(&r_ptr->flags3);
+		rd_u32b(&r_ptr->flags4);
+		rd_u32b(&r_ptr->flags5);
+		rd_u32b(&r_ptr->flags6);
+                rd_u32b(&r_ptr->flags7);
+                rd_u32b(&r_ptr->flags8);
+                rd_u32b(&r_ptr->flags9);
+
+		/* Attacks */
+		for (i = 0; i < 4; i++)
+		{
+			rd_byte(&r_ptr->blow[i].method);
+			rd_byte(&r_ptr->blow[i].effect);
+			rd_byte(&r_ptr->blow[i].d_dice);
+			rd_byte(&r_ptr->blow[i].d_side);
+		}
+
+                /* Hack -- set the "graphic" info */
+                r_ptr->x_attr = r_ptr->d_attr;
+                r_ptr->x_char = r_ptr->d_char;
+        }
 }
 
 /* Load the random spells info */
@@ -943,7 +1014,7 @@ static void rd_extra(void)
         rd_s16b(&p_ptr->inside_arena);
         rd_s16b(&p_ptr->inside_quest);
         rd_byte(&p_ptr->exit_bldg);
-        rd_byte(&p_ptr->leftbldg);
+        rd_byte(&tmp8u);
 
         rd_s16b(&p_ptr->oldpx);
         rd_s16b(&p_ptr->oldpy);
@@ -1030,7 +1101,7 @@ static void rd_extra(void)
 	rd_s16b(&p_ptr->tim_invis);
 	rd_s16b(&p_ptr->word_recall);
         rd_s16b(&p_ptr->recall_dungeon);
-	rd_s16b(&p_ptr->see_infra);
+        rd_s16b(&p_ptr->see_infra);
 	rd_s16b(&p_ptr->tim_infra);
 	rd_s16b(&p_ptr->oppose_fire);
 	rd_s16b(&p_ptr->oppose_cold);
@@ -1084,8 +1155,11 @@ static void rd_extra(void)
 
         rd_u16b(&no_breeds);
 
+	rd_s16b(&p_ptr->protgood);
+	if(p_older_than(4,1,0)) p_ptr->protgood=0;
+	
         /* Future use */
-	for (i = 0; i < 48; i++) rd_byte(&tmp8u);
+	for (i = 0; i < 46; i++) rd_byte(&tmp8u);
 
         /* Aux variables */
         rd_u32b(&p_ptr->class_extra1);
@@ -1525,6 +1599,39 @@ static errr rd_dungeon(void)
 			}
 		}
 
+        if (!p_older_than(4, 1, 3))
+        {
+		/*** Run length decoding ***/
+
+		/* Load the dungeon data */
+		for (x = y = 0; y < ymax; )
+		{
+			/* Grab RLE info */
+			rd_byte(&count);
+			rd_s16b(&tmp16s);
+
+			/* Apply the RLE info */
+			for (i = count; i > 0; i--)
+			{
+				/* Access the cave */
+				c_ptr = &cave[y][x];
+
+				/* Extract "feat" */
+                                c_ptr->special2 = tmp16s;
+
+				/* Advance/Wrap */
+				if (++x >= xmax)
+				{
+					/* Wrap */
+					x = 0;
+
+					/* Advance/Wrap */
+					if (++y >= ymax) break;
+				}
+			}
+		}
+         }
+
                 if(!p_older_than(4,0,2))
                 {
 		/*** Run length decoding ***/
@@ -1697,7 +1804,7 @@ static errr rd_dungeon(void)
 	if (limit >= max_m_idx)
 	{
 		note(format("Too many (%d) monster entries!", limit));
-		return (161);
+                return (161);
 	}
 
 	/* Read the monsters */
@@ -1752,7 +1859,7 @@ static errr rd_dungeon(void)
 }
 
 /* Returns TRUE if we successfully load the dungeon */
-bool load_dungeon(void)
+bool load_dungeon(char *ext)
 {
         char tmp[16];
         char name[1024];
@@ -1760,7 +1867,7 @@ bool load_dungeon(void)
         s16b old_dun = dun_level;
   
         /* Construct name */
-        sprintf(tmp, "./d%il%i.sav", dungeon_type, dun_level);
+        sprintf(tmp, "%s.%s", player_base, ext);
         path_build(name, 1024, ANGBAND_DIR_SAVE, tmp);
 
         /* Open the file */
@@ -1823,6 +1930,12 @@ static errr rd_savefile_new_aux(void)
 	byte tmp8u;
 	u16b tmp16u;
 	u32b tmp32u;
+
+        byte tmp8b;
+        s16b tmp16b;
+        s32b tmp32b;
+
+        char dummy[400];
 
 #ifdef VERIFY_CHECKSUMS
 	u32b n_x_check, n_v_check;
@@ -1889,7 +2002,7 @@ static errr rd_savefile_new_aux(void)
 	if (tmp16u > max_r_idx)
 	{
 		note(format("Too many (%u) monster races!", tmp16u));
-		return (21);
+                return (21);
 	}
 
 	/* Read the available records */
@@ -1906,75 +2019,64 @@ static errr rd_savefile_new_aux(void)
 
 	if (arg_fiddle) note("Loaded Monster Memory");
 
-        /* Init the ghost & player monsters */
-        for(i = 0; i < MAX_GHOSTS; i++)
-                rd_string(ghost_file[i], 20);
-
-        for(i = 0; i < MAX_GHOSTS; i++)
+        /* Old hackish, buggish ghost code */
+        if (p_older_than(4, 1, 0))
         {
-                monster_race *r_ptr;
+                /* Init the ghost & player monsters */
+                for(i = 0; i < MAX_GHOSTS; i++)
+                        rd_string(dummy, 20);
 
-                /* Load the ghost */
-                r_ptr = &r_info[GHOST_R_IDX_HEAD + i];
-
-                rd_string(r_name + r_ptr->name, 80);
-                rd_string(r_text + r_ptr->text, 320);
-
-                rd_byte(&r_ptr->hdice);
-                rd_byte(&r_ptr->hside);
-
-                rd_s16b(&r_ptr->ac);
-
-                rd_s16b(&r_ptr->sleep);
-                rd_byte(&r_ptr->aaf);
-                rd_byte(&r_ptr->speed);
-
-                rd_s32b(&r_ptr->mexp);
-                rd_s32b(&r_ptr->weight);
-
-                rd_byte(&r_ptr->freq_inate);
-                rd_byte(&r_ptr->freq_spell);
-
-                rd_u32b(&r_ptr->flags1);
-                rd_u32b(&r_ptr->flags2);
-                rd_u32b(&r_ptr->flags3);
-                rd_u32b(&r_ptr->flags4);
-                rd_u32b(&r_ptr->flags5);
-                rd_u32b(&r_ptr->flags6);
-                rd_u32b(&r_ptr->flags7);
-                rd_u32b(&r_ptr->flags8);
-                rd_u32b(&r_ptr->flags9);
-
-                for(j = 0; j < 4; j++)
+                for(i = 0; i < MAX_GHOSTS; i++)
                 {
-                        rd_byte(&r_ptr->blow[j].method);
-                        rd_byte(&r_ptr->blow[j].effect);
-                        rd_byte(&r_ptr->blow[j].d_dice);
-                        rd_byte(&r_ptr->blow[j].d_side);
-                }
+                        rd_string(dummy, 80);
+                        rd_string(dummy, 320);
 
-                rd_byte(&r_ptr->level);
-                rd_byte(&r_ptr->rarity);
+                        rd_byte(&tmp8b);
+                        rd_byte(&tmp8b);
 
-                rd_byte(&r_ptr->d_attr);
-                rd_byte(&r_ptr->d_char);
+                        rd_s16b(&tmp16b);
 
-                rd_byte(&r_ptr->x_attr);
-                rd_byte(&r_ptr->x_char);
+                        rd_s16b(&tmp16b);
+                        rd_byte(&tmp8b);
+                        rd_byte(&tmp8b);
 
-                rd_s16b(&r_ptr->max_num);
-                rd_byte(&r_ptr->cur_num);
+                        rd_s32b(&tmp32b);
+                        rd_s32b(&tmp32b);
 
-                /* If not defined, create one from a bone file */
-                if(ghost_file[i][0] == 0)
-                {
-                        init_ghost_info(i);
+                        rd_byte(&tmp8b);
+                        rd_byte(&tmp8b);
+
+                        rd_u32b(&tmp32b);
+                        rd_u32b(&tmp32b);
+                        rd_u32b(&tmp32b);
+                        rd_u32b(&tmp32b);
+                        rd_u32b(&tmp32b);
+                        rd_u32b(&tmp32b);
+                        rd_u32b(&tmp32b);
+                        rd_u32b(&tmp32b);
+                        rd_u32b(&tmp32b);
+
+                        for(j = 0; j < 4; j++)
+                        {
+                                rd_byte(&tmp8b);
+                                rd_byte(&tmp8b);
+                                rd_byte(&tmp8b);
+                                rd_byte(&tmp8b);
+                        }
+
+                        rd_byte(&tmp8b);
+                        rd_byte(&tmp8b);
+
+                        rd_byte(&tmp8b);
+                        rd_byte(&tmp8b);
+
+                        rd_byte(&tmp8b);
+                        rd_byte(&tmp8b);
+
+                        rd_s16b(&tmp16b);
+                        rd_byte(&tmp8b);
                 }
         }
-#ifndef USE_GHOSTS
-        for(i = 0; i < MAX_GHOSTS; i++)
-                ghost_file[i][0] = 0;
-#endif /* USE_GHOSTS */
 
 	/* Object Memory */
 	rd_u16b(&tmp16u);
@@ -1998,6 +2100,10 @@ static errr rd_savefile_new_aux(void)
 		k_ptr->aware = (tmp8u & 0x01) ? TRUE: FALSE;
 		k_ptr->tried = (tmp8u & 0x02) ? TRUE: FALSE;
                 k_ptr->know  = (tmp8u & 0x04) ? TRUE: FALSE;
+                if (tmp8u & 0x08) k_ptr->squeltch = 1;
+                if (tmp8u & 0x10) k_ptr->squeltch = 2;
+                if (tmp8u & 0x20) k_ptr->squeltch = 3;
+                if (tmp8u & 0x40) k_ptr->squeltch = 4;
 	}
 	if (arg_fiddle) note("Loaded Object Memory");
 
@@ -2007,7 +2113,6 @@ static errr rd_savefile_new_aux(void)
 	p_ptr->arena_number = 0;
 	p_ptr->inside_arena = 0;
 	p_ptr->inside_quest = 0;
-	p_ptr->leftbldg = FALSE;
 	p_ptr->exit_bldg = TRUE;
 
 	/* Start in town 1 */
@@ -2099,10 +2204,16 @@ static errr rd_savefile_new_aux(void)
 			for (j = 0; j < wild_y_size; j++)
 			{
                                 rd_u32b(&wild_map[j][i].seed);
+
                                 if(!p_older_than(4,0,7))
                                 {
                                         rd_u16b(&tmp16u);
                                         wild_map[j][i].entrance = tmp16u;
+                                }
+
+                                if(!p_older_than(4,1,4))
+                                {
+                                        rd_byte(&wild_map[j][i].known);
                                 }
 			}
 		}
@@ -2340,8 +2451,8 @@ static errr rd_savefile_new_aux(void)
 #endif
 
 
-	/* Hack -- no ghosts */
-	r_info[max_r_idx-1].max_num = 0;
+        /* Hack -- ghosts */
+        r_info[max_r_idx - 1].max_num = 1;
 
 
 	/* Success */

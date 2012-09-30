@@ -44,7 +44,7 @@ a numeric digit '#' selects the first item (if any) whose inscription contains
 specify items which are "legal" for the command.  Whenever an item inscription
 contains "!*" or "!x" (with "x" as above) you must verify its selection.
 
-    In Zangband, there are items which occasionally teleport you away, asking
+    In PernAngband, there are items which occasionally teleport you away, asking
 for permission first. The recurring "Teleport (y/n)?" can be annoying, and
 this behavior can be eliminated by inscribing the object which causes the
 teleportation with "." (or any inscription containing the character ".").
@@ -91,7 +91,7 @@ that you can always, for example, use "\" + "." + "6", to specify "run east".
  e  Equipment list                       E  Eat some food
  f  Fire an item                         F  Fuel your lantern/torch
  g  Stay still (flip pickup)             G  Gain new spells/prayers
- h  Hack up a corpse                     H  (unused)
+ h  Hack up a corpse                     H  Drink from a fountain
  i  Inventory list                       I  Observe an item
  j  Jam a door                           J  (unused)
  k  Destroy an item                      K  Cure meat
@@ -109,7 +109,7 @@ that you can always, for example, use "\" + "." + "6", to specify "run east".
  w  Wear/wield equipment                 W  (unused)
  x  Engrave the floor                    X  (unused)
  y  (unused)                             Y  (unused)
- z  Zap a rod                            Z  (unused)
+ z  Zap a rod                            Z  Steal
  !  Interact with system                ^A  (special - wizard command)
  @  Interact with macros                ^B  (unused)
  #  (unused)                            ^C  (special - break)
@@ -165,7 +165,7 @@ that you can always, for example, use "\" + "." + "6", to specify "run east".
  s  Search for traps/doors               S  Jam a door (Spike)
  t  Fire an item                         T  Take off equipment
  u  (walk - north east)                  U  (run - north east)
- v  Throw an item                        V  Version info
+ v  Throw an item                        V  Drink from a fountain
  w  Wear/wield equipment                 W  Locate player on map (Where)
  x  Look around                          X  Pet commands
  y  (walk - north west)                  Y  (run - north west)
@@ -182,7 +182,7 @@ that you can always, for example, use "\" + "." + "6", to specify "run east".
  )  Dump screen dump                    ^J  (tunnel - south)
  {  Inscribe an object                  ^K  (tunnel - north)
  }  Uninscribe an object                ^L  (tunnel - east)
- [  (unused)                            ^M  (tunnel - south)
+ [  Steal                               ^M  (tunnel - south)
  ]  Engrave the floor                   ^N  (tunnel - south east)
  -  Walk (flip pickup)                  ^O  Cure meat
  _  Enter store                         ^P  Show previous messages
