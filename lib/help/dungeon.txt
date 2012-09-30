@@ -11,7 +11,7 @@
      *****dungeon.txt*14[Winning]                       *****dungeon.txt*15[Dying]
      *****dungeon.txt*16[Where to get more help]
 
-After you have created your character, you will begin your ToME
+After you have *****birth.txt*0[created your character], you will begin your ToME
 adventure. Symbols appearing on your screen will represent the world's
 walls, floor, objects, features, and creatures lurking about.  In order
 to direct your character through his adventure, you will enter single
@@ -35,7 +35,7 @@ It will not be necessary to remember all of the symbols and their meanings.
 The "slash" command ("/") will identify any character appearing on your map
 (see "*****command.txt*0[command.txt]").
 
-Note that you can use a "user pref file" to change any of these symbols to
+Note that you can use a *****command.txt*105["user pref file"] to change any of these symbols to
 something you are more comfortable with.
    
  
@@ -140,7 +140,7 @@ several buildings (most with an entrance), some townspeople, and a main wall
 which surrounds the town (with gates in it). Outside the gates may be found 
 unclaimed lands and wilderness, where beasts still run wild. The first time 
 you are in town it will be daytime (unless you are an undead character), but
-note that the sun rises and falls (rather instantly) as time passes.
+note that the sun will rise and set (rather instantly) as time passes.
 
 There are a few different towns around the world map, and your starting town
 will eventually become too small for you (if you survive the dangers of the
@@ -157,7 +157,7 @@ come out of the woodwork when excited. Blubbering idiots are a constant
 annoyance, but not harmful. Public drunks wander about the town singing,
 and are of no threat to anyone. Sneaky rogues who work for the black
 market are always greedily eyeing your backpack for potential new
-'purchases'. . .  And finally, what town would be complete without a
+'purchases'...  And finally, what town would be complete without a
 swarm of half drunk warriors, who take offense or become annoyed just for
 the fun of it.
 
@@ -167,7 +167,7 @@ prepared. Since your character grew up in this world of intrigue, no
 experience is awarded for killing the town inhabitants, though you may
 acquire treasure.
 
-
+~~~~~21|Buildings
 #####R=== Town Buildings ===
 
 Your character will begin his adventure with some basic supplies, and some
@@ -256,12 +256,58 @@ item if another is encountered.
      cannot carry on your travels, or will need at a  later date.
 
 #####GThe Bookstore ("9")
-    The Bookstore deals in all sorts of magical books. You can purchase
-    and sell spellbooks for spellcasters and priests here.
+     The Bookstore deals in all sorts of magical books. You can purchase
+     and sell spellbooks for spellcasters and priests here.
 
-There are other buildings that may be found in the town levels, such as the 
-inn or the castle. Further description of these shops can be found in the
-*****bldg.txt*0[bldg.txt] help file.
+
+#####ROther Buildings
+In addition to the basic stores, there are some special buildings that can be
+found in some towns. These Buildings (represented by +'s) include:
+
+#####GMayor's Office/Castle
+     The home office for the town, adventurer's looking for work besides 
+     exploring the dungeon should hunt in here.
+
+#####GPet Shop
+     Great place to purchase eggs and get pets.
+
+#####GThe Soothsayer
+     To discover what *****/afatespoi.txt*0[fates ("a")] lie in store for you.
+
+#####GThe Prancing Pony
+     Wine, dine, rest and relax!
+
+#####GThe Nest
+     Thunderlords are masters of teleportation, and will consent to bear you 
+     to your chosen dungeon destination for a fee.
+
+#####GBeastmaster Shanty
+     For those who enjoy trophy hunting, and to research that strange animal 
+     you saw during your adventures. 
+
+#####GFighters Hall
+     The place to reforge weapons and armour.
+
+#####GRangers Guild
+     The place to reforge distance weapons and their ammunition.
+
+#####GLibrary
+     For information of all kinds.
+
+#####GGambling House
+     Read the *****/bgambling.txt*0[rules ("b")] before paying. And, the games 
+     are not rigged, just naturally difficult.
+
+#####GTower of Magery/Wizards Spire
+     The wizards will identify your items or recharge your magical items for 
+     a fee.
+
+#####GInner temple/Priests Circle
+     A place of healing.
+
+#####GPaladin guild
+     Some healing and enchantments available.
+
 
 ~~~~~1|Wilderness
 #####R=== The Wilderness and the Wilderness Map ===
@@ -311,8 +357,8 @@ and use the "Down" command (">").
 Your character will enter a maze of interconnecting staircases and finally
 arrive somewhere on the first level of the dungeon. Each level of the
 dungeon is fifty feet high (thus dungeon level "Lev 1" is often called
-"50 ft"), and is divided into (large) rectangular regions (several times
-larger than the screen) by titanium walls. Once you leave a level by a
+"50 ft"), and is divided into rectangular regions several times
+larger than the screen. Once you leave a level by a
 staircase, you will never again find your way back to that region of that
 level, but there are an infinite number of other regions at that same "depth"
 that you can explore later. So be careful that you have found all the
@@ -324,6 +370,7 @@ In the dungeon, there are many things to find, but your character must
 survive many horrible and challenging encounters to find the treasure lying
 about and take it safely back to the town to sell.
 
+~~~~~23|Light
 There are two sources for light once inside the dungeon. Permanent light
 which has been magically placed within rooms, and a light source carried by
 the player. If neither is present, the character will be unable to see. This 
@@ -364,6 +411,34 @@ to chase you. Note that there is no upper bound on how much you can carry,
 if you do not mind being slow. Your weight limit is determined by your
 strength.
 
+Objects do not block the line of sight, but may stack on top of one another, 
+with the one on top hiding others beneath it.
+
+      Q: I'm standing on a pile of items. How do I see what's in the pile 
+         without picking it all up, moving it, or destroying it all?
+      A: 1. Stand on the pile in question
+         2. Type shift + i (examine)
+         3. Type - (examine items on floor)
+         4. Type * (expand list of items on floor)
+         5. (as needed) Type letter associated with item to look at it more 
+            closely.
+
+Objects may also obscure stairs, Ways and void jumpgates.
+
+      Q: I'm standing on a pile of items. Is there a command to see if 
+         there is a stair beneath the pile?
+      A: Stairs, void jumpgates and Ways that obscured by clutter still 
+         function. 
+         You are advised to take a good hard look at your surroundings before 
+         creating lots of dungeon clutter. You can see if there is a stair 
+         beneath the pile with either of these methods:
+         1. Pick up, move, or eliminate the pile.
+         2. Press l (look), then select the square you wish to inquire about.
+            Press <enter>; it will scroll through everything on the ground, 
+            and eventually it ends with "It is in a Void Jumpgate", or 
+            whatever.
+
+
 Many objects found within the dungeon have special commands for their use.
 Wands must be Aimed, staves must be Used, scrolls must be Read, and potions
 must be Quaffed.  You may, in general, not only use items in your pack, but
@@ -381,16 +456,17 @@ town. It acts in two manners, depending upon your current location. If read
 within the dungeon, it will teleport you back to town. If read in town, it
 will teleport you back down to the deepest level of the dungeon which your
 character has previously been on. This makes the scroll very useful for
-getting back to the deeper levels of Angband. Once the scroll has been
+getting back to the deeper levels of the dungeon. Once the scroll has been
 read it takes a while for the spell to act, so don't expect it to save you
 in a crisis. Reading a second scroll before the first has had a chance to
 take effect will cancel both scrolls. Since an accidental dive to a new depth
 (via a trapdoor, for example), may result in the Word of Recall dungeon depth
 being 'broken', so to speak (meaning that the next Word of Recall in town 
-will take you back deeper than you would like to), there is a new feature in 
+will take you back deeper than you would like to), there is a feature in 
 ToME which allows you to read a scroll of Word of Recall on a different
 level and 'reset' the recall depth to that level (instead of the deepest 
-level).
+level).  Some dungeons cannot be recalled into, though you can still recall 
+out.
 
 You may "inscribe" any object with a textual inscription of your choice.
 These inscriptions are not limited in length, though you may not be able to
@@ -452,56 +528,62 @@ wrong. The item will also be inscribed "cursed".
 Shopkeepers will refuse to buy any known cursed item.
 ~~~~~13|Mining
 ~~~~~11|Dungeons|Mining
-#####R=== Mining ===
+#####R=== Digging and Mining ===
 
-Much of the treasure within the dungeon can be found only by mining it out
-of the walls. Many rich strikes exist within each level, but must be found
-and mined. Quartz veins are the richest, yielding the most metals and gems,
-but magma veins will have some hordes hidden within.
+It is possible for you to be trapped within the dungeon. You will not be able 
+to dig your way out without a digging tool (shovel, pick, or other means of 
+digging). It is absolutely essential to always carry some kind of digging tool, 
+even when you are not planning on tunnelling for treasure. Do not leave the 
+town level of Bree without a digger!
 
-[[[[[vMining requires a digging tool] such as a pick or shovel.  Picks and shovels 
-have an additional magical ability expressed as `(+#)'. The higher the number,
-the better the magical digging ability of the tool. 
+Picks and shovels have a digging ability expressed as "(+<num>)", e.g. (+2). 
+The higher the number, the better the digging ability of the tool. Diggers are 
+effective against rubble, trees, and many walls. Rubble and veins may hide 
+treasure; trees do not.
 
-When a vein of quartz or magma is located, the character may begin digging out
-a section. When that section is removed, he can locate another section of the 
-vein and begin the process again. Since granite rock is much harder to dig 
-through, it is much faster to follow the vein exactly and dig around the 
-granite. There is an option for highlighting magma and quartz. At a certain 
-point, it becomes more cumbersome to dig out treasure than to simply kill 
-monsters and discover items in the dungeon to sell. However, early on mineral 
-veins can be a wonderful source of easy treasure.
+You dig in something with the dig (shift + t) command. Thorough digging removes 
+one ASCII square (i.e. tile) of what is being dug. This may require multiple 
+attempts depending on how good your digger is. Once the square is removed, you 
+will be informed if you found anything there. If another diggable square exists 
+beyond the area you just dug, you can begin the process again.
 
-If the character has a scroll, staff, or spell of treasure location, he can
-immediately locate all strikes of treasure within a vein shown on the screen.
-This makes mining much easier and more profitable.
+Some dungeons contain rich strikes which may be found only by mining it out of 
+the walls. Quartz veins are the richest, yielding the most metals and gems, but 
+magma veins may also hide hoards within them. When digging rock, granite is 
+much harder to dig through than quartz or magma veins, so it is much faster to 
+follow a vein exactly and dig around the granite. There is also a game option 
+for highlighting magma and quartz within the walls, which makes this easier.
 
-It is sometimes possible to get a character trapped within the dungeon by
-using various magical spells and items. [[[[[vSo it is essential to always carry]
-[[[[[vsome kind of digging tool], even when you are not planning on tunnelling for 
-treasure.
-
-There are rumours of certain incredibly profitable rooms buried deep in the
-dungeon and completely surrounded by titanium and granite walls, requiring
-a digging implement or magical means to enter. The same rumours imply that
-these rooms are guarded by incredibly powerful monsters, so beware!
-
+If the Character has a scroll, staff, or spell of treasure location, she can 
+immediately locate all strikes of treasure within a vein shown on the screen. 
+This makes mining much easier and more profitable. 
 ~~~~~12|Dungeons|Doors, Passages, Rooms and Staircases
-#####R=== Staircases, Secret Doors, Passages, and Rooms ===
+#####R=== Staircases, Ways, Void jumpgates, Secret Doors, Passages, and Rooms ===
 
 Staircases are the manner in which you get deeper or climb out of the
 dungeon. The symbols for the up and down staircases are the same as the
 commands to use them.  A "<" represents an up staircase and a ">" represents
 a down staircase. You must move your character over the staircase before
-you can use it.
+you can use it. You use it by typing the same character as the staircase 
+itself (either "<" or ">".)
 
-Each level has at least one up staircase and at least two down staircases.
-There are no exceptions to this rule. You may have trouble finding some well
-hidden secret doors, or you may have to dig through obstructions to get to
-them, but you can always find the stairs if you look hard enough. Stairs,
-like titanium walls, and the doors into shops, cannot be destroyed by any
-means (although their location can occasionally change under the right 
-circumstances).
+In flat environments such as forests, Ways replace staircases. On the map, Ways 
+are identical to staircases and behave the same way.
+
+Yellow down stairs and Ways are quest entrances.
+
+Shafts are also represented by "<" or ">", but are brown. They work similarly 
+to stairs and Ways, but if you use one, you might traverse more than dungeon 
+level all in one go as a result. 
+
+Stairs, impenetrable walls, and shop entrances like titanium walls, and the 
+doors into shops, cannot be destroyed by any means (although their location can 
+occasionally change under the right circumstances).
+~~~~~23|Void jumpgates
+A void jumpgate appears on your map as a violet '+'. Jumpgates always occur in 
+pairs. To activate a jumpgate, stand on it and type ">". You will instantly 
+appear on top of its paired jumpgate, which will be somewhere else on the same 
+dungeon level.
 
 Many secret doors are used within the dungeon to confuse and demoralise
 adventurers foolish enough to enter. But with some luck, and lots of
@@ -569,44 +651,31 @@ You can give commands to pets and companions to make them more useful, using the
 [[[[[vfriend forget target] All your friends will follow their normal attack 
                      patterns, neglecting any targets you have given them.
 
-~~~~~14|Winning
-#####R=== Winning The Game ===
+~~~~~14|Objectives
+#####R=== Game Objectives ===
 
-Once your character has killed Sauron, who lives on level 99 (4950') in the
-dungeon, a magical staircase will appear that will finally allow you to reach
-level 100. Morgoth lurks on this level of his dungeon, and you will not be 
-able to go below his level until you have killed him. Try to avoid wandering 
-around on level 100 unless you are ready for him, since he has a habit of 
-coming at you across the dungeon, to slay you for your impudence.
+In ToME you will be required to complete a certain number of quests. Your 
+first quest is to discover the true nature of the evil lurking in the Tower of 
+Dol Goldur near Mirkwood
 
-Morgoth cannot be killed by some of the easier methods used on normal 
-creatures. Morgoth, like all other "Unique" monsters, will simply teleport 
-away to another region of the level if you attempt to use a spell such as 
-destruction is upon him. Morgoth, like some other monsters, cannot be 
-polymorphed, slept, charmed, or genocided. Magical spells like Mana Storm and
-Orb of Draining are effective against him, as are some of the more powerful 
-weapons, but he is difficult to kill and if allowed to escape for a time he 
-will heal himself rapidly.
-
-If you should actually survive the attempt of killing Morgoth, you will 
-receive the status of WINNER. You may continue to explore, and may even save 
-the game and play more later, but since you have defeated the toughest 
-creature alive, there is really not much point. Unless you wish to listen to 
-the rumours of a powerful ring buried somewhere in the dungeon...
+Each quest may lead on to others, and many quests can be postponed until when 
+you feel ready to tackle them. Simply explore other dungeons until you feel you
+have gained enough experience to tackle your next task. Other quests are 
+optional and can be used for further experience. 
 
 When you are ready to retire, simply "commit suicide" ("^Q") to have your
 character entered into the high score list as a winner. Note that until you
 retire, you can still be killed, so you may want to retire before wandering
-into a hoard of Cyberdemons...
+into a hoard of nasties...
 
-You may also like to make a character dump of your winning character (by 
+You may also like to make a character sheet of your winning character (by 
 going through the "C"haracter screen and choosing "f"ile, and posting in the
 rec.games.roguelike.angband newsgroup with a text copy of the dump pasted
 into the post. Include details about anything major that happened to your
 character - did they find a ring of speed (+10) on dungeon level 2? Or had 
 they reached dungeon level 60 before finding their first artifact? Did you 
 have a really scary moment that stands out from the rest of the game? And how
-*did* you actually defeat Morgoth, anyway?
+*did* you actually win the game, anyway?
 
 ~~~~~15|Dying
 ~~~~~17|Loading old characters
@@ -628,12 +697,3 @@ In this way, death in ToME is permanent. You cannot simply 'reload at the last
 save' as in most other contemporary games. Death is permanent. Just as it is 
 in real life in fact.
 
-~~~~~16|Help|Contact
-#####R=== Help ===
-
-The newsgroup "[[[[[Brec.games.roguelike.angband]" is a good place to ask various
-questions about both game play and game design, and you can email bug
-reports and such to (darkgod@t-o-m-e.net). Errors in help files, or suggestions 
-for improvements to help file content should be emailed to 
-(fearoffours@t-o-m-e.net) Be sure to include the version number you are playing 
-in any bug reports.

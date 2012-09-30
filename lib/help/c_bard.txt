@@ -14,19 +14,20 @@ foes.
 
 #####GMagic Usage
 
-In order to continue playing a song, mana is consumed each turn, until 
-either the 'Stop Singing' song is sung, or the player's mana runs out.
+Songs are continuous, and the song consumes mana every turn in order to 
+maintain itself. The song will continue, once played, until either the 'Stop 
+Singing' song is sung, or the player's mana runs out.
 
-Each song, as well as having a school level like any other magic spell also
-has a roman numeral following its name. The higher the number of these numerals,
-the more skillful the adventurer must be to play it.
+Each song has a magic school level associated with, just as any other magic 
+spell does. Each song also has a Roman numeral (e.g. I, II, III, IV, V) 
+following its name. These numerals correspond to 1, 2, 3, 4, 5. The higher the 
+numeral, the more music skill the Bard must have to play that song.
 
-Each musical instrument has a value assigned to it as well, between 1 and 4. The
-higher the number, the better the craftmanship, and hence it will be possible
-for the bard to play higher level songs only with a more powerful instrument.
-Thus a Harp(+1) will allow you to cast "Stop Singing(I)" and "Song of the
-Sun(I)". A Harp(+2) would allow you to sing those songs, as well as "Flow of
-Life(II)".
+Each musical instrument has a value between 1 and 4 assigned to it, as well. 
+The higher the number, the better the craftmanship. A Bard can only play 
+higher level songs with a more powerful instrument. You would be able to cast 
+"Stop Singing (I)" and "Song of the Sun (I)" with a a Harp (+1). A Harp (+2) 
+would allow you to sing those songs, as well as "Flow of Life (II)". 
 
 For information on song effects see the *****m_music.txt*0[Music Songs] file.
 
@@ -62,7 +63,7 @@ Monster-lore            1.000           [1.100]
 
 #####GStarting Equipment
 A Bard begins the game with:
-    A Harp (+1)
-    A short sword
-    A robe
-    A potion of Healing
+    a Harp (+1)
+    a Short Sword
+    a Robe
+    a Potion of Healing

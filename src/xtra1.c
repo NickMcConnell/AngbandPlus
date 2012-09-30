@@ -2851,31 +2851,31 @@ void calc_bonuses(bool silent)
 
 
 	/* Base skill -- disarming */
-	p_ptr->skill_dis = rp_ptr->r_dis + rmp_ptr->r_dis + cp_ptr->c_dis;
+	p_ptr->skill_dis = 0;
 
 	/* Base skill -- magic devices */
-	p_ptr->skill_dev = rp_ptr->r_dev + rmp_ptr->r_dev + cp_ptr->c_dev;
+	p_ptr->skill_dev = 0;
 
 	/* Base skill -- saving throw */
-	p_ptr->skill_sav = rp_ptr->r_sav + rmp_ptr->r_sav + cp_ptr->c_sav;
+	p_ptr->skill_sav = 0;
 
 	/* Base skill -- stealth */
-	p_ptr->skill_stl = rp_ptr->r_stl + rmp_ptr->r_stl + cp_ptr->c_stl;
+	p_ptr->skill_stl = 0;
 
 	/* Base skill -- searching ability */
-	p_ptr->skill_srh = rp_ptr->r_srh + rmp_ptr->r_srh + cp_ptr->c_srh;
+	p_ptr->skill_srh = 0;
 
 	/* Base skill -- searching frequency */
-	p_ptr->skill_fos = rp_ptr->r_fos + rmp_ptr->r_fos + cp_ptr->c_fos;
+	p_ptr->skill_fos = 0;
 
 	/* Base skill -- combat (normal) */
-	p_ptr->skill_thn = rp_ptr->r_thn + rmp_ptr->r_thn + cp_ptr->c_thn;
+	p_ptr->skill_thn = 0;
 
 	/* Base skill -- combat (shooting) */
-	p_ptr->skill_thb = rp_ptr->r_thb + rmp_ptr->r_thb + cp_ptr->c_thb;
+	p_ptr->skill_thb = 0;
 
 	/* Base skill -- combat (throwing) */
-	p_ptr->skill_tht = rp_ptr->r_thb + rmp_ptr->r_thb + cp_ptr->c_thb;
+	p_ptr->skill_tht = 0;
 
 
 	/* Base skill -- digging */
@@ -3230,7 +3230,6 @@ void calc_bonuses(bool silent)
 	}
 	if (p_ptr->tim_magic_breath)
 	{
-		p_ptr->water_breath = TRUE;
 		p_ptr->magical_breath = TRUE;
 	}
 
@@ -3335,7 +3334,7 @@ void calc_bonuses(bool silent)
 		p_ptr->resist_continuum = TRUE;
 	}
 
-	/* Temporary "Levitation" */
+	/* Temporary "Levitation" and "Flying" */
 	if (p_ptr->tim_ffall)
 	{
 		p_ptr->ffall = TRUE;
@@ -3418,6 +3417,12 @@ void calc_bonuses(bool silent)
 	if (p_ptr->tim_infra)
 	{
 		p_ptr->see_infra++;
+	}
+
+	/* Hack -- Magic breath -> Water breath */
+	if (p_ptr->magical_breath)
+	{
+		p_ptr->water_breath = TRUE;
 	}
 
 	/* Hack -- Can Fly -> Can Levitate */
@@ -3874,32 +3879,32 @@ void calc_bonuses(bool silent)
 	/* Affect Skill -- digging (STR) */
 	p_ptr->skill_dig += adj_str_dig[p_ptr->stat_ind[A_STR]];
 
-	/* Affect Skill -- disarming (Level, by Class) */
-	p_ptr->skill_dis += (get_skill_scale(SKILL_DISARMING, cp_ptr->x_dis * 5));
+	/* Affect Skill -- disarming (skill) */
+	p_ptr->skill_dis += (get_skill_scale(SKILL_DISARMING, 75));
 
-	/* Affect Skill -- magic devices (Level, by Class) */
-	p_ptr->skill_dev += (get_skill_scale(SKILL_DEVICE, cp_ptr->x_dev * 10));
+	/* Affect Skill -- magic devices (skill) */
+	p_ptr->skill_dev += (get_skill_scale(SKILL_DEVICE, 150));
 
-	/* Affect Skill -- saving throw (Level, by Class) */
-	p_ptr->skill_sav += (get_skill_scale(SKILL_SPIRITUALITY, cp_ptr->x_sav * 5));
+	/* Affect Skill -- saving throw (skill and level) */
+	p_ptr->skill_sav += (get_skill_scale(SKILL_SPIRITUALITY, 75));
 
-	/* Affect Skill -- stealth (Level, by Class) */
-	p_ptr->skill_stl += (get_skill_scale(SKILL_STEALTH, cp_ptr->x_stl * 5)) + get_skill_scale(SKILL_STEALTH, 25);
+	/* Affect Skill -- stealth (skill) */
+	p_ptr->skill_stl += (get_skill_scale(SKILL_STEALTH, 25));
 
-	/* Affect Skill -- search ability (Level, by Class) */
-	p_ptr->skill_srh += (get_skill_scale(SKILL_SNEAK, cp_ptr->x_srh * 5)) + get_skill(SKILL_SNEAK);
+	/* Affect Skill -- search ability (Sneakiness skill) */
+	p_ptr->skill_srh += (get_skill_scale(SKILL_SNEAK, 35));
 
-	/* Affect Skill -- search frequency (Level, by Class) */
-	p_ptr->skill_fos += (get_skill_scale(SKILL_SNEAK, cp_ptr->x_fos * 5)) + get_skill(SKILL_SNEAK);
+	/* Affect Skill -- search frequency (Sneakiness skill) */
+	p_ptr->skill_fos += (get_skill_scale(SKILL_SNEAK, 25));
 
-	/* Affect Skill -- combat (normal) (Level, by Class) */
-	p_ptr->skill_thn += (cp_ptr->x_thn * (((7 * get_skill(p_ptr->melee_style)) + (3 * get_skill(SKILL_COMBAT))) / 10) / 10);
+	/* Affect Skill -- combat (Combat skill + mastery) */
+	p_ptr->skill_thn += (50 * (((7 * get_skill(p_ptr->melee_style)) + (3 * get_skill(SKILL_COMBAT))) / 10) / 10);
 
 	/* Affect Skill -- combat (shooting) (Level, by Class) */
-	p_ptr->skill_thb += (cp_ptr->x_thb * (((7 * get_skill(SKILL_ARCHERY)) + (3 * get_skill(SKILL_COMBAT))) / 10) / 10);
+	p_ptr->skill_thb += (50 * (((7 * get_skill(SKILL_ARCHERY)) + (3 * get_skill(SKILL_COMBAT))) / 10) / 10);
 
-	/* Affect Skill -- combat (throwing) (Level, by Class) */
-	p_ptr->skill_tht += (cp_ptr->x_thb * p_ptr->lev / 10);
+	/* Affect Skill -- combat (throwing) (Level) */
+	p_ptr->skill_tht += (50 * p_ptr->lev / 10);
 
 
 	/* Limit Skill -- stealth from 0 to 30 */
@@ -4013,6 +4018,12 @@ void calc_bonuses(bool silent)
 	/* resistance to fire cancel sensibility to fire */
 	if (p_ptr->resist_fire || p_ptr->oppose_fire || p_ptr->immune_fire)
 		p_ptr->sensible_fire = FALSE;
+
+	/* Minimum saving throw */
+	if(p_ptr->skill_sav <= 0)
+		p_ptr->skill_sav = 10;
+	else
+		p_ptr->skill_sav += 10;
 
 	/* Let the scripts do what they need */
 	process_hooks(HOOK_CALC_BONUS_END, "(d)", silent);

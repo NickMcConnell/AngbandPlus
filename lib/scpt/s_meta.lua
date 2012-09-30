@@ -124,6 +124,7 @@ DISPERSEMAGIC = add_spell
 				["max_level"] =		{ 5, 40 },
 			},
 	},
+	["inertia"] = 	{ 1, 5 },
 	["spell"] = 	function()
 			local obvious
 			obvious = set_blind(0)
@@ -188,5 +189,95 @@ TRACKER = add_spell
 	["desc"] =	{
 			"Tracks down the last teleportation that happened on the level and teleports",
 			"you to it",
+	}
+}
+
+-- Saves the values of the timer
+save_timer("TIMER_INERTIA_CONTROL")
+add_loadsave("player.inertia_controlled_spell", -1)
+player.inertia_controlled_spell = -1
+
+-- Automatically cast the inertia controlled spells
+TIMER_INERTIA_CONTROL = new_timer
+{
+	["enabled"] = FALSE,
+	["delay"] = 10,
+	["callback"] = function()
+		-- Don't cast a controlled spell in wilderness mode
+		if (player.inertia_controlled_spell ~= -1) and (player.wild_mode == FALSE) then
+			__spell_spell[player.inertia_controlled_spell]()
+		end
+	end,
+}
+
+stop_inertia_controlled_spell = function()
+	player.inertia_controlled_spell = -1
+	TIMER_INERTIA_CONTROL.enabled = FALSE
+	player.update = bor(player.update, PU_MANA)
+	return TRUE
+end
+
+add_hooks
+{
+	-- Reduce the mana by four times the cost of the spell
+	[HOOK_CALC_MANA] = function(msp)
+		if player.inertia_controlled_spell ~= -1 then
+			msp = msp - (get_mana(player.inertia_controlled_spell) * 4)
+			if msp < 0 then msp = 0 end
+			return TRUE, msp
+		end
+	end,
+
+	-- Stop a previous spell at birth
+	[HOOK_BIRTH_OBJECTS] = function()
+		stop_inertia_controlled_spell()
+	end,
+}
+
+INERTIA_CONTROL = add_spell
+{
+	["name"] = 	"Inertia Control",
+	["school"] = 	{SCHOOL_META},
+	["level"] = 	37,
+	["mana"] = 	300,
+	["mana_max"] = 	700,
+	["fail"] = 	95,
+	["spell"] = 	function()
+			if player.inertia_controlled_spell ~= -1 then
+				msg_print("You cancel your inertia flow control.")
+				return stop_inertia_controlled_spell()
+			end
+
+			local s = get_school_spell("control", "is_ok_spell", 0)
+			if s == -1 then
+				return stop_inertia_controlled_spell()
+			end
+
+			local inertia = __tmp_spells[s].inertia
+
+			if inertia == nil then
+				msg_print("This spell inertia flow can not be controlled.")
+				return stop_inertia_controlled_spell()
+			end
+			if inertia[1] > get_level(INERTIA_CONTROL, 10) then
+				msg_print("This spell inertia flow("..inertia[1]..") is too strong to be controlled by your current spell.")
+				return stop_inertia_controlled_spell()
+			end
+
+			player.inertia_controlled_spell = s
+			TIMER_INERTIA_CONTROL.enabled = TRUE
+			TIMER_INERTIA_CONTROL.delay = inertia[2]
+			TIMER_INERTIA_CONTROL.countdown = TIMER_INERTIA_CONTROL.delay
+			player.update = bor(player.update, PU_MANA)
+			msg_print("Inertia flow controlling spell "..spell(s).name..".")
+			return TRUE
+	end,
+	["info"] = 	function()
+			return "level "..get_level(INERTIA_CONTROL, 10)
+	end,
+	["desc"] = 	{
+			"Changes the energy flow of a spell to be continuously recasted",
+			"at a given interval. The inertia controlled spell reduces your",
+			"maximum mana by four times its cost.",
 	}
 }

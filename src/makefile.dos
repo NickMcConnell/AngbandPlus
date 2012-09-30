@@ -18,7 +18,7 @@
 LUA = TRUE
 
 # Enable the IRC client -- need libsocket
-IRC = TRUE
+#IRC = TRUE
 
 #
 # Basic definitions
@@ -66,7 +66,7 @@ CFLAGS = -Wall -O2 -s -DUSE_DOS -DUSE_IBM -DUSE_BACKGROUND \
 -DUSE_TRANSPARENCY $(LUAFLAGS)
 
 # Libraries
-LIBS = -lpc -lalleg $(LUALIBS) -lsocket
+LIBS = -lpc -lalleg $(LUALIBS)
 
 ifdef IRC
 CFLAGS += -DUSE_SOCK -DUSE_DOSSOCK
@@ -135,7 +135,7 @@ plots.o: q_rand.c q_main.c q_one.c \
 	q_spider.c q_poison.c \
 	q_eol.c q_nirna.c q_invas.c \
 	q_betwen.c \
-	q_narsil.c q_wolves.c q_dragons.c q_haunted.c q_evil.c
+        q_narsil.c q_wolves.c q_drag~1.c q_haun~1.c q_evil.c
 
 LUA_RECOMP = true
 ifdef LUA_RECOMP

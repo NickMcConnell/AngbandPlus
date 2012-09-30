@@ -2,6 +2,21 @@
 ~~~~~01|Help
 #####R=== Using the Online Help ===
 
+This help system has been designed to be read whilst in-game. Printing it off 
+will make it look clumsy and a little difficult to read.
+
+Any text in orange/yellow colour is likely to be a hyperlink, and pressing 
+<enter> while the link is active (yellow) will take you to the relevant page. 
+Navigate between viewable links by using the left-right keys. Some links also 
+have bracketed letters included in the links. Pressing these letters on your 
+keyboard will activate the link even if it is orange.
+
+The help files total over 850 kb, so there is a lot of information. They have 
+been designed to be browsed, but you may be looking for specific information, 
+in which case you should try looking at the alphabetical *****index.txt*0[index].
+
+Here are all the relevant keypresses for navigating the help system.
+
 #####GKey            | Action
 -------------------------------------------------------------------
 Escape         | Leave the Online Help
@@ -19,25 +34,11 @@ Return         | Activate the selected link
 /              | Search for a string (e.g. "word")
 -------------------------------------------------------------------
 
-#####R=== General Information ===
+There are other sources for help playing ToME. Try 
+http://forum.t-o-m-e.net and http://wiki.t-o-m-e.net . We also have an irc 
+channel #tome on the worldirc and freenode networks (they are linked) which is 
+fairly low traffic.
 
-The game of ToME is a single player dungeon simulation.  A player
-may choose from a number of races and classes when creating a character,
-and then "run" that character over a period of days, weeks, even months,
-attempting to win the game by defeating Morgoth, who lurks somewhere in 
-the depths of the dungeon.
 
-The player will begin his adventure on the town level where he may acquire
-supplies, weapons, armour, and magical devices by bartering with various shop
-owners.  After preparing for his adventure, the player can descend into the
-dungeon near Bree where fantastic adventures await his coming!
- 
-You will probably need to browse through the "help files", especially the
-one on available *****command.txt*0[commands], before beginning any
-serious adventuring...
-
-I'd also highly recommend reading the *****tome_faq.txt*0[ToME FAQ] under
-"Extra help for new players" (at least the first section of it about the
-differences between Vanilla Angband and ToME).
 
 

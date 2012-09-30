@@ -1,0 +1,2163 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+ <title>T.o.M.E. Documentation</title>
+ <meta name="description" content="ToME and TomeNET homepage. ToME is a roguelike dungeon exploration game, based on Angband.">
+ <meta name="keywords" content="angband, tome, tomenet, library, angband, official, roguelike">
+</head>
+<body bgcolor="#000000" text="#FFFFFF" link="#CC0000" alink="#FF9900" vlink="#FFCC66">
+<FONT text="#CCCCCC">
+<PRE><TT>
+
+<FONT COLOR="#FF0000">             /----------------------------------------\</FONT>
+<FONT COLOR="#FF0000">            <      spell.pkg functions helper file     ></FONT>
+<FONT COLOR="#FF0000">             \----------------------------------------/</FONT>
+
+----------------------------------------------------------------------
+
+<FONT COLOR="#FF0000">=== teleport_player_directed ===</FONT>
+
+<FONT COLOR="#00FF00">Declaration</FONT>
+    extern void teleport_player_directed(int rad, int dir);
+
+<FONT COLOR="#00FF00">File</FONT>
+    spells1.c
+
+<FONT COLOR="#00FF00">Comment</FONT>
+/*
+ * Teleport player, using a distance and a direction as a rough guide.
+ *
+ * This function is not at all obsessive about correctness.
+ * This function allows teleporting into vaults (!)
+ */
+
+<FONT COLOR="#00FF00">Description</FONT>
+Teleport a player up to "rad" grids away roughly in "dir" direction.
+
+<FONT COLOR="#00FF00">Parameters</FONT>
+> "rad" must not exceed 200. The distance teleported is a minimum of a
+  quarter of "rad".
+> "dir" must be from 0 to 9.
+  <A HREF="fields.html">direction</A>
+
+----------------------------------------------------------------------
+
+<FONT COLOR="#FF0000">=== teleport_away ===</FONT>
+
+<FONT COLOR="#00FF00">Declaration</FONT>
+    extern void teleport_away(int m_idx, int dis);
+
+<FONT COLOR="#00FF00">File</FONT>
+    spells1.c
+
+<FONT COLOR="#00FF00">Comment</FONT>
+/*
+ * Teleport a monster, normally up to "dis" grids away.
+ *
+ * Attempt to move the monster at least "dis/2" grids away.
+ *
+ * But allow variation to prevent infinite loops.
+ */
+
+<FONT COLOR="#00FF00">Description</FONT>
+Teleport monster indicated by "m_idx" up to "dis" grids away.
+
+<FONT COLOR="#00FF00">Parameters</FONT>
+> "m_idx" is the index of the monster in m_list[].
+> "dis" must not exceed 200. The distance teleported is a minimum of a
+  quarter of "dis".
+
+----------------------------------------------------------------------
+
+<FONT COLOR="#FF0000">=== teleport_player ===</FONT>
+
+<FONT COLOR="#00FF00">Declaration</FONT>
+    extern void teleport_player(int dis);
+
+<FONT COLOR="#00FF00">File</FONT>
+    spells1.c
+
+<FONT COLOR="#00FF00">Comment</FONT>
+/*
+ * Teleport the player to a location up to "dis" grids away.
+ *
+ * If no such spaces are readily available, the distance may increase.
+ * Try very hard to move the player at least a quarter that distance.
+ */
+
+<FONT COLOR="#00FF00">Description</FONT>
+Teleport player up to "dis" grids away.
+
+<FONT COLOR="#00FF00">Parameters</FONT>
+> "dis" must not exceed 200. The distance teleported is a minimum of a
+  quarter of "dis".
+
+----------------------------------------------------------------------
+
+<FONT COLOR="#FF0000">=== teleport_player_to ===</FONT>
+
+<FONT COLOR="#00FF00">Declaration</FONT>
+    extern void teleport_player_to(int ny, int nx);
+
+<FONT COLOR="#00FF00">File</FONT>
+    spells1.c
+
+<FONT COLOR="#00FF00">Comment</FONT>
+/*
+ * Teleport player to a grid near the given location
+ *
+ * This function is slightly obsessive about correctness.
+ * This function allows teleporting into vaults (!)
+ */
+
+<FONT COLOR="#00FF00">Description</FONT>
+Teleport player to a grid near the given location ("ny", "nx"). If
+the location is empty, the player goes there, otherwise they go to
+a grid as close as possible to the location.
+
+<FONT COLOR="#00FF00">Parameters</FONT>
+> "ny" is the y co-ordinate of the location.
+> "nx" is the x co-ordinate of the location.
+
+----------------------------------------------------------------------
+
+<FONT COLOR="#FF0000">=== teleport_monster_to ===</FONT>
+
+<FONT COLOR="#00FF00">Declaration</FONT>
+    extern void teleport_monster_to(int m_idx, int ny,
+        int nx);
+
+<FONT COLOR="#00FF00">File</FONT>
+    spells1.c
+
+<FONT COLOR="#00FF00">Comment</FONT>
+/*
+ * Teleport a monster to a grid near the given location
+ *
+ * This function is slightly obsessive about correctness.
+ */
+
+<FONT COLOR="#00FF00">Description</FONT>
+Teleport monster indicated by "m_idx" to a grid near the given
+location ("ny", "nx"). If the location is empty, the monster goes
+there, otherwise they go to a grid as close as possible to the
+location.
+
+<FONT COLOR="#00FF00">Parameters</FONT>
+> "m_idx" is the index of the monster in m_list[].
+> "ny" is the y co-ordinate of the location.
+> "nx" is the x co-ordinate of the location.
+
+----------------------------------------------------------------------
+
+<FONT COLOR="#FF0000">=== teleport_player_level ===</FONT>
+
+<FONT COLOR="#00FF00">Declaration</FONT>
+    extern void teleport_player_level(void);
+
+<FONT COLOR="#00FF00">File</FONT>
+    spells1.c
+
+<FONT COLOR="#00FF00">Comment</FONT>
+/*
+ * Teleport the player one level up or down (random when legal)
+ */
+
+<FONT COLOR="#00FF00">Description</FONT>
+Teleport the player one level up or down at random.
+
+----------------------------------------------------------------------
+
+<FONT COLOR="#FF0000">=== recall_player ===</FONT>
+
+<FONT COLOR="#00FF00">Declaration</FONT>
+    extern void recall_player(void);
+
+<FONT COLOR="#00FF00">File</FONT>
+    spells1.c
+
+<FONT COLOR="#00FF00">Comment</FONT>
+/*
+ * Recall the player to town or dungeon
+ */
+
+<FONT COLOR="#00FF00">Description</FONT>
+Recall the player to town (if in dungeon) or dungeon (if in town).
+
+----------------------------------------------------------------------
+
+<FONT COLOR="#FF0000">=== take_hit ===</FONT>
+
+<FONT COLOR="#00FF00">Declaration</FONT>
+    extern void take_hit(int damage, cptr kb_str);
+
+<FONT COLOR="#00FF00">File</FONT>
+    spells1.c
+
+<FONT COLOR="#00FF00">Comment</FONT>
+/*
+ * Decreases players hit points and sets death flag if necessary
+ *
+ * XXX XXX XXX Invulnerability needs to be changed into a "shield"
+ *
+ * XXX XXX XXX Hack -- this function allows the user to save (or quit)
+ * the game when he dies, since the "You die." message is shown before
+ * setting the player to "dead".
+ */
+
+<FONT COLOR="#00FF00">Description</FONT>
+Reduce the player's current hit points by "damage" points. If the
+player dies, "kb_str" is used to record what the player was killed by
+(see high-score table).
+
+<FONT COLOR="#00FF00">Parameters</FONT>
+> "damage" is the amount of damage.
+> "kb_str" is a string describing what killed the player.
+
+----------------------------------------------------------------------
+
+<FONT COLOR="#FF0000">=== take_sanity_hit ===</FONT>
+
+<FONT COLOR="#00FF00">Declaration</FONT>
+    extern void take_sanity_hit(int damage, cptr hit_from);
+
+<FONT COLOR="#00FF00">File</FONT>
+    spells1.c
+
+<FONT COLOR="#00FF00">Comment</FONT>
+/* Decrease player's sanity. This is a copy of the function above. */
+
+<FONT COLOR="#00FF00">Description</FONT>
+Reduce the player's current sanity points by "damage" points. If the
+player dies, "hit_from" is used to record what the player was killed
+by (see high-score table).
+
+<FONT COLOR="#00FF00">Parameters</FONT>
+> "damage" is the amount of damage.
+> "hit_from" is a string describing what killed the player.
+
+----------------------------------------------------------------------
+
+<FONT COLOR="#FF0000">=== project ===</FONT>
+
+<FONT COLOR="#00FF00">Declaration</FONT>
+    extern bool project(int who, int rad, int y, int x,
+        int dam, int typ, int flg);
+
+<FONT COLOR="#00FF00">File</FONT>
+    spells1.c
+
+<FONT COLOR="#00FF00">Comment</FONT>
+/*
+ * Generic "beam"/"bolt"/"ball" projection routine.
+ *
+ * Input:
+ *   who: Index of "source" monster (negative for "player")
+ *        jk -- -2 for traps, only used with project_jump
+ *   rad: Radius of explosion (0 = beam/bolt, 1 to 9 = ball)
+ *   y,x: Target location (or location to travel "towards")
+ *   dam: Base damage roll to apply to affected monsters (or player)
+ *   typ: Type of damage to apply to monsters (and objects)
+ *   flg: Extra bit flags (see PROJECT_xxxx in "defines.h")
+ *
+ * Return:
+ *   TRUE if any "effects" of the projection were observed, else FALSE
+ *
+ * Allows a monster (or player) to project a beam/bolt/ball of a given kind
+ * towards a given location (optionally passing over the heads of interposing
+ * monsters), and have it do a given amount of damage to the monsters (and
+ * optionally objects) within the given radius of the final location.
+ *
+ * A "bolt" travels from source to target and affects only the target grid.
+ * A "beam" travels from source to target, affecting all grids passed through.
+ * A "ball" travels from source to the target, exploding at the target, and
+ *   affecting everything within the given radius of the target location.
+ *
+ * Traditionally, a "bolt" does not affect anything on the ground, and does
+ * not pass over the heads of interposing monsters, much like a traditional
+ * missile, and will "stop" abruptly at the "target" even if no monster is
+ * positioned there, while a "ball", on the other hand, passes over the heads
+ * of monsters between the source and target, and affects everything except
+ * the source monster which lies within the final radius, while a "beam"
+ * affects every monster between the source and target, except for the casting
+ * monster (or player), and rarely affects things on the ground.
+ *
+ * Two special flags allow us to use this function in special ways, the
+ * "PROJECT_HIDE" flag allows us to perform "invisible" projections, while
+ * the "PROJECT_JUMP" flag allows us to affect a specific grid, without
+ * actually projecting from the source monster (or player).
+ *
+ * The player will only get "experience" for monsters killed by himself
+ * Unique monsters can only be destroyed by attacks from the player
+ *
+ * Only 256 grids can be affected per projection, limiting the effective
+ * "radius" of standard ball attacks to nine units (diameter nineteen).
+ *
+ * One can project in a given "direction" by combining PROJECT_THRU with small
+ * offsets to the initial location (see "line_spell()"), or by calculating
+ * "virtual targets" far away from the player.
+ *
+ * One can also use PROJECT_THRU to send a beam/bolt along an angled path,
+ * continuing until it actually hits something (useful for "stone to mud").
+ *
+ * Bolts and Beams explode INSIDE walls, so that they can destroy doors.
+ *
+ * Balls must explode BEFORE hitting walls, or they would affect monsters
+ * on both sides of a wall.  Some bug reports indicate that this is still
+ * happening in 2.7.8 for Windows, though it appears to be impossible.
+ *
+ * We "pre-calculate" the blast area only in part for efficiency.
+ * More importantly, this lets us do "explosions" from the "inside" out.
+ * This results in a more logical distribution of "blast" treasure.
+ * It also produces a better (in my opinion) animation of the explosion.
+ * It could be (but is not) used to have the treasure dropped by monsters
+ * in the middle of the explosion fall "outwards", and then be damaged by
+ * the blast as it spreads outwards towards the treasure drop location.
+ *
+ * Walls and doors are included in the blast area, so that they can be
+ * "burned" or "melted" in later versions.
+ *
+ * This algorithm is intended to maximise simplicity, not necessarily
+ * efficiency, since this function is not a bottleneck in the code.
+ *
+ * We apply the blast effect from ground zero outwards, in several passes,
+ * first affecting features, then objects, then monsters, then the player.
+ * This allows walls to be removed before checking the object or monster
+ * in the wall, and protects objects which are dropped by monsters killed
+ * in the blast, and allows the player to see all affects before he is
+ * killed or teleported away.  The semantics of this method are open to
+ * various interpretations, but they seem to work well in practice.
+ *
+ * We process the blast area from ground-zero outwards to allow for better
+ * distribution of treasure dropped by monsters, and because it provides a
+ * pleasing visual effect at low cost.
+ *
+ * Note that the damage done by "ball" explosions decreases with distance.
+ * This decrease is rapid, grids at radius "dist" take "1/dist" damage.
+ *
+ * Notice the "napalm" effect of "beam" weapons.  First they "project" to
+ * the target, and then the damage "flows" along this beam of destruction.
+ * The damage at every grid is the same as at the "centre" of a "ball"
+ * explosion, since the "beam" grids are treated as if they ARE at the
+ * centre of a "ball" explosion.
+ *
+ * Currently, specifying "beam" plus "ball" means that locations which are
+ * covered by the initial "beam", and also covered by the final "ball", except
+ * for the final grid (the epicentre of the ball), will be "hit twice", once
+ * by the initial beam, and once by the exploding ball.  For the grid right
+ * next to the epicentre, this results in 150% damage being done.  The centre
+ * does not have this problem, for the same reason the final grid in a "beam"
+ * plus "bolt" does not -- it is explicitly removed.  Simply removing "beam"
+ * grids which are covered by the "ball" will NOT work, as then they will
+ * receive LESS damage than they should.  Do not combine "beam" with "ball".
+ *
+ * The array "gy[],gx[]" with current size "grids" is used to hold the
+ * collected locations of all grids in the "blast area" plus "beam path".
+ *
+ * Note the rather complex usage of the "gm[]" array.  First, gm[0] is always
+ * zero.  Second, for N>1, gm[N] is always the index (in gy[],gx[]) of the
+ * first blast grid (see above) with radius "N" from the blast centre.  Note
+ * that only the first gm[1] grids in the blast area thus take full damage.
+ * Also, note that gm[rad+1] is always equal to "grids", which is the total
+ * number of blast grids.
+ *
+ * Note that once the projection is complete, (y2,x2) holds the final location
+ * of bolts/beams, and the "epicentre" of balls.
+ *
+ * Note also that "rad" specifies the "inclusive" radius of projection blast,
+ * so that a "rad" of "one" actually covers 5 or 9 grids, depending on the
+ * implementation of the "distance" function.  Also, a bolt can be properly
+ * viewed as a "ball" with a "rad" of "zero".
+ *
+ * Note that if no "target" is reached before the beam/bolt/ball travels the
+ * maximum distance allowed (MAX_RANGE), no "blast" will be induced.  This
+ * may be relevant even for bolts, since they have a "1x1" mini-blast.
+ *
+ * Note that for consistency, we "pretend" that the bolt actually takes "time"
+ * to move from point A to point B, even if the player cannot see part of the
+ * projection path.  Note that in general, the player will *always* see part
+ * of the path, since it either starts at the player or ends on the player.
+ *
+ * Hack -- we assume that every "projection" is "self-illuminating".
+ *
+ * Hack -- when only a single monster is affected, we automatically track
+ * (and recall) that monster, unless "PROJECT_JUMP" is used.
+ *
+ * Note that all projections now "explode" at their final destination, even
+ * if they were being projected at a more distant destination.  This means
+ * that "ball" spells will *always* explode.
+ *
+ * Note that we must call "handle_stuff()" after affecting terrain features
+ * in the blast radius, in case the "illumination" of the grid was changed,
+ * and "update_view()" and "update_monsters()" need to be called.
+ */
+
+<FONT COLOR="#00FF00">Description</FONT>
+Generate a beam/bolt/ball starting from "who" with a radius of "rad"
+at target grid "y,x" for "damage" points of "typ" damage. The beam/
+bolt/ball can have various properties as denoted by "flg".
+
+<FONT COLOR="#00FF00">Parameters</FONT>
+> "who" is > 0 (index of monster in m_list[]), < 0 and
+  not -100 or -101 (player), -100 or -101 (trap).
+> "rad" is 0 for a beam/bolt and 1-9 for a ball.
+> "y" is the y co-ordinate of the target grid.
+> "x" is the x co-ordinate of the target grid.
+> "dam" is the number of points of damage.
+> "typ" is the type of damage
+  <A HREF="fields.html">GF_fields</A>
+> "flg" is the projection effect
+  <A HREF="fields.html">PROJECT_fields</A>
+
+----------------------------------------------------------------------
+
+<FONT COLOR="#FF0000">=== corrupt_player ===</FONT>
+
+<FONT COLOR="#00FF00">Declaration</FONT>
+    extern void corrupt_player(void);
+
+<FONT COLOR="#00FF00">File</FONT>
+    spells1.c
+
+<FONT COLOR="#00FF00">Comment</FONT>
+(none)
+
+<FONT COLOR="#00FF00">Description</FONT>
+Swap two of the players stats at random.
+
+----------------------------------------------------------------------
+
+<FONT COLOR="#FF0000">=== grow_trees ===</FONT>
+
+<FONT COLOR="#00FF00">Declaration</FONT>
+    extern void grow_trees(int rad);
+
+<FONT COLOR="#00FF00">File</FONT>
+    spells2.c
+
+<FONT COLOR="#00FF00">Comment</FONT>
+/*
+ * Grow trees
+ */
+
+<FONT COLOR="#00FF00">Description</FONT>
+Grow up to (("rad" x "rad") + 11) trees around the player.
+
+<FONT COLOR="#00FF00">Parameters</FONT>
+> "rad" is the radius of the area where trees may grow.
+
+----------------------------------------------------------------------
+
+<FONT COLOR="#FF0000">=== hp_player ===</FONT>
+
+<FONT COLOR="#00FF00">Declaration</FONT>
+    extern bool hp_player(int num);
+
+<FONT COLOR="#00FF00">File</FONT>
+    spells2.c
+
+<FONT COLOR="#00FF00">Comment</FONT>
+/*
+ * Increase players hit points, notice effects
+ */
+
+<FONT COLOR="#00FF00">Description</FONT>
+Add "num" points to the player's current hit points. The total can
+not exceed the maximum.
+
+<FONT COLOR="#00FF00">Parameters</FONT>
+> "num" is the number of points to add.
+
+----------------------------------------------------------------------
+
+<FONT COLOR="#FF0000">=== heal_insanity ===</FONT>
+
+<FONT COLOR="#00FF00">Declaration</FONT>
+    extern bool heal_insanity(int val);
+
+<FONT COLOR="#00FF00">File</FONT>
+    spells2.c
+
+<FONT COLOR="#00FF00">Comment</FONT>
+/* Heal insanity. */
+
+<FONT COLOR="#00FF00">Description</FONT>
+Add "val" points to the player's current sanity points. The total can
+not exceed the maximum.
+
+<FONT COLOR="#00FF00">Parameters</FONT>
+> "val" is the number of points to add.
+
+----------------------------------------------------------------------
+
+<FONT COLOR="#FF0000">=== warding_glyph ===</FONT>
+
+<FONT COLOR="#00FF00">Declaration</FONT>
+    extern void warding_glyph(void);
+
+<FONT COLOR="#00FF00">File</FONT>
+    spells2.c
+
+<FONT COLOR="#00FF00">Comment</FONT>
+/*
+ * Leave a "glyph of warding" which prevents monster movement
+ */
+
+<FONT COLOR="#00FF00">Description</FONT>
+Place a glyph at the player's location. The location must be bare.
+
+----------------------------------------------------------------------
+
+<FONT COLOR="#FF0000">=== explosive_rune ===</FONT>
+
+<FONT COLOR="#00FF00">Declaration</FONT>
+    extern void explosive_rune(void);
+
+<FONT COLOR="#00FF00">File</FONT>
+    spells2.c
+
+<FONT COLOR="#00FF00">Comment</FONT>
+(none)
+
+<FONT COLOR="#00FF00">Description</FONT>
+Place a minor glyph (explosive rune) at the player's location. The
+location must be bare.
+
+----------------------------------------------------------------------
+
+<FONT COLOR="#FF0000">=== do_dec_stat ===</FONT>
+
+<FONT COLOR="#00FF00">Declaration</FONT>
+    extern bool do_dec_stat(int stat, int mode);
+
+<FONT COLOR="#00FF00">File</FONT>
+    spells2.c
+
+<FONT COLOR="#00FF00">Comment</FONT>
+/*
+ * Lose a "point"
+ */
+
+<FONT COLOR="#00FF00">Description</FONT>
+Attempt to reduce the player's "stat" statistic by a point.
+
+<FONT COLOR="#00FF00">Parameters</FONT>
+> "stat" is the statistic
+  <A HREF="fields.html">A_fields</A>
+> "mode" is the type of decrease: temporary, normal, or permanent
+  <A HREF="fields.html">STAT_DEC_fields</A>
+
+----------------------------------------------------------------------
+
+<FONT COLOR="#FF0000">=== do_res_stat ===</FONT>
+
+<FONT COLOR="#00FF00">Declaration</FONT>
+    extern bool do_res_stat(int stat);
+
+<FONT COLOR="#00FF00">File</FONT>
+    spells2.c
+
+<FONT COLOR="#00FF00">Comment</FONT>
+/*
+ * Restore lost "points" in a stat
+ */
+
+<FONT COLOR="#00FF00">Description</FONT>
+Restore the player's "stat" statistic.
+
+<FONT COLOR="#00FF00">Parameters</FONT>
+> "stat" is the statistic
+  <A HREF="fields.html">A_fields</A>
+
+----------------------------------------------------------------------
+
+<FONT COLOR="#FF0000">=== do_inc_stat ===</FONT>
+
+<FONT COLOR="#00FF00">Declaration</FONT>
+    extern bool do_inc_stat(int stat);
+
+<FONT COLOR="#00FF00">File</FONT>
+    spells2.c
+
+<FONT COLOR="#00FF00">Comment</FONT>
+/*
+ * Gain a "point" in a stat
+ */
+
+<FONT COLOR="#00FF00">Description</FONT>
+Increase the player's "stat" statistic by a point.
+
+<FONT COLOR="#00FF00">Parameters</FONT>
+> "stat" is the statistic
+  <A HREF="fields.html">A_fields</A>
+
+----------------------------------------------------------------------
+
+<FONT COLOR="#FF0000">=== identify_pack ===</FONT>
+
+<FONT COLOR="#00FF00">Declaration</FONT>
+    extern void identify_pack(void);
+
+<FONT COLOR="#00FF00">File</FONT>
+    spells2.c
+
+<FONT COLOR="#00FF00">Comment</FONT>
+/*
+ * Identify everything being carried.
+ * Done by a potion of "self knowledge".
+ */
+
+<FONT COLOR="#00FF00">Description</FONT>
+Identify all items in the inventory.
+
+----------------------------------------------------------------------
+
+<FONT COLOR="#FF0000">=== remove_curse ===</FONT>
+
+<FONT COLOR="#00FF00">Declaration</FONT>
+    extern bool remove_curse(void);
+
+<FONT COLOR="#00FF00">File</FONT>
+    spells2.c
+
+<FONT COLOR="#00FF00">Comment</FONT>
+/*
+ * Remove most curses
+ */
+
+<FONT COLOR="#00FF00">Description</FONT>
+Remove all curses except for heavy curses.
+
+----------------------------------------------------------------------
+
+<FONT COLOR="#FF0000">=== remove_all_curse ===</FONT>
+
+<FONT COLOR="#00FF00">Declaration</FONT>
+    extern bool remove_all_curse(void);
+
+<FONT COLOR="#00FF00">File</FONT>
+    spells2.c
+
+<FONT COLOR="#00FF00">Comment</FONT>
+/*
+ * Remove all curses
+ */
+
+<FONT COLOR="#00FF00">Description</FONT>
+Remove all curses including heavy curses.
+
+----------------------------------------------------------------------
+
+<FONT COLOR="#FF0000">=== restore_level ===</FONT>
+
+<FONT COLOR="#00FF00">Declaration</FONT>
+    extern bool restore_level(void);
+
+<FONT COLOR="#00FF00">File</FONT>
+    spells2.c
+
+<FONT COLOR="#00FF00">Comment</FONT>
+/*
+ * Restores any drained experience
+ */
+
+<FONT COLOR="#00FF00">Description</FONT>
+Restore all drained experience points (if any).
+
+----------------------------------------------------------------------
+
+<FONT COLOR="#FF0000">=== self_knowledge ===</FONT>
+
+<FONT COLOR="#00FF00">Declaration</FONT>
+    extern void self_knowledge(FILE *fff);
+
+<FONT COLOR="#00FF00">File</FONT>
+    spells2.c
+
+<FONT COLOR="#00FF00">Comment</FONT>
+/*
+ * self-knowledge... idea from nethack.  Useful for determining powers and
+ * resistances of items.  It saves the screen, clears it, then starts listing
+ * attributes, a screenful at a time.  (There are a LOT of attributes to
+ * list.  It will probably take 2 or 3 screens for a powerful character whose
+ * using several artifacts...) -CFT
+ *
+ * It is now a lot more efficient. -BEN-
+ *
+ * See also "identify_fully()".
+ *
+ * XXX XXX XXX Use the "show_file()" method, perhaps.
+ */
+
+<FONT COLOR="#00FF00">Description</FONT>
+Show all attributes including racial powers, mutations, and equipment
+effects.
+
+<FONT COLOR="#00FF00">Parameters</FONT>
+> "*ffff" points to a file (write info to file) or is NULL (write info
+  to screen).
+
+----------------------------------------------------------------------
+
+<FONT COLOR="#FF0000">=== lose_all_info ===</FONT>
+
+<FONT COLOR="#00FF00">Declaration</FONT>
+    extern bool lose_all_info(void);
+
+<FONT COLOR="#00FF00">File</FONT>
+    spells2.c
+
+<FONT COLOR="#00FF00">Comment</FONT>
+/*
+ * Forget everything
+ */
+
+<FONT COLOR="#00FF00">Description</FONT>
+Forget about objects and the map.
+
+----------------------------------------------------------------------
+
+<FONT COLOR="#FF0000">=== detect_traps ===</FONT>
+
+<FONT COLOR="#00FF00">Declaration</FONT>
+    extern bool detect_traps(void);
+
+<FONT COLOR="#00FF00">File</FONT>
+    spells2.c
+
+<FONT COLOR="#00FF00">Comment</FONT>
+/*
+ * Detect all traps on current panel
+ */
+
+<FONT COLOR="#00FF00">Description</FONT>
+Detect all traps on current panel.
+
+----------------------------------------------------------------------
+
+<FONT COLOR="#FF0000">=== detect_doors ===</FONT>
+
+<FONT COLOR="#00FF00">Declaration</FONT>
+    extern bool detect_doors(void);
+
+<FONT COLOR="#00FF00">File</FONT>
+    spells2.c
+
+<FONT COLOR="#00FF00">Comment</FONT>
+/*
+ * Detect all doors on current panel
+ */
+
+<FONT COLOR="#00FF00">Description</FONT>
+Detect all doors on current panel.
+
+----------------------------------------------------------------------
+
+<FONT COLOR="#FF0000">=== detect_stairs ===</FONT>
+
+<FONT COLOR="#00FF00">Declaration</FONT>
+    extern bool detect_stairs(void);
+
+<FONT COLOR="#00FF00">File</FONT>
+    spells2.c
+
+<FONT COLOR="#00FF00">Comment</FONT>
+/*
+ * Detect all stairs on current panel
+ */
+
+<FONT COLOR="#00FF00">Description</FONT>
+Detect all stairs on current panel.
+
+----------------------------------------------------------------------
+
+<FONT COLOR="#FF0000">=== detect_treasure ===</FONT>
+
+<FONT COLOR="#00FF00">Declaration</FONT>
+    extern bool detect_treasure(void);
+
+<FONT COLOR="#00FF00">File</FONT>
+    spells2.c
+
+<FONT COLOR="#00FF00">Comment</FONT>
+/*
+ * Detect any treasure on the current panel
+ */
+
+<FONT COLOR="#00FF00">Description</FONT>
+Detect any treasure on the current panel.
+
+----------------------------------------------------------------------
+
+Field: hack_no_detect_message
+Value: FALSE
+
+----------------------------------------------------------------------
+
+<FONT COLOR="#FF0000">=== detect_objects_gold ===</FONT>
+
+<FONT COLOR="#00FF00">Declaration</FONT>
+    extern bool detect_objects_gold(void);
+
+<FONT COLOR="#00FF00">File</FONT>
+    spells2.c
+
+<FONT COLOR="#00FF00">Comment</FONT>
+/*
+ * Detect all "gold" objects on the current panel
+ */
+
+<FONT COLOR="#00FF00">Description</FONT>
+Detect all objects with the TV_GOLD flag.
+
+----------------------------------------------------------------------
+
+<FONT COLOR="#FF0000">=== detect_objects_normal ===</FONT>
+
+<FONT COLOR="#00FF00">Declaration</FONT>
+    extern bool detect_objects_normal(void);
+
+<FONT COLOR="#00FF00">File</FONT>
+    spells2.c
+
+<FONT COLOR="#00FF00">Comment</FONT>
+/*
+ * Detect all "normal" objects on the current panel
+ */
+
+<FONT COLOR="#00FF00">Description</FONT>
+Detect all objects without the TV_GOLD flag.
+
+----------------------------------------------------------------------
+
+<FONT COLOR="#FF0000">=== detect_objects_magic ===</FONT>
+
+<FONT COLOR="#00FF00">Declaration</FONT>
+    extern bool detect_objects_magic(void);
+
+<FONT COLOR="#00FF00">File</FONT>
+    spells2.c
+
+<FONT COLOR="#00FF00">Comment</FONT>
+/*
+ * Detect all "magic" objects on the current panel.
+ *
+ * This will light up all spaces with "magic" items, including artifacts,
+ * ego-items, potions, scrolls, books, rods, wands, staves, amulets, rings,
+ * and "enchanted" items of the "good" variety.
+ *
+ * It can probably be argued that this function is now too powerful.
+ */
+
+<FONT COLOR="#00FF00">Description</FONT>
+Detect all "magic" objects which are artefacts, ego items, or have one
+of the following flags - TV_AMULET, TV_RING, TV_BATERIE, TV_STAFF,
+TV_WAND, TV_ROD, TV_ROD_MAIN, TV_SCROLL, TV_POTION, TV_POTION2,
+TV_VALARIN_BOOK, TV_MAGERY_BOOK, TV_SHADOW_BOOK, TV_CHAOS_BOOK,
+TV_SPIRIT_BOOK, TV_NETHER_BOOK, TV_DAEMON_BOOK, TV_CRUSADE_BOOK,
+TV_SIGALDRY_BOOK, TV_SYMBIOTIC_BOOK, TV_MUSIC_BOOK.
+
+----------------------------------------------------------------------
+
+<FONT COLOR="#FF0000">=== detect_monsters_normal ===</FONT>
+
+<FONT COLOR="#00FF00">Declaration</FONT>
+    extern bool detect_monsters_normal(void);
+
+<FONT COLOR="#00FF00">File</FONT>
+    spells2.c
+
+<FONT COLOR="#00FF00">Comment</FONT>
+/*
+ * Detect all "normal" monsters on the current panel
+ */
+
+<FONT COLOR="#00FF00">Description</FONT>
+Detect all non-invisible monsters (without RF2_INVISIBLE).
+
+----------------------------------------------------------------------
+
+<FONT COLOR="#FF0000">=== detect_monsters_invis ===</FONT>
+
+<FONT COLOR="#00FF00">Declaration</FONT>
+    extern bool detect_monsters_invis(void);
+
+<FONT COLOR="#00FF00">File</FONT>
+    spells2.c
+
+<FONT COLOR="#00FF00">Comment</FONT>
+/*
+ * Detect all "invisible" monsters on current panel
+ */
+
+<FONT COLOR="#00FF00">Description</FONT>
+Detect all invisible monsters (with RF2_INVISIBLE).
+
+----------------------------------------------------------------------
+
+<FONT COLOR="#FF0000">=== detect_monsters_evil ===</FONT>
+
+<FONT COLOR="#00FF00">Declaration</FONT>
+    extern bool detect_monsters_evil(void);
+
+<FONT COLOR="#00FF00">File</FONT>
+    spells2.c
+
+<FONT COLOR="#00FF00">Comment</FONT>
+/*
+ * Detect all "evil" monsters on current panel
+ */
+
+<FONT COLOR="#00FF00">Description</FONT>
+Detect all evil monsters (with RF3_EVIL).
+
+----------------------------------------------------------------------
+
+<FONT COLOR="#FF0000">=== detect_monsters_good ===</FONT>
+
+<FONT COLOR="#00FF00">Declaration</FONT>
+    extern bool detect_monsters_good(void);
+
+<FONT COLOR="#00FF00">File</FONT>
+    spells2.c
+
+<FONT COLOR="#00FF00">Comment</FONT>
+/* Detect good monsters */
+
+<FONT COLOR="#00FF00">Description</FONT>
+Detect all good monsters (with RF3_GOOD).
+
+----------------------------------------------------------------------
+
+<FONT COLOR="#FF0000">=== detect_monsters_xxx ===</FONT>
+
+<FONT COLOR="#00FF00">Declaration</FONT>
+    extern bool detect_monsters_xxx(u32b match_flag);
+
+<FONT COLOR="#00FF00">File</FONT>
+    spells2.c
+
+<FONT COLOR="#00FF00">Comment</FONT>
+/*
+ * A "generic" detect monsters routine, tagged to flags3
+ */
+
+<FONT COLOR="#00FF00">Description</FONT>
+Detect all monsters with "match_flag" flag.
+
+<FONT COLOR="#00FF00">Parameters</FONT>
+> "match_flag" can be any RF3_ flag (see defines.h) but only
+  RF3_DEMON, RF3_UNDEAD, RF3_GOOD work.
+
+----------------------------------------------------------------------
+
+<FONT COLOR="#FF0000">=== detect_monsters_string ===</FONT>
+
+<FONT COLOR="#00FF00">Declaration</FONT>
+    extern bool detect_monsters_string(cptr);
+
+<FONT COLOR="#00FF00">File</FONT>
+    spells2.c
+
+<FONT COLOR="#00FF00">Comment</FONT>
+/*
+ * Detect all (string) monsters on current panel
+ */
+
+<FONT COLOR="#00FF00">Description</FONT>
+Detect all monsters whose default monster character matches a
+character pointed to by "cptr".
+
+<FONT COLOR="#00FF00">Parameters</FONT>
+> "cptr" is a pointer to a single character, eg 'Z' for hounds. For
+  available characters, see the "symbol" field of the graphics (G)
+  line of r_info.txt.
+
+----------------------------------------------------------------------
+
+<FONT COLOR="#FF0000">=== detect_monsters_nonliving ===</FONT>
+
+<FONT COLOR="#00FF00">Declaration</FONT>
+    extern bool detect_monsters_nonliving(void);
+
+<FONT COLOR="#00FF00">File</FONT>
+    spells2.c
+
+<FONT COLOR="#00FF00">Comment</FONT>
+/*
+ * Detect all "nonliving", "undead" or "demonic" monsters on current panel
+ */
+
+<FONT COLOR="#00FF00">Description</FONT>
+Detect all non-living monsters (with RF3_NONLIVING, RF3_UNDEAD, or
+RF3_DEMON).
+
+----------------------------------------------------------------------
+
+<FONT COLOR="#FF0000">=== detect_all ===</FONT>
+
+<FONT COLOR="#00FF00">Declaration</FONT>
+    extern bool detect_all(void);
+
+<FONT COLOR="#00FF00">File</FONT>
+    spells2.c
+
+<FONT COLOR="#00FF00">Comment</FONT>
+/*
+ * Detect everything
+ */
+
+<FONT COLOR="#00FF00">Description</FONT>
+Detects traps, doors, stairs, treasure, gold objects, normal objects,
+invisible monsters, normal (visible) monsters.
+
+----------------------------------------------------------------------
+
+<FONT COLOR="#FF0000">=== stair_creation ===</FONT>
+
+<FONT COLOR="#00FF00">Declaration</FONT>
+    extern void stair_creation(void);
+
+<FONT COLOR="#00FF00">File</FONT>
+    spells2.c
+
+<FONT COLOR="#00FF00">Comment</FONT>
+/*
+ * Create stairs at the player location
+ */
+
+<FONT COLOR="#00FF00">Description</FONT>
+Create stairs at the player location. This is not allowed if the grid
+is not empty, the player is not in a dungeon, the player is on a
+special level, the player is in an arena or quest. If the player is
+in the town or wilderness the stairs will go down. If the player is
+on a quest level or at the bottom of a dungeon, the stairs will go up.
+Otherwise there is an even chance the stairs will go up or down.
+
+----------------------------------------------------------------------
+
+<FONT COLOR="#FF0000">=== wall_stone ===</FONT>
+
+<FONT COLOR="#00FF00">Declaration</FONT>
+    extern bool wall_stone(void);
+
+<FONT COLOR="#00FF00">File</FONT>
+    spells2.c
+
+<FONT COLOR="#00FF00">Comment</FONT>
+(none)
+
+<FONT COLOR="#00FF00">Description</FONT>
+Create a stone wall on the player's grid. This function uses the
+project() function to create the stone wall. Apparently zero can be
+used as the "who" parameter for the player. See details for the
+project() function elsewhere in this document.
+
+----------------------------------------------------------------------
+
+<FONT COLOR="#FF0000">=== create_artifact ===</FONT>
+
+<FONT COLOR="#00FF00">Declaration</FONT>
+    extern bool create_artifact(object_type *o_ptr,
+        bool a_scroll, bool get_name);
+
+<FONT COLOR="#00FF00">File</FONT>
+    randart.c
+
+<FONT COLOR="#00FF00">Comment</FONT>
+(none)
+
+<FONT COLOR="#00FF00">Description</FONT>
+Create an artifact from object "*optr".
+
+<FONT COLOR="#00FF00">Parameters</FONT>
+> "*optr* is a pointer to an object
+> "a_scroll" is true if the artifact is created by reading a scroll
+> "get_name" is true if the artifact is to be named by the player (if
+  a_scroll is true) or created randomly (a_scroll is false), or false
+  if an inscription is used.
+
+----------------------------------------------------------------------
+
+<FONT COLOR="#FF0000">=== ident_spell ===</FONT>
+
+<FONT COLOR="#00FF00">Declaration</FONT>
+    extern bool ident_spell(void);
+
+<FONT COLOR="#00FF00">File</FONT>
+    spells2.c
+
+<FONT COLOR="#00FF00">Comment</FONT>
+/*
+ * Identify an object in the inventory (or on the floor)
+ * This routine does *not* automatically combine objects.
+ * Returns TRUE if something was identified, else FALSE.
+ */
+
+<FONT COLOR="#00FF00">Description</FONT>
+Identify an object in the inventory (or on the floor).
+
+----------------------------------------------------------------------
+
+<FONT COLOR="#FF0000">=== identify_fully ===</FONT>
+
+<FONT COLOR="#00FF00">Declaration</FONT>
+    extern bool identify_fully(void);
+
+<FONT COLOR="#00FF00">File</FONT>
+    spells2.c
+
+<FONT COLOR="#00FF00">Comment</FONT>
+/*
+ * Fully "identify" an object in the inventory  -BEN-
+ * This routine returns TRUE if an item was identified.
+ */
+
+<FONT COLOR="#00FF00">Description</FONT>
+Fully "identify" an object in the inventory (or on the floor).
+
+----------------------------------------------------------------------
+
+<FONT COLOR="#FF0000">=== recharge ===</FONT>
+
+<FONT COLOR="#00FF00">Declaration</FONT>
+    extern bool recharge(int num);
+
+<FONT COLOR="#00FF00">File</FONT>
+    spells2.c
+
+<FONT COLOR="#00FF00">Comment</FONT>
+/*
+ * Recharge a wand/staff/rod from the pack or on the floor.
+ * This function has been rewritten in Oangband. -LM-
+ *
+ * Mage -- Recharge I --> recharge(90)
+ * Mage -- Recharge II --> recharge(150)
+ * Mage -- Recharge III --> recharge(220)
+ *
+ * Priest or Necromancer -- Recharge --> recharge(140)
+ *
+ * Scroll of recharging --> recharge(130)
+ * Scroll of *recharging* --> recharge(200)
+ *
+ * It is harder to recharge high level, and highly charged wands,
+ * staffs, and rods.  The more wands in a stack, the more easily and
+ * strongly they recharge.  Staffs, however, each get fewer charges if
+ * stacked.
+ *
+ * XXX XXX XXX Beware of "sliding index errors".
+ */
+
+<FONT COLOR="#00FF00">Description</FONT>
+Recharge an object in the inventory (or on the floor) with "num"
+power.
+
+<FONT COLOR="#00FF00">Parameters</FONT>
+> "num" is the power used in recharging. It is compared to the
+  object's level to determine whether the item is recharged
+  successfully or destroyed. If it is recharged, it also determines
+  how many charges are added, or how much recharge time is reduced.
+
+----------------------------------------------------------------------
+
+<FONT COLOR="#FF0000">=== aggravate_monsters ===</FONT>
+
+<FONT COLOR="#00FF00">Declaration</FONT>
+    extern void aggravate_monsters(int who);
+
+<FONT COLOR="#00FF00">File</FONT>
+    spells2.c
+
+<FONT COLOR="#00FF00">Comment</FONT>
+/*
+ * Wake up all monsters, and speed up "los" monsters.
+ */
+
+<FONT COLOR="#00FF00">Description</FONT>
+Aggravate monsters, originating from "who".
+
+<FONT COLOR="#00FF00">Parameters</FONT>
+> "who" is the index of monster in m_list[] (1 if it is the player)
+  which triggers the aggravation;
+
+----------------------------------------------------------------------
+
+<FONT COLOR="#FF0000">=== genocide ===</FONT>
+
+<FONT COLOR="#00FF00">Declaration</FONT>
+    extern bool genocide(bool player_cast);
+
+<FONT COLOR="#00FF00">File</FONT>
+    spells2.c
+
+<FONT COLOR="#00FF00">Comment</FONT>
+(none)
+
+<FONT COLOR="#00FF00">Description</FONT>
+Genocide a monster race.
+
+<FONT COLOR="#00FF00">Parameters</FONT>
+> "player_cast" is true if the player cast the spell so the player can
+  take damage.
+
+----------------------------------------------------------------------
+
+<FONT COLOR="#FF0000">=== mass_genocide ===</FONT>
+
+<FONT COLOR="#00FF00">Declaration</FONT>
+    extern bool mass_genocide(bool player_cast);
+
+<FONT COLOR="#00FF00">File</FONT>
+    spells2.c
+
+<FONT COLOR="#00FF00">Comment</FONT>
+/*
+ * Delete all nearby (non-unique) monsters
+ */
+
+<FONT COLOR="#00FF00">Description</FONT>
+Delete all nearby (non-unique) monsters.
+
+<FONT COLOR="#00FF00">Parameters</FONT>
+> "player_cast" is true if the player cast the spell so the player can
+  take damage.
+
+----------------------------------------------------------------------
+
+<FONT COLOR="#FF0000">=== probing ===</FONT>
+
+<FONT COLOR="#00FF00">Declaration</FONT>
+    extern bool probing(void);
+
+<FONT COLOR="#00FF00">File</FONT>
+    spells2.c
+
+<FONT COLOR="#00FF00">Comment</FONT>
+/*
+ * Probe nearby monsters
+ */
+
+<FONT COLOR="#00FF00">Description</FONT>
+Probe all nearby monsters.
+
+----------------------------------------------------------------------
+
+<FONT COLOR="#FF0000">=== banish_evil ===</FONT>
+
+<FONT COLOR="#00FF00">Declaration</FONT>
+    extern bool banish_evil(int dist);
+
+<FONT COLOR="#00FF00">File</FONT>
+    spells2.c
+
+<FONT COLOR="#00FF00">Comment</FONT>
+/*
+ * Banish evil monsters
+ */
+
+<FONT COLOR="#00FF00">Description</FONT>
+Banish nearby evil monsters doing "dist" points of GF_AWAY_EVIL
+damage.
+
+<FONT COLOR="#00FF00">Parameters</FONT>
+> "dist" is the amount of damage done to each monster.
+
+----------------------------------------------------------------------
+
+<FONT COLOR="#FF0000">=== dispel_evil ===</FONT>
+
+<FONT COLOR="#00FF00">Declaration</FONT>
+    extern bool dispel_evil(int dam);
+
+<FONT COLOR="#00FF00">File</FONT>
+    spells2.c
+
+<FONT COLOR="#00FF00">Comment</FONT>
+/*
+ * Dispel evil monsters
+ */
+
+<FONT COLOR="#00FF00">Description</FONT>
+Dispel nearby evil monsters doing "dam" points of GF_DISP_EVIL
+damage.
+
+<FONT COLOR="#00FF00">Parameters</FONT>
+> "dam" is the number of points of damage.
+
+----------------------------------------------------------------------
+
+<FONT COLOR="#FF0000">=== dispel_good ===</FONT>
+
+<FONT COLOR="#00FF00">Declaration</FONT>
+    extern bool dispel_good(int dam);
+
+<FONT COLOR="#00FF00">File</FONT>
+    spells2.c
+
+<FONT COLOR="#00FF00">Comment</FONT>
+/*
+ * Dispel good monsters
+ */
+
+<FONT COLOR="#00FF00">Description</FONT>
+Dispel nearby good monsters doing "dam" points of GF_DISP_GOOD
+damage.
+
+<FONT COLOR="#00FF00">Parameters</FONT>
+> "dam" is the number of points of damage.
+
+----------------------------------------------------------------------
+
+<FONT COLOR="#FF0000">=== dispel_undead ===</FONT>
+
+<FONT COLOR="#00FF00">Declaration</FONT>
+    extern bool dispel_undead(int dam);
+
+<FONT COLOR="#00FF00">File</FONT>
+    spells2.c
+
+<FONT COLOR="#00FF00">Comment</FONT>
+/*
+ * Dispel undead monsters
+ */
+
+<FONT COLOR="#00FF00">Description</FONT>
+Dispel nearby undead monsters doing "dam" points of GF_DISP_UNDEAD
+damage.
+
+<FONT COLOR="#00FF00">Parameters</FONT>
+> "dam" is the number of points of damage.
+
+----------------------------------------------------------------------
+
+<FONT COLOR="#FF0000">=== dispel_monsters ===</FONT>
+
+<FONT COLOR="#00FF00">Declaration</FONT>
+    extern bool dispel_monsters(int dam);
+
+<FONT COLOR="#00FF00">File</FONT>
+    spells2.c
+
+<FONT COLOR="#00FF00">Comment</FONT>
+/*
+ * Dispel all monsters
+ */
+
+<FONT COLOR="#00FF00">Description</FONT>
+Dispel all nearby monsters doing "dam" points of GF_DISP_ALL
+damage.
+
+<FONT COLOR="#00FF00">Parameters</FONT>
+> "dam" is the number of points of damage.
+
+----------------------------------------------------------------------
+
+<FONT COLOR="#FF0000">=== dispel_living ===</FONT>
+
+<FONT COLOR="#00FF00">Declaration</FONT>
+    extern bool dispel_living(int dam);
+
+<FONT COLOR="#00FF00">File</FONT>
+    spells2.c
+
+<FONT COLOR="#00FF00">Comment</FONT>
+/*
+ * Dispel 'living' monsters
+ */
+
+<FONT COLOR="#00FF00">Description</FONT>
+Dispel nearby living monsters doing "dam" points of GF_DISP_LIVING
+damage.
+
+<FONT COLOR="#00FF00">Parameters</FONT>
+> "dam" is the number of points of damage.
+
+----------------------------------------------------------------------
+
+<FONT COLOR="#FF0000">=== dispel_demons ===</FONT>
+
+<FONT COLOR="#00FF00">Declaration</FONT>
+    extern bool dispel_demons(int dam);
+
+<FONT COLOR="#00FF00">File</FONT>
+    spells2.c
+
+<FONT COLOR="#00FF00">Comment</FONT>
+/*
+ * Dispel demons
+ */
+
+<FONT COLOR="#00FF00">Description</FONT>
+Dispel nearby demon monsters doing "dam" points of GF_DISP_DEMON
+damage.
+
+<FONT COLOR="#00FF00">Parameters</FONT>
+> "dam" is the number of points of damage.
+
+----------------------------------------------------------------------
+
+<FONT COLOR="#FF0000">=== turn_undead ===</FONT>
+
+<FONT COLOR="#00FF00">Declaration</FONT>
+    extern bool turn_undead(void);
+
+<FONT COLOR="#00FF00">File</FONT>
+    spells2.c
+
+<FONT COLOR="#00FF00">Comment</FONT>
+/*
+ * Turn undead
+ */
+
+<FONT COLOR="#00FF00">Description</FONT>
+Turn nearby undead monsters doing a point of GF_TURN_UNDEAD damage for
+each player level.
+
+----------------------------------------------------------------------
+
+<FONT COLOR="#FF0000">=== wipe ===</FONT>
+
+<FONT COLOR="#00FF00">Declaration</FONT>
+    extern void wipe(int y1, int x1, int r);
+
+<FONT COLOR="#00FF00">File</FONT>
+    spells2.c
+
+<FONT COLOR="#00FF00">Comment</FONT>
+/*
+ * Wipe -- Empties a part of the dungeon
+ */
+
+<FONT COLOR="#00FF00">Description</FONT>
+Delete monsters and objects from an area of the dungeon centred at
+grid "y1,x1" for a radius "r". This does not work on special levels or
+quests. The player may be blinded. The player forgets the affected
+area and it becomes dark. All grids become floor.
+
+<FONT COLOR="#00FF00">Parameters</FONT>
+> "y1" is the y-coordinate of the wipe's origin.
+> "x1" is the x-coordinate of the wipe's origin.
+> "r" is the radius of the wipe.
+
+----------------------------------------------------------------------
+
+<FONT COLOR="#FF0000">=== destroy_area ===</FONT>
+
+<FONT COLOR="#00FF00">Declaration</FONT>
+    extern void destroy_area(int y1, int x1, int r,
+        bool full);
+
+<FONT COLOR="#00FF00">File</FONT>
+    spells2.c
+
+<FONT COLOR="#00FF00">Comment</FONT>
+/*
+ * The spell of destruction
+ *
+ * This spell "deletes" monsters (instead of "killing" them).
+ *
+ * Later we may use one function for both "destruction" and
+ * "earthquake" by using the "full" to select "destruction".
+ */
+
+<FONT COLOR="#00FF00">Description</FONT>
+Delete monsters and objects from an area of the dungeon centred at
+grid "y1,x1" for a radius "r". This does not work on special levels or
+quests. The epicentre is NOT affected. The player may be blinded. The
+player forgets the affected area and it becomes dark. The grids can
+become granite, quartz, magma, or floor.
+
+<FONT COLOR="#00FF00">Parameters</FONT>
+> "y1" is the y-coordinate of the destruction's origin.
+> "x1" is the x-coordinate of the destruction's origin.
+> "r" is the radius of the destruction.
+> "full" is currently unused.
+
+----------------------------------------------------------------------
+
+<FONT COLOR="#FF0000">=== earthquake ===</FONT>
+
+<FONT COLOR="#00FF00">Declaration</FONT>
+    extern void earthquake(int cy, int cx, int r);
+
+<FONT COLOR="#00FF00">File</FONT>
+    spells2.c
+
+<FONT COLOR="#00FF00">Comment</FONT>
+/*
+ * Induce an "earthquake" of the given radius at the given location.
+ *
+ * This will turn some walls into floors and some floors into walls.
+ *
+ * The player will take damage and "jump" into a safe grid if possible,
+ * otherwise, he will "tunnel" through the rubble instantaneously.
+ *
+ * Monsters will take damage, and "jump" into a safe grid if possible,
+ * otherwise they will be "buried" in the rubble, disappearing from
+ * the level in the same way that they do when genocided.
+ *
+ * Note that thus the player and monsters (except eaters of walls and
+ * passers through walls) will never occupy the same grid as a wall.
+ * Note that as of now (2.7.8) no monster may occupy a "wall" grid, even
+ * for a single turn, unless that monster can pass_walls or kill_walls.
+ * This has allowed massive simplification of the "monster" code.
+ */
+
+<FONT COLOR="#00FF00">Description</FONT>
+Create an earthquake centred on grid "cy,cx" with a radius of "r".
+This does not work on quest levels. The epicentre is NOT affected.
+Only about 15% of the grids are affected. The player takes 300 points
+of damage if they can't be moved to a safe grid, otherwise damage is
+from 10 to 40 points. The player forgets the affected area and it
+becomes dark. The grids can become granite, quartz, magma, or floor.
+
+<FONT COLOR="#00FF00">Parameters</FONT>
+Parameters:
+> "cy" is the y-coordinate of the earthquake origin.
+> "cx" is the x-coordinate of the earthquake origin.
+> "r" is the radius of the earthquake.
+
+----------------------------------------------------------------------
+
+<FONT COLOR="#FF0000">=== map_area ===</FONT>
+
+<FONT COLOR="#00FF00">Declaration</FONT>
+    extern void map_area(void);
+
+<FONT COLOR="#00FF00">File</FONT>
+    cave.c
+
+<FONT COLOR="#00FF00">Comment</FONT>
+/*
+ * Hack -- map the current panel (plus some) ala "magic mapping"
+ */
+
+<FONT COLOR="#00FF00">Description</FONT>
+Map the current panel plus up to 10 grids up and down, and up to 20
+grids left and right.
+
+----------------------------------------------------------------------
+
+<FONT COLOR="#FF0000">=== wiz_lite ===</FONT>
+
+<FONT COLOR="#00FF00">Declaration</FONT>
+    extern void wiz_lite(void);
+
+<FONT COLOR="#00FF00">File</FONT>
+    cave.c
+
+<FONT COLOR="#00FF00">Comment</FONT>
+/*
+ * Light up the dungeon using "clairvoyance"
+ *
+ * This function "illuminates" every grid in the dungeon, memorises all
+ * "objects", memorises all grids as with magic mapping, and, under the
+ * standard option settings (view_perma_grids but not view_torch_grids)
+ * memorises all floor grids too.
+ *
+ * Note that if "view_perma_grids" is not set, we do not memorise floor
+ * grids, since this would defeat the purpose of "view_perma_grids", not
+ * that anyone seems to play without this option.
+ *
+ * Note that if "view_torch_grids" is set, we do not memorise floor grids,
+ * since this would prevent the use of "view_torch_grids" as a method to
+ * keep track of what grids have been observed directly.
+ */
+
+<FONT COLOR="#00FF00">Description</FONT>
+Light up the entire dungeon and show all monsters and objects.
+
+----------------------------------------------------------------------
+
+<FONT COLOR="#FF0000">=== wiz_lite_extra ===</FONT>
+
+<FONT COLOR="#00FF00">Declaration</FONT>
+    extern void wiz_lite_extra(void);
+
+<FONT COLOR="#00FF00">File</FONT>
+    cave.c
+
+<FONT COLOR="#00FF00">Comment</FONT>
+(none)
+
+<FONT COLOR="#00FF00">Description</FONT>
+Light up the entire dungeon and show all monsters and objects. All
+squares are lit and remembered.
+
+----------------------------------------------------------------------
+
+<FONT COLOR="#FF0000">=== wiz_dark ===</FONT>
+
+<FONT COLOR="#00FF00">Declaration</FONT>
+    extern void wiz_dark(void);
+
+<FONT COLOR="#00FF00">File</FONT>
+    cave.c
+
+<FONT COLOR="#00FF00">Comment</FONT>
+/*
+ * Forget the dungeon map (ala "Thinking of Maud...").
+ */
+
+<FONT COLOR="#00FF00">Description</FONT>
+Forget all grids and objects. All grids become dark.
+
+----------------------------------------------------------------------
+
+<FONT COLOR="#FF0000">=== lite_room ===</FONT>
+
+<FONT COLOR="#00FF00">Declaration</FONT>
+    extern void lite_room(int y1, int x1);
+
+<FONT COLOR="#00FF00">File</FONT>
+    spells2.c
+
+<FONT COLOR="#00FF00">Comment</FONT>
+/*
+ * Illuminate any room containing the given location.
+ */
+
+<FONT COLOR="#00FF00">Description</FONT>
+Light up the room (if any) of grid "y1,x1".
+
+<FONT COLOR="#00FF00">Parameters</FONT>
+> "y1" is the y-coordinate of the grid.
+> "x1" is the x-coordinate of the grid.
+
+----------------------------------------------------------------------
+
+<FONT COLOR="#FF0000">=== unlite_room ===</FONT>
+
+<FONT COLOR="#00FF00">Declaration</FONT>
+    extern void unlite_room(int y1, int x1);
+
+<FONT COLOR="#00FF00">File</FONT>
+    spells2.c
+
+<FONT COLOR="#00FF00">Comment</FONT>
+/*
+ * Darken all rooms containing the given location
+ */
+
+<FONT COLOR="#00FF00">Description</FONT>
+Darken all rooms (if any) of grid "y1,x1".
+
+<FONT COLOR="#00FF00">Parameters</FONT>
+> "y1" is the y-coordinate of the grid.
+> "x1" is the x-coordinate of the grid.
+
+----------------------------------------------------------------------
+
+<FONT COLOR="#FF0000">=== lite_area ===</FONT>
+
+<FONT COLOR="#00FF00">Declaration</FONT>
+    extern bool lite_area(int dam, int rad);
+
+<FONT COLOR="#00FF00">File</FONT>
+    spells2.c
+
+<FONT COLOR="#00FF00">Comment</FONT>
+/*
+ * Hack -- call light around the player
+ * Affect all monsters in the projection radius
+ */
+
+<FONT COLOR="#00FF00">Description</FONT>
+Light up the room (if any) of the player's grid. Monsters take "dam"
+points of GF_LITE_WEAK damage if they are within "r" grids of the
+player.
+
+<FONT COLOR="#00FF00">Parameters</FONT>
+> "dam" is the number of points of damage.
+> "rad" is the radius of the effect of the damage.
+
+----------------------------------------------------------------------
+
+<FONT COLOR="#FF0000">=== unlite_area ===</FONT>
+
+<FONT COLOR="#00FF00">Declaration</FONT>
+    extern bool unlite_area(int dam, int rad);
+
+<FONT COLOR="#00FF00">File</FONT>
+    spells2.c
+
+<FONT COLOR="#00FF00">Comment</FONT>
+/*
+ * Hack -- call darkness around the player
+ * Affect all monsters in the projection radius
+ */
+
+<FONT COLOR="#00FF00">Description</FONT>
+Darken the room (if any) of the player's grid. Monsters take "dam"
+points of GF_DARK_WEAK damage if they are within "r" grids of the
+player.
+
+<FONT COLOR="#00FF00">Parameters</FONT>
+> "dam" is the number of points of damage.
+> "rad" is the radius of the effect of the damage.
+
+----------------------------------------------------------------------
+
+<FONT COLOR="#FF0000">=== fire_ball_beam ===</FONT>
+
+<FONT COLOR="#00FF00">Declaration</FONT>
+    extern bool fire_ball_beam(int typ, int dir, int dam,
+        int rad);
+
+<FONT COLOR="#00FF00">File</FONT>
+    spells2.c
+
+<FONT COLOR="#00FF00">Comment</FONT>
+/*
+ * Cast a ball-beamed spell
+ * Stop if we hit a monster, act as a "ball"
+ * Allow "target" mode to pass over monsters
+ * Affect grids, objects, and monsters
+ */
+
+<FONT COLOR="#00FF00">Description</FONT>
+Cast a ball-beamed spell of type "typ" in direction "dir" for damage
+"dam" points with a radius of "rad" grids.
+
+<FONT COLOR="#00FF00">Parameters</FONT>
+> "typ" is the type of damage
+  <A HREF="fields.html">GF_fields</A>
+> "dir" must be from 0 to 9.
+  <A HREF="fields.html">direction</A>
+> "dam" is the number of points of damage.
+> "rad" is the radius of the effect of the damage (must be <= 16).
+
+----------------------------------------------------------------------
+
+<FONT COLOR="#FF0000">=== fire_ball ===</FONT>
+
+<FONT COLOR="#00FF00">Declaration</FONT>
+    extern bool fire_ball(int typ, int dir, int dam, int rad);
+
+<FONT COLOR="#00FF00">File</FONT>
+    spells2.c
+
+<FONT COLOR="#00FF00">Comment</FONT>
+/*
+ * Cast a ball spell
+ * Stop if we hit a monster, act as a "ball"
+ * Allow "target" mode to pass over monsters
+ * Affect grids, objects, and monsters
+ */
+
+<FONT COLOR="#00FF00">Description</FONT>
+Cast a ball spell of type "typ" in direction "dir" for "dam" points of
+damage. The ball has a radius of "rad" grids.
+
+<FONT COLOR="#00FF00">Parameters</FONT>
+> "typ" is the type of damage
+  <A HREF="fields.html">GF_fields</A>
+> "dir" must be from 0 to 9.
+  <A HREF="fields.html">direction</A>
+> "dam" is the number of points of damage.
+> "rad" is the radius of the effect of the damage (must be <= 16).
+
+----------------------------------------------------------------------
+
+<FONT COLOR="#FF0000">=== fire_bolt ===</FONT>
+
+<FONT COLOR="#00FF00">Declaration</FONT>
+    extern bool fire_bolt(int typ, int dir, int dam);
+
+<FONT COLOR="#00FF00">File</FONT>
+    spells2.c
+
+<FONT COLOR="#00FF00">Comment</FONT>
+/*
+ * Cast a bolt spell
+ * Stop if we hit a monster, as a "bolt"
+ * Affect monsters (not grids or objects)
+ */
+
+<FONT COLOR="#00FF00">Description</FONT>
+Cast a bolt spell of type "typ" in direction "dir" for "dam" points of
+damage.
+
+<FONT COLOR="#00FF00">Parameters</FONT>
+> "typ" is the type of damage
+  <A HREF="fields.html">GF_fields</A>
+> "dir" must be from 0 to 9
+  <A HREF="fields.html">direction</A>
+> "dam" is the number of points of damage.
+
+----------------------------------------------------------------------
+
+<FONT COLOR="#FF0000">=== fire_beam ===</FONT>
+
+<FONT COLOR="#00FF00">Declaration</FONT>
+    extern bool fire_beam(int typ, int dir, int dam);
+
+<FONT COLOR="#00FF00">File</FONT>
+    spells2.c
+
+<FONT COLOR="#00FF00">Comment</FONT>
+/*
+ * Cast a beam spell
+ * Pass through monsters, as a "beam"
+ * Affect monsters (not grids or objects)
+ */
+
+<FONT COLOR="#00FF00">Description</FONT>
+Cast a beam spell of type "typ" in direction "dir" for "dam" points of
+damage.
+
+<FONT COLOR="#00FF00">Parameters</FONT>
+> "typ" is the type of damage
+  <A HREF="fields.html">GF_fields</A>
+> "dir" must be from 0 to 9.
+  <A HREF="fields.html">direction</A>
+> "dam" is the number of points of damage.
+
+----------------------------------------------------------------------
+
+<FONT COLOR="#FF0000">=== fire_druid_ball ===</FONT>
+
+<FONT COLOR="#00FF00">Declaration</FONT>
+    extern bool fire_druid_ball(int typ, int dir, int dam,
+        int rad);
+
+<FONT COLOR="#00FF00">File</FONT>
+    spells2.c
+
+<FONT COLOR="#00FF00">Comment</FONT>
+/*
+ * Cast a druidic ball spell
+ * Stop if we hit a monster, act as a "ball"
+ * Allow "target" mode to pass over monsters
+ * Affect grids, objects, and monsters
+ */
+
+<FONT COLOR="#00FF00">Description</FONT>
+Cast a ball spell of type "typ" in direction "dir" for "dam" points of
+damage. The ball has a radius of "rad" grids. The spell follows a mana
+path.
+
+<FONT COLOR="#00FF00">Parameters</FONT>
+> "typ" is the type of damage
+  <A HREF="fields.html">GF_fields</A>
+> "dir" must be from 0 to 9.
+  <A HREF="fields.html">direction</A>
+> "dam" is the number of points of damage.
+> "rad" is the radius of the effect of the damage (must be <= 16).
+
+----------------------------------------------------------------------
+
+<FONT COLOR="#FF0000">=== fire_druid_bolt ===</FONT>
+
+<FONT COLOR="#00FF00">Declaration</FONT>
+    extern bool fire_druid_bolt(int typ, int dir, int dam);
+
+<FONT COLOR="#00FF00">File</FONT>
+    spells2.c
+
+<FONT COLOR="#00FF00">Comment</FONT>
+/*
+ * Cast a druidic bolt spell
+ * Stop if we hit a monster, as a "bolt"
+ * Affect monsters (not grids or objects)
+ */
+
+<FONT COLOR="#00FF00">Description</FONT>
+Cast a bolt spell of type "typ" in direction "dir" for "dam" points of
+damage. The spell follows a mana path.
+
+<FONT COLOR="#00FF00">Parameters</FONT>
+> "typ" is the type of damage
+  <A HREF="fields.html">GF_fields</A>
+> "dir" must be from 0 to 9.
+  <A HREF="fields.html">direction</A>
+> "dam" is the number of points of damage.
+
+----------------------------------------------------------------------
+
+<FONT COLOR="#FF0000">=== fire_druid_beam ===</FONT>
+
+<FONT COLOR="#00FF00">Declaration</FONT>
+    extern bool fire_druid_beam(int typ, int dir, int dam);
+
+<FONT COLOR="#00FF00">File</FONT>
+    spells2.c
+
+<FONT COLOR="#00FF00">Comment</FONT>
+/*
+ * Cast a druidistic beam spell
+ * Pass through monsters, as a "beam"
+ * Affect monsters (not grids or objects)
+ */
+
+<FONT COLOR="#00FF00">Description</FONT>
+Cast a beam spell of type "typ" in direction "dir" for "dam" points of
+damage. The spell follows a mana path.
+
+<FONT COLOR="#00FF00">Parameters</FONT>
+> "typ" is the type of damage
+  <A HREF="fields.html">GF_fields</A>
+> "dir" must be from 0 to 9.
+  <A HREF="fields.html">direction</A>
+> "dam" is the number of points of damage.
+
+----------------------------------------------------------------------
+
+<FONT COLOR="#FF0000">=== fire_bolt_or_beam ===</FONT>
+
+<FONT COLOR="#00FF00">Declaration</FONT>
+    extern bool fire_bolt_or_beam(int prob, int typ, int dir,
+        int dam);
+
+<FONT COLOR="#00FF00">File</FONT>
+    spells2.c
+
+<FONT COLOR="#00FF00">Comment</FONT>
+/*
+ * Cast a bolt spell, or rarely, a beam spell
+ */
+
+<FONT COLOR="#00FF00">Description</FONT>
+Cast a beam (chance of "prob" in 100) or bolt spell of type "typ" in
+direction "dir" for "dam" points of damage.
+
+<FONT COLOR="#00FF00">Parameters</FONT>
+> "prob" is the number of times out of 100 that the bolt will actually
+  be a beam. Obviously this value should range from 1 to 99 (0 will
+  always give a beam, 100 or higher will always give a beam. There are
+  separate functions for these cases).
+> "typ" is the type of damage
+  <A HREF="fields.html">GF_fields</A>
+> "dir" must be from 0 to 9.
+  <A HREF="fields.html">direction</A>
+> "dam" is the number of points of damage.
+
+----------------------------------------------------------------------
+
+<FONT COLOR="#FF0000">=== alchemy ===</FONT>
+
+<FONT COLOR="#00FF00">Declaration</FONT>
+    extern bool alchemy(void);
+
+<FONT COLOR="#00FF00">File</FONT>
+    spells2.c
+
+<FONT COLOR="#00FF00">Comment</FONT>
+/* Turns an object into gold, gain some of its value in a shop */
+
+<FONT COLOR="#00FF00">Description</FONT>
+The player selects an object (and quantity if it applies) from the
+inventory or the floor and attempts to turn it into gold. If the
+price of the item is < 0 then the player gains nothing (fool's gold),
+otherwise the player gets a third of the price in gold. Artifacts are
+not affected.
+
+----------------------------------------------------------------------
+
+<FONT COLOR="#FF0000">=== alter_reality ===</FONT>
+
+<FONT COLOR="#00FF00">Declaration</FONT>
+    extern void alter_reality(void);
+
+<FONT COLOR="#00FF00">File</FONT>
+    spells2.c
+
+<FONT COLOR="#00FF00">Comment</FONT>
+(none)
+
+<FONT COLOR="#00FF00">Description</FONT>
+The player leaves the level immediately.
+
+----------------------------------------------------------------------
+
+<FONT COLOR="#FF0000">=== teleport_swap ===</FONT>
+
+<FONT COLOR="#00FF00">Declaration</FONT>
+    extern void teleport_swap(int dir);
+
+<FONT COLOR="#00FF00">File</FONT>
+    spells2.c
+
+<FONT COLOR="#00FF00">Comment</FONT>
+(none)
+
+<FONT COLOR="#00FF00">Description</FONT>
+Player swaps places with target in direction "dir". The target must be
+a monster. It will not work if the space-time continuum can not be
+disrupted or if the monster resists teleportation.
+
+----------------------------------------------------------------------
+
+<FONT COLOR="#FF0000">=== project_meteor ===</FONT>
+
+<FONT COLOR="#00FF00">Declaration</FONT>
+    extern void project_meteor(int radius, int typ, int dam,
+        u32b flg);
+
+<FONT COLOR="#00FF00">File</FONT>
+    spells2.c
+
+<FONT COLOR="#00FF00">Comment</FONT>
+/*
+ * Apply a "project()" a la meteor shower
+ */
+
+<FONT COLOR="#00FF00">Description</FONT>
+Generate between "rad" and "rad" x 2 ball spells of type "typ" for
+"dam" points of damage. The ball can have various properties as
+denoted by "flg".
+
+<FONT COLOR="#00FF00">Parameters</FONT>
+> "rad" is the minimum number of balls created. "rad" + randint("rad")
+  balls are created. Each ball has a radius of 2 grids. Each target
+  grid is within 5 grids of the player.
+> "typ" is the type of damage
+  <A HREF="fields.html">GF_fields</A>
+> "dam" is the number of points of damage.
+> "flg" is the projection effect
+  <A HREF="fields.html">PROJECT_fields</A>
+
+----------------------------------------------------------------------
+
+<FONT COLOR="#FF0000">=== passwall ===</FONT>
+
+<FONT COLOR="#00FF00">Declaration</FONT>
+    extern bool passwall(int dir, bool safe);
+
+<FONT COLOR="#00FF00">File</FONT>
+    spells2.c
+
+<FONT COLOR="#00FF00">Comment</FONT>
+/*
+ * Send the player shooting through walls in the given direction until
+ * they reach a non-wall space, or a monster, or a permanent wall.
+ */
+
+<FONT COLOR="#00FF00">Description</FONT>
+Move the player through walls in direction "dir". if "safe" then the
+player can not end up in a wall - if they do, the wall is replaced by
+a floor. This does not work in the wilderness, on quest levels, or if
+teleport is not allowed. Stopping on monsters or inside vaults is not
+allowed.
+
+<FONT COLOR="#00FF00">Parameters</FONT>
+> "dir" must be from 0 to 9. It can not be 5.
+  <A HREF="fields.html">direction</A>
+> "safe" must be true if the player is not to be trapped in a wall
+  when the movement is finished.
+
+----------------------------------------------------------------------
+
+<FONT COLOR="#FF0000">=== project_hook ===</FONT>
+
+<FONT COLOR="#00FF00">Declaration</FONT>
+    extern bool project_hook(int typ, int dir, int dam,
+        int flg);
+
+<FONT COLOR="#00FF00">File</FONT>
+    spells2.c
+
+<FONT COLOR="#00FF00">Comment</FONT>
+/*
+ * Hack -- apply a "projection()" in a direction (or at the target)
+ */
+
+<FONT COLOR="#00FF00">Description</FONT>
+Generate a beam/bolt of type "typ" in direction "dir" (or at a target)
+for "dam" points of damage. The beam/bolt can have various properties
+as denoted by "flg".
+
+<FONT COLOR="#00FF00">Parameters</FONT>
+> "typ" is the type of damage
+  <A HREF="fields.html">GF_fields</A>
+> "dir" must be from 0 to 9. 5 means use the current target.
+  <A HREF="fields.html">direction</A>
+> "dam" is the number of points of damage.
+> "flg" is the projection effect
+  <A HREF="fields.html">PROJECT_fields</A>
+
+----------------------------------------------------------------------
+
+<FONT COLOR="#FF0000">=== reset_recall ===</FONT>
+
+<FONT COLOR="#00FF00">Declaration</FONT>
+    extern bool reset_recall(void);
+
+<FONT COLOR="#00FF00">File</FONT>
+    spells2.c
+
+<FONT COLOR="#00FF00">Comment</FONT>
+(none)
+
+<FONT COLOR="#00FF00">Description</FONT>
+Ask the player for a dungeon and appropriate level within the dungeon.
+The player can not specify a dungeon they have not gone to yet. If the
+player chooses levels 99 or 100, the level is set to 98.
+
+----------------------------------------------------------------------
+
+<FONT COLOR="#FF0000">=== get_aim_dir ===</FONT>
+
+<FONT COLOR="#00FF00">Declaration</FONT>
+    extern bool get_aim_dir(int *dp = 0);
+
+<FONT COLOR="#00FF00">File</FONT>
+    xtra2.c
+
+<FONT COLOR="#00FF00">Comment</FONT>
+/*
+ * Get an "aiming direction" from the user.
+ *
+ * The "dir" is loaded with 1,2,3,4,6,7,8,9 for "actual direction", and
+ * "0" for "current target", and "-1" for "entry aborted".
+ *
+ * Note that "Force Target", if set, will pre-empt user interaction,
+ * if there is a usable target already set.
+ *
+ * Note that confusion over-rides any (explicit?) user choice.
+ */
+
+<FONT COLOR="#00FF00">Description</FONT>
+Get an aiming direction from the user and store it in "dp". A target
+can be selected. If the player is confused, the direction will be
+random.
+
+<FONT COLOR="#00FF00">Parameters</FONT>
+> "dp" = player direction.
+
+----------------------------------------------------------------------
+
+<FONT COLOR="#FF0000">=== project_hack ===</FONT>
+
+<FONT COLOR="#00FF00">Declaration</FONT>
+    extern bool project_hack(int typ, int dam);
+
+<FONT COLOR="#00FF00">File</FONT>
+    spells2.c
+
+<FONT COLOR="#00FF00">Comment</FONT>
+/*
+ * Apply a "project()" directly to all viewable monsters
+ *
+ * Note that affected monsters are NOT auto-tracked by this usage.
+ */
+
+<FONT COLOR="#00FF00">Description</FONT>
+Generate beam/bolt spells of type "typ" for "dam" points of damage to
+all viewable monsters in line of site.
+
+<FONT COLOR="#00FF00">Parameters</FONT>
+> "typ" is the type of damage
+  <A HREF="fields.html">GF_fields</A>
+> "dam" is the number of points of damage.
+
+----------------------------------------------------------------------
+
+
+Back to the <A HREF="lua.html">lua help index</A> .
+
+                                                     <FONT COLOR="#008040">This file by Chris Hadgis</FONT>
+</TT></PRE>
+</FONT>
+</body>
+</html>

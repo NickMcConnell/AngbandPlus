@@ -1,7 +1,7 @@
 add_module
 {
 	["name"]    = "ToME",
-	["version"] = { 2, 2, 7 },
+	["version"] = { 2, 3, 0 },
 	["author"]  = { "DarkGod", "darkgod@t-o-m-e.net" },
 	["desc"] = {
 		"The Tales of Middle-earth, the standard and official game.",
@@ -19,10 +19,14 @@ add_module
 	["astral_wild_x"] = 45,
 	["astral_wild_y"] = 19,
 
+	["random_artifact_weapon_chance"] = 30,
+	["random_artifact_armor_chance"] = 20,
+	["random_artifact_jewelry_chance"] = 20,
+
 	["max_plev"] = 50,
 	["max_skill_overage"] = 4,
 	["skill_per_level"] = function()
-		return 5
+		return 6
 	end,
 
 	["mod_savefiles"]=

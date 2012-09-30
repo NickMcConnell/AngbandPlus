@@ -1,6 +1,6 @@
 |||||oy
-~~~~~01|Help|FAQ
-~~~~~02|FAQ
+~~~~~01|Help|FAQ - Spoiler free
+~~~~~02|FAQ - Spoiler free
 #####R                             ToME FAQ
 #####R                     Updated for version 2.2.x
 
@@ -171,57 +171,7 @@ A: Now the panic saves use a different file to save, savefile.pnc
 This file will be loaded first, if present, when the game is started.
 If it loads successfully, save the game immediately. Otherwise, delete
 the panic save, and your old (non-panic) savefile should be safe.
-~~~~~06|Spoilers|Merton the lost Hobbit quest
-#####G------------------------------------------------------------------------------
-#####GQ: I'm in the Maze, but I cannot find Merton!
 
-A: Merton appears on a *random* level between dungeon level 26 (1300') and
-36 (1800'). Each maze level is one panel by one panel in size, but *full* of
-passageways - so you may have to do quite a bit of tunnelling to search the
-whole level.
-
-#####G------------------------------------------------------------------------------
-#####GQ: I've found Merton, now what?
-
-A: There is a new command that has been added to ToME that allows you to pass 
-objects to creatures. What would you try and do if you had a broken leg and 
-needed to get back to the town?
-~~~~~07|Spoilers|Lothlorien Poisoned water quest
-#####G------------------------------------------------------------------------------
-#####GQ: I'm trying to find the Poisoned water quest at Lothlorien, but cannot
-#####G   find the quest entrance!
-
-A: This quest is located in the wilderness. To the west of Lothlorien is 4 
-water squares in an upside down L shape. One of these squares will contain the
-quest. (Viewed from the Wilderness map).
-~~~~~20|Spoilers|God Quest - directions
-~~~~~23|Gods|Quest - Spoilers
-#####G------------------------------------------------------------------------------
-#####GQ: I've been given directions to a temple by my God but can't find the 
-#####G   temple anywhere!
-
-A: It [[[[[BIS] there. However, your god's idea of compass directions that are 
-not directly on the 4 main axes are probably slightly less acurate than your 
-idea. In other words, if your god says it is South-East, s/he means it is 
-somewhere in the quadrant that is between the south and east axes.
-~~~~~21|Spoilers|God Quest - relic
-#####G------------------------------------------------------------------------------
-#####GQ: Where is the relic by god was talking about? I've looked in the lost 
-#####G   temple and can't find it anywhere!
-
-A: It [[[[[BIS] there. However, when your god told you to look for it VERY  
-carefully, s/he meant it. Regardless of your game settings, the relic will only
-be created once in the temple, at a random place. If you have searched the 
-whole temple once over, and not located it, someone else has found it before 
-you, and it is lost forever.
-~~~~~22|Spoilers|God Quest - how many?
-#####G------------------------------------------------------------------------------
-#####GQ: Apparently my god has lost another piece of his relic and wants me to go 
-#####G   find it again. How many of these are there? 
-
-A: You can receive up to five god quests, with the final piece yielding an 
-extra reward. However you will only receive extra quests if you have 
-sucessfully completed all the previous ones. 
 ~~~~~08|Monsters|They are talking to me!
 #####G------------------------------------------------------------------------------
 #####GQ: Farmer Maggot / Melinda Proudfoot keep shouting at me, and I cannot
@@ -240,20 +190,12 @@ the chance to gain pluses to hit and to damage, and also powers from any of the
 available 'realms'. For instance, the realm of fire gives the chance to gain 
 resistance to fire, or fire branding on your weapon. The realm of earth has a 
 chance to confer extra attacks or the power of causing earthquakes and so on.
-~~~~~19|Deathmolds on Mount Doom and other quest areas.
-#####G------------------------------------------------------------------------------
-#####GQ: How do I complete the special no-teleport level quests with a Deathmold?
-
-A: You will need either some morphic oils, some mimicry skill, or the ring of 
-Flare. Deathmolds are marked as experimental for a reason you know. Morphic 
-oils can also help if you're having trouble communictaing with monsters. A very
-beautiful Elf springs to mind as possibly causing some problems if you are in 
-Deathmold form.
 ~~~~~24|Fumblefingers quests
 ~~~~~25|Abbreviations|FF
 #####G------------------------------------------------------------------------------
 #####GQ: What or who is Fumblefingers? How do I get his quests?
-FF is short for Fumblefingers, the name that some players give to the adventurer
+
+A: FF is short for Fumblefingers, the name that some players give to the adventurer
 who keeps having his sword stolen by monsters and asking you to find it for
 him. So named because he often seems to lose it to molds and other creatures
 you wouldn't expect to be able to pickpocket!
@@ -266,11 +208,163 @@ join you, he'll offer to teach you some new skills. Quite handy.
 #####G------------------------------------------------------------------------------
 #####GQ: Where has the option gone to set the number of random quests?
 #####G   Why aren't there any after the Barrow-downs?
-Turning on either of the options "Allow permanent dungeon levels" or "Always 
+
+A: Turning on either of the options "Allow permanent dungeon levels" or "Always 
 create special rooms" will disable random quests.
 Random quests can only be found in the four main dungeons (Barrowdowns, Mirkwood, 
 Mordor and Angband). 
 
+~~~~~27|Weird display
+~~~~~28|Floor tiles displaying incorrectly
+#####G------------------------------------------------------------------------------
+#####GQ: How do I get the dots to show up on floor tiles in Windows XP? I've tried 
+#####G changing the tile character to the brighter dot. Toggling 'Bizarre Display' 
+#####G mode helped with the trailing @@@@@@@@@@@@@@@@@ problem. Any suggestions? I 
+#####G gave up a long time ago and play with graphics tiles now, but I'd like to be 
+#####G able to fix this.
+
+A: In the file ./lib/pref/font_win.prf, either remove or comment out with # the 
+lines that end in /0x1F, e.g.
+# open floor
+# F:1:0x01/0x1F
+Another possibility is to manually change the symbols used with the '%' 
+command, but the previous solution is faster.
+~~~~~29|Dark grey things are difficult to see
+#####G------------------------------------------------------------------------------
+#####GQ: Many things are written in a dark grey color which is next to impossible to 
+#####G read against a black background. Also, some monsters appear in dark grey and 
+#####G are easy to miss! What can I do to fix this?
+
+A: Fix the gamma control of your display. If your display software does not 
+include such a tool, access the 'Interact with Colors' screen in ToME via 
+shift+7, type '4', and modify the gamma correction there. 
+~~~~~30|Game 'balance'
+#####G------------------------------------------------------------------------------
+#####GQ: Why don't you make X class less powerful or Y class more powerful?
+
+A: ToME the player determines how hard the game is. Classes, races, and 
+subraces are neither meant nor desired to be equal in game difficulty. So no, 
+we won't make Axemasters more powerful just to "balance them out", nor will we 
+make Sorcerors weaker.  
+~~~~~31|I keep dying!
+#####G------------------------------------------------------------------------------
+#####GQ: Why do I always start in a terribly difficult, very deep dungeon instead of 
+#####G a town? Is the game really this hard?
+
+A: You have chosen a "Lost soul" character subrace. That's where Lost souls 
+start. They tend to die very quickly, so don't choose them if you're new to ToME. 
+~~~~~32|Invisible character
+#####G------------------------------------------------------------------------------
+#####GQ: My character is invisible. That's great, but how do I know where she is if 
+#####G I can't see her?!
+
+A: You could seek for a way to see invisible things.
+You could go to game options:
+    1. Type = (game options)
+    2. Type 4 (efficiency options)
+    3. Arrow down to 'hilite the player with the cursor'
+    4. Type y to toggle the option to 'yes'
+~~~~~33|Objects|Piles
+#####G------------------------------------------------------------------------------
+#####GQ: I'm standing on a pile of items. How do I see what's in the pile without 
+#####G picking it all up, moving it, or destroying it all?
+A:
+    1. Stand on the pile in question
+    2. Type shift + i (examine)
+    3. Type - (examine items on floor)
+    4. Type * (expand list of items on floor)
+    5. (as needed) Type letter associated with item to look at it more closely.
+
+#####G------------------------------------------------------------------------------
+#####GQ: If I'm standing on a pile of items. Is there a command to see if there is a 
+#####G stairway or jumpgate beneath the pile?
+
+A: Stairs/jumpgates obscured by clutter do still function. You are advised to 
+take a good hard look at your surroundings before creating lots of dungeon 
+clutter.
+    1. You can pick up, move, or eliminate the pile.
+    2. Press l (look), then select the square you wish to inquire about. Press 
+<enter>; it will scroll through everything on the ground, and eventually it 
+ends with "It is in a Void Jumpgate", or whatever.
+~~~~~34|Character choice is too confusing
+~~~~~36|Beginner strategy
+#####G------------------------------------------------------------------------------
+#####GQ: What is a good starting character?
+
+A: Make sure to read the parchment you start the game with!
+
+If you're new to ToME, understand that your characters are going to die a lot. 
+Be prepared for that. In fact, take advantage of it by using the various 
+characters you run to experiment and learn the game's various facets.
+
+Try a warrior. A Dunadan Swordmaster is an excellent combination of race and class.
+
+Try a priest. A Rohan Knight Paladin gives you some magic to go with strong 
+combat, but your terrible stealth will give you a tougher time in some respects.
+
+Try an archer. A Wood-elf Archer will have fewer hitpoints than you're used to, 
+but lets you use excellent ranged combat instead. Also note how your higher 
+stealth wakes up fewer monsters, letting you fight them more on your own terms.
+
+Try a mage. A Dark-elf Mage lets you keep using weapons, while getting a taste 
+of the various magic schools. You have even fewer hitpoints, though, so beware.
+
+Try another mage. A Hobbit Sorceror is a fun character, but the hitpoint 
+penalties make you need to be very careful. You get high-powered magic, though, 
+to more than make up for it.
+
+I would just add that for those who get frustrated in the early levels and want 
+to run a more powerful character that I think the three easiest combinations 
+are probably the Zombie Rohan Knight Unbeliever, the Thunderlord (or Vampire 
+Half-Ogre) Sorceror, and the High-Elf (or Deathmold if you can figure it out) 
+Possessor. Also, you might want to try a priest of Eru or Tulkas. Most of these 
+have low stealth, but should be pretty easy to play up to around level 30, and 
+they offer an attractive range of experiences for the new player.
+~~~~~35|I STILL keep dying!
+#####G------------------------------------------------------------------------------
+#####GQ: I'm getting killed a lot. Can you recommend some starting options to 
+#####G make my chances a little better?
+
+A: Realize that getting killed a lot is to be expected. Having said that, try this:
+At character creation:
+    1. Turn off "always generate very unusual rooms".
+    2. Turn off joke monsters.
+    3. Turn off "always make small levels".
+    4. Regarding the number of random quests: See the Q/A below.
+    5. Do not choose a Lost Soul character.
+
+Later, set these options:
+    1. Turn on "expand the power of the look command".
+    2. Turn on "allow some monsters to carry light".
+    3. Turn on "map remembers all perma-lit grids".
+    4. Turn on "map remembers all torch-lit grids".
+    5. Turn off "monsters learn from their mistakes".
+    6. Turn off "monsters exploit player weaknesses".
+    7. Turn on "monsters behave stupidly".
+    8. Turn off "allow unusually small dungeon levels".
+    9. Turn off "allow empty 'arena' levels".
+
+~~~~~36|Random quests strategy
+#####G------------------------------------------------------------------------------
+#####GQ: How many random quests should I choose?
+
+A: One big question a beginner is faced with is: How many (random) optional 
+quests to choose?
+
+I think this is another area where the beginner should mix it up. The early 
+items from princesses are a great benefit to beginners, but coming to rely on 
+those can be a problem when it comes time to enter deep dungeons and the real nasty 
+quests begin.
+
+Also, high counts, especially, 98 quests can be very frustrating for a beginner 
+when it puts an especially difficult quest on dungeon level 1 or 2.
+
+~~~~~37|Anti-magic Amulets and the Anti-magic shell
+#####G------------------------------------------------------------------------------
+#####GQ: Are Amulets of Anti-magic and the Anti-magic skill related?
+
+A: No. The Anti-magic shell of the Amulet of Anti-magic has nothing to do with 
+the Anti-magic field given off by the skill and Dark Swords. 
 #####G------------------------------------------------------------------------------
 #####GQ: The game is so slow...
 

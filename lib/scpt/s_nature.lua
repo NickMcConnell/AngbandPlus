@@ -8,6 +8,7 @@ GROWTREE = add_spell
 	["mana"] = 	6,
 	["mana_max"] = 	30,
 	["fail"] = 	35,
+	["inertia"] = 	{ 5, 50 },
 	["spell"] = 	function()
 			grow_trees(2 + get_level(GROWTREE, 7))
 			return TRUE
@@ -67,6 +68,7 @@ RECOVERY = add_spell
 				["max_level"] =		{ 10, 30 },
 			},
 	},
+	["inertia"] = 	{ 2, 100 },
 	["spell"] = 	function()
 			local obvious
 			obvious = set_poisoned(player.poisoned / 2)
@@ -106,6 +108,7 @@ REGENERATION = add_spell
 	["mana"] = 	30,
 	["mana_max"] = 	55,
 	["fail"] = 	70,
+	["inertia"] = 	{ 4, 40 },
 	["spell"] = 	function()
 			if player.tim_regen == 0 then return set_tim_regen(randint(10) + 5 + get_level(REGENERATION, 50), 300 + get_level(REGENERATION, 700)) end
 	end,

@@ -23,5 +23,16 @@ Charisma        +1
 Hit Dice Sides  7         
 Exp Penalty     +10%
 
-#####GSkill Bonuses (supplementary to existing skills)
-Sling-mastery              0.000           [0.300]
+#####GRacial Skill Modifiers:
+#####BSkill                Start Mod    Skill Point Gains Mod
+Combat                  
+  Weaponmastery        -1.000           [0.000]
+  Archery		2.000           [0.000]
+    Sling-Mastery	0.000		[0.300]
+Sneakiness              1.200           [0.000]
+  Stealth               5.000           [0.000]
+  Disarming             1.500           [0.000]
+Magic                   
+  Magic-Device          1.800           [0.000]
+Spirituality            9.000           [0.000]
+

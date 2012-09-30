@@ -1249,8 +1249,7 @@ static bool fix_item(int istart, int iend, int ispecific, bool iac,
 static bool research_item(void)
 {
 	clear_bldg(5, 18);
-	identify_fully();
-	return (TRUE);
+	return (identify_fully());
 }
 
 
@@ -1801,7 +1800,7 @@ bool bldg_process_command(store_type *s_ptr, int i)
 
 	case BACT_RESEARCH_MONSTER:
 		{
-			paid = research_mon();
+			paid = !research_mon();
 			break;
 		}
 
@@ -1995,7 +1994,7 @@ bool bldg_process_command(store_type *s_ptr, int i)
 				break;
 			}
 
-			if (!something) msg_print("Well, you have no fate, anyway I'll keep your money!");
+			if (!something) msg_print("Well, you have no fate, but I'll keep your money anyway!");
 
 			paid = TRUE;
 			break;

@@ -4,12 +4,11 @@
 
 #####GDescription
 Much like Skeletons, Zombies too are undead horrors: they are resistant to
-life-draining attacks, and can learn to restore their life-force. Like 
-skeletons, they become resistant to cold-based attacks (actually earlier 
-than skeletons), resist poison and can see invisible. While still 
-vulnerable to cuts (unlike skeletons), Zombies are resistant to Nether. 
-They gain very little nutrition from the food of mortals. However, Zombies
-are, as the name implies, practically mindless.
+life-draining attacks, they become resistant to cold-based attacks (actually
+earlier than skeletons), resist poison and can see invisible, while being still
+vulnerable to cuts (unlike skeletons). They also gain very little nutrition from
+the food of mortals. However, Zombies are, as the name implies, practically
+mindless.
 
 #####GStat Modifiers
 Strength       +2   
@@ -20,6 +19,17 @@ Constitution   +4
 Charisma       -5      
 Hit Dice       +3 sides
 Exp Penalty    +45%
+
+#####GRacial Skill Modifiers:
+#####BSkill                Start Mod    Skill Point Gains Mod
+Combat                  
+  Weaponmastery         0.500           [0.000]
+Sneakiness             -0.100           [0.000]
+  Stealth              -1.000           [0.000]
+  Disarming            -0.200           [0.000]
+Magic                   
+  Magic-Device         -0.200           [0.000]
+Spirituality            0.500           [0.000]
 
 #####GStarting Equipment
 A zombie character begins the game with:

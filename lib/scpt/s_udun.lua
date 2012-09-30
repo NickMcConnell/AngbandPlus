@@ -108,6 +108,7 @@ WRAITHFORM = add_spell
 	["mana"] = 	20,
 	["mana_max"] = 	40,
 	["fail"] = 	95,
+	["inertia"] = 	{ 4, 30 },
 	["spell"] = 	function()
 		       	return set_shadow(randint(30) + 20 + get_level(WRAITHFORM, 40))
 	end,
@@ -127,6 +128,7 @@ FLAMEOFUDUN = add_spell
 	["mana"] = 	70,
 	["mana_max"] = 	100,
 	["fail"] = 	95,
+	["inertia"] = 	{ 7, 15 },
 	["spell"] = 	function()
 			return set_mimic(randint(15) + 5 + get_level(FLAMEOFUDUN, 30), resolve_mimic_name("Balrog"), get_level(FLAMEOFUDUN))
 	end,

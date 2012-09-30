@@ -2389,8 +2389,6 @@ static bool player_birth_aux_ask()
 	 * the following:
 	 * permanent_levels,
 	 * ironman_rooms,
-	 * cth_monsters,
-	 * zang_monsters,
 	 * joke_monsters,
 	 * always_small_level, and
 	 * fate_option

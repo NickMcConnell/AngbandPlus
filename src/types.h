@@ -2448,10 +2448,10 @@ struct skill_type
 	s16b action_mkey;                       /* Action do to */
 
 	s32b i_value;                           /* Actual value */
-	u16b i_mod;                             /* Modifier(1 skill point = modifier skill) */
+	s32b i_mod;                             /* Modifier(1 skill point = modifier skill) */
 
 	s32b value;                             /* Actual value */
-	u16b mod;                               /* Modifier(1 skill point = modifier skill) */
+	s32b mod;                               /* Modifier(1 skill point = modifier skill) */
 	s16b rate;                              /* Modifier decreasing rate */
 
 	u32b uses;                             	/* Number of times used */

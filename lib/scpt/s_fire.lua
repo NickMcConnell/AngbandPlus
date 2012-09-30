@@ -18,6 +18,7 @@ GLOBELIGHT = add_spell
 				["max_level"] =		{ 10, 45 },
 			},
 	},
+	["inertia"] = 	{ 1, 40 },
 	["spell"] =     function()
 		local obvious
 		if get_level(GLOBELIGHT, 50) >= 3 then
@@ -101,6 +102,7 @@ FIERYAURA = add_spell
 				["max_level"] =		{ 5, 40 },
 			},
 	},
+	["inertia"] = 	{ 2, 15 },
 	["spell"] =     function()
 		local type
 		if (get_level(FIERYAURA, 50) >= 8) then
@@ -154,7 +156,7 @@ FIREWALL = add_spell
 	end,
 	["desc"] =      {
 			"Creates a fiery wall to incinerate monsters stupid enough to attack you",
-			"At level 6 it turns into a ball of hell fire"
+			"At level 6 it turns into a wall of hell fire"
 	}
 }
 

@@ -123,14 +123,7 @@ s16b get_skill(int skill)
  */
 s16b get_skill_scale(int skill, u32b scale)
 {
-#if 0
-	/* XXX XXX XXX */
-	return (((s_info[skill].value / 10) * (scale * (SKILL_STEP / 10)) /
-	         (SKILL_MAX / 10)) /
-	        (SKILL_STEP / 10));
-#else
-
-u32b temp;
+	s32b temp;
 
 	/*
 	* SKILL_STEP shouldn't matter here because the second parameter is
@@ -145,8 +138,6 @@ u32b temp;
 	temp = scale * s_info[skill].value;
 
 	return (temp / SKILL_MAX);
-
-#endif
 }
 
 
@@ -385,7 +376,7 @@ void recalc_skills(bool init)
 /*
  * Recalc the skill value
  */
-void recalc_skills_theory(s16b *invest, s32b *base_val, u16b *base_mod, s32b *bonus)
+void recalc_skills_theory(s16b *invest, s32b *base_val, s32b *base_mod, s32b *bonus)
 {
 	int i, j;
 
@@ -450,7 +441,7 @@ void do_cmd_skill()
 	int wid, hgt;
 	s16b skill_points_save;
 	s32b *skill_values_save;
-	u16b *skill_mods_save;
+	s32b *skill_mods_save;
 	s16b *skill_rates_save;
 	s16b *skill_invest;
 	s32b *skill_bonus;
@@ -462,7 +453,7 @@ void do_cmd_skill()
 
 	/* Allocate arrays to save skill values */
 	C_MAKE(skill_values_save, MAX_SKILLS, s32b);
-	C_MAKE(skill_mods_save, MAX_SKILLS, u16b);
+	C_MAKE(skill_mods_save, MAX_SKILLS, s32b);
 	C_MAKE(skill_rates_save, MAX_SKILLS, s16b);
 	C_MAKE(skill_invest, MAX_SKILLS, s16b);
 	C_MAKE(skill_bonus, MAX_SKILLS, s32b);
@@ -596,7 +587,7 @@ void do_cmd_skill()
 
 	/* Free arrays to save skill values */
 	C_FREE(skill_values_save, MAX_SKILLS, s32b);
-	C_FREE(skill_mods_save, MAX_SKILLS, u16b);
+	C_FREE(skill_mods_save, MAX_SKILLS, s32b);
 	C_FREE(skill_rates_save, MAX_SKILLS, s16b);
 	C_FREE(skill_invest, MAX_SKILLS, s16b);
 	C_FREE(skill_bonus, MAX_SKILLS, s32b);
@@ -1265,7 +1256,7 @@ void compute_skills(s32b *v, s32b *m, int i)
 /*
  * Initialize a skill with given values
  */
-void init_skill(u32b value, s16b mod, int i)
+void init_skill(s32b value, s32b mod, int i)
 {
 	s_info[i].value = value;
 	s_info[i].mod = mod;
@@ -1280,7 +1271,7 @@ void do_get_new_skill()
 {
 	char *items[4];
 	int skl[4];
-	u32b val[4], mod[4];
+	s32b val[4], mod[4];
 	bool used[MAX_SKILLS];
 	int available_skills[MAX_SKILLS];
 	int max = 0, max_a = 0, res, i;

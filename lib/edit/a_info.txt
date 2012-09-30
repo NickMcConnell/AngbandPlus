@@ -274,6 +274,7 @@ D:untamed Lightning as you put it on.
 
 
 # The Power Dragon Scale Mail of Eternity
+# The ULTIMATE armour
 
 N:17:of Eternity
 I:38:30:0
@@ -404,7 +405,7 @@ D:reinforced at vital locations with a second layer of chain.  Magics to
 D:enhance body and mind lie within, and no door can hope to resist the wearer.
 
 
-# The Thunderlord flying suit of Marda
+# The Thunderlord Coat of Marda
 
 N:26:of Marda
 I:36:16:5
@@ -422,7 +423,7 @@ D:powerful wizard since Marda had it and is said to have gained
 D:a couple of undesirable side-effects...
 
 
-# The Thunderlord flying suit of Trone
+# The Thunderlord Coat of Trone
 
 N:27:of Trone
 I:36:16:4
@@ -583,7 +584,7 @@ D:A great helm as steady as the heroes of the Westdike. Mighty were the
 D:blows of Helm, the Hammerhand!
 
 
-# The _DRAGON_ Helm of Dor-Lomin
+# The Dragon Helm of Dor-Lomin
 
 N:39:of Dor-Lomin
 I:32:7:4
@@ -929,6 +930,7 @@ D:A short thrusting blade with a large guard worn by Maedhros the Tall,
 D:eldest son of Feanor, and wielded with his left hand after the loss of 
 D:his right hand in the pits of Thangorodrim.
 
+
 # The Dagger 'Angrist'
 
 N:65:'Angrist'
@@ -1015,7 +1017,7 @@ F:AGGRAVATE | CURSED | HEAVY_CURSE | SHOW_MODS | ESP_DRAGON | ESP_DEMON
 F:AUTO_CURSE
 F:COULD2H
 f:COULD2H
-D:This sword has runes of power incused on its ornate hilt, and a single 
+D:This sword has runes of power incised on its ornate hilt and a single 
 D:blood channel that gleams coldly blue as you grasp this mighty weapon of 
 D:peril.
 
@@ -1310,6 +1312,7 @@ D:This weapon of wrath, cursed with a violent anger, dives hungrily
 D:into the flesh of its enemies. It gathers shadows of death into its 
 D:owner as they inflict wounds that will never heal.
 
+
 # The Long Sword 'Vorpal Blade'
 
 N:92:'Vorpal Blade'
@@ -1320,6 +1323,7 @@ F:VORPAL | SLAY_EVIL | WOUNDING
 F:FREE_ACT | SEE_INVIS | SLOW_DIGEST | REGEN | SPEED | STR | DEX
 D:"One, two! One, two!  And through, and through, the vorpal blade 
 D:went snicker-snack!"
+
 
 # The Beaked Axe of Theoden
 
@@ -1598,7 +1602,6 @@ D:shiny pale sword gleams with the rays of rising sun as you invoke
 D:its power of commanding legions of powerful immortal warriors...
 
 
-
 # The Mighty Hammer 'Grond'
 
 N:111:'Grond'
@@ -1855,7 +1858,7 @@ D:except that it pulses with overwhelming power.
 
 
 # Boomerang Artifacts
-# The Boomerang of Beor
+# The Metal Boomerang of Beor
 
 N:128:of Beor
 I:15:4:4
@@ -1867,7 +1870,7 @@ D:Beor's boomerang makes its wielder as agile as the winds,
 D:and as hard to harm.
 
 
-# The Boomerang 'Glimdrir'
+# The Metal Boomerang 'Glimdrir'
 
 N:129:'Glimdrir'
 I:15:4:3
@@ -1893,6 +1896,7 @@ Z:weigh magic
 D:Gandalf's long, flowing robe.  It provides insight and allows the 
 D:wearer to see things not seen by all.
 
+
 # The Sling of the Thain
 
 N:131:of the Thain
@@ -1903,6 +1907,7 @@ F:HIDE_TYPE | DEX | CON
 F:RES_NETHER | XTRA_SHOTS | XTRA_MIGHT | SHOW_MODS
 D:This sling was crafted by Faramir I, Thain of the Shire, just in case 
 D:the nasties of his father's stories ever dare to enter the Shire again.
+
 
 # The Whip 'Lasher'
 
@@ -1938,6 +1943,7 @@ P:0:3d6:8:5:0
 F:BRAND_ACID | BRAND_ELEC | BRAND_FIRE | BRAND_COLD | BRAND_POIS
 D:A rounded pebble imbued with the powers of the elements.
 
+
 # The Harp of Maglor
 
 N:137:of Maglor
@@ -1949,6 +1955,7 @@ F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | ESP_UNIQUE |
 D:This harp that once belonged to Maglor makes those who use it seem 
 D:more forceful and convincing.  It is also said that those who have 
 D:used it found themselves walking faster, as if to an unheard beat.
+
 
 # The Drum of the Sky
 
@@ -1964,6 +1971,7 @@ D:wearer an echo of the beauty of the sky, and protects him from the
 D:elements day or night.  The beat of the drum marks the passage of 
 D:time, and will make time pass differently for the wearer.
 
+
 # The Harp of Daeron
 
 N:139:of Daeron
@@ -1974,6 +1982,7 @@ F:CHR | SPEED | WIS | RES_SOUND | STEALTH | LUCK
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD
 D:A pretty harp that makes those who play it beautiful, wise and 
 D:fast.
+
 
 # The Dwarven Pick of Erebor
 
@@ -1987,6 +1996,7 @@ F:RES_CHAOS | RES_LITE | RES_DARK
 a:HARDCORE=EREBOR
 D:A pick that provides a magical light to see by while tunnelling.
 
+
 # The Drum of the Druedain
 
 N:141:of the Druedain
@@ -1998,6 +2008,7 @@ a:HARDCORE=DRUEDAIN
 D:The fabled Drum of the Druedain that will protect those who play it 
 D:from darkness and poison attacks.  It also aids in the seeing of 
 D:warm blooded creatures.
+
 
 # The Horn of Rohan
 
@@ -2011,6 +2022,7 @@ D:A horn carved from the bones of the Dragon of Ered-Mithrin, this
 D:heirloom of the House of Eorl bestows to its user the gifts of 
 D:courage and command.
 
+
 # The Horn of Helm
 
 N:143:of Helm
@@ -2022,6 +2034,7 @@ a:HARDCORE=HELM
 D:Heedless of cold, fearless of darkness -- besiegers fled at the wind 
 D:of the solitary coming of King Helm Hammerhand, proclaimed by a single 
 D:horn-blast in the dead of winter.
+
 
 # The Horn of Boromir
 
@@ -2037,7 +2050,7 @@ D:sets forth on a journey.  "Loud and clear it sounds in the valleys of the
 D:hills... and then let all the foes of Gondor flee!"
 
 
-# The black axe of Gothmog, which slew Fingon
+# The Lochaber Axe of Gothmog, which slew Fingon
 
 N:145:of Gothmog
 I:22:28:-4
@@ -2107,6 +2120,7 @@ D:his patch almost keeps young poachers at bay, but once they get
 D:within range they soon flee for less painful pastures, frequently 
 D:with rounded pebbles stinging their backsides...
 
+
 # The Long Sword of Angmar (a.k.a. anti-Ringil)
 # The next time someone wields an unidentified Long Sword (4d5) ...
 
@@ -2123,9 +2137,6 @@ D:A mighty curse to all those who wield it apart from its master,
 D:the torture of the wraithworld awaits those who dare.
 
 
-# The XBow/Bolt of Feanor
-# The ULTIMATE bow/bolt for an archer class
-
 # The Seeker Bolt of Feanor
 
 N:151:of Feanor
@@ -2141,6 +2152,7 @@ D:against those foes who are already dead.
 
 
 # The Heavy Crossbow of Eternity
+# The ULTIMATE bow for an archer class
 
 N:152:of Eternity
 I:19:24:5
@@ -2166,6 +2178,7 @@ F:TUNNEL | STR | STEALTH | INFRA | ESP_ANIMAL
 D:This powerful piece of armour was made using the remains of 
 D:the Sandworm Queen.
 
+
 # The Lochaber Axe 'Dragonbane'
 
 N:154:'Dragonbane'
@@ -2177,6 +2190,7 @@ F:RES_POIS | SHOW_MODS
 D:Forged by the Dwarves to defend their home of Khazad-dum from dragons, 
 D:this axe has been lost to time... until now.
 
+
 # The Light War Axe 'Limbslicer'
 
 N:155:'Limbslicer'
@@ -2186,6 +2200,7 @@ P:0:2d5:12:15:0
 F:DEX | VORPAL | HIDE_TYPE | SHOW_MODS | WOUNDING
 D:The Petty-dwarves of Bathak forged this blade, and it shares their thirst 
 D:for blood.
+
 
 # The Broad Axe 'Orchast'
 
@@ -2200,6 +2215,7 @@ a:HARDCORE=ORCHAST
 D:Forged by the dwarves of Khazad-dum in a time of desperation, 
 D:this axe turned many a battle against the invading orcs.
 
+
 # The Hatchet of the Night
 
 N:157:of the Night
@@ -2212,6 +2228,7 @@ a:HARDCORE=NIGHT
 D:Found on an unmarked grave after a violent storm, this hatchet 
 D:has a sinister aura of darkness and decay.
 
+
 # The Slaughter Axe 'Naturebane'
 
 N:158:'Naturebane'
@@ -2223,6 +2240,7 @@ F:HIDE_TYPE | SHOW_MODS | ACTIVATE | DRAIN_HP
 a:HARDCORE=NATUREBANE
 D:Used by the orcs in their battle at Dagor Bragollach against the elves, this 
 D:axe has a bloodthirst for nature.
+
 
 # The Light War Axe of Ice
 
@@ -2254,7 +2272,7 @@ D:and makes audible whispers from the deceased.
 
 ### note prices and rarities may have to be adjusted ###
 
-# The Catapult Trap of Ahromarwar 
+# The Bolt (Catapult ?) Trap Set of Ahromarwar 
 
 N:161:of Ahromarwar
 I:46:3:3
@@ -2265,7 +2283,8 @@ D:A trap that can almost never be detected.  Its missiles may be mere pebbles,
 D:but fired at an incredibly high velocity to penetrate even the toughest 
 D:hide or armour.
 
-# The Device Trap 'Hanisbroner's Surprise'
+
+# The Device Trap Set 'Hanisbroner's Surprise'
 
 N:162:'Hanisbroner's Surprise'
 I:46:6:3
@@ -2275,7 +2294,8 @@ F:STEALTH | XTRA_SHOTS | TELEPORT_TO | HIDE_TYPE | AUTOMATIC_99
 D:A magical trap, armed with a wand.  Unaccountably, its victims keep 
 D:on coming back for more...
 
-# The Bolt Trap 'Merlion Karc's Demonbane'
+
+# The Arrow (Bolt ?) Trap Set 'Merlion Karc's Demonbane'
 
 N:163:'Merlion Karc's Demonbane'
 I:46:2:2
@@ -2312,7 +2332,7 @@ a:SPELL=Artifact Lebauhaum
 D:With the Helm 'Lebohaum' your head is safe!
 
 
-# The Balance Dragon Scale Mail 'Mediator'
+# The Power Dragon Scale Mail 'Mediator'
 
 N:166:'Mediator'
 I:38:30:0
@@ -2328,7 +2348,7 @@ D:A mighty suit of dragon armour, set with the scales of dragons of both
 D:Law and Chaos, and with power over both.
 
 
-# The Hard Leather Armor of Himring
+# The Hard Leather Armour of Himring
 
 N:167:of Himring
 I:36:6:0
@@ -2479,6 +2499,7 @@ D:will go charging into battle heedless of danger, with the
 D:strength and endurance of a madman.  Nor will he fear poison, for 
 D:the Southron barbarians handle poisoned darts naturally.
 
+
 # The Lead-Filled Mace 'Skullcleaver'
 
 N:177:'Skullcleaver'
@@ -2534,6 +2555,7 @@ D:ally to those journeying through halls of stone under mountains.
 
 
 # The demon garbs of Gothmog
+# The Demonblade of Gothmog
 
 N:181:of Gothmog
 I:115:55:-20
@@ -2543,6 +2565,9 @@ F:SHOW_MODS | SLAY_DEMON | SLAY_EVIL | BRAND_FIRE | BRAND_POIS
 F:LUCK | CHAOTIC | LITE1 | WOUNDING | RES_MORGUL | WIELD_CAST
 F:HEAVY_CURSE | AUTO_CURSE
 
+
+# The Demonshield of Gothmog
+
 N:182:of Gothmog
 I:115:56:4
 W:15:0:70:500
@@ -2551,6 +2576,9 @@ F:DEX | INVIS | SUST_STR | SUST_CON | SUST_DEX
 F:FEATHER | SH_FIRE | FREE_ACT | HOLD_LIFE
 F:HEAVY_CURSE | AUTO_CURSE | WIELD_CAST
 
+
+# The Demonhorn of Gothmog
+
 N:183:of Gothmog
 I:115:57:-5
 W:20:0:30:500
@@ -2558,6 +2586,7 @@ P:2:1d1:0:0:13
 F:LITE2 | REGEN | ESP_DEMON
 F:CHR | SLOW_DIGEST | SEE_INVIS
 F:HEAVY_CURSE | AUTO_CURSE | WIELD_CAST
+
 
 # The Long Sword 'Durandil'
 # The name comes from a french parody of dungeon dwelling in mp3
@@ -2570,6 +2599,7 @@ F:RES_FEAR | LUCK
 F:ACTIVATE | SHOW_MODS
 a:SPELL=Artifact Durandil
 D:Don't go adventuring without your Durandil sword!
+
 
 # The Phial of Undeath
 
@@ -2608,7 +2638,7 @@ a:HARDCORE=PALANTIR
 D:A shining white ball of unbreakable crystal, the ancient Palantiri 
 D:were used by kings of Numenor and later by the Exiles for rapid 
 D:communication between distant lands.  Nothing is hidden from one who 
-D:gazes into a Palantir: but the observed will also be aware of the 
+D:gazes into a Palantir, but the observed will also be aware of the 
 D:observer, as was Sauron when Saruman tried to spy on him with this 
 D:particular Palantir.
 
@@ -2630,6 +2660,7 @@ D:its surface, giving you visions of a reality considerably less solid than this
 D:one.  You feel your senses reel, and must make a conscious effort not to throw 
 D:this ring as far from you as possible.
 
+
 # The Blue Stone 'Toris Mejistos'
 
 N:204:'Toris Mejistos'
@@ -2644,6 +2675,7 @@ F:INSTA_ART | SPECIAL_GENE | WATER_BREATH
 F:SPELL_CONTAIN | WIELD_CAST
 D:A blue stone, with an incredible number of incredibly small runes of power 
 D:on it.  It carries many secrets.
+
 
 # The Ring of Durin - last of the Seven Rings of the Dwarf-lords
 
@@ -2661,6 +2693,7 @@ D:war on the Elves, but was given as a gift from Celebrimbor to King Durin
 D:III of Moria in token of friendship:  nevertheless, Sauron in disguise 
 D:had a hand in its making, and so it is cursed, and draws evil towards it.
 
+
 # The Elfstone 'Elessar'
 
 N:206:'Elessar'
@@ -2674,6 +2707,7 @@ a:HARDCORE=ELESSAR
 D:This green gem glows with inner light.  Aragorn son of Arathorn wore 
 D:it at the Battle of the Pelennor Fields, and he was himself given the 
 D:name of 'Elessar' by the people of Gondor because of this.
+
 
 # The Jewel 'Evenstar'
 
@@ -2705,7 +2739,9 @@ D:communication between distant lands.  This Palantir, however, was
 D:taken by Sauron long ago, and mastered to his evil uses, to the 
 D:destruction of all others who would gaze into it.
 
+
 # some artifact bolts
+# The Silver Bolt 'Balefire'
 
 N:209:'Balefire'
 I:18:3:0
@@ -2717,6 +2753,9 @@ D:This silver-tipped bolt, ablaze with undying celestial fire,
 D:is especially potent against undead and creatures of the 
 D:netherworld; it even points the way to places where such 
 D:enemies lurk.
+
+
+# The Silver Bolt 'Stone-biter'
 
 N:210:'Stone-biter'
 I:18:3:3
@@ -2731,6 +2770,9 @@ D:crafted Stone-biter also inscribed the shaft with powerful
 D:doom-spells against the orcs and trolls who had destroyed his 
 D:ancestral home.
 
+
+# The Seeker Bolt 'Heart's Blood'
+
 N:211:'Heart's Blood'
 I:18:2:5
 W:85:40:3:35000
@@ -2739,6 +2781,9 @@ F:VORPAL | WOUNDING | CRIT |
 D:The barbed head of this bolt glows deep red with terrible runes 
 D:of destruction; legend has it that Heart's Blood cannot hit its 
 D:mark without causing a mortal wound.
+
+
+# The Seeker Bolt 'Scale-piercer'
 
 N:212:'Scale-piercer'
 I:18:2:0
@@ -2750,3 +2795,96 @@ D:This bolt, crafted from the bones of a Great Wyrm, is less famous
 D:and less powerful than Bard's black arrow.  Nonetheless it enables 
 D:the owner to find dragons unerringly, face them bravely, and kill 
 D:them swiftly.
+
+
+# Artifacts from ToME 3.0.0 for the new maps of Lord Dimwit
+# The pval was set to the average of the flag values.
+
+
+# The Mage Staff of Forochel
+
+N:213:of Forochel
+I:6:1:3
+W:65:70:60:60000
+P:0:3d4:-12:-8:0
+F:INT | WIS | MANA | SPELL | INFRA | SEE_INVIS
+F:SUST_INT | SUST_WIS | RES_BLIND | IM_COLD | SENS_FIRE
+F:SPECIAL_GENE | WIELD_CAST
+F:COULD2H
+f:COULD2H
+D:A shaft of pure, invincible crystal cut from the heart of one 
+D:of the great glaciers ringing the Ice-Bay of Forochel. 
+D:While you hold it, your mind feels as clear as the winter sky.
+
+
+# The Elven Cloak of Mellyrn
+
+N:214:of Mellyrn
+I:35:2:4
+W:40:40:5:65000
+P:4:0d0:0:0:20
+F:HIDE_TYPE | INVIS | DEX |  SPEED | STEALTH | LUCK
+F:SUST_DEX | RES_LITE | RES_DARK | SPECIAL_GENE
+D:Bearing the same lyrical name as the great trees of Lothlorien 
+D:and containing in its close-woven folds the speed and skill of 
+D:the Galadrim, this grey cloak is ideal for those who travel in 
+D:forests.
+
+
+# The Bluesteel Blade of Ephel Duath
+
+N:215:of Ephel Duath
+I:23:31:-3
+W:60:60:50:30000
+P:0:2d6:-20:-18:0
+F:STR | WIS | CHR | BRAND_POIS | VAMPIRIC | VORPAL
+F:INVIS | AGGRAVATE | CURSED | HEAVY_CURSE | SHOW_MODS
+F:SPECIAL_GENE
+D:This filthy orc-blade is famed for vile deeds of torture and blood, 
+D:and its wielder will never cease to fear treachery.
+
+
+# The Slaughter Axe 'Garachoth'
+
+N:216:'Garachoth'
+I:24:30:2
+W:70:300:400:91000
+P:0:7d5:18:18:-20
+F:STR | CON | SPEED | LEVELS | BLACK_BREATH
+F:KILL_DEMON | SLAY_ANIMAL |  BRAND_FIRE | VORPAL
+F:RES_FEAR | RES_FIRE | RES_CHAOS | RES_NETHER 
+F:HIDE_TYPE | SHOW_MODS | SPECIAL_GENE
+D:A ghastly axe with the soul of a demon lord trapped inside, this horrifying 
+D:creation reverberates with the screams of the damned.  As you gaze into its 
+D:glassy, translucent blade, it seems that endless sulphrous wastelands 
+D:stretch away from you into the distance, obscured, by sheets of fire.
+
+
+# The Set of Cesti 'Skycleaver'
+
+N:217:'Skycleaver'
+I:31:5:1
+W:40:45:40:100000
+P:5:1d1:16:7:16
+F:STR | CON | DEX | CHR | LUCK | FLY
+F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_POIS
+F:HIDE_TYPE | SHOW_MODS | SPECIAL_GENE
+D:The handgear of a legendary dragonslaying hero.  The wearer of these 
+D:wyrmskin gauntlets will be versed in all aerial ways, and will fear no 
+D:dragon that walks or flies.
+
+
+# The Pair of Metal Shod Boots of the Machine
+# Replaced the stealth malus with AGGRAVATE
+
+N:218:of the Machine
+I:30:6:3
+W:30:100:170:19000
+P:6:1d1:0:0:24
+F:INT | SPEED | TUNNEL | AGGRAVATE 
+F:RES_CHAOS | RES_SHARDS | RES_CONF
+F:ESP_NONLIVING | HIDE_TYPE | SPECIAL_GENE
+D:A massive pair of adamantine boots studded with gold, the final and 
+D:greatest product of the petty-dwarven magical forge.  Despite 
+D:the great powers they contain, they are heavy and awkward enough to 
+D:make quite a racket whenever you move.

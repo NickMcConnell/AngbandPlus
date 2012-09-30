@@ -494,6 +494,7 @@ add_building_action
 				quest(LIBRARY_QUEST).status = QUEST_STATUS_REWARDED
 				book = create_object(TV_BOOK, 61)
 				book.art_name = quark_add(player_name())
+				book.found = OBJ_FOUND_REWARD
 				set_aware(book)
 				set_known(book)
 				inven_carry(book, FALSE)

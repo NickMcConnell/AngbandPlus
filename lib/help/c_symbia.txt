@@ -43,9 +43,9 @@ Monster-lore            1.000           [1.100]
   Symbiosis             1.000           [0.800]
 
 #####GStarting Equipment
-A symbiant begins the game with:
-    A dagger
-    A scroll of summon never-moving pet
+A Symbiant begins the game with:
+    a Dagger
+    a Scroll of Summon Never-Moving Pet
 
 
 #####GSymbiosis

@@ -19,3 +19,13 @@ Charisma        -3
 Hit Dice Sides  12         
 Exp Penalty     +30%
 
+#####GRacial Skill Modifiers:
+#####BSkill                Start Mod    Skill Point Gains Mod
+Combat                  
+  Weaponmastery         2.000           [0.000]
+Sneakiness             -0.100           [0.000]
+  Stealth              -2.000           [0.000]
+  Disarming            -0.300           [0.000]
+Magic                   
+  Magic-Device         -0.500           [0.000]
+Spirituality           -2.500           [0.000]

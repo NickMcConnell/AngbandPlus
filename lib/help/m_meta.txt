@@ -10,11 +10,11 @@ contains all the meta school spells within it's bindings.
 
 Worshipping the God Manwe Sulimo also gives the ability to cast spells from
 the meta school at a level of 1/3 of your prayer level. e.g. If the skill 
-"Spirituality: Prayer" is at level 12, you can cast up to level 4 meta school
+"Spirituality: Prayer" is at level 15, you can cast up to level 5 meta school
 spells.
 
 #####sMeta Spells
-There are four spells available for the meta school. These Spells are:
+There are five spells available for the meta school. These Spells are:
 1. [[[[[sRecharge] (school level 5)
    Taps on the ambient mana to recharge an object's power (charges or mana).
 2. [[[[[sDisperse Magic] (school level 15)
@@ -37,3 +37,40 @@ There are four spells available for the meta school. These Spells are:
    you to it.
 #####v   Your Meta and Conveyance skills must have reached a combined average level 
 #####v   of 30 in order to cast this spell.
+5. [[[[[sInertia Control] (school level 37)
+   Changes the energy flow of a spell to be continuously recasted at a given
+   interval. The inertia controlled spell reduces your maximum mana by four
+   times its cost.
+   
+#####R=== List of Controllable Spells ===
+   Armor of Fear
+   Banishment
+   Disperse Magic
+   Disruption Shield
+   Elemental Shield
+   Ent's Potion
+   Essence of Speed
+   Fiery Shield
+   Flame of Udun
+   Globe of Light
+   Grow Trees
+   Ice Storm
+   Invisibility
+   Phase Door
+   Poison Blood
+   Probability Travel
+   Recovery
+   Regeneration
+   Remove Curses
+   Reveal Ways
+   Sense Hidden
+   Sense Monsters
+   Shake
+   Stone Skin
+   Teleportation
+   Thunderstorm
+   Tidal Wave
+   Vapor
+   Vision
+   Wings of Winds
+   Wraithform

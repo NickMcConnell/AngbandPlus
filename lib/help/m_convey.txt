@@ -19,8 +19,8 @@ There are six spells available for the conveyance school. These Spells are:
    Teleports you on a small scale range.
    At spell level 30 it creates void jumpgates.
 2. [[[[[sDisarm] (school level 3)
-   Destroys doors.
-   At spell level 10 it disarms traps.
+   Destroys doors and disarms traps.
+   At spell level 10 it unlocks doors and disarms traps.
 3. [[[[[sTeleportation] (school level 10)
    Teleports you around the level.
    The casting time decreases with level.

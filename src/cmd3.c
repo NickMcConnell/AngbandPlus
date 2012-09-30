@@ -703,8 +703,8 @@ void do_cmd_destroy(void)
 		}
 	}
 
-	/* Take a turn */
-	energy_use = 100;
+	/* Take no time, just like the automatizer */
+	energy_use = 0;
 
 	object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
 

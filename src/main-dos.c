@@ -65,6 +65,13 @@
  * clears the screen and then fails silently.  All other modes fail
  * instantly.  To recover from such "invisible" modes, you can try
  * typing escape, plus control-x, plus escape.  XXX XXX XXX
+ *
+ * Comment by Eric Stevens (tome@eastevens.com):
+ *
+ * This file has been modified to work with Allegro 4.0.3 that comes with
+ * DJGPP 2.0.3. This modification allows ToME to use the .dat font files
+ * provided with the Angband release for DOS.
+ *
  */
 
 #include "angband.h"
@@ -264,6 +271,7 @@ static char xtra_music_dir[1024];
 /*
  * List of the available videomodes to reduce executable size
  */
+ /*
 DECLARE_GFX_DRIVER_LIS
 (
 	GFX_DRIVER_VBEAF
@@ -281,12 +289,12 @@ DECLARE_GFX_DRIVER_LIS
 	GFX_DRIVER_VIDEO7
 	GFX_DRIVER_VESA1
 )
-
+*/
 
 /*
  * Declare the videomode list
  */
-DECLARE_COLOR_DEPTH_LIST(COLOR_DEPTH_8)
+//DECLARE_COLOR_DEPTH_LIST(COLOR_DEPTH_8)
 
 
 /*
@@ -1717,98 +1725,104 @@ GRX_BITMAP *load_grx_bmps(PACKFILE *f, FNTfile_header *hdr,
 /*
  * ???
  */
-FONT *import_grx_font(char *fname)
-{
-	PACKFILE *f;
 
-	/* GRX font header */
-	FNTfile_header hdr;
-
-	/* number of characters in the font */
-	int numchar;
-
-	/* table of widths for each character */
-	unsigned short *wtable = NULL;
-
-	/* array of font bitmaps */
-	GRX_BITMAP *bmp;
-
-	/* the Allegro font */
-	FONT *font = NULL;
-
-	FONT_PROP *font_prop;
-	int c, c2, start, width;
-
-
-	f = pack_fopen(fname, F_READ);
-
-	if (!f) return NULL;
-
-	/* read the header structure */
-	pack_fread(&hdr, sizeof(hdr), f);
-
-	/* check magic number */
-	if (hdr.magic != FONTMAGIC)
+FONT* import_grx_font(char *fname)
 	{
-		pack_fclose(f);
 		return NULL;
 	}
 
-	numchar = hdr.maxchar - hdr.minchar + 1;
-
-	/* proportional font */
-	if (!hdr.isfixed)
-	{
-		wtable = malloc(sizeof(unsigned short) * numchar);
-		pack_fread(wtable, sizeof(unsigned short) * numchar, f);
-	}
-
-	bmp = load_grx_bmps(f, &hdr, numchar, wtable);
-
-	if (!bmp) goto get_out;
-
-	if (pack_ferror(f)) goto get_out;
-
-	font = malloc(sizeof(FONT));
-	font->height = -1;
-	font->dat.dat_prop = font_prop = malloc(sizeof(FONT_PROP));
-
-	start = 32 - hdr.minchar;
-	width = hdr.width;
-
-	for (c = 0; c < FONT_SIZE; c++)
-	{
-		c2 = c + start;
-
-		if ((c2 >= 0) && (c2 < numchar))
-		{
-			if (!hdr.isfixed) width = wtable[c2];
-
-			font_prop->dat[c] = create_bitmap_ex(8, width, hdr.height);
-			memcpy(font_prop->dat[c]->dat, bmp[c2], width*hdr.height);
-		}
-		else
-		{
-			font_prop->dat[c] = create_bitmap_ex(8, 8, hdr.height);
-			clear(font_prop->dat[c]);
-		}
-	}
-
-get_out:
-
-	pack_fclose(f);
-
-	if (wtable) free(wtable);
-
-	if (bmp)
-	{
-		for (c = 0; c < numchar; c++) free(bmp[c]);
-
-		free(bmp);
-	}
-
-	return font;
-}
+//FONT *import_grx_font(char *fname)
+//{
+//	PACKFILE *f;
+//
+//	/* GRX font header */
+//	FNTfile_header hdr;
+//
+//	/* number of characters in the font */
+//	int numchar;
+//
+//	/* table of widths for each character */
+//	unsigned short *wtable = NULL;
+//
+//	/* array of font bitmaps */
+//	GRX_BITMAP *bmp;
+//
+//	/* the Allegro font */
+//	FONT *font = NULL;
+//
+//	FONT_PROP *font_prop;
+//	int c, c2, start, width;
+//
+//
+//	f = pack_fopen(fname, F_READ);
+//
+//	if (!f) return NULL;
+//
+//	/* read the header structure */
+//	pack_fread(&hdr, sizeof(hdr), f);
+//
+//	/* check magic number */
+//	if (hdr.magic != FONTMAGIC)
+//	{
+//		pack_fclose(f);
+//		return NULL;
+//	}
+//
+//	numchar = hdr.maxchar - hdr.minchar + 1;
+//
+//	/* proportional font */
+//	if (!hdr.isfixed)
+//	{
+//		wtable = malloc(sizeof(unsigned short) * numchar);
+//		pack_fread(wtable, sizeof(unsigned short) * numchar, f);
+//	}
+//
+//	bmp = load_grx_bmps(f, &hdr, numchar, wtable);
+//
+//	if (!bmp) goto get_out;
+//
+//	if (pack_ferror(f)) goto get_out;
+//
+//	font = malloc(sizeof(FONT));
+//	font->height = -1;
+//	font->dat.dat_prop = font_prop = malloc(sizeof(FONT_PROP));
+//
+//	start = 32 - hdr.minchar;
+//	width = hdr.width;
+//
+//	for (c = 0; c < FONT_SIZE; c++)
+//	{
+//		c2 = c + start;
+//
+//		if ((c2 >= 0) && (c2 < numchar))
+//		{
+//			if (!hdr.isfixed) width = wtable[c2];
+//
+//			font_prop->dat[c] = create_bitmap_ex(8, width, hdr.height);
+//			memcpy(font_prop->dat[c]->dat, bmp[c2], width*hdr.height);
+//		}
+//		else
+//		{
+//			font_prop->dat[c] = create_bitmap_ex(8, 8, hdr.height);
+//			clear(font_prop->dat[c]);
+//		}
+//	}
+//
+//get_out:
+//
+//	pack_fclose(f);
+//
+//	if (wtable) free(wtable);
+//
+//	if (bmp)
+//	{
+//		for (c = 0; c < numchar; c++) free(bmp[c]);
+//
+//		free(bmp);
+//	}
+//
+//	return font;
+//}
 
 
 /*

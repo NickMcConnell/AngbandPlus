@@ -23,7 +23,7 @@ add_quest
 				-- get the direction that the dungeon lies from lothlorien/angband
 				local home, home_axis, home_distance, home2, home2_axis, home2_distance = get_god_quest_axes()
 
-				print_hook("#####yGod quest!\n")
+				print_hook("#####yGod quest "..god_quest.quests_given.."!\n")
 				print_hook("Thou art to find the lost temple of thy God and\n");
 				print_hook("to retrieve the lost part of the relic for thy God! \n")
 				if home_axis ~= "close" then
@@ -77,7 +77,8 @@ add_quest
 				local give_god_quest = magik(god_quest.CHANCE_OF_GOD_QUEST)
 
 				-- check player is worshipping a god, not already on a god quest.
-				if (player.astral ~= FALSE) or (player.pgod <= 0) or (quest(GOD_QUEST).status == QUEST_STATUS_TAKEN)
+				if (player.astral ~= FALSE) or (player.pgod <= 0) 
+				or (quest(GOD_QUEST).status == QUEST_STATUS_TAKEN) or (quest(GOD_QUEST).status == QUEST_STATUS_FAILED)
 				or (god_quest.quests_given >= god_quest.MAX_NUM_GOD_QUESTS) or (give_god_quest == FALSE)
 				or ((current_dungeon_idx == god_quest.DUNGEON_GOD) and (dun_level > 0)) or (player.lev <= god_quest.dun_minplev) then
 					return
@@ -238,6 +239,28 @@ add_quest
 				-- Make sure quests can be given again if neccesary
 				quest(GOD_QUEST).status = QUEST_STATUS_UNTAKEN
 				return TRUE
+			end
+		end,
+		[HOOK_CHAR_DUMP] = function()
+
+			if (god_quest.quests_given > 0) then
+
+				local relics = god_quest.relics_found
+				local append_text = ""
+				if (god_quest.relics_found == god_quest.MAX_NUM_GOD_QUESTS) then
+					relics = "all"
+					append_text = " and pleased your god"
+				else
+					if (god_quest.relics_found == 0) then
+						relics = "none"
+					end
+					if (quest(GOD_QUEST).status == QUEST_STATUS_FAILED) then
+						append_text = " and failed in your quest"
+					end
+				end
+
+				print_hook("\n You found "..(relics).." of the relic pieces"..(append_text)..".")
+
 			end
 		end,
 	},

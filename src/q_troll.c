@@ -102,7 +102,7 @@ bool quest_troll_finish_hook(char *fmt)
 	if (q_idx != QUEST_TROLL) return FALSE;
 
 	c_put_str(TERM_YELLOW, "I heard about your noble deeds.", 8, 0);
-	c_put_str(TERM_YELLOW, "Keep what you found .. may it serve you well.", 9, 0);
+	c_put_str(TERM_YELLOW, "Keep what you found... may it serve you well.", 9, 0);
 
 	/* Continue the plot */
 	*(quest[q_idx].plot) = QUEST_NAZGUL;
@@ -130,7 +130,7 @@ bool quest_troll_death_hook(char *fmt)
 		cave_set_feat(3, 3, FEAT_LESS);
 		cave[3][3].special = 0;
 
-		cmsg_print(TERM_YELLOW, "Without Tom the trolls wont be able to do much.");
+		cmsg_print(TERM_YELLOW, "Without Tom, the trolls won't be able to do much.");
 		cquest.status = QUEST_STATUS_COMPLETED;
 		del_hook(HOOK_MONSTER_DEATH, quest_troll_death_hook);
 		process_hooks_restart = TRUE;

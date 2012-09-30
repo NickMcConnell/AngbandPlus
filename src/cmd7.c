@@ -4292,7 +4292,6 @@ void do_cmd_alchemist(void)
 	else if (ext == 3)
 	{
 		int item;
-		object_type *o_ptr;
 
 		cptr q, s;
 

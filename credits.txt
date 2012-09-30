@@ -6,7 +6,7 @@ drop me a line please) in no particular order:
   TANG
 - Ceilti <Ceilti@aol.com>, idea of weapons gaining xp, comments, ideas,
   lots of PernAngband related posts on rgra
-- Static Chaos <schaos@freemail.hu>, huge numbers of patchs, ideas, ...
+- Static Chaos <schaos@freemail.hu>, huge numbers of patches, ideas, ...
 - Improv <qc@apk.net>, spelling/grammar fixes, ideas, safer_panics patch,
         some new monster and artifact descriptions, cmovie stuff, and lots
         of things
@@ -14,8 +14,8 @@ drop me a line please) in no particular order:
 - Kusunose Toru <kusunose@hcn.zaq.ne.jp> for LOTS of bugfixes
 - Akhronath for the ideas of the magic system, new realms and much more
   oh yeah the Nazguls :)
-- Jerome Wojcik <Jerome.Wojcik@lmcp.jussieu.fr> for monster suceptibilities
-- Andreas Kosh(akoch@rbg.informatik.tu-darmstadt.de) for the tiles, the
+- Jerome Wojcik <Jerome.Wojcik@lmcp.jussieu.fr> for monster susceptibilities
+- Andreas Koch(akoch@rbg.informatik.tu-darmstadt.de) for the tiles, the
   graphic editor and surely more :)
 - Gob for the mac ports and a nasty bug fix
 - Iain McFall for bug fixes, auto squelch and more
@@ -42,16 +42,19 @@ drop me a line please) in no particular order:
 - lemming for skills.txt and stuff
 - Paladin Rithe (Brian Ronk) for birth.txt
 - John Gilmore for alchemy improvements patch
-- Massimiliano Marangio for lots and lots of help updates, typo corrections, 
+- Massimiliano Marangio for lots and lots of help updates, typo corrections,
   bug fixes etc.
 - Neil Stevens <neil@hakubi.us> for making stable releases
 - Jeff Epler for automatizer improvements, and certainly more in the future ;)
 - Scott Bigham for some cool patches
 - Magua(magua@speakeasy.net) who wrote the java applet to play cmovies online
+- Maylith for lots of help with the documentation, especially on the wiki
+- Furiosity for some missing item descriptions
+- SimonSorc for bugfixes
 
 - All that I forgot in the list, hit me a bit then email me to get added
 
-- All the friendly people of the ToME mailling list
+- All the friendly people of the ToME mailing list
 - All the friendly people of #angband
 
 - TeCGraf for the Lua scripting language(www.lua.org)

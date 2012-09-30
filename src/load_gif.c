@@ -1,6 +1,14 @@
 /*
  * GIF Loader
  * by Paul Bartrum
+ *
+ * Comment by Eric Stevens (tome@eastevens.com):
+ *
+ * This file has been modified to work with Allegro 4.0.3 that comes with
+ * DJGPP 2.0.3 for the use in compiling for ToME 2.2.7. This modification
+ * changes a variable name to one that is not in conflict with Allegro
+ * variable name. The variable 'empty_string' was changed to 'empty_str'.
+ *
  */
 
 #include <stdlib.h>
@@ -19,7 +27,7 @@ struct LZW_STRING
 };
 
 PACKFILE *f;
-int empty_string, curr_bit_size, bit_overflow;
+int empty_str, curr_bit_size, bit_overflow;
 int bit_pos, data_pos, data_len, entire, code;
 int cc, string_length, i, bit_size;
 unsigned char string[4096];
@@ -31,7 +39,7 @@ int interlace;
 
 void clear_table(void)
 {
-	empty_string = cc + 2;
+	empty_str = cc + 2;
 	curr_bit_size = bit_size + 1;
 	bit_overflow = 0;
 }
@@ -274,18 +282,18 @@ BITMAP *load_gif (char *filename, RGB *pal)
 				{
 					break;
 				}
-				else if (code < empty_string)
+				else if (code < empty_str)
 				{
 					input_string(code);
 					output_string();
 
 					if (bit_overflow == 0)
 					{
-						str[empty_string].base = old;
-						str[empty_string].new = string[0];
-						str[empty_string].length = str[old].length + 1;
-						empty_string ++;
-						if (empty_string == (1 << curr_bit_size))
+						str[empty_str].base = old;
+						str[empty_str].new = string[0];
+						str[empty_str].length = str[old].length + 1;
+						empty_str ++;
+						if (empty_str == (1 << curr_bit_size))
 							curr_bit_size ++;
 						if (curr_bit_size == 13)
 						{
@@ -304,11 +312,11 @@ BITMAP *load_gif (char *filename, RGB *pal)
 
 					if (bit_overflow == 0)
 					{
-						str[empty_string].base = old;
-						str[empty_string].new = string[0];
-						str[empty_string].length = str[old].length + 1;
-						empty_string ++;
-						if (empty_string == (1 << curr_bit_size))
+						str[empty_str].base = old;
+						str[empty_str].new = string[0];
+						str[empty_str].length = str[old].length + 1;
+						empty_str ++;
+						if (empty_str == (1 << curr_bit_size))
 							curr_bit_size ++;
 						if (curr_bit_size == 13)
 						{

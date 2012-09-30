@@ -365,7 +365,7 @@ D:Not a real skill, it is only used to regroup some skills
 I:0
 
 N:33:Antimagic
-D:Ability to generates an antimagic field
+D:Ability to generate an antimagic field
 A:3:Use antimagic
 I:1000
 F:RANDOM_GAIN

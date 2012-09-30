@@ -27,7 +27,7 @@ the Demonologist to cast spells; each piece of equipment holds three spells.
 #####oDemonshield spells
 1. [[[[[oDoom Shield] (school level 1)
    Raises a mirror of pain around you, doing very high damage to your foes
-   that dare hit you, but greatly reduces your armor.
+   that dare hit you, but greatly reduces your armour class.
 2. [[[[[oDemon Cloak] (school level 20)
    Raises a mirror that can reflect bolts and arrows for a time.
 3. [[[[[oUnholy Word] (school level 25)

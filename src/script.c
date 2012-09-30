@@ -12,8 +12,8 @@
 
 #include "angband.h"
 
-#include "lua.h"
-#include "lualib.h"
+#include "lua/lua.h"
+#include "lua/lualib.h"
 #include "lauxlib.h"
 #include "tolua.h"
 

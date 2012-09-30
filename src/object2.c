@@ -382,10 +382,9 @@ static void compact_objects_aux(int i1, int i2)
  */
 void compact_objects(int size)
 {
-	int i, y, x, num, cnt;
+	int i, y, x, num;
 
 	int cur_lev, cur_dis, chance;
-
 
 	/* Compact */
 	if (size)
@@ -402,13 +401,10 @@ void compact_objects(int size)
 
 
 	/* Compact at least 'size' objects */
-	for (num = 0, cnt = 1; num < size; cnt++)
+	for (num = 0, cur_lev = 1; num < size; cur_lev++)
 	{
-		/* Get more vicious each iteration */
-		cur_lev = 5 * cnt;
-
-		/* Get closer each iteration */
-		cur_dis = 5 * (20 - cnt);
+		/* Get closer each iteration (start at distance 12). Around level 100 distance-protect nothing. */
+		cur_dis = 12 * (101 - cur_lev) / 100;
 
 		/* Examine the objects */
 		for (i = 1; i < o_max; i++)
@@ -420,10 +416,10 @@ void compact_objects(int size)
 			/* Skip dead objects */
 			if (!o_ptr->k_idx) continue;
 
-			/* Hack -- High level objects start out "immune" */
+			/* High level objects are "immune" as long as we're not desperate enough */
 			if (k_ptr->level > cur_lev) continue;
 
-			/* Monster */
+			/* Monster owned objects */
 			if (o_ptr->held_m_idx)
 			{
 				monster_type *m_ptr;
@@ -431,31 +427,53 @@ void compact_objects(int size)
 				/* Acquire monster */
 				m_ptr = &m_list[o_ptr->held_m_idx];
 
+				/* Monsters start with protecting objects well */
+				chance = 100;
+
 				/* Get the location */
 				y = m_ptr->fy;
 				x = m_ptr->fx;
-
-				/* Monsters protect their objects */
-				if (rand_int(100) < 90) continue;
 			}
-
-			/* Dungeon */
+			/* Dungeon floor objects */
 			else
 			{
+				/* Floor objects start with lower protection */
+				chance = 90;
+
 				/* Get the location */
 				y = o_ptr->iy;
 				x = o_ptr->ix;
 			}
 
-			/* Nearby objects start out "immune" */
+			/* Near enough objects are "immune", even if low level			*/
+			/* (like, importantly, food rations after hitting a trap of drop items) */
 			if ((cur_dis > 0) && (distance(p_ptr->py, p_ptr->px, y, x) < cur_dis)) continue;
 
-			/* Saving throw */
-			chance = 90;
+			/* object protection goes down as we get vicious   */
+			/* around level 200 only artifacts have protection */
+			chance = chance - cur_lev / 2;
 
-			/* Hack -- only compact artifacts in emergencies */
-			if ((artifact_p(o_ptr) || o_ptr->art_name) &&
-			                (cnt < 1000)) chance = 100;
+			/* Artifacts */
+			if ( artifact_p(o_ptr) || o_ptr->art_name )
+			{
+				/* Artifacts are "immune if the level is lower     */
+				/* than 300 + artifact level                       */
+				if ( cur_lev < 300 + k_ptr->level )
+					continue;
+
+				/* That's 400 +  level for fixed artifacts */
+				if ( (k_ptr->flags3 & TR3_NORM_ART) && cur_lev < 400 + k_ptr->level )
+					continue;
+
+				/* Never protect if level is high enough; so we don't wipe a better artifact */
+				chance = -1;
+
+				/* rewind the level so we never wipe many    */
+				/* artifacts of same level if one will do!!! */
+				cur_lev--;
+			}
+
+			/* Maybe some code to spare the God relic here. But I'd rather raise its level to 150 */
 
 			/* Apply the saving throw */
 			if (rand_int(100) < chance) continue;
@@ -2606,7 +2624,7 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 	if (power > 1)
 	{
 		/* Make ego item */
-		if (!rand_int(RANDART_WEAPON) && (o_ptr->tval != TV_TRAPKIT)) create_artifact(o_ptr, FALSE, TRUE);
+		if ((rand_int(RANDART_WEAPON) == 1) && (o_ptr->tval != TV_TRAPKIT)) create_artifact(o_ptr, FALSE, TRUE);
 		else make_ego_item(o_ptr, TRUE);
 	}
 	else if (power < -1)
@@ -2757,7 +2775,7 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 	if (power > 1)
 	{
 		/* Make ego item */
-		if (!rand_int(RANDART_ARMOR)) create_artifact(o_ptr, FALSE, TRUE);
+		if (rand_int(RANDART_ARMOR) == 1) create_artifact(o_ptr, FALSE, TRUE);
 		else make_ego_item(o_ptr, TRUE);
 	}
 	else if (power < -1)
@@ -2873,7 +2891,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 	if (power > 1)
 	{
 		/* Make ego item */
-		if (!rand_int(RANDART_JEWEL)) create_artifact(o_ptr, FALSE, TRUE);
+		if (rand_int(RANDART_JEWEL) == 1) create_artifact(o_ptr, FALSE, TRUE);
 		else make_ego_item(o_ptr, TRUE);
 	}
 	else if (power < -1)
@@ -3289,7 +3307,7 @@ static void a_m_aux_4(object_type *o_ptr, int level, int power)
 	if (power > 1)
 	{
 		/* Make ego item */
-		if (!rand_int(RANDART_JEWEL) && (o_ptr->tval == TV_LITE)) create_artifact(o_ptr, FALSE, TRUE);
+		if ((rand_int(RANDART_JEWEL) == 1) && (o_ptr->tval == TV_LITE)) create_artifact(o_ptr, FALSE, TRUE);
 		else make_ego_item(o_ptr, TRUE);
 	}
 	else if (power < -1)
@@ -4187,7 +4205,6 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 			finalize_randart(o_ptr, lev);
 			break;
 		}
-	case TV_DIGGING:
 	case TV_HAFTED:
 	case TV_POLEARM:
 	case TV_MSTAFF:

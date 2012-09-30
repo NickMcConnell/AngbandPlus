@@ -81,7 +81,9 @@ The Long Sword 'Durandil' (+3)
 The Phial of Undeath (-5)
 The Ring of Phasing (+15)
 The Blue Stone 'Toris Mejistos' (+2)
-
+The Silver Bolt 'Stone-biter' (+3)
+The Elven Cloak of Mellyrn (+4)
+The Set of Cesti 'Skycleaver' (+1)
 
 #####G4. What does it affect.
 It affects your chance to-hit in ranged combat and melee combat.

@@ -43,6 +43,7 @@
 
 
 #include "../angband.h"
+#include "../defines.h"
 
 
 /* from isov-x11.c */
@@ -50,7 +51,10 @@ extern unsigned char **iso_ap;
 extern unsigned char **iso_cp;
 extern unsigned char **iso_atp;
 extern unsigned char **iso_ctp;
-
+# ifdef USE_EGO_GRAPHICS
+extern unsigned char **iso_aep;
+extern unsigned char **iso_cep;
+# endif /* USE_EGO_GRAPHICS */
 
 
 #ifdef USE_SMALL_ISO_HACK
@@ -125,7 +129,8 @@ static bool is_door(int feat)
     (feat == FEAT_OPEN) ||
     (feat == FEAT_BROKEN) ||
     (feat == FEAT_SECRET) ||
-    (feat >= FEAT_DOOR_HEAD &&  feat <= FEAT_DOOR_TAIL);
+    (feat >= FEAT_DOOR_HEAD &&  feat <= FEAT_DOOR_TAIL) ||
+    (feat == FEAT_SHOP);
 }
 
 
@@ -133,7 +138,8 @@ static bool is_wall(int feat)
 {
   return 
     (feat >= FEAT_MAGMA &&  feat <= FEAT_PERM_SOLID) || 
-    (feat >= FEAT_TREES &&  feat <= FEAT_SANDWALL_K); 
+    (feat >= FEAT_TREES &&  feat <= FEAT_SANDWALL_K) ||
+    (feat >= FEAT_QUEST1 && feat <= FEAT_QUEST4);
 }
 
 
@@ -222,7 +228,8 @@ static int check_wall(int x, int y)
 {
   
   int o = 0;
-  
+
+#if 0
   o |= (is_wall_or_door(x-1, y-1)) << 0;
   o |= (is_wall_or_door(x  , y-1)) << 1;
   o |= (is_wall_or_door(x+1, y-1)) << 2;
@@ -234,6 +241,34 @@ static int check_wall(int x, int y)
   
   
   return wall_table[o];
+#endif
+  // jue: new algorithm as suggested by James Andrewartha
+  //
+  o |= (is_wall_or_door(x-1, y-1) 
+          && is_wall_or_door(x, y-1)
+          && is_wall_or_door(x-1,y))  << 0;
+
+  o |= (is_wall_or_door(x  , y-1))    << 1;
+  
+  o |= (is_wall_or_door(x+1, y-1)
+	  && is_wall_or_door(x, y-1)
+	  && is_wall_or_door(x+1, y)) << 2;
+  
+  o |= (is_wall_or_door(x-1, y  ))    << 3;
+  
+  o |= (is_wall_or_door(x+1, y  ))    << 4;
+  
+  o |= (is_wall_or_door(x-1, y+1)
+	  && is_wall_or_door(x-1, y)
+	  && is_wall_or_door(x, y+1)) << 5;
+  
+  o |= (is_wall_or_door(x  , y+1))    << 6;
+  
+  o |= (is_wall_or_door(x+1, y+1)
+	  && is_wall_or_door(x+1, y)
+	  && is_wall_or_door(x, y+1)) << 7;
+  
+  return o;
 }
 
 
@@ -248,7 +283,7 @@ static int door_direction(int x, int y)
 
 static int calc_nc(int c, int a)
 {
-  return ((a & 0x7F)  << 7) + (c & 0x7F);
+  return ((a & 0x7F) << 7) + (c & 0x7F);
 }
 
 
@@ -258,14 +293,25 @@ static int calc_nc(int c, int a)
  */
 void display_dinge(int x, int y, int xpos, int ypos)
 {
+  const int grid = get_grid();
+
   int feat_nc = -1;
-  int obj_nc;
+  int obj_nc = -1;
+#ifdef USE_EGO_GRAPHICS
+  int ego_nc = -1;
+#endif
+  
   int shade;
   int i;
 
   // relative to view position
-  int xoff = x - p_ptr->px + (SCREEN_WID/2+13);
-  int yoff = y - p_ptr->py + (SCREEN_HGT/2+1);
+//  int xoff = x - p_ptr->px + (SCREEN_WID/2 + 13);
+//  int xoff = x - p_ptr->px + (SCREEN_WID/2 + 13);
+//
+//  new (jue):
+//  look at cave.c, panel_col_of and the places it's used...
+  int xoff = x - panel_col_min + COL_MAP;
+  int yoff = y - panel_row_prt;
 
   // try to use output of the term package
   if(xoff >= 0 && yoff >= 1 && xoff < 80 && yoff < 23) {
@@ -278,6 +324,13 @@ void display_dinge(int x, int y, int xpos, int ypos)
     const int tc = iso_ctp[yoff][xoff];
     const int ta = iso_atp[yoff][xoff];
 
+#ifdef USE_EGO_GRAPHICS
+    // transparent overlay 
+    const int ec = iso_cep[yoff][xoff];
+    const int ea = iso_aep[yoff][xoff];
+    
+    ego_nc = calc_nc(ec, ea);
+#endif
     feat_nc = calc_nc(tc, ta);
     obj_nc = calc_nc(c, a);
 
@@ -288,9 +341,15 @@ void display_dinge(int x, int y, int xpos, int ypos)
       
       byte a, ta;
       char c, tc;
-      
+#ifdef USE_EGO_GRAPHICS
+      byte ea;
+      char ec;
+
+      map_info(y, x, &a, &c, &ta, &tc, &ea, &ec);
+      ego_nc = calc_nc(ec, ea);
+#else
       map_info(y, x, &a, &c, &ta, &tc);
-      
+#endif
       feat_nc = calc_nc(tc, ta);
       obj_nc = calc_nc(c, a);
     } 
@@ -310,7 +369,6 @@ void display_dinge(int x, int y, int xpos, int ypos)
   
   // did we get some data ?
   if(feat_nc != -1) {
-    
     
     // check shading
     //	printf("%d %d -> %d\n", x, y, shade);
@@ -364,19 +422,19 @@ void display_dinge(int x, int y, int xpos, int ypos)
 	      feat_nc == 0x176 ||	    // grass roof
 	      feat_nc == 0x177 ||	    // grass roof chimney
 	      feat_nc == 0x17E ||	    // grass roof top
+	      (feat_nc >= 0x31 && feat_nc <= 0x39) || // shop with number
+	      (feat_nc >= 0x576 && feat_nc <= 0x57D) || // trap
 	      feat_nc == 0x3E ||	    // down stairs
 	      feat_nc == 0x3C	    // up stairs
-	      ) {
+    ) {
       // this features should not be shaded
-      
       
       display_img(feat_nc, xpos, ypos, TRUE);
       
     } else if(feat_nc > 2){             
-      // this features should be shaded
-      
+      // this features should be shaded  
+          
       // floor
-      
       // known grids get shaded floors
       if(is_only_torch_lit(x,y)) {
 	display_color_img(feat_nc+2, 
@@ -389,20 +447,53 @@ void display_dinge(int x, int y, int xpos, int ypos)
     }
     
     //	printf("%d a=%x c=%x (%c)\n", nc, a, c, c);
-    
+  
+    /* Hajo: display a complete grid if the user wants to */
+    if(grid == 2) {
+	display_img(6, xpos, ypos, TRUE);
+    }
+
+
+#ifdef USE_EGO_GRAPHICS   
+    if( ego_nc != feat_nc &&
+	ego_nc > 2 &&
+	ego_nc != 0x27 &&
+	ego_nc != 0x2B ) {
+
+	display_img(ego_nc, xpos, ypos, TRUE);
+    }
+#endif
     
     if( obj_nc != feat_nc &&
 	obj_nc > 2 &&
 	obj_nc != 0x27 &&
-	obj_nc != 0x2B ) {	    
-      display_img(obj_nc, xpos, ypos, TRUE);
+	obj_nc != 0x2B ) {
+
+	/* Hajo: display a grid below items/monsters if the user wants to */
+	if(grid == 1) {
+	    display_img(5, xpos, ypos, TRUE);
+	}
+	
+	display_img(obj_nc, xpos, ypos, TRUE);
+
     }
-    
-    
   } else {
     
     // outside of dungeon
     display_img(32, xpos, ypos, TRUE);
+  }  
+
+  /* display cursor ? */
+  if( 
+      high_x >= 1 &&
+      high_y >= 1) {
+      if(xoff == high_x && 
+	  yoff == high_y) {
+        display_img(7, xpos, ypos, TRUE);
+
+	/* only draw once, wait until next request */
+	high_x = high_y = -1;
+    }
   }
-  
 }
+

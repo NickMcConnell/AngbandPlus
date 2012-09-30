@@ -20,8 +20,17 @@ Charisma        +1
 Hit Dice Sides  7         
 Exp Penalty     +30%
 
-#####GSkill bonuses (supplementary to existing skills)
-Archery            0.000           [0.200]
+#####GRacial Skill Modifiers:
+#####BSkill                Start Mod    Skill Point Gains Mod
+Combat                  
+  Weaponmastery        -2.500           [0.000]
+  Archery               4.000           [0.000]
+Sneakiness              0.800           [0.000]
+  Stealth               5.000           [0.000]
+  Disarming             0.500           [0.000]
+Magic                   
+  Magic-Device          0.600           [0.000]
+Spirituality            4.000           [0.000]
 
 #####GInnate Abilities:
 #####BAbility              Character level

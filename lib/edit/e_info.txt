@@ -737,7 +737,6 @@ F:SPEED | AGGRAVATE
 ### Weapons ###
 
 N:65:of Aman
-T:15:0:255
 T:21:0:255
 T:22:0:255
 T:23:0:255
@@ -776,7 +775,6 @@ R:33
 F:RES_POIS
 
 N:67:Blessed
-T:15:0:255
 T:21:0:255
 T:22:0:255
 T:23:0:255
@@ -964,7 +962,6 @@ f:VORPAL
 N:80:of Earthquakes
 T:125:0:255
 T:21:0:255
-T:20:0:99
 T:115:55:55
 X:A:24:20
 W:0:1:44:4000
@@ -1100,7 +1097,6 @@ f:SLAY_ANIMAL | STEALTH
 
 N:90:of *Slay Evil*
 T:125:0:255
-T:15:0:255
 T:21:0:255
 T:22:0:255
 T:23:0:255
@@ -1236,7 +1232,6 @@ R:10
 F:R_IMMUNITY | R_ANY
 
 N:99:of the Thunderlords
-T:15:0:255
 T:21:0:255
 T:22:0:255
 T:23:0:255
@@ -1255,7 +1250,6 @@ R:2
 F:R_P_ABILITY | PVAL_M3 | LIMIT_BLOWS
 
 N:100:of Gondolin
-T:15:0:255
 T:21:0:255
 T:22:0:255
 T:23:0:255

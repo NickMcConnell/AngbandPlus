@@ -24,21 +24,22 @@ Exp Penalty      30%
 Combat                  1.000           [0.200]
   Weaponmastery         0.700           [0.400]
 Sneakiness              1.000           [0.900]
+  Stealth               0.000           [0.400]
 Magic                   1.000           [0.900]
   Magic-Device          1.000           [1.050]
-  Spell-power           0.000           [0.700]
+  Spell-power           1.000           [0.700]
   Mana                  1.000           [0.700]
   Geomancy              
     Fire                0.000           [0.800]
     Water               0.000           [0.800]
     Air                 0.000           [0.800]
     Earth               0.000           [0.800]
-  Temporal              0.000           [1.200]
-  Divination            0.000           [1.200]
-  Conveyance            0.000           [1.200]
-  Nature                0.000           [0.800]
   Meta                  0.000           [0.800]
+  Conveyance            0.000           [1.200]
+  Divination            0.000           [1.200]
+  Temporal              0.000           [1.200]
   Mind                  0.000           [0.700]
+  Nature                0.000           [0.800]
   Necromancy            0.000           [0.700]
   Runecraft             0.000           [0.700]
   Thaumaturgy           0.000           [0.700]
@@ -51,9 +52,9 @@ screen because the elemental schools are sub-skills of it.
 
 #####GInnate Abilities:
 #####BAbility              Character level
-Perfect-casting             1
+Perfect casting             1
 
 #####GStarting Equipment
-A warper begins the game with:
-    A book of Beginner Cantrips
-    A dagger
+A Warper begins the game with:
+    a Book of Beginner Cantrips
+    a Dagger

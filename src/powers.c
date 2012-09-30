@@ -1,4 +1,4 @@
-/* File: power.c */
+/* File: powers.c */
 
 /* Purpose: Powers */
 
@@ -1174,21 +1174,7 @@ static void power_activate(int power)
 
 	case PWR_RECALL:
 		{
-			if (dun_level && (max_dlv[dungeon_type] > dun_level))
-			{
-				if (get_check("Reset recall depth? "))
-					max_dlv[dungeon_type] = dun_level;
-			}
-			if (!p_ptr->word_recall)
-			{
-				p_ptr->word_recall = rand_int(21) + 15;
-				msg_print("The air about you becomes charged...");
-			}
-			else
-			{
-				p_ptr->word_recall = 0;
-				msg_print("A tension leaves the air around you...");
-			}
+			recall_player(21, 15);
 		}
 		break;
 

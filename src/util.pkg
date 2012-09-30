@@ -2730,3 +2730,6 @@ extern void lua_display_list@display_list(int y, int x, int h, int w, cptr title
 
 extern errr file_character(cptr name, bool full);
 extern void calc_bonuses(bool silent);
+
+extern void note_spot(int y, int x);
+extern void lite_spot(int y, int x);

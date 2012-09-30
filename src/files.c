@@ -1727,7 +1727,15 @@ static void display_player_various(void)
 			--i;
 		max_attack = &blow_table[i];
 
-		desc = format("%d-%d", blows * min_attack->dd, blows * maxroll(max_attack->dd, max_attack->ds));
+		dambonus += p_ptr->to_d_melee;
+		tmp = min_attack->dd + dambonus;
+		if (tmp < 0) tmp = 0;
+		tmp2 = maxroll(max_attack->dd, max_attack->ds) + dambonus;
+		if (tmp2 < 0) tmp2 = 0;
+		if (!tmp && !tmp2)
+			desc = "0";
+		else
+			desc = format("%d-%d", blows * tmp, blows * tmp2);
 	}
 	else if (!r_info[p_ptr->body_monster].body_parts[BODY_WEAPON])
 	{
@@ -1797,6 +1805,37 @@ static void display_player_various(void)
 
 
 /*
+ * Obtain the "flags" of the wielded symbiote
+ */
+
+void wield_monster_flags(u32b *f1, u32b *f2, u32b *f3, u32b *f4, u32b *f5, u32b *esp)
+{
+	object_type *o_ptr;
+	monster_race *r_ptr;
+
+	/* Clear */
+	(*f1) = (*f2) = (*f3) = (*f4) = (*f5) = (*esp) = 0L;
+
+	/* Get the carried monster */
+	o_ptr = &p_ptr->inventory[INVEN_CARRY];
+
+	if (o_ptr->k_idx)
+	{
+		r_ptr = &r_info[o_ptr->pval];
+
+		if (r_ptr->flags2 & RF2_INVISIBLE)
+			(*f2) |= TR2_INVIS;
+		if (r_ptr->flags2 & RF2_REFLECTING)
+			(*f2) |= TR2_REFLECT;
+		if (r_ptr->flags7 & RF7_CAN_FLY)
+			(*f3) |= TR3_FEATHER;
+		if (r_ptr->flags7 & RF7_AQUATIC)
+			(*f5) |= TR5_WATER_BREATH;
+	}
+}
+
+
+/*
  * Obtain the "flags" for the player as if he was an item
  */
 void player_flags(u32b *f1, u32b *f2, u32b *f3, u32b *f4, u32b *f5, u32b *esp)
@@ -1812,11 +1851,52 @@ void player_flags(u32b *f1, u32b *f2, u32b *f3, u32b *f4, u32b *f5, u32b *esp)
 		(*f3) |= TR3_WRAITH;
 	}
 
+/* Skills */
 	if (get_skill(SKILL_DAEMON) > 20) (*f2) |= TR2_RES_CONF;
 	if (get_skill(SKILL_DAEMON) > 30) (*f2) |= TR2_RES_FEAR;
 	if (get_skill(SKILL_MINDCRAFT) >= 40) (*esp) |= ESP_ALL;
 	if (p_ptr->melee_style == SKILL_HAND && get_skill(SKILL_HAND) > 24 && !monk_heavy_armor())
 		(*f2) |= TR2_FREE_ACT;
+/* Hack - from Lua */
+	if (get_skill(SKILL_MANA) >= 35) (*f1) |= TR1_MANA;
+	if (get_skill(SKILL_AIR) >= 50) (*f5) |= (TR5_MAGIC_BREATH | TR5_WATER_BREATH);
+	if (get_skill(SKILL_WATER) >= 30) (*f5) |= TR5_WATER_BREATH;
+
+/* Gods */
+	GOD(GOD_ERU)
+	{
+		if ((p_ptr->grace >= 100) || (p_ptr->grace <= -100))  (*f1) |= TR1_MANA;
+		if (p_ptr->grace > 10000) (*f1) |= TR1_WIS;
+	}
+
+	GOD(GOD_MELKOR)
+	{
+		(*f2) |= TR2_RES_FIRE;
+		if (p_ptr->melkor_sacrifice > 0) (*f2) |= TR2_LIFE;
+		if (p_ptr->grace > 10000) (*f1) |= (TR1_STR | TR1_CON | TR1_INT | TR1_WIS | TR1_CHR);
+		PRAY_GOD(GOD_MELKOR)
+		{
+			if (p_ptr->grace > 5000)  (*f2) |= TR2_INVIS;
+			if (p_ptr->grace > 15000) (*f2) |= TR2_IM_FIRE;
+		}
+	}
+
+	GOD(GOD_MANWE)
+	{
+		if (p_ptr->grace >= 2000) (*f3) |= TR3_FEATHER;
+		PRAY_GOD(GOD_MANWE)
+		{
+			if (p_ptr->grace >= 7000)  (*f2) |= TR2_FREE_ACT;
+			if (p_ptr->grace >= 15000) (*f4) |= TR4_FLY;
+			if ((p_ptr->grace >= 5000) || (p_ptr->grace <= -5000)) (*f1) |= TR1_SPEED;
+		}
+	}
+
+	GOD(GOD_TULKAS)
+	{
+		if (p_ptr->grace > 5000)  (*f1) |= TR1_CON;
+		if (p_ptr->grace > 10000) (*f1) |= TR1_STR;
+	}
 
 	/* Classes */
 	for (i = 1; i <= p_ptr->lev; i++)
@@ -2128,6 +2208,11 @@ void player_flags(u32b *f1, u32b *f2, u32b *f3, u32b *f4, u32b *f5, u32b *esp)
 	{
 		(*f4) |= TR4_BLACK_BREATH;
 	}
+
+	if (p_ptr->hp_mod != 0)
+	{
+		(*f2) |= TR2_LIFE;
+	}
 }
 
 /*
@@ -2204,7 +2289,6 @@ static cptr object_flag_names[192] =
 
 
 	"Aura Fire",
-
 	"Aura Elec",
 	NULL,
 	NULL,
@@ -2245,9 +2329,8 @@ static cptr object_flag_names[192] =
 	"Mrg.Curse",
 	NULL,
 	NULL,
-	NULL,
-	NULL,
-	NULL,
+	"Sentient",
+	"Clone",
 	NULL,
 	"Climb",
 	NULL,
@@ -2269,6 +2352,7 @@ static cptr object_flag_names[192] =
 	NULL,
 	NULL,
 	NULL,
+	NULL,
 
 	"Orc.ESP",
 	"Troll.ESP",
@@ -2282,7 +2366,7 @@ static cptr object_flag_names[192] =
 	"Good.ESP",
 	"Nlive.ESP",
 	"Unique.ESP",
-	NULL,
+	"Spider ESP",
 	NULL,
 	NULL,
 	NULL,
@@ -2352,6 +2436,24 @@ static void display_player_ben_one(int mode)
 		b[n][9] = (u16b)(esp >> 16);
 		d[n] = o_ptr->pval;
 	}
+
+	/* Carried symbiote */
+	n = INVEN_CARRY - INVEN_WIELD;
+
+	/* Player flags */
+	wield_monster_flags(&f1, &f2, &f3, &f4, &f5, &esp);
+
+	/* Incorporate */
+	b[n][0] = (u16b)(f1 & 0xFFFF);
+	b[n][1] = (u16b)(f1 >> 16);
+	b[n][2] = (u16b)(f2 & 0xFFFF);
+	b[n][3] = (u16b)(f2 >> 16);
+	b[n][4] = (u16b)(f3 & 0xFFFF);
+	b[n][5] = (u16b)(f3 >> 16);
+	b[n][6] = (u16b)(f4 & 0xFFFF);
+	b[n][7] = (u16b)(f4 >> 16);
+	b[n][8] = (u16b)(esp & 0xFFFF);
+	b[n][9] = (u16b)(esp >> 16);
 
 	/* Index */
 	n = INVEN_TOTAL - INVEN_WIELD;
@@ -2449,16 +2551,13 @@ static void display_player_ben_one(int mode)
 							}
 							else
 							{
-								c = (d[n] > 9 ? '*' : d[n]);
+								c = d[n];
 								if (c < 0)
 								{
-									c = I2D(c * -1);
+									c = -c;
 									a = TERM_RED;
 								}
-								else if (c < 10)
-								{
-									c = I2D(c);
-								}
+								c = (c > 9 ? '*' : I2D(c));
 							}
 						}
 						else
@@ -2472,7 +2571,7 @@ static void display_player_ben_one(int mode)
 					   apply to Res Neth line */
 					if (modetemp == 1 && x == 1 && y == 12)
 					{
-						if (b[n][7] & (1 << 7))
+						if (b[n][7] & (1 << 6))
 						{
 							a = (is_green ? TERM_L_GREEN : TERM_WHITE);
 							c = '*';
@@ -2870,7 +2969,7 @@ void file_character_print_store(FILE *fff, wilderness_type_info *place, int stor
 		/* Dump all available items */
 		for (i = 0; i < st_ptr->stock_num; i++)
 		{
-			file_character_print_item(fff, I2A(i), &st_ptr->stock[i], full);
+			file_character_print_item(fff, I2A(i%24), &st_ptr->stock[i], full);
 		}
 
 		/* Add an empty line */
@@ -2969,7 +3068,7 @@ errr file_character(cptr name, bool full)
 	if (!fff)
 	{
 		/* Message */
-		msg_format("Character dump failed!");
+		msg_format("Character sheet creation failed!");
 		msg_print(NULL);
 
 		/* Error */
@@ -2978,7 +3077,7 @@ errr file_character(cptr name, bool full)
 
 
 	/* Begin dump */
-	fprintf(fff, "  [%s %ld.%ld.%ld%s Character Dump]\n\n",
+	fprintf(fff, "  [%s %ld.%ld.%ld%s Character Sheet]\n\n",
 	        game_module, VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH, IS_CVS);
 
 
@@ -3033,16 +3132,6 @@ errr file_character(cptr name, bool full)
 	exec_lua("patchs_list()");
 
 	fprintf(fff, "\n\n  [Miscellaneous information]\n");
-	if (cth_monsters)
-		fprintf(fff, "\n Cth monsters:         ON");
-	else
-		fprintf(fff, "\n Cth monsters:         OFF");
-
-	if (zang_monsters)
-		fprintf(fff, "\n Z-like monsters:      ON");
-	else
-		fprintf(fff, "\n Z-like monsters:      OFF");
-
 	if (joke_monsters)
 		fprintf(fff, "\n Joke monsters:        ON");
 	else
@@ -3290,7 +3379,7 @@ errr file_character(cptr name, bool full)
 
 
 	/* Message */
-	msg_print("Character dump successful.");
+	msg_print("Character sheet creation successful.");
 	msg_print(NULL);
 
 	/* Success */
@@ -4542,7 +4631,6 @@ bool chg_to_txt(cptr base, cptr newname)
 		                ((buf[0] >= '0') && (buf[0] <= '9')) || (buf[0] == '#')) continue;
 
 		if (buf[1] != ' ')
-
 			lens[get_key(buf[1])]++;
 	}
 
@@ -4567,9 +4655,6 @@ bool chg_to_txt(cptr base, cptr newname)
 	/* Allocate big amount of temporary storage */
 	C_MAKE(strs, KEY_NUM, chg_type);
 
-	fprintf(txt, "%s %ld.%ld.%ld changes\n",
-	        game_module, VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
-
 	/* Display the file */
 	while (TRUE)
 	{
@@ -4581,8 +4666,13 @@ bool chg_to_txt(cptr base, cptr newname)
 
 		if (buf[1] != ' ') key = get_key(buf[1]);
 
-		strcpy(strs[key][lens[key]++], buf + 3);
+		if (key == KEY_NUM - 1)
+			strcpy(strs[key][lens[key]++], buf + 5);
+		else
+			strcpy(strs[key][lens[key]++], buf + 3);
 	}
+
+	fprintf(txt, "%s changes\n", strs[KEY_NUM - 1][0]);
 
 	for (i = 0; i < KEY_NUM - 1; i++)
 	{
@@ -4835,6 +4925,34 @@ void do_cmd_suicide(void)
 }
 
 
+	/* HACK - Remove / set the CAVE_VIEW flag, since view_x / view_y
+	 * is not saved, and the visible locations are not lighted correctly
+	 * when the game is loaded again
+	 * Alternatively forget_view() and update_view() can be used
+	 */
+void remove_cave_view(bool remove)
+{
+	int i;
+	cave_type *c_ptr;
+
+	if (view_n)
+	{
+		/* Clear them all */
+		for (i = 0; i < view_n; i++)
+		{
+			int y = view_y[i];
+			int x = view_x[i];
+
+			/* Access the grid */
+			c_ptr = &cave[y][x];
+
+			if (remove)
+				c_ptr->info &= ~(CAVE_VIEW);
+			else
+				c_ptr->info |= (CAVE_VIEW);
+		}
+	}
+}
 
 /*
  * Save the game
@@ -4842,6 +4960,8 @@ void do_cmd_suicide(void)
 void do_cmd_save_game(void)
 {
 	panic_save = 0;   /* Fixes an apparently long-lived bug */
+
+	remove_cave_view(TRUE);
 
 	/* Save the current level if in a persistent level */
 	save_dungeon();
@@ -4883,6 +5003,8 @@ void do_cmd_save_game(void)
 		prt("Saving game... failed!", 0, 0);
 	}
 
+	remove_cave_view(FALSE);
+
 	/* Allow suspend again */
 	signals_handle_tstp();
 
@@ -4911,21 +5033,22 @@ long total_points(void)
 #else   /* New calculation */
 	s16b max_dl = 0, i, k;
 	long temp, Total = 0;
-	long mult = 100;
+	long mult = 20; /* was 100. Divided values by 5 because of an overflow error */
 	long comp_death = (p_ptr->companion_killed * 2 / 5);
 
 	if (!comp_death) comp_death = 1;
 
-	if (p_ptr->preserve) mult -= 5;  /* Penalize preserve, maximize modes */
-	if (p_ptr->maximize) mult -= 5;
-	if (auto_scum) mult -= 20;
-	if (stupid_monsters) mult -= 50;
-	if (small_levels) mult += ((always_small_level) ? 20 : 50);
-	if (empty_levels) mult += 10;
-	if (smart_learn) mult += 20;
-	if (smart_cheat) mult += 20;
+	if (p_ptr->preserve) mult -= 1;  /* Penalize preserve, maximize modes */
+	if (p_ptr->maximize) mult -= 1;
+	if (auto_scum) mult -= 4;
+	if (stupid_monsters) mult -= 10;
+	if (small_levels) mult += ((always_small_level) ? 4 : 10);
+	if (empty_levels) mult += 2;
+	if (smart_learn) mult += 4;
+	if (smart_cheat) mult += 4;
 
-	if (mult < 10) mult = 10;  /* At least 10% of the original score */
+	if (mult < 2) mult = 2;  /* At least 10% of the original score */
+	/* mult is now between 2 and 40, i.e. 10% and 200% */
 
 	for (i = 0; i < max_d_idx; i++)
 		if (max_dlv[i] > max_dl)
@@ -4935,9 +5058,10 @@ long total_points(void)
 
 	temp += p_ptr->max_exp / 5;
 
-	temp += p_ptr->au / 5;
+	temp = (temp * mult / 20);
 
-	temp = (temp * mult / 100);
+	/* Gold increases score */
+	temp += p_ptr->au / 5;
 
 	/* Completing quest increase score */
 	for (i = 0; i < max_q_idx; i++)
@@ -6113,12 +6237,15 @@ errr predict_score(void)
 
 	/* Calculate and save the points */
 	sprintf(the_score.pts, "%9lu", (long)total_points());
+	the_score.pts[9] = '\0';
 
 	/* Save the current gold */
 	sprintf(the_score.gold, "%9lu", (long)p_ptr->au);
+	the_score.gold[9] = '\0';
 
 	/* Save the current turn */
 	sprintf(the_score.turns, "%9lu", (long)turn - (START_DAY * 10L));
+	the_score.turns[9] = '\0';
 
 	/* Hack -- no time needed */
 	strcpy(the_score.day, "TODAY");

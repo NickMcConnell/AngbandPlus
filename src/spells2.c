@@ -2873,7 +2873,6 @@ static bool item_tester_hook_weapon(object_type *o_ptr)
 	case TV_AXE:
 	case TV_HAFTED:
 	case TV_POLEARM:
-	case TV_DIGGING:
 	case TV_BOW:
 	case TV_BOLT:
 	case TV_ARROW:
@@ -2947,9 +2946,12 @@ bool item_tester_hook_weapon_armour(object_type *o_ptr)
  */
 bool item_tester_hook_artifactable(object_type *o_ptr)
 {
-	return (item_tester_hook_weapon(o_ptr) ||
-	        item_tester_hook_armour(o_ptr) ||
-	        (o_ptr->tval == TV_RING) || (o_ptr->tval == TV_AMULET));
+	return ((item_tester_hook_weapon(o_ptr) ||
+	         item_tester_hook_armour(o_ptr) ||
+	         (o_ptr->tval == TV_DIGGING) ||
+	         (o_ptr->tval == TV_RING) || (o_ptr->tval == TV_AMULET))
+	         /* be nice: allow only normal items */
+	         && (!artifact_p(o_ptr)) && (!ego_item_p(o_ptr)));
 }
 
 
@@ -7896,6 +7898,9 @@ bool passwall(int dir, bool safe)
 
 	/* Update the monsters */
 	p_ptr->update |= (PU_DISTANCE);
+
+	/* Redraw trap detection status */
+	p_ptr->redraw |= (PR_DTRAP);
 
 	/* Window stuff */
 	p_ptr->window |= (PW_OVERHEAD);

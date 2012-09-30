@@ -8,6 +8,7 @@ BLINK = add_spell
 	["mana"] = 	1,
 	["mana_max"] =  3,
 	["fail"] = 	10,
+	["inertia"] = 	{ 1, 5 },
 	["spell"] = 	function()
 			if get_level(BLINK, 50) >= 30 then
 				local oy, ox = player.py, player.px
@@ -57,8 +58,8 @@ DISARM = add_spell
 			return ""
 	end,
 	["desc"] =	{
-			"Destroys doors",
-			"At level 10 it disarms traps",
+			"Destroys doors and disarms traps",
+			"At level 10 it unlocks doors and disarms traps",
 	}
 }
 
@@ -80,6 +81,7 @@ TELEPORT = add_spell
 				["max_level"] =		{ 20, 50 },
 			},
 	},
+	["inertia"] = 	{ 1, 10 },
 	["spell"] = 	function()
 			player.energy = player.energy - (25 - get_level(TELEPORT, 50))
 			teleport_player(100 + get_level(TELEPORT, 100))
@@ -209,6 +211,7 @@ PROBABILITY_TRAVEL = add_spell
 				["max_level"] =		{ 8, 25 },
 			},
 	},
+	["inertia"] = 	{ 6, 40 },
 	["spell"] = 	function()
 			return set_prob_travel(randint(20) + get_level(PROBABILITY_TRAVEL, 60))
 	end,

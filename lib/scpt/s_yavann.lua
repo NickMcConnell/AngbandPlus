@@ -96,7 +96,7 @@ YAVANNA_WATER_BITE = add_spell
 
 			return set_project(randint(30) + 30 + get_level(YAVANNA_WATER_BITE, 150),
 				    GF_WATER,
-				    10 + get_level(YAVANNA_WATER_BITE, 10),
+				    10 + get_level(YAVANNA_WATER_BITE),
 				    rad,
 				    bor(PROJECT_STOP, PROJECT_KILL))
 	end,

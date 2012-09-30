@@ -37,13 +37,15 @@
  */
 
 #ifndef IS_CVS
+/*#define IS_CVS          ""*/
 #define IS_CVS          ""
-/*#define IS_CVS          "(CVS)"*/
 #endif
+
+#define USER_PATH_VERSION "/2.3"
 
 #define ANGBAND_2_8_1
 
-#define SAVEFILE_VERSION 101
+#define SAVEFILE_VERSION 103
 
 /*
  * This value is not currently used
@@ -340,7 +342,7 @@
 /*
  * Store constants
  */
-#define STORE_INVEN_MAX 24              /* Max number of discrete objs in inven */
+#define STORE_INVEN_MAX 255             /* Max number of discrete objs in inven */
 #define STORE_CHOICES   56              /* Number of items to choose stock from */
 #define STORE_OBJ_LEVEL 5               /* Magic Level for normal stores */
 #define STORE_TURNOVER  9               /* Normal shop turnover, per day */
@@ -408,11 +410,6 @@
 #define GREAT_OBJ       20
 
 #define GREAT_EGO       20
-
-#define RANDART_WEAPON  30
-#define RANDART_ARMOR   20
-#define RANDART_JEWEL   20
-
 
 /*
  * There is a 1/50 (2%) chance of inflating the requested monster_level
@@ -3435,9 +3432,9 @@
 #define RF8_WILD_MOUNTAIN       0x00000200
 #define RF8_WILD_GRASS          0x00000400
 #define RF8_NO_CUT              0x00000800
-#define RF8_CTHANGBAND          0x00001000
+#define RF8_CTHANGBAND          0x00001000  /* Not used in ToME */
 /* XXX */
-#define RF8_ZANGBAND            0x00004000
+#define RF8_ZANGBAND            0x00004000  /* Not used in ToME */
 #define RF8_JOKEANGBAND         0x00008000
 #define RF8_ANGBAND             0x00010000
 

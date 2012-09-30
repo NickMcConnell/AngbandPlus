@@ -1,10 +1,18 @@
 |||||oy
+~~~~~01|Development history
+*****version.txt*01[The origins of ToME]
+*****version.txt*02[Zangband History and Information]
+*****version.txt*03[Brief Version History (of standard Angband)]
+*****version.txt*04[A Posting from the Original Author (of Moria)]
+*****version.txt*05[Previous Versions (outdated)]
+
+
 #####R====== ToME Brief History =======
 
 When Zangband came to it 2.2.0 version I (DarkGod) was an Angband winner and
 I had been a C programmer for a long time, so I decided to take the sources
 and to try to code my own variant. At this time I was reading the Pern
-novels from Anne McCaffrey and I found them *VERY* good, so I've decided to
+novels from Anne McCaffrey and I found them *VERY* good, so I decided to
 include some elements of them into my variant from which it takes the name,
 PernAngband.
 
@@ -21,7 +29,7 @@ with plenty of unique features.
 Then came some legal problems with Anne McCaffrey estate and ubisoft and
 I had to remove the Pern stuff, so the game got rename to ToME,
 the Troubles of Middle Earth.
-
+~~~~~02
 #####R=== Zangband History and Information ===
 
 The seeds of Zangband lie in an obsolete and long ago vanished PC variant
@@ -92,7 +100,7 @@ He asked for a new maintainer and I was the one to take over the task.
 May I introduce myself, my name is Robert Ruehlmann, I'm the creator
 of the graphical Angband versions for DOS and webmaster of
 "Thangorodrim - The Angband Page" ("http://www.thangorodrim.net").
-
+~~~~~03
 #####R=== Brief Version History (of standard Angband) ===
 
 First came "VMS Moria", by Robert Alan Koeneke (1985).
@@ -158,7 +166,7 @@ was created along with Angband 2.7.9 to serve as an up to date description
 of any bugs found in various versions, and to list all of the people whose
 email addresses I kept having to look up. 
 
-
+~~~~~04
 #####R=== A Posting from the Original Author ===
 
 From: koeneke@ionet.net (Robert Alan Koeneke)
@@ -279,7 +287,7 @@ play Moria and be surprised...
 Robert Alan Koeneke
 koeneke@ionet.net
 
-
+~~~~~05
 #####R=== Previous Versions (outdated) ===
 
 

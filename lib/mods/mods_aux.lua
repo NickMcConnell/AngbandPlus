@@ -161,13 +161,23 @@ function add_module(t)
         if not t.base_dungeon then t.base_dungeon = 4 end
         if not t.death_dungeon then t.death_dungeon = 28 end
 
-        if not t.max_plev then t.max_plev = 50 end
-        if not t.max_skill_overage then t.max_skill_overage = 5 end
-        if not t.skill_per_level then t.skill_per_level = function() return 5 end end
-
         if not t.astral_dungeon then t.astral_dungeon = 8 end
         if not t.astral_wild_x then t.astral_wild_x = 45 end
         if not t.astral_wild_y then t.astral_wild_y = 19 end
+
+        if not t.random_artifact_weapon_chance then
+            t.random_artifact_weapon_chance = 30
+        end
+        if not t.random_artifact_armor_chance then
+            t.random_artifact_armor_chance = 20
+        end
+        if not t.random_artifact_jewelry_chance then
+            t.random_artifact_jewelry_chance = 20
+        end
+
+        if not t.max_plev then t.max_plev = 50 end
+        if not t.max_skill_overage then t.max_skill_overage = 4 end
+        if not t.skill_per_level then t.skill_per_level = function() return 6 end end
 
         if not t.allow_birth then t.allow_birth = TRUE end
 

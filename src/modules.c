@@ -113,6 +113,10 @@ static void activate_module()
 	call_lua("get_module_info", "(s)", "d", "max_plev", &max_plev);
 	call_lua("get_module_info", "(s)", "d", "death_dungeon", &DUNGEON_DEATH);
 
+	call_lua("get_module_info", "(s)", "d", "random_artifact_weapon_chance", &RANDART_WEAPON);
+	call_lua("get_module_info", "(s)", "d", "random_artifact_armor_chance", &RANDART_ARMOR);
+	call_lua("get_module_info", "(s)", "d", "random_artifact_jewelry_chance", &RANDART_JEWEL);
+
 	call_lua("get_module_info", "(s,d)", "d", "version", 1, &VERSION_MAJOR);
 	call_lua("get_module_info", "(s,d)", "d", "version", 2, &VERSION_MINOR);
 	call_lua("get_module_info", "(s,d)", "d", "version", 3, &VERSION_PATCH);

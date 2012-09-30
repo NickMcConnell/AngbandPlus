@@ -46,7 +46,7 @@ static bool grab_one_power(int *ra_idx, object_type *o_ptr, bool good, s16b *max
 
 			if (ok) break;
 		}
-		if ((ra_ptr->max_pval < o_ptr->pval)) ok = FALSE;
+		if ((0 < ra_ptr->max_pval) && (ra_ptr->max_pval < o_ptr->pval)) ok = FALSE;
 		if (!ok)
 		{
 			/* Doesnt count as a try*/
@@ -363,23 +363,24 @@ bool create_artifact(object_type *o_ptr, bool a_scroll, bool get_name)
 		if (a_scroll)
 		{
 			char dummy_name[80];
+
+			/* Identify it fully */
+			object_aware(o_ptr);
+			object_known(o_ptr);
+			o_ptr->ident |= (IDENT_STOREB | IDENT_MENTAL);
+
 			strcpy(dummy_name, "");
 			object_out_desc(o_ptr, NULL, FALSE, TRUE);
-			o_ptr->ident |= IDENT_STOREB;  /* This will be used later on... */
-			if (!(get_string("What do you want to call the artifact? ", dummy_name, 80)))
-				sprintf(new_name, "of '%s'", player_name);
-			else
+
+			if (get_string("What do you want to call the artifact? ", dummy_name, 80))
 			{
 				strcpy(new_name, "called '");
 				strcat(new_name, dummy_name);
 				strcat(new_name, "'");
 			}
-			/* Identify it fully */
-			object_aware(o_ptr);
-			object_known(o_ptr);
-
-			/* Mark the item as fully known */
-			o_ptr->ident |= (IDENT_MENTAL);
+			else
+				/* Default name = of 'player name' */
+				sprintf(new_name, "of '%s'", player_name);
 		}
 		else
 		{

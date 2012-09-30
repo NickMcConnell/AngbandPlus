@@ -7,18 +7,24 @@
 The Monk character class is very different from all other classes. 
 Although they can use weapons and armour just like any other class, 
 their training in martial arts makes them much more powerful with no 
-armour nor weapons. To gain the resistances necessary for survival at 
-higher levels a monk may need to wear some kind of armour, but if the 
-armour worn is too heavy, it will severely disturb their martial arts 
-maneuvers. As the monk gains in skill, new, powerful forms of attack 
-become available. Their defensive capabilities (blocking and dodging) 
-increase likewise, but if armour is being worn, this effect decreases. 
-Fortunately, the amount of armour a monk can wear while still fighting 
-efficiently can be increased by raising his/her Barehanded-combat skill. 
-It is rumoured that the monastic training even makes monks faster than 
-any other character class! 
+armour nor weapons. 
 
-Monks also have access to the schools of *****m_meta.txt*0[Meta], *****m_tempo.txt*0[Temporal] and *****m_mind.txt*0[Mind] magic.
+As the Monk's skill level rises, new and more powerful forms of attack become 
+available. It is also rumoured that the monastic training makes experienced 
+monks faster than any other character class!
+
+A Monk might need to wear some kind of armour to gain the resistances necessary 
+for survival at higher levels, but if that armour is too heavy, it will 
+severely disturb his/her martial arts maneuvers.
+
+If skill points are invested in *****skills.txt*20[Dodging], a Monk's defensive capabilities 
+(blocking and dodging) will also increase. However, if armour is being worn, 
+dodging is much less effective. Fortunately, a Monk can increase his/her 
+ability to fight while still wearing armor by increasing his/her 
+*****skills.txt*13[Barehanded-combat] skill. 
+
+Monks also have access to the schools of *****m_meta.txt*0[Meta], 
+*****m_tempo.txt*0[Temporal] and *****m_mind.txt*0[Mind] magic.
 
 #####GStarting Stat Modifiers
 Strength         +1
@@ -54,9 +60,9 @@ Monster-lore            1.000           [1.100]
   Possession            0.000           [0.100]
 
 #####GStarting Equipment
-A monk begins the game with:
-    A potion of healing
-    Soft leather armor
+A Monk begins the game with:
+    a Potion of Healing
+    a Soft Leather Armour
 ~~~~~03|Monk|Monk attacks
 ~~~~~04|Tables|Monk attacks
 #####GMonk Attacks

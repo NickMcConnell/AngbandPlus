@@ -112,6 +112,7 @@ ESSENCESPEED = add_spell
 				["max_level"] =		{ 10, 39 },
 			},
 	},
+	["inertia"] = 	{ 5, 20 },
 	["spell"] = 	function()
 			if player.fast == 0 then return set_fast(10 + randint(10) + get_level(ESSENCESPEED, 50), 5 + get_level(ESSENCESPEED, 20)) end
 	end,
@@ -141,6 +142,7 @@ BANISHMENT = add_spell
 				["max_level"] =		{ 10, 36 },
 			},
 	},
+	["inertia"] = 	{ 5, 50 },
 	["spell"] = 	function()
 			local obvious
 			obvious = project_los(GF_AWAY_ALL, 40 + get_level(BANISHMENT, 160))

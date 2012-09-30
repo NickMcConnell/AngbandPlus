@@ -16,7 +16,7 @@ a skill to the next level vary according to the starting "type" of character.
 You can also spend skill points in "one-off purchase" *****ability.txt*0[Abilities]. 
 ~~~~~56|Skills|Screen
 #####GThe Skills Menu
-Each time a character gains a level of experience, you receive 5 skill points
+Each time a character gains a level of experience, you receive 6 skill points
 to spread around as you wish. To use these skill points, you need to access
 the skills menu ("G" for both keysets). This opens up a long list of
 abilities that can be improved.
@@ -24,9 +24,9 @@ The menu may look something like this:
 
 &&&&&w w w w w w w w w w w w w w w w w w w w w w w w w w w w wTwowMwEw wSwkwiwlwlwsw wSwcwrwewewnw w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w
 &&&&&BEBnBtBeBrW WtWoW WdWeWvWeWlWoWpW WaW WbWrWaWnWcWhW,W BuBpW/BdBoBwBnW WtWoW WmWoWvWeW,W BrBiBgBhBtW/BlBeBfBtW WtWoW WmWoWdWiWfWyW,W B?W WfWoWrW WhWeWlWpw w w w
-&&&&&BSBkBiBlBlB BpBoBiBnBtBsB BlBeBfBtB:B B5w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w
+&&&&&BSBkBiBlBlB BpBoBiBnBtBsB BlBeBfBtB:B B6w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w
 &&&&&yGyeynyeyryayly yaybyiylyiytyyy ytyoy yfyiygyhyty yaynydy ytyoy ypysyeyuydyoy-yiydy yayrymyoyrysy yaynydy ywyeyaypyoynysy.w w w w w w w w w w w w w w w w w w w
-&&&&&yIyty yaylysyoy yaylylyoywysy ytyoy yuysyey yhyeyayvyiyeyry yayrymyoyrysy ywyiytyhyoyuyty ypyeynyaylyiytyiyeysw w w w w w w w w w w w w w w w w w w w w w w w w
+&&&&&yIyty yaylysyoy yaylylyoywysy ytyoy yuysyey yhyeyayvyiyeyry yayrymyoyuyrysy ywyiytyhyoyuyty ypyeynyaylytyiyeysw w w w w w w w w w w w w w w w w w w w w w w w w
 &&&&&G[G-G]GCGoGmGbGaGtw w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w G0G2G.G0G0G0G G[G0G.G8G0G0G]w w w w w w
 &&&&&w w w w w w-w wWwewawpwownwmwawswtwewrwyw w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w0w1w.w0w0w0w w[w0w.w8w5w0w]w w w w w w
 &&&&&w w w w w w w w o o.o oSowooorodo-omoaosotoeoroyw w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w o0o0o.o0o0o0o o[o0o.o4o0o0o]w w w w w w
@@ -246,6 +246,10 @@ teleporting away from you just before you kill them - but it will also prevent
 you from casting spells, or teleporting away when they've almost killed you!
 It also inhibits your ability to do magic, affecting *all* the magic and
 spirituality sub-skills.
+
+This skill does not affect your ability to use scrolls and potions, but other 
+items that require [Self]Magic-Device are affected. At higher levels you gain 
+the ability to detect traps and disrupt all teleportation.
 ~~~~~14|Skills|Sneakiness
 [[[[[BSneakiness]
 The sneakiness skill affects things like your searching ability.

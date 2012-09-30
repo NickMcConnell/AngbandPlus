@@ -1011,6 +1011,7 @@ s16b get_mon_num(int level)
 
 	alloc_entry	*table = alloc_race_table;
 
+	int in_tome;
 
 	/* Boost the level */
 	if (level > 0)
@@ -1039,6 +1040,9 @@ s16b get_mon_num(int level)
 
 	/* Reset total */
 	total = 0L;
+
+	/* Check whether this is ToME or a module */
+	in_tome = strcmp(game_module, "ToME") == 0;
 
 	/* Process probabilities */
 	for (i = 0; i < alloc_race_size; i++)
@@ -1074,11 +1078,14 @@ s16b get_mon_num(int level)
 			continue;
 		}
 
-		/* Zangbandish monsters allowed ? or not ? */
-		if (!zang_monsters && (r_ptr->flags8 & RF8_ZANGBAND)) continue;
+		if(in_tome)
+		{
+			/* Zangbandish monsters not allowed */
+			if (r_ptr->flags8 & RF8_ZANGBAND) continue;
 
-		/* Lovercraftian monsters allowed ? or not ? */
-		if (!cth_monsters && (r_ptr->flags8 & RF8_CTHANGBAND)) continue;
+			/* Lovecraftian monsters not allowed */
+			if (r_ptr->flags8 & RF8_CTHANGBAND) continue;
+		}
 
 		/* Joke monsters allowed ? or not ? */
 		if (!joke_monsters && (r_ptr->flags8 & RF8_JOKEANGBAND)) continue;
@@ -3723,7 +3730,7 @@ bool multiply_monster(int m_idx, bool charm, bool clone)
 
 	if (no_breeds)
 	{
-		msg_print("It tries to breed but he fails!");
+		msg_print("It tries to breed but it fails!");
 		return FALSE;
 	}
 

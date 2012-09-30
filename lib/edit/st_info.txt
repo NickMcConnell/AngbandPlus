@@ -55,16 +55,16 @@ I:80:& Hard Leather Cap~
 I:70:& Metal Cap~
 I:65:& Iron Helm~
 I:100:& Robe~
-I:90:Soft Leather Armour~
-I:90:Soft Studded Leather~
-I:90:Hard Leather Armour~
-I:85:Hard Studded Leather~
-I:90:Leather Scale Mail~
-I:80:Metal Scale Mail~
-I:75:Chain Mail~
-I:80:Augmented Chain Mail~
-I:75:Metal Brigandine Armour~
-I:68:Bar Chain Mail~
+I:90:& Soft Leather Armour~
+I:90:& Soft Studded Leather~
+I:90:& Hard Leather Armour~
+I:85:& Hard Studded Leather~
+I:90:& Leather Scale Mail~
+I:80:& Metal Scale Mail~
+I:75:& Chain Mail~
+I:80:& Augmented Chain Mail~
+I:75:& Metal Brigandine Armour~
+I:68:& Bar Chain Mail~
 I:100:& Set~ of Leather Gloves
 I:80:& Set~ of Gauntlets
 I:100:& Small Leather Shield~
@@ -164,7 +164,7 @@ W:24
 N:4:Alchemy shop
 I:100:Enchant Weapon To-Hit
 I:100:Enchant Weapon To-Dam
-I:100:Enchant Armor
+I:100:Enchant Armour
 I:100:Identify
 I:100:Identify
 I:100:Identify
@@ -211,8 +211,8 @@ I:100:Restore Dexterity
 #I:100:Restore Constitution
 T:100:71:46
 I:100:Restore Charisma
-I:100:Enchant Armor
-I:100:Enchant Armor
+I:100:Enchant Armour
+I:100:Enchant Armour
 I:100:Recharging
 I:100:Satisfy Hunger
 I:100:Satisfy Hunger
@@ -703,7 +703,7 @@ A:0:0:59:0:3:0
 O:0:0:0:0
 G:+:g
 F:MUSEUM
-W:1200
+W:255
 
 N:58:The Prancing Pony
 I:100:& Ration~ of Food

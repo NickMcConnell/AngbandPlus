@@ -2,7 +2,7 @@
 ~~~~~02|Classes|Assassin
 #####R=== Assassins ===
 #####GDescription
-Assassin are similar to rogues, but have trained their combat abilities more
+Assassin are similar to Rogues, but have trained their combat abilities more
 extensively by neglecting the study of magic. They also tend to be more stealthy
 and careful in their dungeon exploration, but aren't so good at stealing,
 trapping and disarming as their more "peaceful" counterparts.
@@ -27,10 +27,10 @@ Combat                  1.000           [0.800]
     Sword-mastery       1.000           [0.600]
       Critical-hits     2.000           [0.800]
   Archery
-    Boomerang-mastery   1.000           [0.300] 
+    Boomerang-mastery   1.000           [0.300]
 Sneakiness              1.000           [2.000]
   Stealth               1.000           [2.000]
-  Disarming             1.000           [0.500]
+  Disarming             1.000           [1.000]
   Backstab              1.000           [2.000]
   Stealing              1.000           [0.200]
   Dodging               1.000           [2.000]
@@ -43,16 +43,16 @@ Spirituality            1.000           [0.700]
   Prayer                0.000           [0.500]
 Monster-lore            0.000           [0.500]
 
-*An assassin cannot learn the archery skill, but it is shown in his skill 
-screen because boomerang-mastery is a sub-skill of it.
+*An Assassin cannot learn the Archery skill, but it is shown in his skill 
+screen because Boomerang-mastery is a sub-skill of it.
 
 #####GInnate Abilities:
 #####BAbility              Character level
-Extra-Max-Blow(1)           10
+Extra Max Blow(1)           10
 
 #####GStarting Equipment
-An assassin begins the game with:
-    A dagger
+An Assassin begins the game with:
+    a Dagger
 
 
 

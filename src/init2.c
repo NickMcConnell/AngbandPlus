@@ -218,7 +218,7 @@ void init_file_paths(char *path)
 
 		/* Get an absolute path from the file name */
 		path_parse(user_path, 1024, PRIVATE_USER_PATH);
-		strcat(user_path, "/2.2");
+		strcat(user_path, USER_PATH_VERSION);
 		ANGBAND_DIR_USER = string_make(user_path);
 		ANGBAND_DIR_NOTE = string_make(user_path);
 		ANGBAND_DIR_CMOV = string_make(user_path);

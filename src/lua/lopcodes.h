@@ -1,5 +1,5 @@
 /*
-** $Id: lopcodes.h,v 1.3 2001/11/26 23:00:24 darkgod Exp $
+** $Id: lopcodes.h,v 1.5 2004/06/04 13:42:10 neil Exp $
 ** Opcodes for Lua virtual machine
 ** See Copyright Notice in lua.h
 */

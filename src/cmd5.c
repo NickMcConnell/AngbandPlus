@@ -12,7 +12,7 @@
 
 
 #include "angband.h"
-#include "lua.h"
+#include "lua/lua.h"
 #include "tolua.h"
 
 extern lua_State *L;

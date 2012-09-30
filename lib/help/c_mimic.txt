@@ -7,7 +7,10 @@ Mimics possess the ability to transform into various creatures using
 special cloaks. While transformed, they lose their intrinsic abilities, 
 and gain those of the creature they have transformed into.
 
-See more on *****m_mimic.txt*0[mimicry powers].
+At higher skill levels, Mimics gain additional Mimicry powers which help them 
+to further blend in with their surroundings or modify themselves.
+
+See more on *****m_mimic.txt*0[Mimicry powers].
 
 
 #####GStarting Stat Modifiers
@@ -41,10 +44,10 @@ Monster-lore            1.000           [1.100]
   Mimicry               1.000           [0.800]
 
 #####GStarting Equipment
-A mimic begins the game with:
-    A cloak of mimicry [Wolf]
-    A potion of healing
-    A dagger
+A Mimic begins the game with:
+    a Mouse Fur
+    a Potion of Healing
+    a Dagger
 
 
     

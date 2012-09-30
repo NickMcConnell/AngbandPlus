@@ -92,6 +92,7 @@ VISION = add_spell
 				["max_level"] =		{ 10, 30 },
 			},
 	},
+	["inertia"] = 	{ 2, 200 },
 	["spell"] = 	function()
 			if get_level(VISION, 50) >= 25 then
 				wiz_lite_extra()
@@ -127,6 +128,7 @@ SENSEHIDDEN = add_spell
 				["max_level"] =		{ 10, 50 },
 			},
 	},
+	["inertia"] = 	{ 1, 10 },
 	["spell"] = 	function()
 			local obvious = nil
 			obvious = detect_traps(15 + get_level(SENSEHIDDEN, 40, 0))
@@ -166,6 +168,7 @@ REVEALWAYS = add_spell
 				["max_level"] =		{ 25, 50 },
 			},
 	},
+	["inertia"] = 	{ 1, 10 },
 	["spell"] = 	function()
 			local obvious
 			obvious = detect_doors(10 + get_level(REVEALWAYS, 40, 0))
@@ -198,6 +201,7 @@ SENSEMONSTERS = add_spell
 				["max_level"] =		{ 15, 40 },
 			},
 	},
+	["inertia"] = 	{ 1, 10 },
 	["spell"] = 	function()
 			local obvious
 			obvious = detect_monsters_normal(10 + get_level(SENSEMONSTERS, 40, 0))

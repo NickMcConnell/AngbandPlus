@@ -185,6 +185,17 @@ F:210:0x01/0x7F
 # hail-stone wall
 F:211:0x09/0x7F
 
+# copper pillar
+F:213:0x07/0x7F
+
+# ethereal wall
+F:214:0x01/0x1F
+
+# glacial wall
+F:215:0x0E/0x7F
+
+# battlement
+F:216:0x01/0x7F
 
 ##### Monster attr/char definitions #####
 

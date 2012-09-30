@@ -2,5 +2,6 @@
 makefile
 tome
 tolua
+w_*.c
 TOME.EXE
 TOLUA.EXE

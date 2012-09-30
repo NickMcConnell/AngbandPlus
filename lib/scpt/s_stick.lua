@@ -407,7 +407,7 @@ DEVICE_THUNDERLORDS = add_spell
 			return ""
 	end,
 	["desc"] =	{
-			"A thunderlord will appear to transport you quickly to the town.",
+			"A thunderlord will appear to transport you quickly to the surface.",
 	}
 }
 

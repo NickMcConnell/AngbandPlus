@@ -5349,7 +5349,7 @@ bool execute_inscription(byte i, byte y, byte x)
 				{
 					if (!(r_ptr->flags1 & RF1_UNIQUE))
 					{
-						msg_print("The monster fall in the chasm !");
+						msg_print("The monster falls in the chasm!");
 						delete_monster_idx(cave[ij][ii].m_idx);
 					}
 				}

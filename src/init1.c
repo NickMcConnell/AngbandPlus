@@ -5256,6 +5256,16 @@ errr init_a_info_txt(FILE *fp, char *buf)
 			/* Advance and Save the text index */
 			if (!a_ptr->text) a_ptr->text = ++a_head->text_size;
 
+			/* Append a space at the end of the line, if needed */
+			else if (a_text[a_head->text_size - 1] != ' ')
+			{
+				/* Append the space */
+				strcpy(a_text + a_head->text_size, " ");
+
+				/* Advance the index */
+				a_head->text_size += 1;
+			}
+
 			/* Append chars to the name */
 			strcpy(a_text + a_head->text_size, s);
 

@@ -131,7 +131,7 @@ DOOM_SHIELD = add_spell
 	end,
 	["desc"] =      {
 			"Raises a mirror of pain around you, doing very high damage to your foes",
-			"that dare hit you, but greatly reduces your armor",
+			"that dare hit you, but greatly reduces your armour class",
 	}
 }
 

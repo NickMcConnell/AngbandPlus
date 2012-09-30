@@ -18,6 +18,7 @@ TIDALWAVE = add_spell
 				["max_level"] =		{ 20, 50 },
 			},
 	},
+	["inertia"] = 	{ 4, 100 },
 	["spell"] = 	function()
 			fire_wave(GF_WAVE, 0, 40 + get_level(TIDALWAVE, 200), 0, 6 + get_level(TIDALWAVE, 10), EFF_WAVE)
 			return TRUE
@@ -49,6 +50,7 @@ ICESTORM = add_spell
 				["max_level"] =		{ 25, 45 },
 			},
 	},
+	["inertia"] = 	{ 3, 40 },
 	["spell"] = 	function()
 			local type
 	
@@ -74,6 +76,7 @@ ENTPOTION = add_spell
 	["mana"] = 	7,
 	["mana_max"] = 	15,
 	["fail"] = 	35,
+	["inertia"] = 	{ 1, 30 },
 	["spell"] = 	function()
 			set_food(PY_FOOD_MAX - 1)
 			msg_print("The Ent's Potion fills your stomach.")
@@ -107,6 +110,7 @@ VAPOR = add_spell
 	["mana"] = 	2,
 	["mana_max"] = 	12,
 	["fail"] = 	20,
+	["inertia"] = 	{ 1, 30 },
 	["spell"] = 	function()
 			fire_cloud(GF_WATER, 0, 3 + get_level(VAPOR, 20), 3 + get_level(VAPOR, 9, 0), 5)
 			return TRUE

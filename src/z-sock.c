@@ -394,8 +394,8 @@ bool init_socks_win()
  ****************************** And there is the unix sockets **************************
  */
 #ifdef USE_UNIXSOCK
-#include <arpa/inet.h>
 #include <netinet/in.h>
+#include <arpa/inet.h>
 #include <sys/socket.h>
 #include <netdb.h>
 #include <signal.h>

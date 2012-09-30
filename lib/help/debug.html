@@ -1,0 +1,237 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+ <title>T.o.M.E. Documentation</title>
+ <meta name="description" content="ToME and TomeNET homepage. ToME is a roguelike dungeon exploration game, based on Angband.">
+ <meta name="keywords" content="angband, tome, tomenet, library, angband, official, roguelike">
+</head>
+<body bgcolor="#000000" text="#FFFFFF" link="#CC0000" alink="#FF9900" vlink="#FFCC66">
+<FONT text="#CCCCCC">
+<PRE><TT>
+<A NAME="99"></A><FONT COLOR="#FF0000">=== Debug Commands ===</FONT>
+
+
+Debug commands are entered as an "underlying command" (a single key)
+plus a variety of optional or required arguments.
+
+The debug commands are used for debugging and experimenting. The game
+will not be scored if you use debug commands.
+
+<A NAME="100"></A><FONT COLOR="#FF0000">=== Command List Summary ===</FONT>
+
+ <A HREF="debug.html#1">a  Autorestore</A>                          <A HREF="debug.html#2">A  Show all stats</A>
+ <A HREF="debug.html#3">b  Teleport to target</A>                   <A HREF="debug.html#4">B  HP to zero</A>
+ <A HREF="debug.html#5">c  Create object</A>                        <A HREF="debug.html#6">C  Create artifact</A>
+ <A HREF="debug.html#7">d  Detect all</A>                           <A HREF="debug.html#8">D  Teleport to the wilderness</A>
+ <A HREF="debug.html#9">e  Edit character attributes</A>            <A HREF="debug.html#10">E  Change grid's mana</A>
+ <A HREF="debug.html#11">f  *IDENTIFY*</A>                           <A HREF="debug.html#12">F  Features</A>
+ <A HREF="debug.html#13">g  Create good item</A>                     G  (unused)
+ <A HREF="debug.html#15">h  Change life rating</A>                   <A HREF="debug.html#16">H  Hostile monster creation</A>
+ <A HREF="debug.html#17">i  Identify</A>                             I  (unused)
+ <A HREF="debug.html#19">j  Jump to other level</A>                  J  (unused)
+ <A HREF="debug.html#21">k  Check attributes</A>                     K  (unused)
+ <A HREF="debug.html#23">l  Learn about objects</A>                  L  (unused)
+ <A HREF="debug.html#25">m  Magic Mapping</A>                        <A HREF="debug.html#26">M  Gain corruption</A>
+ <A HREF="debug.html#27">n  Summon named monster</A>                 <A HREF="debug.html#28">N  Summon _friendly_ named monster</A>
+ <A HREF="debug.html#29">o  Edit object attributes</A>               O  (unused)
+ <A HREF="debug.html#31">p  Phase door</A>                           <A HREF="debug.html#32">P  Panic save</A>
+ <A HREF="debug.html#33">q  Get a quest</A>                          Q  (unused)
+ <A HREF="debug.html#35">r  Gain reward</A>                          <A HREF="debug.html#36">R  Create a trap</A>
+ <A HREF="debug.html#37">s  Summon monster</A>                       <A HREF="debug.html#38">S  Change the feature of the map</A>
+ <A HREF="debug.html#39">t  Teleport</A>                             <A HREF="debug.html#40">T  Teleport to a town</A>
+ <A HREF="debug.html#41">u  Complete map</A>                         <A HREF="debug.html#42">U  Become undead</A>
+ <A HREF="debug.html#43">v  Random artifact/ego item</A>             V  (unused)
+ <A HREF="debug.html#45">w  Wizard light the level</A>               <A HREF="debug.html#46">W  Wish</A>
+ <A HREF="debug.html#47">x  XP boost</A>                             X  (unused)
+ y  (unused)                             Y  (unused)
+ <A HREF="debug.html#51">z  Zap monsters</A>                         Z  (unused)
+ !  (unused)                            ^A  (unused)
+ <A HREF="debug.html#55">@  Increment monster level</A>             ^B  (unused)
+ #  (unused)                            ^C  (unused)
+ $  (unused)                            ^D  (unused)
+ %  (unused)                            ^E  (unused)
+ ^  (unused)                            ^F  (unused)
+ &  (unused)                            ^G  (unused)
+ <A HREF="debug.html#61">*  Lose special powers</A>                 ^H  (unused)
+ (  (unused)                            ^I  (unused)
+ )  (unused)                            ^J  (unused)
+ {  (unused)                            ^K  (unused)
+ }  (unused)                            ^L  (unused)
+ [  (unused)                            ^M  (unused)
+ ]  (unused)                            ^N  (unused)
+ <A HREF="debug.html#67">-  Create object</A>                       ^O  (unused)
+ <A HREF="debug.html#69">_  The path to the god dark</A>            ^P  (unused)
+ <A HREF="debug.html#71">+  Gain a fate</A>                         ^Q  (unused)
+ <A HREF="debug.html#73">=  Align monster</A>                       ^R  (unused)
+ ;  (unused)                            ^S  (unused)
+ :  (unused)                            ^T  (unused)
+ '  (unused)                            ^U  (unused)
+ <A HREF="debug.html#75">"  Create spoiler</A>                      ^V  (unused)
+ ,  (unused)                            ^W  (unused)
+ <  (unused)                            ^X  (unused)
+ .  (unused)                            ^Y  (unused)
+ <A HREF="debug.html#81">>  Lua script</A>                          ^Z  (unused)
+ \  (unused)                             |  (unused)
+ `  (unused)                             ~  (unused)
+ <A HREF="debug.html#91">/  Summon monster</A>                       <A HREF="debug.html#92">?  Help</A>
+                                        ^\  (unused)
+
+<A NAME="111"></A><FONT COLOR="#FF0000">===  Command Descriptions ===</FONT>
+
+        The following command descriptions are listed as the command name
+plus the "underlying command" key. Then comes a brief description of the
+command. Some commands use the "repeat count" to automatically repeat the
+command several times, while others use the "repeat count" as an "argument",
+for example, commands which need a "quantity" will use the "repeat count"
+instead of asking for a quantity, allowing the use of "0d" for "drop all".
+Commands which ask for a quantity will convert any "letters" into the
+maximal legal value.
+<A NAME="112"></A><FONT COLOR="#FF0000">---  General Commands ---</FONT>
+<A NAME="1"></A><FONT COLOR="#00FF00">Autorestore (a)</FONT>
+        Restores all your stats.  This includes HP, SP, hunger, lost levels, etc.
+<A NAME="2"></A><FONT COLOR="#00FF00">Show all stats (A)</FONT>
+        This brings up the Character status menu, where you can view
+        all the stats about your character.
+<A NAME="3"></A><FONT COLOR="#00FF00">Teleport to target (b)</FONT>
+        You first need to have a monster targeted, then you can use
+        this command to teleport next to the monster.
+<A NAME="4"></A><FONT COLOR="#00FF00">HP to zero (B)</FONT>
+        Bring your health down to zero.
+<A NAME="5"></A><FONT COLOR="#00FF00">Create object (c)</FONT>
+        Allows you to select and create a new object where you stand.
+        This brings up a menu where you can choose what type of object
+        you want created.
+<A NAME="6"></A><FONT COLOR="#00FF00">Create artifact (C)</FONT>
+        Allows you to select and create a new artifact where you stand.
+        Use the "Command count", aka 0, to specify a number from
+        a_info.txt to put it on the ground where you are standing.
+        For example : 03^AC will create the Arkenstone of Thrane (+3)
+<A NAME="7"></A><FONT COLOR="#00FF00">Detect all (d)</FONT>
+        Sense ways out/monsters/objects/traps.
+<A NAME="8"></A><FONT COLOR="#00FF00">Teleport to the wilderness (D)</FONT>
+        From a dungeon this will teleport you to the wilderness level
+        and if used in the wilderness it acts like teleport.
+<A NAME="9"></A><FONT COLOR="#00FF00">Edit character attributes (e)</FONT>
+        Edit character attributes including Str, Int, Dex, experience, gold, luck, etc.
+<A NAME="10"></A><FONT COLOR="#00FF00">Change grid's mana (E)</FONT>
+        Alter how much mana a grid has.
+        Use the "Command count", aka 0, to specify the amount of mana
+        that you want.
+<A NAME="11"></A><FONT COLOR="#00FF00">*IDENTIFY* (f)</FONT>
+        Like a Scroll of *Identify*.
+<A NAME="12"></A><FONT COLOR="#00FF00">Features (F)</FONT>
+        Use the "Command count", aka 0, to specify a number from
+        f_info.txt to put a feature on the ground where you are
+        standing.
+<A NAME="13"></A><FONT COLOR="#00FF00">Create good item (g)</FONT>
+        Create a random good item where you stand.
+<A NAME="15"></A><FONT COLOR="#00FF00">Change life rating (h)</FONT>
+        Change your life rating.
+<A NAME="16"></A><FONT COLOR="#00FF00">Hostile monster creation (H)</FONT>
+        Summons a Pack of Creatures of the same kind. Will only work
+        if MONSTER_HORDES has been defined at compile time.
+<A NAME="17"></A><FONT COLOR="#00FF00">Identify (i)</FONT>
+        Like a Scroll of Identify.
+<A NAME="19"></A><FONT COLOR="#00FF00">Jump to other level (j)</FONT>
+        Jump to other dungeon level. This does not work in the
+        wilderness as it is treated as all one level.
+<A NAME="21"></A><FONT COLOR="#00FF00">Check attributes (k)</FONT>
+        Displays your characters attributes.
+<A NAME="23"></A><FONT COLOR="#00FF00">Learn about objects (l)</FONT>
+        Make you know about all objects. Not sure how this works.
+<A NAME="25"></A><FONT COLOR="#00FF00">Magic Mapping (m)</FONT>
+        Like a Scroll of Magic mapping.
+<A NAME="26"></A><FONT COLOR="#00FF00">Gain corruption (M)</FONT>
+        Allows your character to gain a corruption.
+<A NAME="27"></A><FONT COLOR="#00FF00">Summon named monster (n)</FONT>
+        Summon a monster that will appear next to you.
+        Use the "Command count", aka 0, to specify a number from
+        r_info.txt to summon a monster.
+<A NAME="28"></A><FONT COLOR="#00FF00">Summon _friendly_ named monster (N)</FONT>
+        The same as n but the creature will be your pet. Try this
+        with number 861, Darkgod is now your pet.
+<A NAME="29"></A><FONT COLOR="#00FF00">Edit object attributes (o)</FONT>
+        Allows you to alter the attributes of any object that you
+        have in your backpack.
+<A NAME="31"></A><FONT COLOR="#00FF00">Phase door (p)</FONT>
+        Like a Scroll of Phase Door.
+<A NAME="32"></A><FONT COLOR="#00FF00">Panic save (P)</FONT>
+        Save and quit the game, which is the same as doing a ^X.
+<A NAME="33"></A><FONT COLOR="#00FF00">Get a quest (q)</FONT>
+        Get a quest.
+        Use the "Command count", aka 0, to specify a number from
+        1 to 25, as defined in defines.h ( the QUEST_XXX items ).
+        For example : 04^Aq will get you the thieves quest.
+<A NAME="35"></A><FONT COLOR="#00FF00">Gain reward (r)</FONT>
+        Some high being grants you a reward.
+<A NAME="36"></A><FONT COLOR="#00FF00">Create a trap (R)</FONT>
+        Use the "Command count", aka 0, to specify a number from
+        tr_info.txt to put a trap on the ground where you are
+        standing.
+<A NAME="37"></A><FONT COLOR="#00FF00">Summon monster (s)</FONT>
+        Summon a random monster, next to where you stand.
+<A NAME="38"></A><FONT COLOR="#00FF00">Change the feature of the map (S)</FONT>
+        This allows you to change the "special" field of the current
+        grid. This special field is used to store things like quest
+        ids, dungeon entries, and so on, not to be used unless
+        one knows what it's doing.
+<A NAME="39"></A><FONT COLOR="#00FF00">Teleport (t)</FONT>
+        Like a Scroll of Teleport.
+<A NAME="40"></A><FONT COLOR="#00FF00">Teleport to a town (T)</FONT>
+        Teleports you to a specific town.
+        Use the "Command count", aka 0, to specify a number from
+        wf_info.txt for where you want to go.
+        standing.
+        For example : 02^AT will teleport you to Gondolin
+<A NAME="41"></A><FONT COLOR="#00FF00">Complete map (u)</FONT>
+        Displays the complete map of the dungeon.
+<A NAME="42"></A><FONT COLOR="#00FF00">Become undead (U)</FONT>
+        This is supposed to make you undead (as in the Necromantic power).
+<A NAME="43"></A><FONT COLOR="#00FF00">Random artifact/ego item (v)</FONT>
+        Create a random artifact/ego item where you stand.
+<A NAME="45"></A><FONT COLOR="#00FF00">Wizard light the level (w)</FONT>
+        Looks like the same as u.
+<A NAME="46"></A><FONT COLOR="#00FF00">Wish (W)</FONT>
+        Makes all your wishes come true.
+
+        Read the <A HREF="ishing.html">wishing spoiler</A> to see how these work.
+<A NAME="47"></A><FONT COLOR="#00FF00">XP boost (x)</FONT>
+        Use the "Command count", aka 0, to specify the increment,
+        if you do not specify a parameter it doubles your XP,
+        otherwise it increments by the specified amount.
+<A NAME="51"></A><FONT COLOR="#00FF00">Zap monsters (z)</FONT>
+        All monsters in sight range vanish like Mass Genocide, only with no
+        HP price.
+<A NAME="55"></A><FONT COLOR="#00FF00">Increment monster level (@)</FONT>
+        Level up a monster.
+<A NAME="61"></A><FONT COLOR="#00FF00">Lose special powers (*)</FONT>
+        Returns your powers to a normal level.
+<A NAME="67"></A><FONT COLOR="#00FF00">Create object (-)</FONT>
+        Allows you to create a new object where you stand. You must
+        specify an object number from k_info.txt.
+<A NAME="69"></A><FONT COLOR="#00FF00">The path to the god dark (_)</FONT>
+        Do not use this as it is used by DarkGod as a test for Lua
+        and will CRASH the game. You have been warned.
+<A NAME="71"></A><FONT COLOR="#00FF00">Gain a fate (+)</FONT>
+        Unearth more of your prophecy.
+<A NAME="73"></A><FONT COLOR="#00FF00">Align monster (=)</FONT>
+        Use the "Command count", aka 0, to specify one of the following
+        alignment types:
+            0 monster becomes enemy
+            1 monster becomes neutral
+            2 monster becomes friendly
+            3 monster becomes pet
+            4 monster becomes companion
+        You then point at an enemy and press space.
+<A NAME="75"></A><FONT COLOR="#00FF00">Create spoiler (")</FONT>
+        Brings up a menu that allows you to create a spoiler file.
+<A NAME="81"></A><FONT COLOR="#00FF00">Lua script (>)</FONT>
+        Allows you to run a Lua script.
+<A NAME="91"></A><FONT COLOR="#00FF00">Summon monster (/)</FONT>
+        Summons a random monster next to you.
+<A NAME="91"></A><FONT COLOR="#00FF00">Help (?)</FONT>
+        Displays the main help file.
+</TT></PRE>
+</FONT>
+</body>
+</html>

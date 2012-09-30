@@ -56,6 +56,7 @@ AIRWINGS = add_spell
 				["max_level"] =		{ 20, 50 },
 			},
 	},
+	["inertia"] = 	{ 1, 10 },
 	["spell"] = 	function()
 			if get_level(AIRWINGS, 50) >= 16 then
 				if player.tim_fly == 0 then return set_tim_fly(randint(10) + 5 + get_level(AIRWINGS, 25)) end
@@ -81,9 +82,10 @@ INVISIBILITY = add_spell
 	["mana"] = 	10,
 	["mana_max"] = 	20,
 	["fail"] = 	50,
+	["inertia"] = 	{ 1, 30 },
 	["spell"] = 	function()
-		       	if player.tim_invisible == 0 then return set_invis(randint(20) + 15 + get_level(INVISIBILITY, 50), 20 + get_level(INVISIBILITY, 50)) end
-       	end,
+			if player.tim_invisible == 0 then return set_invis(randint(20) + 15 + get_level(INVISIBILITY, 50), 20 + get_level(INVISIBILITY, 50)) end
+	end,
 	["info"] = 	function()
 			return "dur "..(15 + get_level(INVISIBILITY, 50)).."+d20 power "..(20 + get_level(INVISIBILITY, 50))
 	end,
@@ -110,6 +112,7 @@ POISONBLOOD = add_spell
 				["max_level"] =		{ 35, 50 },
 			},
 	},
+	["inertia"] = 	{ 1, 35 },
 	["spell"] = 	function()
 			local obvious = nil
 		       	if player.oppose_pois == 0 then obvious = set_oppose_pois(randint(30) + 25 + get_level(POISONBLOOD, 25)) end
@@ -143,10 +146,11 @@ THUNDERSTORM = add_spell
 				["max_level"] =		{ 25, 50 },
 			},
 	},
+	["inertia"] = 	{ 2, 15 },
 	["spell"] = 	function()
-		       	if player.tim_thunder == 0 then return set_tim_thunder(randint(10) + 10 + get_level(THUNDERSTORM, 25), 5 + get_level(THUNDERSTORM, 10), 10 + get_level(THUNDERSTORM, 25)) end
+			if player.tim_thunder == 0 then return set_tim_thunder(randint(10) + 10 + get_level(THUNDERSTORM, 25), 5 + get_level(THUNDERSTORM, 10), 10 + get_level(THUNDERSTORM, 25)) end
 			return FALSE
-       	end,
+	end,
 	["info"] = 	function()
 			return "dam "..(5 + get_level(THUNDERSTORM, 10)).."d"..(10 + get_level(THUNDERSTORM, 25)).." dur "..(10 + get_level(THUNDERSTORM, 25)).."+d10"
 	end,
@@ -155,5 +159,35 @@ THUNDERSTORM = add_spell
 			"Each turn it will throw a thunder bolt at a random monster in sight",
 			"The thunder does 3 types of damage, one third of lightning",
 			"one third of sound and one third of light"
+	}
+}
+
+STERILIZE = add_spell
+{
+	["name"] = 	"Sterilize",
+	["school"] = 	{SCHOOL_AIR},
+	["level"] = 	20,
+	["mana"] = 	10,
+	["mana_max"] = 	100,
+	["fail"] = 	50,
+	["stick"] =
+	{
+			["charge"] =    { 7, 5 },
+			[TV_STAFF] =
+			{
+				["rarity"] = 		20,
+				["base_level"] =	{ 1, 10 },
+				["max_level"] =		{ 20, 50 },
+			},
+	},
+	["spell"] = 	function()
+			set_no_breeders((30) + 20 + get_level(STERILIZE, 70))
+			return TRUE
+	end,
+	["info"] = 	function()
+			return "dur "..(20 + get_level(STERILIZE, 70)).."+d30"
+	end,
+	["desc"] =	{
+			"Prevents explosive breeding for a while."
 	}
 }

@@ -24,12 +24,38 @@ bool quest_one_move_hook(char *fmt)
 		cmsg_print(TERM_YELLOW, "'lies in the One Ring, our only hope is that you find it'");
 		cmsg_print(TERM_YELLOW, "'and destroy it. I know it will tempt you, but *NEVER* use it'");
 		cmsg_print(TERM_YELLOW, "'or it will corrupt you forever.'");
+
+		GOD(GOD_ERU)
+		{
+			cmsg_print(TERM_YELLOW, "'Also, Eru will abandon you if you wear it.'");
+		}
+
+		GOD(GOD_MANWE)
+		{
+			cmsg_print(TERM_YELLOW, "'Also, Manwe will abandon you if you wear it.'");
+		}
+
+		GOD(GOD_TULKAS)
+		{
+			cmsg_print(TERM_YELLOW, "'Also, Tulkas will abandon you if you wear it.'");
+		}
+
+		GOD(GOD_YAVANNA)
+		{
+			cmsg_print(TERM_YELLOW, "'Also, Yavanna will abandon you if you wear it.'");
+		}
+
 		cmsg_print(TERM_YELLOW, "'Without the destruction of the ring, Sauron's death can only be temporary'");
 		cmsg_print(TERM_YELLOW, "'When you have it bring it to Mount Doom, in Mordor,'");
 		cmsg_print(TERM_YELLOW, "'to destroy it in the Great Fire where it was forged.'");
 		cmsg_print(TERM_YELLOW, "'I do not know where to find it, seek it through Middle-earth. Maybe there'");
 		cmsg_print(TERM_YELLOW, "'are other people that might know'");
 		cmsg_print(TERM_YELLOW, "'Do not forget, the Ring must be cast back into the fires of Mount Doom!'");
+
+		GOD(GOD_MELKOR)
+		{
+			cmsg_print(TERM_YELLOW, "'Melkor will abandon you when you do, but you must do it anyway!'");
+		}
 
 		/* Continue the plot */
 		cquest.status = QUEST_STATUS_TAKEN;
@@ -286,7 +312,7 @@ bool quest_one_dump_hook(char *fmt)
 	}
 	if (cquest.status == QUEST_STATUS_FAILED_DONE)
 	{
-		fprintf(hook_file, "\n You felt under the evil influence of the One Ring and decided to wear it.");
+		fprintf(hook_file, "\n You fell under the evil influence of the One Ring and decided to wear it.");
 	}
 	return (FALSE);
 }

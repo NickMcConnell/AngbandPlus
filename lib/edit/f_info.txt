@@ -900,3 +900,34 @@ N:212:dead small tree
 G:#:D
 F:FLOOR | DONT_NOTICE_RUNNING | CAN_RUN | SUPPORT_LIGHT | REMEMBER
 F:NO_VISION
+
+
+# New features for the Maps of Lord Dimwit
+
+N:213:copper pillar
+G:#:u
+S:u:u:u:o:u:u:u
+F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE | SUPPORT_LIGHT
+F:DONT_NOTICE_RUNNING | ATTR_MULTI
+D:1:The copper is too tough to tunnel through.
+D:2:a copper pillar blocking your way
+
+N:214:ethereal wall
+G:.:w
+F:WALL | NO_WALK | PERMANENT | NOTICE | DONT_NOTICE_RUNNING
+D:1:You can't even see your obstruction!
+D:2:an unseen force blocking your way
+
+N:215:glacial wall
+G:#:B
+F:WALL | NO_WALK | CAN_PASS | NO_VISION | SUPPORT_LIGHT
+F:DONT_NOTICE_RUNNING | TUNNELABLE
+D:1:You tunnel into the glacial wall... #BOh chilly#w.
+D:2:a hard glacial wall blocking your way
+
+N:216:battlement
+G:#:w
+F:NO_WALK | CAN_PASS | NOTICE | SUPPORT_LIGHT
+F:DONT_NOTICE_RUNNING | TUNNELABLE
+D:1:You tunnel into the battlement.
+D:2:a hard stone battlement blocking your way

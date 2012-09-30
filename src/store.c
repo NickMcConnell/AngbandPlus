@@ -1557,7 +1557,7 @@ static void display_inventory(void)
 	for (i = k; i < 13; i++) prt("", i + 6, 0);
 
 	/* Assume "no current page" */
-	put_str("        ", 5, 20);
+	put_str("         ", 5, 20);
 
 	/* Visual reminder of "more items" */
 	if (st_ptr->stock_num > 12)
@@ -1566,7 +1566,7 @@ static void display_inventory(void)
 		prt("-more-", k + 6, 3);
 
 		/* Indicate the "current page" */
-		put_str(format("(Page %d)", store_top / 12 + 1), 5, 20);
+		put_str(format("(Page %d) ", store_top / 12 + 1), 5, 20);
 	}
 }
 

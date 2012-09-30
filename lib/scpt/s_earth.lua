@@ -8,6 +8,7 @@ STONESKIN = add_spell
 	["mana"] = 	1,
 	["mana_max"] = 	50,
 	["fail"] = 	10,
+	["inertia"] = 	{ 2, 50 },
 	["spell"] = 	function()
 			local type
 			if get_level(STONESKIN, 50) >= 25 then
@@ -160,6 +161,7 @@ SHAKE = add_spell
 				["max_level"] =		{ 9, 20 },
 			},
 	},
+	["inertia"] = 	{ 2, 50 },
 	["spell"] = 	function()
 			local ret, x, y
 			if get_level(SHAKE, 50) >= 10 then

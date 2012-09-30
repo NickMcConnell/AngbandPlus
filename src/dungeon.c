@@ -11,7 +11,7 @@
  */
 
 #include "angband.h"
-#include "lua.h"
+#include "lua/lua.h"
 #include "tolua.h"
 extern lua_State* L;
 
@@ -3055,6 +3055,9 @@ static void process_world(void)
 		/* Skip non-objects */
 		if (!o_ptr->k_idx) continue;
 
+		/* Hack: Skip wielded lights that need fuel (already handled above) */
+		if ((i == INVEN_LITE) && (o_ptr->tval == TV_LITE) && (f4 & TR4_FUEL_LITE)) continue;
+
 		/* Recharge activatable objects */
 		if (o_ptr->timeout > 0)
 		{
@@ -3345,7 +3348,7 @@ static void process_world(void)
 		/* No recall. sorry */
 		else if (dungeon_flags2 & DF2_NO_RECALL_OUT)
 		{
-			cmsg_print(TERM_L_DARK, "You cannot reacll from here.");
+			cmsg_print(TERM_L_DARK, "You cannot recall from here.");
 			p_ptr->word_recall = 0;
 		}
 
@@ -3400,6 +3403,7 @@ static void process_world(void)
 					msg_print("You feel yourself yanked upwards!");
 
 					p_ptr->recall_dungeon = dungeon_type;
+					dungeon_type = DUNGEON_WILDERNESS;
 					dun_level = 0;
 
 					is_recall = TRUE;
@@ -5924,7 +5928,7 @@ void play_game(bool new_game)
 
 					/* You shall perish there */
 					dungeon_type = DUNGEON_DEATH;
-					dun_level = 1;
+					dun_level = d_info[dungeon_type].mindepth; /* was 1 */
 
 					fates[i].fate = FATE_NONE;
 					break;

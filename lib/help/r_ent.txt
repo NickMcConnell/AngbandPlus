@@ -20,9 +20,19 @@ Charisma        -3
 Hit Dice Sides  14        
 Exp Penalty     +110%
 
-#####GSkill Bonuses (supplementary to existing skills)
-Barehand-combat            0.000           [0.200]
-Boulder-throwing           0.000           [0.600]
+#####GRacial Skill Modifiers:
+#####BSkill                Start Mod    Skill Point Gains Mod
+Combat                  
+  Weaponmastery        -0.300           [0.000]
+  Archery	       -0.200           [0.000]
+  Barehand-combat       0.000           [0.200]
+  Boulder-throwing      0.000           [0.600]
+Sneakiness              0.500           [0.000]
+  Stealth              -6.000           [0.000]
+  Disarming             0.500           [0.000]
+Magic                   
+  Magic-Device          0.500           [0.000]
+Spirituality           10.000           [0.000]
 
 #####GInnate Abilities:
 #####BAbility              Character level

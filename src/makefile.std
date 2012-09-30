@@ -36,34 +36,7 @@
 #
 
 ##
-## Before you type "make depend; make", please follow these three steps.
-##
-## 1. Support for Lua scripting, builtin IRC client support and
-##    GNU Make ifdef's
-##
-## The ifdef ... endif struct may not be supported by 'make'
-## you are using.  GNU make does and Berkeley make doesn't, for example.
-## If it doesn't, you can still manually enable/disable them with minimum
-## amount of effort:
-##
-## If you are using Berkeley make, substitute .ifdef for ifdef
-## and .endif for endif
-##
-## If your make doesn't seem to understand such construct, then
-## (1) Search for lines containing ifdef and endif
-## (2) Comment these lines out
-## (3-optional) Comment out lines surrounded by these if you are
-##     *not* going to compile the game with Lua scripting enabled.
-##
-
-# Comment out this line if you don't want Lua scripting
-LUA=TRUE
-
-# Comment out this line if you don't want the IRC support
-IRC=TRUE
-
-##
-## 2. Installation locations and such
+## 1. Installation locations and such
 ##
 ## LIBDIR, BINDIR and OWNER should be set appropriately for
 ## multiuser installations.
@@ -98,7 +71,7 @@ OWNER = games
 DESTDIR=
 
 ##
-## 3. Some "system" definitions
+## 2. Some "system" definitions
 ##
 ## No changes are needed to compile a version that will run on both
 ## X11 and Curses, in debugging mode, with maximal warnings, on many
@@ -159,8 +132,6 @@ DEFINES = -DUSE_X11 \
 	-DUSE_PRECISE_CMOVIE -DUSE_UNIXSOCK
 LIBS = -lX11 -L/usr/X11R6/lib
 
-
-
 ##
 ## Variation -- Only support "main-gtk.c" (not "main-gcu.c, main-x11.c")
 ##
@@ -199,12 +170,13 @@ LIBS = -lX11 -L/usr/X11R6/lib
 ##
 ## Variation -- Use "main-sdl.c" instead of "main-x11.c"
 ##
+#SDL_CONFIG ?= sdl-config
 #COPTS = -Wall -O1 -pipe -g
-#INCLUDES = `sdl-config --cflags`
+#INCLUDES = `$(SDL_CONFIG) --cflags`
 #DEFINES = -DUSE_SDL -DUSE_GCU \
 #	-DUSE_EGO_GRAPHICS -DUSE_TRANSPARENCY \
 #	-DUSE_PRECISE_CMOVIE -DUSE_UNIXSOCK -DSUPPORT_GAMMA
-#LIBS = `sdl-config --libs` -lSDL_image -lcurses
+#LIBS = `$(SDL_CONFIG) --libs` -lSDL_image -lSDL_ttf -lcurses
 
 ##
 ## Variation -- Use "main-cap.c" instead of "main-gcu.c"
@@ -390,8 +362,6 @@ CFLAGS = $(COPTS) $(PROFILECOPTS) $(INCLUDES) $(DEFINES) -DDEFAULT_PATH=\"$(LIBD
 # Lua support
 #
 
-ifdef LUA
-
 INCLUDES += -Ilua -I.
 DEFINES += -DUSE_LUA
 SRCS = $(LUASRCS) $(TOLUASRCS) $(BASESRCS)
@@ -401,14 +371,9 @@ OBJS = $(LUAOBJS) $(TOLUAOBJS) $(BASEOBJS)
 # To be included in dependency rules
 TOLUADEP = $(TOLUASRCS) lua/tolua.c lua/tolualua.c
 
-endif
-
-
 #
 # IRC support
 #
-
-ifdef IRC
 
 IRC_SERVER=irc.worldirc.org
 IRC_PORT=6667
@@ -419,17 +384,12 @@ DEFINES += \
 	-DIRC_PORT=\"$(IRC_PORT)\" \
 	-DIRC_CHANNEL=\"$(IRC_CHANNEL)\"
 
-endif
-
-
 # Build the binary. The new base target.
 #
 
 TARGET = tome
 
-ifdef LUA
 TOLUA = ./tolua
-endif
 
 default: $(TOLUA) $(TARGET)
 	@echo "*** Note: In order to use the install rule, which now actually"
@@ -471,8 +431,31 @@ install: default
 #
 
 clean:
-	rm -f *.bak *.o lua/*.o
+	rm -f *.bak *.o lua/*.o w_*.c
 
+
+# Make a src dist
+TARGET_VERSION=`fgrep '[V]' ../changes.txt | sed 's/\[V\]-\s*T.o.M.E \(.\).\(.\).\(.\) .*/\1\2\3/g'`
+DIST_TARGET_VERSION=../dist/tome-$(TARGET_VERSION)-src
+DIST_TARGET=../dist/tome-xxx-src
+dist: clean
+	mkdir -p $(DIST_TARGET)
+	cp -r ../lib $(DIST_TARGET)
+	cp -r ../src $(DIST_TARGET)
+	../tome -c ../changes.txt $(DIST_TARGET)/changes.txt
+	cp ../changes.old $(DIST_TARGET)
+	cp ../credits.txt $(DIST_TARGET)
+	cp ../tome.ini $(DIST_TARGET)
+	cp ../angdos.cfg $(DIST_TARGET)
+	find $(DIST_TARGET) -name '*~' -exec rm {} \;
+	find $(DIST_TARGET)/lib/data/ -name '*.raw' -exec rm {} \;
+	find $(DIST_TARGET)/lib/xtra/graf/ -name '*.gif' -exec rm {} \;
+	find $(DIST_TARGET)/lib/xtra/font/ -name '*.hex' -exec rm {} \;
+	rm -rf `find $(DIST_TARGET) -name 'CVS'`
+	rm -rf `find $(DIST_TARGET)/lib/mods/ -mindepth 1 -maxdepth 1 -type d`
+	sed -i 's/(CVS)//' $(DIST_TARGET)/src/defines.h
+	mv $(DIST_TARGET) $(DIST_TARGET_VERSION)
+	cd ../dist; tar -cvjf tome-$(TARGET_VERSION)-src.tar.bz2 tome-$(TARGET_VERSION)-src
 
 #
 # Generate dependancies automatically
@@ -498,8 +481,6 @@ plots.o: q_rand.c q_main.c q_one.c q_ultrag.c q_ultrae.c \
 #
 # Lua library compilation rules
 #
-
-ifdef LUA
 
 w_mnster.c: monster.pkg $(TOLUADEP)
 	$(TOLUA) -n monster -o w_mnster.c monster.pkg
@@ -527,7 +508,5 @@ w_quest.c: quest.pkg $(TOLUADEP)
 
 w_dun.c: dungeon.pkg $(TOLUA)
 	$(TOLUA) -n dungeon -o w_dun.c dungeon.pkg
-
-endif
 
 # DO NOT DELETE THIS LINE - make depend depends on it.

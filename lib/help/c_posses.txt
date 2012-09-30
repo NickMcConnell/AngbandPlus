@@ -39,10 +39,10 @@ Monster-lore            1.000           [1.100]
   Possession            1.000           [0.800]
 
 #####GStarting Equipment
-A possessor begins the game with:
-    a potion of healing
-    a short sword
-    hard leather armor
+A Possessor begins the game with:
+    a Potion of Healing
+    a Short Sword
+    a Hard Leather Armour
 
 ~~~~~03|Possessor|Possessor powers 
 ~~~~~04|Skills|Possession - Possessor powers 

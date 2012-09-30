@@ -1225,6 +1225,9 @@ void object_flags_known(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3, u32b *
 			}
 		}
 	}
+
+	/* Hack - Res Chaos -> Res Confusion */
+	if (*f2 & TR2_RES_CHAOS) (*f2) |= (TR2_RES_CONF);
 }
 
 
@@ -4193,13 +4196,14 @@ s16b wield_slot_ideal(object_type *o_ptr, bool ideal)
 			{
 				return get_slot(INVEN_AMMO);
 			}
-			else if (p_ptr->inventory[INVEN_BOW].k_idx)
+			else if ((p_ptr->inventory[INVEN_BOW].k_idx) && (p_ptr->inventory[INVEN_BOW].tval == TV_BOW))
 			{
 				if (p_ptr->inventory[INVEN_BOW].sval < 10)
 					return get_slot(INVEN_AMMO);
 			}
 			return -1;
 		}
+
 	case TV_ARROW:
 		{
 			if (ideal)
@@ -4212,13 +4216,14 @@ s16b wield_slot_ideal(object_type *o_ptr, bool ideal)
 			{
 				return get_slot(INVEN_AMMO);
 			}
-			else if (p_ptr->inventory[INVEN_BOW].k_idx)
+			else if ((p_ptr->inventory[INVEN_BOW].k_idx) && (p_ptr->inventory[INVEN_BOW].tval == TV_BOW))
 			{
 				if ((p_ptr->inventory[INVEN_BOW].sval >= 10) && (p_ptr->inventory[INVEN_BOW].sval < 20))
 					return get_slot(INVEN_AMMO);
 			}
 			return -1;
 		}
+
 	case TV_BOLT:
 		{
 			if (ideal)
@@ -4231,7 +4236,7 @@ s16b wield_slot_ideal(object_type *o_ptr, bool ideal)
 			{
 				return get_slot(INVEN_AMMO);
 			}
-			else if (p_ptr->inventory[INVEN_BOW].k_idx)
+			else if ((p_ptr->inventory[INVEN_BOW].k_idx) && (p_ptr->inventory[INVEN_BOW].tval == TV_BOW))
 			{
 				if (p_ptr->inventory[INVEN_BOW].sval >= 20)
 					return get_slot(INVEN_AMMO);
@@ -4264,11 +4269,7 @@ cptr mention_use(int i)
 	switch (i)
 	{
 	case INVEN_WIELD:
-		p = "Wielding";
-		break;
 	case INVEN_WIELD + 1:
-		p = "Wielding";
-		break;
 	case INVEN_WIELD + 2:
 		p = "Wielding";
 		break;
@@ -4276,26 +4277,14 @@ cptr mention_use(int i)
 		p = "Shooting";
 		break;
 	case INVEN_RING:
-		p = "On finger";
-		break;
 	case INVEN_RING + 1:
-		p = "On finger";
-		break;
 	case INVEN_RING + 2:
-		p = "On finger";
-		break;
 	case INVEN_RING + 3:
-		p = "On finger";
-		break;
 	case INVEN_RING + 4:
-		p = "On finger";
-		break;
 	case INVEN_RING + 5:
 		p = "On finger";
 		break;
 	case INVEN_NECK:
-		p = "Around neck";
-		break;
 	case INVEN_NECK + 1:
 		p = "Around neck";
 		break;
@@ -4309,32 +4298,20 @@ cptr mention_use(int i)
 		p = "About body";
 		break;
 	case INVEN_ARM:
-		p = "On arm";
-		break;
 	case INVEN_ARM + 1:
-		p = "On arm";
-		break;
 	case INVEN_ARM + 2:
 		p = "On arm";
 		break;
 	case INVEN_HEAD:
-		p = "On head";
-		break;
 	case INVEN_HEAD + 1:
 		p = "On head";
 		break;
 	case INVEN_HANDS:
-		p = "On hands";
-		break;
 	case INVEN_HANDS + 1:
-		p = "On hands";
-		break;
 	case INVEN_HANDS + 2:
 		p = "On hands";
 		break;
 	case INVEN_FEET:
-		p = "On feet";
-		break;
 	case INVEN_FEET + 1:
 		p = "On feet";
 		break;
@@ -4352,8 +4329,8 @@ cptr mention_use(int i)
 		break;
 	}
 
-	/* Hack -- Heavy weapon */
-	if (i == INVEN_WIELD)
+	/* Hack -- Heavy weapons */
+	if ((INVEN_WIELD <= i) && (i <= INVEN_WIELD + 2))
 	{
 		object_type *o_ptr;
 		o_ptr = &p_ptr->inventory[i];
@@ -4363,12 +4340,16 @@ cptr mention_use(int i)
 		}
 	}
 
-	/* Hack -- Heavy bow */
+	/* Hack -- music instruments and heavy bow */
 	if (i == INVEN_BOW)
 	{
 		object_type *o_ptr;
 		o_ptr = &p_ptr->inventory[i];
-		if (adj_str_hold[p_ptr->stat_ind[A_STR]] < o_ptr->weight / 10)
+		if (o_ptr->tval == TV_INSTRUMENT)
+		{
+			p = "Playing";
+		}
+		else if (adj_str_hold[p_ptr->stat_ind[A_STR]] < o_ptr->weight / 10) 
 		{
 			p = "Just holding";
 		}
@@ -4390,11 +4371,7 @@ cptr describe_use(int i)
 	switch (i)
 	{
 	case INVEN_WIELD:
-		p = "attacking monsters with";
-		break;
 	case INVEN_WIELD + 1:
-		p = "attacking monsters with";
-		break;
 	case INVEN_WIELD + 2:
 		p = "attacking monsters with";
 		break;
@@ -4402,26 +4379,14 @@ cptr describe_use(int i)
 		p = "shooting missiles with";
 		break;
 	case INVEN_RING:
-		p = "wearing on your finger";
-		break;
 	case INVEN_RING + 1:
-		p = "wearing on your finger";
-		break;
 	case INVEN_RING + 2:
-		p = "wearing on your finger";
-		break;
 	case INVEN_RING + 3:
-		p = "wearing on your finger";
-		break;
 	case INVEN_RING + 4:
-		p = "wearing on your finger";
-		break;
 	case INVEN_RING + 5:
 		p = "wearing on your finger";
 		break;
 	case INVEN_NECK:
-		p = "wearing around your neck";
-		break;
 	case INVEN_NECK + 1:
 		p = "wearing around your neck";
 		break;
@@ -4435,42 +4400,39 @@ cptr describe_use(int i)
 		p = "wearing on your back";
 		break;
 	case INVEN_ARM:
-		p = "wearing on your arm";
-		break;
 	case INVEN_ARM + 1:
-		p = "wearing on your arm";
-		break;
 	case INVEN_ARM + 2:
 		p = "wearing on your arm";
 		break;
 	case INVEN_HEAD:
-		p = "wearing on your head";
-		break;
 	case INVEN_HEAD + 1:
 		p = "wearing on your head";
 		break;
 	case INVEN_HANDS:
-		p = "wearing on your hands";
-		break;
 	case INVEN_HANDS + 1:
+	case INVEN_HANDS + 2:
 		p = "wearing on your hands";
 		break;
 	case INVEN_FEET:
-		p = "wearing on your feet";
-		break;
 	case INVEN_FEET + 1:
 		p = "wearing on your feet";
 		break;
 	case INVEN_CARRY:
 		p = "in symbiosis with";
 		break;
+	case INVEN_AMMO:
+		p = "carrying in your quiver";
+		break;
+	case INVEN_TOOL:
+		p = "using as a tool";
+		break; 
 	default:
 		p = "carrying in your pack";
 		break;
 	}
 
-	/* Hack -- Heavy weapon */
-	if (i == INVEN_WIELD)
+	/* Hack -- Heavy weapons */
+	if ((INVEN_WIELD <= i) && (i <= INVEN_WIELD + 2))
 	{
 		object_type *o_ptr;
 		o_ptr = &p_ptr->inventory[i];
@@ -4480,12 +4442,16 @@ cptr describe_use(int i)
 		}
 	}
 
-	/* Hack -- Heavy bow */
+	/* Hack -- Music instruments and heavy bow */
 	if (i == INVEN_BOW)
 	{
 		object_type *o_ptr;
 		o_ptr = &p_ptr->inventory[i];
-		if (adj_str_hold[p_ptr->stat_ind[A_STR]] < o_ptr->weight / 10)
+		if (o_ptr->tval == TV_INSTRUMENT)
+		{
+			p = "playing music with";
+		}
+		else if (adj_str_hold[p_ptr->stat_ind[A_STR]] < o_ptr->weight / 10)
 		{
 			p = "just holding";
 		}

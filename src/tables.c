@@ -1672,16 +1672,6 @@ option_type option_info[] =
 	{ &fast_autoroller, FALSE, 6, 10,
 	  "fast_autoroller", "Fast autoroller(NOT on multiuser systems)" },
 
-	{ &cth_monsters, FALSE, 6, 11,
-	  "cth_monsters", "Allow use of lovecraftian monsters" },
-
-#if 0
-	{ &pern_monsters, TRUE, 6, 12,
-	  "pern_monsters", "Allow use of some Pern related monsters" },
-#endif
-	{ &zang_monsters, FALSE, 6, 13,
-	  "zang_monsters", "Allow use of 'Zangbandish' monsters" },
-
 	{ &joke_monsters, FALSE, 6, 14,
 	  "joke_monsters", "Allow use of some 'joke' monsters" },
 
@@ -2928,7 +2918,7 @@ activation activation_info[MAX_T_ACT] =
 	{ "pet summoning", 1010, ACT_PET_SUMMON },
 	{ "cure paralyzation", 5000, ACT_CURE_PARA },
 	{ "cure hallucination", 1000, ACT_CURE_HALLU },
-	{ "cure poison", 1000, ACT_CURE_POISON },
+	{ "cure poison", 1000, ACT_CURE_POIS },
 	{ "cure hunger", 1000, ACT_CURE_HUNGER },
 	{ "cure stun", 1000, ACT_CURE_STUN },
 	{ "cure cut", 1000, ACT_CURE_CUTS },
@@ -4051,11 +4041,11 @@ quest_type quest_init_tome[MAX_Q_IDX_INIT] =
 		FALSE,
 		"The One Ring",
 		{
-			"Find the One Ring, then bring it to Mount Doom, in Mordor to drop",
+			"Find the One Ring, then bring it to Mount Doom, in Mordor, to drop",
 			"it in the Great Fire where it was once forged.",
-			"But beware, *NEVER* use it, or you will be corrupted.",
-			"Once destroyed you will be able to permanently defeat Sauron.",
-			"The ring must be cast back into the fires of Mount Doom !",
+			"But beware: *NEVER* use it, or you will be corrupted.",
+			"Once it is destroyed you will be able to permanently defeat Sauron.",
+			"The ring must be cast back into the fires of Mount Doom!",
 			"",
 			"",
 			"",
@@ -4413,9 +4403,8 @@ tval_desc tval_descs[] =
 	},
 	{
 		TV_INSTRUMENT,
-		"All instruments have a special magical song in them.  "
-		"Activate them to play it.  Harpers can use them to have "
-		"two songs at a time."
+		"Musical instruments can be used with the Music skill to play "
+		"magical songs. Some of them can also be activated."
 	},
 	{
 		TV_BOOMERANG,
@@ -4553,7 +4542,7 @@ tval_desc tval_descs[] =
 	},
 	{
 		TV_RUNE2,
-		"Runes are used with the Runecraft skill  to create brand new spells."
+		"Runes are used with the Runecraft skill to create brand new spells."
 	},
 	{
 		TV_JUNK,
@@ -4620,7 +4609,7 @@ tval_desc tval_descs[] =
 	},
 	{
 		TV_MUSIC_BOOK,
-		"This song book is used by harpers to play songs."
+		"This song book is used by bards to play songs."
 	},
 	{
 		TV_DRUID_BOOK,

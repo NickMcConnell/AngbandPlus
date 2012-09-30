@@ -90,6 +90,7 @@ ARMOROFFEAR = add_spell
 	["mana"] = 	10,
 	["mana_max"] = 	50,
 	["fail"] = 	35,
+	["inertia"] = 	{ 2, 20 },
 	["spell"] = 	function()
 			return set_shield(randint(10) + 10 + get_level(ARMOROFFEAR, 100), 10, SHIELD_FEAR, 1 + get_level(ARMOROFFEAR, 7), 5 + get_level(ARMOROFFEAR, 20))
 	end,

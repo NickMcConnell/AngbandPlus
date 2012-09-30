@@ -37,11 +37,52 @@
  * Hj. Malthaner, Jan 2001
  */
 
+// I need angband's bool
+#include "../h-type.h"
+
+/* 
+ * Highlit location - use read only! 
+ */
+extern int high_x;
+extern int high_y;
 
 int init_adaptor();
 int close_adaptor();
 
 int refresh_display();
+
+/**
+ * remember targetted location
+ * @author J. Frieling
+ */
+bool iso_target_hook(char *fmt);
+
+/**
+ * Highlite (mark) location x,y
+ * @author Hj. Malthaner
+ */
+void highlite_spot(int x, int y);
+
+/**
+ * Set a grid type (takes argument modulo 3)
+ * @author Hj. Malthaner
+ */
+void set_grid(int no);
+
+
+/**
+ * Show which grid type ?
+ * @author Hj. Malthaner
+ */
+int get_grid();
+
+                  
+/**
+ * Turn shadows on/off (0=off, 1=on)
+ * @author Hj. Malthaner
+ */
+//void set_shadow(int yesno);
+
 
 
 /**
@@ -72,4 +113,5 @@ int get_i_off();
 int get_j_off();
 
 
-#endif  
+#endif
+

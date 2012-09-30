@@ -283,7 +283,7 @@ static void roff_aux(int r_idx, int ego, int remem)
 			/* But we've also killed it */
 			if (dead)
 			{
-				text_out(format(", but you have avenged them!") );
+				text_out(format(", but you have avenged them!  ") );
 			}
 
 			/* Unavenged (ever) */

@@ -6,13 +6,17 @@
 
 #####GDescription
 As the forces of darkness arose, *****g_manwe.txt*0[Manwe], lord of air, realised that urgent
-action was needed to save Arda from the incoming darkness. So he started gathering
-followers from the ranks of men and elves and he instructed them to do battle against
-the forces of Udun. His priests must be quick and strike before the situation becomes
+action was needed to save Arda from the incoming darkness. So he started 
+gathering followers from the ranks of men and elves and he instructed them to 
+do battle against the forces of Udun. 
+
+His priests must be quick and strike before the situation becomes
 critical, always keeping a direct line of prayer with their patron deity.
-Manwe doesn't tolerate laziness, but neither appreciates mindless killing; only a few
-measure up to his standards, but those are granted access to a whole series of divine
-powers which will help them in their enduring efforts.
+
+Manwe doesn't tolerate laziness, but He also does not appreciate mindless 
+killing; only a few measure up to his standards, but those are granted access 
+to a whole series of divine powers which will help them in their enduring 
+efforts.
 
 #####GStarting Stat Modifiers
 Strength         -1
@@ -30,6 +34,8 @@ Exp Penalty      20%
 Combat                  2.000           [0.700]
   Weaponmastery         1.000           [0.750]
 Sneakiness              1.000           [0.900]
+  Stealth               0.000           [0.400]
+  Disarming		0.000		[0.900]
 Magic                   1.000           [0.900]
   Magic-Device          1.000           [1.050]
   Spell-power           0.000           [0.600]
@@ -40,9 +46,9 @@ Monster-lore            0.000           [0.500]
 
 #####GInnate Abilities:
 #####BAbility              Character level
-Perfect-casting             1
+Perfect casting             1
 
 #####GStarting Equipment
-A priest serving Manwe begins the game with:
-    A spellbook of Manwe's Blessing
-    A mace
+A Priest serving Manwe begins the game with:
+    a Spellbook of Manwe's Blessing
+    a Mace

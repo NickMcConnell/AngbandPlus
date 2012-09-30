@@ -2096,7 +2096,7 @@ D:%........%
 D:%%%%%%%%%%
 
 N:99:Bubbles
-X:8:35:25:40
+X:8:35:25:41
 D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 D:%XXX#XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX%
 D:%X8X#X8XXX8XXX8XXX8XXX8XXX8XXX8XXX8XXX8X%
@@ -2216,7 +2216,7 @@ D:%XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX%
 D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 N:104:The Bank from Hell
-X:8:30:20:30
+X:8:30:20:31
 D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 D:%XXXXXXXXXXXXXX+XXXXXXXXXXXXXX%
 D:%X.&.&.&.&.&.#...#.&.&.&.&.&.X%

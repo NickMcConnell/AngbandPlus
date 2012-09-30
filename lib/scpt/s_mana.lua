@@ -59,6 +59,7 @@ DELCURSES = add_spell
 				["max_level"] =		{ 15, 50 },
 			},
 	},
+	["inertia"] = 	{ 1, 10 },
 	["spell"] = 	function()
 			local done
 
@@ -84,6 +85,7 @@ RESISTS = add_spell
 	["mana"] = 	17,
 	["mana_max"] = 	20,
 	["fail"] = 	40,
+	["inertia"] = 	{ 2, 25 },
 	["spell"] = 	function()
 			local obvious
 		       	if player.oppose_fire == 0 then obvious = set_oppose_fire(randint(10) + 15 + get_level(RESISTS, 50)) end
@@ -108,6 +110,7 @@ MANASHIELD = add_spell
 	["mana"] = 	50,
 	["mana_max"] = 	50,
 	["fail"] = 	90,
+	["inertia"] = 	{ 9, 10},
 	["spell"] = 	function()
 			if get_level(MANASHIELD, 50) >= 5 then
 			       	if (player.invuln == 0) then

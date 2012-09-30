@@ -31,13 +31,13 @@ M:K:819
 M:V:108
 
 # Maximum number of terrain features in f_info.txt
-M:F:213
+M:F:217
 
 # Maximum number of alchemist recipes
 M:a:1000
 
 # Maximum number of artifacts in a_info.txt
-M:A:213
+M:A:219
 
 # Maximum number of sets types in set_info.txt
 M:s:10

@@ -5,10 +5,12 @@
 
 #####GDescription
 Loremasters are students of the creatures of Arda.
+
 To protect themselves during their observations, they usually learn how to
 pass unobserved, but should their attempt fail they have decent saving throws
 and almost always learn some kind of combat style, but the exact preference
-varies from loremaster to loremaster.
+varies from Loremaster to Loremaster.
+
 As a result of their studies, they become familiar with a broad range of
 skills, ranging from *****skills.txt*45[Possession] and *****m_symbio.txt*0[Symbiosis] to *****skills.txt*43[Summoning] and *****skills.txt*47[Mimicry].
 
@@ -45,8 +47,8 @@ Monster-lore            1.000           [1.100]
   Mimicry               0.000           [0.500]
 
 #####GStarting Equipment
-A loremaster begins the game with:
-    A sling
-    A suit of hard leather armor
-    A quarterstaff
-    Some rounded pebbles
+A Loremaster begins the game with:
+    a Sling
+    a Hard Leather Armour
+    a Quarterstaff
+    some Rounded Pebbles

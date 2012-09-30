@@ -4264,6 +4264,7 @@ static void do_cmd_knowledge_quests(void)
 			{
 				/**/
 				if (!(dungeon_flags1 & DF1_PRINCIPAL)) continue;
+				if ((dun_level < 1) || (dun_level >= MAX_RANDOM_QUEST)) continue;
 				if (!random_quests[dun_level].type) continue;
 				if (p_ptr->inside_quest) continue;
 				if (!dun_level) continue;

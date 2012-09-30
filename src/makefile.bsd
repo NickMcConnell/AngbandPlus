@@ -1,8 +1,6 @@
 # This is based on Makefile.std but stripped and tuned for FreeBSD (and
 # presumably will cooperate with other BSDs)
 
-LUA=TRUE
-
 # Comment out this line if you don't want the IRC support
 IRC=TRUE
 
@@ -170,8 +168,6 @@ CFLAGS += $(COPTS) $(INCLUDES) $(DEFINES) -DDEFAULT_PATH=\"$(LIBDIR)\"
 # Lua support
 #
 
-ifdef LUA
-
 INCLUDES += -Ilua -I.
 DEFINES += -DUSE_LUA
 SRCS = $(LUASRCS) $(TOLUASRCS) $(BASESRCS)
@@ -181,14 +177,9 @@ OBJS = $(LUAOBJS) $(TOLUAOBJS) $(BASEOBJS)
 # To be included in dependency rules
 TOLUADEP = $(TOLUASRCS) lua/tolua.c lua/tolualua.c
 
-endif
-
-
 #
 # IRC support
 #
-
-ifdef IRC
 
 IRC_SERVER=irc.worldirc.org
 IRC_PORT=6667
@@ -199,17 +190,13 @@ DEFINES += \
 	-DIRC_PORT=\"$(IRC_PORT)\" \
 	-DIRC_CHANNEL=\"$(IRC_CHANNEL)\"
 
-endif
-
 
 # Build the binary. The new base target.
 #
 
 TARGET = tome
 
-ifdef LUA
 TOLUA = ./tolua
-endif
 
 default: $(TOLUA) $(TARGET)
 	@echo "*** Note: In order to use the install rule, which now actually"
@@ -253,7 +240,7 @@ install: default
 #
 
 clean:
-	rm -f *.bak *.o lua/*.o
+	rm -f *.bak *.o lua/*.o  w_*.c
 
 
 #
@@ -281,8 +268,6 @@ plots.o: q_rand.c q_main.c q_one.c q_ultrag.c q_ultrae.c \
 # Lua library compilation rules
 #
 
-ifdef LUA
-
 w_mnster.c: monster.pkg $(TOLUADEP)
 	$(TOLUA) -n monster -o w_mnster.c monster.pkg
 
@@ -309,7 +294,5 @@ w_quest.c: quest.pkg $(TOLUADEP)
 
 w_dun.c: dungeon.pkg $(TOLUA)
 	$(TOLUA) -n dungeon -o w_dun.c dungeon.pkg
-
-endif
 
 # DO NOT DELETE THIS LINE - make depend depends on it.

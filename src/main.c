@@ -122,7 +122,7 @@ static bool check_create_user_dir(void)
 	/* Get an absolute path from the filename */
 	path_parse(dirpath, 1024, PRIVATE_USER_PATH);
 	strcpy(versionpath, dirpath);
-	strcat(versionpath, "/2.2");
+	strcat(versionpath, USER_PATH_VERSION);
 	strcpy(savepath, versionpath);
 	strcat(savepath, "/save");
 
@@ -726,12 +726,15 @@ usage:
 				puts("  -msdl              To use SDL");
 				puts("  --                 Sub options");
 				puts("  -- -n #            Number of virtual consoles to use");
-				puts("  -- -o              Requests \"old\" graphics");
+				puts("  -- -g              Request new graphics (16x16)");
+				puts("  -- -o              Request old graphics (8x8)");
 				puts("  -- -b              Requests double-width tiles");
 				puts("  -- -w #            Request screen width in pixels");
 				puts("  -- -h #            Request screen height in pixels");
 				puts("  -- -bpp #          Request screen color depth in bits");
 				puts("  -- -fs             Start with full-screen display");
+				puts("  -- -s #            Request font size");
+				puts("  -- -f <font>       Request true-type font by name");
 #endif /* USE_SDL */
 
 				/* Actually abort the process */
@@ -1071,6 +1074,3 @@ usage:
 }
 
 #endif
-
-
-

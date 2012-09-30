@@ -5426,3 +5426,124 @@ becomes 0, allowing spells to summon fiery blades and such
      -- fearoffours
 
 [V]  T.o.M.E 2.2.6 "Won't Get Fooled Again"
+
+27/02/2004
+[m]- Missing space in the description of Vecna -- masmarangio
+
+12/03/2004
+[B]- Eating some corpses produced a division by 0 error -- masmarangio
+
+15/03/2004
+[B]- Wearing an item of life (-100%) reduced the mhp to 0, causing a
+     division by 0 error in cave.c -- masmarangio
+
+16/03/2004
+[B]- Corrected the spell selection for monsters:
+     defines.h: Added RF6_S_ANIMALS in RF6_SUMMON_MASK.
+     melee2.c: Updated comments in monst_spell_monst and make_attack_spell.
+     Removed the spells RF4_MULTIPLY, RF4_S_ANIMAL, RF5_SCARE from spell_attack.
+     Corrected the spell numbers of RF6_TELE_AWAY and RF6_TELE_LEVEL in
+     spell_escape (formerly RF6_DARKNESS and RF6_TRAPS were used).
+     Corrected the spell numbers of RF6_TELE_TO, RF6_DARKNESS, RF6_TRAPS,
+     RF6_FORGET in spell_annoy (formerly RF6_RAISE_DEAD, RF6_S_BUG, RF6_S_RNG
+     were used).
+     Added RF4_S_ANIMAL and RF6_S_ANIMALS and limited the spell number to
+     160 + 31 in spell_summon. -- masmarangio
+
+18/03/2004
+[O]- The activation of an items with the ACTIVATE_NO_WIELD flag is described
+     without the line "if it is being worn. " -- masmarangio
+[B]- Barad-dur doesn't exist, it is still Mordor. Corrected god quest directions
+     to reflect this. -- fearoffours
+
+20/03/2004
+[m]- Corrected some typos (mostly from the forum, thanks to Carg85)
+     s_yavann.lua: spell 'grow grass' description: 'a grass' -> on grass
+     q_haunted.c: cave -> building
+     a_info.txt: some missing spaces in the description of artifact bolts
+     corrupt.lua, corspoil.txt: 'teeth allows' -> 'teeth allow'
+     k_info.txt: missing space (Golden Horn of the Thunderlords)
+     s_stick.lua: 'a thunderlords' -> 'a thunderlord'
+     d_info.txt: 'the the land of Rhun' -> 'the land of Rhun'
+     -- masmarangio
+
+23/03/2004
+[B]- Fixed the speed of Bearform combat -- masmarangio
+[m]- Updated luck spoiler -- masmarangio
+
+26/03/2004
+[B]- Fix for Flame Imperishable from the forum -- masmarangio
+[B]- You should now receieve a message about failing the god quest at the
+     correct moment, and not when in a random dungeon.  -- fearoffours
+[m]- The Old Mage's quest will erase from your quest screen when fully rewarded.
+     -- fearoffours
+
+29/03/2004
+[B]- Further measures taken to ensure god quest relic is created appropriately.
+     -- fearoffours
+[B]- Scumming for god quests (by losing and regaining xp) is now prevented.
+     -- fearoffours
+
+02/04/2004
+[m]-  Backport of mostly old helpfile updates: wrong school in m_divin.txt,
+      comments in spells.lua, deleted hint about shoes in r_hobbit.txt,
+      ability.txt, ab_info.txt: updated Ammo-creation and Far-reaching attack,
+      c_axemas.txt: starting weapon is a hatchet,
+      magic.txt, skills.txt: Updated schools improved by Spell-power,
+      corspoil.txt: Updated the info about permanent corruptions,
+      birth.txt: removed corrupted subrace, vampires are a normal subrace,
+      m_air.txt: Updated description of Noxious Cloud -- masmarangio
+
+03/04/2004
+[B]- Fixed device trapkits loaded with rods -- masmarangio
+
+05/04/2004
+[B]- Exploding ammo used in trapkits will explode after hitting a monster.
+     -- masmarangio
+[m]- Corrected Alchemist, Assassin, Axemaster, Rogue helpfiles -- masmarangio
+
+08/04/2004
+[B]- Mage staves were without the WIELD_CAST flag -- masmarangio
+
+09/04/2004
+[G]- No more nuke traps -- neil
+
+21/04/2004
+[m]- skills.txt: Corrected information about Spell-power -- masmarangio
+
+02/05/2004
+[B]- Between quest crash fix, also for Thieves and Trolls quests -- masmarangio
+
+07/05/2004
+[m]- Capitalisation: Metal Boomerang, Lay of Protection.
+     r_pettyd.txt: magic items -> magically enchanted items -- masmarangio
+
+08/05/2004
+[B]- god.lua: The relic could be created in a wrong position -- masmarangio
+
+09/05/2004
+[O]- object1.c: Added descriptions for SENS_FIRE (thanks to Scott Bigham)
+     and IMMOVABLE, removed IM_NETHER from the resistances -- masmarangio
+
+10/05/2004
+[m]- bounty.lua: Added a period -- masmarangio
+[B]- cmd7.c: Preserve the spell stored in random spellbooks --masmarangio
+[O]- Show "to damage" and "to accuracy" messages for yet more confusing items
+     -- neil
+
+11/05/2004
+[B]- xtra1.c: Lucky characters (current luck > 0) don't get death fates;
+     fixed a typo in luckspoi.txt (from the forum) -- masmarangio
+[m]- spells2.c: Typo (vulerable -> vulnerable) -- masmarangio
+
+13/05/2004
+[m]- skills.txt: Fixed broken link -- masmarangio
+[B]- generate.c: Fixed arena levels by refilling the level -- masmarangio
+
+14/05/2004
+[m]- Added new help file for the debug commands -- iain_mac
+
+26/05/2004
+[B]- Correctly cap the spell levels of wands (patch by 'Sumendar') -- neil
+
+[V]  T.o.M.E 2.2.7 aka "Stoke Me A Clipper"

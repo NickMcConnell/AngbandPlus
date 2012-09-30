@@ -208,9 +208,15 @@ screams, 'But I'm a big TV star!'
 sobs, 'All right! I apologise! I really really do!'
 
 N:505:Groo the Wanderer
-0
-1
+4
 says: 'A fray! A fray!'
+says: 'Groo does what Groo does best!'
+says: 'All right, you savage, mindless creature. Prepare to meet your equal!'
+says: 'I will slay you, and hack you, and waste you, and destroy you!'
+3
+says: 'Did I err?'
+says: 'I did not think Groo could be frightened...'
+says: 'I need no aid! Groo is beyond help!'
 
 N:934:Fangorn the Treebeard
 6

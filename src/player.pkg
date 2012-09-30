@@ -3516,22 +3516,10 @@ extern u16b total_winner;
  */
 extern u16b has_won;
 
-/** @var zang_monsters
- * @brief Boolean
- * @note TRUE if allowing Zangband monsters, otherwise FALSE.
- */
-extern bool zang_monsters;
-
 /** @var joke_monsters
  * @brief Boolean
  * @note TRUE if allowing joke monsters, otherwise FALSE.
  */
 extern bool joke_monsters;
-
-/** @var cth_monsters
- * @brief Boolean
- * @note TRUE if allowing Lovecraft monsters, otherwise FALSE.
- */
-extern bool cth_monsters;
 
 extern s16b max_dlv[999999];

@@ -20,23 +20,23 @@ as usual through the *****skills.txt*21[Magic] skill.
    Randomly creates various elements around you.
    Each type of element chance is controlled by your level in the 
    corresponding skill.
-   At air level 17 it can be targeted.
+   At level 17 it can be targeted.
 
 2. [[[[[UChannel] [[[[[GElements] (Level 3) Cost:3
    Draws on the caster's immediate environs to form an attack or other effect.
    Grass/Flower heals.
-   Water creates water attacks.
-   Ice creates ice attacks.
-   Sand creates a wall of burning sand around you but the wall is thick and 
+   Water creates water bolt attacks.
+   Ice creates ice bolt attacks.
+   Sand creates a wall of burning sand around you, but the wall is thick and
    blinds you.
-   Lava creates fire attacks.
-   Deep lava creates a ball attack.
-   Abyss creates darkness ray attacks.
-   At Earth level 8 the healing may be projected to heal a companion or pet.
-   At Earth level 18 darkness becomes nether.
-   At Water level 8 water attacks become beams with a striking effect.
-   At Water level 12 ice attacks become balls of ice shards
-   At Fire level 15 fire become hellfire.
+   Lava creates fire bolt attacks.
+   Deep lava creates fire ball attacks.
+   Chasm creates darkness bolt attacks.
+   At Earth level 18, darkness becomes nether.
+   At Water level 8, water attacks become beams with a striking effect.
+   At Water level 12, ice attacks become balls of ice shards.
+   At Water level 18, water attacks push monsters back.
+   At Fire level 15, fire become hellfire.
 
 3. [[[[[RElemental] [[[[[BWave] (Level 15) Cost:15
    Draws on an adjacent special square to project a slow-moving wave of that 

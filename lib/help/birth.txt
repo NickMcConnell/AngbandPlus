@@ -1,14 +1,15 @@
 |||||oy
+~~~~~84|Birth
 ~~~~~11|Character
 #####R             /----------------------------------------\
 #####R            <           Creating a Character           >
 #####R             \----------------------------------------/
 
-     *****birth.txt*01[Creating a Character]          *****birth.txt*02[Character Characteristics]
-     *****birth.txt*03[Races]                         *****birth.txt*04[Race Modifiers]
-     *****birth.txt*05[Classes]                       *****birth.txt*06[Stats]
-     *****birth.txt*07[Abilities]                     *****birth.txt*08[Combinations of Race and Class]
-     *****birth.txt*09[Stat bonus tables]             *****birth.txt*10[Ability tables]
+     *****birth.txt*01[Creating a Character]            *****birth.txt*02[Character Characteristics]
+     *****birth.txt*03[Races]                           *****birth.txt*04[Race Modifiers]
+     *****birth.txt*05[Classes]                         *****birth.txt*83[Gods]
+     *****birth.txt*06[Stats]                           *****birth.txt*07[Abilities]                     
+     *****birth.txt*08[Combinations of Race and Class]  *****birth.txt*09[Stat bonus tables]
 
 ~~~~~01|Character|Creating a Character
 ~~~~~12|Creating a Character
@@ -47,38 +48,44 @@ special "pref" files. And the character name is used on the high score list.
 ~~~~~82|Stats
 #####R=== Character Characteristics ===
 
-Each character has four primary attributes, sex, race, race modifier and
-class, that are chosen before the character is generated, and which will stay
-fixed for the entire life of that character. These attributes have many
+Each character has four primary attributes, gender, race, race modifier and
+class, that are chosen before the character is generated, and all but gender
+stay fixed for the entire life of that character. These attributes have many
 effects, which will be mentioned as they come up. Keep in mind that in the
 current version of ToME, your choice of race may restrict your choice
 of class.
 
 Each character has a few secondary attributes, height, weight, social class,
 and background history, which are randomly determined, but which are affected
-by the sex and race of the character. In general, these attributes are only
-used to provide "flavor" to the character, to assist in the roll playing, but
+by the gender and race of the character. In general, these attributes are only
+used to provide "flavor" to the character, to assist in the role playing, but
 they do have a few minor effects on the game. For example, background history
 affects social class, which affects the amount of money the character will
-start with. And weight affects carrying capacity and bashing ability.
+start with. 
 
-Each character also has six primary "stats", strength, intelligence, wisdom,
-dexterity, constitution, and charisma, which modify the abilities of the
-character in a variety of ways. Every stat has a numerical value, ranging
-from a minimum of 3, up to a normal maximum of 18, and even higher, into
-the "percentile" range, represented as "18/01" through "18/100". Actually,
-every stat can be raised even above 18/100 by magical means, up to a pure
-maximum of 18/220, which is represented as "18/***". Traditionally, a
-percentile stat such as "18/50" has been though of as representing a value
-part way between 18 and 19, and this is one way to think of them. However,
-often, the best way to view the "bonus" values after the "18/" is as "tenth"
-points, since it often takes the same magic to raise a stat from, say, 4 to 5,
-or 16 to 17, as it does from, say, 18/40 to 18/50. The important thing to
-remember is that almost all internal calculations "ignore" the final digit
-of any "bonus", so that, for example, "18/40" and "18/49" are always have
-the same effects. During character generation, each stat is rolled out as
-a number from 8 to 17, with a normal distribution, and is then immediately
-modified based on the race and class of the character.
+Each character also has six primary "stats", strength (STR), intelligence 
+(INT), wisdom (WIS), dexterity (DEX), constitution (CON), and charisma(CHR).
+
+By default, primary statistics are represented in a linear way rather than a 
+percentile way. You can change to percentile via the game option sequence '=', 
+'5' (ToME options), arrow down to 'stats are represented in a linear way', and 
+type 'n' for no. Don't forget to save your options when you are done.
+
+These stats modify the abilities of the character in a variety of ways. Every 
+stat has a numerical value, ranging from a minimum of 3, up to a normal maximum 
+of 18, and even higher, into the "percentile" range, represented as "18/01" 
+through "18/100". Actually, every stat can be raised even above 18/100 by 
+magical means, up to a pure maximum of 18/220, which is represented as 
+"18/***". Traditionally, a percentile stat such as "18/50" has been though of 
+as representing a value part way between 18 and 19, and this is one way to 
+think of them. However, often, the best way to view the "bonus" values after 
+the "18/" is as "tenth" points, since it often takes the same magic to raise a 
+stat from, say, 4 to 5, or 16 to 17, as it does from, say, 18/40 to 18/50. The
+important thing to remember is that almost all internal calculations "ignore" 
+the final digit of any "bonus", so that, for example, "18/40" and "18/49" 
+always have the same effects. During character generation, each stat is rolled 
+out as a number from 8 to 17, with a normal distribution, and is then 
+immediately modified based on the race and class of the character.
 
 Each character also has several primary "skills", disarming, magic devices,
 saving throws, stealth, searching ability, searching frequency, fighting skill,
@@ -86,69 +93,106 @@ and shooting skill, which are derived from the character's race, class, level,
 stats, and current equipment. These skills have rather obvious effects, but
 will be described more completely below.
 
-Each character may have one or more "racially intrinsic skills", based on
+Each character may have one or more "intrinsic racial skills", based on
 the race of the character. These may include special resistances, abilities
-such as infravision, or even activatable powers such as fire breathing or tele-
-portation.
-~~~~~15|Experience
-Each character has experience, which increases as the character becomes more
-experienced, and a level, which is based on experience, and also on race and
-class. As experience rises, so does the character level, and as that rises,
-characters gain Skill Points to spend as they wish on increasing their
-abilities. Deep down inside, the real objective of the game is to increase
-your experience, and certain other characteristics, and also to collect useful
-items, to give you a decent chance against the powerful Morgoth. Certain
-monsters can "drain" your experience, and thus your level. Although you
-do not lose the skill points you've already gained, you also will not gain
-further points until you reach a character level you have not already
-achieved. Luckily, you can restore drained experience through magical means,
-or by simply regaining the experience all over again.
+such as infravision, or even activatable powers such as food creation.
 ~~~~~16|Gold
 ~~~~~81|Abbreviations
 ~~~~~17|Abbreviations|AU
 ~~~~~18|Money
-Each character has some gold, which can be used to buy items from the shops
-in the town, and which can be obtained not only from selling items to the
-shops, but also by taking it from dead monsters and by finding it hidden in
-the dungeon. Each character starts out with some gold, the amount of which
-is based on the characters social class (higher is better), charisma (higher
-is better), and some other stats (less powerful characters start with more
-gold). Each character also starts out with a few useful items, which may be
-kept or sold to a shop-keeper for more gold.
+Money in ToME is referred to in gold pieces, also frequently abbreviated as AU 
+(the chemical symbol for gold.)
+
+Each character starts with some gold, which can be used to buy items from the 
+shops in town. Additionally, gold can be obtained by several means:
+
+    * selling items you have, or find, to the shops
+    * taking it from dead monsters
+    * finding it lying around on the floor in the dungeon
+    * digging it out of the walls in certain dungeons
+
+Each character starts out with some gold. The amount you start with is based on 
+social class (higher is better), charisma (higher is better), and some other 
+stats (less powerful characters start with more gold). 
+~~~~~85|Inventory - starting info
+Inventory is what you are carrying and/or wearing at the moment. All items you 
+carry/wear do have a certain weight. If the weight is very heavy for your 
+strength, it can slow you down, and that is not a good thing for your 
+character's continuing health. When your character is first created, all items 
+you are granted upon creation will be in your inventory. Sometimes starting 
+inventory includes something other than a weapon or armor (for example, a light 
+source, scroll, potion, or food.)
+~~~~~86|Weapons - starting info
+Some characters start with a weapon. If yours does, you will need to 'w'ield it 
+in order to gain its attack capabilities.
 ~~~~~23|Character|Armor Class
 ~~~~~19|Armor|Armor Class
 ~~~~~20|Abbreviations|AC
-Each character has an armor class, representing how well the character can
-avoid damage. The armor class is affected by dexterity, the equipment, and
-sometimes the race.
+#####R === Armour Class ===
+Each character has an armor class, representing how well the character can 
+avoid damage. The armor class is affected by dexterity, the equipment, and 
+sometimes the race. The higher the AC, the better.
+
+The numbers following a piece of armor's name indicate how good it is. A Metal 
+Cap [3,+0] is not as good as an Iron Helm [5,+0], AC-wise, since the 5 is a 
+bigger number than the 3. On the other hand, an Iron Helm is heavier than a 
+Metal Cap, and that may make a difference to you.
+
+The plusses following the first number (e.g. the +0) indicate a magical bonus. 
+If the plus number is more than zero, it should be added on to the base 
+number. E.g. a Metal Cap [3,+3] has a higher AC than an Iron Helm [5,+0].
+
+Some characters start with armor. If yours does, you need will need to 'w'ield 
+it in order to gain its protection. 
 ~~~~~21|Abbreviations|HP
 ~~~~~22|Character|Hit Points
-Each character has hit points, representing how much damage the character can
-sustain before death. Hit points are derived from your race, class,
+Each character has hit points (HP), representing how much damage the character
+can sustain before death. Hit points are derived from your race, class,
 level, and constitution, and can be temporarily boosted by magical means.
 Hit points may be regained by resting, or by a variety of magical means.
-~~~~~24|Abbreviations|SP
+~~~~~24|Abbreviations|SN
 ~~~~~25|Character|Sanity Points
-Each character has sanity points, representing how much mental damage the
+Each character has sanity points (SN), representing how much mental damage the
 character can sustain before death. Sanity points are derived from you wisdom
-and level. Sanity points may only be regained by magical means and won't be
-regained by resting.
-~~~~~26|Abbreviations|MP
+and character level. Sanity points may only be regained by magical means and 
+won't be regained by resting.
+~~~~~26|Abbreviations|SP
 ~~~~~27|Magic|Mana
 ~~~~~28|Character|Mana
-Each character has spell points, or mana, which represents how many spells
-(or prayers) a character can cast (or pray). Your spell points are derived
-from your class, level, and intelligence (for spells) or wisdom (for prayers).
-Spell points may be regained by resting, or by a few magical means.
+Each character has a certain amount of mana. The amount of mana represents how
+many spells of a certain difficulty a character can cast. When a spell is 
+cast, you lose amount of mana corresponding to the 'cost' of the spell.
+
+When all mana is gone, or the cost of a given spell is greater than the amount 
+of mana you have left, you may attempt to cast a spell, beware, as there are
+consequences to such a rash act.
+
+Spell points may be regained by resting. They can also be restored by a few 
+magical means.
+
+Your spell points are derived from your Magic skill, player level and the 
+greatest of INT and WIS.
+
+Your total spell points are additionally affected by:
+
+    * your character's race modifier
+    * character class
+
+Your total spell points may be affected by:
+
+    * your encumbrance
+    * what you wear
+
 ~~~~~29|Abbreviations|Pt
 ~~~~~30|Gods|Piety
 ~~~~~31|Character|Piety
-Finally, characters that have chosen to follow a *****gods.txt*0[God] will have piety points.
-These represent the character's standing with their God, and are used to cast
-any of the God's specific spells. These are regained in different manners
-depending on which God is involved - each one has different actions that
-please or displease them.
-
+Finally, characters that have chosen to follow a *****gods.txt*0[God] will have piety points
+(Pt). These points represent the character's standing with their God, a 
+standing which may rise or fall over time. A character may spend piety points 
+to cast a spell granted by his/her God. Spent piety points can be regained in 
+different fashions, depending on which God is involved -- each is pleased or 
+displeased by assorted actions. Pleasing your God gains you piety, while 
+displeasing your god will lose you piety.
 ~~~~~03|Races
 #####R=== Races ===
 
@@ -200,14 +244,28 @@ familiar with survival techniques.
      *****c_geoman.txt*0[Geomancer]                 *****c_pr_eru.txt*0[Priest(Eru)]              *****c_warper.txt*0[Warper]
      *****c_hafted.txt*0[Haftedmaster]              *****c_pr_man.txt*0[Priest(Manwe)]            *****c_warrio.txt*0[Warrior]
      *****c_lorema.txt*0[Loremaster]                *****c_ranger.txt*0[Ranger]                   
-     
+~~~~~83
+#####R=== Gods ===
+
+Once a class has been chosen you may be given the option to choose a god. Some 
+classes (notably most Priests) will be given a God to worship automatically.   
+Some classes are not necessarily suited to following a God, and Gods are not 
+recommended for new players. You can also choose your mind about who (if 
+anyone) to worship during the game by finding an *****tome_faq.txt*04[altar] of that God.
+
+Read *****gods.txt*0[gods.txt] for a little more information about Gods.
+
+    *****g_eru.txt*0[Eru Iluvatar]                  *****g_manwe.txt*0[Manwe Sulimo]
+    *****g_yavann.txt*0[Yavanna Kementari]             *****g_tulkas.txt*0[Tulkas]
+    *****g_melkor.txt*0[Melkor Bauglir]
+
 
 ~~~~~39|Character|Stats 2
 ~~~~~06|Stats|Individual explanations
 #####R=== Stats ===
 ~~~~~32|Stats|Strength
 ~~~~~34|Strength
-#####G          Strength
+#####G          Strength (STR)
                Strength is important in fighting with weapons and in melee
                combat. A high strength can improve your chances of hitting
                as well as the amount of damage done with each hit. Char-
@@ -215,7 +273,7 @@ familiar with survival techniques.
                is also useful in tunnelling and in carrying heavy items.
 ~~~~~33|Stats|Intelligence
 ~~~~~35|Intelligence
-#####G          Intelligence
+#####G          Intelligence (INT)
                Intelligence affects the spellcasting abilities of mage-like
                spellcasters, mages, rangers, and rogues. Intelligence
                will affect the number of spells you may learn each level as
@@ -226,7 +284,7 @@ familiar with survival techniques.
                magic devices, picking locks, and disarming traps.
 ~~~~~36|Stats|Wisdom
 ~~~~~38|Wisdom
-#####G          Wisdom
+#####G          Wisdom (WIS)
                The primary function of wisdom is to determine the ability
                of a priest or paladin to use prayers, just like intelligence
                affects spellcasting. Again, high wisdom will increase the
@@ -237,7 +295,7 @@ familiar with survival techniques.
                upon you by monsters.
 ~~~~~40|Stats|Dexterity
 ~~~~~41|Dexterity
-#####G          Dexterity
+#####G          Dexterity (DEX)
                Dexterity is a combination of agility and quickness. A high
                dexterity may allow a character to get multiple blows with
                lighter weapons, thus greatly increasing his kill power, and
@@ -247,14 +305,14 @@ familiar with survival techniques.
                some of the thieves that inhabit the dungeons.
 ~~~~~42|Stats|Constitution
 ~~~~~43|Constitution
-#####G          Constitution
+#####G          Constitution (CON)
                Constitution is a character's ability to resist damage to his
                body, and to recover from damage received. Therefore a
                character with a high constitution will receive more hit
                points and also recover them faster while resting.
 ~~~~~44|Stats|Charisma
 ~~~~~45|Charisma
-#####G          Charisma
+#####G          Charisma (CHR)
                Charisma represents a character's personality and physical
                appearance. A character with a high charisma will receive
                better prices from store owners, whereas a character with a
@@ -279,15 +337,15 @@ familiar with survival techniques.
                opponent. This skill increases  with the *****skills.txt*02[Weaponmastery] skill
                and its sub-skills.
 ~~~~~50|Attacking monsters|Shooting
-#####G          Shooting Ability
-               Using  ranged  missile  weapons  (and  throwing  objects) is
+#####G          Shooting Ability  (Bows/Throw)
+               Using  ranged  missile  weapons (and  throwing  objects) is
                included  in this skill. Different stats apply to different
                weapons, but this ability may modify the distance an  object
                is  thrown/fired, the amount of damage done, and the ability
                to hit a creature. This skill increases with the *****skills.txt*08[Archery] skill
                and its sub-skills.
 ~~~~~52|Saving throw
-#####G          Saving Throws
+#####G          Saving Throw
                A Saving Throw is the ability of a character to  resist  the
                effects  of  a spell cast on him by another person/creature.
                This does not include spells cast on the player by  his  own
@@ -311,7 +369,7 @@ familiar with survival techniques.
                intelligence both modify the ability  to  disarm, and  this
                ability increases with the *****skills.txt*16[Disarming] skill.
 ~~~~~58|Magical Devices
-#####G          Magical Devices
+#####G          Magic Device
                Using a magical device such as  a  wand  or  staff  requires
                experience  and  knowledge. Spell  users such as  magi  and
                priests are therefore much better at using a magical  device
@@ -505,43 +563,3 @@ are listed in the following table.
            Spectre      +2   +8   +7   +2   +2   +7   -5   -2     +30 feet
            Vampire      +0   +0   +0   +0   +0   +0   +0   +0     +0 feet
            Zombie       -2   -2   +5   -1   -1   +2   +5   +0     +10 feet
-~~~~~80|Classes|Ability table
-#####GClasses:
-#####B                Dsrm    Dvce    Save    Stlh  Srch  Prcp  HtH     Misl   XP
-Axemaster       25+12   18+7    18+10   1     14    2     70+45   55+45  +0%
-Demonologist    25+12   18+7    18+10   1     14    2     70+45   55+45  +0%
-Haftedmaster    25+12   18+7    18+10   1     14    2     70+45   55+45  +0%
-Polearmmaster   25+12   18+7    18+10   1     14    2     70+45   55+45  +0%
-Swordmaster     25+12   18+7    18+10   1     14    2     70+45   55+45  +0%
-Unbeliever      25+12   18+7    18+10   1     14    2     70+45   55+45  +0%
-Warrior         25+12   18+7    18+10   1     14    2     70+45   55+45  +0%
-
-Alchemist       30+7    36+13   30+9    2     16    20    34+15   20+15  +30%
-Geomancer       30+7    36+13   30+9    2     16    20    34+15   20+15  +30%
-Mage            30+7    36+13   30+9    2     16    20    34+15   20+15  +30%
-Necromancer     30+7    36+13   30+9    2     16    20    34+15   20+15  +30%
-Runecrafter     30+7    36+13   30+9    2     16    20    34+15   20+15  +30%
-Sorceror        30+7    36+13   30+9    2     16    20    34+15   20+15  +30%
-Thaumaturgist   30+7    36+13   30+9    2     16    20    34+15   20+15  +30%
-Warper          30+7    36+13   30+9    2     16    20    34+15   20+15  +30%
-
-Archer          30+8    32+10   28+10   3     24    16    56+30   82+45  +30%
-Ranger          30+8    32+10   28+10   3     24    16    56+30   82+45  +30%
-
-Assassin        45+15   32+10   28+10   5     32    24    60+40   66+30  +25%
-Rogue           45+15   32+10   28+10   5     32    24    60+40   66+30  +25%
-
-Bard            25+12   18+7    18+10   1     14    2     30+25   25+25  +40%
-Loremaster      25+12   18+7    18+10   1     14    2     30+25   25+25  +40%
-Mimic           25+12   18+7    18+10   1     14    2     30+25   25+25  +40%
-Monk            25+12   18+7    18+10   1     14    2     30+25   25+25  +40%
-Possessor       25+12   18+7    18+10   1     14    2     30+25   25+25  +40%
-Summoner        25+12   18+7    18+10   1     14    2     30+25   25+25  +40%
-Symbiant        25+12   18+7    18+10   1     14    2     30+25   25+25  +40%
-
-Dark-Priest     25+7    30+10   32+12   2     16    8     48+20   35+20  +20%
-Druid           25+7    30+10   32+12   2     16    8     48+20   35+20  +20%
-Mindcrafter     25+7    30+10   32+12   2     16    8     48+20   35+20  +20%
-Paladin         25+7    30+10   32+12   2     16    8     48+20   35+20  +20%
-Priest(Eru)     25+7    30+10   32+12   2     16    8     48+20   35+20  +20%
-Priest(Manwe)   25+7    30+10   32+12   2     16    8     48+20   35+20  +20%

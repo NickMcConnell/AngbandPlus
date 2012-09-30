@@ -6,27 +6,15 @@
 
 Please choose one of the following online help files:
 
-    *****/anewbie.hlp*0[(a) Extra Help for New Players]
-    *****/bgeneral.txt*0[(b) General Information]
-    *****/cbirth.txt*0[(c) Creating a Character]
-    *****/ddungeon.txt*0[(d) Exploring the Dungeon]
-    *****/eattack.txt*0[(e) Attacking Monsters]
-    *****/fcommand.txt*0[(f) List of Commands]
-    *****/goption.txt*0[(g) List of Options]
-    *****/hmagic.hlp*0[(h) Magic Schools, Wands and Staves]
-    *****/iskills.txt*0[(i) Skills]
-    *****/jability.txt*0[(j) Abilities]
-    *****/kgods.txt*0[(k) Gods]
+    *****/ageneral.txt*0[(a) About this help system]
+    *****/bnewbie.hlp*0[(b) Help for new players] Skills, magic, races, classes + more
+    *****/cadvanced.hlp*0[(c) Help for more experienced players] Options, Macros, Automatizer etc
+    *****/dtome_faq.txt*0[(d) ToME FAQ] Common questions
+    
+    *****/sspoiler.hlp*0[(s) Spoiler menu] Dungeons, fates, luck, corruptions and stuff
 
-    *****/llua.hlp*0[(l) Lua scripting help menu]
-    *****/mautomat.txt*0[(m) Automatizer help]
 
-    *****/uuser.txt*0[(u) User menu (if any)]
-    *****/sspoiler.hlp*0[(s) Spoiler menu]
-    *****/tdebug.txt*0[(t) List of Debug Commands]
-    *****/vversion.txt*0[(v) Version Information]
-
-    *****/xindex.txt*0[(x) Alphabetical index]
+    *****/xindex.txt*0[(x) Alphabetical index] Trouble finding something? Try here
 
 #####GBasic keys:
 Space          | Advance 1 page (screen)
@@ -43,12 +31,3 @@ Backspace, ?   | Return to previous Help File
 =              | Highlight lines containing a string (e.g. "word")
 /              | Search for a string (e.g. "word")
 
-#####GContacts:
-Report bugs to bugs@t-o-m-e.net (this redirects to a mailing list).
-Report various ideas and improvments to ideas@t-o-m-e.net (this
-redirects to a mailing list).
-
-You can also directly contact me at darkgod@t-o-m-e.net .
-
-Help file inaccuracies or suggestions for content should be sent to 
-fearoffours@t-o-m-e.net .

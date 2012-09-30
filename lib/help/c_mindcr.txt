@@ -29,6 +29,8 @@ Exp Penalty      20%
 Combat                  2.000           [0.700]
   Weaponmastery         1.000           [0.700]
 Sneakiness              1.000           [1.100]
+  Stealth               0.000           [0.400]
+  Disarming		0.000		[0.900]
 Magic                   1.000           [0.900]
   Magic-Device          1.000           [1.150]
   Spell-power           0.000           [0.600]
@@ -40,7 +42,7 @@ Monster-lore            0.000           [0.500]
 
 #####GInnate Abilities:
 #####BAbility              Character level
-Perfect-casting             1
+Perfect casting             1
 
 #####GMindcraft Powers
 Although the powers of a Mindcrafter may seem like magic, this is not
@@ -51,5 +53,5 @@ accessed through the "m" command, and you can find a full list of their
 powers in the *****m_mindcr.txt*0[Mindcraft powers] document.
 
 #####GStarting Equipment
-A mindcrafter begins the game with:
-    A mace
+A Mindcrafter begins the game with:
+    a Mace

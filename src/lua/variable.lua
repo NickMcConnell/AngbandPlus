@@ -2,7 +2,7 @@
 -- Written by Waldemar Celes
 -- TeCGraf/PUC-Rio
 -- Jul 1998
--- $Id: variable.lua,v 1.2 2001/11/26 23:00:27 darkgod Exp $
+-- $Id: variable.lua,v 1.4 2004/06/04 13:42:10 neil Exp $
 
 -- This code is free software; you can redistribute it and/or modify it.
 -- The software provided hereunder is on an "as is" basis, and

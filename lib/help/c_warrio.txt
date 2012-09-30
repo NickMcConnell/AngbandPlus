@@ -5,10 +5,10 @@
 #####GDescription
 A Warrior is a hack-and-slash character, who solves most of his problems
 by cutting them to pieces, but will occasionally fall back on the help 
-of a magical device. Their prime stats are Strength and Constitution, 
-and a good Dexterity can really help at times. A Warrior will be good 
-at Fighting and Throwing/Bows, but bad at most other skills.
-A Warrior learns no magic.
+of a magical device or a bow. 
+
+A Warrior learns no magic, and can even suppress it like an Unbeliever through 
+the Antimagic skill.
 
 #####GStarting Stat Modifiers
 Strength         +5
@@ -32,6 +32,7 @@ Combat                  2.000           [0.800]
   Archery               1.000           [0.600]
   Antimagic             0.000           [0.550]
 Sneakiness              1.000           [0.900]
+  Stealth               0.000           [0.400]
   Disarming             1.000           [0.900]
 Magic                   1.000           [0.300]
   Magic-Device          1.000           [1.150]
@@ -41,13 +42,13 @@ Monster-lore            0.000           [0.500]
 
 #####GInnate Abilities:
 #####BAbility              Character level
-Extra-Max-Blow(1)           1
-Extra-Max-Blow(2)           1
-Spread-blows                25
+Extra Max Blow(1)           1
+Extra Max Blow(2)           1
+Spread blows                25
 
 #####GStarting Equipment
-A warrior begins the game with:
-    A ring of fear resistance
-    A broadsword
-    A suit of Chain Mail
+A Warrior begins the game with:
+    a Ring of Fear Resistance
+    a Broad Sword
+    a Chain Mail
 

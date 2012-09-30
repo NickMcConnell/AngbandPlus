@@ -252,16 +252,16 @@ CHANNEL_ELEMENTS = add_spell
 	["desc"] =	{
 			"Draws on the caster's immediate environs to form an attack or other effect.",
 			"Grass/Flower heals",
-			"Water creates water attacks",
-			"Ice creates ice attacks",
+			"Water creates water bolt attacks",
+			"Ice creates ice bolt attacks",
 			"Sand creates a wall of burning sand around you, but the wall is thick and blinds you",
-			"Lava creates fire attacks",
-			"Deep lava creates a ball attack",
-			"Abyss creates darkness ray attacks",
-			"At Earth level 8, the healing may be projected to heal a companion or pet.",
+			"Lava creates fire bolt attacks",
+			"Deep lava creates fire ball attacks",
+			"Chasm creates darkness bolt attacks",
 			"At Earth level 18, darkness becomes nether.",
 			"At Water level 8, water attacks become beams with a striking effect.",
 			"At Water level 12, ice attacks become balls of ice shards",
+			"At Water level 18, water attacks push monsters back.",
 			"At Fire level 15, fire become hellfire.",
 	}
 }
@@ -374,7 +374,7 @@ VAPORIZE = add_spell
 				fire_cloud(typ, 0, effect[3], 1 + get_level(VAPORIZE, 4), 10 + get_level(VAPORIZE, 20))
 			end
 
-       			return TRUE
+			return TRUE
 	end,
 	["info"] = 	function()
 			return "rad "..(1 + get_level(VAPORIZE, 4)).." dur "..(10 + get_level(VAPORIZE, 20))
@@ -476,7 +476,7 @@ GEOLYSIS = add_spell
 			msg_print("Elements recombine before you, laying down an open path.")
 			geomancy_dig(player.py, player.px, dir, 5 + get_level(GEOLYSIS, 12))
 
-       			return TRUE
+			return TRUE
 	end,
 	["info"] = 	function()
 			return "length "..(5 + get_level(GEOLYSIS, 12))
@@ -558,7 +558,7 @@ GROW_BARRIER = add_spell
 			end
 
 			fire_ball(GF_ELEMENTAL_WALL, dir, 1, 1)
-       			return TRUE
+			return TRUE
 	end,
 	["info"] = 	function()
 			return ""
@@ -640,7 +640,7 @@ ELEMENTAL_MINION = add_spell
 				cave_set_feat(y, x, FEAT_FLOOR)
 			end
 
-       			return TRUE
+			return TRUE
 	end,
 	["info"] = 	function()
 			return "min level "..(10 + get_level(ELEMENTAL_MINION, 120))

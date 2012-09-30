@@ -4,13 +4,13 @@
 #####R== Rogues ===
 
 #####GDescription
-Rogues are jacks of all trades, but master of none. With the notable exception
-of Archery and Monster-related skills, they are capable of adapting to any
-situation. Their strong point, anyhow, lies in stealth and careful planning:
-Where a warrior would simply hack away (and risk being hacked up himself) or a 
-mage would Manathrust, a Rogue would awaken a monster with a dagger in the back,
-or wait for the creature to be killed by the line of traps she had previously
-laid between her and her opponent.
+A rogue is a jack of all trades, but the master of none. With the notable 
+exception of Archery and Monster-related skills, Rogues are capable of adapting 
+to almost any situation. Their strong point lies in stealth and careful 
+planning: Where a Warrior would simply hack away (and risk being hacked up 
+himself) or a Mage would Manathrust, a Rogue would awaken a monster with a 
+dagger in the back, or would wait for the creature to be killed by the line of 
+traps she had previously laid between her and her opponent.
 
 Rogues have access to the schools of *****m_convey.txt*0[Conveyance], *****m_divin.txt*0[Divination] and *****m_tempo.txt*0[Temporal] magic.
 
@@ -49,12 +49,12 @@ Monster-lore            0.000           [0.500]
 #####GInnate Abilities:
 #####BAbility              Character level
 Trapping                    1
-Extra-Max-Blow(1)           10
+Extra Max Blow(1)           10
 
 #####GStarting Equipment
 A Rogue begins the game with:
     a Dagger
-    a Catapult trap set
+    a Catapult Trap Set
     some Iron Shots
 
 

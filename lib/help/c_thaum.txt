@@ -3,7 +3,7 @@
 #####R=== Thaumaturgists ===
 
 #####GDescription
-A Thaumaturgist is a mage that prefers chaos to order. As such, they tend to 
+A Thaumaturgist is a Mage that prefers chaos to order. As such, they tend to 
 learn random spells, and since attacking something creates more chaos than 
 anything else, every spell they learn is an attack spell. They have no need 
 for spell-books, as they harness the spells from within themselves. However, 
@@ -29,22 +29,22 @@ Exp Penalty      30%
 Combat                  1.000           [0.200]
   Weaponmastery         0.700           [0.400]
 Sneakiness              1.000           [0.900]
+  Stealth               0.000           [0.400]
 Magic                   3.000           [0.950]
   Magic-Device          1.000           [1.050]
-  Sorcery               0.000           [0.300]
   Spell-power           0.000           [0.600]
   Mana                  0.000           [0.600]
-  Geomancy              
+  Geomancy
     Fire                0.000           [0.700]
     Water               0.000           [0.700]
     Air                 0.000           [0.700]
     Earth               0.000           [0.700]
-  Temporal              0.000           [0.700]
-  Divination            0.000           [0.700]
-  Conveyance            0.000           [0.700]
-  Nature                0.000           [0.700]
   Meta                  0.000           [0.700]
+  Conveyance            0.000           [0.700]
+  Divination            0.000           [0.700]
+  Temporal              0.000           [0.700]
   Mind                  0.000           [0.700]
+  Nature                0.000           [0.700]
   Necromancy            0.000           [0.700]
   Runecraft             0.000           [0.700]
   Thaumaturgy           1.000           [1.000]
@@ -57,12 +57,12 @@ screen because the elemental schools are sub-skills of it.
 
 #####GInnate Abilities:
 #####BAbility              Character level
-Perfect-casting             1
+Perfect casting             1
 
 #####GStarting Equipment
-A thaumaturgist begins the game with:
-    A book of Beginner Cantrips
-    A dagger
+A Thaumaturgist begins the game with:
+    a Book of Beginner Cantrips
+    a Dagger
 
 
 #####GThaumaturgy

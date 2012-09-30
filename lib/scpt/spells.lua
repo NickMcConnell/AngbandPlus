@@ -377,7 +377,7 @@ school_book[1] = {
 
 -- The book of the blowing winds
 school_book[2] = {
-	NOXIOUSCLOUD, POISONBLOOD, INVISIBILITY, AIRWINGS, THUNDERSTORM,
+	NOXIOUSCLOUD, POISONBLOOD, INVISIBILITY, STERILIZE, AIRWINGS, THUNDERSTORM,
 }
 
 -- The book of the impenetrable earth
@@ -392,7 +392,7 @@ school_book[4] = {
 
 -- Create the book of translocation
 school_book[5] = {
-	DISARM, BLINK, TELEPORT, TELEAWAY, RECALL, PROBABILITY_TRAVEL,
+	BLINK, DISARM, TELEPORT, TELEAWAY, RECALL, PROBABILITY_TRAVEL,
 }
 
 -- Create the book of the tree
@@ -412,7 +412,7 @@ school_book[8] = {
 
 -- Create the book of meta spells
 school_book[9] = {
-	RECHARGE, DISPERSEMAGIC, SPELLBINDER, TRACKER,
+	RECHARGE, DISPERSEMAGIC, SPELLBINDER, TRACKER, INERTIA_CONTROL,
 }
 
 -- Create the book of the mind

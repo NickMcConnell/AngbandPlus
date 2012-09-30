@@ -24,5 +24,15 @@ Charisma        -3
 Hit Dice Sides  11         
 Exp Penalty     +25%
 
-#####GSkill bonuses (supplementary to existing skills)
-Axe-mastery            0.000           [0.200]
+#####GRacial Skill Modifiers:
+#####BSkill                Start Mod    Skill Point Gains Mod
+Combat                  
+  Weaponmastery         1.500           [0.000]
+    Axe-mastery         0.000           [0.200]
+  Archery		0.500           [0.000]
+Sneakiness              0.700           [0.000]
+  Stealth              -1.000           [0.000]
+  Disarming             0.200           [0.000]
+Magic                   
+  Magic-Device          0.900           [0.000]
+Spirituality            5.000           [0.000]

@@ -18,7 +18,7 @@
 #
 # b blue   for stat traps
 # w white  for teleport traps
-# o orange for dungeon rearrangment traps
+# o orange for dungeon rearrangement traps
 # v violet for summoning traps
 # y yellow for stealing/equipment traps
 # r red    for other character affecting traps
@@ -140,9 +140,9 @@ I:5:10:0:12:20:0d0:y
 D:Your weapon will never be the same...
 F:FLOOR | CHEST | DOOR
 
-N:21:Trap of Curse Armor
+N:21:Trap of Curse Armour
 I:5:15:0:12:20:0d0:y
-D:Your armor doesn't exactly get better by setting off this trap...
+D:Your armour doesn't exactly get better by setting off this trap...
 F:FLOOR | CHEST | DOOR
 
 N:22:Earthquake Trap
@@ -175,7 +175,7 @@ I:3:100:50:3:2:0d0:w
 D:Now you know why nobody ever got close enough to disarm this trap...
 F:FLOOR | CHEST | DOOR
 
-N:28:Paralyzing Trap
+N:28:Paralysing Trap
 I:1:100:20:2:2:0d0:r
 D:You suddenly cannot move!
 F:FLOOR | CHEST | DOOR
@@ -349,7 +349,7 @@ I:4:80:5:5:8:5d10:g
 D:A gush of water hits you!
 F:FLOOR | CHEST | DOOR | LEVEL2
 
-N:67:Lite Bolt Trap
+N:67:Light Bolt Trap
 I:4:80:5:5:8:5d10:g
 D:There is a sudden flash of light around you!
 F:FLOOR | CHEST | DOOR | LEVEL2
