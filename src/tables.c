@@ -1239,859 +1239,6 @@ player_sex sex_info[MAX_SEXES] =
         }
 };
 
-
-/*
- * Player Races
- *
- *      Title,
- *      Desc,
- *      {STR,INT,WIS,DEX,CON,CHR},
- *      r_dis, r_dev, r_sav, r_stl, r_srh, r_fos, r_thn, r_thb,
- *      hitdie, exp base,
- *      Age (Base, Mod),
- *      Male (Hgtbase, Hgtmod, Wgtbase, Wgtmod),
- *      Female (Hgtbase, Hgtmod, Wgtbase, Wgtmod),
- *      infra,
- *      class-choices
- *      race powers(4)
- *      body parts(weapon, torso, arms, finger, head, legs)
- */
-player_race race_info[MAX_RACES] =
-{
-	{
-		"Human",
-                "Humans are the second born, the Edain.\nThey are the basic race to which all others are compared.\nAverage in ability, they can be any class.",
-		{  0,  0,  0,  0,  0,  0 },
-		0,  0,  0,  0,  0,  10,  0,  0,
-		10,  100,
-		14,  6,
-		72,  6, 180, 25,
-		66,  4, 150, 20,
-		0,
-                0xFFFFFFFF,	/* All classes */
-                { -1, -1, -1, -1},
-                {1, 1, 1, 2, 1, 1},
-	},
-	{
-		"Half-Elf",
-                "A crossbreed of elf and human, they get the best of the two races.",
-                { 0,  1,  1,  1, -1,  1 },
-		2,  3,  3,  1, 6,  11, -1,  5,
-		9,  110,
-		24, 16,
-		66,  6, 130, 15,
-		62,  6, 100, 10,
-		2,
-                0xFFFFFFFF - BIT(CLASS_POWERMAGE) - BIT(CLASS_NECRO) - BIT(CLASS_UNBELIEVER),
-                { -1, -1, -1, -1},
-                {1, 1, 1, 2, 1, 1},
-	},
-	{
-		"Elf",
-                "Elves are the first born, the Eldar.\nMore spiritual than physical beings, they are weaker than humans\nbut are more intelligent.",
-		{ -1,  2,  2,  1, -2,  2 },
-		5,  6,  6,  2, 8,  12, -5, 15,
-		8,  120,
-		75, 75,
-		60,  4, 100,  6,
-		54,  4, 80,  6,
-		3,
-                0xFFFFFFFF - BIT(CLASS_PALADIN)- BIT(CLASS_CHAOS_WARRIOR) - BIT(CLASS_POWERMAGE) - BIT(CLASS_NECRO) - BIT(CLASS_UNBELIEVER),
-                { -1, -1, -1, -1},
-                {1, 1, 1, 2, 1, 1},
-	},
-	{
-		"Hobbit",
-                "An old but quiet race related to humans.\nThey are small and quite weak but good at many things.",
-		{ -2,  2,  1,  3,  2,  1 },
-		15, 18, 18, 5, 12,  15, -10, 20,
-		7,  110,
-		21, 12,
-		36,  3, 60,  3,
-		33,  3, 50,  3,
-		4,
-                0xFFFFFFFF - BIT(CLASS_PRIEST) - BIT(CLASS_RANGER) - BIT(CLASS_PALADIN) - BIT(CLASS_WARLOCK) - BIT(CLASS_CHAOS_WARRIOR) - BIT(CLASS_MONK) - BIT(CLASS_MINDCRAFTER) - BIT(CLASS_BEASTMASTER) - BIT(CLASS_POWERMAGE) - BIT(CLASS_RUNECRAFTER) - BIT(CLASS_POSSESSOR) - BIT(CLASS_SORCERER) - BIT(CLASS_DRUID) - BIT(CLASS_NECRO) - BIT(CLASS_DAEMONOLOGIST) - BIT(CLASS_WEAPONMASTER),
-                { PWR_COOK_FOOD, -1, -1, -1},
-                {1, 1, 1, 2, 1, 1},
-	},
-	{
-		"Gnome",
-                "Related to dwarves, Gnomes are between Dwarves and Hobbits in size.\nVery good at magic use they are poor as fighters.",
-		{ -1,  2,  0,  2,  1, -2 },
-		10, 12, 12,  3, 6,  13, -8, 12,
-		8,  135,
-		50, 40,
-		42,  3, 90,  6,
-		39,  3, 75,  3,
-		4,
-                0xFFFFFFFF - BIT(CLASS_RANGER) - BIT(CLASS_PALADIN) - BIT(CLASS_WARLOCK) - BIT(CLASS_CHAOS_WARRIOR) - BIT(CLASS_MONK) - BIT(CLASS_BEASTMASTER) - BIT(CLASS_HARPER) - BIT(CLASS_POWERMAGE) - BIT(CLASS_RUNECRAFTER) - BIT(CLASS_POSSESSOR) - BIT(CLASS_ARCHER) - BIT(CLASS_DRUID) - BIT(CLASS_NECRO) - BIT(CLASS_UNBELIEVER) - BIT(CLASS_WEAPONMASTER),
-                { PWR_BLINK, -1, -1, -1},
-                {1, 1, 1, 2, 1, 1},
-	},
-	{
-		"Dwarf",
-                "The children of Aule, a strong but small race.\nMiners and fighters of legend.",
-                {  2, -2,  2, -2,  2, -3 },
-		2,  9,  10,  -1,  7,  10, 15,  0,
-		11,  125,
-		35, 15,
-		48,  3, 150, 10,
-		46,  3, 120, 10,
-		5,
-                0xFFFFFFFF - BIT(CLASS_MAGE) - BIT(CLASS_ROGUE) - BIT(CLASS_RANGER) - BIT(CLASS_PALADIN) - BIT(CLASS_WARLOCK) - BIT(CLASS_CHAOS_WARRIOR) - BIT(CLASS_MONK) - BIT(CLASS_MINDCRAFTER) - BIT(CLASS_HIGH_MAGE) - BIT(CLASS_BEASTMASTER) - BIT(CLASS_POWERMAGE) - BIT(CLASS_RUNECRAFTER) - BIT(CLASS_POSSESSOR) - BIT(CLASS_SORCERER) - BIT(CLASS_ARCHER) - BIT(CLASS_ILLUSIONIST) - BIT(CLASS_NECRO) - BIT(CLASS_DAEMONOLOGIST),
-                { PWR_PASSWALL, -1, -1, -1},
-                {1, 1, 1, 2, 1, 1},
-	},
-	{
-                "Orc",
-                "Quite strong but not very smart.",
-                {  2, -1,  0,  1,  1, -4 },
-		-3, -3, -3,  -1,  0, 7, 12, -5,
-		10,  110,
-		11,  4,
-		66,  1, 150,  5,
-		62,  1, 120,  5,
-		3,
-                0xFFFFFFFF - BIT(CLASS_MAGE) - BIT(CLASS_RANGER) - BIT(CLASS_PALADIN) - BIT(CLASS_WARLOCK) - BIT(CLASS_MINDCRAFTER) - BIT(CLASS_HIGH_MAGE) - BIT(CLASS_BEASTMASTER) - BIT(CLASS_ALCHEMIST) - BIT(CLASS_SYMBIANT) - BIT(CLASS_HARPER) - BIT(CLASS_POSSESSOR) - BIT(CLASS_SORCERER) - BIT(CLASS_ARCHER) - BIT(CLASS_ILLUSIONIST) - BIT(CLASS_DRUID) - BIT(CLASS_DAEMONOLOGIST) - BIT(CLASS_MERCHANT),
-                { PWR_UNFEAR, -1, -1, -1},
-                {1, 1, 1, 2, 1, 1},
-	},
-	{
-                "Troll",
-                "They can bear the light of the sun.\nThey are extremely strong and dumb.",
-		{ 4, -4, -2, -4,  3, -6 },
-		-5, -8, -8, -2,  -1, 5, 20, -10,
-		12,  137,
-		20, 10,
-		96, 10, 250, 50,
-		84,  8, 225, 40,
-		3,
-                0xFFFFFFFF - BIT(CLASS_MERCHANT) - BIT(CLASS_MAGE) - BIT(CLASS_ROGUE) - BIT(CLASS_RANGER) - BIT(CLASS_PALADIN) - BIT(CLASS_WARLOCK) - BIT(CLASS_CHAOS_WARRIOR) - BIT(CLASS_MONK) - BIT(CLASS_MINDCRAFTER) - BIT(CLASS_HIGH_MAGE) - BIT(CLASS_BEASTMASTER) - BIT(CLASS_ALCHEMIST) - BIT(CLASS_MIMIC) - BIT(CLASS_SYMBIANT) - BIT(CLASS_HARPER) - BIT(CLASS_RUNECRAFTER) - BIT(CLASS_POSSESSOR) - BIT(CLASS_SORCERER) - BIT(CLASS_ARCHER) - BIT(CLASS_ILLUSIONIST) - BIT(CLASS_DRUID) - BIT(CLASS_DAEMONOLOGIST),
-                { PWR_BERSERK, -1, -1, -1},
-                {1, 1, 1, 2, 1, 1},
-	},
-	{
-                "Dunadan",
-                "The greatest of the Edain, humans in all respects but\nstronger, smarter and wiser.",
-		{  1,  2,  2,  2,  3,  2 },
-		4,  5,  5,  2, 3, 13, 15, 10,
-                10,  180,
-		50, 50,
-		82, 5, 190, 20,
-		78,  6, 180, 15,
-		0,
-                0xFFFFFFFF - BIT(CLASS_MIMIC) - BIT(CLASS_POWERMAGE) - BIT(CLASS_NECRO),
-                { -1, -1, -1, -1},
-                {1, 1, 1, 2, 1, 1},
-	},
-	{
-		"High-Elf",
-                "Elves are the first born, the Eldar.\nHigh elves are the best of the Eldar, strong, fast, intellectual, though\nthey sometimes lack wisdom.",
-		{  1,  3,  2,  3,  1,  5 },
-		4,  20, 20,  4,  3, 14, 10, 25,
-		10,  200,
-		100, 30,
-		90, 10, 190, 20,
-		82, 10, 180, 15,
-		4,
-                0xFFFFFFFF - BIT(CLASS_PALADIN) - BIT(CLASS_CHAOS_WARRIOR) - BIT(CLASS_POWERMAGE) - BIT(CLASS_NECRO) - BIT(CLASS_UNBELIEVER),
-                { -1, -1, -1, -1},
-                {1, 1, 1, 2, 1, 1},
-	},
-	{
-		"Half-Ogre",
-                "A crossbreed between a human and an ogre.\nThey are similar to half-trolls, strong and dumb.",
-		{ 3, -1, -1, -1, 3, -3 },
-		-3, -5, -5, -2, -1, 5, 20, 0,
-		12,  130,
-		40, 10,
-		92, 10, 255, 60,
-		80,  8, 235, 60,
-		3,
-                0xFFFFFFFF - BIT(CLASS_MERCHANT) - BIT(CLASS_ROGUE) - BIT(CLASS_RANGER) - BIT(CLASS_PALADIN) - BIT(CLASS_WARLOCK) - BIT(CLASS_CHAOS_WARRIOR) - BIT(CLASS_MONK) - BIT(CLASS_MINDCRAFTER) - BIT(CLASS_BEASTMASTER) - BIT(CLASS_ALCHEMIST) - BIT(CLASS_MIMIC) - BIT(CLASS_SYMBIANT) - BIT(CLASS_HARPER) - BIT(CLASS_RUNECRAFTER) - BIT(CLASS_POSSESSOR) - BIT(CLASS_SORCERER) - BIT(CLASS_ARCHER) - BIT(CLASS_ILLUSIONIST) - BIT(CLASS_DRUID) - BIT(CLASS_UNBELIEVER) - BIT(CLASS_DAEMONOLOGIST) - BIT(CLASS_WEAPONMASTER),
-                { PWR_EXPL_RUNE, -1, -1, -1},
-                {1, 1, 1, 2, 1, 1},
-	},
-	{
-		"Half-Giant",
-                "A crossbreed between a human and a giant.\nThey are similar to half-trolls, strong and dumb.",
-		{ 4, -2, -2, -2, 3, -3 },
-		-6, -8, -6, -2, -1, 5, 25, 5,
-		13, 150,
-		40, 10,
-		100,10, 255, 65,
-		80, 10, 240, 64,
-		3,
-                0xFFFFFFFF - BIT(CLASS_MERCHANT) - BIT(CLASS_MAGE) - BIT(CLASS_PRIEST) - BIT(CLASS_ROGUE) - BIT(CLASS_PALADIN) - BIT(CLASS_WARLOCK) - BIT(CLASS_CHAOS_WARRIOR) - BIT(CLASS_MONK) - BIT(CLASS_MINDCRAFTER) - BIT(CLASS_HIGH_MAGE) - BIT(CLASS_BEASTMASTER) - BIT(CLASS_ALCHEMIST) - BIT(CLASS_MIMIC) - BIT(CLASS_SYMBIANT) - BIT(CLASS_HARPER) - BIT(CLASS_RUNECRAFTER) - BIT(CLASS_POSSESSOR) - BIT(CLASS_SORCERER) - BIT(CLASS_ARCHER) - BIT(CLASS_ILLUSIONIST) - BIT(CLASS_DRUID) - BIT(CLASS_DAEMONOLOGIST) - BIT(CLASS_WEAPONMASTER),
-                { PWR_STM, -1, -1, -1},
-                {1, 1, 1, 2, 1, 1},
-	},
-	{
-		"Kobold",
-                "A weaker kind of goblin, related to orcs.",
-		{ 1, -1, 0, 1, 0, -4 },
-		-2, -3, -2, -1, 1, 8, 10, -8,
-		9, 125,
-		11,  3,
-		60,  1, 130,  5,
-		55,  1, 100,  5,
-		3,
-                0xFFFFFFFF - BIT(CLASS_MAGE) - BIT(CLASS_PRIEST) - BIT(CLASS_RANGER) - BIT(CLASS_PALADIN) - BIT(CLASS_WARLOCK) - BIT(CLASS_CHAOS_WARRIOR) - BIT(CLASS_MONK) - BIT(CLASS_MINDCRAFTER) - BIT(CLASS_HIGH_MAGE) - BIT(CLASS_BEASTMASTER) - BIT(CLASS_ALCHEMIST) - BIT(CLASS_POSSESSOR) - BIT(CLASS_SORCERER) - BIT(CLASS_ARCHER) - BIT(CLASS_DRUID) - BIT(CLASS_DAEMONOLOGIST) - BIT(CLASS_WEAPONMASTER),
-                { PWR_POIS_DART, -1, -1, -1},
-                {1, 1, 1, 2, 1, 1},
-	},
-	{
-                "Petty Dwarf",
-                "A nearly extinct subrace of dwarves.\nThey prefer to live in the darkness.",
-		{ 1, -1, 2, 0, 2, -4 },
-		3, 5, 10, 1, 5, 10, 9, 0,
-		11, 135,
-		40, 12,
-		43,  3, 92,  6,
-		40,  3, 78,  3,
-		5,
-                0xFFFFFFFF - BIT(CLASS_RANGER) - BIT(CLASS_PALADIN) - BIT(CLASS_WARLOCK) - BIT(CLASS_CHAOS_WARRIOR) - BIT(CLASS_MONK) - BIT(CLASS_MINDCRAFTER) - BIT(CLASS_BEASTMASTER) - BIT(CLASS_POWERMAGE) - BIT(CLASS_RUNECRAFTER) - BIT(CLASS_POSSESSOR) - BIT(CLASS_SORCERER) - BIT(CLASS_ARCHER) - BIT(CLASS_DRUID) - BIT(CLASS_NECRO)
-                - BIT(CLASS_UNBELIEVER) - BIT(CLASS_DAEMONOLOGIST) - BIT(CLASS_SORCERER),
-                { PWR_DETECT_TD, -1, -1, -1},
-                {1, 1, 1, 2, 1, 1},
-	},
-	{
-		"Dark Elf",
-                "Elves are the first born, the Eldar.\nDark elves are rare on Middle Earth and even though not evil\nthey are not good.",
-		{ -1, 3, 2, 2, -2, 1 },
-		5, 15, 20, 3, 8, 12, -5, 10,
-		9, 150,
-		75, 75,
-		60,  4, 100,  6,
-		54,  4, 80,  6,
-		5,
-                0xFFFFFFFF - BIT(CLASS_PALADIN) - BIT(CLASS_POWERMAGE) - BIT(CLASS_DRUID) - BIT(CLASS_UNBELIEVER),
-                { PWR_MAGIC_MISSILE, -1, -1, -1},
-                {1, 1, 1, 2, 1, 1},
-	},
-	{
-                "Ent",
-                "Guardian of the forests of Middle Earth, summoned by Yavanna before\neven the elves awoke. It is said 'Trolls are strong, Ents are STRONGER'.",
-                { +10, -3, +2, -5, +11, -3 },
-                5, 5, 20, -6, 5, 4, 15, 5,
-                12, 210,
-                255, 70,
-		72, 6, 100, 25,
-		66, 4, 100, 20,
-		5,
-                0xFFFFFFFF - BIT(CLASS_MERCHANT) - BIT(CLASS_MAGE) - BIT(CLASS_ROGUE) - BIT(CLASS_RANGER) - BIT(CLASS_CHAOS_WARRIOR) - BIT(CLASS_MONK) - BIT(CLASS_MINDCRAFTER) - BIT(CLASS_MIMIC) - BIT(CLASS_HARPER) - BIT(CLASS_POWERMAGE) - BIT(CLASS_RUNECRAFTER) - BIT(CLASS_POSSESSOR) - BIT(CLASS_SORCERER) - BIT(CLASS_ARCHER) - BIT(CLASS_ILLUSIONIST) - BIT(CLASS_NECRO) - BIT(CLASS_DAEMONOLOGIST) - BIT(CLASS_WEAPONMASTER),
-                { PWR_GROW_TREE, -1, -1, -1},
-                {1, 1, 1, 2, 1, 1},
-	},
-	{
-                "RohanKnight",
-                "Humans from the land of Rohan, riding the great Mearas.\nFast and powerful in battle.",
-                { 4, -2, 3, 1, 4, 2 },
-                10, 5, 5, -8, 1, 1, 5, 5,
-                10, 220,
-		20, 3,
-		60,  3, 80,  4,
-		54,  3, 70,  4,
-                0,
-                0xFFFFFFFF - BIT(CLASS_MAGE) - BIT(CLASS_PRIEST) - BIT(CLASS_ROGUE) - BIT(CLASS_MONK) - BIT(CLASS_MINDCRAFTER) - BIT(CLASS_BEASTMASTER) - BIT(CLASS_ALCHEMIST) - BIT(CLASS_MIMIC) - BIT(CLASS_SYMBIANT) - BIT(CLASS_POWERMAGE) - BIT(CLASS_POSSESSOR) - BIT(CLASS_DRUID) - BIT(CLASS_DAEMONOLOGIST),
-                { PWR_ROHAN, -1, -1, -1},
-                {1, 1, 1, 2, 1, 1},
-	},
-	{
-                "DragonRider",
-                "In the distant system of the star Rukbat orbits the planet Pern, home of the\nDragonRiders. Mounting huge, powerful but friendly dragons they are masters of\nteleporatation.",
-                {  6,  3,  -10,  0,  6,  8 },
-                6,  0,  10,  -16,  30,  10,  15,  5,
-                15,  400,
-		14,  6,
-                180,  6, 255, 25,
-                150,  4, 230, 20,
-                0,
-                0xFFFFFFFF - BIT(CLASS_MERCHANT) - BIT(CLASS_MAGE) - BIT(CLASS_PRIEST) - BIT(CLASS_ROGUE) - BIT(CLASS_CHAOS_WARRIOR) - BIT(CLASS_MONK) - BIT(CLASS_ALCHEMIST) - BIT(CLASS_MIMIC) - BIT(CLASS_SYMBIANT) - BIT(CLASS_POWERMAGE) - BIT(CLASS_POSSESSOR) - BIT(CLASS_ILLUSIONIST) - BIT(CLASS_DRUID) - BIT(CLASS_NECRO) - BIT(CLASS_DAEMONOLOGIST) - BIT(CLASS_WEAPONMASTER),
-                { PWR_DRAGON, -1, -1, -1},
-                {1, 1, 1, 2, 1, 1},
-        },
-
-	{
-                "DeathMold",
-                "A pure mass of evilness, DeathMolds cannot move, but they have much more\npower than an average race.",
-                { 10, 0, 10, 0, 10, -15 },
-                15, -5, 15, 25, 0, 10, 25, 25,
-                15, 250,
-                5, 15,
-                10, 1, 50, 1,
-                10, 1, 50, 1,
-                10,
-                0xFFFFFFFF - BIT(CLASS_MERCHANT) - BIT(CLASS_WARRIOR) - BIT(CLASS_RANGER) - BIT(CLASS_PALADIN) - BIT(CLASS_WARLOCK) - BIT(CLASS_CHAOS_WARRIOR) - BIT(CLASS_MONK) - BIT(CLASS_ALCHEMIST) - BIT(CLASS_MIMIC) - BIT(CLASS_HARPER) - BIT(CLASS_RUNECRAFTER) - BIT(CLASS_POSSESSOR) - BIT(CLASS_ARCHER) - BIT(CLASS_ILLUSIONIST) - BIT(CLASS_DRUID) - BIT(CLASS_UNBELIEVER) - BIT(CLASS_DAEMONOLOGIST) - BIT(CLASS_WEAPONMASTER),
-                { PWR_DEATHMOLD, -1, -1, -1},
-                {1, 1, 1, 4, 0, 0},
-        },
-        {
-                "Yeek",
-                "The weakest of all the races, bad at everything except gaining levels quickly.",
-                {-5, -5, -5, -5, -5, -5},
-                -5, -5, -10, 0, -5, 0, -10, -10,
-                6, 25,
-                10,  4,
-                40, 5, 50, 10,
-                35, 4, 45, 10,
-                2,
-                0xFFFFFFFF - BIT(CLASS_MERCHANT) - BIT(CLASS_MIMIC) - BIT(CLASS_POWERMAGE) - BIT(CLASS_NECRO) - BIT(CLASS_WEAPONMASTER),
-                { -1, -1, -1, -1},
-                {1, 1, 1, 2, 1, 1},
-        },
-	{
-                "Wood Elf",
-                "Elves are the first born, the Eldar.\nWood elves live in the great forests of Middle Earth.",
-                { -3,  2,  1,  5, -4,  1 },
-                5,  6,  6,  5, 8,  12, -25, 40,
-                7,  130,
-		75, 75,
-		60,  4, 100,  6,
-		54,  4, 80,  6,
-                4,
-                0xFFFFFFFF - BIT(CLASS_PALADIN) - BIT(CLASS_CHAOS_WARRIOR) - BIT(CLASS_POWERMAGE) - BIT(CLASS_NECRO) - BIT(CLASS_UNBELIEVER) - BIT(CLASS_DAEMONOLOGIST) - BIT(CLASS_WEAPONMASTER),
-                { -1, -1, -1, -1},
-                {1, 1, 1, 2, 1, 1},
-	},
-};
-/*
- * Player Races
- *
- *      Title,
- *      Desc,
- *      {STR,INT,WIS,DEX,CON,CHR},
- *      r_dis, r_dev, r_sav, r_stl, r_srh, r_fos, r_thn, r_thb,
- *      hitdie, exp base,
- *      Age (Base, Mod),
- *      Male (Hgtbase, Hgtmod, Wgtbase, Wgtmod),
- *      Female (Hgtbase, Hgtmod, Wgtbase, Wgtmod),
- *      infra,
- *      class-choices
- *      race powers(4)
- *      body parts(weapon, torso, arms, finger, head, legs)
- */
-
-/*
- * Player Race Mods
- *
- *      Title,
- *      Position of the text(TRUE = after, FALSE = before),
- *      {STR,INT,WIS,DEX,CON,CHR},
- *      r_dis, r_dev, r_sav, r_stl, r_srh, r_fos, r_thn, r_thb,
- *      hitdie, exp base,
- *      Age (Base, Mod),
- *      Male (Hgt, Wgt),
- *      Female (Hgt, Wgt)
- *      infra,
- *      race-choices,
- *      class-choice to add,
- *      class-choice to del,
- *      body parts(weapon, torso, arms, finger, head, legs)
- */
-player_race_mod race_mod_info[MAX_RACE_MODS] =
-{
-	{
-                "",
-                "A normal member of the race.",
-                TRUE,
-		{  0,  0,  0,  0,  0,  0 },
-                0,  0,  0,  0,  0,  0,  0,  0,
-                0,  0,
-                0,  0,
-                0,  0, 0, 0,
-                0, 0, 0, 0,
-                0,
-                0xFFFFFFF,     /* All races */
-                0,
-                0,
-                { -1, -1, -1, -1},
-                {0, 0, 0, 0, 0, 0},
-	},
-
-	{
-		"Vampire",
-                "Vampires are powerful undead, wielding great powers they still fear the\nsunlight and cannot easily satiate their hunger.",
-                TRUE,
-		{ 3, 3, -1, -1, 1, 2 },
-                1, 3, 3, 1, 1, 4, 2, 0,
-                +1, 100,
-                50, 15,
-                0,  0, 0, 0,
-                0,  0, 0, 0,
-                3,
-                0xFFFFFFF - BIT(RACE_MOLD) - BIT(RACE_ENT) - BIT(RACE_DRAGONRIDER),
-                0,
-                BIT(CLASS_MERCHANT),
-                { PWR_VAMPIRISM, -1, -1, -1},
-                {0, 0, 0, 0, 0, 0},
-	},
-
-	{
-		"Spectre",
-                "Spectres only partially exist in the mortal world and so they can\npass through walls. They are somewhat physically weak.",
-                TRUE,
-		{ -5, 4, 4, 2, -3, -6 },
-                2, 8, 7, 2, 2, 7, -5, -2,
-                -3, 80,
-                50, 15,
-                0, 0, -10, -5,
-                0, 0, -10, -5,
-                3,
-                0xFFFFFFFF - BIT(RACE_ENT) - BIT(RACE_DRAGONRIDER) - BIT(RACE_MOLD),
-                0,
-                BIT(CLASS_WARRIOR) + BIT(CLASS_UNBELIEVER) + BIT(CLASS_WEAPONMASTER) + BIT(CLASS_ARCHER) + BIT(CLASS_MERCHANT),
-                { PWR_SCARE, -1, -1, -1},
-                {0, 0, 0, -1, 0, 0},
-	},
-
-	{
-		"Skeleton",
-                "Yet an other kind of undead. Their physical 'body' is not very vulnerable\nto sharp things.",
-                TRUE,
-		{ 0, -2, -2, 0, 1, -4 },
-		-5, -5, 5, -1, -1, 8, 8, 0,
-                0, 45,
-                50, 15,
-                0,  0, -10, -5,
-                0,  0, -10, -5,
-                1,
-                0xFFFFFFF - BIT(RACE_MOLD) - BIT(RACE_ENT) - BIT(RACE_DRAGONRIDER),
-                0,
-                BIT(CLASS_SORCERER) + BIT(CLASS_MAGE) + BIT(CLASS_POWERMAGE) + BIT(CLASS_HIGH_MAGE) +
-                BIT(CLASS_ILLUSIONIST) + BIT(CLASS_MERCHANT),
-                { PWR_REST_LIFE, -1, -1, -1},
-                {0, 0, 0, 0, 0, 0},
-	},
-
-	{
-		"Zombie",
-                "Strong and dumb is a zombie.",
-                TRUE,
-		{ 2, -6, -6, 1, 4, -5 },
-                -2, -2, 5, -1, -1, 2, 5, 0,
-                3, 45,
-                50, 15,
-                0, 0, 0, 0,
-                0, 0, 0, 0,
-                1,
-                0xFFFFFFF - BIT(RACE_MOLD) - BIT(RACE_ENT) - BIT(RACE_DRAGONRIDER),
-                0,
-                BIT(CLASS_MERCHANT),
-                { PWR_REST_LIFE, -1, -1, -1},
-                {0, 0, 0, 0, 0, 0},
-	},
-
-	{
-		"Barbarian",
-                "Hardy members of their race they are strong fighters but poor spellcasters.",
-                TRUE,
-                { 2, -3,  -2,  1,  1, -3 },
-                -2, -10, 2,  -2,  0, 1, 12, 5,
-                1, 25,
-                0, 0,
-                0, 0, 0, 0,
-                0, 0, 0, 0,
-		0,
-                BIT(RACE_HUMAN) + BIT(RACE_DWARF) + BIT(RACE_HALF_ORC) + BIT(RACE_HALF_TROLL)
-                + BIT(RACE_HALF_OGRE) + BIT(RACE_HALF_GIANT),
-                0,
-                BIT(CLASS_SORCERER) + BIT(CLASS_MAGE) + BIT(CLASS_POWERMAGE) + BIT(CLASS_HIGH_MAGE) +
-                + BIT(CLASS_ILLUSIONIST),
-                { PWR_BERSERK, -1, -1, -1},
-                {0, 0, 0, 0, 0, 0},
-        },
-
-	{
-                "Hermit",
-"Through years of isolation hermits can manage to increase their mana\nreserves but at the cost of an increased physical weakness.",
-                TRUE,
-                { -3, +1, +1, -3, -3, +1 },
-                5, 10, 5,  3,  4,  10, -5, -5,
-                -3,  20,
-                0,  0,
-                0,  0, 0, 0,
-                0, 0, 0, 0,
-                1,
-                0xFFFFFFF - BIT(RACE_HALF_ORC) - BIT(RACE_HALF_TROLL) -
-                        BIT(RACE_HALF_OGRE) - BIT(RACE_HALF_GIANT) -
-                        BIT(RACE_KOBOLD),
-                BIT(CLASS_SORCERER) + BIT(CLASS_MAGE) + BIT(CLASS_MAGE) + BIT(CLASS_RUNECRAFTER),
-                BIT(CLASS_WARRIOR) + BIT(CLASS_UNBELIEVER),
-                { -1, -1, -1, -1},
-                {0, 0, 0, 0, 0, 0},
-	},
-
-	{
-		"Corrupted",
-                "Infused with the corruption of Morgoth, these unfortunates randomly gain\nand lose corruptions as they gain expirience.",
-                TRUE,
-		    {  0,  0,  0,  0,  0,  0 },
-                0,  0,  0,  0,  0,  0,  0,  0,
-                0,  20, 
-               /* Note that while it could be higher, the EXP reflects the large number of harmful corruptions in addition to the good ones. */
-                0,  0,
-                0,  0, 0, 0,
-                0, 0, 0, 0,
-                0,
-                0xFFFFFFF - BIT(RACE_MOLD) - BIT(RACE_ENT),
-                /* Ents and Death Molds are incorruptable for our purposes. */
-                0,
-                0,
-                { -1, -1, -1, -1},
-                {0, 0, 0, 0, 0, 0},
-	},
-
-};
-/*
- * Player Race Mods
- *
- *      Title,
- *      Position of the text(TRUE = after, FALSE = before),
- *      {STR,INT,WIS,DEX,CON,CHR},
- *      r_dis, r_dev, r_sav, r_stl, r_srh, r_fos, r_thn, r_thb,
- *      hitdie, exp base,
- *      Age (Base, Mod),
- *      Male (Hgt, Wgt),
- *      Female (Hgt, Wgt)
- *      infra,
- *      race-choices,
- *      class-choice to add,
- *      class-choice to del,
- *      body parts(weapon, torso, arms, finger, head, legs)
- */
-
-/*
- * Player Classes
- *
- *      Title,
- *      Desc,
- *      {STR,INT,WIS,DEX,CON,CHR},
- *      c_dis, c_dev, c_sav, c_stl, c_srh, c_fos, c_thn, c_thb,
- *      x_dis, x_dev, x_sav, x_stl, x_srh, x_fos, x_thn, x_thb,
- *      HD, Exp
- */
-player_class class_info[MAX_CLASS] =
-{
-	{
-		"Warrior",
-                "Simple fighters, they hack away with their trusty weapon.",
-		{ 5, -2, -2, 2, 2, -1},
-		25, 18, 18, 1,  14, 2, 70, 55,
-                12, 7,  10, 0,  0,  0,  45, 45,
-                9,  0,
-                { -1, -1, -1, -1},
-                0,
-	},
-
-	{
-		"Mage",
-                "The basic spellcaster, able to learn 64 spells from\none major and one minor magic realm.",
-		{-5, 3, 0, 1, -2, 1},
-		30, 36, 30, 2,  16, 20, 34, 20,
-		7,  13, 9,  0,  0,  0,  15, 15,
-                0, 30,
-                { -1, -1, -1, -1},
-                CF1_NO_GLOVES | CF1_ZERO_FAIL,
-	},
-
-	{
-		"Priest",
-                "A priest serves a god (Vala or Maia) to bring down the empire of\nfear and shadows of Morgoth. They can use various prayer realms\nof which they can learn up to 64 prayers.",
-		{-1, -3, 3, -1, 0, 2},
-		25, 30, 32, 2,  16, 8, 48, 35,
-		7,  10, 12, 0,  0,  0, 20, 20,
-                2, 20,
-                { PWR_DET_CURSE, -1, -1, -1},
-                CF1_BLESS_WEAPON | CF1_ZERO_FAIL,
-	},
-
-	{
-		"Rogue",
-                "Rogues are masters of tricks, they can steal from shops and monsters\nand lure monsters into deadly monster traps.\nThey can learn up to 24 spells.",
-		{ 2, 1, -2, 3, 1, -1},
-		45, 32, 28, 5, 32, 24, 60, 66,
-		15, 10, 10, 0,  0,  0, 40, 30,
-                6, 25,
-                { PWR_LAY_TRAP, -1, -1, -1},
-                0,
-	},
-
-	{
-		"Ranger",
-                "Warriors/archers/mages, a bit of everything helps them survive.\nThey can use the unique tribal magic and learn up to 32 spells.",
-		{ 2, 2, 0, 1, 1, 1},
-		30, 32, 28, 3,  24, 16, 56, 72,
-		8,  10, 10, 0,  0,  0,  30, 45,
-                4, 30,
-                { -1, -1, -1, -1},
-                0,
-	},
-
-	{
-		"Paladin",
-                "The paladin is a holy warrior, using the crusade realm to battle all\nthat is evil on Middle Earth. They can learn up to 32 prayers.",
-		{ 3, -3, 1, 0, 2, 2},
-		20, 24, 26, 1,  12, 2, 68, 40,
-		7,  10, 11, 0,  0,  0,  35, 30,
-                6, 35,
-                { -1, -1, -1, -1},
-                0,
-	},
-
-	{
-                "Warlock",
-                "Warrior mages, trained in both melee and some forms of magic.\nThey can learn up to 48 spells.",
-		{ 2, 2, 0, 1, 0, 1},
-		30, 30, 28, 2,  18, 16, 50, 25,
-		7,  10,  9, 0,  0,  0,  20, 20,
-                4, 50,
-                { -1, -1, -1, -1},
-                0,
-	},
-
-	{
-		"Chaos-Warrior",
-                "Fighters of chaos, followed by the somewhat unreliable chaos\npatrons they can use the chaos realm to enhance their destructive powers.",
-		{ 2, 1, 0, 1, 2, -2},
-		20, 25, 25, 1,  14, 12, 65, 40,
-		7,  11, 10, 0,  0,  0,  34, 29,
-                6, 35,
-                { -1, -1, -1, -1},
-                0,
-	},
-
-	{
-		"Monk",
-                "Barehanded, lightly armored fighters they wreak havok with\ntheir bare fists, and can also use a few prayers.\nThey can learn up to 24 prayers.",
-		{ 2, -1, 1, 3, 2, 1},
-		45, 32, 28, 5, 32, 24, 64, 60,
-		15, 11, 10, 0,  0,  0, 40, 30,
-                6, 40,
-                { -1, -1, -1, -1},
-                CF1_BLESS_WEAPON,
-	},
-
-        {
-                "Mindcrafter",
-                "From within comes the power of a mindcrafter, using his own psychic\nenergies to battle monsters.",
-                {-1, 0, 3, -1, -1, 2},   /* note: spell stat is Wis */
-                30, 30, 30, 3,  22, 16, 50, 40,
-                10, 10, 10, 0,   0,  0, 20, 30,
-                2, 25,
-                { -1, -1, -1, -1},
-                0,
-        },
-
-	{
-	        "High-Mage",
-                "A high mage can learn 64 spells and only from one realm\nbut they learn them much better and can get them to higher levels.",
-        	{-5, 4, 0, 0, -2, 1},
-		30, 36, 30, 2,  16, 20, 34, 20,
-		7,  13, 9,  0,  0,  0,  15, 15,
-                0, 30,
-                { -1, -1, -1, -1},
-                CF1_NO_GLOVES | CF1_ZERO_FAIL | CF1_BEAM,
-	},
-
-	{
-                "Mimic",
-                "Disguise is the way of the mimic, through the use of cloaks of mimicry\nthey can change shape for a limited time. They also can temporarily\nchange part of their anatomy.",
-                {2, 0, 0, 5, -1, 1},
-                10, 6, 30, 22,  26, 20, 64, 40,
-                11, 13, 9,  0,  0,  0,  25, 25,
-                0, 40,
-                { -1, -1, -1, -1},
-                0,
-	},
-
-	{
-                "BeastMaster",
-                "A beastmaster is a warrior that chose to make peace with some monsters.\nHe can thus summon them at will when in need.",
-                {2, -4, -2, 2, 2, 5},
-                20, 36, 30, 4,  16, 20, 56, 20,
-		7,  13, 9,  0,  0,  0,  15, 15,
-                0, 20,
-                { PWR_SUMMON_MONSTER, PWR_COMPANION, -1, -1},
-                0,
-	},
-
-	{
-                "Alchemist",
-                "An alchemists can quickly create powerful magic items through the correct use\nof the essences of magic they can extract from magical objects.",
-                {-2, 3, 4, 2, -2, 0},
-                30, 60, 10, 2,  26, 20, 34, 30,
-                7,  30, 9,  0,  0,  0,  15, 15,
-                0, 40,
-                { -1, -1, -1, -1},
-                0,
-	},
-
-	{
-                "Symbiant",
-                "A symbiant can merge his/her body with one of a monster unable to move\nby itself. They also have a few spells to help the symbiosis.",
-                {0, 2, -2, 2, 2, -3},
-                10, 12, 30, 10, 16, 10, 36, 20,
-                4,  3,  9,  0,  0,  0,  15, 15,
-                0, 20,
-                { -1, -1, -1, -1},
-                0,
-	},
-
-	{
-                "Harper",              /* Note : spell stat is Charisma */
-                "Harpers can read complex music books and sing songs\nfull of power, beauty or sadness to affect everything that can hear them.",
-                {-2, 3, 0, 0, -2, 4},
-                10, 16, 20, -5, 16, 20, 34, 20,
-                8,  13, 12, 0,  0,  0,  15, 15,
-                0, 50,
-                { -1, -1, -1, -1},
-                CF1_ZERO_FAIL,
-	},
-
-	{
-                "Power-Mage",
-                "Powermage spells come from within and are different for each character.\nSince attack is the best defence, all their spells are offensive.",
-                {-5, 5, -2, 0, -2, -1},
-                20, 36, 30, 2,  16, 20, 14, 10,
-                7,  13, 9,  0,  0,  0,   7,  7,
-                0, 20,
-                { -1, -1, -1, -1},
-                0,
-	},
-
-	{
-                "Runecrafter",         /* Note : spell stat is Dexterity */
-                "Runecrafters use the runes found in Middle Earth to create\nfinely tuned spells for each specific situation.",
-                {-3, 0, 0, 3, -3, 1},
-                15, 36, 20, 6,  16, 30, 20, 18,
-                7,  13, 9,  0,  0,  0,   7,  7,
-                0, 40,
-                { -1, -1, -1, -1},
-                0,
-	},
-
-	{
-                "Possessor",
-                "Only the soul matters, a possessor can abandon his/her current body to\nincarnate in the body of a dead monster, thus gaining its powers\nand weaknesses.",
-                { 1, -2, -2, 1, 1, 0},
-                25, 18, 18, 1,  14, 2, 30, 25,
-                12, 7,  10, 0,  0,  0,  25, 25,
-                9, 40,
-                { -1, -1, -1, -1},
-                0,
-	},
-
-	{
-                "Sorceror",
-                "Masters of the Art of Sorcery, they devote their life to magic.\nSorcerors can use every magic realm, but at the cost of being\nhopeless at hand to hand combat.",
-                { -5, 6, 4, 2, -5, 1},
-                35, 48, 38, 3, 22, 12, 10, 15,
-                22, 17, 20, 0,  0,  0, 15, 15,
-                4, 60,
-                { -1, -1, -1, -1},
-                CF1_ZERO_FAIL,
-	},
-
-	{
-                "Archer",
-                "'Kill them before they see you' could be the motto of the archer class.\nAs deadly with a bow as a warrior is with a sword.",
-                { 2, 1, 0, 2, 1, 1},
-                30, 32, 28, 3,  24, 16, 56, 82,
-		8,  10, 10, 0,  0,  0,  30, 45,
-                4, 30,
-                { -1, -1, -1, -1},
-                0,
-	},
-
-	{ /* Added -KMW- */
-		"Illusionist",
-                "The illusionist is similar to a mage but prefers to confuse and trick monsters.",
-		{-5, 3, 0, 1, -2, 1},
-		30, 36, 30, 2,  16, 20, 34, 20,
-		7,  13, 9,  0,  0,  0,  15, 15,
-                0, 30,
-                { -1, -1, -1, -1},
-                CF1_ZERO_FAIL,
-	},
-
-	{
-                "Druid",
-                "The druids respect Yavanna, Vala of the forests and nature. They are\nprotectors of nature and as such they gain access to the druid stones\nas the source of their power.",
-                {-2, -2, 3, 1, 1, 2},
-                20, 20, 38, 4,  8, 16, 42, 35,
-                7,  10, 10, 0,  0,  0, 18, 20,
-                3, 30,
-                { -1, -1, -1, -1},
-                CF1_ZERO_FAIL,
-	},
-
-	{
-                "Necromancer",
-                "A necromancer's main goal is to be able to avoid death. When killed they\ncan resurrect themselves if they kill enough monsters in their undead\n form. They can also use the nether magic realm.",
-                {-3, 3, -1, 3, -1, -5},
-                16, 40, 42, 3,  10, 8, 35, 20,
-                9,  16, 3, 0,  0,  0, 10, 5,
-                1, 40,
-                { PWR_NECRO, PWR_COMPANION, -1, -1},
-                CF1_ZERO_FAIL,
-	},
-
-	{
-                "Unbeliever",
-                "Disbelieve so much in magic that they generate an antimagic field\naround themselves to prevent the use of most magics and thus they are\nforbidden the use of most magical items.",
-                { 5, -10, -10, 4, 5, 1},
-                25,  0, 40, 1,  30, 10, 80, 60,
-                12,  0, 18, 0,  4,  5, 45, 45,
-                10, 20,
-                { -1, -1, -1, -1},
-                0,
-	},
-
-	{ /* Added -SC- */
-		"Daemonologist",
-                "The goal of a daemonologist is to control demons as pets.\nThey use the terrific daemon blades to achieve that goal thus gaining\naccess to the daemon magic realm.",
-		{-2, 3, -1, 1, -1, -1},
-		20, 36, 35, 3,  15, 12, 35, 25,
-		7,  15, 10,  0,  0,  0,  15, 10,
-                0, 30,
-                { -1, -1, -1, -1},
-                0,
-	},
-
-	{
-		"Weaponmaster",
-                "Master of one type of weapon (sword, axe, polearms, hafted, blunt)\nbut very poor with anything else.",
-                { 4, -3, -3, 2, 2, -1},
-                23,  10, 16,  1, 14,  2, 70, 15,
-                10,   3,  8,  0,  0,  0, 45, 10,
-                9, 30,
-                { -1, -1, -1, -1},
-                0,
-	},
-
-	{ /* -SC- */
-		"Merchant",
-                "Money can't buy everything... wait, it can!",
-		{ -2, 3, 0, -3, -2, 6},
-		20, 36, 30, 1, 30, 10, 34, 20,
-		9,  13, 10, 0, 0,  0,  15, 15,
-                3, 35,
-                { PWR_MERCHANT, PWR_MIDAS_TCH, -1, -1},
-                0,
-	},
-};
-
-/*
- * Player Classes
- *
- *      Title,
- *      {STR,INT,WIS,DEX,CON,CHR},
- *      c_dis, c_dev, c_sav, c_stl, c_srh, c_fos, c_thn, c_thb,
- *      x_dis, x_dev, x_sav, x_stl, x_srh, x_fos, x_thn, x_thb,
- *      HD, Exp
- */
-
 /*
  * Info on the spells/realms
  */
@@ -2099,7 +1246,7 @@ magic_type realm_info_base[MAX_REALM][64] =
 {
         /* Nothing */
         {
-                {NULL}
+                { 0 }
         },
 
         /* Valarin */
@@ -2529,8 +1676,8 @@ magic_type realm_info_base[MAX_REALM][64] =
                                 {  3,  3, 30,   5},
                                 {  6,  7, 35,   7},
                                 {  9, 10, 40,  10},
-                                { 12, 20, 50,  15},
-                                { 16, 20, 55,  20},
+                                { 12, 15, 50,  15},
+                                { 16, 17, 55,  20},
                                 { 20, 26, 40,  15},
 				{ 99,  0,  0,   0},
 
@@ -2993,528 +2140,13 @@ magic_type realm_info_base[MAX_REALM][64] =
         },
 };
 
-
-/*
- * Hack -- the spell information table.
- *
- *   Class Name
- *
- *   Spell Book
- *   Spell Xtra
- *
- *   Spell Stat,
- *   Spell Type,
- *
- *   Spell Level,
- *   Spell Encumbrance,
- */
-player_magic magic_info[MAX_CLASS] =
-{
-	{
-		/*** Warrior ***/
-
-		0,
-		0,
-
-		A_STR,
-		0,
-
-                0,
-                0,
-                0,
-		99,
-		0,
-
-                1,
-	},
-
-	{
-		/*** Mage ***/
-
-                TV_MAGERY_BOOK,
-		0,
-
-		A_INT,
-		0,
-
-                0,
-                0,
-                0,
-		1,
-		300,
-
-                6,
-	},
-
-	{
-		/*** Priest ***/
-
-                TV_VALARIN_BOOK,
-		0,
-
-		A_WIS,
-		1,
-
-                0,
-                -5,
-                -5,
-		1,
-		350,
-
-                6,
-	},
-
-
-	{
-		/*** Rogue ***/
-
-        TV_MAGERY_BOOK,
-		0,
-
-		A_INT,
-		0,
-
-                4,
-                26,
-                20,
-		5,
-		350,
-
-                3,
-	},
-
-
-	{
-		/*** Ranger ***/
-
-        TV_MAGERY_BOOK,
-		0,
-
-		A_INT,
-		0,
-
-                2,
-                13,
-                10,
-		3,
-		400,
-
-                3,
-	},
-
-
-	{
-		/*** Paladin ***/
-
-        TV_VALARIN_BOOK,
-		0,
-
-		A_WIS,
-		1,
-
-                1,
-                9,
-                10,
-		1,
-		400,
-
-                3,
-    },
-
-    {
-        /*** Warrior-Mage ***/
-
-        TV_MAGERY_BOOK,
-		0,
-
-		A_INT,
-		0,
-
-                3,
-                18,
-                13,
-		1,
-                350,
-
-                4,
-	},
-
-	{
-                /*** Chaos Warrior ***/
-                TV_MAGERY_BOOK,
-		0,
-
-		A_INT,
-		0,
-
-                1,
-                9,
-                5,
-                2,
-                400,
-
-                4,
-	},
-
-
-	{
-        /*** Monk ***/
-
-        TV_VALARIN_BOOK,
-		0,
-
-                A_WIS,
-		0,
-
-                1,
-                7,
-                6,
-		1,
-		300,
-
-                3,
-	},
-
-	{
-        /*** Mindcrafter ***/
-
-        TV_VALARIN_BOOK,
-		0,
-
-		A_WIS,
-                0,
-
-                0,
-                0,
-                0,
-                99,
-                300,
-
-                1,
-        },
-	{
-        /*** High Mage ***/
-
-        TV_MAGERY_BOOK,
-		0,
-
-		A_INT,
-		0,
-
-                -2,
-                -16,
-                -12,
-		1,
-		300,
-
-                12,
-	},
-
-	{
-                /*** Mimic ***/
-
-		0,
-		0,
-
-                A_DEX,
-		0,
-
-                0,
-                0,
-                0,
-		99,
-                200,
-
-                1,
-	},
-	{
-                /*** BeastMaster ***/
-
-                TV_MAGERY_BOOK,
-		0,
-
-                A_CHR,
-		0,
-
-                2,
-                0,
-                0,
-                2,
-                250,
-
-                2,
-	},
-	{
-                /*** Alchemist ***/
-
-		0,
-		0,
-
-		A_STR,
-		0,
-
-                0,
-                0,
-                0,
-		99,
-		0,
-
-                1,
-	},
-	{
-                /*** Symbiant ***/
-
-                TV_MAGERY_BOOK,
-		0,
-
-		A_INT,
-		0,
-
-                0,
-                0,
-                0,
-		1,
-		300,
-
-                5,
-	},
-	{
-                /*** Harper ***/
-
-                TV_MAGERY_BOOK,
-		0,
-
-                A_CHR,
-		0,
-
-                0,
-                0,
-                0,
-                1,
-                300,
-
-                1,
-	},
-        {
-                /*** Power Mage ***/
-
-		0,
-		0,
-
-                A_INT,
-		0,
-
-                0,
-                0,
-                0,
-		99,
-		300,
-
-                1,
-	},
-        {
-                /*** Runecrafter ***/
-
-		0,
-		0,
-
-                A_DEX,
-		0,
-
-                0,
-                0,
-                0,
-                1,
-                300,
-
-                1,
-	},
-
-	{
-                /*** Possessor ***/
-
-		0,
-		0,
-
-                A_WIS,
-		0,
-
-                0,
-                0,
-                0,
-		99,
-                400,
-
-                1,
-	},
-
-	{
-        /*** Sorceror ***/
-
-                TV_MAGERY_BOOK,
-		0,
-
-		A_INT,
-		0,
-
-                -1,
-                -8,
-                -9,
-		1,
-                100,
-
-                1,
-	},
-	{
-                /*** Archer ***/
-
-		0,
-		0,
-
-                A_DEX,
-		0,
-
-                0,
-                0,
-                0,
-		99,
-		0,
-
-                1,
-	},
-
-	{	/* Added this class -KMW- */
-		/*** Illusionist ***/
-
-                TV_MAGERY_BOOK,
-		0,
-
-                A_INT,
-		2,
-
-                0,
-                0,
-                0,
-		1,
-		300,
-
-                9,
-	},
-
-	{
-                /*** Druid ***/
-
-                TV_VALARIN_BOOK,
-		0,
-
-		A_WIS,
-		1,
-
-                0,
-                0,
-                0,
-		1,
-		350,
-
-                4,
-	},
-
-	{
-                /*** Necromancer ***/
-
-                TV_MAGERY_BOOK,
-		0,
-
-                A_CON,
-		1,
-
-                0,
-                0,
-                0,
-		1,
-		350,
-
-                3,
-	},
-
-	{
-                /*** Unbeliever ***/
-
-		0,
-		0,
-
-		A_STR,
-		0,
-
-                0,
-                0,
-                0,
-		99,
-		0,
-
-                0,
-	},
-
-	{
-                /*** Daemonologist ***/
-                TV_MAGERY_BOOK,
-		0,
-
-		A_INT,
-		0,
-
-                0,
-                0,
-                0,
-                1,
-                300,
-
-                4,
-	},
-
-	{
-                /*** Weaponmaster ***/
-
-		0,
-		0,
-
-		A_STR,
-		0,
-
-                0,
-                0,
-                0,
-		99,
-		0,
-
-                0,
-	},
-
-	{
-		/*** Merchant ***/
-
-		0,
-		0,
-
-		A_STR,
-		0,
-
-                0,
-                0,
-                0,
-		99,
-		0,
-	},
-};
-
-
 /*
  * PernAngband uses this array instead of the spell flags table -- DG
  */
 u32b fake_spell_flags[MAX_REALM][9][2]=
 {
         {
-                {NULL}
+                {0 }
         },
 
         {       /* Valarin */
@@ -3685,91 +2317,25 @@ u32b fake_spell_flags[MAX_REALM][9][2]=
         },
 };
 
-
-u32b Mrealm_choices[MAX_CLASS]=
+cptr realm_names[][2] =
 {
-/* Warrior */       (CH_NONE),
-/* Mage */          (CH_MAGERY | CH_SHADOW | CH_NETHER | CH_MAGIC),
-/* Priest */        (CH_VALARIN | CH_NETHER | CH_PRAYER),
-/* Rogue */         (CH_MAGERY | CH_SHADOW | CH_NETHER | CH_ILLUSION | CH_SPIRIT | CH_SIGALDRY),
-/* Ranger */        (CH_ILLUSION | CH_TRIBAL),
-/* Paladin */       (CH_CRUSADE),
-/* Warrior-Mage */  (CH_SIGALDRY),
-/* Chaos Warrior */ (CH_CHAOS),
-/* Monk */          (CH_VALARIN | CH_SPIRIT | CH_ILLUSION | CH_TRIBAL),
-/* Mindcrafter */   (CH_NONE),
-/* High Mage */     (CH_MAGERY | CH_SHADOW | CH_NETHER | CH_SIGALDRY | CH_SPIRIT | CH_ILLUSION),
-/* Mimic       */   (CH_NONE),
-/* BeastMaster */   (CH_TRIBAL),
-/* Alchemist   */   (CH_NONE),
-/* Symbiant    */   (CH_NONE),
-/* Harper      */   (CH_NONE),
-/* Power Mage  */   (CH_NONE),
-/* Runecrafter */   (CH_NONE),
-/* Possessor */     (CH_NONE),
-/* Sorceror */      (CH_MAGERY | CH_SHADOW | CH_NETHER | CH_CHAOS | CH_SIGALDRY |
-                     CH_ILLUSION | CH_SPIRIT),
-/* Archer */        (CH_NONE),
-/* Illusionist */   (CH_ILLUSION),
-/* Druid */         (CH_DRUID),
-/* Necromancer */   (CH_NETHER),
-/* Unbeliever  */   (CH_NONE),
-/* Daemonologist */ (CH_DAEMON),
-/* Weaponmaster */  (CH_NONE),
-/* Merchant  */     (CH_NONE),
-};
-
-u32b mrealm_choices[MAX_CLASS]=
-{
-/* Warrior */       (CH_NONE),
-/* Mage */          (CH_SIGALDRY | CH_SPIRIT),
-/* Priest */        (CH_CRUSADE | CH_ILLUSION),
-/* Rogue */         (CH_NONE),
-/* Ranger */        (CH_NONE),
-/* Paladin */       (CH_NONE),
-/* Warrior-Mage */  (CH_SPIRIT | CH_ILLUSION),
-/* Chaos Warrior */ (CH_NONE),
-/* Monk */          (CH_NONE),
-/* Mindcrafter */   (CH_NONE),
-/* High Mage */     (CH_NONE),
-/* Mimic       */   (CH_NONE),
-/* BeastMaster */   (CH_NONE),
-/* Alchemist   */   (CH_NONE),
-/* Symbiant    */   (CH_SYMBIOTIC),
-/* Harper      */   (CH_MUSIC),
-/* Power Mage  */   (CH_NONE),
-/* Runecrafter */   (CH_NONE),
-/* Possessor */     (CH_NONE),
-/* Sorceror */      (CH_NONE),
-/* Archer */        (CH_NONE),
-/* Illusionist */   (CH_NONE),
-/* Druid */         (CH_NONE),
-/* Necromancer */   (CH_NONE),
-/* Unbeliever  */   (CH_NONE),
-/* Daemonologist */ (CH_CHAOS),
-/* Weaponmaster */  (CH_NONE),
-/* Merchant  */     (CH_NONE),
-};
-
-cptr realm_names [] =
-{
-	"no magic",
-        "Valarin",
-        "Magery",
-        "Shadow",
-	"Chaos",
-        "Nether",
-        "Crusade",
-        "Sigaldry",
-        "Symbiotic",
-        "Music",
-        "Magic",
-        "Prayer",
-        "Illusion",
-        "Tribal",
-        "Druidic",
-	"Daemon",
-        "Spirit",
+        { "no magic", "" },
+        { "Valarin", "Major realm.\nValarin realm powers comes from the valar, they are aimed at self protection\n and fighting evil." },
+        { "Magery", "Major realm.\nMagery realm is the most used realm of Middle Eearth, it provides a broad\nrange of spells to choose from." },
+        { "Shadow", "Major realm.\nShadow realm draws its powers from the night.\nIt contains lots of attack and utility spells." },
+        { "Chaos", "Minor realm.\nChaos realm main(and only) goal is attack spells, and it does them well." },
+        { "Nether", "Major realm.\nNether realm draws its powers from the foul corruptions of melkor.\nIt contains deadly spells." },
+        { "Crusade", "Minor realm.\nCrusade realm is aimed at enhancing fighting abilities against evil." },
+        { "Sigaldry", "Minor realm.\nSigaldry is a all-in-one realm, with bits of everything, plus some\nspecific spells." },
+        { "Symbiotic", "Specific realm.\n" },
+        { "Music", "Specific realm.\n" },
+        { "Magic", "Major realm.\nMagic realm is a derivate of Magery." },
+        { "Prayer", "Major realm.\nPrayer realm is a derivate of Valarin." },
+        { "Illusion", "Major realm.\nIllusion realm tries to confuse and trick monsters." },
+        { "Tribal", "Minor realm.\nTribal realm calls upon the forces of nature. But it sometimes comes\nat a cost." },
+        { "Druidic", "Specific realm.\n" },
+        { "Daemon", "Specific realm.\n" },
+        { "Spirit", "Minor realm.\nSpirit realm is the realm of the mind, it enhances powers of the mind over\nother minds or even matter." },
 };
 
 
@@ -4048,7 +2614,7 @@ cptr spell_names[MAX_REALM][64][2] =
                 {"Doom Bolt", "Creates a malevolent projectile."},
                 {"Fire Ball", "Releases a ball of fire to engulf your foes."},
                 {"Teleport Other", "It will teleport monsters away."},
-                {"Word of Destruction", "Shakes the earth, causing damage to the dungeon around you."},
+                {"Word of Destruction", "Shakes the dungeon, causing it damage."},
                 {"Invoke Chaos", "Unleashes the primal forces of chaos in a ball around your foes."},
 
 		/* Rare Chaos Spellbooks */
@@ -4248,13 +2814,13 @@ cptr spell_names[MAX_REALM][64][2] =
 
 	{
                 /* Common Symbiotic Spellbooks */
-                {"Minor symbiotic healing", ""},
-                {"Tangled Creepers", ""},
-                {"Vampiric healing", ""},
-                {"Life transfer", ""},
-                {"Satisfy Hunger", ""},
-                {"Minor symbiotic powers", ""},
-                {"Summon never-moving pet", ""},
+                {"Minor symbiotic healing", "Heals your currently equipped monster a little"},
+                {"Tangled Creepers", "Slows creatures are around you"},
+                {"Vampiric healing", "Steals life force other creatures and pass it to your pet"},
+                {"Life transfer", "Transfers from your life-force to your pet's"},
+                {"Satisfy Hunger", "Magicly feeds you"},
+                {"Minor symbiotic powers", "Allows you to use a lesser ability of your pet"},
+                {"Summon never-moving pet", "Summons a charmed creature from the plane of unmoving"},
                 {"", ""},
 
                 {"", ""},
@@ -4267,12 +2833,12 @@ cptr spell_names[MAX_REALM][64][2] =
                 {"", ""},
 
                 /* Rare Symbiotic Spellbooks */
-                {"Mana healing", ""},
-                {"Summon never-moving pets", ""},
-                {"Major symbiotic healing", ""},
-                {"Healing", ""},
-                {"Major Symbiotic powers", ""},
-                {"Use Enemy's Powers", ""},
+                {"Mana healing", "Replaces your pet's lost life-force with magical energy"},
+                {"Summon never-moving pets", "Summons many pets from the plane of unmoving"},
+                {"Major symbiotic healing", "Heals your currently equipped monster"},
+                {"Healing", "Uses magic energy to heal you"},
+                {"Major Symbiotic powers", "Allows you to use an ability of your monster"},
+                {"Use Enemy's Powers", "Allows you to turn the powers of your enemies against them"},
                 {"", ""},
                 {"", ""},
 
@@ -4332,81 +2898,81 @@ cptr spell_names[MAX_REALM][64][2] =
 	/*** Mage Spells ***/
 	{
 		/* Magic for Beginners (sval 0) */
-                {"Magic Missile", ""},
-                {"Detect Monsters", ""},
-                {"Phase Door", ""},
-                {"Light Area", ""},
-                {"Treasure Detection", ""},
-                {"Cure Light Wounds", ""},
-                {"Object Detection", ""},
-                {"Find Hidden Traps/Doors", ""},
-                {"Stinking Cloud", ""},
+                {"Magic Missile", "Creates a small energy projectile speeding toward your target."},
+                {"Detect Monsters", "Discovers the presence of monsters."},
+                {"Phase Door", "warps space around you so you change position."},
+                {"Light Area", "Conjours a magical ball of light illuminating the area."},
+                {"Treasure Detection", "Senses valuable metals or gems."},
+                {"Cure Light Wounds", "Returns you a small portion of your life-force."},
+                {"Object Detection", "Senses the presence of items."},
+                {"Find Hidden Traps/Doors", "Reveals all doors in the area."},
+                {"Stinking Cloud", "Creates a cloud of weak poison which quickly disappears."},
 
 		/* Conjurings and Tricks (sval 1) */
-                {"Confuse Monster", ""},
-                {"Lightning Bolt", ""},
-                {"Trap/Door Destruction", ""},
-                {"Sleep I", ""},
-                {"Cure Poison", ""},
-                {"Teleport Self", ""},
-                {"Spear of Light", ""},
-                {"Frost Bolt", ""},
-                {"Turn Stone to Mud", ""},
+                {"Confuse Monster", "Clouds the target's mind with false information."},
+                {"Lightning Bolt", "Creates a crackling bolt of electricity."},
+                {"Trap/Door Destruction", "Destroys any trap or door in your immidiate vicinity."},
+                {"Sleep I", "Puts one creature to sleep"},
+                {"Cure Poison", "Removes any poison from your body"},
+                {"Teleport Self", "Displaces you to an other location, far away."},
+                {"Spear of Light", "Creates a beam of light, which lingers afterwards."},
+                {"Frost Bolt", "Hurls a bolt of pure cold to your enemies."},
+                {"Turn Stone to Mud", "Turns walls to mud, and make them crumble, it also may hurt stone creatures."},
 
 		/* Incantations and Illusions (sval 2) */
-                {"Satisfy Hunger", ""},
-                {"Recharge Item I", ""},
-                {"Sleep II", ""},
-                {"Polymorph Other", ""},
-                {"Identify", ""},
-                {"Sleep III", ""},
-                {"Fire Bolt", ""},
-                {"Slow Monster", ""},
+                {"Satisfy Hunger", "Magicaly feeds you"},
+                {"Recharge Item I", "Replenishes the charges of either a staff or a wand, though excessive use may make it explode."},
+                {"Sleep II", "Has a greater chance to put a creature to sleep."},
+                {"Polymorph Other", "A wave of chaos that changes one creature into another."},
+                {"Identify", "Reveales the minor  properties of an object."},
+                {"Sleep III", "Has an ever greater chance to put a creature to sleep."},
+                {"Fire Bolt", "Creates a bolt of flame, rushing toward your target."},
+                {"Slow Monster", "Hastes the time passage for a given creature."},
 
 		/* Sorcery and Evocations (sval 3) */
-                {"Frost Ball", ""},
-                {"Recharge Item II", ""},
-                {"Teleport Other", ""},
-                {"Haste Self", ""},
-                {"Fire Ball", ""},
-                {"Word of Destruction", ""},
-                {"Genocide", ""},
+                {"Frost Ball", "A small condesed capsule of cold explodes at the location you specify."},
+                {"Recharge Item II", "Replenishes the charges of either a staff or a wand, with better results."},
+                {"Teleport Other", "Displaces a creature to an other location, far away."},
+                {"Haste Self", "Slows the time flow for you"},
+                {"Fire Ball", "A small spark is turned into a roaring ball of flame at the target."},
+                {"Word of Destruction", "Destroys a part of the dungeon around you."},
+                {"Genocide", "Removes all the creature of a certain type from the dungeon level, hurting you for each creature."},
 
 		/* Mordenkainen's Escapes (sval 5) */
-                {"Door Creation", ""},
-                {"Stair Creation", ""},
-                {"Teleport Level", ""},
-                {"Earthquake", ""},
-                {"Word of Recall", ""},
+                {"Door Creation", "Creates doors around you."},
+                {"Stair Creation", "Creates a stairway either up or down."},
+                {"Teleport Level", "Teleports you to one level above or below the current one."},
+                {"Earthquake", "Brings the walls down around you, and causes new ones to form."},
+                {"Word of Recall", "Returns you to town, or the last level of the dungeon."},
 
 		/* Raal's Tome of Destruction (sval 8) */
-                {"Acid Bolt", ""},
-                {"Cloud Kill", ""},
-                {"Acid Ball", ""},
-                {"Ice Storm", ""},
-                {"Meteor Swarm", ""},
-                {"Mana Storm", ""},
+                {"Acid Bolt", "A bolt of strong acid splashes at your foe."},
+                {"Cloud Kill", "Summons a cloud of a powerful poison which disappears shortly after."},
+                {"Acid Ball", "Creates a ball of a strong acid."},
+                {"Ice Storm", "Summons forth a blizzard of raging cold."},
+                {"Meteor Swarm", "Calls meteors from the heavens to smite your foes."},
+                {"Mana Storm", "A bolt of pure magic brings doom to your enemies."},
 
 		/* Kelek's Grimoire of Power (sval 6) */
-                {"Detect Evil", ""},
-                {"Detect Enchantment", ""},
-                {"Recharge Item III", ""},
-                {"Genocide", ""},
-                {"Mass Genocide", ""},
+                {"Detect Evil", "Scans the area for monsters with an evil aura."},
+                {"Detect Enchantment", "Detects items with magical powers in your surroundings."},
+                {"Recharge Item III", "Replenishes the charges of either a staff or a wand, with better results then Recharge II."},
+                {"Genocide", "Removes all the creature of a certain type from the dungeon level, hurting you for each creature."},
+                {"Mass Genocide", "Remoes all of the creatures from the surrounding area, hurting you for each creature."},
 
 		/* Resistance of Scarabtarices (sval 4) */
-                {"Resist Fire", ""},
-                {"Resist Cold", ""},
-                {"Resist Acid", ""},
-                {"Resist Poison", ""},
-                {"Resistance", ""},
+                {"Resist Fire", "Protects you from heat."},
+                {"Resist Cold", "Protects you from cold."},
+                {"Resist Acid", "Protects you from acid."},
+                {"Resist Poison", "Protects you from poison."},
+                {"Resistence", "Protects you from fire, cold, acid and poison."},
 
 		/* Tenser's transformations... (sval 7) */
                 {"Heroism", ""},
-                {"Shield", ""},
-                {"Berserker", ""},
-                {"Essence of Speed", ""},
-                {"Globe of Invulnerability", ""},
+                {"Shield", "Creates a magical barrier, making you harder to hit."},
+                {"Berserker", "Drives you into a berserk frenzy, lowering your AC but making your hits much stronger."},
+                {"Essence of Speed", "Makes you extremely fast."},
+                {"Globe of Invulnerability", "Makes you rarely damage from any source.."},
 
                 {"(blank)", ""},
                 {"(blank)", ""},
@@ -4420,80 +2986,80 @@ cptr spell_names[MAX_REALM][64][2] =
 
 	{
 		/* Beginners Handbook (sval 0) */
-                {"Detect Evil", ""},
-                {"Cure Light Wounds", ""},
-                {"Bless", ""},
-                {"Remove Fear", ""},
-                {"Call Light", ""},
-                {"Find Traps", ""},
-                {"Detect Doors/Stairs", ""},
-                {"Slow Poison", ""},
+                {"Detect Evil", "Scans the area for monsters with an evil aura."},
+                {"Cure Light Wounds", "Heals you a little, and reduces cuts."},
+                {"Bless", "Raises your fighting ability and makes you harder to hit."},
+                {"Remove Fear", "Brings back courage where there is none."},
+                {"Call Light", "Lights the area around you, permanently."},
+                {"Find Traps", "Finds any trap in your surroundings."},
+                {"Detect Doors/Stairs", "Detects all doors in your surroundings."},
+                {"Slow Poison", "Weakens the affect of poison on you."},
 
 		/* Words of Wisdom (sval 1) */
-                {"Scare Monster", ""},
-                {"Portal", ""},
-                {"Cure Serious Wounds", ""},
-                {"Chant", ""},
-                {"Sanctuary", ""},
-                {"Satisfy Hunger", ""},
-                {"Remove Curse", ""},
-                {"Resist Heat and Cold", ""},
+                {"Scare Monster", "A creature will flee in awe of your god."},
+                {"Portal", "Opens a portal to a random place and then it closes."},
+                {"Cure Serious Wounds", "Heals you and reduces cuts."},
+                {"Chant", "Imbues you will holy purpose, increasing your chance to hit and makes you harder to hit."},
+                {"Sanctuary", "Gives you some peace as it make the creatures around you sleep."},
+                {"Satisfy Hunger", "Satiates your hunger with devotion."},
+                {"Remove Curse", "Removes curses that binds an item to you."},
+                {"Resist Heat and Cold", "Shields you from the ravages of cold and heat."},
 
 		/* Chants and Blessings (sval 2) */
-                {"Neutralize Poison", ""},
-                {"Orb of Draining", ""},
-                {"Cure Critical Wounds", ""},
-                {"Sense Invisible", ""},
-                {"Protection from Evil", ""},
-                {"Earthquake", ""},
-                {"Sense Surroundings", ""},
-                {"Cure Mortal Wounds", ""},
-                {"Turn Undead", ""},
+                {"Neutralize Poison", "Cleans your body from any poison."},
+                {"Orb of Draining", "A devastating orb which smites evil, destroys cursed objects, but may still hurt any who opposes the caster."},
+                {"Cure Critical Wounds", "Heals critical wounds, as well as cuts, poison, stun or any other bad effect."},
+                {"Sense Invisible", "Enables you to see into the astral plane and see what cannot be seen."},
+                {"Protection from Evil", "Shields you from melee attacks from evil creatures."},
+                {"Earthquake", "Brings the walls down around you, and causes new ones to form."},
+                {"Sense Surroundings", "Shows in your mind the terrain around you."},
+                {"Cure Mortal Wounds", "Returns you a large portion of your life-force."},
+                {"Turn Undead", "Radiates holiness which makes creatures of unlife flee."},
 
 		/* Exorcism and Dispelling (sval 3) */
-                {"Prayer", ""},
-                {"Dispel Undead", ""},
-                {"Heal", ""},
-                {"Dispel Evil", ""},
-                {"Glyph of Warding", ""},
-                {"Holy Word", ""},
+                {"Prayer", "Raises your defense and attack abilites"},
+                {"Dispel Undead", "Attacks the very essence of any undead close to you"},
+                {"Heal", "Restores a great portion of your life force."},
+                {"Dispel Evil", "Waves of holiness so strong, that evil creatures suffer greatly."},
+                {"Glyph of Warding", "Creates a gylph which no one may cross except the gylph maker."},
+                {"Holy Word", "Dispels evil, heals you and removes cuts, poison, fear and stun."},
 
 		/* Godly Insights... (sval 5) */
-                {"Detect Monsters", ""},
-                {"Detection", ""},
-                {"Perception", ""},
-                {"Probing", ""},
-                {"Clairvoyance", ""},
+                {"Detect Monsters", "Alerts you to the presence of monsters."},
+                {"Detection", "Detects objects, monster, traps and doors."},
+                {"Perception", "Allows you to see the magical properties of an item."},
+                {"Probing", "Measures a monsters life force."},
+                {"Clairvoyance", "Detects objects and shows you the terrain of the area."},
 
 		/* Purifications and Healing (sval 6) */
-                {"Cure Serious Wounds", ""},
-                {"Cure Mortal Wounds", ""},
-                {"Healing", ""},
-                {"Restoration", ""},
-                {"Remembrance", ""},
+                {"Cure Serious Wounds", "Heals you and reduces cuts."},
+                {"Cure Mortal Wounds", "Returns you a large portion of your life force."},
+                {"Healing", "Greatly heals you, and removes any bad state"},
+                {"Restoration", "Restores your drained abilities to what they used to be."},
+                {"Remembrance", "Allows you to recall any lost experiences you had."},
 
 		/* Wrath of God (sval 8) */
-                {"Dispel Undead", ""},
-                {"Dispel Evil", ""},
-                {"Banishment", ""},
-                {"Word of Destruction", ""},
-                {"Annihilation", ""},
+                {"Dispel Undead", "Attacks the very essence of the unliving."},
+                {"Dispel Evil", "Creates waves of holiness that make evil creatures suffer."},
+                {"Banishment", "Teleports away all evil creatures."},
+                {"Word of Destruction", "Shakes the dungeon, causing it damage"},
+                {"Annihilation", "Hurls a powerful bolt of divine fury at an enemy"},
 
 		/* Holy Infusions (sval 7) */
-                {"Unbarring Ways", ""},
-                {"Recharging", ""},
-                {"Dispel Curse", ""},
-                {"Enchant Weapon", ""},
-                {"Enchant Armour", ""},
-                {"Elemental Brand", ""},
+                {"Unbarring Ways", "Destroys any trap in your immidiate proximity."},
+                {"Recharging", "Infuses a staff or a wand with holy energy."},
+                {"Dispel Curse", "Dispels curses from cursed items, even powerful curses."},
+                {"Enchant Weapon", "Blesses your weapon with the ability to hit more often."},
+                {"Enchant Armour", "Blesses your weapon with the ability to damage more."},
+                {"Elemental Brand", "Connects your weapon to one of the elemental planes, and makes it deliver a tiny portion of it with each strike."},
 
 		/* Ethereal openings (sval 4) */
-                {"Blink", ""},
-                {"Teleport Self", ""},
-                {"Teleport Other", ""},
-                {"Teleport Level", ""},
-                {"Word of Recall", ""},
-                {"Alter Reality", ""},
+                {"Blink", "Twists space around you, so your location changes"},
+                {"Teleport Self", "Teleports you to a random location far away from you."},
+                {"Teleport Other", "Teleports the target to a random location far away from you."},
+                {"Teleport Level", "Teleports you to a level above or below your current one"},
+                {"Word of Recall", "Brings you back to town from the dungeon, "},
+                {"Alter Reality", "Twists reality upside down, changing your enviroment."},
 
                 {"(blank)", ""},
                 {"(blank)", ""},
@@ -4631,54 +3197,54 @@ cptr spell_names[MAX_REALM][64][2] =
         /* Druidistic */
         {
                 /* Elemental Stone[Earth] */
-                {"Tunnel", ""},
-                {"Canalize Mana", ""},
-                {"Acid Bolt", ""},
-                {"Mana Path", ""},
-                {"Forest Generation", ""},
-                {"Druidic Acid Beam", ""},
-                {"Raise Mountains", ""},
-                {"Stone Skin", ""},
+                {"Tunnel", "Creates a burrow in the ground, though it's exit is randomly placed."},
+                {"Canalize Mana", "Drains the soil of it's energy and gives it to you."},
+                {"Acid Bolt", "Creates a jet of acid which is sprayed on an enemy."},
+                {"Mana Path", "Imbues your feet with magic energy, infusing the earth with magic with each step."},
+                {"Forest Generation", "Speeds the growth of trees around you, to the point that they grow in mere seconds."},
+                {"Druidic Acid Beam", "A beam of acid which follows paths of magic."},
+                {"Raise Mountains", "Raises to the soil around you to the full glory of a mountain."},
+                {"Stone Skin", "Hardens your skin so it's as hard as stone."},
 
                 /* Elemental Stone[Fire] */
-                {"Infravision", ""},
-                {"Fire Bolt", ""},
-                {"Fire Ball", ""},
-                {"Uncover Traps", ""},
-                {"Fire Beam", ""},
-                {"Druidic Fire Bolt", ""},
-                {"Druidic Fire Beam", ""},
-                {"Create Lava", ""},
+                {"Infravision", "Enables you to see heat patterns"},
+                {"Fire Bolt", "Creates a flaming bolt which rushes to it's target"},
+                {"Fire Ball", "A small globe of fire that explodes into a ball of flame at the chosen place."},
+                {"Uncover Traps", "Makes any trap in the area clear to the eye."},
+                {"Fire Beam", "A scorching beam of fire."},
+                {"Druidic Fire Bolt", "A bolt of blazing fire which follows paths of magic."},
+                {"Druidic Fire Beam", "A beam which can be directed by paths of magic."},
+                {"Create Lava", "Makes lava spurt randomly from the floor around you."},
 
                 /* Elemental Stone[Air] */
-                {"Winds of Mana", ""},
-                {"Summon Air Elemental", ""},
-                {"Whispers from Afar", ""},
-                {"The Winds of Manwe", ""},
-                {"Bird View", ""},
-                {"*Whispers from Afar*", ""},
-                {"Windy Speed", ""},
-                {"The Thunders of Manwe", ""},
+                {"Winds of Mana", "Infuses the ground around you with magical signature."},
+                {"Summon Air Elemental", "Summons an elemental from the plane of air, though beware, it might turn on you."},
+                {"Whispers from Afar", "Contacts unknown nature beings, who know the nature of things."},
+                {"The Winds of Manwe", "Powerful winds blow monsters away from you."},
+                {"Bird View", "Maps the whole area, as if you could look at it from above."},
+                {"*Whispers from Afar*", "Contacts unknown nature beings, who know the exact nature of things."},
+                {"Windy Speed", "Imbues you with the quickness of the wind."},
+                {"The Thunders of Manwe", "Sends a roaring beam of sound, as if countless lightnings just thundered, and it can be directed by mana signatures."},
 
                 /* Elemental Stone[Water] */
-                {"Summon Aquatic Golems", ""},
-                {"Walk over Water", ""},
-                {"Flood", ""},
-                {"Summon Water Elementals", ""},
-                {"Purification", ""},
-                {"Call of the Deep", ""},
-                {"Tidal Wave", ""},
-                {"Flood Level", ""},
+                {"Summon Aquatic Golems", "Steals an aquatic golem from the dwelling place of the gnomes, though beware! These machines can sometimes know when they are stolen!"},
+                {"Walk over Water", "Makes you weight less then a feather, thus enabling to walk over water"},
+                {"Flood", "Floods the surrounding area with water."},
+                {"Summon Water Elementals", "Summons an elemental from the plane of water."},
+                {"Purification", "Heals you from harm"},
+                {"Call of the Deep", "Allows you dive into water, and come out safely on any other water body."},
+                {"Tidal Wave", "Creates a large wave at a point, which spreads in all directions, and leaves deep water spots afterwards."},
+                {"Flood Level", "Powerful spell which reconstructs the level and floods it with water"},
 
                 /* Elemental Stone[Mana] */
-                {"Glyph of Warding", ""},
-                {"Orb of Mana", ""},
-                {"Gather Mana", ""},
-                {"Mirror of Mana", ""},
-                {"Activate Rune of Mana", ""},
-                {"Combine the 5 Elements", ""},
-                {"Shield of Mana", ""},
-                {"Drain Level Mana", ""},
+                {"Glyph of Warding", "Creates a powerful gylph on the floor which fobids any creature except it's maker from getting close to it."},
+                {"Orb of Mana", "A powerful orb of mana explodes and causes havoc."},
+                {"Gather Mana", "Not coded yet."},
+                {"Mirror of Mana", "A barrier of mana surrounds you, which because of it's intensity it twists spells, and reflects all bolts."},
+                {"Activate Rune of Mana", "Not coded yet."},
+                {"Combine the 5 Elements", "Five destructive bolts, one of cold, one of fire, one of electricity, one of acid and one of pure mana shoot towards the target."},
+                {"Shield of Mana", "Protects you from almost any harm by a strong field of mana."},
+                {"Drain Level Mana", "Gathers mana from the whole area, into one single projectile of awsome strength"},
         },
 
 	/* Demon -SCSCSC- */
@@ -4766,410 +3332,6 @@ cptr spell_names[MAX_REALM][64][2] =
         },
 };
 
-/*
- * Class titles for the player.
- *
- * The player gets a new title every five levels, so each class
- * needs only ten titles total.
- */
-cptr player_title[MAX_CLASS][PY_MAX_LEVEL/5] =
-{
-	/* Warrior */
-	{
-		"Rookie",
-		"Soldier",
-		"Mercenary",
-		"Veteran",
-		"Swordsman",
-		"Champion",
-		"Hero",
-		"Baron",
-		"Duke",
-		"Lord",
-	},
-
-	/* Mage */
-	{
-		"Apprentice",
-		"Trickster",
-		"Illusionist",
-		"Spellbinder",
-		"Evoker",
-		"Conjurer",
-		"Warlock",
-		"Sorcerer",
-		"Ipsissimus",
-		"Archimage",
-	},
-
-	/* Priest */
-	{
-		"Believer",
-		"Acolyte",
-		"Adept",
-		"Curate",
-		"Canon",
-		"Priest",
-		"High Priest",
-		"Cardinal",
-		"Inquisitor",
-		"Pope",
-	},
-
-	/* Rogues */
-	{
-		"Cutpurse",
-		"Robber",
-		"Burglar",
-		"Filcher",
-		"Sharper",
-		"Low Thief",
-		"High Thief",
-		"Master Thief",
-		"Assassin",
-		"Guildmaster",
-	},
-
-	/* Rangers */
-	{
-		"Runner",
-		"Strider",
-		"Scout",
-		"Courser",
-		"Tracker",
-		"Guide",
-		"Pathfinder",
-		"Low Ranger",
-		"High Ranger",
-		"Ranger Lord",
-	},
-
-	/* Paladins */
-	{
-		"Gallant",
-		"Keeper",
-		"Protector",
-		"Defender",
-		"Warder",
-		"Knight",
-		"Guardian",
-		"Low Paladin",
-		"High Paladin",
-		"Paladin Lord",
-	},
-
-	/* Warrior-Mage */
-	{
-		"Novice",
-		"Apprentice",
-		"Journeyman",
-		"Veteran",
-		"Enchanter",
-		"Champion",
-		"Mage-Hero",
-		"Baron Mage",
-		"Battlemage",
-		"Wizard Lord",
-	},
-
-	/* Chaos Warrior */
-	{
-		"Rookie",
-		"Soldier",
-		"Mercenary",
-		"Veteran",
-		"Swordsman",
-		"Champion",
-		"Chaos Hero",
-		"Chaos Baron",
-		"Chaos Duke",
-		"Chaos Lord",
-	},
-
-	/* Monk */
-	{
-		"Initiate",
-		"Brother",
-		"Disciple",
-		"Immaculate",
-		"Master",
-		"Soft Master",
-		"Hard Master",
-		"Flower Master",
-		"Dragon Master",
-		"Grand Master",
-	},
-
-	/* Mindcrafter */
-	{
-		"Trainee",
-		"Acolyte",
-		"Adept",
-		"Immaculate",
-		"Contemplator",
-		"Mentalist",
-		"Psychic",
-		"Psionicist",
-		"Esper",
-		"Mindmaster",
-	},
-
-	/* High Mage; same as Mage */
-	{
-		"Apprentice",
-		"Trickster",
-		"Illusionist",
-		"Spellbinder",
-		"Evoker",
-		"Conjurer",
-		"Warlock",
-		"Sorcerer",
-		"Ipsissimus",
-		"Archimage",
-	},
-
-        /* Mimic */
-	{
-                "Learner",
-                "Itemhider",
-                "Woodshider",
-                "Wolfleader",
-                "Low Mirror",
-                "Journeymirror",
-                "High Mirror",
-                "Dragonleader",
-                "Shapechanger",
-                "Mirror Lord",
-	},
-
-        /* BeastMaster */
-	{
-                "Beastslave",
-                "Beastman",
-                "Enslaver",
-                "Summoner",
-                "Beastriser",
-                "Thingriser",
-                "Demonriser",
-                "Chaosriser",
-                "Hellriser",
-                "BeastMaster",
-	},
-
-        /* Alchemist */
-	{
-                "Student",
-                "Topologist",
-                "Alchemist",
-                "Meddler",
-                "Catalyst",
-                "Chemist",
-                "Transformer",
-		"Remaker",
-                "Grand Source",
-                "Infuser",
-	},
-
-        /* Symbiant */
-	{
-                "Little Mold",
-                "Mold",
-                "Great Mold",
-                "Little Jelly",
-                "Jelly",
-                "Great Jelly",
-                "Symbiant",
-                "Symbiant",
-                "Symbiant",
-                "Greater Jelly",
-	},
-
-        /* Harper */
-	{
-                "Apprentice",
-                "Songsmith",
-                "Bard",
-                "Companion",
-                "Minstrel",
-                "Harper",
-                "Loreweaver",
-                "Muse",
-                "Dreamweaver",
-                "Master Harper",
-	},
-
-        /* Power Mage */
-	{
-                "Chaos Slave",
-                "Chaos Serf",
-                "Chaos Novice",
-                "Chaos Caster",
-                "Chaos Wielder",
-                "Chaos Lord",
-                "Chaos Master",
-                "Chaos Fiend",
-                "Chaos King",
-                "Chaos King",
-	},
-
-        /* Runecrafter */
-	{
-                "Ignoramus",
-                "Charlatan",
-                "Initiate",
-                "Adept",
-		"Evoker",
-		"Conjurer",
-                "Proselyte",
-                "Inculcator",
-                "Warder",
-                "Runemal",
-	},
-
-        /* Possessor */
-	{
-                "Soul",
-                "Free Soul",
-                "True Soul",
-                "Soul Bender",
-                "Body Render",
-                "Low Corpser",
-                "High Corpser",
-                "Possessor",
-                "PossessorLord",
-                "Soul Master",
-	},
-
-        /* Sorceror -- Same as Mage */
-	{
-		"Apprentice",
-		"Trickster",
-                "Dilante",
-                "Dabbler",
-                "Invoker",
-                "Low Sorceror",
-                "High Sorceror",
-                "Low Magus",
-                "Magus",
-                "True Magus",
-	},
-
-        /* Archer */
-	{
-                "Rock Thrower",
-                "Slinger",
-                "Great Slinger",
-                "Tosser",
-                "Bowman",
-                "Great Bowman",
-                "Great Bowman",
-                "Archer",
-                "Archer",
-                "Great Archer",
-	},
-
-	/* Illusionist -KMW- */
-	{
-		"Novice",
-		"Apprentice",
-		"Trickster",
-		"Cabalist",
-		"Visionist",
-		"Phantasmist",
-		"Spellbinder",
-		"Illusionist",
-		"Shadow",
-		"Shadow Lord",
-	},
-
-	/* Druid */
-	{
-		"Wanderer",
-		"Tamer",
-		"Nurturer",
-		"Gardener",
-		"Creator",
-		"Earth Warder",
-		"Windrider",
-		"Stormwielder",
-                "Druid",
-                "Archdruid",
-	},
-
-        /* Necromancer */
-	{
-		"Acolyte",
-		"Curser",
-		"Dark Student",
-		"Initiate",
-		"Slavemaster",
-		"Summoner",
-		"Controller",
-		"Commander",
-		"Dark Master",
-		"Night Lord",
-	},
-
-        /* Unbeliever */
-	{
-                "Asker",
-                "Thinker",
-                "Faithless",
-                "Critic",
-                "Betrayer",
-                "Renegate",
-                "Undisciple",
-                "Disbeliever",
-                "Knower",
-                "Magicbane",
-	},
-
-        /* Daemonologist -SC- */
-	{
-		"Initiate",
-		"Acolyte",
-		"Adept",
-		"Slavemaster",
-		"Spellweaver",
-		"Demonriser",
-		"Controller",
-		"Commander",
-		"Hell Master",
-		"Daemon Lord",
-	},
-
-	/*
-	 * Weaponmaster -- All new titles -- Improv
-	 */
-	{
-		"Trainee",
-		"Wielder",
-		"Armsman",
-		"Soldier",
-		"Specialist",
-		"Adept",
-		"Pro",
-		"Expert",
-		"Master",
-		"High Master",
-	},
-
-	/* Merchant */
-	{
-		"Customer",
-		"Apprentice",
-		"Assistant",
-		"Assistant",
-		"Clerk",
-		"Clerk",
-		"Shopkeeper",
-		"Shopkeeper",
-		"Shop Manager",
-		"Shop Manager",
-	},
-};
-
-
 
 /*
  * Hack -- the "basic" color names (see "TERM_xxx")
@@ -5233,7 +3395,7 @@ cptr window_flag_desc[32] =
 	"Display spell list",
 	"Display character",
         "Show visible monsters",
-	NULL,
+        "Display IRC messages",
 	"Display messages",
 	"Display overhead view",
 	"Display monster recall",
@@ -5372,7 +3534,7 @@ option_type option_info[] =
         { &disturb_minor,               TRUE,   2,      8,
 	"disturb_minor",                "Disturb whenever boring things happen" },
 
-        { &disturb_other,               TRUE,   2,      9,
+        { &disturb_other,               FALSE,   2,      9,
 	"disturb_other",                "Disturb whenever random things happen" },
 
         { &alert_hitpoint,              FALSE,  2,      10,
@@ -5541,6 +3703,9 @@ option_type option_info[] =
         { &auto_more,                   FALSE,  5,      4,
         "auto_more",                    "Automatically clear '-more-' prompts" },
 
+        { &player_char_health,          TRUE,   5,      6,
+        "player_char_health",           "Player char represent his/heer health" },
+
         /*** Birth Options ***/
 
 #if 0 /* XXX free -- no more used */
@@ -5582,21 +3747,20 @@ option_type option_info[] =
         { &fast_autoroller,             FALSE,  6,      10,
         "fast_autoroller",              "Fast autoroller(NOT on multiuser systems)" },
 
-        { &cth_monsters,                TRUE,   6,      11,
-        "cth_monsters",                 "Allow use of lovercraftian monsters" },
+        { &cth_monsters,                FALSE,  6,      11,
+        "cth_monsters",                 "Allow use of lovecraftian monsters" },
 
 #if 0
         { &pern_monsters,               TRUE,   6,      12,
         "pern_monsters",                "Allow use of some Pern related monsters" },
 #endif
-        { &zang_monsters,               TRUE,   6,      13,
+        { &zang_monsters,               FALSE,  6,      13,
         "zang_monsters",                "Allow use of 'Zangbandish' monsters" },
 
-        { &joke_monsters,               TRUE,   6,      14,
+        { &joke_monsters,               FALSE,  6,      14,
         "joke_monsters",                "Allow use of some 'joke' monsters" },
 
-        { &astral_option,               FALSE,  6,      15,
-        "astral_option",                "Player starts at the bottom of the dungeon" },
+/* XXX */
 
         { &always_small_level,          FALSE,  6,      16,
         "always_small_level",           "Always make small levels" },
@@ -6411,43 +4575,44 @@ cptr artifact_names_list =
 
 martial_arts ma_blows[MAX_MA] =
 {
-#ifdef VERBOSE_MARTIAL_ARTS
-	{ "You punch %s.",                          1, 0, 1, 4, 0 },
-	{ "You kick %s.",                           2, 0, 1, 6, 0 },
-	{ "You strike %s.",                         3, 0, 1, 7, 0 },
-	{ "You hit %s with your knee.",             5, 5, 2, 3, MA_KNEE },
-	{ "You hit %s with your elbow.",            7, 5, 1, 8, 0 },
-	{ "You butt %s.",                           9, 10, 2, 5, 0 },
-	{ "You kick %s.",                           11, 10, 3, 4, MA_SLOW },
-	{ "You uppercut %s.",                       13, 12, 4, 4, 6 },
-	{ "You double-kick %s.",                    16, 15, 5, 4, 8 },
-	{ "You hit %s with a Cat's Claw.",          20, 20, 5, 5, 0 },
-	{ "You hit %s with a jump kick.",           25, 25, 5, 6, 10 },
-	{ "You hit %s with an Eagle's Claw.",       29, 25, 6, 6, 0 },
-	{ "You hit %s with a circle kick.",         33, 30, 6, 8, 10 },
-	{ "You hit %s with an Iron Fist.",          37, 35, 8, 8, 10 },
-	{ "You hit %s with a flying kick.",         41, 35, 8, 10, 12 },
-	{ "You hit %s with a Dragon Fist.",         45, 35, 10, 10, 16 },
-	{ "You hit %s with a Crushing Blow.",       48, 35, 10, 12, 18 },
-#else
-	{ "You punch %s.",                          1, 0, 1, 4, 0 },
-	{ "You kick %s.",                           2, 0, 1, 6, 0 },
-	{ "You strike %s.",                         3, 0, 1, 7, 0 },
-	{ "You knee %s.",                           5, 5, 2, 3, MA_KNEE },
-	{ "You hit %s.",                            7, 5, 1, 8, 0 },
-	{ "You butt %s.",                           9, 10, 2, 5, 0 },
-	{ "You kick %s.",                           11, 10, 3, 4, MA_SLOW },
-	{ "You uppercut %s.",                       13, 12, 4, 4, 6 },
-	{ "You double-kick %s.",                    16, 15, 5, 4, 8 },
-	{ "You hit %s.",                            20, 20, 5, 5, 0 },
-	{ "You kick %s.",                           25, 25, 5, 6, 10 },
-	{ "You hit %s.",                            29, 25, 6, 6, 0 },
-	{ "You kick %s.",                           33, 30, 6, 8, 10 },
-	{ "You punch %s.",                          37, 35, 8, 8, 10 },
-	{ "You kick %s.",                           41, 35, 8, 10, 12 },
-	{ "You punch %s.",                          45, 35, 10, 10, 16 },
-	{ "You punch %s.",                          48, 35, 10, 12, 18 },
-#endif
+        { "You punch %s.",                          1, 0, 1, 4, 0, 0 },
+        { "You kick %s.",                           2, 0, 1, 6, 0, 0 },
+        { "You strike %s.",                         3, 0, 1, 7, 0, 0 },
+        { "You hit %s with your knee.",             5, 5, 2, 3, MA_KNEE, 0 },
+        { "You hit %s with your elbow.",            7, 5, 1, 8, 0, 0 },
+        { "You butt %s.",                           9, 10, 2, 5, 0, 0 },
+        { "You kick %s.",                           11, 10, 3, 4, MA_SLOW, 0 },
+        { "You uppercut %s.",                       13, 12, 4, 4, MA_STUN, 6 },
+        { "You double-kick %s.",                    16, 15, 5, 4, MA_STUN, 8 },
+        { "You hit %s with a Cat's Claw.",          20, 20, 5, 5, 0, 0 },
+        { "You hit %s with a jump kick.",           25, 25, 5, 6, MA_STUN, 10 },
+        { "You hit %s with an Eagle's Claw.",       29, 25, 6, 6, 0, 0 },
+        { "You hit %s with a circle kick.",         33, 30, 6, 8, MA_STUN, 10 },
+        { "You hit %s with an Iron Fist.",          37, 35, 8, 8, MA_STUN, 10 },
+        { "You hit %s with a flying kick.",         41, 35, 8, 10, MA_STUN, 12 },
+        { "You hit %s with a Dragon Fist.",         45, 35, 10, 10, MA_STUN, 16 },
+        { "You hit %s with a Crushing Blow.",       48, 35, 10, 12, MA_STUN, 18 },
+};
+
+/*
+ *   cptr    desc;      A verbose attack description
+ *   int     min_level; Minimum level to use
+ *   int     chance;    Chance of 'success
+ *   int     dd;        Damage dice
+ *   int     ds;        Damage sides
+ *   s16b    effect;    Special effects
+ *   s16b    power;     Special effects power
+ */
+martial_arts bear_blows[MAX_BEAR] =
+{
+        { "You claw %s.",                       1, 0, 3, 4, MA_STUN, 4 },
+        { "You swat %s.",                       4, 0, 4, 4, MA_WOUND, 20 },
+        { "You bite %s.",                       9, 2, 4, 4, MA_WOUND, 30 },
+        { "You hug %s.",                       15, 5, 6, 4, MA_FULL_SLOW, 0 },
+        { "You swat and rake %s.",             25,10, 6, 5, MA_STUN | MA_WOUND, 10 },
+        { "You hug and claw %s.",              30,15, 6, 6, MA_FULL_SLOW | MA_WOUND, 60 },
+        { "You double swat %s.",               35,20, 9, 7, MA_STUN | MA_WOUND, 20 },
+        { "You double swat and rake %s.",      40,25,10,10, MA_STUN | MA_WOUND, 25 },
 };
 
 
@@ -7130,58 +5295,127 @@ alchemist_recipe alchemist_recipes[MAX_ALCHEMIST_RECIPES] = {
  * Textual translation of your god's "niceness".
  */
 
-cptr deity_niceness[10] = {
-  "a lovable",
-  "a friendly",
-  "an easygoing",
-  "a forgiving",
-  "an uncaring",
-  "a wary",
-  "an unforgiving",
-  "an impatient",
-  "a wrathful",
-  "an easily angered"
+cptr deity_niceness[10] =
+{
+	"a lovable deity",
+	"a friendly deity",
+	"an easygoing deity",
+	"a forgiving deity",
+	"an uncaring deity",
+	"a wary deity",
+	"an unforgiving deity",
+	"an impatient deity",
+	"a wrathful deity",
+	"an easily angered deity"
 };
 
 /*
  * Textual translation of your standing with your god.
  */
 
-cptr deity_standing[11] = {
-  "cursed",
-  "persecuted",
-  "punished",
-  "despised",
-  "disliked",
-  "watched",
-  "unnoticed",
-  "noticed",
-  "rewarded",
-  "favored",
-  "championed"
+cptr deity_standing[11] =
+{
+        "cursed",
+        "persecuted",
+        "punished",
+        "despised",
+        "disliked",
+        "watched",
+        "unnoticed",
+        "noticed",
+        "rewarded",
+        "favored",
+        "championed"
 };
 
 /*
  * Textual translations of your deity's rarity.
  */
-cptr deity_rarity[2] = {
-  "Major",
-  "Supreme"
+cptr deity_rarity[2] =
+{
+        "Major",
+        "Supreme"
 };
 
-deity deity_info[MAX_GODS] = {
-  { "Yavanna",   "Forest",     2, 0, RACE_ENT, -1, "The vala in charge of forests, she protects her followers from cold." },
-  { "Ulmo",      "Waters",     3, 0, RACE_ELF, RACE_HUMAN, "The vala of water, he can protect the worthy from poison and sound." },
-  { "Aule",      "Earth",      3, 0, RACE_DWARF, RACE_NIBELUNG, "The smith of the vala, associated with earth.  His followers are free to\nmove about the earth and will not be harmed by shards of earth." },
-  { "Melkor",    "Darkness",   9, 0, RACE_HALF_ORC, RACE_HALF_TROLL, "Yes, this is Morgoth, the guy you're spending the entire game trying\nto whack.  But you can still worship him.  He grants sustains, and\nprotects his followers from several dark powers." },
-  { "Tilion",    "Moon",       4, 0, RACE_ELF, RACE_DARK_ELF, "Vala of the moon, whose followers need fear neither the dark or the\ncreatures that dwell in it." },
-  { "Arien",     "Sun",        3, 0, RACE_HUMAN, RACE_RKNIGHT, "Vala of the sun, whose followers have no fear during the day." },
-  { "Tulkas",    "Rage",       8, 0, RACE_HUMAN, RACE_DWARF, "Vala of rage, his followers are mighty warriors, who cannot be\ndeceived in battle." },
-  { "Manwe",     "Winds",      5, 0, RACE_HIGH_ELF, RACE_HALF_ELF, "Vala of the winds, his followers move with supernatural grace and swiftness." },
-  { "Varda",     "Stars",      4, 0, RACE_DUNADAN, -1, "Vala of the stars, her followers have keen and clear minds." },
-
-  { "Iluvatar",  "Being",      2, 1, RACE_ELF, RACE_HUMAN, "Also known as Illuvatar, he is the creator, the god of being.  Those who\nfollow him are granted knowledge beyond that of ordinary mortals, but\nthey are so strongly connected to life that it is hard for them to kill\ndirectly." },
-  { "The RNG",   "Randomness", 9, 1, RACE_MOLD, -1, "The god of chaos, it is as unpredictable and irrational as an\nAngband variant maintainer." },
+deity deity_info[MAX_GODS] =
+{
+        {
+                "Yavanna",
+                "Forest",
+                 2, 0,
+                 -1, -1,
+                 "The vala in charge of forests, she protects her followers from cold."
+        },
+        {
+                "Ulmo",
+                "Waters",
+                3, 0,
+                -1, -1,
+                "The vala of water, he can protect the worthy from poison and sound."
+        },
+        {
+                "Aule",
+                "Earth",
+                3, 0,
+                -1, -1,
+                "The smith of the vala, associated with earth.  His followers are free to\nmove about the earth and will not be harmed by shards of earth."
+        },
+        {
+                "Melkor",
+                "Darkness",
+                9, 0,
+                -1, -1,
+                "Yes, this is Morgoth, the guy you're spending the entire game trying\nto whack.  But you can still worship him.  He grants sustains, and\nprotects his followers from several dark powers."
+        },
+        {
+                "Tilion",
+                "Moon",
+                4, 0,
+                -1, -1,
+                "Vala of the moon, whose followers need fear neither the dark or the\ncreatures that dwell in it."
+        },
+        {
+                "Arien",
+                "Sun",
+                3, 0,
+                -1, -1,
+                "Vala of the sun, whose followers have no fear during the day."
+        },
+        {
+                "Tulkas",
+                "Rage",
+                8, 0,
+                -1, -1,
+                "Vala of rage, his followers are mighty warriors, who cannot be\ndeceived in battle."
+        },
+        {
+                "Manwe",
+                "Winds",
+                5, 0,
+                -1, -1,
+                "Vala of the winds, his followers move with supernatural grace and swiftness."
+        },
+        {
+                "Varda",
+                "Stars",
+                4, 0,
+                -1, -1,
+                "Vala of the stars, her followers have keen and clear minds."
+        },
+        {
+                "Iluvatar",
+                "Being",
+                2, 1,
+                -1, -1,
+                "Also known as Illuvatar, he is the creator, the god of being.  Those who\nfollow him are granted knowledge beyond that of ordinary mortals, but\nthey are so strongly connected to life that it is hard for them to kill\ndirectly."
+        },
+        {
+                "The RNG",
+                "Randomness",
+                9, 1,
+                -1, -1,
+                "The god of chaos, it is as unpredictable and irrational as an\nAngband variant maintainer."
+        },
 };
 
 /* jk - to hit, to dam, to ac, to stealth, to disarm, to saving throw */
@@ -7351,8 +5585,20 @@ inscription_info_type inscription_info[MAX_INSCRIPTIONS] =
 /*
  * Inscriptions for pseudo-id
  */
-cptr sense_desc[]= {"whoops","cursed","average","good","good","excellent",
-                    "worthless","terrible","special","broken",""};
+cptr sense_desc[] =
+{
+        "whoops",
+        "cursed",
+        "average",
+        "good",
+        "good",
+        "excellent",
+        "worthless",
+        "terrible",
+        "special",
+        "broken",
+        ""
+};
 
 /*
  * Flag groups used for art creation, level gaining weapons, ...
@@ -7369,6 +5615,7 @@ flags_group flags_groups[MAX_FLAG_GROUP] =
 {
         {
                 "Fire",
+                TERM_L_RED,
                 1,
                 TR1_SLAY_UNDEAD | TR1_BRAND_FIRE,
                 TR2_RES_FIRE,
@@ -7378,6 +5625,7 @@ flags_group flags_groups[MAX_FLAG_GROUP] =
         },
         {
                 "Cold",
+                TERM_WHITE,
                 1,
                 TR1_SLAY_DRAGON | TR1_SLAY_DEMON | TR1_BRAND_COLD,
                 TR2_RES_COLD | TR2_INVIS,
@@ -7387,6 +5635,7 @@ flags_group flags_groups[MAX_FLAG_GROUP] =
         },
         {
                 "Acid",
+                TERM_GREEN,
                 1,
                 TR1_SLAY_ANIMAL | TR1_IMPACT | TR1_TUNNEL | TR1_BRAND_ACID,
                 TR2_RES_ACID,
@@ -7396,6 +5645,7 @@ flags_group flags_groups[MAX_FLAG_GROUP] =
         },
         {
                 "Lightning",
+                TERM_L_BLUE,
                 1,
                 TR1_SLAY_EVIL | TR1_BRAND_ELEC,
                 TR2_RES_ELEC,
@@ -7405,6 +5655,7 @@ flags_group flags_groups[MAX_FLAG_GROUP] =
         },
         {
                 "Poison",
+                TERM_L_GREEN,
                 2,
                 TR1_CHR | TR1_VAMPIRIC | TR1_SLAY_ANIMAL | TR1_BRAND_POIS,
                 TR2_SUST_CHR | TR2_RES_POIS,
@@ -7414,6 +5665,7 @@ flags_group flags_groups[MAX_FLAG_GROUP] =
         },
         {
                 "Air",
+                TERM_BLUE,
                 5,
                 TR1_WIS | TR1_STEALTH | TR1_INFRA | TR1_SPEED,
                 TR2_RES_LITE | TR2_RES_DARK | TR2_RES_BLIND | TR2_SUST_WIS,
@@ -7423,6 +5675,7 @@ flags_group flags_groups[MAX_FLAG_GROUP] =
         },
         {
                 "Earth",
+                TERM_L_UMBER,
                 5,
                 TR1_STR | TR1_CON | TR1_TUNNEL | TR1_BLOWS | TR1_SLAY_TROLL | TR1_SLAY_GIANT | TR1_IMPACT,
                 TR2_SUST_STR | TR2_SUST_CON | TR2_FREE_ACT | TR2_RES_FEAR | TR2_RES_SHARDS,
@@ -7432,6 +5685,7 @@ flags_group flags_groups[MAX_FLAG_GROUP] =
         },
         {
                 "Mind",
+                TERM_YELLOW,
                 7,
                 TR1_INT | TR1_SEARCH,
                 TR2_SUST_INT | TR2_RES_CONF | TR2_RES_FEAR,
@@ -7441,6 +5695,7 @@ flags_group flags_groups[MAX_FLAG_GROUP] =
         },
         {
                 "Shield",
+                TERM_RED,
                 7,
                 TR1_DEX,
                 TR2_SUST_DEX | TR2_INVIS | TR2_REFLECT | TR2_HOLD_LIFE | TR2_RES_SOUND | TR2_RES_NEXUS,
@@ -7450,6 +5705,7 @@ flags_group flags_groups[MAX_FLAG_GROUP] =
         },
         {
                 "Chaos",
+                TERM_VIOLET,
                 7,
                 TR1_CHAOTIC | TR1_IMPACT,
                 TR2_RES_CHAOS | TR2_RES_DISEN,
@@ -7459,6 +5715,7 @@ flags_group flags_groups[MAX_FLAG_GROUP] =
         },
         {
                 "Magic",
+                TERM_L_BLUE,
                 10,
                 TR1_MANA | TR1_SPELL,
                 TR2_RES_CHAOS | TR2_RES_DISEN,
@@ -7468,6 +5725,7 @@ flags_group flags_groups[MAX_FLAG_GROUP] =
         },
         {
                 "Antimagic",
+                TERM_L_DARK,
                 10,
                 TR1_VAMPIRIC | TR1_CHAOTIC | TR1_BLOWS | TR1_SPEED,
                 TR2_LIFE | TR2_REFLECT | TR2_FREE_ACT | TR2_HOLD_LIFE,
@@ -7478,7 +5736,7 @@ flags_group flags_groups[MAX_FLAG_GROUP] =
 };
 
 /* Power, the first 32 are the corruptions */
-power_type powers_type[POWER_MAX] =
+power_type powers_type_init[POWER_MAX_INIT] =
 {
         {
                 "spit acid",
@@ -7534,7 +5792,7 @@ power_type powers_type[POWER_MAX] =
                 "You can drain life from a foe.",
                 "You become vampiric.",
                 "You are no longer vampiric.",
-                4, 5, A_CON, 14,
+                4, 5, A_CON, 9,
         },
         {
                 "smell metal",
@@ -7891,36 +6149,51 @@ power_type powers_type[POWER_MAX] =
         {
                 "turn pet into companion",
                 "You can turn a pet into a companion.",
-                "You suddently gain authority over your pets..",
+                "You suddently gain authority over your pets.",
                 "You can no longer convert pets into companions.",
                 2, 10, A_CHR, 10,
+        },
+        {
+                "turn into a bear",
+                "You can turn into a bear.",
+                "You suddently gain beornings powers.",
+                "You can no longer shapeshift into a bear.",
+                2, 5, A_CON, 5,
+        },
+        {
+                "sense dodge sucess",
+                "You can sense your dodging sucess chance.",
+                "You suddently can sense your dodging sucess chance.",
+                "You can no longer sense your dodging sucess chance.",
+                0, 0, 0, 0,
         },
 };
 
 /*
  * The Quests
  */
-quest_type quest[MAX_Q_IDX] =
+quest_type quest_init[MAX_Q_IDX_INIT] =
 {
         {
                 FALSE,
-                NULL,
+                "",
                 {
-                        NULL,
-                        NULL,
-                        NULL,
-                        NULL,
-                        NULL,
-                        NULL,
-                        NULL,
-                        NULL,
-                        NULL,
-                        NULL,
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
                 },
                 QUEST_STATUS_UNTAKEN,
                 0,
 
                 NULL,
+                HOOK_TYPE_C,
                 quest_null_hook,
                 {0, 0},
         },
@@ -7931,18 +6204,19 @@ quest_type quest[MAX_Q_IDX] =
                         "The forest of Mirkwood is a very dangerous place to go, mainly due to",
                         "the activities of the Necromancer that lurks in Dol Guldur.",
                         "Find him, and free Mirkwood from his spells.",
-                        NULL,
-                        NULL,
-                        NULL,
-                        NULL,
-                        NULL,
-                        NULL,
-                        NULL,
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
                 },
                 QUEST_STATUS_TAKEN,
                 70,
 
                 &plots[PLOT_MAIN],
+                HOOK_TYPE_C,
                 quest_necro_init_hook,
                 {0, 0},
         },
@@ -7954,17 +6228,18 @@ quest_type quest[MAX_Q_IDX] =
                         "reach it, you must find and kill Sauron.  Only after defeating",
                         "the powerful sorcerer will the stairs leading to the Morgoth's",
                         "room be opened.",
-                        NULL,
-                        NULL,
-                        NULL,
-                        NULL,
-                        NULL,
-                        NULL,
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
                 },
                 QUEST_STATUS_UNTAKEN,
                 99,
 
                 &plots[PLOT_MAIN],
+                HOOK_TYPE_C,
                 quest_sauron_init_hook,
                 {0, 0},
         },
@@ -7977,16 +6252,17 @@ quest_type quest[MAX_Q_IDX] =
                         "Morgoth is waiting. Travel deep, and defeat this source of all our",
                         "problems.Be prepared, be patient, and good luck. May the light",
                         "shine on you.",
-                        NULL,
-                        NULL,
-                        NULL,
-                        NULL,
-                        NULL,
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
                 },
                 QUEST_STATUS_UNTAKEN,
                 100,
 
                 &plots[PLOT_MAIN],
+                HOOK_TYPE_C,
                 quest_morgoth_init_hook,
                 {0, 0},
         },
@@ -8001,16 +6277,17 @@ quest_type quest[MAX_Q_IDX] =
                         "on the roads. They even sneak inside the town to mug and",
                         "pillage! Your task is to go to the burrow and kill these",
                         "ruffians.",
-                        NULL,
-                        NULL,
-                        NULL,
-                        NULL,
-                        NULL,
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
                 },
                 QUEST_STATUS_UNTAKEN,
                 5,
 
                 &plots[PLOT_BREE],
+                HOOK_TYPE_C,
                 quest_thieves_init_hook,
                 {0, 0},
         },
@@ -8019,21 +6296,22 @@ quest_type quest[MAX_Q_IDX] =
                 FALSE,
                 "Random Quest",
                 {
-                        NULL,
-                        NULL,
-                        NULL,
-                        NULL,
-                        NULL,
-                        NULL,
-                        NULL,
-                        NULL,
-                        NULL,
-                        NULL,
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
                 },
                 QUEST_STATUS_UNTAKEN,
                 5,
 
                 NULL,
+                HOOK_TYPE_C,
                 quest_random_init_hook,
                 {0, 0},
         },
@@ -8044,19 +6322,20 @@ quest_type quest[MAX_Q_IDX] =
                 {
                         "Merton Proundfoot, a young hobbit, seems to have disappeared.",
                         "Last time someone saw him was near the horrible maze to the south...",
-                        "I fear he got lost in there, please find him!",
-                        NULL,
-                        NULL,
-                        NULL,
-                        NULL,
-                        NULL,
-                        NULL,
-                        NULL,
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
                 },
                 QUEST_STATUS_UNTAKEN,
                 25,
 
-                &plots[PLOT_BREE],
+                &plots[PLOT_OTHER],
+                HOOK_TYPE_C,
                 quest_hobbit_init_hook,
                 {0, 0},
         },
@@ -8068,18 +6347,19 @@ quest_type quest[MAX_Q_IDX] =
                         "A dark cloaked horseman has been spoted several time in town.",
                         "He carries an aura of fear with him and people seems to get sick",
                         "here he goes. Please do something, but beware...",
-                        NULL,
-                        NULL,
-                        NULL,
-                        NULL,
-                        NULL,
-                        NULL,
-                        NULL,
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
                 },
                 QUEST_STATUS_UNTAKEN,
                 40,
 
                 &plots[PLOT_BREE],
+                HOOK_TYPE_C,
                 quest_nazgul_init_hook,
                 {0, 0},
         },
@@ -8088,21 +6368,22 @@ quest_type quest[MAX_Q_IDX] =
                 FALSE,
                 "The Trolls Glade",
                 {
-                        "A group of Forest Trolls settled in an abandoned fortress in the",
-                        "south. They are killing our people, so it's your mission to put",
-                        "an end to this! You may only find them when night comes...",
-                        "Local hobbits claim that the mighty swords Orcrist and Glamdring",
-                        "can be found there! Bring back one of them as a proof!",
-                        NULL,
-                        NULL,
-                        NULL,
-                        NULL,
-                        NULL,
+                        "A group of Forest Trolls settled in an abandoned forest in the",
+                        "south east of our town. They are killing our people, so it's",
+                        "your mission to put an end to this! You may only find them",
+                        "when night comes... Local hobbits claim that the mighty swords",
+                        "Orcrist and Glamdring can be found there! Bring back one of",
+                        "them as a proof! But you will have to wait for the nightfall to",
+                        "find them.",
+                        "",
+                        "",
+                        "",
                 },
                 QUEST_STATUS_UNTAKEN,
                 30,
 
                 &plots[PLOT_BREE],
+                HOOK_TYPE_C,
                 quest_troll_init_hook,
                 {FALSE, 0},
         },
@@ -8114,18 +6395,19 @@ quest_type quest[MAX_Q_IDX] =
                         "The Barrow-Downs hides lots of mysteries and dangers...",
                         "Lately lots of people, men and hobbits, have disappeared there.",
                         "Please put an end to this threat!",
-                        NULL,
-                        NULL,
-                        NULL,
-                        NULL,
-                        NULL,
-                        NULL,
-                        NULL,
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
                 },
                 QUEST_STATUS_UNTAKEN,
                 30,
 
                 &plots[PLOT_BREE],
+                HOOK_TYPE_C,
                 quest_wight_init_hook,
                 {FALSE, 0},
         },
@@ -8140,16 +6422,17 @@ quest_type quest[MAX_Q_IDX] =
                         "unable to hold them off. It is your task to drive them",
                         "away. Be careful -- many traps have been laid by their",
                         "webs, and their venom is dangerous indeed.",
-                        NULL,
-                        NULL,
-                        NULL,
-                        NULL,
-                        NULL,
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
                 },
                 QUEST_STATUS_UNTAKEN,
                 25,
 
                 &plots[PLOT_LORIEN],
+                HOOK_TYPE_C,
                 quest_spider_init_hook,
                 {0, 0},
         },
@@ -8162,16 +6445,17 @@ quest_type quest[MAX_Q_IDX] =
                         "cause seems to be an unknown poison. You are to go to the West and travel",
                         "along Celebrane and Nimrodel until you discover the source of poisoning.",
                         "Then you must destroy it and drop these potions on the tainted water.",
-                        NULL,
-                        NULL,
-                        NULL,
-                        NULL,
-                        NULL,
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
                 },
                 QUEST_STATUS_UNTAKEN,
                 30,
 
                 &plots[PLOT_LORIEN],
+                HOOK_TYPE_C,
                 quest_poison_init_hook,
                 {0, 0},
         },
@@ -8183,18 +6467,19 @@ quest_type quest[MAX_Q_IDX] =
                         "You have found Narsil, a broken sword. It is said that the sword that",
                         "was broken shall be reforged... Maybe it is this one.",
                         "You should bring it to Aragorn at Minas Anor, he would sure know.",
-                        NULL,
-                        NULL,
-                        NULL,
-                        NULL,
-                        NULL,
-                        NULL,
-                        NULL,
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
                 },
                 QUEST_STATUS_UNTAKEN,
                 20,
 
                 &plots[PLOT_OTHER],
+                HOOK_TYPE_C,
                 quest_narsil_init_hook,
                 {0, 0},
         },
@@ -8208,16 +6493,17 @@ quest_type quest[MAX_Q_IDX] =
                         "King's leave. Go forth to the eastern mountains and apprehend him. If",
                         "he resists, use whatever means possible to hinder him from reaching the",
                         "city. Be wary -- the mountain caves may have many hidden traps.",
-                        NULL,
-                        NULL,
-                        NULL,
-                        NULL,
-                        NULL,
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
                 },
                 QUEST_STATUS_UNTAKEN,
                 30,
 
                 &plots[PLOT_GONDOLIN],
+                HOOK_TYPE_C,
                 quest_eol_init_hook,
                 {0, 0},
         },
@@ -8230,16 +6516,17 @@ quest_type quest[MAX_Q_IDX] =
                         "to the city's walls. Go forth from the city gates",
                         "and clear a path for them to retreat. You need not",
                         "destroy the troll army, simply drive a path through.",
-                        NULL,
-                        NULL,
-                        NULL,
-                        NULL,
-                        NULL,
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
                 },
                 QUEST_STATUS_UNTAKEN,
                 37,
 
                 &plots[PLOT_GONDOLIN],
+                HOOK_TYPE_C,
                 quest_nirnaeth_init_hook,
                 {0, 0},
         },
@@ -8249,19 +6536,20 @@ quest_type quest[MAX_Q_IDX] =
                 {
                         "Morgoth is upon us! Dragons and Balrogs have poured over secret",
                         "ways of the Echoriath, and are looking for our city. They are",
-                        "conducted by Maeglin! You must stop him or they will find us."
+                        "conducted by Maeglin! You must stop him or they will find us.",
                         "Do not let maeglin get to the stairs or everything will be lost!",
                         "Go now, be brave.",
-                        NULL,
-                        NULL,
-                        NULL,
-                        NULL,
-                        NULL,
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
                 },
                 QUEST_STATUS_UNTAKEN,
                 80,
 
                 &plots[PLOT_GONDOLIN],
+                HOOK_TYPE_C,
                 quest_invasion_init_hook,
                 {0, 0},
         },
@@ -8277,13 +6565,14 @@ quest_type quest[MAX_Q_IDX] =
                         "how to use the Between: we need you to open a Between gate in our own city,",
                         "and that of Gondolin.",
                         "Simply travel to gondolin, but beware of rebel dragonriders.",
-                        NULL,
-                        NULL,
+                        "",
+                        "",
                 },
                 QUEST_STATUS_UNTAKEN,
                 60,
 
                 &plots[PLOT_MINAS],
+                HOOK_TYPE_C,
                 quest_between_init_hook,
                 {0, 0},
         },
@@ -8295,18 +6584,67 @@ quest_type quest[MAX_Q_IDX] =
                         "it in the Great Fire where it was once forged.",
                         "But beware, *NEVER* use it, or you will be corrupted.",
                         "Once destroyed you will be able to permanently defeat Sauron.",
-                        NULL,
-                        NULL,
-                        NULL,
-                        NULL,
-                        NULL,
-                        NULL,
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
                 },
                 QUEST_STATUS_UNTAKEN,
                 99,
 
                 &plots[PLOT_MAIN],
+                HOOK_TYPE_C,
                 quest_one_init_hook,
+                {0, 0},
+        },
+
+        {
+                FALSE,
+                "Mushroom supplies",
+                {
+                        "Farmer Maggot asked you to bring him back his mushrooms.",
+                        "And do not harm the dogs.",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                },
+                QUEST_STATUS_UNTAKEN,
+                3,
+
+                &plots[PLOT_OTHER],
+                HOOK_TYPE_C,
+                quest_shroom_init_hook,
+                {0, 0},
+        },
+
+        {
+                FALSE,
+                "The prisonner of Dol Guldur",
+                {
+                        "You keep hearing distress cries in the dark tower of",
+                        "Dol Guldur...",
+                        "Maybe there is someone being held prisonner and tortured!",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                },
+                QUEST_STATUS_UNTAKEN,
+                60,
+
+                &plots[PLOT_OTHER],
+                HOOK_TYPE_C,
+                quest_thrain_init_hook,
                 {0, 0},
         },
 };
@@ -8547,4 +6885,33 @@ cptr month_name[9] =
         "Coire",
 
         "Mettare",
+};
+
+/*
+ * List of the command line commands
+ */
+cli_comm cli_info[] =
+{
+        {"?", "help", "Show this help", do_cmd_cli_help},
+#ifdef USE_SOCK
+        {"C", "irc_on", "Connect to IRC", irc_connect},
+        {":", "irc_say", "Speak on IRC", irc_chat},
+        {"D", "irc_off", "Disconnect from irc", irc_disconnect},
+#endif
+        {"T", "time", "Get the current game time", do_cmd_time},
+        {"D", "html-dump", "Save an html-screenshot", do_cmd_html_dump},
+        {NULL, NULL, NULL, NULL},
+};
+
+/*
+ * max body parts
+ */
+int max_body_part[BODY_MAX] =
+{
+        3,      /* Weapon */
+        1,      /* Torso */
+        3,      /* Arms */
+        6,      /* Finger */
+        2,      /* Head */
+        2,      /* Legs */
 };

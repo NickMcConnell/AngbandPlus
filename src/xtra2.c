@@ -15,18 +15,55 @@
 #define REWARD_CHANCE 10
 
 static cptr favor_text[11] = {
-  "impossible",
-  "impossible",
-  "impossible",
-  "extremely unlikely",
-  "extremely unlikely",
-  "extremely unlikely",
-  "unlikely",
-  "unlikely",
-  "likely",
-  "certain",
-  "certain beyond any doubt"
+	"impossible",
+	"impossible",
+	"impossible",
+	"extremely unlikely",
+	"extremely unlikely",
+	"extremely unlikely",
+	"unlikely",
+	"unlikely",
+	"likely",
+	"certain",
+	"certain beyond any doubt"
 };
+
+/*
+ * Invoke The Rush
+ */
+bool set_rush(int v)
+{
+	int j;
+
+	/* Invoke The Bust */
+	if (!v)
+	{
+		p_ptr->rush = 0;
+
+		j = 50 - randint(p_ptr->lev);
+		set_paralyzed(j);
+		set_slow(j + 50 - randint(p_ptr->lev));
+		return TRUE;
+	}
+
+	/* When is The Bust going to happen? */
+	p_ptr->rush = v;
+
+	/* The bonuses of The Rush */
+	set_hero(p_ptr->hero + v);
+	set_tim_deadly(p_ptr->tim_deadly + v);
+	set_strike(p_ptr->strike + v);
+	if (magik(p_ptr->lev / 2))
+	{
+		set_light_speed(p_ptr->lightspeed + v);
+	}
+	else
+	{
+		set_fast(p_ptr->fast + v);
+	}
+	if (magik(p_ptr->lev / 2)) set_tim_esp(p_ptr->tim_esp + v);
+	return TRUE;
+}
 
 
 /*
@@ -43,9 +80,9 @@ bool set_parasite(int v, int r)
 	/* Open */
 	if (v)
 	{
-                if (!p_ptr->parasite)
+		if (!p_ptr->parasite)
 		{
-                        msg_print("You feel something growing in you.");
+			msg_print("You feel something growing in you.");
 			notice = TRUE;
 		}
 	}
@@ -53,48 +90,46 @@ bool set_parasite(int v, int r)
 	/* Shut */
 	else
 	{
-                if (p_ptr->parasite)
+		if (p_ptr->parasite)
 		{
-                        if (magik(80))
-                        {
-                                char r_name[80];
-                                int wx, wy;
-                                int attempts = 500;
+			if (magik(80))
+			{
+				char r_name[80];
+				int wx, wy;
+				int attempts = 500;
 
-                                monster_race_desc(r_name, p_ptr->parasite_r_idx, 0);
+				monster_race_desc(r_name, p_ptr->parasite_r_idx, 0);
 
-                                do
-                                {
-                                        scatter(&wy, &wx, py, px, 10, 0);
-                                }
-                                while (!(in_bounds(wy,wx) && cave_floor_bold(wy,wx)) && --attempts);
+				do
+				{
+					scatter(&wy, &wx, py, px, 10, 0);
+				}
+				while (!(in_bounds(wy,wx) && cave_floor_bold(wy,wx)) && --attempts);
 
-                                if (place_monster_one(wy, wx, p_ptr->parasite_r_idx, 0, FALSE, MSTATUS_ENEMY))
-                                {
-                                        cmsg_format(TERM_L_BLUE, "Your body convulse and spawn %s.", r_name);
-                                        p_ptr->food -= 750;
-                                        if (p_ptr->food < 100) p_ptr->food = 100;
-                                }
-                        }
-                        else
-                        {
-                                cmsg_print(TERM_L_BLUE, "The hideous thing growing in you seems to die.");
-                        }
-                        notice = TRUE;
+				if (place_monster_one(wy, wx, p_ptr->parasite_r_idx, 0, FALSE, MSTATUS_ENEMY))
+				{
+					cmsg_format(TERM_L_BLUE, "Your body convulse and spawn %s.", r_name);
+					p_ptr->food -= 750;
+					if (p_ptr->food < 100) p_ptr->food = 100;
+				}
+			}
+			else
+			{
+				cmsg_print(TERM_L_BLUE, "The hideous thing growing in you seems to die.");
+			}
+			notice = TRUE;
 		}
 	}
 
 	/* Use the value */
-        p_ptr->parasite = v;
-        p_ptr->parasite_r_idx = r;
+	p_ptr->parasite = v;
+	p_ptr->parasite_r_idx = r;
 
 	/* Nothing to notice */
-	if (!notice)
-		return (FALSE);
+	if (!notice) return (FALSE);
 
 	/* Disturb */
-	if (disturb_state)
-		disturb(0, 0);
+	if (disturb_state) disturb(0, 0);
 
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
@@ -117,9 +152,9 @@ bool set_disrupt_shield(int v)
 	/* Open */
 	if (v)
 	{
-                if (!p_ptr->disrupt_shield)
+		if (!p_ptr->disrupt_shield)
 		{
-                        msg_print("You feel invulnerable.");
+			msg_print("You feel invulnerable.");
 			notice = TRUE;
 		}
 	}
@@ -127,15 +162,15 @@ bool set_disrupt_shield(int v)
 	/* Shut */
 	else
 	{
-                if (p_ptr->disrupt_shield)
+		if (p_ptr->disrupt_shield)
 		{
-                        msg_print("You are more vulnerable.");
+			msg_print("You are more vulnerable.");
 			notice = TRUE;
 		}
 	}
 
 	/* Use the value */
-        p_ptr->disrupt_shield = v;
+	p_ptr->disrupt_shield = v;
 
 	/* Nothing to notice */
 	if (!notice)
@@ -166,9 +201,9 @@ bool set_prob_travel(int v)
 	/* Open */
 	if (v)
 	{
-                if (!p_ptr->prob_travel)
+		if (!p_ptr->prob_travel)
 		{
-                        msg_print("You feel instable.");
+			msg_print("You feel instable.");
 			notice = TRUE;
 		}
 	}
@@ -176,15 +211,15 @@ bool set_prob_travel(int v)
 	/* Shut */
 	else
 	{
-                if (p_ptr->prob_travel)
+		if (p_ptr->prob_travel)
 		{
-                        msg_print("You are more stable.");
+			msg_print("You are more stable.");
 			notice = TRUE;
 		}
 	}
 
 	/* Use the value */
-        p_ptr->prob_travel = v;
+	p_ptr->prob_travel = v;
 
 	/* Nothing to notice */
 	if (!notice)
@@ -215,7 +250,7 @@ bool set_invis(int v, int p)
 	/* Open */
 	if (v)
 	{
-                if (!p_ptr->tim_invisible)
+		if (!p_ptr->tim_invisible)
 		{
 			msg_print("You feel your body fade away.");
 			notice = TRUE;
@@ -225,7 +260,7 @@ bool set_invis(int v, int p)
 	/* Shut */
 	else
 	{
-                if (p_ptr->tim_invisible)
+		if (p_ptr->tim_invisible)
 		{
 			msg_print("You are no longer invisible.");
 			notice = TRUE;
@@ -234,7 +269,7 @@ bool set_invis(int v, int p)
 	}
 
 	/* Use the value */
-        p_ptr->tim_invisible = v;
+	p_ptr->tim_invisible = v;
 	p_ptr->tim_inv_pow = p;
 
 	/* Nothing to notice */
@@ -265,9 +300,9 @@ bool set_no_breeders(int v)
 	/* Open */
 	if (v)
 	{
-                if (!no_breeds)
+		if (!no_breeds)
 		{
-                        msg_print("You feel an anti-sexual aura.");
+			msg_print("You feel an anti-sexual aura.");
 			notice = TRUE;
 		}
 	}
@@ -275,15 +310,15 @@ bool set_no_breeders(int v)
 	/* Shut */
 	else
 	{
-                if (no_breeds)
+		if (no_breeds)
 		{
-                        msg_print("You no longer feel an anti-sexual aura.");
+			msg_print("You no longer feel an anti-sexual aura.");
 			notice = TRUE;
 		}
 	}
 
 	/* Use the value */
-        no_breeds = v;
+	no_breeds = v;
 
 	/* Nothing to notice */
 	if (!notice)
@@ -313,9 +348,9 @@ bool set_tim_deadly(int v)
 	/* Open */
 	if (v)
 	{
-                if (!p_ptr->tim_deadly)
+		if (!p_ptr->tim_deadly)
 		{
-                        msg_print("You feel very accurate.");
+			msg_print("You feel very accurate.");
 			notice = TRUE;
 		}
 	}
@@ -323,15 +358,15 @@ bool set_tim_deadly(int v)
 	/* Shut */
 	else
 	{
-                if (p_ptr->tim_deadly)
+		if (p_ptr->tim_deadly)
 		{
-                        msg_print("You are suddenly less accurate.");
+			msg_print("You are suddenly less accurate.");
 			notice = TRUE;
 		}
 	}
 
 	/* Use the value */
-        p_ptr->tim_deadly = v;
+	p_ptr->tim_deadly = v;
 
 	/* Nothing to notice */
 	if (!notice)
@@ -361,9 +396,9 @@ bool set_tim_ffall(int v)
 	/* Open */
 	if (v)
 	{
-                if (!p_ptr->tim_ffall)
+		if (!p_ptr->tim_ffall)
 		{
-                        msg_print("You feel very light.");
+			msg_print("You feel very light.");
 			notice = TRUE;
 		}
 	}
@@ -371,15 +406,15 @@ bool set_tim_ffall(int v)
 	/* Shut */
 	else
 	{
-                if (p_ptr->tim_ffall)
+		if (p_ptr->tim_ffall)
 		{
-                        msg_print("You are suddenly heavier.");
+			msg_print("You are suddenly heavier.");
 			notice = TRUE;
 		}
 	}
 
 	/* Use the value */
-        p_ptr->tim_ffall = v;
+	p_ptr->tim_ffall = v;
 
 	/* Nothing to notice */
 	if (!notice)
@@ -409,9 +444,9 @@ bool set_meditation(int v)
 	/* Open */
 	if (v)
 	{
-                if (!p_ptr->meditation)
+		if (!p_ptr->meditation)
 		{
-                        msg_print("You start meditating on yourself...");
+			msg_print("You start meditating on yourself...");
 			notice = TRUE;
 		}
 	}
@@ -419,15 +454,15 @@ bool set_meditation(int v)
 	/* Shut */
 	else
 	{
-                if (p_ptr->meditation)
+		if (p_ptr->meditation)
 		{
-                        msg_print("You stop your self meditation.");
+			msg_print("You stop your self meditation.");
 			notice = TRUE;
 		}
 	}
 
 	/* Use the value */
-        p_ptr->meditation = v;
+	p_ptr->meditation = v;
 
 	/* Nothing to notice */
 	if (!notice)
@@ -439,7 +474,7 @@ bool set_meditation(int v)
 
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
-        p_ptr->update |= (PU_MANA);
+	p_ptr->update |= (PU_MANA);
 
 	/* Result */
 	return (TRUE);
@@ -458,9 +493,9 @@ bool set_tim_reflect(int v)
 	/* Open */
 	if (v)
 	{
-                if (!p_ptr->tim_reflect)
+		if (!p_ptr->tim_reflect)
 		{
-                        msg_print("You start reflecting the world around you.");
+			msg_print("You start reflecting the world around you.");
 			notice = TRUE;
 		}
 	}
@@ -468,15 +503,15 @@ bool set_tim_reflect(int v)
 	/* Shut */
 	else
 	{
-                if (p_ptr->tim_reflect)
+		if (p_ptr->tim_reflect)
 		{
-                        msg_print("You stop reflecting.");
+			msg_print("You stop reflecting.");
 			notice = TRUE;
 		}
 	}
 
 	/* Use the value */
-        p_ptr->tim_reflect = v;
+	p_ptr->tim_reflect = v;
 
 	/* Nothing to notice */
 	if (!notice)
@@ -506,9 +541,9 @@ bool set_tim_res_time(int v)
 	/* Open */
 	if (v)
 	{
-                if (!p_ptr->tim_res_time)
+		if (!p_ptr->tim_res_time)
 		{
-                        msg_print("You are now protected against the space-time distortions.");
+			msg_print("You are now protected against the space-time distortions.");
 			notice = TRUE;
 		}
 	}
@@ -516,15 +551,15 @@ bool set_tim_res_time(int v)
 	/* Shut */
 	else
 	{
-                if (p_ptr->tim_res_time)
+		if (p_ptr->tim_res_time)
 		{
-                        msg_print("You are no longer protected against the space-time distortions.");
+			msg_print("You are no longer protected against the space-time distortions.");
 			notice = TRUE;
 		}
 	}
 
 	/* Use the value */
-        p_ptr->tim_res_time = v;
+	p_ptr->tim_res_time = v;
 
 	/* Nothing to notice */
 	if (!notice)
@@ -554,9 +589,9 @@ bool set_tim_fire_aura(int v)
 	/* Open */
 	if (v)
 	{
-                if (!p_ptr->tim_fire_aura)
+		if (!p_ptr->tim_fire_aura)
 		{
-                        msg_print("You are enveloped in flames.");
+			msg_print("You are enveloped in flames.");
 			notice = TRUE;
 		}
 	}
@@ -564,15 +599,15 @@ bool set_tim_fire_aura(int v)
 	/* Shut */
 	else
 	{
-                if (p_ptr->tim_fire_aura)
+		if (p_ptr->tim_fire_aura)
 		{
-                        msg_print("You are no longer enveloped in flames.");
+			msg_print("You are no longer enveloped in flames.");
 			notice = TRUE;
 		}
 	}
 
 	/* Use the value */
-        p_ptr->tim_fire_aura = v;
+	p_ptr->tim_fire_aura = v;
 
 	/* Nothing to notice */
 	if (!notice)
@@ -602,9 +637,9 @@ bool set_strike(int v)
 	/* Open */
 	if (v)
 	{
-                if (!p_ptr->strike)
+		if (!p_ptr->strike)
 		{
-                        msg_print("You feel very accurate.");
+			msg_print("You feel very accurate.");
 			notice = TRUE;
 		}
 	}
@@ -612,15 +647,15 @@ bool set_strike(int v)
 	/* Shut */
 	else
 	{
-                if (p_ptr->strike)
+		if (p_ptr->strike)
 		{
-                        msg_print("You are no longer very accurate.");
+			msg_print("You are no longer very accurate.");
 			notice = TRUE;
 		}
 	}
 
 	/* Use the value */
-        p_ptr->strike = v;
+	p_ptr->strike = v;
 
 	/* Nothing to notice */
 	if (!notice)
@@ -650,9 +685,9 @@ bool set_oppose_ld(int v)
 	/* Open */
 	if (v)
 	{
-                if (!p_ptr->oppose_ld)
+		if (!p_ptr->oppose_ld)
 		{
-                        msg_print("You feel protected against the light's fluctuation.");
+			msg_print("You feel protected against the light's fluctuation.");
 			notice = TRUE;
 		}
 	}
@@ -660,15 +695,15 @@ bool set_oppose_ld(int v)
 	/* Shut */
 	else
 	{
-                if (p_ptr->oppose_ld)
+		if (p_ptr->oppose_ld)
 		{
-                        msg_print("You are no longer protected against the light's fluctuation.");
+			msg_print("You are no longer protected against the light's fluctuation.");
 			notice = TRUE;
 		}
 	}
 
 	/* Use the value */
-        p_ptr->oppose_ld = v;
+	p_ptr->oppose_ld = v;
 
 	/* Nothing to notice */
 	if (!notice)
@@ -698,9 +733,9 @@ bool set_oppose_cc(int v)
 	/* Open */
 	if (v)
 	{
-                if (!p_ptr->oppose_cc)
+		if (!p_ptr->oppose_cc)
 		{
-                        msg_print("You feel protected against raw chaos.");
+			msg_print("You feel protected against raw chaos.");
 			notice = TRUE;
 		}
 	}
@@ -708,15 +743,15 @@ bool set_oppose_cc(int v)
 	/* Shut */
 	else
 	{
-                if (p_ptr->oppose_cc)
+		if (p_ptr->oppose_cc)
 		{
-                        msg_print("You are no longer protected against chaos.");
+			msg_print("You are no longer protected against chaos.");
 			notice = TRUE;
 		}
 	}
 
 	/* Use the value */
-        p_ptr->oppose_cc = v;
+	p_ptr->oppose_cc = v;
 
 	/* Nothing to notice */
 	if (!notice)
@@ -746,9 +781,9 @@ bool set_oppose_ss(int v)
 	/* Open */
 	if (v)
 	{
-                if (!p_ptr->oppose_ss)
+		if (!p_ptr->oppose_ss)
 		{
-                        msg_print("You feel protected against the ravages of sound and shards.");
+			msg_print("You feel protected against the ravages of sound and shards.");
 			notice = TRUE;
 		}
 	}
@@ -756,15 +791,15 @@ bool set_oppose_ss(int v)
 	/* Shut */
 	else
 	{
-                if (p_ptr->oppose_ss)
+		if (p_ptr->oppose_ss)
 		{
-                        msg_print("You are no longer protected against the ravages of sound and shards.");
+			msg_print("You are no longer protected against the ravages of sound and shards.");
 			notice = TRUE;
 		}
 	}
 
 	/* Use the value */
-        p_ptr->oppose_ss = v;
+	p_ptr->oppose_ss = v;
 
 	/* Nothing to notice */
 	if (!notice)
@@ -794,9 +829,9 @@ bool set_oppose_nex(int v)
 	/* Open */
 	if (v)
 	{
-                if (!p_ptr->oppose_nex)
+		if (!p_ptr->oppose_nex)
 		{
-                        msg_print("You feel protected against the strange forces of nexus.");
+			msg_print("You feel protected against the strange forces of nexus.");
 			notice = TRUE;
 		}
 	}
@@ -804,15 +839,15 @@ bool set_oppose_nex(int v)
 	/* Shut */
 	else
 	{
-                if (p_ptr->oppose_nex)
+		if (p_ptr->oppose_nex)
 		{
-                        msg_print("You are no longer protected against the strange forces of nexus.");
+			msg_print("You are no longer protected against the strange forces of nexus.");
 			notice = TRUE;
 		}
 	}
 
 	/* Use the value */
-        p_ptr->oppose_nex = v;
+	p_ptr->oppose_nex = v;
 
 	/* Nothing to notice */
 	if (!notice)
@@ -843,10 +878,10 @@ bool set_mimic(int v, int p)
 	/* Open */
 	if (v)
 	{
-                if (!p_ptr->tim_mimic)
+		if (!p_ptr->tim_mimic)
 		{
-                        msg_print("You feel your body change.");
-                        p_ptr->mimic_form=p;
+			msg_print("You feel your body change.");
+			p_ptr->mimic_form=p;
 			notice = TRUE;
 		}
 	}
@@ -854,31 +889,29 @@ bool set_mimic(int v, int p)
 	/* Shut */
 	else
 	{
-                if (p_ptr->tim_mimic)
+		if (p_ptr->tim_mimic)
 		{
-                        msg_print("You are no longer transformed.");
-                        p_ptr->mimic_form=0;
+			msg_print("You are no longer transformed.");
+			p_ptr->mimic_form=0;
 			notice = TRUE;
 			p = 0;
 		}
 	}
 
 	/* Use the value */
-        p_ptr->tim_mimic = v;
+	p_ptr->tim_mimic = v;
 
 	/* Nothing to notice */
-	if (!notice)
-		return (FALSE);
+	if (!notice) return (FALSE);
 
 	/* Disturb */
-	if (disturb_state)
-		disturb(0, 0);
+	if (disturb_state) disturb(0, 0);
 
-        /* Redraw title */
-        p_ptr->redraw |= (PR_TITLE);
+	/* Redraw title */
+	p_ptr->redraw |= (PR_TITLE);
 
 	/* Recalculate bonuses */
-        p_ptr->update |= (PU_BONUS | PU_SANITY);
+	p_ptr->update |= (PU_BODY | PU_BONUS | PU_SANITY);
 
 	/* Result */
 	return (TRUE);
@@ -965,9 +998,9 @@ bool set_lite(int v)
 	/* Open */
 	if (v)
 	{
-                if (!p_ptr->tim_lite)
+		if (!p_ptr->tim_lite)
 		{
-                        msg_print("You suddenly seem brighter!");
+			msg_print("You suddenly seem brighter!");
 			notice = TRUE;
 		}
 	}
@@ -975,15 +1008,15 @@ bool set_lite(int v)
 	/* Shut */
 	else
 	{
-                if (p_ptr->tim_lite)
+		if (p_ptr->tim_lite)
 		{
-                        msg_print("You are no longer bright.");
+			msg_print("You are no longer bright.");
 			notice = TRUE;
 		}
 	}
 
 	/* Use the value */
-        p_ptr->tim_lite = v;
+	p_ptr->tim_lite = v;
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
@@ -992,7 +1025,7 @@ bool set_lite(int v)
 	if (disturb_state) disturb(0, 0);
 
 	/* Fully update the visuals */
-        p_ptr->update |= (PU_VIEW | PU_LITE | PU_MONSTERS);
+	p_ptr->update |= (PU_VIEW | PU_LITE | PU_MONSTERS);
 
 	/* Redraw map */
 	p_ptr->redraw |= (PR_MAP);
@@ -1224,7 +1257,7 @@ bool set_image(int v)
 	{
 		if (!p_ptr->image)
 		{
-            msg_print("Oh, wow! Everything looks so cosmic now!");
+			msg_print("Oh, wow! Everything looks so cosmic now!");
 			notice = TRUE;
 		}
 	}
@@ -1277,9 +1310,9 @@ bool set_light_speed(int v)
 	/* Open */
 	if (v)
 	{
-                if (!p_ptr->lightspeed)
+		if (!p_ptr->lightspeed)
 		{
-                        msg_print("You feel as if time has stopped!");
+			msg_print("You feel as if time has stopped!");
 			notice = TRUE;
 		}
 	}
@@ -1287,15 +1320,15 @@ bool set_light_speed(int v)
 	/* Shut */
 	else
 	{
-                if (p_ptr->lightspeed)
+		if (p_ptr->lightspeed)
 		{
-                        msg_print("You feel time returning to its normal rate.");
+			msg_print("You feel time returning to its normal rate.");
 			notice = TRUE;
 		}
 	}
 
 	/* Use the value */
-        p_ptr->lightspeed = v;
+	p_ptr->lightspeed = v;
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
@@ -1425,7 +1458,7 @@ bool set_shield(int v, int p, s16b o)
 	{
 		if (!p_ptr->shield)
 		{
-                        msg_print("Your skin turns to stone.");
+			msg_print("Your skin turns to stone.");
 			notice = TRUE;
 		}
 	}
@@ -1435,16 +1468,16 @@ bool set_shield(int v, int p, s16b o)
 	{
 		if (p_ptr->shield)
 		{
-                        msg_print("Your skin returns to normal.");
+			msg_print("Your skin returns to normal.");
 			notice = TRUE;
-                        p = 0;
+			p = 0;
 		}
 	}
 
 	/* Use the value */
 	p_ptr->shield = v;
-        p_ptr->shield_power = p;
-        p_ptr->shield_opt = o;
+	p_ptr->shield_power = p;
+	p_ptr->shield_opt = o;
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
@@ -1579,9 +1612,9 @@ bool set_holy(int v)
 	/* Open */
 	if (v)
 	{
-                if (!p_ptr->holy)
+		if (!p_ptr->holy)
 		{
-                        msg_print("You feel a holy aura around you!");
+			msg_print("You feel a holy aura around you!");
 			notice = TRUE;
 		}
 	}
@@ -1589,15 +1622,15 @@ bool set_holy(int v)
 	/* Shut */
 	else
 	{
-                if (p_ptr->holy)
+		if (p_ptr->holy)
 		{
-                        msg_print("The holy aura vanishes.");
+			msg_print("The holy aura vanishes.");
 			notice = TRUE;
 		}
 	}
 
 	/* Use the value */
-        p_ptr->holy = v;
+	p_ptr->holy = v;
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
@@ -1609,7 +1642,7 @@ bool set_holy(int v)
 	p_ptr->update |= (PU_BONUS);
 
 	/* Recalculate hitpoints */
-        p_ptr->update |= (PU_LITE);
+	p_ptr->update |= (PU_LITE);
 
 	/* Handle stuff */
 	handle_stuff();
@@ -1631,9 +1664,9 @@ bool set_walk_water(int v)
 	/* Open */
 	if (v)
 	{
-                if (!p_ptr->walk_water)
+		if (!p_ptr->walk_water)
 		{
-                        msg_print("You feel strangely insubmersible!");
+			msg_print("You feel strangely insubmersible!");
 			notice = TRUE;
 		}
 	}
@@ -1641,15 +1674,15 @@ bool set_walk_water(int v)
 	/* Shut */
 	else
 	{
-                if (p_ptr->walk_water)
+		if (p_ptr->walk_water)
 		{
-                        msg_print("You are no longer insubmersible.");
+			msg_print("You are no longer insubmersible.");
 			notice = TRUE;
 		}
 	}
 
 	/* Use the value */
-        p_ptr->walk_water = v;
+	p_ptr->walk_water = v;
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
@@ -1685,15 +1718,15 @@ bool set_shero(int v)
 			msg_print("You feel like a killing machine!");
 			notice = TRUE;
 
-                        /* Redraw map */
-                        p_ptr->redraw |= (PR_MAP);
+			/* Redraw map */
+			p_ptr->redraw |= (PR_MAP);
 
-                        /* Update monsters */
-                        p_ptr->update |= (PU_MONSTERS);
+			/* Update monsters */
+			p_ptr->update |= (PU_MONSTERS);
 
-                        /* Window stuff */
-                        p_ptr->window |= (PW_OVERHEAD);
-                }
+			/* Window stuff */
+			p_ptr->window |= (PW_OVERHEAD);
+		}
 	}
 
 	/* Shut */
@@ -1704,14 +1737,14 @@ bool set_shero(int v)
 			msg_print("You feel less Berserk.");
 			notice = TRUE;
 
-                        /* Redraw map */
-                        p_ptr->redraw |= (PR_MAP);
+			/* Redraw map */
+			p_ptr->redraw |= (PR_MAP);
 
-                        /* Update monsters */
-                        p_ptr->update |= (PU_MONSTERS);
+			/* Update monsters */
+			p_ptr->update |= (PU_MONSTERS);
 
-                        /* Window stuff */
-                        p_ptr->window |= (PW_OVERHEAD);
+			/* Window stuff */
+			p_ptr->window |= (PW_OVERHEAD);
 		}
 	}
 
@@ -1843,9 +1876,9 @@ bool set_protundead(int v)
 	/* Open */
 	if (v)
 	{
-                if (!p_ptr->protundead)
+		if (!p_ptr->protundead)
 		{
-                        msg_print("You feel safe from undead!");
+			msg_print("You feel safe from undead!");
 			notice = TRUE;
 		}
 	}
@@ -1853,15 +1886,15 @@ bool set_protundead(int v)
 	/* Shut */
 	else
 	{
-                if (p_ptr->protundead)
+		if (p_ptr->protundead)
 		{
-                        msg_print("You no longer feel safe from undead.");
+			msg_print("You no longer feel safe from undead.");
 			notice = TRUE;
 		}
 	}
 
 	/* Use the value */
-        p_ptr->protundead = v;
+	p_ptr->protundead = v;
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
@@ -1889,47 +1922,47 @@ bool set_shadow(int v)
 	/* Open */
 	if (v)
 	{
-        if (!p_ptr->tim_wraith)
+		if (!p_ptr->tim_wraith)
 		{
 
-            msg_print("You leave the physical world and turn into a wraith-being!");
+			msg_print("You leave the physical world and turn into a wraith-being!");
 			notice = TRUE;
 
-            {
-                /* Redraw map */
-                p_ptr->redraw |= (PR_MAP);
+			{
+				/* Redraw map */
+				p_ptr->redraw |= (PR_MAP);
 
-                /* Update monsters */
-                p_ptr->update |= (PU_MONSTERS);
+				/* Update monsters */
+				p_ptr->update |= (PU_MONSTERS);
 
-                /* Window stuff */
-                p_ptr->window |= (PW_OVERHEAD);
-            }
+				/* Window stuff */
+				p_ptr->window |= (PW_OVERHEAD);
+			}
 		}
 	}
 
 	/* Shut */
 	else
 	{
-        if (p_ptr->tim_wraith)
+		if (p_ptr->tim_wraith)
 		{
-            msg_print("You feel opaque.");
+			msg_print("You feel opaque.");
 			notice = TRUE;
-            {
-                /* Redraw map */
-                p_ptr->redraw |= (PR_MAP);
+			{
+				/* Redraw map */
+				p_ptr->redraw |= (PR_MAP);
 
-                /* Update monsters */
-                p_ptr->update |= (PU_MONSTERS);
+				/* Update monsters */
+				p_ptr->update |= (PU_MONSTERS);
 
-                /* Window stuff */
-                p_ptr->window |= (PW_OVERHEAD);
-            }
+				/* Window stuff */
+				p_ptr->window |= (PW_OVERHEAD);
+			}
 		}
 	}
 
 	/* Use the value */
-    p_ptr->tim_wraith = v;
+	p_ptr->tim_wraith = v;
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
@@ -1970,19 +2003,19 @@ bool set_invuln(int v)
 		if (!p_ptr->invuln)
 		{
 
-            msg_print("Invulnerability!");
+			msg_print("Invulnerability!");
 			notice = TRUE;
 
-            {
-                /* Redraw map */
-                p_ptr->redraw |= (PR_MAP);
+			{
+				/* Redraw map */
+				p_ptr->redraw |= (PR_MAP);
 
-                /* Update monsters */
-                p_ptr->update |= (PU_MONSTERS);
+				/* Update monsters */
+				p_ptr->update |= (PU_MONSTERS);
 
-                /* Window stuff */
-                p_ptr->window |= (PW_OVERHEAD);
-            }
+				/* Window stuff */
+				p_ptr->window |= (PW_OVERHEAD);
+			}
 		}
 	}
 
@@ -1991,18 +2024,18 @@ bool set_invuln(int v)
 	{
 		if (p_ptr->invuln)
 		{
-            msg_print("The invulnerability wears off.");
+			msg_print("The invulnerability wears off.");
 			notice = TRUE;
-            {
-                /* Redraw map */
-                p_ptr->redraw |= (PR_MAP);
+			{
+				/* Redraw map */
+				p_ptr->redraw |= (PR_MAP);
 
-                /* Update monsters */
-                p_ptr->update |= (PU_MONSTERS);
+				/* Update monsters */
+				p_ptr->update |= (PU_MONSTERS);
 
-                /* Window stuff */
-                p_ptr->window |= (PW_OVERHEAD);
-            }
+				/* Window stuff */
+				p_ptr->window |= (PW_OVERHEAD);
+			}
 		}
 	}
 
@@ -2044,9 +2077,9 @@ bool set_tim_esp(int v)
 	/* Open */
 	if (v)
 	{
-        if (!p_ptr->tim_esp)
+		if (!p_ptr->tim_esp)
 		{
-            msg_print("You feel your consciousness expand!");
+			msg_print("You feel your consciousness expand!");
 			notice = TRUE;
 		}
 	}
@@ -2054,15 +2087,15 @@ bool set_tim_esp(int v)
 	/* Shut */
 	else
 	{
-        if (p_ptr->tim_esp)
+		if (p_ptr->tim_esp)
 		{
-            msg_print("Your consciousness contracts again.");
+			msg_print("Your consciousness contracts again.");
 			notice = TRUE;
 		}
 	}
 
 	/* Use the value */
-    p_ptr->tim_esp = v;
+	p_ptr->tim_esp = v;
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
@@ -2202,9 +2235,9 @@ bool set_mental_barrier(int v)
 	/* Open */
 	if (v)
 	{
-                if (!p_ptr->tim_mental_barrier)
+		if (!p_ptr->tim_mental_barrier)
 		{
-                        msg_print("Your mind grows stronger!");
+			msg_print("Your mind grows stronger!");
 			notice = TRUE;
 		}
 	}
@@ -2212,15 +2245,15 @@ bool set_mental_barrier(int v)
 	/* Shut */
 	else
 	{
-                if (p_ptr->tim_mental_barrier)
+		if (p_ptr->tim_mental_barrier)
 		{
-                        msg_print("Your mind is no longer especially strong.");
+			msg_print("Your mind is no longer especially strong.");
 			notice = TRUE;
 		}
 	}
 
 	/* Use the value */
-        p_ptr->tim_mental_barrier = v;
+	p_ptr->tim_mental_barrier = v;
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
@@ -2484,8 +2517,7 @@ bool set_stun(int v)
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
-    if (p_ptr->prace == RACE_ENT)
-        v = 0;
+	if (PRACE_FLAG(PR1_NO_STUN)) v = 0;
 
 	/* Knocked out */
 	if (p_ptr->stun > 100)
@@ -2557,24 +2589,24 @@ bool set_stun(int v)
 			break;
 		}
 
-        if (randint(1000)<v || randint(16)==1)
-        {
+		if (randint(1000)<v || randint(16)==1)
+		{
 
-            msg_print("A vicious blow hits your head.");
-            if(randint(3)==1)
-            {
-                if (!p_ptr->sustain_int) { (void) do_dec_stat(A_INT, STAT_DEC_NORMAL); }
-                if (!p_ptr->sustain_wis) { (void) do_dec_stat(A_WIS, STAT_DEC_NORMAL); }
-            }
-            else if (randint(2)==1)
-            {
-                if (!p_ptr->sustain_int) { (void) do_dec_stat(A_INT, STAT_DEC_NORMAL); }
-            }
-            else
-            {
-                if (!p_ptr->sustain_wis) { (void) do_dec_stat(A_WIS, STAT_DEC_NORMAL); }
-            }
-        }
+			msg_print("A vicious blow hits your head.");
+			if(randint(3)==1)
+			{
+				if (!p_ptr->sustain_int) { (void) do_dec_stat(A_INT, STAT_DEC_NORMAL); }
+				if (!p_ptr->sustain_wis) { (void) do_dec_stat(A_WIS, STAT_DEC_NORMAL); }
+			}
+			else if (randint(2)==1)
+			{
+				if (!p_ptr->sustain_int) { (void) do_dec_stat(A_INT, STAT_DEC_NORMAL); }
+			}
+			else
+			{
+				if (!p_ptr->sustain_wis) { (void) do_dec_stat(A_WIS, STAT_DEC_NORMAL); }
+			}
+		}
 
 		/* Notice */
 		notice = TRUE;
@@ -2634,10 +2666,9 @@ bool set_cut(int v)
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
-        if ((p_ptr->pracem == RMOD_SPECTRE) || (p_ptr->pracem == RMOD_SKELETON))
-                v = 0;
+	if (PRACE_FLAG(PR1_NO_CUT)) v = 0;
 
-        /* Mortal wound */
+	/* Mortal wound */
 	if (p_ptr->cut > 1000)
 	{
 		old_aux = 7;
@@ -2778,16 +2809,15 @@ bool set_cut(int v)
 		/* Notice */
 		notice = TRUE;
 
-    if (randint(1000)<v || randint(16)==1)
-        { 
-            if(!p_ptr->sustain_chr)
-            {
-            msg_print("You have been horribly scarred.");
+		if (randint(1000)<v || randint(16)==1)
+		{ 
+			if(!p_ptr->sustain_chr)
+			{
+				msg_print("You have been horribly scarred.");
 
-            do_dec_stat(A_CHR, STAT_DEC_NORMAL);
-            }
-        }
-
+				do_dec_stat(A_CHR, STAT_DEC_NORMAL);
+			}
+		}
 	}
 
 	/* Decrease cut */
@@ -2829,6 +2859,17 @@ bool set_cut(int v)
 	return (TRUE);
 }
 
+void drop_from_wild()
+{
+        if (p_ptr->wild_mode && (!dun_level))
+        {
+                p_ptr->wilderness_x = px;
+                p_ptr->wilderness_y = py;
+                change_wild_mode();
+                p_ptr->energy = 100;
+                energy_use = 0;
+        }
+}
 
 /*
  * Set "p_ptr->food", notice observable changes
@@ -2977,12 +3018,14 @@ bool set_food(int v)
 		{
 			/* Fainting / Starving */
 			case 0:
-			msg_print("You are getting faint from hunger!");
+                                msg_print("You are getting faint from hunger!");
+                                drop_from_wild();
 			break;
 
 			/* Weak */
 			case 1:
-			msg_print("You are getting weak from hunger!");
+                                msg_print("You are getting weak from hunger!");
+                                drop_from_wild();
 			break;
 
 			/* Hungry */
@@ -3097,7 +3140,7 @@ void check_experience(void)
 		if (p_ptr->lev > p_ptr->max_plv)
 		{
 			p_ptr->max_plv = p_ptr->lev;
-			if (p_ptr->pclass == CLASS_CHAOS_WARRIOR)
+			if (PRACE_FLAGS(PR1_CHAOS_GOD))
 			{
 				level_reward = TRUE;
 			}
@@ -3105,7 +3148,7 @@ void check_experience(void)
 			{
 				level_reward = TRUE;
 			}
-                        if ((p_ptr->pracem == RMOD_MUTANT) &&
+                        if ((PRACE_FLAG(PR1_CORRUPT)) &&
                             (randint(3) == 1))
                         {
                                 level_corruption = TRUE;
@@ -3160,7 +3203,7 @@ void check_experience(void)
 	}
 
         /* Hook it ! */
-        process_hooks(HOOK_PLAYER_LEVEL, 0);
+        process_hooks(HOOK_PLAYER_LEVEL, "()");
 }
 /*
  * Advance experience levels and print experience
@@ -3236,7 +3279,7 @@ void gain_exp(s32b amount)
                 }
         }
 
-	  if ((p_ptr->max_exp > 0) && (p_ptr->pracem == RMOD_MUTANT))
+          if ((p_ptr->max_exp > 0) && (PRACE_FLAG(PR1_CORRUPT)))
 	  {
 		if ((randint(p_ptr->max_exp) < amount) || (randint(12000000) < amount))
 		{
@@ -3382,7 +3425,7 @@ void place_corpse(monster_type *m_ptr)
                 i_ptr->name1 = 201;
      	}
 
-      i_ptr->pval = 0;
+        i_ptr->pval = 0;
 
 		/* Set weight */
         i_ptr->weight = (r_ptr->weight / 4 + rand_int(r_ptr->weight) / 40) + 1;
@@ -3421,6 +3464,7 @@ void place_corpse(monster_type *m_ptr)
 
       /* Remember what we are */
         i_ptr->pval2 = m_ptr->r_idx;
+        i_ptr->pval3 = m_ptr->ego;
 
 		/* Drop it in the dungeon */
 		drop_near(i_ptr, -1, y, x);
@@ -3448,6 +3492,7 @@ void place_corpse(monster_type *m_ptr)
 
 		/* Remember what we are */
                 i_ptr->pval2 = m_ptr->r_idx;
+                i_ptr->pval3 = m_ptr->ego;
 
 		/* Drop it in the dungeon */
 		drop_near(i_ptr, -1, y, x);
@@ -3473,7 +3518,7 @@ void place_corpse(monster_type *m_ptr)
 void monster_death(int m_idx)
 {
         int i, y, x, ny, nx;
-
+        
 	int dump_item = 0;
 	int dump_gold = 0;
 
@@ -3498,7 +3543,7 @@ void monster_death(int m_idx)
 	x = m_ptr->fx;
 
         /* Process the appropriate hooks */
-        process_hooks(HOOK_MONSTER_DEATH, m_idx);
+        process_hooks(HOOK_MONSTER_DEATH, "(d)", m_idx);
 
         /* If companion dies, take note */
         if (m_ptr->status == MSTATUS_COMPANION) p_ptr->companion_killed++;
@@ -3770,7 +3815,7 @@ void monster_death(int m_idx)
                         create_artifact(q_ptr, TRUE, FALSE);
 
                         /* Save the inscription */
-                        q_ptr->art_name = quark_add(format("(%s)", r_name + r_ptr->name));
+                        q_ptr->art_name = quark_add(format("of %s", r_name + r_ptr->name));
 
 			/* Drop it in the dungeon */
 			drop_near(q_ptr, -1, y, x);
@@ -4137,26 +4182,29 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		/* Maximum player level */
 		div = p_ptr->max_plv;
 
-		/* Give some experience for the kill */
-                new_exp = ((long)r_ptr->mexp * m_ptr->level) / div;
+                if (m_ptr->status < MSTATUS_FRIEND)
+                {
+                        /* Give some experience for the kill */
+                        new_exp = ((long)r_ptr->mexp * m_ptr->level) / div;
 
-		/* Handle fractional experience */
-                new_exp_frac = ((((long)r_ptr->mexp * m_ptr->level) % div)
-		                * 0x10000L / div) + p_ptr->exp_frac;
+                        /* Handle fractional experience */
+                        new_exp_frac = ((((long)r_ptr->mexp * m_ptr->level) % div)
+                                        * 0x10000L / div) + p_ptr->exp_frac;
 
-		/* Keep track of experience */
-		if (new_exp_frac >= 0x10000L)
-		{
-			new_exp++;
-			p_ptr->exp_frac = new_exp_frac - 0x10000L;
-		}
-		else
-		{
-			p_ptr->exp_frac = new_exp_frac;
-		}
+                        /* Keep track of experience */
+                        if (new_exp_frac >= 0x10000L)
+                        {
+                                new_exp++;
+                                p_ptr->exp_frac = new_exp_frac - 0x10000L;
+                        }
+                        else
+                        {
+                                p_ptr->exp_frac = new_exp_frac;
+                        }
 
-		/* Gain experience */
-		gain_exp(new_exp);
+                        /* Gain experience */
+                        gain_exp(new_exp);
+                }
 
                 if(!note)
                 {
@@ -4202,6 +4250,38 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 
 		/* Generate treasure */
 		monster_death(m_idx);
+
+		/*
+		 * XXX XXX XXX Mega-Hack -- Remove random quest rendered
+		 * impossible
+		 */
+                if (r_ptr->flags1 & (RF1_UNIQUE))
+		{
+			int i;
+
+			/* Search for all the random quests */
+			for (i = 0; i < MAX_RANDOM_QUEST; i++)
+			{
+				random_quest *q_ptr = &random_quests[i];
+
+				/* Ignore invalid entries */
+				if (q_ptr->type == 0) continue;
+
+				/* It's done */
+				if (q_ptr->done) continue;
+
+				/*
+				 * XXX XXX XXX Not yet completed quest is
+				 * to kill a unique you've just killed
+				 */
+				if (r_ptr == &r_info[q_ptr->r_idx])
+				{
+					/* Invalidate it */
+					q_ptr->type = 0;
+				}
+			}
+		}
+
 
 		/* XXX XXX Mega-Hack -- allow another ghost later
 		 * Remove the slain bone file */
@@ -4400,7 +4480,7 @@ void verify_panel(void)
         panel_bounds();
 
 	/* Hack - merchants detect items */
-	if (p_ptr->pclass == CLASS_MERCHANT)
+	if (cp_ptr->magic_key == MKEY_TELEKINESIS)
 	{
                 hack_no_detect_message = TRUE;
 		detect_objects_normal();
@@ -4772,14 +4852,14 @@ static bool target_set_accept(int y, int x)
 	/* Interesting memorized features */
 	if (c_ptr->info & (CAVE_MARK))
 	{
-                if(f_info[c_ptr->feat].flags1 & FF1_NOTICE) return TRUE;
+		if (f_info[c_ptr->feat].flags1 & FF1_NOTICE) return TRUE;
 	}
 
-        /* Known traps */
-        if (c_ptr->info & (CAVE_TRDT))
-        {
-  		if (c_ptr->t_idx) return TRUE;
-  	}
+	/* Known traps */
+	if (c_ptr->info & (CAVE_TRDT))
+	{
+		if (c_ptr->t_idx) return TRUE;
+	}
 
 	/* Nope */
 	return (FALSE);
@@ -4829,6 +4909,38 @@ static void target_set_prepare(int mode)
 	ang_sort(temp_x, temp_y, temp_n);
 }
 
+bool target_object(int y, int x, int mode, cptr info, bool *boring, object_type *o_ptr, char *out_val, cptr *s1, cptr *s2, cptr *s3, int *query)
+{
+        char o_name[80];
+
+        /* Not boring */
+        *boring = FALSE;
+
+        /* Obtain an object description */
+        object_desc(o_name, o_ptr, TRUE, 3);
+
+        /* Describe the object */
+        sprintf(out_val, "%s%s%s%s [%s]", *s1, *s2, *s3, o_name, info);
+        prt(out_val, 0, 0);
+        move_cursor_relative(y, x);
+        *query = inkey();
+
+        /* Always stop at "normal" keys */
+        if ((*query != '\r') && (*query != '\n') && (*query != ' ')) return (TRUE);
+
+        /* Sometimes stop at "space" key */
+        if ((*query == ' ') && !(mode & (TARGET_LOOK))) return (TRUE);
+
+        /* Change the intro */
+        *s1 = "It is ";
+
+        /* Plurals */
+        if (o_ptr->number != 1) *s1 = "They are ";
+
+        /* Preposition */
+        *s2 = "on ";
+        return (FALSE);
+}
 
 /*
  * Examine a grid, return a keypress.
@@ -4857,7 +4969,7 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 
 	s16b this_o_idx, next_o_idx = 0;
 
-        cptr s1, s2, s3;
+	cptr s1, s2, s3;
 
 	bool boring;
 
@@ -4916,139 +5028,118 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 		if (c_ptr->m_idx)
 		{
 			monster_type *m_ptr = &m_list[c_ptr->m_idx];
-                        monster_race *r_ptr = race_inf(m_ptr);
+			monster_race *r_ptr = race_inf(m_ptr);
 
-			/* Visible */
-			if (m_ptr->ml)
+			/* Mimics special treatment -- looks like an object */
+			if ((r_ptr->flags9 & RF9_MIMIC) && (m_ptr->csleep))
 			{
-				bool recall = FALSE;
+				object_type *o_ptr;
 
-				char m_name[80];
+				/* Acquire object */
+				o_ptr = &o_list[m_ptr->hold_o_idx];
 
-				/* Not boring */
-				boring = FALSE;
-
-				/* Get the monster name ("a kobold") */
-				monster_desc(m_name, m_ptr, 0x08);
-
-				/* Hack -- track this monster race */
-                                monster_race_track(m_ptr->r_idx, m_ptr->ego);
-
-				/* Hack -- health bar for this monster */
-				health_track(c_ptr->m_idx);
-
-				/* Hack -- handle stuff */
-				handle_stuff();
-
-				/* Interact */
-				while (1)
+				if (o_ptr->marked)
 				{
-					/* Recall */
-					if (recall)
-					{
-						/* Save */
-                                                character_icky = TRUE;
-						Term_save();
-
-						/* Recall on screen */
-                                                screen_roff(m_ptr->r_idx, m_ptr->ego, 0);
-
-						/* Hack -- Complete the prompt (again) */
-						Term_addstr(-1, TERM_WHITE, format("  [r,%s]", info));
-					
-						/* Command */
-						query = inkey();
-
-						/* Restore */
-						Term_load();
-                                                character_icky = FALSE;
-					}
-
-					/* Normal */
-					else
-					{
-                                                cptr mstat;
-
-                                                switch (m_ptr->status)
-                                                {
-                                                        case MSTATUS_NEUTRAL:
-                                                        case MSTATUS_NEUTRAL_M:
-                                                        case MSTATUS_NEUTRAL_P:
-                                                                mstat = " (neutral) ";
-                                                                break;
-                                                        case MSTATUS_PET:
-                                                                mstat = " (pet) ";
-                                                                break;
-                                                        case MSTATUS_FRIEND:
-                                                                mstat = " (coaligned) ";
-                                                                break;
-                                                        case MSTATUS_COMPANION:
-                                                                mstat = " (companion) ";
-                                                                break;
-                                                        default:
-                                                                mstat = " ";
-                                                                break;
-                                                }
-
-						/* Describe, and prompt for recall */
-                                                sprintf(out_val, "%s%s%s%s (level %d, %s)%s%s[r,%s]",
-                                                    s1, s2, s3, m_name, m_ptr->level, look_mon_desc(c_ptr->m_idx),
-						    (m_ptr->smart & SM_CLONED ? " (clone)": ""),
-                                                    (mstat), info);
-
-						prt(out_val, 0, 0);
-
-						/* Place cursor */
-						move_cursor_relative(y, x);
-					
-						/* Command */
-						query = inkey();
-					}
-
-					/* Normal commands */
-					if (query != 'r') break;
-
-					/* Toggle recall */
-					recall = !recall;
+					if (target_object(y, x, mode, info, &boring, o_ptr, out_val, &s1, &s2, &s3, &query)) break;
 				}
-
-				/* Always stop at "normal" keys */
-				if ((query != '\r') && (query != '\n') && (query != ' ')) break;
-
-				/* Sometimes stop at "space" key */
-				if ((query == ' ') && !(mode & (TARGET_LOOK))) break;
-
-				/* Change the intro */
-				s1 = "It is ";
-
-				/* Hack -- take account of gender */
-				if (r_ptr->flags1 & (RF1_FEMALE)) s1 = "She is ";
-				else if (r_ptr->flags1 & (RF1_MALE)) s1 = "He is ";
-
-				/* Use a preposition */
-				s2 = "carrying ";
-
-				/* Scan all objects being carried */
-				for (this_o_idx = m_ptr->hold_o_idx; this_o_idx; this_o_idx = next_o_idx)
+			}
+			else
+			{
+				/* Visible */
+				if (m_ptr->ml)
 				{
-					char o_name[80];
+					bool recall = FALSE;
 
-					object_type *o_ptr;
-				
-					/* Acquire object */
-					o_ptr = &o_list[this_o_idx];
+					char m_name[80];
 
-					/* Acquire next object */
-					next_o_idx = o_ptr->next_o_idx;
+					/* Not boring */
+					boring = FALSE;
 
-					/* Obtain an object description */
-					object_desc(o_name, o_ptr, TRUE, 3);
+					/* Get the monster name ("a kobold") */
+					monster_desc(m_name, m_ptr, 0x08);
 
-					/* Describe the object */
-					sprintf(out_val, "%s%s%s%s [%s]", s1, s2, s3, o_name, info);
-					prt(out_val, 0, 0);
-					move_cursor_relative(y, x);
-					query = inkey();
+					/* Hack -- track this monster race */
+					monster_race_track(m_ptr->r_idx, m_ptr->ego);
+
+					/* Hack -- health bar for this monster */
+					health_track(c_ptr->m_idx);
+
+					/* Hack -- handle stuff */
+					handle_stuff();
+
+					/* Interact */
+					while (1)
+					{
+						/* Recall */
+						if (recall)
+						{
+							/* Save */
+							character_icky = TRUE;
+							Term_save();
+
+							/* Recall on screen */
+							screen_roff(m_ptr->r_idx, m_ptr->ego, 0);
+
+							/* Hack -- Complete the prompt (again) */
+							Term_addstr(-1, TERM_WHITE, format("  [r,%s]", info));
+					
+							/* Command */
+							query = inkey();
+
+							/* Restore */
+							Term_load();
+							character_icky = FALSE;
+						}
+
+						/* Normal */
+						else
+						{
+							cptr mstat;
+
+							switch (m_ptr->status)
+							{
+								case MSTATUS_NEUTRAL:
+								case MSTATUS_NEUTRAL_M:
+								case MSTATUS_NEUTRAL_P:
+									mstat = " (neutral) ";
+									break;
+								case MSTATUS_PET:
+									mstat = " (pet) ";
+									break;
+								case MSTATUS_FRIEND:
+									mstat = " (coaligned) ";
+									break;
+								case MSTATUS_COMPANION:
+									mstat = " (companion) ";
+									break;
+								default:
+									mstat = " ";
+									break;
+							}
+
+							/* Describe, and prompt for recall */
+							sprintf(out_val, "%s%s%s%s (level %d, %s%s)%s%s[r,%s]",
+							        s1, s2, s3, m_name,
+									m_ptr->level, look_mon_desc(c_ptr->m_idx),
+									(m_ptr->mflag & MFLAG_QUEST) ? ", quest" : "",
+							        (m_ptr->smart & SM_CLONED ? " (clone)": ""),
+							        (mstat), info);
+
+							prt(out_val, 0, 0);
+
+							/* Place cursor */
+							move_cursor_relative(y, x);
+					
+							/* Command */
+							query = inkey();
+						}
+
+						/* Normal commands */
+						if (query != 'r') break;
+
+						/* Toggle recall */
+						recall = !recall;
+					}
 
 					/* Always stop at "normal" keys */
 					if ((query != '\r') && (query != '\n') && (query != ' ')) break;
@@ -5057,14 +5148,53 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 					if ((query == ' ') && !(mode & (TARGET_LOOK))) break;
 
 					/* Change the intro */
-					s2 = "also carrying ";
+					s1 = "It is ";
+
+					/* Hack -- take account of gender */
+					if (r_ptr->flags1 & (RF1_FEMALE)) s1 = "She is ";
+					else if (r_ptr->flags1 & (RF1_MALE)) s1 = "He is ";
+
+					/* Use a preposition */
+					s2 = "carrying ";
+
+					/* Scan all objects being carried */
+					for (this_o_idx = m_ptr->hold_o_idx; this_o_idx; this_o_idx = next_o_idx)
+					{
+						char o_name[80];
+
+						object_type *o_ptr;
+				
+						/* Acquire object */
+						o_ptr = &o_list[this_o_idx];
+
+						/* Acquire next object */
+						next_o_idx = o_ptr->next_o_idx;
+
+						/* Obtain an object description */
+						object_desc(o_name, o_ptr, TRUE, 3);
+
+						/* Describe the object */
+						sprintf(out_val, "%s%s%s%s [%s]", s1, s2, s3, o_name, info);
+						prt(out_val, 0, 0);
+						move_cursor_relative(y, x);
+						query = inkey();
+
+						/* Always stop at "normal" keys */
+						if ((query != '\r') && (query != '\n') && (query != ' ')) break;
+
+						/* Sometimes stop at "space" key */
+						if ((query == ' ') && !(mode & (TARGET_LOOK))) break;
+
+						/* Change the intro */
+						s2 = "also carrying ";
+					}
+
+					/* Double break */
+					if (this_o_idx) break;
+
+					/* Use a preposition */
+					s2 = "on ";
 				}
-
-				/* Double break */
-				if (this_o_idx) break;
-
-				/* Use a preposition */
-				s2 = "on ";
 			}
 		}
 
@@ -5074,7 +5204,7 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 		for (this_o_idx = c_ptr->o_idx; this_o_idx; this_o_idx = next_o_idx)
 		{
 			object_type *o_ptr;
-		
+
 			/* Acquire object */
 			o_ptr = &o_list[this_o_idx];
 
@@ -5084,34 +5214,7 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 			/* Describe it */
 			if (o_ptr->marked)
 			{
-				char o_name[80];
-
-				/* Not boring */
-				boring = FALSE;
-
-				/* Obtain an object description */
-				object_desc(o_name, o_ptr, TRUE, 3);
-
-				/* Describe the object */
-				sprintf(out_val, "%s%s%s%s [%s]", s1, s2, s3, o_name, info);
-				prt(out_val, 0, 0);
-				move_cursor_relative(y, x);
-				query = inkey();
-
-				/* Always stop at "normal" keys */
-				if ((query != '\r') && (query != '\n') && (query != ' ')) break;
-
-				/* Sometimes stop at "space" key */
-				if ((query == ' ') && !(mode & (TARGET_LOOK))) break;
-
-				/* Change the intro */
-				s1 = "It is ";
-
-				/* Plurals */
-				if (o_ptr->number != 1) s1 = "They are ";
-
-				/* Preposition */
-				s2 = "on ";
+				if (target_object(y, x, mode, info, &boring, o_ptr, out_val, &s1, &s2, &s3, &query)) break;
 			}
 		}
 
@@ -5121,13 +5224,17 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 		/* Actual traps */
 		if ((c_ptr->t_idx) && (c_ptr->info & (CAVE_TRDT)))
 		{
-                        cptr name = "a trap", s4;
+			cptr name = "a trap", s4;
 
 			/* Name trap */
-                        if (t_info[c_ptr->t_idx].ident)
-                                s4 = format("(%s)", t_name + t_info[c_ptr->t_idx].name);
-                        else
-                                s4 = "an unknown trap";
+			if (t_info[c_ptr->t_idx].ident)
+			{
+				s4 = format("(%s)", t_name + t_info[c_ptr->t_idx].name);
+			}
+			else
+			{
+				s4 = "an unknown trap";
+			}
 
 			/* Display a message */
 			sprintf(out_val, "%s%s%s%s [%s]", s1, s2, s3, name, s4);
@@ -5140,13 +5247,17 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 
 			/* Repeat forever */
 			continue;
-                }
+		}
 
 		/* Feature (apply "mimic") */
-                if (c_ptr->mimic)
-                        feat = c_ptr->mimic;
-                else
-                        feat = f_info[c_ptr->feat].mimic;
+		if (c_ptr->mimic)
+		{
+			feat = c_ptr->mimic;
+		}
+		else
+		{
+			feat = f_info[c_ptr->feat].mimic;
+		}
 
 		/* Require knowledge about grid, or ability to see grid */
 		if (!(c_ptr->info & (CAVE_MARK)) && !player_can_see_bold(y,x))
@@ -5161,48 +5272,50 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 			cptr name;
 
 			/* Hack -- special handling for building doors */
-                        if (feat == FEAT_SHOP)
+			if (feat == FEAT_SHOP)
 			{
-                                name = st_name + st_info[c_ptr->special].name;
+				name = st_name + st_info[c_ptr->special].name;
 			}
 			else
 			{
-                                name = f_name + f_info[feat].name;
+				name = f_name + f_info[feat].name;
 			}
 
 			/* Hack -- handle unknown grids */
 			if (feat == FEAT_NONE) name = "unknown grid";
 
-  			/* Pick a prefix */
-                        if (*s2 &&
-                            (((feat >= FEAT_MINOR_GLYPH) &&
-                              (feat <= FEAT_PATTERN_XTRA2)) ||
-                             (feat == FEAT_DIRT) ||
-                             (feat == FEAT_GRASS) ||
-                             (feat == FEAT_FLOWER))) s2 = "on ";
-                        else if (*s2 && (feat == FEAT_SMALL_TREES)) s2 = "by ";
-  			else if (*s2 && (feat >= FEAT_DOOR_HEAD)) s2 = "in ";
-  
-  			/* Pick proper indefinite article */
-  			s3 = (is_a_vowel(name[0])) ? "an " : "a ";
+			/* Pick a prefix */
+			if (*s2 &&
+			    (((feat >= FEAT_MINOR_GLYPH) &&
+				  (feat <= FEAT_PATTERN_XTRA2)) ||
+			     (feat == FEAT_DIRT) ||
+			     (feat == FEAT_GRASS) ||
+			     (feat == FEAT_FLOWER))) s2 = "on ";
+			else if (*s2 && (feat == FEAT_SMALL_TREES)) s2 = "by ";
+			else if (*s2 && (feat >= FEAT_DOOR_HEAD)) s2 = "in ";
 
-                        /* Hack -- special introduction for store & building doors */
-                        if (feat == FEAT_SHOP)
+			/* Pick proper indefinite article */
+			s3 = (is_a_vowel(name[0])) ? "an " : "a ";
+
+			/* Hack -- special introduction for store & building doors */
+			if (feat == FEAT_SHOP)
 			{
 				s3 = "the entrance to the ";
 			}
 
-                        if ((feat == FEAT_MORE) && c_ptr->special)
-                        {
-                                s3 = "";
-                                name = d_text + d_info[c_ptr->special].text;
-                        }
+			if ((feat == FEAT_MORE) && c_ptr->special)
+			{
+				s3 = "";
+				name = d_text + d_info[c_ptr->special].text;
+			}
 
-                        if (p_ptr->wild_mode && (feat == FEAT_TOWN))
-                        {
-                                s3 = "";
-                                name = format("%s(%s)", wf_name + wf_info[wild_map[y][x].feat].name, wf_text + wf_info[wild_map[y][x].feat].text);
-                        }
+			if (p_ptr->wild_mode && (feat == FEAT_TOWN))
+			{
+				s3 = "";
+				name = format("%s(%s)",
+				              wf_name + wf_info[wild_map[y][x].feat].name,
+				              wf_text + wf_info[wild_map[y][x].feat].text);
+			}
 			
 			if ((feat==FEAT_FOUNTAIN) && (c_ptr->info & CAVE_IDNT))
 			{
@@ -5221,14 +5334,20 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 				}
 				
 				k_ptr = &k_info[lookup_kind(tv, sv)];
-                                info = k_name + k_ptr->name;
+				info = k_name + k_ptr->name;
 			}
 			
 			/* Display a message */
-                        if (!wizard)
-                                sprintf(out_val, "%s%s%s%s [%s]", s1, s2, s3, name, info);
-                        else
-                                sprintf(out_val, "%s%s%s%s [%s] (%d:%d:%d)", s1, s2, s3, name, info, c_ptr->feat, c_ptr->mimic, c_ptr->special);
+			if (!wizard)
+			{
+				sprintf(out_val, "%s%s%s%s [%s]", s1, s2, s3, name, info);
+			}
+			else
+			{
+				sprintf(out_val, "%s%s%s%s [%s] (%d:%d:%d)",
+				        s1, s2, s3, name, info,
+				        c_ptr->feat, c_ptr->mimic, c_ptr->special);
+			}
 			prt(out_val, 0, 0);
 			move_cursor_relative(y, x);
 			query = inkey();
@@ -5524,27 +5643,27 @@ bool target_set(int mode)
 				x += ddx[d];
 				y += ddy[d];
 
-                                if (!wizard)
-                                {
-                                        /* Hack -- Verify x */
-                                        if ((x>=cur_wid-1) || (x>panel_col_max)) x--;
-                                        else if ((x <= 0) || (x<panel_col_min)) x++;
+				if (!wizard)
+				{
+					/* Hack -- Verify x */
+					if ((x>=cur_wid-1) || (x>panel_col_max)) x--;
+					else if ((x <= 0) || (x<panel_col_min)) x++;
 
-                                        /* Hack -- Verify y */
-                                        if ((y>=cur_hgt-1) || (y>panel_row_max)) y--;
-                                        else if ((y <= 0) || (y<panel_row_min)) y++;
-                                }
-                                else
-                                {
-                                        /* Hack -- Verify x */
-                                        if ((x > cur_wid-1) || (x > panel_col_max)) x--;
-                                        else if ((x < 0) || (x < panel_col_min)) x++;
+					/* Hack -- Verify y */
+					if ((y>=cur_hgt-1) || (y>panel_row_max)) y--;
+					else if ((y <= 0) || (y<panel_row_min)) y++;
+				}
+				else
+				{
+					/* Hack -- Verify x */
+					if ((x > cur_wid-1) || (x > panel_col_max)) x--;
+					else if ((x < 0) || (x < panel_col_min)) x++;
 
-                                        /* Hack -- Verify y */
-                                        if ((y > cur_hgt-1) || (y > panel_row_max)) y--;
-                                        else if ((y < 0) || (y < panel_row_min)) y++;
-                                }
-        		}
+					/* Hack -- Verify y */
+					if ((y > cur_hgt-1) || (y > panel_row_max)) y--;
+					else if ((y < 0) || (y < panel_row_min)) y++;
+				}
+			}
 		}
 	}
 
@@ -5685,7 +5804,7 @@ bool get_aim_dir(int *dp)
 
 #ifdef ALLOW_REPEAT /* TNB */
 
-    repeat_push(dir);
+	repeat_push(dir);
 
 #endif /* ALLOW_REPEAT -- TNB */
 
@@ -5824,15 +5943,15 @@ void gain_level_reward(int chosen_reward)
 
 
 	sprintf(wrath_reason, "the Wrath of %s",
-		chaos_patrons[p_ptr->chaos_patron]);
+	        chaos_patrons[p_ptr->chaos_patron]);
 
 	effect = chaos_rewards[p_ptr->chaos_patron][type];
 
 	if ((randint(6) == 1) && !chosen_reward)
 	{
-                msg_format("%^s rewards you with a corruption!",
-			chaos_patrons[p_ptr->chaos_patron]);
-                (void)gain_random_corruption(0);
+		msg_format("%^s rewards you with a corruption!",
+		           chaos_patrons[p_ptr->chaos_patron]);
+		(void)gain_random_corruption(0);
 		return;
 	}
 
@@ -5961,9 +6080,11 @@ void gain_level_reward(int chosen_reward)
 			q_ptr->to_h = 3 + (randint(dun_level)) % 10;
 			q_ptr->to_d = 3 + (randint(dun_level)) % 10;
 			random_resistance(q_ptr, FALSE, (randint(34) + 4));
-                        q_ptr->name2 = EGO_CHAOTIC;
-                        /* Apply the ego */
-                        apply_magic(q_ptr, dun_level, FALSE, FALSE, FALSE);
+			q_ptr->name2 = EGO_CHAOTIC;
+
+			/* Apply the ego */
+			apply_magic(q_ptr, dun_level, FALSE, FALSE, FALSE);
+
 			/* Drop it in the dungeon */
 			drop_near(q_ptr, -1, py, px);
 			break;
@@ -6242,7 +6363,7 @@ bool gain_random_corruption(int choose_mut)
 	
 	if (choose_mut) attempts_left = 1;
 
-        p_ptr->update |= PU_BONUS;
+	p_ptr->update |= PU_BONUS;
 
 	while (attempts_left--)
 	{
@@ -6250,7 +6371,7 @@ bool gain_random_corruption(int choose_mut)
 		{
 		case 1: case 2: case 3: case 4:
 			muta_class = &(p_ptr->muta1);
-                        muta_which = MUT1_SPIT_ACID;
+			muta_which = MUT1_SPIT_ACID;
 			break;
 		case 5: case 6: case 7:
 			muta_class = &(p_ptr->muta1);
@@ -6358,7 +6479,7 @@ bool gain_random_corruption(int choose_mut)
 			break;
 		case 65: case 66: case 67:
 			muta_class = &(p_ptr->muta1);
-                        muta_which = MUT1_DARKRAY;
+			muta_which = MUT1_DARKRAY;
 			break;
 		case 68: case 69:
 			muta_class = &(p_ptr->muta1);
@@ -6414,7 +6535,7 @@ bool gain_random_corruption(int choose_mut)
 		case 83: case 84:
 			muta_class = &(p_ptr->muta2);
 			muta_which = MUT2_HORNS;
-                        muta_desc = "Horns pop forth from your forehead!";
+			muta_desc = "Horns pop forth from your forehead!";
 			break;
 		case 85: case 86:
 			muta_class = &(p_ptr->muta2);
@@ -6718,24 +6839,24 @@ bool gain_random_corruption(int choose_mut)
 	}
 	else
 	{
-                if (p_ptr->pracem == RMOD_VAMPIRE &&
-		  !(p_ptr->muta1 & MUT1_HYPN_GAZE) &&
-		   (randint(10)<7))
+		if (PRACE_FLAG(PR1_VAMPIRE) &&
+		    !(p_ptr->muta1 & MUT1_HYPN_GAZE) &&
+		    (randint(10)<7))
 		{
 			muta_class = &(p_ptr->muta1);
 			muta_which = MUT1_HYPN_GAZE;
 		}
 
-                if (p_ptr->pclass == CLASS_SYMBIANT &&
-                  !(p_ptr->muta1 & MUT1_GROW_MOLD) &&
-		   (randint(10)<7))
+		if (PRACE_FLAGS(PR1_MOLD_FRIEND) &&
+		    !(p_ptr->muta1 & MUT1_GROW_MOLD) &&
+		    (randint(10)<7))
 		{
 			muta_class = &(p_ptr->muta1);
-                        muta_which = MUT1_GROW_MOLD;
+			muta_which = MUT1_GROW_MOLD;
 		}
 
-                msg_print("You get corrupted by the dark powers of Morgoth!");
-                if (muta_class != &(p_ptr->muta1)) msg_print(muta_desc);
+		msg_print("You get corrupted by the dark powers of Morgoth!");
+		if (muta_class != &(p_ptr->muta1)) msg_print(muta_desc);
 		*(muta_class) |= muta_which;
 		p_ptr->update |= PU_BONUS;
 		handle_stuff();
@@ -6885,7 +7006,7 @@ bool lose_corruption(int choose_mut)
 	
 	if (choose_mut) attempts_left = 1;
 
-        p_ptr->update |= PU_BONUS;
+	p_ptr->update |= PU_BONUS;
 
 	while (attempts_left--)
 	{
@@ -6922,7 +7043,7 @@ bool lose_corruption(int choose_mut)
 		case 19: case 20:
 			muta_class = &(p_ptr->muta1);
 			muta_which = MUT1_VAMPIRISM;
-                        break;
+			break;
 		case 21: case 22: case 23:
 			muta_class = &(p_ptr->muta1);
 			muta_which = MUT1_SMELL_MET;
@@ -7001,7 +7122,7 @@ bool lose_corruption(int choose_mut)
 			break;
 		case 65: case 66: case 67:
 			muta_class = &(p_ptr->muta1);
-                        muta_which = MUT1_DARKRAY;
+			muta_which = MUT1_DARKRAY;
 			break;
 		case 68: case 69:
 			muta_class = &(p_ptr->muta1);
@@ -7037,7 +7158,7 @@ bool lose_corruption(int choose_mut)
 		case 78:
 			muta_class = &(p_ptr->muta2);
 			muta_which = MUT2_ALCOHOL;
-                        muta_desc = "Your body stops producing alcohol!";
+			muta_desc = "Your body stops producing alcohol!";
 			break;
 		case 79:
 			muta_class = &(p_ptr->muta2);
@@ -7362,10 +7483,10 @@ bool lose_corruption(int choose_mut)
 	else
 	{
 		msg_print(muta_desc);
-                if (muta_class != &(p_ptr->muta1)) msg_print(muta_desc);
+		if (muta_class != &(p_ptr->muta1)) msg_print(muta_desc);
 		*(muta_class) &= ~(muta_which);
 		
-                p_ptr->update |= PU_BONUS;
+		p_ptr->update |= PU_BONUS;
 		handle_stuff();
 		return TRUE;
 	}
@@ -7584,9 +7705,9 @@ void dump_corruptions(FILE * OutFile)
 		{
 			fprintf(OutFile, " You can emit confusing, blinding radiation.\n");
 		}
-                if (p_ptr->muta1 & MUT1_DARKRAY)
+		if (p_ptr->muta1 & MUT1_DARKRAY)
 		{
-                        fprintf(OutFile, " You can create a spear of darkness.\n");
+			fprintf(OutFile, " You can create a spear of darkness.\n");
 		}
 		if (p_ptr->muta1 & MUT1_RECALL)
 		{
@@ -7682,7 +7803,7 @@ void dump_corruptions(FILE * OutFile)
 		}
 		if (p_ptr->muta2 & MUT2_NORMALITY)
 		{
-                        fprintf(OutFile, " You may be corrupted, but you're recovering.\n");
+			fprintf(OutFile, " You may be corrupted, but you're recovering.\n");
 		}
 		if (p_ptr->muta2 & MUT2_WRAITH)
 		{
@@ -7874,59 +7995,65 @@ void dump_corruptions(FILE * OutFile)
 /*
  * Set "p_ptr->grace", notice observable changes
  */
-void set_grace(s32b v) {
-  p_ptr->grace = v;
-  p_ptr->update |= PU_BONUS;
-  handle_stuff();
+void set_grace(s32b v)
+{
+	p_ptr->grace = v;
+	p_ptr->update |= PU_BONUS;
+	handle_stuff();
 }
 
 /*
  * Show religious info.
  */
 
-bool show_god_info(bool ext) {
-  int badness = interpret_grace();
-  int pgod = p_ptr->pgod - 1;
-  int tmp;
+bool show_god_info(bool ext)
+{
+	int badness = interpret_grace();
+	int pgod = p_ptr->pgod - 1;
+	int tmp;
 
-  deity *d_ptr;
+	deity *d_ptr;
 
-  if (pgod < 0) {
-    msg_print("You don't worship anyone.");
-    msg_print(NULL);
-    return FALSE;
+	if (pgod < 0)
+	{
+		msg_print("You don't worship anyone.");
+		msg_print(NULL);
+		return FALSE;
+	}
+	else
+	{
+		d_ptr = &deity_info[pgod];
 
-  } else {
-    d_ptr = &deity_info[pgod];
+		msg_print(NULL);
 
-    msg_print(NULL);
+		character_icky = TRUE;
+		Term_save();
 
-    character_icky = TRUE;
-    Term_save();
+		roff(format("You worship %s, the %s deity of %s. ", d_ptr->name,
+		            deity_rarity[d_ptr->rarity], d_ptr->god_of));
+		roff(format("%s is %s, and you are %s by him/her. ", d_ptr->name,
+		            deity_niceness[d_ptr->grace_deduction],
+		            deity_standing[badness]));
+		if (noscore)
+			roff(format("Your current grace is %d, and god's favor is %d. ",
+			            p_ptr->grace, p_ptr->god_favor));
+		roff("\n");
 
-    roff(format("You worship %s, the %s deity of %s. ", d_ptr->name,
-                deity_rarity[d_ptr->rarity], d_ptr->god_of));
-    roff(format("%s is %s, and you are %s by him/her. ", d_ptr->name,
-               deity_niceness[d_ptr->grace_deduction],
-               deity_standing[badness]));
-    if (noscore)
-       roff(format("Your current grace is %d, and god's favor is %d. ",
-       p_ptr->grace, p_ptr->god_favor));
-    roff("\n");
+		if (ext || noscore)
+		{
+			int fav = badness - interpret_favor();
 
-    if (ext || noscore) {
-      int fav = badness - interpret_favor();
+			roff(format("It is %s that your prayers will be answered.\n",
+			            favor_text[fav]));
+		}
 
-      roff(format("It is %s that your prayers will be answered.\n", favor_text[fav]));
-    }
+		tmp = inkey();
 
-    tmp = inkey();
+		Term_load();
+		character_icky = FALSE;
+	}
 
-    Term_load();
-    character_icky = FALSE;
-  }
-
-  return TRUE;
+	return TRUE;
 }
 
 /*
@@ -7936,22 +8063,23 @@ bool show_god_info(bool ext) {
  * and 8-10 mean ``blessed''.
  */
 
-int interpret_grace(void) {
-  if (p_ptr->grace <      -60000) return 0;
-  else if (p_ptr->grace < -50000) return 1;
-  else if (p_ptr->grace < -40000) return 2;
-  else if (p_ptr->grace < -30000) return 3;
-  else if (p_ptr->grace < -20000) return 4;
-  else if (p_ptr->grace < -10000) return 5;
-  else if (p_ptr->grace <      0) return 6;
+int interpret_grace(void)
+{
+	if (p_ptr->grace <      -60000) return 0;
+	else if (p_ptr->grace < -50000) return 1;
+	else if (p_ptr->grace < -40000) return 2;
+	else if (p_ptr->grace < -30000) return 3;
+	else if (p_ptr->grace < -20000) return 4;
+	else if (p_ptr->grace < -10000) return 5;
+	else if (p_ptr->grace <      0) return 6;
 
-  else if (p_ptr->grace >  20000) return 10;
-  else if (p_ptr->grace >  10000) return 9;
-  else if (p_ptr->grace >   5000) return 8;
-  else if (p_ptr->grace >      0) return 7;
+	else if (p_ptr->grace >  20000) return 10;
+	else if (p_ptr->grace >  10000) return 9;
+	else if (p_ptr->grace >   5000) return 8;
+	else if (p_ptr->grace >      0) return 7;
 
-  /* Should never happen! */
-  return -1;
+	/* Should never happen! */
+	return -1;
 }
 
 
@@ -7959,22 +8087,23 @@ int interpret_grace(void) {
  * Same as interpret_grace, but for p_ptr->god_favor.
  */
 
-int interpret_favor(void) {
-  if (p_ptr->god_favor <      -60000) return 0;
-  else if (p_ptr->god_favor < -50000) return 1;
-  else if (p_ptr->god_favor < -40000) return 2;
-  else if (p_ptr->god_favor < -30000) return 3;
-  else if (p_ptr->god_favor < -20000) return 4;
-  else if (p_ptr->god_favor < -10000) return 5;
-  else if (p_ptr->god_favor <      0) return 6;
+int interpret_favor(void)
+{
+	if (p_ptr->god_favor <      -60000) return 0;
+	else if (p_ptr->god_favor < -50000) return 1;
+	else if (p_ptr->god_favor < -40000) return 2;
+	else if (p_ptr->god_favor < -30000) return 3;
+	else if (p_ptr->god_favor < -20000) return 4;
+	else if (p_ptr->god_favor < -10000) return 5;
+	else if (p_ptr->god_favor <      0) return 6;
 
-  else if (p_ptr->god_favor >  20000) return 10;
-  else if (p_ptr->god_favor >  10000) return 9;
-  else if (p_ptr->god_favor >   5000) return 8;
-  else if (p_ptr->god_favor >      0) return 7;
+	else if (p_ptr->god_favor >  20000) return 10;
+	else if (p_ptr->god_favor >  10000) return 9;
+	else if (p_ptr->god_favor >   5000) return 8;
+	else if (p_ptr->god_favor >      0) return 7;
 
-  /* Should never happen! */
-  return -1;
+	/* Should never happen! */
+	return -1;
 }
 
 /*
@@ -7985,276 +8114,350 @@ int interpret_favor(void) {
 
 /* Great side effect. */
 
-void great_side_effect(void) {
-        int dir, tmp, a, b, power = ((deity_info[p_ptr->pgod].race1 == p_ptr->prace) || (deity_info[p_ptr->pgod].race2 == p_ptr->prace));
+void great_side_effect(void)
+{
+	int dir, tmp, a, b;
+	bool power = ((deity_info[p_ptr->pgod].race1 == p_ptr->prace) ||
+				  (deity_info[p_ptr->pgod].race2 == p_ptr->prace));
 
-        int per_hp = p_ptr->chp * 100 / p_ptr->mhp;
-        int per_sp = (p_ptr->msp) ? p_ptr->csp * 100 / p_ptr->msp : 100;
+	int per_hp = p_ptr->chp * 100 / p_ptr->mhp;
+	int per_sp = (p_ptr->msp) ? p_ptr->csp * 100 / p_ptr->msp : 100;
 
-        tmp = randint(100);
+	tmp = randint(100);
 
-        if((per_hp < 40) || (per_sp < 20))
-        {
-                if(per_hp > per_sp)
-                {
-                        p_ptr->csp = p_ptr->msp;
-                        p_ptr->csp_frac = 0;
-                        msg_print("Your feel your head clear.");
-                        p_ptr->redraw |= (PR_MANA);
-                        p_ptr->window |= (PW_PLAYER);
-                        p_ptr->window |= (PW_SPELL);
-                }
-                else
-                {
-                        p_ptr->chp = p_ptr->mhp;
-                        p_ptr->chp_frac = 0;
-                        msg_print("You feel your body healed.");
-                        p_ptr->redraw |= (PR_HP);
-                        p_ptr->window |= (PW_PLAYER);
-                }
-        }
-        else if(magik(50))
-        {
-        switch(p_ptr->pgod)
-        {
-                case GOD_YAVANNA:
-                        msg_print("Yavanna summons some Ents to help you!");
-                        for(a = 0; a < 5 + (5 * power); a++)
-                        {
-                                int y = py, x = px;
+	if((per_hp < 40) || (per_sp < 20))
+	{
+		if(per_hp > per_sp)
+		{
+			p_ptr->csp = p_ptr->msp;
+			p_ptr->csp_frac = 0;
+			msg_print("Your feel your head clear.");
+			p_ptr->redraw |= (PR_MANA);
+			p_ptr->window |= (PW_PLAYER);
+			p_ptr->window |= (PW_SPELL);
+		}
+		else
+		{
+			p_ptr->chp = p_ptr->mhp;
+			p_ptr->chp_frac = 0;
+			msg_print("You feel your body healed.");
+			p_ptr->redraw |= (PR_HP);
+			p_ptr->window |= (PW_PLAYER);
+		}
+	}
+	else if(magik(50))
+	{
+		switch(p_ptr->pgod)
+		{
+			case GOD_YAVANNA:
+				msg_print("Yavanna summons some Ents to help you!");
+				for(a = 0; a < 5 + (5 * power); a++)
+				{
+					int y = py, x = px;
 
-                                scatter(&y, &x, py, px, 5, 0);
-                                place_monster_one(y, x, test_monster_name("Ent"), 0, FALSE, MSTATUS_FRIEND);
-                        }
-                        break;
-                case GOD_ULMO:
-                        msg_print("The power of the Ulmo is flooding the area around you!");
-                        for(a = px - 7 - (3 * power); a < px + 7 + (3 * power); a++)
-                                for(b = py - 7 - (3 * power); b < py + 7 + (3 * power); b++)
-                                        if(distance(py, px, b, a) <= 7 + (3 * power))
-                                        {
-                                                if(f_info[cave[b][a].feat].flags1 & FF1_FLOOR)
-                                                {
-                                                        cave_set_feat(b, a, FEAT_DEEP_WATER);
-                                                }
-                                        }
-                        break;
-                case GOD_AULE:
-                        msg_print("Aule, the Smith, reworks the level!");
-                        alter_reality();
-                        break;
-                case GOD_MELKOR:
-                        msg_print("The power of Melkor focuses into a Darkness Storm!");
-                        if (get_aim_dir(&dir))
-                               fire_ball(GF_DARK, dir, 200 + (200 * power), 3 + (2 * power));
-                        break;
-                case GOD_TILION:
-                        msg_print("You are enlighted by the power of Tilion!");
-                        wiz_lite_extra();
-                        if(power)
-                        {
-                                detect_all();
-                        }
-                        break;
-                case GOD_ARIEN:
-                        msg_print("You are enlighted by the power of Arien!");
-                        wiz_lite_extra();
-                        if(power)
-                        {
-                                detect_all();
-                        }
-                        break;
-                case GOD_TULKAS:
-                        msg_print("The power of Tulkas floods through your body!");
-                        set_invuln(16 + (8 * power));
-                        break;
-                case GOD_MANWE:
-                        msg_print("Suddently a great wind coming from the west is blowing up everything!");
-                        mass_genocide(FALSE);
-                        break;
-                case GOD_VARDA:
-                        msg_print("You are enlighted by the power of Varda!");
-                        wiz_lite_extra();
-                        if(power)
-                        {
-                                detect_all();
-                        }
-                        break;
-                case GOD_ERU:
-                        msg_print("The power of Eru Iluvatar morphs you into a Vala!");
-                        set_mimic(10 + (10 * power), MIMIC_VALAR);
-                        break;
-                case GOD_RNG:
-                        msg_print("The power of The RNG randomizes you");
-                        if(rand_int(2) == 0)
-                                do_inc_stat(A_STR);
-                        else
-                                do_dec_stat(A_STR, STAT_DEC_NORMAL);
-                        if(rand_int(2) == 0)
-                                do_inc_stat(A_INT);
-                        else
-                                do_dec_stat(A_INT, STAT_DEC_NORMAL);
-                        if(rand_int(2) == 0)
-                                do_inc_stat(A_WIS);
-                        else
-                                do_dec_stat(A_WIS, STAT_DEC_NORMAL);
-                        if(rand_int(2) == 0)
-                                do_inc_stat(A_DEX);
-                        else
-                                do_dec_stat(A_DEX, STAT_DEC_NORMAL);
-                        if(rand_int(2) == 0)
-                                do_inc_stat(A_CON);
-                        else
-                                do_dec_stat(A_CON, STAT_DEC_NORMAL);
-                        if(rand_int(2) == 0)
-                                do_inc_stat(A_CHR);
-                        else
-                                do_dec_stat(A_CHR, STAT_DEC_NORMAL);
-                        break;
-        }
-        }
-        else
-        {
-  if (tmp <= 10) {
-    if (summon_specific_friendly(py, px, dun_level+rand_spread(10, 5), damroll(4,6), FALSE)) {
-      msg_print("Something materializes out of thin air.");
-    } else {
-      msg_print("You feel a strange tingling, but the feeling passes.");
-    }
-  } else if (tmp <= 20) {
-    msg_print("You feel something land at your feet.");
-    acquirement(py, px, 1, 1, 1);
-  } else if (tmp <= 30) {
-    enchant_spell(0, 0, randint(3) + 2, 0);
-  } else if (tmp <= 40) {
-    enchant_spell(randint(3), randint(3), 0, 0);
-  } else if (tmp <= 50) {
-    fire_explosion(py, px, GF_MAKE_GLYPH, 9, 0);
-  } else if (tmp <= 60) {
-    recharge(100);
-  } else if (tmp <= 70) {
-    msg_print("You feel like someone has taken a burden off your back.");
-    remove_all_curse();
-  } else if (tmp <= 80) {
-    identify_fully();
-  } else if (tmp <= 90) {
-    msg_print("The power of your deity restores you!");
-    hp_player(5000);
-    (void)set_poisoned(0);
-    (void)set_blind(0);
-    (void)set_confused(0);
-    (void)set_image(0);
-    (void)set_stun(0);
-    (void)set_cut(0);
-    (void)do_res_stat(A_STR);
-    (void)do_res_stat(A_CON);
-    (void)do_res_stat(A_DEX);
-    (void)do_res_stat(A_WIS);
-    (void)do_res_stat(A_INT);
-    (void)do_res_stat(A_CHR);
-  } else if (tmp <= 100) {
-    msg_print("You feel a great surge of holiness!");
-    do_inc_stat(A_STR);
-    do_inc_stat(A_INT);
-    do_inc_stat(A_WIS);
-    do_inc_stat(A_DEX);
-    do_inc_stat(A_CON);
-    do_inc_stat(A_CHR);
-  }
-  }
+					scatter(&y, &x, py, px, 5, 0);
+					place_monster_one(y, x, test_monster_name("Ent"), 0, FALSE, MSTATUS_FRIEND);
+				}
+				break;
+			case GOD_ULMO:
+				msg_print("The power of the Ulmo is flooding the area around you!");
+				for(a = px - 7 - (3 * power); a < px + 7 + (3 * power); a++)
+					for(b = py - 7 - (3 * power); b < py + 7 + (3 * power); b++)
+						if(distance(py, px, b, a) <= 7 + (3 * power))
+						{
+							if(f_info[cave[b][a].feat].flags1 & FF1_FLOOR)
+							{
+								cave_set_feat(b, a, FEAT_DEEP_WATER);
+							}
+						}
+				break;
+			case GOD_AULE:
+				msg_print("Aule, the Smith, reworks the level!");
+				alter_reality();
+				break;
+			case GOD_MELKOR:
+				msg_print("The power of Melkor focuses into a Darkness Storm!");
+				if (get_aim_dir(&dir))
+				   fire_ball(GF_DARK, dir, 200 + (200 * power), 3 + (2 * power));
+				break;
+			case GOD_TILION:
+				msg_print("You are enlighted by the power of Tilion!");
+				wiz_lite_extra();
+				if(power)
+				{
+					detect_all();
+				}
+				break;
+			case GOD_ARIEN:
+				msg_print("You are enlighted by the power of Arien!");
+				wiz_lite_extra();
+				if(power)
+				{
+					detect_all();
+				}
+				break;
+			case GOD_TULKAS:
+				msg_print("The power of Tulkas floods through your body!");
+				set_invuln(16 + (8 * power));
+				break;
+			case GOD_MANWE:
+				msg_print("Suddently a great wind coming from the west is blowing up everything!");
+				mass_genocide(FALSE);
+				break;
+			case GOD_VARDA:
+				msg_print("You are enlighted by the power of Varda!");
+				wiz_lite_extra();
+				if(power)
+				{
+					detect_all();
+				}
+				break;
+			case GOD_ERU:
+				msg_print("The power of Eru Iluvatar morphs you into a Vala!");
+				set_mimic(10 + (10 * power), MIMIC_VALAR);
+				break;
+			case GOD_RNG:
+				msg_print("The power of The RNG randomizes you");
+				if(rand_int(2) == 0)
+					do_inc_stat(A_STR);
+				else
+					do_dec_stat(A_STR, STAT_DEC_NORMAL);
+				if(rand_int(2) == 0)
+					do_inc_stat(A_INT);
+				else
+					do_dec_stat(A_INT, STAT_DEC_NORMAL);
+				if(rand_int(2) == 0)
+					do_inc_stat(A_WIS);
+				else
+					do_dec_stat(A_WIS, STAT_DEC_NORMAL);
+				if(rand_int(2) == 0)
+					do_inc_stat(A_DEX);
+				else
+					do_dec_stat(A_DEX, STAT_DEC_NORMAL);
+				if(rand_int(2) == 0)
+					do_inc_stat(A_CON);
+				else
+					do_dec_stat(A_CON, STAT_DEC_NORMAL);
+				if(rand_int(2) == 0)
+					do_inc_stat(A_CHR);
+				else
+					do_dec_stat(A_CHR, STAT_DEC_NORMAL);
+				break;
+		}
+	}
+	else
+	{
+		if (tmp <= 10)
+		{
+			if (summon_specific_friendly(py, px, dun_level+rand_spread(10, 5), damroll(4,6), FALSE))
+			{
+				msg_print("Something materializes out of thin air.");
+			}
+			else
+			{
+				msg_print("You feel a strange tingling, but the feeling passes.");
+			}
+		}
+		else if (tmp <= 20)
+		{
+			msg_print("You feel something land at your feet.");
+			acquirement(py, px, 1, 1, 1);
+		}
+		else if (tmp <= 30)
+		{
+			enchant_spell(0, 0, randint(3) + 2, 0);
+		}
+		else if (tmp <= 40)
+		{
+			enchant_spell(randint(3), randint(3), 0, 0);
+		}
+		else if (tmp <= 50)
+		{
+			fire_explosion(py, px, GF_MAKE_GLYPH, 9, 0);
+		}
+		else if (tmp <= 60)
+		{
+			recharge(100);
+		}
+		else if (tmp <= 70)
+		{
+			msg_print("You feel like someone has taken a burden off your back.");
+			remove_all_curse();
+		}
+		else if (tmp <= 80)
+		{
+			identify_fully();
+		}
+		else if (tmp <= 90)
+		{
+			msg_print("The power of your deity restores you!");
+			hp_player(5000);
+			(void)set_poisoned(0);
+			(void)set_blind(0);
+			(void)set_confused(0);
+			(void)set_image(0);
+			(void)set_stun(0);
+			(void)set_cut(0);
+			(void)do_res_stat(A_STR);
+			(void)do_res_stat(A_CON);
+			(void)do_res_stat(A_DEX);
+			(void)do_res_stat(A_WIS);
+			(void)do_res_stat(A_INT);
+			(void)do_res_stat(A_CHR);
+		}
+		else if (tmp <= 100)
+		{
+			msg_print("You feel a great surge of holiness!");
+			do_inc_stat(A_STR);
+			do_inc_stat(A_INT);
+			do_inc_stat(A_WIS);
+			do_inc_stat(A_DEX);
+			do_inc_stat(A_CON);
+			do_inc_stat(A_CHR);
+		}
+	}
 }
 
 /* Nasty side effect. */
 
-void nasty_side_effect(void) {
-  int tmp;
+void nasty_side_effect(void)
+{
+	int tmp;
 
-  tmp = randint(100);
-  if (tmp < 10) {
-    set_poisoned(p_ptr->poisoned + 10 + randint(10));
-  } else if (tmp < 20) {
-    set_confused(p_ptr->confused + 10 + randint(10));
-  } else if (tmp < 30) {
-    set_blind(p_ptr->blind + 10 + randint(10));
-  } else if (tmp < 40) {
-    set_slow(p_ptr->slow + 10 + randint(10));
-  } else if (tmp < 50) {
-    set_cut(p_ptr->cut + 10 + randint(100));
-  } else if (tmp < 60) {
-    set_stun(p_ptr->stun + randint(110));
-  } else if (tmp < 70) {
-    msg_print("You hear a loud shriek!");
-    aggravate_monsters(1);
-  } else if (tmp < 80) {
-    set_image(p_ptr->image + 20 + randint(20));
-  } else if (tmp < 90) {
-    msg_print("You feel very sick.");
-    set_slow(p_ptr->slow + 10 + randint(10));
-    set_confused(p_ptr->confused + 10 + randint(10));
-    set_poisoned(p_ptr->poisoned + 10 + randint(10));
-  } else if (tmp < 100) {
-    if (summon_specific(py, px, dun_level+randint(7), damroll(4,6))) {
-      msg_print("Something materializes out of thin air.");
-    } else {
-      msg_print("You feel a strange tingling, but the feeling passes.");
-    }
-  }
+	tmp = randint(100);
+	if (tmp < 10)
+	{
+		set_poisoned(p_ptr->poisoned + 10 + randint(10));
+	}
+	else if (tmp < 20)
+	{
+		set_confused(p_ptr->confused + 10 + randint(10));
+	}
+	else if (tmp < 30)
+	{
+		set_blind(p_ptr->blind + 10 + randint(10));
+	}
+	else if (tmp < 40)
+	{
+		set_slow(p_ptr->slow + 10 + randint(10));
+	}
+	else if (tmp < 50)
+	{
+		set_cut(p_ptr->cut + 10 + randint(100));
+	}
+	else if (tmp < 60)
+	{
+		set_stun(p_ptr->stun + randint(110));
+	}
+	else if (tmp < 70)
+	{
+		msg_print("You hear a loud shriek!");
+		aggravate_monsters(1);
+	}
+	else if (tmp < 80)
+	{
+		set_image(p_ptr->image + 20 + randint(20));
+	}
+	else if (tmp < 90)
+	{
+		msg_print("You feel very sick.");
+		set_slow(p_ptr->slow + 10 + randint(10));
+		set_confused(p_ptr->confused + 10 + randint(10));
+		set_poisoned(p_ptr->poisoned + 10 + randint(10));
+	}
+	else if (tmp < 100)
+	{
+		if (summon_specific(py, px, dun_level+randint(7), damroll(4,6)))
+		{
+			msg_print("Something materializes out of thin air.");
+		}
+		else
+		{
+			msg_print("You feel a strange tingling, but the feeling passes.");
+		}
+	}
 }
 
 /* Deadly side effect. */
 
-void deadly_side_effect(bool god) {
-  int tmp;
-  bool (*boom)(int, int, int, int, int);
+void deadly_side_effect(bool god)
+{
+	int tmp;
+	bool (*boom)(int, int, int, int, int);
 
-  /* Lisp-like hack to save typing. */
-  if (god) {
-    boom = fire_godly_wrath;
-  } else {
-    boom = fire_explosion;
-  }
+	/* Lisp-like hack to save typing. */
+	if (god)
+	{
+		boom = fire_godly_wrath;
+	}
+	else
+	{
+		boom = fire_explosion;
+	}
 
-  tmp = randint(100);
+	tmp = randint(100);
 
-  if (tmp <= 10) {
-    if (summon_specific(py, px, dun_level+20, damroll(4,6))) {
-      msg_print("Something materializes out of thin air.");
-    } else {
-      msg_print("You feel a strange tingling, but the feeling passes.");
-    }
-  } else if (tmp <= 20) {
-    activate_ty_curse();
-  } else if (tmp <= 30) {
-    msg_print("The world twists!");
-    destroy_area(py, px, 9, 0);
-  } else if (tmp <= 40) {
-    msg_print("Your nerves and muscles feel weak and lifeless.");
-    (void)dec_stat(A_STR, 5, TRUE);
-    (void)dec_stat(A_INT, 5, TRUE);
-    (void)dec_stat(A_WIS, 5, TRUE);
-    (void)dec_stat(A_DEX, 5, TRUE);
-    (void)dec_stat(A_CON, 5, TRUE);
-    (void)dec_stat(A_CHR, 5, TRUE);
-  } else if (tmp <= 50) {
-    msg_print("You feel somehow inadequate...");
-    p_ptr->exp -= (p_ptr->exp / 4);
-    p_ptr->max_exp -= (p_ptr->exp / 4);
-    check_experience();
-  } else if (tmp <= 60) {
-    msg_print("Your whole life flashes before your eyes.");
-    boom(py, px, GF_TIME, 5, 100);
-  } else if (tmp <= 70) {
-    msg_print("Everything seems grayer somehow...");
-    boom(py, px, GF_DISENCHANT, 5, 100);
-  } else if (tmp <= 80) {
-    msg_print("There is a loud cackle...");
-    boom(py, px, GF_MAKE_TRAP, 9, 0);
-  } else if (tmp <= 90) {
-    msg_print("Something is trying to destroy your brain!");
-    take_sanity_hit(damroll(10,10), "blasted by an angry deity");
-  } else if (tmp <= 100) {
-    godly_wrath_blast();
-  }
+	if (tmp <= 10)
+	{
+		if (summon_specific(py, px, dun_level+20, damroll(4,6)))
+		{
+			msg_print("Something materializes out of thin air.");
+		}
+		else
+		{
+			msg_print("You feel a strange tingling, but the feeling passes.");
+		}
+	}
+	else if (tmp <= 20)
+	{
+		activate_ty_curse();
+	}
+	else if (tmp <= 30)
+	{
+		msg_print("The world twists!");
+		destroy_area(py, px, 9, 0);
+	}
+	else if (tmp <= 40)
+	{
+		msg_print("Your nerves and muscles feel weak and lifeless.");
+		(void)dec_stat(A_STR, 5, TRUE);
+		(void)dec_stat(A_INT, 5, TRUE);
+		(void)dec_stat(A_WIS, 5, TRUE);
+		(void)dec_stat(A_DEX, 5, TRUE);
+		(void)dec_stat(A_CON, 5, TRUE);
+		(void)dec_stat(A_CHR, 5, TRUE);
+	}
+	else if (tmp <= 50)
+	{
+		msg_print("You feel somehow inadequate...");
+		p_ptr->exp -= (p_ptr->exp / 4);
+		p_ptr->max_exp -= (p_ptr->exp / 4);
+		check_experience();
+	}
+	else if (tmp <= 60)
+	{
+		msg_print("Your whole life flashes before your eyes.");
+		boom(py, px, GF_TIME, 5, 100);
+	}
+	else if (tmp <= 70)
+	{
+		msg_print("Everything seems grayer somehow...");
+		boom(py, px, GF_DISENCHANT, 5, 100);
+	}
+	else if (tmp <= 80)
+	{
+		msg_print("There is a loud cackle...");
+		boom(py, px, GF_MAKE_TRAP, 9, 0);
+	}
+	else if (tmp <= 90)
+	{
+		msg_print("Something is trying to destroy your brain!");
+		take_sanity_hit(damroll(10,10), "blasted by an angry deity");
+	}
+	else if (tmp <= 100)
+	{
+		godly_wrath_blast();
+	}
 }
 
 /*
@@ -8263,212 +8466,227 @@ void deadly_side_effect(bool god) {
  * (Gods are omnipotent, aren't they?)
  */
 
-void godly_wrath_blast(void) {
-  int tmp;
-  int type = 0;
-  bool ok = FALSE;
-  int flg = PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL;
+void godly_wrath_blast(void)
+{
+	int tmp;
+	int type = 0;
+	bool ok = FALSE;
+	int flg = PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL;
 
-  while (1) {
-    tmp = randint(10);
+	while (1)
+	{
+		tmp = randint(10);
 
-    switch (tmp) {
-    case 1:
-      if (!p_ptr->immune_acid) {
-        type = GF_ACID;
-        ok = TRUE;
-        msg_print("You are blasted by acid from the sky!");
-      }
-      break;
+		switch (tmp)
+		{
+			case 1:
+				if (!p_ptr->immune_acid)
+				{
+					type = GF_ACID;
+					ok = TRUE;
+					msg_print("You are blasted by acid from the sky!");
+				}
+				break;
 
-    case 2:
-      if (!p_ptr->immune_elec) {
-        type = GF_ELEC;
-        ok = TRUE;
-        msg_print("You are blasted by a giant ball lightning from the sky!");
-      }
-      break;
+			case 2:
+				if (!p_ptr->immune_elec)
+				{
+					type = GF_ELEC;
+					ok = TRUE;
+					msg_print("You are blasted by a giant ball lightning from the sky!");
+				}
+				break;
 
-    case 3:
-      if (!(p_ptr->resist_pois || p_ptr->oppose_pois)) {
-        type = GF_POIS;
-        ok = TRUE;
-        msg_print("A poisonous cloud descends from the sky!");
-      }
-      break;
+			case 3:
+				if (!(p_ptr->resist_pois || p_ptr->oppose_pois))
+				{
+					type = GF_POIS;
+					ok = TRUE;
+					msg_print("A poisonous cloud descends from the sky!");
+				}
+				break;
 
-    case 4:
-      if (!p_ptr->resist_neth) {
-        type = GF_NETHER;
-        ok = TRUE;
-        msg_print("A force of death surrounds you!");
-      }
-      break;
+			case 4:
+				if (!p_ptr->resist_neth)
+				{
+					type = GF_NETHER;
+					ok = TRUE;
+					msg_print("A force of death surrounds you!");
+				}
+				break;
 
-    case 5:
-      if (!(p_ptr->resist_sound || p_ptr->resist_conf)) {
-        type = GF_WATER;
-        ok = TRUE;
-        msg_print("A flood of water falls from the sky!");
-      }
-      break;
+			case 5:
+				if (!(p_ptr->resist_sound || p_ptr->resist_conf))
+				{
+					type = GF_WATER;
+					ok = TRUE;
+					msg_print("A flood of water falls from the sky!");
+				}
+				break;
 
-    case 6:
-      if (!p_ptr->resist_chaos) {
-        type = GF_CHAOS;
-        ok = TRUE;
-        msg_print("You are blasted by a gale of chaos!");
-      }
-      break;
+			case 6:
+				if (!p_ptr->resist_chaos)
+				{
+					type = GF_CHAOS;
+					ok = TRUE;
+					msg_print("You are blasted by a gale of chaos!");
+				}
+				break;
 
-    case 7:
-      if (!p_ptr->resist_shard) {
-        type = GF_SHARDS;
-        ok = TRUE;
-        msg_print("A multitude of shards descends on you from the sky!");
-      }
-      break;
+			case 7:
+				if (!p_ptr->resist_shard)
+				{
+					type = GF_SHARDS;
+					ok = TRUE;
+					msg_print("A multitude of shards descends on you from the sky!");
+				}
+				break;
 
-    case 8:
-      if (!p_ptr->resist_disen) {
-        type = GF_DISENCHANT;
-        ok = TRUE;
-        msg_print("You feel your magical aura wane!");
-      }
-      break;
+			case 8:
+				if (!p_ptr->resist_disen)
+				{
+					type = GF_DISENCHANT;
+					ok = TRUE;
+					msg_print("You feel your magical aura wane!");
+				}
+				break;
 
-    case 9:
-      type = GF_TIME;
-      ok = TRUE;
-      msg_print("A dizzying array of blinking dots falls from the sky!");
-      break;
+			case 9:
+				type = GF_TIME;
+				ok = TRUE;
+				msg_print("A dizzying array of blinking dots falls from the sky!");
+				break;
 
-    case 10:
-      type = GF_METEOR;
-      ok = TRUE;
-      msg_print("A giant meteor falls on you from the sky!");
-      break;
-    }
+			case 10:
+				type = GF_METEOR;
+				ok = TRUE;
+				msg_print("A giant meteor falls on you from the sky!");
+				break;
+		}
 
-    if (ok) break;
-  }
+		if (ok) break;
+	}
 
-  (void)project(-99, 1, py, px, damroll(4, ((p_ptr->lev / 3) > 5)?(p_ptr->lev / 3):5), type, flg);
+	(void)project(-99, 1, py, px,
+				  damroll(4, ((p_ptr->lev / 3) > 5)?(p_ptr->lev / 3):5),
+	              type, flg);
 }
 
 bool test_object_wish(char *name, object_type *o_ptr, object_type *forge, char *what)
 {
-        int i, j;
-        char buf[200];
+	int i, j;
+	char buf[200];
 
-        /* try all objects, this *IS* a very ugly and slow method :( */
-        for (i = 0; i < max_k_idx; i++)
-        {
-                object_kind *k_ptr = &k_info[i];
+	/* try all objects, this *IS* a very ugly and slow method :( */
+	for (i = 0; i < max_k_idx; i++)
+	{
+		object_kind *k_ptr = &k_info[i];
 
-                o_ptr = forge;
+		o_ptr = forge;
 
-                if (!k_ptr->name) continue;
-                if (k_ptr->flags3 & TR3_NORM_ART) continue;
-                if (k_ptr->flags3 & TR3_INSTA_ART) continue;
+		if (!k_ptr->name) continue;
+		if (k_ptr->flags3 & TR3_NORM_ART) continue;
+		if (k_ptr->flags3 & TR3_INSTA_ART) continue;
+		if (k_ptr->tval == TV_GOLD) continue;
 
-                object_prep(o_ptr, i);
-                o_ptr->name1 = 0;
-                o_ptr->name2 = 0;
-                apply_magic(o_ptr, dun_level, FALSE, FALSE, FALSE);
-                object_aware(o_ptr);
-                object_known(o_ptr);
-                object_desc(buf, o_ptr, FALSE, 0);
-                strlower(buf);
+		object_prep(o_ptr, i);
+		o_ptr->name1 = 0;
+		o_ptr->name2 = 0;
+		apply_magic(o_ptr, dun_level, FALSE, FALSE, FALSE);
+		object_aware(o_ptr);
+		object_known(o_ptr);
+		object_desc(buf, o_ptr, FALSE, 0);
+		strlower(buf);
 
-                if (strstr(name, buf))
-                {
-                        /* You can't wish for a wish ! */
-                        if ((o_ptr->tval == TV_STAFF) && (o_ptr->sval == SV_STAFF_WISHING))
-                        {
-                                msg_format("You cannot %s for a wish !", what);
-                                return FALSE;
-                        }
+		if (strstr(name, buf))
+		{
+			/* You can't wish for a wish ! */
+			if ((o_ptr->tval == TV_STAFF) && (o_ptr->sval == SV_STAFF_WISHING))
+			{
+				msg_format("You cannot %s for a wish !", what);
+				return FALSE;
+			}
 
-                        /* try all ego */
-                        for (j = max_e_idx - 1; j >= 0; j--)
-                        {
-                                ego_item_type *e_ptr = &e_info[j];
-                                bool ok = FALSE;
+			/* try all ego */
+			for (j = max_e_idx - 1; j >= 0; j--)
+			{
+				ego_item_type *e_ptr = &e_info[j];
+				bool ok = FALSE;
 
-                                if (j && !e_ptr->name) continue;
+				if (j && !e_ptr->name) continue;
 
-                                /* Must have the correct fields */
-                                if (j)
-                                {
-                                        int z;
+				/* Must have the correct fields */
+				if (j)
+				{
+					int z;
 
-                                        for (z = 0; z < 6; z++)
-                                        {
-                                                if (e_ptr->tval[z] == k_ptr->tval)
-                                                {
-                                                        if ((e_ptr->min_sval[z] <= k_ptr->sval) && (e_ptr->max_sval[z] >= k_ptr->sval)) ok = TRUE;
-                                                }
-                                                if (ok) break;
-                                        }
-                                        if (!ok)
-                                        {
-                                                continue;
-                                        }
-                                }
+					for (z = 0; z < 6; z++)
+					{
+						if (e_ptr->tval[z] == k_ptr->tval)
+						{
+							if ((e_ptr->min_sval[z] <= k_ptr->sval) &&
+								(e_ptr->max_sval[z] >= k_ptr->sval)) ok = TRUE;
+						}
+						if (ok) break;
+					}
+					if (!ok)
+					{
+						continue;
+					}
+				}
 
-                                object_prep(o_ptr, i);
-                                o_ptr->name1 = 0;
-                                o_ptr->name2 = j;
-                                apply_magic(o_ptr, dun_level, FALSE, FALSE, FALSE);
-                                object_aware(o_ptr);
-                                object_known(o_ptr);
-                                object_desc(buf, o_ptr, FALSE, 0);
-                                strlower(buf);
+				object_prep(o_ptr, i);
+				o_ptr->name1 = 0;
+				o_ptr->name2 = j;
+				apply_magic(o_ptr, dun_level, FALSE, FALSE, FALSE);
+				object_aware(o_ptr);
+				object_known(o_ptr);
+				object_desc(buf, o_ptr, FALSE, 0);
+				strlower(buf);
 
-                                if(!stricmp(buf, name))
-                                {
-                                        /* Don't search any more */
-                                        return TRUE;
-                                }
-                        }
-                }
-        }
-        return FALSE;
+				if (!stricmp(buf, name))
+				{
+					/* Don't search any more */
+					return TRUE;
+				}
+			}
+		}
+	}
+	return FALSE;
 }
 
 void clean_wish_name(char *buf, char *name)
 {
-        char *p;
-        int i, j;
+	char *p;
+	int i, j;
 
-        /* Lowercase the wish */
-        strlower(buf);
+	/* Lowercase the wish */
+	strlower(buf);
 
-        /* Nuke uneccesary spaces */
-        p = buf;
-        while (*p == ' ') p++;
-        i = 0;
-        j = 0;
-        while (p[i])
-        {
-                if ((p[i] == ' ') && (p[i + 1] == ' '))
-                {
-                        i++;
-                        continue;
-                }
-                name[j++] = p[i++];
-        }
-        name[j++] = '\0';
-        if (j)
-        {
-                j--;
-                while (j && (name[j] == ' '))
-                {
-                        name[j] = '\0';
-                        j--;
-                }
-        }
+	/* Nuke uneccesary spaces */
+	p = buf;
+	while (*p == ' ') p++;
+	i = 0;
+	j = 0;
+	while (p[i])
+	{
+		if ((p[i] == ' ') && (p[i + 1] == ' '))
+		{
+			i++;
+			continue;
+		}
+		name[j++] = p[i++];
+	}
+	name[j++] = '\0';
+	if (j)
+	{
+		j--;
+		while (j && (name[j] == ' '))
+		{
+			name[j] = '\0';
+			j--;
+		}
+	}
 }
 
 /*
@@ -8476,103 +8694,103 @@ void clean_wish_name(char *buf, char *name)
  */
 void make_wish(void)
 {
-        char buf[200], name[200], *mname;
-        int i, j, mstatus = MSTATUS_ENEMY;
-        object_type forge, *o_ptr = &forge;
+	char buf[200], name[200], *mname;
+	int i, j, mstatus = MSTATUS_ENEMY;
+	object_type forge, *o_ptr = &forge;
 
-        /* Make an empty string */
-        buf[0] = 0;
+	/* Make an empty string */
+	buf[0] = 0;
 
-        /* Ask for the wish */
-        if(!get_string("Wish for what? ", buf, 80)) return;
+	/* Ask for the wish */
+	if(!get_string("Wish for what? ", buf, 80)) return;
 
-        clean_wish_name(buf, name);
+	clean_wish_name(buf, name);
 
-        /* You can't wish for a wish ! */
-        if (strstr(name, "wish"))
-        {
-                msg_print("You can't wish for a wish !");
-                return;
-        }
+	/* You can't wish for a wish ! */
+	if (strstr(name, "wish"))
+	{
+		msg_print("You can't wish for a wish !");
+		return;
+	}
 
-        if (test_object_wish(name, o_ptr, &forge, "wish"))
-        {
-                msg_print("Your wish become truth!");
+	if (test_object_wish(name, o_ptr, &forge, "wish"))
+	{
+		msg_print("Your wish become truth!");
 
-                /* Give it to the player */
-                drop_near(o_ptr, -1, py, px);
+		/* Give it to the player */
+		drop_near(o_ptr, -1, py, px);
 
-                return;
-        }
+		return;
+	}
 
-        /* try monsters */
-        if (prefix(name, "enemy ")) { mstatus = MSTATUS_ENEMY; mname = name + 6; }
-        else if (prefix(name, "neutral ")) { mstatus = MSTATUS_NEUTRAL; mname = name + 8; }
-        else if (prefix(name, "friendly ")) { mstatus = MSTATUS_FRIEND; mname = name + 9; }
-        else if (prefix(name, "pet ")) { mstatus = MSTATUS_PET; mname = name + 4; }
-        else if (prefix(name, "companion "))
-        {
-                if (can_create_companion()) mstatus = MSTATUS_COMPANION;
-                else mstatus = MSTATUS_PET;
-                mname = name + 10;
-        }
-        else mname = name;
-        for (i = 1; i < max_r_idx - 1; i++)
-        {
-                monster_race *r_ptr = &r_info[i];
+	/* try monsters */
+	if (prefix(name, "enemy ")) { mstatus = MSTATUS_ENEMY; mname = name + 6; }
+	else if (prefix(name, "neutral ")) { mstatus = MSTATUS_NEUTRAL; mname = name + 8; }
+	else if (prefix(name, "friendly ")) { mstatus = MSTATUS_FRIEND; mname = name + 9; }
+	else if (prefix(name, "pet ")) { mstatus = MSTATUS_PET; mname = name + 4; }
+	else if (prefix(name, "companion "))
+	{
+		if (can_create_companion()) mstatus = MSTATUS_COMPANION;
+		else mstatus = MSTATUS_PET;
+		mname = name + 10;
+	}
+	else mname = name;
+	for (i = 1; i < max_r_idx - 1; i++)
+	{
+		monster_race *r_ptr = &r_info[i];
 
-                if (!r_ptr->name) continue;
+		if (!r_ptr->name) continue;
 
-                if (r_ptr->flags9 & RF9_SPECIAL_GENE) continue;
-                if (r_ptr->flags9 & RF9_NEVER_GENE) continue;
-                if (r_ptr->flags1 & RF1_UNIQUE) continue;
+		if (r_ptr->flags9 & RF9_SPECIAL_GENE) continue;
+		if (r_ptr->flags9 & RF9_NEVER_GENE) continue;
+		if (r_ptr->flags1 & RF1_UNIQUE) continue;
 
-                sprintf(buf, "%s", r_ptr->name + r_name);
-                strlower(buf);
+		sprintf(buf, "%s", r_ptr->name + r_name);
+		strlower(buf);
 
-                if (strstr(mname, buf))
-                {
-                        /* try all ego */
-                        for (j = max_re_idx - 1; j >= 0; j--)
-                        {
-                                monster_ego *re_ptr = &re_info[j];
+		if (strstr(mname, buf))
+		{
+			/* try all ego */
+			for (j = max_re_idx - 1; j >= 0; j--)
+			{
+				monster_ego *re_ptr = &re_info[j];
 
-                                if (j && !re_ptr->name) continue;
+				if (j && !re_ptr->name) continue;
 
-                                if (!mego_ok(i, j)) continue;
+				if (!mego_ok(i, j)) continue;
 
-                                if (j)
-                                {
-                                        if (re_ptr->before) sprintf(buf, "%s %s", re_name + re_ptr->name, r_ptr->name + r_name);
-                                        else sprintf(buf, "%s %s", r_ptr->name + r_name, re_name + re_ptr->name);
-                                }
-                                else
-                                {
-                                        sprintf(buf, "%s", r_ptr->name + r_name);
-                                }
-                                strlower(buf);
+				if (j)
+				{
+					if (re_ptr->before) sprintf(buf, "%s %s", re_name + re_ptr->name, r_ptr->name + r_name);
+					else sprintf(buf, "%s %s", r_ptr->name + r_name, re_name + re_ptr->name);
+				}
+				else
+				{
+					sprintf(buf, "%s", r_ptr->name + r_name);
+				}
+				strlower(buf);
 
-                                if(!stricmp(mname, buf))
-                                {
-                                        int wy = py, wx = px;
-                                        int attempts = 100;
+				if(!stricmp(mname, buf))
+				{
+					int wy = py, wx = px;
+					int attempts = 100;
 
-                                        do
-                                        {
-                                                scatter(&wy, &wx, py, px, 5, 0);
-                                        }
-                                        while (!(in_bounds(wy, wx) && cave_floor_bold(wy, wx)) && --attempts);
+					do
+					{
+						scatter(&wy, &wx, py, px, 5, 0);
+					}
+					while (!(in_bounds(wy, wx) && cave_floor_bold(wy, wx)) && --attempts);
 
-                                        /* Create the monster */
-                                        if (place_monster_one(wy, wx, i, j, FALSE, mstatus))
-                                                msg_print("Your wish become truth!");
+					/* Create the monster */
+					if (place_monster_one(wy, wx, i, j, FALSE, mstatus))
+						msg_print("Your wish become truth!");
 
-                                        /* Don't search any more */
-                                        return;
-                                }
-                        }
-                }
-        }
+					/* Don't search any more */
+					return;
+				}
+			}
+		}
+	}
 }
 
 
@@ -8582,12 +8800,11 @@ void make_wish(void)
 void corrupt_corrupted (void)
 {
 	if (randint(3) == 1)
-        {
-                if (!(lose_corruption (0)))
-                        gain_random_corruption(0);
-        }
-        else
-                gain_random_corruption(0);
-        return;
+	{
+		if (!(lose_corruption (0))) gain_random_corruption(0);
+	}
+	else
+		gain_random_corruption(0);
+	return;
 }
 

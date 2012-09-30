@@ -2,9 +2,10 @@
 
 /* Purpose: extern plots declarations */
 
-extern bool quest_null_hook(int q_idx);
+extern bool quest_null_hook(int q);
 
 /******* Random Quests ********/
+extern bool is_randhero();
 extern bool quest_random_init_hook(int q_idx);
 
 /******* Plot main ********/
@@ -19,6 +20,7 @@ extern bool quest_hobbit_init_hook(int q_idx);
 extern bool quest_troll_init_hook(int q_idx);
 extern bool quest_wight_init_hook(int q_idx);
 extern bool quest_nazgul_init_hook(int q_idx);
+extern bool quest_shroom_init_hook(int q_idx);
 
 /******* Plot Lorien *********/
 extern bool quest_spider_init_hook(int q_idx);
@@ -34,3 +36,4 @@ extern bool quest_between_init_hook(int q_idx);
 
 /******* Plot Other *********/
 extern bool quest_narsil_init_hook(int q_idx);
+extern bool quest_thrain_init_hook(int q_idx);

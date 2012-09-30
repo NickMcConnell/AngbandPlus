@@ -488,12 +488,15 @@ void do_cmd_squeltch_options(void)
 */   
 static bool destroy_it(object_type *o_ptr)
 {
-	bool known = (bool)(o_ptr->ident & (IDENT_KNOWN));
+	bool known = (bool)object_known_p(o_ptr);
 	bool sensed = (bool)(o_ptr->ident & (IDENT_SENSE));
 
 	/* Squeltch on sense */
 	bool sense_good_or_less = ((o_ptr->sense>SENSE_NONE) && (o_ptr->sense<SENSE_GOOD_LIGHT) && (sensed));
 	bool sense_average_or_less = ((o_ptr->sense>SENSE_NONE) && (o_ptr->sense<SENSE_GOOD_HEAVY) && (sensed));
+
+	/* Unaware things won't be destroyed. */
+	if (!object_aware_p(o_ptr)) return FALSE;
 
 	/* Inscribed things won't be destroyed! */
 	if (o_ptr->note) return FALSE;

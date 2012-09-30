@@ -79,8 +79,8 @@ W:D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 # Numenor
 W:E:7:25:1
 
-# Graveyard
-W:E:16:22:37
+# Path of the Dead
+W:E:16:49:38
 
 # Illusory Castle
 W:E:17:34:42
@@ -91,7 +91,7 @@ W:E:18:25:35
 # Orc Cave
 W:E:19:15:32
 
-# Dragon's Lair
+# Erebor
 W:E:20:17:77
 
 # Old Forest
@@ -118,4 +118,3 @@ W:E:9:56:65
 
 # Starting position
 W:P:34:21
-

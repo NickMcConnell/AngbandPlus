@@ -1,0 +1,128 @@
+$#include "angband.h"
+$#include "plots.h"
+
+typedef char* cptr;
+typedef int errr;
+typedef unsigned char bool;
+typedef unsigned char byte;
+typedef signed short s16b;
+typedef unsigned short u16b;
+typedef signed int s32b;
+typedef unsigned int u32b;
+
+#define TRUE
+#define FALSE
+
+#define TERM_DARK                0  /* 'd' */   /* 0,0,0 */
+#define TERM_WHITE               1  /* 'w' */   /* 4,4,4 */
+#define TERM_SLATE               2  /* 's' */   /* 2,2,2 */
+#define TERM_ORANGE              3  /* 'o' */   /* 4,2,0 */
+#define TERM_RED                 4  /* 'r' */   /* 3,0,0 */
+#define TERM_GREEN               5  /* 'g' */   /* 0,2,1 */
+#define TERM_BLUE                6  /* 'b' */   /* 0,0,4 */
+#define TERM_UMBER               7  /* 'u' */   /* 2,1,0 */
+#define TERM_L_DARK              8  /* 'D' */   /* 1,1,1 */
+#define TERM_L_WHITE             9  /* 'W' */   /* 3,3,3 */
+#define TERM_VIOLET             10  /* 'v' */   /* 4,0,4 */
+#define TERM_YELLOW             11  /* 'y' */   /* 4,4,0 */
+#define TERM_L_RED              12  /* 'R' */   /* 4,0,0 */
+#define TERM_L_GREEN            13  /* 'G' */   /* 0,4,0 */
+#define TERM_L_BLUE             14  /* 'B' */   /* 0,4,4 */
+#define TERM_L_UMBER            15  /* 'U' */   /* 3,2,1 */
+
+#define HOOK_MONSTER_DEATH      0
+#define HOOK_OPEN               1
+#define HOOK_GEN_QUEST          2
+#define HOOK_END_TURN           3
+#define HOOK_FEELING            4
+#define HOOK_NEW_MONSTER        5
+#define HOOK_GEN_LEVEL          6
+#define HOOK_BUILD_ROOM1        7
+#define HOOK_NEW_LEVEL          8
+#define HOOK_QUEST_FINISH       9
+#define HOOK_QUEST_FAIL         10
+#define HOOK_GIVE               11
+#define HOOK_CHAR_DUMP          12
+#define HOOK_INIT_QUEST         13
+#define HOOK_WILD_GEN           14
+#define HOOK_DROP               15
+#define HOOK_IDENTIFY           16
+#define HOOK_MOVE               17
+#define HOOK_STAIR              18
+#define HOOK_MONSTER_AI         19
+#define HOOK_PLAYER_LEVEL       20
+#define HOOK_WIELD              21
+#define HOOK_INIT               22
+#define HOOK_QUAFF              23
+#define HOOK_AIM                24
+#define HOOK_USE                25
+#define HOOK_ACTIVATE           26
+#define HOOK_ZAP                27
+#define HOOK_READ               28
+#define HOOK_CALC_BONUS         29
+#define HOOK_PLAYER_FLAGS       30
+#define HOOK_KEYPRESS           31
+#define HOOK_CHAT               32
+#define HOOK_MON_SPEAK          33
+#define HOOK_MKEY               34
+#define HOOK_BIRTH_OBJECTS      35
+#define HOOK_ACTIVATE_DESC      36
+#define HOOK_INIT_GAME          37
+#define HOOK_ACTIVATE_POWER     38
+#define HOOK_ITEM_NAME          39
+#define HOOK_SAVE_GAME          40
+#define HOOK_LOAD_GAME          41
+#define HOOK_LEVEL_REGEN        42
+#define HOOK_LEVEL_END_GEN      43
+
+extern s32b turn;
+extern s32b old_turn;
+
+extern s32b bst(s32b what, s32b t);
+extern errr path_build(char *buf, int max, cptr path, cptr file);
+extern void move_cursor(int row, int col);
+extern bool inkey_scan;
+extern char inkey(void);
+extern void cmsg_print(byte color, cptr msg);
+extern void msg_print(cptr msg);
+extern void screen_save(void);
+extern void screen_load(void);
+extern void c_put_str(byte attr, cptr str, int row, int col);
+extern void c_prt(byte attr, cptr str, int row, int col);
+extern void clear_from(int row);
+extern bool askfor_aux(char *buf, int len);
+extern bool get_string(cptr prompt, char *buf, int len);
+extern bool get_check(cptr prompt);
+extern bool get_com(cptr prompt, char *command);
+extern s32b get_quantity(cptr prompt, s32b max);
+extern int test_monster_name(cptr name);
+extern int test_item_name(cptr name);
+extern int luck(int min, int max);
+extern cptr get_player_race_name(int pr, int ps);
+extern void quit(cptr str);
+
+extern int process_hooks_restart;
+extern void dump_hooks();
+extern void add_hook_script(int h_idx, char *script, cptr name);
+extern void del_hook_name(int h_idx, cptr name);
+extern bool pern_dofile(char *file);
+
+$extern s32b intMod(s32b a, s32b b);
+$extern s32b intAnd(s32b a, s32b b);
+$extern s32b intOr(s32b a, s32b b);
+$extern s32b intXor(s32b a, s32b b);
+$extern s32b intShiftl(s32b a, s32b b);
+$extern s32b intShiftr(s32b a, s32b b);
+$extern s32b intBitNot(s32b b);
+
+extern s32b intMod @ mod(s32b a, s32b b);
+extern s32b intAnd @ band(s32b a, s32b b);
+extern s32b intOr @ bor(s32b a, s32b b);
+extern s32b intXor @ bxor(s32b a, s32b b);
+extern s32b intShiftl @ bshl(s32b a, s32b b);
+extern s32b intShiftr @ bshr(s32b a, s32b b);
+extern s32b intBitNot @ bnot(s32b b);
+
+/* Savefile stuff */
+extern void register_savefile(int num);
+extern void save_number_key(char *key, s32b val);

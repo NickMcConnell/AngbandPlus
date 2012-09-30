@@ -1,0 +1,20 @@
+#####R=== Beornings ===
+
+#####GDescription
+Beornings are the descandants of beorn a powerful shapeshifter who
+dwelts near Mirkwood. They all inherited his shapeshifting abilities
+and can turn into powerful bears for some time.
+
+#####GStat Modifiers
+Strength        +4
+Intelligence    -2   
+Wisdom          -2   
+Dexterity       -1   
+Constitution    +3   
+Charisma        -5       
+Hit Dice Sides  12         
+Exp Penalty     +50%
+
+#####GStarting Equipment
+If they are *very* lucky they may begin with:
+

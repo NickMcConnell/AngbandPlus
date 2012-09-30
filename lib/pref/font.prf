@@ -25,8 +25,11 @@
 
 ##### System Specific Subfiles #####
 
-?:[IOR [EQU $SYS xaw] [EQU $SYS x11]]
+?:[IOR [EQU $SYS xaw] [EQU $SYS x11] [EQU $SYS gtk]]
 %:font-x11.prf
+
+?:[EQU $SYS glu]
+%:font-glu.prf
 
 ?:[EQU $SYS gcu]
 %:font-gcu.prf

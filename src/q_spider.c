@@ -1,7 +1,7 @@
 #undef cquest
 #define cquest (quest[QUEST_SPIDER])
 
-bool quest_spider_gen_hook(int q_idx)
+bool quest_spider_gen_hook(char *fmt)
 {
 	int x, y;
         int xstart = 2;
@@ -32,7 +32,7 @@ bool quest_spider_gen_hook(int q_idx)
 
         return TRUE;
 }
-bool quest_spider_death_hook(int m_idx)
+bool quest_spider_death_hook(char *fmt)
 {
         int i, mcnt = 0;
         
@@ -61,9 +61,12 @@ bool quest_spider_death_hook(int m_idx)
 
         return (FALSE);
 }
-bool quest_spider_finish_hook(int q_idx)
+bool quest_spider_finish_hook(char *fmt)
 {
         object_type forge, *q_ptr;
+        s32b q_idx;
+
+        q_idx = get_next_arg(fmt);
 
         if (q_idx != QUEST_SPIDER) return FALSE;
 

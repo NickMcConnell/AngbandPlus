@@ -19,6 +19,7 @@ Necromancers as a primary realm
 Priests as a primary realm
 Rogues as a primary realm
 Sorcerors (all)
+Black-Knights as a primary realm
 
 #####GNether Spellbooks
 The are nine spellbooks available for the Nether realm, four of which can be

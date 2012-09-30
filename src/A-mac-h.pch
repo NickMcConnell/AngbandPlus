@@ -4,31 +4,9 @@
  * This file creates pre-compiled header files which are used to
  * compile Macintosh Angband using the Code Warrior Pro compiler.
  *
- * It can also be used with CodeWarrior. Both PPC and 68K binaries have
- * been built successfully by CodeWarrior Version 6 for Macintosh
- * (it's a Japanese version but I don't believe local language support makes
- * any differences):
- *
- * 1) Open h-system.h and find the lines that say
- *
- *	#ifdef MACINTOSH
- *	# include <unix.h>
- *	#endif
- *
- *    and change them to
- *
- *	#ifdef MACINTOSH
- *	# include <unix.h>
- *	# include <unistd.h>
- *	# include <fcntl.h>
- *	#endif
- *
- * 2) Comment out / #if 0 these lines at the beginning of init2.c
- *
- *	#ifdef CHECK_MODIFICATION_TIME
- *	#include <sys/types.h>
- *	#include <sys/stat.h>
- *	#endif CHECK_MODIFICATION_TIME
+ * It can also be used with the later versions of CodeWarrior.
+ * Both PPC and 68K binaries have been built successfully by
+ * CodeWarrior Version 6 for Macintosh:
  */
 
 #if defined(__MWERKS__)
@@ -43,6 +21,11 @@
  * Activate the Macintosh-specific code
  */
 #define MACINTOSH
+
+/*
+ * Activate Lua scripting
+ */
+#define USE_LUA
 
 /*
  * PernAngband specific main-xxx.c features
@@ -85,6 +68,7 @@
 
 /*
  * OPTION: Enable the CTRL + L command to quit without saving
+ * as well as activate the Exit menu that serves for the same purpose
  */
 /* #define ALLOW_QUITING */
 
@@ -99,6 +83,12 @@
  * Precompile the header files
  */
 #include "angband.h"
+
+/*
+ * These should go into h-system.h XXX XXX XXX
+ */
+# include <unistd.h>
+# include <fcntl.h>
 
 /*
  * Include the standard ansi_prefix.mac.h file

@@ -330,6 +330,18 @@ static errr term_win_nuke(term_win *s, int w, int h)
 	C_KILL(s->vta, h * w, byte);
 	C_KILL(s->vtc, h * w, char);
 
+#ifdef USE_EGO_GRAPHICS
+
+	/* Free the ego graphics access arrays */
+	C_KILL(s->ea, h, byte*);
+	C_KILL(s->ec, h, char*);
+
+	/* Free the ego graphics content arrays */
+	C_KILL(s->vea, h * w, byte);
+	C_KILL(s->vec, h * w, char);
+
+#endif /* USE_EGO_GRAPHICS */
+
 #endif /* USE_TRANSPARENCY */
 
 	/* Success */
@@ -362,6 +374,18 @@ static errr term_win_init(term_win *s, int w, int h)
 	C_MAKE(s->vta, h * w, byte);
 	C_MAKE(s->vtc, h * w, char);
 
+#ifdef USE_EGO_GRAPHICS
+
+	/* Make the ego graphics access arrays */
+	C_MAKE(s->ea, h, byte*);
+	C_MAKE(s->ec, h, char*);
+
+	/* Make the ego graphics content arrays */
+	C_MAKE(s->vea, h * w, byte);
+	C_MAKE(s->vec, h * w, char);
+
+#endif /* USE_EGO_GRAPHICS */
+
 #endif /* USE_TRANSPARENCY */
 
 
@@ -375,6 +399,13 @@ static errr term_win_init(term_win *s, int w, int h)
 
 		s->ta[y] = s->vta + w * y;
 		s->tc[y] = s->vtc + w * y;
+
+#ifdef USE_EGO_GRAPHICS
+
+		s->ea[y] = s->vea + w * y;
+		s->ec[y] = s->vec + w * y;
+
+#endif /* USE_EGO_GRAPHICS */
 
 #endif /* USE_TRANSPARENCY */
 
@@ -409,6 +440,16 @@ static errr term_win_copy(term_win *s, term_win *f, int w, int h)
 		byte *s_taa = s->ta[y];
 		char *s_tcc = s->tc[y];
 
+#ifdef USE_EGO_GRAPHICS
+
+		byte *f_eaa = f->ea[y];
+		char *f_ecc = f->ec[y];
+
+		byte *s_eaa = s->ea[y];
+		char *s_ecc = s->ec[y];
+
+#endif /* USE_EGO_GRAPHICS */
+
 #endif /* USE_TRANSPARENCY */
 
 		for (x = 0; x < w; x++)
@@ -419,7 +460,13 @@ static errr term_win_copy(term_win *s, term_win *f, int w, int h)
 #ifdef USE_TRANSPARENCY
 			*s_taa++ = *f_taa++;
 			*s_tcc++ = *f_tcc++;
+
+#ifdef USE_EGO_GRAPHICS
+			*s_eaa++ = *f_eaa++;
+			*s_ecc++ = *f_ecc++;
+#endif /* USE_EGO_GRAPHICS */
 #endif /* USE_TRANSPARENCY */
+
 		}
 	}
 
@@ -507,14 +554,22 @@ static errr Term_text_hack(int x, int y, int n, byte a, const char *cp)
  * Hack -- fake hook for "Term_pict()" (see above)
  */
 #ifdef USE_TRANSPARENCY
+#ifdef USE_EGO_GRAPHICS
+static errr Term_pict_hack(int x, int y, int n, const byte *ap, const char *cp, const byte *tap, const char *tcp, const byte *eap, const char *ecp)
+#else /* USE_EGO_GRAPHICS */
 static errr Term_pict_hack(int x, int y, int n, const byte *ap, const char *cp, const byte *tap, const char *tcp)
+#endif /* USE_EGO_GRAPHICS */
 #else /* USE_TRANSPARENCY */
 static errr Term_pict_hack(int x, int y, int n, const byte *ap, const char *cp)
 #endif /* USE_TRANSPARENCY */
 {
 	/* Compiler silliness */
 #ifdef USE_TRANSPARENCY
+#ifdef USE_EGO_GRAPHICS
+	if (x || y || n || ap || cp || tap || tcp || eap || ecp) return (-2);
+#else /* USE_EGO_GRAPHICS */
 	if (x || y || n || ap || cp || tap || tcp) return (-2);
+#endif /* USE_EGO_GRAPHICS */
 #else /* USE_TRANSPARENCY */
 	if (x || y || n || ap || cp) return (-2);
 #endif /* USE_TRANSPARENCY */
@@ -534,7 +589,11 @@ static errr Term_pict_hack(int x, int y, int n, const byte *ap, const char *cp)
  * Assumes given location and values are valid.
  */
 #ifdef USE_TRANSPARENCY
+#ifdef USE_EGO_GRAPHICS
+void Term_queue_char(int x, int y, byte a, char c, byte ta, char tc, byte ea, char ec)
+#else /* USE_EGO_GRAPHICS */
 void Term_queue_char(int x, int y, byte a, char c, byte ta, char tc)
+#endif /* USE_EGO_GRAPHICS */
 #else /* USE_TRANSPARENCY */
 void Term_queue_char(int x, int y, byte a, char c)
 #endif /* USE_TRANSPARENCY */
@@ -549,9 +608,23 @@ void Term_queue_char(int x, int y, byte a, char c)
 	byte *scr_taa = &scrn->ta[y][x];
 	char *scr_tcc = &scrn->tc[y][x];
 
+#ifdef USE_EGO_GRAPHICS
+
+	byte *scr_eaa = &scrn->ea[y][x];
+	char *scr_ecc = &scrn->ec[y][x];
+
 	/* Hack -- Ignore non-changes */
 	if ((*scr_aa == a) && (*scr_cc == c) &&
-		 (*scr_taa == ta) && (*scr_tcc == tc)) return;
+	    (*scr_taa == ta) && (*scr_tcc == tc) &&
+	    (*scr_eaa == ea) && (*scr_ecc == ec)) return;
+
+#else /* USE_EGO_GRAPHICS */
+
+	/* Hack -- Ignore non-changes */
+	if ((*scr_aa == a) && (*scr_cc == c) &&
+		(*scr_taa == ta) && (*scr_tcc == tc)) return;
+
+#endif /* USE_EGO_GRAPHICS */
 
 #else /* USE_TRANSPARENCY */
 
@@ -568,6 +641,13 @@ void Term_queue_char(int x, int y, byte a, char c)
 
 	*scr_taa = ta;
 	*scr_tcc = tc;
+
+#ifdef USE_EGO_GRAPHICS
+
+	*scr_eaa = ea;
+	*scr_ecc = ec;
+
+#endif /* USE_EGO_GRAPHICS */
 
 #endif /* USE_TRANSPARENCY */
 
@@ -590,7 +670,11 @@ void Term_queue_char(int x, int y, byte a, char c)
  * It is used to update the map in the game.
  */
 #ifdef USE_TRANSPARENCY
+#ifdef USE_EGO_GRAPHICS
+void Term_queue_line(int x, int y, int n, byte *a, char *c, byte *ta, char *tc, byte *ea, char *ec)
+#else /* USE_EGO_GRAPHICS */
 void Term_queue_line(int x, int y, int n, byte *a, char *c, byte *ta, char *tc)
+#endif /* USE_EGO_GRAPHICS */
 #else /* USE_TRANSPARENCY */
 void Term_queue_line(int x, int y, int n, byte *a, char *c)
 #endif /* USE_TRANSPARENCY */
@@ -608,6 +692,13 @@ void Term_queue_line(int x, int y, int n, byte *a, char *c)
 	byte *scr_taa = &scrn->ta[y][x];
 	char *scr_tcc = &scrn->tc[y][x];
 
+#ifdef USE_EGO_GRAPHICS
+
+	byte *scr_eaa = &scrn->ea[y][x];
+	char *scr_ecc = &scrn->ec[y][x];
+
+#endif /* USE_EGO_GRAPHICS */
+
 #endif /* USE_TRANSPARENCY */
 
 	while (n--)
@@ -615,25 +706,46 @@ void Term_queue_line(int x, int y, int n, byte *a, char *c)
 
 #ifdef USE_TRANSPARENCY
 
+#ifdef USE_EGO_GRAPHICS
+		/* Hack -- Ignore non-changes */
+		if ((*scr_aa == *a) && (*scr_cc == *c) &&
+		    (*scr_taa == *ta) && (*scr_tcc == *tc) &&
+		    (*scr_eaa == *ea) && (*scr_ecc == *ec))
+#else /* USE_EGO_GRAPHICS */
 		/* Hack -- Ignore non-changes */
 		if ((*scr_aa == *a) && (*scr_cc == *c) &&
 		 	(*scr_taa == *ta) && (*scr_tcc == *tc))
+#endif  /* USE_EGO_GRAPHICS */
 		{
 			x++;
 			a++;
 			c++;
 			ta++;
 			tc++;
+#ifdef USE_EGO_GRAPHICS
+			ea++;
+			ec++;
+#endif /* USE_EGO_GRAPHICS */
 			scr_aa++;
 			scr_cc++;
 			scr_taa++;
 			scr_tcc++;
+#ifdef USE_EGO_GRAPHICS
+			scr_eaa++;
+			scr_ecc++;
+#endif /* USE_EGO_GRAPHICS */
 			continue;
 		}
 
 		/* Save the "literal" information */
 		*scr_taa++ = *ta++;
 		*scr_tcc++ = *tc++;
+
+#ifdef USE_EGO_GRAPHICS
+		/* Save the "literal" information */
+		*scr_eaa++ = *ea++;
+		*scr_ecc++ = *ec++;
+#endif /* USE_EGO_GRAPHICS */
 
 #else /* USE_TRANSPARENCY */
 
@@ -698,6 +810,12 @@ void Term_queue_chars(int x, int y, int n, byte a, cptr s)
 	byte *scr_taa = Term->scr->ta[y];
 	char *scr_tcc = Term->scr->tc[y];
 
+#ifdef USE_EGO_GRAPHICS
+
+	byte *scr_eaa = Term->scr->ea[y];
+	char *scr_ecc = Term->scr->ec[y];
+
+#endif /* USE_EGO_GRAPHICS */
 #endif /* USE_TRANSPARENCY */
 
 	/* Queue the attr/chars */
@@ -711,8 +829,22 @@ void Term_queue_chars(int x, int y, int n, byte a, cptr s)
 		int ota = scr_taa[x];
 		int otc = scr_tcc[x];
 
+#ifdef USE_EGO_GRAPHICS
+
+		int oea = scr_eaa[x];
+		int oec = scr_ecc[x];
+
+		/* Hack -- Ignore non-changes */
+		if ((oa == a) && (oc == *s) &&
+		    (ota == 0) && (otc == 0) &&
+		    (oea == 0) && (oec == 0)) continue;
+
+#else /* USE_EGO_GRAPHICS */
+
 		/* Hack -- Ignore non-changes */
 		if ((oa == a) && (oc == *s) && (ota == 0) && (otc == 0)) continue;
+
+#endif /* USE_EGO_GRAPHICS */
 
 #else /* USE_TRANSPARENCY */
 
@@ -729,6 +861,13 @@ void Term_queue_chars(int x, int y, int n, byte a, cptr s)
 
 		scr_taa[x] = 0;
 		scr_tcc[x] = 0;
+
+#ifdef USE_EGO_GRAPHICS
+
+		scr_taa[x] = 0;
+		scr_tcc[x] = 0;
+
+#endif /* USE_EGO_GRAPHICS */
 
 #endif /* USE_TRANSPARENCY */
 
@@ -784,6 +923,22 @@ static void Term_fresh_row_pict(int y, int x1, int x2)
 	byte nta;
 	char ntc;
 
+#ifdef USE_EGO_GRAPHICS
+
+	byte *old_eaa = Term->old->ea[y];
+	char *old_ecc = Term->old->ec[y];
+
+	byte *scr_eaa = Term->scr->ea[y];
+	char *scr_ecc = Term->scr->ec[y];
+
+	byte oea;
+	char oec;
+
+	byte nea;
+	char nec;
+
+#endif /* USE_EGO_GRAPHICS */
+
 #endif /* USE_TRANSPARENCY */
 
 
@@ -818,8 +973,25 @@ static void Term_fresh_row_pict(int y, int x1, int x2)
 		nta = scr_taa[x];
 		ntc = scr_tcc[x];
 
+#ifdef USE_EGO_GRAPHICS
+
+		oea = old_eaa[x];
+		oec = old_ecc[x];
+
+		nea = scr_eaa[x];
+		nec = scr_ecc[x];
+
+		/* Handle unchanged grids */
+		if ((na == oa) && (nc == oc) &&
+		    (nta == ota) && (ntc == otc) &&
+		    (nea == oea) && (nec == oec))
+
+#else /* USE_EGO_GRAPHICS */
+
 		/* Handle unchanged grids */
 		if ((na == oa) && (nc == oc) && (nta == ota) && (ntc == otc))
+
+#endif /* USE_EGO_GRAPHICS */
 
 #else /* USE_TRANSPARENCY */
 
@@ -833,8 +1005,15 @@ static void Term_fresh_row_pict(int y, int x1, int x2)
 			{
 				/* Draw pending attr/char pairs */
 #ifdef USE_TRANSPARENCY
+#ifdef USE_EGO_GRAPHICS
+				(void)((*Term->pict_hook)(fx, y, fn,
+				       &scr_aa[fx], &scr_cc[fx],
+				       &scr_taa[fx], &scr_tcc[fx],
+				       &scr_eaa[fx], &scr_ecc[fx]));
+#else /* USE_EGO_GRAPHICS */
 				(void)((*Term->pict_hook)(fx, y, fn,
 				       &scr_aa[fx], &scr_cc[fx],&scr_taa[fx], &scr_tcc[fx]));
+#endif
 #else /* USE_TRANSPARENCY */
 				(void)((*Term->pict_hook)(fx, y, fn, &scr_aa[fx], &scr_cc[fx]));
 #endif /* USE_TRANSPARENCY */
@@ -853,6 +1032,12 @@ static void Term_fresh_row_pict(int y, int x1, int x2)
 #ifdef USE_TRANSPARENCY
 		old_taa[x] = nta;
 		old_tcc[x] = ntc;
+
+#ifdef USE_EGO_GRAPHICS
+		old_eaa[x] = nea;
+		old_ecc[x] = nec;
+#endif /* USE_EGO_GRAPHICS */
+
 #endif /* USE_TRANSPARENCY */
 
 		/* Restart and Advance */
@@ -864,8 +1049,15 @@ static void Term_fresh_row_pict(int y, int x1, int x2)
 	{
 		/* Draw pending attr/char pairs */
 #ifdef USE_TRANSPARENCY
+#ifdef USE_EGO_GRAPHICS
+		(void)((*Term->pict_hook)(fx, y, fn,
+			&scr_aa[fx], &scr_cc[fx],
+			&scr_taa[fx], &scr_tcc[fx],
+			&scr_eaa[fx], &scr_ecc[fx]));
+#else /* USE_EGO_GRAPHICS */
 		(void)((*Term->pict_hook)(fx, y, fn,
 			&scr_aa[fx], &scr_cc[fx], &scr_taa[fx], &scr_tcc[fx]));
+#endif /* USE_EGO_GRAPHICS */
 #else /* USE_TRANSPARENCY */
 		(void)((*Term->pict_hook)(fx, y, fn, &scr_aa[fx], &scr_cc[fx]));
 #endif /* USE_TRANSPARENCY */
@@ -900,6 +1092,19 @@ static void Term_fresh_row_both(int y, int x1, int x2)
 	char otc;
 	byte nta;
 	char ntc;
+
+#ifdef USE_EGO_GRAPHICS
+	byte *old_eaa = Term->old->ea[y];
+	char *old_ecc = Term->old->ec[y];
+	byte *scr_eaa = Term->scr->ea[y];
+	char *scr_ecc = Term->scr->ec[y];
+
+	byte oea;
+	char oec;
+	byte nea;
+	char nec;
+#endif /* USE_EGO_GRAPHICS */
+
 #endif /* USE_TRANSPARENCY */
 
 	/* The "always_text" flag */
@@ -939,8 +1144,24 @@ static void Term_fresh_row_both(int y, int x1, int x2)
 		nta = scr_taa[x];
 		ntc = scr_tcc[x];
 
+#ifdef USE_EGO_GRAPHICS
+		oea = old_eaa[x];
+		oec = old_ecc[x];
+
+		nea = scr_eaa[x];
+		nec = scr_ecc[x];
+
+		/* Handle unchanged grids */
+		if ((na == oa) && (nc == oc) &&
+		    (nta == ota) && (ntc == otc) &&
+		    (nea == oea) && (nec == oec))
+
+#else /* USE_EGO_GRAPHICS */
+
 		/* Handle unchanged grids */
 		if ((na == oa) && (nc == oc) && (nta == ota) && (ntc == otc))
+
+#endif /* USE_EGO_GRAPHICS */
 
 #else /* USE_TRANSPARENCY */
 
@@ -980,6 +1201,13 @@ static void Term_fresh_row_both(int y, int x1, int x2)
 		old_taa[x] = nta;
 		old_tcc[x] = ntc;
 
+#ifdef USE_EGO_GRAPHICS
+
+		old_eaa[x] = nea;
+		old_ecc[x] = nec;
+
+#endif /* USE_EGO_GRAPHICS */
+
 #endif /* USE_TRANSPARENCY */
 
 		/* Handle high-bit attr/chars */
@@ -1004,8 +1232,17 @@ static void Term_fresh_row_both(int y, int x1, int x2)
 
 #ifdef USE_TRANSPARENCY
 
+#ifdef USE_EGO_GRAPHICS
+
+			/* Hack -- Draw the special attr/char pair */
+			(void)((*Term->pict_hook)(x, y, 1, &na, &nc, &nta, &ntc, &nea, &nec));
+
+#else /* USE_EGO_GRAPHICS */
+
 			/* Hack -- Draw the special attr/char pair */
 			(void)((*Term->pict_hook)(x, y, 1, &na, &nc, &nta, &ntc));
+
+#endif /* USE_EGO_GRAPHICS */
 
 #else /* USE_TRANSPARENCY */
 
@@ -1372,6 +1609,13 @@ errr Term_fresh(void)
 			byte *taa = old->ta[y];
 			char *tcc = old->tc[y];
 
+#ifdef USE_EGO_GRAPHICS
+
+			byte *eaa = old->ea[y];
+			char *ecc = old->ec[y];
+
+#endif /* USE_EGO_GRAPHICS */
+
 #endif /* USE_TRANSPARENCY */
 
 
@@ -1386,6 +1630,13 @@ errr Term_fresh(void)
 
 				*taa++ = na;
 				*tcc++ = nc;
+
+#ifdef USE_EGO_GRAPHICS
+
+				*eaa++ = na;
+				*ecc++ = nc;
+
+#endif /* USE_EGO_GRAPHICS */
 
 #endif /* USE_TRANSPARENCY */
 
@@ -1431,13 +1682,27 @@ errr Term_fresh(void)
 			byte ota = old_taa[tx];
 			char otc = old_tcc[tx];
 
+#ifdef USE_EGO_GRAPHICS
+
+			byte *old_eaa = old->ea[ty];
+			char *old_ecc = old->ec[ty];
+
+			byte oea = old_eaa[tx];
+			char oec = old_ecc[tx];
+
+#endif /* USE_EGO_GRAPHICS */
+
 #endif /* USE_TRANSPARENCY */
 
 			/* Hack -- use "Term_pict()" always */
 			if (Term->always_pict)
 			{
 #ifdef USE_TRANSPARENCY
+#ifdef USE_EGO_GRAPHICS
+				(void)((*Term->pict_hook)(tx, ty, 1, &oa, &oc, &ota, &otc, &oea, &oec));
+#else /* USE_EGO_GRAPHICS */
 				(void)((*Term->pict_hook)(tx, ty, 1, &oa, &oc, &ota, &otc));
+#endif /* USE_EGO_GRAPHICS */
 #else /* USE_TRANSPARENCY */
 				(void)((*Term->pict_hook)(tx, ty, 1, &oa, &oc));
 #endif /* USE_TRANSPARENCY */
@@ -1447,7 +1712,11 @@ errr Term_fresh(void)
 			else if (Term->higher_pict && (oa & 0x80))
 			{
 #ifdef USE_TRANSPARENCY
+#ifdef USE_EGO_GRAPHICS
+				(void)((*Term->pict_hook)(tx, ty, 1, &oa, &oc, &ota, &otc, &oea, &oec));
+#else /* USE_EGO_GRAPHICS */
 				(void)((*Term->pict_hook)(tx, ty, 1, &oa, &oc, &ota, &otc));
+#endif /* USE_EGO_GRAPHICS */
 #else /* USE_TRANSPARENCY */
 				(void)((*Term->pict_hook)(tx, ty, 1, &oa, &oc));
 #endif /* USE_TRANSPARENCY */
@@ -1678,7 +1947,11 @@ errr Term_draw(int x, int y, byte a, char c)
 
 	/* Queue it for later */
 #ifdef USE_TRANSPARENCY
+#ifdef USE_EGO_GRAPHICS
+	Term_queue_char(x, y, a, c, 0, 0, 0, 0);
+#else /* USE_EGO_GRAPHICS */
 	Term_queue_char(x, y, a, c, 0, 0);
+#endif /* USE_EGO_GRAPHICS */
 #else /* USE_TRANSPARENCY */
 	Term_queue_char(x, y, a, c);
 #endif /* USE_TRANSPARENCY */
@@ -1716,7 +1989,11 @@ errr Term_addch(byte a, char c)
 
 	/* Queue the given character for display */
 #ifdef USE_TRANSPARENCY
+#ifdef USE_EGO_GRAPHICS
+	Term_queue_char(Term->scr->cx, Term->scr->cy, a, c, 0, 0, 0, 0);
+#else /* USE_EGO_GRAPHICS */
 	Term_queue_char(Term->scr->cx, Term->scr->cy, a, c, 0, 0);
+#endif /* USE_EGO_GRAPHICS */
 #else /* USE_TRANSPARENCY */
 	Term_queue_char(Term->scr->cx, Term->scr->cy, a, c);
 #endif /* USE_TRANSPARENCY */
@@ -1847,6 +2124,11 @@ errr Term_erase(int x, int y, int n)
 #ifdef USE_TRANSPARENCY
 	byte *scr_taa;
 	char *scr_tcc;
+
+#ifdef USE_EGO_GRAPHICS
+	byte *scr_eaa;
+	char *scr_ecc;
+#endif /* USE_EGO_GRAPHICS */
 #endif /* USE_TRANSPARENCY */
 
 	/* Place cursor */
@@ -1862,6 +2144,11 @@ errr Term_erase(int x, int y, int n)
 #ifdef USE_TRANSPARENCY
 	scr_taa = Term->scr->ta[y];
 	scr_tcc = Term->scr->tc[y];
+
+#ifdef USE_EGO_GRAPHICS
+	scr_eaa = Term->scr->ea[y];
+	scr_ecc = Term->scr->ec[y];
+#endif
 #endif /* USE_TRANSPARENCY */
 
 	/* Scan every column */
@@ -1880,6 +2167,11 @@ errr Term_erase(int x, int y, int n)
 #ifdef USE_TRANSPARENCY
 		scr_taa[x] = 0;
 		scr_tcc[x] = 0;
+
+#ifdef USE_EGO_GRAPHICS
+		scr_eaa[x] = 0;
+		scr_ecc[x] = 0;
+#endif /* USE_EGO_GRAPHICS */
 #endif /* USE_TRANSPARENCY */
 
 		/* Track minimum changed column */
@@ -1936,6 +2228,11 @@ errr Term_clear(void)
 #ifdef USE_TRANSPARENCY
 		byte *scr_taa = Term->scr->ta[y];
 		char *scr_tcc = Term->scr->tc[y];
+
+#ifdef USE_EGO_GRAPHICS
+		byte *scr_eaa = Term->scr->ea[y];
+		char *scr_ecc = Term->scr->ec[y];
+#endif /* USE_EGO_GRAPHICS */
 #endif /* USE_TRANSPARENCY */
 
 		/* Wipe each column */
@@ -1947,8 +2244,12 @@ errr Term_clear(void)
 #ifdef USE_TRANSPARENCY
 			scr_taa[x] = 0;
 			scr_tcc[x] = 0;
-#endif /* USE_TRANSPARENCY */
 
+#ifdef USE_EGO_GRAPHICS
+			scr_eaa[x] = 0;
+			scr_ecc[x] = 0;
+#endif /* USE_EGO_GRAPHICS */
+#endif /* USE_TRANSPARENCY */
 		}
 
 		/* This row has changed */
@@ -2734,6 +3035,7 @@ errr term_init(term *t, int w, int h, int k)
 char* clean80(int y, char* in, bool color)
 {
         static char out[81];
+        static char outc[81];
         int walker = 0;
 
         hack_map_info_default = TRUE;
@@ -2755,8 +3057,16 @@ char* clean80(int y, char* in, bool color)
                                 byte ta;
                                 char tc;
 
+#ifdef USE_EGO_GRAPHICS
+                                byte ea;
+                                char ec;
+
+                                /* Examine the grid */
+                                map_info(y + panel_row_prt, walker + panel_col_prt, &a, &c, &ta, &tc, &ea, &ec);
+#else /* USE_EGO_GRAPHICS */
                                 /* Examine the grid */
                                 map_info(y + panel_row_prt, walker + panel_col_prt, &a, &c, &ta, &tc);
+#endif /* USE_EGO_GRAPHICS */
 #else /* USE_TRANSPARENCY */
                                 /* Examine the grid */
                                 map_info(y + panel_row_prt, walker + panel_col_prt, &a, &c);
@@ -2778,27 +3088,35 @@ char* clean80(int y, char* in, bool color)
                                 byte ta;
                                 char tc;
 
+#ifdef USE_EGO_GRAPHICS
+                                byte ea;
+                                char ec;
+
+                                /* Examine the grid */
+                                map_info(y + panel_row_prt, walker + panel_col_prt, &a, &c, &ta, &tc, &ea, &ec);
+#else /* USE_EGO_GRAPHICS */
                                 /* Examine the grid */
                                 map_info(y + panel_row_prt, walker + panel_col_prt, &a, &c, &ta, &tc);
+#endif /* USE_EGO_GRAPHICS */
 #else /* USE_TRANSPARENCY */
                                 /* Examine the grid */
                                 map_info(y + panel_row_prt, walker + panel_col_prt, &a, &c);
 #endif /* USE_TRANSPARENCY */
-                                out[walker] = conv_color[a];
-message_add(format("%c %d", conv_color[a], a), TERM_VIOLET);
+                                outc[walker] = conv_color[a];
                         }
                         else
                         {
-                                out[walker] = conv_color[(byte)in[walker]];
+                                outc[walker] = conv_color[(byte)in[walker]];
                         }
                 }
                 walker++;
 	}
         out[80] = 0;
+        outc[80] = 0;
 
         hack_map_info_default = FALSE;
 
-        return out;
+        return (color) ? outc : out;
 }
 
 /* Were we called in the same second as the last time? */

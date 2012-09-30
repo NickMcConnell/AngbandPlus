@@ -1,0 +1,525 @@
+$#include "angband.h"
+
+typedef char* cptr;
+typedef int errr;
+typedef unsigned char bool;
+typedef unsigned char byte;
+typedef signed short s16b;
+typedef unsigned short u16b;
+typedef signed int s32b;
+typedef unsigned int u32b;
+
+/* To make easy object creations */
+$static object_type lua_obj_forge;
+static object_type lua_obj_forge @ obj_forge;
+$static obj_theme lua_obj_theme;
+static obj_theme lua_obj_theme @ theme_forge;
+
+#define TR1_STR                         0x00000001L     /* STR += "pval" */
+#define TR1_INT                         0x00000002L     /* INT += "pval" */
+#define TR1_WIS                         0x00000004L     /* WIS += "pval" */
+#define TR1_DEX                         0x00000008L     /* DEX += "pval" */
+#define TR1_CON                         0x00000010L     /* CON += "pval" */
+#define TR1_CHR                         0x00000020L     /* CHR += "pval" */
+#define TR1_MANA                        0x00000040L     /* Mana multipler */
+#define TR1_SPELL                       0x00000080L     /* Spell power increase */
+#define TR1_STEALTH                     0x00000100L     /* Stealth += "pval" */
+#define TR1_SEARCH                      0x00000200L     /* Search += "pval" */
+#define TR1_INFRA                       0x00000400L     /* Infra += "pval" */
+#define TR1_TUNNEL                      0x00000800L     /* Tunnel += "pval" */
+#define TR1_SPEED                       0x00001000L     /* Speed += "pval" */
+#define TR1_BLOWS                       0x00002000L     /* Blows += "pval" */
+#define TR1_CHAOTIC                     0x00004000L
+#define TR1_VAMPIRIC                    0x00008000L
+#define TR1_SLAY_ANIMAL         0x00010000L
+#define TR1_SLAY_EVIL           0x00020000L
+#define TR1_SLAY_UNDEAD         0x00040000L
+#define TR1_SLAY_DEMON          0x00080000L
+#define TR1_SLAY_ORC            0x00100000L
+#define TR1_SLAY_TROLL          0x00200000L
+#define TR1_SLAY_GIANT          0x00400000L
+#define TR1_SLAY_DRAGON         0x00800000L
+#define TR1_KILL_DRAGON         0x01000000L     /* Execute Dragon */
+#define TR1_VORPAL                      0x02000000L     /* Later */
+#define TR1_IMPACT                      0x04000000L     /* Cause Earthquakes */
+#define TR1_BRAND_POIS                  0x08000000L
+#define TR1_BRAND_ACID          0x10000000L
+#define TR1_BRAND_ELEC          0x20000000L
+#define TR1_BRAND_FIRE          0x40000000L
+#define TR1_BRAND_COLD          0x80000000L
+#define TR1_NULL_MASK           0x00000000L
+
+#define TR2_SUST_STR            0x00000001L
+#define TR2_SUST_INT            0x00000002L
+#define TR2_SUST_WIS            0x00000004L
+#define TR2_SUST_DEX            0x00000008L
+#define TR2_SUST_CON            0x00000010L
+#define TR2_SUST_CHR            0x00000020L
+#define TR2_INVIS                       0x00000040L     /* Invisibility */
+#define TR2_LIFE                        0x00000080L     /* Life multiplier */
+#define TR2_IM_ACID                     0x00000100L
+#define TR2_IM_ELEC                     0x00000200L
+#define TR2_IM_FIRE                     0x00000400L
+#define TR2_IM_COLD                     0x00000800L
+#define TR2_SENS_FIRE                   0x00001000L     /* Sensibility to fire */
+#define TR2_REFLECT                     0x00002000L     /* Reflect 'bolts' */
+#define TR2_FREE_ACT            0x00004000L     /* Free Action */
+#define TR2_HOLD_LIFE           0x00008000L     /* Hold Life */
+#define TR2_RES_ACID            0x00010000L
+#define TR2_RES_ELEC            0x00020000L
+#define TR2_RES_FIRE            0x00040000L
+#define TR2_RES_COLD            0x00080000L
+#define TR2_RES_POIS            0x00100000L
+#define TR2_RES_FEAR            0x00200000L
+#define TR2_RES_LITE            0x00400000L
+#define TR2_RES_DARK            0x00800000L
+#define TR2_RES_BLIND           0x01000000L
+#define TR2_RES_CONF            0x02000000L
+#define TR2_RES_SOUND           0x04000000L
+#define TR2_RES_SHARDS          0x08000000L
+#define TR2_RES_NETHER          0x10000000L
+#define TR2_RES_NEXUS           0x20000000L
+#define TR2_RES_CHAOS           0x40000000L
+#define TR2_RES_DISEN           0x80000000L
+#define TR2_NULL_MASK           0x00000000L
+
+#define TR3_SH_FIRE             0x00000001L     /* Immolation (Fire) */
+#define TR3_SH_ELEC             0x00000002L     /* Electric Sheath */
+#define TR3_AUTO_CURSE          0x00000004L     /* The obj will recurse itself */
+#define TR3_DECAY               0x00000008L     /* Decay */
+#define TR3_NO_TELE             0x00000010L     /* Anti-teleportation */
+#define TR3_NO_MAGIC            0x00000020L     /* Anti-magic */
+#define TR3_WRAITH              0x00000040L     /* Wraithform */
+#define TR3_TY_CURSE            0x00000080L     /* The Ancient Curse */
+#define TR3_EASY_KNOW           0x00000100L     /* Aware -> Known */
+#define TR3_HIDE_TYPE           0x00000200L     /* Hide "pval" description */
+#define TR3_SHOW_MODS           0x00000400L     /* Always show Tohit/Todam */
+#define TR3_INSTA_ART           0x00000800L     /* Item must be an artifact */
+#define TR3_FEATHER                     0x00001000L     /* Feather Falling */
+#define TR3_LITE1               0x00002000L     /* lite radius 1 */
+#define TR3_SEE_INVIS           0x00004000L     /* See Invisible */
+#define TR3_NORM_ART            0x00008000L     /* Artifact in k_info */
+#define TR3_SLOW_DIGEST         0x00010000L     /* Item slows down digestion */
+#define TR3_REGEN                       0x00020000L     /* Item induces regeneration */
+#define TR3_XTRA_MIGHT          0x00040000L     /* Bows get extra multiplier */
+#define TR3_XTRA_SHOTS          0x00080000L     /* Bows get extra shots */
+#define TR3_IGNORE_ACID         0x00100000L     /* Item ignores Acid Damage */
+#define TR3_IGNORE_ELEC         0x00200000L     /* Item ignores Elec Damage */
+#define TR3_IGNORE_FIRE         0x00400000L     /* Item ignores Fire Damage */
+#define TR3_IGNORE_COLD         0x00800000L     /* Item ignores Cold Damage */
+#define TR3_ACTIVATE            0x01000000L     /* Item can be activated */
+#define TR3_DRAIN_EXP           0x02000000L     /* Item drains Experience */
+#define TR3_TELEPORT            0x04000000L     /* Item teleports player */
+#define TR3_AGGRAVATE           0x08000000L     /* Item aggravates monsters */
+#define TR3_BLESSED                     0x10000000L     /* Item is Blessed */
+#define TR3_CURSED                      0x20000000L     /* Item is Cursed */
+#define TR3_HEAVY_CURSE         0x40000000L     /* Item is Heavily Cursed */
+#define TR3_PERMA_CURSE         0x80000000L     /* Item is Perma Cursed */
+#define TR3_NULL_MASK           0x00000000L
+
+#define TR4_NEVER_BLOW          0x00000001L     /* Weapon can't attack */
+#define TR4_PRECOGNITION        0x00000002L     /* Like activating the cheat mode */
+#define TR4_BLACK_BREATH        0x00000004L     /* Tolkien's Black Breath */
+#define TR4_RECHARGE            0x00000008L     /* For artifact Wands and Staffs */
+#define TR4_FLY                 0x00000010L     /* This one and ONLY this one allow you to fly over trees */
+#define TR4_DG_CURSE            0x00000020L     /* The Ancient Morgothian Curse */
+#define TR4_COULD2H             0x00000040L     /* Can wield it 2 Handed */
+#define TR4_MUST2H              0x00000080L     /* Must wield it 2 Handed */
+#define TR4_LEVELS              0x00000100L     /* Can gain exp/exp levels !! */
+#define TR4_CLONE               0x00000200L     /* Can clone monsters */
+#define TR4_SPECIAL_GENE        0x00000400L     /* The object can only be generated in special conditions like quests, special dungeons, ... */
+#define TR4_CLIMB               0x00000800L     /* Allow climbing mountains */
+#define TR4_FAST_CAST           0x00001000L     /* Rod is x2 time faster to use */
+#define TR4_CAPACITY            0x00002000L     /* Rod can take x2 mana */
+#define TR4_CHARGING            0x00004000L     /* Rod recharge faster */
+#define TR4_CHEAPNESS           0x00008000L     /* Rod spells are cheaper(in mana cost) to cast */
+#define TR4_FOUNTAIN            0x00010000L     /* Available as fountain (for potions) */
+#define TR4_ANTIMAGIC_50        0x00020000L     /* Forbid magic */
+#define TR4_ANTIMAGIC_30        0x00040000L     /* Forbid magic */
+#define TR4_ANTIMAGIC_20        0x00080000L     /* Forbid magic */
+#define TR4_ANTIMAGIC_10        0x00100000L     /* Forbid magic */
+#define TR4_EASY_USE            0x00200000L     /* Easily activable */
+#define TR4_IM_NETHER           0x00400000L     /* Immunity to nether */
+#define TR4_RECHARGED           0x00800000L     /* Object has been recharged once */
+#define TR4_ULTIMATE            0x01000000L     /* ULTIMATE artifact */
+#define TR4_AUTO_ID             0x02000000L     /* Id stuff on floor */
+#define TR4_LITE2               0x04000000L     /* lite radius 2 */
+#define TR4_LITE3               0x08000000L     /* lite radius 3 */
+#define TR4_FUEL_LITE           0x10000000L     /* fuelable lite */
+#define TR4_ART_EXP             0x20000000L     /* Will accumulate xp */
+#define TR4_CURSE_NO_DROP       0x40000000L     /* The obj wont be dropped */
+#define TR4_NO_RECHARGE         0x80000000L     /* Object Cannot be recharged */
+#define TR4_NULL_MASK           0xFFFFFFFCL
+
+#define TR5_TEMPORARY           0x00000001L     /* In timeout turns it is destroyed */
+#define TR5_DRAIN_MANA          0x00000002L     /* Drains mana */
+#define TR5_DRAIN_HP            0x00000004L     /* Drains hp */
+#define TR5_KILL_DEMON          0x00000008L     /* Execute Demon */
+#define TR5_KILL_UNDEAD         0x00000010L     /* Execute Undead */
+#define TR5_CRIT                0x00000020L     /* More critical hits */
+#define TR5_ATTR_MULTI          0x00000040L     /* Object shimmer -- only allowed in k_info */
+#define TR5_WOUNDING            0x00000080L     /* Wounds monsters */
+#define TR5_FULL_NAME           0x00000100L     /* Uses direct name from k_info */
+#define TR5_LUCK                0x00000200L     /* Luck += pval */
+
+#define ESP_ORC                 0x00000001L
+#define ESP_TROLL               0x00000002L
+#define ESP_DRAGON              0x00000004L
+#define ESP_GIANT               0x00000008L
+#define ESP_DEMON               0x00000010L
+#define ESP_UNDEAD              0x00000020L
+#define ESP_EVIL                0x00000040L
+#define ESP_ANIMAL              0x00000080L
+#define ESP_DRAGONRIDER         0x00000100L
+#define ESP_GOOD                0x00000200L
+#define ESP_NONLIVING           0x00000400L
+#define ESP_UNIQUE              0x00000800L
+#define ESP_SPIDER              0x00001000L
+#define ESP_ALL                 0x80000000L
+
+/*
+ * Bit flags for the "get_item" function
+ */
+#define USE_EQUIP	0x01	/* Allow equip items */
+#define USE_INVEN	0x02	/* Allow inven items */
+#define USE_FLOOR	0x04	/* Allow floor items */
+
+#define INVEN_WIELD     24 /* 3 weapons -- WEAPONS */
+#define INVEN_BOW       27 /* 1 bow -- WEAPON */
+#define INVEN_RING      28 /* 6 rings -- FINGER */
+#define INVEN_NECK      34 /* 2 amulets -- HEAD */
+#define INVEN_LITE      36 /* 1 lite -- TORSO */
+#define INVEN_BODY      37 /* 1 body -- TORSO */
+#define INVEN_OUTER     38 /* 1 cloak -- TORSO */
+#define INVEN_ARM       39 /* 3 arms -- ARMS */
+#define INVEN_HEAD      42 /* 2 heads -- HEAD */
+#define INVEN_HANDS     44 /* 3 hands -- ARMS */
+#define INVEN_FEET      47 /* 2 feets -- LEGS */
+#define INVEN_CARRY     49 /* 1 carried monster -- TORSO */
+#define INVEN_AMMO      50 /* 1 quiver -- TORSO */
+#define INVEN_TOOL      51 /* 1 tool -- ARMS */
+#define INVEN_TOTAL     52
+#define INVEN_EQ        (INVEN_TOTAL - INVEN_WIELD)
+
+#define TV_SKELETON      1      /* Skeletons ('s') */
+#define TV_BOTTLE        2      /* Empty bottles ('!') */
+#define TV_FIRESTONE     3      /* For DragonRiders */
+#define TV_BATERIE       4      /* For the Alchemists */
+#define TV_SPIKE         5      /* Spikes ('~') */
+#define TV_MSTAFF        6      /* Mage Staffs */
+#define TV_CHEST         7      /* Chests ('~') */
+#define TV_PARCHEMENT    8      /* Parchements from Kamband */
+#define TV_CORPSE        9      /* Monster corpses */
+#define TV_EGG          10      /* Monster Eggs */
+#define TV_JUNK         11      /* Sticks, Pottery, etc ('~') */
+#define TV_TOOL         12      /* Tools */
+#define TV_INSTRUMENT   14      /* Musical instruments */
+#define TV_BOOMERANG    15      /* Boomerangs */
+#define TV_SHOT         16      /* Ammo for slings */
+#define TV_ARROW        17      /* Ammo for bows */
+#define TV_BOLT         18      /* Ammo for x-bows */
+#define TV_BOW          19      /* Slings/Bows/Xbows */
+#define TV_DIGGING      20      /* Shovels/Picks */
+#define TV_HAFTED       21      /* Priest Weapons */
+#define TV_POLEARM      22      /* Pikes/Glaives/Spears/etc. */
+#define TV_SWORD        23      /* Edged Weapons */
+#define TV_AXE          24      /* Axes/Cleavers */
+#define TV_BOOTS        30      /* Boots */
+#define TV_GLOVES       31      /* Gloves */
+#define TV_HELM         32      /* Helms */
+#define TV_CROWN        33      /* Crowns */
+#define TV_SHIELD       34      /* Shields */
+#define TV_CLOAK        35      /* Cloaks */
+#define TV_SOFT_ARMOR   36      /* Soft Armor */
+#define TV_HARD_ARMOR   37      /* Hard Armor */
+#define TV_DRAG_ARMOR   38      /* Dragon Scale Mail */
+#define TV_LITE         39      /* Lites (including Specials) */
+#define TV_AMULET       40      /* Amulets (including Specials) */
+#define TV_RING         45      /* Rings (including Specials) */
+#define TV_TRAPKIT      46      /* Trapkits */
+#define TV_STAFF        55
+#define TV_WAND         65
+#define TV_ROD          66
+#define TV_ROD_MAIN     67
+#define TV_SCROLL       70
+#define TV_POTION       71
+#define TV_POTION2      72      /* Second set of potion */
+#define TV_FLASK        77
+#define TV_FOOD         80
+#define TV_HYPNOS       99      /* To wield monsters !:) */
+#define TV_GOLD         100     /* Gold can only be picked up by players */
+#define TV_RANDART      102     /* Random Artifacts */
+#define TV_RUNE1        104      /* Base runes */
+#define TV_RUNE2        105      /* Modifier runes */
+
+#define TV_VALARIN_BOOK 111
+#define TV_MAGERY_BOOK  112
+#define TV_SHADOW_BOOK  113
+#define TV_CHAOS_BOOK   114
+#define TV_NETHER_BOOK  115
+#define TV_CRUSADE_BOOK 116
+#define TV_SIGALDRY_BOOK 117
+#define TV_SYMBIOTIC_BOOK 118
+#define TV_MUSIC_BOOK   119
+#define TV_MAGIC_BOOK   120
+#define TV_PRAYER_BOOK  121
+#define TV_ILLUSION_BOOK 122
+#define TV_TRIBAL_BOOK  123
+#define TV_DRUID_BOOK   124
+#define TV_DAEMON_BOOK  125
+#define TV_SPIRIT_BOOK  126
+
+struct obj_theme
+{
+	byte treasure;
+	byte combat;
+	byte magic;
+	byte tools;
+};
+
+struct object_kind
+{
+	u32b name;			/* Name (offset) */
+	u32b text;			/* Text (offset) */
+
+	byte tval;			/* Object type */
+	byte sval;			/* Object sub type */
+
+        s32b pval;                      /* Object extra info */
+        s32b pval2;                     /* Object extra info */
+
+	s16b to_h;			/* Bonus to hit */
+	s16b to_d;			/* Bonus to damage */
+	s16b to_a;			/* Bonus to armor */
+
+	s16b ac;			/* Base armor */
+
+        byte dd;
+        byte ds;            /* Damage dice/sides */
+
+        s32b weight;            /* Weight */
+
+	s32b cost;			/* Object "base cost" */
+
+	u32b flags1;		/* Flags, set 1 */
+	u32b flags2;		/* Flags, set 2 */
+	u32b flags3;		/* Flags, set 3 */
+        u32b flags4;            /* Flags, set 4 */
+        u32b flags5;            /* Flags, set 5 */
+
+	byte locale[4];		/* Allocation level(s) */
+	byte chance[4];		/* Allocation chance(s) */
+
+	byte level;			/* Level */
+	byte extra;			/* Something */
+
+
+	byte d_attr;		/* Default object attribute */
+	char d_char;		/* Default object character */
+
+
+	byte x_attr;		/* Desired object attribute */
+	char x_char;		/* Desired object character */
+
+
+	byte flavor;			/* Special object flavor (or zero) */
+
+	bool easy_know;		/* This object is always known (if aware) */
+
+
+	bool aware;			/* The player is "aware" of the item's effects */
+
+	bool tried;			/* The player has "tried" one of the items */
+
+        bool know;                      /* extractable flag for the alchemist */
+
+        byte squeltch;                  /* Should we destroy it ? */
+
+        u32b esp;                       /* ESP flags */
+
+        byte btval;                     /* Become Object type */
+        byte bsval;                     /* Become Object sub type */
+        bool artifact;                  /* Is it a normal artifact(already generated) */
+
+        s16b power;                     /* Power granted(if any) */
+};
+
+struct artifact_type
+{
+	u32b name;			/* Name (offset) */
+	u32b text;			/* Text (offset) */
+
+	byte tval;			/* Artifact type */
+	byte sval;			/* Artifact sub type */
+
+	s16b pval;			/* Artifact extra info */
+
+	s16b to_h;			/* Bonus to hit */
+	s16b to_d;			/* Bonus to damage */
+	s16b to_a;			/* Bonus to armor */
+
+	s16b ac;			/* Base armor */
+
+        byte dd;
+        byte ds;            /* Damage when hits */
+
+	s16b weight;		/* Weight */
+
+	s32b cost;			/* Artifact "cost" */
+
+	u32b flags1;		/* Artifact Flags, set 1 */
+	u32b flags2;		/* Artifact Flags, set 2 */
+	u32b flags3;		/* Artifact Flags, set 3 */
+        u32b flags4;            /* Artifact Flags, set 4 */
+        u32b flags5;            /* Artifact Flags, set 5 */
+
+	byte level;			/* Artifact level */
+	byte rarity;		/* Artifact rarity */
+
+	byte cur_num;		/* Number created (0 or 1) */
+	byte max_num;		/* Unused (should be "1") */
+
+        u32b esp;                       /* ESP flags */
+
+        s16b power;                     /* Power granted(if any) */
+};
+
+struct ego_item_type
+{
+	u32b name;			/* Name (offset) */
+	u32b text;			/* Text (offset) */
+
+        bool before;                    /* Before or after the object name ? */
+
+        byte tval[6];
+        byte min_sval[6];
+        byte max_sval[6];
+
+	byte rating;		/* Rating boost */
+
+	byte level;			/* Minimum level */
+        byte rarity;            /* Object rarity */
+        byte mrarity;           /* Object rarity */
+
+        s16b max_to_h;          /* Maximum to-hit bonus */
+        s16b max_to_d;          /* Maximum to-dam bonus */
+        s16b max_to_a;          /* Maximum to-ac bonus */
+
+        s32b max_pval;          /* Maximum pval */
+
+	s32b cost;			/* Ego-item "cost" */
+
+        byte rar[5];
+        u32b flags1[5];            /* Ego-Item Flags, set 1 */
+        u32b flags2[5];            /* Ego-Item Flags, set 2 */
+        u32b flags3[5];            /* Ego-Item Flags, set 3 */
+        u32b flags4[5];            /* Ego-Item Flags, set 4 */
+        u32b flags5[5];            /* Ego-Item Flags, set 5 */
+        u32b esp[5];                       /* ESP flags */
+        u32b fego[5];                       /* ego flags */
+
+        s16b power;                     /* Power granted(if any) */
+};
+
+struct object_type
+{
+	s16b k_idx;			/* Kind index (zero if "dead") */
+
+	byte iy;			/* Y-position on map, or zero */
+	byte ix;			/* X-position on map, or zero */
+
+	byte tval;			/* Item type (from kind) */
+	byte sval;			/* Item sub-type (from kind) */
+
+        s32b pval;                      /* Item extra-parameter */
+        s16b pval2;                     /* Item extra-parameter for some special
+                                           items*/
+        s32b pval3;                     /* Item extra-parameter for some special
+                                           items*/
+
+	byte discount;		/* Discount (if any) */
+
+	byte number;		/* Number of items */
+
+        s32b weight;            /* Item weight */
+
+        byte elevel;            /* Item exp level */
+        s32b exp;               /* Item exp */
+
+	byte name1;			/* Artifact type, if any */
+        s16b name2;                     /* Ego-Item type, if any */
+        s16b name2b;                    /* Second Ego-Item type, if any */
+
+	byte xtra1;			/* Extra info type */
+        s16b xtra2;                     /* Extra info index */
+
+	s16b to_h;			/* Plusses to hit */
+	s16b to_d;			/* Plusses to damage */
+	s16b to_a;			/* Plusses to AC */
+
+	s16b ac;			/* Normal AC */
+
+        byte dd;
+        byte ds;            /* Damage dice/sides */
+
+	s16b timeout;		/* Timeout Counter */
+
+	byte ident;			/* Special flags  */
+
+	byte marked;		/* Object is marked */
+
+	u16b note;			/* Inscription index */
+        u16b art_name;      /* Artifact name (random artifacts) */
+
+        u32b art_flags1;        /* Flags, set 1  Alas, these were necessary */
+        u32b art_flags2;        /* Flags, set 2  for the random artifacts of*/
+        u32b art_flags3;        /* Flags, set 3  Zangband */
+        u32b art_flags4;        /* Flags, set 4  PernAngband */
+        u32b art_flags5;        /* Flags, set 5  PernAngband */
+        u32b art_esp;           /* Flags, set esp  PernAngband */
+	
+	s16b next_o_idx;	/* Next object in stack (if any) */
+
+	s16b held_m_idx;	/* Monster holding us (if any) */
+
+        byte sense;             /* Pseudo-id status */
+};
+
+extern object_type o_list[max_o_idx];
+extern object_type inventory[INVEN_TOTAL];
+extern object_kind k_info[max_k_idx];
+extern char *k_name;
+extern char *k_text;
+extern artifact_type a_info[max_a_idx];
+extern char *a_name;
+extern char *a_text;
+extern header *e_head;
+extern ego_item_type e_info[max_e_idx];
+extern char *e_name;
+extern char *e_text;
+
+extern void object_flags(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3, u32b *f4, u32b *f5, u32b *esp);
+extern char *lua_object_desc @ object_desc(object_type *o_ptr, int pref, int mode);
+extern bool identify_fully_aux(object_type *o_ptr, FILE *fff);
+extern void inven_item_describe(int item);
+extern void inven_item_increase(int item, int num);
+extern bool inven_item_optimize(int item);
+extern void floor_item_describe(int item);
+extern void floor_item_increase(int item, int num);
+extern void floor_item_optimize(int item);
+extern void delete_object_idx(int o_idx);
+extern s16b o_pop(void);
+extern errr get_obj_num_prep(void);
+extern s16b get_obj_num(int level);
+extern s16b lookup_kind(int tval, int sval);
+extern void object_wipe(object_type *o_ptr);
+extern void object_prep(object_type *o_ptr, int k_idx);
+extern void object_copy(object_type *o_ptr, object_type *j_ptr);
+extern void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great);
+extern bool make_object(object_type *j_ptr, bool good, bool great, obj_theme theme);
+extern s16b drop_near(object_type *o_ptr, int chance, int y, int x);
+extern object_type *get_object(int item);
+extern object_type *new_object();
+extern void end_object(object_type *o_ptr);
+extern bool get_item(int *cp, cptr pmt, cptr str, int mode);
+extern void lua_set_item_tester(int tval, char *fct);

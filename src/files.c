@@ -242,6 +242,9 @@ s16b tokenize(char *buf, s16b num, char **tokens, char delim1, char delim2)
  *
  * Specify visual information, given an index, and some data
  *   V:<num>:<kv>:<rv>:<gv>:<bv>
+ *
+ * Specify squelch settings
+ *   Q:<num>:<squelch>
  */
 bool user_process_pref_file = TRUE;
 errr process_pref_file_aux(char *buf)
@@ -289,6 +292,71 @@ errr process_pref_file_aux(char *buf)
                                 r_ptr->x_char = n2;
                         }
                         return (0);
+		}
+	}
+
+
+	/* Process "G:<type>:<num>:<a>/<c>" -- attr/char for overlay graphics */
+	if (buf[0] == 'G')
+	{
+		/* Process "G:M:<num>:<a>/<c>" -- attr/char for ego monsters */
+		if (buf[2] == 'M')
+		{
+			if (tokenize(buf+4, 3, zz, ':', '/') == 3)
+			{
+				monster_ego *re_ptr;
+				i = (huge)strtol(zz[0], NULL, 0);
+				n1 = strtol(zz[1], NULL, 0);
+				n2 = strtol(zz[2], NULL, 0);
+				if (i >= max_re_idx) return (1);
+				re_ptr = &re_info[i];
+				if (n1) re_ptr->g_attr = n1;
+				if (n2)
+				{
+					re_ptr->g_char = n2;
+				}
+				return (0);
+			}
+		}
+
+		/* Process "G:P:<num>:<a>/<c>" -- attr/char for race modifiers */
+		if (buf[2] == 'P')
+		{
+			if (tokenize(buf+4, 3, zz, ':', '/') == 3)
+			{
+				player_race_mod *rmp_ptr;
+				i = (huge)strtol(zz[0], NULL, 0);
+				n1 = strtol(zz[1], NULL, 0);
+				n2 = strtol(zz[2], NULL, 0);
+				if (i >= max_rmp_idx) return (1);
+				rmp_ptr = &race_mod_info[i];
+				if (n1) rmp_ptr->g_attr = n1;
+				if (n2)
+				{
+					rmp_ptr->g_char = n2;
+				}
+				return (0);
+			}
+		}
+
+		/* Process "G:T:<num>:<a>/<c>" -- attr/char for traps */
+		if (buf[2] == 'T')
+		{
+			if (tokenize(buf+4, 3, zz, ':', '/') == 3)
+			{
+				trap_type *t_ptr;
+				i = (huge)strtol(zz[0], NULL, 0);
+				n1 = strtol(zz[1], NULL, 0);
+				n2 = strtol(zz[2], NULL, 0);
+				if (i >= max_t_idx) return (1);
+				t_ptr = &t_info[i];
+				if (n1) t_ptr->g_attr = n1;
+				if (n2)
+				{
+					t_ptr->g_char = n2;
+				}
+				return (0);
+			}
 		}
 	}
 
@@ -524,6 +592,29 @@ errr process_pref_file_aux(char *buf)
 		}
 	}
 
+ 	/*  Process "Q:<num>:<squelch>" -- item squelch flags */
+	else if (buf[0] == 'Q')
+	{
+		long k_idx, squelch;
+		object_kind *k_ptr;
+
+		if (tokenize(buf+2, 2, zz, ':', '/') != 2) return (1);
+		
+		k_idx = strtol(zz[0], NULL, 0);
+		squelch = strtol(zz[1], NULL, 0);
+
+		/* Obtain the object. */
+		if (k_idx < 0 || k_idx >= max_k_idx) return (2);
+		k_ptr = &k_info[k_idx];
+		
+		/* Legal values for k_ptr->squeltch are only defined within
+		 * squeltch.c, and it does its own sanity checking, so just
+		 * chech that the value is plausible. */
+		if (squelch < 0 || squelch > 255) return (3);
+                k_ptr->squeltch = squelch;
+
+                return (0);
+	}
 	/* Failure */
 	return (1);
 }
@@ -705,19 +796,19 @@ static cptr process_pref_file_expr(char **sp, char *fp)
 			/* Race */
 			else if (streq(b+1, "RACE"))
 			{
-				v = rp_ptr->title;
+                                v = rp_ptr->title + rp_name;
 			}
 
 			/* Race */
                         else if (streq(b+1, "RACEMOD"))
 			{
-                                v = rmp_ptr->title;
+                                v = rmp_ptr->title + rmp_name;
 			}
 
 			/* Class */
 			else if (streq(b+1, "CLASS"))
 			{
-				v = cp_ptr->title;
+				v = cp_ptr->title + c_name;
 			}
 
 			/* Player */
@@ -1184,7 +1275,7 @@ static void display_player_middle(void)
 	}
 
 	prt_lnum("Gold       ", p_ptr->au, 13, 28, TERM_L_GREEN);
-	
+
         if(p_ptr->class_extra3 & CLASS_UNDEAD)
         {
                 prt_num("Max Death Points ", p_ptr->mhp, 9, 52, TERM_L_BLUE);
@@ -1358,10 +1449,10 @@ static void display_player_various(void)
 	o_ptr = &inventory[INVEN_BOW];
 
 	/* Fix the display for Weaponmasters & Priests -- Gumby */
-	if ((p_ptr->pclass == CLASS_WEAPONMASTER) &&
+	if ((PRACE_FLAGS(PR1_HACK_WEAPON)) &&
             (inventory[INVEN_WIELD].tval == p_ptr->class_extra1))
                 tmp = (p_ptr->to_h - (p_ptr->lev / 2)) + o_ptr->to_h;
-	else if ((p_ptr->pclass == CLASS_PRIEST) && (p_ptr->icky_wield))
+	else if ((PRACE_FLAGS(PR1_BLESS_WEAPON)) && (p_ptr->icky_wield))
 		tmp = p_ptr->to_h + o_ptr->to_h + 15;
 	else
 		tmp = p_ptr->to_h + o_ptr->to_h;
@@ -1488,466 +1579,290 @@ static void display_player_various(void)
  */
 void player_flags(u32b *f1, u32b *f2, u32b *f3, u32b *f4, u32b *f5, u32b *esp)
 {
+        int i;
+
 	/* Clear */
         (*f1) = (*f2) = (*f3) = (*f4) = (*f5) = (*esp) = 0L;
 
+        /* Astral chars */
+        if (p_ptr->astral)
+        {
+                (*f3) |= TR3_WRAITH;
+        }
+
 	/* Classes */
-	switch (p_ptr->pclass)
-	{
-	case CLASS_WARRIOR:
-		if (p_ptr->lev > 29)
-			(*f2) |= (TR2_RES_FEAR);
-		break;
-	case CLASS_PALADIN:
-		if (p_ptr->lev > 39)
-			(*f2) |= (TR2_RES_FEAR);
-		break;
-	case CLASS_CHAOS_WARRIOR:
-                if (p_ptr->lev > 24)
-			(*f2) |= (TR2_RES_CHAOS);
-		if (p_ptr->lev > 39)
-			(*f2) |= (TR2_RES_FEAR);
-		break;
-	case CLASS_MONK:
-		if ((p_ptr->lev > 9) && !monk_heavy_armor())
-			(*f1) |= TR1_SPEED;
-		if ((p_ptr->lev>24) && !monk_heavy_armor())
-			(*f2) |= (TR2_FREE_ACT);
-		break;
-	case CLASS_MINDCRAFTER:
-		if (p_ptr->lev > 9)
-			(*f2) |= (TR2_RES_FEAR);
-		if (p_ptr->lev > 19)
-			(*f2) |= (TR2_SUST_WIS);
-		if (p_ptr->lev > 29)
-			(*f2) |= (TR2_RES_CONF);
-		if (p_ptr->lev > 39)
-                        (*esp) |= (ESP_DEMON | ESP_ORC | ESP_TROLL | ESP_GIANT | ESP_UNDEAD | ESP_ANIMAL | ESP_UNIQUE);
-		break;
-	case CLASS_DAEMONOLOGIST:
-		if (p_ptr->lev > 19)
-			(*f2) |= (TR2_RES_CONF);
-		if (p_ptr->lev > 29)
-			(*f2) |= (TR2_RES_FEAR);
-		if (p_ptr->lev > 39)
-			(*f2) |= (TR2_FREE_ACT);
-		break;
-        case CLASS_WEAPONMASTER:
-                if (p_ptr->lev > 29) (*f2) |= (TR2_RES_FEAR);
-                break;
-	default:
-		; /* Do nothing */
-	}
+        for (i = 1; i <= p_ptr->lev; i++)
+        {
+                (*f1) |= cp_ptr->oflags1[i];
+                (*f2) |= cp_ptr->oflags2[i];
+                (*f3) |= cp_ptr->oflags3[i];
+                (*f4) |= cp_ptr->oflags4[i];
+                (*f5) |= cp_ptr->oflags5[i];
+                (*esp) |= cp_ptr->oesp[i];
+        }
 
 	/* Races */
         if ((!p_ptr->mimic_form) && (!p_ptr->body_monster))
         {
-        switch (p_ptr->prace)
-        {
-        case RACE_WOOD_ELF:
-                (*f2) |= (TR2_RES_LITE);
-                (*f3) |= (TR3_XTRA_MIGHT);
-                break;
-        case RACE_ELF:
-                (*f2) |= (TR2_RES_LITE);
-                break;
-        case RACE_HOBBIT:
-                (*f2) |= (TR2_SUST_DEX);
-		break;
-	case RACE_GNOME:
-		(*f2) |= (TR2_FREE_ACT);
-		break;
-	case RACE_DWARF:
-		(*f2) |= (TR2_RES_BLIND);
-		break;
-	case RACE_HALF_ORC:
-		(*f2) |= (TR2_RES_DARK);
-		break;
-	case RACE_HALF_TROLL:
-		(*f2) |= (TR2_SUST_STR);
-		if (p_ptr->lev > 14)
-		{
-			(*f3) = (TR3_REGEN);
-			if (p_ptr->pclass == CLASS_WARRIOR)
-			{
-				(*f3) = (TR3_SLOW_DIGEST);
-				/*
-				 * Let's not make Regeneration a disadvantage
-				 * for the poor warriors who can never learn
-				 * a spell that satisfies hunger (actually
-				 * neither can rogues, but half-trolls are not
-				 * supposed to play rogues)
-				 */
-			}
-		}
-		break;
-        case RACE_DUNADAN:
-		(*f2) |= (TR2_SUST_CON);
-                (*f3) |= (TR3_REGEN);
-		break;
-	case RACE_HIGH_ELF:
-		(*f2) |= (TR2_RES_LITE);
-		(*f3) |= (TR3_SEE_INVIS);
-		break;
-	case RACE_HALF_OGRE:
-		(*f2) |= (TR2_SUST_STR);
-		(*f2) |= (TR2_RES_DARK);
-		break;
-	case RACE_HALF_GIANT:
-		(*f2) |= (TR2_RES_SHARDS);
-		(*f2) |= (TR2_SUST_STR);
-		break;
-	case RACE_KOBOLD:
-		(*f2) |= (TR2_RES_POIS);
-		break;
-	case RACE_NIBELUNG:
-		(*f2) |= (TR2_RES_DISEN);
-		(*f2) |= (TR2_RES_DARK);
-		break;
-	case RACE_DARK_ELF:
-		(*f2) |= (TR2_RES_DARK);
-		if (p_ptr->lev > 19)
-			(*f3) |= (TR3_SEE_INVIS);
-		break;
-        case RACE_DRAGONRIDER:
-            (*f3) |= TR3_FEATHER;
-        if (p_ptr->lev > 3)
-        {
-            (*esp) |= ESP_DRAGONRIDER | ESP_DRAGON;
-        }
-        if (p_ptr->lev > 4)
-        {
-            (*f2) |= (TR2_RES_FIRE);
-        }
-        if (p_ptr->lev > 9)
-        {
-            (*f2) |= (TR2_RES_COLD);
-        }
-        if (p_ptr->lev > 14)
-        {
-            (*f2) |= (TR2_RES_ACID);
-        }
-        if (p_ptr->lev > 19)
-        {
-            (*f2) |= (TR2_RES_ELEC);
-        }
-        if (p_ptr->lev > 34)
-        {
-            (*f2) |= (TR2_RES_POIS);
-        }
-        break;
+                for (i = 1; i <= p_ptr->lev; i++)
+                {
+                        (*f1) |= rp_ptr->oflags1[i];
+                        (*f2) |= rp_ptr->oflags2[i];
+                        (*f3) |= rp_ptr->oflags3[i];
+                        (*f4) |= rp_ptr->oflags4[i];
+                        (*f5) |= rp_ptr->oflags5[i];
+                        (*esp) |= rp_ptr->oesp[i];
 
-        case RACE_ENT:
-        (*f3) |= (TR3_SLOW_DIGEST);
-        (*f2) |= (TR2_SENS_FIRE);
-	(*f1) |= (TR1_SPEED);
-        if (p_ptr->lev > 4)
-        {
-            (*f3) |= TR3_SEE_INVIS;
-        }
-        if (p_ptr->lev > 24)
-        {
-            (*esp) |= ESP_ORC | ESP_TROLL | ESP_EVIL;
-        }
-        break;
+                        (*f1) |= rmp_ptr->oflags1[i];
+                        (*f2) |= rmp_ptr->oflags2[i];
+                        (*f3) |= rmp_ptr->oflags3[i];
+                        (*f4) |= rmp_ptr->oflags4[i];
+                        (*f5) |= rmp_ptr->oflags5[i];
+                        (*esp) |= rmp_ptr->oesp[i];
+                }
 
-        case RACE_RKNIGHT:
-        (*f1) |= TR1_SPEED;
-        break;
-
-        case RACE_MOLD:
-        (*f2) |= TR2_RES_NETHER;
-        (*f2) |= TR2_RES_NEXUS;
-        (*f2) |= TR2_HOLD_LIFE;
-        break;
-
-	default:
-		; /* Do nothing */
-	}
-        switch (p_ptr->pracem)
-        {
-        case RMOD_BARBARIAN:
-		(*f2) |= (TR2_RES_FEAR);
-		break;
-        case RMOD_VAMPIRE:
-		(*f2) |= (TR2_HOLD_LIFE);
-		(*f2) |= (TR2_RES_DARK);
-		(*f2) |= (TR2_RES_NETHER);
-                (*f3) |= (TR3_LITE1);
-		(*f2) |= (TR2_RES_POIS);
-		(*f2) |= (TR2_RES_COLD);
-		break;
-        case RMOD_SPECTRE:
-		(*f2) |= (TR2_RES_COLD);
-		(*f3) |= (TR3_SEE_INVIS);
-		(*f2) |= (TR2_HOLD_LIFE);
-		(*f2) |= (TR2_RES_NETHER);
-                (*f4) |= (TR4_IM_NETHER);
-		(*f2) |= (TR2_RES_POIS);
-		(*f3) |= (TR3_SLOW_DIGEST);
-		if (p_ptr->lev > 34)
-                        (*esp) |= (ESP_UNIQUE | ESP_GOOD | ESP_EVIL);
-		break;
-        case RMOD_SKELETON:
-		(*f3) |= (TR3_SEE_INVIS);
-		(*f2) |= (TR2_RES_SHARDS);
-		(*f2) |= (TR2_HOLD_LIFE);
-		(*f2) |= (TR2_RES_POIS);
-		if (p_ptr->lev > 9)
-			(*f2) |= (TR2_RES_COLD);
-		break;
-        case RMOD_ZOMBIE:
-		(*f3) |= (TR3_SEE_INVIS);
-		(*f2) |= (TR2_HOLD_LIFE);
-		(*f2) |= (TR2_RES_NETHER);
-		(*f2) |= (TR2_RES_POIS);
-		(*f3) |= (TR3_SLOW_DIGEST);
-		if (p_ptr->lev > 4)
-			(*f2) |= (TR2_RES_COLD);
-		break;
-	}
         }
         else if(p_ptr->mimic_form)
         {
-        switch(p_ptr->mimic_form)
-        {
+                switch(p_ptr->mimic_form)
+                {
                 case MIMIC_GOAT:
-                {
-                        (*f3) |= (TR3_SLOW_DIGEST);
-                        break;
-                }
+                        {
+                                (*f3) |= (TR3_SLOW_DIGEST);
+                                break;
+                        }
                 case MIMIC_INSECT:
-                {
-                        (*esp) |= (ESP_ANIMAL);
-                        break;
-                }
+                        {
+                                (*esp) |= (ESP_ANIMAL);
+                                break;
+                        }
                 case MIMIC_SPARROW:
-                {
-                        (*f3) |= (TR3_FEATHER);
-                        break;
-                }
+                        {
+                                (*f3) |= (TR3_FEATHER);
+                                break;
+                        }
                 case MIMIC_VAMPIRE:
-                {
-                        (*f3) |= (TR2_HOLD_LIFE);
-                        (*f3) |= (TR2_RES_DARK);
-                        (*f3) |= (TR2_RES_NEXUS);
-                        (*f3) |= (TR2_RES_BLIND);
-                        (*f3) |= (TR3_LITE1);
-                        break;
-                }
+                        {
+                                (*f3) |= (TR2_HOLD_LIFE);
+                                (*f3) |= (TR2_RES_DARK);
+                                (*f3) |= (TR2_RES_NEXUS);
+                                (*f3) |= (TR2_RES_BLIND);
+                                (*f3) |= (TR3_LITE1);
+                                break;
+                        }
                 case MIMIC_SPIDER:
-                {
-                        (*f3) |= (TR2_RES_FEAR);
-                        (*f3) |= (TR2_RES_POIS);
-                        break;
-                }
+                        {
+                                (*f3) |= (TR2_RES_FEAR);
+                                (*f3) |= (TR2_RES_POIS);
+                                break;
+                        }
                 case MIMIC_MANA_BALL:
-                {
-                        (*f3) |= (TR3_FEATHER);
-                        (*f2) |= (TR2_INVIS);
-                        (*f3) |= (TR3_TELEPORT);
-                        (*f3) |= (TR2_RES_DISEN);
-                        break;
-                }
+                        {
+                                (*f3) |= (TR3_FEATHER);
+                                (*f2) |= (TR2_INVIS);
+                                (*f3) |= (TR3_TELEPORT);
+                                (*f3) |= (TR2_RES_DISEN);
+                                break;
+                        }
                 case MIMIC_FIRE_CLOUD:
-                {
-                        (*f3) |= (TR2_RES_LITE);
-                        (*f3) |= (TR2_IM_FIRE);
-                        (*f3) |= (TR3_SH_FIRE);
-                        break;
-                }
+                        {
+                                (*f3) |= (TR2_RES_LITE);
+                                (*f3) |= (TR2_IM_FIRE);
+                                (*f3) |= (TR3_SH_FIRE);
+                                break;
+                        }
                 case MIMIC_COLD_CLOUD:
-                {
-                        (*f3) |= (TR2_RES_LITE);
-                        (*f3) |= (TR2_IM_COLD);
-                        (*f3) |= (TR3_SH_ELEC);
-                        (*esp) |= (ESP_EVIL);
-                        (*f3) |= (TR3_REGEN);
-                        break;
-                }
+                        {
+                                (*f3) |= (TR2_RES_LITE);
+                                (*f3) |= (TR2_IM_COLD);
+                                (*f3) |= (TR3_SH_ELEC);
+                                (*esp) |= (ESP_EVIL);
+                                (*f3) |= (TR3_REGEN);
+                                break;
+                        }
                 case MIMIC_CHAOS_CLOUD:
-                {
-                        (*f3) |= (TR2_RES_DISEN);
-                        (*f3) |= (TR2_RES_CHAOS);
-                        (*f3) |= (TR2_RES_LITE);
-                        (*f3) |= (TR2_IM_FIRE);
-                        (*f3) |= (TR2_IM_COLD);
-                        (*f3) |= (TR3_SH_FIRE);
-                        (*f3) |= (TR3_SH_ELEC);
-                        break;
-                }
+                        {
+                                (*f3) |= (TR2_RES_DISEN);
+                                (*f3) |= (TR2_RES_CHAOS);
+                                (*f3) |= (TR2_RES_LITE);
+                                (*f3) |= (TR2_IM_FIRE);
+                                (*f3) |= (TR2_IM_COLD);
+                                (*f3) |= (TR3_SH_FIRE);
+                                (*f3) |= (TR3_SH_ELEC);
+                                break;
+                        }
                 case MIMIC_GOST:
-                {
-                        (*f3) |= (TR3_WRAITH);
-                        (*f2) |= TR2_HOLD_LIFE;
-                        break;
-                }
+                        {
+                                (*f3) |= (TR3_WRAITH);
+                                (*f2) |= TR2_HOLD_LIFE;
+                                break;
+                        }
                 case MIMIC_ENT:
-                {
-                        (*f2) |= TR2_SENS_FIRE;
-                        break;
-                }
+                        {
+                                (*f2) |= TR2_SENS_FIRE;
+                                break;
+                        }
                 case MIMIC_KOBOLD:
-                {
-                        (*f2) |= TR2_RES_POIS;
-                        break;
-                }
+                        {
+                                (*f2) |= TR2_RES_POIS;
+                                break;
+                        }
                 case MIMIC_DRAGON:
-                {
-                        (*f3) |= TR3_FEATHER;
-                        (*f2) |= TR2_RES_FIRE;
-                        (*f2) |= TR2_RES_COLD;
-                        (*f2) |= TR2_RES_ELEC;
-                        (*f2) |= TR2_RES_DARK;
-                        break;
-                }
+                        {
+                                (*f3) |= TR3_FEATHER;
+                                (*f2) |= TR2_RES_FIRE;
+                                (*f2) |= TR2_RES_COLD;
+                                (*f2) |= TR2_RES_ELEC;
+                                (*f2) |= TR2_RES_DARK;
+                                break;
+                        }
                 case MIMIC_DEMON:
-                {
-                        (*f2) |= TR2_RES_CHAOS;
-                        (*f2) |= TR2_RES_NETHER;
-                        (*f2) |= TR2_HOLD_LIFE;
-                        break;
-                }
+                        {
+                                (*f2) |= TR2_RES_CHAOS;
+                                (*f2) |= TR2_RES_NETHER;
+                                (*f2) |= TR2_HOLD_LIFE;
+                                break;
+                        }
                 case MIMIC_HOUND:
-                {
-                        (*f1) |= TR1_SPEED;
-                        (*f2) |= TR2_RES_LITE;
-                        (*f2) |= TR2_RES_DARK;
-                        break;
-                }
+                        {
+                                (*f1) |= TR1_SPEED;
+                                (*f2) |= TR2_RES_LITE;
+                                (*f2) |= TR2_RES_DARK;
+                                break;
+                        }
                 case MIMIC_QUYLTHULG:
-                {
-                        (*f3) |= TR3_SEE_INVIS;
-                        break;
-                }
+                        {
+                                (*f3) |= TR3_SEE_INVIS;
+                                break;
+                        }
                 case MIMIC_MAIAR:
-                {
-                        (*f2) |= TR2_IM_ACID;
-                        (*f2) |= TR2_IM_ELEC;
-                        (*f2) |= TR2_IM_FIRE;
-                        (*f2) |= TR2_IM_COLD;
-                        (*f2) |= TR2_RES_POIS;
-                        (*f2) |= TR2_RES_LITE;
-                        (*f2) |= TR2_RES_DARK;
-                        (*f2) |= TR2_RES_CHAOS;
-                        (*f2) |= TR2_HOLD_LIFE;
-                        (*f3) |= TR3_FEATHER;
-                        (*f3) |= TR3_REGEN;
-                        break;
-                }
+                        {
+                                (*f2) |= TR2_IM_ACID;
+                                (*f2) |= TR2_IM_ELEC;
+                                (*f2) |= TR2_IM_FIRE;
+                                (*f2) |= TR2_IM_COLD;
+                                (*f2) |= TR2_RES_POIS;
+                                (*f2) |= TR2_RES_LITE;
+                                (*f2) |= TR2_RES_DARK;
+                                (*f2) |= TR2_RES_CHAOS;
+                                (*f2) |= TR2_HOLD_LIFE;
+                                (*f3) |= TR3_FEATHER;
+                                (*f3) |= TR3_REGEN;
+                                break;
+                        }
                 case MIMIC_SERPENT:
-                {
-                        (*f1) |= TR1_SPEED;
-                        break;
-                }
+                        {
+                                (*f1) |= TR1_SPEED;
+                                break;
+                        }
                 case MIMIC_GIANT:
-                {
-                        (*f2) |= TR2_RES_ACID;
-                        (*f2) |= TR2_RES_ELEC;
-                        (*f2) |= TR2_RES_FIRE;
-                        (*f2) |= TR2_RES_COLD;
-                        (*f2) |= TR2_RES_POIS;
-                        (*f2) |= TR2_RES_CONF;
-                        (*f2) |= TR2_RES_SOUND;
-                        (*f2) |= TR2_RES_LITE;
-                        (*f2) |= TR2_RES_DARK;
-                        (*f2) |= TR2_RES_NEXUS;
-                        (*f2) |= TR2_RES_FEAR;
-                        (*f2) |= TR2_REFLECT;
-                        break;
-                }
+                        {
+                                (*f2) |= TR2_RES_ACID;
+                                (*f2) |= TR2_RES_ELEC;
+                                (*f2) |= TR2_RES_FIRE;
+                                (*f2) |= TR2_RES_COLD;
+                                (*f2) |= TR2_RES_POIS;
+                                (*f2) |= TR2_RES_CONF;
+                                (*f2) |= TR2_RES_SOUND;
+                                (*f2) |= TR2_RES_LITE;
+                                (*f2) |= TR2_RES_DARK;
+                                (*f2) |= TR2_RES_NEXUS;
+                                (*f2) |= TR2_RES_FEAR;
+                                (*f2) |= TR2_REFLECT;
+                                break;
+                        }
                 case MIMIC_VALAR:
-                {
-                        (*f3) |= TR3_SEE_INVIS;
-                        (*f2) |= TR2_FREE_ACT;
-                        (*f3) |= TR3_SLOW_DIGEST;
-                        (*f3) |= TR3_REGEN;
-                        (*f3) |= TR3_FEATHER;
-                        (*f2) |= TR2_HOLD_LIFE;
-                        (*esp) |= ESP_ALL;
-                        (*f3) |= TR3_LITE1;
-                        (*f2) |= TR2_SUST_STR;
-                        (*f1) |= TR1_INT;
-                        (*f1) |= TR1_WIS;
-                        (*f1) |= TR1_DEX;
-                        (*f1) |= TR1_CON;
-                        (*f1) |= TR1_CHR;
-                        (*f2) |= TR2_RES_ACID;
-                        (*f2) |= TR2_RES_ELEC;
-                        (*f2) |= TR2_RES_FIRE;
-                        (*f2) |= TR2_RES_COLD;
-                        (*f2) |= TR2_RES_POIS;
-                        (*f2) |= TR2_RES_CONF;
-                        (*f2) |= TR2_RES_SOUND;
-                        (*f2) |= TR2_RES_LITE;
-                        (*f2) |= TR2_RES_DARK;
-                        (*f2) |= TR2_RES_CHAOS;
-                        (*f2) |= TR2_RES_DISEN;
-                        (*f2) |= TR2_RES_SHARDS;
-                        (*f2) |= TR2_RES_NEXUS;
-                        (*f2) |= TR2_RES_BLIND;
-                        (*f2) |= TR2_RES_NETHER;
-                        (*f2) |= TR2_RES_FEAR;
-                        (*f2) |= TR2_REFLECT;
-                        (*f3) |= TR3_SH_FIRE;
-                        (*f3) |= TR3_SH_ELEC;
-                        (*f2) |= TR2_IM_FIRE;
-                        (*f2) |= TR2_IM_COLD;
-                        (*f2) |= TR2_IM_ELEC;
-                        (*f2) |= TR2_IM_ACID;
-                        break;
-                }
+                        {
+                                (*f3) |= TR3_SEE_INVIS;
+                                (*f2) |= TR2_FREE_ACT;
+                                (*f3) |= TR3_SLOW_DIGEST;
+                                (*f3) |= TR3_REGEN;
+                                (*f3) |= TR3_FEATHER;
+                                (*f2) |= TR2_HOLD_LIFE;
+                                (*esp) |= ESP_ALL;
+                                (*f3) |= TR3_LITE1;
+                                (*f2) |= TR2_SUST_STR;
+                                (*f1) |= TR1_INT;
+                                (*f1) |= TR1_WIS;
+                                (*f1) |= TR1_DEX;
+                                (*f1) |= TR1_CON;
+                                (*f1) |= TR1_CHR;
+                                (*f2) |= TR2_RES_ACID;
+                                (*f2) |= TR2_RES_ELEC;
+                                (*f2) |= TR2_RES_FIRE;
+                                (*f2) |= TR2_RES_COLD;
+                                (*f2) |= TR2_RES_POIS;
+                                (*f2) |= TR2_RES_CONF;
+                                (*f2) |= TR2_RES_SOUND;
+                                (*f2) |= TR2_RES_LITE;
+                                (*f2) |= TR2_RES_DARK;
+                                (*f2) |= TR2_RES_CHAOS;
+                                (*f2) |= TR2_RES_DISEN;
+                                (*f2) |= TR2_RES_SHARDS;
+                                (*f2) |= TR2_RES_NEXUS;
+                                (*f2) |= TR2_RES_BLIND;
+                                (*f2) |= TR2_RES_NETHER;
+                                (*f2) |= TR2_RES_FEAR;
+                                (*f2) |= TR2_REFLECT;
+                                (*f3) |= TR3_SH_FIRE;
+                                (*f3) |= TR3_SH_ELEC;
+                                (*f2) |= TR2_IM_FIRE;
+                                (*f2) |= TR2_IM_COLD;
+                                (*f2) |= TR2_IM_ELEC;
+                                (*f2) |= TR2_IM_ACID;
+                                break;
+                        }
 
                 case MIMIC_WEREWOLF:
-                {
-                        (*f3) |= TR3_REGEN;
-                        (*f3) |= TR3_AGGRAVATE;
-                        break;
-                }
+                        {
+                                (*f3) |= TR3_REGEN;
+                                (*f3) |= TR3_AGGRAVATE;
+                                break;
+                        }
                 case MIMIC_BALROG:
-                {
-                        (*f2) |= TR2_IM_ACID;
-                        (*f2) |= TR2_IM_ELEC;
-                        (*f2) |= TR2_IM_FIRE;
-                        (*f2) |= TR2_RES_POIS;
-                        (*f2) |= TR2_RES_DARK;
-                        (*f2) |= TR2_RES_CHAOS;
-                        (*f2) |= TR2_HOLD_LIFE;
-                        (*f3) |= TR3_FEATHER;
-                        (*f3) |= TR3_REGEN;
-                        break;
-                }
+                        {
+                                (*f2) |= TR2_IM_ACID;
+                                (*f2) |= TR2_IM_ELEC;
+                                (*f2) |= TR2_IM_FIRE;
+                                (*f2) |= TR2_RES_POIS;
+                                (*f2) |= TR2_RES_DARK;
+                                (*f2) |= TR2_RES_CHAOS;
+                                (*f2) |= TR2_HOLD_LIFE;
+                                (*f3) |= TR3_FEATHER;
+                                (*f3) |= TR3_REGEN;
+                                break;
+                        }
                 case MIMIC_DEMON_LORD:
-                {
-                        (*f3) |= TR3_SEE_INVIS;
-                        (*f2) |= TR2_FREE_ACT;
-                        (*f3) |= TR3_REGEN;
-                        (*f3) |= TR3_FEATHER;
-                        (*f2) |= TR2_HOLD_LIFE;
-                        (*esp) |= ESP_EVIL | ESP_GOOD | ESP_DEMON;
-                        (*f2) |= TR2_RES_ACID;
-                        (*f2) |= TR2_RES_ELEC;
-                        (*f2) |= TR2_RES_FIRE;
-                        (*f2) |= TR2_RES_POIS;
-                        (*f2) |= TR2_RES_CONF;
-                        (*f2) |= TR2_RES_SOUND;
-                        (*f2) |= TR2_RES_LITE;
-                        (*f2) |= TR2_RES_DARK;
-                        (*f2) |= TR2_RES_CHAOS;
-                        (*f2) |= TR2_RES_DISEN;
-                        (*f2) |= TR2_RES_SHARDS;
-                        (*f2) |= TR2_RES_NEXUS;
-                        (*f2) |= TR2_RES_BLIND;
-                        (*f2) |= TR2_RES_NETHER;
-                        (*f2) |= TR2_RES_FEAR;
-                        (*f2) |= TR2_REFLECT;
-                        (*f3) |= TR3_SH_FIRE;
-                        (*f2) |= TR2_IM_FIRE;
-                        (*f2) |= TR2_IM_ELEC;
-                        (*f2) |= TR2_IM_ACID;
-                        break;
+                        {
+                                (*f3) |= TR3_SEE_INVIS;
+                                (*f2) |= TR2_FREE_ACT;
+                                (*f3) |= TR3_REGEN;
+                                (*f3) |= TR3_FEATHER;
+                                (*f2) |= TR2_HOLD_LIFE;
+                                (*esp) |= ESP_EVIL | ESP_GOOD | ESP_DEMON;
+                                (*f2) |= TR2_RES_ACID;
+                                (*f2) |= TR2_RES_ELEC;
+                                (*f2) |= TR2_RES_FIRE;
+                                (*f2) |= TR2_RES_POIS;
+                                (*f2) |= TR2_RES_CONF;
+                                (*f2) |= TR2_RES_SOUND;
+                                (*f2) |= TR2_RES_LITE;
+                                (*f2) |= TR2_RES_DARK;
+                                (*f2) |= TR2_RES_CHAOS;
+                                (*f2) |= TR2_RES_DISEN;
+                                (*f2) |= TR2_RES_SHARDS;
+                                (*f2) |= TR2_RES_NEXUS;
+                                (*f2) |= TR2_RES_BLIND;
+                                (*f2) |= TR2_RES_NETHER;
+                                (*f2) |= TR2_RES_FEAR;
+                                (*f2) |= TR2_REFLECT;
+                                (*f3) |= TR3_SH_FIRE;
+                                (*f2) |= TR2_IM_FIRE;
+                                (*f2) |= TR2_IM_ELEC;
+                                (*f2) |= TR2_IM_ACID;
+                                break;
+                        }
                 }
-        }
         }
         else
         {
@@ -1971,6 +1886,17 @@ void player_flags(u32b *f1, u32b *f2, u32b *f3, u32b *f4, u32b *f5, u32b *esp)
                 if(r_ptr->flags3 & RF3_NO_SLEEP) (*f2) |= TR2_FREE_ACT;
                 if(r_ptr->flags3 & RF3_NO_CONF) (*f2) |= TR2_RES_CONF;
                 if(r_ptr->flags7 & RF7_CAN_FLY) (*f3) |= TR3_FEATHER;
+        }
+
+        if (check_hook(HOOK_PLAYER_FLAGS))
+        {
+                process_hooks_ret(HOOK_PLAYER_FLAGS, "lllll", "(l,l,l,l,l,l)", *f1, *f2, *f3, *f4, *f5, *esp);
+                *f1 = process_hooks_return[0].num;
+                *f2 = process_hooks_return[1].num;
+                *f3 = process_hooks_return[2].num;
+                *f4 = process_hooks_return[3].num;
+                *f5 = process_hooks_return[4].num;
+                *esp = process_hooks_return[5].num;
         }
 
         /* corruptions */
@@ -2341,7 +2267,7 @@ static void display_player_misc_info(void)
 	}
 	else
                 c_put_str(TERM_L_BLUE, sp_ptr->title, 3, 9);
-        sprintf(buf, "%s %s", rp_ptr->title, rmp_ptr->title);
+        sprintf(buf, "%s", get_player_race_name(p_ptr->prace, p_ptr->pracem));
         c_put_str(TERM_L_BLUE, buf, 4, 9);
         c_put_str(TERM_L_BLUE, cp_ptr->title, 5, 9);
 
@@ -2951,10 +2877,10 @@ static void display_player_ben_one(int mode)
                 /* If you have that body part then show it */
                 if (p_ptr->body_parts[i])
                 {
-                        sprintf(dummy, "%s%c", dummy, i + 'a');
+                        strcat(dummy, format("%c", i + 'a'));
                 }
         }
-        sprintf(dummy, "%s@", dummy);
+        strcat(dummy, "@");
 
 	/* Scan cols */
         for (x = 0; x < 2; x++)
@@ -3048,9 +2974,9 @@ void display_player(int mode)
                 put_str("Body  :", 6, 1);
                 if (p_ptr->realm1 || p_ptr->realm2)
                         put_str("Magic :", 7, 1);
-                if (p_ptr->pclass == CLASS_CHAOS_WARRIOR)
+                if (PRACE_FLAGS(PR1_CHAOS_GOD))
                         put_str("Patron:", 8, 1);
-		if (p_ptr->pclass == CLASS_WEAPONMASTER)
+		if (PRACE_FLAGS(PR1_HACK_WEAPON))
                         put_str("Specialty   :", 7, 1);
 
                 c_put_str(TERM_L_BLUE, player_name, 2, 9);
@@ -3069,12 +2995,12 @@ void display_player(int mode)
 		}
 		else
                         c_put_str(TERM_L_BLUE, sp_ptr->title, 3, 9);
-                sprintf(buf, "%s %s", rp_ptr->title, rmp_ptr->title);
+                sprintf(buf, "%s", get_player_race_name(p_ptr->prace, p_ptr->pracem));
                 c_put_str(TERM_L_BLUE, buf, 4, 9);
-                c_put_str(TERM_L_BLUE, cp_ptr->title, 5, 9);
+                c_put_str(TERM_L_BLUE, cp_ptr->title + c_name, 5, 9);
                 c_put_str(TERM_L_BLUE, r_name + r_ptr->name, 6, 9);
 
-		if (p_ptr->pclass == CLASS_WEAPONMASTER)
+		if (PRACE_FLAGS(PR1_HACK_WEAPON))
 		{
                         if (p_ptr->class_extra1 == TV_HAFTED)
                                 c_put_str(TERM_L_BLUE, "Blunt", 7, 15);
@@ -3086,11 +3012,11 @@ void display_player(int mode)
                                 c_put_str(TERM_L_BLUE, "Swords", 7, 15);
 		}
                 else if (p_ptr->realm1)
-                        c_put_str(TERM_L_BLUE, realm_names[p_ptr->realm1], 7, 9);
-                if (p_ptr->pclass == CLASS_CHAOS_WARRIOR)
+                        c_put_str(TERM_L_BLUE, realm_names[p_ptr->realm1][0], 7, 9);
+                if (PRACE_FLAGS(PR1_CHAOS_GOD))
                         c_put_str(TERM_L_BLUE, chaos_patrons[p_ptr->chaos_patron], 8, 9);
                 else if (p_ptr->realm2)
-                        c_put_str(TERM_L_BLUE, realm_names[p_ptr->realm2], 8, 9);
+                        c_put_str(TERM_L_BLUE, realm_names[p_ptr->realm2][0], 8, 9);
 
 		/* Age, Height, Weight, Social */
                 prt_num("Age          ", (int)p_ptr->age + bst(YEAR, turn - (START_DAY * 10)), 2, 32, TERM_L_BLUE);
@@ -3322,10 +3248,25 @@ errr file_character(cptr name, bool full)
 
 
 	fprintf(fff, "\n\n  [Miscellaneous information]\n");
-	if (p_ptr->maximize)
-		fprintf(fff, "\n Maximize Mode:      ON");
+        if (cth_monsters)
+                fprintf(fff, "\n Cth monsters:       ON");
 	else
-		fprintf(fff, "\n Maximize Mode:      OFF");
+                fprintf(fff, "\n Cth monsters:       OFF");
+
+        if (zang_monsters)
+                fprintf(fff, "\n Zlike monsters:     ON");
+	else
+                fprintf(fff, "\n Zlike monsters:     OFF");
+
+        if (joke_monsters)
+                fprintf(fff, "\n Joke monsters:      ON");
+	else
+                fprintf(fff, "\n Joke monsters:      OFF");
+
+	if (p_ptr->maximize)
+                fprintf(fff, "\n Maximize mode:      ON");
+	else
+                fprintf(fff, "\n Maximize mode:      OFF");
 
 	if (p_ptr->preserve)
 		fprintf(fff, "\n Preserve Mode:      ON");
@@ -3348,11 +3289,6 @@ errr file_character(cptr name, bool full)
 		fprintf(fff, "\n Arena Levels:       ON");
 	else
 		fprintf(fff, "\n Arena Levels:       OFF");
-
-	if (vanilla_town)
-		fprintf(fff, "\n Vanilla Town:       ON");
-	else
-                fprintf(fff, "\n Vanilla Town:       OFF");
 
         if (seed_dungeon)
                 fprintf(fff, "\n Persistent Dungeons:       ON");
@@ -3570,7 +3506,7 @@ errr file_character(cptr name, bool full)
 
                         if (!ok) continue;
 
-                        fprintf(fff, "\n  * %s realm", realm_names[i]);
+                        fprintf(fff, "\n  * %s realm", realm_names[i][0]);
 
                         for (j = 0; j < 64; j++)
                         {
@@ -3591,7 +3527,7 @@ errr file_character(cptr name, bool full)
         }
 
         hook_file = fff;
-        process_hooks(HOOK_CHAR_DUMP, 0);
+        process_hooks(HOOK_CHAR_DUMP, "()");
         fprintf(fff, "\n");
 
 	/* Monsters slain */
@@ -3904,8 +3840,7 @@ bool show_file(cptr name, cptr what, int line, int mode)
                         link_color_sel = color_char_to_attr(buf[6]);
                 }
 
-                /* Tag ? */
-                if (prefix(buf, "~~~~~"))
+                /* Tag ? */                if (prefix(buf, "~~~~~"))
                 {
                         if (line < 0)
                         {
@@ -4001,7 +3936,7 @@ bool show_file(cptr name, cptr what, int line, int mode)
 			{
 				/* Free hyperlink info */
 				KILL(h_ptr, hyperlink_type);
-				
+
 				return (FALSE);
 			}
 
@@ -4110,6 +4045,18 @@ bool show_file(cptr name, cptr what, int line, int mode)
                                                 Term_putch(print_x, i + 2, color_char_to_attr(buf[x + 5]), buf[xx]);
                                                 xx++;
                                                 print_x++;
+                                        }
+                                        x = xx;
+                                }
+                                /* Remove HTML ? */
+                                else if (prefix(buf + x, "{{{{{"))
+                                {
+                                        int xx = x + 6;
+
+                                        /* Ok remove this section */
+                                        while (buf[xx] != '}')
+                                        {
+                                                xx++;
                                         }
                                         x = xx;
                                 }
@@ -4318,6 +4265,438 @@ bool show_file(cptr name, cptr what, int line, int mode)
 	return (TRUE);
 }
 
+bool txt_to_html(cptr base, cptr ext, bool force, bool recur)
+{
+        int i, x;
+
+	/* Number of "real" lines passed by */
+	int next = 0;
+
+	/* Number of "real" lines in the file */
+	int size = 0;
+
+        char buf_name[80];
+
+        /* Color of the next line */
+        byte color = TERM_WHITE;
+
+	/* Current help file */
+	FILE *fff = NULL;
+
+        /* Current html file */
+        FILE *htm = NULL;
+
+	/* Char array type of hyperlink info */
+	hyperlink_type *h_ptr;
+
+	/* Pointer to general buffer in the above */
+	char *buf;
+
+	/* Allocate hyperlink data */
+	MAKE(h_ptr, hyperlink_type);
+
+	/* Setup buffer pointer */
+        buf = h_ptr->rbuf;
+
+        /* Wipe the links */
+        for (i = 0; i < 400; i++)
+        {
+                h_ptr->link_x[i] = -1;
+        }
+
+        sprintf(buf_name, "%s.htm", base);
+
+        if ((!force) && file_exist(buf_name)) return FALSE;
+
+        /* Build the filename */
+        path_build(h_ptr->path, 1024, ANGBAND_DIR_HELP, buf_name);
+
+        /* Open the file */
+        safe_setuid_grab();
+        htm = my_fopen(h_ptr->path, "w");
+        safe_setuid_drop();
+
+        sprintf(buf_name, "%s.%s", base, ext);
+
+        /* h_ptr->caption */
+        sprintf(h_ptr->caption, "Help file '%s'", buf_name);
+
+        /* Build the filename */
+        path_build(h_ptr->path, 1024, ANGBAND_DIR_HELP, buf_name);
+
+        /* Open the file */
+        safe_setuid_grab();
+        fff = my_fopen(h_ptr->path, "r");
+        safe_setuid_drop();
+
+	/* Oops */
+        if (!fff || !htm)
+	{
+		/* Free hyperlink info */
+		KILL(h_ptr, hyperlink_type);
+
+                my_fclose(fff);
+                my_fclose(htm);
+
+		/* Oops */
+		return (TRUE);
+	}
+
+	/* Save the number of "real" lines */
+	size = next;
+
+        fprintf(htm, "<HTML>\n");
+        fprintf(htm, "<HEAD>\n");
+        fprintf(htm, "<META NAME=\"GENERATOR\" Content=\"PernAngband\">\n");
+        fprintf(htm, "<TITLE>%s</TITLE>\n", base);
+        fprintf(htm, "</HEAD>\n");
+        fprintf(htm, "<body background=\"back1.gif\" text=\"#CCCCCC\" link=\"#FFFF66\" vlink=\"#66CC66\">\n");
+
+	/* Display the file */
+	while (TRUE)
+	{
+                bool do_color = FALSE;
+
+                /* Skip a line */
+                if (my_fgets(fff, h_ptr->rbuf, 1024)) break;
+
+                color = TERM_WHITE;
+
+		{
+                        int print_x;
+
+                        /* Get a color */
+                        if (prefix(h_ptr->rbuf, "#####"))
+                        {
+                                color = color_char_to_attr(h_ptr->rbuf[5]);
+                                do_color = TRUE;
+                                fprintf(htm, "<FONT COLOR=\"#%02X%02X%02X\">", angband_color_table[color][1], angband_color_table[color][2], angband_color_table[color][3]);
+                                buf = &h_ptr->rbuf[6];
+                        }
+                        else buf = h_ptr->rbuf;
+
+			/* Count the "real" lines */
+			next++;
+
+                        /* Skip link colors */
+                        if (prefix(buf, "|||||")) continue;
+
+                        /* Skip tags */
+                        if (prefix(buf, "~~~~~"))
+                        {
+                                fprintf(htm, "<A NAME=\"%s\"></A>", buf + 5);
+                                continue;
+                        }
+
+			/* Dump the line */
+                        x = 0;
+                        print_x = 0;
+                        while (buf[x])
+                        {
+                                /* Hyperlink ? */
+                                if (prefix(buf + x, "*****"))
+                                {
+                                        int xx = x + 5, z = 0;
+                                        char buff[80];
+                                        char link_line[80], *s;
+
+                                        if (buf[xx] == '/') xx += 2;
+
+                                        /* Zap the link info */
+                                        while (buf[xx] != '*')
+                                        {
+                                                buff[z++] = buf[xx];
+                                                xx++;
+                                        }
+                                        xx++;
+                                        buff[z] = '\0';
+
+                                        /* Zap the link info */
+                                        z = 0;
+                                        while (buf[xx] != '[')
+                                        {
+                                                link_line[z++] = buf[xx];
+                                                xx++;
+                                        }
+                                        xx++;
+                                        link_line[z] = '\0';
+
+                                        /* parse it */
+                                        s = buff;
+                                        while (*s != '.') s++;
+                                        *s = '\0'; s++;
+                                        if (recur) txt_to_html(buff, s, FALSE, recur);
+
+                                        if (atoi(link_line)) fprintf(htm, "<A HREF=\"%s.htm#%d\">", buff, atoi(link_line));
+                                        else fprintf(htm, "<A HREF=\"%s.htm\">", buff);
+
+                                        /* Ok print the link name */
+                                        while (buf[xx] != ']')
+                                        {
+                                                fprintf(htm, "%c", buf[xx]);
+                                                xx++;
+                                                print_x++;
+                                        }
+                                        x = xx;
+
+                                        fprintf(htm, "</A>");
+                                }
+                                /* Color ? */
+                                else if (prefix(buf + x, "[[[[["))
+                                {
+                                        int xx = x + 6;
+
+                                        color = color_char_to_attr(buf[x + 5]);
+                                        fprintf(htm, "<FONT COLOR=\"#%02X%02X%02X\">", angband_color_table[color][1], angband_color_table[color][2], angband_color_table[color][3]);
+
+                                        /* Ok print the link name */
+                                        while (buf[xx] != ']')
+                                        {
+                                                fprintf(htm, "%c", buf[xx]);
+                                                xx++;
+                                                print_x++;
+                                        }
+                                        x++;
+                                        x = xx;
+
+                                        fprintf(htm, "</FONT>");
+                                }
+                                /* Hidden HTML tag? */
+                                else if (prefix(buf + x, "{{{{{"))
+                                {
+                                        int xx = x + 6;
+
+                                        /* Ok output the tag inside */
+                                        while (buf[xx] != '}')
+                                        {
+                                                fprintf(htm, "%c", buf[xx]);
+                                                xx++;
+                                        }
+                                        x++;
+                                        x = xx;
+                                }
+                                else
+                                {
+                                        fprintf(htm, "%c", buf[x]);
+                                        print_x++;
+                                }
+
+                                x++;
+                        }
+		}
+                if (do_color)
+                {
+                        fprintf(htm, "</FONT>");
+                }
+                fprintf(htm, "\n");
+	}
+
+        fprintf(htm, "</BODY>\n");
+        fprintf(htm, "</HTML>\n");
+
+	/* Close the file */
+        my_fclose(htm);
+	my_fclose(fff);
+
+	/* Free hyperlink buffers */
+	KILL(h_ptr, hyperlink_type);
+
+	/* Normal return */
+	return (TRUE);
+}
+
+/* Take an html screenshot */
+void html_screenshot(cptr name)
+{
+        int y, x;
+
+        byte a = 0, oa = TERM_WHITE;
+	char c = ' ';
+
+        FILE *htm;
+
+        char buf[1024], *colors, *chars;
+
+	/* Build the filename */
+        path_build(buf, 1024, ANGBAND_DIR_USER, name);
+
+	/* File type is "TEXT" */
+	FILE_TYPE(FILE_TYPE_TEXT);
+
+	/* Hack -- drop permissions */
+	safe_setuid_drop();
+
+	/* Append to the file */
+        htm = my_fopen(buf, "w");
+
+	/* Hack -- grab permissions */
+	safe_setuid_grab();
+
+	/* Oops */
+        if (!htm)
+		return;
+
+        fprintf(htm, "<HTML>\n");
+        fprintf(htm, "<HEAD>\n");
+        fprintf(htm, "<META NAME=\"GENERATOR\" Content=\"PernAngband\">\n");
+        fprintf(htm, "<TITLE>%s</TITLE>\n", name);
+        fprintf(htm, "</HEAD>\n");
+        fprintf(htm, "<BODY TEXT=\"#FFFFFF\" BGCOLOR=\"#000000\">");
+        fprintf(htm, "<FONT COLOR=\"#%02X%02X%02X\">\n<PRE><TT>", angband_color_table[TERM_WHITE][1], angband_color_table[TERM_WHITE][2], angband_color_table[TERM_WHITE][3]);
+
+	/* Dump the screen */
+	for (y = 0; y < Term->hgt; y++)
+	{
+		/* Dump each row */
+                colors = clean80(y, Term->scr->a[y], TRUE);
+                chars = clean80(y, Term->scr->c[y], FALSE);
+                for (x = 0; x < Term->wid; x++)
+		{
+                        a = color_char_to_attr(colors[x]);
+                        c = chars[x];
+
+                        if (oa != a)
+                        {
+                                fprintf(htm, "</FONT><FONT COLOR=\"#%02X%02X%02X\">", angband_color_table[a][1], angband_color_table[a][2], angband_color_table[a][3]);
+                                oa = a;
+                        }
+                        fprintf(htm, "%c", c);
+                }
+
+		/* End the row */
+                fprintf(htm, "\n");
+	}
+        fprintf(htm, "</TT></PRE></FONT>\n");
+
+        fprintf(htm, "</BODY>\n");
+        fprintf(htm, "</HTML>\n");
+
+	/* Close it */
+        my_fclose(htm);
+}
+
+#define KEY_NUM         8
+static int keys_tab[KEY_NUM] =
+{
+        'I', 'G', 'M', 'O', 'P', 'm', 'D', 'B'
+};
+static cptr keys_desc[KEY_NUM] =
+{
+        "Interface changes:",
+        "Gameplay changes:",
+        "Monster changes:",
+        "Object changes:",
+        "Player changes:",
+        "Misc changes:",
+        "Dungeon changes:",
+        "Bug fixes:",
+};
+
+static int get_key(char c)
+{
+        int i;
+
+        i = 0;
+        while (keys_tab[i] != c)
+                i++;
+        return ((i > KEY_NUM) ? KEY_NUM : i);
+}
+
+bool chg_to_txt(cptr base, cptr newname)
+{
+        int i, j, key = 0;
+
+        char buf[1024];
+
+        int  lens[KEY_NUM] = {0, 0, 0, 0, 0, 0, 0, 0};
+        char strs[KEY_NUM][500][100];
+
+	/* Current chg file */
+	FILE *fff = NULL;
+
+        /* Current txt file */
+        FILE *txt = NULL;
+
+        /* Open the file */
+        safe_setuid_grab();
+        fff = my_fopen(base, "r");
+        safe_setuid_drop();
+
+        /* Oops */
+        if (!fff)
+	{
+                my_fclose(fff);
+                my_fclose(txt);
+
+		/* Oops */
+		return (TRUE);
+	}
+
+        /* Count the file */
+	while (TRUE)
+	{
+                /* Skip a line */
+                if (my_fgets(fff, buf, 1024)) break;
+
+                if ((!(*buf)) || ((buf[0] >= '0') && (buf[0] <= '9')) || (buf[0] == '#')) continue;
+                if (buf[1] != ' ')
+                        lens[get_key(buf[1])]++;
+        }
+
+        /* Open the file */
+        safe_setuid_grab();
+        txt = my_fopen(newname, "w");
+        safe_setuid_drop();
+
+        /* Open the file */
+        safe_setuid_grab();
+        fff = my_fopen(base, "r");
+        safe_setuid_drop();
+
+	/* Oops */
+        if (!fff || !txt)
+	{
+                my_fclose(fff);
+                my_fclose(txt);
+
+		/* Oops */
+		return (TRUE);
+	}
+
+        for (i = 0; i < KEY_NUM; i++)
+                lens[i] = 0;
+
+        fprintf(txt, "PernAngband %d.%d.%d changes\n", FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH);
+
+	/* Display the file */
+	while (TRUE)
+	{
+                /* Skip a line */
+                if (my_fgets(fff, buf, 1024)) break;
+
+                if ((!(*buf)) || ((buf[0] >= '0') && (buf[0] <= '9')) || (buf[0] == '#')) continue;
+
+                if (buf[1] != ' ') key = get_key(buf[1]);
+
+                strcpy(strs[key][lens[key]++], buf + 3);
+	}
+
+        for (i = 0; i < KEY_NUM; i++)
+        {
+                if (lens[i])
+                        fprintf(txt, "\n%s\n", keys_desc[i]);
+                for (j = 0; j < lens[i]; j++)
+                {
+                        fprintf(txt, "%s\n", strs[i][j]);
+                }
+        }
+	/* Close the file */
+        my_fclose(txt);
+	my_fclose(fff);
+
+	/* Normal return */
+	return (TRUE);
+}
 
 /*
  * Peruse the On-Line-Help
@@ -4478,7 +4857,7 @@ void get_name(void)
 		strcpy(tmp, player_name);
 
 		/* Get an input, ignore "Escape" */
-                if (askfor_aux(tmp, 9)) strcpy(player_name, tmp);
+                if (askfor_aux(tmp, 31)) strcpy(player_name, tmp);
 
 		/* Process the player name */
                 process_player_name(FALSE);
@@ -4488,7 +4867,7 @@ void get_name(void)
 	}
 
 	/* Pad the name (to clear junk) */
-	sprintf(tmp, "%-15.15s", player_name);
+        sprintf(tmp, "%-31.31s", player_name);
 
 	/* Re-Draw the name (in light blue) */
         c_put_str(TERM_L_BLUE, tmp, 2, 9);
@@ -4632,7 +5011,6 @@ long total_points(void)
         if (p_ptr->maximize) mult -= 5;
         if (auto_scum) mult -= 20;
 	if (stupid_monsters) mult -= 50;
-	if (vanilla_town)    mult += 30; /* Vanilla town is harder */
         if (small_levels)    mult += ((always_small_level) ? 20 : 50);
 	if (empty_levels)    mult += 10;
 	if (smart_learn) mult += 20;
@@ -4653,7 +5031,7 @@ long total_points(void)
         temp = (temp * mult / 100);
 
         /* Completing quest increase score */
-        for (i = 0; i < MAX_Q_IDX; i++)
+        for (i = 0; i < max_q_idx; i++)
         {
                 if (quest[i].status >= QUEST_STATUS_COMPLETED)
                 {
@@ -4801,7 +5179,7 @@ static void print_tomb(void)
 			while (0 == my_fgets(fp, buf, 1024))
 			{
 				/* Display and advance */
-				put_str(buf, i++, 0);
+                                display_message(0, i++, strlen(buf), TERM_WHITE, buf);
 			}
 
 			/* Close */
@@ -4818,7 +5196,7 @@ static void print_tomb(void)
 		/* Normal */
 		else
 		{
-			p =  player_title[p_ptr->pclass][(p_ptr->lev-1)/5];
+			p =  cp_ptr->titles[(p_ptr->lev-1)/5] + c_text;
 		}
 
 		center_string(buf, player_name);
@@ -4831,7 +5209,7 @@ static void print_tomb(void)
 		put_str(buf, 8, 11);
 
 
-		center_string(buf, cp_ptr->title);
+		center_string(buf, cp_ptr->title + c_name);
 		put_str(buf, 10, 11);
 
 		(void)sprintf(tmp, "Level: %d", (int)p_ptr->lev);
@@ -4867,8 +5245,6 @@ static void print_tomb(void)
 		(void)sprintf(tmp, "%-.24s", ctime(&ct));
 		center_string(buf, tmp);
 		put_str(buf, 17, 11);
-
-		msg_format("Goodbye, %s!", player_name);
 	}
 }
 
@@ -5313,9 +5689,9 @@ static void display_scores_aux(int from, int to, int note, high_score *score)
 			for (aged = the_score.turns; isspace(*aged); aged++) /* loop */;
 
 			/* Dump some info */
-                        sprintf(out_val, "%3d.%9s  %s the %s%s%s %s, Level %d",
+                        sprintf(out_val, "%3d.%9s  %s the %s %s, Level %d",
 			        place, the_score.pts, the_score.who,
-                                race_info[pr].title, (ps)?" ":"", race_mod_info[ps].title, class_info[pc].title,
+                                get_player_race_name(pr, ps), class_info[pc].title + c_name,
 			        clev);
 
 			/* Append a "maximum level" */
@@ -5493,7 +5869,7 @@ void show_highclass(int building)
 		    ((building == 2) && (al > MAX_ARENA_MONS)))
 		{
 			sprintf(out_val, "%3d) %s the %s (Level %2d)",
-			    (m + 1), the_score.who,race_info[pr].title, clev);
+                            (m + 1), the_score.who,rp_name + race_info[pr].title, clev);
 			prt(out_val, (m + 7), 0);
 			m++;
 		}
@@ -5504,13 +5880,13 @@ void show_highclass(int building)
 	if ((building == 1) && (p_ptr->lev >= PY_MAX_LEVEL))
 	{
 		sprintf(out_val, "You) %s the %s (Level %2d)",
-		    player_name,race_info[p_ptr->prace].title, p_ptr->lev);
+                    player_name,rp_name + race_info[p_ptr->prace].title, p_ptr->lev);
 		prt(out_val, (m + 8), 0);
 	}
 	else if ((building == 2) && (p_ptr->arena_number > MAX_ARENA_MONS))
 	{
 		sprintf(out_val, "You) %s the %s (Level %2d)",
-		    player_name,race_info[p_ptr->prace].title, p_ptr->lev);
+                    player_name,rp_name + race_info[p_ptr->prace].title, p_ptr->lev);
 		prt(out_val, (m + 8), 0);
 	}
 	else if ((building != 1) && (building != 2))
@@ -5518,7 +5894,7 @@ void show_highclass(int building)
 		if ((p_ptr->lev > clev) && (p_ptr->pclass == (building - 10)))
 		{
 			sprintf(out_val, "You) %s the %s (Level %2d)",
-			    player_name,race_info[p_ptr->prace].title, p_ptr->lev);
+                            player_name,rp_name + race_info[p_ptr->prace].title, p_ptr->lev);
 			prt(out_val, (m + 8), 0);
 		}
 	}
@@ -5546,7 +5922,7 @@ void race_score(int race_num)
 	lastlev = 0;
 
 	/* rr9: TODO - pluralize the race */
-	sprintf(tmp_str,"The Greatest of all the %s", race_info[race_num].title);
+        sprintf(tmp_str,"The Greatest of all the %s", rp_name + race_info[race_num].title);
 	prt(tmp_str, 5, 15);
 
 	/* Build the filename */
@@ -5584,7 +5960,7 @@ void race_score(int race_num)
 		{
 			sprintf(out_val, "%3d) %s the %s (Level %3d)",
 			    (m + 1), the_score.who,
-			race_info[pr].title, clev);
+                        rp_name + race_info[pr].title, clev);
 			prt(out_val, (m + 7), 0);
 			m++;
 			lastlev = clev;
@@ -5596,7 +5972,7 @@ void race_score(int race_num)
 	if ((p_ptr->prace == race_num) && (p_ptr->lev >= lastlev))
 	{
 		sprintf(out_val, "You) %s the %s (Level %3d)",
-		    player_name, race_info[p_ptr->prace].title, p_ptr->lev);
+                    player_name, rp_name + race_info[p_ptr->prace].title, p_ptr->lev);
 		prt(out_val, (m + 8), 0);
 	}
 
@@ -5613,7 +5989,7 @@ void race_legends(void)
 {
 	int i,j;
 
-	for (i = 0; i < MAX_RACES; i++)
+        for (i = 0; i < max_rp_idx; i++)
 	{
 		race_score(i);
 		msg_print("Hit any key to continue");
@@ -5720,7 +6096,7 @@ static errr top_twenty(void)
 	the_score.gold[9] = '\0';
 
 	/* Save the current turn */
-	sprintf(the_score.turns, "%9lu", (long)turn);
+        sprintf(the_score.turns, "%9lu", (long)turn - (START_DAY * 10L));
 	the_score.turns[9] = '\0';
 
 #ifdef HIGHSCORE_DATE_HACK
@@ -5815,7 +6191,7 @@ static errr predict_score(void)
 	sprintf(the_score.gold, "%9lu", (long)p_ptr->au);
 
 	/* Save the current turn */
-	sprintf(the_score.turns, "%9lu", (long)turn);
+        sprintf(the_score.turns, "%9lu", (long)turn - (START_DAY * 10L));
 
 	/* Hack -- no time needed */
 	strcpy(the_score.day, "TODAY");
@@ -5972,7 +6348,6 @@ void close_game(void)
 	/* No suspending now */
 	signals_ignore_tstp();
 
-
 	/* Hack -- Character is now "icky" */
 	character_icky = TRUE;
 
@@ -5996,7 +6371,17 @@ void close_game(void)
                         {
                                 add_note_type(NOTE_WINNER);
                         }
+
+#ifdef USE_SOCK
+                        irc_disconnect_aux(format("Retired; PernAngband %d.%d.%d rules", FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH), FALSE);
+#endif
                         kingly();
+                }
+                else
+                {
+#ifdef USE_SOCK
+                        irc_disconnect_aux(format("Killed by %s; PernAngband %d.%d.%d rules", died_from, FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH), FALSE);
+#endif
                 }
 
                 /* Wipe the saved levels */
@@ -6050,6 +6435,10 @@ void close_game(void)
                 {
 			add_note_type(NOTE_SAVE_GAME);
                 }
+
+#ifdef USE_SOCK
+                irc_disconnect_aux(format("Alive... for the time being; PernAngband %d.%d.%d rules", FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH), FALSE);
+#endif
 
 		/* Prompt for scores XXX XXX XXX */
 		prt("Press Return (or Escape).", 0, 40);

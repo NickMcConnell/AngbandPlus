@@ -20,11 +20,8 @@ out a new dungeon in order to be able to descend further in
 their quest to kill Morgoth.
 
 #####G2. Mirkwood
-The Mirkwood forest is guarded by the spider Shelob, who 
-lies in wait at the very bottom of the dungeon for any 
-unwary adventurer who manages to survive that far. The 
-dungeon contains levels 11 (550') to 33 (1650'), and can 
-be found to the north-east of Lothlorien.
+The Mirkwood forest contains levels 11 (550') to 33 (1650'),
+and can be found to the north-east of Lothlorien.
 
 #####G3. Mordor
 The Land of Mordor is a hot, cavernous region, containing 
@@ -132,8 +129,8 @@ adventurer to visit, and is rumoured to contain many strange
 monsters. Deep within the castle can be found The Glass Golem.
 Equivalent to dungeon levels 35 to 52.
 
-#####GGraveyard
-A dark Underground Graveyard, this place looks extremely dangerous.
+#####GPaths of the Dead
+A dark underground graveyard, this place looks extremely dangerous.
 It is claimed that the dead have all arisen in these depths, and are
 lead by Feagwath, the Undead Sorceror.
 Equivalent to dungeon levels 40 to 70.
@@ -152,10 +149,10 @@ although none have made it out of the Tower alive to confirm or deny this
 rumour. 
 Equivalent to dungeon levels 57 to 70.
 
-#####GDragon's Lair
-A big, dark and frightening tunnel leading to a Dragon's Lair, this
-large cave is the ancestral home of the Dragons. Glaurung, Father of
-the Dragons has long made his home here. 
+#####GErebor, the Lonely Mountain
+A big, dark and frightening tunnel leading to the depth of the Lonely
+Mountain, this large cave is the ancestral home of the Dragons.
+Glaurung, Father of the Dragons has long made his home here. 
 Equivalent to dungeon levels 60 to 72.
 
 #####GMount Doom
@@ -163,11 +160,6 @@ A steaming cave in the center of Mount Doom, this place is *hot*.
 It is said that Sauron forged the One Ring here and that it's the only place
 where it could be destroyed.
 Equivalent to dungeon levels 85 to 99.
-
-#####GVanilla Dungeon
-The classic dungeon of Angband, it contains within it's depths 
-forgotten towns and many monsters.
-Equivalent to dungeon levels 1 to 127.
 
 #####GNether Realm
 The Nether Realm is accessable only through a magic portal. Also 

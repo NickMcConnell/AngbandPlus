@@ -305,19 +305,6 @@ bool can_create_companion()
                 if (m_ptr->status == MSTATUS_COMPANION) mcnt++;
         }
 
-        switch (p_ptr->pclass)
-        {
-                case CLASS_HARPER:
-                        if (mcnt < 5) return (TRUE);
-                        else return (FALSE);
-                case CLASS_BEASTMASTER:
-                        if (mcnt < 4 + (p_ptr->lev / 10)) return (TRUE);
-                        else return (FALSE);
-                case CLASS_NECRO:
-                        if (mcnt < 1 + (p_ptr->lev / 10)) return (TRUE);
-                        else return (FALSE);
-                default:
-                        if (mcnt < 2) return (TRUE);
-                        else return (FALSE);
-        }
+        if (mcnt < (cp_ptr->max_companion + (p_ptr->lev / cp_ptr->max_companion_plus))) return (TRUE);
+        else return (FALSE);
 }

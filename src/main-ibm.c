@@ -59,6 +59,12 @@
  */
 #define USE_VIRTUAL
 
+#ifdef USE_DOSSOCK
+#include <arpa/inet.h>
+#include <netinet/in.h>
+#include <sys/socket.h>
+#include <netdb.h>
+#endif
 
 #include <bios.h>
 #include <dos.h>
@@ -317,7 +323,7 @@ static void activate_color_complex(void)
 
 		/* To value "i" */
 		outportb(0x3c0, i);
-	};
+	}
 
 	/* Use that EGA palette */
 	outportb(0x3c0, 0x20);
@@ -377,7 +383,51 @@ static void activate_color_complex(void)
 
 #endif /* 1 */
 
-};
+}
+
+
+#ifdef SUPPORT_GAMMA
+
+/*
+ * When set to TRUE, indicates that we can use gamma_table
+ */
+static bool gamma_table_ready = FALSE;
+
+
+/*
+ * Build gamma correction table if requested and applicable
+ */
+static void setup_gamma_table(void)
+{
+	static u16b old_gamma_val = 0;
+
+	/* (Re)build the table only when gamma value changes */
+	if (gamma_val == old_gamma_val) return;
+
+	/* Temporarily inactivate the table */
+	gamma_table_ready = FALSE;
+
+	/* Validate gamma_val */
+	if ((gamma_val <= 0) || (gamma_val >= 256))
+	{
+		/* Reset */
+		old_gamma_val = gamma_val = 0;
+
+		/* Leave it inactive */
+		return;
+	}
+
+	/* (Re)build the table */
+	build_gamma_table(gamma_val);
+
+	/* Remember gamma_val */
+	old_gamma_val = gamma_val;
+
+	/* Activate the table */
+	gamma_table_ready = TRUE;
+}
+	
+#endif /* SUPPORT_GAMMA */
 
 
 /*
@@ -395,13 +445,37 @@ static int Term_xtra_ibm_react(void)
 
 		bool change = FALSE;
 
+#ifdef SUPPORT_GAMMA
+
+		/* Build gamma_table */
+		setup_gamma_table();
+
+#endif /* SUPPORT_GAMMA */
+
 		/* Save the default colors */
 		for (i = 0; i < 16; i++)
 		{
 			/* Extract desired values */
-			rv = angband_color_table[i][1] >> 2;
-			gv = angband_color_table[i][2] >> 2;
-			bv = angband_color_table[i][3] >> 2;
+			rv = angband_color_table[i][1];
+			gv = angband_color_table[i][2];
+			bv = angband_color_table[i][3];
+
+#ifdef SUPPORT_GAMMA
+
+			/* Hack - Gamma correction */
+			if (gamma_table_ready)
+			{
+				rv = gamma_table[rv];
+				gv = gamma_table[gv];
+				bv = gamma_table[bv];
+			}
+
+#endif /* SUPPORT_GAMMA */
+
+			/* 8 bit to 6 bit conversion */
+			rv = rv >> 2;
+			gv = gv >> 2;
+			bv = bv >> 2;
 
 			/* Extract a full color code */
 			code = ((rv) | (gv << 8) | (bv << 16));
@@ -700,6 +774,9 @@ static errr Term_xtra_ibm(int n, int v)
 		/* Process events */
 		case TERM_XTRA_EVENT:
 		{
+#ifdef USE_SOCK
+                        irc_poll(pern_irc);
+#endif
 			/* Process one event */
 			return (Term_xtra_ibm_event(v));
 		}
@@ -1014,7 +1091,7 @@ void enable_graphic_font(void *font)
 	regs.x.es = FP_SEG(font);   /* Pointer to font */
 	regs.x.bp = FP_OFF(font);
 	intr(0x10, &regs);
-};
+}
 
 #else /* USE_286 */
 
@@ -1083,7 +1160,7 @@ unsigned  __dpmi_allocate_dos_memory(int size, unsigned *selector)
 
 	*selector = regs.w.dx;
 	return (regs.w.ax);
-};
+}
 
 void __dpmi_free_dos_memory(unsigned sel)
 {
@@ -1093,7 +1170,7 @@ void __dpmi_free_dos_memory(unsigned sel)
 	regs.w.ax  = 0x101;      /* DPMI function -- free low memory */
 	regs.x.edx = sel;        /* PM selector for memory block */
 	intr(0x31, &regs);       /* DPMI interface */
-};
+}
 
 void __dpmi_int(int intno, __dpmi_regs *dblock)
 {
@@ -1105,7 +1182,7 @@ void __dpmi_int(int intno, __dpmi_regs *dblock)
 	regs.x.edi = FP_OFF(dblock);  /* Pointer to dblock (offset and segment) */
 	regs.x.es  = FP_SEG(dblock);
 	intr(0x31, &regs);            /* DPMI interface */
-};
+}
 
 unsigned short __dpmi_sel = 0x0000;
 #define _farsetsel(x) __dpmi_sel=(x)
@@ -1175,12 +1252,99 @@ void enable_graphic_font(const char *font)
 
 	/* We're done with the low memory, free it */
 	__dpmi_free_dos_memory(sel);
-};
+}
 
 #endif /* USE_286 */
 
 #endif /* ALLOW_GRAPH */
 
+#ifdef USE_DOSSOCK
+void *zsock_connect(char *hos, short port)
+{
+        struct hostent *host;
+	struct sockaddr_in sin;
+        int *client;
+
+        MAKE(client, int);
+        *client = socket(AF_INET, SOCK_STREAM, 0);
+
+        host = gethostbyname(hos);
+
+        memset(&sin, 0, sizeof sin);
+     	sin.sin_family = AF_INET;
+     	sin.sin_addr.s_addr = ((struct in_addr *)(host->h_addr))->s_addr;
+        sin.sin_port = htons(port);
+
+        if (connect(*client, (struct sockaddr*)&sin, sizeof sin) == -1)
+     	{
+         	/* could not connect to server */
+                return NULL;
+     	}
+
+	return client;
+}
+
+bool zsock_can_read(void *client)
+{
+        struct timeval t;
+        fd_set rd;
+        int *c = client;
+
+        FD_ZERO(&rd);
+        FD_SET(*c, &rd);
+        t.tv_sec = 0;
+        t.tv_usec = 0;
+        select(*c + 1, &rd, NULL, NULL, &t);
+        if (FD_ISSET(*c, &rd)) return TRUE;
+        else return (FALSE);
+}
+
+bool zsock_wait(void *client)
+{
+        struct timeval t;
+        fd_set rd;
+        int *c = client;
+
+        t.tv_sec = 30;
+        t.tv_usec = 0;
+
+        FD_ZERO(&rd);
+        FD_SET(*c, &rd);
+        select(*c + 1, &rd, NULL, NULL, &t);
+        if (FD_ISSET(*c, &rd)) return TRUE;
+        else return (FALSE);
+}
+
+void zsock_disconnect(void *client)
+{
+        close(*(int*)client);
+        FREE(client, int);
+}
+
+void zsock_send(void *sock, char *str)
+{
+        send(*(int*)sock, str, strlen(str), 0);
+}
+
+void zsock_recv(void *sock, char *str, int len)
+{
+        char c;
+        int l = 0;
+
+        while ((l < len) && zsock_can_read(sock))
+        {
+                if (!recv(*(int*)sock, &c, 1, 0))
+                {
+                        irc_disconnect();
+                        break;
+                }
+                if (c == '\r') continue;
+                if (c == '\n') break;
+                str[l++] = c;
+        }
+        str[l] = '\0';
+}
+#endif
 
 
 /*
@@ -1209,7 +1373,7 @@ errr init_ibm(void)
 		r.h.al = 0x8B;           /* Causes Dos boxes to become fullscreen */
 		r.h.bh = r.h.bl = 0x00;  /* 0x0000 = current Dos box */
 		int86(0x2F, &r, &r);       /* Call the Windows API */
-	};
+	}
 
 	/* Initialize "color_table" */
 	for (i = 0; i < 16; i++)

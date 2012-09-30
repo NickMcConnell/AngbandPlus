@@ -214,6 +214,7 @@ void do_quick_start(int flag)
         do_ver_s32b(&previous_char.au, 29, 0, flag);
 
         for (i = 0; i < 6; i++) do_ver_s16b(&(previous_char.stat[i]), 29, 0, flag);
+        do_ver_s16b(&previous_char.luck, 30, race_info[previous_char.race].luck + race_mod_info[previous_char.rmod].luck + rand_range(-5, 5), flag);
 
         do_ver_s16b(&previous_char.chaos_patron, 29, 0, flag);
         do_ver_u32b(&previous_char.weapon, 29, 0, flag);
@@ -275,6 +276,7 @@ static void do_extra(int flag)
         {
                 do_ver_byte(&special_lvl[j][i], 26, 0, flag);
         }
+        do_ver_byte(&generate_special_feeling, 32, FALSE, flag);
 
         /* Load the quick start data */
         do_quick_start(flag);
@@ -301,6 +303,9 @@ static void do_extra(int flag)
 	for (i = 0; i < 6; ++i) do_s16b(&p_ptr->stat_cur[i], flag);
 	for (i = 0; i < 6; ++i) do_s16b(&p_ptr->stat_cnt[i], flag);
 	for (i = 0; i < 6; ++i) do_s16b(&p_ptr->stat_los[i], flag);
+
+        do_ver_s16b(&p_ptr->luck_base, 30, race_info[p_ptr->prace].luck + race_mod_info[p_ptr->pracem].luck + rand_range(-5, 5), flag);
+        do_ver_s16b(&p_ptr->luck_max, 30, race_info[p_ptr->prace].luck + race_mod_info[p_ptr->pracem].luck + rand_range(-5, 5), flag);
 
 	tmp16s = 0;
 	for(i = 0; i < 12; ++i) do_s16b(&tmp16s, flag); /* Transient */
@@ -362,9 +367,12 @@ static void do_extra(int flag)
 	do_s16b(&p_ptr->csane, flag);
 	do_u16b(&p_ptr->csane_frac, flag);
 
-	do_s16b(&p_ptr->msp, flag);
-	do_s16b(&p_ptr->csp, flag);
-	do_u16b(&p_ptr->csp_frac, flag);
+        skip_ver_s16b(30, flag);
+        skip_ver_s16b(30, flag);
+        skip_ver_u16b(30, flag);
+        do_ver_s32b(&p_ptr->msp, 31, 0, flag);
+        do_ver_s32b(&p_ptr->csp, 31, 0, flag);
+        do_ver_u32b(&p_ptr->csp_frac, 31, 0, flag);
 
 	do_s16b(&p_ptr->mtp, flag);
 	do_s16b(&p_ptr->ctp, flag);
@@ -501,14 +509,17 @@ static void do_extra(int flag)
 	/* Are we in astral mode? */
 	do_byte(&p_ptr->astral, flag);
 
-	if(flag == LS_SAVE) tmp16s = POWER_MAX;
-	do_s16b(&tmp16s, flag);
-	if((flag == LS_LOAD) && (tmp16s > POWER_MAX) )
+	skip_ver_s16b(32, flag);
+	for(i=0; i < (POWER_MAX_INIT/32)+1; i++)
+		skip_ver_s32b(32, flag);
+
+        if(flag == LS_SAVE) tmp16s = POWER_MAX_INIT;
+	do_ver_s16b(&tmp16s, 33, POWER_MAX_INIT, flag);
+	if((flag == LS_LOAD) && (tmp16s > POWER_MAX_INIT) )
 		note(format("Too many (%u) powers!", tmp16s));
-	if(flag == LS_SAVE) tmp16s = POWER_SLOT;
-	if(flag == LS_LOAD) tmp16s = (tmp16s/32)+1;
+	if(flag == LS_SAVE) tmp16s = POWER_MAX_INIT;
 	for(i=0; i < tmp16s; i++)
-		do_s32b(&p_ptr->powers_mod[i], flag);
+		do_ver_byte(&p_ptr->powers_mod[i], 33, 0, flag);
 
 	/* The music */
 	do_byte(&p_ptr->music, flag);
@@ -781,7 +792,7 @@ bool save_player(void)
 	return (result);
 }
 
-static bool file_exist(char *buf)
+bool file_exist(char *buf)
 {
         int fd;
         bool result;
@@ -1512,15 +1523,15 @@ static void do_item(object_type *o_ptr, int flag)
 	do_s16b(&o_ptr->ac, flag);
 
 		/* We do special processing of this flag when reading */
-if(flag == LS_LOAD)
+        if(flag == LS_LOAD)
 	{
-	do_byte(&old_dd, LS_LOAD);
-	do_byte(&old_ds, LS_LOAD);
+                do_byte(&old_dd, LS_LOAD);
+                do_byte(&old_ds, LS_LOAD);
 	}
-if(flag == LS_SAVE)
+        if(flag == LS_SAVE)
 	{
-	do_byte(&o_ptr->dd, LS_SAVE);
-	do_byte(&o_ptr->ds, LS_SAVE);
+                do_byte(&o_ptr->dd, LS_SAVE);
+                do_byte(&o_ptr->ds, LS_SAVE);
 	}
 
 	do_byte(&o_ptr->ident, flag);
@@ -1584,9 +1595,6 @@ if(flag == LS_SAVE) return; /* Stick any more shared code before this. The rest
 				of this function is reserved for LS_LOAD's
 				cleanup functions */
 /*********** END OF LS_SAVE ***************/
-
-	/* Mega-Hack -- handle "dungeon objects" later */
-	if ((o_ptr->k_idx >= 445) && (o_ptr->k_idx <= 479)) return;
 
 	/* Obtain the "kind" template */
 	k_ptr = &k_info[o_ptr->k_idx];
@@ -1823,6 +1831,14 @@ static bool do_store(store_type* str, int flag)
 
 	byte num;
 
+	byte store_inven_max = STORE_INVEN_MAX;
+
+	/* Hack - Museum can hold more items */
+	if (st_info[str->st_idx].flags1 & SF1_MUSEUM)
+	{
+		store_inven_max *= STORE_MUSEUM_INVEN;
+	}
+
 	/* Some basic info */
 	do_s32b(&str->store_open, flag);
 	do_s16b(&str->insult_cur, flag);
@@ -1850,7 +1866,7 @@ static bool do_store(store_type* str, int flag)
 			/* Read the item */
 			do_item(&forge, LS_LOAD);
 			/* Acquire valid items */
-			if (str->stock_num < STORE_INVEN_MAX)
+			if (str->stock_num < store_inven_max)
 				{
 				int k = str->stock_num++;
 				/* Acquire the item */
@@ -2204,6 +2220,12 @@ if(flag == LS_LOAD)
 			/* Copy object */
 			object_copy(&inventory[n], q_ptr);
 
+                        /* Take care of item sets*/
+                        if (q_ptr->name1)
+                        {
+                                wield_set(q_ptr->name1, a_info[q_ptr->name1].set, TRUE);
+                        }
+
 			/* One more item */
 			equip_cnt++;
 		}
@@ -2258,7 +2280,7 @@ static void do_messages(int flag) /* FIXME! We should be able to unify this bett
 {
 	int i;
 	char buf[128];
-	byte color;
+        byte color, type;
 
 	s16b num;
 
@@ -2268,26 +2290,29 @@ static void do_messages(int flag) /* FIXME! We should be able to unify this bett
 	do_s16b(&num, flag);
 
 	/* Read the messages */
-if(flag == LS_LOAD)
+        if(flag == LS_LOAD)
 	{
-	for (i = 0; i < num; i++)
-		{
-		/* Read the message */
-		do_string(buf, 128, LS_LOAD);
-		do_byte(&color, flag);
+                for (i = 0; i < num; i++)
+                {
+                        /* Read the message */
+                        do_string(buf, 128, LS_LOAD);
+                        do_byte(&color, flag);
+                        do_ver_byte(&type, 35, MESSAGE_MSG, flag);
 
-		/* Save the message */
-		message_add(buf, color);
+                        /* Save the message */
+                        message_add(type, buf, color);
 		}
 	}
-if(flag == LS_SAVE)
+        if(flag == LS_SAVE)
 	{
-	byte holder;
-	for(i = num-1; i >= 0; i--)
+                byte holder;
+                for(i = num-1; i >= 0; i--)
 		{
-		do_string((char*)message_str( (s16b)i), 0, LS_SAVE);
-		holder = message_color((s16b)i);
-		do_byte(&holder, flag);
+                        do_string((char*)message_str( (s16b)i), 0, LS_SAVE);
+                        holder = message_color((s16b)i);
+                        do_byte(&holder, flag);
+                        holder = message_type((s16b)i);
+                        do_ver_byte(&holder, 35, MESSAGE_MSG, flag);
 		}
 	}
 }
@@ -2558,6 +2583,23 @@ bool load_dungeon(char *ext)
 	return(TRUE);
 }
 
+void do_blocks(int flag)
+	/* Handle blocked-allocation stuff for quests and lua stuff
+	   This depends on a dyn_tosave array of s32b's. Adjust as needed
+	   if other data structures are desirable. This also is not hooked
+	   in yet. Ideally, plug it near the end of the savefile.
+	 */
+{
+s16b numblks,n_iter=0; /* How many blocks do we have? */
+do_s16b(&numblks, flag);
+while(n_iter < numblks)
+	{
+/*	do_s32b(dyn_tosave[n_iter], flag); */
+	n_iter++;
+	}
+my_sentinel("In blocked-allocation area", 37, flag);
+}
+
 void do_fate(int i, int flag)
 {
 	if ((flag == LS_LOAD) && (i >= MAX_FATES) ) i = MAX_FATES - 1;
@@ -2585,33 +2627,35 @@ static bool do_savefile_aux(int flag)
 	byte tmp8u;
 	u16b tmp16u;
         u16b town_count;
+        u32b tmp32u;
 
 	/* Mention the savefile version */
-if(flag == LS_LOAD)
-	note(format("Loading version %lu savefile... key (%d)", vernum, sf_extra));
-if(flag == LS_SAVE)
+        if(flag == LS_LOAD)
+                note(format("Loading version %lu savefile... ", vernum));
+        if(flag == LS_SAVE)
 	{
-	sf_when = time((time_t *)0);	/* Note when file was saved */
-	sf_xtra = 0L;	/* What the hell is this? */
-	sf_saves++; /* Increment the saves ctr */
+                sf_when = time((time_t *)0);    /* Note when file was saved */
+                sf_xtra = 0L;   /* What the hell is this? */
+                sf_saves++; /* Increment the saves ctr */
 	}
 
 	/* Handle version bytes. FIXME! DG wants me to change this all around */
-if(flag == LS_LOAD)
+        if(flag == LS_LOAD)
 	{
-	u32b mt32b;
-	byte mtbyte;
+                u32b mt32b;
+                byte mtbyte;
+
 		/* Discard all this, we've already read it */
-	do_u32b(&mt32b, flag);
-	do_byte(&mtbyte, flag);
+                do_u32b(&mt32b, flag);
+                do_byte(&mtbyte, flag);
 	}
-if(flag == LS_SAVE)
+        if(flag == LS_SAVE)
 	{
-	u32b saver;
-	saver = SAVEFILE_VERSION;
-	do_u32b(&saver, flag);
-	tmp8u = (byte)rand_int(256);
-	do_byte(&tmp8u, flag); /* 'encryption' */
+                u32b saver;
+                saver = SAVEFILE_VERSION;
+                do_u32b(&saver, flag);
+                tmp8u = (byte)rand_int(256);
+                do_byte(&tmp8u, flag); /* 'encryption' */
 	}
 
 	/* Operating system info? Not really. This is just set to 0L */
@@ -2745,13 +2789,14 @@ if(flag == LS_SAVE)
 				do_s16b(&(d_info[i].t_level[j]), flag);
 				}
 			do_s16b(&(d_info[i].t_num), flag);
-			}
-		if(flag == LS_SAVE) max_quests_ldsv = MAX_Q_IDX;
+                        }
+
+		if (flag == LS_SAVE) max_quests_ldsv = MAX_Q_IDX_INIT;
 		/* Number of quests */
 		do_u16b(&max_quests_ldsv, flag);
 
 		/* Incompatible save files */
-                if ((flag == LS_LOAD) && (max_quests_ldsv > MAX_Q_IDX))
+                if ((flag == LS_LOAD) && (max_quests_ldsv > MAX_Q_IDX_INIT))
                 {
 			note(format("Too many (%u) quests!", max_quests_ldsv));
 			return(FALSE);
@@ -2766,7 +2811,7 @@ if(flag == LS_SAVE)
 			}
 
 			/* Init the hooks */
-                        if (flag == LS_LOAD) quest[i].init(i);
+                        if ((flag == LS_LOAD) && (quest[i].type ==  HOOK_TYPE_C)) quest[i].init(i);
 		}
 
 		/* Position in the wilderness */
@@ -2984,24 +3029,50 @@ if(flag == LS_SAVE)
 					 return (FALSE);
 			}
 		}
+
+        if (flag == LS_SAVE) tmp32u = extra_savefile_parts;
+        do_ver_s32b(&tmp32u, 34, 0, flag);
+        if (flag == LS_SAVE)
+        {
+                /* Save the stuff */
+                process_hooks(HOOK_SAVE_GAME, "()");
+        }
+
+        if (flag == LS_LOAD)
+        {
+                u32b len = tmp32u;
+
+                while (len)
+                {
+                        char key_buf[100];
+
+                        /* Load a key */
+                        load_number_key(key_buf, &tmp32u);
+
+                        /* Process it -- the hooks can use it or ignore it */
+                        process_hooks(HOOK_LOAD_GAME, "(s,l)", key_buf, tmp32u);
+                        len--;
+                }
+        }
+
 	/* I'm not dead yet... */
 	if (!death)
-		{
+        {
 		/* Dead players have no dungeon */
 		if(flag == LS_LOAD) note("Restoring Dungeon...");
 		if((flag == LS_LOAD) && (!do_dungeon(LS_LOAD)))
-			{
+                {
 			note("Error reading dungeon data");
 			return (FALSE);
-			}
+                }
 		if(flag == LS_SAVE) do_dungeon(LS_SAVE);
 		my_sentinel("Before ghost data", 435, flag);
 		/* ghost info */
 		do_ghost(flag);
 		my_sentinel("After ghost data", 320, flag);
-		}
-/* AFTER THIS, it's all LS_LOAD, baby */
+        }
 
+        /* AFTER THIS, it's all LS_LOAD, baby */
 	/* Hack -- ghosts */
 	r_info[max_r_idx - 1].max_num = 1;
 
@@ -3093,12 +3164,10 @@ sp_ptr = &sex_info[p_ptr->psex]; /* Sex */
 rp_ptr = &race_info[p_ptr->prace]; /* Raceclass */
 rmp_ptr = &race_mod_info[p_ptr->pracem];
 cp_ptr = &class_info[p_ptr->pclass];
-mp_ptr = &magic_info[p_ptr->pclass]; /* Magic */
 }
 
 #ifdef BZ_SAVES
 static void do_grid(int flag)
-		/* I'm still working on unifying this, obviously */
 {
 int y=0,x=0;
 cave_type* c_ptr;
@@ -3359,3 +3428,39 @@ note(format("Impossible has occurred")); /* Programmer error */
 exit(0);
 }
 
+/********** Variable savefile stuff **************/
+
+/*
+ * Add num slots to the savefile
+ */
+void register_savefile(int num)
+{
+        extra_savefile_parts += (num > 0) ? num : 0;
+}
+
+void save_number_key(char *key, s32b val)
+{
+        byte len = strlen(key);
+
+        do_byte(&len, LS_SAVE);
+        while (*key)
+        {
+                do_byte(key, LS_SAVE);
+                key++;
+        }
+        do_u32b(&val, LS_SAVE);
+}
+
+void load_number_key(char *key, s32b *val)
+{
+        byte len, i = 0;
+
+        do_byte(&len, LS_LOAD);
+        while (i < len)
+        {
+                do_byte(&key[i], LS_LOAD);
+                i++;
+        }
+        key[i] = '\0';
+        do_u32b(val, LS_LOAD);
+}

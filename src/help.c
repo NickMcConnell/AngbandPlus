@@ -12,10 +12,14 @@
 
 #include "angband.h"
 
-bool help_move(int loc)
+bool help_move(char *fmt)
 {
-        int y = loc >> 8, x = loc & 0xFF;
-        cave_type *c_ptr = &cave[y][x];
+        s32b y, x;
+        cave_type *c_ptr;
+
+        y = get_next_arg(fmt);
+        x = get_next_arg(fmt);
+        c_ptr = &cave[y][x];
 
         if (!(p_ptr->help.help1 & HELP1_BETWEEN) && (c_ptr->feat == FEAT_BETWEEN))
         {
@@ -49,7 +53,7 @@ bool help_move(int loc)
         return (FALSE);
 }
 
-bool help_end_turn(int loc)
+bool help_end_turn(char *fmt)
 {
         if (!(p_ptr->help.help1 & HELP1_WILD_MODE) && (p_ptr->wild_mode))
         {

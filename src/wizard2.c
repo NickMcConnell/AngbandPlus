@@ -240,10 +240,24 @@ static void wiz_create_named_art()
  */
 void do_cmd_wiz_hack_ben(int day)
 {
+
 	/* Success */
         return;
 }
 
+#ifdef USE_LUA
+void do_cmd_lua_script()
+{
+        char script[80];
+
+        if (!get_string("Script:", script, 80)) return;
+
+        exec_lua(script);
+
+	/* Success */
+        return;
+}
+#endif
 
 
 #ifdef MONSTER_HORDES
@@ -376,11 +390,18 @@ static void do_cmd_wiz_change_aux(void)
 	/* Update */
 	check_experience();
 
-	/* Query the stats */
-	for (i = 0; i < 6; i++)
-	{
-                msg_format("%s: use %d, ind %d", stat_names[i], p_ptr->stat_use[i], p_ptr->stat_ind[i]);
-	}
+	/* Default */
+        sprintf(tmp_val, "%d", p_ptr->luck_base);
+
+	/* Query */
+        if (!get_string("Luck(base): ", tmp_val, 3)) return;
+
+	/* Extract */
+	tmp_long = atol(tmp_val);
+
+	/* Save */
+        p_ptr->luck_base = tmp_long;
+        p_ptr->luck_max = tmp_long;
 }
 
 
@@ -632,6 +653,27 @@ static char head[4] =
 
 
 /*
+ * Print a string as required by wiz_create_itemtype().
+ * Trims characters from the beginning until it fits in the space
+ * before the next row or the edge of the screen.
+ */
+static void wci_string(cptr string, int num)
+{
+	int row = 2 + (num % 20), col = 30 * (num / 20);
+	int ch = head[num/20] + (num%20), max_len = 0;
+
+	if (76-col < (signed)max_len)
+		max_len = 76-col;
+	else
+		max_len = 30-6;
+
+	if (strlen(string) > (unsigned)max_len)
+		string = string+(strlen(string)-max_len);
+
+	prt(format("[%c] %s", ch, string), row, col);
+}
+
+/*
  * Specify tval and sval (type and subtype of object) originally
  * by RAK, heavily modified by -Bernd-
  *
@@ -642,7 +684,6 @@ static char head[4] =
 static int wiz_create_itemtype(void)
 {
 	int i, num, max_num;
-	int col, row;
 	int tval;
 
         cptr tval_desc2;
@@ -659,10 +700,7 @@ static int wiz_create_itemtype(void)
 	/* Print all tval's and their descriptions */
 	for (num = 0; (num < 60) && tvals[num].tval; num++)
 	{
-		row = 2 + (num % 20);
-		col = 30 * (num / 20);
-		ch = head[num/20] + (num%20);
-		prt(format("[%c] %s", ch, tvals[num].desc), row, col);
+		wci_string(tvals[num].desc, num);
 	}
 
 	/* Me need to know the maximal possible tval_index */
@@ -697,20 +735,15 @@ static int wiz_create_itemtype(void)
 
 		/* Analyze matching items */
 		if (k_ptr->tval == tval)
-		{
+                {
 			/* Hack -- Skip instant artifacts */
                         if (k_ptr->flags3 & (TR3_INSTA_ART)) continue;
-
-			/* Prepare it */
-			row = 2 + (num % 20);
-			col = 30 * (num / 20);
-			ch = head[num/20] + (num%20);
 
 			/* Acquire the "name" of object "i" */
 			strip_name(buf, i);
 
 			/* Print it */
-			prt(format("[%c] %s", ch, buf), row, col);
+			wci_string(buf, num);
 
 			/* Remember the object index */
 			choice[num++] = i;
@@ -855,7 +888,7 @@ static void wiz_reroll_item(object_type *o_ptr)
 		wiz_display_item(q_ptr);
 
 		/* Ask wizard what to do. */
-                if (!get_com("[a]ccept, [b]ad, [n]ormal, [g]ood, [e]xcellent? ", &ch))
+                if (!get_com("[a]ccept, [b]ad, [n]ormal, [g]ood, [e]xcellent, [r]andart? ", &ch))
 		{
 			changed = FALSE;
 			break;
@@ -895,6 +928,13 @@ static void wiz_reroll_item(object_type *o_ptr)
 		{
 			object_prep(q_ptr, o_ptr->k_idx);
 			apply_magic(q_ptr, dun_level, FALSE, TRUE, TRUE);
+		}
+
+		/* Apply great magic, but first clear object */
+		else if (ch == 'r' || ch == 'r')
+		{
+			object_prep(q_ptr, o_ptr->k_idx);
+			create_artifact(q_ptr, FALSE, TRUE);
 		}
 	}
 
@@ -1343,13 +1383,16 @@ static void wiz_create_item(void)
 	msg_print("Allocated.");
 }
 
+/*
+ * As above, but takes the k_idx as a parameter instead of using menus.
+ */
 static void wiz_create_item_2(void)
 {
 	object_type forge;
 	object_type *q_ptr;
         int a_idx;
         cptr p="Number of the object :";
-        char out_val[80];
+        char out_val[80] = "";
 
         if (!get_string(p, out_val, 4)) return;
         a_idx = atoi(out_val);                                
@@ -1850,7 +1893,7 @@ void do_cmd_debug(void)
                         {
                                 quest[command_arg].status = QUEST_STATUS_TAKEN;
                                 *(quest[command_arg].plot) = command_arg;
-                                quest[command_arg].init(command_arg);
+                                if (quest[command_arg].type ==  HOOK_TYPE_C) quest[command_arg].init(command_arg);
                                 break;
                         }
 			break;
@@ -1899,7 +1942,9 @@ void do_cmd_debug(void)
 
 		/* Teleport */
 		case 't':
+                        teleport_player_bypass = TRUE;
 			teleport_player(100);
+                        teleport_player_bypass = FALSE;
 			break;
 
                 /* Teleport to a town */
@@ -1984,6 +2029,12 @@ void do_cmd_debug(void)
                 case '/':
                 summon_specific(py,px,max_dlv[dungeon_type],command_arg);
                 break;
+
+#ifdef USE_LUA
+                case '>':
+                do_cmd_lua_script();
+                break;
+#endif
 
 		/* Not a Wizard Command */
 		default:

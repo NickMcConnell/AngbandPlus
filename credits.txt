@@ -18,7 +18,7 @@ drop me a line please) in no particular order:
 - Andreas Kosh(akoch@rbg.informatik.tu-darmstadt.de) for the tiles, the
   graphic editor and surely more :)
 - Gob for the mac ports and a nasty bug fix
-- Iain McFall for bug fixes, auto squlch and more
+- Iain McFall for bug fixes, auto squelch and more
 - Bablos for the amiga port
 - Arch for the windows port
 - Dawnmist for the new docs
@@ -27,8 +27,17 @@ drop me a line please) in no particular order:
 - Pelpel for bugfixes and other mac things
 - Tom Le for the website hosting
 - Willam Tanksley for lots of useful comments, ideas and bitching ;)
+- Tom Demuyt for the unbeliever idea
+- Luc French for lots of ideas & code
+- Kieron for some patches
+- Runescrye for ra_info.txt and surely more :)
 
 - All that I forgot in the list, hit me a bit then email me to get added
 
-- All the friendly people of #angband
 - All the friendly people of the PernAngband mailling list
+- All the friendly people of #angband
+
+- TeCGraf for the Lua scripting language(www.lua.org)
+- Reuben Thomas for the lua bitlib
+- Waldemar Celes for tolua(automatic wrapper generator for lua, like swig, but
+  this one actually works :)

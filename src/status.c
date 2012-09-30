@@ -20,69 +20,50 @@
 static void row_trival(char*, s16b, u32b, s16b, u32b, int, u32b[INVEN_TOTAL - INVEN_WIELD+2][7]);
 static void row_bival(char*, s16b, u32b, int, u32b[INVEN_TOTAL - INVEN_WIELD+2][7]);
 static void row_npval(char*, s16b, u32b, int, u32b[INVEN_TOTAL - INVEN_WIELD+2][7]);
+static void statline(char*, int, u32b, int, u32b[INVEN_TOTAL - INVEN_WIELD+2][7]);
 static void row_hd_bon(int, int, u32b[INVEN_TOTAL - INVEN_WIELD+2][7]);
+static void row_count(char*, s16b, u32b, int, s16b, u32b, int, s16b, u32b, int, int, u32b[INVEN_TOTAL - INVEN_WIELD+2][7]);
 
+static void status_count(s32b val1, int v1, s32b val2, int v2, s32b val3, int v3, byte ypos, byte xpos);
 static void status_trival(s32b, s32b, byte, byte);
 static void status_bival(s32b, byte, byte);
 static void status_numeric(s32b, byte, byte);
 static void status_curses(void);
 static void status_companion(void);
+void status_sight(void);
 void status_attr(void);
 void status_combat(void);
 void status_main(void);
 void status_move(void);
 void status_item(void);
-void az_line(u32b[INVEN_TOTAL - INVEN_WIELD +2][7]);
+void az_line(int, u32b[INVEN_TOTAL - INVEN_WIELD +2][7]);
 #define STATNM_LENGTH 9
+#define SL_LENGTH 11
 
 void status_attr(void)
 {
-char statstr[8];
-char statnm[4];
-char c;
-int i; /* Iterator */
-int stat = 0; /* Stat designator */
-clear_from(0);
-c_put_str(TERM_L_BLUE, "Statistics", 0,1);
-for(i=0;i<6;i++)
+        u32b flag_arr[INVEN_TOTAL- INVEN_WIELD +2][7];
+        int yo=0;
+        char c;
+
+        clear_from(0);
+        c_put_str(TERM_L_BLUE, "Statistics", yo++,1);
+        yo+=2;
+        az_line(SL_LENGTH,flag_arr);
+        statline("Str", A_STR, TR1_STR, yo++, flag_arr);
+        statline("Int", A_INT, TR1_INT, yo++, flag_arr);
+        statline("Wis", A_INT, TR1_WIS, yo++, flag_arr);
+        statline("Con", A_CON, TR1_CON, yo++, flag_arr);
+        statline("Dex", A_DEX, TR1_DEX, yo++, flag_arr);
+        statline("Chr", A_CHR, TR1_CHR, yo++, flag_arr);
+
+
+        c_put_str(TERM_WHITE, "Press ESC to continue", 23, 0);
+        Term_fresh();
+        while(1)
 	{
-	switch(i)
-		{
-		case 0:
-			stat = A_STR;
-			strcpy(statnm, "Str");
-			break;
-		case 1:
-			stat = A_INT;
-			strcpy(statnm, "Int");
-			break;
-		case 2:
-			stat = A_WIS;
-			strcpy(statnm, "Wis");
-			break;
-		case 3:
-			stat = A_CON;
-			strcpy(statnm, "Con");
-			break;
-		case 4:
-			stat = A_DEX;
-			strcpy(statnm, "Dex");
-			break;
-		case 5:
-			stat = A_CHR;
-			strcpy(statnm, "Chr");
-			break;
-		}
-	c_put_str(TERM_L_RED, statnm, i+1, 0);
-	cnv_stat(p_ptr->stat_use[stat], statstr);
-	c_put_str(TERM_GREEN, statstr, i+1, 4);
-	}
-c_put_str(TERM_WHITE, "Press ESC to continue", 23, 0);
-Term_fresh();
-while(1)
-	{
-	c = inkey();
-	if(c == ESCAPE) break;
+                c = inkey();
+                if(c == ESCAPE) break;
 	}
 }
 
@@ -92,7 +73,7 @@ u32b flag_arr[INVEN_TOTAL - INVEN_WIELD + 2][7];
 int yo=3;
 clear_from(0);
 c_put_str(TERM_L_BLUE, "Movement", 0, 1);
-az_line(flag_arr);
+az_line(STATNM_LENGTH,flag_arr);
 
 row_trival("Fly/Lev", 4, TR4_FLY, 3, TR3_FEATHER, yo++, flag_arr);
 row_bival("Climb", 4, TR4_CLIMB, yo++, flag_arr);
@@ -101,6 +82,54 @@ row_npval("Speed", 1, TR1_SPEED, yo++, flag_arr);
 yo++;
 row_npval("Stealth", 1, TR1_STEALTH, yo++, flag_arr);
 row_bival("Tele", 3, TR3_TELEPORT, yo++, flag_arr);
+row_bival("FreeAct", 2, TR2_FREE_ACT, yo++, flag_arr);
+
+c_put_str(TERM_WHITE, "Press ESC to continue", 23, 0);
+Term_fresh();
+while(1)
+	{
+	bool loop_exit=FALSE;
+	char c;
+	c = inkey();
+	switch(c)
+		{
+		case ESCAPE:
+			{
+			loop_exit = TRUE;
+			}
+		}
+	if(loop_exit) {break;}
+	}
+}
+
+void status_sight(void)
+	/* Tell player about ESP, infravision, auto-id, see invis, and similar */
+{
+u32b flag_arr[INVEN_TOTAL - INVEN_WIELD +2][7];
+int yo=3;
+clear_from(0);
+c_put_str(TERM_L_BLUE, "Sight", 0, 1);
+az_line(STATNM_LENGTH,flag_arr);
+
+row_bival("SeeInvis", 3, TR3_SEE_INVIS, yo++, flag_arr);
+row_npval("Infra", 1, TR1_INFRA, yo++, flag_arr);
+row_npval("Search", 1, TR1_SEARCH, yo++, flag_arr);
+row_bival("AutoID", 4, TR4_AUTO_ID, yo++, flag_arr);
+row_count("Light", 3, TR3_LITE1, 1, 4, TR4_LITE2, 2, 4, TR4_LITE3, 3, yo++, flag_arr); 
+row_bival("Full ESP", 0, ESP_ALL, yo++, flag_arr);
+row_bival("Orc  ESP", 0, ESP_ORC, yo++, flag_arr);
+row_bival("Trol ESP", 0, ESP_TROLL, yo++, flag_arr);
+row_bival("Drag ESP", 0, ESP_DRAGON, yo++, flag_arr);
+row_bival("GiantESP", 0, ESP_GIANT, yo++, flag_arr);
+row_bival("DemonESP", 0, ESP_DEMON, yo++, flag_arr);
+row_bival("Undd ESP", 0, ESP_UNDEAD, yo++, flag_arr);
+row_bival("Evil ESP", 0, ESP_EVIL, yo++, flag_arr);
+row_bival("Anim ESP", 0, ESP_ANIMAL, yo++, flag_arr);
+row_bival("Drid ESP", 0, ESP_DRAGONRIDER, yo++, flag_arr);
+row_bival("Good ESP", 0, ESP_GOOD, yo++, flag_arr);
+row_bival("SpidrESP", 0, ESP_SPIDER, yo++, flag_arr);
+row_bival("NonlvESP", 0, ESP_NONLIVING, yo++, flag_arr);
+row_bival("Uniq ESP", 0, ESP_UNIQUE, yo++, flag_arr);
 
 c_put_str(TERM_WHITE, "Press ESC to continue", 23, 0);
 Term_fresh();
@@ -126,7 +155,23 @@ u32b flag_arr[INVEN_TOTAL - INVEN_WIELD +2][7];
 int yo=3;
 clear_from(0);
 c_put_str(TERM_L_BLUE, "Item", 0,1);
-az_line(flag_arr);
+az_line(STATNM_LENGTH,flag_arr);
+
+row_bival("Activate", 3, TR3_ACTIVATE, yo++, flag_arr);
+row_bival("EasyUse", 4, TR4_EASY_USE, yo++, flag_arr);
+row_bival("NoChg", 4, TR4_NO_RECHARGE, yo++, flag_arr);
+row_bival("SafeChg", 4, TR4_RECHARGE, yo++, flag_arr);
+row_bival("FastChg", 4, TR4_CHARGING, yo++, flag_arr);
+row_bival("CheapUse", 4, TR4_CHEAPNESS, yo++, flag_arr);
+row_bival("Capacity", 4, TR4_CAPACITY, yo++, flag_arr);
+row_bival("FastCast", 4, TR4_FAST_CAST, yo++, flag_arr);
+row_bival("EasyKnow", 3, TR3_EASY_KNOW, yo++, flag_arr);
+row_bival("HideType", 3, TR3_HIDE_TYPE, yo++, flag_arr);
+yo++;
+row_bival("SafeAcid", 3, TR3_IGNORE_ACID, yo++, flag_arr);
+row_bival("SafeElec", 3, TR3_IGNORE_ELEC, yo++, flag_arr);
+row_bival("SafeFire", 3, TR3_IGNORE_FIRE, yo++, flag_arr);
+row_bival("SafeCold", 3, TR3_IGNORE_COLD, yo++, flag_arr);
 
 c_put_str(TERM_WHITE, "Press ESC to continue", 23, 0);
 Term_fresh();
@@ -150,7 +195,7 @@ u32b flag_arr[INVEN_TOTAL - INVEN_WIELD +2][7];
 int yo=3;
 clear_from(0);
 c_put_str(TERM_L_BLUE, "Combat", 0, 1);
-az_line(flag_arr);
+az_line(STATNM_LENGTH,flag_arr);
 
 row_npval("+Blows", 1, TR1_BLOWS, yo++, flag_arr);
 row_npval("Ammo_Mgt", 3, TR3_XTRA_MIGHT, yo++, flag_arr);
@@ -196,7 +241,7 @@ int yo = 3;
 
 clear_from(0);
 c_put_str(TERM_L_BLUE, "Curses", 0, 1);
-az_line(flag_arr);
+az_line(STATNM_LENGTH,flag_arr);
 
 row_trival("Hvy/Nrm", 3, TR3_HEAVY_CURSE, 3, TR3_CURSED, yo++, flag_arr);
 row_bival("Perma", 3, TR3_PERMA_CURSE, yo++, flag_arr);
@@ -211,6 +256,7 @@ row_bival("Dr.HP", 5, TR5_DRAIN_HP, yo++, flag_arr);
 row_bival("No Hit", 4, TR4_NEVER_BLOW, yo++, flag_arr);
 row_bival("NoTele", 3, TR3_NO_TELE, yo++, flag_arr);
 row_bival("Aggrav", 3, TR3_AGGRAVATE, yo++, flag_arr);
+row_bival("Temp", 5, TR5_TEMPORARY, yo++, flag_arr);
 
 c_put_str(TERM_WHITE, "Press ESC to continue", 23, 0);
 Term_fresh();
@@ -241,13 +287,14 @@ Term_save();
 while(1)
 	{
 	clear_from(0);
-	c_put_str(TERM_WHITE, "Status screen", 0, 10);
+        c_put_str(TERM_WHITE, "PernAngband Character Status screen", 0, 10);
 	c_put_str(TERM_WHITE, "1) Statistics", 2, 5);
 	c_put_str(TERM_WHITE, "2) Movement", 3, 5);
 	c_put_str(TERM_WHITE, "3) Combat", 4, 5);
 	c_put_str(TERM_WHITE, "4) Item", 5, 5);
 	c_put_str(TERM_WHITE, "5) Curses", 6, 5);
-        c_put_str(TERM_WHITE, "6) Companions", 7, 5);
+	c_put_str(TERM_WHITE, "6) Sight", 7, 5);
+        c_put_str(TERM_WHITE, "7) Companions", 8, 5);
 	c_put_str(TERM_RED, "Press 'q' to Quit", 23, 5);
 	c = inkey();
 	switch(c)
@@ -267,7 +314,10 @@ while(1)
 		case '5':
 			status_curses();
 			break;
-                case '6':
+		case '6':
+			status_sight();
+			break;
+                case '7':
                         status_companion();
 			break;
 		case 'q':
@@ -284,9 +334,9 @@ p_ptr->redraw |= (PR_WIPE|PR_BASIC|PR_EXTRA|PR_MAP);
 handle_stuff();
 }
 
-void az_line(u32b flag_arr[INVEN_TOTAL - INVEN_WIELD +2][7])
+void az_line(int xo, u32b flag_arr[INVEN_TOTAL - INVEN_WIELD +2][7])
 {
-int index = 9; /* Leave room for description */
+int index = xo; /* Leave room for description */
 int i;
 for(i = INVEN_WIELD; i < INVEN_TOTAL; i++)
 	{
@@ -297,7 +347,7 @@ for(i = INVEN_WIELD; i < INVEN_TOTAL; i++)
 		cstrng[1] = '\0'; /* terminate it */
 		c_put_str(TERM_WHITE, cstrng, 2, index++); /* Assumes ASCII */
 
-#if 0 // DGDGDGDG
+#if 0 /* DGDGDGDG */
                 object_flags_known(&inventory[i],
 #else
 		object_flags(&inventory[i], 	/* Help me debug */
@@ -371,6 +421,34 @@ else if (val > 0)
 	}
 }
 
+static void status_count(s32b val1, int v1, s32b val2, int v2, s32b val3, int v3, byte ypos, byte xpos)
+{
+        int v = 0;        
+
+        if (val1 != 0) v += v1;
+        if (val2 != 0) v += v2;
+        if (val3 != 0) v += v3;
+
+        status_numeric(v, ypos, xpos);
+}
+
+static void row_count(char* statname, s16b row1, u32b flag1, int v1, s16b row2, u32b flag2, int v2, s16b row3, u32b flag3, int v3, int yo, u32b flag_arr[INVEN_TOTAL - INVEN_WIELD+2][7])
+{
+        int i;
+        int x = 0;
+
+        c_put_str(TERM_L_GREEN, statname, yo, 0);
+
+        for (i = 0; i < (INVEN_TOTAL - INVEN_WIELD + 2); i++)
+	{
+                if(flag_arr[i][6] == 1)
+		{
+                        status_count((flag_arr[i][row1] & flag1), v1, (flag_arr[i][row2] & flag2), v2, (flag_arr[i][row3] & flag3), v3, yo, x + STATNM_LENGTH);
+                        x++;
+		}
+	}
+}
+
 static void row_trival(char* statname, s16b row, u32b flag, s16b row2, u32b flag2, int yo, u32b flag_arr[INVEN_TOTAL - INVEN_WIELD+2][7])
 {
 int i;
@@ -425,13 +503,39 @@ for(i=0; i < (INVEN_TOTAL - INVEN_WIELD +2);i++)
 			continue;
 			}
 		if(flag_arr[i][row] & flag)
-			{
 			status_numeric(inventory[i+INVEN_WIELD].pval, yo, x+STATNM_LENGTH);
-			}
 		else
-			{
 			c_put_str(TERM_WHITE, ".", yo, x+STATNM_LENGTH);
+		x++;
+		}
+	}
+}
+
+static void statline(char* statname, int statidx, u32b flag, int yo, u32b flag_arr[INVEN_TOTAL - INVEN_WIELD+2][7])
+	/* Displays a status row for a primary stat */
+{
+int i;
+int x=0;
+char statstr[8];
+cnv_stat(p_ptr->stat_use[statidx], statstr);
+c_put_str(TERM_L_RED, statname, yo, 0);
+c_put_str(TERM_L_GREEN, statstr, yo, 4);
+for(i=0;i < (INVEN_TOTAL - INVEN_WIELD +2);i++)
+	{
+	if(flag_arr[i][6] == 1)
+		{
+		if(i == (INVEN_TOTAL - INVEN_WIELD +1) ) /* Player flags */
+			{
+			if(flag_arr[i][1] & flag)
+				c_put_str(TERM_YELLOW, "*", yo, x+SL_LENGTH);
+			else c_put_str(TERM_WHITE, ".", yo, x+SL_LENGTH);
+			x++;
+			continue;
 			}
+		if(flag_arr[i][1] & flag)
+			status_numeric(inventory[i+INVEN_WIELD].pval, yo, x+SL_LENGTH);
+		else
+			c_put_str(TERM_WHITE, ".", yo, x+SL_LENGTH);
 		x++;
 		}
 	}
@@ -474,7 +578,7 @@ for(i=0;i< (INVEN_TOTAL - INVEN_WIELD +2); i++)
 
 static void status_companion(void)
 {
-        int i, max = 0;
+        int i;
 
 	FILE *fff;
 

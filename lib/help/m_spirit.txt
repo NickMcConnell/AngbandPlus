@@ -17,6 +17,7 @@ Rogues as a primary realm
 Sorcerors (all)
 Mages as a secondary realm
 Warrior-Mages as a secondary realm
+Black-Knights as a secondary realm
 
 #####GSpirit Spellbooks
 The are four books available for the Spirit realm, two of which can be

@@ -127,12 +127,12 @@ note that the "lucky" starting equipment for races has not yet been enabled.
  
      *****r_drkelf.txt*0[Dark Elf]           *****r_gnome.txt*0[Gnome]             *****r_hobbit.txt*0[Hobbits]
      *****r_deathm.txt*0[Death Mold]         *****r_hafelf.txt*0[Half-Elf]          *****r_human.txt*0[Human]
-     *****r_drgnri.txt*0[Dragonrider]        *****r_hafgia.txt*0[Half-Giant]        *****r_kobold.txt*0[Kobold]
+     *****r_drgnri.txt*0[Dragonrider]        *****r_beorn.txt*0[Beorning]          *****r_kobold.txt*0[Kobold]
      *****r_duned.txt*0[Dunedain]           *****r_hafogr.txt*0[Half-Ogre]         *****r_pettyd.txt*0[Petty Dwarf]
      *****r_dwarf.txt*0[Dwarf]              *****r_haforc.txt*0[Orc]               *****r_rohank.txt*0[Rohan Knight]
      *****r_elf.txt*0[Elf]                *****r_haftro.txt*0[Troll]             *****r_wodelf.txt*0[Wood Elf]
      *****r_ent.txt*0[Ent]                *****r_hielf.txt*0[High-Elf]          *****r_yeek.txt*0[Yeek]
-
+     *****r_maia.txt*0[Maia]
 
 #####R=== Race Modifiers ===
 
@@ -151,22 +151,22 @@ starting equipment for race-modifiers has not yet been enabled.
 #####R=== Classes ===
  
 Once a race has been chosen, you will need to pick a class. Some classes will
-not be available to certain races, for instance, a Half-Troll cannot become a
+not be available to certain races, for instance, a Troll cannot become a
 Paladin. For the first few adventures it is suggested that you run a warrior 
 or rogue. Spell casting generally requires a more experienced player that is 
 familiar with survival techniques. Please note that the "lucky" starting 
 equipment for classess has not yet been enabled.
 
-     *****c_alchem.txt*0[Alchemist]              *****c_merch.txt*0[Merchant]              *****c_ranger.txt*0[Ranger]
-     *****c_archer.txt*0[Archer]                 *****c_mimic.txt*0[Mimic]                 *****c_rogue.txt*0[Rogue]
-     *****c_beastm.txt*0[Beastmaster]            *****c_mindcr.txt*0[Mindcrafter]           *****c_runecr.txt*0[Runecrafter]
-     *****c_chaosw.txt*0[Chaos Warrior]          *****c_monk.txt*0[Monk]                  *****c_sorcer.txt*0[Sorceror]
-     *****c_daemon.txt*0[Daemonologist]          *****c_necro.txt*0[Necromancer]           *****c_symbia.txt*0[Symbiant]
-     *****c_druid.txt*0[Druid]                  *****c_palad.txt*0[Paladin]               *****c_unbel.txt*0[Unbeliever]
-     *****c_harper.txt*0[Harper]                 *****c_posses.txt*0[Possessor]             *****c_warrio.txt*0[Warrior]
-     *****c_himage.txt*0[High Mage]              *****c_powmag.txt*0[Power Mage]            *****c_warmag.txt*0[Warrior Mage]
-     *****c_illus.txt*0[Illusionist]            *****c_priest.txt*0[Priest]                *****c_weponm.txt*0[Weaponmaster]
-     *****c_mage.txt*0[Mage]
+     *****c_alchem.txt*0[Alchemist]              *****c_mage.txt*0[Mage]              *****c_ranger.txt*0[Ranger]
+     *****c_archer.txt*0[Archer]                 *****c_merch.txt*0[Merchant]          *****c_rogue.txt*0[Rogue]
+     *****c_beastm.txt*0[Beastmaster]            *****c_mimic.txt*0[Mimic]             *****c_runecr.txt*0[Runecrafter]
+     *****c_bknight.txt*0[Black-Knight]           *****c_mindcr.txt*0[Mindcrafter]       *****c_sorcer.txt*0[Sorceror]
+     *****c_chaosw.txt*0[Chaos Warrior]          *****c_monk.txt*0[Monk]              *****c_summon.txt*0[Summoner]
+     *****c_daemon.txt*0[Daemonologist]          *****c_necro.txt*0[Necromancer]       *****c_symbia.txt*0[Symbiant]
+     *****c_druid.txt*0[Druid]                  *****c_palad.txt*0[Paladin]           *****c_unbel.txt*0[Unbeliever]
+     *****c_harper.txt*0[Harper]                 *****c_posses.txt*0[Possessor]         *****c_warrio.txt*0[Warrior]
+     *****c_himage.txt*0[High Mage]              *****c_powmag.txt*0[Power Mage]        *****c_warmag.txt*0[Warlock]
+     *****c_illus.txt*0[Illusionist]            *****c_priest.txt*0[Priest]            *****c_weponm.txt*0[Weaponmaster]
 
 
 #####R=== Stats ===
@@ -326,7 +326,7 @@ Troll         Yes     No      Yes     No      No      No      No      No
 Dunadan       Yes     Yes     Yes     Yes     Yes     Yes     Yes     Yes
 High-Elf      Yes     Yes     Yes     Yes     Yes     No      Yes     No
 Half-Ogre     Yes     Yes     Yes     No      No      No      No      No
-Half-Giant    Yes     No      No      No      Yes     No      No      No
+Beorning      Yes     No      No      No      Yes     No      No      No
 Kobold        Yes     No      No      Yes     No      No      No      No
 Petty Dwarf   Yes     Yes     Yes     Yes     No      No      No      No
 Dark Elf      Yes     Yes     Yes     Yes     Yes     No      Yes     Yes
@@ -351,7 +351,7 @@ Troll         No      No      No     No      No    No      No     No    Yes
 Dunadan       Yes     Yes     Yes    Yes     Yes   No      Yes    Yes   No
 High-Elf      Yes     Yes     Yes    Yes     Yes   Yes     Yes    Yes   No
 Half-Ogre     No      No      Yes    No      No    No      No     No    Yes
-Half-Giant    No      No      No     No      No    No      No     No    Yes
+Beorning      Yes     No      No     Yes     No    No      No     No    Yes
 Kobold        No      No      No     No      No    Yes     Yes    Yes   Yes
 Petty Dwarf   No      No      Yes    No      Yes   Yes     Yes    Yes   No
 Dark Elf      Yes     Yes     Yes    Yes     Yes   Yes     Yes    Yes   No
@@ -375,7 +375,7 @@ Troll         No      No    No    No      No     No     Yes
 Dunadan       Yes     Yes   Yes   Yes     Yes    Yes    No
 High-Elf      Yes     Yes   Yes   Yes     Yes    Yes    No
 Half-Ogre     No      No    No    No      No     No     Yes
-Half-Giant    No      No    No    No      No     No     Yes
+Beorning      No      No    No    No      No     No     Yes
 Kobold        Yes     No    No    No      Yes    No     Yes
 Petty Dwarf   No      No    No    No      Yes    No     No
 Dark Elf      Yes     Yes   Yes   Yes     Yes    No     Yes
@@ -387,29 +387,29 @@ Yeek          Yes     Yes   Yes   Yes     Yes    Yes    No
 Wood Elf      Yes     Yes   Yes   Yes     Yes    Yes    No
 
              
-#####B             Unbe-  Daemono- Weapon-
-#####B             liever logist   master
-Human         Yes     Yes     Yes
-Half-Elf      No      Yes     Yes
-Elf           No      Yes     Yes
-Hobbit        Yes     No      No
-Gnome         No      Yes     No
-Dwarf         Yes     No      Yes
-Orc           Yes     No      Yes
-Troll         Yes     No      Yes
-Dunadan       Yes     Yes     Yes
-High-Elf      No      Yes     Yes
-Half-Ogre     No      No      No
-Half-Giant    Yes     No      No
-Kobold        Yes     No      No
-Petty Dwarf   No      No      Yes
-Dark Elf      No      Yes     Yes
-Ent           Yes     No      No
-RohanKnight   Yes     No      Yes
-DragonRider   Yes     No      No
-Death Mold    No      No      No
-Yeek          Yes     Yes     No
-Wood Elf      No      No      No
+#####B             Unbe-  Daemono- Weapon- Merc-   Summ-          Black-
+#####B             liever logist   master  hant    oner    Blade  Knight
+Human         Yes     Yes     Yes     Yes     Yes      Yes     Yes
+Half-Elf      No      Yes     Yes     Yes     Yes      Yes     Yes
+Elf           No      Yes     Yes     Yes     Yes      No      No
+Hobbit        Yes     No      No      Yes     Yes      Yes     Yes
+Gnome         No      Yes     No      Yes     Yes      No      No
+Dwarf         Yes     No      Yes     Yes     No       Yes     Yes
+Orc           Yes     No      Yes     No      No       Yes     Yes
+Troll         Yes     No      Yes     No      No       Yes     Yes
+Dunadan       Yes     Yes     Yes     Yes     No       Yes     Yes
+High-Elf      No      Yes     Yes     Yes     No       Yes     No
+Half-Ogre     No      No      No      No      No       Yes     Yes
+Beorning      Yes     No      No      No      Yes      Yes     Yes
+Kobold        Yes     No      No      Yes     No       No      Yes
+Petty Dwarf   No      No      Yes     Yes     Yes      No      Yes
+Dark Elf      No      Yes     Yes     Yes     Yes      No      Yes
+Ent           Yes     No      No      No      Yes      Yes     No
+RohanKnight   Yes     No      Yes     Yes     No       No      Yes
+DragonRider   Yes     No      No      No      Yes      No      No
+Death Mold    No      No      No      No      Yes      No      No
+Yeek          Yes     Yes     No      No      Yes      Yes     Yes
+Wood Elf      No      No      No      No      Yes      Yes     No
 
 
 #####R=== Stat Bonus Tables ===
@@ -430,7 +430,7 @@ are listed in the following table.
            Dunadan     +1   +2   +2   +2   +3   +2      10         +80%
            High-Elf    +1   +3   +2   +3   +1   +5      10         +100%
            Half-Ogre   +3   -1   -1   -1   +3   -3      12         +30%
-           Half-Giant  +4   -2   -2   -2   +3   -3      13         +50%
+           Beorning    +4   -2   -2   -1   +3   -5      12         +50%
            Kobold      +1   -1    0   +1    0   -4       9         +25%
            Petty Dwarf +1   -1   +2    0   +2   -4      11         +35%
            Dark Elf    -1   +3   +2   +2   -2   +1       9         +50%
@@ -450,6 +450,7 @@ are listed in the following table.
            Zombie      +2   -6   -6   +1   +4   -5      +3         +45%
            Barbarian   +2   -3   -2   +1   +1   -3      +1         +25%
            Hermit      -3   +1   +1   -3   -3   +1      -3         +20%
+           Corrupted    0    0    0    0    0    0      +0         +20%
 
 #####GClasses:
 #####B                         STR     INT     WIS     DEX     CON     CHR
@@ -459,7 +460,7 @@ are listed in the following table.
            Rogue         +2      +1      -2      +3      +1      -1
            Ranger        +2      +2       0      +1      +1      +1
            Paladin       +3      -3      +1       0      +2      +2
-           Warrior Mage  +2      +2       0      +1       0      +1
+           Warlock       +2      +2       0      +1       0      +1
            Chaos Warrior +2      +1       0      +1      +2      -2
            Monk          +2      -1      +1      +3      +2      +1
            Mindcrafter   -1       0      +3      -1      -1      +2
@@ -480,7 +481,10 @@ are listed in the following table.
            Unbeliever    +5     -10     -10      +4      +5      +1
            Daemonologist -2      +3      -1      +1      -1      -1
            Weaponmaster  +4      -3      -3      +2      +2      -1
-           Merchant      -2      +3       0      -3      -2      +6
+           Merchant       0      +3       0      -3      -2      +6
+           Summoner      -3      +5       0      -2      -2      -4
+           Blade         +3      -2      -2      +5      +2      -1
+           Black-Knight  +3      -4      -3      +3      +3      -4
  
 #####R=== Ability Tables ===
 
@@ -498,7 +502,7 @@ are listed in the following table.
            Dunadan      +4   +5   +5   +2   +3   +13  +15  +10    None
            High-Elf     +4   +20  +20  +4   +3   +14  +10  +25    40 feet
            Half-Ogre    -3   -5   -5   -2   -1   +5   +20  +0     30 feet
-           Half-Giant   -6   -8   -6   -2   -1   +5   +25  +5     30 feet
+           Beorning     -6   -8   -6   -2   -1   +5   +25  +5     30 feet
            Kobold       -2   -3   -2   -1   +1   +8   +10  -8     30 feet
            Petty Dwarf  +3   +5   +10  +1   +5   +10  +9   +0     50 feet
            Dark Elf     +5   +15  +20  +3   +8   +12  -5   +10    50 feet
@@ -518,6 +522,7 @@ are listed in the following table.
            Zombie       -2   -2   +5   -1   -1   +2   +5   +0     +10 feet
            Barbarian    -2   -10  +2   -2   +0   +1   +12  +5     +0 feet
            Hermit       +5   +10  +5   +3   +4   +10  -5   -5     +10 feet
+           Corrupted    +0   +0   +0   +0   +0   +0   +0   +0     +0 feet
 
 
 #####GClasses:
@@ -528,7 +533,7 @@ Priest          25+7    30+10   32+12   2       16/8    48+20   35+20   +20%
 Rogue           45+15   32+10   28+10   5       32/24   60+40   66+30   +25%
 Ranger          30+8    32+10   28+10   3       24/16   56+30   72+45   +30%
 Paladin         20+7    24+10   26+11   1       12/2    68+35   40+30   +35%
-Warrior Mage    30+7    30+10   28+9    2       18/16   50+20   25+20   +50%
+Warlock         30+7    30+10   28+9    2       18/16   50+20   25+20   +50%
 Chaos Warrior   20+7    25+11   25+10   1       14/12   65+34   40+29   +35%
 Monk            45+15   32+11   28+10   5       32/24   64+40   60+30   +40%
 Mindcrafter     30+10   30+10   30+10   3       22/16   50+20   40+30   +25%
@@ -550,4 +555,9 @@ Unbeliever      25+12    0+0    40+18   1       14/2    80+45   60+45   +20%
 Daemonologist   20+7    36+15   35+10   3       15/12   35+15   25+10   +30%
 Weaponmaster    23+10   10+3    16+8    1       14/2    70+45   15+10   +30%
 Merchant        20+9    36+13   30+10   1       30/10   34+15   20+15   +35%
+Summoner        20+10   20+10   20+10   6-4*    14/2    4+5     20+15   +100%
+Blade           25+12   18+7    18+10   1       14/2    70+45   55+45   +25%
+Black-Knight    25+14   24+12   32+12   2       16/12   70+45   -30+0   +25%
+
+*: Summoners actually lose stealth as they go up in levels.
 

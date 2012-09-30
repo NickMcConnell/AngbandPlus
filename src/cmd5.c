@@ -63,7 +63,7 @@ long apply_power_dur(long dur, int lvl, byte power)
  */
 byte get_spell_level(int realm, int spell)
 {
-        if (p_ptr->pclass != CLASS_SORCERER)
+        if (!PRACE_FLAGS(PR1_INNATE_SPELLS))
         {
                 return (spell_level[realm][spell]);
         }
@@ -125,7 +125,7 @@ static int get_spell(int *sn, cptr prompt, int sval, bool known, object_type *o_
 	char        choice;
 	magic_type  *s_ptr;
 	char        out_val[160];
-        cptr        p = ((mp_ptr->spell_book == TV_VALARIN_BOOK) ? "prayer" : "spell");
+        cptr        p = ((cp_ptr->spell_book == TV_VALARIN_BOOK) ? "prayer" : "spell");
 
 #ifdef ALLOW_REPEAT /* TNB */
 
@@ -331,6 +331,7 @@ void do_cmd_browse_aux(object_type *o_ptr)
         int             sval, line, col = 13;
 	int		spell = -1;
 	int		num = 0;
+	cptr		desc;
 
 	byte		spells[64];
 
@@ -397,11 +398,13 @@ void do_cmd_browse_aux(object_type *o_ptr)
                 Term_erase(0, line, 255);
 
 		/* Display that spell's information. */
-                if (strlen(spell_names[o_ptr->tval - TV_VALARIN_BOOK + 1][spell][1]) > 80 - col)
-                {
-                        col = 80 - strlen(spell_names[o_ptr->tval - TV_VALARIN_BOOK + 1][spell][1]);
-                }
-                c_prt(TERM_L_BLUE, spell_names[o_ptr->tval - TV_VALARIN_BOOK + 1][spell][1], line, col);
+		desc = spell_names[o_ptr->tval - TV_VALARIN_BOOK + 1][spell][1];
+
+		if (strlen(desc) > 80 - col)
+		{
+			col = 80 - strlen(desc);
+		}
+		c_prt(TERM_L_BLUE, desc, line, col);
         }
 }
 
@@ -414,7 +417,7 @@ void do_cmd_browse(void)
 
 	object_type	*o_ptr;
 
-        if(p_ptr->pclass == CLASS_POWERMAGE)
+        if (cp_ptr->magic_key == MKEY_POWER_MAGE)
         {
                 random_spell *s_ptr;
                 s_ptr = select_spell(TRUE);
@@ -445,7 +448,7 @@ void do_cmd_browse(void)
 	}
 #endif
 	/* Restrict choices to "useful" books */
-	item_tester_tval = mp_ptr->spell_book;
+	item_tester_tval = cp_ptr->spell_book;
 
 	/* Get an item */
 	q = "Browse which book? ";
@@ -522,7 +525,7 @@ void do_cmd_study(void)
 
 	int	spell = -1;
 
-        cptr p = ((mp_ptr->spell_book == TV_MAGERY_BOOK) ? "spell" : "prayer");
+        cptr p = ((cp_ptr->spell_book == TV_MAGERY_BOOK) ? "spell" : "prayer");
 
 	object_type *o_ptr;
 
@@ -558,7 +561,7 @@ void do_cmd_study(void)
 
 
 	/* Restrict choices to "useful" books */
-	item_tester_tval = mp_ptr->spell_book;
+	item_tester_tval = cp_ptr->spell_book;
 
 	/* Get an item */
 	q = "Study which book? ";
@@ -586,45 +589,8 @@ void do_cmd_study(void)
 	/* Hack -- Handle stuff */
 	handle_stuff();
 
-	/* Mage -- Learn a selected spell */
-#if 0
-        if ((mp_ptr->spell_book != TV_VALARIN_BOOK) || (p_ptr->pclass == CLASS_MONK))
-	{
-		/* Ask for a spell, allow cancel */
-                if (!get_spell(&spell, "study", sval, FALSE, o_ptr, TRUE) && (spell == -1)) return;
-	}
-
-	/* Priest -- Learn a random prayer */
-        else
-	{
-		int k = 0;
-
-		int gift = -1;
-
-		/* Extract spells */
-                for (spell = 0; spell < 64; spell++)
-		{
-			/* Check spells in the book */
-                        if ((fake_spell_flags[o_ptr->tval - TV_VALARIN_BOOK + 1][sval][(spell < 32)] & (1L << (spell % 32))))
-			{
-				/* Skip non "okay" prayers */
-                                if (!spell_okay(spell, FALSE, o_ptr->tval - TV_VALARIN_BOOK + 1)) continue;
-
-				/* Hack -- Prepare the randomizer */
-				k++;
-
-				/* Hack -- Apply the randomizer */
-				if (rand_int(k) == 0) gift = spell;
-			}
-		}
-
-		/* Accept gift */
-		spell = gift;
-	}
-#else
         /* Ask for a spell, allow cancel */
         if (!get_spell(&spell, "study", sval, FALSE, o_ptr, TRUE) && (spell == -1)) return;
-#endif
 
 	/* Nothing to study */
 	if (spell < 0)
@@ -800,7 +766,7 @@ void do_poly_self(void)
 
 		do
 		{
-			new_race = rand_int(MAX_RACES);
+                        new_race = rand_int(max_rp_idx);
 			expfact = race_info[new_race].r_exp;
 		}
 		while ( (new_race == p_ptr->prace) && (expfact > goalexpfact) );
@@ -808,8 +774,8 @@ void do_poly_self(void)
 		if (effect_msg[0])
 		{
 			msg_format("You turn into a%s %s!",
-                                (( new_race == RACE_ELF )?"n":""),
-				race_info[new_race].title);
+                                ((is_a_vowel(rp_name[race_info[new_race].title]))?"n":""),
+                                race_info[new_race].title + rp_name);
 		}
 		else
 		{
@@ -1009,8 +975,8 @@ static void call_the_(void)
 	else
 	{
 		msg_format("You %s the %s too close to a wall!",
-                        ((mp_ptr->spell_book == TV_VALARIN_BOOK) ? "recite" : "cast"),
-                        ((mp_ptr->spell_book == TV_VALARIN_BOOK) ? "prayer" : "spell"));
+                        ((cp_ptr->spell_book == TV_VALARIN_BOOK) ? "recite" : "cast"),
+                        ((cp_ptr->spell_book == TV_VALARIN_BOOK) ? "prayer" : "spell"));
 		msg_print("There is a loud explosion!");
 
 		/* Prevent destruction of quest levels and town */
@@ -1693,7 +1659,7 @@ void cast_valarin_spell(int spell, byte level)
                         break;
                 case 57: /* meteor swarm */
                 {
-		       int x, y, dx, dy, d, count = 0;
+		       int x = 1, y = 1, dx, dy, d, count = 0;
 		       int b = 10 + randint(10);
 
                         if (info_spell) return;
@@ -1748,7 +1714,7 @@ void cast_valarin_spell(int spell, byte level)
                         }
                         fire_ball(GF_LITE, 0, apply_power_dam(150, to_s, 2), apply_power_dice(7, to_s, 1));
                         wiz_lite();
-                        if (((p_ptr->pracem == RMOD_VAMPIRE)||(p_ptr->mimic_form == MIMIC_VAMPIRE)) && !(p_ptr->resist_lite))
+                        if (((PRACE_FLAG(PR1_HURT_LITE))||(p_ptr->mimic_form == MIMIC_VAMPIRE)) && !(p_ptr->resist_lite))
                         {
                                msg_print("The starlight scorches your flesh!");
                                take_hit(50, "starlight");
@@ -1784,7 +1750,7 @@ void cast_magery_spell(int spell, byte level)
         int     to_s = level + p_ptr->to_s;
         long    rad, dam;
 
-        if (cp_ptr->flags1 & CF1_BEAM) beam = plev + 10;
+        if (PRACE_FLAG(PR1_BEAM)) beam = plev + 10;
 	else beam = plev / 2;
 
 	switch (spell)
@@ -2459,7 +2425,7 @@ void cast_shadow_spell(int spell, byte level)
         int     to_s = level + p_ptr->to_s;
         long    dam = 0, rad;
 
-        if (cp_ptr->flags1 & CF1_BEAM) beam = plev + 10;
+        if (PRACE_FLAG(PR1_BEAM)) beam = plev + 10;
 	else beam = plev / 2;
 
 	switch (spell)
@@ -2567,7 +2533,7 @@ void cast_shadow_spell(int spell, byte level)
                         break;
                 case 13: /* Disolve Matter */
                         rad = apply_power_dam(0, to_s, 1);
-                        dam = apply_power_dam(50 + plev, to_s, 3);
+                        dam = apply_power_dam(50 + plev, to_s, 1);
                         if (info_spell)
                         {
                                 sprintf(spell_txt, " dam %ld", dam);
@@ -2772,7 +2738,7 @@ void cast_shadow_spell(int spell, byte level)
                         break;
                 case 30: /* Comet from the Void */
                         rad = apply_power_dice(2, to_s, 1);
-                        dam = apply_power_dur(400, to_s, 15);
+                        dam = apply_power_dur(150, to_s, 15);
                         if (info_spell)
                         {
                                 sprintf(spell_txt, " dam %ld", dam);
@@ -3345,7 +3311,7 @@ void cast_chaos_spell(int spell, byte level)
         int     to_s = level + p_ptr->to_s;
         long    rad, dam;
 
-        if (cp_ptr->flags1 & CF1_BEAM) beam = plev + 10;
+        if (PRACE_FLAG(PR1_BEAM)) beam = plev + 10;
 	else beam = plev / 2;
 
 	switch (spell)
@@ -3379,7 +3345,7 @@ void cast_chaos_spell(int spell, byte level)
 			break;
        case 4: /* Manaburst */
                         rad = apply_power_dice(((plev < 30) ? 2 : 3), to_s, 1);
-                        dam = apply_power_dam(plev + (plev / (((p_ptr->pclass == CLASS_MAGE) || (p_ptr->pclass == CLASS_HIGH_MAGE)) ? 2 : 4)), to_s, 2);
+                        dam = apply_power_dam(plev + (plev / ((PRACE_FLAGS(PR1_ZERO_FAIL)) ? 2 : 4)), to_s, 2);
                         if (info_spell)
                         {
                                 sprintf(spell_txt, " dam 3d5+%ld", dam);
@@ -3636,7 +3602,7 @@ void cast_chaos_spell(int spell, byte level)
                         break;
                 case 25: /* Meteor Swarm  */
                 {
-                        int x, y, dx, dy, d, count = 0;
+                        int x = 1, y = 1, dx, dy, d, count = 0;
                         int b = 10 + randint(10);
 
                         dam = apply_power_dam(plev * 3 / 2, to_s, 1);
@@ -3736,7 +3702,7 @@ void cast_nether_spell(int spell, byte level)
         long    dam, rad;
         bool no_trump = FALSE;
 
-        if (cp_ptr->flags1 & CF1_BEAM) beam = plev + 10;
+        if (PRACE_FLAG(PR1_BEAM)) beam = plev + 10;
         else beam = plev / 2;
 
 	switch (spell)
@@ -3971,7 +3937,7 @@ void cast_nether_spell(int spell, byte level)
                         }
                         else
                         {
-                                if(!(r_ptr->flags1 & RF1_UNIQUE))
+                                if ((!(r_ptr->flags1 & RF1_UNIQUE)) && (!(m_ptr->mflag & MFLAG_QUEST)))
                                         msg_print("The monster falls in the chasm !");
 
                                 delete_monster(ij, ii);
@@ -4493,7 +4459,7 @@ void cast_crusade_spell(int spell, byte level)
         int     to_s = level + p_ptr->to_s;
         long    dam, rad;
 
-        if (cp_ptr->flags1 & CF1_BEAM) beam = plev + 10;
+        if (PRACE_FLAG(PR1_BEAM)) beam = plev + 10;
 	else beam = plev / 2;
 
 	switch (spell)
@@ -4525,6 +4491,7 @@ void cast_crusade_spell(int spell, byte level)
                         set_tim_invis(p_ptr->tim_invis + dam + randint(12));
                 break;
                 case 4: /* Touch of conf */
+		    if (info_spell) return;
                     if (!(p_ptr->confusing))
                     {
                         msg_print("Your hands start glowing.");
@@ -4803,7 +4770,7 @@ void cast_sigaldry_spell(int spell, byte level)
         int     to_s = level + p_ptr->to_s;
         long    dam, rad;
 
-        if (cp_ptr->flags1 & CF1_BEAM) beam = plev + 10;
+        if (PRACE_FLAG(PR1_BEAM)) beam = plev + 10;
 	else beam = plev / 2;
 
 	switch (spell)
@@ -5212,7 +5179,7 @@ void cast_sigaldry_spell(int spell, byte level)
                 }
 
                 /* Restrict choices to spell books */
-                item_tester_tval = mp_ptr->spell_book;
+                item_tester_tval = cp_ptr->spell_book;
 
                 /* Get an item */
                 q = "Use which book? ";
@@ -5494,12 +5461,6 @@ int use_symbiotic_power(int r_idx, bool great, bool only_number, bool no_cost)
 
 				prt ("", y++, x);
 
-				while (ctr < num && ctr < 17)
-				{
-                                        sprintf(dummy, "%c) %s", I2A(ctr), monster_powers[powers[ctr]].name);
-					prt(dummy, y + ctr, x);
-					ctr++;
-				}
 				while (ctr < num)
 				{
                                         int mana = monster_powers[powers[ctr]].mana / 10;
@@ -5518,7 +5479,14 @@ int use_symbiotic_power(int r_idx, bool great, bool only_number, bool no_cost)
                                                 if (!no_cost) sprintf(dummy, " %c) %2d %s", '0' + ctr - 26, mana, monster_powers[powers[ctr]].name);
                                                 else sprintf(dummy, " %c) %s", '0' + ctr - 26, monster_powers[powers[ctr]].name);
 					}
-					prt(dummy, y + ctr - 17, x + 40);
+					if (ctr < 17)
+					{
+						prt(dummy, y + ctr, x);
+					}
+					else
+					{
+						prt(dummy, y + ctr - 17, x + 40);
+					}
 					ctr++;
 				}
 				if (ctr < 17)
@@ -5846,13 +5814,13 @@ int use_symbiotic_power(int r_idx, bool great, bool only_number, bool no_cost)
                         if (get_aim_dir(&dir))
                                fire_bolt(GF_MISSILE, dir, damroll(2, 6) + (p_ptr->lev/3));
                         break;
-                case 59: /* blind */
+                case 59: /* scare */
                         if (get_aim_dir(&dir))
-                               fire_bolt(GF_CONFUSION, dir, damroll(1, 8) + (p_ptr->lev/3));
-                        break;
-                case 60: /* scare */
-			if (get_aim_dir(&dir))
 				fear_monster(dir, plev);
+                        break;
+                case 60: /* blind */
+			if (get_aim_dir(&dir))
+				fire_bolt(GF_CONFUSION, dir, damroll(1, 8) + (p_ptr->lev/3));
                         break;
                 case 61: /* conf */
 			if (get_aim_dir(&dir))
@@ -6048,7 +6016,7 @@ int use_symbiotic_power(int r_idx, bool great, bool only_number, bool no_cost)
                 int chance, pchance;
 
                 chance = (monster_powers[Power].mana + r_ptr->level);
-                pchance = adj_str_wgt[mp_ptr->spell_stat]/2 + p_ptr->lev;
+                pchance = adj_str_wgt[cp_ptr->spell_stat]/2 + p_ptr->lev;
                 if (rand_int(chance) >= pchance)
                 {
                         int m = monster_powers[Power].mana / 10;
@@ -6622,7 +6590,7 @@ void cast_tribal_spell(int spell, byte level)
         int     to_s = level + p_ptr->to_s;
         long    dam, rad;
 
-        if (cp_ptr->flags1 & CF1_BEAM) beam = plev + 10;
+        if (PRACE_FLAG(PR1_BEAM)) beam = plev + 10;
 	else beam = plev / 2;
 
 	switch (spell)
@@ -6872,6 +6840,7 @@ void cast_tribal_spell(int spell, byte level)
                         summon_specific_friendly(py, px, dun_level, SUMMON_HYDRA, TRUE);
                         break;
                 case 27: /* Lifeblood */
+			if (info_spell) return;
                         hp_player(damroll(1000, 2 + to_s));
                         heal_insanity(damroll(110, 2 + to_s));
                         set_cut(0);
@@ -6930,7 +6899,7 @@ void cast_druid_spell(int spell, byte level)
 
         int amt = 0, att = 0;
 
-        if (cp_ptr->flags1 & CF1_BEAM) beam = plev + 10;
+        if (PRACE_FLAG(PR1_BEAM)) beam = plev + 10;
 	else beam = plev / 2;
 
 	switch (spell)
@@ -7387,7 +7356,7 @@ void cast_druid_spell(int spell, byte level)
                                 if(!p_ptr->class_extra5)
                                 {
                                         if (!get_aim_dir(&dir)) return;
-                                        fire_druid_beam(GF_ELEC, dir,
+                                        fire_druid_beam(GF_SOUND, dir,
                                                 damroll(10 + ((plev-5)/4), dam));
                                 }else msg_print("This level has already been drained!");
                         }
@@ -7602,6 +7571,7 @@ void cast_druid_spell(int spell, byte level)
                         }
 
                         dam = apply_power_dam(amt, to_s, 1);
+                        if (dam > 5000) dam = 5000;
                         if (info_spell)
                         {
                                 sprintf(spell_txt, " dam %ld", dam);
@@ -7632,7 +7602,7 @@ void cast_spirit_spell(int spell, byte level)
 	/* Access the spell */
         magic_type *s_ptr = &realm_info[REALM_SPIRIT][spell];
 
-        if (cp_ptr->flags1 & CF1_BEAM) beam = plev + 10;
+        if (PRACE_FLAG(PR1_BEAM)) beam = plev + 10;
 	else beam = plev / 2;
 
 	switch (spell)
@@ -7773,7 +7743,7 @@ void cast_spirit_spell(int spell, byte level)
                 {
                         int i;
 
-                        dam = apply_power_dam(10 + (plev * 2), to_s, 3);
+                        dam = apply_power_dam(10 + plev, to_s, 2);
                         if (info_spell)
                         {
                                 sprintf(spell_txt, " dam 8*%ld", dam);
@@ -7802,8 +7772,9 @@ void cast_spirit_spell(int spell, byte level)
                         fire_ball(GF_GRAVITY, 0, dam, rad);
                         break;
                 case 19: /* project force */
-                        rad = apply_power_dice(1 + (plev / 12), to_s, 1);
-                        dam = apply_power_dam(100 + (3 * plev), to_s, 1);
+                        rad = apply_power_dice(2 + (plev / 12), to_s, 1);
+                        if (rad > 4) rad = 4 + ((rad - 4) / 2);
+                        dam = apply_power_dam(100 + plev, to_s, 1);
                         if (info_spell)
                         {
                                 sprintf(spell_txt, " dam %ld", dam);
@@ -7993,7 +7964,7 @@ void do_cmd_cast(void)
 	int	item, sval, spell, realm;
         int     chance, perc;
 
-        const cptr prayer = ((mp_ptr->spell_book == TV_VALARIN_BOOK) ? "prayer" : (mp_ptr->spell_book == TV_MUSIC_BOOK) ? "song" : "spell");
+        const cptr prayer = ((cp_ptr->spell_book == TV_VALARIN_BOOK) ? "prayer" : (cp_ptr->spell_book == TV_MUSIC_BOOK) ? "song" : "spell");
 
 	object_type	*o_ptr;
 
@@ -8030,7 +8001,7 @@ void do_cmd_cast(void)
 	}
 
 	/* Restrict choices to spell books */
-	item_tester_tval = mp_ptr->spell_book;
+	item_tester_tval = cp_ptr->spell_book;
 
 	/* Get an item */
 	q = "Use which book? ";
@@ -8061,7 +8032,7 @@ void do_cmd_cast(void)
         realm = o_ptr->tval - TV_VALARIN_BOOK + 1;
 
 	/* Ask for a spell */
-        if (!get_spell(&spell, ((mp_ptr->spell_book == TV_VALARIN_BOOK) ? "recite" : "cast"),
+        if (!get_spell(&spell, ((cp_ptr->spell_book == TV_VALARIN_BOOK) ? "recite" : "cast"),
                 sval, TRUE, o_ptr, TRUE))
 	{
 		if (spell == -2)
@@ -8079,7 +8050,7 @@ void do_cmd_cast(void)
 	{
 		/* Warning */
 		msg_format("You do not have enough mana to %s this %s.",
-                        ((mp_ptr->spell_book == TV_VALARIN_BOOK) ? "recite" : "cast"),
+                        ((cp_ptr->spell_book == TV_VALARIN_BOOK) ? "recite" : "cast"),
 			prayer);
 
 		/* Verify */
@@ -8135,7 +8106,7 @@ void do_cmd_cast(void)
                 cast_spell(realm, spell, get_spell_level(realm, spell) - 1);
 
 		/* A spell was cast */
-                if ((!(spell_worked[realm][(spell < 32)] & (1L << (spell % 32)))) && (p_ptr->pclass != CLASS_SORCERER))
+                if ((!(spell_worked[realm][(spell < 32)] & (1L << (spell % 32)))) && (!PRACE_FLAGS(PR1_INNATE_SPELLS)))
 		{
 			int e = s_ptr->sexp;
 
@@ -8149,7 +8120,7 @@ void do_cmd_cast(void)
 
 	/* Take a turn */
         /* UGLY hack */
-        if (p_ptr->pclass == CLASS_DAEMONOLOGIST)
+        if (USE_REALM(REALM_DAEMON))
         {
                 if ((o_ptr->tval == TV_DAEMON_BOOK) && (item == INVEN_WIELD))
                 {

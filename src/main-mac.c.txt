@@ -1,69 +1,24 @@
 How to compile:
- - Move PernAngband.proj and PernAngband.r from the src directory to
-   its parent,
+ - Move PernAngband.proj, PernAngband.r and Carbon.r from the src
+   directory to its parent,
  - Double-click on PernAngband.proj,
  - Please take a look at the comment in A-mac-h.pch for a couple of
    source code modifications that may be necessary,
  - Click on the build button, or choose that from the project menu,
  - Hope it works.
 
+Graphic tiles and sounds are not included in the standard
+distribution because of their sheer size. You can either
+remove them from your project file or copy them from
+existing Pern binary.
 
-* main-mac.c that supports 16x16 tileset and transparency effect
-  for use in PernAngband *
+Carbon compilation requires Carbon SDK 1.1(?) or greater,
+freely downloadable from Apple. The project file assumes
+that "Carbon Support" folder should be placed directly
+beneath your CodeWarrior compiler folder, i.e. where
+"MacOS Support", "MSL" etc are.
 
-It's taken from Vanilla 2.9.2 and slightly modified for
-the savefile menu screen of PernAngband CVS.  Since DG does't
-like to see New/Open(/Import) menus in his game any longer
-(I cannot accuse him: windowing system ports have always been
-incredibly messy because of these), you have to modify resource
-file as well: you can either use the one that should come along
-with source code ---together or separately--- or edit your
-favourite one to make the file menu look like this:
-
-	 File
-    ------------------
-	|Close #W|
-	|Save  #S|
-	|--------|
-	|Exit  #E|
-	|Quit  #Q|
-	+--------+
-
-I used 'PrnA' for the creator signature and replaced "Angband"
-with "PernAngband" in the name of Preferences file.
-
-For graphics tils support, please pay close attention to the value
-of pictRows. It almost certainly need adjustment...
-Please count numbers of rows in 8x8 and 16x16, then substitute
-the values for those in:
-
-static int pictRows = 79;	<-- here (8x8)
-
-and 
-
-	    if (streq(ANGBAND_GRAF, "old"))
-	    {
-		    ANGBAND_GRAF = "new";
-		    arg_transparency = true;
-		    pictID = 1002;
-		    maskID = 1003;
-		    grafWidth = grafHeight = 16;
-		    pictRows = 70;	<-- here (16x16)
-	    }
-	    else
-	    {
-		    ANGBAND_GRAF = "old";
-		    arg_transparency = false;
-		    pictID = 1001;
-		    maskID = 1001;
-		    grafWidth = grafHeight = 8;
-		    pictRows = 79;	<-- and here (8x8).
-	    }
-
-Note to porters: say
-
-#define USE_TRANSPARENCY
-
-in A-mac-h.pch.
+The resource editing instruction in the original file is
+now obsolete, so I removed it.
 
 // pelpel (kazuo@sta.att.ne.jp)

@@ -1,10 +1,14 @@
 #undef cquest
 #define cquest (quest[QUEST_ONE])
 
-bool quest_one_move_hook(int loc)
+bool quest_one_move_hook(char *fmt)
 {
-        int y = loc >> 8, x = loc & 0xFF;
-        cave_type *c_ptr = &cave[y][x];
+        s32b y, x;
+        cave_type *c_ptr;
+
+        y = get_next_arg(fmt);
+        x = get_next_arg(fmt);
+        c_ptr = &cave[y][x];
 
         if (cquest.status == QUEST_STATUS_UNTAKEN)
         {
@@ -15,16 +19,17 @@ bool quest_one_move_hook(int loc)
 
                 cmsg_print(TERM_YELLOW, "You meet Galadriel, she seems woried.");
                 cmsg_print(TERM_YELLOW, "'So it was Sauron that lurked in Dol Guldur...'");
-                cmsg_print(TERM_YELLOW, "'The Ennemy is growing in power, Morgoth will be unreachable as long'");
+                cmsg_print(TERM_YELLOW, "'The Enemy is growing in power, Morgoth will be unreachable as long'");
                 cmsg_print(TERM_YELLOW, "'as his most powerful servant, Sauron, lives. But the power of Sauron'");
                 cmsg_print(TERM_YELLOW, "'lies in the One Ring, our only hope is that you find it'");
-                cmsg_print(TERM_YELLOW, "'and destroy it. I know it will be hard, but *NEVER* used it'");
-                cmsg_print(TERM_YELLOW, "'or it would corrupts you forever.'");
-                cmsg_print(TERM_YELLOW, "'Without the ring being destroyed, Sauron wont be permanently defeated'");
-                cmsg_print(TERM_YELLOW, "'When you have it you will have to bring it to Mount Doom, in Mordor,'");
-                cmsg_print(TERM_YELLOW, "'to destroy it in the Great Fire where it was once forged.'");
+                cmsg_print(TERM_YELLOW, "'and destroy it. I know it will tempt you, but *NEVER* use it'");
+                cmsg_print(TERM_YELLOW, "'or it will corrupt you forever.'");
+                cmsg_print(TERM_YELLOW, "'Without the destruction of the ring, Sauron's death can only be temporary'");
+                cmsg_print(TERM_YELLOW, "'When you have it bring it to Mount Doom, in Mordor,'");
+                cmsg_print(TERM_YELLOW, "'to destroy it in the Great Fire where it was forged.'");
                 cmsg_print(TERM_YELLOW, "'I do not know where to find it, seek it through middle earth. Maybe there'");
-                cmsg_print(TERM_YELLOW, "'other people that might know'");
+                cmsg_print(TERM_YELLOW, "'are other people that might know'");
+                cmsg_print(TERM_YELLOW, "'Do not forget, the Ring must be cast back into the fires or Mount Doom!'");
 
                 /* Continue the plot */
                 cquest.status = QUEST_STATUS_TAKEN;
@@ -35,18 +40,22 @@ bool quest_one_move_hook(int loc)
 
         return FALSE;
 }
-bool quest_one_drop_hook(int o_idx)
+bool quest_one_drop_hook(char *fmt)
 {
-        object_type *o_ptr = &inventory[o_idx];
+        s32b o_idx;
+        object_type *o_ptr;
+
+        o_idx = get_next_arg(fmt);
+        o_ptr = &inventory[o_idx];
 
         if (cquest.status != QUEST_STATUS_TAKEN) return FALSE;
 
         if (o_ptr->name1 != ART_POWER) return FALSE;
         if (cave[py][px].feat != FEAT_GREAT_FIRE) return FALSE;
 
-        cmsg_print(TERM_YELLOW, "You drop the One Ring in the Great Fire, it is rapidly consumed");
+        cmsg_print(TERM_YELLOW, "You throw the One Ring in the #RGreat Fire#y, it is rapidly consumed");
         cmsg_print(TERM_YELLOW, "by the searing flames.");
-        cmsg_print(TERM_YELLOW, "You feel the powers of evils weakening.");
+        cmsg_print(TERM_YELLOW, "You feel the powers of evil weakening.");
         cmsg_print(TERM_YELLOW, "Now you can go onto the hunt for Sauron!");
 
         inven_item_increase(o_idx, -99);
@@ -60,19 +69,24 @@ bool quest_one_drop_hook(int o_idx)
 
         return TRUE;
 }
-bool quest_one_wield_hook(int o_idx)
+bool quest_one_wield_hook(char *fmt)
 {
-        object_type *o_ptr = &inventory[o_idx];
+        s32b o_idx;
+        object_type *o_ptr;
+
+        o_idx = get_next_arg(fmt);
+        o_ptr = &inventory[o_idx];
 
         if (cquest.status != QUEST_STATUS_TAKEN) return FALSE;
 
         if (o_ptr->name1 != ART_POWER) return FALSE;
 
-        if (!get_check("You are warned not to wear it, are you sure?")) return TRUE;
-        if (!get_check("You are warned not to wear it, are you *REALLY* sure?")) return TRUE;
+        if (!get_check("You were warned not to wear it, are you sure?")) return TRUE;
+        if (!get_check("You were warned not to wear it, are you *REALLY* sure?")) return TRUE;
+        if (!get_check("You were *WARNED* not to wear it, are you *R*E*A*L*L*Y* sure?")) return TRUE;
 
-        cmsg_print(TERM_YELLOW, "As you put it on your finger you feel dark powers sapping your soul.");
-        cmsg_print(TERM_YELLOW, "The ring firmly holds to your finger!");
+        cmsg_print(TERM_YELLOW, "As you put it on your finger you feel #Ddark powers #ysapping your soul.");
+        cmsg_print(TERM_YELLOW, "The ring firmly binds to your finger!");
 
         /* Continue the plot */
         cquest.status = QUEST_STATUS_FAILED_DONE;
@@ -82,8 +96,12 @@ bool quest_one_wield_hook(int o_idx)
 
         return FALSE;
 }
-bool quest_one_identify_hook(int item)
+bool quest_one_identify_hook(char *fmt)
 {
+        s32b item;
+
+        item = get_next_arg(fmt);
+
         if (cquest.status == QUEST_STATUS_TAKEN)
         {
                 object_type *o_ptr;
@@ -110,10 +128,13 @@ bool quest_one_identify_hook(int item)
 
         return (FALSE);
 }
-bool quest_one_death_hook(int m_idx)
+bool quest_one_death_hook(char *fmt)
 {
-        int r_idx = m_list[m_idx].r_idx;
+        s32b r_idx, m_idx;
         bool ok = FALSE;
+
+        m_idx = get_next_arg(fmt);
+        r_idx = m_list[m_idx].r_idx;
 
         if (a_info[ART_POWER].cur_num) return FALSE;
 
@@ -165,7 +186,7 @@ bool quest_one_death_hook(int m_idx)
 
         return (FALSE);
 }
-bool quest_one_dump_hook(int q_idx)
+bool quest_one_dump_hook(char *fmt)
 {
         if (cquest.status == QUEST_STATUS_FINISHED)
         {
@@ -177,10 +198,37 @@ bool quest_one_dump_hook(int q_idx)
         }
         return (FALSE);
 }
+bool quest_one_gen_hook(char *fmt)
+{
+        s32b x, y, try = 10000;
+
+        /* Paranoia */
+        if (cquest.status != QUEST_STATUS_TAKEN) return (FALSE);
+        if ((dungeon_type != DUNGEON_ANGBAND) || (dun_level != 99)) return (FALSE);
+
+        /* Find a good position */
+        while (try)
+        {
+                /* Get a random spot */
+                y = randint(cur_hgt - 4) + 2;
+                x = randint(cur_wid - 4) + 2;
+
+                /* Is it a good spot ? */
+                if (cave_empty_bold(y, x)) break;
+
+                /* One less try */
+                try--;
+        }
+
+        if (try) place_monster_one(y, x, test_monster_name("Sauron, the Sorcerer"), 0, FALSE, MSTATUS_ENEMY);
+
+        return (FALSE);
+}
 bool quest_one_init_hook(int q_idx)
 {
         if ((cquest.status >= QUEST_STATUS_TAKEN) && (cquest.status < QUEST_STATUS_FINISHED))
         {
+                add_hook(HOOK_LEVEL_END_GEN, quest_one_gen_hook, "one_gen");
                 add_hook(HOOK_MONSTER_DEATH, quest_one_death_hook, "one_death");
                 add_hook(HOOK_DROP, quest_one_drop_hook, "one_drop");
                 add_hook(HOOK_WIELD, quest_one_wield_hook, "one_wield");

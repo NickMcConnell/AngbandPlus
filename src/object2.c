@@ -1011,9 +1011,9 @@ s32b flag_cost(object_type * o_ptr, int plusses)
 	if (f3 & TR3_HIDE_TYPE) total += 0;
 	if (f3 & TR3_SHOW_MODS) total += 0;
 	if (f3 & TR3_INSTA_ART) total += 0;
-        if (f3 & TR3_LITE1) total += 1250;
+        if (f3 & TR3_LITE1) total += 750;
         if (f4 & TR4_LITE2) total += 1250;
-        if (f4 & TR4_LITE3) total += 1250;
+        if (f4 & TR4_LITE3) total += 2750;
 	if (f3 & TR3_SEE_INVIS) total += 2000;
         if (esp) total += (12500 * count_bits(esp));
 	if (f3 & TR3_SLOW_DIGEST) total += 750;
@@ -1312,10 +1312,20 @@ s32b object_value_real(object_type *o_ptr)
                 /* Rods */
                 case TV_ROD_MAIN:
 		{
-                        object_kind *tip_ptr = &k_info[o_ptr->pval];
+			s16b tip_idx;
 
-                        /* Pay the spell */
-                        value += tip_ptr->cost;
+			/* It's not combined */
+			if (o_ptr->pval == 0) break;
+
+			/* Look up the tip attached */
+			tip_idx = lookup_kind(TV_ROD, o_ptr->pval);
+
+			/* Paranoia */
+			if (tip_idx > 0)
+			{
+				/* Add its cost */
+				value += k_info[tip_idx].cost;
+			}
 
 			/* Done */
 			break;
@@ -1530,6 +1540,13 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
                         return FALSE;
                 }
 
+                /* Totems */
+                case TV_TOTEM:
+                {
+                        if ((o_ptr->pval == j_ptr->pval) && (o_ptr->pval2 == j_ptr->pval2)) return TRUE;
+                        return FALSE;
+		}
+
                 /* Corpses*/
                 case TV_CORPSE:
 		{
@@ -1654,6 +1671,9 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
 			/* Require full knowledge of both items */
 			if (!object_known_p(o_ptr) || !object_known_p(j_ptr)) return (0);
 
+			/* Require identical "turns of light" */
+			if (o_ptr->timeout != j_ptr->timeout) return (FALSE);
+
 			/* Fall through */
 		}
 
@@ -1689,7 +1709,8 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
 			if (o_ptr->xtra1 || j_ptr->xtra1) return (FALSE);
 
 			/* Hack -- Never stack recharging items */
-			if (o_ptr->timeout || j_ptr->timeout) return (FALSE);
+			if ((o_ptr->timeout || j_ptr->timeout) &&
+			    (o_ptr->tval != TV_LITE)) return (FALSE);
 
 			/* Require identical "values" */
 			if (o_ptr->ac != j_ptr->ac) return (FALSE);
@@ -2139,7 +2160,7 @@ static bool make_artifact_special(object_type *o_ptr)
 		}
 
 		/* Artifact "rarity roll" */
-		if (rand_int(a_ptr->rarity) != 0) return (0);
+                if (rand_int(a_ptr->rarity - luck(-(a_ptr->rarity / 2), a_ptr->rarity / 2)) != 0) continue;
 
 		/* Find the base object */
 		k_idx = lookup_kind(a_ptr->tval, a_ptr->sval);
@@ -2230,7 +2251,7 @@ static bool make_artifact(object_type *o_ptr)
 		}
 
 		/* We must make the "rarity roll" */
-		if (rand_int(a_ptr->rarity) != 0) continue;
+                if (rand_int(a_ptr->rarity - luck(-(a_ptr->rarity / 2), a_ptr->rarity / 2)) != 0) continue;
 
 		/* Hack -- mark the item as an artifact */
 		o_ptr->name1 = i;
@@ -2326,7 +2347,7 @@ static bool make_ego_item(object_type *o_ptr, bool good)
 		}
 
 		/* We must make the "rarity roll" */
-                if (rand_int(e_ptr->mrarity) < e_ptr->rarity)
+                if (rand_int(e_ptr->mrarity - luck(-(e_ptr->mrarity / 2), e_ptr->mrarity / 2)) < e_ptr->rarity)
                 {
                         continue;
                 }
@@ -2426,7 +2447,7 @@ void charge_staff(object_type *o_ptr)
 		case SV_STAFF_GENOCIDE:                 o_ptr->pval = randint(2)  + 1; break;
 		case SV_STAFF_EARTHQUAKES:              o_ptr->pval = randint(5)  + 3; break;
 		case SV_STAFF_DESTRUCTION:              o_ptr->pval = randint(3)  + 1; break;
-                case SV_STAFF_WISHING:                  o_ptr->pval = 1; break;
+                case SV_STAFF_WISHING:                  o_ptr->pval = 1 + luck(-1, 1); break;
 	}
 }
 
@@ -3141,6 +3162,7 @@ static void a_m_aux_4(object_type *o_ptr, int level, int power)
                                 o_ptr->pval2 = r_idx;
                         else
                                 o_ptr->pval2 = 2;
+                        o_ptr->pval3 = 0;
 			break;
 		}
 
@@ -3271,7 +3293,7 @@ static void a_m_aux_4(object_type *o_ptr, int level, int power)
 		{
 			/* Hack - set the weight of portable holes */
 			if ((o_ptr->sval == SV_PORTABLE_HOLE) &&
-			    (p_ptr->pclass == CLASS_MERCHANT))
+			    (cp_ptr->magic_key == MKEY_TELEKINESIS))
 			{
                                 o_ptr->weight = portable_hole_weight();
 			}
@@ -3660,6 +3682,9 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 {
 	int i, rolls, f1, f2, power;
 
+        /* Aply luck */
+        lev += luck(-7, 7);
+
         /* No need to touch normal artifacts */
         if (k_info[o_ptr->k_idx].flags3 & TR3_NORM_ART)
         {
@@ -3681,7 +3706,7 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 
 
 	/* Base chance of being "good" */
-	f1 = lev + 10;
+        f1 = lev + 10 + luck(-15, 15);
 
 	/* Maximal chance of being "good" */
 	if (f1 > 75) f1 = 75;
@@ -3968,28 +3993,51 @@ try_an_other_ego:
 /* The themed objects to use */
 static obj_theme match_theme;
 
+/*
+ * XXX XXX XXX It relies on the fact that obj_theme is a four byte structure
+ * for its efficient operation. A horrendous hack, I'd say.
+ */
 void init_match_theme(obj_theme theme)
 {
 	/* Save the theme */
 	match_theme = theme;
 }
 
-/* Ok now thats UGLY */
-bool hack_ignore_theme = FALSE;
+/*
+ * Ditto XXX XXX XXX
+ */
+static bool theme_changed(obj_theme theme)
+{
+	/* Any of the themes has been changed */
+	if (theme.treasure != match_theme.treasure) return (TRUE);
+	if (theme.combat != match_theme.combat) return (TRUE);
+	if (theme.magic != match_theme.magic) return (TRUE);
+	if (theme.tools != match_theme.tools) return (TRUE);
+
+	/* No changes */
+	return (FALSE);
+}
+
 
 /*
- * Hack -- match certain types of object only.
+ * Maga-Hack -- match certain types of object only.
  */
 bool kind_is_theme(int k_idx)
 {
 	object_kind *k_ptr = &k_info[k_idx];
 
-	byte prob = 0;
+	s32b prob = 0;
 
-        if (hack_ignore_theme)
-        {
-                return (TRUE);
-        }
+
+	/*
+	 * Paranoia -- Prevent accidental "(Nothing)"
+	 * that are results of uninitialised theme structs.
+	 *
+	 * Caution: Junks go into the allocation table.
+	 */
+	if (match_theme.treasure + match_theme.combat +
+	    match_theme.magic + match_theme.tools == 0) return (TRUE);
+
 
 	/* Pick probability to use */
 	switch (k_ptr->tval)
@@ -3997,65 +4045,71 @@ bool kind_is_theme(int k_idx)
 		case TV_SKELETON:
 		case TV_BOTTLE:
 		case TV_JUNK:
-                case TV_FIRESTONE:
-                case TV_CORPSE:
-                case TV_EGG:
-                {
-			/* Degree of junk is defined in terms of the other 4 quantities */
+		case TV_FIRESTONE:
+		case TV_CORPSE:
+		case TV_EGG:
+		{
+			/*
+			 * Degree of junk is defined in terms of the other
+			 * 4 quantities XXX XXX XXX
+			 * The type of prob should be *signed* as well as
+			 * larger than theme components, or we would see
+			 * unexpected, well, junks.
+			 */
 			prob = 100 - (match_theme.treasure + match_theme.combat +
 						match_theme.magic + match_theme.tools);
 			break;
 		}
 		case TV_CHEST:		prob = match_theme.treasure; break;
 		case TV_CROWN:		prob = match_theme.treasure; break;
-                case TV_DRAG_ARMOR:     prob = match_theme.treasure; break;
+		case TV_DRAG_ARMOR:     prob = match_theme.treasure; break;
 		case TV_AMULET:		prob = match_theme.treasure; break;
 		case TV_RING:		prob = match_theme.treasure; break;
 
 		case TV_SHOT:		prob = match_theme.combat; break;
 		case TV_ARROW:		prob = match_theme.combat; break;
 		case TV_BOLT:		prob = match_theme.combat; break;
-                case TV_BOOMERANG:      prob = match_theme.combat; break;
+		case TV_BOOMERANG:      prob = match_theme.combat; break;
 		case TV_BOW:		prob = match_theme.combat; break;
 		case TV_HAFTED:		prob = match_theme.combat; break;
 		case TV_POLEARM:	prob = match_theme.combat; break;
 		case TV_SWORD:		prob = match_theme.combat; break;
-                case TV_AXE:            prob = match_theme.combat; break;
+		case TV_AXE:            prob = match_theme.combat; break;
 		case TV_GLOVES:		prob = match_theme.combat; break;
 		case TV_HELM:		prob = match_theme.combat; break;
 		case TV_SHIELD:		prob = match_theme.combat; break;
 		case TV_SOFT_ARMOR:	prob = match_theme.combat; break;
-                case TV_HARD_ARMOR:     prob = match_theme.combat; break;
+		case TV_HARD_ARMOR:     prob = match_theme.combat; break;
 
-                case TV_MSTAFF:         prob = match_theme.magic; break;
+		case TV_MSTAFF:         prob = match_theme.magic; break;
 		case TV_STAFF:		prob = match_theme.magic; break;
 		case TV_WAND:		prob = match_theme.magic; break;
 		case TV_ROD:		prob = match_theme.magic; break;
-                case TV_ROD_MAIN:       prob = match_theme.magic; break;
+		case TV_ROD_MAIN:       prob = match_theme.magic; break;
 		case TV_SCROLL:		prob = match_theme.magic; break;
-                case TV_PARCHEMENT:     prob = match_theme.magic; break;
+		case TV_PARCHEMENT:     prob = match_theme.magic; break;
 		case TV_POTION:		prob = match_theme.magic; break;
-                case TV_POTION2:        prob = match_theme.magic; break;
-                case TV_BATERIE:        prob = match_theme.magic; break;
-                case TV_RANDART:        prob = match_theme.magic; break;
-                case TV_RUNE1:          prob = match_theme.magic; break;
-                case TV_RUNE2:          prob = match_theme.magic; break;
-                case TV_VALARIN_BOOK:   prob = match_theme.magic; break;
-                case TV_MAGERY_BOOK:    prob = match_theme.magic; break;
-                case TV_SHADOW_BOOK:    prob = match_theme.magic; break;
-                case TV_CHAOS_BOOK:     prob = match_theme.magic; break;
-                case TV_NETHER_BOOK:    prob = match_theme.magic; break;
-                case TV_CRUSADE_BOOK:   prob = match_theme.magic; break;
-                case TV_SIGALDRY_BOOK:  prob = match_theme.magic; break;
-                case TV_SYMBIOTIC_BOOK: prob = match_theme.magic; break;
-                case TV_MUSIC_BOOK:     prob = match_theme.magic; break;
-                case TV_MAGIC_BOOK:     prob = match_theme.magic; break;
-                case TV_PRAYER_BOOK:    prob = match_theme.magic; break;
-                case TV_ILLUSION_BOOK:  prob = match_theme.magic; break;
-                case TV_TRIBAL_BOOK:    prob = match_theme.magic; break;
-                case TV_DRUID_BOOK:     prob = match_theme.magic; break;
-                case TV_DAEMON_BOOK:    prob = match_theme.magic; break;
-                case TV_SPIRIT_BOOK:    prob = match_theme.magic; break;
+		case TV_POTION2:        prob = match_theme.magic; break;
+		case TV_BATERIE:        prob = match_theme.magic; break;
+		case TV_RANDART:        prob = match_theme.magic; break;
+		case TV_RUNE1:          prob = match_theme.magic; break;
+		case TV_RUNE2:          prob = match_theme.magic; break;
+		case TV_VALARIN_BOOK:   prob = match_theme.magic; break;
+		case TV_MAGERY_BOOK:    prob = match_theme.magic; break;
+		case TV_SHADOW_BOOK:    prob = match_theme.magic; break;
+		case TV_CHAOS_BOOK:     prob = match_theme.magic; break;
+		case TV_NETHER_BOOK:    prob = match_theme.magic; break;
+		case TV_CRUSADE_BOOK:   prob = match_theme.magic; break;
+		case TV_SIGALDRY_BOOK:  prob = match_theme.magic; break;
+		case TV_SYMBIOTIC_BOOK: prob = match_theme.magic; break;
+		case TV_MUSIC_BOOK:     prob = match_theme.magic; break;
+		case TV_MAGIC_BOOK:     prob = match_theme.magic; break;
+		case TV_PRAYER_BOOK:    prob = match_theme.magic; break;
+		case TV_ILLUSION_BOOK:  prob = match_theme.magic; break;
+		case TV_TRIBAL_BOOK:    prob = match_theme.magic; break;
+		case TV_DRUID_BOOK:     prob = match_theme.magic; break;
+		case TV_DAEMON_BOOK:    prob = match_theme.magic; break;
+		case TV_SPIRIT_BOOK:    prob = match_theme.magic; break;
 
 		case TV_LITE:		prob = match_theme.tools; break;
 		case TV_CLOAK:		prob = match_theme.tools; break;
@@ -4064,9 +4118,9 @@ bool kind_is_theme(int k_idx)
 		case TV_DIGGING:	prob = match_theme.tools; break;
 		case TV_FLASK:		prob = match_theme.tools; break;
 		case TV_FOOD:		prob = match_theme.tools; break;
-                case TV_TOOL:           prob = match_theme.tools; break;
-                case TV_INSTRUMENT:     prob = match_theme.tools; break;
-                case TV_TRAPKIT:        prob = match_theme.tools; break;
+		case TV_TOOL:           prob = match_theme.tools; break;
+		case TV_INSTRUMENT:     prob = match_theme.tools; break;
+		case TV_TRAPKIT:        prob = match_theme.tools; break;
 	}
 
 	/* Roll to see if it can be made */
@@ -4125,7 +4179,7 @@ bool kind_is_legal(int k_idx)
 /*
  * Hack -- determine if a template is "good"
  */
-static bool kind_is_good(int k_idx)
+bool kind_is_good(int k_idx)
 {
 	object_kind *k_ptr = &k_info[k_idx];
 
@@ -4226,6 +4280,11 @@ static bool kind_is_good(int k_idx)
  * This routine uses "object_level" for the "generation level".
  *
  * We assume that the given object has been "wiped".
+ *
+ * To Watch: The allocation table caching is heavily relies on
+ * an assumption that the SPECIAL_GENE objects should only be created
+ * through the forge--object_prep()--apply_magic() sequence and
+ * get_obj_num() should never be called for that purpose XXX XXX XXX
  */
 bool make_object(object_type *j_ptr, bool good, bool great, obj_theme theme)
 {
@@ -4233,7 +4292,7 @@ bool make_object(object_type *j_ptr, bool good, bool great, obj_theme theme)
 
 
 	/* Chance of "special object" */
-	prob = (good ? 10 : 1000);
+        prob = (good ? 10 + luck(-9, 9) : 1000);
 
 	/* Base level for the object */
 	base = (good ? (object_level + 10) : object_level);
@@ -4244,8 +4303,15 @@ bool make_object(object_type *j_ptr, bool good, bool great, obj_theme theme)
 	{
 		int k_idx;
 
-		/* Select items based on "theme" */
-		init_match_theme(theme);
+		/* See if the theme has been changed XXX XXX XXX */
+		if (theme_changed(theme))
+		{
+			/* Select items based on "theme" */
+			init_match_theme(theme);
+
+			/* Invalidate the cached allocation table */
+			alloc_kind_table_valid = FALSE;
+		}
 
 		/* Good objects */
 		if (good)
@@ -4257,8 +4323,18 @@ bool make_object(object_type *j_ptr, bool good, bool great, obj_theme theme)
 			get_obj_num_prep();
 		}
 
-		/* Activate restriction */
-		get_obj_num_hook = kind_is_legal;
+		/* Normal objects -- only when the cache is invalidated */
+		else if (!alloc_kind_table_valid)
+		{
+			/* Activate normal restriction */
+			get_obj_num_hook = kind_is_legal;
+
+			/* Prepare allocation table */
+			get_obj_num_prep();
+
+			/* The table is synchronised */
+			alloc_kind_table_valid = TRUE;
+		}
 
 		/* Pick a random object */
 		k_idx = get_obj_num(base);
@@ -4266,11 +4342,14 @@ bool make_object(object_type *j_ptr, bool good, bool great, obj_theme theme)
 		/* Good objects */
 		if (good)
 		{
-			/* Clear restriction */
-			get_obj_num_hook = NULL;
+			/* Restore normal restriction */
+			get_obj_num_hook = kind_is_legal;
 
 			/* Prepare allocation table */
 			get_obj_num_prep();
+
+			/* The table is synchronised */
+			alloc_kind_table_valid = TRUE;
 		}
 
 		/* Handle failure */
@@ -5013,6 +5092,12 @@ bool inven_item_optimize(int item)
 		/* One less item */
 		equip_cnt--;
 
+                /* Take care of item sets*/
+                if (o_ptr->name1)
+                {
+                        takeoff_set(inventory[item].name1, a_info[inventory[item].name1].set);
+                }
+
 		/* Erase the empty slot */
 		object_wipe(&inventory[item]);
 
@@ -5427,7 +5512,7 @@ s16b inven_takeoff(int item, int amt, bool force_drop)
 	inven_item_increase(item, -amt);
 	inven_item_optimize(item);
 
-        if((item == INVEN_CARRY)&&(p_ptr->pclass != CLASS_SYMBIANT))
+        if((item == INVEN_CARRY) && (PRACE_FLAGS(PR1_MOLD_FRIEND)))
         {
                 /* Drop the monster */
                 o_ptr->pval2 = 0;
@@ -5742,10 +5827,10 @@ void display_spell_list(void)
 	clear_from(0);
 
 	/* Warriors are illiterate */
-	if (!mp_ptr->spell_book) return;
+	if (!cp_ptr->spell_book) return;
 
 	/* Mindcrafter spell-list */
-	if (p_ptr->pclass == CLASS_MINDCRAFTER)
+	if (cp_ptr->magic_key == MKEY_MINDCRAFT)
 	{
 		int             i;
 		int             y = 1;
@@ -5778,7 +5863,7 @@ void display_spell_list(void)
 			chance -= 3 * (p_ptr->lev - spell.min_lev);
 
 			/* Reduce failure rate by INT/WIS adjustment */
-			chance -= 3 * (adj_mag_stat[p_ptr->stat_ind[mp_ptr->spell_stat]] - 1);
+			chance -= 3 * (adj_mag_stat[p_ptr->stat_ind[cp_ptr->spell_stat]] - 1);
 
 			/* Not enough mana to cast */
 			if (spell.mana_cost > p_ptr->csp)
@@ -5788,7 +5873,7 @@ void display_spell_list(void)
 			}
 
 			/* Extract the minimum failure rate */
-			minfail = adj_mag_fail[p_ptr->stat_ind[mp_ptr->spell_stat]];
+			minfail = adj_mag_fail[p_ptr->stat_ind[cp_ptr->spell_stat]];
 
 			/* Minimum failure rate */
 			if (chance < minfail) chance = minfail;
@@ -5901,7 +5986,7 @@ s16b spell_chance(int spell,int realm)
 
 
 	/* Paranoia -- must be literate */
-	if (!mp_ptr->spell_book) return (100);
+	if (!cp_ptr->spell_book) return (100);
 
 	/* Access the spell */
         s_ptr = &realm_info[realm][spell];
@@ -5913,7 +5998,7 @@ s16b spell_chance(int spell,int realm)
 	chance -= 3 * (p_ptr->lev - s_ptr->slevel);
 
 	/* Reduce failure rate by INT/WIS adjustment */
-	chance -= 3 * (adj_mag_stat[p_ptr->stat_ind[mp_ptr->spell_stat]] - 1);
+	chance -= 3 * (adj_mag_stat[p_ptr->stat_ind[cp_ptr->spell_stat]] - 1);
 
          /* Not enough mana to cast */
 	if (s_ptr->smana > p_ptr->csp)
@@ -5922,19 +6007,19 @@ s16b spell_chance(int spell,int realm)
 	}
 
 	/* Extract the minimum failure rate */
-	minfail = adj_mag_fail[p_ptr->stat_ind[mp_ptr->spell_stat]];
+	minfail = adj_mag_fail[p_ptr->stat_ind[cp_ptr->spell_stat]];
 
 	/*
 	 * Non mage/priest characters never get too good
 	 * (added high mage, mindcrafter)
 	 */
-        if (!(cp_ptr->flags1 & CF1_ZERO_FAIL))
+        if (!(PRACE_FLAG(PR1_ZERO_FAIL)))
 	{
 		if (minfail < 5) minfail = 5;
 	}
 
 	/* Hack -- Priest prayer penalty for "edged" weapons  -DGK */
-        if ((cp_ptr->flags1 & CF1_BLESS_WEAPON) && (p_ptr->icky_wield)) chance += 25;
+        if ((PRACE_FLAG(PR1_BLESS_WEAPON)) && (p_ptr->icky_wield)) chance += 25;
 
 	/* Minimum failure rate */
 	if (chance < minfail) chance = minfail;
@@ -5964,40 +6049,28 @@ bool spell_okay(int spell, bool known, int realm)
 	/* Access the spell */
         s_ptr = &realm_info[realm][spell];
 
-        if((p_ptr->pclass != CLASS_ILLUSIONIST) && (p_ptr->pclass != CLASS_SORCERER) && (realm == REALM_ILLUSION) && (spell > 32)) return FALSE;
+        if ((!PRACE_FLAGS(PR1_FULL_ILLUSION)) && (realm == REALM_ILLUSION) && (spell > 32)) return FALSE;
 
 	/* Spell is illegal */
 	if (s_ptr->slevel > p_ptr->lev) return (FALSE);
 
 	/* Spell is forgotten */
-        if ((p_ptr->pclass != CLASS_SORCERER) && (spell_forgotten[realm][(spell < 32)] & (1L << (spell % 32))))
+        if ((!PRACE_FLAGS(PR1_INNATE_SPELLS)) && (spell_forgotten[realm][(spell < 32)] & (1L << (spell % 32))))
 	{
 		/* Never okay */
 		return (FALSE);
 	}
 
-#if 0
-	/* Spell is learned */
-        if ((p_ptr->pclass == CLASS_SORCERER) || ((spell_learned[realm][(spell < 32)] & (1L << (spell % 32)))))
-	{
-		/* Okay to cast, not to study */
-		return (known);
-	}
-
-	/* Okay to study, not to cast */
-	return (!known);
-#else
         if (!known)
         {
-                if (get_spell_level(realm, spell) >= mp_ptr->max_spell_level) return (FALSE);
+                if (get_spell_level(realm, spell) >= cp_ptr->max_spell_level) return (FALSE);
                 return (TRUE);
         }
         else
         {
-                if ((p_ptr->pclass == CLASS_SORCERER) || (spell_learned[realm][(spell < 32)] & (1L << (spell % 32)))) return (TRUE);
+                if ((PRACE_FLAGS(PR1_INNATE_SPELLS)) || (spell_learned[realm][(spell < 32)] & (1L << (spell % 32)))) return (TRUE);
                 else return (FALSE);
         }
-#endif
 }
 
 
@@ -6011,7 +6084,7 @@ bool spell_okay(int spell, bool known, int realm)
  */
 bool info_spell = FALSE;
 char spell_txt[50];
-static void spell_info(char *p, int spell, int realm, byte level)
+void spell_info(char *p, int spell, int realm, byte level)
 {
 	/* Default */
 	strcpy(p, "");
@@ -6191,19 +6264,19 @@ int print_spells(byte *spells, int num, int y, int x, int realm)
                 color = TERM_L_GREEN;
 
 		/* Analyze the spell */
-                if ((p_ptr->pclass != CLASS_SORCERER) &&
+                if ((!PRACE_FLAGS(PR1_INNATE_SPELLS)) &&
                     (spell_forgotten[realm][(spell < 32)] & (1L << (spell % 32))))
 		{
 			comment = " forgotten";
                         color = TERM_L_RED;
 		}
-                else if ((p_ptr->pclass != CLASS_SORCERER) &&
+                else if ((!PRACE_FLAGS(PR1_INNATE_SPELLS)) &&
                     (!(spell_learned[realm][(spell < 32)] & (1L << (spell % 32)))))
 		{
 			comment = " unknown";
                         color = TERM_SLATE;
 		}
-                else if ((p_ptr->pclass != CLASS_SORCERER) &&
+                else if ((!PRACE_FLAGS(PR1_INNATE_SPELLS)) &&
                     (!(spell_worked[realm][(spell < 32)] & (1L << (spell % 32)))))
 		{
 			comment = " untried";
@@ -6273,7 +6346,7 @@ void display_koff(int k_idx)
         if (!(p_ptr->realm1 || p_ptr->realm2)) return;
 
 	/* Display spells in readible books */
-        if ((Mrealm_choices[p_ptr->pclass] | mrealm_choices[p_ptr->pclass]) & (1 << (q_ptr->tval - TV_VALARIN_BOOK)))
+        if ((cp_ptr->Mrealm_choices[0] | cp_ptr->mrealm_choices[0] | cp_ptr->Mrealm_choices[1] | cp_ptr->mrealm_choices[1]) & (1 << (q_ptr->tval - TV_VALARIN_BOOK)))
 	{
 		int     sval;
 		int     spell = -1;
@@ -6555,4 +6628,20 @@ void floor_decay(int item)
       	floor_carry(y, x, i_ptr);
       }
    }
+}
+
+/* Return the item be it on the floor or in inven */
+object_type *get_object(int item)
+{
+	/* Get the item (in the pack) */
+	if (item >= 0)
+	{
+                return &inventory[item];
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+                return &o_list[0 - item];
+	}
 }

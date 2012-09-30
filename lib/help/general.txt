@@ -34,42 +34,9 @@ dungeon near Bree where fantastic adventures await his coming!
 You will probably need to browse through the "help files", especially the
 one on available commands, before beginning any serious adventuring...
 
-#####R=== Differences Between PernAngband and Vanilla Angband ===
+I'd also highly recommend reading the pern_faq in the Newbie directory (at 
+least the first section of it about the differences between Vanilla Angband
+and PernAngband.
 
-The first main difference a new player to PernAngband will need to be aware of
-is that the main dungeon from Angband has been split into 4 "dungeons", each 
-of which cover a different portion of the dungeon's levels. Each of these 4 
-dungeons are located either in or near one of the four main towns so that the 
-character can keep stocked up on supplies. As the adventurer advances in 
-ability, they will need to travel overland to the next town/dungeon, which is 
-most easily carried out using the wilderness map ("<" from town level). As well 
-as these main places, there are a number of additional dungeons which the 
-character may or may not choose to enter, which can have guardians, contain 
-specific artifacts, or just be used as an alternative place to enjoy gaining 
-experience. Note that not all of the places are actually "dungeons" - some are
-caves, forests, etc.
-
-PernAngband also offers the player the ability to undertake a series of quests. 
-Random quests can be specified during start-up, and involve rescuing a princess 
-from a group of monsters within the dungeon. If you do not wish to play with 
-random quests, simply specify "0" when asked how many you want during character 
-generation. Other "fixed" quests are also available from the towns (whether 
-random quests are enabled or not), usually given by the town leaders upon the 
-request of the adventurer. It is not required for any adventurer to undertake 
-the fixed quests, but they can result in some nice rewards.
-
-The third main difference between Vanilla Angband and PernAngband is the 
-greatly expanded choice in character classes and races, as well as an expanded 
-magic system. Many races/classes can also have special abilities, which can be 
-accessed through the "U" command. This gives a starting adventurer the ability 
-to find a character that suits their own personal playing style.
-
-To balance the expansion in things like player abilities and customisation, the 
-list of both monsters and items has also been expanded. Be warned that items 
-which were by default safe in Vanilla are not necessarily safe in Pern (a 
-certain early artifact comes to mind here . . . ), and picking on some helpless 
-creatures is frowned upon.
-
-Happy 'Banding!
 
 

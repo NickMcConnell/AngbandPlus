@@ -132,29 +132,39 @@ void add_note_type(int note_number)
 			char player[100];
 			
 			/* Build the string containing the player information */
-                        if (p_ptr->pracem) sprintf(player, "the %s %s %s", race_mod_info[p_ptr->pracem].title, race_info[p_ptr->prace].title, class_info[p_ptr->pclass].title);
-                        else sprintf(player, "the %s %s", race_info[p_ptr->prace].title, class_info[p_ptr->pclass].title);
+                        sprintf(player, "the %s %s", get_player_race_name(p_ptr->prace, p_ptr->pracem), class_info[p_ptr->pclass].title + c_name);
 			
 			if (p_ptr->realm1 != REALM_NONE)
 			{
 				strcat(player, " of ");
-				strcat(player, realm_names[p_ptr->realm1]);
+                                strcat(player, realm_names[p_ptr->realm1][0]);
 			}
 	 		
 			if (p_ptr->realm2 != REALM_NONE)
 			{
 				strcat(player, " and ");
-				strcat(player, realm_names[p_ptr->realm2]);
+                                strcat(player, realm_names[p_ptr->realm2][0]);
 			}
 			
 			/* Add in "character start" information */
-                        sprintf(buf, "\n================================================\n%s %s\nBorn on %s\n================================================\n\n", player_name, player, true_long_day);
+                        sprintf(buf,
+				"\n"
+				"================================================\n"
+				"%s %s\n"
+				"Born on %s\n"
+				"================================================\n"
+				"\n",
+				player_name, player, true_long_day);
 		}
 		break;
 		
 		case NOTE_WINNER:
 		{
-                        sprintf(buf, "%s slew Morgoth on %s\n.sLong live %s!\n================================================\n", player_name, long_day, player_name);
+                        sprintf(buf,
+				"%s slew Morgoth on %s\n"
+				"Long live %s!\n"
+				"================================================\n",
+				player_name, long_day, player_name);
 		}
 		break;
 		
@@ -168,7 +178,11 @@ void add_note_type(int note_number)
 		case NOTE_ENTER_DUNGEON:
 		{
 			/* Entering the game after a break. */
-                        sprintf(buf, "================================================\nNew session start: %s\n\n", true_long_day);
+                        sprintf(buf,
+			"================================================\n"
+			"New session start: %s\n"
+			"\n",
+			true_long_day);
 		}
 		break;
 		

@@ -277,7 +277,7 @@ void identify_pack(void)
 		object_known(o_ptr);
 
                 /* Process the appropriate hooks */
-                process_hooks(HOOK_IDENTIFY, i);
+                process_hooks(HOOK_IDENTIFY, "(d)", i);
 	}
 }
 
@@ -977,9 +977,9 @@ void self_knowledge(FILE *fff)
 	}
 
         /* List powers */
-        for (iter = 0; iter < POWER_MAX; iter++)
+        for (iter = 0; iter < power_max; iter++)
         {
-                if (p_ptr->powers[iter / 32] & BIT(iter % 32))
+                if (p_ptr->powers[iter])
                 {
                         info[i++] = powers_type[iter].desc_text;
                 }
@@ -1382,6 +1382,48 @@ void self_knowledge(FILE *fff)
                         if (p_ptr->telepathy & ESP_GOOD) info[i++] = "You can sense the presence of good beings.";
                         if (p_ptr->telepathy & ESP_NONLIVING) info[i++] = "You can sense the presence of non-living things.";
                         if (p_ptr->telepathy & ESP_UNIQUE) info[i++] = "You can sense the presence of unique beings.";
+                }
+	}
+        if (!luck(-100, 100))
+	{
+                info[i++] = "You have normal luck.";
+	}
+        else if (luck(-100, 100) < 0)
+	{
+                if (luck(-100, 100) < -90)
+                {
+                        info[i++] = "You are incredibly unlucky.";
+                }
+                else if (luck(-100, 100) < -60)
+                {
+                        info[i++] = "You are extremely unlucky.";
+                }
+                else if (luck(-100, 100) < -30)
+                {
+                        info[i++] = "You are very unlucky.";
+                }
+                else
+                {
+                        info[i++] = "You are unlucky.";
+                }
+	}
+        else if (luck(-100, 100) > 0)
+	{
+                if (luck(-100, 100) > 90)
+                {
+                        info[i++] = "You are incredibly lucky.";
+                }
+                else if (luck(-100, 100) > 60)
+                {
+                        info[i++] = "You are extremely lucky.";
+                }
+                else if (luck(-100, 100) > 30)
+                {
+                        info[i++] = "You are very lucky.";
+                }
+                else
+                {
+                        info[i++] = "You are lucky.";
                 }
 	}
         if (p_ptr->auto_id)
@@ -2102,6 +2144,7 @@ bool detect_doors(void)
 			{
 				/* Pick a door XXX XXX XXX */
 				cave_set_feat(y, x, FEAT_DOOR_HEAD + 0x00);
+				cave[y][x].mimic = 0;
 			}
 
 			/* Detect doors */
@@ -2112,6 +2155,9 @@ bool detect_doors(void)
 			{
 				/* Hack -- Memorize */
 				c_ptr->info |= (CAVE_MARK);
+
+                                /* Reveal it */
+                                c_ptr->mimic = 0;
 
 				/* Redraw */
 				lite_spot(y, x);
@@ -2154,7 +2200,11 @@ bool detect_stairs(void)
 
 			/* Detect stairs */
 			if ((c_ptr->feat == FEAT_LESS) ||
-			    (c_ptr->feat == FEAT_MORE))
+			    (c_ptr->feat == FEAT_MORE) ||
+			    (c_ptr->feat == FEAT_SHAFT_DOWN) ||
+			    (c_ptr->feat == FEAT_SHAFT_UP) ||
+			    (c_ptr->feat == FEAT_WAY_LESS) ||
+			    (c_ptr->feat == FEAT_WAY_MORE))
 			{
 				/* Hack -- Memorize */
 				c_ptr->info |= (CAVE_MARK);
@@ -2171,7 +2221,7 @@ bool detect_stairs(void)
 	/* Describe */
 	if (detect)
 	{
-		msg_print("You sense the presence of stairs!");
+		msg_print("You sense the presence of ways out of this area!");
 	}
 
 	/* Result */
@@ -2262,11 +2312,26 @@ bool detect_objects_gold(void)
 		if (!o_ptr->k_idx) continue;
 
 		/* Skip held objects */
-		if (o_ptr->held_m_idx) continue;
+                if (o_ptr->held_m_idx)
+                {
+                        /* Access the monster */
+                        monster_type *m_ptr = &m_list[o_ptr->held_m_idx];
+                        monster_race *r_ptr = race_inf(m_ptr);
 
-		/* Location */
-		y = o_ptr->iy;
-		x = o_ptr->ix;
+                        if (!(r_ptr->flags9 & RF9_MIMIC)) continue;
+                        else
+                        {
+                                /* Location */
+                                y = m_ptr->fy;
+                                x = m_ptr->fx;
+                        }
+                }
+                else
+                {
+                        /* Location */
+                        y = o_ptr->iy;
+                        x = o_ptr->ix;
+                }
 
 		/* Only detect nearby objects */
 		if (!panel_contains(y, x)) continue;
@@ -2320,11 +2385,26 @@ bool detect_objects_normal(void)
 		if (!o_ptr->k_idx) continue;
 
 		/* Skip held objects */
-		if (o_ptr->held_m_idx) continue;
+                if (o_ptr->held_m_idx)
+                {
+                        /* Access the monster */
+                        monster_type *m_ptr = &m_list[o_ptr->held_m_idx];
+                        monster_race *r_ptr = race_inf(m_ptr);
 
-		/* Location */
-		y = o_ptr->iy;
-		x = o_ptr->ix;
+                        if (!(r_ptr->flags9 & RF9_MIMIC)) continue;
+                        else
+                        {
+                                /* Location */
+                                y = m_ptr->fy;
+                                x = m_ptr->fx;
+                        }
+                }
+                else
+                {
+                        /* Location */
+                        y = o_ptr->iy;
+                        x = o_ptr->ix;
+                }
 
 		/* Only detect nearby objects */
 		if (!panel_contains(y, x)) continue;
@@ -2384,11 +2464,26 @@ bool detect_objects_magic(void)
 		if (!o_ptr->k_idx) continue;
 
 		/* Skip held objects */
-		if (o_ptr->held_m_idx) continue;
+                if (o_ptr->held_m_idx)
+                {
+                        /* Access the monster */
+                        monster_type *m_ptr = &m_list[o_ptr->held_m_idx];
+                        monster_race *r_ptr = race_inf(m_ptr);
 
-		/* Location */
-		y = o_ptr->iy;
-		x = o_ptr->ix;
+                        if (!(r_ptr->flags9 & RF9_MIMIC)) continue;
+                        else
+                        {
+                                /* Location */
+                                y = m_ptr->fy;
+                                x = m_ptr->fx;
+                        }
+                }
+                else
+                {
+                        /* Location */
+                        y = o_ptr->iy;
+                        x = o_ptr->ix;
+                }
 
 		/* Only detect nearby objects */
 		if (!panel_contains(y,x)) continue;
@@ -2810,6 +2905,12 @@ void stair_creation(void)
 	if (!cave_valid_bold(py, px))
 	{
 		msg_print("The object resists the spell.");
+		return;
+	}
+
+        if (d_info[dungeon_type].flags1 & DF1_FLAT)
+	{
+		msg_print("No stair creation in non dungeons...");
 		return;
 	}
 
@@ -4196,7 +4297,7 @@ bool ident_spell(void)
 		add_note(note, 'A');	
         }
         /* Process the appropriate hooks */
-        process_hooks(HOOK_IDENTIFY, item);
+        process_hooks(HOOK_IDENTIFY, "(d)", item);
 
 	/* Something happened */
 	return (TRUE);
@@ -4286,7 +4387,7 @@ bool identify_fully(void)
 		add_note(note, 'A');	
         }
         /* Process the appropriate hooks */
-        process_hooks(HOOK_IDENTIFY, item);
+        process_hooks(HOOK_IDENTIFY, "(d)", item);
 
 	/* Describe it fully */
         identify_fully_aux(o_ptr, NULL);
@@ -4509,7 +4610,7 @@ bool recharge(int power)
 			/*** Determine Seriousness of Failure ***/
 
 			/* Mages recharge objects more safely. */
-			if (p_ptr->pclass == CLASS_MAGE)
+			if (PRACE_FLAG(PR1_ZERO_FAIL))
 			{
 				/* 10% chance to blow up one rod, otherwise draining. */
                                 if (o_ptr->tval == TV_ROD_MAIN)
@@ -4906,7 +5007,7 @@ bool invoke(int dam, int typee)
 		if (r_ptr->flags1 & (RF1_UNIQUE)) continue;
 
 		/* Hack -- Skip Quest Monsters */
-		if (r_ptr->flags1 & RF1_QUESTOR) continue;
+		if (m_ptr->mflag & MFLAG_QUEST) continue;
 
 		/* Skip "wrong" monsters */
 		if (r_ptr->d_char != typ) continue;
@@ -4958,7 +5059,7 @@ bool genocide_aux(bool player_cast, char typ)
 		if (r_ptr->flags1 & (RF1_UNIQUE)) continue;
 
 		/* Hack -- Skip Quest Monsters */
-		if (r_ptr->flags1 & RF1_QUESTOR) continue;
+		if (m_ptr->mflag & MFLAG_QUEST) continue;
 
 		/* Skip "wrong" monsters */
 		if (r_ptr->d_char != typ) continue;
@@ -5072,7 +5173,7 @@ bool mass_genocide(bool player_cast)
 		if (r_ptr->flags1 & (RF1_UNIQUE)) continue;
 
 		/* Hack -- Skip Quest Monsters */
-		if (r_ptr->flags1 & RF1_QUESTOR) continue;
+		if (m_ptr->mflag & MFLAG_QUEST) continue;
 
 		/* Skip distant monsters */
 		if (m_ptr->cdis > MAX_SIGHT) continue;
@@ -7370,7 +7471,13 @@ void change_wild_mode(void)
         if (p_ptr->immovable && !p_ptr->wild_mode)
 	{
                 msg_print("Hum, blinking there will take time.");
-	}
+        }
+
+        if (p_ptr->word_recall && !p_ptr->wild_mode)
+        {
+                msg_print("You will soon be recalled.");
+                return;
+        }
 
 	p_ptr->wild_mode = !p_ptr->wild_mode;
 

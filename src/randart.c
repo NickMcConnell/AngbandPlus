@@ -18,247 +18,124 @@
 #define WEIRD_LUCK      12
 #define ACTIVATION_CHANCE 3
 
+/*
+ * Attempt to add a power to a randart
+ */
+static bool grab_one_power(int *ra_idx, object_type *o_ptr, bool good, s16b *max_times)
+{
+        int i = 0, j;
+        int *ok_ra, ok_num = 0;
+        bool ret = FALSE;
+        s32b f1, f2, f3, f4, f5, esp;
+
+        C_MAKE(ok_ra, max_ra_idx, int);
+
+        /* Grab the ok randart */
+        for (i = 0; i < max_ra_idx; i++)
+        {
+                randart_part_type *ra_ptr = &ra_info[i];
+                bool ok = FALSE;
+
+		/* Must have the correct fields */
+                for (j = 0; j < 20; j++)
+                {
+                        if (ra_ptr->tval[j] == o_ptr->tval)
+                        {
+                                if ((ra_ptr->min_sval[j] <= o_ptr->sval) && (ra_ptr->max_sval[j] >= o_ptr->sval)) ok = TRUE;
+                        }
+
+                        if (ok) break;
+                }
+                if (!ok)
+                {
+                        /* Doesnt count as a try*/
+                        continue;
+                }
+
+                /* Good should be good, bad should be bad */
+                if (good && (ra_ptr->value <= 0)) continue;
+                if ((!good) && (ra_ptr->value > 0)) continue;
+
+                if (max_times[i] >= ra_ptr->max) continue;
+
+                /* Must NOT have the antagonic flags */
+                object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
+                if (f1 & ra_ptr->aflags1) continue;
+                if (f2 & ra_ptr->aflags2) continue;
+                if (f3 & ra_ptr->aflags3) continue;
+                if (f4 & ra_ptr->aflags4) continue;
+                if (f5 & ra_ptr->aflags5) continue;
+                if (esp & ra_ptr->aesp) continue;
+
+                /* ok */
+                ok_ra[ok_num++] = i;
+        }
+
+        /* Now test them a few times */
+        for (i = 0; i < ok_num * 10; i++)
+	{
+                randart_part_type *ra_ptr;
+
+                i = ok_ra[rand_int(ok_num)];
+                ra_ptr = &ra_info[i];
+
+                /* XXX XXX Enforce minimum player level (loosely) */
+                if (ra_ptr->level > p_ptr->lev)
+		{
+			/* Acquire the "out-of-depth factor" */
+                        int d = (ra_ptr->level - p_ptr->lev);
+
+			/* Roll for out-of-depth creation */
+                        if (rand_int(d) != 0)
+                        {
+                                continue;
+                        }
+		}
+
+		/* We must make the "rarity roll" */
+                if (rand_int(ra_ptr->mrarity) < ra_ptr->rarity)
+                {
+                        continue;
+                }
+
+                /* Hack -- mark the item as an ego */
+                *ra_idx = i;
+                max_times[i]++;
+
+		/* Success */
+                ret = TRUE;
+                break;
+	}
+
+        C_FREE(ok_ra, max_ra_idx, int);
+
+        /* Return */
+        return (ret);
+}
+
 void give_activation_power (object_type * o_ptr)
 {
 	int type = 0, chance = 0;
 
-	if (artifact_bias)
-	{
-		if (artifact_bias == BIAS_ELEC)
-		{
-			if (randint(3)!=1)
-			{
-				type = ACT_BO_ELEC_1;
-			}
-			else if (randint(5)!=1)
-			{
-				type = ACT_BA_ELEC_2;
-			}
-			else
-			{
-				type = ACT_BA_ELEC_3;
-			}
-			chance = 101;
-		}
-		else if (artifact_bias == BIAS_POIS)
-		{
-			type = ACT_BA_POIS_1;
-			chance = 101;
-		}
-		else if (artifact_bias == BIAS_FIRE)
-		{
-			if (randint(3)!=1)
-			{
-				type = ACT_BO_FIRE_1;
-			}
-			else if (randint(5)!=1)
-			{
-				type = ACT_BA_FIRE_1;
-			}
-			else
-			{
-				type = ACT_BA_FIRE_2;
-			}
-			chance = 101;
-		}
-		else if (artifact_bias == BIAS_COLD)
-		{
-			chance = 101;
-			if (randint(3)!=1)
-				type = ACT_BO_COLD_1;
-			else if (randint(3)!=1)
-				type = ACT_BA_COLD_1;
-			else if (randint(3)!=1)
-				type = ACT_BA_COLD_2;
-			else
-				type = ACT_BA_COLD_3;
-		}
-		else if (artifact_bias == BIAS_CHAOS)
-		{
-			chance = 50;
-			if (randint(6)==1)
-				type = ACT_SUMMON_DEMON;
-			else
-				type = ACT_CALL_CHAOS;
-		}
-		else if (artifact_bias == BIAS_PRIESTLY)
-		{
-			chance = 101;
-
-			if (randint(13)==1)
-				type = ACT_CHARM_UNDEAD;
-			else if (randint(12)==1)
-				type = ACT_BANISH_EVIL;
-			else if (randint(11)==1)
-				type = ACT_DISP_EVIL;
-			else if (randint(10)==1)
-				type = ACT_PROT_EVIL;
-			else if (randint(9)==1)
-				type = ACT_CURE_1000;
-			else if (randint(8)==1)
-				type = ACT_CURE_700;
-			else if (randint(7)==1)
-				type = ACT_REST_ALL;
-			else if (randint(6)==1)
-				type = ACT_REST_LIFE;
-			else
-				type = ACT_CURE_MW;
-		}
-		else if (artifact_bias == BIAS_NECROMANTIC)
-		{
-			chance = 101;
-			if (randint(66)==1)
-				type = ACT_WRAITH;
-			else if (randint(13)==1)
-				type = ACT_DISP_GOOD;
-			else if (randint(9)==1)
-				type = ACT_MASS_GENO;
-			else if (randint(8)==1)
-				type = ACT_GENOCIDE;
-			else if (randint(13)==1)
-				type = ACT_SUMMON_UNDEAD;
-			else if (randint(9)==1)
-				type = ACT_VAMPIRE_2;
-			else if (randint(6)==1)
-				type = ACT_CHARM_UNDEAD;
-			else
-				type = ACT_VAMPIRE_1;
-		}
-		else if (artifact_bias == BIAS_LAW)
-		{
-			chance = 101;
-			if (randint(8)==1)
-				type = ACT_BANISH_EVIL;
-			else if (randint(4)==1)
-				type = ACT_DISP_EVIL;
-			else
-				type = ACT_PROT_EVIL;
-		}
-		else if (artifact_bias == BIAS_ROGUE)
-		{
-			chance = 101;
-			if (randint(50)==1)
-				type = ACT_SPEED;
-			else if (randint(4)==1)
-				type = ACT_SLEEP;
-			else if (randint(3)==1)
-				type = ACT_DETECT_ALL;
-			else if (randint(8)==1)
-				type = ACT_ID_FULL;
-			else
-				type = ACT_ID_PLAIN;
-		}
-		else if (artifact_bias == BIAS_MAGE)
-		{
-			chance = 66;
-			if (randint(20)==1)
-				type = SUMMON_ELEMENTAL;
-			else if (randint(10)==1)
-				type = SUMMON_PHANTOM;
-			else if (randint(5)==1)
-				type = ACT_RUNE_EXPLO;
-			else
-				type = ACT_ESP;
-		}
-		else if (artifact_bias == BIAS_WARRIOR)
-		{
-			chance = 80;
-			if (randint(100)==1)
-				type = ACT_INVULN;
-			else
-				type = ACT_BERSERK;
-		}
-		else if (artifact_bias == BIAS_RANGER)
-		{
-			chance = 101;
-			if (randint(20)==1)
-				type = ACT_CHARM_ANIMALS;
-			else if (randint(7)==1)
-				type = ACT_SUMMON_ANIMAL;
-			else if (randint(6)==1)
-				type = ACT_CHARM_ANIMAL;
-			else if (randint(4)==1)
-				type = ACT_RESIST_ALL;
-			else if (randint(3)==1)
-				type = ACT_SATIATE;
-			else
-				type = ACT_CURE_POISON;
-		}
-	}
-
-	while (!(type) || (randint(100)>=chance))
-	{
-		type = randint(255);
-		switch (type)
-		{
-			case ACT_SUNLIGHT: case ACT_BO_MISS_1:
-			case ACT_BA_POIS_1: case ACT_BO_ELEC_1:
-			case ACT_BO_ACID_1: case ACT_BO_COLD_1: case ACT_BO_FIRE_1:
-			case ACT_CONFUSE: case ACT_SLEEP: case ACT_QUAKE:
-			case ACT_CURE_LW: case ACT_CURE_MW: case ACT_CURE_POISON:
-			case ACT_BERSERK: case ACT_LIGHT: case ACT_MAP_LIGHT:
-			case ACT_DEST_DOOR: case ACT_STONE_MUD: case ACT_TELEPORT:
-				chance = 101;
-				break;
-			case ACT_BA_COLD_1: case ACT_BA_FIRE_1: case ACT_DRAIN_1:
-			case ACT_TELE_AWAY: case ACT_ESP: case ACT_RESIST_ALL:
-			case ACT_DETECT_ALL: case ACT_RECALL:
-			case ACT_SATIATE: case ACT_RECHARGE:
-				chance = 85;
-				break;
-			case ACT_TERROR: case ACT_PROT_EVIL: case ACT_ID_PLAIN:
-				chance = 75;
-				break;
-			case ACT_DRAIN_2: case ACT_VAMPIRE_1: case ACT_BO_MISS_2:
-			case ACT_BA_FIRE_2: case ACT_REST_LIFE:
-				chance = 66;
-				break;
-			case ACT_BA_COLD_3: case ACT_BA_ELEC_3: case ACT_WHIRLWIND:
-			case ACT_VAMPIRE_2: case ACT_CHARM_ANIMAL:
-				chance = 50;
-				break;
-			case ACT_SUMMON_ANIMAL:
-				chance = 40;
-				break;
-			case ACT_DISP_EVIL: case ACT_BA_MISS_3: case ACT_DISP_GOOD:
-			case ACT_BANISH_EVIL: case ACT_GENOCIDE: case ACT_MASS_GENO:
-			case ACT_CHARM_UNDEAD: case ACT_CHARM_OTHER: case ACT_SUMMON_PHANTOM:
-			case ACT_REST_ALL:
-			case ACT_RUNE_EXPLO:
-				chance = 33;
-				break;
-			case ACT_CALL_CHAOS: case ACT_ROCKET:
-			case ACT_CHARM_ANIMALS: case ACT_CHARM_OTHERS:
-			case ACT_SUMMON_ELEMENTAL: case ACT_CURE_700:
-			case ACT_SPEED: case ACT_ID_FULL: case ACT_RUNE_PROT:
-				chance = 25;
-				break;
-			case ACT_CURE_1000: case ACT_XTRA_SPEED:
-			case ACT_DETECT_XTRA: case ACT_DIM_DOOR:
-				chance = 10;
-				break;
-			case ACT_SUMMON_UNDEAD: case ACT_SUMMON_DEMON:
-			case ACT_WRAITH: case ACT_INVULN: case ACT_ALCHEMY:
-				chance = 5;
-				break;
-			default:
-				chance = 0;
-		}
-	}
 
 	/* A type was chosen... */
+#if 0 // DGDGDGDG
 	o_ptr->xtra2 = type;
 	o_ptr->art_flags3 |= TR3_ACTIVATE;
 	o_ptr->timeout = 0;
+#else
+        o_ptr->xtra2 = 0;
+        o_ptr->art_flags3 &= ~TR3_ACTIVATE;
+	o_ptr->timeout = 0;
+#endif
 }
+
 
 int get_activation_power()
 {
         object_type *o_ptr, forge;
 
         o_ptr = &forge;
-
-        artifact_bias = 0;
 
         give_activation_power(o_ptr);
 
@@ -388,133 +265,84 @@ void get_random_name(char * return_name)
 bool create_artifact(object_type *o_ptr, bool a_scroll, bool get_name)
 {
 	char new_name[80];
-	int has_pval = 0;
-	int powers = randint(5) + 1;
-	int max_type = (o_ptr->tval<TV_BOOTS?7:5);
-	int power_level;
-	s32b total_flags;
+	int powers = 0, i;
+        s32b total_flags, total_power = 0;
 	bool a_cursed = FALSE;
-
-	int warrior_artifact_bias = 0;
-
-	artifact_bias = 0;
-
-	if (a_scroll && (randint(4)==1))
-	{
-		switch (p_ptr->pclass)
-		{
-			case CLASS_WARRIOR:
-                        case CLASS_UNBELIEVER:
-				artifact_bias = BIAS_WARRIOR;
-				break;
-			case CLASS_MAGE:
-			case CLASS_HIGH_MAGE:
-				artifact_bias = BIAS_MAGE;
-				break;
-			case CLASS_PRIEST:
-				artifact_bias = BIAS_PRIESTLY;
-				break;
-			case CLASS_ROGUE:
-				artifact_bias = BIAS_ROGUE;
-				warrior_artifact_bias = 25;
-				break;
-			case CLASS_RANGER:
-				artifact_bias = BIAS_RANGER;
-				warrior_artifact_bias = 30;
-				break;
-			case CLASS_PALADIN:
-				artifact_bias = BIAS_PRIESTLY;
-				warrior_artifact_bias = 40;
-				break;
-                        case CLASS_WARLOCK:
-				artifact_bias = BIAS_MAGE;
-				warrior_artifact_bias = 40;
-				break;
-			case CLASS_CHAOS_WARRIOR:
-			case CLASS_DAEMONOLOGIST:
-				artifact_bias = BIAS_CHAOS;
-				warrior_artifact_bias = 40;
-				break;
-			case CLASS_MONK:
-				artifact_bias = BIAS_PRIESTLY;
-				break;
-			case CLASS_MINDCRAFTER:
-				if (randint(5)>2) artifact_bias = BIAS_PRIESTLY;
-				break;
-		}
-	}
-
-	if ((randint(100) <= warrior_artifact_bias) && a_scroll) artifact_bias = BIAS_WARRIOR;
+        u32b f1, f2, f3, f4, f5, esp;
+        s16b *max_times;
+        s16b pval = 0;
+        bool limit_blows = FALSE;
 
 	strcpy(new_name,"");
 
 	if ((!a_scroll) && (randint(A_CURSED)==1)) a_cursed = TRUE;
 
-	while ((randint(powers) == 1) || (randint(7)==1) || randint(10)==1) powers++;
+        i = 0;
+        while (ra_gen[i].chance)
+        {
+                powers += damroll(ra_gen[i].dd, ra_gen[i].ds) + ra_gen[i].plus;
+                i++;
+        }
 
-	if ((!a_cursed) && (randint(WEIRD_LUCK)==1)) powers *= 2;
+        if ((!a_cursed) && (randint(30) == 1)) powers *= 2;
 
 	if (a_cursed) powers /= 2;
 
+        C_MAKE(max_times, max_ra_idx, s16b);
+
 	/* Main loop */
-	while(powers--)
+        while (powers)
 	{
-		switch (randint(max_type))
-		{
-			case 1: case 2:
-				random_plus(o_ptr, a_scroll);
-				has_pval = TRUE;
-				break;
-			case 3: case 4:
-				random_resistance(o_ptr, a_scroll, FALSE);
-				break;
-			case 5:
-				random_misc(o_ptr, a_scroll);
-				break;
-			case 6: case 7:
-				random_slay(o_ptr, a_scroll);
-				break;
-			default:
-				if (wizard) msg_print("Switch error in create_artifact!");
-				powers++;
-		}
+                int ra_idx;
+                randart_part_type *ra_ptr;
+
+                powers--;
+
+                if (!grab_one_power(&ra_idx, o_ptr, TRUE, max_times)) continue;
+
+                ra_ptr = &ra_info[ra_idx];
+
+                if (wizard) msg_format("Additing randart power: %d", ra_idx);
+
+                total_power += ra_ptr->value;
+                
+                o_ptr->art_flags1 |= ra_ptr->flags1;
+                o_ptr->art_flags2 |= ra_ptr->flags2;
+                o_ptr->art_flags3 |= ra_ptr->flags3;
+                o_ptr->art_flags4 |= ra_ptr->flags4;
+                o_ptr->art_flags5 |= ra_ptr->flags5;
+                o_ptr->art_esp |= ra_ptr->esp;
+
+                add_random_ego_flag(o_ptr, ra_ptr->fego, &limit_blows);
+
+                /* get flags */
+                object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
+
+		/* Hack -- acquire "cursed" flag */
+                if (f3 & TR3_CURSED) o_ptr->ident |= (IDENT_CURSED);
+
+                /* Hack -- obtain bonuses */
+                if (ra_ptr->max_to_h > 0) o_ptr->to_h += randint(ra_ptr->max_to_h);
+                if (ra_ptr->max_to_h < 0) o_ptr->to_h -= randint(-ra_ptr->max_to_h);
+                if (ra_ptr->max_to_d > 0) o_ptr->to_d += randint(ra_ptr->max_to_d);
+                if (ra_ptr->max_to_d < 0) o_ptr->to_d -= randint(-ra_ptr->max_to_d);
+                if (ra_ptr->max_to_a > 0) o_ptr->to_a += randint(ra_ptr->max_to_a);
+                if (ra_ptr->max_to_a < 0) o_ptr->to_a -= randint(-ra_ptr->max_to_a);
+
+                /* Hack -- obtain pval */
+                if (((pval > ra_ptr->max_pval) && ra_ptr->max_pval) || (!pval)) pval = ra_ptr->max_pval;
 	};
+        C_FREE(max_times, max_ra_idx, s16b);
 
-	if (has_pval)
-	{
-#if 0
-		o_ptr->art_flags3 |= TR3_SHOW_MODS;
+        if (pval > 0) o_ptr->pval = randint(pval);
+        if (pval < 0) o_ptr->pval = randint(-pval);
 
-		/* This one commented out by gw's request... */
-		if (!a_scroll)
-			o_ptr->art_flags3 |= TR3_HIDE_TYPE;
-#endif
-
-		if (o_ptr->art_flags1 & TR1_BLOWS)
-		    o_ptr->pval = randint(2) + 1;
-                else if (o_ptr->art_flags3 & TR3_XTRA_MIGHT)
-		    o_ptr->pval = randint(2) + 1;
-		else
-		{
-			do
-			{
-				o_ptr->pval++;
-			}
-			while (o_ptr->pval<randint(5) || randint(o_ptr->pval)==1);
-		}
-
-		if (o_ptr->pval > 4 && (randint(WEIRD_LUCK)!=1))
-			o_ptr->pval = 4;
-	}
-
-	/* give it some plusses... */
-	if (o_ptr->tval>=TV_BOOTS)
-		o_ptr->to_a += randint(o_ptr->to_a>19?1:20-o_ptr->to_a);
-	else
-	{
-		o_ptr->to_h += randint(o_ptr->to_h>19?1:20-o_ptr->to_h);
-		o_ptr->to_d += randint(o_ptr->to_d>19?1:20-o_ptr->to_d);
-	}
+        /* No insane number of blows */  
+        if (limit_blows && (o_ptr->art_flags1 & TR1_BLOWS))
+        {
+                if (o_ptr->pval > 2)
+                        o_ptr->pval -= randint(o_ptr->pval - 2);
+        }
 
 	/* Just to be sure */
 	o_ptr->art_flags3 |= ( TR3_IGNORE_ACID | TR3_IGNORE_ELEC |
@@ -525,70 +353,41 @@ bool create_artifact(object_type *o_ptr, bool a_scroll, bool get_name)
 
 	if (a_cursed) curse_artifact(o_ptr);
 
-	if ((!a_cursed) &&
-	    (randint((o_ptr->tval>=TV_BOOTS)
-	    ?ACTIVATION_CHANCE * 2 : ACTIVATION_CHANCE)==1))
-	{
-		o_ptr->xtra2 = 0;
-		give_activation_power(o_ptr);
-	}
-
-
-	if (o_ptr->tval>=TV_BOOTS)
-	{
-		if (a_cursed) power_level = 0;
-		else if (total_flags<10000) power_level = 1;
-		else if (total_flags<20000) power_level = 2;
-		else power_level = 3;
-	}
-
-	else
-	{
-		if (a_cursed) power_level = 0;
-		else if (total_flags<15000) power_level = 1;
-		else if (total_flags<30000) power_level = 2;
-		else power_level = 3;
-	}
+	/* Extract the flags */
+        object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
 
         if(get_name)
         {
-	if (a_scroll)
-	{
-		char dummy_name[80];
-		strcpy(dummy_name, "");
-                identify_fully_aux(o_ptr, NULL);
-		o_ptr->ident |= IDENT_STOREB; /* This will be used later on... */
-		if (!(get_string("What do you want to call the artifact? ", dummy_name, 80)))
-			strcpy(new_name,"(a DIY Artifact)");
-		else
-		{
-			strcpy(new_name,"called '");
-			strcat(new_name,dummy_name);
-			strcat(new_name,"'");
-		}
-		/* Identify it fully */
-		object_aware(o_ptr);
-		object_known(o_ptr);
+                if (a_scroll)
+                {
+                        char dummy_name[80];
+                        strcpy(dummy_name, "");
+                        identify_fully_aux(o_ptr, NULL);
+                        o_ptr->ident |= IDENT_STOREB; /* This will be used later on... */
+                        if (!(get_string("What do you want to call the artifact? ", dummy_name, 80)))
+                                sprintf(new_name, "of '%s'", player_name);
+                        else
+                        {
+                                strcpy(new_name,"called '");
+                                strcat(new_name,dummy_name);
+                                strcat(new_name,"'");
+                        }
+                        /* Identify it fully */
+                        object_aware(o_ptr);
+                        object_known(o_ptr);
 
-		/* Mark the item as fully known */
-		o_ptr->ident |= (IDENT_MENTAL);
-	}
-	else
-	{
-                get_random_name(new_name);
-	}
+                        /* Mark the item as fully known */
+                        o_ptr->ident |= (IDENT_MENTAL);
+                }
+                else
+                {
+                        get_random_name(new_name);
+                }
         }
-
-	if (cheat_xtra)
-	{
-		if (artifact_bias)
-			msg_format("Biased artifact: %d.", artifact_bias);
-		else
-			msg_print("No bias in artifact.");
-	}
 
 	/* Save the inscription */
 	o_ptr->art_name = quark_add(new_name);
+        o_ptr->name2 = o_ptr->name2b = 0;
 
 	/* Window stuff */
 	p_ptr->window |= (PW_INVEN | PW_EQUIP);
@@ -636,7 +435,7 @@ bool artifact_scroll(void)
 	          ((item >= 0) ? "Your" : "The"), o_name,
 	          ((o_ptr->number > 1) ? "" : "s"));
 
-	if (o_ptr->name1 || o_ptr->art_name)
+        if (artifact_p(o_ptr))
 	{
 		msg_format("The %s %s already %s!",
 		    o_name, ((o_ptr->number > 1) ? "are" : "is"),
@@ -676,3 +475,4 @@ bool artifact_scroll(void)
 	/* Something happened */
 	return (TRUE);
 }
+

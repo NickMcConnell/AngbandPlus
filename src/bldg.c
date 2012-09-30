@@ -33,8 +33,8 @@ bool is_state(store_type *s_ptr, int state)
         }
         else
         {
-                if ((ow_ptr->races[state] & (1 << p_ptr->prace)) || (ow_ptr->classes[state] & (1 << p_ptr->pclass)) ||
-                    (ow_ptr->realms[state] & (1 << p_ptr->realm1)) || (ow_ptr->realms[state] & (1 << p_ptr->realm2)))
+                if ((ow_ptr->races[state][p_ptr->prace / 32] & (1 << p_ptr->prace)) || (ow_ptr->classes[state][p_ptr->prace / 32] & (1 << p_ptr->pclass)) ||
+                    (ow_ptr->realms[state][p_ptr->prace / 32] & (1 << p_ptr->realm1)) || (ow_ptr->realms[state][p_ptr->prace / 32] & (1 << p_ptr->realm2)))
                 {
                         return (TRUE); 
                 }
@@ -567,12 +567,10 @@ static bool gamble_comm(int cmd)
  */
 static bool inn_comm(int cmd)
 {
-	int dawnval;
-
 	switch(cmd)
 	{
 		case BACT_FOOD: /* Buy food & drink */
-                        if ((p_ptr->pracem != RMOD_VAMPIRE) && (p_ptr->mimic_form!=MIMIC_VAMPIRE))
+                        if ((!PRACE_FLAG(PR1_VAMPIRE)) && (p_ptr->mimic_form!=MIMIC_VAMPIRE))
                         {
                                 msg_print("The barkeep gives you some gruel and a beer.");
                                 msg_print(NULL);
@@ -582,9 +580,8 @@ static bool inn_comm(int cmd)
 			break;
 
 		case BACT_REST: /* Rest for the night */
-                        dawnval = ((turn % (10L * DAY)));
-                        if ((p_ptr->pracem == RMOD_VAMPIRE)||(p_ptr->mimic_form==MIMIC_VAMPIRE)){
-                        if (dawnval < 50000) {  /* nighttime */
+                        if ((PRACE_FLAG(PR1_VAMPIRE)) || (p_ptr->mimic_form==MIMIC_VAMPIRE)){
+                        if ((bst(HOUR, turn) >= 6) && (bst(HOUR, turn) < 18)) {  /* nighttime */
 				if ((p_ptr->poisoned > 0) || (p_ptr->cut > 0))
 				{
 					msg_print("You need a healer, not a room.");
@@ -594,8 +591,11 @@ static bool inn_comm(int cmd)
 				}
 				else
 				{
-					turn = ((turn/50000)+1)*50000;
-					p_ptr->chp = p_ptr->mhp;
+                                        while ((bst(HOUR, turn) >= 6) && (bst(HOUR, turn) < 18))
+                                        {
+                                                turn += (10L * MINUTE);
+                                        }
+                                        p_ptr->chp = p_ptr->mhp;
 					p_ptr->csp = p_ptr->msp;
 					set_blind(0);
 					set_confused(0);
@@ -611,12 +611,12 @@ static bool inn_comm(int cmd)
 			}
 			else
 			{
-                                msg_print("The rooms are available only at daylight for the Vampires.");
+                                msg_print("The rooms are available only at daylight for the Undeads.");
 				msg_print(NULL);
 				return(FALSE);
 			}
                         }else{
-			if (dawnval > 50000) {  /* nighttime */
+                        if ((bst(HOUR, turn) < 6) || (bst(HOUR, turn) >= 18)) {  /* daytime */
 				if ((p_ptr->poisoned > 0) || (p_ptr->cut > 0))
 				{
 					msg_print("You need a healer, not a room.");
@@ -626,7 +626,10 @@ static bool inn_comm(int cmd)
 				}
 				else
 				{
-					turn = ((turn/50000)+1)*50000;
+                                        while ((bst(HOUR, turn) < 6) || (bst(HOUR, turn) >= 18))
+                                        {
+                                                turn += (10L * MINUTE);
+                                        }
 					p_ptr->chp = p_ptr->mhp;
 					set_blind(0);
 					set_confused(0);
@@ -692,7 +695,7 @@ static void get_questinfo(int questnum)
 	prt(quest[questnum].name, 7, 0);
 
         i = 0;
-        while ((i < 10) && (quest[questnum].desc[i] != NULL))
+        while ((i < 10) && (quest[questnum].desc[i][0] != '\0'))
 	{
                 c_put_str(TERM_YELLOW, quest[questnum].desc[i++], i + 8, 0);
 	}
@@ -728,7 +731,7 @@ static bool castle_quest(int y, int x)
 		/* Rewarded quest */
                 q_ptr->status = QUEST_STATUS_FINISHED;
 
-                process_hooks(HOOK_QUEST_FINISH, plots[plot]);
+                process_hooks(HOOK_QUEST_FINISH, "(d)", plots[plot]);
 
                 return (TRUE);
 	}
@@ -748,14 +751,14 @@ static bool castle_quest(int y, int x)
 		/* Mark quest as done (but failed) */
 		q_ptr->status = QUEST_STATUS_FAILED_DONE;
 
-                process_hooks(HOOK_QUEST_FAIL, plots[plot]);
+                process_hooks(HOOK_QUEST_FAIL, "(d)", plots[plot]);
 
                 return (FALSE);
 	}
 	/* No quest yet */
 	else if (q_ptr->status == QUEST_STATUS_UNTAKEN)
 	{
-                if (process_hooks(HOOK_INIT_QUEST, plots[plot])) return (FALSE);
+                if (process_hooks(HOOK_INIT_QUEST, "(d)", plots[plot])) return (FALSE);
 
 		q_ptr->status = QUEST_STATUS_TAKEN;
 
@@ -763,7 +766,7 @@ static bool castle_quest(int y, int x)
                 get_questinfo(plots[plot]);
 
                 /* Add the hooks */
-                quest[plots[plot]].init(plots[plot]);
+                if (quest[plots[plot]].type ==  HOOK_TYPE_C) quest[plots[plot]].init(plots[plot]);
 
                 return (TRUE);
 	}
@@ -1652,7 +1655,8 @@ bool bldg_process_command(store_type *s_ptr, int i)
 			}
 			break;
                 case BACT_COMEBACKTIME:
-                        if(p_ptr->prace==RACE_DRAGONRIDER){
+                        if (PRACE_FLAG(PR1_TP))
+                        {
                                 if (do_res_stat(A_STR)) paid = TRUE;
                                 if (do_res_stat(A_INT)) paid = TRUE;
                                 if (do_res_stat(A_WIS)) paid = TRUE;
@@ -1661,7 +1665,7 @@ bool bldg_process_command(store_type *s_ptr, int i)
                                 if (do_res_stat(A_CHR)) paid = TRUE;
                                 p_ptr->chp-=1000;
                                 if(p_ptr->chp<=0)p_ptr->chp=1;
-                        }else msg_print("Hum .. you are NOT a DragonRider , you need a dragon to go between !");
+                        }else msg_print("Hum .. you are NOT a DragonRider, you need a dragon to go between !");
 			break;
                 case BACT_MIMIC_NORMAL:
                         set_mimic(0,0);

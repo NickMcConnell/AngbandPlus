@@ -181,7 +181,7 @@ D:You suddenly cannot move!
 F:FLOOR | CHEST | DOOR
 
 N:29:Explosive Device
-I:3:100:80:0:3:4d8:r
+I:3:100:80:0:3:3d8:r
 D:Ha! It explodes before your hands can illegally touch it!
 F:FLOOR | CHEST | DOOR
 
@@ -315,27 +315,27 @@ F:FLOOR | CHEST | DOOR
 #
 
 N:60:Lightning Bolt Trap
-I:2:80:5:3:2:3d8:g
+I:2:80:5:3:2:2d8:g
 D:You are jolted with electricity!
 F:FLOOR | CHEST | DOOR | LEVEL1
 
 N:61:Poison Bolt Trap
-I:2:80:5:3:2:3d8:g
+I:2:80:5:3:2:2d8:g
 D:A blast of poison gas hits you!
 F:FLOOR | CHEST | DOOR | LEVEL1
 
 N:62:Acid Bolt Trap
-I:2:80:5:3:2:3d8:g
+I:2:80:5:3:2:2d8:g
 D:A jet of acid shoots out at you!
 F:FLOOR | CHEST | DOOR | LEVEL1
 
 N:63:Cold Bolt Trap
-I:2:80:5:3:2:3d8:g
+I:2:80:5:3:2:2d8:g
 D:You are suddenly very cold!
 F:FLOOR | CHEST | DOOR | LEVEL1
 
 N:64:Fire Bolt Trap
-I:2:80:5:3:2:3d8:g
+I:2:80:5:3:2:2d8:g
 D:You are suddenly very hot!
 F:FLOOR | CHEST | DOOR | LEVEL1
 
@@ -345,17 +345,17 @@ D:A bolt of plasma hits you!
 F:FLOOR | CHEST | DOOR | LEVEL3
 
 N:66:Water Bolt Trap
-I:4:80:5:5:8:6d10:g
+I:4:80:5:5:8:5d10:g
 D:A gush of water hits you!
 F:FLOOR | CHEST | DOOR | LEVEL2
 
 N:67:Lite Bolt Trap
-I:4:80:5:5:8:6d10:g
+I:4:80:5:5:8:5d10:g
 D:There is a sudden flash of light around you!
 F:FLOOR | CHEST | DOOR | LEVEL2
 
 N:68:Dark Bolt Trap
-I:4:80:5:5:8:6d10:g
+I:4:80:5:5:8:5d10:g
 D:A bolt of pure elemental darkness hits you!
 F:FLOOR | CHEST | DOOR | LEVEL2
 
@@ -390,7 +390,7 @@ D:A bolt of pure magic hits you!
 F:FLOOR | CHEST | DOOR | LEVEL4
 
 N:75:Ice Bolt Trap
-I:4:80:5:5:8:6d10:g
+I:4:80:5:5:8:5d10:g
 D:A bolt of ice hits you!
 F:FLOOR | CHEST | DOOR | LEVEL2
 
@@ -735,14 +735,14 @@ D:Your vision is clouded by a blast of kaleidoscopic light!
 F:FLOOR | CHEST | DOOR
 
 # Bolt traps
-N:161:Rocket Trap
-I:6:80:5:6:75:25d40:g
-D:A rocket hits you!
+N:161:Greater Magic Missile Trap
+I:6:80:5:6:75:25d20:g
+D:A greater magic missile hits you!
 F:FLOOR | CHEST | DOOR | LEVEL3
 
-N:162:Nuke Bolt Trap
+N:162:Foulness Trap
 I:6:80:5:6:15:10d12:g
-D:A jet of toxic waste hits you!
+D:You feel foul!
 F:FLOOR | CHEST | DOOR | LEVEL3
 
 #N:163:Trap of Death Ray
@@ -791,3 +791,30 @@ N:170:Acquirement Trap
 I:1:40:5:5:18:0d0:v
 D:Woh !
 F:FLOOR | DOOR
+
+# More bolt traps
+
+N:171:Greater Lightning Bolt Trap
+I:3:60:5:3:6:6d6:g
+D:You are jolted with electricity!
+F:FLOOR | CHEST | DOOR | LEVEL1
+
+N:172:Greater Poison Bolt Trap
+I:3:60:5:3:6:6d6:g
+D:A blast of deadly poison gas hits you! 
+F:FLOOR | CHEST | DOOR | LEVEL1
+
+N:173:Greater Acid Bolt Trap
+I:3:60:5:3:6:6d6:g
+D:A jet of acid shoots out at you! It Burns hard!
+F:FLOOR | CHEST | DOOR | LEVEL1
+
+N:174:Greater Cold Bolt Trap
+I:3:60:5:3:6:6d6:g
+D:You are suddenly extremely cold!
+F:FLOOR | CHEST | DOOR | LEVEL1
+
+N:175:Greater Fire Bolt Trap
+I:3:60:5:3:6:6d6:g
+D:You are suddenly extremely hot!
+F:FLOOR | CHEST | DOOR | LEVEL1

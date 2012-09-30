@@ -5,10 +5,10 @@
 #include "angband.h"
 
 
-#ifdef CHECK_MODIFICATION_TIME
+#if !defined(MACINTOSH) && defined(CHECK_MODIFICATION_TIME)
 #include <sys/types.h>
 #include <sys/stat.h>
-#endif /* CHECK_MODIFICATION_TIME */
+#endif /* !MACINTOSH && CHECK_MODIFICATION_TIME */
 
 
 /*
@@ -180,9 +180,23 @@ void init_file_paths(char *path)
         strcpy(tail, "pref");
         ANGBAND_DIR_PREF = string_make(path);
 
+#ifdef PRIVATE_USER_PATH
+
+	{
+		char user_path[1024];
+
+		/* Get an absolute path from the file name */
+		path_parse(user_path, 1024, PRIVATE_USER_PATH);
+		ANGBAND_DIR_USER = string_make(user_path);
+	}
+
+#else /* PRIVATE_USER_PATH */
+
 	/* Build a path name */
 	strcpy(tail, "user");
 	ANGBAND_DIR_USER = string_make(path);
+
+#endif /* PRIVATE_USER_PATH */
 
 	/* Build a path name */
 	strcpy(tail, "xtra");
@@ -905,7 +919,258 @@ static errr init_a_info_raw(int fd)
 	return (0);
 }
 
+/*
+ * Initialize the "set_info" array, by parsing a binary "image" file
+ */
+static errr init_set_info_raw(int fd)
+{
+	header test;
 
+	/* Read and Verify the header */
+	if (fd_read(fd, (char*)(&test), sizeof(header)) ||
+	    (test.v_major != set_head->v_major) ||
+	    (test.v_minor != set_head->v_minor) ||
+	    (test.v_patch != set_head->v_patch) ||
+	    (test.v_extra != set_head->v_extra) ||
+	    (test.info_num != set_head->info_num) ||
+	    (test.info_len != set_head->info_len) ||
+	    (test.head_size != set_head->head_size) ||
+	    (test.info_size != set_head->info_size))
+	{
+		/* Error */
+		return (-1);
+	}
+
+
+	/* Accept the header */
+	(*set_head) = test;
+
+
+	/* Allocate the "a_info" array */
+	C_MAKE(set_info, set_head->info_num, set_type);
+
+	/* Read the "a_info" array */
+	fd_read(fd, (char*)(set_info), set_head->info_size);
+
+
+	/* Allocate the "a_name" array */
+	C_MAKE(set_name, set_head->name_size, char);
+
+	/* Read the "a_name" array */
+	fd_read(fd, (char*)(set_name), set_head->name_size);
+
+
+	/* Allocate the "a_text" array */
+	C_MAKE(set_text, set_head->text_size, char);
+
+	/* Read the "a_text" array */
+        fd_read(fd, (char*)(set_text), set_head->text_size);
+
+	/* Success */
+        return (0);
+}
+
+
+/*
+ * Initialize the "set_info" array
+ *
+ * Note that we let each entry have a unique "name" and "text" string,
+ * even if the string happens to be empty (everyone has a unique '\0').
+ */
+static errr init_set_info(void)
+{
+	int fd;
+
+	int mode = 0644;
+
+	errr err = 0;
+
+	FILE *fp;
+
+	/* General buffer */
+	char buf[1024];
+
+
+	/*** Make the "header" ***/
+
+	/* Allocate the "header" */
+	MAKE(set_head, header);
+
+	/* Save the "version" */
+	set_head->v_major = VERSION_MAJOR;
+	set_head->v_minor = VERSION_MINOR;
+	set_head->v_patch = VERSION_PATCH;
+	set_head->v_extra = 0;
+
+	/* Save the "record" information */
+	set_head->info_num = max_set_idx;
+	set_head->info_len = sizeof(set_type);
+
+	/* Save the size of "set_head" and "set_info" */
+	set_head->head_size = sizeof(header);
+	set_head->info_size = set_head->info_num * set_head->info_len;
+
+
+#ifdef ALLOW_TEMPLATES
+
+	/*** Load the binary image file ***/
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_DATA, "set_info.raw");
+
+	/* Attempt to open the "raw" file */
+	fd = fd_open(buf, O_RDONLY);
+
+	/* Process existing "raw" file */
+	if (fd >= 0)
+	{
+#ifdef CHECK_MODIFICATION_TIME
+
+		err = check_modification_date(fd, "set_info.txt");
+
+#endif /* CHECK_MODIFICATION_TIME */
+
+		/* Attempt to parse the "raw" file */
+		if (!err)
+			err = init_set_info_raw(fd);
+
+		/* Close it */
+		(void)fd_close(fd);
+
+		/* Success */
+		if (!err) return (0);
+
+		/* Information */
+		msg_print("Ignoring obsolete/defective 'set_info.raw' file.");
+		msg_print(NULL);
+	}
+
+
+	/*** Make the fake arrays ***/
+
+	/* Fake the size of "set_name" and "set_text" */
+	fake_name_size = FAKE_NAME_SIZE;
+	fake_text_size = FAKE_TEXT_SIZE;
+
+	/* Allocate the "set_info" array */
+	C_MAKE(set_info, set_head->info_num, set_type);
+
+	/* Hack -- make "fake" arrays */
+	C_MAKE(set_name, fake_name_size, char);
+	C_MAKE(set_text, fake_text_size, char);
+
+
+	/*** Load the ascii template file ***/
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_EDIT, "set_info.txt");
+
+	/* Open the file */
+	fp = my_fopen(buf, "r");
+
+	/* Parse it */
+	if (!fp) quit("Cannot open 'set_info.txt' file.");
+
+	/* Parse the file */
+	err = init_set_info_txt(fp, buf);
+
+	/* Close it */
+	my_fclose(fp);
+
+	/* Errors */
+	if (err)
+	{
+		cptr oops;
+
+		/* Error string */
+		oops = (((err > 0) && (err < 8)) ? err_str[err] : "unknown");
+
+		/* Oops */
+		msg_format("Error %d at line %d of 'set_info.txt'.", err, error_line);
+		msg_format("Record %d contains a '%s' error.", error_idx, oops);
+		msg_format("Parsing '%s'.", buf);
+		msg_print(NULL);
+
+		/* Quit */
+		quit("Error in 'set_info.txt' file.");
+	}
+
+
+	/*** Dump the binary image file ***/
+
+	/* File type is "DATA" */
+	FILE_TYPE(FILE_TYPE_DATA);
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_DATA, "set_info.raw");
+
+	/* Kill the old file */
+	safe_setuid_grab();
+	(void)fd_kill(buf);
+
+	/* Attempt to create the raw file */
+	fd = fd_make(buf, mode);
+	safe_setuid_drop();
+
+	/* Dump to the file */
+	if (fd >= 0)
+	{
+		/* Dump it */
+		fd_write(fd, (char*)(set_head), set_head->head_size);
+
+		/* Dump the "set_info" array */
+		fd_write(fd, (char*)(set_info), set_head->info_size);
+
+		/* Dump the "set_name" array */
+		fd_write(fd, (char*)(set_name), set_head->name_size);
+
+		/* Dump the "set_text" array */
+		fd_write(fd, (char*)(set_text), set_head->text_size);
+
+		/* Close */
+		(void)fd_close(fd);
+	}
+
+
+	/*** Kill the fake arrays ***/
+
+	/* Free the "set_info" array */
+	C_KILL(set_info, set_head->info_num, set_type);
+
+	/* Hack -- Free the "fake" arrays */
+	C_KILL(set_name, fake_name_size, char);
+	C_KILL(set_text, fake_text_size, char);
+
+	/* Forget the array sizes */
+	fake_name_size = 0;
+	fake_text_size = 0;
+
+#endif	/* ALLOW_TEMPLATES */
+
+
+	/*** Load the binary image file ***/
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_DATA, "set_info.raw");
+
+	/* Attempt to open the "raw" file */
+	fd = fd_open(buf, O_RDONLY);
+
+	/* Process existing "raw" file */
+	if (fd < 0) quit("Cannot open 'set_info.raw' file.");
+
+	/* Attempt to parse the "raw" file */
+	err = init_set_info_raw(fd);
+
+	/* Close it */
+	(void)fd_close(fd);
+
+	/* Error */
+	if (err) quit("Cannot parse 'set_info.raw' file.");
+
+	/* Success */
+	return (0);
+}
 
 /*
  * Initialize the "a_info" array
@@ -1404,6 +1669,7 @@ static errr init_ra_info_raw(int fd)
 
         /* Read the "ra_info" array */
         fd_read(fd, (char*)(ra_info), ra_head->info_size);
+        fd_read(fd, (char*)(ra_gen), 30 * sizeof (randart_gen_type));
 
         /* Success */
 	return (0);
@@ -1557,6 +1823,7 @@ static errr init_ra_info(void)
 
                 /* Dump the "ra_info" array */
                 fd_write(fd, (char*)(ra_info), ra_head->info_size);
+                fd_write(fd, (char*)(ra_gen), 30 * sizeof (randart_gen_type));
 
 		/* Close */
 		(void)fd_close(fd);
@@ -1933,6 +2200,155 @@ static errr init_wf_info_raw(int fd)
 
         /* Read the "wildc2i" array */
         fd_read(fd, (char*)wildc2i, 256 * sizeof(int));
+
+	/* Success */
+	return (0);
+}
+
+/*
+ * Initialize the "player" arrays, by parsing a binary "image" file
+ */
+static errr init_player_info_raw(int fd)
+{
+        header test;
+        int i;
+
+	/* Read and Verify the header */
+	if (fd_read(fd, (char*)(&test), sizeof(header)) ||
+            (test.v_major != rp_head->v_major) ||
+            (test.v_minor != rp_head->v_minor) ||
+            (test.v_patch != rp_head->v_patch) ||
+            (test.v_extra != rp_head->v_extra) ||
+            (test.info_num != rp_head->info_num) ||
+            (test.info_len != rp_head->info_len) ||
+            (test.head_size != rp_head->head_size) ||
+            (test.info_size != rp_head->info_size))
+	{
+		/* Error */
+                return (-1);
+	}
+
+
+	/* Accept the header */
+        (*rp_head) = test;
+
+
+        /* Allocate the "rp_info" array */
+        C_MAKE(race_info, rp_head->info_num, player_race);
+
+        /* Read the "rp_info" array */
+        fd_read(fd, (char*)(race_info), rp_head->info_size);
+
+
+        /* Allocate the "rp_name" array */
+        C_MAKE(rp_name, rp_head->name_size, char);
+
+        /* Read the "rp_name" array */
+        fd_read(fd, (char*)(rp_name), rp_head->name_size);
+
+        /* Allocate the "rp_text" array */
+        C_MAKE(rp_text, rp_head->text_size, char);
+
+        /* Read the "rp_text" array */
+        fd_read(fd, (char*)(rp_text), rp_head->text_size);
+
+
+	/* Read and Verify the header */
+	if (fd_read(fd, (char*)(&test), sizeof(header)) ||
+            (test.v_major != rmp_head->v_major) ||
+            (test.v_minor != rmp_head->v_minor) ||
+            (test.v_patch != rmp_head->v_patch) ||
+            (test.v_extra != rmp_head->v_extra) ||
+            (test.info_num != rmp_head->info_num) ||
+            (test.info_len != rmp_head->info_len) ||
+            (test.head_size != rmp_head->head_size) ||
+            (test.info_size != rmp_head->info_size))
+	{
+		/* Error */
+                return (-1);
+	}
+
+
+	/* Accept the header */
+        (*rmp_head) = test;
+
+
+        /* Allocate the "rmp_info" array */
+        C_MAKE(race_mod_info, rmp_head->info_num, player_race_mod);
+
+        /* Read the "rmp_info" array */
+        fd_read(fd, (char*)(race_mod_info), rmp_head->info_size);
+
+
+        /* Allocate the "rmp_name" array */
+        C_MAKE(rmp_name, rmp_head->name_size, char);
+
+        /* Read the "rmp_name" array */
+        fd_read(fd, (char*)(rmp_name), rmp_head->name_size);
+
+        /* Allocate the "rmp_text" array */
+        C_MAKE(rmp_text, rmp_head->text_size, char);
+
+        /* Read the "rmp_text" array */
+        fd_read(fd, (char*)(rmp_text), rmp_head->text_size);
+
+
+	/* Read and Verify the header */
+	if (fd_read(fd, (char*)(&test), sizeof(header)) ||
+            (test.v_major != c_head->v_major) ||
+            (test.v_minor != c_head->v_minor) ||
+            (test.v_patch != c_head->v_patch) ||
+            (test.v_extra != c_head->v_extra) ||
+            (test.info_num != c_head->info_num) ||
+            (test.info_len != c_head->info_len) ||
+            (test.head_size != c_head->head_size) ||
+            (test.info_size != c_head->info_size))
+	{
+		/* Error */
+                return (-1);
+	}
+
+
+	/* Accept the header */
+        (*c_head) = test;
+
+
+        /* Allocate the "c_info" array */
+        C_MAKE(class_info, c_head->info_num, player_class);
+
+        /* Read the "c_info" array */
+        fd_read(fd, (char*)(class_info), c_head->info_size);
+
+
+        /* Allocate the "c_name" array */
+        C_MAKE(c_name, c_head->name_size, char);
+
+        /* Read the "c_name" array */
+        fd_read(fd, (char*)(c_name), c_head->name_size);
+
+        /* Allocate the "c_text" array */
+        C_MAKE(c_text, c_head->text_size, char);
+
+        /* Read the "c_text" array */
+        fd_read(fd, (char*)(c_text), c_head->text_size);
+
+        /* Allocate the "bg" array */
+        C_MAKE(bg, max_bg_idx, hist_type);
+
+        /* Read the "bg" array */
+        fd_read(fd, (char*)bg, max_bg_idx * sizeof(hist_type));
+
+        /* Allocate the "meta_class" array */
+        C_MAKE(meta_class_info, max_mc_idx, meta_class_type);
+
+        /* Read the "meta_class" array */
+        fd_read(fd, (char*)meta_class_info, max_mc_idx * sizeof(meta_class_type));
+
+        for (i = 0; i < max_mc_idx; i++)
+        {
+                C_MAKE(meta_class_info[i].classes, max_c_idx, s16b);
+                fd_read(fd, (char*)meta_class_info[i].classes, max_c_idx * sizeof(s16b));
+        }
 
 	/* Success */
 	return (0);
@@ -2531,6 +2947,335 @@ static errr init_d_info(void)
 
 	/* Error */
         if (err) quit("Cannot parse 'd_info.raw' file.");
+
+	/* Success */
+	return (0);
+}
+
+
+/*
+ * Initialize the "player" arrays
+ *
+ * Note that we let each entry have a unique "name" and "short name" string,
+ * even if the string happens to be empty (everyone has a unique '\0').
+ */
+static errr init_player_info(void)
+{
+        int fd;
+
+        int i;
+
+	int mode = 0644;
+
+	errr err = 0;
+
+	FILE *fp;
+
+	/* General buffer */
+	char buf[1024];
+
+
+	/*** Make the header ***/
+
+	/* Allocate the "header" */
+        MAKE(rp_head, header);
+
+	/* Save the "version" */
+        rp_head->v_major = VERSION_MAJOR;
+        rp_head->v_minor = VERSION_MINOR;
+        rp_head->v_patch = VERSION_PATCH;
+        rp_head->v_extra = 0;
+
+	/* Save the "record" information */
+        rp_head->info_num = max_rp_idx;
+        rp_head->info_len = sizeof(player_race);
+
+        /* Save the size of "rp_head" and "rp_info" */
+        rp_head->head_size = sizeof(header);
+        rp_head->info_size = rp_head->info_num * rp_head->info_len;
+
+	/*** Make the header ***/
+
+	/* Allocate the "header" */
+        MAKE(rmp_head, header);
+
+	/* Save the "version" */
+        rmp_head->v_major = VERSION_MAJOR;
+        rmp_head->v_minor = VERSION_MINOR;
+        rmp_head->v_patch = VERSION_PATCH;
+        rmp_head->v_extra = 0;
+
+	/* Save the "record" information */
+        rmp_head->info_num = max_rmp_idx;
+        rmp_head->info_len = sizeof(player_race_mod);
+
+        /* Save the size of "rmp_head" and "rmp_info" */
+        rmp_head->head_size = sizeof(header);
+        rmp_head->info_size = rmp_head->info_num * rmp_head->info_len;
+
+	/*** Make the header ***/
+
+	/* Allocate the "header" */
+        MAKE(c_head, header);
+
+	/* Save the "version" */
+        c_head->v_major = VERSION_MAJOR;
+        c_head->v_minor = VERSION_MINOR;
+        c_head->v_patch = VERSION_PATCH;
+        c_head->v_extra = 0;
+
+	/* Save the "record" information */
+        c_head->info_num = max_c_idx;
+        c_head->info_len = sizeof(player_class);
+
+        /* Save the size of "c_head" and "c_info" */
+        c_head->head_size = sizeof(header);
+        c_head->info_size = c_head->info_num * c_head->info_len;
+
+
+#ifdef ALLOW_TEMPLATES
+
+	/*** Load the binary image file ***/
+
+	/* Build the filename */
+        path_build(buf, 1024, ANGBAND_DIR_DATA, "p_info.raw");
+
+	/* Attempt to open the "raw" file */
+	fd = fd_open(buf, O_RDONLY);
+
+	/* Process existing "raw" file */
+	if (fd >= 0)
+	{
+#ifdef CHECK_MODIFICATION_TIME
+
+                err = check_modification_date(fd, "p_info.txt");
+
+#endif /* CHECK_MODIFICATION_TIME */
+
+		/* Attempt to parse the "raw" file */
+		if (!err)
+                        err = init_player_info_raw(fd);
+
+		/* Close it */
+		(void)fd_close(fd);
+
+		/* Success */
+		if (!err) return (0);
+
+		/* Information */
+                msg_print("Ignoring obsolete/defective 'p_info.raw' file.");
+		msg_print(NULL);
+	}
+
+
+	/*** Make the fake arrays ***/
+
+        /* Assume the size of "rp_name" and "rp_text" */
+	fake_name_size = FAKE_NAME_SIZE;
+	fake_text_size = FAKE_TEXT_SIZE;
+
+        /* Allocate the "rp_info" array */
+        C_MAKE(race_info, rp_head->info_num, player_race);
+
+	/* Hack -- make "fake" arrays */
+        C_MAKE(rp_name, fake_name_size, char);
+        C_MAKE(rp_text, fake_text_size, char);
+
+        /* Allocate the "rmp_info" array */
+        C_MAKE(race_mod_info, rmp_head->info_num, player_race_mod);
+
+	/* Hack -- make "fake" arrays */
+        C_MAKE(rmp_name, fake_name_size, char);
+        C_MAKE(rmp_text, fake_text_size, char);
+
+        /* Allocate the "c_info" array */
+        C_MAKE(class_info, c_head->info_num, player_class);
+
+	/* Hack -- make "fake" arrays */
+        C_MAKE(c_name, fake_name_size, char);
+        C_MAKE(c_text, fake_text_size, char);
+
+        /* Allocate the "bg" array */
+        C_MAKE(bg, max_bg_idx, hist_type);
+
+        /* Allocate the "meta_class" array */
+        C_MAKE(meta_class_info, max_mc_idx, meta_class_type);
+
+        /* Read the "meta_class" array */
+        fd_read(fd, (char*)meta_class_info, max_mc_idx * sizeof(meta_class_type));
+
+        for (i = 0; i < max_mc_idx; i++)
+        {
+                C_MAKE(meta_class_info[i].classes, max_c_idx, s16b);
+                fd_read(fd, (char*)meta_class_info[i].classes, max_c_idx * sizeof(s16b));
+        }
+
+	/*** Load the ascii template file ***/
+
+	/* Build the filename */
+        path_build(buf, 1024, ANGBAND_DIR_EDIT, "p_info.txt");
+
+	/* Open the file */
+	fp = my_fopen(buf, "r");
+
+	/* Parse it */
+        if (!fp) quit("Cannot open 'p_info.txt' file.");
+
+	/* Parse the file */
+        err = init_player_info_txt(fp, buf);
+
+	/* Close it */
+	my_fclose(fp);
+
+	/* Errors */
+	if (err)
+	{
+		cptr oops;
+
+		/* Error string */
+		oops = (((err > 0) && (err < 8)) ? err_str[err] : "unknown");
+
+		/* Oops */
+                msg_format("Error %d at line %d df 'p_info.txt'.", err, error_line);
+		msg_format("Record %d contains a '%s' error.", error_idx, oops);
+		msg_format("Parsing '%s'.", buf);
+		msg_print(NULL);
+
+		/* Quit */
+                quit("Error in 'p_info.txt' file.");
+	}
+
+
+	/*** Dump the binary image file ***/
+
+	/* File type is "DATA" */
+	FILE_TYPE(FILE_TYPE_DATA);
+
+	/* Build the filename */
+        path_build(buf, 1024, ANGBAND_DIR_DATA, "p_info.raw");
+
+	/* Kill the old file */
+	safe_setuid_grab();
+	(void)fd_kill(buf);
+
+	/* Attempt to create the raw file */
+	fd = fd_make(buf, mode);
+	safe_setuid_drop();
+
+	/* Dump to the file */
+	if (fd >= 0)
+	{
+		/* Dump it */
+                fd_write(fd, (char*)(rp_head), rp_head->head_size);
+
+		/* Dump the "r_info" array */
+                fd_write(fd, (char*)(race_info), rp_head->info_size);
+
+		/* Dump the "r_name" array */
+                fd_write(fd, (char*)(rp_name), rp_head->name_size);
+
+		/* Dump the "r_text" array */
+                fd_write(fd, (char*)(rp_text), rp_head->text_size);
+
+		/* Dump it */
+                fd_write(fd, (char*)(rmp_head), rmp_head->head_size);
+
+		/* Dump the "r_info" array */
+                fd_write(fd, (char*)(race_mod_info), rmp_head->info_size);
+
+		/* Dump the "r_name" array */
+                fd_write(fd, (char*)(rmp_name), rmp_head->name_size);
+
+		/* Dump the "r_text" array */
+                fd_write(fd, (char*)(rmp_text), rmp_head->text_size);
+
+		/* Dump it */
+                fd_write(fd, (char*)(c_head), c_head->head_size);
+
+		/* Dump the "r_info" array */
+                fd_write(fd, (char*)(class_info), c_head->info_size);
+
+		/* Dump the "r_name" array */
+                fd_write(fd, (char*)(c_name), c_head->name_size);
+
+		/* Dump the "r_text" array */
+                fd_write(fd, (char*)(c_text), c_head->text_size);
+
+                /* Dump the "bg" array */
+                fd_write(fd, (char*)bg, max_bg_idx * sizeof(hist_type));
+
+                /* Dump the "meta_class" array */
+                fd_write(fd, (char*)meta_class_info, max_mc_idx * sizeof(meta_class_type));
+
+                for (i = 0; i < max_mc_idx; i++)
+                {
+                        fd_write(fd, (char*)meta_class_info[i].classes, max_c_idx * sizeof(s16b));
+                }
+
+		/* Close */
+		(void)fd_close(fd);
+	}
+
+
+	/*** Kill the fake arrays ***/
+
+        /* Free the "rp_info" array */
+        C_KILL(race_info, rp_head->info_num, player_race);
+
+	/* Hack -- Free the "fake" arrays */
+        C_KILL(rp_name, fake_name_size, char);
+        C_KILL(rp_text, fake_text_size, char);
+
+        /* Free the "c_info" array */
+        C_KILL(class_info, c_head->info_num, player_class);
+
+	/* Hack -- Free the "fake" arrays */
+        C_KILL(c_name, fake_name_size, char);
+        C_KILL(c_text, fake_text_size, char);
+
+        /* Free the "rp_info" array */
+        C_KILL(race_mod_info, rmp_head->info_num, player_race_mod);
+
+	/* Hack -- Free the "fake" arrays */
+        C_KILL(rmp_name, fake_name_size, char);
+        C_KILL(rmp_text, fake_text_size, char);
+
+        /* Allocate the "rp_text" array */
+        C_KILL(bg, max_bg_idx, hist_type);
+
+        /* Free the "meta_class" array */
+        for (i = 0; i < max_mc_idx; i++)
+        {
+                C_FREE(meta_class_info[i].classes, max_c_idx, s16b);
+        }
+        C_FREE(meta_class_info, max_mc_idx, meta_class_type);
+
+	/* Forget the array sizes */
+	fake_name_size = 0;
+	fake_text_size = 0;
+
+#endif	/* ALLOW_TEMPLATES */
+
+
+	/*** Load the binary image file ***/
+
+	/* Build the filename */
+        path_build(buf, 1024, ANGBAND_DIR_DATA, "p_info.raw");
+
+	/* Attempt to open the "raw" file */
+	fd = fd_open(buf, O_RDONLY);
+
+	/* Process existing "raw" file */
+        if (fd < 0) quit("Cannot load 'p_info.raw' file.");
+
+	/* Attempt to parse the "raw" file */
+        err = init_player_info_raw(fd);
+
+	/* Close it */
+	(void)fd_close(fd);
+
+	/* Error */
+        if (err) quit("Cannot parse 'p_info.raw' file.");
 
 	/* Success */
 	return (0);
@@ -3847,6 +4592,21 @@ static errr  init_misc(void)
 	int xstart = 0;
 	int ystart = 0;
 
+        /* Prepare powers */
+        p_ptr->powers = NULL;
+        powers_type = NULL;
+        power_max = POWER_MAX_INIT;
+        reinit_powers_type(power_max);
+        C_COPY(powers_type, powers_type_init, POWER_MAX_INIT, power_type);
+
+        /* Prepare quests */
+        quest = NULL;
+        max_q_idx = MAX_Q_IDX_INIT;
+        reinit_quests(max_q_idx);
+        C_COPY(quest, quest_init, MAX_Q_IDX_INIT, quest_type);
+
+        process_hooks(HOOK_INIT_GAME, "()");
+
 	/* Initialize the values */
         process_dungeon_file("misc.txt", &ystart, &xstart, 0, 0, TRUE);
 
@@ -3901,7 +4661,15 @@ void create_stores_stock(int t)
                 store_type *st_ptr = &t_ptr->store[j];
 
                 /* Assume full stock */
-                st_ptr->stock_size = st_info[j].max_obj;
+		if (st_info[st_ptr->st_idx].flags1 & SF1_MUSEUM)
+		{
+			/* Hack - Museum can store more items */
+			st_ptr->stock_size = st_info[j].max_obj * STORE_MUSEUM_INVEN;
+		}
+		else
+		{
+			st_ptr->stock_size = st_info[j].max_obj;
+		}
 
                 /* Allocate the stock */
                 C_MAKE(st_ptr->stock, st_ptr->stock_size, object_type);
@@ -3935,6 +4703,21 @@ static errr init_wilderness(void)
 	return 0;
 }
 
+void reinit_powers_type(s16b new_size)
+{
+        /* Reallocate the extra memory */
+        powers_type = (power_type*)realloc(powers_type, new_size * sizeof(power_type));
+        p_ptr->powers = (bool*)realloc(p_ptr->powers, new_size * sizeof(bool));
+        power_max = new_size;
+}
+
+void reinit_quests(s16b new_size)
+{
+        /* Reallocate the extra memory */
+        quest = (quest_type*)realloc(quest, new_size * sizeof(quest_type));
+        max_q_idx = new_size;
+}
+
 /*
  * Initialize some other arrays
  */
@@ -3942,11 +4725,10 @@ static errr init_other(void)
 {
 	int i, n;
 
-
 	/*** Prepare the "dungeon" information ***/
 
         /* Allocate and Wipe the special gene flags */
-        C_MAKE(m_allow_special, max_m_idx, bool);
+        C_MAKE(m_allow_special, max_r_idx, bool);
         C_MAKE(k_allow_special, max_k_idx, bool);
         C_MAKE(a_allow_special, max_a_idx, bool);
 
@@ -3992,6 +4774,7 @@ static errr init_other(void)
 	/* Message variables */
 	C_MAKE(message__ptr, MESSAGE_MAX, u16b);
         C_MAKE(message__color, MESSAGE_MAX, byte);
+        C_MAKE(message__type, MESSAGE_MAX, byte);
 	C_MAKE(message__buf, MESSAGE_BUF, char);
 
 	/* Hack -- No messages yet */
@@ -4072,7 +4855,7 @@ static errr init_other(void)
 	/*** Pre-allocate space for the "format()" buffer ***/
 
 	/* Hack -- Just call the "format()" function */
-        (void)format("%s (%s).", "Dark God <darkgod@ifrance.com>", MAINTAINER);
+        (void)format("%s (%s).", "Dark God <darkgod@pernangband.net>", MAINTAINER);
 
 	/* Success */
 	return (0);
@@ -4275,6 +5058,21 @@ static errr init_alloc(void)
 	return (0);
 }
 
+/* Init the sets in a_info */
+void init_sets_aux()
+{
+        int i, j;
+
+        for (i = 0; i < max_a_idx; i++)
+                a_info[i].set = -1;
+        for (i = 0; i < max_set_idx; i++)
+        {
+                for (j = 0; j < set_info[i].num; j++)
+                {
+                        a_info[set_info[i].arts[j].a_idx].set = i;
+                }
+        }
+}
 
 /*
  * Hack -- Explain a broken "lib" folder and quit (see below).
@@ -4404,7 +5202,11 @@ void init_angband(void)
 		while (0 == my_fgets(fp, buf, 1024))
 		{
 			/* Display and advance */
+#if 0
 			Term_putstr(0, i++, -1, TERM_WHITE, buf);
+#else
+                        display_message(0, i++, strlen(buf), TERM_WHITE, buf);
+#endif
 		}
 
 		/* Close */
@@ -4453,9 +5255,20 @@ void init_angband(void)
 
 	/*** Initialize some arrays ***/
 
-	/* Initialize misc. values */
+        /* Initialize misc. values */
 	note("[Initializing values... (misc)]");
 	if (init_misc()) quit("Cannot initialize misc. values");
+
+        wipe_hooks();
+#ifdef USE_LUA
+	/* Initialize some other arrays */
+        note("[Initializing lua scripting... (lua)]");
+        init_lua();
+#endif
+
+        /* Initialize player info */
+        note("[Initializing arrays... (players)]");
+        if (init_player_info()) quit("Cannot initialize players");
 
 	/* Initialize feature info */
 	note("[Initializing arrays... (features)]");
@@ -4467,7 +5280,12 @@ void init_angband(void)
 
 	/* Initialize artifact info */
 	note("[Initializing arrays... (artifacts)]");
-	if (init_a_info()) quit("Cannot initialize artifacts");
+        if (init_a_info()) quit("Cannot initialize artifacts");
+
+        /* Initialize set info */
+	note("[Initializing item sets... (sets)]");
+        if (init_set_info()) quit("Cannot initialize item sets");
+        init_sets_aux();
 
 	/* Initialize ego-item info */
 	note("[Initializing arrays... (ego-items)]");

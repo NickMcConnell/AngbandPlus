@@ -327,7 +327,13 @@ static void play_song(void);
 #ifdef USE_GRAPHICS
 static bool init_graphics(void);
 # ifdef USE_TRANSPARENCY
-static errr Term_pict_dos(int x, int y, int n, const byte *ap, const char *cp, const byte *tap, const char *tcp);
+#  ifdef USE_EGO_GRAPHICS
+static errr Term_pict_dos(int x, int y, int n, const byte *ap, const char *cp,
+	const byte *tap, const char *tcp, const byte *eap, const char *ecp);
+#  else /* USE_EGO_GRAPHICS */
+static errr Term_pict_dos(int x, int y, int n, const byte *ap, const char *cp,
+	const byte *tap, const char *tcp);
+#  endif /* USE_EGO_GRAPHICS */
 # else /* USE_TRANSPARENCY */
 static errr Term_pict_dos(int x, int y, int n, const byte *ap, const char *cp);
 # endif /* USE_TRANSPARENCY */
@@ -472,6 +478,50 @@ static errr Term_xtra_dos_event(int v)
 }
 
 
+#ifdef SUPPORT_GAMMA
+
+/*
+ * When set to TRUE, indicates that we can use gamma_table
+ */
+static bool gamma_table_ready = FALSE;
+
+
+/*
+ * Build gamma correction table if requested and applicable
+ */
+static void setup_gamma_table(void)
+{
+	static u16b old_gamma_val = 0;
+
+	/* (Re)build the table only when gamma value changes */
+	if (gamma_val == old_gamma_val) return;
+
+	/* Temporarily inactivate the table */
+	gamma_table_ready = FALSE;
+
+	/* Validate gamma_val */
+	if ((gamma_val <= 0) || (gamma_val >= 256))
+	{
+		/* Reset */
+		old_gamma_val = gamma_val = 0;
+
+		/* Leave it inactive */
+		return;
+	}
+
+	/* (Re)build the table */
+	build_gamma_table(gamma_val);
+
+	/* Remember gamma_val */
+	old_gamma_val = gamma_val;
+
+	/* Activate the table */
+	gamma_table_ready = TRUE;
+}
+	
+#endif /* SUPPORT_GAMMA */
+
+
 /*
  * React to global changes in the colors, graphics, and sound settings. 
  */
@@ -487,19 +537,45 @@ static void Term_xtra_dos_react(void)
 
 #endif /* USE_SPECIAL_BACKGROUND */
 
+
+#ifdef SUPPORT_GAMMA
+
+	/* Setup gamma_table */
+	setup_gamma_table();
+
+#endif /* SUPPORT_GAMMA */
+
 	/*
 	 * Set the Angband colors
 	 */
 	for (i = 0; i < 16; i++)
 	{
+		byte rv, gv, bv;
+		RGB colour;
+
 		/* Extract desired values */
-		char rv = angband_color_table[i][1] >> 2;
-		char gv = angband_color_table[i][2] >> 2;
-		char bv = angband_color_table[i][3] >> 2;
+		rv = angband_color_table[i][1];
+		gv = angband_color_table[i][2];
+		bv = angband_color_table[i][3];
 
-		RGB color = { rv,  gv,  bv  };
+#ifdef SUPPORT_GAMMA
 
-		set_color(COLOR_OFFSET + i, &color);
+		/* Hack - Gamma correction */
+		if (gamma_table_ready)
+		{
+			rv = gamma_table[rv];
+			gv = gamma_table[gv];
+			bv = gamma_table[bv];
+		}
+
+#endif /* SUPPORT_GAMMA */
+
+		/* 8 bit to 6 bit conversion */
+		colour.r = rv >> 2;
+		colour.g = gv >> 2;
+		colour.b = bv >> 2;
+
+		set_color(COLOR_OFFSET + i, &colour);
 	}
 
 #ifdef USE_GRAPHICS
@@ -671,6 +747,9 @@ static errr Term_xtra_dos(int n, int v)
 		/* Process events */
 		case TERM_XTRA_EVENT:
 		{
+#ifdef USE_SOCK
+                        irc_poll(pern_irc);
+#endif
 			/* Process one event */
 			return (Term_xtra_dos_event(v));
 		}
@@ -688,6 +767,9 @@ static errr Term_xtra_dos(int n, int v)
 		/* Do something useful if bored */
 		case TERM_XTRA_BORED:
 		{
+#ifdef USE_SOCK
+                        irc_poll(pern_irc);
+#endif
 
 #ifdef USE_SOUND
 			/*
@@ -740,6 +822,9 @@ static errr Term_xtra_dos(int n, int v)
 		/* Delay for some milliseconds */
 		case TERM_XTRA_DELAY:
 		{
+#ifdef USE_SOCK
+                        irc_poll(pern_irc);
+#endif
 			/* Delay if needed */
 			if (v > 0) delay(v);
 
@@ -1205,7 +1290,13 @@ static errr Term_text_dos(int x, int y, int n, byte a, const char *cp)
  * onto the legal bitmap size, which is normally 32x32.  XXX XXX XXX
  */
 #ifdef USE_TRANSPARENCY
-static errr Term_pict_dos(int x, int y, int n, const byte *ap, const char *cp, const byte *tap, const char *tcp)
+# ifdef USE_EGO_GRAPHICS
+static errr Term_pict_dos(int x, int y, int n, const byte *ap, const char *cp,
+	const byte *tap, const char *tcp, const byte *eap, const char *ecp)
+# else /* USE_EGO_GRAPHICS */
+static errr Term_pict_dos(int x, int y, int n, const byte *ap, const char *cp,
+	const byte *tap, const char *tcp)
+# endif /* USE_EGO_GRAPHICS */
 #else /* USE_TRANSPARENCY */
 static errr Term_pict_dos(int x, int y, int n, const byte *ap, const char *cp)
 #endif /* USE_TRANSPARENCY */
@@ -1222,6 +1313,13 @@ static errr Term_pict_dos(int x, int y, int n, const byte *ap, const char *cp)
 # ifdef USE_TRANSPARENCY
 
 	int x3, y3;
+
+#  ifdef USE_EGO_GRAPHICS
+
+	int x4, y4;
+	bool has_overlay;
+
+#  endif /* USE_EGO_GRAPHICS */
 
 # endif /* USE_TRANSPARENCY */
 
@@ -1244,11 +1342,26 @@ static errr Term_pict_dos(int x, int y, int n, const byte *ap, const char *cp)
 		x3 = (tcp[i] & 0x7F) * w;
 		y3 = (tap[i] & 0x7F) * h;
 
+#  ifdef EGO_GRAPHICS
+		x4 = (ecp[i] & 0x7F) * w;
+		y4 = (eap[i] & 0x7F) * h;
+		has_overlay = (ecp[i] && eap[i]);
+
+#  endif /* EGO_GRAPHICS */
+
 		/* Blit the tile to the screen */
 		blit(td->tiles, screen, x3, y3, x1, y1, w, h);
 
 		/* Blit the tile to the screen */
 		masked_blit(td->tiles, screen, x2, y2, x1, y1, w, h);
+
+#  ifdef EGO_GRAPHICS
+
+		/* Blit the overlay to the screen */
+		if (has_overlay)
+			masked_blit(td->tiles, screen, x4, y4, x1, y1, w, h);
+
+#  endif /* EGO_GRAPHICS */
 
 # else /* USE_TRANSPARENCY */
 

@@ -47,19 +47,12 @@ extern s16b arena_monsters[MAX_ARENA_MONS];
 extern byte extract_energy[300];
 extern s32b player_exp[PY_MAX_LEVEL];
 extern player_sex sex_info[MAX_SEXES];
-extern player_race race_info[MAX_RACES];
-extern player_race_mod race_mod_info[MAX_RACE_MODS];
-extern player_class class_info[MAX_CLASS];
-extern player_magic magic_info[MAX_CLASS];
 extern deity deity_info[MAX_GODS];
 extern u32b fake_spell_flags[MAX_REALM][9][2];
-extern u32b Mrealm_choices[MAX_CLASS];
-extern u32b mrealm_choices[MAX_CLASS];
-extern cptr realm_names[];
+extern cptr realm_names[][2];
 extern magic_type realm_info_base[MAX_REALM][64];
 extern magic_type realm_info[MAX_REALM][64];
 extern cptr spell_names[MAX_REALM][64][2];
-extern cptr player_title[MAX_CLASS][PY_MAX_LEVEL/5];
 extern cptr color_names[16];
 extern cptr stat_names[6];
 extern cptr stat_names_reduced[6];
@@ -68,6 +61,7 @@ extern option_type option_info[];
 extern cptr chaos_patrons[MAX_PATRON];
 extern int chaos_stats[MAX_PATRON];
 extern int chaos_rewards[MAX_PATRON][20];
+extern martial_arts bear_blows[MAX_BEAR];
 extern martial_arts ma_blows[MAX_MA];
 extern magic_power mindcraft_powers[MAX_MINDCRAFT_POWERS];
 extern magic_power necro_powers[MAX_NECRO_POWERS];
@@ -83,14 +77,17 @@ extern music music_info[MAX_MUSICS];
 extern inscription_info_type inscription_info[MAX_INSCRIPTIONS];
 extern cptr sense_desc[];
 extern flags_group flags_groups[MAX_FLAG_GROUP];
-extern power_type powers_type[POWER_MAX];
-extern quest_type quest[MAX_Q_IDX];
+extern power_type powers_type_init[POWER_MAX_INIT];
+extern quest_type quest_info[MAX_Q_IDX_INIT];
 extern cptr artifact_names_list;
 extern monster_power monster_powers[96];
 extern tval_desc tval_descs[];
 extern between_exit between_exits[MAX_BETWEEN_EXITS];
 extern int month_day[9];
 extern cptr month_name[9];
+extern cli_comm cli_info[];
+extern quest_type quest_init[MAX_Q_IDX_INIT];
+extern int max_body_part[BODY_MAX];
 
 
 /* variable.c */
@@ -129,6 +126,7 @@ extern s16b command_rep;
 extern s16b command_dir;
 extern s16b command_see;
 extern s16b command_gap;
+extern s16b command_gapy;
 extern s16b command_wrk;
 extern s16b command_new;
 extern s32b energy_use;
@@ -323,6 +321,7 @@ extern u16b message__head;
 extern u16b message__tail;
 extern u16b *message__ptr;
 extern byte *message__color;
+extern byte *message__type;
 extern char *message__buf;
 extern u32b option_flag[8];
 extern u32b option_mask[8];
@@ -342,6 +341,7 @@ extern town_type *town;
 extern object_type *inventory;
 extern s16b alloc_kind_size;
 extern alloc_entry *alloc_kind_table;
+extern bool alloc_kind_table_valid;
 extern s16b alloc_race_size;
 extern alloc_entry *alloc_race_table;
 extern byte misc_to_attr[256];
@@ -355,7 +355,6 @@ extern player_sex *sp_ptr;
 extern player_race *rp_ptr;
 extern player_race_mod *rmp_ptr;
 extern player_class *cp_ptr;
-extern player_magic *mp_ptr;
 extern u32b spell_learned[MAX_REALM][2];
 extern u32b spell_worked[MAX_REALM][2];
 extern u32b spell_forgotten[MAX_REALM][2];
@@ -385,6 +384,7 @@ extern char *e_name;
 extern char *e_text;
 extern header *ra_head;
 extern randart_part_type *ra_info;
+extern randart_gen_type ra_gen[30];
 extern header *r_head;
 extern monster_race *r_info;
 extern char *r_name;
@@ -396,6 +396,19 @@ extern header *d_head;
 extern dungeon_info_type *d_info;
 extern char *d_name;
 extern char *d_text;
+extern header *c_head;
+extern player_class *class_info;
+extern char *c_name;
+extern char *c_text;
+extern meta_class_type *meta_class_info;
+extern header *rp_head;
+extern player_race *race_info;
+extern char *rp_name;
+extern char *rp_text;
+extern header *rmp_head;
+extern player_race_mod *race_mod_info;
+extern char *rmp_name;
+extern char *rmp_text;
 extern header *t_head;
 extern trap_type *t_info;
 extern char *t_name;
@@ -414,6 +427,10 @@ extern char *ba_name;
 extern header *ow_head;
 extern owner_type *ow_info;
 extern char *ow_name;
+extern header *set_head;
+extern set_type *set_info;
+extern char *set_name;
+extern char *set_text;
 extern cptr ANGBAND_SYS;
 extern cptr ANGBAND_GRAF;
 extern cptr ANGBAND_DIR;
@@ -457,10 +474,15 @@ extern u16b max_d_idx;
 extern u16b max_o_idx;
 extern u16b max_m_idx;
 extern u16b max_t_idx;
+extern u16b max_rp_idx;
+extern u16b max_c_idx;
+extern u16b max_mc_idx;
+extern u16b max_rmp_idx;
 extern u16b max_st_idx;
 extern u16b max_ba_idx;
 extern u16b max_ow_idx;
 extern u16b max_wf_idx;
+extern s16b max_set_idx;
 extern int init_flags;
 extern bool ambush_flag;
 extern bool fate_flag;
@@ -495,25 +517,41 @@ extern bool center_player;
 #ifdef SAFER_PANICS
 extern bool panicload;
 #endif
-extern bool astral_option;
 extern s16b plots[MAX_PLOTS];
 extern random_quest random_quests[MAX_RANDOM_QUEST];
 extern bool exp_need;
 extern bool autoload_old_colors;
 extern bool fate_option;
 extern bool *special_lvl[MAX_DUNGEON_DEPTH];
+extern bool generate_special_feeling;
 extern bool auto_more;
 extern bool hack_map_info_default;
 extern s32b dungeon_flags1;
 extern birther previous_char;
+extern hist_type *bg;
+extern int max_bg_idx;
+extern power_type *powers_type;
+extern s16b power_max;
+extern s32b extra_savefile_parts;
+extern s16b max_q_idx;
+extern quest_type *quest;
+extern bool player_char_health;
 
 /* plots.c */
 extern FILE *hook_file;
-extern s32b hook_option;
+extern bool check_hook(int h_idx);
+extern void wipe_hooks();
+extern void dump_hooks();
 extern void init_hooks();
-extern void add_hook(int h_idx, hook_type hook, cptr name);
+extern hooks_chain* add_hook(int h_idx, hook_type hook, cptr name);
+extern void add_hook_script(int h_idx, char *script, cptr name);
 extern void del_hook(int h_idx, hook_type hook);
-extern bool process_hooks(int h_idx, int q_idx);
+extern void del_hook_name(int h_idx, cptr name);
+extern s32b get_next_arg(char *fmt);
+extern int process_hooks_restart;
+extern hook_return process_hooks_return[10];
+extern bool process_hooks_ret(int h_idx, char *ret, char *fmt, ...);
+extern bool process_hooks(int h_idx, char *fmt, ...);
 
 /* help.c */
 extern void ingame_help(bool enable);
@@ -532,7 +570,11 @@ extern bool player_can_see_bold(int y, int x);
 extern bool cave_valid_bold(int y, int x);
 extern bool no_lite(void);
 #ifdef USE_TRANSPARENCY
+#ifdef USE_EGO_GRAPHICS
+extern void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp, byte *eap, char *ecp);
+#else /* USE_EGO_GRAPHICS */
 extern void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp);
+#endif /* USE_EGO_GRAPHICS */
 #else /* USE_TRANSPARENCY */
 extern void map_info(int y, int x, byte *ap, char *cp);
 #endif /* USE_TRANSPARENCY */
@@ -572,7 +614,7 @@ extern void do_stop_cmovie();
 extern void do_start_cmovie();
 
 /* cmd1.c */
-extern void attack_special(monster_type *m_ptr, byte special, int dam);
+extern void attack_special(monster_type *m_ptr, s32b special, int dam);
 extern bool test_hit_fire(int chance, int ac, int vis);
 extern bool test_hit_norm(int chance, int ac, int vis);
 extern s16b critical_shot(int weight, int plus, int dam);
@@ -587,7 +629,7 @@ extern void run_step(int dir);
 extern void step_effects(int y, int x, int do_pickup);
 extern void do_cmd_pet(void);
 extern bool do_cmd_integrate_body();
-extern void do_cmd_leave_body(bool drop_body);
+extern bool do_cmd_leave_body(bool drop_body);
 extern bool execute_inscription(byte i, byte y, byte x);
 extern void do_cmd_engrave();
 extern void do_spin();
@@ -601,6 +643,7 @@ extern void do_cmd_search(void);
 extern void do_cmd_toggle_search(void);
 extern void do_cmd_open(void);
 extern void do_cmd_close(void);
+extern void do_cmd_chat(void);
 extern void do_cmd_give(void);
 extern void do_cmd_tunnel(void);
 extern bool do_cmd_tunnel_aux(int y, int x, int dir);
@@ -624,6 +667,9 @@ extern void do_cmd_steal();
 extern void do_cmd_racial_power(void);
 
 /* cmd3.c */
+extern void do_cmd_html_dump();
+extern void do_cmd_cli(void);
+extern void do_cmd_cli_help();
 extern void do_cmd_inven(void);
 extern void do_cmd_equip(void);
 extern void do_cmd_wield(void);
@@ -723,8 +769,11 @@ extern random_spell* select_spell(bool quick);
 extern void cast_magic_spell(int spell, byte level);
 extern void cast_prayer_spell(int spell, byte level);
 extern void cast_illusion_spell(int spell, byte level);
+extern void do_cmd_summoner(void);
 extern void do_cmd_mindcraft(void);
 extern void do_cmd_mimic(void);
+extern void do_cmd_blade(void);
+extern void use_ability_blade(void);
 extern void do_cmd_alchemist(void);
 extern void do_cmd_beastmaster(void);
 extern void do_cmd_powermage(void);
@@ -737,12 +786,13 @@ extern void do_cmd_unbeliever();
 extern void do_cmd_runecrafter(void);
 extern s32b sroot(s32b n);
 
-
 /* dungeon.c */
 extern void play_game(bool new_game);
 extern bool psychometry(void);
 
 /* files.c */
+extern void html_screenshot(cptr name);
+extern bool chg_to_txt(cptr base, cptr newname);
 extern void player_flags(u32b* f1, u32b* f2, u32b* f3, u32b* f4, u32b* f5, u32b* esp);
 extern void wipe_saved();
 extern void safe_setuid_drop(void);
@@ -758,6 +808,7 @@ extern errr check_load_init(void);
 extern errr check_time(void);
 extern errr check_load(void);
 extern void read_times(void);
+extern bool txt_to_html(cptr base, cptr ext, bool force, bool recur);
 extern bool show_file(cptr name, cptr what, int line, int mode);
 extern void do_cmd_help(void);
 extern void process_player_base();
@@ -805,6 +856,8 @@ extern void town_gen(int t_idx);
 
 /* init1.c */
 extern int color_char_to_attr(char c);
+extern errr init_player_info_txt(FILE *fp, char *buf);
+extern errr init_set_info_txt(FILE *fp, char *buf);
 extern errr init_v_info_txt(FILE *fp, char *buf, bool start);
 extern errr init_f_info_txt(FILE *fp, char *buf);
 extern errr init_k_info_txt(FILE *fp, char *buf);
@@ -823,6 +876,8 @@ extern bool process_dungeon_file_full;
 extern errr process_dungeon_file(cptr name, int *yval, int *xval, int ymax, int xmax, bool init);
 
 /* init2.c */
+extern void reinit_quests(s16b new_size);
+extern void reinit_powers_type(s16b new_size);
 extern void create_stores_stock(int t);
 extern errr init_v_info(void);
 extern void init_file_paths(char *path);
@@ -836,11 +891,15 @@ extern u32b fake_text_size;
 #endif /* ALLOW_TEMPLATES */
 
 /* loadsave.c */
+extern void register_savefile(int num);
+extern bool file_exist(char *buf);
 extern s16b rd_variable();
 extern void wr_variable(s16b *var);
 extern void wr_scripts();
 extern bool load_dungeon(char *ext);
 extern errr rd_savefile_new(void);
+extern void load_number_key(char *key, s32b *val);
+extern void save_number_key(char *key, s32b val);
 
 /* melee1.c */
 /* melee2.c */
@@ -859,6 +918,8 @@ extern void screen_roff(int r_idx, int ego, int remember);
 extern void display_roff(int r_idx, int ego);
 
 /* monster2.c */
+extern void monster_msg(cptr fmt, ...);
+extern void cmonster_msg(char a, cptr fmt, ...);
 extern bool mego_ok(int r_idx, int ego);
 extern void monster_check_experience(int m_idx, bool silent);
 extern void monster_gain_exp(int m_idx, u32b exp, bool silent);
@@ -878,6 +939,7 @@ extern void lore_do_probe(int m_idx);
 extern void lore_treasure(int m_idx, int num_item, int num_gold);
 extern void update_mon(int m_idx, bool full);
 extern void update_monsters(bool full);
+extern bool bypass_r_ptr_max_num ;
 extern bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp, int status);
 extern bool place_monster(int y, int x, bool slp, bool grp);
 extern bool alloc_horde(int y, int x);
@@ -918,19 +980,25 @@ extern bool is_enemy(monster_type *m_ptr, monster_type *t_ptr);
 
 /* object1.c */
 /* object2.c */
+extern bool apply_flags_set(s16b a_idx, s16b set_idx, s32b *f1, s32b *f2, s32b *f3, s32b *f4, s32b *f5, s32b *esp);
+extern bool apply_set(s16b a_idx, s16b set_idx);
+extern bool takeoff_set(s16b a_idx, s16b set_idx);
+extern bool wield_set(s16b a_idx, s16b set_idx, bool silent);
+extern object_type *get_object(int item);
 extern s32b calc_total_weight(void);
 extern void add_random_ego_flag(object_type *o_ptr, int fego, bool *limit_blows);
 extern bool info_spell;
 extern char spell_txt[50];
 extern int grab_tval_desc(int tval, cptr *info, int i);
 extern void init_match_theme(obj_theme theme);
-extern bool hack_ignore_theme;
+extern bool kind_is_good(int k_idx);
 extern bool kind_is_legal(int k_idx);
 extern bool check_book_realm(const int book_tval);
 extern bool verify(cptr prompt, int item);
 extern void flavor_init(void);
 extern void reset_visuals(void);
 extern int object_power(object_type *o_ptr);
+extern bool object_flags_no_set;
 extern void object_flags(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3, u32b *f4, u32b *f5, u32b *esp);
 extern void object_flags_known(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3, u32b *f4, u32b *f5, u32b *esp);
 extern void object_desc(char *buf, object_type *o_ptr, int pref, int mode);
@@ -982,7 +1050,7 @@ extern void object_prep(object_type *o_ptr, int k_idx);
 extern void object_copy(object_type *o_ptr, object_type *j_ptr);
 extern int hack_apply_magic_power;
 extern void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great);
-bool make_object(object_type *j_ptr, bool good, bool great, obj_theme theme);
+extern bool make_object(object_type *j_ptr, bool good, bool great, obj_theme theme);
 extern void place_object(int y, int x, bool good, bool great);
 extern bool make_gold(object_type *j_ptr);
 extern void place_gold(int y, int x);
@@ -995,6 +1063,7 @@ extern void combine_pack(void);
 extern void reorder_pack(void);
 extern s16b spell_chance(int spell,int realm);
 extern bool spell_okay(int spell, bool known, int realm);
+void spell_info(char *p, int spell, int realm, byte level);
 extern int print_spells(byte *spells, int num, int y, int x, int realm);
 extern void display_koff(int k_idx);
 extern void random_artifact_resistance (object_type * o_ptr);
@@ -1033,6 +1102,7 @@ extern bool load_player(void);
 /* spells1.c */
 extern s16b poly_r_idx(int r_idx);
 extern void get_pos_player(int dis, int *ny, int *nx);
+extern bool teleport_player_bypass;
 extern void teleport_to_player(int m_idx);
 extern void teleport_player_directed(int rad, int dir);
 extern void teleport_away(int m_idx, int dis);
@@ -1074,6 +1144,7 @@ extern bool do_dec_stat(int stat, int mode);
 extern bool do_res_stat(int stat);
 extern bool do_inc_stat(int stat);
 extern void identify_pack(void);
+extern bool hack_message_pain_may_silent;
 extern void message_pain(int m_idx, int dam);
 extern bool remove_curse(void);
 extern bool remove_all_curse(void);
@@ -1204,7 +1275,6 @@ extern bool passwall(int dir, bool safe);
 extern bool project_hook(int typ, int dir, int dam, int flg);
 extern void random_misc (object_type * o_ptr, bool is_scroll);
 extern void random_plus(object_type * o_ptr, bool is_scroll);
-extern void random_slay (object_type * o_ptr, bool is_scroll);
 extern bool reset_recall(void);
 extern void remove_dg_curse();
 
@@ -1232,6 +1302,7 @@ extern void do_cmd_quest(void);
 extern void select_bounties(void);
 
 /* util.c */
+extern cptr get_player_race_name(int pr, int ps);
 extern cptr get_month_name(int month, bool full, bool compact);
 extern cptr get_day(int day);
 extern s32b bst(s32b what, s32b t);
@@ -1268,7 +1339,9 @@ extern s16b quark_add(cptr str);
 extern s16b message_num(void);
 extern cptr message_str(int age);
 extern byte message_color(int age);
-extern void message_add(cptr msg, byte color);
+extern byte message_type(int age);
+extern void message_add(byte type, cptr msg, byte color);
+extern void display_message(int x, int y, int split, byte color, cptr t);
 extern void cmsg_print(byte color, cptr msg);
 extern void msg_print(cptr msg);
 extern void cmsg_format(byte color, cptr fmt, ...);
@@ -1283,6 +1356,7 @@ extern void c_roff(byte attr, cptr str);
 extern void roff(cptr str);
 extern void clear_screen(void);
 extern void clear_from(int row);
+extern bool askfor_aux_complete;
 extern bool askfor_aux(char *buf, int len);
 extern bool get_string(cptr prompt, char *buf, int len);
 extern bool get_check(cptr prompt);
@@ -1295,9 +1369,14 @@ extern int get_keymap_dir(char ch);
 extern byte count_bits(u32b array);
 extern void strlower(char *buf);
 extern int test_monster_name(cptr name);
+extern int test_mego_name(cptr name);
 extern int test_item_name(cptr name);
 
 /* xtra1.c */
+extern void fix_irc_message(void);
+extern void fix_message(void);
+extern void apply_flags(s32b f1, s32b f2, s32b f3, s32b f4, s32b f5, s32b esp, s16b pval, s16b tval, s16b to_h, s16b to_d, s16b to_a);
+extern int luck(int min, int max);
 extern int weight_limit(void);
 extern bool calc_powers_silent;
 extern void cnv_stat(int val, char *out_val);
@@ -1319,8 +1398,10 @@ extern void fate_desc(char *desc, int fate);
 extern void dump_fates(FILE *OutFile);
 
 /* xtra2.c */
+extern void drop_from_wild();
 extern void clean_wish_name(char *buf, char *name);
 extern bool test_object_wish(char *name, object_type *o_ptr, object_type *forge, char *what);
+extern bool set_rush(int v);
 extern bool set_parasite(int v, int r);
 extern bool set_disrupt_shield(int v);
 extern bool set_prob_travel(int v);
@@ -1468,6 +1549,15 @@ extern int stricmp(cptr a, cptr b);
 extern int usleep(huge usecs);
 #endif
 
+#ifdef SUPPORT_GAMMA
+/* util.c */
+extern void build_gamma_table(int gamma);
+extern byte gamma_table[256];
+
+/* variable.c */
+extern u16b gamma_val;
+#endif
+
 #ifdef MACINTOSH
 /* main-mac.c */
 /* extern void main(void); */
@@ -1511,4 +1601,53 @@ extern bool do_cmd_disarm_aux(int y, int x, int dir);
 #endif /* ALLOW_EASY_DISARM -- TNB */
 
 extern bool easy_floor;
+
+
+#ifdef USE_SOCK
+extern void *zsock_connect(char *hos, short port);
+extern void zsock_disconnect(void *client);
+extern void zsock_send(void *sock, char *str);
+extern void zsock_recv(void *sock, char *str, int len);
+extern bool zsock_wait(void *client);
+extern bool zsock_can_read(void *client);
+
+extern void *pern_irc;
+extern void irc_poll(void *sock);
+extern void irc_connect();
+extern void irc_chat();
+extern void irc_disconnect();
+extern void irc_disconnect_aux(char *str, bool message);
+extern void irc_quit(char *str);
+#endif
+
+
+#ifdef USE_LUA
+
+/* script.c */
+extern void init_lua();
+extern bool exec_lua(char *file);
+extern bool pern_dofile(char *file);
+
+/* lua_bind.c */
+extern magic_power *grab_magic_power(magic_power *m_ptr, int num);
+extern int get_magic_power(int *sn, magic_power *powers, int max_powers, void (*power_info)(char *p, int power));
+extern magic_power *new_magic_power(int num);
+extern int get_magic_power_lua(int *sn, magic_power *powers, int max_powers, char *info_fct);
+extern bool lua_spell_success(magic_power *spell, char *oups_fct);
+
+extern object_type *new_object();
+extern void end_object(object_type *o_ptr);
+extern void lua_set_item_tester(int tval, char *fct);
+extern char *lua_object_desc(object_type *o_ptr, int pref, int mode);
+
+extern s16b    add_new_power(cptr name, cptr desc, cptr gain, cptr lose, byte level, byte cost, byte stat, byte diff);
+
+extern void find_position(int y, int x, int *yy, int *xx);
+extern bool summon_lua_okay(int r_idx);
+extern bool lua_summon_monster(int y, int x, int lev, bool friend, char *fct);
+
+extern s16b    add_new_quest();
+extern void    desc_quest(int q_idx, int d, char *desc);
+
+#endif
 

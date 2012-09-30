@@ -35,3 +35,9 @@ makefile.org - Most Unix users should use this. Currently the only makefile with
 makefile.wat - Watcom C/C++ for DOS (?)
 
 makefile.win - A makefile for people using Borland C 4.5x for windows.
+
+This one isn't really a makefile, but serves for the same purpose:
+
+PernAngband.proj.bin - CodeWarrior project file for people using
+	CodeWarrior 6 or 7 for the Macintosh. Read main-mac.c.txt
+	for instructions.

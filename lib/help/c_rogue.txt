@@ -40,7 +40,7 @@ trap.
 #####GStarting Equipment
 A rogue begins the game with:
     L1 spellbook of chosen realm
-    A broadsword (poison brand if chose shadow realm)
+    A dagger (poison brand if chose shadow realm)
     A trap kit (arrow)
 If they are *very* lucky they may also begin with:
     boots of free action

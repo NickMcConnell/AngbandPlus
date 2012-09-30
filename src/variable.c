@@ -87,6 +87,7 @@ s16b command_see;		/* See "cmd1.c" */
 s16b command_wrk;		/* See "cmd1.c" */
 
 s16b command_gap = 50;	/* See "cmd1.c" */
+s16b command_gapy = 1;	/* See "cmd1.c" */
 
 s16b command_new;		/* Command chaining from inven/equip view */
 
@@ -492,6 +493,11 @@ u16b *message__ptr;
 byte *message__color;
 
 /*
+ * The array of type, by index [MESSAGE_MAX]
+ */
+byte *message__type;
+
+/*
  * The array of chars, by offset [MESSAGE_BUF]
  */
 char *message__buf;
@@ -555,6 +561,17 @@ byte angband_color_table[256][4] =
 	{0x00, 0x00, 0xFF, 0xFF},	/* TERM_L_BLUE */
 	{0x00, 0xC0, 0x80, 0x40}	/* TERM_L_UMBER */
 };
+
+
+#ifdef SUPPORT_GAMMA
+
+/*
+ * Gamma correction - gamma_val == (int)(256 / gamma)
+ * The value of 0 means no gamma correction (== 1.0)
+ */
+u16b gamma_val;
+
+#endif /* SUPPORT_GAMMA */
 
 
 /*
@@ -681,6 +698,12 @@ s16b alloc_kind_size;
  */
 alloc_entry *alloc_kind_table;
 
+/*
+ * The flag to tell if alloc_kind_table contains valid entries
+ * for normal (i.e. kind_is_legal) object allocation
+ */
+bool alloc_kind_table_valid = FALSE;
+
 
 /*
  * The size of "alloc_race_table" (at most max_r_idx)
@@ -736,7 +759,6 @@ player_sex *sp_ptr;
 player_race *rp_ptr;
 player_race_mod *rmp_ptr;
 player_class *cp_ptr;
-player_magic *mp_ptr;
 
 
 /*
@@ -792,6 +814,14 @@ char *a_name;
 char *a_text;
 
 /*
+ * The item set arrays
+ */
+header *set_head;
+set_type *set_info;
+char *set_name;
+char *set_text;
+
+/*
  * The ego-item arrays
  */
 header *e_head;
@@ -804,6 +834,7 @@ char *e_text;
  */
 header *ra_head;
 randart_part_type *ra_info;
+randart_gen_type ra_gen[30];
 
 /* jk */
 /* the trap-arrays */
@@ -834,6 +865,31 @@ header *d_head;
 dungeon_info_type *d_info;
 char *d_name;
 char *d_text;
+
+/*
+ * Player race arrays
+ */
+header *rp_head;
+player_race *race_info;
+char *rp_name;
+char *rp_text;
+
+/*
+ * Player mod race arrays
+ */
+header *rmp_head;
+player_race_mod *race_mod_info;
+char *rmp_name;
+char *rmp_text;
+
+/*
+ * Player class arrays
+ */
+header *c_head;
+player_class *class_info;
+char *c_name;
+char *c_text;
+meta_class_type *meta_class_info;
 
 /*
  * The wilderness features arrays
@@ -1111,6 +1167,19 @@ u16b max_d_idx;
 u16b max_st_idx;
 
 /*
+ * Item sets
+ */
+s16b max_set_idx = 1;
+
+/*
+ * Maximum number of players info in p_info.txt
+ */
+u16b max_rp_idx;
+u16b max_rmp_idx;
+u16b max_c_idx;
+u16b max_mc_idx;
+
+/*
  * Maximum number of actions types in ba_info.txt
  */
 u16b max_ba_idx;
@@ -1265,11 +1334,6 @@ bool munchkin_multipliers = TRUE;
 bool center_player = FALSE;
 
 /*
- * Ghost option
- */
-bool astral_option = FALSE;
-
-/*
  * Plots
  */
 s16b plots[MAX_PLOTS];
@@ -1298,6 +1362,7 @@ bool fate_option;
  * Special levels
  */
 bool *special_lvl[MAX_DUNGEON_DEPTH];
+bool generate_special_feeling = FALSE;
 
 /*
  * Auto more
@@ -1318,3 +1383,31 @@ s32b dungeon_flags1;
  * The last character displayed
  */
 birther previous_char;
+
+/*
+ * Race histories
+ */
+hist_type *bg;
+int max_bg_idx;
+
+/*
+ * Powers
+ */
+s16b power_max = POWER_MAX_INIT;
+power_type *powers_type;
+
+/*
+ * Variable savefile stuff
+ */
+s32b extra_savefile_parts = 0;
+
+/*
+ * Quests
+ */
+s16b max_q_idx = MAX_Q_IDX_INIT;
+quest_type *quest;
+
+/*
+ * Display the player as a special symbol when in bad health ?
+ */
+bool player_char_health;

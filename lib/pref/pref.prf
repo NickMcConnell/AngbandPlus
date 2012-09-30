@@ -238,6 +238,14 @@ C:1:V
 A:y
 C:1:'
 
+# Chat
+A:Y
+C:1:(
+
+# Command line
+A:#
+C:1:)
+
 
 ##### System Specific Subfiles #####
 

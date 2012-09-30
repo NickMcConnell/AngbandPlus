@@ -1,4 +1,4 @@
-bool quest_thieves_gen_hook(int q_idx)
+bool quest_thieves_gen_hook(char *fmt)
 {
 	int x, y;
         int xstart = 2;
@@ -53,7 +53,7 @@ bool quest_thieves_gen_hook(int q_idx)
 
         return TRUE;
 }
-bool quest_thieves_hook(int q_idx)
+bool quest_thieves_hook(char *fmt)
 {
         int i, mcnt = 0;
 
@@ -103,9 +103,12 @@ bool quest_thieves_hook(int q_idx)
         }
         return FALSE;
 };
-bool quest_thieves_finish_hook(int q_idx)
+bool quest_thieves_finish_hook(char *fmt)
 {
         object_type forge, *q_ptr;
+        s32b q_idx;
+
+        q_idx = get_next_arg(fmt);
 
         if (q_idx != QUEST_THIEVES) return FALSE;
 
@@ -120,7 +123,7 @@ bool quest_thieves_finish_hook(int q_idx)
         (void)inven_carry(q_ptr, FALSE);
 
         /* Continue the plot */
-        *(quest[q_idx].plot) = QUEST_HOBBIT;
+        *(quest[q_idx].plot) = (magik(50))?QUEST_TROLL:QUEST_WIGHT;
         quest[*(quest[q_idx].plot)].init(*(quest[q_idx].plot));
 
         del_hook(HOOK_QUEST_FINISH, quest_thieves_finish_hook);
@@ -129,7 +132,7 @@ bool quest_thieves_finish_hook(int q_idx)
         return TRUE;
 }
 
-bool quest_thieves_feeling_hook(int q_idx)
+bool quest_thieves_feeling_hook(char *fmt)
 {
         if (p_ptr->inside_quest != QUEST_THIEVES) return FALSE;
 

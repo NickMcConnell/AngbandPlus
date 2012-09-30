@@ -1,5 +1,9 @@
 # File: st_info.txt
 
+# Fixed Potions of Cure Light/Serious Wounds in the Temple, Potions of 
+# Restore Str/Con in the Alchemist
+# Magic Shop - Amulet of Slow Digestion, Wand of Light, Staffs of Enlightenment,
+# Door/Stair Location, Detect Invis/Evil, and Remove Curse
 
 # This file is used to initialize the "lib/raw/st_info.raw" file, which is
 # used to initialize the "store info type" information for the Angband game.
@@ -124,9 +128,12 @@ I:100:Heroism
 I:100:Word of Recall
 I:100:Word of Recall
 I:100:Word of Recall
-I:100:Cure Light Wounds
-I:100:Cure Serious Wounds
-I:100:Cure Serious Wounds
+#I:100:Cure Light Wounds
+T:100:71:34
+#I:100:Cure Serious Wounds
+#I:100:Cure Serious Wounds
+T:100:71:35
+T:100:71:35
 I:100:Cure Critical Wounds
 I:100:Cure Critical Wounds
 I:100:Restore Life Levels
@@ -195,22 +202,26 @@ I:100:Word of Recall
 I:100:Word of Recall
 T:100:70:9
 T:100:70:9
-I:100:Restore Strength
+#I:100:Restore Strength
+T:100:71:42
 I:100:Restore Intelligence
 I:100:Restore Wisdom
 I:100:Restore Dexterity
-I:100:Restore Constitution
+#I:100:Restore Constitution
+T:100:71:46
 I:100:Restore Charisma
 I:100:Identify
 I:100:Identify
 I:100:*Identify*
 I:100:*Identify*
 I:100:Light
-I:100:Restore Strength
+#I:100:Restore Strength
+T:100:71:42
 I:100:Restore Intelligence
 I:100:Restore Wisdom
 I:100:Restore Dexterity
-I:100:Restore Constitution
+#I:100:Restore Constitution
+T:100:71:46
 I:100:Restore Charisma
 I:100:Enchant Armor
 I:100:Enchant Armor
@@ -230,7 +241,8 @@ I:100:Protection
 I:100:Fire Resistance
 I:100:Cold Resistance
 I:100:Charisma
-I:100:Slow Digestion
+#I:100:Slow Digestion
+T:100:40:3
 I:100:Acid Resistance
 I:100:Lightning Resistance
 I:100:Searching
@@ -241,14 +253,19 @@ I:100:Magic Missile
 I:100:Stinking Cloud
 I:100:Wonder
 I:100:Disarming
-I:100:Light
-I:100:Enlightenment
+#I:100:Light
+T:100:65:7
+#I:100:Enlightenment
+T:100:55:9
 I:100:Trap Location
-I:100:Door/Stair Location
+#I:100:Door/Stair Location
+T:100:55:13
 I:100:Treasure Location
 I:100:Object Location
-I:100:Detect Invisible
-I:100:Detect Evil
+#I:100:Detect Invisible
+T:100:55:14
+#I:100:Detect Evil
+T:100:55:15
 I:100:55:4
 I:100:55:4
 I:100:55:4
@@ -258,7 +275,8 @@ I:100:Perception
 I:100:Perception
 I:100:Perception
 I:100:Perception
-I:100:Remove Curse
+#I:100:Remove Curse
+T:100:55:6
 I:100:Cure Light Wounds
 I:100:Probing
 I:100:[Apprentice Handbook]
@@ -324,7 +342,7 @@ I:100:[Call of the West]
 I:100:[Light of Valinor]
 I:100:[Divine Mastery]
 I:100:[Words of Power]
-I:100:[Apprentice Handbook]
+T:100:119:0
 I:100:[Minstrel's Music]
 I:100:[Dark Incantations]
 I:100:[Immortal Rituals]
@@ -744,3 +762,10 @@ A:0:0:56:57:58:0
 O:68:68:68:68
 G:+:g
 W:0
+
+N:57:The Mathom-house
+A:0:0:59:0:3:0
+O:0:0:0:0
+G:+:g
+F:MUSEUM
+W:24

@@ -155,10 +155,10 @@ void do_cmd_go_up(void)
         }
 
         /* Can we ? */
-        if (process_hooks(HOOK_STAIR, FALSE)) return;
+        if (process_hooks(HOOK_STAIR, "(d)", FALSE)) return;
   
         /* Normal up stairs */
-        if (c_ptr->feat == FEAT_LESS)
+        if ((c_ptr->feat == FEAT_LESS) || (c_ptr->feat == FEAT_WAY_LESS))
         {
                 if (!dun_level)
                 {
@@ -197,7 +197,7 @@ void do_cmd_go_up(void)
                         }
                 }
         }
-        else if (p_ptr->prob_travel && !p_ptr->inside_quest)
+        else if ((!(d_ptr->flags1 & DF1_FLAT)) && p_ptr->prob_travel && !p_ptr->inside_quest)
         {
                 if (d_ptr->mindepth == dun_level) return;
 
@@ -235,7 +235,10 @@ void do_cmd_go_up(void)
 #endif
   
                 /* Success */
-                msg_print("You enter a maze of up staircases.");
+                if (c_ptr->feat == FEAT_WAY_LESS)
+                        msg_print("You enter the previous area.");
+                else
+                        msg_print("You enter a maze of up staircases.");
   
                 if (autosave_l)
                 {
@@ -298,7 +301,7 @@ static bool between_effect(void)
                 msg_print("You fall in the between.");
                 msg_print("Brrrr! It's deadly cold.");
 
-                if (p_ptr->prace != RACE_DRAGONRIDER)
+                if (PRACE_FLAG(PR1_TP))
                 {
                         int reduc = ((p_ptr->ac + p_ptr->to_a) / 50) + 1;
 
@@ -364,7 +367,7 @@ void do_cmd_go_down(void)
         }
 
         /* Can we ? */
-        if (process_hooks(HOOK_STAIR, TRUE)) return;
+        if (process_hooks(HOOK_STAIR, "(d)", TRUE)) return;
   
         /* Normal up stairs */
         if (c_ptr->feat == FEAT_SHAFT_DOWN)
@@ -391,7 +394,7 @@ void do_cmd_go_down(void)
                 }
         }
         /* Normal stairs */
-        else if (c_ptr->feat == FEAT_MORE)
+	else if ((c_ptr->feat == FEAT_MORE) || (c_ptr->feat == FEAT_WAY_MORE))
         {
                 if (p_ptr->prob_travel)
                 {
@@ -419,7 +422,7 @@ void do_cmd_go_down(void)
                 }
         }
 
-        else if (p_ptr->prob_travel && !p_ptr->inside_quest)
+        else if ((!(d_ptr->flags1 & DF1_FLAT)) && p_ptr->prob_travel && !p_ptr->inside_quest)
         {
                 if (d_ptr->maxdepth == dun_level) return;
 
@@ -455,9 +458,13 @@ void do_cmd_go_down(void)
                 if (fall_trap)
                         msg_print("You deliberately jump through the trap door.");
                 else
-                        /* Success */
-                        msg_print("You enter a maze of down staircases.");
-  
+                {
+                        if (c_ptr->feat == FEAT_WAY_MORE)
+                                msg_print("You enter the next area.");
+                        else
+                                msg_print("You enter a maze of down staircases.");
+                }
+
                 if (autosave_l)
                 {
                         is_autosave = TRUE;
@@ -1188,7 +1195,7 @@ void do_cmd_open(void)
 	}
 
         /* Process the appropriate hooks */
-        process_hooks(HOOK_OPEN, is_quest(dun_level));
+        process_hooks(HOOK_OPEN, "(d)", is_quest(dun_level));
 
 	/* Cancel repeat unless we may continue */
 	if (!more) disturb(0, 0);
@@ -1819,6 +1826,9 @@ bool easy_open_door(int y, int x)
 			/* Sound */
 			sound(SOUND_OPENDOOR);
 
+                        /* Process the appropriate hooks */
+                        process_hooks(HOOK_OPEN, "(d)", is_quest(dun_level));
+
 			/* Experience */
 			gain_exp(1);
 		}
@@ -2012,7 +2022,7 @@ static bool do_cmd_disarm_aux(int y, int x, int dir)
 
 		/* Move the player onto the trap */
 		if (!(f_info[c_ptr->feat].flags1 & FF1_DOOR))
-                        move_player(dir, easy_disarm);
+                        move_player(dir, always_pickup);
 
 #else /* ALLOW_EASY_DISARM -- TNB */
 
@@ -2858,7 +2868,7 @@ void do_cmd_rest(void)
  */
 int breakage_chance(object_type *o_ptr)
 {
-        int reducer = 1 + ((p_ptr->pclass == CLASS_ARCHER)?(p_ptr->lev / 10):0);
+        int reducer = 1 + ((cp_ptr->magic_key == MKEY_FORGING)?(p_ptr->lev / 10):0);
 
 	/* Examine the item type */
 	switch (o_ptr->tval)
@@ -3079,10 +3089,10 @@ void do_cmd_fire(void)
 	 * Priests don't get penalized for icky_wield.
 	 *							-- Gumby
 	 */
-	if ((p_ptr->pclass == CLASS_WEAPONMASTER) &&
+	if ((PRACE_FLAGS(PR1_HACK_WEAPON)) &&
             (inventory[INVEN_WIELD].tval == p_ptr->class_extra1))
                 bonus = ((p_ptr->to_h - (p_ptr->lev / 2)) + q_ptr->to_h + j_ptr->to_h);
-	else if ((p_ptr->pclass == CLASS_PRIEST) && (p_ptr->icky_wield))
+	else if ((PRACE_FLAGS(PR1_BLESS_WEAPON)) && (p_ptr->icky_wield))
 		bonus = (p_ptr->to_h + q_ptr->to_h + j_ptr->to_h + 15);
 	else
 		bonus = (p_ptr->to_h + q_ptr->to_h + j_ptr->to_h);
@@ -3146,7 +3156,7 @@ void do_cmd_fire(void)
 	energy_use = (100 / thits);
 
         /* Ricochets ? */
-        if(p_ptr->pclass == CLASS_ARCHER)
+        if (cp_ptr->magic_key == MKEY_FORGING)
         {
                 num_ricochet = (p_ptr->lev / 10) - 1;
                 num_ricochet = (num_ricochet < 0)?0:num_ricochet;
@@ -3436,6 +3446,8 @@ void do_cmd_throw(void)
 
 	cptr q, s;
 
+        u32b f1, f2, f3, f4, f5, esp;
+
 
 	/* Get an item */
 	q = "Throw which item? ";
@@ -3452,6 +3464,18 @@ void do_cmd_throw(void)
 		o_ptr = &o_list[0 - item];
 	}
 
+
+        object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
+
+	/* Hack - Cannot throw away 'no drop' cursed items */
+	if (cursed_p(o_ptr) && (f4 & TR4_CURSE_NO_DROP))
+	{
+		/* Oops */
+		msg_print("Hmmm, you seem to be unable to throw it.");
+
+		/* Nope */
+		return;
+	}
 
 	/* Get a direction (or cancel) */
 	if (!get_aim_dir(&dir)) return;
@@ -3518,7 +3542,7 @@ void do_cmd_throw(void)
 	tdam *= throw_mult;
 
 	/* Chance of hitting - adjusted for Weaponmasters -- Gumby */
-	if ((p_ptr->pclass == CLASS_WEAPONMASTER) &&
+	if ((PRACE_FLAGS(PR1_HACK_WEAPON)) &&
             (inventory[INVEN_WIELD].tval == p_ptr->class_extra1))
                 chance = (p_ptr->skill_tht + ((p_ptr->to_h - (p_ptr->lev / 2)) * BTH_PLUS_ADJ));
 	else
@@ -4494,7 +4518,7 @@ void do_cmd_sacrifice(void) {
 
   energy_use = 100;
 
-  val = object_value(o_ptr) * o_ptr->number;
+  val = object_value(o_ptr);
 
   /* Modify grace */
 
@@ -4523,6 +4547,17 @@ void do_cmd_sacrifice(void) {
   } else {
     set_grace(p_ptr->grace + val * 3);
   }
+
+
+        /*
+	 * Hack -- If rods or wand are destroyed, the total maximum timeout or 
+	 * charges of the stack needs to be reduced, unless all the items are 
+	 * being destroyed. -LM-
+	 */
+	if ((o_ptr->tval == TV_WAND) && (1 < o_ptr->number))
+	{
+		o_ptr->pval -= o_ptr->pval / o_ptr->number;
+        }
 
         /* Eliminate the item (from the pack) */
         if (item >= 0)
@@ -4632,7 +4667,7 @@ flag flags_level[4][32]=
 
 bool flags_select[4][32];
 
-int show_flags(byte flag, s32b *exp, int pval)
+int show_flags(byte flag, int pval)
 {
         int i, x, color = TERM_WHITE;
 
@@ -4653,34 +4688,61 @@ int show_flags(byte flag, s32b *exp, int pval)
                 else
                 {
                         sprintf(ttt, "%c) %s(exp %ld)", (i < 26)?I2A(i):('0' + i - 26), flags_level[flag][i].desc, flags_level[flag][i].xp);
-                        if (flags_level[flag][i].level > p_ptr->lev) color = TERM_L_DARK;
+                        if (flags_level[flag][i].level > p_ptr->lev)
+                                color = TERM_L_DARK;
                         else if (flags_select[flag][i])
-                        {
-                                int j = pval;
-                                u32b xp = flags_level[flag][i].xp;
-
                                 color = TERM_L_GREEN;
-                                if (flags_level[flag][i].pval)
-                                {
-                                        while (j)
-                                        {
-                                                *exp += xp;
-                                                xp *= 2;
-                                                j--;
-                                        }
-                                }
-                                else
-                                {
-                                        *exp += xp;
-                                }
-                        }
-                        else color = TERM_WHITE;
+                        else
+                                color = TERM_WHITE;
                 }
                 c_prt(color, ttt, ((i < 16)?i:i - 16) + 5, x);
 
                 i++;
         }
         return i;
+}
+
+s32b get_flags_exp(int pval)
+{
+        int i;
+        int flag;
+        s32b exp = 0;
+
+        for (flag = 0; flag < 4; flag++)
+        {
+                i = 0;
+                while (i < 32)
+                {
+                        if (flags_level[flag][i].xp == 0)
+                        {
+                                break;
+                        }
+                        else
+                        {
+                                if ((flags_level[flag][i].level <= p_ptr->lev) && (flags_select[flag][i]))
+                                {
+                                        int j = pval;
+                                        u32b xp = flags_level[flag][i].xp;
+
+                                        if (flags_level[flag][i].pval)
+                                        {
+                                                while (j)
+                                                {
+                                                        exp += xp;
+                                                        xp *= 2;
+                                                        j--;
+                                                }
+                                        }
+                                        else
+                                        {
+                                                exp += xp;
+                                        }
+                                }
+                        }
+                        i++;
+                }
+        }
+        return exp;
 }
 
 
@@ -4787,7 +4849,8 @@ void do_cmd_create_artifact()
         {
                 /* Chose the flags */
                 exp = 0;
-                max = show_flags(cur_set, &exp, pval);
+                max = show_flags(cur_set, pval);
+                exp = get_flags_exp(pval);
                 c_prt((q_ptr->exp - exp > 0)?TERM_L_GREEN:TERM_L_RED, format("Experience left: %ld", q_ptr->exp - exp), 2, 0);
 
                 /* Build a prompt (accept all flags) */
@@ -4850,7 +4913,7 @@ void do_cmd_create_artifact()
                                 i = D2I(choice) + 26;
 
                                 /* Illegal */
-                                if (i <= 26) i = -1;
+                                if (i < 26) i = -1;
                         }
 
                         /* Totally Illegal */
@@ -5173,8 +5236,8 @@ void do_cmd_steal()
                 int chance;
 
                 chance = 40 - p_ptr->stat_ind[A_DEX];
-                chance += o_list[item].weight / ((p_ptr->pclass == CLASS_ROGUE)?20:1);
-                chance += (p_ptr->pclass != CLASS_ROGUE)?30:0;
+                chance += o_list[item].weight / ((PRACE_FLAGS(PR1_BACKSTAB))?20:1);
+                chance += (!PRACE_FLAGS(PR1_BACKSTAB))?30:0;
                 chance -= (m_ptr->csleep)?10:0;
                 chance += m_ptr->level;
 
@@ -5207,7 +5270,7 @@ void do_cmd_steal()
                 }
 
                 /* Rogues gain some xp */
-                if(p_ptr->pclass == CLASS_ROGUE)
+                if(PRACE_FLAGS(PR1_BACKSTAB))
                 {
                         gain_exp((randint((o_list[item].weight / 2) + (m_ptr->level * 10)) / 2) + (((o_list[item].weight / 2) + (m_ptr->level * 10)) / 2));
                         if(get_check("Phase door now ?")) teleport_player(10);
@@ -5269,9 +5332,31 @@ void do_cmd_give()
         s = "You have nothing to offer.";
         if (!get_item(&item, q, s, USE_INVEN)) return;
 
-        hook_option = item;
-        if (!process_hooks(HOOK_GIVE, c_ptr->m_idx))
+        if (!process_hooks(HOOK_GIVE, "(d,d)", c_ptr->m_idx, item))
         {
                 msg_print("The monster does not want your item.");
+        }
+}
+
+/* Chat with a monster */
+void do_cmd_chat()
+{
+        int dir, x ,y;
+        cave_type *c_ptr;
+
+        if (!get_rep_dir(&dir)) return;
+        y = py + ddy[dir];
+        x = px + ddx[dir];
+        c_ptr = &cave[y][x];
+
+        if (!(c_ptr->m_idx))
+        {
+                msg_print("There is no monster there.");
+                return;
+        }
+
+        if (!process_hooks(HOOK_CHAT, "(d)", c_ptr->m_idx))
+        {
+                msg_print("The monster does not want to chat.");
         }
 }

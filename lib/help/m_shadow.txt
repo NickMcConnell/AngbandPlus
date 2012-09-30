@@ -13,6 +13,7 @@ High Mages as a primary realm
 Mages as a primary realm
 Rogues as a primary realm
 Sorcerors (all)
+Black-Knights as a primary realm
 
 #####GShadow Spellbooks
 The are nine spellbooks available for the Shadow realm, four of which can be

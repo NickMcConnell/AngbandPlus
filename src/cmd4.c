@@ -61,7 +61,7 @@ void do_cmd_redraw(void)
         p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER | PW_M_LIST);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_MESSAGE | PW_OVERHEAD | PW_MONSTER | PW_OBJECT);
+        p_ptr->window |= (PW_MESSAGE | PW_IRC | PW_OVERHEAD | PW_MONSTER | PW_OBJECT);
 
 	/* Hack -- update */
 	handle_stuff();
@@ -208,8 +208,10 @@ void do_cmd_change_name(void)
  */
 void do_cmd_message_one(void)
 {
+        cptr msg = format("> %s", message_str(0));
+
 	/* Recall one message XXX XXX XXX */
-        c_prt(message_color(0), format("> %s", message_str(0)), 0, 0);
+        display_message(0, 0, strlen(msg), message_color(0), msg);
 }
 
 
@@ -275,7 +277,7 @@ void do_cmd_messages(void)
 			msg = (strlen(msg) >= q) ? (msg + q) : "";
 
 			/* Dump the messages, bottom to top */
-                        Term_putstr(0, 21-j, -1, color, msg);
+                        display_message(0, 21-j, strlen(msg), color, msg);
 
 			/* Hilite "shower" */
 			if (shower[0])
@@ -1061,6 +1063,32 @@ static errr option_dump(cptr fname)
 		}
 	}
 
+	/* Section title. */
+	fprintf(fff, "\n\n");
+	fprintf(fff, "# Object squelch settings\n\n");
+
+	/* Dump squelch settings */
+	for (i = 0; i < max_k_idx; i++)
+	{
+		object_kind *k_ptr = &k_info[i];
+		
+		object_type x;
+
+		/* Require a real object. */
+		if (!k_ptr->name) continue;
+
+		/* Grab the name. */
+		object_prep(&x, i);
+		x.ident |= IDENT_STOREB;
+		object_desc_store(buf, &x, FALSE, 0);
+
+		/* Dump a comment */
+		fprintf(fff, "# %s\n", buf);
+
+		/* Dump the squelch settings */
+		fprintf(fff, "Q:%d:%d\n\n", i, k_ptr->squeltch);
+	}
+
 	/* Close */
 	my_fclose(fff);
 
@@ -1160,8 +1188,8 @@ void do_cmd_options(void)
                 prt("(C) Cheating Options", 17, 5);
 
                 /* Dump */
-                prt("(U) Dump Options", 19, 5);
-                prt("(O) Load Options", 20, 5);
+                prt("(U) Dump Options/Squelch setting", 19, 5);
+                prt("(O) Load Options/Squelch setting", 20, 5);
 
 		/* Prompt */
                 prt("Command: ", 21, 0);
@@ -2553,6 +2581,9 @@ void do_cmd_colors(void)
 #ifdef ALLOW_COLORS
 		prt("(2) Dump colors", 5, 5);
 		prt("(3) Modify colors", 6, 5);
+# ifdef SUPPORT_GAMMA
+		prt("(4) Gamma correction", 7, 5);
+# endif /* SUPPORT_GAMMA */
 #endif
 
 		/* Prompt */
@@ -2730,6 +2761,74 @@ void do_cmd_colors(void)
 			}
 		}
 
+# ifdef SUPPORT_GAMMA
+
+		/* Gamma correction */
+		else if (i == '4')
+		{
+			int gamma;
+
+			/* Prompt */
+			prt("Command: Gamma correction", 8, 0);
+
+			/* gamma_val isn't set - assume 1.0 */
+			if (gamma_val == 0) gamma = 10;
+
+			/* It's set - convert to usual notation (times 10) */
+			else gamma = 2560 / gamma_val;
+
+			/* Hack -- query until done */
+			while (1)
+			{
+				/* Clear */
+				clear_from(10);
+
+				/* Exhibit the normal colors */
+				for (i = 0; i < 16; i++)
+				{
+					/* Exhibit all colors */
+					Term_putstr(i*4, 22, -1, i, format("%3d", i));
+				}
+
+				/* Describe the gamma */
+				Term_putstr(5, 10, -1, TERM_WHITE,
+				            format("Gamma = %d.%d", gamma / 10, gamma % 10));
+
+				/* Prompt */
+				Term_putstr(0, 12, -1, TERM_WHITE,
+				            "Command (g/G): ");
+
+				/* Get a command */
+				i = inkey();
+
+				/* All done */
+				if (i == ESCAPE) break;
+
+				/* Analyze */
+				if (i == 'g') gamma = (byte)(gamma + 1);
+				else if (i == 'G') gamma = (byte)(gamma - 1);
+				else continue;
+
+				/* Force limits ([1.0, 2.5]) */
+				if (gamma < 10) gamma = 10;
+				if (gamma > 25) gamma = 25;
+
+				/* Hack - 1.0 means no correction */
+				if (gamma == 10) gamma_val = 0;
+
+				/* otherwise, calculate gamma_val */
+				else gamma_val = 2560 / gamma;
+
+				/* Hack -- react to changes */
+				Term_xtra(TERM_XTRA_REACT, 0);
+
+				/* Hack -- redraw */
+				Term_redraw();
+			}
+		}
+
+# endif /* SUPPORT_GAMMA */
+
 #endif
 
 		/* Unknown option */
@@ -2844,7 +2943,7 @@ void do_cmd_feeling(void)
 	}
 
         /* Hooked feelings ? */
-        if (process_hooks(HOOK_FEELING, is_quest(dun_level)))
+        if (process_hooks(HOOK_FEELING, "(d)", is_quest(dun_level)))
 	{
 		return;
 	}
@@ -2860,9 +2959,12 @@ void do_cmd_feeling(void)
 	{
                 char buf[1024];
 
-                if (!get_level_desc(buf)) msg_print("Someone forgot to describe this level!");
-                else msg_print(buf);
-		return;
+                if ((get_dungeon_save(buf)) || (generate_special_feeling))
+                {
+                        if (!get_level_desc(buf)) msg_print("Someone forgot to describe this level!");
+                        else msg_print(buf);
+                        return;
+                }
 	}
 
 	/* No useful feeling in quests */
@@ -3490,7 +3592,7 @@ static void do_cmd_knowledge_uniques(void)
         }
 
         /* Scan the monster races -- sorted */
-        for (k = 1; k < num; k++)
+        for (k = 0; k < num; k++)
 	{
                 monster_race *r_ptr = &r_info[sort_uniques[k]];
 
@@ -3632,8 +3734,7 @@ static void do_cmd_knowledge_pets(void)
 	/* Open a new file */
 	fff = my_fopen(file_name, "w");
 
-	if (p_ptr->pclass == CLASS_MAGE) upkeep_divider = 15;
-	else if (p_ptr->pclass == CLASS_HIGH_MAGE) upkeep_divider = 12;
+	if (PRACE_FLAGS(PR1_ZERO_FAIL)) upkeep_divider = 15;
 
 	/* Process the monsters (backwards) */
 	for (i = m_max - 1; i >= 1; i--)
@@ -3745,7 +3846,7 @@ static void do_cmd_knowledge_kill_count(void)
 	Total = 0;
 
 	/* Scan the monster races */
-	for (k = 1; k < max_r_idx-1; k++)
+        for (k = 0; k < max_r_idx-1; k++)
 	{
 		monster_race *r_ptr = &r_info[k];
 
@@ -3895,11 +3996,38 @@ void do_cmd_knowledge_corruptions(void)
 /*
  * Print quest status of all active quests
  */
+static void insert_sort_quest(int *order, int *num, int q_idx)
+{
+        int i, j;
+        quest_type *q_ptr = &quest[q_idx];
+        int level = q_ptr->level;
+
+        /* Find the place */
+        for (i = 0; i < *num; i++)
+        {
+                quest_type *q2_ptr = &quest[order[i]];
+                int level2 = q2_ptr->level;
+
+                if (level < level2) break;
+        }
+
+        /* Move the remaining items */
+        for (j = *num - 1; j >= i; j--)
+        {
+                order[j + 1] = order[j];
+        }
+
+        /* Insert it */
+        order[i] = q_idx;
+        (*num)++;
+}
 static void do_cmd_knowledge_quests(void)
 {
 	FILE *fff;
 	char file_name[1024];
-        int i, j;
+        int *order;
+        int num = 0;
+        int i, j, z;
 
 	/* Temporary file */
 	if (path_temp(file_name, 1024)) return;
@@ -3907,8 +4035,16 @@ static void do_cmd_knowledge_quests(void)
 	/* Open a new file */
 	fff = my_fopen(file_name, "w");
 
-        for (i = 1; i < MAX_Q_IDX; i++)
+        C_MAKE(order, max_q_idx, int);
+
+        for (i = 0; i < max_q_idx; i++)
+        {
+                insert_sort_quest(order, &num, i);
+        }
+
+        for (z = 0; z < max_q_idx; z++)
 	{
+                i = order[z];
                 if (i == QUEST_RANDOM)
                 {
                         if (!(d_info[dungeon_type].flags1 & DF1_PRINCIPAL)) continue;
@@ -3916,9 +4052,18 @@ static void do_cmd_knowledge_quests(void)
                         if (p_ptr->inside_quest) continue;
                         if (!dun_level) continue;
 
-                        fprintf(fff, "#####yCaptured princess!\n");
-                        fprintf(fff, "A princess is being held prisonner and tortured here!\n");
-                        fprintf(fff, "Save her from the horrible %s.\n", r_info[random_quests[dun_level].r_idx].name + r_name);
+                        if (!is_randhero())
+                        {
+                                fprintf(fff, "#####yCaptured princess!\n");
+                                fprintf(fff, "A princess is being held prisonner and tortured here!\n");
+                                fprintf(fff, "Save her from the horrible %s.\n", r_info[random_quests[dun_level].r_idx].name + r_name);
+                        }
+                        else
+                        {
+                                fprintf(fff, "#####yLost sword!\n");
+                                fprintf(fff, "An adventurer lost his sword to a bunch of %s!\n", r_info[random_quests[dun_level].r_idx].name + r_name);
+                                fprintf(fff, "Kill them all to get it back.\n");
+                        }
                         fprintf(fff, "Number: %d, Killed: %ld.\n", random_quests[dun_level].type, quest[QUEST_RANDOM].data[0]);
                         fprintf(fff, "\n");
                 }
@@ -3930,7 +4075,7 @@ static void do_cmd_knowledge_quests(void)
                                 fprintf(fff, "#####y%s (Danger level: %d)\n", quest[i].name, quest[i].level);
 
                                 j = 0;
-                                while ((j < 10) && (quest[i].desc[j] != NULL))
+                                while ((j < 10) && (quest[i].desc[j][0] != '\0'))
                                 {
                                         fprintf(fff, "%s\n", quest[i].desc[j++]);
                                 }
@@ -3943,6 +4088,8 @@ static void do_cmd_knowledge_quests(void)
                         }
                 }
 	}
+
+        C_FREE(order, max_q_idx, int);
 
 	/* Close the file */
 	my_fclose(fff);

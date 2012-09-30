@@ -232,7 +232,6 @@ static void roff_aux(int r_idx, int ego, int remem)
 
 	/* Assume some "obvious" flags */
 	if (r_ptr->flags1 & (RF1_UNIQUE)) flags1 |= (RF1_UNIQUE);
-	if (r_ptr->flags1 & (RF1_QUESTOR)) flags1 |= (RF1_QUESTOR);
 	if (r_ptr->flags1 & (RF1_MALE)) flags1 |= (RF1_MALE);
 	if (r_ptr->flags1 & (RF1_FEMALE)) flags1 |= (RF1_FEMALE);
 
@@ -439,26 +438,26 @@ static void roff_aux(int r_idx, int ego, int remem)
 	/* Describe location */
         if (r_ptr->flags7 & RF7_PET)
 	{
-                roff(format("%^s is friendly to you. ", wd_he[msex]));
+                c_roff(TERM_L_BLUE, format("%^s is friendly to you. ", wd_he[msex]));
 		old = TRUE;
 	}
 
 	/* Describe location */
 	if (r_ptr->level == 0)
 	{
-		roff(format("%^s lives in the town", wd_he[msex]));
+                c_roff(TERM_SLATE, format("%^s lives in the town or the wilderness", wd_he[msex]));
 		old = TRUE;
 	}
 	else if (r_ptr->r_tkills)
 	{
 		if (depth_in_feet)
 		{
-			roff(format("%^s is normally found at depths of %d feet",
+                        c_roff(TERM_SLATE, format("%^s is normally found at depths of %d feet",
 			            wd_he[msex], r_ptr->level * 50));
 		}
 		else
 		{
-			roff(format("%^s is normally found on dungeon level %d",
+                        c_roff(TERM_SLATE, format("%^s is normally found on level %d",
 			            wd_he[msex], r_ptr->level));
 		}
 		old = TRUE;
@@ -1393,13 +1392,6 @@ static void roff_aux(int r_idx, int ego, int remem)
 	else
 	{
 		roff(format("Nothing is known about %s attack.  ", wd_his[msex]));
-	}
-
-
-	/* Notice "Quest" monsters */
-	if (flags1 & RF1_QUESTOR)
-	{
-                c_roff(TERM_VIOLET, "You feel an intense desire to kill this monster...  ");
 	}
 
 

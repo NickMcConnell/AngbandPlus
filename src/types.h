@@ -128,6 +128,7 @@ struct feature_type
         u32b name;              /* Name (offset) */
         u32b text;              /* Text (offset) */
         u32b tunnel;            /* Text for tunneling */
+        u32b block;             /* Text for blocking */
 
         byte mimic;             /* Feature to mimic */
 
@@ -276,6 +277,8 @@ struct artifact_type
         u32b esp;                       /* ESP flags */
 
         s16b power;                     /* Power granted(if any) */
+
+        s16b set;               /* Does it belongs to a set ?*/
 };
 
 
@@ -327,7 +330,6 @@ struct ego_item_type
  * Information about "random artifacts parts".
  */
 typedef struct randart_part_type randart_part_type;
-
 struct randart_part_type
 {
         byte tval[20];
@@ -355,7 +357,23 @@ struct randart_part_type
         u32b esp;               /* ESP flags */
         u32b fego;              /* ego flags */
 
+        u32b aflags1;            /* Ego-Item Flags, set 1 */
+        u32b aflags2;            /* Ego-Item Flags, set 2 */
+        u32b aflags3;            /* Ego-Item Flags, set 3 */
+        u32b aflags4;            /* Ego-Item Flags, set 4 */
+        u32b aflags5;            /* Ego-Item Flags, set 5 */
+        u32b aesp;               /* ESP flags */
+
         s16b power;             /* Power granted(if any) */
+};
+
+typedef struct randart_gen_type randart_gen_type;
+struct randart_gen_type
+{
+        int chance;             /* Chance to have that number of powers */
+        int dd;
+        int ds;
+        int plus;               /* xdy+plus power */
 };
 
 
@@ -562,6 +580,9 @@ struct monster_ego
 	byte d_attr;			/* Default monster attribute */
 	char d_char;			/* Default monster character */
 
+	byte g_attr;                    /* Overlay graphic attribute */
+	char g_char;                    /* Overlay graphic character */
+
         char r_char[5];                 /* Monster race allowed */
         char nr_char[5];                /* Monster race not allowed */
 };
@@ -610,6 +631,8 @@ struct trap_type {
   s16b name;        /* normal name like weakness */
   s16b dd, ds;      /* base damage */
   s16b text;        /* longer description once you've met this trap */
+	byte g_attr;                    /* Overlay graphic attribute */
+	char g_char;                    /* Overlay graphic character */
 };
 
 
@@ -915,9 +938,9 @@ struct owner_type
 
         byte insult_max;                /* Insult limit */
 
-        s32b races[2];                  /* Liked/hated races */
-        s32b classes[2];                /* Liked/hated classes */
-        s32b realms[2];                 /* Liked/hated realms */
+        s32b races[2][2];                  /* Liked/hated races */
+        s32b classes[2][2];                /* Liked/hated classes */
+        s32b realms[2][2];                 /* Liked/hated realms */
 
         s16b costs[3];                  /* Costs for liked people */
 };
@@ -1006,34 +1029,6 @@ struct magic_type
 	byte sexp;			/* Encoded experience bonus */
 };
 
-
-/*
- * Information about the player's "magic"
- *
- * Note that a player with a "spell_book" of "zero" is illiterate.
- */
-
-typedef struct player_magic player_magic;
-
-struct player_magic
-{
-	int spell_book;		/* Tval of spell books (if any) */
-	int spell_xtra;		/* Something for later */
-
-	int spell_stat;		/* Stat for spells (if any)  */
-	int spell_type;		/* Spell type (mage/priest) */
-
-        int spell_lev;          /* The higher it is the higher the spells level are */
-        int spell_fail;         /* The higher it is the higher the spells failure are */
-        int spell_mana;         /* The higher it is the higher the spells mana are */
-        int spell_first;        /* Level of first spell */
-        int spell_weight;       /* Weight that hurts spells */
-
-        byte max_spell_level;   /* Maximun spell level */
-};
-
-
-
 /*
  * Player sex info
  */
@@ -1056,10 +1051,12 @@ typedef struct player_race player_race;
 
 struct player_race
 {
-	cptr title;			/* Type of race */
-        cptr desc;
+        s32b title;                     /* Type of race */
+        s32b desc;
 
 	s16b r_adj[6];		/* Racial stat bonuses */
+
+        char luck;              /* Luck */
 
 	s16b r_dis;			/* disarming */
 	s16b r_dev;			/* magic devices */
@@ -1086,24 +1083,40 @@ struct player_race
 	byte f_b_wt;		/* base weight (females) */
 	byte f_m_wt;		/* mod weight (females) */
 
-	byte infra;			/* Infra-vision	range */
+        byte infra;             /* Infra-vision range */
 
-        u32b choice;        /* Legal class choices */
+        u32b choice[2];            /* Legal class choices */
 
-        s16b powers[4];        /* Powers of the race */
+        s16b powers[4];         /* Powers of the race */
 
         byte body_parts[BODY_MAX];      /* To help to decide what to use when body changing */
+
+        s16b chart;             /* Chart history */
+
+        s32b flags1;
+        s32b flags2;            /* flags */
+
+        s32b oflags1[PY_MAX_LEVEL + 1];
+        s32b oflags2[PY_MAX_LEVEL + 1];
+        s32b oflags3[PY_MAX_LEVEL + 1];
+        s32b oflags4[PY_MAX_LEVEL + 1];
+        s32b oflags5[PY_MAX_LEVEL + 1];
+        s32b oesp[PY_MAX_LEVEL + 1];
+        s16b opval[PY_MAX_LEVEL + 1];
 };
 
 typedef struct player_race_mod player_race_mod;
 
 struct player_race_mod
 {
-        cptr title;                     /* Type of race mod */
-        cptr desc;                      /* Desc */
+        s32b title;                     /* Type of race mod */
+        s32b desc;                      /* Desc */
         bool place;                     /* TRUE = race race modifier, FALSE = Race modifier race */
 
         s16b r_adj[6];                  /* (+) Racial stat bonuses */
+
+        char luck;                      /* Luck */
+        s16b mana;                      /* Mana % */
 
         s16b r_dis;                     /* (+) disarming */
         s16b r_dev;                     /* (+) magic devices */
@@ -1132,14 +1145,28 @@ struct player_race_mod
 
         char infra;             /* (+) Infra-vision range */
 
-        u32b choice;            /* Legal race choices */
+        u32b choice[2];            /* Legal race choices */
 
-        u32b pclass;            /* Classes allowed */
-        u32b mclass;            /* Classes restricted */
+        u32b pclass[2];            /* Classes allowed */
+        u32b mclass[2];            /* Classes restricted */
 
         s16b powers[4];        /* Powers of the subrace */
 
         char body_parts[BODY_MAX];      /* To help to decide what to use when body changing */
+
+        s32b flags1;
+        s32b flags2;            /* flags */
+
+        s32b oflags1[PY_MAX_LEVEL + 1];
+        s32b oflags2[PY_MAX_LEVEL + 1];
+        s32b oflags3[PY_MAX_LEVEL + 1];
+        s32b oflags4[PY_MAX_LEVEL + 1];
+        s32b oflags5[PY_MAX_LEVEL + 1];
+        s32b oesp[PY_MAX_LEVEL + 1];
+        s16b opval[PY_MAX_LEVEL + 1];
+
+	byte g_attr;                    /* Overlay graphic attribute */
+	char g_char;                    /* Overlay graphic character */
 };
 
 
@@ -1151,8 +1178,9 @@ typedef struct player_class player_class;
 
 struct player_class
 {
-	cptr title;			/* Type of class */
-        cptr desc;                      /* Small desc of the class */
+        s32b title;                     /* Type of class */
+        s32b desc;                      /* Small desc of the class */
+        s32b titles[PY_MAX_LEVEL / 5];
 
 	s16b c_adj[6];		/* Class stat modifier */
 
@@ -1179,10 +1207,65 @@ struct player_class
 
         s16b powers[4];        /* Powers of the class */
 
+        s16b spell_book;		/* Tval of spell books (if any) */
+	s16b spell_stat;		/* Stat for spells (if any)  */
+        s16b spell_lev;          /* The higher it is the higher the spells level are */
+        s16b spell_fail;         /* The higher it is the higher the spells failure are */
+        s16b spell_mana;         /* The higher it is the higher the spells mana are */
+        s16b spell_first;        /* Level of first spell */
+        s16b spell_weight;       /* Weight that hurts spells */
+        byte max_spell_level;   /* Maximun spell level */
+        byte magic_max_spell;  /* Maximun numbner of spells one can learn by natural means */
+
         s32b flags1;            /* flags */
+        s32b flags2;            /* flags */
+
+        s16b mana;
+        s16b blow_num;
+        s16b blow_wgt;
+        s16b blow_mul;
+        s16b extra_blows;
+
+        s16b max_companion;
+        s16b max_companion_plus;
+
+        u32b Mrealm_choices[2];
+        u32b mrealm_choices[2];
+
+        s32b sense_base;
+        s32b sense_pl;
+        s32b sense_plus;
+        byte sense_heavy;
+        byte sense_heavy_magic;
+
+        s32b magic_key;
+        s32b magic_desc;
+        byte magic_disrupt;
+
+        s16b obj_tval[5];
+        s16b obj_sval[5];
+        s16b obj_dd[5];
+        s16b obj_ds[5];
+        s16b obj_num;
+
+        char body_parts[BODY_MAX];      /* To help to decide what to use when body changing */
+
+        s32b oflags1[PY_MAX_LEVEL + 1];
+        s32b oflags2[PY_MAX_LEVEL + 1];
+        s32b oflags3[PY_MAX_LEVEL + 1];
+        s32b oflags4[PY_MAX_LEVEL + 1];
+        s32b oflags5[PY_MAX_LEVEL + 1];
+        s32b oesp[PY_MAX_LEVEL + 1];
+        s16b opval[PY_MAX_LEVEL + 1];
 };
 
-
+typedef struct meta_class_type meta_class_type;
+struct meta_class_type
+{
+        char name[80];     /* Name */
+        byte color;
+        s16b *classes;          /* list of classes */
+};
 
 /* Help type */
 typedef struct help_info help_info;
@@ -1265,9 +1348,9 @@ struct player_type
         u16b chp_frac;                  /* Cur hit frac (times 2^16) */
         s16b hp_mod;                    /* A modificator(permanent) */
 
-	s16b msp;			/* Max mana pts */
-	s16b csp;			/* Cur mana pts */
-	u16b csp_frac;		/* Cur mana frac (times 2^16) */
+        s32b msp;                       /* Max mana pts */
+        s32b csp;                       /* Cur mana pts */
+        u32b csp_frac;          /* Cur mana frac (times 2^16) */
 
         s16b msane;                   /* Max sanity */
         s16b csane;                   /* Cur sanity */
@@ -1282,10 +1365,14 @@ struct player_type
         s32b god_favor;               /* Last time you asked for a favor. */
         byte pgod;                    /* Your God. */
 
-	s16b max_plv;		/* Max Player Level */
+        s16b max_plv;                   /* Max Player Level */
 
-	s16b stat_max[6];	/* Current "maximal" stat values */
-	s16b stat_cur[6];	/* Current "natural" stat values */
+        s16b stat_max[6];               /* Current "maximal" stat values */
+        s16b stat_cur[6];               /* Current "natural" stat values */
+
+        s16b luck_cur;                  /* Current "natural" luck value (range -30 <> 30) */
+        s16b luck_max;                  /* Current "maximal base" luck value (range -30 <> 30) */
+        s16b luck_base;                 /* Current "base" luck value (range -30 <> 30) */
 
 	s16b fast;			/* Timed -- Fast */
         s16b lightspeed;                /* Timed -- Light Speed */
@@ -1322,6 +1409,7 @@ struct player_type
         s16b oppose_ss;         /* Timed -- oppose sound & shards */
         s16b oppose_nex;        /* Timed -- oppose nexus */
 
+        s16b rush;              /* Rush and Bush */
 
         s16b tim_esp;       /* Timed ESP */
         s16b tim_wraith;    /* Timed wraithform */
@@ -1431,10 +1519,6 @@ struct player_type
         bool resist_continuum;  /* Resist space-time continuum disruption */
 
         bool sensible_fire;     /* Fire does more damage on the player */
-/* Not used and NOT coded now */
-/*        bool sensible_cold;*/   /* Cold does more damage on the player */
-/*        bool sensible_elec;*/   /* Lightning does more damage on the player */
-/*        bool sensible_acid;*/   /* Acid does more damage on the player */
 
         bool reflect;       /* Reflect 'bolt' attacks */
         bool sh_fire;       /* Fiery 'immolation' effect */
@@ -1481,6 +1565,7 @@ struct player_type
 
 	s16b dis_ac;		/* Known base ac */
 
+        s16b to_l;                      /* Bonus to life */
         s16b to_m;                      /* Bonus to mana */
         s16b to_s;                      /* Bonus to spell */
 	s16b to_h;			/* Bonus to hit */
@@ -1531,6 +1616,10 @@ struct player_type
         u32b race_extra6;       /* Variable for race */
         u32b race_extra7;       /* Variable for race */
 
+        u16b dodge_chance;      /* Dodging chance */
+
+        u32b maintain_sum;      /* Do we have partial summons */
+
         cptr mimic_name;
 
         byte music;             /* Current music */
@@ -1561,8 +1650,8 @@ struct player_type
         bool astral;              /* We started at the bottom ? */
 
         /* Powers */
-        s32b powers[POWER_SLOT];     /* Actual powers */
-        s32b powers_mod[POWER_SLOT]; /* Intrinsinc powers */
+        bool *powers;     /* Actual powers */
+        bool powers_mod[POWER_MAX_INIT]; /* Intrinsinc powers */
 
         /* Help */
         help_info help;
@@ -1584,7 +1673,8 @@ struct martial_arts
     int     chance;     /* Chance of 'success' */
     int     dd;        /* Damage dice */
     int     ds;        /* Damage sides */
-    int     effect;     /* Special effects */
+    s16b    effect;     /* Special effects */
+    s16b    power;     /* Special effects power */
 };
 
 
@@ -1772,6 +1862,7 @@ struct fate {
         s16b count;     /* Number of things */
         s16b time;      /* Turn before */
         bool know;      /* Has it been predicted? */
+	bool icky;	/* Hackish runtime-only flag */
 };
 
 /* A structure for movements */
@@ -1886,6 +1977,7 @@ typedef struct flags_group flags_group;
 struct flags_group
 {
         char name[30];          /* Name */
+        byte color;             /* Color */
 
         byte price;             /* Price to "buy" it */
 
@@ -1900,10 +1992,10 @@ struct flags_group
 typedef struct power_type power_type;
 struct power_type
 {
-        char name[40];          /* Name */
-        cptr desc_text;         /* Text describing power */
-        cptr gain_text;         /* Text displayed on gaining the power */
-        cptr lose_text;         /* Text displayed on losing the power */
+        char *name;              /* Name */
+        char *desc_text;         /* Text describing power */
+        char *gain_text;         /* Text displayed on gaining the power */
+        char *lose_text;         /* Text displayed on losing the power */
 
         byte level;             /* Min level */
         byte cost;              /* Mana/Life cost */
@@ -1912,7 +2004,7 @@ struct power_type
 };
 
 /* Hooks */
-typedef bool (*hook_type)(int q);
+typedef bool (*hook_type)(char *fmt);
 
 /*
  * Structure for the "quests"
@@ -1923,9 +2015,9 @@ struct quest_type
 {
         bool silent;
 
-        cptr name;              /* Quest name */
+        char name[40];          /* Quest name */
 
-        cptr desc[10];          /* Quest desc */
+        char desc[10][80];      /* Quest desc */
 
         s16b status;            /* Is the quest taken, completed, finished? */
 
@@ -1933,7 +2025,9 @@ struct quest_type
 
         s16b *plot;             /* Which plot does it belongs to? */
 
-        hook_type init;         /* Function that takes care of generating hardcoded quests */
+        byte type;              /* Lua or C ? */
+
+        bool (*init)(int q);    /* Function that takes care of generating hardcoded quests */
 
         s32b data[4];           /* Various datas used by the quests */
 };
@@ -2007,6 +2101,7 @@ struct birther
 	s32b au;
 
 	s16b stat[6];
+        s16b luck;
 
 	s16b chaos_patron;
 
@@ -2017,3 +2112,73 @@ struct birther
         bool quick_ok;
 };
 
+typedef struct hooks_chain hooks_chain;
+struct hooks_chain
+{
+        hook_type hook;
+        char name[40];
+        char script[40];
+        byte type;
+        hooks_chain *next;
+};
+
+typedef union hook_return hook_return;
+union hook_return
+{
+        s32b num;
+        char *str;
+        object_type *o_ptr;
+};
+
+/*
+ * Forward declare
+ */
+typedef struct hist_type hist_type;
+
+/*
+ * Player background information
+ */
+struct hist_type
+{
+        s32b info;                              /* Textual History -- uses rp_text */
+
+	byte roll;			        /* Frequency of this entry */
+        s16b chart;                             /* Chart index */
+        s16b next;                              /* Next chart index */
+	byte bonus;			        /* Social Class Bonus + 50 */
+};
+
+/*
+ * Item sets
+ */
+typedef struct set_type set_type;
+struct set_type
+{
+        u32b name;                              /* Name */
+        u32b desc;                              /* Desc */
+
+        byte num;                               /* Number of artifacts used */
+        byte num_use;                           /* Number actually wore */
+        struct                                  /* the various items */
+        {
+                bool present;                   /* Is it actually wore ? */
+                s16b a_idx;                     /* What artfact ? */
+                s16b pval[6];                   /* Pval for each combinaison */
+                s32b flags1[6];                 /* Flags */
+                s32b flags2[6];                 /* Flags */
+                s32b flags3[6];                 /* Flags */
+                s32b flags4[6];                 /* Flags */
+                s32b flags5[6];                 /* Flags */
+                s32b esp[6];                    /* Flags */
+        } arts[6];
+};
+
+/* A structure for CLI commands. */
+typedef struct cli_comm cli_comm;
+struct cli_comm
+{
+	cptr comm1;
+	cptr comm2;
+	cptr descrip;
+        void (*func)(void);
+};

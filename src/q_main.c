@@ -1,5 +1,8 @@
-bool quest_main_monsters_hook(int r_idx)
+bool quest_main_monsters_hook(char *fmt)
 {
+        s32b r_idx;
+        r_idx = get_next_arg(fmt);
+
         /* Sauron */
         if (r_idx == 860)
         {
@@ -14,7 +17,7 @@ bool quest_main_monsters_hook(int r_idx)
         }
         return FALSE;                
 }
-bool quest_morgoth_hook(int m_idx)
+bool quest_morgoth_hook(char *fmt)
 {
         /* Using test_monster_name() here would be a lot less ugly, but would take much more time */
         monster_race *r_ptr = &r_info[862];
@@ -33,9 +36,9 @@ bool quest_morgoth_hook(int m_idx)
                 if (quest[QUEST_ONE].status == QUEST_STATUS_FINISHED)
                 {
                         cmsg_print(TERM_L_GREEN, "*** CONGRATULATIONS ***");
-                        cmsg_print(TERM_L_GREEN, "You have banished Morgoth's foul spirit from Ea, and as you watch a cleansing");
+                        cmsg_print(TERM_L_GREEN, "You have banished Morgoth's foul spirit from Ea, and as you watch, a cleansing");
                         cmsg_print(TERM_L_GREEN, "winds roars through the dungeon, dispersing the nether mists around where the");
-                        cmsg_print(TERM_L_GREEN, "body fell. You feel the thankfullness, and a touch of sorrow, from the Valar");
+                        cmsg_print(TERM_L_GREEN, "body fell. You feel thanks, and a touch of sorrow, from the Valar");
                         cmsg_print(TERM_L_GREEN, "for your deed. You will be forever heralded, your deed forever legendary.");
                         cmsg_print(TERM_L_GREEN, "You may retire (commit suicide) when you are ready.");
                 }
@@ -57,12 +60,12 @@ bool quest_morgoth_hook(int m_idx)
         }
         return (FALSE);
 };
-bool quest_morgoth_dump_hook(int q_idx)
+bool quest_morgoth_dump_hook(char *fmt)
 {
         if (quest[QUEST_MORGOTH].status >= QUEST_STATUS_COMPLETED)
         {
                 if (quest[QUEST_ONE].status == QUEST_STATUS_FINISHED)
-                        fprintf(hook_file, "\n You saved Arda and became a famed king.");
+                        fprintf(hook_file, "\n You saved Arda and became a famed %s.", sp_ptr->winner);
                 else
                         fprintf(hook_file, "\n You became a new force of darkness and enslaved all free people.");
         }
@@ -79,7 +82,7 @@ bool quest_morgoth_init_hook(int q_idx)
         return (FALSE);
 }
 
-bool quest_sauron_hook(int m_idx)
+bool quest_sauron_hook(char *fmt)
 {
         /* Using test_monster_name() here would be a lot less ugly, but would take much more time */
         monster_race *r_ptr = &r_info[860];
@@ -96,6 +99,7 @@ bool quest_sauron_hook(int m_idx)
                 del_hook(HOOK_MONSTER_DEATH, quest_sauron_hook);
                 add_hook(HOOK_MONSTER_DEATH, quest_morgoth_hook, "morgort_death");
                 *(quest[QUEST_SAURON].plot) = QUEST_MORGOTH;
+                quest_morgoth_init_hook(QUEST_MORGOTH);
 
                 process_hooks_restart = TRUE;
         }
@@ -111,7 +115,7 @@ bool quest_sauron_init_hook(int q_idx)
         return (FALSE);
 }
 
-bool quest_necro_hook(int m_idx)
+bool quest_necro_hook(char *fmt)
 {
         /* Using test_monster_name() here would be a lot less ugly, but would take much more time */
         monster_race *r_ptr = &r_info[819];

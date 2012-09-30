@@ -1,0 +1,36 @@
+$#include "angband.h"
+
+typedef char* cptr;
+typedef int errr;
+typedef unsigned char bool;
+typedef unsigned char byte;
+typedef signed short s16b;
+typedef unsigned short u16b;
+typedef signed int s32b;
+typedef unsigned int u32b;
+
+#define QUEST_STATUS_IGNORED         -1
+#define QUEST_STATUS_UNTAKEN         0
+#define QUEST_STATUS_TAKEN           1
+#define QUEST_STATUS_COMPLETED       2
+#define QUEST_STATUS_REWARDED        3
+#define QUEST_STATUS_FAILED          4
+#define QUEST_STATUS_FINISHED        5
+#define QUEST_STATUS_FAILED_DONE     6
+
+struct quest_type
+{
+        bool silent;
+
+        s16b status;            /* Is the quest taken, completed, finished? */
+
+	s16b level;             /* Dungeon level */
+
+        byte type;              /* Lua or C ? */
+};
+
+extern s16b max_q_idx;
+extern quest_type quest[max_q_idx];
+
+extern s16b    add_new_quest @ new_quest(char *name);
+extern void    desc_quest @ quest_desc(int q_idx, int d, char *desc);

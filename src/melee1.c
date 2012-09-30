@@ -62,7 +62,7 @@ static int check_hit(int power, int level)
 	int i, k, ac;
 
 	/* Percentile dice */
-	k = rand_int(100);
+        k = rand_int(100);
 
 	/* Hack -- Always miss or hit */
 	if (k < 10) return (k < 5);
@@ -74,7 +74,7 @@ static int check_hit(int power, int level)
 	ac = p_ptr->ac + p_ptr->to_a;
 
 	/* Power and Level compete against Armor */
-	if ((i > 0) && (randint(i) > ((ac * 3) / 4))) return (TRUE);
+        if ((i > 0) && (randint(i - luck(-10, 10)) > ((ac * 3) / 4))) return (TRUE);
 
 	/* Assume miss */
 	return (FALSE);
@@ -1336,6 +1336,11 @@ bool make_attack_normal(int m_idx, byte divis)
 			/* Always disturbing */
 			disturb(1, 0);
 
+                        if (PRACE_FLAG2(PR2_BLADE_SPECIAL) && magik(p_ptr->dodge_chance))
+                        {
+                                msg_format("You dodge %^s attack!", m_name);
+                                continue;
+                        }
 
 			/* Hack -- Apply "protection from evil" */
 			if ((p_ptr->protevil > 0) &&

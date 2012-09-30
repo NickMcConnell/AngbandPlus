@@ -456,13 +456,13 @@ void wilderness_gen(int refresh)
         }
 
 	/* Set rewarded quests to finished */
-        for (i = 0; i < MAX_Q_IDX; i++)
+        for (i = 0; i < max_q_idx; i++)
 	{
 		if (quest[i].status == QUEST_STATUS_REWARDED)
 			quest[i].status = QUEST_STATUS_FINISHED;
 	}
 
-        process_hooks(HOOK_WILD_GEN, FALSE);
+        process_hooks(HOOK_WILD_GEN, "(d)", FALSE);
 }
 
 /*
@@ -479,7 +479,7 @@ void wilderness_gen_small()
         for (i = 0; i < MAX_WID; i++)
         for (j = 0; j < MAX_HGT; j++)
 	{
-                cave[j][i].feat = FEAT_PERM_SOLID;
+                cave[j][i].feat = FEAT_EKKAIA;
 	}
 
 	/* Init the wilderness */
@@ -509,13 +509,13 @@ void wilderness_gen_small()
         py = p_ptr->wilderness_y;
 
 	/* Set rewarded quests to finished */
-        for (i = 0; i < MAX_Q_IDX; i++)
+        for (i = 0; i < max_q_idx; i++)
 	{
 		if (quest[i].status == QUEST_STATUS_REWARDED)
 			quest[i].status = QUEST_STATUS_FINISHED;
 	}
 
-        process_hooks(HOOK_WILD_GEN, TRUE);
+        process_hooks(HOOK_WILD_GEN, "(d)", TRUE);
 }
 
 /* Show a small radius of wilderness around the player */

@@ -1,63 +1,133 @@
 # File: Makefile.ibm
 
-# Purpose: Makefile support for "main-ibm.c" and Gnu C
+# Purpose: Makefile support for "main-ibm.c"
 
+#
 # Note: Rename to "Makefile" before using
-# Added extra targets: mrmarcel@eos.ncsu.edu (Mike Marcelais)
+#
 
+# Enable lua scripting supoprt
+LUA = TRUE
+
+#
+# Basic definitions
+#
+
+# Objects
+ifdef LUA
 OBJS = \
-  z-util.o z-virt.o z-form.o z-rand.o z-term.o \
-  variable.o tables.o util.o cave.o cmovie.o \
-  object1.o object2.o traps.o monster1.o monster2.o monster3.o \
-  xtra1.o xtra2.o spells1.o spells2.o melee1.o melee2.o \
-  loadsave.o files.o notes.o ghost.o help.o \
-  status.o randart.o \
+  main.o main-ibm.o irc.o \
+  generate.o dungeon.o init1.o init2.o plots.o help.o \
+  store.o birth.o wizard1.o wizard2.o bldg.o cmovie.o \
   cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o cmd7.o \
-  store.o birth.o wizard1.o wizard2.o \
-  generate.o dungeon.o init1.o init2.o \
-  bldg.o levels.o squeltch.o plots.o \
-  main-ibm.o main.o wild.o powers.o
-
+  loadsave.o files.o levels.o notes.o squeltch.o \
+  status.o randart.o \
+  script.o libtolua.o \
+  lua/lapi.o lua/lauxlib.o lua/lbuffer.o lua/lbuiltin.o lua/ldo.o lua/ltm.o \
+  lua/lmem.o lua/lobject.o lua/lparser.o lua/lstate.o lua/lstring.o  \
+	lua/ltable.o \
+  lua/lundump.o lua/lvm.o lua/lzio.o lua/lfunc.o lua/lgc.o lua/llex.o \
+  lua/lstrlib.o lua/liolib.o lua/lbitlib.o \
+  w_util.o w_player.o w_z_pack.o w_obj.o w_mnster.o w_spells.o w_play_c.o \
+  xtra1.o xtra2.o spells1.o spells2.o melee1.o melee2.o \
+  object1.o object2.o traps.o monster1.o monster2.o monster3.o \
+  variable.o tables.o util.o cave.o ghost.o wild.o powers.o \
+  z-term.o z-rand.o z-form.o z-virt.o z-util.o
+else
+OBJS = \
+  main.o main-ibm.o irc.o \
+  generate.o dungeon.o init1.o init2.o plots.o help.o \
+  store.o birth.o wizard1.o wizard2.o bldg.o cmovie.o \
+  cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o cmd7.o \
+  loadsave.o files.o levels.o notes.o squeltch.o \
+  status.o randart.o \
+  xtra1.o xtra2.o spells1.o spells2.o melee1.o melee2.o \
+  object1.o object2.o traps.o monster1.o monster2.o monster3.o \
+  variable.o tables.o util.o cave.o ghost.o wild.o powers.o \
+  z-term.o z-rand.o z-form.o z-virt.o z-util.o
+endif
 
 # Compiler
-
 CC = gcc
 
-# Compiler flags
+ifdef LUA
+LUAFLAGS = -DUSE_LUA -DLUA_NUM_TYPE=long -I.
+endif
 
-CFLAGS = -Wall -O2 -DUSE_IBM
+# Compiler flags
+CFLAGS = -Wall -O2 -s -DUSE_IBM -DUSE_SOCK -DUSE_DOSSOCK
 
 # Libraries
-
-LIBS = -lpc
-GLIBS= -lgrx20
-
-# Name of Program
-
-PROGRAM = angband.exe makepref.exe gredit.exe
+LIBS = -lpc $(LUALIBS) -lsocket
 
 
-all: $(PROGRAM)
+#
+# Targets
+#
 
-# Generate binary file
+default: ../pernang.exe
 
-angband.exe: $(OBJS)
-	$(CC) $(CFLAGS) -o angband.bin $(OBJS) $(LIBS)
+release: ../pernang.exe
+	upx -9 ../pernang.exe
+#         copy pernang.exe ..
+#         del pernang.exe
 
-gredit.exe: gredit.o
-	$(CC) $(CFLAGS) -o gredit.bin gredit.o $(LIBS) $(GLIBS)
+all: ../pernang.exe
+#        @echo All done.  Use 'make install' to install.
 
-makepref.exe: makepref.o
-	$(CC) $(CFLAGS) -o makepref.bin makepref.o $(LIBS)
+
+#
+# Link executables
+#
+
+../pernang.exe: $(OBJS)
+	$(CC) $(CFLAGS) -o $@ $(OBJS) $(LIBS)
+
+
+#
 # Compile source files
+#
 
 .c.o:
-	$(CC) $(CFLAGS) -c $*.c
+	$(CC) $(CFLAGS) -c -o $*.o $*.c
 
 
+#
 # Clean up
+#
 
 clean:
-	del *.o $(PROGRAM) *.bin
+	del *.o
 
+cleanall: clean
+	del *.exe
 
+plots.o: q_rand.c q_main.c q_one.c \
+	q_thief.c q_hobbit.c q_nazgul.c q_troll.c q_wight.c \
+	q_spider.c q_poison.c \
+	q_eol.c q_nirna.c q_invas.c \
+	q_betwen.c \
+	q_narsil.c
+
+ifdef LUA
+w_mnster.c: monster.pkg
+	tolua -n monster -o w_mnster.c monster.pkg
+
+w_play_c.c: player_c.pkg
+	tolua -n player_c -o w_play_c.c player_c.pkg
+
+w_player.c: player.pkg
+	tolua -n player -o w_player.c player.pkg
+
+w_z_pack.c: z_pack.pkg
+	tolua -n z_pack -o w_mnster.c monster.pkg
+
+w_obj.c: object.pkg
+	tolua -n object -o w_obj.c object.pkg
+
+w_util.c: util.pkg
+	tolua -n util -o w_util.c util.pkg
+
+w_spells.c: spells.pkg
+	tolua -n spells -o w_spells.c spells.pkg
+endif

@@ -606,6 +606,133 @@ char get_shimmer_color()
         return (TERM_VIOLET);
 }
 
+/* 
+ * Table of breath colors.  Must match listings in a single set of 
+ * monster spell flags.
+ *
+ * The value "255" is special.  Monsters with that kind of breath 
+ * may be any color.
+ */
+static byte breath_to_attr[32][2] = 
+{
+	{  0,  0 },
+	{  0,  0 },
+	{  0,  0 },
+	{  0,  0 },
+	{  0,  0 },
+	{  0,  0 },
+	{  0,  0 },
+	{  0,  0 },
+	{  TERM_SLATE, TERM_L_DARK },       /* RF4_BRTH_ACID */
+	{  TERM_BLUE,  TERM_L_BLUE },       /* RF4_BRTH_ELEC */
+	{  TERM_RED,  TERM_L_RED },         /* RF4_BRTH_FIRE */
+	{  TERM_WHITE,  TERM_L_WHITE },     /* RF4_BRTH_COLD */
+	{  TERM_GREEN,  TERM_L_GREEN },     /* RF4_BRTH_POIS */
+	{  TERM_L_GREEN,  TERM_GREEN },     /* RF4_BRTH_NETHR */
+	{  TERM_YELLOW,  TERM_ORANGE },     /* RF4_BRTH_LITE */
+	{  TERM_L_DARK,  TERM_SLATE },      /* RF4_BRTH_DARK */
+	{  TERM_L_UMBER,  TERM_UMBER },     /* RF4_BRTH_CONFU */
+	{  TERM_YELLOW,  TERM_L_UMBER },    /* RF4_BRTH_SOUND */
+        {  255,  255 },   /* (any color) */ /* RF4_BRTH_CHAOS */
+	{  TERM_VIOLET,  TERM_VIOLET },     /* RF4_BRTH_DISEN */
+	{  TERM_L_RED,  TERM_VIOLET },      /* RF4_BRTH_NEXUS */
+	{  TERM_L_BLUE,  TERM_L_BLUE },     /* RF4_BRTH_TIME */
+	{  TERM_L_WHITE,  TERM_SLATE },     /* RF4_BRTH_INER */
+	{  TERM_L_WHITE,  TERM_SLATE },     /* RF4_BRTH_GRAV */
+	{  TERM_UMBER,  TERM_L_UMBER },     /* RF4_BRTH_SHARD */
+	{  TERM_ORANGE,  TERM_RED },        /* RF4_BRTH_PLAS */
+	{  TERM_UMBER,  TERM_L_UMBER },     /* RF4_BRTH_FORCE */
+	{  TERM_L_BLUE,  TERM_WHITE },      /* RF4_BRTH_MANA */
+	{  0,  0 },     /*  */
+	{  TERM_GREEN,  TERM_L_GREEN },     /* RF4_BRTH_NUKE */
+	{  0,  0 },     /*  */
+	{  TERM_WHITE,  TERM_L_RED },       /* RF4_BRTH_DISINT */
+};
+/*
+ * Multi-hued monsters shimmer acording to their breaths.
+ *
+ * If a monster has only one kind of breath, it uses both colors 
+ * associated with that breath.  Otherwise, it just uses the first 
+ * color for any of its breaths.
+ *
+ * If a monster does not breath anything, it can be any color.
+ */
+static byte multi_hued_attr(monster_race *r_ptr)
+{
+	byte allowed_attrs[15];
+
+	int i, j;
+
+	int stored_colors = 0;
+	int breaths = 0;
+	int first_color = 0;
+	int second_color = 0;
+
+
+	/* Monsters with no ranged attacks can be any color */
+	if (!r_ptr->freq_inate) return (get_shimmer_color());
+
+	/* Check breaths */
+	for (i = 0; i < 32; i++)
+	{
+		bool stored = FALSE;
+
+		/* Don't have that breath */
+		if (!(r_ptr->flags4 & (1L << i))) continue;
+
+		/* Get the first color of this breath */
+		first_color = breath_to_attr[i][0];
+
+		/* Breath has no color associated with it */
+		if (first_color == 0) continue;
+
+		/* Monster can be of any color */
+		if (first_color == 255) return (randint(15));
+
+
+		/* Increment the number of breaths */
+		breaths++;
+
+		/* Monsters with lots of breaths may be any color. */
+		if (breaths == 6) return (randint(15));
+
+
+		/* Always store the first color */
+		for (j = 0; j < stored_colors; j++)
+		{
+			/* Already stored */
+			if (allowed_attrs[j] == first_color) stored = TRUE;
+		}
+		if (!stored)
+		{
+			allowed_attrs[stored_colors] = first_color;
+			stored_colors++;
+		}
+
+		/* 
+		 * Remember (but do not immediately store) the second color 
+		 * of the first breath.
+		 */
+		if (breaths == 1)
+		{
+			second_color = breath_to_attr[i][1];
+		}
+	}
+
+	/* Monsters with no breaths may be of any color. */
+	if (breaths == 0) return (get_shimmer_color());
+
+	/* If monster has one breath, store the second color too. */
+	if (breaths == 1)
+	{
+		allowed_attrs[stored_colors] = second_color;
+		stored_colors++;
+	}
+
+	/* Pick a color at random */
+	return (allowed_attrs[rand_int(stored_colors)]);
+}
+
 /*
  * Extract the attr/char to display at the given (legal) map location
  *
@@ -727,7 +854,11 @@ char get_shimmer_color()
  * then a whole lot of code should be changed...  XXX XXX
  */
 #ifdef USE_TRANSPARENCY
+#ifdef USE_EGO_GRAPHICS
+void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp, byte *eap, char *ecp)
+#else /* USE_EGO_GRAPHICS */
 void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
+#endif /* USE_EGO_GRAPHICS */
 #else /* USE_TRANSPARENCY */
 void map_info(int y, int x, byte *ap, char *cp)
 #endif /* USE_TRANSPARENCY */
@@ -752,6 +883,12 @@ void map_info(int y, int x, byte *ap, char *cp)
 	/* Feature code */
 	feat = c_ptr->feat;
 
+#ifdef USE_EGO_GRAPHICS
+	/* Reset attr/char */
+	*eap = 0;
+	*ecp = 0;
+#endif /* USE_EGO_GRAPHICS */
+
 	/* Floors (etc) */
         if ((f_info[feat].flags1 & FF1_FLOOR) && !(f_info[feat].flags1 & FF1_REMEMBER))
 	{
@@ -762,6 +899,12 @@ void map_info(int y, int x, byte *ap, char *cp)
 		       (c_ptr->info & (CAVE_VIEW)))) &&
 		     !p_ptr->blind))
 		{
+			/* Apply "mimic" field */
+			if (c_ptr->mimic)
+				feat = c_ptr->mimic;
+			else
+				feat = f_info[feat].mimic;
+
 			/* Access floor */
                         f_ptr = &f_info[feat];
 
@@ -775,21 +918,35 @@ void map_info(int y, int x, byte *ap, char *cp)
 			/* Hack to display detected traps */
 			if ((c_ptr->t_idx != 0) && (c_ptr->info & CAVE_TRDT))
 			{
-				/* If trap isn't on door display it */
-				if (!(f_ptr->flags1 & FF1_DOOR)) c = '^';
-				
-				/* Add attr */
-				a = t_info[c_ptr->t_idx].color;
+#ifdef USE_EGO_GRAPHICS
+				if (use_graphics &&
+				    (t_info[c_ptr->t_idx].g_attr != 0) &&
+				    (t_info[c_ptr->t_idx].g_char != 0))
+				{
+					*eap = t_info[c_ptr->t_idx].g_attr;
+					*ecp = t_info[c_ptr->t_idx].g_char;
+				}
+				else
+				{
+#endif /* USE_EGO_GRAPHICS */
+					/* If trap isn't on door display it */
+					if (!(f_ptr->flags1 & FF1_DOOR)) c = '^';
+					
+					/* Add attr */
+					a = t_info[c_ptr->t_idx].color;
 
-                                /* Get a new color with a strange formula :) */
-                                if (t_info[c_ptr->t_idx].flags & FTRAP_CHANGE)
-                                {
-                                        s32b tmp;
+					/* Get a new color with a strange formula :) */
+					if (t_info[c_ptr->t_idx].flags & FTRAP_CHANGE)
+					{
+						s32b tmp;
 
-                                        tmp = dun_level + dungeon_type + c_ptr->feat;
+						tmp = dun_level + dungeon_type + c_ptr->feat;
 
-                                        a = tmp % 16;
-                                }
+						a = tmp % 16;
+					}
+#ifdef USE_EGO_GRAPHICS
+				}
+#endif /* USE_EGO_GRAPHICS */
 			}
 			
 			/* Special lighting effects */
@@ -912,18 +1069,32 @@ void map_info(int y, int x, byte *ap, char *cp)
 			if ((c_ptr->t_idx != 0) && (c_ptr->info & CAVE_TRDT) &&
 			    (c_ptr->feat != FEAT_ILLUS_WALL))
                         {
-				a = t_info[c_ptr->t_idx].color;
+#ifdef USE_EGO_GRAPHICS
+				if (use_graphics &&
+				    (t_info[c_ptr->t_idx].g_attr != 0) &&
+				    (t_info[c_ptr->t_idx].g_char != 0))
+				{
+					*eap = t_info[c_ptr->t_idx].g_attr;
+					*ecp = t_info[c_ptr->t_idx].g_char;
+				}
+				else
+				{
+#endif /* USE_EGO_GRAPHICS */
+					a = t_info[c_ptr->t_idx].color;
 
-                                /* Get a new color with a strange formula :) */
-                                if (t_info[c_ptr->t_idx].flags & FTRAP_CHANGE)
-                                {
-                                        s32b tmp;
+					/* Get a new color with a strange formula :) */
+					if (t_info[c_ptr->t_idx].flags & FTRAP_CHANGE)
+					{
+						s32b tmp;
 
-                                        tmp = dun_level + dungeon_type + c_ptr->feat;
+						tmp = dun_level + dungeon_type + c_ptr->feat;
 
-                                        a = tmp % 16;
-                                }
-                        }
+						a = tmp % 16;
+#ifdef USE_EGO_GRAPHICS
+					}
+#endif /* USE_EGO_GRAPHICS */
+				}
+			}
 
 			/* Special lighting effects */
                         if (view_granite_lite && (!p_ptr->wild_mode) &&
@@ -1093,15 +1264,55 @@ void map_info(int y, int x, byte *ap, char *cp)
 	if (c_ptr->m_idx)
 	{
 		monster_type *m_ptr = &m_list[c_ptr->m_idx];
+                monster_race *r_ptr = race_inf(m_ptr);
 
+                if (r_ptr->flags9 & RF9_MIMIC)
+                {
+                        object_type *o_ptr;
+		
+                        /* Acquire object */
+                        o_ptr = &o_list[m_ptr->hold_o_idx];
+
+                        /* Memorized objects */
+                        if (o_ptr->marked)
+                        {
+                                /* Normal char */
+                                (*cp) = object_char(o_ptr);
+                                (*ap) = object_attr(o_ptr);
+
+                                /* Normal attr */
+                                if ((!avoid_other) && (!(((*ap) & 0x80) && ((*cp) & 0x80))) && (k_info[o_ptr->k_idx].flags5 & TR5_ATTR_MULTI))
+                                        (*ap) = get_shimmer_color();
+
+                                /* Hack -- hallucination */
+                                if (p_ptr->image) image_object(ap, cp);
+                        }
+                }
+                else
+                {
 		/* Visible monster */
 		if (m_ptr->ml)
 		{
                         monster_race *r_ptr = race_inf(m_ptr);
 
-                        /* DGDGDGDG -- Ok mega hack to make gfx mode usable -- ignore ego monster */
+#ifdef USE_EGO_GRAPHICS
+			/* Reset attr/char */
+			*eap = 0;
+			*ecp = 0;
+#endif /* USE_EGO_GRAPHICS */
+
                         if (use_graphics)
                         {
+#ifdef USE_EGO_GRAPHICS
+				monster_ego *re_ptr = &re_info[m_ptr->ego];
+
+				/* Desired attr */
+				*eap = re_ptr->g_attr;
+
+				/* Desired char */
+				*ecp = re_ptr->g_char;
+#endif
+
                                 r_ptr = &r_info[m_ptr->r_idx];
                         }
 
@@ -1164,7 +1375,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 				/* Multi-hued attr */
 				if (r_ptr->flags2 & (RF2_ATTR_ANY))
 					(*ap) = randint(15);
-                                else (*ap) = get_shimmer_color();
+                                else (*ap) = multi_hued_attr(r_ptr);
 			}
 
 			/* Normal monster (not "clear" in any way) */
@@ -1212,12 +1423,19 @@ void map_info(int y, int x, byte *ap, char *cp)
 				image_monster(ap, cp);
 			}
 		}
+                }
 	}
 
 	/* Handle "player" */
         if ((y == py) && (x == px) && ((!p_ptr->invis) || ((p_ptr->invis) && (p_ptr->see_inv))))
 	{
                 monster_race *r_ptr = &r_info[p_ptr->body_monster];
+
+#ifdef USE_EGO_GRAPHICS
+		/* Reset attr/char */
+		*eap = 0;
+		*ecp = 0;
+#endif /* USE_EGO_GRAPHICS */
 
 		/* Get the "player" attr */
                 if (r_ptr->flags1 & RF1_ATTR_MULTI) a = get_shimmer_color();
@@ -1226,6 +1444,31 @@ void map_info(int y, int x, byte *ap, char *cp)
 		/* Get the "player" char */
                 c = (hack_map_info_default)?r_ptr->d_char:r_ptr->x_char;
                 a = (hack_map_info_default)?r_ptr->d_attr:r_ptr->x_attr;
+
+#ifdef USE_EGO_GRAPHICS
+		if (p_ptr->pracem)
+		{
+			player_race_mod *rmp_ptr = &race_mod_info[p_ptr->pracem];
+
+			/* Desired attr */
+			*eap = rmp_ptr->g_attr;
+
+			/* Desired char */
+			*ecp = rmp_ptr->g_char;
+		}
+#endif /* USE_EGO_GRAPHICS */
+
+                if (!use_graphics && (c == '@') && player_char_health)
+                {
+                        int percent = p_ptr->chp * 10 / p_ptr->mhp;
+
+                        if (percent < 7)
+                        {
+                                c = I2D(percent);
+                                if (percent < 3)
+                                        a = TERM_L_RED;
+                        }
+                }
 
 #ifdef USE_GRAPHICS
 #ifdef VARIABLE_PLAYER_GRAPH
@@ -1239,142 +1482,6 @@ void map_info(int y, int x, byte *ap, char *cp)
 				{
 					a = BMP_FIRST_PC_CLASS + p_ptr->pclass;
 					c = BMP_FIRST_PC_RACE  + p_ptr->prace;
-				}
-			}
-			else
-			{
-				if (use_graphics && player_symbols)
-				{
-					if (p_ptr->psex == SEX_FEMALE) c = (char)242;
-	                		switch(p_ptr->pclass)
-					{
-						case CLASS_PALADIN:
-							if (p_ptr->lev < 20)
-								a = TERM_L_WHITE;
-							else
-								a = TERM_WHITE;
-							c = 253;
-	                        	   		break;
-						case CLASS_WARLOCK:
-							if (p_ptr->lev < 20)
-								a = TERM_L_RED;
-							else
-								a = TERM_VIOLET;
-							break;
-						case CLASS_CHAOS_WARRIOR:
-							do
-							{
-								a = randint(15);
-							}
-							while (a == TERM_DARK);
-							break;
-                                                case CLASS_UNBELIEVER:
-                                                        a = TERM_L_DARK;
-                                                        break;
-						case CLASS_MAGE:
-                                                case CLASS_ALCHEMIST:
-						case CLASS_HIGH_MAGE:
-						case CLASS_DAEMONOLOGIST:
-							if (p_ptr->lev < 20)
-								a = TERM_L_RED;
-							else
-								a = TERM_RED;
-							c = 248;
-							break;
-						case CLASS_PRIEST:
-							if (p_ptr->lev < 20)
-								a = TERM_L_BLUE;
-							else
-								a = TERM_BLUE;
-							c = 248;
-							break;
-                                                case CLASS_DRUID:
-						case CLASS_RANGER:
-							if (p_ptr->lev < 20)
-								a = TERM_L_GREEN;
-							else
-								a = TERM_GREEN;
-							break;
-						case CLASS_MERCHANT:
-						case CLASS_ROGUE:
-							if (p_ptr->lev < 20)
-								a = TERM_SLATE;
-							else
-								a = TERM_L_DARK;
-							break;
-                                                case CLASS_MIMIC:
-                                                case CLASS_BEASTMASTER:
-						case CLASS_WARRIOR:
-                                                case CLASS_WEAPONMASTER:
-							if (p_ptr->lev < 20)
-								a = TERM_L_UMBER;
-							else
-								a = TERM_UMBER;
-							break;
-						case CLASS_MONK:
-                                                case CLASS_HARPER:
-						case CLASS_MINDCRAFTER:
-							if (p_ptr->lev < 20)
-								a = TERM_L_UMBER;
-							else
-								a = TERM_UMBER;
-							c = 248;
-							break;
-						default: /* Unknown */
-							a = TERM_WHITE;
-					}
-
-					switch (p_ptr->prace)
-					{
-						case RACE_GNOME:
-						case RACE_HOBBIT:
-							c = 144;
-							break;
-						case RACE_DWARF:
-							c = 236;
-							break;
-						case RACE_HALF_ORC:
-							c = 243;
-							break;
-						case RACE_HALF_TROLL:
-							c = 184;
-							break;
-						case RACE_ELF:
-						case RACE_HALF_ELF:
-						case RACE_HIGH_ELF:
-							c = 223;
-							break;
-                                                case RACE_MOLD:
-						case RACE_HALF_OGRE:
-							c = 168;
-							break;
-						case RACE_HALF_GIANT:
-							c = 145;
-							break;
-                                                case RACE_RKNIGHT:
-							c = 229;
-							break;
-						case RACE_KOBOLD:
-							c = 204;
-							break;
-						case RACE_NIBELUNG:
-							c = 144;
-							break;
-						case RACE_DARK_ELF:
-							c = 223;
-							break;
-                                                case RACE_DRAGONRIDER:
-							if (p_ptr->lev < 20)
-								c = 240;
-							else if (p_ptr->lev < 40)
-								c = 22;
-							else
-								c = 137;
-							break;
-                                                case RACE_ENT:
-							c = 6;
-							break;
-					}
 				}
 			}
 		}
@@ -1495,6 +1602,19 @@ void note_spot(int y, int x)
 		o_ptr->marked = TRUE;
 	}
 
+        if (c_ptr->m_idx)
+        {
+                monster_type *m_ptr = &m_list[c_ptr->m_idx];
+                monster_race *r_ptr = race_inf(m_ptr);
+
+                if (r_ptr->flags9 & RF9_MIMIC)
+                {
+                        object_type *o_ptr = &o_list[m_ptr->hold_o_idx];
+
+                        o_ptr->marked = TRUE;
+                }
+        }
+
 
 	/* Hack -- memorize grids */
 	if (!(c_ptr->info & (CAVE_MARK)))
@@ -1568,16 +1688,29 @@ void lite_spot(int y, int x)
 		byte ta;
 		char tc;
 
+#ifdef USE_EGO_GRAPHICS
+		byte ea;
+		char ec;
+
+		/* Examine the grid */
+		map_info(y, x, &a, &c, &ta, &tc, &ea, &ec);
+#else /* USE_EGO_GRAPHICS */
 		/* Examine the grid */
 		map_info(y, x, &a, &c, &ta, &tc);
+#endif /* USE_EGO_GRAPHICS */
 #else /* USE_TRANSPARENCY */
 		/* Examine the grid */
 		map_info(y, x, &a, &c);
 #endif /* USE_TRANSPARENCY */
 
 #ifdef USE_TRANSPARENCY
+#ifdef USE_EGO_GRAPHICS
+		/* Hack -- Queue it */
+		Term_queue_char(x-panel_col_prt, y-panel_row_prt, a, c, ta, tc, ea, ec);
+#else /* USE_EGO_GRAPHICS */
 		/* Hack -- Queue it */
 		Term_queue_char(x-panel_col_prt, y-panel_row_prt, a, c, ta, tc);
+#endif /* USE_EGO_GRAPHICS */
 #else /* USE_TRANSPARENCY */
 		/* Hack -- Queue it */
 		Term_queue_char(x-panel_col_prt, y-panel_row_prt, a, c);
@@ -1620,11 +1753,21 @@ void prt_map(void)
 			byte ta;
 			char tc;
 
+#ifdef USE_EGO_GRAPHICS
+			byte ea;
+			char ec;
+
 			/* Determine what is there */
-                        map_info(y, x, &a, &c, &ta, &tc);
+                        map_info(y, x, &a, &c, &ta, &tc, &ea, &ec);
 
 			/* Efficiency -- Redraw that grid of the map */
+			Term_queue_char(x-panel_col_prt, y-panel_row_prt, a, c, ta, tc, ea, ec);
+#else /* USE_EGO_GRAPHICS */
+			/* Determine what is there */
+                        map_info(y, x, &a, &c, &ta, &tc);
+			/* Efficiency -- Redraw that grid of the map */
 			Term_queue_char(x-panel_col_prt, y-panel_row_prt, a, c, ta, tc);
+#endif /* USE_EGO_GRAPHICS */
 #else /* USE_TRANSPARENCY */
 			/* Determine what is there */
                         map_info(y, x, &a, &c);
@@ -1719,6 +1862,10 @@ static byte priority_table[][2] =
 	/* Stairs */
 	{ FEAT_LESS, 25 },
 	{ FEAT_MORE, 25 },
+	
+	/* Stairs */
+	{ FEAT_WAY_LESS, 25 },
+	{ FEAT_WAY_MORE, 25 },
 
         { FEAT_SHAFT_UP, 25 },
         { FEAT_SHAFT_DOWN, 25 },
@@ -1826,7 +1973,11 @@ void display_map(int *cy, int *cx)
 
 			/* Extract the current attr/char at that map location */
 #ifdef USE_TRANSPARENCY
+#ifdef USE_EGO_GRAPHICS
+                        map_info(j, i, &ta, &tc, &ta, &tc, &ta, &tc);
+#else /* USE_EGO_GRAPHICS */
                         map_info(j, i, &ta, &tc, &ta, &tc);
+#endif /* USE_EGO_GRAPHICS */
 #else /* USE_TRANSPARENCY */
                         map_info(j, i, &ta, &tc);
 #endif /* USE_TRANSPARENCY */
@@ -3508,6 +3659,19 @@ void wiz_lite(void)
 		{
 			cave_type *c_ptr = &cave[y][x];
 
+                        if (c_ptr->m_idx)
+                        {
+                                monster_type *m_ptr = &m_list[c_ptr->m_idx];
+                                monster_race *r_ptr = race_inf(m_ptr);
+
+                                if (r_ptr->flags9 & RF9_MIMIC)
+                                {
+                                        object_type *o_ptr = &o_list[m_ptr->hold_o_idx];
+
+                                        o_ptr->marked = TRUE;
+                                }
+                        }
+
 			/* Process all non-walls */
 			/* if (c_ptr->feat < FEAT_SECRET) */
 			{
@@ -3932,8 +4096,8 @@ void disturb(int stop_search, int unused_flag)
 
 	/* Cancel Resting */
 	if (resting)
-	{
-		/* Cancel */
+        {
+                /* Cancel */
 		resting = 0;
 
 		/* Redraw the state (later) */
@@ -3942,7 +4106,7 @@ void disturb(int stop_search, int unused_flag)
 
 	/* Cancel running */
 	if (running)
-	{
+        {
 		/* Cancel */
 		running = 0;
 
@@ -3992,7 +4156,9 @@ int is_quest(int level)
  */
 int random_quest_number()
 {
-        if (random_quests[dun_level].type && (d_info[dungeon_type].flags1 & DF1_PRINCIPAL))
+	if ((dun_level >= 1) && (dun_level < MAX_RANDOM_QUEST) &&
+	    (d_info[dungeon_type].flags1 & DF1_PRINCIPAL) &&
+            (random_quests[dun_level].type) && (!is_randhero()))
         {
                 return dun_level;
 	}

@@ -67,7 +67,7 @@ void mimic_info(char *p, int power)
  * when you run it. It's probably easy to fix but I haven't tried,
  * sorry.
  */
-static int get_magic_power(int *sn, magic_power *powers, int max_powers, void (*power_info)(char *p, int power))
+int get_magic_power(int *sn, magic_power *powers, int max_powers, void (*power_info)(char *p, int power))
 {
 	int             i;
 	int             num = 0;
@@ -156,7 +156,7 @@ static int get_magic_power(int *sn, magic_power *powers, int max_powers, void (*
                                         chance -= 3 * (p_ptr->lev - spell.min_lev);
 
                                         /* Reduce failure rate by INT/WIS adjustment */
-                                        chance -= 3 * (adj_mag_stat[p_ptr->stat_ind[mp_ptr->spell_stat]] - 1);
+                                        chance -= 3 * (adj_mag_stat[p_ptr->stat_ind[cp_ptr->spell_stat]] - 1);
 
 					/* Not enough mana to cast */
 					if (spell.mana_cost > p_ptr->csp)
@@ -165,7 +165,7 @@ static int get_magic_power(int *sn, magic_power *powers, int max_powers, void (*
 					}
 
                                         /* Extract the minimum failure rate */
-                                        minfail = adj_mag_fail[p_ptr->stat_ind[mp_ptr->spell_stat]];
+                                        minfail = adj_mag_fail[p_ptr->stat_ind[cp_ptr->spell_stat]];
 
 					/* Minimum failure rate */
                                         if (chance < minfail) chance = minfail;
@@ -324,7 +324,7 @@ void do_cmd_mindcraft(void)
 	chance -= 3 * (p_ptr->lev - spell.min_lev);
 
 	/* Reduce failure rate by INT/WIS adjustment */
-	chance -= 3 * (adj_mag_stat[p_ptr->stat_ind[mp_ptr->spell_stat]] - 1);
+	chance -= 3 * (adj_mag_stat[p_ptr->stat_ind[cp_ptr->spell_stat]] - 1);
 
 	/* Not enough mana to cast */
 	if (spell.mana_cost > p_ptr->csp)
@@ -333,7 +333,7 @@ void do_cmd_mindcraft(void)
 	}
 
 	/* Extract the minimum failure rate */
-	minfail = adj_mag_fail[p_ptr->stat_ind[mp_ptr->spell_stat]];
+	minfail = adj_mag_fail[p_ptr->stat_ind[cp_ptr->spell_stat]];
 
 	/* Minimum failure rate */
 	if (chance < minfail) chance = minfail;
@@ -739,7 +739,7 @@ void do_cmd_mimic(void)
 	chance -= 3 * (p_ptr->lev - spell.min_lev);
 
 	/* Reduce failure rate by INT/WIS adjustment */
-	chance -= 3 * (adj_mag_stat[p_ptr->stat_ind[mp_ptr->spell_stat]] - 1);
+	chance -= 3 * (adj_mag_stat[p_ptr->stat_ind[cp_ptr->spell_stat]] - 1);
 
 	/* Not enough mana to cast */
 	if (spell.mana_cost > p_ptr->csp)
@@ -748,7 +748,7 @@ void do_cmd_mimic(void)
 	}
 
 	/* Extract the minimum failure rate */
-	minfail = adj_mag_fail[p_ptr->stat_ind[mp_ptr->spell_stat]];
+	minfail = adj_mag_fail[p_ptr->stat_ind[cp_ptr->spell_stat]];
 
 	/* Minimum failure rate */
 	if (chance < minfail) chance = minfail;
@@ -948,35 +948,6 @@ void do_cmd_mimic(void)
  * do_cmd_cast calls this function if the player's class
  * is 'beastmaster'.
  */
-
-int Beastmaster_Summon[25]={
-                SUMMON_ANT,
-                SUMMON_SPIDER,
-                SUMMON_HOUND,
-                SUMMON_HOUND,
-                SUMMON_ANIMAL,
-                SUMMON_ANIMAL_RANGER,
-                SUMMON_PHANTOM,
-                SUMMON_PHANTOM,
-                SUMMON_DRAGON,
-                SUMMON_DRAGON,
-                SUMMON_ELEMENTAL,
-                SUMMON_ELEMENTAL,
-                SUMMON_UNDEAD,
-                SUMMON_HYDRA,
-                SUMMON_ANGEL,
-                SUMMON_HI_DRAGON_NO_UNIQUES,
-                SUMMON_HI_DRAGON_NO_UNIQUES,
-                SUMMON_WRAITH,
-                SUMMON_WRAITH,
-                SUMMON_BIZARRE3,
-                SUMMON_HI_UNDEAD_NO_UNIQUES,
-                SUMMON_HI_UNDEAD_NO_UNIQUES,
-                SUMMON_HI_DEMON,
-                SUMMON_HI_DEMON,
-                SUMMON_HI_DEMON,
-};
-
 void do_cmd_beastmaster(void)
 {
         int plev = p_ptr->lev,i;
@@ -1399,7 +1370,7 @@ void do_cmd_alchemist(void)
                                 }
                                 q_ptr->name2=alchemist_recipes[a].ego[alchemist_num].ego;
                                 apply_magic(q_ptr, dun_level, FALSE, FALSE, FALSE);
-                                if(alchemist_recipes[a].ego[alchemist_num].enchant & ALCHEMIST_ENCHANT_DAM){
+/*                                if(alchemist_recipes[a].ego[alchemist_num].enchant & ALCHEMIST_ENCHANT_DAM){
                                         q_ptr->to_h=rand_int(4+p_ptr->lev/5)+1;
                                         q_ptr->to_d=rand_int(4+p_ptr->lev/5)+1;
                                 }
@@ -1408,7 +1379,7 @@ void do_cmd_alchemist(void)
                                 }
                                 if(alchemist_recipes[a].ego[alchemist_num].enchant & ALCHEMIST_ENCHANT_AC){
                                         q_ptr->to_a=rand_int(5+p_ptr->lev/5)+4;
-                                }
+                                }*/
                         }else{
                                 msg_print("This object is already enchanted !");
                                 used_up=FALSE;
@@ -1705,12 +1676,9 @@ void do_cmd_pray(void) {
   level = interpret_grace() - interpret_favor();
   name = deity_info[p_ptr->pgod-1].name;
 
-  if ((p_ptr->pclass == CLASS_PRIEST) && magik(30)) {
-    level++;
-  }
-
-  if ((p_ptr->pclass == CLASS_PALADIN) && magik(10)) {
-    level++;
+  if ((PRACE_FLAGS(PR1_GOD_FRIEND)) && magik(30))
+  {
+          level++;
   }
 
   if (level < 0) level = 0;
@@ -1771,7 +1739,7 @@ int spell_chance_random(random_spell* rspell) {
   chance -= 3 * (p_ptr->lev - rspell->level);
 
   /* Reduce failure rate by INT/WIS adjustment */
-  chance -= 3 * (adj_mag_stat[p_ptr->stat_ind[mp_ptr->spell_stat]] - 1);
+  chance -= 3 * (adj_mag_stat[p_ptr->stat_ind[cp_ptr->spell_stat]] - 1);
 
   /* Not enough mana to cast */
   if (rspell->mana > p_ptr->csp) {
@@ -1779,7 +1747,7 @@ int spell_chance_random(random_spell* rspell) {
   }
 
   /* Extract the minimum failure rate */
-    minfail = adj_mag_fail[p_ptr->stat_ind[mp_ptr->spell_stat]];
+    minfail = adj_mag_fail[p_ptr->stat_ind[cp_ptr->spell_stat]];
 
   /* Minimum failure rate */
   if (chance < minfail) chance = minfail;
@@ -2013,6 +1981,9 @@ void do_cmd_powermage(void)
 		if(is_magestaff()) energy_use = 80;
 		else energy_use = 100;
 
+		/* Mana is spent anyway */
+		p_ptr->csp -= s_ptr->mana;
+
                 return;
 	}
 
@@ -2084,7 +2055,7 @@ void cast_magic_spell(int spell, byte level)
         long dam, rad;
 
         /* Hack -- chance of "beam" instead of "bolt" */
-        if (cp_ptr->flags1 & CF1_BEAM) beam = plev + 10;
+        if (PRACE_FLAG(PR1_BEAM)) beam = plev + 10;
         else beam = plev / 2;
 
 
@@ -3486,7 +3457,7 @@ void cast_illusion_spell(int spell, byte level)
         long dam, rad;
 
 		/* Hack -- chance of "beam" instead of "bolt" */
-        if (cp_ptr->flags1 & CF1_BEAM) beam = plev + 10;
+        if (PRACE_FLAG(PR1_BEAM)) beam = plev + 10;
         else beam = plev / 2;
 
 		/* Spells.  */
@@ -4005,7 +3976,7 @@ void cast_illusion_spell(int spell, byte level)
 			case 45:
 			{
                                 rad = apply_power_dice(3, to_s, 1);
-                                dam = apply_power_dam(300 + (plev * 2), to_s, 1);
+                                dam = apply_power_dam(30 + (plev * 2), to_s, 1);
                                 if (info_spell)
                                 {
                                         sprintf(spell_txt, " dam %ld", dam);
@@ -4310,12 +4281,26 @@ void do_cmd_possessor()
         }
         if(ext == 1)
         {
+                if (p_ptr->disembodied)
+                {
+			msg_print("You don't currently own a body to use.");
+                        return;
+                }
+
                 use_symbiotic_power(p_ptr->body_monster, TRUE, FALSE, FALSE);
 
                 if (p_ptr->csp < 0)
                 {
                         msg_print("You lose control of your body!");
-                        do_cmd_leave_body(FALSE);
+                        if (!do_cmd_leave_body(FALSE))
+                        {
+                                cmsg_print(TERM_VIOLET, "You are forced back into your body by your cursed items, you suffer a system shock!");
+
+                                p_ptr->chp = 1;
+
+                                /* Display the hitpoints */
+                                p_ptr->redraw |= (PR_HP);
+                        }
                 }
         }
 
@@ -4627,7 +4612,7 @@ void do_cmd_necromancer(void)
 	chance -= 3 * (p_ptr->lev - spell.min_lev);
 
 	/* Reduce failure rate by INT/WIS adjustment */
-	chance -= 3 * (adj_mag_stat[p_ptr->stat_ind[mp_ptr->spell_stat]] - 1);
+	chance -= 3 * (adj_mag_stat[p_ptr->stat_ind[cp_ptr->spell_stat]] - 1);
 
 	/* Not enough mana to cast */
 	if (spell.mana_cost > p_ptr->csp)
@@ -4636,7 +4621,7 @@ void do_cmd_necromancer(void)
 	}
 
 	/* Extract the minimum failure rate */
-	minfail = adj_mag_fail[p_ptr->stat_ind[mp_ptr->spell_stat]];
+	minfail = adj_mag_fail[p_ptr->stat_ind[cp_ptr->spell_stat]];
 
 	/* Minimum failure rate */
 	if (chance < minfail) chance = minfail;
@@ -4766,7 +4751,7 @@ void do_cmd_necromancer(void)
                                 calc_hitpoints();
 
                                 /* Enforce 1 DP */
-                                p_ptr->chp = 1;
+                                p_ptr->chp = p_ptr->mhp;
                                 p_ptr->chp_frac = 0;
 
                                 /* Display the hitpoints */
@@ -4841,7 +4826,7 @@ void cast_daemon_spell(int spell, byte level)
         long dam, rad;
 
 	/* Hack -- chance of "beam" instead of "bolt" */
-        if (cp_ptr->flags1 & CF1_BEAM) beam = plev + 10;
+        if (PRACE_FLAG(PR1_BEAM)) beam = plev + 10;
         else beam = plev / 2;
 
 	/* Spells.  */
@@ -5306,10 +5291,10 @@ int spell_chance_rune(rune_spell* spell)
         chance = (5 * power_rune) + (power);
 
         /* Reduce failure rate by INT/WIS adjustment */
-        chance -= 3 * (adj_mag_stat[p_ptr->stat_ind[mp_ptr->spell_stat]] - 1);
+        chance -= 3 * (adj_mag_stat[p_ptr->stat_ind[cp_ptr->spell_stat]] - 1);
 
         /* Extract the minimum failure rate */
-        minfail = adj_mag_fail[p_ptr->stat_ind[mp_ptr->spell_stat]];
+        minfail = adj_mag_fail[p_ptr->stat_ind[cp_ptr->spell_stat]];
 
         /* Minimum failure rate */
         if (chance < minfail) chance = minfail;
@@ -6220,9 +6205,6 @@ void do_cmd_unbeliever()
         int ext = 0;
         char ch;
 
-        if (p_ptr->pclass != CLASS_UNBELIEVER)
-                return;
-
         /* Select what to do */
         while (TRUE)
         {
@@ -6265,4 +6247,337 @@ void do_cmd_unbeliever()
                         }
                         break;
         }
+}
+
+/*
+ * Summoners
+ */
+void do_cmd_summoner_extract()
+{
+	object_type     *o_ptr, forge, *q_ptr = &forge;
+	cptr q, s;
+        int item, r, e;
+        bool partial;
+
+	/* Require lite */
+	if (p_ptr->blind || no_lite())
+	{
+		msg_print("You cannot see!");
+		return;
+	}
+
+	/* Not when confused */
+	if (p_ptr->confused)
+	{
+		msg_print("You are too confused!");
+		return;
+	}
+
+        item_tester_tval = TV_CORPSE;
+
+	/* Get an item */
+        q = "Use which corpse? ";
+        s = "You have no corpse to use.";
+        if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+
+	/* Get the item (in the pack) */
+	if (item >= 0)
+	{
+		o_ptr = &inventory[item];
+	}
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr = &o_list[0 - item];
+        }
+
+        if (r_info[o_ptr->pval2].flags1 & RF1_UNIQUE)
+                partial = FALSE;
+        else
+                partial = get_check("Do you want to create a partial totem?");
+
+        r = o_ptr->pval2;
+        e = o_ptr->pval3;
+        if (item > 0)
+        {
+                inven_item_increase(item, -1);
+                inven_item_describe(item);
+                inven_item_optimize(item);
+        }
+        else
+        {
+                floor_item_increase(-item, -1);
+                floor_item_describe(-item);
+                floor_item_optimize(-item);
+        }
+
+        if (magik(r_info[o_ptr->pval2].level - p_ptr->lev))
+        {
+                msg_print("You failled to extract a totem.");
+                energy_use += 100;
+                return;
+        }
+
+        object_prep(q_ptr, lookup_kind(TV_TOTEM, partial ? 1 : 2));
+        q_ptr->pval = r;
+        q_ptr->pval2 = 0;
+        q_ptr->number = 1;
+        (void)inven_carry(q_ptr, FALSE);
+
+        msg_print("You extract a totem from the dead corpse.");
+        energy_use += 100;
+}
+
+void summon_true(int r_idx, int item)
+{
+        int i, status, x = 1, y = 1, rx, ry = 0, chance;
+        bool smash;
+        monster_race *r_ptr = &r_info[r_idx];
+
+        /* So you're a True Totem, are you? */
+        /* Let's see if we're going to smash you, and whether you'll be loyal */
+        if (r_ptr->flags1 & (RF1_UNIQUE))
+        {
+                smash = TRUE;
+                chance = (p_ptr->lev * 70 / (r_ptr->level + 1));
+                if (magik(chance))
+                {
+                        status = MSTATUS_PET;
+                }
+                else
+                {
+                        status = MSTATUS_ENEMY;
+                }
+        }
+        else
+        {
+                smash = FALSE;
+                chance = (r_ptr->level * 25 / p_ptr->lev);
+                if (magik(chance)) smash = TRUE;
+
+                chance = (p_ptr->lev * 130 / (r_ptr->level + 1));
+                if (magik(chance))
+                {
+                        status = MSTATUS_PET;
+                }
+                else
+                {
+                        status = MSTATUS_ENEMY;
+                }
+        }
+
+        /* Let's find a spot for you. */
+        for (i = 0; i < 40; i++)
+        {
+                rx = (rand_int(8) - 4) + px;
+                ry = (rand_int(8) - 4) + py;
+                if (cave_empty_bold(ry, rx))
+                {
+                        x = rx;
+                        y = ry;
+                        break;
+                }
+        }
+
+        if (i == 40)
+        {
+                /* Sorry, no room. */
+                msg_print("The summoning fails due to lack of room.");
+                return;
+        }
+
+        /* And now we actually summon. */
+        bypass_r_ptr_max_num  = TRUE;
+        if (!(i = place_monster_one (y, x, r_idx, 0, 0, status)))
+        {
+                /* We've failed. */
+                msg_print("The summoning fails.");
+        }
+        else
+                m_list[i].status = status;
+        bypass_r_ptr_max_num  = FALSE;
+
+        /* HULK SMASH TOTEM! */
+        if (smash)
+        {
+                /* Eliminate the totem (from the pack) */
+                if (item >= 0)
+                {
+                        inven_item_increase(item, -1);
+                        inven_item_describe(item);
+                        inven_item_optimize(item);
+                }
+
+                /* Eliminate the totem (from the floor) */
+                else
+                {
+                        floor_item_increase(0 - item, -1);
+                        floor_item_describe(0 - item);
+                        floor_item_optimize(0 - item);
+                }
+        }
+
+        /* Finished. */
+        return;
+}
+
+void do_cmd_summoner_summon()
+{
+        int item, x = 1, y = 1, rx, ry, m_idx = 0, i;
+        cptr q,s;
+        object_type *o_ptr;
+        monster_type *m_ptr;
+
+        /* Which Totem? */
+        item_tester_tval = TV_TOTEM;
+
+        q = "Summon from which Totem?";
+        s = "There are no totems to summon from!";
+        if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+
+        /* Access the item */
+        if (item >= 0)
+        {
+                o_ptr = &inventory[item];
+        }
+        else
+        {
+                o_ptr = &o_list[0 - item];
+        }
+
+        /* Take a turn */
+        energy_use = 100;
+
+        /* True Totems have their own function. */
+
+        if (o_ptr->sval == 2)
+        {
+                summon_true(o_ptr->pval, item);
+                return;
+        }
+
+        /* So you're a Partial Totem, are you? */
+
+        /* Let's find a spot for you. */
+
+        for (i = 0; i < 40; i++)
+        {
+                rx = (rand_int(8) - 4) + px;
+                ry = (rand_int(8) - 4) + py;
+                if (cave_empty_bold(ry, rx))
+                {
+                        x = rx;
+                        y = ry;
+                        break;
+                }
+        }
+
+        if (i == 40)
+        {
+                /* Sorry, no room. */
+                msg_print("The summoning fails due to lack of room.");
+                return;
+        }
+
+        /* And now we actually summon. */
+        bypass_r_ptr_max_num  = TRUE;
+        m_idx = place_monster_one(y, x, o_ptr->pval, 0, 0, MSTATUS_PET);
+        bypass_r_ptr_max_num  = FALSE;
+
+        if (!m_idx)
+        {
+                /* We've failed. */
+                msg_print("The summoning fails.");
+        }
+
+        /* Now to mark him as ours. */
+        m_ptr = &m_list[m_idx];
+        m_ptr->mflag |= MFLAG_PARTIAL;
+}
+
+void do_cmd_summoner(void)
+{
+        int ext = 0;
+        char ch;
+
+        /* Select what to do */
+        while (TRUE)
+        {
+                if (!get_com("[E]xtract a totem, [S]ummon", &ch))
+                {
+                        ext = 0;
+                        break;
+                }
+                if (ch == 'E' || ch == 'e')
+                {
+                        ext = 1;
+                        break;
+                }
+                if (ch == 's' || ch == 'S')
+                {
+                        ext = 2;
+                        break;
+                }
+        }
+
+        switch (ext)
+        {
+                case 1:
+                        do_cmd_summoner_extract();
+                        break;
+                case 2:
+                        do_cmd_summoner_summon();
+                        break;
+        }
+}
+
+/*
+ * Fighters may invoke The Rush.
+ */
+void do_cmd_blade(void)
+{
+    /* Are we already Rushed? */
+    if (p_ptr->rush)
+    {
+        msg_format("You have %d turns of The Rush remaining", p_ptr->rush);
+        return;
+    }
+
+    /* Are you sure? */
+    if (!get_check("Are you sure you want to invoke The Rush?")) return;
+
+    /* Let's Rush! */
+    set_rush(2 + p_ptr->lev / 2 + randint(p_ptr->lev / 2));
+}
+
+/*
+ * Dodge Chance Feedback.
+ */
+void use_ability_blade(void)
+{
+    if (p_ptr->dodge_chance < 5)
+    {
+        msg_print("You have almost no chance of dodging.");
+    }
+    else if (p_ptr->dodge_chance < 10)
+    {
+        msg_print("You have a slight chance of dodging.");
+    }
+    else if (p_ptr->dodge_chance < 20)
+    {
+        msg_print("You have a signifigant chance of dodging.");
+    }
+    else if (p_ptr->dodge_chance < 40)
+    {
+        msg_print("You have a large chance of dodging.");
+    }
+    else if (p_ptr->dodge_chance < 70)
+    {
+        msg_print("You have a high chance of dodging.");
+    }
+    else
+    {
+        msg_print("You will usually dodge succesfully.");
+    };
+    return;
 }

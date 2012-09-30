@@ -1,4 +1,4 @@
-38
+39
 ******** BUFFER LINE *********************************** DO NOT REMOVE *******
 murder.
 arson.
@@ -38,3 +38,4 @@ lese-majesty.
 obstructing justice.
 conspiring to obstruct justice.
 assault with a deadly weapon.
+playing Zangband.

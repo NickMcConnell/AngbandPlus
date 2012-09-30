@@ -1,24 +1,24 @@
-
-            *********************************************************
-            ** PernAngband 5.0.1 **  The Troubles of Middle Earth  **
-            *********************************************************
-
-               "One Ring to rule them all, One Ring to find them
-            One Ring to bring them all and in the darkness bind them
-                  In the land of Mordor where the shadows lie"
-                                "Lord of The Rings", J.R.R.Tolkien
-
-         Based on Moria:    Copyright (c) 1985 Robert Alan Koeneke
-             and Umoria:    Copyright (c) 1989 James E. Wilson
-       Angband 2.7 - 2.8: Ben Harrison (benh@phial.com)
-       ZAngband code:     (Mr) Topi Ylinen (f1toyl@uta.fi)
-                          and Robert Ruehlmann (rr9@angband.org)
-
-       PernAngband code:  Dark God < darkgod@ifrance.com >
-       Internet site:     http://www.pernangband.org
-
-     Thanks to all the people that help me, see credits.txt for the list
-
-    Send all comments, bug reports, patches, etc, to "darkgod@ifrance.com".
-
-    Press ? for help and = for the options screen while playing
+#G ,-=-.                 #W ~ ~~~   ~~~    (       #G ,-=-.
+#G/ //  \                #W      ~~ ) ~~   )       #G/ //  \       -.                ,
+#G  ||  /                #W        )~ #r,.#W~ (   (#G      ||  |        |                |
+#G ,||=" ,-. `.-.  v=-.  #W       _#r,-"####`-^  #W  ) #G   ,||==|v=-. ,-.|,-.  ,-.,v=-. ,-|
+#G  ||  (--"  | (  |  |  #W     ,#D###########r`W='#D###W`.#W () #G    ||  ||  |(  ||   )(   ||  |(  |
+#G\_,'   `-.  |  ` |  `  #W    ,#D#######################D###W:#r,=.   #G\_,'  ||  ` `-||`-"  `-"'|  ` `-^
+#G           `'    `     #W   /.#D###W,".#D#####W,".#D###########r"#W##\  #G      ``      |`         ` #ov5.1.1
+#W  ,-.   _,-= /"._  ,-. #w ,"   #W   `:'   `:#D#####W[JW] ,.  #G       ,=-'
+#W,"   `,"    `=._ `"   -#w; #G  The         #W\#D#####W;"' V  \#W            __,-.     ,-=.
+#W     /        " `-. #w  /  #GTroubles of   #W `"       `-.#W__,-""._,"     "--,"    >-=-
+#W  ,-"`.            #w _'   #G  Middle Earth#w            "._      #W`       _/
+                 _,"      #y           __        #w       "=.".
+              _,"         #y        _,'  `-.     #w           `._,=-._    _,-.      
+  _._   ,"._,"            #y      ,'_,'Y`-. `.   #w                   "-."    \,-.  
+-"   `-"                  #y     / / ,'   `.  \  #w                               `-
+                          #y    / / /       \  \ #w  One Ring to rule them all,
+Maintained by darkgod     #y   f f f         l  l#w   One Ring to find them.
+ #o darkgod@pernangband.net #y   t t t         j  j                            
+                          #y    \ \ \       /  / #w  One Ring to bring them all     
+ #ohttp://www.pernangband.net#y    \ \ \._   /  /#w and in the Darkness bind them.
+                           #y     `_`-._J-'  /         
+                           #y       `-.___,-'        
+        In the Land of Mordor, where the Shadows lie. [J.R.R. Tolkien]
+.

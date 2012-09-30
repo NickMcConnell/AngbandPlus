@@ -1,0 +1,2222 @@
+# File: p_info.txt
+
+
+# This file is used to initialize the "lib/raw/p_info.raw" file, which is
+# used to initialize the "player race/race mod/class" information for the
+# Angband game.
+
+# Do not modify this file unless you know exactly what you are doing,
+# unless you wish to risk possible system crashes and broken savefiles.
+
+V:2.8.1
+
+##############################################################################
+##############################################################################
+##############################################################################
+##############################################################################
+# C:N:index:name
+# C:D:0:class desc
+# C:D:1:titles
+# C:D:2:magic desc
+# C:S:str:int:wis:dex:con:chr:mana:bonus blows
+# C:K:dis:dev:sav:stl:srh:fos:thn:thb
+# C:X:dis:dev:sav:stl:srh:fos:thn:thb
+# C:Y:maxcompanion+plev/max_bonus
+# C:P:hitdie:xp%
+# C:B:num:wgt:mul
+# C:M:'m' magic number(use >= 1000 for customs, < 1000 are reserved):antimagic_stop(T|F)
+# C:A:1:primary realms
+# C:A:2:secondary realms
+# C:A:3:spellbook(tval):spell stat:spell_lev:spell_fail:spell_mana:spell_first:spell_weight:max spell lvl:max spell
+# C:C:H(H|L):(H|L):base:pl:plus
+# first (H|L) is for weapons/.. second is for magic things
+# H = heavy sensing, L = light sensing; result(lower = better) = base / (pl * plev + plus)
+# C:G:class flags
+# C:R:level:pval
+# C:F:flags
+# C:Z:power
+# C:E:weapons:torso:arms:finger:head:legs
+# C:O:tval:sval:xdy
+
+C:N:0:Warrior
+C:D:0:Simple fighters, they hack away with their trusty weapon.
+C:D:1:Rookie
+C:D:1:Soldier
+C:D:1:Mercenary
+C:D:1:Veteran
+C:D:1:Swordsman
+C:D:1:Champion
+C:D:1:Hero
+C:D:1:Baron
+C:D:1:Duke
+C:D:1:Lord
+C:A:3:0:STR:0:0:0:99:0:1:64
+C:S:5:-2:-2:2:2:-1:0:3
+C:K:25:18:18:1:14:2:70:55
+C:X:12:7:10:0:0:0:45:45
+C:Y:2:100
+C:B:6:30:5
+C:C:H:L:9000:2:40
+C:P:9:0
+C:G:SPREAD_BLOWS
+C:R:30:0
+C:F:RES_FEAR
+C:E:0:0:0:0:0:0
+C:O:45:38:1d1
+C:O:23:16:1d1
+C:O:37:4:1d1
+
+C:N:1:Mage
+C:D:0:The basic spellcaster, able to learn 64 spells from
+C:D:0:one major and one minor magic realm.
+C:D:1:Apprentice
+C:D:1:Trickster
+C:D:1:Illusionist
+C:D:1:Spellbinder
+C:D:1:Evoker
+C:D:1:Conjurer
+C:D:1:Warlock
+C:D:1:Sorcerer
+C:D:1:Ipsissimus
+C:D:1:Archimage
+C:D:2:magic
+C:M:1:T
+C:A:1:Magery | Shadow | Nether | Magic | 
+C:A:2:Sigaldry | Spirit | 
+C:A:3:112:INT:0:0:0:1:300:6:64
+C:S:-5:3:0:1:-2:1:0:0
+C:K:30:36:30:2:16:20:34:20
+C:X:7:13:9:0:0:0:15:15
+C:Y:2:100
+C:B:4:40:2
+C:C:L:H:240000:1:5
+C:P:0:30
+C:G:ZERO_FAIL | NO_GLOVES | ANTAGONIC_REALMS
+C:E:0:0:0:0:0:0
+C:O:112:0:1d1
+C:O:23:4:1d1
+C:O:115:0:1d1
+
+C:N:2:Priest
+C:D:0:A priest serves a god (Vala or Maia) to bring down the empire of
+C:D:0:fear and shadows of Morgoth. They can use various prayer realms
+C:D:0:of which they can learn up to 64 prayers.
+C:D:1:Believer
+C:D:1:Acolyte
+C:D:1:Adept
+C:D:1:Curate
+C:D:1:Canon
+C:D:1:Priest
+C:D:1:High Priest
+C:D:1:Cardinal
+C:D:1:Inquisitor
+C:D:1:Pope
+C:D:2:prayer
+C:M:1:T
+C:A:1:Valarin | Nether | Prayer | 
+C:A:2:Crusade | Illusion | 
+C:A:3:111:WIS:0:-5:-5:1:350:6:64
+C:S:-1:-3:3:-1:0:2:0:0
+C:K:25:30:32:2:16:8:48:35
+C:X:7:10:12:0:0:0:20:20
+C:Y:2:100
+C:B:5:35:3
+C:C:L:H:10000:2:40
+C:P:2:20
+C:Z:detect curses
+C:G:ZERO_FAIL | BLESS_WEAPON | GOD_FRIEND | ANTAGONIC_REALMS
+C:E:0:0:0:0:0:0
+C:O:112:0:1d1
+C:O:21:5:1d1
+C:O:115:0:1d1
+
+C:N:3:Rogue
+C:D:0:Rogues are masters of tricks, they can steal from shops and monsters
+C:D:0:and lure monsters into deadly monster traps.
+C:D:0:They can learn up to 24 spells.
+C:D:1:Cutpurse
+C:D:1:Robber
+C:D:1:Burglar
+C:D:1:Filcher
+C:D:1:Sharper
+C:D:1:Low Thief
+C:D:1:High Thief
+C:D:1:Master Thief
+C:D:1:Assassin
+C:D:1:Guildmaster
+C:D:2:magic
+C:M:1:T
+C:A:1:Magery | Shadow | Nether | Sigaldry | Illusion | Spirit | 
+C:A:3:112:INT:4:26:20:5:350:3:24
+C:S:2:1:-2:3:1:-1:0:0
+C:K:45:32:28:5:32:24:60:66
+C:X:15:10:10:0:0:0:40:30
+C:Y:2:100
+C:B:5:30:3
+C:C:H:H:20000:2:40
+C:P:6:25
+C:G:BACKSTAB
+C:Z:lay trap
+C:O:112:0:1d1
+C:O:23:4:1d1
+C:O:46:1:1d1
+C:R:3:1
+C:F:CRIT
+C:R:6:1
+C:F:CRIT
+C:R:9:1
+C:F:CRIT
+C:R:12:1
+C:F:CRIT
+C:R:15:1
+C:F:CRIT
+C:R:18:1
+C:F:CRIT
+C:R:21:1
+C:F:CRIT
+C:R:24:1
+C:F:CRIT
+C:R:27:1
+C:F:CRIT
+C:R:30:1
+C:F:CRIT
+C:R:33:1
+C:F:CRIT
+C:R:36:1
+C:F:CRIT
+C:R:39:1
+C:F:CRIT
+C:R:42:1
+C:F:CRIT
+C:R:45:1
+C:F:CRIT
+C:R:48:1
+C:F:CRIT
+C:E:0:0:0:0:0:0
+
+C:N:4:Ranger
+C:D:0:Warriors/archers/mages, a bit of everything helps them survive.
+C:D:0:They can use the unique tribal magic and learn up to 32 spells.
+C:D:1:Runner
+C:D:1:Strider
+C:D:1:Scout
+C:D:1:Courser
+C:D:1:Tracker
+C:D:1:Guide
+C:D:1:Pathfinder
+C:D:1:Low Ranger
+C:D:1:High Ranger
+C:D:1:Ranger Lord
+C:D:2:magic
+C:M:1:T
+C:A:1:Illusion | Tribal | 
+C:A:3:112:INT:2:13:10:3:400:3:32
+C:S:2:2:0:1:1:1:0:0
+C:K:30:32:28:3:24:16:56:72
+C:X:8:10:10:0:0:0:30:45
+C:Y:2:100
+C:B:5:35:4
+C:C:H:L:95000:2:40
+C:P:4:30
+C:G:PASS_TREE
+C:E:0:0:0:0:0:0
+C:O:112:0:1d1
+C:O:23:16:1d1
+C:O:115:0:1d1
+
+C:N:5:Paladin
+C:D:0:The paladin is a holy warrior, using the crusade realm to battle all
+C:D:0:that is evil on Middle Earth. They can learn up to 32 prayers.
+C:D:1:Gallant
+C:D:1:Keeper
+C:D:1:Protector
+C:D:1:Defender
+C:D:1:Warder
+C:D:1:Knight
+C:D:1:Guardian
+C:D:1:Low Paladin
+C:D:1:High Paladin
+C:D:1:Paladin Lord
+C:D:2:prayer
+C:M:1:T
+C:A:1:Crusade | 
+C:A:3:111:WIS:1:9:10:1:400:3:32
+C:S:3:-3:1:0:2:2:0:1
+C:K:20:24:26:1:12:2:68:40
+C:X:7:10:11:0:0:0:35:30
+C:Y:2:100
+C:B:4:30:4
+C:C:H:L:77777:2:40
+C:P:6:35
+C:G:GOD_FRIEND
+C:R:40:0
+C:F:RES_FEAR
+C:E:0:0:0:0:0:0
+C:O:112:0:1d1
+C:O:23:16:1d1
+C:O:70:37:1d1
+
+C:N:6:Warlock
+C:D:0:Warrior mages, trained in both melee and some forms of magic.
+C:D:0:They can learn up to 48 spells.
+C:D:1:Novice
+C:D:1:Apprentice
+C:D:1:Journeyman
+C:D:1:Veteran
+C:D:1:Enchanter
+C:D:1:Champion
+C:D:1:Mage-Hero
+C:D:1:Baron Mage
+C:D:1:Battlemage
+C:D:1:Wizard Lord
+C:D:2:magic
+C:M:1:T
+C:A:1:Sigaldry | 
+C:A:2:Illusion | Spirit | 
+C:A:3:112:INT:3:18:13:1:350:4:48
+C:S:2:2:0:1:0:1:0:1
+C:K:30:30:28:2:18:16:50:25
+C:X:7:10:9:0:0:0:20:20
+C:Y:2:100
+C:B:5:35:3
+C:C:L:H:75000:2:40
+C:P:4:50
+C:E:0:0:0:0:0:0
+C:O:112:0:1d1
+C:O:23:10:1d1
+C:O:115:0:1d1
+
+C:N:7:Chaos-Warrior
+C:D:0:Fighters of chaos, followed by the somewhat unreliable chaos
+C:D:0:patrons they can use the chaos realm to enhance their destructive powers.
+C:D:1:Rookie
+C:D:1:Soldier
+C:D:1:Mercenary
+C:D:1:Veteran
+C:D:1:Swordsman
+C:D:1:Champion
+C:D:1:Chaos Hero
+C:D:1:Chaos Baron
+C:D:1:Chaos Duke
+C:D:1:Chaos Lord
+C:D:2:chaotic magic
+C:M:1:T
+C:A:1:Chaos | 
+C:A:3:112:INT:1:9:5:2:400:4:32
+C:S:2:1:0:1:2:-2:0:1
+C:K:20:25:25:1:14:12:65:40
+C:X:7:11:10:0:0:0:34:29
+C:Y:2:100
+C:B:5:30:4
+C:C:H:L:80000:2:40
+C:P:6:35
+C:G:NO_GOD | CHAOS_GOD
+C:R:25:0
+C:F:RES_CHAOS
+C:R:40:0
+C:F:RES_FEAR
+C:E:0:0:0:0:0:0
+C:O:112:0:1d1
+C:O:23:16:1d1
+C:O:37:3:1d1
+
+C:N:8:Monk
+C:D:0:Barehanded, lightly armored fighters they wreak havok with
+C:D:0:their bare fists, and can also use a few prayers.
+C:D:0:They can learn up to 24 prayers.
+C:D:1:Initiate
+C:D:1:Brother
+C:D:1:Disciple
+C:D:1:Immaculate
+C:D:1:Master
+C:D:1:Soft Master
+C:D:1:Hard Master
+C:D:1:Flower Master
+C:D:1:Dragon Master
+C:D:1:Grand Master
+C:D:2:prayer
+C:M:1:T
+C:A:1:Valarin | Illusion | Tribal | Spirit | 
+C:A:3:111:WIS:1:7:6:1:300:3:24
+C:S:2:-1:1:3:2:1:0:0
+C:K:45:32:28:5:32:24:64:60
+C:X:15:11:10:0:0:0:40:30
+C:Y:2:100
+C:B:3:40:4
+C:C:L:L:2000:2:40
+C:P:6:40
+C:G:BLESS_WEAPON | MONK_SPECIAL
+C:E:0:0:0:0:0:0
+C:O:112:0:1d1
+C:O:71:37:1d1
+C:O:36:4:1d1
+
+C:N:9:Mindcrafter
+C:D:0:From within comes the power of a mindcrafter, using his own psychic
+C:D:0:energies to battle monsters.
+C:D:1:Trainee
+C:D:1:Acolyte
+C:D:1:Adept
+C:D:1:Immaculate
+C:D:1:Contemplator
+C:D:1:Mentalist
+C:D:1:Psychic
+C:D:1:Psionicist
+C:D:1:Esper
+C:D:1:Mindmaster
+C:D:2:psionic powers
+C:M:2:T
+C:A:3:111:WIS:0:0:0:99:300:1:64
+C:S:-1:0:3:-1:-1:2:0:0
+C:K:30:30:30:3:22:16:50:40
+C:X:10:10:10:0:0:0:20:30
+C:Y:2:100
+C:B:5:35:3
+C:D:2:psionic powers
+C:M:2:T
+C:C:L:L:55000:2:40
+C:P:2:25
+C:G:HAS_MANA
+C:R:10:0
+C:F:RES_FEAR
+C:R:20:0
+C:F:SUST_WIS
+C:R:30:0
+C:F:RES_CONF
+C:R:40:0
+C:F:ESP_DEMON | ESP_ORC | ESP_TROLL | ESP_GIANT |
+C:F:ESP_UNDEAD | ESP_ANIMAL | ESP_UNIQUE
+C:E:0:0:0:0:0:0
+C:O:23:8:1d1
+C:O:71:40:1d1
+C:O:36:4:1d1
+
+
+C:N:10:High-Mage
+C:D:0:A high mage can learn 64 spells and only from one realm
+C:D:0:but they learn them much better and can get them to higher levels.
+C:D:1:Apprentice
+C:D:1:Trickster
+C:D:1:Illusionist
+C:D:1:Spellbinder
+C:D:1:Evoker
+C:D:1:Conjurer
+C:D:1:Warlock
+C:D:1:Sorcerer
+C:D:1:Ipsissimus
+C:D:1:Archimage
+C:D:2:magic
+C:M:1:T
+C:A:1:Magery | Shadow | Nether | Sigaldry | Illusion | Spirit | 
+C:A:3:112:INT:-2:-16:-12:1:300:12:64
+C:S:-5:4:0:0:-2:1:25:0
+C:K:30:36:30:2:16:20:34:20
+C:X:7:13:9:0:0:0:15:15
+C:Y:2:100
+C:C:L:H:240000:1:5
+C:B:4:40:2
+C:P:0:30
+C:G:ZERO_FAIL | NO_GLOVES | BEAM |
+C:E:0:0:0:0:0:0
+C:O:112:0:1d1
+C:O:23:4:1d1
+C:O:45:11:1d1
+
+C:N:11:Mimic
+C:D:0:Disguise is the way of the mimic, through the use of cloaks of mimicry
+C:D:0:they can change shape for a limited time. They also can temporarily
+C:D:0:change part of their anatomy.
+C:D:1:Learner
+C:D:1:Itemhider
+C:D:1:Woodshider
+C:D:1:Wolfleader
+C:D:1:Low Mirror
+C:D:1:Journeymirror
+C:D:1:High Mirror
+C:D:1:Dragonleader
+C:D:1:Shapechanger
+C:D:1:Mirror Lord
+C:D:2:mimic powers
+C:M:6:T
+C:A:3:0:DEX:0:0:0:99:200:1:64
+C:S:2:0:0:5:-1:1:0:0
+C:K:10:6:30:22:26:20:64:40
+C:X:11:13:9:0:0:0:25:25
+C:Y:2:100
+C:B:5:35:4
+C:G:HACK_MIMIC | HAS_MANA
+C:C:H:L:9000:2:40
+C:P:0:40
+C:E:0:0:0:0:0:0
+C:O:35:102:1d1
+C:O:71:37:1d1
+C:O:23:4:1d1
+
+C:N:12:BeastMaster
+C:D:0:A beastmaster is a warrior that chose to make peace with some monsters.
+C:D:0:He can thus summon them at will when in need.
+C:D:1:Beastslave
+C:D:1:Beastman
+C:D:1:Enslaver
+C:D:1:Summoner
+C:D:1:Beastriser
+C:D:1:Thingriser
+C:D:1:Demonriser
+C:D:1:Chaosriser
+C:D:1:Hellriser
+C:D:1:BeastMaster
+C:D:2:natural power
+C:M:1:T
+C:A:1:Tribal | 
+C:A:3:112:CHR:2:0:0:2:250:2:64
+C:S:2:-4:-2:2:2:5:0:0
+C:K:20:36:30:4:16:20:56:20
+C:X:7:13:9:0:0:0:15:15
+C:Y:4:10
+C:C:H:L:9000:2:40
+C:G:PET_EXP
+C:B:5:35:4
+C:P:0:20
+C:Z:summon monsters
+C:Z:turn pet into companion
+C:R:35:0
+C:F:RES_FEAR
+C:E:0:0:0:0:0:0
+C:O:112:0:1d1
+C:O:45:15:1d1
+C:O:21:2:1d1
+C:O:35:3:1d1
+
+C:N:13:Alchemist
+C:D:0:An alchemists can quickly create powerful magic items through the correct use
+C:D:0:of the essences of magic they can extract from magical objects.
+C:D:1:Student
+C:D:1:Topologist
+C:D:1:Alchemist
+C:D:1:Meddler
+C:D:1:Catalyst
+C:D:1:Chemist
+C:D:1:Transformer
+C:D:1:Remaker
+C:D:1:Grand Source
+C:D:1:Infuser
+C:D:2:alchemist powers
+C:M:5:T
+C:A:3:0:STR:0:0:0:99:0:1:64
+C:S:-2:3:4:2:-2:0:0:0
+C:K:30:60:10:2:26:20:34:30
+C:X:7:30:9:0:0:0:15:15
+C:Y:2:100
+C:B:5:35:4
+C:C:L:H:240000:1:5
+C:P:0:40
+C:E:0:0:0:0:0:0
+C:O:23:8:1d1
+C:O:4:2:1d1
+C:O:2:1:1d1
+
+
+C:N:14:Symbiant
+C:D:0:A symbiant can merge his/her body with one of a monster unable to move
+C:D:0:by itself. They also have a few spells to help the symbiosis.
+C:D:1:Little Mold
+C:D:1:Mold
+C:D:1:Great Mold
+C:D:1:Little Jelly
+C:D:1:Jelly
+C:D:1:Great Jelly
+C:D:1:Symbiant
+C:D:1:Symbiant
+C:D:1:Symbiant
+C:D:1:Greater Jelly
+C:D:2:symbiotic powers
+C:M:1:T
+C:A:2:Symbiotic | 
+C:A:3:112:INT:0:0:0:1:300:5:12
+C:S:0:2:-2:2:2:-3:0:0
+C:K:10:12:30:10:16:10:36:20
+C:X:4:3:9:0:0:0:15:15
+C:Y:2:100
+C:B:5:30:3
+C:C:H:H:20000:2:40
+C:P:0:20
+C:G:MOLD_FRIEND
+C:E:0:0:0:0:0:0
+C:O:112:0:1d1
+C:O:23:4:1d1
+C:O:70:6:1d1
+
+
+C:N:15:Harper
+C:D:0:Harpers can read complex music books and sing songs
+C:D:0:full of power, beauty or sadness to affect everything that can hear them.
+C:D:1:Apprentice
+C:D:1:Songsmith
+C:D:1:Bard
+C:D:1:Companion
+C:D:1:Minstrel
+C:D:1:Harper
+C:D:1:Loreweaver
+C:D:1:Muse
+C:D:1:Dreamweaver
+C:D:1:Master Harper
+C:D:2:singing abilities
+C:M:1:T
+C:A:2:Music | 
+C:A:3:112:CHR:0:0:0:1:300:1:32
+C:S:-2:3:0:0:-2:4:0:0
+C:K:10:16:20:-5:16:20:34:20
+C:X:8:13:12:0:0:0:15:15
+C:Y:5:100
+C:B:5:35:4
+C:C:L:H:10000:2:40
+C:P:0:50
+C:G:ZERO_FAIL |
+C:E:0:0:0:0:0:0
+C:O:112:0:1d1
+C:O:23:4:1d1
+C:O:36:4:1d1
+
+C:N:16:Power-Mage
+C:D:0:Powermage spells come from within and are different for each character.
+C:D:0:Since attack is the best defence, all their spells are offensive.
+C:D:1:Chaos Slave
+C:D:1:Chaos Serf
+C:D:1:Chaos Novice
+C:D:1:Chaos Caster
+C:D:1:Chaos Wielder
+C:D:1:Chaos Lord
+C:D:1:Chaos Master
+C:D:1:Chaos Fiend
+C:D:1:Chaos King
+C:D:1:Chaos King
+C:D:2:chaotic magic
+C:M:8:T
+C:A:3:0:INT:0:0:0:99:300:1:64
+C:S:-5:5:-2:0:-2:-1:75:0
+C:K:20:36:30:2:16:20:14:10
+C:X:7:13:9:0:0:0:7:7
+C:Y:2:100
+C:B:4:40:2
+C:C:H:L:9000:2:40
+C:P:0:20
+C:G:HAS_MANA
+C:E:0:0:0:0:0:0
+C:O:71:22:1d1
+C:O:70:11:1d1
+C:O:71:37:1d1
+
+
+C:N:17:Runecrafter
+C:D:0:Runecrafters use the runes found in Middle Earth to create
+C:D:0:finely tuned spells for each specific situation.
+C:D:1:Ignoramus
+C:D:1:Charlatan
+C:D:1:Initiate
+C:D:1:Adept
+C:D:1:Evoker
+C:D:1:Conjurer
+C:D:1:Proselyte
+C:D:1:Inculcator
+C:D:1:Warder
+C:D:1:Runemal
+C:D:2:runic magic
+C:M:9:T
+C:A:3:0:DEX:0:0:0:1:300:1:64
+C:S:-3:0:0:3:-3:1:0:0
+C:K:15:36:20:6:16:30:20:18
+C:X:7:13:9:0:0:0:7:7
+C:Y:2:100
+C:B:4:40:2
+C:C:L:H:240000:1:5
+C:P:0:40
+C:G:HAS_MANA
+C:E:0:0:0:0:0:0
+C:O:105:1:1d1
+C:O:104:5:1d1
+C:O:23:4:1d1
+
+
+C:N:18:Possessor
+C:D:0:Only the soul matters, a possessor can abandon his/her current body to
+C:D:0:incarnate in the body of a dead monster, thus gaining its powers
+C:D:0:and weaknesses.
+C:D:1:Soul
+C:D:1:Free Soul
+C:D:1:True Soul
+C:D:1:Soul Bender
+C:D:1:Body Render
+C:D:1:Low Corpser
+C:D:1:High Corpser
+C:D:1:Possessor
+C:D:1:PossessorLord
+C:D:1:Soul Master
+C:D:2:transfering abilities
+C:M:11:T
+C:A:3:0:WIS:0:0:0:99:400:1:64
+C:S:1:-2:-2:1:1:0:0:0
+C:K:25:18:18:1:14:2:30:25
+C:X:12:7:10:0:0:0:25:25
+C:Y:2:100
+C:B:5:30:3
+C:C:H:L:9000:2:40
+C:P:9:40
+C:G:HAS_MANA
+C:E:0:0:0:0:0:0
+C:O:71:37:1d1
+C:O:23:10:1d1
+C:O:36:6:1d1
+
+
+C:N:19:Sorceror
+C:D:0:Masters of the Art of Sorcery, they devote their life to magic.
+C:D:0:Sorcerors can use every magic realm, but at the cost of being
+C:D:0:hopeless at hand to hand combat.
+C:D:1:Apprentice
+C:D:1:Trickster
+C:D:1:Dilante
+C:D:1:Dabbler
+C:D:1:Invoker
+C:D:1:Low Sorceror
+C:D:1:High Sorceror
+C:D:1:Low Magus
+C:D:1:Magus
+C:D:1:True Magus
+C:D:2:magic
+C:M:1:T
+C:A:1:Magery | Shadow | Chaos | Nether | Sigaldry | Illusion | Spirit | 
+C:A:3:112:INT:-1:-8:-9:1:100:1:64
+C:S:-5:6:4:2:-5:1:150:0
+C:K:35:48:38:3:22:12:10:15
+C:X:22:17:20:0:0:0:15:15
+C:Y:2:100
+C:B:1:1:1
+C:C:L:H:240000:1:5
+C:P:4:60
+C:G:ZERO_FAIL | INNATE_SPELLS
+C:E:0:0:0:0:0:0
+C:O:112:0:1d1
+C:O:115:0:1d1
+C:O:71:40:1d1
+
+C:N:20:Archer
+C:D:0:'Kill them before they see you' could be the motto of the archer class.
+C:D:0:As deadly with a bow as a warrior is with a sword.
+C:D:1:Rock Thrower
+C:D:1:Slinger
+C:D:1:Great Slinger
+C:D:1:Tosser
+C:D:1:Bowman
+C:D:1:Great Bowman
+C:D:1:Great Bowman
+C:D:1:Archer
+C:D:1:Archer
+C:D:1:Great Archer
+C:D:2:forging abilities
+C:M:10:T
+C:A:3:0:DEX:0:0:0:99:0:1:64
+C:S:2:1:0:2:1:1:0:0
+C:K:30:32:28:3:24:16:56:82
+C:X:8:10:10:0:0:0:30:45
+C:Y:2:100
+C:B:4:35:4
+C:C:H:L:9000:2:40
+C:P:4:30
+C:E:0:0:0:0:0:0
+C:O:19:12:1d1
+C:O:23:4:1d1
+C:O:19:2:1d1
+
+
+C:N:21:Illusionist
+C:D:0:The illusionist is similar to a mage but prefers to confuse and trick monsters.
+C:D:1:Novice
+C:D:1:Apprentice
+C:D:1:Trickster
+C:D:1:Cabalist
+C:D:1:Visionist
+C:D:1:Phantasmist
+C:D:1:Spellbinder
+C:D:1:Illusionist
+C:D:1:Shadow
+C:D:1:Shadow Lord
+C:D:2:illusion
+C:M:1:T
+C:A:1:Illusion | 
+C:A:3:112:INT:0:0:0:1:300:9:64
+C:S:-5:3:0:1:-2:1:0:0
+C:K:30:36:30:2:16:20:34:20
+C:X:7:13:9:0:0:0:15:15
+C:Y:2:100
+C:B:4:35:3
+C:C:L:H:240000:1:5
+C:P:0:30
+C:G:ZERO_FAIL | FULL_ILLUSION
+C:E:0:0:0:0:0:0
+C:O:122:0:1d1
+C:O:23:4:1d1
+C:O:70:11:1d1
+
+C:N:22:Druid
+C:D:0:The druids respect Yavanna, Vala of the forests and nature. They are
+C:D:0:protectors of nature and as such they gain access to the druid stones
+C:D:0:as the source of their power.
+C:D:1:Wanderer
+C:D:1:Tamer
+C:D:1:Nurturer
+C:D:1:Gardener
+C:D:1:Creator
+C:D:1:Earth Warder
+C:D:1:Windrider
+C:D:1:Stormwielder
+C:D:1:Druid
+C:D:1:Archdruid
+C:D:2:natural powers
+C:M:1:T
+C:A:1:Druidic | 
+C:A:3:111:WIS:0:0:0:1:350:4:40
+C:S:-2:-2:3:1:1:2:0:0
+C:K:20:20:38:4:8:16:42:35
+C:X:7:10:10:0:0:0:18:20
+C:Y:2:100
+C:B:4:35:3
+C:C:L:H:75000:2:40
+C:P:3:30
+C:G:ZERO_FAIL |
+C:G:PASS_TREE | GOD_FRIEND
+C:E:0:0:0:0:0:0
+C:O:112:0:1d1
+C:O:21:2:1d1
+C:O:40:3:1d1
+
+C:N:23:Necromancer
+C:D:0:A necromancer's main goal is to master death. When killed they
+C:D:0:can resurrect themselves if they kill enough monsters in their undead
+C:D:0:form. They can also use the nether magic realm.
+C:D:1:Acolyte
+C:D:1:Curser
+C:D:1:Dark Student
+C:D:1:Initiate
+C:D:1:Slavemaster
+C:D:1:Summoner
+C:D:1:Controller
+C:D:1:Commander
+C:D:1:Dark Master
+C:D:1:Night Lord
+C:D:2:dark magic
+C:M:1:T
+C:A:1:Nether | 
+C:A:3:112:CON:0:0:0:1:350:3:64
+C:S:-3:3:-1:3:-1:-5:0:0
+C:K:16:40:42:3:10:8:35:20
+C:X:9:16:3:0:0:0:10:5
+C:Y:1:10
+C:B:4:35:3
+C:P:1:40
+C:C:H:H:20000:2:40
+C:Z:necromantic powers
+C:Z:turn pet into companion
+C:G:ZERO_FAIL |
+C:E:0:0:0:0:0:0
+C:O:112:0:1d1
+C:O:22:3:1d1
+C:O:70:42:1d1
+
+C:N:24:Unbeliever
+C:D:0:Disbelieve so much in magic that they generate an antimagic field
+C:D:0:around themselves to prevent the use of most magics and thus they are
+C:D:0:forbidden the use of most magical items.
+C:D:1:Asker
+C:D:1:Thinker
+C:D:1:Faithless
+C:D:1:Critic
+C:D:1:Betrayer
+C:D:1:Renegade
+C:D:1:Undisciple
+C:D:1:Disbeliever
+C:D:1:Knower
+C:D:1:Magicbane
+C:D:2:antimagic powers
+C:M:3:F
+C:A:3:0:STR:0:0:0:99:0:0:64
+C:S:5:-10:-10:4:5:1:0:3
+C:K:25:0:40:1:30:10:80:60
+C:X:12:0:18:0:4:5:45:45
+C:Y:2:100
+C:B:6:30:5
+C:C:H:L:9000:2:40
+C:P:10:20
+# Ok thats ugly, but Im lazy to write the 100 lines it would need
+# to un-hackize it :)
+C:G:ANTIMAGIC
+C:E:0:0:0:0:0:0
+C:O:45:38:1d1
+C:O:23:33:1d1
+C:O:37:4:1d1
+
+
+C:N:25:Daemonologist
+C:D:0:The goal of a daemonologist is to control demons as pets.
+C:D:0:They use the terrific daemon blades to achieve that goal thus gaining
+C:D:0:access to the daemon magic realm.
+C:D:1:Initiate
+C:D:1:Acolyte
+C:D:1:Adept
+C:D:1:Slavemaster
+C:D:1:Spellweaver
+C:D:1:Demonriser
+C:D:1:Controller
+C:D:1:Commander
+C:D:1:Hell Master
+C:D:1:Daemon Lord
+C:D:2:demonic magic
+C:M:1:T
+C:A:1:Daemon | 
+C:A:2:Chaos | 
+C:A:3:112:INT:0:0:0:1:300:4:64
+C:S:-2:3:-1:1:-1:-1:0:0
+C:K:20:36:35:3:15:12:35:25
+C:X:7:15:10:0:0:0:15:10
+C:Y:2:100
+C:B:4:35:3
+C:C:H:L:80000:2:40
+C:P:0:30
+C:R:20:0
+C:F:RES_CONF
+C:R:30:0
+C:F:RES_FEAR
+C:R:40:0
+C:F:FREE_ACT
+C:E:0:0:0:0:0:0
+C:O:112:0:1d1
+C:O:70:11:1d1
+C:O:115:0:1d1
+
+C:N:26:Weaponmaster
+C:D:0:Master of one type of weapon (sword, axe, polearms, hafted, blunt)
+C:D:0:but very poor with anything else.
+C:D:1:Trainee
+C:D:1:Wielder
+C:D:1:Armsman
+C:D:1:Soldier
+C:D:1:Specialist
+C:D:1:Adept
+C:D:1:Pro
+C:D:1:Expert
+C:D:1:Master
+C:D:1:High Master
+C:A:3:0:STR:0:0:0:99:0:0:64
+C:S:4:-3:-3:2:2:-1:0:0
+C:K:23:10:16:1:14:2:70:15
+C:X:10:3:8:0:0:0:45:10
+C:Y:2:100
+C:B:6:30:5
+C:G:HACK_WEAPON
+C:C:H:L:9000:2:40
+C:P:9:30
+C:R:30:0
+C:F:RES_FEAR
+C:E:0:0:0:0:0:0
+C:O:45:38:1d1
+C:O:71:32:1d1
+C:O:37:4:1d1
+
+C:N:27:Merchant
+C:D:0:Money can't buy everything... wait, it can!
+C:D:1:Customer
+C:D:1:Apprentice
+C:D:1:Assistant
+C:D:1:Assistant
+C:D:1:Clerk
+C:D:1:Clerk
+C:D:1:Shopkeeper
+C:D:1:Shopkeeper
+C:D:1:Shop Manager
+C:D:1:Shop Manager
+C:D:2:telekinetic abilities
+C:M:12:T
+C:A:3:0:STR:0:0:0:99:0:0:64
+C:S:0:3:0:-3:-2:6:0:0
+C:K:20:36:30:1:30:10:34:20
+C:X:9:13:10:0:0:0:15:15
+C:Y:2:100
+C:B:4:40:2
+C:P:3:35
+C:C:H:H:8000:2:40
+C:Z:Merchant abilities
+C:Z:midas touch
+C:E:0:0:0:0:0:0
+C:O:12:1:1d1
+C:O:7:3:1d1
+C:O:23:17:1d1
+
+C:N:28:Shiny-Test
+C:D:0:Simple tester, they hack away with their trusty tests.
+C:D:1:Rookie
+C:D:1:Soldier
+C:D:1:Mercenary
+C:D:1:Veteran
+C:D:1:Swordsman
+C:D:1:Champion
+C:D:1:Hero
+C:D:1:Baron
+C:D:1:Duke
+C:D:1:Lord
+C:M:1000:F
+C:A:3:0:STR:0:0:0:99:0:1:64
+C:S:15:-2:-2:2:2:-1:0:3
+C:K:25:18:18:1:14:2:70:55
+C:X:12:7:10:0:0:0:45:45
+C:Y:2:100
+C:B:6:30:5
+C:C:H:L:9000:2:40
+C:P:9:0
+C:G:SPREAD_BLOWS | HAS_MANA
+C:R:1:15
+C:F:SPEED
+C:R:30:0
+C:F:RES_FEAR
+C:E:0:0:0:0:0:0
+C:O:45:38:1d1
+C:O:23:16:1d1
+C:O:37:4:1d1
+C:Z:test_power
+
+C:N:29:Summoner
+C:D:0:Mage to the BeastMaster's Warrior, the Summoner can conjure 
+C:D:0:monsters from totems made from defeated foes.
+C:D:1:Trainee
+C:D:1:Beginner
+C:D:1:Trivial One
+C:D:1:Minor One
+C:D:1:Lesser One
+C:D:1:Journeyer
+C:D:1:Greater One
+C:D:1:Summoner
+C:D:1:Powerful One
+C:D:1:Master
+C:D:2:summoning powers
+# C:A:3:spellbook(tval):spell stat:spell_lev:spell_fail:spell_mana:spell_first:spell_weight:max spell lvl:max spell
+C:A:3:0:INT:1:1:1:1:300:0:0
+C:S:-3:+5:0:-2:-2:-4:0:0
+C:K:20:20:20:6:14:2:4:20
+C:X:10:10:10:-4:0:0:5:15
+C:Y:0:100
+C:P:1:10
+C:B:4:35:3
+C:M:13:F
+C:C:L:H:77777:2:40
+C:G:HAS_MANA | PET_EXP
+C:E:0:0:0:0:0:0
+C:O:23:4:1d1
+C:O:36:2:1d1
+
+# Under Test
+C:N:30:Black-Knight
+C:D:0:'tis only a flesh wound! This enemy of good is a master of melee
+C:D:0:and adept at combat magics, but is unskilled in range weaponry.
+C:D:1:Knave
+C:D:1:Thug
+C:D:1:Bouncer
+C:D:1:Night Guard
+C:D:1:Dark Convert
+C:D:1:Dark Knight
+C:D:1:Shadowboxer
+C:D:1:Anti-Lord
+C:D:1:Shadow Lord
+C:D:1:Roadblock
+C:D:2:magic
+C:M:1:T
+C:A:1:Spirit | Shadow
+C:A:2:Crusade | Nether
+C:A:3:112:CON:0:0:0:10:400:6:32
+C:S:3:-2:-1:3:3:-3:0:2
+C:K:25:24:32:2:24:16:65:0
+C:X:10:12:12:0:0:0:45:0
+C:Y:2:100
+C:B:5:30:5
+C:C:H:H:20000:2:40
+C:P:9:25
+C:G:BACKSTAB
+C:O:112:0:1d1
+C:O:23:16:1d1
+C:O:37:4:1d1
+C:R:15:0
+C:F:RES_FEAR
+C:R:3:1
+C:F:CRIT
+C:R:6:1
+C:F:CRIT
+C:R:9:1
+C:F:CRIT
+C:R:12:1
+C:F:CRIT
+C:R:15:1
+C:F:CRIT
+C:R:18:1
+C:F:CRIT
+C:R:21:1
+C:F:CRIT
+C:R:24:1
+C:F:CRIT
+C:R:27:1
+C:F:CRIT
+C:R:30:1
+C:F:CRIT
+C:R:33:1
+C:F:CRIT
+C:R:36:1
+C:F:CRIT
+C:R:39:1
+C:F:CRIT
+C:R:42:1
+C:F:CRIT
+C:R:45:1
+C:F:CRIT
+C:R:48:1
+C:F:CRIT
+
+
+C:N:31:Blade
+C:D:0:A living weapon, a Blade relies on tightly honed combat 
+C:D:0:techniques such as dodging to defend himself.
+C:D:1:Initiate
+C:D:1:Learner
+C:D:1:Brawler
+C:D:1:Fighter
+C:D:1:Iron Fist
+C:D:1:Stone Fist
+C:D:1:Adept
+C:D:1:Teacher
+C:D:1:Master
+C:D:1:Grand Master
+C:D:2:combat skills
+C:M:4:F
+C:A:3:0:STR:0:0:0:99:0:1:64
+C:S:3:-2:-2:5:2:-1:0:0
+C:K:25:18:18:1:14:2:70:55
+C:X:12:7:10:0:0:0:45:45
+C:Y:2:100
+C:E:-99:0:0:0:0:0
+C:B:5:35:4
+C:C:H:L:9000:2:40
+C:P:7:25
+C:G:BLADE_SPECIAL
+C:Z:sense dodge sucess
+
+
+# C:D:0:class desc
+# C:D:1:titles
+# C:D:2:magic desc
+# C:S:str:int:wis:dex:con:chr:mana:bonus blows
+# C:K:dis:dev:sav:stl:srh:fos:thn:thb
+# C:X:dis:dev:sav:stl:srh:fos:thn:thb
+# C:Y:maxcompanion+plev/max_bonus
+# C:P:hitdie:xp%
+# C:B:num:wgt:mul
+# C:M:'m' magic number(use >= 1000 for customs, < 1000 are reserved):antimagic_stop(T|F)
+# C:A:1:primary realms
+# C:A:2:secondary realms
+# C:A:3:spellbook(tval):spell stat:spell_lev:spell_fail:spell_mana:spell_first:spell_weight:max spell lvl:max spell
+# C:C:H(H|L):(H|L):base:pl:plus
+# first (H|L) is for weapons/.. second is for magic things
+# H = heavy sensing, L = light sensing; result(lower = better) = base / (pl * plev + plus)
+# C:G:class flags
+# C:R:level:pval
+# C:F:flags
+# C:Z:power
+# C:E:weapons:torso:arms:finger:head:legs
+# C:O:tval:sval:xdy
+
+
+
+##############################################################################
+##############################################################################
+##############################################################################
+##############################################################################
+# R: Race definition
+# R:N:index:name
+# R:D:race desc
+# R:S:str:int:wis:dex:con:chr:luck
+# R:K:dis:dev:sav:stl:srh:fos:thn:thb
+# R:P:hitdie:xp%:infra:history chart
+# R:M:b_age:m_age:m_b_ht:m_m_ht:m_b_wt:m_m_wt:f_b_ht:f_m_ht:f_b_wt:f_m_wt
+# R:E:weapons:torso:arms:finger:head:legs
+# R:C:allowed classes
+# R:G:race flags
+# R:R:level:pval
+# R:F:flags
+
+I:
+
+R:N:0:Human
+R:D:Humans are the second born, the Edain.
+R:D:They are the basic race to which all others are compared.
+R:D:Average in ability, they can be any class.
+R:S:0:0:0:0:0:0:0
+R:K:0:0:0:0:0:10:0:0
+R:P:10:100:0:1
+R:M:14:6:72:6:180:25:66:4:150:20
+R:E:1:1:1:2:1:1
+R:C:Warrior | Mage | Priest | Rogue | Ranger | Paladin | Blade | 
+R:C:Warlock | Chaos-Warrior | Monk | Mindcrafter | High-Mage | Mimic | 
+R:C:BeastMaster | Alchemist | Symbiant | Harper | Power-Mage | Runecrafter | 
+R:C:Possessor | Sorceror | Archer | Illusionist | Druid | Necromancer | 
+R:C:Unbeliever | Daemonologist | Weaponmaster | Merchant | Summoner | 
+
+R:N:1:Half-Elf
+R:D:A crossbreed of elf and human, they get the best of the two races.
+R:S:0:1:1:1:-1:1:0
+R:K:2:3:3:1:6:11:-1:5
+R:P:9:110:2:4
+R:M:24:16:66:6:130:15:62:6:100:10
+R:E:1:1:1:2:1:1
+R:C:Warrior | Mage | Priest | Rogue | Ranger | Paladin | Blade | 
+R:C:Warlock | Chaos-Warrior | Monk | Mindcrafter | High-Mage | Mimic | 
+R:C:BeastMaster | Alchemist | Symbiant | Harper | Runecrafter | Possessor | 
+R:C:Sorceror | Archer | Illusionist | Druid | Daemonologist | Weaponmaster | 
+R:C:Merchant | Summoner | 
+
+R:N:2:Elf
+R:D:Elves are the first born, the Eldar.
+R:D:More spiritual than physical beings, they are weaker than humans
+R:D:but are more intelligent.
+R:S:-1:2:2:1:-2:2:0
+R:K:5:6:6:2:8:12:-5:15
+R:P:8:120:3:4
+R:M:75:75:60:4:100:6:54:4:80:6
+R:E:1:1:1:2:1:1
+R:C:Warrior | Mage | Priest | Rogue | Ranger | Warlock | Summoner | 
+R:C:Monk | Mindcrafter | High-Mage | Mimic | BeastMaster | Alchemist | 
+R:C:Symbiant | Harper | Runecrafter | Possessor | Sorceror | Archer | 
+R:C:Illusionist | Druid | Daemonologist | Weaponmaster | Merchant | 
+R:R:1:0
+R:F:RES_LITE | 
+
+R:N:3:Hobbit
+R:D:An old but quiet race related to humans.
+R:D:They are small and quite weak but good at many things.
+R:S:-2:2:1:3:2:1:5
+R:K:15:18:18:5:12:15:-10:20
+R:P:7:110:4:10
+R:M:21:12:36:3:60:3:33:3:50:3
+R:E:1:1:1:2:1:1
+R:Z:create food
+R:C:Warrior | Mage | Rogue | High-Mage | Mimic | Alchemist |  Summoner | 
+R:C:Symbiant | Harper | Archer | Illusionist | Unbeliever | Merchant | Blade | 
+R:G:RESIST_BLACK_BREATH | XTRA_MIGHT_SLING |
+R:R:1:0
+R:F:SUST_DEX | 
+
+R:N:4:Gnome
+R:D:Related to dwarves, Gnomes are between Dwarves and Hobbits in size.
+R:D:Very good at magic use they are poor as fighters.
+R:S:-1:2:0:2:1:-2:2
+R:K:10:12:12:3:6:13:-8:12
+R:P:8:135:4:13
+R:M:50:40:42:3:90:6:39:3:75:3
+R:E:1:1:1:2:1:1
+R:Z:blink
+R:C:Warrior | Mage | Priest | Rogue | Mindcrafter | High-Mage | 
+R:C:Mimic | Alchemist | Symbiant | Sorceror | Illusionist | Daemonologist | 
+R:C:Merchant | Summoner | 
+R:R:1:0
+R:F:FREE_ACT | 
+
+R:N:5:Dwarf
+R:D:The children of Aule, a strong but small race.
+R:D:Miners and fighters of legend.
+R:S:2:-2:2:-2:2:-3:0
+R:K:2:9:10:-1:7:10:15:0
+R:P:11:125:5:16
+R:M:35:15:48:3:150:10:46:3:120:10
+R:E:1:1:1:2:1:1
+R:Z:find secret passages
+R:C:Warrior | Priest | Mimic | Alchemist | Symbiant | Harper | 
+R:C:Druid | Unbeliever | Weaponmaster | Merchant | Blade | 
+R:R:1:0
+R:F:RES_BLIND | 
+
+R:N:6:Orc
+R:D:Quite strong but not very smart.
+R:S:2:-1:0:1:1:-4:-3
+R:K:-3:-3:-3:-1:0:7:12:-5
+R:P:10:110:3:19
+R:M:11:4:66:1:150:5:62:1:120:5
+R:E:1:1:1:2:1:1
+R:Z:remove fear
+R:C:Warrior | Priest | Rogue | Chaos-Warrior | Monk | Mimic | Blade | 
+R:C:Power-Mage | Runecrafter | Necromancer | Unbeliever | Weaponmaster | 
+R:R:1:0
+R:F:RES_DARK | 
+
+R:N:7:Troll
+R:D:They can bear the light of the sun.
+R:D:They are extremely strong and dumb.
+R:S:4:-4:-2:-4:3:-6:-4
+R:K:-5:-8:-8:-2:-1:5:20:-10
+R:P:12:137:3:22
+R:M:20:10:96:10:250:50:84:8:225:40
+R:E:1:1:1:2:1:1
+R:Z:berserk
+R:C:Warrior | Priest | Power-Mage | Necromancer | Unbeliever | Weaponmaster | Blade | 
+R:R:1:0
+R:F:SUST_STR | 
+R:R:15:0
+R:F:REGEN | 
+
+R:N:8:Dunadan
+R:D:The greatest of the Edain, humans in all respects but
+R:D:stronger, smarter and wiser.
+R:S:1:2:2:2:3:2:2
+R:K:4:5:5:2:3:13:15:10
+R:P:10:180:0:1
+R:M:50:50:82:5:190:20:78:6:180:15
+R:E:1:1:1:2:1:1
+R:C:Warrior | Mage | Priest | Rogue | Ranger | Paladin | Blade | 
+R:C:Warlock | Chaos-Warrior | Monk | Mindcrafter | High-Mage | BeastMaster | 
+R:C:Alchemist | Symbiant | Harper | Runecrafter | Possessor | Sorceror | 
+R:C:Archer | Illusionist | Druid | Unbeliever | Daemonologist | Weaponmaster | 
+R:C:Merchant | 
+R:R:1:0
+R:F:SUST_CON | REGEN | 
+
+R:N:9:High-Elf
+R:D:Elves are the first born, the Eldar.
+R:D:High elves are the best of the Eldar, strong, fast, intellectual, though
+R:D:they sometimes lack wisdom.
+R:S:1:3:2:3:1:5:0
+R:K:4:20:20:4:3:14:10:25
+R:P:10:200:4:4
+R:M:100:30:90:10:190:20:82:10:180:15
+R:E:1:1:1:2:1:1
+R:C:Warrior | Mage | Priest | Rogue | Ranger | Warlock | Blade | 
+R:C:Monk | Mindcrafter | High-Mage | Mimic | BeastMaster | Alchemist | 
+R:C:Symbiant | Harper | Runecrafter | Possessor | Sorceror | Archer | 
+R:C:Illusionist | Druid | Daemonologist | Weaponmaster | Merchant | 
+R:R:1:0
+R:F:SEE_INVIS | 
+R:F:RES_LITE | 
+
+R:N:10:Half-Ogre
+R:D:A crossbreed between a human and an ogre.
+R:D:They are similar to half-trolls, strong and dumb.
+R:S:3:-1:-1:-1:3:-3:-2
+R:K:-3:-5:-5:-2:-1:5:20:0
+R:P:12:130:3:74
+R:M:40:10:92:10:255:60:80:8:235:60
+R:E:1:1:1:2:1:1
+R:Z:set explosive rune
+R:C:Warrior | Mage | Priest | High-Mage | Power-Mage | Necromancer | Blade | 
+R:R:1:0
+R:F:SUST_STR | RES_DARK | 
+
+R:N:11:Beorning
+R:D:A race of men shapeshifters.
+R:D:They have the unique power of being able to polymorph to bear forms.
+R:S:4:-2:-2:-1:3:-5:1
+R:K:-6:-8:-6:-2:-1:5:25:5
+R:P:12:150:3:75
+R:M:40:10:100:10:255:65:80:10:240:64
+R:E:1:1:1:2:1:1
+R:Z:turn into a bear
+R:C:Warrior | Ranger | Monk | BeastMaster | Power-Mage | Necromancer | 
+R:C:Unbeliever | Summoner | Blade | 
+R:R:1:0
+R:F:SUST_STR | 
+R:R:20:1
+R:F:STR | 
+
+R:N:12:Kobold
+R:D:A weaker kind of goblin, related to orcs.
+R:S:1:-1:0:1:0:-4:0
+R:K:-2:-3:-2:-1:1:8:10:-8
+R:P:9:125:3:82
+R:M:11:3:60:1:130:5:55:1:100:5
+R:E:1:1:1:2:1:1
+R:Z:poison dart
+R:C:Warrior | Rogue | Mimic | Symbiant | Harper | Power-Mage | 
+R:C:Runecrafter | Illusionist | Necromancer | Unbeliever | Merchant | 
+R:R:1:0
+R:F:RES_POIS | 
+
+R:N:13:Petty-Dwarf
+R:D:A nearly extinct subrace of dwarves.
+R:D:They prefer to live in the darkness.
+R:S:1:-1:2:0:2:-4:-5
+R:K:3:5:10:1:5:10:9:0
+R:P:11:135:5:87
+R:M:40:12:43:3:92:6:40:3:78:3
+R:E:1:1:1:2:1:1
+R:Z:detect doors and traps
+R:C:Warrior | Mage | Priest | Rogue | High-Mage | Mimic | 
+R:C:Alchemist | Symbiant | Harper | Sorceror | Archer | Weaponmaster | 
+R:C:Merchant | Summoner | 
+R:R:1:0
+R:F:RES_DARK | RES_DISEN | 
+
+R:N:14:Dark-Elf
+R:D:Elves are the first born, the Eldar.
+R:D:Dark elves are rare on Middle Earth and even though not evil
+R:D:they are not good.
+R:S:-1:3:2:2:-2:1:-2
+R:K:5:15:20:3:8:12:-5:10
+R:P:9:150:5:69
+R:M:75:75:60:4:100:6:54:4:80:6
+R:E:1:1:1:2:1:1
+R:Z:magic missile
+R:C:Warrior | Mage | Priest | Rogue | Ranger | Warlock | Summoner | 
+R:C:Chaos-Warrior | Monk | Mindcrafter | High-Mage | Mimic | BeastMaster | 
+R:C:Alchemist | Symbiant | Harper | Runecrafter | Possessor | Sorceror | 
+R:C:Archer | Illusionist | Necromancer | Daemonologist | Weaponmaster | Merchant | 
+R:R:1:0
+R:F:RES_DARK | 
+R:R:20:0
+R:F:SEE_INVIS | 
+
+R:N:15:Ent
+R:D:Guardian of the forests of Middle Earth, summoned by Yavanna before
+R:D:even the elves awoke. It is said 'Trolls are strong, Ents are STRONGER'.
+R:S:10:-3:2:-5:11:-3:-2
+R:K:5:5:20:-6:5:4:15:5
+R:P:12:210:5:94
+R:M:255:70:72:6:100:25:66:4:100:20
+R:E:1:1:1:2:1:1
+R:Z:grow trees
+R:C:Warrior | Priest | Paladin | Warlock | High-Mage | BeastMaster | 
+R:C:Alchemist | Symbiant | Druid | Unbeliever | Summoner | Blade | 
+R:G:PASS_TREE | NO_STUN | 
+R:G:AC_LEVEL | 
+R:R:1:-5
+R:F:SPEED | SENS_FIRE | SLOW_DIGEST | 
+R:R:5:0
+R:F:SEE_INVIS | 
+R:R:20:0
+R:F:ESP_ORC | 
+R:F:ESP_TROLL | ESP_EVIL | 
+
+R:N:16:RohanKnight
+R:D:Humans from the land of Rohan, riding the great Mearas.
+R:D:Fast and powerful in battle.
+R:S:4:-2:3:1:4:2:0
+R:K:10:5:5:-8:1:1:5:5
+R:P:10:220:0:84
+R:M:20:3:60:3:80:4:54:3:70:4
+R:E:1:1:1:2:1:1
+R:Z:Rohan's Knight's Powers
+R:C:Warrior | Ranger | Paladin | Warlock | Chaos-Warrior | High-Mage | 
+R:C:Harper | Runecrafter | Sorceror | Archer | Illusionist | Necromancer | 
+R:C:Unbeliever | Weaponmaster | Merchant | 
+R:R:1:3
+R:F:SPEED | 
+R:R:5:1
+R:F:SPEED | 
+R:R:10:1
+R:F:SPEED | 
+R:R:15:1
+R:F:SPEED | 
+R:R:20:1
+R:F:SPEED | 
+R:R:25:1
+R:F:SPEED | 
+R:R:30:1
+R:F:SPEED | 
+R:R:35:1
+R:F:SPEED | 
+R:R:40:1
+R:F:SPEED | 
+R:R:45:1
+R:F:SPEED | 
+
+R:N:17:DragonRider
+R:D:In the distant system of the star Rukbat orbits the planet Pern, home of the
+R:D:DragonRiders. Mounting huge, powerful but friendly dragons they are masters of
+R:D:teleporatation.
+R:S:6:3:-10:0:6:8:-3
+R:K:6:0:10:-16:30:10:15:5
+R:P:15:400:0:89
+R:M:14:6:180:6:255:25:150:4:230:20
+R:E:1:1:1:2:1:1
+R:Z:Dragon's Powers
+R:C:Warrior | Ranger | Paladin | Warlock | Mindcrafter | High-Mage | Summoner | 
+R:C:BeastMaster | Harper | Runecrafter | Sorceror | Archer | Unbeliever | 
+R:G:TP | 
+R:R:1:0
+R:F:FEATHER | 
+R:R:4:0
+R:F:ESP_DRAGON | ESP_DRAGONRIDER | 
+R:R:5:0
+R:F:RES_FIRE | 
+R:R:10:0
+R:F:RES_COLD | 
+R:R:15:0
+R:F:RES_ACID | 
+R:R:17:0
+R:F:FLY | 
+R:R:20:0
+R:F:RES_ELEC | 
+R:R:35:0
+R:F:RES_POIS | 
+
+R:N:18:DeathMold
+R:D:A pure mass of evilness, DeathMolds cannot move, but they have much more
+R:D:power than an average race.
+R:S:10:0:10:0:10:-15:-5
+R:K:15:-5:15:25:0:10:25:25
+R:P:15:250:10:200
+R:M:5:15:10:1:50:1:10:1:50:1
+R:E:1:1:1:4:0:0
+R:Z:Death Mold's Powers
+R:C:Mage | Priest | Rogue | Mindcrafter | High-Mage | BeastMaster | 
+R:C:Symbiant | Power-Mage | Sorceror | Necromancer | Summoner | 
+R:R:1:0
+R:F:IMMOVABLE | HOLD_LIFE | 
+R:F:RES_NETHER | RES_NEXUS | 
+
+R:N:19:Yeek
+R:D:The weakest of all the races, bad at everything except gaining levels quickly.
+R:S:-5:-5:-5:-5:-5:-5:-5
+R:K:-5:-5:-10:0:-5:0:-10:-10
+R:P:6:25:2:205
+R:M:10:4:40:5:50:10:35:4:45:10
+R:E:1:1:1:2:1:1
+R:C:Warrior | Mage | Priest | Rogue | Ranger | Paladin | Summoner | 
+R:C:Warlock | Chaos-Warrior | Monk | Mindcrafter | High-Mage | BeastMaster | 
+R:C:Alchemist | Symbiant | Harper | Runecrafter | Possessor | Sorceror | 
+R:C:Archer | Illusionist | Druid | Unbeliever | Daemonologist | Blade | 
+
+R:N:20:Wood-Elf
+R:D:Elves are the first born, the Eldar.
+R:D:Wood elves live in the great forests of Middle Earth.
+R:S:-3:2:1:5:-4:1:0
+R:K:5:6:6:5:8:12:-25:40
+R:P:7:130:4:4
+R:M:75:75:60:4:100:6:54:4:80:6
+R:E:1:1:1:2:1:1
+R:C:Warrior | Mage | Priest | Rogue | Ranger | Warlock | 
+R:C:Monk | Mindcrafter | High-Mage | Mimic | BeastMaster | Alchemist | 
+R:C:Symbiant | Harper | Runecrafter | Possessor | Sorceror | Archer | 
+R:C:Illusionist | Druid | Merchant | Summoner | Blade | 
+R:G:XTRA_MIGHT_BOW | PASS_TREE
+R:R:1:1
+R:F:XTRA_MIGHT | RES_LITE | 
+
+R:N:21:Maia
+R:D:An old race, dating from before the creation of Arda, the Maiar were
+R:D:created by Eru to help the Valar in their task.
+R:S:0:0:0:0:0:0:4
+R:K:0:0:0:0:0:10:0:0
+R:P:10:100:0:206
+R:M:14:6:72:6:180:25:66:4:150:20
+R:E:1:1:1:2:1:1
+R:C:Warrior | Mage | Priest | Rogue | Ranger | Paladin | 
+R:C:Warlock | Chaos-Warrior | Monk | Mindcrafter | High-Mage | Mimic | 
+R:C:BeastMaster | Alchemist | Symbiant | Harper | Power-Mage | Runecrafter | 
+R:C:Possessor | Sorceror | Archer | Illusionist | Druid | Necromancer | 
+R:C:Unbeliever | Daemonologist | Weaponmaster | Merchant | 
+R:G:NO_GOD
+R:R:1:0
+R:F:AGGRAVATE | 
+R:R:7:0
+R:F:DRAIN_EXP | 
+R:R:6:1
+R:F:STR | INT | WIS | DEX | CON | CHR | 
+R:R:12:1
+R:F:STR | INT | WIS | DEX | CON | CHR | 
+R:R:18:1
+R:F:STR | INT | WIS | DEX | CON | CHR | 
+R:R:24:1
+R:F:STR | INT | WIS | DEX | CON | CHR | 
+R:R:30:1
+R:F:STR | INT | WIS | DEX | CON | CHR | 
+R:R:36:1
+R:F:STR | INT | WIS | DEX | CON | CHR | 
+R:R:42:1
+R:F:STR | INT | WIS | DEX | CON | CHR | 
+R:R:48:1
+R:F:STR | INT | WIS | DEX | CON | CHR | 
+
+
+
+##############################################################################
+##############################################################################
+##############################################################################
+##############################################################################
+# S: Subrace definition
+# S:N:index:name
+# S:D:'A'fter/'B'efore:subrace desc
+# S:S:str:int:wis:dex:con:chr:luck:mana
+# S:K:dis:dev:sav:stl:srh:fos:thn:thb
+# S:P:hitdie:xp%:infra
+# S:M:b_age:m_age:m_b_ht:m_m_ht:m_b_wt:m_m_wt:f_b_ht:f_m_ht:f_b_wt:f_m_wt
+# S:E:weapons:torso:arms:finger:head:legs
+# S:A:allowed races
+# S:C:'A'llow/'F'orbid:allowed/forbiden classes
+# S:G:subrace flags
+# S:R:level:pval
+# S:F:flags
+
+# Make the parser actually work :)
+I:
+
+S:N:0: 
+S:D:A:A normal member of the race.
+S:S:0:0:0:0:0:0:0:100
+S:K:0:0:0:0:0:0:0:0
+S:P:0:0:0
+S:M:0:0:0:0:0:0:0:0:0:0
+S:E:0:0:0:0:0:0
+S:A:Human | Half-Elf | Elf | Hobbit | Gnome | Dwarf | 
+S:A:Orc | Troll | Dunadan | High-Elf | Half-Ogre | Beorning | 
+S:A:Kobold | Petty-Dwarf | Dark-Elf | Ent | RohanKnight | DragonRider | 
+S:A:DeathMold | Yeek | Wood-Elf | Maia | 
+
+S:N:1:Vampire
+S:D:B:Vampires are powerful undead, wielding great powers they still fear the
+S:D:B:sunlight and cannot easily satiate their hunger.
+S:S:3:3:-1:-1:1:2:-4:100
+S:K:1:3:3:1:1:4:2:0
+S:P:1:100:3
+S:M:50:15:0:0:0:0:0:0:0:0
+S:E:0:0:0:0:0:0
+S:A:Human | Half-Elf | Hobbit | Gnome | Dwarf | Orc |
+S:A:Troll | Dunadan | Half-Ogre | Beorning | Kobold | Petty-Dwarf | 
+S:A:Dark-Elf | RohanKnight | Yeek | 
+S:C:F:Merchant | 
+S:G:HURT_LITE | 
+S:G:VAMPIRE | UNDEAD | 
+S:R:1:0
+S:F:LITE1 | HOLD_LIFE | RES_COLD | RES_POIS | 
+S:F:RES_DARK | RES_NETHER |
+S:Z:vampiric drain
+
+S:N:2:Spectre
+S:D:B:Spectres only partially exist in the mortal world and so they can
+S:D:B:pass through walls. They are somewhat physically weak.
+S:S:-5:4:4:2:-3:-6:-3:105
+S:K:2:8:7:2:2:7:-5:-2
+S:P:-3:80:3
+S:M:50:15:0:0:-10:-5:0:0:-10:-5
+S:E:0:0:0:-1:0:0
+S:A:Human | Half-Elf | Elf | Hobbit | Gnome | Dwarf | 
+S:A:Orc | Troll | Dunadan | High-Elf | Half-Ogre | Beorning | 
+S:A:Kobold | Petty-Dwarf | Dark-Elf | RohanKnight | Yeek | Wood-Elf | 
+S:C:F:Warrior | Archer | Unbeliever | Weaponmaster | Merchant | 
+S:G:UNDEAD | NO_CUT | NO_FOOD | 
+S:R:1:0
+S:F:WRAITH | SEE_INVIS | HOLD_LIFE | 
+S:F:SLOW_DIGEST | RES_COLD | RES_POIS | IM_NETHER | RES_NETHER | 
+
+S:N:3:Skeleton
+S:D:B:Yet an other kind of undead. Their physical 'body' is not very vulnerable
+S:D:B:to sharp things.
+S:S:0:-2:-2:0:1:-4:-3:70
+S:K:-5:-5:5:-1:-1:8:8:0
+S:P:0:45:1
+S:M:50:15:0:0:-10:-5:0:0:-10:-5
+S:E:0:0:0:0:0:0
+S:A:Human | Half-Elf | Elf | Hobbit | Gnome | Dwarf | 
+S:A:Orc | Troll | Dunadan | High-Elf | Half-Ogre | Beorning | 
+S:A:Kobold | Petty-Dwarf | Dark-Elf | RohanKnight | Yeek | Wood-Elf | 
+S:C:F:Mage | High-Mage | Power-Mage | Sorceror | Illusionist | 
+S:C:F:Merchant | 
+S:G:UNDEAD | NO_CUT | NO_FOOD | 
+S:R:1:0
+S:F:SEE_INVIS | HOLD_LIFE | 
+S:F:RES_POIS | RES_SHARDS | 
+S:R:10:0
+S:F:RES_COLD | 
+
+S:N:4:Zombie
+S:D:B:Strong and dumb is a zombie.
+S:S:2:-6:-6:1:4:-5:-4:70
+S:K:-2:-2:5:-1:-1:2:5:0
+S:P:3:45:1
+S:M:50:15:0:0:0:0:0:0:0:0
+S:E:0:0:0:0:0:0
+S:A:Human | Half-Elf | Elf | Hobbit | Gnome | Dwarf | 
+S:A:Orc | Troll | Dunadan | High-Elf | Half-Ogre | Beorning | 
+S:A:Kobold | Petty-Dwarf | Dark-Elf | RohanKnight | Yeek | Wood-Elf | 
+S:C:F:Merchant | 
+S:G:UNDEAD | NO_FOOD | 
+S:R:1:0
+S:F:SEE_INVIS | HOLD_LIFE | 
+S:F:SLOW_DIGEST | RES_POIS | 
+S:R:5:0
+S:F:RES_COLD | 
+
+S:N:5:Barbarian
+S:D:A:Hardy members of their race they are strong fighters but poor spellcasters.
+S:S:2:-3:-2:1:1:-3:1:50
+S:K:-2:-10:2:-2:0:1:12:5
+S:P:1:25:0
+S:M:0:0:0:0:0:0:0:0:0:0
+S:E:0:0:0:0:0:0
+S:A:Human | Dwarf | Orc | Troll | Half-Ogre | Beorning | 
+S:C:F:Mage | High-Mage | Power-Mage | Sorceror | Illusionist | 
+S:R:10:0
+S:F:RES_FEAR | 
+
+S:N:6:Hermit
+S:D:A:Through years of isolation hermits can manage to increase their mana
+S:D:A:reserves but at the cost of an increased physical weakness.
+S:S:-3:1:1:-3:-3:1:0:120
+S:K:5:10:5:3:4:10:-5:-5
+S:P:-3:20:1
+S:M:0:0:0:0:0:0:0:0:0:0
+S:E:0:0:0:0:0:0
+S:A:Human | Half-Elf | Elf | Hobbit | Gnome | Dwarf | 
+S:A:Dunadan | High-Elf | Petty-Dwarf | Dark-Elf | Ent | RohanKnight | 
+S:A:DragonRider | DeathMold | Yeek | Wood-Elf | Maia | 
+S:C:A:Priest | 
+S:C:A:Runecrafter | Sorceror | 
+S:C:F:Warrior | Unbeliever | 
+
+S:N:7:Corrupted
+S:D:B:Infused with the corruption of Morgoth, these unfortunates randomly gain
+S:D:B:and lose corruptions as they gain expirience.
+S:S:0:0:0:0:0:0:0:100
+S:K:0:0:0:0:0:0:0:0
+S:P:0:20:0
+S:M:0:0:0:0:0:0:0:0:0:0
+S:E:0:0:0:0:0:0
+S:G:CORRUPT
+S:A:Human | Half-Elf | Elf | Hobbit | Gnome | Dwarf | 
+S:A:Orc | Troll | Dunadan | High-Elf | Half-Ogre | Beorning | 
+S:A:Kobold | Petty-Dwarf | Dark-Elf | RohanKnight | DragonRider | Yeek | 
+S:A:Wood-Elf | Maia | 
+
+S:N:8:LostSoul
+S:D:A:In some very rare ocassions soulds can come back from the Halls of Mandos.
+S:S:0:0:0:0:0:0:0:100
+S:K:0:0:0:0:0:0:0:0
+S:P:0:0:0
+S:M:0:0:0:0:0:0:0:0:0:0
+S:E:0:0:0:0:0:0
+S:G:ASTRAL
+S:A:Human | Half-Elf | Elf | Hobbit | Gnome | Dwarf | 
+S:A:Orc | Troll | Dunadan | High-Elf | Half-Ogre | Beorning | 
+S:A:Kobold | Petty-Dwarf | Dark-Elf | Ent | RohanKnight | DragonRider | 
+S:A:DeathMold | Yeek | Wood-Elf | Maia | 
+
+
+##############################################################################
+##############################################################################
+##############################################################################
+##############################################################################
+# H: Race history
+# H:index:chance:chart:next chart:social class bonus:desc
+
+H:0:10:1:2:25:You are the illegitimate and unacknowledged child 
+H:1:20:1:2:35:You are the illegitimate but acknowledged child 
+H:2:95:1:2:45:You are one of several children 
+H:3:100:1:2:50:You are the first child 
+
+H:4:40:2:3:65:of a Serf.  
+H:5:65:2:3:80:of a Yeoman.  
+H:6:80:2:3:90:of a Townsman.  
+H:7:90:2:3:105:of a Guildsman.
+H:8:96:2:3:120:of a Landed Knight.
+H:9:99:2:3:130:of a Noble Lord.  
+H:10:100:2:3:140:of the Royal Blood Line.  
+
+H:11:20:3:50:20:You are the black sheep of the family.  
+H:12:80:3:50:55:You are a credit to the family.  
+H:13:100:3:50:60:You are a well liked child.  
+
+H:14:25:4:1:40:Your mother was of the Avari.  
+H:15:40:4:1:50:Your father was of the Avari.  
+H:16:65:4:1:60:Your mother was of the Nandor.  
+H:17:80:4:1:60:Your father was of the Nandor.  
+H:18:96:4:1:70:Your mother was of the Sindar.  
+H:19:99:4:1:70:Your father was of the Sindar.  
+H:20:100:4:1:100:Your ancestry traces to Elrond.  
+
+H:21:60:7:8:50:You are one of several children 
+H:22:100:7:8:55:You are the only child 
+
+H:23:75:8:9:50:of a Telerin 
+H:24:95:8:9:55:of a Noldorin 
+H:25:100:8:9:60:of a Vanyarin 
+
+H:26:40:9:54:80:Ranger.  
+H:27:70:9:54:90:Archer.  
+H:28:87:9:54:110:Warrior.  
+H:29:95:9:54:125:Mage.  
+H:30:99:9:54:140:Prince.  
+H:31:100:9:54:145:King.  
+
+H:32:85:10:11:45:You are one of several children of a Hobbit 
+H:33:100:10:11:55:You are the only child of a Hobbit 
+
+H:34:20:11:3:55:Bum.  
+H:35:30:11:3:80:Tavern Owner.  
+H:36:40:11:3:90:Miller.  
+H:37:50:11:3:100:Home Owner.  
+H:38:80:11:3:110:Burglar.  
+H:39:95:11:3:115:Warrior.  
+H:40:99:11:3:125:Mage.  
+H:41:100:11:3:140:Clan Elder.  
+
+H:42:85:13:14:45:You are one of several children of a Gnome 
+H:43:100:13:14:55:You are the only child of a Gnome 
+
+H:44:20:14:3:55:Beggar.  
+H:45:50:14:3:70:Braggart.  
+H:46:75:14:3:85:Prankster.  
+H:47:95:14:3:100:Warrior.  
+H:48:100:14:3:125:Mage.  
+
+H:49:25:16:17:40:You are one of two children of a Dwarven 
+H:50:100:16:17:50:You are the only child of a Dwarven 
+
+H:51:10:17:18:60:Thief.  
+H:52:25:17:18:75:Prison Guard.  
+H:53:75:17:18:90:Miner.  
+H:54:90:17:18:110:Warrior.  
+H:55:99:17:18:130:Priest.  
+H:56:100:17:18:150:King.  
+
+H:57:15:18:57:10:You are the black sheep of the family.  
+H:58:85:18:57:50:You are a credit to the family.  
+H:59:100:18:57:55:You are a well liked child.  
+
+H:60:25:19:20:25:Your mother was an Orc, but it is unacknowledged.  
+H:61:100:19:20:25:Your father was an Orc, but it is unacknowledged.  
+
+H:62:100:20:2:50:You are the adopted child 
+
+H:63:30:22:23:20:Your mother was a Cave-Troll 
+H:64:60:22:23:25:Your father was a Cave-Troll 
+H:65:75:22:23:30:Your mother was a Hill-Troll 
+H:66:90:22:23:35:Your father was a Hill-Troll 
+H:67:95:22:23:40:Your mother was a Water-Troll 
+H:68:100:22:23:45:Your father was a Water-Troll 
+
+H:69:5:23:62:60:Cook.  
+H:70:95:23:62:55:Warrior.  
+H:71:99:23:62:65:Shaman.  
+H:72:100:23:62:80:Clan Chief.  
+
+H:73:20:50:51:50:You have dark brown eyes, 
+H:74:60:50:51:50:You have brown eyes, 
+H:75:70:50:51:50:You have hazel eyes, 
+H:76:80:50:51:50:You have green eyes, 
+H:77:90:50:51:50:You have blue eyes, 
+H:78:100:50:51:50:You have blue-gray eyes, 
+
+H:79:70:51:52:50:straight 
+H:80:90:51:52:50:wavy 
+H:81:100:51:52:50:curly 
+
+H:82:30:52:53:50:black hair, 
+H:83:70:52:53:50:brown hair, 
+H:84:80:52:53:50:auburn hair, 
+H:85:90:52:53:50:red hair, 
+H:86:100:52:53:50:blond hair, 
+
+H:87:10:53:0:50:and a very dark complexion.
+H:88:30:53:0:50:and a dark complexion.
+H:89:80:53:0:50:and an average complexion.
+H:90:90:53:0:50:and a fair complexion.
+H:91:100:53:0:50:and a very fair complexion.
+
+H:92:85:54:55:50:You have light grey eyes, 
+H:93:95:54:55:50:You have light blue eyes, 
+H:94:100:54:55:50:You have light green eyes, 
+
+H:95:75:55:56:50:straight 
+H:96:100:55:56:50:wavy 
+
+H:97:75:56:0:50:black hair, and a fair complexion.
+H:98:85:56:0:50:brown hair, and a fair complexion.
+H:99:95:56:0:50:blond hair, and a fair complexion.
+H:100:100:56:0:50:silver hair, and a fair complexion.
+
+H:101:99:57:58:50:You have dark brown eyes, 
+H:102:100:57:58:60:You have glowing red eyes, 
+
+H:103:90:58:59:50:straight 
+H:104:100:58:59:50:wavy 
+
+H:105:75:59:60:50:black hair, 
+H:106:100:59:60:50:brown hair, 
+
+H:107:25:60:61:50:a one foot beard, 
+H:108:60:60:61:51:a two foot beard, 
+H:109:90:60:61:53:a three foot beard, 
+H:110:100:60:61:55:a four foot beard, 
+
+H:111:100:61:0:50:and a dark complexion.
+
+H:112:60:62:63:50:You have slime green eyes, 
+H:113:85:62:63:50:You have puke yellow eyes, 
+H:114:99:62:63:50:You have blue-bloodshot eyes, 
+H:115:100:62:63:55:You have glowing red eyes, 
+
+H:116:33:63:64:50:dirty 
+H:117:66:63:64:50:mangy 
+H:118:100:63:64:50:oily 
+
+H:119:33:64:65:50:sea-weed green hair, 
+H:120:66:64:65:50:bright red hair, 
+H:121:100:64:65:50:dark purple hair, 
+
+H:122:25:65:66:50:and green 
+H:123:50:65:66:50:and blue 
+H:124:75:65:66:50:and white 
+H:125:100:65:66:50:and black 
+
+H:126:33:66:0:50:ulcerous skin.
+H:127:66:66:0:50:scabby skin.
+H:128:100:66:0:50:leprous skin.
+
+H:129:85:69:70:45:You are one of several children of a Dark Elven 
+H:130:100:69:70:55:You are the only child of a Dark Elven 
+
+H:131:50:70:71:60:Warrior.  
+H:132:80:70:71:75:Warlock.  
+H:133:100:70:71:95:Noble.  
+
+H:134:100:71:72:50:You have black eyes, 
+
+H:135:70:72:73:50:straight 
+H:136:90:72:73:50:wavy 
+H:137:100:72:73:50:curly 
+
+H:138:100:73:0:50:black hair and a very dark complexion.
+
+H:139:25:74:20:25:Your mother was an Ogre, but it is unacknowledged.  
+H:140:100:74:20:25:Your father was an Ogre, but it is unacknowledged.  
+
+H:141:10:75:20:50:You are a descandant of Beorn to the 10th degree.  
+H:142:12:75:20:55:You are a descandant of Beorn to the 9th degree.  
+H:143:20:75:20:60:You are a descandant of Beorn to the 8th degree.  
+H:144:23:75:20:65:You are a descandant of Beorn to the 7th degree.  
+H:145:25:75:20:70:You are a descandant of Beorn to the 6th degree.  
+H:146:60:75:20:50:You are a descandant of Beorn to the 5th degree.  
+H:147:70:75:20:55:You are a descandant of Beorn to the 4th degree.  
+H:148:80:75:20:60:You are a descandant of Beorn to the 3rd degree.  
+H:149:90:75:20:65:You are a descandant of Beorn to the 2nd degree.  
+H:150:100:75:20:70:Your father was Beorn.  
+
+H:151:75:76:20:50:Your father was an unknown Titan.  
+H:152:80:76:20:100:Your mother was Themis.  
+H:153:85:76:20:100:Your mother was Mnemosyne.  
+H:154:90:76:20:100:Your father was Okeanoas.  
+H:155:95:76:20:100:Your father was Crius.  
+H:156:98:76:20:125:Your father was Hyperion.  
+H:157:100:76:20:150:Your father was Kronos.  
+
+H:158:90:77:109:50:You are the offspring of an unknown Cyclops.  
+H:159:98:77:109:80:You are Polyphemos's child.  
+H:160:100:77:109:135:You are Uranos's child.  
+
+H:161:100:78:79:50:You are one of several children of 
+
+H:162:50:79:80:50:a Brown Yeek. 
+H:163:75:79:80:50:a Blue Yeek.  
+H:164:95:79:80:85:a Master Yeek.  
+H:165:100:79:80:120:Boldor, the King of the Yeeks.  
+
+H:166:25:80:81:50:You have pale eyes, 
+H:167:50:80:81:50:You have glowing eyes, 
+H:168:75:80:81:50:You have tiny black eyes, 
+H:169:100:80:81:50:You have shining black eyes, 
+
+H:170:20:81:65:50:no hair at all, 
+H:171:40:81:65:50:short black hair, 
+H:172:60:81:65:50:long black hair, 
+H:173:80:81:65:50:bright red hair, 
+H:174:100:81:65:50:colourless albino hair, 
+
+H:175:100:82:83:50:You are one of several children of 
+
+H:176:40:83:80:50:a Small Kobold.  
+H:177:75:83:80:55:a Kobold.  
+H:178:95:83:80:65:a Large Kobold.  
+H:179:100:83:80:100:Mughash, the Kobold Lord.  
+
+H:180:85:84:85:45:You are one of several children 
+H:181:100:84:85:50:You are the first child 
+
+H:182:60:85:50:40:of a Serf.  
+H:183:85:85:50:55:of a Devoted Mercenary.  
+H:184:96:85:50:60:of a Landed Knight  
+H:185:99:85:50:100:of a Marshal of the Riddermark.  
+H:186:100:85:50:120:of a King of the Rohirrim.  
+
+H:187:100:87:88:89:You are one of several children of 
+
+H:188:30:88:18:20:a Petty-Dwarf Slave.  
+H:189:50:88:18:40:a Petty-Dwarf Thief.  
+H:190:70:88:18:60:a Petty-Dwarf Smith.  
+H:191:90:88:18:75:a Petty-Dwarf Miner.  
+H:192:95:88:18:100:a Petty-Dwarf Shaman.  
+H:193:100:88:18:100:Mim, Betrayer of Turin.  
+
+H:194:85:89:91:50:You are one of several children of a DragonRider. 
+H:195:100:89:91:60:You are the only child of a DragonRider. 
+
+H:196:30:91:0:40:You have a Green Dragon.
+H:197:55:91:0:60:You have a Blue Dragon.
+H:198:80:91:0:80:You have a Brown Dragon.
+H:199:90:91:0:100:You have a Bronze Dragon.
+H:200:100:91:0:120:You have a Gold Dragon.
+
+H:201:100:92:93:80:You have slimy skin, empty glowing eyes, and 
+
+H:202:20:93:0:45:three tentacles around your mouth.
+H:203:80:93:0:50:four tentacles around your mouth.
+H:204:100:93:0:55:five tentacles around your mouth.
+
+H:205:30:94:95:30:You are of an unknown generation of the Ents.
+H:206:40:94:95:50:You are of the third generation of the Ents.
+H:207:60:94:95:60:You are of the second generation of the Ents.
+H:208:100:94:95:80:You are of the first beings who awoke on Arda.
+
+H:209:50:95:0:50:You have green skin and unflexible members.
+H:210:100:95:0:50:You have brown skin and unflexible members.
+
+H:211:100:107:108:50:You were created by 
+
+H:212:30:108:62:50:a Necromancer.  
+H:213:50:108:62:50:a Wizard.  
+H:214:60:108:62:50:a restless spirit.  
+H:215:70:108:62:50:an Evil Priest.  
+H:216:80:108:62:50:a pact with the demons.  
+H:217:95:108:62:30:a curse.  
+H:218:100:108:62:50:an oath.  
+
+H:219:20:109:110:50:You have a dark brown eye, 
+H:220:60:109:110:50:You have a brown eye, 
+H:221:70:109:110:50:You have a hazel eye, 
+H:222:80:109:110:50:You have a green eye, 
+H:223:90:109:110:50:You have a blue eye, 
+H:224:100:109:110:50:You have a blue-gray eye, 
+
+H:225:70:110:111:50:straight 
+H:226:90:110:111:50:wavy 
+H:227:100:110:111:50:curly 
+
+H:228:30:111:112:50:black hair, 
+H:229:70:111:112:50:brown hair, 
+H:230:80:111:112:50:auburn hair, 
+H:231:90:111:112:50:red hair, 
+H:232:100:111:112:50:blond hair, 
+
+H:233:10:112:0:50:and a very dark complexion.
+H:234:30:112:0:50:and a dark complexion.
+H:235:80:112:0:50:and an average complexion.
+H:236:90:112:0:50:and a fair complexion.
+H:237:100:112:0:50:and a very fair complexion.
+
+H:238:20:113:114:50:You arose from an unmarked grave.  
+H:239:40:109:110:50:In life you were a simple peasant, the victim of a powerful Vampire Lord.  
+H:240:60:113:114:50:In life you were a Vampire Hunter, but they got you.  
+H:241:80:113:114:50:In life you were a Necromancer.  
+H:242:95:113:114:50:In life you were a powerful noble.  
+H:243:100:113:114:50:In life you were a powerful and cruel tyrant.  
+
+H:244:100:114:115:50:You have 
+
+H:245:25:115:116:50:jet-black hair, 
+H:246:50:115:116:50:matted brown hair, 
+H:247:75:115:116:50:white hair, 
+H:248:100:115:116:50:a hairless head, 
+
+H:249:25:116:117:50:eyes like red coals, 
+H:250:50:116:117:50:blank white eyes, 
+H:251:75:116:117:50:feral yellow eyes, 
+H:252:100:116:117:50:bloodshot red eyes, 
+
+H:253:100:117:0:50:and a deathly pale complexion.
+
+H:254:100:118:119:50:You were created by 
+
+H:255:30:119:134:50:a Necromancer.  
+H:256:50:119:134:50:a magical experiment.  
+H:257:70:119:134:50:an Evil Priest.  
+H:258:75:119:134:50:a pact with the demons.  
+H:259:85:119:134:50:a restless spirit.  
+H:260:95:119:134:30:a curse.  
+H:261:100:119:134:50:an oath.  
+
+H:262:25:120:121:50:jet-black hair, 
+H:263:50:120:121:50:matted brown hair, 
+H:264:75:120:121:50:white hair, 
+H:265:100:120:121:50:a hairless head, 
+
+H:266:25:121:122:50:eyes like red coals, 
+H:267:50:121:122:50:blank white eyes, 
+H:268:75:121:122:50:feral yellow eyes, 
+H:269:100:121:122:50:bloodshot red eyes, 
+
+H:270:100:122:123:50: and a deathly gray complexion. 
+
+H:271:100:123:0:50:An eerie green aura surrounds you.
+
+H:272:100:124:125:50:Your parents were 
+
+H:273:20:125:126:35:pixies.  
+H:274:30:125:126:25:nixies.  
+H:275:75:125:126:50:wood sprites.  
+H:276:90:125:126:75:wood spirits.  
+H:277:100:125:126:85:noble faerie folk.  
+
+H:278:100:126:127:50:You have light blue wings attached to your back, 
+
+H:279:80:127:128:50:straight blond hair, 
+H:280:100:127:128:50:wavy blond hair, 
+
+H:281:100:128:0:50:blue eyes, and a very fair complexion.
+
+H:282:30:129:130:40:You were produced by a magical experiment.  
+H:283:50:129:130:50:In your childhood, you were stupid enough to stick your head in raw chaos.  
+H:284:60:129:130:60:A Demon Lord of Chaos decided to have some fun, and so he created you.  
+H:285:75:129:130:50:You are the magical crossbreed of an animal and a man.  
+H:286:100:129:130:30:You are the blasphemous crossbreed of unspeakable creatures of chaos.  
+
+H:287:60:130:131:50:You have green reptilian eyes, 
+H:288:85:130:131:50:You have the black eyes of a bird, 
+H:289:99:130:131:50:You have the orange eyes of a cat, 
+H:290:100:130:131:55:You have the fiery eyes of a demon, 
+
+H:291:10:131:133:50:no hair at all, 
+H:292:33:131:132:50:dirty 
+H:293:66:131:132:50:mangy 
+H:294:100:131:132:50:oily 
+
+H:295:33:132:133:50:brown fur, 
+H:296:66:132:133:50:gray fur, 
+H:297:100:132:133:50:albino fur, 
+
+H:298:50:133:0:50:and the hooves of a goat.
+H:299:75:133:0:50:and human feet.
+H:300:85:133:0:50:and bird's feet.
+H:301:90:133:0:50:and reptilian feet.
+H:302:95:133:0:50:and bovine feet.
+H:303:97:133:0:50:and feline feet.
+H:304:100:133:0:50:and canine feet.
+
+H:305:100:134:120:50:You have 
+
+H:306:10:200:201:30:You were born in dirty bilge-water, 
+H:307:20:200:201:35:You were born in dirty straw, 
+H:308:30:200:201:40:You were born in wet mud, 
+H:309:40:200:201:45:You were born in a pile of dust, 
+H:310:50:200:201:50:You were born in sand, 
+H:311:60:200:201:50:You were born in pebbles, 
+H:312:70:200:201:55:You were born in a kobold corpse, 
+H:313:80:200:201:60:You were born in dragon droppings, 
+H:314:90:200:201:65:You were born in a pile of bones, 
+H:315:100:200:201:70:You were born in a corpse of a mighty hero, 
+
+H:316:10:201:202:30:created by rotting flesh. 
+H:317:20:201:202:35:created by a kobold magician. 
+H:318:30:201:202:40:created by a corrupted apprentice. 
+H:319:40:201:202:45:created by a curious mage apprentice. 
+H:320:50:201:202:50:created by an evil Beastmaster. 
+H:321:60:201:202:50:created by a practicing Necromancer. 
+H:322:70:201:202:55:created by the Mutant Breeders. 
+H:323:80:201:202:60:created by a curious adventurer. 
+H:324:90:201:202:65:called to life by the Witch-King of Angmar. 
+H:325:100:201:202:70:called to life by Sauron himself. 
+
+H:326:100:202:203:50:Since then you have given life to 
+
+H:327:10:203:204:30:no 
+H:328:20:203:204:35:one weak-willed 
+H:329:30:203:204:40:two 
+H:330:40:203:204:45:three 
+H:331:50:203:204:50:four 
+H:332:60:203:204:50:five 
+H:333:70:203:204:55:about twenty 
+H:334:80:203:204:60:dozens of 
+H:335:90:203:204:65:hundreds of 
+H:336:100:203:204:70:uncounted multitudes of 
+
+H:337:100:204:0:50:foul offspring. 
+
+H:338:25:205:3:50:You are one of five children of a blue Yeek.  
+H:339:75:205:3:75:You are one of five children of a brown Yeek.  
+H:340:100:205:3:100:You are one of five children on a master yeek.  
+
+H:341:10:206:207:20:You are a unnoticed minion of 
+H:342:25:206:207:30:You are a minor servant of 
+H:343:45:206:207:40:You are a subject of 
+H:344:65:206:207:50:You have attached yourself to 
+H:345:85:206:207:65:You are associated with 
+H:346:95:206:207:80:You are a notable follower of 
+H:347:100:206:207:100:You are a celebrated assistant to 
+
+H:348:20:207:208:55:Nessa.  
+H:349:40:207:208:60:Vana.  
+H:350:50:207:208:65:Tulkas.  
+H:351:80:207:208:75:Mandos.  
+H:352:90:207:208:80:Nienna.  
+H:353:95:207:208:90:Varda.  
+H:354:100:207:208:95:Manwe.  
+
+H:355:100:208:209:50:In the past you dwelt on earth in the form of 
+
+H:356:25:209:0:50:various animals.
+H:357:55:209:0:55:a spirit of forest and river.
+H:358:70:209:0:60:a beneficent but unseen force.
+H:359:96:209:0:70:a wise and ancient counselor.
+H:360:100:209:0:80:a Wizard of legend.
+
+
+
+##############################################################################
+##############################################################################
+##############################################################################
+##############################################################################
+# M:N:idx:color:Meta class name
+# M:C:class name
+
+I:
+
+M:N:0:U:Fighters     -- Hack and slash your way in Middle Earth
+M:C:Warrior
+M:C:Weaponmaster
+M:C:Unbeliever
+M:C:Monk
+M:C:Chaos-Warrior
+M:C:Warlock
+M:C:Ranger
+M:C:Archer
+
+M:N:1:B:Spellcasters -- Magic is The One True Way
+M:C:Mage
+M:C:High-Mage
+M:C:Power-Mage
+M:C:Runecrafter
+M:C:Sorceror
+M:C:Illusionist
+M:C:Necromancer
+M:C:Daemonologist
+
+M:N:2:y:Priests      -- Hail the powers of the Ainurs
+M:C:Priest
+M:C:Paladin
+M:C:Mindcrafter
+M:C:Druid
+
+M:N:3:G:Beastfriends -- Monsters are fun
+M:C:Summoner
+M:C:BeastMaster
+M:C:Symbiant
+M:C:Mimic
+M:C:Possessor
+
+M:N:4:v:Others       -- The way to your independance
+M:C:Rogue
+M:C:Alchemist
+M:C:Harper
+M:C:Merchant
+
+#M:N:5:o:Tests        -- Test is you dare !
+#M:C:Black-Knight
+#M:C:Shiny-Test
+#M:C:Blade

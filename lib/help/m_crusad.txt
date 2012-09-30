@@ -15,6 +15,7 @@ spells, some utility spells and a few healing spells.
 #####BThe Realm of Crusade is only permitted to:
 Paladins as a primary realm
 Priests as a secondary realm
+Black-Knights as a primary realm
 
 #####GCrusade Spellbooks
 The are four spellbooks available for the Crusade realm, two of which can be

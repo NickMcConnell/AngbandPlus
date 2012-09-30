@@ -1,7 +1,7 @@
 #undef cquest
 #define cquest (quest[QUEST_NIRNAETH])
 
-bool quest_nirnaeth_gen_hook(int q_idx)
+bool quest_nirnaeth_gen_hook(char *fmt)
 {
 	int x, y;
         int xstart = 2;
@@ -41,15 +41,19 @@ bool quest_nirnaeth_gen_hook(int q_idx)
 
         return TRUE;
 }
-bool quest_nirnaeth_finish_hook(int q_idx)
+bool quest_nirnaeth_finish_hook(char *fmt)
 {
+        s32b q_idx;
+
+        q_idx = get_next_arg(fmt);
+
         if (q_idx != QUEST_NIRNAETH) return FALSE;
 
         /* Killed at least 2/3 of them ? better reward ! */
         if (cquest.data[1] >= (2 * cquest.data[0] / 3))
         {
                 c_put_str(TERM_YELLOW, "Not only you found a way out but you also destroyed a good", 8, 0);
-                c_put_str(TERM_YELLOW, "number of trolls ! Thanks you so much, take that gold please.", 9, 0);
+                c_put_str(TERM_YELLOW, "number of trolls ! Thanks you so much, take this gold please.", 9, 0);
                 c_put_str(TERM_YELLOW, "I also grant you access to the royal jewelry shop!", 10, 0);
 
                 p_ptr->au += 200000;
@@ -74,7 +78,7 @@ bool quest_nirnaeth_finish_hook(int q_idx)
 
         return TRUE;
 }
-bool quest_nirnaeth_death_hook(int m_idx)
+bool quest_nirnaeth_death_hook(char *fmt)
 {
         if (p_ptr->inside_quest != QUEST_NIRNAETH) return FALSE;
 
@@ -82,7 +86,7 @@ bool quest_nirnaeth_death_hook(int m_idx)
 
         return FALSE;
 }
-bool quest_nirnaeth_stair_hook(int down)
+bool quest_nirnaeth_stair_hook(char *fmt)
 {
         if (p_ptr->inside_quest != QUEST_NIRNAETH) return FALSE;
 

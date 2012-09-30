@@ -17,6 +17,7 @@
 
 #include "angband.h"
 	
+
 /*
  * Save a "bones" file for a dead character
  *
@@ -24,6 +25,7 @@
  */
 void make_bones(void)
 {
+#if 0 // DGDGDGDG
 	FILE *fp;
 
 	int i;
@@ -87,8 +89,10 @@ void make_bones(void)
 			my_fclose(fp);
 		}
 	}
+#endif
 }
 
+#if 0 // DGDGDGDG
 /*
  * Ghost generation info
  */
@@ -130,7 +134,7 @@ static void set_ghost_aux_1(void)
 	int grace = ghost_race;
 	int gclass = ghost_class;
 
-        cptr gr_name = race_info[grace].title;
+        cptr gr_name = rp_name + race_info[grace].title;
         cptr gc_name = class_info[grace].title;
 	
     
@@ -568,7 +572,7 @@ static void set_ghost_aux_2(void)
 
 	int grace = ghost_race;
 
-        cptr gr_name = race_info[grace].title;
+        cptr gr_name = rp_name + race_info[grace].title;
 
 
 	/* The ghost is cold blooded */
@@ -984,7 +988,7 @@ static void set_ghost(cptr pname, int hp, int grace, int gclass, int lev, bool t
 		set_ghost_aux_2();
 	}
 }
-
+#endif
 
 
 /*
@@ -992,7 +996,8 @@ static void set_ghost(cptr pname, int hp, int grace, int gclass, int lev, bool t
  */
 s16b place_ghost(void)
 {
-	int y, x, hp, level, grace, gclass;
+#if 0 // DGDGDGDG
+        int y, x, hp, level, grace, gclass;
 
         monster_race *r_ptr = &r_info[max_r_idx - 1];
 
@@ -1098,6 +1103,6 @@ s16b place_ghost(void)
 	/* Make sure it looks right */
 	r_ptr->x_attr = r_ptr->d_attr;
 	r_ptr->x_char = r_ptr->d_char;
-
+#endif
 	return TRUE;
 }

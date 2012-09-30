@@ -561,6 +561,5 @@ of past incarnations.
 
 The newsgroup "[[[[[Brec.games.roguelike.angband]" is a good place to ask various
 questions about both game play and game design, and you can email bug
-reports and such to (darkgod@ifrance.com). Be sure to include the version
+reports and such to (darkgod@pernangband.net). Be sure to include the version
 number you are playing in any bug reports.
-

@@ -1,4 +1,4 @@
-# File: Makefile.dos
+# File: Makefile.gdb
 # By DarkGod, to create a pernang.bin to be used with gdb
 
 # Purpose: Makefile support for "main-dos.c"
@@ -15,6 +15,8 @@
 # - Add -DUSE_MOD_FILES to the compiler flags.
 # - Copy your MOD-files into the "lib/xtra/music" folder.
 
+# Enable lua scripting supoprt
+LUA = TRUE
 
 #
 # Basic definitions
@@ -23,42 +25,69 @@
 # Objects
 OBJS = \
   main.o main-dos.o main-ibm.o \
-  generate.o dungeon.o init1.o init2.o \
-  store.o birth.o wizard1.o wizard2.o help.o \
+  generate.o dungeon.o init1.o init2.o plots.o help.o \
+  store.o birth.o wizard1.o wizard2.o bldg.o cmovie.o \
   cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o cmd7.o \
-  loadsave.o files.o levels.o notes.o cmovie.o \
+  loadsave.o files.o levels.o notes.o squeltch.o \
   status.o randart.o \
   xtra1.o xtra2.o spells1.o spells2.o melee1.o melee2.o \
   object1.o object2.o traps.o monster1.o monster2.o monster3.o \
-  variable.o tables.o util.o cave.o ghost.o plots.o \
-  z-term.o z-rand.o z-form.o z-virt.o z-util.o \
-  bldg.o squeltch.o wild.o powers.o
+  variable.o tables.o util.o cave.o ghost.o wild.o powers.o \
+  z-term.o z-rand.o z-form.o z-virt.o z-util.o
+
+LUAOBJS = \
+  script.o lua_bind.o \
+  w_util.o w_player.o w_z_pack.o w_obj.o w_mnster.o w_spells.o w_quest.o w_play_c.o
+
+TOLUAOBJS = \
+  lua/lapi.o lua/lcode.o lua/ldebug.o lua/ldo.o lua/lfunc.o lua/lgc.o \
+  lua/llex.o lua/lmem.o lua/lobject.o lua/lparser.o lua/lstate.o lua/lstring.o \
+  lua/ltable.o lua/ltests.o lua/ltm.o lua/lundump.o lua/lvm.o lua/lzio.o \
+  lua/lauxlib.o lua/lbaselib.o lua/ldblib.o lua/liolib.o lua/lstrlib.o \
+  lua/tolua_lb.o lua/tolua_rg.o lua/tolua_tt.o lua/tolua_tm.o lua/tolua_gp.o \
+  lua/tolua_eh.o lua/tolua_bd.o
+
+ifdef LUA
+OBJS += $(LUAOBJS)
+OBJS += $(TOLUAOBJS)
+endif
 
 # Compiler
 CC = gcc
 
+ifdef LUA
+LUAFLAGS = -DUSE_LUA -DLUA_NUM_TYPE='long long' -I. -I./lua
+endif
+
 # Compiler flags
 CFLAGS = -Wall -g -DUSE_DOS -DUSE_IBM -DUSE_BACKGROUND \
--DUSE_TRANSPARENCY
-
+-DUSE_TRANSPARENCY $(LUAFLAGS)
 
 # Libraries
-LIBS = -lpc -lalleg
+LIBS = -lpc -lalleg $(LUALIBS)
 
 
 #
 # Targets
 #
 
-default: ../pernang.bin
-#         copy pernang.bin ..
-#         del pernang.bin
+TOLUA = tolua.exe
+
+default: ../pernang.bin $(TOLUA)
+
+release: ../pernang.bin
+	upx -9 ../pernang.exe
+#         copy pernang.exe ..
+#         del pernang.exe
 
 install: ../pernang.bin
-#        copy pernang.bin ..
+#        copy pernang.exe ..
 
 all: ../pernang.bin
 #        @echo All done.  Use 'make install' to install.
+
+$(TOLUA): $(TOLUAOBJS) lua/tolua.c lua/tolualua.c
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $(TOLUAOBJS) lua/tolua.c lua/tolualua.c $(LIBS)
 
 
 #
@@ -74,7 +103,7 @@ all: ../pernang.bin
 #
 
 .c.o:
-	$(CC) $(CFLAGS) -c $*.c
+	$(CC) $(CFLAGS) -c -o $*.o $*.c
 
 
 #
@@ -84,4 +113,40 @@ all: ../pernang.bin
 clean:
 	del *.o
 
+cleanall: clean
+	del *.exe
 
+plots.o: q_rand.c q_main.c q_one.c \
+	q_thief.c q_hobbit.c q_nazgul.c q_troll.c q_wight.c q_shroom.c \
+	q_spider.c q_poison.c \
+	q_eol.c q_nirna.c q_invas.c \
+	q_betwen.c \
+	q_narsil.c
+
+LUA_RECOMP = true
+ifdef LUA_RECOMP
+w_mnster.c: monster.pkg $(TOLUA)
+	$(TOLUA) -n monster -o w_mnster.c monster.pkg
+
+w_player.c: player.pkg $(TOLUA)
+	$(TOLUA) -n player -o w_player.c player.pkg
+
+w_play_c.c: player_c.pkg $(TOLUA)
+	$(TOLUA) -n player_c -o w_play_c.c player_c.pkg
+
+w_z_pack.c: z_pack.pkg $(TOLUA)
+	$(TOLUA) -n z_pack -o w_z_pack.c z_pack.pkg
+
+w_obj.c: object.pkg $(TOLUA)
+	$(TOLUA) -n object -o w_obj.c object.pkg
+
+w_util.c: util.pkg $(TOLUA)
+	$(TOLUA) -n util -o w_util.c util.pkg
+
+w_spells.c: spells.pkg $(TOLUA)
+	$(TOLUA) -n spells -o w_spells.c spells.pkg
+
+w_quest.c: quest.pkg $(TOLUA)
+	$(TOLUA) -n quest -o w_quest.c quest.pkg
+
+endif

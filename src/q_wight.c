@@ -1,7 +1,7 @@
 #undef cquest
 #define cquest (quest[QUEST_WIGHT])
 
-bool quest_wight_gen_hook(int q_idx)
+bool quest_wight_gen_hook(char *fmt)
 {
 	int x, y;
         int xstart = 2;
@@ -100,9 +100,12 @@ bool quest_wight_gen_hook(int q_idx)
 
         return TRUE;
 }
-bool quest_wight_death_hook(int m_idx)
+bool quest_wight_death_hook(char *fmt)
 {
-        int r_idx = m_list[m_idx].r_idx;
+        s32b r_idx, m_idx;
+
+        m_idx = get_next_arg(fmt);
+        r_idx = m_list[m_idx].r_idx;
 
         if (p_ptr->inside_quest != QUEST_WIGHT) return FALSE;
 
@@ -120,8 +123,11 @@ bool quest_wight_death_hook(int m_idx)
 
         return (FALSE);
 }
-bool quest_wight_finish_hook(int q_idx)
+bool quest_wight_finish_hook(char *fmt)
 {
+        s32b q_idx;
+        q_idx = get_next_arg(fmt);
+
         if (q_idx != QUEST_WIGHT) return FALSE;
 
         c_put_str(TERM_YELLOW, "I heard about your noble deeds.", 8, 0);

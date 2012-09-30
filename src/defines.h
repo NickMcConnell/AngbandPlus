@@ -42,12 +42,12 @@
 /* Added for PernAngband */
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 5
-#define FAKE_VER_MINOR 0
+#define FAKE_VER_MINOR 1
 #define FAKE_VER_PATCH 1
 
 #define ANGBAND_2_8_1
 
-#define SAVEFILE_VERSION 29
+#define SAVEFILE_VERSION 35
 
 /*
  * This value is not currently used
@@ -151,21 +151,6 @@
  * Maximum number of player "sex" types (see "table.c", etc)
  */
 #define MAX_SEXES            3
-
-/*
- * Maximum number of player "race" types (see "table.c", etc)
- */
-#define MAX_RACES           21
-
-/*
- * Maximum number of player "race mod" types (see "table.c", etc)
- */
-#define MAX_RACE_MODS       8
-
-/*
- * Maximum number of player "class" types (see "table.c", etc)
- */
-#define MAX_CLASS            28
 
 /* The number of "patrons" available (for Chaos Warriors) */
 #define MAX_PATRON          16
@@ -322,10 +307,18 @@
 #define MUT3_SUS_STATS                  0x80000000L
 
 
+
+/* bear barehanded attacks      ... */
+#define MAX_BEAR        8
+
 /* Monk martial arts... */
-# define MAX_MA 17
-# define MA_KNEE 1
-# define MA_SLOW 2
+#define MAX_MA          17
+
+#define MA_KNEE         0x0001
+#define MA_SLOW         0x0002
+#define MA_WOUND        0x0004
+#define MA_STUN         0x0008
+#define MA_FULL_SLOW    0x0010
 
 /* Mindcraft */
 #define MAX_MINDCRAFT_POWERS  12
@@ -424,6 +417,10 @@
  */
 #define MESSAGE_MAX     2048
 
+#define MESSAGE_NONE    0
+#define MESSAGE_MSG     1
+#define MESSAGE_IRC     2
+
 /*
  * OPTION: Maximum space for the message text buffer (see "io.c")
  * Default: assume that each of the 2048 messages is repeated an
@@ -454,7 +451,7 @@
 #define STORE_MAX_KEEP  18              /* Max slots to "always" keep full */
 #define STORE_SHUFFLE   21              /* 1/Chance (per day) of an owner changing */
 #define STORE_TURNS             1000    /* Number of turns between turnovers */
-
+#define	STORE_MUSEUM_INVEN 50           /* Museum can have more objs than normal stores */
 
 /*
  * Misc constants
@@ -617,6 +614,8 @@
 #define REALM_SPIRIT       16
 #define MAX_REALM          17
 
+#define USE_REALM(realm)   (((realm) == p_ptr->realm1) || ((realm) == p_ptr->realm2))
+
 /*
  * Maximum number of "normal" pack slots, and the index of the "overflow"
  * slot, which can hold an item, but only temporarily, since it causes the
@@ -660,6 +659,7 @@
  * Total number of inventory slots (hard-coded).
  */
 #define INVEN_TOTAL     52
+#define INVEN_EQ        (INVEN_TOTAL - INVEN_WIELD)
 
 /*
  * A "stack" of items is limited to less than 100 items (hard-coded).
@@ -685,81 +685,62 @@
 #define SEX_MALE                1
 #define SEX_NEUTER              2
 
-/*
- * Player race constants (hard-coded by save-files, arrays, etc)
- */
-#define RACE_HUMAN              0
-#define RACE_HALF_ELF           1
-#define RACE_ELF                2
-#define RACE_HOBBIT             3
-#define RACE_GNOME              4
-#define RACE_DWARF              5
-#define RACE_HALF_ORC           6
-#define RACE_HALF_TROLL         7
-#define RACE_DUNADAN            8
-#define RACE_HIGH_ELF           9
-#define RACE_HALF_OGRE          10
-#define RACE_HALF_GIANT         11
-#define RACE_KOBOLD             12
-#define RACE_NIBELUNG           13
-#define RACE_DARK_ELF           14
-#define RACE_ENT                15
-#define RACE_RKNIGHT            16
-#define RACE_DRAGONRIDER        17
-#define RACE_MOLD               18
-#define RACE_YEEK               19
-#define RACE_WOOD_ELF           20
 
-/*
- * Player race constants (hard-coded by save-files, arrays, etc)
- */
-#define RMOD_NONE               0
-#define RMOD_VAMPIRE            1
-#define RMOD_SPECTRE            2
-#define RMOD_SKELETON           3
-#define RMOD_ZOMBIE             4
-#define RMOD_BARBARIAN          5
-#define RMOD_HERMIT             6
-#define RMOD_MUTANT             7
+/* Race flags */
+#define PR1_TP                  0x00000001L     /* Got a dragon */
+#define PR1_PASS_TREE           0x00000002L     /* Can pass trees */
+#define PR1_RESIST_BLACK_BREATH 0x00000004L     /* Resist black breath */
+#define PR1_NO_STUN             0x00000008L     /* Never stunned */
+#define PR1_XTRA_MIGHT_BOW      0x00000010L     /* Xtra might with bows */
+#define PR1_XTRA_MIGHT_XBOW     0x00000020L     /* Xtra might with xbows */
+#define PR1_XTRA_MIGHT_SLING    0x00000040L     /* Xtra might with slings */
+#define PR1_AC_LEVEL            0x00000080L     /* More AC with levels */
+#define PR1_HURT_LITE           0x00000100L     /* Hurt by light */
+#define PR1_VAMPIRE             0x00000200L     /* Vampire */
+#define PR1_UNDEAD              0x00000400L     /* Undead */
+#define PR1_NO_CUT              0x00000800L     /* no cuts */
+#define PR1_CORRUPT             0x00001000L     /* hack-- corrupted */
+#define PR1_NO_FOOD             0x00002000L     /* little gain from food */
+#define PR1_NO_GOD              0x00004000L     /* cannot worship */
+#define PR1_ZERO_FAIL           0x00008000L     /* Fail rates can reach 0% */
+#define PR1_NO_GLOVES           0x00010000L     /* Gloves disrupts magic */
+#define PR1_BLESS_WEAPON        0x00020000L     /* hafted disrupts magic */
+#define PR1_BEAM                0x00040000L     /* higher beam chances */
+#define PR1_MONK_SPECIAL        0x00080000L     /* monks ... hack */
+#define PR1_ANTIMAGIC           0x00100000L     /* antimagic ... hack */
+#define PR1_MOLD_FRIEND         0x00200000L     /* Not attacked by molds wielded */
+#define PR1_GOD_FRIEND          0x00400000L     /* Better grace */
+#define PR1_HACK_MIMIC          0x00800000L     /* mimics .. hack */
+#define PR1_INNATE_SPELLS       0x01000000L     /* KNown all spells, only need books */
+#define PR1_ANTAGONIC_REALMS    0x02000000L     /* Restrict realm selection */
+#define PR1_HACK_WEAPON         0x04000000L     /* weaponmasters .. hack */
+#define PR1_BACKSTAB            0x08000000L     /* Can backstab */
+#define PR1_SPREAD_BLOWS        0x10000000L     /* Can spread blows */
+#define PR1_CHAOS_GOD           0x20000000L     /* Worship chaos gods */
+#define PR1_FULL_ILLUSION       0x40000000L     /* Can use the full illusion realm */
+#define PR1_HAS_MANA            0x80000000L     /* Have mana(even ifg no books) */
 
+#define PR2_PET_EXP             0x00000001L     /* Gain xp from pet kills */
+#define PR2_ASTRAL              0x00000002L     /* Is it an astral being coming from th halls of mandos ? */
+#define PR2_BLADE_SPECIAL       0x00000004L     /* Blade hack */
 
-/*
- * Player class constants (hard-coded by save-files, arrays, etc)
- */
-#define CLASS_WARRIOR           0
-#define CLASS_MAGE              1
-#define CLASS_PRIEST            2
-#define CLASS_ROGUE             3
-#define CLASS_RANGER            4
-#define CLASS_PALADIN           5
-#define CLASS_WARLOCK           6
-#define CLASS_CHAOS_WARRIOR     7
-#define CLASS_MONK              8
-#define CLASS_MINDCRAFTER       9
-#define CLASS_HIGH_MAGE         10
-#define CLASS_MIMIC             11
-#define CLASS_BEASTMASTER       12
-#define CLASS_ALCHEMIST         13
-#define CLASS_SYMBIANT          14
-#define CLASS_HARPER            15
-#define CLASS_POWERMAGE         16
-#define CLASS_RUNECRAFTER       17
-#define CLASS_POSSESSOR         18
-#define CLASS_SORCERER          19
-#define CLASS_ARCHER            20
-#define CLASS_ILLUSIONIST       21
-#define CLASS_DRUID             22
-#define CLASS_NECRO             23
-#define CLASS_UNBELIEVER        24
-#define CLASS_DAEMONOLOGIST     25
-#define CLASS_WEAPONMASTER      26
-#define CLASS_MERCHANT          27
+#define PRACE_FLAG2(f)           ((rp_ptr->flags2 | rmp_ptr->flags2 | cp_ptr->flags2) & (f))
+#define PRACE_FLAG(f)           ((rp_ptr->flags1 | rmp_ptr->flags1 | cp_ptr->flags1) & (f))
+#define PRACE_FLAGS(f)          PRACE_FLAG(f)
 
-/* Class flags */
-#define CF1_ZERO_FAIL           0x00000001L     /* Fail rates can reach 0% */
-#define CF1_NO_GLOVES           0x00000002L     /* Gloves disrupts magic */
-#define CF1_BLESS_WEAPON        0x00000004L     /* hafted disrupts magic */
-#define CF1_BEAM                0x00000008L     /* higher beam chances */
+#define MKEY_REALM              1
+#define MKEY_MINDCRAFT          2
+#define MKEY_ANTIMAGIC          3
+#define MKEY_BLADE              4
+#define MKEY_ALCHEMY            5
+#define MKEY_MIMIC              6
+#define MKEY_POWER_MAGE         8
+#define MKEY_RUNE               9
+#define MKEY_FORGING            10
+#define MKEY_INCARNATION        11
+#define MKEY_TELEKINESIS        12
+#define MKEY_SUMMON             13
+
 
 /*** Screen Locations ***/
 
@@ -860,6 +841,8 @@
 #define FEAT_BROKEN             0x05
 #define FEAT_LESS               0x06
 #define FEAT_MORE               0x07
+#define FEAT_WAY_LESS           180
+#define FEAT_WAY_MORE           179
 
 /* Quest features -KMW- */
 #define FEAT_QUEST_ENTER		0x08
@@ -898,6 +881,7 @@
 #define FEAT_PERM_INNER 0x3D
 #define FEAT_PERM_OUTER 0x3E
 #define FEAT_PERM_SOLID 0x3F
+#define FEAT_EKKAIA     182
 
 /* Glyph */
 #define FEAT_MINOR_GLYPH 0x40
@@ -1443,6 +1427,7 @@
 #define TV_AMULET       40      /* Amulets (including Specials) */
 #define TV_RING         45      /* Rings (including Specials) */
 #define TV_TRAPKIT      46      /* Trapkits */
+#define TV_TOTEM        54      /* Summoner totems */
 #define TV_STAFF        55
 #define TV_WAND         65
 #define TV_ROD          66
@@ -2353,7 +2338,7 @@
 #define PW_SPELL        0x00000004L     /* Display spell list */
 #define PW_PLAYER       0x00000008L     /* Display character */
 #define PW_M_LIST       0x00000010L /* Show monster list */
-/* xxx */
+#define PW_IRC          0x00000020L     /* Display irc messages */
 #define PW_MESSAGE      0x00000040L     /* Display messages */
 #define PW_OVERHEAD     0x00000080L     /* Display overhead view */
 #define PW_MONSTER      0x00000100L     /* Display monster recall */
@@ -2562,6 +2547,12 @@
 /* DG */
 #define TRAP_OF_ACQUIREMENT               170
 
+/* Runescrye */
+#define TRAP_G_ELEC_BOLT                171
+#define TRAP_G_POIS_BOLT                172
+#define TRAP_G_ACID_BOLT                173
+#define TRAP_G_COLD_BOLT                174
+#define TRAP_G_FIRE_BOLT                175
 
 /*** General index values ***/
 
@@ -2606,6 +2597,7 @@
 #define SUMMON_SHADOWS              55
 #define SUMMON_GHOST                56
 #define SUMMON_QUYLTHULG            57
+#define SUMMON_LUA                  58
 
 
 /*
@@ -2772,12 +2764,13 @@
  */
 #define MFLAG_VIEW      0x01    /* Monster is in line of sight */
 #define MFLAG_QUEST     0x02    /* Monster is subject to a quest */
+#define MFLAG_PARTIAL   0x04    /* Monster is a partial summon */
 /* xxx */
 #define MFLAG_BORN      0x10    /* Monster is still being born */
 #define MFLAG_NICE      0x20    /* Monster is still being nice */
 #define MFLAG_SHOW      0x40    /* Monster is recently memorized */
 #define MFLAG_MARK      0x80    /* Monster is currently memorized */
-#define PERM_MFLAG_MASK (MFLAG_QUEST)
+#define PERM_MFLAG_MASK (MFLAG_QUEST | MFLAG_PARTIAL)
 
 
 /*
@@ -2960,6 +2953,9 @@
 #define TR5_CRIT                0x00000020L     /* More critical hits */
 #define TR5_ATTR_MULTI          0x00000040L     /* Object shimmer -- only allowed in k_info */
 #define TR5_WOUNDING            0x00000080L     /* Wounds monsters */
+#define TR5_FULL_NAME           0x00000100L     /* Uses direct name from k_info */
+#define TR5_LUCK                0x00000200L     /* Luck += pval */
+#define TR5_IMMOVABLE           0x00000400L     /* Cannot move */
 
 /* ESP defines */
 #define ESP_ORC                 0x00000001L
@@ -2982,8 +2978,7 @@
 #define NEW_GROUP_CHANCE        40      /* Chance to get a new group */
 
 /*
- * Hack -- flag set 1 -- mask for "pval-dependant" flags.
- * Note that all "pval" dependant flags must be in "flags1".
+ * Hack masks for "pval-dependant" flags.
  */
 #define TR1_PVAL_MASK   \
 	(TR1_STR | TR1_INT | TR1_WIS | TR1_DEX | \
@@ -2992,7 +2987,7 @@
      TR1_SPEED | TR1_BLOWS | TR1_MANA | TR1_SPELL)
 
 #define TR5_PVAL_MASK   \
-        (TR5_CRIT)
+        (TR5_CRIT | TR5_LUCK)
 
 
 /*** Ego flags ***/
@@ -3401,6 +3396,7 @@
 #define RF7_NO_TARGET           0x00000800  /* Cannot be targeted */
 #define RF7_AI_ANNOY            0x00001000  /* Try to tease the player */
 #define RF7_AI_SPECIAL          0x00002000  /* For quests */
+#define RF7_NEUTRAL             0x00004000  /* Monster is neutral */
 
 
 /*
@@ -3417,7 +3413,7 @@
 #define RF8_XXX8X08             0x00000100
 #define RF8_WILD_MOUNTAIN       0x00000200
 #define RF8_WILD_GRASS          0x00000400
-/********* FREE *********/
+#define RF8_NO_CUT              0x00000800
 #define RF8_CTHANGBAND          0x00001000
 #define RF8_PERNANGBAND         0x00002000
 #define RF8_ZANGBAND            0x00004000
@@ -3433,7 +3429,7 @@
 #define RF9_DROP_CORPSE         0x00000001
 #define RF9_DROP_SKELETON       0x00000002
 #define RF9_HAS_LITE            0x00000004      /* Carries a lite */
-/****/
+#define RF9_MIMIC               0x00000008      /* *REALLY* looks like an object ... only nastier */
 #define RF9_HAS_EGG             0x00000010      /* Can be monster's eggs */
 #define RF9_IMPRESED            0x00000020      /* The monster can follow you on each level until he dies */
 #define RF9_SUSCEP_ACID         0x00000040      /* Susceptible to acid */
@@ -4050,6 +4046,7 @@ extern int PlayerUID;
 #define MIMIC_WEREWOLF        24
 #define MIMIC_BALROG          25
 #define MIMIC_DEMON_LORD      26
+#define MIMIC_BEAR            27
 #define MIMIC_MIN_GOOD        13
 
 
@@ -4131,6 +4128,7 @@ extern int PlayerUID;
 #define DUNGEON_MANDOS          8
 #define DUNGEON_MAZE            18
 #define DUNGEON_DEATH           28
+#define DUNGEON_DOL_GULDUR      23
 
 /* Max depth of each dungeon(max_depth - min_depth) */
 #define MAX_DUNGEON_DEPTH       128
@@ -4278,12 +4276,12 @@ extern int PlayerUID;
 #define SF1_ALL_ITEM            0x00000080L     /* Works as the BM */
 #define SF1_RANDOM              0x00000100L
 #define SF1_FORCE_LEVEL         0x00000200L
+#define SF1_MUSEUM              0x00000400L
 
 /*
  * Powers (mutation, activations, ...)
  */
-#define POWER_MAX                      59
-#define POWER_SLOT                     ((POWER_MAX / 32) + 1)
+#define POWER_MAX_INIT                 61
 
 #define PWR_SPIT_ACID                  0
 #define PWR_BR_FIRE                    1
@@ -4345,8 +4343,10 @@ extern int PlayerUID;
 #define PWR_LAY_TRAP                    56
 #define PWR_MERCHANT                    57
 #define PWR_COMPANION                   58
+#define PWR_BEAR                        59
+#define PWR_DODGE                       60
 
-#define ADD_POWER(pow, p)       ((pow)[(p) / 32] |= BIT((p) % 32))
+#define ADD_POWER(pow, p)       ((pow)[(p)] = TRUE)
 
 /*
  * Shield effect options
@@ -4380,9 +4380,9 @@ extern int PlayerUID;
 #define QUEST_INVASION          15
 #define QUEST_BETWEEN           16
 #define QUEST_ONE               17
-#define MAX_Q_IDX               18
-
-#define MAX_RANDOM_QUESTS_TYPES 7
+#define QUEST_SHROOM            18
+#define QUEST_THRAIN            19
+#define MAX_Q_IDX_INIT          20
 
 #define PLOT_MAIN               0
 #define PLOT_BREE               1
@@ -4417,7 +4417,32 @@ extern int PlayerUID;
 #define HOOK_MONSTER_AI         19
 #define HOOK_PLAYER_LEVEL       20
 #define HOOK_WIELD              21
-#define MAX_HOOKS               22
+#define HOOK_INIT               22
+#define HOOK_QUAFF              23
+#define HOOK_AIM                24
+#define HOOK_USE                25
+#define HOOK_ACTIVATE           26
+#define HOOK_ZAP                27
+#define HOOK_READ               28
+#define HOOK_CALC_BONUS         29
+#define HOOK_PLAYER_FLAGS       30
+#define HOOK_KEYPRESS           31
+#define HOOK_CHAT               32
+#define HOOK_MON_SPEAK          33
+#define HOOK_MKEY               34
+#define HOOK_BIRTH_OBJECTS      35
+#define HOOK_ACTIVATE_DESC      36
+#define HOOK_INIT_GAME          37
+#define HOOK_ACTIVATE_POWER     38
+#define HOOK_ITEM_NAME          39
+#define HOOK_SAVE_GAME          40
+#define HOOK_LOAD_GAME          41
+#define HOOK_LEVEL_REGEN        42
+#define HOOK_LEVEL_END_GEN      43
+#define MAX_HOOKS               44
+
+#define HOOK_TYPE_C             0
+#define HOOK_TYPE_LUA           1
 
 /*
  * Defines for loadsave.c
@@ -4442,3 +4467,10 @@ extern int PlayerUID;
  */
 #define SPEC_POIS               0x00000001L
 #define SPEC_CUT                0x00000002L
+
+/*
+ * Ambushes in the wild
+ */
+#define AMBUSH_RACE             1
+#define AMBUSH_MIX              2
+

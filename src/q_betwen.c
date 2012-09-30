@@ -1,10 +1,15 @@
 #undef cquest
 #define cquest (quest[QUEST_BETWEEN])
 
-bool quest_between_move_hook(int loc)
+bool quest_between_move_hook(char *fmt)
 {
-        int y = loc >> 8, x = loc & 0xFF;
-        cave_type *c_ptr = &cave[y][x];
+        s32b y;
+        s32b x;
+        cave_type *c_ptr;
+
+        y = get_next_arg(fmt);
+        x = get_next_arg(fmt);
+        c_ptr = &cave[y][x];
 
         if (cquest.status != QUEST_STATUS_TAKEN) return FALSE;
 
@@ -12,7 +17,7 @@ bool quest_between_move_hook(int loc)
         if ((c_ptr->feat == FEAT_SHOP) && (c_ptr->special == 27))
         {
                 cmsg_print(TERM_YELLOW, "Turgon is there.");
-                cmsg_print(TERM_YELLOW, "'Ah, thanks you noble hero, now please return to Minas Anor to finish the link.'");
+                cmsg_print(TERM_YELLOW, "'Ah, thank you noble hero, now please return to Minas Anor to finish the link.'");
 
                 cquest.status = QUEST_STATUS_COMPLETED;
 
@@ -44,7 +49,7 @@ bool quest_between_move_hook(int loc)
 
         return FALSE;
 }
-bool quest_between_gen_hook(int q_idx)
+bool quest_between_gen_hook(char *fmt)
 {
 	int x, y;
         int xstart = 2;
@@ -76,14 +81,19 @@ bool quest_between_gen_hook(int q_idx)
         /* Otherwise instadeath */
         energy_use = 0;
 
+        dungeon_flags1 |= LF1_NO_GENO;
+
         return TRUE;
 }
-bool quest_between_finish_hook(int q_idx)
+bool quest_between_finish_hook(char *fmt)
 {
+        s32b q_idx;
+        q_idx = get_next_arg(fmt);
+
         if (q_idx != QUEST_BETWEEN) return FALSE;
 
         c_put_str(TERM_YELLOW, "Ah you finally arrived, I hope your travel wasn't too hard.", 8, 0);
-        c_put_str(TERM_YELLOW, "As a reward you can freely use teh between gates for quick travel.", 9, 0);
+        c_put_str(TERM_YELLOW, "As a reward you can freely use the between gates for quick travel.", 9, 0);
 
         /* Continue the plot */
         *(quest[q_idx].plot) = QUEST_NULL;
@@ -93,7 +103,7 @@ bool quest_between_finish_hook(int q_idx)
 
         return TRUE;
 }
-bool quest_between_death_hook(int m_idx)
+bool quest_between_death_hook(char *fmt)
 {
         int i, mcnt = 0;
 
@@ -121,7 +131,7 @@ bool quest_between_death_hook(int m_idx)
 
         return FALSE;
 }
-bool quest_between_dump_hook(int q_idx)
+bool quest_between_dump_hook(char *fmt)
 {
         if (cquest.status >= QUEST_STATUS_COMPLETED)
         {
@@ -130,8 +140,11 @@ bool quest_between_dump_hook(int q_idx)
         }
         return (FALSE);
 }
-bool quest_between_forbid_hook(int q_idx)
+bool quest_between_forbid_hook(char *fmt)
 {
+        s32b q_idx;
+        q_idx = get_next_arg(fmt);
+
         if (q_idx != QUEST_BETWEEN) return (FALSE);
 
         if (p_ptr->lev < 40)
@@ -141,7 +154,7 @@ bool quest_between_forbid_hook(int q_idx)
         }
         return (FALSE);
 }
-bool quest_between_init_hook(int q_idx)
+bool quest_between_init_hook(int q)
 {
         if ((cquest.status >= QUEST_STATUS_TAKEN) && (cquest.status < QUEST_STATUS_FINISHED))
         {

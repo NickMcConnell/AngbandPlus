@@ -105,10 +105,10 @@ that you can always, for example, use "\" + "." + "6", to specify "run east".
  *****command.txt*34[s  Search for traps/doors]               *****command.txt*35[S  Toggle search mode]
  *****command.txt*36[t  Take off equipment]                   *****command.txt*37[T  Dig a tunnel]
  *****command.txt*38[u  Use a staff]                          *****command.txt*39[U  Use bonus power (if any)]
- *****command.txt*40[v  Throw an item]                        *****command.txt*41[V  Version info]
+ *****command.txt*40[v  Throw an item]                        *****command.txt*96[Y  Chat]
  *****command.txt*42[w  Wear/wield equipment]                 W  (unused)
  *****command.txt*43[x  Engrave the floor]                    X  (unused)
- *****command.txt*44[y  Give item to monster]                 Y  (unused)
+ *****command.txt*44[y  Give item to monster]                 *****command.txt*41[Y  Version info]
  *****command.txt*45[z  Zap a rod]                            *****command.txt*46[Z  Steal]
  *****command.txt*47[!  Interact with system]                ^A  (special - debug command)
  *****command.txt*49[@  Interact with macros]                ^B  (unused)
@@ -118,8 +118,8 @@ that you can always, for example, use "\" + "." + "6", to specify "run east".
  ^  (special - control key)             *****command.txt*53[^F  Repeat level feeling]
  *****command.txt*54[&  Interact with colors]                ^G  (unused)
  *****command.txt*55[*  Target monster or location]          ^H  (unused)
- *****command.txt*56[(  Load screen dump]                    ^I  (special - tab)
- *****command.txt*57[)  Dump screen dump]                    ^J  (special - linefeed)
+ (  (unused)                            ^I  (special - tab)
+ )  (unused)                            ^J  (special - linefeed)
  *****command.txt*58[{  Inscribe an object]                  ^K  (unused)
  *****command.txt*59[}  Uninscribe an object]                ^L  (unused)
  [  (unused)                            ^M  (special - return)
@@ -178,8 +178,8 @@ that you can always, for example, use "\" + "." + "6", to specify "run east".
  ^  (special - control key)             *****command.txt*53[^F  Repeat level feeling]
  *****command.txt*54[&  Interact with colors]                *****command.txt*27[^G  Sacrifice at an altar]
  *****command.txt*55[*  Target monster or location]          *****command.txt*95[^H  (tunnel - west)]
- *****command.txt*56[(  Load screen dump]                    ^I  (special - tab)
- *****command.txt*57[)  Dump screen dump]                    *****command.txt*95[^J  (tunnel - south)]
+ *****command.txt*96[(  Chat]                                ^I  (special - tab)
+ )  (unused)                            *****command.txt*95[^J  (tunnel - south)]
  *****command.txt*58[{  Inscribe an object]                  *****command.txt*95[^K  (tunnel - north)]
  *****command.txt*59[}  Uninscribe an object]                *****command.txt*95[^L  (tunnel - east)]
  [*****command.txt*46[  Steal]                               *****command.txt*95[^M  (tunnel - south)]
@@ -199,6 +199,7 @@ that you can always, for example, use "\" + "." + "6", to specify "run east".
  *****command.txt*79[\  (special - bypass keymap)]            *****command.txt*80[|  Do cmovies]
  *****command.txt*81[`  (special - escape)]                   *****command.txt*82[~  Check artifacts, uniques, objects]
  *****command.txt*81[/  Identify symbol]                      *****command.txt*84[?  Help]
+ *****command.txt*82[$  Chat]
 
 
 
@@ -834,6 +835,10 @@ for a quantity will convert any "letters" into the maximal legal value.
         This command is used to give an item within your inventory to a monster
         standing next to you. The monster may not accept the item you give it, 
         however.
+~~~~~96
+[[[[[GChat (Y)]
+        This command allows you to chat with someone. Be warned that most
+        monsters wont chat
 
 #####R---  Magical Object Commands ---
 ~~~~~2

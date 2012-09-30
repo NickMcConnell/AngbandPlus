@@ -13,17 +13,17 @@ M:X:101
 M:Y:66
 
 # Maximum number of randart parts in ra_info.txt
-M:Z:10
+M:Z:516
 
 # Maximum number of monsters in r_info.txt
 # WARNING ! add one more to the real count for the player ghost !!
-M:R:1041
+M:R:1045
 
 # Maximum number of monsters in re_info.txt
 M:r:12
 
 # Maximum number of items in k_info.txt
-M:K:812
+M:K:814
 
 # Maximum number of vaults in v_info.txt
 M:V:108
@@ -34,6 +34,9 @@ M:F:207
 # Maximum number of artifacts in a_info.txt
 M:A:210
 
+# Maximum number of sets types in set_info.txt
+M:s:10
+
 # Maximum number of ego-items in e_info.txt
 M:E:200
 
@@ -41,7 +44,7 @@ M:E:200
 M:D:30
 
 # Maximum number of trap types in tr_info.txt
-M:U:171
+M:U:176
 
 # Maximum number of terrain types in wf_info.txt
 M:W:30
@@ -50,10 +53,10 @@ M:W:30
 M:N:69
 
 # Maximum number of owners types in ba_info.txt
-M:B:59
+M:B:60
 
 # Maximum number of owners types in st_info.txt
-M:S:57
+M:S:58
 
 # Maximum size for "o_list[]"
 M:O:1024
@@ -61,3 +64,17 @@ M:O:1024
 # Maximum size for "m_list[]"
 M:M:768
 
+# Maximum number of race types in p_info.txt
+M:P:R:22
+
+# Maximum number of subrace types in p_info.txt
+M:P:S:9
+
+# Maximum number of class types in p_info.txt
+M:P:C:32
+
+# Maximum number of meta class types in p_info.txt
+M:P:M:5
+
+# Maximum number of histories types in p_info.txt
+M:P:H:361

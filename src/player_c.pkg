@@ -1,0 +1,78 @@
+$#include "angband.h"
+
+typedef char* cptr;
+typedef int errr;
+typedef unsigned char bool;
+typedef unsigned char byte;
+typedef signed short s16b;
+typedef unsigned short u16b;
+typedef signed int s32b;
+typedef unsigned int u32b;
+
+struct player_class
+{
+        s32b title;                     /* Type of class */
+        s32b desc;                      /* Small desc of the class */
+        s32b titles[10];
+
+	s16b c_adj[6];		/* Class stat modifier */
+
+	s16b c_dis;			/* class disarming */
+	s16b c_dev;			/* class magic devices */
+	s16b c_sav;			/* class saving throws */
+	s16b c_stl;			/* class stealth */
+	s16b c_srh;			/* class searching ability */
+	s16b c_fos;			/* class searching frequency */
+	s16b c_thn;			/* class to hit (normal) */
+	s16b c_thb;			/* class to hit (bows) */
+
+	s16b x_dis;			/* extra disarming */
+	s16b x_dev;			/* extra magic devices */
+	s16b x_sav;			/* extra saving throws */
+	s16b x_stl;			/* extra stealth */
+	s16b x_srh;			/* extra searching ability */
+	s16b x_fos;			/* extra searching frequency */
+	s16b x_thn;			/* extra to hit (normal) */
+	s16b x_thb;			/* extra to hit (bows) */
+
+	s16b c_mhp;			/* Class hit-dice adjustment */
+	s16b c_exp;			/* Class experience factor */
+
+        s16b powers[4];        /* Powers of the class */
+
+        s16b spell_book;		/* Tval of spell books (if any) */
+	s16b spell_stat;		/* Stat for spells (if any)  */
+        s16b spell_lev;          /* The higher it is the higher the spells level are */
+        s16b spell_fail;         /* The higher it is the higher the spells failure are */
+        s16b spell_mana;         /* The higher it is the higher the spells mana are */
+        s16b spell_first;        /* Level of first spell */
+        s16b spell_weight;       /* Weight that hurts spells */
+        byte max_spell_level;   /* Maximun spell level */
+        byte magic_max_spell;  /* Maximun numbner of spells one can learn by natural means */
+
+        s32b flags1;            /* flags */
+
+        s16b mana;
+        s16b blow_num;
+        s16b blow_wgt;
+        s16b blow_mul;
+        s16b extra_blows;
+
+        s16b max_companion;
+        s16b max_companion_plus;
+
+        u32b Mrealm_choices[2];
+        u32b mrealm_choices[2];
+
+        s32b sense_base;
+        s32b sense_pl;
+        s32b sense_plus;
+        byte sense_heavy;
+        byte sense_heavy_magic;
+
+        s32b magic_key;
+        s32b magic_desc;
+        byte magic_disrupt;
+};
+
+extern player_class *cp_ptr;

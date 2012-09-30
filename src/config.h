@@ -137,7 +137,6 @@
 
 
 
-
 /*
  * OPTION: Verify savefile Checksums (Angband 2.7.0 and up)
  * This option can help prevent "corruption" of savefiles, and also
@@ -400,6 +399,17 @@
 
 
 /*
+ * OPTION: Create and use a hidden directory in the user's home directory
+ * for storing pref-files and character-dumps.
+ * Warning: Pern chooses to use a different place from Vanilla 2.9.2
+ * and its friends.
+ */
+#ifdef SET_UID
+#define PRIVATE_USER_PATH "~/.pernangband"
+#endif /* SET_UID */
+
+
+/*
  * On multiuser systems, add the "uid" to savefile names
  */
 #ifdef SET_UID
@@ -446,7 +456,7 @@
 /*
  * OPTION: Person to bother if something goes wrong.
  */
-#define MAINTAINER      "darkgod@ifrance.com"
+#define MAINTAINER      "darkgod@pernangband.net"
 
 
 /*
@@ -523,9 +533,6 @@
 /* Do we want different characters for different races? */
 #define VARIABLE_PLAYER_GRAPH
 
-/* For longer martial arts descriptions */
-#define VERBOSE_MARTIAL_ARTS
-
 /* Allow hordes of 'similar' monsters */
 #define MONSTER_HORDES
 
@@ -559,11 +566,6 @@
 #define CHECK_MODIFICATION_TIME
 
 /*
- * Pet give exp to beastmaster
- */
-#define PET_GAIN_EXP
-
-/*
  * Using the fast autoroller can be considered as cheating
  */
 #define USE_FAST_AUTOROLLER
@@ -575,6 +577,7 @@
 
 /*
  * Enable the CTRL + L command to quit without saving
+ * Only use for debugging purpose, otherwise you are a CHEATER
  */
 /* #define ALLOW_QUITING */
 

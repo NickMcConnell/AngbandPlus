@@ -1,7 +1,7 @@
 #undef cquest
 #define cquest (quest[QUEST_EOL])
 
-bool quest_eol_gen_hook(int q_idx)
+bool quest_eol_gen_hook(char *fmt)
 {
 	int x, y;
         bool done = FALSE;
@@ -80,13 +80,16 @@ bool quest_eol_gen_hook(int q_idx)
 
         return TRUE;
 }
-bool quest_eol_finish_hook(int q_idx)
+bool quest_eol_finish_hook(char *fmt)
 {
         object_type forge, *q_ptr;
+        s32b q_idx;
+
+        q_idx = get_next_arg(fmt);
 
         if (q_idx != QUEST_EOL) return FALSE;
 
-        c_put_str(TERM_YELLOW, "An unnecessary tragedy, but the deed needed to be done.", 8, 0);
+        c_put_str(TERM_YELLOW, "A tragedy, but the deed needed to be done.", 8, 0);
         c_put_str(TERM_YELLOW, "Accept my thanks, and that reward.", 9, 0);
 
         q_ptr = &forge;
@@ -108,11 +111,15 @@ bool quest_eol_finish_hook(int q_idx)
 
         return TRUE;
 }
-bool quest_eol_fail_hook(int q_idx)
+bool quest_eol_fail_hook(char *fmt)
 {
+        s32b q_idx;
+
+        q_idx = get_next_arg(fmt);
+
         if (q_idx != QUEST_EOL) return FALSE;
 
-        c_put_str(TERM_YELLOW, "You fled ! I did not thought you could flee...", 8, 0);
+        c_put_str(TERM_YELLOW, "You fled ! I did not think you would flee...", 8, 0);
 
         /* Continue the plot */
         *(quest[q_idx].plot) = QUEST_NULL;
@@ -122,9 +129,12 @@ bool quest_eol_fail_hook(int q_idx)
 
         return TRUE;
 }
-bool quest_eol_death_hook(int m_idx)
+bool quest_eol_death_hook(char *fmt)
 {
-        int r_idx = m_list[m_idx].r_idx;
+        s32b r_idx, m_idx;
+
+        m_idx = get_next_arg(fmt);
+        r_idx = m_list[m_idx].r_idx;
 
         if (p_ptr->inside_quest != QUEST_EOL) return FALSE;
 
@@ -139,9 +149,12 @@ bool quest_eol_death_hook(int m_idx)
 
         return FALSE;
 }
-bool quest_eol_stair_hook(int down)
+bool quest_eol_stair_hook(char *fmt)
 {
         monster_race *r_ptr = &r_info[test_monster_name("Eol, the Dark Elf")];
+        s32b down;
+
+        down = get_next_arg(fmt);
 
         if (p_ptr->inside_quest != QUEST_EOL) return FALSE;
 
@@ -163,7 +176,7 @@ bool quest_eol_stair_hook(int down)
 
         return FALSE;
 }
-bool quest_eol_init_hook(int q_idx)
+bool quest_eol_init_hook(int q)
 {
         if ((cquest.status >= QUEST_STATUS_TAKEN) && (cquest.status < QUEST_STATUS_FINISHED))
         {

@@ -391,8 +391,8 @@ static s32b price_item(object_type *o_ptr, int greed, bool flip)
 	factor += adj_chr_gold[p_ptr->stat_ind[A_CHR]];
 
 	/* Hack - merchants have better prices */
-	if (p_ptr->pclass == CLASS_MERCHANT)
-		factor -= p_ptr->lev/2;
+	if (cp_ptr->magic_key == MKEY_TELEKINESIS)
+                factor -= p_ptr->lev/2;
 
 	/* Shop is buying */
 	if (flip)
@@ -641,8 +641,16 @@ static bool store_object_similar(object_type *o_ptr, object_type *j_ptr)
 	/* Hack -- Never stack "powerful" items */
 	if (o_ptr->xtra1 || j_ptr->xtra1) return (0);
 
-	/* Hack -- Never stack recharging items */
-	if (o_ptr->timeout || j_ptr->timeout) return (0);
+	if (o_ptr->tval == TV_LITE)
+	{
+		/* Require identical "turns of light" */
+		if (o_ptr->timeout != j_ptr->timeout) return (0);
+	}
+	else
+	{
+		/* Hack -- Never stack recharging items */
+		if (o_ptr->timeout || j_ptr->timeout) return (0);
+	}
 
 	/* Require many identical values */
 	if (o_ptr->ac	 !=  j_ptr->ac)   return (0);
@@ -692,7 +700,8 @@ static bool store_check_num(object_type *o_ptr)
 	if (st_ptr->stock_num < st_ptr->stock_size) return TRUE;
 
 	/* The "home" acts like the player */
-	if (cur_store_num == 7)
+	if ((cur_store_num == 7) ||
+	    (st_info[st_ptr->st_idx].flags1 & SF1_MUSEUM))
 	{
 		/* Check all the items */
 		for (i = 0; i < st_ptr->stock_num; i++)
@@ -727,7 +736,7 @@ static bool store_check_num(object_type *o_ptr)
 static bool is_blessed(object_type *o_ptr)
 {
         u32b f1, f2, f3, f4, f5, esp;
-        object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
+        object_flags_known(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
 	if (f3 & TR3_BLESSED) return (TRUE);
 	else return (FALSE);
 }
@@ -743,6 +752,8 @@ static bool store_will_buy(object_type *o_ptr)
 {
 	/* Hack -- The Home is simple */
 	if (cur_store_num == 7) return (TRUE);
+
+	if (st_info[st_ptr->st_idx].flags1 & SF1_MUSEUM) return TRUE;
 
 	/* Switch on the store */
 	switch (cur_store_num)
@@ -997,10 +1008,10 @@ static int home_carry(object_type *o_ptr)
 		j_ptr = &st_ptr->stock[slot];
 
 		/* Hack -- readable books always come first */
-		if ((o_ptr->tval == mp_ptr->spell_book) &&
-			(j_ptr->tval != mp_ptr->spell_book)) break;
-		if ((j_ptr->tval == mp_ptr->spell_book) &&
-			(o_ptr->tval != mp_ptr->spell_book)) continue;
+		if ((o_ptr->tval == cp_ptr->spell_book) &&
+			(j_ptr->tval != cp_ptr->spell_book)) break;
+		if ((j_ptr->tval == cp_ptr->spell_book) &&
+			(o_ptr->tval != cp_ptr->spell_book)) continue;
 
 		/* Objects sort by decreasing type */
 		if (o_ptr->tval > j_ptr->tval) break;
@@ -1225,6 +1236,7 @@ static bool black_market_crap(object_type *o_ptr)
         for (i = 0; i < max_st_idx; i++)
 	{
 		if (i == STORE_HOME) continue;
+		if (st_info[i].flags1 & SF1_MUSEUM) continue;
 
 		/* Check every item in the store */
 		for (j = 0; j < town[p_ptr->town_num].store[i].stock_num; j++)
@@ -1345,11 +1357,32 @@ static void store_create(void)
                 /* Black Market */
                 if (st_info[st_ptr->st_idx].flags1 & SF1_ALL_ITEM)
 		{
+			obj_theme theme;
+
+			/* No themes */
+			theme.treasure = 100;
+			theme.combat = 100;
+			theme.magic = 100;
+			theme.tools = 100;
+			init_match_theme(theme);
+
+			/*
+			 * Even in Black Markets, illegal objects can be
+			 * problematic -- Oxymoron?
+			 */
+			get_obj_num_hook = kind_is_legal;
+
+			/* Rebuild the allocation table */
+			get_obj_num_prep();
+
 			/* Pick a level for object/magic */
                         level = return_level();
 
 			/* Random item (usually of given level) */
 			i = get_obj_num(level);
+
+			/* Invalidate the cached allocation table */
+			alloc_kind_table_valid = FALSE;
 
 			/* Handle failure */
 			if (!i) continue;
@@ -1379,7 +1412,7 @@ static void store_create(void)
                         {
                                 obj_theme theme;
 
-                                /* No restrictions */
+                                /* No themes */
                                 theme.treasure = 100;
                                 theme.combat = 100;
                                 theme.magic = 100;
@@ -1400,11 +1433,8 @@ static void store_create(void)
                                 /* Get it ! */
                                 i = get_obj_num(level);
 
-                                /* Clear restriction */
-                                get_obj_num_hook = NULL;
-
-                                /* Prepare allocation table */
-                                get_obj_num_prep();
+				/* Invalidate the cached allocation table */
+				alloc_kind_table_valid = FALSE;
                         }
 
                         if (!i) continue;
@@ -1575,7 +1605,8 @@ static void display_entry(int pos)
 	}
 
 	/* Describe an item in the home */
-	if (cur_store_num == 7)
+	if ((cur_store_num == 7) ||
+	    (st_info[st_ptr->st_idx].flags1 & SF1_MUSEUM))
 	{
 		maxwid = 75;
 
@@ -1724,8 +1755,26 @@ void display_store(void)
 	if (cur_store_num == 7)
 	{
                 /* Put the owner name -- mega hack */
-                if ((p_ptr->pclass == CLASS_MERCHANT) && (p_ptr->town_num == TOWN_RANDOM)) put_str("Hole Contents", 3, 30);
+                if ((cp_ptr->magic_key == MKEY_TELEKINESIS) && (p_ptr->town_num == TOWN_RANDOM)) put_str("Hole Contents", 3, 30);
                 else put_str("Your Home", 3, 30);
+
+		/* Label the item descriptions */
+		put_str("Item Description", 5, 3);
+
+		/* If showing weights, show label */
+		if (show_weights)
+		{
+			put_str("Weight", 5, 70);
+		}
+	}
+
+	else if (st_info[st_ptr->st_idx].flags1 & SF1_MUSEUM)
+	{
+                cptr store_name = (st_name + st_info[cur_store_num].name);
+
+		/* Show the name of the store */
+		sprintf(buf, "%s", store_name);
+		prt(buf, 3, 30);
 
 		/* Label the item descriptions */
 		put_str("Item Description", 5, 3);
@@ -2439,6 +2488,30 @@ static bool sell_haggle(object_type *o_ptr, s32b *price)
 }
 
 /*
+ * Will the owner retire?
+ */
+static bool retire_owner_p(void)
+{
+	store_info_type *sti_ptr = &st_info[town[p_ptr->town_num].store[cur_store_num].st_idx];
+
+	if ((sti_ptr->owners[0] == sti_ptr->owners[1]) &&
+	    (sti_ptr->owners[0] == sti_ptr->owners[2]) &&
+	    (sti_ptr->owners[0] == sti_ptr->owners[3]))
+	{
+
+		/* there is no other owner */
+		return FALSE;
+	}
+
+	if (rand_int(STORE_SHUFFLE) != 0)
+	{
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
+/*
  * Stole an item from a store                   -DG-
  */
 void store_stole(void)
@@ -2534,8 +2607,8 @@ void store_stole(void)
 
         /* Player tries to stole it */
         if (rand_int((40 - p_ptr->stat_ind[A_DEX]) +
-            ((j_ptr->weight * amt) / ((p_ptr->pclass == CLASS_ROGUE)?20:5)) +
-            ((p_ptr->pclass != CLASS_ROGUE)?25:0)) <= 10)
+            ((j_ptr->weight * amt) / ((cp_ptr->powers[0] == PWR_LAY_TRAP)?20:5)) +
+            ((cp_ptr->powers[0] == PWR_LAY_TRAP)?25:0)) <= 10)
         {
 				/* Hack -- buying an item makes you aware of it */
 				object_aware(j_ptr);
@@ -2576,7 +2649,7 @@ void store_stole(void)
 				if (st_ptr->stock_num == 0)
 				{
 					/* Shuffle */
-					if (rand_int(STORE_SHUFFLE) == 0)
+					if (retire_owner_p())
 					{
 						/* Message */
 						msg_print("The shopkeeper retires.");
@@ -2660,6 +2733,12 @@ void store_purchase(void)
 
 	char out_val[160];
 
+	/* Museum? */
+	if (st_info[st_ptr->st_idx].flags1 & SF1_MUSEUM)
+	{
+		msg_print("You cannot take items from museum!");
+		return;
+	}
 
 	/* Empty? */
 	if (st_ptr->stock_num <= 0)
@@ -2861,7 +2940,7 @@ void store_purchase(void)
 				if (st_ptr->stock_num == 0)
 				{
 					/* Shuffle */
-					if (rand_int(STORE_SHUFFLE) == 0)
+					if (retire_owner_p())
 					{
 						/* Message */
 						msg_print("The shopkeeper retires.");
@@ -2998,9 +3077,11 @@ void store_sell(void)
 
         u32b f1, f2, f3, f4, f5, esp;
 
+	bool museum = (st_info[st_ptr->st_idx].flags1 & SF1_MUSEUM);
 
 	/* Prepare a prompt */
 	if (cur_store_num == 7) q = "Drop which item? ";
+	else if (museum) q = "Donate which item?";
 	else q = "Sell which item? ";
 
 	/* Only allow items the store will buy */
@@ -3010,6 +3091,10 @@ void store_sell(void)
 	if (cur_store_num == STORE_HOME)
 	{
 		s = "You have nothing to drop.";
+	}
+	else if (museum)
+	{
+		s = "You have nothing to donate.";
 	}
 	else
 	{
@@ -3058,7 +3143,7 @@ void store_sell(void)
 
 
 	/* Hack -- Cannot put a portable hole into home */
-	if ((p_ptr->pclass == CLASS_MERCHANT) &&
+	if ((cp_ptr->magic_key == MKEY_TELEKINESIS) &&
 	    (o_ptr->tval == TV_TOOL) && (o_ptr->sval == SV_PORTABLE_HOLE))
 	{
 		msg_print("Putting it into your home has extra-dimensional problems");
@@ -3101,20 +3186,23 @@ void store_sell(void)
 	object_desc(o_name, q_ptr, TRUE, 3);
 
 	/* Remove any inscription for stores */
-	if (cur_store_num != 7) q_ptr->note = 0;
-
+	if ((cur_store_num != 7) && !museum)
+	{
+		q_ptr->note = 0;
+	}
 
 	/* Is there room in the store (or the home?) */
 	if (!store_check_num(q_ptr))
 	{
 		if (cur_store_num == 7) msg_print("Your home is full.");
+		else if (museum) msg_print("Museum is full.");
 		else msg_print("I have not the room in my store to keep it.");
 		return;
 	}
 
 
 	/* Real store */
-	if (cur_store_num != 7)
+	if ((cur_store_num != 7) && !museum)
 	{
 		/* Describe the transaction */
 		msg_format("Selling %s (%c).", o_name, index_to_label(item));
@@ -3218,6 +3306,56 @@ void store_sell(void)
 		}
 	}
 
+	/* Player is at museum */
+	else if (museum)
+	{
+		char o2_name[80];
+		object_desc(o2_name, q_ptr, TRUE, 0);
+
+		msg_print("Once you donate something, you cannot take it back.");
+		if (!get_check(format("Do you really want to donate %s?", o2_name))) return;
+
+		/* Identify it */
+		object_aware(q_ptr);
+		object_known(q_ptr);
+		q_ptr->ident |= IDENT_MENTAL;
+
+		/*
+		 * Hack -- Allocate charges between those wands or rods sold 
+		 * and retained, unless all are being sold. -LM-
+		 */
+                if (o_ptr->tval == TV_WAND)
+		{
+			q_ptr->pval = o_ptr->pval * amt / o_ptr->number;
+
+			if (o_ptr->number > amt) o_ptr->pval -= q_ptr->pval;
+		}
+
+
+		/* Describe */
+		msg_format("You donate %s (%c).", o_name, index_to_label(item));
+
+		choice = 0;
+
+		/* Take it from the players inventory */
+		inven_item_increase(item, -amt);
+		inven_item_describe(item);
+		inven_item_optimize(item);
+
+		/* Handle stuff */
+		handle_stuff();
+
+		/* Let the home carry it */
+		item_pos = home_carry(q_ptr);
+
+		/* Update store display */
+		if (item_pos >= 0)
+		{
+			store_top = (item_pos / 12) * 12;
+			display_inventory();
+		}
+	}
+
 	/* Player is at home */
 	else
 	{
@@ -3276,6 +3414,7 @@ void store_examine(void)
    if (st_ptr->stock_num <= 0)
    {
 	   if (cur_store_num == 7) msg_print("Your home is empty.");
+	   else if (st_info[st_ptr->st_idx].flags1 & SF1_MUSEUM) msg_print("Museum is empty.");
 	   else msg_print("I am currently out of stock.");
 	   return;
    }
@@ -3416,6 +3555,24 @@ static bool store_process_command(void)
 				display_inventory();
 			}
 			break;
+		}
+
+		/* Browse backwards */
+		case '-':
+		{
+			if (st_ptr->stock_num <= 12)
+			{
+				msg_print("Entire inventory is shown.");
+			}
+			else
+			{
+				store_top -= 12;
+				if (store_top < 0)
+				{
+					store_top = ((st_ptr->stock_num - 1)/12) * 12;
+				}
+				display_inventory();
+			}
 		}
 
 			/* Redraw */
@@ -3935,6 +4092,9 @@ void store_shuffle(int which)
 	/* Ignore home */
 	if (which == STORE_HOME) return;
 
+	/* Ignoer Museum */
+	if (st_info[st_ptr->st_idx].flags1 & SF1_MUSEUM) return;
+
 
 	/* Save the store index */
 	cur_store_num = which;
@@ -3996,6 +4156,9 @@ void store_maint(int town_num, int store_num)
 
 	/* Activate that store */
 	st_ptr = &town[town_num].store[store_num];
+
+        /* Ignoer Museum */
+	if (st_info[st_ptr->st_idx].flags1 & SF1_MUSEUM) return;
 
 	/* Activate the owner */
         ot_ptr = &ow_info[st_ptr->owner];
@@ -4408,7 +4571,7 @@ void store_request_item(void)
 	store_type *ost_ptr = st_ptr;
 	
 	/* Paranoia */
-        if (p_ptr->pclass != CLASS_MERCHANT)
+        if (cp_ptr->magic_key == MKEY_TELEKINESIS)
         {
                 st_ptr = ost_ptr;
                 return;

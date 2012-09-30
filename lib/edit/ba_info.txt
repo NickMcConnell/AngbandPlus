@@ -179,7 +179,7 @@ C:0:0:0
 I:49:0:q
 
 N:39:Herbal Healing
-C:50000:10000:0
+C:32000:10000:0
 I:50:0:h
 
 N:40:Song of Lore
@@ -268,3 +268,7 @@ I:52:2:a
 N:58:Pay back loan
 C:0:0:0
 I:53:2:p
+
+N:59:Donate an item
+C:0:0:0
+I:43:0:d

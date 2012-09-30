@@ -121,7 +121,7 @@ static void god_bonus(int god, int goodness, bool do_print) {
 
 
                 case GOD_TULKAS:   /* Rage */
-                        p_ptr->shero += 1000;
+                        p_ptr->shero += 200;
                         if (do_print) msg_print("You feel the rage boiling inside you.");
 
                         if (goodness > 1) {
@@ -401,8 +401,7 @@ static void prt_tp(void)
 
 
         /* Do not show tank unless it matters */
-        if (p_ptr->prace!=RACE_DRAGONRIDER) return;
-
+        if (!(PRACE_FLAG(PR1_TP))) return;
 
         put_str("TP ", ROW_TP, COL_TP);
 
@@ -519,7 +518,7 @@ static void prt_title(void)
 	/* Normal */
 	else
 	{
-		p = player_title[p_ptr->pclass][(p_ptr->lev-1)/5];
+		p = cp_ptr->titles[(p_ptr->lev-1)/5] + c_text;
 
 	}
 
@@ -621,6 +620,8 @@ static void prt_hp(void)
 
 	byte color;
 
+        if (player_char_health)
+                lite_spot(py, px);
 
         if(p_ptr->class_extra3 & CLASS_UNDEAD)
         {
@@ -716,13 +717,12 @@ static void prt_sp(void)
 
 
 	/* Do not show mana unless it matters */
-        if ((!mp_ptr->spell_book) && (p_ptr->pclass != CLASS_POWERMAGE) &&
-            (p_ptr->pclass != CLASS_RUNECRAFTER) && (p_ptr->pclass != CLASS_MIMIC) && (p_ptr->pclass != CLASS_POSSESSOR)) return;
+        if ((!cp_ptr->spell_book) && (!PRACE_FLAGS(PR1_HAS_MANA))) return;
 
 
         put_str("SP ", ROW_SP, COL_SP);
 
-        sprintf(tmp, "%5d/%5d", p_ptr->csp, p_ptr->msp);
+        sprintf(tmp, "%5ld/%5ld", p_ptr->csp, p_ptr->msp);
         if (p_ptr->csp >= p_ptr->msp)
 	{
 		color = TERM_L_GREEN;
@@ -1223,8 +1223,8 @@ static void prt_frame_basic(void)
 	int i;
 
 	/* Race and Class */
-        prt_field(rp_ptr->title, ROW_RACE, COL_RACE);
-	prt_field(cp_ptr->title, ROW_CLASS, COL_CLASS);
+        prt_field(rp_ptr->title + rp_name, ROW_RACE, COL_RACE);
+	prt_field(cp_ptr->title + c_name, ROW_CLASS, COL_CLASS);
 
 	/* Title */
 	prt_title();
@@ -1433,7 +1433,7 @@ static void fix_player(void)
  *
  * XXX XXX XXX Adjust for width and split messages
  */
-static void fix_message(void)
+void fix_message(void)
 {
 	int j, i;
 	int w, h;
@@ -1460,13 +1460,74 @@ static void fix_message(void)
 		for (i = 0; i < h; i++)
 		{
 			/* Dump the message on the appropriate line */
-                        Term_putstr(0, (h - 1) - i, -1, message_color((s16b)i), message_str((s16b)i));
+                        display_message(0, (h - 1) - i, strlen(message_str((s16b)i)), message_color((s16b)i), message_str((s16b)i));
 
 			/* Cursor */
 			Term_locate(&x, &y);
 
 			/* Clear to end of line */
 			Term_erase(x, y, 255);
+		}
+
+		/* Fresh */
+		Term_fresh();
+
+		/* Restore */
+		Term_activate(old);
+	}
+}
+
+
+/*
+ * Hack -- display recent IRC messages in sub-windows
+ *
+ * XXX XXX XXX Adjust for width and split messages
+ */
+void fix_irc_message(void)
+{
+        int j, i, k;
+	int w, h;
+	int x, y;
+
+	/* Scan windows */
+	for (j = 0; j < 8; j++)
+	{
+		term *old = Term;
+
+		/* No window */
+		if (!angband_term[j]) continue;
+
+		/* No relevant flags */
+                if (!(window_flag[j] & (PW_IRC))) continue;
+
+		/* Activate */
+		Term_activate(angband_term[j]);
+
+		/* Get size */
+		Term_get_size(&w, &h);
+                
+                Term_clear();
+
+		/* Dump messages */
+                k = 0;
+                for (i = 0; ; i++)
+		{
+                        byte type = message_type((s16b)i);
+
+                        if (k >= h) break;
+                        if (MESSAGE_NONE == type) break;
+                        if (MESSAGE_IRC != type) {k++;continue;}
+
+			/* Dump the message on the appropriate line */
+                        display_message(0, (h - 1) - i, strlen(message_str((s16b)i)), message_color((s16b)i), message_str((s16b)i));
+
+			/* Cursor */
+			Term_locate(&x, &y);
+
+			/* Clear to end of line */
+			Term_erase(x, y, 255);
+
+                        k++;
 		}
 
 		/* Fresh */
@@ -1637,7 +1698,20 @@ static void fix_m_list(void)
 			if (m_ptr->hp < 0) continue;
 
 			/* Skip unseen monsters */
-			if (!m_ptr->ml) continue;
+                        if (r_ptr->flags9 & RF9_MIMIC)
+                        {
+                                object_type *o_ptr;
+		
+                                /* Acquire object */
+                                o_ptr = &o_list[m_ptr->hold_o_idx];
+
+                                /* Memorized objects */
+                                if (!o_ptr->marked) continue;
+                        }
+                        else
+                        {
+                                if (!m_ptr->ml) continue;
+                        }
 
 			/* Increase for this race */
 			r_ptr->total_visible++;
@@ -1736,18 +1810,18 @@ static void calc_spells(void)
         int class_max;
 
 
-        cptr p = (((mp_ptr->spell_book == TV_VALARIN_BOOK) || (mp_ptr->spell_book == TV_PRAYER_BOOK)) ? "prayer" : "spell");
+        cptr p = (((cp_ptr->spell_book == TV_VALARIN_BOOK) || (cp_ptr->spell_book == TV_PRAYER_BOOK)) ? "prayer" : "spell");
 
-        if (p_ptr->pclass == CLASS_SORCERER)
+        if (PRACE_FLAGS(PR1_INNATE_SPELLS))
         {
                 p_ptr->new_spells = 0;
                 return;
         }
 
-        if (p_ptr->pclass != CLASS_POWERMAGE) {
-
+        if (cp_ptr->magic_key != MKEY_POWER_MAGE)
+        {
 	/* Hack -- must be literate */
-	if (!mp_ptr->spell_book) return;
+	if (!cp_ptr->spell_book) return;
 
 	/* Hack -- wait for creation */
 	if (!character_generated) return;
@@ -1756,13 +1830,13 @@ static void calc_spells(void)
 	if (character_xtra) return;
 
 	/* Determine the number of spells allowed */
-	levels = p_ptr->lev - mp_ptr->spell_first + 1;
+	levels = p_ptr->lev - cp_ptr->spell_first + 1;
 
 	/* Hack -- no negative spells */
 	if (levels < 0) levels = 0;
 
 	/* Extract total allowed spells */
-	num_allowed = (adj_mag_study[p_ptr->stat_ind[mp_ptr->spell_stat]] * levels / 2);
+	num_allowed = (adj_mag_study[p_ptr->stat_ind[cp_ptr->spell_stat]] * levels / 2);
 
 	/* Assume none known */
 	num_known = 0;
@@ -1772,46 +1846,15 @@ static void calc_spells(void)
         {
                 for (j = 0; j < 64; j++)
                 {
-                        if (spell_learned[i][(j < 32)] & (1L << (j % 32)))
-                        {
+                        if (!(spell_forgotten[i][(j < 32)] & (1L << (j % 32))))
                                 num_known += spell_level[i][j];
-                        }
                 }
         }
 
         /* Limit the number of spells each class can learn */
-        switch(p_ptr->pclass)
-        {
-                case CLASS_WARLOCK:
-                        class_max = 48;
-                        break;
+        class_max = cp_ptr->magic_max_spell;
 
-                case CLASS_ROGUE:
-                case CLASS_MONK:
-                        class_max = 24;
-                        break;
-
-                case CLASS_CHAOS_WARRIOR:
-                case CLASS_RANGER:
-                case CLASS_PALADIN:
-                case CLASS_HARPER:
-                        class_max = 32;
-                        break;
-
-                case CLASS_DRUID:
-                        class_max = 40;
-                        break;
-
-                case CLASS_SYMBIANT:
-                        class_max = 13;
-                        break;
-
-                default:                
-                        class_max = 64;
-                        break;
-        }
-
-       if (num_allowed > class_max) num_allowed = class_max;
+        if (num_allowed > class_max) num_allowed = class_max;
 
 	/* See how many spells we must forget or may learn */
         /* Substract the spell learned by other means than studying(potion) */
@@ -1955,7 +1998,7 @@ static void calc_spells(void)
 
 	/* Cannot learn more spells than exist */
 	if (p_ptr->new_spells > k) p_ptr->new_spells = k;
-
+        if (p_ptr->new_spells < 0) p_ptr->new_spells = 0;
     
 
 	/* Spell count changed */
@@ -1981,12 +2024,12 @@ static void calc_spells(void)
     else
 
     /* Generate some Power Mage spells. */
-    if ((p_ptr->pclass == CLASS_POWERMAGE)&&(spell_num<MAX_SPELLS)) {
+    if ((cp_ptr->magic_key == MKEY_POWER_MAGE)&&(spell_num<MAX_SPELLS)) {
 
        levels = p_ptr->lev;
 
         /* Extract total allowed spells */
-        num_allowed = (adj_mag_study[p_ptr->stat_ind[mp_ptr->spell_stat]] *
+        num_allowed = (adj_mag_study[p_ptr->stat_ind[cp_ptr->spell_stat]] *
                  levels / 2);
 
        k = num_allowed - spell_num;
@@ -2013,22 +2056,29 @@ bool calc_powers_silent = FALSE;
 static void calc_powers(void)
 {
         int                     i, p = 0;
-        s32b old_powers[POWER_SLOT];
+        bool                    *old_powers;
 
 	/* Hack -- wait for creation */
 	if (!character_generated) return;
 
 	/* Hack -- handle "xtra" mode */
-	if (character_xtra) return;
+        if (character_xtra) return;
+
+        C_MAKE(old_powers, power_max, bool);
 
         /* Save old powers */
-        for (i = 0; i < POWER_SLOT; i++) old_powers[i] = p_ptr->powers[i];
+        for (i = 0; i < power_max; i++) old_powers[i] = p_ptr->powers[i];
 
         /* Get intrinsincs */
-        for (i = 0; i < POWER_SLOT; i++) p_ptr->powers[i] = p_ptr->powers_mod[i];
+        for (i = 0; i < POWER_MAX_INIT; i++) p_ptr->powers[i] = p_ptr->powers_mod[i];
+        for (; i < power_max; i++) p_ptr->powers[i] = 0;
 
         /* Add corruptions */
-        p_ptr->powers[0] |= p_ptr->muta1;
+        for (i = 0; i < 32; i++)
+        {
+                if (p_ptr->muta1 & BIT(i))
+                        p_ptr->powers[i] = TRUE;
+        }
 
         /* Add objects powers */
         for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
@@ -2038,7 +2088,7 @@ static void calc_powers(void)
                 if (!o_ptr->k_idx) continue;
 
                 p = object_power(o_ptr);
-                if (p != -1) p_ptr->powers[p / 32] |= BIT(p % 32);
+                if (p != -1) p_ptr->powers[p] = TRUE;
         }
 
         if ((!p_ptr->tim_mimic) && (!p_ptr->body_monster))
@@ -2047,10 +2097,10 @@ static void calc_powers(void)
                 for (i = 0; i < 4; i++)
                 {
                         p = rp_ptr->powers[i];
-                        if (p != -1) p_ptr->powers[p / 32] |= BIT(p % 32);
+                        if (p != -1) p_ptr->powers[p] = TRUE;
 
                         p = rmp_ptr->powers[i];
-                        if (p != -1) p_ptr->powers[p / 32] |= BIT(p % 32);
+                        if (p != -1) p_ptr->powers[p] = TRUE;
                 }
         }
         else if (p_ptr->mimic_form)
@@ -2058,48 +2108,48 @@ static void calc_powers(void)
         {
                 case MIMIC_ENT:
                         p = PWR_GROW_TREE;
-                        p_ptr->powers[p / 32] |= BIT(p % 32);
+                        p_ptr->powers[p] = TRUE;
 			break;
                 case MIMIC_MANA_BALL:
                         p = PWR_VTELEPORT;
-                        p_ptr->powers[p / 32] |= BIT(p % 32);
+                        p_ptr->powers[p] = TRUE;
                         break;
                 case MIMIC_VAMPIRE:
                         p = PWR_VAMPIRISM;
-                        p_ptr->powers[p / 32] |= BIT(p % 32);
+                        p_ptr->powers[p] = TRUE;
                         break;
                 case MIMIC_FIRE_CLOUD:
                         p = PWR_BR_FIRE;
-                        p_ptr->powers[p / 32] |= BIT(p % 32);
+                        p_ptr->powers[p] = TRUE;
                         break;
                 case MIMIC_COLD_CLOUD:
                         p = PWR_BR_COLD;
-                        p_ptr->powers[p / 32] |= BIT(p % 32);
+                        p_ptr->powers[p] = TRUE;
                         break;
                 case MIMIC_CHAOS_CLOUD:
                         p = PWR_BR_CHAOS;
-                        p_ptr->powers[p / 32] |= BIT(p % 32);
+                        p_ptr->powers[p] = TRUE;
                         break;
                 case MIMIC_KOBOLD:
                         p = PWR_POIS_DART;
-                        p_ptr->powers[p / 32] |= BIT(p % 32);
+                        p_ptr->powers[p] = TRUE;
 			break;
                 case MIMIC_DEMON:
 		case MIMIC_DEMON_LORD:
                         p = PWR_BR_FIRE;
-                        p_ptr->powers[p / 32] |= BIT(p % 32);
+                        p_ptr->powers[p] = TRUE;
 			break;
                 case MIMIC_DRAGON:
                         p = PWR_BR_ELEM;
-                        p_ptr->powers[p / 32] |= BIT(p % 32);
+                        p_ptr->powers[p] = TRUE;
 			break;
                 case MIMIC_QUYLTHULG:
                         p = PWR_SUMMON_MONSTER;
-                        p_ptr->powers[p / 32] |= BIT(p % 32);
+                        p_ptr->powers[p] = TRUE;
 			break;
                 case MIMIC_VALAR:
                         p = PWR_WRECK_WORLD;
-                        p_ptr->powers[p / 32] |= BIT(p % 32);
+                        p_ptr->powers[p] = TRUE;
 			break;
         }
 
@@ -2107,27 +2157,27 @@ static void calc_powers(void)
         for (i = 0; i < 4; i++)
         {
                 p = cp_ptr->powers[i];
-                if (p != -1) p_ptr->powers[p / 32] |= BIT(p % 32);
+                if (p != -1) p_ptr->powers[p] = TRUE;
         }
 
         p = PWR_UNHYPNO;
-        p_ptr->powers[p / 32] |= BIT(p % 32);
+        p_ptr->powers[p] = TRUE;
 
 
         p = PWR_HYPNO;
-        p_ptr->powers[p / 32] |= BIT(p % 32);
+        p_ptr->powers[p] = TRUE;
 
         if (p_ptr->disembodied)
 	{
                 p = PWR_INCARNATE;
-                p_ptr->powers[p / 32] |= BIT(p % 32);
+                p_ptr->powers[p] = TRUE;
 	}
 
         /* Now lets warn the player */
-        for (i = 0; i < POWER_MAX; i++)
+        for (i = 0; i < power_max; i++)
         {
-                s32b old = old_powers[i / 32] & BIT(i % 32);
-                s32b new = p_ptr->powers[i / 32] & BIT(i % 32);
+                s32b old = old_powers[i];
+                s32b new = p_ptr->powers[i];
 
                 if (new > old)
                 {
@@ -2140,6 +2190,7 @@ static void calc_powers(void)
         }
 
         calc_powers_silent = FALSE;
+        C_FREE(old_powers, power_max, bool);
 }
 
 
@@ -2189,19 +2240,17 @@ static void calc_mana(void)
 
 	object_type	*o_ptr;
 
-
 	/* Hack -- Must be literate */
-        if ((!mp_ptr->spell_book)&&(p_ptr->pclass!=CLASS_POWERMAGE)&&(p_ptr->pclass!=CLASS_RUNECRAFTER)&&(p_ptr->pclass!=CLASS_MIMIC)&&(p_ptr->pclass!=CLASS_POSSESSOR)) return;
+        if ((!cp_ptr->spell_book) && (!PRACE_FLAGS(PR1_HAS_MANA))) return;
 
-        if ((p_ptr->pclass == CLASS_MINDCRAFTER)||(p_ptr->pclass == CLASS_MIMIC)||
-            (p_ptr->pclass == CLASS_POWERMAGE)||(p_ptr->pclass == CLASS_RUNECRAFTER)||(p_ptr->pclass == CLASS_POSSESSOR))
+        if (PRACE_FLAGS(PR1_HAS_MANA))
 	{
 		levels = p_ptr->lev;
 	}
 	else
 	{
 		/* Extract "effective" player level */
-		levels = (p_ptr->lev - mp_ptr->spell_first) + 1;
+		levels = (p_ptr->lev - cp_ptr->spell_first) + 1;
 	}
 
 
@@ -2209,13 +2258,13 @@ static void calc_mana(void)
 	if (levels < 0) levels = 0;
 
 	/* Extract total mana */
-	msp = adj_mag_mana[p_ptr->stat_ind[mp_ptr->spell_stat]] * levels / 2;
+	msp = adj_mag_mana[p_ptr->stat_ind[cp_ptr->spell_stat]] * levels / 2;
 
 	/* Hack -- usually add one mana */
 	if (msp) msp++;
 
         /* Possessors mana is different */
-        if (p_ptr->pclass == CLASS_POSSESSOR)
+        if (cp_ptr->magic_key == MKEY_INCARNATION)
         {
                 monster_race *r_ptr = &r_info[p_ptr->body_monster];
                 int f = 100 / (r_ptr->freq_spell?r_ptr->freq_spell:1);
@@ -2225,20 +2274,14 @@ static void calc_mana(void)
                 if (msp < 1) msp = 1;
         }
 
-	/* Hack: High mages have a 25% mana bonus */
-	if (msp && (p_ptr->pclass == CLASS_HIGH_MAGE)) msp += msp / 4;
+        /* Apply race mod mana */
+        msp = msp * rmp_ptr->mana / 100;
 
-        /* Hack: Power mages have a 75% mana bonus */
-        if (msp && (p_ptr->pclass == CLASS_POWERMAGE)) msp += msp * 3 / 4;
-
-        /* Hack: Sorcerer have a 150% mana bonus */
-        if (msp && (p_ptr->pclass == CLASS_SORCERER)) msp += msp * 3 / 2;
-
-        /* Hack: Hermit have a 20% mana bonus */
-        if (msp && (p_ptr->pracem == RMOD_HERMIT)) msp += msp / 5;
+        /* Apply class mana */
+        msp += msp * cp_ptr->mana / 100;
 
 	/* Only mages are affected */
-        if (cp_ptr->flags1 & CF1_NO_GLOVES)
+        if (PRACE_FLAGS(PR1_NO_GLOVES))
 	{
 		/* Assume player is not encumbered by gloves */
 		p_ptr->cumber_glove = FALSE;
@@ -2285,7 +2328,7 @@ static void calc_mana(void)
 	cur_wgt += inventory[INVEN_FEET].weight;
 
 	/* Determine the weight allowance */
-	max_wgt = mp_ptr->spell_weight;
+	max_wgt = cp_ptr->spell_weight;
 
 	/* Heavy armor penalizes mana */
 	if (((cur_wgt - max_wgt) / 10) > 0)
@@ -2417,10 +2460,7 @@ static void calc_mana(void)
  */
 void calc_hitpoints(void)
 {
-        int bonus, mhp, i;
-        u32b f1, f2, f3, f4, f5, esp;
-
-	object_type	*o_ptr;
+        int bonus, mhp;
 
 	/* Un-inflate "half-hitpoint bonus per level" value */
 	bonus = ((int)(adj_con_mhp[p_ptr->stat_ind[A_CON]]) - 128);
@@ -2432,7 +2472,7 @@ void calc_hitpoints(void)
 	if (mhp < p_ptr->lev + 1) mhp = p_ptr->lev + 1;
 
         /* Hack: Sorcerer have a -10% hp penality */
-        if (mhp && (p_ptr->pclass == CLASS_SORCERER)) mhp -= mhp / 10;
+        if (mhp && (PRACE_FLAGS(PR1_INNATE_SPELLS))) mhp -= mhp / 10;
 
         /* Factor in the pernament hp modifications */
         mhp += p_ptr->hp_mod;
@@ -2442,30 +2482,14 @@ void calc_hitpoints(void)
 	if (p_ptr->hero) mhp += 10;
 	if (p_ptr->shero) mhp += 30;
 
-        i = 0;
-        while (p_ptr->body_parts[i] == INVEN_WIELD)
+        /* Augment Hitpoint */
+        if (munchkin_multipliers)
         {
-                /* Get the weapon */
-                o_ptr = &inventory[INVEN_WIELD + i];
-
-                /* Examine the sword */
-                object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
-
-                /* Hitpoints multiplier */
-                if (o_ptr->k_idx && (f2 & (TR2_LIFE)))
-                {
-                        /* Augment Hitpoint */
-                        if (munchkin_multipliers)
-                        {
-                                mhp += mhp * o_ptr->pval / 5;
-                        }
-                        else
-                        {
-                                mhp += mhp * o_ptr->pval / 10;
-                        }
-                }
-
-                i++;
+                mhp += mhp * p_ptr->to_l / 5;
+        }
+        else
+        {
+                mhp += mhp * p_ptr->to_l / 10;
         }
 
         if (p_ptr->body_monster)
@@ -2652,16 +2676,46 @@ void calc_body()
 
                         b = rp_ptr->body_parts[i] + rmp_ptr->body_parts[i];
                         if (b < 0) b = 0;
+
+                        if (p_ptr->mimic_form == MIMIC_BEAR)
+                        {
+                                if (i == BODY_WEAPON) b = 0;
+                                else if (i == BODY_ARMS) b = 0;
+                                else if (i == BODY_LEGS) b = 0;
+                        }
+
                         bp[i] = b;
                 }
         }
-        else body_parts = r_ptr->body_parts;
+        else
+        {
+                body_parts = bp;
+                for (i = 0; i < BODY_MAX; i++)
+                {
+                        int b;
+
+                        b = r_ptr->body_parts[i];
+                        if (b < 0) b = 0;
+
+                        bp[i] = b;
+                }
+        }
+        for (i = 0; i < BODY_MAX; i++)
+        {
+                int b;
+
+                b = bp[i] + cp_ptr->body_parts[i];
+                if (b < 0) b = 0;
+                if (b > max_body_part[i]) b = max_body_part[i];
+
+                bp[i] = b;
+        }
 
         b_weapon = body_parts[BODY_WEAPON];
         b_arms = body_parts[BODY_ARMS];
         b_legs = body_parts[BODY_LEGS];
 
-        if ((p_ptr->pclass == CLASS_MIMIC) && (p_ptr->class_extra6 & CLASS_ARMS))
+        if ((cp_ptr->magic_key == MKEY_MIMIC) && (p_ptr->class_extra6 & CLASS_ARMS))
         {
                 b_weapon++;
                 b_arms++;
@@ -2670,7 +2724,7 @@ void calc_body()
                 if (b_arms > 3) b_arms = 3;
         }
 
-        if ((p_ptr->pclass == CLASS_MIMIC) && (p_ptr->class_extra6 & CLASS_LEGS))
+        if ((cp_ptr->magic_key == MKEY_MIMIC) && (p_ptr->class_extra6 & CLASS_LEGS))
         {
                 b_legs++;
 
@@ -2769,7 +2823,7 @@ void calc_body_bonus()
 
 byte calc_mimic()
 {
-        byte blow=0;
+        byte blow = 0;
 
         switch(p_ptr->mimic_form)
         {
@@ -3228,6 +3282,22 @@ byte calc_mimic()
                         blow += 4;
                         break;
                 }
+                case MIMIC_BEAR:
+                {
+                        p_ptr->mimic_name="[Black Bear]";
+                        p_ptr->stat_add[A_STR] += p_ptr->lev / 11;
+                        p_ptr->stat_add[A_INT] -= p_ptr->lev / 11;
+                        p_ptr->stat_add[A_WIS] -= p_ptr->lev / 11;
+                        p_ptr->stat_add[A_DEX] -= 1;
+                        p_ptr->stat_add[A_CON] += p_ptr->lev / 11;
+                        p_ptr->stat_add[A_CHR] -= 15;
+                        if (p_ptr->lev >= 10) p_ptr->free_act = TRUE;
+                        if (p_ptr->lev >= 20) p_ptr->regenerate = TRUE;
+                        if (p_ptr->lev >= 30) p_ptr->resist_conf = TRUE;
+                        if (p_ptr->lev >= 35) p_ptr->resist_nexus = TRUE;
+                        p_ptr->pspeed -= (5 + (p_ptr->lev / 10));
+                        break;
+                }
         }
         return blow;
 }
@@ -3235,77 +3305,9 @@ byte calc_mimic()
 /* Returns the blow information based on class */
 void analyze_blow(int *num, int *wgt, int *mul)
 {
-		/* Analyze the class */
-		switch (p_ptr->pclass)
-		{
-			/* Warrior */
-			case CLASS_WARRIOR:
-                        case CLASS_UNBELIEVER:
-                        case CLASS_WEAPONMASTER:
-                                *num = 6; *wgt = 30; *mul = 5; break;
-
-                        case CLASS_MIMIC:
-                        case CLASS_HARPER:
-                        case CLASS_BEASTMASTER:
-                                *num = 5; *wgt = 35; *mul = 4; break;
-
-                        /* Sorcerer */
-                        case CLASS_SORCERER:
-                                *num = 1; *wgt = 1; *mul = 1; break;
-
-			/* Mage */
-			case CLASS_MAGE:
-			case CLASS_HIGH_MAGE:
-                        case CLASS_POWERMAGE:
-                        case CLASS_RUNECRAFTER:
-			case CLASS_MERCHANT:
-                                *num = 4; *wgt = 40; *mul = 2; break;
-
-			/* Priest, Mindcrafter */
-			case CLASS_PRIEST:
-			case CLASS_MINDCRAFTER:
-                                *num = 5; *wgt = 35; *mul = 3; break;
-
-			/* Rogue */
-			case CLASS_ROGUE:
-                        case CLASS_SYMBIANT:
-                        case CLASS_POSSESSOR:
-                                *num = 5; *wgt = 30; *mul = 3; break;
-
-			/* Ranger */
-                        case CLASS_ALCHEMIST:
-			case CLASS_RANGER:
-                                *num = 5; *wgt = 35; *mul = 4; break;
-
-                        /* Druid, Necromancer */
-                        case CLASS_DRUID:
-                        case CLASS_NECRO:
-			case CLASS_DAEMONOLOGIST:
-                                *num = 4; *wgt = 35; *mul = 3; break;
-
-                        case CLASS_ARCHER:
-                                *num = 4; *wgt = 35; *mul = 4; break;
-
-			/* Paladin */
-                        case CLASS_PALADIN:             
-                                *num = 5; *wgt = 30; *mul = 4; break;
-
-			/* Warrior-Mage */
-			case CLASS_WARLOCK:
-                                *num = 5; *wgt = 35; *mul = 3; break;
-
-			/* Chaos Warrior */
-			case CLASS_CHAOS_WARRIOR:
-                                *num = 5; *wgt = 30; *mul = 4; break;
-
-			/* Monk */
-			case CLASS_MONK:
-                                *num = (p_ptr->lev<40?3:4); *wgt = 40; *mul = 4; break;
-
-			/* Illusionist -KMW- */
-                        case CLASS_ILLUSIONIST:
-                                *num = 4; *wgt = 35; *mul = 3; break;
-		}
+        *num = cp_ptr->blow_num;
+        *wgt = cp_ptr->blow_wgt;
+        *mul = cp_ptr->blow_mul;
 }
 
 /* Are all the weapons wielded of the right type ? */
@@ -3314,7 +3316,7 @@ bool is_weaponmaster_weapon()
         int i;
         object_type *o_ptr;
 
-        if (p_ptr->pclass != CLASS_WEAPONMASTER) return TRUE;
+        if (PRACE_FLAGS(PR1_HACK_WEAPON)) return TRUE;
 
         i = 0;
         while (p_ptr->body_parts[i] == INVEN_WIELD)
@@ -3329,6 +3331,161 @@ bool is_weaponmaster_weapon()
 
         /* Everything is ok */
         return TRUE;
+}
+
+/* Apply flags */
+static int extra_blows;
+static int extra_shots;
+void apply_flags(s32b f1, s32b f2, s32b f3, s32b f4, s32b f5, s32b esp, s16b pval, s16b tval, s16b to_h, s16b to_d, s16b to_a)
+{
+		/* Affect stats */
+                if (f1 & (TR1_STR)) p_ptr->stat_add[A_STR] += pval;
+                if (f1 & (TR1_INT)) p_ptr->stat_add[A_INT] += pval;
+                if (f1 & (TR1_WIS)) p_ptr->stat_add[A_WIS] += pval;
+                if (f1 & (TR1_DEX)) p_ptr->stat_add[A_DEX] += pval;
+                if (f1 & (TR1_CON)) p_ptr->stat_add[A_CON] += pval;
+                if (f1 & (TR1_CHR)) p_ptr->stat_add[A_CHR] += pval;
+                if (f5 & (TR5_LUCK)) p_ptr->luck_cur += pval;
+
+                /* Affect spell power */
+                if (f1 & (TR1_SPELL)) p_ptr->to_s += pval;
+
+                /* Affect mana capacity */
+                if (f1 & (TR1_MANA)) p_ptr->to_m += pval;
+
+                /* Affect life capacity */
+                if (f2 & (TR2_LIFE)) p_ptr->to_l += pval;
+
+		/* Affect stealth */
+                if (f1 & (TR1_STEALTH)) p_ptr->skill_stl += pval;
+
+		/* Affect searching ability (factor of five) */
+                if (f1 & (TR1_SEARCH)) p_ptr->skill_srh += (pval * 5);
+
+		/* Affect searching frequency (factor of five) */
+                if (f1 & (TR1_SEARCH)) p_ptr->skill_fos += (pval * 5);
+
+		/* Affect infravision */
+                if (f1 & (TR1_INFRA)) p_ptr->see_infra += pval;
+
+		/* Affect digging (factor of 20) */
+                if (f1 & (TR1_TUNNEL)) p_ptr->skill_dig += (pval * 20);
+
+		/* Affect speed */
+                if (f1 & (TR1_SPEED)) p_ptr->pspeed += pval;
+
+		/* Affect blows */
+                if (f1 & (TR1_BLOWS)) extra_blows += pval;
+                if (f5 & (TR5_CRIT)) p_ptr->xtra_crit += pval;
+
+                /* Hack -- Sensible fire */
+                if (f2 & (TR2_SENS_FIRE)) p_ptr->sensible_fire = TRUE;
+
+		/* Hack -- cause earthquakes */
+		if (f1 & (TR1_IMPACT)) p_ptr->impact = TRUE;
+
+		/* Affect invisibility */
+                if (f2 & (TR2_INVIS)) p_ptr->invis += (pval * 10);
+
+		/* Boost shots */
+		if (f3 & (TR3_XTRA_SHOTS)) extra_shots++;
+
+		/* Various flags */
+		if (f3 & (TR3_AGGRAVATE)) p_ptr->aggravate = TRUE;
+		if (f3 & (TR3_TELEPORT)) p_ptr->teleport = TRUE;
+                if (f5 & (TR5_DRAIN_MANA)) p_ptr->drain_mana++;
+                if (f5 & (TR5_DRAIN_HP)) p_ptr->drain_life++;
+		if (f3 & (TR3_DRAIN_EXP)) p_ptr->exp_drain = TRUE;
+		if (f3 & (TR3_BLESSED)) p_ptr->bless_blade = TRUE;
+                if (f3 & (TR3_XTRA_MIGHT)) p_ptr->xtra_might += pval;
+		if (f3 & (TR3_SLOW_DIGEST)) p_ptr->slow_digest = TRUE;
+		if (f3 & (TR3_REGEN)) p_ptr->regenerate = TRUE;
+                if (esp) p_ptr->telepathy |= esp;
+                if ((tval != TV_LITE) && (f3 & (TR3_LITE1))) p_ptr->lite = TRUE;
+                if ((tval != TV_LITE) && (f4 & (TR4_LITE2))) p_ptr->lite = TRUE;
+                if ((tval != TV_LITE) && (f4 & (TR4_LITE3))) p_ptr->lite = TRUE;
+		if (f3 & (TR3_SEE_INVIS)) p_ptr->see_inv = TRUE;
+		if (f2 & (TR2_FREE_ACT)) p_ptr->free_act = TRUE;
+		if (f2 & (TR2_HOLD_LIFE)) p_ptr->hold_life = TRUE;
+                if (f3 & (TR3_WRAITH)) p_ptr->wraith_form = TRUE;
+		if (f3 & (TR3_FEATHER)) p_ptr->ffall = TRUE;
+                if (f4 & (TR4_FLY)) p_ptr->fly = TRUE;
+                if (f4 & (TR4_CLIMB)) p_ptr->climb = TRUE;
+
+		/* Immunity flags */
+		if (f2 & (TR2_IM_FIRE)) p_ptr->immune_fire = TRUE;
+		if (f2 & (TR2_IM_ACID)) p_ptr->immune_acid = TRUE;
+		if (f2 & (TR2_IM_COLD)) p_ptr->immune_cold = TRUE;
+		if (f2 & (TR2_IM_ELEC)) p_ptr->immune_elec = TRUE;
+
+		/* Resistance flags */
+		if (f2 & (TR2_RES_ACID)) p_ptr->resist_acid = TRUE;
+		if (f2 & (TR2_RES_ELEC)) p_ptr->resist_elec = TRUE;
+		if (f2 & (TR2_RES_FIRE)) p_ptr->resist_fire = TRUE;
+		if (f2 & (TR2_RES_COLD)) p_ptr->resist_cold = TRUE;
+		if (f2 & (TR2_RES_POIS)) p_ptr->resist_pois = TRUE;
+		if (f2 & (TR2_RES_FEAR)) p_ptr->resist_fear = TRUE;
+		if (f2 & (TR2_RES_CONF)) p_ptr->resist_conf = TRUE;
+		if (f2 & (TR2_RES_SOUND)) p_ptr->resist_sound = TRUE;
+		if (f2 & (TR2_RES_LITE)) p_ptr->resist_lite = TRUE;
+		if (f2 & (TR2_RES_DARK)) p_ptr->resist_dark = TRUE;
+		if (f2 & (TR2_RES_CHAOS)) p_ptr->resist_chaos = TRUE;
+		if (f2 & (TR2_RES_DISEN)) p_ptr->resist_disen = TRUE;
+		if (f2 & (TR2_RES_SHARDS)) p_ptr->resist_shard = TRUE;
+		if (f2 & (TR2_RES_NEXUS)) p_ptr->resist_nexus = TRUE;
+		if (f2 & (TR2_RES_BLIND)) p_ptr->resist_blind = TRUE;
+		if (f2 & (TR2_RES_NETHER)) p_ptr->resist_neth = TRUE;
+                if (f4 & (TR4_IM_NETHER)) p_ptr->immune_neth = TRUE;
+
+		if (f2 & (TR2_REFLECT)) p_ptr->reflect = TRUE;
+		if (f3 & (TR3_SH_FIRE)) p_ptr->sh_fire = TRUE;
+		if (f3 & (TR3_SH_ELEC)) p_ptr->sh_elec = TRUE;
+		if (f3 & (TR3_NO_MAGIC)) p_ptr->anti_magic = TRUE;
+		if (f3 & (TR3_NO_TELE)) p_ptr->anti_tele = TRUE;
+
+		/* Sustain flags */
+		if (f2 & (TR2_SUST_STR)) p_ptr->sustain_str = TRUE;
+		if (f2 & (TR2_SUST_INT)) p_ptr->sustain_int = TRUE;
+		if (f2 & (TR2_SUST_WIS)) p_ptr->sustain_wis = TRUE;
+		if (f2 & (TR2_SUST_DEX)) p_ptr->sustain_dex = TRUE;
+		if (f2 & (TR2_SUST_CON)) p_ptr->sustain_con = TRUE;
+		if (f2 & (TR2_SUST_CHR)) p_ptr->sustain_chr = TRUE;
+
+                if (f4 & (TR4_PRECOGNITION)) p_ptr->precognition = TRUE;
+
+                if (f4 & (TR4_ANTIMAGIC_50))
+                {
+                        p_ptr->antimagic += 50 - to_h - to_d - pval - to_a;
+                        p_ptr->antimagic_dis += 5 - ((to_h + to_d + pval + to_a) / 15);
+                }
+                if (f4 & (TR4_ANTIMAGIC_30))
+                {
+                        p_ptr->antimagic += 30 - to_h - to_d - pval - to_a;
+                        p_ptr->antimagic_dis += 3 - ((to_h + to_d + pval + to_a) / 15);
+                }
+                if (f4 & (TR4_ANTIMAGIC_20))
+                {
+                        p_ptr->antimagic += 20 - to_h - to_d - pval - to_a;
+                        p_ptr->antimagic_dis += 2;
+                }
+                if (f4 & (TR4_ANTIMAGIC_10))
+                {
+                        p_ptr->antimagic += 10 - to_h - to_d - pval - to_a;
+                        p_ptr->antimagic_dis += 1;
+                }
+                if (f4 & (TR4_AUTO_ID))
+                {
+                        p_ptr->auto_id = TRUE;
+                }
+
+                /* The new code implementing Tolkien's concept of "Black Breath"
+                 * takes advantage of the existing drain_exp character flag, renamed
+                 * "black_breath". This flag can also be set by a unlucky blow from
+                 * an undead.  -LM-
+                 */
+                if (f4 & (TR4_BLACK_BREATH)) p_ptr->black_breath = TRUE;
+
+                if (f5 & (TR5_IMMOVABLE)) p_ptr->immovable = TRUE;
 }
 
 /*
@@ -3360,8 +3517,6 @@ void calc_bonuses(void)
 	int             old_see_inv;
 	int             old_dis_ac;
 	int             old_dis_to_a;
-	int             extra_blows;
-	int             extra_shots;
 	object_type     *o_ptr;
         u32b            f1, f2, f3, f4, f5, esp;
 
@@ -3388,6 +3543,9 @@ void calc_bonuses(void)
 
         /* Mana multiplier */
         p_ptr->to_m = 0;
+
+        /* Life multiplier */
+        p_ptr->to_l = 0;
 
         /* Spell power */
         p_ptr->to_s = 0;
@@ -3520,6 +3678,9 @@ void calc_bonuses(void)
 	/* Base skill -- digging */
 	p_ptr->skill_dig = 0;
 
+        /* Base Luck */
+        p_ptr->luck_cur = p_ptr->luck_base;
+
         /* Mimic override body's bonuses */
         if(p_ptr->mimic_form)
         {
@@ -3534,215 +3695,66 @@ void calc_bonuses(void)
         calc_wield_monster();
 
         /* Calculate bonuses due to gods. */
-        if (p_ptr->pgod) {
-          int badness = interpret_grace();
+        if (p_ptr->pgod)
+        {
+                int badness = interpret_grace();
 
-          god_effect(p_ptr->pgod, badness);
+                god_effect(p_ptr->pgod, badness);
         }
 
-	switch (p_ptr->pclass)
-	{
-		case CLASS_WARRIOR:
-			if (p_ptr->lev > 29) p_ptr->resist_fear = TRUE;
-			break;
-                case CLASS_BEASTMASTER:
-                        if (p_ptr->lev > 34) p_ptr->resist_fear = TRUE;
-			break;
-		case CLASS_PALADIN:
-			if (p_ptr->lev > 39) p_ptr->resist_fear = TRUE;
-			break;
-		case CLASS_CHAOS_WARRIOR:
-                        if (p_ptr->lev > 24) p_ptr->resist_chaos = TRUE;
-			if (p_ptr->lev > 39) p_ptr->resist_fear = TRUE;
-			break;
-		case CLASS_DAEMONOLOGIST:
-			if (p_ptr->lev > 19) p_ptr->resist_conf = TRUE;
-			if (p_ptr->lev > 29) p_ptr->resist_fear = TRUE;
-			if (p_ptr->lev > 39) p_ptr->free_act = TRUE;
-			break;
-		case CLASS_MINDCRAFTER:
-			if (p_ptr->lev >  9) p_ptr->resist_fear = TRUE;
-			if (p_ptr->lev > 19) p_ptr->sustain_wis = TRUE;
-			if (p_ptr->lev > 29) p_ptr->resist_conf = TRUE;
-                        if (p_ptr->lev > 39) p_ptr->telepathy |= ESP_DEMON | ESP_ORC | ESP_TROLL | ESP_GIANT | ESP_UNDEAD | ESP_ANIMAL | ESP_UNIQUE;
-			break;
-		case CLASS_MONK:
-			/* Unencumbered Monks become faster every 10 levels */
-			if (!(monk_heavy_armor()))
-					p_ptr->pspeed += (p_ptr->lev) / 10;
+        for (i = 1; i <= p_ptr->lev; i++)
+        {
+                apply_flags(cp_ptr->oflags1[i], cp_ptr->oflags2[i], cp_ptr->oflags3[i], cp_ptr->oflags4[i], cp_ptr->oflags5[i], cp_ptr->oesp[i], cp_ptr->opval[i], 0, 0, 0, 0);
+        }
 
-			/* Free action if unencumbered at level 25 */
-			if  ((p_ptr->lev > 24) && !(monk_heavy_armor()))
-				p_ptr->free_act = TRUE;
-			break;
-                case CLASS_UNBELIEVER:
-                        p_ptr->antimagic += p_ptr->lev;
-                        p_ptr->antimagic_dis += (p_ptr->lev / 10) + 1;
+        if (PRACE_FLAG(PR1_MONK_SPECIAL))
+        {
+                /* Unencumbered Monks become faster every 10 levels */
+                if (!(monk_heavy_armor()))
+                        p_ptr->pspeed += (p_ptr->lev) / 10;
 
-                        if (p_ptr->class_extra6 & CLASS_ANTIMAGIC)
-                        {
-                                p_ptr->anti_magic = TRUE;
-                                p_ptr->anti_tele = TRUE;
-                                p_ptr->resist_continuum = TRUE;
-                        }
-			break;
-		case CLASS_WEAPONMASTER:
-			if (p_ptr->lev > 29) p_ptr->resist_fear = TRUE;
-			break;
-	}
+                /* Free action if unencumbered at level 25 */
+                if  ((p_ptr->lev > 24) && !(monk_heavy_armor()))
+                        p_ptr->free_act = TRUE;
+        }
+
+        if (PRACE_FLAG(PR1_ANTIMAGIC))
+        {
+                p_ptr->antimagic += p_ptr->lev;
+                p_ptr->antimagic_dis += (p_ptr->lev / 10) + 1;
+
+                if (p_ptr->class_extra6 & CLASS_ANTIMAGIC)
+                {
+                        p_ptr->anti_magic = TRUE;
+                        p_ptr->anti_tele = TRUE;
+                        p_ptr->resist_continuum = TRUE;
+                }
+        }
+
+        if (p_ptr->astral)
+        {
+                p_ptr->wraith_form = TRUE;
+        }
+
+        process_hooks(HOOK_CALC_BONUS, "()");
 
 	/***** Races ****/
         if((!p_ptr->mimic_form)&&(!p_ptr->body_monster))
         {
-	switch (p_ptr->prace)
-	{
-                case RACE_WOOD_ELF:
-                        if (p_ptr->pracem != RMOD_VAMPIRE) p_ptr->resist_lite = TRUE;
-			break;
-		case RACE_ELF:
-                        if (p_ptr->pracem != RMOD_VAMPIRE) p_ptr->resist_lite = TRUE;
-			break;
-		case RACE_HOBBIT:
-			p_ptr->sustain_dex = TRUE;
-			break;
-		case RACE_GNOME:
-			p_ptr->free_act = TRUE;
-			break;
-		case RACE_DWARF:
-			p_ptr->resist_blind = TRUE;
-			break;
-		case RACE_HALF_ORC:
-			p_ptr->resist_dark = TRUE;
-			break;
-		case RACE_HALF_TROLL:
-			p_ptr->sustain_str = TRUE;
+                int i;
 
-			if (p_ptr->lev > 14)
-			{
-				/* High level trolls heal fast... */
-				p_ptr->regenerate = TRUE;
+                for (i = 1; i <= p_ptr->lev; i++)
+                {
+                        apply_flags(rp_ptr->oflags1[i], rp_ptr->oflags2[i], rp_ptr->oflags3[i], rp_ptr->oflags4[i], rp_ptr->oflags5[i], rp_ptr->oesp[i], rp_ptr->opval[i], 0, 0, 0, 0);
+                        apply_flags(rmp_ptr->oflags1[i], rmp_ptr->oflags2[i], rmp_ptr->oflags3[i], rmp_ptr->oflags4[i], rmp_ptr->oflags5[i], rmp_ptr->oesp[i], rmp_ptr->opval[i], 0, 0, 0, 0);
+                }
 
-				if (p_ptr->pclass == CLASS_WARRIOR)
-				{
-					p_ptr->slow_digest = TRUE;
-					/* Let's not make Regeneration
-					 * a disadvantage for the poor warriors who can
-					 * never learn a spell that satisfies hunger (actually
-					 * neither can rogues, but half-trolls are not
-					 * supposed to play rogues) */
-				}
-			}
-			break;
-                case RACE_DUNADAN:
-			p_ptr->sustain_con = TRUE;
-                        p_ptr->regenerate = TRUE;
-			break;
-		case RACE_HIGH_ELF:
-                        if (p_ptr->pracem != RMOD_VAMPIRE) p_ptr->resist_lite = TRUE;
-			p_ptr->see_inv = TRUE;
-			break;
-		case RACE_HALF_OGRE:
-			p_ptr->resist_dark = TRUE;
-			p_ptr->sustain_str = TRUE;
-			break;
-		case RACE_HALF_GIANT:
-			p_ptr->sustain_str = TRUE;
-			p_ptr->resist_shard = TRUE;
-			break;
-		case RACE_KOBOLD:
-			p_ptr->resist_pois = TRUE;
-			break;
-		case RACE_NIBELUNG:
-			p_ptr->resist_disen = TRUE;
-			p_ptr->resist_dark = TRUE;
-			break;
-		case RACE_DARK_ELF:
-			p_ptr->resist_dark = TRUE;
-			if (p_ptr->lev > 19) p_ptr->see_inv = TRUE;
-			break;
-                case RACE_RKNIGHT:
-                        /* Rohan's Knights become faster */
-                        p_ptr->pspeed += 3;
-                        p_ptr->pspeed += (p_ptr->lev) / 5;
-			break;
-                case RACE_ENT:
-			p_ptr->slow_digest = TRUE;
-                        p_ptr->sensible_fire = TRUE;
-                        p_ptr->pspeed -= 5;
-                        if (p_ptr->lev > 4) p_ptr->see_inv = TRUE;
-                        if (p_ptr->lev > 24) p_ptr->telepathy |= ESP_ORC | ESP_TROLL | ESP_EVIL;
-			break;
-                case RACE_DRAGONRIDER:
-			p_ptr->ffall = TRUE;
-                        if (p_ptr->lev >= 17) p_ptr->fly = TRUE;
-
-                        /* Clear the Tanker point */
-                        p_ptr->mtp = 100;
-
-                        p_ptr->mtp+=p_ptr->lev*5;
-                        if(p_ptr->ctp>p_ptr->mtp)p_ptr->ctp=p_ptr->mtp;
+                if (PRACE_FLAG(PR1_TP))
+                {
+                        p_ptr->mtp = p_ptr->lev * 5;
+                        if (p_ptr->ctp > p_ptr->mtp) p_ptr->ctp = p_ptr->mtp;
                         p_ptr->redraw |= PR_TANK;
-
-                        if (p_ptr->lev >  3) p_ptr->telepathy |= ESP_DRAGONRIDER | ESP_DRAGON;
-			if (p_ptr->lev >  4) p_ptr->resist_fire = TRUE;
-			if (p_ptr->lev >  9) p_ptr->resist_cold = TRUE;
-			if (p_ptr->lev > 14) p_ptr->resist_acid = TRUE;
-			if (p_ptr->lev > 19) p_ptr->resist_elec = TRUE;
-			if (p_ptr->lev > 34) p_ptr->resist_pois = TRUE;
-			break;
-                case RACE_MOLD:
-                        p_ptr->immovable = TRUE;
-                        p_ptr->resist_neth = TRUE;
-                        p_ptr->resist_nexus = TRUE;
-                        p_ptr->hold_life = TRUE;
-			break;
-		default:
-			/* Do nothing */
-			;
-	}
-        switch (p_ptr->pracem)
-	{
-                case RMOD_VAMPIRE:
-			p_ptr->resist_dark = TRUE;
-			p_ptr->hold_life = TRUE;
-			p_ptr->resist_neth = TRUE;
-			p_ptr->resist_cold = TRUE;
-			p_ptr->resist_pois = TRUE;
-			p_ptr->lite = TRUE;
-			break;
-                case RMOD_SPECTRE:
-			p_ptr->resist_neth = TRUE;
-                        p_ptr->immune_neth = TRUE;
-			p_ptr->hold_life = TRUE;
-			p_ptr->see_inv = TRUE;
-			p_ptr->resist_pois = TRUE;
-			p_ptr->slow_digest = TRUE;
-			p_ptr->resist_cold = TRUE;
-                        p_ptr->wraith_form = TRUE;
-                        if (p_ptr->lev > 34) p_ptr->telepathy |= ESP_UNIQUE | ESP_GOOD | ESP_EVIL;
-			break;
-                case RMOD_SKELETON:
-                        p_ptr->resist_shard = TRUE;
-                        p_ptr->hold_life = TRUE;
-                        p_ptr->see_inv = TRUE;
-                        p_ptr->resist_pois = TRUE;
-                        if (p_ptr->lev > 9) p_ptr->resist_cold = TRUE;
-                        break;
-                case RMOD_ZOMBIE:
-                        p_ptr->resist_neth = TRUE;
-                        p_ptr->hold_life = TRUE;
-                        p_ptr->see_inv = TRUE;
-                        p_ptr->resist_pois = TRUE;
-                        p_ptr->slow_digest = TRUE;
-                        if (p_ptr->lev > 4) p_ptr->resist_cold = TRUE;
-                        break;
-                case RMOD_BARBARIAN:
-			p_ptr->resist_fear = TRUE;
-			break;
-		default:
-			/* Do nothing */
-			;
-	}
+                }
         }
 
 	/* Hack -- apply racial/class stat maxes */
@@ -3897,7 +3909,10 @@ void calc_bonuses(void)
 		
 		if (p_ptr->muta3 & MUT3_ESP)
 		{
-                        p_ptr->telepathy |= (((1 << (p_ptr->lev * 32 / 50)) - 1) << 1) + 1;
+                        if (p_ptr->lev == 50)
+                                p_ptr->telepathy |= ESP_ALL;
+                        else
+                                p_ptr->telepathy |= (((1 << (p_ptr->lev * 32 / 50)) - 1) << 1) + 1;
 		}
 
 		if (p_ptr->muta3 & MUT3_LIMBER)
@@ -3946,8 +3961,10 @@ void calc_bonuses(void)
 		/* Skip non-objects */
 		if (!o_ptr->k_idx) continue;
 
-		/* Extract the item flags */
+                /* Extract the item flags */
+                object_flags_no_set = TRUE;
                 object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
+                object_flags_no_set = FALSE;
 
                 /* MEGA ugly hack -- set spacetime distortion resistance */
                 if(o_ptr->name1 == ART_ANCHOR)
@@ -3955,145 +3972,12 @@ void calc_bonuses(void)
                         p_ptr->resist_continuum = TRUE;
                 }
 
-		/* Affect stats */
-		if (f1 & (TR1_STR)) p_ptr->stat_add[A_STR] += o_ptr->pval;
-		if (f1 & (TR1_INT)) p_ptr->stat_add[A_INT] += o_ptr->pval;
-		if (f1 & (TR1_WIS)) p_ptr->stat_add[A_WIS] += o_ptr->pval;
-		if (f1 & (TR1_DEX)) p_ptr->stat_add[A_DEX] += o_ptr->pval;
-		if (f1 & (TR1_CON)) p_ptr->stat_add[A_CON] += o_ptr->pval;
-		if (f1 & (TR1_CHR)) p_ptr->stat_add[A_CHR] += o_ptr->pval;
+                apply_flags(f1, f2, f3, f4, f5, esp, o_ptr->pval, o_ptr->tval, o_ptr->to_h, o_ptr->to_d, o_ptr->to_a);
 
-                /* Affect spell power */
-                if (f1 & (TR1_SPELL)) p_ptr->to_s += o_ptr->pval;
-
-                /* Affect mana capacity */
-                if (f1 & (TR1_MANA)) p_ptr->to_m += o_ptr->pval;
-
-		/* Affect stealth */
-		if (f1 & (TR1_STEALTH)) p_ptr->skill_stl += o_ptr->pval;
-
-		/* Affect searching ability (factor of five) */
-		if (f1 & (TR1_SEARCH)) p_ptr->skill_srh += (o_ptr->pval * 5);
-
-		/* Affect searching frequency (factor of five) */
-		if (f1 & (TR1_SEARCH)) p_ptr->skill_fos += (o_ptr->pval * 5);
-
-		/* Affect infravision */
-		if (f1 & (TR1_INFRA)) p_ptr->see_infra += o_ptr->pval;
-
-		/* Affect digging (factor of 20) */
-		if (f1 & (TR1_TUNNEL)) p_ptr->skill_dig += (o_ptr->pval * 20);
-
-		/* Affect speed */
-		if (f1 & (TR1_SPEED)) p_ptr->pspeed += o_ptr->pval;
-
-		/* Affect blows */
-                if (f1 & (TR1_BLOWS)) extra_blows += o_ptr->pval;
-                if (f5 & (TR5_CRIT)) p_ptr->xtra_crit += o_ptr->pval;
-
-		/* Hack -- cause earthquakes */
-		if (f1 & (TR1_IMPACT)) p_ptr->impact = TRUE;
-
-		/* Affect invisibility */
-                if (f2 & (TR2_INVIS)) p_ptr->invis += (o_ptr->pval * 10);
-
-		/* Boost shots */
-		if (f3 & (TR3_XTRA_SHOTS)) extra_shots++;
-
-		/* Various flags */
-		if (f3 & (TR3_AGGRAVATE)) p_ptr->aggravate = TRUE;
-		if (f3 & (TR3_TELEPORT)) p_ptr->teleport = TRUE;
-                if (f5 & (TR5_DRAIN_MANA)) p_ptr->drain_mana++;
-                if (f5 & (TR5_DRAIN_HP)) p_ptr->drain_life++;
-		if (f3 & (TR3_DRAIN_EXP)) p_ptr->exp_drain = TRUE;
-		if (f3 & (TR3_BLESSED)) p_ptr->bless_blade = TRUE;
-                if (f3 & (TR3_XTRA_MIGHT)) p_ptr->xtra_might += o_ptr->pval;
-		if (f3 & (TR3_SLOW_DIGEST)) p_ptr->slow_digest = TRUE;
-		if (f3 & (TR3_REGEN)) p_ptr->regenerate = TRUE;
-                if (esp) p_ptr->telepathy |= esp;
-                if ((o_ptr->tval != TV_LITE) && (f3 & (TR3_LITE1))) p_ptr->lite = TRUE;
-                if ((o_ptr->tval != TV_LITE) && (f4 & (TR4_LITE2))) p_ptr->lite = TRUE;
-                if ((o_ptr->tval != TV_LITE) && (f4 & (TR4_LITE3))) p_ptr->lite = TRUE;
-		if (f3 & (TR3_SEE_INVIS)) p_ptr->see_inv = TRUE;
-		if (f2 & (TR2_FREE_ACT)) p_ptr->free_act = TRUE;
-		if (f2 & (TR2_HOLD_LIFE)) p_ptr->hold_life = TRUE;
-                if (f3 & (TR3_WRAITH)) p_ptr->wraith_form = TRUE;
-		if (f3 & (TR3_FEATHER)) p_ptr->ffall = TRUE;
-                if (f4 & (TR4_FLY)) p_ptr->fly = TRUE;
-                if (f4 & (TR4_CLIMB)) p_ptr->climb = TRUE;
-
-		/* Immunity flags */
-		if (f2 & (TR2_IM_FIRE)) p_ptr->immune_fire = TRUE;
-		if (f2 & (TR2_IM_ACID)) p_ptr->immune_acid = TRUE;
-		if (f2 & (TR2_IM_COLD)) p_ptr->immune_cold = TRUE;
-		if (f2 & (TR2_IM_ELEC)) p_ptr->immune_elec = TRUE;
-
-		/* Resistance flags */
-		if (f2 & (TR2_RES_ACID)) p_ptr->resist_acid = TRUE;
-		if (f2 & (TR2_RES_ELEC)) p_ptr->resist_elec = TRUE;
-		if (f2 & (TR2_RES_FIRE)) p_ptr->resist_fire = TRUE;
-		if (f2 & (TR2_RES_COLD)) p_ptr->resist_cold = TRUE;
-		if (f2 & (TR2_RES_POIS)) p_ptr->resist_pois = TRUE;
-		if (f2 & (TR2_RES_FEAR)) p_ptr->resist_fear = TRUE;
-		if (f2 & (TR2_RES_CONF)) p_ptr->resist_conf = TRUE;
-		if (f2 & (TR2_RES_SOUND)) p_ptr->resist_sound = TRUE;
-		if (f2 & (TR2_RES_LITE)) p_ptr->resist_lite = TRUE;
-		if (f2 & (TR2_RES_DARK)) p_ptr->resist_dark = TRUE;
-		if (f2 & (TR2_RES_CHAOS)) p_ptr->resist_chaos = TRUE;
-		if (f2 & (TR2_RES_DISEN)) p_ptr->resist_disen = TRUE;
-		if (f2 & (TR2_RES_SHARDS)) p_ptr->resist_shard = TRUE;
-		if (f2 & (TR2_RES_NEXUS)) p_ptr->resist_nexus = TRUE;
-		if (f2 & (TR2_RES_BLIND)) p_ptr->resist_blind = TRUE;
-		if (f2 & (TR2_RES_NETHER)) p_ptr->resist_neth = TRUE;
-                if (f4 & (TR4_IM_NETHER)) p_ptr->immune_neth = TRUE;
-
-		if (f2 & (TR2_REFLECT)) p_ptr->reflect = TRUE;
-		if (f3 & (TR3_SH_FIRE)) p_ptr->sh_fire = TRUE;
-		if (f3 & (TR3_SH_ELEC)) p_ptr->sh_elec = TRUE;
-		if (f3 & (TR3_NO_MAGIC)) p_ptr->anti_magic = TRUE;
-		if (f3 & (TR3_NO_TELE)) p_ptr->anti_tele = TRUE;
-
-		/* Sustain flags */
-		if (f2 & (TR2_SUST_STR)) p_ptr->sustain_str = TRUE;
-		if (f2 & (TR2_SUST_INT)) p_ptr->sustain_int = TRUE;
-		if (f2 & (TR2_SUST_WIS)) p_ptr->sustain_wis = TRUE;
-		if (f2 & (TR2_SUST_DEX)) p_ptr->sustain_dex = TRUE;
-		if (f2 & (TR2_SUST_CON)) p_ptr->sustain_con = TRUE;
-		if (f2 & (TR2_SUST_CHR)) p_ptr->sustain_chr = TRUE;
-
-                if (f4 & (TR4_PRECOGNITION)) p_ptr->precognition = TRUE;
-
-                if (f4 & (TR4_ANTIMAGIC_50))
+                if (o_ptr->name1)
                 {
-                        p_ptr->antimagic += 50 - o_ptr->to_h - o_ptr->to_d - o_ptr->pval - o_ptr->to_a;
-                        p_ptr->antimagic_dis += 5 - ((o_ptr->to_h + o_ptr->to_d + o_ptr->pval + o_ptr->to_a) / 15);
+                        apply_set(o_ptr->name1, a_info[o_ptr->name1].set);
                 }
-                if (f4 & (TR4_ANTIMAGIC_30))
-                {
-                        p_ptr->antimagic += 30 - o_ptr->to_h - o_ptr->to_d - o_ptr->pval - o_ptr->to_a;
-                        p_ptr->antimagic_dis += 3 - ((o_ptr->to_h + o_ptr->to_d + o_ptr->pval + o_ptr->to_a) / 15);
-                }
-                if (f4 & (TR4_ANTIMAGIC_20))
-                {
-                        p_ptr->antimagic += 20 - o_ptr->to_h - o_ptr->to_d - o_ptr->pval - o_ptr->to_a;
-                        p_ptr->antimagic_dis += 2;
-                }
-                if (f4 & (TR4_ANTIMAGIC_10))
-                {
-                        p_ptr->antimagic += 10 - o_ptr->to_h - o_ptr->to_d - o_ptr->pval - o_ptr->to_a;
-                        p_ptr->antimagic_dis += 1;
-                }
-                if (f4 & (TR4_AUTO_ID))
-                {
-                        p_ptr->auto_id = TRUE;
-                }
-
-                /* The new code implementing Tolkien's concept of "Black Breath"
-                 * takes advantage of the existing drain_exp character flag, renamed
-                 * "black_breath". This flag can also be set by a unlucky blow from
-                 * an undead.  -LM-
-                 */
-                if (f4 & (TR4_BLACK_BREATH)) p_ptr->black_breath = TRUE;
 
 		/* Modify the base armor class */
 		p_ptr->ac += o_ptr->ac;
@@ -4128,45 +4012,45 @@ void calc_bonuses(void)
 		if (object_known_p(o_ptr)) p_ptr->dis_to_d += o_ptr->to_d;
 	}
 
-    /* Monks get extra ac for armour _not worn_ */
-    if ((p_ptr->pclass == CLASS_MONK) && !(monk_heavy_armor()))
-    {
-        if (!(inventory[INVEN_BODY].k_idx))
+        /* Monks get extra ac for armour _not worn_ */
+        if ((PRACE_FLAGS(PR1_MONK_SPECIAL)) && !(monk_heavy_armor()))
         {
-            p_ptr->to_a += (p_ptr->lev * 3) / 2;
-            p_ptr->dis_to_a += (p_ptr->lev * 3) / 2;
+                if (!(inventory[INVEN_BODY].k_idx))
+                {
+                        p_ptr->to_a += (p_ptr->lev * 3) / 2;
+                        p_ptr->dis_to_a += (p_ptr->lev * 3) / 2;
+                }
+                if (!(inventory[INVEN_OUTER].k_idx) && (p_ptr->lev > 15))
+                {
+                        p_ptr->to_a += ((p_ptr->lev - 13) / 3);
+                        p_ptr->dis_to_a += ((p_ptr->lev - 13) / 3);
+                }
+                if (!(inventory[INVEN_ARM].k_idx) && (p_ptr->lev > 10))
+                {
+                        p_ptr->to_a += ((p_ptr->lev - 8) / 3);
+                        p_ptr->dis_to_a += ((p_ptr->lev - 8) / 3);
+                }
+                if (!(inventory[INVEN_HEAD].k_idx)&& (p_ptr->lev > 4))
+                {
+                        p_ptr->to_a += (p_ptr->lev - 2) / 3;
+                        p_ptr->dis_to_a += (p_ptr->lev -2) / 3;
+                }
+                if (!(inventory[INVEN_HANDS].k_idx))
+                {
+                        p_ptr->to_a += (p_ptr->lev / 2);
+                        p_ptr->dis_to_a += (p_ptr->lev / 2);
+                }
+                if (!(inventory[INVEN_FEET].k_idx))
+                {
+                        p_ptr->to_a += (p_ptr->lev / 3);
+                        p_ptr->dis_to_a += (p_ptr->lev / 3);
+                }
         }
-        if (!(inventory[INVEN_OUTER].k_idx) && (p_ptr->lev > 15))
-        {
-            p_ptr->to_a += ((p_ptr->lev - 13) / 3);
-            p_ptr->dis_to_a += ((p_ptr->lev - 13) / 3);
-        }
-        if (!(inventory[INVEN_ARM].k_idx) && (p_ptr->lev > 10))
-        {
-            p_ptr->to_a += ((p_ptr->lev - 8) / 3);
-            p_ptr->dis_to_a += ((p_ptr->lev - 8) / 3);
-        }
-        if (!(inventory[INVEN_HEAD].k_idx)&& (p_ptr->lev > 4))
-        {
-            p_ptr->to_a += (p_ptr->lev - 2) / 3;
-            p_ptr->dis_to_a += (p_ptr->lev -2) / 3;
-        }
-        if (!(inventory[INVEN_HANDS].k_idx))
-        {
-            p_ptr->to_a += (p_ptr->lev / 2);
-            p_ptr->dis_to_a += (p_ptr->lev / 2);
-        }
-        if (!(inventory[INVEN_FEET].k_idx))
-        {
-            p_ptr->to_a += (p_ptr->lev / 3);
-            p_ptr->dis_to_a += (p_ptr->lev / 3);
-        }
-    }
 
 	/* Hack -- aura of fire also provides light */
 	if (p_ptr->sh_fire) p_ptr->lite = TRUE;
 
-        if (p_ptr->prace == RACE_ENT) /* Ents also get an intrinsic AC bonus */
+        if (PRACE_FLAG(PR1_AC_LEVEL))
 	{
 		p_ptr->to_a += 20 + (p_ptr->lev / 5);
 		p_ptr->dis_to_a += 20 + (p_ptr->lev / 5);
@@ -4241,31 +4125,16 @@ void calc_bonuses(void)
 				p_ptr->update |= (PU_HP);
 			}
 
-			/* Change in INT may affect Mana/Spells */
-			else if (i == A_INT)
-			{
-				if (mp_ptr->spell_stat == A_INT)
-				{
-					p_ptr->update |= (PU_MANA | PU_SPELLS);
-				}
-			}
-
-			/* Change in WIS may affect Mana/Spells */
+			/* Change in WIS affects Sanity Points */
 			else if (i == A_WIS)
 			{
-				if (mp_ptr->spell_stat == A_WIS)
-				{
-                                        p_ptr->update |= (PU_MANA | PU_SPELLS | PU_SANITY);
-				}
+				p_ptr->update |= (PU_SANITY);
 			}
 
-                        /* Change in CHR may affect Mana/Spells */
-                        else if (i == A_CHR)
+			/* Change in spell stat affects Mana/Spells */
+			if (i == cp_ptr->spell_stat)
 			{
-                                if (mp_ptr->spell_stat == A_CHR)
-				{
-                                        p_ptr->update |= (PU_MANA | PU_SPELLS | PU_SANITY);
-				}
+				p_ptr->update |= (PU_MANA | PU_SPELLS);
 			}
 
 			/* Window stuff */
@@ -4273,24 +4142,22 @@ void calc_bonuses(void)
 		}
 	}
 
-   /* jk - add in the tactics */
+        /* jk - add in the tactics */
+        p_ptr->dis_to_h += tactic_info[(byte)p_ptr->tactic].to_hit;
+        p_ptr->to_h += tactic_info[(byte)p_ptr->tactic].to_hit;
+        p_ptr->dis_to_d += tactic_info[(byte)p_ptr->tactic].to_dam;
+        p_ptr->to_d += tactic_info[(byte)p_ptr->tactic].to_dam;
+        p_ptr->dis_to_a += tactic_info[(byte)p_ptr->tactic].to_ac;
+        p_ptr->to_a += tactic_info[(byte)p_ptr->tactic].to_ac;
 
-   p_ptr->dis_to_h += tactic_info[(byte)p_ptr->tactic].to_hit;
-   p_ptr->to_h += tactic_info[(byte)p_ptr->tactic].to_hit;
-   p_ptr->dis_to_d += tactic_info[(byte)p_ptr->tactic].to_dam;
-   p_ptr->to_d += tactic_info[(byte)p_ptr->tactic].to_dam;
-   p_ptr->dis_to_a += tactic_info[(byte)p_ptr->tactic].to_ac;
-   p_ptr->to_a += tactic_info[(byte)p_ptr->tactic].to_ac;
+        p_ptr->skill_stl += tactic_info[(byte)p_ptr->tactic].to_stealth;
+        p_ptr->skill_dis += tactic_info[(byte)p_ptr->tactic].to_disarm;
+        p_ptr->skill_sav += tactic_info[(byte)p_ptr->tactic].to_saving;
 
-   p_ptr->skill_stl += tactic_info[(byte)p_ptr->tactic].to_stealth;
-   p_ptr->skill_dis += tactic_info[(byte)p_ptr->tactic].to_disarm;
-   p_ptr->skill_sav += tactic_info[(byte)p_ptr->tactic].to_saving;
-
-   p_ptr->pspeed += move_info[(byte)p_ptr->movement].to_speed;
-   p_ptr->skill_srh += move_info[(byte)p_ptr->movement].to_search;
-   p_ptr->skill_fos += move_info[(byte)p_ptr->movement].to_percep;
-   p_ptr->skill_stl += move_info[(byte)p_ptr->movement].to_stealth;
-
+        p_ptr->pspeed += move_info[(byte)p_ptr->movement].to_speed;
+        p_ptr->skill_srh += move_info[(byte)p_ptr->movement].to_search;
+        p_ptr->skill_fos += move_info[(byte)p_ptr->movement].to_percep;
+        p_ptr->skill_stl += move_info[(byte)p_ptr->movement].to_stealth;
 
 	/* Apply temporary "stun" */
 	if (p_ptr->stun > 50)
@@ -4337,6 +4204,7 @@ void calc_bonuses(void)
         if (p_ptr->holy)
 	{
                 p_ptr->hold_life = TRUE;
+                p_ptr->luck_cur += 5;
 	}
 
 	/* Temporary blessing */
@@ -4555,7 +4423,6 @@ void calc_bonuses(void)
 	p_ptr->dis_to_h += ((int)(adj_dex_th[p_ptr->stat_ind[A_DEX]]) - 128);
 	p_ptr->dis_to_h += ((int)(adj_str_th[p_ptr->stat_ind[A_STR]]) - 128);
 
-
 	/* Redraw armor (if needed) */
 	if ((p_ptr->dis_ac != old_dis_ac) || (p_ptr->dis_to_a != old_dis_to_a))
 	{
@@ -4627,7 +4494,7 @@ void calc_bonuses(void)
 		}
 
                 /* Hack -- Reward High Level Archer */
-                if (p_ptr->pclass == CLASS_ARCHER)
+                if (cp_ptr->magic_key == MKEY_FORGING)
 		{
                         /* Extra shot at level 15 */
                         if (p_ptr->lev >= 15) p_ptr->num_fire++;
@@ -4642,29 +4509,9 @@ void calc_bonuses(void)
                         if (p_ptr->lev >= 25) p_ptr->xtra_might++;
 		}
 
-                /* Hack -- Reward Wood Elves */
-                if (p_ptr->prace == RACE_WOOD_ELF)
-		{
-                        p_ptr->xtra_might++;
-
-                        /* Even better if bow & high lvl */
-                        if ((p_ptr->tval_ammo == TV_ARROW) && (p_ptr->lev >= 25)) p_ptr->xtra_might++;
-		}
-
-		/*
-		 * Addendum -- also "Reward" high level warriors,
-		 * with _any_ missile weapon -- TY
-		 */
-		if (p_ptr->pclass == CLASS_WARRIOR &&
-		    (p_ptr->tval_ammo <= TV_BOLT) &&
-		    (p_ptr->tval_ammo >= TV_SHOT))
-		{
-			/* Extra shot at level 25 */
-			if (p_ptr->lev >= 25) p_ptr->num_fire++;
-
-			/* Extra shot at level 50 */
-			if (p_ptr->lev >= 50) p_ptr->num_fire++;
-		}
+                if ((p_ptr->tval_ammo == TV_ARROW) && (PRACE_FLAG(PR1_XTRA_MIGHT_BOW)) && (p_ptr->lev >= 25)) p_ptr->xtra_might++;
+                if ((p_ptr->tval_ammo == TV_BOLT) && (PRACE_FLAG(PR1_XTRA_MIGHT_XBOW)) && (p_ptr->lev >= 25)) p_ptr->xtra_might++;
+                if ((p_ptr->tval_ammo == TV_SHOT) && (PRACE_FLAG(PR1_XTRA_MIGHT_SLING)) && (p_ptr->lev >= 25)) p_ptr->xtra_might++;
 
 		/* Add in the "bonus shots" */
 		p_ptr->num_fire += extra_shots;
@@ -4734,33 +4581,22 @@ void calc_bonuses(void)
 		/* Add in the "bonus blows" */
 		p_ptr->num_blow += extra_blows;
 
-		switch (p_ptr->pclass)
-		{
-			case CLASS_WARRIOR: /* 3 extra blows */
-                        case CLASS_UNBELIEVER:
-				p_ptr->num_blow += (p_ptr->lev / 15);
-				break;
-			case CLASS_WARLOCK: /* 2 extra blows */
-				p_ptr->num_blow += (p_ptr->lev / 25);
-				break;
-                        case CLASS_PALADIN:
-			case CLASS_CHAOS_WARRIOR: /* 1 extra blow */
-				if (p_ptr->lev > 24) p_ptr->num_blow += 1;
-				break;
-			case CLASS_WEAPONMASTER:
-			/*
-			 * Weaponmasters only get 1 blow with weapons that
-			 * don't match their specialty. Otherwise, they get a
-			 * bonus of 1-3 blows (as per Warriors). -- Gumby
-			 */
-                                if (!is_weaponmaster_weapon())
-					p_ptr->num_blow = 1;
-                                else
-					p_ptr->num_blow += (p_ptr->lev / 15);
-				break;
-			default: /* no extra blows */
-				break;
-		}
+                p_ptr->num_blow += p_ptr->lev * cp_ptr->extra_blows / 50;
+
+
+                if (PRACE_FLAG2(PR2_BLADE_SPECIAL))
+                {
+                        /* Fighters get only one blow per turn when unarmed. */
+                        p_ptr->num_blow = 1;
+                }
+
+                if (PRACE_FLAGS(PR1_HACK_WEAPON))
+                {
+                        if (!is_weaponmaster_weapon())
+                                p_ptr->num_blow = 1;
+                        else
+                                p_ptr->num_blow += (p_ptr->lev / 15);
+                }
 
 		/* Require at least one blow */
 		if (p_ptr->num_blow < 1) p_ptr->num_blow = 1;
@@ -4799,7 +4635,21 @@ void calc_bonuses(void)
         }
 
 	/* Different calculation for monks with empty hands */
-	else if (p_ptr->pclass == CLASS_MONK && monk_empty_hands())
+        else if ((!p_ptr->body_monster) && (p_ptr->mimic_form == MIMIC_BEAR))
+	{
+		p_ptr->num_blow = 0;
+
+                p_ptr->num_blow += 2 + (p_ptr->lev / 5) + extra_blows;
+
+                p_ptr->to_h -= (p_ptr->lev / 5);
+                p_ptr->dis_to_h -= (p_ptr->lev / 5);
+
+                p_ptr->to_d += (p_ptr->lev / 2);
+                p_ptr->dis_to_d += (p_ptr->lev / 2);
+	}
+
+        /* Different calculation for bear form with empty hands */
+	else if ((PRACE_FLAGS(PR1_MONK_SPECIAL)) && monk_empty_hands())
 	{
 		p_ptr->num_blow = 0;
 
@@ -4829,45 +4679,48 @@ void calc_bonuses(void)
 	p_ptr->icky_wield = FALSE;
 	monk_armour_aux = FALSE;
 
-	/*
-	 * Bonuses to-hit and to-dam based on class. Was a series of if()
-	 * statements, but switches are *much* better. -- Gumby
-	 */
-	switch (p_ptr->pclass)
-	{
-                case CLASS_WARRIOR: case CLASS_UNBELIEVER:
-			p_ptr->to_h += (p_ptr->lev/5);
-			p_ptr->to_d += (p_ptr->lev/5);
-			p_ptr->dis_to_h += (p_ptr->lev/5);
-			p_ptr->dis_to_d += (p_ptr->lev/5);
-			break;
-                case CLASS_PALADIN:
-		case CLASS_CHAOS_WARRIOR:
-			p_ptr->to_h += (p_ptr->lev/10);
-			p_ptr->to_d += (p_ptr->lev/10);
-			p_ptr->dis_to_h += (p_ptr->lev/10);
-			p_ptr->dis_to_d += (p_ptr->lev/10);
-			break;
-		/*
-		 * Weaponmasters are fabulous with their preferred weapon
-		 * type and all other weapon types are 'icky'.
-		 */
-		case CLASS_WEAPONMASTER:
-                        if (!is_weaponmaster_weapon())
-			{
-				p_ptr->icky_wield = TRUE;
-			}
-                        else
-			{
-                                p_ptr->to_h += p_ptr->lev / 2;
-                                p_ptr->to_d += p_ptr->lev / 2;
-                                p_ptr->dis_to_h += p_ptr->lev / 2;
-                                p_ptr->dis_to_d += p_ptr->lev / 2;
-			}
-			break;
-		default: /* no bonuses */
-			break;
-	}
+        if (PRACE_FLAGS(PR1_HACK_WEAPON))
+        {
+                if (!is_weaponmaster_weapon())
+                {
+                        p_ptr->icky_wield = TRUE;
+                }
+                else
+                {
+                        p_ptr->to_h += p_ptr->lev / 2;
+                        p_ptr->to_d += p_ptr->lev / 2;
+                        p_ptr->dis_to_h += p_ptr->lev / 2;
+                        p_ptr->dis_to_d += p_ptr->lev / 2;
+                }
+        }
+
+        if (PRACE_FLAG2(PR2_BLADE_SPECIAL))
+        {
+                /* Get the armor weight */
+                int cur_wgt = 0;
+
+                cur_wgt += inventory[INVEN_BODY].weight;
+                cur_wgt += inventory[INVEN_HEAD].weight;
+                cur_wgt += inventory[INVEN_ARM].weight;
+                cur_wgt += inventory[INVEN_OUTER].weight;
+                cur_wgt += inventory[INVEN_HANDS].weight;
+                cur_wgt += inventory[INVEN_FEET].weight;
+
+                /* Base dodge chance */
+                p_ptr->dodge_chance = p_ptr->lev;
+
+                /* Armor weight bonus/penalty */
+                p_ptr->dodge_chance = p_ptr->dodge_chance * (adj_str_hold[p_ptr->stat_ind[A_STR]] +
+                                               adj_str_hold[p_ptr->stat_ind[A_DEX]]) / (1 + (40 * cur_wgt));
+
+                /* Encumberance bonus/penalty */
+                p_ptr->dodge_chance = p_ptr->dodge_chance * adj_str_wgt[p_ptr->stat_ind[A_STR]] / (1 + (50 *
+                                                                                     calc_total_weight()));
+        }
+        else
+        {
+                p_ptr->dodge_chance = 0;
+        }
 
         /* Parse all the weapons */
         i = 0;
@@ -4894,7 +4747,7 @@ void calc_bonuses(void)
                 }
 
                 /* Priest weapon penalty for non-blessed edged weapons */
-                if (((p_ptr->pclass == CLASS_PRIEST) && (!p_ptr->bless_blade) &&
+                if (((PRACE_FLAGS(PR1_BLESS_WEAPON)) && (!p_ptr->bless_blade) &&
                     ((o_ptr->tval == TV_AXE) || (o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_POLEARM))) && (o_ptr->k_idx))
                 {
                         /* Reduce the real bonuses */
@@ -4910,7 +4763,7 @@ void calc_bonuses(void)
                 }
 
                 /* Sorcerer can't wield a weapon unless it's a mage staff */
-                if (p_ptr->pclass == CLASS_SORCERER)
+                if (PRACE_FLAGS(PR1_INNATE_SPELLS))
                 {
                         if ((o_ptr->tval != TV_MSTAFF) && (o_ptr->k_idx))
                         {
@@ -4950,14 +4803,9 @@ void calc_bonuses(void)
 	/* while Rangers and Monks get one every 10 levels. */
         if (!p_ptr->aggravate)
 	{
-		if (p_ptr->pclass == CLASS_ROGUE)
+		if (PRACE_FLAGS(PR1_BACKSTAB))
 		{
 			p_ptr->skill_stl += (p_ptr->lev/5);   /* give a stealth bonus */
-		}
-
-		if (p_ptr->pclass == CLASS_RANGER || p_ptr->pclass == CLASS_MONK) 
-		{
-			p_ptr->skill_stl += (p_ptr->lev/10); /* give a stealth bonus */
 		}
 	}
 
@@ -5067,7 +4915,7 @@ void calc_bonuses(void)
 		/* Message */
 		if (p_ptr->icky_wield)
 		{
-			if (p_ptr->pclass == CLASS_WEAPONMASTER)
+			if (PRACE_FLAGS(PR1_HACK_WEAPON))
 				msg_print("You feel uncomfortable without your preferred weapon.");
 			else
 				msg_print("You do not feel comfortable with your weapon.");
@@ -5085,7 +4933,7 @@ void calc_bonuses(void)
 		p_ptr->old_icky_wield = p_ptr->icky_wield;
 	}
 
-	if (p_ptr->pclass == CLASS_MONK && (monk_armour_aux != monk_notify_aux))
+	if ((PRACE_FLAGS(PR1_MONK_SPECIAL)) && (monk_armour_aux != monk_notify_aux))
 	{
 		if (monk_heavy_armor())
 			msg_print("The weight of your armor disrupts your balance.");
@@ -5301,8 +5149,8 @@ void redraw_stuff(void)
 	if (p_ptr->redraw & (PR_MISC))
 	{
 		p_ptr->redraw &= ~(PR_MISC);
-                prt_field(rp_ptr->title, ROW_RACE, COL_RACE);
-		prt_field(cp_ptr->title, ROW_CLASS, COL_CLASS);
+                prt_field(rp_ptr->title + rp_name, ROW_RACE, COL_RACE);
+		prt_field(cp_ptr->title + c_name, ROW_CLASS, COL_CLASS);
 	}
 
 	if (p_ptr->redraw & (PR_TITLE))
@@ -5531,6 +5379,13 @@ void window_stuff(void)
 	}
 
 	/* Display overhead view */
+        if (p_ptr->window & (PW_IRC))
+	{
+                p_ptr->window &= ~(PW_IRC);
+                fix_irc_message();
+	}
+
+	/* Display overhead view */
 	if (p_ptr->window & (PW_OVERHEAD))
 	{
 		p_ptr->window &= ~(PW_OVERHEAD);
@@ -5574,7 +5429,7 @@ bool monk_empty_hands(void)
         int i;
         object_type *o_ptr;
 
-	if (!(p_ptr->pclass == CLASS_MONK)) return FALSE;
+	if (!(PRACE_FLAGS(PR1_MONK_SPECIAL))) return FALSE;
 
         i = 0;
         while (p_ptr->body_parts[i] == INVEN_WIELD)
@@ -5593,7 +5448,7 @@ bool monk_heavy_armor(void)
 {
 	u16b monk_arm_wgt = 0;
 
-	if (!(p_ptr->pclass == CLASS_MONK)) return FALSE;
+	if (!(PRACE_FLAGS(PR1_MONK_SPECIAL))) return FALSE;
 
 	/* Weight the armor */
 	monk_arm_wgt += inventory[INVEN_BODY].weight;
@@ -5611,7 +5466,7 @@ bool beastmaster_whip()
 	object_type *o_ptr;
         int i;
 
-        if(p_ptr->pclass!=CLASS_BEASTMASTER)return FALSE;
+        if (cp_ptr->powers[0] != PWR_SUMMON_MONSTER) return FALSE;
 
         i = 0;
         while (p_ptr->body_parts[i] == INVEN_WIELD)
@@ -5638,27 +5493,44 @@ bool beastmaster_whip()
         return FALSE;
 }
 
-int get_artifact_idx(int level)
+static int get_artifact_idx(int level)
 {
         int count = 0, i;
         bool OK = FALSE;
 
-        while(count < 1000)
+        while (count < 1000)
         {
                 artifact_type *a_ptr; 
 
                 count++;
                 i = randint(max_a_idx-1);
                 a_ptr = &a_info[i];
+                if (!a_ptr->tval) continue;
 
-                if(!a_ptr->tval) continue;
-                if(a_ptr->cur_num) continue;
-                if(a_ptr->level > level) continue;
+		/* It is found/lost */
+                if (a_ptr->cur_num) continue;
+
+		/* OoD */
+                if (a_ptr->level > level) continue;
+
+		/* Avoid granting SPECIAL_GENE artifacts */
+		if (a_ptr->flags4 & TR4_SPECIAL_GENE) continue;
 
                 OK = TRUE;
                 break;
         }
-        if(OK == FALSE) i = 1; /* The Phial */
+
+	/* No matches found */
+        if (OK == FALSE)
+	{
+#if 0 /* pelpel */
+		/* XXX XXX XXX Grant the Phial */
+		i = 1;
+#endif /* pelpel */
+
+		/* Grant a randart */
+		i = 0;
+	}
 
         return i;
 }
@@ -5681,9 +5553,10 @@ void gain_fate(byte fate)
                         if(fate)
                                 fates[i].fate = fate;
                         else
-                                switch(rand_int(18))
+                                /* If lucky avoid death fate */
+                                switch(rand_int(18 - luck(0, 1)))
                                 {
-                                        case 0:case 2:case 3:case 7:case 8:case 9:
+                                        case 6:case 2:case 3:case 7:case 8:case 9:
                                         case 13:
                                                 fates[i].fate = FATE_FIND_O;
                                                 break;
@@ -5694,10 +5567,10 @@ void gain_fate(byte fate)
                                         case 15:case 16:
                                                 fates[i].fate = FATE_FIND_A;
                                                 break;
-                                        case 6:
+                                        case 17:
                                                 fates[i].fate = FATE_DIE;
                                                 break;
-                                        case 17:
+                                        case 0:
                                         {
                                                 /* The deepest the better */
                                                 int chance = dun_level / 4;
@@ -5725,8 +5598,26 @@ void gain_fate(byte fate)
                                         while (TRUE)
                                         {
                                                 object_kind *k_ptr;
+						obj_theme theme;
+
+						/* No themes */
+						theme.treasure = 100;
+						theme.combat = 100;
+						theme.magic = 100;
+						theme.tools = 100;
+						init_match_theme(theme);
+
+						/* Apply restriction */
+						get_obj_num_hook = kind_is_legal;
+
+						/* Rebuild allocation table */
+						get_obj_num_prep();
 
                                                 fates[i].o_idx = get_obj_num(max_dlv[dungeon_type] + randint(10));
+
+						/* Invalidate the cached allocation table */
+						alloc_kind_table_valid = FALSE;
+
                                                 k_ptr = &k_info[fates[i].o_idx];
 
                                                 if (!(k_ptr->flags3 & TR3_INSTA_ART) && !(k_ptr->flags3 & TR3_NORM_ART)) break;
@@ -5813,37 +5704,47 @@ void fate_desc(char *desc, int fate)
 			artifact_type *a_ptr = &a_info[fates[fate].a_idx];
 			int I_kind;
 
-			/* Get local object */
-			q_ptr = &forge;
+			/* Failed artefact allocation XXX XXX XXX */
+			if (fates[fate].a_idx == 0)
+			{
+				strcpy(o_name, "something special");
+			}
 
-			/* Wipe the object */
-			object_wipe(q_ptr);
+			/* Legal artefacts */
+			else
+			{
+				/* Get local object */
+				q_ptr = &forge;
 
-			/* Acquire the "kind" index */
-			I_kind = lookup_kind(a_ptr->tval, a_ptr->sval);
+				/* Wipe the object */
+				object_wipe(q_ptr);
 
-			/* Create the artifact */
-			object_prep(q_ptr, I_kind);
+				/* Acquire the "kind" index */
+				I_kind = lookup_kind(a_ptr->tval, a_ptr->sval);
 
-			/* Save the name */
-			q_ptr->name1 = fates[fate].a_idx;
+				/* Create the artifact */
+				object_prep(q_ptr, I_kind);
 
-			/* Extract the fields */
-			q_ptr->pval = a_ptr->pval;
-			q_ptr->ac = a_ptr->ac;
-			q_ptr->dd = a_ptr->dd;
-			q_ptr->ds = a_ptr->ds;
-			q_ptr->to_a = a_ptr->to_a;
-			q_ptr->to_h = a_ptr->to_h;
-			q_ptr->to_d = a_ptr->to_d;
-			q_ptr->weight = a_ptr->weight;
+				/* Save the name */
+				q_ptr->name1 = fates[fate].a_idx;
 
-			/* Hack -- acquire "cursed" flag */
-			if (a_ptr->flags3 & (TR3_CURSED)) q_ptr->ident |= (IDENT_CURSED);
+				/* Extract the fields */
+				q_ptr->pval = a_ptr->pval;
+				q_ptr->ac = a_ptr->ac;
+				q_ptr->dd = a_ptr->dd;
+				q_ptr->ds = a_ptr->ds;
+				q_ptr->to_a = a_ptr->to_a;
+				q_ptr->to_h = a_ptr->to_h;
+				q_ptr->to_d = a_ptr->to_d;
+				q_ptr->weight = a_ptr->weight;
 
-			random_artifact_resistance(q_ptr);
+				/* Hack -- acquire "cursed" flag */
+				if (a_ptr->flags3 & (TR3_CURSED)) q_ptr->ident |= (IDENT_CURSED);
 
-			object_desc_store(o_name, q_ptr, 1, 0);
+				random_artifact_resistance(q_ptr);
+
+				object_desc_store(o_name, q_ptr, 1, 0);
+			}
 
 			sprintf(buf, "find %s on level %d.", o_name, fates[fate].level);
 			strcat(desc, buf);
@@ -5872,19 +5773,37 @@ void fate_desc(char *desc, int fate)
 	}
 }
 
-void dump_fates(FILE *OutFile)
+void dump_fates(FILE *outfile)
 {
 	int i;
 	char buf[120];
 
-	if (!OutFile) return;
+        if (!outfile) return;
 
 	for (i = 0; i < MAX_FATES; i++)
 	{
 		if((fates[i].fate) && (fates[i].know))
 		{
 			fate_desc(buf, i);
-			fprintf(OutFile, "%s\n", buf);
+                        fprintf(outfile, "%s\n", buf);
 		}
 	}
+}
+
+/*
+ * Return a luck number between a certain range
+ */
+int luck(int min, int max)
+{
+        int luck = p_ptr->luck_cur;
+        int range = max - min;
+
+        if (luck < -30) luck = -30;
+        if (luck > 30) luck = 30;
+        luck += 30;
+
+        luck *= range;
+        luck /= 60;
+
+        return (luck + min);
 }

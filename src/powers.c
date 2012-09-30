@@ -173,6 +173,11 @@ static void power_activate(int power)
 
         switch(power)
 	{
+                case PWR_BEAR:
+			{
+                                set_mimic(150 + (p_ptr->lev * 10) , MIMIC_BEAR);
+			}
+			break;
                 case PWR_COMPANION:
 			{
                                 if (!can_create_companion())
@@ -1137,7 +1142,7 @@ static void power_activate(int power)
 
                                 if (o_ptr->tval == TV_ROD_MAIN)
 				{
-                                        if (o_ptr->timeout > 0)
+                                        if (!o_ptr->timeout)
 					{
 						msg_print("You can't absorb energy from a discharged rod.");
 					}
@@ -1299,11 +1304,16 @@ static void power_activate(int power)
 					do_cmd_throw();
 					throw_mult = 1;
 				}
-				break;
-
-		default:
-                        msg_format("Warning power_activate() called with invalid power(%d).", power);
-			energy_use = 0;
+                                break;
+                        case PWR_DODGE:
+                                use_ability_blade();
+                                break;
+                        default:
+                                if (!process_hooks(HOOK_ACTIVATE_POWER, "(d)", power))
+                                {
+                                        msg_format("Warning power_activate() called with invalid power(%d).", power);
+                                        energy_use = 0;
+                                }
         }
 
 	p_ptr->redraw |= (PR_HP | PR_MANA);
@@ -1349,12 +1359,13 @@ static power_type* select_power(int *x_idx)
         int max = 0, i, start = 0;
         power_type* ret;
         bool mode = FALSE;
-        int p[POWER_MAX];
+        int *p;
 
+        C_MAKE(p, power_max, int);
         /* Count the max */
-        for (i = 0; i < POWER_MAX; i++)
+        for (i = 0; i < power_max; i++)
         {
-                if (p_ptr->powers[i / 32] & BIT(i % 32))
+                if (p_ptr->powers[i])
                 {
                         p[max++] = i;
                 }
@@ -1416,6 +1427,8 @@ static power_type* select_power(int *x_idx)
         Term_load();
 	character_icky = FALSE;
 
+        C_FREE(p, power_max, int);
+
         return ret;
 }
   
@@ -1429,13 +1442,13 @@ void do_cmd_power()
         else
         {
                 x_idx = command_arg - 1;
-                if ((x_idx < 0) || (x_idx >= POWER_MAX)) return;
+                if ((x_idx < 0) || (x_idx >= power_max)) return;
                 x_ptr = &powers_type[x_idx];
         }
 
         if (x_ptr == NULL) return;
 
-        if (p_ptr->powers[x_idx / 32] & BIT(x_idx % 32))
+        if (p_ptr->powers[x_idx])
                 power_activate(x_idx);
         else
                 msg_print("You do not have access to this power.");

@@ -739,6 +739,36 @@ void reset_visuals(void)
 		r_ptr->x_char = r_ptr->d_char;
 	}
 
+	/* Reset attr/char code for ego monster overlay graphics */
+	for (i = 0; i < max_re_idx; i++)
+	{
+		monster_ego *re_ptr = &re_info[i];
+
+		/* Default attr/char */
+		re_ptr->g_attr = 0;
+		re_ptr->g_char = 0;
+	}
+
+	/* Reset attr/char code for race modifier overlay graphics */
+	for (i = 0; i < max_rmp_idx; i++)
+	{
+		player_race_mod *rmp_ptr = &race_mod_info[i];
+
+		/* Default attr/char */
+		rmp_ptr->g_attr = 0;
+		rmp_ptr->g_char = 0;
+	}
+
+	/* Reset attr/char code for trap overlay graphics */
+	for (i = 0; i < max_rmp_idx; i++)
+	{
+		trap_type *t_ptr = &t_info[i];
+
+		/* Default attr/char */
+		t_ptr->g_attr = 0;
+		t_ptr->g_char = 0;
+	}
+
 
 	if (use_graphics)
 	{
@@ -769,6 +799,7 @@ void reset_visuals(void)
 /*
  * Obtain the "flags" for an item
  */
+bool object_flags_no_set = FALSE;
 void object_flags(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3, u32b *f4, u32b *f5, u32b *esp)
 {
 	object_kind *k_ptr = &k_info[o_ptr->k_idx];
@@ -792,6 +823,9 @@ void object_flags(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3, u32b *f4, u3
                 (*f4) = a_ptr->flags4;
                 (*f5) = a_ptr->flags5;
                 (*esp) = a_ptr->esp;
+
+                if ((!object_flags_no_set) && (a_ptr->set != -1))
+                        apply_flags_set(o_ptr->name1, a_ptr->set, f1, f2, f3, f4, f5, esp);
 	}
 
 	/* Random artifact ! */
@@ -953,6 +987,9 @@ void object_flags_known(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3, u32b *
                 (*f4) = a_ptr->flags4;
                 (*f5) = a_ptr->flags5;
                 (*esp) = a_ptr->esp;
+
+                if ((!object_flags_no_set) && (a_ptr->set != -1))
+                        apply_flags_set(o_ptr->name1, a_ptr->set, f1, f2, f3, f4, f5, esp);
 	}
 
 	/* Random artifact ! */
@@ -1208,6 +1245,7 @@ static char *object_desc_int(char *t, sint v)
  */
 void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 {
+        bool            hack_name = FALSE;
 	cptr            basenm, modstr;
 	int                     power, indexx;
 
@@ -1388,6 +1426,11 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
                                 basenm = "& Rod Tip~";
 			else
                                 basenm = aware ? "& # Rod Tip~" : "& # Rod Tip~";
+                        if (o_ptr->sval == SV_ROD_HOME)
+                        {
+                                basenm = "& Great Rod Tip~ of Home Summoning";
+                                hack_name = TRUE;
+                        }
 			break;
 		}
 
@@ -1452,7 +1495,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 
         case TV_VALARIN_BOOK:
 		modstr = basenm;
-                if (mp_ptr->spell_book == TV_VALARIN_BOOK)
+                if (cp_ptr->spell_book == TV_VALARIN_BOOK)
                         basenm = "& Book~ of Valarin Magic #";
 		else
                         basenm = "& Valarin Spellbook~ #";
@@ -1461,7 +1504,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
         case TV_MAGERY_BOOK:
 		{
 			modstr = basenm;
-            if(mp_ptr->spell_book == TV_VALARIN_BOOK)
+            if(cp_ptr->spell_book == TV_VALARIN_BOOK)
                 basenm = "& Book~ of Magery #";
             else
                 basenm = "& Magery Spellbook~ #";
@@ -1471,7 +1514,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
         case TV_SHADOW_BOOK:
 		{
 			modstr = basenm;
-            if(mp_ptr->spell_book == TV_VALARIN_BOOK)
+            if(cp_ptr->spell_book == TV_VALARIN_BOOK)
                 basenm = "& Book~ of Shadow Magic #";
             else
                 basenm = "& Shadow Spellbook~ #";
@@ -1481,7 +1524,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
         case TV_SPIRIT_BOOK:
 		{
 			modstr = basenm;
-            if(mp_ptr->spell_book == TV_VALARIN_BOOK)
+            if(cp_ptr->spell_book == TV_VALARIN_BOOK)
                 basenm = "& Book~ of Spirit Magic #";
             else
                 basenm = "& Spirit Spellbook~ #";
@@ -1491,7 +1534,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	case TV_CHAOS_BOOK:
 		{
 			modstr = basenm;
-            if(mp_ptr->spell_book == TV_VALARIN_BOOK)
+            if(cp_ptr->spell_book == TV_VALARIN_BOOK)
                 basenm = "& Book~ of Chaos Magic #";
             else
                 basenm = "& Chaos Spellbook~ #";
@@ -1500,7 +1543,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
         case TV_NETHER_BOOK:
 		{
 			modstr = basenm;
-            if(mp_ptr->spell_book == TV_VALARIN_BOOK)
+            if(cp_ptr->spell_book == TV_VALARIN_BOOK)
                 basenm = "& Book~ of Nether Magic #";
             else
                 basenm = "& Nether Spellbook~ #";
@@ -1511,7 +1554,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
     case TV_CRUSADE_BOOK:
 		{
 			modstr = basenm;
-            if(mp_ptr->spell_book == TV_VALARIN_BOOK)
+            if(cp_ptr->spell_book == TV_VALARIN_BOOK)
                 basenm = "& Crusade Book~ #";
             else
                 basenm = "& Crusade Spellbook~ #";
@@ -1521,7 +1564,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
     case TV_SIGALDRY_BOOK:
 		{
 			modstr = basenm;
-            if(mp_ptr->spell_book == TV_VALARIN_BOOK)
+            if(cp_ptr->spell_book == TV_VALARIN_BOOK)
                 basenm = "& Book~ of Sigaldry Magic #";
             else
                 basenm = "& Sigaldry Spellbook~ #";
@@ -1531,7 +1574,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
     case TV_SYMBIOTIC_BOOK:
 		{
 			modstr = basenm;
-            if(mp_ptr->spell_book == TV_VALARIN_BOOK)
+            if(cp_ptr->spell_book == TV_VALARIN_BOOK)
                 basenm = "& Book~ of Symbiotic Magic #";
             else
                 basenm = "& Symbiotic Spellbook~ #";
@@ -1641,57 +1684,82 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
                 {
                         monster_race* r_ptr = &r_info[o_ptr->pval];
 			modstr = basenm;
-                        basenm = format("& %s~ (%d hp)",r_name + r_ptr->name,o_ptr->pval2);
+                        basenm = format("& %s~ (%d hp)", r_name + r_ptr->name,o_ptr->pval2);
                         break;
                 }
 
-	case TV_RANDART:
-	  {
-	    modstr = basenm;
+                case TV_TOTEM:
+                {
+                        monster_race* r_ptr = &r_info[o_ptr->pval];
+                        modstr = basenm;
+                        if (o_ptr->pval2)
+                        {
+                                if (re_info[o_ptr->pval2].before)
+                                        basenm = format("& #~ of %s %s", re_name + re_info[o_ptr->pval2].name, r_name + r_ptr->name);
+                                else
+                                        basenm = format("& #~ of %s %s", r_name + r_ptr->name, re_name + re_info[o_ptr->pval2].name);
+                        }
+                        else
+                                basenm = format("& #~ of %s", r_name + r_ptr->name);
+                        break;
+                }
 
-	    if (known) {
-	      basenm = random_artifacts[indexx].name_full;
-	    } else {
-	      basenm = random_artifacts[indexx].name_short;
-	    }
-            pref = FALSE;
-	    break;
-	  }
+        case TV_RANDART:
+                {
+                        modstr = basenm;
 
-                case TV_RUNE2:
-		{
+                        if (known) {
+                                basenm = random_artifacts[indexx].name_full;
+                        } else {
+                                basenm = random_artifacts[indexx].name_short;
+                        }
+                        pref = FALSE;
+                        break;
+                }
+
+        case TV_RUNE2:
+                {
                         if (o_ptr->sval != RUNE_STONE)
                         {
                                 modstr = basenm;
                                 basenm = "& Rune~ [#]";
                         }
                         break;
-		}
-                case TV_RUNE1:
-		{
-			modstr = basenm;
+                }
+        case TV_RUNE1:
+                {
+                        modstr = basenm;
                         basenm = "& Rune~ [#]";
-			break;
+                        break;
 		}
 
 
-			/* Used in the "inventory" routine */
-		default:
-		{
-			strcpy(buf, "(nothing)");
-			return;
-		}
-	}
+                /* Used in the "inventory" routine */
+        default:
+                {
+                        if (process_hooks_ret(HOOK_ITEM_NAME, "ss", "(O,s,s)", o_ptr, basenm, modstr))
+                        {
+                                basenm = process_hooks_return[0].str;
+                                modstr = process_hooks_return[1].str;
+                                break;
+                        }
+                        else
+                        {
+                                strcpy(buf, "(nothing)");
+                                return;
+                        }
+                }
+        }
 
         /* Mega Hack */
-        if (known && (k_ptr->flags3 & TR3_NORM_ART)) basenm = (k_name + k_ptr->name);
+        if ((!hack_name) && known && (k_ptr->flags5 & TR5_FULL_NAME)) basenm = (k_name + k_ptr->name);
 
 
 	/* Start dumping the result */
 	t = tmp_val;
 
 	/* The object "expects" a "number" */
-	if (basenm[0] == '&')
+        if (basenm[0] == '&')
 	{
                 monster_race* r_ptr;
                 cptr ego = NULL;
@@ -1957,8 +2025,12 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
                 {
                         artifact_type *a_ptr = &a_info[o_ptr->name1];
 
-                        t = object_desc_chr(t, ' ');
-                        t = object_desc_str(t, (a_name + a_ptr->name));
+			/* Unique corpses don't require another name */
+			if (o_ptr->tval != TV_CORPSE)
+			{
+				t = object_desc_chr(t, ' ');
+				t = object_desc_str(t, (a_name + a_ptr->name));
+			}
                 }
 
 		/* Grab any ego-item name */
@@ -2320,7 +2392,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 
 
 	/* Indicate "charging" artifacts XXX XXX XXX */
-        if (known && o_ptr->timeout && (!is_ego_p(o_ptr, EGO_MSTAFF_SPELL)) && (o_ptr->tval!=TV_EGG) && (o_ptr->tval != TV_ROD_MAIN) && (o_ptr->tval != TV_LITE))
+        if (known && (f3 & TR3_ACTIVATE) && o_ptr->timeout)
 	{
 		/* Hack -- Dump " (charging)" if relevant */
 		t = object_desc_str(t, " (charging)");
@@ -3280,64 +3352,68 @@ cptr item_activation(object_type *o_ptr, byte num)
 	}
 
 	/* Require dragon scale mail */
-	if (o_ptr->tval != TV_DRAG_ARMOR) return (NULL);
-
-	/* Branch on the sub-type */
-	switch (o_ptr->sval)
-	{
-		case SV_DRAGON_BLUE:
-		{
-                        return "breathe lightning (100) every 90+d90 turns";
-		}
-		case SV_DRAGON_WHITE:
-		{
-                        return "breathe frost (110) every 90+d90 turns";
-		}
-		case SV_DRAGON_BLACK:
-		{
-                        return "breathe acid (130) every 90+d90 turns";
-		}
-		case SV_DRAGON_GREEN:
-		{
-                        return "breathe poison gas (150) every 90+d90 turns";
-		}
-		case SV_DRAGON_RED:
-		{
-                        return "breathe fire (200) every 90+d90 turns";
-		}
-		case SV_DRAGON_MULTIHUED:
-		{
-                        return "breathe multi-hued (250) every 60+d60 turns";
-		}
-		case SV_DRAGON_BRONZE:
-		{
-                        return "breathe confusion (120) every 90+d90 turns";
-		}
-		case SV_DRAGON_GOLD:
-		{
-                        return "breathe sound (130) every 90+d90 turns";
-		}
-		case SV_DRAGON_CHAOS:
-		{
-                        return "breathe chaos/disenchant (220) every 90+d60 turns";
-		}
+        if (o_ptr->tval == TV_DRAG_ARMOR)
+        {
+                /* Branch on the sub-type */
+                switch (o_ptr->sval)
+                {
+                case SV_DRAGON_BLUE:
+                        {
+                                return "breathe lightning (100) every 90+d90 turns";
+                        }
+                case SV_DRAGON_WHITE:
+                        {
+                                return "breathe frost (110) every 90+d90 turns";
+                        }
+                case SV_DRAGON_BLACK:
+                        {
+                                return "breathe acid (130) every 90+d90 turns";
+                        }
+                case SV_DRAGON_GREEN:
+                        {
+                                return "breathe poison gas (150) every 90+d90 turns";
+                        }
+                case SV_DRAGON_RED:
+                        {
+                                return "breathe fire (200) every 90+d90 turns";
+                        }
+                case SV_DRAGON_MULTIHUED:
+                        {
+                                return "breathe multi-hued (250) every 60+d60 turns";
+                        }
+                case SV_DRAGON_BRONZE:
+                        {
+                                return "breathe confusion (120) every 90+d90 turns";
+                        }
+                case SV_DRAGON_GOLD:
+                        {
+                                return "breathe sound (130) every 90+d90 turns";
+                        }
+                case SV_DRAGON_CHAOS:
+                        {
+                                return "breathe chaos/disenchant (220) every 90+d60 turns";
+                        }
 		case SV_DRAGON_LAW:
-		{
-                        return "breathe sound/shards (230) every 90+d60 turns";
-		}
-		case SV_DRAGON_BALANCE:
-		{
-                        return "breathe balance (250) every 90+d60 turns";
-		}
-		case SV_DRAGON_SHINING:
-		{
-                        return "breathe light/darkness (200) every 90+d60 turns";
-		}
-		case SV_DRAGON_POWER:
-		{
-                        return "breathe the elements (300) every 90+d60 turns";
-		}
-	}
+                        {
+                                return "breathe sound/shards (230) every 90+d60 turns";
+                        }
+                case SV_DRAGON_BALANCE:
+                        {
+                                return "breathe balance (250) every 90+d60 turns";
+                        }
+                case SV_DRAGON_SHINING:
+                        {
+                                return "breathe light/darkness (200) every 90+d60 turns";
+                        }
+                case SV_DRAGON_POWER:
+                        {
+                                return "breathe the elements (300) every 90+d60 turns";
+                        }
+                }
+        }
+
+        if (process_hooks_ret(HOOK_ACTIVATE_DESC, "s", "(d,d,d,d)", o_ptr->tval, o_ptr->sval, o_ptr->name1, o_ptr->name2))
+                return (process_hooks_return[0].str);
 
 	/* Oops */
 	return NULL;
@@ -3407,16 +3483,23 @@ bool identify_fully_aux(object_type *o_ptr, FILE *fff)
         u32b f1, f2, f3, f4, f5, esp;
 
         cptr            info[400];
+        byte            color[400];
 
 
 	/* Extract the flags */
         object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
+
+        /* All white */
+        for (j = 0; j < 400; j++)
+                color[j] = TERM_WHITE;
 
         /* No need to dump that */
         if (fff == NULL)
         {
                 i = grab_tval_desc(o_ptr->tval, info, 0);
                 if ((fff == NULL) && i) info[i++] = "";
+                for (j = 0; j < i; j++)
+                        color[j] = TERM_L_BLUE;
         }
 
         if (o_ptr->k_idx)
@@ -3441,6 +3524,7 @@ bool identify_fully_aux(object_type *o_ptr, FILE *fff)
                         if (n < 60)
                         {
                                 /* Save one line of history */
+                                color[i] = TERM_ORANGE;
                                 info[i++] = s;
 
                                 /* All done */
@@ -3457,6 +3541,7 @@ bool identify_fully_aux(object_type *o_ptr, FILE *fff)
                         while ((n > 0) && (s[n-1] == ' ')) s[--n] = '\0';
 
                         /* Save one line of history */
+                        color[i] = TERM_ORANGE;
                         info[i++] = s;
 
                         s = t;
@@ -3473,7 +3558,6 @@ bool identify_fully_aux(object_type *o_ptr, FILE *fff)
                 int n, oi = i;
                 artifact_type *a_ptr = &a_info[o_ptr->name1];
 			   
-	        a_ptr = &a_info[o_ptr->name1];
 		strcpy (buff2, a_text + a_ptr->text);
 
 		s = buff2;
@@ -3489,6 +3573,7 @@ bool identify_fully_aux(object_type *o_ptr, FILE *fff)
                         if (n < 60)
                         {
                                 /* Save one line of history */
+                                color[i] = TERM_YELLOW;
                                 info[i++] = s;
 
                                 /* All done */
@@ -3505,6 +3590,7 @@ bool identify_fully_aux(object_type *o_ptr, FILE *fff)
                         while ((n > 0) && (s[n-1] == ' ')) s[--n] = '\0';
 
                         /* Save one line of history */
+                        color[i] = TERM_YELLOW;
                         info[i++] = s;
 
                         s = t;
@@ -3512,23 +3598,85 @@ bool identify_fully_aux(object_type *o_ptr, FILE *fff)
 
                 /* Add a blank line */
                 if ((fff == NULL) && (oi < i)) info[i++] = "";
-	}
+
+                if (a_ptr->set != -1)
+                {
+                        char buff2[400], *s, *t;
+                        int n;
+                        set_type *set_ptr = &set_info[a_ptr->set];
+
+                        strcpy (buff2, set_text + set_ptr->desc);
+
+                        s = buff2;
+
+                        /* Collect the history */
+                        while (TRUE)
+                        {
+
+                                /* Extract remaining length */
+                                n = strlen(s);
+
+                                /* All done */
+                                if (n < 60)
+                                {
+                                        /* Save one line of history */
+                                        color[i] = TERM_GREEN;
+                                        info[i++] = s;
+
+                                        /* All done */
+                                        break;
+                                }
+
+                                /* Find a reasonable break-point */
+                                for (n = 60; ((n > 0) && (s[n-1] != ' ')); n--) /* loop */;
+
+                                /* Save next location */
+                                t = s + n;
+
+                                /* Wipe trailing spaces */
+                                while ((n > 0) && (s[n-1] == ' ')) s[--n] = '\0';
+
+                                /* Save one line of history */
+                                color[i] = TERM_GREEN;
+                                info[i++] = s;
+
+                                s = t;
+                        }
+
+                        /* Add a blank line */
+                        info[i++] = "";
+                }
+        }
 
         if (f4 & TR4_LEVELS)
         {
                 int j = 0;
 
+                color[i] = TERM_VIOLET;
                 if (count_bits(o_ptr->pval3) == 0) info[i++] = "It is sentient.";
                 else if (count_bits(o_ptr->pval3) > 1) info[i++] = "It is sentient and can have access to the realms of:";
                 else  info[i++] = "It is sentient and can have access to the realm of:";
 
                 for (j = 0; j < MAX_FLAG_GROUP; j++)
                 {
-                        if (BIT(j) & o_ptr->pval3) info[i++] = flags_groups[j].name;
+                        if (BIT(j) & o_ptr->pval3)
+                        {
+                                color[i] = flags_groups[j].color;
+                                info[i++] = flags_groups[j].name;
+                        }
                 }
 
                 /* Add a blank line */
                 info[i++] = "";
+        }
+
+        if (f4 & TR4_ULTIMATE)
+        {
+                color[i] = TERM_VIOLET;
+                if (wield_slot(o_ptr) == INVEN_WIELD)
+                        info[i++] = "It is part of the trinity of the ultimate weapons.";
+                else
+                        info[i++] = "It is the ultimate armor.";
         }
 
         if (f4 & TR4_COULD2H) info[i++] = "It can be wielded two-handed.";
@@ -3540,10 +3688,12 @@ bool identify_fully_aux(object_type *o_ptr, FILE *fff)
 		info[i++] = "It can be activated for...";
                 if (is_ego_p(o_ptr, EGO_MSTAFF_SPELL))
                 {
-                        info[i++] = item_activation(o_ptr,1);
+                        info[i++] = item_activation(o_ptr, 0);
                         info[i++] = "And...";
+                        info[i++] = item_activation(o_ptr, 1);
                 }
-                info[i++] = item_activation(o_ptr,0);
+                else
+                        info[i++] = item_activation(o_ptr, 0);
 
 		/* Mega-hack -- get rid of useless line for randarts */
                 if (o_ptr->tval != TV_RANDART){
@@ -3646,6 +3796,10 @@ bool identify_fully_aux(object_type *o_ptr, FILE *fff)
         if (f5 & (TR5_CRIT))
 	{
                 info[i++] = "It affects your ability to score critical hits.";
+	}
+        if (f5 & (TR5_LUCK))
+	{
+                info[i++] = "It affects your luck.";
 	}
 
 	if (f1 & (TR1_BRAND_ACID))
@@ -4065,22 +4219,6 @@ bool identify_fully_aux(object_type *o_ptr, FILE *fff)
 		info[i++] = "It carries an ancient foul curse.";
 	}
 
-	if (f3 & (TR3_IGNORE_ACID))
-	{
-		info[i++] = "It cannot be harmed by acid.";
-	}
-	if (f3 & (TR3_IGNORE_ELEC))
-	{
-		info[i++] = "It cannot be harmed by electricity.";
-	}
-	if (f3 & (TR3_IGNORE_FIRE))
-	{
-		info[i++] = "It cannot be harmed by fire.";
-	}
-	if (f3 & (TR3_IGNORE_COLD))
-	{
-		info[i++] = "It cannot be harmed by cold.";
-	}
         if (f4 & (TR4_DG_CURSE))
 	{
                 info[i++] = "It carries an ancient morgothian curse.";
@@ -4114,6 +4252,30 @@ bool identify_fully_aux(object_type *o_ptr, FILE *fff)
                 info[i++] = "It regenerates its mana faster.";
 	}
 
+        if ((f3 & (TR3_IGNORE_ACID)) && (f3 & (TR3_IGNORE_FIRE)) && (f3 & (TR3_IGNORE_COLD)) && (f3 & (TR3_IGNORE_ELEC)))
+        {
+                info[i++] = "It cannot be harmed by acid, cold, lightning or fire.";
+        }
+        else
+        {
+                if (f3 & (TR3_IGNORE_ACID))
+                {
+                        info[i++] = "It cannot be harmed by acid.";
+                }
+                if (f3 & (TR3_IGNORE_ELEC))
+                {
+                        info[i++] = "It cannot be harmed by electricity.";
+                }
+                if (f3 & (TR3_IGNORE_FIRE))
+                {
+                        info[i++] = "It cannot be harmed by fire.";
+                }
+                if (f3 & (TR3_IGNORE_COLD))
+                {
+                        info[i++] = "It cannot be harmed by cold.";
+                }
+        }
+
 	/* No special effects */
 	if (!i) return (FALSE);
 
@@ -4133,28 +4295,28 @@ bool identify_fully_aux(object_type *o_ptr, FILE *fff)
                 Term_save();
 
                 /* Erase the screen */
-                for (k = 1; k < 24; k++) prt("", k, 13);
+                Term_clear();
 
                 /* Label the information */
-                prt("     Item Attributes:", 1, 15);
+                prt("Item Attributes:", 1, 31);
 
                 /* We will print on top of the map (column 13) */
                 for (k = 2, j = 0; j < i; j++)
                 {
                         /* Show the info */
-                        prt(info[j], k++, 15);
+                        c_prt(color[j], info[j], k++, 10);
 
                         /* Every 20 entries (lines 2 to 21), start over */
                         if ((k == 22) && (j+1 < i))
                         {
                                 prt("-- more --", k, 15);
                                 inkey();
-                                for (; k > 2; k--) prt("", k, 15);
+                                for (; k > 2; k--) prt("", k, 0);
                         }
                 }
 
                 /* Wait for it */
-                prt("[Press any key to continue]", k, 15);
+                prt("[Press any key to continue]", k, 26);
                 inkey();
 
                 /* Restore the screen */
@@ -4510,7 +4672,7 @@ cptr describe_use(int i)
 
 bool check_book_realm(const int book_tval)
 {
-        if (p_ptr->pclass != CLASS_SORCERER)
+        if (!PRACE_FLAGS(PR1_INNATE_SPELLS))
         {
                 return ((p_ptr->realm1 == book_tval - TV_VALARIN_BOOK + 1) ||
                         (p_ptr->realm2 == book_tval - TV_VALARIN_BOOK + 1));
@@ -4522,7 +4684,7 @@ bool check_book_realm(const int book_tval)
                 if (b >= 32) return FALSE;
                 if (b < 0) return FALSE;
 
-                return ((Mrealm_choices[CLASS_SORCERER] & BIT(b))?TRUE:FALSE);
+                return ((cp_ptr->Mrealm_choices[b / 32] & BIT(b))?TRUE:FALSE);
         }
 }
 
@@ -4569,12 +4731,12 @@ bool item_tester_okay(object_type *o_ptr)
  */
 void display_inven(void)
 {
+#if 0
 	register        int i, n, z = 0;
 	object_type     *o_ptr;
 	byte            attr = TERM_WHITE;
 	char            tmp_val[80];
 	char            o_name[80];
-
 
 	/* Find the "final" slot */
 	for (i = 0; i < INVEN_PACK; i++)
@@ -4643,6 +4805,16 @@ void display_inven(void)
 		/* Erase the line */
 		Term_erase(0, i, 255);
 	}
+#else
+        int old_gap = command_gap;
+        int old_gapy = command_gapy;
+
+        command_gap = 0;
+        command_gapy = 0;
+        show_inven();
+        command_gap = old_gap;
+        command_gapy = old_gapy;
+#endif
 }
 
 
@@ -4652,6 +4824,7 @@ void display_inven(void)
  */
 void display_equip(void)
 {
+#if 0
         register        int i, n, line;
 	object_type     *o_ptr;
 	byte            attr = TERM_WHITE;
@@ -4728,11 +4901,35 @@ void display_equip(void)
 		/* Clear that line */
 		Term_erase(0, i, 255);
 	}
+#else
+        int old_gap = command_gap;
+        int old_gapy = command_gapy;
+
+        command_gap = 0;
+        command_gapy = 0;
+        show_equip();
+        command_gap = old_gap;
+        command_gapy = old_gapy;
+#endif
 }
 
 
 
+/* Get the color of the letter idx */
+byte get_item_letter_color(object_type *o_ptr)
+{
+        byte color = TERM_WHITE;
 
+        /* Must ahve full knowlegde */
+        if (!(o_ptr->ident & (IDENT_MENTAL))) return (TERM_WHITE);
+
+        if (ego_item_p(o_ptr)) color = TERM_L_BLUE;
+        if (artifact_p(o_ptr)) color = TERM_YELLOW;
+        if (o_ptr->name1 && (-1 != a_info[o_ptr->name1].set)) color = TERM_GREEN;
+        if (o_ptr->name1 && (a_info[o_ptr->name1].flags4 & TR4_ULTIMATE)) color = TERM_VIOLET;
+
+        return (color);
+}
 
 
 /*
@@ -4829,13 +5026,13 @@ void show_inven(void)
 		o_ptr = &inventory[i];
 
 		/* Clear the line */
-		prt("", j + 1, col ? col - 2 : col);
+		prt("", j + command_gapy, col ? col - 2 : col);
 
 		/* Prepare an index --(-- */
 		sprintf(tmp_val, "%c)", index_to_label(i));
 
 		/* Clear the line with the (possibly indented) index */
-		put_str(tmp_val, j + 1, col);
+                c_put_str(get_item_letter_color(o_ptr), tmp_val, j + command_gapy, col);
 
 		/* Display graphics for object, if desired */
 		if (show_inven_graph)
@@ -4848,24 +5045,24 @@ void show_inven(void)
 #endif
                         if (!o_ptr->k_idx) c = ' ';
 
-			Term_draw(col + 3, j + 1, a, c);
+			Term_draw(col + 3, j + command_gapy, a, c);
 		}
 
 
 		/* Display the entry itself */
-		c_put_str(out_color[j], out_desc[j], j + 1, show_inven_graph ? (col + 5) : (col + 3));
+		c_put_str(out_color[j], out_desc[j], j + command_gapy, show_inven_graph ? (col + 5) : (col + 3));
 
 		/* Display the weight if needed */
 		if (show_weights)
 		{
 			int wgt = o_ptr->weight * o_ptr->number;
 			(void)sprintf(tmp_val, "%3d.%1d lb", wgt / 10, wgt % 10);
-			put_str(tmp_val, j + 1, 71);
+			put_str(tmp_val, j + command_gapy, 71);
 		}
 	}
 
 	/* Make a "shadow" below the list (only if needed) */
-	if (j && (j < 23)) prt("", j + 1, col ? col - 2 : col);
+	if (j && (j < 23)) prt("", j + command_gapy, col ? col - 2 : col);
 
 	/* Save the new column */
 	command_gap = col;
@@ -5006,13 +5203,13 @@ void show_equip(void)
                 o_ptr = &inventory[out_rindex[j]];
 
 		/* Clear the line */
-		prt("", j + 1, col ? col - 2 : col);
+		prt("", j + command_gapy, col ? col - 2 : col);
 
 		/* Prepare an index --(-- */
                 sprintf(tmp_val, "%c)", index_to_label(out_rindex[j]));
 
 		/* Clear the line with the (possibly indented) index */
-		put_str(tmp_val, j+1, col);
+                c_put_str(get_item_letter_color(o_ptr), tmp_val, j + command_gapy, col);
 
 		if (show_equip_graph)
 		{
@@ -5024,7 +5221,7 @@ void show_equip(void)
 #endif
                         if (!o_ptr->k_idx) c = ' ';
 
-			Term_draw(col + 3, j + 1, a, c);
+			Term_draw(col + 3, j + command_gapy, a, c);
 		}
 
 		/* Use labels */
@@ -5032,17 +5229,17 @@ void show_equip(void)
 		{
 			/* Mention the use */
                         (void)sprintf(tmp_val, "%-14s: ", mention_use(out_rindex[j]));
-			put_str(tmp_val, j+1, show_equip_graph ? col + 5 : col + 3);
+			put_str(tmp_val, j + command_gapy, show_equip_graph ? col + 5 : col + 3);
 
 			/* Display the entry itself */
-			c_put_str(out_color[j], out_desc[j], j+1, show_equip_graph ? col + 21 : col + 19);
+			c_put_str(out_color[j], out_desc[j], j + command_gapy, show_equip_graph ? col + 21 : col + 19);
 		}
 
 		/* No labels */
 		else
 		{
 			/* Display the entry itself */
-			c_put_str(out_color[j], out_desc[j], j+1, show_equip_graph ? col + 5 : col + 3);
+			c_put_str(out_color[j], out_desc[j], j + command_gapy, show_equip_graph ? col + 5 : col + 3);
 		}
 
 		/* Display the weight if needed */
@@ -5050,12 +5247,12 @@ void show_equip(void)
 		{
 			int wgt = o_ptr->weight * o_ptr->number;
 			(void)sprintf(tmp_val, "%3d.%d lb", wgt / 10, wgt % 10);
-			put_str(tmp_val, j+1, 71);
+			put_str(tmp_val, j + command_gapy, 71);
 		}
 	}
 
 	/* Make a "shadow" below the list (only if needed) */
-	if (j && (j < 23)) prt("", j + 1, col ? col - 2 : col);
+	if (j && (j < 23)) prt("", j + command_gapy, col ? col - 2 : col);
 
 	/* Save the new column */
 	command_gap = col;
@@ -6179,7 +6376,7 @@ static bool item_tester_hook_getable(object_type *o_ptr)
 {
         if (!inven_carry_okay(o_ptr)) return (FALSE);
 
-        if ((o_ptr->tval == TV_HYPNOS) && (p_ptr->pclass != CLASS_SYMBIANT)) return FALSE;
+        if ((o_ptr->tval == TV_HYPNOS) && (PRACE_FLAGS(PR1_MOLD_FRIEND))) return FALSE;
 
         /* Assume yes */
         return (TRUE);
@@ -6449,7 +6646,7 @@ void py_pickup_floor(int pickup)
                 /* Don't ask */
                 do_ask = FALSE;
 
-                if ((o_list[floor_o_idx].tval == TV_HYPNOS) && (p_ptr->pclass != CLASS_SYMBIANT))
+                if ((o_list[floor_o_idx].tval == TV_HYPNOS) && (!PRACE_FLAGS(PR1_MOLD_FRIEND)))
                         do_pickup = FALSE;
                 else
                         this_o_idx = floor_o_idx;
@@ -6709,3 +6906,96 @@ void object_gain_level(object_type *o_ptr)
         }
 }
 
+
+/*
+ * Item sets fcts
+ */
+bool wield_set(s16b a_idx, s16b set_idx, bool silent)
+{
+        set_type *s_ptr = &set_info[set_idx];
+        int i;
+
+        if (-1 == a_info[a_idx].set) return (FALSE);
+        for (i = 0; i < s_ptr->num; i++)
+                if (a_idx == s_ptr->arts[i].a_idx) break;
+        if (!s_ptr->arts[i].present)
+        {
+                s_ptr->num_use++;
+                s_ptr->arts[i].present = TRUE;
+                if (s_ptr->num_use > s_ptr->num) msg_print("ERROR!! s_ptr->num_use > s_ptr->use");
+                else if ((s_ptr->num_use == s_ptr->num) && (!silent)) cmsg_format(TERM_GREEN, "%s item set completed.", s_ptr->name + set_name);
+                return (TRUE);
+        }
+        return (FALSE);
+}
+
+bool takeoff_set(s16b a_idx, s16b set_idx)
+{
+        set_type *s_ptr = &set_info[set_idx];
+        int i;
+
+        if (-1 == a_info[a_idx].set) return (FALSE);
+        for (i = 0; i < s_ptr->num; i++)
+                if (a_idx == s_ptr->arts[i].a_idx) break;
+
+        if (s_ptr->arts[i].present)
+        {
+                s_ptr->arts[i].present = FALSE;
+                s_ptr->num_use--;
+
+                if (s_ptr->num_use == 255) msg_print("ERROR!! s_ptr->num_use < 0");
+                if (s_ptr->num_use == s_ptr->num - 1) cmsg_format(TERM_GREEN, "%s item set not complete anymore.", s_ptr->name + set_name);
+                return (TRUE);
+        }
+        return (FALSE);
+}
+
+bool apply_set(s16b a_idx, s16b set_idx)
+{
+        set_type *s_ptr = &set_info[set_idx];
+        int i, j;
+
+        if (-1 == a_info[a_idx].set) return (FALSE);
+        for (i = 0; i < s_ptr->num; i++)
+                if (a_idx == s_ptr->arts[i].a_idx) break;
+        if (s_ptr->arts[i].present)
+        {
+                for (j = 0; j < s_ptr->num_use; j++)
+                {
+                        apply_flags(s_ptr->arts[i].flags1[j],
+                                    s_ptr->arts[i].flags2[j],
+                                    s_ptr->arts[i].flags3[j],
+                                    s_ptr->arts[i].flags4[j],
+                                    s_ptr->arts[i].flags5[j],
+                                    s_ptr->arts[i].esp[j],
+                                    s_ptr->arts[i].pval[j],
+                                    0, 0, 0, 0);
+                }
+                return (TRUE);
+        }
+        return (FALSE);
+}
+
+bool apply_flags_set(s16b a_idx, s16b set_idx, s32b *f1, s32b *f2, s32b *f3, s32b *f4, s32b *f5, s32b *esp)
+{
+        set_type *s_ptr = &set_info[set_idx];
+        int i, j;
+
+        if (-1 == a_info[a_idx].set) return (FALSE);
+        for (i = 0; i < s_ptr->num; i++)
+                if (a_idx == s_ptr->arts[i].a_idx) break;
+        if (s_ptr->arts[i].present)
+        {
+                for (j = 0; j < s_ptr->num_use; j++)
+                {
+                        (*f1) |= s_ptr->arts[i].flags1[j];
+                        (*f2) |= s_ptr->arts[i].flags2[j];
+                        (*f3) |= s_ptr->arts[i].flags3[j];
+                        (*f4) |= s_ptr->arts[i].flags4[j];
+                        (*f5) |= s_ptr->arts[i].flags5[j];
+                        (*esp) |= s_ptr->arts[i].esp[j];
+                }
+                return (TRUE);
+        }
+        return (FALSE);
+}

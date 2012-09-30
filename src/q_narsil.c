@@ -1,12 +1,16 @@
 #undef cquest
 #define cquest (quest[QUEST_NARSIL])
 
-bool quest_narsil_move_hook(int loc)
+bool quest_narsil_move_hook(char *fmt)
 {
-        int y = loc >> 8, x = loc & 0xFF;
-        cave_type *c_ptr = &cave[y][x];
+        s32b y, x;
+        cave_type *c_ptr;
         int i;
         object_type *o_ptr;
+
+        y = get_next_arg(fmt);
+        x = get_next_arg(fmt);
+        c_ptr = &cave[y][x];
 
         if (cquest.status != QUEST_STATUS_TAKEN) return FALSE;
 
@@ -31,10 +35,13 @@ bool quest_narsil_move_hook(int loc)
         cmsg_print(TERM_YELLOW, "I will get it reforged...");
         cmsg_print(TERM_L_BLUE, "Aragorn leaves for a few hours then comes back...");
         cmsg_print(TERM_YELLOW, "Here it is, Anduril the sword that was forged and is");
-        cmsg_print(TERM_YELLOW, "reforged again, take it, you sure need it for you quest.");
+        cmsg_print(TERM_YELLOW, "reforged again, take it, you will surely need it for your quest.");
 
+        object_prep(o_ptr, lookup_kind(TV_SWORD, SV_LONG_SWORD));
         o_ptr->name1 = ART_ANDURIL;
         apply_magic(o_ptr, -1, TRUE, TRUE, TRUE);
+        object_aware(o_ptr);
+        object_known(o_ptr);
         inven_item_describe(i);
         inven_item_optimize(i);
 
@@ -49,7 +56,7 @@ bool quest_narsil_move_hook(int loc)
 
         return TRUE;
 }
-bool quest_narsil_dump_hook(int q_idx)
+bool quest_narsil_dump_hook(char *fmt)
 {
         if (cquest.status >= QUEST_STATUS_COMPLETED)
         {
@@ -57,12 +64,15 @@ bool quest_narsil_dump_hook(int q_idx)
         }
         return (FALSE);
 }
-bool quest_narsil_identify_hook(int item)
+bool quest_narsil_identify_hook(char *fmt)
 {
         if (cquest.status == QUEST_STATUS_UNTAKEN)
         {
                 int i;
                 object_type *o_ptr;
+                s32b item;
+
+                item = get_next_arg(fmt);
 
                 /* Inventory */
                 if (item >= 0)
@@ -82,7 +92,7 @@ bool quest_narsil_identify_hook(int item)
 
                         for (i = 0; i < 5; i++)
                         {
-                                if (quest[QUEST_NARSIL].desc[i] != NULL)
+                                if (quest[QUEST_NARSIL].desc[i][0] != '\0')
                                 {
                                         cmsg_print(TERM_YELLOW, quest[QUEST_NARSIL].desc[i]);
                                 }

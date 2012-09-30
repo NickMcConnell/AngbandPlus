@@ -713,7 +713,7 @@ static void corpse_effect(object_type *o_ptr, bool cutting)
  */
 static bool item_tester_hook_eatable(object_type *o_ptr)
 {
-        if (((o_ptr->tval==TV_FIRESTONE)&&(p_ptr->prace==RACE_DRAGONRIDER))||
+        if (((o_ptr->tval==TV_FIRESTONE)&&(PRACE_FLAG(PR1_TP)))||
         (o_ptr->tval==TV_FOOD)||(o_ptr->tval==TV_CORPSE)) return (TRUE);
 
 	/* Assume not */
@@ -1048,7 +1048,8 @@ void do_cmd_eat_food(void)
                         if(p_ptr->ctp<p_ptr->mtp){
                                 msg_print("Grrrmfff ...");
                                 p_ptr->ctp+=4;
-                                if(p_ptr->ctp>p_ptr->mtp)p_ptr->ctp=p_ptr->mtp;
+                                if(p_ptr->ctp > p_ptr->mtp )
+					p_ptr->ctp=p_ptr->mtp;
                                 p_ptr->redraw |= (PR_TANK);
                                 ident = TRUE;
                         }else msg_print("You can't eat more firestones, you vomit!");
@@ -1059,7 +1060,8 @@ void do_cmd_eat_food(void)
                         if(p_ptr->ctp<p_ptr->mtp){
                                 msg_print("Grrrrmmmmmmfffffff ...");
                                 p_ptr->ctp+=10;
-                                if(p_ptr->ctp>p_ptr->mtp)p_ptr->ctp=p_ptr->mtp;
+                                if(p_ptr->ctp > p_ptr->mtp )
+					p_ptr->ctp=p_ptr->mtp;
                                 p_ptr->redraw |= (PR_TANK);
                                 ident = TRUE;
                         }else msg_print("You can't eat more firestones, you vomit!");
@@ -1166,7 +1168,7 @@ void do_cmd_eat_food(void)
         if(!fval) fval = o_ptr->pval;
 
 	/* Food can feed the player */
-        if ((p_ptr->pracem == RMOD_VAMPIRE) || (p_ptr->mimic_form == MIMIC_VAMPIRE))
+        if ((PRACE_FLAG(PR1_VAMPIRE)) || (p_ptr->mimic_form == MIMIC_VAMPIRE))
 	{
 		/* Reduced nutritional benefit */
                 (void)set_food(p_ptr->food + (fval / 10));
@@ -1174,12 +1176,12 @@ void do_cmd_eat_food(void)
 		if (p_ptr->food < PY_FOOD_ALERT)   /* Hungry */
 			msg_print("Your hunger can only be satisfied with fresh blood!");
 	}
-        else if ((p_ptr->pracem == RMOD_SPECTRE) || (p_ptr->pracem == RMOD_SKELETON) || (p_ptr->pracem == RMOD_ZOMBIE))
+        else if (PRACE_FLAG(PR1_NO_FOOD))
 	{
 		msg_print("The food of mortals is poor sustenance for you.");
                 set_food(p_ptr->food + ((fval) / 20));
 	}
-        else if (p_ptr->prace == RACE_ENT)
+        else if ((PRACE_FLAG(PR1_NO_STUN)) && (PRACE_FLAG(PR1_AC_LEVEL)) && (PRACE_FLAG(PR1_PASS_TREE)))
 	{
                 msg_print("Food is poor sustenance for you.");
                 set_food(p_ptr->food + ((fval) / 20));
@@ -2049,7 +2051,7 @@ static bool quaff_potion(int tval, int sval, int pval)
 		}
                 case SV_POTION_LEARNING:
                 {
-                        if((p_ptr->realm1) && (p_ptr->pclass != CLASS_SORCERER))
+                        if((p_ptr->realm1) && (!PRACE_FLAGS(PR1_INNATE_SPELLS)))
                         {
                                 int i = p_ptr->new_spells;
 
@@ -2063,7 +2065,7 @@ static bool quaff_potion(int tval, int sval, int pval)
                                 /* This indicate the number of extra spell the player has learned */
                                 p_ptr->xtra_spells++;
                         }
-                        else if (p_ptr->pclass != CLASS_SORCERER)
+                        else if (!PRACE_FLAGS(PR1_INNATE_SPELLS))
                         {
                                 msg_print("You don't have to learn spells.");
                         }
@@ -2073,6 +2075,9 @@ static bool quaff_potion(int tval, int sval, int pval)
                         }
                         break;
                 }
+                default:
+                        process_hooks(HOOK_QUAFF, "(d,d,d)", tval, sval, pval);
+                        break;
 	}
         else
 	switch (sval)
@@ -2111,6 +2116,9 @@ static bool quaff_potion(int tval, int sval, int pval)
                         break;
                 case SV_POTION2_CURE_SANITY:
                         if (heal_insanity(damroll(10,100))) ident = TRUE;
+                        break;
+                default:
+                        process_hooks(HOOK_QUAFF, "(d,d,d)", tval, sval, pval);
                         break;
         }
 
@@ -2179,7 +2187,7 @@ void do_cmd_quaff_potion(void)
 		gain_exp((lev + (p_ptr->lev >> 1)) / p_ptr->lev);
 	}
 
-        if (p_ptr->pclass ==  CLASS_ALCHEMIST)
+        if (cp_ptr->magic_key == MKEY_ALCHEMY)
         {
                 if (item >= 0)
                 {
@@ -2583,7 +2591,7 @@ void do_cmd_read_scroll(void)
                         int k;
 
                         ident = TRUE;
-                        msg_print("You feel the souls of the deads coming back from the Halls of Mandos.");
+                        msg_print("You feel the souls of the dead coming back from the Halls of Mandos.");
 
                         for (k = 0; k < max_r_idx; k++)
                         {
@@ -3034,6 +3042,9 @@ void do_cmd_read_scroll(void)
 			ident = TRUE;
 			break;
 		}
+                default:
+                        process_hooks(HOOK_READ, "(d,d)", o_ptr->tval, o_ptr->sval);
+                        break;
 	}
         }
         else
@@ -3124,7 +3135,8 @@ void do_cmd_read_scroll(void)
 		floor_item_optimize(0 - item);
 	}
 
-        if(p_ptr->pclass==CLASS_ALCHEMIST){
+        if (cp_ptr->magic_key == MKEY_ALCHEMY)
+        {
                 if (item >= 0)
                 {
                         q_ptr = &forge;
@@ -3201,7 +3213,7 @@ void do_cmd_use_staff(void)
 
 
 	/* Take a turn */
-        if ((p_ptr->pclass == CLASS_MAGE) || (p_ptr->pclass == CLASS_HIGH_MAGE) || (p_ptr->pclass == CLASS_SORCERER))
+        if (PRACE_FLAGS(PR1_ZERO_FAIL) && (cp_ptr->spell_book == TV_MAGERY_BOOK))
         {
                 energy_use = 75;
                 if (p_ptr->lev>=35) energy_use = 33;
@@ -3528,6 +3540,9 @@ void do_cmd_use_staff(void)
 			}
 			break;
 		}
+                default:
+                        process_hooks(HOOK_USE, "(d,d)", o_ptr->tval, o_ptr->sval);
+                        break;
 	}
 
 
@@ -3666,7 +3681,7 @@ void do_cmd_aim_wand(void)
 
 
 	/* Take a turn */
-        if ((p_ptr->pclass == CLASS_MAGE) || (p_ptr->pclass == CLASS_HIGH_MAGE) || (p_ptr->pclass == CLASS_SORCERER))
+        if (PRACE_FLAGS(PR1_ZERO_FAIL) && (cp_ptr->spell_book == TV_MAGERY_BOOK))
         {
                 energy_use = 75;
                 if (p_ptr->lev>=35) energy_use = 33;
@@ -3973,6 +3988,9 @@ void do_cmd_aim_wand(void)
 			ident = TRUE;
 			break;
 		}
+                default:
+                        process_hooks(HOOK_AIM, "(d,d)", o_ptr->tval, o_ptr->sval);
+                        break;
 	}
 
 
@@ -4178,7 +4196,7 @@ void do_cmd_zap_rod(void)
 	}
 
 	/* Take a turn */
-        if ((p_ptr->pclass == CLASS_MAGE) || (p_ptr->pclass == CLASS_ALCHEMIST) || (p_ptr->pclass == CLASS_HIGH_MAGE) || (p_ptr->pclass == CLASS_SORCERER))
+        if (PRACE_FLAGS(PR1_ZERO_FAIL) && (cp_ptr->spell_book == TV_MAGERY_BOOK))
         {
                 energy_use = 75;
                 if (p_ptr->lev>=35) energy_use = 33;
@@ -4456,6 +4474,9 @@ void do_cmd_zap_rod(void)
 			ident = TRUE;
 			break;
 		}
+                default:
+                        process_hooks(HOOK_ZAP, "(d,d)", o_ptr->tval, o_ptr->sval);
+                        break;
 	}
 
 
@@ -4727,15 +4748,16 @@ void do_cmd_activate(void)
 	}
 
 	/* Roll for usage */
-        if((p_ptr->pclass == CLASS_HARPER)&&(o_ptr->tval == TV_INSTRUMENT));
+        if ((USE_REALM(REALM_MUSIC)) && (o_ptr->tval == TV_INSTRUMENT))
+                ;
         else
-	if ((chance < USE_DEVICE) || (randint(chance) < USE_DEVICE))
-	{
-		if (flush_failure) flush();
-		msg_print("You failed to activate it properly.");
-		sound(SOUND_FAIL);
-		return;
-	}
+                if ((chance < USE_DEVICE) || (randint(chance) < USE_DEVICE))
+                {
+                        if (flush_failure) flush();
+                        msg_print("You failed to activate it properly.");
+                        sound(SOUND_FAIL);
+                        return;
+                }
 
         if ((o_ptr->tval == TV_INSTRUMENT)&&(o_ptr->timeout))
         {
@@ -5174,7 +5196,7 @@ void do_cmd_activate(void)
 
                                 /* Exercise a little care... */
                                 if (rand_int(20) == 0) take_hit(damroll(4, 10), "perilous secrets");
-                                o_ptr->timeout = 0;
+                                o_ptr->timeout = 1;
                                 break;
                         }
 
@@ -5886,8 +5908,7 @@ void do_cmd_activate(void)
 		/* Window stuff */
 		p_ptr->window |= (PW_INVEN | PW_EQUIP);
 
-		/* Done */
-		return;
+                if (o_ptr->timeout) return;
 	}
         else if (is_ego_p(o_ptr, EGO_INST_DRAGONKIND))
 	{
@@ -6141,7 +6162,7 @@ void do_cmd_activate(void)
 		return;
 	}
 
-	else if (o_ptr->tval == TV_RING)
+        if (o_ptr->tval == TV_RING)
 	{
 		switch (o_ptr->sval)
 		{
@@ -6215,7 +6236,7 @@ void do_cmd_activate(void)
 		return;
 
         }
-        else if ((o_ptr->art_name) || (o_ptr->tval == TV_RANDART))
+        if ((o_ptr->art_name) || (o_ptr->tval == TV_RANDART))
 	{
 		(void) activate_random_artifact(o_ptr);
 
@@ -6226,8 +6247,11 @@ void do_cmd_activate(void)
 		return;
 	}
 
-	/* Mistake */
-	msg_print("Oops.  That object cannot be activated.");
+        if (!process_hooks(HOOK_ACTIVATE, "(d)", item))
+        {
+                /* Mistake */
+                msg_print("Oops.  That object cannot be activated.");
+        }
 }
 
 

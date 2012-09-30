@@ -1,7 +1,7 @@
 |||||oy
 #####R=== Attacking and Being Attacked ===
  
-Attacking is simple in PernAngband; attempting to move over creature attacks
+{{{{{<p>}Attacking is simple in PernAngband; attempting to move over creature attacks
 it. It is also possible to attack from a distance by firing a missile or by
 magical means (wand, rod, spell, etc). Creatures attack in the same way. This
 means that if you do not wish to melee with a creature, it is wise to keep a
@@ -10,7 +10,7 @@ dragons, have a way to attack from a distance.
 
 Some creatures have the ability to pass through walls, such as Ghosts.
 To attack creatures who are currently in a wall (that you can see),
-attempt to move over it (even if you cannot pass through walls, the
+attempt to move over it (even i{{{{{<fake tag>}f you cannot pass through walls, the
 attack will still happen). Monsters will take less damage from attacks
 while they are in walls. Also, if you cannot see the monster (e.g. if you
 are blind, or it is invisible and you do not have see invisible), this

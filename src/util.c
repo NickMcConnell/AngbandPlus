@@ -2024,12 +2024,33 @@ byte message_color(int age)
         return (color);
 }
 
+/*
+* Recall the type of a saved message
+*/
+byte message_type(int age)
+{
+	s16b x;
+        byte type;
+	
+	/* Forgotten messages have no text */
+        if ((age < 0) || (age >= message_num())) return (MESSAGE_NONE);
+	
+	/* Acquire the "logical" index */
+	x = (message__next + MESSAGE_MAX - (age + 1)) % MESSAGE_MAX;
+	
+	/* Get the "offset" for the message */
+        type = message__type[x];
+	
+	/* Return the message text */
+        return (type);
+}
+
 
 
 /*
 * Add a new message, with great efficiency
 */
-void message_add(cptr str, byte color)
+void message_add(byte type, cptr str, byte color)
 {
         int i, k, x, n, m;
 	char u[1024];
@@ -2157,6 +2178,7 @@ void message_add(cptr str, byte color)
 		/* Assign the starting address */
 		message__ptr[x] = message__ptr[i];
                 message__color[x] = color;
+                message__type[x] = type;
 		
 		/* Success */
 		return;
@@ -2245,6 +2267,7 @@ void message_add(cptr str, byte color)
 	/* Assign the starting address */
 	message__ptr[x] = message__head;
         message__color[x] = color;
+        message__type[x] = type;
 	
 	/* Append the new part of the message */
 	for (i = 0; i < n; i++)
@@ -2289,6 +2312,35 @@ static void msg_flush(int x)
 	Term_erase(0, 0, 255);
 }
 
+/* Display a message */
+void display_message(int x, int y, int split, byte color, cptr t)
+{
+        int i = 0, j = 0;
+
+        while (i < split)
+        {
+                if (t[i] == '#')
+                {
+                        if (t[i + 1] == '#')
+                        {
+                                Term_putstr(x + j, y, 1, color, "#");
+                                i += 2;
+                                j++;
+                        }
+                        else
+                        {
+                                color = color_char_to_attr(t[i + 1]);
+                                i += 2;
+                        }
+                }
+                else
+                {
+                        Term_putstr(x + j, y, 1, color, t + i);
+                        i++;
+                        j++;
+                }
+        }
+}
 
 /*
 * Output a message to the top line of the screen.
@@ -2354,7 +2406,7 @@ void cmsg_print(byte color, cptr msg)
 	
 	
 	/* Memorize the message */
-        if (character_generated) message_add(msg, color);
+        if (character_generated) message_add(MESSAGE_MSG, msg, color);
 
 	/* Handle "auto_more" */
 	if (auto_more)
@@ -2400,7 +2452,7 @@ void cmsg_print(byte color, cptr msg)
 		t[split] = '\0';
 		
 		/* Display part of the message */
-                Term_putstr(0, 0, split, color, t);
+                display_message(0, 0, split, color, t);
 		
 		/* Flush it */
 		msg_flush(split + 1);
@@ -2420,7 +2472,7 @@ void cmsg_print(byte color, cptr msg)
 	
 	
 	/* Display the tail of the message */
-        Term_putstr(p, 0, n, color, t);
+        display_message(p, 0, n, color, t);
 	
 	/* Memorize the tail */
 	/* if (character_generated) message_add(t); */
@@ -2720,7 +2772,64 @@ void clear_from(int row)
 	}
 }
 
+/* 
+ * Try to find a matching command completion.
+ * Note that this is not so friendly since it doesn't give
+ * a list of possible completions.
+ *
+ * First arg is the string to be completed, second is it's length,
+ * third is it's maximum length.
+ */
+static int complete_where = 0;
+static char complete_buf[100];
+static int complete_command(char *buf, int clen, int mlen)
+{
+	int i, j = 1;
 
+        strncpy(buf, complete_buf, mlen);
+        for (i = 0; cli_info[i].comm1 != NULL; i++)
+        {
+                if (prefix(cli_info[i].comm1, buf))
+                {
+                        Term_erase(0, j, 80);
+                        Term_putstr(0, j++, -1, TERM_WHITE, cli_info[i].comm1);
+                }
+                if (prefix(cli_info[i].comm2, buf))
+                {
+                        Term_erase(0, j, 80);
+                        Term_putstr(0, j++, -1, TERM_WHITE, cli_info[i].comm2);
+                }
+        }
+
+        i = complete_where + 1;
+        if (cli_info[i].comm1 == NULL) i = 0;
+        while (i != complete_where)
+	{
+		if (cli_info[i].comm2)
+		{
+			if (!strncmp(buf, cli_info[i].comm2, clen))
+			{
+                                strncpy(complete_buf, buf, 100);
+                                strncpy(buf, cli_info[i].comm2, mlen);
+                                complete_where = i;
+                                break;
+			}
+		}
+
+		if (!strncmp(buf, cli_info[i].comm1, clen))
+		{
+                        strncpy(complete_buf, buf, 100);
+			strncpy(buf, cli_info[i].comm1, mlen);
+                        complete_where = i;
+                        break;
+                }
+
+                i++;
+                if (cli_info[i].comm1 == NULL) i = 0;
+	}
+
+	return strlen(buf) + 1;
+}
 
 
 /*
@@ -2734,6 +2843,7 @@ void clear_from(int row)
 * ESCAPE clears the buffer and the window and returns FALSE.
 * RETURN accepts the current buffer contents and returns TRUE.
 */
+bool askfor_aux_complete = FALSE;
 bool askfor_aux(char *buf, int len)
 {
 	int y, x;
@@ -2765,15 +2875,21 @@ bool askfor_aux(char *buf, int len)
 	
 	/* Display the default answer */
 	Term_erase(x, y, len);
-	Term_putstr(x, y, -1, TERM_YELLOW, buf);
-	
-	
+        Term_putstr(x, y, -1, TERM_YELLOW, buf);
+
+        if (askfor_aux_complete)
+        {
+                screen_save();
+                complete_where = 0;
+                strncpy(complete_buf, buf, 100);
+        }
+
 	/* Process input */
 	while (!done)
 	{
 		/* Place cursor */
 		Term_gotoxy(x + k, y);
-		
+
 		/* Get a key */
 		i = inkey();
 		
@@ -2790,16 +2906,30 @@ bool askfor_aux(char *buf, int len)
 			k = strlen(buf);
 			done = TRUE;
 			break;
+
+                case '\t':
+                        if (askfor_aux_complete && k)
+                        {
+                                screen_load();
+                                screen_save();
+                                k = complete_command(buf, k, len);
+                        }
+                        else
+                        {
+                                bell();
+                        }
 			
 		case 0x7F:
 		case '\010':
 			if (k > 0) k--;
+                        strncpy(complete_buf, buf, k);
 			break;
 			
 		default:
 			if ((k < len) && (isprint(i)))
 			{
 				buf[k++] = i;
+                                strncpy(complete_buf, buf, k);
 			}
 			else
 			{
@@ -2815,7 +2945,12 @@ bool askfor_aux(char *buf, int len)
 		Term_erase(x, y, len);
 		Term_putstr(x, y, -1, TERM_WHITE, buf);
 	}
-	
+
+        if (askfor_aux_complete)
+        {
+                screen_load();
+        }
+
 	/* Aborted */
 	if (i == ESCAPE) return (FALSE);
 	
@@ -3713,6 +3848,21 @@ int test_monster_name(cptr name)
 	}
 	return (0);
 }
+int test_mego_name(cptr name)
+{
+       int i;
+       
+        /* Scan the monsters (except the ghost) */
+        for (i = 1; i < max_re_idx; i++)
+	{
+                monster_ego *re_ptr = &re_info[i];
+                cptr mon_name = re_name + re_ptr->name;
+
+		/* If name matches, give us the number */
+                if (stricmp(name, mon_name) == 0) return (i);
+	}
+	return (0);
+}
 
 /*
  * Given item name as string, return the index in k_info array. Name
@@ -3814,3 +3964,121 @@ cptr get_day(int day)
         sprintf(buf, "%d%s", day, p);
         return (buf);
 }
+
+cptr get_player_race_name(int pr, int ps)
+{
+        static char buf[50];
+
+        if (ps)
+        {
+                if (race_mod_info[ps].place) sprintf(buf, "%s %s", race_info[pr].title + rp_name, race_mod_info[ps].title + rmp_name);
+                else sprintf(buf, "%s %s", race_mod_info[ps].title + rmp_name, race_info[pr].title + rp_name);
+        }
+        else
+        {
+                sprintf(buf, "%s", race_info[pr].title + rp_name);
+        }
+
+        return (buf);
+}
+
+#ifdef SUPPORT_GAMMA
+
+/* Table of gamma values */
+byte gamma_table[256];
+
+/* Table of ln(x / 256) * 256 for x going from 0 -> 255 */
+static const s16b gamma_helper[256] =
+{
+	0, -1420, -1242, -1138, -1065, -1007, -961, -921, -887, -857, -830,
+	-806, -783, -762, -744, -726, -710, -694, -679, -666, -652, -640,
+	-628, -617, -606, -596, -586, -576, -567, -577, -549, -541, -532,
+	-525, -517, -509, -502, -495, -488, -482, -475, -469, -463, -457,
+	-451, -455, -439, -434, -429, -423, -418, -413, -408, -403, -398,
+	-394, -389, -385, -380, -376, -371, -367, -363, -359, -355, -351,
+	-347, -343, -339, -336, -332, -328, -325, -321, -318, -314, -311,
+	-308, -304, -301, -298, -295, -291, -288, -285, -282, -279, -276,
+	-273, -271, -268, -265, -262, -259, -257, -254, -251, -248, -246,
+	-243, -241, -238, -236, -233, -231, -228, -226, -223, -221, -219,
+	-216, -214, -212, -209, -207, -205, -203, -200, -198, -196, -194,
+	-192, -190, -188, -186, -184, -182, -180, -178, -176, -174, -172,
+	-170, -168, -166, -164, -162, -160, -158, -156, -155, -153, -151,
+	-149, -147, -146, -144, -142, -140, -139, -137, -135, -134, -132,
+	-130, -128, -127, -125, -124, -122, -120, -119, -117, -116, -114,
+	-112, -111, -109, -108, -106, -105, -103, -102, -100, -99, -97, -96,
+	-95, -93, -92, -90, -89, -87, -86, -85, -83, -82, -80, -79, -78,
+	-76, -75, -74, -72, -71, -70, -68, -67, -66, -65, -63, -62, -61,
+	-59, -58, -57, -56, -54, -53, -52, -51, -50, -48, -47, -46, -45,
+	-44, -42, -41, -40, -39, -38, -37, -35, -34, -33, -32, -31, -30,
+	-29, -27, -26, -25, -24, -23, -22, -21, -20, -19, -18, -17, -16,
+	-14, -13, -12, -11, -10, -9, -8, -7, -6, -5, -4, -3, -2, -1
+};
+
+
+/*
+ * Build the gamma table so that floating point isn't needed.
+ *
+ * Note gamma goes from 0->256.  The old value of 100 is now 128.
+ */
+void build_gamma_table(int gamma)
+{
+	int i, n;
+
+	/*
+	 * value is the current sum.
+	 * diff is the new term to add to the series.
+	 */
+	long value, diff;
+
+	/* Hack - convergence is bad in these cases. */
+	gamma_table[0] = 0;
+	gamma_table[255] = 255;
+
+	for (i = 1; i < 255; i++)
+	{
+		/*
+		 * Initialise the Taylor series
+		 *
+		 * value and diff have been scaled by 256
+		 */
+		n = 1;
+		value = 256 * 256;
+		diff = ((long)gamma_helper[i]) * (gamma - 256);
+
+		while (diff)
+		{
+			value += diff;
+			n++;
+
+			/*
+			 * Use the following identiy to calculate the gamma table.
+			 * exp(x) = 1 + x + x^2/2 + x^3/(2*3) + x^4/(2*3*4) +...
+			 *
+			 * n is the current term number.
+			 *
+			 * The gamma_helper array contains a table of
+			 * ln(x/256) * 256
+			 * This is used because a^b = exp(b*ln(a))
+			 *
+			 * In this case:
+			 * a is i / 256
+			 * b is gamma.
+			 *
+			 * Note that everything is scaled by 256 for accuracy,
+			 * plus another factor of 256 for the final result to
+			 * be from 0-255.  Thus gamma_helper[] * gamma must be
+			 * divided by 256*256 each itteration, to get back to
+			 * the original power series.
+			 */
+			diff = (((diff / 256) * gamma_helper[i]) * (gamma - 256)) / (256 * n);
+		}
+
+		/*
+		 * Store the value in the table so that the
+		 * floating point pow function isn't needed.
+		 */
+		gamma_table[i] = ((long)(value / 256) * i) / 256;
+	}
+}
+
+#endif /* SUPPORT_GAMMA */

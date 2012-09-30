@@ -29,9 +29,9 @@ static bool create_molds_hook(int r_idx)
         else return FALSE;
 }
 
-bool quest_poison_gen_hook(int q_idx)
+bool quest_poison_gen_hook(char *fmt)
 {
-        int cy, cx, x, y, try = 10000, r_idx;
+        int cy = 1, cx = 1, x, y, try = 10000, r_idx;
 	bool (*old_get_mon_num_hook)(int r_idx);
 
         if (cquest.status != QUEST_STATUS_TAKEN) return FALSE;
@@ -105,9 +105,12 @@ bool quest_poison_gen_hook(int q_idx)
 
         return FALSE;
 }
-bool quest_poison_finish_hook(int q_idx)
+bool quest_poison_finish_hook(char *fmt)
 {
         object_type forge, *q_ptr;
+        s32b q_idx;
+
+        q_idx = get_next_arg(fmt);
 
         if (q_idx != QUEST_POISON) return FALSE;
 
@@ -132,7 +135,7 @@ bool quest_poison_finish_hook(int q_idx)
 
         return TRUE;
 }
-bool quest_poison_dump_hook(int q_idx)
+bool quest_poison_dump_hook(char *fmt)
 {
         if (cquest.status >= QUEST_STATUS_COMPLETED)
         {
@@ -140,9 +143,12 @@ bool quest_poison_dump_hook(int q_idx)
         }
         return (FALSE);
 }
-bool quest_poison_quest_hook(int q_idx)
+bool quest_poison_quest_hook(char *fmt)
 {
         object_type forge, *q_ptr;
+        s32b q_idx;
+
+        q_idx = get_next_arg(fmt);
 
         if (q_idx != QUEST_POISON) return FALSE;
 
@@ -159,10 +165,13 @@ bool quest_poison_quest_hook(int q_idx)
 
         return FALSE;
 }
-bool quest_poison_drop_hook(int o_idx)
+bool quest_poison_drop_hook(char *fmt)
 {
-        int mcnt = 0, i, x, y;
-        object_type *o_ptr = &inventory[o_idx];
+        s32b mcnt = 0, i, x, y, o_idx;
+        object_type *o_ptr;
+
+        o_idx = get_next_arg(fmt);
+        o_ptr = &inventory[o_idx];
 
         if (cquest.status != QUEST_STATUS_TAKEN) return FALSE;
         if (p_ptr->wilderness_y != wild_locs[cquest.data[0]][0]) return FALSE;
@@ -216,7 +225,7 @@ bool quest_poison_init_hook(int q_idx)
         {
                 cquest.data[1] = TRUE;
                 cquest.data[0] = rand_int(4);
-                if (wizard) message_add(format("Wilderness poison %d, %d", wild_locs[cquest.data[0]][0], wild_locs[cquest.data[0]][1]), TERM_BLUE);
+                if (wizard) message_add(MESSAGE_MSG, format("Wilderness poison %d, %d", wild_locs[cquest.data[0]][0], wild_locs[cquest.data[0]][1]), TERM_BLUE);
         }
 
         if ((cquest.status >= QUEST_STATUS_TAKEN) && (cquest.status < QUEST_STATUS_FINISHED))

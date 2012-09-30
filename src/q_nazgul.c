@@ -1,9 +1,12 @@
 #undef cquest
 #define cquest (quest[QUEST_NAZGUL])
 
-bool quest_nazgul_gen_hook(int small)
+bool quest_nazgul_gen_hook(char *fmt)
 {
-        int x, y, try = 10000;
+        int x = 1, y = 1, try = 10000;
+        s32b small;
+
+        small = get_next_arg(fmt);
 
         if ((cquest.status != QUEST_STATUS_TAKEN) || (small) || (p_ptr->town_num != 1)) return (FALSE);
 
@@ -29,9 +32,12 @@ bool quest_nazgul_gen_hook(int small)
 
         return FALSE;
 }
-bool quest_nazgul_finish_hook(int q_idx)
+bool quest_nazgul_finish_hook(char *fmt)
 {
         object_type forge, *q_ptr;
+        s32b q_idx;
+
+        q_idx = get_next_arg(fmt);
 
         if (q_idx != QUEST_NAZGUL) return FALSE;
 
@@ -55,7 +61,7 @@ bool quest_nazgul_finish_hook(int q_idx)
 
         return TRUE;
 }
-bool quest_nazgul_dump_hook(int q_idx)
+bool quest_nazgul_dump_hook(char *fmt)
 {
         if (cquest.status >= QUEST_STATUS_COMPLETED)
         {
@@ -63,8 +69,11 @@ bool quest_nazgul_dump_hook(int q_idx)
         }
         return (FALSE);
 }
-bool quest_nazgul_forbid_hook(int q_idx)
+bool quest_nazgul_forbid_hook(char *fmt)
 {
+        s32b q_idx;
+        q_idx = get_next_arg(fmt);
+
         if (q_idx != QUEST_NAZGUL) return (FALSE);
 
         if (p_ptr->lev < 30)
@@ -74,9 +83,12 @@ bool quest_nazgul_forbid_hook(int q_idx)
         }
         return (FALSE);
 }
-bool quest_nazgul_death_hook(int m_idx)
+bool quest_nazgul_death_hook(char *fmt)
 {
-        int r_idx = m_list[m_idx].r_idx;
+        s32b r_idx, m_idx;
+
+        m_idx = get_next_arg(fmt);
+        r_idx = m_list[m_idx].r_idx;
 
         if (cquest.status != QUEST_STATUS_TAKEN) return (FALSE);
         if (r_idx != test_monster_name("Uvatha the Horseman")) return (FALSE);

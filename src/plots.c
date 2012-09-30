@@ -12,24 +12,23 @@
 
 #include "angband.h"
 
+#ifdef USE_LUA
+#include "lua.h"
+#include "tolua.h"
+extern lua_State* L;
+#endif
+
 /* #define DEBUG_HOOK */
 
 /******** Hooks stuff *********/
-s32b hook_option;
 FILE *hook_file;
 
-typedef struct hooks_chain hooks_chain;
-struct hooks_chain
-{
-        hook_type hook;
-        char name[40];
-        hooks_chain *next;
-};
+#define MAX_ARGS        50
 
 static hooks_chain *hooks_heads[MAX_HOOKS];
 
 /* Wipe hooks and init them with quest hooks */
-void init_hooks()
+void wipe_hooks()
 {
         int i;
 
@@ -37,20 +36,50 @@ void init_hooks()
         {
                 hooks_heads[i] = NULL;
         }
+}
+void init_hooks()
+{
+        int i;
 
-        for (i = 0; i < MAX_Q_IDX; i++)
+        for (i = 0; i < MAX_Q_IDX_INIT; i++)
         {
-                if (quest[i].init != NULL) quest[i].init(i);
+                if ((quest[i].type == HOOK_TYPE_C) && (quest[i].init != NULL)) quest[i].init(i);
         }
 }
 
+void dump_hooks()
+{
+        int i;
+
+        for (i = 0; i < MAX_HOOKS; i++)
+        {
+                hooks_chain *c = hooks_heads[i];
+
+                /* Find it */
+                while (c != NULL)
+                {
+                        msg_format("%s(%s)", c->name, (c->type == HOOK_TYPE_C)?"C":"Lua");
+
+                        c = c->next;
+                }
+        }
+}
+
+/* Check a hook */
+bool check_hook(int h_idx)
+{
+        hooks_chain *c = hooks_heads[h_idx];
+
+        return (c != NULL);
+}
+
 /* Add a hook */
-void add_hook(int h_idx, hook_type hook, cptr name)
+hooks_chain* add_hook(int h_idx, hook_type hook, cptr name)
 {
         hooks_chain *new, *c = hooks_heads[h_idx];
 
         /* Find it */
-        while ((c != NULL) && (c->hook != hook))
+        while ((c != NULL) && (strcmp(c->name, name)))
         {
                 c = c->next;
         }
@@ -67,7 +96,19 @@ void add_hook(int h_idx, hook_type hook, cptr name)
 #endif
                 new->next = hooks_heads[h_idx];
                 hooks_heads[h_idx] = new;
+                return (new);
         }
+        else return (c);
+}
+
+void add_hook_script(int h_idx, char *script, cptr name)
+{
+        hooks_chain *c = add_hook(h_idx, NULL, name);
+#ifdef DEBUG_HOOK
+        if (wizard) cmsg_format(TERM_VIOLET, "HOOK LUA ADD: %s : %s", name, script);
+#endif
+        sprintf(c->script, "%s", script);
+        c->type = HOOK_TYPE_LUA;
 }
 
 /* Remove a hook */
@@ -106,29 +147,240 @@ void del_hook(int h_idx, hook_type hook)
         }
 }
 
-/* Actually process the hooks */
-static process_hooks_restart = FALSE;
-bool process_hooks(int h_idx, int q_idx)
+void del_hook_name(int h_idx, cptr name)
 {
-        hooks_chain *c = hooks_heads[h_idx];
+        hooks_chain *c = hooks_heads[h_idx], *p = NULL;
 
-        while (c != NULL)
+        /* Find it */
+        while ((c != NULL) && (strcmp(c->name, name)))
         {
-                /* Should we restart ? */
-                if (c->hook(q_idx)) return TRUE;
+                p = c;
+                c = c->next;
+        }
 
-                if (process_hooks_restart)
+        /* Remove it */
+        if (c != NULL)
+        {
+                if (p == NULL)
                 {
-                        c = hooks_heads[h_idx];
-                        process_hooks_restart = FALSE;
+#ifdef DEBUG_HOOK
+                        if (wizard) cmsg_format(TERM_VIOLET, "HOOK DEL: %s", c->name);
+                        if (take_notes) add_note(format("HOOK DEL: %s", c->name), 'D');
+#endif
+                        FREE(c, hooks_chain);
+                        hooks_heads[h_idx] = NULL;
                 }
                 else
                 {
-                        c = c->next;
+#ifdef DEBUG_HOOK
+                        if (wizard) cmsg_format(TERM_VIOLET, "HOOK DEL: %s", c->name);
+                        if (take_notes) add_note(format("HOOK DEL: %s", c->name), 'D');
+#endif
+                        p->next = c->next;
+                        FREE(c, hooks_chain);
+                }
+        }
+}
+
+/* get the next argument */
+static hook_return param_pile[MAX_ARGS];
+static int get_next_arg_pos = 0;
+static int get_next_arg_pile_pos = 0;
+s32b get_next_arg(char *fmt)
+{
+        while (TRUE)
+        {
+                switch (fmt[get_next_arg_pos++])
+                {
+                        case 'd':
+                        case 'l':
+                                return (param_pile[get_next_arg_pile_pos++].num);
+                        case ')':
+                                get_next_arg_pos--;
+                                return 0;
+                        case '(':
+                        case ',':
+                                break;
+                }
+        }
+}
+char* get_next_arg_str(char *fmt)
+{
+        while (TRUE)
+        {
+                switch (fmt[get_next_arg_pos++])
+                {
+                        case 's':
+                                return (param_pile[get_next_arg_pile_pos++].str);
+                        case ')':
+                                get_next_arg_pos--;
+                                return 0;
+                        case '(':
+                        case ',':
+                                break;
+                }
+        }
+}
+
+/* Actually process the hooks */
+int process_hooks_restart = FALSE;
+hook_return process_hooks_return[10];
+static bool vprocess_hooks_return(int h_idx, char *ret, char *fmt, va_list *ap)
+{
+        hooks_chain *c = hooks_heads[h_idx];
+        va_list real_ap;
+
+        while (c != NULL)
+        {
+                if (c->type == HOOK_TYPE_C)
+                {
+                        int i = 0, nb = 0;
+
+                        /* Push all args in the pile */
+                        i = 0;
+                        COPY(&real_ap, ap, va_list);
+                        while (fmt[i])
+                        {
+                                switch (fmt[i])
+                                {
+                                        case 'O':
+                                                param_pile[nb++].o_ptr = va_arg(real_ap, object_type *);
+                                                break;
+                                        case 's':
+                                                param_pile[nb++].str = va_arg(real_ap, char *);
+                                                break;
+                                        case 'd':
+                                        case 'l':
+                                                param_pile[nb++].num = va_arg(real_ap, s32b);
+                                                break;
+                                        case '(':
+                                        case ')':
+                                        case ',':
+                                                break;
+                                }
+                                i++;
+                        }
+
+                        get_next_arg_pos = 0;
+                        get_next_arg_pile_pos = 0;
+                        if (c->hook(fmt))
+                        {
+                                return TRUE;
+                        }
+
+                        /* Should we restart ? */
+                        if (process_hooks_restart)
+                        {
+                                c = hooks_heads[h_idx];
+                                process_hooks_restart = FALSE;
+                        }
+                        else
+                        {
+                                c = c->next;
+                        }
+                }
+#ifdef USE_LUA
+                else if (c->type == HOOK_TYPE_LUA)
+                {
+                        int i = 0, nb = 0, nbr = 1;
+                        int oldtop = lua_gettop(L);
+
+                        /* Push the function */
+                        lua_getglobal(L, c->script);
+
+                        /* Push and count the arguments */
+                        nb = 0;
+                        COPY(&real_ap, ap, va_list);
+                        while (fmt[i])
+                        {
+                                switch (fmt[i++])
+                                {
+                                        case 'd':
+                                        case 'l':
+                                                tolua_pushnumber(L, va_arg(real_ap, s32b));
+                                                nb++;
+                                                break;
+                                        case 's':
+                                                tolua_pushstring(L, va_arg(real_ap, char*));
+                                                nb++;
+                                                break;
+                                        case 'O':
+                                                tolua_pushusertype(L, (void*)va_arg(real_ap, object_type*), tolua_tag(L, "object_type"));
+                                                nb++;
+                                                break;
+                                        case '(':
+                                        case ')':
+                                        case ',':
+                                                break;
+                                }
+                        }
+
+                        /* Count returns */
+                        nbr += strlen(ret);
+
+                        /* Call the function */
+                        lua_call(L, nb, nbr);
+
+                        /* get the extra returns if needed */
+                        for (i = 0; i < nbr - 1; i++)
+                        {
+                                if ((ret[i] == 'd') || (ret[i] == 'l'))
+                                {
+                                        if (lua_isnumber(L, 2 + i)) process_hooks_return[i].num = tolua_getnumber(L, 2 + i, 0);
+                                        else process_hooks_return[i].num = 0;
+                                }
+                                else if (ret[i] == 's')
+                                {
+                                        if (lua_isstring(L, 2 + i)) process_hooks_return[i].str = (char*)tolua_getstring(L, 2 + i, 0);
+                                        else process_hooks_return[i].str = NULL;
+                                }
+                                else process_hooks_return[i].num = 0;
+                        }
+                        /* Get the basic return(continue or stop the hook chain) */
+                        if (tolua_getnumber(L, 1,0))
+                        {
+                                lua_settop(L, oldtop);
+                                return (TRUE);
+                        }
+                        if (process_hooks_restart)
+                        {
+                                c = hooks_heads[h_idx];
+                                process_hooks_restart = FALSE;
+                        }
+                        else
+                                c = c->next;
+                        lua_settop(L, oldtop);
+                }
+#endif
+                else
+                {
+                        msg_format("Unkown hook type %d, name %s", c->type, c->name);
                 }
         }
 
         return FALSE;
+}
+
+bool process_hooks_ret(int h_idx, char *ret, char *fmt, ...)
+{
+        va_list ap;
+        bool r;
+
+        va_start(ap, fmt);
+        r = vprocess_hooks_return(h_idx, ret, fmt, &ap);
+        va_end(ap);
+        return (r);
+}
+
+bool process_hooks(int h_idx, char *fmt, ...)
+{
+        va_list ap;
+        bool ret;
+
+        va_start(ap, fmt);
+        ret = vprocess_hooks_return(h_idx, "", fmt, &ap);
+        va_end(ap);
+        return (ret);
 }
 
 /******** Plots & Quest stuff ********/
@@ -137,14 +389,14 @@ static void quest_describe(int q_idx)
 {
         int i = 0;
 
-        while ((i < 10) && (quest[q_idx].desc[i] != NULL))
+        while ((i < 10) && (quest[q_idx].desc[i][0] != '\0'))
         {
                 cmsg_print(TERM_YELLOW, quest[q_idx].desc[i++]);
         }
 }
 
 /* Catch-all quest hook */
-bool quest_null_hook(int q_idx)
+bool quest_null_hook(int q)
 {
         /* Do nothing */
         return (FALSE);
@@ -163,6 +415,7 @@ bool quest_null_hook(int q_idx)
 #include "q_troll.c"
 #include "q_wight.c"
 #include "q_nazgul.c"
+#include "q_shroom.c"
 
 /*************************** Lorien plot **************************/
 #include "q_spider.c"
@@ -178,3 +431,4 @@ bool quest_null_hook(int q_idx)
 
 /*************************** Other plot **************************/
 #include "q_narsil.c"
+#include "q_thrain.c"

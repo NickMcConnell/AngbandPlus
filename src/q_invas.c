@@ -1,7 +1,7 @@
 #undef cquest
 #define cquest (quest[QUEST_INVASION])
 
-bool quest_invasion_gen_hook(int q_idx)
+bool quest_invasion_gen_hook(char *fmt)
 {
 	int x, y;
         int xstart = 2;
@@ -45,9 +45,13 @@ bool quest_invasion_gen_hook(int q_idx)
 
         return TRUE;
 }
-bool quest_invasion_ai_hook(int m_idx)
+bool quest_invasion_ai_hook(char *fmt)
 {
-        monster_type *m_ptr = &m_list[m_idx];
+        monster_type *m_ptr;
+        s32b m_idx;
+
+        m_idx = get_next_arg(fmt);
+        m_ptr = &m_list[m_idx];
 
         if (p_ptr->inside_quest != QUEST_INVASION) return FALSE;
 
@@ -79,34 +83,38 @@ bool quest_invasion_ai_hook(int m_idx)
 
         return (FALSE);
 }
-bool quest_invasion_plevel_hook(int q_idx)
+bool quest_invasion_turn_hook(char *fmt)
 {
         bool old_quick_messages = quick_messages;
 
         if (cquest.status != QUEST_STATUS_UNTAKEN) return (FALSE);
-
         if (p_ptr->lev < 45) return (FALSE);
+
+        /* Wait until the end of the current quest */
+        if (p_ptr->inside_quest) return( FALSE);
 
         /* Ok give the quest */
         quick_messages = FALSE;
-        cmsg_print(TERM_YELLOW, "A Dragonrider jumps out of the between in front of you! And says:");
-        cmsg_print(TERM_YELLOW, "'Hi noble hero, I am L'ron rider of the bronze Tarath, Turgon king of gondolin sent me.'");
-        cmsg_print(TERM_YELLOW, "'Gondolin is being invaded, he needs your help now or everything will be lost.'");
-        cmsg_print(TERM_YELLOW, "'I will bring you to gondolin, but we need to go now.'");
+        cmsg_print(TERM_YELLOW, "A Dragonrider jumps out of the between in front of you and says:");
+        cmsg_print(TERM_YELLOW, "'Hello noble hero, I am L'ron, rider of the bronze Tarath. Turgon, King of Gondolin sent me.'");
+        cmsg_print(TERM_YELLOW, "'Gondolin is being invaded; he needs your help now or everything will be lost.'");
+        cmsg_print(TERM_YELLOW, "'I can bring you to gondolin, but we must go now.'");
+	/* This is SO important a question, flush pending inputs */
+	flush();
         if (!get_check("Will you come?"))
         {
-                cmsg_print(TERM_YELLOW, "'Turgon overestimanted you ... Now Gondolin will fall.'");
+                cmsg_print(TERM_YELLOW, "'Turgon overestimated you ... Now Gondolin will fall.'");
                 cmsg_print(TERM_YELLOW, "'I will return alone and die there. May you be doomed!'");
 
                 cquest.status = QUEST_STATUS_FAILED;
 
                 quick_messages = old_quick_messages;
 
-                del_hook(HOOK_PLAYER_LEVEL, quest_invasion_plevel_hook);
+                del_hook(HOOK_END_TURN, quest_invasion_turn_hook);
                 process_hooks_restart = TRUE;
                 return (FALSE);
         }
-        if (p_ptr->prace == RACE_DRAGONRIDER)
+        if (PRACE_FLAG(PR1_TP))
         {
                 cmsg_print(TERM_YELLOW, "'You made the right decision, Tarath will show your dragon the way!'");
         }
@@ -114,7 +122,7 @@ bool quest_invasion_plevel_hook(int q_idx)
         {
                 cmsg_print(TERM_YELLOW, "'You made the right decision, quickly jump on Tarath!'");
         }
-        cmsg_print(TERM_YELLOW, "'Here we are, Gondolin, you must talk to Turgon now.'");
+        cmsg_print(TERM_YELLOW, "'Here we are, Gondolin, you must speak with Turgon now.'");
 
         p_ptr->wild_mode = FALSE;
         p_ptr->wilderness_x = 49;
@@ -132,11 +140,11 @@ bool quest_invasion_plevel_hook(int q_idx)
         quick_messages = old_quick_messages;
 
         quest_invasion_init_hook(QUEST_INVASION);
-        del_hook(HOOK_PLAYER_LEVEL, quest_invasion_plevel_hook);
+        del_hook(HOOK_END_TURN, quest_invasion_turn_hook);
         process_hooks_restart = TRUE;
         return (FALSE);
 }
-bool quest_invasion_dump_hook(int q_idx)
+bool quest_invasion_dump_hook(char *fmt)
 {
         if (cquest.status == QUEST_STATUS_FAILED)
         {
@@ -148,9 +156,12 @@ bool quest_invasion_dump_hook(int q_idx)
         }
         return (FALSE);
 }
-bool quest_invasion_death_hook(int m_idx)
+bool quest_invasion_death_hook(char *fmt)
 {
-        int r_idx = m_list[m_idx].r_idx;
+        s32b r_idx, m_idx;
+
+        m_idx = get_next_arg(fmt);
+        r_idx = m_list[m_idx].r_idx;
 
         if (p_ptr->inside_quest != QUEST_INVASION) return FALSE;
 
@@ -165,8 +176,12 @@ bool quest_invasion_death_hook(int m_idx)
 
         return FALSE;
 }
-bool quest_invasion_stair_hook(int down)
+bool quest_invasion_stair_hook(char *fmt)
 {
+        s32b down;
+
+        down = get_next_arg(fmt);
+
         if (p_ptr->inside_quest != QUEST_INVASION) return FALSE;
 
         if (cave[py][px].feat != FEAT_LESS) return TRUE;
@@ -175,13 +190,13 @@ bool quest_invasion_stair_hook(int down)
         {
                 if (cquest.status == QUEST_STATUS_FAILED)
                 {
-                        cmsg_print(TERM_YELLOW, "The armies of Morgoth totaly desvasted Gondolin, leaving nothing but ruins...");
+                        cmsg_print(TERM_YELLOW, "The armies of Morgoth totaly devested Gondolin, leaving nothing but ruins...");
                 }
                 else if (cquest.status == QUEST_STATUS_COMPLETED)
                 {
                         cmsg_print(TERM_YELLOW, "Turgon appears before you and speak:");
                         cmsg_print(TERM_YELLOW, "I will never be able to thank you enough.");
-                        cmsg_print(TERM_YELLOW, "My most powerful mages wil cast a powerful spell for you, giving you 150 more life.");
+                        cmsg_print(TERM_YELLOW, "My most powerful mages will cast a powerful spell for you, giving you 150 more life.");
 
                         p_ptr->hp_mod += 150;
                         p_ptr->update |= (PU_HP);
@@ -202,7 +217,7 @@ bool quest_invasion_stair_hook(int down)
 }
 bool quest_invasion_init_hook(int q_idx)
 {
-        add_hook(HOOK_PLAYER_LEVEL, quest_invasion_plevel_hook, "invasion_plevel");
+        add_hook(HOOK_END_TURN, quest_invasion_turn_hook, "invasion_turn");
         add_hook(HOOK_CHAR_DUMP, quest_invasion_dump_hook, "invasion_dump");
         if ((cquest.status >= QUEST_STATUS_TAKEN) && (cquest.status < QUEST_STATUS_FINISHED))
         {

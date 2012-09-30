@@ -62,6 +62,7 @@ F:FLOOR | NOTICE
 N:6:up staircase
 G:<:w
 F:FLOOR | PERMANENT | NOTICE | SUPPORT_LIGHT | REMEMBER
+D:0:There is an up staircase here.
 D:1:You cannot tunnel a stair.
 
 # 0x07 --> down stairs (perm)
@@ -69,6 +70,7 @@ D:1:You cannot tunnel a stair.
 N:7:down staircase
 G:>:w
 F:FLOOR | PERMANENT | NOTICE | SUPPORT_LIGHT | REMEMBER
+D:0:There is a down staircase here.
 D:1:You cannot tunnel a stair.
 
 N:8:quest entrance
@@ -96,11 +98,13 @@ F:FLOOR | PERMANENT | REMEMBER | NOTICE
 N:13:shaft down
 G:>:U
 F:FLOOR | PERMANENT | REMEMBER | NOTICE
+D:0:There is a shaft down here.
 D:1:You cannot tunnel a shaft.
 
 N:14:shaft up
 G:<:U
 F:FLOOR | PERMANENT | REMEMBER | NOTICE
+D:0:There is a shaft up here.
 D:1:You cannot tunnel a shaft.
 
 # 0x0F -> empty fountain
@@ -468,11 +472,13 @@ N:85:pool of deep lava
 G:.:R
 E:-1d2:1:FIRE
 F:FLOOR | CAN_LEVITATE | CAN_FLY | REMEMBER | SUPPORT_LIGHT
+D:0:The lava BURNS you.
 
 N:86:stream of shallow lava
 G:.:r
 E:-1d1:1:FIRE
 F:FLOOR | CAN_LEVITATE | CAN_FLY | REMEMBER | SUPPORT_LIGHT
+D:0:The lava burns you.
 
 N:87:dark pit
 G:#:D
@@ -502,8 +508,8 @@ G:#:D
 F:CAN_FLY
 F:WALL | NO_WALK | NO_VISION | NOTICE
 F:TUNNELABLE
-D:0:a tree blocking your way
 D:1:You chop away at the dead tree.
+D:2:a tree blocking your way
 
 N:93:ash
 G:.:D
@@ -517,24 +523,24 @@ N:95:ice wall
 G:#:W
 F:WALL | NO_WALK | CAN_PASS | NO_VISION | SUPPORT_LIGHT
 F:TUNNELABLE
-D:0:an ice wall blocking your way
-D:1:You tunnel into the ice wall... Oh chilly.
+D:1:You tunnel into the ice wall... #BOh chilly#w.
+D:2:an ice wall blocking your way
 
 N:96:tree
 G:#:G
 F:CAN_FLY | SUPPORT_LIGHT
 F:WALL | NO_WALK | NO_VISION
 F:TUNNELABLE
-D:0:a tree blocking your way
 D:1:You chop away at the tree.
+D:2:a tree blocking your way
 
 N:97:mountain chain
 G:^:U
 F:CAN_CLIMB | CAN_PASS | SUPPORT_LIGHT
 F:WALL | NO_WALK | NO_VISION
 F:PERMANENT
-D:0:a hard stone block blocking your way
 D:1:You cannot tunnel into such a hard stone.
+D:2:a hard stone block blocking your way
 
 # 0x62 --> sandwall
 
@@ -542,8 +548,8 @@ N:98:sandwall
 G:#:y
 F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE
 F:TUNNELABLE
-D:0:a sandwall blocking your way
 D:1:You easily dig into the sandwall.
+D:2:a sandwall blocking your way
 
 # 0x63 --> sandwall + treasure
 
@@ -552,8 +558,8 @@ G:%:y
 M:98
 F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE
 F:TUNNELABLE
-D:0:a sandwall blocking your way
 D:1:You easily dig into the sandwall.
+D:2:a sandwall blocking your way
 
 # 0x64 --> sandwall + known treasure
 
@@ -561,14 +567,14 @@ N:100:sandwall with treasure
 G:*:o
 F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE
 F:TUNNELABLE
-D:0:a sandwall blocking your way
 D:1:You easily tunnel into the sandwall.
+D:2:a sandwall blocking your way
 
 N:101:high mountain chain
 G:^:W
 F:WALL | NO_WALK | NO_VISION | PERMANENT
-D:0:a very hard stone block blocking your way
 D:1:This rock is far too hard.
+D:2:a very hard stone block blocking your way
 
 N:102:nether mist
 G:.:v
@@ -602,7 +608,7 @@ D:0:You sudently think about forging and mining.
 N:164:Altar of Darkness
 G:0:D
 F:FLOOR | REMEMBER | NOTICE
-D:0:You do no feel at ease here.
+D:0:You do not feel at ease here.
 
 N:165:Altar of Moon
 G:0:v
@@ -669,8 +675,8 @@ G:#:R
 S:R:R:r:r:U:u:R
 F:ATTR_MULTI
 F:WALL | NO_WALK | NO_VISION | PERMANENT
-D:0:a lava wall blocking your way
 D:1:The lava is far too hot to tunnel into it.
+D:2:a lava wall blocking your way
 
 N:178:Great Fire
 G:%:v
@@ -678,9 +684,32 @@ S:R:R:y:v:y:v:R
 E:150d2:1:HELL_FIRE
 F:ATTR_MULTI
 F:FLOOR | REMEMBER | NOTICE | PERMANENT
-D:0:This fire is to powerful it could destroy even the most powerful artifacts.
+D:0:This fire is so powerful it could destroy even the most powerful artifacts.
 
-# XXX 179 - 186
+N:179:path to the next area
+G:>:w
+F:FLOOR | PERMANENT | NOTICE | REMEMBER
+D:0:There is a path leading to the next area here.
+D:1:You cannot tunnel a path.
+
+N:180:path to the previous area
+G:<:w
+F:FLOOR | PERMANENT | NOTICE | REMEMBER
+D:0:There is a path leading to the previous area here.
+D:1:You cannot tunnel a path.
+
+N:181:field
+G:::g
+F:FLOOR | PERMANENT | NOTICE | REMEMBER
+D:1:You cannot tunnel a field.
+
+N:182:Ekkaia, the Encircling Sea
+G:*:b
+S:b:b:b:b:b:b:B
+F:ATTR_MULTI
+F:WALL | NO_WALK | NO_VISION | PERMANENT | SUPPORT_LIGHT
+
+# XXX 183 - 186
 
 # 187 --> terrain -- deep water
 
@@ -694,8 +723,8 @@ F:FLOOR | CAN_LEVITATE | CAN_FLY | REMEMBER | SUPPORT_LIGHT
 N:188:glass wall
 G:.:B
 F:NO_WALK | WALL | PERMANENT | NOTICE
-D:0:a glass wall blocking your way
 D:1:This glass seems to be totaly impenetrable.
+D:2:a glass wall blocking your way
 
 # Illusion wall -- can't see but can pass
 N:189:illusion wall

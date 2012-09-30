@@ -1346,9 +1346,6 @@ static void spoil_mon_desc(cptr fname)
 	char hp[80];
 	char exp[80];
 
-	/* Allocate the "who" array */
-	C_MAKE(who, max_r_idx, s16b);
-
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_USER, fname);
 
@@ -1366,6 +1363,9 @@ static void spoil_mon_desc(cptr fname)
 		msg_print("Cannot create spoiler file.");
 		return;
 	}
+
+	/* Allocate the "who" array */
+	C_MAKE(who, max_r_idx, s16b);
 
 	/* Dump the header */
 
@@ -1404,11 +1404,7 @@ static void spoil_mon_desc(cptr fname)
 		cptr name = (r_name + r_ptr->name);
 
 		/* Get the "name" */
-		if (r_ptr->flags1 & (RF1_QUESTOR))
-		{
-			sprintf(nam, "[Q] %s", name);
-		}
-		else if (r_ptr->flags1 & (RF1_UNIQUE))
+		if (r_ptr->flags1 & (RF1_UNIQUE))
 		{
 			sprintf(nam, "[U] %s", name);
 		}
@@ -1462,6 +1458,8 @@ static void spoil_mon_desc(cptr fname)
 	/* End it */
 	fprintf(fff, "\n");
 
+	/* Free the "who" array */
+	C_KILL(who, max_r_idx, s16b);
 
 	/* Check for errors */
 	if (ferror(fff) || my_fclose(fff))
@@ -1630,11 +1628,7 @@ static void spoil_mon_info(cptr fname)
 
 
 		/* Prefix */
-		if (flags1 & (RF1_QUESTOR))
-		{
-			spoil_out("[Q] ");
-		}
-		else if (flags1 & (RF1_UNIQUE))
+		if (flags1 & (RF1_UNIQUE))
 		{
 			spoil_out("[U] ");
 		}
@@ -2446,6 +2440,172 @@ static void spoil_bateries(cptr fname)
 
 
 /*
+ * functions to get extra information on a spell
+ */
+typedef void (*spell_info_func)(int, byte);
+
+spell_info_func realm_spell_info[] = 
+{
+	NULL,
+	cast_valarin_spell,
+	cast_magery_spell,
+	cast_shadow_spell,
+	cast_chaos_spell,
+	cast_nether_spell,
+	cast_crusade_spell,
+	cast_sigaldry_spell,
+	cast_symbiotic_spell,
+	cast_music_spell,
+	cast_magic_spell,
+	cast_prayer_spell,
+	cast_illusion_spell,
+	cast_tribal_spell,
+	cast_druid_spell,
+	cast_daemon_spell,
+	cast_spirit_spell,
+};
+
+/*
+ * Create a spoiler file for essences
+ */
+static void spoil_spells(cptr fname)
+{
+        int i, j, k;
+	int realm;
+
+	char buf[1024];
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_USER, fname);
+
+	/* File type is "TEXT" */
+	FILE_TYPE(FILE_TYPE_TEXT);
+
+	safe_setuid_grab();
+	fff = my_fopen(buf, "w");
+	safe_setuid_drop();
+
+	/* Oops */
+	if (!fff)
+	{
+		msg_print("Cannot create spoiler file.");
+		return;
+	}
+
+	/* Dump the header */
+        sprintf(buf, "Spell Spoiler for PernAngband Version %d.%d.%d",
+                FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH);
+	spoiler_underline(buf);
+
+        spoil_out("\n\n");
+
+	for(realm = 1; realm < MAX_REALM; realm++)
+	{
+		int spellbooks[256];
+		int book_num = 0;
+
+		/* Dump the realm name */
+		sprintf(buf, "%s", realm_names[realm][0]);
+		spoiler_underline(buf);
+
+		/* Dump the realm desctiption */
+		fprintf(fff, "\n%s\n\n", realm_names[realm][1]);
+
+		/* Find spellbooks */
+		for (i = 0; i < 255; i++)
+		{
+			for (k = 0; k < max_k_idx; k++)
+			{
+				object_kind *k_ptr = &k_info[k];
+
+				if (((k_ptr->tval - TV_VALARIN_BOOK + 1) == realm) &&
+				    (k_ptr->sval == i))
+				{
+					spellbooks[book_num++] = k;
+					break;
+				}
+			}
+		}
+
+		/* Dump the spellbooks */
+		for (i = 0; i < book_num; i++)
+		{
+			object_type forge;
+			object_type *o_ptr;
+			byte spells[64];
+			int  spell;
+			int  num = 0;
+
+			/* Dump the book title */
+			o_ptr = &forge;
+			object_prep(o_ptr, spellbooks[i]);
+			object_desc_store(buf, o_ptr, 0, 0);
+			fprintf(fff, "%s\n\n", buf);
+
+			/* Collect spells */
+			for (spell = 0; spell < 64; spell++)
+			{
+				if (fake_spell_flags[realm][i][(spell < 32)] & (1 << (spell % 32)))
+				{
+					spells[num++] = spell;
+				}
+			}
+
+			fprintf(fff, "   Name                          Lv Mana Fail Info\n");
+
+			/* Dump the spells */
+			for (j = 0; j < num; j++)
+			{
+				magic_type      *s_ptr;
+				char            info[60];
+
+				/* Access the spell */
+				spell = spells[j];
+
+				/* Access the spell */
+				s_ptr = &realm_info_base[realm][spell];
+
+				/* Skip illegible spells */
+				if (s_ptr->slevel >= 99) continue;
+
+				/* Get extra information on a spell */
+				info_spell = TRUE;
+				strcpy(spell_txt, "");
+				realm_spell_info[realm](spell, 0);
+				sprintf(info, spell_txt);
+                                info_spell = FALSE;
+
+				/* Dump the spell --(-- */
+				fprintf(fff, "%c) %-30s%2d %4d %3d%%%s\n",
+				        I2A(j), spell_names[realm][spell%64][0],
+				        s_ptr->slevel, s_ptr->smana, s_ptr->sfail, info);
+
+				/* Dump the spell description */
+				fprintf(fff, "   %s\n", spell_names[realm][spell%64][1]);
+
+			}
+
+			fprintf(fff, "\n");
+
+		}
+
+		fprintf(fff, "------------------------------------------------------------------------------\n\n");
+	}
+
+	/* Check for errors */
+	if (ferror(fff) || my_fclose(fff))
+	{
+		msg_print("Cannot close spoiler file.");
+		return;
+	}
+
+	/* Message */
+	msg_print("Successfully created a spoiler file.");
+}
+
+
+
+/*
  * Forward declare
  */
 extern void do_cmd_spoilers(void);
@@ -2479,6 +2639,7 @@ void do_cmd_spoilers(void)
 		prt("(3) Brief Monster Info (mon-desc.spo)", 7, 5);
 		prt("(4) Full Monster Info (mon-info.spo)", 8, 5);
                 prt("(5) Brief Batery Info (bat-info.spo)", 9, 5);
+                prt("(6) Spell Info (spell.spo)", 10, 5);
 
 		/* Prompt */
 		prt("Command: ", 12, 0);
@@ -2520,6 +2681,12 @@ void do_cmd_spoilers(void)
                 else if (i == '5')
 		{
                         spoil_bateries("ess-info.spo");
+		}
+
+		/* Option (6) */
+		else if (i == '6')
+		{
+			spoil_spells("spell.spo");
 		}
 
 		/* Oops */

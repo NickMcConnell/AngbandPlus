@@ -248,8 +248,10 @@ monster_race* race_info_idx(int r_idx, int ego)
 
         MODIFY(nr_ptr->weight, re_ptr->weight, 10);
 
-        nr_ptr->freq_inate = re_ptr->freq_inate;
-        nr_ptr->freq_spell = re_ptr->freq_spell;
+        nr_ptr->freq_inate = (nr_ptr->freq_inate > re_ptr->freq_inate)
+                             ? nr_ptr->freq_inate : re_ptr->freq_inate;
+        nr_ptr->freq_spell = (nr_ptr->freq_spell > re_ptr->freq_spell)
+                             ? nr_ptr->freq_spell : re_ptr->freq_spell;
 
         MODIFY(nr_ptr->level, re_ptr->level, 1);
 
@@ -621,7 +623,7 @@ void compact_monsters(int size)
 			chance = 90;
 
 			/* Only compact "Quest" Monsters in emergencies */
-			if ((r_ptr->flags1 & (RF1_QUESTOR)) && (cnt < 1000)) chance = 100;
+			if ((m_ptr->mflag & MFLAG_QUEST) && (cnt < 1000)) chance = 100;
 
 			/* Try not to compact Unique Monsters */
 			if (r_ptr->flags1 & (RF1_UNIQUE)) chance = 99;
@@ -992,12 +994,6 @@ s16b get_mon_num(int level)
 		/* Hack -- "unique" monsters must be "unique" */
 		if ((r_ptr->flags1 & (RF1_UNIQUE)) &&
 		    (r_ptr->cur_num >= r_ptr->max_num))
-		{
-			continue;
-		}
-
-		/* Hack -- don't create questors */
-		if (r_ptr->flags1 & RF1_QUESTOR)
 		{
 			continue;
 		}
@@ -1478,7 +1474,7 @@ void sanity_blast(monster_type * m_ptr, bool necro)
 		}
 
 		/* Undead characters are 50% likely to be unaffected */
-                if (((p_ptr->pracem == RMOD_VAMPIRE)||(p_ptr->mimic_form == MIMIC_VAMPIRE)) || (p_ptr->pracem == RMOD_SPECTRE))
+                if ((PRACE_FLAG(PR1_UNDEAD))||(p_ptr->mimic_form == MIMIC_VAMPIRE))
 		{
 			if (randint(100) < (25 + (p_ptr->lev))) return;
 		}
@@ -1800,7 +1796,7 @@ void update_mon(int m_idx, bool full)
 		}
 
 		/* Merchants sense objects */
-		if ((p_ptr->pclass == CLASS_MERCHANT) && (p_ptr->lev >= 20) &&
+		if ((cp_ptr->magic_key == MKEY_TELEKINESIS) && (p_ptr->lev >= 20) &&
 		    (m_ptr->hold_o_idx)) flag = TRUE;
 		
 		/* Apply "detection" spells */
@@ -1974,6 +1970,7 @@ void update_monsters(bool full)
  * This is the only function which may place a monster in the dungeon,
  * except for the savefile loading code.
  */
+bool bypass_r_ptr_max_num = FALSE;
 s16b place_monster_one(int y, int x, int r_idx, int ego, bool slp, int status)
 {
         int             i;
@@ -2033,7 +2030,7 @@ s16b place_monster_one(int y, int x, int r_idx, int ego, bool slp, int status)
         if (!r_ptr->name) return 0;
 
         /* Are we allowed to continue ? */
-        if (process_hooks(HOOK_NEW_MONSTER, r_idx)) return 0;
+        if (process_hooks(HOOK_NEW_MONSTER, "(d)", r_idx)) return 0;
 
         /* Ego Uniques are NOT to be created */
         if ((r_ptr->flags1 & RF1_UNIQUE) && ego) return 0;
@@ -2092,7 +2089,7 @@ s16b place_monster_one(int y, int x, int r_idx, int ego, bool slp, int status)
 #if 0
         if ((r_ptr->flags1 & (RF1_UNIQUE)) && (r_ptr->cur_num >= r_ptr->max_num) && (!m_allow_special[r_idx]) && (r_ptr->max_num != -1))
 #else
-        if ((r_ptr->flags1 & (RF1_UNIQUE)) && (r_ptr->cur_num >= r_ptr->max_num) && (r_ptr->max_num != -1))
+        if ((r_ptr->flags1 & (RF1_UNIQUE)) && (r_ptr->cur_num >= r_ptr->max_num) && (r_ptr->max_num != -1) && (!bypass_r_ptr_max_num))
 #endif
 #endif
 	{
@@ -2181,6 +2178,10 @@ s16b place_monster_one(int y, int x, int r_idx, int ego, bool slp, int status)
 	{
                 m_ptr->status = MSTATUS_FRIEND;
 	}
+        if (r_ptr->flags7 & RF7_NEUTRAL)
+	{
+                m_ptr->status = MSTATUS_NEUTRAL;
+	}
 
 	/* Assume no sleeping */
 	m_ptr->csleep = 0;
@@ -2201,7 +2202,7 @@ s16b place_monster_one(int y, int x, int r_idx, int ego, bool slp, int status)
 
                 bool do_gold = (!(r_ptr->flags1 & (RF1_ONLY_ITEM)));
                 bool do_item = (!(r_ptr->flags1 & (RF1_ONLY_GOLD)));
-
+                bool do_mimic = (r_ptr->flags9 & (RF9_MIMIC));
                 int j;
 
                 int force_coin = get_coin_type(r_ptr);
@@ -2223,6 +2224,7 @@ s16b place_monster_one(int y, int x, int r_idx, int ego, bool slp, int status)
                 if  (r_ptr->flags1 & (RF1_DROP_2D2)) number += damroll(2, 2);
                 if  (r_ptr->flags1 & (RF1_DROP_3D2)) number += damroll(3, 2);
                 if  (r_ptr->flags1 & (RF1_DROP_4D2)) number += damroll(4, 2);
+                if  (r_ptr->flags9 & (RF9_MIMIC)) number = 1;
 
                 /* Hack -- handle creeping coins */
                 coin_type = force_coin;
@@ -2240,7 +2242,7 @@ s16b place_monster_one(int y, int x, int r_idx, int ego, bool slp, int status)
                         object_wipe(q_ptr);
 
                         /* Make Gold */
-                        if (do_gold && (!do_item || (rand_int(100) < 50)))
+                        if ((!do_mimic) && do_gold && (!do_item || (rand_int(100) < 50)))
                         {
                                 /* Make some gold */
                                 if (!make_gold(q_ptr)) continue;
@@ -2253,7 +2255,22 @@ s16b place_monster_one(int y, int x, int r_idx, int ego, bool slp, int status)
                         else
                         {
                                 /* Make an object */
-                                if (!make_object(q_ptr, good, great, r_ptr->drops)) continue;
+                                if (!do_mimic)
+                                {
+                                        if (!make_object(q_ptr, good, great, r_ptr->drops)) continue;
+                                }
+                                else
+                                {
+                                        /* Try hard for mimics */
+                                        int tries = 1000;
+
+                                        while (tries--)
+                                        {
+                                                if (make_object(q_ptr, good, great, r_ptr->drops)) break;
+                                        }
+                                        /* BAD */
+                                        if (!tries) continue;
+                                }
 
                                 /* XXX XXX XXX */
                                 dump_item++;
@@ -2678,8 +2695,8 @@ bool place_monster(int y, int x, bool slp, bool grp)
 
 bool alloc_horde(int y, int x)
 {
-	int r_idx;
-	monster_race * r_ptr;
+	int r_idx = 0;
+	monster_race * r_ptr = NULL;
 	monster_type * m_ptr;
 	int attempts = 1000;
 
@@ -3087,8 +3104,15 @@ static bool summon_specific_okay(int r_idx)
 			okay = ((r_ptr->d_char == 'Q') &&
 				!(r_ptr->flags1 & (RF1_UNIQUE)));
 			break;
-		}
-	}
+                }
+#ifdef USE_LUA
+		case SUMMON_LUA:
+		{
+			okay = summon_lua_okay(r_idx);
+			break;
+                }
+#endif
+        }
 
 	/* Result */
 	return (okay);
@@ -3480,6 +3504,28 @@ bool multiply_monster(int m_idx, bool charm, bool clone)
  *
  * Technically should attempt to treat "Beholder"'s as jelly's
  */
+bool hack_message_pain_may_silent = FALSE;
+void message_pain_hook(cptr fmt, ...)
+{
+	va_list vp;
+	
+	char buf[1024];
+	
+	/* Begin the Varargs Stuff */
+	va_start(vp, fmt);
+	
+	/* Format the args, save the length */
+	(void)vstrnfmt(buf, 1024, fmt, vp);
+	
+	/* End the Varargs Stuff */
+        va_end(vp);
+
+        if (hack_message_pain_may_silent)
+                monster_msg(buf);
+        else
+                msg_print(buf);
+}
+
 void message_pain(int m_idx, int dam)
 {
 	long            oldhp, newhp, tmp;
@@ -3499,7 +3545,7 @@ void message_pain(int m_idx, int dam)
 	/* Notice non-damage */
 	if (dam == 0)
 	{
-		msg_format("%^s is unharmed.", m_name);
+		message_pain_hook("%^s is unharmed.", m_name);
 		return;
 	}
 
@@ -3514,76 +3560,76 @@ void message_pain(int m_idx, int dam)
 	if (strchr("jmvQ", r_ptr->d_char))
 	{
 		if (percentage > 95)
-			msg_format("%^s barely notices.", m_name);
+			message_pain_hook("%^s barely notices.", m_name);
 		else if (percentage > 75)
-			msg_format("%^s flinches.", m_name);
+			message_pain_hook("%^s flinches.", m_name);
 		else if (percentage > 50)
-			msg_format("%^s squelches.", m_name);
+			message_pain_hook("%^s squelches.", m_name);
 		else if (percentage > 35)
-			msg_format("%^s quivers in pain.", m_name);
+			message_pain_hook("%^s quivers in pain.", m_name);
 		else if (percentage > 20)
-			msg_format("%^s writhes about.", m_name);
+			message_pain_hook("%^s writhes about.", m_name);
 		else if (percentage > 10)
-			msg_format("%^s writhes in agony.", m_name);
+			message_pain_hook("%^s writhes in agony.", m_name);
 		else
-			msg_format("%^s jerks limply.", m_name);
+			message_pain_hook("%^s jerks limply.", m_name);
 	}
 
 	/* Dogs and Hounds */
 	else if (strchr("CZ", r_ptr->d_char))
 	{
 		if (percentage > 95)
-			msg_format("%^s shrugs off the attack.", m_name);
+			message_pain_hook("%^s shrugs off the attack.", m_name);
 		else if (percentage > 75)
-			msg_format("%^s snarls with pain.", m_name);
+			message_pain_hook("%^s snarls with pain.", m_name);
 		else if (percentage > 50)
-			msg_format("%^s yelps in pain.", m_name);
+			message_pain_hook("%^s yelps in pain.", m_name);
 		else if (percentage > 35)
-			msg_format("%^s howls in pain.", m_name);
+			message_pain_hook("%^s howls in pain.", m_name);
 		else if (percentage > 20)
-			msg_format("%^s howls in agony.", m_name);
+			message_pain_hook("%^s howls in agony.", m_name);
 		else if (percentage > 10)
-			msg_format("%^s writhes in agony.", m_name);
+			message_pain_hook("%^s writhes in agony.", m_name);
 		else
-			msg_format("%^s yelps feebly.", m_name);
+			message_pain_hook("%^s yelps feebly.", m_name);
 	}
 
 	/* One type of monsters (ignore,squeal,shriek) */
 	else if (strchr("FIKMRSXabclqrst", r_ptr->d_char))
 	{
 		if (percentage > 95)
-			msg_format("%^s ignores the attack.", m_name);
+			message_pain_hook("%^s ignores the attack.", m_name);
 		else if (percentage > 75)
-			msg_format("%^s grunts with pain.", m_name);
+			message_pain_hook("%^s grunts with pain.", m_name);
 		else if (percentage > 50)
-			msg_format("%^s squeals in pain.", m_name);
+			message_pain_hook("%^s squeals in pain.", m_name);
 		else if (percentage > 35)
-			msg_format("%^s shrieks in pain.", m_name);
+			message_pain_hook("%^s shrieks in pain.", m_name);
 		else if (percentage > 20)
-			msg_format("%^s shrieks in agony.", m_name);
+			message_pain_hook("%^s shrieks in agony.", m_name);
 		else if (percentage > 10)
-			msg_format("%^s writhes in agony.", m_name);
+			message_pain_hook("%^s writhes in agony.", m_name);
 		else
-			msg_format("%^s cries out feebly.", m_name);
+			message_pain_hook("%^s cries out feebly.", m_name);
 	}
 
 	/* Another type of monsters (shrug,cry,scream) */
 	else
 	{
 		if (percentage > 95)
-			msg_format("%^s shrugs off the attack.", m_name);
+			message_pain_hook("%^s shrugs off the attack.", m_name);
 		else if (percentage > 75)
-			msg_format("%^s grunts with pain.", m_name);
+			message_pain_hook("%^s grunts with pain.", m_name);
 		else if (percentage > 50)
-			msg_format("%^s cries out in pain.", m_name);
+			message_pain_hook("%^s cries out in pain.", m_name);
 		else if (percentage > 35)
-			msg_format("%^s screams in pain.", m_name);
+			message_pain_hook("%^s screams in pain.", m_name);
 		else if (percentage > 20)
-			msg_format("%^s screams in agony.", m_name);
+			message_pain_hook("%^s screams in agony.", m_name);
 		else if (percentage > 10)
-			msg_format("%^s writhes in agony.", m_name);
+			message_pain_hook("%^s writhes in agony.", m_name);
 		else
-			msg_format("%^s cries out feebly.", m_name);
+			message_pain_hook("%^s cries out feebly.", m_name);
 	}
 }
 

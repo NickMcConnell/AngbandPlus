@@ -60,6 +60,57 @@ extern unsigned _stklen = 32768U;
 extern unsigned _ovrbuffer = 0x1500;
 #endif
 
+
+#ifdef PRIVATE_USER_PATH
+
+/*
+ * Check existence of ".pernangband/" directory in the user's
+ * home directory or try to create it if it doesn't exist.
+ * Returns FALSE if all the attempts fail.
+ */
+static bool check_create_user_dir(void)
+{
+	char dirpath[1024];
+	struct stat stat_buf; /* Is this used anywhere else in *bands? */
+	int ret;
+
+	/* Get an absolute path from the filename */
+	path_parse(dirpath, 1024, PRIVATE_USER_PATH);
+
+	/* See if it already exists */
+	ret = stat(dirpath, &stat_buf);
+
+	/* It does */
+	if (ret == 0)
+	{
+		/* Now we see if it's a directory */
+		if ((stat_buf.st_mode & S_IFMT) == S_IFDIR) return (TRUE);
+
+		/*
+		 * Something prevents us from create a directory with
+		 * the same pathname
+		 */
+		return (FALSE);
+	}
+
+	/* No - this maybe the first time. Try to create a directory */
+	else
+	{
+		/* Create the ~/.pernangband directory */
+		safe_setuid_drop();
+		ret = mkdir(dirpath, 0700);
+		safe_setuid_grab();
+		/* An error occured */
+		if (ret == -1) return (FALSE);
+
+		/* Success */
+		return (TRUE);
+	}
+}
+
+#endif /* PRIVATE_USER_PATH */
+
+
 /*
  * Initialize and verify the file paths, and the score file.
  *
@@ -337,6 +388,25 @@ int main(int argc, char *argv[])
 	user_name(op_ptr->full_name, player_uid);
 #endif /* ANGBAND_2_8_1 */
 
+
+#ifdef PRIVATE_USER_PATH
+
+	/*
+	 * On multiuser systems, users' private directories are
+	 * used to store pref files, chardumps etc.
+	 */
+	{
+		bool ret;
+
+		/* Create a directory for the user's files */
+		ret = check_create_user_dir();
+
+		/* Oops */
+		if (ret == FALSE) quit("Cannot create directory " PRIVATE_USER_PATH);
+	}
+
+#endif /* PRIVATE_USER_PATH */
+
 #endif /* SET_UID */
 
 
@@ -424,6 +494,32 @@ int main(int argc, char *argv[])
 				break;
 			}
 
+                        case 'h':
+                        case 'H':
+			{
+                                char *s;
+                                int j;
+
+                                for (j = i + 1; j < argc; j++)
+                                {
+                                        s = argv[j];
+
+                                        while (*s != '.') s++;
+                                        *s = '\0'; s++;
+                                        txt_to_html(argv[j], s, FALSE, FALSE);
+                                }
+
+                                return 0;
+			}
+
+                        case 'c':
+                        case 'C':
+			{
+                                chg_to_txt(argv[i + 1], argv[i + 2]);
+
+                                return 0;
+			}
+
 			case 'd':
 			case 'D':
 			{
@@ -443,19 +539,25 @@ int main(int argc, char *argv[])
 			default:
 			usage:
 			{
+                                int j;
+
 				/* Dump usage information */
+                                for (j = 0; j < argc; j++) printf("%s ", argv[j]);
+                                printf("\n");
 				puts("Usage: angband [options] [-- subopts]");
-				puts("  -n       Start a new character");
-				puts("  -f       Request fiddle mode");
-				puts("  -w       Request wizard mode");
-				puts("  -v       Request sound mode");
-				puts("  -g       Request graphics mode");
-				puts("  -o       Request original keyset");
-				puts("  -r       Request rogue-like keyset");
-				puts("  -s<num>  Show <num> high scores");
-				puts("  -u<who>  Use your <who> savefile");
-				puts("  -m<sys>  Force 'main-<sys>.c' usage");
-				puts("  -d<def>  Define a 'lib' dir sub-path");
+                                puts("  -n                 Start a new character");
+                                puts("  -f                 Request fiddle mode");
+                                puts("  -w                 Request wizard mode");
+                                puts("  -v                 Request sound mode");
+                                puts("  -g                 Request graphics mode");
+                                puts("  -o                 Request original keyset");
+                                puts("  -r                 Request rogue-like keyset");
+                                puts("  -h <list of files> Convert helpfile to htlm");
+                                puts("  -c f1 f2           Convert changelog f1 to nice txt f2");
+                                puts("  -s<num>            Show <num> high scores");
+                                puts("  -u<who>            Use your <who> savefile");
+                                puts("  -m<sys>            Force 'main-<sys>.c' usage");
+                                puts("  -d<def>            Define a 'lib' dir sub-path");
 
 				/* Actually abort the process */
 				quit(NULL);
@@ -483,6 +585,32 @@ int main(int argc, char *argv[])
 	/* Drop privs (so X11 will work correctly) */
 	safe_setuid_drop();
 
+
+#ifdef USE_GLU
+	/* Attempt to use the "main-glu.c" support */
+	if (!done && (!mstr || (streq(mstr, "glu"))))
+	{
+		extern errr init_glu(int, char**);
+		if (0 == init_glu(argc, argv))
+		{
+			ANGBAND_SYS = "glu";
+			done = TRUE;
+		}
+	}
+#endif
+
+#ifdef USE_GTK
+	/* Attempt to use the "main-gtk.c" support */
+	if (!done && (!mstr || (streq(mstr, "gtk"))))
+	{
+		extern errr init_gtk(int, char**);
+		if (0 == init_gtk(argc, argv))
+		{
+			ANGBAND_SYS = "gtk";
+			done = TRUE;
+		}
+	}
+#endif
 
 #ifdef USE_XAW
 	/* Attempt to use the "main-xaw.c" support */

@@ -39,9 +39,8 @@ s16b poly_r_idx(int r_idx)
         int lev2 = r_ptr->level + ((randint(20) / randint(9)) + 1);
 #endif
 
-	/* Hack -- Uniques/Questors never polymorph */
-	if ((r_ptr->flags1 & RF1_UNIQUE) ||
-	    (r_ptr->flags1 & RF1_QUESTOR))
+	/* Hack -- Uniques never polymorph */
+	if (r_ptr->flags1 & RF1_UNIQUE)
 		return (r_idx);
 
 	/* Pick a (possibly new) non-unique race */
@@ -405,6 +404,7 @@ void teleport_to_player(int m_idx)
  * If no such spaces are readily available, the distance may increase.
  * Try very hard to move the player at least a quarter that distance.
  */
+bool teleport_player_bypass = FALSE;
 void teleport_player(int dis)
 {
 	int d, i, min, ox, oy, x=0, y=0;
@@ -414,16 +414,16 @@ void teleport_player(int dis)
 
 	bool look = TRUE;
 
-        if(p_ptr->resist_continuum) {msg_print("The space-time continuum can't be disrupted."); return;}
-        if(p_ptr->wild_mode) return;
+        if (p_ptr->resist_continuum && (!teleport_player_bypass)) {msg_print("The space-time continuum can't be disrupted."); return;}
+        if (p_ptr->wild_mode) return;
 
-	if (p_ptr->anti_tele)
+        if (p_ptr->anti_tele && (!teleport_player_bypass))
 	{
 		msg_print("A mysterious force prevents you from teleporting!");
 		return;
 	}
 
-        if (dungeon_flags1 & LF1_NO_TELEPORT)
+        if ((dungeon_flags1 & LF1_NO_TELEPORT) && (!teleport_player_bypass))
         {
                 msg_print("No teleport on special levels...");
                 return;
@@ -1181,7 +1181,7 @@ void take_hit(int damage, cptr hit_from)
 	if (p_ptr->chp < 0)
 	{
                 /* Necromancers get a special treatment */
-                if((p_ptr->pclass != CLASS_NECRO) || ((p_ptr->pclass == CLASS_NECRO) && (p_ptr->class_extra3 & CLASS_UNDEAD)))
+                if (((cp_ptr->powers[0] != PWR_NECRO) || ((p_ptr->class_extra3 & CLASS_UNDEAD))))
                 {
                         /* Sound */
                         sound(SOUND_DEATH);
@@ -1260,6 +1260,9 @@ void take_hit(int damage, cptr hit_from)
                         cmsg_print(TERM_RED, "*** LOW HITPOINT WARNING! ***");
 		msg_print(NULL);
 	}
+
+        if (player_char_health)
+                lite_spot(py, px);
 }
 
 
@@ -1441,7 +1444,7 @@ static bool hates_fire(object_type *o_ptr)
                 /* Special case for archers */
 		case TV_ARROW:
                 {                        
-                        if ((p_ptr->pclass == CLASS_ARCHER) && magik(100 - p_ptr->lev))
+                        if ((cp_ptr->magic_key == MKEY_FORGING) && magik(100 - p_ptr->lev))
                         {
                                 return FALSE;
                         }
@@ -2307,7 +2310,7 @@ int invert_dir(int dir)
  */
 int get_mana_path_dir(int y, int x, int oy, int ox, int pdir, int mana)
 {
-        int dir[8] = {5, 5, 5, 5, 5, 5, 5, 5}, n = 0, i, r;
+        int dir[8] = {5, 5, 5, 5, 5, 5, 5, 5}, n = 0, i, r = 0;
 
         /* Check which case are allowed */
         if(cave[y - 1][x].mana == mana) dir[n++] = 8;
@@ -2966,6 +2969,9 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 
 				/* Forget the door */
 				c_ptr->info &= ~(CAVE_MARK);
+
+				/* Remove the feature */
+				cave_set_feat(y, x, floor_type[rand_int(100)]);
 
 				/* Remove traps */
 				c_ptr->t_idx = 0;
@@ -3635,7 +3641,7 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
                                 object_known(o_ptr);
 
                                 /* Process the appropriate hooks */
-                                process_hooks(HOOK_IDENTIFY, 0 - this_o_idx);
+                                process_hooks(HOOK_IDENTIFY, "(d)", 0 - this_o_idx);
 
                                 /* Mark the item as fully known */
                                 o_ptr->ident |= (IDENT_MENTAL);
@@ -3647,7 +3653,7 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
                                 object_known(o_ptr);
 
                                 /* Process the appropriate hooks */
-                                process_hooks(HOOK_IDENTIFY, 0 - this_o_idx);
+                                process_hooks(HOOK_IDENTIFY, "(d)", 0 - this_o_idx);
                                 break;
                         }
                         case GF_RAISE:
@@ -3661,7 +3667,7 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
                                 {
                                         int ego = raise_ego[rand_int(MAX_RAISE)];
 
-                                        if (place_monster_one(y, x, o_ptr->pval2, ego, FALSE, MSTATUS_PET))
+                                        if (place_monster_one(y, x, o_ptr->pval2, ego, FALSE, (!who)?MSTATUS_PET:MSTATUS_ENEMY))
                                                 msg_print("A monster raise from the grave!");
                                 }
 
@@ -3690,8 +3696,8 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 					else if (r_ptr->level < 90) name="Marilith";
 					else name="Nycadaemon";
 					
-                                        if (place_monster_one(y, x, test_monster_name(name), 0, FALSE, MSTATUS_PET))
-                                        msg_print("A demon emerges from the hell!");
+                                        if (place_monster_one(y, x, test_monster_name(name), 0, FALSE, (!who)?MSTATUS_PET:MSTATUS_ENEMY))
+                                                msg_print("A demon emerges from the hell!");
 				}
 				
 				do_kill = TRUE;
@@ -3754,7 +3760,12 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 	return (obvious);
 }
 
-
+/* Can the monster be hurt ? */
+bool hurt_monster(monster_type *m_ptr)
+{
+        if (m_ptr->status == MSTATUS_COMPANION) return FALSE;
+        else return TRUE;
+}
 
 /*
  * Helper function for "project()" below.
@@ -3902,7 +3913,7 @@ bool project_m(int who, int r, int y, int x, int dam, int typ)
         /* Mega Gachk */
         if (r_ptr->flags2 & RF2_DEATH_ORB)
         {
-                msg_print("%s is immune to magic.");
+                msg_format("%^s is immune to magic.", m_name);
                 return seen;
         }
 
@@ -4973,7 +4984,7 @@ bool project_m(int who, int r, int y, int x, int dam, int typ)
 
 			/* Powerful monsters can resist */
 			if ((r_ptr->flags1 & RF1_UNIQUE) ||
-			    (r_ptr->flags1 & RF1_QUESTOR) ||
+			    (m_ptr->mflag & MFLAG_QUEST) ||
                             (m_ptr->level > randint((dam - 10) < 1 ? 1 : (dam - 10)) + 10))
 			{
 				note = " is unaffected!";
@@ -5048,7 +5059,7 @@ bool project_m(int who, int r, int y, int x, int dam, int typ)
 			if (seen) obvious = TRUE;
 
 			/* Speed up */
-			if (m_ptr->mspeed < 150) m_ptr->mspeed += 10;
+			if (m_ptr->mspeed < m_ptr->speed + 15) m_ptr->mspeed += 10;
 			note = " starts moving faster.";
 
 			/* No "real" damage */
@@ -5149,7 +5160,7 @@ bool project_m(int who, int r, int y, int x, int dam, int typ)
 
 			/* Attempt a saving throw */
 			if ((r_ptr->flags1 & RF1_UNIQUE) ||
-			    (r_ptr->flags1 & RF1_QUESTOR) ||
+			    (m_ptr->mflag & MFLAG_QUEST) ||
 			    (r_ptr->flags3 & RF3_NO_CONF) ||
                             (m_ptr->level > randint((dam - 10) < 1 ? 1 : (dam - 10)) + 5))
 			{
@@ -5191,7 +5202,7 @@ bool project_m(int who, int r, int y, int x, int dam, int typ)
 
 			/* Attempt a saving throw */
 			if ((r_ptr->flags1 & RF1_UNIQUE) ||
-			    (r_ptr->flags1 & RF1_QUESTOR) ||
+			    (m_ptr->mflag & MFLAG_QUEST) ||
 			    (r_ptr->flags3 & RF3_NO_CONF) ||
                             (m_ptr->level > randint((dam - 10) < 1 ? 1 : (dam - 10)) + 5))
 			{
@@ -5232,7 +5243,7 @@ bool project_m(int who, int r, int y, int x, int dam, int typ)
 
 			/* Attempt a saving throw */
 			if ((r_ptr->flags1 & RF1_UNIQUE) ||
-			    (r_ptr->flags1 & RF1_QUESTOR) ||
+			    (m_ptr->mflag & MFLAG_QUEST) ||
 			  (!(r_ptr->flags3 & RF3_UNDEAD)) ||
                             (m_ptr->level > randint((dam - 10) < 1 ? 1 : (dam - 10)) + 10))
 			{
@@ -5272,7 +5283,7 @@ bool project_m(int who, int r, int y, int x, int dam, int typ)
 
 			/* Attempt a saving throw */
 			if ((r_ptr->flags1 & (RF1_UNIQUE)) ||
-			    (r_ptr->flags1 & (RF1_QUESTOR)) ||
+			    (m_ptr->mflag & MFLAG_QUEST) ||
 			  (!(r_ptr->flags3 & (RF3_ANIMAL))) ||
 			    (r_ptr->flags3 & (RF3_NO_CONF)) ||
                             (m_ptr->level > randint((dam - 10) < 1 ? 1 : (dam - 10)) + 10))
@@ -5310,7 +5321,7 @@ bool project_m(int who, int r, int y, int x, int dam, int typ)
 
 			/* Attempt a saving throw */
 			if ((r_ptr->flags1 & (RF1_UNIQUE)) ||
-			    (r_ptr->flags1 & (RF1_QUESTOR)) ||
+			    (m_ptr->mflag & MFLAG_QUEST) ||
 			  (!(r_ptr->flags3 & (RF3_DEMON))) ||
                             (m_ptr->level > randint((dam - 10) < 1 ? 1 : (dam - 10)) + 10))
 			{
@@ -6041,7 +6052,7 @@ bool project_m(int who, int r, int y, int x, int dam, int typ)
 
 			/* Check race */
 			if ((r_ptr->flags1 & (RF1_UNIQUE)) ||
-			    (r_ptr->flags1 & (RF1_QUESTOR)) ||
+			    (m_ptr->mflag & MFLAG_QUEST) ||
 			  (!(r_ptr->flags3 & (RF3_DEMON))))
 			{
 				/* No obvious effect */
@@ -6108,7 +6119,7 @@ bool project_m(int who, int r, int y, int x, int dam, int typ)
 	/*
 	 * "Quest" monsters cannot be polymorphed
 	 */
-	if (r_ptr->flags1 & RF1_QUESTOR)
+	if (m_ptr->mflag & MFLAG_QUEST)
 		do_poly = FALSE;
 
 	/* "Unique" monsters can only be "killed" by the player */
@@ -6121,19 +6132,19 @@ bool project_m(int who, int r, int y, int x, int dam, int typ)
 	/*
 	 * "Quest" monsters can only be "killed" by the player
 	 */
-	if (r_ptr->flags1 & RF1_QUESTOR)
+	if (m_ptr->mflag & MFLAG_QUEST)
 	{
 		if ((who > 0) && (dam > m_ptr->hp)) dam = m_ptr->hp;
 	}
 
-        if (do_pois && (!(r_ptr->flags3 & RF3_IM_POIS)) && (!(r_ptr->flags3 & RF4_BR_POIS)))
+        if (do_pois && (!(r_ptr->flags3 & RF3_IM_POIS)) && (!(r_ptr->flags3 & RF4_BR_POIS)) && hurt_monster(m_ptr))
         {
                 if (m_ptr->poisoned) note = " is more poisoned.";
                 else note = " is poisoned.";
                 m_ptr->poisoned += do_pois;
         }
 
-        if (do_cut && (!(r_ptr->flags4 & RF4_BR_WALL)))
+        if (do_cut && (!(r_ptr->flags4 & RF4_BR_WALL)) && hurt_monster(m_ptr))
         {
                 if (m_ptr->bleeding) note = " bleeds more strongly.";
                 else note = " starts bleeding.";
@@ -6141,14 +6152,14 @@ bool project_m(int who, int r, int y, int x, int dam, int typ)
         }
 
 	/* Check for death */
-        if (dam > m_ptr->hp)
+        if ((dam > m_ptr->hp) && hurt_monster(m_ptr))
 	{
 		/* Extract method of death */
 		note = note_dies;
 	}
 
 	/* Mega-Hack -- Handle "polymorph" -- monsters get a saving throw */
-        else if (do_poly && (randint(90) > m_ptr->level))
+	else if (do_poly && cave_floor_bold(y,x) && (randint(90) > m_ptr->level)) 
 	{
 		int new_r_idx;
 		int old_r_idx = m_ptr->r_idx;
@@ -6200,7 +6211,7 @@ bool project_m(int who, int r, int y, int x, int dam, int typ)
          * by the player. (For the moment). The usual stun effect
          * is not applied.
          */
-        else if (do_move)
+        else if (do_move && hurt_monster(m_ptr))
         {
                 int back = 0;
 
@@ -6288,7 +6299,7 @@ bool project_m(int who, int r, int y, int x, int dam, int typ)
 	/* Sound and Impact breathers never stun */
 	else if (do_stun &&
 	    !(r_ptr->flags4 & (RF4_BR_SOUN)) &&
-	    !(r_ptr->flags4 & (RF4_BR_WALL)))
+            !(r_ptr->flags4 & (RF4_BR_WALL)) && hurt_monster(m_ptr))
 	{
 		/* Obvious */
 		if (seen) obvious = TRUE;
@@ -6313,7 +6324,7 @@ bool project_m(int who, int r, int y, int x, int dam, int typ)
 	else if (do_conf &&
 		 !(r_ptr->flags3 & (RF3_NO_CONF)) &&
 		 !(r_ptr->flags4 & (RF4_BR_CONF)) &&
-		 !(r_ptr->flags4 & (RF4_BR_CHAO)))
+                 !(r_ptr->flags4 & (RF4_BR_CHAO)) && hurt_monster(m_ptr))
 	{
 		/* Obvious */
 		if (seen) obvious = TRUE;
@@ -6338,7 +6349,7 @@ bool project_m(int who, int r, int y, int x, int dam, int typ)
 
 
 	/* Fear */
-	if (do_fear)
+        if (do_fear && hurt_monster(m_ptr))
 	{
 		/* Increase fear */
 		tmp = m_ptr->monfear + do_fear;
@@ -6372,7 +6383,7 @@ bool project_m(int who, int r, int y, int x, int dam, int typ)
 		}
 	}
 	/* If the player did it, give him experience, check fear */
-	else
+        else if (hurt_monster(m_ptr))
 	{
 		bool fear = FALSE;
 
@@ -6460,7 +6471,7 @@ bool unsafe = FALSE;
  */
 static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 {
-	int k = 0;
+        int k = 0, do_move = 0, a = 0, b = 0, x1 = 0, y1 = 0;
 
 	/* Hack -- assume obvious */
 	bool obvious = TRUE;
@@ -6490,6 +6501,11 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 	/* Player cannot hurt himself */
         if ((!who)&&(!unsafe)) return (FALSE);
 
+        if (PRACE_FLAG2(PR2_BLADE_SPECIAL) && magik(p_ptr->dodge_chance / 2))
+        {
+                msg_print("You dodge a magical attack!");
+                return (TRUE);
+        }
 
         /* Effects done by the plane cannot bounce */
         if (p_ptr->reflect && !a_rad && !(randint(10)==1) && ((who != -101) && (who != -100)))
@@ -6734,12 +6750,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 		case GF_NETHER:
 		{
 			if (fuzzy) msg_print("You are hit by nether forces!");
-			if (p_ptr->pracem == RMOD_SPECTRE)
-			{
-				msg_print("You feel invigorated!");
-				hp_player(dam / 4);
-			}
-			else
+
 			{
 				if (p_ptr->immune_neth)
 				{
@@ -6942,8 +6953,61 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 			if (!p_ptr->resist_sound)
 			{
 				(void)set_stun(p_ptr->stun + randint(20));
+                                /*
+                                 * If fired by player, try pushing monster.
+                                 * First get vector from player to monster.
+                                 * x10 so we can use pseudo-fixed point maths.
+                                 *
+                                 * Really should use get_angle_to_grid (util.c)
+                                 */
+                                if (who > 0)
+                                {
+                                        a = 0;
+                                        b = 0;
+
+                                        /* Get vector from firer to target */
+                                        x1 = (px - m_ptr->fx) * 10;
+                                        y1 = (py - m_ptr->fy) * 10;
+
+                                        /* Make sure no zero divides */
+                                        if (x1 == 0) x1 = 1;
+                                        if (y1 == 0) y1 = 1;
+
+                                        /* Select direction player is being pushed */
+
+                                        /* Roughly horizontally */
+                                        if ((2*y1) / x1 == 0)
+                                        {
+                                                if (x1 > 0) { a =  1, b = 0; }
+                                                else        { a = -1, b = 0; }
+                                        }
+
+                                        /* Roughly vertically */
+                                        else if ((2*x1) / y1 == 0)
+                                        {
+                                                if (y1 > 0) { a = 0, b =  1; }
+                                                else        { a = 0, b = -1; }
+                                        }
+
+                                        /* Take diagonals */
+                                        else
+                                        {
+                                                if (y1 > 0) { b =  1; }
+                                                else        { b = -1; }
+                                                if (x1 > 0) { a =  1; }
+                                                else        { a = -1; }
+                                        }
+
+                                        /* Move monster 2 offsets back */
+                                        do_move = 2;
+
+                                        /* Old monster coords in x,y */
+                                        y1 = py;
+                                        x1 = px;
+                                }
 			}
-			take_hit(dam, killer);
+                        else
+                                take_hit(dam, killer);
 			break;
 		}
 
@@ -6995,7 +7059,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 			{
 				(void)set_blind(p_ptr->blind + randint(5) + 2);
 			}
-                        if ((p_ptr->pracem == RMOD_VAMPIRE)||(p_ptr->mimic_form == MIMIC_VAMPIRE))
+                        if (PRACE_FLAG(PR1_HURT_LITE))
 			{
 				msg_print("The light scorches your flesh!");
 				dam *= 2;
@@ -7024,7 +7088,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 			{
 				dam *= 4; dam /= (randint(6) + 6);
 
-                                if ((p_ptr->pracem == RMOD_VAMPIRE)||(p_ptr->mimic_form == MIMIC_VAMPIRE)) dam = 0;
+                                if (PRACE_FLAG(PR1_HURT_LITE)) dam = 0;
 			}
 			else if (!blind && !p_ptr->resist_blind)
 			{
@@ -7261,6 +7325,69 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 			break;
 		}
 	}
+
+
+        /* Handle moving the player.
+         *
+         * Note: This is a effect of force
+         */
+        if (do_move)
+        {
+                int back = 0;
+
+		back = 0; /* Default of no movement */
+
+                /* How far can we push the monster? */
+                for (do_move = 1; do_move < 3; do_move++)
+                {
+                        /* Get monster coords */
+                        /* And offset position */
+                        y1 = py + (b * do_move);
+                        x1 = px + (a * do_move);
+
+                        if (!in_bounds(y1, x1)) continue;
+
+                        /* Require "empty" floor space */
+                        if (!in_bounds(y1,x1) || !cave_empty_bold(y1, x1)) continue;
+
+                        /* amount moved */
+                        back = do_move;
+                }
+
+                /* Move the monster */
+                if (back)
+                {
+                        y1 = py + (b * back);
+                        x1 = px + (a * back);
+                        swap_position(y1, x1);
+
+                        if (back == 2)
+                        {
+                                msg_print("You are knocked back!");
+                        }
+                        if (back == 1)
+                        {
+                                msg_print("You are knocked back and crushed!");
+
+                                /* was kept from being pushed all the way, do extra dam */
+                                dam = dam * 13 / 10;
+                        }
+
+                        /* Get new position */
+                        y = y1;
+                        x = x1;
+                }
+                else /* could not move the monster */
+                {
+                        msg_print("You are severely crushed!");
+
+                        /* Do extra damage (1/3)*/
+                        dam = dam * 15/10;
+                }
+
+                take_hit(dam, killer);
+                
+        }
 
 
 	/* Disturb */
